@@ -1,0 +1,399 @@
+#ifndef __DEFINE_HEADER__
+#define __DEFINE_HEADER__
+
+#include <limits.h>
+#include <stdint.h>
+#include "version.h"
+
+/*
+ *  Mode
+ */
+#if defined(LISP_MODE_DEFAULT)
+#undef LISP_MODE_STANDALONE
+#undef LISP_MODE_DEGRADE
+#define LISP_MODE_STRING "core"
+
+#elif defined(LISP_MODE_STANDALONE)
+#undef LISP_MODE_DEFAULT
+#undef LISP_MODE_DEGRADE
+#define LISP_MODE_STRING "standalone"
+
+#elif defined(LISP_MODE_DEGRADE)
+#undef LISP_MODE_DEFAULT
+#undef LISP_MODE_STANDALONE
+#define LISP_MODE_STRING "degrade"
+
+#else
+#define LISP_MODE_DEFAULT
+#undef LISP_MODE_STANDALONE
+#undef LISP_MODE_DEGRADE
+#define LISP_MODE_STRING "core"
+#endif
+
+
+/*
+ *  Version
+ */
+#ifndef LISP_REVISION
+#define LISP_REVISION "0"
+#endif
+
+#ifndef LISP_VERSION_A
+#define LISP_VERSION_A 0
+#endif
+#ifndef LISP_VERSION_B
+#define LISP_VERSION_B 0
+#endif
+#ifndef LISP_VERSION_C
+#define LISP_VERSION_C 0
+#endif
+
+
+/*
+ *  Pointer size
+ *    LISP_ARCH_64BIT
+ *    LISP_ARCH_32BIT
+ */
+#undef LISP_ARCH_64BIT
+#undef LISP_ARCH_32BIT
+#if (0xFFFFFFFFUL < SIZE_MAX)
+#define LISP_ARCH_MODE "64bit"
+#define LISP_ARCH_64BIT
+#else
+#define LISP_ARCH_32BIT
+#define LISP_ARCH_MODE "32bit"
+#endif
+
+
+/*
+ *  Select architecture
+ */
+#if defined(LISP_ANSI)
+/* ANSI C */
+#define LISP_MODE "ANSI-C"
+#undef LISP_FREEBSD
+#undef LISP_LINUX
+#undef LISP_POSIX
+#undef LISP_WINDOWS
+#ifdef LISP_THREAD
+#error Arch error, LISP_ANSI do not allow LISP_THREAD.
+#endif
+#define LISP_THREAD_REMOVE
+
+#elif defined(LISP_FREEBSD)
+/* FreeBSD */
+#define LISP_MODE "FreeBSD"
+#define LISP_POSIX
+#undef LISP_ANSI
+#undef LISP_LINUX
+#undef LISP_WINDOWS
+#undef LISP_ANSI_WINDOWS
+#ifdef LISP_THREAD
+#define LISP_THREAD_FREEBSD
+#endif
+
+#elif defined(LISP_LINUX)
+/* Linux */
+#define LISP_MODE "Linux"
+#define LISP_POSIX
+#undef LISP_ANSI
+#undef LISP_FREEBSD
+#undef LISP_WINDOWS
+#undef LISP_ANSI_WINDOWS
+#ifdef LISP_THREAD
+#define LISP_THREAD_LINUX
+#endif
+
+#elif defined(LISP_WINDOWS)
+/* Windows */
+#define LISP_MODE "Windows"
+#undef LISP_ANSI
+#undef LISP_FREEBSD
+#undef LISP_LINUX
+#undef LISP_POSIX
+#undef LISP_ANSI_WINDOWS
+#ifdef LISP_THREAD
+#define LISP_THREAD_WINDOWS
+#endif
+
+#else
+/* ANSI C [default] */
+#define LISP_MODE "ANSI-C"
+#define LISP_ANSI
+#undef LISP_FREEBSD
+#undef LISP_LINUX
+#undef LISP_POSIX
+#undef LISP_WINDOWS
+#undef LISP_ANSI_WINDOWS
+#ifdef LISP_THREAD
+#error Arch error
+#endif
+#define LISP_THREAD_REMOVE
+#endif
+
+#if defined(LISP_ANSI) && defined(LISP_ANSI_WINDOWS)
+#define LISP_MODE "ANSI-C [Windows]"
+#endif
+
+
+/* Windows */
+#if defined(LISP_WINDOWS) || defined(LISP_ANSI_WINDOWS)
+#define LISP_WINDOWS_OR_ANSI
+#define LISP_PATHNAME_EQUALP
+#define LISP_PATHNAME_UPCASE
+#else
+#undef LISP_WINDOWS_OR_ANSI
+#undef LISP_PATHNAME_EQUALP
+#define LISP_PATHNAME_DOWNCASE
+#endif
+
+#ifdef LISP_WINDOWS_OR_ANSI
+#if defined(LISP_CONSOLE)
+#undef LISP_WINMAIN
+#elif defined(LISP_WINMAIN)
+#undef LISP_CONSOLE
+#else
+#define LISP_CONSOLE
+#undef LISP_WINMAIN
+#endif
+
+#if defined(LISP_CYGWIN)
+#undef LISP_NO_CYGWIN
+#elif defined(LISP_NO_CYGWIN)
+#undef LISP_CYGWIN
+#elif defined(__CYGWIN__)
+#define LISP_CYGWIN
+#undef LISP_NO_CYGWIN
+#else
+#undef LISP_CYGWIN
+#define LISP_NO_CYGWIN
+#endif
+
+#else
+#undef LISP_CONSOLE
+#undef LISP_WINMAIN
+#undef LISP_CYGWIN
+#undef LISP_NO_CYGWIN
+#endif
+
+#if defined(LISP_WINMAIN) && defined(LISP_CYGWIN)
+#error Platform cygwin must use a main function (not WinMain).
+#endif
+
+#if defined(LISP_WINDOWS_OR_ANSI) || defined(LISP_NO_CYGWIN)
+#define LISP_WINDOWS_WIDE
+#else
+#undef LISP_WINDOWS_WIDE
+#endif
+
+
+/*
+ *  Lisp mode
+ *    LISP_64BIT  [default]
+ *    LISP_32BIT
+ */
+#if defined(LISP_64BIT)
+#undef LISP_32BIT
+#elif defined(LISP_32BIT)
+#undef LISP_64BIT
+#else
+#if defined(LISP_ARCH_64BIT)
+#define LISP_64BIT
+#else
+#define LISP_32BIT
+#endif
+#endif
+
+#ifdef LISP_64BIT
+#define LISP_FIXNUM_MODE "64bit"
+#else
+#define LISP_FIXNUM_MODE "32bit"
+#endif
+
+#if defined(LISP_64BIT) && defined(LISP_ARCH_32BIT)
+#error arch error.
+#endif
+
+
+/*
+ *  Thread mode
+ *    LISP_THREAD_SINGLE      -> add LISP_THREAD_DISABLE  [default]
+ *    LISP_THREAD_REMOVE      -> add LISP_THREAD_DISABLE
+ *    LISP_THREAD_FREEBSD     -> add LISP_THREAD_POSIX
+ *    LISP_THREAD_LINUX       -> add LISP_THREAD_POSIX
+ *    LISP_THREAD_WINDOWS     -> use Vista module
+ */
+#undef LISP_THREAD_ENABLE
+#undef LISP_THREAD_DISABLE
+
+/* single thread */
+#if defined(LISP_THREAD_SINGLE)
+#define LISP_THREAD_MODE     "single"
+#define LISP_THREAD_DISABLE
+#undef LISP_THREAD_REMOVE
+#undef LISP_THREAD_POSIX
+#undef LISP_THREAD_FREEBSD
+#undef LISP_THREAD_LINUX
+#undef LISP_THREAD_WINDOWS
+
+/* single thread [remove] */
+#elif defined(LISP_THREAD_REMOVE)
+#define LISP_THREAD_MODE     "remove"
+#define LISP_THREAD_DISABLE
+#undef LISP_THREAD_SINGLE
+#undef LISP_THREAD_POSIX
+#undef LISP_THREAD_FREEBSD
+#undef LISP_THREAD_LINUX
+#undef LISP_THREAD_WINDOWS
+
+/* FreeBSD */
+#elif defined(LISP_THREAD_FREEBSD)
+#define LISP_THREAD_MODE     "FreeBSD"
+#define LISP_THREAD_POSIX
+#undef LISP_THREAD_SINGLE
+#undef LISP_THREAD_REMOVE
+#undef LISP_THREAD_LINUX
+#undef LISP_THREAD_WINDOWS
+
+/* FreeBSD */
+#elif defined(LISP_THREAD_POSIX)
+#define LISP_THREAD_MODE     "FreeBSD"
+#define LISP_THREAD_FREEBSD
+#undef LISP_THREAD_SINGLE
+#undef LISP_THREAD_REMOVE
+#undef LISP_THREAD_LINUX
+#undef LISP_THREAD_WINDOWS
+
+/* Linux */
+#elif defined(LISP_THREAD_LINUX)
+#define LISP_THREAD_MODE     "Linux"
+#define LISP_THREAD_POSIX
+#undef LISP_THREAD_SINGLE
+#undef LISP_THREAD_REMOVE
+#undef LISP_THREAD_FREEBSD
+#undef LISP_THREAD_WINDOWS
+
+/* Windows */
+#elif defined(LISP_THREAD_WINDOWS)
+#undef LISP_THREAD_SINGLE
+#undef LISP_THREAD_REMOVE
+#undef LISP_THREAD_POSIX
+#undef LISP_THREAD_FREEBSD
+#undef LISP_THREAD_LINUX
+#define LISP_THREAD_MODE     "Windows"
+
+/* single thread */
+#else
+#define LISP_THREAD_MODE     "remove"
+#define LISP_THREAD_DISABLE
+#define LISP_THREAD_REMOVE
+#undef LISP_THREAD_SINGLE
+#undef LISP_THREAD_POSIX
+#undef LISP_THREAD_FREEBSD
+#undef LISP_THREAD_LINUX
+#undef LISP_THREAD_WINDOWS
+#endif
+
+/* thread enable */
+#ifndef LISP_THREAD_DISABLE
+#define LISP_THREAD_ENABLE
+#endif
+
+/* mode string */
+#ifdef LISP_DEBUG
+#define LISP_DEBUG_STRING "debug"
+#else
+#define LISP_DEBUG_STRING "release"
+#endif
+
+#ifdef LISP_DEGRADE
+#define LISP_DEGRADE_STRING "degrade"
+#else
+#define LISP_DEGRADE_STRING "release"
+#endif
+
+/* memory clear */
+#if defined(LISP_MEMORY_INIT)
+#undef LISP_MEMORY_UNINIT
+#elif defined(LISP_MEMORY_UNINIT)
+#undef LISP_MEMORY_INIT
+#elif defined(LISP_DEBUG)
+#define LISP_MEMORY_INIT
+#undef LISP_MEMORY_UNINIT
+#else
+#undef LISP_MEMORY_INIT
+#define LISP_MEMORY_UNINIT
+#endif
+
+/* Visual C++ */
+#ifdef _MSC_VER
+#define LISP_FLOAT_LONG_DISABLE
+#undef LISP_FLOAT_LONG_80
+#undef LISP_FLOAT_LONG_128
+#endif
+
+/* float */
+#if defined(LISP_FLOAT_LONG_80)
+#define LISP_FLOAT_LONG			80
+#undef LISP_FLOAT_LONG_128
+#undef LISP_FLOAT_LONG_DISABLE
+#elif defined(LISP_FLOAT_LONG_128)
+#define LISP_FLOAT_LONG			128
+#undef LISP_FLOAT_LONG_80
+#undef LISP_FLOAT_LONG_DISABLE
+#elif defined(LISP_FLOAT_LONG_DISABLE)
+#define LISP_FLOAT_LONG			64
+#undef LISP_FLOAT_LONG_80
+#undef LISP_FLOAT_LONG_128
+#else
+#define LISP_FLOAT_LONG			80
+#define LISP_FLOAT_LONG_80
+#undef LISP_FLOAT_LONG_128
+#undef LISP_FLOAT_LONG_DISABLE
+#endif
+
+/* float (32bit) fraction: 23+1 bit */
+#define LISP_FLOAT_SINGLE_FRACTION		(23+1)
+/* double (64bit) fraction: 52+1 bit */
+#define LISP_FLOAT_DOUBLE_FRACTION		(52+1)
+/* long double (Intel 80bit) fraction: 63+0 bit */
+#ifdef LISP_FLOAT_LONG_80
+#define LISP_FLOAT_LONG_FRACTION		(63+0)
+#endif
+/* long double (IEEE-754 binary128) fraction: 112+1 bit */
+#ifdef LISP_FLOAT_LONG_128
+#define LISP_FLOAT_LONG_FRACTION		(112+1)
+#endif
+/* long double (Visual C++ 64bit) */
+#ifdef LISP_FLOAT_LONG_DISABLE
+#define LISP_FLOAT_LONG_FRACTION		LISP_FLOAT_DOUBLE_FRACTION
+#endif
+
+/* pathname */
+#if defined(LISP_PATHNAME_UPCASE)
+#undef LISP_PATHNAME_DOWNCASE
+#elif defined(LISP_PATHNAME_DOWNCASE)
+#undef LISP_PATHNAME_UPCASE
+#else
+#define LISP_PATHNAME_DOWNCASE
+#endif
+
+/* readline editline */
+#if defined(LISP_PROMPT_DEFAULT)
+#undef LISP_PROMPT_READLINE
+#undef LISP_PROMPT_EDITLINE
+#elif defined(LISP_PROMPT_READLINE)
+#undef LISP_PROMPT_DEFAULT
+#undef LISP_PROMPT_EDITLINE
+#elif defined(LISP_PROMPT_EDITLINE)
+#undef LISP_PROMPT_DEFAULT
+#undef LISP_PROMPT_READLINE
+#else
+#define LISP_PROMPT_DEFAULT
+#undef LISP_PROMPT_READLINE
+#undef LISP_PROMPT_EDITLINE
+#endif
+
+/* end of header file */
+#endif
+

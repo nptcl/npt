@@ -1,0 +1,23 @@
+VPATH = src:test
+include src/release.mk
+-include depend.mk
+object = ${source:.c=.o}
+depend = depend.mk
+a.out = npt
+
+LISP_C = -DLISP_LINUX -DLISP_THREAD -DLISP_PROMPT_READLINE
+LISP_C += -DLISP_MODE_STANDALONE -O3
+LISP_LIB = -lm -lpthread -lreadline
+CFLAGS = -pedantic -Wall -Isrc -Itest ${LISP_C}
+
+build : ${object}
+	${CC} ${CFLAGS} -o ${a.out} ${object} ${LISP_LIB}
+
+depend : ${source}
+	@echo make depend
+	@cc ${CFLAGS} -E -MM $? > depend.mk
+
+.PHONY : clean
+clean :
+	-rm -f ${depend} ${object} ${a.out} _debug.txt
+

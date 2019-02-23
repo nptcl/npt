@@ -1,0 +1,24 @@
+.PATH : src test
+.include "src/source.mk"
+-include "depend.mk"
+object = ${source:.c=.o}
+depend = depend.mk
+a.out = npt
+
+LISP_C = -m32 -DLISP_32BIT
+LISP_C += -DLISP_FREEBSD -DLISP_THREAD -DLISP_PROMPT_EDITLINE
+LISP_C += -g -DLISP_DEGRADE -DLISP_DEBUG -DLISP_MODE_DEGRADE
+LISP_LIB = -lm -lpthread -ledit
+CFLAGS = -pedantic -Wall -Isrc -Itest ${LISP_C}
+
+build : ${object}
+	${CC} ${CFLAGS} -o ${a.out} ${object} ${LISP_LIB}
+
+depend : ${source}
+	@echo make depend
+	@cc ${CFLAGS} -E -MM ${.ALLSRC} > depend.mk
+
+.PHONY : clean
+clean :
+	-rm -f ${depend} ${object} ${a.out} _debug.txt
+

@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{3F449928-9513-4FDA-8413-20D38431263B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>npt</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_32BIT;LISP_DEGRADE;LISP_DEBUG;LISP_MODE_DEGRADE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_64BIT;LISP_DEGRADE;LISP_DEBUG;LISP_MODE_DEGRADE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_32BIT;LISP_DEGRADE;LISP_MODE_DEGRADE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_64BIT;LISP_DEGRADE;LISP_MODE_DEGRADE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_alloc.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_arch.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_array.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bigcons.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bigdata.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bignum.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bit.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_c99.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\calltype.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_character.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_charqueue.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_cache.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_combination.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_generic.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_method.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_standard.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_type.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cmpl.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_code.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_arrays.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_characters.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_conditions.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_conses.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_data.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_environment.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_eval.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_filenames.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_files.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_hashtables.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_header.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_iteration.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_numbers.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_objects.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_packages.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_printer.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_reader.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_sequences.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_streams.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_strings.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_symbols.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_system.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_types.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_condition.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_cons.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\constant.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_control.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\copy.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\core.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\degrade.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\develop.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\document.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\encode.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\environment.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_equal.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_code.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_declare.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_main.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_optparse.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_parse.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_scope.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_stack.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_table.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_execute.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_fasl.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_file_memory.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_file.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\files.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_fmtfloat.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_format.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_function.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_gc.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_hashtable.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_heap.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\info.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_integer.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\intern.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_lambda.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\lisp.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\load_rt.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_local.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_main.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\md5encode.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_memory.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_number.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_package.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_pathname.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_print.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\prompt.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_quote.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_radix.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\random_state.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\random.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_ratio.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rational.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\readlite.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_readtable.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_ceiling.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_division.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_float.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_floor.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_round.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_sequence.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\setf.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_broadcast.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_concat.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_echo.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_error.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_file.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_prompt.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_string.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_synonym.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_twoway.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_stream.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_strtype.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\structure.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_sxhash.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_symbol.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\syscall.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\thread.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_token.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_type_copy.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_type_number.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_type_optimize.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_type_parse.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_type_range.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_type_subtypep.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_type_typep.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_type_value.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\type.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_unicode.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\user.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\alloc.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\arch.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bigcons.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bigdata.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bignum.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bit.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\c99.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\calltype.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\charqueue.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_cache.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_combination.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_generic.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_method.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_standard.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_type.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common_header.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\condition.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cons.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\constant.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\copy.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\core.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\define.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\degrade.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\document.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\encode.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\environment.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\equal.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_code.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_declare.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_main.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_optparse.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_parse.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_scope.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_stack.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\fasl.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_ansi.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_memory.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_posix.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_type.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_windows.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\files_ansi.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\files_posix.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\files_windows.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\files.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\fmtfloat.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\function.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\gc.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\hashtable.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\heap.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\info.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\integer.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_const.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_count.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_symbol_32.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_symbol_64.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lambda.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lisp.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lisptype.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\local.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\md5encode.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\memory.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\prompt.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\quote.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\radix.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\random_state.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\random.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\ratio.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rational.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\readlite.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\readtable.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_ceiling.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_division.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_float.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_floor.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_round.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rt.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\setf.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_broadcast.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_concat.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_echo.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_error.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_file.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_prompt.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_string.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_synonym.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_twoway.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\strtype.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\structure.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sxhash.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\symbol.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\syscall.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\thread_disable.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\thread_posix.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\thread_single.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\thread_windows.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\thread.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\token.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_copy.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_number.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_optimize.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_parse.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_range.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_subtypep.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_typep.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_value.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\unicode.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\user.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\version.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

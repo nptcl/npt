@@ -1,0 +1,4 @@
+#define LISP_REVISION "2019/02/23-15:38:41"
+#define LISP_VERSION_A 0
+#define LISP_VERSION_B 1
+#define LISP_VERSION_C 1

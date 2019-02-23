@@ -1,0 +1,970 @@
+#include "lambda.c"
+#include "degrade.h"
+#include "package.h"
+#include "readlite.h"
+#include "readtable.h"
+
+static int test_constant_eq(void)
+{
+	addr symbol;
+
+	internchar("COMMON-LISP", "&OPTIONAL", &symbol);
+	test(constant_eq(CONSTANT_AMPERSAND_OPTIONAL, symbol), "constant_eq1");
+	internchar("KEYWORD", "TEST", &symbol);
+	test(! constant_eq(CONSTANT_AMPERSAND_OPTIONAL, symbol), "constant_eq2");
+	
+	RETURN;
+}
+
+static int test_member_ampersand(void)
+{
+	addr symbol;
+
+	internchar("COMMON-LISP", "&OPTIONAL", &symbol);
+	test(member_ampersand(symbol, AMPERSAND_GENERIC), "member_ampersand1");
+	test(member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand2");
+	internchar("COMMON-LISP", "&ALLOW-OTHER-KEYS", &symbol);
+	test(member_ampersand(symbol, AMPERSAND_GENERIC), "member_ampersand3");
+	test(member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand4");
+	internchar("COMMON-LISP", "&AUX", &symbol);
+	test(! member_ampersand(symbol, AMPERSAND_GENERIC), "member_ampersand5");
+	test(member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand6");
+	internchar("COMMON-LISP", "&WHOLE", &symbol);
+	test(! member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand7");
+	test(member_ampersand(symbol, AMPERSAND_METHOD_COMBINATION),
+			"member_ampersand8");
+	internchar("COMMON-LISP", "&BODY", &symbol);
+	test(! member_ampersand(symbol, AMPERSAND_METHOD_COMBINATION),
+			"member_ampersand9");
+	test(member_ampersand(symbol, AMPERSAND_MACRO), "member_ampersand10");
+
+	RETURN;
+}
+
+static int test_variable_check(void)
+{
+	addr symbol;
+	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	variable_check(symbol, AMPERSAND_ORDINARY);
+	test(1, "variable_check1");
+	RETURN;
+}
+
+static int test_varcons_local(void)
+{
+	addr cons, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	varcons_local(local, &cons);
+	varcons_data(cons, &check);
+	test(check == Nil, "varcons_local1");
+	pushqueue_local(local, cons, T);
+	varcons_data(cons, &check);
+	test(GetType(check) == LISPTYPE_CONS, "varcons_local2");
+	GetCons(check, &cons, &check);
+	test(cons == T, "varcons_local3");
+	test(check == Nil, "varcons_local4");
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_push_varcons(void)
+{
+	addr cons, symbol, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	varcons_local(local, &cons);
+	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	push_varcons(local, cons, symbol, AMPERSAND_ORDINARY);
+
+	varcons_data(cons, &check);
+	test(GetType(check) == LISPTYPE_CONS, "push_varcons1");
+	GetCons(check, &cons, &check);
+	test(cons == symbol, "push_varcons2");
+	test(check == Nil, "push_varcons3");
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_push_namecons(void)
+{
+	addr cons, symbol, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	varcons_local(local, &cons);
+	internchar_keyword("HELLO", &symbol);
+	push_namecons(local, cons, symbol);
+
+	varcons_data(cons, &check);
+	test(GetType(check) == LISPTYPE_CONS, "push_namecons1");
+	GetCons(check, &cons, &check);
+	test(cons == symbol, "push_namecons2");
+	test(check == Nil, "push_namecons3");
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_make_keyword_from_symbol(void)
+{
+	addr symbol, check;
+
+	internchar_keyword("HELLO", &symbol);
+	make_keyword_from_symbol(symbol, &check);
+	test(symbol == check, "make_keyword_from_symbol1");
+	internchar(LISP_PACKAGE, "HELLO", &check);
+	make_keyword_from_symbol(check, &check);
+	test(symbol == check, "make_keyword_from_symbol2");
+
+	RETURN;
+}
+
+static int test_list2_check(void)
+{
+	addr pos, pos1, pos2, value1, value2, value3;
+
+	fixnum_heap(&value1, 100);
+	fixnum_heap(&value2, 200);
+	fixnum_heap(&value3, 300);
+	test(list2_check(value1, &pos1, &pos2), "list2_check1");
+	list_heap(&pos, value1, NULL);
+	test(list2_check(pos, &pos1, &pos2), "list2_check2");
+	list_heap(&pos, value1, value2, NULL);
+	test(list2_check(pos, &pos1, &pos2) == 0, "list2_check3");
+	test(pos1 == value1, "list2_check4");
+	test(pos2 == value2, "list2_check5");
+	list_heap(&pos, value1, value2, value3, NULL);
+	test(list2_check(pos, &pos1, &pos2), "list2_check6");
+
+	RETURN;
+}
+
+static int test_key_name_values(void)
+{
+	addr pos, pos2, symbol, name;
+
+	internchar(LISP_PACKAGE, "AAA", &pos);
+	key_name_values(pos, &symbol, &name);
+	test(pos == symbol, "key_name_values1");
+	internchar_keyword("AAA", &pos);
+	test(pos == name, "key_name_values2");
+
+	internchar_keyword("AAA", &pos);
+	internchar(LISP_PACKAGE, "AAA", &pos2);
+	list_heap(&symbol, pos, pos2, NULL);  /* (name symbol) */
+	key_name_values(symbol, &symbol, &name);
+	test(symbol == pos2, "key_name_values3");
+	test(name == pos, "key_name_values4");
+
+	RETURN;
+}
+
+
+/*
+ *  lambda-macro
+ */
+static int test_push_varcons_macro(void)
+{
+	addr instance, symbol, cons;
+	LocalRoot local;
+	LocalStack stack;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	varcons_local(local, &instance);
+	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	push_varcons_macro(local, instance, symbol);
+	varcons_data(instance, &cons);
+	GetCons(cons, &instance, &cons);
+	test(instance == symbol, "push_varcons_macro1");
+	test(cons == Nil, "push_varcons_macro2");
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_ordinary_opt(void)
+{
+	addr pos, cons, value, check, var, init, sup;
+
+	internchar(LISP_PACKAGE, "HELLO", &pos);
+	ordinary_opt(pos, &var, &init, &sup);
+	test(var == pos, "ordinary_opt1");
+	test(init == Nil, "ordinary_opt2");
+	test(sup == Nil, "ordinary_opt3");
+
+	list_heap(&cons, pos, NULL);
+	ordinary_opt(cons, &var, &init, &sup);
+	test(var == pos, "ordinary_opt4");
+	test(init == Nil, "ordinary_opt5");
+	test(sup == Nil, "ordinary_opt6");
+
+	fixnum_heap(&value, 100);
+	list_heap(&cons, pos, value, NULL);
+	ordinary_opt(cons, &var, &init, &sup);
+	test(var == pos, "ordinary_opt7");
+	test(init == value, "ordinary_opt8");
+	test(sup == Nil, "ordinary_opt9");
+
+	internchar(LISP_PACKAGE, "CHECK", &check);
+	list_heap(&cons, pos, value, check, NULL);
+	ordinary_opt(cons, &var, &init, &sup);
+	test(var == pos, "ordinary_opt10");
+	test(init == value, "ordinary_opt11");
+	test(sup == check, "ordinary_opt12");
+
+	RETURN;
+}
+
+static int test_ordinary_key(void)
+{
+	addr instance, pos, var, name, init, sup;
+	LocalRoot local;
+	LocalStack stack;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	varcons_local(local, &instance);
+	internchar(LISP_PACKAGE, "HELLO", &pos);
+	ordinary_key(local, instance, pos, &var, &name, &init, &sup);
+	test(pos == var, "ordinary_key1");
+	internchar_keyword("HELLO", &pos);
+	test(pos == name, "ordinary_key2");
+	test(init == Nil, "ordinary_key3");
+	test(sup == Nil, "ordinary_key4");
+	varcons_data(instance, &instance);
+	GetCons(instance, &pos, &instance);
+	test(pos == name, "ordinary_key5");
+	test(instance == Nil, "ordinary_key6");
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_ordinary_aux(void)
+{
+	addr pos, cons, value, var, init;
+
+	internchar(LISP_PACKAGE, "HELLO", &pos);
+	ordinary_aux(pos, &var, &init);
+	test(var == pos, "ordinary_aux1");
+	test(init == Nil, "ordinary_aux2");
+
+	list_heap(&cons, pos, NULL);
+	ordinary_aux(cons, &var, &init);
+	test(var == pos, "ordinary_aux3");
+	test(init == Nil, "ordinary_aux4");
+
+	fixnum_heap(&value, 100);
+	list_heap(&cons, pos, value, NULL);
+	ordinary_aux(cons, &var, &init);
+	test(var == pos, "ordinary_aux5");
+	test(init == value, "ordinary_aux6");
+
+	RETURN;
+}
+
+
+/*
+ *  lambda-ordinary
+ */
+static int test_push_varcons_ordinary(void)
+{
+	addr instance, symbol, cons;
+	LocalRoot local;
+	LocalStack stack;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	varcons_local(local, &instance);
+	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	push_varcons_ordinary(local, instance, symbol);
+	varcons_data(instance, &cons);
+	GetCons(cons, &instance, &cons);
+	test(instance == symbol, "push_varcons_ordinary1");
+	test(cons == Nil, "push_varcons_ordinary2");
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+
+/*
+ *  lambda-generic-function
+ */
+static int test_generic_function_key_cons(void)
+{
+	addr pos, check, cons, symbol, name;
+
+	/* symbol */
+	internchar(LISP_PACKAGE, "HELLO", &pos);
+	generic_function_key_cons(pos, &symbol, &name);
+	test(symbol == pos, "generic_function_key_cons1");
+	internchar_keyword("HELLO", &check);
+	test(name == check, "generic_function_key_cons2");
+
+	/* (symbol) */
+	list_heap(&cons, pos, NULL);
+	generic_function_key_cons(cons, &symbol, &name);
+	test(symbol == pos, "generic_function_key_cons3");
+	test(name == check, "generic_function_key_cons4");
+
+	/* ((name symbol)) */
+	internchar(LISP_PACKAGE, "AAA", &check);
+	list_heap(&cons, check, pos, NULL);
+	list_heap(&cons, cons, NULL);
+	generic_function_key_cons(cons, &symbol, &name);
+	test(symbol == pos, "generic_function_key_cons5");
+	test(name == check, "generic_function_key_cons6");
+
+	RETURN;
+}
+
+static int test_generic_function_key(void)
+{
+	addr pos, check, cons, symbol, name;
+	LocalRoot local;
+	LocalStack stack;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	varcons_local(local, &cons);
+
+	internchar(LISP_PACKAGE, "HELLO", &pos);
+	generic_function_key(local, cons, pos, &symbol, &name);
+	test(symbol == pos, "generic_function_key1");
+	internchar_keyword("HELLO", &check);
+	test(name == check, "generic_function_key2");
+	varcons_data(cons, &cons);
+	GetCons(cons, &check, &cons);
+	test(name == check, "generic_function_key3");
+	test(cons == Nil, "generic_function_key4");
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_push_varcons_generic_function(void)
+{
+	addr pos, cons, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	varcons_local(local, &cons);
+	internchar(LISP_PACKAGE, "HELLO", &pos);
+	push_varcons_generic_function(local, cons, pos);
+	varcons_data(cons, &cons);
+	GetCons(cons, &check, &cons);
+	test(check == pos, "push_varcons_generic_function1");
+	test(cons == Nil, "push_varcons_generic_function2");
+	rollback_local(local, stack);
+	
+	RETURN;
+}
+
+static int test_nextcons_finish(void)
+{
+	addr one, cons, value;
+
+	fixnum_heap(&value, 100);
+	list_heap(&cons, value, T, NULL);
+	nextcons_finish(one, cons);
+	test(one == T, "nextcons_finish1");
+	nextcons_finish(one, cons);
+	test(0, "nextcons_finish_error");
+finish:
+
+	RETURN;
+}
+
+static void import_constant_test(addr package, enum CONSTANT_INDEX index)
+{
+	addr symbol;
+	GetConstant(index, &symbol);
+	import_package(package, symbol);
+}
+
+static void import_test(void)
+{
+	addr package;
+
+	find_char_package(LISP_PACKAGE, &package);
+	import_package(package, Nil);
+	import_package(package, T);
+	import_constant_test(package, CONSTANT_COMMON_EQL);
+	import_constant_test(package, CONSTANT_AMPERSAND_OPTIONAL);
+	import_constant_test(package, CONSTANT_AMPERSAND_REST);
+	import_constant_test(package, CONSTANT_AMPERSAND_KEY);
+	import_constant_test(package, CONSTANT_AMPERSAND_ALLOW);
+	import_constant_test(package, CONSTANT_AMPERSAND_AUX);
+	import_constant_test(package, CONSTANT_AMPERSAND_WHOLE);
+	import_constant_test(package, CONSTANT_AMPERSAND_BODY);
+	import_constant_test(package, CONSTANT_AMPERSAND_ENVIRONMENT);
+}
+
+static void readlite_test(addr *ret, const char *str)
+{
+	readlite_package_heap(ret, LISP_PACKAGE, str);
+}
+
+static int eqtree(addr left, addr right)
+{
+	addr value1, value2;
+
+	if (GetType(left) != LISPTYPE_CONS) return left == right;
+	if (GetType(right) != LISPTYPE_CONS) return 0;
+	GetCons(left, &value1, &left);
+	GetCons(right, &value2, &right);
+	return eqtree(value1, value2) && eqtree(left, right);
+}
+
+static int test_lambda_generic_function_var(void)
+{
+	addr pos, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	import_test();
+	local = Local_Thread;
+	push_local(local, &stack);
+
+	readlite_test(&check, "(nil nil nil nil nil)");
+	lambda_generic_function(local, &pos, Nil);
+	test(eqtree(pos, check), "lambda_generic_function_var1");
+
+	readlite_test(&pos, "(var)");
+	readlite_test(&check, "((var) nil nil nil nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_var2");
+
+	readlite_test(&pos, "(aaa bbb)");
+	readlite_test(&check, "((aaa bbb) nil nil nil nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_var3");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lambda_generic_function_opt(void)
+{
+	addr pos, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	import_test();
+	local = Local_Thread;
+	push_local(local, &stack);
+
+	readlite_test(&pos, "(&optional)");
+	readlite_test(&check, "(nil nil nil nil nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_opt1");
+
+	readlite_test(&pos, "(&optional aaa)");
+	readlite_test(&check, "(nil (aaa) nil nil nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_opt2");
+
+	readlite_test(&pos, "(aaa &optional bbb (ccc))");
+	readlite_test(&check, "((aaa) (bbb ccc) nil nil nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_opt3");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lambda_generic_function_rest(void)
+{
+	addr pos, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	import_test();
+	local = Local_Thread;
+	push_local(local, &stack);
+
+	readlite_test(&pos, "(&rest args)");
+	readlite_test(&check, "(nil nil args nil nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_rest1");
+
+	readlite_test(&pos, "(aaa &rest args)");
+	readlite_test(&check, "((aaa) nil args nil nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_rest2");
+
+	readlite_test(&pos, "(&optional aaa &rest args)");
+	readlite_test(&check, "(nil (aaa) args nil nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_rest2");
+
+	readlite_test(&pos, "(aaa &optional bbb (ccc) &rest ddd)");
+	readlite_test(&check, "((aaa) (bbb ccc) ddd nil nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_rest3");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lambda_generic_function_key(void)
+{
+	addr pos, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	import_test();
+	local = Local_Thread;
+	push_local(local, &stack);
+
+	readlite_test(&pos, "(&key)");
+	readlite_test(&check, "(nil nil nil t nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_key1");
+
+	readlite_test(&pos, "(&key aaa)");
+	readlite_test(&check, "(nil nil nil ((aaa :aaa)) nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_key2");
+
+	readlite_test(&pos, "(aaa &key (bbb))");
+	readlite_test(&check, "((aaa) nil nil ((bbb :bbb)) nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_key3");
+
+	readlite_test(&pos, "(aaa &key ((ccc ddd)))");
+	readlite_test(&check, "((aaa) nil nil ((ddd ccc)) nil)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_key4");
+
+	readlite_test(&pos, "(&key &allow-other-keys)");
+	readlite_test(&check, "(nil nil nil t t)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_key5");
+
+	readlite_test(&pos, "(&key aaa &allow-other-keys)");
+	readlite_test(&check, "(nil nil nil ((aaa :aaa)) t)");
+	lambda_generic_function(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_generic_function_key6");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_atleast_argument_count(void)
+{
+	addr pos;
+	LocalRoot local;
+	LocalStack stack;
+	size_t size;
+
+	import_test();
+	local = Local_Thread;
+	push_local(local, &stack);
+
+	lambda_generic_function(local, &pos, Nil);
+	atleast_argument_count(pos, &size);
+	test(size == 0, "atleast_argument_count1");
+
+	readlite_test(&pos, "(var)");
+	lambda_generic_function(local, &pos, pos);
+	atleast_argument_count(pos, &size);
+	test(size == 1, "atleast_argument_count2");
+
+	readlite_test(&pos, "(aaa bbb)");
+	lambda_generic_function(local, &pos, pos);
+	atleast_argument_count(pos, &size);
+	test(size == 2, "atleast_argument_count3");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+
+/*
+ *  lambda-specialized
+ */
+static int test_specialized_var_cons(void)
+{
+	addr pos, pos2, var, spec;
+
+	fixnum_heap(&pos, 100);
+	specialized_var_cons(pos, &var, &spec);
+	test(var == pos, "specialized_var_cons1");
+	test(spec == T, "specialized_var_cons2");
+
+	list_heap(&var, pos, NULL);
+	specialized_var_cons(var, &var, &spec);
+	test(var == pos, "specialized_var_cons3");
+	test(spec == T, "specialized_var_cons4");
+
+	fixnum_heap(&pos2, 200);
+	list_heap(&var, pos, pos2, NULL);
+	specialized_var_cons(var, &var, &spec);
+	test(var == pos, "specialized_var_cons5");
+	test(spec == pos2, "specialized_var_cons6");
+
+	RETURN;
+}
+
+static int test_check_specializer_form(void)
+{
+	addr pos, eql;
+
+	test(check_specializer_form(Nil), "check_specializer_form1");
+	test(check_specializer_form(T), "check_specializer_form2");
+	internchar(LISP_PACKAGE, "HELLO", &pos);
+	test(check_specializer_form(pos), "check_specializer_form3");
+	list_heap(&pos, T, NULL);
+	test(! check_specializer_form(pos), "check_specializer_form4");
+	list_heap(&pos, T, T, NULL);
+	test(! check_specializer_form(pos), "check_specializer_form5");
+
+	internchar(LISP_COMMON, "EQL", &eql);
+	list_heap(&pos, eql, T, NULL);
+	test(check_specializer_form(pos), "check_specializer_form6");
+	list_heap(&pos, eql, T, T, NULL);
+	test(! check_specializer_form(pos), "check_specializer_form7");
+
+	RETURN;
+}
+
+static int test_specialized_var(void)
+{
+	addr pos, symbol, eql, value, cons, var, spec;
+
+	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	specialized_var(symbol, &var, &spec);
+	test(var == symbol, "specialized_var1");
+	test(spec == T, "specialized_var2");
+
+	internchar(LISP_COMMON, "EQL", &eql);
+	fixnum_heap(&value, 100);
+	list_heap(&spec, eql, value, NULL);
+	list_heap(&cons, symbol, spec, NULL);
+	specialized_var(cons, &var, &spec);
+	test(var == symbol, "specialized_var3");
+	test(GetType(spec) == LISPTYPE_CONS, "specialized_var4");
+	GetCons(spec, &pos, &spec);
+	test(pos == eql, "specialized_var5");
+	GetCons(spec, &pos, &spec);
+	test(pos == value, "specialized_var6");
+	test(spec == Nil, "specialized_var7");
+
+	RETURN;
+}
+
+static int test_lambda_specialized_var(void)
+{
+	addr pos, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	import_test();
+	local = Local_Thread;
+	push_local(local, &stack);
+
+	readlite_test(&check, "(nil nil nil nil nil nil)");
+	lambda_specialized(local, &pos, Nil);
+	test(eqtree(pos, check), "lambda_specialized_var1");
+
+	readlite_test(&pos, "(var)");
+	readlite_test(&check, "(((var t)) nil nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_var2");
+
+	readlite_test(&pos, "(aaa bbb)");
+	readlite_test(&check, "(((aaa t) (bbb t)) nil nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_var3");
+
+	readlite_test(&pos, "(aaa (bbb fixnum))");
+	readlite_test(&check,
+			"(((aaa t) (bbb fixnum)) nil nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_var4");
+
+	readlite_test(&pos, "((aaa (eql hello)) bbb)");
+	readlite_test(&check,
+			"(((aaa (eql hello)) (bbb t)) nil nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_var5");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lambda_specialized_opt(void)
+{
+	addr pos, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	import_test();
+	local = Local_Thread;
+	push_local(local, &stack);
+
+	readlite_test(&check, "(nil nil nil nil nil nil)");
+	lambda_specialized(local, &pos, Nil);
+	test(eqtree(pos, check), "lambda_specialized_opt1");
+
+	readlite_test(&pos, "(&optional)");
+	readlite_test(&check, "(nil nil nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_opt2");
+
+	readlite_test(&pos, "(&optional aaa)");
+	readlite_test(&check, "(nil ((aaa nil nil)) nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_opt3");
+
+	readlite_test(&pos, "(aaa &optional (bbb))");
+	readlite_test(&check,
+			"(((aaa t)) ((bbb nil nil)) nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_opt4");
+
+	readlite_test(&pos, "(&optional (bbb) ccc)");
+	readlite_test(&check,
+			"(nil ((bbb nil nil) (ccc nil nil)) nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_opt5");
+
+	readlite_test(&pos, "(&optional (ccc t))");
+	readlite_test(&check,
+			"(nil ((ccc t nil)) nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_opt6");
+
+	readlite_test(&pos, "(&optional (ddd t eee))");
+	readlite_test(&check,
+			"(nil ((ddd t eee)) nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_opt7");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lambda_specialized_rest(void)
+{
+	addr pos, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	import_test();
+	local = Local_Thread;
+	push_local(local, &stack);
+
+	readlite_test(&pos, "(&rest args)");
+	readlite_test(&check, "(nil nil args nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_rest1");
+
+	readlite_test(&pos, "(&optional &rest args)");
+	readlite_test(&check, "(nil nil args nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_rest2");
+
+	readlite_test(&pos, "(&optional bbb &rest args)");
+	readlite_test(&check,
+			"(nil ((bbb nil nil)) args nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_rest3");
+
+	readlite_test(&pos, "(bbb &rest ccc)");
+	readlite_test(&check, "(((bbb t)) nil ccc nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_rest4");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lambda_specialized_key(void)
+{
+	addr pos, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	import_test();
+	local = Local_Thread;
+	push_local(local, &stack);
+
+	readlite_test(&pos, "(&key)");
+	readlite_test(&check, "(nil nil nil t nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_key1");
+
+	readlite_test(&pos, "(&rest args &key &allow-other-keys)");
+	readlite_test(&check, "(nil nil args t t nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_key2");
+
+	readlite_test(&pos, "(&optional &key aaa)");
+	readlite_test(&check, "(nil nil nil ((aaa :aaa nil nil)) nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_key3");
+
+	readlite_test(&pos, "(zzz &key (aaa) &allow-other-keys)");
+	readlite_test(&check, "(((zzz t)) nil nil ((aaa :aaa nil nil)) t nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_key4");
+
+	readlite_test(&pos, "(&key (aaa t) (bbb ccc ddd))");
+	readlite_test(&check,
+			"(nil nil nil ((aaa :aaa t nil) (bbb :bbb ccc ddd)) nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_key5");
+
+	readlite_test(&pos, "(&key ((aa bb) cc dd) &allow-other-keys)");
+	readlite_test(&check, "(nil nil nil ((bb aa cc dd)) t nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_key6");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lambda_specialized_aux(void)
+{
+	addr pos, check;
+	LocalRoot local;
+	LocalStack stack;
+
+	import_test();
+	local = Local_Thread;
+	push_local(local, &stack);
+
+	readlite_test(&pos, "(&aux)");
+	readlite_test(&check, "(nil nil nil nil nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_aux1");
+
+	readlite_test(&pos, "(&optional &key &aux)");
+	readlite_test(&check, "(nil nil nil t nil nil)");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_aux2");
+
+	readlite_test(&pos, "(aaa &aux bbb)");
+	readlite_test(&check, "(((aaa t)) nil nil nil nil ((bbb nil)))");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_aux3");
+
+	readlite_test(&pos, "(&key &allow-other-keys &aux (bbb))");
+	readlite_test(&check, "(nil nil nil t t ((bbb nil)))");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_aux4");
+
+	readlite_test(&pos, "(&aux (bbb ccc))");
+	readlite_test(&check, "(nil nil nil nil nil ((bbb ccc)))");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_aux5");
+
+	readlite_test(&pos, "(&aux (aaa) bbb)");
+	readlite_test(&check, "(nil nil nil nil nil ((aaa nil) (bbb nil)))");
+	lambda_specialized(local, &pos, pos);
+	test(eqtree(pos, check), "lambda_specialized_aux6");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+
+/*
+ *  main
+ */
+static int testgroup_lambda(void)
+{
+	TestBreak(test_constant_eq);
+	TestBreak(test_member_ampersand);
+	TestBreak(test_variable_check);
+	TestBreak(test_varcons_local);
+	TestBreak(test_push_varcons);
+	TestBreak(test_push_namecons);
+	TestBreak(test_make_keyword_from_symbol);
+	TestBreak(test_list2_check);
+	TestBreak(test_key_name_values);
+	/* lambda-macro */
+	TestBreak(test_push_varcons_macro);
+	TestBreak(test_ordinary_opt);
+	TestBreak(test_ordinary_key);
+	TestBreak(test_ordinary_aux);
+	/* lambda-ordinary */
+	TestBreak(test_push_varcons_ordinary);
+	/* lambda-generic-function */
+	TestBreak(test_generic_function_key_cons);
+	TestBreak(test_generic_function_key);
+	TestBreak(test_push_varcons_generic_function);
+	TestBreak(test_nextcons_finish);
+	TestBreak(test_lambda_generic_function_var);
+	TestBreak(test_lambda_generic_function_opt);
+	TestBreak(test_lambda_generic_function_rest);
+	TestBreak(test_lambda_generic_function_key);
+	TestBreak(test_atleast_argument_count);
+	/* lambda-sepcialized */
+	TestBreak(test_specialized_var_cons);
+	TestBreak(test_check_specializer_form);
+	TestBreak(test_specialized_var);
+	TestBreak(test_lambda_specialized_var);
+	TestBreak(test_lambda_specialized_opt);
+	TestBreak(test_lambda_specialized_rest);
+	TestBreak(test_lambda_specialized_key);
+	TestBreak(test_lambda_specialized_aux);
+
+	return 0;
+}
+
+int test_lambda(void)
+{
+	int result;
+	lispcode code;
+	Execute ptr;
+
+	TITLE;
+	freelisp();
+	alloclisp(0, 0);
+	lisp_info_enable = 1;
+	ptr = Execute_Thread;
+	begin_code(ptr, &code);
+	if (code_run_p(code)) {
+		build_lisproot(ptr);
+		build_constant();
+		build_object();
+		build_package();
+		lisp_init = 1;
+		result = testgroup_lambda();
+	}
+	end_code(ptr);
+	freelisp();
+	TestCheck(code_error_p(code));
+	lisp_info_enable = 1;
+
+	return result;
+}
+
