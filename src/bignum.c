@@ -31,6 +31,66 @@ int bignump(addr pos)
 	return GetType(pos) == LISPTYPE_BIGNUM;
 }
 
+struct bignuminfo *struct_bignum(addr pos)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	return StructBignum_Low(pos);
+}
+
+size_t refalloc_bignum(addr pos)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	return RefAllocBignum_Low(pos);
+}
+
+void setsize_bignum(addr pos, size_t value)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	SetSizeBignum_Low(pos, value);
+}
+
+void getsize_bignum(addr pos, size_t *ret)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	GetSizeBignum_Low(pos, ret);
+}
+
+size_t refsize_bignum(addr pos)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	return RefSizeBignum_Low(pos);
+}
+
+void setroot_bignum(addr pos, addr value)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	SetRootBignum_Low(pos, value);
+}
+
+void getroot_bignum(addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	GetRootBignum_Low(pos, ret);
+}
+
+void setsign_bignum(addr pos, int sign)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	SetSignBignum_Low(pos, sign);
+}
+
+void getsign_bignum(addr pos, int *ret)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	GetSignBignum_Low(pos, ret);
+}
+
+int refsign_bignum(addr pos)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	return RefSignBignum_Low(pos);
+}
+
 void alloc_bignum(LocalRoot local, addr *ret, size_t alloc)
 {
 	addr ptr, data;

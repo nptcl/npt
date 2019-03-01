@@ -1157,12 +1157,6 @@ static bigtype letdivvalue_buffer(addr left, bigtype right)
 	return carry;
 }
 
-static void division_by_zero_bigdata(addr left, addr right)
-{
-	list_heap(&left, left, right, NULL);
-	division_by_zero_constant(CONSTANT_COMMON_SLASH, left);
-}
-
 void letdiv_noexpand_bigdata(LocalRoot local, addr left, addr right)
 {
 	int check1, check2, compare;
@@ -1172,7 +1166,7 @@ void letdiv_noexpand_bigdata(LocalRoot local, addr left, addr right)
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type left error");
 	if (zerop_bignum(right)) {
-		division_by_zero_bigdata(left, right);
+		division_by_zero2(left, right);
 		return;
 	}
 	if (zerop_bignum(left)) {
@@ -1262,7 +1256,7 @@ void setrem_noexpand_bigdata(LocalRoot local, addr set, addr left, addr right)
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type left error");
 	if (zerop_bignum(right)) {
-		division_by_zero_bigdata(left, right);
+		division_by_zero2(left, right);
 		return;
 	}
 	if (zerop_bignum(left)) {
@@ -1315,7 +1309,7 @@ void divrem_bigdata_local(LocalRoot local,
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type left error");
 	if (zerop_bignum(right)) {
-		division_by_zero_bigdata(left, right);
+		division_by_zero2(left, right);
 		return;
 	}
 	if (zerop_bignum(left)) {

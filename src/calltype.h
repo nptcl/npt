@@ -188,6 +188,8 @@ enum CallType {
 	CallType_Values_Sequence,
 	CallType_Values_Array,
 	CallType_Values_Integer,
+	CallType_Values_Ratio,
+	CallType_Values_Rational,
 	CallType_Values_Index,
 	CallType_Values_IndexNull,
 	CallType_Values_Intplus,

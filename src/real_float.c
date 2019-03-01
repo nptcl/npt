@@ -2388,7 +2388,7 @@ void inverse_single_float_alloc(LocalRoot local, addr pos, addr *ret)
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
 	GetSingleFloat(pos, &value);
 	if (value == 0.0f)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, pos, NULL);
+		division_by_zero1(pos);
 	value = 1.0f / value;
 	float_errorcheck1(CONSTANT_COMMON_SLASH, value, pos);
 	single_float_alloc(local, ret, value);
@@ -2401,7 +2401,7 @@ void inverse_double_float_alloc(LocalRoot local, addr pos, addr *ret)
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
 	GetDoubleFloat(pos, &value);
 	if (value == 0.0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, pos, NULL);
+		division_by_zero1(pos);
 	value = 1.0 / value;
 	float_errorcheck1(CONSTANT_COMMON_SLASH, value, pos);
 	double_float_alloc(local, ret, value);
@@ -2414,7 +2414,7 @@ void inverse_long_float_alloc(LocalRoot local, addr pos, addr *ret)
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	GetLongFloat(pos, &value);
 	if (value == 0.0L)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, pos, NULL);
+		division_by_zero1(pos);
 	value = 1.0L / value;
 	float_errorcheck1(CONSTANT_COMMON_SLASH, value, pos);
 	long_float_alloc(local, ret, value);
@@ -2465,7 +2465,7 @@ void div_float_fs_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	GetSingleFloat(right, &value);
 	if (value == 0.0f)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = single_float_fixnum(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	single_float_alloc(local, ret, value);
@@ -2479,7 +2479,7 @@ void div_float_fd_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
 	GetDoubleFloat(right, &value);
 	if (value == 0.0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = double_float_fixnum(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	double_float_alloc(local, ret, value);
@@ -2493,7 +2493,7 @@ void div_float_fl_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	GetLongFloat(right, &value);
 	if (value == 0.0L)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = long_float_fixnum(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);
@@ -2541,7 +2541,7 @@ void div_float_sf_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_FIXNUM, "type right error");
 	GetFixnum(right, &check);
 	if (check == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefSingleFloat(left) / ((single_float)check);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	single_float_alloc(local, ret, value);
@@ -2556,7 +2556,7 @@ void div_float_df_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_FIXNUM, "type righterror");
 	GetFixnum(right, &check);
 	if (check == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefDoubleFloat(left) / ((double_float)check);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	double_float_alloc(local, ret, value);
@@ -2571,7 +2571,7 @@ void div_float_lf_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	GetFixnum(right, &check);
 	if (check == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefLongFloat(left) / ((long_float)check);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);
@@ -2618,7 +2618,7 @@ void div_float_bs_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	GetSingleFloat(right, &value);
 	if (value == 0.0f)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = single_float_bignum(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	single_float_alloc(local, ret, value);
@@ -2632,7 +2632,7 @@ void div_float_bd_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
 	GetDoubleFloat(right, &value);
 	if (value == 0.0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = double_float_bignum(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	double_float_alloc(local, ret, value);
@@ -2646,7 +2646,7 @@ void div_float_bl_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	GetLongFloat(right, &value);
 	if (value == 0.0L)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = long_float_bignum(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);
@@ -2692,7 +2692,7 @@ void div_float_sb_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_SINGLE_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
 	if (zerop_bignum(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefSingleFloat(left) / single_float_bignum(right);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	single_float_alloc(local, ret, value);
@@ -2705,7 +2705,7 @@ void div_float_db_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_DOUBLE_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
 	if (zerop_bignum(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefDoubleFloat(left) / double_float_bignum(right);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	double_float_alloc(local, ret, value);
@@ -2719,7 +2719,7 @@ void div_float_lb_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
 	GetLongFloat(right, &value);
 	if (zerop_bignum(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefLongFloat(left) / long_float_bignum(right);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);
@@ -2766,7 +2766,7 @@ void div_float_rs_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	GetSingleFloat(right, &value);
 	if (value == 0.0f)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = single_float_ratio(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	single_float_alloc(local, ret, value);
@@ -2780,7 +2780,7 @@ void div_float_rd_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
 	GetDoubleFloat(right, &value);
 	if (value == 0.0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = double_float_ratio(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	double_float_alloc(local, ret, value);
@@ -2794,7 +2794,7 @@ void div_float_rl_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	GetLongFloat(right, &value);
 	if (value == 0.0L)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = long_float_ratio(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);
@@ -2840,7 +2840,7 @@ void div_float_sr_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_SINGLE_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_RATIO, "type right error");
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefSingleFloat(left) / single_float_ratio(right);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	single_float_alloc(local, ret, value);
@@ -2853,7 +2853,7 @@ void div_float_dr_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_DOUBLE_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_RATIO, "type right error");
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefDoubleFloat(left) / double_float_ratio(right);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	double_float_alloc(local, ret, value);
@@ -2866,7 +2866,7 @@ void div_float_lr_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_LONG_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_RATIO, "type right error");
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefLongFloat(left) / long_float_ratio(right);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);
@@ -2913,7 +2913,7 @@ void div_float_ss_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	GetSingleFloat(right, &value);
 	if (value == 0.0f)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefSingleFloat(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	single_float_alloc(local, ret, value);
@@ -2927,7 +2927,7 @@ void div_float_sd_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
 	GetDoubleFloat(right, &value);
 	if (value == 0.0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = ((double_float)RefSingleFloat(left)) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	double_float_alloc(local, ret, value);
@@ -2941,7 +2941,7 @@ void div_float_sl_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	GetLongFloat(right, &value);
 	if (value == 0.0L)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = ((long_float)RefSingleFloat(left)) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);
@@ -2956,7 +2956,7 @@ void div_float_ds_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	GetSingleFloat(right, &check);
 	if (check == 0.0f)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefDoubleFloat(left) / ((double_float)check);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	double_float_alloc(local, ret, value);
@@ -2970,7 +2970,7 @@ void div_float_dd_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
 	GetDoubleFloat(right, &value);
 	if (value == 0.0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefDoubleFloat(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	double_float_alloc(local, ret, value);
@@ -2984,7 +2984,7 @@ void div_float_dl_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	GetLongFloat(right, &value);
 	if (value == 0.0L)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = ((long_float)RefDoubleFloat(left)) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);
@@ -2999,7 +2999,7 @@ void div_float_ls_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	GetSingleFloat(right, &check);
 	if (check == 0.0f)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefLongFloat(left) / ((long_float)check);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);
@@ -3014,7 +3014,7 @@ void div_float_ld_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
 	GetDoubleFloat(right, &check);
 	if (check == 0.0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefLongFloat(left) / ((long_float)check);
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);
@@ -3028,7 +3028,7 @@ void div_float_ll_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	GetLongFloat(right, &value);
 	if (value == 0.0L)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 	value = RefLongFloat(left) / value;
 	float_errorcheck2(CONSTANT_COMMON_SLASH, value, left, right);
 	long_float_alloc(local, ret, value);

@@ -74,24 +74,24 @@ void lisp_fround_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 /*
  *  ratio
  */
-void lisp_floor_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-void lisp_ceiling_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-void lisp_truncate_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-void lisp_round_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
+void lisp_floor1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
+void lisp_ceiling1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
+void lisp_truncate1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
+void lisp_round1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
 
-void lisp_ffloor_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-void lisp_fceiling_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-void lisp_ftruncate_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
-void lisp_fround_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
+void lisp_ffloor1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
+void lisp_fceiling1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
+void lisp_ftruncate1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
+void lisp_fround1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos);
 
-void lisp_floor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_ceiling_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_truncate_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_round_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_ffloor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_fceiling_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_ftruncate_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_fround_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_floor_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_ceiling_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_truncate_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_round_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_ffloor_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_fceiling_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_ftruncate_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_fround_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 
 void lisp_floor_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 void lisp_ceiling_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
@@ -102,14 +102,14 @@ void lisp_fceiling_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr
 void lisp_ftruncate_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 void lisp_fround_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 
-void lisp_floor_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_ceiling_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_truncate_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_round_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_ffloor_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_fceiling_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_ftruncate_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
-void lisp_fround_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_floor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_ceiling_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_truncate_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_round_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_ffloor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_fceiling_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_ftruncate_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+void lisp_fround_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 
 #endif
 

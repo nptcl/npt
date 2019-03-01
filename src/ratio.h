@@ -4,18 +4,41 @@
 #include "local.h"
 #include "typedef.h"
 
-#define SetNumerRatio(p,v) SetArrayA2((p),0,(v))
-#define GetNumerRatio(p,v) GetArrayA2((p),0,(v))
-#define SetDenomRatio(p,v) SetArrayA2((p),1,(v))
-#define GetDenomRatio(p,v) GetArrayA2((p),1,(v))
-#define SetSignRatio(p,v) SetUser((p), (byte)(v))
-#define GetSignRatio(p,v) (*(v) = (int)GetUser(p))
-#define RefSignRatio(p)   ((int)GetUser(p))
+#define SetNumerRatio_Low(p,v) SetArrayA2((p),0,(v))
+#define GetNumerRatio_Low(p,v) GetArrayA2((p),0,(v))
+#define SetDenomRatio_Low(p,v) SetArrayA2((p),1,(v))
+#define GetDenomRatio_Low(p,v) GetArrayA2((p),1,(v))
+#define SetSignRatio_Low(p,v) SetUser((p), (byte)(v))
+#define GetSignRatio_Low(p,v) (*(v) = (int)GetUser(p))
+#define RefSignRatio_Low(p)   ((int)GetUser(p))
 
-/*
- *  ratio
- */
+#ifdef LISP_DEBUG
+#define SetNumerRatio setnumer_ratio
+#define GetNumerRatio getnumer_ratio
+#define SetDenomRatio setdenom_ratio
+#define GetDenomRatio getdenom_ratio
+#define SetSignRatio setsign_ratio
+#define GetSignRatio getsign_ratio
+#define RefSignRatio refsign_ratio
+#else
+#define SetNumerRatio SetNumerRatio_Low
+#define GetNumerRatio GetNumerRatio_Low
+#define SetDenomRatio SetDenomRatio_Low
+#define GetDenomRatio GetDenomRatio_Low
+#define SetSignRatio SetSignRatio_Low
+#define GetSignRatio GetSignRatio_Low
+#define RefSignRatio RefSignRatio_Low
+#endif
+
 int ratiop(addr pos);
+void setnumer_ratio(addr pos, addr value);
+void getnumer_ratio(addr pos, addr *ret);
+void setdenom_ratio(addr pos, addr value);
+void getdenom_ratio(addr pos, addr *ret);
+void setsign_ratio(addr pos, int sign);
+void getsign_ratio(addr pos, int *ret);
+int refsign_ratio(addr pos);
+
 void reduction_local(LocalRoot local, addr numer, addr denom);
 void make_ratio_reduction_heap(LocalRoot local,
 		addr *ret, int sign, addr numer, addr denom);
@@ -50,6 +73,8 @@ void ratio_copy_heap(addr *ret, addr pos);
 void ratio_throw_heap(addr pos, addr *ret);
 void ratio_throw_local(LocalRoot local, addr pos, addr *ret);
 void ratio_throw_alloc(LocalRoot local, addr pos, addr *ret);
+int ratio_result_noreduction_local(LocalRoot local, addr pos, addr *ret);
+int ratio_result_noreduction_heap(LocalRoot local, addr pos, addr *ret);
 
 int zerop_ratio(addr left);
 int plusp_ratio(addr left);

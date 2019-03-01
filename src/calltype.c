@@ -1755,6 +1755,22 @@ static void calltype_values_integer(void)
 	SetCallType(Values_Integer, pos);
 }
 
+static void calltype_values_ratio(void)
+{
+	addr pos;
+	GetCallType(&pos, Ratio);
+	result_valuestype(&pos, pos);
+	SetCallType(Values_Ratio, pos);
+}
+
+static void calltype_values_rational(void)
+{
+	addr pos;
+	GetCallType(&pos, Rational);
+	result_valuestype(&pos, pos);
+	SetCallType(Values_Rational, pos);
+}
+
 static void calltype_values_index(void)
 {
 	addr pos;
@@ -3197,6 +3213,8 @@ void build_calltype(void)
 	calltype_values_sequence();
 	calltype_values_array();
 	calltype_values_integer();
+	calltype_values_ratio();
+	calltype_values_rational();
 	calltype_values_index();
 	calltype_values_indexnull();
 	calltype_values_intplus();

@@ -21,6 +21,49 @@ int ratiop(addr pos)
 	return GetType(pos) == LISPTYPE_RATIO;
 }
 
+void setnumer_ratio(addr pos, addr value)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	SetNumerRatio_Low(pos, value);
+}
+
+void getnumer_ratio(addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	GetNumerRatio_Low(pos, ret);
+}
+
+void setdenom_ratio(addr pos, addr value)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	SetDenomRatio_Low(pos, value);
+}
+
+void getdenom_ratio(addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	GetDenomRatio_Low(pos, ret);
+}
+
+void setsign_ratio(addr pos, int sign)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	SetSignRatio_Low(pos, sign);
+}
+
+void getsign_ratio(addr pos, int *ret)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	GetSignRatio_Low(pos, ret);
+}
+
+int refsign_ratio(addr pos)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	return RefSignRatio_Low(pos);
+}
+
+
 /*****************************************************************************
   operation
  *****************************************************************************/
@@ -497,6 +540,61 @@ void ratio_throw_alloc(LocalRoot local, addr pos, addr *ret)
 		ratio_throw_heap(pos, ret);
 }
 
+int ratio_result_noreduction_local(LocalRoot local, addr pos, addr *ret)
+{
+	int sign;
+	addr numer, denom;
+
+	Check(local == NULL, "local error");
+	CheckType(pos, LISPTYPE_RATIO);
+	GetNumerRatio(pos, &numer);
+	GetDenomRatio(pos, &denom);
+	if (zerop_bignum(numer)) {
+		fixnum_local(local, ret, 0);
+		return 1;
+	}
+	else if (equal_value_nosign_bignum(denom, 1)) {
+		bignum_copy_local(local, &numer, numer);
+		GetSignRatio(pos, &sign);
+		SetSignBignum(numer, sign);
+		bignum_result_local(local, numer, ret);
+		return 1;
+	}
+	else {
+		ratio_throw_local(local, pos, ret);
+		return 0;
+	}
+}
+
+int ratio_result_noreduction_heap(LocalRoot local, addr pos, addr *ret)
+{
+	int sign;
+	addr numer, denom;
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(pos, LISPTYPE_RATIO);
+	GetNumerRatio(pos, &numer);
+	GetDenomRatio(pos, &denom);
+	if (zerop_bignum(numer)) {
+		fixnum_heap(ret, 0);
+		return 1;
+	}
+	else if (equal_value_nosign_bignum(denom, 1)) {
+		push_local(local, &stack);
+		bignum_copy_local(local, &numer, numer);
+		GetSignRatio(pos, &sign);
+		SetSignBignum(numer, sign);
+		bignum_result_heap(numer, ret);
+		rollback_local(local, stack);
+		return 1;
+	}
+	else {
+		ratio_throw_heap(pos, ret);
+		return 0;
+	}
+}
+
 int zerop_ratio(addr left)
 {
 	Check(GetType(left) != LISPTYPE_RATIO, "type error");
@@ -868,7 +966,7 @@ int compare_br_real(LocalRoot local, addr left, addr right)
 		return IsPlus(sign2)? -1: 1;
 	}
 	if (check) {
-		GetSignRatio(left, &sign1);
+		GetSignBignum(left, &sign1);
 		return IsPlus(sign1)? 1: -1;
 	}
 	GetSignBignum(left, &sign1);
@@ -1124,7 +1222,7 @@ single_float single_float_ratio(addr pos)
 	GetNumerRatio(pos, &numer);
 	GetDenomRatio(pos, &denom);
 	if (zerop_bignum(denom))
-		division_by_zero_stdarg(CONSTANT_COMMON_COERCE, pos, NULL);
+		division_by_zero_real1(CONSTANT_COMMON_COERCE, pos);
 	if (zerop_bignum(numer))
 		return sign? -0.0f: +0.0f;
 	size1 = hexfloat_exponent(numer);
@@ -1153,7 +1251,7 @@ double_float double_float_ratio(addr pos)
 	GetNumerRatio(pos, &numer);
 	GetDenomRatio(pos, &denom);
 	if (zerop_bignum(denom))
-		division_by_zero_stdarg(CONSTANT_COMMON_COERCE, pos, NULL);
+		division_by_zero_real1(CONSTANT_COMMON_COERCE, pos);
 	if (zerop_bignum(numer))
 		return sign? -0.0: +0.0;
 	size1 = hexfloat_exponent(numer);
@@ -1182,7 +1280,7 @@ long_float long_float_ratio(addr pos)
 	GetNumerRatio(pos, &numer);
 	GetDenomRatio(pos, &denom);
 	if (zerop_bignum(denom))
-		division_by_zero_stdarg(CONSTANT_COMMON_COERCE, pos, NULL);
+		division_by_zero_real1(CONSTANT_COMMON_COERCE, pos);
 	if (zerop_bignum(numer))
 		return sign? -0.0L: +0.0L;
 	size1 = hexfloat_exponent(numer);
@@ -2220,8 +2318,8 @@ void minus_br_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 		return;
 	}
 
-	GetSignRatio(left, &sign1);
-	GetSignBignum(right, &sign2);
+	GetSignBignum(left, &sign1);
+	GetSignRatio(right, &sign2);
 	check1 = IsPlus(sign1);
 	check2 = IsPlus(sign2);
 	if ((check1 && check2) || ((! check1) && (! check2)))
@@ -2247,8 +2345,8 @@ void minus_br_real_local(LocalRoot local, addr left, addr right, addr *ret)
 		return;
 	}
 
-	GetSignRatio(left, &sign1);
-	GetSignBignum(right, &sign2);
+	GetSignBignum(left, &sign1);
+	GetSignRatio(right, &sign2);
 	check1 = IsPlus(sign1);
 	check2 = IsPlus(sign2);
 	if ((check1 && check2) || ((! check1) && (! check2)))
@@ -2274,8 +2372,8 @@ void minus_br_real_common(LocalRoot local, addr left, addr right, addr *ret)
 		return;
 	}
 
-	GetSignRatio(left, &sign1);
-	GetSignBignum(right, &sign2);
+	GetSignBignum(left, &sign1);
+	GetSignRatio(right, &sign2);
 	check1 = IsPlus(sign1);
 	check2 = IsPlus(sign2);
 	if ((check1 && check2) || ((! check1) && (! check2)))
@@ -3299,7 +3397,7 @@ void div_rf_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 	castfixed_fixnum(right, &sign2, &value);
 	sign1 = SignMulti(sign1, sign2);
 	if (value == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* ratio */
 	if (zerop_ratio(left)) {
@@ -3337,7 +3435,7 @@ void div_rf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	castfixed_fixnum(right, &sign2, &value);
 	sign1 = SignMulti(sign1, sign2);
 	if (value == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* ratio */
 	if (zerop_ratio(left)) {
@@ -3375,7 +3473,7 @@ void div_rf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	castfixed_fixnum(right, &sign2, &value);
 	sign1 = SignMulti(sign1, sign2);
 	if (value == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* ratio */
 	if (zerop_ratio(left)) {
@@ -3516,7 +3614,7 @@ void div_fr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignRatio(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* fixnum */
 	if (value == 0) {
@@ -3554,7 +3652,7 @@ void div_fr_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignRatio(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* fixnum */
 	if (value == 0) {
@@ -3592,7 +3690,7 @@ void div_fr_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignRatio(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* fixnum */
 	if (value == 0) {
@@ -3692,7 +3790,7 @@ void div_rb_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignBignum(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_bignum(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* ratio */
 	if (zerop_ratio(left)) {
@@ -3729,7 +3827,7 @@ void div_rb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignBignum(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_bignum(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* ratio */
 	if (zerop_ratio(left)) {
@@ -3766,7 +3864,7 @@ void div_rb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignBignum(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_bignum(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* ratio */
 	if (zerop_ratio(left)) {
@@ -3845,7 +3943,7 @@ void div_br_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignRatio(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* bignum */
 	if (zerop_bignum(left)) {
@@ -3882,7 +3980,7 @@ void div_br_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignRatio(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* bignum */
 	if (zerop_bignum(left)) {
@@ -3919,7 +4017,7 @@ void div_br_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignRatio(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* bignum */
 	if (zerop_bignum(left)) {
@@ -4046,7 +4144,7 @@ void div_rr_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignRatio(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* ratio */
 	if (zerop_ratio(left)) {
@@ -4093,7 +4191,7 @@ void div_rr_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignRatio(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* ratio */
 	if (zerop_ratio(left)) {
@@ -4140,7 +4238,7 @@ void div_rr_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignRatio(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_ratio(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* ratio */
 	if (zerop_ratio(left)) {
@@ -4193,7 +4291,7 @@ void div_ff_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	castfixed_fixnum(right, &sign2, &value2);
 	sign1 = SignMulti(sign1, sign2);
 	if (value2 == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* left */
 	if (value1 == 0) {
@@ -4234,7 +4332,7 @@ void div_ff_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	castfixed_fixnum(right, &sign2, &value2);
 	sign1 = SignMulti(sign1, sign2);
 	if (value2 == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* left */
 	if (value1 == 0) {
@@ -4274,7 +4372,7 @@ void div_fb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignBignum(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_bignum(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* left */
 	if (value1 == 0) {
@@ -4313,7 +4411,7 @@ void div_fb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignBignum(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_bignum(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* left */
 	if (value1 == 0) {
@@ -4351,7 +4449,7 @@ void div_bf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	castfixed_fixnum(right, &sign2, &value2);
 	sign1 = SignMulti(sign1, sign2);
 	if (value2 == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* left */
 	if (zerop_bignum(left)) {
@@ -4393,7 +4491,7 @@ void div_bf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	castfixed_fixnum(right, &sign2, &value2);
 	sign1 = SignMulti(sign1, sign2);
 	if (value2 == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* left */
 	if (zerop_bignum(left)) {
@@ -4433,7 +4531,7 @@ void div_bb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignBignum(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_bignum(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* left */
 	if (zerop_bignum(left)) {
@@ -4473,7 +4571,7 @@ void div_bb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	GetSignBignum(right, &sign2);
 	sign1 = SignMulti(sign1, sign2);
 	if (zerop_bignum(right))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, right, NULL);
+		division_by_zero2(left, right);
 
 	/* left */
 	if (zerop_bignum(left)) {
@@ -4510,7 +4608,7 @@ void inverse_fixnum_common(addr left, addr *ret)
 
 	castfixed_fixnum(left, &sign, &value);
 	if (value == 0)
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, NULL);
+		division_by_zero1(left);
 	if (value == 1) {
 		fixnum_throw_heap(left, ret);
 		return;
@@ -4523,7 +4621,7 @@ void inverse_bignum_common(addr left, addr *ret)
 	int sign;
 
 	if (zerop_bignum(left))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, NULL);
+		division_by_zero1(left);
 	if (equal_rv_nosign(left, 1)) {
 		bignum_throw_heap(left, ret);
 		return;
@@ -4537,7 +4635,7 @@ void inverse_ratio_common(LocalRoot local, addr left, addr *ret)
 	int sign;
 
 	if (zerop_ratio(left))
-		division_by_zero_stdarg(CONSTANT_COMMON_SLASH, left, NULL);
+		division_by_zero1(left);
 	GetSignRatio(left, &sign);
 	ratio_sign_inverse_common(local, ret, sign, left);
 }

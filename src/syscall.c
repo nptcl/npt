@@ -1,4 +1,6 @@
 #include "array.h"
+#include "bigdata.h"
+#include "bignum.h"
 #include "calltype.h"
 #include "condition.h"
 #include "cons.h"
@@ -18,6 +20,7 @@
 #include "package.h"
 #include "quote.h"
 #include "radix.h"
+#include "ratio.h"
 #include "readtable.h"
 #include "sequence.h"
 #include "stream.h"
@@ -1402,6 +1405,110 @@ static void defun_large_number(void)
 }
 
 
+/* (defun make-bignum (integer) ...) -> bignum */
+static void syscall_make_bignum(Execute ptr, addr var)
+{
+	switch (GetType(var)) {
+		case LISPTYPE_FIXNUM:
+			bignum_fixnum_heap(&var, var);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			bignum_throw_heap(var, &var);
+			break;
+
+		default:
+			TypeError(var, INTEGER);
+			return;
+	}
+	setresult_control(ptr, var);
+}
+
+static void type_make_bignum(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Integer);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_make_bignum(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_MAKE_BIGNUM, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, syscall_make_bignum);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_make_bignum(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun make-ratio (numer denom) ...) -> ratio */
+static void force_make_bignum(addr *ret, addr var)
+{
+	switch (GetType(var)) {
+		case LISPTYPE_FIXNUM:
+			bignum_fixnum_heap(ret, var);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			bignum_copy_heap(ret, var);
+			break;
+
+		default:
+			TypeError(var, INTEGER);
+			return;
+	}
+}
+
+static void syscall_make_ratio(Execute ptr, addr numer, addr denom)
+{
+	int sign1, sign2;
+
+	force_make_bignum(&numer, numer);
+	force_make_bignum(&denom, denom);
+	GetSignBignum(numer, &sign1);
+	GetSignBignum(denom, &sign2);
+	SetSignBignum(numer, SignPlus);
+	SetSignBignum(denom, SignPlus);
+	sign1 = SignMulti(sign1, sign2);
+	make_ratio_alloc_unsafe(NULL, &numer, sign1, numer, denom);
+	setresult_control(ptr, numer);
+}
+
+static void type_make_ratio(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	var2_argtype(&arg, arg, arg);
+	GetCallType(&values, Values_Rational);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_make_ratio(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_MAKE_RATIO, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, syscall_make_ratio);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_make_ratio(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  build_syscall
  */
@@ -1504,5 +1611,8 @@ void build_syscall(void)
 	defun_long_float_p();
 	/* printer */
 	defun_large_number();
+	/* number */
+	defun_make_bignum();
+	defun_make_ratio();
 }
 

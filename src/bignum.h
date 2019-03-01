@@ -27,17 +27,6 @@ struct bignuminfo {
 #define PtrDataBignum(pos)  ((bigtype *)PtrBodyB4(pos))
 #endif
 
-#define PtrBignum(p) PtrBodySSa((p), 1)
-#define StructBignum(p) ((struct bignuminfo *)PtrBignum(p))
-#define RefAllocBignum(p) (StructBignum(p)->alloc)
-#define SetSizeBignum(p,v) (StructBignum(p)->size = (v))
-#define GetSizeBignum(p,v) (*(v) = StructBignum(p)->size)
-#define RefSizeBignum(p)   (StructBignum(p)->size)
-#define SetRootBignum(p,v) SetArraySS((p),0,(v))
-#define GetRootBignum(p,v) GetArraySS((p),0,(v))
-#define SetSignBignum(p,v) SetUser((p), (byte)(v))
-#define GetSignBignum(p,v) (*(v) = (int)GetUser(p))
-#define RefSignBignum(p) ((int)GetUser(p))
 #define GetDataBignum(pos, data) { \
 	addr __root; \
 	GetRootBignum(pos, &__root); \
@@ -48,8 +37,53 @@ struct bignuminfo {
 	*(data) = PtrDataBignum(*root); \
 }
 
+#define StructBignum_Low(p) ((struct bignuminfo *)PtrBodySSa((p), 1))
+#define RefAllocBignum_Low(p) (StructBignum(p)->alloc)
+#define SetSizeBignum_Low(p,v) (StructBignum(p)->size = (v))
+#define GetSizeBignum_Low(p,v) (*(v) = StructBignum(p)->size)
+#define RefSizeBignum_Low(p)   (StructBignum(p)->size)
+#define SetRootBignum_Low(p,v) SetArraySS((p),0,(v))
+#define GetRootBignum_Low(p,v) GetArraySS((p),0,(v))
+#define SetSignBignum_Low(p,v) SetUser((p), (byte)(v))
+#define GetSignBignum_Low(p,v) (*(v) = (int)GetUser(p))
+#define RefSignBignum_Low(p) ((int)GetUser(p))
+
+#ifdef LISP_DEBUG
+#define StructBignum struct_bignum
+#define RefAllocBignum refalloc_bignum
+#define SetSizeBignum setsize_bignum
+#define GetSizeBignum getsize_bignum
+#define RefSizeBignum refsize_bignum
+#define SetRootBignum setroot_bignum
+#define GetRootBignum getroot_bignum
+#define SetSignBignum setsign_bignum
+#define GetSignBignum getsign_bignum
+#define RefSignBignum refsign_bignum
+#else
+#define StructBignum StructBignum_Low
+#define RefAllocBignum RefAllocBignum_Low
+#define SetSizeBignum SetSizeBignum_Low
+#define GetSizeBignum GetSizeBignum_Low
+#define RefSizeBignum RefSizeBignum_Low
+#define SetRootBignum SetRootBignum_Low
+#define GetRootBignum GetRootBignum_Low
+#define SetSignBignum SetSignBignum_Low
+#define GetSignBignum GetSignBignum_Low
+#define RefSignBignum RefSignBignum_Low
+#endif
+
 int fixnump(addr pos);
 int bignump(addr pos);
+struct bignuminfo *struct_bignum(addr pos);
+size_t refalloc_bignum(addr pos);
+void setsize_bignum(addr pos, size_t value);
+void getsize_bignum(addr pos, size_t *ret);
+size_t refsize_bignum(addr pos);
+void setroot_bignum(addr pos, addr value);
+void getroot_bignum(addr pos, addr *ret);
+void setsign_bignum(addr pos, int sign);
+void getsign_bignum(addr pos, int *ret);
+int refsign_bignum(addr pos);
 
 void alloc_bignum(LocalRoot local, addr *ret, size_t alloc);
 void realloc_bignum(LocalRoot local, addr pos, size_t alloc, int force);

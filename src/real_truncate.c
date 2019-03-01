@@ -44,7 +44,7 @@ static void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
 	rollback_local(local, stack);
 }
 
-static void truncate_integer_float(LocalRoot local, addr *quot, addr *rem, addr left)
+static void truncate1_float(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
 
@@ -54,7 +54,7 @@ static void truncate_integer_float(LocalRoot local, addr *quot, addr *rem, addr 
 	single_float_heap(rem, r);
 }
 
-static void truncate_integer_double(LocalRoot local, addr *quot, addr *rem, addr left)
+static void truncate1_double(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	double_float v, r;
 
@@ -64,7 +64,7 @@ static void truncate_integer_double(LocalRoot local, addr *quot, addr *rem, addr
 	double_float_heap(rem, r);
 }
 
-static void truncate_integer_long(LocalRoot local, addr *quot, addr *rem, addr left)
+static void truncate1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	long_float v, r;
 
@@ -74,7 +74,7 @@ static void truncate_integer_long(LocalRoot local, addr *quot, addr *rem, addr l
 	long_float_heap(rem, r);
 }
 
-void truncate_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
+void truncate1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -88,20 +88,20 @@ void truncate_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			lisp_truncate_integer_ratio(local, quot, rem, left);
+			lisp_truncate1_ratio(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			truncate_integer_float(local, quot, rem, left);
+			truncate1_float(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			truncate_integer_double(local, quot, rem, left);
+			truncate1_double(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			truncate_integer_long(local, quot, rem, left);
+			truncate1_long(local, quot, rem, left);
 			break;
 
 		default:
@@ -110,7 +110,7 @@ void truncate_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
 	}
 }
 
-static void ftruncate_integer_float(LocalRoot local, addr *quot, addr *rem, addr left)
+static void ftruncate1_float(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
 
@@ -120,7 +120,7 @@ static void ftruncate_integer_float(LocalRoot local, addr *quot, addr *rem, addr
 	single_float_heap(rem, r);
 }
 
-static void ftruncate_integer_double(LocalRoot local, addr *quot, addr *rem, addr left)
+static void ftruncate1_double(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	double_float v, r;
 
@@ -130,7 +130,7 @@ static void ftruncate_integer_double(LocalRoot local, addr *quot, addr *rem, add
 	double_float_heap(rem, r);
 }
 
-static void ftruncate_integer_long(LocalRoot local, addr *quot, addr *rem, addr left)
+static void ftruncate1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	long_float v, r;
 
@@ -140,7 +140,7 @@ static void ftruncate_integer_long(LocalRoot local, addr *quot, addr *rem, addr 
 	long_float_heap(rem, r);
 }
 
-void ftruncate_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
+void ftruncate1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -154,20 +154,20 @@ void ftruncate_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			lisp_ftruncate_integer_ratio(local, quot, rem, left);
+			lisp_ftruncate1_ratio(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			ftruncate_integer_float(local, quot, rem, left);
+			ftruncate1_float(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			ftruncate_integer_double(local, quot, rem, left);
+			ftruncate1_double(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			ftruncate_integer_long(local, quot, rem, left);
+			ftruncate1_long(local, quot, rem, left);
 			break;
 
 		default:
@@ -444,7 +444,7 @@ static void truncate_ratio_common(LocalRoot local,
 			break;
 
 		case LISPTYPE_BIGNUM:
-			lisp_truncate_br_ratio(local, quot, rem, left, right);
+			lisp_truncate_rb_ratio(local, quot, rem, left, right);
 			break;
 
 		case LISPTYPE_RATIO:

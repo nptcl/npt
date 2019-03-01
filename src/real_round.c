@@ -44,7 +44,7 @@ static void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
 	rollback_local(local, stack);
 }
 
-static void round_integer_float(LocalRoot local, addr *quot, addr *rem, addr left)
+static void round1_float(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
 
@@ -54,7 +54,7 @@ static void round_integer_float(LocalRoot local, addr *quot, addr *rem, addr lef
 	single_float_heap(rem, r);
 }
 
-static void round_integer_double(LocalRoot local, addr *quot, addr *rem, addr left)
+static void round1_double(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	double_float v, r;
 
@@ -64,7 +64,7 @@ static void round_integer_double(LocalRoot local, addr *quot, addr *rem, addr le
 	double_float_heap(rem, r);
 }
 
-static void round_integer_long(LocalRoot local, addr *quot, addr *rem, addr left)
+static void round1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	long_float v, r;
 
@@ -74,7 +74,7 @@ static void round_integer_long(LocalRoot local, addr *quot, addr *rem, addr left
 	long_float_heap(rem, r);
 }
 
-void round_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
+void round1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -88,20 +88,20 @@ void round_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			lisp_round_integer_ratio(local, quot, rem, left);
+			lisp_round1_ratio(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			round_integer_float(local, quot, rem, left);
+			round1_float(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			round_integer_double(local, quot, rem, left);
+			round1_double(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			round_integer_long(local, quot, rem, left);
+			round1_long(local, quot, rem, left);
 			break;
 
 		default:
@@ -110,7 +110,7 @@ void round_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
 	}
 }
 
-static void fround_integer_float(LocalRoot local, addr *quot, addr *rem, addr left)
+static void fround1_float(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
 
@@ -120,7 +120,7 @@ static void fround_integer_float(LocalRoot local, addr *quot, addr *rem, addr le
 	single_float_heap(rem, r);
 }
 
-static void fround_integer_double(LocalRoot local, addr *quot, addr *rem, addr left)
+static void fround1_double(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	double_float v, r;
 
@@ -130,7 +130,7 @@ static void fround_integer_double(LocalRoot local, addr *quot, addr *rem, addr l
 	double_float_heap(rem, r);
 }
 
-static void fround_integer_long(LocalRoot local, addr *quot, addr *rem, addr left)
+static void fround1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	long_float v, r;
 
@@ -140,7 +140,7 @@ static void fround_integer_long(LocalRoot local, addr *quot, addr *rem, addr lef
 	long_float_heap(rem, r);
 }
 
-void fround_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
+void fround1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -154,20 +154,20 @@ void fround_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			lisp_fround_integer_ratio(local, quot, rem, left);
+			lisp_fround1_ratio(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			fround_integer_float(local, quot, rem, left);
+			fround1_float(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fround_integer_double(local, quot, rem, left);
+			fround1_double(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			fround_integer_long(local, quot, rem, left);
+			fround1_long(local, quot, rem, left);
 			break;
 
 		default:
@@ -444,7 +444,7 @@ static void round_ratio_common(LocalRoot local,
 			break;
 
 		case LISPTYPE_BIGNUM:
-			lisp_round_br_ratio(local, quot, rem, left, right);
+			lisp_round_rb_ratio(local, quot, rem, left, right);
 			break;
 
 		case LISPTYPE_RATIO:

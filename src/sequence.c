@@ -813,7 +813,7 @@ void setelt_inplace_sequence(LocalRoot local,
 
 		case LISPTYPE_STRING:
 			if (str->type != ARRAY_TYPE_CHARACTER)
-				fmte("type error");
+				fmte("type error", NULL);
 			strvect_setc(pos, index, str->value.character);
 			break;
 

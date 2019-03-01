@@ -44,7 +44,7 @@ static void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
 	rollback_local(local, stack);
 }
 
-static void ceiling_integer_float(LocalRoot local, addr *quot, addr *rem, addr left)
+static void ceiling1_float(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
 
@@ -54,7 +54,7 @@ static void ceiling_integer_float(LocalRoot local, addr *quot, addr *rem, addr l
 	single_float_heap(rem, r);
 }
 
-static void ceiling_integer_double(LocalRoot local, addr *quot, addr *rem, addr left)
+static void ceiling1_double(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	double_float v, r;
 
@@ -64,7 +64,7 @@ static void ceiling_integer_double(LocalRoot local, addr *quot, addr *rem, addr 
 	double_float_heap(rem, r);
 }
 
-static void ceiling_integer_long(LocalRoot local, addr *quot, addr *rem, addr left)
+static void ceiling1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	long_float v, r;
 
@@ -74,7 +74,7 @@ static void ceiling_integer_long(LocalRoot local, addr *quot, addr *rem, addr le
 	long_float_heap(rem, r);
 }
 
-void ceiling_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
+void ceiling1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -88,20 +88,20 @@ void ceiling_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			lisp_ceiling_integer_ratio(local, quot, rem, left);
+			lisp_ceiling1_ratio(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			ceiling_integer_float(local, quot, rem, left);
+			ceiling1_float(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			ceiling_integer_double(local, quot, rem, left);
+			ceiling1_double(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			ceiling_integer_long(local, quot, rem, left);
+			ceiling1_long(local, quot, rem, left);
 			break;
 
 		default:
@@ -110,7 +110,7 @@ void ceiling_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
 	}
 }
 
-static void fceiling_integer_float(LocalRoot local, addr *quot, addr *rem, addr left)
+static void fceiling1_float(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
 
@@ -120,7 +120,7 @@ static void fceiling_integer_float(LocalRoot local, addr *quot, addr *rem, addr 
 	single_float_heap(rem, r);
 }
 
-static void fceiling_integer_double(LocalRoot local, addr *quot, addr *rem, addr left)
+static void fceiling1_double(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	double_float v, r;
 
@@ -130,7 +130,7 @@ static void fceiling_integer_double(LocalRoot local, addr *quot, addr *rem, addr
 	double_float_heap(rem, r);
 }
 
-static void fceiling_integer_long(LocalRoot local, addr *quot, addr *rem, addr left)
+static void fceiling1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	long_float v, r;
 
@@ -140,7 +140,7 @@ static void fceiling_integer_long(LocalRoot local, addr *quot, addr *rem, addr l
 	long_float_heap(rem, r);
 }
 
-void fceiling_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
+void fceiling1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -154,20 +154,20 @@ void fceiling_integer_common(LocalRoot local, addr *quot, addr *rem, addr left)
 			break;
 
 		case LISPTYPE_RATIO:
-			lisp_fceiling_integer_ratio(local, quot, rem, left);
+			lisp_fceiling1_ratio(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_SHORT_FLOAT:
 		case LISPTYPE_SINGLE_FLOAT:
-			fceiling_integer_float(local, quot, rem, left);
+			fceiling1_float(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fceiling_integer_double(local, quot, rem, left);
+			fceiling1_double(local, quot, rem, left);
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			fceiling_integer_long(local, quot, rem, left);
+			fceiling1_long(local, quot, rem, left);
 			break;
 
 		default:
@@ -444,7 +444,7 @@ static void ceiling_ratio_common(LocalRoot local,
 			break;
 
 		case LISPTYPE_BIGNUM:
-			lisp_ceiling_br_ratio(local, quot, rem, left, right);
+			lisp_ceiling_rb_ratio(local, quot, rem, left, right);
 			break;
 
 		case LISPTYPE_RATIO:

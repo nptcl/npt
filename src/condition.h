@@ -125,6 +125,11 @@ void instance_division_by_zero(addr *ret, addr operation, addr operands);
 void division_by_zero(addr operation, addr operands);
 void division_by_zero_constant(constindex index, addr operands);
 void division_by_zero_stdarg(constindex index, ...);
+void division_by_zero_real1(constindex index, addr left);
+void division_by_zero_real2(constindex index, addr left, addr right);
+void division_by_zero0(void);
+void division_by_zero1(addr left);
+void division_by_zero2(addr left, addr right);
 /* cell_error */
 void instance_cell_error(addr *ret, addr name);
 void cell_error(addr name);

@@ -3501,7 +3501,7 @@ void array_value_alloc(LocalRoot local, addr *ret, const struct array_value *str
 					int64_integer_alloc(local, ret, str->value.signed64); break;
 #endif
 				default:
-					fmte("size error"); break;
+					fmte("size error", NULL); break;
 			}
 			break;
 
@@ -3518,7 +3518,7 @@ void array_value_alloc(LocalRoot local, addr *ret, const struct array_value *str
 					uint64_integer_alloc(local, ret, str->value.unsigned64); break;
 #endif
 				default:
-					fmte("size error"); break;
+					fmte("size error", NULL); break;
 			}
 			break;
 

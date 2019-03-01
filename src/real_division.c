@@ -1,6 +1,7 @@
 #include "bigdata.h"
 #include "bignum.h"
 #include "condition.h"
+#include "format.h"
 #include "object.h"
 #include "ratio.h"
 #include "real_division.h"
@@ -14,7 +15,7 @@ static void division_by_zero_f(constindex index, fixnum a, fixnum b)
 
 	fixnum_heap(&left, a);
 	fixnum_heap(&right, b);
-	division_by_zero_stdarg(index, left, right, NULL);
+	division_by_zero_real2(index, left, right);
 }
 
 static void division_by_zero_s(constindex index, single_float a, single_float b)
@@ -23,7 +24,7 @@ static void division_by_zero_s(constindex index, single_float a, single_float b)
 
 	single_float_heap(&left, a);
 	single_float_heap(&right, b);
-	division_by_zero_stdarg(index, left, right, NULL);
+	division_by_zero_real2(index, left, right);
 }
 
 static void division_by_zero_d(constindex index, double_float a, double_float b)
@@ -32,7 +33,7 @@ static void division_by_zero_d(constindex index, double_float a, double_float b)
 
 	double_float_heap(&left, a);
 	double_float_heap(&right, b);
-	division_by_zero_stdarg(index, left, right, NULL);
+	division_by_zero_real2(index, left, right);
 }
 
 static void division_by_zero_l(constindex index, long_float a, long_float b)
@@ -41,7 +42,7 @@ static void division_by_zero_l(constindex index, long_float a, long_float b)
 
 	long_float_heap(&left, a);
 	long_float_heap(&right, b);
-	division_by_zero_stdarg(index, left, right, NULL);
+	division_by_zero_real2(index, left, right);
 }
 
 
@@ -54,6 +55,7 @@ single_float lisp_floor_s(single_float a, single_float b, single_float *rem)
 
 	if (b == 0.0f) {
 		division_by_zero_s(CONSTANT_COMMON_FLOOR, a, b);
+		return 0.0f;
 	}
 	if (a == 0.0f) {
 		*rem = 0.0f;
@@ -86,6 +88,7 @@ double_float lisp_floor_d(double_float a, double_float b, double_float *rem)
 
 	if (b == 0.0) {
 		division_by_zero_d(CONSTANT_COMMON_FLOOR, a, b);
+		return 0.0;
 	}
 	if (a == 0.0) {
 		*rem = 0.0;
@@ -118,6 +121,7 @@ long_float lisp_floor_l(long_float a, long_float b, long_float *rem)
 
 	if (b == 0.0L) {
 		division_by_zero_l(CONSTANT_COMMON_FLOOR, a, b);
+		return 0.0L;
 	}
 	if (a == 0.0L) {
 		*rem = 0.0L;
@@ -220,6 +224,7 @@ single_float lisp_ceiling_s(single_float a, single_float b, single_float *rem)
 
 	if (b == 0.0f) {
 		division_by_zero_s(CONSTANT_COMMON_CEILING, a, b);
+		return 0.0f;
 	}
 	if (a == 0.0f) {
 		*rem = 0.0f;
@@ -253,6 +258,7 @@ double_float lisp_ceiling_d(double_float a, double_float b, double_float *rem)
 
 	if (b == 0.0) {
 		division_by_zero_d(CONSTANT_COMMON_CEILING, a, b);
+		return 0.0;
 	}
 	if (a == 0.0) {
 		*rem = 0.0;
@@ -286,6 +292,7 @@ long_float lisp_ceiling_l(long_float a, long_float b, long_float *rem)
 
 	if (b == 0.0L) {
 		division_by_zero_l(CONSTANT_COMMON_CEILING, a, b);
+		return 0.0L;
 	}
 	if (a == 0.0L) {
 		*rem = 0.0L;
@@ -389,6 +396,7 @@ single_float lisp_truncate_s(single_float a, single_float b, single_float *rem)
 
 	if (b == 0.0f) {
 		division_by_zero_s(CONSTANT_COMMON_TRUNCATE, a, b);
+		return 0.0f;
 	}
 	if (a == 0.0f) {
 		*rem = 0.0f;
@@ -421,6 +429,7 @@ double_float lisp_truncate_d(double_float a, double_float b, double_float *rem)
 
 	if (b == 0.0) {
 		division_by_zero_d(CONSTANT_COMMON_TRUNCATE, a, b);
+		return 0.0;
 	}
 	if (a == 0.0) {
 		*rem = 0.0;
@@ -453,6 +462,7 @@ long_float lisp_truncate_l(long_float a, long_float b, long_float *rem)
 
 	if (b == 0.0L) {
 		division_by_zero_l(CONSTANT_COMMON_TRUNCATE, a, b);
+		return 0.0L;
 	}
 	if (a == 0.0L) {
 		*rem = 0.0L;
@@ -551,6 +561,7 @@ single_float lisp_round_s(single_float a, single_float b, single_float *rem)
 
 	if (b == 0.0f) {
 		division_by_zero_s(CONSTANT_COMMON_ROUND, a, b);
+		return 0.0f;
 	}
 	f = modff(a / b, &i);
 	if (0.0f <= f) {
@@ -586,6 +597,7 @@ double_float lisp_round_d(double_float a, double_float b, double_float *rem)
 
 	if (b == 0.0) {
 		division_by_zero_d(CONSTANT_COMMON_ROUND, a, b);
+		return 0.0;
 	}
 	f = modf(a / b, &i);
 	if (0.0 <= f) {
@@ -621,6 +633,7 @@ long_float lisp_round_l(long_float a, long_float b, long_float *rem)
 
 	if (b == 0.0L) {
 		division_by_zero_l(CONSTANT_COMMON_ROUND, a, b);
+		return 0.0L;
 	}
 	f = modfl(a / b, &i);
 	if (0.0L <= f) {
@@ -736,6 +749,7 @@ fixnum lisp_floor_f(fixnum a, fixnum b, fixnum *rem)
 
 	if (b == 0) {
 		division_by_zero_f(CONSTANT_COMMON_FLOOR, a, b);
+		return 0;
 	}
 	Check(a == FIXNUM_MIN && b == -1, "floor fixnum overflow.");
 
@@ -766,6 +780,7 @@ fixnum lisp_ceiling_f(fixnum a, fixnum b, fixnum *rem)
 
 	if (b == 0) {
 		division_by_zero_f(CONSTANT_COMMON_CEILING, a, b);
+		return 0;
 	}
 	Check(a == FIXNUM_MIN && b == -1, "ceiling fixnum overflow.");
 
@@ -794,6 +809,7 @@ fixnum lisp_truncate_f(fixnum a, fixnum b, fixnum *rem)
 {
 	if (b == 0) {
 		division_by_zero_f(CONSTANT_COMMON_TRUNCATE, a, b);
+		return 0;
 	}
 	Check(a == FIXNUM_MIN && b == -1, "truncate fixnum overflow.");
 
@@ -808,6 +824,7 @@ fixnum lisp_round_f(fixnum a, fixnum b, fixnum *rem)
 	/* error */
 	if (b == 0) {
 		division_by_zero_f(CONSTANT_COMMON_ROUND, a, b);
+		return 0;
 	}
 
 	/* |b| = 1 */
@@ -895,7 +912,7 @@ fixnum lisp_round_f(fixnum a, fixnum b, fixnum *rem)
 void lisp_floor_fixnum(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
-		bignum_value_alloc(NULL, quot, signminus_bignum, FIXNUM_UMIN);
+		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
 		fixnum_heap(rem, 0);
 	}
 	else {
@@ -908,7 +925,7 @@ void lisp_floor_fixnum(addr *quot, addr *rem, fixnum a, fixnum b)
 void lisp_ceiling_fixnum(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
-		bignum_value_alloc(NULL, quot, signminus_bignum, FIXNUM_UMIN);
+		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
 		fixnum_heap(rem, 0);
 	}
 	else {
@@ -921,7 +938,7 @@ void lisp_ceiling_fixnum(addr *quot, addr *rem, fixnum a, fixnum b)
 void lisp_truncate_fixnum(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
-		bignum_value_alloc(NULL, quot, signminus_bignum, FIXNUM_UMIN);
+		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
 		fixnum_heap(rem, 0);
 	}
 	else {
@@ -934,7 +951,7 @@ void lisp_truncate_fixnum(addr *quot, addr *rem, fixnum a, fixnum b)
 void lisp_round_fixnum(addr *quot, addr *rem, fixnum a, fixnum b)
 {
 	if (a == FIXNUM_MIN && b == -1) {
-		bignum_value_alloc(NULL, quot, signminus_bignum, FIXNUM_UMIN);
+		bignum_value_heap(quot, signminus_bignum, FIXNUM_UMIN);
 		fixnum_heap(rem, 0);
 	}
 	else {
@@ -1000,49 +1017,106 @@ void lisp_fround_fixnum(addr *quot, addr *rem, fixnum a, fixnum b)
 /*
  *  bignum
  */
-static void lisp_floor_b(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+struct divrem_struct {
+	LocalRoot local;
+	LocalStack stack;
+	addr quot, rem;
+	addr a, b, pos;
+	int sign;
+};
+
+static void divrem_struct_initialize(LocalRoot local,
+		struct divrem_struct *ptr, addr a, addr b)
+{
+	push_local(local, &(ptr->stack));
+	ptr->local = local;
+	ptr->quot = ptr->rem = NULL;
+	ptr->a = a;
+	ptr->b = b;
+	ptr->pos = NULL;
+}
+
+static void divrem_struct_initialize1(LocalRoot local,
+		struct divrem_struct *ptr, addr pos)
+{
+	addr numer, denom;
+
+	GetNumerRatio(pos, &numer);
+	GetDenomRatio(pos, &denom);
+	divrem_struct_initialize(local, ptr, numer, denom);
+	ptr->pos = pos;
+}
+
+static void divrem_struct_call(struct divrem_struct *ptr)
 {
 	int sign, sign1, sign2;
 	addr q, r;
 
-	GetSignBignum(a, &sign1);
-	GetSignBignum(b, &sign2);
-	sign = SignMulti(sign1, sign2);
-	divrem_bigdata_local(local, &q, &r, a, b);
-	SetSignBignum(q, sign);
-	SetSignBignum(r, sign2);
-	if (zerop_bignum(r)) {
-		bignum_result_heap(q, quot);
-		fixnum_heap(rem, 0);
+	if (ptr->quot == NULL) {
+		GetSignBignum(ptr->a, &sign1);
+		GetSignBignum(ptr->b, &sign2);
+		sign = SignMulti(sign1, sign2);
+		divrem_bigdata_local(ptr->local, &q, &r, ptr->a, ptr->b);
+		SetSignBignum(q, sign);
+		SetSignBignum(r, sign1);
+		ptr->quot = q;
+		ptr->rem = r;
+		ptr->sign = sign;
+	}
+}
+
+static void divrem_struct_integer(struct divrem_struct *ptr, addr *quot, addr *rem)
+{
+	bignum_result_heap(ptr->quot, quot);
+	*rem = ptr->rem;
+	rollback_local(ptr->local, ptr->stack);
+#ifdef LISP_DEBUG
+	ptr->local = (LocalRoot)Unbound;
+#endif
+}
+
+static void divrem_struct_float(struct divrem_struct *ptr, addr *quot, addr *rem)
+{
+	single_float_bignum_heap(quot, ptr->quot);
+	*rem = ptr->rem;
+	rollback_local(ptr->local, ptr->stack);
+#ifdef LISP_DEBUG
+	ptr->local = (LocalRoot)Unbound;
+#endif
+}
+
+static void divrem_struct_close(struct divrem_struct *ptr)
+{
+	rollback_local(ptr->local, ptr->stack);
+#ifdef LISP_DEBUG
+	ptr->local = (LocalRoot)Unbound;
+#endif
+}
+
+static void lisp_floor_bb(struct divrem_struct *ptr)
+{
+	divrem_struct_call(ptr);
+	if (zerop_bignum(ptr->rem)) {
+		fixnum_heap(&(ptr->rem), 0);
 		return;
 	}
-	if (plusp_bignum(a)) {
-		if (minusp_bignum(b))
-			goto floor2;
+	if (IsMinus(ptr->sign)) {
+		plus_bv_bignum_local(ptr->local, ptr->quot, -1, &(ptr->quot));
+		plus_bb_bignum_local(ptr->local, ptr->b, ptr->rem, &(ptr->rem));
 	}
-	else if (plusp_bignum(b)) {
-		goto floor2;
-	}
-	bignum_result_heap(q, quot);
-	bignum_result_heap(r, rem);
-	return;
-
-floor2:
-	plus_fv_bignum_local(local, q, -1, &q);
-	plus_bb_bignum_local(local, r, b, &r);
-	bignum_result_heap(q, quot);
-	bignum_result_heap(r, rem);
+	bignum_result_heap(ptr->rem, &(ptr->rem));
 }
 
 void lisp_floor_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	LocalStack stack;
+	struct divrem_struct str;
 
 	Check(local == NULL, "local error");
 	CheckType(a, LISPTYPE_BIGNUM);
 	CheckType(b, LISPTYPE_BIGNUM);
 	if (zerop_bignum(b)) {
-		division_by_zero_stdarg(CONSTANT_COMMON_FLOOR, a, b, NULL);
+		division_by_zero_real2(CONSTANT_COMMON_FLOOR, a, b);
+		return;
 	}
 	if (zerop_bignum(a)) {
 		fixnum_heap(quot, 0);
@@ -1050,54 +1124,21 @@ void lisp_floor_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 		return;
 	}
 
-	push_local(local, &stack);
-	lisp_floor_b(local, quot, rem, a, b);
-	rollback_local(local, stack);
-}
-
-static void lisp_ffloor_b(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	int sign, sign1, sign2;
-	addr q, r;
-
-	GetSignBignum(a, &sign1);
-	GetSignBignum(b, &sign2);
-	sign = SignMulti(sign1, sign2);
-	divrem_bigdata_local(local, &q, &r, a, b);
-	SetSignBignum(q, sign);
-	SetSignBignum(r, sign2);
-	if (zerop_bignum(r)) {
-		single_float_bignum_heap(quot, q);
-		fixnum_heap(rem, 0);
-		return;
-	}
-	if (plusp_bignum(a)) {
-		if (minusp_bignum(b))
-			goto floor2;
-	}
-	else if (plusp_bignum(b)) {
-		goto floor2;
-	}
-	single_float_bignum_heap(quot, q);
-	bignum_result_heap(r, rem);
-	return;
-
-floor2:
-	plus_fv_bignum_local(local, q, -1, &q);
-	plus_bb_bignum_local(local, r, b, &r);
-	single_float_bignum_heap(quot, q);
-	bignum_result_heap(r, rem);
+	divrem_struct_initialize(local, &str, a, b);
+	lisp_floor_bb(&str);
+	divrem_struct_integer(&str, quot, rem);
 }
 
 void lisp_ffloor_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	LocalStack stack;
+	struct divrem_struct str;
 
 	Check(local == NULL, "local error");
 	CheckType(a, LISPTYPE_BIGNUM);
 	CheckType(b, LISPTYPE_BIGNUM);
 	if (zerop_bignum(b)) {
-		division_by_zero_stdarg(CONSTANT_COMMON_FFLOOR, a, b, NULL);
+		division_by_zero_real2(CONSTANT_COMMON_FFLOOR, a, b);
+		return;
 	}
 	if (zerop_bignum(a)) {
 		single_float_heap(quot, 0.0f);
@@ -1105,54 +1146,35 @@ void lisp_ffloor_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 		return;
 	}
 
-	push_local(local, &stack);
-	lisp_ffloor_b(local, quot, rem, a, b);
-	rollback_local(local, stack);
+	divrem_struct_initialize(local, &str, a, b);
+	lisp_floor_bb(&str);
+	divrem_struct_float(&str, quot, rem);
 }
 
-static void lisp_ceiling_b(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void lisp_ceiling_bb(struct divrem_struct *ptr)
 {
-	int sign, sign1, sign2;
-	addr q, r;
-
-	GetSignBignum(a, &sign1);
-	GetSignBignum(b, &sign2);
-	sign = SignMulti(sign1, sign2);
-	divrem_bigdata_local(local, &q, &r, a, b);
-	SetSignBignum(q, sign);
-	SetSignBignum(r, sign2);
-	if (zerop_bignum(r)) {
-		bignum_result_heap(q, quot);
-		fixnum_heap(rem, 0);
+	divrem_struct_call(ptr);
+	if (zerop_bignum(ptr->rem)) {
+		fixnum_heap(&(ptr->rem), 0);
 		return;
 	}
-	if (plusp_bignum(a)) {
-		if (minusp_bignum(b))
-			goto ceiling2;
+	if (IsPlus(ptr->sign)) {
+		plus_bv_bignum_local(ptr->local, ptr->quot, 1, &(ptr->quot));
+		minus_bb_bignum_local(ptr->local, ptr->rem, ptr->b, &(ptr->rem));
 	}
-	else if (plusp_bignum(b)) {
-		goto ceiling2;
-	}
-	plus_fv_bignum_local(local, q, 1, &q);
-	minus_bb_real_local(local, r, b, &r);
-	bignum_result_heap(q, quot);
-	bignum_result_heap(r, rem);
-	return;
-
-ceiling2:
-	bignum_result_heap(q, quot);
-	bignum_result_heap(r, rem);
+	bignum_result_heap(ptr->rem, &(ptr->rem));
 }
 
 void lisp_ceiling_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	LocalStack stack;
+	struct divrem_struct str;
 
 	Check(local == NULL, "local error");
 	CheckType(a, LISPTYPE_BIGNUM);
 	CheckType(b, LISPTYPE_BIGNUM);
 	if (zerop_bignum(b)) {
-		division_by_zero_stdarg(CONSTANT_COMMON_CEILING, a, b, NULL);
+		division_by_zero_real2(CONSTANT_COMMON_CEILING, a, b);
+		return;
 	}
 	if (zerop_bignum(a)) {
 		fixnum_heap(quot, 0);
@@ -1160,54 +1182,21 @@ void lisp_ceiling_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 		return;
 	}
 
-	push_local(local, &stack);
-	lisp_ceiling_b(local, quot, rem, a, b);
-	rollback_local(local, stack);
-}
-
-static void lisp_fceiling_b(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	int sign, sign1, sign2;
-	addr q, r;
-
-	GetSignBignum(a, &sign1);
-	GetSignBignum(b, &sign2);
-	sign = SignMulti(sign1, sign2);
-	divrem_bigdata_local(local, &q, &r, a, b);
-	SetSignBignum(q, sign);
-	SetSignBignum(r, sign2);
-	if (zerop_bignum(r)) {
-		single_float_bignum_heap(quot, q);
-		fixnum_heap(rem, 0);
-		return;
-	}
-	if (plusp_bignum(a)) {
-		if (minusp_bignum(b))
-			goto ceiling2;
-	}
-	else if (plusp_bignum(b)) {
-		goto ceiling2;
-	}
-	plus_fv_bignum_local(local, q, 1, &q);
-	minus_bb_real_local(local, r, b, &r);
-	single_float_bignum_heap(quot, q);
-	bignum_result_heap(r, rem);
-	return;
-
-ceiling2:
-	single_float_bignum_heap(quot, q);
-	bignum_result_heap(r, rem);
+	divrem_struct_initialize(local, &str, a, b);
+	lisp_ceiling_bb(&str);
+	divrem_struct_integer(&str, quot, rem);
 }
 
 void lisp_fceiling_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	LocalStack stack;
+	struct divrem_struct str;
 
 	Check(local == NULL, "local error");
 	CheckType(a, LISPTYPE_BIGNUM);
 	CheckType(b, LISPTYPE_BIGNUM);
 	if (zerop_bignum(b)) {
-		division_by_zero_stdarg(CONSTANT_COMMON_FCEILING, a, b, NULL);
+		division_by_zero_real2(CONSTANT_COMMON_FCEILING, a, b);
+		return;
 	}
 	if (zerop_bignum(a)) {
 		single_float_heap(quot, 0.0f);
@@ -1215,35 +1204,27 @@ void lisp_fceiling_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 		return;
 	}
 
-	push_local(local, &stack);
-	lisp_fceiling_b(local, quot, rem, a, b);
-	rollback_local(local, stack);
+	divrem_struct_initialize(local, &str, a, b);
+	lisp_ceiling_bb(&str);
+	divrem_struct_float(&str, quot, rem);
 }
 
-static void lisp_truncate_b(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void lisp_truncate_bb(struct divrem_struct *ptr)
 {
-	int sign, sign1, sign2;
-	addr q, r;
-
-	GetSignBignum(a, &sign1);
-	GetSignBignum(b, &sign2);
-	sign = SignMulti(sign1, sign2);
-	divrem_bigdata_local(local, &q, &r, a, b);
-	SetSignBignum(q, sign);
-	SetSignBignum(r, sign2);
-	bignum_result_heap(q, quot);
-	bignum_result_heap(r, rem);
+	divrem_struct_call(ptr);
+	bignum_result_heap(ptr->rem, &(ptr->rem));
 }
 
 void lisp_truncate_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	LocalStack stack;
+	struct divrem_struct str;
 
 	Check(local == NULL, "local error");
 	CheckType(a, LISPTYPE_BIGNUM);
 	CheckType(b, LISPTYPE_BIGNUM);
 	if (zerop_bignum(b)) {
-		division_by_zero_stdarg(CONSTANT_COMMON_TRUNCATE, a, b, NULL);
+		division_by_zero_real2(CONSTANT_COMMON_TRUNCATE, a, b);
+		return;
 	}
 	if (zerop_bignum(a)) {
 		fixnum_heap(quot, 0);
@@ -1251,35 +1232,21 @@ void lisp_truncate_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 		return;
 	}
 
-	push_local(local, &stack);
-	lisp_truncate_b(local, quot, rem, a, b);
-	rollback_local(local, stack);
-}
-
-static void lisp_ftruncate_b(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	int sign, sign1, sign2;
-	addr q, r;
-
-	GetSignBignum(a, &sign1);
-	GetSignBignum(b, &sign2);
-	sign = SignMulti(sign1, sign2);
-	divrem_bigdata_local(local, &q, &r, a, b);
-	SetSignBignum(q, sign);
-	SetSignBignum(r, sign2);
-	single_float_bignum_heap(quot, q);
-	bignum_result_heap(r, rem);
+	divrem_struct_initialize(local, &str, a, b);
+	lisp_truncate_bb(&str);
+	divrem_struct_integer(&str, quot, rem);
 }
 
 void lisp_ftruncate_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	LocalStack stack;
+	struct divrem_struct str;
 
 	Check(local == NULL, "local error");
 	CheckType(a, LISPTYPE_BIGNUM);
 	CheckType(b, LISPTYPE_BIGNUM);
 	if (zerop_bignum(b)) {
-		division_by_zero_stdarg(CONSTANT_COMMON_FTRUNCATE, a, b, NULL);
+		division_by_zero_real2(CONSTANT_COMMON_FTRUNCATE, a, b);
+		return;
 	}
 	if (zerop_bignum(a)) {
 		single_float_heap(quot, 0.0f);
@@ -1287,623 +1254,1051 @@ void lisp_ftruncate_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr 
 		return;
 	}
 
-	push_local(local, &stack);
-	lisp_ftruncate_b(local, quot, rem, a, b);
-	rollback_local(local, stack);
+	divrem_struct_initialize(local, &str, a, b);
+	lisp_truncate_bb(&str);
+	divrem_struct_float(&str, quot, rem);
 }
 
-static void lisp_round_b2_plus(LocalRoot local, addr *ret, addr pos)
+static int lisp_round_bb_check(struct divrem_struct *ptr)
 {
-	int sign;
+	int sign, check;
+	addr b;
+	LocalRoot local;
+	LocalStack stack;
 
-	GetSignBignum(pos, &sign);
-	division2_bigdata_alloc(local, ret, pos);
-	SetSignBignum(*ret, sign);
-}
-
-static void lisp_round_b2_minus(LocalRoot local, addr *ret, addr pos)
-{
-	int sign;
-
-	GetSignBignum(pos, &sign);
-	division2_bigdata_alloc(local, ret, pos);
-	SetSignBignum(*ret, SignNot(sign));
-}
-
-static void lisp_round_b(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	int sign, sign1, sign2;
-	addr q, r, b2;
-
-	/* r = 0 */
-	GetSignBignum(a, &sign1);
-	GetSignBignum(b, &sign2);
-	sign = SignMulti(sign1, sign2);
-	divrem_bigdata_local(local, &q, &r, a, b);
-	SetSignBignum(q, sign);
-	SetSignBignum(r, sign2);
-	if (zerop_bignum(r)) {
-		bignum_result_heap(q, quot);
-		fixnum_heap(rem, 0);
-		return;
+	divrem_struct_call(ptr);
+	if (zerop_bignum(ptr->rem)) {
+		return 0;
 	}
 
-	/* plus, minus */
-	if (plusp_bignum(a)) {
-		if (plusp_bignum(b)) {
-			/* a:plus, b:plus, q:plus, r:plus */
-			lisp_round_b2_plus(local, &b2, b);
-			if (compare_bb_real(r, b2) < 0)
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (compare_bb_real(b2, r) < 0)
-				lisp_ceiling_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(b))
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(q))
-				lisp_ceiling_bignum(local, quot, rem, a, b);
+	local = ptr->local;
+	push_local(local, &stack);
+	division2_bigdata_alloc(local, &b, ptr->b);
+	GetSignBignum(ptr->quot, &sign);
+	if (IsPlus(sign)) {
+		check = compare_bigdata(ptr->rem, b);
+		if (check == 0) {
+			if (evenp_bignum(ptr->b))
+				check = evenp_bignum(ptr->quot)? -1: 1;
 			else
-				lisp_truncate_bignum(local, quot, rem, a, b);
-		}
-		else {
-			/* a:plus, b:minus, q:minus, r:plus */
-			lisp_round_b2_minus(local, &b2, b);
-			if (compare_bb_real(r, b2) < 0)
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (compare_bb_real(b2, r) < 0)
-				lisp_floor_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(b))
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(q))
-				lisp_floor_bignum(local, quot, rem, a, b);
-			else
-				lisp_truncate_bignum(local, quot, rem, a, b);
+				check = -1;
 		}
 	}
 	else {
-		if (plusp_bignum(b)) {
-			/* a:minus, b:plus, q:minus, r:minus */
-			lisp_round_b2_minus(local, &b2, b);
-			if (compare_bb_real(b2, r) < 0)
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (compare_bb_real(r, b2) < 0)
-				lisp_floor_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(b))
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(q))
-				lisp_floor_bignum(local, quot, rem, a, b);
+		check = compare_bigdata(b, ptr->rem);
+		if (check == 0) {
+			if (evenp_bignum(ptr->b))
+				check = evenp_bignum(ptr->quot)? 1: -1;
 			else
-				lisp_truncate_bignum(local, quot, rem, a, b);
+				check = 1;
 		}
-		else {
-			/* a:minus, b:minus, q:plus, r:minus */
-			lisp_round_b2_plus(local, &b2, b);
-			if (compare_bb_real(r, b2) < 0)
-				lisp_ceiling_bignum(local, quot, rem, a, b);
-			else if (compare_bb_real(b2, r) < 0)
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(b))
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(q))
-				lisp_ceiling_bignum(local, quot, rem, a, b);
-			else
-				lisp_truncate_bignum(local, quot, rem, a, b);
-		}
+
 	}
+	rollback_local(local, stack);
+
+	return check;
+}
+
+static void lisp_round_bb(struct divrem_struct *ptr)
+{
+	int check;
+
+	Check(zerop_bignum(ptr->a), "zero error: a");
+	Check(zerop_bignum(ptr->b), "zero error: b");
+
+	check = lisp_round_bb_check(ptr);
+	if (check < 0)
+		lisp_floor_bb(ptr);
+	else if (0 < check)
+		lisp_ceiling_bb(ptr);
+	else
+		fixnum_heap(&(ptr->rem), 0);
 }
 
 void lisp_round_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	int sign;
-	LocalStack stack;
+	struct divrem_struct str;
 
 	Check(local == NULL, "local error");
 	CheckType(a, LISPTYPE_BIGNUM);
 	CheckType(b, LISPTYPE_BIGNUM);
 	if (zerop_bignum(b)) {
-		division_by_zero_stdarg(CONSTANT_COMMON_ROUND, a, b, NULL);
-	}
-
-	/* |b| = 1 */
-	if (equal_value_bignum(b, SignPlus, 1)) {
-		bignum_result_heap(a, quot);
-		fixnum_heap(rem, 0);
+		division_by_zero_real2(CONSTANT_COMMON_ROUND, a, b);
 		return;
 	}
-	if (equal_value_bignum(b, SignMinus, 1)) {
-		GetSignBignum(a, &sign);
-		push_local(local, &stack);
-		bignum_copy_nosign_alloc(local, &a, a);
-		SetSignBignum(a, SignNot(sign));
-		bignum_result_heap(a, quot);
-		rollback_local(local, stack);
+	if (zerop_bignum(a)) {
+		fixnum_heap(quot, 0);
 		fixnum_heap(rem, 0);
 		return;
 	}
 
-	push_local(local, &stack);
-	lisp_round_b(local, quot, rem, a, b);
-	rollback_local(local, stack);
-}
-
-static void lisp_fround_b(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	int sign, sign1, sign2;
-	addr q, r, b2;
-
-	/* r = 0 */
-	GetSignBignum(a, &sign1);
-	GetSignBignum(b, &sign2);
-	sign = SignMulti(sign1, sign2);
-	divrem_bigdata_local(local, &q, &r, a, b);
-	SetSignBignum(q, sign);
-	SetSignBignum(r, sign2);
-	if (zerop_bignum(r)) {
-		single_float_bignum_heap(quot, q);
-		fixnum_heap(rem, 0);
-		return;
-	}
-
-	/* plus, minus */
-	if (plusp_bignum(a)) {
-		if (plusp_bignum(b)) {
-			/* a:plus, b:plus, q:plus, r:plus */
-			lisp_round_b2_plus(local, &b2, b);
-			if (compare_bb_real(r, b2) < 0)
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (compare_bb_real(b2, r) < 0)
-				lisp_ceiling_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(b))
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(q))
-				lisp_ceiling_bignum(local, quot, rem, a, b);
-			else
-				lisp_truncate_bignum(local, quot, rem, a, b);
-		}
-		else {
-			/* a:plus, b:minus, q:minus, r:plus */
-			lisp_round_b2_minus(local, &b2, b);
-			if (compare_bb_real(r, b2) < 0)
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (compare_bb_real(b2, r) < 0)
-				lisp_floor_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(b))
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(q))
-				lisp_floor_bignum(local, quot, rem, a, b);
-			else
-				lisp_truncate_bignum(local, quot, rem, a, b);
-		}
-	}
-	else {
-		if (plusp_bignum(b)) {
-			/* a:minus, b:plus, q:minus, r:minus */
-			lisp_round_b2_minus(local, &b2, b);
-			if (compare_bb_real(b2, r) < 0)
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (compare_bb_real(r, b2) < 0)
-				lisp_floor_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(b))
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(q))
-				lisp_floor_bignum(local, quot, rem, a, b);
-			else
-				lisp_truncate_bignum(local, quot, rem, a, b);
-		}
-		else {
-			/* a:minus, b:minus, q:plus, r:minus */
-			lisp_round_b2_plus(local, &b2, b);
-			if (compare_bb_real(r, b2) < 0)
-				lisp_ceiling_bignum(local, quot, rem, a, b);
-			else if (compare_bb_real(b2, r) < 0)
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(b))
-				lisp_truncate_bignum(local, quot, rem, a, b);
-			else if (oddp_bignum(q))
-				lisp_ceiling_bignum(local, quot, rem, a, b);
-			else
-				lisp_truncate_bignum(local, quot, rem, a, b);
-		}
-	}
+	divrem_struct_initialize(local, &str, a, b);
+	lisp_round_bb(&str);
+	divrem_struct_integer(&str, quot, rem);
 }
 
 void lisp_fround_bignum(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	int sign;
-	LocalStack stack;
+	struct divrem_struct str;
 
 	Check(local == NULL, "local error");
 	CheckType(a, LISPTYPE_BIGNUM);
 	CheckType(b, LISPTYPE_BIGNUM);
 	if (zerop_bignum(b)) {
-		division_by_zero_stdarg(CONSTANT_COMMON_ROUND, a, b, NULL);
-	}
-
-	/* |b| = 1 */
-	if (equal_value_bignum(b, SignPlus, 1)) {
-		single_float_bignum_heap(quot, a);
-		fixnum_heap(rem, 0);
+		division_by_zero_real2(CONSTANT_COMMON_FROUND, a, b);
 		return;
 	}
-	if (equal_value_bignum(b, SignMinus, 1)) {
-		GetSignBignum(a, &sign);
-		push_local(local, &stack);
-		bignum_copy_nosign_alloc(local, &a, a);
-		SetSignBignum(a, SignNot(sign));
-		single_float_bignum_heap(quot, a);
-		rollback_local(local, stack);
+	if (zerop_bignum(a)) {
+		single_float_heap(quot, 0.0f);
 		fixnum_heap(rem, 0);
 		return;
 	}
 
-	push_local(local, &stack);
-	lisp_fround_b(local, quot, rem, a, b);
-	rollback_local(local, stack);
+	divrem_struct_initialize(local, &str, a, b);
+	lisp_round_bb(&str);
+	divrem_struct_float(&str, quot, rem);
 }
 
 
 /*
  *  ratio
  */
-static void lisp_floor_integer_nosign_ratio(LocalRoot local,
-		addr *quot, addr *rem, addr pos)
+static void lisp_floor1_nosign(struct divrem_struct *ptr, int sign1, int sign2)
 {
 	int check;
-	addr numer, denom, temp;
-	LocalStack stack;
+	addr quot, rem, temp;
 
-	GetNumerRatio(pos, &numer);
-	GetNumerRatio(pos, &denom);
-	check = equal_nosign_bignum(numer, denom);
+	check = compare_bigdata(ptr->a, ptr->b);
 	Check(check == 0, "ratio error");
 	if (check <= 0) {
-		fixnum_heap(quot, 0);
-		ratio_copy_nosign_alloc(NULL, rem, pos);
+		bignum_zero_local(ptr->local, &quot);
+		ratio_copy_nosign_heap(&rem, ptr->pos);
+		SetSignRatio(rem, sign2);
 	}
 	else {
-		push_local(local, &stack);
-		divrem_bigdata_local(local, &numer, &temp, numer, denom);
-		Check(zerop_bignum(temp), "ratio zero error");
-		bignum_copy_nosign_alloc(NULL, quot, numer);
-		bignum_throw_heap(temp, &temp);
-		bignum_throw_heap(denom, &denom);
-		make_ratio_alloc_unsafe(NULL, rem, SignPlus, temp, denom);
-		rollback_local(local, stack);
+		divrem_struct_call(ptr);
+		Check(zerop_bignum(ptr->rem), "ratio zero error");
+		/* quot */
+		bignum_copy_nosign_local(ptr->local, &quot, ptr->quot);
+		SetSignBignum(quot, sign1);
+		/* rem */
+		bignum_throw_heap(ptr->rem, &rem);
+		bignum_throw_heap(ptr->b, &temp);
+		make_ratio_alloc_unsafe(NULL, &rem, sign2, rem, temp);
 	}
+	ptr->quot = quot;
+	ptr->rem = rem;
 }
 
-static void lisp_ceiling_integer_nosign_ratio(LocalRoot local,
-		addr *quot, addr *rem, addr pos)
+static void lisp_ceiling1_nosign(struct divrem_struct *ptr, int sign1, int sign2)
 {
 	int check;
-	addr numer, denom, temp;
-	LocalStack stack;
+	addr quot, rem, temp;
 
-	GetNumerRatio(pos, &numer);
-	GetNumerRatio(pos, &denom);
-	check = equal_nosign_bignum(numer, denom);
+	check = compare_bigdata(ptr->a, ptr->b);
 	Check(check == 0, "ratio error");
 	if (check <= 0) {
-		fixnum_heap(quot, 0);
-		minus_bigdata_alloc(NULL, denom, numer, &numer);
-		bignum_throw_heap(denom, &denom);
-		make_ratio_alloc_unsafe(NULL, rem, SignPlus, numer, denom);
+		bignum_value_local(ptr->local, &quot, sign1, 1);
+		minus_bigdata_alloc(NULL, ptr->b, ptr->a, &rem);
+		bignum_throw_heap(ptr->b, &temp);
+		make_ratio_alloc_unsafe(NULL, &rem, sign2, rem, temp);
 	}
 	else {
-		push_local(local, &stack);
-		divrem_bigdata_local(local, &numer, &temp, numer, denom);
-		Check(zerop_bignum(temp), "ratio zero error");
-		plusvalue_bigdata_alloc(NULL, numer, SignPlus, 1, quot);
-		minus_bigdata_alloc(NULL, denom, temp, &temp);
-		bignum_throw_heap(denom, &denom);
-		make_ratio_alloc_unsafe(NULL, rem, SignPlus, numer, denom);
-		rollback_local(local, stack);
+		divrem_struct_call(ptr);
+		Check(zerop_bignum(ptr->rem), "ratio zero error");
+		/* quot */
+		plusvalue_bigdata_alloc(ptr->local, ptr->quot, sign1, 1, &quot);
+		/* rem */
+		minus_bigdata_alloc(NULL, ptr->b, ptr->rem, &rem);
+		bignum_throw_heap(ptr->b, &temp);
+		make_ratio_alloc_unsafe(NULL, &rem, sign2, rem, temp);
 	}
+	ptr->quot = quot;
+	ptr->rem = rem;
 }
 
-void lisp_floor_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+static void lisp_floor1_r(struct divrem_struct *ptr)
 {
 	int sign;
 
+	GetSignRatio(ptr->pos, &sign);
+	if (IsPlus(sign))
+		lisp_floor1_nosign(ptr, SignPlus, SignPlus);
+	else
+		lisp_ceiling1_nosign(ptr, SignMinus, SignPlus);
+}
+
+void lisp_floor1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+{
+	struct divrem_struct str;
+
+	Check(local == NULL, "local error");
 	CheckType(pos, LISPTYPE_RATIO);
 	if (zerop_ratio(pos)) {
 		fixnum_heap(quot, 0);
 		fixnum_heap(rem, 0);
+		return;
 	}
-	else {
-		GetSignRatio(pos, &sign);
-		if (IsPlus(sign)) {
-			lisp_floor_integer_nosign_ratio(local, quot, rem, pos);
-		}
-		else {
-			lisp_ceiling_integer_nosign_ratio(local, quot, rem, pos);
-			SetSignRatio(*quot, SignMinus);
-		}
-	}
+
+	divrem_struct_initialize1(local, &str, pos);
+	lisp_floor1_r(&str);
+	divrem_struct_integer(&str, quot, rem);
 }
 
-void lisp_ceiling_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+static void lisp_ceiling1_r(struct divrem_struct *ptr)
 {
 	int sign;
 
+	GetSignRatio(ptr->pos, &sign);
+	if (IsPlus(sign))
+		lisp_ceiling1_nosign(ptr, SignPlus, SignMinus);
+	else
+		lisp_floor1_nosign(ptr, SignMinus, SignMinus);
+}
+
+void lisp_ceiling1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+{
+	struct divrem_struct str;
+
+	Check(local == NULL, "local error");
 	CheckType(pos, LISPTYPE_RATIO);
 	if (zerop_ratio(pos)) {
 		fixnum_heap(quot, 0);
 		fixnum_heap(rem, 0);
+		return;
 	}
-	else {
-		GetSignRatio(pos, &sign);
-		if (IsPlus(sign)) {
-			lisp_ceiling_integer_nosign_ratio(local, quot, rem, pos);
-			SetSignRatio(*rem, SignMinus);
-		}
-		else {
-			lisp_floor_integer_nosign_ratio(local, quot, rem, pos);
-			SetSignRatio(*quot, SignMinus);
-			SetSignRatio(*rem, SignMinus);
-		}
-	}
+
+	divrem_struct_initialize1(local, &str, pos);
+	lisp_ceiling1_r(&str);
+	divrem_struct_integer(&str, quot, rem);
 }
 
-void lisp_truncate_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+void lisp_truncate1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
 	int sign;
+	struct divrem_struct str;
 
+	Check(local == NULL, "local error");
 	CheckType(pos, LISPTYPE_RATIO);
 	if (zerop_ratio(pos)) {
 		fixnum_heap(quot, 0);
 		fixnum_heap(rem, 0);
+		return;
 	}
-	else {
-		GetSignRatio(pos, &sign);
-		lisp_floor_integer_nosign_ratio(local, quot, rem, pos);
-		if (IsMinus(sign)) {
-			SetSignRatio(*quot, SignMinus);
-			SetSignRatio(*rem, SignMinus);
-		}
-	}
-}
 
-static void lisp_round_integer_r(LocalRoot local,
-		addr *quot, addr *rem, addr pos)
-{
-	int sign;
-	addr numer, denom, denom2, temp;
-
+	divrem_struct_initialize1(local, &str, pos);
 	GetSignRatio(pos, &sign);
-	GetNumerRatio(pos, &numer);
-	GetDenomRatio(pos, &denom);
-	/* rem = 1/2 */
-	divrem_bigdata_local(local, &numer, &temp, numer, denom);
-	if (equal_value_bignum(temp, SignPlus, 1)
-			&& equal_value_bignum(denom, SignPlus, 2)) {
-		if (IsPlus(sign)) {
-			if (evenp_bignum(numer))
-				lisp_floor_integer_ratio(local, quot, rem, pos);
+	lisp_floor1_nosign(&str, sign, sign);
+	divrem_struct_integer(&str, quot, rem);
+}
+
+static int lisp_round1_half(addr numer, addr denom)
+{
+	return equal_value_nosign_bignum(numer, 1)
+		&& equal_value_nosign_bignum(denom, 2);
+}
+
+static void lisp_round1_r(struct divrem_struct *ptr)
+{
+	addr denom2;
+
+	divrem_struct_call(ptr);
+	if (lisp_round1_half(ptr->rem, ptr->b)) {
+		/* rem = 1/2 */
+		if (plusp_ratio(ptr->pos)) {
+			if (evenp_bignum(ptr->quot))
+				lisp_floor1_r(ptr);
 			else
-				lisp_ceiling_integer_ratio(local, quot, rem, pos);
+				lisp_ceiling1_r(ptr);
 		}
 		else {
-			if (evenp_bignum(numer))
-				lisp_ceiling_integer_ratio(local, quot, rem, pos);
+			if (evenp_bignum(ptr->quot))
+				lisp_ceiling1_r(ptr);
 			else
-				lisp_floor_integer_ratio(local, quot, rem, pos);
+				lisp_floor1_r(ptr);
 		}
-		return;
-	}
-	/* otherwise */
-	division2_bigdata_alloc(local, &denom2, denom);
-	if (IsPlus(sign)) {
-		if (compare_bb_real(temp, denom2) < 0)
-			lisp_floor_integer_ratio(local, quot, rem, pos);
-		else
-			lisp_ceiling_integer_ratio(local, quot, rem, pos);
 	}
 	else {
-		if (compare_bb_real(temp, denom2) < 0)
-			lisp_ceiling_integer_ratio(local, quot, rem, pos);
-		else
-			lisp_floor_integer_ratio(local, quot, rem, pos);
+		/* otherwise */
+		division2_bigdata_alloc(ptr->local, &denom2, ptr->b);
+		if (plusp_ratio(ptr->pos)) {
+			if (compare_bb_real(ptr->rem, denom2) <= 0)
+				lisp_floor1_r(ptr);
+			else
+				lisp_ceiling1_r(ptr);
+		}
+		else {
+			if (compare_bb_real(ptr->rem, denom2) <= 0)
+				lisp_ceiling1_r(ptr);
+			else
+				lisp_floor1_r(ptr);
+		}
 	}
 }
 
-void lisp_round_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+void lisp_round1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
 {
-	LocalStack stack;
+	struct divrem_struct str;
 
+	Check(local == NULL, "local error");
 	CheckType(pos, LISPTYPE_RATIO);
 	if (zerop_ratio(pos)) {
 		fixnum_heap(quot, 0);
 		fixnum_heap(rem, 0);
 		return;
 	}
+
+	divrem_struct_initialize1(local, &str, pos);
+	lisp_round1_r(&str);
+	divrem_struct_integer(&str, quot, rem);
+}
+
+void lisp_ffloor1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+{
+	struct divrem_struct str;
+
+	Check(local == NULL, "local error");
+	CheckType(pos, LISPTYPE_RATIO);
+	if (zerop_ratio(pos)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
+	divrem_struct_initialize1(local, &str, pos);
+	lisp_floor1_r(&str);
+	divrem_struct_float(&str, quot, rem);
+}
+
+void lisp_fceiling1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+{
+	struct divrem_struct str;
+
+	Check(local == NULL, "local error");
+	CheckType(pos, LISPTYPE_RATIO);
+	if (zerop_ratio(pos)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
+	divrem_struct_initialize1(local, &str, pos);
+	lisp_ceiling1_r(&str);
+	divrem_struct_float(&str, quot, rem);
+}
+
+void lisp_ftruncate1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+{
+	int sign;
+	struct divrem_struct str;
+
+	Check(local == NULL, "local error");
+	if (zerop_ratio(pos)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
+	divrem_struct_initialize1(local, &str, pos);
+	GetSignRatio(pos, &sign);
+	lisp_floor1_nosign(&str, sign, sign);
+	divrem_struct_float(&str, quot, rem);
+}
+
+void lisp_fround1_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+{
+	struct divrem_struct str;
+
+	Check(local == NULL, "local error");
+	CheckType(pos, LISPTYPE_RATIO);
+	if (zerop_ratio(pos)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
+	divrem_struct_initialize1(local, &str, pos);
+	lisp_round1_r(&str);
+	divrem_struct_float(&str, quot, rem);
+}
+
+
+/*
+ *  bignum-ratio
+ */
+static int lisp_floor_br_plus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+{
+	addr numer, denom;
+
+	/*   a     b.numer       a * b.denom
+	 *  --- / ---------  =  -------------
+	 *   1     b.denom         b.numer
+	 */
+	GetNumerRatio(b, &numer);
+	GetDenomRatio(b, &denom);
+	bignum_copy_nosign_local(local, &a, a);
+	bignum_copy_nosign_local(local, &b, numer);
+	reduction_local(local, a, b);
+	multi_bigdata_alloc(local, a, denom, &a);
+	if (equal_value_nosign_bignum(b, 1)) {
+		SetSignBignum(a, sign);
+		*ret = a;
+		return 0;
+	}
+	else {
+		divrem_bigdata_local(local, ret, &b, a, b);
+		SetSignBignum(*ret, sign);
+		return 1;
+	}
+}
+
+static int lisp_floor_br_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+{
+	int check;
+
+	check = lisp_floor_br_plus(local, ret, sign, a, b);
+	if (check)
+		plus_bv_bignum_local(local, *ret, -1, ret);
+
+	return check;
+}
+
+static void remainder_br_ratio(LocalRoot local, addr *ret, addr a, addr b, addr q)
+{
+	/* remainder = a - quotient*b */
+	multi_br_ratio_local(local, q, b, &b);
+	minus_br_ratio_local(local, a, b, ret);
+}
+
+void lisp_floor_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int sign, sign1, sign2, check;
+	addr q, r;
+
+	GetSignBignum(a, &sign1);
+	GetSignRatio(b, &sign2);
+	sign = SignMulti(sign1, sign2);
+	if (IsPlus(sign))
+		check = lisp_floor_br_plus(local, &q, sign, a, b);
+	else
+		check = lisp_floor_br_minus(local, &q, sign, a, b);
+	if (check) {
+		remainder_br_ratio(local, &r, a, b, q);
+		ratio_result_noreduction_heap(local, r, rem);
+	}
+	else {
+		fixnum_heap(rem, 0);
+	}
+	*quot = q;
+}
+
+void lisp_floor_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FLOOR, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
 	push_local(local, &stack);
-	lisp_round_integer_r(local, quot, rem, pos);
+	lisp_floor_br(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 }
 
-static void lisp_ffloor_integer_nosign_ratio(LocalRoot local,
-		single_float *quot, addr *rem, addr pos)
+static int lisp_ceiling_br_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	int check;
-	addr numer, denom, temp;
+
+	check = lisp_floor_br_plus(local, ret, sign, a, b);
+	if (check)
+		plus_bv_bignum_local(local, *ret, 1, ret);
+
+	return check;
+}
+
+void lisp_ceiling_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int sign, sign1, sign2, check;
+	addr q, r;
+
+	GetSignBignum(a, &sign1);
+	GetSignRatio(b, &sign2);
+	sign = SignMulti(sign1, sign2);
+	if (IsPlus(sign))
+		check = lisp_ceiling_br_minus(local, &q, sign, a, b);
+	else
+		check = lisp_floor_br_plus(local, &q, sign, a, b);
+	if (check) {
+		remainder_br_ratio(local, &r, a, b, q);
+		ratio_result_noreduction_heap(local, r, rem);
+	}
+	else {
+		fixnum_heap(rem, 0);
+	}
+	*quot = q;
+}
+
+void lisp_ceiling_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
 	LocalStack stack;
 
-	GetNumerRatio(pos, &numer);
-	GetNumerRatio(pos, &denom);
-	check = equal_nosign_bignum(numer, denom);
-	Check(check == 0, "ratio error");
-	if (check <= 0) {
-		*quot = 0.0f;
-		ratio_copy_nosign_alloc(NULL, rem, pos);
-	}
-	else {
-		push_local(local, &stack);
-		divrem_bigdata_local(local, &numer, &temp, numer, denom);
-		Check(zerop_bignum(temp), "ratio zero error");
-		*quot = single_float_bignum(numer);
-		bignum_throw_heap(temp, &temp);
-		bignum_throw_heap(denom, &denom);
-		make_ratio_alloc_unsafe(NULL, rem, SignPlus, temp, denom);
-		rollback_local(local, stack);
-	}
-}
-
-static void lisp_fceiling_integer_nosign_ratio(LocalRoot local,
-		single_float *quot, addr *rem, addr pos)
-{
-	int check;
-	addr numer, denom, temp;
-	LocalStack stack;
-
-	GetNumerRatio(pos, &numer);
-	GetNumerRatio(pos, &denom);
-	check = equal_nosign_bignum(numer, denom);
-	Check(check == 0, "ratio error");
-	if (check <= 0) {
-		*quot = 0.0f;
-		minus_bigdata_alloc(NULL, denom, numer, &numer);
-		bignum_throw_heap(denom, &denom);
-		make_ratio_alloc_unsafe(NULL, rem, SignPlus, numer, denom);
-	}
-	else {
-		push_local(local, &stack);
-		divrem_bigdata_local(local, &numer, &temp, numer, denom);
-		Check(zerop_bignum(temp), "ratio zero error");
-		*quot = single_float_bignum(numer) + 1.0f;
-		minus_bigdata_alloc(NULL, denom, temp, &temp);
-		bignum_throw_heap(denom, &denom);
-		make_ratio_alloc_unsafe(NULL, rem, SignPlus, numer, denom);
-		rollback_local(local, stack);
-	}
-}
-
-void lisp_ffloor_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
-{
-	int sign;
-	single_float v;
-
-	CheckType(pos, LISPTYPE_RATIO);
-	if (zerop_ratio(pos)) {
-		single_float_heap(quot, 0.0f);
-		fixnum_heap(rem, 0);
-	}
-	else {
-		GetSignRatio(pos, &sign);
-		if (IsPlus(sign)) {
-			lisp_ffloor_integer_nosign_ratio(local, &v, rem, pos);
-			single_float_heap(quot, v);
-		}
-		else {
-			lisp_fceiling_integer_nosign_ratio(local, &v, rem, pos);
-			float_errorcheck1(CONSTANT_COMMON_FFLOOR, v, pos);
-			single_float_heap(quot, -v);
-		}
-	}
-}
-
-void lisp_fceiling_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
-{
-	int sign;
-	single_float v;
-
-	CheckType(pos, LISPTYPE_RATIO);
-	if (zerop_ratio(pos)) {
-		single_float_heap(quot, 0.0f);
-		fixnum_heap(rem, 0);
-	}
-	else {
-		GetSignRatio(pos, &sign);
-		if (IsPlus(sign)) {
-			lisp_fceiling_integer_nosign_ratio(local, &v, rem, pos);
-			float_errorcheck1(CONSTANT_COMMON_FCEILING, v, pos);
-			single_float_heap(quot, -v);
-		}
-		else {
-			lisp_ffloor_integer_nosign_ratio(local, &v, rem, pos);
-			single_float_heap(quot, -v);
-			SetSignRatio(*rem, SignMinus);
-		}
-	}
-}
-
-void lisp_ftruncate_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
-{
-	int sign;
-	single_float v;
-
-	CheckType(pos, LISPTYPE_RATIO);
-	if (zerop_ratio(pos)) {
-		single_float_heap(quot, 0.0f);
-		fixnum_heap(rem, 0);
-	}
-	else {
-		GetSignRatio(pos, &sign);
-		lisp_ffloor_integer_nosign_ratio(local, &v, rem, pos);
-		if (IsMinus(sign)) {
-			single_float_heap(quot, -v);
-			SetSignRatio(*rem, SignMinus);
-		}
-		else {
-			single_float_heap(quot, v);
-		}
-	}
-}
-
-static void lisp_fround_integer_r(LocalRoot local,
-		addr *quot, addr *rem, addr pos)
-{
-	int sign;
-	addr numer, denom, denom2, temp;
-
-	GetSignRatio(pos, &sign);
-	GetNumerRatio(pos, &numer);
-	GetDenomRatio(pos, &denom);
-	/* rem = 1/2 */
-	divrem_bigdata_local(local, &numer, &temp, numer, denom);
-	if (equal_value_bignum(temp, SignPlus, 1)
-			&& equal_value_bignum(denom, SignPlus, 2)) {
-		if (IsPlus(sign)) {
-			if (evenp_bignum(numer))
-				lisp_ffloor_integer_ratio(local, quot, rem, pos);
-			else
-				lisp_fceiling_integer_ratio(local, quot, rem, pos);
-		}
-		else {
-			if (evenp_bignum(numer))
-				lisp_fceiling_integer_ratio(local, quot, rem, pos);
-			else
-				lisp_ffloor_integer_ratio(local, quot, rem, pos);
-		}
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_CEILING, a, b);
 		return;
 	}
-	/* otherwise */
-	division2_bigdata_alloc(local, &denom2, denom);
-	if (IsPlus(sign)) {
-		if (compare_bb_real(temp, denom2) < 0)
-			lisp_ffloor_integer_ratio(local, quot, rem, pos);
-		else
-			lisp_fceiling_integer_ratio(local, quot, rem, pos);
+	if (zerop_bignum(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
 	}
-	else {
-		if (compare_bb_real(temp, denom2) < 0)
-			lisp_fceiling_integer_ratio(local, quot, rem, pos);
-		else
-			lisp_ffloor_integer_ratio(local, quot, rem, pos);
-	}
+
+	push_local(local, &stack);
+	lisp_ceiling_br(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
+	rollback_local(local, stack);
 }
 
-void lisp_fround_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
+void lisp_truncate_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int sign, sign1, sign2;
+	addr q, r;
+
+	GetSignBignum(a, &sign1);
+	GetSignRatio(b, &sign2);
+	sign = SignMulti(sign1, sign2);
+	if (lisp_floor_br_plus(local, &q, sign, a, b)) {
+		remainder_br_ratio(local, &r, a, b, q);
+		ratio_result_noreduction_heap(local, r, rem);
+	}
+	else {
+		fixnum_heap(rem, 0);
+	}
+	*quot = q;
+}
+
+void lisp_truncate_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
 	LocalStack stack;
 
-	CheckType(pos, LISPTYPE_RATIO);
-	if (zerop_ratio(pos)) {
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_TRUNCATE, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
+	push_local(local, &stack);
+	lisp_truncate_br(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
+	rollback_local(local, stack);
+}
+
+static int lisp_round_br_check(LocalRoot local, addr a, addr b)
+{
+	int check, sign1, sign2;
+	addr numer, denom;
+	LocalStack stack;
+	struct divrem_struct str;
+
+	Check(zerop_bignum(a), "zero error: left");
+	Check(zerop_ratio(b), "zero error: right");
+	GetSignBignum(a, &sign1);
+	GetSignRatio(b, &sign2);
+	GetNumerRatio(b, &numer);
+	GetDenomRatio(b, &denom);
+
+	push_local(local, &stack);
+	multi_bigdata_alloc(local, a, denom, &a);
+	bignum_copy_nosign_alloc(local, &b, numer);
+	SetSignBignum(a, sign1);
+	SetSignBignum(b, sign2);
+
+	divrem_struct_initialize(local, &str, a, b);
+	check = lisp_round_bb_check(&str);
+	divrem_struct_close(&str);
+	rollback_local(local, stack);
+
+	return check;
+}
+
+void lisp_round_br(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int check;
+
+	check = lisp_round_br_check(local, a, b);
+	if (check < 0)
+		lisp_floor_br(local, quot, rem, a, b);
+	else
+		lisp_ceiling_br(local, quot, rem, a, b);
+}
+
+void lisp_round_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_ROUND, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
+	push_local(local, &stack);
+	lisp_round_br(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
+	rollback_local(local, stack);
+}
+
+void lisp_ffloor_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FFLOOR, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
+	push_local(local, &stack);
+	lisp_floor_br(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
+}
+
+void lisp_fceiling_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FCEILING, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
+	push_local(local, &stack);
+	lisp_ceiling_br(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
+}
+
+void lisp_ftruncate_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FTRUNCATE, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
+	push_local(local, &stack);
+	lisp_truncate_br(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
+}
+
+void lisp_fround_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FROUND, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+
+	push_local(local, &stack);
+	lisp_round_br(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
+}
+
+
+/*
+ *  ratio-bignum
+ */
+static int lisp_floor_rb_plus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+{
+	addr numer, denom;
+
+	/*   a.numer     b         a.numer
+	 *  --------- / ---  =  -------------
+	 *   a.denom     1       a.denom * b
+	 */
+	GetNumerRatio(a, &numer);
+	GetDenomRatio(a, &denom);
+	bignum_copy_nosign_local(local, &a, numer);
+	bignum_copy_nosign_local(local, &b, b);
+	reduction_local(local, a, b);
+	multi_bigdata_alloc(local, b, denom, &b);
+	if (equal_value_nosign_bignum(b, 1)) {
+		SetSignBignum(a, sign);
+		*ret = a;
+		return 0;
+	}
+	else {
+		divrem_bigdata_local(local, ret, &b, a, b);
+		SetSignBignum(*ret, sign);
+		return 1;
+	}
+}
+
+static int lisp_floor_rb_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+{
+	int check;
+
+	check = lisp_floor_rb_plus(local, ret, sign, a, b);
+	if (check)
+		plus_bv_bignum_local(local, *ret, -1, ret);
+
+	return check;
+}
+
+static void remainder_rb_ratio(LocalRoot local, addr *ret, addr a, addr b, addr q)
+{
+	/* remainder = a - quotient*b */
+	multi_bb_bignum_local(local, q, b, &b);
+	minus_rb_ratio_local(local, a, b, ret);
+}
+
+void lisp_floor_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int sign, sign1, sign2, check;
+	addr q, r;
+
+	GetSignRatio(a, &sign1);
+	GetSignBignum(b, &sign2);
+	sign = SignMulti(sign1, sign2);
+	if (IsPlus(sign))
+		check = lisp_floor_rb_plus(local, &q, sign, a, b);
+	else
+		check = lisp_floor_rb_minus(local, &q, sign, a, b);
+	if (check) {
+		remainder_rb_ratio(local, &r, a, b, q);
+		ratio_result_noreduction_heap(local, r, rem);
+	}
+	else {
+		fixnum_heap(rem, 0);
+	}
+	*quot = q;
+}
+
+void lisp_floor_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FLOOR, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_floor_rb(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
+	rollback_local(local, stack);
+}
+
+static int lisp_ceiling_rb_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+{
+	int check;
+
+	check = lisp_floor_rb_plus(local, ret, sign, a, b);
+	if (check)
+		plus_bv_bignum_local(local, *ret, 1, ret);
+
+	return check;
+}
+
+void lisp_ceiling_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int sign, sign1, sign2, check;
+	addr q, r;
+
+	GetSignRatio(a, &sign1);
+	GetSignBignum(b, &sign2);
+	sign = SignMulti(sign1, sign2);
+	if (IsPlus(sign))
+		check = lisp_ceiling_rb_minus(local, &q, sign, a, b);
+	else
+		check = lisp_floor_rb_plus(local, &q, sign, a, b);
+	if (check) {
+		remainder_rb_ratio(local, &r, a, b, q);
+		ratio_result_noreduction_heap(local, r, rem);
+	}
+	else {
+		fixnum_heap(rem, 0);
+	}
+	*quot = q;
+}
+
+void lisp_ceiling_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_CEILING, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_ceiling_rb(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
+	rollback_local(local, stack);
+}
+
+void lisp_truncate_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int sign, sign1, sign2;
+	addr q, r;
+
+	GetSignRatio(a, &sign1);
+	GetSignBignum(b, &sign2);
+	sign = SignMulti(sign1, sign2);
+	if (lisp_floor_rb_plus(local, &q, sign, a, b)) {
+		remainder_rb_ratio(local, &r, a, b, q);
+		ratio_result_noreduction_heap(local, r, rem);
+	}
+	else {
+		fixnum_heap(rem, 0);
+	}
+	*quot = q;
+}
+
+void lisp_truncate_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_TRUNCATE, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_truncate_rb(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
+	rollback_local(local, stack);
+}
+
+static int lisp_round_rb_check(LocalRoot local, addr a, addr b)
+{
+	int check, sign1, sign2;
+	addr numer, denom;
+	LocalStack stack;
+	struct divrem_struct str;
+
+	Check(zerop_ratio(a), "zero error: left");
+	Check(zerop_bignum(b), "zero error: right");
+	GetSignRatio(a, &sign1);
+	GetSignBignum(b, &sign2);
+	GetNumerRatio(a, &numer);
+	GetDenomRatio(a, &denom);
+
+	push_local(local, &stack);
+	bignum_copy_nosign_alloc(local, &a, numer);
+	multi_bigdata_alloc(local, b, denom, &b);
+	SetSignBignum(a, sign1);
+	SetSignBignum(b, sign2);
+
+	divrem_struct_initialize(local, &str, a, b);
+	check = lisp_round_bb_check(&str);
+	divrem_struct_close(&str);
+	rollback_local(local, stack);
+
+	return check;
+}
+
+void lisp_round_rb(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int check;
+
+	check = lisp_round_rb_check(local, a, b);
+	if (check < 0)
+		lisp_floor_rb(local, quot, rem, a, b);
+	else
+		lisp_ceiling_rb(local, quot, rem, a, b);
+}
+
+void lisp_round_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_ROUND, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_round_rb(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
+	rollback_local(local, stack);
+}
+
+void lisp_ffloor_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FFLOOR, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
 		single_float_heap(quot, 0.0f);
 		fixnum_heap(rem, 0);
 		return;
 	}
 	push_local(local, &stack);
-	lisp_fround_integer_r(local, quot, rem, pos);
+	lisp_floor_rb(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
+}
+
+void lisp_fceiling_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FCEILING, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_ceiling_rb(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
+}
+
+void lisp_ftruncate_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FTRUNCATE, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_truncate_rb(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
+}
+
+void lisp_fround_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FROUND, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_round_rb(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
 	rollback_local(local, stack);
 }
 
@@ -1911,179 +2306,373 @@ void lisp_fround_integer_ratio(LocalRoot local, addr *quot, addr *rem, addr pos)
 /*
  *  ratio-ratio
  */
-void lisp_floor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static int lisp_floor_rr_plus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
-	fmte("TODO", NULL);
+	addr numer1, denom1, numer2, denom2;
+
+	/*   a.numer     b.numer       a.numer * b.denom
+	 *  --------- / ---------  =  -------------------
+	 *   a.denom     b.denom       a.denom * b.numer
+	 */
+	GetNumerRatio(a, &numer1);
+	GetDenomRatio(a, &denom1);
+	GetNumerRatio(b, &numer2);
+	GetDenomRatio(b, &denom2);
+	bignum_copy_nosign_local(local, &numer1, numer1);
+	bignum_copy_nosign_local(local, &denom1, denom1);
+	bignum_copy_nosign_local(local, &numer2, numer2);
+	bignum_copy_nosign_local(local, &denom2, denom2);
+	reduction_local(local, numer1, numer2);
+	reduction_local(local, denom1, denom2);
+	multi_bigdata_alloc(local, numer1, denom2, &a);
+	multi_bigdata_alloc(local, denom1, numer2, &b);
+	if (equal_value_nosign_bignum(b, 1)) {
+		SetSignBignum(a, sign);
+		*ret = a;
+		return 0;
+	}
+	else {
+		divrem_bigdata_local(local, ret, &b, a, b);
+		SetSignBignum(*ret, sign);
+		return 1;
+	}
 }
 
-#if 0
-static void lisp_floor_rr_quotient(LocalRoot local, addr *ret, addr pos)
+static int lisp_floor_rr_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
 {
 	int check;
-	addr numer, denom;
 
-	GetNumerRatio(pos, &numer);
-	GetNumerRatio(pos, &denom);
-	check = equal_nosign_bignum(numer, denom);
-	Check(check == 0, "ratio error");
-	if (check <= 0)
-		bignum_value_alloc(local, ret, SignPlus, 0);
-	else
-		divrem_bigdata_local(local, ret, &denom, numer, denom);
+	check = lisp_floor_rr_plus(local, ret, sign, a, b);
+	if (check)
+		plus_bv_bignum_local(local, *ret, -1, ret);
+
+	return check;
 }
 
-void lisp_floor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+static void remainder_rr_ratio(LocalRoot local, addr *ret, addr a, addr b, addr q)
 {
-	int sign1, sign2, sign;
-	addr q, r;
-	LocalStack stack;
+	/* remainder = a - quotient*b */
+	multi_br_ratio_local(local, q, b, &b);
+	minus_rr_ratio_local(local, a, b, ret);
+}
 
-	CheckType(a, LISPTYPE_RATIO);
-	CheckType(b, LISPTYPE_RATIO);
-	Check(zerop_bignum(a), "ratio numer error");
-	Check(zerop_bignum(b), "ratio denom error");
+void lisp_floor_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int sign, sign1, sign2, check;
+	addr q, r;
+
 	GetSignRatio(a, &sign1);
 	GetSignRatio(b, &sign2);
 	sign = SignMulti(sign1, sign2);
-	push_local(local, &stack);
-	/* (floor a b) -> quot */
-	lisp_floor_rr_quotient(local, &q, a, b);
-	SetSignBignum(q, sign);
-	/* remainder = a - quotient*b */
-	multi_bigdata_alloc(local, q, b, &r);
-	sign = SignMulti(sign, sign2);
-	SetSignBignum
-	if (minuscheck_bigdata_alloc(local, a, r, &r)) {
-		SetSignRatio(r, SignMinus);
+	if (IsPlus(sign))
+		check = lisp_floor_rr_plus(local, &q, sign, a, b);
+	else
+		check = lisp_floor_rr_minus(local, &q, sign, a, b);
+	if (check) {
+		remainder_rr_ratio(local, &r, a, b, q);
+		ratio_result_noreduction_heap(local, r, rem);
 	}
-	bignum_result_heap(q, quot);
+	else {
+		fixnum_heap(rem, 0);
+	}
+	*quot = q;
+}
+
+void lisp_floor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FLOOR, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_floor_rr(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
 	rollback_local(local, stack);
 }
-#endif
+
+static int lisp_ceiling_rr_minus(LocalRoot local, addr *ret, int sign, addr a, addr b)
+{
+	int check;
+
+	check = lisp_floor_rr_plus(local, ret, sign, a, b);
+	if (check)
+		plus_bv_bignum_local(local, *ret, 1, ret);
+
+	return check;
+}
+
+void lisp_ceiling_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int sign, sign1, sign2, check;
+	addr q, r;
+
+	GetSignRatio(a, &sign1);
+	GetSignRatio(b, &sign2);
+	sign = SignMulti(sign1, sign2);
+	if (IsPlus(sign))
+		check = lisp_ceiling_rr_minus(local, &q, sign, a, b);
+	else
+		check = lisp_floor_rr_plus(local, &q, sign, a, b);
+	if (check) {
+		remainder_rr_ratio(local, &r, a, b, q);
+		ratio_result_noreduction_heap(local, r, rem);
+	}
+	else {
+		fixnum_heap(rem, 0);
+	}
+	*quot = q;
+}
 
 void lisp_ceiling_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	fmte("TODO", NULL);
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_CEILING, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_ceiling_rr(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
+	rollback_local(local, stack);
+}
+
+void lisp_truncate_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int sign, sign1, sign2;
+	addr q, r;
+
+	GetSignRatio(a, &sign1);
+	GetSignRatio(b, &sign2);
+	sign = SignMulti(sign1, sign2);
+	if (lisp_floor_rr_plus(local, &q, sign, a, b)) {
+		remainder_rr_ratio(local, &r, a, b, q);
+		ratio_result_noreduction_heap(local, r, rem);
+	}
+	else {
+		fixnum_heap(rem, 0);
+	}
+	*quot = q;
 }
 
 void lisp_truncate_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	fmte("TODO", NULL);
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_TRUNCATE, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_truncate_rr(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
+	rollback_local(local, stack);
+}
+
+static int lisp_round_rr_check(LocalRoot local, addr a, addr b)
+{
+	int check, sign1, sign2;
+	addr numer1, denom1, numer2, denom2, reduct1, reduct2;
+	LocalStack stack;
+	struct divrem_struct str;
+
+	Check(zerop_ratio(a), "zero error: left");
+	Check(zerop_ratio(b), "zero error: right");
+
+	GetSignRatio(a, &sign1);
+	GetSignRatio(b, &sign2);
+	GetNumerRatio(a, &numer1);
+	GetDenomRatio(a, &denom1);
+	GetNumerRatio(b, &numer2);
+	GetDenomRatio(b, &denom2);
+
+	push_local(local, &stack);
+	if (equal_bigdata(denom1, denom2)) {
+		/*
+		 *  numer1 + numer2
+		 *  ---------------
+		 *      denom1
+		 */
+		bignum_copy_nosign_alloc(local, &a, numer1);
+		bignum_copy_nosign_alloc(local, &b, numer2);
+	}
+	else {
+		/*
+		 *  numer1   numer2
+		 *  ------ + ------
+		 *  denom1   denom2
+		 */
+
+		/*
+		 *  (denom1 denom2) reduction-> (reduct1 reduct2)
+		 */
+		bignum_copy_local(local, &reduct1, denom1);
+		bignum_copy_local(local, &reduct2, denom2);
+		reduction_local(local, reduct1, reduct2);
+
+		/*
+		 *  numer1*reduct2    numer2*reduct1    numer1*reduct2 + numer2*reduct1
+		 *  -------------- + ---------------- = -------------------------------
+		 *  denom1*reduct2   (denom2*reduct1)           denom1 * reduct2
+		 */
+		multi_bigdata_alloc(local, numer1, reduct2, &a);
+		multi_bigdata_alloc(local, numer2, reduct1, &b);
+	}
+
+	SetSignBignum(a, sign1);
+	SetSignBignum(b, sign2);
+	divrem_struct_initialize(local, &str, a, b);
+	check = lisp_round_bb_check(&str);
+	divrem_struct_close(&str);
+	rollback_local(local, stack);
+
+	return check;
+}
+
+void lisp_round_rr(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
+{
+	int check;
+
+	check = lisp_round_rr_check(local, a, b);
+	if (check < 0)
+		lisp_floor_rr(local, quot, rem, a, b);
+	else
+		lisp_ceiling_rr(local, quot, rem, a, b);
 }
 
 void lisp_round_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	fmte("TODO", NULL);
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_ROUND, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(quot, 0);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_round_rr(local, quot, rem, a, b);
+	bignum_result_heap(*quot, quot);
+	rollback_local(local, stack);
 }
 
 void lisp_ffloor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	fmte("TODO", NULL);
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FFLOOR, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_floor_rr(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
 }
 
 void lisp_fceiling_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	fmte("TODO", NULL);
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FCEILING, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_ceiling_rr(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
 }
 
 void lisp_ftruncate_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	fmte("TODO", NULL);
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FTRUNCATE, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_truncate_rr(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
 }
 
 void lisp_fround_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
 {
-	fmte("TODO", NULL);
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FROUND, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		single_float_heap(quot, 0.0f);
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_round_rr(local, quot, rem, a, b);
+	single_float_bignum_heap(quot, *quot);
+	rollback_local(local, stack);
 }
-
-
-
-/*
- *  ratio-bignum
- */
-void lisp_floor_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_ceiling_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_truncate_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_round_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_ffloor_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_fceiling_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_ftruncate_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_fround_rb_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-
-
-/*
- *  bignum-ratio
- */
-void lisp_floor_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_ceiling_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_truncate_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_round_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_ffloor_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_fceiling_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_ftruncate_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
-void lisp_fround_br_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b)
-{
-	fmte("TODO", NULL);
-}
-
 

@@ -357,7 +357,7 @@ static void defun_zerop(void)
 static void function_floor(Execute ptr, addr var, addr div)
 {
 	if (div == Unbound)
-		floor_integer_common(ptr->local, &var, &div, var);
+		floor1_common(ptr->local, &var, &div, var);
 	else
 		floor_common(ptr->local, &var, &div, var, div);
 	setvalues_va_control(ptr, var, div, NULL);
@@ -388,7 +388,7 @@ static void defun_floor(void)
 static void function_ffloor(Execute ptr, addr var, addr div)
 {
 	if (div == Unbound)
-		ffloor_integer_common(ptr->local, &var, &div, var);
+		ffloor1_common(ptr->local, &var, &div, var);
 	else
 		ffloor_common(ptr->local, &var, &div, var, div);
 	setvalues_va_control(ptr, var, div, NULL);
@@ -419,7 +419,7 @@ static void defun_ffloor(void)
 static void function_ceiling(Execute ptr, addr var, addr div)
 {
 	if (div == Unbound)
-		ceiling_integer_common(ptr->local, &var, &div, var);
+		ceiling1_common(ptr->local, &var, &div, var);
 	else
 		ceiling_common(ptr->local, &var, &div, var, div);
 	setvalues_va_control(ptr, var, div, NULL);
@@ -450,7 +450,7 @@ static void defun_ceiling(void)
 static void function_fceiling(Execute ptr, addr var, addr div)
 {
 	if (div == Unbound)
-		fceiling_integer_common(ptr->local, &var, &div, var);
+		fceiling1_common(ptr->local, &var, &div, var);
 	else
 		fceiling_common(ptr->local, &var, &div, var, div);
 	setvalues_va_control(ptr, var, div, NULL);
@@ -481,7 +481,7 @@ static void defun_fceiling(void)
 static void function_truncate(Execute ptr, addr var, addr div)
 {
 	if (div == Unbound)
-		truncate_integer_common(ptr->local, &var, &div, var);
+		truncate1_common(ptr->local, &var, &div, var);
 	else
 		truncate_common(ptr->local, &var, &div, var, div);
 	setvalues_va_control(ptr, var, div, NULL);
@@ -512,7 +512,7 @@ static void defun_truncate(void)
 static void function_ftruncate(Execute ptr, addr var, addr div)
 {
 	if (div == Unbound)
-		ftruncate_integer_common(ptr->local, &var, &div, var);
+		ftruncate1_common(ptr->local, &var, &div, var);
 	else
 		ftruncate_common(ptr->local, &var, &div, var, div);
 	setvalues_va_control(ptr, var, div, NULL);
@@ -543,7 +543,7 @@ static void defun_ftruncate(void)
 static void function_round(Execute ptr, addr var, addr div)
 {
 	if (div == Unbound)
-		round_integer_common(ptr->local, &var, &div, var);
+		round1_common(ptr->local, &var, &div, var);
 	else
 		round_common(ptr->local, &var, &div, var, div);
 	setvalues_va_control(ptr, var, div, NULL);
@@ -574,7 +574,7 @@ static void defun_round(void)
 static void function_fround(Execute ptr, addr var, addr div)
 {
 	if (div == Unbound)
-		fround_integer_common(ptr->local, &var, &div, var);
+		fround1_common(ptr->local, &var, &div, var);
 	else
 		fround_common(ptr->local, &var, &div, var, div);
 	setvalues_va_control(ptr, var, div, NULL);

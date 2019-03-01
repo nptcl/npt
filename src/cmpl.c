@@ -950,7 +950,7 @@ void inverse_complex_common(LocalRoot local, addr pos, addr *ret)
 	Check(local == NULL, "local error");
 	CheckType(pos, LISPTYPE_COMPLEX);
 	if (zerop_complex(pos))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero1(pos);
 	GetRealComplex(pos, &a);
 	GetImagComplex(pos, &b);
 	push_local(local, &stack);
@@ -976,7 +976,7 @@ void div_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	if (zerop_complex(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(right, &a);
 	GetImagComplex(right, &b);
 	push_local(local, &stack);
@@ -1004,7 +1004,7 @@ void div_cf_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_COMPLEX, "type left error");
 	Check(GetType(right) != LISPTYPE_FIXNUM, "type right error");
 	if (zerop_fixnum(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(left, &a);
 	GetImagComplex(left, &b);
 	push_local(local, &stack);
@@ -1026,7 +1026,7 @@ void div_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	if (zerop_complex(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(right, &a);
 	GetImagComplex(right, &b);
 	push_local(local, &stack);
@@ -1054,7 +1054,7 @@ void div_cb_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_COMPLEX, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
 	if (zerop_bignum(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(left, &a);
 	GetImagComplex(left, &b);
 	push_local(local, &stack);
@@ -1077,7 +1077,7 @@ void div_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	if (zerop_complex(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetNumerRatio(left, &y);
 	GetDenomRatio(left, &x);
 	GetRealComplex(right, &a);
@@ -1109,7 +1109,7 @@ void div_cr_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_COMPLEX, "type left error");
 	Check(GetType(right) != LISPTYPE_RATIO, "type right error");
 	if (zerop_ratio(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(left, &a);
 	GetImagComplex(left, &b);
 	GetNumerRatio(right, &y);
@@ -1135,7 +1135,7 @@ void div_sc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_SINGLE_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	if (zerop_complex(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(right, &a);
 	GetImagComplex(right, &b);
 	push_local(local, &stack);
@@ -1163,7 +1163,7 @@ void div_cs_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_COMPLEX, "type left error");
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	if (zerop_single_float(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(left, &a);
 	GetImagComplex(left, &b);
 	push_local(local, &stack);
@@ -1185,7 +1185,7 @@ void div_dc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_DOUBLE_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	if (zerop_complex(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(right, &a);
 	GetImagComplex(right, &b);
 	push_local(local, &stack);
@@ -1213,7 +1213,7 @@ void div_cd_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_COMPLEX, "type left error");
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
 	if (zerop_double_float(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(right, &a);
 	GetImagComplex(right, &b);
 	push_local(local, &stack);
@@ -1235,7 +1235,7 @@ void div_lc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_LONG_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_COMPLEX, "type right error");
 	if (zerop_complex(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(right, &a);
 	GetImagComplex(right, &b);
 	push_local(local, &stack);
@@ -1263,7 +1263,7 @@ void div_cl_number_common(LocalRoot local, addr left, addr right, addr *ret)
 	Check(GetType(left) != LISPTYPE_COMPLEX, "type left error");
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	if (zerop_long_float(right))
-		division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+		division_by_zero2(left, right);
 	GetRealComplex(right, &a);
 	GetImagComplex(right, &b);
 	push_local(local, &stack);

@@ -704,7 +704,7 @@ int bvarray_refint(addr pos, size_t index)
 	if (ArrayInfoStruct(pos)->front <= index)
 		fmte("Index ~S is too large.", intsizeh(index), NULL);
 	if (array_get_bit(pos, index, &check))
-		fmte("Invalid array type.");
+		fmte("Invalid array type.", NULL);
 	return check;
 }
 
@@ -727,7 +727,7 @@ void bitvector_length(addr pos, size_t *ret)
 		bvarray_length(pos, ret);
 		return;
 	}
-	fmte("type error");
+	fmte("type error", NULL);
 }
 
 int bitvector_refint(addr pos, size_t index)
@@ -736,7 +736,7 @@ int bitvector_refint(addr pos, size_t index)
 		return bitmemory_refint(pos, index);
 	if (bvarrayp(pos))
 		return bvarray_refint(pos, index);
-	fmte("type error");
+	fmte("type error", NULL);
 	return 0;
 }
 
@@ -750,7 +750,7 @@ void bitvector_getint(addr pos, size_t index, int *ret)
 		bvarray_getint(pos, index, ret);
 		return;
 	}
-	fmte("type error");
+	fmte("type error", NULL);
 }
 
 static int bitmemory_array_equal(addr left, addr right)
@@ -811,7 +811,7 @@ int bitvector_equal(addr left, addr right)
 		if (bvarrayp(right))
 			return bvarray_array_equal(left, right);
 	}
-	fmte("type error");
+	fmte("type error", NULL);
 	return 0;
 }
 

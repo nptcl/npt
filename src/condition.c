@@ -885,6 +885,36 @@ void division_by_zero_stdarg(constindex index, ...)
 	division_by_zero_constant(index, operands);
 }
 
+void division_by_zero_real1(constindex index, addr left)
+{
+	number_throw_heap(left, &left);
+	list_heap(&left, left, NULL);
+	division_by_zero_constant(index, left);
+}
+
+void division_by_zero_real2(constindex index, addr left, addr right)
+{
+	number_throw_heap(left, &left);
+	number_throw_heap(right, &right);
+	list_heap(&left, left, right, NULL);
+	division_by_zero_constant(index, left);
+}
+
+void division_by_zero0(void)
+{
+	division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
+}
+
+void division_by_zero1(addr left)
+{
+	division_by_zero_real1(CONSTANT_COMMON_SLASH, left);
+}
+
+void division_by_zero2(addr left, addr right)
+{
+	division_by_zero_real2(CONSTANT_COMMON_SLASH, left, right);
+}
+
 
 /* cell_error (error) :name */
 static void instance_condition1(addr *ret, constindex index,
