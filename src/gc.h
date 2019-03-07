@@ -5,6 +5,7 @@
 
 void gcexec(void);
 void gcsync(Execute ptr);
+void heap_check(void);
 
 #endif
 

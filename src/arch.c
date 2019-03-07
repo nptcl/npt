@@ -207,3 +207,34 @@ int readforce_clang(FILE *file, void *ptr, size_t size, size_t *ret)
 	return 0;
 }
 
+
+/*
+ *  safe
+ */
+int multisafe_size(size_t left, size_t right, size_t *result)
+{
+	size_t temp;
+
+	if (left == 0 || right == 0) {
+		*result = 0;
+		return 0;
+	}
+	temp = left * right;
+	if (temp / right < left) {
+		*result = 0;
+		return 1;
+	}
+	*result = temp;
+
+	return 0;
+}
+
+int plussafe_size(size_t a, size_t b, size_t *result)
+{
+	if (a > SIZE_MAX - b)
+		return 1;
+	*result = a + b;
+
+	return 0;
+}
+

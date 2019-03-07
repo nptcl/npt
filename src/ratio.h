@@ -39,6 +39,7 @@ void setsign_ratio(addr pos, int sign);
 void getsign_ratio(addr pos, int *ret);
 int refsign_ratio(addr pos);
 
+void euclidean_bignum(LocalRoot local, addr numer, addr denom);
 void reduction_local(LocalRoot local, addr numer, addr denom);
 void make_ratio_reduction_heap(LocalRoot local,
 		addr *ret, int sign, addr numer, addr denom);
@@ -73,8 +74,8 @@ void ratio_copy_heap(addr *ret, addr pos);
 void ratio_throw_heap(addr pos, addr *ret);
 void ratio_throw_local(LocalRoot local, addr pos, addr *ret);
 void ratio_throw_alloc(LocalRoot local, addr pos, addr *ret);
-int ratio_result_noreduction_local(LocalRoot local, addr pos, addr *ret);
-int ratio_result_noreduction_heap(LocalRoot local, addr pos, addr *ret);
+void ratio_result_noreduction_local(LocalRoot local, addr pos, addr *ret);
+void ratio_result_noreduction_heap(LocalRoot local, addr pos, addr *ret);
 
 int zerop_ratio(addr left);
 int plusp_ratio(addr left);
@@ -197,6 +198,9 @@ void div_bb_ratio_local(LocalRoot local, addr left, addr right, addr *ret);
 void div_bb_real_local(LocalRoot local, addr left, addr right, addr *ret);
 void div_bb_real_common(LocalRoot local, addr left, addr right, addr *ret);
 
+void inverse_fixnum_ratio_local(LocalRoot local, addr left, addr *ret);
+void inverse_bignum_ratio_local(LocalRoot local, addr left, addr *ret);
+void inverse_ratio_local(LocalRoot local, addr left, addr *ret);
 void inverse_fixnum_common(addr left, addr *ret);
 void inverse_bignum_common(addr left, addr *ret);
 void inverse_ratio_common(LocalRoot local, addr left, addr *ret);

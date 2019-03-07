@@ -1,19 +1,12 @@
 ;;
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
-(import 'lisp-system::make-bignum)
-(import 'lisp-system::make-ratio)
-(import 'lisp-system::fixnump)
-(import 'lisp-system::bignump)
-(import 'lisp-system::ratiop)
+(load #p"test/rtapp-float.lisp")
 
-(defun equal-float2 (a1 b1 a2 b2 eps)
-  (and (= a1 a2)
-       (or (= b1 b2)
-           (and (or (and (plusp b1) (plusp b2))
-                    (and (minusp b1) (minusp b2)))
-                (< (abs (- (abs b1) (abs b2))) eps)))))
-
+;;
+;;  testcase
+;;
+(load #p"test/rtapp-number-equal.lisp")
 (load #p"test/rtapp-number.lisp")
 (load #p"test/rtapp-floor.lisp")
 (load #p"test/rtapp-ffloor.lisp")
@@ -23,6 +16,9 @@
 (load #p"test/rtapp-ftruncate.lisp")
 (load #p"test/rtapp-round.lisp")
 (load #p"test/rtapp-fround.lisp")
+(load #p"test/rtapp-mod.lisp")
+(load #p"test/rtapp-sin.lisp")
+(load #p"test/rtapp-exp.lisp")
 
 
 ;;

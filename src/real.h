@@ -7,10 +7,14 @@
 int floatp(addr pos);
 int realp(addr pos);
 
-int real_result_alloc(LocalRoot local, addr pos, addr *ret);
+void real_result_local(LocalRoot local, addr pos, addr *ret);
+void real_result_heap(LocalRoot local, addr pos, addr *ret);
 void real_throw_alloc(LocalRoot local, addr pos, addr *ret);
 void real_throw_local(LocalRoot local, addr pos, addr *ret);
 void real_throw_heap(addr pos, addr *ret);
+void real_copy_alloc(LocalRoot local, addr pos, addr *ret);
+void real_copy_local(LocalRoot local, addr pos, addr *ret);
+void real_copy_heap(addr pos, addr *ret);
 
 int plusp_real(addr pos);
 int minusp_real(addr pos);
@@ -36,10 +40,11 @@ int less_equal_real_clang(LocalRoot local, addr left, addr right);
 
 double_float cast_double_float_unsafe(addr value);
 
-void oneplus_real_common(LocalRoot local, addr value, addr *ret);
-void oneminus_real_common(LocalRoot local, addr value, addr *ret);
 void sign_reverse_real_common(addr pos, addr *ret);
 void sign_reverse_real_local(LocalRoot local, addr pos, addr *ret);
+
+void oneplus_real_common(LocalRoot local, addr value, addr *ret);
+void oneminus_real_common(LocalRoot local, addr value, addr *ret);
 
 void plus_fixnum_real_common(LocalRoot local, addr left, addr right, addr *ret);
 void plus_bignum_real_common(LocalRoot local, addr left, addr right, addr *ret);

@@ -26,7 +26,7 @@ static int test_alloc_bignum(void)
 	GetSignBignum(pos, &sign);
 	test(IsPlus(sign), "alloc_bignum4");
 	GetRootBignum(pos, &pos);
-	test(GetType(pos) == LISPTYPE_SYSTEM, "alloc_bignum5");
+	test(GetType(pos) == LISPSYSTEM_BIGDATA, "alloc_bignum5");
 
 	rollback_local(local, stack);
 
@@ -1167,8 +1167,8 @@ static int test_integer_copy_alloc(void)
 
 	bignum_value_local(local, &pos, SignMinus, 20);
 	integer_copy_alloc(local, pos, &pos);
-	test(fixnump(pos), "integer_copy_alloc3");
-	test(RefFixnum(pos) == -20, "integer_copy_alloc4");
+	test(bignump(pos), "integer_copy_alloc3");
+	test(equal_value_bignum(pos, SignMinus, 20), "integer_copy_alloc4");
 
 	bignum_value2_local(local, &pos, SignPlus, 20, 30);
 	integer_copy_alloc(local, pos, &pos);

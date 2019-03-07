@@ -1,3 +1,4 @@
+#include "arch.h"
 #include "array.h"
 #include "bignum.h"
 #include "bit.h"
@@ -113,33 +114,6 @@ static void arrayinfo_alloc(LocalRoot local, addr *ret)
 {
 	Low_arrayinfo_alloc(local, ret, LISPTYPE_ARRAY,
 			ARRAY_INFO_SIZE, sizeoft(struct array_struct));
-}
-
-static int multisafe_size(size_t left, size_t right, size_t *result)
-{
-	size_t temp;
-
-	if (left == 0 || right == 0) {
-		*result = 0;
-		return 0;
-	}
-	temp = left * right;
-	if (temp / right < left) {
-		*result = 0;
-		return 1;
-	}
-	*result = temp;
-
-	return 0;
-}
-
-static int plussafe_size(size_t a, size_t b, size_t *result)
-{
-	if (a > SIZE_MAX - b)
-		return 1;
-	*result = a + b;
-
-	return 0;
 }
 
 static void dimension_alloc(LocalRoot local, addr *ret, size_t index)

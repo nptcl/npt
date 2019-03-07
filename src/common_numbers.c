@@ -2,19 +2,25 @@
  *  ANSI COMMON LISP: 12. Numbers
  */
 #include <float.h>
+#include "cmpl.h"
 #include "common_header.h"
 #include "cons.h"
 #include "integer.h"
+#include "math_exp.h"
+#include "math_power.h"
 #include "number.h"
+#include "number_gcd.h"
 #include "package.h"
 #include "random_state.h"
 #include "rational.h"
 #include "real_ceiling.h"
 #include "real_common.h"
+#include "real_division.h"
 #include "real_float.h"
 #include "real_floor.h"
 #include "real_round.h"
 #include "real_truncate.h"
+#include "setf.h"
 #include "type_parse.h"
 
 /* (defun = (first &rest numbers) ...) -> boolean */
@@ -596,6 +602,385 @@ static void defun_fround(void)
 }
 
 
+/* (defun cis (real) ...) -> number */
+static void function_cis(Execute ptr, addr var)
+{
+	cis_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_cis(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Real);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Number);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_cis(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_CIS, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_cis);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_cis(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun sin (number) ...) -> number */
+static void function_sin(Execute ptr, addr var)
+{
+	sin_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_sin(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SIN, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_sin);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun cos (number) ...) -> number */
+static void function_cos(Execute ptr, addr var)
+{
+	cos_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_cos(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_COS, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_cos);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun tan (number) ...) -> number */
+static void function_tan(Execute ptr, addr var)
+{
+	tan_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_tan(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_TAN, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_tan);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun sinh (number) ...) -> number */
+static void function_sinh(Execute ptr, addr var)
+{
+	sinh_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_sinh(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SINH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_sinh);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun cosh (number) ...) -> number */
+static void function_cosh(Execute ptr, addr var)
+{
+	cosh_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_cosh(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_COSH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_cosh);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun tanh (number) ...) -> number */
+static void function_tanh(Execute ptr, addr var)
+{
+	tanh_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_tanh(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_TANH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_tanh);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun asin (number) ...) -> number */
+static void function_asin(Execute ptr, addr var)
+{
+	asin_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_asin(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ASIN, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_asin);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun acos (number) ...) -> number */
+static void function_acos(Execute ptr, addr var)
+{
+	acos_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_acos(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ACOS, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_acos);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun atan (number &optional real) ...) -> number */
+static void function_atan(Execute ptr, addr var, addr opt)
+{
+	if (opt == Unbound)
+		atan_common(var, &var);
+	else
+		atan2_common(var, opt, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_atan(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Number);
+	GetCallType(&values, Real);
+	var1opt1_argtype(&arg, arg, values);
+	GetCallType(&values, Values_Number);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_atan(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ATAN, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, function_atan);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_atan(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun asinh (number) ...) -> number */
+static void function_asinh(Execute ptr, addr var)
+{
+	asinh_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_asinh(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ASINH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_asinh);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun acosh (number) ...) -> number */
+static void function_acosh(Execute ptr, addr var)
+{
+	acosh_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_acosh(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ACOSH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_acosh);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun atanh (number) ...) -> number */
+static void function_atanh(Execute ptr, addr var)
+{
+	atanh_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_atanh(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ATANH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_atanh);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun exp (number) ...) -> number */
+static void function_exp(Execute ptr, addr var)
+{
+	exp_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_exp(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_EXP, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_exp);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun expt (number number) ...) -> number */
+static void function_expt(Execute ptr, addr base, addr power)
+{
+	expt_common(ptr->local, &base, base, power);
+	setresult_control(ptr, base);
+}
+
+static void type_expt(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Number);
+	var2_argtype(&arg, arg, arg);
+	GetCallType(&values, Values_Number);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_expt(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_EXPT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_expt);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_expt(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun + (&rest number) ...) -> number */
 static void function_plus(Execute ptr, addr rest)
 {
@@ -801,7 +1186,7 @@ static void defun_oneminus(void)
  */
 static void function_abs(Execute ptr, addr var)
 {
-	abs_number_heap(ptr->local, var, &var);
+	abs_number_common(ptr->local, var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -875,6 +1260,314 @@ static void defun_oddp(void)
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetCallType(&type, Compiled_Evenp);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun gcd (&rest integer) ...) -> (integer 0 *) */
+static void function_gcd(Execute ptr, addr args)
+{
+	gcd_number(ptr->local, args, &args);
+	setresult_control(ptr, args);
+}
+
+static void defun_gcd(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_GCD, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_dynamic(pos, function_gcd);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Gcd);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun lcm (&rest integer) ...) -> (integer 0 *) */
+static void function_lcm(Execute ptr, addr args)
+{
+	lcm_number(ptr->local, args, &args);
+	setresult_control(ptr, args);
+}
+
+static void defun_lcm(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LCM, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_dynamic(pos, function_lcm);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Gcd);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defmacro incf (place &optional number) ...) -> number) */
+static void expand_incf(Execute ptr, addr *ret, addr place, addr value, addr env)
+{
+	addr a, b, g, w, r;
+	addr c, d, ig, args, leta, declare, ignorable, setq, plus;
+
+	get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r);
+	if (! singlep(g)) {
+		fmte("INCF place ~S don't allow a multiple store value.", place, NULL);
+		return;
+	}
+
+	/* (let* ((a1 b1)
+	 *        (a2 b2)
+	 *        g)
+	 *   (declare (ignorable a1 a2))
+	 *   (setq g (+ r value))  ;; (setq g (1+ r))
+	 *   w g)
+	 */
+	args = Nil;
+	for (ig = a; a != Nil; ) {
+		getcons(a, &c, &a);
+		getcons(b, &d, &b);
+		list_heap(&c, c, d, NULL);
+		cons_heap(&args, c, args);
+	}
+	GetCar(g, &g);
+	cons_heap(&args, g, args);
+	nreverse_list_unsafe(&args, args);
+	/* declare */
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	cons_heap(&ignorable, ignorable, ig);
+	GetConst(COMMON_DECLARE, &declare);
+	list_heap(&declare, declare, ignorable, NULL);
+	/* setq */
+	GetConst(COMMON_SETQ, &setq);
+	if (value == Unbound) {
+		GetConst(COMMON_ONE_PLUS, &plus);
+		list_heap(&plus, plus, r, NULL);
+	}
+	else {
+		GetConst(COMMON_PLUS, &plus);
+		list_heap(&plus, plus, r, value, NULL);
+	}
+	list_heap(&setq, setq, g, plus, NULL);
+	/* let* */
+	GetConst(COMMON_LETA, &leta);
+	list_heap(ret, leta, args, declare, setq, w, g, NULL);
+}
+
+static void function_incf(Execute ptr, addr form, addr env)
+{
+	addr args, place, value;
+
+	getcdr(form, &form);
+	if (form == Nil) goto error;
+	getcons(form, &place, &args);
+	if (args == Nil) {
+		value = Unbound;
+	}
+	else {
+		getcons(args, &value, &args);
+		if (args != Nil) goto error;
+	}
+	expand_incf(ptr, &value, place, value, env);
+	setresult_control(ptr, value);
+	return;
+
+error:
+	fmte("INCF ~S must be (place &optional value) form.", form, NULL);
+}
+
+static void defmacro_incf(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_INCF, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, function_incf);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_MacroFunction);
+	settype_function(pos, type);
+}
+
+
+/* (defmacro decf (place &optional number) ...) -> number) */
+static void expand_decf(Execute ptr, addr *ret, addr place, addr value, addr env)
+{
+	addr a, b, g, w, r;
+	addr c, d, ig, args, leta, declare, ignorable, setq, minus;
+
+	get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r);
+	if (! singlep(g)) {
+		fmte("DECF place ~S don't allow a multiple store value.", place, NULL);
+		return;
+	}
+
+	/* (let* ((a1 b1)
+	 *        (a2 b2)
+	 *        g)
+	 *   (declare (ignorable a1 a2))
+	 *   (setq g (- r value))  ;; (setq g (1- r))
+	 *   w g)
+	 */
+	args = Nil;
+	for (ig = a; a != Nil; ) {
+		getcons(a, &c, &a);
+		getcons(b, &d, &b);
+		list_heap(&c, c, d, NULL);
+		cons_heap(&args, c, args);
+	}
+	GetCar(g, &g);
+	cons_heap(&args, g, args);
+	nreverse_list_unsafe(&args, args);
+	/* declare */
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	cons_heap(&ignorable, ignorable, ig);
+	GetConst(COMMON_DECLARE, &declare);
+	list_heap(&declare, declare, ignorable, NULL);
+	/* setq */
+	GetConst(COMMON_SETQ, &setq);
+	if (value == Unbound) {
+		GetConst(COMMON_ONE_MINUS, &minus);
+		list_heap(&minus, minus, r, NULL);
+	}
+	else {
+		GetConst(COMMON_MINUS, &minus);
+		list_heap(&minus, minus, r, value, NULL);
+	}
+	list_heap(&setq, setq, g, minus, NULL);
+	/* let* */
+	GetConst(COMMON_LETA, &leta);
+	list_heap(ret, leta, args, declare, setq, w, g, NULL);
+}
+
+static void function_decf(Execute ptr, addr form, addr env)
+{
+	addr args, place, value;
+
+	getcdr(form, &form);
+	if (form == Nil) goto error;
+	getcons(form, &place, &args);
+	if (args == Nil) {
+		value = Unbound;
+	}
+	else {
+		getcons(args, &value, &args);
+		if (args != Nil) goto error;
+	}
+	expand_decf(ptr, &value, place, value, env);
+	setresult_control(ptr, value);
+	return;
+
+error:
+	fmte("DECF ~S must be (place &optional value) form.", form, NULL);
+}
+
+static void defmacro_decf(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_DECF, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, function_decf);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_MacroFunction);
+	settype_function(pos, type);
+}
+
+
+/* (defun log (number &optional number) ...) -> number */
+static void function_log(Execute ptr, addr value, addr base)
+{
+	if (base == Unbound)
+		log_natural_common(value, &value);
+	else
+		log_base_common(value, base, &value);
+	setresult_control(ptr, value);
+}
+
+static void type_log(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Number);
+	var1opt1_argtype(&arg, arg, arg);
+	GetCallType(&values, Values_Number);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_log(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOG, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, function_log);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_log(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun mod (real divisor) ...) -> modules
+ *   real     real
+ *   divisor  real
+ *   modules  real
+ */
+static void function_mod(Execute ptr, addr num, addr div)
+{
+	mod_number_common(ptr->local, num, div, &num);
+	setresult_control(ptr, num);
+}
+
+static void defun_mod(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_MOD, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_mod);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Mod);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun rem (real divisor) ...) -> modules
+ *   real     real
+ *   divisor  real
+ *   modules  real
+ */
+static void function_rem(Execute ptr, addr num, addr div)
+{
+	rem_number_common(ptr->local, num, div, &num);
+	setresult_control(ptr, num);
+}
+
+static void defun_rem(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_REM, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_rem);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Mod);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1045,6 +1738,61 @@ static void defun_complexp(void)
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetCallType(&type, Compiled_Object_Boolean);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun realpart (number) ...) -> real */
+static void function_realpart(Execute ptr, addr var)
+{
+	if (complexp(var)) {
+		GetRealComplex(var, &var);
+	}
+	real_throw_heap(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_realpart(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_REALPART, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_realpart);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_RealPart);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun imagpart (number) ...) -> real */
+static void function_imagpart(Execute ptr, addr var)
+{
+	if (complexp(var)) {
+		GetImagComplex(var, &var);
+		real_throw_heap(var, &var);
+	}
+	else {
+		fixnum_heap(&var, 0);
+	}
+	setresult_control(ptr, var);
+}
+
+static void defun_imagpart(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_IMAGPART, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_imagpart);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_RealPart);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1744,18 +2492,21 @@ void intern_common_numbers(void)
 	defun_ftruncate();
 	defun_round();
 	defun_fround();
-	/* defun_sin(); */
-	/* defun_cos(); */
-	/* defun_tan(); */
-	/* defun_asin(); */
-	/* defun_acos(); */
-	/* defun_atan(); */
-	/* defun_sinh(); */
-	/* defun_cosh(); */
-	/* defun_tanh(); */
-	/* defun_asinh(); */
-	/* defun_acosh(); */
-	/* defun_atanh(); */
+	defun_cis();
+	defun_sin();
+	defun_cos();
+	defun_tan();
+	defun_cosh();
+	defun_tanh();
+	defun_asinh();
+	defun_asin();
+	defun_acos();
+	defun_atan();
+	defun_sinh();
+	defun_acosh();
+	defun_atanh();
+	defun_exp();
+	defun_expt();
 	defun_plus();
 	defun_minus();
 	defun_asterisk();
@@ -1765,15 +2516,13 @@ void intern_common_numbers(void)
 	defun_abs();
 	defun_evenp();
 	defun_oddp();
-	/* defun_exp(); */
-	/* defun_expt(); */
-	/* defun_gcd(); */
-	/* defun_lcm(); */
-	/* defmacro_incf(); */
-	/* defmacro_decf(); */
-	/* defun_log(); */
-	/* defun_mod(); */
-	/* defun_rem(); */
+	defun_gcd();
+	defun_lcm();
+	defmacro_incf();
+	defmacro_decf();
+	defun_log();
+	defun_mod();
+	defun_rem();
 	/* defun_signum(); */
 	/* defun_sqrt(); */
 	/* defun_isqrt(); */
@@ -1782,13 +2531,12 @@ void intern_common_numbers(void)
 	defun_random_state_p();
 	defvar_random_state();
 	defun_numberp();
-	/* defun_cis(); */
 	/* defun_complex(); */
 	defun_complexp();
 	/* defun_conjugate(); */
 	/* defun_phase(); */
-	/* defun_realpart(); */
-	/* defun_imagpart(); */
+	defun_realpart();
+	defun_imagpart();
 	defun_upgraded_complex_part_type();
 	defun_realp();
 	/* defun_numerator(); */

@@ -51,6 +51,12 @@ void long_float_throw_alloc(LocalRoot local, addr pos, addr *ret);
 void float_throw_heap(addr pos, addr *ret);
 void float_throw_local(LocalRoot local, addr pos, addr *ret);
 void float_throw_alloc(LocalRoot local, addr pos, addr *ret);
+#define float_result_heap float_throw_heap
+#define float_result_local float_throw_local
+#define float_result_alloc float_throw_alloc
+void float_copy_alloc(LocalRoot local, addr pos, addr *ret);
+void float_copy_local(LocalRoot local, addr pos, addr *ret);
+void float_copy_heap(addr pos, addr *ret);
 
 #define plusp_single_float(a) (0.0f < RefSingleFloat(a))
 #define plusp_double_float(a) (0.0 < RefDoubleFloat(a))
@@ -58,9 +64,11 @@ void float_throw_alloc(LocalRoot local, addr pos, addr *ret);
 #define minusp_single_float(a) (RefSingleFloat(a) < 0.0f)
 #define minusp_double_float(a) (RefDoubleFloat(a) < 0.0)
 #define minusp_long_float(a) (RefLongFloat(a) < 0.0L)
-#define zerop_single_float(a) (RefSingleFloat(a) == 0.0f)
-#define zerop_double_float(a) (RefDoubleFloat(a) == 0.0)
-#define zerop_long_float(a) (RefLongFloat(a) == 0.0L)
+
+int zerop_single_float(addr pos);
+int zerop_double_float(addr pos);
+int zerop_long_float(addr pos);
+int zerop_float(addr pos);
 
 int equal_fs_real(addr left, addr right);
 int equal_fd_real(addr left, addr right);
@@ -182,6 +190,15 @@ void plus_float_fl_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_float_fs_heap(addr left, addr right, addr *ret);
 void plus_float_fd_heap(addr left, addr right, addr *ret);
 void plus_float_fl_heap(addr left, addr right, addr *ret);
+#define plus_float_sf_alloc(m,a,b,r) plus_float_fs_alloc((m),(b),(a),(r))
+#define plus_float_df_alloc(m,a,b,r) plus_float_fd_alloc((m),(b),(a),(r))
+#define plus_float_lf_alloc(m,a,b,r) plus_float_fl_alloc((m),(b),(a),(r))
+#define plus_float_sf_local(m,a,b,r) plus_float_fs_local((m),(b),(a),(r))
+#define plus_float_df_local(m,a,b,r) plus_float_fd_local((m),(b),(a),(r))
+#define plus_float_lf_local(m,a,b,r) plus_float_fl_local((m),(b),(a),(r))
+#define plus_float_sf_heap(a,b,r) plus_float_fs_heap((b),(a),(r))
+#define plus_float_df_heap(a,b,r) plus_float_fd_heap((b),(a),(r))
+#define plus_float_lf_heap(a,b,r) plus_float_fl_heap((b),(a),(r))
 
 void plus_float_bs_alloc(LocalRoot local, addr left, addr right, addr *ret);
 void plus_float_bd_alloc(LocalRoot local, addr left, addr right, addr *ret);
@@ -192,6 +209,15 @@ void plus_float_bl_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_float_bs_heap(addr left, addr right, addr *ret);
 void plus_float_bd_heap(addr left, addr right, addr *ret);
 void plus_float_bl_heap(addr left, addr right, addr *ret);
+#define plus_float_sb_alloc(m,a,b,r) plus_float_bs_alloc((m),(b),(a),(r))
+#define plus_float_db_alloc(m,a,b,r) plus_float_bd_alloc((m),(b),(a),(r))
+#define plus_float_lb_alloc(m,a,b,r) plus_float_bl_alloc((m),(b),(a),(r))
+#define plus_float_sb_local(m,a,b,r) plus_float_bs_local((m),(b),(a),(r))
+#define plus_float_db_local(m,a,b,r) plus_float_bd_local((m),(b),(a),(r))
+#define plus_float_lb_local(m,a,b,r) plus_float_bl_local((m),(b),(a),(r))
+#define plus_float_sb_heap(a,b,r) plus_float_bs_heap((b),(a),(r))
+#define plus_float_db_heap(a,b,r) plus_float_bd_heap((b),(a),(r))
+#define plus_float_lb_heap(a,b,r) plus_float_bl_heap((b),(a),(r))
 
 void plus_float_rs_alloc(LocalRoot local, addr left, addr right, addr *ret);
 void plus_float_rd_alloc(LocalRoot local, addr left, addr right, addr *ret);
@@ -202,6 +228,15 @@ void plus_float_rl_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_float_rs_heap(addr left, addr right, addr *ret);
 void plus_float_rd_heap(addr left, addr right, addr *ret);
 void plus_float_rl_heap(addr left, addr right, addr *ret);
+#define plus_float_sr_alloc(m,a,b,r) plus_float_rs_alloc((m),(b),(a),(r))
+#define plus_float_dr_alloc(m,a,b,r) plus_float_rd_alloc((m),(b),(a),(r))
+#define plus_float_lr_alloc(m,a,b,r) plus_float_rl_alloc((m),(b),(a),(r))
+#define plus_float_sr_local(m,a,b,r) plus_float_rs_local((m),(b),(a),(r))
+#define plus_float_dr_local(m,a,b,r) plus_float_rd_local((m),(b),(a),(r))
+#define plus_float_lr_local(m,a,b,r) plus_float_rl_local((m),(b),(a),(r))
+#define plus_float_sr_heap(a,b,r) plus_float_rs_heap((b),(a),(r))
+#define plus_float_dr_heap(a,b,r) plus_float_rd_heap((b),(a),(r))
+#define plus_float_lr_heap(a,b,r) plus_float_rl_heap((b),(a),(r))
 
 void plus_float_ss_alloc(LocalRoot local, addr left, addr right, addr *ret);
 void plus_float_sd_alloc(LocalRoot local, addr left, addr right, addr *ret);
@@ -328,6 +363,15 @@ void multi_float_fl_local(LocalRoot local, addr left, addr right, addr *ret);
 void multi_float_fs_heap(addr left, addr right, addr *ret);
 void multi_float_fd_heap(addr left, addr right, addr *ret);
 void multi_float_fl_heap(addr left, addr right, addr *ret);
+#define multi_float_sf_alloc(m,a,b,r) multi_float_fs_alloc((m),(b),(a),(r))
+#define multi_float_df_alloc(m,a,b,r) multi_float_fd_alloc((m),(b),(a),(r))
+#define multi_float_lf_alloc(m,a,b,r) multi_float_fl_alloc((m),(b),(a),(r))
+#define multi_float_sf_local(m,a,b,r) multi_float_fs_local((m),(b),(a),(r))
+#define multi_float_df_local(m,a,b,r) multi_float_fd_local((m),(b),(a),(r))
+#define multi_float_lf_local(m,a,b,r) multi_float_fl_local((m),(b),(a),(r))
+#define multi_float_sf_heap(a,b,r) multi_float_fs_heap((b),(a),(r))
+#define multi_float_df_heap(a,b,r) multi_float_fd_heap((b),(a),(r))
+#define multi_float_lf_heap(a,b,r) multi_float_fl_heap((b),(a),(r))
 
 void multi_float_bs_alloc(LocalRoot local, addr left, addr right, addr *ret);
 void multi_float_bd_alloc(LocalRoot local, addr left, addr right, addr *ret);
@@ -338,6 +382,15 @@ void multi_float_bl_local(LocalRoot local, addr left, addr right, addr *ret);
 void multi_float_bs_heap(addr left, addr right, addr *ret);
 void multi_float_bd_heap(addr left, addr right, addr *ret);
 void multi_float_bl_heap(addr left, addr right, addr *ret);
+#define multi_float_sb_alloc(m,a,b,r) multi_float_bs_alloc((m),(b),(a),(r))
+#define multi_float_db_alloc(m,a,b,r) multi_float_bd_alloc((m),(b),(a),(r))
+#define multi_float_lb_alloc(m,a,b,r) multi_float_bl_alloc((m),(b),(a),(r))
+#define multi_float_sb_local(m,a,b,r) multi_float_bs_local((m),(b),(a),(r))
+#define multi_float_db_local(m,a,b,r) multi_float_bd_local((m),(b),(a),(r))
+#define multi_float_lb_local(m,a,b,r) multi_float_bl_local((m),(b),(a),(r))
+#define multi_float_sb_heap(a,b,r) multi_float_bs_heap((b),(a),(r))
+#define multi_float_db_heap(a,b,r) multi_float_bd_heap((b),(a),(r))
+#define multi_float_lb_heap(a,b,r) multi_float_bl_heap((b),(a),(r))
 
 void multi_float_rs_alloc(LocalRoot local, addr left, addr right, addr *ret);
 void multi_float_rd_alloc(LocalRoot local, addr left, addr right, addr *ret);
@@ -348,6 +401,15 @@ void multi_float_rl_local(LocalRoot local, addr left, addr right, addr *ret);
 void multi_float_rs_heap(addr left, addr right, addr *ret);
 void multi_float_rd_heap(addr left, addr right, addr *ret);
 void multi_float_rl_heap(addr left, addr right, addr *ret);
+#define multi_float_sr_alloc(m,a,b,r) multi_float_rs_alloc((m),(b),(a),(r))
+#define multi_float_dr_alloc(m,a,b,r) multi_float_rd_alloc((m),(b),(a),(r))
+#define multi_float_lr_alloc(m,a,b,r) multi_float_rl_alloc((m),(b),(a),(r))
+#define multi_float_sr_local(m,a,b,r) multi_float_rs_local((m),(b),(a),(r))
+#define multi_float_dr_local(m,a,b,r) multi_float_rd_local((m),(b),(a),(r))
+#define multi_float_lr_local(m,a,b,r) multi_float_rl_local((m),(b),(a),(r))
+#define multi_float_sr_heap(a,b,r) multi_float_rs_heap((b),(a),(r))
+#define multi_float_dr_heap(a,b,r) multi_float_rd_heap((b),(a),(r))
+#define multi_float_lr_heap(a,b,r) multi_float_rl_heap((b),(a),(r))
 
 void multi_float_ss_alloc(LocalRoot local, addr left, addr right, addr *ret);
 void multi_float_sd_alloc(LocalRoot local, addr left, addr right, addr *ret);
@@ -484,6 +546,16 @@ void abs_floatl_local(LocalRoot local, addr left, addr *ret);
 void abs_floats_heap(addr left, addr *ret);
 void abs_floatd_heap(addr left, addr *ret);
 void abs_floatl_heap(addr left, addr *ret);
+
+double_float cast_sd_value(addr pos);
+long_float cast_sl_value(addr pos);
+single_float cast_ds_value(addr pos);
+long_float cast_dl_value(addr pos);
+single_float cast_ls_value(addr pos);
+double_float cast_ld_value(addr pos);
+#define cast_ss_value RefSingleFloat
+#define cast_dd_value RefDoubleFloat
+#define cast_ll_value RefLongFloat
 
 void cast_float_alloc(LocalRoot local, addr left, addr *ret);
 void cast_float_local(LocalRoot local, addr left, addr *ret);

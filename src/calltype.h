@@ -200,6 +200,8 @@ enum CallType {
 	CallType_Values_PathnameNull,
 	CallType_Values_LogicalPathname,
 	CallType_Values_Float,
+	CallType_Values_Real,
+	CallType_Values_Number,
 	CallType_Compiled_Object_Boolean,
 	CallType_Compiled_Symbol_Boolean,
 	CallType_Compiled_StringCase,
@@ -274,6 +276,10 @@ enum CallType {
 	CallType_Compiled_Floor,
 	CallType_Compiled_Ffloor,
 	CallType_Compiled_EnvInfo,
+	CallType_Compiled_Sin,
+	CallType_Compiled_RealPart,
+	CallType_Compiled_Gcd,
+	CallType_Compiled_Mod,
 	CallType_Size
 };
 

@@ -21,5 +21,9 @@ int readforce_windows(HANDLE file, void *pos, size_t size, size_t *ret);
 int read_clang(FILE *file, void *pos, size_t size, size_t *ret);
 int readforce_clang(FILE *file, void *pos, size_t size, size_t *ret);
 
+/* safe */
+int multisafe_size(size_t left, size_t right, size_t *result);
+int plussafe_size(size_t a, size_t b, size_t *result);
+
 #endif
 

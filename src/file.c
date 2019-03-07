@@ -1396,7 +1396,7 @@ void finish_output_file(addr stream)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	if (flush_filememory(fm))
-		fmte("flush-filememory error.");
+		fmte("flush-filememory error.", NULL);
 }
 
 void force_output_file(addr stream)

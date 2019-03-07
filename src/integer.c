@@ -25,22 +25,6 @@ int integerp(addr pos)
 /*
  *  throw
  */
-int integer_result_alloc(LocalRoot local, addr pos, addr *ret)
-{
-	switch (GetType(pos)) {
-		case LISPTYPE_FIXNUM:
-			*ret = pos;
-			return 0;
-
-		case LISPTYPE_BIGNUM:
-			return bignum_result_alloc(local, pos, ret);
-
-		default:
-			TypeError(pos, INTEGER);
-			return 0;
-	}
-}
-
 void integer_throw_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
@@ -67,6 +51,103 @@ void integer_throw_local(LocalRoot local, addr pos, addr *ret)
 void integer_throw_heap(addr pos, addr *ret)
 {
 	integer_throw_alloc(NULL, pos, ret);
+}
+
+void integer_result_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			fixnum_result_alloc(local, pos, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			bignum_result_alloc(local, pos, ret);
+			break;
+
+		default:
+			TypeError(pos, INTEGER);
+			break;
+	}
+}
+
+void integer_result_local(LocalRoot local, addr pos, addr *ret)
+{
+	Check(local == NULL, "local error");
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			fixnum_result_local(local, pos, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			bignum_result_local(local, pos, ret);
+			break;
+
+		default:
+			TypeError(pos, INTEGER);
+			break;
+	}
+}
+
+void integer_result_heap(addr pos, addr *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			fixnum_result_heap(pos, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			bignum_result_heap(pos, ret);
+			break;
+
+		default:
+			TypeError(pos, INTEGER);
+			break;
+	}
+}
+
+void fixnum_copy_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_FIXNUM);
+	fixnum_alloc(local, ret, RefFixnum(pos));
+}
+
+void fixnum_copy_local(LocalRoot local, addr pos, addr *ret)
+{
+	Check(local == NULL, "local error");
+	fixnum_copy_alloc(local, pos, ret);
+}
+
+void fixnum_copy_heap(LocalRoot local, addr pos, addr *ret)
+{
+	fixnum_copy_alloc(NULL, pos, ret);
+}
+
+void integer_copy_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			fixnum_copy_alloc(local, pos, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			bignum_copy_alloc(local, ret, pos);
+			break;
+
+		default:
+			TypeError(pos, INTEGER);
+			break;
+	}
+}
+
+void integer_copy_local(LocalRoot local, addr pos, addr *ret)
+{
+	Check(local == NULL, "local error");
+	integer_copy_alloc(local, pos, ret);
+}
+
+void integer_copy_heap(addr pos, addr *ret)
+{
+	integer_copy_alloc(NULL, pos, ret);
 }
 
 
@@ -135,6 +216,7 @@ int zerop_integer(addr pos)
 
 static inline int equal_fixnum_integer(addr left, addr right)
 {
+	CheckType(left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return equal_ff_real(left, right);
@@ -150,6 +232,7 @@ static inline int equal_fixnum_integer(addr left, addr right)
 
 static inline int equal_bignum_integer(addr left, addr right)
 {
+	CheckType(left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return equal_bf_real(left, right);
@@ -180,6 +263,7 @@ int equal_integer(addr left, addr right)
 
 static inline int compare_fixnum_integer(addr left, addr right)
 {
+	CheckType(left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return compare_ff_real(left, right);
@@ -195,6 +279,7 @@ static inline int compare_fixnum_integer(addr left, addr right)
 
 static inline int compare_bignum_integer(addr left, addr right)
 {
+	CheckType(left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return compare_bf_real(left, right);
@@ -233,105 +318,21 @@ int less_equal_integer_clang(addr left, addr right)
 	return less_equal_integer(left, right);
 }
 
-
-/*
- *  calculate
- */
-void oneplus_integer_common(LocalRoot local, addr value, addr *ret)
+void sign_reverse_integer_common(addr pos, addr *ret)
 {
-	switch (GetType(value)) {
+	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			plus_fv_real_common(value, 1, ret);
+			sigrev_fixnum_integer_common(pos, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			plus_bv_real_common(local, value, 1, ret);
+			sigrev_bignum_integer_common(pos, ret);
 			break;
 
 		default:
-			TypeError(value, INTEGER);
+			TypeError(pos, INTEGER);
 			break;
 	}
-}
-
-void oneminus_integer_common(LocalRoot local, addr value, addr *ret)
-{
-	switch (GetType(value)) {
-		case LISPTYPE_FIXNUM:
-			plus_fv_real_common(value, -1, ret);
-			break;
-
-		case LISPTYPE_BIGNUM:
-			plus_bv_real_common(local, value, -1, ret);
-			break;
-
-		default:
-			TypeError(value, INTEGER);
-			break;
-	}
-}
-
-static inline void plus_fixnum_integer(LocalRoot local,
-		addr left, addr right, addr *ret)
-{
-	switch (GetType(right)) {
-		case LISPTYPE_FIXNUM:
-			plus_ff_real_common(left, right, ret);
-			break;
-
-		case LISPTYPE_BIGNUM:
-			plus_fb_real_common(local, left, right, ret);
-			break;
-
-		default:
-			TypeError(right, INTEGER);
-			break;
-	}
-}
-
-static inline void plus_bignum_integer(LocalRoot local,
-		addr left, addr right, addr *ret)
-{
-	switch (GetType(right)) {
-		case LISPTYPE_FIXNUM:
-			plus_bf_real_common(local, left, right, ret);
-			break;
-
-		case LISPTYPE_BIGNUM:
-			plus_bb_real_common(local, left, right, ret);
-			break;
-
-		default:
-			TypeError(right, INTEGER);
-			break;
-	}
-}
-
-void plus_integer_common(LocalRoot local, addr left, addr right, addr *ret)
-{
-	switch (GetType(left)) {
-		case LISPTYPE_FIXNUM:
-			plus_fixnum_integer(local, left, right, ret);
-			break;
-
-		case LISPTYPE_BIGNUM:
-			plus_bignum_integer(local, left, right, ret);
-			break;
-
-		default:
-			TypeError(left, INTEGER);
-			break;
-	}
-}
-
-void minus_integer(LocalRoot local, addr left, addr right, addr *ret)
-{
-	*ret = Nil;
-}
-
-void multi_integer(LocalRoot local, addr left, addr right, addr *ret)
-{
-	*ret = Nil;
 }
 
 static int evenp_fixnum(addr left)
@@ -526,6 +527,8 @@ static int getindex_bignum(addr pos, size_t *ret)
 
 int getindex_integer(addr pos, size_t *ret)
 {
+	addr type;
+
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
 			return getindex_fixnum(pos, ret);
@@ -534,7 +537,8 @@ int getindex_integer(addr pos, size_t *ret)
 			return getindex_bignum(pos, ret);
 
 		default:
-			Abort("type error");
+			GetCallType(&type, Index);
+			type_error(pos, type);
 			return 1;
 	}
 }
@@ -580,6 +584,61 @@ addr reference_index_integer_local(LocalRoot local, size_t value)
 addr reference_index_integer_heap(size_t value)
 {
 	return reference_index_integer_alloc(NULL, value);
+}
+
+static int cast_bigtype_index(bigtype value, size_t *ret)
+{
+#if (BIGNUM_FULL < SIZE_MAX)
+	*ret = (size_t)value;
+	return 0;
+#else
+	if (SIZE_MAX < value) {
+		return 1;
+	}
+	else {
+		*ret = (size_t)value;
+		return 0;
+	}
+#endif
+}
+
+static int cast_fixnum_index(addr pos, int *sign, size_t *ret)
+{
+	fixed value;
+
+	CheckType(pos, LISPTYPE_FIXNUM);
+	castfixed_fixnum(pos, sign, &value);
+	return cast_bigtype_index(value, ret);
+}
+
+static int cast_bignum_index(addr pos, int *sign, size_t *ret)
+{
+	bigtype *data;
+	size_t size;
+
+	CheckType(pos, LISPTYPE_BIGNUM);
+	GetSizeBignum(pos, &size);
+	GetSignBignum(pos, sign);
+	if (size != 1) return 1;
+	GetDataBignum(pos, &data);
+	return cast_bigtype_index(data[0], ret);
+}
+
+int getindex_sign_integer(addr pos, int *sign, size_t *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			return cast_fixnum_index(pos, sign, ret);
+
+		case LISPTYPE_BIGNUM:
+			return cast_bignum_index(pos, sign, ret);
+
+		default:
+			TypeError(pos, INTEGER);
+			*sign = 0;
+			*ret = 0;
+			return 1;
+	}
 }
 
 
@@ -634,4 +693,207 @@ void uint64_integer_alloc(LocalRoot local, addr *ret, uint64_t value)
 	bignum_value_alloc(local, ret, signplus_bignum, (fixed)value);
 }
 #endif
+
+
+/*
+ *  oneplus
+ */
+void oneplus_integer_common(LocalRoot local, addr value, addr *ret)
+{
+	CheckLocal(local);
+	switch (GetType(value)) {
+		case LISPTYPE_FIXNUM:
+			plus_fv_real_common(value, 1, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_bv_real_common(local, value, 1, ret);
+			break;
+
+		default:
+			TypeError(value, INTEGER);
+			break;
+	}
+}
+
+void oneminus_integer_common(LocalRoot local, addr value, addr *ret)
+{
+	CheckLocal(local);
+	switch (GetType(value)) {
+		case LISPTYPE_FIXNUM:
+			plus_fv_real_common(value, -1, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_bv_real_common(local, value, -1, ret);
+			break;
+
+		default:
+			TypeError(value, INTEGER);
+			break;
+	}
+}
+
+
+/*
+ *  plus
+ */
+void plus_fi_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+{
+	CheckLocalType(local, left, LISPTYPE_FIXNUM);
+	switch (GetType(right)) {
+		case LISPTYPE_FIXNUM:
+			plus_ff_bignum_local(local, left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_fb_bignum_local(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(right, INTEGER);
+			break;
+	}
+}
+
+void plus_fi_real_local(LocalRoot local, addr left, addr right, addr *ret)
+{
+	CheckLocalType(local, left, LISPTYPE_FIXNUM);
+	switch (GetType(right)) {
+		case LISPTYPE_FIXNUM:
+			plus_ff_real_local(local, left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_fb_real_local(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(right, INTEGER);
+			break;
+	}
+}
+
+void plus_fi_real_common(LocalRoot local, addr left, addr right, addr *ret)
+{
+	CheckLocalType(local, left, LISPTYPE_FIXNUM);
+	switch (GetType(right)) {
+		case LISPTYPE_FIXNUM:
+			plus_ff_real_common(left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_fb_real_common(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(right, INTEGER);
+			break;
+	}
+}
+
+void plus_bi_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+{
+	CheckLocalType(local, left, LISPTYPE_BIGNUM);
+	switch (GetType(right)) {
+		case LISPTYPE_FIXNUM:
+			plus_bf_bignum_local(local, left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_bb_bignum_local(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(right, INTEGER);
+			break;
+	}
+}
+
+void plus_bi_real_local(LocalRoot local, addr left, addr right, addr *ret)
+{
+	CheckLocalType(local, left, LISPTYPE_BIGNUM);
+	switch (GetType(right)) {
+		case LISPTYPE_FIXNUM:
+			plus_bf_real_local(local, left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_bb_real_local(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(right, INTEGER);
+			break;
+	}
+}
+
+void plus_bi_real_common(LocalRoot local, addr left, addr right, addr *ret)
+{
+	CheckLocalType(local, left, LISPTYPE_BIGNUM);
+	switch (GetType(right)) {
+		case LISPTYPE_FIXNUM:
+			plus_bf_real_common(local, left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_bb_real_common(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(right, INTEGER);
+			break;
+	}
+}
+
+void plus_ii_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
+{
+	switch (GetType(left)) {
+		case LISPTYPE_FIXNUM:
+			plus_fi_bignum_local(local, left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_bi_bignum_local(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(left, INTEGER);
+			break;
+	}
+}
+
+void plus_ii_real_local(LocalRoot local, addr left, addr right, addr *ret)
+{
+	switch (GetType(left)) {
+		case LISPTYPE_FIXNUM:
+			plus_fi_real_local(local, left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_bi_real_local(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(left, INTEGER);
+			break;
+	}
+}
+
+void plus_ii_real_common(LocalRoot local, addr left, addr right, addr *ret)
+{
+	switch (GetType(left)) {
+		case LISPTYPE_FIXNUM:
+			plus_fi_real_common(local, left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_bi_real_common(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(left, INTEGER);
+			break;
+	}
+}
 

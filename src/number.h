@@ -27,10 +27,14 @@ enum Boole_Index {
 
 int numberp(addr pos);
 
-int number_result_alloc(LocalRoot local, addr pos, addr *ret);
+void number_result_local(LocalRoot local, addr pos, addr *ret);
+void number_result_heap(LocalRoot local, addr pos, addr *ret);
 void number_throw_alloc(LocalRoot local, addr pos, addr *ret);
 void number_throw_local(LocalRoot local, addr pos, addr *ret);
 void number_throw_heap(addr pos, addr *ret);
+void number_copy_alloc(LocalRoot local, addr pos, addr *ret);
+void number_copy_local(LocalRoot local, addr pos, addr *ret);
+void number_copy_heap(addr pos, addr *ret);
 
 #define plusp_number plusp_real
 #define minusp_number minusp_real
@@ -56,7 +60,7 @@ void div_number_heap(LocalRoot local, addr left, addr right, addr *ret);
 void mod_number_heap(LocalRoot local, addr left, addr right, addr *ret);
 void rem_number_heap(LocalRoot local, addr left, addr right, addr *ret);
 
-void abs_number_heap(LocalRoot local, addr left, addr *ret);
+void abs_number_common(LocalRoot local, addr left, addr *ret);
 void random_number_heap(addr limit, addr state, addr *ret);
 
 #endif

@@ -189,6 +189,104 @@ void float_throw_alloc(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
+static void single_float_copy_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
+	single_float_alloc(local, ret, RefSingleFloat(pos));
+}
+
+static void double_float_copy_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
+	double_float_alloc(local, ret, RefDoubleFloat(pos));
+}
+
+static void long_float_copy_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_LONG_FLOAT);
+	long_float_alloc(local, ret, RefLongFloat(pos));
+}
+
+void float_copy_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_SINGLE_FLOAT:
+			single_float_copy_alloc(local, pos, ret);
+			break;
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			double_float_copy_alloc(local, pos, ret);
+			break;
+
+		case LISPTYPE_LONG_FLOAT:
+			long_float_copy_alloc(local, pos, ret);
+			break;
+
+		case LISPTYPE_SHORT_FLOAT:
+			Abort("short float is not implemented.");
+			break;
+
+		default:
+			TypeError(pos, FLOAT);
+			break;
+	}
+}
+
+void float_copy_local(LocalRoot local, addr pos, addr *ret)
+{
+	Check(local == NULL, "local error");
+	float_copy_alloc(local, pos, ret);
+}
+
+void float_copy_heap(addr pos, addr *ret)
+{
+	float_copy_alloc(NULL, pos, ret);
+}
+
+
+/*
+ *  boolean
+ */
+int zerop_single_float(addr pos)
+{
+	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
+	return RefSingleFloat(pos) == 0.0f;
+}
+
+int zerop_double_float(addr pos)
+{
+	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
+	return RefDoubleFloat(pos) == 0.0;
+}
+
+int zerop_long_float(addr pos)
+{
+	CheckType(pos, LISPTYPE_LONG_FLOAT);
+	return RefLongFloat(pos) == 0.0L;
+}
+
+int zerop_float(addr pos)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_SINGLE_FLOAT:
+			return zerop_single_float(pos);
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			return zerop_double_float(pos);
+
+		case LISPTYPE_LONG_FLOAT:
+			return zerop_long_float(pos);
+
+		case LISPTYPE_SHORT_FLOAT:
+			Abort("short float is not implemented.");
+			return 0;
+
+		default:
+			TypeError(pos, FLOAT);
+			return 0;
+	}
+}
+
 
 /*
  *  equal
@@ -262,17 +360,17 @@ int compare_fl_real(addr left, addr right)
 
 int compare_sf_real(addr left, addr right)
 {
-	return -compare_fs_real(left, right);
+	return -compare_fs_real(right, left);
 }
 
 int compare_df_real(addr left, addr right)
 {
-	return -compare_fd_real(left, right);
+	return -compare_fd_real(right, left);
 }
 
 int compare_lf_real(addr left, addr right)
 {
-	return -compare_fl_real(left, right);
+	return -compare_fl_real(right, left);
 }
 
 int compare_ss_real(addr left, addr right)
@@ -2567,8 +2665,8 @@ void div_float_lf_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	fixnum check;
 	long_float value;
 
-	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
-	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
+	Check(GetType(left) != LISPTYPE_LONG_FLOAT, "type left error");
+	Check(GetType(right) != LISPTYPE_FIXNUM, "type right error");
 	GetFixnum(right, &check);
 	if (check == 0)
 		division_by_zero2(left, right);
@@ -3207,6 +3305,57 @@ void abs_floatl_heap(addr left, addr *ret)
 /*
  *  cast
  */
+double_float cast_sd_value(addr pos)
+{
+	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
+	return (double_float)RefSingleFloat(pos);
+}
+
+long_float cast_sl_value(addr pos)
+{
+	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
+	return (long_float)RefSingleFloat(pos);
+}
+
+single_float cast_ds_value(addr pos)
+{
+	single_float v;
+
+	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
+	v = (single_float)RefDoubleFloat(pos);
+	float_errorcheck1(CONSTANT_COMMON_COERCE, v, pos);
+
+	return v;
+}
+
+long_float cast_dl_value(addr pos)
+{
+	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
+	return (long_float)RefDoubleFloat(pos);
+}
+
+single_float cast_ls_value(addr pos)
+{
+	single_float v;
+
+	CheckType(pos, LISPTYPE_LONG_FLOAT);
+	v = (single_float)RefLongFloat(pos);
+	float_errorcheck1(CONSTANT_COMMON_COERCE, v, pos);
+
+	return v;
+}
+
+double_float cast_ld_value(addr pos)
+{
+	double_float v;
+
+	CheckType(pos, LISPTYPE_LONG_FLOAT);
+	v = (double_float)RefLongFloat(pos);
+	float_errorcheck1(CONSTANT_COMMON_COERCE, v, pos);
+
+	return v;
+}
+
 void cast_float_alloc(LocalRoot local, addr left, addr *ret)
 {
 	switch (GetType(left)) {

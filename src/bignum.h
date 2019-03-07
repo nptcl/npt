@@ -17,13 +17,13 @@ struct bignuminfo {
 
 #ifdef BIGNUM_TYPE_64BIT
 #define alloc_bigdata(m,p,s)    \
-	alloc_body8((m), (p), LISPTYPE_SYSTEM, sizeofm(bigtype, (s)))
+	alloc_body8((m), (p), LISPSYSTEM_BIGDATA, sizeofm(bigtype, (s)))
 #define PtrDataBignum(pos)      ((bigtype *)PtrBodyB8(pos))
 #endif
 
 #ifdef BIGNUM_TYPE_32BIT
 #define alloc_bigdata(m,p,s)    \
-	alloc_body4((m), (p), LISPTYPE_SYSTEM, sizeofm(bigtype, (s)))
+	alloc_body4((m), (p), LISPSYSTEM_BIGDATA, sizeofm(bigtype, (s)))
 #define PtrDataBignum(pos)  ((bigtype *)PtrBodyB4(pos))
 #endif
 
@@ -86,6 +86,7 @@ void getsign_bignum(addr pos, int *ret);
 int refsign_bignum(addr pos);
 
 void alloc_bignum(LocalRoot local, addr *ret, size_t alloc);
+void alloc_plus_bignum(LocalRoot local, addr *ret, size_t a, size_t b);
 void realloc_bignum(LocalRoot local, addr pos, size_t alloc, int force);
 
 void bignum_alloc(LocalRoot local, addr *ret, int sign, size_t size);
@@ -98,7 +99,8 @@ void bignum_zero_alloc(LocalRoot local, addr *ret);
 void bignum_fixnum_alloc(LocalRoot local, addr *ret, addr value);
 void bignum_fixnum_value_alloc(LocalRoot local, addr *ret, fixnum value);
 void bignum_counter_alloc(LocalRoot local, addr *ret, addr index);
-int bignum_result_alloc(LocalRoot local, addr pos, addr *ret);
+void bignum_result_alloc(LocalRoot local, addr pos, addr *ret);
+void bignum_integer_alloc(LocalRoot local, addr *ret, addr pos);
 #define bignum_heap(r,a,b) bignum_alloc(NULL,(r),(a),(b))
 #define bignum_cons_heap(r,a,b) bignum_cons_alloc(NULL,(r),(a),(b))
 #define bignum_copy_nosign_heap(r,a) bignum_copy_nosign_alloc(NULL,(r),(a))
@@ -110,6 +112,7 @@ int bignum_result_alloc(LocalRoot local, addr pos, addr *ret);
 #define bignum_fixnum_value_heap(r,v) bignum_fixnum_value_alloc(NULL,(r),(v))
 #define bignum_counter_heap(r,a) bignum_counter_alloc(NULL,(r),(a))
 #define bignum_result_heap(p,r) bignum_result_alloc(NULL,(p),(r))
+#define bignum_integer_heap(p,r) bignum_integer_alloc(NULL,(p),(r))
 #ifdef LISP_DEBUG
 void bignum_debug(LocalRoot local, addr *ret, int sign, size_t size);
 void bignum_cons_debug(LocalRoot local, addr *ret, int sign, addr cons);
@@ -121,7 +124,8 @@ void bignum_zero_debug(LocalRoot local, addr *ret);
 void bignum_fixnum_debug(LocalRoot local, addr *ret, addr value);
 void bignum_fixnum_value_debug(LocalRoot local, addr *ret, fixnum value);
 void bignum_counter_debug(LocalRoot local, addr *ret, addr index);
-int bignum_result_debug(LocalRoot local, addr pos, addr *ret);
+void bignum_result_debug(LocalRoot local, addr pos, addr *ret);
+void bignum_integer_debug(LocalRoot local, addr *ret, addr pos);
 #define bignum_local bignum_debug
 #define bignum_cons_local bignum_cons_debug
 #define bignum_copy_nosign_local bignum_copy_nosign_debug
@@ -133,6 +137,7 @@ int bignum_result_debug(LocalRoot local, addr pos, addr *ret);
 #define bignum_fixnum_value_local bignum_fixnum_value_debug
 #define bignum_counter_local bignum_counter_debug
 #define bignum_result_local bignum_result_debug
+#define bignum_integer_local bignum_integer_debug
 #else
 #define bignum_local bignum_alloc
 #define bignum_cons_local bignum_cons_alloc
@@ -145,7 +150,12 @@ int bignum_result_debug(LocalRoot local, addr pos, addr *ret);
 #define bignum_fixnum_value_local bignum_fixnum_value_alloc
 #define bignum_counter_local bignum_counter_alloc
 #define bignum_result_local bignum_result_alloc
+#define bignum_integer_local bignum_integer_alloc
 #endif
+
+#define fixnum_result_alloc fixnum_throw_alloc
+#define fixnum_result_local fixnum_throw_local
+#define fixnum_result_heap fixnum_throw_heap
 
 void getfixed_bignum(addr pos, size_t index, fixed *value);
 fixed reffixed_bignum(addr pos, size_t index);
@@ -160,10 +170,10 @@ void incf_bignum(addr pos, bigtype value);
 void decf_bignum(addr pos, bigtype value);
 
 void bignum_throw_heap(addr pos, addr *ret);
-void fixnum_throw_heap(addr pos, addr *ret);
 void bignum_throw_local(LocalRoot local, addr pos, addr *ret);
-void fixnum_throw_local(LocalRoot local, addr pos, addr *ret);
 void bignum_throw_alloc(LocalRoot local, addr pos, addr *ret);
+void fixnum_throw_heap(addr pos, addr *ret);
+void fixnum_throw_local(LocalRoot local, addr pos, addr *ret);
 void fixnum_throw_alloc(LocalRoot local, addr pos, addr *ret);
 
 void power2_bignum_alloc(LocalRoot local, addr *ret, int sign, size_t value);

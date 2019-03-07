@@ -48,12 +48,12 @@ fixnum lisp_truncate_f(fixnum a, fixnum b, fixnum *rem);
 fixnum lisp_round_f(fixnum a, fixnum b, fixnum *rem);
 void lisp_floor_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
 void lisp_ceiling_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
-void lisp_ftruncate_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
+void lisp_truncate_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
 void lisp_round_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
 
 void lisp_ffloor_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
 void lisp_fceiling_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
-void lisp_truncate_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
+void lisp_ftruncate_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
 void lisp_fround_fixnum(addr *quot, addr *rem, fixnum a, fixnum b);
 
 
@@ -110,6 +110,25 @@ void lisp_ffloor_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 void lisp_fceiling_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 void lisp_ftruncate_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
 void lisp_fround_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b);
+
+
+/*
+ *  mod, rem
+ */
+void lisp_mod_fixnum(addr *ret, fixnum a, fixnum b);
+void lisp_rem_fixnum(addr *ret, fixnum a, fixnum b);
+void lisp_mod_bignum(LocalRoot local, addr *ret, addr a, addr b);
+void lisp_mod_br_ratio(LocalRoot local, addr *ret, addr a, addr b);
+void lisp_mod_rb_ratio(LocalRoot local, addr *rem, addr a, addr b);
+void lisp_mod_rr_ratio(LocalRoot local, addr *ret, addr a, addr b);
+void mod_number_common(LocalRoot local, addr a, addr b, addr *ret);
+
+void lisp_rem_fixnum(addr *ret, fixnum a, fixnum b);
+void lisp_rem_bignum(LocalRoot local, addr *ret, addr a, addr b);
+void lisp_rem_br_ratio(LocalRoot local, addr *ret, addr a, addr b);
+void lisp_rem_rb_ratio(LocalRoot local, addr *ret, addr a, addr b);
+void lisp_rem_rr_ratio(LocalRoot local, addr *rem, addr a, addr b);
+void rem_number_common(LocalRoot local, addr a, addr b, addr *ret);
 
 #endif
 

@@ -1516,3 +1516,153 @@ void ftruncate_common(LocalRoot local, addr *quot, addr *rem, addr left, addr ri
 	}
 }
 
+
+/*
+ *  rem
+ */
+static void rem_ff_common(addr *ret, addr left, addr right)
+{
+	fixnum a, b;
+
+	CheckType(left, LISPTYPE_FIXNUM);
+	CheckType(right, LISPTYPE_FIXNUM);
+	GetFixnum(left, &a);
+	GetFixnum(right, &b);
+	lisp_rem_fixnum(ret, a, b);
+}
+
+static void rem_fb_common(LocalRoot local, addr *ret, addr left, addr right)
+{
+	LocalStack stack;
+
+	CheckType(left, LISPTYPE_FIXNUM);
+	CheckType(right, LISPTYPE_BIGNUM);
+	push_local(local, &stack);
+	bignum_fixnum_local(local, &left, left);
+	lisp_rem_bignum(local, ret, left, right);
+	rollback_local(local, stack);
+}
+
+static void rem_fr_common(LocalRoot local, addr *rem, addr left, addr right)
+{
+	LocalStack stack;
+
+	CheckType(left, LISPTYPE_FIXNUM);
+	CheckType(right, LISPTYPE_RATIO);
+	push_local(local, &stack);
+	bignum_fixnum_local(local, &left, left);
+	lisp_rem_br_ratio(local, rem, left, right);
+	rollback_local(local, stack);
+}
+
+static void rem_bf_common(LocalRoot local, addr *ret, addr left, addr right)
+{
+	LocalStack stack;
+
+	CheckType(left, LISPTYPE_BIGNUM);
+	CheckType(right, LISPTYPE_FIXNUM);
+	push_local(local, &stack);
+	bignum_fixnum_local(local, &right, right);
+	lisp_rem_bignum(local, ret, left, right);
+	rollback_local(local, stack);
+}
+
+static void rem_rf_common(LocalRoot local, addr *ret, addr left, addr right)
+{
+	LocalStack stack;
+
+	CheckType(left, LISPTYPE_RATIO);
+	CheckType(right, LISPTYPE_FIXNUM);
+	push_local(local, &stack);
+	bignum_fixnum_local(local, &right, right);
+	lisp_rem_rb_ratio(local, ret, left, right);
+	rollback_local(local, stack);
+}
+
+static void rem_fixnum_common(LocalRoot local, addr left, addr right, addr *ret)
+{
+	CheckLocalType(local, left, LISPTYPE_FIXNUM);
+	switch (GetType(right)) {
+		case LISPTYPE_FIXNUM:
+			rem_ff_common(ret, left, right);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			rem_fb_common(local, ret, left, right);
+			break;
+
+		case LISPTYPE_RATIO:
+			rem_fr_common(local, ret, left, right);
+			break;
+
+		default:
+			TypeError(right, RATIONAL);
+			break;
+	}
+}
+
+static void rem_bignum_common(LocalRoot local, addr left, addr right, addr *ret)
+{
+	CheckLocalType(local, left, LISPTYPE_BIGNUM);
+	switch (GetType(right)) {
+		case LISPTYPE_FIXNUM:
+			rem_bf_common(local, ret, left, right);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			lisp_rem_bignum(local, ret, left, right);
+			break;
+
+		case LISPTYPE_RATIO:
+			lisp_rem_br_ratio(local, ret, left, right);
+			break;
+
+		default:
+			TypeError(right, RATIONAL);
+			break;
+	}
+}
+
+static void rem_ratio_common(LocalRoot local, addr left, addr right, addr *ret)
+{
+	CheckLocalType(local, left, LISPTYPE_RATIO);
+	switch (GetType(right)) {
+		case LISPTYPE_FIXNUM:
+			rem_rf_common(local, ret, left, right);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			lisp_rem_rb_ratio(local, ret, left, right);
+			break;
+
+		case LISPTYPE_RATIO:
+			lisp_rem_rr_ratio(local, ret, left, right);
+			break;
+
+		default:
+			TypeError(right, RATIONAL);
+			break;
+	}
+}
+
+void rem_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+{
+	switch (GetType(left)) {
+		case LISPTYPE_FIXNUM:
+			rem_fixnum_common(local, left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			rem_bignum_common(local, left, right, ret);
+			break;
+
+		case LISPTYPE_RATIO:
+			rem_ratio_common(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(left, RATIONAL);
+			break;
+	}
+}
+

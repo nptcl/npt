@@ -4,24 +4,90 @@
 #include "local.h"
 #include "typedef.h"
 
-#define GetRealComplex(x,y) GetArrayA2((x), 0, (y))
-#define SetRealComplex(x,y) SetArrayA2((x), 0, (y))
-#define GetImagComplex(x,y) GetArrayA2((x), 1, (y))
-#define SetImagComplex(x,y) SetArrayA2((x), 1, (y))
+enum ComplexType {
+	ComplexType_single,
+	ComplexType_double,
+	ComplexType_long,
+	ComplexType_rational,
+	ComplexType_error
+};
 
-void make_complex_alloc(LocalRoot local, addr *ret);
+#define SetRealComplex_Low(x,y) SetArrayA2((x), 0, (y))
+#define GetRealComplex_Low(x,y) GetArrayA2((x), 0, (y))
+#define SetImagComplex_Low(x,y) SetArrayA2((x), 1, (y))
+#define GetImagComplex_Low(x,y) GetArrayA2((x), 1, (y))
+#define SetTypeComplex_Low(x,y) SetUser((x), (byte)(y))
+#define GetTypeComplex_Low(x)   ((enum ComplexType)GetUser(x))
+
+
+#ifdef LISP_DEBUG
+#define SetRealComplex SetRealComplex_Low
+#define GetRealComplex GetRealComplex_Low
+#define SetImagComplex SetImagComplex_Low
+#define GetImagComplex GetImagComplex_Low
+#define SetTypeComplex SetTypeComplex_Low
+#define GetTypeComplex GetTypeComplex_Low
+#else
+#define SetRealComplex setreal_complex
+#define GetRealComplex getreal_complex
+#define SetImagComplex setimag_complex
+#define GetImagComplex getimag_complex
+#define SetTypeComplex settype_complex
+#define GetTypeComplex gettype_complex
+#endif
+
+int complexp(addr pos);
+void setreal_complex(addr pos, addr value);
+void getreal_complex(addr pos, addr *ret);
+void setimag_complex(addr pos, addr value);
+void getimag_complex(addr pos, addr *ret);
+void settype_complex(addr pos, int value);
+enum ComplexType gettype_complex(addr pos);
+enum ComplexType getcomplex(addr pos, enum ComplexType *type, addr *real, addr *imag);
+enum ComplexType getcomplexr(addr pos, addr *real, addr *imag);
+
+void make_complex_unsafe(LocalRoot local, addr *ret, enum ComplexType type);
+void complex_unsafe_alloc(LocalRoot local, addr *ret,
+		addr real, addr imag, enum ComplexType type);
+void complex_unsafe_local(LocalRoot local, addr *ret,
+		addr real, addr imag, enum ComplexType type);
+void complex_unsafe_heap(addr *ret,
+		addr real, addr imag, enum ComplexType type);
 void complex_alloc(LocalRoot local, addr *ret, addr real, addr imag);
 void complex_local(LocalRoot local, addr *ret, addr real, addr imag);
 void complex_heap(addr *ret, addr real, addr imag);
-void complex_copy_alloc(LocalRoot local, addr *ret, addr pos);
-void complex_copy_local(LocalRoot local, addr *ret, addr pos);
-void complex_copy_heap(addr *ret, addr pos);
-int complexp(addr pos);
 
-int complex_result_alloc(LocalRoot local, addr pos, addr *ret);
+void complex_single_alloc(LocalRoot local,
+		addr *ret, single_float real, single_float imag);
+void complex_single_local(LocalRoot local,
+		addr *ret, single_float real, single_float imag);
+void complex_single_heap(addr *ret,
+		single_float real, single_float imag);
+void complex_double_alloc(LocalRoot local,
+		addr *ret, double_float real, double_float imag);
+void complex_double_local(LocalRoot local,
+		addr *ret, double_float real, double_float imag);
+void complex_double_heap(addr *ret,
+		double_float real, double_float imag);
+void complex_long_alloc(LocalRoot local,
+		addr *ret, long_float real, long_float imag);
+void complex_long_local(LocalRoot local,
+		addr *ret, long_float real, long_float imag);
+void complex_long_heap(addr *ret,
+		long_float real, long_float imag);
+
+void complex_copy_alloc(LocalRoot local, addr pos, addr *ret);
+void complex_copy_local(LocalRoot local, addr pos, addr *ret);
+void complex_copy_heap(addr pos, addr *ret);
+void complex_result_local(LocalRoot local, addr pos, addr *ret);
+void complex_result_heap(LocalRoot local, addr pos, addr *ret);
 void complex_throw_alloc(LocalRoot local, addr pos, addr *ret);
 void complex_throw_local(LocalRoot local, addr pos, addr *ret);
 void complex_throw_heap(addr pos, addr *ret);
+
+void single_float_complex(addr pos, single_float *re, single_float *im);
+void double_float_complex(addr pos, double_float *re, double_float *im);
+void long_float_complex(addr pos, long_float *re, long_float *im);
 
 int zerop_complex(addr pos);
 int eql_complex(addr left, addr right);
@@ -40,69 +106,9 @@ int equal_lc_number(LocalRoot local, addr left, addr right);
 #define equal_cd_number(m,a,b) equal_dc_number((m),(b),(a))
 #define equal_cl_number(m,a,b) equal_lc_number((m),(b),(a))
 
-void oneplus_complex_heap(LocalRoot local, addr pos, addr *ret);
-void oneminus_complex_heap(LocalRoot local, addr pos, addr *ret);
 void sign_reverse_complex_common(addr pos, addr *ret);
 void sign_reverse_complex_local(LocalRoot local, addr pos, addr *ret);
-
-void plus_fc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void plus_bc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void plus_rc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void plus_sc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void plus_dc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void plus_lc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void plus_cc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-#define plus_cf_number_common(m,a,b,r) plus_fc_number_common((m),(b),(a),(r))
-#define plus_cb_number_common(m,a,b,r) plus_bc_number_common((m),(b),(a),(r))
-#define plus_cr_number_common(m,a,b,r) plus_rc_number_common((m),(b),(a),(r))
-#define plus_cs_number_common(m,a,b,r) plus_sc_number_common((m),(b),(a),(r))
-#define plus_cd_number_common(m,a,b,r) plus_dc_number_common((m),(b),(a),(r))
-#define plus_cl_number_common(m,a,b,r) plus_lc_number_common((m),(b),(a),(r))
-
-void minus_fc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_cf_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_bc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_cb_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_rc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_cr_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_sc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_cs_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_dc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_cd_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_lc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_cl_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_cc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-
-void multi_fc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void multi_bc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void multi_rc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void multi_sc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void multi_dc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void multi_lc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void multi_cc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-#define multi_cf_number_common(m,a,b,r) multi_fc_number_common((m),(b),(a),(r))
-#define multi_cb_number_common(m,a,b,r) multi_bc_number_common((m),(b),(a),(r))
-#define multi_cr_number_common(m,a,b,r) multi_rc_number_common((m),(b),(a),(r))
-#define multi_cs_number_common(m,a,b,r) multi_sc_number_common((m),(b),(a),(r))
-#define multi_cd_number_common(m,a,b,r) multi_dc_number_common((m),(b),(a),(r))
-#define multi_cl_number_common(m,a,b,r) multi_lc_number_common((m),(b),(a),(r))
-
-void inverse_complex_common(LocalRoot local, addr pos, addr *ret);
-void div_fc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_cf_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_bc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_cb_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_rc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_cr_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_sc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_cs_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_dc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_cd_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_lc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_cl_number_common(LocalRoot local, addr left, addr right, addr *ret);
-void div_cc_number_common(LocalRoot local, addr left, addr right, addr *ret);
-
-void abs_complex_common(LocalRoot local, addr left, addr *ret);
+void abs_complex_common(LocalRoot local, addr pos, addr *ret);
 
 #endif
 

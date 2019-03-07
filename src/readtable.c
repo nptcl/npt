@@ -1983,8 +1983,10 @@ static int readtable_front(Execute ptr,
 	int check;
 
 	for (;;) {
-		if (readtable_novalue(ptr, &check, ret, stream, table))
+		if (readtable_novalue(ptr, &check, ret, stream, table)) {
+			*result = 1;
 			return 1;
+		}
 		if (0 <= check)
 			break;
 	}

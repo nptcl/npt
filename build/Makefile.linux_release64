@@ -1,6 +1,7 @@
 VPATH = src:test
 include src/source.mk
 -include depend.mk
+.DEFAULT_GOAL = build
 object = ${source:.c=.o}
 depend = depend.mk
 a.out = npt
@@ -9,7 +10,7 @@ LISP_C = -m64 -DLISP_64BIT
 LISP_C += -DLISP_LINUX -DLISP_THREAD -DLISP_PROMPT_READLINE
 LISP_C += -DLISP_DEGRADE -DLISP_MODE_STANDALONE -O3
 LISP_LIB = -lm -lpthread -lreadline
-CFLAGS = -pedantic -Wall -Isrc -Itest ${LISP_C}
+CFLAGS = -Wall -Isrc -Itest ${LISP_C}
 
 build : ${object}
 	${CC} ${CFLAGS} -o ${a.out} ${object} ${LISP_LIB}

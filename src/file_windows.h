@@ -301,13 +301,17 @@ static inline int readcall_arch(file_type file, void *pos, size_t size, size_t *
 	check = ReadFile(file, (LPVOID)pos, (DWORD)size, &dsize, NULL);
 	if (check == 0) {
 		Debug("ReadFile error");
+		*ret = 0;
 		return -1;
 	}
-	if (dsize == 0)
+	if (dsize == 0) {
+		*ret = 0;
 		return 1;
-	*ret = (size_t)dsize;
-
-	return 0;
+	}
+	else {
+		*ret = (size_t)dsize;
+		return 0;
+	}
 }
 
 static inline int writecall_arch(file_type file,
@@ -319,13 +323,17 @@ static inline int writecall_arch(file_type file,
 	check = WriteFile(file, (LPCVOID)pos, (DWORD)size, &dsize, NULL);
 	if (check == 0) {
 		Debug("WriteFile error");
+		*ret = 0;
 		return -1;
 	}
-	if (dsize == 0)
+	if (dsize == 0) {
+		*ret = 0;
 		return 1;
-	*ret = (size_t)dsize;
-
-	return 0;
+	}
+	else {
+		*ret = (size_t)dsize;
+		return 0;
+	}
 }
 
 static inline int close_arch(file_type file)

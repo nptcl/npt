@@ -199,13 +199,17 @@ static inline int readcall_arch(file_type file, void *pos, size_t size, size_t *
 	check = read(file, pos, size);
 	if (check < 0) {
 		Debug("read error");
+		*ret = 0;
 		return check;
 	}
-	if (check == 0)
+	if (check == 0) {
+		*ret = 0;
 		return 1;
-	*ret = (size_t)check;
-
-	return 0;
+	}
+	else {
+		*ret = (size_t)check;
+		return 0;
+	}
 }
 
 static inline int writecall_arch(file_type file,
@@ -216,13 +220,17 @@ static inline int writecall_arch(file_type file,
 	check = write(file, pos, size);
 	if (check < 0) {
 		Debug("write error");
+		*ret = 0;
 		return check;
 	}
-	if (check == 0)
+	if (check == 0) {
+		*ret = 0;
 		return 1;
-	*ret = (size_t)check;
-
-	return 0;
+	}
+	else {
+		*ret = (size_t)check;
+		return 0;
+	}
 }
 
 static inline int close_arch(file_type file)

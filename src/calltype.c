@@ -1851,6 +1851,22 @@ static void calltype_values_float(void)
 	SetCallType(Values_Float, pos);
 }
 
+static void calltype_values_real(void)
+{
+	addr pos;
+	GetCallType(&pos, Real);
+	result_valuestype(&pos, pos);
+	SetCallType(Values_Real, pos);
+}
+
+static void calltype_values_number(void)
+{
+	addr pos;
+	GetCallType(&pos, Number);
+	result_valuestype(&pos, pos);
+	SetCallType(Values_Number, pos);
+}
+
 static void calltype_compiled_object_boolean(void)
 {
 	addr arg, values;
@@ -3047,6 +3063,55 @@ static void calltype_compiled_envinfo(void)
 	SetCallType(Compiled_EnvInfo, arg);
 }
 
+static void calltype_compiled_sin(void)
+{
+	/* (function (number) (values number &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, Number);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Number);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_Sin, arg);
+}
+
+static void calltype_compiled_realpart(void)
+{
+	/* (function (number) (values real &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, Number);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Real);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_RealPart, arg);
+}
+
+static void calltype_compiled_gcd(void)
+{
+	/* (function (&rest integer) (values (integer 0 *) &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	rest_argtype(&arg, arg);
+	integer_plus_type(&values);
+	result_valuestype(&values, values);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_Gcd, arg);
+}
+
+static void calltype_compiled_mod(void)
+{
+	/* (function (real real) (values real &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, Real);
+	var2_argtype(&arg, arg, arg);
+	GetCallType(&values, Values_Real);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_Mod, arg);
+}
+
 
 /*
  *  Interface
@@ -3225,6 +3290,8 @@ void build_calltype(void)
 	calltype_values_pathnamenull();
 	calltype_values_logical_pathname();
 	calltype_values_float();
+	calltype_values_real();
+	calltype_values_number();
 	calltype_compiled_object_boolean();
 	calltype_compiled_symbol_boolean();
 	calltype_compiled_stringcase();
@@ -3299,5 +3366,9 @@ void build_calltype(void)
 	calltype_compiled_floor();
 	calltype_compiled_ffloor();
 	calltype_compiled_envinfo();
+	calltype_compiled_sin();
+	calltype_compiled_realpart();
+	calltype_compiled_gcd();
+	calltype_compiled_mod();
 }
 

@@ -2,10 +2,13 @@
 #include "bignum.h"
 #include "condition.h"
 #include "format.h"
+#include "math_type.h"
 #include "object.h"
 #include "ratio.h"
 #include "real_division.h"
 #include "real_float.h"
+#include "real_floor.h"
+#include "real_truncate.h"
 #include <float.h>
 #include <math.h>
 
@@ -55,6 +58,7 @@ single_float lisp_floor_s(single_float a, single_float b, single_float *rem)
 
 	if (b == 0.0f) {
 		division_by_zero_s(CONSTANT_COMMON_FLOOR, a, b);
+		*rem = 0.0f;
 		return 0.0f;
 	}
 	if (a == 0.0f) {
@@ -88,6 +92,7 @@ double_float lisp_floor_d(double_float a, double_float b, double_float *rem)
 
 	if (b == 0.0) {
 		division_by_zero_d(CONSTANT_COMMON_FLOOR, a, b);
+		*rem = 0.0;
 		return 0.0;
 	}
 	if (a == 0.0) {
@@ -121,6 +126,7 @@ long_float lisp_floor_l(long_float a, long_float b, long_float *rem)
 
 	if (b == 0.0L) {
 		division_by_zero_l(CONSTANT_COMMON_FLOOR, a, b);
+		*rem = 0.0L;
 		return 0.0L;
 	}
 	if (a == 0.0L) {
@@ -224,6 +230,7 @@ single_float lisp_ceiling_s(single_float a, single_float b, single_float *rem)
 
 	if (b == 0.0f) {
 		division_by_zero_s(CONSTANT_COMMON_CEILING, a, b);
+		*rem = 0.0f;
 		return 0.0f;
 	}
 	if (a == 0.0f) {
@@ -258,6 +265,7 @@ double_float lisp_ceiling_d(double_float a, double_float b, double_float *rem)
 
 	if (b == 0.0) {
 		division_by_zero_d(CONSTANT_COMMON_CEILING, a, b);
+		*rem = 0.0;
 		return 0.0;
 	}
 	if (a == 0.0) {
@@ -292,6 +300,7 @@ long_float lisp_ceiling_l(long_float a, long_float b, long_float *rem)
 
 	if (b == 0.0L) {
 		division_by_zero_l(CONSTANT_COMMON_CEILING, a, b);
+		*rem = 0.0L;
 		return 0.0L;
 	}
 	if (a == 0.0L) {
@@ -396,6 +405,7 @@ single_float lisp_truncate_s(single_float a, single_float b, single_float *rem)
 
 	if (b == 0.0f) {
 		division_by_zero_s(CONSTANT_COMMON_TRUNCATE, a, b);
+		*rem = 0.0f;
 		return 0.0f;
 	}
 	if (a == 0.0f) {
@@ -429,6 +439,7 @@ double_float lisp_truncate_d(double_float a, double_float b, double_float *rem)
 
 	if (b == 0.0) {
 		division_by_zero_d(CONSTANT_COMMON_TRUNCATE, a, b);
+		*rem = 0.0;
 		return 0.0;
 	}
 	if (a == 0.0) {
@@ -462,6 +473,7 @@ long_float lisp_truncate_l(long_float a, long_float b, long_float *rem)
 
 	if (b == 0.0L) {
 		division_by_zero_l(CONSTANT_COMMON_TRUNCATE, a, b);
+		*rem = 0.0L;
 		return 0.0L;
 	}
 	if (a == 0.0L) {
@@ -561,6 +573,7 @@ single_float lisp_round_s(single_float a, single_float b, single_float *rem)
 
 	if (b == 0.0f) {
 		division_by_zero_s(CONSTANT_COMMON_ROUND, a, b);
+		*rem = 0.0f;
 		return 0.0f;
 	}
 	f = modff(a / b, &i);
@@ -597,6 +610,7 @@ double_float lisp_round_d(double_float a, double_float b, double_float *rem)
 
 	if (b == 0.0) {
 		division_by_zero_d(CONSTANT_COMMON_ROUND, a, b);
+		*rem = 0.0;
 		return 0.0;
 	}
 	f = modf(a / b, &i);
@@ -633,6 +647,7 @@ long_float lisp_round_l(long_float a, long_float b, long_float *rem)
 
 	if (b == 0.0L) {
 		division_by_zero_l(CONSTANT_COMMON_ROUND, a, b);
+		*rem = 0.0L;
 		return 0.0L;
 	}
 	f = modfl(a / b, &i);
@@ -749,6 +764,7 @@ fixnum lisp_floor_f(fixnum a, fixnum b, fixnum *rem)
 
 	if (b == 0) {
 		division_by_zero_f(CONSTANT_COMMON_FLOOR, a, b);
+		*rem = 0;
 		return 0;
 	}
 	Check(a == FIXNUM_MIN && b == -1, "floor fixnum overflow.");
@@ -780,6 +796,7 @@ fixnum lisp_ceiling_f(fixnum a, fixnum b, fixnum *rem)
 
 	if (b == 0) {
 		division_by_zero_f(CONSTANT_COMMON_CEILING, a, b);
+		*rem = 0;
 		return 0;
 	}
 	Check(a == FIXNUM_MIN && b == -1, "ceiling fixnum overflow.");
@@ -809,6 +826,7 @@ fixnum lisp_truncate_f(fixnum a, fixnum b, fixnum *rem)
 {
 	if (b == 0) {
 		division_by_zero_f(CONSTANT_COMMON_TRUNCATE, a, b);
+		*rem = 0;
 		return 0;
 	}
 	Check(a == FIXNUM_MIN && b == -1, "truncate fixnum overflow.");
@@ -824,6 +842,7 @@ fixnum lisp_round_f(fixnum a, fixnum b, fixnum *rem)
 	/* error */
 	if (b == 0) {
 		division_by_zero_f(CONSTANT_COMMON_ROUND, a, b);
+		*rem = 0;
 		return 0;
 	}
 
@@ -1068,6 +1087,15 @@ static void divrem_struct_call(struct divrem_struct *ptr)
 static void divrem_struct_integer(struct divrem_struct *ptr, addr *quot, addr *rem)
 {
 	bignum_result_heap(ptr->quot, quot);
+	*rem = ptr->rem;
+	rollback_local(ptr->local, ptr->stack);
+#ifdef LISP_DEBUG
+	ptr->local = (LocalRoot)Unbound;
+#endif
+}
+
+static void rem_struct_integer(struct divrem_struct *ptr, addr *rem)
+{
 	*rem = ptr->rem;
 	rollback_local(ptr->local, ptr->stack);
 #ifdef LISP_DEBUG
@@ -2674,5 +2702,269 @@ void lisp_fround_rr_ratio(LocalRoot local, addr *quot, addr *rem, addr a, addr b
 	lisp_round_rr(local, quot, rem, a, b);
 	single_float_bignum_heap(quot, *quot);
 	rollback_local(local, stack);
+}
+
+
+/*
+ *  mod -> floor
+ */
+void lisp_mod_fixnum(addr *ret, fixnum a, fixnum b)
+{
+	if (a == FIXNUM_MIN && b == -1) {
+		fixnum_heap(ret, 0);
+	}
+	else {
+		(void)lisp_floor_f(a, b, &b);
+		fixnum_heap(ret, b);
+	}
+}
+
+void lisp_mod_bignum(LocalRoot local, addr *ret, addr a, addr b)
+{
+	struct divrem_struct str;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FLOOR, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		fixnum_heap(ret, 0);
+		return;
+	}
+
+	divrem_struct_initialize(local, &str, a, b);
+	lisp_floor_bb(&str);
+	rem_struct_integer(&str, ret);
+}
+
+void lisp_mod_br_ratio(LocalRoot local, addr *ret, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FLOOR, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		fixnum_heap(ret, 0);
+		return;
+	}
+
+	push_local(local, &stack);
+	lisp_floor_br(local, &a, ret, a, b);
+	rollback_local(local, stack);
+}
+
+void lisp_mod_rb_ratio(LocalRoot local, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FLOOR, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_floor_rb(local, &a, rem, a, b);
+	rollback_local(local, stack);
+}
+
+void lisp_mod_rr_ratio(LocalRoot local, addr *ret, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_FLOOR, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(ret, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_floor_rr(local, &a, ret, a, b);
+	rollback_local(local, stack);
+}
+
+void mod_number_common(LocalRoot local, addr a, addr b, addr *ret)
+{
+	single_float vs;
+	double_float vd;
+	long_float vl;
+	struct mathreal2_struct str;
+
+	switch (getmathreal2_addr(&str, a, b)) {
+		case MathType_single:
+			lisp_floor_s(str.v.s.a, str.v.s.b, &vs);
+			single_float_check_heap(ret, vs);
+			break;
+
+		case MathType_double:
+			lisp_floor_d(str.v.d.a, str.v.d.b, &vd);
+			double_float_check_heap(ret, vd);
+			break;
+
+		case MathType_long:
+			lisp_floor_l(str.v.l.a, str.v.l.b, &vl);
+			long_float_check_heap(ret, vl);
+			break;
+
+		case MathType_rational:
+			mod_rational_common(local, a, b, ret);
+			break;
+
+		case MathType_complex:
+		case MathType_error:
+		default:
+			fmte("type error", NULL);
+			break;
+	}
+}
+
+
+/*
+ *  rem -> truncate
+ */
+void lisp_rem_fixnum(addr *ret, fixnum a, fixnum b)
+{
+	if (a == FIXNUM_MIN && b == -1) {
+		fixnum_heap(ret, 0);
+	}
+	else {
+		(void)lisp_truncate_f(a, b, &b);
+		fixnum_heap(ret, b);
+	}
+}
+
+void lisp_rem_bignum(LocalRoot local, addr *ret, addr a, addr b)
+{
+	struct divrem_struct str;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_TRUNCATE, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		fixnum_heap(ret, 0);
+		return;
+	}
+
+	divrem_struct_initialize(local, &str, a, b);
+	lisp_truncate_bb(&str);
+	rem_struct_integer(&str, ret);
+}
+
+void lisp_rem_br_ratio(LocalRoot local, addr *ret, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_BIGNUM);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_TRUNCATE, a, b);
+		return;
+	}
+	if (zerop_bignum(a)) {
+		fixnum_heap(ret, 0);
+		return;
+	}
+
+	push_local(local, &stack);
+	lisp_truncate_br(local, &a, ret, a, b);
+	rollback_local(local, stack);
+}
+
+void lisp_rem_rb_ratio(LocalRoot local, addr *ret, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_BIGNUM);
+	if (zerop_bignum(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_TRUNCATE, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(ret, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_truncate_rb(local, &a, ret, a, b);
+	rollback_local(local, stack);
+}
+
+void lisp_rem_rr_ratio(LocalRoot local, addr *rem, addr a, addr b)
+{
+	LocalStack stack;
+
+	Check(local == NULL, "local error");
+	CheckType(a, LISPTYPE_RATIO);
+	CheckType(b, LISPTYPE_RATIO);
+	if (zerop_ratio(b)) {
+		division_by_zero_real2(CONSTANT_COMMON_TRUNCATE, a, b);
+		return;
+	}
+	if (zerop_ratio(a)) {
+		fixnum_heap(rem, 0);
+		return;
+	}
+	push_local(local, &stack);
+	lisp_truncate_rr(local, &a, rem, a, b);
+	rollback_local(local, stack);
+}
+
+void rem_number_common(LocalRoot local, addr a, addr b, addr *ret)
+{
+	single_float vs;
+	double_float vd;
+	long_float vl;
+	struct mathreal2_struct str;
+
+	switch (getmathreal2_addr(&str, a, b)) {
+		case MathType_single:
+			lisp_truncate_s(str.v.s.a, str.v.s.b, &vs);
+			single_float_check_heap(ret, vs);
+			break;
+
+		case MathType_double:
+			lisp_truncate_d(str.v.d.a, str.v.d.b, &vd);
+			double_float_check_heap(ret, vd);
+			break;
+
+		case MathType_long:
+			lisp_truncate_l(str.v.l.a, str.v.l.b, &vl);
+			long_float_check_heap(ret, vl);
+			break;
+
+		case MathType_rational:
+			rem_rational_common(local, a, b, ret);
+			break;
+
+		case MathType_complex:
+		case MathType_error:
+		default:
+			fmte("type error", NULL);
+			break;
+	}
 }
 

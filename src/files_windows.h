@@ -550,7 +550,7 @@ void file_author_files(Execute ptr, addr *ret, addr pos)
 	result = 0;
 	result = GetSecurityDescriptorOwner(psd, &owner, &result);
 	if (result == 0)
-		fmte("GetSecurityDescriptorOwner error.");
+		fmte("GetSecurityDescriptorOwner error.", NULL);
 
 	/* LookupAccountSid */
 	use = SidTypeUnknown;
@@ -563,7 +563,7 @@ void file_author_files(Execute ptr, addr *ret, addr pos)
 	if (result == FALSE) {
 		if (GetLastError() == ERROR_NONE_MAPPED)
 			goto finish_nil;
-		fmte("LookupAccountSid error.");
+		fmte("LookupAccountSid error.", NULL);
 	}
 
 	/* result */

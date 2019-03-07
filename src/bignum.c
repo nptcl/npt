@@ -3,6 +3,7 @@
  */
 #include <math.h>
 #include <errno.h>
+#include "arch.h"
 #include "character.h"
 #include "charqueue.h"
 #include "condition.h"
@@ -104,6 +105,20 @@ void alloc_bignum(LocalRoot local, addr *ret, size_t alloc)
 	str->alloc = alloc;
 	SetRootBignum(ptr, data);
 	*ret = ptr;
+}
+
+void alloc_plus_bignum(LocalRoot local, addr *ret, size_t a, size_t b)
+{
+	addr pos;
+
+	if (plussafe_size(a, b, &a)) {
+		if (local == NULL)
+			local = Local_Thread;
+		plus_ii_real_common(local, intsizeh(a), intsizeh(b), &pos);
+		fmte("Too large bignum size ~A.", pos, NULL);
+		return;
+	}
+	alloc_bignum(local, ret, a);
 }
 
 void realloc_bignum(LocalRoot local, addr pos, size_t alloc, int force)
@@ -329,10 +344,16 @@ void bignum_counter_debug(LocalRoot local, addr *ret, addr index)
 	bignum_counter_alloc(local, ret, index);
 }
 
-int bignum_result_debug(LocalRoot local, addr pos, addr *ret)
+void bignum_result_debug(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
-	return bignum_result_alloc(local, pos, ret);
+	bignum_result_alloc(local, pos, ret);
+}
+
+void bignum_integer_debug(LocalRoot local, addr *ret, addr pos)
+{
+	Check(local == NULL, "local error");
+	bignum_integer_alloc(local, ret, pos);
 }
 
 #endif
@@ -494,7 +515,7 @@ void decf_bignum(addr pos, bigtype value)
 	setminusvalue_bigdata(pos, pos, SignPlus, value);
 }
 
-int bignum_result_alloc(LocalRoot local, addr pos, addr *ret)
+void bignum_result_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	addr root;
 	bigtype *data, value;
@@ -502,24 +523,40 @@ int bignum_result_alloc(LocalRoot local, addr pos, addr *ret)
 	Check(GetType(pos) != LISPTYPE_BIGNUM, "type error");
 	if (RefSizeBignum(pos) != 1) {
 		bignum_throw_alloc(local, pos, ret);
-		return 0;
+		return;
 	}
 	GetRootDataBignum(pos, &root, &data);
 	value = data[0];
 	if (IsPlus(RefSignBignum(pos))) {
 		if (value <= FIXNUM_MAX) {
 			fixnum_alloc(local, ret, (fixnum)value);
-			return 1;
+			return;
 		}
 	}
 	else {
 		if (value <= FIXNUM_UMIN) {
 			fixnum_alloc(local, ret, -(fixnum)value);
-			return 1;
+			return;
 		}
 	}
 	bignum_throw_alloc(local, pos, ret);
-	return 0;
+}
+
+void bignum_integer_alloc(LocalRoot local, addr *ret, addr pos)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			bignum_fixnum_alloc(local, ret, pos);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			bignum_copy_alloc(local, ret, pos);
+			break;
+
+		default:
+			TypeError(pos, INTEGER);
+			break;
+	}
 }
 
 void bignum_throw_heap(addr pos, addr *ret)
@@ -793,50 +830,6 @@ void integer_bignum_heap(addr *ret, addr pos)
 /*
  *  integer-copy
  */
-static void integer_bignum_copy_alloc(LocalRoot local, addr pos, addr *ret)
-{
-	int sign;
-	size_t size;
-
-	GetSizeBignum(pos, &size);
-	if (size == 1) {
-		GetSignBignum(pos, &sign);
-		GetRootBignum(pos, &pos);
-		integer_fixed_alloc(local, ret, sign, PtrDataBignum(pos)[0]);
-	}
-	else {
-		bignum_copy_alloc(local, ret, pos);
-	}
-}
-
-void integer_copy_alloc(LocalRoot local, addr pos, addr *ret)
-{
-	switch (GetType(pos)) {
-		case LISPTYPE_FIXNUM:
-			fixnum_alloc(local, ret, RefFixnum(pos));
-			break;
-
-		case LISPTYPE_BIGNUM:
-			integer_bignum_copy_alloc(local, pos, ret);
-			break;
-
-		default:
-			TypeError(pos, INTEGER);
-			break;
-	}
-}
-
-void integer_copy_local(LocalRoot local, addr pos, addr *ret)
-{
-	Check(local == NULL, "local error");
-	integer_copy_alloc(NULL, pos, ret);
-}
-
-void integer_copy_heap(addr pos, addr *ret)
-{
-	integer_copy_alloc(NULL, pos, ret);
-}
-
 static void fixnum_copysign_alloc(LocalRoot local, int sign, fixnum value, addr *ret)
 {
 	if (value == FIXNUM_MIN) {

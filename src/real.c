@@ -28,18 +28,22 @@ int realp(addr pos)
 		|| type == LISPTYPE_SHORT_FLOAT;
 }
 
-int real_result_alloc(LocalRoot local, addr pos, addr *ret)
+void real_result_local(LocalRoot local, addr pos, addr *ret)
 {
-	switch (GetType(pos)) {
-		case LISPTYPE_SINGLE_FLOAT:
-		case LISPTYPE_DOUBLE_FLOAT:
-		case LISPTYPE_LONG_FLOAT:
-			*ret = pos;
-			return 0;
+	Check(local == NULL, "local error");
+	if (floatp(pos))
+		float_result_local(local, pos, ret);
+	else
+		rational_result_local(local, pos, ret);
+}
 
-		default:
-			return rational_result_alloc(local, pos, ret);
-	}
+void real_result_heap(LocalRoot local, addr pos, addr *ret)
+{
+	Check(local == NULL, "local error");
+	if (floatp(pos))
+		float_result_heap(pos, ret);
+	else
+		rational_result_heap(local, pos, ret);
 }
 
 void real_throw_alloc(LocalRoot local, addr pos, addr *ret)
@@ -84,6 +88,25 @@ void real_throw_local(LocalRoot local, addr pos, addr *ret)
 void real_throw_heap(addr pos, addr *ret)
 {
 	real_throw_alloc(NULL, pos, ret);
+}
+
+void real_copy_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	if (floatp(pos))
+		float_copy_alloc(local, pos, ret);
+	else
+		rational_copy_alloc(local, pos, ret);
+}
+
+void real_copy_local(LocalRoot local, addr pos, addr *ret)
+{
+	Check(local == NULL, "local error");
+	real_copy_alloc(local, pos, ret);
+}
+
+void real_copy_heap(addr pos, addr *ret)
+{
+	real_copy_alloc(NULL, pos, ret);
 }
 
 int plusp_real(addr pos)
@@ -172,7 +195,7 @@ int zerop_real(addr pos)
 
 int equal_fixnum_real(addr left, addr right)
 {
-	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
+	CheckType(left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return equal_ff_real(left, right);
@@ -201,7 +224,7 @@ int equal_fixnum_real(addr left, addr right)
 
 int equal_bignum_real(addr left, addr right)
 {
-	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
+	CheckType(left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return equal_bf_real(left, right);
@@ -230,7 +253,7 @@ int equal_bignum_real(addr left, addr right)
 
 int equal_ratio_real(LocalRoot local, addr left, addr right)
 {
-	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
+	CheckType(left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return equal_rf_real(left, right);
@@ -259,7 +282,7 @@ int equal_ratio_real(LocalRoot local, addr left, addr right)
 
 int equal_single_float_real(LocalRoot local, addr left, addr right)
 {
-	Check(GetType(left) != LISPTYPE_SINGLE_FLOAT, "type left error");
+	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return equal_sf_real(left, right);
@@ -288,7 +311,7 @@ int equal_single_float_real(LocalRoot local, addr left, addr right)
 
 int equal_double_float_real(LocalRoot local, addr left, addr right)
 {
-	Check(GetType(left) != LISPTYPE_DOUBLE_FLOAT, "type left error");
+	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return equal_df_real(left, right);
@@ -317,7 +340,7 @@ int equal_double_float_real(LocalRoot local, addr left, addr right)
 
 int equal_long_float_real(LocalRoot local, addr left, addr right)
 {
-	Check(GetType(left) != LISPTYPE_LONG_FLOAT, "type left error");
+	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return equal_lf_real(left, right);
@@ -374,6 +397,7 @@ int equal_real(LocalRoot local, addr left, addr right)
 
 static inline int compare_fixnum_real(LocalRoot local, addr left, addr right)
 {
+	CheckType(left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return compare_ff_real(left, right);
@@ -402,9 +426,10 @@ static inline int compare_fixnum_real(LocalRoot local, addr left, addr right)
 
 static inline int compare_bignum_real(LocalRoot local, addr left, addr right)
 {
+	CheckType(left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			return compare_fb_real(left, right);
+			return compare_bf_real(left, right);
 
 		case LISPTYPE_BIGNUM:
 			return compare_bb_real(left, right);
@@ -430,6 +455,7 @@ static inline int compare_bignum_real(LocalRoot local, addr left, addr right)
 
 int compare_ratio_real(LocalRoot local, addr left, addr right)
 {
+	CheckType(left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return compare_rf_real(local, left, right);
@@ -458,6 +484,7 @@ int compare_ratio_real(LocalRoot local, addr left, addr right)
 
 static inline int compare_single_float_real(LocalRoot local, addr left, addr right)
 {
+	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return compare_sf_real(left, right);
@@ -486,6 +513,7 @@ static inline int compare_single_float_real(LocalRoot local, addr left, addr rig
 
 static int compare_double_float_real(LocalRoot local, addr left, addr right)
 {
+	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return compare_df_real(left, right);
@@ -514,6 +542,7 @@ static int compare_double_float_real(LocalRoot local, addr left, addr right)
 
 static int compare_long_float_real(LocalRoot local, addr left, addr right)
 {
+	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
 			return compare_lf_real(left, right);
@@ -605,72 +634,6 @@ double_float cast_double_float_unsafe(addr value)
 	}
 }
 
-void oneplus_real_common(LocalRoot local, addr value, addr *ret)
-{
-	switch (GetType(value)) {
-		case LISPTYPE_FIXNUM:
-			plus_fv_real_common(value, 1, ret);
-			break;
-
-		case LISPTYPE_BIGNUM:
-			plus_bv_real_common(local, value, 1, ret);
-			break;
-
-		case LISPTYPE_RATIO:
-			plus_rv_real_common(local, value, 1, ret);
-			break;
-
-		case LISPTYPE_SINGLE_FLOAT:
-			plus_float_sv_heap(value, 1.0f, ret);
-			break;
-
-		case LISPTYPE_DOUBLE_FLOAT:
-			plus_float_dv_heap(value, 1.0, ret);
-			break;
-
-		case LISPTYPE_LONG_FLOAT:
-			plus_float_lv_heap(value, 1.0L, ret);
-			break;
-
-		default:
-			TypeError(value, REAL);
-			break;
-	}
-}
-
-void oneminus_real_common(LocalRoot local, addr value, addr *ret)
-{
-	switch (GetType(value)) {
-		case LISPTYPE_FIXNUM:
-			plus_fv_real_common(value, -1, ret);
-			break;
-
-		case LISPTYPE_BIGNUM:
-			plus_bv_real_common(local, value, -1, ret);
-			break;
-
-		case LISPTYPE_RATIO:
-			plus_rv_real_common(local, value, -1, ret);
-			break;
-
-		case LISPTYPE_SINGLE_FLOAT:
-			plus_float_sv_heap(value, -1.0f, ret);
-			break;
-
-		case LISPTYPE_DOUBLE_FLOAT:
-			plus_float_dv_heap(value, -1.0, ret);
-			break;
-
-		case LISPTYPE_LONG_FLOAT:
-			plus_float_lv_heap(value, -1.0L, ret);
-			break;
-
-		default:
-			TypeError(value, REAL);
-			break;
-	}
-}
-
 void sign_reverse_real_common(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
@@ -734,6 +697,72 @@ void sign_reverse_real_local(LocalRoot local, addr pos, addr *ret)
 
 		default:
 			TypeError(pos, REAL);
+			break;
+	}
+}
+
+void oneplus_real_common(LocalRoot local, addr value, addr *ret)
+{
+	switch (GetType(value)) {
+		case LISPTYPE_FIXNUM:
+			plus_fv_real_common(value, 1, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_bv_real_common(local, value, 1, ret);
+			break;
+
+		case LISPTYPE_RATIO:
+			plus_rv_real_common(local, value, 1, ret);
+			break;
+
+		case LISPTYPE_SINGLE_FLOAT:
+			plus_float_sv_heap(value, 1.0f, ret);
+			break;
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			plus_float_dv_heap(value, 1.0, ret);
+			break;
+
+		case LISPTYPE_LONG_FLOAT:
+			plus_float_lv_heap(value, 1.0L, ret);
+			break;
+
+		default:
+			TypeError(value, REAL);
+			break;
+	}
+}
+
+void oneminus_real_common(LocalRoot local, addr value, addr *ret)
+{
+	switch (GetType(value)) {
+		case LISPTYPE_FIXNUM:
+			plus_fv_real_common(value, -1, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			plus_bv_real_common(local, value, -1, ret);
+			break;
+
+		case LISPTYPE_RATIO:
+			plus_rv_real_common(local, value, -1, ret);
+			break;
+
+		case LISPTYPE_SINGLE_FLOAT:
+			plus_float_sv_heap(value, -1.0f, ret);
+			break;
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			plus_float_dv_heap(value, -1.0, ret);
+			break;
+
+		case LISPTYPE_LONG_FLOAT:
+			plus_float_lv_heap(value, -1.0L, ret);
+			break;
+
+		default:
+			TypeError(value, REAL);
 			break;
 	}
 }
@@ -849,15 +878,15 @@ void plus_single_real_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_float_fs_heap(right, left, ret);
+			plus_float_sf_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			plus_float_bs_heap(right, left, ret);
+			plus_float_sb_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			plus_float_rs_heap(right, left, ret);
+			plus_float_sr_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -883,15 +912,15 @@ void plus_double_real_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_float_fd_heap(right, left, ret);
+			plus_float_df_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			plus_float_bd_heap(right, left, ret);
+			plus_float_db_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			plus_float_rd_heap(right, left, ret);
+			plus_float_dr_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -917,15 +946,15 @@ void plus_long_real_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_float_fl_heap(right, left, ret);
+			plus_float_lf_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			plus_float_bl_heap(right, left, ret);
+			plus_float_lb_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			plus_float_rl_heap(right, left, ret);
+			plus_float_lr_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -985,11 +1014,11 @@ static void plus_fixnum_real_local(LocalRoot local, addr left, addr right, addr 
 	CheckType(left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_ff_bignum_local(local, left, right, ret);
+			plus_ff_real_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			plus_fb_bignum_local(local, left, right, ret);
+			plus_fb_real_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
@@ -1020,11 +1049,11 @@ static void plus_bignum_real_local(LocalRoot local, addr left, addr right, addr 
 	CheckType(left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_bf_bignum_local(local, left, right, ret);
+			plus_bf_real_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			plus_bb_bignum_local(local, left, right, ret);
+			plus_bb_real_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
@@ -1091,15 +1120,15 @@ static void plus_single_float_real_local(LocalRoot local,
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_float_fs_alloc(local, right, left, ret);
+			plus_float_sf_alloc(local, left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			plus_float_bs_alloc(local, right, left, ret);
+			plus_float_sb_alloc(local, left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			plus_float_rs_alloc(local, right, left, ret);
+			plus_float_sr_alloc(local, left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -1127,15 +1156,15 @@ static void plus_double_float_real_local(LocalRoot local,
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_float_fd_alloc(local, right, left, ret);
+			plus_float_df_alloc(local, left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			plus_float_bd_alloc(local, right, left, ret);
+			plus_float_db_alloc(local, left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			plus_float_rd_alloc(local, right, left, ret);
+			plus_float_dr_alloc(local, left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -1163,15 +1192,15 @@ static void plus_long_float_real_local(LocalRoot local,
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			plus_float_fl_alloc(local, right, left, ret);
+			plus_float_lf_alloc(local, left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			plus_float_bl_alloc(local, right, left, ret);
+			plus_float_lb_alloc(local, left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			plus_float_rl_alloc(local, right, left, ret);
+			plus_float_lr_alloc(local, left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -1994,11 +2023,11 @@ void multi_ratio_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			multi_rf_real_common(local, right, left, ret);
+			multi_rf_real_common(local, left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			multi_rb_real_common(local, right, left, ret);
+			multi_rb_real_common(local, left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
@@ -2028,15 +2057,15 @@ void multi_single_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			multi_float_fs_heap(right, left, ret);
+			multi_float_sf_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			multi_float_bs_heap(right, left, ret);
+			multi_float_sb_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			multi_float_rs_heap(right, left, ret);
+			multi_float_sr_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -2062,15 +2091,15 @@ void multi_double_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			multi_float_fd_heap(right, left, ret);
+			multi_float_df_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			multi_float_bd_heap(right, left, ret);
+			multi_float_db_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			multi_float_rd_heap(right, left, ret);
+			multi_float_dr_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -2096,15 +2125,15 @@ void multi_long_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			multi_float_fl_heap(right, left, ret);
+			multi_float_lf_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			multi_float_bl_heap(right, left, ret);
+			multi_float_lb_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			multi_float_rl_heap(right, left, ret);
+			multi_float_lr_heap(left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -2231,11 +2260,11 @@ void multi_ratio_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			multi_rf_real_local(local, right, left, ret);
+			multi_rf_real_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			multi_rb_real_local(local, right, left, ret);
+			multi_rb_real_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
@@ -2265,15 +2294,15 @@ void multi_single_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			multi_float_fs_local(local, right, left, ret);
+			multi_float_sf_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			multi_float_bs_local(local, right, left, ret);
+			multi_float_sb_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			multi_float_rs_local(local, right, left, ret);
+			multi_float_sr_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -2299,15 +2328,15 @@ void multi_double_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			multi_float_fd_local(local, right, left, ret);
+			multi_float_df_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			multi_float_bd_local(local, right, left, ret);
+			multi_float_db_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			multi_float_rd_local(local, right, left, ret);
+			multi_float_dr_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -2333,15 +2362,15 @@ void multi_long_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
 		case LISPTYPE_FIXNUM:
-			multi_float_fl_local(local, right, left, ret);
+			multi_float_lf_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_BIGNUM:
-			multi_float_bl_local(local, right, left, ret);
+			multi_float_lb_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_RATIO:
-			multi_float_rl_local(local, right, left, ret);
+			multi_float_lr_local(local, left, right, ret);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:

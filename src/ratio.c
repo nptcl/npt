@@ -96,6 +96,40 @@ static void reduction_single(addr numer_root, addr denom_root)
 	*denom /= a;
 }
 
+void euclidean_bignum(LocalRoot local, addr numer, addr denom)
+{
+	int compare;
+	addr a, b, n;
+	size_t size;
+
+	/* Euclidean Algorithm */
+	Check(local == NULL, "local error");
+	Check(zerop_bignum(numer), "reduction error");
+	Check(zerop_bignum(denom), "division-by-zero error");
+	compare = compare_bigdata(numer, denom);
+	if (compare == 0) {
+		setvalue_bignum(numer, SignPlus, 1);
+		return;
+	}
+	if (compare < 0) {
+		bignum_copy_local(local, &a, denom);
+		bignum_copy_local(local, &b, numer);
+	}
+	else {
+		bignum_copy_local(local, &a, numer);
+		bignum_copy_local(local, &b, denom);
+	}
+
+	GetSizeBignum(b, &size);
+	bignum_local(local, &n, SignPlus, size);
+	while (! zerop_bignum(b)) {
+		setrem_noexpand_bigdata(local, n, a, b);
+		copy_bignum(local, a, b, 0);
+		copy_bignum(local, b, n, 0);
+	}
+	copy_noexpand_bignum(numer, a);
+}
+
 static void reduction_multiple(LocalRoot local, addr numer, addr denom)
 {
 	int compare;
@@ -540,7 +574,7 @@ void ratio_throw_alloc(LocalRoot local, addr pos, addr *ret)
 		ratio_throw_heap(pos, ret);
 }
 
-int ratio_result_noreduction_local(LocalRoot local, addr pos, addr *ret)
+void ratio_result_noreduction_local(LocalRoot local, addr pos, addr *ret)
 {
 	int sign;
 	addr numer, denom;
@@ -551,22 +585,19 @@ int ratio_result_noreduction_local(LocalRoot local, addr pos, addr *ret)
 	GetDenomRatio(pos, &denom);
 	if (zerop_bignum(numer)) {
 		fixnum_local(local, ret, 0);
-		return 1;
 	}
 	else if (equal_value_nosign_bignum(denom, 1)) {
 		bignum_copy_local(local, &numer, numer);
 		GetSignRatio(pos, &sign);
 		SetSignBignum(numer, sign);
 		bignum_result_local(local, numer, ret);
-		return 1;
 	}
 	else {
 		ratio_throw_local(local, pos, ret);
-		return 0;
 	}
 }
 
-int ratio_result_noreduction_heap(LocalRoot local, addr pos, addr *ret)
+void ratio_result_noreduction_heap(LocalRoot local, addr pos, addr *ret)
 {
 	int sign;
 	addr numer, denom;
@@ -578,7 +609,6 @@ int ratio_result_noreduction_heap(LocalRoot local, addr pos, addr *ret)
 	GetDenomRatio(pos, &denom);
 	if (zerop_bignum(numer)) {
 		fixnum_heap(ret, 0);
-		return 1;
 	}
 	else if (equal_value_nosign_bignum(denom, 1)) {
 		push_local(local, &stack);
@@ -587,11 +617,9 @@ int ratio_result_noreduction_heap(LocalRoot local, addr pos, addr *ret)
 		SetSignBignum(numer, sign);
 		bignum_result_heap(numer, ret);
 		rollback_local(local, stack);
-		return 1;
 	}
 	else {
 		ratio_throw_heap(pos, ret);
-		return 0;
 	}
 }
 
@@ -4601,6 +4629,48 @@ void div_bb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 /*
  *  inverse
  */
+void inverse_fixnum_ratio_local(LocalRoot local, addr pos, addr *ret)
+{
+	int sign;
+	bigtype value;
+
+	CheckType(pos, LISPTYPE_FIXNUM);
+	castfixed_fixnum(pos, &sign, &value);
+	if (value == 0)
+		division_by_zero1(pos);
+	ratio_noreduction_value_local(local, ret, sign, 1, value);
+}
+
+void inverse_bignum_ratio_local(LocalRoot local, addr pos, addr *ret)
+{
+	int sign;
+	addr numer, denom;
+
+	CheckType(pos, LISPTYPE_BIGNUM);
+	if (zerop_bignum(pos))
+		division_by_zero1(pos);
+	GetSignBignum(pos, &sign);
+	bignum_value_local(local, &numer, SignPlus, 1);
+	bignum_copy_local(local, &denom, pos);
+	make_ratio_local(local, ret, sign, numer, denom);
+}
+
+void inverse_ratio_local(LocalRoot local, addr pos, addr *ret)
+{
+	int sign;
+	addr numer, denom;
+
+	CheckType(pos, LISPTYPE_RATIO);
+	if (zerop_ratio(pos))
+		division_by_zero1(pos);
+	GetSignRatio(pos, &sign);
+	GetNumerRatio(pos, &numer);
+	GetDenomRatio(pos, &denom);
+	bignum_copy_local(local, &numer, numer);
+	bignum_copy_local(local, &denom, denom);
+	make_ratio_local(local, ret, sign, denom, numer);
+}
+
 void inverse_fixnum_common(addr left, addr *ret)
 {
 	int sign;

@@ -595,7 +595,7 @@ static void file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 	GetConst(SYSTEM_TIME1970, &symbol);
 	GetValueSymbol(symbol, &symbol);
 	Check(symbol == Unbound, "Unbound error, (must run build_pathnames).");
-	plus_integer_common(local, symbol, value, ret);
+	plus_ii_real_common(local, symbol, value, ret);
 }
 
 void file_write_date_files(Execute ptr, addr *ret, addr pos)

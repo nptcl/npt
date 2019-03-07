@@ -261,6 +261,14 @@ static void intern_features(void)
 #ifdef LISP_DEGRADE
 	push_features(LISPNAME "-DEGRADE");
 #endif
+#ifdef LISP_COMPLEX_INACCURACY
+	push_features("MATH-INACCURACY");
+#endif
+#ifdef __cplusplus
+	push_features("CPLUSPLUS");
+#else
+	push_features("C99");
+#endif
 
 #if 0
 #ifdef LISP_THREAD_ENABLE

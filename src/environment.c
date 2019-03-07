@@ -364,7 +364,7 @@ static void default_user_homedir_pathname_common(Execute ptr, addr *ret)
 static void user_homedir_pathname_string(LocalRoot local, addr pos, addr *ret)
 {
 	unicode c;
-	addr new;
+	addr one;
 	size_t size, i;
 
 	string_length(pos, &size);
@@ -373,17 +373,17 @@ static void user_homedir_pathname_string(LocalRoot local, addr pos, addr *ret)
 	string_getc(pos, size - 1, &c);
 	if (c == '/' || c == '\\')
 		goto no_update;
-	strvect_local(local, &new, size + 1);
+	strvect_local(local, &one, size + 1);
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &c);
-		strvect_setc(new, i, c);
+		strvect_setc(one, i, c);
 	}
 #ifdef LISP_WINDOWS
-	strvect_setc(new, i, '\\');
+	strvect_setc(one, i, '\\');
 #else
-	strvect_setc(new, i, '/');
+	strvect_setc(one, i, '/');
 #endif
-	*ret = new;
+	*ret = one;
 	return;
 
 no_update:

@@ -1,194 +1,6 @@
 ;;
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
-(deftest =.1
-  (= 10)
-  t)
-
-(deftest =.2
-  (= 10.1 10.1)
-  t)
-
-(deftest =.3
-  (= 12 34)
-  nil)
-
-(deftest =.4
-  (= 1 1 1)
-  t)
-
-(deftest =.5
-  (= 1 2 2)
-  nil)
-
-(deftest =.6
-  (= 1 1 10)
-  nil)
-
-(deftest =.7
-  (= #c(10 20) #c(10 20))
-  t)
-
-(deftest =.8
-  (= #c(10 20) #c(10 21.2))
-  nil)
-
-(deftest /=.1
-  (/= 10)
-  t)
-
-(deftest /=.2
-  (/= 10 20)
-  t)
-
-(deftest /=.3
-  (/= 10 10)
-  nil)
-
-(deftest /=.4
-  (/= 10 20 30)
-  t)
-
-(deftest /=.5
-  (/= 10 20 10)
-  nil)
-
-(deftest /=.6
-  (/= 10 10 20)
-  nil)
-
-(deftest /=.7
-  (/= 10 10 10)
-  nil)
-
-(deftest <.1
-  (< 10)
-  t)
-
-(deftest <.2
-  (< 10 20)
-  t)
-
-(deftest <.3
-  (< 20 10)
-  nil)
-
-(deftest <.4
-  (< 10 10)
-  nil)
-
-(deftest <.5
-  (< 10 20 30)
-  t)
-
-(deftest <.6
-  (< 30 20 10)
-  nil)
-
-(deftest <.7
-  (< 10 20 15)
-  nil)
-
-(deftest <.8
-  (< 20 10 100)
-  nil)
-
-(deftest >.1
-  (> 10)
-  t)
-
-(deftest >.2
-  (> 20 10)
-  t)
-
-(deftest >.3
-  (> 10 20)
-  nil)
-
-(deftest >.4
-  (> 10 10)
-  nil)
-
-(deftest >.5
-  (> 30 20 10)
-  t)
-
-(deftest >.6
-  (> 10 20 30)
-  nil)
-
-(deftest >.7
-  (> 30 20 25)
-  nil)
-
-(deftest >.8
-  (> 30 40 10)
-  nil)
-
-(deftest <=.1
-  (<= 10)
-  t)
-
-(deftest <=.2
-  (<= 10 20)
-  t)
-
-(deftest <=.3
-  (<= 20 10)
-  nil)
-
-(deftest <=.4
-  (<= 10 10)
-  t)
-
-(deftest <=.5
-  (<= 10 20 30)
-  t)
-
-(deftest <=.6
-  (<= 30 20 10)
-  nil)
-
-(deftest <=.7
-  (<= 10 20 15)
-  nil)
-
-(deftest <=.8
-  (<= 20 10 100)
-  nil)
-
-(deftest >=.1
-  (>= 10)
-  t)
-
-(deftest >=.2
-  (>= 20 10)
-  t)
-
-(deftest >=.3
-  (>= 10 20)
-  nil)
-
-(deftest >=.4
-  (>= 10 10)
-  t)
-
-(deftest >=.5
-  (>= 30 20 10)
-  t)
-
-(deftest >=.6
-  (>= 10 20 30)
-  nil)
-
-(deftest >=.7
-  (>= 30 20 25)
-  nil)
-
-(deftest >=.8
-  (>= 30 40 10)
-  nil)
-
 (deftest max.1
   (max 10)
   10)
@@ -206,72 +18,87 @@
   1)
 
 (deftest minusp.1
-  (minusp -10)
-  t)
+  (values (minusp 10) (minusp 0) (minusp -10))
+  nil nil t)
 
 (deftest minusp.2
-  (minusp -10.2)
-  t)
+  (values (minusp (make-bignum 10))
+          (minusp (make-bignum 0))
+          (minusp (make-bignum -20)))
+  nil nil t)
 
 (deftest minusp.3
-  (minusp 10)
-  nil)
+  (values (minusp 1/2)
+          (minusp (make-ratio 0 10))
+          (minusp -34/555))
+  nil nil t)
 
 (deftest minusp.4
-  (minusp 0)
-  nil)
-
-(deftest minusp.5
-  (minusp 0.0d0)
-  nil)
+  (values
+    (minusp 10.0f0) (minusp 0.0f0) (minusp -12.3f0)
+    (minusp 10.0d0) (minusp 0.0d0) (minusp -12.3d0)
+    (minusp 10.0l0) (minusp 0.0l0) (minusp -12.3l0))
+  nil nil t
+  nil nil t
+  nil nil t)
 
 (deftest plusp.1
-  (plusp 10)
-  t)
+  (values (plusp 10) (plusp 0) (plusp -10))
+  t nil nil)
 
 (deftest plusp.2
-  (plusp 10.2)
-  t)
+  (values (plusp (make-bignum 10))
+          (plusp (make-bignum 0))
+          (plusp (make-bignum -20)))
+  t nil nil)
 
 (deftest plusp.3
-  (plusp -10)
-  nil)
+  (values (plusp 1/2)
+          (plusp (make-ratio 0 10))
+          (plusp -34/555))
+  t nil nil)
 
 (deftest plusp.4
-  (plusp 0)
-  nil)
-
-(deftest plusp.5
-  (plusp 0.0d0)
-  nil)
+  (values
+    (plusp 10.0f0) (plusp 0.0f0) (plusp -12.3f0)
+    (plusp 10.0d0) (plusp 0.0d0) (plusp -12.3d0)
+    (plusp 10.0l0) (plusp 0.0l0) (plusp -12.3l0))
+  t nil nil
+  t nil nil
+  t nil nil)
 
 (deftest zerop.1
-  (zerop 0)
-  t)
+  (values (zerop 10) (zerop 0) (zerop -10))
+  nil t nil)
 
 (deftest zerop.2
-  (zerop 0.0d0)
-  t)
+  (values (zerop (make-bignum 10))
+          (zerop (make-bignum 0))
+          (zerop (make-bignum -20)))
+  nil t nil)
 
 (deftest zerop.3
-  (zerop 10)
-  nil)
+  (values (zerop 1/2)
+          (zerop (make-ratio 0 10))
+          (zerop -34/555))
+  nil t nil)
 
 (deftest zerop.4
-  (zerop -20.2)
-  nil)
+  (values
+    (zerop 10.0f0) (zerop 0.0f0) (zerop -12.3f0)
+    (zerop 10.0d0) (zerop 0.0d0) (zerop -12.3d0)
+    (zerop 10.0l0) (zerop 0.0l0) (zerop -12.3l0))
+  nil t nil
+  nil t nil
+  nil t nil)
 
 (deftest zerop.5
-  (zerop #c(10 20))
-  nil)
-
-(deftest zerop.6
-  (zerop #c(0 0))
-  t)
-
-(deftest zerop.7
-  (zerop #c(0 0.0d0))
-  t)
+  (values
+    (zerop #c(0 0))
+    (zerop #c(10 0))
+    (zerop #c(10 20))
+    (zerop #c(0 10)))
+  t nil nil nil)
 
 (deftest \+.1
   (+)
@@ -329,6 +156,175 @@
   (1- 13.4)
   12.4)
 
+(deftest abs.1
+  (abs 0)
+  0)
+
+(deftest abs.2
+  (abs 10)
+  10)
+
+(deftest abs.3
+  (abs -20)
+  20)
+
+(deftest abs.4
+  (abs (make-bignum 10))
+  10)
+
+(deftest abs.5
+  (abs -888888888888888888888888888888888)
+  888888888888888888888888888888888)
+
+(deftest abs.6
+  (abs 4/5)
+  4/5)
+
+(deftest abs.7
+  (abs -789/1111)
+  789/1111)
+
+(deftest abs.8
+  (abs 1.2f3)
+  1.2f3)
+
+(deftest abs.9
+  (abs -1.2f3)
+  1.2f3)
+
+(deftest abs.10
+  (abs 1.2d3)
+  1.2d3)
+
+(deftest abs.11
+  (abs -1.2d3)
+  1.2d3)
+
+(deftest abs.12
+  (abs 1.2l3)
+  1.2l3)
+
+(deftest abs.13
+  (abs -1.2l3)
+  1.2l3)
+
+(deftest-single abs.14
+  (abs #c(1 2))
+  2.236068)
+
+(deftest-double abs.15
+  (abs #c(1.2d0 3.4d0))
+  3.605551275463989d0)
+
+(deftest evenp.1
+  (values (evenp 0) (evenp (make-bignum 0)))
+  t t)
+
+(deftest evenp.2
+  (values
+    (evenp 4) (evenp 5)
+    (evenp -4) (evenp -5)
+    (evenp (make-bignum 4)) (evenp (make-bignum 5))
+    (evenp (make-bignum -4)) (evenp (make-bignum -5)))
+  t nil t nil t nil t nil)
+
+(deftest oddp.1
+  (values (oddp 0) (oddp (make-bignum 0)))
+  nil nil)
+
+(deftest oddp.2
+  (values
+    (oddp 4) (oddp 5)
+    (oddp -4) (oddp -5)
+    (oddp (make-bignum 4)) (oddp (make-bignum 5))
+    (oddp (make-bignum -4)) (oddp (make-bignum -5)))
+  nil t nil t nil t nil t)
+
+(deftest gcd.1
+  (values
+    (gcd)
+    (gcd 60 42)
+    (gcd 3333 -33 101)
+    (gcd 3333 -33 1002001)
+    (gcd 91 -49)
+    (gcd 63 -42 35)
+    (gcd 5)
+    (gcd -4))
+  0 6 1 11 7 7 5 4)
+
+(deftest lcm.1
+  (values
+    (lcm 10)
+    (lcm 25 30)
+    (lcm -24 18 10)
+    (lcm 14 35)
+    (lcm 0 5)
+    (lcm 1 2 3 4 5 6))
+  10 150 360 70 0 60)
+
+(deftest incf.1
+  (let ((a 10))
+    (incf a)
+    a)
+  11)
+
+(deftest incf.2
+  (let ((a (list 10 20)))
+    (incf (car a) 888)
+    a)
+  (898 20))
+
+(deftest decf.1
+  (let ((a 10))
+    (decf a)
+    a)
+  9)
+
+(deftest decf.2
+  (let ((a (list 10 20)))
+    (decf (cadr a) 888)
+    a)
+  (10 -868))
+
+(deftest realpart.1
+  (realpart 0)
+  0)
+
+(deftest realpart.2
+  (realpart -10)
+  -10)
+
+(deftest realpart.3
+  (realpart 23.4)
+  23.4)
+
+(deftest realpart.4
+  (realpart #c(12 34))
+  12)
+
+(deftest realpart.5
+  (realpart #c(0 34))
+  0)
+
+(deftest imagpart.1
+  (imagpart 0)
+  0)
+
+(deftest imagpart.2
+  (imagpart -10)
+  0)
+
+(deftest imagpart.3
+  (imagpart 23.4)
+  0)
+
+(deftest imagpart.4
+  (imagpart #c(12 34))
+  34)
+
+(deftest imagpart.5
+  (imagpart #c(0 -1.2))
+  -1.2)
 
 (deftest numberp.1
   (numberp 10)

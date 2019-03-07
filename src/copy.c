@@ -181,19 +181,20 @@ void copyhard_long_double(LocalRoot local, addr *ret, addr pos)
 
 void copyhard_complex(LocalRoot local, addr *ret, addr pos)
 {
-	addr real, imag, one;
+	enum ComplexType type;
+	addr real, imag;
 
 	CheckType(pos, LISPTYPE_COMPLEX);
+	type = GetTypeComplex(pos);
 	GetRealComplex(pos, &real);
 	GetImagComplex(pos, &imag);
 	copyhard_object(local, &real, real);
 	copyhard_object(local, &imag, imag);
 
-	make_complex_alloc(local, &one);
-	SetUser(one, GetUser(pos));
-	SetRealComplex(one, real);
-	SetImagComplex(one, imag);
-	*ret = one;
+	make_complex_unsafe(local, &pos, type);
+	SetRealComplex(pos, real);
+	SetImagComplex(pos, imag);
+	*ret = pos;
 }
 
 void copyhard_callname(LocalRoot local, addr *ret, addr pos)
@@ -297,7 +298,7 @@ int copylocalp(LocalRoot local, addr pos)
 static int checklocal_error(LocalRoot local, addr pos)
 {
 	if (copylocalp(local, pos))
-		fmte("checklocal-copyerror");
+		fmte("checklocal-copyerror", NULL);
 	return 0;
 }
 
@@ -563,19 +564,22 @@ static void copylocal_long_float(LocalRoot local, addr *ret, addr pos)
 
 static void copylocal_complex(LocalRoot local, addr *ret, addr pos)
 {
-	addr real, imag, one;
+	enum ComplexType type;
+	addr real, imag;
 
+	CheckType(pos, LISPTYPE_COMPLEX);
+	type = GetTypeComplex(pos);
 	GetRealComplex(pos, &real);
 	GetImagComplex(pos, &imag);
 	if (copylocalp(local, real))
 		copyhard_object(local, &real, real);
 	if (copylocalp(local, imag))
 		copyhard_object(local, &imag, imag);
-	make_complex_alloc(local, &one);
-	SetRealComplex(one, real);
-	SetImagComplex(one, real);
-	SetUser(one, GetUser(pos));
-	*ret = one;
+
+	make_complex_unsafe(local, &pos, type);
+	SetRealComplex(pos, real);
+	SetImagComplex(pos, real);
+	*ret = pos;
 }
 
 static void copylocal_callname(LocalRoot local, addr *ret, addr pos)

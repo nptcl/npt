@@ -343,23 +343,17 @@ static int extend_string_p(addr stream)
 	return output->extend_p;
 }
 
-void open_output_string_stream_unsafe(LocalRoot local, addr *stream, size_t size)
+void open_output_string_stream(addr *stream, size_t size)
 {
 	addr pos, queue;
 	struct stream_StringOutput *str;
 
-	stream_alloc(NULL, &pos, StreamType_StringOutput,
-			sizeoft(struct stream_StringOutput));
+	stream_heap(&pos, StreamType_StringOutput, sizeoft(struct stream_StringOutput));
 	str = PtrStringOutputStream(pos);
 	str->extend_p = 0;
-	charqueue_alloc(local, &queue, size);
+	charqueue_heap(&queue, size);
 	SetInfoStream(pos, queue);
 	*stream = pos;
-}
-
-void open_output_string_stream(addr *stream, size_t size)
-{
-	open_output_string_stream_unsafe(NULL, stream, size);
 }
 
 void string_stream_alloc(LocalRoot local, addr stream, addr *string)
@@ -401,8 +395,7 @@ void open_extend_output_stream(addr *stream, addr array)
 	addr pos;
 	struct stream_StringOutput *str;
 
-	stream_alloc(NULL, &pos, StreamType_StringOutput,
-			sizeoft(struct stream_StringOutput));
+	stream_heap(&pos, StreamType_StringOutput, sizeoft(struct stream_StringOutput));
 	str = PtrStringOutputStream(pos);
 	str->extend_p = 1;
 	SetInfoStream(pos, array);

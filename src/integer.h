@@ -9,10 +9,19 @@ int fixnump(addr pos);
 int bignump(addr pos);
 int integerp(addr pos);
 
-int integer_result_alloc(LocalRoot local, addr pos, addr *ret);
 void integer_throw_alloc(LocalRoot local, addr pos, addr *ret);
 void integer_throw_local(LocalRoot local, addr pos, addr *ret);
 void integer_throw_heap(addr pos, addr *ret);
+void integer_result_alloc(LocalRoot local, addr pos, addr *ret);
+void integer_result_local(LocalRoot local, addr pos, addr *ret);
+void integer_result_heap(addr pos, addr *ret);
+
+void fixnum_copy_alloc(LocalRoot local, addr pos, addr *ret);
+void fixnum_copy_local(LocalRoot local, addr pos, addr *ret);
+void fixnum_copy_heap(LocalRoot local, addr pos, addr *ret);
+void integer_copy_alloc(LocalRoot local, addr pos, addr *ret);
+void integer_copy_local(LocalRoot local, addr pos, addr *ret);
+void integer_copy_heap(addr pos, addr *ret);
 
 /* fixnum */
 #define zerop_or_plusp_fixnum(a) (0 <= RefFixnum(a))
@@ -37,13 +46,7 @@ int compare_integer(addr left, addr right);
 
 int less_integer_clang(addr left, addr right);
 int less_equal_integer_clang(addr left, addr right);
-
-void oneplus_integer_common(LocalRoot local, addr value, addr *ret);
-void oneminus_integer_common(LocalRoot local, addr value, addr *ret);
-void plus_integer_common(LocalRoot local, addr left, addr right, addr *ret);
-void minus_integer(LocalRoot local, addr left, addr right, addr *ret);
-void multi_integer(LocalRoot local, addr left, addr right, addr *ret);
-
+void sign_reverse_integer_common(addr pos, addr *ret);
 int evenp_integer(addr left);
 
 void output_nosign_integer(LocalRoot local, addr stream,
@@ -66,6 +69,8 @@ addr reference_index_integer_heap(size_t value);
 #define intsizeh reference_index_integer_heap
 #define intsizel(v) reference_index_integer_local(Local_Thread, (v))
 
+int getindex_sign_integer(addr pos, int *sign, size_t *ret);
+
 /* standard type */
 void int8_integer_alloc(LocalRoot local, addr *ret, int8_t value);
 void int16_integer_alloc(LocalRoot local, addr *ret, int16_t value);
@@ -77,6 +82,20 @@ void uint32_integer_alloc(LocalRoot local, addr *ret, uint32_t value);
 void int64_integer_alloc(LocalRoot local, addr *ret, int64_t value);
 void uint64_integer_alloc(LocalRoot local, addr *ret, uint64_t value);
 #endif
+
+/* oneplus */
+void oneplus_integer_common(LocalRoot local, addr value, addr *ret);
+void oneminus_integer_common(LocalRoot local, addr value, addr *ret);
+
+void plus_fi_bignum_local(LocalRoot local, addr left, addr right, addr *ret);
+void plus_fi_real_local(LocalRoot local, addr left, addr right, addr *ret);
+void plus_fi_real_common(LocalRoot local, addr left, addr right, addr *ret);
+void plus_bi_bignum_local(LocalRoot local, addr left, addr right, addr *ret);
+void plus_bi_real_local(LocalRoot local, addr left, addr right, addr *ret);
+void plus_bi_real_common(LocalRoot local, addr left, addr right, addr *ret);
+void plus_ii_bignum_local(LocalRoot local, addr left, addr right, addr *ret);
+void plus_ii_real_local(LocalRoot local, addr left, addr right, addr *ret);
+void plus_ii_real_common(LocalRoot local, addr left, addr right, addr *ret);
 
 #endif
 

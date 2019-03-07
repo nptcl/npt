@@ -678,6 +678,22 @@ void foreach_execute(void (*call)(struct execute *))
 	}
 }
 
+int foreach_check_execute(int (*call)(struct execute *))
+{
+	size_t i;
+	struct execute *ptr;
+
+	for (i = 0; i < Position; i++) {
+		ptr = ExecuteArray[i];
+		if (ptr->state != ThreadState_Empty) {
+			if (call(ptr))
+				return 1;
+		}
+	}
+
+	return 0;
+}
+
 
 /*
  *  exit

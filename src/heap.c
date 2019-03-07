@@ -245,12 +245,10 @@ static addr alloctail(size_t size)
 static void fillheapmemory(struct heapcell *cell, size_t size)
 {
 	int i;
-	byte *table;
 	addr pos, *array;
 
 	AlignSize8Front(size, &size);
 	lock_mutexlite(&Mutex);
-	table = cell->table;
 	array = cell->point;
 	for (i = 0; i < HeapCount; i++) {
 		pos = allocfront_unlock(size);
@@ -262,7 +260,6 @@ static void fillheapmemory(struct heapcell *cell, size_t size)
 		}
 		SetType(pos, LISPSYSTEM_RESERVED);
 		SetSizeReserved(pos, size);
-		table[i] = 0;
 		array[i] = pos;
 	}
 	unlock_mutexlite(&Mutex);
@@ -271,13 +268,10 @@ static void fillheapmemory(struct heapcell *cell, size_t size)
 static void fillcellunbound(struct heapcell *cell)
 {
 	int i;
-	byte *table;
 	addr *array;
 
-	table = cell->table;
 	array = cell->point;
 	for (i = 0; i < HeapCount; i++) {
-		table[i] = 0;
 		array[i] = Unbound;
 	}
 }
@@ -455,13 +449,17 @@ static void free_mutexheap(void)
 static int tailheap(void)
 {
 	size_t i;
+	struct heapinfo *ptr;
 
 	/* Tail memory */
 	Tail = (addr)Align8Cut(Size + (uintptr_t)heap_root);
 	Info = (struct heapinfo *)alloctail((size_t)HeapInfoSize);
 	memset(Info, 0, (size_t)HeapInfoSize);
-	for (i = 0; i < LISPCLASS_Length; i++)
-		Info[i].type = (enum LISPCLASS)i;
+	for (i = 0; i < LISPCLASS_Length; i++) {
+		ptr = &(Info[i]);
+		ptr->type = (enum LISPCLASS)i;
+		ptr->direct = (size_t)LISPCLASS_SizeK <= i;
+	}
 
 	/* mutex */
 	if (make_mutexheap()) {
@@ -585,6 +583,18 @@ void foreach_heap(void (*call)(struct heapinfo *))
 
 	for (index = 0; index < LISPCLASS_Length; index++)
 		call(&Info[index]);
+}
+
+int foreach_check_heap(int (*call)(struct heapinfo *))
+{
+	size_t index;
+
+	for (index = 0; index < LISPCLASS_Length; index++) {
+		if (call(&Info[index]))
+			return 1;
+	}
+
+	return 0;
 }
 
 void cellupdate_heap(void)
@@ -757,7 +767,7 @@ addr heapr_body4_memory(enum LISPTYPE type, byte32 body)
 	SetStatus(pos, LISPSIZE_BODY4);
 	SetCheck2(pos, LISPCHECK_SIZE4, LISPCHECK_BODY);
 	*PtrLenBodyB4(pos) = body;
-	
+
 	return pos;
 }
 void heap_body4_memory(addr *root, enum LISPTYPE type, byte32 body)
@@ -799,7 +809,7 @@ addr heapr_smallsize_memory(enum LISPTYPE type, byte array, byte body)
 	nilarray2(pos, array);
 	*PtrLenArraySS(pos) = array;
 	*PtrLenBodySS(pos) = body;
-	
+
 	return pos;
 }
 void heap_smallsize_memory(addr *root, enum LISPTYPE type, byte array, byte body)
@@ -821,7 +831,7 @@ addr heapr_arraybody_memory(enum LISPTYPE type, byte16 array, byte16 body)
 	nilarray4(pos, array);
 	*PtrLenArrayAB(pos) = array;
 	*PtrLenBodyAB(pos) = body;
-	
+
 	return pos;
 }
 void heap_arraybody_memory(addr *root, enum LISPTYPE type, byte16 array, byte16 body)

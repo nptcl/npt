@@ -67,6 +67,11 @@ extern int      lisp_info_enable;
 #define CheckType(x,y)		Check(GetType(x) != (y), "type error")
 #define CheckType2(x,y,z)	Check(GetType(x) != (y), (z))
 #define CheckReadOnly(x)	Check(GetStatusReadOnly(x), "readonly error");
+#define CheckLocal(x)		Check((x) == NULL, "local error")
+#define CheckLocalType(x,y,z) { \
+	CheckLocal(x); \
+	CheckType((y), (z)); \
+}
 
 #define SetPropertyExecute(p,i,v)	SetShiftValue(p->property,i,v,1UL,byte32)
 #define GetPropertyExecute(p,i)		GetShiftValue(p->property,i,1UL)

@@ -159,6 +159,7 @@ void gcstart_execute(struct execute *ptr);
 void gcwait_execute(struct execute *ptr);
 void gcend_execute(void);
 void foreach_execute(void (*call)(struct execute *));
+int foreach_check_execute(int (*call)(struct execute *));
 
 /*
  *  exit

@@ -619,7 +619,7 @@ void setmulti_bigdata(addr pos, addr left, addr right)
 	GetRootDataBignum(left, &root, &data1);
 	GetRootDataBignum(right, &root, &data2);
 
-	bigset(data, 0, size1 + size2 + 1);
+	bigset(data, 0, size1 + size2);
 	for (b = c = 0; b < size2; b++) {
 		value2 = data2[b];
 		carry = 0;
@@ -639,7 +639,7 @@ void multi_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
-	alloc_bignum(local, ret, RefSizeBignum(left) + RefSizeBignum(right));
+	alloc_plus_bignum(local, ret, RefSizeBignum(left), RefSizeBignum(right));
 	setmulti_bigdata(*ret, left, right);
 }
 

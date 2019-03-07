@@ -394,6 +394,45 @@
 #undef LISP_PROMPT_EDITLINE
 #endif
 
+/* Complex math library */
+#undef LISP_COMPLEX_INACCURACY
+/* Visual C++ */
+#if defined(LISP_COMPLEX_WINDOWS)
+#undef LISP_COMPLEX_CPLUSPLUS
+#undef LISP_COMPLEX_C99
+#define LISP_COMPLEX_INACCURACY
+/* C++ */
+#elif defined(LISP_COMPLEX_CPLUSPLUS)
+#undef LISP_COMPLEX_WINDOWS
+#undef LISP_COMPLEX_C99
+#ifdef __clang__
+#define LISP_COMPLEX_INACCURACY
+#endif
+/* c99 */
+#elif defined(LISP_COMPLEX_C99)
+#undef LISP_COMPLEX_WINDOWS
+#undef LISP_COMPLEX_CPLUSPLUS
+/* C++ */
+#elif defined(__cplusplus)
+#undef LISP_COMPLEX_WINDOWS
+#define LISP_COMPLEX_CPLUSPLUS
+#undef LISP_COMPLEX_C99
+#ifdef __clang__
+#define LISP_COMPLEX_INACCURACY
+#endif
+/* Visual C++ */
+#elif defined(_MSC_VER)
+#define LISP_COMPLEX_WINDOWS
+#undef LISP_COMPLEX_CPLUSPLUS
+#undef LISP_COMPLEX_C99
+#define LISP_COMPLEX_INACCURACY
+/* c99 */
+#else
+#undef LISP_COMPLEX_WINDOWS
+#undef LISP_COMPLEX_CPLUSPLUS
+#define LISP_COMPLEX_C99
+#endif
+
 /* end of header file */
 #endif
 

@@ -144,6 +144,7 @@ static void fmtinput_getcheck(fmtinput input, unicode *u)
 	if (fmtinput_getc(input, u)) {
 		formatabort(input->format, input->index);
 		fmte("Invalid format string.", NULL);
+		return;
 	}
 }
 
@@ -254,6 +255,7 @@ static void fmtchar_sign(fmtinput input, int *sign, unicode u)
 	if (*sign) {
 		formatabort(input->format, input->index);
 		fmte("Invalid sign character.", NULL);
+		return;
 	}
 	*sign = (int)u;
 }
@@ -280,6 +282,7 @@ static fixnum parse_fixnum_value(fmtinput input, int sign, addr queue)
 	if (fixnum_cons_alloc(local, &pos, sign, queue)) {
 		formatabort(input->format, input->index);
 		fmte("Too large integer value.", NULL);
+		return 0;
 	}
 	GetFixnum(pos, &value);
 	rollback_local(local, stack);
@@ -304,6 +307,7 @@ static int fmtchar_nilcheck(fmtinput input, int sign, addr queue)
 		if (sign) {
 			formatabort(input->format, input->index);
 			fmte("Invalid integer value.", NULL);
+			return 1;
 		}
 		return 1;
 	}
@@ -642,6 +646,7 @@ static int fmtchar_group_close(struct fmtgroup *group)
 		formatabort(group->format, list->position);
 		character_local(group->local, &pos, group->a);
 		fmte("The close parensis ~S mismatch.", pos, NULL);
+		return 0;
 	}
 	group->list = list->next;
 	list->next = NULL;
@@ -654,6 +659,7 @@ static void fmtchar_group_semicolon(struct fmtgroup *group)
 	if (! group->semicolon) {
 		formatabort(group->format, group->list->position);
 		fmte("~Invalid ~; parameter.", NULL);
+		return;
 	}
 	group->list = group->list->next;
 }
@@ -801,6 +807,7 @@ static void fmtprint_pop(fmtprint print, struct fmtchar *str, addr *ret)
 	if (ptr->front == Nil) {
 		formatabort(print->format, str->position);
 		fmte("Too few format arguments.", NULL);
+		return;
 	}
 	getcons(ptr->front, ret, &(ptr->front));
 	ptr->index++;
@@ -814,6 +821,7 @@ static void fmtprint_peek(fmtprint print, struct fmtchar *str, addr *ret)
 	if (ptr->front == Nil) {
 		formatabort(print->format, str->position);
 		fmte("Too few format arguments.", NULL);
+		return;
 	}
 	getcar(ptr->front, ret);
 }
@@ -830,6 +838,7 @@ static void fmtprint_forward(fmtprint print, struct fmtchar *str, size_t count)
 		if (front == Nil) {
 			formatabort(print->format, str->position);
 			fmte("Too few format arguments.", NULL);
+			return;
 		}
 		getcdr(front, &front);
 		ptr->index++;
@@ -849,6 +858,7 @@ static void fmtprint_rollback(fmtprint print, struct fmtchar *str, size_t count)
 	if (size < count) {
 		formatabort(print->format, str->position);
 		fmte("Cannot rollback ~~:*.", NULL);
+		return;
 	}
 	size -= count;
 	ptr->index = size;
@@ -882,10 +892,12 @@ static int getint_argument(fmtprint print, struct fmtchar *str, fixnum *ret)
 	if (GetType(pos) == LISPTYPE_BIGNUM) {
 		formatabort(print->format, str->position);
 		fmte("Too large the format argument ~S.", pos, NULL);
+		return 1;
 	}
 	if (GetType(pos) != LISPTYPE_FIXNUM) {
 		formatabort(print->format, str->position);
 		fmte("The format argument ~S must be an integer.", pos, NULL);
+		return 1;
 	}
 	GetFixnum(pos, ret);
 
@@ -917,7 +929,7 @@ static int fmtint_nilp(fmtprint print,
 		default:
 			formatabort(print->format, str->position);
 			fmte("The format parameter must be an integer.", NULL);
-			break;
+			return 1;
 	}
 
 	return 0;
@@ -933,6 +945,7 @@ static int getchar_argument(fmtprint print, struct fmtchar *str, unicode *ret)
 	if (GetType(pos) != LISPTYPE_CHARACTER) {
 		formatabort(print->format, str->position);
 		fmte("The format argument ~S must be a character.", pos, NULL);
+		return 1;
 	}
 	GetCharacter(pos, ret);
 
@@ -961,7 +974,7 @@ static int fmtchar_nilp(fmtprint print,
 		default:
 			formatabort(print->format, str->position);
 			fmte("The format argument must be a character.", NULL);
-			break;
+			return 1;
 	}
 
 	return 0;
@@ -1080,6 +1093,7 @@ static int format_ascii(fmtprint print, struct fmtchar *str)
 	if (4 < str->size) {
 		formatabort_args(print, str, 4);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	ptr = print->ptr;
 	push_close_control(ptr, &control);
@@ -1100,14 +1114,17 @@ static int format_ascii(fmtprint print, struct fmtchar *str)
 	if (mincol < 0) {
 		formatabort_args(print, str, 0);
 		fmte("The parameter must be a positive integer.", NULL);
+		return 1;
 	}
 	if (colinc < 1) {
 		formatabort_args(print, str, 1);
 		fmte("The parameter must be greater than 1.", NULL);
+		return 1;
 	}
 	if (minpad < 0) {
 		formatabort_args(print, str, 2);
 		fmte("The parameter must be a positive integer.", NULL);
+		return 1;
 	}
 
 	fmtprint_pop(print, str, &pos);
@@ -1128,6 +1145,7 @@ static int format_s_express(fmtprint print, struct fmtchar *str)
 	if (4 < str->size) {
 		formatabort_args(print, str, 4);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	ptr = print->ptr;
 	local = ptr->local;
@@ -1143,14 +1161,17 @@ static int format_s_express(fmtprint print, struct fmtchar *str)
 	if (mincol < 0) {
 		formatabort_args(print, str, 0);
 		fmte("The parameter must be a positive integer.", NULL);
+		return 1;
 	}
 	if (colinc < 1) {
 		formatabort_args(print, str, 1);
 		fmte("The parameter must be greater than 1.", NULL);
+		return 1;
 	}
 	if (minpad < 0) {
 		formatabort_args(print, str, 2);
 		fmte("The parameter must be a positive integer.", NULL);
+		return 1;
 	}
 
 	/* string */
@@ -1207,6 +1228,7 @@ static int format_radix_integer(fmtprint print, struct fmtchar *str, unsigned ra
 	if (4 < str->size) {
 		formatabort_args(print, str, 4);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	ptr = print->ptr;
 	push_close_control(ptr, &control);
@@ -1230,10 +1252,12 @@ static int format_radix_integer(fmtprint print, struct fmtchar *str, unsigned ra
 	if (mincol < 0) {
 		formatabort_args(print, str, 0);
 		fmte("The parameter must be a positive integer.", NULL);
+		return 1;
 	}
 	if (range < 2) {
 		formatabort_args(print, str, 3);
 		fmte("The parameter must be greate than 1.", NULL);
+		return 1;
 	}
 	format_radix_parameter(print, str, radix, mincol, padchar, range, comma);
 
@@ -1268,11 +1292,13 @@ static void format_radix_text(fmtprint print, struct fmtchar *str)
 		if (GetType(pos) != LISPTYPE_FIXNUM) {
 			formatabort(print->format, str->position);
 			fmte("~@R argument ~S must be an integer between 1 and 3999.", pos, NULL);
+			return;
 		}
 		GetFixnum(pos, &value);
 		if (! (1 <= value && value <= 3999)) {
 			formatabort(print->format, str->position);
 			fmte("~@R argument ~S must be an integer between 1 and 3999.", pos, NULL);
+			return;
 		}
 		roma_integer(print->stream, value, str->colon);
 	}
@@ -1281,6 +1307,7 @@ static void format_radix_text(fmtprint print, struct fmtchar *str)
 		if (! integerp(pos)) {
 			formatabort(print->format, str->position);
 			fmte("~~R argument ~S must be an integer.", pos, NULL);
+			return;
 		}
 		english_integer(print->local, print->stream, pos, str->colon == 0);
 	}
@@ -1296,6 +1323,7 @@ static int format_radix(fmtprint print, struct fmtchar *str)
 	if (5 < str->size) {
 		formatabort_args(print, str, 5);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	ptr = print->ptr;
 	push_close_control(ptr, &control);
@@ -1320,6 +1348,7 @@ static int format_radix(fmtprint print, struct fmtchar *str)
 		if (! isBaseChar(radix)) {
 			formatabort_args(print, str, 0);
 			fmte("The parameter must be an integer between 2 and 36.", NULL);
+			return 1;
 		}
 		GetConst(SPECIAL_PRINT_BASE, &symbol);
 		pushspecial_control(ptr, symbol, fixnum_heapr(radix));
@@ -1331,10 +1360,12 @@ static int format_radix(fmtprint print, struct fmtchar *str)
 		if (mincol < 0) {
 			formatabort_args(print, str, 1);
 			fmte("The paramter must be a positive integer.", NULL);
+			return 1;
 		}
 		if (range < 2) {
 			formatabort_args(print, str, 4);
 			fmte("The parameter must be greater than 1.", NULL);
+			return 1;
 		}
 		format_radix_parameter(print,
 				str, (unsigned)radix, mincol, padchar, range, comma);
@@ -1350,6 +1381,7 @@ static int format_plural(fmtprint print, struct fmtchar *str)
 	if (0 < str->size) {
 		formatabort_args(print, str, 0);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 
 	/* ~:* */
@@ -1383,6 +1415,7 @@ static int format_character(fmtprint print, struct fmtchar *str)
 	if (0 < str->size) {
 		formatabort_args(print, str, 0);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	if (! str->colon && str->atsign) {
 		/* ~@C */
@@ -1402,6 +1435,7 @@ static int format_character(fmtprint print, struct fmtchar *str)
 		if (GetType(pos) != LISPTYPE_CHARACTER) {
 			formatabort(print->format, str->position);
 			fmte("The argument ~S must be a character.", pos, NULL);
+			return 1;
 		}
 		fmtprint_putc(print, RefCharacter(pos));
 	}
@@ -1419,6 +1453,7 @@ static void fmtfloat_w(fmtprint print,
 	if (! check && value < 0) {
 		formatabort_args(print, str, index);
 		fmte("The parameter must be a positive integer.", NULL);
+		return;
 	}
 	ff->wp = ! check;
 	ff->w = check? 0: (size_t)value;
@@ -1434,6 +1469,7 @@ static void fmtfloat_d(fmtprint print,
 	if (! check && value < 0) {
 		formatabort_args(print, str, index);
 		fmte("The parameter must be a positive integer.", NULL);
+		return;
 	}
 	ff->dp = ! check;
 	ff->d = check? 0: (size_t)value;
@@ -1448,6 +1484,7 @@ static void fmtfloat_e(fmtprint print,
 	if (value < 0) {
 		formatabort_args(print, str, index);
 		fmte("The parameter must be a positive integer.", NULL);
+		return;
 	}
 	if (value == 0)
 		value = 1;
@@ -1487,8 +1524,10 @@ static void format_fixed_single(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_single = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE))
+	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) {
 		fmte("Invalid single-float.", NULL);
+		return;
+	}
 	fmtfloat_fixed(print->stream, ff, &dec);
 }
 
@@ -1501,8 +1540,10 @@ static void format_fixed_double(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_double = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE))
+	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) {
 		fmte("Invalid double-float.", NULL);
+		return;
+	}
 	fmtfloat_fixed(print->stream, ff, &dec);
 }
 
@@ -1515,8 +1556,10 @@ static void format_fixed_long(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_long = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG))
+	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG)) {
 		fmte("Invalid long-float.", pos, NULL);
+		return;
+	}
 	fmtfloat_fixed(print->stream, ff, &dec);
 }
 
@@ -1586,7 +1629,7 @@ static void format_fixed_float(fmtprint print, struct fmtchar *str, fmtfloat ff)
 		default:
 			formatabort(print->format, str->position);
 			fmte("~~F argument ~S must be a real type.", pos, NULL);
-			break;
+			return;
 	}
 }
 
@@ -1599,6 +1642,7 @@ static int format_fixed(fmtprint print, struct fmtchar *str)
 	if (5 < str->size) {
 		formatabort_args(print, str, 5);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	ptr = print->ptr;
 	push_close_control(ptr, &control);
@@ -1620,8 +1664,10 @@ static void format_exponent_single(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_single = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE))
+	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) {
 		fmte("Invalid single-float.", pos, NULL);
+		return;
+	}
 	fmtfloat_exponent(print->stream, ff, &dec);
 }
 
@@ -1634,8 +1680,10 @@ static void format_exponent_double(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_double = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE))
+	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) {
 		fmte("Invalid double-float.", pos, NULL);
+		return;
+	}
 	fmtfloat_exponent(print->stream, ff, &dec);
 }
 
@@ -1648,8 +1696,10 @@ static void format_exponent_long(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_long = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG))
+	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG)) {
 		fmte("Invalid long-float.", pos, NULL);
+		return;
+	}
 	fmtfloat_exponent(print->stream, ff, &dec);
 }
 
@@ -1771,7 +1821,7 @@ static void format_exponent_float(fmtprint print,
 		default:
 			formatabort(print->format, str->position);
 			fmte("~~E argument ~S must be a real type.", pos, NULL);
-			break;
+			return;
 	}
 }
 
@@ -1784,6 +1834,7 @@ static int format_exponent(fmtprint print, struct fmtchar *str)
 	if (7 < str->size) {
 		formatabort_args(print, str, 7);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	ptr = print->ptr;
 	push_close_control(ptr, &control);
@@ -1811,6 +1862,7 @@ static void fmtfloat_e_general(fmtprint print,
 		if (value < 0) {
 			formatabort_args(print, str, index);
 			fmte("The parameter must be a positive integer.", NULL);
+			return;
 		}
 		ff->ep = 1;
 		ff->e = (size_t)(value? value: 1);
@@ -1838,8 +1890,10 @@ static void format_general_single(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_single = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE))
+	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) {
 		fmte("Invalid single-float.", pos, NULL);
+		return;
+	}
 	fmtfloat_general(print->stream, ff, &dec);
 }
 
@@ -1852,8 +1906,10 @@ static void format_general_double(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_double = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE))
+	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) {
 		fmte("Invalid double-float.", pos, NULL);
+		return;
+	}
 	fmtfloat_general(print->stream, ff, &dec);
 }
 
@@ -1866,8 +1922,10 @@ static void format_general_long(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_long = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG))
+	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG)) {
 		fmte("Invalid long-float.", pos, NULL);
+		return;
+	}
 	fmtfloat_general(print->stream, ff, &dec);
 }
 
@@ -1923,7 +1981,7 @@ static void format_general_float(fmtprint print,
 		default:
 			formatabort(print->format, str->position);
 			fmte("~~G argument ~S must be a real type.", pos, NULL);
-			break;
+			return;
 	}
 }
 
@@ -1936,6 +1994,7 @@ static int format_general(fmtprint print, struct fmtchar *str)
 	if (7 < str->size) {
 		formatabort_args(print, str, 7);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	ptr = print->ptr;
 	push_close_control(ptr, &control);
@@ -1959,8 +2018,10 @@ static void format_dollars_single(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_single = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE))
+	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) {
 		fmte("Invalid single-float.", pos, NULL);
+		return;
+	}
 	fmtfloat_dollars(print->stream, ff, &dec);
 }
 
@@ -1973,8 +2034,10 @@ static void format_dollars_double(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_double = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE))
+	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) {
 		fmte("Invalid double-float.", pos, NULL);
+		return;
+	}
 	fmtfloat_dollars(print->stream, ff, &dec);
 }
 
@@ -1987,8 +2050,10 @@ static void format_dollars_long(fmtprint print, fmtfloat ff, addr pos)
 	ff->u.value_long = value;
 	ff->signbit = signbit(value)? 1: 0;
 
-	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG))
+	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG)) {
 		fmte("Invalid long-float.", pos, NULL);
+		return;
+	}
 	fmtfloat_dollars(print->stream, ff, &dec);
 }
 
@@ -2046,7 +2111,7 @@ static void format_dollars_float(fmtprint print, struct fmtchar *str, fmtfloat f
 		default:
 			formatabort(print->format, str->position);
 			fmte("~~$ argument ~S must be a real type.", pos, NULL);
-			break;
+			return;
 	}
 }
 
@@ -2060,6 +2125,7 @@ static void fmtfloat_n(fmtprint print,
 	if (! check && value < 0) {
 		formatabort_args(print, str, index);
 		fmte("The parameter must be a positive integer.", NULL);
+		return;
 	}
 	ff->np = ! check;
 	ff->n = check? 0: (size_t)value;
@@ -2085,6 +2151,7 @@ static int format_dollars(fmtprint print, struct fmtchar *str)
 	if (4 < str->size) {
 		formatabort_args(print, str, 4);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	ptr = print->ptr;
 	push_close_control(ptr, &control);
@@ -2105,11 +2172,13 @@ static int format_terpri(fmtprint print, struct fmtchar *str)
 	if (1 < str->size) {
 		formatabort_args(print, str, 1);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	fmtint_default(print, str, 0, &size, 1);
 	if (size < 0) {
 		formatabort_args(print, str, 0);
 		fmte("The parameter must be a positive integer.", NULL);
+		return 1;
 	}
 	stream = print->stream;
 	for (i = 0; i < size; i++)
@@ -2126,11 +2195,13 @@ static int format_fresh_line(fmtprint print, struct fmtchar *str)
 	if (1 < str->size) {
 		formatabort_args(print, str, 1);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	fmtint_default(print, str, 0, &size, 1);
 	if (size < 0) {
 		formatabort_args(print, str, 0);
 		fmte("The parameter must be a positive integer.", NULL);
+		return 1;
 	}
 	if (size) {
 		stream = print->stream;
@@ -2150,11 +2221,13 @@ static int format_pageout(fmtprint print, struct fmtchar *str)
 	if (1 < str->size) {
 		formatabort_args(print, str, 1);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	fmtint_default(print, str, 0, &size, 1);
 	if (size < 0) {
 		formatabort_args(print, str, 0);
 		fmte("The parameter must be a positive integer.", NULL);
+		return 1;
 	}
 	stream = print->stream;
 	for (i = 0; i < size; i++)
@@ -2170,11 +2243,13 @@ static int format_tilde(fmtprint print, struct fmtchar *str)
 	if (1 < str->size) {
 		formatabort_args(print, str, 1);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	fmtint_default(print, str, 0, &size, 1);
 	if (size < 0) {
 		formatabort_args(print, str, 0);
 		fmte("The parameter must be a positive integer.", NULL);
+		return 1;
 	}
 	write_times(print, '~', size);
 
@@ -2186,6 +2261,7 @@ static int format_line_escape(fmtprint print, struct fmtchar *str)
 	if (0 < str->size) {
 		formatabort_args(print, str, 0);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 
 	/*
@@ -2237,22 +2313,27 @@ static int format_tabulate(fmtprint print, struct fmtchar *str)
 	if (2 < str->size) {
 		formatabort_args(print, str, 2);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	fmtint_default(print, str, 0, &column, 1);
 	fmtint_default(print, str, 1, &colinc, 1);
 	if (column < 0) {
 		formatabort_args(print, str, 0);
 		fmte("The parameter must be greater than equal to 0.", NULL);
+		return 1;
 	}
 	if (colinc < 0) {
 		formatabort_args(print, str, 1);
 		fmte("The parameter must be greater than equal to 0.", NULL);
+		return 1;
 	}
 
 	index = (fixnum)terpri_position_stream(print->stream);
 	Check(index < 0, "cast error");
-	if (str->colon)
+	if (str->colon) {
 		fmte("TODO: pretty print is not implemented.", NULL);
+		return 1;
+	}
 	if (str->atsign)
 		tabulate_relative(print, column, colinc, index);
 	else
@@ -2268,12 +2349,14 @@ static int format_ignore(fmtprint print, struct fmtchar *str)
 	if (1 < str->size) {
 		formatabort_args(print, str, 1);
 		fmte("Too many ~~* argument.", NULL);
+		return 1;
 	}
 	if (! str->atsign) {
 		fmtint_default(print, str, 0, &count, 1);
 		if (count < 0) {
 			formatabort_args(print, str, 0);
 			fmte("The parameter must be greater than equal to 0.", NULL);
+			return 1;
 		}
 		if (! str->colon)
 			fmtprint_forward(print, str, (size_t)count);
@@ -2285,6 +2368,7 @@ static int format_ignore(fmtprint print, struct fmtchar *str)
 		if (count < 0) {
 			formatabort_args(print, str, 0);
 			fmte("The parameter must be greater than equal to 0.", NULL);
+			return 1;
 		}
 		if (! str->colon) {
 			fmtprint_absolute(print, str, (size_t)count);
@@ -2292,6 +2376,7 @@ static int format_ignore(fmtprint print, struct fmtchar *str)
 		else {
 			formatabort(print->format, str->position);
 			fmte("The parameter don't accept both : and @ parameter (~:@*).", NULL);
+			return 1;
 		}
 	}
 
@@ -2306,10 +2391,12 @@ static int format_indirection(fmtprint print, struct fmtchar *str)
 	if (0 < str->size) {
 		formatabort_args(print, str, 0);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	if (str->colon) {
 		formatabort(print->format, str->colon_pos);
 		fmte("~? argument don't accept : parameter (~:?).", NULL);
+		return 1;
 	}
 	if (! str->atsign) {
 		fmtprint_pop(print, str, &format);
@@ -2334,6 +2421,7 @@ static int format_case(fmtprint print, struct fmtchar *str)
 	if (0 < str->size) {
 		formatabort_args(print, str, 0);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	/*
 	 *  ~(		downcase
@@ -2378,10 +2466,12 @@ static int semicolon_default_p(fmtprint print, struct fmtchar *str)
 	if (0 < str->size) {
 		formatabort_args(print, str, 1);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 	if (str->atsign) {
 		formatabort(print->format, str->atsign_pos);
 		fmte("The operator ~; don't allow at-sign (~@;).", NULL);
+		return 1;
 	}
 	return str->colon;
 }
@@ -2437,6 +2527,7 @@ static int format_condition_select(fmtprint print, struct fmtchar *str)
 	if (1 < str->size) {
 		formatabort_args(print, str, 1);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 
 	/* index */
@@ -2446,6 +2537,7 @@ static int format_condition_select(fmtprint print, struct fmtchar *str)
 		if (! integerp(pos)) {
 			formatabort(print->format, str->position);
 			fmte("The argument ~S must be an integer.", pos, NULL);
+			return 1;
 		}
 		if (GetType(pos) != LISPTYPE_FIXNUM)
 			ignore = 1;
@@ -2463,6 +2555,7 @@ static int format_condition_boolean(fmtprint print, struct fmtchar *str)
 	if (2 < str->size) {
 		formatabort_args(print, str, 2);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 
 	fmtprint_pop(print, str, &pos);
@@ -2476,6 +2569,7 @@ static int format_condition_true(fmtprint print, struct fmtchar *str)
 	if (2 < str->size) {
 		formatabort_args(print, str, 2);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 
 	fmtprint_peek(print, str, &pos);
@@ -2711,6 +2805,7 @@ static int format_iteration_string(fmtprint print, struct fmtchar *str)
 	if (! stringp(one)) {
 		formatabort(print->format, str->position);
 		fmte("Invalid format string ~S.", one, NULL);
+		return 1;
 	}
 	list = make_iteration_empty(print->local, str, one, &one);
 
@@ -2735,6 +2830,7 @@ static int format_iteration(fmtprint print, struct fmtchar *str)
 	if (1 < str->size) {
 		formatabort_args(print, str, 1);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
 
 	/* empty list */
@@ -2799,13 +2895,16 @@ static int format_upandout(fmtprint print, struct fmtchar *str)
 	if (3 < str->size) {
 		formatabort_args(print, str, 3);
 		fmte("Too many parameters.", NULL);
+		return 1;
 	}
+	v1 = v2 = v3 = 0;
 	ex1 = ! fmtint_nilp(print, str, 0, &v1);
 	ex2 = ! fmtint_nilp(print, str, 1, &v2);
 	ex3 = ! fmtint_nilp(print, str, 2, &v3);
 	if (str->atsign) {
 		formatabort(print->format, str->atsign_pos);
 		fmte("The operator ~^ don't allow at-sign (~@^).", NULL);
+		return 1;
 	}
 
 	if (ex1 && ex2 && ex3) {
@@ -2848,6 +2947,7 @@ static int format_close(fmtprint print, struct fmtchar *str)
 	else {
 		formatabort(print->format, str->position);
 		fmte("Invalid ~; operator.", NULL);
+		return 1;
 	}
 
 	return 0;
@@ -2885,7 +2985,7 @@ static void fmtargs_object(fmtprint print, struct fmtchar *str,
 		default:
 			formatabort(print->format, args->position);
 			fmte("Invalid format parameter.", NULL);
-			break;
+			return;
 	}
 }
 
@@ -2993,12 +3093,15 @@ static int fmtcall(fmtprint print, int *loop)
 		index = (size_t)list->character;
 		if (index != 0)
 			print->delete_space = 0;
-		if (0x80 <= index)
+		if (0x80 <= index) {
 			fmte("Invalid format character.", NULL);
+			return 1;
+		}
 		call = FormatCallTable[index];
 		if (call == NULL) {
 			formatabort(print->format, list->position + 1);
 			fmte("Invalid format character.", NULL);
+			return 1;
 		}
 		if (call(print, list)) return 1;
 	}
@@ -3138,8 +3241,10 @@ addr format_string_stdarg(LocalRoot local, const char *str, va_list args)
 	addr stream, pos;
 
 	open_output_string_stream(&stream, 0);
-	if (format_stdarg(stream, str, args))
+	if (format_stdarg(stream, str, args)) {
 		fmte("Cannot execute format call.", NULL);
+		return NULL;
+	}
 	string_stream_alloc(local, stream, &pos);
 	close_stream(stream);
 
@@ -3209,14 +3314,18 @@ addr localf_stdarg(LocalRoot local, const char *str, va_list args)
 	Check(local == NULL, "local error");
 	va_copy(copy, args);
 	size = vsnprintc(NULL, 0, str, copy);
-	if (size < 0)
+	if (size < 0) {
 		fmte("vsnprintc error.", NULL);
+		return NULL;
+	}
 	size++;
 
 	ptr = (char *)lowlevel_local(local, size);
 	size = vsnprintc(ptr, size, str, args);
-	if (size < 0)
+	if (size < 0) {
 		fmte("vsnprintc error.", NULL);
+		return NULL;
+	}
 	strvect_char_local(local, &pos, ptr);
 
 	return pos;
@@ -3233,16 +3342,20 @@ addr heapf_stdarg(const char *str, va_list args)
 
 	va_copy(copy, args);
 	size = vsnprintc(NULL, 0, str, copy);
-	if (size < 0)
+	if (size < 0) {
 		fmte("vsnprintc error.", NULL);
+		return NULL;
+	}
 	size++;
 
 	local = Local_Thread;
 	push_local(local, &stack);
 	ptr = (char *)lowlevel_local(local, size);
 	size = vsnprintc(ptr, size, str, args);
-	if (size < 0)
+	if (size < 0) {
 		fmte("vsnprintc error.", NULL);
+		return NULL;
+	}
 	strvect_char_heap(&pos, ptr);
 	rollback_local(local, stack);
 

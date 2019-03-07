@@ -10,10 +10,10 @@
 struct heapcell {
 	struct heapcell *next, *chain;
 	size_t count, search;
-	byte table[HeapCount];
 	addr point[HeapCount];
 };
 struct heapinfo {
+	unsigned direct : 1;
 	struct heapcell *root, *front;
 	enum LISPCLASS type;
 	mutexlite *mutex;
@@ -33,6 +33,7 @@ void free_heap(void);
 void makespace(addr pos, size_t size);
 void makereserved(addr pos, size_t size);
 void foreach_heap(void (*call)(struct heapinfo *));
+int foreach_check_heap(int (*call)(struct heapinfo *));
 void cellupdate_heap(void);
 int valid_heap(const void *);
 
