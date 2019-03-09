@@ -44,6 +44,8 @@ uint64_t random_less_64bit(struct random_state *state, uint64_t value);
 /* seed */
 void random_seed_buffer(struct random_state *state, const void *ptr, size_t size);
 void random_seed_string(struct random_state *state, const char *word);
+/* check */
+int random_state_equal(struct random_state *a, struct random_state *b);
 
 #endif
 

@@ -21,6 +21,7 @@ void cis_common(addr pos, addr *ret);
 void atan2_common(addr left, addr right, addr *ret);
 void log_natural_common(addr value, addr *ret);
 void log_base_common(addr value, addr base, addr *ret);
+void phase_common(addr pos, addr *ret);
 
 #endif
 

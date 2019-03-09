@@ -1,6 +1,26 @@
 ;;
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
+(deftest float.1
+  (float 10)
+  10f0)
+
+(deftest float.2
+  (float 10/2)
+  5f0)
+
+(deftest float.4
+  (float 10d4)
+  10d4)
+
+(deftest float.5
+  (float 10d4 10f5)
+  10f4)
+
+(deftest float.6
+  (float 10 10l5)
+  10l0)
+
 (deftest max.1
   (max 10)
   10)
@@ -99,62 +119,6 @@
     (zerop #c(10 20))
     (zerop #c(0 10)))
   t nil nil nil)
-
-(deftest \+.1
-  (+)
-  0)
-
-(deftest \+.2
-  (+ 10)
-  10)
-
-(deftest \+.3
-  (+ 10 20)
-  30)
-
-(deftest \+.4
-  (+ 10 20 30 40)
-  100)
-
-(deftest \-.1
-  (- 10)
-  -10)
-
-(deftest \-.2
-  (- -20)
-  20)
-
-(deftest \-.3
-  (- 10 4)
-  6)
-
-(deftest \-.4
-  (- 10 1 2 3)
-  4)
-
-(deftest 1+.1
-  (1+ 10)
-  11)
-
-(deftest 1+.2
-  (1+ -1)
-  0)
-
-(deftest 1+.3
-  (1+ 13.4)
-  14.4)
-
-(deftest 1-.1
-  (1- 10)
-  9)
-
-(deftest 1-.2
-  (1- 1)
-  0)
-
-(deftest 1-.3
-  (1- 13.4)
-  12.4)
 
 (deftest abs.1
   (abs 0)
@@ -286,6 +250,345 @@
     a)
   (10 -868))
 
+(deftest signumf.1
+  (signum 0)
+  0)
+
+(deftest signumf.2
+  (signum -10)
+  -1)
+
+(deftest signumf.3
+  (signum 333)
+  1)
+
+(deftest signumb.1
+  (signum (make-bignum 0))
+  0)
+
+(deftest signumb.2
+  (signum (make-bignum -10))
+  -1)
+
+(deftest signumb.3
+  (signum (make-bignum 333))
+  1)
+
+(deftest signumr.1
+  (signum (make-ratio 0 1))
+  0)
+
+(deftest signumr.2
+  (signum -10/7)
+  -1)
+
+(deftest signumr.3
+  (signum 333/321)
+  1)
+
+(deftest signums.1
+  (signum 0.0f0)
+  0.0f0)
+
+(deftest signums.2
+  (signum -99.9f0)
+  -1.0f0)
+
+(deftest signums.3
+  (signum 0.3f0)
+  1.0f0)
+
+(deftest signumd.1
+  (signum 0.0d0)
+  0.0d0)
+
+(deftest signumd.2
+  (signum -99.9d0)
+  -1.0d0)
+
+(deftest signumd.3
+  (signum 0.3d0)
+  1.0d0)
+
+(deftest signuml.1
+  (signum 0.0L0)
+  0.0L0)
+
+(deftest signuml.2
+  (signum -99.9L0)
+  -1.0L0)
+
+(deftest signuml.3
+  (signum 0.3L0)
+  1.0L0)
+
+(deftest signumc.1
+  (let ((c (make-complex 0.0 0.0)))
+    (values
+      (complexp c)
+      (signum c)))
+  t 0.0)
+
+(deftest-single signumc.2
+  (signum #c(3 4))
+  0.6 0.8)
+
+(deftest-double signumc.3
+  (signum #c(-1.2d0 3.4f0))
+  -0.3328201094338546d0 0.942990336512754d0)
+
+(deftest-long signumc.4
+  (signum #c(1 2.0L0))
+  0.4472135954999579d0 0.8944271909999159d0)
+
+(deftest sqrt.1
+  (sqrt 0)
+  0.0f0)
+
+(deftest sqrt.2
+  (sqrt (make-bignum 36))
+  6.0f0)
+
+(deftest-single sqrt.3
+  (sqrt -22)
+  0.0f0 4.690416f0)
+
+(deftest-single sqrt.4
+  (sqrt 16/25)
+  0.8f0)
+
+(deftest-single sqrt.5
+  (sqrt 12.3f0)
+  3.5071356f0)
+
+(deftest-double sqrt.6
+  (sqrt -65.43d0)
+  0.0d0 8.088881257627659d0)
+
+(deftest-long sqrt.7
+  (sqrt 81.0L0)
+  9.0L0)
+
+(deftest-single sqrt.8
+  (sqrt #c(5 -6))
+  2.530835f0 -1.1853796f0)
+
+(deftest-double sqrt.9
+  (sqrt #c(1.2d0 3.4d3))
+  41.23833296682044d0 41.22378082954486d0 1.0e-10)
+
+(deftest make-random-state.1
+  (typep (make-random-state) 'random-state)
+  t)
+
+(deftest make-random-state.2
+  (let ((a (make-random-state))
+        (b (make-random-state)))
+    (values (eq a b) (equal-random-state a b)))
+  nil t)
+
+(deftest make-random-state.3
+  (let ((a (make-random-state nil))
+        (b (make-random-state nil)))
+    (values (eq a b) (equal-random-state a b)))
+  nil t)
+
+(deftest make-random-state.4
+  (let ((a (make-random-state t))
+        (b (make-random-state t)))
+    (values (eq a b)
+            (equal-random-state a b)
+            (equal-random-state a *random-state*)))
+  nil nil nil)
+
+(deftest make-random-state.5
+  (let ((a (make-random-state nil))
+        (b (make-random-state t)))
+    (values
+      (eq *random-state* a)
+      (eq *random-state* b)
+      (equal-random-state *random-state* a)
+      (equal-random-state *random-state* b)))
+  nil nil t nil)
+
+(deftest random.1
+  (and
+    (<= 0 (random 3) 2)
+    (<= 0 (random 3) 2)
+    (<= 0 (random 3) 2)
+    (<= 0 (random 3) 2)
+    (<= 0 (random 3) 2)
+    (<= 0 (random 3) 2)
+    (<= 0 (random 3) 2))
+  t)
+
+(deftest random.2
+  (and
+    (<= 0.0 (random 0.5) 0.5)
+    (<= 0.0 (random 0.5) 0.5)
+    (<= 0.0 (random 0.5) 0.5)
+    (<= 0.0 (random 0.5) 0.5)
+    (<= 0.0 (random 0.5) 0.5)
+    (<= 0.0 (random 0.5) 0.5))
+  t)
+
+(deftest random.3
+  (values
+    (integerp (random 10))
+    (floatp (random 2.0)))
+  t t)
+
+(deftest random.4
+  (let* ((state1 (make-random-state t))
+         (state2 (make-random-state state1)))
+    (values
+      (equal (random 9999999999999999999999999999999999999999999999 state1)
+             (random 9999999999999999999999999999999999999999999999 state2))
+      (equal (random 1.0d5 state1)
+             (random 1.0d5 state2))))
+  t t)
+
+(deftest random-state-p.1
+  (values
+    (random-state-p *random-state*)
+    (random-state-p (make-random-state))
+    (random-state-p 'hello))
+  t t nil)
+
+(deftest numberp.1
+  (values
+    (numberp 10)
+    (numberp 9999999999999999999999999999999999999)
+    (numberp 2/3)
+    (numberp 2.3s0)
+    (numberp 2.3f0)
+    (numberp -1.2d0)
+    (numberp 3.4L0)
+    (numberp #c(1 2))
+    (numberp 'hello))
+  t t t t t t t t nil)
+
+(deftest complex1.1
+  (complex 10)
+  10)
+
+(deftest complex1.2
+  (complex -20000000000000000000000000)
+  -20000000000000000000000000)
+
+(deftest complex1.3
+  (complex 2/3)
+  2/3)
+
+(deftest complex1.4
+  (complex 12.3f0)
+  #c(12.3f0 0.0f0))
+
+(deftest complex1.5
+  (complex -1.0d0)
+  #c(-1.0d0 0.0d0))
+
+(deftest complex1.6
+  (complex 11.0l2)
+  #c(11.0l2 0.0l0))
+
+(deftest complex2.1
+  (complex 10 20)
+  #c(10 20))
+
+(deftest complex2.2
+  (complex 10 0)
+  10)
+
+(deftest complex2.3
+  (complex 999999999999999999999999999999999999999 20)
+  #c(999999999999999999999999999999999999999 20))
+
+(deftest complex2.4
+  (complex 999999999999999999999999999999999999999 0)
+  999999999999999999999999999999999999999)
+
+(deftest complex2.5
+  (complex 2/3 4/5)
+  #c(2/3 4/5))
+
+(deftest complex2.6
+  (complex 2/3 0)
+  2/3)
+
+(deftest complex2.7
+  (complex 1.0f0 2.0f0)
+  #c(1.0f0 2.0f0))
+
+(deftest complex2.8
+  (complex 1.0f0 0)
+  #c(1.0f0 0.0f0))
+
+(deftest complex2.9
+  (complex 1.0d0 2.0d0)
+  #c(1.0d0 2.0d0))
+
+(deftest complex2.10
+  (complex 1.0d0 0)
+  #c(1.0d0 0.0d0))
+
+(deftest complex2.11
+  (complex 1.0L0 2.0L0)
+  #c(1.0L0 2.0L0))
+
+(deftest complex2.12
+  (complex 1.0L0 0)
+  #c(1.0L0 0.0L0))
+
+(deftest complexp.1
+  (values
+    (complexp 10)
+    (complexp 'hello)
+    (complexp #c(10 20))
+    (complexp #c(10 0))
+    (complexp #c(0 20))
+    (complexp #c(12.3 45))
+    (complexp #c(12.3 0.0))
+    (complexp #c(0.0d0 12.3d0))
+    (complexp #c(12.3 -0.0)))
+  nil nil t nil t t t t t)
+
+(deftest conjugate.1
+  (conjugate 10)
+  10)
+
+(deftest conjugate.2
+  (conjugate #c(10 -20))
+  #c(10 20))
+
+(deftest conjugate.3
+  (conjugate #c(1.2 3.4))
+  #c(1.2 -3.4))
+
+(deftest phase.1
+  (phase 0)
+  0.0f0)
+
+(deftest phase.2
+  (phase 3/4)
+  0.0f0)
+
+(deftest phase.3
+  (phase 1.2f0)
+  0.0f0)
+
+(deftest phase.4
+  (phase -34.5d4)
+  0.0d0)
+
+(deftest-single phase.5
+  (phase (cis 30))
+  -1.4159266f0)
+
+(deftest-single phase.6
+  (phase #c(0 1))
+  1.5707964f0)
+
 (deftest realpart.1
   (realpart 0)
   0)
@@ -326,65 +629,252 @@
   (imagpart #c(0 -1.2))
   -1.2)
 
-(deftest numberp.1
-  (numberp 10)
-  t)
+(deftest realp.1
+  (values
+    (realp 10)
+    (realp 3/4)
+    (realp 4.5)
+    (realp #c(10 20))
+    (realp 'hello))
+  t t t nil nil)
 
-(deftest numberp.2
-  (numberp 99999999999999999999999999999999)
-  t)
+(deftest numerator.1
+  (numerator 0)
+  0)
 
-(deftest numberp.3
-  (numberp -3/4)
-  t)
+(deftest numerator.2
+  (numerator 10)
+  10)
 
-(deftest numberp.4
-  (numberp 12.34)
-  t)
+(deftest numerator.3
+  (numerator -20)
+  -20)
 
-(deftest numberp.5
-  (numberp #c(10 20))
-  t)
+(deftest numerator.4
+  (numerator 4/6)
+  2)
 
-(deftest numberp.6
-  (numberp "Hello")
-  nil)
+(deftest numerator.5
+  (numerator 123/541)
+  123)
 
-(deftest complexp.1
-  (complexp #c(10 20))
-  t)
+(deftest denominator.1
+  (denominator 0)
+  1)
 
-(deftest complexp.2
-  (complexp #c(10 0))
-  nil)
+(deftest denominator.2
+  (denominator 10)
+  1)
 
-(deftest complexp.3
-  (complexp #c(12.3 45))
-  t)
+(deftest denominator.3
+  (denominator -20)
+  1)
 
-(deftest complexp.4
-  (complexp #c(12.3 0.0))
-  nil)
+(deftest denominator.4
+  (denominator 4/6)
+  3)
 
-(deftest float.1
-  (float 10)
-  10f0)
+(deftest denominator.5
+  (denominator 123/541)
+  541)
 
-(deftest float.2
-  (float 10/2)
-  5f0)
+(deftest rationalp.1
+  (values
+    (rationalp 10)
+    (rationalp 200000000000000000000000000000000)
+    (rationalp 4/5)
+    (rationalp 34.5))
+  t t t nil)
 
-(deftest float.4
-  (float 10d4)
-  10d4)
+(deftest ash.1
+  (ash 0 0)
+  0)
 
-(deftest float.5
-  (float 10d4 10f5)
-  10f4)
+(deftest ash.2
+  (ash 10 0)
+  10)
 
-(deftest float.6
-  (float 10 10l5)
-  10l0)
+(deftest ash.3
+  (ash 1 200)
+  1606938044258990275541962092341162602522202993782792835301376)
+
+(deftest ash.4
+  (ash #xABCD 150)
+  #x2AF340000000000000000000000000000000000000)
+
+(deftest ash.5
+  (ash #xABCD 151)
+  #x55E680000000000000000000000000000000000000)
+
+(deftest ash.6
+  (ash #xABCD 152)
+  #xABCD00000000000000000000000000000000000000)
+
+(deftest ash.7
+  (ash #xFEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDD 63)
+  #x7F6E5D4C3B2A1908091A2B3C055E6F7D55DE66ED55DE66E8000000000000000)
+
+(deftest ash.8
+  (ash #xFEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDD 64)
+  #xFEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDD0000000000000000)
+
+(deftest ash.9
+  (ash #xFEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDD 65)
+  #x1FDB97530ECA864202468ACF01579BDF557799BB557799BA0000000000000000)
+
+(deftest ash.10
+  (ash #xFEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDD 66)
+  #x3FB72EA61D950C84048D159E02AF37BEAAEF3376AAEF33740000000000000000)
+
+(deftest ash.11
+  (ash #xFEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDDABCDEFABCDEF1122334456789012345 66)
+  #x3FB72EA61D950C84048D159E02AF37BEAAEF3376AAEF3376AF37BEAF37BC4488CD1159E24048D140000000000000000)
+
+(deftest ash.12
+  (ash #xABCD -100)
+  0)
+
+(deftest ash.13
+  (ash -4 -1)
+  -2)
+
+(deftest ash.14
+  (ash #xFEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDD -63)
+  #x1FDB97530ECA864202468ACF01579BDF)
+
+(deftest ash.15
+  (ash #xFEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDD -64)
+  #xFEDCBA9876543210123456780ABCDEF)
+
+(deftest ash.16
+  (ash #xFEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDD -65)
+  #x7F6E5D4C3B2A1908091A2B3C055E6F7)
+
+(deftest ash.17
+  (ash #xFEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDD -66)
+  #x3FB72EA61D950C84048D159E02AF37B)
+
+(deftest ash.18
+  (ash #x-FEDCBA9876543210123456780ABCDEFAABBCCDDAABBCCDDABCDEFABCDEF1122334456789012345 -66)
+  #x-3FB72EA61D950C84048D159E02AF37BEAAEF3376AAEF3376AF37BEAF37BC44)
+
+(deftest integer-length.1
+  (values
+    (integer-length 0)
+    (integer-length 1)
+    (integer-length 2)
+    (integer-length 3)
+    (integer-length 4)
+    (integer-length 7)
+    (integer-length 8)
+    (integer-length 15)
+    (integer-length 16))
+  0 1 2 2 3 3 4 4 5)
+
+(deftest integer-length.2
+  (values
+    (integer-length -1)
+    (integer-length -2)
+    (integer-length -3)
+    (integer-length -4)
+    (integer-length -5)
+    (integer-length -8)
+    (integer-length -9)
+    (integer-length -16)
+    (integer-length -17))
+  0 1 2 2 3 3 4 4 5)
+
+(deftest integer-length.3
+  (values
+    (integer-length #xFFFFFFFFFFFFFFFF)
+    (integer-length #x-FFFFFFFFFFFFFFFF))
+  64 64)
+
+(deftest integer-length.4
+  (values
+    (integer-length #x10000000000000000)
+    (integer-length #x-10000000000000000))
+  65 64)
+
+(deftest integer-length.5
+  (values
+    (integer-length #x10000000000000001)
+    (integer-length #x-10000000000000001))
+  65 65)
+
+(deftest integer-length.6
+  (values
+    (integer-length #xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+    (integer-length #x-FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF))
+  128 128)
+
+(deftest integer-length.7
+  (values
+    (integer-length #x100000000000000000000000000000000)
+    (integer-length #x-100000000000000000000000000000000))
+  129 128)
+
+(deftest integer-length.8
+  (values
+    (integer-length #x100000000000000000000000000000001)
+    (integer-length #x-100000000000000000000000000000001))
+  129 129)
+
+(deftest integerp.1
+  (values
+    (integerp 0)
+    (integerp 10)
+    (integerp -210)
+    (integerp -22222222222222222222222222222222222222)
+    (integerp 3/4)
+    (integerp 'hello))
+  t t t t nil nil)
+
+(deftest parse-integer.1
+  (parse-integer "10")
+  10 2)
+
+(deftest parse-integer.2
+  (parse-integer "   10")
+  10 5)
+
+(deftest parse-integer.3
+  (parse-integer "   10   ")
+  10 8)
+
+(deftest parse-integer.4
+  (parse-integer "   10   " :junk-allowed t)
+  10 5)
+
+(deftest parse-integer.5
+  (parse-integer "123456789" :start 3 :end 5)
+  45 5)
+
+(deftest-error parse-integer.6
+  (parse-integer "ABCD"))
+
+(deftest parse-integer.7
+  (parse-integer "ABCD" :radix 16)
+  #xABCD 4)
+
+(deftest parse-integer.8
+  (parse-integer "efghi" :radix 16 :junk-allowed :hello)
+  #xEF 2)
+
+(deftest parse-integer.9
+  (parse-integer " +10 ")
+  10 5)
+
+(deftest parse-integer.10
+  (parse-integer " -10 " :junk-allowed t)
+  -10 4)
+
+(deftest-error parse-integer.11
+  (parse-integer "  HHHH" :junk-allowed nil))
+
+(deftest parse-integer.12
+  (parse-integer "  HHHH" :junk-allowed t)
+  nil 2)
 
 
 ;;

@@ -578,6 +578,47 @@ enum MathType getmathcomplex1_inverse(struct mathreal2_struct *ptr, addr pos)
 	return type;
 }
 
+enum MathType getmathcomplex1_sqrt(struct mathreal2_struct *ptr, addr pos)
+{
+	enum MathType type;
+
+	type = getmathcomplex1_log_type(pos);
+	switch (type) {
+		case MathType_single:
+			ptr->v.s.a = cast_ss_value(pos);
+			ptr->v.s.b = 0.0f;
+			break;
+
+		case MathType_double:
+			ptr->v.d.a = cast_dd_value(pos);
+			ptr->v.d.b = 0.0;
+			break;
+
+		case MathType_long:
+			ptr->v.l.a = cast_ll_value(pos);
+			ptr->v.l.b = 0.0L;
+			break;
+
+		case MathType_rational:
+			ptr->v.s.a = single_float_rational(pos);
+			ptr->v.s.b = 0.0f;
+			type = MathType_single;
+			break;
+
+		case MathType_complex:
+			type = getmathcomplex1_complex(ptr, pos);
+			break;
+
+		case MathType_error:
+		default:
+			fmte("type error", NULL);
+			break;
+	}
+	ptr->type = type;
+
+	return type;
+}
+
 
 /*
  *  getmathcomplex2

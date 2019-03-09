@@ -493,6 +493,8 @@ static void exponent_stream(addr stream, fmtfloat fmt, fmtdecimal dec)
 	char buffer[32];
 	size_t size, i;
 
+	if (fmt->sign_exponent == 0)
+		return;
 	value = getexponent(fmt, dec);
 	if (value < 0)
 		value = -value; /* no carry */
@@ -1714,7 +1716,7 @@ static void fmtfloat_princ(addr stream, fmtfloat fmt, fmtdecimal dec,
 			fmt->e = 1;
 			fmt->markerp = 1;
 			fmt->marker = marker;
-			fmt->sign_exponent = 0; /* 0 if princ / prin1 */
+			fmt->sign_exponent = 1; /* 0 if princ / prin1 */
 		}
 		fmtfloat_exponent(stream, fmt, dec);
 	}

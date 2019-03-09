@@ -3,9 +3,11 @@
 ;;
 (import 'lisp-system::make-bignum)
 (import 'lisp-system::make-ratio)
+(import 'lisp-system::make-complex)
 (import 'lisp-system::fixnump)
 (import 'lisp-system::bignump)
 (import 'lisp-system::ratiop)
+(import 'lisp-system::equal-random-state)
 
 (defun equal-eps (a b &key (eps 1.0e-6))
   (< (abs (- a b)) (abs eps)))
@@ -59,4 +61,62 @@
         `(check-float-complex ,expr ,real ,imag 'long-float ,eps)
         `(check-float-real ,expr ,real 'long-float ,eps))
      t))
+
+
+;;
+;;  round
+;;
+(defun round-equal
+  (a b c d &key (eps 1.0e-6) (type 'single-float) (call #'integerp))
+  (multiple-value-bind (e f) (round a b)
+    (or (and (funcall call e)
+             (typep f type)
+             (equal-float2 c d e f eps))
+        (error "round-equal error: (~S ~S) ~A, ~A, ~A" e f
+          (funcall call e)
+          (typep f type)
+          (equal-float2 c d e f eps)))))
+
+(defun roundb (a b)
+  (round (make-bignum a) b))
+
+(defun roundb-equal
+  (a b c d &key (eps 1.0e-6) (type 'single-float) (call #'integerp))
+  (multiple-value-bind (e f) (roundb a b)
+    (or (and (funcall call e)
+             (typep f type)
+             (equal-float2 c d e f eps))
+        (error "round-equal error: (~S ~S) ~A, ~A, ~A" e f
+          (funcall call e)
+          (typep f type)
+          (equal-float2 c d e f eps)))))
+
+
+;;
+;;  fround
+;;
+(defun fround-equal
+  (a b c d &key (eps 1.0e-6) (type 'single-float))
+  (multiple-value-bind (e f) (fround a b)
+    (or (and (typep e type)
+             (typep f type)
+             (equal-float2 c d e f eps))
+        (error "fround-equal error: (~S ~S) ~A, ~A, ~A" e f
+          (typep e type)
+          (typep f type)
+          (equal-float2 c d e f eps)))))
+
+(defun froundb (a b)
+  (fround (make-bignum a) b))
+
+(defun froundb-equal
+  (a b c d &key (eps 1.0e-6) (type 'single-float))
+  (multiple-value-bind (e f) (froundb a b)
+    (or (and (typep e type)
+             (typep f type)
+             (equal-float2 c d e f eps))
+        (error "fround-equal error: (~S ~S) ~A, ~A, ~A" e f
+          (typep e type)
+          (typep f type)
+          (equal-float2 c d e f eps)))))
 

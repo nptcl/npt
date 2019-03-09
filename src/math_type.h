@@ -67,6 +67,7 @@ enum MathType getmathreal2_float(struct mathreal2_struct *ptr, addr x, addr y);
 enum MathType getmathreal2_addr(struct mathreal2_struct *ptr, addr x, addr y);
 enum MathType getmathcomplex1_log(struct mathreal2_struct *ptr, addr pos);
 enum MathType getmathcomplex1_inverse(struct mathreal2_struct *ptr, addr pos);
+enum MathType getmathcomplex1_sqrt(struct mathreal2_struct *ptr, addr pos);
 enum MathType getmathcomplex2_float(struct mathcomplex2_struct *ptr, addr x, addr y);
 enum MathType getmathcomplex2_addr(struct mathcomplex2_struct *ptr, addr x, addr y);
 

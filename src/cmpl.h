@@ -47,12 +47,6 @@ enum ComplexType getcomplex(addr pos, enum ComplexType *type, addr *real, addr *
 enum ComplexType getcomplexr(addr pos, addr *real, addr *imag);
 
 void make_complex_unsafe(LocalRoot local, addr *ret, enum ComplexType type);
-void complex_unsafe_alloc(LocalRoot local, addr *ret,
-		addr real, addr imag, enum ComplexType type);
-void complex_unsafe_local(LocalRoot local, addr *ret,
-		addr real, addr imag, enum ComplexType type);
-void complex_unsafe_heap(addr *ret,
-		addr real, addr imag, enum ComplexType type);
 void complex_alloc(LocalRoot local, addr *ret, addr real, addr imag);
 void complex_local(LocalRoot local, addr *ret, addr real, addr imag);
 void complex_heap(addr *ret, addr real, addr imag);
@@ -84,6 +78,7 @@ void complex_result_heap(LocalRoot local, addr pos, addr *ret);
 void complex_throw_alloc(LocalRoot local, addr pos, addr *ret);
 void complex_throw_local(LocalRoot local, addr pos, addr *ret);
 void complex_throw_heap(addr pos, addr *ret);
+void complex_force_heap(addr *ret, addr real, addr imag, enum ComplexType type);
 
 void single_float_complex(addr pos, single_float *re, single_float *im);
 void double_float_complex(addr pos, double_float *re, double_float *im);
@@ -108,7 +103,8 @@ int equal_lc_number(LocalRoot local, addr left, addr right);
 
 void sign_reverse_complex_common(addr pos, addr *ret);
 void sign_reverse_complex_local(LocalRoot local, addr pos, addr *ret);
-void abs_complex_common(LocalRoot local, addr pos, addr *ret);
+void abs_complex_common(addr pos, addr *ret);
+void signum_complex_common(addr pos, addr *ret);
 
 #endif
 

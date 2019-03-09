@@ -120,5 +120,8 @@ void div_long_rational_common(addr left, addr right, addr *ret);
 void div_rational_long_common(addr left, addr right, addr *ret);
 void div_rational_local(LocalRoot local, addr left, addr right, addr *ret);
 
+void numerator_common(addr pos, addr *ret);
+void denominator_common(addr pos, addr *ret);
+
 #endif
 

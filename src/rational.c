@@ -1663,3 +1663,59 @@ void div_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
+
+/*
+ *  numerator
+ */
+void numerator_common(addr pos, addr *ret)
+{
+	int sign;
+
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			fixnum_throw_heap(pos, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			bignum_throw_heap(pos, ret);
+			break;
+
+		case LISPTYPE_RATIO:
+			GetSignRatio(pos, &sign);
+			GetNumerRatio(pos, &pos);
+			bignum_copy_heap(&pos, pos);
+			SetSignBignum(pos, sign);
+			*ret = pos;
+			break;
+
+		default:
+			TypeError(pos, RATIONAL);
+			*ret = 0;
+			return;
+	}
+}
+
+
+/*
+ *  denominator
+ */
+void denominator_common(addr pos, addr *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+		case LISPTYPE_BIGNUM:
+			fixnum_heap(ret, 1);
+			break;
+
+		case LISPTYPE_RATIO:
+			GetDenomRatio(pos, &pos);
+			bignum_copy_heap(ret, pos);
+			break;
+
+		default:
+			TypeError(pos, RATIONAL);
+			*ret = 0;
+			return;
+	}
+}
+

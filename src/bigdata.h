@@ -132,8 +132,9 @@ void divrem_bigdata_local(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right);
 
 void power2_bigdata_alloc(LocalRoot local, addr *ret, size_t value);
-void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
 void division2_bigdata_alloc(LocalRoot local, addr *ret, addr left);
+void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
+void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
 
 bigtype letdiv_half_bigdata(addr left, bigtype right);
 

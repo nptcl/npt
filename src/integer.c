@@ -1,11 +1,15 @@
+#include "bigcons.h"
 #include "bigdata.h"
 #include "bignum.h"
 #include "calltype.h"
+#include "character.h"
 #include "condition.h"
 #include "integer.h"
 #include "memory.h"
 #include "stream.h"
 #include "stream_string.h"
+#include "strtype.h"
+#include "token.h"
 
 /*
  *  type
@@ -435,6 +439,17 @@ void make_index_integer_alloc(LocalRoot local, addr *ret, size_t value)
 			value /= BIGNUM_FULL;
 		}
 	}
+}
+
+void make_index_integer_local(LocalRoot local, addr *ret, size_t value)
+{
+	CheckLocal(local);
+	make_index_integer_alloc(local, ret, value);
+}
+
+void make_index_integer_heap(addr *ret, size_t value)
+{
+	make_index_integer_alloc(NULL, ret, value);
 }
 
 void make_indexmax_alloc(LocalRoot local, addr *ret)
@@ -894,6 +909,229 @@ void plus_ii_real_common(LocalRoot local, addr left, addr right, addr *ret)
 		default:
 			TypeError(left, INTEGER);
 			break;
+	}
+}
+
+
+/*
+ *  ash
+ */
+void ash_bignum_local(LocalRoot local, addr pos, int sign2, size_t size, addr *ret)
+{
+	int sign1;
+
+	GetSignBignum(pos, &sign1);
+	if (IsPlus(sign2))
+		shiftup_bigdata_alloc(local, &pos, pos, size);
+	else
+		shiftdown_bigdata_alloc(local, &pos, pos, size);
+	SetSignBignum(pos, sign1);
+	bignum_result_heap(pos, ret);
+}
+
+void ash_integer_common(LocalRoot local, addr pos, addr count, addr *ret)
+{
+	int sign2;
+	size_t size;
+	LocalStack stack;
+
+	if (getindex_sign_integer(count, &sign2, &size)) {
+		fmte("Too large shift value ~S.", count, NULL);
+		*ret = 0;
+		return;
+	}
+
+	push_local(local, &stack);
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			bignum_fixnum_local(local, &pos, pos);
+			/* FALLTHRU */
+		case LISPTYPE_BIGNUM:
+			ash_bignum_local(local, pos, sign2, size, ret);
+			break;
+
+		default:
+			TypeError(pos, INTEGER);
+			*ret = 0;
+			break;
+	}
+	rollback_local(local, stack);
+}
+
+
+/*
+ *  integer-length
+ */
+static size_t integer_length_bigtype(bigtype value)
+{
+	size_t size;
+
+	for (size = 0; value; size++)
+		value >>= 1;
+
+	return size;
+}
+
+static size_t inverse_length_bigtype(bigtype value)
+{
+	if (value <= 1)
+		return 0;
+	else
+		return integer_length_bigtype(value - 1);
+}
+
+static void integer_length_fixnum(addr pos, addr *ret)
+{
+	int sign;
+	bigtype value;
+	size_t size;
+
+	castfixed_fixnum(pos, &sign, &value);
+	if (IsPlus(sign))
+		size = integer_length_bigtype(value);
+	else
+		size = inverse_length_bigtype(value);
+	make_index_integer_alloc(NULL, ret, size);
+}
+
+static size_t integer_length_bigdata(addr pos)
+{
+	size_t size, size1, size2;
+	bigtype *data;
+
+	GetSizeBignum(pos, &size);
+	GetDataBignum(pos, &data);
+	if (size == 1 && data[0] == 0)
+		return 0;
+	size--;
+	size1 = size * BIGNUM_FULLBIT;
+	size2 = integer_length_bigtype(data[size]);
+
+	return size1 + size2;
+}
+
+static int check_length_bignum(addr pos)
+{
+	int sign;
+	bigtype *data;
+	size_t size, i;
+
+	GetSignBignum(pos, &sign);
+	if (IsPlus(sign))
+		return 0;
+	GetSizeBignum(pos, &size);
+	size--;
+	GetDataBignum(pos, &data);
+	for (i = 0; i < size; i++) {
+		if (data[i] != 0)
+			return 0;
+	}
+
+	return data[i] == 1;
+}
+
+static void integer_length_bignum(addr pos, addr *ret)
+{
+	size_t size;
+
+	size = integer_length_bigdata(pos);
+	if (check_length_bignum(pos))
+		size--;
+	make_index_integer_alloc(NULL, ret, size);
+}
+
+void integer_length_common(addr pos, addr *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			integer_length_fixnum(pos, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			integer_length_bignum(pos, ret);
+			break;
+
+		default:
+			TypeError(pos, INTEGER);
+			*ret = 0;
+			return;
+	}
+}
+
+
+/*
+ *  parse-integer
+ */
+void parse_integer_common(LocalRoot local,
+		addr string, size_t start, size_t end, unsigned radix, int junk,
+		addr *ret, addr *position)
+{
+	int mode, sign;
+	unsigned v;
+	unicode c;
+	addr cons;
+	size_t i;
+	LocalStack stack;
+
+	push_local(local, &stack);
+	bigcons_local(local, &cons);
+	mode = 0;
+	sign = SignPlus;
+	for (i = start; i < end; i++) {
+		string_getc(string, i, &c);
+		/* white space */
+		if (mode == 0) {
+			if (isSpaceUnicode(c))
+				continue;
+			if (c == '+') {
+				sign = SignPlus;
+				mode = 1;
+				continue;
+			}
+			if (c == '-') {
+				sign = SignMinus;
+				mode = 1;
+				continue;
+			}
+			if (getvalue_digit(radix, c, &v))
+				goto error;
+			mode = 1;
+		}
+		/* digit */
+		if (mode == 1) {
+			if (! getvalue_digit(radix, c, &v)) {
+				push_bigcons(local, cons, radix, v);
+				continue;
+			}
+			if (! isSpaceUnicode(c))
+				goto error;
+			if (junk)
+				goto error; /* Don't read white-space (junk-allowed). */
+			continue;
+		}
+		/* white-space */
+		if (! isSpaceUnicode(c))
+			goto error;
+	}
+	/* success */
+	integer_cons_heap(ret, sign, cons);
+	make_index_integer_heap(position, i);
+	rollback_local(local, stack);
+	return;
+
+error:
+	if (junk) {
+		if (bigcons_empty_p(cons))
+			*ret = Nil;
+		else
+			integer_cons_heap(ret, sign, cons);
+		make_index_integer_heap(position, i);
+		rollback_local(local, stack);
+	}
+	else {
+		rollback_local(local, stack);
+		fmte("Invalid string ~A.", character_heapr(c), NULL);
+		*ret = *position = 0;
 	}
 }
 

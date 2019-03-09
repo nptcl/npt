@@ -556,3 +556,64 @@ void log_base_common(addr value, addr base, addr *ret)
 	}
 }
 
+
+/*
+ *  phase
+ */
+void phase_common(addr pos, addr *ret)
+{
+	single_float sr, si;
+	double_float dr, di;
+	long_float lr, li;
+
+	/* real */
+	switch (GetType(pos)) {
+		case LISPTYPE_COMPLEX:
+			break;
+
+		case LISPTYPE_FIXNUM:
+		case LISPTYPE_BIGNUM:
+		case LISPTYPE_RATIO:
+		case LISPTYPE_SINGLE_FLOAT:
+			single_float_heap(ret, 0.0f);
+			return;
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			double_float_heap(ret, 0.0);
+			return;
+
+		case LISPTYPE_LONG_FLOAT:
+			long_float_heap(ret, 0.0L);
+			return;
+
+		default:
+			TypeError(pos, NUMBER);
+			*ret = 0;
+			return;
+	}
+
+	/* complex */
+	switch (GetTypeComplex(pos)) {
+		case ComplexType_rational:
+		case ComplexType_single:
+			single_float_complex(pos, &sr, &si);
+			single_float_heap(ret, atan2f(si, sr));
+			break;
+
+		case ComplexType_double:
+			double_float_complex(pos, &dr, &di);
+			double_float_heap(ret, atan2(di, dr));
+			break;
+
+		case ComplexType_long:
+			long_float_complex(pos, &lr, &li);
+			long_float_heap(ret, atan2l(li, lr));
+			break;
+
+		case ComplexType_error:
+		default:
+			TypeError(pos, COMPLEX);
+			break;
+	}
+}
+

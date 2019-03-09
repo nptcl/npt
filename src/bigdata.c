@@ -1382,6 +1382,37 @@ void power2_bigdata_alloc(LocalRoot local, addr *ret, size_t value)
 	*ret = pos;
 }
 
+void division2_bigdata_alloc(LocalRoot local, addr *ret, addr left)
+{
+	addr pos, root;
+	bigtype *data1, *data2, carry, value;
+	size_t size, i, index;
+
+	GetSizeBignum(left, &size);
+	GetRootDataBignum(left, &root, &data1);
+	if (size == 1) {
+		bignum_value_alloc(local, ret, SignPlus, data1[0] >> 1);
+		return;
+	}
+	if (data1[size - 1] == 1) {
+		carry = 1;
+		size--;
+	}
+	else {
+		carry = 0;
+	}
+	alloc_bignum(local, &pos, size);
+	SetSizeBignum(pos, size);
+	GetRootDataBignum(pos, &root, &data2);
+	for (i = 0; i < size; i++) {
+		index = size - i - 1ULL;
+		value = data1[index];
+		data2[index] = (carry << (BIGNUM_FULLBIT - 1ULL)) | (value >> 1ULL);
+		carry = (value & 1ULL);
+	}
+	*ret = pos;
+}
+
 void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value)
 {
 	addr pos, root;
@@ -1428,34 +1459,43 @@ void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value)
 	*ret = pos;
 }
 
-void division2_bigdata_alloc(LocalRoot local, addr *ret, addr left)
+void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value)
 {
 	addr pos, root;
-	bigtype *data1, *data2, carry, value;
-	size_t size, i, index;
+	size_t size, count, dsize, i;
+	bigtype *data1, *data2;
 
-	GetSizeBignum(left, &size);
-	GetRootDataBignum(left, &root, &data1);
-	if (size == 1) {
-		bignum_value_alloc(local, ret, SignPlus, data1[0] >> 1);
+	if (value == 0) {
+		bignum_throw_alloc(local, left, ret);
 		return;
 	}
-	if (data1[size - 1] == 1) {
-		carry = 1;
-		size--;
+	count = value / BIGNUM_FULLBIT;
+	value = value % BIGNUM_FULLBIT;
+	GetSizeBignum(left, &size);
+	GetRootDataBignum(left, &root, &data1);
+	if ((size == 1 && data1[0] == 0) || (size <= count)) {
+		bignum_zero_alloc(local, ret);
+		return;
+	}
+
+	dsize = size - count;
+	alloc_bignum(local, &pos, dsize);
+	GetRootDataBignum(pos, &root, &data2);
+	SetSizeBignum(pos, dsize);
+	if (value) {
+		dsize--;
+		for (i = 0; i < dsize; i++) {
+			data2[i] = (data1[i + count] >> value) |
+				(data1[i + count + 1] << (BIGNUM_FULLBIT - value));
+		}
+		data2[i] = (data1[i + count] >> value);
+		sizepress_bignum(pos);
 	}
 	else {
-		carry = 0;
+		bigcpy(data2, data1 + count, dsize);
 	}
-	alloc_bignum(local, &pos, size);
-	SetSizeBignum(pos, size);
-	GetRootDataBignum(pos, &root, &data2);
-	for (i = 0; i < size; i++) {
-		index = size - i - 1ULL;
-		value = data1[index];
-		data2[index] = (carry << (BIGNUM_FULLBIT - 1ULL)) | (value >> 1ULL);
-		carry = (value & 1ULL);
-	}
+
+	SetSignBignum(pos, RefSignBignum(left));
 	*ret = pos;
 }
 

@@ -943,6 +943,13 @@ static void calltype_number(void)
 	SetCallType(Number, pos);
 }
 
+static void calltype_complex(void)
+{
+	addr pos;
+	type_empty(NULL, LISPDECL_COMPLEX, &pos);
+	SetCallType(Complex, pos);
+}
+
 static void calltype_array(void)
 {
 	addr pos;
@@ -1865,6 +1872,14 @@ static void calltype_values_number(void)
 	GetCallType(&pos, Number);
 	result_valuestype(&pos, pos);
 	SetCallType(Values_Number, pos);
+}
+
+static void calltype_values_complex(void)
+{
+	addr pos;
+	GetCallType(&pos, Complex);
+	result_valuestype(&pos, pos);
+	SetCallType(Values_Complex, pos);
 }
 
 static void calltype_compiled_object_boolean(void)
@@ -3185,6 +3200,7 @@ void build_calltype(void)
 	calltype_doublefloat();
 	calltype_longfloat();
 	calltype_number();
+	calltype_complex();
 	calltype_array();
 	calltype_vector();
 	calltype_bit();
@@ -3292,6 +3308,7 @@ void build_calltype(void)
 	calltype_values_float();
 	calltype_values_real();
 	calltype_values_number();
+	calltype_values_complex();
 	calltype_compiled_object_boolean();
 	calltype_compiled_symbol_boolean();
 	calltype_compiled_stringcase();

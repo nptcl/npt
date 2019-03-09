@@ -2,6 +2,7 @@
  *  xorshift+
  */
 #include <string.h>
+#include <inttypes.h>
 #include "random.h"
 #include "md5encode.h"
 
@@ -128,5 +129,12 @@ void random_seed_buffer(struct random_state *state, const void *ptr, size_t size
 void random_seed_string(struct random_state *state, const char *word)
 {
 	sequence_md5encode(word, strlen(word), state->seed.u32);
+}
+
+/* check */
+int random_state_equal(struct random_state *a, struct random_state *b)
+{
+	return memcmp(&(a->seed.u32), &(b->seed.u32),
+			(size_t)(sizeof(uint32_t) * 4)) == 0;
 }
 

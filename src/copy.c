@@ -578,7 +578,7 @@ static void copylocal_complex(LocalRoot local, addr *ret, addr pos)
 
 	make_complex_unsafe(local, &pos, type);
 	SetRealComplex(pos, real);
-	SetImagComplex(pos, real);
+	SetImagComplex(pos, imag);
 	*ret = pos;
 }
 

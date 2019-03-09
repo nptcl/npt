@@ -30,4 +30,5 @@
 const char *setlocale_c(int category);
 int vsnprintc(char *, size_t, const char *, va_list);
 int snprintc(char *, size_t, const char *, ...);
+int sscanc(const char *buffer, const char *fmt, ...);
 

@@ -47,8 +47,8 @@ int equal_number(LocalRoot local, addr left, addr right);
 #define less_equal_number less_equal_real
 #define greater_equal_number greater_equal_real
 
-void oneplus_number_heap(LocalRoot local, addr value, addr *ret);
-void oneminus_number_heap(LocalRoot local, addr value, addr *ret);
+void oneplus_number_common(LocalRoot local, addr value, addr *ret);
+void oneminus_number_common(LocalRoot local, addr value, addr *ret);
 void sign_reverse_number_common(addr left, addr *ret);
 void sign_reverse_number_local(LocalRoot local, addr left, addr *ret);
 
@@ -60,8 +60,9 @@ void div_number_heap(LocalRoot local, addr left, addr right, addr *ret);
 void mod_number_heap(LocalRoot local, addr left, addr right, addr *ret);
 void rem_number_heap(LocalRoot local, addr left, addr right, addr *ret);
 
-void abs_number_common(LocalRoot local, addr left, addr *ret);
-void random_number_heap(addr limit, addr state, addr *ret);
+void abs_number_common(addr left, addr *ret);
+void signum_number_common(addr pos, addr *ret);
+void sqrt_number_common(addr pos, addr *ret);
 
 #endif
 

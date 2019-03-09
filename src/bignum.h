@@ -302,9 +302,9 @@ void plus_bv_real_common(LocalRoot local, addr left, fixnum right, addr *ret);
 void plus_bf_bignum_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_bf_real_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_bf_real_common(LocalRoot local, addr left, addr right, addr *ret);
-#define plus_fb_bignum_local plus_bf_bignum_local
-#define plus_fb_real_local plus_bf_real_local
-#define plus_fb_real_common plus_bf_real_common
+#define plus_fb_bignum_local(m,a,b,r) plus_bf_bignum_local((m),(b),(a),(r))
+#define plus_fb_real_local(m,a,b,r) plus_bf_real_local((m),(b),(a),(r))
+#define plus_fb_real_common(m,a,b,r) plus_bf_real_common((m),(b),(a),(r))
 void plus_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_bb_real_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_bb_real_common(LocalRoot local, addr left, addr right, addr *ret);

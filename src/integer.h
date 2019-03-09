@@ -58,6 +58,8 @@ void string_nosign_comma_integer(LocalRoot local, addr *ret, addr pos,
 
 /* size */
 void make_index_integer_alloc(LocalRoot local, addr *ret, size_t value);
+void make_index_integer_local(LocalRoot local, addr *ret, size_t value);
+void make_index_integer_heap(addr *ret, size_t value);
 void make_indexmax_alloc(LocalRoot local, addr *ret);
 int getindex_integer(addr pos, size_t *ret);
 void getindex_error(addr pos, size_t *ret);
@@ -96,6 +98,12 @@ void plus_bi_real_common(LocalRoot local, addr left, addr right, addr *ret);
 void plus_ii_bignum_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_ii_real_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_ii_real_common(LocalRoot local, addr left, addr right, addr *ret);
+
+void ash_integer_common(LocalRoot local, addr pos, addr count, addr *ret);
+void integer_length_common(addr pos, addr *ret);
+void parse_integer_common(LocalRoot local,
+		addr string, size_t start, size_t end, unsigned radix, int junk,
+		addr *ret, addr *position);
 
 #endif
 

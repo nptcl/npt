@@ -849,7 +849,7 @@ void plus_float_lv_alloc(LocalRoot local, addr left, long_float right, addr *ret
 		long_float_heap(&temp, right);
 		float_fltclass(CONSTANT_COMMON_PLUS, type, left, temp, NULL);
 	}
-	long_float_alloc(local, ret, right);
+	long_float_alloc(local, ret, value);
 }
 
 void plus_float_sv_local(LocalRoot local, addr left, single_float right, addr *ret)
@@ -1236,7 +1236,7 @@ void plus_float_bl_heap(addr left, addr right, addr *ret)
 
 void plus_float_rs_alloc(LocalRoot local, addr left, addr right, addr *ret)
 {
-	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
+	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	Check(GetType(right) != LISPTYPE_SINGLE_FLOAT, "type right error");
 	if (zerop_ratio(left))
 		single_float_throw_alloc(local, right, ret);
@@ -1246,7 +1246,7 @@ void plus_float_rs_alloc(LocalRoot local, addr left, addr right, addr *ret)
 
 void plus_float_rd_alloc(LocalRoot local, addr left, addr right, addr *ret)
 {
-	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
+	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	Check(GetType(right) != LISPTYPE_DOUBLE_FLOAT, "type right error");
 	if (zerop_ratio(left))
 		double_float_throw_alloc(local, right, ret);
@@ -1256,7 +1256,7 @@ void plus_float_rd_alloc(LocalRoot local, addr left, addr right, addr *ret)
 
 void plus_float_rl_alloc(LocalRoot local, addr left, addr right, addr *ret)
 {
-	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
+	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	Check(GetType(right) != LISPTYPE_LONG_FLOAT, "type right error");
 	if (zerop_ratio(left))
 		long_float_throw_alloc(local, right, ret);
@@ -2815,7 +2815,7 @@ void div_float_lb_alloc(LocalRoot local, addr left, addr right, addr *ret)
 
 	Check(GetType(left) != LISPTYPE_LONG_FLOAT, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
-	GetLongFloat(right, &value);
+	GetLongFloat(left, &value);
 	if (zerop_bignum(right))
 		division_by_zero2(left, right);
 	value = RefLongFloat(left) / long_float_bignum(right);

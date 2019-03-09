@@ -10,6 +10,7 @@
 #include "math_power.h"
 #include "number.h"
 #include "number_gcd.h"
+#include "number_random.h"
 #include "package.h"
 #include "random_state.h"
 #include "rational.h"
@@ -21,6 +22,7 @@
 #include "real_round.h"
 #include "real_truncate.h"
 #include "setf.h"
+#include "strtype.h"
 #include "type_parse.h"
 
 /* (defun = (first &rest numbers) ...) -> boolean */
@@ -1066,7 +1068,7 @@ static void function_asterisk(Execute ptr, addr rest)
 
 	/* nil */
 	if (rest == Nil) {
-		fixnum_heap(&rest, 0);
+		fixnum_heap(&rest, 1);
 		setresult_control(ptr, rest);
 		return;
 	}
@@ -1138,7 +1140,7 @@ static void defun_slash(void)
 /* (defun 1+ (number) ...) -> number */
 static void function_oneplus(Execute ptr, addr var)
 {
-	oneplus_number_heap(ptr->local, var, &var);
+	oneplus_number_common(ptr->local, var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1161,7 +1163,7 @@ static void defun_oneplus(void)
 /* (defun 1- (number) ...) -> number */
 static void function_oneminus(Execute ptr, addr var)
 {
-	oneminus_number_heap(ptr->local, var, &var);
+	oneminus_number_common(ptr->local, var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1186,7 +1188,7 @@ static void defun_oneminus(void)
  */
 static void function_abs(Execute ptr, addr var)
 {
-	abs_number_common(ptr->local, var, &var);
+	abs_number_common(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1573,6 +1575,52 @@ static void defun_rem(void)
 }
 
 
+/* (defun signum (number) ...) -> number */
+static void function_signum(Execute ptr, addr var)
+{
+	signum_number_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_signum(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SIGNUM, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_signum);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun sqrt (number) ...) -> number */
+static void function_sqrt(Execute ptr, addr var)
+{
+	sqrt_number_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_sqrt(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SQRT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_sqrt);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun make-random-state (&optional state) ...) -> random-state
  *   state  (or random-state null (eql t))
  */
@@ -1624,7 +1672,7 @@ static void function_random(Execute ptr, addr limit, addr state)
 		GetConst(SPECIAL_RANDOM_STATE, &state);
 		getspecialcheck_local(ptr, state, &state);
 	}
-	random_number_heap(limit, state, &limit);
+	random_number_common(ptr->local, limit, state, &limit);
 	setresult_control(ptr, limit);
 }
 
@@ -1694,7 +1742,7 @@ static void defvar_random_state(void)
 	setspecial_symbol(symbol);
 
 	/* type */
-	GetCallType(&type, RadixInteger);
+	GetCallType(&type, RandomState);
 	settype_value_symbol(symbol, type);
 }
 
@@ -1721,6 +1769,45 @@ static void defun_numberp(void)
 }
 
 
+/* (defun complex (real &optional imag) ...) -> result
+ *   real    real
+ *   imag    real
+ *   result  (or rational complex)
+ */
+static void function_complex(Execute ptr, addr real, addr imag)
+{
+	complex_heap(&real, real, imag);
+	setresult_control(ptr, real);
+}
+
+static void type_complex_common(addr *ret)
+{
+	addr arg, values, type;
+
+	GetCallType(&arg, Real);
+	var1opt1_argtype(&arg, arg, arg);
+	GetCallType(&type, Rational);
+	GetCallType(&values, Complex);
+	type_or(NULL, type, values, &values);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_complex(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_COMPLEX, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, function_complex);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_complex_common(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun complexp (object) ...) -> boolean */
 static void function_complexp(Execute ptr, addr pos)
 {
@@ -1738,6 +1825,63 @@ static void defun_complexp(void)
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetCallType(&type, Compiled_Object_Boolean);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun conjugate (number) ...) -> number */
+static void function_conjugate(Execute ptr, addr var)
+{
+	addr real, imag;
+
+	if (complexp(var)) {
+		GetRealComplex(var, &real);
+		GetImagComplex(var, &imag);
+		sign_reverse_real_common(imag, &imag);
+		complex_heap(&var, real, imag);
+	}
+	else if (! realp(var)) {
+		TypeError(var, NUMBER);
+		var = Nil;
+	}
+	setresult_control(ptr, var);
+}
+
+static void defun_conjugate(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_CONJUGATE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_conjugate);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun phase (number) ...) -> number */
+static void function_phase(Execute ptr, addr var)
+{
+	phase_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_phase(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_PHASE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_phase);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1801,6 +1945,7 @@ static void defun_imagpart(void)
 /* (defun complexp (object) ...) -> boolean */
 static void function_upgraded_complex_part_type(Execute ptr, addr type, addr env)
 {
+	fmte("TODO", NULL);
 }
 
 static void defun_upgraded_complex_part_type(void)
@@ -1841,6 +1986,73 @@ static void defun_realp(void)
 }
 
 
+/* (defun numerator (rational) ...) -> integer */
+static void function_numerator(Execute ptr, addr var)
+{
+	numerator_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_numerator(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Rational);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Integer);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_numerator(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_NUMERATOR, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_numerator);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_numerator(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun denominator (rational) ...) -> positive-integer */
+static void function_denominator(Execute ptr, addr var)
+{
+	denominator_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_denominator(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Rational);
+	var1_argtype(&arg, arg);
+	type_intrange_left(T, 0, &values);
+	result_valuestype(&values, values);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_denominator(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_DENOMINATOR, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_denominator);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_denominator(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun rationalp (object) ...) -> boolean */
 static void function_rationalp(Execute ptr, addr pos)
 {
@@ -1863,6 +2075,79 @@ static void defun_rationalp(void)
 }
 
 
+/* (defun ash (integer count) ...) -> shifted
+ *   integer  integer
+ *   count    integer
+ *   shifted  integer
+ */
+static void function_ash(Execute ptr, addr pos, addr count)
+{
+	ash_integer_common(ptr->local, pos, count, &pos);
+	setresult_control(ptr, pos);
+}
+
+static void type_ash(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	var2_argtype(&arg, arg, arg);
+	GetCallType(&values, Values_Integer);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_ash(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ASH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_ash);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_ash(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun integer-length (integer) ...) -> bits
+ *   integer  integer
+ *   bits     a non-negative integer
+ */
+static void function_integer_length(Execute ptr, addr var)
+{
+	integer_length_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_integer_length(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Intplus);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_integer_length(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_INTEGER_LENGTH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_integer_length);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_integer_length(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun integerp (object) ...) -> boolean */
 static void function_integerp(Execute ptr, addr pos)
 {
@@ -1880,6 +2165,73 @@ static void defun_integerp(void)
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetCallType(&type, Compiled_Object_Boolean);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun parse-integer (string &key start end radix junk-allowed) ...)
+ *     -> integer, pos
+ *   string        string
+ *   start         keyword-start
+ *   end           keyword-end
+ *   radix         radix-integer  ;; default 10
+ *   junk-allowed  t  ;; boolean, default nil
+ *   integer       (or null integer)
+ *   pos           index
+ */
+static void function_parse_integer(Execute ptr, addr var, addr rest)
+{
+	addr radix, junk;
+	size_t size, start, end;
+
+	string_length(var, &size);
+	keyword_start_end(size, rest, &start, &end);
+	if (getkeyargs(rest, KEYWORD_RADIX, &radix)) fixnum_heap(&radix, 10);
+	if (getkeyargs(rest, KEYWORD_JUNK_ALLOWED, &junk)) junk = Nil;
+	parse_integer_common(ptr->local, var, start, end,
+			(unsigned)RefFixnum(radix), junk != Nil, &var, &rest);
+	setvalues_va_control(ptr, var, rest, NULL);
+}
+
+static void type_parse_integer(addr *ret)
+{
+	addr arg, values, type, key, key1, key2, key3, key4;
+
+	/* key */
+	GetConst(KEYWORD_START, &key1);
+	GetCallType(&values, KeywordStart);
+	cons_heap(&key1, key1, values);
+	GetConst(KEYWORD_END, &key2);
+	GetCallType(&values, KeywordEnd);
+	cons_heap(&key2, key2, values);
+	GetConst(KEYWORD_RADIX, &key3);
+	GetCallType(&values, RadixInteger);
+	cons_heap(&key3, key3, values);
+	GetConst(KEYWORD_JUNK_ALLOWED, &key4);
+	GetCallType(&values, T);
+	cons_heap(&key4, key4, values);
+	list_heap(&key, key1, key2, key3, key4, NULL);
+	/* type */
+	GetCallType(&arg, String);
+	var1key_argtype(&arg, arg, key);
+	GetCallType(&values, IntegerNull);
+	GetCallType(&type, Index);
+	values2_valuestype(&values, values, type);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_parse_integer(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_PARSE_INTEGER, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1dynamic(pos, function_parse_integer);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_parse_integer(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2523,31 +2875,31 @@ void intern_common_numbers(void)
 	defun_log();
 	defun_mod();
 	defun_rem();
-	/* defun_signum(); */
-	/* defun_sqrt(); */
+	defun_signum();
+	defun_sqrt();
 	/* defun_isqrt(); */
 	defun_make_random_state();
 	defun_random();
 	defun_random_state_p();
 	defvar_random_state();
 	defun_numberp();
-	/* defun_complex(); */
+	defun_complex();
 	defun_complexp();
-	/* defun_conjugate(); */
-	/* defun_phase(); */
+	defun_conjugate();
+	defun_phase();
 	defun_realpart();
 	defun_imagpart();
-	defun_upgraded_complex_part_type();
+	defun_upgraded_complex_part_type(); /* TODO */
 	defun_realp();
-	/* defun_numerator(); */
-	/* defun_denominator(); */
+	defun_numerator();
+	defun_denominator();
 	/* defun_rational(); */
 	/* defun_rationalize(); */
 	defun_rationalp();
-	/* defun_ash(); */
-	/* defun_integer_length(); */
+	defun_ash();
+	defun_integer_length();
 	defun_integerp();
-	/* defun_parse_integer(); */
+	defun_parse_integer();
 	/* defun_boole(); */
 	/* defun_logand(); */
 	/* defun_logandc1(); */

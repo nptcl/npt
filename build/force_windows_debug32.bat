@@ -1,11 +1,11 @@
 @echo off
-set build_path=%~dp0
+set build_path=%~dp0\..
 cd /d %build_path%
 
 REM *** Target
 set build_bit=32
 set build_platform=Win32
-set build_type=Release
+set build_type=Debug
 set build_name=npt
 
 
@@ -27,7 +27,7 @@ if errorlevel 1 (
 
 
 REM *** Clean
-set build_proj=build\windows_release.cproj
+set build_proj=build\windows_degrade.cproj
 msbuild %build_proj% /t:clean
 if errorlevel 1 (
 	echo msbuild clean error
@@ -36,7 +36,7 @@ if errorlevel 1 (
 
 
 REM *** Build
-set build_proj=build\windows_release.cproj
+set build_proj=build\windows_degrade.cproj
 msbuild %build_proj% /t:build /p:configuration=%build_type% /p:platform=%build_platform% /property:TargetName=%build_name%
 if errorlevel 1 (
 	echo msbuild build error

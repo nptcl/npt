@@ -13,12 +13,18 @@
 #define zeroset(p,s) memset((void *)(p), 0, (size_t)(s))
 #define readmd5(m,p,s) read_md5encode((m), (const void *)(p), (size_t)(s))
 
-#define PosBodyRandomState		PosBodyB2
+#define PtrBodyRandomState(x)	((struct random_state *)PtrBodyB2(x))
 #define RANDOM_DEVICE "/dev/urandom"
 #define RANDOM_DEVICE_SIZE 256
 
 static int InitRandomState = 0;
 static mutexlite Mutex;
+
+struct random_state *struct_random_state(addr pos)
+{
+	CheckType(pos, LISPTYPE_RANDOM_STATE);
+	return PtrBodyRandomState(pos);
+}
 
 #if defined LISP_POSIX
 #include <stdlib.h>
@@ -306,12 +312,11 @@ static void make_random_seed(struct md5encode *md5)
 
 void random_state_alloc(LocalRoot local, addr *ret)
 {
-	addr pos, body;
+	addr pos;
 
 	Check(0xFF <= sizeoft(struct random_state), "size error");
 	alloc_body2(local, &pos, LISPTYPE_RANDOM_STATE, sizeoft(struct random_state));
-	PosBodyRandomState(pos, &body);
-	memset(body, 0, sizeoft(struct random_state));
+	memset(struct_random_state(pos), 0, sizeoft(struct random_state));
 	*ret = pos;
 }
 void random_state_local(LocalRoot local, addr *ret)
@@ -324,7 +329,7 @@ void random_state_heap(addr *ret)
 	random_state_alloc(NULL, ret);
 }
 
-static void make_randomly_seed(addr body)
+static void make_randomly_seed(struct random_state *ptr)
 {
 	volatile uint8_t result[MD5ENCODE_SIZE];
 	struct md5encode md5;
@@ -333,25 +338,29 @@ static void make_randomly_seed(addr body)
 	make_random_seed(&md5);
 	calc_md5encode(&md5, (void *)result);
 	clear_md5encode(&md5);
-	memcpy(body, (const void *)result, sizeoft(result));
+	memcpy(ptr, (const void *)result, sizeoft(result));
 	zeroset(result, MD5ENCODE_SIZE);
 }
 
 void copy_random_state(addr left, addr right)
 {
+	struct random_state *ptr1, *ptr2;
+
 	CheckType2(left, LISPTYPE_RANDOM_STATE, "type left error");
 	CheckType2(right, LISPTYPE_RANDOM_STATE, "type right error");
-	PosBodyRandomState(left, &left);
-	PosBodyRandomState(right, &right);
-	memcpy(left, right, sizeoft(struct random_state));
+	ptr1 = struct_random_state(left);
+	ptr2 = struct_random_state(right);
+	memcpy(ptr1, ptr2, sizeoft(struct random_state));
 }
 
 void randomly_random_state(addr left)
 {
+	struct random_state *ptr;
+
 	CheckType(left, LISPTYPE_RANDOM_STATE);
 	Check(sizeof(struct random_state) != MD5ENCODE_SIZE, "size error");
-	PosBodyRandomState(left, &left);
-	make_randomly_seed(left);
+	ptr = struct_random_state(left);
+	make_randomly_seed(ptr);
 }
 
 void constant_random_state(Execute ptr, addr left)
@@ -392,16 +401,14 @@ void make_random_state_heap(Execute ptr, addr *ret, addr state)
 void make_bignum_random_state_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	int i;
-	addr value;
 	struct random_state *state;
 
 	CheckType(pos, LISPTYPE_RANDOM_STATE);
-	PosBodyRandomState(pos, &value);
-	state = (struct random_state *)value;
-	alloc_bignum(local, &value, RANDOM_STATE_SIZE);
+	state = struct_random_state(pos);
+	alloc_bignum(local, &pos, RANDOM_STATE_SIZE);
 	for (i = 0; i < RANDOM_STATE_SIZE; i++)
-		setfixed_bignum(value, i, state->seed.RANDOM_STATE_UNION[i]);
-	*ret = value;
+		setfixed_bignum(pos, i, state->seed.RANDOM_STATE_UNION[i]);
+	*ret = pos;
 }
 
 void make_bignum_random_state_local(LocalRoot local, addr pos, addr *ret)
@@ -413,5 +420,17 @@ void make_bignum_random_state_local(LocalRoot local, addr pos, addr *ret)
 void make_bignum_random_state_heap(addr pos, addr *ret)
 {
 	make_bignum_random_state_alloc(NULL, pos, ret);
+}
+
+int equal_random_state_addr(addr left, addr right)
+{
+	struct random_state *state1, *state2;
+
+	CheckType(left, LISPTYPE_RANDOM_STATE);
+	CheckType(right, LISPTYPE_RANDOM_STATE);
+	state1 = struct_random_state(left);
+	state2 = struct_random_state(right);
+
+	return random_state_equal(state1, state2);
 }
 

@@ -2,6 +2,7 @@
 #include "bigdata.h"
 #include "bignum.h"
 #include "calltype.h"
+#include "cmpl.h"
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
@@ -20,6 +21,7 @@
 #include "package.h"
 #include "quote.h"
 #include "radix.h"
+#include "random_state.h"
 #include "ratio.h"
 #include "readtable.h"
 #include "sequence.h"
@@ -1509,6 +1511,72 @@ static void defun_make_ratio(void)
 }
 
 
+/* (defun make-complex (real imag) ...) -> complex */
+static void syscall_make_complex(Execute ptr, addr real, addr imag)
+{
+	complex_force_heap(&real, real, imag, ComplexType_error);
+	setresult_control(ptr, real);
+}
+
+static void type_make_complex(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Real);
+	var2_argtype(&arg, arg, arg);
+	GetCallType(&values, Values_Complex);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_make_complex(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_MAKE_COMPLEX, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, syscall_make_complex);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_make_complex(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun equal-random-state (a b) ...) -> boolean */
+static void syscall_equal_random_state(Execute ptr, addr left, addr right)
+{
+	int check = equal_random_state_addr(left, right);
+	setbool_control(ptr, check);
+}
+
+static void type_equal_random_state(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, RandomState);
+	var2_argtype(&arg, arg, arg);
+	GetCallType(&values, Values_Boolean);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_equal_random_state(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_EQUAL_RANDOM_STATE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, syscall_equal_random_state);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_equal_random_state(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  build_syscall
  */
@@ -1614,5 +1682,7 @@ void build_syscall(void)
 	/* number */
 	defun_make_bignum();
 	defun_make_ratio();
+	defun_make_complex();
+	defun_equal_random_state();
 }
 

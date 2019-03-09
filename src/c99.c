@@ -47,3 +47,28 @@ int snprintc(char *buffer, size_t size, const char *fmt, ...)
 	return result;
 }
 
+int sscanc(const char *buffer, const char *fmt, ...)
+{
+	int result;
+	const char *check;
+	va_list args;
+
+	/* setlocale C */
+	check = setlocale_c(LC_NUMERIC);
+
+	/* sscanf */
+	va_start(args, fmt);
+#ifdef _MSC_VER
+	result = vsscanf_s(buffer, fmt, args);
+#else
+	result = vsscanf(buffer, fmt, args);
+#endif
+	va_end(args);
+
+	/* setlocale */
+	if (check)
+		setlocale(LC_NUMERIC, check);
+
+	return result;
+}
+

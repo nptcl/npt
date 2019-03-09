@@ -1,9 +1,11 @@
 #include "bignum.h"
 #include "cmpl.h"
+#include "cmpl_math.h"
 #include "cmpl_multi.h"
 #include "cmpl_plus.h"
 #include "condition.h"
 #include "integer.h"
+#include "math_type.h"
 #include "memory.h"
 #include "number.h"
 #include "object.h"
@@ -403,7 +405,7 @@ int equal_number(LocalRoot local, addr left, addr right)
 /*
  *  operator
  */
-void oneplus_number_heap(LocalRoot local, addr value, addr *ret)
+void oneplus_number_common(LocalRoot local, addr value, addr *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -440,7 +442,7 @@ void oneplus_number_heap(LocalRoot local, addr value, addr *ret)
 	}
 }
 
-void oneminus_number_heap(LocalRoot local, addr value, addr *ret)
+void oneminus_number_common(LocalRoot local, addr value, addr *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -1837,7 +1839,7 @@ void div_number_heap(LocalRoot local, addr left, addr right, addr *ret)
 /*
  *  abs
  */
-void abs_number_common(LocalRoot local, addr left, addr *ret)
+void abs_number_common(addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1865,7 +1867,7 @@ void abs_number_common(LocalRoot local, addr left, addr *ret)
 			break;
 
 		case LISPTYPE_COMPLEX:
-			abs_complex_common(local, left, ret);
+			abs_complex_common(left, ret);
 			break;
 
 		default:
@@ -1874,32 +1876,187 @@ void abs_number_common(LocalRoot local, addr left, addr *ret)
 	}
 }
 
-void random_number_heap(addr pos, addr state, addr *ret)
+
+/*
+ *  signum
+ */
+static void signum_single_common(addr pos, addr *ret)
+{
+	single_float value;
+
+	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
+	GetSingleFloat(pos, &value);
+	if (value == 0.0f)
+		single_float_heap(ret, 0.0f);
+	else
+		single_float_heap(ret, (value < 0.0f)? -1.0f: 1.0f);
+}
+
+static void signum_double_common(addr pos, addr *ret)
+{
+	double_float value;
+
+	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
+	GetDoubleFloat(pos, &value);
+	if (value == 0.0)
+		double_float_heap(ret, 0.0);
+	else
+		double_float_heap(ret, (value < 0.0)? -1.0: 1.0);
+}
+
+static void signum_long_common(addr pos, addr *ret)
+{
+	long_float value;
+
+	CheckType(pos, LISPTYPE_LONG_FLOAT);
+	GetLongFloat(pos, &value);
+	if (value == 0.0L)
+		long_float_heap(ret, 0.0L);
+	else
+		long_float_heap(ret, (value < 0.0L)? -1.0L: 1.0L);
+}
+
+static void signum_fixnum_common(addr pos, addr *ret)
+{
+	fixnum value;
+
+	CheckType(pos, LISPTYPE_FIXNUM);
+	GetFixnum(pos, &value);
+	if (value == 0)
+		fixnum_heap(ret, 0);
+	else
+		fixnum_heap(ret, (value < 0)? -1: 1);
+}
+
+static void signum_bignum_common(addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	if (zerop_bignum(pos))
+		fixnum_heap(ret, 0);
+	else
+		fixnum_heap(ret, minusp_bignum(pos)? -1: 1);
+}
+
+static void signum_ratio_common(addr pos, addr *ret)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	if (zerop_ratio(pos))
+		fixnum_heap(ret, 0);
+	else
+		fixnum_heap(ret, minusp_ratio(pos)? -1: 1);
+}
+
+void signum_number_common(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
-		case LISPTYPE_FIXNUM:
-			fmte("TODO", NULL);
-			break;
-
-		case LISPTYPE_BIGNUM:
-			fmte("TODO", NULL);
-			break;
-
 		case LISPTYPE_SINGLE_FLOAT:
-			fmte("TODO", NULL);
+			signum_single_common(pos, ret);
 			break;
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			fmte("TODO", NULL);
+			signum_double_common(pos, ret);
 			break;
 
 		case LISPTYPE_LONG_FLOAT:
-			fmte("TODO", NULL);
+			signum_long_common(pos, ret);
+			break;
+
+		case LISPTYPE_COMPLEX:
+			signum_complex_common(pos, ret);
+			break;
+
+		case LISPTYPE_FIXNUM:
+			signum_fixnum_common(pos, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			signum_bignum_common(pos, ret);
+			break;
+
+		case LISPTYPE_RATIO:
+			signum_ratio_common(pos, ret);
 			break;
 
 		default:
-			fmte("The random number ~S must be an integer or float.", pos, NULL);
+			TypeError(pos, NUMBER);
+			*ret = 0;
+			return;
+	}
+}
+
+
+/*
+ *  sqrt
+ */
+static void sqrt_single_common(struct mathreal2_struct *ptr, addr *ret)
+{
+	single_float real, imag;
+
+	real = ptr->v.s.a;
+	imag = ptr->v.s.b;
+	if (0.0f <= real && imag == 0.0f) {
+		single_float_check_heap(ret, sqrtf(real));
+	}
+	else {
+		csqrt_f(real, imag, &real, &imag);
+		complex_single_heap(ret, real, imag);
+	}
+}
+
+static void sqrt_double_common(struct mathreal2_struct *ptr, addr *ret)
+{
+	double_float real, imag;
+
+	real = ptr->v.d.a;
+	imag = ptr->v.d.b;
+	if (0.0 <= real && imag == 0.0) {
+		double_float_check_heap(ret, sqrt(real));
+	}
+	else {
+		csqrt_d(real, imag, &real, &imag);
+		complex_double_heap(ret, real, imag);
+	}
+}
+
+static void sqrt_long_common(struct mathreal2_struct *ptr, addr *ret)
+{
+	long_float real, imag;
+
+	real = ptr->v.l.a;
+	imag = ptr->v.l.b;
+	if (0.0L <= real && imag == 0.0L) {
+		long_float_check_heap(ret, sqrtl(real));
+	}
+	else {
+		csqrt_l(real, imag, &real, &imag);
+		complex_long_heap(ret, real, imag);
+	}
+}
+
+void sqrt_number_common(addr pos, addr *ret)
+{
+	struct mathreal2_struct str;
+
+	switch (getmathcomplex1_sqrt(&str, pos)) {
+		case MathType_single:
+			sqrt_single_common(&str, ret);
 			break;
+
+		case MathType_double:
+			sqrt_double_common(&str, ret);
+			break;
+
+		case MathType_long:
+			sqrt_long_common(&str, ret);
+			break;
+
+		case MathType_complex:
+		case MathType_rational:
+		case MathType_error:
+		default:
+			TypeError(pos, NUMBER);
+			*ret = 0;
+			return;
 	}
 }
 

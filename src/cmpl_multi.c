@@ -58,7 +58,7 @@ void multi_rational_complex_common(LocalRoot local, addr left, addr right, addr 
 		GetImagComplex(right, &imag);
 		multi_rational_common(local, left, real, &real);
 		multi_rational_common(local, left, imag, &imag);
-		complex_unsafe_heap(ret, real, imag, ComplexType_rational);
+		complex_heap(ret, real, imag);
 	}
 }
 
@@ -123,7 +123,7 @@ static void multi_cc_rational_common(LocalRoot local, addr left, addr right, add
 	multi_rational_local(local, b, c, &bc);
 	minus_rational_local(local, ac, bd, &a);
 	plus_rational_local(local, ad, bc, &b);
-	complex_unsafe_heap(ret, a, b, ComplexType_rational);
+	complex_heap(ret, a, b);
 	rollback_local(local, stack);
 }
 
@@ -297,8 +297,8 @@ static int div_real_complex(addr left, addr right, addr *ret)
 
 static int div_complex_real(addr left, addr right, addr *ret)
 {
-	/* Re: n*a
-	 * Im: n*b
+	/* Re: a/n
+	 * Im: b/n
 	 */
 	single_float ns, as, bs;
 	double_float nd, ad, bd;
@@ -310,21 +310,21 @@ static int div_complex_real(addr left, addr right, addr *ret)
 			as = str.v.s.a;
 			bs = str.v.s.b;
 			ns = str.v.s.c;
-			complex_single_heap(ret, as*ns, bs*ns);
+			complex_single_heap(ret, as/ns, bs/ns);
 			return 0;
 
 		case MathType_double:
 			ad = str.v.d.a;
 			bd = str.v.d.b;
 			nd = str.v.d.c;
-			complex_double_heap(ret, ad*nd, bd*nd);
+			complex_double_heap(ret, ad/nd, bd/nd);
 			return 0;
 
 		case MathType_long:
 			al = str.v.l.a;
 			bl = str.v.l.b;
 			nl = str.v.l.c;
-			complex_long_heap(ret, al*nl, bl*nl);
+			complex_long_heap(ret, al/nl, bl/nl);
 			return 0;
 
 		case MathType_rational:
@@ -373,13 +373,13 @@ void div_complex_rational_common(LocalRoot local, addr left, addr right, addr *r
 	LocalStack stack;
 	addr a, b;
 
-	/* Re: n*a
-	 * Im: n*b
+	/* Re: a/n
+	 * Im: b/n
 	 */
 	CheckLocal(local);
 	CheckType(left, LISPTYPE_COMPLEX);
 	Check(! rationalp(right), "type right error");
-	if (zerop_fixnum(right))
+	if (zerop_rational(right))
 		division_by_zero2(left, right);
 	if (div_complex_real(left, right, ret)) {
 		GetRealComplex(left, &a);
@@ -438,8 +438,8 @@ void div_sc_number_common(addr left, addr right, addr *ret)
 
 void div_cs_number_common(addr left, addr right, addr *ret)
 {
-	CheckType(left, LISPTYPE_SINGLE_FLOAT);
-	CheckType(right, LISPTYPE_COMPLEX);
+	CheckType(left, LISPTYPE_COMPLEX);
+	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	if (div_complex_real(left, right, ret))
 		fmte("Type error", NULL);
 }
@@ -454,8 +454,8 @@ void div_dc_number_common(addr left, addr right, addr *ret)
 
 void div_cd_number_common(addr left, addr right, addr *ret)
 {
-	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
-	CheckType(right, LISPTYPE_COMPLEX);
+	CheckType(left, LISPTYPE_COMPLEX);
+	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	if (div_complex_real(left, right, ret))
 		fmte("Type error", NULL);
 }
@@ -470,8 +470,8 @@ void div_lc_number_common(addr left, addr right, addr *ret)
 
 void div_cl_number_common(addr left, addr right, addr *ret)
 {
-	CheckType(left, LISPTYPE_LONG_FLOAT);
-	CheckType(right, LISPTYPE_COMPLEX);
+	CheckType(left, LISPTYPE_COMPLEX);
+	CheckType(right, LISPTYPE_LONG_FLOAT);
 	if (div_complex_real(left, right, ret))
 		fmte("Type error", NULL);
 }
