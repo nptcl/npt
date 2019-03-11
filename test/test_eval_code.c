@@ -951,7 +951,7 @@ static int test_code_nil(void)
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
 	codechar_set(&pos, "nil");
-	setvalues_va_control(ptr, T, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_nil1");
@@ -963,7 +963,7 @@ static int test_code_nil(void)
 	test(pos == Nil, "code_nil2");
 
 	codechar_rem(&pos, "nil");
-	setvalues_va_control(ptr, T, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_nil3");
@@ -1042,7 +1042,7 @@ static int test_code_declaim_special(void)
 	push_close_control(ptr, &control);
 	codechar_set(&pos, "(declaim (special code-declaim-special-test))");
 	readstring(&symbol, "code-declaim-special-test");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	setlexical_symbol(symbol);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
@@ -1178,7 +1178,7 @@ static int test_code_symbol(void)
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
 	codechar_set(&pos, ":hello");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	readstring(&check, ":hello");
@@ -1191,14 +1191,14 @@ static int test_code_symbol(void)
 	/* set */
 	setlexical_symbol(symbol);
 	codechar_set(&pos, "code-symbol-test");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_symbol2");
 
 	setspecial_symbol(symbol);
 	codechar_set(&pos, "code-symbol-test");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_symbol3");
@@ -1207,7 +1207,7 @@ static int test_code_symbol(void)
 	codechar_set(&pos,
 			"(locally (declare (integer code-symbol-test)) "
 			"  code-symbol-test)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_symbol4");
@@ -1216,7 +1216,7 @@ static int test_code_symbol(void)
 	codechar_set(&pos,
 			"(locally (declare (integer code-symbol-test)) "
 			"  code-symbol-test)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_symbol5");
@@ -1224,7 +1224,7 @@ static int test_code_symbol(void)
 	/* push */
 	setlexical_symbol(symbol);
 	codechar_push(&pos, "code-symbol-test");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
@@ -1234,7 +1234,7 @@ static int test_code_symbol(void)
 
 	setspecial_symbol(symbol);
 	codechar_push(&pos, "code-symbol-test");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
@@ -1246,7 +1246,7 @@ static int test_code_symbol(void)
 	codechar_push(&pos,
 			"(locally (declare (integer code-symbol-test)) "
 			"  code-symbol-test)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
@@ -1258,7 +1258,7 @@ static int test_code_symbol(void)
 	codechar_push(&pos,
 			"(locally (declare (integer code-symbol-test)) "
 			"  code-symbol-test)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
@@ -1269,7 +1269,7 @@ static int test_code_symbol(void)
 	/* remove */
 	setlexical_symbol(symbol);
 	codechar_rem(&pos, "code-symbol-test");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
@@ -1279,7 +1279,7 @@ static int test_code_symbol(void)
 
 	setspecial_symbol(symbol);
 	codechar_rem(&pos, "code-symbol-test");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
@@ -1302,13 +1302,13 @@ static int test_code_progn(void)
 	push_close_control(ptr, &control);
 
 	codechar_set(&pos, "(progn)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_progn1");
 
 	codechar_set(&pos, "(progn 10 20 30 40)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &check);
 	test(RefFixnum(check) == 40, "code_progn2");
@@ -1316,7 +1316,7 @@ static int test_code_progn(void)
 	count = lenarrayr(check);
 
 	codechar_set(&pos, "(progn 10 20 hello aaa :hello 30 40)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &check);
 	test(RefFixnum(check) == 40, "code_progn3");
@@ -1325,7 +1325,7 @@ static int test_code_progn(void)
 
 	codechar_push(&pos, "(progn 10 20 30 40)");
 	setargs_nil_control(ptr);
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &check);
 	test(check == T, "code_progn5");
@@ -1346,37 +1346,37 @@ static int test_code_let(void)
 	push_close_control(ptr, &control);
 
 	codechar_set(&pos, "(let nil)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_let1");
 
 	codechar_set(&pos, "(let nil 10 20 30)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_let2");
 
 	codechar_set(&pos, "(let (a) a)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_let3");
 
 	codechar_set(&pos, "(let ((a 10) (b 20)) b a)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_let4");
 
 	codechar_set(&pos, "(let ((a 10) (b 20)) a b)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_let5");
 
 	codechar_set(&pos, "(let ((a 10)) (let ((a 20) (b a)) a b))");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_let6");
@@ -1395,37 +1395,37 @@ static int test_code_leta(void)
 	push_close_control(ptr, &control);
 
 	codechar_set(&pos, "(let* nil)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_leta1");
 
 	codechar_set(&pos, "(let* nil 10 20 30)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_leta2");
 
 	codechar_set(&pos, "(let* (a) a)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_leta3");
 
 	codechar_set(&pos, "(let* ((a 10) (b 20)) b a)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_leta4");
 
 	codechar_set(&pos, "(let* ((a 10) (b 20)) a b)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_leta5");
 
 	codechar_set(&pos, "(let* ((a 10)) a (let* ((a 20) (b a)) b))");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_leta6");
@@ -1447,7 +1447,7 @@ static int test_code_setq(void)
 
 	setlexical_symbol(symbol);
 	codechar_set(&pos, "(setq code-setq-test 10)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_setq1");
@@ -1456,7 +1456,7 @@ static int test_code_setq(void)
 
 	setspecial_symbol(symbol);
 	codechar_set(&pos, "(setq code-setq-test 20)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_setq3");
@@ -1472,7 +1472,7 @@ static int test_code_setq(void)
 
 	setlexical_symbol(symbol);
 	codechar_set(&pos, "(let (a code-setq-test) (setq a 30 code-setq-test 40))");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 40, "code_setq8");
@@ -1481,7 +1481,7 @@ static int test_code_setq(void)
 	codechar_set(&pos,
 			"(let (a code-setq-test)"
 			"  (setq a 30 code-setq-test 40) code-setq-test)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 40, "code_setq9");
@@ -1500,7 +1500,7 @@ static int test_code_function(void)
 	push_close_control(ptr, &control);
 
 	codechar_set(&pos, "(function car)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(functionp(pos), "code_function1");
@@ -1519,7 +1519,7 @@ static int test_code_call(void)
 	push_close_control(ptr, &control);
 
 	codechar_set(&pos, "(" LISP_SYSTEM "::fixnum+)");
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "code_call1");

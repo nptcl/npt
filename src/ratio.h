@@ -204,6 +204,7 @@ void inverse_ratio_local(LocalRoot local, addr left, addr *ret);
 void inverse_fixnum_common(addr left, addr *ret);
 void inverse_bignum_common(addr left, addr *ret);
 void inverse_ratio_common(LocalRoot local, addr left, addr *ret);
+void inverse_integer_common(addr left, addr *ret);
 
 void abs_ratio_alloc(LocalRoot local, addr left, addr *ret);
 void abs_ratio_local(LocalRoot local, addr left, addr *ret);

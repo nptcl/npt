@@ -1059,6 +1059,28 @@ void minus_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
+void minus_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+{
+	CheckLocal(local);
+	switch (GetType(left)) {
+		case LISPTYPE_FIXNUM:
+			minus_fixnum_rational_common(local, left, right, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			minus_bignum_rational_common(local, left, right, ret);
+			break;
+
+		case LISPTYPE_RATIO:
+			minus_ratio_rational_common(local, left, right, ret);
+			break;
+
+		default:
+			TypeError(left, RATIONAL);
+			break;
+	}
+}
+
 
 /*
  *  multi
@@ -1660,6 +1682,32 @@ void div_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 		default:
 			TypeError(left, RATIONAL);
 			break;
+	}
+}
+
+
+/*
+ *  inverse
+ */
+void inverse_rational_common(LocalRoot local, addr pos, addr *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			inverse_fixnum_common(pos, ret);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			inverse_bignum_common(pos, ret);
+			break;
+
+		case LISPTYPE_RATIO:
+			inverse_ratio_common(local, pos, ret);
+			break;
+
+		default:
+			TypeError(pos, RATIONAL);
+			*ret = 0;
+			return;
 	}
 }
 

@@ -73,7 +73,7 @@ static void function_ensure_directories_exist(Execute ptr, addr pos, addr rest)
 {
 	if (getkeyargs(rest, KEYWORD_VERBOSE, &rest)) rest = Nil;
 	ensure_directories_exist_files(ptr, &pos, &rest, pos, rest != Nil);
-	setvalues_va_control(ptr, pos, rest, NULL);
+	setvalues_control(ptr, pos, rest, NULL);
 }
 
 static void type_ensure_directories_exist(addr *ret)
@@ -203,7 +203,7 @@ static void function_rename_file(Execute ptr, addr file1, addr file2)
 {
 	addr file3;
 	rename_file_files(ptr, &file1, &file2, &file3, file1, file2);
-	setvalues_va_control(ptr, file1, file2, file3, NULL);
+	setvalues_control(ptr, file1, file2, file3, NULL);
 }
 
 static void type_rename_file(addr *ret)

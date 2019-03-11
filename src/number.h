@@ -5,26 +5,6 @@
 #include "local.h"
 #include "real.h"
 
-enum Boole_Index {
-	Boole_1,
-	Boole_2,
-	Boole_And,
-	Boole_AndC1,
-	Boole_AndC2,
-	Boole_C1,
-	Boole_C2,
-	Boole_Clr,
-	Boole_Eqv,
-	Boole_Ior,
-	Boole_Nand,
-	Boole_Nor,
-	Boole_Orc1,
-	Boole_Orc2,
-	Boole_Set,
-	Boole_Xor,
-	Boole_Size
-};
-
 int numberp(addr pos);
 
 void number_result_local(LocalRoot local, addr pos, addr *ret);

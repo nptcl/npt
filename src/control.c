@@ -1299,7 +1299,7 @@ void setbool_control(Execute ptr, int value)
 	setresult_control(ptr, value? T: Nil);
 }
 
-void setvalues_va_control(Execute ptr, ...)
+void setvalues_control(Execute ptr, ...)
 {
 	addr pos;
 	va_list args;

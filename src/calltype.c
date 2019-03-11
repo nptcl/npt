@@ -1005,6 +1005,13 @@ static void calltype_simple_bit_array(void)
 	SetCallType(SimpleBitArray, pos);
 }
 
+static void calltype_bytespec(void)
+{
+	addr pos;
+	type_empty(NULL, LISPDECL_BYTESPEC, &pos);
+	SetCallType(ByteSpec, pos);
+}
+
 static void calltype_condition(void)
 {
 	addr pos;
@@ -3127,6 +3134,92 @@ static void calltype_compiled_mod(void)
 	SetCallType(Compiled_Mod, arg);
 }
 
+static void calltype_compiled_float_digits(void)
+{
+	/* (function (float) (values (integer 0 *) &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, Float);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Intplus);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_FloatDigits, arg);
+}
+
+static void calltype_compiled_rational(void)
+{
+	/* (function (real) (values rational &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, Real);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Rational);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_Rational, arg);
+}
+
+static void calltype_compiled_logand(void)
+{
+	/* (function (&rest integer) (values integer &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	rest_argtype(&arg, arg);
+	GetCallType(&values, Values_Integer);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_Logand, arg);
+}
+
+static void calltype_compiled_logandc1(void)
+{
+	/* (function (integer integer) (values integer &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	var2_argtype(&arg, arg, arg);
+	GetCallType(&values, Values_Integer);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_Logandc1, arg);
+}
+
+static void calltype_compiled_byte_size(void)
+{
+	/* (function (byte) (values (integer 0 *) &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, ByteSpec);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Intplus);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_ByteSize, arg);
+}
+
+static void calltype_compiled_deposit_field(void)
+{
+	/* (function (integer byte integer) (values integer &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	GetCallType(&values, ByteSpec);
+	var3_argtype(&arg, arg, values, arg);
+	GetCallType(&values, Values_Integer);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_DepositField, arg);
+}
+
+static void calltype_compiled_ldb(void)
+{
+	/* (function (bytespec integer) (values (integer 0 *) &rest nil)) */
+	addr arg, values;
+
+	GetCallType(&arg, ByteSpec);
+	GetCallType(&values, Integer);
+	var2_argtype(&arg, arg, values);
+	GetCallType(&values, Values_Intplus);
+	type_compiled_heap(arg, values, &arg);
+	SetCallType(Compiled_Ldb, arg);
+}
+
 
 /*
  *  Interface
@@ -3208,6 +3301,7 @@ void build_calltype(void)
 	calltype_simple_bit_vector();
 	calltype_bit_array();
 	calltype_simple_bit_array();
+	calltype_bytespec();
 
 	calltype_condition();
 	calltype_package_error();
@@ -3387,5 +3481,12 @@ void build_calltype(void)
 	calltype_compiled_realpart();
 	calltype_compiled_gcd();
 	calltype_compiled_mod();
+	calltype_compiled_float_digits();
+	calltype_compiled_rational();
+	calltype_compiled_logand();
+	calltype_compiled_logandc1();
+	calltype_compiled_byte_size();
+	calltype_compiled_deposit_field();
+	calltype_compiled_ldb();
 }
 

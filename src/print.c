@@ -2,6 +2,7 @@
 #include "array.h"
 #include "bignum.h"
 #include "bit.h"
+#include "bytespec.h"
 #include "character.h"
 #include "cmpl.h"
 #include "clos_object.h"
@@ -89,7 +90,7 @@ static int print_unreadable_object(struct PrintFormat *format,
 	write_char_stream(stream, '>');
 	if (local)
 		rollback_local(local, stack);
-	
+
 	return 0;
 }
 
@@ -1532,6 +1533,27 @@ static int write_bitvector(struct PrintFormat *format, addr stream, addr pos)
 
 
 /*
+ *  byte
+ */
+static int write_bytespec_body(struct PrintFormat *format, addr stream, addr pos)
+{
+	char data[256];
+	struct bytespec_struct *ptr;
+
+	ptr = ByteSpecStruct(pos);
+	snprintf(data, 256, "SIZE:%zu POSITION:%zu", ptr->size, ptr->position);
+	print_ascii_stream(stream, data);
+
+	return 0;
+}
+
+static int write_bytespec(struct PrintFormat *format, addr stream, addr pos)
+{
+	return print_unreadable_object(format, stream, pos, 1, 0, write_bytespec_body);
+}
+
+
+/*
  *  write
  */
 int write_print(struct PrintFormat *format, addr stream, addr object)
@@ -1607,6 +1629,7 @@ void init_print(void)
 	call_write_print[LISPTYPE_ENVIRONMENT] = write_system;
 	call_write_print[LISPTYPE_BITVECTOR] = write_bitvector;
 	call_write_print[LISPTYPE_PPRINT] = write_system;
+	call_write_print[LISPTYPE_BYTESPEC] = write_bytespec;
 
 	call_write_print[LISPSYSTEM_CHARACTER2] = write_system;
 	call_write_print[LISPSYSTEM_CHARQUEUE] = write_system;

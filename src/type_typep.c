@@ -1107,6 +1107,11 @@ static int typep_two_way_stream(addr value, addr type)
 	return twoway_stream_p(value);
 }
 
+static int typep_byte(addr value, addr type)
+{
+	return GetType(value) == LISPTYPE_BYTESPEC;
+}
+
 
 /*
  *  typep-clang
@@ -1203,6 +1208,7 @@ void init_type_typep(void)
 	TypeTypep[LISPDECL_STRING_STREAM] = typep_string_stream;
 	TypeTypep[LISPDECL_SYNONYM_STREAM] = typep_synonym_stream;
 	TypeTypep[LISPDECL_TWO_WAY_STREAM] = typep_two_way_stream;
+	TypeTypep[LISPDECL_BYTESPEC] = typep_byte;
 }
 
 static int typep_call(addr value, addr type, int asterisk)

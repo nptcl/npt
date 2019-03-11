@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "array.h"
+#include "boole.h"
 #include "calltype.h"
 #include "character.h"
 #include "clos.h"
@@ -76,6 +77,7 @@ int getproperty(int index)
  */
 void initlisp(void)
 {
+	init_boole();
 	init_class_of();
 	init_control();
 	init_copy();
@@ -270,6 +272,15 @@ static void intern_features(void)
 	push_features("C99");
 #endif
 
+#ifdef LISP_FLOAT_LONG_64
+	push_features("LONG-FLOAT-64");
+#endif
+#ifdef LISP_FLOAT_LONG_80
+	push_features("LONG-FLOAT-80");
+#endif
+#ifdef LISP_FLOAT_LONG_128
+	push_features("LONG-FLOAT-128");
+#endif
 #if 0
 #ifdef LISP_THREAD_ENABLE
 	push_features("THREAD");

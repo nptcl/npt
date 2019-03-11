@@ -1,5 +1,6 @@
 #include "arch.h"
 #include "array.h"
+#include "bytespec.h"
 #include "character.h"
 #include "condition.h"
 #include "eval.h"
@@ -68,6 +69,7 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPTYPE_ENVIRONMENT:			return "environment";
 		case LISPTYPE_BITVECTOR:			return "bitvector";
 		case LISPTYPE_PPRINT:				return "pprint";
+		case LISPTYPE_BYTESPEC:				return "bytespec";
 
 		case LISPSYSTEM_CHARACTER2:			return "character2";
 		case LISPSYSTEM_CHARQUEUE:			return "charqueue";
@@ -967,6 +969,12 @@ static void infoprint_restart(addr pos)
 	info_stdarg(">");
 }
 
+static void infoprint_bytespec(addr pos)
+{
+	struct bytespec_struct *ptr = ByteSpecStruct(pos);
+	info_stdarg("#<BYTE size:%zu position:%zu>", ptr->size, ptr->position);
+}
+
 static void infoprint_unbound(void)
 {
 	info_stdarg("#<UNBOUND>");
@@ -1040,6 +1048,7 @@ static void infoprint_stream(addr pos, int depth)
 		case LISPTYPE_STREAM: infoprint_streamtype(pos); break;
 		case LISPTYPE_QUOTE: infoprint_quote(pos); break;
 		case LISPTYPE_RESTART: infoprint_restart(pos); break;
+		case LISPTYPE_BYTESPEC: infoprint_bytespec(pos); break;
 
 		case LISPSYSTEM_UNBOUND: infoprint_unbound(); break;
 		case LISPSYSTEM_SPACE: infoprint_space(pos); break;

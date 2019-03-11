@@ -428,9 +428,9 @@ static void function_gethash(Execute ptr, addr key, addr table, addr value)
 
 	if (value == Unbound) value = Nil;
 	if (findvalue_hashtable(table, key, &result))
-		setvalues_va_control(ptr, value, Nil, NULL);
+		setvalues_control(ptr, value, Nil, NULL);
 	else
-		setvalues_va_control(ptr, result, T, NULL);
+		setvalues_control(ptr, result, T, NULL);
 }
 
 static void type_gethash(addr *ret)

@@ -509,13 +509,13 @@ static void function_array_displacement(Execute ptr, addr pos)
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
 			array_array_displacement(pos, &pos, &result);
-			setvalues_va_control(ptr, pos, result, NULL);
+			setvalues_control(ptr, pos, result, NULL);
 			break;
 
 		case LISPTYPE_VECTOR:
 		case LISPTYPE_STRING:
 		case LISPTYPE_BITVECTOR:
-			setvalues_va_control(ptr, Nil, fixnumh(0), NULL);
+			setvalues_control(ptr, Nil, fixnumh(0), NULL);
 			break;
 
 		default:

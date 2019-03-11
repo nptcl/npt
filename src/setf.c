@@ -64,7 +64,7 @@ void setf_values(Execute ptr, addr form, addr env)
 	nreverse_list_unsafe(&r, r);
 	cons_heap(&w, values, w);
 	cons_heap(&r, values, r);
-	setvalues_va_control(ptr, a, b, g, w, r, NULL);
+	setvalues_control(ptr, a, b, g, w, r, NULL);
 }
 
 
@@ -129,7 +129,7 @@ void setf_getf(Execute ptr, addr form, addr env)
 	GetConst(COMMON_GETF, &getf);
 	list_heap(&r, getf, place, g2, NULL);
 	/* result */
-	setvalues_va_control(ptr, a, b, g, w, r, NULL);
+	setvalues_control(ptr, a, b, g, w, r, NULL);
 	return;
 
 error:

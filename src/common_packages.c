@@ -51,11 +51,11 @@ static void function_find_symbol(Execute ptr, addr name, addr package)
 		getpackage(ptr, &package);
 	type = find_symbol_package(package, name, &name);
 	if (name == Nil) {
-		setvalues_va_control(ptr, Nil, Nil, NULL);
+		setvalues_control(ptr, Nil, Nil, NULL);
 	}
 	else {
 		keyword_packagetype(type, &second);
-		setvalues_va_control(ptr, name, second, NULL);
+		setvalues_control(ptr, name, second, NULL);
 	}
 }
 
@@ -1177,11 +1177,11 @@ static void function_intern(Execute ptr, addr name, addr package)
 		getpackage(ptr, &package);
 	type = intern_package(package, name, &name);
 	if (name == Nil) {
-		setvalues_va_control(ptr, Nil, Nil, NULL);
+		setvalues_control(ptr, Nil, Nil, NULL);
 	}
 	else {
 		keyword_packagetype(type, &second);
-		setvalues_va_control(ptr, name, second, NULL);
+		setvalues_control(ptr, name, second, NULL);
 	}
 }
 

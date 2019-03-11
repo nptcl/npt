@@ -67,7 +67,7 @@ void getargs_list_control_heap(Execute ptr, size_t index, addr *ret);
 /* values */
 void setresult_control(Execute ptr, addr value);
 void setbool_control(Execute ptr, int value);
-void setvalues_va_control(Execute ptr, ...);
+void setvalues_control(Execute ptr, ...);
 void setvalues_nil_control(Execute ptr);
 void setvalues_list_control(Execute ptr, addr list);
 void getresult_control(Execute ptr, addr *ret);

@@ -2,6 +2,8 @@
  *  ANSI COMMON LISP: 12. Numbers
  */
 #include <float.h>
+#include "boole.h"
+#include "bytespec.h"
 #include "cmpl.h"
 #include "common_header.h"
 #include "cons.h"
@@ -16,6 +18,7 @@
 #include "rational.h"
 #include "real_ceiling.h"
 #include "real_common.h"
+#include "real_decode.h"
 #include "real_division.h"
 #include "real_float.h"
 #include "real_floor.h"
@@ -368,7 +371,7 @@ static void function_floor(Execute ptr, addr var, addr div)
 		floor1_common(ptr->local, &var, &div, var);
 	else
 		floor_common(ptr->local, &var, &div, var, div);
-	setvalues_va_control(ptr, var, div, NULL);
+	setvalues_control(ptr, var, div, NULL);
 }
 
 static void defun_floor(void)
@@ -399,7 +402,7 @@ static void function_ffloor(Execute ptr, addr var, addr div)
 		ffloor1_common(ptr->local, &var, &div, var);
 	else
 		ffloor_common(ptr->local, &var, &div, var, div);
-	setvalues_va_control(ptr, var, div, NULL);
+	setvalues_control(ptr, var, div, NULL);
 }
 
 static void defun_ffloor(void)
@@ -430,7 +433,7 @@ static void function_ceiling(Execute ptr, addr var, addr div)
 		ceiling1_common(ptr->local, &var, &div, var);
 	else
 		ceiling_common(ptr->local, &var, &div, var, div);
-	setvalues_va_control(ptr, var, div, NULL);
+	setvalues_control(ptr, var, div, NULL);
 }
 
 static void defun_ceiling(void)
@@ -461,7 +464,7 @@ static void function_fceiling(Execute ptr, addr var, addr div)
 		fceiling1_common(ptr->local, &var, &div, var);
 	else
 		fceiling_common(ptr->local, &var, &div, var, div);
-	setvalues_va_control(ptr, var, div, NULL);
+	setvalues_control(ptr, var, div, NULL);
 }
 
 static void defun_fceiling(void)
@@ -492,7 +495,7 @@ static void function_truncate(Execute ptr, addr var, addr div)
 		truncate1_common(ptr->local, &var, &div, var);
 	else
 		truncate_common(ptr->local, &var, &div, var, div);
-	setvalues_va_control(ptr, var, div, NULL);
+	setvalues_control(ptr, var, div, NULL);
 }
 
 static void defun_truncate(void)
@@ -523,7 +526,7 @@ static void function_ftruncate(Execute ptr, addr var, addr div)
 		ftruncate1_common(ptr->local, &var, &div, var);
 	else
 		ftruncate_common(ptr->local, &var, &div, var, div);
-	setvalues_va_control(ptr, var, div, NULL);
+	setvalues_control(ptr, var, div, NULL);
 }
 
 static void defun_ftruncate(void)
@@ -554,7 +557,7 @@ static void function_round(Execute ptr, addr var, addr div)
 		round1_common(ptr->local, &var, &div, var);
 	else
 		round_common(ptr->local, &var, &div, var, div);
-	setvalues_va_control(ptr, var, div, NULL);
+	setvalues_control(ptr, var, div, NULL);
 }
 
 static void defun_round(void)
@@ -585,7 +588,7 @@ static void function_fround(Execute ptr, addr var, addr div)
 		fround1_common(ptr->local, &var, &div, var);
 	else
 		fround_common(ptr->local, &var, &div, var, div);
-	setvalues_va_control(ptr, var, div, NULL);
+	setvalues_control(ptr, var, div, NULL);
 }
 
 static void defun_fround(void)
@@ -1319,7 +1322,8 @@ static void expand_incf(Execute ptr, addr *ret, addr place, addr value, addr env
 	addr a, b, g, w, r;
 	addr c, d, ig, args, leta, declare, ignorable, setq, plus;
 
-	get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r);
+	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
+		return;
 	if (! singlep(g)) {
 		fmte("INCF place ~S don't allow a multiple store value.", place, NULL);
 		return;
@@ -1339,7 +1343,7 @@ static void expand_incf(Execute ptr, addr *ret, addr place, addr value, addr env
 		list_heap(&c, c, d, NULL);
 		cons_heap(&args, c, args);
 	}
-	GetCar(g, &g);
+	getcar(g, &g);
 	cons_heap(&args, g, args);
 	nreverse_list_unsafe(&args, args);
 	/* declare */
@@ -1405,7 +1409,8 @@ static void expand_decf(Execute ptr, addr *ret, addr place, addr value, addr env
 	addr a, b, g, w, r;
 	addr c, d, ig, args, leta, declare, ignorable, setq, minus;
 
-	get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r);
+	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
+		return;
 	if (! singlep(g)) {
 		fmte("DECF place ~S don't allow a multiple store value.", place, NULL);
 		return;
@@ -1425,7 +1430,7 @@ static void expand_decf(Execute ptr, addr *ret, addr place, addr value, addr env
 		list_heap(&c, c, d, NULL);
 		cons_heap(&args, c, args);
 	}
-	GetCar(g, &g);
+	getcar(g, &g);
 	cons_heap(&args, g, args);
 	nreverse_list_unsafe(&args, args);
 	/* declare */
@@ -2053,6 +2058,58 @@ static void defun_denominator(void)
 }
 
 
+/* (defun rational (number) ...) -> rational
+ *   number    real
+ *   rational  rational
+ */
+static void function_rational(Execute ptr, addr var)
+{
+	rational_common(ptr->local, var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_rational(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_RATIONAL, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_rational);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Rational);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun rationalize (number) ...) -> rational
+ *   number    real
+ *   rational  rational
+ */
+static void function_rationalize(Execute ptr, addr var)
+{
+	rationalize_common(ptr->local, var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_rationalize(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_RATIONALIZE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_rationalize);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Rational);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun rationalp (object) ...) -> boolean */
 static void function_rationalp(Execute ptr, addr pos)
 {
@@ -2191,7 +2248,7 @@ static void function_parse_integer(Execute ptr, addr var, addr rest)
 	if (getkeyargs(rest, KEYWORD_JUNK_ALLOWED, &junk)) junk = Nil;
 	parse_integer_common(ptr->local, var, start, end,
 			(unsigned)RefFixnum(radix), junk != Nil, &var, &rest);
-	setvalues_va_control(ptr, var, rest, NULL);
+	setvalues_control(ptr, var, rest, NULL);
 }
 
 static void type_parse_integer(addr *ret)
@@ -2235,6 +2292,901 @@ static void defun_parse_integer(void)
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
+
+
+/* (defun boole (op integer1 integer2) ...) -> integer */
+static void function_boole(Execute ptr, addr op, addr a, addr b)
+{
+	boole_common(ptr->local, op, a, b, &a);
+	setresult_control(ptr, a);
+}
+
+static void type_boole(addr *ret)
+{
+	addr arg, values;
+
+	type_intrange(Nil, 0, Nil, (fixnum)Boole_Size, &arg);
+	GetCallType(&values, Integer);
+	var3_argtype(&arg, arg, values, values);
+	GetCallType(&values, Values_Integer);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_boole(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_BOOLE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var3(pos, function_boole);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_boole(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logand (&rest integer) ...) -> integer */
+static void function_logand(Execute ptr, addr args)
+{
+	logand_common(ptr->local, args, &args);
+	setresult_control(ptr, args);
+}
+
+static void defun_logand(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGAND, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_dynamic(pos, function_logand);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Logand);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logandc1 (integer integer) ...) -> integer */
+static void function_logandc1(Execute ptr, addr a, addr b)
+{
+	logandc1_common(ptr->local, a, b, &a);
+	setresult_control(ptr, a);
+}
+
+static void defun_logandc1(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGANDC1, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_logandc1);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Logandc1);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logandc2 (integer integer) ...) -> integer */
+static void function_logandc2(Execute ptr, addr a, addr b)
+{
+	logandc2_common(ptr->local, a, b, &a);
+	setresult_control(ptr, a);
+}
+
+static void defun_logandc2(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGANDC2, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_logandc2);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Logandc1);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logeqv (&rest integer) ...) -> integer */
+static void function_logeqv(Execute ptr, addr args)
+{
+	logeqv_common(ptr->local, args, &args);
+	setresult_control(ptr, args);
+}
+
+static void defun_logeqv(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGEQV, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_dynamic(pos, function_logeqv);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Logand);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logior (&rest integer) ...) -> integer */
+static void function_logior(Execute ptr, addr args)
+{
+	logior_common(ptr->local, args, &args);
+	setresult_control(ptr, args);
+}
+
+static void defun_logior(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGIOR, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_dynamic(pos, function_logior);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Logand);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun lognand (integer integer) ...) -> integer */
+static void function_lognand(Execute ptr, addr a, addr b)
+{
+	lognand_common(ptr->local, a, b, &a);
+	setresult_control(ptr, a);
+}
+
+static void defun_lognand(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGNAND, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_lognand);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Logandc1);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun lognor (integer integer) ...) -> integer */
+static void function_lognor(Execute ptr, addr a, addr b)
+{
+	lognor_common(ptr->local, a, b, &a);
+	setresult_control(ptr, a);
+}
+
+static void defun_lognor(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGNOR, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_lognor);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Logandc1);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun lognot (integer) ...) -> integer */
+static void function_lognot(Execute ptr, addr a)
+{
+	lognot_common(ptr->local, a, &a);
+	setresult_control(ptr, a);
+}
+
+static void type_lognot(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Integer);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_lognot(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGNOT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_lognot);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_lognot(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logorc1 (integer integer) ...) -> integer */
+static void function_logorc1(Execute ptr, addr a, addr b)
+{
+	logorc1_common(ptr->local, a, b, &a);
+	setresult_control(ptr, a);
+}
+
+static void defun_logorc1(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGORC1, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_logorc1);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Logandc1);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logorc2 (integer integer) ...) -> integer */
+static void function_logorc2(Execute ptr, addr a, addr b)
+{
+	logorc2_common(ptr->local, a, b, &a);
+	setresult_control(ptr, a);
+}
+
+static void defun_logorc2(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGORC2, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_logorc2);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Logandc1);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logxor (&rest integer) ...) -> integer */
+static void function_logxor(Execute ptr, addr args)
+{
+	logxor_common(ptr->local, args, &args);
+	setresult_control(ptr, args);
+}
+
+static void defun_logxor(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGXOR, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_dynamic(pos, function_logxor);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Logand);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logbitp (index integer) ...) -> boolean
+ *   index    (integer 0 *)
+ *   integer  integer
+ *   boolean  boolean
+ */
+static void function_logbitp(Execute ptr, addr index, addr pos)
+{
+	int check = logbitp_common(index, pos);
+	setbool_control(ptr, check);
+}
+
+static void type_logbitp(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Intplus);
+	GetCallType(&values, Integer);
+	var2_argtype(&arg, arg, values);
+	GetCallType(&values, Values_Boolean);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_logbitp(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGBITP, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_logbitp);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_logbitp(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logcount (integer) ...) -> (integer 0 *) */
+static void function_logcount(Execute ptr, addr pos)
+{
+	size_t size = logcount_common(pos);
+	make_index_integer_alloc(NULL, &pos, size);
+	setresult_control(ptr, pos);
+}
+
+static void type_logcount(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Intplus);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_logcount(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGCOUNT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_logcount);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_logcount(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun logtest (integer integer) ...) -> boolean */
+static void function_logtest(Execute ptr, addr left, addr right)
+{
+	int check = logtest_common(ptr->local, left, right);
+	setbool_control(ptr, check);
+}
+
+static void type_logtest(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Integer);
+	var2_argtype(&arg, arg, arg);
+	GetCallType(&values, Values_Boolean);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_logtest(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LOGTEST, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_logtest);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_logtest(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun byte (size position) ...) -> byte
+ *   size      (integer 0 *)
+ *   position  (integer 0 *)
+ *   byte      byte-specifier
+ */
+static void function_byte(Execute ptr, addr size, addr posi)
+{
+	byte_common(size, posi, &size);
+	setresult_control(ptr, size);
+}
+
+static void type_byte_call(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Intplus);
+	var2_argtype(&arg, arg, arg);
+	GetCallType(&values, ByteSpec);
+	result_valuestype(&values, values);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_byte(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_BYTE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_byte);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_byte_call(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun byte-size (byte) ...) -> (integer 0 *) */
+static void function_byte_size(Execute ptr, addr var)
+{
+	byte_size_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_byte_size(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_BYTE_SIZE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_byte_size);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_ByteSize);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun byte-position (byte) ...) -> (integer 0 *) */
+static void function_byte_position(Execute ptr, addr var)
+{
+	byte_position_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_byte_position(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_BYTE_POSITION, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_byte_position);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_ByteSize);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun deposit-field (newbyte bytespec integer) ...) -> result
+ *   newbyte   integer
+ *   bytespec  bytespec
+ *   integer   integer
+ *   result    integer
+ */
+static void function_deposit_field(Execute ptr, addr left, addr spec, addr right)
+{
+	deposit_field_common(ptr->local, &left, left, spec, right);
+	setresult_control(ptr, left);
+}
+
+static void defun_deposit_field(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_DEPOSIT_FIELD, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var3(pos, function_deposit_field);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_DepositField);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun dpb (integer bytespec integer) ...) -> integer */
+static void function_dpb(Execute ptr, addr left, addr spec, addr right)
+{
+	dpb_common(ptr->local, &left, left, spec, right);
+	setresult_control(ptr, left);
+}
+
+static void defun_dpb(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_DPB, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var3(pos, function_dpb);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_DepositField);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun ldb (bytespec integer) ...) -> (integer 0 *) */
+static void function_ldb(Execute ptr, addr spec, addr var)
+{
+	ldb_common(ptr->local, &var, spec, var);
+	setresult_control(ptr, var);
+}
+
+static void defun_ldb(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LDB, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_ldb);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Ldb);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (define-setf-expander ldb
+ *   (bytespec place &environment env) ...)
+ *   -> (integer 0 *)
+ */
+static void define_setf_expander_ldb(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_LDB, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, setf_ldb);
+	SetSetfMacroCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_MacroFunction);
+	settype_function(pos, type);
+}
+
+
+/* (defun ldb-test (bytespec integer) ...) -> boolean */
+static void function_ldb_test(Execute ptr, addr spec, addr var)
+{
+	int check = ldb_test_common(spec, var);
+	setbool_control(ptr, check);
+}
+
+static void type_ldb_test(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, ByteSpec);
+	GetCallType(&values, Integer);
+	var2_argtype(&arg, arg, values);
+	GetCallType(&values, Values_Boolean);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_ldb_test(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_LDB_TEST, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_ldb_test);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_ldb_test(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun mask-field (bytespec integer) ...) -> (integer 0 *) */
+static void function_mask_field(Execute ptr, addr spec, addr var)
+{
+	mask_field_common(ptr->local, &var, spec, var);
+	setresult_control(ptr, var);
+}
+
+static void defun_mask_field(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_MASK_FIELD, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_mask_field);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_Ldb);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (define-setf-expander mask-field
+ *   (bytespec place &environment env) ...)
+ *   -> (integer 0 *)
+ */
+static void define_setf_expander_mask_field(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_MASK_FIELD, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, setf_mask_field);
+	SetSetfMacroCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_MacroFunction);
+	settype_function(pos, type);
+}
+
+
+/* (decode-float (float) ...) -> significand, exponent, sign
+ *   float        float
+ *   significand  float
+ *   exopnent     integer
+ *   sign         float
+ */
+static void function_decode_float(Execute ptr, addr var)
+{
+	addr sig, exp, sign;
+
+	decode_float_common(var, &sig, &exp, &sign);
+	setvalues_control(ptr, sig, exp, sign, NULL);
+}
+
+static void type_decode_float(addr *ret)
+{
+	addr arg, values, type;
+
+	GetCallType(&values, Float);
+	var1_argtype(&arg, values);
+	GetCallType(&type, Integer);
+	values3_valuestype(&values, values, type, values);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_decode_float(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_DECODE_FLOAT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_decode_float);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_decode_float(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun scale-float (float integer) -> scaled
+ *   float    float
+ *   integer  integer  (not a non-negative integer)
+ *   scaled   float
+ */
+static void function_scale_float(Execute ptr, addr var, addr scale)
+{
+	scale_float_common(var, scale, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_scale_float(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Float);
+	GetCallType(&values, Integer);
+	var2_argtype(&arg, arg, values);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_scale_float(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SCALE_FLOAT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_scale_float);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_scale_float(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun float-radix (float) ...) -> integer */
+static void function_float_radix(Execute ptr, addr var)
+{
+	float_radix_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_float_radix(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Float);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Values_Integer);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_float_radix(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_FLOAT_RADIX, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_float_radix);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_float_radix(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun float-sign (float &optional float) -> float */
+static void function_float_sign(Execute ptr, addr var1, addr var2)
+{
+	float_sign_common(var1, var2, &var1);
+	setresult_control(ptr, var1);
+}
+
+static void type_float_sign(addr *ret)
+{
+	addr arg, values;
+
+	GetCallType(&arg, Float);
+	var1opt1_argtype(&arg, arg, arg);
+	GetCallType(&values, Values_Float);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_float_sign(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_FLOAT_SIGN, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, function_float_sign);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_float_sign(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun float-digits (float) ...) -> digits
+ *   float   float
+ *   digits  a non-negative integer
+ */
+static void function_float_digits(Execute ptr, addr var)
+{
+	float_digits_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_float_digits(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_FLOAT_DIGITS, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_float_digits);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_FloatDigits);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun float-precision (float) ...) -> digits
+ *   float   float
+ *   digits  a non-negative integer
+ */
+static void function_float_precision(Execute ptr, addr var)
+{
+	float_precision_common(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defun_float_precision(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_FLOAT_PRECISION, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_float_precision);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetCallType(&type, Compiled_FloatDigits);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun integer-decode-float (float) ...) -> significand, exponent, intsign
+ *   float        float
+ *   significand  integer  ;; not float
+ *   exopnent     integer
+ *   intsign      (member -1 1)
+ */
+static void function_integer_decode_float(Execute ptr, addr var)
+{
+	addr sig, exp, sign;
+
+	integer_decode_float_common(ptr->local, var, &sig, &exp, &sign);
+	setvalues_control(ptr, sig, exp, sign, NULL);
+}
+
+static void type_integer_decode_float(addr *ret)
+{
+	addr arg, values, sign, v1, v2;
+
+	GetCallType(&arg, Float);
+	var1_argtype(&arg, arg);
+	GetCallType(&values, Integer);
+	fixnum_heap(&v1, -1);
+	fixnum_heap(&v2, 1);
+	type_member_heap(&sign, v1, v2, NULL);
+	values3_valuestype(&values, values, values, sign);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_integer_decode_float(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_INTEGER_DECODE_FLOAT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_integer_decode_float);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_integer_decode_float(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 
 
 /* (defun float (real &optional prototype) ...) -> float */
@@ -2893,43 +3845,45 @@ void intern_common_numbers(void)
 	defun_realp();
 	defun_numerator();
 	defun_denominator();
-	/* defun_rational(); */
-	/* defun_rationalize(); */
+	defun_rational();
+	defun_rationalize();
 	defun_rationalp();
 	defun_ash();
 	defun_integer_length();
 	defun_integerp();
 	defun_parse_integer();
-	/* defun_boole(); */
-	/* defun_logand(); */
-	/* defun_logandc1(); */
-	/* defun_logandc2(); */
-	/* defun_logeqv(); */
-	/* defun_logior(); */
-	/* defun_lognand(); */
-	/* defun_lognor(); */
-	/* defun_lognot(); */
-	/* defun_logorc1(); */
-	/* defun_logorc2(); */
-	/* defun_logxor(); */
-	/* defun_logbitp(); */
-	/* defun_logcount(); */
-	/* defun_logtest(); */
-	/* defun_byte(); */
-	/* defun_byte_size(); */
-	/* defun_byte_position(); */
-	/* defun_deposit_field(); */
-	/* defun_dpb(); */
-	/* defun_ldb(); */
-	/* defun_ldb_test(); */
-	/* defun_mask_field(); */
-	/* defun_decode_float(); */
-	/* defun_scale_float(); */
-	/* defun_float_radix(); */
-	/* defun_float_sign(); */
-	/* defun_float_digits(); */
-	/* defun_float_precision(); */
-	/* defun_integer_decode_float(); */
+	defun_boole();
+	defun_logand();
+	defun_logandc1();
+	defun_logandc2();
+	defun_logeqv();
+	defun_logior();
+	defun_lognand();
+	defun_lognor();
+	defun_lognot();
+	defun_logorc1();
+	defun_logorc2();
+	defun_logxor();
+	defun_logbitp();
+	defun_logcount();
+	defun_logtest();
+	defun_byte();
+	defun_byte_size();
+	defun_byte_position();
+	defun_deposit_field();
+	defun_dpb();
+	defun_ldb();
+	define_setf_expander_ldb();
+	defun_ldb_test();
+	defun_mask_field();
+	define_setf_expander_mask_field();
+	defun_decode_float();
+	defun_scale_float();
+	defun_float_radix();
+	defun_float_sign();
+	defun_float_digits();
+	defun_float_precision();
+	defun_integer_decode_float();
 	defun_float();
 	defun_floatp();
 	defun_arithmetic_error_operands();

@@ -103,6 +103,7 @@ enum CallType {
 	CallType_SimpleBitVector,
 	CallType_BitArray,
 	CallType_SimpleBitArray,
+	CallType_ByteSpec,
 
 	CallType_ArithmeticError,
 
@@ -282,6 +283,13 @@ enum CallType {
 	CallType_Compiled_RealPart,
 	CallType_Compiled_Gcd,
 	CallType_Compiled_Mod,
+	CallType_Compiled_FloatDigits,
+	CallType_Compiled_Rational,
+	CallType_Compiled_Logand,
+	CallType_Compiled_Logandc1,
+	CallType_Compiled_ByteSize,
+	CallType_Compiled_DepositField,
+	CallType_Compiled_Ldb,
 	CallType_Size
 };
 

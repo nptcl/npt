@@ -221,7 +221,7 @@ static void make_ratio_alloc(LocalRoot local,
 		addr *ret, int sign, addr numer, addr denom)
 {
 	if (local)
-		make_ratio_local(local, ret, sign, numer, denom );
+		make_ratio_local(local, ret, sign, numer, denom);
 	else
 		make_ratio_heap(ret, sign, numer, denom);
 }

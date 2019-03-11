@@ -406,6 +406,7 @@ void init_type_copy(void)
 	TypeCopy[LISPDECL_STRING_STREAM] = copy_allobject;
 	TypeCopy[LISPDECL_SYNONYM_STREAM] = copy_allobject;
 	TypeCopy[LISPDECL_TWO_WAY_STREAM] = copy_allobject;
+	TypeCopy[LISPDECL_BYTESPEC] = copy_allobject;
 }
 
 addr type_copy_allocr(LocalRoot local, addr type)

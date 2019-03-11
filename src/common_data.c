@@ -387,7 +387,7 @@ static void function_function_lambda_expression(Execute ptr, addr var)
 	if (GetType(pos3) == LISPTYPE_CALLNAME)
 		name_callname_heap(pos3, &pos3);
 	/* result */
-	setvalues_va_control(ptr, pos1, pos2, pos3, NULL);
+	setvalues_control(ptr, pos1, pos2, pos3, NULL);
 }
 
 static void type_function_lambda_expression(addr *ret)
@@ -2719,9 +2719,11 @@ static void function_get_setf_expansion(Execute ptr, addr place, addr env)
 {
 	addr a, b, g, w, r;
 
-	if (env == Unbound) env = Nil;
-	get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r);
-	setvalues_va_control(ptr, a, b, g, w, r, NULL);
+	if (env == Unbound)
+		env = Nil;
+	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
+		return;
+	setvalues_control(ptr, a, b, g, w, r, NULL);
 }
 
 static void type_get_setf_expansion(addr *ret)
@@ -2830,7 +2832,8 @@ static void setf_setform(Execute ptr, addr *ret, addr key, addr value, addr env)
 {
 	addr var1, var2, store, reader, writer;
 
-	get_setf_expansion(ptr, key, env, &var1, &var2, &store, &writer, &reader);
+	if (get_setf_expansion(ptr, key, env, &var1, &var2, &store, &writer, &reader))
+		return;
 	if (singlep(store))
 		setf_single(ret, value, var1, var2, store, writer, reader);
 	else
@@ -2954,7 +2957,8 @@ static void function_shiftf(Execute ptr, addr form, addr env)
 	if (! consp(args)) goto error;
 
 	/* push */
-	get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r0);
+	if (get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r0))
+		return;
 	alist = glist = wlist = rlist = Nil;
 	push_mapcar_list2(&alist, a, b, alist);
 	cons_heap(&glist, g, glist);
@@ -2964,7 +2968,8 @@ static void function_shiftf(Execute ptr, addr form, addr env)
 		if (args == Nil) {
 			break;
 		}
-		get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r);
+		if (get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r))
+			return;
 		push_mapcar_list2(&alist, a, b, alist);
 		cons_heap(&glist, g, glist);
 		cons_heap(&wlist, w, wlist);
@@ -3041,14 +3046,16 @@ static void function_rotatef(Execute ptr, addr form, addr env)
 	if (! consp(args)) goto error;
 
 	/* push */
-	get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r0);
+	if (get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r0))
+		return;
 	alist = glist = wlist = rlist = Nil;
 	push_mapcar_list2(&alist, a, b, alist);
 	cons_heap(&glist, g, glist);
 	cons_heap(&wlist, w, wlist);
 	while (args != Nil) {
 		getcons(args, &pos, &args);
-		get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r);
+		if (get_setf_expansion(ptr, pos, env, &a, &b, &g, &w, &r))
+			return;
 		push_mapcar_list2(&alist, a, b, alist);
 		cons_heap(&glist, g, glist);
 		cons_heap(&wlist, w, wlist);

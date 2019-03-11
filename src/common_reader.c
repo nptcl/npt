@@ -370,7 +370,7 @@ static void read_from_string_execute(Execute ptr, addr string,
 	close_stream(stream);
 
 	make_index_integer_alloc(NULL, &index, size);
-	setvalues_va_control(ptr, pos, index, NULL);
+	setvalues_control(ptr, pos, index, NULL);
 }
 
 static void function_read_from_string(Execute ptr, addr args)
@@ -772,7 +772,7 @@ static void function_get_macro_character(Execute ptr, addr code, addr readtable)
 	if (readtable == Nil) {
 		/* standard readtable */
 		get_default_macro_character(u, &pos, &nonterm);
-		setvalues_va_control(ptr, pos, nonterm? T: Nil, NULL);
+		setvalues_control(ptr, pos, nonterm? T: Nil, NULL);
 		return;
 	}
 	if (readtable == Unbound) {
@@ -782,7 +782,7 @@ static void function_get_macro_character(Execute ptr, addr code, addr readtable)
 	}
 
 	get_macro_character(readtable, u, &pos, &nonterm);
-	setvalues_va_control(ptr, pos, nonterm? T: Nil, NULL);
+	setvalues_control(ptr, pos, nonterm? T: Nil, NULL);
 }
 
 static void type_get_macro_character(addr *ret)

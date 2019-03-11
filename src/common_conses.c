@@ -2108,13 +2108,13 @@ static void expansion_push_single(Execute ptr,
 	list2 = b;
 	args = Nil;
 	while (list1 != Nil) {
-		GetCons(list1, &x, &list1);
-		GetCons(list2, &y, &list2);
+		getcons(list1, &x, &list1);
+		getcons(list2, &y, &list2);
 		list_heap(&x, x, y, NULL);
 		cons_heap(&args, x, args);
 	}
 	/* (g (cons value r)) */
-	GetCar(g, &g);
+	getcar(g, &g);
 	list_heap(&cons, cons, item, r, NULL);
 	list_heap(&x, g, cons, NULL);
 	cons_heap(&args, x, args);
@@ -2162,8 +2162,8 @@ static void expansion_push_multiple(Execute ptr,
 	list1 = a;
 	list2 = b;
 	while (list1 != Nil) {
-		GetCons(list1, &x, &list1);
-		GetCons(list2, &y, &list2);
+		getcons(list1, &x, &list1);
+		getcons(list2, &y, &list2);
 		list_heap(&x, x, y, NULL);
 		cons_heap(&args, x, args);
 	}
@@ -2199,7 +2199,8 @@ static void expansion_push(Execute ptr, addr item, addr place, addr env)
 {
 	addr a, b, g, w, r;
 
-	get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r);
+	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
+		return;
 	if (singlep(g))
 		expansion_push_single(ptr, item, a, b, g, w, r);
 	else
@@ -2261,8 +2262,8 @@ static void expansion_pop_single(Execute ptr,
 	list2 = b;
 	args = Nil;
 	while (list1 != Nil) {
-		GetCons(list1, &x, &list1);
-		GetCons(list2, &y, &list2);
+		getcons(list1, &x, &list1);
+		getcons(list2, &y, &list2);
 		list_heap(&x, x, y, NULL);
 		cons_heap(&args, x, args);
 	}
@@ -2271,7 +2272,7 @@ static void expansion_pop_single(Execute ptr,
 	list_heap(&x, c, r, NULL);
 	cons_heap(&args, x, args);
 	/* (g (cdr c)) */
-	GetCar(g, &g);
+	getcar(g, &g);
 	list_heap(&x, cdr, c, NULL);
 	list_heap(&x, g, x, NULL);
 	cons_heap(&args, x, args);
@@ -2317,8 +2318,8 @@ static void expansion_pop_multiple(Execute ptr,
 	list2 = b;
 	args = Nil;
 	while (list1 != Nil) {
-		GetCons(list1, &x, &list1);
-		GetCons(list2, &y, &list2);
+		getcons(list1, &x, &list1);
+		getcons(list2, &y, &list2);
 		list_heap(&x, x, y, NULL);
 		cons_heap(&args, x, args);
 	}
@@ -2369,7 +2370,8 @@ static void expansion_pop(Execute ptr, addr place, addr env)
 {
 	addr a, b, g, w, r;
 
-	get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r);
+	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
+		return;
 	if (singlep(g))
 		expansion_pop_single(ptr, a, b, g, w, r);
 	else
@@ -3904,10 +3906,10 @@ static void function_get_properties(Execute ptr, addr plist, addr indicator)
 		}
 		plist = next;
 	}
-	setvalues_va_control(ptr, Nil, Nil, Nil, NULL);
+	setvalues_control(ptr, Nil, Nil, Nil, NULL);
 	return;
 find:
-	setvalues_va_control(ptr, key, value, plist, NULL);
+	setvalues_control(ptr, key, value, plist, NULL);
 }
 
 static void type_get_properties(addr *ret)
@@ -4011,7 +4013,8 @@ static void expansion_remf(Execute ptr, addr place, addr indicator, addr env)
 	addr a, b, g, w, r;
 
 	/* get-setf-expansion */
-	get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r);
+	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
+		return;
 	/* macro */
 	GetConst(COMMON_LETA, &leta);
 	GetConst(SYSTEM_REMPLIST, &remplist);
@@ -4034,7 +4037,7 @@ static void expansion_remf(Execute ptr, addr place, addr indicator, addr env)
 	GetConst(COMMON_DECLARE, &declare);
 	list_heap(&declare, declare, ignorable, NULL);
 	/* (multiple-value-bind (g c) (remplist indicator r) w c) */
-	GetCar(g, &g);
+	getcar(g, &g);
 	make_gensym(ptr, &c);
 	list_heap(&g, g, c, NULL);
 	list_heap(&remplist, remplist, indicator, r, NULL);
@@ -4343,7 +4346,7 @@ static void expansion_pushnew_single(Execute ptr,
 		cons_heap(&args, x, args);
 	}
 	/* (g (adjoin value r . rest)) */
-	GetCar(g, &g);
+	getcar(g, &g);
 	lista_heap(&adjoin, adjoin, item, r, rest, NULL);
 	list_heap(&x, g, adjoin, NULL);
 	cons_heap(&args, x, args);
@@ -4428,7 +4431,8 @@ static void expansion_pushnew(Execute ptr, addr item, addr place, addr rest, add
 {
 	addr a, b, g, w, r;
 
-	get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r);
+	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
+		return;
 	if (singlep(g))
 		expansion_pushnew_single(ptr, item, rest, a, b, g, w, r);
 	else

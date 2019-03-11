@@ -656,7 +656,7 @@ keyargs:
 
 	parse_namestring(ptr, &thing, &start,
 			thing, host, defaults, start, end, junk);
-	setvalues_va_control(ptr, thing, start, NULL);
+	setvalues_control(ptr, thing, start, NULL);
 }
 
 static void type_parse_namestring(addr *ret)

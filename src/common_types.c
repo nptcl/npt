@@ -77,7 +77,7 @@ static void function_subtypep(Execute ptr, addr type1, addr type2, addr env)
 	if (env == Unbound) env = Nil;
 	/* TODO: environment parameter */
 	result = subtypep_clang(type1, type2, &invalid);
-	setvalues_va_control(ptr, (result? T: Nil), (invalid? T: Nil), NULL);
+	setvalues_control(ptr, (result? T: Nil), (invalid? T: Nil), NULL);
 }
 
 static void type_subtypep(addr *ret)

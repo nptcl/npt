@@ -244,7 +244,7 @@ static void defun_setplist(void)
 static void syscall_remplist(Execute ptr, addr key, addr list)
 {
 	int check = (remplist_check_safe(list, key, &list) != RemPlist_NotFound);
-	setvalues_va_control(ptr, list, (check? T: Nil), NULL);
+	setvalues_control(ptr, list, (check? T: Nil), NULL);
 }
 
 static void type_remplist(addr *ret)
@@ -316,9 +316,9 @@ static void syscall_next_hash_iterator(Execute ptr, addr pos)
 
 	check = next_hash_iterator(pos, &key, &value);
 	if (check)
-		setvalues_va_control(ptr, T, key, value, NULL);
+		setvalues_control(ptr, T, key, value, NULL);
 	else
-		setvalues_va_control(ptr, Nil, Nil, Nil, NULL);
+		setvalues_control(ptr, Nil, Nil, Nil, NULL);
 }
 
 static void type_next_hash_iterator(addr *ret)
@@ -406,11 +406,11 @@ static void syscall_next_package_iterator(Execute ptr, addr pos)
 
 	check = next_package_iterator(pos, &symbol, &package);
 	if (check == PACKAGE_TYPE_NIL) {
-		setvalues_va_control(ptr, Nil, Nil, Nil, Nil, NULL);
+		setvalues_control(ptr, Nil, Nil, Nil, Nil, NULL);
 	}
 	else {
 		keyword_packagetype(check, &status);
-		setvalues_va_control(ptr, T, symbol, status, package, NULL);
+		setvalues_control(ptr, T, symbol, status, package, NULL);
 	}
 }
 
@@ -768,7 +768,7 @@ static void syscall_defsetf_short(Execute ptr,
 	conscar_heap(&g, g);
 	nreverse_list_unsafe(&w, w);
 	nreverse_list_unsafe(&r, r);
-	setvalues_va_control(ptr, a, b, g, w, r, NULL);
+	setvalues_control(ptr, a, b, g, w, r, NULL);
 }
 
 static void type_defsetf_short(addr *ret)
@@ -913,8 +913,8 @@ static void syscall_defsetf_write(Execute ptr, addr *ret, addr c, addr d, addr b
 
 	/* let-args */
 	for (root = Nil; c != Nil; ) {
-		GetCons(c, &x, &c);
-		GetCons(d, &y, &d);
+		getcons(c, &x, &c);
+		getcons(d, &y, &d);
 		list_heap(&y, quote, y, NULL);
 		list_heap(&y, x, y, NULL);
 		cons_heap(&root, y, root);
@@ -947,7 +947,7 @@ static void syscall_defsetf_long(Execute ptr, addr rest)
 	GetConst(COMMON_QUOTE, &quote);
 	syscall_defsetf_write(ptr, &w, c, d, body);
 	cons_heap(&r, access, d);
-	setvalues_va_control(ptr, a, b, g, w, r, NULL);
+	setvalues_control(ptr, a, b, g, w, r, NULL);
 }
 
 static void defun_defsetf_long(void)

@@ -679,7 +679,7 @@ static int test_close_tagbody(void)
 	ptr = Execute_Thread;
 	local = ptr->local;
 	push_close_control(ptr, &control);
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	push_tagbody_control(ptr, &pos);
 
 	right = Nil;
@@ -718,9 +718,9 @@ static int test_close_block(void)
 	ptr = Execute_Thread;
 	local = ptr->local;
 	push_close_control(ptr, &control);
-	setvalues_va_control(ptr, T, T, T, NULL);
+	setvalues_control(ptr, T, T, T, NULL);
 	push_block_control(ptr, &pos);
-	setvalues_va_control(ptr, fixnum_heapr(11), T, NULL);
+	setvalues_control(ptr, fixnum_heapr(11), T, NULL);
 
 	right = Nil;
 	taginfo_heap(&left, pos, T, 0, 1);
@@ -981,7 +981,7 @@ static int test_pop_control_unsafe(void)
 
 	setargs_nil_control(ptr);
 	push_push_control(ptr, &pos);
-	setvalues_va_control(ptr, T, fixnum_heapr(10), NULL);
+	setvalues_control(ptr, T, fixnum_heapr(10), NULL);
 	pop_control_unsafe(ptr);
 	getargs_list_control_unsafe(ptr, 0, &pos);
 	test(length_list_unsafe(pos) == 1, "pop_control_unsafe6");
@@ -1469,7 +1469,7 @@ static int test_setresult_control(void)
 	RETURN;
 }
 
-static int test_setvalues_va_control(void)
+static int test_setvalues_control(void)
 {
 	addr pos, check;
 	Execute ptr;
@@ -1480,12 +1480,12 @@ static int test_setvalues_va_control(void)
 	str = StructControl(pos);
 
 	setresult_control(ptr, fixnum_heapr(10));
-	setvalues_va_control(ptr, fixnum_heapr(20), fixnum_heapr(30), NULL);
-	test(str->sizer == 2, "setvalues_va_control1");
+	setvalues_control(ptr, fixnum_heapr(20), fixnum_heapr(30), NULL);
+	test(str->sizer == 2, "setvalues_control1");
 	GetResultControl(pos, 0, &check);
-	test(RefFixnum(check) == 20, "setvalues_va_control2");
+	test(RefFixnum(check) == 20, "setvalues_control2");
 	GetResultControl(pos, 1, &check);
-	test(RefFixnum(check) == 30, "setvalues_va_control3");
+	test(RefFixnum(check) == 30, "setvalues_control3");
 
 	free_control(ptr, pos);
 
@@ -1554,7 +1554,7 @@ static int test_getresult_control(void)
 	getresult_control(ptr, &check);
 	test(RefFixnum(check) == 10, "getresult_control2");
 
-	setvalues_va_control(ptr, fixnum_heapr(20), fixnum_heapr(30), NULL);
+	setvalues_control(ptr, fixnum_heapr(20), fixnum_heapr(30), NULL);
 	getresult_control(ptr, &check);
 	test(RefFixnum(check) == 20, "getresult_control3");
 
@@ -3111,7 +3111,7 @@ static int testbreak_control(void)
 	TestBreak(test_pushvalues_dynamic);
 	TestBreak(test_pushvalues_unsafe);
 	TestBreak(test_setresult_control);
-	TestBreak(test_setvalues_va_control);
+	TestBreak(test_setvalues_control);
 	TestBreak(test_setvalues_nil_control);
 	TestBreak(test_setvalues_list_control);
 	TestBreak(test_getresult_control);

@@ -3,6 +3,7 @@
 
 #include <limits.h>
 #include <stdint.h>
+#include <float.h>
 #include "version.h"
 
 /*
@@ -325,49 +326,53 @@
 #define LISP_MEMORY_UNINIT
 #endif
 
-/* Visual C++ */
-#ifdef _MSC_VER
-#define LISP_FLOAT_LONG_DISABLE
-#undef LISP_FLOAT_LONG_80
-#undef LISP_FLOAT_LONG_128
-#endif
-
-/* float */
-#if defined(LISP_FLOAT_LONG_80)
-#define LISP_FLOAT_LONG			80
-#undef LISP_FLOAT_LONG_128
-#undef LISP_FLOAT_LONG_DISABLE
-#elif defined(LISP_FLOAT_LONG_128)
-#define LISP_FLOAT_LONG			128
-#undef LISP_FLOAT_LONG_80
-#undef LISP_FLOAT_LONG_DISABLE
-#elif defined(LISP_FLOAT_LONG_DISABLE)
+/* long float */
+#if defined(LISP_FLOAT_LONG_64)
 #define LISP_FLOAT_LONG			64
 #undef LISP_FLOAT_LONG_80
 #undef LISP_FLOAT_LONG_128
-#else
+#elif defined(LISP_FLOAT_LONG_80)
 #define LISP_FLOAT_LONG			80
+#undef LISP_FLOAT_LONG_64
+#undef LISP_FLOAT_LONG_128
+#elif defined(LISP_FLOAT_LONG_128)
+#define LISP_FLOAT_LONG			128
+#undef LISP_FLOAT_LONG_64
+#undef LISP_FLOAT_LONG_80
+#else
+#if (LDBL_MANT_DIG == DBL_MANT_DIG)
+/* Visual Studio
+ *   long double == double
+ */
+#define LISP_FLOAT_LONG			64
+#define LISP_FLOAT_LONG_64
+#undef LISP_FLOAT_LONG_80
+#undef LISP_FLOAT_LONG_128
+#elif (LDBL_MANT_DIG == 64)
+/* Intel x86
+ *   long double (Intel 80bit) fraction: 63+0 bit (64bit)
+ */
+#define LISP_FLOAT_LONG			80
+#undef LISP_FLOAT_LONG_64
 #define LISP_FLOAT_LONG_80
 #undef LISP_FLOAT_LONG_128
-#undef LISP_FLOAT_LONG_DISABLE
+#else
+/* IEEE745
+ * long double (IEEE-754 binary128) fraction: 112+1 bit
+ */
+#define LISP_FLOAT_LONG			128
+#undef LISP_FLOAT_LONG_64
+#undef LISP_FLOAT_LONG_80
+#define LISP_FLOAT_LONG_128
+#endif
 #endif
 
 /* float (32bit) fraction: 23+1 bit */
-#define LISP_FLOAT_SINGLE_FRACTION		(23+1)
+#define LISP_FLOAT_SINGLE_FRACTION		FLT_MANT_DIG
 /* double (64bit) fraction: 52+1 bit */
-#define LISP_FLOAT_DOUBLE_FRACTION		(52+1)
-/* long double (Intel 80bit) fraction: 63+0 bit */
-#ifdef LISP_FLOAT_LONG_80
-#define LISP_FLOAT_LONG_FRACTION		(63+0)
-#endif
-/* long double (IEEE-754 binary128) fraction: 112+1 bit */
-#ifdef LISP_FLOAT_LONG_128
-#define LISP_FLOAT_LONG_FRACTION		(112+1)
-#endif
-/* long double (Visual C++ 64bit) */
-#ifdef LISP_FLOAT_LONG_DISABLE
-#define LISP_FLOAT_LONG_FRACTION		LISP_FLOAT_DOUBLE_FRACTION
-#endif
+#define LISP_FLOAT_DOUBLE_FRACTION		DBL_MANT_DIG
+/* long double */
+#define LISP_FLOAT_LONG_FRACTION		LDBL_MANT_DIG
 
 /* pathname */
 #if defined(LISP_PATHNAME_UPCASE)

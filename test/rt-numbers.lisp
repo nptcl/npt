@@ -6,8 +6,6 @@
 ;;
 ;;  testcase
 ;;
-#|
-|#
 (load #p"test/rtnumbers-test.lisp")
 (load #p"test/rtnumbers-equal.lisp")
 (load #p"test/rtnumbers-plus.lisp")
@@ -31,8 +29,10 @@
 (load #p"test/rtnumbers-mod.lisp")
 (load #p"test/rtnumbers-sin.lisp")
 (load #p"test/rtnumbers-exp.lisp")
-#|
-|#
+(load #p"test/rtnumbers-decode.lisp")
+(load #p"test/rtnumbers-bit.lisp")
+(load #p"test/rtnumbers-byte.lisp")
+
 
 ;;
 ;;  do-tests

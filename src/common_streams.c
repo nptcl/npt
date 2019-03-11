@@ -550,7 +550,7 @@ static void function_read_line(Execute ptr,
 	if (recp == Unbound)
 		recp = Nil;
 	read_line_common(ptr, &stream, &miss, stream, errorp != Nil, value, recp != Nil);
-	setvalues_va_control(ptr, stream, miss? T: Nil, NULL);
+	setvalues_control(ptr, stream, miss? T: Nil, NULL);
 }
 
 static void type_read_line(addr *ret)

@@ -150,6 +150,8 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bigdata.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bignum.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bit.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\boole.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\bytespec.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_c99.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\calltype.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_character.c" />
@@ -256,6 +258,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_readtable.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_ceiling.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_decode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_division.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_float.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_floor.c" />
@@ -302,6 +305,8 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bigdata.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bignum.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bit.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\boole.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bytespec.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\c99.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\calltype.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character.h" />
@@ -397,6 +402,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\readtable.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_ceiling.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_decode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_division.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_float.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_floor.h" />

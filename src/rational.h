@@ -74,6 +74,7 @@ void minus_rational_double_common(addr left, addr right, addr *ret);
 void minus_long_rational_common(addr left, addr right, addr *ret);
 void minus_rational_long_common(addr left, addr right, addr *ret);
 void minus_rational_local(LocalRoot local, addr left, addr right, addr *ret);
+void minus_rational_common(LocalRoot local, addr left, addr right, addr *ret);
 
 void multi_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *ret);
 void multi_bignum_rational_common(LocalRoot local, addr left, addr right, addr *ret);
@@ -119,6 +120,8 @@ void div_rational_double_common(addr left, addr right, addr *ret);
 void div_long_rational_common(addr left, addr right, addr *ret);
 void div_rational_long_common(addr left, addr right, addr *ret);
 void div_rational_local(LocalRoot local, addr left, addr right, addr *ret);
+
+void inverse_rational_common(LocalRoot local, addr pos, addr *ret);
 
 void numerator_common(addr pos, addr *ret);
 void denominator_common(addr pos, addr *ret);

@@ -32,6 +32,7 @@ void integer_copy_heap(addr pos, addr *ret);
 #define compare_ff_real fixnumcompare
 
 /* integer */
+void getsign_integer(addr pos, int *ret);
 int zerop_or_plusp_integer(addr pos);
 int plusp_integer(addr pos);
 int minusp_integer(addr pos);
@@ -98,7 +99,10 @@ void plus_bi_real_common(LocalRoot local, addr left, addr right, addr *ret);
 void plus_ii_bignum_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_ii_real_local(LocalRoot local, addr left, addr right, addr *ret);
 void plus_ii_real_common(LocalRoot local, addr left, addr right, addr *ret);
+void minus_ii_real_common(LocalRoot local, addr left, addr right, addr *ret);
+void multi_ii_real_common(LocalRoot local, addr left, addr right, addr *ret);
 
+void ash_bignum_common(LocalRoot local, addr pos, int sign2, size_t size, addr *ret);
 void ash_integer_common(LocalRoot local, addr pos, addr count, addr *ret);
 void integer_length_common(addr pos, addr *ret);
 void parse_integer_common(LocalRoot local,

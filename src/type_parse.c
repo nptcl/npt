@@ -957,6 +957,7 @@ static struct type_symbol TypeSymbol[] = {
 	{ CONSTANT_COMMON_STRING_STREAM,      type_empty,   LISPDECL_STRING_STREAM       },
 	{ CONSTANT_COMMON_SYNONYM_STREAM,     type_empty,   LISPDECL_SYNONYM_STREAM      },
 	{ CONSTANT_COMMON_TWO_WAY_STREAM,     type_empty,   LISPDECL_TWO_WAY_STREAM      },
+	{ CONSTANT_SYSTEM_BYTESPEC,           type_empty,   LISPDECL_BYTESPEC            },
 	{ CONSTANT_COMMON_FUNCTION,           type_aster3,  LISPDECL_FUNCTION            },
 	{ CONSTANT_COMMON_COMPILED_FUNCTION,  type_aster3,  LISPDECL_COMPILED_FUNCTION   },
 	{ CONSTANT_COMMON_CONS,               type_aster2,  LISPDECL_CONS                },
@@ -2077,6 +2078,7 @@ static struct type_class TypeClass[] = {
 	{ LISPDECL_SYNONYM_STREAM,      CONSTANT_COMMON_SYNONYM_STREAM      },
 	{ LISPDECL_TWO_WAY_STREAM,      CONSTANT_COMMON_TWO_WAY_STREAM      },
 	{ LISPDECL_QUOTE,               CONSTANT_COMMON_QUOTE               },
+	{ LISPDECL_BYTESPEC,            CONSTANT_SYSTEM_BYTESPEC            },
 	{ LISPDECL_SIZE,                CONSTANT_EMPTY                      },
 };
 

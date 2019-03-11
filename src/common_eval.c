@@ -234,9 +234,9 @@ static void function_macroexpand(Execute ptr, addr form, addr env)
 	if (macroexpand(&form, form, env, &check))
 		return;
 	if (check)
-		setvalues_va_control(ptr, form, T, NULL);
+		setvalues_control(ptr, form, T, NULL);
 	else
-		setvalues_va_control(ptr, Nil, Nil, NULL);
+		setvalues_control(ptr, Nil, Nil, NULL);
 }
 
 static void defun_macroexpand(void)
@@ -264,9 +264,9 @@ static void function_macroexpand_1(Execute ptr, addr form, addr env)
 	if (macroexpand1(&form, form, env, &check))
 		return;
 	if (check)
-		setvalues_va_control(ptr, form, T, NULL);
+		setvalues_control(ptr, form, T, NULL);
 	else
-		setvalues_va_control(ptr, Nil, Nil, NULL);
+		setvalues_control(ptr, Nil, Nil, NULL);
 }
 
 static void defun_macroexpand_1(void)

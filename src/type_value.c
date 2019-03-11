@@ -396,6 +396,11 @@ static void type_value_quote(LocalRoot local, addr *ret, addr value)
 	type_empty(local, LISPDECL_QUOTE, ret);
 }
 
+static void type_value_byte(LocalRoot local, addr *ret, addr value)
+{
+	type_empty(local, LISPDECL_BYTESPEC, ret);
+}
+
 void type_value_bitvector(LocalRoot local, addr *ret, addr value)
 {
 	addr arg;
@@ -474,6 +479,7 @@ void init_type_value_table(void)
 	call_type_value[LISPTYPE_ENVIRONMENT] = type_value_error;
 	call_type_value[LISPTYPE_BITVECTOR] = type_value_bitvector;
 	call_type_value[LISPTYPE_PPRINT] = type_value_error;
+	call_type_value[LISPTYPE_BYTESPEC] = type_value_byte;
 }
 
 
@@ -654,6 +660,7 @@ void init_type_name(void)
 	TypeName(LISPTYPE_ENVIRONMENT, SYSTEM_ENVIRONMENT);
 	TypeName(LISPTYPE_BITVECTOR, COMMON_BIT_VECTOR);
 	TypeName(LISPTYPE_PPRINT, COMMON_PPRINT);
+	TypeName(LISPTYPE_BYTESPEC, SYSTEM_BYTESPEC);
 
 	TypeName(LISPSYSTEM_CHARACTER2, SYSTEM_CHARACTER2);
 	TypeName(LISPSYSTEM_CHARQUEUE, SYSTEM_CHARQUEUE);
@@ -1254,6 +1261,7 @@ void init_type_object(void)
 	call_type_object[LISPDECL_SYNONYM_STREAM] = type_object_name;
 	call_type_object[LISPDECL_TWO_WAY_STREAM] = type_object_name;
 	call_type_object[LISPDECL_QUOTE] = type_object_error;
+	call_type_object[LISPDECL_BYTESPEC] = type_object_error;
 }
 
 

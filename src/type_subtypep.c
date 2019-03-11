@@ -1424,6 +1424,7 @@ void init_type_subtypep(void)
 	TypeSubtypep[LISPDECL_STRING_STREAM] = subtypep_stream_child;
 	TypeSubtypep[LISPDECL_SYNONYM_STREAM] = subtypep_stream_child;
 	TypeSubtypep[LISPDECL_TWO_WAY_STREAM] = subtypep_stream_child;
+	TypeSubtypep[LISPDECL_BYTESPEC] = subtypep_equaltype;
 }
 
 static SubtypepResult subtypep_call_asterisk(addr left, addr right)
