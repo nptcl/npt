@@ -1,5 +1,4 @@
 #include "equal.c"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -13,6 +12,7 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 
 static int test_atom_function(void)
 {
@@ -312,7 +312,6 @@ int test_equal(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

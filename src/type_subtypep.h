@@ -1,5 +1,5 @@
-#ifndef __HEADER_TYPE_SUBTYPEP__
-#define __HEADER_TYPE_SUBTYPEP__
+#ifndef __TYPE_SUBTYPEP_HEADER__
+#define __TYPE_SUBTYPEP_HEADER__
 
 #include "type.h"
 #include "typedef.h"
@@ -16,7 +16,6 @@ typedef enum SUBTYPEP_RESULT SubtypepResult;
 SubtypepResult subtypep_result(addr left, addr right, int asterisk);
 int subtypep_asterisk_clang(addr left, addr right, int *validp);
 int subtypep_clang(addr left, addr right, int *validp);
-
 void init_type_subtypep(void);
 
 #endif

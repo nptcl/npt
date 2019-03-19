@@ -1,4 +1,3 @@
-#include "calltype.h"
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
@@ -14,6 +13,7 @@
 #include "stream.h"
 #include "symbol.h"
 #include "type_parse.h"
+#include "type_table.h"
 
 /* (defpackage rt ...)
  *   (import lisp-system::infobit 'rt)
@@ -100,12 +100,12 @@ static void type_push_entries(addr *ret)
 {
 	addr arg, values, name, expr;
 
-	GetCallType(&name, Symbol);
-	GetCallType(&expr, T);
-	GetCallType(&values, List);
-	var3_argtype(&arg, name, expr, values);
-	GetCallType(&values, Null);
-	result_valuestype(&values, values);
+	GetTypeTable(&name, Symbol);
+	GetTypeTable(&expr, T);
+	GetTypeTable(&values, List);
+	typeargs_var3(&arg, name, expr, values);
+	GetTypeTable(&values, Null);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -160,9 +160,9 @@ static void type_rem_all_tests(addr *ret)
 {
 	addr arg, values;
 
-	empty_argtype(&arg);
-	GetCallType(&values, Null);
-	result_valuestype(&values, values);
+	typeargs_empty(&arg);
+	GetTypeTable(&values, Null);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -225,7 +225,7 @@ static void defmacro_deftest(void)
 	setmacro_symbol(symbol, pos);
 	export_symbol(symbol);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -288,7 +288,7 @@ static void defmacro_deftest_error(void)
 	setmacro_symbol(symbol, pos);
 	export_symbol(symbol);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -445,10 +445,10 @@ static void type_do_tests(addr *ret)
 {
 	addr arg, values;
 
-	KeyCallType(&arg, TEST, T);
+	KeyTypeTable(&arg, TEST, T);
 	list_heap(&arg, arg, NULL);
-	key_argtype(&arg, arg);
-	GetCallType(&values, Values_Boolean);
+	typeargs_key(&arg, arg);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -486,7 +486,7 @@ static void defun_equalrt(void)
 	SetFunctionSymbol(symbol, pos);
 	export_symbol(symbol);
 	/* type */
-	GetCallType(&type, Compiled_Eq);
+	GetTypeCompiled(&type, Eq);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }

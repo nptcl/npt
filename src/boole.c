@@ -681,7 +681,6 @@ void init_boole(void)
 }
 
 
-
 /*
  *  deposit-field
  */

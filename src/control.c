@@ -19,8 +19,9 @@
 #include "sequence.h"
 #include "symbol.h"
 #include "syscall.h"
-#include "type_typep.h"
 #include "type_parse.h"
+#include "type_table.h"
+#include "type_typep.h"
 #include "type_value.h"
 
 #undef LISP_DEBUG_TRACE
@@ -1480,6 +1481,11 @@ static void call_callbind_system(Execute ptr, addr pos, callstr call)
 	Abort("Cannot call callbind_system in control.");
 }
 
+static void call_callbind_type(Execute ptr, addr pos, callstr call)
+{
+	Abort("Cannot call callbind_system in control.");
+}
+
 static void call_callbind_macro(Execute ptr, addr pos, callstr call)
 {
 	addr check, cons, var1, var2;
@@ -2004,6 +2010,7 @@ void init_control(void)
 	for (i = 0; i < CallBind_size; i++)
 		CallBindTable[i] = NULL;
 	CallBindTable[CallBind_system] = call_callbind_system;
+	CallBindTable[CallBind_type] = call_callbind_type;
 	CallBindTable[CallBind_macro] = call_callbind_macro;
 	CallBindTable[CallBind_none] = call_callbind_none;
 	CallBindTable[CallBind_any] = call_callbind_any;
@@ -2472,13 +2479,7 @@ int execute_control(Execute ptr, addr call)
 	}
 }
 
-static void checktype_call(addr value, addr type)
-{
-	if (! typep_asterisk_clang(value, type))
-		type_error(value, type);
-}
-
-static void checkargs_var(addr array, addr *args)
+static int checkargs_var(addr array, addr *args)
 {
 	addr value, type;
 
@@ -2488,11 +2489,14 @@ static void checkargs_var(addr array, addr *args)
 			fmte("Too few argument.", NULL);
 		getcons(*args, &value, args);
 		GetCons(array, &type, &array);
-		checktype_call(value, type);
+		if (typep_asterisk_error(value, type))
+			return 1;
 	}
+
+	return 0;
 }
 
-static void checkargs_opt(addr array, addr *args)
+static int checkargs_opt(addr array, addr *args)
 {
 	addr value, type;
 
@@ -2500,8 +2504,11 @@ static void checkargs_opt(addr array, addr *args)
 	while (*args != Nil && array != Nil) {
 		GetCons(*args, &value, args);
 		GetCons(array, &type, &array);
-		checktype_call(value, type);
+		if (typep_asterisk_error(value, type))
+			return 1;
 	}
+
+	return 0;
 }
 
 static void callargs_keyvalue(LocalRoot local, int keyvalue, addr cons, addr *ret)
@@ -2509,7 +2516,7 @@ static void callargs_keyvalue(LocalRoot local, int keyvalue, addr cons, addr *re
 	if (keyvalue == 0) {
 		/* name */
 		GetCar(cons, &cons);
-		type_object1(local, LISPDECL_EQL, cons, ret);
+		type_eql_alloc(local, cons, ret);
 	}
 	else {
 		/* type */
@@ -2524,7 +2531,10 @@ static void callargs_key(LocalRoot local, int keyvalue, addr cons, addr *ret)
 
 	/* &allow-other-keys */
 	if (cons == T) {
-		type_empty(local, (keyvalue? LISPDECL_T: LISPDECL_SYMBOL), ret);
+		if (keyvalue)
+			GetTypeTable(ret, T);
+		else
+			GetTypeTable(ret, Symbol);
 		return;
 	}
 
@@ -2543,10 +2553,10 @@ static void callargs_key(LocalRoot local, int keyvalue, addr cons, addr *ret)
 		callargs_keyvalue(local, keyvalue, pos, &pos);
 		SetArrayA4(array, i, pos);
 	}
-	type_object1(local, LISPDECL_OR, array, ret);
+	type1_alloc(local, LISPDECL_OR, array, ret);
 }
 
-static void checkargs_restkey(LocalRoot local, addr array, addr args)
+static int checkargs_restkey(LocalRoot local, addr array, addr args)
 {
 	int keyvalue;
 	addr rest, key, value, type;
@@ -2561,49 +2571,62 @@ static void checkargs_restkey(LocalRoot local, addr array, addr args)
 		GetCons(args, &value, &args);
 		/* &rest */
 		if (rest != Nil) {
-			checktype_call(value, rest);
+			if (typep_asterisk_error(value, rest))
+				return 1;
 		}
 		/* &key */
 		if (key != Nil) {
 			callargs_key(local, keyvalue, key, &type);
-			checktype_call(value, type);
+			if (typep_asterisk_error(value, type))
+				return 1;
 		}
 	}
 
 	/* error check */
 	if (key != Nil && keyvalue)
 		fmte("Invalid keyword argument.", NULL);
+	
+	return 0;
 }
 
-static void execute_checkargs(LocalRoot local, addr array, addr args)
+static int execute_checkargs(LocalRoot local, addr array, addr args)
 {
 	LocalStack stack;
 
 	/* var */
-	checkargs_var(array, &args);
-	if (args == Nil) return;
+	if (checkargs_var(array, &args))
+		return 1;
+	if (args == Nil)
+		return 0;
 	/* opt */
-	checkargs_opt(array, &args);
-	if (args == Nil) return;
+	if (checkargs_opt(array, &args))
+		return 1;
+	if (args == Nil)
+		return 0;
 	/* rest, key */
 	push_local(local, &stack);
-	checkargs_restkey(local, array, args);
+	if (checkargs_restkey(local, array, args))
+		return 1;
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void execute_typecheck(LocalRoot local, addr call, addr args)
+static int execute_typecheck(LocalRoot local, addr call, addr args)
 {
 	addr type;
 
 	/* asterisk check */
 	gettype_function(call, &type);
-	if (type == Nil || asterisk_p(type)) return;
-	Check(! function_type_p(type), "type error");
+	if (type == Nil || type_asterisk_p(type))
+		return 0;
+	Check(! type_function_p(type), "type error");
 	GetArrayType(type, 0, &type); /* args */
-	if (asterisk_p(type)) return;
+	if (type_asterisk_p(type))
+		return 0;
 
 	/* type check */
-	execute_checkargs(local, type, args);
+	return execute_checkargs(local, type, args);
 }
 
 int apply_control(Execute ptr, addr call, addr args)
@@ -2612,7 +2635,8 @@ int apply_control(Execute ptr, addr call, addr args)
 	Check(call == Unbound, "Function is Unbound.");
 	switch (GetType(call)) {
 		case LISPTYPE_FUNCTION:
-			execute_typecheck(ptr->local, call, args);
+			if (execute_typecheck(ptr->local, call, args))
+				return 1;
 			setargs_list_control_unsafe(ptr, args);
 			return execute_function(ptr, call);
 

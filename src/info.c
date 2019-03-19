@@ -71,23 +71,31 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPTYPE_PPRINT:				return "pprint";
 		case LISPTYPE_BYTESPEC:				return "bytespec";
 
-		case LISPSYSTEM_CHARACTER2:			return "character2";
-		case LISPSYSTEM_CHARQUEUE:			return "charqueue";
-		case LISPSYSTEM_CHARBIT:			return "charbit";
-		case LISPSYSTEM_SYMSTACK:			return "symstack";
-		case LISPSYSTEM_SYMARRAY:			return "symarray";
-		case LISPSYSTEM_BITTYPE:			return "bittype";
-		case LISPSYSTEM_READLABEL:			return "readlabel";
-		case LISPSYSTEM_READINFO:			return "readinfo";
-		case LISPSYSTEM_READTYPE:			return "readtype";
-		case LISPSYSTEM_BITCONS:			return "bitcons";
-		case LISPSYSTEM_BITBUFFER:			return "bitbuffer";
-		case LISPSYSTEM_HASHITERATOR:		return "hash-iterator";
-		case LISPSYSTEM_PACKAGEITERATOR:	return "package-iterator";
-		case LISPSYSTEM_TAGINFO:			return "taginfo";
-		case LISPSYSTEM_ARRAY_DIMENSION:	return "array-dimension";
-		case LISPSYSTEM_ARRAY_GENERAL:		return "array-general";
-		case LISPSYSTEM_ARRAY_SPECIALIZED:	return "array-specialized";
+		case LISPSYSTEM_FIXNUM_CACHE:		return "?fixnum-cache";
+		case LISPSYSTEM_CHARACTER_CACHE:	return "?character-cache";
+		case LISPSYSTEM_BIGDATA:			return "?bigdata";
+		case LISPSYSTEM_CHARACTER2:			return "?character2";
+		case LISPSYSTEM_CHARQUEUE:			return "?charqueue";
+		case LISPSYSTEM_CHARBIT:			return "?charbit";
+		case LISPSYSTEM_SYMSTACK:			return "?symstack";
+		case LISPSYSTEM_SYMARRAY:			return "?symarray";
+		case LISPSYSTEM_BITTYPE:			return "?bittype";
+		case LISPSYSTEM_READLABEL:			return "?readlabel";
+		case LISPSYSTEM_READINFO:			return "?readinfo";
+		case LISPSYSTEM_READTYPE:			return "?readtype";
+		case LISPSYSTEM_BITCONS:			return "?bitcons";
+		case LISPSYSTEM_BITBUFFER:			return "?bitbuffer";
+		case LISPSYSTEM_HASHITERATOR:		return "?hash-iterator";
+		case LISPSYSTEM_PACKAGEITERATOR:	return "?package-iterator";
+		case LISPSYSTEM_TAGINFO:			return "?taginfo";
+		case LISPSYSTEM_ARRAY_DIMENSION:	return "?array-dimension";
+		case LISPSYSTEM_ARRAY_GENERAL:		return "?array-general";
+		case LISPSYSTEM_ARRAY_SPECIALIZED:	return "?array-specialized";
+		case LISPSYSTEM_CODE:				return "?code";
+		case LISPSYSTEM_PROMPT:				return "?prompt";
+		case LISPSYSTEM_ENVROOT:			return "?envroot";
+		case LISPSYSTEM_ENVSTACK:			return "?envstack";
+		case LISPSYSTEM_CHECK:				return "?check";
 
 		case LISPSYSTEM_UNBOUND:			return "unboundtype";
 		case LISPSYSTEM_SPACE:				return "space";
@@ -190,6 +198,7 @@ static const char *infochar_decl(enum LISPDECL decl)
 		case LISPDECL_STRING_STREAM:		return "string-stream";
 		case LISPDECL_SYNONYM_STREAM:		return "synonym-stream";
 		case LISPDECL_TWO_WAY_STREAM:		return "two-way-stream";
+		case LISPDECL_PROMPT_STREAM:		return "prompt-stream";
 		default:							return "invalid";
 	}
 }

@@ -1,5 +1,5 @@
-#ifndef __HEADER_BIGCONS__
-#define __HEADER_BIGCONS__
+#ifndef __BIGCONS_HEADER__
+#define __BIGCONS_HEADER__
 
 #include "bigdata.h"
 #include "memory.h"

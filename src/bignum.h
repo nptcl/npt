@@ -1,5 +1,5 @@
-#ifndef __HEADER_BIGNUM__
-#define __HEADER_BIGNUM__
+#ifndef __BIGNUM_HEADER__
+#define __BIGNUM_HEADER__
 
 #include "typedef.h"
 #include "lisp.h"

@@ -26,7 +26,8 @@
 #include "real_truncate.h"
 #include "setf.h"
 #include "strtype.h"
-#include "type_parse.h"
+#include "type.h"
+#include "type_upgraded.h"
 
 /* (defun = (first &rest numbers) ...) -> boolean */
 static void function_number_equal(Execute ptr, addr left, addr rest)
@@ -55,7 +56,7 @@ static void defun_number_equal(void)
 	setcompiled_var1dynamic(pos, function_number_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Number_Equal);
+	GetTypeCompiled(&type, Number_Equal);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -91,7 +92,7 @@ static void defun_number_not_equal(void)
 	setcompiled_var1dynamic(pos, function_number_not_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Number_Equal);
+	GetTypeCompiled(&type, Number_Equal);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -124,7 +125,7 @@ static void defun_number_less(void)
 	setcompiled_var1dynamic(pos, function_number_less);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Number_Compare);
+	GetTypeCompiled(&type, Number_Compare);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -157,7 +158,7 @@ static void defun_number_greater(void)
 	setcompiled_var1dynamic(pos, function_number_greater);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Number_Compare);
+	GetTypeCompiled(&type, Number_Compare);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -190,7 +191,7 @@ static void defun_number_less_equal(void)
 	setcompiled_var1dynamic(pos, function_number_less_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Number_Compare);
+	GetTypeCompiled(&type, Number_Compare);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -223,7 +224,7 @@ static void defun_number_greater_equal(void)
 	setcompiled_var1dynamic(pos, function_number_greater_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Number_Compare);
+	GetTypeCompiled(&type, Number_Compare);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -255,7 +256,7 @@ static void defun_max(void)
 	setcompiled_var1dynamic(pos, function_max);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Max);
+	GetTypeCompiled(&type, Max);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -287,7 +288,7 @@ static void defun_min(void)
 	setcompiled_var1dynamic(pos, function_min);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Max);
+	GetTypeCompiled(&type, Max);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -309,7 +310,7 @@ static void defun_minusp(void)
 	setcompiled_var1(pos, function_minusp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Minusp);
+	GetTypeCompiled(&type, Minusp);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -331,7 +332,7 @@ static void defun_plusp(void)
 	setcompiled_var1(pos, function_plusp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Minusp);
+	GetTypeCompiled(&type, Minusp);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -353,7 +354,7 @@ static void defun_zerop(void)
 	setcompiled_var1(pos, function_zerop);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Zerop);
+	GetTypeCompiled(&type, Zerop);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -384,7 +385,7 @@ static void defun_floor(void)
 	setcompiled_var1opt1(pos, function_floor);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Floor);
+	GetTypeCompiled(&type, Floor);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -415,7 +416,7 @@ static void defun_ffloor(void)
 	setcompiled_var1opt1(pos, function_ffloor);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Ffloor);
+	GetTypeCompiled(&type, Ffloor);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -446,7 +447,7 @@ static void defun_ceiling(void)
 	setcompiled_var1opt1(pos, function_ceiling);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Floor);
+	GetTypeCompiled(&type, Floor);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -477,7 +478,7 @@ static void defun_fceiling(void)
 	setcompiled_var1opt1(pos, function_fceiling);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Ffloor);
+	GetTypeCompiled(&type, Ffloor);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -508,7 +509,7 @@ static void defun_truncate(void)
 	setcompiled_var1opt1(pos, function_truncate);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Floor);
+	GetTypeCompiled(&type, Floor);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -539,7 +540,7 @@ static void defun_ftruncate(void)
 	setcompiled_var1opt1(pos, function_ftruncate);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Ffloor);
+	GetTypeCompiled(&type, Ffloor);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -570,7 +571,7 @@ static void defun_round(void)
 	setcompiled_var1opt1(pos, function_round);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Floor);
+	GetTypeCompiled(&type, Floor);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -601,7 +602,7 @@ static void defun_fround(void)
 	setcompiled_var1opt1(pos, function_fround);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Ffloor);
+	GetTypeCompiled(&type, Ffloor);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -618,9 +619,9 @@ static void type_cis(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Real);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Number);
+	GetTypeTable(&arg, Real);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Number);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -657,7 +658,7 @@ static void defun_sin(void)
 	setcompiled_var1(pos, function_sin);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -680,7 +681,7 @@ static void defun_cos(void)
 	setcompiled_var1(pos, function_cos);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -703,7 +704,7 @@ static void defun_tan(void)
 	setcompiled_var1(pos, function_tan);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -726,7 +727,7 @@ static void defun_sinh(void)
 	setcompiled_var1(pos, function_sinh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -749,7 +750,7 @@ static void defun_cosh(void)
 	setcompiled_var1(pos, function_cosh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -772,7 +773,7 @@ static void defun_tanh(void)
 	setcompiled_var1(pos, function_tanh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -795,7 +796,7 @@ static void defun_asin(void)
 	setcompiled_var1(pos, function_asin);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -818,7 +819,7 @@ static void defun_acos(void)
 	setcompiled_var1(pos, function_acos);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -838,10 +839,10 @@ static void type_atan(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Number);
-	GetCallType(&values, Real);
-	var1opt1_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Number);
+	GetTypeTable(&arg, Number);
+	GetTypeTable(&values, Real);
+	typeargs_var1opt1(&arg, arg, values);
+	GetTypeValues(&values, Number);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -878,7 +879,7 @@ static void defun_asinh(void)
 	setcompiled_var1(pos, function_asinh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -901,7 +902,7 @@ static void defun_acosh(void)
 	setcompiled_var1(pos, function_acosh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -924,7 +925,7 @@ static void defun_atanh(void)
 	setcompiled_var1(pos, function_atanh);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -947,7 +948,7 @@ static void defun_exp(void)
 	setcompiled_var1(pos, function_exp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -964,9 +965,9 @@ static void type_expt(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Number);
-	var2_argtype(&arg, arg, arg);
-	GetCallType(&values, Values_Number);
+	GetTypeTable(&arg, Number);
+	typeargs_var2(&arg, arg, arg);
+	GetTypeValues(&values, Number);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1019,7 +1020,7 @@ static void defun_plus(void)
 	setcompiled_dynamic(pos, function_plus);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Plus);
+	GetTypeCompiled(&type, Plus);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1057,7 +1058,7 @@ static void defun_minus(void)
 	setcompiled_var1dynamic(pos, function_minus);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Minus);
+	GetTypeCompiled(&type, Minus);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1096,7 +1097,7 @@ static void defun_asterisk(void)
 	setcompiled_dynamic(pos, function_asterisk);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Plus);
+	GetTypeCompiled(&type, Plus);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1134,7 +1135,7 @@ static void defun_slash(void)
 	setcompiled_var1dynamic(pos, function_slash);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Minus);
+	GetTypeCompiled(&type, Minus);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1157,7 +1158,7 @@ static void defun_oneplus(void)
 	setcompiled_var1(pos, function_oneplus);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_OnePlus);
+	GetTypeCompiled(&type, OnePlus);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1180,7 +1181,7 @@ static void defun_oneminus(void)
 	setcompiled_var1(pos, function_oneminus);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_OnePlus);
+	GetTypeCompiled(&type, OnePlus);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1197,16 +1198,14 @@ static void function_abs(Execute ptr, addr var)
 
 static void type_abs(addr *ret)
 {
-	addr arg, values;
+	addr arg, values, aster;
 
-	GetCallType(&arg, Number);
-	var1_argtype(&arg, arg);
+	GetTypeTable(&arg, Number);
+	typeargs_var1(&arg, arg);
 	fixnum_heap(&values, 0);
-	type_object4(NULL, LISPDECL_REAL, Nil, values,
-			type_asterisk_heapr(),
-			type_asterisk_heapr(),
-			&values);
-	result_valuestype(&values, values);
+	GetTypeTable(&aster, Asterisk);
+	type4_heap(LISPDECL_REAL, Nil, values, aster, aster, &values);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1242,7 +1241,7 @@ static void defun_evenp(void)
 	setcompiled_var1(pos, function_evenp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Evenp);
+	GetTypeCompiled(&type, Evenp);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1264,7 +1263,7 @@ static void defun_oddp(void)
 	setcompiled_var1(pos, function_oddp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Evenp);
+	GetTypeCompiled(&type, Evenp);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1287,7 +1286,7 @@ static void defun_gcd(void)
 	setcompiled_dynamic(pos, function_gcd);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Gcd);
+	GetTypeCompiled(&type, Gcd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1310,7 +1309,7 @@ static void defun_lcm(void)
 	setcompiled_dynamic(pos, function_lcm);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Gcd);
+	GetTypeCompiled(&type, Gcd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1398,7 +1397,7 @@ static void defmacro_incf(void)
 	setcompiled_macro(pos, function_incf);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -1485,7 +1484,7 @@ static void defmacro_decf(void)
 	setcompiled_macro(pos, function_decf);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -1504,9 +1503,9 @@ static void type_log(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Number);
-	var1opt1_argtype(&arg, arg, arg);
-	GetCallType(&values, Values_Number);
+	GetTypeTable(&arg, Number);
+	typeargs_var1opt1(&arg, arg, arg);
+	GetTypeValues(&values, Number);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1547,7 +1546,7 @@ static void defun_mod(void)
 	setcompiled_var2(pos, function_mod);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Mod);
+	GetTypeCompiled(&type, Mod);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1574,7 +1573,7 @@ static void defun_rem(void)
 	setcompiled_var2(pos, function_rem);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Mod);
+	GetTypeCompiled(&type, Mod);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1597,7 +1596,7 @@ static void defun_signum(void)
 	setcompiled_var1(pos, function_signum);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1620,7 +1619,7 @@ static void defun_sqrt(void)
 	setcompiled_var1(pos, function_sqrt);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1641,12 +1640,12 @@ static void type_make_random_state(addr *ret)
 	addr arg, values, type1, type2, type3;
 
 	vector4_heap(&arg, 3);
-	GetCallType(&type1, RandomState);
-	GetCallType(&type2, Null);
-	GetCallType(&type3, EqlT);
-	type_or3(NULL, type1, type2, type3, &arg);
-	opt1_argtype(&arg, arg);
-	result_valuestype(&values, type1);
+	GetTypeTable(&type1, RandomState);
+	GetTypeTable(&type2, Null);
+	GetTypeTable(&type3, EqlT);
+	type3or_heap(type1, type2, type3, &arg);
+	typeargs_opt1(&arg, arg);
+	typevalues_result(&values, type1);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1685,15 +1684,15 @@ static void type_random(addr *ret)
 {
 	addr arg, values, type1, type2;
 
-	GetCallType(&arg, RandomState);
-	type_intrange_left(T, 0, &type1);
-	type_floatrange_left(T, 0.0f, &type2);
-	type_or(NULL, type1, type2, &type1);
-	var1opt1_argtype(&arg, type1, arg);
-	type_intrange_left(Nil, 0, &type1);
-	type_floatrange_left(Nil, 0.0f, &type2);
-	type_or(NULL, type1, type2, &values);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, RandomState);
+	type2integer_ab_heap(T, 0, &type1);
+	type2float_ab_heap(T, 0.0f, &type2);
+	type2or_heap(type1, type2, &type1);
+	typeargs_var1opt1(&arg, type1, arg);
+	type2integer_ab_heap(Nil, 0, &type1);
+	type2float_ab_heap(Nil, 0.0f, &type2);
+	type2or_heap(type1, type2, &values);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1729,7 +1728,7 @@ static void defun_random_state_p(void)
 	setcompiled_var1(pos, function_random_state_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1747,7 +1746,7 @@ static void defvar_random_state(void)
 	setspecial_symbol(symbol);
 
 	/* type */
-	GetCallType(&type, RandomState);
+	GetTypeTable(&type, RandomState);
 	settype_value_symbol(symbol, type);
 }
 
@@ -1768,7 +1767,7 @@ static void defun_numberp(void)
 	setcompiled_var1(pos, function_numberp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1789,11 +1788,11 @@ static void type_complex_common(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, Real);
-	var1opt1_argtype(&arg, arg, arg);
-	GetCallType(&type, Rational);
-	GetCallType(&values, Complex);
-	type_or(NULL, type, values, &values);
+	GetTypeTable(&arg, Real);
+	typeargs_var1opt1(&arg, arg, arg);
+	GetTypeTable(&type, Rational);
+	GetTypeTable(&values, Complex);
+	type2or_heap(type, values, &values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1829,7 +1828,7 @@ static void defun_complexp(void)
 	setcompiled_var1(pos, function_complexp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1863,7 +1862,7 @@ static void defun_conjugate(void)
 	setcompiled_var1(pos, function_conjugate);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1886,7 +1885,7 @@ static void defun_phase(void)
 	setcompiled_var1(pos, function_phase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sin);
+	GetTypeCompiled(&type, Sin);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1912,7 +1911,7 @@ static void defun_realpart(void)
 	setcompiled_var1(pos, function_realpart);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_RealPart);
+	GetTypeCompiled(&type, RealPart);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1941,16 +1940,20 @@ static void defun_imagpart(void)
 	setcompiled_var1(pos, function_imagpart);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_RealPart);
+	GetTypeCompiled(&type, RealPart);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
 
 
 /* (defun complexp (object) ...) -> boolean */
-static void function_upgraded_complex_part_type(Execute ptr, addr type, addr env)
+static void function_upgraded_complex_part_type(Execute ptr, addr pos, addr env)
 {
-	fmte("TODO", NULL);
+	if (env == Unbound)
+		env = Nil;
+	if (upgraded_complex_common(ptr, env, pos, &pos))
+		return;
+	setresult_control(ptr, pos);
 }
 
 static void defun_upgraded_complex_part_type(void)
@@ -1963,7 +1966,7 @@ static void defun_upgraded_complex_part_type(void)
 	setcompiled_var1opt1(pos, function_upgraded_complex_part_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1985,7 +1988,7 @@ static void defun_realp(void)
 	setcompiled_var1(pos, function_realp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2002,9 +2005,9 @@ static void type_numerator(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Rational);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Integer);
+	GetTypeTable(&arg, Rational);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Integer);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2035,10 +2038,10 @@ static void type_denominator(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Rational);
-	var1_argtype(&arg, arg);
-	type_intrange_left(T, 0, &values);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Rational);
+	typeargs_var1(&arg, arg);
+	type2integer_ab_heap(T, 0, &values);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2078,7 +2081,7 @@ static void defun_rational(void)
 	setcompiled_var1(pos, function_rational);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Rational);
+	GetTypeCompiled(&type, Rational);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2104,7 +2107,7 @@ static void defun_rationalize(void)
 	setcompiled_var1(pos, function_rationalize);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Rational);
+	GetTypeCompiled(&type, Rational);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2126,7 +2129,7 @@ static void defun_rationalp(void)
 	setcompiled_var1(pos, function_rationalp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2147,9 +2150,9 @@ static void type_ash(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Integer);
-	var2_argtype(&arg, arg, arg);
-	GetCallType(&values, Values_Integer);
+	GetTypeTable(&arg, Integer);
+	typeargs_var2(&arg, arg, arg);
+	GetTypeValues(&values, Integer);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2183,9 +2186,9 @@ static void type_integer_length(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Integer);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Intplus);
+	GetTypeTable(&arg, Integer);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Intplus);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2221,7 +2224,7 @@ static void defun_integerp(void)
 	setcompiled_var1(pos, function_integerp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2257,24 +2260,24 @@ static void type_parse_integer(addr *ret)
 
 	/* key */
 	GetConst(KEYWORD_START, &key1);
-	GetCallType(&values, KeywordStart);
+	GetTypeTable(&values, KeywordStart);
 	cons_heap(&key1, key1, values);
 	GetConst(KEYWORD_END, &key2);
-	GetCallType(&values, KeywordEnd);
+	GetTypeTable(&values, KeywordEnd);
 	cons_heap(&key2, key2, values);
 	GetConst(KEYWORD_RADIX, &key3);
-	GetCallType(&values, RadixInteger);
+	GetTypeTable(&values, RadixInteger);
 	cons_heap(&key3, key3, values);
 	GetConst(KEYWORD_JUNK_ALLOWED, &key4);
-	GetCallType(&values, T);
+	GetTypeTable(&values, T);
 	cons_heap(&key4, key4, values);
 	list_heap(&key, key1, key2, key3, key4, NULL);
 	/* type */
-	GetCallType(&arg, String);
-	var1key_argtype(&arg, arg, key);
-	GetCallType(&values, IntegerNull);
-	GetCallType(&type, Index);
-	values2_valuestype(&values, values, type);
+	GetTypeTable(&arg, String);
+	typeargs_var1key(&arg, arg, key);
+	GetTypeTable(&values, IntegerNull);
+	GetTypeTable(&type, Index);
+	typevalues_values2(&values, values, type);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2305,10 +2308,11 @@ static void type_boole(addr *ret)
 {
 	addr arg, values;
 
-	type_intrange(Nil, 0, Nil, (fixnum)Boole_Size, &arg);
-	GetCallType(&values, Integer);
-	var3_argtype(&arg, arg, values, values);
-	GetCallType(&values, Values_Integer);
+	/* (integer 0 (Boole_Size)) */
+	type4integer_heap(Nil, 0, T, (fixnum)Boole_Size, &arg);
+	GetTypeTable(&values, Integer);
+	typeargs_var3(&arg, arg, values, values);
+	GetTypeValues(&values, Integer);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2345,7 +2349,7 @@ static void defun_logand(void)
 	setcompiled_dynamic(pos, function_logand);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Logand);
+	GetTypeCompiled(&type, Logand);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2368,7 +2372,7 @@ static void defun_logandc1(void)
 	setcompiled_var2(pos, function_logandc1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Logandc1);
+	GetTypeCompiled(&type, Logandc1);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2391,7 +2395,7 @@ static void defun_logandc2(void)
 	setcompiled_var2(pos, function_logandc2);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Logandc1);
+	GetTypeCompiled(&type, Logandc1);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2414,7 +2418,7 @@ static void defun_logeqv(void)
 	setcompiled_dynamic(pos, function_logeqv);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Logand);
+	GetTypeCompiled(&type, Logand);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2437,7 +2441,7 @@ static void defun_logior(void)
 	setcompiled_dynamic(pos, function_logior);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Logand);
+	GetTypeCompiled(&type, Logand);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2460,7 +2464,7 @@ static void defun_lognand(void)
 	setcompiled_var2(pos, function_lognand);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Logandc1);
+	GetTypeCompiled(&type, Logandc1);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2483,7 +2487,7 @@ static void defun_lognor(void)
 	setcompiled_var2(pos, function_lognor);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Logandc1);
+	GetTypeCompiled(&type, Logandc1);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2500,9 +2504,9 @@ static void type_lognot(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Integer);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Integer);
+	GetTypeTable(&arg, Integer);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Integer);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2539,7 +2543,7 @@ static void defun_logorc1(void)
 	setcompiled_var2(pos, function_logorc1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Logandc1);
+	GetTypeCompiled(&type, Logandc1);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2562,7 +2566,7 @@ static void defun_logorc2(void)
 	setcompiled_var2(pos, function_logorc2);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Logandc1);
+	GetTypeCompiled(&type, Logandc1);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2585,7 +2589,7 @@ static void defun_logxor(void)
 	setcompiled_dynamic(pos, function_logxor);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Logand);
+	GetTypeCompiled(&type, Logand);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2606,10 +2610,10 @@ static void type_logbitp(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Intplus);
-	GetCallType(&values, Integer);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, Intplus);
+	GetTypeTable(&values, Integer);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2641,9 +2645,9 @@ static void type_logcount(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Integer);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Intplus);
+	GetTypeTable(&arg, Integer);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Intplus);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2674,9 +2678,9 @@ static void type_logtest(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Integer);
-	var2_argtype(&arg, arg, arg);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, Integer);
+	typeargs_var2(&arg, arg, arg);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2711,10 +2715,10 @@ static void type_byte_call(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Intplus);
-	var2_argtype(&arg, arg, arg);
-	GetCallType(&values, ByteSpec);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Intplus);
+	typeargs_var2(&arg, arg, arg);
+	GetTypeTable(&values, ByteSpec);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2751,7 +2755,7 @@ static void defun_byte_size(void)
 	setcompiled_var1(pos, function_byte_size);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_ByteSize);
+	GetTypeCompiled(&type, ByteSize);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2774,7 +2778,7 @@ static void defun_byte_position(void)
 	setcompiled_var1(pos, function_byte_position);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_ByteSize);
+	GetTypeCompiled(&type, ByteSize);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2802,7 +2806,7 @@ static void defun_deposit_field(void)
 	setcompiled_var3(pos, function_deposit_field);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_DepositField);
+	GetTypeCompiled(&type, DepositField);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2825,7 +2829,7 @@ static void defun_dpb(void)
 	setcompiled_var3(pos, function_dpb);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_DepositField);
+	GetTypeCompiled(&type, DepositField);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2848,7 +2852,7 @@ static void defun_ldb(void)
 	setcompiled_var2(pos, function_ldb);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Ldb);
+	GetTypeCompiled(&type, Ldb);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2867,7 +2871,7 @@ static void define_setf_expander_ldb(void)
 	setcompiled_macro(pos, setf_ldb);
 	SetSetfMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -2883,10 +2887,10 @@ static void type_ldb_test(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, ByteSpec);
-	GetCallType(&values, Integer);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, ByteSpec);
+	GetTypeTable(&values, Integer);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2923,7 +2927,7 @@ static void defun_mask_field(void)
 	setcompiled_var2(pos, function_mask_field);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Ldb);
+	GetTypeCompiled(&type, Ldb);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2942,7 +2946,7 @@ static void define_setf_expander_mask_field(void)
 	setcompiled_macro(pos, setf_mask_field);
 	SetSetfMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -2965,10 +2969,10 @@ static void type_decode_float(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&values, Float);
-	var1_argtype(&arg, values);
-	GetCallType(&type, Integer);
-	values3_valuestype(&values, values, type, values);
+	GetTypeTable(&values, Float);
+	typeargs_var1(&arg, values);
+	GetTypeTable(&type, Integer);
+	typevalues_values3(&values, values, type, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -3003,9 +3007,9 @@ static void type_scale_float(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Float);
-	GetCallType(&values, Integer);
-	var2_argtype(&arg, arg, values);
+	GetTypeTable(&arg, Float);
+	GetTypeTable(&values, Integer);
+	typeargs_var2(&arg, arg, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -3036,9 +3040,9 @@ static void type_float_radix(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Float);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Integer);
+	GetTypeTable(&arg, Float);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Integer);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -3069,9 +3073,9 @@ static void type_float_sign(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Float);
-	var1opt1_argtype(&arg, arg, arg);
-	GetCallType(&values, Values_Float);
+	GetTypeTable(&arg, Float);
+	typeargs_var1opt1(&arg, arg, arg);
+	GetTypeValues(&values, Float);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -3111,7 +3115,7 @@ static void defun_float_digits(void)
 	setcompiled_var1(pos, function_float_digits);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_FloatDigits);
+	GetTypeCompiled(&type, FloatDigits);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3137,7 +3141,7 @@ static void defun_float_precision(void)
 	setcompiled_var1(pos, function_float_precision);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_FloatDigits);
+	GetTypeCompiled(&type, FloatDigits);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3161,13 +3165,13 @@ static void type_integer_decode_float(addr *ret)
 {
 	addr arg, values, sign, v1, v2;
 
-	GetCallType(&arg, Float);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Integer);
+	GetTypeTable(&arg, Float);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, Integer);
 	fixnum_heap(&v1, -1);
 	fixnum_heap(&v2, 1);
 	type_member_heap(&sign, v1, v2, NULL);
-	values3_valuestype(&values, values, values, sign);
+	typevalues_values3(&values, values, values, sign);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -3200,10 +3204,10 @@ static void type_float_function(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Real);
-	GetCallType(&values, Float);
-	var1opt1_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Float);
+	GetTypeTable(&arg, Real);
+	GetTypeTable(&values, Float);
+	typeargs_var1opt1(&arg, arg, values);
+	GetTypeValues(&values, Float);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -3239,7 +3243,7 @@ static void defun_floatp(void)
 	setcompiled_var1(pos, function_floatp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3256,9 +3260,9 @@ static void type_arithmetic_error_operands(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, ArithmeticError);
-	opt1_argtype(&arg, arg);
-	GetCallType(&values, Values_List);
+	GetTypeTable(&arg, ArithmeticError);
+	typeargs_opt1(&arg, arg);
+	GetTypeValues(&values, List);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -3289,9 +3293,9 @@ static void type_arithmetic_error_operation(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, ArithmeticError);
-	opt1_argtype(&arg, arg);
-	GetCallType(&values, Values_List);
+	GetTypeTable(&arg, ArithmeticError);
+	typeargs_opt1(&arg, arg);
+	GetTypeValues(&values, List);
 	type_compiled_heap(arg, values, ret);
 }
 

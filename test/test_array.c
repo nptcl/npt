@@ -1,5 +1,4 @@
 #include "array.c"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -13,6 +12,7 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 
 static int test_array_macro(void)
 {
@@ -235,39 +235,39 @@ static int test_array_alloc(void)
 	RETURN;
 }
 
-static int test_array_alloc_stdarg(void)
+static int test_array_va_alloc(void)
 {
 	struct array_struct *str;
 	size_t *psize;
 	addr pos, check;
 
-	array_alloc_stdarg(NULL, &pos, 0);
-	test(GetType(pos) == LISPTYPE_ARRAY, "array_alloc_stdarg1");
+	array_va_alloc(NULL, &pos, 0);
+	test(GetType(pos) == LISPTYPE_ARRAY, "array_va_alloc1");
 	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
-	test(check == Nil, "array_alloc_stdarg2");
+	test(check == Nil, "array_va_alloc2");
 	str = ArrayInfoStruct(pos);
-	test(str->dimension == 0, "array_alloc_stdarg3");
-	test(str->size == 1, "array_alloc_stdarg4");
+	test(str->dimension == 0, "array_va_alloc3");
+	test(str->size == 1, "array_va_alloc4");
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
-	test(GetType(pos) == LISPTYPE_ARRAY, "array_alloc_stdarg5");
+	array_va_alloc(NULL, &pos, 10, 0);
+	test(GetType(pos) == LISPTYPE_ARRAY, "array_va_alloc5");
 	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
-	test(check == Nil, "array_alloc_stdarg6");
+	test(check == Nil, "array_va_alloc6");
 	str = ArrayInfoStruct(pos);
-	test(str->dimension == 1, "array_alloc_stdarg7");
-	test(str->size == 10, "array_alloc_stdarg8");
+	test(str->dimension == 1, "array_va_alloc7");
+	test(str->size == 10, "array_va_alloc8");
 
-	array_alloc_stdarg(NULL, &pos, 2, 3, 4, 0);
-	test(GetType(pos) == LISPTYPE_ARRAY, "array_alloc_stdarg9");
+	array_va_alloc(NULL, &pos, 2, 3, 4, 0);
+	test(GetType(pos) == LISPTYPE_ARRAY, "array_va_alloc9");
 	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
-	test(GetType(check) == LISPSYSTEM_ARRAY_DIMENSION, "array_alloc_stdarg10");
+	test(GetType(check) == LISPSYSTEM_ARRAY_DIMENSION, "array_va_alloc10");
 	str = ArrayInfoStruct(pos);
-	test(str->dimension == 3, "array_alloc_stdarg11");
-	test(str->size == 24, "array_alloc_stdarg12");
+	test(str->dimension == 3, "array_va_alloc11");
+	test(str->size == 24, "array_va_alloc12");
 	psize = PtrArrayDimension(check);
-	test(psize[0] == 2, "array_alloc_stdarg13");
-	test(psize[1] == 3, "array_alloc_stdarg14");
-	test(psize[2] == 4, "array_alloc_stdarg15");
+	test(psize[0] == 2, "array_va_alloc13");
+	test(psize[1] == 3, "array_va_alloc14");
+	test(psize[2] == 4, "array_va_alloc15");
 
 	RETURN;
 }
@@ -275,9 +275,9 @@ static int test_array_alloc_stdarg(void)
 static int test_type_make_array(void)
 {
 	struct array_struct *str;
-	addr pos, type, value;
+	addr pos, type;
 
-	GetConst(COMMON_STANDARD_CHAR, &type);
+	GetTypeTable(&type, StandardChar);
 	array_empty_alloc(NULL, &pos);
 	type_make_array(pos, type);
 	str = ArrayInfoStruct(pos);
@@ -286,9 +286,8 @@ static int test_type_make_array(void)
 	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_CHARACTER, "type_make_array3");
 
-	GetConst(COMMON_MOD, &type);
-	fixnum_heap(&value, 256);
-	list_heap(&type, type, value, NULL);
+	type = readr("(mod 256)");
+	parse_type_unsafe(&type, type);
 	type_make_array(pos, type);
 	test(str->type == ARRAY_TYPE_UNSIGNED, "type_make_array4");
 	test(str->bytesize == 8, "type_make_array5");
@@ -1625,7 +1624,7 @@ static int test_set_index_array(void)
 	set_index_array(pos, 9, character_heapr(100));
 	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
 	data = (long_float *)ptr_arraymemory(mem);
-	test(((unicode *)data)[9] == 100, "set_index_array1");
+	test(((unicode *)data)[9] == 100, "set_index_array3");
 
 	RETURN;
 }
@@ -1638,7 +1637,8 @@ static int test_setf_contents_array(void)
 	local = Local_Thread;
 	/* make-array */
 	array_empty_alloc(NULL, &pos);
-	type_make_array(pos, T);
+	GetTypeTable(&check, T);
+	type_make_array(pos, check);
 	element_make_array(pos);
 	dimension_make_array(NULL, pos, readr("6"));
 	allocate_make_array(NULL, pos, Nil, Nil, Nil, Nil);
@@ -1701,7 +1701,8 @@ static int test_contents_element_make_array(void)
 	local = Local_Thread;
 	/* make-array */
 	array_empty_alloc(NULL, &pos);
-	type_make_array(pos, T);
+	GetTypeTable(&check, T);
+	type_make_array(pos, check);
 	element_make_array(pos);
 	dimension_make_array(NULL, pos, readr("6"));
 	allocate_make_array(NULL, pos, Nil, Nil, Nil, Nil);
@@ -1727,7 +1728,8 @@ static int test_array_make_array(void)
 {
 	addr pos;
 
-	array_make_array(NULL, &pos, Nil, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	GetTypeTable(&pos, T);
+	array_make_array(NULL, &pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(arrayp(pos), "array_make_array1");
 
 	RETURN;
@@ -1740,7 +1742,8 @@ static int test_dimension_array_contents(void)
 	const size_t *data;
 
 	array_empty_alloc(NULL, &pos);
-	type_make_array(pos, T);
+	GetTypeTable(&check, T);
+	type_make_array(pos, check);
 	element_make_array(pos);
 	dimension_array_contents(NULL, pos, fixnumh(0), T);
 	str = ArrayInfoStruct(pos);
@@ -1766,7 +1769,7 @@ static int test_arrayp(void)
 {
 	addr pos;
 
-	array_alloc_stdarg(NULL, &pos, 2, 3, 4, 0);
+	array_va_heap(&pos, 2, 3, 4, 0);
 	test(arrayp(pos), "arrayp1");
 	test(! arrayp(Nil), "arrayp2");
 
@@ -1778,7 +1781,7 @@ static int test_array_simple_p(void)
 	addr pos;
 	struct array_struct *str;
 
-	array_alloc_stdarg(NULL, &pos, 2, 3, 4, 0);
+	array_va_heap(&pos, 2, 3, 4, 0);
 	str = ArrayInfoStruct(pos);
 	str->simple = 1;
 	test(array_simple_p(pos), "array_simple_p1");
@@ -1792,11 +1795,11 @@ static int test_array_vector_p(void)
 {
 	addr pos;
 
-	array_alloc_stdarg(NULL, &pos, 0);
+	array_va_heap(&pos, 0);
 	test(! array_vector_p(pos), "array_vector_p1");
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	test(array_vector_p(pos), "array_vector_p2");
-	array_alloc_stdarg(NULL, &pos, 10, 20, 0);
+	array_va_heap(&pos, 10, 20, 0);
 	test(! array_vector_p(pos), "array_vector_p3");
 
 	RETURN;
@@ -1807,17 +1810,17 @@ static int test_array_size_vector_p(void)
 	struct array_struct *str;
 	addr pos;
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	test(array_size_vector_p(pos, 10), "array_size_vector_p1");
 	test(! array_size_vector_p(pos, 11), "array_size_vector_p2");
 
-	array_alloc_stdarg(NULL, &pos, 10, 20, 0);
+	array_va_heap(&pos, 10, 20, 0);
 	test(! array_size_vector_p(pos, 10), "array_size_vector_p3");
 
-	array_alloc_stdarg(NULL, &pos, 0);
+	array_va_heap(&pos, 0);
 	test(! array_size_vector_p(pos, 0), "array_size_vector_p4");
 
-	array_alloc_stdarg(NULL, &pos, 10, 20, 0);
+	array_va_heap(&pos, 10, 20, 0);
 	str = ArrayInfoStruct(pos);
 	str->dimension = 1;
 	str->size = 44;
@@ -1831,12 +1834,12 @@ static int test_array_dimension_pointer(void)
 	addr pos;
 	const size_t *data;
 
-	array_alloc_stdarg(NULL, &pos, 0);
+	array_va_heap(&pos, 0);
 	test(array_dimension_pointer(pos) == NULL, "array_dimension_pointer1");
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	data = array_dimension_pointer(pos);
 	test(data[0] == 10, "array_dimension_pointer2");
-	array_alloc_stdarg(NULL, &pos, 10, 20, 0);
+	array_va_heap(&pos, 10, 20, 0);
 	data = array_dimension_pointer(pos);
 	test(data[0] == 10, "array_dimension_pointer3");
 	test(data[1] == 20, "array_dimension_pointer4");
@@ -1850,7 +1853,7 @@ static int test_array_write_pointer(void)
 	byte *ptr;
 	struct array_struct *str;
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	arrayspec_alloc(NULL, &mem, 1000);
 	SetArrayInfo(pos, ARRAY_INFO_MEMORY, mem);
@@ -1875,7 +1878,7 @@ static int test_set_simple_array(void)
 	addr pos;
 	struct array_struct *str;
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 
 	str->simple = 0;
@@ -1916,42 +1919,43 @@ static int test_set_simple_array(void)
 	RETURN;
 }
 
+#if 0
 static int test_set_element_size(void)
 {
 	addr pos, type;
 	struct array_struct *str;
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	set_element_size(pos, str);
 	test(str->element == 0, "set_element_size1");
 	test(str->type == ARRAY_TYPE_T, "set_element_size2");
 
-	type_empty(NULL, LISPDECL_BIT, &type);
+	GetTypeTable(&type, Bit);
 	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
 	set_element_size(pos, str);
 	test(str->element == 0, "set_element_size3");
 	test(str->type == ARRAY_TYPE_BIT, "set_element_size4");
 
-	type_empty(NULL, LISPDECL_CHARACTER, &type);
+	GetTypeTable(&type, Character);
 	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
 	set_element_size(pos, str);
 	test(str->element == sizeoft(unicode), "set_element_size5");
 	test(str->type == ARRAY_TYPE_CHARACTER, "set_element_size6");
 
-	type_object1(NULL, LISPDECL_SIGNED_BYTE, fixnum_heapr(32), &type);
+	type_signed_heap(32, &type);
 	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
 	set_element_size(pos, str);
 	test(str->element == 4, "set_element_size7");
 	test(str->type == ARRAY_TYPE_SIGNED, "set_element_size8");
 
-	type_object1(NULL, LISPDECL_UNSIGNED_BYTE, fixnum_heapr(23), &type);
+	type_unsigned_heap(32, &type);
 	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
 	set_element_size(pos, str);
 	test(str->element == 4, "set_element_size9");
 	test(str->type == ARRAY_TYPE_UNSIGNED, "set_element_size10");
 
-	type_aster4(NULL, LISPDECL_DOUBLE_FLOAT, &type);
+	GetTypeTable(&type, DoubleFloat);
 	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
 	set_element_size(pos, str);
 	test(str->element == sizeoft(double_float), "set_element_size11");
@@ -1959,13 +1963,14 @@ static int test_set_element_size(void)
 
 	RETURN;
 }
+#endif
 
 static int test_check_fillpointer(void)
 {
 	addr pos;
 	struct array_struct *str;
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	str->fillpointer = 1;
 	check_fillpointer(pos, str);
@@ -1984,7 +1989,7 @@ static int test_allocate_array_alloc(void)
 	addr pos, check;
 	size_t size;
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	allocate_array_alloc(NULL, pos);
 	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_GENERAL, "allocate_array_alloc1");
@@ -2002,11 +2007,12 @@ static int test_array_element_type(void)
 {
 	addr pos, check;
 
-	array_make_array(NULL, &pos, Nil, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	GetTypeTable(&pos, T);
+	array_make_array(NULL, &pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_element_type(pos, &pos);
 	test(pos == T, "array_element_type1");
 
-	GetConst(COMMON_LONG_FLOAT, &pos);
+	GetTypeTable(&pos, LongFloat);
 	array_make_array(NULL, &pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_element_type(pos, &pos);
 	GetConst(COMMON_LONG_FLOAT, &check);
@@ -2019,7 +2025,8 @@ static int test_array_vector_length(void)
 {
 	addr pos;
 
-	array_make_array(NULL, &pos, fixnumh(22), T,
+	GetTypeTable(&pos, T);
+	array_make_array(NULL, &pos, fixnumh(22), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(array_vector_length(pos, 0) == 22, "array_vector_length1");
 
@@ -2028,19 +2035,21 @@ static int test_array_vector_length(void)
 
 static int test_array_row_length(void)
 {
-	addr pos;
+	addr pos, type;
 	size_t size;
 
-	array_make_array(NULL, &pos, Nil, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	GetTypeTable(&type, T);
+	array_make_array(NULL, &pos, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_rowlength(pos, &size);
 	test(size == 1, "array_rowlength1");
 
-	array_make_array(NULL, &pos, fixnumh(22), T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(NULL, &pos, fixnumh(22), type,
+			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_rowlength(pos, &size);
 	test(size == 22, "array_rowlength2");
 
 	list_heap(&pos, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	array_make_array(NULL, &pos, pos, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(NULL, &pos, pos, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_rowlength(pos, &size);
 	test(size == 54, "array_rowlength3");
 
@@ -2049,40 +2058,41 @@ static int test_array_row_length(void)
 
 static int test_array_dimension_equal(void)
 {
-	addr pos1, pos2;
+	addr pos1, pos2, type;
 
-	array_make_array(NULL, &pos1, Nil, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
-	array_make_array(NULL, &pos2, Nil, T, Unbound, Unbound, T, Nil, Nil, Nil);
+	GetTypeTable(&type, T);
+	array_make_array(NULL, &pos1, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(NULL, &pos2, Nil, type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(array_dimension_equal(pos1, pos2), "array_dimension_equal1");
 
-	array_make_array(NULL, &pos1, Nil, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
-	array_make_array(NULL, &pos2, fixnumh(10), T, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(NULL, &pos1, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(NULL, &pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! array_dimension_equal(pos1, pos2), "array_dimension_equal2");
 
-	array_make_array(NULL, &pos1, fixnumh(10), T, Unbound, Unbound, T, Nil, Nil, Nil);
-	array_make_array(NULL, &pos2, fixnumh(10), T, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(NULL, &pos1, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(NULL, &pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(array_dimension_equal(pos1, pos2), "array_dimension_equal3");
 
-	array_make_array(NULL, &pos1, fixnumh(20), T, Unbound, Unbound, T, Nil, Nil, Nil);
-	array_make_array(NULL, &pos2, fixnumh(10), T, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(NULL, &pos1, fixnumh(20), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(NULL, &pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! array_dimension_equal(pos1, pos2), "array_dimension_equal4");
 
 	list_heap(&pos1, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	array_make_array(NULL, &pos1, pos1, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(NULL, &pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	list_heap(&pos2, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	array_make_array(NULL, &pos2, pos2, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(NULL, &pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(array_dimension_equal(pos1, pos2), "array_dimension_equal5");
 
 	list_heap(&pos1, fixnumh(2), fixnumh(10), fixnumh(9), NULL);
-	array_make_array(NULL, &pos1, pos1, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(NULL, &pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	list_heap(&pos2, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	array_make_array(NULL, &pos2, pos2, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(NULL, &pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! array_dimension_equal(pos1, pos2), "array_dimension_equal6");
 
 	list_heap(&pos1, fixnumh(2), fixnumh(3), NULL);
-	array_make_array(NULL, &pos1, pos1, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(NULL, &pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	list_heap(&pos2, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	array_make_array(NULL, &pos2, pos2, T, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(NULL, &pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! array_dimension_equal(pos1, pos2), "array_dimension_equal7");
 
 	RETURN;
@@ -2545,11 +2555,12 @@ static int test_aref_index_array(void)
 
 static int test_aref_list_index(void)
 {
-	addr pos;
+	addr pos, type;
 	size_t size;
 
 	array_empty_alloc(NULL, &pos);
-	type_make_array(pos, T);
+	GetTypeTable(&type, T);
+	type_make_array(pos, type);
 	element_make_array(pos);
 	dimension_make_array(NULL, pos, Nil);
 	allocate_make_array(NULL, pos, Nil, Nil, Nil, Nil);
@@ -2641,7 +2652,7 @@ static int testbreak_array(void)
 	TestBreak(test_array_empty_alloc);
 	TestBreak(test_settype_array);
 	TestBreak(test_array_alloc);
-	TestBreak(test_array_alloc_stdarg);
+	TestBreak(test_array_va_alloc);
 	TestBreak(test_type_make_array);
 	TestBreak(test_element_make_array);
 	TestBreak(test_dimension_make_array);
@@ -2709,7 +2720,7 @@ static int testbreak_array(void)
 	TestBreak(test_array_dimension_pointer);
 	TestBreak(test_array_write_pointer);
 	TestBreak(test_set_simple_array);
-	TestBreak(test_set_element_size);
+//	TestBreak(test_set_element_size);
 	TestBreak(test_check_fillpointer);
 	TestBreak(test_allocate_array_alloc);
 	/* array control */
@@ -2769,7 +2780,6 @@ int test_array(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

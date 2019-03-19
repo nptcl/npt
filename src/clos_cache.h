@@ -1,5 +1,5 @@
-#ifndef __HEADER_CLOS_CACHE__
-#define __HEADER_CLOS_CACHE__
+#ifndef __CLOS_CACHE_HEADER__
+#define __CLOS_CACHE_HEADER__
 
 #include "typedef.h"
 

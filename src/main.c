@@ -1290,7 +1290,7 @@ inputs:
 
 static int mainargs_init(void)
 {
-#ifdef LISP_MODE_DEFAULT
+#ifdef LISP_MODE_CORE
 	mainargs_parameter(LispMode_Core);
 #endif
 #ifdef LISP_MODE_STANDALONE

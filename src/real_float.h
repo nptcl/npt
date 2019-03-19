@@ -560,6 +560,7 @@ double_float cast_ld_value(addr pos);
 void cast_float_alloc(LocalRoot local, addr left, addr *ret);
 void cast_float_local(LocalRoot local, addr left, addr *ret);
 void cast_float_heap(addr left, addr *ret);
+
 void multi_float_alloc(LocalRoot local, addr left, addr right, addr *ret);
 void multi_float_local(LocalRoot local, addr left, addr right, addr *ret);
 void multi_float_heap(LocalRoot local, addr left, addr right, addr *ret);

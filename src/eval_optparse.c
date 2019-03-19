@@ -153,7 +153,7 @@ static int optparse_implicit3(LocalRoot local, addr *ret, optvalue opt, addr pos
 	for (check = Nil; pos != Nil; ) {
 		GetCons(pos, &check, &pos);
 	}
-	conscar_alloc(local, ret, check);
+	conscar_local(local, ret, check);
 
 	return 1;
 }
@@ -183,7 +183,7 @@ static int optparse_implicit4(LocalRoot local, addr *ret, optvalue opt, addr pos
 	for (root = Nil; pos != Nil; ) {
 		GetCons(pos, &check, &pos);
 		if (! checkvalue(check))
-			cons_alloc(local, &root, check, root);
+			cons_local(local, &root, check, root);
 	}
 	nreverse_list_unsafe(ret, root);
 
@@ -216,7 +216,7 @@ static int optparse_implicit5(LocalRoot local, addr *ret, optvalue opt, addr pos
 	for (root = Nil; pos != Nil; ) {
 		GetCons(pos, &check, &pos);
 		if (pos == Nil || ! checkvalue(check))
-			cons_alloc(local, &root, check, root);
+			cons_local(local, &root, check, root);
 	}
 	nreverse_list_unsafe(ret, root);
 
@@ -248,7 +248,7 @@ static void remove_nest_exec(LocalRoot local, addr *ret, addr cons)
 			remove_nest_exec(local, ret, pos);
 			continue;
 		}
-		cons_alloc(local, ret, pos, *ret);
+		cons_local(local, ret, pos, *ret);
 	}
 }
 static int optparse_implicit6(LocalRoot local, addr *ret, optvalue opt, addr pos)
@@ -285,7 +285,7 @@ static int optparse_implicit_all(LocalRoot local, addr *ret, optvalue opt, addr 
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &pos, &cons);
 		optparse(local, &pos, opt, pos);
-		cons_alloc(local, &root, pos, root);
+		cons_local(local, &root, pos, root);
 	}
 	nreverse_list_unsafe(ret, root);
 
@@ -332,7 +332,7 @@ static int checkparse_progn1(optvalue opt, addr pos)
 static int optparse_progn1(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_progn1(opt, pos)) return 0;
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_NIL, Nil);
+	eval_single_parse_local(local, ret, EVAL_PARSE_NIL, Nil);
 	return 1;
 }
 
@@ -384,7 +384,7 @@ static int optparse_progn4(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	if (! checkparse_progn4(opt, pos)) return 0;
 	GetEvalParse(pos, 0, &pos);
 	optparse_implicit4(local, &pos, opt, pos);
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, pos);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, pos);
 
 	return 1;
 }
@@ -401,7 +401,7 @@ static int optparse_progn5(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	if (! checkparse_progn5(opt, pos)) return 0;
 	GetEvalParse(pos, 0, &pos);
 	optparse_implicit5(local, &pos, opt, pos);
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, pos);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, pos);
 
 	return 1;
 }
@@ -418,7 +418,7 @@ static int optparse_progn6(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	if (! checkparse_progn6(opt, pos)) return 0;
 	GetEvalParse(pos, 0, &pos);
 	optparse_implicit6(local, &pos, opt, pos);
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, pos);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, pos);
 
 	return 1;
 }
@@ -436,7 +436,7 @@ static int optparse_progn_all(LocalRoot local, addr *ret, optvalue opt, addr con
 	if (! checkparse_progn_all(opt, cons)) return 0;
 	GetEvalParse(cons, 0, &cons);
 	optparse_implicit_all(local, &cons, opt, cons);
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, cons);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, cons);
 
 	return 1;
 }
@@ -506,7 +506,7 @@ static int optparse_let1(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_let1(opt, pos)) return 0;
 	GetEvalParse(pos, 2, &pos); /* cons */
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, pos);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, pos);
 
 	return 1;
 }
@@ -531,7 +531,7 @@ static int optparse_let2(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	GetEvalParse(pos, 1, &decl); /* decl */
 	GetEvalParse(pos, 2, &cons); /* cons */
 
-	eval_parse_alloc(local, &pos, EVAL_PARSE_LOCALLY, 2);
+	eval_parse_local(local, &pos, EVAL_PARSE_LOCALLY, 2);
 	SetEvalParse(pos, 0, decl);
 	SetEvalParse(pos, 1, cons);
 	*ret = pos;
@@ -553,7 +553,7 @@ static int checkparse_let3(optvalue opt, addr pos)
 static int optparse_let3(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_let3(opt, pos)) return 0;
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_NIL, Nil);
+	eval_single_parse_local(local, ret, EVAL_PARSE_NIL, Nil);
 	return 1;
 }
 
@@ -579,7 +579,7 @@ static int checkparse_let4(optvalue opt, addr pos)
 static int optparse_let4(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_let4(opt, pos)) return 0;
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_NIL, Nil);
+	eval_single_parse_local(local, ret, EVAL_PARSE_NIL, Nil);
 	return 1;
 }
 
@@ -615,12 +615,12 @@ static int optparse_let_args(LocalRoot local, addr *ret, optvalue opt, addr pos)
 		GetCons(args, &var, &args);
 		GetCons(var, &var, &init);
 		optparse(local, &init, opt, init);
-		cons_alloc(local, &var, var, init);
-		cons_alloc(local, &root, var, root);
+		cons_local(local, &var, var, init);
+		cons_local(local, &root, var, root);
 	}
 	nreverse_list_unsafe(&args, root);
 
-	eval_parse_alloc(local, &pos, type, 3);
+	eval_parse_local(local, &pos, type, 3);
 	SetEvalParse(pos, 0, args);
 	SetEvalParse(pos, 1, decl);
 	SetEvalParse(pos, 2, cons);
@@ -681,7 +681,7 @@ static int optparse_let_body(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	GetEvalParse(pos, 2, &cons);
 
 	optparse_implicit_declare(local, &cons, opt, decl, cons);
-	eval_parse_alloc(local, &pos, type, 3);
+	eval_parse_local(local, &pos, type, 3);
 	SetEvalParse(pos, 0, args);
 	SetEvalParse(pos, 1, decl);
 	SetEvalParse(pos, 2, cons);
@@ -732,7 +732,7 @@ static int checkparse_setq1(optvalue opt, addr pos)
 static int optparse_setq1(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_setq1(opt, pos)) return 0;
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_NIL, Nil);
+	eval_single_parse_local(local, ret, EVAL_PARSE_NIL, Nil);
 	return 1;
 }
 
@@ -763,11 +763,11 @@ static int optparse_setq_all(LocalRoot local, addr *ret, optvalue opt, addr pos)
 		GetCons(cons, &var, &cons);
 		GetCons(var, &var, &expr);
 		optparse(local, &expr, opt, expr);
-		cons_alloc(local, &var, var, expr);
-		cons_alloc(local, &root, var, root);
+		cons_local(local, &var, var, expr);
+		cons_local(local, &root, var, root);
 	}
 	nreverse_list_unsafe(&cons, root);
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_SETQ, cons);
+	eval_single_parse_local(local, ret, EVAL_PARSE_SETQ, cons);
 
 	return 1;
 }
@@ -821,8 +821,8 @@ static void optparse_opt(LocalRoot local, addr *ret, optvalue opt, addr cons)
 		GetCons(svar, &init, &svar);
 		GetCar(svar, &svar);
 		optparse(local, &init, opt, init);
-		list_alloc(local, &svar, var, init, svar, NULL);
-		cons_alloc(local, &root, svar, root);
+		list_local(local, &svar, var, init, svar, NULL);
+		cons_local(local, &root, svar, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
@@ -853,8 +853,8 @@ static void optparse_key(LocalRoot local, addr *ret, optvalue opt, addr cons)
 		GetCons(svar, &init, &svar);
 		GetCar(svar, &svar);
 		optparse(local, &init, opt, init);
-		list_alloc(local, &svar, var, name, init, svar, NULL);
-		cons_alloc(local, &root, svar, root);
+		list_local(local, &svar, var, name, init, svar, NULL);
+		cons_local(local, &root, svar, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
@@ -869,8 +869,8 @@ static void optparse_aux(LocalRoot local, addr *ret, optvalue opt, addr cons)
 		GetCons(init, &var, &init);
 		GetCar(init, &init);
 		optparse(local, &init, opt, init);
-		list_alloc(local, &init, var, init, NULL);
-		cons_alloc(local, &root, init, root);
+		list_local(local, &init, var, init, NULL);
+		cons_local(local, &root, init, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
@@ -910,7 +910,7 @@ static void optparse_lambda_ordinary(LocalRoot local,
 		optparse_key(local, &key, opt, key);
 	if (checkparse_opt(opt, aux))
 		optparse_aux(local, &aux, opt, aux);
-	list_alloc(local, ret, var, aopt, rest, key, allow, aux, NULL);
+	list_local(local, ret, var, aopt, rest, key, allow, aux, NULL);
 }
 
 
@@ -936,7 +936,7 @@ static int optparse_defun_args(LocalRoot local, addr *ret, optvalue opt, addr po
 	GetEvalParse(pos, 4, &body);
 
 	optparse_lambda_ordinary(local, &args, opt, args);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_DEFUN, 5);
+	eval_parse_local(local, &pos, EVAL_PARSE_DEFUN, 5);
 	SetEvalParse(pos, 0, name);
 	SetEvalParse(pos, 1, args);
 	SetEvalParse(pos, 2, decl);
@@ -971,7 +971,7 @@ static int optparse_defun_body(LocalRoot local, addr *ret, optvalue opt, addr po
 	GetEvalParse(pos, 4, &cons);
 
 	optparse_implicit_declare(local, &cons, opt, decl, cons);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_DEFUN, 5);
+	eval_parse_local(local, &pos, EVAL_PARSE_DEFUN, 5);
 	SetEvalParse(pos, 0, name);
 	SetEvalParse(pos, 1, args);
 	SetEvalParse(pos, 2, decl);
@@ -1031,7 +1031,7 @@ static void optparse_macro_var(LocalRoot local, addr *ret, optvalue opt, addr li
 		GetCons(list, &var, &list);
 		if (consp(var))
 			optparse_lambda_macro(local, &var, opt, var);
-		cons_alloc(local, &root, var, root);
+		cons_local(local, &root, var, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
@@ -1068,7 +1068,7 @@ static void optparse_lambda_macro(LocalRoot local, addr *ret, optvalue opt, addr
 		optparse_key(local, &key, opt, key);
 	if (checkparse_opt(opt, aux))
 		optparse_aux(local, &aux, opt, aux);
-	list_alloc(local, ret, var, aopt, rest, key, allow, aux, whole, env, NULL);
+	list_local(local, ret, var, aopt, rest, key, allow, aux, whole, env, NULL);
 }
 
 
@@ -1094,7 +1094,7 @@ static int optparse_defmacro_args(LocalRoot local, addr *ret, optvalue opt, addr
 	GetEvalParse(pos, 4, &body);
 
 	optparse_lambda_macro(local, &args, opt, args);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_DEFMACRO, 5);
+	eval_parse_local(local, &pos, EVAL_PARSE_DEFMACRO, 5);
 	SetEvalParse(pos, 0, name);
 	SetEvalParse(pos, 1, args);
 	SetEvalParse(pos, 2, decl);
@@ -1129,7 +1129,7 @@ static int optparse_defmacro_body(LocalRoot local, addr *ret, optvalue opt, addr
 	GetEvalParse(pos, 4, &cons);
 
 	optparse_implicit_declare(local, &cons, opt, decl, cons);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_DEFMACRO, 5);
+	eval_parse_local(local, &pos, EVAL_PARSE_DEFMACRO, 5);
 	SetEvalParse(pos, 0, name);
 	SetEvalParse(pos, 1, args);
 	SetEvalParse(pos, 2, decl);
@@ -1183,7 +1183,7 @@ static int optparse_lambda_args(LocalRoot local, addr *ret, optvalue opt, addr p
 	GetEvalParse(pos, 3, &body);
 
 	optparse_lambda_ordinary(local, &args, opt, args);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_LAMBDA, 4);
+	eval_parse_local(local, &pos, EVAL_PARSE_LAMBDA, 4);
 	SetEvalParse(pos, 0, args);
 	SetEvalParse(pos, 1, decl);
 	SetEvalParse(pos, 2, doc);
@@ -1216,7 +1216,7 @@ static int optparse_lambda_body(LocalRoot local, addr *ret, optvalue opt, addr p
 	GetEvalParse(pos, 3, &cons);
 
 	optparse_implicit_declare(local, &cons, opt, decl, cons);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_LAMBDA, 4);
+	eval_parse_local(local, &pos, EVAL_PARSE_LAMBDA, 4);
 	SetEvalParse(pos, 0, args);
 	SetEvalParse(pos, 1, decl);
 	SetEvalParse(pos, 2, doc);
@@ -1306,7 +1306,7 @@ static int optparse_if_all(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	optparse(local, &ifthen, opt, ifthen);
 	optparse(local, &ifelse, opt, ifelse);
 
-	eval_parse_alloc(local, &pos, EVAL_PARSE_IF, 3);
+	eval_parse_local(local, &pos, EVAL_PARSE_IF, 3);
 	SetEvalParse(pos, 0, expr);
 	SetEvalParse(pos, 1, ifthen);
 	SetEvalParse(pos, 2, ifelse);
@@ -1358,11 +1358,11 @@ static int optparse_unwind_protect1(LocalRoot local, addr *ret, optvalue opt, ad
 	GetEvalParse(pos, 1, &cons);
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &pos, &cons);
-		cons_alloc(local, &root, pos, root);
+		cons_local(local, &root, pos, root);
 	}
-	cons_alloc(local, &root, form, root);
+	cons_local(local, &root, form, root);
 	nreverse_list_unsafe(&cons, root);
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, cons);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, cons);
 
 	return 1;
 }
@@ -1404,7 +1404,7 @@ static int optparse_unwind_protect_all(LocalRoot local,
 	optparse(local, &form, opt, form);
 	optparse_implicit(local, &cons, opt, cons);
 
-	eval_parse_alloc(local, &pos, EVAL_PARSE_UNWIND_PROTECT, 2);
+	eval_parse_local(local, &pos, EVAL_PARSE_UNWIND_PROTECT, 2);
 	SetEvalParse(pos, 0, form);
 	SetEvalParse(pos, 1, cons);
 	*ret = pos;
@@ -1457,7 +1457,7 @@ static int checkparse_tagbody1(optvalue opt, addr pos)
 static int optparse_tagbody1(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_tagbody1(opt, pos)) return 0;
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_NIL, Nil);
+	eval_single_parse_local(local, ret, EVAL_PARSE_NIL, Nil);
 	return 1;
 }
 
@@ -1476,12 +1476,12 @@ static int optparse_tagbody2(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	GetEvalParse(pos, 1, &cons);
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &pos, &cons);
-		cons_alloc(local, &root, pos, root);
+		cons_local(local, &root, pos, root);
 	}
-	eval_single_parse_alloc(local, &pos, EVAL_PARSE_NIL, Nil);
-	cons_alloc(local, &root, pos, root);
+	eval_single_parse_local(local, &pos, EVAL_PARSE_NIL, Nil);
+	cons_local(local, &root, pos, root);
 	nreverse_list_unsafe(&root, root);
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, root);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, root);
 
 	return 1;
 }
@@ -1506,11 +1506,11 @@ static int optparse_tagbody_all(LocalRoot local, addr *ret, optvalue opt, addr p
 	for (root = Nil; body != Nil; ) {
 		GetCons(body, &pos, &body);
 		if ((! optparse(local, &pos, opt, pos)) || (! checkvalue(pos)))
-			cons_alloc(local, &root, pos, root);
+			cons_local(local, &root, pos, root);
 	}
 	nreverse_list_unsafe(&body, root);
 
-	eval_parse_alloc(local, &pos, EVAL_PARSE_TAGBODY, 2);
+	eval_parse_local(local, &pos, EVAL_PARSE_TAGBODY, 2);
 	SetEvalParse(pos, 0, tag);
 	SetEvalParse(pos, 1, body);
 	*ret = pos;
@@ -1555,7 +1555,7 @@ static int checkparse_block1(optvalue opt, addr pos)
 static int optparse_block1(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_block1(opt, pos)) return 0;
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_NIL, Nil);
+	eval_single_parse_local(local, ret, EVAL_PARSE_NIL, Nil);
 	return 1;
 }
 
@@ -1602,7 +1602,7 @@ static int optparse_block_all(LocalRoot local, addr *ret, optvalue opt, addr pos
 	GetEvalParse(pos, 1, &cons);
 
 	optparse_implicit(local, &cons, opt, cons);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_BLOCK, 2);
+	eval_parse_local(local, &pos, EVAL_PARSE_BLOCK, 2);
 	SetEvalParse(pos, 0, name);
 	SetEvalParse(pos, 1, cons);
 	*ret = pos;
@@ -1627,7 +1627,7 @@ static int optparse_return_from(LocalRoot local, addr *ret, optvalue opt, addr p
 	GetEvalParse(pos, 1, &expr);
 
 	optparse(local, &expr, opt, expr);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_RETURN_FROM, 2);
+	eval_parse_local(local, &pos, EVAL_PARSE_RETURN_FROM, 2);
 	SetEvalParse(pos, 0, name);
 	SetEvalParse(pos, 1, expr);
 	*ret = pos;
@@ -1678,11 +1678,11 @@ static int optparse_catch1(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	if (! checkparse_catch1(opt, pos)) return 0;
 	/* (name nil) */
 	GetEvalParse(pos, 0, &name);
-	eval_single_parse_alloc(local, &pos, EVAL_PARSE_NIL, Nil);
-	conscar_alloc(local, &cons, pos);
-	cons_alloc(local, &cons, name, cons);
+	eval_single_parse_local(local, &pos, EVAL_PARSE_NIL, Nil);
+	conscar_local(local, &cons, pos);
+	cons_local(local, &cons, name, cons);
 	/* (progn name nil) */
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, cons);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, cons);
 
 	return 1;
 }
@@ -1713,10 +1713,10 @@ static int optparse_catch2(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	for (pos = Nil; cons != Nil; ) {
 		GetCons(cons, &pos, &cons);
 	}
-	conscar_alloc(local, &cons, pos);
-	cons_alloc(local, &cons, name, cons);
+	conscar_local(local, &cons, pos);
+	cons_local(local, &cons, name, cons);
 	/* (progn name lastcar) */
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, cons);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, cons);
 
 	return 1;
 }
@@ -1743,7 +1743,7 @@ static int optparse_catch_all(LocalRoot local, addr *ret, optvalue opt, addr pos
 
 	optparse(local, &name, opt, name);
 	optparse_implicit(local, &cons, opt, cons);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_CATCH, 2);
+	eval_parse_local(local, &pos, EVAL_PARSE_CATCH, 2);
 	SetEvalParse(pos, 0, name);
 	SetEvalParse(pos, 1, cons);
 	*ret = pos;
@@ -1773,7 +1773,7 @@ static int optparse_throw(LocalRoot local, addr *ret, optvalue opt, addr pos)
 
 	optparse(local, &name, opt, name);
 	optparse(local, &expr, opt, expr);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_THROW, 2);
+	eval_parse_local(local, &pos, EVAL_PARSE_THROW, 2);
 	SetEvalParse(pos, 0, name);
 	SetEvalParse(pos, 1, expr);
 	*ret = pos;
@@ -1834,7 +1834,7 @@ static int checkparse_flet1(optvalue opt, addr pos)
 static int optparse_flet1(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_flet1(opt, pos)) return 0;
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_NIL, Nil);
+	eval_single_parse_local(local, ret, EVAL_PARSE_NIL, Nil);
 	return 1;
 }
 
@@ -1885,7 +1885,7 @@ static int optparse_flet3(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_flet3(opt, pos)) return 0;
 	GetEvalParse(pos, 2, &pos);
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, pos);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, pos);
 	return 1;
 }
 
@@ -1910,7 +1910,7 @@ static int optparse_flet4(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	GetEvalParse(pos, 1, &decl);
 	GetEvalParse(pos, 2, &cons);
 
-	eval_parse_alloc(local, &pos, EVAL_PARSE_LOCALLY, 2);
+	eval_parse_local(local, &pos, EVAL_PARSE_LOCALLY, 2);
 	SetEvalParse(pos, 0, decl);
 	SetEvalParse(pos, 1, cons);
 	*ret = pos;
@@ -1958,8 +1958,8 @@ static void optparse_flet_one(LocalRoot local, addr *ret, optvalue opt, addr pos
 		if (check2)
 			optparse_implicit_declare(local, &cons, opt, decl, cons);
 		if (check1 || check2)
-			list_alloc(local, &check, name, args, decl, doc, cons, NULL);
-		cons_alloc(local, &root, check, root);
+			list_local(local, &check, name, args, decl, doc, cons, NULL);
+		cons_local(local, &root, check, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
@@ -1975,7 +1975,7 @@ static int optparse_flet_args(LocalRoot local, addr *ret, optvalue opt, addr pos
 	GetEvalParse(pos, 2, &cons);
 
 	optparse_flet_one(local, &args, opt, args);
-	eval_parse_alloc(local, &pos, type, 3);
+	eval_parse_local(local, &pos, type, 3);
 	SetEvalParse(pos, 0, args);
 	SetEvalParse(pos, 1, decl);
 	SetEvalParse(pos, 2, cons);
@@ -2009,7 +2009,7 @@ static int optparse_flet_body(LocalRoot local, addr *ret, optvalue opt, addr pos
 	GetEvalParse(pos, 2, &cons);
 
 	optparse_implicit_declare(local, &cons, opt, decl, cons);
-	eval_parse_alloc(local, &pos, type, 3);
+	eval_parse_local(local, &pos, type, 3);
 	SetEvalParse(pos, 0, args);
 	SetEvalParse(pos, 1, decl);
 	SetEvalParse(pos, 2, cons);
@@ -2067,8 +2067,8 @@ static int optparse_the1(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	GetEvalParse(pos, 0, &type);
 	GetEvalParse(pos, 1, &expr);
 
-	type_optimize_alloc(local, &type, type);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_THE, 2);
+	type_optimize_local(local, &type, type);
+	eval_parse_local(local, &pos, EVAL_PARSE_THE, 2);
 	SetEvalParse(pos, 0, type);
 	SetEvalParse(pos, 1, expr);
 	*ret = pos;
@@ -2093,7 +2093,7 @@ static int optparse_the2(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	GetEvalParse(pos, 1, &expr);
 
 	optparse(local, &expr, opt, expr);
-	eval_parse_alloc(local, &pos, EVAL_PARSE_THE, 2);
+	eval_parse_local(local, &pos, EVAL_PARSE_THE, 2);
 	SetEvalParse(pos, 0, type);
 	SetEvalParse(pos, 1, expr);
 	*ret = pos;
@@ -2136,7 +2136,7 @@ static int checkparse_eval_when1(optvalue opt, addr pos)
 static int optparse_eval_when1(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_eval_when1(opt, pos)) return 0;
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_NIL, Nil);
+	eval_single_parse_local(local, ret, EVAL_PARSE_NIL, Nil);
 	return 1;
 }
 
@@ -2218,10 +2218,10 @@ static int optparse_values(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	for (root = Nil; pos != Nil; ) {
 		GetCons(pos, &check, &pos);
 		optparse(local, &check, opt, check);
-		cons_alloc(local, &root, check, root);
+		cons_local(local, &root, check, root);
 	}
 	nreverse_list_unsafe(&pos, root);
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_VALUES, pos);
+	eval_single_parse_local(local, ret, EVAL_PARSE_VALUES, pos);
 
 	return 1;
 }
@@ -2244,7 +2244,7 @@ static int optparse_locally1(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_locally1(opt, pos)) return 0;
 	GetEvalParse(pos, 1, &pos); /* cons */
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_PROGN, pos);
+	eval_single_parse_local(local, ret, EVAL_PARSE_PROGN, pos);
 	return 1;
 }
 
@@ -2258,7 +2258,7 @@ static int checkparse_locally2(optvalue opt, addr pos)
 static int optparse_locally2(LocalRoot local, addr *ret, optvalue opt, addr pos)
 {
 	if (! checkparse_locally2(opt, pos)) return 0;
-	eval_single_parse_alloc(local, ret, EVAL_PARSE_NIL, Nil);
+	eval_single_parse_local(local, ret, EVAL_PARSE_NIL, Nil);
 	return 1;
 }
 
@@ -2622,7 +2622,7 @@ int eval_optparse(LocalRoot local, addr *ret, addr pos)
 	LocalStack stack;
 	struct optstruct opt;
 
-	Check(local == NULL, "local error");
+	CheckLocal(local);
 	push_local(local, &stack);
 	copy_eval_parse_local(local, &check, pos);
 	initialize_optstruct(&opt);

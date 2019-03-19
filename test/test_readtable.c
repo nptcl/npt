@@ -1,5 +1,4 @@
 #include "readtable.c"
-#include "calltype.h"
 #include "clos.h"
 #include "condition.h"
 #include "common.h"
@@ -12,6 +11,7 @@
 #include "strtype.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 
 /*
  *  chartable
@@ -943,6 +943,7 @@ static int test_macro_character_call(void)
 	ptr = Execute_Thread;
 	compiled_heap(&call, Nil);
 	setcompiled_var2(call, test_macro_character_call1);
+	check = 999;
 	result = macro_character_call(ptr, &check, &pos, call, Nil, T);
 	test(result == 0, "macro_character_call1");
 	test(check == 1, "macro_character_call2");
@@ -2959,7 +2960,6 @@ int test_readtable(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

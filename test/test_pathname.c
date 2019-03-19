@@ -1,5 +1,4 @@
 #include "pathname.c"
-#include "calltype.h"
 #include "clos.h"
 #include "common.h"
 #include "control.h"
@@ -9,6 +8,7 @@
 #include "readtable.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 
 #if 0
 static int test_pathname_heap(void)
@@ -1046,7 +1046,6 @@ int test_pathname(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

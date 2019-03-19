@@ -1,5 +1,5 @@
-#ifndef __RATIO_HEADER__
-#define __RATIO_HEADER__
+#ifndef __RATIONAL_HEADER__
+#define __RATIONAL_HEADER__
 
 #include "local.h"
 #include "number.h"

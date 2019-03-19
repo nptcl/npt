@@ -292,21 +292,12 @@ void alloc_arraybody_debug(LocalRoot local,
 /*
  *  init/free
  */
-static void build_object_character(void)
-{
-	addr pos;
-
-	/* character cache */
-	heap_array4(&pos, LISPTYPE_SYSTEM, CHARACTER_CACHE);
-	SetConstant(CONSTANT_CHARACTER_CACHE, pos);
-}
-
-static void build_object_fixnum(void)
+void build_object(void)
 {
 	addr pos;
 
 	/* fixnum cache */
-	heap_array4(&pos, LISPTYPE_SYSTEM, (FIXNUM_CACHE * 2) + 1);
+	heap_array4(&pos, LISPSYSTEM_FIXNUM_CACHE, (FIXNUM_CACHE * 2) + 1);
 	SetConstant(CONSTANT_FIXNUM_CACHE, pos);
 
 	/* fixnum max/min */
@@ -314,12 +305,6 @@ static void build_object_fixnum(void)
 	SetConstant(CONSTANT_FIXNUM_MAX, pos);
 	make_fixnum_heap(&pos, FIXNUM_MIN);
 	SetConstant(CONSTANT_FIXNUM_MIN, pos);
-}
-
-void build_object(void)
-{
-	build_object_character();
-	build_object_fixnum();
 }
 
 

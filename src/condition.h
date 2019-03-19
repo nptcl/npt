@@ -174,6 +174,8 @@ void type_error_constant(addr datum, constindex expected);
 #define TypeError(a,b) type_error_constant((a), CONSTANT_COMMON_##b)
 void type_error_datum(addr instance, addr *ret);
 void type_error_expected(addr instance, addr *ret);
+int typep_error(addr value, addr type);
+int typep_asterisk_error(addr value, addr type);
 /* simple_type_error */
 void instance_simple_type_error(addr *ret,
 		addr control, addr args, addr datum, addr expected);

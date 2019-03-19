@@ -1,5 +1,4 @@
 #include "code.c"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -12,6 +11,7 @@
 #include "pathname.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 
 /*
  *  code object
@@ -150,7 +150,6 @@ int test_code(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

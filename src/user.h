@@ -1,5 +1,5 @@
-#ifndef __HEADER_USER__
-#define __HEADER_USER__
+#ifndef __USER_HEADER__
+#define __USER_HEADER__
 
 #include "execute.h"
 

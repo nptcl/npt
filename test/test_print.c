@@ -1,6 +1,5 @@
 #include "print.c"
 #include "bigcons.h"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "code.h"
@@ -14,6 +13,7 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 
 #define testString(stream, string, name) { \
 	addr __check; \
@@ -865,7 +865,6 @@ int test_print(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

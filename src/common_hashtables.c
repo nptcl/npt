@@ -160,26 +160,26 @@ static void type_make_hash_table(addr *ret)
 
 	/* test */
 	GetConst(KEYWORD_TEST, &key);
-	GetCallType(&type, FunctionDesigner);
+	GetTypeTable(&type, FunctionDesigner);
 	cons_heap(&key1, key, type);
 	/* size */
 	GetConst(KEYWORD_SIZE, &key);
-	GetCallType(&type, Index);
+	GetTypeTable(&type, Index);
 	cons_heap(&key2, key, type);
 	/* rehash-size */
 	GetConst(KEYWORD_REHASH_SIZE, &key);
-	GetCallType(&type, RehashSize);
+	GetTypeTable(&type, RehashSize);
 	cons_heap(&key3, key, type);
 	/* rehash-threshold */
 	GetConst(KEYWORD_REHASH_THRESHOLD, &key);
-	GetCallType(&type, RehashThreshold);
+	GetTypeTable(&type, RehashThreshold);
 	cons_heap(&key4, key, type);
 	/* &key */
 	list_heap(&arg, key1, key2, key3, key4, NULL);
-	key_argtype(&arg, arg);
+	typeargs_key(&arg, arg);
 	/* values */
-	GetCallType(&values, Hashtable);
-	result_valuestype(&values, values);
+	GetTypeTable(&values, Hashtable);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -215,7 +215,7 @@ static void defun_hash_table_p(void)
 	setcompiled_var1(pos, function_hash_table_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -243,7 +243,7 @@ static void defun_hash_table_count(void)
 	setcompiled_var1(pos, function_hash_table_count);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_HashTableCount);
+	GetTypeCompiled(&type, HashTableCount);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -275,10 +275,10 @@ static void type_hash_table_rehash_size(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Hashtable);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, RehashSize);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Hashtable);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, RehashSize);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -314,10 +314,10 @@ static void type_hash_table_rehash_threshold(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Hashtable);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, RehashThreshold);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Hashtable);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, RehashThreshold);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -359,7 +359,7 @@ static void defun_hash_table_size(void)
 	setcompiled_var1(pos, function_hash_table_size);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_HashTableCount);
+	GetTypeCompiled(&type, HashTableCount);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -399,9 +399,9 @@ static void type_hash_table_test(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Hashtable);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Symbol);
+	GetTypeTable(&arg, Hashtable);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Symbol);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -437,11 +437,11 @@ static void type_gethash(addr *ret)
 {
 	addr arg, values, type1, type2;
 
-	GetCallType(&arg, Hashtable);
-	GetCallType(&type1, T);
-	GetCallType(&type2, Boolean);
-	var2opt1_argtype(&arg, type1, arg, type1);
-	values2_valuestype(&values, type1, type2);
+	GetTypeTable(&arg, Hashtable);
+	GetTypeTable(&type1, T);
+	GetTypeTable(&type2, Boolean);
+	typeargs_var2opt1(&arg, type1, arg, type1);
+	typevalues_values2(&values, type1, type2);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -477,10 +477,10 @@ static void type_setf_gethash(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Hashtable);
-	GetCallType(&values, T);
-	var3opt1_argtype(&arg, values, values, arg, values);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&arg, Hashtable);
+	GetTypeTable(&values, T);
+	typeargs_var3opt1(&arg, values, values, arg, values);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -510,10 +510,10 @@ static void type_remhash(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Hashtable);
-	GetCallType(&values, T);
-	var2_argtype(&arg, values, arg);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, Hashtable);
+	GetTypeTable(&values, T);
+	typeargs_var2(&arg, values, arg);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -567,10 +567,10 @@ static void type_maphash(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Hashtable);
-	GetCallType(&values, Function);
-	var2_argtype(&arg, values, arg);
-	GetCallType(&values, Values_Null);
+	GetTypeTable(&arg, Hashtable);
+	GetTypeTable(&values, Function);
+	typeargs_var2(&arg, values, arg);
+	GetTypeValues(&values, Null);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -661,7 +661,7 @@ static void defmacro_with_hash_table_iterator(void)
 	setcompiled_macro(pos, function_with_hash_table_iterator);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -677,9 +677,9 @@ static void type_clrhash(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&values, Hashtable);
-	var1_argtype(&arg, values);
-	result_valuestype(&values, values);
+	GetTypeTable(&values, Hashtable);
+	typeargs_var1(&arg, values);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -712,10 +712,10 @@ static void type_sxhash(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, T);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Index);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, T);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, Index);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 

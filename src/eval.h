@@ -35,7 +35,7 @@ enum EVAL_OPTIMIZE {
 #define GetEvalType_Low(p,v)	(*(v) = RefEvalType_Low(p))
 #define SetEvalType_Low(p,v)	SetUser((p), (byte)(v))
 
-#if LISP_DEBUG
+#ifdef LISP_DEBUG
 #define RefEval(p,i)		refeval(p,i)
 #define GetEval(p,i,v)		geteval(p,i,v)
 #define SetEval(p,i,v)		seteval(p,i,v)

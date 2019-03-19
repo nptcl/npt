@@ -1,5 +1,5 @@
-#ifndef __HEADER_BIGDATA__
-#define __HEADER_BIGDATA__
+#ifndef __BIGDATA_HEADER__
+#define __BIGDATA_HEADER__
 
 #include "lisp.h"
 #include "typedef.h"

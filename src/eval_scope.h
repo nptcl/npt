@@ -1,5 +1,5 @@
-#ifndef __HEADER_EVAL_SCOPE__
-#define __HEADER_EVAL_SCOPE__
+#ifndef __EVAL_SCOPE_HEADER__
+#define __EVAL_SCOPE_HEADER__
 
 #include "eval.h"
 #include "eval_parse.h"

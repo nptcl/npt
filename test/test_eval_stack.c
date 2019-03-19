@@ -1,7 +1,6 @@
 #include "eval_stack.c"
 #include "array.h"
 #include "bignum.h"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -18,6 +17,7 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 
 /*
  *  memory
@@ -429,7 +429,7 @@ static int test_apply_optimize_stack(void)
 
 	eval_stack_heap(&pos, EVAL_STACK_MODE_NIL);
 	readstring(&decl, "((optimize (speed 0) (debug 1) safety))");
-	parse_declaim_alloc(NULL, decl, &decl);
+	parse_declaim_heap(Execute_Thread, Nil, decl, &decl);
 	apply_optimize_stack(pos, decl);
 
 	optimize = StructEvalStack(pos)->optimize;
@@ -446,11 +446,9 @@ static int test_apply_declaim_stack(void)
 	int check;
 	addr control, pos, table, list, key, value, constant;
 	Execute ptr;
-	LocalRoot local;
 	const OptimizeType *optimize;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_close_control(ptr, &control);
 	init_eval_stack(ptr);
 
@@ -458,7 +456,7 @@ static int test_apply_declaim_stack(void)
 			"((declaration hello) (type integer qq ww) (ftype function ee) "
 			" (special aa bb cc) (inline aa bb cc) (notinline dd) "
 			" (optimize speed compilation-speed))");
-	parse_declaim_alloc(local, pos, &pos);
+	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	getglobal_eval(ptr, &pos);
 	GetEvalStackTable(pos, &table);
@@ -545,7 +543,7 @@ static int test_apply_declare_stack(void)
 	readstring(&pos, "((special aa bb cc) "
 			" (dynamic-extent aa bb #'cc #'dd) "
 			" (ignore ee #'ff) (ignorable gg hh #'ii #'jj))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	stack = newstack_nil(ptr);
 	apply_declare_stack(local, stack, pos);
 	GetEvalStackTable(stack, &table);
@@ -705,7 +703,7 @@ static int test_apply_declare_value_stack(void)
 	readstring(&decl, "((special aa bb cc) (integer aa bb) "
 			" (dynamic-extent aa bb #'cc #'dd) "
 			" (ignore aa #'bb) (ignorable cc hh #'ii #'jj))");
-	parse_declare_alloc(local, decl, &decl);
+	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
 	stack = newstack_nil(ptr);
 	readstring(&symbol, "zz");
 	apply_declare_value_stack(local, stack, symbol, decl);
@@ -802,7 +800,6 @@ int test_eval_stack(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

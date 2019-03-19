@@ -1,5 +1,6 @@
 #include <errno.h>
 #include "character.h"
+#include "constant.h"
 #include "hashtable.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -130,6 +131,15 @@ int character2_equalp_unicode(addr left, unicode a, unicode b)
 /*
  *  character table
  */
+static void build_character_cache(void)
+{
+	addr pos;
+
+	/* character cache */
+	heap_array4(&pos, LISPSYSTEM_CHARACTER_CACHE, CHARACTER_CACHE);
+	SetConst(CHARACTER_CACHE, pos);
+}
+
 static void defnametable(addr getname, addr getchar, unicode u, const char *name)
 {
 	addr pos, string, cons;
@@ -146,7 +156,7 @@ static void defnametable(addr getname, addr getchar, unicode u, const char *name
 	}
 }
 
-void build_character(void)
+static void build_character_name(void)
 {
 	addr getname, getchar;
 
@@ -165,6 +175,12 @@ void build_character(void)
 	defnametable(getname, getchar, 0x7F, "Rubout");
 	Root(LISPINDEX_CHAR_NAME) = getname;
 	Root(LISPINDEX_NAME_CHAR) = getchar;
+}
+
+void build_character(void)
+{
+	build_character_cache();
+	build_character_name();
 }
 
 int findtable_unicode_name(addr *ret, unicode u)

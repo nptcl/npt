@@ -36,7 +36,7 @@ static void defun_prin1(void)
 	setcompiled_var1opt1(pos, function_prin1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Prin1);
+	GetTypeCompiled(&type, Prin1);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -71,7 +71,7 @@ static void defun_princ(void)
 	setcompiled_var1opt1(pos, function_princ);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Prin1);
+	GetTypeCompiled(&type, Prin1);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -107,7 +107,7 @@ static void defun_print(void)
 	setcompiled_var1opt1(pos, function_print);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Prin1);
+	GetTypeCompiled(&type, Prin1);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -139,7 +139,7 @@ static void defun_prin1_to_string(void)
 	setcompiled_var1(pos, function_prin1_to_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Prin1ToString);
+	GetTypeCompiled(&type, Prin1ToString);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -172,7 +172,7 @@ static void defun_princ_to_string(void)
 	setcompiled_var1(pos, function_princ_to_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Prin1ToString);
+	GetTypeCompiled(&type, Prin1ToString);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -188,7 +188,7 @@ static void defvar_print_array(void)
 	SetValueSymbol(symbol, T);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -204,7 +204,7 @@ static void defvar_print_base(void)
 	SetValueSymbol(symbol, value);
 	setspecial_symbol(symbol);
 	/* type */
-	type_intrange(Nil, 2, Nil, 36, &type);
+	GetTypeTable(&type, RadixInteger);
 	settype_value_symbol(symbol, type);
 }
 
@@ -219,7 +219,7 @@ static void defvar_print_radix(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -260,7 +260,7 @@ static void defvar_print_circle(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -275,7 +275,7 @@ static void defvar_print_escape(void)
 	SetValueSymbol(symbol, T);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -290,7 +290,7 @@ static void defvar_print_gensym(void)
 	SetValueSymbol(symbol, T);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -305,7 +305,7 @@ static void defvar_print_level(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, IndexNull);
+	GetTypeTable(&type, IndexNull);
 	settype_value_symbol(symbol, type);
 }
 
@@ -320,7 +320,7 @@ static void defvar_print_length(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, IndexNull);
+	GetTypeTable(&type, IndexNull);
 	settype_value_symbol(symbol, type);
 }
 
@@ -335,7 +335,7 @@ static void defvar_print_lines(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, IndexNull);
+	GetTypeTable(&type, IndexNull);
 	settype_value_symbol(symbol, type);
 }
 
@@ -350,7 +350,7 @@ static void defvar_print_miser_width(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, IndexNull);
+	GetTypeTable(&type, IndexNull);
 	settype_value_symbol(symbol, type);
 }
 
@@ -364,7 +364,7 @@ static void defvar_print_pprint_dispatch(void)
 	GetConst(SPECIAL_PRINT_PPRINT_DISPATCH, &symbol);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, T);  /* TODO: pprint-dispatch-table */
+	GetTypeTable(&type, T);  /* TODO: pprint-dispatch-table */
 	settype_value_symbol(symbol, type);
 }
 
@@ -379,7 +379,7 @@ static void defvar_print_pretty(void)
 	SetValueSymbol(symbol, T);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -394,7 +394,7 @@ static void defvar_print_readably(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -409,7 +409,7 @@ static void defvar_print_right_margin(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, IndexNull);
+	GetTypeTable(&type, IndexNull);
 	settype_value_symbol(symbol, type);
 }
 
@@ -434,22 +434,16 @@ static void type_format(addr *ret)
 	addr arg, values, null, eqlt, stream, string, orv, any;
 
 	/* (or null (eql t) stream string) */
-	GetCallType(&null, Null);
-	type_object1(NULL, LISPDECL_EQL, T, &eqlt);
-	GetCallType(&stream, Stream);
-	GetCallType(&string, String);
-	vector4_heap(&orv, 4);
-	SetArrayA4(orv, 0, null);
-	SetArrayA4(orv, 1, eqlt);
-	SetArrayA4(orv, 2, stream);
-	SetArrayA4(orv, 3, string);
-	type_object1(NULL, LISPDECL_OR, orv, &orv);
+	GetTypeTable(&null, Null);
+	GetTypeTable(&eqlt, EqlT);
+	GetTypeTable(&stream, Stream);
+	GetTypeTable(&string, String);
+	type4or_heap(null, eqlt, stream, string, &orv);
 	/* ((or ...) string &rest t) */
-	GetCallType(&any, T);
-	var2rest_argtype(&arg, orv, string, any);
-	type_or(NULL, null, string, &values);
+	GetTypeTable(&any, T);
+	typeargs_var2rest(&arg, orv, string, any);
 	/* (values (or null string) &rest nil) */
-	result_valuestype(&values, values);
+	GetTypeValues(&values, StringNull);
 	type_compiled_heap(arg, values, ret);
 }
 

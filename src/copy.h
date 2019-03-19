@@ -1,5 +1,5 @@
-#ifndef __HEADER_COPYSOFT__
-#define __HEADER_COPYSOFT__
+#ifndef __COPY_HEADER__
+#define __COPY_HEADER__
 
 #include "typedef.h"
 #include "local.h"
@@ -28,8 +28,8 @@ void copyhard_object(LocalRoot local, addr *ret, addr pos);
 int copylocalp(LocalRoot local, addr pos);
 int copylocal_check(LocalRoot local, addr pos);
 int copylocal_object(LocalRoot local, addr *ret, addr pos);
-
 void copylocal_list_stdarg(LocalRoot local, addr *ret, va_list args);
+int copyheap(addr *ret, addr pos);
 
 void init_copy(void);
 

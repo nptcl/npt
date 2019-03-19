@@ -1,5 +1,5 @@
-#ifndef __HEADER_RADIX__
-#define __HEADER_RADIX__
+#ifndef __RADIX_HEADER__
+#define __RADIX_HEADER__
 
 #include "local.h"
 #include "typedef.h"

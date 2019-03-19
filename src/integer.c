@@ -1,7 +1,6 @@
 #include "bigcons.h"
 #include "bigdata.h"
 #include "bignum.h"
-#include "calltype.h"
 #include "character.h"
 #include "condition.h"
 #include "integer.h"
@@ -10,6 +9,7 @@
 #include "stream_string.h"
 #include "strtype.h"
 #include "token.h"
+#include "type_table.h"
 
 /*
  *  type
@@ -572,7 +572,7 @@ int getindex_integer(addr pos, size_t *ret)
 			return getindex_bignum(pos, ret);
 
 		default:
-			GetCallType(&type, Index);
+			GetTypeTable(&type, Index);
 			type_error(pos, type);
 			return 1;
 	}
@@ -599,7 +599,7 @@ void getindex_error(addr pos, size_t *ret)
 	return;
 
 error:
-	GetCallType(&type, Index);
+	GetTypeTable(&type, Index);
 	type_error(pos, type);
 }
 

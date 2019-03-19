@@ -9,10 +9,10 @@ int range_asterisk_p(addr type)
 	addr check;
 
 	GetArrayType(type, 0, &check);
-	if (! asterisk_p(check)) return 0;
+	if (! type_asterisk_p(check)) return 0;
 	GetArrayType(type, 2, &check);
 
-	return asterisk_p(check);
+	return type_asterisk_p(check);
 }
 
 /* (integer 10 *) */
@@ -21,10 +21,10 @@ int range_left_p(addr type)
 	addr check;
 
 	GetArrayType(type, 0, &check);
-	if (asterisk_p(check)) return 0;
+	if (type_asterisk_p(check)) return 0;
 	GetArrayType(type, 2, &check);
 
-	return asterisk_p(check);
+	return type_asterisk_p(check);
 }
 
 /* (integer 10 ?) */
@@ -32,7 +32,7 @@ int range_left_any_p(addr type)
 {
 	addr check;
 	GetArrayType(type, 0, &check);
-	return ! asterisk_p(check);
+	return ! type_asterisk_p(check);
 }
 
 /* (integer * 10) */
@@ -41,10 +41,10 @@ int range_right_p(addr type)
 	addr check;
 
 	GetArrayType(type, 0, &check);
-	if (! asterisk_p(check)) return 0;
+	if (! type_asterisk_p(check)) return 0;
 	GetArrayType(type, 2, &check);
 
-	return ! asterisk_p(check);
+	return ! type_asterisk_p(check);
 }
 
 /* (integer ? 10) */
@@ -52,7 +52,7 @@ int range_any_right_p(addr type)
 {
 	addr check;
 	GetArrayType(type, 2, &check);
-	return ! asterisk_p(check);
+	return ! type_asterisk_p(check);
 }
 
 /* (integer 10 20) */
@@ -61,10 +61,10 @@ int range_between_p(addr type)
 	addr check;
 
 	GetArrayType(type, 0, &check);
-	if (asterisk_p(check)) return 0;
+	if (type_asterisk_p(check)) return 0;
 	GetArrayType(type, 2, &check);
 
-	return ! asterisk_p(check);
+	return ! type_asterisk_p(check);
 }
 
 void range_left_value(addr value, addr *left1, addr *left2)

@@ -2,6 +2,7 @@
 #include "clos_object.h"
 #include "clos_standard.h"
 #include "condition.h"
+#include "copy.h"
 #include "cons.h"
 #include "constant.h"
 #include "control.h"
@@ -19,8 +20,10 @@
 #include "stream_string.h"
 #include "symbol.h"
 #include "type.h"
+#include "type_copy.h"
+#include "type_object.h"
+#include "type_parse.h"
 #include "type_typep.h"
-#include "type_value.h"
 
 /*
  *  restart
@@ -317,7 +320,7 @@ static void output_type_error(addr stream, addr instance)
 	type_error_datum(instance, &datum);
 	type_error_expected(instance, &expected);
 	if (GetType(expected) == LISPTYPE_TYPE)
-		type_object(NULL, &expected, expected);
+		type_object(&expected, expected);
 	fmts(stream, "Value ~S must be a ~S type.~%", datum, expected, NULL);
 }
 
@@ -529,16 +532,20 @@ int condition_instance_p(addr pos)
 
 int signal_function(addr condition)
 {
-	addr signals;
+	int check;
+	addr signals, type;
 	Execute ptr;
 
 	ptr = Execute_Thread;
 	/* break-on-signals */
 	GetConst(SPECIAL_BREAK_ON_SIGNALS, &signals);
 	getspecialcheck_local(ptr, signals, &signals);
-	if (typep_asterisk_throw(ptr->local, condition, signals)) {
+	if (parse_type(ptr, &type, signals, Nil))
+		fmte("Invalid *break-on-signals* type ~S.", signals, NULL);
+	if (typep_asterisk_clang(condition, type, &check))
+		fmte("Invalid typep ~S.", type, NULL);
+	if (check)
 		return invoke_debugger(condition);
-	}
 	/* signal */
 	return invoke_handler_control(ptr, condition);
 }
@@ -1125,6 +1132,38 @@ void type_error_expected(addr instance, addr *ret)
 	addr key;
 	GetConst(KEYWORD_EXPECTED_TYPE, &key);
 	clos_value(instance, key, ret);
+}
+
+int typep_error(addr value, addr type)
+{
+	int check;
+
+	if (typep_clang(value, type, &check)) {
+		return 1;
+	}
+	if (! check) {
+		copyheap(&value, value);
+		type_copy_heap(&type, type);
+		type_error(value, type);
+	}
+
+	return 0;
+}
+
+int typep_asterisk_error(addr value, addr type)
+{
+	int check;
+
+	if (typep_asterisk_clang(value, type, &check)) {
+		return 1;
+	}
+	if (! check) {
+		copyheap(&value, value);
+		type_copy_heap(&type, type);
+		type_error(value, type);
+	}
+
+	return 0;
 }
 
 /* simple_type_error (simple_condition type_error)

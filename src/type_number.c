@@ -6,6 +6,7 @@
 #include "type_optimize.h"
 #include "type_parse.h"
 #include "type_range.h"
+#include "type_table.h"
 
 /*
  *  real_filter
@@ -13,19 +14,17 @@
 static void type_range_left(LocalRoot local,
 		addr *ret, enum LISPDECL type, addr left1, addr left2)
 {
-	type_object4(local, type, left1, left2,
-			type_asterisk_allocr(local),
-			type_asterisk_allocr(local),
-			ret);
+	addr aster;
+	GetTypeTable(&aster, Asterisk);
+	type4_local(local, type, left1, left2, aster, aster, ret);
 }
 
 static void type_range_right(LocalRoot local,
 		addr *ret, enum LISPDECL type, addr right1, addr right2)
 {
-	type_object4(local, type,
-			type_asterisk_allocr(local),
-			type_asterisk_allocr(local),
-			right1, right2, ret);
+	addr aster;
+	GetTypeTable(&aster, Asterisk);
+	type4_local(local, type, aster, aster, right1, right2, ret);
 }
 
 static void type_range_not(LocalRoot local, addr *ret, enum LISPDECL type,
@@ -33,12 +32,12 @@ static void type_range_not(LocalRoot local, addr *ret, enum LISPDECL type,
 {
 	addr pos;
 
-	vector4_alloc(local, &pos, 2);
+	vector4_local(local, &pos, 2);
 	type_range_left(local, &right1, type, (right1 == Nil)? T: Nil, right2);
 	type_range_right(local, &left1, type, (left1 == Nil)? T: Nil, left2);
 	SetArrayA4(pos, 0, right1);
 	SetArrayA4(pos, 1, left1);
-	type_object1(local, LISPDECL_OR, pos, ret);
+	type1_local(local, LISPDECL_OR, pos, ret);
 }
 
 static void real_filter_not_range(LocalRoot local,
@@ -49,8 +48,8 @@ static void real_filter_not_range(LocalRoot local,
 
 	GetArrayType(type, 0, &left1);
 	GetArrayType(type, 2, &right1);
-	aster1 = asterisk_p(left1);
-	aster2 = asterisk_p(right1);
+	aster1 = type_asterisk_p(left1);
+	aster2 = type_asterisk_p(right1);
 	if (aster1 && aster2) {
 		*ret = Nil;
 		return;
@@ -80,11 +79,11 @@ static void real_filter_not(LocalRoot local, addr *ret, addr type, enum LISPDECL
 		*ret = Nil;
 		return;
 	}
-	if (subtype_real_p(decl, right)) {
+	if (decl_subtypep_real(decl, right)) {
 		real_filter_not_range(local, ret, type, decl);
 		return;
 	}
-	type_aster4(local, decl, ret);
+	type4aster_local(local, decl, ret);
 }
 
 static void real_filter_normal(LocalRoot local,
@@ -95,15 +94,15 @@ static void real_filter_normal(LocalRoot local,
 
 	GetLispDecl(type, &right);
 	if (right == LISPDECL_NUMBER) {
-		type_aster4(local, decl, ret);
+		type4aster_local(local, decl, ret);
 		return;
 	}
-	if (subtype_real_p(decl, right)) {
+	if (decl_subtypep_real(decl, right)) {
 		GetArrayType(type, 0, &left1);
 		GetArrayType(type, 1, &left2);
 		GetArrayType(type, 2, &right1);
 		GetArrayType(type, 3, &right2);
-		type_object4(local, decl, left1, left2, right1, right2, ret);
+		type4_local(local, decl, left1, left2, right1, right2, ret);
 		return;
 	}
 	*ret = Nil;
@@ -127,12 +126,12 @@ static void vector4_andor(LocalRoot local,
 		*ret = Nil;
 		return;
 	}
-	vector4_alloc(local, &dst, size);
+	vector4_local(local, &dst, size);
 	for (i = 0; i < size; i++) {
 		GetArrayA4(src, i, &pos);
 		SetArrayA4(dst, i, pos);
 	}
-	type_object1(local, decl, dst, ret);
+	type1_local(local, decl, dst, ret);
 }
 
 static void real_filter(LocalRoot local, addr *ret, addr type, enum LISPDECL decl);
@@ -144,7 +143,7 @@ static void real_filter_and(LocalRoot local, addr *ret, addr type, enum LISPDECL
 	/* copy temporary */
 	GetArrayType(type, 0, &type);
 	LenArrayA4(type, &size);
-	vector4_alloc(local, &temp, size);
+	vector4_local(local, &temp, size);
 	for (count = i = 0; i < size; i++) {
 		GetArrayA4(type, i, &pos);
 		real_filter(local, &pos, pos, decl);
@@ -164,7 +163,7 @@ static void real_filter_or(LocalRoot local, addr *ret, addr type, enum LISPDECL 
 	/* copy temporary */
 	GetArrayType(type, 0, &type);
 	LenArrayA4(type, &size);
-	vector4_alloc(local, &temp, size);
+	vector4_local(local, &temp, size);
 	for (count = i = 0; i < size; i++) {
 		GetArrayA4(type, i, &pos);
 		real_filter(local, &pos, pos, decl);
@@ -202,7 +201,7 @@ static void merge_range_cons(LocalRoot local, addr *ret, addr type, enum LISPDEC
 {
 	Check(RefLispDecl(type) != decl, "type error");
 	Check(RefNotDecl(type), "not error");
-	conscar_alloc(local, ret, type);
+	conscar_local(local, ret, type);
 }
 
 /* merge-range-and */
@@ -212,7 +211,7 @@ static void make_range_left_right(LocalRoot local, addr *ret, addr left, addr ri
 
 	range_left_value(left, &left1, &left2);
 	range_right_value(right, &right1, &right2);
-	type_object4(local, RefLispDecl(left), left1, left2, right1, right2, ret);
+	type4_local(local, RefLispDecl(left), left1, left2, right1, right2, ret);
 }
 
 static void make_range_left_aster(LocalRoot local, addr *ret, addr left)
@@ -403,7 +402,7 @@ static void map_range_and(LocalRoot local, addr *ret, addr list, addr right)
 		GetCons(list, &left, &list);
 		range_and(local, &left, left, right);
 		if (left != Nil)
-			cons_alloc(local, &result, left, result);
+			cons_local(local, &result, left, result);
 	}
 	nreverse_list_unsafe(ret, result);
 }
@@ -463,7 +462,7 @@ static void merge_range_and(LocalRoot local, addr *ret, addr type, enum LISPDECL
 	}
 	if (size == 1) {
 		GetArrayA4(type, 0, &type);
-		conscar_alloc(local, ret, type);
+		conscar_local(local, ret, type);
 		return;
 	}
 	range_and_otherwise(local, ret, type, decl);
@@ -497,7 +496,7 @@ static void pushlist(LocalRoot local, addr *ret, addr list, addr result)
 
 	while (list != Nil) {
 		GetCons(list, &one, &list);
-		cons_alloc(local, &result, one, result);
+		cons_local(local, &result, one, result);
 	}
 	*ret = result;
 }
@@ -512,14 +511,14 @@ static int extpaircall_left(LocalRoot local, extpairtype call, addr *ret, addr r
 	for (cons = right; cons != Nil; ) {
 		GetCons(cons, &left, &cons);
 		if (update) {
-			cons_alloc(local, &result, left, result);
+			cons_local(local, &result, left, result);
 		}
 		else {
 			check = extpaircall_right(local, call, &value, left, right);
 			if (check < 0)
 				pushlist(local, &result, value, result);
 			else
-				cons_alloc(local, &result, check? value: left, result);
+				cons_local(local, &result, check? value: left, result);
 			if (check)
 				update = 1;
 		}
@@ -593,7 +592,7 @@ static int range_or_left_right(LocalRoot local, addr *ret, addr left, addr right
 	if (range_left_p(left) &&
 			range_right_p(right) &&
 			range_connect_right_left(right, left)) {
-		type_aster4(local, RefLispDecl(left), ret);
+		type4aster_local(local, RefLispDecl(left), ret);
 		return 1;
 	}
 	return 0;
@@ -665,7 +664,7 @@ static void merge_range_orplus(LocalRoot local, addr *ret, addr left, addr right
 {
 	int update, result;
 
-	append_cons_alloc_unsafe(local, &left, left, right);
+	append_cons_local_unsafe(local, &left, left, right);
 	for (result = 0; ; result |= update) {
 		update = 0;
 		extpaircall(local, range_or_check, &left, &update);
@@ -724,7 +723,7 @@ static void merge_range_or(LocalRoot local, addr *ret, addr type, enum LISPDECL 
 	}
 	if (size == 1) {
 		GetArrayA4(type, 0, &type);
-		conscar_alloc(local, ret, type);
+		conscar_local(local, ret, type);
 		return;
 	}
 	range_or_otherwise(local, ret, type, decl);
@@ -756,12 +755,12 @@ static void type_or_cons(LocalRoot local, addr *ret, addr cons)
 	for (size = 0; array != Nil; size++) {
 		GetCdr(array, &array);
 	}
-	vector4_alloc(local, &array, size);
+	vector4_local(local, &array, size);
 	for (i = 0; cons != Nil; i++) {
 		GetCons(cons, &pos, &cons);
 		SetArrayA4(array, i, pos);
 	}
-	type_object1(local, LISPDECL_OR, array, ret);
+	type1_local(local, LISPDECL_OR, array, ret);
 }
 
 static void make_merge_range(LocalRoot local, addr *ret, addr type, enum LISPDECL decl)
@@ -772,7 +771,7 @@ static void make_merge_range(LocalRoot local, addr *ret, addr type, enum LISPDEC
 		return;
 	}
 	if (type == T) {
-		type_aster4(local, decl, ret);
+		type4aster_local(local, decl, ret);
 		return;
 	}
 	if (singlep(type)) {
@@ -790,7 +789,7 @@ static void merge_range(LocalRoot local, addr *ret, addr type, enum LISPDECL dec
 {
 	real_filter(local, &type, type, decl);
 	if (type != Nil) {
-		type_optimize_alloc(local, &type, type);
+		type_optimize_local(local, &type, type);
 		get_type_optimized(&type, type);
 	}
 	if ((type == Nil) || (RefLispDecl(type) == LISPDECL_NIL))
@@ -827,7 +826,7 @@ static size_t real_filter_range_list(LocalRoot local, addr *ret, addr type)
 		if (decl == LISPDECL_EMPTY) break;
 		merge_range(local, &check, type, decl);
 		if (check != Nil) {
-			cons_alloc(local, &cons, check, cons);
+			cons_local(local, &cons, check, cons);
 			size++;
 		}
 	}
@@ -841,21 +840,21 @@ static void real_reject(LocalRoot local, addr *ret, addr type)
 	addr pos;
 
 	/* (and (not real) [type]) */
-	vector4_alloc(local, &pos, 2);
+	vector4_local(local, &pos, 2);
 	SetArrayA4(pos, 1, type);
-	type_aster4(local, LISPDECL_REAL, &type);
+	type4aster_local(local, LISPDECL_REAL, &type);
 	SetNotDecl(type, 1);
 	SetArrayA4(pos, 0, type);
-	type_object1(local, LISPDECL_AND, pos, ret);
+	type1_local(local, LISPDECL_AND, pos, ret);
 }
 
-static void copy_cons_to_vector4_alloc(LocalRoot local,
+static void copy_cons_to_vector4_local(LocalRoot local,
 		addr *ret, addr cons, size_t size)
 {
 	addr array, pos;
 	size_t i;
 
-	vector4_alloc(local, &array, size);
+	vector4_local(local, &array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(cons, &pos, &cons);
 		SetArrayA4(array, i, pos);
@@ -874,53 +873,43 @@ static void make_real_filter(LocalRoot local, addr *ret, addr type)
 	}
 	else {
 		real_reject(local, &type, type);
-		cons_alloc(local, &pos, type, pos);
-		copy_cons_to_vector4_alloc(local, &pos, pos, size + 1UL);
-		type_object1(local, LISPDECL_OR, pos, ret);
+		cons_local(local, &pos, type, pos);
+		copy_cons_to_vector4_local(local, &pos, pos, size + 1UL);
+		type1_local(local, LISPDECL_OR, pos, ret);
 	}
 }
 
 static void real_extract(LocalRoot local, addr *ret, addr type)
 {
-	type_optimize_alloc(local, &type, type);
+	type_optimize_local(local, &type, type);
 	get_type_optimized(&type, type);
 	make_real_filter(local, &type, type);
-	type_optimize_alloc(local, &type, type);
+	type_optimize_local(local, &type, type);
 	get_type_optimized(ret, type);
 }
 
-void real_extract_alloc(LocalRoot local, addr *ret, addr type)
+void real_extract_local(LocalRoot local, addr *ret, addr type)
 {
+	CheckLocal(local);
 	CheckType(type, LISPTYPE_TYPE);
 	if (RefLispDecl(type) == LISPDECL_SUBTYPEP) {
 		*ret = type;
 	}
 	else {
 		real_extract(local, &type, type);
-		type_object1(local, LISPDECL_SUBTYPEP, type, ret);
+		type1_local(local, LISPDECL_SUBTYPEP, type, ret);
 	}
-}
-
-void real_extract_local(LocalRoot local, addr *ret, addr type)
-{
-	Check(local == NULL, "local error");
-	real_extract_alloc(local, ret, type);
 }
 
 void real_extract_heap(LocalRoot local, addr *ret, addr type)
 {
 	LocalStack stack;
 
-	Check(local == NULL, "local error");
+	CheckLocal(local);
 	push_local(local, &stack);
-	real_extract_alloc(local, &type, type);
+	real_extract_local(local, &type, type);
 	type_copy_heap(ret, type);
 	rollback_local(local, stack);
-}
-
-void real_extract_heap_unsafe(addr *ret, addr type)
-{
-	real_extract_alloc(NULL, ret, type);
 }
 
 int type_subtypep_p(addr type)

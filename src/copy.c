@@ -652,6 +652,11 @@ void copylocal_list_stdarg(LocalRoot local, addr *ret, va_list args)
 	}
 }
 
+int copyheap(addr *ret, addr pos)
+{
+	return copylocal_object(NULL, ret, pos);
+}
+
 static void init_copylocal_call(void)
 {
 	int i;

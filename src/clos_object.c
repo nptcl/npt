@@ -619,7 +619,7 @@ static void check_elt(addr clos,
 	addr pos, root;
 
 	/* clos check */
-	Check(closp(clos), "clos type error.");
+	Check(! closp(clos), "clos type error.");
 	/* class-of check */
 	GetConstant(class_of, &root);
 	clos_class_of(clos, &pos);
@@ -697,7 +697,7 @@ static void setf_check_elt(addr clos,
 	addr pos, root;
 
 	/* clos check */
-	Check(closp(clos), "clos type error.");
+	Check(! closp(clos), "clos type error.");
 	/* class-of check */
 	GetConstant(class_of, &root);
 	clos_class_of(clos, &pos);

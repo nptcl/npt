@@ -20,39 +20,10 @@ int empty_declare(addr pos);
 int empty_nil_declare(addr pos);
 void apply_array_declare(OptimizeType *array, addr pos);
 
-void set_type_declare_alloc(LocalRoot local, addr pos, addr symbol, addr type);
-int get_type_declare(addr pos, addr symbol, addr *ret);
-void set_ftype_declare_alloc(LocalRoot local, addr pos, addr symbol, addr type);
-int get_ftype_declare(addr pos, addr symbol, addr *ret);
-void push_inline_declare_alloc(LocalRoot local, addr pos, addr symbol);
-int check_inline_declare(addr pos, addr symbol);
-void push_notinline_declare_alloc(LocalRoot local, addr pos, addr symbol);
-int check_notinline_declare(addr pos, addr symbol);
-void push_ignore_value_declare_alloc(LocalRoot local, addr pos, addr symbol);
-int check_ignore_value_declare(addr pos, addr symbol);
-void push_ignorable_value_declare_alloc(LocalRoot local, addr pos, addr symbol);
-int check_ignorable_value_declare(addr pos, addr symbol);
-void push_ignore_function_declare_alloc(LocalRoot local, addr pos, addr symbol);
-int check_ignore_function_declare(addr pos, addr symbol);
-void push_ignorable_function_declare_alloc(LocalRoot local, addr pos, addr symbol);
-int check_ignorable_function_declare(addr pos, addr symbol);
-void push_special_declare_alloc(LocalRoot local, addr pos, addr symbol);
-int check_special_declare(addr pos, addr symbol);
-void push_dynamic_value_declare_alloc(LocalRoot local, addr pos, addr symbol);
-int check_dynamic_value_declare(addr pos, addr symbol);
-void push_dynamic_function_declare_alloc(LocalRoot local, addr pos, addr symbol);
-int check_dynamic_function_declare(addr pos, addr symbol);
-void push_declaration_declare_alloc(LocalRoot local, addr pos, addr symbol);
-int check_declaration_declare(addr pos, addr symbol);
-void set_optimize_compilation_declare(addr pos, OptimizeType value);
 OptimizeType get_optimize_compilation_declare(addr pos);
-void set_optimize_debug_declare(addr pos, OptimizeType value);
 OptimizeType get_optimize_debug_declare(addr pos);
-void set_optimize_safety_declare(addr pos, OptimizeType value);
 OptimizeType get_optimize_safety_declare(addr pos);
-void set_optimize_space_declare(addr pos, OptimizeType value);
 OptimizeType get_optimize_space_declare(addr pos);
-void set_optimize_speed_declare(addr pos, OptimizeType value);
 OptimizeType get_optimize_speed_declare(addr pos);
 
 void getall_declaration_declare(addr pos, addr *ret);
@@ -77,15 +48,23 @@ void apply_safety_declaim(OptimizeType value);
 void apply_space_declaim(OptimizeType value);
 void apply_speed_declaim(OptimizeType value);
 
-void parse_declaim_alloc(LocalRoot local, addr decl, addr *ret);
-void parse_declare_alloc(LocalRoot local, addr decl, addr *ret);
+int parse_declaim_heap(Execute ptr, addr env, addr decl, addr *ret);
+int parse_declare_heap(Execute ptr, addr env, addr decl, addr *ret);
 void declare_body_form(addr cons, addr *retdecl, addr *retbody);
-void declare_body(addr cons, addr *retdecl, addr *retbody);
-void declare_body_documentation(addr cons, addr *rdoc, addr *rdecl, addr *rbody);
+int declare_body(Execute ptr, addr env, addr cons, addr *retdecl, addr *retbody);
+int declare_body_documentation(Execute ptr, addr env,
+		addr cons, addr *rdoc, addr *rdecl, addr *rbody);
 
 void copy_eval_declare_alloc(LocalRoot local, addr *ret, addr pos);
 void copy_eval_declare_local(LocalRoot local, addr *ret, addr pos);
 void copy_eval_declare_heap(addr *ret, addr pos);
+
+/* debug */
+void set_optimize_compilation_declare(addr pos, OptimizeType value);
+void set_optimize_debug_declare(addr pos, OptimizeType value);
+void set_optimize_safety_declare(addr pos, OptimizeType value);
+void set_optimize_space_declare(addr pos, OptimizeType value);
+void set_optimize_speed_declare(addr pos, OptimizeType value);
 
 #endif
 

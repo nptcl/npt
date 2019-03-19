@@ -72,6 +72,7 @@ extern int      lisp_info_enable;
 	CheckLocal(x); \
 	CheckType((y), (z)); \
 }
+#define CheckSymbol(x) Check(! symbolp(x), "type error")
 
 #define SetPropertyExecute(p,i,v)	SetShiftValue(p->property,i,v,1UL,byte32)
 #define GetPropertyExecute(p,i)		GetShiftValue(p->property,i,1UL)

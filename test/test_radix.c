@@ -1,5 +1,4 @@
 #include "radix.c"
-#include "calltype.h"
 #include "character.h"
 #include "charqueue.h"
 #include "clos.h"
@@ -19,6 +18,7 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 #include "unicode.h"
 
 #define FILE_CASE_LARGE     "test/case_large.txt"
@@ -1291,7 +1291,6 @@ int test_radix(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

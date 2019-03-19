@@ -3,11 +3,12 @@
 #include "copy.h"
 #include "integer.h"
 #include "sequence.h"
+#include "type.h"
 #include "type_copy.h"
 #include "type_parse.h"
 
 typedef addr (*call_type_copy)(LocalRoot, addr);
-static call_type_copy TypeCopy[LISPDECL_SIZE];
+static call_type_copy TypeCopyTable[LISPDECL_SIZE];
 
 static addr type_copy_error(LocalRoot local, addr type)
 {
@@ -29,7 +30,7 @@ static void getsettype_arraytype(LocalRoot local, addr dst, addr src, size_t ind
 	Check(GetType(dst) != LISPTYPE_TYPE, "type left error");
 	Check(GetType(src) != LISPTYPE_TYPE, "type right error");
 	GetArrayType(src, index, &src);
-	src = type_copy_allocr(local, src);
+	type_copy_alloc(local, &src, src);
 	SetArrayType(dst, index, src);
 }
 
@@ -47,11 +48,23 @@ static void getsettype_array4(LocalRoot local, addr dst, addr src, size_t index)
 	Check(GetStatusSize(dst) != LISPSIZE_ARRAY4, "size dst error");
 	Check(GetStatusSize(src) != LISPSIZE_ARRAY4, "size src error");
 	GetArrayA4(src, index, &src);
-	src = type_copy_allocr(local, src);
+	type_copy_alloc(local, &src, src);
 	SetArrayA4(dst, index, src);
 }
 
-static addr copy_allobject(LocalRoot local, addr type)
+static addr typecopy_empty(LocalRoot local, addr type)
+{
+	enum LISPDECL decl;
+	addr pos;
+
+	GetLispDecl(type, &decl);
+	Check(lenarrayr(type) != 0, "length error");
+	type0_alloc(local, decl, &pos);
+
+	return pos;
+}
+
+static addr typecopy_allobject(LocalRoot local, addr type)
 {
 	enum LISPDECL decl;
 	addr pos;
@@ -66,7 +79,7 @@ static addr copy_allobject(LocalRoot local, addr type)
 	return pos;
 }
 
-static addr copy_alltype(LocalRoot local, addr type)
+static addr typecopy_alltype(LocalRoot local, addr type)
 {
 	enum LISPDECL decl;
 	addr pos;
@@ -81,7 +94,7 @@ static addr copy_alltype(LocalRoot local, addr type)
 	return pos;
 }
 
-static addr copy_vector_alltype(LocalRoot local, addr type)
+static addr typecopy_vector_alltype(LocalRoot local, addr type)
 {
 	enum LISPDECL decl;
 	addr src, dst, pos;
@@ -99,7 +112,7 @@ static addr copy_vector_alltype(LocalRoot local, addr type)
 	return pos;
 }
 
-static addr copy_clos(LocalRoot local, addr type)
+static addr typecopy_clos(LocalRoot local, addr type)
 {
 	addr check;
 
@@ -109,19 +122,19 @@ static addr copy_clos(LocalRoot local, addr type)
 			fmte("dynamic scope error", NULL);
 	}
 	GetArrayType(type, 0, &type);
-	type_object1(local, LISPDECL_CLOS, type, &type);
+	type1_alloc(local, LISPDECL_CLOS, type, &type);
 	return type;
 }
 
-static addr copy_eql(LocalRoot local, addr type)
+static addr typecopy_eql(LocalRoot local, addr type)
 {
 	GetArrayType(type, 0, &type);
 	copylocal_object(local, &type, type);
-	type_object1(local, LISPDECL_EQL, type, &type);
+	type1_alloc(local, LISPDECL_EQL, type, &type);
 	return type;
 }
 
-static addr copy_member(LocalRoot local, addr type)
+static addr typecopy_member(LocalRoot local, addr type)
 {
 	enum LISPDECL decl;
 	addr src, dst, pos;
@@ -146,7 +159,7 @@ static addr copylist_type(LocalRoot local, addr cons)
 
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &child, &cons);
-		child = type_copy_allocr(local, child);
+		type_copy_alloc(local, &child, child);
 		cons_alloc(local, &root, child, root);
 	}
 	nreverse_list_unsafe(&root, root);
@@ -161,7 +174,7 @@ static void copylist_arraytype(LocalRoot local, addr dst, addr src, size_t index
 	SetArrayType(dst, index, src);
 }
 
-static addr copy_values(LocalRoot local, addr type)
+static addr typecopy_values(LocalRoot local, addr type)
 {
 	addr pos, check;
 
@@ -172,15 +185,17 @@ static addr copy_values(LocalRoot local, addr type)
 	copylist_arraytype(local, pos, type, 1);
 	/* rest */
 	GetArrayType(type, 2, &check);
-	if (check != Nil)
-		SetArrayType(pos, 2, type_copy_allocr(local, check));
+	if (check != Nil) {
+		type_copy_alloc(local, &check, check);
+		SetArrayType(pos, 2, check);
+	}
 	/* allow */
 	getset_arraytype(local, pos, type, 3);
 
 	return pos;
 }
 
-static addr copy_vector(LocalRoot local, addr type)
+static addr typecopy_vector(LocalRoot local, addr type)
 {
 	enum LISPDECL decl;
 	addr pos, child;
@@ -200,7 +215,7 @@ static addr copy_vector(LocalRoot local, addr type)
 	return pos;
 }
 
-static addr copy_size(LocalRoot local, addr type)
+static addr typecopy_size(LocalRoot local, addr type)
 {
 	enum LISPDECL decl;
 	addr pos, child;
@@ -218,7 +233,7 @@ static addr copy_size(LocalRoot local, addr type)
 	return pos;
 }
 
-static addr copy_function_key(LocalRoot local, addr list)
+static addr typecopy_function_key(LocalRoot local, addr list)
 {
 	addr root, name, type;
 
@@ -235,11 +250,11 @@ static addr copy_function_key(LocalRoot local, addr list)
 	return root;
 }
 
-static addr copy_function_arguments(LocalRoot local, addr src)
+static addr typecopy_function_arguments(LocalRoot local, addr src)
 {
 	addr dst, pos;
 
-	if (asterisk_p(src))
+	if (type_asterisk_p(src))
 		return type_copy_allocr(local, src);
 	vector2_alloc(local, &dst, 4);
 	/* var */
@@ -257,13 +272,13 @@ static addr copy_function_arguments(LocalRoot local, addr src)
 	SetArrayA2(dst, 2, pos);
 	/* key */
 	GetArrayA2(src, 3, &pos);
-	pos = copy_function_key(local, pos);
+	pos = typecopy_function_key(local, pos);
 	SetArrayA2(dst, 3, pos);
 
 	return dst;
 }
 
-static addr copy_function(LocalRoot local, addr type)
+static addr typecopy_function(LocalRoot local, addr type)
 {
 	enum LISPDECL decl;
 	addr pos, child;
@@ -272,7 +287,7 @@ static addr copy_function(LocalRoot local, addr type)
 	type_alloc(local, &pos, decl, 3);
 	/* arguments */
 	GetArrayType(type, 0, &child);
-	child = copy_function_arguments(local, child);
+	child = typecopy_function_arguments(local, child);
 	SetArrayType(pos, 0, child);
 	/* result */
 	getsettype_arraytype(local, pos, type, 1);
@@ -282,12 +297,12 @@ static addr copy_function(LocalRoot local, addr type)
 	return pos;
 }
 
-static addr copy_array_dimension(LocalRoot local, addr src)
+static addr typecopy_array_dimension(LocalRoot local, addr src)
 {
 	addr dst, pos;
 	size_t size, i;
 
-	if (asterisk_p(src))
+	if (type_asterisk_p(src))
 		return type_copy_allocr(local, src);
 	if (GetType(src) == LISPTYPE_FIXNUM) {
 		copylocal_object(local, &src, src);
@@ -308,7 +323,7 @@ static addr copy_array_dimension(LocalRoot local, addr src)
 	return dst;
 }
 
-static addr copy_array(LocalRoot local, addr type)
+static addr typecopy_array(LocalRoot local, addr type)
 {
 	enum LISPDECL decl;
 	addr pos, child;
@@ -319,7 +334,7 @@ static addr copy_array(LocalRoot local, addr type)
 	getsettype_arraytype(local, pos, type, 0);
 	/* dimension */
 	GetArrayType(type, 1, &child);
-	child = copy_array_dimension(local, child);
+	child = typecopy_array_dimension(local, child);
 	SetArrayType(pos, 1, child);
 
 	return pos;
@@ -330,95 +345,101 @@ void init_type_copy(void)
 	int i;
 
 	for (i = 0; i < LISPDECL_SIZE; i++)
-		TypeCopy[i] = type_copy_error;
+		TypeCopyTable[i] = type_copy_error;
 
-	TypeCopy[LISPDECL_TYPE] = copy_allobject;
-	TypeCopy[LISPDECL_CLOS] = copy_clos;
-	TypeCopy[LISPDECL_ASTERISK] = copy_allobject;
-	TypeCopy[LISPDECL_OPTIMIZED] = copy_alltype;
-	TypeCopy[LISPDECL_SUBTYPEP] = copy_alltype;
+	TypeCopyTable[LISPDECL_TYPE] = typecopy_empty;
+	TypeCopyTable[LISPDECL_CLOS] = typecopy_clos;
+	TypeCopyTable[LISPDECL_ASTERISK] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_OPTIMIZED] = typecopy_alltype;
+	TypeCopyTable[LISPDECL_SUBTYPEP] = typecopy_alltype;
 	/* Compound-type */
-	TypeCopy[LISPDECL_AND] = copy_vector_alltype;
-	TypeCopy[LISPDECL_OR] = copy_vector_alltype;
-	TypeCopy[LISPDECL_EQL] = copy_eql;
-	TypeCopy[LISPDECL_MEMBER] = copy_member;
-	TypeCopy[LISPDECL_MOD] = copy_allobject;
-	TypeCopy[LISPDECL_NOT] = copy_alltype;
-	TypeCopy[LISPDECL_SATISFIES] = copy_allobject;
-	TypeCopy[LISPDECL_VALUES] = copy_values;
+	TypeCopyTable[LISPDECL_AND] = typecopy_vector_alltype;
+	TypeCopyTable[LISPDECL_OR] = typecopy_vector_alltype;
+	TypeCopyTable[LISPDECL_EQL] = typecopy_eql;
+	TypeCopyTable[LISPDECL_MEMBER] = typecopy_member;
+	TypeCopyTable[LISPDECL_MOD] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_NOT] = typecopy_alltype;
+	TypeCopyTable[LISPDECL_SATISFIES] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_VALUES] = typecopy_values;
 	/* Extract-type */
-	TypeCopy[LISPDECL_ATOM] = copy_allobject;
-	TypeCopy[LISPDECL_LIST] = copy_allobject;
-	TypeCopy[LISPDECL_BOOLEAN] = copy_allobject;
-	TypeCopy[LISPDECL_VECTOR] = copy_vector;
-	TypeCopy[LISPDECL_SIMPLE_VECTOR] = copy_size;
-	TypeCopy[LISPDECL_BIT_VECTOR] = copy_size;
-	TypeCopy[LISPDECL_SIMPLE_BIT_VECTOR] = copy_size;
-	TypeCopy[LISPDECL_EXTENDED_CHAR] = copy_allobject;
-	TypeCopy[LISPDECL_STRING] = copy_size;
-	TypeCopy[LISPDECL_BASE_STRING] = copy_size;
-	TypeCopy[LISPDECL_SIMPLE_STRING] = copy_size;
-	TypeCopy[LISPDECL_SIMPLE_BASE_STRING] = copy_size;
-	TypeCopy[LISPDECL_SIGNED_BYTE] = copy_size;
-	TypeCopy[LISPDECL_UNSIGNED_BYTE] = copy_size;
-	TypeCopy[LISPDECL_BIT] = copy_allobject;
-	TypeCopy[LISPDECL_FIXNUM] = copy_allobject;
-	TypeCopy[LISPDECL_BIGNUM] = copy_allobject;
+	TypeCopyTable[LISPDECL_ATOM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_LIST] = typecopy_empty;
+	TypeCopyTable[LISPDECL_BOOLEAN] = typecopy_empty;
+	TypeCopyTable[LISPDECL_VECTOR] = typecopy_vector;
+	TypeCopyTable[LISPDECL_SIMPLE_VECTOR] = typecopy_size;
+	TypeCopyTable[LISPDECL_BIT_VECTOR] = typecopy_size;
+	TypeCopyTable[LISPDECL_SIMPLE_BIT_VECTOR] = typecopy_size;
+	TypeCopyTable[LISPDECL_EXTENDED_CHAR] = typecopy_empty;
+	TypeCopyTable[LISPDECL_STRING] = typecopy_size;
+	TypeCopyTable[LISPDECL_BASE_STRING] = typecopy_size;
+	TypeCopyTable[LISPDECL_SIMPLE_STRING] = typecopy_size;
+	TypeCopyTable[LISPDECL_SIMPLE_BASE_STRING] = typecopy_size;
+	TypeCopyTable[LISPDECL_SIGNED_BYTE] = typecopy_size;
+	TypeCopyTable[LISPDECL_UNSIGNED_BYTE] = typecopy_size;
+	TypeCopyTable[LISPDECL_BIT] = typecopy_empty;
+	TypeCopyTable[LISPDECL_FIXNUM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_BIGNUM] = typecopy_empty;
 	/* Atomic-type */
-	TypeCopy[LISPDECL_NIL] = copy_allobject;
-	TypeCopy[LISPDECL_T] = copy_allobject;
-	TypeCopy[LISPDECL_NULL] = copy_allobject;
-	TypeCopy[LISPDECL_CONS] = copy_alltype;
-	TypeCopy[LISPDECL_HASH_TABLE] = copy_allobject;
-	TypeCopy[LISPDECL_SYMBOL] = copy_allobject;
-	TypeCopy[LISPDECL_KEYWORD] = copy_allobject;
-	TypeCopy[LISPDECL_PACKAGE] = copy_allobject;
-	TypeCopy[LISPDECL_RANDOM_STATE] = copy_allobject;
-	TypeCopy[LISPDECL_READTABLE] = copy_allobject;
-	TypeCopy[LISPDECL_FUNCTION] = copy_function;
-	TypeCopy[LISPDECL_COMPILED_FUNCTION] = copy_function;
-	TypeCopy[LISPDECL_PATHNAME] = copy_allobject;
-	TypeCopy[LISPDECL_LOGICAL_PATHNAME] = copy_allobject;
-	TypeCopy[LISPDECL_SEQUENCE] = copy_allobject;
-	TypeCopy[LISPDECL_ARRAY] = copy_array;
-	TypeCopy[LISPDECL_SIMPLE_ARRAY] = copy_array;
-	TypeCopy[LISPDECL_CHARACTER] = copy_allobject;
-	TypeCopy[LISPDECL_BASE_CHAR] = copy_allobject;
-	TypeCopy[LISPDECL_STANDARD_CHAR] = copy_allobject;
-	TypeCopy[LISPDECL_NUMBER] = copy_allobject;
-	TypeCopy[LISPDECL_REAL] = copy_allobject;
-	TypeCopy[LISPDECL_RATIO] = copy_allobject;
-	TypeCopy[LISPDECL_INTEGER] = copy_allobject;
-	TypeCopy[LISPDECL_RATIONAL] = copy_allobject;
-	TypeCopy[LISPDECL_COMPLEX] = copy_alltype;
-	TypeCopy[LISPDECL_FLOAT] = copy_allobject;
-	TypeCopy[LISPDECL_SHORT_FLOAT] = copy_allobject;
-	TypeCopy[LISPDECL_SINGLE_FLOAT] = copy_allobject;
-	TypeCopy[LISPDECL_DOUBLE_FLOAT] = copy_allobject;
-	TypeCopy[LISPDECL_LONG_FLOAT] = copy_allobject;
-	TypeCopy[LISPDECL_RESTART] = copy_allobject;
-	TypeCopy[LISPDECL_ENVIRONMENT] = copy_allobject;
-	TypeCopy[LISPDECL_STREAM] = copy_allobject;
-	TypeCopy[LISPDECL_BROADCAST_STREAM] = copy_allobject;
-	TypeCopy[LISPDECL_CONCATENATED_STREAM] = copy_allobject;
-	TypeCopy[LISPDECL_ECHO_STREAM] = copy_allobject;
-	TypeCopy[LISPDECL_FILE_STREAM] = copy_allobject;
-	TypeCopy[LISPDECL_STRING_STREAM] = copy_allobject;
-	TypeCopy[LISPDECL_SYNONYM_STREAM] = copy_allobject;
-	TypeCopy[LISPDECL_TWO_WAY_STREAM] = copy_allobject;
-	TypeCopy[LISPDECL_BYTESPEC] = copy_allobject;
+	TypeCopyTable[LISPDECL_NIL] = typecopy_empty;
+	TypeCopyTable[LISPDECL_T] = typecopy_empty;
+	TypeCopyTable[LISPDECL_NULL] = typecopy_empty;
+	TypeCopyTable[LISPDECL_CONS] = typecopy_alltype;
+	TypeCopyTable[LISPDECL_HASH_TABLE] = typecopy_empty;
+	TypeCopyTable[LISPDECL_SYMBOL] = typecopy_empty;
+	TypeCopyTable[LISPDECL_KEYWORD] = typecopy_empty;
+	TypeCopyTable[LISPDECL_PACKAGE] = typecopy_empty;
+	TypeCopyTable[LISPDECL_RANDOM_STATE] = typecopy_empty;
+	TypeCopyTable[LISPDECL_READTABLE] = typecopy_empty;
+	TypeCopyTable[LISPDECL_FUNCTION] = typecopy_function;
+	TypeCopyTable[LISPDECL_COMPILED_FUNCTION] = typecopy_function;
+	TypeCopyTable[LISPDECL_PATHNAME] = typecopy_empty;
+	TypeCopyTable[LISPDECL_LOGICAL_PATHNAME] = typecopy_empty;
+	TypeCopyTable[LISPDECL_SEQUENCE] = typecopy_empty;
+	TypeCopyTable[LISPDECL_ARRAY] = typecopy_array;
+	TypeCopyTable[LISPDECL_SIMPLE_ARRAY] = typecopy_array;
+	TypeCopyTable[LISPDECL_CHARACTER] = typecopy_empty;
+	TypeCopyTable[LISPDECL_BASE_CHAR] = typecopy_empty;
+	TypeCopyTable[LISPDECL_STANDARD_CHAR] = typecopy_empty;
+	TypeCopyTable[LISPDECL_NUMBER] = typecopy_empty;
+	TypeCopyTable[LISPDECL_REAL] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_RATIO] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_INTEGER] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_RATIONAL] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_COMPLEX] = typecopy_alltype;
+	TypeCopyTable[LISPDECL_FLOAT] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_SHORT_FLOAT] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_SINGLE_FLOAT] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_DOUBLE_FLOAT] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_LONG_FLOAT] = typecopy_allobject;
+	TypeCopyTable[LISPDECL_RESTART] = typecopy_empty;
+	TypeCopyTable[LISPDECL_ENVIRONMENT] = typecopy_empty;
+	TypeCopyTable[LISPDECL_STREAM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_BROADCAST_STREAM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_CONCATENATED_STREAM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_ECHO_STREAM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_FILE_STREAM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_STRING_STREAM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_SYNONYM_STREAM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_TWO_WAY_STREAM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_PROMPT_STREAM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_QUOTE] = typecopy_empty;
+	TypeCopyTable[LISPDECL_BYTESPEC] = typecopy_empty;
 }
 
+
+/*
+ *  type-copy
+ */
 addr type_copy_allocr(LocalRoot local, addr type)
 {
 	call_type_copy call;
 	addr pos;
 
-	Check(GetType(type) != LISPTYPE_TYPE, "type error");
-	call = TypeCopy[(int)RefLispDecl(type)];
+	CheckType(type, LISPTYPE_TYPE);
+	call = TypeCopyTable[(int)RefLispDecl(type)];
 	Check(call == NULL, "build error");
 	pos = call(local, type);
-	setnotdecl_object(pos, type);
+	type_setnotobject(pos, type);
 
 	return pos;
 }
@@ -443,5 +464,32 @@ void type_copy_local(LocalRoot local, addr *ret, addr type)
 void type_copy_heap(addr *ret, addr type)
 {
 	*ret = type_copy_allocr(NULL, type);
+}
+
+
+/*
+ *  type-throw
+ */
+void type_throw_alloc(LocalRoot local, addr pos, addr *ret)
+{
+	if (local)
+		type_throw_local(local, pos, ret);
+	else
+		type_throw_heap(pos, ret);
+}
+void type_throw_local(LocalRoot local, addr pos, addr *ret)
+{
+	CheckLocal(local);
+	if (GetStatusDynamic(pos))
+		*ret = pos;
+	else
+		type_copy_local(local, ret, pos);
+}
+void type_throw_heap(addr pos, addr *ret)
+{
+	if (GetStatusDynamic(pos))
+		type_copy_heap(ret, pos);
+	else
+		*ret = pos;
 }
 

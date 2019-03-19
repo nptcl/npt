@@ -1,5 +1,5 @@
-#ifndef __FLOAT_DECODE_HEADER__
-#define __FLOAT_DECODE_HEADER__
+#ifndef __REAL_DECODE_HEADER__
+#define __REAL_DECODE_HEADER__
 
 #include "local.h"
 #include "typedef.h"

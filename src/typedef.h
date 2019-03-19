@@ -27,6 +27,7 @@ typedef void (*callmaketype)(addr *);
 enum CallBind_index {
 	CallBind_system,
 	CallBind_macro,
+	CallBind_type,
 	CallBind_none,
 	CallBind_any,
 	CallBind_empty,

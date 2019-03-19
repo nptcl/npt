@@ -632,6 +632,20 @@ void getcompiled_system(addr pos, calltype *ret)
 	*ret = str->call.system;
 }
 
+void setcompiled_type(addr pos, void *call)
+{
+	struct callbind_struct *str = CallBindCompiled(pos);
+	str->type = CallBind_type;
+	str->call.ptr = call;
+}
+
+void getcompiled_type(addr pos, void **ret)
+{
+	struct callbind_struct *str = CallBindCompiled(pos);
+	Check(str->type != CallBind_type, "compiled type error");
+	*ret = str->call.ptr;
+}
+
 void setcompiled_macro(addr pos, callbind_macro call)
 {
 	struct callbind_struct *str = CallBindCompiled(pos);

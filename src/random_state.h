@@ -1,5 +1,5 @@
-#ifndef __RANDOM_SEED_HEADER__
-#define __RANDOM_SEED_HEADER__
+#ifndef __RANDOM_STATE_HEADER__
+#define __RANDOM_STATE_HEADER__
 
 #include "execute.h"
 #include "random.h"

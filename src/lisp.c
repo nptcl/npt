@@ -2,7 +2,6 @@
 #include <string.h>
 #include "array.h"
 #include "boole.h"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "clos_type.h"
@@ -36,6 +35,7 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 #include "user.h"
 
 #define DEFAULT_MEMORY		(320UL * 1024UL * 1024UL)
@@ -294,14 +294,13 @@ void buildlisp(Execute ptr)
 	build_constant();
 	build_object();
 	build_character();
-	build_float();
+	build_real();
 	build_package();
 	build_stream();
 	build_symbol();
 	build_clos(ptr);
 	build_condition(ptr);
 	build_type();
-	build_calltype();
 	build_syscall();
 	build_common();
 	build_readtable();

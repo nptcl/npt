@@ -1,3 +1,4 @@
+#include "character.h"
 #include "constant.h"
 #include "degrade.h"
 #include "object.h"
@@ -166,6 +167,7 @@ int test_sxhash(void)
 		build_lisproot(ptr);
 		build_constant();
 		build_object();
+		build_character();
 		lisp_init = 1;
 		result = testbreak_sxhash();
 	}

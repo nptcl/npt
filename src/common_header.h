@@ -1,13 +1,13 @@
 #ifndef __COMMON_HEADER_HEADER__
 #define __COMMON_HEADER_HEADER__
 
-#include "calltype.h"
 #include "condition.h"
 #include "constant.h"
 #include "control.h"
 #include "function.h"
 #include "symbol.h"
 #include "type.h"
+#include "type_table.h"
 
 /* helper */
 #ifdef LISP_DEBUG

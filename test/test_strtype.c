@@ -1,10 +1,10 @@
 #include "strtype.c"
-#include "calltype.h"
 #include "clos.h"
 #include "constant.h"
 #include "degrade.h"
 #include "object.h"
 #include "package.h"
+#include "type_table.h"
 
 /*
  *  string check
@@ -14,17 +14,17 @@ static int test_array_stringp(void)
 	addr pos;
 	struct array_struct *str;
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_CHARACTER;
 	test(array_stringp(pos), "array_stringp1");
 
-	array_alloc_stdarg(NULL, &pos, 0);
+	array_va_heap(&pos, 0);
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_CHARACTER;
 	test(! array_stringp(pos), "array_stringp2");
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_T;
 	test(! array_stringp(pos), "array_stringp3");
@@ -37,7 +37,7 @@ static int test_strarrayp(void)
 	addr pos;
 	struct array_struct *str;
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_CHARACTER;
 	test(strarrayp(pos), "strarrayp1");
@@ -51,7 +51,7 @@ static int test_stringp(void)
 	addr pos;
 	struct array_struct *str;
 
-	array_alloc_stdarg(NULL, &pos, 10, 0);
+	array_va_heap(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_CHARACTER;
 	test(stringp(pos), "stringp1");
@@ -1022,7 +1022,6 @@ int test_strtype(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		lisp_init = 1;
 		result = testbreak_strtype();
 	}

@@ -1,25 +1,68 @@
 /*
  *  ANSI COMMON LISP: 4. Types and Classes
  */
-#include "cons.h"
 #include "common_header.h"
+#include "condition.h"
+#include "cons.h"
 #include "eval_declare.h"
 #include "lambda.h"
+#include "symbol.h"
+#include "type_coerce.h"
+#include "type_object.h"
+#include "type_parse.h"
 #include "type_subtypep.h"
 #include "type_typep.h"
-#include "type_parse.h"
+#include "type_value.h"
+
+/* (defun coerce (object type) ...) -> result
+ *   object  t
+ *   type    type-spec
+ *   result  t
+ */
+static void function_coerce(Execute ptr, addr pos, addr type)
+{
+	if (coerce_common(ptr, pos, type, &pos)) return;
+	setresult_control(ptr, pos);
+}
+
+static void type_coerce(addr *ret)
+{
+	addr arg, values;
+
+	GetTypeTable(&arg, T);
+	GetTypeTable(&values, TypeSpec);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, T);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_coerce(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_COERCE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_coerce);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_coerce(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
 
 /* (defmacro deftype (name lambda &body body) ...) -> name
  *   name    symbol
  *   lambda  deftype-lambda-list
  *   body    body
  */
-static void function_deftype(Execute ptr, addr right, addr env)
+static void function_deftype(Execute ptr, addr form, addr env)
 {
-	addr eval, name, args, decl, doc;
+	addr right, eval, name, args, decl, doc;
 
-	/* (deftype . right) */
-	getcdr(right, &right);
+	/* (deftype . form) */
+	getcdr(form, &right);
 	if (right == Nil)
 		fmte("deftype form must have at least a name and body.", NULL);
 	if (! consp(right))
@@ -40,13 +83,14 @@ static void function_deftype(Execute ptr, addr right, addr env)
 		fmte("Invalid deftype form.", NULL);
 
 	/* parse */
-	lambda_macro(ptr->local, &args, args, Nil);
-	declare_body_documentation(right, &doc, &decl, &right);
+	lambda_deftype(ptr->local, &args, args, Nil);
+	if (declare_body_documentation(ptr, env, right, &doc, &decl, &right))
+		return;
 
 	/* (eval::deftype name args decl doc body) */
 	GetConst(SYSTEM_DEFTYPE, &eval);
-	list_heap(&eval, eval, name, args, decl, doc, right, NULL);
-	setresult_control(ptr, eval);
+	list_heap(&form, eval, name, args, decl, doc, right, NULL);
+	setresult_control(ptr, form);
 }
 
 static void defmacro_deftype(void)
@@ -58,7 +102,7 @@ static void defmacro_deftype(void)
 	setcompiled_macro(pos, function_deftype);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -70,25 +114,28 @@ static void defmacro_deftype(void)
  *  value  boolean
  *  valid  boolean
  */
-static void function_subtypep(Execute ptr, addr type1, addr type2, addr env)
+static void function_subtypep(Execute ptr, addr x, addr y, addr env)
 {
 	int result, invalid;
 
 	if (env == Unbound) env = Nil;
-	/* TODO: environment parameter */
-	result = subtypep_clang(type1, type2, &invalid);
-	setvalues_control(ptr, (result? T: Nil), (invalid? T: Nil), NULL);
+	if (parse_type(ptr, &x, x, env)) return;
+	if (parse_type(ptr, &y, y, env)) return;
+	result = subtypep_clang(x, y, &invalid);
+	x = result? T: Nil;
+	y = invalid? T: Nil;
+	setvalues_control(ptr, x, y, NULL);
 }
 
 static void type_subtypep(addr *ret)
 {
 	addr arg, values, type, env;
 
-	GetCallType(&type, TypeSpec);
-	GetCallType(&env, EnvironmentNull);
-	var2opt1_argtype(&arg, type, type, env);
-	GetCallType(&values, Boolean);
-	values2_valuestype(&values, values, values);
+	GetTypeTable(&type, TypeSpec);
+	GetTypeTable(&env, EnvironmentNull);
+	typeargs_var2opt1(&arg, type, type, env);
+	GetTypeTable(&values, Boolean);
+	typevalues_values2(&values, values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -108,25 +155,62 @@ static void defun_subtypep(void)
 }
 
 
+/* (defun type-of (object) ...) -> type-spec */
+static void function_type_of(Execute ptr, addr pos)
+{
+	type_value(&pos, pos);
+	type_object(&pos, pos);
+	setresult_control(ptr, pos);
+}
+
+static void type_type_of(addr *ret)
+{
+	addr arg, values;
+
+	GetTypeTable(&arg, T);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, TypeSymbol);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_type_of(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_TYPE_OF, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_type_of);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_type_of(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun typep (object type &optional env) ...) -> boolean
  *   type  type-specifier
  */
-static void function_typep(Execute ptr, addr var, addr type, addr env)
+static void function_typep(Execute ptr, addr x, addr y, addr env)
 {
+	int check;
+
 	if (env == Unbound) env = Nil;
-	/* TODO: environment parameter */
-	setbool_control(ptr, typep_throw(ptr->local, var, type));
+	if (parse_type(ptr, &y, y, env)) return;
+	if (typep_clang(x, y, &check)) return;
+	setbool_control(ptr, check);
 }
 
 static void type_typep(addr *ret)
 {
 	addr arg, values, type, env;
 
-	GetCallType(&arg, T);
-	GetCallType(&type, TypeSpec);
-	GetCallType(&env, EnvironmentNull);
-	var2opt1_argtype(&arg, arg, type, env);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, T);
+	GetTypeTable(&type, TypeSpec);
+	GetTypeTable(&env, EnvironmentNull);
+	typeargs_var2opt1(&arg, arg, type, env);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -146,17 +230,83 @@ static void defun_typep(void)
 }
 
 
+/* (defun type-error-datum (condition) -> object */
+static void function_type_error_datum(Execute ptr, addr pos)
+{
+	type_error_datum(pos, &pos);
+	setresult_control(ptr, pos);
+}
+
+static void type_type_error_datum(addr *ret)
+{
+	addr arg, values;
+
+	GetTypeTable(&arg, Condition);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, T);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_type_error_datum(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_TYPE_ERROR_DATUM, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_type_error_datum);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_type_error_datum(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun type-error-expected-type (condition) -> type-spec */
+static void function_type_error_expected_type(Execute ptr, addr pos)
+{
+	type_error_expected(pos, &pos);
+	setresult_control(ptr, pos);
+}
+
+static void type_type_error_expected_type(addr *ret)
+{
+	addr arg, values;
+
+	GetTypeTable(&arg, Condition);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, TypeSymbol);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_type_error_expected_type(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_TYPE_ERROR_EXPECTED_TYPE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_type_error_expected_type);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_type_error_expected_type(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  intern
  */
 void intern_common_types(void)
 {
-	/* defun_coerce(); */
+	defun_coerce();
 	defmacro_deftype();
 	defun_subtypep();
-	/* defun_type_of(); */
+	defun_type_of();
 	defun_typep();
-	/* defun_type_error_datum(); */
-	/* defun_type_error_expected_type(); */
+	defun_type_error_datum();
+	defun_type_error_expected_type();
 }
 

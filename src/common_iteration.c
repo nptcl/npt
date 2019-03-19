@@ -169,7 +169,7 @@ static void defmacro_do(void)
 	setcompiled_macro(pos, function_do);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -188,7 +188,7 @@ static void defmacro_doa(void)
 	setcompiled_macro(pos, function_doa);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -248,7 +248,7 @@ static void defmacro_dotimes(void)
 	setcompiled_macro(pos, function_dotimes);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -334,7 +334,7 @@ static void defmacro_dolist(void)
 	setcompiled_macro(pos, function_dolist);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 

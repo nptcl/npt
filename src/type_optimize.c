@@ -9,8 +9,9 @@
 #include "sequence.h"
 #include "type.h"
 #include "type_copy.h"
-#include "type_parse.h"
 #include "type_optimize.h"
+#include "type_parse.h"
+#include "type_upgraded.h"
 
 /*
  *  macro
@@ -36,7 +37,7 @@ typedef int (*extractcalltype)(addr *, addr);
 	while (call(local, &__check, pos)) { \
 		update = 1; \
 		if (RefNotDecl(pos)) { \
-			reversenotdecl(__check); \
+			type_revnotdecl(__check); \
 		} \
 		pos = __check; \
 	} \
@@ -60,8 +61,8 @@ static int optimize_optimized(LocalRoot local, addr *ret, addr right)
 	}
 	else {
 		GetArrayType(right, 0, &right);
-		copy_no_recursive_type_alloc(local, &right, right);
-		reversenotdecl(right);
+		type_copy_unsafe_local(local, &right, right);
+		type_revnotdecl(right);
 		*ret = right;
 	}
 
@@ -86,7 +87,7 @@ static int check_not_nil(addr right)
 static int optimize_not_nil(LocalRoot local, addr *ret, addr right)
 {
 	if (! check_not_nil(right)) return 0;
-	type_t_alloc(local, ret);
+	type0_local(local, LISPDECL_T, ret);
 	return 1;
 }
 
@@ -97,7 +98,7 @@ static int check_not_t(addr right)
 static int optimize_not_t(LocalRoot local, addr *ret, addr right)
 {
 	if (! check_not_t(right)) return 0;
-	type_nil_alloc(local, ret);
+	type0_local(local, LISPDECL_NIL, ret);
 	return 1;
 }
 
@@ -114,8 +115,8 @@ static int optimize_mod(LocalRoot local, addr *ret, addr right)
 	GetArrayType(right, 0, &left);
 	Check(! integerp(left), "type error");
 	Check(! plusp_integer(left), "plusp error");
-	fixnum_alloc(local, &pos, 0);
-	type_object4(local, LISPDECL_INTEGER, Nil, pos, T, left, ret);
+	fixnum_local(local, &pos, 0);
+	type4_local(local, LISPDECL_INTEGER, Nil, pos, T, left, ret);
 
 	return 1;
 }
@@ -130,7 +131,7 @@ static int optimize_atom(LocalRoot local, addr *ret, addr right)
 	addr left;
 
 	if (! check_atom(right)) return 0;
-	type_aster2(local, LISPDECL_CONS, &left);
+	type2aster_localall(local, LISPDECL_CONS, &left);
 	SetNotDecl(left, 1);
 	*ret = left;
 
@@ -147,15 +148,15 @@ static int optimize_list(LocalRoot local, addr *ret, addr right)
 	addr pos, array;
 
 	if (! check_list(right)) return 0;
-	vector4_alloc(local, &array, 2);
+	vector4_local(local, &array, 2);
 	/* null */
-	type_empty(local, LISPDECL_NULL, &pos);
+	type0_local(local, LISPDECL_NULL, &pos);
 	SetArrayA4(array, 0, pos);
 	/* cons */
-	type_aster2(local, LISPDECL_CONS, &pos);
+	type2aster_localall(local, LISPDECL_CONS, &pos);
 	SetArrayA4(array, 1, pos);
 	/* result */
-	type_object1(local, LISPDECL_OR, array, ret);
+	type1_local(local, LISPDECL_OR, array, ret);
 
 	return 1;
 }
@@ -170,15 +171,15 @@ static int optimize_boolean(LocalRoot local, addr *ret, addr right)
 	addr pos, array;
 
 	if (! check_boolean(right)) return 0;
-	vector4_alloc(local, &array, 2);
+	vector4_local(local, &array, 2);
 	/* null */
-	type_empty(local, LISPDECL_NULL, &pos);
+	type0_local(local, LISPDECL_NULL, &pos);
 	SetArrayA4(array, 0, pos);
 	/* (eql t) */
-	type_object1(local, LISPDECL_EQL, T, &pos);
+	type_eql_local(local, T, &pos);
 	SetArrayA4(array, 1, pos);
 	/* result */
-	type_object1(local, LISPDECL_OR, array, ret);
+	type1_local(local, LISPDECL_OR, array, ret);
 
 	return 1;
 }
@@ -187,43 +188,20 @@ static int optimize_boolean(LocalRoot local, addr *ret, addr right)
  *  (... type *) -> (array type 1)
  *  (... type size) -> (array type (size))
  */
-static int extract_vector_type(LocalRoot local,
-		addr *ret, enum LISPDECL decl, enum LISPDECL first, addr right)
-{
-	addr array, type;
-
-	GetArrayType(right, 0, &right);
-	if (asterisk_p(right)) {
-		fixnum_alloc(local, &right, 1);
-		type_empty(local, first, &type);
-		type_object2_array(local, decl, type, right, ret);
-		return 1;
-	}
-	if (GetType(right) == LISPTYPE_FIXNUM) {
-		vector4_alloc(local, &array, 1);
-		SetArrayA4(array, 0, right);
-		type_empty(local, first, &type);
-		type_object2_array(local, decl, type, array, ret);
-		return 1;
-	}
-
-	return 0;
-}
-
 static int extract_vector(LocalRoot local,
 		addr *ret, enum LISPDECL decl, addr type, addr size)
 {
 	addr array;
 
-	if (asterisk_p(size)) {
-		fixnum_alloc(local, &size, 1);
-		type_object2_array(local, decl, type, size, ret);
+	if (type_asterisk_p(size)) {
+		fixnum_local(local, &size, 1);
+		type2_local(local, decl, type, size, ret);
 		return 1;
 	}
 	if (GetType(size) == LISPTYPE_FIXNUM) {
-		vector4_alloc(local, &array, 1);
+		vector4_local(local, &array, 1);
 		SetArrayA4(array, 0, size);
-		type_object2_array(local, decl, type, array, ret);
+		type2_local(local, decl, type, array, ret);
 		return 1;
 	}
 
@@ -235,7 +213,7 @@ static int check_vector(addr right)
 {
 	if (RefLispDecl(right) != LISPDECL_VECTOR) return 0;
 	GetArrayType(right, 1, &right);
-	return asterisk_p(right) || GetType(right) == LISPTYPE_FIXNUM;
+	return type_asterisk_p(right) || GetType(right) == LISPTYPE_FIXNUM;
 }
 static int optimize_vector(LocalRoot local, addr *ret, addr right)
 {
@@ -253,7 +231,7 @@ static int check_vector_type(enum LISPDECL decl, addr right)
 {
 	if (RefLispDecl(right) != decl) return 0;
 	GetArrayType(right, 0, &right);
-	return asterisk_p(right) || GetType(right) == LISPTYPE_FIXNUM;
+	return type_asterisk_p(right) || GetType(right) == LISPTYPE_FIXNUM;
 }
 static int check_simple_vector(addr right)
 {
@@ -261,8 +239,12 @@ static int check_simple_vector(addr right)
 }
 static int optimize_simple_vector(LocalRoot local, addr *ret, addr right)
 {
+	addr type;
+
 	if (! check_simple_vector(right)) return 0;
-	extract_vector_type(local, ret, LISPDECL_SIMPLE_ARRAY, LISPDECL_T, right);
+	upgraded_array_t_local(local, &type);
+	GetArrayType(right, 0, &right);
+	extract_vector(local, ret, LISPDECL_SIMPLE_ARRAY, type, right);
 	return 1;
 }
 
@@ -273,8 +255,12 @@ static int check_bit_vector(addr right)
 }
 static int optimize_bit_vector(LocalRoot local, addr *ret, addr right)
 {
+	addr type;
+
 	if (! check_bit_vector(right)) return 0;
-	extract_vector_type(local, ret, LISPDECL_ARRAY, LISPDECL_BIT, right);
+	upgraded_array_bit_local(local, &type);
+	GetArrayType(right, 0, &right);
+	extract_vector(local, ret, LISPDECL_ARRAY, type, right);
 	return 1;
 }
 
@@ -285,8 +271,12 @@ static int check_simple_bit_vector(addr right)
 }
 static int optimize_simple_bit_vector(LocalRoot local, addr *ret, addr right)
 {
+	addr type;
+
 	if (! check_simple_bit_vector(right)) return 0;
-	extract_vector_type(local, ret, LISPDECL_SIMPLE_ARRAY, LISPDECL_BIT, right);
+	upgraded_array_bit_local(local, &type);
+	GetArrayType(right, 0, &right);
+	extract_vector(local, ret, LISPDECL_SIMPLE_ARRAY, type, right);
 	return 1;
 }
 
@@ -300,30 +290,25 @@ static int optimize_extended_char(LocalRoot local, addr *ret, addr right)
 	addr array;
 
 	if (! check_extended_char(right)) return 0;
-	vector4_alloc(local, &array, 2);
+	vector4_local(local, &array, 2);
 	/* character */
-	type_empty(local, LISPDECL_CHARACTER, &right);
+	type0_local(local, LISPDECL_CHARACTER, &right);
 	SetArrayA4(array, 0, right);
 	/* (not base-char) */
-	type_empty(local, LISPDECL_BASE_CHAR, &right);
+	type0_local(local, LISPDECL_BASE_CHAR, &right);
 	SetNotDecl(right, 1);
 	SetArrayA4(array, 1, right);
 	/* result */
-	type_object1(local, LISPDECL_AND, array, ret);
+	type1_local(local, LISPDECL_AND, array, ret);
 
 	return 1;
 }
 
 /* (string size) -> (vector character size) */
-static int extract_string(LocalRoot local,
-		addr *ret, addr right, enum LISPDECL chardecl)
+static int extract_string(LocalRoot local, addr *ret, addr right, addr type)
 {
-	addr type;
-
-	type_empty(local, chardecl, &type);
 	GetArrayType(right, 0, &right);
-	type_object2_array(local, LISPDECL_VECTOR, type, right, ret);
-
+	type2_local(local, LISPDECL_VECTOR, type, right, ret);
 	return 1;
 }
 
@@ -333,8 +318,11 @@ static int check_string(addr right)
 }
 static int optimize_string(LocalRoot local, addr *ret, addr right)
 {
+	addr type;
+
 	if (! check_string(right)) return 0;
-	extract_string(local, ret, right, LISPDECL_CHARACTER);
+	upgraded_array_character_local(local, &type);
+	extract_string(local, ret, right, type);
 	return 1;
 }
 
@@ -345,8 +333,11 @@ static int check_base_string(addr right)
 }
 static int optimize_base_string(LocalRoot local, addr *ret, addr right)
 {
+	addr type;
+
 	if (! check_base_string(right)) return 0;
-	extract_string(local, ret, right, LISPDECL_BASE_CHAR);
+	upgraded_array_character_local(local, &type);
+	extract_string(local, ret, right, type);
 	return 1;
 }
 
@@ -357,8 +348,12 @@ static int check_simple_string(addr right)
 }
 static int optimize_simple_string(LocalRoot local, addr *ret, addr right)
 {
+	addr type;
+
 	if (! check_simple_string(right)) return 0;
-	extract_vector_type(local, ret, LISPDECL_SIMPLE_ARRAY, LISPDECL_CHARACTER, right);
+	upgraded_array_character_local(local, &type);
+	GetArrayType(right, 0, &right);
+	extract_vector(local, ret, LISPDECL_SIMPLE_ARRAY, type, right);
 	return 1;
 }
 
@@ -369,8 +364,12 @@ static int check_simple_base_string(addr right)
 }
 static int optimize_simple_base_string(LocalRoot local, addr *ret, addr right)
 {
+	addr type;
+
 	if (! check_simple_base_string(right)) return 0;
-	extract_vector_type(local, ret, LISPDECL_SIMPLE_ARRAY, LISPDECL_BASE_CHAR, right);
+	upgraded_array_character_local(local, &type);
+	GetArrayType(right, 0, &right);
+	extract_vector(local, ret, LISPDECL_SIMPLE_ARRAY, type, right);
 	return 1;
 }
 
@@ -389,9 +388,9 @@ static int optimize_signed_byte(LocalRoot local, addr *ret, addr right)
 
 	if (! check_signed_byte(right)) return 0;
 	GetArrayType(right, 0, &right);
-	if (asterisk_p(right)) {
+	if (type_asterisk_p(right)) {
 		/* (signed-byte *) */
-		type_aster4(local, LISPDECL_INTEGER, ret);
+		type4aster_localall(local, LISPDECL_INTEGER, ret);
 		return 1;
 	}
 
@@ -405,14 +404,14 @@ static int optimize_signed_byte(LocalRoot local, addr *ret, addr right)
 		if (value == BIGNUM_FULLBIT) {
 			GetConst(FIXNUM_MIN, &left);
 			GetConst(FIXNUM_MAX, &right);
-			type_object4(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
+			type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
 			return 1;
 		}
 		if (value < BIGNUM_FULLBIT) {
 			value = 1LL << (value - 1LL);
-			fixnum_alloc(local, &left, -value);
-			fixnum_alloc(local, &right, value - 1LL);
-			type_object4(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
+			fixnum_local(local, &left, -value);
+			fixnum_local(local, &right, value - 1LL);
+			type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
 			return 1;
 		}
 		size = (size_t)value;
@@ -431,7 +430,7 @@ static int optimize_signed_byte(LocalRoot local, addr *ret, addr right)
 	alloc_bignum(local, &right, size);
 	setminusvalue_bigdata(right, left, SignPlus, 1);
 	SetSignBignum(left, SignMinus);
-	type_object4(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
+	type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
 
 	return 1;
 }
@@ -451,10 +450,10 @@ static int optimize_unsigned_byte(LocalRoot local, addr *ret, addr right)
 
 	if (! check_unsigned_byte(right)) return 0;
 	GetArrayType(right, 0, &right);
-	if (asterisk_p(right)) {
+	if (type_asterisk_p(right)) {
 		/* (unsigned-byte *) */
-		fixnum_alloc(local, &left, 0);
-		type_object4(local, LISPDECL_INTEGER, Nil, left, right, right, ret);
+		fixnum_local(local, &left, 0);
+		type4_local(local, LISPDECL_INTEGER, Nil, left, right, right, ret);
 		return 1;
 	}
 
@@ -466,16 +465,16 @@ static int optimize_unsigned_byte(LocalRoot local, addr *ret, addr right)
 	if (GetType(right) == LISPTYPE_FIXNUM) {
 		GetFixnum(right, &value);
 		if (value == BIGNUM_FULLBIT - 1L) {
-			fixnum_alloc(local, &left, 0);
+			fixnum_local(local, &left, 0);
 			GetConst(FIXNUM_MAX, &right);
-			type_object4(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
+			type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
 			return 1;
 		}
 		if (value < BIGNUM_FULLBIT - 1L) {
 			value = 1LL << value;
-			fixnum_alloc(local, &left, 0);
-			fixnum_alloc(local, &right, value - 1L);
-			type_object4(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
+			fixnum_local(local, &left, 0);
+			fixnum_local(local, &right, value - 1L);
+			type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
 			return 1;
 		}
 		size = (size_t)value;
@@ -491,8 +490,8 @@ static int optimize_unsigned_byte(LocalRoot local, addr *ret, addr right)
 	/* bignum */
 	power2_bigdata_alloc(local, &right, size);
 	setminusvalue_bigdata(right, right, SignPlus, 1);
-	fixnum_alloc(local, &left, 0);
-	type_object4(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
+	fixnum_local(local, &left, 0);
+	type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
 
 	return 1;
 }
@@ -507,9 +506,9 @@ static int optimize_bit(LocalRoot local, addr *ret, addr right)
 	addr left;
 
 	if (! check_bit(right)) return 0;
-	fixnum_alloc(local, &left, 0);
-	fixnum_alloc(local, &right, 1);
-	type_object4(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
+	fixnum_local(local, &left, 0);
+	fixnum_local(local, &right, 1);
+	type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
 
 	return 1;
 }
@@ -528,7 +527,7 @@ static int optimize_fixnum(LocalRoot local, addr *ret, addr right)
 	GetConst(FIXNUM_MAX, &right);
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_FIXNUM, "type left error");
-	type_object4(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
+	type4_local(local, LISPDECL_INTEGER, Nil, left, Nil, right, ret);
 
 	return 1;
 }
@@ -543,17 +542,17 @@ static int optimize_bignum(LocalRoot local, addr *ret, addr right)
 	addr array, pos;
 
 	if (! check_bignum(right)) return 0;
-	vector4_alloc(local, &array, 2);
+	vector4_local(local, &array, 2);
 	/* integer */
-	type_aster4(local, LISPDECL_INTEGER, &pos);
+	type4aster_localall(local, LISPDECL_INTEGER, &pos);
 	SetArrayA4(array, 0, pos);
 	/* (not fixnum) */
-	type_empty(local, LISPDECL_FIXNUM, &pos);
+	type0_local(local, LISPDECL_FIXNUM, &pos);
 	SetNotDecl(pos, 1);
 	type_optimize(local, &pos, pos);
 	SetArrayA4(array, 1, pos);
 	/* bignum */
-	type_object1(local, LISPDECL_AND, array, ret);
+	type1_local(local, LISPDECL_AND, array, ret);
 
 	return 1;
 }
@@ -568,14 +567,14 @@ static int check_eql(addr right)
 static int optimize_eql(LocalRoot local, addr *ret, addr right)
 {
 	if (! check_eql(right)) return 0;
-	type_empty(local, LISPDECL_NULL, ret);
+	type0_local(local, LISPDECL_NULL, ret);
 	return 1;
 }
 
 /* (eql 10) -> (integer 10 10) */
 static void eql_real_type(LocalRoot local, enum LISPDECL decl, addr value, addr *ret)
 {
-	type_object4(local, decl, Nil, value, Nil, value, ret);
+	type4_local(local, decl, Nil, value, Nil, value, ret);
 }
 
 static int range_to_type(LocalRoot local, addr value, addr *ret)
@@ -642,7 +641,7 @@ static int check_member1(addr right)
 static int optimize_member1(LocalRoot local, addr *ret, addr right)
 {
 	if (! check_member1(right)) return 0;
-	type_nil_alloc(local, ret);
+	type0_local(local, LISPDECL_NIL, ret);
 	return 1;
 }
 
@@ -658,7 +657,7 @@ static int optimize_member2(LocalRoot local, addr *ret, addr right)
 	if (! check_member2(right)) return 0;
 	GetArrayType(right, 0, &right);
 	GetArrayA4(right, 0, &right);
-	type_object1(local, LISPDECL_EQL, right, ret);
+	type_eql_local(local, right, ret);
 	return 1;
 }
 
@@ -677,13 +676,13 @@ static int optimize_member3(LocalRoot local, addr *ret, addr right)
 	if (! check_member3(right)) return 0;
 	GetArrayType(right, 0, &right);
 	LenArrayA4(right, &size);
-	vector4_alloc(local, &array, size);
+	vector4_local(local, &array, size);
 	for (i = 0; i < size; i++) {
 		GetArrayA4(right, i, &child);
-		type_object1(local, LISPDECL_EQL, child, &child);
+		type_eql_local(local, child, &child);
 		SetArrayA4(array, i, child);
 	}
-	type_object1(local, LISPDECL_OR, array, ret);
+	type1_local(local, LISPDECL_OR, array, ret);
 
 	return 1;
 }
@@ -703,8 +702,8 @@ static int optimize_not(LocalRoot local, addr *ret, addr right)
 	else {
 		/* not */
 		GetArrayType(right, 0, &right);
-		copy_no_recursive_type_alloc(local, &right, right);
-		reversenotdecl(right);
+		type_copy_unsafe_local(local, &right, right);
+		type_revnotdecl(right);
 		*ret = right;
 	}
 
@@ -732,15 +731,15 @@ static void extract_not_andor(LocalRoot local,
 
 	GetArrayType(right, 0, &right);
 	LenArrayA4(right, &size);
-	vector4_alloc(local, &array, size);
+	vector4_local(local, &array, size);
 	for (i = 0; i < size; i++) {
 		GetArrayA4(right, i, &pos);
-		copy_no_recursive_type_alloc(local, &pos, pos);
-		reversenotdecl(pos);
+		type_copy_unsafe_local(local, &pos, pos);
+		type_revnotdecl(pos);
 		optimize_result(local, &pos, pos);
 		SetArrayA4(array, i, pos);
 	}
-	type_object1(local, decl, array, ret);
+	type1_local(local, decl, array, ret);
 }
 
 static int extract_array_andor(LocalRoot local, addr *ret, addr right)
@@ -751,7 +750,7 @@ static int extract_array_andor(LocalRoot local, addr *ret, addr right)
 
 	GetArrayType(right, 0, &array);
 	LenArrayA4(array, &size);
-	vector4_alloc(local, &temp, size);
+	vector4_local(local, &temp, size);
 	update = 0;
 	for (i = 0; i < size; i++) {
 		GetArrayA4(array, i, &pos);
@@ -760,12 +759,13 @@ static int extract_array_andor(LocalRoot local, addr *ret, addr right)
 	}
 
 	if (update) {
-		copy_no_recursive_type_alloc(local, &right, right);
-		GetArrayType(right, 0, &array);
+		type_copy_unsafe_local(local, &right, right);
+		vector4_local(local, &array, size);
 		for (i = 0; i < size; i++) {
 			GetArrayA4(temp, i, &pos);
 			SetArrayA4(array, i, pos);
 		}
+		SetArrayType(right, 0, array);
 		*ret = right;
 	}
 
@@ -850,7 +850,7 @@ static int check_and1(addr type)
 static int optimize_and1(LocalRoot local, addr *ret, addr type)
 {
 	if (! check_and1(type)) return 0;
-	type_t_alloc(local, ret);
+	type0_local(local, LISPDECL_T, ret);
 	return 1;
 }
 
@@ -892,7 +892,7 @@ static int check_and3(addr type)
 static int optimize_and3(LocalRoot local, addr *ret, addr type)
 {
 	if (! check_and3(type)) return 0;
-	type_nil_alloc(local, ret);
+	type0_local(local, LISPDECL_NIL, ret);
 	return 1;
 }
 
@@ -901,22 +901,20 @@ static void remove_type_vector(LocalRoot local,
 		enum LISPDECL decl, enum LISPDECL checktype,
 		addr array, size_t size1, size_t size2, addr *ret)
 {
-	addr pos, one, check;
+	addr pos, check;
 	size_t i, k;
 
-	type_alloc(local, &pos, decl, 1);
-	vector4_alloc(local, &one, size2);
+	vector4_local(local, &pos, size2);
 	k = 0;
 	for (i = 0; i < size1; i++) {
 		GetArrayA4(array, i, &check);
 		if (! normlispdecl(check, checktype)) {
 			Check(size2 <= k, "size2 error1");
-			SetArrayA4(one, k++, check);
+			SetArrayA4(pos, k++, check);
 		}
 	}
 	Check(k != size2, "size2 error2");
-	SetArrayType(pos, 0, one);
-	*ret = pos;
+	type1_local(local, decl, pos, ret);
 }
 
 static int check_and4(addr type)
@@ -1009,7 +1007,7 @@ static int check_and5(addr type)
 }
 static int optimize_and5(LocalRoot local, addr *ret, addr type)
 {
-	addr array, pos;
+	addr array;
 	size_t size;
 
 	/* check */
@@ -1020,12 +1018,10 @@ static int optimize_and5(LocalRoot local, addr *ret, addr type)
 	Check(size == 0, "size error");
 
 	/* make type */
-	type_alloc(local, &pos, LISPDECL_AND, 1);
-	vector4_alloc(local, &array, size);
-	SetArrayType(pos, 0, array);
+	vector4_local(local, &array, size);
+	type1_local(local, LISPDECL_AND, array, ret);
 	size = 0;
 	replace_andor(type, LISPDECL_AND, array, &size);
-	*ret = pos;
 
 	return 1;
 }
@@ -1052,7 +1048,7 @@ static int check_or1(addr type)
 static int optimize_or1(LocalRoot local, addr *ret, addr type)
 {
 	if (! check_or1(type)) return 0;
-	type_nil_alloc(local, ret);
+	type0_local(local, LISPDECL_NIL, ret);
 	return 1;
 }
 
@@ -1094,7 +1090,7 @@ static int check_or3(addr type)
 static int optimize_or3(LocalRoot local, addr *ret, addr type)
 {
 	if (! check_or3(type)) return 0;
-	type_t_alloc(local, ret);
+	type0_local(local, LISPDECL_T, ret);
 	return 1;
 }
 
@@ -1129,7 +1125,7 @@ static int check_or5(addr type)
 }
 static int optimize_or5(LocalRoot local, addr *ret, addr type)
 {
-	addr array, pos;
+	addr array;
 	size_t size;
 
 	/* check */
@@ -1141,12 +1137,10 @@ static int optimize_or5(LocalRoot local, addr *ret, addr type)
 	Check(size == 0, "size error");
 
 	/* make type */
-	type_alloc(local, &pos, LISPDECL_OR, 1);
-	vector4_alloc(local, &array, size);
-	SetArrayType(pos, 0, array);
+	vector4_local(local, &array, size);
+	type1_local(local, LISPDECL_OR, array, ret);
 	size = 0;
 	replace_andor(type, LISPDECL_OR, array, &size);
-	*ret = pos;
 
 	return 1;
 }
@@ -1162,7 +1156,7 @@ static int range_valid_p(addr type)
 	GetArrayType(type, 1, &left2);
 	GetArrayType(type, 2, &right1);
 	GetArrayType(type, 3, &right2);
-	if (asterisk_p(left1) || asterisk_p(right1)) return 1;
+	if (type_asterisk_p(left1) || type_asterisk_p(right1)) return 1;
 	if (left1 == Nil && right1 == Nil)
 		return less_equal_real(local, left2, right2);
 	else
@@ -1170,12 +1164,15 @@ static int range_valid_p(addr type)
 }
 static int check_range(addr right)
 {
-	return range_type_p(right) && ! range_valid_p(right);
+	return type_range_p(right) && ! range_valid_p(right);
 }
 static int optimize_range(LocalRoot local, addr *ret, addr right)
 {
 	if (! check_range(right)) return 0;
-	type_bool_alloc(local, RefNotDecl(right), ret);
+	if (RefNotDecl(right))
+		type0_local(local, LISPDECL_T, ret);
+	else
+		type0_local(local, LISPDECL_NIL, ret);
 	return 1;
 }
 
@@ -1190,7 +1187,7 @@ static void extract_values_var(LocalRoot local, addr *ret, addr right)
 	for (root = Nil; right != Nil; ) {
 		GetCons(right, &left, &right);
 		optimize_result(local, &left, left);
-		cons_alloc(local, &root, left, root);
+		cons_local(local, &root, left, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
@@ -1248,7 +1245,7 @@ static int optimize_values(LocalRoot local, addr *ret, addr right)
 	extract_values_rest(local, &rest, rest);
 
 	/* result */
-	copy_no_recursive_type_alloc(local, &right, right);
+	type_copy_unsafe_local(local, &right, right);
 	SetArrayType(right, 0, var);
 	SetArrayType(right, 1, opt);
 	SetArrayType(right, 2, rest);
@@ -1269,8 +1266,8 @@ static void extract_function_key(LocalRoot local, addr *ret, addr right)
 		GetCons(right, &left, &right);
 		GetCons(left, &key, &type);
 		optimize_result(local, &type, type);
-		cons_alloc(local, &left, key, type);
-		cons_alloc(local, &root, left, root);
+		cons_local(local, &left, key, type);
+		cons_local(local, &root, left, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
@@ -1280,7 +1277,7 @@ static void extract_function(LocalRoot local, addr *ret, addr right)
 	addr var, opt, rest, key;
 
 	/* extract */
-	if (asterisk_p(right)) return;
+	if (type_asterisk_p(right)) return;
 	GetArrayA2(right, 0, &var);
 	GetArrayA2(right, 1, &opt);
 	GetArrayA2(right, 2, &rest);
@@ -1291,7 +1288,7 @@ static void extract_function(LocalRoot local, addr *ret, addr right)
 	extract_function_key(local, &key, key);
 
 	/* result */
-	vector2_alloc(local, &right, 4);
+	vector2_local(local, &right, 4);
 	SetArrayA2(right, 0, var);
 	SetArrayA2(right, 1, opt);
 	SetArrayA2(right, 2, rest);
@@ -1318,7 +1315,7 @@ static int check_function_args(addr right)
 {
 	addr check;
 
-	if (asterisk_p(right)) return 0;
+	if (type_asterisk_p(right)) return 0;
 	GetArrayA2(right, 0, &check);
 	if (check_some(check)) return 1;
 	GetArrayA2(right, 1, &check);
@@ -1352,7 +1349,7 @@ static int optimize_function(LocalRoot local, addr *ret, addr right)
 	GetArrayType(right, 1, &values);
 	extract_function(local, &args, args);
 	optimize_result(local, &values, values);
-	copy_no_recursive_typeonly_alloc(local, &right, right);
+	type_copydecl_unsafe_local(local, &right, right);
 	SetArrayType(right, 0, args);
 	SetArrayType(right, 1, values);
 	*ret = right;
@@ -1366,9 +1363,9 @@ static int check_cons(addr right)
 
 	if (RefLispDecl(right) != LISPDECL_CONS) return 0;
 	GetArrayType(right, 0, &check);
-	if (! asterisk_p(check) && check_optimize(check)) return 1;
+	if (! type_asterisk_p(check) && check_optimize(check)) return 1;
 	GetArrayType(right, 1, &check);
-	if (! asterisk_p(check) && check_optimize(check)) return 1;
+	if (! type_asterisk_p(check) && check_optimize(check)) return 1;
 
 	return 0;
 }
@@ -1379,11 +1376,11 @@ static int optimize_cons(LocalRoot local, addr *ret, addr right)
 	if (! check_cons(right)) return 0;
 	GetArrayType(right, 0, &car);
 	GetArrayType(right, 1, &cdr);
-	if (! asterisk_p(car))
+	if (! type_asterisk_p(car))
 		optimize_result(local, &car, car);
-	if (! asterisk_p(cdr))
+	if (! type_asterisk_p(cdr))
 		optimize_result(local, &cdr, cdr);
-	type_object2(local, LISPDECL_CONS, car, cdr, ret);
+	type2_local(local, LISPDECL_CONS, car, cdr, ret);
 
 	return 1;
 }
@@ -1444,7 +1441,7 @@ static int type_optimize(LocalRoot local, addr *ret, addr type)
 {
 	int update, result;
 
-	type_throw_alloc(local, &type, type);
+	CheckType(type, LISPTYPE_TYPE);
 	for (result = 0; ; result |= update) {
 		update = 0;
 		/* extract */
@@ -1498,26 +1495,22 @@ static int type_optimize(LocalRoot local, addr *ret, addr type)
 	return result;
 }
 
-int type_optimize_alloc(LocalRoot local, addr *ret, addr type)
+int type_optimize_local(LocalRoot local, addr *ret, addr type)
 {
 	int result;
 
+	CheckLocal(local);
+	CheckType(type, LISPTYPE_TYPE);
 	if (RefLispDecl(type) == LISPDECL_OPTIMIZED) {
 		result = 0;
 		*ret = type;
 	}
 	else {
 		result = type_optimize(local, &type, type);
-		type_object1(local, LISPDECL_OPTIMIZED, type, ret);
+		type1_local(local, LISPDECL_OPTIMIZED, type, ret);
 	}
 
 	return result;
-}
-
-int type_optimize_local(LocalRoot local, addr *ret, addr type)
-{
-	Check(local == NULL, "local error");
-	return type_optimize_alloc(local, ret, type);
 }
 
 int type_optimize_heap(LocalRoot local, addr *ret, addr type)
@@ -1525,18 +1518,14 @@ int type_optimize_heap(LocalRoot local, addr *ret, addr type)
 	int result;
 	LocalStack stack;
 
-	Check(local == NULL, "local error");
+	CheckLocal(local);
+	CheckType(type, LISPTYPE_TYPE);
 	push_local(local, &stack);
-	result = type_optimize_alloc(local, &type, type);
+	result = type_optimize_local(local, &type, type);
 	type_copy_heap(ret, type);
 	rollback_local(local, stack);
 
 	return result;
-}
-
-int type_optimize_heap_unsafe(addr *ret, addr type)
-{
-	return type_optimize_alloc(NULL, ret, type);
 }
 
 int type_optimized_p(addr type)

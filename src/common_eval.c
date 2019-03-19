@@ -27,7 +27,7 @@ static void defmacro_lambda(void)
 	setcompiled_macro(pos, function_lambda);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -53,9 +53,9 @@ static void type_eval(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, T);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&arg, T);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -125,7 +125,8 @@ static void function_defmacro(Execute ptr, addr right, addr env)
 	/* parse */
 	check_function_variable(name);
 	lambda_macro(ptr->local, &args, args, Nil);
-	declare_body_documentation(right, &doc, &decl, &right);
+	if (declare_body_documentation(ptr, env, right, &doc, &decl, &right))
+		return;
 
 	/* (eval::defmacro name args decl doc body) */
 	GetConst(SYSTEM_DEFMACRO, &eval);
@@ -142,7 +143,7 @@ static void defmacro_defmacro(void)
 	setcompiled_macro(pos, function_defmacro);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -160,10 +161,10 @@ static void type_macro_function(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, Symbol);
-	GetCallType(&type, EnvironmentNull);
-	var1opt1_argtype(&arg, arg, type);
-	GetCallType(&values, Values_Function);
+	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&type, EnvironmentNull);
+	typeargs_var1opt1(&arg, arg, type);
+	GetTypeValues(&values, Function);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -201,11 +202,11 @@ static void type_setf_macro_function(addr *ret)
 {
 	addr arg, values, type, env;
 
-	GetCallType(&arg, Function);
-	GetCallType(&type, Symbol);
-	GetCallType(&env, Environment);
-	var2opt1_argtype(&arg, arg, type, env);
-	GetCallType(&values, Values_Function);
+	GetTypeTable(&arg, Function);
+	GetTypeTable(&type, Symbol);
+	GetTypeTable(&env, Environment);
+	typeargs_var2opt1(&arg, arg, type, env);
+	GetTypeValues(&values, Function);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -249,7 +250,7 @@ static void defun_macroexpand(void)
 	setcompiled_var1opt1(pos, function_macroexpand);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroExpand);
+	GetTypeCompiled(&type, MacroExpand);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -279,7 +280,7 @@ static void defun_macroexpand_1(void)
 	setcompiled_var1opt1(pos, function_macroexpand_1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroExpand);
+	GetTypeCompiled(&type, MacroExpand);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -318,7 +319,7 @@ static void defmacro_define_symbol_macro(void)
 	setcompiled_macro(pos, function_define_symbol_macro);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -337,7 +338,7 @@ static void function_declaim(Execute ptr, addr form, addr env)
 
 	GetConst(SYSTEM_DECLAIM, &symbol);
 	getcdr(form, &form); /* (declaim . form) */
-	parse_declaim_alloc(NULL, form, &form);
+	if (parse_declaim_heap(ptr, Nil, form, &form)) return;
 	conscar_heap(&form, form);
 	cons_heap(&form, symbol, form);
 	setresult_control(ptr, form);
@@ -352,7 +353,7 @@ static void defmacro_declaim(void)
 	setcompiled_macro(pos, function_declaim);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -387,7 +388,7 @@ static void defun_special_operator_p(void)
 	setcompiled_var1(pos, function_special_operator_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Symbol_Boolean);
+	GetTypeCompiled(&type, Symbol_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -411,10 +412,10 @@ static void type_constantp(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, T);
-	GetCallType(&type, EnvironmentNull);
-	var1opt1_argtype(&arg, arg, type);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, T);
+	GetTypeTable(&type, EnvironmentNull);
+	typeargs_var1opt1(&arg, arg, type);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 

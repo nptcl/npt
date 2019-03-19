@@ -2,7 +2,6 @@
 #include "bigcons.h"
 #include "bignum.h"
 #include "bit.h"
-#include "calltype.h"
 #include "character.h"
 #include "charqueue.h"
 #include "cmpl.h"
@@ -29,6 +28,7 @@
 #include "strtype.h"
 #include "symbol.h"
 #include "token.h"
+#include "type_table.h"
 
 /*
  *  chartable
@@ -1791,7 +1791,7 @@ static void pushchar_readtable(Execute ptr, addr pos, unicode c, int escape)
 /*
  *  readtable
  */
-static enum ReadTable_Type gettypetable(addr pos, unicode c)
+static enum ReadTable_Type readtable_typetable(addr pos, unicode c)
 {
 	readtype_readtable(pos, c, &pos);
 	if (pos == Nil)
@@ -1817,7 +1817,7 @@ step1:
 	if (result) goto eof;
 
 	/* step2 */
-	type = gettypetable(table, x);
+	type = readtable_typetable(table, x);
 	switch (type) {
 		case ReadTable_Type_illegal:
 			goto illegal_error;
@@ -1854,7 +1854,7 @@ step1:
 step8:
 	result = read_char_stream(stream, &y);
 	if (result) goto step10;
-	type = gettypetable(table, y);
+	type = readtable_typetable(table, y);
 	switch (type) {
 		case ReadTable_Type_constituent:
 		case ReadTable_Type_macro_nonterm:
@@ -1889,7 +1889,7 @@ step8:
 step9:
 	result = read_char_stream(stream, &y);
 	if (result) goto error;
-	type = gettypetable(table, y);
+	type = readtable_typetable(table, y);
 	switch (type) {
 		case ReadTable_Type_macro_term:
 		case ReadTable_Type_macro_nonterm:
@@ -2147,7 +2147,7 @@ static void defun_double_quote_reader(void)
 	setcompiled_var2(pos, reader_double_quote);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroReader);
+	GetTypeCompiled(&type, MacroReader);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2196,7 +2196,7 @@ static void defun_single_quote_reader(void)
 	setcompiled_var2(pos, reader_single_quote);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroReader);
+	GetTypeCompiled(&type, MacroReader);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2292,7 +2292,7 @@ static int delimited_execute(Execute ptr, addr stream, unicode limit)
 	for (;;) {
 		if (read_char_stream(stream, &u))
 			fmte("Don't allow end-of-file in the parensis.", NULL);
-		if (gettypetable(table, u) == ReadTable_Type_whitespace) {
+		if (readtable_typetable(table, u) == ReadTable_Type_whitespace) {
 			/* discard character */
 			continue;
 		}
@@ -2368,7 +2368,7 @@ static void defun_parensis_open_reader(void)
 	setcompiled_var2(pos, reader_parensis_open);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroReader);
+	GetTypeCompiled(&type, MacroReader);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2390,7 +2390,7 @@ static void defun_parensis_close_reader(void)
 	setcompiled_var2(pos, reader_parensis_close);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroReader);
+	GetTypeCompiled(&type, MacroReader);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2419,7 +2419,7 @@ static void defun_semicolon_reader(void)
 	setcompiled_var2(pos, reader_semicolon);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroReader);
+	GetTypeCompiled(&type, MacroReader);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2461,7 +2461,7 @@ static void defun_backquote_reader(void)
 	setcompiled_var2(pos, reader_backquote);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroReader);
+	GetTypeCompiled(&type, MacroReader);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2528,7 +2528,7 @@ static void defun_comma_reader(void)
 	setcompiled_var2(pos, reader_comma);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroReader);
+	GetTypeCompiled(&type, MacroReader);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2604,7 +2604,7 @@ static void defun_sharp_reader(void)
 	setcompiled_var2(pos, reader_sharp);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroReader);
+	GetTypeCompiled(&type, MacroReader);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 	/* (setq dispatch-function #'sharp-reader) */
@@ -2644,7 +2644,7 @@ static void defun_error_dispatch(void)
 	setcompiled_var3(pos, dispatch_error);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2822,7 +2822,7 @@ static void defun_equal_dispatch(void)
 	setcompiled_var3(pos, dispatch_equal);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2852,7 +2852,7 @@ static void defun_sharp_dispatch(void)
 	setcompiled_var3(pos, dispatch_sharp);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2879,7 +2879,7 @@ static void defun_single_quote_dispatch(void)
 	setcompiled_var3(pos, dispatch_single_quote);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2970,7 +2970,7 @@ static void dispatch_parensis_open(Execute ptr, addr stream, addr code, addr arg
 		if (read_char_stream(stream, &u)) {
 			fmte("Don't allow end-of-file in the parensis.", NULL);
 		}
-		if (gettypetable(table, u) == ReadTable_Type_whitespace) {
+		if (readtable_typetable(table, u) == ReadTable_Type_whitespace) {
 			continue;
 		}
 		if (u == ')') {
@@ -3019,7 +3019,7 @@ static void defun_parensis_open_dispatch(void)
 	setcompiled_var3(pos, dispatch_parensis_open);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3041,7 +3041,7 @@ static void defun_parensis_close_dispatch(void)
 	setcompiled_var3(pos, dispatch_parensis_close);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3139,7 +3139,7 @@ static void defun_asterisk_dispatch(void)
 	setcompiled_var3(pos, dispatch_asterisk);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3195,7 +3195,7 @@ static void defun_colon_dispatch(void)
 	setcompiled_var3(pos, dispatch_colon);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3217,7 +3217,7 @@ static void defun_less_dispatch(void)
 	setcompiled_var3(pos, dispatch_less);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3252,7 +3252,7 @@ static void defun_backslash_dispatch(void)
 	setcompiled_var3(pos, dispatch_backslash);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3297,7 +3297,7 @@ static void defun_or_dispatch(void)
 	setcompiled_var3(pos, dispatch_or);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3428,7 +3428,7 @@ static void defun_plus_dispatch(void)
 	setcompiled_var3(pos, dispatch_plus);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3469,7 +3469,7 @@ static void defun_minus_dispatch(void)
 	setcompiled_var3(pos, dispatch_minus);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3502,7 +3502,7 @@ static void defun_dot_dispatch(void)
 	setcompiled_var3(pos, dispatch_dot);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3560,7 +3560,7 @@ static void defun_radix_dispatch(void)
 	setcompiled_var3(pos, dispatch_radix);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3582,7 +3582,7 @@ static void defun_binary_dispatch(void)
 	setcompiled_var3(pos, dispatch_binary);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3604,7 +3604,7 @@ static void defun_octal_dispatch(void)
 	setcompiled_var3(pos, dispatch_octal);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3626,7 +3626,7 @@ static void defun_hexdecimal_dispatch(void)
 	setcompiled_var3(pos, dispatch_hexdecimal);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3668,7 +3668,7 @@ static void defun_complex_dispatch(void)
 	setcompiled_var3(pos, dispatch_complex);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3700,7 +3700,7 @@ static void defun_array_dispatch(void)
 	setcompiled_var3(pos, dispatch_array);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3730,7 +3730,7 @@ static void defun_pathname_dispatch(void)
 	setcompiled_var3(pos, dispatch_pathname);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroDispatch);
+	GetTypeCompiled(&type, MacroDispatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }

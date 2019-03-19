@@ -1324,6 +1324,24 @@ long_float long_float_ratio(addr pos)
 	return v1;
 }
 
+void single_float_ratio_heap(addr *ret, addr pos)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	single_float_heap(ret, single_float_ratio(pos));
+}
+
+void double_float_ratio_heap(addr *ret, addr pos)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	double_float_heap(ret, double_float_ratio(pos));
+}
+
+void long_float_ratio_heap(addr *ret, addr pos)
+{
+	CheckType(pos, LISPTYPE_RATIO);
+	long_float_heap(ret, long_float_ratio(pos));
+}
+
 
 /*****************************************************************************
   calculation

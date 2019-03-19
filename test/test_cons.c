@@ -1,5 +1,4 @@
 #include "cons.c"
-#include "calltype.h"
 #include "clos.h"
 #include "common.h"
 #include "condition.h"
@@ -8,6 +7,7 @@
 #include "package.h"
 #include "sequence.h"
 #include "type.h"
+#include "type_table.h"
 
 /*
  *  safe
@@ -1329,7 +1329,6 @@ int test_cons(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_common();
 		result = testbreak_cons();
 	}

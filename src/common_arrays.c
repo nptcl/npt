@@ -7,7 +7,9 @@
 #include "cons.h"
 #include "integer.h"
 #include "sequence.h"
+#include "type.h"
 #include "type_parse.h"
+#include "type_upgraded.h"
 
 /* (defun make-array (dimensions &key element-type initial-element
  *     initial-contents adjustable fill-pointer
@@ -32,6 +34,7 @@ static void function_make_array(Execute ptr, addr var, addr rest)
 	if (getkeyargs(rest, KEYWORD_FILL_POINTER, &fill)) fill = Nil;
 	if (getkeyargs(rest, KEYWORD_DISPLACED_TO, &dto)) dto = Nil;
 	if (getkeyargs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off)) off = fixnumh(0);
+	if (parse_type(ptr, &type, type, Nil)) return;
 	array_make_array(NULL, &var, var, type, ielem, icont, adj, fill, dto, off);
 	setresult_control(ptr, var);
 }
@@ -42,44 +45,44 @@ static void type_make_array_key(addr *ret, int adjustable)
 
 	/* element-type  type-specifier */
 	GetConst(KEYWORD_ELEMENT_TYPE, &keyword);
-	GetCallType(&type, TypeSpec);
+	GetTypeTable(&type, TypeSpec);
 	cons_heap(&pos, keyword, type);
 	conscar_heap(&key, pos);
 	/* initial-element  t */
 	GetConst(KEYWORD_INITIAL_ELEMENT, &keyword);
-	GetCallType(&type, T);
+	GetTypeTable(&type, T);
 	cons_heap(&pos, keyword, type);
 	cons_heap(&key, pos, key);
 	/* initial-contents  t */
 	GetConst(KEYWORD_INITIAL_CONTENTS, &keyword);
-	GetCallType(&type, T);
+	GetTypeTable(&type, T);
 	cons_heap(&pos, keyword, type);
 	cons_heap(&key, pos, key);
 	/* adjustable  t */
 	if (adjustable) {
 		GetConst(KEYWORD_ADJUSTABLE, &keyword);
-		GetCallType(&type, T);
+		GetTypeTable(&type, T);
 		cons_heap(&pos, keyword, type);
 		cons_heap(&key, pos, key);
 	}
 	/* fill-pointer  (or index null (eql t)) */
 	GetConst(KEYWORD_FILL_POINTER, &keyword);
-	GetCallType(&type1, Index);
-	GetCallType(&type2, Null);
-	GetCallType(&type3, EqlT);
-	type_or3(NULL, type1, type2, type3, &type);
+	GetTypeTable(&type1, Index);
+	GetTypeTable(&type2, Null);
+	GetTypeTable(&type3, EqlT);
+	type3or_heap(type1, type2, type3, &type);
 	cons_heap(&pos, keyword, type);
 	cons_heap(&key, pos, key);
 	/* displaced-to  (or array null) */
 	GetConst(KEYWORD_DISPLACED_TO, &keyword);
-	GetCallType(&type1, Array);
-	GetCallType(&type2, Null);
-	type_or(NULL, type1, type2, &type);
+	GetTypeTable(&type1, Array);
+	GetTypeTable(&type2, Null);
+	type2or_heap(type1, type2, &type);
 	cons_heap(&pos, keyword, type);
 	cons_heap(&key, pos, key);
 	/* displaced-index-offset  index */
 	GetConst(KEYWORD_DISPLACED_INDEX_OFFSET, &keyword);
-	GetCallType(&type, Index);
+	GetTypeTable(&type, Index);
 	cons_heap(&pos, keyword, type);
 	cons_heap(&key, pos, key);
 	/* result */
@@ -90,12 +93,12 @@ static void type_make_array(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Index);
-	GetCallType(&values, List);
-	type_or(NULL, arg, values, &arg);
+	GetTypeTable(&arg, Index);
+	GetTypeTable(&values, List);
+	type2or_heap(arg, values, &arg);
 	type_make_array_key(&values, 1);
-	var1key_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Array);
+	typeargs_var1key(&arg, arg, values);
+	GetTypeValues(&values, Array);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -136,6 +139,9 @@ static void function_adjust_array(Execute ptr, addr pos, addr dim, addr rest)
 	if (getkeyargs(rest, KEYWORD_FILL_POINTER, &fill)) fill = Nil;
 	if (getkeyargs(rest, KEYWORD_DISPLACED_TO, &dto)) dto = Nil;
 	if (getkeyargs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off)) off = fixnumh(0);
+	if (type != Unbound) {
+		if (parse_type(ptr, &type, type, Nil)) return;
+	}
 	array_adjust_array(&pos, pos, dim, type, ielem, icont, fill, dto, off);
 	setresult_control(ptr, pos);
 }
@@ -144,13 +150,13 @@ static void type_adjust_array(addr *ret)
 {
 	addr arg, values, key;
 
-	GetCallType(&arg, Index);
-	GetCallType(&values, List);
-	type_or(NULL, arg, values, &values);
+	GetTypeTable(&arg, Index);
+	GetTypeTable(&values, List);
+	type2or_heap(arg, values, &values);
 	type_make_array_key(&key, 0);
-	GetCallType(&arg, Array);
-	var2key_argtype(&arg, arg, values, key);
-	GetCallType(&values, Values_Array);
+	GetTypeTable(&arg, Array);
+	typeargs_var2key(&arg, arg, values, key);
+	GetTypeValues(&values, Array);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -186,7 +192,7 @@ static void defun_adjustable_array_p(void)
 	setcompiled_var1(pos, function_adjustable_array_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_ArrayBoolean);
+	GetTypeCompiled(&type, ArrayBoolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -223,10 +229,10 @@ static void type_aref(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Array);
-	GetCallType(&values, Index);
-	var1rest_argtype(&arg, arg, values);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&arg, Array);
+	GetTypeTable(&values, Index);
+	typeargs_var1rest(&arg, arg, values);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -277,11 +283,11 @@ static void type_setf_aref(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&type, T);
-	GetCallType(&arg, Array);
-	GetCallType(&values, Index);
-	var2rest_argtype(&arg, type, arg, values);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&type, T);
+	GetTypeTable(&arg, Array);
+	GetTypeTable(&values, Index);
+	typeargs_var2rest(&arg, type, arg, values);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -340,10 +346,10 @@ static void type_array_dimension(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Array);
-	GetCallType(&values, Index);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Index);
+	GetTypeTable(&arg, Array);
+	GetTypeTable(&values, Index);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, Index);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -405,7 +411,7 @@ static void defun_array_dimensions(void)
 	setcompiled_var1(pos, function_array_dimensions);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_ArrayIndex);
+	GetTypeCompiled(&type, ArrayIndex);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -442,10 +448,10 @@ static void type_array_element_type(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Array);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, TypeSpec);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Array);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, TypeSpec);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -495,7 +501,7 @@ static void defun_array_has_fill_pointer_p(void)
 	setcompiled_var1(pos, function_array_has_fill_pointer_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_ArrayBoolean);
+	GetTypeCompiled(&type, ArrayBoolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -528,13 +534,13 @@ static void type_array_displacement(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, Array);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Array);
-	GetCallType(&type, Null);
-	type_or(NULL, values, type, &values);
-	GetCallType(&type, Index);
-	values2_valuestype(&values, values, type);
+	GetTypeTable(&arg, Array);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, Array);
+	GetTypeTable(&type, Null);
+	type2or_heap(values, type, &values);
+	GetTypeTable(&type, Index);
+	typevalues_values2(&values, values, type);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -592,10 +598,10 @@ static void type_array_in_bounds_p(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Array);
-	GetCallType(&values, Integer);
-	var1rest_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, Array);
+	GetTypeTable(&values, Integer);
+	typeargs_var1rest(&arg, arg, values);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -646,7 +652,7 @@ static void defun_array_rank(void)
 	setcompiled_var1(pos, function_array_rank);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_ArrayIndex);
+	GetTypeCompiled(&type, ArrayIndex);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -688,10 +694,10 @@ static void type_array_row_major_index(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Array);
-	GetCallType(&values, Index);
-	var1rest_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Index);
+	GetTypeTable(&arg, Array);
+	GetTypeTable(&values, Index);
+	typeargs_var1rest(&arg, arg, values);
+	GetTypeValues(&values, Index);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -753,7 +759,7 @@ static void defun_array_total_size(void)
 	setcompiled_var1(pos, function_array_total_size);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_ArrayIndex);
+	GetTypeCompiled(&type, ArrayIndex);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -786,7 +792,7 @@ static void defun_arrayp(void)
 	setcompiled_var1(pos, function_arrayp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -818,9 +824,9 @@ static void type_fill_pointer(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Vector);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Index);
+	GetTypeTable(&arg, Vector);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Index);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -868,10 +874,10 @@ static void type_setf_fill_pointer(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&values, Index);
-	GetCallType(&arg, Vector);
-	var2_argtype(&arg, values, arg);
-	GetCallType(&values, Values_Index);
+	GetTypeTable(&values, Index);
+	GetTypeTable(&arg, Vector);
+	typeargs_var2(&arg, values, arg);
+	GetTypeValues(&values, Index);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -926,10 +932,10 @@ static void type_row_major_aref(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Array);
-	GetCallType(&values, Index);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&arg, Array);
+	GetTypeTable(&values, Index);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -985,11 +991,11 @@ static void type_setf_row_major_aref(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&type, T);
-	GetCallType(&arg, Array);
-	GetCallType(&values, Index);
-	var3_argtype(&arg, type, arg, values);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&type, T);
+	GetTypeTable(&arg, Array);
+	GetTypeTable(&values, Index);
+	typeargs_var3(&arg, type, arg, values);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1012,22 +1018,24 @@ static void defun_setf_row_major_aref(void)
 /* (defun upgraded-array-element-type (typespec &optional environment) ...)
  *     -> typespec
  */
-static void function_upgraded_array_element_type(Execute ptr, addr type, addr env)
+static void function_upgraded_array_element_type(Execute ptr, addr pos, addr env)
 {
-	/* TODO: environment */
-	upgraded_array_object_heap(&type, type);
-	setresult_control(ptr, type);
+	if (env == Unbound)
+		env = Nil;
+	if (upgraded_array_common(ptr, env, pos, &pos))
+		return;
+	setresult_control(ptr, pos);
 }
 
 static void type_upgraded_array_element_type(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, TypeSpec);
-	GetCallType(&values, EnvironmentNull);
-	var1opt1_argtype(&arg, arg, values);
-	GetCallType(&values, TypeSpec);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, TypeSpec);
+	GetTypeTable(&values, EnvironmentNull);
+	typeargs_var1opt1(&arg, arg, values);
+	GetTypeTable(&values, TypeSpec);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1108,7 +1116,7 @@ static void defun_simple_vector_p(void)
 	setcompiled_var1(pos, function_simple_vector_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1141,10 +1149,10 @@ static void type_svref(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Vector);
-	GetCallType(&values, Index);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&arg, Vector);
+	GetTypeTable(&values, Index);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1191,11 +1199,11 @@ static void type_setf_svref(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&type, T);
-	GetCallType(&arg, Vector);
-	GetCallType(&values, Index);
-	var3_argtype(&arg, type, arg, values);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&type, T);
+	GetTypeTable(&arg, Vector);
+	GetTypeTable(&values, Index);
+	typeargs_var3(&arg, type, arg, values);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1226,10 +1234,9 @@ static void type_common_vector(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, T);
-	rest_argtype(&arg, arg);
-	type_aster1(NULL, LISPDECL_SIMPLE_VECTOR, &values);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, T);
+	typeargs_rest(&arg, arg);
+	GetTypeValues(&values, SimpleVector);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1272,9 +1279,9 @@ static void type_vector_pop(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Vector);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&arg, Vector);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1317,10 +1324,10 @@ static void type_vector_push(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, T);
-	GetCallType(&values, Vector);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, Values_IndexNull);
+	GetTypeTable(&arg, T);
+	GetTypeTable(&values, Vector);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, IndexNull);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1367,11 +1374,11 @@ static void type_vector_push_extend(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, T);
-	GetCallType(&values, Vector);
-	type_intrange_left(Nil, 1, &type);
-	var2opt1_argtype(&arg, arg, values, type);
-	GetCallType(&values, Values_Index);
+	GetTypeTable(&arg, T);
+	GetTypeTable(&values, Vector);
+	type2integer_ab_heap(Nil, 1, &type);
+	typeargs_var2opt1(&arg, arg, values, type);
+	GetTypeValues(&values, Index);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1421,7 +1428,7 @@ static void defun_vectorp(void)
 	setcompiled_var1(pos, function_vectorp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1450,10 +1457,10 @@ static void type_bit_common(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, BitArray);
-	GetCallType(&values, Index);
-	var1rest_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Bit);
+	GetTypeTable(&arg, BitArray);
+	GetTypeTable(&values, Index);
+	typeargs_var1rest(&arg, arg, values);
+	GetTypeValues(&values, Bit);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1478,10 +1485,10 @@ static void type_sbit_common(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, SimpleBitArray);
-	GetCallType(&values, Index);
-	var1rest_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Bit);
+	GetTypeTable(&arg, SimpleBitArray);
+	GetTypeTable(&values, Index);
+	typeargs_var1rest(&arg, arg, values);
+	GetTypeValues(&values, Bit);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1524,11 +1531,11 @@ static void type_setf_bit(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&type, Bit);
-	GetCallType(&arg, BitArray);
-	GetCallType(&values, Index);
-	var2rest_argtype(&arg, type, arg, values);
-	GetCallType(&values, Values_Bit);
+	GetTypeTable(&type, Bit);
+	GetTypeTable(&arg, BitArray);
+	GetTypeTable(&values, Index);
+	typeargs_var2rest(&arg, type, arg, values);
+	GetTypeValues(&values, Bit);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1553,11 +1560,11 @@ static void type_setf_sbit(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&type, Bit);
-	GetCallType(&arg, SimpleBitArray);
-	GetCallType(&values, Index);
-	var2rest_argtype(&arg, type, arg, values);
-	GetCallType(&values, Values_Bit);
+	GetTypeTable(&type, Bit);
+	GetTypeTable(&arg, SimpleBitArray);
+	GetTypeTable(&values, Index);
+	typeargs_var2rest(&arg, type, arg, values);
+	GetTypeValues(&values, Bit);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1605,7 +1612,7 @@ static void defun_bit_vector_p(void)
 	setcompiled_var1(pos, function_bit_vector_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1639,7 +1646,7 @@ static void defun_simple_bit_vector_p(void)
 	setcompiled_var1(pos, function_simple_bit_vector_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1671,7 +1678,7 @@ static void defun_bit_and(void)
 	setcompiled_var2opt1(pos, function_bit_and);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_BitAnd);
+	GetTypeCompiled(&type, BitAnd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1700,7 +1707,7 @@ static void defun_bit_andc1(void)
 	setcompiled_var2opt1(pos, function_bit_andc1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_BitAnd);
+	GetTypeCompiled(&type, BitAnd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1729,7 +1736,7 @@ static void defun_bit_andc2(void)
 	setcompiled_var2opt1(pos, function_bit_andc2);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_BitAnd);
+	GetTypeCompiled(&type, BitAnd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1758,7 +1765,7 @@ static void defun_bit_eqv(void)
 	setcompiled_var2opt1(pos, function_bit_eqv);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_BitAnd);
+	GetTypeCompiled(&type, BitAnd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1787,7 +1794,7 @@ static void defun_bit_ior(void)
 	setcompiled_var2opt1(pos, function_bit_ior);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_BitAnd);
+	GetTypeCompiled(&type, BitAnd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1816,7 +1823,7 @@ static void defun_bit_nand(void)
 	setcompiled_var2opt1(pos, function_bit_nand);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_BitAnd);
+	GetTypeCompiled(&type, BitAnd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1845,7 +1852,7 @@ static void defun_bit_nor(void)
 	setcompiled_var2opt1(pos, function_bit_nor);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_BitAnd);
+	GetTypeCompiled(&type, BitAnd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1874,7 +1881,7 @@ static void defun_bit_orc1(void)
 	setcompiled_var2opt1(pos, function_bit_orc1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_BitAnd);
+	GetTypeCompiled(&type, BitAnd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1903,7 +1910,7 @@ static void defun_bit_orc2(void)
 	setcompiled_var2opt1(pos, function_bit_orc2);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_BitAnd);
+	GetTypeCompiled(&type, BitAnd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1920,7 +1927,7 @@ static void defun_bit_xor(void)
 	setcompiled_var2opt1(pos, function_bit_eqv);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_BitAnd);
+	GetTypeCompiled(&type, BitAnd);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1938,11 +1945,11 @@ static void type_bit_not(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, BitArray);
-	GetCallType(&values, Boolean);
-	type_or(NULL, arg, values, &values);
-	var1opt1_argtype(&arg, arg, values);
-	GetCallType(&values, Values_BitArray);
+	GetTypeTable(&arg, BitArray);
+	GetTypeTable(&values, Boolean);
+	type2or_heap(arg, values, &values);
+	typeargs_var1opt1(&arg, arg, values);
+	GetTypeValues(&values, BitArray);
 	type_compiled_heap(arg, values, ret);
 }
 

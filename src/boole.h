@@ -1,5 +1,5 @@
-#ifndef __NUMBER_BOOLE_HEADER__
-#define __NUMBER_BOOLE_HEADER__
+#ifndef __BOOLE_HEADER__
+#define __BOOLE_HEADER__
 
 #include "execute.h"
 #include "local.h"

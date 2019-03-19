@@ -16,7 +16,7 @@ static void defvar_features(void)
 	GetConst(SPECIAL_FEATURES, &symbol);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, List);
+	GetTypeTable(&type, List);
 	settype_value_symbol(symbol, type);
 }
 
@@ -31,7 +31,7 @@ static void defvar_compile_file_pathname(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, PathnameNull);
+	GetTypeTable(&type, PathnameNull);
 	settype_value_symbol(symbol, type);
 }
 
@@ -46,7 +46,7 @@ static void defvar_compile_file_truename(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, PathnameNull);
+	GetTypeTable(&type, PathnameNull);
 	settype_value_symbol(symbol, type);
 }
 
@@ -61,7 +61,7 @@ static void defvar_load_pathname(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, PathnameNull);
+	GetTypeTable(&type, PathnameNull);
 	settype_value_symbol(symbol, type);
 }
 
@@ -76,7 +76,7 @@ static void defvar_load_truename(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, PathnameNull);
+	GetTypeTable(&type, PathnameNull);
 	settype_value_symbol(symbol, type);
 }
 
@@ -91,7 +91,7 @@ static void defvar_load_print(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -106,7 +106,7 @@ static void defvar_load_verbose(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -171,10 +171,10 @@ static void type_load(addr *ret)
 	addr arg, values, type, key1, key2, key3, key4, key;
 
 	/* arg */
-	GetCallType(&arg, Stream);
-	GetCallType(&type, PathnameDesigner);
-	type_or(NULL, arg, type, &arg);
-	GetCallType(&type, T);
+	GetTypeTable(&arg, Stream);
+	GetTypeTable(&type, PathnameDesigner);
+	type2or_heap(arg, type, &arg);
+	GetTypeTable(&type, T);
 	GetConst(KEYWORD_VERBOSE, &key1);
 	cons_heap(&key1, key1, type);
 	GetConst(KEYWORD_PRINT, &key2);
@@ -184,9 +184,9 @@ static void type_load(addr *ret)
 	GetConst(KEYWORD_EXTERNAL_FORMAT, &key4);
 	cons_heap(&key4, key4, type);
 	list_heap(&key, key1, key2, key3, key4, NULL);
-	var1key_argtype(&arg, arg, key);
+	typeargs_var1key(&arg, arg, key);
 	/* values */
-	GetCallType(&values, Values_Boolean);
+	GetTypeValues(&values, Boolean);
 	/* result */
 	type_compiled_heap(arg, values, ret);
 }

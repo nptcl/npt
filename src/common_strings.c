@@ -8,6 +8,7 @@
 #include "integer.h"
 #include "strtype.h"
 #include "type_parse.h"
+#include "type_subtypep.h"
 
 /* (defun stringp (object) ...) -> boolean */
 static void function_stringp(Execute ptr, addr var)
@@ -25,7 +26,7 @@ static void defun_stringp(void)
 	setcompiled_var1(pos, function_stringp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -62,7 +63,7 @@ static void defun_simple_string_p(void)
 	setcompiled_var1(pos, function_simple_string_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -103,10 +104,10 @@ static void type_char(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, String);
-	GetCallType(&type, Index);
-	var2_argtype(&arg, arg, type);
-	GetCallType(&values, Values_Character);
+	GetTypeTable(&arg, String);
+	GetTypeTable(&type, Index);
+	typeargs_var2(&arg, arg, type);
+	GetTypeValues(&values, Character);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -161,10 +162,10 @@ static void type_schar(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, SimpleString);
-	GetCallType(&type, Index);
-	var2_argtype(&arg, arg, type);
-	GetCallType(&values, Values_Character);
+	GetTypeTable(&arg, SimpleString);
+	GetTypeTable(&type, Index);
+	typeargs_var2(&arg, arg, type);
+	GetTypeValues(&values, Character);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -216,11 +217,11 @@ static void type_setf_char(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, Character);
-	GetCallType(&values, String);
-	GetCallType(&type, Index);
-	var3_argtype(&arg, arg, values, type);
-	GetCallType(&values, Values_Character);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&values, String);
+	GetTypeTable(&type, Index);
+	typeargs_var3(&arg, arg, values, type);
+	GetTypeValues(&values, Character);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -245,11 +246,11 @@ static void type_setf_schar(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, Character);
-	GetCallType(&values, SimpleString);
-	GetCallType(&type, Index);
-	var3_argtype(&arg, arg, values, type);
-	GetCallType(&values, Values_Character);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&values, SimpleString);
+	GetTypeTable(&type, Index);
+	typeargs_var3(&arg, arg, values, type);
+	GetTypeValues(&values, Character);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -319,9 +320,9 @@ static void type_string(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, StringDesigner);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_String);
+	GetTypeTable(&arg, StringDesigner);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, String);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -402,7 +403,7 @@ static void defun_string_upcase(void)
 	setcompiled_var1dynamic(pos, function_string_upcase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringCase);
+	GetTypeCompiled(&type, StringCase);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -439,7 +440,7 @@ static void defun_string_downcase(void)
 	setcompiled_var1dynamic(pos, function_string_downcase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringCase);
+	GetTypeCompiled(&type, StringCase);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -503,7 +504,7 @@ static void defun_string_capitalize(void)
 	setcompiled_var1dynamic(pos, function_string_capitalize);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringCase);
+	GetTypeCompiled(&type, StringCase);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -541,7 +542,7 @@ static void defun_nstring_upcase(void)
 	setcompiled_var1dynamic(pos, function_nstring_upcase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_NStringCase);
+	GetTypeCompiled(&type, NStringCase);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -566,7 +567,7 @@ static void defun_nstring_downcase(void)
 	setcompiled_var1dynamic(pos, function_nstring_downcase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_NStringCase);
+	GetTypeCompiled(&type, NStringCase);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -591,7 +592,7 @@ static void defun_nstring_capitalize(void)
 	setcompiled_var1dynamic(pos, function_nstring_capitalize);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_NStringCase);
+	GetTypeCompiled(&type, NStringCase);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -755,7 +756,7 @@ static void defun_string_trim(void)
 	setcompiled_var2(pos, function_string_trim);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringTrim);
+	GetTypeCompiled(&type, StringTrim);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -797,7 +798,7 @@ static void defun_string_left_trim(void)
 	setcompiled_var2(pos, function_string_left_trim);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringTrim);
+	GetTypeCompiled(&type, StringTrim);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -839,7 +840,7 @@ static void defun_string_right_trim(void)
 	setcompiled_var2(pos, function_string_right_trim);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringTrim);
+	GetTypeCompiled(&type, StringTrim);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -896,7 +897,7 @@ static void defun_string_eql(void)
 	setcompiled_var2dynamic(pos, function_string_eql);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringEqual);
+	GetTypeCompiled(&type, StringEqual);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -966,7 +967,7 @@ static void defun_string_not_eql(void)
 	setcompiled_var2dynamic(pos, function_string_not_eql);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringMismatch);
+	GetTypeCompiled(&type, StringMismatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -996,7 +997,7 @@ static void defun_string_less(void)
 	setcompiled_var2dynamic(pos, function_string_less);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringMismatch);
+	GetTypeCompiled(&type, StringMismatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1026,7 +1027,7 @@ static void defun_string_greater(void)
 	setcompiled_var2dynamic(pos, function_string_greater);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringMismatch);
+	GetTypeCompiled(&type, StringMismatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1057,7 +1058,7 @@ static void defun_string_less_equal(void)
 	setcompiled_var2dynamic(pos, function_string_less_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringMismatch);
+	GetTypeCompiled(&type, StringMismatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1088,7 +1089,7 @@ static void defun_string_greater_equal(void)
 	setcompiled_var2dynamic(pos, function_string_greater_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringMismatch);
+	GetTypeCompiled(&type, StringMismatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1138,7 +1139,7 @@ static void defun_string_equal(void)
 	setcompiled_var2dynamic(pos, function_string_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringEqual);
+	GetTypeCompiled(&type, StringEqual);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1204,7 +1205,7 @@ static void defun_string_not_equal(void)
 	setcompiled_var2dynamic(pos, function_string_not_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringMismatch);
+	GetTypeCompiled(&type, StringMismatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1228,7 +1229,7 @@ static void defun_string_lessp(void)
 	setcompiled_var2dynamic(pos, function_string_lessp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringMismatch);
+	GetTypeCompiled(&type, StringMismatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1252,7 +1253,7 @@ static void defun_string_greaterp(void)
 	setcompiled_var2dynamic(pos, function_string_greaterp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringMismatch);
+	GetTypeCompiled(&type, StringMismatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1277,7 +1278,7 @@ static void defun_string_not_greaterp(void)
 	setcompiled_var2dynamic(pos, function_string_not_greaterp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringMismatch);
+	GetTypeCompiled(&type, StringMismatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1300,7 +1301,7 @@ static void defun_string_not_lessp(void)
 	setcompiled_var2dynamic(pos, function_string_not_lessp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_StringMismatch);
+	GetTypeCompiled(&type, StringMismatch);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1335,7 +1336,9 @@ static void function_make_string(Execute ptr, addr var, addr rest)
 	/* element-type */
 	GetConst(KEYWORD_ELEMENT_TYPE, &symbol);
 	if (getplist(rest, symbol, &value) == 0) {
-		GetConst(COMMON_CHARACTER, &symbol);
+		GetTypeTable(&symbol, Character);
+		if (parse_type(ptr, &value, value, Nil))
+			return;
 		if (! subtypep_clang(value, symbol, &invalid))
 			fmte(":element-type ~S must be a subtype of character.", value, NULL);
 		/* check only */
@@ -1357,17 +1360,17 @@ static void type_make_string(addr *ret)
 	addr arg, values, symbol, type1, type2;
 
 	/* arg */
-	GetCallType(&arg, Index);
-	GetCallType(&type1, Character);
-	GetCallType(&type2, T);
+	GetTypeTable(&arg, Index);
+	GetTypeTable(&type1, Character);
+	GetTypeTable(&type2, T);
 	GetConst(KEYWORD_INITIAL_ELEMENT, &symbol);
 	cons_heap(&type1, symbol, type1);
 	GetConst(KEYWORD_ELEMENT_TYPE, &symbol);
 	cons_heap(&type2, symbol, type2);
 	list_heap(&type1, type1, type2, NULL);
-	var1key_argtype(&arg, arg, type1);
+	typeargs_var1key(&arg, arg, type1);
 	/* values */
-	GetCallType(&values, Values_SimpleString);
+	GetTypeValues(&values, SimpleString);
 	type_compiled_heap(arg, values, ret);
 }
 

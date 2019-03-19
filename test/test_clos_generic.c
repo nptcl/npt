@@ -1,4 +1,5 @@
 #include "clos_generic.c"
+#include "character.h"
 #include "degrade.h"
 #include "execute.h"
 #include "package.h"
@@ -856,6 +857,7 @@ int test_clos_generic(void)
 		build_lisproot(ptr);
 		build_constant();
 		build_object();
+		build_character();
 		build_package();
 		build_clos(ptr);
 		lisp_init = 1;

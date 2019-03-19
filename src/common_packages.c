@@ -32,7 +32,7 @@ static void defun_export(void)
 	setcompiled_var1opt1(pos, function_export);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Export);
+	GetTypeCompiled(&type, Export);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -69,7 +69,7 @@ static void defun_find_symbol(void)
 	setcompiled_var1opt1(pos, function_find_symbol);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Intern);
+	GetTypeCompiled(&type, Intern);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -84,14 +84,11 @@ static void function_find_package(Execute ptr, addr name)
 
 static void type_find_package(addr *ret)
 {
-	addr arg, values, type;
+	addr arg, values;
 
-	GetCallType(&arg, StringDesigner);
-	var1_argtype(&arg, arg);
-	GetCallType(&type, Null);
-	GetCallType(&values, Package);
-	type_or(NULL, values, type, &values);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, StringDesigner);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, PackageNull);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -125,9 +122,9 @@ static void type_find_all_symbols(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, StringDesigner);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_List);
+	GetTypeTable(&arg, StringDesigner);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, List);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -169,7 +166,7 @@ static void defun_import(void)
 	setcompiled_var1opt1(pos, function_import);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Export);
+	GetTypeCompiled(&type, Export);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -187,8 +184,8 @@ static void type_list_all_packages(addr *ret)
 {
 	addr arg, values;
 
-	empty_argtype(&arg);
-	GetCallType(&values, Values_List);
+	typeargs_empty(&arg);
+	GetTypeValues(&values, List);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -227,10 +224,10 @@ static void type_rename_package(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PackageDesigner);
-	GetCallType(&values, List);
-	var2opt1_argtype(&arg, arg, arg, values);
-	GetCallType(&values, Values_Package);
+	GetTypeTable(&arg, PackageDesigner);
+	GetTypeTable(&values, List);
+	typeargs_var2opt1(&arg, arg, arg, values);
+	GetTypeValues(&values, Package);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -266,12 +263,12 @@ static void type_shadow(addr *ret)
 {
 	addr arg, values, type1, type2;
 
-	GetCallType(&type1, List);
-	GetCallType(&type2, StringDesigner);
-	type_or(NULL, type1, type2, &arg);
-	GetCallType(&values, PackageDesigner);
-	var1opt1_argtype(&arg, arg, values);
-	GetCallType(&values, Values_EqlT);
+	GetTypeTable(&type1, List);
+	GetTypeTable(&type2, StringDesigner);
+	type2or_heap(type1, type2, &arg);
+	GetTypeTable(&values, PackageDesigner);
+	typeargs_var1opt1(&arg, arg, values);
+	GetTypeValues(&values, EqlT);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -313,7 +310,7 @@ static void defun_shadowing_import(void)
 	setcompiled_var1opt1(pos, function_shadowing_import);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Export);
+	GetTypeCompiled(&type, Export);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -331,8 +328,8 @@ static void type_delete_package(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Args_PackageDesigner);
-	GetCallType(&values, Values_Boolean);
+	GetTypeArgs(&arg, PackageDesigner);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -379,16 +376,16 @@ static void type_make_package(addr *ret)
 	addr arg, values, type1, type2, symbol, type, key;
 
 	/* arg */
-	GetCallType(&arg, StringDesigner);
-	GetCallType(&type, List);
+	GetTypeTable(&arg, StringDesigner);
+	GetTypeTable(&type, List);
 	GetConst(KEYWORD_NICKNAMES, &symbol);
 	cons_heap(&type1, symbol, type);
 	GetConst(KEYWORD_USE, &symbol);
 	cons_heap(&type2, symbol, type);
 	list_heap(&key, type1, type2, NULL);
-	var1key_argtype(&arg, arg, key);
+	typeargs_var1key(&arg, arg, key);
 	/* values */
-	GetCallType(&values, Values_Package);
+	GetTypeValues(&values, Package);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -515,7 +512,7 @@ static void defmacro_with_package_iterator(void)
 	setcompiled_macro(pos, function_with_package_iterator);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -542,7 +539,7 @@ static void defun_unexport(void)
 	setcompiled_var1opt1(pos, function_unexport);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Export);
+	GetTypeCompiled(&type, Export);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -562,10 +559,10 @@ static void type_unintern(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Symbol);
-	GetCallType(&values, PackageDesigner);
-	var1opt1_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&values, PackageDesigner);
+	typeargs_var1opt1(&arg, arg, values);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -622,7 +619,7 @@ static void defmacro_in_package(void)
 	setcompiled_macro(pos, function_in_package);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -649,7 +646,7 @@ static void defun_unuse_package(void)
 	setcompiled_var1opt1(pos, function_unuse_package);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_UsePackage);
+	GetTypeCompiled(&type, UsePackage);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -677,7 +674,7 @@ static void defun_use_package(void)
 	setcompiled_var1opt1(pos, function_use_package);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_UsePackage);
+	GetTypeCompiled(&type, UsePackage);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1003,7 +1000,7 @@ static void defmacro_defpackage(void)
 	setcompiled_macro(pos, function_defpackage);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -1076,7 +1073,7 @@ static void defmacro_do_symbols(void)
 	setcompiled_macro(pos, function_do_symbols);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -1096,7 +1093,7 @@ static void defmacro_do_external_symbols(void)
 	setcompiled_macro(pos, function_do_external_symbols);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -1159,7 +1156,7 @@ static void defmacro_do_all_symbols(void)
 	setcompiled_macro(pos, function_do_all_symbols);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -1195,7 +1192,7 @@ static void defun_intern(void)
 	setcompiled_var1opt1(pos, function_intern);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Intern);
+	GetTypeCompiled(&type, Intern);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1213,13 +1210,10 @@ static void function_package_name(Execute ptr, addr package)
 
 static void type_package_name(addr *ret)
 {
-	addr arg, values, type;
+	addr arg, values;
 
-	GetCallType(&arg, Args_PackageDesigner);
-	GetCallType(&values, String);
-	GetCallType(&type, Null);
-	type_or(NULL, values, type, &values);
-	result_valuestype(&values, values);
+	GetTypeArgs(&arg, PackageDesigner);
+	GetTypeValues(&values, StringNull);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1256,7 +1250,7 @@ static void defun_package_nicknames(void)
 	setcompiled_var1(pos, function_package_nicknames);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_PackageNicknames);
+	GetTypeCompiled(&type, PackageNicknames);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1279,7 +1273,7 @@ static void defun_package_shadowing_symbols(void)
 	setcompiled_var1(pos, function_package_shadowing_symbols);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_PackageNicknames);
+	GetTypeCompiled(&type, PackageNicknames);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1302,7 +1296,7 @@ static void defun_package_use_list(void)
 	setcompiled_var1(pos, function_package_use_list);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_PackageNicknames);
+	GetTypeCompiled(&type, PackageNicknames);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1325,7 +1319,7 @@ static void defun_package_used_by_list(void)
 	setcompiled_var1(pos, function_package_used_by_list);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_PackageNicknames);
+	GetTypeCompiled(&type, PackageNicknames);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1347,7 +1341,7 @@ static void defun_packagep(void)
 	setcompiled_var1(pos, function_packagep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1363,7 +1357,7 @@ static void defvar_package(void)
 	setspecial_symbol(symbol);
 
 	/* type */
-	GetCallType(&type, Package);
+	GetTypeTable(&type, Package);
 	settype_value_symbol(symbol, type);
 }
 
@@ -1379,10 +1373,10 @@ static void type_package_error_package(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PackageError);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, PackageDesigner);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, PackageError);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, PackageDesigner);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 

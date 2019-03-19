@@ -1,5 +1,4 @@
 #include "format.c"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "code.h"
@@ -16,6 +15,7 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 #include "unicode.h"
 
 /*
@@ -863,6 +863,7 @@ static int test_fmtprint_forward(void)
 	args.root = rest;
 	args.front = rest;
 	args.index = 0;
+	cleartype(print);
 	print.rest = &args;
 	fmtprint_pop(&print, NULL, &pos);
 	fmtprint_forward(&print, NULL, 2);
@@ -922,6 +923,7 @@ static int test_fmtprint_absolute(void)
 	args.root = rest;
 	args.front = rest;
 	args.index = 0;
+	cleartype(print);
 	print.rest = &args;
 	fmtprint_pop(&print, NULL, &pos);
 	fmtprint_pop(&print, NULL, &pos);
@@ -3270,7 +3272,6 @@ int test_format(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

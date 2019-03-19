@@ -1,11 +1,11 @@
 #include "symbol.c"
-#include "calltype.h"
 #include "clos.h"
 #include "common.h"
 #include "condition.h"
 #include "degrade.h"
 #include "package.h"
 #include "type_parse.h"
+#include "type_table.h"
 
 static int test_symbol_allocr(void)
 {
@@ -293,12 +293,12 @@ static int test_gettype_value_symbol(void)
 	addr pos, left, right;
 
 	symbol_heap(&pos);
-	type_empty(NULL, LISPDECL_NULL, &left);
+	GetTypeTable(&left, Null);
 	setinfo_constant(pos, CONSTANT_SYSTEM_VALUE, left);
 	gettype_value_symbol(pos, &right);
 	test(left == right, "gettype_value_symbol1");
 
-	type_empty(NULL, LISPDECL_PACKAGE, &left);
+	GetTypeTable(&left, Package);
 	settype_value_symbol(pos, left);
 	gettype_value_symbol(pos, &right);
 	test(left == right, "gettype_value_symbol2");
@@ -315,12 +315,12 @@ static int test_gettype_function_symbol(void)
 	addr pos, left, right;
 
 	symbol_heap(&pos);
-	type_empty(NULL, LISPDECL_NULL, &left);
+	GetTypeTable(&left, Null);
 	setinfo_constant(pos, CONSTANT_SYSTEM_FUNCTION, left);
 	gettype_function_symbol(pos, &right);
 	test(left == right, "gettype_function_symbol1");
 
-	type_empty(NULL, LISPDECL_PACKAGE, &left);
+	GetTypeTable(&left, Package);
 	settype_function_symbol(pos, left);
 	gettype_function_symbol(pos, &right);
 	test(left == right, "gettype_function_symbol2");
@@ -337,12 +337,12 @@ static int test_gettype_setf_symbol(void)
 	addr pos, left, right;
 
 	symbol_heap(&pos);
-	type_empty(NULL, LISPDECL_NULL, &left);
+	GetTypeTable(&left, Null);
 	setinfo_constant(pos, CONSTANT_SYSTEM_SETF, left);
 	gettype_setf_symbol(pos, &right);
 	test(left == right, "gettype_setf_symbol1");
 
-	type_empty(NULL, LISPDECL_PACKAGE, &left);
+	GetTypeTable(&left, Package);
 	settype_setf_symbol(pos, left);
 	gettype_setf_symbol(pos, &right);
 	test(left == right, "gettype_setf_symbol2");
@@ -906,7 +906,7 @@ int test_symbol(void)
 		build_package();
 		build_clos(ptr);
 		build_condition(ptr);
-		build_calltype();
+		build_type();
 		build_common();
 		result = testbreak_symbol();
 	}

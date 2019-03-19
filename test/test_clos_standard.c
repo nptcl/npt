@@ -1,4 +1,5 @@
 #include "clos_standard.c"
+#include "character.h"
 #include "clos.h"
 #include "cons.h"
 #include "condition.h"
@@ -1877,6 +1878,7 @@ int test_clos_standard(void)
 		build_lisproot(ptr);
 		build_constant();
 		build_object();
+		build_character();
 		build_package();
 		build_stream();
 		build_clos_table(ptr);

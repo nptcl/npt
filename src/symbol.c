@@ -225,7 +225,7 @@ void setplist_symbol(addr symbol, addr value)
 
 static void getinfo_constant(addr symbol, enum CONSTANT_INDEX index, addr *ret)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
 	*ret = getplist_constant(symbol, index, &symbol)? Nil: symbol;
 }
@@ -233,7 +233,7 @@ static void setinfo_constant(addr symbol, enum CONSTANT_INDEX index, addr value)
 {
 	addr plist;
 
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	setcheck_symbol(symbol);
 	GetInfoSymbol_Low(symbol, &plist);
 	if (setplist_constant_heap(plist, index, value, &plist))
@@ -243,7 +243,7 @@ static void reminfo_constant(addr symbol, enum CONSTANT_INDEX index)
 {
 	addr plist;
 
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	setcheck_symbol(symbol);
 	GetInfoSymbol_Low(symbol, &plist);
 	if (remplist_constant(plist, index, &plist))
@@ -359,7 +359,7 @@ void reminline_setf_symbol(addr symbol)
 /* setf */
 addr refsetf_symbol(addr symbol)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
 	return getplist_constant(symbol, CONSTANT_COMMON_SETF, &symbol)? Unbound: symbol;
 }
@@ -385,7 +385,7 @@ void remsetf_symbol(addr symbol)
 /* setf-macro */
 addr refsetfmacro_symbol(addr symbol)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
 	return getplist_constant(symbol, CONSTANT_COMMON_DEFINE_SETF_EXPANDER,
 			&symbol)? Unbound: symbol;
@@ -407,7 +407,7 @@ void remsetfmacro_symbol(addr symbol)
 /* macro */
 addr refmacro_symbol(addr symbol)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
 	return getplist_constant(symbol, CONSTANT_COMMON_DEFMACRO, &symbol)?
 		Unbound: symbol;
@@ -428,7 +428,7 @@ void remmacro_symbol(addr symbol)
 /* symbol-macro */
 addr refsymbol_macro_symbol(addr symbol)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
 	return getplist_constant(symbol, CONSTANT_COMMON_DEFINE_SYMBOL_MACRO, &symbol)?
 		Unbound: symbol;
@@ -471,33 +471,33 @@ void setscope_symbol(addr symbol, addr value)
 }
 void setspecial_symbol(addr symbol)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	setscope_symbol(symbol, T);
 }
 void setlexical_symbol(addr symbol)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	setscope_symbol(symbol, Nil);
 }
 int specialp_symbol(addr symbol)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	return refscope_symbol(symbol) != Nil;
 }
 int lexicalp_symbol(addr symbol)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	return refscope_symbol(symbol) == Nil;
 }
 
 void set_special_operator(addr symbol)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	setinfo_constant(symbol, CONSTANT_COMMON_SPECIAL_OPERATOR_P, T);
 }
 int get_special_operator(addr symbol)
 {
-	Check(GetType(symbol) != LISPTYPE_SYMBOL, "type error");
+	CheckSymbol(symbol);
 	getinfo_constant(symbol, CONSTANT_COMMON_SPECIAL_OPERATOR_P, &symbol);
 	return symbol == T;
 }
@@ -517,6 +517,57 @@ void getdocument_type_symbol(addr symbol, addr *ret)
 void setdocument_type_symbol(addr symbol, addr value)
 {
 	setinfo_constant(symbol, CONSTANT_SYSTEM_TYPE_DOCUMENTATION, value);
+}
+
+void getdeftype_symbol(addr symbol, addr *ret)
+{
+	CheckSymbol(symbol);
+	getinfo_constant(symbol, CONSTANT_SYSTEM_DEFTYPE, ret);
+}
+void setdeftype_symbol(addr symbol, addr value)
+{
+	CheckSymbol(symbol);
+	Check(value != Nil && GetType(value) != LISPTYPE_FUNCTION, "type error");
+	setinfo_constant(symbol, CONSTANT_SYSTEM_DEFTYPE, value);
+}
+void remdeftype_symbol(addr symbol)
+{
+	CheckSymbol(symbol);
+	reminfo_constant(symbol, CONSTANT_SYSTEM_DEFTYPE);
+}
+
+static void setinfo_force(addr symbol, enum CONSTANT_INDEX index, addr value)
+{
+	addr plist;
+
+	CheckSymbol(symbol);
+	GetInfoSymbol_Low(symbol, &plist);
+	if (setplist_constant_heap(plist, index, value, &plist))
+		SetInfoSymbol_force(symbol, plist);
+}
+
+void getsymboltype_symbol(addr symbol, addr *ret)
+{
+	CheckSymbol(symbol);
+	getinfo_constant(symbol, CONSTANT_SYSTEM_TYPE_SYMBOL, ret);
+}
+
+void setsymboltype_symbol(addr symbol, addr value)
+{
+	CheckSymbol(symbol);
+	setinfo_force(symbol, CONSTANT_SYSTEM_TYPE_SYMBOL, value);
+}
+
+void getlisttype_symbol(addr symbol, addr *ret)
+{
+	CheckSymbol(symbol);
+	getinfo_constant(symbol, CONSTANT_SYSTEM_TYPE_LIST, ret);
+}
+
+void setlisttype_symbol(addr symbol, addr value)
+{
+	CheckSymbol(symbol);
+	setinfo_force(symbol, CONSTANT_SYSTEM_TYPE_LIST, value);
 }
 
 

@@ -1,5 +1,5 @@
-#ifndef __HEADER_EVAL_STACK__
-#define __HEADER_EVAL_STACK__
+#ifndef __EVAL_STACK_HEADER__
+#define __EVAL_STACK_HEADER__
 
 #include "eval.h"
 #include "eval_declare.h"

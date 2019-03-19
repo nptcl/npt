@@ -1,5 +1,5 @@
-#ifndef __HEADER_BITVECTOR__
-#define __HEADER_BITVECTOR__
+#ifndef __BIT_HEADER__
+#define __BIT_HEADER__
 
 #include "array.h"
 #include "local.h"

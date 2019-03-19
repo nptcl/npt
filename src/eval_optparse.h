@@ -1,5 +1,5 @@
-#ifndef __HEADER_EVAL_OPTPARSE__
-#define __HEADER_EVAL_OPTPARSE__
+#ifndef __EVAL_OPTPARSE_HEADER__
+#define __EVAL_OPTPARSE_HEADER__
 
 #include "typedef.h"
 

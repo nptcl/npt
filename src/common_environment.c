@@ -23,7 +23,7 @@ static void defun_lisp_implementation_type(void)
 	setcompiled_empty(pos, function_lisp_implementation_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_EnvInfo);
+	GetTypeCompiled(&type, EnvInfo);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -47,7 +47,7 @@ static void defun_lisp_implementation_version(void)
 	setcompiled_empty(pos, function_lisp_implementation_version);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_EnvInfo);
+	GetTypeCompiled(&type, EnvInfo);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -71,7 +71,7 @@ static void defun_short_site_name(void)
 	setcompiled_empty(pos, function_short_site_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_EnvInfo);
+	GetTypeCompiled(&type, EnvInfo);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -95,7 +95,7 @@ static void defun_long_site_name(void)
 	setcompiled_empty(pos, function_long_site_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_EnvInfo);
+	GetTypeCompiled(&type, EnvInfo);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -119,7 +119,7 @@ static void defun_machine_instance(void)
 	setcompiled_empty(pos, function_machine_instance);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_EnvInfo);
+	GetTypeCompiled(&type, EnvInfo);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -143,7 +143,7 @@ static void defun_machine_type(void)
 	setcompiled_empty(pos, function_machine_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_EnvInfo);
+	GetTypeCompiled(&type, EnvInfo);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -167,7 +167,7 @@ static void defun_machine_version(void)
 	setcompiled_empty(pos, function_machine_version);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_EnvInfo);
+	GetTypeCompiled(&type, EnvInfo);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -191,7 +191,7 @@ static void defun_software_type(void)
 	setcompiled_empty(pos, function_software_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_EnvInfo);
+	GetTypeCompiled(&type, EnvInfo);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -215,7 +215,7 @@ static void defun_software_version(void)
 	setcompiled_empty(pos, function_software_version);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_EnvInfo);
+	GetTypeCompiled(&type, EnvInfo);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -236,13 +236,13 @@ static void type_user_homedir_pathname(addr *ret)
 {
 	addr arg, values, type1, type2, type3;
 
-	GetCallType(&type1, String);
-	GetCallType(&type2, List);
+	GetTypeTable(&type1, String);
+	GetTypeTable(&type2, List);
 	GetConst(KEYWORD_UNSPECIFIC, &type3);
-	type_object1(NULL, LISPDECL_EQL, type3, &type3);
-	type_or3(NULL, type1, type2, type3, &arg);
-	opt1_argtype(&arg, arg);
-	GetCallType(&values, Values_PathnameNull);
+	type_eql_heap(type3, &type3);
+	type3or_heap(type1, type2, type3, &arg);
+	typeargs_opt1(&arg, arg);
+	GetTypeValues(&values, PathnameNull);
 	type_compiled_heap(arg, values, ret);
 }
 

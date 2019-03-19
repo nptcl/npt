@@ -1,4 +1,3 @@
-#include "calltype.h"
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
@@ -17,6 +16,7 @@
 #include "type.h"
 #include "type_parse.h"
 #include "type_subtypep.h"
+#include "type_table.h"
 #include "type_value.h"
 
 static int scope_eval(Execute ptr, addr *ret, addr eval);
@@ -128,14 +128,14 @@ void setevalscopeindex(addr pos, size_t index, addr value)
 static void scope_nil(addr *ret, addr eval)
 {
 	Check(! eval_parse_p(eval), "type error");
-	type_value_nil(NULL, &eval);
+	type_value_nil(&eval);
 	make_eval_scope(ret, EVAL_PARSE_NIL, eval, Nil);
 }
 
 static void scope_t(addr *ret, addr eval)
 {
 	Check(! eval_parse_p(eval), "type error");
-	type_value_t(NULL, &eval);
+	type_value_t(&eval);
 	make_eval_scope(ret, EVAL_PARSE_T, eval, T);
 }
 
@@ -145,7 +145,7 @@ static void scope_integer(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_integer(NULL, &type, eval);
+	type_value_integer(&type, eval);
 	make_eval_scope(ret, EVAL_PARSE_INTEGER, type, eval);
 }
 
@@ -155,7 +155,7 @@ static void scope_rational(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_rational(NULL, &type, eval);
+	type_value_rational(&type, eval);
 	make_eval_scope(ret, EVAL_PARSE_RATIONAL, type, eval);
 }
 
@@ -165,7 +165,7 @@ static void scope_complex(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_complex(NULL, &type, eval);
+	type_value_complex(&type, eval);
 	make_eval_scope(ret, EVAL_PARSE_COMPLEX, type, eval);
 }
 
@@ -175,7 +175,7 @@ static void scope_character(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_character(NULL, &type, eval);
+	type_value_character(&type, eval);
 	make_eval_scope(ret, EVAL_PARSE_CHARACTER, type, eval);
 }
 
@@ -185,7 +185,7 @@ static void scope_array(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_array(NULL, &type, eval);
+	type_value_array(&type, eval);
 	make_eval_scope(ret, EVAL_PARSE_ARRAY, type, eval);
 }
 
@@ -195,7 +195,7 @@ static void scope_vector(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_vector(NULL, &type, eval);
+	type_value_vector(&type, eval);
 	make_eval_scope(ret, EVAL_PARSE_VECTOR, type, eval);
 }
 
@@ -205,7 +205,7 @@ static void scope_bitvector(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_bitvector(NULL, &type, eval);
+	type_value_bitvector(&type, eval);
 	make_eval_scope(ret, EVAL_PARSE_BITVECTOR, type, eval);
 }
 
@@ -215,7 +215,7 @@ static void scope_string(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_string(NULL, &type, eval);
+	type_value_string(&type, eval);
 	make_eval_scope(ret, EVAL_PARSE_STRING, type, eval);
 }
 
@@ -225,7 +225,7 @@ static void scope_float(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_float(NULL, &type, eval);
+	type_value_float(&type, eval);
 	make_eval_scope(ret, EVAL_PARSE_FLOAT, type, eval);
 }
 
@@ -235,7 +235,7 @@ static void scope_quote(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &value);
-	type_value_heap(&type, value);
+	type_value(&type, value);
 	make_eval_scope(ret, EVAL_PARSE_QUOTE, type, value);
 }
 
@@ -245,7 +245,7 @@ static void scope_pathname(addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_pathname(NULL, &type, eval);
+	type_value_pathname(&type, eval);
 	make_eval_scope(ret, EVAL_PARSE_PATHNAME, type, eval);
 }
 
@@ -260,7 +260,7 @@ static int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons)
 	}
 	if (rettype) {
 		if (expr == Nil)
-			type_value_nil(NULL, rettype);
+			type_value_nil(rettype);
 		else
 			GetEvalScopeThe(expr, rettype);
 	}
@@ -288,7 +288,7 @@ static void scope_declaim(Execute ptr, addr *ret, addr eval)
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
 	apply_declaim_stack(ptr, eval);
-	type_value_nil(NULL, &type);
+	type_value_nil(&type);
 	make_eval_scope(ret, EVAL_PARSE_DECLAIM, type, eval);
 }
 
@@ -537,7 +537,7 @@ static int make_tablevalue_stack(LocalRoot local, addr *ret, addr stack, addr sy
 	if (getplistplist(table, key, symbol, ret) == 0) return 0;
 
 	make_tablevalue(local, symbol, &pos);
-	type_asterisk_alloc(local, &aster);
+	GetTypeTable(&aster, Asterisk);
 	settype_tablevalue(pos, aster);
 	if (setplistplist_alloc(local, table, key, symbol, pos, &table))
 		SetEvalStackTable(stack, table);
@@ -710,7 +710,7 @@ static int type_and_array(LocalRoot local, addr cons, addr *ret)
 	type = Nil;
 	for (array = cons; array != Nil; ) {
 		GetCons(array, &pos, &array);
-		if (! asterisk_or_t_p(pos)) {
+		if (! type_astert_p(pos)) {
 			type = pos;
 			size++;
 		}
@@ -729,12 +729,12 @@ static int type_and_array(LocalRoot local, addr cons, addr *ret)
 	for (size = 0; cons != Nil; ) {
 		GetCons(cons, &pos, &cons);
 		CheckType(pos, LISPTYPE_TYPE);
-		if (! asterisk_or_t_p(pos)) {
+		if (! type_astert_p(pos)) {
 			copylocal_object(local, &pos, pos);
 			SetArrayA4(array, size++, pos);
 		}
 	}
-	type_object1(local, LISPDECL_AND, array, ret);
+	type1_alloc(local, LISPDECL_AND, array, ret);
 	return 0;
 }
 
@@ -751,7 +751,7 @@ static void push_tablevalue_alloc(Execute ptr, LocalRoot local,
 	ignore = ignore_tablevalue(stack, symbol);
 	type_tablevalue(ptr, local, stack, symbol, specialp, &type);
 	if (type_and_array(local, type, &type))
-		type_asterisk_alloc(local, &type);
+		GetTypeTable(&type, Asterisk);
 	Check(type == Nil, "type error");
 
 	/* make table */
@@ -771,9 +771,11 @@ static void push_tablevalue_heap(Execute ptr, addr stack, addr symbol, addr *ret
 	push_tablevalue_alloc(ptr, NULL, stack, symbol, ret);
 }
 
-static int checktype_p(addr form, addr symbol, int *check)
+static int checktype_p(addr left, addr right, int *check)
 {
-	switch (subtypep_result(form, symbol, 1)) {
+	CheckType(left, LISPTYPE_TYPE);
+	CheckType(right, LISPTYPE_TYPE);
+	switch (subtypep_result(left, right, 1)) {
 		case SUBTYPEP_INCLUDE:
 			/* type check can skip. */
 			*check = 0;
@@ -925,7 +927,7 @@ static void ifdeclvalue(Execute ptr, addr stack, addr var, addr decl, addr *ret)
 
 	local = ptr->local;
 	make_tablevalue_stack(local, &pos, stack, var);
-	type_asterisk_heap(&aster);
+	GetTypeTable(&aster, Asterisk);
 	settype_tablevalue(pos, aster);
 	apply_declare_value_stack(local, stack, var, decl);
 	push_tablevalue_local(ptr, stack, var, &pos);
@@ -1210,7 +1212,8 @@ static int replace_symbol_macrolet(Execute ptr, addr *ret, addr form)
 static void make_scope_keyword(Execute ptr, addr symbol, addr *ret)
 {
 	addr type;
-	type_empty(NULL, LISPDECL_KEYWORD, &type);
+
+	GetTypeTable(&type, Keyword);
 	scope_symbol_heap(ret, type, symbol);
 }
 
@@ -1235,7 +1238,7 @@ static int setq_cons(Execute ptr, addr cons, addr *ret, addr *type)
 	addr root, var, form;
 
 	if (cons == Nil) {
-		type_empty(NULL, LISPDECL_NULL, type);
+		GetTypeTable(type, Null);
 		*ret = Nil;
 		return 0;
 	}
@@ -1488,7 +1491,7 @@ static int make_tablefunction_stack(LocalRoot local, addr *ret, addr stack, addr
 
 	copylocal_object(local, &call, call);
 	make_tablefunction(local, call, &pos);
-	type_function_asterisk(local, &aster);
+	GetTypeTable(&aster, Function);
 	settype_tablefunction(pos, aster);
 	if (setplistplist_callname_alloc(local, table, key, call, pos, &table))
 		SetEvalStackTable(stack, table);
@@ -1512,7 +1515,7 @@ static void push_tablefunction_alloc(Execute ptr, LocalRoot local,
 	Inline = inline_tablefunction(ptr, stack, call);
 	type_tablefunction(ptr, local, stack, call, &type);
 	if (type_and_array(local, type, &type))
-		type_function_asterisk(local, &type);
+		GetTypeTable(&type, Function);
 	Check(type == Nil, "type error");
 
 	/* make table */
@@ -1826,7 +1829,7 @@ static void type_ordinary_opt(LocalRoot local, addr args, addr *ret)
 static void type_ordinary_rest(LocalRoot local, addr rest, addr *ret)
 {
 	if (rest != Nil)
-		type_empty(local, LISPDECL_T, ret);
+		GetTypeTable(ret, T);
 }
 
 static void type_ordinary_key(LocalRoot local, addr args, addr allow, addr *ret)
@@ -1876,9 +1879,9 @@ static void lambda_type_incomplete(LocalRoot local, addr args, addr *ret)
 {
 	addr aster;
 
-	type_asterisk_alloc(local, &aster);
+	GetTypeTable(&aster, Asterisk);
 	make_type_ordinary(local, args, &args);
-	type_object3(local, LISPDECL_FUNCTION, args, aster, Nil, ret);
+	type3_local(local, LISPDECL_FUNCTION, args, aster, Nil, ret);
 }
 
 static void lambda_declare(Execute ptr, struct lambda_struct *str)
@@ -2119,23 +2122,21 @@ static void defun_update(Execute ptr, struct lambda_struct *str)
 static void defun_the(addr eval, struct lambda_struct *str)
 {
 	addr cdr, type, null, setf, call;
-	LocalRoot local;
 
-	local = NULL;
 	switch (RefCallNameType(str->call)) {
 		case CALLNAME_SYMBOL:
-			type_empty(local, LISPDECL_SYMBOL, &type);
+			GetTypeTable(&type, Symbol);
 			break;
 
 		case CALLNAME_SETF:
 			/* (setf hello) -> (cons (eql setf) (cons (eql hello) null)) */
 			GetConst(COMMON_SETF, &setf);
-			type_object1(local, LISPDECL_EQL, setf, &setf);
+			type_eql_heap(setf, &setf);
 			GetCallName(str->call, &call);
-			type_object1(local, LISPDECL_EQL, call, &call);
-			type_empty(local, LISPDECL_NULL, &null);
-			type_object2(local, LISPDECL_CONS, call, null, &cdr);
-			type_object2(local, LISPDECL_CONS, setf, cdr, &type);
+			type_eql_heap(call, &call);
+			GetTypeTable(&null, Null);
+			type2_heap(LISPDECL_CONS, call, null, &cdr);
+			type2_heap(LISPDECL_CONS, setf, cdr, &type);
 			break;
 
 		default:
@@ -2372,7 +2373,7 @@ static int macro_lambda_object(Execute ptr, struct lambda_struct *str, addr *ret
 static void macro_lambda_the(addr eval)
 {
 	addr type;
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	SetEvalScopeThe(eval, type);
 }
 
@@ -2405,11 +2406,33 @@ static void scope_defmacro(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &symbol);
 	GetEvalParse(eval, 1, &lambda);
 
-	type_empty(NULL, LISPDECL_SYMBOL, &type);
+	GetTypeTable(&type, Symbol);
 	eval_scope_size(&eval, 2, EVAL_PARSE_DEFMACRO, type, Nil);
 	SetEvalScopeIndex(eval, 0, symbol);
 	SetEvalScopeIndex(eval, 1, lambda);
 	*ret = eval;
+}
+
+
+/*
+ *  deftype
+ */
+static int scope_deftype(Execute ptr, addr *ret, addr eval)
+{
+	struct lambda_struct str;
+
+	Check(! eval_parse_p(eval), "type error");
+	init_lambda_struct(&str, EVAL_PARSE_DEFTYPE, 1);
+	GetEvalParse(eval, 0, &str.call);
+	GetEvalParse(eval, 1, &str.args);
+	GetEvalParse(eval, 2, &str.decl);
+	GetEvalParse(eval, 3, &str.doc);
+	GetEvalParse(eval, 4, &str.cons);
+	if (macro_lambda_object(ptr, &str, &eval)) return 1;
+	SetEvalScopeIndex(eval, EvalLambda_Call, str.call);
+	*ret = eval;
+
+	return 0;
 }
 
 
@@ -2463,7 +2486,7 @@ static void scope_define_symbol_macro(Execute ptr, addr *ret, addr eval)
 
 	getglobal_eval(ptr, &stack);
 	push_symbol_macrolet(stack, symbol, form, Nil); /* null env */
-	type_empty(NULL, LISPDECL_SYMBOL, &type);
+	GetTypeTable(&type, Symbol);
 	eval_scope_size(&eval, 3, EVAL_PARSE_DEFINE_SYMBOL_MACRO, type, Nil);
 	SetEvalScopeIndex(eval, 0, symbol);
 	SetEvalScopeIndex(eval, 1, form);
@@ -2871,7 +2894,7 @@ static void callargs_keyvalue(int keyvalue, addr cons, addr *ret)
 	if (keyvalue == 0) {
 		/* name */
 		GetCar(cons, &cons);
-		type_object1(NULL, LISPDECL_EQL, cons, ret);
+		type_eql_heap(cons, ret);
 	}
 	else {
 		/* type */
@@ -2887,7 +2910,10 @@ static void callargs_key(int keyvalue, addr cons, addr *ret)
 
 	/* &allow-other-keys */
 	if (cons == T) {
-		type_empty(NULL, (keyvalue? LISPDECL_T: LISPDECL_SYMBOL), ret);
+		if (keyvalue)
+			GetTypeTable(ret, T);
+		else
+			GetTypeTable(ret, Symbol);
 		return;
 	}
 
@@ -2906,7 +2932,7 @@ static void callargs_key(int keyvalue, addr cons, addr *ret)
 		callargs_keyvalue(keyvalue, pos, &pos);
 		SetArrayA4(array, i, pos);
 	}
-	type_object1(NULL, LISPDECL_OR, array, ret);
+	type1_heap(LISPDECL_OR, array, ret);
 }
 
 static void type_and_nil(LocalRoot local, addr type1, addr type2, addr *ret)
@@ -2916,7 +2942,7 @@ static void type_and_nil(LocalRoot local, addr type1, addr type2, addr *ret)
 	check1 = (type1 == Nil);
 	check2 = (type2 == Nil);
 	if (check1 && check2) {
-		type_asterisk_alloc(local, ret);
+		GetTypeTable(ret, Asterisk);
 		return;
 	}
 	if (check1) {
@@ -2928,7 +2954,7 @@ static void type_and_nil(LocalRoot local, addr type1, addr type2, addr *ret)
 		return;
 	}
 	else {
-		type_and(local, type1, type2, ret);
+		type2and_alloc(local, type1, type2, ret);
 		return;
 	}
 }
@@ -2999,12 +3025,12 @@ final:
 
 static int asterisk_function_argument(addr type, addr *ret)
 {
-	if (asterisk_p(type)) {
+	if (type_asterisk_p(type)) {
 		return 1;
 	}
-	if (function_type_p(type)) {
+	if (type_function_p(type)) {
 		GetArrayType(type, 0, &type); /* arguement */
-		if (asterisk_p(type)) return 1;
+		if (type_asterisk_p(type)) return 1;
 		*ret = type;
 		return 0;
 	}
@@ -3019,7 +3045,7 @@ static int callargs_nocheck(Execute ptr, addr args, addr *ret)
 
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &eval, &args);
-		type_asterisk_heap(&type);
+		GetTypeTable(&type, Asterisk);
 		if (check_tablecall(ptr, eval, type, &eval)) return 1;
 		cons_heap(&root, eval, root);
 	}
@@ -3047,11 +3073,11 @@ static void call_result(addr *ret, addr first)
 
 	GetEvalScopeThe(first, &type);
 	CheckType(type, LISPTYPE_TYPE);
-	if (asterisk_p(type)) {
+	if (type_asterisk_p(type)) {
 		*ret = type;
 		return;
 	}
-	Check(! function_type_p(type), "type decl error");
+	Check(! type_function_p(type), "type decl error");
 	GetArrayType(type, 1, ret); /* values */
 	CheckType(*ret, LISPTYPE_TYPE);
 }
@@ -3093,8 +3119,8 @@ static int values_args(Execute ptr, addr args, addr *retargs, addr *rettype)
 	nreverse_list_unsafe(&var, var);
 
 	/* (values ... &rest nil) */
-	type_nil_heap(&rest);
-	type_object4(NULL, LISPDECL_VALUES, var, Nil, rest, Nil, rettype);
+	GetTypeTable(&rest, Nil);
+	type_values_heap(var, Nil, rest, Nil, rettype);
 
 	return 0;
 }
@@ -3185,7 +3211,7 @@ static int scope_if(Execute ptr, addr *ret, addr eval)
 	if (scope_eval(ptr, &last, last)) return 1;
 	GetEvalScopeThe(then, &type1);
 	GetEvalScopeThe(last, &type2);
-	type_or(NULL, type1, type2, &type);
+	type2or_heap(type1, type2, &type);
 
 	eval_scope_size(&eval, 3, EVAL_PARSE_IF, type, eval);
 	SetEvalScopeIndex(eval, 0, expr);
@@ -3301,7 +3327,7 @@ static int scope_tagbody(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &body);
 
 	if (tagbody_execute(ptr, tag, body, &body)) return 1;
-	type_empty(NULL, LISPDECL_NULL, &type);
+	GetTypeTable(&type, Null);
 	eval_scope_size(&eval, 2, EVAL_PARSE_TAGBODY, type, eval);
 	SetEvalScopeIndex(eval, 0, tag);
 	SetEvalScopeIndex(eval, 1, body);
@@ -3378,7 +3404,7 @@ static void scope_go(Execute ptr, addr *ret, addr eval)
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &tag);
 	go_execute(ptr, &tag, tag);
-	type_nil_heap(&type);
+	GetTypeTable(&type, Nil);
 	make_eval_scope(ret, EVAL_PARSE_GO, type, tag);
 }
 
@@ -3419,7 +3445,7 @@ static int scope_block(Execute ptr, addr *ret, addr eval)
 
 	if (block_execute(ptr, name, cons, &cons, &type)) return 1;
 	/* type -> (or block return-from1 return-from2 ...) */
-	type_asterisk_heap(&type);
+	GetTypeTable(&type, Asterisk);
 	eval_scope_size(&eval, 2, EVAL_PARSE_BLOCK, type, eval);
 	SetEvalScopeIndex(eval, 0, name);
 	SetEvalScopeIndex(eval, 1, cons);
@@ -3493,7 +3519,7 @@ static int scope_return_from(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &form);
 
 	if (return_from_execute(ptr, name, form, &form)) return 1;
-	type_nil_heap(&type);
+	GetTypeTable(&type, Nil);
 	eval_scope_size(&eval, 2, EVAL_PARSE_RETURN_FROM, type, eval);
 	SetEvalScopeIndex(eval, 0, name);
 	SetEvalScopeIndex(eval, 1, form);
@@ -3512,7 +3538,7 @@ static int scope_catch(Execute ptr, addr *ret, addr eval)
 
 	if (scope_eval(ptr, &tag, tag)) return 1;
 	if (scope_allcons(ptr, &cons, &type, cons)) return 1;
-	type_asterisk_heap(&type);
+	GetTypeTable(&type, Asterisk);
 	eval_scope_size(&eval, 2, EVAL_PARSE_CATCH, type, eval);
 	SetEvalScopeIndex(eval, 0, tag);
 	SetEvalScopeIndex(eval, 1, cons);
@@ -3531,7 +3557,7 @@ static int scope_throw(Execute ptr, addr *ret, addr eval)
 
 	if (scope_eval(ptr, &tag, tag)) return 1;
 	if (scope_eval(ptr, &form, form)) return 1;
-	type_nil_heap(&type);
+	GetTypeTable(&type, Nil);
 	eval_scope_size(&eval, 2, EVAL_PARSE_THROW, type, eval);
 	SetEvalScopeIndex(eval, 0, tag);
 	SetEvalScopeIndex(eval, 1, form);
@@ -3579,7 +3605,7 @@ static int scope_eval_when(Execute ptr, addr *ret, addr eval)
 		make_eval_scope(&eval, EVAL_PARSE_PROGN, type, cons);
 	}
 	else {
-		type_empty(NULL, LISPDECL_EMPTY, &type);
+		type0_heap(LISPDECL_EMPTY, &type);
 		make_eval_scope(&eval, EVAL_PARSE_NIL, type, Nil);
 	}
 	*ret = eval;
@@ -3673,7 +3699,7 @@ static int scope_multiple_value_bind(Execute ptr, addr *ret, addr eval)
 static int function_result_type(addr expr, addr *ret)
 {
 	GetEvalScopeThe(expr, &expr);
-	if (! function_type_p(expr)) return 1;
+	if (! type_function_p(expr)) return 1;
 	GetArrayType(expr, 1, ret); /* result */
 
 	return 0;
@@ -3690,7 +3716,7 @@ static int scope_multiple_value_call(Execute ptr, addr *ret, addr eval)
 	if (scope_eval(ptr, &expr, expr)) return 1;
 	if (scope_allcons(ptr, &cons, NULL, cons)) return 1;
 	if (function_result_type(expr, &type))
-		type_asterisk_heap(&type);
+		GetTypeTable(&type, Asterisk);
 	eval_scope_size(&eval, 2, EVAL_PARSE_MULTIPLE_VALUE_CALL, type, eval);
 	SetEvalScopeIndex(eval, 0, expr);
 	SetEvalScopeIndex(eval, 1, cons);
@@ -3852,6 +3878,9 @@ static int scope_eval_downcase(Execute ptr, addr *ret, addr eval)
 		case EVAL_PARSE_DEFMACRO:
 			scope_defmacro(ptr, ret, eval);
 			break;
+
+		case EVAL_PARSE_DEFTYPE:
+			return scope_deftype(ptr, ret, eval);
 
 		case EVAL_PARSE_DESTRUCTURING_BIND:
 			return scope_destructuring_bind(ptr, ret, eval);

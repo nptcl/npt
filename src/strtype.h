@@ -1,5 +1,5 @@
-#ifndef __STRING_HEADER__
-#define __STRING_HEADER__
+#ifndef __STRTYPE_HEADER__
+#define __STRTYPE_HEADER__
 
 #include "typedef.h"
 

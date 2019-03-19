@@ -211,6 +211,8 @@ void compiled_macro_heap(addr *ret, addr name);
 
 void setcompiled_system(addr pos, calltype call);
 void getcompiled_system(addr pos, calltype *ret);
+void setcompiled_type(addr pos, void *call);
+void getcompiled_type(addr pos, void **ret);
 void setcompiled_macro(addr pos, callbind_macro call);
 void setcompiled_none(addr pos, callbind_none call);
 void setcompiled_any(addr pos, callbind_any call);

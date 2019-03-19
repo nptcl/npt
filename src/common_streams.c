@@ -18,6 +18,7 @@
 #include "stream.h"
 #include "strtype.h"
 #include "type_parse.h"
+#include "type_subtypep.h"
 
 /* (defun input-stream-p (stream) ...) -> boolean */
 static void function_input_stream_p(Execute ptr, addr pos)
@@ -36,7 +37,7 @@ static void defun_input_stream_p(void)
 	setcompiled_var1(pos, function_input_stream_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_InputStreamP);
+	GetTypeCompiled(&type, InputStreamP);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -59,7 +60,7 @@ static void defun_output_stream_p(void)
 	setcompiled_var1(pos, function_output_stream_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_InputStreamP);
+	GetTypeCompiled(&type, InputStreamP);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -82,7 +83,7 @@ static void defun_interactive_stream_p(void)
 	setcompiled_var1(pos, function_interactive_stream_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_InputStreamP);
+	GetTypeCompiled(&type, InputStreamP);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -105,7 +106,7 @@ static void defun_open_stream_p(void)
 	setcompiled_var1(pos, function_open_stream_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_InputStreamP);
+	GetTypeCompiled(&type, InputStreamP);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -127,7 +128,7 @@ static void defun_streamp(void)
 	setcompiled_var1(pos, function_streamp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -144,10 +145,10 @@ static void type_stream_element_type(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Stream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, TypeSpec);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Stream);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, TypeSpec);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -187,10 +188,10 @@ static void type_read_byte(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, InputStream);
-	GetCallType(&values, T);
-	var1opt2_argtype(&arg, arg, values, values);
-	GetCallType(&values, Values_Integer);
+	GetTypeTable(&arg, InputStream);
+	GetTypeTable(&values, T);
+	typeargs_var1opt2(&arg, arg, values, values);
+	GetTypeValues(&values, Integer);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -224,10 +225,10 @@ static void type_write_byte(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Integer);
-	GetCallType(&values, OutputStream);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Integer);
+	GetTypeTable(&arg, Integer);
+	GetTypeTable(&values, OutputStream);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, Integer);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -276,13 +277,13 @@ static void type_peek_char(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, Character);
-	GetCallType(&values, Boolean);
-	type_or(NULL, arg, values, &arg);
-	GetCallType(&values, StreamDesigner);
-	GetCallType(&type, T);
-	opt5_argtype(&arg, arg, values, type, type, type);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&values, Boolean);
+	type2or_heap(arg, values, &arg);
+	GetTypeTable(&values, StreamDesigner);
+	GetTypeTable(&type, T);
+	typeargs_opt5(&arg, arg, values, type, type, type);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -334,7 +335,7 @@ static void defun_read_char(void)
 	setcompiled_opt4(pos, function_read_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_ReadChar);
+	GetTypeCompiled(&type, ReadChar);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -372,7 +373,7 @@ static void defun_read_char_no_hang(void)
 	setcompiled_opt4(pos, function_read_char_no_hang);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_ReadChar);
+	GetTypeCompiled(&type, ReadChar);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -391,9 +392,9 @@ static void type_terpri(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, StreamDesigner);
-	opt1_argtype(&arg, arg);
-	GetCallType(&values, Values_Null);
+	GetTypeTable(&arg, StreamDesigner);
+	typeargs_opt1(&arg, arg);
+	GetTypeValues(&values, Null);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -428,9 +429,9 @@ static void type_fresh_line(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, StreamDesigner);
-	opt1_argtype(&arg, arg);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, StreamDesigner);
+	typeargs_opt1(&arg, arg);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -466,10 +467,10 @@ static void type_unread_char(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Character);
-	GetCallType(&values, StreamDesigner);
-	var1opt1_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Null);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&values, StreamDesigner);
+	typeargs_var1opt1(&arg, arg, values);
+	GetTypeValues(&values, Null);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -504,10 +505,10 @@ static void type_write_char(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Character);
-	GetCallType(&values, StreamDesigner);
-	var1opt1_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Character);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&values, StreamDesigner);
+	typeargs_var1opt1(&arg, arg, values);
+	GetTypeValues(&values, Character);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -557,11 +558,11 @@ static void type_read_line(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, StreamDesigner);
-	GetCallType(&type, T);
-	opt4_argtype(&arg, arg, type, type, type);
-	GetCallType(&values, Boolean);
-	values2_valuestype(&values, type, values);
+	GetTypeTable(&arg, StreamDesigner);
+	GetTypeTable(&type, T);
+	typeargs_opt4(&arg, arg, type, type, type);
+	GetTypeTable(&values, Boolean);
+	typevalues_values2(&values, type, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -598,7 +599,7 @@ static void defun_write_string(void)
 	setcompiled_var1dynamic(pos, function_write_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_WriteString);
+	GetTypeCompiled(&type, WriteString);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -621,7 +622,7 @@ static void defun_write_line(void)
 	setcompiled_var1dynamic(pos, function_write_line);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_WriteString);
+	GetTypeCompiled(&type, WriteString);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -649,14 +650,14 @@ static void type_read_sequence(addr *ret)
 	addr arg, values, key, type1, type2;
 
 	/* key */
-	KeyCallType(&type1, START, KeywordStart);
-	KeyCallType(&type2, END, KeywordEnd);
+	KeyTypeTable(&type1, START, KeywordStart);
+	KeyTypeTable(&type2, END, KeywordEnd);
 	list_heap(&key, type1, type2, NULL);
 	/* arg */
-	GetCallType(&type1, Sequence);
-	GetCallType(&type2, InputStream);
-	var2key_argtype(&arg, type1, type2, key);
-	GetCallType(&values, Values_Index);
+	GetTypeTable(&type1, Sequence);
+	GetTypeTable(&type2, InputStream);
+	typeargs_var2key(&arg, type1, type2, key);
+	GetTypeValues(&values, Index);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -692,14 +693,14 @@ static void type_write_sequence(addr *ret)
 	addr arg, values, key, type1, type2;
 
 	/* key */
-	KeyCallType(&type1, START, KeywordStart);
-	KeyCallType(&type2, END, KeywordEnd);
+	KeyTypeTable(&type1, START, KeywordStart);
+	KeyTypeTable(&type2, END, KeywordEnd);
 	list_heap(&key, type1, type2, NULL);
 	/* arg */
-	GetCallType(&type1, Sequence);
-	GetCallType(&type2, OutputStream);
-	var2key_argtype(&arg, type1, type2, key);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&type1, Sequence);
+	GetTypeTable(&type2, OutputStream);
+	typeargs_var2key(&arg, type1, type2, key);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -733,9 +734,9 @@ static void type_file_length(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Stream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_IntplusNull);
+	GetTypeTable(&arg, Stream);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, IntplusNull);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -802,16 +803,16 @@ static void type_file_position(addr *ret)
 	addr arg, values, type, type2, type3;
 
 	/* position-designer */
-	GetCallType(&type, Index);
+	GetTypeTable(&type, Index);
 	GetConst(KEYWORD_START, &type2);
-	type_object1(NULL, LISPDECL_EQL, type2, &type2);
+	type_eql_heap(type2, &type2);
 	GetConst(KEYWORD_END, &type3);
-	type_object1(NULL, LISPDECL_EQL, type3, &type3);
-	type_or3(NULL, type, type2, type3, &type);
+	type_eql_heap(type3, &type3);
+	type3or_heap(type, type2, type3, &type);
 	/* type */
-	GetCallType(&arg, Stream);
-	var1opt1_argtype(&arg, arg, type);
-	GetCallType(&values, Values_IndexNull);
+	GetTypeTable(&arg, Stream);
+	typeargs_var1opt1(&arg, arg, type);
+	GetTypeValues(&values, IndexNull);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -856,12 +857,12 @@ static void type_file_string_length(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, OutputStream);
-	GetCallType(&type, String);
-	GetCallType(&values, Character);
-	type_or(NULL, type, values, &values);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, Values_IndexNull);
+	GetTypeTable(&arg, OutputStream);
+	GetTypeTable(&type, String);
+	GetTypeTable(&values, Character);
+	type2or_heap(type, values, &values);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, IndexNull);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -938,12 +939,12 @@ static enum Stream_Open_Element function_open_element(addr value)
 		return Stream_Open_Element_Binary;
 
 	/* character */
-	GetCallType(&type, Character);
+	GetTypeTable(&type, Character);
 	if (subtypep_clang(value, type, &validp))
 		return Stream_Open_Element_Character;
 
 	/* Binary */
-	GetCallType(&type, Unsigned8);
+	GetTypeTable(&type, Unsigned8);
 	if (subtypep_clang(value, type, &validp))
 		return Stream_Open_Element_Binary;
 
@@ -1174,16 +1175,16 @@ static void type_open(addr *ret)
 	addr arg, values, key, key1, key2, key3, key4, key5;
 
 	/* key */
-	KeyCallType(&key1, DIRECTION, OpenDirection);
-	KeyCallType(&key2, ELEMENT_TYPE, OpenElementType);
-	KeyCallType(&key3, IF_EXISTS, OpenIfExists);
-	KeyCallType(&key4, IF_DOES_NOT_EXIST, OpenIfDoesNotExist);
-	KeyCallType(&key5, EXTERNAL_FORMAT, ExternalFormat);
+	KeyTypeTable(&key1, DIRECTION, OpenDirection);
+	KeyTypeTable(&key2, ELEMENT_TYPE, OpenElementType);
+	KeyTypeTable(&key3, IF_EXISTS, OpenIfExists);
+	KeyTypeTable(&key4, IF_DOES_NOT_EXIST, OpenIfDoesNotExist);
+	KeyTypeTable(&key5, EXTERNAL_FORMAT, ExternalFormat);
 	list_heap(&key, key1, key2, key3, key4, key5, NULL);
 	/* type */
-	GetCallType(&arg, PathnameDesigner);
-	var1key_argtype(&arg, arg, key);
-	GetCallType(&values, Values_StreamNull);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var1key(&arg, arg, key);
+	GetTypeValues(&values, StreamNull);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1217,10 +1218,10 @@ static void type_stream_external_format(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, FileStream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, ExternalFormat);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, FileStream);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, ExternalFormat);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1299,7 +1300,7 @@ static void defmacro_with_open_file(void)
 	setcompiled_macro(pos, function_with_open_file);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -1320,12 +1321,12 @@ static void type_close(addr *ret)
 	addr arg, values, key;
 
 	/* key */
-	KeyCallType(&key, ABORT, T);
+	KeyTypeTable(&key, ABORT, T);
 	conscar_heap(&key, key);
 	/* type */
-	GetCallType(&arg, Stream);
-	var1key_argtype(&arg, arg, key);
-	GetCallType(&values, Values_T); /* any */
+	GetTypeTable(&arg, Stream);
+	typeargs_var1key(&arg, arg, key);
+	GetTypeValues(&values, T); /* any */
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1403,7 +1404,7 @@ static void defun_with_open_stream(void)
 	setcompiled_macro(pos, function_with_open_stream);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -1423,9 +1424,9 @@ static void type_listen(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, InputStream);
-	opt1_argtype(&arg, arg);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, InputStream);
+	typeargs_opt1(&arg, arg);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1458,9 +1459,9 @@ static void type_clear_input(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, InputStream);
-	opt1_argtype(&arg, arg);
-	GetCallType(&values, Values_Null);
+	GetTypeTable(&arg, InputStream);
+	typeargs_opt1(&arg, arg);
+	GetTypeValues(&values, Null);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1497,7 +1498,7 @@ static void defun_finish_output(void)
 	setcompiled_opt1(pos, function_finish_output);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_FinishOutput);
+	GetTypeCompiled(&type, FinishOutput);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1519,7 +1520,7 @@ static void defun_force_output(void)
 	setcompiled_opt1(pos, function_force_output);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_FinishOutput);
+	GetTypeCompiled(&type, FinishOutput);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1542,7 +1543,7 @@ static void defun_clear_output(void)
 	setcompiled_opt1(pos, function_clear_output);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_FinishOutput);
+	GetTypeCompiled(&type, FinishOutput);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1570,7 +1571,7 @@ static void defun_y_or_n_p(void)
 	setcompiled_dynamic(pos, function_y_or_n_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_YesOrNoP);
+	GetTypeCompiled(&type, YesOrNoP);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1598,7 +1599,7 @@ static void defun_yes_or_no_p(void)
 	setcompiled_dynamic(pos, function_yes_or_no_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_YesOrNoP);
+	GetTypeCompiled(&type, YesOrNoP);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1615,10 +1616,10 @@ static void type_make_synonym_stream(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Symbol);
-	GetCallType(&values, SynonymStream);
-	var1_argtype(&arg, arg);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&values, SynonymStream);
+	typeargs_var1(&arg, arg);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1649,9 +1650,9 @@ static void type_synonym_stream_symbol(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, SynonymStream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Symbol);
+	GetTypeTable(&arg, SynonymStream);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Symbol);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1684,10 +1685,10 @@ static void type_make_broadcast_stream(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, OutputStream);
-	rest_argtype(&arg, arg);
-	GetCallType(&values, BroadcastStream);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, OutputStream);
+	typeargs_rest(&arg, arg);
+	GetTypeTable(&values, BroadcastStream);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1718,9 +1719,9 @@ static void type_broadcast_stream_streams(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, BroadcastStream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_List);
+	GetTypeTable(&arg, BroadcastStream);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, List);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1751,11 +1752,11 @@ static void type_make_two_way_stream(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, InputStream);
-	GetCallType(&values, OutputStream);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, TwoWayStream);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, InputStream);
+	GetTypeTable(&values, OutputStream);
+	typeargs_var2(&arg, arg, values);
+	GetTypeTable(&values, TwoWayStream);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1786,10 +1787,10 @@ static void type_two_way_stream_input_stream(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, TwoWayStream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, InputStream);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, TwoWayStream);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, InputStream);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1820,10 +1821,10 @@ static void type_two_way_stream_output_stream(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, TwoWayStream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, OutputStream);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, TwoWayStream);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, OutputStream);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1854,11 +1855,11 @@ static void type_make_echo_stream(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, InputStream);
-	GetCallType(&values, OutputStream);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, EchoStream);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, InputStream);
+	GetTypeTable(&values, OutputStream);
+	typeargs_var2(&arg, arg, values);
+	GetTypeTable(&values, EchoStream);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1889,10 +1890,10 @@ static void type_echo_stream_input_stream(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, EchoStream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, InputStream);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, EchoStream);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, InputStream);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1923,10 +1924,10 @@ static void type_echo_stream_output_stream(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, EchoStream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, InputStream);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, EchoStream);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, InputStream);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1959,10 +1960,10 @@ static void type_make_concatenated_stream(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, InputStream);
-	rest_argtype(&arg, arg);
-	GetCallType(&values, ConcatenatedStream);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, InputStream);
+	typeargs_rest(&arg, arg);
+	GetTypeTable(&values, ConcatenatedStream);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1993,9 +1994,9 @@ static void type_concatenated_stream_streams(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, ConcatenatedStream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_List);
+	GetTypeTable(&arg, ConcatenatedStream);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, List);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2036,14 +2037,14 @@ static void type_make_string_input_stream(addr *ret)
 	addr arg, values, key;
 
 	/* key */
-	KeyCallType(&arg, START, KeywordStart);
-	KeyCallType(&values, END, KeywordEnd);
+	KeyTypeTable(&arg, START, KeywordStart);
+	KeyTypeTable(&values, END, KeywordEnd);
 	list_heap(&key, arg, values, NULL);
 	/* type */
-	GetCallType(&arg, String);
-	var1key_argtype(&arg, arg, key);
-	GetCallType(&values, StringStream);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, String);
+	typeargs_var1key(&arg, arg, key);
+	GetTypeTable(&values, StringStream);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2069,8 +2070,10 @@ static void function_make_string_output_stream(Execute ptr, addr rest)
 	int validp;
 	addr type, pos;
 
-	GetConst(COMMON_CHARACTER, &type);
 	if (! getkeyargs(rest, KEYWORD_ELEMENT_TYPE, &pos)) {
+		GetTypeTable(&type, Character);
+		if (parse_type(ptr, &pos, pos, Nil))
+			return;
 		if (! subtypep_clang(pos, type, &validp))
 			fmte(":ELEMENT-TYPE ~S must be a character type.", pos, NULL);
 	}
@@ -2083,12 +2086,12 @@ static void type_make_string_output_stream(addr *ret)
 	addr arg, values;
 
 	/* key */
-	KeyCallType(&arg, ELEMENT_TYPE, Symbol);
+	KeyTypeTable(&arg, ELEMENT_TYPE, Symbol);
 	list_heap(&arg, arg, NULL);
 	/* type */
-	key_argtype(&arg, arg);
-	GetCallType(&values, StringStream);
-	result_valuestype(&values, values);
+	typeargs_key(&arg, arg);
+	GetTypeTable(&values, StringStream);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2114,7 +2117,7 @@ static void function_get_output_stream_string(Execute ptr, addr var)
 	addr type;
 
 	if (getstreamtype(var) != StreamType_StringOutput) {
-		GetCallType(&type, StringStream);
+		GetTypeTable(&type, StringStream);
 		type_error_stdarg(var, type,
 				"The stream must be a output-string-stream.", NULL);
 	}
@@ -2126,9 +2129,9 @@ static void type_get_output_stream_string(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, StringStream);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_SimpleString);
+	GetTypeTable(&arg, StringStream);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, SimpleString);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -2264,7 +2267,7 @@ static void defmacro_with_input_from_string(void)
 	setcompiled_macro(pos, function_with_input_from_string);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -2386,7 +2389,7 @@ static void defmacro_with_output_to_string(void)
 	setcompiled_macro(pos, function_with_output_to_string);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -2402,9 +2405,9 @@ static void type_stream_error_stream(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Condition);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Stream);
+	GetTypeTable(&arg, Condition);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Stream);
 	type_compiled_heap(arg, values, ret);
 }
 

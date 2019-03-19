@@ -1,5 +1,5 @@
-#ifndef __HEADER_CONS__
-#define __HEADER_CONS__
+#ifndef __CONS_HEADER__
+#define __CONS_HEADER__
 
 #include "constant.h"
 #include "local.h"
@@ -193,6 +193,7 @@ int setplistplist_callname_heap_force(addr plist,
 		addr key, addr callname, addr value, addr *ret);
 
 int pushnewlist_callname_alloc(LocalRoot local, addr list, addr callname, addr *ret);
+int pushnewlist_callname_heap(addr list, addr callname, addr *ret);
 int find_list_callname_unsafe(addr callname, addr list);
 
 

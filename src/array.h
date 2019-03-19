@@ -123,7 +123,10 @@ void Debug_LenArrayInfo(addr pos, size_t *ret);
 size_t Debug_LenArrayInfor(addr pos);
 
 void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size);
-void array_alloc_stdarg(LocalRoot local, addr *ret, ...);
+void array_va_alloc(LocalRoot local, addr *ret, ...);
+void array_va_local(LocalRoot local, addr *ret, ...);
+void array_va_heap(addr *ret, ...);
+
 void array_make_array(LocalRoot local, addr *ret, addr dimension,
 		addr type, addr initial, addr contents,
 		addr adjustable, addr fillpointer, addr displaced, addr offset);
@@ -146,7 +149,9 @@ int array_specialized_p(addr pos);
 const size_t *array_dimension_pointer(addr pos);
 void *array_write_pointer(addr pos, size_t index);
 const void *array_read_pointer(addr pos, size_t index);
+void character_array_alloc(LocalRoot local, addr pos);
 void allocate_array_alloc(LocalRoot local, addr pos);
+void allocate_array_heap(addr pos);
 
 /* array */
 void array_element_type(addr pos, addr *ret);
@@ -219,6 +224,20 @@ void array_fill(addr pos, addr item, addr start, addr end);
 void array_subseq(addr *ret, addr pos, addr start, addr end);
 void array_reverse(LocalRoot local, addr *ret, addr pos);
 void array_nreverse(addr *ret, addr pos);
+
+/* coerce */
+void array_coerce_bit_heap(addr *ret, addr pos);
+void array_coerce_character_heap(addr *ret, addr pos);
+void array_coerce_signed8_heap(addr *ret, addr pos);
+void array_coerce_signed16_heap(addr *ret, addr pos);
+void array_coerce_signed32_heap(addr *ret, addr pos);
+void array_coerce_unsigned8_heap(addr *ret, addr pos);
+void array_coerce_unsigned16_heap(addr *ret, addr pos);
+void array_coerce_unsigned32_heap(addr *ret, addr pos);
+#ifdef LISP_64BIT
+void array_coerce_signed64_heap(addr *ret, addr pos);
+void array_coerce_unsigned64_heap(addr *ret, addr pos);
+#endif
 
 #endif
 

@@ -2,7 +2,6 @@
 #include "array.h"
 #include "bignum.h"
 #include "bit.h"
-#include "calltype.h"
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
@@ -12,8 +11,10 @@
 #include "object.h"
 #include "sequence.h"
 #include "type_parse.h"
+#include "type_object.h"
 #include "type_optimize.h"
-#include "type_value.h"
+#include "type_table.h"
+#include "type_upgraded.h"
 
 void Debug_set_arraygen(addr pos, size_t index, addr value)
 {
@@ -151,60 +152,12 @@ static void array_empty_alloc(LocalRoot local, addr *ret)
 
 static void settype_array(addr pos)
 {
+	addr type;
 	struct array_struct *str;
-	addr temp;
 
 	str = ArrayInfoStruct(pos);
-	switch (str->type) {
-		case ARRAY_TYPE_BIT:
-			GetCallType(&temp, Array_Bit);
-			break;
-
-		case ARRAY_TYPE_CHARACTER:
-			GetCallType(&temp, Array_Character);
-			break;
-
-		case ARRAY_TYPE_SIGNED:
-			switch (str->bytesize) {
-				case 8: GetCallType(&temp, Signed8); break;
-				case 16: GetCallType(&temp, Signed16); break;
-				case 32: GetCallType(&temp, Signed32); break;
-#ifdef LISP_64BIT
-				case 64: GetCallType(&temp, Signed64); break;
-#endif
-				default: GetCallType(&temp, Array_T); break;
-			}
-			break;
-
-		case ARRAY_TYPE_UNSIGNED:
-			switch (str->bytesize) {
-				case 8: GetCallType(&temp, Unsigned8); break;
-				case 16: GetCallType(&temp, Unsigned16); break;
-				case 32: GetCallType(&temp, Unsigned32); break;
-#ifdef LISP_64BIT
-				case 64: GetCallType(&temp, Unsigned64); break;
-#endif
-				default: GetCallType(&temp, Array_T); break;
-			}
-			break;
-
-		case ARRAY_TYPE_SINGLE_FLOAT:
-			GetCallType(&temp, Array_SingleFloat);
-			break;
-
-		case ARRAY_TYPE_DOUBLE_FLOAT:
-			GetCallType(&temp, Array_DoubleFloat);
-			break;
-
-		case ARRAY_TYPE_LONG_FLOAT:
-			GetCallType(&temp, Array_LongFloat);
-			break;
-
-		default:
-			GetCallType(&temp, Array_T);
-			break;
-	}
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, temp);
+	upgraded_array_object(str->type, str->bytesize, &type);
+	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
 }
 
 void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
@@ -232,13 +185,12 @@ void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
 	*ret = pos;
 }
 
-void array_alloc_stdarg(LocalRoot local, addr *ret, ...)
+static void array_va_stdarg(LocalRoot local, addr *ret, va_list args)
 {
 	addr pos, dimension;
 	size_t size, i, index, allcount, *data;
-	va_list args, dest;
+	va_list dest;
 
-	va_start(args, ret);
 	/* index */
 	va_copy(dest, args);
 	allcount = 1;
@@ -257,10 +209,37 @@ void array_alloc_stdarg(LocalRoot local, addr *ret, ...)
 		for (i = 0; i < index; i++)
 			data[i] = (size_t)va_arg(args, unsigned);
 	}
-	va_end(args);
 
 	/* result */
 	*ret = pos;
+}
+
+void array_va_alloc(LocalRoot local, addr *ret, ...)
+{
+	va_list args;
+
+	va_start(args, ret);
+	array_va_stdarg(local, ret, args);
+	va_end(args);
+}
+
+void array_va_local(LocalRoot local, addr *ret, ...)
+{
+	va_list args;
+
+	CheckLocal(local);
+	va_start(args, ret);
+	array_va_stdarg(local, ret, args);
+	va_end(args);
+}
+
+void array_va_heap(addr *ret, ...)
+{
+	va_list args;
+
+	va_start(args, ret);
+	array_va_stdarg(NULL, ret, args);
+	va_end(args);
 }
 
 
@@ -274,8 +253,7 @@ static void type_make_array(addr pos, addr type)
 	int size;
 	struct array_struct *str;
 
-	size = 0;
-	value = upgraded_array_direct(type, &size);
+	upgraded_array_value(type, &value, &size);
 	str = ArrayInfoStruct(pos);
 	str->type = value;
 	str->bytesize = size;
@@ -1386,11 +1364,11 @@ static void initial_make_array(LocalRoot local, addr pos, addr initial, addr con
 
 	str = ArrayInfoStruct(pos);
 	if (str->displaced && (initial != Unbound || contents != Unbound)) {
-		fmte("Displaced array don't has "
+		fmte("Displaced array don't have "
 				":initial-element or :initial-contents.", NULL);
 	}
 	if (initial != Unbound && contents != Unbound) {
-		fmte("Array parameter cannot has both :initial-element and "
+		fmte("Array parameter cannot have both :initial-element and "
 				":initial-contens parameter.", NULL);
 	}
 	if (initial != Unbound) {
@@ -1422,6 +1400,16 @@ void array_make_array(LocalRoot local, addr *ret, addr dimension,
 	initial_make_array(local, pos, initial, contents);
 	/* result */
 	*ret = pos;
+}
+
+static void type_make_array_t(addr pos)
+{
+	struct array_struct *str;
+
+	str = ArrayInfoStruct(pos);
+	str->type = ARRAY_TYPE_T;
+	str->bytesize = 0;
+	settype_array(pos);
 }
 
 static void dimension_array_contents(LocalRoot local,
@@ -1469,7 +1457,7 @@ void array_contents_alloc(LocalRoot local, addr *ret, addr rank, addr contents)
 	/* object */
 	array_empty_alloc(local, &pos);
 	/* element-type */
-	type_make_array(pos, T);
+	type_make_array_t(pos);
 	element_make_array(pos);
 	/* dimension */
 	dimension_array_contents(local, pos, rank, contents);
@@ -1625,8 +1613,7 @@ static void array_adjust_element_type(addr pos, addr type, addr array)
 		str1->bytesize = str2->bytesize;
 	}
 	else {
-		size = 0;
-		value = upgraded_array_direct(type, &size);
+		upgraded_array_value(type, &value, &size);
 		if (! type_equal_make_array(str2, value, size))
 			fmte(":element-type ~S must be equal to base array.", type, NULL);
 		str1->type = value;
@@ -1665,7 +1652,7 @@ static void array_adjust_replace(addr pos, addr array)
 	}
 }
 
-void array_adjust_arraytype(addr *ret, addr array, addr dimension,
+static void array_adjust_arraytype(addr *ret, addr array, addr dimension,
 		addr type, addr initial, addr contents,
 		addr fillpointer, addr displaced, addr offset)
 {
@@ -1729,8 +1716,7 @@ static void array_adjust_vector_type(addr pos, addr type, enum ARRAY_TYPE check)
 		str->bytesize = 0;
 	}
 	else {
-		size = 0;
-		value = upgraded_array_direct(type, &size);
+		upgraded_array_value(type, &value, &size);
 		if (check != value)
 			fmte(":element-type ~S must be equal to base array.", type, NULL);
 		str->type = value;
@@ -1820,7 +1806,7 @@ static void array_adjust_vector_contents(addr pos, size_t size, addr contents)
 	}
 }
 
-void array_adjust_vector(addr *ret, addr array, addr dimension,
+static void array_adjust_vector(addr *ret, addr array, addr dimension,
 		addr type, addr initial, addr contents,
 		addr fillpointer, addr displaced, addr offset)
 {
@@ -1839,7 +1825,7 @@ void array_adjust_vector(addr *ret, addr array, addr dimension,
 	*ret = pos;
 }
 
-void array_adjust_string(addr *ret, addr array, addr dimension,
+static void array_adjust_string(addr *ret, addr array, addr dimension,
 		addr type, addr initial, addr contents,
 		addr fillpointer, addr displaced, addr offset)
 {
@@ -1858,7 +1844,7 @@ void array_adjust_string(addr *ret, addr array, addr dimension,
 	*ret = pos;
 }
 
-void array_adjust_bitvector(addr *ret, addr array, addr dimension,
+static void array_adjust_bitvector(addr *ret, addr array, addr dimension,
 		addr type, addr initial, addr contents,
 		addr fillpointer, addr displaced, addr offset)
 {
@@ -2124,15 +2110,6 @@ static void set_simple_array(struct array_struct *str)
 	str->simple = (!str->adjustable) && (!str->fillpointer) && (!str->displaced);
 }
 
-static void set_element_size(addr pos, struct array_struct *str)
-{
-	addr type;
-
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
-	type_make_array(pos, type);
-	element_make_array(pos);
-}
-
 static void check_fillpointer(addr pos, struct array_struct *str)
 {
 	if (str->fillpointer) {
@@ -2146,15 +2123,35 @@ static void check_fillpointer(addr pos, struct array_struct *str)
 	}
 }
 
+void character_array_alloc(LocalRoot local, addr pos)
+{
+	struct array_struct *str;
+
+	str = ArrayInfoStruct(pos);
+	str->type = ARRAY_TYPE_CHARACTER;
+	str->bytesize = 0;
+	settype_array(pos);
+	element_make_array(pos);
+	set_simple_array(str);
+	check_fillpointer(pos, str);
+	allocate_element_array(local, pos, str);
+}
+
 void allocate_array_alloc(LocalRoot local, addr pos)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
+	settype_array(pos);
+	element_make_array(pos);
 	set_simple_array(str);
-	set_element_size(pos, str);
 	check_fillpointer(pos, str);
 	allocate_element_array(local, pos, str);
+}
+
+void allocate_array_heap(addr pos)
+{
+	allocate_array_alloc(NULL, pos);
 }
 
 
@@ -2165,7 +2162,7 @@ void array_element_type(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
 	GetArrayInfo(pos, ARRAY_INFO_TYPE, &pos);
-	type_object(NULL, ret, pos);
+	type_object(ret, pos);
 }
 
 size_t array_vector_length(addr pos, int fill)
@@ -3507,7 +3504,7 @@ void array_value_alloc(LocalRoot local, addr *ret, const struct array_value *str
 		case ARRAY_TYPE_LONG_FLOAT:
 			long_float_alloc(local, ret, str->value.long_value);
 			break;
-			
+
 		default:
 			*ret = str->value.object;
 			break;
@@ -4103,4 +4100,104 @@ void array_nreverse(addr *ret, addr pos)
 	}
 	*ret = pos;
 }
+
+
+/*
+ *  coerce
+ */
+static void array_coerce_type_struct(addr pos, addr array,
+		enum ARRAY_TYPE type, unsigned size)
+{
+	addr value;
+	struct array_struct *str1, *str2;
+
+	/* struct */
+	str1 = ArrayInfoStruct(pos);
+	str2 = ArrayInfoStruct(array);
+	str1->simple = 1;
+	str1->adjustable = 0;
+	str1->fillpointer = 0;
+	str1->displaced = 0;
+	str1->dimension = str2->dimension;
+	str1->offset = 0;
+	str1->size = str1->front = str1->refer = str2->front; /* fill-pointer */
+	SetArrayInfo(pos, ARRAY_INFO_DISPLACED, Nil);
+	/* type */
+	str1->type = type;
+	str1->bytesize = size;
+	upgraded_array_object(str1->type, str1->bytesize, &value);
+	SetArrayInfo(pos, ARRAY_INFO_TYPE, value);
+	element_make_array(pos);
+}
+
+static void array_coerce_type_heap(addr *ret, addr array,
+		enum ARRAY_TYPE type, unsigned size)
+{
+	addr pos;
+	struct array_struct *str;
+
+	/* object */
+	array_empty_alloc(NULL, &pos);
+	/* element-type */
+	array_coerce_type_struct(pos, array, type, size);
+	/* dimension */
+	array_dimension_copy(NULL, pos, array);
+	/* allocate */
+	str = ArrayInfoStruct(pos);
+	allocate_element_array(NULL, pos, str);
+	/* result */
+	*ret = pos;
+}
+
+void array_coerce_bit_heap(addr *ret, addr array)
+{
+	array_coerce_type_heap(ret, array, ARRAY_TYPE_BIT, 0);
+}
+
+void array_coerce_character_heap(addr *ret, addr array)
+{
+	array_coerce_type_heap(ret, array, ARRAY_TYPE_CHARACTER, 0);
+}
+
+void array_coerce_signed8_heap(addr *ret, addr array)
+{
+	array_coerce_type_heap(ret, array, ARRAY_TYPE_SIGNED, 8);
+}
+
+void array_coerce_signed16_heap(addr *ret, addr array)
+{
+	array_coerce_type_heap(ret, array, ARRAY_TYPE_SIGNED, 16);
+}
+
+void array_coerce_signed32_heap(addr *ret, addr array)
+{
+	array_coerce_type_heap(ret, array, ARRAY_TYPE_SIGNED, 32);
+}
+
+void array_coerce_unsigned8_heap(addr *ret, addr array)
+{
+	array_coerce_type_heap(ret, array, ARRAY_TYPE_UNSIGNED, 8);
+}
+
+void array_coerce_unsigned16_heap(addr *ret, addr array)
+{
+	array_coerce_type_heap(ret, array, ARRAY_TYPE_UNSIGNED, 16);
+}
+
+void array_coerce_unsigned32_heap(addr *ret, addr array)
+{
+	array_coerce_type_heap(ret, array, ARRAY_TYPE_UNSIGNED, 32);
+}
+
+#ifdef LISP_64BIT
+void array_coerce_signed64_heap(addr *ret, addr array)
+{
+	array_coerce_type_heap(ret, array, ARRAY_TYPE_SIGNED, 64);
+}
+
+void array_coerce_unsigned64_heap(addr *ret, addr array)
+{
+	array_coerce_type_heap(ret, array, ARRAY_TYPE_UNSIGNED, 64);
+}
+#endif
 

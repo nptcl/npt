@@ -1,5 +1,4 @@
 #include "function.c"
-#include "calltype.h"
 #include "clos.h"
 #include "code.h"
 #include "control.h"
@@ -8,6 +7,7 @@
 #include "package.h"
 #include "sequence.h"
 #include "type.h"
+#include "type_table.h"
 
 /*
  *  callname
@@ -1029,7 +1029,6 @@ int test_function(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_common();
 		lisp_init = 1;
 		result = testbreak_function();

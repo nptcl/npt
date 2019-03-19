@@ -1,6 +1,5 @@
 #include "eval_optparse.c"
 #include "bignum.h"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -20,6 +19,7 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 
 /*
  *  optstruct
@@ -273,6 +273,7 @@ static int test_optparse_implicit3(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	implicit_string(&pos, "(10 20 30)");
@@ -292,13 +293,13 @@ static int test_optparse_implicit3(void)
 	test(! checkparse_implicit3(&opt, pos), "checkparse_implicit3-7");
 
 	implicit_string(&pos, "(10 20 30 40)");
-	test(optparse_implicit3(NULL, &pos, &opt, pos), "optparse_implicit3-1");
+	test(optparse_implicit3(local, &pos, &opt, pos), "optparse_implicit3-1");
 	GetCar(pos, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_INTEGER), "optparse_implicit3-2");
 	GetEvalParse(pos, 0, &pos);
 	test(RefFixnum(pos) == 40, "optparse_implicit3-3");
 	implicit_string(&pos, "(10 20 (call))");
-	test(! optparse_implicit3(NULL, &pos, &opt, pos), "optparse_implicit3-4");
+	test(! optparse_implicit3(local, &pos, &opt, pos), "optparse_implicit3-4");
 
 	RETURN;
 }
@@ -307,6 +308,7 @@ static int test_optparse_implicit4(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	implicit_string(&pos, "(10 (call) 20 30 (call2))");
@@ -332,16 +334,16 @@ static int test_optparse_implicit4(void)
 	test(checkparse_implicit4(&opt, pos), "checkparse_implicit4-10");
 
 	implicit_string(&pos, "(10 (call) 20 30 (call2))");
-	test(optparse_implicit4(NULL, &pos, &opt, pos), "optparse_implicit4-1");
+	test(optparse_implicit4(local, &pos, &opt, pos), "optparse_implicit4-1");
 	test(consp(pos), "optparse_implicit4-2");
 	GetCons(pos, &check, &pos);
 	test(check_evaltype(check, EVAL_PARSE_CALL), "optparse_implicit4-3");
 	GetCons(pos, &check, &pos);
 	test(check_evaltype(check, EVAL_PARSE_CALL), "optparse_implicit4-4");
 	test(pos == Nil, "optparse_implicit4-5");
-	test(! optparse_implicit4(NULL, &pos, &opt, Nil), "optparse_implicit4-6");
+	test(! optparse_implicit4(local, &pos, &opt, Nil), "optparse_implicit4-6");
 	implicit_string(&pos, "(10 20 30 (call2))");
-	test(optparse_implicit4(NULL, &pos, &opt, pos), "optparse_implicit4-7");
+	test(optparse_implicit4(local, &pos, &opt, pos), "optparse_implicit4-7");
 	GetCons(pos, &check, &pos);
 	test(check_evaltype(check, EVAL_PARSE_CALL), "optparse_implicit4-8");
 	test(pos == Nil, "optparse_implicit4-9");
@@ -353,6 +355,7 @@ static int test_optparse_implicit5(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	implicit_string(&pos, "(10 (call1) 20 (call2) 30 40)");
@@ -372,7 +375,7 @@ static int test_optparse_implicit5(void)
 	test(! checkparse_implicit5(&opt, pos), "checkparse_implicit5-7");
 
 	implicit_string(&pos, "(10 (call1) 20 (call2) 30 40)");
-	test(optparse_implicit5(NULL, &pos, &opt, pos), "optparse_implicit5-1");
+	test(optparse_implicit5(local, &pos, &opt, pos), "optparse_implicit5-1");
 	GetCons(pos, &check, &pos);
 	test(check_evaltype(check, EVAL_PARSE_CALL), "optparse_implicit5-2");
 	GetCons(pos, &check, &pos);
@@ -382,9 +385,9 @@ static int test_optparse_implicit5(void)
 	test(pos == Nil, "optparse_implicit5-5");
 
 	fixnum_heap(&pos, 100);
-	test(! optparse_implicit5(NULL, &pos, &opt, pos), "optparse_implicit5-6");
+	test(! optparse_implicit5(local, &pos, &opt, pos), "optparse_implicit5-6");
 	implicit_string(&pos, "((call1) (call2) 40)");
-	test(! optparse_implicit5(NULL, &pos, &opt, pos), "optparse_implicit5-7");
+	test(! optparse_implicit5(local, &pos, &opt, pos), "optparse_implicit5-7");
 
 	RETURN;
 }
@@ -393,6 +396,7 @@ static int test_optparse_implicit6(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	implicit_string(&pos, "(10 (progn 20) (progn (progn 30)) (progn))");
@@ -406,7 +410,7 @@ static int test_optparse_implicit6(void)
 	test(checkparse_implicit6(&opt, pos), "checkparse_implicit6-4");
 
 	implicit_string(&pos, "(10 (progn 20) (progn (progn 30)) (progn))");
-	test(optparse_implicit6(NULL, &pos, &opt, pos), "optparse_implicit6-1");
+	test(optparse_implicit6(local, &pos, &opt, pos), "optparse_implicit6-1");
 	test(consp(pos), "optparse_implicit6-2");
 	GetCons(pos, &check, &pos);
 	test(check_evalinteger(check, 10), "optparse_implicit6-3");
@@ -423,6 +427,7 @@ static int test_optparse_implicit_all(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	implicit_string(&pos, "((progn 10) 20)");
@@ -434,14 +439,14 @@ static int test_optparse_implicit_all(void)
 	test(! checkparse_implicit_all(&opt, pos), "checkparse_implicit_all3");
 
 	implicit_string(&pos, "((progn 10) 20)");
-	test(optparse_implicit_all(NULL, &pos, &opt, pos), "optparse_implicit_all1");
+	test(optparse_implicit_all(local, &pos, &opt, pos), "optparse_implicit_all1");
 	GetCons(pos, &check, &pos);
 	test(check_evalinteger(check, 10), "optparse_implicit_all2");
 	GetCons(pos, &check, &pos);
 	test(check_evalinteger(check, 20), "optparse_implicit_all3");
 	test(pos == Nil, "optparse_implicit_all4");
 	implicit_string(&pos, "(10 20 30)");
-	test(! optparse_implicit_all(NULL, &pos, &opt, pos), "optparse_implicit_all5");
+	test(! optparse_implicit_all(local, &pos, &opt, pos), "optparse_implicit_all5");
 
 	RETURN;
 }
@@ -454,6 +459,7 @@ static int test_optparse_progn1(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(progn)");
@@ -465,12 +471,12 @@ static int test_optparse_progn1(void)
 	test(! checkparse_progn1(&opt, pos), "checkparse_progn1-3");
 
 	parse_eval_string(&pos, "(progn)");
-	test(optparse_progn1(NULL, &pos, &opt, pos), "optparse_progn1-1");
+	test(optparse_progn1(local, &pos, &opt, pos), "optparse_progn1-1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_progn1-2");
 	parse_eval_string(&pos, "100");
-	test(! optparse_progn1(NULL, &pos, &opt, pos), "optparse_progn1-3");
+	test(! optparse_progn1(local, &pos, &opt, pos), "optparse_progn1-3");
 	parse_eval_string(&pos, "(progn 100)");
-	test(! optparse_progn1(NULL, &pos, &opt, pos), "optparse_progn1-4");
+	test(! optparse_progn1(local, &pos, &opt, pos), "optparse_progn1-4");
 
 	RETURN;
 }
@@ -479,6 +485,7 @@ static int test_optparse_progn2(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(progn 100)");
@@ -490,14 +497,14 @@ static int test_optparse_progn2(void)
 	test(! checkparse_progn2(&opt, pos), "checkparse_progn2-3");
 
 	parse_eval_string(&pos, "(progn 100)");
-	test(optparse_progn2(NULL, &pos, &opt, pos), "optparse_progn2-1");
+	test(optparse_progn2(local, &pos, &opt, pos), "optparse_progn2-1");
 	test(check_evaltype(pos, EVAL_PARSE_INTEGER), "optparse_progn2-2");
 	parse_eval_string(&pos, "100");
-	test(! optparse_progn2(NULL, &pos, &opt, pos), "optparse_progn2-3");
+	test(! optparse_progn2(local, &pos, &opt, pos), "optparse_progn2-3");
 	parse_eval_string(&pos, "(progn)");
-	test(! optparse_progn2(NULL, &pos, &opt, pos), "optparse_progn2-4");
+	test(! optparse_progn2(local, &pos, &opt, pos), "optparse_progn2-4");
 	parse_eval_string(&pos, "(progn 10 20)");
-	test(! optparse_progn2(NULL, &pos, &opt, pos), "optparse_progn2-5");
+	test(! optparse_progn2(local, &pos, &opt, pos), "optparse_progn2-5");
 
 	RETURN;
 }
@@ -506,6 +513,7 @@ static int test_optparse_progn3(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(progn 10 20 30)");
@@ -517,12 +525,12 @@ static int test_optparse_progn3(void)
 	test(! checkparse_progn3(&opt, pos), "checkparse_progn3-3");
 
 	parse_eval_string(&pos, "(progn 10 20 30)");
-	test(optparse_progn3(NULL, &pos, &opt, pos), "optparse_progn3-1");
+	test(optparse_progn3(local, &pos, &opt, pos), "optparse_progn3-1");
 	test(check_evaltype(pos, EVAL_PARSE_INTEGER), "optparse_progn3-2");
 	GetEvalParse(pos, 0, &pos);
 	test(RefFixnum(pos) == 30, "optparse_progn3-3");
 	parse_eval_string(&pos, "(progn 10 20 (call))");
-	test(! optparse_progn3(NULL, &pos, &opt, pos), "optparse_progn3-4");
+	test(! optparse_progn3(local, &pos, &opt, pos), "optparse_progn3-4");
 
 	RETURN;
 }
@@ -531,6 +539,7 @@ static int test_optparse_progn4(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(progn 10 (call) 20 30 (call2))");
@@ -542,7 +551,7 @@ static int test_optparse_progn4(void)
 	test(! checkparse_progn4(&opt, pos), "checkparse_progn4-3");
 
 	parse_eval_string(&pos, "(progn 10 (call) 20 30 (call2))");
-	test(optparse_progn4(NULL, &pos, &opt, pos), "optparse_progn4-1");
+	test(optparse_progn4(local, &pos, &opt, pos), "optparse_progn4-1");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optparse_progn4-2");
 	GetEvalParse(pos, 0, &pos);
 	test(consp(pos), "optparse_progn4-3");
@@ -552,7 +561,7 @@ static int test_optparse_progn4(void)
 	test(check_evaltype(check, EVAL_PARSE_CALL), "optparse_progn4-5");
 	test(pos == Nil, "optparse_progn4-6");
 	parse_eval_string(&pos, "(progn (call) (call2))");
-	test(! optparse_progn4(NULL, &pos, &opt, pos), "optparse_progn4-7");
+	test(! optparse_progn4(local, &pos, &opt, pos), "optparse_progn4-7");
 
 	RETURN;
 }
@@ -561,6 +570,7 @@ static int test_optparse_progn5(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(progn 10 (call1) 20 (call2) 30 40)");
@@ -572,7 +582,7 @@ static int test_optparse_progn5(void)
 	test(! checkparse_progn5(&opt, pos), "checkparse_progn5-3");
 
 	parse_eval_string(&pos, "(progn 10 (call1) 20 (call2) 30 40)");
-	test(optparse_progn5(NULL, &pos, &opt, pos), "optparse_progn5-1");
+	test(optparse_progn5(local, &pos, &opt, pos), "optparse_progn5-1");
 	GetEvalParse(pos, 0, &pos);
 	GetCons(pos, &check, &pos);
 	test(check_evaltype(check, EVAL_PARSE_CALL), "optparse_progn5-2");
@@ -582,10 +592,10 @@ static int test_optparse_progn5(void)
 	test(check_evaltype(check, EVAL_PARSE_INTEGER), "optparse_progn5-4");
 	test(pos == Nil, "optparse_progn5-5");
 	parse_eval_string(&pos, "100");
-	test(! optparse_progn5(NULL, &pos, &opt, pos), "optparse_progn5-6");
+	test(! optparse_progn5(local, &pos, &opt, pos), "optparse_progn5-6");
 	parse_eval_string(&pos, "(progn (call1) (call2) 40)");
 	GetEvalParse(pos, 0, &pos);
-	test(! optparse_progn5(NULL, &pos, &opt, pos), "optparse_progn5-7");
+	test(! optparse_progn5(local, &pos, &opt, pos), "optparse_progn5-7");
 
 	RETURN;
 }
@@ -594,6 +604,7 @@ static int test_optparse_progn6(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(progn 10 (progn 20) (progn (progn 30)) (progn))");
@@ -605,7 +616,7 @@ static int test_optparse_progn6(void)
 	test(! checkparse_progn6(&opt, pos), "checkparse_progn6-3");
 
 	parse_eval_string(&pos, "(progn 10 (progn 20) (progn (progn 30)) (progn))");
-	test(optparse_progn6(NULL, &pos, &opt, pos), "optparse_progn6-1");
+	test(optparse_progn6(local, &pos, &opt, pos), "optparse_progn6-1");
 	GetEvalParse(pos, 0, &pos);
 	test(consp(pos), "optparse_progn6-2");
 	GetCons(pos, &check, &pos);
@@ -616,7 +627,7 @@ static int test_optparse_progn6(void)
 	test(check_evalinteger(check, 30), "optparse_progn6-5");
 	test(pos == Nil, "optparse_progn6-6");
 	parse_eval_string(&pos, "(progn 10 20 30)");
-	test(! optparse_progn6(NULL, &pos, &opt, pos), "optparse_progn6-7");
+	test(! optparse_progn6(local, &pos, &opt, pos), "optparse_progn6-7");
 
 	RETURN;
 }
@@ -625,6 +636,7 @@ static int test_optparse_progn_all(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(progn (progn 10) 20)");
@@ -636,7 +648,7 @@ static int test_optparse_progn_all(void)
 	test(! checkparse_progn_all(&opt, pos), "checkparse_progn_all2");
 
 	parse_eval_string(&pos, "(progn (progn 10) 20)");
-	test(optparse_progn_all(NULL, &pos, &opt, pos), "optparse_progn_all1");
+	test(optparse_progn_all(local, &pos, &opt, pos), "optparse_progn_all1");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optparse_progn_all2");
 	GetEvalParse(pos, 0, &pos);
 	GetCons(pos, &check, &pos);
@@ -645,7 +657,7 @@ static int test_optparse_progn_all(void)
 	test(check_evalinteger(check, 20), "optparse_progn_all4");
 	test(pos == Nil, "optparse_progn_all5");
 	parse_eval_string(&pos, "(progn 10 20 30)");
-	test(! optparse_progn_all(NULL, &pos, &opt, pos), "optparse_progn_all6");
+	test(! optparse_progn_all(local, &pos, &opt, pos), "optparse_progn_all6");
 
 	RETURN;
 }
@@ -654,6 +666,7 @@ static int test_optparse_progn(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(progn (progn 10) 20)");
@@ -662,9 +675,9 @@ static int test_optparse_progn(void)
 	test(! checkparse_progn(&opt, pos), "checkparse_progn2");
 
 	parse_eval_string(&pos, "(progn (progn 10) 20)");
-	test(optparse_progn(NULL, &pos, &opt, pos), "optparse_progn1");
+	test(optparse_progn(local, &pos, &opt, pos), "optparse_progn1");
 	parse_eval_string(&pos, "(and (progn 10) 20)");
-	test(! optparse_progn(NULL, &pos, &opt, pos), "optparse_progn2");
+	test(! optparse_progn(local, &pos, &opt, pos), "optparse_progn2");
 
 	RETURN;
 }
@@ -714,6 +727,7 @@ static int test_optparse_let1(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(let nil 10 20)");
@@ -731,13 +745,13 @@ static int test_optparse_let1(void)
 	test(checkparse_let1(&opt, pos), "checkparse_let1-6");
 
 	parse_eval_string(&pos, "(let nil 10 20)");
-	test(optparse_let1(NULL, &pos, &opt, pos), "optparse_let1-1");
+	test(optparse_let1(local, &pos, &opt, pos), "optparse_let1-1");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optparse_let1-2");
 	GetEvalParse(pos, 0, &pos);
 	GetCar(pos, &pos);
 	test(check_evalinteger(pos, 10), "optparse_let1-3");
 	parse_eval_string(&pos, "(let (a) 10 20)");
-	test(! optparse_let1(NULL, &pos, &opt, pos), "optparse_let1-4");
+	test(! optparse_let1(local, &pos, &opt, pos), "optparse_let1-4");
 
 	RETURN;
 }
@@ -746,6 +760,7 @@ static int test_optparse_let2(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(let nil (declare (special a)) 10 20)");
@@ -765,7 +780,7 @@ static int test_optparse_let2(void)
 	test(! checkparse_let2(&opt, pos), "checkparse_let2-7");
 
 	parse_eval_string(&pos, "(let nil (declare (special a)) 10 20)");
-	test(optparse_let2(NULL, &pos, &opt, pos), "optparse_let2-1");
+	test(optparse_let2(local, &pos, &opt, pos), "optparse_let2-1");
 	test(check_evaltype(pos, EVAL_PARSE_LOCALLY), "optparse_let2-2");
 	GetEvalParse(pos, 0, &check);
 	test(eval_declare_p(check), "optparse_let2-3");
@@ -773,7 +788,7 @@ static int test_optparse_let2(void)
 	GetCar(check, &check);
 	test(check_evalinteger(check, 10), "optparse_let2-4");
 	parse_eval_string(&pos, "(let (a) 10 20)");
-	test(! optparse_let2(NULL, &pos, &opt, pos), "optparse_let2-5");
+	test(! optparse_let2(local, &pos, &opt, pos), "optparse_let2-5");
 
 	RETURN;
 }
@@ -782,6 +797,7 @@ static int test_optparse_let3(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(let nil)");
@@ -799,10 +815,10 @@ static int test_optparse_let3(void)
 	test(! checkparse_let3(&opt, pos), "checkparse_let3-6");
 
 	parse_eval_string(&pos, "(let nil)");
-	test(optparse_let3(NULL, &pos, &opt, pos), "optparse_let3-1");
+	test(optparse_let3(local, &pos, &opt, pos), "optparse_let3-1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_let3-2");
 	parse_eval_string(&pos, "(let (a) 10 20)");
-	test(! optparse_let3(NULL, &pos, &opt, pos), "optparse_let3-3");
+	test(! optparse_let3(local, &pos, &opt, pos), "optparse_let3-3");
 
 	RETURN;
 }
@@ -811,6 +827,7 @@ static int test_optparse_let4(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(let (a b c) (declare (special a)))");
@@ -828,10 +845,10 @@ static int test_optparse_let4(void)
 	test(checkparse_let4(&opt, pos), "checkparse_let4-6");
 
 	parse_eval_string(&pos, "(let (a b c) (declare (special a)))");
-	test(optparse_let4(NULL, &pos, &opt, pos), "optparse_let4-1");
+	test(optparse_let4(local, &pos, &opt, pos), "optparse_let4-1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_let4-2");
 	parse_eval_string(&pos, "(let (a) 10 20)");
-	test(! optparse_let4(NULL, &pos, &opt, pos), "optparse_let4-3");
+	test(! optparse_let4(local, &pos, &opt, pos), "optparse_let4-3");
 
 	RETURN;
 }
@@ -840,6 +857,7 @@ static int test_optparse_let_args(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(let (a (b (progn)) c) :hello)");
@@ -853,13 +871,13 @@ static int test_optparse_let_args(void)
 	test(! checkparse_let_args(&opt, pos), "checkparse_let_args4");
 
 	parse_eval_string(&pos, "(let ((a (progn)) b (c 100)) :hello)");
-	test(optparse_let_args(NULL, &pos, &opt, pos), "optparse_let_args1");
+	test(optparse_let_args(local, &pos, &opt, pos), "optparse_let_args1");
 	GetEvalParse(pos, 0, &pos);
 	GetCar(pos, &pos);
 	GetCdr(pos, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_let_args2");
 	parse_eval_string(&pos, "(let (a) 10 20)");
-	test(! optparse_let_args(NULL, &pos, &opt, pos), "optparse_let_args3");
+	test(! optparse_let_args(local, &pos, &opt, pos), "optparse_let_args3");
 
 	RETURN;
 }
@@ -868,6 +886,7 @@ static int test_optparse_let_body(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(let nil (progn 10) 20 30)");
@@ -881,12 +900,12 @@ static int test_optparse_let_body(void)
 	test(! checkparse_let_body(&opt, pos), "checkparse_let_body4");
 
 	parse_eval_string(&pos, "(let (a b) (progn 10))");
-	test(optparse_let_body(NULL, &pos, &opt, pos), "optparse_let_body1");
+	test(optparse_let_body(local, &pos, &opt, pos), "optparse_let_body1");
 	GetEvalParse(pos, 2, &pos);
 	GetCar(pos, &pos);
 	test(check_evalinteger(pos, 10), "optparse_let_body2");
 	parse_eval_string(&pos, "(let (a) (call) 20)");
-	test(! optparse_let_body(NULL, &pos, &opt, pos), "optparse_let_body3");
+	test(! optparse_let_body(local, &pos, &opt, pos), "optparse_let_body3");
 
 	RETURN;
 }
@@ -895,6 +914,7 @@ static int test_optparse_let(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(let nil 100)");
@@ -902,9 +922,9 @@ static int test_optparse_let(void)
 	parse_eval_string(&pos, "(let* nil 100)");
 	test(checkparse_let(&opt, pos), "checkparse_let2");
 	parse_eval_string(&pos, "(let nil 100)");
-	test(optparse_let(NULL, &pos, &opt, pos), "optparse_let1");
+	test(optparse_let(local, &pos, &opt, pos), "optparse_let1");
 	parse_eval_string(&pos, "(let* nil 100)");
-	test(optparse_let(NULL, &pos, &opt, pos), "optparse_let2");
+	test(optparse_let(local, &pos, &opt, pos), "optparse_let2");
 
 	RETURN;
 }
@@ -917,6 +937,7 @@ static int test_optparse_setq1(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(setq)");
@@ -928,10 +949,10 @@ static int test_optparse_setq1(void)
 	test(! checkparse_setq1(&opt, pos), "checkparse_setq1-3");
 
 	parse_eval_string(&pos, "(setq)");
-	test(optparse_setq1(NULL, &pos, &opt, pos), "optparse_setq1-1");
+	test(optparse_setq1(local, &pos, &opt, pos), "optparse_setq1-1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_setq1-2");
 	parse_eval_string(&pos, "(setq aa 10)");
-	test(! optparse_setq1(NULL, &pos, &opt, pos), "optparse_setq1-3");
+	test(! optparse_setq1(local, &pos, &opt, pos), "optparse_setq1-3");
 
 	RETURN;
 }
@@ -940,6 +961,7 @@ static int test_optparse_setq_all(void)
 {
 	addr pos, var, value;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(setq aaa (progn) bbb 100)");
@@ -953,7 +975,7 @@ static int test_optparse_setq_all(void)
 	test(! checkparse_setq_all(&opt, pos), "checkparse_setq_all4");
 
 	parse_eval_string(&pos, "(setq aaa (progn) bbb 100)");
-	test(optparse_setq_all(NULL, &pos, &opt, pos), "optparse_setq_all1");
+	test(optparse_setq_all(local, &pos, &opt, pos), "optparse_setq_all1");
 	test(check_evaltype(pos, EVAL_PARSE_SETQ), "optparse_setq_all2");
 	GetEvalParse(pos, 0, &pos);
 	GetCons(pos, &var, &pos);
@@ -971,7 +993,7 @@ static int test_optparse_setq_all(void)
 	test(pos == Nil, "optparse_setq_all9");
 
 	parse_eval_string(&pos, "(setq aaa 200 bbb 100)");
-	test(! optparse_setq_all(NULL, &pos, &opt, pos), "optparse_setq_all10");
+	test(! optparse_setq_all(local, &pos, &opt, pos), "optparse_setq_all10");
 
 	RETURN;
 }
@@ -980,6 +1002,7 @@ static int test_optparse_setq(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(setq)");
@@ -990,11 +1013,11 @@ static int test_optparse_setq(void)
 	test(! checkparse_setq(&opt, pos), "checkparse_setq3");
 
 	parse_eval_string(&pos, "(setq)");
-	test(optparse_setq(NULL, &pos, &opt, pos), "optparse_setq1");
+	test(optparse_setq(local, &pos, &opt, pos), "optparse_setq1");
 	parse_eval_string(&pos, "(setq aaa (progn) bbb 100)");
-	test(optparse_setq(NULL, &pos, &opt, pos), "optparse_setq2");
+	test(optparse_setq(local, &pos, &opt, pos), "optparse_setq2");
 	parse_eval_string(&pos, "(setq aaa 100 bbb 100)");
-	test(! optparse_setq(NULL, &pos, &opt, pos), "optparse_setq3");
+	test(! optparse_setq(local, &pos, &opt, pos), "optparse_setq3");
 
 	RETURN;
 }
@@ -1007,6 +1030,7 @@ static int test_optparse_opt(void)
 {
 	addr pos, check, var, init, svar;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "#'(lambda (&optional (aa (progn)) bb) :body)");
@@ -1022,7 +1046,7 @@ static int test_optparse_opt(void)
 	parse_eval_string(&pos, "#'(lambda (&optional (aa (progn) cc) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
 	getnth(pos, 1, &pos); /* opt */
-	optparse_opt(NULL, &pos, &opt, pos);
+	optparse_opt(local, &pos, &opt, pos);
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &init);
 	GetCons(init, &init, &svar);
@@ -1050,6 +1074,7 @@ static int test_optparse_key(void)
 {
 	addr pos, check, var, name, init, svar;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "#'(lambda (&key (aa (progn)) bb) :body)");
@@ -1065,7 +1090,7 @@ static int test_optparse_key(void)
 	parse_eval_string(&pos, "#'(lambda (&key (aa (progn) cc) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
 	getnth(pos, 3, &pos); /* key */
-	optparse_key(NULL, &pos, &opt, pos);
+	optparse_key(local, &pos, &opt, pos);
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &name);
 	GetCons(name, &name, &init);
@@ -1099,12 +1124,13 @@ static int test_optparse_aux(void)
 {
 	addr pos, check, var, init;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "#'(lambda (&aux (aa (progn)) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
 	getnth(pos, 5, &pos); /* aux */
-	optparse_aux(NULL, &pos, &opt, pos);
+	optparse_aux(local, &pos, &opt, pos);
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &init);
 	GetCar(init, &init);
@@ -1129,6 +1155,7 @@ static int test_optparse_lambda_ordinary(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "#'(lambda (&optional (aa (progn)) bb) :body)");
@@ -1146,7 +1173,7 @@ static int test_optparse_lambda_ordinary(void)
 
 	parse_eval_string(&pos, "#'(lambda (&optional (aa (progn)) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
-	optparse_lambda_ordinary(NULL, &pos, &opt, pos);
+	optparse_lambda_ordinary(local, &pos, &opt, pos);
 	getnth(pos, 1, &pos); /* opt */
 	GetCar(pos, &pos); /* aa -> (var init svar) */
 	GetCar(pos, &pos); /* var */
@@ -1155,7 +1182,7 @@ static int test_optparse_lambda_ordinary(void)
 
 	parse_eval_string(&pos, "#'(lambda (&key (aa (progn)) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
-	optparse_lambda_ordinary(NULL, &pos, &opt, pos);
+	optparse_lambda_ordinary(local, &pos, &opt, pos);
 	getnth(pos, 3, &pos); /* key */
 	GetCar(pos, &pos); /* aa -> (var name init svar) */
 	GetCar(pos, &pos); /* var */
@@ -1173,6 +1200,7 @@ static int test_optparse_defun_args(void)
 {
 	addr pos, var, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(defun name (&optional (aa (progn)) bb) :body)");
@@ -1181,7 +1209,7 @@ static int test_optparse_defun_args(void)
 	test(! checkparse_defun_args(&opt, pos), "checkparse_defun_args2");
 
 	parse_eval_string(&pos, "(defun name (&optional (aa (progn)) bb) :body)");
-	test(optparse_defun_args(NULL, &pos, &opt, pos), "optparse_defun_args1");
+	test(optparse_defun_args(local, &pos, &opt, pos), "optparse_defun_args1");
 	test(check_evaltype(pos, EVAL_PARSE_DEFUN), "optparse_defun_args2");
 	GetEvalParse(pos, 1, &pos); /* args */
 	getnth(pos, 1, &pos); /* opt */
@@ -1193,9 +1221,9 @@ static int test_optparse_defun_args(void)
 	test(check_evaltype(var, EVAL_PARSE_NIL), "optparse_defun_args4");
 
 	parse_eval_string(&pos, "(defun name (&optional (aa 100) bb) :body)");
-	test(! optparse_defun_args(NULL, &pos, &opt, pos), "optparse_defun_args5");
+	test(! optparse_defun_args(local, &pos, &opt, pos), "optparse_defun_args5");
 	parse_eval_string(&pos, "100");
-	test(! optparse_defun_args(NULL, &pos, &opt, pos), "optparse_defun_args6");
+	test(! optparse_defun_args(local, &pos, &opt, pos), "optparse_defun_args6");
 
 	RETURN;
 }
@@ -1204,6 +1232,7 @@ static int test_optparse_defun_body(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(defun name () (progn))");
@@ -1214,15 +1243,15 @@ static int test_optparse_defun_body(void)
 	test(! checkparse_defun_body(&opt, pos), "checkparse_defun_body3");
 
 	parse_eval_string(&pos, "(defun name () (progn 100))");
-	test(optparse_defun_body(NULL, &pos, &opt, pos), "optparse_defun_body1");
+	test(optparse_defun_body(local, &pos, &opt, pos), "optparse_defun_body1");
 	test(check_evaltype(pos, EVAL_PARSE_DEFUN), "optparse_defun_body2");
 	GetEvalParse(pos, 4, &pos); /* body */
 	GetCar(pos, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_INTEGER), "optparse_defun_body3");
 	parse_eval_string(&pos, "(defun name () 100)");
-	//test(! optparse_defun_body(NULL, &pos, &opt, pos), "optparse_defun_body4");
+	//test(! optparse_defun_body(local, &pos, &opt, pos), "optparse_defun_body4");
 	//parse_eval_string(&pos, "100");
-	//test(! optparse_defun_body(NULL, &pos, &opt, pos), "optparse_defun_body5");
+	//test(! optparse_defun_body(local, &pos, &opt, pos), "optparse_defun_body5");
 
 	RETURN;
 }
@@ -1231,6 +1260,7 @@ static int test_optparse_defun(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(defun name (&optional (aaa (progn))) :hello)");
@@ -1241,13 +1271,13 @@ static int test_optparse_defun(void)
 	//test(! checkparse_defun(&opt, pos), "checkparse_defun4");
 
 	parse_eval_string(&pos, "(defun name (&optional (aaa (progn))) :hello)");
-	test(optparse_defun(NULL, &pos, &opt, pos), "optparse_defun1");
+	test(optparse_defun(local, &pos, &opt, pos), "optparse_defun1");
 	test(check_evaltype(pos, EVAL_PARSE_DEFUN), "optparse_defun2");
 	parse_eval_string(&pos, "(defun name () (progn))");
-	test(optparse_defun(NULL, &pos, &opt, pos), "optparse_defun3");
+	test(optparse_defun(local, &pos, &opt, pos), "optparse_defun3");
 	test(check_evaltype(pos, EVAL_PARSE_DEFUN), "optparse_defun2");
 	parse_eval_string(&pos, "(defun name (&key aaa) 200)");
-	//test(! optparse_defun(NULL, &pos, &opt, pos), "optparse_defun4");
+	//test(! optparse_defun(local, &pos, &opt, pos), "optparse_defun4");
 
 	RETURN;
 }
@@ -1260,6 +1290,7 @@ static int test_optparse_lambda_args(void)
 {
 	addr pos, var, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "#'(lambda (&optional (aa (progn)) bb) :body)");
@@ -1268,7 +1299,7 @@ static int test_optparse_lambda_args(void)
 	test(! checkparse_lambda_args(&opt, pos), "checkparse_lambda_args2");
 
 	parse_eval_string(&pos, "#'(lambda (&optional (aa (progn)) bb) :body)");
-	test(optparse_lambda_args(NULL, &pos, &opt, pos), "optparse_lambda_args1");
+	test(optparse_lambda_args(local, &pos, &opt, pos), "optparse_lambda_args1");
 	test(check_evaltype(pos, EVAL_PARSE_LAMBDA), "optparse_lambda_args2");
 	GetEvalParse(pos, 0, &pos); /* args */
 	getnth(pos, 1, &pos); /* opt */
@@ -1280,9 +1311,9 @@ static int test_optparse_lambda_args(void)
 	test(check_evaltype(var, EVAL_PARSE_NIL), "optparse_lambda_args4");
 
 	parse_eval_string(&pos, "#'(lambda (&optional (aa 100) bb) :body)");
-	test(! optparse_lambda_args(NULL, &pos, &opt, pos), "optparse_lambda_args5");
+	test(! optparse_lambda_args(local, &pos, &opt, pos), "optparse_lambda_args5");
 	parse_eval_string(&pos, "100");
-	test(! optparse_lambda_args(NULL, &pos, &opt, pos), "optparse_lambda_args6");
+	test(! optparse_lambda_args(local, &pos, &opt, pos), "optparse_lambda_args6");
 
 	RETURN;
 }
@@ -1291,6 +1322,7 @@ static int test_optparse_lambda_body(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "#'(lambda () (progn))");
@@ -1301,15 +1333,15 @@ static int test_optparse_lambda_body(void)
 	test(! checkparse_lambda_body(&opt, pos), "checkparse_lambda_body3");
 
 	parse_eval_string(&pos, "#'(lambda () (progn 100))");
-	test(optparse_lambda_body(NULL, &pos, &opt, pos), "optparse_lambda_body1");
+	test(optparse_lambda_body(local, &pos, &opt, pos), "optparse_lambda_body1");
 	test(check_evaltype(pos, EVAL_PARSE_LAMBDA), "optparse_lambda_body2");
 	GetEvalParse(pos, 3, &pos); /* body */
 	GetCar(pos, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_INTEGER), "optparse_lambda_body3");
 	parse_eval_string(&pos, "#'(lambda () 100)");
-	test(! optparse_lambda_body(NULL, &pos, &opt, pos), "optparse_lambda_body4");
+	test(! optparse_lambda_body(local, &pos, &opt, pos), "optparse_lambda_body4");
 	parse_eval_string(&pos, "100");
-	test(! optparse_lambda_body(NULL, &pos, &opt, pos), "optparse_lambda_body5");
+	test(! optparse_lambda_body(local, &pos, &opt, pos), "optparse_lambda_body5");
 
 	RETURN;
 }
@@ -1318,6 +1350,7 @@ static int test_optparse_lambda(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "#'(lambda (&optional (aaa (progn))) :hello)");
@@ -1328,13 +1361,13 @@ static int test_optparse_lambda(void)
 	test(! checkparse_lambda(&opt, pos), "checkparse_lambda4");
 
 	parse_eval_string(&pos, "#'(lambda (&optional (aaa (progn))) :hello)");
-	test(optparse_lambda(NULL, &pos, &opt, pos), "optparse_lambda1");
+	test(optparse_lambda(local, &pos, &opt, pos), "optparse_lambda1");
 	test(check_evaltype(pos, EVAL_PARSE_LAMBDA), "optparse_lambda2");
 	parse_eval_string(&pos, "#'(lambda () (progn))");
-	test(optparse_lambda(NULL, &pos, &opt, pos), "optparse_lambda3");
+	test(optparse_lambda(local, &pos, &opt, pos), "optparse_lambda3");
 	test(check_evaltype(pos, EVAL_PARSE_LAMBDA), "optparse_lambda2");
 	parse_eval_string(&pos, "#'(lambda (&key aaa) 200)");
-	test(! optparse_lambda(NULL, &pos, &opt, pos), "optparse_lambda4");
+	test(! optparse_lambda(local, &pos, &opt, pos), "optparse_lambda4");
 
 	RETURN;
 }
@@ -1347,6 +1380,7 @@ static int test_optparse_if1(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(if nil 100 200)");
@@ -1358,12 +1392,12 @@ static int test_optparse_if1(void)
 	test(! checkparse_if1(&opt, pos), "checkparse_if1-3");
 
 	parse_eval_string(&pos, "(if nil 100 200)");
-	test(optparse_if1(NULL, &pos, &opt, pos), "optparse_if1-1");
+	test(optparse_if1(local, &pos, &opt, pos), "optparse_if1-1");
 	test(check_evalinteger(pos, 200), "optparse_if1-2");
 	parse_eval_string(&pos, "(if :Hello 100 200)");
-	test(! optparse_if1(NULL, &pos, &opt, pos), "optparse_if1-3");
+	test(! optparse_if1(local, &pos, &opt, pos), "optparse_if1-3");
 	parse_eval_string(&pos, "100");
-	test(! optparse_if1(NULL, &pos, &opt, pos), "optparse_if1-4");
+	test(! optparse_if1(local, &pos, &opt, pos), "optparse_if1-4");
 
 	RETURN;
 }
@@ -1372,6 +1406,7 @@ static int test_optparse_if2(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(if #\\a 100 200)");
@@ -1387,12 +1422,12 @@ static int test_optparse_if2(void)
 	test(checkparse_if2(&opt, pos), "checkparse_if2-5");
 
 	parse_eval_string(&pos, "(if #\\a 100 200)");
-	test(optparse_if2(NULL, &pos, &opt, pos), "optparse_if2-1");
+	test(optparse_if2(local, &pos, &opt, pos), "optparse_if2-1");
 	test(check_evalinteger(pos, 100), "optparse_if2-2");
 	parse_eval_string(&pos, "(if nil 100 200)");
-	test(! optparse_if2(NULL, &pos, &opt, pos), "optparse_if2-3");
+	test(! optparse_if2(local, &pos, &opt, pos), "optparse_if2-3");
 	parse_eval_string(&pos, "100");
-	test(! optparse_if2(NULL, &pos, &opt, pos), "optparse_if2-4");
+	test(! optparse_if2(local, &pos, &opt, pos), "optparse_if2-4");
 
 	RETURN;
 }
@@ -1401,6 +1436,7 @@ static int test_optparse_if_all(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(if t (progn) 200)");
@@ -1416,26 +1452,26 @@ static int test_optparse_if_all(void)
 	test(! checkparse_if_all(&opt, pos), "checkparse_if_all5");
 
 	parse_eval_string(&pos, "(if (progn) 100 200)");
-	test(optparse_if_all(NULL, &pos, &opt, pos), "optparse_if_all1");
+	test(optparse_if_all(local, &pos, &opt, pos), "optparse_if_all1");
 	test(check_evaltype(pos, EVAL_PARSE_IF), "optparse_if_all2");
 	GetEvalParse(pos, 0, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_if_all3");
 
 	parse_eval_string(&pos, "(if 100 (progn) 200)");
-	test(optparse_if_all(NULL, &pos, &opt, pos), "optparse_if_all4");
+	test(optparse_if_all(local, &pos, &opt, pos), "optparse_if_all4");
 	GetEvalParse(pos, 1, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_if_all5");
 
 	parse_eval_string(&pos, "(if t 100 (progn 200))");
-	test(optparse_if_all(NULL, &pos, &opt, pos), "optparse_if_all6");
+	test(optparse_if_all(local, &pos, &opt, pos), "optparse_if_all6");
 	test(check_evaltype(pos, EVAL_PARSE_IF), "optparse_if_all7");
 	GetEvalParse(pos, 2, &pos);
 	test(check_evalinteger(pos, 200), "optparse_if_all8");
 
 	parse_eval_string(&pos, "(if t 100 200)");
-	test(! optparse_if_all(NULL, &pos, &opt, pos), "optparse_if_all9");
+	test(! optparse_if_all(local, &pos, &opt, pos), "optparse_if_all9");
 	parse_eval_string(&pos, "100");
-	test(! optparse_if_all(NULL, &pos, &opt, pos), "optparse_if_all10");
+	test(! optparse_if_all(local, &pos, &opt, pos), "optparse_if_all10");
 
 	RETURN;
 }
@@ -1444,6 +1480,7 @@ static int test_optparse_if(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(if nil 100 200)");
@@ -1456,15 +1493,15 @@ static int test_optparse_if(void)
 	test(! checkparse_if(&opt, pos), "checkparse_if4");
 
 	parse_eval_string(&pos, "(if nil 100 200)");
-	test(optparse_if(NULL, &pos, &opt, pos), "optparse_if1");
+	test(optparse_if(local, &pos, &opt, pos), "optparse_if1");
 	test(check_evalinteger(pos, 200), "optparse_if2");
 	parse_eval_string(&pos, "(if t 100 200)");
-	test(optparse_if(NULL, &pos, &opt, pos), "optparse_if3");
+	test(optparse_if(local, &pos, &opt, pos), "optparse_if3");
 	test(check_evalinteger(pos, 100), "optparse_if4");
 	parse_eval_string(&pos, "(if (call) (progn) 200)");
-	test(optparse_if(NULL, &pos, &opt, pos), "optparse_if5");
+	test(optparse_if(local, &pos, &opt, pos), "optparse_if5");
 	parse_eval_string(&pos, "(if (call) 20 30)");
-	test(! optparse_if(NULL, &pos, &opt, pos), "optparse_if6");
+	test(! optparse_if(local, &pos, &opt, pos), "optparse_if6");
 
 	RETURN;
 }
@@ -1477,6 +1514,7 @@ static int test_optparse_unwind_protect1(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(unwind-protect 10 20 30)");
@@ -1488,7 +1526,7 @@ static int test_optparse_unwind_protect1(void)
 	test(! checkparse_unwind_protect1(&opt, pos), "checkparse_unwind_protect1-3");
 
 	parse_eval_string(&pos, "(unwind-protect 10 20 30)");
-	test(optparse_unwind_protect1(NULL, &pos, &opt, pos),
+	test(optparse_unwind_protect1(local, &pos, &opt, pos),
 			"optparse_unwind_protect1-1");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optparse_unwind_protect1-2");
 	GetEvalParse(pos, 0, &pos);
@@ -1501,7 +1539,7 @@ static int test_optparse_unwind_protect1(void)
 	test(check_evalinteger(check, 10), "optparse_unwind_protect1-6");
 
 	parse_eval_string(&pos, "(unwind-protect (call) 10 20 30)");
-	test(! optparse_unwind_protect1(NULL, &pos, &opt, pos),
+	test(! optparse_unwind_protect1(local, &pos, &opt, pos),
 			"optparse_unwind_protect1-7");
 
 	RETURN;
@@ -1511,6 +1549,7 @@ static int test_optparse_unwind_protect2(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(unwind-protect 10)");
@@ -1522,11 +1561,11 @@ static int test_optparse_unwind_protect2(void)
 	test(! checkparse_unwind_protect2(&opt, pos), "checkparse_unwind_protect2-3");
 
 	parse_eval_string(&pos, "(unwind-protect 10)");
-	test(optparse_unwind_protect2(NULL, &pos, &opt, pos),
+	test(optparse_unwind_protect2(local, &pos, &opt, pos),
 			"optparse_unwind_protect2-1");
 	test(check_evalinteger(pos, 10), "optparse_unwind_protect2-2");
 	parse_eval_string(&pos, "(unwind-protect hello 10 20 30)");
-	test(! optparse_unwind_protect2(NULL, &pos, &opt, pos),
+	test(! optparse_unwind_protect2(local, &pos, &opt, pos),
 			"optparse_unwind_protect2-3");
 
 	RETURN;
@@ -1536,6 +1575,7 @@ static int test_optparse_unwind_protect_all(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(unwind-protect 10 (progn (call)) 10)");
@@ -1550,7 +1590,7 @@ static int test_optparse_unwind_protect_all(void)
 			"checkparse_unwind_protect_all3");
 
 	parse_eval_string(&pos, "(unwind-protect 10 (progn (call)) 20)");
-	test(optparse_unwind_protect_all(NULL, &pos, &opt, pos),
+	test(optparse_unwind_protect_all(local, &pos, &opt, pos),
 			"optparse_unwind_protect_all1");
 	test(check_evaltype(pos, EVAL_PARSE_UNWIND_PROTECT),
 			"optparse_unwind_protect_all2");
@@ -1560,7 +1600,7 @@ static int test_optparse_unwind_protect_all(void)
 	GetCar(check, &check);
 	test(check_evaltype(check, EVAL_PARSE_CALL), "optparse_unwind_protect_all4");
 	parse_eval_string(&pos, "(unwind-protect hello (call) 10)");
-	test(! optparse_unwind_protect_all(NULL, &pos, &opt, pos),
+	test(! optparse_unwind_protect_all(local, &pos, &opt, pos),
 			"optparse_unwind_protect_all5");
 
 	RETURN;
@@ -1570,6 +1610,7 @@ static int test_optparse_unwind_protect(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(unwind-protect 10 20 30)");
@@ -1578,9 +1619,9 @@ static int test_optparse_unwind_protect(void)
 	test(! checkparse_unwind_protect(&opt, pos), "checkparse_unwind_protect2");
 
 	parse_eval_string(&pos, "(unwind-protect 10 20 30)");
-	test(optparse_unwind_protect(NULL, &pos, &opt, pos), "optparse_unwind_protect1");
+	test(optparse_unwind_protect(local, &pos, &opt, pos), "optparse_unwind_protect1");
 	parse_eval_string(&pos, "(unwind-protect (call) 10)");
-	test(! optparse_unwind_protect(NULL, &pos, &opt, pos), "optparse_unwind_protect2");
+	test(! optparse_unwind_protect(local, &pos, &opt, pos), "optparse_unwind_protect2");
 
 	RETURN;
 }
@@ -1593,6 +1634,7 @@ static int test_optparse_tagbody1(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(tagbody)");
@@ -1606,12 +1648,12 @@ static int test_optparse_tagbody1(void)
 	test(! checkparse_tagbody1(&opt, pos), "checkparse_tagbody1-4");
 
 	parse_eval_string(&pos, "(tagbody)");
-	test(optparse_tagbody1(NULL, &pos, &opt, pos), "optparse_tagbody1-1");
+	test(optparse_tagbody1(local, &pos, &opt, pos), "optparse_tagbody1-1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_tagbody1-2");
 	parse_eval_string(&pos, "(tagbody (call))");
-	test(! optparse_tagbody1(NULL, &pos, &opt, pos), "optparse_tagbody1-3");
+	test(! optparse_tagbody1(local, &pos, &opt, pos), "optparse_tagbody1-3");
 	parse_eval_string(&pos, "100");
-	test(! optparse_tagbody1(NULL, &pos, &opt, pos), "optparse_tagbody1-4");
+	test(! optparse_tagbody1(local, &pos, &opt, pos), "optparse_tagbody1-4");
 
 	RETURN;
 }
@@ -1620,6 +1662,7 @@ static int test_optparse_tagbody2(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(tagbody (call) (call2))");
@@ -1631,7 +1674,7 @@ static int test_optparse_tagbody2(void)
 	test(! checkparse_tagbody2(&opt, pos), "checkparse_tagbody2-3");
 
 	parse_eval_string(&pos, "(tagbody (call) (call2))");
-	test(optparse_tagbody2(NULL, &pos, &opt, pos), "optparse_tagbody2-1");
+	test(optparse_tagbody2(local, &pos, &opt, pos), "optparse_tagbody2-1");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optparse_tagbody2-2");
 	GetEvalParse(pos, 0, &pos);
 	GetCons(pos, &check, &pos);
@@ -1655,9 +1698,9 @@ static int test_optparse_tagbody2(void)
 	test(pos == Nil, "optparse_tagbody2-8");
 
 	parse_eval_string(&pos, "(tagbody hello (call2))");
-	test(! optparse_tagbody2(NULL, &pos, &opt, pos), "optparse_tagbody2-9");
+	test(! optparse_tagbody2(local, &pos, &opt, pos), "optparse_tagbody2-9");
 	parse_eval_string(&pos, "100");
-	test(! optparse_tagbody2(NULL, &pos, &opt, pos), "optparse_tagbody2-10");
+	test(! optparse_tagbody2(local, &pos, &opt, pos), "optparse_tagbody2-10");
 
 	RETURN;
 }
@@ -1666,6 +1709,7 @@ static int test_optparse_tagbody_all(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(tagbody 100 (progn))");
@@ -1674,7 +1718,7 @@ static int test_optparse_tagbody_all(void)
 	test(! checkparse_tagbody_all(&opt, pos), "checkparse_tagbody_all2");
 
 	parse_eval_string(&pos, "(tagbody 10 (progn) 20)");
-	test(optparse_tagbody_all(NULL, &pos, &opt, pos), "optparse_tagbody_all1");
+	test(optparse_tagbody_all(local, &pos, &opt, pos), "optparse_tagbody_all1");
 	test(check_evaltype(pos, EVAL_PARSE_TAGBODY), "optparse_tagbody_all2");
 	GetEvalParse(pos, 0, &check);
 	test(length_list_unsafe(check) == 2, "optparse_tagbody_all3");
@@ -1692,9 +1736,9 @@ static int test_optparse_tagbody_all(void)
 	test(pos == Nil, "optparse_tagbody_all9");
 
 	parse_eval_string(&pos, "(tagbody 100 (call))");
-	test(! optparse_tagbody_all(NULL, &pos, &opt, pos), "optparse_tagbody_all10");
+	test(! optparse_tagbody_all(local, &pos, &opt, pos), "optparse_tagbody_all10");
 	parse_eval_string(&pos, "100");
-	test(! optparse_tagbody_all(NULL, &pos, &opt, pos), "optparse_tagbody_all11");
+	test(! optparse_tagbody_all(local, &pos, &opt, pos), "optparse_tagbody_all11");
 
 	RETURN;
 }
@@ -1703,6 +1747,7 @@ static int test_optparse_tagbody(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(tagbody)");
@@ -1715,10 +1760,10 @@ static int test_optparse_tagbody(void)
 	test(! checkparse_tagbody(&opt, pos), "checkparse_tagbody4");
 
 	parse_eval_string(&pos, "(tagbody)");
-	test(optparse_tagbody(NULL, &pos, &opt, pos), "optparse_tagbody1");
+	test(optparse_tagbody(local, &pos, &opt, pos), "optparse_tagbody1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_tagbody2");
 	parse_eval_string(&pos, "100");
-	test(! optparse_tagbody(NULL, &pos, &opt, pos), "optparse_tagbody3");
+	test(! optparse_tagbody(local, &pos, &opt, pos), "optparse_tagbody3");
 
 	RETURN;
 }
@@ -1731,6 +1776,7 @@ static int test_optparse_block1(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(block hello)");
@@ -1742,10 +1788,10 @@ static int test_optparse_block1(void)
 	test(! checkparse_block1(&opt, pos), "checkparse_block1-3");
 
 	parse_eval_string(&pos, "(block hello)");
-	test(optparse_block1(NULL, &pos, &opt, pos), "optparse_block1-1");
+	test(optparse_block1(local, &pos, &opt, pos), "optparse_block1-1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_block1-2");
 	parse_eval_string(&pos, "(block hello 10 20)");
-	test(! optparse_block1(NULL, &pos, &opt, pos), "optparse_block1-3");
+	test(! optparse_block1(local, &pos, &opt, pos), "optparse_block1-3");
 
 	RETURN;
 }
@@ -1754,6 +1800,7 @@ static int test_optparse_block2(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(block hello 10 20)");
@@ -1767,10 +1814,10 @@ static int test_optparse_block2(void)
 	test(! checkparse_block2(&opt, pos), "checkparse_block2-4");
 
 	parse_eval_string(&pos, "(block hello 10 20)");
-	test(optparse_block2(NULL, &pos, &opt, pos), "optparse_block2-1");
+	test(optparse_block2(local, &pos, &opt, pos), "optparse_block2-1");
 	test(check_evalinteger(pos, 20), "optparse_block2-2");
 	parse_eval_string(&pos, "(block hello (call))");
-	test(! optparse_block2(NULL, &pos, &opt, pos), "optparse_block2-3");
+	test(! optparse_block2(local, &pos, &opt, pos), "optparse_block2-3");
 
 	RETURN;
 }
@@ -1779,6 +1826,7 @@ static int test_optparse_block_all(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(block hello (progn (call)) 20)");
@@ -1787,12 +1835,12 @@ static int test_optparse_block_all(void)
 	test(! checkparse_block_all(&opt, pos), "checkparse_block_all2");
 
 	parse_eval_string(&pos, "(block hello (progn (call)) 20)");
-	test(optparse_block_all(NULL, &pos, &opt, pos), "optparse_block_all1");
+	test(optparse_block_all(local, &pos, &opt, pos), "optparse_block_all1");
 	test(check_evaltype(pos, EVAL_PARSE_BLOCK), "optparse_block_all2");
 	GetEvalParse(pos, 1, &pos);
 	test(length_list_unsafe(pos) == 2, "optparse_block_all3");
 	parse_eval_string(&pos, "(block hello (call) 10)");
-	test(! optparse_block_all(NULL, &pos, &opt, pos), "optparse_block_all4");
+	test(! optparse_block_all(local, &pos, &opt, pos), "optparse_block_all4");
 
 	RETURN;
 }
@@ -1801,6 +1849,7 @@ static int test_optparse_return_from(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(return-from hello (progn (call)))");
@@ -1809,12 +1858,12 @@ static int test_optparse_return_from(void)
 	test(! checkparse_return_from(&opt, pos), "checkparse_return_from2");
 
 	parse_eval_string(&pos, "(return-from hello (progn (call)))");
-	test(optparse_return_from(NULL, &pos, &opt, pos), "optparse_return_from1");
+	test(optparse_return_from(local, &pos, &opt, pos), "optparse_return_from1");
 	test(check_evaltype(pos, EVAL_PARSE_RETURN_FROM), "optparse_return_from2");
 	GetEvalParse(pos, 1, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_CALL), "optparse_return_from3");
 	parse_eval_string(&pos, "(return-from hello (call))");
-	test(! optparse_return_from(NULL, &pos, &opt, pos), "optparse_return_from4");
+	test(! optparse_return_from(local, &pos, &opt, pos), "optparse_return_from4");
 
 	RETURN;
 }
@@ -1823,6 +1872,7 @@ static int test_optparse_block(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(block hello (progn (call)) 20)");
@@ -1835,12 +1885,12 @@ static int test_optparse_block(void)
 	test(! checkparse_block(&opt, pos), "checkparse_block4");
 
 	parse_eval_string(&pos, "(block hello (progn (call)) 20)");
-	test(optparse_block(NULL, &pos, &opt, pos), "optparse_block1");
+	test(optparse_block(local, &pos, &opt, pos), "optparse_block1");
 	test(check_evaltype(pos, EVAL_PARSE_BLOCK), "optparse_block2");
 	GetEvalParse(pos, 1, &pos);
 	test(length_list_unsafe(pos) == 2, "optparse_block3");
 	parse_eval_string(&pos, "(block hello (call) 10)");
-	test(! optparse_block(NULL, &pos, &opt, pos), "optparse_block4");
+	test(! optparse_block(local, &pos, &opt, pos), "optparse_block4");
 
 	RETURN;
 }
@@ -1853,6 +1903,7 @@ static int test_optparse_catch1(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(catch name)");
@@ -1864,7 +1915,7 @@ static int test_optparse_catch1(void)
 	test(! checkparse_catch1(&opt, pos), "checkparse_catch1-3");
 
 	parse_eval_string(&pos, "(catch name)");
-	test(optparse_catch1(NULL, &pos, &opt, pos), "optparse_catch1-1");
+	test(optparse_catch1(local, &pos, &opt, pos), "optparse_catch1-1");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optparse_catch1-2");
 	GetEvalParse(pos, 0, &pos);
 	test(length_list_unsafe(pos) == 2, "optparse_catch1-3");
@@ -1873,7 +1924,7 @@ static int test_optparse_catch1(void)
 	GetCons(pos, &check, &pos);
 	test(check_evaltype(check, EVAL_PARSE_NIL), "optparse_catch1-5");
 	parse_eval_string(&pos, "(catch name 10 20 30)");
-	test(! optparse_catch1(NULL, &pos, &opt, pos), "optparse_catch1-6");
+	test(! optparse_catch1(local, &pos, &opt, pos), "optparse_catch1-6");
 
 	RETURN;
 }
@@ -1882,6 +1933,7 @@ static int test_optparse_catch2(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(catch name 10 20 30)");
@@ -1893,7 +1945,7 @@ static int test_optparse_catch2(void)
 	test(! checkparse_catch2(&opt, pos), "checkparse_catch2-3");
 
 	parse_eval_string(&pos, "(catch name 10 20 30)");
-	test(optparse_catch2(NULL, &pos, &opt, pos), "optparse_catch2-1");
+	test(optparse_catch2(local, &pos, &opt, pos), "optparse_catch2-1");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optparse_catch2-2");
 	GetEvalParse(pos, 0, &pos);
 	test(length_list_unsafe(pos) == 2, "optparse_catch2-3");
@@ -1902,7 +1954,7 @@ static int test_optparse_catch2(void)
 	GetCons(pos, &check, &pos);
 	test(check_evalinteger(check, 30), "optparse_catch2-5");
 	parse_eval_string(&pos, "(catch name)");
-	test(! optparse_catch2(NULL, &pos, &opt, pos), "optparse_catch2-6");
+	test(! optparse_catch2(local, &pos, &opt, pos), "optparse_catch2-6");
 
 	RETURN;
 }
@@ -1911,6 +1963,7 @@ static int test_optparse_catch_all(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(catch hello (progn (call)) 20)");
@@ -1921,7 +1974,7 @@ static int test_optparse_catch_all(void)
 	test(! checkparse_catch_all(&opt, pos), "checkparse_catch_all3");
 
 	parse_eval_string(&pos, "(catch (progn) (progn (call)) 20)");
-	test(optparse_catch_all(NULL, &pos, &opt, pos), "optparse_catch_all1");
+	test(optparse_catch_all(local, &pos, &opt, pos), "optparse_catch_all1");
 	test(check_evaltype(pos, EVAL_PARSE_CATCH), "optparse_catch_all2");
 	GetEvalParse(pos, 0, &check);
 	test(check_evaltype(check, EVAL_PARSE_NIL), "optparse_catch_all3");
@@ -1930,7 +1983,7 @@ static int test_optparse_catch_all(void)
 	GetCar(check, &check);
 	test(check_evaltype(check, EVAL_PARSE_CALL), "optparse_catch_all5");
 	parse_eval_string(&pos, "(catch hello (call) 10)");
-	test(! optparse_catch_all(NULL, &pos, &opt, pos), "optparse_catch_all6");
+	test(! optparse_catch_all(local, &pos, &opt, pos), "optparse_catch_all6");
 
 	RETURN;
 }
@@ -1939,6 +1992,7 @@ static int test_optparse_throw(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(throw hello (progn (call)))");
@@ -1949,14 +2003,14 @@ static int test_optparse_throw(void)
 	test(! checkparse_throw(&opt, pos), "checkparse_throw3");
 
 	parse_eval_string(&pos, "(throw (progn) (progn (call)))");
-	test(optparse_throw(NULL, &pos, &opt, pos), "optparse_throw1");
+	test(optparse_throw(local, &pos, &opt, pos), "optparse_throw1");
 	test(check_evaltype(pos, EVAL_PARSE_THROW), "optparse_throw2");
 	GetEvalParse(pos, 0, &check);
 	test(check_evaltype(check, EVAL_PARSE_NIL), "optparse_throw3");
 	GetEvalParse(pos, 1, &check);
 	test(check_evaltype(check, EVAL_PARSE_CALL), "optparse_throw4");
 	parse_eval_string(&pos, "(throw hello (call))");
-	test(! optparse_throw(NULL, &pos, &opt, pos), "optparse_throw5");
+	test(! optparse_throw(local, &pos, &opt, pos), "optparse_throw5");
 
 	RETURN;
 }
@@ -1965,6 +2019,7 @@ static int test_optparse_catch(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(catch hello)");
@@ -1975,11 +2030,11 @@ static int test_optparse_catch(void)
 	test(! checkparse_catch(&opt, pos), "checkparse_catch3");
 
 	parse_eval_string(&pos, "(catch hello)");
-	test(optparse_catch(NULL, &pos, &opt, pos), "optparse_catch1");
+	test(optparse_catch(local, &pos, &opt, pos), "optparse_catch1");
 	parse_eval_string(&pos, "(throw (progn) 10)");
-	test(optparse_catch(NULL, &pos, &opt, pos), "optparse_catch2");
+	test(optparse_catch(local, &pos, &opt, pos), "optparse_catch2");
 	parse_eval_string(&pos, "(catch hello (call))");
-	test(! optparse_catch(NULL, &pos, &opt, pos), "optparse_catch3");
+	test(! optparse_catch(local, &pos, &opt, pos), "optparse_catch3");
 
 	RETURN;
 }
@@ -2033,6 +2088,7 @@ static int test_optparse_flet1(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(flet ((a (b) :hello)))");
@@ -2044,10 +2100,10 @@ static int test_optparse_flet1(void)
 	test(! checkparse_flet1(&opt, pos), "checkparse_flet1-3");
 
 	parse_eval_string(&pos, "(flet ((a (b) :hello)))");
-	test(optparse_flet1(NULL, &pos, &opt, pos), "optparse_flet1-1");
+	test(optparse_flet1(local, &pos, &opt, pos), "optparse_flet1-1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_flet1-2");
 	parse_eval_string(&pos, "(flet nil :hello)");
-	test(! optparse_flet1(NULL, &pos, &opt, pos), "optparse_flet1-3");
+	test(! optparse_flet1(local, &pos, &opt, pos), "optparse_flet1-3");
 
 	RETURN;
 }
@@ -2056,6 +2112,7 @@ static int test_optparse_flet2(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(flet ((a ())) 10 20 30)");
@@ -2071,10 +2128,10 @@ static int test_optparse_flet2(void)
 	test(! checkparse_flet2(&opt, pos), "checkparse_flet2-5");
 
 	parse_eval_string(&pos, "(flet nil 10 20 30)");
-	test(optparse_flet2(NULL, &pos, &opt, pos), "optparse_flet2-1");
+	test(optparse_flet2(local, &pos, &opt, pos), "optparse_flet2-1");
 	test(check_evalinteger(pos, 30), "optparse_flet2-2");
 	parse_eval_string(&pos, "(flet nil (call))");
-	test(! optparse_flet2(NULL, &pos, &opt, pos), "optparse_flet2-3");
+	test(! optparse_flet2(local, &pos, &opt, pos), "optparse_flet2-3");
 
 	RETURN;
 }
@@ -2083,6 +2140,7 @@ static int test_optparse_flet3(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(flet nil 10 20 30)");
@@ -2098,13 +2156,13 @@ static int test_optparse_flet3(void)
 	test(! checkparse_flet3(&opt, pos), "checkparse_flet3-5");
 
 	parse_eval_string(&pos, "(flet nil 10 20 30)");
-	test(optparse_flet3(NULL, &pos, &opt, pos), "optparse_flet3-1");
+	test(optparse_flet3(local, &pos, &opt, pos), "optparse_flet3-1");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optparse_flet3-2");
 	GetEvalParse(pos, 0, &pos);
 	GetCar(pos, &pos);
 	test(check_evalinteger(pos, 10), "optparse_flet3-3");
 	parse_eval_string(&pos, "(flet nil)");
-	test(! optparse_flet3(NULL, &pos, &opt, pos), "optparse_flet3-4");
+	test(! optparse_flet3(local, &pos, &opt, pos), "optparse_flet3-4");
 
 	RETURN;
 }
@@ -2113,6 +2171,7 @@ static int test_optparse_flet4(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(flet nil (declare (special a)) 10)");
@@ -2128,7 +2187,7 @@ static int test_optparse_flet4(void)
 	test(! checkparse_flet4(&opt, pos), "checkparse_flet4-5");
 
 	parse_eval_string(&pos, "(flet nil (declare (special a)) 10)");
-	test(optparse_flet4(NULL, &pos, &opt, pos), "optparse_flet4-1");
+	test(optparse_flet4(local, &pos, &opt, pos), "optparse_flet4-1");
 	test(check_evaltype(pos, EVAL_PARSE_LOCALLY), "optparse_flet4-2");
 	GetEvalParse(pos, 0, &check);
 	test(eval_declare_p(check), "optparse_flet4-3");
@@ -2136,7 +2195,7 @@ static int test_optparse_flet4(void)
 	GetCar(pos, &pos);
 	test(check_evalinteger(pos, 10), "optparse_flet4-4");
 	parse_eval_string(&pos, "(flet nil)");
-	test(! optparse_flet4(NULL, &pos, &opt, pos), "optparse_flet4-5");
+	test(! optparse_flet4(local, &pos, &opt, pos), "optparse_flet4-5");
 
 	RETURN;
 }
@@ -2165,10 +2224,11 @@ static int test_optparse_flet_args(void)
 {
 	addr pos, var, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(flet ((aa (&optional (bb (progn 10))))) :hello)");
-	test(optparse_flet_args(NULL, &pos, &opt, pos), "optparse_flet_args1");
+	test(optparse_flet_args(local, &pos, &opt, pos), "optparse_flet_args1");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optparse_flet_args2");
 	GetEvalParse(pos, 0, &pos); /* flet-args */
 	GetCar(pos, &pos); /* (aa ...) */
@@ -2185,7 +2245,7 @@ static int test_optparse_flet_args(void)
 	test(check_evalinteger(var, 10), "optparse_flet_args5");
 
 	parse_eval_string(&pos, "(flet ((aa () (progn 20))) :hello)");
-	test(optparse_flet_args(NULL, &pos, &opt, pos), "optparse_flet_args6");
+	test(optparse_flet_args(local, &pos, &opt, pos), "optparse_flet_args6");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optparse_flet_args7");
 	GetEvalParse(pos, 0, &pos); /* flet-args */
 	GetCar(pos, &pos); /* (aa ...) */
@@ -2204,6 +2264,7 @@ static int test_optparse_flet_body(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(flet ((a ())) (progn (call)) 10)");
@@ -2214,14 +2275,14 @@ static int test_optparse_flet_body(void)
 	test(! checkparse_flet_body(&opt, pos), "checkparse_flet_body3");
 
 	parse_eval_string(&pos, "(flet ((a ())) (progn (call)) 10)");
-	test(optparse_flet_body(NULL, &pos, &opt, pos), "optparse_flet_body1");
+	test(optparse_flet_body(local, &pos, &opt, pos), "optparse_flet_body1");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optparse_flet_body2");
 	GetEvalParse(pos, 2, &pos); /* cons */
 	test(length_list_unsafe(pos) == 2, "optparse_flet_body3");
 	GetCar(pos, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_CALL), "optparse_flet_body4");
 	parse_eval_string(&pos, "(flet ((a () (progn))))");
-	test(! optparse_flet_body(NULL, &pos, &opt, pos), "optparse_flet_body5");
+	test(! optparse_flet_body(local, &pos, &opt, pos), "optparse_flet_body5");
 
 	RETURN;
 }
@@ -2230,6 +2291,7 @@ static int test_optparse_flet(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(flet ())");
@@ -2248,10 +2310,10 @@ static int test_optparse_flet(void)
 	//test(! checkparse_flet(&opt, pos), "checkparse_flet7");
 
 	parse_eval_string(&pos, "(flet ())");
-	test(optparse_flet(NULL, &pos, &opt, pos), "optparse_flet1");
+	test(optparse_flet(local, &pos, &opt, pos), "optparse_flet1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_flet2");
 	//parse_eval_string(&pos, "(flet ((a ())) (call) (call2))");
-	//test(! optparse_flet(NULL, &pos, &opt, pos), "optparse_flet3");
+	//test(! optparse_flet(local, &pos, &opt, pos), "optparse_flet3");
 
 	RETURN;
 }
@@ -2260,6 +2322,7 @@ static int test_optparse_flet_error(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -2268,7 +2331,7 @@ static int test_optparse_flet_error(void)
 			"       (x () (progn))) "
 			"  :body)");
 	test(checkparse(&opt, pos), "optparse_flet_error1");
-	test(optparse(NULL, &pos, &opt, pos), "optparse_flet_error2");
+	test(optparse(local, &pos, &opt, pos), "optparse_flet_error2");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optparse_flet_error3");
 	GetEvalParse(pos, 0, &pos); /* flet-args */
 	getnth(pos, 0, &check); /* z */
@@ -2293,6 +2356,7 @@ static int test_optparse_the1(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(the integer (call))");
@@ -2306,8 +2370,8 @@ static int test_optparse_the1(void)
 	test(! checkparse_the1(&opt, pos), "checkparse_the1-3");
 
 	parse_eval_string(&pos, "(the integer (call))");
-	test(optparse_the1(NULL, &pos, &opt, pos), "optparse_the1-1");
-	test(! optparse_the1(NULL, &pos, &opt, pos), "optparse_the1-2");
+	test(optparse_the1(local, &pos, &opt, pos), "optparse_the1-1");
+	test(! optparse_the1(local, &pos, &opt, pos), "optparse_the1-2");
 
 	RETURN;
 }
@@ -2316,6 +2380,7 @@ static int test_optparse_the2(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(the integer (progn))");
@@ -2324,11 +2389,11 @@ static int test_optparse_the2(void)
 	test(! checkparse_the2(&opt, pos), "checkparse_the2-2");
 
 	parse_eval_string(&pos, "(the integer (progn))");
-	test(optparse_the2(NULL, &pos, &opt, pos), "optparse_the2-1");
+	test(optparse_the2(local, &pos, &opt, pos), "optparse_the2-1");
 	GetEvalParse(pos, 1, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_the2-2");
 	parse_eval_string(&pos, "(the integer (call))");
-	test(! optparse_the2(NULL, &pos, &opt, pos), "optparse_the2-3");
+	test(! optparse_the2(local, &pos, &opt, pos), "optparse_the2-3");
 
 	RETURN;
 }
@@ -2337,13 +2402,14 @@ static int test_optparse_the(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(the integer (progn))");
 	test(checkparse_the(&opt, pos), "checkparse_the-1");
 
 	parse_eval_string(&pos, "(the integer (progn))");
-	test(optparse_the(NULL, &pos, &opt, pos), "optparse_the-1");
+	test(optparse_the(local, &pos, &opt, pos), "optparse_the-1");
 	GetEvalParse(pos, 1, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_the-2");
 
@@ -2358,6 +2424,7 @@ static int test_optparse_eval_when1(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(eval-when (compile))");
@@ -2369,7 +2436,7 @@ static int test_optparse_eval_when1(void)
 	test(! checkparse_eval_when1(&opt, pos), "checkparse_eval_when1-3");
 
 	parse_eval_string(&pos, "(eval-when (compile))");
-	test(optparse_eval_when1(NULL, &pos, &opt, pos), "optparse_eval_when1-1");
+	test(optparse_eval_when1(local, &pos, &opt, pos), "optparse_eval_when1-1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_eval_when1-2");
 
 	RETURN;
@@ -2379,6 +2446,7 @@ static int test_optparse_eval_when_all(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(eval-when (compile) (progn (call)) 10)");
@@ -2387,7 +2455,7 @@ static int test_optparse_eval_when_all(void)
 	test(! checkparse_eval_when_all(&opt, pos), "checkparse_eval_when_all3");
 
 	parse_eval_string(&pos, "(eval-when (compile) (progn (call)) 10)");
-	test(optparse_eval_when_all(NULL, &pos, &opt, pos), "optparse_eval_when_all1");
+	test(optparse_eval_when_all(local, &pos, &opt, pos), "optparse_eval_when_all1");
 	test(check_evaltype(pos, EVAL_PARSE_EVAL_WHEN), "optparse_eval_when_all2");
 	GetEvalParse(pos, 0, &pos);
 	test(length_list_unsafe(pos) == 2, "optparse_eval_when_all3");
@@ -2401,6 +2469,7 @@ static int test_optparse_eval_when(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(eval-when (compile))");
@@ -2411,7 +2480,7 @@ static int test_optparse_eval_when(void)
 	test(! checkparse_eval_when(&opt, pos), "checkparse_eval_when3");
 
 	parse_eval_string(&pos, "(eval-when (compile) (progn (call)) 10)");
-	test(optparse_eval_when(NULL, &pos, &opt, pos), "optparse_eval_when1");
+	test(optparse_eval_when(local, &pos, &opt, pos), "optparse_eval_when1");
 	test(check_evaltype(pos, EVAL_PARSE_EVAL_WHEN), "optparse_eval_when2");
 	GetEvalParse(pos, 0, &pos);
 	test(length_list_unsafe(pos) == 2, "optparse_eval_when3");
@@ -2429,6 +2498,7 @@ static int test_optparse_values(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(values (progn))");
@@ -2439,14 +2509,14 @@ static int test_optparse_values(void)
 	test(! checkparse_values(&opt, pos), "checkparse_values3");
 
 	parse_eval_string(&pos, "(values (progn))");
-	test(optparse_values(NULL, &pos, &opt, pos), "optparse_values1");
+	test(optparse_values(local, &pos, &opt, pos), "optparse_values1");
 	test(check_evaltype(pos, EVAL_PARSE_VALUES), "optparse_values2");
 	GetEvalParse(pos, 0, &pos);
 	test(length_list_unsafe(pos) == 1, "optparse_values3");
 	GetCar(pos, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_values4");
 	parse_eval_string(&pos, "(values)");
-	test(! optparse_values(NULL, &pos, &opt, pos), "optparse_values5");
+	test(! optparse_values(local, &pos, &opt, pos), "optparse_values5");
 
 	RETURN;
 }
@@ -2459,6 +2529,7 @@ static int test_optparse_locally1(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(locally (call) 10)");
@@ -2470,14 +2541,14 @@ static int test_optparse_locally1(void)
 	test(! checkparse_locally1(&opt, pos), "checkparse_locally1-3");
 
 	parse_eval_string(&pos, "(locally (call) 10)");
-	test(optparse_locally1(NULL, &pos, &opt, pos), "optparse_locally1-1");
+	test(optparse_locally1(local, &pos, &opt, pos), "optparse_locally1-1");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optparse_locally1-2");
 	GetEvalParse(pos, 0, &pos);
 	test(length_list_unsafe(pos) == 2, "optparse_locally1-3");
 	GetCar(pos, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_CALL), "optparse_locally1-4");
 	parse_eval_string(&pos, "(locally (declare (special a)) :hello)");
-	test(! optparse_locally1(NULL, &pos, &opt, pos), "optparse_locally1-5");
+	test(! optparse_locally1(local, &pos, &opt, pos), "optparse_locally1-5");
 
 	RETURN;
 }
@@ -2486,6 +2557,7 @@ static int test_optparse_locally2(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(locally (declare (special a)))");
@@ -2497,10 +2569,10 @@ static int test_optparse_locally2(void)
 	test(! checkparse_locally2(&opt, pos), "checkparse_locally2-3");
 
 	parse_eval_string(&pos, "(locally (declare (special a)))");
-	test(optparse_locally2(NULL, &pos, &opt, pos), "optparse_locally2-1");
+	test(optparse_locally2(local, &pos, &opt, pos), "optparse_locally2-1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_locally2-2");
 	parse_eval_string(&pos, "(locally (declare (special a)) :hello)");
-	test(! optparse_locally2(NULL, &pos, &opt, pos), "optparse_locally2-3");
+	test(! optparse_locally2(local, &pos, &opt, pos), "optparse_locally2-3");
 
 	RETURN;
 }
@@ -2509,6 +2581,7 @@ static int test_optparse_locally_all(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(locally (declare (special a)) (progn) 10)");
@@ -2517,14 +2590,14 @@ static int test_optparse_locally_all(void)
 	test(! checkparse_locally_all(&opt, pos), "checkparse_locally_all2");
 
 	parse_eval_string(&pos, "(locally (declare (special a)) (progn) 10)");
-	test(optparse_locally_all(NULL, &pos, &opt, pos), "optparse_locally_all1");
+	test(optparse_locally_all(local, &pos, &opt, pos), "optparse_locally_all1");
 	test(check_evaltype(pos, EVAL_PARSE_LOCALLY), "optparse_locally_all2");
 	GetEvalParse(pos, 1, &pos);
 	test(length_list_unsafe(pos) == 1, "optparse_locally_all3");
 	GetCar(pos, &pos);
 	test(check_evalinteger(pos, 10), "optparse_locally_all4");
 	parse_eval_string(&pos, "(locally (declare (special a)) :hello)");
-	test(! optparse_locally_all(NULL, &pos, &opt, pos), "optparse_locally_all5");
+	test(! optparse_locally_all(local, &pos, &opt, pos), "optparse_locally_all5");
 
 	RETURN;
 }
@@ -2533,6 +2606,7 @@ static int test_optparse_locally(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(locally)");
@@ -2541,10 +2615,10 @@ static int test_optparse_locally(void)
 	test(! checkparse_locally(&opt, pos), "checkparse_locally2");
 
 	parse_eval_string(&pos, "(locally)");
-	test(optparse_locally(NULL, &pos, &opt, pos), "optparse_locally1");
+	test(optparse_locally(local, &pos, &opt, pos), "optparse_locally1");
 	test(check_evaltype(pos, EVAL_PARSE_NIL), "optparse_locally2");
 	parse_eval_string(&pos, "(locally (declare (special a)) :hello)");
-	test(! optparse_locally(NULL, &pos, &opt, pos), "optparse_locally3");
+	test(! optparse_locally(local, &pos, &opt, pos), "optparse_locally3");
 
 	RETURN;
 }
@@ -2557,6 +2631,7 @@ static int test_optparse_call1(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "((lambda () (progn)) 10 20 30)");
@@ -2570,7 +2645,7 @@ static int test_optparse_call1(void)
 	test(! checkparse_call1(&opt, pos), "checkparse_call1-4");
 
 	parse_eval_string(&pos, "((lambda () (progn)) 10 20 30)");
-	test(optparse_call1(NULL, &pos, &opt, pos), "optparse_call1-1");
+	test(optparse_call1(local, &pos, &opt, pos), "optparse_call1-1");
 	test(check_evaltype(pos, EVAL_PARSE_CALL), "optparse_call1-2");
 	GetEvalParse(pos, 0, &pos);
 	test(check_evaltype(pos, EVAL_PARSE_LAMBDA), "optparse_call1-3");
@@ -2578,13 +2653,13 @@ static int test_optparse_call1(void)
 	test(pos == Nil, "optparse_call1-4");
 
 	parse_eval_string(&pos, "((lambda () (progn :hello)) 10 20 30)");
-	test(optparse_call1(NULL, &pos, &opt, pos), "optparse_call1-4");
+	test(optparse_call1(local, &pos, &opt, pos), "optparse_call1-4");
 	GetEvalParse(pos, 0, &pos);
 	GetEvalParse(pos, 3, &pos); /* body */
 	test(length_list_unsafe(pos) == 1, "optparse_call1-5");
 
 	parse_eval_string(&pos, "((lambda () 100) 10 20 30)");
-	test(! optparse_call1(NULL, &pos, &opt, pos), "optparse_call1-6");
+	test(! optparse_call1(local, &pos, &opt, pos), "optparse_call1-6");
 
 	RETURN;
 }
@@ -2593,6 +2668,7 @@ static int test_optparse_call_all(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(call (progn) 20 30)");
@@ -2605,7 +2681,7 @@ static int test_optparse_call_all(void)
 	test(! checkparse_call_all(&opt, pos), "checkparse_call_all4");
 
 	parse_eval_string(&pos, "(call (progn (aaa)) 10)");
-	test(optparse_call_all(NULL, &pos, &opt, pos), "optparse_call_all1");
+	test(optparse_call_all(local, &pos, &opt, pos), "optparse_call_all1");
 	test(check_evaltype(pos, EVAL_PARSE_CALL), "optparse_call_all2");
 	GetEvalParse(pos, 0, &check);
 	test(check_evaltype(check, EVAL_PARSE_FUNCTION), "optparse_call_all3");
@@ -2614,7 +2690,7 @@ static int test_optparse_call_all(void)
 	GetCar(check, &check);
 	test(check_evaltype(check, EVAL_PARSE_CALL), "optparse_call_all5");
 	parse_eval_string(&pos, "(call)");
-	test(! optparse_call_all(NULL, &pos, &opt, pos), "optparse_call_all6");
+	test(! optparse_call_all(local, &pos, &opt, pos), "optparse_call_all6");
 
 	RETURN;
 }
@@ -2627,6 +2703,7 @@ static int test_optparse_multiple_value_call_expr(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(multiple-value-call (lambda () (progn)) 10 20 30)");
@@ -2644,7 +2721,7 @@ static int test_optparse_multiple_value_call_expr(void)
 			"checkparse_multiple_value_call_expr4");
 
 	parse_eval_string(&pos, "(multiple-value-call (lambda () (progn)) 10 20 30)");
-	test(optparse_multiple_value_call_expr(NULL, &pos, &opt, pos),
+	test(optparse_multiple_value_call_expr(local, &pos, &opt, pos),
 			"optparse_multiple_value_call_expr1");
 	test(check_evaltype(pos, EVAL_PARSE_MULTIPLE_VALUE_CALL),
 			"optparse_multiple_value_call_expr2");
@@ -2655,14 +2732,14 @@ static int test_optparse_multiple_value_call_expr(void)
 	test(pos == Nil, "optparse_multiple_value_call_expr4");
 
 	parse_eval_string(&pos, "(multiple-value-call (lambda () (progn :hello)) 10 20 30)");
-	test(optparse_multiple_value_call_expr(NULL, &pos, &opt, pos),
+	test(optparse_multiple_value_call_expr(local, &pos, &opt, pos),
 			"optparse_multiple_value_call_expr4");
 	GetEvalParse(pos, 0, &pos);
 	GetEvalParse(pos, 3, &pos); /* body */
 	test(length_list_unsafe(pos) == 1, "optparse_multiple_value_call_expr5");
 
 	parse_eval_string(&pos, "(multiple-value-call (lambda () 100) 10 20 30)");
-	test(! optparse_multiple_value_call_expr(NULL, &pos, &opt, pos),
+	test(! optparse_multiple_value_call_expr(local, &pos, &opt, pos),
 			"optparse_multiple_value_call_expr6");
 
 	RETURN;
@@ -2672,6 +2749,7 @@ static int test_optparse_multiple_value_call_all(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "(multiple-value-call #'call (progn) 20 30)");
@@ -2688,7 +2766,7 @@ static int test_optparse_multiple_value_call_all(void)
 			"checkparse_multiple_value_call_all4");
 
 	parse_eval_string(&pos, "(multiple-value-call #'call (progn (aaa)) 10)");
-	test(optparse_multiple_value_call_all(NULL, &pos, &opt, pos),
+	test(optparse_multiple_value_call_all(local, &pos, &opt, pos),
 			"optparse_multiple_value_call_all1");
 	test(check_evaltype(pos, EVAL_PARSE_MULTIPLE_VALUE_CALL),
 			"optparse_multiple_value_call_all2");
@@ -2702,7 +2780,7 @@ static int test_optparse_multiple_value_call_all(void)
 	test(check_evaltype(check, EVAL_PARSE_CALL),
 			"optparse_multiple_value_call_all5");
 	parse_eval_string(&pos, "(multiple-value-call #'call)");
-	test(! optparse_multiple_value_call_all(NULL, &pos, &opt, pos),
+	test(! optparse_multiple_value_call_all(local, &pos, &opt, pos),
 			"optparse_multiple_value_call_all6");
 
 	RETURN;
@@ -2716,12 +2794,13 @@ static int test_optimize_implicit(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
 	implicit_string(&pos, "((locally (declare (optimize speed)) (progn 10)) (progn))");
 	test(checkparse_implicit(&opt, pos), "optimize_implicit1");
-	test(optparse_implicit(NULL, &pos, &opt, pos), "optimize_implicit2");
+	test(optparse_implicit(local, &pos, &opt, pos), "optimize_implicit2");
 	test(length_list_unsafe(pos) == 2, "optimize_implicit3");
 	GetCons(pos, &check, &pos);
 	test(check_evaltype(check, EVAL_PARSE_LOCALLY), "optimize_implicit4");
@@ -2739,13 +2818,14 @@ static int test_optimize_progn(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
 	parse_eval_string(&pos,
 			"(progn (locally (declare (optimize speed)) (progn 10)) (progn))");
 	test(checkparse(&opt, pos), "optimize_progn1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_progn2");
+	test(optparse(local, &pos, &opt, pos), "optimize_progn2");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optimize_progn3");
 	GetEvalParse(pos, 0, &pos);
 	test(length_list_unsafe(pos) == 2, "optimize_progn4");
@@ -2765,6 +2845,7 @@ static int test_optimize_let_init(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -2773,7 +2854,7 @@ static int test_optimize_let_init(void)
 			"      (b (progn))) "
 			"  :hello)");
 	test(checkparse(&opt, pos), "optimize_let_init1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_let_init2");
+	test(optparse(local, &pos, &opt, pos), "optimize_let_init2");
 	test(check_evaltype(pos, EVAL_PARSE_LET), "optimize_let_init3");
 	GetEvalParse(pos, 0, &pos); /* args */
 	test(length_list_unsafe(pos) == 2, "optimize_let_init4");
@@ -2795,6 +2876,7 @@ static int test_optimize_let_body(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -2803,7 +2885,7 @@ static int test_optimize_let_body(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn))");
 	test(checkparse(&opt, pos), "optimize_let_body1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_let_body2");
+	test(optparse(local, &pos, &opt, pos), "optimize_let_body2");
 	test(check_evaltype(pos, EVAL_PARSE_LET), "optimize_let_body3");
 	GetEvalParse(pos, 2, &pos); /* body */
 	test(length_list_unsafe(pos) == 2, "optimize_let_body4");
@@ -2823,6 +2905,7 @@ static int test_optimize_let_decl(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -2831,7 +2914,7 @@ static int test_optimize_let_decl(void)
 			"  (let nil (declare (optimize speed)) (progn 10)) "
 			"  (progn))");
 	test(checkparse(&opt, pos), "optimize_let_decl1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_let_decl2");
+	test(optparse(local, &pos, &opt, pos), "optimize_let_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optimize_let_decl3");
 	GetEvalParse(pos, 0, &pos); /* cons */
 	test(length_list_unsafe(pos) == 2, "optimize_let_decl4");
@@ -2851,6 +2934,7 @@ static int test_optimize_leta_init(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -2859,7 +2943,7 @@ static int test_optimize_leta_init(void)
 			"       (b (progn))) "
 			"  :hello)");
 	test(checkparse(&opt, pos), "optimize_leta_init1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_leta_init2");
+	test(optparse(local, &pos, &opt, pos), "optimize_leta_init2");
 	test(check_evaltype(pos, EVAL_PARSE_LETA), "optimize_leta_init3");
 	GetEvalParse(pos, 0, &pos); /* args */
 	test(length_list_unsafe(pos) == 2, "optimize_leta_init4");
@@ -2881,6 +2965,7 @@ static int test_optimize_leta_body(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -2889,7 +2974,7 @@ static int test_optimize_leta_body(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn))");
 	test(checkparse(&opt, pos), "optimize_leta_body1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_leta_body2");
+	test(optparse(local, &pos, &opt, pos), "optimize_leta_body2");
 	test(check_evaltype(pos, EVAL_PARSE_LETA), "optimize_leta_body3");
 	GetEvalParse(pos, 2, &pos); /* body */
 	test(length_list_unsafe(pos) == 2, "optimize_leta_body4");
@@ -2909,6 +2994,7 @@ static int test_optimize_leta_decl(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -2917,7 +3003,7 @@ static int test_optimize_leta_decl(void)
 			"  (let* nil (declare (optimize speed)) (progn 10)) "
 			"  (progn))");
 	test(checkparse(&opt, pos), "optimize_leta_decl1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_leta_decl2");
+	test(optparse(local, &pos, &opt, pos), "optimize_leta_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optimize_leta_decl3");
 	GetEvalParse(pos, 0, &pos); /* cons */
 	test(length_list_unsafe(pos) == 2, "optimize_leta_decl4");
@@ -2937,13 +3023,14 @@ static int test_optimize_setq(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
 	parse_eval_string(&pos,
 			"(setq a (locally (declare (optimize speed)) (progn 10)) b (progn))");
 	test(checkparse(&opt, pos), "optimize_setq1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_setq2");
+	test(optparse(local, &pos, &opt, pos), "optimize_setq2");
 	test(check_evaltype(pos, EVAL_PARSE_SETQ), "optimize_setq3");
 	GetEvalParse(pos, 0, &pos);
 	GetCons(pos, &check, &pos); /* a */
@@ -2964,6 +3051,7 @@ static int test_optimize_defun_args(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -2973,7 +3061,7 @@ static int test_optimize_defun_args(void)
 			"    (b (progn))) "
 			"  :hello)");
 	test(checkparse(&opt, pos), "optimize_defun_args1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_defun_args2");
+	test(optparse(local, &pos, &opt, pos), "optimize_defun_args2");
 	test(check_evaltype(pos, EVAL_PARSE_DEFUN), "optimize_defun_args3");
 	GetEvalParse(pos, 1, &pos); /* args */
 	getnth(pos, 1, &pos); /* &optional */
@@ -2997,6 +3085,7 @@ static int test_optimize_defun_body(void)
 {
 	addr pos;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3005,7 +3094,7 @@ static int test_optimize_defun_body(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_defun_body1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_defun_body2");
+	test(optparse(local, &pos, &opt, pos), "optimize_defun_body2");
 	test(check_evaltype(pos, EVAL_PARSE_DEFUN), "optimize_defun_body3");
 	//GetEvalParse(pos, 4, &pos); /* body */
 	//GetCons(pos, &check, &pos); /* locally */
@@ -3024,6 +3113,7 @@ static int test_optimize_defun_decl(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3034,7 +3124,7 @@ static int test_optimize_defun_decl(void)
 			"    (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_defun_decl1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_defun_decl2");
+	test(optparse(local, &pos, &opt, pos), "optimize_defun_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optimize_defun_decl3");
 	GetEvalParse(pos, 0, &pos); /* cons */
 	GetCons(pos, &check, &pos); /* defun */
@@ -3053,6 +3143,7 @@ static int test_optimize_lambda_args(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3062,7 +3153,7 @@ static int test_optimize_lambda_args(void)
 			"    (b (progn))) "
 			"  :hello)");
 	test(checkparse(&opt, pos), "optimize_lambda_args1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_lambda_args2");
+	test(optparse(local, &pos, &opt, pos), "optimize_lambda_args2");
 	test(check_evaltype(pos, EVAL_PARSE_LAMBDA), "optimize_lambda_args3");
 	GetEvalParse(pos, 0, &pos); /* args */
 	getnth(pos, 1, &pos); /* &optional */
@@ -3086,6 +3177,7 @@ static int test_optimize_lambda_body(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3094,7 +3186,7 @@ static int test_optimize_lambda_body(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_lambda_body1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_lambda_body2");
+	test(optparse(local, &pos, &opt, pos), "optimize_lambda_body2");
 	test(check_evaltype(pos, EVAL_PARSE_LAMBDA), "optimize_lambda_body3");
 	GetEvalParse(pos, 3, &pos); /* body */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3113,6 +3205,7 @@ static int test_optimize_lambda_decl(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3123,7 +3216,7 @@ static int test_optimize_lambda_decl(void)
 			"    (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_lambda_decl1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_lambda_decl2");
+	test(optparse(local, &pos, &opt, pos), "optimize_lambda_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optimize_lambda_decl3");
 	GetEvalParse(pos, 0, &pos); /* cons */
 	GetCons(pos, &check, &pos); /* lambda */
@@ -3142,6 +3235,7 @@ static int test_optimize_if(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3150,7 +3244,7 @@ static int test_optimize_if(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_if1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_if2");
+	test(optparse(local, &pos, &opt, pos), "optimize_if2");
 	test(check_evaltype(pos, EVAL_PARSE_IF), "optimize_if3");
 	GetEvalParse(pos, 1, &check); /* then */
 	test(check_evaltype(check, EVAL_PARSE_LOCALLY), "optimize_if4");
@@ -3168,6 +3262,7 @@ static int test_optimize_unwind_protect(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3176,7 +3271,7 @@ static int test_optimize_unwind_protect(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_unwind_protect1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_unwind_protect2");
+	test(optparse(local, &pos, &opt, pos), "optimize_unwind_protect2");
 	test(check_evaltype(pos, EVAL_PARSE_UNWIND_PROTECT), "optimize_unwind_protect3");
 	GetEvalParse(pos, 1, &pos); /* body */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3195,6 +3290,7 @@ static int test_optimize_tagbody(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3203,7 +3299,7 @@ static int test_optimize_tagbody(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_tagbody1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_tagbody2");
+	test(optparse(local, &pos, &opt, pos), "optimize_tagbody2");
 	test(check_evaltype(pos, EVAL_PARSE_TAGBODY), "optimize_tagbody3");
 	GetEvalParse(pos, 1, &pos); /* body */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3222,6 +3318,7 @@ static int test_optimize_block(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3230,7 +3327,7 @@ static int test_optimize_block(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_block1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_block2");
+	test(optparse(local, &pos, &opt, pos), "optimize_block2");
 	test(check_evaltype(pos, EVAL_PARSE_BLOCK), "optimize_block3");
 	GetEvalParse(pos, 1, &pos); /* body */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3249,6 +3346,7 @@ static int test_optimize_return_from(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3256,7 +3354,7 @@ static int test_optimize_return_from(void)
 			"(return-from name "
 			"  (locally (declare (optimize speed)) (progn 10)))");
 	test(checkparse(&opt, pos), "optimize_return_from1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_return_from2");
+	test(optparse(local, &pos, &opt, pos), "optimize_return_from2");
 	test(check_evaltype(pos, EVAL_PARSE_RETURN_FROM), "optimize_return_from3");
 	GetEvalParse(pos, 1, &check); /* expr */
 	test(check_evaltype(check, EVAL_PARSE_LOCALLY), "optimize_return_from4");
@@ -3272,6 +3370,7 @@ static int test_optimize_catch(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3280,7 +3379,7 @@ static int test_optimize_catch(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_catch1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_catch2");
+	test(optparse(local, &pos, &opt, pos), "optimize_catch2");
 	test(check_evaltype(pos, EVAL_PARSE_CATCH), "optimize_catch3");
 	GetEvalParse(pos, 1, &pos); /* body */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3299,6 +3398,7 @@ static int test_optimize_throw(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3306,7 +3406,7 @@ static int test_optimize_throw(void)
 			"(throw name "
 			"  (locally (declare (optimize speed)) (progn 10)))");
 	test(checkparse(&opt, pos), "optimize_throw1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_throw2");
+	test(optparse(local, &pos, &opt, pos), "optimize_throw2");
 	test(check_evaltype(pos, EVAL_PARSE_THROW), "optimize_throw3");
 	GetEvalParse(pos, 1, &check); /* expr */
 	test(check_evaltype(check, EVAL_PARSE_LOCALLY), "optimize_throw4");
@@ -3322,6 +3422,7 @@ static int test_optimize_flet_args_init(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3332,7 +3433,7 @@ static int test_optimize_flet_args_init(void)
 			"    :hello)) "
 			"  :body)");
 	test(checkparse(&opt, pos), "optimize_flet_args_init1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_flet_args_init2");
+	test(optparse(local, &pos, &opt, pos), "optimize_flet_args_init2");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optimize_flet_args_init3");
 	GetEvalParse(pos, 0, &pos); /* flet-args */
 	GetCar(pos, &pos); /* (z args ...) */
@@ -3358,6 +3459,7 @@ static int test_optimize_flet_args_body(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3367,7 +3469,7 @@ static int test_optimize_flet_args_body(void)
 			"    (progn))) "
 			"  :body)");
 	test(checkparse(&opt, pos), "optimize_flet_args_body1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_flet_args_body2");
+	test(optparse(local, &pos, &opt, pos), "optimize_flet_args_body2");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optimize_flet_args_body3");
 	GetEvalParse(pos, 0, &pos); /* flet-args */
 	getnth(pos, 0, &pos); /* z */
@@ -3388,6 +3490,7 @@ static int test_optimize_flet_args_decl(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3396,7 +3499,7 @@ static int test_optimize_flet_args_decl(void)
 			"       (x () (progn))) "
 			"  :body)");
 	test(checkparse(&opt, pos), "optimize_flet_args_decl1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_flet_args_decl2");
+	test(optparse(local, &pos, &opt, pos), "optimize_flet_args_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optimize_flet_args_decl3");
 	GetEvalParse(pos, 0, &pos); /* flet-args */
 	getnth(pos, 0, &check); /* z */
@@ -3416,6 +3519,7 @@ static int test_optimize_flet_body(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3424,7 +3528,7 @@ static int test_optimize_flet_body(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn))");
 	test(checkparse(&opt, pos), "optimize_flet_body1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_flet_body2");
+	test(optparse(local, &pos, &opt, pos), "optimize_flet_body2");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optimize_flet_body3");
 	GetEvalParse(pos, 2, &pos); /* flet-body */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3443,6 +3547,7 @@ static int test_optimize_flet_decl(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3451,7 +3556,7 @@ static int test_optimize_flet_decl(void)
 			"  (flet () (declare (optimize speed)) (progn 10)) "
 			"  (progn))");
 	test(checkparse(&opt, pos), "optimize_flet_decl1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_flet_decl2");
+	test(optparse(local, &pos, &opt, pos), "optimize_flet_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optimize_flet_decl3");
 	GetEvalParse(pos, 0, &pos); /* cons */
 	GetCons(pos, &check, &pos); /* flet */
@@ -3470,6 +3575,7 @@ static int test_optimize_labels_args_init(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3480,7 +3586,7 @@ static int test_optimize_labels_args_init(void)
 			"    :hello)) "
 			"  :body)");
 	test(checkparse(&opt, pos), "optimize_labels_args_init1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_labels_args_init2");
+	test(optparse(local, &pos, &opt, pos), "optimize_labels_args_init2");
 	test(check_evaltype(pos, EVAL_PARSE_LABELS), "optimize_labels_args_init3");
 	GetEvalParse(pos, 0, &pos); /* labels-args */
 	GetCar(pos, &pos); /* (z args ...) */
@@ -3506,6 +3612,7 @@ static int test_optimize_labels_args_body(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3515,7 +3622,7 @@ static int test_optimize_labels_args_body(void)
 			"    (progn))) "
 			"  :body)");
 	test(checkparse(&opt, pos), "optimize_labels_args_body1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_labels_args_body2");
+	test(optparse(local, &pos, &opt, pos), "optimize_labels_args_body2");
 	test(check_evaltype(pos, EVAL_PARSE_LABELS), "optimize_labels_args_body3");
 	GetEvalParse(pos, 0, &pos); /* labels-args */
 	getnth(pos, 0, &pos); /* z */
@@ -3536,6 +3643,7 @@ static int test_optimize_labels_args_decl(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3544,7 +3652,7 @@ static int test_optimize_labels_args_decl(void)
 			"       (x () (progn))) "
 			"  :body)");
 	test(checkparse(&opt, pos), "optimize_labels_args_decl1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_labels_args_decl2");
+	test(optparse(local, &pos, &opt, pos), "optimize_labels_args_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_LABELS), "optimize_labels_args_decl3");
 	GetEvalParse(pos, 0, &pos); /* labels-args */
 	getnth(pos, 0, &check); /* z */
@@ -3564,6 +3672,7 @@ static int test_optimize_labels_body(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3572,7 +3681,7 @@ static int test_optimize_labels_body(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn))");
 	test(checkparse(&opt, pos), "optimize_labels_body1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_labels_body2");
+	test(optparse(local, &pos, &opt, pos), "optimize_labels_body2");
 	test(check_evaltype(pos, EVAL_PARSE_LABELS), "optimize_labels_body3");
 	GetEvalParse(pos, 2, &pos); /* labels-body */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3591,6 +3700,7 @@ static int test_optimize_labels_decl(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3599,7 +3709,7 @@ static int test_optimize_labels_decl(void)
 			"  (labels () (declare (optimize speed)) (progn 10)) "
 			"  (progn))");
 	test(checkparse(&opt, pos), "optimize_labels_decl1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_labels_decl2");
+	test(optparse(local, &pos, &opt, pos), "optimize_labels_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optimize_labels_decl3");
 	GetEvalParse(pos, 0, &pos); /* cons */
 	GetCons(pos, &check, &pos); /* labels */
@@ -3618,6 +3728,7 @@ static int test_optimize_the(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3625,7 +3736,7 @@ static int test_optimize_the(void)
 			"(the integer "
 			"  (locally (declare (optimize speed)) (progn 10)))");
 	test(checkparse(&opt, pos), "optimize_the1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_the2");
+	test(optparse(local, &pos, &opt, pos), "optimize_the2");
 	test(check_evaltype(pos, EVAL_PARSE_THE), "optimize_the3");
 	GetEvalParse(pos, 1, &check); /* expr */
 	test(check_evaltype(check, EVAL_PARSE_LOCALLY), "optimize_the4");
@@ -3641,6 +3752,7 @@ static int test_optimize_eval_when(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3649,7 +3761,7 @@ static int test_optimize_eval_when(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_eval_when1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_eval_when2");
+	test(optparse(local, &pos, &opt, pos), "optimize_eval_when2");
 	test(check_evaltype(pos, EVAL_PARSE_EVAL_WHEN), "optimize_eval_when3");
 	GetEvalParse(pos, 0, &pos); /* body */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3668,6 +3780,7 @@ static int test_optimize_values(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3676,7 +3789,7 @@ static int test_optimize_values(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_values1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_values2");
+	test(optparse(local, &pos, &opt, pos), "optimize_values2");
 	test(check_evaltype(pos, EVAL_PARSE_VALUES), "optimize_values3");
 	GetEvalParse(pos, 0, &pos); /* body */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3695,6 +3808,7 @@ static int test_optimize_locally_body(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3703,7 +3817,7 @@ static int test_optimize_locally_body(void)
 			"  (let nil (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_locally_body1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_locally_body2");
+	test(optparse(local, &pos, &opt, pos), "optimize_locally_body2");
 	test(check_evaltype(pos, EVAL_PARSE_LOCALLY), "optimize_locally_body3");
 	GetEvalParse(pos, 1, &pos); /* body */
 	GetCons(pos, &check, &pos); /* let */
@@ -3722,6 +3836,7 @@ static int test_optimize_locally_decl(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3730,7 +3845,7 @@ static int test_optimize_locally_decl(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_locally_decl1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_locally_decl2");
+	test(optparse(local, &pos, &opt, pos), "optimize_locally_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_PROGN), "optimize_locally_decl3");
 	GetEvalParse(pos, 0, &pos); /* body */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3749,6 +3864,7 @@ static int test_optimize_multiple_value_call(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3757,7 +3873,7 @@ static int test_optimize_multiple_value_call(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_multiple_value_call1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_multiple_value_call2");
+	test(optparse(local, &pos, &opt, pos), "optimize_multiple_value_call2");
 	test(check_evaltype(pos, EVAL_PARSE_MULTIPLE_VALUE_CALL),
 			"optimize_multiple_value_call3");
 	GetEvalParse(pos, 1, &pos); /* args */
@@ -3777,6 +3893,7 @@ static int test_optimize_call(void)
 {
 	addr pos, check;
 	struct optstruct opt;
+	LocalRoot local = Local_Thread;
 
 	allminus_optstruct(&opt);
 	zerospeed(&opt);
@@ -3785,7 +3902,7 @@ static int test_optimize_call(void)
 			"  (locally (declare (optimize speed)) (progn 10)) "
 			"  (progn)) ");
 	test(checkparse(&opt, pos), "optimize_call1");
-	test(optparse(NULL, &pos, &opt, pos), "optimize_call2");
+	test(optparse(local, &pos, &opt, pos), "optimize_call2");
 	test(check_evaltype(pos, EVAL_PARSE_CALL), "optimize_call3");
 	GetEvalParse(pos, 1, &pos); /* args */
 	GetCons(pos, &check, &pos); /* locally */
@@ -3985,7 +4102,6 @@ int test_eval_optparse(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

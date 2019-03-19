@@ -54,17 +54,13 @@ static void type_error_function(addr *ret)
 {
 	addr arg, values, string, symbol, condition, rest;
 
-	GetCallType(&string, String);
-	GetCallType(&symbol, Symbol);
-	GetCallType(&condition, Condition);
-	vector4_heap(&arg, 3);
-	SetArrayA4(arg, 0, string);
-	SetArrayA4(arg, 1, symbol);
-	SetArrayA4(arg, 2, condition);
-	type_object1(NULL, LISPDECL_OR, arg, &arg);
-	GetCallType(&rest, T);
-	var1rest_argtype(&arg, arg, rest);
-	GetCallType(&values, Values_Nil);
+	GetTypeTable(&string, String);
+	GetTypeTable(&symbol, Symbol);
+	GetTypeTable(&condition, Condition);
+	type3or_heap(string, symbol, condition, &arg);
+	GetTypeTable(&rest, T);
+	typeargs_var1rest(&arg, arg, rest);
+	GetTypeValues(&values, Nil);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -144,7 +140,7 @@ static void defmacro_handler_bind(void)
 	setcompiled_macro(pos, function_handler_bind);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -281,7 +277,7 @@ static void defmacro_handler_case(void)
 	setcompiled_macro(pos, function_handler_case);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -302,8 +298,9 @@ static void type_compute_restarts(addr *ret)
 {
 	addr arg, values;
 
-	opt1conditionnull_argtype(&arg);
-	restrestart_valuestype(&values);
+	GetTypeArgs(&arg, OptConditionNull);
+	GetTypeTable(&values, Restart);
+	typevalues_rest(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -342,12 +339,12 @@ static void type_find_restart(addr *ret)
 {
 	addr condition, arg, values;
 
-	GetCallType(&arg, RestartDesigner);
-	GetCallType(&condition, ConditionNull);
-	var1opt1_argtype(&arg, arg, condition);
+	GetTypeTable(&arg, RestartDesigner);
+	GetTypeTable(&condition, ConditionNull);
+	typeargs_var1opt1(&arg, arg, condition);
 	/* restart */
-	GetCallType(&values, RestartNull);
-	result_valuestype(&values, values);
+	GetTypeTable(&values, RestartNull);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -381,10 +378,10 @@ static void type_invoke_restart(addr *ret)
 {
 	addr arg, values, restart;
 
-	GetCallType(&restart, RestartDesigner);
-	GetCallType(&arg, T);
-	var1rest_argtype(&arg, restart, arg);
-	GetCallType(&values, Asterisk);
+	GetTypeTable(&restart, RestartDesigner);
+	GetTypeTable(&arg, T);
+	typeargs_var1rest(&arg, restart, arg);
+	GetTypeTable(&values, Asterisk);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -417,9 +414,9 @@ static void type_invoke_restart_interactively(addr *ret)
 {
 	addr arg, values, restart;
 
-	GetCallType(&restart, RestartDesigner);
-	var1_argtype(&arg, restart);
-	GetCallType(&values, Asterisk);
+	GetTypeTable(&restart, RestartDesigner);
+	typeargs_var1(&arg, restart);
+	GetTypeTable(&values, Asterisk);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -565,7 +562,7 @@ static void defmacro_restart_bind(void)
 	setcompiled_macro(pos, function_restart_bind);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -683,7 +680,7 @@ static void defmacro_restart_case(void)
 	setcompiled_macro(pos, function_restart_case);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -730,7 +727,7 @@ static void defmacro_with_condition_restarts(void)
 	setcompiled_macro(pos, function_with_condition_restarts);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -759,7 +756,7 @@ static void defun_abort(void)
 	setcompiled_opt1(pos, function_abort);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Abort);
+	GetTypeCompiled(&type, Abort);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -792,7 +789,7 @@ static void defun_continue(void)
 	setcompiled_opt1(pos, function_continue);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Continue);
+	GetTypeCompiled(&type, Continue);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -822,7 +819,7 @@ static void defun_muffle_warning(void)
 	setcompiled_opt1(pos, function_muffle_warning);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Abort);
+	GetTypeCompiled(&type, Abort);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -855,7 +852,7 @@ static void defun_store_value(void)
 	setcompiled_opt1(pos, function_store_value);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Continue);
+	GetTypeCompiled(&type, Continue);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -888,7 +885,7 @@ static void defun_use_value(void)
 	setcompiled_opt1(pos, function_use_value);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Continue);
+	GetTypeCompiled(&type, Continue);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }

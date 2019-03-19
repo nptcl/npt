@@ -1,5 +1,5 @@
-#ifndef __HEADER_RATIO__
-#define __HEADER_RATIO__
+#ifndef __RATIO_HEADER__
+#define __RATIO_HEADER__
 
 #include "local.h"
 #include "typedef.h"
@@ -110,6 +110,10 @@ int compare_lr_real(LocalRoot local, addr left, addr right);
 single_float single_float_ratio(addr pos);
 double_float double_float_ratio(addr pos);
 long_float long_float_ratio(addr pos);
+
+void single_float_ratio_heap(addr *ret, addr pos);
+void double_float_ratio_heap(addr *ret, addr pos);
+void long_float_ratio_heap(addr *ret, addr pos);
 
 
 /*

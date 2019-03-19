@@ -34,6 +34,7 @@ enum SYMBOL_STACK {
 #define RefInfoSymbol_Low(s)        RefArrayA2((s), SYMBOL_INDEX_INFO)
 #define GetInfoSymbol_Low(s,v)      GetArrayA2((s), SYMBOL_INDEX_INFO, (v))
 #define SetInfoSymbol_Low(s,v)      SetArrayA2((s), SYMBOL_INDEX_INFO, (v))
+#define SetInfoSymbol_force(s,v)    SetArrayA2_force((s), SYMBOL_INDEX_INFO, (v))
 
 #ifdef LISP_DEBUG
 #define RefNameSymbol(s)            refname_symbol(s)
@@ -155,6 +156,13 @@ void getdocument_variable_symbol(addr symbol, addr *ret);
 void setdocument_variable_symbol(addr symbol, addr value);
 void getdocument_type_symbol(addr symbol, addr *ret);
 void setdocument_type_symbol(addr symbol, addr value);
+void getdeftype_symbol(addr symbol, addr *ret);
+void setdeftype_symbol(addr symbol, addr value);
+void remdeftype_symbol(addr symbol);
+void getsymboltype_symbol(addr symbol, addr *ret);
+void setsymboltype_symbol(addr symbol, addr value);
+void getlisttype_symbol(addr symbol, addr *ret);
+void setlisttype_symbol(addr symbol, addr value);
 
 /* symstack */
 void pushlexical_closure_unsafe(Execute ptr, addr pos, addr cons);

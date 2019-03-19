@@ -1091,6 +1091,7 @@ int test_unicode(void)
 		build_lisproot(ptr);
 		build_constant();
 		build_object();
+		build_character();
 		lisp_init = 1;
 		result = testbreak_unicode();
 	}

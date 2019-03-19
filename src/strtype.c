@@ -1,8 +1,7 @@
 #include "array.h"
 #include "character.h"
 #include "condition.h"
-#include "type.h"
-#include "type_parse.h"
+#include "type_table.h"
 #include "strtype.h"
 #include "symbol.h"
 #include "unicode.h"
@@ -43,12 +42,10 @@ int string_designer_p(addr pos)
  */
 addr strarray_allocr(LocalRoot local, size_t len)
 {
-	addr pos, type;
+	addr pos;
 
 	array_alloc(local, &pos, 1, len);
-	type_empty(local, LISPDECL_CHARACTER, &type);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
-	allocate_array_alloc(local, pos);
+	character_array_alloc(local, pos);
 	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
 
 	return pos;

@@ -17,7 +17,7 @@ void double_float_epsilon(addr *ret);
 void double_float_negative_epsilon(addr *ret);
 void long_float_epsilon(addr *ret);
 void long_float_negative_epsilon(addr *ret);
-void build_float(void);
+void build_real(void);
 
 /* common-lisp */
 void float_common(addr *ret, addr var, addr type);

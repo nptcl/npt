@@ -44,8 +44,9 @@ static void type_char_eql(addr *ret)
 {
 	addr arg, values;
 
-	char_rest_char_argtype(&arg);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, Character);
+	typeargs_var1rest(&arg, arg, arg);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -320,12 +321,34 @@ static void function_character(Execute ptr, addr var)
 	setresult_control(ptr, var);
 }
 
+static void type_character_stringone(addr *ret)
+{
+	addr pos;
+	fixnum_heap(&pos, 1);
+	type1_heap(LISPDECL_SIMPLE_BASE_STRING, pos, ret);
+}
+
+static void type_character_arguments(addr *ret)
+{
+	addr type1, type2, type3, pos;
+
+	/* (or character
+	 *     (simple-base-string 1)
+	 *     symbol)  ;; (= (length (symbol-name x)) 1)
+	 */
+	GetTypeTable(&type1, Character);
+	type_character_stringone(&type2);
+	GetTypeTable(&type3, Symbol);
+	type3or_heap(type1, type2, type3, &pos);
+	typeargs_var1(ret, pos);
+}
+
 static void type_character(addr *ret)
 {
 	addr arg, values;
 
-	character_designer_argtype(&arg);
-	GetCallType(&values, Values_Character);
+	type_character_arguments(&arg);
+	GetTypeValues(&values, Character);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -361,7 +384,7 @@ static void defun_characterp(void)
 	setcompiled_var1(pos, function_characterp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -380,9 +403,9 @@ static void type_character_boolean(addr *ret)
 	addr arg, values;
 
 	/* (function (character) boolean) */
-	GetCallType(&arg, Character);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, Character);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -454,17 +477,14 @@ static void function_digit_char(Execute ptr, addr var, addr opt)
 
 static void type_digit_char(addr *ret)
 {
-	addr weight, radix, result, arg, values;
+	addr weight, radix, arg, values;
 
 	/* ((integer 0 *) &optional (integer 2 36)) */
-	GetCallType(&weight, Intplus);
-	GetCallType(&radix, RadixInteger);
-	var1opt1_argtype(&arg, weight, radix);
+	GetTypeTable(&weight, Intplus);
+	GetTypeTable(&radix, RadixInteger);
+	typeargs_var1opt1(&arg, weight, radix);
 	/* (or character null) */
-	GetCallType(&result, Character);
-	GetCallType(&values, Null);
-	type_or(NULL, result, values, &values);
-	result_valuestype(&values, values);
+	GetTypeValues(&values, CharacterNull);
 	/* function */
 	type_compiled_heap(arg, values, ret);
 }
@@ -526,11 +546,11 @@ static void type_digit_char_p(addr *ret)
 	addr character, radix, arg, values;
 
 	/* (character &optional (integer 2 36)) */
-	GetCallType(&character, Character);
-	GetCallType(&radix, RadixInteger);
-	var1opt1_argtype(&arg, character, radix);
+	GetTypeTable(&character, Character);
+	GetTypeTable(&radix, RadixInteger);
+	typeargs_var1opt1(&arg, character, radix);
 	/* (or (integer 0 *) null) */
-	GetCallType(&values, Values_IntplusNull);
+	GetTypeValues(&values, IntplusNull);
 	/* function */
 	type_compiled_heap(arg, values, ret);
 }
@@ -619,9 +639,9 @@ static void type_character_character(addr *ret)
 	addr arg, values;
 
 	/* (function (character) character) */
-	GetCallType(&arg, Character);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Character);
+	GetTypeTable(&arg, Character);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Character);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -757,10 +777,10 @@ static void type_char_code(addr *ret)
 	addr arg, values;
 
 	/* (function (character) (values (integer 0 UnicodeCount))) */
-	GetCallType(&arg, Character);
-	var1_argtype(&arg, arg);
-	type_intrange(Nil, 0, Nil, (fixnum)UnicodeCount, &values);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Character);
+	typeargs_var1(&arg, arg);
+	type4integer_heap(Nil, 0, Nil, (fixnum)UnicodeCount, &values);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -821,12 +841,12 @@ static void type_code_char(addr *ret)
 	/* (function
 	 *   ((integer 0 UnicodeCount))
 	 *   (values (or character boolean))) */
-	type_intrange(Nil, 0, Nil, (fixnum)UnicodeCount, &arg);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Character);
-	GetCallType(&type, Boolean);
-	type_or(NULL, values, type, &values);
-	result_valuestype(&values, values);
+	type4integer_heap(Nil, 0, Nil, (fixnum)UnicodeCount, &arg);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, Character);
+	GetTypeTable(&type, Boolean);
+	type2or_heap(values, type, &values);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -859,14 +879,11 @@ static void function_char_name(Execute ptr, addr var)
 
 static void type_char_name(addr *ret)
 {
-	addr arg, values, type;
+	addr arg, values;
 
-	GetCallType(&arg, Character);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, String);
-	GetCallType(&type, Null);
-	type_or(NULL, values, type, &values);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Character);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, StringNull);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -922,14 +939,11 @@ static void function_name_char(Execute ptr, addr var)
 
 static void type_name_char(addr *ret)
 {
-	addr arg, values, type;
+	addr arg, values;
 
-	GetCallType(&arg, StringDesigner);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Character);
-	GetCallType(&type, Null);
-	type_or(NULL, values, type, &values);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, StringDesigner);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, CharacterNull);
 	type_compiled_heap(arg, values, ret);
 }
 

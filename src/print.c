@@ -29,7 +29,7 @@
 #include "strtype.h"
 #include "structure.h"
 #include "symbol.h"
-#include "type_value.h"
+#include "type_name.h"
 #include "unicode.h"
 
 #define PRINT_STREAM_SIZE		64
@@ -1565,7 +1565,7 @@ int write_print(struct PrintFormat *format, addr stream, addr object)
 static int write_error_body(struct PrintFormat *format, addr stream, addr pos)
 {
 	print_ascii_stream(stream, "INVALID-OBJECT");
-	if (! type_name_check(&pos, pos)) {
+	if (! type_name_p(&pos, pos)) {
 		write_char_stream(stream, ' ');
 		return write_print(format, stream, pos);
 	}

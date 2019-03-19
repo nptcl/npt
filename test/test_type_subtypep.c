@@ -1,5 +1,4 @@
 #include "type_subtypep.c"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -14,11 +13,18 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type_optimize.h"
+#include "type_table.h"
+
+static void test_parse_type(addr *ret, addr pos)
+{
+	if (parse_type(Execute_Thread, ret, pos, Nil))
+		fmte("parse-type error.", NULL);
+}
 
 static void parse_type_string(addr *ret, const char *code)
 {
 	readstring(ret, code);
-	parse_type_heap(ret, *ret);
+	test_parse_type(ret, *ret);
 }
 
 static SubtypepResult subtable_test(addr left, addr right)
@@ -88,11 +94,11 @@ static int test_asterisk_or_t(void)
 {
 	addr pos;
 
-	type_asterisk_heap(&pos);
+	GetTypeTable(&pos, Asterisk);
 	test(asterisk_or_t(pos), "asterisk_or_t1");
-	type_t_heap(&pos);
+	GetTypeTable(&pos, T);
 	test(asterisk_or_t(pos), "asterisk_or_t2");
-	type_empty(NULL, LISPDECL_NULL, &pos);
+	GetTypeTable(&pos, Null);
 	test(! asterisk_or_t(pos), "asterisk_or_t3");
 
 	RETURN;
@@ -818,11 +824,11 @@ static int test_subtypep_float(void)
 	double_float_heap(&pos1, 10.0);
 	double_float_heap(&pos2, 20.0);
 	list_heap(&left, left, pos1, pos2, NULL);
-	parse_type_heap(&left, left);
+	test_parse_type(&left, left);
 	interncommon("FLOAT", &right);
 	double_float_heap(&pos1, 15.0);
 	list_heap(&right, right, pos1, NULL);
-	parse_type_heap(&right, right);
+	test_parse_type(&right, right);
 	test(subtypep_table(left, right) == SUBTYPEP_FALSE, "subtypep_float6");
 
 	RETURN;
@@ -861,11 +867,11 @@ static int test_subtypep_float_type(void)
 	single_float_heap(&pos1, 10.0);
 	single_float_heap(&pos2, 20.0);
 	list_heap(&left, left, pos1, pos2, NULL);
-	parse_type_heap(&left, left);
+	test_parse_type(&left, left);
 	interncommon("SINGLE-FLOAT", &right);
 	single_float_heap(&pos1, 5.0);
 	list_heap(&right, right, pos1, NULL);
-	parse_type_heap(&right, right);
+	test_parse_type(&right, right);
 	test(subtypep_float_type(left, right, LISPDECL_SINGLE_FLOAT) == SUBTYPEP_INCLUDE,
 			"subtypep_float_type6");
 
@@ -1101,18 +1107,19 @@ static int test_ordinary_keytype(void)
 {
 	addr pos, check, array;
 	ordargs str;
+	LocalRoot local = Local_Thread;
 
 	/* &allow-other-keys */
 	parse_args(&pos, "(function (atom &key (a t)))");
 	SetArrayType(pos, 3, T);
 	make_function_ordinary(&str, pos);
-	ordinary_keytype(NULL, &pos, &str);
+	ordinary_keytype(local, &pos, &str);
 	test(RefLispDecl(pos) == LISPDECL_SYMBOL, "ordinary_keytype1");
 
 	/* (eql key) */
 	parse_args(&pos, "(function (atom &key (name integer)))");
 	make_function_ordinary(&str, pos);
-	ordinary_keytype(NULL, &pos, &str);
+	ordinary_keytype(local, &pos, &str);
 	test(RefLispDecl(pos) == LISPDECL_EQL, "ordinary_keytype2");
 	GetArrayType(pos, 0, &pos);
 	readstring(&check, "name");
@@ -1121,7 +1128,7 @@ static int test_ordinary_keytype(void)
 	/* (or (eql key) ...) */
 	parse_args(&pos, "(function (atom &key (aa real) (bb t) (cc atom)))");
 	make_function_ordinary(&str, pos);
-	ordinary_keytype(NULL, &pos, &str);
+	ordinary_keytype(local, &pos, &str);
 	test(RefLispDecl(pos) == LISPDECL_OR, "ordinary_keytype4");
 	GetArrayType(pos, 0, &array);
 	test(lenarrayr(array) == 3, "ordinary_keytype5");
@@ -1150,24 +1157,25 @@ static int test_ordinary_valuetype(void)
 {
 	addr pos, array;
 	ordargs str;
+	LocalRoot local = Local_Thread;
 
 	/* &allow-other-keys */
 	parse_args(&pos, "(function (atom &key (a t)))");
 	SetArrayType(pos, 3, T);
 	make_function_ordinary(&str, pos);
-	ordinary_valuetype(NULL, &pos, &str);
+	ordinary_valuetype(local, &pos, &str);
 	test(RefLispDecl(pos) == LISPDECL_T, "ordinary_valuetype1");
 
 	/* (eql type) */
 	parse_args(&pos, "(function (atom &key (name integer)))");
 	make_function_ordinary(&str, pos);
-	ordinary_valuetype(NULL, &pos, &str);
+	ordinary_valuetype(local, &pos, &str);
 	test(RefLispDecl(pos) == LISPDECL_INTEGER, "ordinary_valuetype2");
 
 	/* (or type ...) */
 	parse_args(&pos, "(function (atom &key (aa real) (bb t) (cc atom)))");
 	make_function_ordinary(&str, pos);
-	ordinary_valuetype(NULL, &pos, &str);
+	ordinary_valuetype(local, &pos, &str);
 	test(RefLispDecl(pos) == LISPDECL_OR, "ordinary_valuetype3");
 	GetArrayType(pos, 0, &array);
 	test(lenarrayr(array) == 3, "ordinary_valuetype4");
@@ -1186,41 +1194,42 @@ static int test_make_ordinary_type(void)
 	addr pos, check;
 	ordargs str;
 	ordtype type;
+	LocalRoot local = Local_Thread;
 
 	parse_args(&pos, "(function (atom list))");
 	make_function_ordinary(&str, pos);
 	gettype_ordinary(&str, 0, &type);
-	make_ordinary_type(NULL, &pos, &str, &type);
+	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_ATOM, "gettype_ordinary1");
 
 	parse_args(&pos, "(function (atom &optional list))");
 	make_function_ordinary(&str, pos);
 	gettype_ordinary(&str, 1, &type);
-	make_ordinary_type(NULL, &pos, &str, &type);
+	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_LIST, "gettype_ordinary2");
 
 	parse_args(&pos, "(function (atom &rest real))");
 	make_function_ordinary(&str, pos);
 	gettype_ordinary(&str, 1, &type);
-	make_ordinary_type(NULL, &pos, &str, &type);
+	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_REAL, "gettype_ordinary3");
 
 	parse_args(&pos, "(function (atom &key (name real)))");
 	make_function_ordinary(&str, pos);
 	gettype_ordinary(&str, 1, &type);
-	make_ordinary_type(NULL, &pos, &str, &type);
+	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_EQL, "gettype_ordinary4");
 
 	parse_args(&pos, "(function (atom &key (name real)))");
 	make_function_ordinary(&str, pos);
 	gettype_ordinary(&str, 2, &type);
-	make_ordinary_type(NULL, &pos, &str, &type);
+	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_REAL, "gettype_ordinary5");
 
 	parse_args(&pos, "(function (atom &rest cons &key (name real)))");
 	make_function_ordinary(&str, pos);
 	gettype_ordinary(&str, 1, &type);
-	make_ordinary_type(NULL, &pos, &str, &type);
+	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_AND, "gettype_ordinary6");
 	GetArrayType(pos, 0, &pos);
 	getarray(pos, 0, &check);
@@ -1231,7 +1240,7 @@ static int test_make_ordinary_type(void)
 	parse_args(&pos, "(function (atom &rest cons &key (name real)))");
 	make_function_ordinary(&str, pos);
 	gettype_ordinary(&str, 2, &type);
-	make_ordinary_type(NULL, &pos, &str, &type);
+	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_AND, "gettype_ordinary9");
 	GetArrayType(pos, 0, &pos);
 	getarray(pos, 0, &check);
@@ -1243,7 +1252,7 @@ static int test_make_ordinary_type(void)
 	SetArrayType(pos, 3, T);
 	make_function_ordinary(&str, pos);
 	gettype_ordinary(&str, 1, &type);
-	make_ordinary_type(NULL, &pos, &str, &type);
+	make_ordinary_type(local, &pos, &str, &type);
 	test(RefLispDecl(pos) == LISPDECL_AND, "gettype_ordinary12");
 	GetArrayType(pos, 0, &pos);
 	getarray(pos, 0, &check);
@@ -1278,7 +1287,8 @@ static int test_ordinary_subtypep(void)
 static void parse_values_string(addr *ret, const char *code)
 {
 	readstring(ret, code);
-	parse_type_values_heap(ret, *ret);
+	if (parse_type_values(Execute_Thread, ret, *ret, Nil))
+		fmte("parse-type-values error.", NULL);
 }
 
 static void extractchar(addr *ret, const char *str)
@@ -1414,7 +1424,7 @@ static int test_subtypep_function_ordinary(void)
 {
 	addr left, right, aster;
 
-	type_asterisk_heap(&aster);
+	GetTypeTable(&aster, Asterisk);
 	extractargs(&left, "(function (integer integer &rest integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	test(subtypep_function_ordinary(left, right), "subtypep_function_ordinary1");
@@ -1526,7 +1536,8 @@ static int test_subtypep_compiled_function(void)
 static void parse_type_string_not(addr *ret, const char *code)
 {
 	readstring(ret, code);
-	parse_type_heap(ret, *ret);
+	test_parse_type(ret, *ret);
+	type_copy_heap(ret, *ret);
 	SetNotDecl(*ret, 1);
 }
 
@@ -1642,7 +1653,7 @@ static void test_eql_character(addr *ret, unicode u, int notp)
 	interncommon("EQL", &left);
 	character_heap(&pos, u);
 	list_heap(&left, left, pos, NULL);
-	parse_type_heap(&left, left);
+	test_parse_type(&left, left);
 	SetNotDecl(left, notp);
 	*ret = left;
 }
@@ -2595,7 +2606,6 @@ int test_type_subtypep(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

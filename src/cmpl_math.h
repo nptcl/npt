@@ -1,5 +1,5 @@
-#ifndef __MATH_COMPLEX_HEADER__
-#define __MATH_COMPLEX_HEADER__
+#ifndef __CMPL_MATH_HEADER__
+#define __CMPL_MATH_HEADER__
 
 #include "typedef.h"
 

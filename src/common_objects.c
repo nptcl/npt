@@ -50,7 +50,7 @@ static void defmacro_defclass(void)
 	setcompiled_macro(pos, function_defclass);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 

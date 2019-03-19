@@ -17,14 +17,9 @@
 #include "package.h"
 #include "sequence.h"
 #include "symbol.h"
-#include "type.h"
+#include "type_typep.h"
 #include "type_value.h"
-
-static void check_type_error(addr value, addr type)
-{
-	type_error(value, type);
-}
-
+#include "type_deftype.h"
 
 /*****************************************************************************
  *  code function
@@ -234,14 +229,19 @@ static void let_lexical_code(Execute ptr, addr right)
 	pushlexical_control(ptr, symbol, right);
 }
 
+static int typep_unbound_error(addr value, addr type)
+{
+	return (value == Unbound)? 0: typep_error(value, type);
+}
+
 static void let_lexical_type_code(Execute ptr, addr right)
 {
 	addr symbol, value, type;
 
 	List_bind(right, &symbol, &value, &type, NULL);
 	getdata_array_control(ptr, RefIndex(value), &value);
-	if (! typep_clang(value, type))
-		check_type_error(value, type);
+	if (typep_error(value, type))
+		return;
 	pushlexical_control(ptr, symbol, value);
 }
 
@@ -260,8 +260,8 @@ static void let_special_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &value, &type, NULL);
 	getdata_array_control(ptr, RefIndex(value), &value);
-	if (! typep_clang(value, type))
-		check_type_error(value, type);
+	if (typep_error(value, type))
+		return;
 	pushspecial_control(ptr, symbol, value);
 }
 
@@ -279,8 +279,8 @@ static void leta_lexical_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &type, NULL);
 	getresult_control(ptr, &right);
-	if (! typep_clang(right, type))
-		check_type_error(right, type);
+	if (typep_error(right, type))
+		return;
 	pushlexical_control(ptr, symbol, right);
 }
 
@@ -298,8 +298,8 @@ static void leta_special_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &type, NULL);
 	getresult_control(ptr, &right);
-	if (! typep_clang(right, type))
-		check_type_error(right, type);
+	if (typep_error(right, type))
+		return;
 	pushspecial_control(ptr, symbol, right);
 }
 
@@ -313,8 +313,7 @@ static void lexical_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &type, NULL);
 	getlexical_local(ptr, symbol, &right);
-	if ((right != Unbound) && (! typep_clang(right, type)))
-		check_type_error(right, type);
+	(void)typep_unbound_error(right, type);
 }
 
 static void lexical_set_code(Execute ptr, addr right)
@@ -353,8 +352,7 @@ static void special_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &type, NULL);
 	getspecial_local(ptr, symbol, &right);
-	if ((right != Unbound) && (! typep_clang(right, type)))
-		check_type_error(right, type);
+	(void)typep_unbound_error(right, type);
 }
 
 static void special_set_code(Execute ptr, addr right)
@@ -412,8 +410,8 @@ static void setq_lexical_type_code(Execute ptr, addr right)
 	List_bind(right, &symbol, &type, NULL);
 	check_readonly_variable(symbol);
 	getresult_control(ptr, &right);
-	if (! typep_clang(right, type))
-		check_type_error(right, type);
+	if (typep_error(right, type))
+		return;
 	setlexical_local(ptr, symbol, right);
 }
 
@@ -432,8 +430,8 @@ static void setq_special_type_code(Execute ptr, addr right)
 	List_bind(right, &symbol, &type, NULL);
 	check_readonly_variable(symbol);
 	getresult_control(ptr, &right);
-	if (! typep_clang(right, type))
-		check_type_error(right, type);
+	if (typep_error(right, type))
+		return;
 	setspecial_local(ptr, symbol, right);
 }
 
@@ -447,8 +445,7 @@ static void function_global_type_code(Execute ptr, addr right)
 
 	List_bind(right, &call, &type, NULL);
 	function_global_restart(ptr, call, &right);
-	if ((right != Unbound) && (! typep_clang(right, type)))
-		check_type_error(right, type);
+	(void)typep_unbound_error(right, type);
 }
 
 static void function_global_set_code(Execute ptr, addr right)
@@ -469,8 +466,7 @@ static void function_local_type_code(Execute ptr, addr right)
 
 	List_bind(right, &call, &type, NULL);
 	getfunction_local(ptr, call, &right);
-	if ((right != Unbound) && (! typep_clang(right, type)))
-		check_type_error(right, type);
+	(void)typep_unbound_error(right, type);
 }
 
 static void function_local_set_code(Execute ptr, addr right)
@@ -491,8 +487,7 @@ static void setf_global_type_code(Execute ptr, addr right)
 
 	List_bind(right, &call, &type, NULL);
 	getsetf_symbol(call, &right);
-	if ((right != Unbound) && (! typep_clang(right, type)))
-		check_type_error(right, type);
+	(void)typep_unbound_error(right, type);
 }
 
 static void setf_global_set_code(Execute ptr, addr right)
@@ -513,8 +508,7 @@ static void setf_local_type_code(Execute ptr, addr right)
 
 	List_bind(right, &call, &type, NULL);
 	getsetf_local(ptr, call, &right);
-	if ((right != Unbound) && (! typep_clang(right, type)))
-		check_type_error(right, type);
+	(void)typep_unbound_error(right, type);
 }
 
 static void setf_local_set_code(Execute ptr, addr right)
@@ -602,8 +596,8 @@ static void bind_variable(Execute ptr, addr left, addr right, int ignore)
 	/* type check */
 	if (! ignore && getcheck_tablevalue(left)) {
 		gettype_tablevalue(left, &type);
-		if (! typep_clang(right, right))
-			check_type_error(right, type);
+		if (typep_error(right, type))
+			return;
 	}
 
 	/* push */
@@ -906,6 +900,17 @@ static void defmacro_code(Execute ptr, addr right)
 	setresult_control(ptr, symbol);
 }
 
+static void deftype_code(Execute ptr, addr right)
+{
+	addr pos, symbol, doc;
+
+	List_bind(right, &symbol, &doc, NULL);
+	getresult_control(ptr, &pos);
+	setdocumentation_function(pos, doc);
+	setdeftype(symbol, pos);
+	setresult_control(ptr, symbol);
+}
+
 static void define_symbol_macro_code(Execute ptr, addr right)
 {
 	addr symbol, eval, form;
@@ -964,8 +969,7 @@ static void call_type_code(Execute ptr, addr right)
 	addr value;
 
 	getargs_tail_control(ptr, &value);
-	if (! typep_clang(value, right))
-		check_type_error(value, right);
+	(void)typep_error(value, right);
 }
 
 static void values_nil_code(Execute ptr, addr right)
@@ -984,8 +988,7 @@ static void the_code(Execute ptr, addr right)
 	addr value;
 
 	getresult_control(ptr, &value);
-	if (! typep_clang(value, right))
-		check_type_error(value, right);
+	(void)typep_error(value, right);
 }
 
 static void if_nil_code(Execute ptr, addr right)
@@ -1251,6 +1254,7 @@ void build_code(void)
 	defcode(DEFUN, defun_code);
 	defcode(MACRO_LAMBDA, macro_lambda_code);
 	defcode(DEFMACRO, defmacro_code);
+	defcode(DEFTYPE, deftype_code);
 	defcode(DEFINE_SYMBOL_MACRO, define_symbol_macro_code);
 	defcode(FLET, flet_code);
 	defcode(LABELS, labels_code);

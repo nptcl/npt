@@ -2,6 +2,7 @@
 #include "bignum.h"
 #include "cmpl.h"
 #include "condition.h"
+#include "integer.h"
 #include "object.h"
 #include "ratio.h"
 #include "real_common.h"
@@ -125,7 +126,15 @@ void long_float_negative_epsilon(addr *ret)
 	long_float_heap(ret, LDBL_EPSILON * 0.25L);
 }
 
-static void float_max_value(void)
+static void build_index_max(void)
+{
+	addr pos;
+
+	make_indexmax_alloc(NULL, &pos);
+	SetConstant(CONSTANT_INDEX_MAX, pos);
+}
+
+static void build_float_max(void)
 {
 	addr value;
 
@@ -135,7 +144,7 @@ static void float_max_value(void)
 	SetConstant(CONSTANT_SINGLE_FLOAT_MOST_NEGATIVE, value);
 }
 
-static void float_min_value(void)
+static void build_float_min(void)
 {
 	addr value;
 
@@ -151,7 +160,7 @@ static void float_min_value(void)
 	SetConstant(CONSTANT_SINGLE_FLOAT_LEAST_NEGATIVE_NORMALIZED, value);
 }
 
-static void float_epsilon_value(void)
+static void build_float_epsilon(void)
 {
 	addr value;
 
@@ -163,11 +172,12 @@ static void float_epsilon_value(void)
 	SetConstant(CONSTANT_SINGLE_FLOAT_NEGATIVE_EPSILON, value);
 }
 
-void build_float(void)
+void build_real(void)
 {
-	float_max_value();
-	float_min_value();
-	float_epsilon_value();
+	build_index_max();
+	build_float_max();
+	build_float_min();
+	build_float_epsilon();
 }
 
 

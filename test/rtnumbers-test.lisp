@@ -21,6 +21,18 @@
   (float 10 10l5)
   10l0)
 
+(deftest floatp.1
+  (values
+    (floatp 10)
+    (floatp 3/4)
+    (floatp 1.2)
+    (floatp 2.3s1)
+    (floatp 2.3f1)
+    (floatp -2.3d-1)
+    (floatp 2.5L-1)
+    (floatp #c(1.2 3.4)))
+  nil nil t t t t t nil)
+
 (deftest max.1
   (max 10)
   10)

@@ -37,6 +37,7 @@ addr character_heapr(unicode value)
 
 	if (value < CHARACTER_CACHE) {
 		GetConst(CHARACTER_CACHE, &cache);
+		Check(cache == Unbound, "Unbound error, (build_character).");
 		GetArrayA4(cache, (size_t)value, &pos);
 		if (pos != Nil) return pos;
 		pos = make_character_allocr(NULL, value);

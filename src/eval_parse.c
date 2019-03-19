@@ -36,7 +36,7 @@ static void environment_symbol(addr *ret)
 static void envroot_heap(addr *ret)
 {
 	/* global, local */
-	heap_array2(ret, LISPTYPE_SYSTEM, 2);
+	heap_array2(ret, LISPSYSTEM_ENVROOT, 2);
 }
 
 static void envstack_heap(addr *ret, addr next, addr call, addr lambda, addr callp)
@@ -44,7 +44,7 @@ static void envstack_heap(addr *ret, addr next, addr call, addr lambda, addr cal
 	addr pos;
 
 	/* next, call, lambda, macro/symbol */
-	heap_array2(&pos, LISPTYPE_SYSTEM, 4);
+	heap_array2(&pos, LISPSYSTEM_ENVSTACK, 4);
 	SetArrayA2(pos, 0, next);
 	SetArrayA2(pos, 1, call);
 	SetArrayA2(pos, 2, lambda);
@@ -197,6 +197,53 @@ static int closep_environment(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_ENVIRONMENT, "type error");
 	return GetUser(pos) == 0;
+}
+
+
+/*
+ *  eval_declare
+ */
+static int parse_declare_body(addr cons, addr *retdecl, addr *retbody)
+{
+	int check;
+	addr env;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	environment_heap(&env);
+	check = declare_body(ptr, env, cons, retdecl, retbody);
+	close_environment(env);
+
+	return check;
+}
+
+static int parse_declare_body_documentation(addr cons,
+		addr *rdoc, addr *rdecl, addr *rbody)
+{
+	int check;
+	addr env;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	environment_heap(&env);
+	check = declare_body_documentation(ptr, env, cons, rdoc, rdecl, rbody);
+	close_environment(env);
+
+	return check;
+}
+
+static int parse_parse_type(addr *ret, addr type)
+{
+	int check;
+	addr env;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	environment_heap(&env);
+	check = parse_type(ptr, ret, type, env);
+	close_environment(env);
+
+	return check;
 }
 
 
@@ -399,7 +446,7 @@ static int parse_let(addr *ret, enum EVAL_PARSE type, addr cons)
 	}
 	getcons(cons, &args, &cons);
 	if (parse_letarg(&args, args)) return 1;
-	declare_body(cons, &decl, &cons);
+	if (parse_declare_body(cons, &decl, &cons)) return 1;
 	if (parse_allcons(&cons, cons)) return 1;
 
 	/* eval */
@@ -733,6 +780,28 @@ static int parse_defmacro(addr *ret, addr cons)
 	return 0;
 }
 
+/* deftype */
+static int parse_deftype(addr *ret, addr cons)
+{
+	addr eval, name, args, decl, doc;
+
+	/* (eval::deftype name args decl doc body) */
+	List_bind(cons, &name, &args, &decl, &doc, &cons, NULL);
+	if (parse_macro_lambda_list(&args, args)) return 1;
+	implicit_block(&cons, name, cons);
+	if (parse_allcons(&cons, cons)) return 1;
+	/* deftype */
+	eval_parse_heap(&eval, EVAL_PARSE_DEFTYPE, 5);
+	SetEvalParse(eval, 0, name);
+	SetEvalParse(eval, 1, args);
+	SetEvalParse(eval, 2, decl);
+	SetEvalParse(eval, 3, doc);
+	SetEvalParse(eval, 4, cons);
+	*ret = eval;
+
+	return 0;
+}
+
 /* macro-lambda */
 static int parse_macro_lambda(addr *ret, addr cons)
 {
@@ -744,7 +813,7 @@ static int parse_macro_lambda(addr *ret, addr cons)
 	GetCons(cons, &args, &cons);
 	lambda_macro(Local_Thread, &args, args, Nil);
 	if (parse_macro_lambda_list(&args, args)) return 1;
-	declare_body_documentation(cons, &doc, &decl, &cons);
+	if (parse_declare_body_documentation(cons, &doc, &decl, &cons)) return 1;
 	if (parse_allcons(&cons, cons)) return 1;
 	/* macro-lambda */
 	eval_parse_heap(&eval, EVAL_PARSE_MACRO_LAMBDA, 4);
@@ -799,7 +868,7 @@ static int parse_macrolet_one(addr cons)
 	local = Local_Thread;
 	lambda_macro(local, &args, args, Nil);
 	if (parse_macro_lambda_list(&args, args)) return 1;
-	declare_body_documentation(cons, &doc, &decl, &cons);
+	if (parse_declare_body_documentation(cons, &doc, &decl, &cons)) return 1;
 	implicit_block(&cons, name, cons);
 	if (parse_allcons(&cons, cons)) return 1;
 	if (make_macro_function(&cons, args, decl, doc, cons)) return 1;
@@ -831,7 +900,7 @@ static int parse_macrolet(addr *ret, addr cons)
 	/* local scope environment */
 	snapshot_envstack(&rollback);
 	parse_macrolet_args(args);
-	declare_body(cons, &decl, &cons);
+	if (parse_declare_body(cons, &decl, &cons)) return 1;
 	if (parse_allcons(&cons, cons)) return 1;
 	rollback_envstack(rollback);
 
@@ -936,7 +1005,7 @@ static int parse_symbol_macrolet(addr *ret, addr cons)
 	/* local scope environment */
 	snapshot_envstack(&rollback);
 	if (parse_symbol_macrolet_args(&args, args)) return 1;
-	declare_body(cons, &decl, &cons);
+	if (parse_declare_body(cons, &decl, &cons)) return 1;
 	check_symbol_macrolet(args, decl);
 	if (parse_allcons(&cons, cons)) return 1;
 	rollback_envstack(rollback);
@@ -977,7 +1046,7 @@ static int parse_lambda(addr *ret, addr form)
 	GetCons(cons, &args, &cons);
 
 	if (parse_ordinary(&args, args)) return 1;
-	declare_body_documentation(cons, &doc, &decl, &cons);
+	if (parse_declare_body_documentation(cons, &doc, &decl, &cons)) return 1;
 	if (parse_allcons(&cons, cons)) return 1;
 
 	/* eval */
@@ -1285,7 +1354,7 @@ static int parse_flet_one(addr *ret, addr cons)
 	if (GetType(cons) != LISPTYPE_CONS) goto error;
 	GetCons(cons, &args, &cons);
 	if (parse_ordinary(&args, args)) return 1;
-	declare_body_documentation(cons, &doc, &decl, &cons);
+	if (parse_declare_body_documentation(cons, &doc, &decl, &cons)) return 1;
 	implicit_block(&cons, call, cons);
 	if (parse_allcons(&cons, cons)) return 1;
 	list_heap(ret, call, args, decl, doc, cons, NULL);
@@ -1322,7 +1391,7 @@ static int parse_flet_labels(addr *ret, enum EVAL_PARSE type, addr cons)
 	}
 	getcons(cons, &args, &cons);
 	if (parse_flet_args(&args, args)) return 1;
-	declare_body(cons, &decl, &cons);
+	if (parse_declare_body(cons, &decl, &cons)) return 1;
 	if (parse_allcons(&cons, cons)) return 1;
 
 	/* eval */
@@ -1345,7 +1414,7 @@ static int parse_the(addr *ret, addr cons)
 	if (GetType(cons) != LISPTYPE_CONS) goto error;
 	GetCons(cons, &expr, &cons);
 	if (cons != Nil) goto error;
-	parse_type_heap(&type, type);
+	if (parse_parse_type(&type, type)) return 1;
 	if (parse_self(expr)) return 1;
 
 	/* eval */
@@ -1411,7 +1480,7 @@ static int parse_locally(addr *ret, addr cons)
 {
 	addr eval, decl;
 
-	declare_body(cons, &decl, &cons);
+	if (parse_declare_body(cons, &decl, &cons)) return 1;
 	if (parse_allcons(&cons, cons)) return 1;
 	eval_parse_heap(&eval, EVAL_PARSE_LOCALLY, 2);
 	SetEvalParse(eval, 0, decl);
@@ -1841,6 +1910,9 @@ static int parse_cons(addr *ret, addr cons)
 	if (check_constant(call, CONSTANT_SYSTEM_DEFMACRO)) {
 		return parse_defmacro(ret, args);
 	}
+	if (check_constant(call, CONSTANT_SYSTEM_DEFTYPE)) {
+		return parse_deftype(ret, args);
+	}
 	if (check_constant(call, CONSTANT_SYSTEM_MACRO_LAMBDA)) {
 		return parse_macro_lambda(ret, args);
 	}
@@ -2209,6 +2281,71 @@ static void copy_defmacro(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
+static void copy_macro_lambda(LocalRoot local, addr *ret, addr cons);
+static void copy_macro_var(LocalRoot local, addr *ret, addr list)
+{
+	addr root, var;
+
+	for (root = Nil; list != Nil; ) {
+		GetCons(list, &var, &list);
+		if (consp(var))
+			copy_macro_lambda(local, &var, var);
+		cons_alloc(local, &root, var, root);
+	}
+	nreverse_list_unsafe(ret, root);
+}
+
+static void copy_macro_rest(LocalRoot local, addr *ret, addr list)
+{
+	addr car, cdr;
+
+	if (list != Nil) {
+		GetCons(list, &car, &cdr);
+		cons_heap(ret, car, cdr);
+	}
+}
+
+static void copy_macro_lambda(LocalRoot local, addr *ret, addr cons)
+{
+	addr var, opt, rest, key, allow, aux, whole, env;
+
+	List_bind(cons, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
+	copy_macro_var(local, &var, var);
+	copy_ordinary_optional(local, &opt, opt);
+	copy_macro_rest(local, &rest, rest);
+	copy_ordinary_key(local, &key, key);
+	copy_ordinary_aux(local, &aux, aux);
+	list_alloc(local, ret, var, opt, rest, key, allow, aux, whole, env, NULL);
+}
+
+static void copy_deftype(LocalRoot local, addr *ret, addr eval)
+{
+	enum EVAL_PARSE type;
+	addr name, args, decl, doc, cons;
+
+	GetEvalParseType(eval, &type);
+	Check(type != EVAL_PARSE_DEFTYPE, "parse error");
+	GetEvalParse(eval, 0, &name);
+	GetEvalParse(eval, 1, &args);
+	GetEvalParse(eval, 2, &decl);
+	GetEvalParse(eval, 3, &doc);
+	GetEvalParse(eval, 4, &cons);
+
+	copylocal_object(local, &name, name);
+	copy_macro_lambda(local, &args, args);
+	copy_declaim_nil(local, &decl, decl);
+	copylocal_object(local, &doc, doc);
+	copy_allcons(local, &cons, cons);
+
+	eval_parse_alloc(local, &eval, type, 5);
+	SetEvalParse(eval, 0, name);
+	SetEvalParse(eval, 1, args);
+	SetEvalParse(eval, 2, decl);
+	SetEvalParse(eval, 3, doc);
+	SetEvalParse(eval, 4, cons);
+	*ret = eval;
+}
+
 static void copy_define_symbol_macro(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
@@ -2262,43 +2399,6 @@ static void copy_symbol_macrolet(LocalRoot local, addr *ret, addr eval)
 	SetEvalParse(eval, 1, decl);
 	SetEvalParse(eval, 2, cons);
 	*ret = eval;
-}
-
-static void copy_macro_lambda(LocalRoot local, addr *ret, addr cons);
-static void copy_macro_var(LocalRoot local, addr *ret, addr list)
-{
-	addr root, var;
-
-	for (root = Nil; list != Nil; ) {
-		GetCons(list, &var, &list);
-		if (consp(var))
-			copy_macro_lambda(local, &var, var);
-		cons_alloc(local, &root, var, root);
-	}
-	nreverse_list_unsafe(ret, root);
-}
-
-static void copy_macro_rest(LocalRoot local, addr *ret, addr list)
-{
-	addr car, cdr;
-
-	if (list != Nil) {
-		GetCons(list, &car, &cdr);
-		cons_heap(ret, car, cdr);
-	}
-}
-
-static void copy_macro_lambda(LocalRoot local, addr *ret, addr cons)
-{
-	addr var, opt, rest, key, allow, aux, whole, env;
-
-	List_bind(cons, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
-	copy_macro_var(local, &var, var);
-	copy_ordinary_optional(local, &opt, opt);
-	copy_macro_rest(local, &rest, rest);
-	copy_ordinary_key(local, &key, key);
-	copy_ordinary_aux(local, &aux, aux);
-	list_alloc(local, ret, var, opt, rest, key, allow, aux, whole, env, NULL);
 }
 
 static void copy_lambda(LocalRoot local, addr *ret, addr eval)
@@ -2801,6 +2901,10 @@ static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 
 		case EVAL_PARSE_DEFMACRO:
 			copy_defmacro(local, ret, pos);
+			break;
+
+		case EVAL_PARSE_DEFTYPE:
+			copy_deftype(local, ret, pos);
 			break;
 
 		case EVAL_PARSE_DEFINE_SYMBOL_MACRO:

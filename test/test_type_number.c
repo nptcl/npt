@@ -1,5 +1,4 @@
 #include "type_number.c"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -13,13 +12,15 @@
 #include "readtable.h"
 #include "sequence.h"
 #include "stream.h"
-#include "syscall.h"
 #include "symbol.h"
+#include "syscall.h"
+#include "type_table.h"
 
 static void parse_type_string(addr *ret, const char *code)
 {
 	readstring(ret, code);
-	parse_type_heap(ret, *ret);
+	if (parse_type(Execute_Thread, ret, *ret, Nil))
+		fmte("parse-type error.", NULL);
 }
 
 
@@ -29,8 +30,9 @@ static void parse_type_string(addr *ret, const char *code)
 static int test_type_range_left(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
-	type_range_left(NULL, &pos, LISPDECL_INTEGER, T, fixnum_heapr(10));
+	type_range_left(local, &pos, LISPDECL_INTEGER, T, fixnum_heapr(10));
 	test(range_left_p(pos), "type_range_left1");
 	range_left_value(pos, &check, &pos);
 	test(check == T, "type_range_left2");
@@ -42,8 +44,9 @@ static int test_type_range_left(void)
 static int test_type_range_right(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
-	type_range_right(NULL, &pos, LISPDECL_INTEGER, T, fixnum_heapr(10));
+	type_range_right(local, &pos, LISPDECL_INTEGER, T, fixnum_heapr(10));
 	test(range_right_p(pos), "type_range_right1");
 	range_right_value(pos, &check, &pos);
 	test(check == T, "type_range_right2");
@@ -55,8 +58,9 @@ static int test_type_range_right(void)
 static int test_type_range_not(void)
 {
 	addr pos, left, right;
+	LocalRoot local = Local_Thread;
 
-	type_range_not(NULL, &pos, LISPDECL_INTEGER,
+	type_range_not(local, &pos, LISPDECL_INTEGER,
 			Nil, fixnum_heapr(10),
 			T, fixnum_heapr(20));
 	test(RefLispDecl(pos) == LISPDECL_OR, "type_range_not1");
@@ -85,8 +89,8 @@ static int equal_real_asterisk(addr left, addr right)
 {
 	int aster1, aster2;
 
-	aster1 = asterisk_p(left);
-	aster2 = asterisk_p(right);
+	aster1 = type_asterisk_p(left);
+	aster2 = type_asterisk_p(right);
 	if (aster1 && aster2) return 1;
 	if (aster1) return 0;
 	if (aster2) return 0;
@@ -97,8 +101,8 @@ static int equal_real(addr left, addr right)
 {
 	addr check1, check2;
 
-	if (! range_type_p(left)) return 0;
-	if (! range_type_p(right)) return 0;
+	if (! type_range_p(left)) return 0;
+	if (! type_range_p(right)) return 0;
 	if (RefLispDecl(left) != RefLispDecl(right)) return 0;
 	if (RefNotDecl(left) != RefNotDecl(right)) return 0;
 
@@ -121,23 +125,24 @@ static int equal_real(addr left, addr right)
 static int test_real_filter_not_range(void)
 {
 	addr pos1, pos2;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos1, "integer");
-	real_filter_not_range(NULL, &pos1, pos1, LISPDECL_REAL);
+	real_filter_not_range(local, &pos1, pos1, LISPDECL_REAL);
 	test(pos1 == Nil, "real_filter_not_range1");
 
 	parse_type_string(&pos1, "(integer 10 *)");
 	parse_type_string(&pos2, "(real * (10))");
-	real_filter_not_range(NULL, &pos1, pos1, LISPDECL_REAL);
+	real_filter_not_range(local, &pos1, pos1, LISPDECL_REAL);
 	test(equal_real(pos1, pos2), "real_filter_not_range2");
 
 	parse_type_string(&pos1, "(integer * (20))");
 	parse_type_string(&pos2, "(real 20 *)");
-	real_filter_not_range(NULL, &pos1, pos1, LISPDECL_REAL);
+	real_filter_not_range(local, &pos1, pos1, LISPDECL_REAL);
 	test(equal_real(pos1, pos2), "real_filter_not_range3");
 
 	parse_type_string(&pos1, "(integer 10 (20))");
-	real_filter_not_range(NULL, &pos1, pos1, LISPDECL_REAL);
+	real_filter_not_range(local, &pos1, pos1, LISPDECL_REAL);
 	test(RefLispDecl(pos1) == LISPDECL_OR, "real_filter_not_range4");
 
 	RETURN;
@@ -146,32 +151,33 @@ static int test_real_filter_not_range(void)
 static int test_real_filter_not(void)
 {
 	addr pos1, pos2;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos1, "integer");
-	real_filter_not(NULL, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_not(local, &pos1, pos1, LISPDECL_INTEGER);
 	test(pos1 == Nil, "real_filter_not1");
 
 	parse_type_string(&pos1, "integer");
-	real_filter_not(NULL, &pos1, pos1, LISPDECL_RATIONAL);
+	real_filter_not(local, &pos1, pos1, LISPDECL_RATIONAL);
 	parse_type_string(&pos2, "rational");
 	test(equal_real(pos1, pos2), "real_filter_not2");
 
 	parse_type_string(&pos1, "real");
-	real_filter_not(NULL, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_not(local, &pos1, pos1, LISPDECL_INTEGER);
 	test(pos1 == Nil, "real_filter_not3");
 
 	parse_type_string(&pos1, "(integer 10)");
-	real_filter_not(NULL, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_not(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "(integer * (10))");
 	test(equal_real(pos1, pos2), "real_filter_not4");
 
 	parse_type_string(&pos1, "(integer 10)");
-	real_filter_not(NULL, &pos1, pos1, LISPDECL_RATIONAL);
+	real_filter_not(local, &pos1, pos1, LISPDECL_RATIONAL);
 	parse_type_string(&pos2, "rational");
 	test(equal_real(pos1, pos2), "real_filter_not5");
 
 	parse_type_string(&pos1, "(real 10)");
-	real_filter_not(NULL, &pos1, pos1, LISPDECL_RATIONAL);
+	real_filter_not(local, &pos1, pos1, LISPDECL_RATIONAL);
 	parse_type_string(&pos2, "(rational * (10))");
 	test(equal_real(pos1, pos2), "real_filter_not6");
 
@@ -181,23 +187,24 @@ static int test_real_filter_not(void)
 static int test_real_filter_normal(void)
 {
 	addr pos1, pos2;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos1, "integer");
-	real_filter_normal(NULL, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_normal(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "integer");
 	test(equal_real(pos1, pos2), "real_filter_normal1");
 
 	parse_type_string(&pos1, "integer");
-	real_filter_normal(NULL, &pos1, pos1, LISPDECL_RATIONAL);
+	real_filter_normal(local, &pos1, pos1, LISPDECL_RATIONAL);
 	test(pos1 == Nil, "real_filter_normal2");
 
 	parse_type_string(&pos1, "real");
-	real_filter_normal(NULL, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_normal(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "integer");
 	test(equal_real(pos1, pos2), "real_filter_normal3");
 
 	parse_type_string(&pos1, "(real 10 20)");
-	real_filter_normal(NULL, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_normal(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "(integer 10 20)");
 	test(equal_real(pos1, pos2), "real_filter_normal4");
 
@@ -207,34 +214,38 @@ static int test_real_filter_normal(void)
 static int test_real_filter_type(void)
 {
 	addr pos1, pos2;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos1, "integer");
-	real_filter_type(NULL, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_type(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "integer");
 	test(equal_real(pos1, pos2), "real_filter_type1");
 
 	parse_type_string(&pos1, "integer");
+	type_copy_local(local, &pos1, pos1);
 	SetNotDecl(pos1, 1);
-	real_filter_type(NULL, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_type(local, &pos1, pos1, LISPDECL_INTEGER);
 	test(pos1 == Nil, "real_filter_type2");
 
 	parse_type_string(&pos1, "real");
-	real_filter_type(NULL, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_type(local, &pos1, pos1, LISPDECL_INTEGER);
 	parse_type_string(&pos2, "integer");
 	test(equal_real(pos1, pos2), "real_filter_type3");
 
 	parse_type_string(&pos1, "real");
+	type_copy_local(local, &pos1, pos1);
 	SetNotDecl(pos1, 1);
-	real_filter_type(NULL, &pos1, pos1, LISPDECL_INTEGER);
+	real_filter_type(local, &pos1, pos1, LISPDECL_INTEGER);
 	test(pos1 == Nil, "real_filter_type4");
 
 	parse_type_string(&pos1, "integer");
-	real_filter_type(NULL, &pos1, pos1, LISPDECL_REAL);
+	real_filter_type(local, &pos1, pos1, LISPDECL_REAL);
 	test(pos1 == Nil, "real_filter_type5");
 
 	parse_type_string(&pos1, "integer");
+	type_copy_local(local, &pos1, pos1);
 	SetNotDecl(pos1, 1);
-	real_filter_type(NULL, &pos1, pos1, LISPDECL_REAL);
+	real_filter_type(local, &pos1, pos1, LISPDECL_REAL);
 	parse_type_string(&pos2, "real");
 	test(equal_real(pos1, pos2), "real_filter_type6");
 
@@ -244,9 +255,10 @@ static int test_real_filter_type(void)
 static int test_real_filter_and(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(and real rational real)");
-	real_filter_and(NULL, &pos, pos, LISPDECL_REAL);
+	real_filter_and(local, &pos, pos, LISPDECL_REAL);
 	test(RefLispDecl(pos) == LISPDECL_AND, "real_filter_and1");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 1, "real_filter_and2");
@@ -254,7 +266,7 @@ static int test_real_filter_and(void)
 	test(RefLispDecl(pos) == LISPDECL_REAL, "real_filter_and3");
 
 	parse_type_string(&pos, "(and real rational)");
-	real_filter_and(NULL, &pos, pos, LISPDECL_INTEGER);
+	real_filter_and(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_AND, "real_filter_and4");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "real_filter_and5");
@@ -269,9 +281,10 @@ static int test_real_filter_and(void)
 static int test_real_filter_or(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(or real rational)");
-	real_filter_or(NULL, &pos, pos, LISPDECL_INTEGER);
+	real_filter_or(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_OR, "real_filter_or1");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "real_filter_or2");
@@ -281,7 +294,7 @@ static int test_real_filter_or(void)
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "real_filter_or4");
 
 	parse_type_string(&pos, "(or real rational real)");
-	real_filter_or(NULL, &pos, pos, LISPDECL_REAL);
+	real_filter_or(local, &pos, pos, LISPDECL_REAL);
 	test(RefLispDecl(pos) == LISPDECL_OR, "real_filter_or5");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "real_filter_or6");
@@ -291,7 +304,7 @@ static int test_real_filter_or(void)
 	test(RefLispDecl(check) == LISPDECL_REAL, "real_filter_or8");
 
 	parse_type_string(&pos, "(or real rational)");
-	real_filter_or(NULL, &pos, pos, LISPDECL_INTEGER);
+	real_filter_or(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_OR, "real_filter_or9");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "real_filter_or10");
@@ -306,18 +319,19 @@ static int test_real_filter_or(void)
 static int test_real_filter(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "real");
-	real_filter(NULL, &pos, pos, LISPDECL_INTEGER);
+	real_filter(local, &pos, pos, LISPDECL_INTEGER);
 	parse_type_string(&check, "integer");
 	test(equal_real(pos, check), "real_filter1");
 
 	parse_type_string(&pos, "integer");
-	real_filter(NULL, &pos, pos, LISPDECL_REAL);
+	real_filter(local, &pos, pos, LISPDECL_REAL);
 	test(pos == Nil, "real_filter2");
 
 	parse_type_string(&pos, "(and real)");
-	real_filter(NULL, &pos, pos, LISPDECL_INTEGER);
+	real_filter(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_AND, "real_filter3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 1, "real_filter4");
@@ -325,7 +339,7 @@ static int test_real_filter(void)
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "real_filter5");
 
 	parse_type_string(&pos, "(or real)");
-	real_filter(NULL, &pos, pos, LISPDECL_INTEGER);
+	real_filter(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_OR, "real_filter5");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 1, "real_filter6");
@@ -342,9 +356,10 @@ static int test_real_filter(void)
 static int test_merge_range_cons(void)
 {
 	addr pos;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "integer");
-	merge_range_cons(NULL, &pos, pos, LISPDECL_INTEGER);
+	merge_range_cons(local, &pos, pos, LISPDECL_INTEGER);
 	test(singlep(pos), "merge_range_cons1");
 	GetCar(pos, &pos);
 	test(RefLispDecl(pos) == LISPDECL_INTEGER, "merge_range_cons2");
@@ -359,10 +374,11 @@ static int test_merge_range_cons(void)
 static int test_make_range_left_right(void)
 {
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "(real (30) (40))");
-	make_range_left_right(NULL, &left, left, right);
+	make_range_left_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 (40))");
 	test(equal_real(left, right), "make_range_left_right1");
 
@@ -372,9 +388,10 @@ static int test_make_range_left_right(void)
 static int test_make_range_left_aster(void)
 {
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 20)");
-	make_range_left_aster(NULL, &left, left);
+	make_range_left_aster(local, &left, left);
 	parse_type_string(&right, "(integer 10 *)");
 	test(equal_real(left, right), "make_range_left_aster1");
 
@@ -384,9 +401,10 @@ static int test_make_range_left_aster(void)
 static int test_make_range_aster_right(void)
 {
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer (10) (20))");
-	make_range_aster_right(NULL, &left, left);
+	make_range_aster_right(local, &left, left);
 	parse_type_string(&right, "(integer * (20))");
 	test(equal_real(left, right), "make_range_aster_right1");
 
@@ -423,37 +441,38 @@ static int test_range_and_left_left(void)
 static int test_range_and_right_left(void)
 {
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer * 20)");
 	parse_type_string(&right, "(integer 10 *)");
-	range_and_right_left(NULL, &left, left, right);
+	range_and_right_left(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 20)");
 	test(equal_real(left, right), "range_and_right_left1");
 
 	parse_type_string(&left, "(integer * 5)");
 	parse_type_string(&right, "(integer 10 *)");
-	range_and_right_left(NULL, &left, left, right);
+	range_and_right_left(local, &left, left, right);
 	test(left == Nil, "range_and_right_left2");
 
 	parse_type_string(&left, "(integer * 10)");
 	parse_type_string(&right, "(integer 10 *)");
-	range_and_right_left(NULL, &left, left, right);
+	range_and_right_left(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 10)");
 	test(equal_real(left, right), "range_and_right_left3");
 
 	parse_type_string(&left, "(integer * (10))");
 	parse_type_string(&right, "(integer 10 *)");
-	range_and_right_left(NULL, &left, left, right);
+	range_and_right_left(local, &left, left, right);
 	test(left == Nil, "range_and_right_left4");
 
 	parse_type_string(&left, "(integer * 10)");
 	parse_type_string(&right, "(integer (10) *)");
-	range_and_right_left(NULL, &left, left, right);
+	range_and_right_left(local, &left, left, right);
 	test(left == Nil, "range_and_right_left5");
 
 	parse_type_string(&left, "(integer * (10))");
 	parse_type_string(&right, "(integer (10) *)");
-	range_and_right_left(NULL, &left, left, right);
+	range_and_right_left(local, &left, left, right);
 	test(left == Nil, "range_and_right_left6");
 
 	RETURN;
@@ -462,66 +481,67 @@ static int test_range_and_right_left(void)
 static int test_range_and_between_left(void)
 {
 	addr check, left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 *)");
-	range_and_between_left(NULL, &check, left, right);
+	range_and_between_left(local, &check, left, right);
 	test(check == left, "range_and_between_left1");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 30 *)");
-	range_and_between_left(NULL, &left, left, right);
+	range_and_between_left(local, &left, left, right);
 	parse_type_string(&right, "(integer 30 40)");
 	test(equal_real(left, right), "range_and_between_left2");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 50 *)");
-	range_and_between_left(NULL, &check, left, right);
+	range_and_between_left(local, &check, left, right);
 	test(check == Nil, "range_and_between_left3");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 20 *)");
-	range_and_between_left(NULL, &left, left, right);
+	range_and_between_left(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 40)");
 	test(equal_real(left, right), "range_and_between_left4");
 
 	parse_type_string(&left, "(integer (20) 40)");
 	parse_type_string(&right, "(integer 20 *)");
-	range_and_between_left(NULL, &left, left, right);
+	range_and_between_left(local, &left, left, right);
 	parse_type_string(&right, "(integer (20) 40)");
 	test(equal_real(left, right), "range_and_between_left5");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer (20) *)");
-	range_and_between_left(NULL, &left, left, right);
+	range_and_between_left(local, &left, left, right);
 	parse_type_string(&right, "(integer (20) 40)");
 	test(equal_real(left, right), "range_and_between_left6");
 
 	parse_type_string(&left, "(integer (20) 40)");
 	parse_type_string(&right, "(integer (20) *)");
-	range_and_between_left(NULL, &left, left, right);
+	range_and_between_left(local, &left, left, right);
 	parse_type_string(&right, "(integer (20) 40)");
 	test(equal_real(left, right), "range_and_between_left7");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 40 *)");
-	range_and_between_left(NULL, &left, left, right);
+	range_and_between_left(local, &left, left, right);
 	parse_type_string(&right, "(integer 40 40)");
 	test(equal_real(left, right), "range_and_between_left8");
 
 	parse_type_string(&left, "(integer 20 (40))");
 	parse_type_string(&right, "(integer 40 *)");
-	range_and_between_left(NULL, &check, left, right);
+	range_and_between_left(local, &check, left, right);
 	test(check == Nil, "range_and_between_left9");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer (40) *)");
-	range_and_between_left(NULL, &check, left, right);
+	range_and_between_left(local, &check, left, right);
 	test(check == Nil, "range_and_between_left10");
 
 	parse_type_string(&left, "(integer 20 (40))");
 	parse_type_string(&right, "(integer (40) *)");
-	range_and_between_left(NULL, &check, left, right);
+	range_and_between_left(local, &check, left, right);
 	test(check == Nil, "range_and_between_left11");
 
 	RETURN;
@@ -530,25 +550,26 @@ static int test_range_and_between_left(void)
 static int test_range_and_left(void)
 {
 	addr check, left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer * *)");
 	parse_type_string(&right, "(integer 20 *)");
-	range_and_left(NULL, &check, left, right);
+	range_and_left(local, &check, left, right);
 	test(check == right, "range_and_left1");
 
 	parse_type_string(&left, "(integer 40 *)");
 	parse_type_string(&right, "(integer 20 *)");
-	range_and_left(NULL, &check, left, right);
+	range_and_left(local, &check, left, right);
 	test(check == left, "range_and_left2");
 
 	parse_type_string(&left, "(integer * 10)");
 	parse_type_string(&right, "(integer 20 *)");
-	range_and_left(NULL, &check, left, right);
+	range_and_left(local, &check, left, right);
 	test(check == Nil, "range_and_left3");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 *)");
-	range_and_left(NULL, &check, left, right);
+	range_and_left(local, &check, left, right);
 	test(check == left, "range_and_left4");
 
 	RETURN;
@@ -557,38 +578,39 @@ static int test_range_and_left(void)
 static int test_range_and_left_right(void)
 {
 	addr check, left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer * 20)");
-	range_and_left_right(NULL, &left, left, right);
+	range_and_left_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 20)");
 	test(equal_real(left, right), "range_and_left_right1");
 
 	parse_type_string(&left, "(integer 20 *)");
 	parse_type_string(&right, "(integer * 10)");
-	range_and_left_right(NULL, &check, left, right);
+	range_and_left_right(local, &check, left, right);
 	test(check == Nil, "range_and_left_right2");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer * 10)");
-	range_and_left_right(NULL, &check, left, right);
-	range_and_left_right(NULL, &left, left, right);
+	range_and_left_right(local, &check, left, right);
+	range_and_left_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 10)");
 	test(equal_real(left, right), "range_and_left_right3");
 
 	parse_type_string(&left, "(integer (10) *)");
 	parse_type_string(&right, "(integer * 10)");
-	range_and_left_right(NULL, &check, left, right);
+	range_and_left_right(local, &check, left, right);
 	test(check == Nil, "range_and_left_right4");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer * (10))");
-	range_and_left_right(NULL, &check, left, right);
+	range_and_left_right(local, &check, left, right);
 	test(check == Nil, "range_and_left_right5");
 
 	parse_type_string(&left, "(integer (10) *)");
 	parse_type_string(&right, "(integer * (10))");
-	range_and_left_right(NULL, &check, left, right);
+	range_and_left_right(local, &check, left, right);
 	test(check == Nil, "range_and_left_right6");
 
 	RETURN;
@@ -624,65 +646,66 @@ static int test_range_and_right_right(void)
 static int test_range_and_between_right(void)
 {
 	addr check, left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer * 50)");
-	range_and_between_right(NULL, &check, left, right);
+	range_and_between_right(local, &check, left, right);
 	test(check == left, "range_and_between_right1");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer * 30)");
-	range_and_between_right(NULL, &left, left, right);
+	range_and_between_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 30)");
 	test(equal_real(left, right), "range_and_between_right2");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer * 10)");
-	range_and_between_right(NULL, &check, left, right);
+	range_and_between_right(local, &check, left, right);
 	test(check == Nil, "range_and_between_right3");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer * 20)");
-	range_and_between_right(NULL, &left, left, right);
+	range_and_between_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 20)");
 	test(equal_real(left, right), "range_and_between_right4");
 
 	parse_type_string(&left, "(integer (20) 40)");
 	parse_type_string(&right, "(integer * 20)");
-	range_and_between_right(NULL, &check, left, right);
+	range_and_between_right(local, &check, left, right);
 	test(check == Nil, "range_and_between_right5");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer * (20))");
-	range_and_between_right(NULL, &check, left, right);
+	range_and_between_right(local, &check, left, right);
 	test(check == Nil, "range_and_between_right6");
 
 	parse_type_string(&left, "(integer (20) 40)");
 	parse_type_string(&right, "(integer * (20))");
-	range_and_between_right(NULL, &check, left, right);
+	range_and_between_right(local, &check, left, right);
 	test(check == Nil, "range_and_between_right7");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer * 40)");
-	range_and_between_right(NULL, &left, left, right);
+	range_and_between_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 40)");
 	test(equal_real(left, right), "range_and_between_right8");
 
 	parse_type_string(&left, "(integer 20 (40))");
 	parse_type_string(&right, "(integer * 40)");
-	range_and_between_right(NULL, &left, left, right);
+	range_and_between_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 (40))");
 	test(equal_real(left, right), "range_and_between_right9");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer * (40))");
-	range_and_between_right(NULL, &left, left, right);
+	range_and_between_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 (40))");
 	test(equal_real(left, right), "range_and_between_right10");
 
 	parse_type_string(&left, "(integer 20 (40))");
 	parse_type_string(&right, "(integer * (40))");
-	range_and_between_right(NULL, &left, left, right);
+	range_and_between_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 (40))");
 	test(equal_real(left, right), "range_and_between_right11");
 
@@ -692,25 +715,26 @@ static int test_range_and_between_right(void)
 static int test_range_and_right(void)
 {
 	addr check, left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(integer * 10)");
-	range_and_right(NULL, &check, left, right);
+	range_and_right(local, &check, left, right);
 	test(check == right, "range_and_right1");
 
 	parse_type_string(&left, "(integer 20 *)");
 	parse_type_string(&right, "(integer * 10)");
-	range_and_right(NULL, &check, left, right);
+	range_and_right(local, &check, left, right);
 	test(check == Nil, "range_and_right2");
 
 	parse_type_string(&left, "(integer * 20)");
 	parse_type_string(&right, "(integer * 10)");
-	range_and_right(NULL, &check, left, right);
+	range_and_right(local, &check, left, right);
 	test(check == right, "range_and_right3");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer * 30)");
-	range_and_right(NULL, &left, left, right);
+	range_and_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 30)");
 	test(equal_real(left, right), "range_and_right4");
 
@@ -720,127 +744,128 @@ static int test_range_and_right(void)
 static int test_range_and_between_between(void)
 {
 	addr check, left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 50)");
 	parse_type_string(&right, "(integer 20 30)");
-	range_and_between_between(NULL, &check, left, right);
+	range_and_between_between(local, &check, left, right);
 	test(check == right, "range_and_between_between1");
 
 	parse_type_string(&left, "(integer 10 50)");
 	parse_type_string(&right, "(integer 20 30)");
-	range_and_between_between(NULL, &check, right, left);
+	range_and_between_between(local, &check, right, left);
 	test(check == right, "range_and_between_between2");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 30 50)");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 30 40)");
 	test(equal_real(left, right), "range_and_between_between3");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 30)");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 30)");
 	test(equal_real(left, right), "range_and_between_between4");
 
 	parse_type_string(&left, "(integer 21 40)");
 	parse_type_string(&right, "(integer 10 20)");
-	range_and_between_between(NULL, &check, right, left);
+	range_and_between_between(local, &check, right, left);
 	test(check == Nil, "range_and_between_between5");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 20)");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 20)");
 	test(equal_real(left, right), "range_and_between_between6");
 
 	parse_type_string(&left, "(integer (20) 40)");
 	parse_type_string(&right, "(integer 10 20)");
-	range_and_between_between(NULL, &check, right, left);
+	range_and_between_between(local, &check, right, left);
 	test(check == Nil, "range_and_between_between7");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 (20))");
-	range_and_between_between(NULL, &check, right, left);
+	range_and_between_between(local, &check, right, left);
 	test(check == Nil, "range_and_between_between8");
 
 	parse_type_string(&left, "(integer (20) 40)");
 	parse_type_string(&right, "(integer 10 (20))");
-	range_and_between_between(NULL, &check, right, left);
+	range_and_between_between(local, &check, right, left);
 	test(check == Nil, "range_and_between_between9");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 20 30)");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 30)");
 	test(equal_real(left, right), "range_and_between_between10");
 
 	parse_type_string(&left, "(integer (20) 40)");
 	parse_type_string(&right, "(integer 20 30)");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer (20) 30)");
 	test(equal_real(left, right), "range_and_between_between11");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer (20) 30)");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer (20) 30)");
 	test(equal_real(left, right), "range_and_between_between12");
 
 	parse_type_string(&left, "(integer (20) 40)");
 	parse_type_string(&right, "(integer (20) 30)");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer (20) 30)");
 	test(equal_real(left, right), "range_and_between_between13");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 30 40)");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 30 40)");
 	test(equal_real(left, right), "range_and_between_between14");
 
 	parse_type_string(&left, "(integer 20 (40))");
 	parse_type_string(&right, "(integer 30 40)");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 30 (40))");
 	test(equal_real(left, right), "range_and_between_between15");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 30 (40))");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 30 (40))");
 	test(equal_real(left, right), "range_and_between_between16");
 
 	parse_type_string(&left, "(integer 20 (40))");
 	parse_type_string(&right, "(integer 30 (40))");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 30 (40))");
 	test(equal_real(left, right), "range_and_between_between17");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 40 50)");
-	range_and_between_between(NULL, &left, left, right);
+	range_and_between_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 40 40)");
 	test(equal_real(left, right), "range_and_between_between18");
 
 	parse_type_string(&left, "(integer 20 (40))");
 	parse_type_string(&right, "(integer 40 50)");
-	range_and_between_between(NULL, &check, left, right);
+	range_and_between_between(local, &check, left, right);
 	test(check == Nil, "range_and_between_between19");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer (40) 50)");
-	range_and_between_between(NULL, &check, left, right);
+	range_and_between_between(local, &check, left, right);
 	test(check == Nil, "range_and_between_between20");
 
 	parse_type_string(&left, "(integer 20 (40))");
 	parse_type_string(&right, "(integer (40) 50)");
-	range_and_between_between(NULL, &check, left, right);
+	range_and_between_between(local, &check, left, right);
 	test(check == Nil, "range_and_between_between21");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 41 50)");
-	range_and_between_between(NULL, &check, left, right);
+	range_and_between_between(local, &check, left, right);
 	test(check == Nil, "range_and_between_between22");
 
 	RETURN;
@@ -849,27 +874,28 @@ static int test_range_and_between_between(void)
 static int test_range_and_between(void)
 {
 	addr check, left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(integer 10 20)");
-	range_and_between(NULL, &check, left, right);
+	range_and_between(local, &check, left, right);
 	test(check == right, "range_and_between1");
 
 	parse_type_string(&left, "(integer 20 *)");
 	parse_type_string(&right, "(integer 10 30)");
-	range_and_between(NULL, &left, left, right);
+	range_and_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 20 30)");
 	test(equal_real(left, right), "range_and_between2");
 
 	parse_type_string(&left, "(integer * 20)");
 	parse_type_string(&right, "(integer 10 30)");
-	range_and_between(NULL, &left, left, right);
+	range_and_between(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 20)");
 	test(equal_real(left, right), "range_and_between3");
 
 	parse_type_string(&left, "(integer 15 16)");
 	parse_type_string(&right, "(integer 10 20)");
-	range_and_between(NULL, &check, left, right);
+	range_and_between(local, &check, left, right);
 	test(check == left, "range_and_between4");
 
 	RETURN;
@@ -878,25 +904,26 @@ static int test_range_and_between(void)
 static int test_range_and(void)
 {
 	addr check, left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&right, "integer");
-	range_and(NULL, &check, left, right);
+	range_and(local, &check, left, right);
 	test(check == left, "range_and1");
 
 	parse_type_string(&left, "(integer 20 *)");
 	parse_type_string(&right, "(integer 10 *)");
-	range_and(NULL, &check, left, right);
+	range_and(local, &check, left, right);
 	test(check == left, "range_and2");
 
 	parse_type_string(&left, "(integer * 10)");
 	parse_type_string(&right, "(integer * 20)");
-	range_and(NULL, &check, left, right);
+	range_and(local, &check, left, right);
 	test(check == left, "range_and3");
 
 	parse_type_string(&left, "(integer 15 16)");
 	parse_type_string(&right, "(integer 10 20)");
-	range_and(NULL, &check, left, right);
+	range_and(local, &check, left, right);
 	test(check == left, "range_and4");
 
 	RETURN;
@@ -905,19 +932,20 @@ static int test_range_and(void)
 static int test_map_range_and(void)
 {
 	addr left, right, pos;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&pos, "(integer 30 40)");
 	parse_type_string(&right, "(integer 50 *)");
 	list_heap(&left, left, pos, NULL);
-	map_range_and(NULL, &pos, left, right);
+	map_range_and(local, &pos, left, right);
 	test(pos == Nil, "map_range_and1");
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&pos, "(integer 30 40)");
 	parse_type_string(&right, "(integer 35 *)");
 	list_heap(&left, left, pos, NULL);
-	map_range_and(NULL, &left, left, right);
+	map_range_and(local, &left, left, right);
 	test(singlep(left), "map_range_and2");
 	GetCar(left, &left);
 	parse_type_string(&right, "(integer 35 40)");
@@ -929,13 +957,14 @@ static int test_map_range_and(void)
 static int test_merge_range_andplus(void)
 {
 	addr left, right, pos;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 20)");
 	parse_type_string(&pos, "(integer 30 40)");
 	parse_type_string(&right, "(integer 50 *)");
 	conscar_heap(&right, right);
 	list_heap(&left, left, pos, NULL);
-	merge_range_andplus(NULL, &pos, left, right);
+	merge_range_andplus(local, &pos, left, right);
 	test(pos == Nil, "merge_range_andplus1");
 
 	parse_type_string(&left, "(integer 10 20)");
@@ -943,7 +972,7 @@ static int test_merge_range_andplus(void)
 	parse_type_string(&right, "(integer 35 *)");
 	conscar_heap(&right, right);
 	list_heap(&left, left, pos, NULL);
-	merge_range_andplus(NULL, &left, left, right);
+	merge_range_andplus(local, &left, left, right);
 	test(singlep(left), "merge_range_andplus2");
 	GetCar(left, &left);
 	parse_type_string(&right, "(integer 35 40)");
@@ -955,17 +984,18 @@ static int test_merge_range_andplus(void)
 static int test_range_and_otherwise(void)
 {
 	addr pos, array;
+	LocalRoot local = Local_Thread;
 
 	vector4_heap(&array, 1);
 	parse_type_string(&pos, "(and)");
 	SetArrayA4(array, 0, pos);
-	range_and_otherwise(NULL, &pos, array, LISPDECL_INTEGER);
+	range_and_otherwise(local, &pos, array, LISPDECL_INTEGER);
 	test(pos == Nil, "range_and_otherwise1");
 
 	vector4_heap(&array, 1);
 	parse_type_string(&pos, "(or)");
 	SetArrayA4(array, 0, pos);
-	range_and_otherwise(NULL, &pos, array, LISPDECL_INTEGER);
+	range_and_otherwise(local, &pos, array, LISPDECL_INTEGER);
 	test(pos == Nil, "range_and_otherwise2");
 
 	vector4_heap(&array, 2);
@@ -973,7 +1003,7 @@ static int test_range_and_otherwise(void)
 	SetArrayA4(array, 0, pos);
 	parse_type_string(&pos, "(integer 20 40)");
 	SetArrayA4(array, 1, pos);
-	range_and_otherwise(NULL, &pos, array, LISPDECL_INTEGER);
+	range_and_otherwise(local, &pos, array, LISPDECL_INTEGER);
 	test(singlep(pos), "range_and_otherwise3");
 	GetCar(pos, &pos);
 	parse_type_string(&array, "(integer 20 30)");
@@ -985,20 +1015,21 @@ static int test_range_and_otherwise(void)
 static int test_merge_range_and(void)
 {
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(and)");
-	merge_range_and(NULL, &left, left, LISPDECL_INTEGER);
+	merge_range_and(local, &left, left, LISPDECL_INTEGER);
 	test(left == T, "merge_range_and1");
 
 	parse_type_string(&left, "(and (integer 10 20))");
-	merge_range_and(NULL, &left, left, LISPDECL_INTEGER);
+	merge_range_and(local, &left, left, LISPDECL_INTEGER);
 	test(singlep(left), "merge_range_and2");
 	GetCar(left, &left);
 	parse_type_string(&right, "(integer 10 20)");
 	test(equal_real(left, right), "merge_range_and3");
 
 	parse_type_string(&left, "(and (integer 10 30) (integer 20 40))");
-	merge_range_and(NULL, &left, left, LISPDECL_INTEGER);
+	merge_range_and(local, &left, left, LISPDECL_INTEGER);
 	test(singlep(left), "merge_range_and4");
 	GetCar(left, &left);
 	parse_type_string(&right, "(integer 20 30)");
@@ -1026,14 +1057,15 @@ static int test_extpaircall_right(void)
 {
 	int check;
 	addr pos;
+	LocalRoot local = Local_Thread;
 
 	list_heap(&pos, fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
-	check = extpaircall_right(NULL, extpaircall_right1, &pos, fixnum_heapr(15), pos);
+	check = extpaircall_right(local, extpaircall_right1, &pos, fixnum_heapr(15), pos);
 	test(check, "extpaircall_right1");
 	test(pos == Nil, "extpaircall_right2");
 
 	list_heap(&pos, fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
-	check = extpaircall_right(NULL, extpaircall_right1, &pos, fixnum_heapr(40), pos);
+	check = extpaircall_right(local, extpaircall_right1, &pos, fixnum_heapr(40), pos);
 	test(! check, "extpaircall_right3");
 
 	RETURN;
@@ -1042,14 +1074,15 @@ static int test_extpaircall_right(void)
 static int test_pushlist(void)
 {
 	addr cons, result, check;
+	LocalRoot local = Local_Thread;
 
 	result = cons = Nil;
-	pushlist(NULL, &result, cons, result);
+	pushlist(local, &result, cons, result);
 	test(result == Nil, "pushlist1");
 
 	result = Nil;
 	list_heap(&cons, fixnum_heapr(10), fixnum_heapr(20), NULL);
-	pushlist(NULL, &result, cons, result);
+	pushlist(local, &result, cons, result);
 	check = result;
 	test(GetType(check) == LISPTYPE_CONS, "pushlist2");
 	GetCons(check, &cons, &check);
@@ -1059,7 +1092,7 @@ static int test_pushlist(void)
 	test(check == Nil, "pushlist5");
 
 	list_heap(&cons, fixnum_heapr(30), fixnum_heapr(40), NULL);
-	pushlist(NULL, &result, cons, result);
+	pushlist(local, &result, cons, result);
 	check = result;
 	GetCons(check, &cons, &check);
 	test(RefFixnum(cons) == 40, "pushlist6");
@@ -1078,9 +1111,10 @@ static int test_extpaircall_left(void)
 {
 	int check;
 	addr pos, one;
+	LocalRoot local = Local_Thread;
 
 	list_heap(&pos, fixnum_heapr(10), fixnum_heapr(30), fixnum_heapr(20), NULL);
-	check = extpaircall_left(NULL, extpaircall_right1, &pos, pos);
+	check = extpaircall_left(local, extpaircall_right1, &pos, pos);
 	test(check, "extpaircall_left1");
 	GetCons(pos, &one, &pos);
 	test(one == Nil, "extpaircall_left2");
@@ -1091,7 +1125,7 @@ static int test_extpaircall_left(void)
 	test(pos == Nil, "extpaircall_left5");
 
 	list_heap(&pos, fixnum_heapr(30), fixnum_heapr(30), fixnum_heapr(30), NULL);
-	check = extpaircall_left(NULL, extpaircall_right1, &pos, pos);
+	check = extpaircall_left(local, extpaircall_right1, &pos, pos);
 	test(! check, "extpaircall_left6");
 
 	RETURN;
@@ -1101,10 +1135,11 @@ static int test_extpaircall(void)
 {
 	int check;
 	addr pos, one;
+	LocalRoot local = Local_Thread;
 
 	list_heap(&pos, fixnum_heapr(10), fixnum_heapr(30), fixnum_heapr(20), NULL);
 	check = 0;
-	extpaircall(NULL, extpaircall_right1, &pos, &check);
+	extpaircall(local, extpaircall_right1, &pos, &check);
 	test(check, "extpaircall1");
 	GetCons(pos, &one, &pos);
 	test(one == Nil, "extpaircall2");
@@ -1116,7 +1151,7 @@ static int test_extpaircall(void)
 
 	list_heap(&pos, fixnum_heapr(30), fixnum_heapr(30), fixnum_heapr(30), NULL);
 	check = 0;
-	extpaircall(NULL, extpaircall_right1, &pos, &check);
+	extpaircall(local, extpaircall_right1, &pos, &check);
 	test(! check, "extpaircall6");
 
 	RETURN;
@@ -1126,13 +1161,14 @@ static int test_range_or_aster(void)
 {
 	int check;
 	addr pos;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "integer");
-	check = range_or_aster(NULL, &pos, Nil, pos);
+	check = range_or_aster(local, &pos, Nil, pos);
 	test(check == -1, "range_or_aster1");
 	test(pos == Nil, "range_or_aster2");
 
-	check = range_or_aster(NULL, &pos, Nil, Nil);
+	check = range_or_aster(local, &pos, Nil, Nil);
 	test(check == 0, "range_or_aster3");
 
 	RETURN;
@@ -1147,45 +1183,46 @@ static int test_range_or_left_left(void)
 {
 	int check;
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 *)");
-	check = range_or_left_left(NULL, &left, left, right);
+	check = range_or_left_left(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_left_left1");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 30 *)");
-	check = range_or_left_left(NULL, &left, left, right);
+	check = range_or_left_left(local, &left, left, right);
 	test(check == 0, "range_or_left_left2");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 20 *)");
-	check = range_or_left_left(NULL, &left, left, right);
+	check = range_or_left_left(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_left_left3");
 
 	parse_type_string(&left, "(integer (20) 40)");
 	parse_type_string(&right, "(integer 20 *)");
-	check = range_or_left_left(NULL, &left, left, right);
+	check = range_or_left_left(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_left_left4");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer (20) *)");
-	check = range_or_left_left(NULL, &left, left, right);
+	check = range_or_left_left(local, &left, left, right);
 	test(check == 0, "range_or_left_left5");
 
 	parse_type_string(&left, "(integer (20) 40)");
 	parse_type_string(&right, "(integer (20) *)");
-	check = range_or_left_left(NULL, &left, left, right);
+	check = range_or_left_left(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_left_left6");
 
 	parse_type_string(&left, "(integer 20 *)");
 	parse_type_string(&right, "(integer 10 *)");
-	check = range_or_left_left(NULL, &left, left, right);
+	check = range_or_left_left(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_left_left7");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer 20 *)");
-	check = range_or_left_left(NULL, &left, left, right);
+	check = range_or_left_left(local, &left, left, right);
 	test(check == 0, "range_or_left_left8");
 
 	RETURN;
@@ -1195,40 +1232,41 @@ static int test_range_or_right_right(void)
 {
 	int check;
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer * 50)");
-	check = range_or_right_right(NULL, &left, left, right);
+	check = range_or_right_right(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_right_right1");
 
 	parse_type_string(&left, "(integer * 40)");
 	parse_type_string(&right, "(integer * 50)");
-	check = range_or_right_right(NULL, &left, left, right);
+	check = range_or_right_right(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_right_right2");
 
 	parse_type_string(&left, "(integer * 40)");
 	parse_type_string(&right, "(integer * 30)");
-	check = range_or_right_right(NULL, &left, left, right);
+	check = range_or_right_right(local, &left, left, right);
 	test(check == 0, "range_or_right_right3");
 
 	parse_type_string(&left, "(integer * 40)");
 	parse_type_string(&right, "(integer * 40)");
-	check = range_or_right_right(NULL, &left, left, right);
+	check = range_or_right_right(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_right_right4");
 
 	parse_type_string(&left, "(integer * (40))");
 	parse_type_string(&right, "(integer * 40)");
-	check = range_or_right_right(NULL, &left, left, right);
+	check = range_or_right_right(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_right_right5");
 
 	parse_type_string(&left, "(integer * 40)");
 	parse_type_string(&right, "(integer * (40))");
-	check = range_or_right_right(NULL, &left, left, right);
+	check = range_or_right_right(local, &left, left, right);
 	test(check == 0, "range_or_right_right6");
 
 	parse_type_string(&left, "(integer * (40))");
 	parse_type_string(&right, "(integer * (40))");
-	check = range_or_right_right(NULL, &left, left, right);
+	check = range_or_right_right(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_right_right7");
 
 	RETURN;
@@ -1243,35 +1281,36 @@ static int test_range_or_left_right(void)
 {
 	int check;
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer * 20)");
-	check = range_or_left_right(NULL, &left, left, right);
+	check = range_or_left_right(local, &left, left, right);
 	test(integer_aster_p(check, left), "range_or_left_right1");
 
 	parse_type_string(&left, "(integer 20 *)");
 	parse_type_string(&right, "(integer * 10)");
-	check = range_or_left_right(NULL, &left, left, right);
+	check = range_or_left_right(local, &left, left, right);
 	test(! integer_aster_p(check, left), "range_or_left_right2");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer * 10)");
-	check = range_or_left_right(NULL, &left, left, right);
+	check = range_or_left_right(local, &left, left, right);
 	test(integer_aster_p(check, left), "range_or_left_right3");
 
 	parse_type_string(&left, "(integer (10) *)");
 	parse_type_string(&right, "(integer * 10)");
-	check = range_or_left_right(NULL, &left, left, right);
+	check = range_or_left_right(local, &left, left, right);
 	test(integer_aster_p(check, left), "range_or_left_right4");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer * (10))");
-	check = range_or_left_right(NULL, &left, left, right);
+	check = range_or_left_right(local, &left, left, right);
 	test(integer_aster_p(check, left), "range_or_left_right5");
 
 	parse_type_string(&left, "(integer (10) *)");
 	parse_type_string(&right, "(integer * (10))");
-	check = range_or_left_right(NULL, &left, left, right);
+	check = range_or_left_right(local, &left, left, right);
 	test(! integer_aster_p(check, left), "range_or_left_right6");
 
 	RETURN;
@@ -1281,44 +1320,45 @@ static int test_range_or_range_left(void)
 {
 	int check;
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer 20 *)");
-	check = range_or_range_left(NULL, &left, left, right);
+	check = range_or_range_left(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 *)");
 	test(check && equal_real(left, right), "range_or_range_left1");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer 5 *)");
-	check = range_or_range_left(NULL, &left, left, right);
+	check = range_or_range_left(local, &left, left, right);
 	test(check == 0, "range_or_range_left2");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer 40 *)");
-	check = range_or_range_left(NULL, &left, left, right);
+	check = range_or_range_left(local, &left, left, right);
 	test(check == 0, "range_or_range_left3");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer 30 *)");
-	check = range_or_range_left(NULL, &left, left, right);
+	check = range_or_range_left(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 *)");
 	test(check && equal_real(left, right), "range_or_range_left4");
 
 	parse_type_string(&left, "(integer 10 (30))");
 	parse_type_string(&right, "(integer 30 *)");
-	check = range_or_range_left(NULL, &left, left, right);
+	check = range_or_range_left(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 *)");
 	test(check && equal_real(left, right), "range_or_range_left5");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer (30) *)");
-	check = range_or_range_left(NULL, &left, left, right);
+	check = range_or_range_left(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 *)");
 	test(check && equal_real(left, right), "range_or_range_left6");
 
 	parse_type_string(&left, "(integer 10 (30))");
 	parse_type_string(&right, "(integer (30) *)");
-	check = range_or_range_left(NULL, &left, left, right);
+	check = range_or_range_left(local, &left, left, right);
 	test(check == 0, "range_or_range_left7");
 
 	RETURN;
@@ -1328,44 +1368,45 @@ static int test_range_or_range_right(void)
 {
 	int check;
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer * 20)");
-	check = range_or_range_right(NULL, &left, left, right);
+	check = range_or_range_right(local, &left, left, right);
 	parse_type_string(&right, "(integer * 30)");
 	test(check && equal_real(left, right), "range_or_range_right1");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer * 5)");
-	check = range_or_range_right(NULL, &left, left, right);
+	check = range_or_range_right(local, &left, left, right);
 	test(check == 0, "range_or_range_right2");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer * 40)");
-	check = range_or_range_right(NULL, &left, left, right);
+	check = range_or_range_right(local, &left, left, right);
 	test(check == 0, "range_or_range_right3");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer * 10)");
-	check = range_or_range_right(NULL, &left, left, right);
+	check = range_or_range_right(local, &left, left, right);
 	parse_type_string(&right, "(integer * 30)");
 	test(check && equal_real(left, right), "range_or_range_right4");
 
 	parse_type_string(&left, "(integer (10) 30)");
 	parse_type_string(&right, "(integer * 10)");
-	check = range_or_range_right(NULL, &left, left, right);
+	check = range_or_range_right(local, &left, left, right);
 	parse_type_string(&right, "(integer * 30)");
 	test(check && equal_real(left, right), "range_or_range_right5");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer * (10))");
-	check = range_or_range_right(NULL, &left, left, right);
+	check = range_or_range_right(local, &left, left, right);
 	parse_type_string(&right, "(integer * 30)");
 	test(check && equal_real(left, right), "range_or_range_right6");
 
 	parse_type_string(&left, "(integer (10) 30)");
 	parse_type_string(&right, "(integer * (10))");
-	check = range_or_range_right(NULL, &left, left, right);
+	check = range_or_range_right(local, &left, left, right);
 	test(check == 0, "range_or_range_right7");
 
 	RETURN;
@@ -1375,60 +1416,61 @@ static int test_range_or_range_range_in(void)
 {
 	int check;
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 20 30)");
 	parse_type_string(&right, "(integer 10 40)");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_range_range_in1");
 
 	parse_type_string(&left, "(integer 0 30)");
 	parse_type_string(&right, "(integer 10 40)");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(check == 0, "range_or_range_range_in2");
 
 	parse_type_string(&left, "(integer 20 50)");
 	parse_type_string(&right, "(integer 10 40)");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(check == 0, "range_or_range_range_in3");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer 10 40)");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_range_range_in4");
 
 	parse_type_string(&left, "(integer (10) 30)");
 	parse_type_string(&right, "(integer 10 40)");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_range_range_in5");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer (10) 40)");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(check == 0, "range_or_range_range_in6");
 
 	parse_type_string(&left, "(integer (10) 30)");
 	parse_type_string(&right, "(integer (10) 40)");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_range_range_in7");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 40)");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_range_range_in8");
 
 	parse_type_string(&left, "(integer 20 (40))");
 	parse_type_string(&right, "(integer 10 40)");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_range_range_in9");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 (40))");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(check == 0, "range_or_range_range_in10");
 
 	parse_type_string(&left, "(integer 20 (40))");
 	parse_type_string(&right, "(integer 10 (40))");
-	check = range_or_range_range_in(NULL, &left, left, right);
+	check = range_or_range_range_in(local, &left, left, right);
 	test(range_delete_p(check, left), "range_or_range_range_in11");
 
 	RETURN;
@@ -1438,31 +1480,32 @@ static int test_range_or_range_range_left(void)
 {
 	int check;
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer 20 40)");
-	check = range_or_range_range_left(NULL, &left, left, right);
+	check = range_or_range_range_left(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 40)");
 	test(check && equal_real(left, right), "range_or_range_range_left1");
 
 	parse_type_string(&left, "(integer 10 *)");
 	parse_type_string(&right, "(integer 20 40)");
-	check = range_or_range_range_left(NULL, &left, left, right);
+	check = range_or_range_range_left(local, &left, left, right);
 	test(check == 0, "range_or_range_range_left2");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer * 40)");
-	check = range_or_range_range_left(NULL, &left, left, right);
+	check = range_or_range_range_left(local, &left, left, right);
 	test(check == 0, "range_or_range_range_left3");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer 35 40)");
-	check = range_or_range_range_left(NULL, &left, left, right);
+	check = range_or_range_range_left(local, &left, left, right);
 	test(check == 0, "range_or_range_range_left4");
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer 20 25)");
-	check = range_or_range_range_left(NULL, &left, left, right);
+	check = range_or_range_range_left(local, &left, left, right);
 	test(check == 0, "range_or_range_range_left5");
 
 	RETURN;
@@ -1472,31 +1515,32 @@ static int test_range_or_range_range_right(void)
 {
 	int check;
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 30)");
-	check = range_or_range_range_right(NULL, &left, left, right);
+	check = range_or_range_range_right(local, &left, left, right);
 	parse_type_string(&right, "(integer 10 40)");
 	test(check && equal_real(left, right), "range_or_range_range_right1");
 
 	parse_type_string(&left, "(integer 20 *)");
 	parse_type_string(&right, "(integer 10 30)");
-	check = range_or_range_range_right(NULL, &left, left, right);
+	check = range_or_range_range_right(local, &left, left, right);
 	test(check == 0, "range_or_range_range_right2");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer * 30)");
-	check = range_or_range_range_right(NULL, &left, left, right);
+	check = range_or_range_range_right(local, &left, left, right);
 	test(check == 0, "range_or_range_range_right3");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 25 30)");
-	check = range_or_range_range_right(NULL, &left, left, right);
+	check = range_or_range_range_right(local, &left, left, right);
 	test(check == 0, "range_or_range_range_right4");
 
 	parse_type_string(&left, "(integer 20 40)");
 	parse_type_string(&right, "(integer 10 50)");
-	check = range_or_range_range_right(NULL, &left, left, right);
+	check = range_or_range_range_right(local, &left, left, right);
 	test(check == 0, "range_or_range_range_right5");
 
 	RETURN;
@@ -1505,13 +1549,14 @@ static int test_range_or_range_range_right(void)
 static int test_merge_range_orplus(void)
 {
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(integer 10 30)");
 	parse_type_string(&right, "(integer 20 50)");
 	list_heap(&left, left, right, NULL);
 	parse_type_string(&right, "(integer 40 100)");
 	list_heap(&right, right, NULL);
-	merge_range_orplus(NULL, &left, left, right);
+	merge_range_orplus(local, &left, left, right);
 	test(singlep(left), "merge_range_orplus1");
 	GetCar(left, &left);
 	parse_type_string(&right, "(integer 10 100)");
@@ -1523,11 +1568,12 @@ static int test_merge_range_orplus(void)
 static int test_range_or_otherwise(void)
 {
 	addr pos, array;
+	LocalRoot local = Local_Thread;
 
 	vector4_heap(&array, 1);
 	parse_type_string(&pos, "(or)");
 	SetArrayA4(array, 0, pos);
-	range_or_otherwise(NULL, &pos, array, LISPDECL_INTEGER);
+	range_or_otherwise(local, &pos, array, LISPDECL_INTEGER);
 	test(pos == Nil, "range_or_otherwise1");
 
 	vector4_heap(&array, 2);
@@ -1535,7 +1581,7 @@ static int test_range_or_otherwise(void)
 	SetArrayA4(array, 0, pos);
 	parse_type_string(&pos, "(integer 10 20)");
 	SetArrayA4(array, 1, pos);
-	range_or_otherwise(NULL, &pos, array, LISPDECL_INTEGER);
+	range_or_otherwise(local, &pos, array, LISPDECL_INTEGER);
 	test(pos == T, "range_or_otherwise2");
 
 	vector4_heap(&array, 2);
@@ -1543,7 +1589,7 @@ static int test_range_or_otherwise(void)
 	SetArrayA4(array, 0, pos);
 	parse_type_string(&pos, "(integer 20 40)");
 	SetArrayA4(array, 1, pos);
-	range_or_otherwise(NULL, &pos, array, LISPDECL_INTEGER);
+	range_or_otherwise(local, &pos, array, LISPDECL_INTEGER);
 	test(singlep(pos), "range_or_otherwise3");
 	GetCar(pos, &pos);
 	parse_type_string(&array, "(integer 10 40)");
@@ -1555,21 +1601,22 @@ static int test_range_or_otherwise(void)
 static int test_merge_range_or(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(or)");
-	merge_range_or(NULL, &pos, pos, LISPDECL_INTEGER);
+	merge_range_or(local, &pos, pos, LISPDECL_INTEGER);
 	test(pos == Nil, "merge_range_or1");
 
 	parse_type_string(&pos, "(or integer)");
 	GetArrayType(pos, 0, &check);
 	GetArrayA4(check, 0, &check);
-	merge_range_or(NULL, &pos, pos, LISPDECL_INTEGER);
+	merge_range_or(local, &pos, pos, LISPDECL_INTEGER);
 	test(singlep(pos), "merge_range_or2");
 	GetCar(pos, &pos);
 	test(pos == check, "merge_range_or3");
 
 	parse_type_string(&pos, "(or (integer 10 30) (integer 20 40))");
-	merge_range_or(NULL, &pos, pos, LISPDECL_INTEGER);
+	merge_range_or(local, &pos, pos, LISPDECL_INTEGER);
 	test(singlep(pos), "merge_range_or4");
 	GetCar(pos, &pos);
 	parse_type_string(&check, "(integer 10 40)");
@@ -1581,23 +1628,24 @@ static int test_merge_range_or(void)
 static int test_merge_range_type(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(and (integer 10 30) (integer 20 40))");
-	merge_range_type(NULL, &pos, pos, LISPDECL_INTEGER);
+	merge_range_type(local, &pos, pos, LISPDECL_INTEGER);
 	test(singlep(pos), "merge_range_type1");
 	GetCar(pos, &pos);
 	parse_type_string(&check, "(integer 20 30)");
 	test(equal_real(pos, check), "merge_range_type2");
 
 	parse_type_string(&pos, "(or (integer 10 30) (integer 20 40))");
-	merge_range_type(NULL, &pos, pos, LISPDECL_INTEGER);
+	merge_range_type(local, &pos, pos, LISPDECL_INTEGER);
 	test(singlep(pos), "merge_range_type3");
 	GetCar(pos, &pos);
 	parse_type_string(&check, "(integer 10 40)");
 	test(equal_real(pos, check), "merge_range_type4");
 
 	parse_type_string(&pos, "(integer 10 30)");
-	merge_range_type(NULL, &pos, pos, LISPDECL_INTEGER);
+	merge_range_type(local, &pos, pos, LISPDECL_INTEGER);
 	test(singlep(pos), "merge_range_type5");
 	GetCar(pos, &pos);
 	parse_type_string(&check, "(integer 10 30)");
@@ -1609,10 +1657,11 @@ static int test_merge_range_type(void)
 static int test_type_or_cons(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&check, "integer");
 	list_heap(&pos, check, NULL);
-	type_or_cons(NULL, &pos, pos);
+	type_or_cons(local, &pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_OR, "type_or_cons1");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 1, "type_or_cons2");
@@ -1625,18 +1674,19 @@ static int test_type_or_cons(void)
 static int test_make_merge_range(void)
 {
 	addr left, right;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&left, "(or)");
-	make_merge_range(NULL, &left, left, LISPDECL_INTEGER);
+	make_merge_range(local, &left, left, LISPDECL_INTEGER);
 	test(left == Nil, "make_merge_range1");
 
 	parse_type_string(&left, "(and)");
-	make_merge_range(NULL, &left, left, LISPDECL_INTEGER);
+	make_merge_range(local, &left, left, LISPDECL_INTEGER);
 	parse_type_string(&right, "integer");
 	test(equal_real(left, right), "make_merge_range2");
 
 	parse_type_string(&left, "integer");
-	make_merge_range(NULL, &left, left, LISPDECL_INTEGER);
+	make_merge_range(local, &left, left, LISPDECL_INTEGER);
 	parse_type_string(&right, "integer");
 	test(equal_real(left, right), "make_merge_range3");
 
@@ -1646,17 +1696,18 @@ static int test_make_merge_range(void)
 static int test_merge_range(void)
 {
 	addr pos;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(or (integer 10 20) (integer 20 30))");
-	merge_range(NULL, &pos, pos, LISPDECL_INTEGER);
+	merge_range(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_INTEGER, "merge_range1");
 
 	parse_type_string(&pos, "(or (integer 10 20) (integer 30 40))");
-	merge_range(NULL, &pos, pos, LISPDECL_INTEGER);
+	merge_range(local, &pos, pos, LISPDECL_INTEGER);
 	test(RefLispDecl(pos) == LISPDECL_OR, "merge_range2");
 
-	type_nil_heap(&pos);
-	merge_range(NULL, &pos, pos, LISPDECL_INTEGER);
+	GetTypeTable(&pos, Nil);
+	merge_range(local, &pos, pos, LISPDECL_INTEGER);
 	test(pos == Nil, "merge_range3");
 
 	RETURN;
@@ -1696,9 +1747,10 @@ static int test_real_filter_range_list(void)
 static int test_real_reject(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "symbol");
-	real_reject(NULL, &pos, pos);
+	real_reject(local, &pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_AND, "real_reject1");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "real_reject2");
@@ -1711,17 +1763,18 @@ static int test_real_reject(void)
 	RETURN;
 }
 
-static int test_copy_cons_to_vector4_alloc(void)
+static int test_copy_cons_to_vector4_local(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
 	list_heap(&pos, T, fixnum_heapr(10), fixnum_heapr(20), NULL);
-	copy_cons_to_vector4_alloc(NULL, &pos, pos, 2);
-	test(lenarrayr(pos) == 2, "copy_cons_to_vector4_alloc1");
+	copy_cons_to_vector4_local(local, &pos, pos, 2);
+	test(lenarrayr(pos) == 2, "copy_cons_to_vector4_local1");
 	GetArrayA4(pos, 0, &check);
-	test(check == T, "copy_cons_to_vector4_alloc2");
+	test(check == T, "copy_cons_to_vector4_local2");
 	GetArrayA4(pos, 1, &check);
-	test(RefFixnum(check) == 10, "copy_cons_to_vector4_alloc3");
+	test(RefFixnum(check) == 10, "copy_cons_to_vector4_local3");
 
 	RETURN;
 }
@@ -1729,13 +1782,14 @@ static int test_copy_cons_to_vector4_alloc(void)
 static int test_make_real_filter(void)
 {
 	addr pos, check;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "symbol");
-	make_real_filter(NULL, &check, pos);
+	make_real_filter(local, &check, pos);
 	test(pos == check, "make_real_filter1");
 
 	parse_type_string(&pos, "rational");
-	make_real_filter(NULL, &pos, pos);
+	make_real_filter(local, &pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_OR, "make_real_filter2");
 	GetArrayType(pos, 0, &pos);
 	GetArrayA4(pos, 0, &check);
@@ -1751,9 +1805,10 @@ static int test_make_real_filter(void)
 static int test_real_extract(void)
 {
 	addr pos;
+	LocalRoot local = Local_Thread;
 
 	parse_type_string(&pos, "(integer 10 20)");
-	real_extract(NULL, &pos, pos);
+	real_extract(local, &pos, pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "real_extract1");
 
 	RETURN;
@@ -1821,7 +1876,7 @@ static int testbreak_type_number(void)
 	/* real_extract */
 	TestBreak(test_real_filter_range_list);
 	TestBreak(test_real_reject);
-	TestBreak(test_copy_cons_to_vector4_alloc);
+	TestBreak(test_copy_cons_to_vector4_local);
 	TestBreak(test_make_real_filter);
 	TestBreak(test_real_extract);
 
@@ -1852,7 +1907,6 @@ int test_type_number(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

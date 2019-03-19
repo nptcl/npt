@@ -27,7 +27,7 @@ static void defun_pathname(void)
 	setcompiled_var1(pos, function_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Pathname);
+	GetTypeCompiled(&type, Pathname);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -55,16 +55,16 @@ static void type_make_pathname(addr *ret)
 	addr arg, values, name, value, common, keylocal;
 	addr key, key1, key2, key3, key4, key5, key6, key7, key8;
 
-	KeyCallType(&key1, HOST, PathnameHost);
-	KeyCallType(&key2, DEVICE, PathnameHost);
-	KeyCallType(&key3, DIRECTORY, PathnameDirectory);
-	KeyCallType(&key4, NAME, PathnameName);
-	KeyCallType(&key5, TYPE, PathnameType);
-	KeyCallType(&key6, VERSION, PathnameVersion);
+	KeyTypeTable(&key1, HOST, PathnameHost);
+	KeyTypeTable(&key2, DEVICE, PathnameHost);
+	KeyTypeTable(&key3, DIRECTORY, PathnameDirectory);
+	KeyTypeTable(&key4, NAME, PathnameName);
+	KeyTypeTable(&key5, TYPE, PathnameType);
+	KeyTypeTable(&key6, VERSION, PathnameVersion);
 
 	/* defaults   (or pathname null)  ;; default *default-pathname-defaults* */
 	GetConst(KEYWORD_DEFAULTS, &name);
-	GetCallType(&value, PathnameNull);
+	GetTypeTable(&value, PathnameNull);
 	cons_heap(&key7, name, value);
 	/* case       (member :common :local) */
 	GetConst(KEYWORD_CASE, &name);
@@ -75,8 +75,8 @@ static void type_make_pathname(addr *ret)
 	/* key */
 	list_heap(&key, key1, key2, key3, key4, key5, key6, key7, key8, NULL);
 	/* type */
-	key_argtype(&arg, key);
-	GetCallType(&values, Values_Pathname);
+	typeargs_key(&arg, key);
+	GetTypeValues(&values, Pathname);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -112,7 +112,7 @@ static void defun_pathnamep(void)
 	setcompiled_var1(pos, function_pathnamep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -146,9 +146,9 @@ static void type_pathname_host(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Args_PathnameCase);
-	GetCallType(&values, PathnameHost);
-	result_valuestype(&values, values);
+	GetTypeArgs(&arg, PathnameCase);
+	GetTypeTable(&values, PathnameHost);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -179,9 +179,9 @@ static void type_pathname_device(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Args_PathnameCase);
-	GetCallType(&values, PathnameDevice);
-	result_valuestype(&values, values);
+	GetTypeArgs(&arg, PathnameCase);
+	GetTypeTable(&values, PathnameDevice);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -212,9 +212,9 @@ static void type_pathname_directory(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Args_PathnameCase);
-	GetCallType(&values, PathnameDirectory);
-	result_valuestype(&values, values);
+	GetTypeArgs(&arg, PathnameCase);
+	GetTypeTable(&values, PathnameDirectory);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -245,9 +245,9 @@ static void type_pathname_name(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Args_PathnameCase);
-	GetCallType(&values, PathnameName);
-	result_valuestype(&values, values);
+	GetTypeArgs(&arg, PathnameCase);
+	GetTypeTable(&values, PathnameName);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -278,9 +278,9 @@ static void type_pathname_type(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Args_PathnameCase);
-	GetCallType(&values, PathnameType);
-	result_valuestype(&values, values);
+	GetTypeArgs(&arg, PathnameCase);
+	GetTypeTable(&values, PathnameType);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -311,10 +311,10 @@ static void type_pathname_version(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Pathname);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, PathnameVersion);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Pathname);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, PathnameVersion);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -345,9 +345,9 @@ static void type_load_logical_pathname_translations(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, String);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, String);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -378,9 +378,9 @@ static void type_logical_pathname_translations(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, String);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_List);
+	GetTypeTable(&arg, String);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, List);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -412,10 +412,10 @@ static void type_setf_logical_pathname_translations(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, List);
-	GetCallType(&values, String);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, Values_List);
+	GetTypeTable(&arg, List);
+	GetTypeTable(&values, String);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, List);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -448,12 +448,12 @@ static void type_logical_pathname(addr *ret)
 {
 	addr arg, values, pathname, string, stream;
 
-	GetCallType(&pathname, LogicalPathname);
-	GetCallType(&string, String);
-	GetCallType(&stream, Stream);
-	type_or3(NULL, pathname, string, stream, &arg);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_LogicalPathname);
+	GetTypeTable(&pathname, LogicalPathname);
+	GetTypeTable(&string, String);
+	GetTypeTable(&stream, Stream);
+	type3or_heap(pathname, string, stream, &arg);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, LogicalPathname);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -495,7 +495,7 @@ static void defvar_default_pathname_defaults(void)
 	setspecial_symbol(symbol);
 
 	/* type */
-	GetCallType(&type, Pathname);
+	GetTypeTable(&type, Pathname);
 	settype_value_symbol(symbol, type);
 }
 
@@ -517,7 +517,7 @@ static void defun_namestring(void)
 	setcompiled_var1(pos, function_namestring);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Namestring);
+	GetTypeCompiled(&type, Namestring);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -540,7 +540,7 @@ static void defun_file_namestring(void)
 	setcompiled_var1(pos, function_file_namestring);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Namestring);
+	GetTypeCompiled(&type, Namestring);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -563,7 +563,7 @@ static void defun_directory_namestring(void)
 	setcompiled_var1(pos, function_directory_namestring);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Namestring);
+	GetTypeCompiled(&type, Namestring);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -586,7 +586,7 @@ static void defun_host_namestring(void)
 	setcompiled_var1(pos, function_host_namestring);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Namestring);
+	GetTypeCompiled(&type, Namestring);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -603,9 +603,9 @@ static void type_enough_namestring(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PathnameDesigner);
-	var1opt1_argtype(&arg, arg, arg);
-	GetCallType(&values, Values_String);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var1opt1(&arg, arg, arg);
+	GetTypeValues(&values, String);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -664,17 +664,17 @@ static void type_parse_namestring(addr *ret)
 	addr arg, values, type, key, key1, key2, key3;
 
 	/* key */
-	KeyCallType(&key1, START, KeywordStart);
-	KeyCallType(&key2, END, KeywordEnd);
-	KeyCallType(&key3, JUNK_ALLOWED, T);
+	KeyTypeTable(&key1, START, KeywordStart);
+	KeyTypeTable(&key2, END, KeywordEnd);
+	KeyTypeTable(&key3, JUNK_ALLOWED, T);
 	list_heap(&key, key1, key2, key3, NULL);
 	/* type */
-	GetCallType(&arg, PathnameDesigner);
-	GetCallType(&values, PathnameHost);
-	var1opt2key_argtype(&arg, arg, values, arg, key);
-	GetCallType(&values, PathnameNull);
-	GetCallType(&type, Index);
-	values2_valuestype(&values, values, type);
+	GetTypeTable(&arg, PathnameDesigner);
+	GetTypeTable(&values, PathnameHost);
+	typeargs_var1opt2key(&arg, arg, values, arg, key);
+	GetTypeTable(&values, PathnameNull);
+	GetTypeTable(&type, Index);
+	typevalues_values2(&values, values, type);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -717,9 +717,9 @@ static void type_wild_pathname_p(addr *ret)
 	GetConst(KEYWORD_VERSION, &v6);
 	type_member_heap(&values, Nil, v1, v2, v3, v4, v5, v6, NULL);
 	/* type */
-	GetCallType(&arg, PathnameDesigner);
-	var1opt1_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var1opt1(&arg, arg, values);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -753,9 +753,9 @@ static void type_pathname_match_p(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PathnameDesigner);
-	var2_argtype(&arg, arg, arg);
-	GetCallType(&values, Values_Boolean);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var2(&arg, arg, arg);
+	GetTypeValues(&values, Boolean);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -790,9 +790,9 @@ static void type_translate_pathname(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PathnameDesigner);
-	var3_argtype(&arg, arg, arg, arg);
-	GetCallType(&values, Values_Pathname);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var3(&arg, arg, arg, arg);
+	GetTypeValues(&values, Pathname);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -823,9 +823,9 @@ static void type_translate_logical_pathname(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PathnameDesigner);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Pathname);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Pathname);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -857,10 +857,10 @@ static void type_merge_pathnames(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PathnameDesigner);
-	GetCallType(&values, PathnameVersion);
-	var1opt2_argtype(&arg, arg, arg, values);
-	GetCallType(&values, Values_Pathname);
+	GetTypeTable(&arg, PathnameDesigner);
+	GetTypeTable(&values, PathnameVersion);
+	typeargs_var1opt2(&arg, arg, arg, values);
+	GetTypeValues(&values, Pathname);
 	type_compiled_heap(arg, values, ret);
 }
 

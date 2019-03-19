@@ -11,7 +11,10 @@
 #include "number.h"
 #include "sequence.h"
 #include "strtype.h"
+#include "type.h"
+#include "type_typep.h"
 #include "type_parse.h"
+#include "type_upgraded.h"
 
 #define MERGE_SORT_LIMIT 16
 
@@ -932,7 +935,7 @@ static int list_make_sequence(addr *ret, addr type, size_t size, addr value)
 
 	/* type check */
 	if (value == Unbound) value = Nil;
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST)
 		return 0;
 
@@ -949,7 +952,7 @@ static void vector_size_make_sequence(addr type, addr arg, size_t size)
 {
 	size_t check;
 
-	if (asterisk_p(arg))
+	if (type_asterisk_p(arg))
 		return;
 	if (! integerp(arg))
 		type_error_stdarg(Nil, Nil, "Invalid type-specifier ~S.", type, NULL);
@@ -1010,7 +1013,7 @@ static void vector_upgraded_make_sequence(addr *ret, addr type, size_t size, add
 	int upsize;
 
 	GetArrayType(type, 0, &type);
-	upgraded = upgraded_array_direct(type, &upsize);
+	upgraded_array_value(type, &upgraded, &upsize);
 	switch (upgraded) {
 		case ARRAY_TYPE_BIT:
 			alloc_bitvector_make_sequence(ret, size, value);
@@ -1055,7 +1058,7 @@ static void simple_vector_size_check(addr type, size_t size)
 
 static int vector_make_sequence(addr *ret, addr type, size_t size, addr value)
 {
-	if (RefLispDecl(type) != LISPDECL_VECTOR)
+	if (LispDecl(type) != LISPDECL_VECTOR)
 		return 0;
 	/* vector size */
 	vector_size_check(type, size);
@@ -1067,7 +1070,7 @@ static int vector_make_sequence(addr *ret, addr type, size_t size, addr value)
 
 static int simple_vector_make_sequence(addr *ret, addr type, size_t size, addr value)
 {
-	if (RefLispDecl(type) != LISPDECL_SIMPLE_VECTOR)
+	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
 		return 0;
 	simple_vector_size_check(type, size);
 	alloc_t_make_sequence(ret, size, value);
@@ -1077,7 +1080,7 @@ static int simple_vector_make_sequence(addr *ret, addr type, size_t size, addr v
 
 static int string_decl_p(addr type)
 {
-	switch (RefLispDecl(type)) {
+	switch (LispDecl(type)) {
 		case LISPDECL_STRING:
 		case LISPDECL_BASE_STRING:
 		case LISPDECL_SIMPLE_STRING:
@@ -1107,7 +1110,7 @@ static void array_size_make_sequence(addr type, size_t size)
 	GetArrayType(type, 1, &arg);
 
 	/* asterisk */
-	if (asterisk_p(arg)) {
+	if (type_asterisk_p(arg)) {
 		return;
 	}
 
@@ -1145,7 +1148,7 @@ static int array_make_sequence(addr *ret, addr type, size_t size, addr value)
 	enum LISPDECL decl;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
 		return 0;
 
@@ -1162,7 +1165,7 @@ static int bitvector_make_sequence(addr *ret, addr type, size_t size, addr value
 	enum LISPDECL decl;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR)
 		return 0;
 
@@ -1203,22 +1206,20 @@ static void sequence_make_sequence(addr *ret, addr type, size_t size, addr value
 	type_error_stdarg(type, Nil, "Invalid type-specifier ~S.", type, NULL);
 }
 
-void make_sequence_sequence(LocalRoot local, addr *ret,
-		addr type, addr size, addr rest)
+int make_sequence_sequence(Execute ptr, addr *ret, addr type, addr size, addr rest)
 {
 	addr check, element;
-	LocalStack stack;
 	size_t index;
 
-	if (getkeyargs(rest, KEYWORD_INITIAL_ELEMENT, &element)) element = Unbound;
+	if (getkeyargs(rest, KEYWORD_INITIAL_ELEMENT, &element))
+		element = Unbound;
 	if (getindex_integer(size, &index))
 		fmte("Too large index ~S.", size, NULL);
-	push_local(local, &stack);
-	parse_type_local(local, &check, type);
+	if (parse_type(ptr, &check, type, Nil))
+		return 1;
 	sequence_make_sequence(ret, check, index, element);
-	if (! typep_asterisk_clang(*ret, check))
-		type_error(*ret, type);
-	rollback_local(local, stack);
+
+	return typep_asterisk_error(*ret, check);
 }
 
 
@@ -1844,7 +1845,7 @@ static int nil_map_sequence(Execute ptr, int *result, addr *ret,
 	itergroup *group;
 
 	/* type check */
-	if (RefLispDecl(type) != LISPDECL_NIL) {
+	if (LispDecl(type) != LISPDECL_NIL) {
 		*result = 0;
 		return 0;
 	}
@@ -1870,7 +1871,7 @@ static int list_map_sequence(Execute ptr, int *result, addr *ret,
 	itergroup *group;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST) {
 		*result = 0;
 		return 0;
@@ -1982,7 +1983,7 @@ static int vector_upgraded_map_sequence(Execute ptr,
 	int upsize;
 
 	GetArrayType(type, 0, &type);
-	upgraded = upgraded_array_direct(type, &upsize);
+	upgraded_array_value(type, &upgraded, &upsize);
 	switch (upgraded) {
 		case ARRAY_TYPE_BIT:
 			return vector_bitvector_map_sequence(ptr, ret, call, group);
@@ -2012,7 +2013,7 @@ static int vector_map_sequence(Execute ptr, int *result, addr *ret,
 	size_t size;
 
 	/* type check */
-	if (RefLispDecl(type) != LISPDECL_VECTOR) {
+	if (LispDecl(type) != LISPDECL_VECTOR) {
 		*result = 0;
 		return 0;
 	}
@@ -2040,7 +2041,7 @@ static int simple_vector_map_sequence(Execute ptr, int *result, addr *ret,
 	size_t size, i;
 
 	/* type check */
-	if (RefLispDecl(type) != LISPDECL_SIMPLE_VECTOR) {
+	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR) {
 		*result = 0;
 		return 0;
 	}
@@ -2106,7 +2107,7 @@ static int array_map_sequence(Execute ptr, int *result, addr *ret,
 	size_t size;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY) {
 		*result = 0;
 		return 0;
@@ -2136,7 +2137,7 @@ static int bitvector_map_sequence(Execute ptr, int *result, addr *ret,
 	size_t size, i;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR) {
 		*result = 0;
 		return 0;
@@ -2216,19 +2217,15 @@ static int execute_map_sequence(Execute ptr, addr *ret,
 int map_sequence(Execute ptr, addr *ret, addr type, addr call, addr rest)
 {
 	addr check;
-	LocalRoot local;
-	LocalStack stack;
 
-	local = ptr->local;
-	push_local(local, &stack);
-	parse_type_local(local, &check, type);
+	if (parse_type(ptr, &check, type, Nil))
+		return 1;
 	if (execute_map_sequence(ptr, ret, check, call, rest))
 		return 1;
-	if (type != Nil && ! typep_asterisk_clang(*ret, check))
-		type_error(*ret, type);
-	rollback_local(local, stack);
-
-	return 0;
+	if (type == Nil)
+		return 0;
+	
+	return typep_asterisk_error(*ret, check);
 }
 
 
@@ -2706,7 +2703,7 @@ static int list_merge_sequence(Execute ptr, int *result, addr *ret,
 	LocalRoot local;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST) {
 		*result = 0;
 		return 0;
@@ -2849,7 +2846,7 @@ static void array_upgraded_merge_sequence(addr *ret, addr type, size_t size)
 	int upsize;
 
 	GetArrayType(type, 0, &type);
-	upgraded = upgraded_array_direct(type, &upsize);
+	upgraded_array_value(type, &upgraded, &upsize);
 	make_specialized_sequence(NULL, ret, upgraded, upsize, size);
 }
 
@@ -2862,7 +2859,7 @@ static int vector_merge_sequence(Execute ptr, int *result, addr *ret,
 	size_t size, size1, size2;
 
 	/* type check */
-	if (RefLispDecl(type) != LISPDECL_VECTOR) {
+	if (LispDecl(type) != LISPDECL_VECTOR) {
 		*result = 0;
 		return 0;
 	}
@@ -2892,7 +2889,7 @@ static int simple_vector_merge_sequence(Execute ptr, int *result, addr *ret,
 	size_t size, size1, size2;
 
 	/* type check */
-	if (RefLispDecl(type) != LISPDECL_SIMPLE_VECTOR) {
+	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR) {
 		*result = 0;
 		return 0;
 	}
@@ -2953,7 +2950,7 @@ static int array_merge_sequence(Execute ptr, int *result, addr *ret,
 	size_t size, size1, size2;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY) {
 		*result = 0;
 		return 0;
@@ -2985,7 +2982,7 @@ static int bitvector_merge_sequence(Execute ptr, int *result, addr *ret,
 	size_t size, size1, size2;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR) {
 		*result = 0;
 		return 0;
@@ -3057,19 +3054,13 @@ int merge_sequence(Execute ptr, addr *ret,
 		addr type, addr pos1, addr pos2, addr call, addr key)
 {
 	addr check;
-	LocalRoot local;
-	LocalStack stack;
 
-	local = ptr->local;
-	push_local(local, &stack);
-	parse_type_local(local, &check, type);
+	if (parse_type(ptr, &check, type, Nil))
+		return 1;
 	if (execute_merge_sequence(ptr, ret, check, pos1, pos2, call, key))
 		return 1;
-	if (! typep_asterisk_clang(*ret, check))
-		type_error(*ret, type);
-	rollback_local(local, stack);
-
-	return 0;
+	
+	return typep_asterisk_error(*ret, check);
 }
 
 
@@ -5041,7 +5032,7 @@ static int list_concatenate_sequence(addr *ret, addr type, addr rest)
 	size_t size, i;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST)
 		return 0;
 
@@ -5103,7 +5094,7 @@ static int vector_concatenate_sequence(addr *ret, addr type, addr rest)
 	size_t size;
 
 	/* type check */
-	if (RefLispDecl(type) != LISPDECL_VECTOR)
+	if (LispDecl(type) != LISPDECL_VECTOR)
 		return 0;
 
 	/* concatenate */
@@ -5121,7 +5112,7 @@ static int simple_vector_concatenate_sequence(addr *ret, addr type, addr rest)
 	size_t size;
 
 	/* type check */
-	if (RefLispDecl(type) != LISPDECL_SIMPLE_VECTOR)
+	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
 		return 0;
 
 	/* concatenate */
@@ -5158,7 +5149,7 @@ static int array_concatenate_sequence(addr *ret, addr type, addr rest)
 	size_t size;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
 		return 0;
 
@@ -5178,7 +5169,7 @@ static int bitvector_concatenate_sequence(addr *ret, addr type, addr rest)
 	size_t size;
 
 	/* type check */
-	GetLispDecl(type, &decl);
+	decl = LispDecl(type);
 	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR)
 		return 0;
 
@@ -5221,17 +5212,15 @@ static void type_concatenate_sequence(addr *ret, addr type, addr rest)
 	type_error_stdarg(type, Nil, "Invalid type-specifier ~S.", type, NULL);
 }
 
-void concatenate_sequence(LocalRoot local, addr *ret, addr type, addr rest)
+int concatenate_sequence(Execute ptr, addr *ret, addr type, addr rest)
 {
 	addr check;
-	LocalStack stack;
 
-	push_local(local, &stack);
-	parse_type_local(local, &check, type);
+	if (parse_type(ptr, &check, type, Nil))
+		return 1;
 	type_concatenate_sequence(ret, check, rest);
-	if (! typep_asterisk_clang(*ret, check))
-		type_error(*ret, type);
-	rollback_local(local, stack);
+
+	return typep_asterisk_error(*ret, check);
 }
 
 

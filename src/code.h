@@ -1,5 +1,5 @@
-#ifndef __LISP_CODE_HEADER__
-#define __LISP_CODE_HEADER__
+#ifndef __CODE_HEADER__
+#define __CODE_HEADER__
 
 #include "lisp.h"
 

@@ -1,5 +1,4 @@
 #include <stdarg.h>
-#include "calltype.h"
 #include "clos.h"
 #include "common.h"
 #include "degrade.h"
@@ -8,6 +7,7 @@
 #include "stream.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 
 static int test_packagetable(void)
 {
@@ -3202,7 +3202,6 @@ int test_package(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

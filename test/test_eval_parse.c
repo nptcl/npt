@@ -1,6 +1,5 @@
 #include "eval_parse.c"
 #include "bignum.h"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "code.h"
@@ -16,6 +15,7 @@
 #include "strtype.h"
 #include "symbol.h"
 #include "syscall.h"
+#include "type_table.h"
 
 /*
  *  environment
@@ -35,7 +35,7 @@ static int test_envroot_heap(void)
 	addr pos;
 
 	envroot_heap(&pos);
-	test(GetType(pos) == LISPTYPE_SYSTEM, "envroot_heap1");
+	test(GetType(pos) == LISPSYSTEM_ENVROOT, "envroot_heap1");
 	test(lenarrayr(pos) == 2, "envroot_heap2");
 
 	RETURN;
@@ -50,7 +50,7 @@ static int test_envstack_heap(void)
 	v3 = fixnumh(30);
 	v4 = fixnumh(40);
 	envstack_heap(&pos, v1, v2, v3, v4);
-	test(GetType(pos) == LISPTYPE_SYSTEM, "envstack_heap1");
+	test(GetType(pos) == LISPSYSTEM_ENVSTACK, "envstack_heap1");
 	test(RefArrayA2(pos, 0) == v1, "envstack_heap2");
 	test(RefArrayA2(pos, 1) == v2, "envstack_heap3");
 	test(RefArrayA2(pos, 2) == v3, "envstack_heap4");
@@ -69,7 +69,7 @@ static int test_init_environment(void)
 	init_environment(ptr);
 	environment_symbol(&pos);
 	getspecialcheck_local(ptr, pos, &pos);
-	test(GetType(pos) == LISPTYPE_SYSTEM, "init_environment1");
+	test(GetType(pos) == LISPSYSTEM_ENVROOT, "init_environment1");
 	test(lenarrayr(pos) == 2, "init_environment2");
 	free_control(ptr, control);
 
@@ -1439,7 +1439,12 @@ static int test_parse_quote(void)
 
 static int test_parse_lambda(void)
 {
-	addr cons, left, right;
+	addr cons, left, right, control;
+	Execute ptr;
+	
+	ptr = Execute_Thread;
+	push_close_control(ptr, &control);
+	init_environment(Execute_Thread);
 
 	readstring(&cons, "(lambda ())");
 	parse_lambda(&cons, cons);
@@ -1469,12 +1474,19 @@ static int test_parse_lambda(void)
 	GetEvalParse(cons, 3, &right);
 	test(right == Nil, "parse_lambda11");
 
+	free_control(ptr, control);
+
 	RETURN;
 }
 
 static int test_parse_function_argument(void)
 {
-	addr cons, left, right, check;
+	addr cons, left, right, check, control;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	push_close_control(ptr, &control);
+	init_environment(Execute_Thread);
 
 	internchar(LISP_PACKAGE, "HELLO", &cons);
 	parse_function_argument(&cons, cons);
@@ -1534,6 +1546,8 @@ static int test_parse_function_argument(void)
 	GetCons(right, &left, &right);
 	test(test_evalkeyword(left, "BODY2"), "parse_function_argument24");
 	test(right == Nil, "parse_function_argument25");
+
+	free_control(ptr, control);
 
 	RETURN;
 }
@@ -1844,7 +1858,12 @@ static int test_parse_throw(void)
 
 static int test_parse_flet_one(void)
 {
-	addr cons, check;
+	addr cons, check, control;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	push_close_control(ptr, &control);
+	init_environment(Execute_Thread);
 
 	readstring(&cons, "(hello ())");
 	parse_flet_one(&cons, cons);
@@ -1863,12 +1882,19 @@ static int test_parse_flet_one(void)
 	test(check != Nil, "parse_flet_one6");
 	test(cons == Nil, "parse_flet_one7");
 
+	free_control(ptr, control);
+
 	RETURN;
 }
 
 static int test_parse_flet_args(void)
 {
-	addr cons, check;
+	addr cons, check, control;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	push_close_control(ptr, &control);
+	init_environment(Execute_Thread);
 
 	readstring(&cons, "((aaa (a) :aaa) (bbb (b) :bbb))");
 	parse_flet_args(&cons, cons);
@@ -1884,6 +1910,8 @@ static int test_parse_flet_args(void)
 	test(GetType(check) == LISPTYPE_CALLNAME, "parse_flet_args3");
 	GetCallName(check, &check);
 	test(test_eqsymbol(check, "BBB"), "parse_flet_args4");
+
+	free_control(ptr, control);
 
 	RETURN;
 }
@@ -3378,7 +3406,6 @@ int test_eval_parse(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

@@ -18,9 +18,9 @@ static void type_directory(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PathnameDesigner);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_List);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, List);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -57,7 +57,7 @@ static void defun_probe_file(void)
 	setcompiled_var1(pos, function_probe_file);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Pathname);
+	GetTypeCompiled(&type, Pathname);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -81,14 +81,14 @@ static void type_ensure_directories_exist(addr *ret)
 	addr arg, values, type;
 
 	/* key */
-	KeyCallType(&type, VERBOSE, T);
+	KeyTypeTable(&type, VERBOSE, T);
 	conscar_heap(&type, type);
 	/* type */
-	GetCallType(&arg, PathnameDesigner);
-	var1key_argtype(&arg, arg, type);
-	GetCallType(&values, Pathname);
-	GetCallType(&type, Boolean);
-	values2_valuestype(&values, values, type);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var1key(&arg, arg, type);
+	GetTypeTable(&values, Pathname);
+	GetTypeTable(&type, Boolean);
+	typevalues_values2(&values, values, type);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -125,7 +125,7 @@ static void defun_truename(void)
 	setcompiled_var1(pos, function_truename);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Pathname);
+	GetTypeCompiled(&type, Pathname);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -142,9 +142,9 @@ static void type_file_author(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PathnameDesigner);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_StringNull);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, StringNull);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -175,10 +175,10 @@ static void type_file_write_date(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PathnameDesigner);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, IntegerNull);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, IntegerNull);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -210,9 +210,9 @@ static void type_rename_file(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&values, PathnameDesigner);
-	var2_argtype(&arg, values, values);
-	values3_valuestype(&values, values, values, values);
+	GetTypeTable(&values, PathnameDesigner);
+	typeargs_var2(&arg, values, values);
+	typevalues_values3(&values, values, values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -243,9 +243,9 @@ static void type_delete_file(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, PathnameDesigner);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_EqlT);
+	GetTypeTable(&arg, PathnameDesigner);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, EqlT);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -276,10 +276,10 @@ static void type_file_error_pathname(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, FileError);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, PathnameDesigner);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, FileError);
+	typeargs_var1(&arg, arg);
+	GetTypeTable(&values, PathnameDesigner);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 

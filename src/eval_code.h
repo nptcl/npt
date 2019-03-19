@@ -1,5 +1,5 @@
-#ifndef __HEADER_EVAL_CODE__
-#define __HEADER_EVAL_CODE__
+#ifndef __EVAL_CODE_HEADER__
+#define __EVAL_CODE_HEADER__
 
 #include "typedef.h"
 #include "execute.h"

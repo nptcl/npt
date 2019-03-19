@@ -49,9 +49,9 @@ static void type_copy_seq(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Sequence);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&arg, Sequence);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -86,10 +86,10 @@ static void type_elt(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Sequence);
-	GetCallType(&values, Index);
-	var2_argtype(&arg, arg, values);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&values, Index);
+	typeargs_var2(&arg, arg, values);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -157,17 +157,17 @@ static void type_fill(addr *ret)
 
 	/* key */
 	GetConst(KEYWORD_START, &key1);
-	GetCallType(&values, KeywordStart);
+	GetTypeTable(&values, KeywordStart);
 	cons_heap(&key1, key1, values);
 	GetConst(KEYWORD_END, &key2);
-	GetCallType(&values, KeywordEnd);
+	GetTypeTable(&values, KeywordEnd);
 	cons_heap(&key2, key2, values);
 	list_heap(&key1, key1, key2, NULL);
 	/* type */
-	GetCallType(&arg, Sequence);
-	GetCallType(&values, T);
-	var2key_argtype(&arg, arg, values, key1);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&values, T);
+	typeargs_var2key(&arg, arg, values, key1);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -190,7 +190,7 @@ static void defun_fill(void)
 /* (defun make-sequence (type size &key initial-element) ...) -> sequence */
 static void function_make_sequence(Execute ptr, addr type, addr size, addr rest)
 {
-	make_sequence_sequence(ptr->local, &type, type, size, rest);
+	if (make_sequence_sequence(ptr, &type, type, size, rest)) return;
 	setresult_control(ptr, type);
 }
 
@@ -200,14 +200,14 @@ static void type_make_sequence(addr *ret)
 
 	/* key */
 	GetConst(KEYWORD_INITIAL_ELEMENT, &key);
-	GetCallType(&values, T);
+	GetTypeTable(&values, T);
 	cons_heap(&key, key, values);
 	list_heap(&key, key, NULL);
 	/* type */
-	GetCallType(&arg, TypeSpec);
-	GetCallType(&values, Index);
-	var2key_argtype(&arg, arg, values, key);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&arg, TypeSpec);
+	GetTypeTable(&values, Index);
+	typeargs_var2key(&arg, arg, values, key);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -266,11 +266,11 @@ static void type_subseq(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, Sequence);
-	GetCallType(&values, KeywordStart);
-	GetCallType(&type, KeywordEnd);
-	var2opt1_argtype(&arg, arg, values, type);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&values, KeywordStart);
+	GetTypeTable(&type, KeywordEnd);
+	typeargs_var2opt1(&arg, arg, values, type);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -302,11 +302,11 @@ static void type_setf_subseq(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, Sequence);
-	GetCallType(&values, KeywordStart);
-	GetCallType(&type, KeywordEnd);
-	var3opt1_argtype(&arg, arg, arg, values, type);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&values, KeywordStart);
+	GetTypeTable(&type, KeywordEnd);
+	typeargs_var3opt1(&arg, arg, arg, values, type);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -341,11 +341,11 @@ static void type_map(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, TypeSpec);
-	GetCallType(&values, FunctionDesigner);
-	GetCallType(&type, Sequence);
-	var3rest_argtype(&arg, arg, values, type, type);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&arg, TypeSpec);
+	GetTypeTable(&values, FunctionDesigner);
+	GetTypeTable(&type, Sequence);
+	typeargs_var3rest(&arg, arg, values, type, type);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -376,10 +376,10 @@ static void type_map_into(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Sequence);
-	GetCallType(&values, FunctionDesigner);
-	var2rest_argtype(&arg, arg, values, arg);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&values, FunctionDesigner);
+	typeargs_var2rest(&arg, arg, values, arg);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -418,26 +418,26 @@ static void type_reduce(addr *ret)
 
 	/* key */
 	GetConst(KEYWORD_KEY, &key1);
-	GetCallType(&type, FunctionDesigner);
+	GetTypeTable(&type, FunctionDesigner);
 	cons_heap(&key1, key1, type);
 	GetConst(KEYWORD_FROM_END, &key2);
-	GetCallType(&type, T);
+	GetTypeTable(&type, T);
 	cons_heap(&key2, key2, type);
 	GetConst(KEYWORD_START, &key3);
-	GetCallType(&type, KeywordStart);
+	GetTypeTable(&type, KeywordStart);
 	cons_heap(&key3, key3, type);
 	GetConst(KEYWORD_END, &key4);
-	GetCallType(&type, KeywordEnd);
+	GetTypeTable(&type, KeywordEnd);
 	cons_heap(&key4, key4, type);
 	GetConst(KEYWORD_INITIAL_VALUE, &key5);
-	GetCallType(&type, T);
+	GetTypeTable(&type, T);
 	cons_heap(&key5, key5, type);
 	list_heap(&type, key1, key2, key3, key4, key5, NULL);
 	/* type */
-	GetCallType(&arg, FunctionDesigner);
-	GetCallType(&values, Sequence);
-	var2key_argtype(&arg, arg, values, type);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&arg, FunctionDesigner);
+	GetTypeTable(&values, Sequence);
+	typeargs_var2key(&arg, arg, values, type);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -476,11 +476,11 @@ static void type_count(addr *ret)
 {
 	addr arg, values, key;
 
-	GetCallType(&arg, T);
-	GetCallType(&values, Sequence);
-	GetCallType(&key, CountKey);
-	var2key_argtype(&arg, arg, values, key);
-	GetCallType(&values, Values_Index);
+	GetTypeTable(&arg, T);
+	GetTypeTable(&values, Sequence);
+	GetTypeTable(&key, CountKey);
+	typeargs_var2key(&arg, arg, values, key);
+	GetTypeValues(&values, Index);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -517,7 +517,7 @@ static void defun_count_if(void)
 	setcompiled_var2dynamic(pos, function_count_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_CountIf);
+	GetTypeCompiled(&type, CountIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -540,7 +540,7 @@ static void defun_count_if_not(void)
 	setcompiled_var2dynamic(pos, function_count_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_CountIf);
+	GetTypeCompiled(&type, CountIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -557,9 +557,9 @@ static void type_length(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, Sequence);
-	var1_argtype(&arg, arg);
-	GetCallType(&values, Values_Index);
+	GetTypeTable(&arg, Sequence);
+	typeargs_var1(&arg, arg);
+	GetTypeValues(&values, Index);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -596,7 +596,7 @@ static void defun_reverse(void)
 	setcompiled_var1(pos, function_reverse);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Reverse);
+	GetTypeCompiled(&type, Reverse);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -619,7 +619,7 @@ static void defun_nreverse(void)
 	setcompiled_var1(pos, function_nreverse);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Reverse);
+	GetTypeCompiled(&type, Reverse);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -642,14 +642,14 @@ static void type_merge(addr *ret)
 
 	/* key */
 	GetConst(KEYWORD_KEY, &key);
-	GetCallType(&type, FunctionDesigner);
+	GetTypeTable(&type, FunctionDesigner);
 	cons_heap(&key, key, type);
 	conscar_heap(&key, key);
 	/* type */
-	GetCallType(&arg, TypeSpec);
-	GetCallType(&values, Sequence);
-	var4key_argtype(&arg, arg, values, values, type, key);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&arg, TypeSpec);
+	GetTypeTable(&values, Sequence);
+	typeargs_var4key(&arg, arg, values, values, type, key);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -689,7 +689,7 @@ static void defun_sort(void)
 	setcompiled_var2dynamic(pos, function_sort);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sort);
+	GetTypeCompiled(&type, Sort);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -715,7 +715,7 @@ static void defun_stable_sort(void)
 	setcompiled_var2dynamic(pos, function_stable_sort);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Sort);
+	GetTypeCompiled(&type, Sort);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -734,11 +734,11 @@ static void type_find(addr *ret)
 {
 	addr arg, values, key;
 
-	GetCallType(&arg, T);
-	GetCallType(&values, Sequence);
-	GetCallType(&key, CountKey);
-	var2key_argtype(&arg, arg, values, key);
-	GetCallType(&values, Values_T);
+	GetTypeTable(&arg, T);
+	GetTypeTable(&values, Sequence);
+	GetTypeTable(&key, CountKey);
+	typeargs_var2key(&arg, arg, values, key);
+	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -775,7 +775,7 @@ static void defun_find_if(void)
 	setcompiled_var2dynamic(pos, function_find_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_FindIf);
+	GetTypeCompiled(&type, FindIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -798,7 +798,7 @@ static void defun_find_if_not(void)
 	setcompiled_var2dynamic(pos, function_find_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_FindIf);
+	GetTypeCompiled(&type, FindIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -817,11 +817,11 @@ static void type_position(addr *ret)
 {
 	addr arg, values, key;
 
-	GetCallType(&arg, T);
-	GetCallType(&values, Sequence);
-	GetCallType(&key, CountKey);
-	var2key_argtype(&arg, arg, values, key);
-	GetCallType(&values, Values_IndexNull);
+	GetTypeTable(&arg, T);
+	GetTypeTable(&values, Sequence);
+	GetTypeTable(&key, CountKey);
+	typeargs_var2key(&arg, arg, values, key);
+	GetTypeValues(&values, IndexNull);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -858,7 +858,7 @@ static void defun_position_if(void)
 	setcompiled_var2dynamic(pos, function_position_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_PositionIf);
+	GetTypeCompiled(&type, PositionIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -881,7 +881,7 @@ static void defun_position_if_not(void)
 	setcompiled_var2dynamic(pos, function_position_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_PositionIf);
+	GetTypeCompiled(&type, PositionIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -906,7 +906,7 @@ static void defun_search(void)
 	setcompiled_var2dynamic(pos, function_search);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Search);
+	GetTypeCompiled(&type, Search);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -931,7 +931,7 @@ static void defun_mismatch(void)
 	setcompiled_var2dynamic(pos, function_mismatch);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Search);
+	GetTypeCompiled(&type, Search);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -951,16 +951,16 @@ static void type_replace(addr *ret)
 	addr arg, values, key, key1, key2, key3, key4;
 
 	/* key */
-	KeyCallType(&key1, START1, KeywordStart);
-	KeyCallType(&key2, START2, KeywordStart);
-	KeyCallType(&key3, END1, KeywordEnd);
-	KeyCallType(&key4, END2, KeywordEnd);
+	KeyTypeTable(&key1, START1, KeywordStart);
+	KeyTypeTable(&key2, START2, KeywordStart);
+	KeyTypeTable(&key3, END1, KeywordEnd);
+	KeyTypeTable(&key4, END2, KeywordEnd);
 	list_heap(&key, key1, key2, key3, key4, NULL);
 
 	/* type */
-	GetCallType(&arg, Sequence);
-	var2key_argtype(&arg, arg, arg, key);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&arg, Sequence);
+	typeargs_var2key(&arg, arg, arg, key);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1002,7 +1002,7 @@ static void defun_substitute(void)
 	setcompiled_var3dynamic(pos, function_substitute);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Substitute);
+	GetTypeCompiled(&type, Substitute);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1030,7 +1030,7 @@ static void defun_substitute_if(void)
 	setcompiled_var3dynamic(pos, function_substitute_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_SubstituteIf);
+	GetTypeCompiled(&type, SubstituteIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1058,7 +1058,7 @@ static void defun_substitute_if_not(void)
 	setcompiled_var3dynamic(pos, function_substitute_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_SubstituteIf);
+	GetTypeCompiled(&type, SubstituteIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1086,7 +1086,7 @@ static void defun_nsubstitute(void)
 	setcompiled_var3dynamic(pos, function_nsubstitute);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Substitute);
+	GetTypeCompiled(&type, Substitute);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1114,7 +1114,7 @@ static void defun_nsubstitute_if(void)
 	setcompiled_var3dynamic(pos, function_nsubstitute_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_SubstituteIf);
+	GetTypeCompiled(&type, SubstituteIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1142,7 +1142,7 @@ static void defun_nsubstitute_if_not(void)
 	setcompiled_var3dynamic(pos, function_nsubstitute_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_SubstituteIf);
+	GetTypeCompiled(&type, SubstituteIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1155,7 +1155,7 @@ static void defun_nsubstitute_if_not(void)
  */
 static void function_concatenate(Execute ptr, addr type, addr rest)
 {
-	concatenate_sequence(ptr->local, &type, type, rest);
+	if (concatenate_sequence(ptr, &type, type, rest)) return;
 	setresult_control(ptr, type);
 }
 
@@ -1163,10 +1163,10 @@ static void type_concatenate(addr *ret)
 {
 	addr arg, values;
 
-	GetCallType(&arg, TypeSpec);
-	GetCallType(&values, Sequence);
-	var1rest_argtype(&arg, arg, values);
-	GetCallType(&values, Values_Sequence);
+	GetTypeTable(&arg, TypeSpec);
+	GetTypeTable(&values, Sequence);
+	typeargs_var1rest(&arg, arg, values);
+	GetTypeValues(&values, Sequence);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1205,7 +1205,7 @@ static void defun_remove(void)
 	setcompiled_var2dynamic(pos, function_remove);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Remove);
+	GetTypeCompiled(&type, Remove);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1230,7 +1230,7 @@ static void defun_remove_if(void)
 	setcompiled_var2dynamic(pos, function_remove_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_RemoveIf);
+	GetTypeCompiled(&type, RemoveIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1255,7 +1255,7 @@ static void defun_remove_if_not(void)
 	setcompiled_var2dynamic(pos, function_remove_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_RemoveIf);
+	GetTypeCompiled(&type, RemoveIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1280,7 +1280,7 @@ static void defun_delete(void)
 	setcompiled_var2dynamic(pos, function_delete);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Remove);
+	GetTypeCompiled(&type, Remove);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1305,7 +1305,7 @@ static void defun_delete_if(void)
 	setcompiled_var2dynamic(pos, function_delete_if);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_RemoveIf);
+	GetTypeCompiled(&type, RemoveIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1330,7 +1330,7 @@ static void defun_delete_if_not(void)
 	setcompiled_var2dynamic(pos, function_delete_if_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_RemoveIf);
+	GetTypeCompiled(&type, RemoveIf);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1355,7 +1355,7 @@ static void defun_remove_duplicates(void)
 	setcompiled_var1dynamic(pos, function_remove_duplicates);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_RemoveDuplicates);
+	GetTypeCompiled(&type, RemoveDuplicates);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1380,7 +1380,7 @@ static void defun_delete_duplicates(void)
 	setcompiled_var1dynamic(pos, function_delete_duplicates);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_RemoveDuplicates);
+	GetTypeCompiled(&type, RemoveDuplicates);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }

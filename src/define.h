@@ -9,26 +9,26 @@
 /*
  *  Mode
  */
-#if defined(LISP_MODE_DEFAULT)
+#if defined(LISP_MODE_CORE)
 #undef LISP_MODE_STANDALONE
 #undef LISP_MODE_DEGRADE
 #define LISP_MODE_STRING "core"
 
 #elif defined(LISP_MODE_STANDALONE)
-#undef LISP_MODE_DEFAULT
+#undef LISP_MODE_CORE
 #undef LISP_MODE_DEGRADE
 #define LISP_MODE_STRING "standalone"
 
 #elif defined(LISP_MODE_DEGRADE)
-#undef LISP_MODE_DEFAULT
+#undef LISP_MODE_CORE
 #undef LISP_MODE_STANDALONE
 #define LISP_MODE_STRING "degrade"
 
 #else
-#define LISP_MODE_DEFAULT
-#undef LISP_MODE_STANDALONE
+#undef LISP_MODE_CORE
+#define LISP_MODE_STANDALONE
 #undef LISP_MODE_DEGRADE
-#define LISP_MODE_STRING "core"
+#define LISP_MODE_STRING "standalone"
 #endif
 
 

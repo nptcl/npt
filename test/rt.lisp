@@ -1,12 +1,17 @@
 ;;
-;;  npt regression test
+;;  Regression test
 ;;
-(in-package common-lisp-user)
+(in-package #:common-lisp-user)
 
-(rename-package 'npt-system 'npt-system '(lisp-system))
-(rename-package 'npt-user   'npt-user   '(lisp-user  ))
-(rename-package 'npt-clos   'npt-clos   '(lisp-clos  ))
-(rename-package 'npt-rt     'npt-rt     '(lisp-rt    ))
+(defun rt-package (symbol &optional (type (lisp-implementation-type)))
+  (let ((name (format nil "~A-~A" type symbol))
+        (lisp (format nil "~A-~A" 'lisp symbol)))
+    (rename-package name name (list lisp))))
+
+(rt-package 'system)
+(rt-package 'user)
+(rt-package 'clos)
+(rt-package 'rt)
 (use-package 'lisp-rt)
 
 (defun loadrt (file)

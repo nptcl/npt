@@ -168,7 +168,7 @@ static enum EvalCode_Mode evalcode_mode(addr code)
 	return StructEvalCode(code)->mode;
 }
 
-#if LISP_DEGRADE
+#ifdef LISP_DEGRADE
 static int evalcode_setp(addr code)
 {
 	return evalcode_mode(code) == EvalCode_ModeSet;
@@ -1383,7 +1383,7 @@ static void code_macro_code(LocalRoot local, addr code, addr scope, addr *ret)
 	rollback_modeswitch(code, &mode);
 }
 
-static void code_macro_function(LocalRoot local, addr code, addr name, addr scope)
+static void code_macro_function(LocalRoot local, addr code, addr scope)
 {
 	addr pos, clos, doc;
 
@@ -1401,9 +1401,7 @@ static void code_macro_function(LocalRoot local, addr code, addr name, addr scop
 
 static void code_macro_lambda(LocalRoot local, addr code, addr scope)
 {
-	addr call;
-	GetEvalScopeIndex(scope, EvalLambda_Call, &call);
-	code_macro_function(local, code, call, scope);
+	code_macro_function(local, code, scope);
 }
 
 static void code_defmacro(LocalRoot local, addr code, addr scope)
@@ -1413,6 +1411,17 @@ static void code_defmacro(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, 0, &name);
 	GetEvalScopeIndex(scope, 1, &lambda);
 	Code_double(local, code, DEFMACRO, name, lambda);
+	if_push_result(local, code);
+}
+
+static void code_deftype(LocalRoot local, addr code, addr scope)
+{
+	addr call, doc;
+
+	code_macro_function(local, code, scope);
+	GetEvalScopeIndex(scope, EvalLambda_Call, &call);
+	GetEvalScopeIndex(scope, EvalLambda_Doc, &doc);
+	Code_double(local, code, DEFTYPE, call, doc);
 	if_push_result(local, code);
 }
 
@@ -2024,6 +2033,10 @@ static void code_execute(LocalRoot local, addr code, addr scope)
 
 		case EVAL_PARSE_DEFMACRO:
 			code_defmacro(local, code, scope);
+			break;
+
+		case EVAL_PARSE_DEFTYPE:
+			code_deftype(local, code, scope);
 			break;
 
 		case EVAL_PARSE_DESTRUCTURING_BIND:

@@ -64,8 +64,7 @@ void setelt_inplace_sequence(LocalRoot local,
 		addr pos, size_t index, const struct array_value *str);
 void getelt_sequence(LocalRoot local, addr pos, size_t index, addr *ret);
 void setelt_sequence(addr pos, size_t index, addr value);
-void make_sequence_sequence(LocalRoot local,
-		addr *ret, addr type, addr size, addr rest);
+int make_sequence_sequence(Execute ptr, addr *ret, addr type, addr size, addr rest);
 void setf_subseq_sequence(addr root, addr pos, addr start, addr end);
 int map_sequence(Execute ptr, addr *ret, addr type, addr call, addr rest);
 int map_into_sequence(Execute ptr, addr var, addr call, addr rest);
@@ -99,7 +98,7 @@ int nsubstitute_if_sequence(Execute ptr,
 		addr item, addr call, addr pos, addr rest);
 int nsubstitute_if_not_sequence(Execute ptr,
 		addr item, addr call, addr pos, addr rest);
-void concatenate_sequence(LocalRoot ptr, addr *ret, addr type, addr right);
+int concatenate_sequence(Execute ptr, addr *ret, addr type, addr right);
 int remove_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest);
 int remove_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest);
 int remove_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest);

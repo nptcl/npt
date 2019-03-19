@@ -56,10 +56,10 @@ static void type_copy_readtable(addr *ret)
 	/* (function (readtable-designer readtable-designer)
 	 *   (values readtable &rest nil))
 	 */
-	GetCallType(&arg, ReadtableDesigner);
-	opt2_argtype(&arg, arg, arg);
-	GetCallType(&values, Readtable);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, ReadtableDesigner);
+	typeargs_opt2(&arg, arg, arg);
+	GetTypeTable(&values, Readtable);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -106,11 +106,11 @@ static void type_make_dispatch_macro_character(addr *ret)
 	/* (function (character &optional t readtable) ...)
 	 *    -> (values (eql t) &rest nil)
 	 */
-	GetCallType(&arg, Character);
-	GetCallType(&type1, T);
-	GetCallType(&type2, Readtable);
-	var1opt2_argtype(&arg, arg, type1, type2);
-	GetCallType(&values, Values_EqlT);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&type1, T);
+	GetTypeTable(&type2, Readtable);
+	typeargs_var1opt2(&arg, arg, type1, type2);
+	GetTypeValues(&values, EqlT);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -200,7 +200,7 @@ static void defun_read(void)
 	setcompiled_dynamic(pos, function_read);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Read);
+	GetTypeCompiled(&type, Read);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -276,7 +276,7 @@ static void defun_read_preserving_whitespace(void)
 	setcompiled_dynamic(pos, function_read_preserving_whitespace);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Read);
+	GetTypeCompiled(&type, Read);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -307,12 +307,12 @@ static void type_read_delimited_list(addr *ret)
 	/* (function (character &optional stream t) ...)
 	 *    -> (values list &rest nil)
 	 */
-	GetCallType(&arg, Character);
-	GetCallType(&type1, Stream);
-	GetCallType(&type2, T);
-	var1opt2_argtype(&arg, arg, type1, type2);
-	GetCallType(&values, List);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&type1, Stream);
+	GetTypeTable(&type2, T);
+	typeargs_var1opt2(&arg, arg, type1, type2);
+	GetTypeTable(&values, List);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -456,11 +456,11 @@ static void type_read_from_string(addr *ret)
 	addr str, type, type1, type2, size, var, opt, key, start, end, pre;
 	addr arg, values;
 
-	GetCallType(&str, String);
-	GetCallType(&type, T);
-	GetCallType(&size, Index);
-	GetCallType(&type1, KeywordStart);
-	GetCallType(&type2, KeywordEnd);
+	GetTypeTable(&str, String);
+	GetTypeTable(&type, T);
+	GetTypeTable(&size, Index);
+	GetTypeTable(&type1, KeywordStart);
+	GetTypeTable(&type2, KeywordEnd);
 	conscar_heap(&var, str);
 	list_heap(&opt, type, type, NULL);
 	GetConst(KEYWORD_START, &start);
@@ -470,8 +470,8 @@ static void type_read_from_string(addr *ret)
 	cons_heap(&end, end, type2);
 	cons_heap(&pre, pre, type);
 	list_heap(&key, start, end, pre, NULL);
-	full_argtype(&arg, var, opt, Nil, key);
-	values2_valuestype(&values, type, size);
+	typeargs_full(&arg, var, opt, Nil, key);
+	typevalues_values2(&values, type, size);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -528,9 +528,9 @@ static void type_readtable_case(addr *ret)
 	 */
 	addr arg, values;
 
-	GetCallType(&arg, Readtable);
-	GetCallType(&values, CaseSensitivity);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Readtable);
+	GetTypeTable(&values, CaseSensitivity);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -590,10 +590,10 @@ static void type_setf_readtable_case(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&values, CaseSensitivity);
-	GetCallType(&type, Readtable);
-	var2_argtype(&arg, values, type);
-	result_valuestype(&values, values);
+	GetTypeTable(&values, CaseSensitivity);
+	GetTypeTable(&type, Readtable);
+	typeargs_var2(&arg, values, type);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -629,7 +629,7 @@ static void defun_readtablep(void)
 	setcompiled_var1(pos, function_readtablep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_Object_Boolean);
+	GetTypeCompiled(&type, Object_Boolean);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -669,11 +669,11 @@ static void type_get_dispatch_macro_character(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, Character);
-	GetCallType(&type, ReadtableDesigner);
-	var2opt1_argtype(&arg, arg, arg, type);
-	GetCallType(&values, FunctionNull);
-	result_valuestype(&values, values);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&type, ReadtableDesigner);
+	typeargs_var2opt1(&arg, arg, arg, type);
+	GetTypeTable(&values, FunctionNull);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -731,11 +731,11 @@ static void type_set_dispatch_macro_character(addr *ret)
 {
 	addr arg, values, type1, type2;
 
-	GetCallType(&arg, Character);
-	GetCallType(&type1, FunctionNull);
-	GetCallType(&type2, ReadtableDesigner);
-	var3opt1_argtype(&arg, arg, arg, type1, type2);
-	GetCallType(&values, Values_EqlT);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&type1, FunctionNull);
+	GetTypeTable(&type2, ReadtableDesigner);
+	typeargs_var3opt1(&arg, arg, arg, type1, type2);
+	GetTypeValues(&values, EqlT);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -789,12 +789,12 @@ static void type_get_macro_character(addr *ret)
 {
 	addr arg, values, type;
 
-	GetCallType(&arg, Character);
-	GetCallType(&type, ReadtableDesigner);
-	var1opt1_argtype(&arg, arg, type);
-	GetCallType(&values, FunctionNull);
-	GetCallType(&type, Boolean);
-	values2_valuestype(&values, values, type);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&type, ReadtableDesigner);
+	typeargs_var1opt1(&arg, arg, type);
+	GetTypeTable(&values, FunctionNull);
+	GetTypeTable(&type, Boolean);
+	typevalues_values2(&values, values, type);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -851,12 +851,12 @@ static void type_set_macro_character(addr *ret)
 {
 	addr arg, values, type1, type2, type3;
 
-	GetCallType(&arg, Character);
-	GetCallType(&type1, FunctionDesigner);
-	GetCallType(&type2, T);
-	GetCallType(&type3, ReadtableDesigner);
-	var2opt2_argtype(&arg, arg, type1, type2, type3);
-	GetCallType(&values, Values_EqlT);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&type1, FunctionDesigner);
+	GetTypeTable(&type2, T);
+	GetTypeTable(&type3, ReadtableDesigner);
+	typeargs_var2opt2(&arg, arg, type1, type2, type3);
+	GetTypeValues(&values, EqlT);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -911,11 +911,11 @@ static void type_set_syntax_from_char(addr *ret)
 {
 	addr arg, values, type1, type2;
 
-	GetCallType(&arg, Character);
-	GetCallType(&type1, Readtable);
-	GetCallType(&type2, ReadtableDesigner);
-	var2opt2_argtype(&arg, arg, arg, type1, type2);
-	GetCallType(&values, Values_EqlT);
+	GetTypeTable(&arg, Character);
+	GetTypeTable(&type1, Readtable);
+	GetTypeTable(&type2, ReadtableDesigner);
+	typeargs_var2opt2(&arg, arg, arg, type1, type2);
+	GetTypeValues(&values, EqlT);
 	type_compiled_heap(arg, values, ret);
 }
 
@@ -1070,7 +1070,7 @@ static void defmacro_with_standard_io_syntax(void)
 	setcompiled_macro(pos, function_with_standard_io_syntax);
 	SetMacroCommon(symbol, pos);
 	/* type */
-	GetCallType(&type, Compiled_MacroFunction);
+	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
 }
 
@@ -1087,7 +1087,7 @@ static void defvar_read_base(void)
 	setspecial_symbol(symbol);
 
 	/* type */
-	GetCallType(&type, RadixInteger);
+	GetTypeTable(&type, RadixInteger);
 	settype_value_symbol(symbol, type);
 }
 
@@ -1104,7 +1104,7 @@ static void defvar_read_default_float_format(void)
 	setspecial_symbol(symbol);
 
 	/* (member short-float single-float double-float long-float) */
-	GetCallType(&type, FloatSymbol);
+	GetTypeTable(&type, FloatSymbol);
 	settype_value_symbol(symbol, type);
 }
 
@@ -1120,7 +1120,7 @@ static void defvar_read_eval(void)
 	setspecial_symbol(symbol);
 
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -1136,7 +1136,7 @@ static void defvar_read_suppress(void)
 	setspecial_symbol(symbol);
 
 	/* type */
-	GetCallType(&type, Boolean);
+	GetTypeTable(&type, Boolean);
 	settype_value_symbol(symbol, type);
 }
 
@@ -1151,7 +1151,7 @@ static void defvar_readtable(void)
 	setspecial_symbol(symbol);
 
 	/* type */
-	type_empty(NULL, LISPDECL_READTABLE, &type);
+	GetTypeTable(&type, Readtable);
 	settype_value_symbol(symbol, type);
 }
 

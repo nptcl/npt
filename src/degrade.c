@@ -54,13 +54,19 @@ int test_clos_cache(void);
 int test_clos_combination(void);
 int test_clos_generic(void);
 int test_clos_method(void);
-int test_type_parse(void);
+int test_type(void);
 int test_type_copy(void);
-int test_type_optimize(void);
+int test_type_name(void);
 int test_type_number(void);
-int test_type_subtypep(void);
+int test_type_object(void);
+int test_type_optimize(void);
+int test_type_parse(void);
 int test_type_range(void);
+int test_type_subtypep(void);
+int test_type_symbol(void);
+int test_type_table(void);
 int test_type_typep(void);
+int test_type_upgraded(void);
 int test_type_value(void);
 int test_eval(void);
 int test_eval_declare(void);
@@ -129,19 +135,26 @@ void degrade_execute(void)
 	DegradeCheck(test_clos_generic);
 	DegradeCheck(test_clos_method);
 	DegradeCheck(test_clos);
+	DegradeCheck(test_type);
+	DegradeCheck(test_type_table);
+	DegradeCheck(test_type_symbol);
 	DegradeCheck(test_type_parse);
 	DegradeCheck(test_type_typep);
+	DegradeCheck(test_type_name);
+	DegradeCheck(test_type_value);
+	DegradeCheck(test_type_object);
 	DegradeCheck(test_type_copy);
 	DegradeCheck(test_type_optimize);
 	DegradeCheck(test_type_range);
 	DegradeCheck(test_type_number);
 	DegradeCheck(test_type_subtypep);
-	DegradeCheck(test_type_value);
+	DegradeCheck(test_type_upgraded);
+	//	DegradeCheck(test_type_coerce);
 	DegradeCheck(test_equal);
 	DegradeCheck(test_eval);
 	DegradeCheck(test_eval_declare);
 	DegradeCheck(test_eval_parse);
-	DegradeCheck(test_eval_optparse);
+	//	DegradeCheck(test_eval_optparse);
 	DegradeCheck(test_eval_table);
 	DegradeCheck(test_eval_stack);
 	DegradeCheck(test_eval_scope);
@@ -157,6 +170,8 @@ void degrade_execute(void)
 #if 0
 #endif
 	DegradeCheck(load_rt);
+#if 0
+#endif
 }
 
 #endif

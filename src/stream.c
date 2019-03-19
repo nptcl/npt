@@ -774,7 +774,7 @@ static void defvar_system_prompt(void)
 	addr stream, symbol;
 
 	open_prompt_stream(&stream);
-	GetConst(SYSTEM_PROMPT_STREAM, &symbol);
+	GetConst(SYSTEM_PROMPT_VALUE, &symbol);
 	SetValueSymbol(symbol, stream);
 }
 
@@ -828,7 +828,7 @@ static void defvar_terminal_io(void)
 	addr symbol, input, output, stream;
 
 	/* twoway */
-	GetConst(SYSTEM_PROMPT_STREAM, &input);
+	GetConst(SYSTEM_PROMPT_VALUE, &input);
 	GetValueSymbol(input, &input);
 	GetConst(SYSTEM_STANDARD_OUTPUT, &output);
 	GetValueSymbol(output, &output);

@@ -801,7 +801,6 @@ static void rationalize_multi2(LocalRoot local, addr *ret, addr frac)
 	multi_ii_real_common(local, frac, value, ret);
 }
 
-
 static void rationalize_letdenom(LocalRoot local, addr expo, addr *ret)
 {
 	addr one;

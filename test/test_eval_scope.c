@@ -1,7 +1,6 @@
 #include "eval_scope.c"
 #include "array.h"
 #include "bignum.h"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "code.h"
@@ -19,6 +18,7 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
+#include "type_table.h"
 
 /*
  *  memory
@@ -39,12 +39,18 @@ static int test_eval_scope_heap(void)
 	RETURN;
 }
 
+static void test_parse_type(addr *ret, addr type)
+{
+	if (parse_type(Execute_Thread, ret, type, Nil))
+		fmte("system error", NULL);
+}
+
 static int test_eval_scope_size(void)
 {
 	addr pos, type, value;
 
 	readstring(&type, "integer");
-	parse_type_heap(&type, type);
+	test_parse_type(&type, type);
 	fixnum_heap(&value, 10);
 	eval_scope_size(&pos, 5, EVAL_PARSE_T, type, value);
 	test(RefEvalScopeType(pos) == EVAL_PARSE_T, "eval_scope_size1");
@@ -58,7 +64,7 @@ static int test_make_eval_scope(void)
 {
 	addr pos, check;
 
-	type_t_heap(&pos);
+	GetTypeTable(&pos, T);
 	make_eval_scope(&pos, EVAL_PARSE_LET, pos, T);
 	test(GetType(pos) == LISPTYPE_EVAL, "make_eval_scope1");
 	test(RefEvalType(pos) == EVAL_TYPE_SCOPE, "make_eval_scope2");
@@ -77,7 +83,7 @@ static int test_StructEvalScope(void)
 	struct eval_scope *str;
 
 	readstring(&type, "integer");
-	parse_type_heap(&type, type);
+	test_parse_type(&type, type);
 	fixnum_heap(&value, 10);
 	eval_scope_size(&pos, 5, EVAL_PARSE_T, type, value);
 	str = StructEvalScope(pos);
@@ -218,8 +224,9 @@ static int test_scope_array(void)
 {
 	addr eval, check;
 
-	array_alloc_stdarg(NULL, &eval, 0);
-	allocate_array_alloc(NULL, eval);
+	GetTypeTable(&eval, T);
+	array_make_array(NULL, &eval, fixnumh(1), eval, Unbound, Unbound,
+			Nil, Nil, Nil, fixnumh(0));
 	eval_parse(&eval, eval);
 	scope_array(&eval, eval);
 	test(eval_scope_p(eval), "scope_array1");
@@ -595,7 +602,7 @@ static int test_check_declare_stack(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&decl, "((type integer aa bb) (ftype function cc dd ee))");
-	parse_declare_alloc(local, decl, &decl);
+	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
 
 	readstring(&pos, "aa");
 	readstring(&value, "hello1");
@@ -644,7 +651,7 @@ static int test_apply_declare(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&decl, "((type integer aa bb) (ftype function cc dd ee))");
-	parse_declare_alloc(local, decl, &decl);
+	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
 
 	readstring(&pos, "aa");
 	readstring(&value, "hello1");
@@ -771,7 +778,7 @@ static int test_let_maketable(void)
 	test(find_tablevalue(str.stack, pos, &pos), "let_maketable1");
 	test(eval_tablevalue_p(pos), "let_maketable2");
 	gettype_tablevalue(pos, &pos);
-	test(asterisk_p(pos), "let_maketable3");
+	test(type_asterisk_p(pos), "let_maketable3");
 
 	free_eval_stack(ptr);
 	free_control(ptr, control);
@@ -797,13 +804,13 @@ static int test_specialp_stack_tablevalue(void)
 	test(result == 0, "specialp_stack_tablevalue1");
 
 	readstring(&pos, "((special bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = specialp_stack_tablevalue(stack, symbol, &specialp);
 	test(result == 0, "specialp_stack_tablevalue2");
 
 	readstring(&pos, "((special aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = specialp_stack_tablevalue(stack, symbol, &specialp);
 	test(result, "specialp_stack_tablevalue3");
@@ -849,14 +856,14 @@ static int test_specialp_tablevalue(void)
 
 	readstring(&symbol, "aa");
 	readstring(&pos, "((special aa))");
-	parse_declaim_alloc(local, pos, &pos);
+	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	specialp = specialp_tablevalue(ptr, stack, symbol);
 	test(specialp, "specialp_tablevalue3");
 
 	readstring(&symbol, "bb");
 	readstring(&pos, "((special bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	specialp = specialp_tablevalue(ptr, stack, symbol);
 	test(specialp, "specialp_tablevalue4");
@@ -888,17 +895,18 @@ static int test_dynamic_stack_tablevalue(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&symbol, "aa");
+	dynamic = 999;
 	result = dynamic_stack_tablevalue(stack, symbol, &dynamic);
 	test(result == 0, "dynamic_stack_tablevalue1");
 
 	readstring(&pos, "((dynamic-extent bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = dynamic_stack_tablevalue(stack, symbol, &dynamic);
 	test(result == 0, "dynamic_stack_tablevalue2");
 
 	readstring(&pos, "((dynamic-extent aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = dynamic_stack_tablevalue(stack, symbol, &dynamic);
 	test(result, "dynamic_stack_tablevalue3");
@@ -940,7 +948,7 @@ static int test_dynamic_tablevalue(void)
 
 	readstring(&symbol, "bb");
 	readstring(&pos, "((dynamic-extent bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	dynamic = dynamic_tablevalue(stack, symbol);
 	test(dynamic, "dynamic_tablevalue2");
@@ -977,13 +985,13 @@ static int test_ignore_stack_tablevalue(void)
 	test(! result, "ignore_stack_tablevalue1");
 
 	readstring(&pos, "((ignorable bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = ignore_stack_tablevalue(stack, symbol, &ignore);
 	test(! result, "ignore_stack_tablevalue2");
 
 	readstring(&pos, "((ignore aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = ignore_stack_tablevalue(stack, symbol, &ignore);
 	test(result, "ignore_stack_tablevalue3");
@@ -1030,7 +1038,7 @@ static int test_ignore_tablevalue(void)
 
 	readstring(&symbol, "bb");
 	readstring(&pos, "((ignore bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	ignore = ignore_tablevalue(stack, symbol);
 	test(ignore == IgnoreType_Ignore, "ignore_tablevalue2");
@@ -1061,7 +1069,7 @@ static int test_type_free_tablevalue(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&pos, "((type integer aa bb cc) (string dd ee))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
 	readstring(&pos, "bb");
@@ -1095,13 +1103,13 @@ static int test_type_boundary_tablevalue(void)
 	readstring(&pos, "aa");
 	make_tablevalue_stack(local, &pos, stack, pos);
 	readstring(&value, "integer");
-	parse_type_local(local, &value, value);
+	test_parse_type(&value, value);
 	settype_tablevalue(pos, value);
 
 	readstring(&pos, "bb");
 	make_tablevalue_stack(local, &pos, stack, pos);
 	readstring(&value, "string");
-	parse_type_local(local, &value, value);
+	test_parse_type(&value, value);
 	settype_tablevalue(pos, value);
 
 	readstring(&pos, "bb");
@@ -1132,7 +1140,7 @@ static int test_type_tablevalue_local(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&pos, "((type integer aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
 	readstring(&pos, "aa");
@@ -1143,7 +1151,7 @@ static int test_type_tablevalue_local(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&pos, "((type string aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
 	readstring(&pos, "aa");
@@ -1157,7 +1165,7 @@ static int test_type_tablevalue_local(void)
 	readstring(&pos, "aa");
 	make_tablevalue_stack(local, &pos, stack, pos);
 	readstring(&value, "null");
-	parse_type_local(local, &value, value);
+	test_parse_type(&value, value);
 	settype_tablevalue(pos, value);
 
 	readstring(&pos, "aa");
@@ -1201,7 +1209,7 @@ static int test_type_tablevalue_global(void)
 	test(value == Nil, "type_tablevalue_global1");
 
 	readstring(&value, "null");
-	parse_type_heap(&value, value);
+	test_parse_type(&value, value);
 	settype_value_symbol(pos, value);
 	type_tablevalue(ptr, local, stack, pos, 0, &value);
 	test(singlep(value), "type_tablevalue_global2");
@@ -1211,7 +1219,7 @@ static int test_type_tablevalue_global(void)
 	getglobal_eval(ptr, &geval);
 	make_tablevalue_stack(NULL, &value, geval, pos);
 	readstring(&type, "integer");
-	parse_type_heap(&type, type);
+	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
 	type_tablevalue(ptr, local, stack, pos, 0, &value);
@@ -1220,7 +1228,7 @@ static int test_type_tablevalue_global(void)
 	test(RefLispDecl(value) == LISPDECL_INTEGER, "type_tablevalue_global5");
 
 	readstring(&value, "((type string type-tablevalue-global-temp-symbol))");
-	parse_declaim_alloc(local, value, &value);
+	parse_declaim_heap(Execute_Thread, Nil, value, &value);
 	apply_declaim_stack(ptr, value);
 	type_tablevalue(ptr, local, stack, pos, 0, &value);
 	test(singlep(value), "type_tablevalue_global6");
@@ -1229,7 +1237,7 @@ static int test_type_tablevalue_global(void)
 
 	make_tablevalue_stack(local, &value, stack, pos);
 	readstring(&type, "null");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
 	type_tablevalue(ptr, local, stack, pos, 0, &type);
@@ -1261,16 +1269,16 @@ static int test_type_and_array(void)
 
 	test(type_and_array(local, Nil, &pos), "type_and_array1");
 
-	type_empty(local, LISPDECL_ATOM, &pos);
+	GetTypeTable(&pos, Atom);
 	list_local(local, &cons, pos, NULL);
 	test(! type_and_array(local, cons, &check), "type_and_array2");
 	test(check == pos, "type_and_array3");
 
-	type_empty(local, LISPDECL_ATOM, &pos1);
-	type_empty(local, LISPDECL_NULL, &pos2);
-	type_empty(local, LISPDECL_ASTERISK, &pos3);
-	type_empty(local, LISPDECL_T, &pos4);
-	type_empty(local, LISPDECL_FIXNUM, &pos5);
+	GetTypeTable(&pos1, Atom);
+	GetTypeTable(&pos2, Null);
+	GetTypeTable(&pos3, Asterisk);
+	GetTypeTable(&pos4, T);
+	GetTypeTable(&pos5, Fixnum);
 	list_local(local, &cons, pos1, pos2, pos3, pos4, pos5, NULL);
 	test(! type_and_array(local, cons, &check), "type_and_array4");
 	test(RefLispDecl(check) == LISPDECL_AND, "type_and_array5");
@@ -1306,7 +1314,7 @@ static int test_push_tablevalue_alloc(void)
 
 	readstring(&symbol, "bb");
 	readstring(&pos, "((special bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	push_tablevalue_alloc(ptr, local, stack, symbol, &value);
 	test(getspecialp_tablevalue(value), "push_tablevalue_alloc2");
@@ -1314,7 +1322,7 @@ static int test_push_tablevalue_alloc(void)
 	getglobal_eval(ptr, &stack);
 	readstring(&symbol, "bb");
 	readstring(&pos, "((special bb))");
-	parse_declaim_alloc(local, pos, &pos);
+	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	push_tablevalue_alloc(ptr, NULL, stack, symbol, &value);
 	test(getspecialp_tablevalue(value), "push_tablevalue_alloc3");
@@ -1331,25 +1339,25 @@ static int test_checktype_p(void)
 	addr form, symbol;
 
 	readstring(&form, "integer");
-	parse_type_heap(&form, form);
+	test_parse_type(&form, form);
 	readstring(&symbol, "real");
-	parse_type_heap(&symbol, symbol);
+	test_parse_type(&symbol, symbol);
 	warning = checktype_p(form, symbol, &check);
 	test(! check, "checktype_p1");
 	test(! warning, "checktype_p2");
 
 	readstring(&form, "real");
-	parse_type_heap(&form, form);
+	test_parse_type(&form, form);
 	readstring(&symbol, "integer");
-	parse_type_heap(&symbol, symbol);
+	test_parse_type(&symbol, symbol);
 	warning = checktype_p(form, symbol, &check);
 	test(check, "checktype_p3");
 	test(! warning, "checktype_p4");
 
 	readstring(&form, "string");
-	parse_type_heap(&form, form);
+	test_parse_type(&form, form);
 	readstring(&symbol, "integer");
-	parse_type_heap(&symbol, symbol);
+	test_parse_type(&symbol, symbol);
 	warning = checktype_p(form, symbol, &check);
 	test(check, "checktype_p5");
 	test(warning, "checktype_p6");
@@ -1372,17 +1380,17 @@ static int test_checktype_value(void)
 	readstring(&symbol, "aa");
 	push_tablevalue_alloc(ptr, local, stack, symbol, &value);
 	readstring(&type, "integer");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
 	readstring(&type, "fixnum");
-	parse_type_heap(&type, type);
+	test_parse_type(&type, type);
 	make_eval_scope(&init, EVAL_PARSE_EMPTY, type, Nil);
 	checktype_value(value, init);
 	test(getcheck_tablevalue(value) == 0, "checktype_value1");
 
 	readstring(&type, "real");
-	parse_type_heap(&type, type);
+	test_parse_type(&type, type);
 	make_eval_scope(&init, EVAL_PARSE_EMPTY, type, Nil);
 	checktype_value(value, init);
 	test(getcheck_tablevalue(value), "checktype_value2");
@@ -1425,13 +1433,13 @@ static int test_let_applytable(void)
 	readstring(&pos, "aa");
 	test(find_tablevalue(str.stack, pos, &value), "let_applytable5");
 	readstring(&type, "fixnum");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
 	readstring(&pos, "bb");
 	test(find_tablevalue(str.stack, pos, &value), "let_applytable6");
 	readstring(&type, "(satisfies hello)");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
 	let_applytable(ptr, &str);
@@ -1608,25 +1616,23 @@ static int test_ifdeclvalue(void)
 	int invalidp;
 	addr control, stack, decl, symbol, value, check, pos;
 	Execute ptr;
-	LocalRoot local;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_close_control(ptr, &control);
 	init_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
 	readstring(&decl, "()");
-	parse_declare_alloc(local, decl, &decl);
+	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
 	readstring(&symbol, "aa");
 	ifdeclvalue(ptr, stack, symbol, decl, &value);
 	test(eval_tablevalue_p(value), "ifdeclvalue1");
 	test(! getspecialp_tablevalue(value), "ifdeclvalue2");
 	gettype_tablevalue(value, &check);
-	test(asterisk_p(check), "ifdeclvalue3");
+	test(type_asterisk_p(check), "ifdeclvalue3");
 
 	readstring(&decl, "((special bb) (null bb))");
-	parse_declare_alloc(local, decl, &decl);
+	parse_declare_heap(Execute_Thread, Nil, decl, &decl);
 	readstring(&symbol, "bb");
 	ifdeclvalue(ptr, stack, symbol, decl, &value);
 	test(eval_tablevalue_p(value), "ifdeclvalue4");
@@ -1634,7 +1640,7 @@ static int test_ifdeclvalue(void)
 	gettype_tablevalue(value, &check);
 
 	readstring(&pos, "null");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	test(subtypep_clang(check, pos, &invalidp), "ifdeclvalue6");
 
 	ifdeclvalue(ptr, stack, symbol, decl, NULL);
@@ -1649,12 +1655,10 @@ static int test_leta_checktype(void)
 {
 	addr control, pos, value, type;
 	Execute ptr;
-	LocalRoot local;
 	struct let_struct str;
 
 	memset(&str, 0, sizeoft(str));
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_close_control(ptr, &control);
 	init_eval_stack(ptr);
 
@@ -1670,13 +1674,13 @@ static int test_leta_checktype(void)
 	readstring(&pos, "aa");
 	test(find_tablevalue(str.stack, pos, &value), "leta_checktype1");
 	readstring(&type, "fixnum");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
 	readstring(&pos, "bb");
 	test(find_tablevalue(str.stack, pos, &value), "leta_checktype2");
 	readstring(&type, "(satisfies hello)");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	settype_tablevalue(value, type);
 
 	leta_checktype(ptr, &str);
@@ -1801,10 +1805,8 @@ static int test_symbol_global_tablevalue(void)
 	int specialp, result;
 	addr control, symbol, pos, value, stack;
 	Execute ptr;
-	LocalRoot local;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_close_control(ptr, &control);
 	init_eval_stack(ptr);
 
@@ -1819,7 +1821,7 @@ static int test_symbol_global_tablevalue(void)
 	test(! specialp, "symbol_global_tablevalue4");
 
 	readstring(&pos, "((special bb))");
-	parse_declaim_alloc(local, pos, &pos);
+	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	readstring(&symbol, "bb");
 	specialp = symbol_global_tablevalue(ptr, symbol, &pos);
@@ -1878,7 +1880,7 @@ static int test_symbol_tablevalue(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&pos, "((special bb))");
-	parse_declaim_alloc(local, pos, &pos);
+	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	readstring(&symbol, "bb");
 	specialp = symbol_tablevalue(ptr, Nil, symbol, &pos);
@@ -1886,7 +1888,7 @@ static int test_symbol_tablevalue(void)
 
 	readstring(&symbol, "cc");
 	readstring(&pos, "((special cc))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	push_tablevalue_local(ptr, stack, symbol, &pos);
 	specialp = symbol_tablevalue(ptr, stack, symbol, &pos);
@@ -1897,7 +1899,7 @@ static int test_symbol_tablevalue(void)
 	test(! specialp, "symbol_tablevalue3");
 
 	readstring(&pos, "((integer ee))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	readstring(&symbol, "ee");
 	make_tablevalue_stack(local, &value, stack, symbol);
@@ -2184,7 +2186,7 @@ static int test_setq_cons(void)
 	stack = newstack_nil(ptr);
 	readstring(&check, "cc");
 	readstring(&pos, "((type (satisfies hello) cc))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	push_tablevalue_local(ptr, stack, check, &pos);
 
@@ -2253,7 +2255,7 @@ static int test_globalp_stack_tablefunction(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&pos, "((ftype function bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
 	readstring(&pos, "cc");
@@ -2300,7 +2302,7 @@ static int test_globalp_tablefunction(void)
 	test(result, "globalp_tablefunction1");
 
 	readstring(&pos, "((ftype function aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = globalp_tablefunction(ptr, stack, call);
 	test(! result, "globalp_tablefunction2");
@@ -2315,7 +2317,7 @@ static int test_globalp_tablefunction(void)
 	readstring(&symbol, "bb");
 	parse_callname_local(local, &call, symbol);
 	readstring(&pos, "((ftype function aa))");
-	parse_declaim_alloc(local, pos, &pos);
+	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	result = globalp_tablefunction(ptr, stack, call);
 	test(result, "globalp_tablefunction5");
@@ -2341,17 +2343,18 @@ static int test_dynamic_stack_tablefunction(void)
 	stack = newstack_nil(ptr);
 	readstring(&call, "aa");
 	parse_callname_local(local, &call, call);
+	dynamic = 999;
 	result = dynamic_stack_tablefunction(stack, call, &dynamic);
 	test(result == 0, "dynamic_stack_tablefunction1");
 
 	readstring(&pos, "((dynamic-extent #'bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = dynamic_stack_tablefunction(stack, call, &dynamic);
 	test(result == 0, "dynamic_stack_tablefunction2");
 
 	readstring(&pos, "((dynamic-extent #'aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = dynamic_stack_tablefunction(stack, call, &dynamic);
 	test(result, "dynamic_stack_tablefunction3");
@@ -2396,7 +2399,7 @@ static int test_dynamic_tablefunction(void)
 	readstring(&call, "bb");
 	parse_callname_local(local, &call, call);
 	readstring(&pos, "((dynamic-extent #'bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	dynamic = dynamic_tablefunction(stack, call);
 	test(dynamic, "dynamic_tablefunction2");
@@ -2434,13 +2437,13 @@ static int test_ignore_stack_tablefunction(void)
 	test(! result, "ignore_stack_tablefunction1");
 
 	readstring(&pos, "((ignorable #'bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = ignore_stack_tablefunction(stack, call, &ignore);
 	test(! result, "ignore_stack_tablefunction2");
 
 	readstring(&pos, "((ignore #'aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = ignore_stack_tablefunction(stack, call, &ignore);
 	test(result, "ignore_stack_tablefunction3");
@@ -2491,7 +2494,7 @@ static int test_ignore_tablefunction(void)
 	readstring(&call, "bb");
 	parse_callname_local(local, &call, call);
 	readstring(&pos, "((ignore #'bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	ignore = ignore_tablefunction(stack, call);
 	test(ignore == IgnoreType_Ignore, "ignore_tablefunction2");
@@ -2529,13 +2532,13 @@ static int test_inline_stack_tablefunction(void)
 	test(! result, "inline_stack_tablefunction1");
 
 	readstring(&pos, "((notinline bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = inline_stack_tablefunction(stack, call, &Inline);
 	test(! result, "inline_stack_tablefunction2");
 
 	readstring(&pos, "((inline aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	result = inline_stack_tablefunction(stack, call, &Inline);
 	test(result, "inline_stack_tablefunction3");
@@ -2586,7 +2589,7 @@ static int test_inline_tablefunction(void)
 	readstring(&call, "bb");
 	parse_callname_local(local, &call, call);
 	readstring(&pos, "((inline bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	Inline = inline_tablefunction(ptr, stack, call);
 	test(Inline == InlineType_Inline, "inline_tablefunction2");
@@ -2601,7 +2604,7 @@ static int test_inline_tablefunction(void)
 	readstring(&call, "cc");
 	parse_callname_local(local, &call, call);
 	readstring(&pos, "((notinline cc))");
-	parse_declaim_alloc(local, pos, &pos);
+	parse_declaim_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declaim_stack(ptr, pos);
 	Inline = inline_tablefunction(ptr, stack, call);
 	test(Inline == InlineType_NotInline, "inline_tablefunction4");
@@ -2621,9 +2624,9 @@ static int test_gettype_global_callname(void)
 	gettype_global_callname(NULL, call, &pos);
 	test(pos == Nil, "gettype_global_callname1");
 
-	type_empty(NULL, LISPDECL_NULL, &pos);
+	GetTypeTable(&pos, Null);
 	settype_function_symbol(symbol, pos);
-	type_empty(NULL, LISPDECL_ATOM, &pos);
+	GetTypeTable(&pos, Atom);
 	settype_setf_symbol(symbol, pos);
 
 	gettype_global_callname(NULL, call, &pos);
@@ -2654,7 +2657,7 @@ static int test_type_free_tablefunction(void)
 	readstring(&pos,
 			"((ftype (function * integer) aa bb cc) "
 			" (ftype (function * string) dd ee))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
 	readstring(&pos, "bb");
@@ -2696,14 +2699,14 @@ static int test_type_boundary_tablefunction(void)
 	parse_callname_local(local, &pos, pos);
 	make_tablefunction_stack(local, &pos, stack, pos);
 	readstring(&value, "(function * integer)");
-	parse_type_local(local, &value, value);
+	test_parse_type(&value, value);
 	settype_tablefunction(pos, value);
 
 	readstring(&pos, "bb");
 	parse_callname_local(local, &pos, pos);
 	make_tablefunction_stack(local, &pos, stack, pos);
 	readstring(&value, "(function * string)");
-	parse_type_local(local, &value, value);
+	test_parse_type(&value, value);
 	settype_tablefunction(pos, value);
 
 	readstring(&pos, "bb");
@@ -2742,7 +2745,7 @@ static int test_type_tablefunction_local(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&pos, "((ftype (function * integer) aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
 	readstring(&pos, "aa");
@@ -2755,7 +2758,7 @@ static int test_type_tablefunction_local(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&pos, "((ftype (function * string) aa))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 
 	readstring(&pos, "aa");
@@ -2773,7 +2776,7 @@ static int test_type_tablefunction_local(void)
 	parse_callname_local(local, &pos, pos);
 	make_tablefunction_stack(local, &pos, stack, pos);
 	readstring(&value, "(function * null)");
-	parse_type_local(local, &value, value);
+	test_parse_type(&value, value);
 	settype_tablefunction(pos, value);
 
 	readstring(&pos, "aa");
@@ -2811,7 +2814,7 @@ static int test_type_tablefunction_global(void)
 	test(value == Nil, "type_tablefunction_global1");
 
 	readstring(&value, "(function * null)");
-	parse_type_heap(&value, value);
+	test_parse_type(&value, value);
 	settype_function_symbol(symbol, value);
 	type_tablefunction(ptr, local, stack, pos, &value);
 	test(singlep(value), "type_tablefunction_global2");
@@ -2822,7 +2825,7 @@ static int test_type_tablefunction_global(void)
 	getglobal_eval(ptr, &geval);
 	make_tablefunction_stack(NULL, &value, geval, pos);
 	readstring(&type, "(function * integer)");
-	parse_type_heap(&type, type);
+	test_parse_type(&type, type);
 	settype_tablefunction(value, type);
 
 	type_tablefunction(ptr, local, stack, pos, &value);
@@ -2834,7 +2837,7 @@ static int test_type_tablefunction_global(void)
 	readstring(&value,
 			"((ftype (function * string) "
 			"  type-tablefunction-global-temp-symbol))");
-	parse_declaim_alloc(local, value, &value);
+	parse_declaim_heap(Execute_Thread, Nil, value, &value);
 	apply_declaim_stack(ptr, value);
 	type_tablefunction(ptr, local, stack, pos, &value);
 	test(singlep(value), "type_tablefunction_global6");
@@ -2844,7 +2847,7 @@ static int test_type_tablefunction_global(void)
 
 	make_tablefunction_stack(local, &value, stack, pos);
 	readstring(&type, "(function * null)");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	settype_tablefunction(value, type);
 
 	type_tablefunction(ptr, local, stack, pos, &type);
@@ -2908,7 +2911,7 @@ static int test_push_tablefunction_alloc(void)
 	readstring(&call, "bb");
 	parse_callname_local(local, &call, call);
 	readstring(&pos, "((dynamic-extent #'bb))");
-	parse_declare_alloc(local, pos, &pos);
+	parse_declare_heap(Execute_Thread, Nil, pos, &pos);
 	apply_declare_stack(local, stack, pos);
 	push_tablefunction_alloc(ptr, local, stack, call, &value);
 	test(getdynamic_tablefunction(value), "push_tablefunction_alloc3");
@@ -3456,7 +3459,7 @@ static int test_type_ordinary_var(void)
 
 	str.stack = newstack_nil(ptr);
 	readstring(&pos, "((type integer aa) (type string bb))");
-	parse_declare_alloc(local, pos, &str.decl);
+	parse_declare_heap(Execute_Thread, Nil, pos, &str.decl);
 
 	parse_eval_string(&pos, "(lambda (aa bb))");
 	GetEvalParse(pos, 0, &str.args); /* args */
@@ -3468,12 +3471,12 @@ static int test_type_ordinary_var(void)
 	test(length_list_unsafe(args) == 2, "type_ordinary_var1");
 	GetCons(args, &pos, &args);
 	readstring(&check, "integer");
-	parse_type_local(local, &check, check);
+	test_parse_type(&check, check);
 	test(subtypep_clang(pos, check, &invalid), "type_ordinary_var2");
 	test(subtypep_clang(check, pos, &invalid), "type_ordinary_var3");
 	GetCons(args, &pos, &args);
 	readstring(&check, "string");
-	parse_type_local(local, &check, check);
+	test_parse_type(&check, check);
 	test(subtypep_clang(pos, check, &invalid), "type_ordinary_var4");
 	test(subtypep_clang(check, pos, &invalid), "type_ordinary_var5");
 
@@ -3499,7 +3502,7 @@ static int test_type_ordinary_opt(void)
 
 	str.stack = newstack_nil(ptr);
 	readstring(&pos, "((type integer aa) (type string bb))");
-	parse_declare_alloc(local, pos, &str.decl);
+	parse_declare_heap(Execute_Thread, Nil, pos, &str.decl);
 
 	parse_eval_string(&pos, "(lambda (&optional (aa 10) (bb \"Hello\")) :hello)");
 	GetEvalParse(pos, 0, &str.args); /* args */
@@ -3511,12 +3514,12 @@ static int test_type_ordinary_opt(void)
 	test(length_list_unsafe(args) == 2, "type_ordinary_opt1");
 	GetCons(args, &pos, &args);
 	readstring(&check, "integer");
-	parse_type_local(local, &check, check);
+	test_parse_type(&check, check);
 	test(subtypep_clang(pos, check, &invalid), "type_ordinary_opt2");
 	test(subtypep_clang(check, pos, &invalid), "type_ordinary_opt3");
 	GetCons(args, &pos, &args);
 	readstring(&check, "string");
-	parse_type_local(local, &check, check);
+	test_parse_type(&check, check);
 	test(subtypep_clang(pos, check, &invalid), "type_ordinary_opt4");
 	test(subtypep_clang(check, pos, &invalid), "type_ordinary_opt5");
 
@@ -3557,7 +3560,7 @@ static int test_type_ordinary_key(void)
 
 	str.stack = newstack_nil(ptr);
 	readstring(&pos, "((type integer aa) (type string bb))");
-	parse_declare_alloc(local, pos, &str.decl);
+	parse_declare_heap(Execute_Thread, Nil, pos, &str.decl);
 
 	parse_eval_string(&pos, "(lambda (&key ((hello aa) 10) (bb \"Hello\")))");
 	GetEvalParse(pos, 0, &str.args); /* args */
@@ -3572,7 +3575,7 @@ static int test_type_ordinary_key(void)
 	readstring(&check, "hello");
 	test(key == check, "type_ordinary_key2");
 	readstring(&check, "integer");
-	parse_type_local(local, &check, check);
+	test_parse_type(&check, check);
 	test(subtypep_clang(value, check, &invalid), "type_ordinary_key3");
 	test(subtypep_clang(check, value, &invalid), "type_ordinary_key4");
 	GetCons(args, &pos, &args);
@@ -3580,7 +3583,7 @@ static int test_type_ordinary_key(void)
 	readstring(&check, ":bb");
 	test(key == check, "type_ordinary_key5");
 	readstring(&check, "string");
-	parse_type_local(local, &check, check);
+	test_parse_type(&check, check);
 	test(subtypep_clang(value, check, &invalid), "type_ordinary_key6");
 	test(subtypep_clang(check, value, &invalid), "type_ordinary_key7");
 
@@ -3608,7 +3611,7 @@ static int test_make_type_ordinary(void)
 
 	str.stack = newstack_nil(ptr);
 	readstring(&pos, "((type integer aa) (type string bb))");
-	parse_declare_alloc(local, pos, &str.decl);
+	parse_declare_heap(Execute_Thread, Nil, pos, &str.decl);
 
 	parse_eval_string(&pos, "(lambda ())");
 	GetEvalParse(pos, 0, &str.args); /* args */
@@ -3657,7 +3660,7 @@ static int test_lambda_type_incomplete(void)
 
 	str.stack = newstack_nil(ptr);
 	readstring(&pos, "((type integer aa) (type string bb))");
-	parse_declare_alloc(local, pos, &str.decl);
+	parse_declare_heap(Execute_Thread, Nil, pos, &str.decl);
 
 	parse_eval_string(&pos, "(lambda ())");
 	GetEvalParse(pos, 0, &str.args); /* args */
@@ -3670,7 +3673,7 @@ static int test_lambda_type_incomplete(void)
 	GetArrayType(pos, 0, &check);
 	test(lenarrayr(check) == 4, "lambda_type_incomplete2");
 	GetArrayType(pos, 1, &check);
-	test(asterisk_p(check), "lambda_type_incomplete3");
+	test(type_asterisk_p(check), "lambda_type_incomplete3");
 
 	free_eval_stack(ptr);
 	free_control(ptr, control);
@@ -3725,9 +3728,9 @@ static int test_lambda_declare(void)
 	test(RefLispDecl(pos) == LISPDECL_FUNCTION, "lambda_declare5");
 	test(RefLispDecl(str.the) == LISPDECL_FUNCTION, "lambda_declare6");
 	GetArrayType(pos, 0, &check);
-	test(! asterisk_p(check), "lambda_declare7");
+	test(! type_asterisk_p(check), "lambda_declare7");
 	GetArrayType(pos, 1, &check);
-	test(asterisk_p(check), "lambda_declare8");
+	test(type_asterisk_p(check), "lambda_declare8");
 
 	free_eval_stack(ptr);
 	free_control(ptr, control);
@@ -3767,13 +3770,13 @@ static int test_lambda_progn(void)
 	pos = str.the;
 	test(RefLispDecl(pos) == LISPDECL_FUNCTION, "lambda_progn1");
 	GetArrayType(pos, 0, &check);
-	test(! asterisk_p(check), "lambda_progn2");
+	test(! type_asterisk_p(check), "lambda_progn2");
 	GetArrayType(pos, 1, &check);
-	test(! asterisk_p(check), "lambda_progn3");
+	test(! type_asterisk_p(check), "lambda_progn3");
 
 	gettype_tablefunction(str.table, &pos);
 	GetArrayType(pos, 1, &check);
-	test(! asterisk_p(check), "lambda_progn4");
+	test(! type_asterisk_p(check), "lambda_progn4");
 
 	free_eval_stack(ptr);
 	free_control(ptr, control);
@@ -4515,8 +4518,8 @@ static int test_push_symbol_macrolet(void)
 	fixnum_heap(&v2, 20);
 	push_symbol_macrolet(stack, symbol, v1, v2);
 
-    GetConst(SYSTEM_SYMBOL_MACROLET, &key);
-    GetEvalStackTable(stack, &table);
+	GetConst(SYSTEM_SYMBOL_MACROLET, &key);
+	GetEvalStackTable(stack, &table);
 	test(getplistplist(table, key, symbol, &right) == 0, "push_symbol_macrolet1");
 	test(consp(right), "push_symbol_macrolet2");
 	GetCons(right, &left, &right);
@@ -4698,7 +4701,7 @@ static int test_flet_maketable(void)
 	test(find_tablefunction(str.stack, pos, &pos), "flet_maketable1");
 	test(eval_tablefunction_p(pos), "flet_maketable2");
 	gettype_tablefunction(pos, &pos);
-	test(function_asterisk_p(pos), "flet_maketable3");
+	test(type_function_aster_p(pos), "flet_maketable3");
 
 	free_eval_stack(ptr);
 	free_control(ptr, control);
@@ -4722,11 +4725,11 @@ static int test_checktype_function(void)
 	parse_callname_local(local, &call, call);
 	push_tablefunction_alloc(ptr, local, stack, call, &table);
 	readstring(&type, "(function * *)");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	settype_tablefunction(table, type);
 
 	readstring(&type, "(function * *)");
-	parse_type_heap(&type, type);
+	test_parse_type(&type, type);
 	make_eval_scope(&init, EVAL_PARSE_EMPTY, type, Nil);
 	checktype_function(table, init);
 	test(1, "checktype_function1");
@@ -4773,7 +4776,7 @@ static int test_flet_applytable(void)
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(str.stack, pos, &table), "flet_applytable5");
 	readstring(&type, "(function * *)");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	settype_tablefunction(table, type);
 
 	flet_applytable(ptr, &str);
@@ -5024,7 +5027,7 @@ static int test_labels_checktype(void)
 	parse_callname_local(local, &pos, pos);
 	test(find_tablefunction(str.stack, pos, &table), "labels_checktype1");
 	readstring(&type, "(function * *)");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	settype_tablefunction(table, type);
 
 	labels_checktype(ptr, &str);
@@ -5117,17 +5120,15 @@ static int test_check_tablecall(void)
 {
 	addr control, pos, type, check;
 	Execute ptr;
-	LocalRoot local;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_close_control(ptr, &control);
 	init_eval_stack(ptr);
 
 	readstring(&pos, "100");
 	eval_parse(&pos, pos);
 	readstring(&type, "integer");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	check_tablecall(ptr, pos, type, &pos);
 	test(eval_tablecall_p(pos), "check_tablecall1");
 	gettype_tablecall(pos, &check);
@@ -5139,7 +5140,7 @@ static int test_check_tablecall(void)
 	readstring(&pos, "100");
 	eval_parse(&pos, pos);
 	readstring(&type, "(satisfies hello)");
-	parse_type_local(local, &type, type);
+	test_parse_type(&type, type);
 	check_tablecall(ptr, pos, type, &pos);
 	test(getcheck_tablecall(pos), "check_tablecall5");
 
@@ -5153,15 +5154,13 @@ static int test_callargs_var(void)
 {
 	addr control, pos, args, root, check;
 	Execute ptr;
-	LocalRoot local;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_close_control(ptr, &control);
 	init_eval_stack(ptr);
 
 	readstring(&pos, "(function (integer character))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call 10 #\\a)");
 	eval_parse(&args, args);
@@ -5178,7 +5177,7 @@ static int test_callargs_var(void)
 	test(! getcheck_tablecall(pos), "callargs_var6");
 
 	readstring(&pos, "(function (integer character real))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call 10 #\\a)");
 	eval_parse(&args, args);
@@ -5187,7 +5186,7 @@ static int test_callargs_var(void)
 	test(callargs_var(ptr, pos, &args, &root), "callargs_var7");
 
 	readstring(&pos, "(function ((satisfies hello)))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call 10)");
 	eval_parse(&args, args);
@@ -5208,15 +5207,13 @@ static int test_callargs_opt(void)
 {
 	addr control, pos, args, root, check;
 	Execute ptr;
-	LocalRoot local;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_close_control(ptr, &control);
 	init_eval_stack(ptr);
 
 	readstring(&pos, "(function (&optional integer character))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call 10 #\\a)");
 	eval_parse(&args, args);
@@ -5233,7 +5230,7 @@ static int test_callargs_opt(void)
 	test(! getcheck_tablecall(pos), "callargs_opt5");
 
 	readstring(&pos, "(function (&optional (satisfies hello)))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call 10)");
 	eval_parse(&args, args);
@@ -5255,7 +5252,7 @@ static int test_callargs_keyvalue(void)
 	addr cons, key, type, check;
 
 	readstring(&key, "hello");
-	type_empty(NULL, LISPDECL_ATOM, &type);
+	GetTypeTable(&type, Atom);
 	cons_heap(&cons, key, type);
 	callargs_keyvalue(0, cons, &check);
 	test(RefLispDecl(check) == LISPDECL_EQL, "callargs_keyvalue1");
@@ -5278,7 +5275,7 @@ static int test_callargs_key(void)
 	test(RefLispDecl(check) == LISPDECL_T, "callargs_key2");
 
 	readstring(&key, "hello");
-	type_empty(NULL, LISPDECL_ATOM, &type);
+	GetTypeTable(&type, Atom);
 	cons_heap(&cons, key, type);
 	list_heap(&cons, cons, NULL);
 	callargs_key(0, cons, &check);
@@ -5301,15 +5298,13 @@ static int test_callargs_restkey(void)
 	int result;
 	addr control, pos, args, root, check;
 	Execute ptr;
-	LocalRoot local;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_close_control(ptr, &control);
 	init_eval_stack(ptr);
 
 	readstring(&pos, "(function ())");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call 10 #\\a)");
 	eval_parse(&args, args);
@@ -5327,7 +5322,7 @@ static int test_callargs_restkey(void)
 	test(root == Nil, "callargs_restkey3");
 
 	readstring(&pos, "(function (&rest integer))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call 10)");
 	eval_parse(&args, args);
@@ -5341,7 +5336,7 @@ static int test_callargs_restkey(void)
 	test(RefLispDecl(root) == LISPDECL_INTEGER, "callargs_restkey6");
 
 	readstring(&pos, "(function (&key (aaa integer) (bbb real)))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call aaa 10)");
 	eval_parse(&args, args);
@@ -5355,7 +5350,7 @@ static int test_callargs_restkey(void)
 	test(RefLispDecl(check) == LISPDECL_OR, "callargs_restkey9");
 
 	readstring(&pos, "(function (&rest fixnum &key (aaa integer) (bbb real)))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call aaa 10 bbb 20)");
 	eval_parse(&args, args);
@@ -5378,15 +5373,13 @@ static int test_callargs_check(void)
 {
 	addr control, pos, args, root, check;
 	Execute ptr;
-	LocalRoot local;
 
 	ptr = Execute_Thread;
-	local = ptr->local;
 	push_close_control(ptr, &control);
 	init_eval_stack(ptr);
 
 	readstring(&pos, "(function ())");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call)");
 	eval_parse(&args, args);
@@ -5395,7 +5388,7 @@ static int test_callargs_check(void)
 	test(root == Nil, "callargs_check1");
 
 	readstring(&pos, "(function (integer))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call 10)");
 	eval_parse(&args, args);
@@ -5404,7 +5397,7 @@ static int test_callargs_check(void)
 	test(length_list_unsafe(root) == 1, "callargs_check2");
 
 	readstring(&pos, "(function (integer &optional real))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call 10 20)");
 	eval_parse(&args, args);
@@ -5417,7 +5410,7 @@ static int test_callargs_check(void)
 	test(RefFixnum(check) == 10, "callargs_check4");
 
 	readstring(&pos, "(function (integer &rest real))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call 10 20 30 40 50)");
 	eval_parse(&args, args);
@@ -5426,7 +5419,7 @@ static int test_callargs_check(void)
 	test(length_list_unsafe(root) == 5, "callargs_check5");
 
 	readstring(&pos, "(function (&rest t &key (hello integer)))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call)");
 	eval_parse(&args, args);
@@ -5435,7 +5428,7 @@ static int test_callargs_check(void)
 	test(length_list_unsafe(root) == 0, "callargs_check6");
 
 	readstring(&pos, "(function (&rest t &key (hello integer)))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call hello 20)");
 	eval_parse(&args, args);
@@ -5444,7 +5437,7 @@ static int test_callargs_check(void)
 	test(length_list_unsafe(root) == 2, "callargs_check7");
 
 	readstring(&pos, "(function (&key (hello integer)))");
-	parse_type_local(local, &pos, pos);
+	test_parse_type(&pos, pos);
 	GetArrayType(pos, 0, &pos); /* args */
 	readstring(&args, "(call hello 100)");
 	eval_parse(&args, args);
@@ -5462,19 +5455,19 @@ static int test_asterisk_function_argument(void)
 {
 	addr pos;
 
-	type_asterisk_heap(&pos);
+	GetTypeTable(&pos, Asterisk);
 	test(asterisk_function_argument(pos, &pos), "asterisk_function_argument1");
 
 	readstring(&pos, "function");
-	parse_type_heap(&pos, pos);
+	test_parse_type(&pos, pos);
 	test(asterisk_function_argument(pos, &pos), "asterisk_function_argument2");
 
 	readstring(&pos, "(function * integer)");
-	parse_type_heap(&pos, pos);
+	test_parse_type(&pos, pos);
 	test(asterisk_function_argument(pos, &pos), "asterisk_function_argument3");
 
 	readstring(&pos, "(function ())");
-	parse_type_heap(&pos, pos);
+	test_parse_type(&pos, pos);
 	test(! asterisk_function_argument(pos, &pos), "asterisk_function_argument4");
 	test(GetType(pos) == LISPTYPE_VECTOR, "asterisk_function_argument5");
 
@@ -5498,7 +5491,7 @@ static int test_callargs_nocheck(void)
 	GetCar(args, &check);
 	test(eval_tablecall_p(check), "callargs_nocheck2");
 	gettype_tablecall(check, &check);
-	test(asterisk_p(check), "callargs_nocheck3");
+	test(type_asterisk_p(check), "callargs_nocheck3");
 
 	free_eval_stack(ptr);
 	free_control(ptr, control);
@@ -5521,7 +5514,7 @@ static int test_call_args(void)
 	GetEvalParse(pos, 1, &args);
 	call_first(ptr, &first, first);
 	readstring(&pos, "(function * *)");
-	parse_type_heap(&pos, pos);
+	test_parse_type(&pos, pos);
 	SetEvalScopeThe(first, pos);
 
 	call_args(ptr, &args, first, args);
@@ -5529,7 +5522,7 @@ static int test_call_args(void)
 	GetCar(args, &check);
 	test(eval_tablecall_p(check), "call_args2");
 	gettype_tablecall(check, &check);
-	test(asterisk_p(check), "call_args3");
+	test(type_asterisk_p(check), "call_args3");
 
 	readstring(&pos, "(call 10 20 30 40)");
 	eval_parse(&pos, pos);
@@ -5537,7 +5530,7 @@ static int test_call_args(void)
 	GetEvalParse(pos, 1, &args);
 	call_first(ptr, &first, first);
 	readstring(&pos, "(function (&rest integer) *)");
-	parse_type_heap(&pos, pos);
+	test_parse_type(&pos, pos);
 	SetEvalScopeThe(first, pos);
 
 	call_args(ptr, &args, first, args);
@@ -5567,19 +5560,19 @@ static int test_call_result(void)
 	GetEvalParse(pos, 0, &first);
 	call_first(ptr, &first, first);
 
-	type_asterisk_heap(&pos);
+	GetTypeTable(&pos, Asterisk);
 	SetEvalScopeThe(first, pos);
 	call_result(&check, first);
-	test(asterisk_p(check), "call_result1");
+	test(type_asterisk_p(check), "call_result1");
 
 	readstring(&pos, "(function * *)");
-	parse_type_heap(&pos, pos);
+	test_parse_type(&pos, pos);
 	SetEvalScopeThe(first, pos);
 	call_result(&check, first);
-	test(asterisk_p(check), "call_result2");
+	test(type_asterisk_p(check), "call_result2");
 
 	readstring(&pos, "(function * integer)");
-	parse_type_heap(&pos, pos);
+	test_parse_type(&pos, pos);
 	SetEvalScopeThe(first, pos);
 	call_result(&check, first);
 	test(RefLispDecl(check) == LISPDECL_INTEGER, "call_result3");
@@ -6804,7 +6797,6 @@ int test_eval_scope(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

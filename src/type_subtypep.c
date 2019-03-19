@@ -13,7 +13,9 @@
 #include "type_number.h"
 #include "type_range.h"
 #include "type_subtypep.h"
+#include "type_table.h"
 #include "type_typep.h"
+#include "type_upgraded.h"
 
 typedef SubtypepResult (*call_type_subtypep)(addr left, addr right);
 static call_type_subtypep TypeSubtypep[LISPDECL_SIZE];
@@ -170,7 +172,7 @@ static int subtypep_array_sequence(addr left)
 	size_t size;
 
 	GetArrayType(left, 1, &left);
-	if (asterisk_p(left)) {
+	if (type_asterisk_p(left)) {
 		return 0;
 	}
 	type = GetType(left);
@@ -234,8 +236,8 @@ static SubtypepResult array_array_vector(addr left, addr right)
 	for (i = 0; i < size; i++) {
 		GetArrayA4(right, i, &check2);
 		GetArrayA4(left, i, &check1);
-		if (asterisk_p(check2)) continue;
-		if (asterisk_p(check1)) ReturnFalse;
+		if (type_asterisk_p(check2)) continue;
+		if (type_asterisk_p(check1)) ReturnFalse;
 		Check(GetType(check2) != LISPTYPE_FIXNUM, "fixnum right error");
 		Check(GetType(check1) != LISPTYPE_FIXNUM, "fixnum left error");
 		if (RefFixnum(check1) != RefFixnum(check2)) ReturnFalse;
@@ -245,8 +247,8 @@ static SubtypepResult array_array_vector(addr left, addr right)
 
 static SubtypepResult subtypep_array_array_dimension(addr left, addr right)
 {
-	if (asterisk_p(right)) ReturnTrue;
-	if (asterisk_p(left)) ReturnFalse;
+	if (type_asterisk_p(right)) ReturnTrue;
+	if (type_asterisk_p(left)) ReturnFalse;
 	if (GetType(right) == LISPTYPE_FIXNUM)
 		return array_array_integer(left, right);
 	if (GetType(right) == LISPTYPE_VECTOR)
@@ -257,9 +259,9 @@ static SubtypepResult subtypep_array_array_dimension(addr left, addr right)
 
 static int equal_array_type_asterisk(addr left, addr right)
 {
-	if (asterisk_p(right)) return 1;
-	if (asterisk_p(left)) return 0;
-	return equal_array_type(left, right);
+	if (type_asterisk_p(right)) return 1;
+	if (type_asterisk_p(left)) return 0;
+	return upgraded_array0_equal(left, right);
 }
 
 static SubtypepResult subtypep_array_array(addr left, addr right)
@@ -361,9 +363,9 @@ static int subtypep_realcheck(addr left, addr right)
 	if (range_asterisk_p(left))  return 0;
 	GetArrayType(right, 0, &check1);
 	GetArrayType(right, 2, &check2);
-	if (asterisk_p(check1))
+	if (type_asterisk_p(check1))
 		return subtypep_real_less(left, right);
-	if (asterisk_p(check2))
+	if (type_asterisk_p(check2))
 		return subtypep_real_greater(left, right);
 	else
 		return subtypep_real_range(left, right);
@@ -441,7 +443,7 @@ static SubtypepResult subtypep_real(addr left, addr right)
 	if (type == LISPDECL_RATIO) {
 		ReturnBool(range_asterisk_p(right));
 	}
-	if (range_value_p(type)) {
+	if (decl_range_p(type)) {
 		return subtypep_realparameter(left, right);
 	}
 	ReturnExclude;
@@ -455,7 +457,7 @@ static SubtypepResult subtypep_number(addr left, addr right)
 	if (type == LISPDECL_NUMBER ||
 			type == LISPDECL_COMPLEX ||
 			type == LISPDECL_RATIO ||
-			range_value_p(type)) {
+			decl_range_p(type)) {
 		ReturnTrue;
 	}
 	ReturnExclude;
@@ -469,7 +471,7 @@ static SubtypepResult subtypep_float(addr left, addr right)
 	if (type == LISPDECL_NUMBER || type == LISPDECL_REAL) {
 		ReturnFalse;
 	}
-	if (float_value_p(type)) {
+	if (decl_float_p(type)) {
 		return subtypep_realparameter(left, right);
 	}
 	ReturnExclude;
@@ -653,7 +655,7 @@ static void ordinary_keytype(LocalRoot local, addr *ret, const ordargs *ptr)
 
 	/* &allow-other-keys */
 	if (ptr->key == T) {
-		type_empty(local, LISPDECL_SYMBOL, ret);
+		GetTypeTable(ret, Symbol);
 		return;
 	}
 
@@ -662,7 +664,7 @@ static void ordinary_keytype(LocalRoot local, addr *ret, const ordargs *ptr)
 	if (singlep(cons)) {
 		GetCar(cons, &pos);
 		GetCar(pos, &pos);
-		type_object1(local, LISPDECL_EQL, pos, ret);
+		type_eql_local(local, pos, ret);
 		return;
 	}
 
@@ -672,10 +674,10 @@ static void ordinary_keytype(LocalRoot local, addr *ret, const ordargs *ptr)
 	for (i = 0; i < size; i++) {
 		GetCons(cons, &pos, &cons);
 		GetCar(pos, &pos);
-		type_object1(local, LISPDECL_EQL, pos, &pos);
+		type_eql_local(local, pos, &pos);
 		SetArrayA4(array, i, pos);
 	}
-	type_object1(local, LISPDECL_OR, array, ret);
+	type1_local(local, LISPDECL_OR, array, ret);
 }
 
 static void ordinary_valuetype(LocalRoot local, addr *ret, const ordargs *ptr)
@@ -685,7 +687,7 @@ static void ordinary_valuetype(LocalRoot local, addr *ret, const ordargs *ptr)
 
 	/* &allow-other-keys */
 	if (ptr->key == T) {
-		type_empty(local, LISPDECL_T, ret);
+		GetTypeTable(ret, T);
 		return;
 	}
 
@@ -705,7 +707,7 @@ static void ordinary_valuetype(LocalRoot local, addr *ret, const ordargs *ptr)
 		GetCdr(pos, &pos);
 		SetArrayA4(array, i, pos);
 	}
-	type_object1(local, LISPDECL_OR, array, ret);
+	type1_local(local, LISPDECL_OR, array, ret);
 }
 
 static void make_ordinary_type(LocalRoot local, addr *ret,
@@ -736,7 +738,7 @@ static void make_ordinary_type(LocalRoot local, addr *ret,
 	if (type->key) {
 		ordinary_keytype(local, &pos, ptr);
 		if (type->rest)
-			type_and(local, type->type, pos, &pos);
+			type2and_local(local, type->type, pos, &pos);
 		*ret = pos;
 		return;
 	}
@@ -745,7 +747,7 @@ static void make_ordinary_type(LocalRoot local, addr *ret,
 	if (type->value) {
 		ordinary_valuetype(local, &pos, ptr);
 		if (type->rest)
-			type_and(local, type->type, pos, &pos);
+			type2and_local(local, type->type, pos, &pos);
 		*ret = pos;
 		return;
 	}
@@ -817,8 +819,8 @@ static int subtypep_function_ordinary(addr left, addr right)
 	ordargs ptr1, ptr2;
 
 	/* asterisk */
-	if (asterisk_p(right)) return 1;
-	if (asterisk_p(left)) return 0;
+	if (type_asterisk_p(right)) return 1;
+	if (type_asterisk_p(left)) return 0;
 
 	/* list */
 	make_function_ordinary(&ptr1, left);
@@ -890,6 +892,7 @@ static SubtypepResult subtypep_stream(addr left, addr right)
 		case LISPDECL_STRING_STREAM:
 		case LISPDECL_SYNONYM_STREAM:
 		case LISPDECL_TWO_WAY_STREAM:
+		case LISPDECL_PROMPT_STREAM:
 			ReturnTrue;
 			break;
 
@@ -982,16 +985,32 @@ static SubtypepResult subtypep_eql_eql(addr left, addr right)
 
 static SubtypepResult subtypep_eql_type(addr left, addr right)
 {
+	int check;
+
 	GetArrayType(left, 0, &left);
-	if (typep_table(left, right)) ReturnTrue;
-	ReturnExclude;
+	if (typep_table(left, right, &check))
+		fmte("SUBTYPEP don't execute RETURN-FROM/CATCH code.", NULL);
+	if (check) {
+		ReturnTrue;
+	}
+	else {
+		ReturnExclude;
+	}
 }
 
 static SubtypepResult subtypep_type_eql(addr left, addr right)
 {
+	int check;
+
 	GetArrayType(right, 0, &right);
-	if (typep_table(right, left)) ReturnFalse;
-	ReturnExclude;
+	if (typep_table(right, left, &check))
+		fmte("SUBTYPEP don't execute RETURN-FROM/CATCH code.", NULL);
+	if (check) {
+		ReturnFalse;
+	}
+	else {
+		ReturnExclude;
+	}
 }
 
 static SubtypepResult subtypep_eql_call(addr left, addr right)
@@ -1424,17 +1443,18 @@ void init_type_subtypep(void)
 	TypeSubtypep[LISPDECL_STRING_STREAM] = subtypep_stream_child;
 	TypeSubtypep[LISPDECL_SYNONYM_STREAM] = subtypep_stream_child;
 	TypeSubtypep[LISPDECL_TWO_WAY_STREAM] = subtypep_stream_child;
+	TypeSubtypep[LISPDECL_PROMPT_STREAM] = subtypep_stream_child;
 	TypeSubtypep[LISPDECL_BYTESPEC] = subtypep_equaltype;
 }
 
 static SubtypepResult subtypep_call_asterisk(addr left, addr right)
 {
-	if (asterisk_p(right)) {
+	if (type_asterisk_p(right)) {
 		if (RefNotDecl(right))
 			fmte("Don't allow to use (not *).", NULL);
 		return SUBTYPEP_INCLUDE;
 	}
-	if (asterisk_p(left)) {
+	if (type_asterisk_p(left)) {
 		if (RefNotDecl(left))
 			fmte("Don't allow to use (not *).", NULL);
 		return SUBTYPEP_FALSE;
@@ -1444,7 +1464,7 @@ static SubtypepResult subtypep_call_asterisk(addr left, addr right)
 
 static SubtypepResult subtypep_call_normal(addr left, addr right)
 {
-	if (asterisk_p(left) || asterisk_p(right))
+	if (type_asterisk_p(left) || type_asterisk_p(right))
 		fmte("Don't allow to use asterisk.", NULL);
 	return subtypep_right(left, right);
 }
@@ -1459,7 +1479,6 @@ static SubtypepResult subtypep_call(addr left, addr right, int asterisk)
 
 static void real_extract_subtypep(LocalRoot local, addr *ret, addr type)
 {
-	type_throw_local(local, &type, type);
 	type_copy_local(local, &type, type);
 	real_extract_local(local, &type, type);
 	get_type_subtypep(ret, type);
@@ -1471,6 +1490,8 @@ SubtypepResult subtypep_result(addr left, addr right, int asterisk)
 	LocalRoot local;
 	LocalStack stack;
 
+	CheckType(left, LISPTYPE_TYPE);
+	CheckType(right, LISPTYPE_TYPE);
 	local = Local_Thread;
 	push_local(local, &stack);
 	real_extract_subtypep(local, &left, left);
@@ -1503,11 +1524,15 @@ static int subtypep_execute(addr left, addr right, int asterisk, int *validp)
 
 int subtypep_asterisk_clang(addr left, addr right, int *validp)
 {
+	CheckType(left, LISPTYPE_TYPE);
+	CheckType(right, LISPTYPE_TYPE);
 	return subtypep_execute(left, right, 1, validp);
 }
 
 int subtypep_clang(addr left, addr right, int *validp)
 {
+	CheckType(left, LISPTYPE_TYPE);
+	CheckType(right, LISPTYPE_TYPE);
 	return subtypep_execute(left, right, 0, validp);
 }
 

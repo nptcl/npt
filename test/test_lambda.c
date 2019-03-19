@@ -137,6 +137,8 @@ static int test_list2_check(void)
 	fixnum_heap(&value1, 100);
 	fixnum_heap(&value2, 200);
 	fixnum_heap(&value3, 300);
+	pos1 = 0;
+	pos2 = 0;
 	test(list2_check(value1, &pos1, &pos2), "list2_check1");
 	list_heap(&pos, value1, NULL);
 	test(list2_check(pos, &pos1, &pos2), "list2_check2");

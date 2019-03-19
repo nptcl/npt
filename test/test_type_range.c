@@ -1,5 +1,4 @@
 #include "type_range.c"
-#include "calltype.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -14,8 +13,9 @@
 #include "sequence.h"
 #include "stream.h"
 #include "syscall.h"
-#include "type.h"
 #include "symbol.h"
+#include "type.h"
+#include "type_table.h"
 
 /*
  *  test tools
@@ -23,7 +23,7 @@
 static void parse_type_string(addr *ret, const char *code)
 {
 	readstring(ret, code);
-	parse_type_heap(ret, *ret);
+	parse_type_unsafe(ret, *ret);
 }
 
 
@@ -603,7 +603,6 @@ int test_type_range(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		build_calltype();
 		build_syscall();
 		build_common();
 		build_readtable();

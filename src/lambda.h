@@ -5,6 +5,7 @@
 #include "typedef.h"
 
 void lambda_macro(LocalRoot local, addr *ret, addr cons, addr instance);
+void lambda_deftype(LocalRoot local, addr *ret, addr cons, addr instance);
 void lambda_generic_function(LocalRoot local, addr *ret, addr cons);
 void lambda_specialized(LocalRoot local, addr *ret, addr cons);
 void lambda_ordinary(LocalRoot local, addr *ret, addr cons);

@@ -1732,6 +1732,11 @@ int pushnewlist_callname_alloc(LocalRoot local, addr list, addr callname, addr *
 	return 0;
 }
 
+int pushnewlist_callname_heap(addr list, addr callname, addr *ret)
+{
+	return pushnewlist_callname_alloc(NULL, list, callname, ret);
+}
+
 int find_list_callname_unsafe(addr callname, addr list)
 {
 	addr check;

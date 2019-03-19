@@ -182,12 +182,13 @@ static void push_varcons_macro(LocalRoot local, addr instance, addr key)
 }
 
 
-static void ordinary_opt(addr cons, addr *retvar, addr *retinit, addr *retsup)
+static void ordinary_opt_default(addr cons, addr init,
+		addr *retvar, addr *retinit, addr *retsup)
 {
-	addr base, var, init, sup;
+	addr base, var, sup;
 
 	base = cons;
-	var = init = sup = Nil;
+	var = sup = Nil;
 	/* var */
 	if (GetType(cons) != LISPTYPE_CONS) {
 		var = cons;
@@ -217,12 +218,23 @@ final:
 	*retsup = sup;
 }
 
+static void ordinary_opt(addr cons, addr *retvar, addr *retinit, addr *retsup)
+{
+	ordinary_opt_default(cons, Nil, retvar, retinit, retsup);
+}
+
+static void ordinary_key_default(LocalRoot local, addr name, addr cons, addr value,
+		addr *retvar, addr *retname, addr *retinit, addr *retsup)
+{
+	ordinary_opt_default(cons, value, &cons, retinit, retsup);
+	key_name_values(cons, retvar, retname);
+	push_namecons(local, name, *retname);
+}
+
 static void ordinary_key(LocalRoot local, addr name, addr cons,
 		addr *retvar, addr *retname, addr *retinit, addr *retsup)
 {
-	ordinary_opt(cons, &cons, retinit, retsup);
-	key_name_values(cons, retvar, retname);
-	push_namecons(local, name, *retname);
+	ordinary_key_default(local, name, cons, Nil, retvar, retname, retinit, retsup);
 }
 
 static void ordinary_aux(addr cons, addr *retvar, addr *retinit)
@@ -252,7 +264,8 @@ final:
 	*retinit = init;
 }
 
-void lambda_macro(LocalRoot local, addr *ret, addr cons, addr instance)
+static void lambda_macro_call(LocalRoot local,
+		addr *ret, addr cons, addr instance, addr defvalue)
 {
 	int envcheck;
 	addr name, var, opt, rest, key, key_p, allow, aux, one;
@@ -295,7 +308,7 @@ var_argument:
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one)) goto aux_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one)) goto optional_environment;
 	if (listp(one))
-		lambda_macro(local, &one, one, instance);
+		lambda_macro_call(local, &one, one, instance, defvalue);
 	else
 		push_varcons_macro(local, instance, one);
 	cons_heap(&var, one, var);
@@ -320,7 +333,7 @@ optional_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one)) goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one)) goto aux_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one)) goto rest_environment;
-	ordinary_opt(one, &symbol, &init, &sup);
+	ordinary_opt_default(one, defvalue, &symbol, &init, &sup);
 	push_varcons_macro(local, instance, symbol);
 	if (sup != Nil)
 		push_varcons_macro(local, instance, sup);
@@ -368,7 +381,7 @@ key_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_ALLOW, one)) goto allow_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one)) goto aux_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_ENVIRONMENT, one)) goto aux_environment;
-	ordinary_key(local, name, one, &symbol, &one, &init, &sup);
+	ordinary_key_default(local, name, one, defvalue, &symbol, &one, &init, &sup);
 	push_varcons_macro(local, instance, symbol);
 	if (sup != Nil)
 		push_varcons_macro(local, instance, sup);
@@ -422,6 +435,23 @@ finish:
 			whole,
 			env,
 			NULL);
+}
+
+void lambda_macro(LocalRoot local, addr *ret, addr cons, addr instance)
+{
+	lambda_macro_call(local, ret, cons, instance, Nil);
+}
+
+
+/*
+ *  lambda-ordinary
+ */
+void lambda_deftype(LocalRoot local, addr *ret, addr cons, addr instance)
+{
+	addr aster;
+
+	GetConst(COMMON_ASTERISK, &aster);
+	lambda_macro_call(local, ret, cons, instance, aster);
 }
 
 

@@ -1987,6 +1987,8 @@ static int test_castfixed_integer(void)
 	push_local(local, &stack);
 
 	fixnum_heap(&pos, 10);
+	value = 999;
+	sign = 999;
 	check = castfixed_integer(pos, &sign, &value);
 	test(check == 0, "castfixed_integer1");
 	test(IsPlus(sign), "castfixed_integer2");
@@ -2944,6 +2946,7 @@ static int test_getfixnumtype(void)
 	push_local(local, &stack);
 
 	fixnum_heap(&pos, 10);
+	value = 999;
 	test(getfixnumtype(pos, &value) == 0, "getfixnumtype1");
 	test(value == 10, "getfixnumtype2");
 
