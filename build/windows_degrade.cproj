@@ -146,11 +146,18 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_alloc.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_arch.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_array.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_adjust.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_coerce.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_copy.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_array_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_vector.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bigcons.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bigdata.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bignum.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bit.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\boole.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\build.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\bytespec.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_c99.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_character.c" />
@@ -215,6 +222,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_table.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_execute.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_fasl.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_file_memory.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_file.c" />
@@ -229,7 +237,6 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_integer.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\intern.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_lambda.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\lisp.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\load_rt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_local.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_main.c" />
@@ -307,12 +314,20 @@
   <ItemGroup>
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\alloc.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\arch.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_adjust.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_coerce.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_copy.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_typedef.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_vector.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bigcons.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bigdata.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bignum.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bit.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\boole.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\build.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bytespec.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\c99.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character.h" />
@@ -357,6 +372,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\fasl.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_ansi.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_memory.h" />
@@ -381,7 +397,6 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_symbol_32.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_symbol_64.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lambda.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lisp.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lisptype.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\local.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_exp.h" />

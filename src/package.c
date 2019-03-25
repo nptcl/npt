@@ -1,4 +1,5 @@
 #include "bignum.h"
+#include "build.h"
 #include "charqueue.h"
 #include "condition.h"
 #include "cons.h"
@@ -8,7 +9,6 @@
 #include "hashtable.h"
 #include "integer.h"
 #include "intern_count.h"
-#include "lisp.h"
 #include "memory.h"
 #include "number.h"
 #include "object.h"

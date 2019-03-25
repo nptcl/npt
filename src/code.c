@@ -1,3 +1,4 @@
+#include "build.h"
 #include "code.h"
 #include "condition.h"
 #include "cons.h"
@@ -11,7 +12,6 @@
 #include "heap.h"
 #include "info.h"
 #include "integer.h"
-#include "lisp.h"
 #include "number.h"
 #include "object.h"
 #include "package.h"

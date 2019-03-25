@@ -1,4 +1,5 @@
 #include "array.h"
+#include "array_object.h"
 #include "bigcons.h"
 #include "bignum.h"
 #include "bit.h"
@@ -2751,9 +2752,9 @@ static void replace_array_readlabel(Execute ptr, addr pos, addr left, addr right
 	size = str->size;
 	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
 	for (i = 0; i < size; i++) {
-		get_arraygen(pos, i, &check);
+		arraygen_get(pos, i, &check);
 		if (check == left)
-			set_arraygen(pos, i, right);
+			arraygen_set(pos, i, right);
 	}
 }
 
@@ -3686,7 +3687,7 @@ static void dispatch_array(Execute ptr, addr stream, addr code, addr arg)
 		return;
 	if (check)
 		fmte("After array dispatch must be an initial-contents form.", NULL);
-	array_contents_alloc(NULL, &form, arg, form);
+	array_contents_heap(&form, arg, form);
 	setresult_control(ptr, form);
 }
 

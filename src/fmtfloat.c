@@ -7,8 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>
+#include "build.h"
 #include "fmtfloat.h"
-#include "lisp.h"
 #include "stream.h"
 
 #define FMTDECIMAL_FLOAT_PARSE	"%+20.10e"

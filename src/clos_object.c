@@ -1,3 +1,4 @@
+#include "build.h"
 #include "clos_object.h"
 #include "condition.h"
 #include "constant.h"
@@ -5,7 +6,6 @@
 #include "hashtable.h"
 #include "heap.h"
 #include "integer.h"
-#include "lisp.h"
 #include "local.h"
 #include "object.h"
 #include "package.h"

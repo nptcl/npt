@@ -1946,7 +1946,9 @@ static void defun_imagpart(void)
 }
 
 
-/* (defun complexp (object) ...) -> boolean */
+/* (defun upgraded-complex-part-type (typespec &optional environment) ...)
+ *   -> typespec
+ */
 static void function_upgraded_complex_part_type(Execute ptr, addr pos, addr env)
 {
 	if (env == Unbound)
@@ -1966,7 +1968,7 @@ static void defun_upgraded_complex_part_type(void)
 	setcompiled_var1opt1(pos, function_upgraded_complex_part_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetTypeCompiled(&type, Object_Boolean);
+	GetTypeCompiled(&type, UpgradedType);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }

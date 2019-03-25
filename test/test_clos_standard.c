@@ -1,4 +1,5 @@
 #include "clos_standard.c"
+#include "build.h"
 #include "character.h"
 #include "clos.h"
 #include "cons.h"
@@ -7,7 +8,6 @@
 #include "degrade.h"
 #include "hashtable.h"
 #include "heap.h"
-#include "lisp.h"
 #include "local.h"
 #include "object.h"
 #include "package.h"

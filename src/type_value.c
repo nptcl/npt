@@ -125,7 +125,7 @@ static void type_value_array_multiple(addr *ret, addr value)
 	size = str->dimension;
 
 	Check(GetType(pos) != LISPSYSTEM_ARRAY_DIMENSION, "type dimension error");
-	psize = PtrArrayDimension(pos);
+	psize = arraysize_ptr(pos);
 	vector4_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		make_index_integer_heap(&pos, psize[i]);

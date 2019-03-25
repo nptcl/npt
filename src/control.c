@@ -1,3 +1,4 @@
+#include "build.h"
 #include "clos_generic.h"
 #include "clos_object.h"
 #include "clos_standard.h"
@@ -13,7 +14,6 @@
 #include "format.h"
 #include "gc.h"
 #include "heap.h"
-#include "lisp.h"
 #include "object.h"
 #include "package.h"
 #include "sequence.h"

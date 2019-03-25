@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include "array.h"
+#include "array_object.h"
 #include "bignum.h"
 #include "bit.h"
 #include "bytespec.h"
@@ -273,11 +274,13 @@ static int write_array(struct PrintFormat *format, addr stream, addr pos)
 	write_char_stream(stream, '#');
 	dimension = str->dimension;
 	if (dimension == 1) {
+		write_char_stream(stream, 'A');
 		return write_array_vector(format, stream, pos);
 	}
 	else {
 		if (write_print(format, stream, intsizeh(dimension))) return 1;
-		data = array_dimension_pointer(pos);
+		write_char_stream(stream, 'A');
+		data = array_ptrsize(pos);
 		return recursive_write_array(format, stream, pos, data, dimension, 0, 0);
 	}
 

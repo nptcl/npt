@@ -2396,6 +2396,19 @@ static void typecompiled_ldb(void)
 	SetTypeCompiled(Ldb, args);
 }
 
+static void typecompiled_upgraded_type(void)
+{
+	/* (function (typespec &optional environment) (values type &rest nil)) */
+	addr args, values;
+
+	GetTypeTable(&args, TypeSpec);
+	GetTypeTable(&values, EnvironmentNull);
+	typeargs_var1opt1(&args, args, values);
+	GetTypeValues(&values, TypeSymbol);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(UpgradedType, args);
+}
+
 
 /*
  *  Interface
@@ -2689,5 +2702,6 @@ void build_type_constant(void)
 	typecompiled_byte_size();
 	typecompiled_deposit_field();
 	typecompiled_ldb();
+	typecompiled_upgraded_type();
 }
 

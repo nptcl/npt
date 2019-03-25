@@ -2,6 +2,7 @@
 #define __REAL_FLOAT_HEADER__
 
 #include <math.h>
+#include "constant.h"
 #include "local.h"
 #include "typedef.h"
 
@@ -546,6 +547,16 @@ void abs_floatl_local(LocalRoot local, addr left, addr *ret);
 void abs_floats_heap(addr left, addr *ret);
 void abs_floatd_heap(addr left, addr *ret);
 void abs_floatl_heap(addr left, addr *ret);
+
+double_float cast_sd_float(single_float v);
+long_float cast_sl_float(single_float v);
+single_float cast_ds_float(double_float v);
+long_float cast_dl_float(double_float v);
+single_float cast_ls_float(long_float v);
+double_float cast_ld_float(long_float v);
+#define cast_ss_float(x) (x)
+#define cast_dd_float(x) (x)
+#define cast_ll_float(x) (x)
 
 double_float cast_sd_value(addr pos);
 long_float cast_sl_value(addr pos);

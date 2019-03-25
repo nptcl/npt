@@ -1,8 +1,8 @@
 #ifndef __STREAM_HEADER__
 #define __STREAM_HEADER__
 
+#include "build.h"
 #include "file_type.h"
-#include "lisp.h"
 #include "memory.h"
 
 enum STREAM_INDEX {

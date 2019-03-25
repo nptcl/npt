@@ -2,9 +2,9 @@
 #define __CONDITION_HEADER__
 
 #include <stdarg.h>
+#include "build.h"
 #include "constant.h"
 #include "execute.h"
-#include "lisp.h"
 
 /*
  *  restart

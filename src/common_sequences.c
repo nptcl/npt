@@ -1,6 +1,9 @@
 /*
  *  ANSI COMMON LISP: 17. Sequences
  */
+#include "array_common.h"
+#include "array_copy.h"
+#include "array_object.h"
 #include "bit.h"
 #include "common_header.h"
 #include "cons.h"

@@ -2,11 +2,11 @@
 #include <stdint.h>
 #include <string.h>
 #include "alloc.h"
+#include "build.h"
 #include "file_memory.h"
 #include "heap.h"
 #include "memory.h"
 #include "thread.h"
-#include "lisp.h"
 #include "typedef.h"
 
 /* external variable */

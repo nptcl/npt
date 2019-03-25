@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <locale.h>
+#include "build.h"
 #include "character.h"
 #include "condition.h"
 #include "constant.h"
@@ -15,7 +16,6 @@
 #include "eval.h"
 #include "eval_main.h"
 #include "file.h"
-#include "lisp.h"
 #include "hashtable.h"
 #include "package.h"
 #include "pathname.h"

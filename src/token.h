@@ -1,7 +1,7 @@
 #ifndef __TOKEN_HEADER__
 #define __TOKEN_HEADER__
 
-#include "lisp.h"
+#include "build.h"
 
 int getchar_digit(unsigned v, int upperp, unicode *ret);
 int getvalue_digit(unsigned base, unicode c, unsigned *ret);

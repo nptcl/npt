@@ -641,6 +641,18 @@
   (imagpart #c(0 -1.2))
   -1.2)
 
+(deftest upgraded-complex-part-type.1
+  (upgraded-complex-part-type 'integer)
+  integer)
+
+(deftest upgraded-complex-part-type.2
+  (upgraded-complex-part-type '(rational 2/3 4/5))
+  rational)
+
+(deftest upgraded-complex-part-type.3
+  (upgraded-complex-part-type 'float)
+  single-float)
+
 (deftest realp.1
   (values
     (realp 10)

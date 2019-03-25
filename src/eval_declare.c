@@ -1,3 +1,4 @@
+#include "build.h"
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
@@ -5,7 +6,6 @@
 #include "eval_declare.h"
 #include "eval_scope.h"
 #include "function.h"
-#include "lisp.h"
 #include "object.h"
 #include "sequence.h"
 #include "strtype.h"

@@ -38,6 +38,8 @@ void getdenom_ratio(addr pos, addr *ret);
 void setsign_ratio(addr pos, int sign);
 void getsign_ratio(addr pos, int *ret);
 int refsign_ratio(addr pos);
+int getfixnum_ratio(addr pos, fixnum *ret);
+int getfixed1_ratio(addr pos, int *sign, fixed *ret);
 
 void euclidean_bignum(LocalRoot local, addr numer, addr denom);
 void reduction_local(LocalRoot local, addr numer, addr denom);

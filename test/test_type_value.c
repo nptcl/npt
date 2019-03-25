@@ -1,4 +1,6 @@
 #include "type_value.c"
+#include "array.h"
+#include "array_object.h"
 #include "character.h"
 #include "clos.h"
 #include "clos_object.h"
@@ -132,7 +134,7 @@ static int test_type_value_strarray(void)
 
 	strarray_char_heap(&pos, "AAABBB");
 	ArrayInfoStruct(pos)->adjustable = 1;
-	allocate_array_heap(pos);
+	array_build_heap(pos);
 	type_value_strarray(&check, pos);
 	test(RefLispDecl(check) == LISPDECL_BASE_STRING, "type_value_strarray7");
 	GetArrayType(check, 0, &check);
@@ -152,7 +154,7 @@ static int test_type_value_array_nil(void)
 	addr pos, check;
 
 	array_va_heap(&pos, 0);
-	allocate_array_heap(pos);
+	array_build_heap(pos);
 	type_value_array_nil(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "type_value_array_nil1");
 	GetArrayType(pos, 0, &check);
@@ -162,7 +164,7 @@ static int test_type_value_array_nil(void)
 
 	array_va_heap(&pos, 0);
 	ArrayInfoStruct(pos)->adjustable = 1;
-	allocate_array_heap(pos);
+	array_build_heap(pos);
 	type_value_array_nil(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "type_value_array_nil4");
 	GetArrayType(pos, 0, &check);
@@ -178,7 +180,7 @@ static int test_type_value_array_single(void)
 	addr pos, check;
 
 	array_va_heap(&pos, 11, 0);
-	allocate_array_heap(pos);
+	array_build_heap(pos);
 	type_value_array_single(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "type_value_array_single1");
 	GetArrayType(pos, 0, &check);
@@ -191,7 +193,7 @@ static int test_type_value_array_single(void)
 
 	array_va_heap(&pos, 11, 0);
 	ArrayInfoStruct(pos)->adjustable = 1;
-	allocate_array_heap(pos);
+	array_build_heap(pos);
 	type_value_array_single(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "type_value_array_single6");
 	GetArrayType(pos, 0, &check);
@@ -210,7 +212,7 @@ static int test_type_value_array_multiple(void)
 	addr pos, check;
 
 	array_va_heap(&pos, 11, 12, 0);
-	allocate_array_heap(pos);
+	array_build_heap(pos);
 	type_value_array_multiple(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "type_value_array_multiple1");
 	GetArrayType(pos, 0, &check);
@@ -225,7 +227,7 @@ static int test_type_value_array_multiple(void)
 
 	array_va_heap(&pos, 11, 12, 0);
 	ArrayInfoStruct(pos)->adjustable = 1;
-	allocate_array_heap(pos);
+	array_build_heap(pos);
 	type_value_array_multiple(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_ARRAY, "type_value_array_multiple7");
 	GetArrayType(pos, 0, &check);
@@ -246,7 +248,7 @@ static int test_type_value_array(void)
 	addr pos, check;
 
 	array_va_heap(&pos, 0);
-	allocate_array_heap(pos);
+	array_build_heap(pos);
 	type_value_array(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "type_value_array1");
 	GetArrayType(pos, 0, &check);
@@ -255,7 +257,7 @@ static int test_type_value_array(void)
 	test(RefFixnum(check) == 0, "type_value_array3");
 
 	array_va_heap(&pos, 11, 0);
-	allocate_array_heap(pos);
+	array_build_heap(pos);
 	type_value_array(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "type_value_array4");
 	GetArrayType(pos, 0, &check);
@@ -267,7 +269,7 @@ static int test_type_value_array(void)
 	test(RefFixnum(check) == 11, "type_value_array8");
 
 	array_va_heap(&pos, 11, 12, 0);
-	allocate_array_heap(pos);
+	array_build_heap(pos);
 	type_value_array(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_SIMPLE_ARRAY, "type_value_array9");
 	GetArrayType(pos, 0, &check);

@@ -1,5 +1,5 @@
-#ifndef __LISP_HEADER__
-#define __LISP_HEADER__
+#ifndef __BUILD_HEADER__
+#define __BUILD_HEADER__
 
 #include <setjmp.h>
 #include <stddef.h>
@@ -19,13 +19,6 @@ extern byte32   lisp_property;
 /* for debug */
 extern int      lisp_info_enable;
 
-#define LISPNAME                 "NPT"
-#define LISPNAMEW               L"NPT"
-#define LispName                 "Npt"
-#define LispNameW               L"Npt"
-#define Lispname                 "npt"
-#define LispnameW               L"npt"
-#define LISPNAMESIZE            3
 #define LISP_PACKAGE            LISPNAME
 #define LISP_SYSTEM             LISPNAME "-SYSTEM"
 #define LISP_CODE               LISPNAME "-CODE"

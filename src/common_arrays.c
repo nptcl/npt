@@ -2,6 +2,10 @@
  *  ANSI COMMON LISP: 15. Arrays
  */
 #include "array.h"
+#include "array_adjust.h"
+#include "array_common.h"
+#include "array_object.h"
+#include "array_vector.h"
 #include "bit.h"
 #include "common_header.h"
 #include "cons.h"
@@ -35,7 +39,7 @@ static void function_make_array(Execute ptr, addr var, addr rest)
 	if (getkeyargs(rest, KEYWORD_DISPLACED_TO, &dto)) dto = Nil;
 	if (getkeyargs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off)) off = fixnumh(0);
 	if (parse_type(ptr, &type, type, Nil)) return;
-	array_make_array(NULL, &var, var, type, ielem, icont, adj, fill, dto, off);
+	make_array_common(&var, var, type, ielem, icont, adj, fill, dto, off);
 	setresult_control(ptr, var);
 }
 
@@ -1027,18 +1031,6 @@ static void function_upgraded_array_element_type(Execute ptr, addr pos, addr env
 	setresult_control(ptr, pos);
 }
 
-static void type_upgraded_array_element_type(addr *ret)
-{
-	addr arg, values;
-
-	GetTypeTable(&arg, TypeSpec);
-	GetTypeTable(&values, EnvironmentNull);
-	typeargs_var1opt1(&arg, arg, values);
-	GetTypeTable(&values, TypeSpec);
-	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
-}
-
 static void defun_upgraded_array_element_type(void)
 {
 	addr symbol, pos, type;
@@ -1049,7 +1041,7 @@ static void defun_upgraded_array_element_type(void)
 	setcompiled_var1opt1(pos, function_upgraded_array_element_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	type_upgraded_array_element_type(&type);
+	GetTypeCompiled(&type, UpgradedType);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1259,19 +1251,7 @@ static void defun_vector(void)
 /* (defun vector-pop (vector) ...) -> t */
 static void function_vector_pop(Execute ptr, addr pos)
 {
-	switch (GetType(pos)) {
-		case LISPTYPE_ARRAY:
-			array_vector_pop(NULL, pos, &pos);
-			break;
-
-		case LISPTYPE_VECTOR:
-			type_error_fill_pointer(pos);
-			break;
-
-		default:
-			TypeError(pos, VECTOR);
-			break;
-	}
+	vector_pop_common(pos, &pos);
 	setresult_control(ptr, pos);
 }
 
@@ -1304,19 +1284,7 @@ static void defun_vector_pop(void)
 /* (defun vector-push (value vector) ...) -> index-null */
 static void function_vector_push(Execute ptr, addr value, addr pos)
 {
-	switch (GetType(pos)) {
-		case LISPTYPE_ARRAY:
-			array_vector_push(NULL, pos, value, &pos);
-			break;
-
-		case LISPTYPE_VECTOR:
-			type_error_fill_pointer(pos);
-			break;
-
-		default:
-			TypeError(pos, VECTOR);
-			break;
-	}
+	vector_push_common(value, pos, &pos);
 	setresult_control(ptr, pos);
 }
 
@@ -1354,19 +1322,7 @@ static void defun_vector_push(void)
 static void function_vector_push_extend(Execute ptr,
 		addr value, addr pos, addr extension)
 {
-	switch (GetType(pos)) {
-		case LISPTYPE_ARRAY:
-			array_vector_push_extend(NULL, pos, value, extension, &pos);
-			break;
-
-		case LISPTYPE_VECTOR:
-			type_error_fill_pointer(pos);
-			break;
-
-		default:
-			TypeError(pos, VECTOR);
-			break;
-	}
+	vector_push_extend_common(value, pos, extension, &pos);
 	setresult_control(ptr, pos);
 }
 

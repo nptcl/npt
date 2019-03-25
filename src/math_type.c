@@ -1,7 +1,7 @@
 #include "bignum.h"
+#include "build.h"
 #include "cmpl.h"
 #include "condition.h"
-#include "lisp.h"
 #include "math_type.h"
 #include "object.h"
 #include "ratio.h"

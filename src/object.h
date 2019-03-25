@@ -1,8 +1,8 @@
 #ifndef __OBJECT_HEADER__
 #define __OBJECT_HEADER__
 
+#include "build.h"
 #include "execute.h"
-#include "lisp.h"
 #include "local.h"
 #include "memory.h"
 #include "unicode.h"

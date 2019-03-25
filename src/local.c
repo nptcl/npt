@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "alloc.h"
+#include "build.h"
 #include "heap.h"
-#include "lisp.h"
 #include "local.h"
 #include "memory.h"
 

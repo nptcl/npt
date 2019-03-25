@@ -1,4 +1,5 @@
 #include "array.h"
+#include "array_object.h"
 #include "character.h"
 #include "condition.h"
 #include "type_table.h"
@@ -7,7 +8,7 @@
 #include "unicode.h"
 
 #define strvect_string_p(x) (GetType(x) == LISPTYPE_STRING)
-#define GetArrayUnicode(x,v) (*(v) = (unicode *)array_write_pointer((x), 0))
+#define GetArrayUnicode(x,v) (*(v) = (unicode *)array_ptrwrite((x), 0))
 
 /*
  *  string check
@@ -45,7 +46,7 @@ addr strarray_allocr(LocalRoot local, size_t len)
 	addr pos;
 
 	array_alloc(local, &pos, 1, len);
-	character_array_alloc(local, pos);
+	array_character_alloc(local, pos);
 	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
 
 	return pos;
@@ -214,14 +215,14 @@ void strarray_length_buffer(addr pos, size_t *ret)
 void strarray_posbodylen(addr pos, const unicode **body, size_t *len)
 {
 	Check(! array_stringp(pos), "string type error");
-	*body = (const unicode *)array_read_pointer(pos, 0);
+	*body = (const unicode *)array_ptrread(pos, 0);
 	*len = ArrayInfoStruct(pos)->front;
 }
 
 unicode strarray_refc(addr pos, size_t index)
 {
 	Check(! array_stringp(pos), "string type error");
-	return *(const unicode *)array_read_pointer(pos, index);
+	return *(const unicode *)array_ptrread(pos, index);
 }
 
 void strarray_getc(addr pos, size_t index, unicode *u)
@@ -238,7 +239,7 @@ void strarray_setc(addr pos, size_t index, unicode u)
 	if (type == CHARACTER_TYPE_INVALID)
 		fmte("Invalid character code.", NULL);
 	SetCharacterType(pos, type);
-	*(unicode *)array_write_pointer(pos, index) = u;
+	*(unicode *)array_ptrwrite(pos, index) = u;
 }
 
 int strarray_equal_binary(addr left, const unicode *right, size_t size2)

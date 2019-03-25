@@ -1704,6 +1704,16 @@ int getfixnumtype(addr pos, fixnum *ret)
 	return 1;
 }
 
+int getfixed1_bignum(addr pos, int *sign, fixed *ret)
+{
+	CheckType(pos, LISPTYPE_BIGNUM);
+	if (RefSizeBignum(pos) != 1) return 1;
+	GetSignBignum(pos, sign);
+	getfixed_bignum(pos, 0, ret);
+
+	return 0;
+}
+
 
 /*****************************************************************************
   plus

@@ -2,8 +2,8 @@
 #define __BIGCONS_HEADER__
 
 #include "bigdata.h"
+#include "build.h"
 #include "memory.h"
-#include "lisp.h"
 #include "typedef.h"
 
 #define PtrBigbuffer(x) PtrBodyABa(x, 1)

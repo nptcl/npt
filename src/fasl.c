@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "bignum.h"
+#include "build.h"
 #include "code.h"
 #include "condition.h"
 #include "constant.h"
@@ -10,7 +11,6 @@
 #include "fasl.h"
 #include "file.h"
 #include "heap.h"
-#include "lisp.h"
 #include "object.h"
 #include "package.h"
 #include "stream.h"

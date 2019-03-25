@@ -1,7 +1,7 @@
 #ifndef __REAL_HEADER__
 #define __REAL_HEADER__
 
-#include "lisp.h"
+#include "build.h"
 #include "typedef.h"
 
 int floatp(addr pos);

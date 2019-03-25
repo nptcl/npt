@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "alloc.h"
-#include "lisp.h"
+#include "build.h"
 #include "local.h"
 #include "execute.h"
 #include "thread.h"

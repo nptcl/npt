@@ -1,8 +1,8 @@
 #ifndef __HASHTABLE_HEADER__
 #define __HASHTABLE_HEADER__
 
+#include "build.h"
 #include "heap.h"
-#include "lisp.h"
 #include "local.h"
 #include "typedef.h"
 

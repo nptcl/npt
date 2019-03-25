@@ -1,4 +1,6 @@
 #include "array.h"
+#include "array_object.h"
+#include "array_vector.h"
 #include "charqueue.h"
 #include "condition.h"
 #include "integer.h"
@@ -441,7 +443,7 @@ static void write_char_StringOutput_extend(addr stream, unicode c)
 	if (queue == Nil)
 		fmte("stream is already closed.", NULL);
 	character_heap(&value, c);
-	array_vector_push_extend(NULL, queue, value, Unbound, &value);
+	vector_push_extend_common(value, queue, Unbound, &value);
 
 	/* terpri */
 	ptr = PtrStructStream(stream);

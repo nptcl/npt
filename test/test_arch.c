@@ -1,7 +1,7 @@
 #include "arch.c"
 #include <string.h>
+#include "build.h"
 #include "degrade.h"
-#include "lisp.h"
 
 #define TESTFILE "_debug.txt"
 

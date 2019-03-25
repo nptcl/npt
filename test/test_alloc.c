@@ -1,6 +1,6 @@
 #include "alloc.h"
+#include "build.h"
 #include "degrade.h"
-#include "lisp.h"
 
 /*
  *  testbreak_alloc

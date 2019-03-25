@@ -1,7 +1,7 @@
 #ifndef __EQUAL_HEADER__
 #define __EQUAL_HEADER__
 
-#include "lisp.h"
+#include "build.h"
 
 int atom_function(addr pos);
 int eq_function(addr left, addr right);

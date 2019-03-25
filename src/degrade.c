@@ -16,6 +16,7 @@ int test_character(void);
 int test_charqueue(void);
 int test_unicode(void);
 int test_array(void);
+int test_array_object(void);
 int test_strtype(void);
 int test_object(void);
 int test_symbol(void);
@@ -106,6 +107,7 @@ void degrade_execute(void)
 	DegradeCheck(test_charqueue);
 	DegradeCheck(test_unicode);
 	DegradeCheck(test_array);
+	DegradeCheck(test_array_object);
 	DegradeCheck(test_strtype);
 	DegradeCheck(test_gc);
 	DegradeCheck(test_sxhash);
@@ -149,12 +151,11 @@ void degrade_execute(void)
 	DegradeCheck(test_type_number);
 	DegradeCheck(test_type_subtypep);
 	DegradeCheck(test_type_upgraded);
-	//	DegradeCheck(test_type_coerce);
 	DegradeCheck(test_equal);
 	DegradeCheck(test_eval);
 	DegradeCheck(test_eval_declare);
 	DegradeCheck(test_eval_parse);
-	//	DegradeCheck(test_eval_optparse);
+	//DegradeCheck(test_eval_optparse); /* error */
 	DegradeCheck(test_eval_table);
 	DegradeCheck(test_eval_stack);
 	DegradeCheck(test_eval_scope);
@@ -170,8 +171,6 @@ void degrade_execute(void)
 #if 0
 #endif
 	DegradeCheck(load_rt);
-#if 0
-#endif
 }
 
 #endif

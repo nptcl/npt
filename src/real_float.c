@@ -3305,6 +3305,69 @@ void abs_floatl_heap(addr left, addr *ret)
 /*
  *  cast
  */
+double_float cast_sd_float(single_float v)
+{
+	return (double_float)v;
+}
+
+long_float cast_sl_float(single_float v)
+{
+	return (long_float)v;
+}
+
+single_float cast_ds_float(double_float v)
+{
+	enum fltclass type;
+	single_float ret;
+	addr pos;
+
+	ret = (single_float)v;
+	type = getfltclassify(ret);
+	if (type != fltclass_normal) {
+		double_float_heap(&pos, v);
+		float_fltclass(CONSTANT_COMMON_COERCE, type, pos, NULL);
+	}
+
+	return ret;
+}
+
+long_float cast_dl_float(double_float v)
+{
+	return (long_float)v;
+}
+
+single_float cast_ls_float(long_float v)
+{
+	enum fltclass type;
+	single_float ret;
+	addr pos;
+
+	ret = (single_float)v;
+	type = getfltclassify(ret);
+	if (type != fltclass_normal) {
+		long_float_heap(&pos, v);
+		float_fltclass(CONSTANT_COMMON_COERCE, type, pos, NULL);
+	}
+
+	return ret;
+}
+
+double_float cast_ld_float(long_float v)
+{
+	enum fltclass type;
+	double_float ret;
+	addr pos;
+
+	ret = (double_float)v;
+	type = getfltclassify(ret);
+	if (type != fltclass_normal) {
+		long_float_heap(&pos, v);
+		float_fltclass(CONSTANT_COMMON_COERCE, type, pos, NULL);
+	}
+
+	return ret;
+}
+
 double_float cast_sd_value(addr pos)
 {
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);

@@ -1,7 +1,7 @@
 #ifndef __NUMBER_HEADER__
 #define __NUMBER_HEADER__
 
-#include "lisp.h"
+#include "build.h"
 #include "local.h"
 #include "real.h"
 

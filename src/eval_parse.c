@@ -1801,6 +1801,7 @@ int macroexpand(addr *ret, addr form, addr env, int *result)
 		if (macroexpand1(&pos, form, env, &value)) return 1;
 		if (value == 0) break;
 		check = 1;
+		form = pos;
 	}
 	*ret = check? pos: Nil;
 	*result = check;

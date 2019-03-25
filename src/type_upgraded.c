@@ -470,11 +470,10 @@ void upgraded_complex_type(addr type, addr *ret)
 		return;
 	}
 
-	/* short-float */
-	GetTypeTable(&right, ShortFloat);
+	/* Real */
+	GetTypeTable(&right, Real);
 	if (subtypep_clang(type, right, &validp)) {
-		GetConst(COMMON_SINGLE_FLOAT, ret); /* single-float */
-		GetTypeTable(ret, SingleFloat);
+		GetTypeTable(ret, SingleFloat); /* single-float */
 		return;
 	}
 
@@ -526,7 +525,7 @@ static void upgraded_complex_const(addr pos, addr *ret)
 	}
 
 	/* short-float */
-	GetTypeTable(&right, ShortFloat);
+	GetTypeTable(&right, Real);
 	if (subtypep_clang(pos, right, &validp)) {
 		GetConst(COMMON_SINGLE_FLOAT, ret); /* single-float */
 		return;

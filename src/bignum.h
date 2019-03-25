@@ -1,8 +1,8 @@
 #ifndef __BIGNUM_HEADER__
 #define __BIGNUM_HEADER__
 
+#include "build.h"
 #include "typedef.h"
-#include "lisp.h"
 
 struct bignuminfo {
 	size_t alloc, size;
@@ -285,7 +285,7 @@ int bignum_signed_byte_p(addr value, size_t size);
 
 int getfixnum_bignum(addr pos, fixnum *ret);
 int getfixnumtype(addr pos, fixnum *ret);
-
+int getfixed1_bignum(addr pos, int *sign, fixed *ret);
 
 /*
  *  bignum calculation

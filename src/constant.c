@@ -1,7 +1,7 @@
 #include <string.h>
+#include "build.h"
 #include "constant.h"
 #include "hashtable.h"
-#include "lisp.h"
 #include "memory.h"
 #include "object.h"
 #include "package.h"

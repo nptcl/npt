@@ -1,7 +1,7 @@
 #ifndef __CODE_HEADER__
 #define __CODE_HEADER__
 
-#include "lisp.h"
+#include "build.h"
 
 enum CodeType {
 	CodeType_Default,

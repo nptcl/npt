@@ -1,11 +1,12 @@
 #include <stdarg.h>
+#include "build.h"
 #include "function.h"
-#include "lisp.h"
 #include "local.h"
 #include "heap.h"
 #include "object.h"
 #include "symbol.h"
 #include "type.h"
+#include "type_coerce.h"
 #include "type_copy.h"
 #include "type_name.h"
 #include "type_object.h"
@@ -153,6 +154,7 @@ void type_lenarraytype(addr pos, size_t *ret)
  */
 void init_type(void)
 {
+	init_type_coerce();
 	init_type_copy();
 	init_type_name();
 	init_type_object();

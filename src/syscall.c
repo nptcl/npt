@@ -147,6 +147,7 @@ static void syscall_defconstant(Execute ptr, addr symbol, addr value, addr doc)
 	ResetStatusReadOnly(symbol);
 	SetValueSymbol(symbol, value);
 	setdocument_variable_symbol(symbol, doc);
+	setspecial_symbol(symbol);
 	SetStatusReadOnly(symbol);
 	setresult_control(ptr, symbol);
 }

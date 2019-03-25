@@ -789,7 +789,7 @@ static int equal_array_dimension(addr value, addr right)
 
 	/* system */
 	if (GetType(left) == LISPSYSTEM_ARRAY_DIMENSION) {
-		psize = PtrArrayDimension(left);
+		psize = arraysize_ptr(left);
 		for (i = 0; i < size; i++) {
 			GetArrayA4(right, i, &check);
 			if (type_asterisk_p(check)) continue;

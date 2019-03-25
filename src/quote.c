@@ -7,12 +7,12 @@
  *    Appendix C.  Backquote
  *    https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node367.html
  */
+#include "build.h"
 #include "condition.h"
 #include "constant.h"
 #include "control.h"
 #include "cons.h"
 #include "equal.h"
-#include "lisp.h"
 #include "heap.h"
 #include "object.h"
 #include "quote.h"

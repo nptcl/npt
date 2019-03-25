@@ -1,7 +1,7 @@
 #ifndef __BIGDATA_HEADER__
 #define __BIGDATA_HEADER__
 
-#include "lisp.h"
+#include "build.h"
 #include "typedef.h"
 
 /*****************************************************************************

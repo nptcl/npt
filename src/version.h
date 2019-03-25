@@ -1,4 +1,12 @@
-#define LISP_REVISION "2019/03/19-15:08:25"
-#define LISP_VERSION_A 0
-#define LISP_VERSION_B 1
-#define LISP_VERSION_C 6
+#define LISPNAME         "NPT"
+#define LISPNAMEW       L"NPT"
+#define LispName         "Npt"
+#define LispNameW       L"Npt"
+#define Lispname         "npt"
+#define LispnameW       L"npt"
+#define LISPNAMESIZE    3
+
+#define LISP_REVISION   "2019/03/25-21:17:55"
+#define LISP_VERSION_A  0
+#define LISP_VERSION_B  1
+#define LISP_VERSION_C  7

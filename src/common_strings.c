@@ -2,6 +2,7 @@
  *  ANSI COMMON LISP: 16. Strings
  */
 #include "array.h"
+#include "array_object.h"
 #include "character.h"
 #include "common_header.h"
 #include "cons.h"

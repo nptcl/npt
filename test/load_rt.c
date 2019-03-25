@@ -1,4 +1,5 @@
 #ifdef LISP_DEGRADE
+#include "build.h"
 #include "condition.h"
 #include "constant.h"
 #include "control.h"
@@ -6,7 +7,6 @@
 #include "eval.h"
 #include "file.h"
 #include "format.h"
-#include "lisp.h"
 #include "package.h"
 #include "pathname.h"
 #include "stream.h"

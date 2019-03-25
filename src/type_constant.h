@@ -343,6 +343,7 @@ enum TypeTable {
 	TypeCompiled_ByteSize,
 	TypeCompiled_DepositField,
 	TypeCompiled_Ldb,
+	TypeCompiled_UpgradedType,
 
 	/* Size */
 	TypeTable_Size

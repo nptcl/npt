@@ -1,9 +1,9 @@
 #ifndef __PACKAGE_HEADER__
 #define __PACKAGE_HEADER__
 
+#include "build.h"
 #include "execute.h"
 #include "local.h"
-#include "lisp.h"
 
 enum PACKAGE_INDEX {
 	PACKAGE_INDEX_TABLE = 0,

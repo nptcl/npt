@@ -63,6 +63,52 @@ int refsign_ratio(addr pos)
 	return RefSignRatio_Low(pos);
 }
 
+int getfixnum_ratio(addr pos, fixnum *ret)
+{
+	int sign;
+	addr denom;
+	bigtype value;
+
+	CheckType(pos, LISPTYPE_RATIO);
+	GetDenomRatio(pos, &denom);
+	if (! equal_value_nosign_bignum(denom, 1))
+		return 1;
+	GetSignRatio(pos, &sign);
+	GetNumerRatio(pos, &pos);
+	if (RefSizeBignum(pos) != 1) return 1;
+	getfixed_bignum(pos, 0, &value);
+	if (IsPlus(sign)) {
+		if (FIXNUM_MAX < value) return 1;
+		*ret = (fixnum)value;
+		return 0;
+	}
+	else {
+		if (FIXNUM_UMIN < value) return 1;
+		*ret = -(fixnum)value;
+		return 0;
+	}
+
+	return 1;
+}
+
+int getfixed1_ratio(addr pos, int *sign, fixed *ret)
+{
+	addr denom;
+	bigtype value;
+
+	CheckType(pos, LISPTYPE_RATIO);
+	GetDenomRatio(pos, &denom);
+	if (! equal_value_nosign_bignum(denom, 1))
+		return 1;
+	GetNumerRatio(pos, &pos);
+	if (RefSizeBignum(pos) != 1)
+		return 1;
+	GetSignRatio(pos, sign);
+	getfixed_bignum(pos, 0, &value);
+
+	return 0;
+}
+
 
 /*****************************************************************************
   operation

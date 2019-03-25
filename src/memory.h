@@ -3,7 +3,7 @@
 
 #include <string.h>
 #include "alloc.h"
-#include "lisp.h"
+#include "build.h"
 #include "thread.h"
 #include "typedef.h"
 #include "object.h"

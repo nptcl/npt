@@ -1,7 +1,7 @@
 #ifndef __THREAD_HEADER__
 #define __THREAD_HEADER__
 
-#include "lisp.h"
+#include "build.h"
 #include "typedef.h"
 
 

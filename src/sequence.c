@@ -1,4 +1,7 @@
 #include "array.h"
+#include "array_common.h"
+#include "array_object.h"
+#include "array_vector.h"
 #include "bit.h"
 #include "charqueue.h"
 #include "condition.h"
@@ -811,7 +814,7 @@ void setelt_inplace_sequence(LocalRoot local,
 
 		case LISPTYPE_VECTOR:
 			array_value_alloc(local, &value, str);
-			setelt_vector(pos, index, value);
+			vector_setelt(pos, index, value);
 			break;
 
 		case LISPTYPE_STRING:
@@ -902,7 +905,7 @@ void setelt_sequence(addr pos, size_t index, addr value)
 			break;
 
 		case LISPTYPE_VECTOR:
-			setelt_vector(pos, index, value);
+			vector_setelt(pos, index, value);
 			break;
 
 		case LISPTYPE_STRING:
@@ -1025,13 +1028,13 @@ static void vector_upgraded_make_sequence(addr *ret, addr type, size_t size, add
 
 		case ARRAY_TYPE_SIGNED:
 		case ARRAY_TYPE_UNSIGNED:
-			signed_make_vector(NULL, ret, size, upgraded, upsize, value);
+			vector_signed(ret, size, upgraded, upsize, value);
 			break;
 
 		case ARRAY_TYPE_SINGLE_FLOAT:
 		case ARRAY_TYPE_DOUBLE_FLOAT:
 		case ARRAY_TYPE_LONG_FLOAT:
-			float_make_vector(NULL, ret, size, upgraded, value);
+			vector_float(ret, size, upgraded, value);
 			break;
 
 		default:
@@ -1932,7 +1935,7 @@ static int vector_signed_map_sequence(Execute ptr, addr *ret,
 	size_t i;
 
 	list = group->list;
-	signed_make_vector_uninitialize(NULL, &root, group->callsize, type, bytesize);
+	vector_signed_uninit(&root, group->callsize, type, bytesize);
 	for (i = 0; set_itergroup(group, list); i++) {
 		if (callclang_apply(ptr, &value, call, list)) return 1;
 		array_set(root, i, value);
@@ -1949,7 +1952,7 @@ static int vector_float_map_sequence(Execute ptr, addr *ret,
 	size_t i;
 
 	list = group->list;
-	float_make_vector_uninitialize(NULL, &root, group->callsize, type);
+	vector_float_uninit(&root, group->callsize, type);
 	for (i = 0; set_itergroup(group, list); i++) {
 		if (callclang_apply(ptr, &value, call, list)) return 1;
 		array_set(root, i, value);
@@ -2807,31 +2810,31 @@ tail2:
 	return 0;
 }
 
-static void make_specialized_sequence(LocalRoot local, addr *ret,
+static void make_specialized_sequence(addr *ret,
 		enum ARRAY_TYPE type, int bytesize, size_t size)
 {
 	switch (type) {
 		case ARRAY_TYPE_T:
-			vector_alloc(local, ret, size);
+			vector_heap(ret, size);
 			break;
 
 		case ARRAY_TYPE_BIT:
-			bitmemory_unsafe(local, ret, size);
+			bitmemory_unsafe(NULL, ret, size);
 			break;
 
 		case ARRAY_TYPE_CHARACTER:
-			strvect_alloc(local, ret, size);
+			strvect_heap(ret, size);
 			break;
 
 		case ARRAY_TYPE_SIGNED:
 		case ARRAY_TYPE_UNSIGNED:
-			signed_make_vector_uninitialize(local, ret, size, type, bytesize);
+			vector_signed_uninit(ret, size, type, bytesize);
 			break;
 
 		case ARRAY_TYPE_SINGLE_FLOAT:
 		case ARRAY_TYPE_DOUBLE_FLOAT:
 		case ARRAY_TYPE_LONG_FLOAT:
-			float_make_vector_uninitialize(local, ret, size, type);
+			vector_float_uninit(ret, size, type);
 			break;
 
 		default:
@@ -2847,7 +2850,7 @@ static void array_upgraded_merge_sequence(addr *ret, addr type, size_t size)
 
 	GetArrayType(type, 0, &type);
 	upgraded_array_value(type, &upgraded, &upsize);
-	make_specialized_sequence(NULL, ret, upgraded, upsize, size);
+	make_specialized_sequence(ret, upgraded, upsize, size);
 }
 
 static int vector_merge_sequence(Execute ptr, int *result, addr *ret,
@@ -4605,31 +4608,29 @@ static int copy_substitute_sequence(struct count_struct *str, seqwrite *ret, add
 	return 0;
 }
 
-static void make_vector_array_sequence(LocalRoot local,
-		addr *ret, addr pos, size_t size)
+static void make_vector_array_sequence(addr *ret, addr pos, size_t size)
 {
 	struct array_struct *info = ArrayInfoStruct(pos);
-	make_specialized_sequence(local, ret, info->type, info->bytesize, size);
+	make_specialized_sequence(ret, info->type, info->bytesize, size);
 }
 
-static void make_vector_size_sequence(LocalRoot local,
-		addr *ret, addr pos, size_t size)
+static void make_vector_size_sequence(addr *ret, addr pos, size_t size)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_VECTOR:
-			vector_alloc(local, ret, size);
+			vector_heap(ret, size);
 			break;
 
 		case LISPTYPE_STRING:
-			strvect_alloc(local, ret, size);
+			strvect_heap(ret, size);
 			break;
 
 		case LISPTYPE_ARRAY:
-			make_vector_array_sequence(local, ret, pos, size);
+			make_vector_array_sequence(ret, pos, size);
 			break;
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_unsafe(local, ret, size);
+			bitmemory_unsafe(NULL, ret, size);
 			break;
 
 		default:
@@ -4638,10 +4639,10 @@ static void make_vector_size_sequence(LocalRoot local,
 	}
 }
 
-static void make_vector_sequence(LocalRoot local, addr *ret, addr pos)
+static void make_vector_sequence(addr *ret, addr pos)
 {
 	size_t size = length_sequence(pos, 1);
-	make_vector_size_sequence(local, ret, pos, size);
+	make_vector_size_sequence(ret, pos, size);
 }
 
 static int normal_substitute_sequence(struct count_struct *str, seqwrite *ret)
@@ -4656,7 +4657,7 @@ static int normal_substitute_sequence(struct count_struct *str, seqwrite *ret)
 			return 1;
 	}
 	else {
-		make_vector_sequence(NULL, &pos, pos);
+		make_vector_sequence(&pos, pos);
 		if (copy_substitute_sequence(str, ret, pos))
 			return 1;
 	}
@@ -5406,7 +5407,7 @@ static int copy_normal_remove_sequence(struct count_struct *str,
 
 	/* copy */
 	size = length_sequence(pos, 1) - range->size + loc;
-	make_vector_size_sequence(NULL, &pos, pos, size);
+	make_vector_size_sequence(&pos, pos, size);
 	build_seqwrite(ret, pos);
 	before_start_seqwrite(ret, range);
 	for (i = 0; i < loc; i++) {
@@ -5438,7 +5439,7 @@ static int copy_reverse_remove_sequence(struct count_struct *str,
 
 	/* copy */
 	size = length_sequence(pos, 1) - range->size + loc;
-	make_vector_size_sequence(NULL, &pos, pos, size);
+	make_vector_size_sequence(&pos, pos, size);
 	build_seqwrite(ret, pos);
 	before_start_seqwrite(ret, range);
 	while (loc) {
@@ -5849,7 +5850,7 @@ static int vector_reverse_remove_duplicates(struct count_struct *str, seqwrite *
 	/* copy */
 	pos = range->pos;
 	k = length_sequence(pos, 1) - loc;
-	make_vector_size_sequence(NULL, &pos, pos, k);
+	make_vector_size_sequence(&pos, pos, k);
 	build_seqwrite(ret, pos);
 	before_start_seqwrite(ret, range);
 	for (k = 0; k < size; k++) {
@@ -5878,7 +5879,7 @@ static int vector_normal_remove_duplicates(struct count_struct *str, seqwrite *r
 	/* copy */
 	pos = range->pos;
 	k = length_sequence(pos, 1) - loc;
-	make_vector_size_sequence(NULL, &pos, pos, k);
+	make_vector_size_sequence(&pos, pos, k);
 	build_seqwrite(ret, pos);
 	before_start_seqwrite(ret, range);
 	for (k = 0; k < size; k++) {

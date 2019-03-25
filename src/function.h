@@ -1,8 +1,8 @@
 #ifndef __FUNCTION_HEADER__
 #define __FUNCTION_HEADER__
 
+#include "build.h"
 #include "execute.h"
-#include "lisp.h"
 #include "local.h"
 #include "memory.h"
 

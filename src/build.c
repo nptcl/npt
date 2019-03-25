@@ -2,6 +2,7 @@
 #include <string.h>
 #include "array.h"
 #include "boole.h"
+#include "build.h"
 #include "character.h"
 #include "clos.h"
 #include "clos_type.h"
@@ -21,7 +22,6 @@
 #include "gc.h"
 #include "heap.h"
 #include "hashtable.h"
-#include "lisp.h"
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
@@ -325,7 +325,7 @@ int save_lisp(struct filememory *fm)
 	/* heap */
 	IfDebug(save_heap(fm), "save_heap error.");
 
-	/* lisp.c */
+	/* build.c */
 	IfDebug(writecheck_filememory(fm, &lisp_property, sizeoft(lisp_property)),
 			"writecheck error: lisp_property.");
 	for (i = 0; i < LISPINDEX_SIZE; i++) {
@@ -342,7 +342,7 @@ int load_lisp(struct filememory *fm)
 	/* heap */
 	IfDebug(load_heap(fm), "load_heap error.");
 
-	/* lisp.c */
+	/* build.c */
 	IfDebug(readcheck_filememory(fm, &lisp_property, sizeoft(lisp_property)),
 			"readcheck error: lisp_property.");
 	for (i = 0; i < LISPINDEX_SIZE; i++) {

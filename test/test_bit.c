@@ -625,18 +625,18 @@ static int test_array_bvarrayp(void)
 	addr pos, list;
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(array_bvarrayp(pos), "array_bvarrayp1");
 
 	GetTypeTable(&pos, Bit);
 	list_heap(&list, fixnumh(10), fixnumh(20), NULL);
-	array_make_array(NULL, &pos, list, pos,
+	make_array_common(&pos, list, pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! array_bvarrayp(pos), "array_bvarrayp2");
 
 	GetTypeTable(&pos, T);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! array_bvarrayp(pos), "array_bvarrayp3");
 
@@ -648,7 +648,7 @@ static int test_bvarrayp(void)
 	addr pos;
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, T, Nil, Nil, Nil);
 	test(bvarrayp(pos), "bvarrayp1");
 	test(! bvarrayp(T), "bvarrayp2");
@@ -664,7 +664,7 @@ static int test_bitvectorp(void)
 	test(bitvectorp(pos), "bitvectorp1");
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(bitvectorp(pos), "bitvectorp2");
 	test(! bitvectorp(T), "bitvectorp3");
@@ -677,23 +677,23 @@ static int test_simple_array_bvarrayp(void)
 	addr pos, list;
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(simple_array_bvarrayp(pos), "simple_array_bvarrayp1");
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! simple_array_bvarrayp(pos), "simple_array_bvarrayp2");
 
 	GetTypeTable(&pos, Bit);
 	list_heap(&list, fixnumh(10), fixnumh(20), NULL);
-	array_make_array(NULL, &pos, list, pos,
+	make_array_common(&pos, list, pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! simple_array_bvarrayp(pos), "simple_array_bvarrayp3");
 
 	GetTypeTable(&pos, T);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! simple_array_bvarrayp(pos), "simple_array_bvarrayp4");
 
@@ -705,12 +705,12 @@ static int test_simple_bvarrayp(void)
 	addr pos;
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(simple_bvarrayp(pos), "simple_bvarrayp1");
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! simple_bvarrayp(pos), "simple_bvarrayp2");
 
@@ -727,12 +727,12 @@ static int test_simple_bitvectorp(void)
 	test(simple_bitvectorp(pos), "simple_bitvectorp1");
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(simple_bitvectorp(pos), "simple_bitvectorp2");
 
 	GetTypeTable(&pos, Bit);
-	array_make_array(NULL, &pos, fixnumh(10), pos,
+	make_array_common(&pos, fixnumh(10), pos,
 			Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! simple_bitvectorp(pos), "simple_bitvectorp3");
 
