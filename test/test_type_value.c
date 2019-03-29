@@ -3,7 +3,6 @@
 #include "array_object.h"
 #include "character.h"
 #include "clos.h"
-#include "clos_object.h"
 #include "common.h"
 #include "condition.h"
 #include "degrade.h"
@@ -86,13 +85,13 @@ static int test_type_value_clos(void)
 	addr x, y;
 
 	GetConst(COMMON_STANDARD, &x);
-	y = find_method_combination(x);
+	clos_find_combination(x, &y);
 	type_value(&x, y);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_clos1");
 	test(LispDecl(x) == LISPDECL_CLOS, "type_value_clos2");
 	GetArrayType(x, 0, &x);
 	GetConst(COMMON_METHOD_COMBINATION, &y);
-	y = find_class(y);
+	clos_find_class(y, &y);
 	test(x == y, "type_value_clos3");
 
 	RETURN;

@@ -24,6 +24,5 @@ void set_structure_class_document(addr key, addr value);
 void get_variable_document(addr key, addr *ret);
 void set_variable_document(addr key, addr value);
 
-
 #endif
 

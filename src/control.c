@@ -1,7 +1,7 @@
 #include "build.h"
+#include "clos.h"
+#include "clos_class.h"
 #include "clos_generic.h"
-#include "clos_object.h"
-#include "clos_standard.h"
 #include "code.h"
 #include "cons.h"
 #include "condition.h"
@@ -855,7 +855,7 @@ void pushhandler_control(Execute ptr, addr name, addr call, int escape)
 
 	/* condition */
 	if (symbolp(name))
-		name = find_class(name);
+		clos_find_class(name, &name);
 	if (! conditionp(name))
 		fmte("The value ~S must be a condition instance.", name, NULL);
 
@@ -937,7 +937,7 @@ static int wake_handler(Execute ptr, addr control, addr instance, addr array)
 	addr clos, value;
 
 	GetArrayA2(array, 0, &clos);
-	if (clos != Nil && std_subtype_p(instance, clos)) {
+	if (clos != Nil && clos_subtype_p(instance, clos)) {
 		SetArrayA2(array, 0, Nil);
 		GetArrayA2(array, 1, &value);
 		wake_call_handler(ptr, control, value, instance, GetUser(array));
@@ -1506,6 +1506,28 @@ toofew:
 	fmte("Too few call argument ~S.", check, NULL);
 }
 
+static void call_callbind_method(Execute ptr, addr pos, callstr call)
+{
+	addr check, cons, var1, var2, var3;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var1, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var2, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var3, &cons);
+	if (cons != Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too many call argument ~S.", check, NULL);
+	}
+	(call->call.method)(ptr, var1, var2, var3);
+	return;
+toofew:
+	GetNameFunction(pos, &check);
+	fmte("Too few call argument ~S.", check, NULL);
+}
+
 static void call_callbind_none(Execute ptr, addr pos, callstr call)
 {
 	(call->call.none)();
@@ -2012,6 +2034,7 @@ void init_control(void)
 	CallBindTable[CallBind_system] = call_callbind_system;
 	CallBindTable[CallBind_type] = call_callbind_type;
 	CallBindTable[CallBind_macro] = call_callbind_macro;
+	CallBindTable[CallBind_method] = call_callbind_method;
 	CallBindTable[CallBind_none] = call_callbind_none;
 	CallBindTable[CallBind_any] = call_callbind_any;
 	CallBindTable[CallBind_empty] = call_callbind_empty;
@@ -2451,13 +2474,6 @@ static int execute_function(Execute ptr, addr pos)
 	return runcode_free(ptr, control, pos, execute_normal);
 }
 
-static void execute_clos_check(Execute ptr, addr call, addr args)
-{
-	if (GetUser(call))
-		fmte("The clos object ~S is not funcallable.", call, NULL);
-	execute_clos(ptr, call, args);
-}
-
 int execute_control(Execute ptr, addr call)
 {
 	addr args;
@@ -2470,7 +2486,7 @@ int execute_control(Execute ptr, addr call)
 
 		case LISPTYPE_CLOS:
 			getargs_list_control_unsafe(ptr, 0, &args);
-			execute_clos_check(ptr, call, args);
+			closrun_execute(ptr, call, args);
 			return signal_control(ptr);
 
 		default:
@@ -2641,7 +2657,7 @@ int apply_control(Execute ptr, addr call, addr args)
 			return execute_function(ptr, call);
 
 		case LISPTYPE_CLOS:
-			execute_clos_check(ptr, call, args);
+			closrun_execute(ptr, call, args);
 			return signal_control(ptr);
 
 		default:
@@ -2864,7 +2880,7 @@ int callablep(addr pos)
 			return 1;
 
 		case LISPTYPE_CLOS:
-			return funcallablep(pos);
+			return clos_funcallable_p(pos);
 
 		default:
 			return 0;

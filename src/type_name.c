@@ -1,5 +1,6 @@
+#include "clos_class.h"
+#include "clos_type.h"
 #include "constant.h"
-#include "clos_object.h"
 #include "condition.h"
 #include "function.h"
 #include "stream.h"
@@ -12,7 +13,7 @@ static constindex TypeNameTable[LISPTYPE_SIZE];
 static void type_name_clos(addr *ret, addr value)
 {
 	clos_class_of(value, &value);
-	class_elt(value, Clos_class_name, ret);
+	stdget_class_name(value, ret);
 }
 
 static void type_name_symbol(addr *ret, addr value)

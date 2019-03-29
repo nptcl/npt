@@ -1377,6 +1377,20 @@ void code_heap(addr *ret, addr codeA4)
 	code_alloc(NULL, ret, codeA4);
 }
 
+void code_empty_heap(addr *ret)
+{
+	addr pos;
+	vector4_heap(&pos, 0);
+	code_heap(ret, pos);
+}
+
+void function_empty_heap(addr *ret, addr name)
+{
+	addr pos;
+	code_empty_heap(&pos);
+	function_heap(ret, name, pos);
+}
+
 const calltype *getcalltype_code(addr pos)
 {
 	CheckType(pos, LISPTYPE_CODE);

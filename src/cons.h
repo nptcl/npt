@@ -54,6 +54,9 @@ int find_list_equal_unsafe(addr key, addr cons);
 int pushnew_alloc(LocalRoot local, addr list, addr value, addr *ret);
 int pushnew_local(LocalRoot local, addr list, addr value, addr *ret);
 int pushnew_heap(addr list, addr value, addr *ret);
+int pushnew_equal_alloc(LocalRoot local, addr list, addr value, addr *ret);
+int pushnew_equal_local(LocalRoot local, addr list, addr value, addr *ret);
+int pushnew_equal_heap(addr list, addr value, addr *ret);
 
 void lista_alloc_safe(LocalRoot local, addr *ret, addr first, addr cons);
 void lista_local_safe(LocalRoot local, addr *ret, addr first, addr cons);

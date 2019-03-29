@@ -104,6 +104,10 @@ void strvect_posbodylen(addr pos, const unicode **body, size_t *len);
 enum CHARACTER_TYPE unicode_character_type(enum CHARACTER_TYPE type, unicode u);
 void strvect_update_character_type(addr pos);
 
+int strvectp(addr pos);
+int strvect_base_p(addr pos);
+int strvect_simple_p(addr pos);
+
 addr strvect_char_allocr(LocalRoot root, const char *arg);
 addr strvect_char_localr(LocalRoot root, const char *arg);
 addr strvect_char_heapr(const char *arg);

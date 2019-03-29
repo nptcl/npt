@@ -3,6 +3,8 @@
 #include "build.h"
 #include "bytespec.h"
 #include "character.h"
+#include "clos.h"
+#include "clos_class.h"
 #include "condition.h"
 #include "eval.h"
 #include "eval_parse.h"
@@ -757,6 +759,62 @@ static void infoprint_pathname(addr pos, int depth)
 	infoprint_vector(pos, depth);
 }
 
+static void infostringbody(addr pos)
+{
+	size_t i, len;
+	unicode c;
+
+	string_length(pos, &len);
+	for (i = 0; i < len; i++) {
+		string_getc(pos, i, &c);
+		info_stdarg("%c", isstandardtype(c)? c: '.');
+	}
+}
+
+static void infoprint_clos(addr pos)
+{
+	addr check, key, name;
+
+	info_stdarg("#<");
+	/* class-of */
+	GetClassOfClos(pos, &check);
+	GetConst(KEYWORD_NAME, &key);
+	if (key == Unbound) {
+		info_stdarg("CLOS>");
+		return;
+	}
+	else if (! clos_getp(check, key, &name)) {
+		info_stdarg("UNBOUND");
+	}
+	else if (name == Unbound) {
+		info_stdarg("UNBOUND");
+	}
+	else if (! symbolp(name)) {
+		info_stdarg("INVALID");
+	}
+	else {
+		GetNameSymbol(name, &name);
+		infostringbody(name);
+	}
+	info_stdarg(" ");
+
+	/* name */
+	if (! clos_getp(pos, key, &name)) {
+		info_stdarg("UNBOUND");
+	}
+	else if (name == Unbound) {
+		info_stdarg("UNBOUND");
+	}
+	else if (! symbolp(name)) {
+		info_stdarg("INVALID");
+	}
+	else {
+		GetNameSymbol(name, &name);
+		infostringbody(name);
+	}
+	info_stdarg(">");
+}
+
 static void infoprint_fixnum(addr pos)
 {
 	fixnum value;
@@ -795,18 +853,6 @@ static void infoprint_character(addr pos)
 	}
 	else {
 		info_stdarg("#\\(unicode)");
-	}
-}
-
-static void infostringbody(addr pos)
-{
-	size_t i, len;
-	unicode c;
-
-	string_length(pos, &len);
-	for (i = 0; i < len; i++) {
-		string_getc(pos, i, &c);
-		info_stdarg("%c", isstandardtype(c)? c: '.');
 	}
 }
 
@@ -1042,7 +1088,7 @@ static void infoprint_stream(addr pos, int depth)
 		case LISPTYPE_ARRAY: infoprint_array(pos, depth); break;
 		case LISPTYPE_VECTOR: infoprint_vector(pos, depth); break;
 		case LISPTYPE_PATHNAME: infoprint_pathname(pos, depth); break;
-		case LISPTYPE_CLOS: info_stdarg("#<CLOS>"); break;
+		case LISPTYPE_CLOS: infoprint_clos(pos); break;
 		case LISPTYPE_CHARACTER: infoprint_character(pos); break;
 		case LISPTYPE_STRING: infoprint_string(pos); break;
 		case LISPTYPE_FIXNUM: infoprint_fixnum(pos); break;

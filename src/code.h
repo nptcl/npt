@@ -21,6 +21,8 @@ enum CodeType {
 
 void build_code(void);
 void code_heap(addr *ret, addr codeA4);
+void code_empty_heap(addr *ret);
+void function_empty_heap(addr *ret, addr name);
 const calltype *getcalltype_code(addr pos);
 void getarray_code(addr pos, addr *ret);
 void getargs_code(addr pos, addr *ret);

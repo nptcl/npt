@@ -7,6 +7,9 @@
 #include "sequence.h"
 #include "symbol.h"
 
+/*
+ *  parse
+ */
 enum AMPERSAND_ARGUMENT {
 	AMPERSAND_GENERIC,
 	AMPERSAND_ORDINARY,
@@ -1081,5 +1084,143 @@ void allsymbol_macro_lambda_heap(LocalRoot local, addr *ret, addr args)
 	root = Nil;
 	varsymbol_macro_lambda_heap(&root, args);
 	nreverse_list_unsafe(ret, root);
+}
+
+
+/*
+ *  argument
+ */
+int argumentp(addr pos)
+{
+	return GetType(pos) == LISPSYSTEM_ARGUMENT;
+}
+
+void getargument(addr pos, size_t index, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_ARGUMENT);
+	GetArgument_Low(pos, index, ret);
+}
+
+void setargument(addr pos, size_t index, addr value)
+{
+	CheckType(pos, LISPSYSTEM_ARGUMENT);
+	SetArgument_Low(pos, index, value);
+}
+
+struct argument_struct *argumentstruct(addr pos)
+{
+	CheckType(pos, LISPSYSTEM_ARGUMENT);
+	return ArgumentStruct_Low(pos);
+}
+
+void argument_alloc(LocalRoot local, addr *ret)
+{
+	addr pos;
+	struct argument_struct *str;
+
+	alloc_smallsize(local, &pos, LISPSYSTEM_ARGUMENT,
+			ArgumentIndex_size, sizeoft(struct argument_struct));
+	str = ArgumentStruct(pos);
+	clearpoint(str);
+	*ret = pos;
+}
+
+void argument_local(LocalRoot local, addr *ret)
+{
+	CheckLocal(local);
+	argument_alloc(local, ret);
+}
+
+void argument_heap(addr *ret)
+{
+	argument_alloc(NULL, ret);
+}
+
+void argument_generic_heap(LocalRoot local, addr *ret, addr list)
+{
+	addr pos, var, opt, rest, key, allow;
+	struct argument_struct *str;
+
+	/* parse */
+	lambda_generic_function(local, &list, list);
+	List_bind(list, &var, &opt, &rest, &key, &allow, NULL);
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_generic;
+	/* var */
+	str->var = length_list_unsafe(var);
+	SetArgument(pos, ArgumentIndex_var, var);
+	/* opt */
+	str->opt = length_list_unsafe(opt);
+	SetArgument(pos, ArgumentIndex_opt, opt);
+	/* rest */
+	if (rest != Nil) {
+		str->rest = 1;
+		str->restbody = 1;
+		SetArgument(pos, ArgumentIndex_rest, rest);
+		SetArgument(pos, ArgumentIndex_restbody, rest);
+	}
+	/* key */
+	if (key == T) {
+		str->keyp = 1;
+	}
+	else if (key != Nil) {
+		str->keyp = 1;
+		str->key = length_list_unsafe(key);
+		SetArgument(pos, ArgumentIndex_key, key);
+	}
+	/* allow-other-keys */
+	if (allow != Nil) {
+		str->allow = 1;
+	}
+	/* result */
+	*ret = pos;
+}
+
+void argument_method_heap(LocalRoot local, addr *ret, addr list)
+{
+	addr pos, var, opt, rest, key, allow, aux;
+	struct argument_struct *str;
+
+	CheckLocal(local);
+	/* parse */
+	lambda_specialized(local, &list, list);
+	List_bind(list, &var, &opt, &rest, &key, &allow, &aux, NULL);
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = length_list_unsafe(var);
+	SetArgument(pos, ArgumentIndex_var, var);
+	/* opt */
+	str->opt = length_list_unsafe(opt);
+	SetArgument(pos, ArgumentIndex_opt, opt);
+	/* rest */
+	if (rest != Nil) {
+		str->rest = 1;
+		str->restbody = 1;
+		SetArgument(pos, ArgumentIndex_rest, rest);
+		SetArgument(pos, ArgumentIndex_restbody, rest);
+	}
+	/* key */
+	if (key == T) {
+		str->keyp = 1;
+	}
+	else if (key != Nil) {
+		str->keyp = 1;
+		str->key = length_list_unsafe(key);
+		SetArgument(pos, ArgumentIndex_key, key);
+	}
+	/* allow-other-keys */
+	if (allow != Nil) {
+		str->allow = 1;
+	}
+	/* aux */
+	str->aux = length_list_unsafe(aux);
+	SetArgument(pos, ArgumentIndex_aux, aux);
+	/* result */
+	*ret = pos;
 }
 

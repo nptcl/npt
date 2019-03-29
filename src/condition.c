@@ -1,6 +1,7 @@
 #include "charqueue.h"
-#include "clos_object.h"
-#include "clos_standard.h"
+#include "clos.h"
+#include "clos_class.h"
+#include "clos_type.h"
 #include "condition.h"
 #include "copy.h"
 #include "cons.h"
@@ -265,7 +266,7 @@ static void function_handler_warning(Execute ptr, addr condition)
 
 	error_output_stream(ptr, &stream);
 	GetConst(CONDITION_SIMPLE_WARNING, &pos);
-	if (std_subtype_p(condition, pos)) {
+	if (clos_subtype_p(condition, pos)) {
 		simple_condition_format_control(condition, &format);
 		simple_condition_format_arguments(condition, &args);
 		fmts(stream, "~&WARNING: ", NULL);
@@ -334,7 +335,7 @@ static int condition_check_p(constindex index, addr condition)
 
 	if (! condition_instance_p(condition)) return 0;
 	GetConstant(index, &super);
-	return std_subtype_p(condition, super);
+	return clos_subtype_p(condition, super);
 }
 #define ConditionCheck(x,y) condition_check_p(CONSTANT_CONDITION_##x,(y))
 
@@ -393,7 +394,7 @@ static int enter_debugger(addr condition)
 	ptr = Execute_Thread;
 	debug_io_stream(ptr, &io);
 	clos_class_of(condition, &pos);
-	clos_elt(pos, Clos_class_name, &pos);
+	stdget_class_name(pos, &pos);
 	fmts(io, "~&ERROR: ~S~%", pos, NULL);
 	output_debugger(ptr, io, condition);
 
@@ -518,7 +519,7 @@ int conditionp(addr pos)
 
 	if (GetType(pos) != LISPTYPE_CLOS) return 0;
 	GetConst(CLOS_CONDITION, &super);
-	return std_subclass_p(pos, super);
+	return clos_subclass_p(pos, super);
 }
 
 int condition_instance_p(addr pos)
@@ -527,7 +528,7 @@ int condition_instance_p(addr pos)
 
 	if (GetType(pos) != LISPTYPE_CLOS) return 0;
 	GetConst(CLOS_CONDITION, &super);
-	return std_subtype_p(pos, super);
+	return clos_subtype_p(pos, super);
 }
 
 int signal_function(addr condition)
@@ -588,7 +589,7 @@ static void instance_condition(addr *ret, constindex condition)
 {
 	addr pos;
 	GetConstant(condition, &pos);
-	make_instance_restrict_heap(pos, ret);
+	clos_instance_heap(pos, ret);
 }
 void instance_serious_condition(addr *ret)
 {
@@ -609,11 +610,11 @@ static void instance_condition2(addr *ret, constindex index,
 	addr instance, pos;
 
 	GetConstant(index, &pos);
-	make_instance_restrict_heap(pos, &instance);
+	clos_instance_heap(pos, &instance);
 	GetConstant(index1, &pos);
-	setf_clos_value(instance, pos, pos1);
+	clos_set(instance, pos, pos1);
 	GetConstant(index2, &pos);
-	setf_clos_value(instance, pos, pos2);
+	clos_set(instance, pos, pos2);
 	*ret = instance;
 }
 void instance_simple_condition(addr *ret, addr control, addr args)
@@ -633,21 +634,21 @@ void simple_condition_format(addr condition, addr *control, addr *arguments)
 	addr key;
 
 	GetConst(KEYWORD_FORMAT_CONTROL, &key);
-	clos_value(condition, key, control);
+	clos_check(condition, key, control);
 	GetConst(KEYWORD_FORMAT_ARGUMENTS, &key);
-	clos_value(condition, key, arguments);
+	clos_check(condition, key, arguments);
 }
 void simple_condition_format_control(addr condition, addr *ret)
 {
 	addr key;
 	GetConst(KEYWORD_FORMAT_CONTROL, &key);
-	clos_value(condition, key, ret);
+	clos_check(condition, key, ret);
 }
 void simple_condition_format_arguments(addr condition, addr *ret)
 {
 	addr key;
 	GetConst(KEYWORD_FORMAT_ARGUMENTS, &key);
-	clos_value(condition, key, ret);
+	clos_check(condition, key, ret);
 }
 
 /* simple_error (simple_condition) :format-control :format-arguments */
@@ -733,13 +734,13 @@ void arithmetic_error_operation(addr instance, addr *ret)
 {
 	addr key;
 	GetConst(KEYWORD_OPERATION, &key);
-	clos_value(instance, key, ret);
+	clos_check(instance, key, ret);
 }
 void arithmetic_error_operands(addr instance, addr *ret)
 {
 	addr key;
 	GetConst(KEYWORD_OPERANDS, &key);
-	clos_value(instance, key, ret);
+	clos_check(instance, key, ret);
 }
 
 /* floating_point_inexact (arithmetic_error) :operation :operands */
@@ -930,9 +931,9 @@ static void instance_condition1(addr *ret, constindex index,
 	addr instance, pos;
 
 	GetConstant(index, &pos);
-	make_instance_restrict_heap(pos, &instance);
+	clos_instance_heap(pos, &instance);
 	GetConstant(index1, &pos);
-	setf_clos_value(instance, pos, pos1);
+	clos_set(instance, pos, pos1);
 	*ret = instance;
 }
 void instance_cell_error(addr *ret, addr name)
@@ -950,7 +951,7 @@ void cell_error_name(addr instance, addr *ret)
 {
 	addr key;
 	GetConst(KEYWORD_NAME, &key);
-	clos_value(instance, key, ret);
+	clos_check(instance, key, ret);
 }
 
 /* control_error (error) */
@@ -981,7 +982,7 @@ void stream_error_stream(addr instance, addr *ret)
 {
 	addr name;
 	GetConst(KEYWORD_STREAM, &name);
-	clos_value(instance, name, ret);
+	clos_check(instance, name, ret);
 }
 
 /* end_of_file (stream_error) :stream */
@@ -1026,7 +1027,7 @@ void file_error_pathname(addr *ret, addr instance)
 {
 	addr name;
 	GetConst(KEYWORD_PATHNAME, &name);
-	clos_value(instance, name, ret);
+	clos_check(instance, name, ret);
 }
 
 /* package_error (error) :package */
@@ -1045,7 +1046,7 @@ void package_error_package(addr *ret, addr instance)
 {
 	addr name;
 	GetConst(KEYWORD_PACKAGE, &name);
-	clos_value(instance, name, ret);
+	clos_check(instance, name, ret);
 }
 
 /* parse_error (error) */
@@ -1124,14 +1125,14 @@ void type_error_datum(addr instance, addr *ret)
 {
 	addr key;
 	GetConst(KEYWORD_DATUM, &key);
-	clos_value(instance, key, ret);
+	clos_check(instance, key, ret);
 }
 
 void type_error_expected(addr instance, addr *ret)
 {
 	addr key;
 	GetConst(KEYWORD_EXPECTED_TYPE, &key);
-	clos_value(instance, key, ret);
+	clos_check(instance, key, ret);
 }
 
 int typep_error(addr value, addr type)
@@ -1177,15 +1178,15 @@ static void instance_condition4(addr *ret, constindex index,
 	addr instance, pos;
 
 	GetConstant(index, &pos);
-	make_instance_restrict_heap(pos, &instance);
+	clos_instance_heap(pos, &instance);
 	GetConstant(index1, &pos);
-	setf_clos_value(instance, pos, pos1);
+	clos_set(instance, pos, pos1);
 	GetConstant(index2, &pos);
-	setf_clos_value(instance, pos, pos2);
+	clos_set(instance, pos, pos2);
 	GetConstant(index3, &pos);
-	setf_clos_value(instance, pos, pos3);
+	clos_set(instance, pos, pos3);
 	GetConstant(index4, &pos);
-	setf_clos_value(instance, pos, pos4);
+	clos_set(instance, pos, pos4);
 	*ret = instance;
 }
 void instance_simple_type_error(addr *ret,
@@ -1293,187 +1294,6 @@ void undefined_function_setf(addr name)
 /*
  *  build_condition
  */
-static void make_slots2(addr *ret,
-		constindex index1, constindex index2)
-{
-	addr slots;
-
-	vector4_heap(&slots, 2);
-	default_slot_name(slots, 0, index1);
-	default_slot_name(slots, 1, index2);
-	set_slots_localtion(slots);
-	*ret = slots;
-}
-
-static void make_slots1(addr *ret, constindex index)
-{
-	addr slots;
-
-	vector4_heap(&slots, 1);
-	default_slot_name(slots, 0, index);
-	set_slots_localtion(slots);
-	*ret = slots;
-}
-
-void make_default_condition(Execute ptr)
-{
-	addr metaclass, slots;
-
-	GetConst(CLOS_STANDARD_CLASS, &metaclass);
-	/* serious_condition (condition) */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_SERIOUS_CONDITION,
-			CONSTANT_COMMON_CONDITION,
-			CONSTANT_EMPTY);
-	/* simple_condition (condition) :format-control :format-arguments*/
-	make_slots2(&slots,
-			CONSTANT_KEYWORD_FORMAT_CONTROL,
-			CONSTANT_KEYWORD_FORMAT_ARGUMENTS);
-	make_type_class_slots_constant(ptr, metaclass, slots,
-			CONSTANT_COMMON_SIMPLE_CONDITION,
-			CONSTANT_COMMON_CONDITION);
-	/* warning (condition) */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_WARNING,
-			CONSTANT_COMMON_CONDITION,
-			CONSTANT_EMPTY);
-	/* error (serious_condition) */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_ERROR,
-			CONSTANT_COMMON_SERIOUS_CONDITION,
-			CONSTANT_EMPTY);
-	/* storage_condition (serious_condition) */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_STORAGE_CONDITION,
-			CONSTANT_COMMON_SERIOUS_CONDITION,
-			CONSTANT_EMPTY);
-	/* arithmetic_error (error) :operation :operands */
-	make_slots2(&slots, CONSTANT_KEYWORD_OPERATION, CONSTANT_KEYWORD_OPERANDS);
-	make_type_class_slots_constant(ptr, metaclass, slots,
-			CONSTANT_COMMON_ARITHMETIC_ERROR,
-			CONSTANT_COMMON_ERROR);
-	/* cell_error (error) :name */
-	make_slots1(&slots, CONSTANT_KEYWORD_NAME);
-	make_type_class_slots_constant(ptr, metaclass, slots,
-			CONSTANT_COMMON_CELL_ERROR,
-			CONSTANT_COMMON_ERROR);
-	/* control_error (error) */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_CONTROL_ERROR,
-			CONSTANT_COMMON_ERROR,
-			CONSTANT_EMPTY);
-	/* file_error (error) :pathname */
-	make_slots1(&slots, CONSTANT_KEYWORD_PATHNAME);
-	make_type_class_slots_constant(ptr, metaclass, slots,
-			CONSTANT_COMMON_FILE_ERROR,
-			CONSTANT_COMMON_ERROR);
-	/* package_error (error) :package */
-	make_slots1(&slots, CONSTANT_KEYWORD_PACKAGE);
-	make_type_class_slots_constant(ptr, metaclass, slots,
-			CONSTANT_COMMON_PACKAGE_ERROR,
-			CONSTANT_COMMON_ERROR);
-	/* parse_error (error) */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_PARSE_ERROR,
-			CONSTANT_COMMON_ERROR,
-			CONSTANT_EMPTY);
-	/* print_not_readable (error) :object */
-	make_slots1(&slots, CONSTANT_KEYWORD_OBJECT);
-	make_type_class_slots_constant(ptr, metaclass, slots,
-			CONSTANT_COMMON_PRINT_NOT_READABLE,
-			CONSTANT_COMMON_ERROR);
-	/* program_error (error) */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_PROGRAM_ERROR,
-			CONSTANT_COMMON_ERROR,
-			CONSTANT_EMPTY);
-	/* stream_error (error) :stream */
-	make_slots1(&slots, CONSTANT_KEYWORD_STREAM);
-	make_type_class_slots_constant(ptr, metaclass, slots,
-			CONSTANT_COMMON_STREAM_ERROR,
-			CONSTANT_COMMON_ERROR);
-	/* type_error (error) :datum :expected-type */
-	make_slots2(&slots, CONSTANT_KEYWORD_DATUM, CONSTANT_KEYWORD_EXPECTED_TYPE);
-	make_type_class_slots_constant(ptr, metaclass, slots,
-			CONSTANT_COMMON_TYPE_ERROR,
-			CONSTANT_COMMON_ERROR);
-	/* unbound_slot (cell_error) :instance :name */
-	make_slots1(&slots, CONSTANT_KEYWORD_INSTANCE);
-	make_type_class_slots_constant(ptr, metaclass, slots,
-			CONSTANT_COMMON_UNBOUND_SLOT,
-			CONSTANT_COMMON_CELL_ERROR);
-	/* unbound_variable (cell_error) :name */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_UNBOUND_VARIABLE,
-			CONSTANT_COMMON_CELL_ERROR,
-			CONSTANT_EMPTY);
-	/* undefined_function (cell_error) :name */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_UNDEFINED_FUNCTION,
-			CONSTANT_COMMON_CELL_ERROR,
-			CONSTANT_EMPTY);
-	/* style_warning (warning) */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_STYLE_WARNING,
-			CONSTANT_COMMON_WARNING,
-			CONSTANT_EMPTY);
-	/* simple_error (simple_condition error) :format-control :format-arguments */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_SIMPLE_ERROR,
-			CONSTANT_COMMON_SIMPLE_CONDITION,
-			CONSTANT_COMMON_ERROR,
-			CONSTANT_EMPTY);
-	/* simple_type_error (simple_condition type_error)
-	 *   :format-control :format-arguments :datum :expected-type */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_SIMPLE_TYPE_ERROR,
-			CONSTANT_COMMON_SIMPLE_CONDITION,
-			CONSTANT_COMMON_TYPE_ERROR,
-			CONSTANT_EMPTY);
-	/* simple_warning (simple_condition warning) :format-control :format-arguments */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_SIMPLE_WARNING,
-			CONSTANT_COMMON_SIMPLE_CONDITION,
-			CONSTANT_COMMON_WARNING,
-			CONSTANT_EMPTY);
-	/* division_by_zero (arithmetic_error) :operation :operands */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_DIVISION_BY_ZERO,
-			CONSTANT_COMMON_ARITHMETIC_ERROR,
-			CONSTANT_EMPTY);
-	/* floating_point_inexact (arithmetic_error) :operation :operands */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_FLOATING_POINT_INEXACT,
-			CONSTANT_COMMON_ARITHMETIC_ERROR,
-			CONSTANT_EMPTY);
-	/* floating_point_invalid_operation (arithmetic_error) :operation :operands */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_FLOATING_POINT_INVALID_OPERATION,
-			CONSTANT_COMMON_ARITHMETIC_ERROR,
-			CONSTANT_EMPTY);
-	/* floating_point_overflow (arithmetic_error) :operation :operands */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_FLOATING_POINT_OVERFLOW,
-			CONSTANT_COMMON_ARITHMETIC_ERROR,
-			CONSTANT_EMPTY);
-	/* floating_point_underflow (arithmetic_error) :operation :operands */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_FLOATING_POINT_UNDERFLOW,
-			CONSTANT_COMMON_ARITHMETIC_ERROR,
-			CONSTANT_EMPTY);
-	/* end_of_file (stream_error) :stream */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_END_OF_FILE,
-			CONSTANT_COMMON_STREAM_ERROR,
-			CONSTANT_EMPTY);
-	/* reader_error (parse_error stream_error) :stream */
-	make_type_class_constant(ptr, metaclass,
-			CONSTANT_COMMON_READER_ERROR,
-			CONSTANT_COMMON_PARSE_ERROR,
-			CONSTANT_COMMON_STREAM_ERROR,
-			CONSTANT_EMPTY);
-}
-
 static void build_variables(void)
 {
 	addr symbol;
@@ -1491,43 +1311,8 @@ static void build_variables(void)
 	SetValueSymbol(symbol, T);
 }
 
-#define findsetcondition(x) \
-	find_class_constant(CONSTANT_COMMON_##x, CONSTANT_CONDITION_##x)
-
 void build_condition(Execute ptr)
 {
-	/* conditions */
-	make_default_condition(ptr);
-	findsetcondition(ARITHMETIC_ERROR);
-	findsetcondition(CELL_ERROR);
-	findsetcondition(CONTROL_ERROR);
-	findsetcondition(DIVISION_BY_ZERO);
-	findsetcondition(END_OF_FILE);
-	findsetcondition(ERROR);
-	findsetcondition(FILE_ERROR);
-	findsetcondition(FLOATING_POINT_INEXACT);
-	findsetcondition(FLOATING_POINT_INVALID_OPERATION);
-	findsetcondition(FLOATING_POINT_OVERFLOW);
-	findsetcondition(FLOATING_POINT_UNDERFLOW);
-	findsetcondition(PACKAGE_ERROR);
-	findsetcondition(PARSE_ERROR);
-	findsetcondition(PRINT_NOT_READABLE);
-	findsetcondition(PROGRAM_ERROR);
-	findsetcondition(READER_ERROR);
-	findsetcondition(SERIOUS_CONDITION);
-	findsetcondition(SIMPLE_CONDITION);
-	findsetcondition(SIMPLE_ERROR);
-	findsetcondition(SIMPLE_TYPE_ERROR);
-	findsetcondition(SIMPLE_WARNING);
-	findsetcondition(STORAGE_CONDITION);
-	findsetcondition(STREAM_ERROR);
-	findsetcondition(STYLE_WARNING);
-	findsetcondition(TYPE_ERROR);
-	findsetcondition(UNBOUND_SLOT);
-	findsetcondition(UNBOUND_VARIABLE);
-	findsetcondition(UNDEFINED_FUNCTION);
-	findsetcondition(WARNING);
-	/* variables */
 	build_variables();
 	set_enable_debugger(1);
 }

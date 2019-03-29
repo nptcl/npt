@@ -4,6 +4,7 @@
 #include "build.h"
 #include "typedef.h"
 
+void build_real(void);
 int floatp(addr pos);
 int realp(addr pos);
 

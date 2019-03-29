@@ -6,8 +6,8 @@
 #include "bytespec.h"
 #include "character.h"
 #include "cmpl.h"
-#include "clos_object.h"
-#include "clos_standard.h"
+#include "clos.h"
+#include "clos_class.h"
 #include "condition.h"
 #include "constant.h"
 #include "control.h"
@@ -108,8 +108,8 @@ static int write_structure(struct PrintFormat *format, addr stream, addr pos)
 
 static int write_clos_body(struct PrintFormat *format, addr stream, addr pos)
 {
-	if (classp(pos)) {
-		class_elt(pos, Clos_class_name, &pos);
+	if (clos_class_p(pos)) {
+		stdget_class_name(pos, &pos);
 		return write_print(format, stream, pos);
 	}
 	else {
@@ -121,10 +121,10 @@ static int write_clos(struct PrintFormat *format, addr stream, addr pos)
 {
 	if (structure_instance_p(pos))
 		return write_structure(format, stream, pos);
-	else {
-		/* TODO: call print-object */
-		return print_unreadable_object(format, stream, pos, 1, 1, write_clos_body);
-	}
+	if (clos_class_p(pos))
+		return print_unreadable_object(format, stream, pos, 1, 0, write_clos_body);
+	else
+		return print_unreadable_object(format, stream, pos, 1, 1, NULL);
 }
 
 

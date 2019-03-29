@@ -14,7 +14,7 @@
 /*
  *  Main
  */
-static int rt_execute(Execute ptr, addr stream)
+static int rtload_execute(Execute ptr, addr stream)
 {
 	addr pos;
 
@@ -29,7 +29,7 @@ static int rt_execute(Execute ptr, addr stream)
 	return pos != T;
 }
 
-static int rt_load(Execute ptr, addr file)
+static int rtload_pathname(Execute ptr, addr file)
 {
 	int check;
 	addr path, stream;
@@ -37,7 +37,7 @@ static int rt_load(Execute ptr, addr file)
 	/* load name */
 	check = open_input_stream(ptr, &stream, file);
 	if (! check)
-		return rt_execute(ptr, stream);
+		return rtload_execute(ptr, stream);
 
 	/* load "test/" name */
 	parse_pathname_char_heap(ptr, "test/", &path);
@@ -45,10 +45,10 @@ static int rt_load(Execute ptr, addr file)
 	name_pathname_heap(ptr, file, &file);
 	open_input_stream_error(ptr, &stream, file); /* force */
 
-	return rt_execute(ptr, stream);
+	return rtload_execute(ptr, stream);
 }
 
-static int load_rt_init(Execute ptr, const char *name)
+static int loadrt_init(Execute ptr, const char *name)
 {
 	addr package, symbol, use, file;
 
@@ -65,10 +65,10 @@ static int load_rt_init(Execute ptr, const char *name)
 	use_package(package, use);
 	/* load-rt */
 	parse_pathname_char_heap(ptr, name, &file);
-	return rt_load(ptr, file);
+	return rtload_pathname(ptr, file);
 }
 
-static int load_rt_execute(Execute ptr, const char *name)
+static int loadrt_execute(Execute ptr, const char *name)
 {
 	int result;
 	addr control;
@@ -79,7 +79,7 @@ static int load_rt_execute(Execute ptr, const char *name)
 	push_close_control(ptr, &control);
 	if (codejump_run_p(&jump)) {
 		handler_warning(ptr);
-		result = load_rt_init(ptr, name);
+		result = loadrt_init(ptr, name);
 	}
 	end_switch(&jump);
 	free_control(ptr, control);
@@ -88,7 +88,7 @@ static int load_rt_execute(Execute ptr, const char *name)
 	return result;
 }
 
-static void load_rt_nickname(const char *str1, const char *str2)
+static void loadrt_nickname(const char *str1, const char *str2)
 {
 	addr name1, name2;
 
@@ -98,15 +98,15 @@ static void load_rt_nickname(const char *str1, const char *str2)
 	rename_package(name1, name1, name2, &name1);
 }
 
-static void load_rt_nicknames(void)
+static void loadrt_nicknames(void)
 {
-	load_rt_nickname(LISP_SYSTEM, "LISP-SYSTEM");
-	load_rt_nickname(LISP_USER, "LISP-USER");
-	load_rt_nickname(LISP_CLOS, "LISP-CLOS");
-	load_rt_nickname(LISP_RT, "LISP-RT");
+	loadrt_nickname(LISP_SYSTEM, "LISP-SYSTEM");
+	loadrt_nickname(LISP_USER, "LISP-USER");
+	loadrt_nickname(LISP_CLOS, "LISP-CLOS");
+	loadrt_nickname(LISP_RT, "LISP-RT");
 }
 
-int load_rt_lisp(const char *name)
+static int loadrt_lisp(const char *name)
 {
 	int result;
 	lispcode code;
@@ -119,8 +119,8 @@ int load_rt_lisp(const char *name)
 	begin_code(ptr, &code);
 	if (code_run_p(code)) {
 		buildlisp(ptr);
-		load_rt_nicknames();
-		result = load_rt_execute(ptr, name);
+		loadrt_nicknames();
+		result = loadrt_execute(ptr, name);
 	}
 	end_code(ptr);
 	freelisp();
@@ -129,57 +129,14 @@ int load_rt_lisp(const char *name)
 	return result;
 }
 
-#define load_rt_file(x) { \
-	if (load_rt_lisp(x)) return 1; \
-}
-
-int load_rt(void)
+#include "load.h"
+int loadrt(void)
 {
 	TITLE;
-
-#if 0
-#endif
-	/* 3. Evaluation and Compilation */
-	load_rt_file("rt-eval.lisp");
-	/* 4. Types and Classes */
-	load_rt_file("rt-types.lisp");
-	/* 5. Data and Control Flow */
-	load_rt_file("rt-data.lisp");
-	/* 6. Iteration */
-	load_rt_file("rt-iteration.lisp");
-	/* 9. Conditions */
-	load_rt_file("rt-conditions.lisp");
-	/* 11. Packages */
-	load_rt_file("rt-packages.lisp");
-	/* 12. Number */
-	load_rt_file("rt-numbers.lisp");
-	/* 13. Characters */
-	load_rt_file("rt-character.lisp");
-	/* 14. Conses */
-	load_rt_file("rt-conses.lisp");
-	/* 15. Arrays */
-	load_rt_file("rt-arrays.lisp");
-	/* 16. Strings */
-	load_rt_file("rt-strings.lisp");
-	/* 17. Sequences */
-	load_rt_file("rt-sequences.lisp");
-	/* 18. Hash Tables */
-	load_rt_file("rt-hashtables.lisp");
-	/* 19. Filenames */
-	load_rt_file("rt-filenames.lisp");
-	/* 20. Files */
-	load_rt_file("rt-files.lisp");
-	/* 21. Streams */
-	load_rt_file("rt-streams.lisp");
-	/* 22. Printer */
-	load_rt_file("rt-printer.lisp");
-#if 0
-#endif
-
-	return 0;
+	return loadrt_files();
 }
 #else
-int load_rt(void)
+int loadrt(void)
 {
 	return 1;
 }

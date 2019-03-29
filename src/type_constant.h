@@ -193,6 +193,8 @@ enum TypeTable {
 	TypeTable_OpenIfExists,
 	TypeTable_OpenIfDoesNotExist,
 	TypeTable_ExternalFormat,
+	TypeTable_Class,
+	TypeTable_ClassNull,
 
 	/* Array */
 	TypeTable_Array_T,
@@ -257,6 +259,8 @@ enum TypeTable {
 	TypeValues_Number,
 	TypeValues_Complex,
 	TypeValues_TypeSymbol,
+	TypeValues_Class,
+	TypeValues_ClassNull,
 
 	/* Compiled-Function */
 	TypeCompiled_Object_Boolean,

@@ -4,7 +4,6 @@
 #include "bignum.h"
 #include "character.h"
 #include "clos.h"
-#include "clos_object.h"
 #include "common.h"
 #include "degrade.h"
 #include "equal.h"
@@ -175,7 +174,7 @@ static int test_typecopy_clos(void)
 	addr left, right, clos;
 
 	interncommon("STANDARD-CLASS", &clos);
-	clos = find_class(clos);
+	clos_find_class(clos, &clos);
 	type_clos_heap(clos, &left);
 	type_copy_heap(&right, left);
 	test(left != right, "typecopy_clos1");

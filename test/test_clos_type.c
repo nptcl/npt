@@ -1,142 +1,186 @@
 #include "clos_type.c"
+#include "bigdata.h"
+#include "bignum.h"
+#include "character.h"
 #include "clos.h"
+#include "code.h"
+#include "common.h"
 #include "degrade.h"
 #include "execute.h"
 #include "package.h"
+#include "readtable.h"
+#include "real.h"
 #include "stream.h"
+#include "stream_broadcast.h"
 #include "strtype.h"
+#include "symbol.h"
+#include "syscall.h"
+#include "type.h"
 
-static int test_build_clos_type(void)
+static int test_clos_class_of(void)
 {
-	Execute ptr;
+	addr x, y;
 
-	ptr = Execute_Thread;
-	build_clos_table(ptr);
-	build_clos_standard(ptr);
-	build_clos_type(ptr);
-	test(1, "build_clos_type1");
+	clos_class_of(Nil, &x);
+	GetConst(CLOS_NULL, &y);
+	test(x == y, "clos_class_of-nil");
+
+	clos_class_of(T, &x);
+	GetConst(CLOS_SYMBOL, &y);
+	test(x == y, "clos_class_of-t");
+
+	clos_class_of(readr("(a b c)"), &x);
+	GetConst(CLOS_CONS, &y);
+	test(x == y, "clos_class_of-cons");
+
+	clos_class_of(readr("#1a(a b c)"), &x);
+	GetConst(CLOS_SIMPLE_VECTOR, &y);
+	test(x == y, "clos_class_of-array1");
+
+	clos_class_of(readr("#2a((a b c) (c d e))"), &x);
+	GetConst(CLOS_SIMPLE_ARRAY, &y);
+	test(x == y, "clos_class_of-array2");
+
+	clos_class_of(readr("#(a b c)"), &x);
+	GetConst(CLOS_SIMPLE_VECTOR, &y);
+	test(x == y, "clos_class_of-vector");
+
+	clos_class_of(readr("#\\a"), &x);
+	GetConst(CLOS_CHARACTER, &y);
+	test(x == y, "clos_class_of-character");
+
+	clos_class_of(readr("\"Hello\""), &x);
+	GetConst(CLOS_SIMPLE_BASE_STRING, &y);
+	test(x == y, "clos_class_of-string");
+
+	hashtable_heap(&x);
+	clos_class_of(x, &x);
+	GetConst(CLOS_HASH_TABLE, &y);
+	test(x == y, "clos_class_of-hash-table");
+
+	GetConst(SPECIAL_READTABLE, &x);
+	GetValueSymbol(x, &x);
+	clos_class_of(x, &x);
+	GetConst(CLOS_READTABLE, &y);
+	test(x == y, "clos_class_of-readtable");
+
+	clos_class_of(readr("hello"), &x);
+	GetConst(CLOS_SYMBOL, &y);
+	test(x == y, "clos_class_of-symbol");
+
+	clos_class_of(readr(":hello"), &x);
+	GetConst(CLOS_KEYWORD, &y);
+	test(x == y, "clos_class_of-keyword");
+
+	fixnum_heap(&x, 10);
+	clos_class_of(x, &x);
+	GetConst(CLOS_FIXNUM, &y);
+	test(x == y, "clos_class_of-fixnum");
+
+	bignum_value_heap(&x, SignPlus, 10);
+	clos_class_of(x, &x);
+	GetConst(CLOS_BIGNUM, &y);
+	test(x == y, "clos_class_of-bignum");
+
+	clos_class_of(readr("2/3"), &x);
+	GetConst(CLOS_RATIO, &y);
+	test(x == y, "clos_class_of-ratio");
+
+	clos_class_of(readr("1.23f0"), &x);
+	GetConst(CLOS_SINGLE_FLOAT, &y);
+	test(x == y, "clos_class_of-single-float");
+
+	clos_class_of(readr("1.23d0"), &x);
+	GetConst(CLOS_DOUBLE_FLOAT, &y);
+	test(x == y, "clos_class_of-double-float");
+
+	clos_class_of(readr("1.23L0"), &x);
+	GetConst(CLOS_LONG_FLOAT, &y);
+	test(x == y, "clos_class_of-long-float");
+
+	clos_class_of(readr("#c(1 2)"), &x);
+	GetConst(CLOS_COMPLEX, &y);
+	test(x == y, "clos_class_of-complex");
+
+	function_empty_heap(&x, readr("hello"));
+	clos_class_of(x, &x);
+	GetConst(CLOS_FUNCTION, &y);
+	test(x == y, "clos_class_of-function");
+
+	GetConst(COMMON_CAR, &x);
+	GetFunctionSymbol(x, &x);
+	clos_class_of(x, &x);
+	GetConst(CLOS_COMPILED_FUNCTION, &y);
+	test(x == y, "clos_class_of-compiled-function");
+
+	GetConst(SPECIAL_PACKAGE, &x);
+	GetValueSymbol(x, &x);
+	clos_class_of(x, &x);
+	GetConst(CLOS_PACKAGE, &y);
+	test(x == y, "clos_class_of-package");
+
+	GetConst(SPECIAL_RANDOM_STATE, &x);
+	GetValueSymbol(x, &x);
+	clos_class_of(x, &x);
+	GetConst(CLOS_RANDOM_STATE, &y);
+	test(x == y, "clos_class_of-random-state");
+
+	x = readr("#p\"Hello\"");
+	clos_class_of(x, &x);
+	GetConst(CLOS_PATHNAME, &y);
+	test(x == y, "clos_class_of-pathname");
+
+	x = readr("#p\"Hello\"");
+	SetLogicalPathname(x, 1);
+	clos_class_of(x, &x);
+	GetConst(CLOS_LOGICAL_PATHNAME, &y);
+	test(x == y, "clos_class_of-logical-pathname");
+
+	open_broadcast_stream(&x, Nil);
+	clos_class_of(x, &x);
+	GetConst(CLOS_BROADCAST_STREAM, &y);
+	test(x == y, "clos_class_of-broadcast-stream");
+
+	clos_class_of(readr("#*11011"), &x);
+	GetConst(CLOS_SIMPLE_BIT_VECTOR, &y);
+	test(x == y, "clos_class_of-bit-vector");
 
 	RETURN;
 }
 
-static int symbolequalchar(addr symbol, const char *name)
+static int test_clos_intern_specializer(void)
 {
-	GetNameSymbol(symbol, &symbol);
-	return string_equal_char(symbol, name);
-}
+	addr value, check, check2;
 
-static int closequalchar(addr clos, const char *name)
-{
-	addr check;
-	internchar(LISP_COMMON, name, &check);
-	return clos == find_class(check);
-}
+	clos_forget_all_specializer_unsafe();
 
-static void underline_to_hyphen(char *buffer, size_t size, const char *str)
-{
-	int c;
-	size_t i;
+	fixnum_heap(&value, 100);
+	clos_intern_specializer(value, &check);
+	test(closp(check), "clos_intern_specializer1");
+	clos_intern_specializer(value, &check2);
+	test(check == check2, "clos_intern_specializer2");
 
-	size--;
-	for (i = 0; i < size; i++) {
-		c = str[i];
-		if (c == 0) break;
-		buffer[i] = (c == '_')? '-': c;
-	}
-	buffer[i] = 0;
-}
+	fixnum_heap(&value, 101);
+	clos_intern_specializer(value, &check2);
+	test(check != check2, "clos_intern_specializer3");
 
-static int equalclosname(
-		enum CONSTANT_INDEX index_name,
-		enum CONSTANT_INDEX index_clos,
-		const char *str)
-{
-	addr name, clos;
-	char buffer[128];
+	character_heap(&value, 100);
+	clos_intern_specializer(value, &check);
+	character_heap(&value, 100);
+	clos_intern_specializer(value, &check2);
+	test(check == check2, "clos_intern_specializer4");
 
-	underline_to_hyphen(buffer, 128, str);
-	GetConstant(index_name, &name);
-	GetConstant(index_clos, &clos);
-	return symbolequalchar(name, buffer) && closequalchar(clos, buffer);
-}
+	character_heap(&value, 101);
+	clos_intern_specializer(value, &check2);
+	test(check != check2, "clos_intern_specializer5");
 
-#define test_equalclosname(name, mesg) { \
-	test(equalclosname(CONSTANT_COMMON_##name, CONSTANT_CLOS_##name, #name), mesg); \
-}
+	fixnum_heap(&value, 100);
+	clos_intern_specializer(value, &check);
+	test(clos_specializer_p(check), "eql_specializer_p1");
+	GetConst(CLOS_STANDARD_CLASS, &check);
+	test(! clos_specializer_p(check), "eql_specializer_p2");
 
-static int test_classes(void)
-{
-	addr pos;
-
-	/* class */
-	test_equalclosname(T, "classes_t");
-	test_equalclosname(CLASS, "classes_class");
-	test_equalclosname(STANDARD_OBJECT, "classes_standard_object");
-	test_equalclosname(STANDARD_CLASS, "classes_standard_class");
-	test_equalclosname(BUILT_IN_CLASS, "classes_built_in_class");
-	test_equalclosname(STRUCTURE_CLASS, "classes_structure_classs");
-	test_equalclosname(STRUCTURE_OBJECT, "classes_structure_object");
-	test_equalclosname(FUNCTION, "classes_function");
-	test_equalclosname(GENERIC_FUNCTION, "classes_generic_function");
-	test_equalclosname(STANDARD_GENERIC_FUNCTION,
-			"classes_standard_generic_function");
-	test_equalclosname(METHOD, "classes_method");
-	test_equalclosname(STANDARD_METHOD, "classes_standard_method");
-	test_equalclosname(METHOD_COMBINATION, "classes_method_combination");
-
-	/* funcallable-standard-class */
-	GetConstant(CONSTANT_CLOSNAME_FUNCALLABLE_STANDARD_CLASS, &pos);
-	test(symbolequalchar(pos, "FUNCALLABLE-STANDARD-CLASS"),
-			"classes_funcallable_standard_class1");
-	GetConstant(CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS, &pos);
-	test(closp(pos), "classes_funcallable_standard_class2");
-	clos_elt(pos, Clos_class_name, &pos);
-	test(symbolequalchar(pos, "FUNCALLABLE-STANDARD-CLASS"),
-			"classes_funcallable_standard_class3");
-
-	/* funcallable-standard-object */
-	GetConstant(CONSTANT_CLOSNAME_FUNCALLABLE_STANDARD_OBJECT, &pos);
-	test(symbolequalchar(pos, "FUNCALLABLE-STANDARD-OBJECT"),
-			"classes_funcallable_standard_object1");
-	GetConstant(CONSTANT_CLOS_FUNCALLABLE_STANDARD_OBJECT, &pos);
-	test(closp(pos), "classes_funcallable_standard_object2");
-	clos_elt(pos, Clos_class_name, &pos);
-	test(symbolequalchar(pos, "FUNCALLABLE-STANDARD-OBJECT"),
-			"classes_funcallable_standard_object3");
-
-	/* built-in-class */
-	test_equalclosname(ARRAY, "type_array");
-	test_equalclosname(LIST, "type_list");
-	test_equalclosname(NULL, "type_null");
-
-	RETURN;
-}
-
-static int test_class_of(void)
-{
-	addr pos, check;
-
-	GetConstant(CONSTANT_COMMON_CLASS, &pos);
-	pos = find_class(pos);
-	class_of(pos, &pos);
-	GetConstant(CONSTANT_CLOS_STANDARD_CLASS, &check);
-	test(check == pos, "class_of1");
-
-	fixnum_heap(&pos, 100);
-	class_of(pos, &pos);
-	GetConstant(CONSTANT_CLOS_FIXNUM, &check);
-	test(check == pos, "class_of2");
-
-	RETURN;
-}
-
-static int test_class_of_t(void)
-{
-	addr left, right;
-
-	GetConstant(CONSTANT_CLOS_FIXNUM, &left);
-	right = find_class(T);
-	test(std_subclass_p(left, right), "class_of_t1");
+	clos_forget_all_specializer_unsafe();
 
 	RETURN;
 }
@@ -147,10 +191,8 @@ static int test_class_of_t(void)
  */
 static int testbreak_clos_type(void)
 {
-	TestBreak(test_build_clos_type);
-	TestBreak(test_classes);
-	TestBreak(test_class_of);
-	TestBreak(test_class_of_t);
+	TestBreak(test_clos_class_of);
+	TestBreak(test_clos_intern_specializer);
 
 	return 0;
 }
@@ -172,8 +214,17 @@ int test_clos_type(void)
 		build_lisproot(ptr);
 		build_constant();
 		build_object();
+		build_character();
+		build_real();
 		build_package();
 		build_stream();
+		build_symbol();
+		build_clos(ptr);
+		build_condition(ptr);
+		build_type();
+		build_syscall();
+		build_common();
+		build_readtable();
 		lisp_init = 1;
 		result = testbreak_clos_type();
 	}

@@ -89,7 +89,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_32BIT;LISP_DEGRADE;LISP_DEBUG;LISP_MODE_DEGRADE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;$(LISP_WINDOWS_COMPILE)\test;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -102,7 +102,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_64BIT;LISP_DEGRADE;LISP_DEBUG;LISP_MODE_DEGRADE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;$(LISP_WINDOWS_COMPILE)\test;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -117,7 +117,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_32BIT;LISP_DEGRADE;LISP_MODE_DEGRADE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;$(LISP_WINDOWS_COMPILE)\test;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,7 +134,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;LISP_WINDOWS;LISP_THREAD;LISP_64BIT;LISP_DEGRADE;LISP_MODE_DEGRADE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(LISP_WINDOWS_COMPILE)\src;$(LISP_WINDOWS_COMPILE)\test;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -163,12 +163,11 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_character.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_charqueue.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_cache.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_class.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_combination.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_generic.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_method.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_object.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_standard.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos_type.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_clos.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cmpl.c" />
@@ -237,7 +236,6 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_integer.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\intern.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_lambda.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\load_rt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_local.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_main.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\math_exp.c" />
@@ -245,6 +243,9 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\math_type.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\md5encode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_memory.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_class.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_reader.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_number.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_random.c" />
@@ -272,6 +273,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt_load.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_sequence.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\setf.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_broadcast.c" />
@@ -333,11 +335,12 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\charqueue.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_cache.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_class.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_combination.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_define.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_generic.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_method.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_object.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_standard.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_type.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_c99.h" />
@@ -404,6 +407,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_type.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\md5encode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\memory.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\mop.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_random.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number.h" />

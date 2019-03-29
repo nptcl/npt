@@ -499,6 +499,36 @@ void strvect_update_character_type(addr pos)
 	SetCharacterType(pos, type);
 }
 
+int strvectp(addr pos)
+{
+	return GetType(pos) == LISPTYPE_STRING;
+}
+
+int strvect_base_p(addr pos)
+{
+	enum CHARACTER_TYPE type;
+
+	if (! strvectp(pos))
+		return 0;
+	strvect_update_character_type(pos);
+	GetCharacterType(pos, &type);
+	switch (type) {
+		case CHARACTER_TYPE_EMPTY:
+		case CHARACTER_TYPE_STANDARD:
+		case CHARACTER_TYPE_BASE:
+			return 1;
+
+		default:
+			return 0;
+	}
+}
+
+int strvect_simple_p(addr pos)
+{
+	CheckType(pos, LISPTYPE_STRING);
+	return 0;
+}
+
 addr strvect_char_allocr(LocalRoot local, const char *arg)
 {
 	addr pos;

@@ -9,6 +9,12 @@ int strarrayp(addr pos);
 int stringp(addr pos);
 int string_designer_p(addr pos);
 
+int string_base_p(addr pos);
+int string_simple_p(addr pos);
+int strarray_base_p(addr pos);
+int strarray_simple_p(addr pos);
+void strarray_update_character_type(addr pos);
+
 /* strarray */
 addr strarray_allocr(LocalRoot local, size_t len);
 addr strarray_localr(LocalRoot local, size_t len);

@@ -3847,7 +3847,7 @@ void intern_common_numbers(void)
 	defun_phase();
 	defun_realpart();
 	defun_imagpart();
-	defun_upgraded_complex_part_type(); /* TODO */
+	defun_upgraded_complex_part_type();
 	defun_realp();
 	defun_numerator();
 	defun_denominator();

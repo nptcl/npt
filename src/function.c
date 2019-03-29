@@ -653,6 +653,13 @@ void setcompiled_macro(addr pos, callbind_macro call)
 	str->call.macro = call;
 }
 
+void setcompiled_method(addr pos, callbind_method call)
+{
+	struct callbind_struct *str = CallBindCompiled(pos);
+	str->type = CallBind_method;
+	str->call.method = call;
+}
+
 void setcompiled_none(addr pos, callbind_none call)
 {
 	struct callbind_struct *str = CallBindCompiled(pos);

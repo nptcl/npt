@@ -1,7 +1,6 @@
 #include "type_name.c"
 #include "character.h"
 #include "clos.h"
-#include "clos_object.h"
 #include "common.h"
 #include "eval_declare.h"
 #include "file.h"
@@ -27,7 +26,7 @@ static int test_type_name_clos(void)
 	addr name, pos;
 
 	GetConst(COMMON_STANDARD_CLASS, &name);
-	pos = find_class(name);
+	clos_find_class(name, &pos);
 	type_name(&pos, pos);
 	test(pos == name, "type_name_clos1");
 

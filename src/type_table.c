@@ -1,6 +1,5 @@
 #include "bignum.h"
 #include "clos.h"
-#include "clos_object.h"
 #include "condition.h"
 #include "constant.h"
 #include "integer.h"

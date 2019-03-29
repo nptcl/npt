@@ -1,4 +1,4 @@
-#include "clos_object.h"
+#include "clos_class.h"
 #include "clos_type.h"
 #include "condition.h"
 #include "cons.h"
@@ -39,8 +39,8 @@ static void type_object_subtypep(addr *ret, addr pos)
 static void type_object_clos(addr *ret, addr pos)
 {
 	GetArrayType(pos, 0, &pos);
-	class_of(pos, &pos);
-	class_elt(pos, Clos_class_name, ret);
+	clos_class_of(pos, &pos);
+	stdget_class_name(pos, ret);
 }
 
 static void type_object_vectortype(addr *ret, addr name, addr pos)

@@ -37,6 +37,68 @@ int string_designer_p(addr pos)
 	return stringp(pos) || symbolp(pos) || characterp(pos);
 }
 
+int string_base_p(addr pos)
+{
+	if (strvectp(pos))
+		return strvect_base_p(pos);
+	
+	if (strarrayp(pos))
+		return strarray_base_p(pos);
+	
+	return 0;
+}
+
+int string_simple_p(addr pos)
+{
+	if (strvectp(pos))
+		return strvect_simple_p(pos);
+	
+	if (strarrayp(pos))
+		return strarray_simple_p(pos);
+	
+	return 0;
+}
+
+int strarray_base_p(addr pos)
+{
+	enum CHARACTER_TYPE type;
+
+	if (! strarrayp(pos))
+		return 0;
+	strarray_update_character_type(pos);
+	GetCharacterType(pos, &type);
+	switch (type) {
+		case CHARACTER_TYPE_EMPTY:
+		case CHARACTER_TYPE_STANDARD:
+		case CHARACTER_TYPE_BASE:
+			return 1;
+
+		default:
+			return 0;
+	}
+}
+
+int strarray_simple_p(addr pos)
+{
+	return strarrayp(pos) && array_simple_p(pos);
+}
+
+void strarray_update_character_type(addr pos)
+{
+	enum CHARACTER_TYPE type;
+	const unicode *body;
+	size_t i, size;
+
+	strarray_posbodylen(pos, &body, &size);
+	type = CHARACTER_TYPE_EMPTY;
+	for (i = 0; i < size; i++) {
+		type = unicode_character_type(type, body[i]);
+		if (type == CHARACTER_TYPE_INVALID)
+			fmte("Invalid character code.", NULL);
+	}
+	SetCharacterType(pos, type);
+}
+
 
 /*
  *  strarray
@@ -72,22 +134,6 @@ void strarray_local(LocalRoot local, addr *ret, size_t len)
 void strarray_heap(addr *ret, size_t len)
 {
 	*ret = strarray_allocr(NULL, len);
-}
-
-void strarray_update_character_type(addr pos)
-{
-	enum CHARACTER_TYPE type;
-	const unicode *body;
-	size_t i, size;
-
-	strarray_posbodylen(pos, &body, &size);
-	type = CHARACTER_TYPE_EMPTY;
-	for (i = 0; i < size; i++) {
-		type = unicode_character_type(type, body[i]);
-		if (type == CHARACTER_TYPE_INVALID)
-			fmte("Invalid character code.", NULL);
-	}
-	SetCharacterType(pos, type);
 }
 
 addr strarray_char_allocr(LocalRoot local, const char *arg)

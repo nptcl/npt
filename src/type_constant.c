@@ -1,5 +1,5 @@
+#include "clos.h"
 #include "condition.h"
-#include "clos_object.h"
 #include "integer.h"
 #include "type.h"
 #include "type_constant.h"
@@ -137,13 +137,13 @@ static void define_type_table_condition(constindex index, enum TypeTable type)
 	addr pos;
 
 	GetConstant(index, &pos);
-	pos = find_class(pos);
+	CheckType(pos, LISPTYPE_CLOS);
 	type_clos_heap(pos, &pos);
 	settypetable(type, pos);
 }
 #define DefTypeTableCondition(x,y) \
 	static void typetable_##y(void) { \
-		define_type_table_condition(CONSTANT_COMMON_##x, TypeTable_##y); \
+		define_type_table_condition(CONSTANT_CONDITION_##x, TypeTable_##y); \
 	}
 
 DefTypeTableCondition(ARITHMETIC_ERROR,  ArithmeticError);
@@ -918,6 +918,20 @@ static void typetable_externalformat(void)
 	SetTypeTable(ExternalFormat, type1);
 }
 
+static void typetable_class(void)
+{
+	addr pos;
+
+	GetConst(CLOS_CLASS, &pos);
+	type_clos_heap(pos, &pos);
+	SetTypeTable(Class, pos);
+}
+
+static void typetable_classnull(void)
+{
+	SetTypeTableNull(Class);
+}
+
 
 /*
  *  Array
@@ -1128,6 +1142,8 @@ DefTypeValues(Real);
 DefTypeValues(Number);
 DefTypeValues(Complex);
 DefTypeValues(TypeSymbol);
+DefTypeValues(Class);
+DefTypeValues(ClassNull);
 
 
 /*
@@ -2552,6 +2568,8 @@ void build_type_constant(void)
 	typetable_openifexists();
 	typetable_openifdoesnotexist();
 	typetable_externalformat();
+	typetable_class();
+	typetable_classnull();
 
 	/* Array */
 	typetable_array_t();
@@ -2616,6 +2634,8 @@ void build_type_constant(void)
 	typevalues_Number();
 	typevalues_Complex();
 	typevalues_TypeSymbol();
+	typevalues_Class();
+	typevalues_ClassNull();
 
 	/* Compiled-Function */
 	typecompiled_object_boolean();

@@ -1,4 +1,4 @@
-#include "clos_standard.h"
+#include "clos_class.h"
 #include "constant.h"
 #include "structure.h"
 
@@ -8,7 +8,7 @@ int structure_instance_p(addr pos)
 
 	if (GetType(pos) != LISPTYPE_CLOS) return 0;
 	GetConst(CLOS_CONDITION, &super);
-	return std_subtype_p(pos, super);
+	return clos_subtype_p(pos, super);
 }
 
 int equalp_structure(addr left, addr right)

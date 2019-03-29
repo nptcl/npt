@@ -1,6 +1,4 @@
 #include "clos.h"
-#include "clos_object.h"
-#include "clos_standard.h"
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
@@ -10,6 +8,152 @@
 #include "sequence.h"
 #include "symbol.h"
 #include <stdarg.h>
+
+/*
+ *  access
+ */
+static void stdget_combination_constant(addr pos, addr *ret,
+		enum Clos_combination_Index index1, constindex index2)
+{
+	addr clos, check;
+
+	CheckType(pos, LISPTYPE_CLOS);
+	Check(Clos_combination_size <= index1, "index error");
+	GetClassOfClos(pos, &clos);
+	Check(clos == Unbound, "unbound error");
+	GetConst(CLOS_METHOD_COMBINATION, &check);
+	if (clos == check) {
+		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
+		clos_checkelt(pos, (size_t)index1, ret);
+	}
+	else {
+		GetConstant(index2, &check);
+		clos_check(pos, check, ret);
+	}
+}
+
+static void stdset_combination_constant(addr pos, addr value,
+		enum Clos_combination_Index index1, constindex index2)
+{
+	addr clos, check;
+
+	CheckType(pos, LISPTYPE_CLOS);
+	Check(Clos_combination_size <= index1, "index error");
+	GetClassOfClos(pos, &clos);
+	Check(clos == Unbound, "unbound error");
+	GetConst(CLOS_METHOD_COMBINATION, &check);
+	if (clos == check) {
+		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
+		clos_setelt(pos, (size_t)index1, value);
+	}
+	else {
+		GetConstant(index2, &check);
+		clos_set(pos, check, value);
+	}
+}
+#define StdGetCombination(p,r,a,b) \
+	stdget_combination_constant((p), (r), Clos_combination_##a, CONSTANT_CLOSKEY_##b)
+#define StdSetCombination(p,r,a,b) \
+	stdset_combination_constant((p), (r), Clos_combination_##a, CONSTANT_CLOSKEY_##b)
+
+void stdget_combination_name(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, name, NAME);
+}
+void stdset_combination_name(addr pos, addr value)
+{
+	StdSetCombination(pos, value, name, NAME);
+}
+
+void stdget_combination_long_p(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, long_p, LONG_P);
+}
+void stdset_combination_long_p(addr pos, addr value)
+{
+	StdSetCombination(pos, value, long_p, LONG_P);
+}
+
+void stdget_combination_document(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, document, DOCUMENT);
+}
+void stdset_combination_document(addr pos, addr value)
+{
+	StdSetCombination(pos, value, document, DOCUMENT);
+}
+
+void stdget_combination_identity(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, identity, IDENTITY);
+}
+void stdset_combination_identity(addr pos, addr value)
+{
+	StdSetCombination(pos, value, identity, IDENTITY);
+}
+
+void stdget_combination_operator(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, operator, OPERATOR);
+}
+void stdset_combination_operator(addr pos, addr value)
+{
+	StdSetCombination(pos, value, operator, OPERATOR);
+}
+
+void stdget_combination_lambda_list(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, lambda_list, LAMBDA_LIST);
+}
+void stdset_combination_lambda_list(addr pos, addr value)
+{
+	StdSetCombination(pos, value, lambda_list, LAMBDA_LIST);
+}
+
+void stdget_combination_qualifiers(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, qualifiers, QUALIFIERS);
+}
+void stdset_combination_qualifiers(addr pos, addr value)
+{
+	StdSetCombination(pos, value, qualifiers, QUALIFIERS);
+}
+
+void stdget_combination_arguments(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, arguments, ARGUMENTS);
+}
+void stdset_combination_arguments(addr pos, addr value)
+{
+	StdSetCombination(pos, value, arguments, ARGUMENTS);
+}
+
+void stdget_combination_generic(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, generic, GENERIC);
+}
+void stdset_combination_generic(addr pos, addr value)
+{
+	StdSetCombination(pos, value, generic, GENERIC);
+}
+
+void stdget_combination_form(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, form, FORM);
+}
+void stdset_combination_form(addr pos, addr value)
+{
+	StdSetCombination(pos, value, form, FORM);
+}
+
+void stdget_combination_function(addr pos, addr *ret)
+{
+	StdGetCombination(pos, ret, function, FUNCTION);
+}
+void stdset_combination_function(addr pos, addr value)
+{
+	StdSetCombination(pos, value, function, FUNCTION);
+}
 
 
 /*****************************************************************************
@@ -63,12 +207,11 @@ static int qualifiers_equal(Execute ptr, addr left, addr right)
 	return 0;
 }
 
-static int check_qualifiers_equal_long(Execute ptr,
-		addr combination, addr qualifiers)
+static int check_qualifiers_equal_long(Execute ptr, addr combination, addr qualifiers)
 {
 	addr cons, qua;
 
-	clos_elt(combination, Clos_combination_qualifiers, &cons);
+	stdget_combination_qualifiers(combination, &cons);
 	while (cons != Nil) {
 		GetCons(cons, &qua, &cons);
 		/* cadr */
@@ -88,7 +231,7 @@ static int check_qualifiers_equal_short(addr combination, addr qualifiers)
 	if (GetType(qualifiers) != LISPTYPE_CONS) return 0;
 	GetCons(qualifiers, &qualifiers, &check);
 	if (check != Nil) return 0;
-	clos_elt(combination, Clos_combination_name, &name);
+	stdget_combination_name(combination, &name);
 	if (qualifiers == name) return 1;
 	GetConst(KEYWORD_AROUND, &check);
 	if (qualifiers == check) return 1;
@@ -100,7 +243,7 @@ int check_qualifiers_equal(Execute ptr, addr combination, addr qualifiers)
 {
 	addr long_p;
 
-	clos_elt(combination, Clos_combination_long_p, &long_p);
+	stdget_combination_long_p(combination, &long_p);
 	if (long_p != Nil)
 		return check_qualifiers_equal_long(ptr, combination, qualifiers);
 	else
@@ -114,9 +257,9 @@ int check_qualifiers_equal(Execute ptr, addr combination, addr qualifiers)
 void method_combination_qualifiers_count(addr combination, size_t *ret)
 {
 	addr check;
-	clos_elt(combination, Clos_combination_long_p, &check);
+	stdget_combination_long_p(combination, &check);
 	if (check != Nil) {
-		clos_elt(combination, Clos_combination_qualifiers, &check);
+		stdget_combination_qualifiers(combination, &check);
 		*ret = length_list_unsafe(check);
 	}
 	else {
@@ -131,7 +274,7 @@ static int qualifiers_position_short_nil(addr qualifiers, addr combination, size
 	if (GetType(qualifiers) != LISPTYPE_CONS) return 1;
 	GetCons(qualifiers, &qualifiers, &check);
 	if (check != Nil) return 1;
-	clos_elt(combination, Clos_combination_name, &name);
+	stdget_combination_name(combination, &name);
 	if (qualifiers == name) {
 		*ret = 1;
 		return 0;
@@ -151,7 +294,7 @@ static int qualifiers_position_long_nil(Execute ptr,
 	addr cons, qua;
 	size_t index;
 
-	clos_elt(combination, Clos_combination_qualifiers, &cons);
+	stdget_combination_qualifiers(combination, &cons);
 	for (index = 0; cons != Nil; index++) {
 		GetCons(cons, &qua, &cons);
 		/* cadr */
@@ -172,7 +315,7 @@ int qualifiers_position_nil(Execute ptr,
 {
 	addr long_p;
 
-	clos_elt(combination, Clos_combination_long_p, &long_p);
+	stdget_combination_long_p(combination, &long_p);
 	if (long_p != Nil)
 		return qualifiers_position_long_nil(ptr, qualifiers, combination, ret);
 	else
@@ -190,34 +333,7 @@ void qualifiers_position(Execute ptr,
 /*****************************************************************************
  *  standard method-combination
  *****************************************************************************/
-static void make_instance_method_combination(addr *ret, addr clos)
-{
-	addr pos;
-
-	if (clos == Nil)
-		GetConst(CLOS_METHOD_COMBINATION, &clos);
-	Check(clos == Nil, "method-combination error");
-	make_instance_restrict_heap(clos, &pos);
-	std_update_class_of(pos, clos);
-	*ret = pos;
-}
-
-static void define_method_combination_constant(enum CONSTANT_INDEX index, int ident)
-{
-	addr clos, name;
-
-	make_instance_method_combination(&clos, Nil);
-	GetConstant(index, &name);
-	Check(! IsSymbol(name), "type name error");
-	setf_clos_elt(clos, Clos_combination_name, name);
-	setf_clos_elt(clos, Clos_combination_long_p, Nil);
-	setf_clos_elt(clos, Clos_combination_document, Nil);
-	setf_clos_elt(clos, Clos_combination_identity, ident? T: Nil);
-	setf_clos_elt(clos, Clos_combination_operator, name);
-	setf_find_method_combination(name, clos);
-}
-
-static void combination_standard_qualifiers(addr *ret)
+static void clos_define_combination_qualifiers(addr *ret)
 {
 	/*
 	 *  ((around  (:around))
@@ -245,36 +361,56 @@ static void combination_standard_qualifiers(addr *ret)
 	list_heap(ret, around, before, primary, after, NULL);
 }
 
-static void define_method_combination_standard(void)
+static void clos_define_combination_standard(void)
 {
-	addr clos, name, qualifiers;
+	addr name, clos, qualifiers;
 
-	make_instance_method_combination(&clos, Nil);
 	GetConst(COMMON_STANDARD, &name);
-	Check(! IsSymbol(name), "type name error");
-	combination_standard_qualifiers(&qualifiers);
+	GetConst(COMBINATION_STANDARD, &clos);
+	Check(! symbolp(name), "type error");
+	CheckType(clos, LISPTYPE_CLOS);
+	clos_define_combination_qualifiers(&qualifiers);
 
-	setf_clos_elt(clos, Clos_combination_name, name);
-	setf_clos_elt(clos, Clos_combination_long_p, T);
-	setf_clos_elt(clos, Clos_combination_lambda_list, Nil);
-	setf_clos_elt(clos, Clos_combination_qualifiers, qualifiers);
-	setf_clos_elt(clos, Clos_combination_arguments, Nil);
-	setf_clos_elt(clos, Clos_combination_generic, Nil);
-	setf_clos_elt(clos, Clos_combination_form, Nil);
-	setf_clos_elt(clos, Clos_combination_function, Nil);
-	setf_find_method_combination(name, clos);
+	stdset_combination_name(clos, name);
+	stdset_combination_long_p(clos, T);
+	stdset_combination_lambda_list(clos, Nil);
+	stdset_combination_qualifiers(clos, qualifiers);
+	stdset_combination_arguments(clos, Nil);
+	stdset_combination_generic(clos, Nil);
+	stdset_combination_form(clos, Nil);
+	stdset_combination_function(clos, Nil);
+	clos_define_combination(name, clos);
 }
 
-void build_clos_combination(Execute ptr)
+static void clos_define_combination_short(constindex n, constindex c, int ident)
 {
-	define_method_combination_standard();
-	define_method_combination_constant(CONSTANT_COMMON_PLUS, 1);
-	define_method_combination_constant(CONSTANT_COMMON_AND, 1);
-	define_method_combination_constant(CONSTANT_COMMON_APPEND, 1);
-	define_method_combination_constant(CONSTANT_COMMON_LIST, 0);
-	define_method_combination_constant(CONSTANT_COMMON_MAX, 1);
-	define_method_combination_constant(CONSTANT_COMMON_MIN, 1);
-	define_method_combination_constant(CONSTANT_COMMON_NCONC, 1);
-	define_method_combination_constant(CONSTANT_COMMON_PROGN, 1);
+	addr name, clos;
+
+	GetConstant(n, &name);
+	GetConstant(c, &clos);
+	Check(! symbolp(name), "type error");
+	CheckType(clos, LISPTYPE_CLOS);
+
+	stdset_combination_name(clos, name);
+	stdset_combination_long_p(clos, Nil);
+	stdset_combination_document(clos, Nil);
+	stdset_combination_identity(clos, ident? T: Nil);
+	stdset_combination_operator(clos, name);
+	clos_define_combination(name, clos);
+}
+#define ClosDefineCombinationShort(x,y) \
+	clos_define_combination_short(CONSTANT_COMMON_##x, CONSTANT_COMBINATION_##x, (y));
+
+void build_clos_combination(void)
+{
+	clos_define_combination_standard();
+	ClosDefineCombinationShort(PLUS, 1);
+	ClosDefineCombinationShort(AND, 1);
+	ClosDefineCombinationShort(APPEND, 1);
+	ClosDefineCombinationShort(LIST, 0);
+	ClosDefineCombinationShort(MAX, 1);
+	ClosDefineCombinationShort(MIN, 1);
+	ClosDefineCombinationShort(NCONC, 1);
+	ClosDefineCombinationShort(PROGN, 1);
 }
 

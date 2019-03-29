@@ -1050,7 +1050,7 @@ void setf_ldb(Execute ptr, addr form, addr env)
 
 	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
 		return;
-	GetConst(COMMON_PROGN, &prog1);
+	GetConst(COMMON_PROG1, &prog1);
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(COMMON_DPB, &dpb);
 	make_gensym(ptr, &v);
@@ -1195,7 +1195,7 @@ void setf_mask_field(Execute ptr, addr form, addr env)
 
 	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
 		return;
-	GetConst(COMMON_PROGN, &prog1);
+	GetConst(COMMON_PROG1, &prog1);
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(COMMON_DEPOSIT_FIELD, &deposit);
 	make_gensym(ptr, &v);

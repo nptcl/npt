@@ -1,4 +1,4 @@
-#include "clos_object.h"
+#include "clos.h"
 #include "constant.h"
 #include "symbol.h"
 #include "type_constant.h"
@@ -207,7 +207,7 @@ int find_symbol_type(Execute ptr, addr *ret, addr symbol, addr env)
 	}
 
 	/* find clos */
-	check = find_class_nil(symbol);
+	clos_find_class_nil(symbol, &check);
 	if (check != Nil) {
 		type_clos_heap(check, ret);
 		return 0;
@@ -252,7 +252,7 @@ int type_symbol_p(addr symbol)
 		return 1;
 
 	/* find clos */
-	check = find_class_nil(symbol);
+	clos_find_class_nil(symbol, &check);
 	if (check != Nil)
 		return 1;
 

@@ -214,6 +214,7 @@ void getcompiled_system(addr pos, calltype *ret);
 void setcompiled_type(addr pos, void *call);
 void getcompiled_type(addr pos, void **ret);
 void setcompiled_macro(addr pos, callbind_macro call);
+void setcompiled_method(addr pos, callbind_method call);
 void setcompiled_none(addr pos, callbind_none call);
 void setcompiled_any(addr pos, callbind_any call);
 void setcompiled_empty(addr pos, callbind_empty call);

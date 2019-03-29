@@ -27,6 +27,7 @@ typedef void (*callmaketype)(addr *);
 enum CallBind_index {
 	CallBind_system,
 	CallBind_macro,
+	CallBind_method,
 	CallBind_type,
 	CallBind_none,
 	CallBind_any,
@@ -56,6 +57,7 @@ enum CallBind_index {
 };
 typedef void *callbind;
 typedef void (*callbind_macro)(Execute, addr, addr);
+typedef void (*callbind_method)(Execute, addr, addr, addr);
 typedef void (*callbind_none)(void);
 typedef void (*callbind_any)(Execute);
 typedef void (*callbind_empty)(Execute);
@@ -86,6 +88,7 @@ struct callbind_struct {
 	union {
 		calltype system;
 		callbind_macro macro;
+		callbind_method method;
 		callbind_none none;
 		callbind_any any;
 		callbind_empty empty;

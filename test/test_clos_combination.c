@@ -3,7 +3,7 @@
 #include "execute.h"
 #include "function.h"
 
-
+#if 0
 /*
  *  qualifiers-check
  */
@@ -378,6 +378,7 @@ static int test_define_method_combination_standard(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
@@ -385,6 +386,7 @@ static int test_define_method_combination_standard(void)
  */
 static int testbreak_clos_combination(void)
 {
+#if 0
 	/* qualifiers-check */
 	TestBreak(test_qualifiers_equal_list);
 	TestBreak(test_qualifiers_equal_symbol);
@@ -403,6 +405,7 @@ static int testbreak_clos_combination(void)
 	TestBreak(test_define_method_combination_constant);
 	TestBreak(test_combination_standard_qualifiers);
 	TestBreak(test_define_method_combination_standard);
+#endif
 
 	return 0;
 }

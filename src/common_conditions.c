@@ -1,7 +1,7 @@
 /*
  *  ANSI COMMON LISP: 9. Conditions
  */
-#include "clos_object.h"
+#include "clos.h"
 #include "cons.h"
 #include "common_header.h"
 #include "hashtable.h"
@@ -26,7 +26,7 @@ static void function_error(Execute ptr, addr datum, addr rest)
 
 	/* symbol -> (make-instance symbol ...) */
 	if (symbolp(datum)) {
-		datum = find_class(datum);
+		clos_find_class(datum, &datum);
 		if (! conditionp(datum))
 			fmte("The class ~S is not a condition subclass.", datum, NULL);
 		GetConst(COMMON_MAKE_INSTANCE, &make_instance);

@@ -411,7 +411,7 @@ static void import_exit_and_quit(addr package)
 	/* (import 'lisp-system::exit 'common-lisp-user) */
 	GetConst(SYSTEM_EXIT, &symbol);
 	import_package(package, symbol);
-	/* (import 'lisp-system::exit 'common-lisp-user) */
+	/* (import 'lisp-system::quit 'common-lisp-user) */
 	GetConst(SYSTEM_QUIT, &symbol);
 	import_package(package, symbol);
 }

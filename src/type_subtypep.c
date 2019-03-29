@@ -1,4 +1,4 @@
-#include "clos_standard.h"
+#include "clos_class.h"
 #include "condition.h"
 #include "cons.h"
 #include "equal.h"
@@ -77,7 +77,7 @@ static SubtypepResult subtypep_clos(addr left, addr right)
 	 *    -> nil; nil  (correct)
 	 *    -> t; t  (incorrect, this implementation.)
 	 */
-	ReturnBool(std_subclass_p(left, right));
+	ReturnBool(clos_subclass_p(left, right));
 }
 
 static SubtypepResult subtypep_error(addr left, addr right)

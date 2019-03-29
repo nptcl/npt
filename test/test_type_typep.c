@@ -2,7 +2,6 @@
 #include "array.h"
 #include "array_object.h"
 #include "clos.h"
-#include "clos_object.h"
 #include "common.h"
 #include "eval_declare.h"
 #include "degrade.h"
@@ -70,7 +69,7 @@ static int test_typep_clos(void)
 	addr v;
 
 	v = readr("standard");
-	v = find_method_combination(v);
+	clos_find_combination(v, &v);
 	test(typep_char(v, "method-combination"), "typep_clos1");
 	fixnum_heap(&v, 100);
 	test(! typep_char(v, "method-combination"), "typep_clos2");

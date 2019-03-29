@@ -43,7 +43,7 @@ static void type_value_type(addr *ret, addr value)
 
 static void type_value_clos(addr *ret, addr value)
 {
-	class_of(value, &value);
+	clos_class_of(value, &value);
 	type_clos_heap(value, ret);
 }
 

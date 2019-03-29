@@ -48,8 +48,7 @@ int test_quote(void);
 int test_package(void);
 int test_lambda(void);
 int test_clos(void);
-int test_clos_object(void);
-int test_clos_standard(void);
+int test_clos_class(void);
 int test_clos_type(void);
 int test_clos_cache(void);
 int test_clos_combination(void);
@@ -82,7 +81,7 @@ int test_fmtfloat(void);
 int test_condition(void);
 int test_bit(void);
 int test_main(void);
-int load_rt(void);
+int loadrt(void);
 
 
 /*
@@ -129,14 +128,13 @@ void degrade_execute(void)
 	DegradeCheck(test_quote);
 	DegradeCheck(test_package);
 	DegradeCheck(test_lambda);
-	DegradeCheck(test_clos_object);
-	DegradeCheck(test_clos_standard);
+	DegradeCheck(test_clos);
+	DegradeCheck(test_clos_class);
 	DegradeCheck(test_clos_type);
 	DegradeCheck(test_clos_cache);
 	DegradeCheck(test_clos_combination);
 	DegradeCheck(test_clos_generic);
 	DegradeCheck(test_clos_method);
-	DegradeCheck(test_clos);
 	DegradeCheck(test_type);
 	DegradeCheck(test_type_table);
 	DegradeCheck(test_type_symbol);
@@ -170,7 +168,7 @@ void degrade_execute(void)
 	DegradeCheck(test_condition);
 #if 0
 #endif
-	DegradeCheck(load_rt);
+	DegradeCheck(loadrt);
 }
 
 #endif

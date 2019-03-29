@@ -632,7 +632,7 @@ static void rational_float_common(LocalRoot local,
 
 	sign = (sign < 0)? SignMinus: SignPlus;
 	if (e < 0) {
-		/* ratio: (/ pos (ash 1 (1 e))) */
+		/* ratio: (/ pos (ash 1 (- e))) */
 		power2_bigdata_alloc(local, &denom, (size_t)-e);
 		ratio_reduction_heap(local, ret, sign, pos, denom);
 	}
@@ -1026,6 +1026,5 @@ void rationalize_common(LocalRoot local, addr pos, addr *ret)
  *                           p1 p2
  *                           q1 q2))))))))
  *     ((rational) x)))
- *
  */
 

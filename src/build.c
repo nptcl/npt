@@ -78,7 +78,7 @@ int getproperty(int index)
 void initlisp(void)
 {
 	init_boole();
-	init_class_of();
+	init_clos();
 	init_control();
 	init_copy();
 	init_fasl();

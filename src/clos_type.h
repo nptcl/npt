@@ -1,11 +1,14 @@
 #ifndef __CLOS_TYPE_HEADER__
 #define __CLOS_TYPE_HEADER__
 
-#include "execute.h"
+#include "typedef.h"
 
-void class_of(addr object, addr *ret);
-void init_class_of(void);
-void build_clos_type(Execute ptr);
+/* class-of */
+void init_clos_class_of(void);
+void clos_class_of(addr object, addr *ret);
+
+/* specializer */
+void clos_intern_specializer(addr object, addr *ret);
 
 #endif
 

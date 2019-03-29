@@ -2,8 +2,8 @@
 #include "bignum.h"
 #include "bit.h"
 #include "character.h"
-#include "clos_standard.h"
 #include "cmpl.h"
+#include "clos_class.h"
 #include "condition.h"
 #include "constant.h"
 #include "control.h"
@@ -50,7 +50,7 @@ static int typep_clos(addr value, addr type, int *ret)
 		return 0;
 	}
 	GetArrayType(type, 0, &type);
-	*ret = std_subtype_p(value, type);
+	*ret = clos_subtype_p(value, type);
 	return 0;
 }
 

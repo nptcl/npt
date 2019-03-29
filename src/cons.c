@@ -532,6 +532,27 @@ int pushnew_heap(addr list, addr value, addr *ret)
 	return pushnew_alloc(NULL, list, value, ret);
 }
 
+int pushnew_equal_alloc(LocalRoot local, addr list, addr value, addr *ret)
+{
+	if (! find_list_equal_unsafe(value, list)) {
+		cons_alloc(local, ret, value, list);
+		return 1;
+	}
+
+	return 0;
+}
+
+int pushnew_equal_local(LocalRoot local, addr list, addr value, addr *ret)
+{
+	CheckLocal(local);
+	return pushnew_equal_alloc(local, list, value, ret);
+}
+
+int pushnew_equal_heap(addr list, addr value, addr *ret)
+{
+	return pushnew_equal_alloc(NULL, list, value, ret);
+}
+
 
 /*
  *  list

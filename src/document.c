@@ -1,6 +1,6 @@
+#include "clos_class.h"
+#include "clos_combination.h"
 #include "clos_method.h"
-#include "clos_object.h"
-#include "clos_standard.h"
 #include "condition.h"
 #include "document.h"
 #include "function.h"
@@ -47,21 +47,21 @@ void set_compiler_macro_document(addr key, addr value)
 
 void get_method_combination_document(addr key, addr *ret)
 {
-	combination_elt(key, Clos_combination_document, ret);
+	stdget_combination_document(key, ret);
 }
 
 void set_method_combination_document(addr key, addr value)
 {
-	setf_combination_elt(key, Clos_combination_document, value);
+	stdset_combination_document(key, value);
 }
 
 void get_standard_method_document(addr key, addr *ret)
 {
-	document_standard_method(key, ret);
+	methodget_document(key, ret);
 }
 void set_standard_method_document(addr key, addr value)
 {
-	setf_document_standard_method(key, value);
+	methodset_document(key, value);
 }
 
 void get_package_document(addr key, addr *ret)
@@ -86,12 +86,12 @@ void set_type_document(addr key, addr value)
 
 void get_standard_class_document(addr key, addr *ret)
 {
-	getdocument_standard_class(key, ret);
+	stdget_class_document(key, ret);
 }
 
 void set_standard_class_document(addr key, addr value)
 {
-	setdocument_standard_class(key, value);
+	stdset_class_document(key, value);
 }
 
 void get_structure_class_document(addr key, addr *ret)
