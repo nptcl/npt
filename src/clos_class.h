@@ -23,8 +23,6 @@ void stdget_class_prototype(addr pos, addr *ret);
 void stdset_class_prototype(addr pos, addr value);
 void stdget_class_direct_methods(addr pos, addr *ret);
 void stdset_class_direct_methods(addr pos, addr value);
-void stdget_class_direct_shared(addr pos, addr *ret);
-void stdset_class_direct_shared(addr pos, addr value);
 void stdget_class_default_initargs(addr pos, addr *ret);
 void stdset_class_default_initargs(addr pos, addr value);
 void stdget_class_direct_default_initargs(addr pos, addr *ret);
@@ -45,12 +43,24 @@ int clos_generic_p(addr clos);
 int clos_method_p(addr clos);
 int clos_combination_p(addr clos);
 int clos_specializer_p(addr clos);
+int clos_referenced_p(addr clos);
 int funcallp(addr pos);
 
 /* make-instance */
 void clos_instance_alloc(LocalRoot local, addr clos, addr *ret);
 void clos_instance_local(LocalRoot local, addr clos, addr *ret);
 void clos_instance_heap(addr clos, addr *ret);
+
+/* interface */
+void slotvector_set_location(addr slots);
+int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret);
+int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest);
+void allocate_instance_stdclass(addr clos, addr *ret);
+int initialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret);
+int reinitialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret);
+int shared_initialize_stdobject(Execute ptr, addr pos, addr name, addr rest);
+int clos_version_check(Execute ptr, addr pos, addr clos);
+int clos_change_class(Execute ptr, addr pos, addr clos, addr rest, addr *ret);
 
 /* build */
 void build_clos_class(LocalRoot local);

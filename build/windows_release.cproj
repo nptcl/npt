@@ -245,6 +245,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\memory.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_class.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_generic.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_reader.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.c" />
@@ -407,6 +408,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_type.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\md5encode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\memory.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\mop_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\mop.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_random.h" />

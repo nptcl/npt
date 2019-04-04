@@ -10,6 +10,17 @@
 #include "symbol.h"
 
 /*
+ *  class check
+ */
+addr Clos_standard_class = 0;
+addr Clos_standard_generic = 0;
+addr Clos_standard_method = 0;
+addr Clos_standard_combination = 0;
+addr Clos_standard_specializer = 0;
+static int Clos_standard_ignore = 0;
+
+
+/*
  *  access
  */
 struct slot_struct *struct_slot(addr pos)
@@ -206,13 +217,13 @@ void setfuncall_clos(addr pos, int value)
 	SetFuncallClos_Low(pos, value);
 }
 
-void getversion_clos(addr pos, size_t *ret)
+void getversion_clos(addr pos, fixnum *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	GetVersionClos_Low(pos, ret);
 }
 
-void setversion_clos(addr pos, size_t value)
+void setversion_clos(addr pos, fixnum value)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -255,6 +266,41 @@ void lenclosvalue(addr pos, size_t *ret)
 {
 	CheckType(pos, LISPSYSTEM_CLOS_VALUE);
 	LenClosValue_Low(pos, ret);
+}
+
+void clos_standard_ignore(int value)
+{
+	Clos_standard_ignore = value;
+}
+
+int clos_standard_class_p_debug(addr pos)
+{
+	return (! Clos_standard_ignore)
+		&& clos_standard_class_p_Low(pos);
+}
+
+int clos_standard_generic_p_debug(addr pos)
+{
+	return (! Clos_standard_ignore)
+		&& clos_standard_generic_p_Low(pos);
+}
+
+int clos_standard_method_p_debug(addr pos)
+{
+	return (! Clos_standard_ignore)
+		&& clos_standard_method_p_Low(pos);
+}
+
+int clos_standard_combination_p_debug(addr pos)
+{
+	return (! Clos_standard_ignore)
+		&& clos_standard_combination_p_Low(pos);
+}
+
+int clos_standard_specializer_p_debug(addr pos)
+{
+	return (! Clos_standard_ignore)
+		&& clos_standard_specializer_p_Low(pos);
 }
 
 
@@ -423,6 +469,75 @@ void clos_heap(addr *ret, addr slots)
 	clos_alloc(NULL, ret, slots);
 }
 
+void closcell_alloc(LocalRoot local, addr *ret, addr name, addr value)
+{
+	addr pos;
+	alloc_array2(local, &pos, LISPTYPE_CLOS, CLOS_CELL_SIZE);
+	SetArrayA2(pos, CLOS_CELL_NAME, name);
+	SetArrayA2(pos, CLOS_CELL_VALUE, value);
+	*ret = pos;
+}
+void closcell_local(LocalRoot local, addr *ret, addr name, addr value)
+{
+	CheckLocal(local);
+	closcell_alloc(local, ret, name, value);
+}
+void closcell_heap(addr *ret, addr name, addr value)
+{
+	closcell_alloc(NULL, ret, name, value);
+}
+
+void closcell_setname(addr pos, addr name)
+{
+	CheckType(pos, LISPSYSTEM_CLOS_CELL);
+	SetArrayA2(pos, CLOS_CELL_NAME, name);
+}
+
+void closcell_getname(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_CLOS_CELL);
+	GetArrayA2(pos, CLOS_CELL_NAME, ret);
+}
+
+void closcell_setvalue(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_CLOS_CELL);
+	SetArrayA2(pos, CLOS_CELL_VALUE, value);
+}
+
+void closcell_getvalue(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_CLOS_CELL);
+	GetArrayA2(pos, CLOS_CELL_VALUE, ret);
+}
+
+int closcellp(addr pos)
+{
+	return pos != Unbound && GetType(pos) == LISPSYSTEM_CLOS_CELL;
+}
+
+void clos_value_get(addr pos, size_t i, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_CLOS_VALUE);
+	GetClosValue(pos, i, &pos);
+	if (closcellp(pos))
+		closcell_getvalue(pos, ret);
+	else
+		*ret = pos;
+}
+
+void clos_value_set(addr pos, size_t i, addr value)
+{
+	addr check;
+
+	CheckType(pos, LISPSYSTEM_CLOS_VALUE);
+	GetClosValue(pos, i, &check);
+	if (closcellp(pos))
+		closcell_setvalue(check, value);
+	else
+		SetClosValue(pos, i, value);
+}
+
 
 /*
  *  control
@@ -485,6 +600,30 @@ void slot_set_instance(addr pos)
 	SetAllocationSlot_Low(pos, 0);
 }
 
+void slot_set_allocation(addr pos, addr value)
+{
+	addr check;
+
+	CheckType(pos, LISPSYSTEM_SLOT);
+
+	/* instance */
+	GetConst(KEYWORD_INSTANCE, &check);
+	if (check == value) {
+		slot_set_instance(pos);
+		return;
+	}
+
+	/* class */
+	GetConst(KEYWORD_CLASS, &check);
+	if (check == value) {
+		slot_set_class(pos);
+		return;
+	}
+
+	/* error */
+	fmte("Invalid :allocation value ~S.", value, NULL);
+}
+
 int clos_errorp(addr pos, size_t index, constindex name)
 {
 	addr key, slot, vector, check;
@@ -522,7 +661,7 @@ int clos_getp(addr pos, addr key, addr *ret)
 		GetNameSlot(pos, &check);
 		Check(! symbolp(check), "type error");
 		if (check == key) {
-			GetClosValue(vector, i, ret);
+			clos_value_get(vector, i, ret);
 			return 1;
 		}
 	}
@@ -545,7 +684,7 @@ int clos_setp(addr pos, addr key, addr value)
 		GetNameSlot(pos, &check);
 		Check(! symbolp(check), "type error");
 		if (check == key) {
-			SetClosValue(vector, i, value);
+			clos_value_set(vector, i, value);
 			return 1;
 		}
 	}
@@ -858,6 +997,14 @@ static void build_clos_table(Execute ptr)
 
 void build_clos(Execute ptr)
 {
+	/* Variable */
+	Clos_standard_class = 0;
+	Clos_standard_generic = 0;
+	Clos_standard_method = 0;
+	Clos_standard_combination = 0;
+	Clos_standard_specializer = 0;
+	Clos_standard_ignore = 0;
+	/* build */
 	build_clos_table(ptr);
 	build_clos_class(ptr->local);
 	build_clos_combination();

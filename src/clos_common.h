@@ -3,10 +3,12 @@
 
 #include "typedef.h"
 
-void slot_boundp_common(addr pos, addr name, addr *ret);
 int defclass_common(Execute ptr, addr form, addr env, addr *ret);
-void ensure_class_common(Execute ptr, addr name, addr args, addr *ret);
+int define_condition_common(Execute ptr, addr form, addr env, addr *ret);
 void find_class_common(addr pos, int errorp, addr env, addr *ret);
+void setf_find_class_common(addr pos, addr name, addr env);
+void with_accessors_common(Execute ptr, addr form, addr env, addr *ret);
+void with_slots_common(Execute ptr, addr form, addr env, addr *ret);
 
 #endif
 

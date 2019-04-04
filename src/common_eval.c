@@ -35,6 +35,7 @@ static void defmacro_lambda(void)
 /* (defun eval (form) ...) -> result */
 static void function_eval(Execute ptr, addr var)
 {
+	int check;
 	addr control;
 
 	/* push */
@@ -43,10 +44,8 @@ static void function_eval(Execute ptr, addr var)
 	push_toplevel_eval(ptr, Nil);
 	push_evalwhen_eval(ptr);
 	hide_lexical_control(ptr);
-	if (eval_execute(ptr, var))
-		(void)runcode_free_control(ptr, control);
-	else
-		(void)free_control(ptr, control);
+	check = eval_execute(ptr, var);
+	(void)free_check_control(ptr, control, check);
 }
 
 static void type_eval(addr *ret)

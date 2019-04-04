@@ -193,8 +193,14 @@ enum TypeTable {
 	TypeTable_OpenIfExists,
 	TypeTable_OpenIfDoesNotExist,
 	TypeTable_ExternalFormat,
+
+	TypeTable_Method,
+	TypeTable_Method1,
+	TypeTable_Method2,
 	TypeTable_Class,
 	TypeTable_ClassNull,
+	TypeTable_StandardClass,
+	TypeTable_StandardObject,
 
 	/* Array */
 	TypeTable_Array_T,
@@ -348,6 +354,8 @@ enum TypeTable {
 	TypeCompiled_DepositField,
 	TypeCompiled_Ldb,
 	TypeCompiled_UpgradedType,
+	TypeCompiled_SlotBoundp,
+	TypeCompiled_SlotBoundp_Method,
 
 	/* Size */
 	TypeTable_Size

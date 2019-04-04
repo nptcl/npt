@@ -536,13 +536,12 @@ static void defun_remhash(void)
 /* (defun maphash (function hash-table) ...) -> null */
 static void execute_maphash(Execute ptr, addr call, addr key, addr value)
 {
+	int check;
 	addr control;
 
 	push_close_control(ptr, &control);
-	if (funcall_control(ptr, call, key, value, NULL))
-		(void)runcode_free_control(ptr, control);
-	else
-		(void)free_control(ptr, control);
+	check = funcall_control(ptr, call, key, value, NULL);
+	(void)free_check_control(ptr, control, check);
 }
 
 static void function_maphash(Execute ptr, addr call, addr table)

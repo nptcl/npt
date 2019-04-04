@@ -918,6 +918,21 @@ static void typetable_externalformat(void)
 	SetTypeTable(ExternalFormat, type1);
 }
 
+static void typetable_method(void)
+{
+	addr pos;
+
+	/* method1 */
+	GetConst(CLOS_METHOD, &pos);
+	type_clos_heap(pos, &pos);
+	SetTypeTable(Method, pos);
+	SetTypeTable(Method1, pos);
+
+	/* method2 */
+	GetTypeTable(&pos, List);
+	SetTypeTable(Method2, pos);
+}
+
 static void typetable_class(void)
 {
 	addr pos;
@@ -930,6 +945,24 @@ static void typetable_class(void)
 static void typetable_classnull(void)
 {
 	SetTypeTableNull(Class);
+}
+
+static void typetable_standardclass(void)
+{
+	addr pos;
+
+	GetConst(CLOS_STANDARD_CLASS, &pos);
+	type_clos_heap(pos, &pos);
+	SetTypeTable(StandardClass, pos);
+}
+
+static void typetable_standardobject(void)
+{
+	addr pos;
+
+	GetConst(CLOS_STANDARD_OBJECT, &pos);
+	type_clos_heap(pos, &pos);
+	SetTypeTable(StandardObject, pos);
 }
 
 
@@ -2425,6 +2458,33 @@ static void typecompiled_upgraded_type(void)
 	SetTypeCompiled(UpgradedType, args);
 }
 
+static void typecompiled_slot_boundp(void)
+{
+	/* (function (t symbol) (values boolean &rest nil)) */
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, Symbol);
+	typeargs_var2(&args, args, values);
+	GetTypeValues(&values, Boolean);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(SlotBoundp, args);
+}
+
+static void typecompiled_slot_boundp_method(void)
+{
+	addr args, values;
+
+	/* (function (t t t t symbol) (values t &rest nil)) */
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, Symbol);
+	typeargs_var3(&args, args, args, values);
+	typeargs_method(args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(SlotBoundp_Method, args);
+}
+
 
 /*
  *  Interface
@@ -2568,8 +2628,11 @@ void build_type_constant(void)
 	typetable_openifexists();
 	typetable_openifdoesnotexist();
 	typetable_externalformat();
+	typetable_method();
 	typetable_class();
 	typetable_classnull();
+	typetable_standardclass();
+	typetable_standardobject();
 
 	/* Array */
 	typetable_array_t();
@@ -2723,5 +2786,7 @@ void build_type_constant(void)
 	typecompiled_deposit_field();
 	typecompiled_ldb();
 	typecompiled_upgraded_type();
+	typecompiled_slot_boundp();
+	typecompiled_slot_boundp_method();
 }
 

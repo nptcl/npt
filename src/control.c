@@ -498,6 +498,14 @@ int runcode_free_control(Execute ptr, addr control)
 	return 1;
 }
 
+int free_check_control(Execute ptr, addr control, int check)
+{
+	if (check)
+		return runcode_free_control(ptr, control);
+	else
+		return free_control(ptr, control);
+}
+
 static void close_result(addr pos)
 {
 	addr cons, next, check;
@@ -606,10 +614,13 @@ static int close_finalize(Execute ptr, addr pos)
 	/* runcode */
 	push_close_control(ptr, &control);
 	runcode_push(ptr, &value);
-	if (runcode_control(ptr, code))
+	if (runcode_control(ptr, code)) {
 		return runcode_free_control(ptr, control);
-	runcode_rollback(ptr, &value);
-	return free_control(ptr, control);
+	}
+	else {
+		runcode_rollback(ptr, &value);
+		return free_control(ptr, control);
+	}
 }
 
 static void close_tagbody(Execute ptr, addr pos)
@@ -1506,28 +1517,6 @@ toofew:
 	fmte("Too few call argument ~S.", check, NULL);
 }
 
-static void call_callbind_method(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, var3;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var3, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-	(call->call.method)(ptr, var1, var2, var3);
-	return;
-toofew:
-	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-}
-
 static void call_callbind_none(Execute ptr, addr pos, callstr call)
 {
 	(call->call.none)();
@@ -1617,6 +1606,56 @@ static void call_callbind_var3(Execute ptr, addr pos, callstr call)
 		fmte("Too few call argument ~S.", check, NULL);
 	}
 	(call->call.var3)(ptr, var1, var2, var3);
+	return;
+toofew:
+	GetNameFunction(pos, &check);
+	fmte("Too few call argument ~S.", check, NULL);
+}
+
+static void call_callbind_var4(Execute ptr, addr pos, callstr call)
+{
+	addr check, cons, var1, var2, var3, var4;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var1, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var2, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var3, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var4, &cons);
+	if (cons != Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	(call->call.var4)(ptr, var1, var2, var3, var4);
+	return;
+toofew:
+	GetNameFunction(pos, &check);
+	fmte("Too few call argument ~S.", check, NULL);
+}
+
+static void call_callbind_var5(Execute ptr, addr pos, callstr call)
+{
+	addr check, cons, var1, var2, var3, var4, var5;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var1, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var2, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var3, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var4, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var5, &cons);
+	if (cons != Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	(call->call.var5)(ptr, var1, var2, var3, var4, var5);
 	return;
 toofew:
 	GetNameFunction(pos, &check);
@@ -2021,7 +2060,7 @@ static void call_callbind_var4dynamic(Execute ptr, addr pos, callstr call)
 		fmte("Too few call argument ~S.", check, NULL);
 	}
 	getcar(cons, &var4);
-	getargs_list_control_unsafe(ptr, 3, &rest);
+	getargs_list_control_unsafe(ptr, 4, &rest);
 	(call->call.var4dynamic)(ptr, var1, var2, var3, var4, rest);
 }
 
@@ -2034,7 +2073,6 @@ void init_control(void)
 	CallBindTable[CallBind_system] = call_callbind_system;
 	CallBindTable[CallBind_type] = call_callbind_type;
 	CallBindTable[CallBind_macro] = call_callbind_macro;
-	CallBindTable[CallBind_method] = call_callbind_method;
 	CallBindTable[CallBind_none] = call_callbind_none;
 	CallBindTable[CallBind_any] = call_callbind_any;
 	CallBindTable[CallBind_empty] = call_callbind_empty;
@@ -2043,6 +2081,8 @@ void init_control(void)
 	CallBindTable[CallBind_var1] = call_callbind_var1;
 	CallBindTable[CallBind_var2] = call_callbind_var2;
 	CallBindTable[CallBind_var3] = call_callbind_var3;
+	CallBindTable[CallBind_var4] = call_callbind_var4;
+	CallBindTable[CallBind_var5] = call_callbind_var5;
 	CallBindTable[CallBind_opt1] = call_callbind_opt1;
 	CallBindTable[CallBind_opt2] = call_callbind_opt2;
 	CallBindTable[CallBind_opt3] = call_callbind_opt3;
@@ -2267,10 +2307,8 @@ point:
 static int runcode_free(Execute ptr,
 		addr control, addr code, int (*call)(Execute, addr))
 {
-	if (call(ptr, code))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	int check = (*call)(ptr, code);
+	return free_check_control(ptr, control, check);
 }
 
 static int runcode_tagbody(Execute ptr, addr code)
@@ -2919,10 +2957,13 @@ static int values_apply(Execute ptr, LocalRoot local,
 	/* push */
 	push_close_control(ptr, &control);
 	/* code */
-	if (apply_control(ptr, call, cons))
+	if (apply_control(ptr, call, cons)) {
 		return runcode_free_control(ptr, control);
-	getvalues_list_control(ptr, local, ret);
-	return free_control(ptr, control);
+	}
+	else {
+		getvalues_list_control(ptr, local, ret);
+		return free_control(ptr, control);
+	}
 }
 
 int callclang_values_apply_local(Execute ptr, addr *ret, addr call, addr cons)
@@ -2944,10 +2985,13 @@ static int values_stdarg(Execute ptr, LocalRoot local,
 	/* push */
 	push_close_control(ptr, &control);
 	/* code */
-	if (stdarg_control(ptr, call, args))
+	if (stdarg_control(ptr, call, args)) {
 		return runcode_free_control(ptr, control);
-	getvalues_list_control(ptr, local, ret);
-	return free_control(ptr, control);
+	}
+	else {
+		getvalues_list_control(ptr, local, ret);
+		return free_control(ptr, control);
+	}
 }
 
 int callclang_values_stdarg_local(Execute ptr, addr *ret, addr call, va_list args)
@@ -3022,10 +3066,13 @@ int callclang_apply(Execute ptr, addr *ret, addr call, addr cons)
 	/* push */
 	push_close_control(ptr, &control);
 	/* code */
-	if (apply_control(ptr, call, cons))
+	if (apply_control(ptr, call, cons)) {
 		return runcode_free_control(ptr, control);
-	getresult_control(ptr, ret);
-	return free_control(ptr, control);
+	}
+	else {
+		getresult_control(ptr, ret);
+		return free_control(ptr, control);
+	}
 }
 
 int callclang_stdarg(Execute ptr, addr *ret, addr call, va_list args)
@@ -3036,10 +3083,13 @@ int callclang_stdarg(Execute ptr, addr *ret, addr call, va_list args)
 	/* push */
 	push_close_control(ptr, &control);
 	/* code */
-	if (stdarg_control(ptr, call, args))
+	if (stdarg_control(ptr, call, args)) {
 		return runcode_free_control(ptr, control);
-	getresult_control(ptr, ret);
-	return free_control(ptr, control);
+	}
+	else {
+		getresult_control(ptr, ret);
+		return free_control(ptr, control);
+	}
 }
 
 int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
@@ -3055,10 +3105,13 @@ int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 	va_start(args, call);
 	check = stdarg_control(ptr, call, args);
 	va_end(args);
-	if (check)
+	if (check) {
 		return runcode_free_control(ptr, control);
-	getresult_control(ptr, ret);
-	return free_control(ptr, control);
+	}
+	else {
+		getresult_control(ptr, ret);
+		return free_control(ptr, control);
+	}
 }
 
 int callclang_char(Execute ptr, addr *ret,
@@ -3076,10 +3129,13 @@ int callclang_char(Execute ptr, addr *ret,
 	va_start(args, name);
 	check = stdarg_control(ptr, call, args);
 	va_end(args);
-	if (check)
+	if (check) {
 		return runcode_free_control(ptr, control);
-	getresult_control(ptr, ret);
-	return free_control(ptr, control);
+	}
+	else {
+		getresult_control(ptr, ret);
+		return free_control(ptr, control);
+	}
 }
 
 

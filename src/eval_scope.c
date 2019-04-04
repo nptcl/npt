@@ -3999,9 +3999,12 @@ int eval_scope(Execute ptr, addr *ret, addr eval)
 	push_close_control(ptr, &control);
 	/* code */
 	init_eval_stack(ptr);
-	if (scope_eval(ptr, ret, eval))
+	if (scope_eval(ptr, ret, eval)) {
 		return runcode_free_control(ptr, control);
-	free_eval_stack(ptr);
-	return free_control(ptr, control);
+	}
+	else {
+		free_eval_stack(ptr);
+		return free_control(ptr, control);
+	}
 }
 

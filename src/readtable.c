@@ -816,8 +816,7 @@ static int macro_character_call(Execute ptr, int *result, addr *ret,
 
 	push_close_control(ptr, &control);
 	if (funcall_control(ptr, call, stream, code, NULL)) {
-		(void)runcode_free_control(ptr, control);
-		return 1;
+		return runcode_free_control(ptr, control);
 	}
 	if (lengthvalues_control(ptr) == 0) {
 		*result = 0;
@@ -841,6 +840,7 @@ static int macro_character_execute(Execute ptr, int *result, addr *ret,
 	GetReadType(call, &call);
 	if (call == Nil)
 		goto error;
+	*result = 0;
 	return macro_character_call(ptr, result, ret, call, stream, code);
 
 error:
@@ -2031,39 +2031,36 @@ static int read_call(Execute ptr, addr stream, int *result, addr *ret)
 
 int read_stream(Execute ptr, addr stream, int *result, addr *ret)
 {
+	int check;
 	addr control, info;
 
 	push_close_control(ptr, &control);
 	pushreadinfo(ptr, &info);
-	if (read_call(ptr, stream, result, ret))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	check = read_call(ptr, stream, result, ret);
+	return free_check_control(ptr, control, check);
 }
 
 int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
 {
+	int check;
 	addr control, info;
 
 	push_close_control(ptr, &control);
 	pushreadinfo(ptr, &info);
 	ReadInfoStruct(info)->preserving = 1;
-	if (read_call(ptr, stream, result, ret))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	check = read_call(ptr, stream, result, ret);
+	return free_check_control(ptr, control, check);
 }
 
 int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 {
+	int check;
 	addr control, info;
 
 	push_close_control(ptr, &control);
 	pushreadinfo_recursive(ptr, &info);
-	if (read_call(ptr, stream, result, ret))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	check = read_call(ptr, stream, result, ret);
+	return free_check_control(ptr, control, check);
 }
 
 int read_from_string(int *result, addr *ret, addr pos)
@@ -2335,6 +2332,7 @@ static int delimited_execute(Execute ptr, addr stream, unicode limit)
 
 int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursive)
 {
+	int check;
 	addr control, info;
 	struct readinfo_struct *str;
 
@@ -2347,11 +2345,8 @@ int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursive)
 		pushreadinfo(ptr, &info);
 	str = ReadInfoStruct(info);
 	str->dot = 1;
-	if (delimited_execute(ptr, stream, limit)) return 1;
-	/* free */
-	free_control(ptr, control);
-
-	return 0;
+	check = delimited_execute(ptr, stream, limit);
+	return free_check_control(ptr, control, check);
 }
 
 static void reader_parensis_open(Execute ptr, addr stream, addr code)
@@ -2429,15 +2424,14 @@ static void defun_semicolon_reader(void)
 /* (defun backquote-reader (stream character) ...) -> * */
 static int read_backquote(Execute ptr, addr stream, int *result, addr *ret)
 {
+	int check;
 	addr control, info;
 
 	push_close_control(ptr, &control);
 	pushreadinfo_recursive(ptr, &info);
 	ReadInfoStruct(info)->backquote++;
-	if (read_call(ptr, stream, result, ret))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	check = read_call(ptr, stream, result, ret);
+	return free_check_control(ptr, control, check);
 }
 
 void reader_backquote(Execute ptr, addr stream, addr code)
@@ -2470,15 +2464,14 @@ static void defun_backquote_reader(void)
 /* (defun comma-reader (stream character) ...) -> * */
 static int read_comma(Execute ptr, addr stream, int *result, addr *ret)
 {
+	int check;
 	addr control, info;
 
 	push_close_control(ptr, &control);
 	pushreadinfo_recursive(ptr, &info);
 	ReadInfoStruct(info)->backquote--;
-	if (read_call(ptr, stream, result, ret))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	check = read_call(ptr, stream, result, ret);
+	return free_check_control(ptr, control, check);
 }
 
 void reader_comma(Execute ptr, addr stream, addr code)
@@ -2663,6 +2656,7 @@ static void read_replace_finalize(Execute ptr)
 
 static int read_replace(Execute ptr, addr stream, int *result, addr *ret)
 {
+	int check;
 	addr pos, value, control, code;
 	struct readinfo_struct *str;
 
@@ -2677,10 +2671,8 @@ static int read_replace(Execute ptr, addr stream, int *result, addr *ret)
 	syscall_code(ptr->local, &code, read_replace_finalize, pos);
 	setfinalize_control(ptr, control, code);
 	/* code */
-	if (read_recursive(ptr, stream, result, ret))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	check = read_recursive(ptr, stream, result, ret);
+	return free_check_control(ptr, control, check);
 }
 
 static int find_readlabel(addr key, addr list, addr *ret)
@@ -3307,6 +3299,7 @@ static void defun_or_dispatch(void)
 /* (defun plus-dispatch (stream code arg) ...) -> * */
 static int read_feature(Execute ptr, addr stream, int *result, addr *ret)
 {
+	int check;
 	addr control, symbol, keyword;
 
 	/* (let ((*package* (find-package "KEYWORD")))
@@ -3318,10 +3311,8 @@ static int read_feature(Execute ptr, addr stream, int *result, addr *ret)
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	GetConst(PACKAGE_KEYWORD, &keyword);
 	pushspecial_control(ptr, symbol, keyword);
-	if (read_recursive(ptr, stream, result, ret))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	check = read_recursive(ptr, stream, result, ret);
+	return free_check_control(ptr, control, check);
 }
 
 static int feature_eq_constant(addr pos, constindex index1, constindex index2)
@@ -3513,6 +3504,7 @@ static void defun_dot_dispatch(void)
 static int dispatch_radix_execute(Execute ptr, addr stream, fixnum base,
 		int *result, addr *ret)
 {
+	int check;
 	addr control, symbol, value;
 
 	/* push */
@@ -3521,10 +3513,8 @@ static int dispatch_radix_execute(Execute ptr, addr stream, fixnum base,
 	GetConst(SPECIAL_READ_BASE, &symbol);
 	fixnum_heap(&value, base);
 	pushspecial_control(ptr, symbol, value);
-	if (read_recursive(ptr, stream, result, ret))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	check = read_recursive(ptr, stream, result, ret);
+	return free_check_control(ptr, control, check);
 }
 
 static void dispatch_radix_read(Execute ptr, addr stream, fixnum base)

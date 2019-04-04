@@ -109,9 +109,10 @@ static int test_stdget_specializer(void)
 /*
  *  call object
  */
-static void test_call(Execute ptr, addr instance, addr generic, addr args)
+static int test_call(Execute ptr, addr instance, addr generic, addr args)
 {
 	/* dummy */
+	return 0;
 }
 
 static int test_clos_generic_call_alloc(void)
@@ -197,10 +198,9 @@ static void test_make_method(addr *ret)
 
 static void test_comb_standard_method_call(Execute ptr, addr right)
 {
-	/* method next args */
-	GetCdr(right, &right); /* (next . _) */
-	GetCdr(right, &right); /* (args . _) */
-	GetCar(right, &right); /* args */
+	/* method next . args */
+	GetCdr(right, &right); /* next */
+	GetCdr(right, &right); /* args */
 	GetCar(right, &right); /* t */
 	setresult_control(ptr, right);
 }
@@ -251,7 +251,6 @@ static void test_comb_standard_funcall_call(Execute ptr, addr right)
 	if (left != Nil) goto error;
 
 	/* result */
-	GetCar(right, &right);
 	GetCar(right, &right);
 	setresult_control(ptr, right);
 	return;
@@ -304,8 +303,7 @@ static int test_comb_standard_lambda(void)
 	compiled_heap(&call, call);
 	setcompiled_dynamic(call, test_comb_standard_method_call);
 	stdset_method_function(method, call);
-	list_heap(&args, T, NULL);
-	list_heap(&args, Nil, Nil, args, NULL);
+	list_heap(&args, Nil, Nil, T, NULL);
 	list_heap(&data, method, NULL);
 	list_heap(&data, Nil, data, Nil, Nil, NULL);
 	setdata_control(ptr, data);
@@ -814,13 +812,15 @@ static int test_generic_make_mapcar_class_of(void)
 	RETURN;
 }
 
-static void test_hello_call(Execute ptr, addr instance, addr generic, addr args)
+static int test_hello_call(Execute ptr, addr instance, addr generic, addr args)
 {
 	fixnum value;
 
 	GetCar(args, &args);
 	GetFixnum(args, &value);
 	setresult_control(ptr, value == 100? T: Nil);
+
+	return 0;
 }
 
 static int test_generic_make_lambda_call(void)

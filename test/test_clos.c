@@ -93,7 +93,7 @@ static int test_getclos(void)
 	int n;
 	addr pos, check, v;
 	struct clos_struct *str;
-	size_t s;
+	fixnum s;
 
 	slot_vector_heap(&pos, 10);
 	clos_heap(&pos, pos);
@@ -335,7 +335,7 @@ static int test_clos_alloc(void)
 	addr slots, pos, check;
 	LocalRoot local;
 	LocalStack stack;
-	size_t s;
+	fixnum s;
 
 	local = Local_Thread;
 	push_local(local, &stack);

@@ -285,10 +285,13 @@ int eval_object(Execute ptr, addr eval, addr *ret)
 	push_close_control(ptr, &control);
 	push_toplevel_eval(ptr, Nil);
 	push_evalwhen_eval(ptr);
-	if (eval_execute(ptr, eval))
+	if (eval_execute(ptr, eval)) {
 		return runcode_free_control(ptr, control);
-	getresult_control(ptr, ret);
-	return free_control(ptr, control);
+	}
+	else {
+		getresult_control(ptr, ret);
+		return free_control(ptr, control);
+	}
 }
 
 
@@ -416,13 +419,12 @@ static int eval_load_file(Execute ptr, int *result,
 int eval_load(Execute ptr, int *result,
 		addr file, addr verbose, addr print, int exist, addr external)
 {
+	int check;
 	addr control;
 
 	push_close_control(ptr, &control);
 	push_prompt_info(ptr);
-	if (eval_load_file(ptr, result, file, verbose, print, exist, external))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	check = eval_load_file(ptr, result, file, verbose, print, exist, external);
+	return free_check_control(ptr, control, check);
 }
 

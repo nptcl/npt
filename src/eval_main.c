@@ -226,10 +226,7 @@ static int eval_loop_restart(Execute ptr, addr stream, int *ret)
 
 	/* free control */
 	throw_switch(&jump);
-	if (check)
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	return free_check_control(ptr, control, check);
 }
 
 int eval_main_loop(Execute ptr)
@@ -274,10 +271,8 @@ static int evalcall_string_result(Execute ptr, addr eval)
 	open_input_string_stream(&stream, eval);
 	check = eval_stream(ptr, stream);
 	close_stream(stream);
-	if (check)
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+
+	return free_check_control(ptr, control, check);
 }
 
 static int evalrestart_string(Execute ptr, addr eval, int *abort)
@@ -306,10 +301,7 @@ static int evalrestart_string(Execute ptr, addr eval, int *abort)
 
 	/* free control */
 	throw_switch(&jump);
-	if (check)
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	return free_check_control(ptr, control, check);
 }
 
 void eval_main_string(Execute ptr, addr eval, int *abort)
@@ -351,10 +343,7 @@ static int evalrestart_load(Execute ptr,
 
 	/* free control */
 	throw_switch(&jump);
-	if (check)
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	return free_check_control(ptr, control, check);
 }
 
 int eval_main_load(Execute ptr, addr file, int exists, int *abort)

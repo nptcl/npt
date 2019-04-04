@@ -7,28 +7,23 @@
 #include "type_parse.h"
 
 /*
- *  slot-boundp
- */
-void slot_boundp_common(addr pos, addr name, addr *ret)
-{
-	fmte("TODO", NULL);
-}
-
-
-/*
  *  defclass
  */
-static void defclass_parse_superclasses(addr args, addr *ret)
+static void defclass_parse_superclasses(addr args, int defclass, addr *ret)
 {
-	addr root, pos, quote, find, list;
+	addr root, pos, quote, find, refer, list;
 
 	GetConst(COMMON_QUOTE, &quote);
 	GetConst(COMMON_FIND_CLASS, &find);
+	GetConst(CLOSNAME_REFERENCED_CLASS, &refer);
 	GetConst(COMMON_LIST, &list);
 
 	/* () -> (list (find-class (quote standard-object))) */
 	if (args == Nil) {
-		GetConst(COMMON_STANDARD_OBJECT, &pos);
+		if (defclass)
+			GetConst(COMMON_STANDARD_OBJECT, &pos);
+		else
+			GetConst(COMMON_CONDITION, &pos);
 		list_heap(&pos, quote, pos, NULL);
 		list_heap(&pos, find, pos, NULL);
 		list_heap(ret, list, pos, NULL);
@@ -36,16 +31,17 @@ static void defclass_parse_superclasses(addr args, addr *ret)
 	}
 
 	/* (a b ...) ->
-	 *   (list (find-class (quote a))
-	 *         (find-class (quote b))
+	 *   (list (referenced-class (quote a))
+	 *         (referenced-class (quote b))
 	 *         ...)
 	 */
 	for (root = Nil; args != Nil; ) {
 		getcons(args, &pos, &args);
 		list_heap(&pos, quote, pos, NULL);
-		list_heap(&pos, find, pos, NULL);
+		list_heap(&pos, refer, pos, NULL);
 		cons_heap(&root, pos, root);
 	}
+	/* result */
 	nreverse_list_unsafe(&root, root);
 	cons_heap(ret, list, root);
 }
@@ -260,13 +256,15 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 
 static int defclass_parse_slot(Execute ptr, addr env, addr list, addr *ret)
 {
-	addr symbol, keyword;
+	addr symbol, keyword, quote;
 
 	/* symbol */
 	if (symbolp(list)) {
-		/* (list :name value) */
+		/* (list :name (quote value)) */
+		GetConst(COMMON_QUOTE, &quote);
 		GetConst(COMMON_LIST, &symbol);
 		GetConst(CLOSKEY_NAME, &keyword);
+		list_heap(&list, quote, list, NULL);
 		list_heap(ret, symbol, keyword, list, NULL);
 		return 0;
 	}
@@ -368,17 +366,28 @@ static void defclass_parse_options(addr list, addr *ret)
 	nreverse_list_unsafe(ret, root);
 }
 
-int defclass_common(Execute ptr, addr form, addr env, addr *ret)
+static void define_condition_result(addr *ret, addr args)
+{
+	/* (class-name
+	 *   (ensure-class ...))
+	 */
+	addr call;
+	GetConst(COMMON_CLASS_NAME, &call);
+	list_heap(ret, call, args, NULL);
+}
+
+static int defclass_define_condition(Execute ptr,
+		addr form, addr env, addr *ret, int defclass)
 {
 	/* `(system::ensure-class ',name
 	 *     :direct-superclasses ,supers
 	 *     :direct-slots ,slots
 	 *     ,@class-options)
 	 */
-	addr args, name, supers, slots, options, ensure, key1, key2;
+	addr first, args, name, supers, slots, options, ensure, key1, key2;
 
 	/* destructuring-bind */
-	getcdr(form, &args);
+	getcons(form, &first, &args);
 	if (! consp(args)) goto error;
 	GetCons(args, &name, &args);
 	if (! consp(args)) goto error;
@@ -386,8 +395,12 @@ int defclass_common(Execute ptr, addr form, addr env, addr *ret)
 	if (! consp(args)) goto error;
 	GetCons(args, &slots, &options);
 
+	/* name */
+	GetConst(COMMON_QUOTE, &key1);
+	list_heap(&name, key1, name, NULL);
+
 	/* parse */
-	defclass_parse_superclasses(supers, &supers);
+	defclass_parse_superclasses(supers, defclass, &supers);
 	if (defclass_parse_slots(ptr, env, slots, &slots)) return 1;
 	defclass_parse_options(options, &options);
 
@@ -395,21 +408,27 @@ int defclass_common(Execute ptr, addr form, addr env, addr *ret)
 	GetConst(CLOSNAME_ENSURE_CLASS, &ensure);
 	GetConst(CLOSKEY_DIRECT_SUPERCLASSES, &key1);
 	GetConst(CLOSKEY_DIRECT_SLOTS, &key2);
-	lista_heap(ret, ensure, name, key1, supers, key2, slots, options, NULL);
+	lista_heap(&args, ensure, name, key1, supers, key2, slots, options, NULL);
+	if (defclass)
+		*ret = args;
+	else
+		define_condition_result(ret, args);
 	return 0;
 
 error:
-	fmte("The defclass ~S must be a "
-			"(defclass name (superclasses) (slots) ...) form.", form, NULL);
+	fmte("The ~S ~S must be a "
+			"(~S name (superclasses) (slots) ...) form.", first, form, first, NULL);
 	return 0;
 }
 
-
-/*
- *  ensure-class
- */
-void ensure_class_common(Execute ptr, addr name, addr args, addr *ret)
+int defclass_common(Execute ptr, addr form, addr env, addr *ret)
 {
+	return defclass_define_condition(ptr, form, env, ret, 1);
+}
+
+int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
+{
+	return defclass_define_condition(ptr, form, env, ret, 0);
 }
 
 
@@ -424,5 +443,155 @@ void find_class_common(addr pos, int errorp, addr env, addr *ret)
 		clos_find_class(pos, ret);
 	else
 		clos_find_class_nil(pos, ret);
+}
+
+
+/*
+ *  (setf find-class)
+ *    TODO: environment
+ */
+void setf_find_class_common(addr pos, addr name, addr env)
+{
+	CheckType(pos, LISPTYPE_CLOS);
+	Check(! symbolp(name), "type error");
+	clos_define_class(name, pos);
+}
+
+
+/*
+ *  with-accessors
+ */
+static void with_accessors_arguments(addr args, addr g, addr *ret)
+{
+	addr root, var, name, temp;
+
+	for (root = Nil; args != Nil; ) {
+		/* parse */
+		if (symbolp(args)) {
+			var = name = args;
+		}
+		else {
+			if (! consp(args)) goto error;
+			GetCons(args, &var, &temp);
+			if (! consp(temp)) goto error;
+			GetCons(temp, &name, &temp);
+			if (temp != Nil) goto error;
+			if (! symbolp(var))
+				fmte("WITH-ACCESSORS argument ~S must be a symbol.", var, NULL);
+			if (! symbolp(name))
+				fmte("WITH-ACCESSORS argument ~S must be a symbol.", name, NULL);
+		}
+		/* expand */
+		list_heap(&name, name, g, NULL);
+		list_heap(&var, var, name, NULL);
+		cons_heap(&root, var, root);
+	}
+	nreverse_list_unsafe(ret, root);
+	return;
+
+error:
+	fmte("WITH-ACCESSORS arguments ~S must be "
+			"a symbol or (var name) form.", args, NULL);
+}
+
+void with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
+{
+	/* `(let ((,#:g ,expr))
+	 *    (symbol-macrolet ((,var1 (,name1 ,#:g))
+	 *                      (,varN (,nameN ,#:g)))
+	 *      ,@args))
+	 */
+	addr args, var, expr, g, let, symm;
+
+	/* arguments */
+	getcdr(form, &args);
+	if (! consp(args)) goto error;
+	GetCons(args, &var, &args);
+	if (! consp(args)) goto error;
+	GetCons(args, &expr, &args);
+
+	/* expand */
+	GetConst(COMMON_LET, &let);
+	GetConst(COMMON_SYMBOL_MACROLET, &symm);
+	make_gensym(ptr, &g);
+	with_accessors_arguments(var, g, &var);
+	lista_heap(&symm, symm, var, args, NULL);
+	list_heap(&g, g, expr, NULL);
+	list_heap(ret, let, g, symm, NULL);
+	return;
+
+error:
+	fmte("WITH-ACCESSORS argument ~S must be a "
+			"((var ...) &body form) form.", form, NULL);
+}
+
+
+/*
+ *  with-slots
+ */
+static void with_slots_arguments(addr args, addr g, addr *ret)
+{
+	addr slot, quote, root, var, name, temp;
+
+	GetConst(COMMON_SLOT_VALUE, &slot);
+	GetConst(COMMON_QUOTE, &quote);
+	for (root = Nil; args != Nil; ) {
+		/* parse */
+		if (symbolp(args)) {
+			var = name = args;
+		}
+		else {
+			if (! consp(args)) goto error;
+			GetCons(args, &var, &temp);
+			if (! consp(temp)) goto error;
+			GetCons(temp, &name, &temp);
+			if (temp != Nil) goto error;
+			if (! symbolp(var))
+				fmte("WITH-SLOTS argument ~S must be a symbol.", var, NULL);
+			if (! symbolp(name))
+				fmte("WITH-SLOTS argument ~S must be a symbol.", name, NULL);
+		}
+		/* expand */
+		list_heap(&name, quote, name, NULL);
+		list_heap(&name, slot, g, name, NULL);
+		list_heap(&var, var, name, NULL);
+		cons_heap(&root, var, root);
+	}
+	nreverse_list_unsafe(ret, root);
+	return;
+
+error:
+	fmte("WITH-SLOTS arguments ~S must be "
+			"a symbol or (var name) form.", args, NULL);
+}
+
+void with_slots_common(Execute ptr, addr form, addr env, addr *ret)
+{
+	/* `(let ((,#:g ,expr))
+	 *    (symbol-macrolet ((,var1 (slot-value ,#:g ',name1))
+	 *                      (,varN (slot-value ,#:g ',nameN)))
+	 *      ,@args))
+	 */
+	addr args, var, expr, g, let, symm;
+
+	/* arguments */
+	getcdr(form, &args);
+	if (! consp(args)) goto error;
+	GetCons(args, &var, &args);
+	if (! consp(args)) goto error;
+	GetCons(args, &expr, &args);
+
+	/* expand */
+	GetConst(COMMON_LET, &let);
+	GetConst(COMMON_SYMBOL_MACROLET, &symm);
+	make_gensym(ptr, &g);
+	with_slots_arguments(var, g, &var);
+	lista_heap(&symm, symm, var, args, NULL);
+	list_heap(&g, g, expr, NULL);
+	list_heap(ret, let, g, symm, NULL);
+	return;
+
+error:
+	fmte("WITH-SLOTS argument ~S must be a ((var ...) &body form) form.", form, NULL);
 }
 

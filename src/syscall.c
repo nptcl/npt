@@ -1215,6 +1215,28 @@ static void defun_make_extend_output_stream(void)
 }
 
 
+/* (defun closp (object) ...) -> boolean */
+static void syscall_closp(Execute ptr, addr var)
+{
+	setbool_control(ptr, GetType(var) == LISPTYPE_CLOS);
+}
+
+static void defun_closp(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_CLOSP, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, syscall_closp);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, Object_Boolean);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun fixnump (object) ...) -> boolean */
 static void syscall_fixnump(Execute ptr, addr var)
 {
@@ -1744,6 +1766,7 @@ void build_syscall(void)
 	defun_end_input_stream();
 	defun_make_extend_output_stream();
 	/* type */
+	defun_closp();
 	defun_fixnump();
 	defun_bignump();
 	defun_ratiop();

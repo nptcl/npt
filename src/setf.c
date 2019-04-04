@@ -219,7 +219,7 @@ static int setf_expander(Execute ptr, addr call, addr form, addr env,
 	push_close_control(ptr, &control);
 	/* code */
 	if (funcall_control(ptr, call, form, env, NULL))
-		return 1;
+		return runcode_free_control(ptr, control);
 	getvalues_nil_control(ptr, 0, vars);
 	getvalues_nil_control(ptr, 1, vals);
 	getvalues_nil_control(ptr, 2, store);

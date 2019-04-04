@@ -2,6 +2,7 @@
  *  ANSI COMMON LISP: 9. Conditions
  */
 #include "clos.h"
+#include "clos_common.h"
 #include "cons.h"
 #include "common_header.h"
 #include "hashtable.h"
@@ -279,6 +280,65 @@ static void defmacro_handler_case(void)
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
+}
+
+
+/* (defmacro define-condition (name (supers) (slots) &rest option) ...) -> name */
+static void function_define_condition(Execute ptr, addr form, addr env)
+{
+	if (define_condition_common(ptr, form, env, &form)) return;
+	setresult_control(ptr, form);
+}
+
+static void defmacro_define_condition(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_DEFINE_CONDITION, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, function_define_condition);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
+/*  (defun make-condition (type) &rest args) ...) -> condition */
+static void function_make_condition(Execute ptr, addr args)
+{
+	addr call;
+
+	GetConst(COMMON_MAKE_INSTANCE, &call);
+	getfunctioncheck_local(ptr, call, &call);
+	if (callclang_apply(ptr, &args, call, args)) return ;
+	setresult_control(ptr, args);
+}
+
+static void type_make_condition(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, Condition);
+	typeargs_var1rest(&args, values, args);
+	typevalues_result(&values, values);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_make_condition(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_MAKE_CONDITION, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_dynamic(pos, function_make_condition);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_make_condition(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
 }
 
 
@@ -896,16 +956,35 @@ static void defun_use_value(void)
  */
 void intern_common_conditions(void)
 {
+	/* defun_cell_error_name(); */
+	/* defmacro_assert(); */
 	defun_error();
+	/* defun_cerror(); */
+	/* defmacro_check_type(); */
+	/* defun_invalid_method_error(); */
+	/* defun_method_combination_error(); */
+	/* defun_signal(); */
+	/* defun_simple_condition_format_control(); */
+	/* defun_simple_condition_format_arguments(); */
+	/* defun_warn(); */
+	/* defun_invoke_debugger(); */
+	/* defun_break(); */
+	/* defvar_debugger_hook(); */
+	/* defvar_break_on_signals(); */
 	defmacro_handler_bind();
 	defmacro_handler_case();
+	/* defmacro_ignore_errors(); */
+	defmacro_define_condition();
+	defun_make_condition();
 	defun_compute_restarts();
 	defun_find_restart();
 	defun_invoke_restart();
 	defun_invoke_restart_interactively();
 	defmacro_restart_bind();
 	defmacro_restart_case();
+	/* defun_restart_name(); */
 	defmacro_with_condition_restarts();
+	/* defmacro_with_simple_restart(); */
 	defun_abort();
 	defun_continue();
 	defun_muffle_warning();

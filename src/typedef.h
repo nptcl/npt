@@ -27,7 +27,6 @@ typedef void (*callmaketype)(addr *);
 enum CallBind_index {
 	CallBind_system,
 	CallBind_macro,
-	CallBind_method,
 	CallBind_type,
 	CallBind_none,
 	CallBind_any,
@@ -37,6 +36,8 @@ enum CallBind_index {
 	CallBind_var1,
 	CallBind_var2,
 	CallBind_var3,
+	CallBind_var4,
+	CallBind_var5,
 	CallBind_opt1,
 	CallBind_opt2,
 	CallBind_opt3,
@@ -57,7 +58,6 @@ enum CallBind_index {
 };
 typedef void *callbind;
 typedef void (*callbind_macro)(Execute, addr, addr);
-typedef void (*callbind_method)(Execute, addr, addr, addr);
 typedef void (*callbind_none)(void);
 typedef void (*callbind_any)(Execute);
 typedef void (*callbind_empty)(Execute);
@@ -66,6 +66,8 @@ typedef void (*callbind_rest)(Execute, addr);
 typedef void (*callbind_var1)(Execute, addr);
 typedef void (*callbind_var2)(Execute, addr, addr);
 typedef void (*callbind_var3)(Execute, addr, addr, addr);
+typedef void (*callbind_var4)(Execute, addr, addr, addr, addr);
+typedef void (*callbind_var5)(Execute, addr, addr, addr, addr, addr);
 typedef void (*callbind_opt1)(Execute, addr);
 typedef void (*callbind_opt2)(Execute, addr, addr);
 typedef void (*callbind_opt3)(Execute, addr, addr, addr);
@@ -88,7 +90,6 @@ struct callbind_struct {
 	union {
 		calltype system;
 		callbind_macro macro;
-		callbind_method method;
 		callbind_none none;
 		callbind_any any;
 		callbind_empty empty;
@@ -97,6 +98,8 @@ struct callbind_struct {
 		callbind_var1 var1;
 		callbind_var2 var2;
 		callbind_var3 var3;
+		callbind_var4 var4;
+		callbind_var5 var5;
 		callbind_opt1 opt1;
 		callbind_opt2 opt2;
 		callbind_opt3 opt3;

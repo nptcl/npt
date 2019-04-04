@@ -14,6 +14,7 @@
 #include "sequence.h"
 
 /* clos_generic_call */
+typedef int (*clos_generic_call)(Execute, addr, addr, addr);
 #define GetClosGenericCall(x,y)  (*(y) = *(clos_generic_call *)PtrBodySS(x))
 #define SetClosGenericCall(x,y)  (*(clos_generic_call *)PtrBodySS(x) = (y))
 #define GetClosGenericCallArray(x,i,y)  GetArraySS(x,i,y)
@@ -269,8 +270,6 @@ void stdset_specializer_type(addr pos, addr value)
 /*****************************************************************************
  *  clos-generic-call
  *****************************************************************************/
-typedef void (*clos_generic_call)(Execute, addr, addr, addr);
-
 static void clos_generic_call_alloc(LocalRoot local,
 		addr *ret, clos_generic_call call, int size)
 {
@@ -337,19 +336,28 @@ static void comb_standard_order(LocalRoot local,
 		reverse_list_local_unsafe(local, ret, methods);
 }
 
-static void comb_standard_method(Execute ptr, addr car, addr cdr, addr rest)
+static int comb_standard_method(Execute ptr, addr car, addr cdr, addr rest)
 {
-	addr call;
+	addr call, args;
+	LocalRoot local;
+	LocalStack stack;
+
 	stdget_method_function(car, &call);
-	funcall_control(ptr, call, car, cdr, rest, NULL);
+	local = ptr->local;
+	push_local(local, &stack);
+	lista_local(local, &args, car, cdr, rest, NULL);
+	if (apply_control(ptr, call, args))
+		return 1;
+	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void comb_standard_funcall(Execute ptr,
-		addr rest, addr around, addr primary)
+static int comb_standard_funcall(Execute ptr, addr rest, addr around, addr primary)
 {
 	append_cons_local_unsafe(ptr->local, &around, around, primary);
 	GetCons(around, &around, &primary);
-	comb_standard_method(ptr, around, primary, rest);
+	return comb_standard_method(ptr, around, primary, rest);
 }
 
 static void comb_standard_lambda(Execute ptr)
@@ -357,11 +365,11 @@ static void comb_standard_lambda(Execute ptr)
 	addr args, data, before, primary, after, order, one, control, car, cdr;
 
 	/*
-	 *  (lambda (method next args)
+	 *  (lambda (method next &rest args)
 	 *    (declare (ignore method next))
 	 *    ...)
 	 */
-	getargs_control(ptr, 2, &args); /* args */
+	getargs_list_control_unsafe(ptr, 2, &args);
 
 	/* closure */
 	getdata_control(ptr, &data);
@@ -407,8 +415,17 @@ static void comb_standard_qualifiers(LocalRoot local,
 	method_instance_call(local, ret, clos, call);
 }
 
-static void comb_standard_execute(Execute ptr,
-		addr instance, addr generic, addr rest)
+static void comb_standard_call_error(Execute ptr, addr instance, addr generic)
+{
+	/* TODO: no-applicable-method */
+	infoprint(generic);
+	infoprint(instance);
+	stdget_generic_name(generic, &generic);
+	infoprint(generic);
+	fmte("There is no primary method.", NULL);
+}
+
+static int comb_standard_execute(Execute ptr, addr instance, addr generic, addr rest)
 {
 	addr data, around, before, primary, after, order, temp;
 	LocalRoot local;
@@ -420,26 +437,29 @@ static void comb_standard_execute(Execute ptr,
 	GetArrayA4(data, 3, &after);
 	comb_standard_getorder(&order, generic);
 
-	if (primary == Nil)
-		fmte("The primary method must be more than one.", NULL);
+	if (primary == Nil) {
+		comb_standard_call_error(ptr, instance, generic);
+		return 0;
+	}
 	local = ptr->local;
 	GetCdr(primary, &temp);
 	if (before != Nil || after != Nil || temp != Nil) {
-		comb_standard_qualifiers(local, &temp,
-				generic, before, primary, after, order);
+		comb_standard_qualifiers(local, &temp, generic, before, primary, after, order);
 		list_local(local, &primary, temp, NULL);
 	}
-	comb_standard_funcall(ptr, rest, around, primary);
+	return comb_standard_funcall(ptr, rest, around, primary);
 }
 
-static void comb_standard_call(Execute ptr,
-		addr instance, addr generic, addr rest)
+static int comb_standard_call(Execute ptr, addr instance, addr generic, addr rest)
 {
+	int result;
 	addr control;
 
 	push_return_control(ptr, &control);
-	comb_standard_execute(ptr, instance, generic, rest);
+	result = comb_standard_execute(ptr, instance, generic, rest);
 	free_control(ptr, control);
+
+	return result;
 }
 
 static void comb_standard(addr *ret, addr data)
@@ -667,7 +687,7 @@ static void generic_make_mapcar_class_of(LocalRoot local,
 	nreverse_list_unsafe(ret, result);
 }
 
-static void generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
+static int generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
 {
 	addr eqlcheck, cache, key, value, cons;
 	LocalRoot local;
@@ -691,7 +711,7 @@ static void generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args
 
 	/* clos_generic_call */
 	GetClosGenericCall(value, &call);
-	call(ptr, value, gen, args);
+	return (*call)(ptr, value, gen, args);
 }
 
 static void generic_make_lambda(addr gen, addr *ret)
@@ -706,9 +726,10 @@ static void generic_make_lambda(addr gen, addr *ret)
 	*ret = call;
 }
 
-static void generic_no_method(Execute ptr, addr inst, addr gen, addr pos)
+static int generic_no_method(Execute ptr, addr inst, addr gen, addr pos)
 {
 	fmte("GENERIC-FUNCTION ~S have no method.", gen, NULL);
+	return 0;
 }
 
 static void generic_make_generic_call(addr gen, addr *ret)
@@ -731,7 +752,6 @@ static void generic_make_generic_call(addr gen, addr *ret)
 void generic_finalize(addr gen)
 {
 	addr pos;
-
 	generic_make_generic_call(gen, &pos);
 	stdset_generic_call(gen, pos);
 }

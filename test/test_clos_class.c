@@ -224,25 +224,6 @@ static int test_stdget_class_direct_methods(void)
 	RETURN;
 }
 
-static int test_stdget_class_direct_shared(void)
-{
-	addr pos, check, k, v;
-
-	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
-	v = readr("aaa");
-	GetConst(CLOSKEY_DIRECT_SHARED, &k);
-	clos_set(pos, k, v);
-	stdget_class_direct_shared(pos, &check);
-	test(check == v, "stdget_class_direct_shared1");
-
-	stdset_class_direct_shared(pos, T);
-	clos_get(pos, k, &check);
-	test(check == T, "stdset_class_direct_shared2");
-
-	RETURN;
-}
-
 static int test_stdget_class_default_initargs(void)
 {
 	addr pos, check, k, v;
@@ -584,8 +565,7 @@ static int test_funcallp(void)
 static int test_clos_instance_alloc(void)
 {
 	addr slots, pos, name, one, clos;
-	fixnum value;
-	size_t version;
+	fixnum value, version;
 
 	/* direct-slots */
 	slot_vector_heap(&slots, 3);
@@ -619,6 +599,7 @@ static int test_clos_instance_alloc(void)
 	clos_heap(&clos, pos);
 	SetClassOfClos(clos, Nil);
 	stdset_class_slots(clos, slots);
+	stdset_class_finalized_p(clos, T);
 
 	/* test */
 	clos_instance_heap(clos, &clos);
@@ -1368,17 +1349,15 @@ static int test_clos_stdclass_slots(void)
 			"clos_stdclass_slots10");
 	test(test_slotname(slots, Clos_class_direct_methods, "DIRECT-METHODS"),
 			"clos_stdclass_slots11");
-	test(test_slotname(slots, Clos_class_direct_shared, "DIRECT-SHARED"),
-			"clos_stdclass_slots12");
 	test(test_slotname(slots, Clos_class_default_initargs, "DEFAULT-INITARGS"),
-			"clos_stdclass_slots13");
+			"clos_stdclass_slots12");
 	test(test_slotname(slots, Clos_class_direct_default_initargs,
 				"DIRECT-DEFAULT-INITARGS"),
-			"clos_stdclass_slots14");
+			"clos_stdclass_slots13");
 	test(test_slotname(slots, Clos_class_version, "VERSION"),
-			"clos_stdclass_slots15");
+			"clos_stdclass_slots14");
 	test(test_slotname(slots, Clos_class_update_info, "UPDATE-INFO"),
-			"clos_stdclass_slots16");
+			"clos_stdclass_slots15");
 
 	RETURN;
 }
@@ -1412,7 +1391,7 @@ static int test_clos_stdclass_make(void)
 	stdget_class_prototype(clos, &check);
 	test(check == clos, "clos_stdclass_make2");
 	stdget_class_finalized_p(clos, &check);
-	test(check == T, "clos_stdclass_make3");
+	test(check == Nil, "clos_stdclass_make3");
 	stdget_class_direct_slots(clos, &check);
 	test(check == slots, "clos_stdclass_make4");
 
@@ -1438,7 +1417,7 @@ static int test_clos_stdclass_empty(void)
 static int test_clos_stdclass_class_of(void)
 {
 	addr slots, clos, instance, name, check;
-	size_t version;
+	fixnum version;
 
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy(&clos, slots);
@@ -1460,23 +1439,23 @@ static int test_clos_stdclass_inherit(void)
 {
 	addr slots, metaclass, clos, name, super, supers, check, left;
 	LocalRoot local;
-	size_t version;
+	fixnum version;
 
 	local = Local_Thread;
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy(&metaclass, slots);
 	internchar(LISP_PACKAGE, "METACLASS", &name);
 	clos_stdclass_make(&metaclass, metaclass, name, slots);
-	clos_stdclass_inherit(local, metaclass, metaclass, Nil);
+	clos_stdclass_inherit(local, metaclass, metaclass, Nil, 1);
 
 	internchar(LISP_PACKAGE, "SUPER", &name);
 	clos_stdclass_make(&super, metaclass, name, slots);
-	clos_stdclass_inherit(local, super, metaclass, Nil);
+	clos_stdclass_inherit(local, super, metaclass, Nil, 1);
 
 	internchar(LISP_PACKAGE, "AAA", &name);
 	clos_stdclass_make(&clos, metaclass, name, slots);
 	list_heap(&supers, super, NULL);
-	clos_stdclass_inherit(local, clos, metaclass, supers);
+	clos_stdclass_inherit(local, clos, metaclass, supers, 1);
 
 	GetVersionClos(clos, &version);
 	test(version == 0, "clos_stdclass_inherit1");
@@ -1506,18 +1485,18 @@ static int test_clos_stdclass_single(void)
 {
 	addr slots, metaclass, clos, name, super, check, left;
 	LocalRoot local;
-	size_t version;
+	fixnum version;
 
 	local = Local_Thread;
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy(&metaclass, slots);
 	internchar(LISP_PACKAGE, "METACLASS", &name);
 	clos_stdclass_make(&metaclass, metaclass, name, slots);
-	clos_stdclass_inherit(local, metaclass, metaclass, Nil);
+	clos_stdclass_inherit(local, metaclass, metaclass, Nil, 1);
 
 	internchar(LISP_PACKAGE, "SUPER", &name);
 	clos_stdclass_make(&super, metaclass, name, slots);
-	clos_stdclass_inherit(local, super, metaclass, Nil);
+	clos_stdclass_inherit(local, super, metaclass, Nil, 1);
 
 	internchar(LISP_PACKAGE, "AAA", &name);
 	clos_stdclass_make(&clos, metaclass, name, slots);
@@ -2543,7 +2522,6 @@ static int testbreak_clos_class(void)
 	TestBreak(test_stdget_class_finalized_p);
 	TestBreak(test_stdget_class_prototype);
 	TestBreak(test_stdget_class_direct_methods);
-	TestBreak(test_stdget_class_direct_shared);
 	TestBreak(test_stdget_class_default_initargs);
 	TestBreak(test_stdget_class_direct_default_initargs);
 	TestBreak(test_stdget_class_version);

@@ -741,8 +741,9 @@ static int execute_macro_lambda(addr *ret, addr eval)
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
 	/* code */
-	if (execute_macro_lambda_eval(ptr, eval))
+	if (execute_macro_lambda_eval(ptr, eval)) {
 		return runcode_free_control(ptr, control);
+	}
 	else {
 		getresult_control(ptr, ret);
 		return free_control(ptr, control);
@@ -2042,6 +2043,7 @@ static int parse_execute(addr *ret, addr pos)
 
 int eval_parse(addr *ret, addr pos)
 {
+	int check;
 	addr control;
 	Execute ptr;
 
@@ -2050,10 +2052,8 @@ int eval_parse(addr *ret, addr pos)
 	push_close_control(ptr, &control);
 	/* code */
 	init_environment(ptr);
-	if (parse_execute(ret, pos))
-		return runcode_free_control(ptr, control);
-	else
-		return free_control(ptr, control);
+	check = parse_execute(ret, pos);
+	return free_check_control(ptr, control, check);
 }
 
 

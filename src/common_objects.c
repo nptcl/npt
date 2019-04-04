@@ -2,14 +2,17 @@
  *  ANSI COMMON LISP: 7. Objects
  */
 #include "common_header.h"
+#include "clos_class.h"
 #include "clos_common.h"
-#include "mop.h"
+#include "clos_type.h"
+#include "cons.h"
+#include "mop_common.h"
 #include "package.h"
 
 /*
  *  import
  */
-#define ImportMopPackage(x) import_mop_package(CONSTANT_CLOSNAME_##x)
+#define ImportMopPackage(x) import_mop_package(CONSTANT_COMMON_##x)
 
 static void import_mop_package(constindex index)
 {
@@ -25,30 +28,69 @@ static void import_mop_package(constindex index)
 
 /* defgeneric_function_keywords(); */
 /* defun_ensure_generic_function(); */
-/* defgeneric_allocate_instance(); */
-/* defgeneric_reinitialize_instance(); */
-/* defgeneric_shared_initialize(); */
+
+
+/* (defgeneric allocate-instance ...)  */
+void static defgeneric_allocate_instance(void)
+{
+	ImportMopPackage(ALLOCATE_INSTANCE);
+}
+
+
+/* (defgeneric reinitialize-instance ...) */
+void static defgeneric_reinitialize_instance(void)
+{
+	ImportMopPackage(REINITIALIZE_INSTANCE);
+}
+
+
+/* (defgeneric shared-initialize ...) */
+static void defgeneric_shared_initialize(void)
+{
+	ImportMopPackage(SHARED_INITIALIZE);
+}
+
+
 /* defgeneric_update_instance_for_different_class(); */
+static void defgeneric_update_instance_for_different_class(void)
+{
+	ImportMopPackage(UPDATE_INSTANCE_FOR_DIFFERENT_CLASS);
+}
+
+
 /* defgeneric_update_instance_for_redefined_class(); */
-/* defgeneric_change_class(); */
+static void defgeneric_update_instance_for_redefined_class(void)
+{
+	ImportMopPackage(UPDATE_INSTANCE_FOR_REDEFINED_CLASS);
+}
+
+
+/* (defgeneric change-class ...) */
+static void defgeneric_change_class(void)
+{
+	ImportMopPackage(CHANGE_CLASS);
+}
 
 
 /* (defun slot-boundp (object symbol) ...) -> boolean */
 static void function_slot_boundp(Execute ptr, addr pos, addr name)
 {
-	slot_boundp_common(pos, name, &pos);
-	setresult_control(ptr, pos);
-}
+	addr call, clos;
+	LocalRoot local;
+	LocalStack stack;
 
-static void type_slot_boundp(addr *ret)
-{
-	addr arg, values;
+	/* redefined */
+	clos_class_of(pos, &clos);
+	if (clos_version_check(ptr, pos, clos)) return;
 
-	GetTypeTable(&arg, T);
-	GetTypeTable(&values, Symbol);
-	typeargs_var2(&arg, arg, values);
-	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	/* call generic */
+	local = ptr->local;
+	push_local(local, &stack);
+	GetConst(CLOSNAME_SLOT_BOUNDP_USING_CLASS, &call);
+	getfunctioncheck_local(ptr, call, &call);
+	list_local(local, &pos, clos, pos, name, NULL);
+	if (apply_control(ptr, call, pos)) return;
+	rollback_local(local, stack);
 }
 
 static void defun_slot_boundp(void)
@@ -61,27 +103,268 @@ static void defun_slot_boundp(void)
 	setcompiled_var2(pos, function_slot_boundp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	type_slot_boundp(&type);
+	GetTypeCompiled(&type, SlotBoundp);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
 
 
-/* defun_exists_p(); */
-/* defun_slot_makunbound(); */
-/* defgeneric_slot_missing(); */
-/* defgeneric_slot_unbound(); */
-/* defun_slot_value(); */
+/* (defun slot-exists-p (object symbol) ...) -> boolean */
+static void function_slot_exists_p(Execute ptr, addr pos, addr name)
+{
+	addr call, clos;
+	LocalRoot local;
+	LocalStack stack;
+
+	/* redefined */
+	clos_class_of(pos, &clos);
+	if (clos_version_check(ptr, pos, clos)) return;
+
+	/* call generic */
+	local = ptr->local;
+	GetConst(CLOSNAME_SLOT_EXISTS_P_USING_CLASS, &call);
+	getfunctioncheck_local(ptr, call, &call);
+	push_local(local, &stack);
+	list_local(local, &pos, clos, pos, name, NULL);
+	if (apply_control(ptr, call, pos)) return;
+	rollback_local(local, stack);
+}
+
+static void defun_slot_exists_p(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SLOT_EXISTS_P, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_slot_exists_p);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, SlotBoundp);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun slot-makunbound (instance symbol) ...) -> instance */
+static void function_slot_makunbound(Execute ptr, addr pos, addr name)
+{
+	addr call, clos;
+	LocalRoot local;
+	LocalStack stack;
+
+	/* redefined */
+	clos_class_of(pos, &clos);
+	if (clos_version_check(ptr, pos, clos)) return;
+
+	/* call generic */
+	local = ptr->local;
+	push_local(local, &stack);
+	GetConst(CLOSNAME_SLOT_MAKUNBOUND_USING_CLASS, &call);
+	getfunctioncheck_local(ptr, call, &call);
+	list_local(local, &pos, clos, pos, name, NULL);
+	if (apply_control(ptr, call, pos)) return;
+	rollback_local(local, stack);
+}
+
+static void defun_slot_makunbound(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SLOT_MAKUNBOUND, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_slot_makunbound);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, SlotBoundp);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defgeneric slot-missing ...) */
+static void defgeneric_slot_missing(void)
+{
+	ImportMopPackage(SLOT_MISSING);
+}
+
+
+/* (defgeneric slot-unbound ...) */
+static void defgeneric_slot_unbound(void)
+{
+	ImportMopPackage(SLOT_UNBOUND);
+}
+
+
+/* (defun slot-value (object name) ...) -> t */
+static void function_slot_value(Execute ptr, addr pos, addr name)
+{
+	addr call, clos;
+	LocalRoot local;
+	LocalStack stack;
+
+	/* redefined */
+	clos_class_of(pos, &clos);
+	if (clos_version_check(ptr, pos, clos)) return;
+
+	/* call generic */
+	local = ptr->local;
+	push_local(local, &stack);
+	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
+	getfunctioncheck_local(ptr, call, &call);
+	list_local(local, &pos, clos, pos, name, NULL);
+	if (apply_control(ptr, call, pos)) return;
+	rollback_local(local, stack);
+}
+
+static void type_slot_value(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, Symbol);
+	typeargs_var2(&args, args, values);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_slot_value(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SLOT_VALUE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_slot_value);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_slot_value(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun (setf slot-value) (value pos name) ...) -> value */
+static void function_setf_slot_value(Execute ptr, addr value, addr pos, addr name)
+{
+	addr call, clos;
+	LocalRoot local;
+	LocalStack stack;
+
+	/* redefined */
+	clos_class_of(pos, &clos);
+	if (clos_version_check(ptr, pos, clos)) return;
+
+	/* call generic */
+	local = ptr->local;
+	push_local(local, &stack);
+	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
+	getsetfcheck_local(ptr, call, &call);
+	list_local(local, &pos, value, clos, pos, name, NULL);
+	if (apply_control(ptr, call, pos)) return;
+	rollback_local(local, stack);
+}
+
+static void type_setf_slot_value(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, Symbol);
+	typeargs_var3(&args, args, args, values);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_setf_slot_value(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SLOT_VALUE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var3(pos, function_setf_slot_value);
+	setsetf_symbol(symbol, pos);
+	/* type */
+	type_setf_slot_value(&type);
+	settype_function(pos, type);
+	settype_setf_symbol(symbol, type);
+}
+
+
 /* defgeneric_method_qualifiers(); */
-/* defgeneric_no_applicable_method() */
-/* defgeneric_no_next_method(); */
+
+
+/* (defgeneric no-applicable-method ...) */
+static void defgeneric_no_applicable_method(void)
+{
+	ImportMopPackage(NO_APPLICABLE_METHOD);
+}
+
+
+/* (defgeneric no-next-method ...) */
+static void defgeneric_no_next_method(void)
+{
+	ImportMopPackage(NO_NEXT_METHOD);
+}
+
+
 /* defgeneric_remove_method(); */
+
+
 /* defgeneric_make_instance(); */
+static void defgeneric_make_instance(void)
+{
+	ImportMopPackage(MAKE_INSTANCE);
+}
+
+
 /* defgeneric_make_instances_obsolete(); */
 /* defgeneric_make_load_form(); */
 /* defun_make_load_form_saving_slots(); */
-/* defmacro_with_accessors(); */
-/* defmacro_with_slots(); */
+
+
+/* (defmacro with-accessors ((entry*) instance declare* &body body) ...) -> t */
+static void function_with_accessors(Execute ptr, addr form, addr env)
+{
+	with_accessors_common(ptr, form, env, &form);
+	setresult_control(ptr, form);
+}
+
+static void defmacro_with_accessors(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_WITH_ACCESSORS, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, function_with_accessors);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
+/* (defmacro with-slots ((entry*) instance declare* &body form) ...) -> t */
+static void function_with_slots(Execute ptr, addr form, addr env)
+{
+	with_slots_common(ptr, form, env, &form);
+	setresult_control(ptr, form);
+}
+
+static void defmacro_with_slots(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_WITH_SLOTS, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, function_with_slots);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
 
 
 /* (defmacro defclass (name ({superclass}*) ({slot}*) &rest option) -> class
@@ -131,14 +414,14 @@ static void function_find_class(Execute ptr, addr pos, addr errorp, addr env)
 
 static void type_find_class(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&args, Symbol);
 	GetTypeTable(&values, T);
 	GetTypeTable(&type, EnvironmentNull);
-	typeargs_var1opt2(&arg, arg, values, type);
+	typeargs_var1opt2(&args, args, values, type);
 	GetTypeValues(&values, ClassNull);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_find_class(void)
@@ -157,15 +440,58 @@ static void defun_find_class(void)
 }
 
 
-/* defun_setf_find_class(); */
+/* (defun (setf find-class) (class symbol &optional errorp env) ...) -> class */
+static void function_setf_find_class(Execute ptr,
+		addr clos, addr name, addr errorp, addr env)
+{
+	/* (declare (ignore errorp)) */
+	if (env == Unbound) env = Nil;
+	setf_find_class_common(clos, name, env);
+	setresult_control(ptr, clos);
+}
+
+static void type_setf_find_class(addr *ret)
+{
+	addr args, values, type;
+
+	GetTypeTable(&args, Class);
+	GetTypeTable(&values, Symbol);
+	GetTypeTable(&type, EnvironmentNull);
+	typeargs_var2opt2(&args, args, values, args, type);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_setf_find_class(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_FIND_CLASS, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2opt2(pos, function_setf_find_class);
+	setsetf_symbol(symbol, pos);
+	/* type */
+	type_setf_find_class(&type);
+	settype_function(pos, type);
+	settype_setf_symbol(symbol, type);
+}
+
+
 /* defgeneric_compute_applicable_methods(); */
 /* defmacro_define_method_combination(); */
 /* defgeneric_find_method(); */
 /* defgeneric_add_method(); */
-/* defgeneric_initialize_instance(); */
 
 
-/* (defgeneric class-name ...); */
+/* (defgeneric initialize-instance ...) */
+static void defgeneric_initialize_instance(void)
+{
+	ImportMopPackage(INITIALIZE_INSTANCE);
+}
+
+
+/* (defgeneric class-name ...) */
 static void defgeneric_class_name(void)
 {
 	ImportMopPackage(CLASS_NAME);
@@ -179,7 +505,39 @@ static void defgeneric_setf_class_name(void)
 }
 
 
-/* defun_class_of(); */
+/* (defun class-of (object) ...) -> class */
+static void function_class_of(Execute ptr, addr pos)
+{
+	clos_class_of(pos, &pos);
+	setresult_control(ptr, pos);
+}
+
+static void type_class_of(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Class);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_class_of(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_CLASS_OF, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_class_of);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_class_of(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* defun_unbound_slot_instance(); */
 
 
@@ -190,41 +548,42 @@ static void intern_clos_objects(void)
 {
 	/* defgeneric_function_keywords(); */
 	/* defun_ensure_generic_function(); */
-	/* defgeneric_allocate_instance(); */
-	/* defgeneric_reinitialize_instance(); */
-	/* defgeneric_shared_initialize(); */
-	/* defgeneric_update_instance_for_different_class(); */
-	/* defgeneric_update_instance_for_redefined_class(); */
-	/* defgeneric_change_class(); */
+	defgeneric_allocate_instance();
+	defgeneric_reinitialize_instance();
+	defgeneric_shared_initialize();
+	defgeneric_update_instance_for_different_class();
+	defgeneric_update_instance_for_redefined_class();
+	defgeneric_change_class();
 	defun_slot_boundp();
-	/* defun_exists_p(); */
-	/* defun_slot_makunbound(); */
-	/* defgeneric_slot_missing(); */
-	/* defgeneric_slot_unbound(); */
-	/* defun_slot_value(); */
+	defun_slot_exists_p();
+	defun_slot_makunbound();
+	defgeneric_slot_missing();
+	defgeneric_slot_unbound();
+	defun_slot_value();
+	defun_setf_slot_value();
 	/* defgeneric_method_qualifiers(); */
-	/* defgeneric_no_applicable_method() */
-	/* defgeneric_no_next_method(); */
+	defgeneric_no_applicable_method();
+	defgeneric_no_next_method();
 	/* defgeneric_remove_method(); */
-	/* defgeneric_make_instance(); */
+	defgeneric_make_instance();
 	/* defgeneric_make_instances_obsolete(); */
 	/* defgeneric_make_load_form(); */
 	/* defun_make_load_form_saving_slots(); */
-	/* defmacro_with_accessors(); */
-	/* defmacro_with_slots(); */
+	defmacro_with_accessors();
+	defmacro_with_slots();
 	defmacro_defclass();
 	/* defmacro_defgeneric(); */
 	/* defmacro_defmethod(); */
 	defun_find_class();
-	/* defun_setf_find_class(); */
+	defun_setf_find_class();
 	/* defgeneric_compute_applicable_methods(); */
 	/* defmacro_define_method_combination(); */
 	/* defgeneric_find_method(); */
 	/* defgeneric_add_method(); */
-	/* defgeneric_initialize_instance(); */
+	defgeneric_initialize_instance();
 	defgeneric_class_name();
 	defgeneric_setf_class_name();
-	/* defun_class_of(); */
+	defun_class_of();
 	/* defun_unbound_slot_instance(); */
 }
 

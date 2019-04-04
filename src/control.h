@@ -30,6 +30,7 @@ void push_restart_control(Execute ptr, addr *ret);
 void runcode_push(Execute ptr, struct runcode_value *value);
 void runcode_rollback(Execute ptr, const struct runcode_value *value);
 int runcode_free_control(Execute ptr, addr control);
+int free_check_control(Execute ptr, addr control, int check);
 int free_control(Execute ptr, addr control);
 
 /* getcontrol */

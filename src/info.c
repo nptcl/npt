@@ -97,6 +97,11 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPSYSTEM_PROMPT:				return "?prompt";
 		case LISPSYSTEM_ENVROOT:			return "?envroot";
 		case LISPSYSTEM_ENVSTACK:			return "?envstack";
+		case LISPSYSTEM_SLOT:				return "?slot";
+		case LISPSYSTEM_SLOT_VECTOR:		return "?slot-vector";
+		case LISPSYSTEM_CLOS_VALUE:			return "?clos-value";
+		case LISPSYSTEM_GENERIC:			return "?generic";
+		case LISPSYSTEM_ARGUMENT:			return "?argument";
 		case LISPSYSTEM_CHECK:				return "?check";
 
 		case LISPSYSTEM_UNBOUND:			return "unboundtype";
@@ -1056,8 +1061,12 @@ static void infoprint_reserved(addr pos)
 
 static void infoprint_default(addr pos)
 {
-	int type = (int)info_gettype(pos);
-	info_stdarg("#<OBJECT %d[0x%X]>", type, type);
+	int type;
+	const char *ptr;
+	
+	type = (int)info_gettype(pos);
+	ptr = infochar_lisp(type);
+	info_stdarg("#<OBJECT %s %d[0x%X]>", ptr, type, type);
 }
 
 static void infobit_body(addr pos)

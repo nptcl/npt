@@ -5,12 +5,18 @@
 #include "constant.h"
 #include "execute.h"
 
+extern addr Clos_standard_class;
+extern addr Clos_standard_generic;
+extern addr Clos_standard_method;
+extern addr Clos_standard_combination;
+extern addr Clos_standard_specializer;
+
 struct slot_struct {
 	size_t location;
 };
 
 struct clos_struct {
-	size_t version;
+	fixnum version;
 };
 
 #define PtrSlotStruct_Low(x)			PtrBodySSa((x),SLOT_INDEX_SIZE)
@@ -56,6 +62,12 @@ struct clos_struct {
 #define SetClosValue_Low				SetArrayA4
 #define LenClosValue_Low				LenArrayA4
 
+#define clos_standard_class_p_Low(x)		(Clos_standard_class == (x))
+#define clos_standard_generic_p_Low(x)		(Clos_standard_generic == (x))
+#define clos_standard_method_p_Low(x)		(Clos_standard_method == (x))
+#define clos_standard_combination_p_Low(x)	(Clos_standard_combination == (x))
+#define clos_standard_specializer_p_Low(x)	(Clos_standard_specializer == (x))
+
 #ifdef LISP_DEBUG
 #define SlotStruct				struct_slot
 #define GetNameSlot				getname_slot
@@ -97,6 +109,12 @@ struct clos_struct {
 #define GetClosValue			getclosvalue
 #define SetClosValue			setclosvalue
 #define LenClosValue			lenclosvalue
+
+#define clos_standard_class_p		clos_standard_class_p_debug
+#define clos_standard_generic_p		clos_standard_generic_p_debug
+#define clos_standard_method_p		clos_standard_method_p_debug
+#define clos_standard_combination_p	clos_standard_combination_p_debug
+#define clos_standard_specializer_p	clos_standard_specializer_p_debug
 
 #else
 
@@ -141,6 +159,12 @@ struct clos_struct {
 #define SetClosValue			SetClosValue_Low
 #define LenClosValue			LenClosValue_Low
 
+#define clos_standard_class_p		clos_standard_class_p_Low
+#define clos_standard_generic_p		clos_standard_generic_p_Low
+#define clos_standard_method_p		clos_standard_method_p_Low
+#define clos_standard_combination_p	clos_standard_combination_p_Low
+#define clos_standard_specializer_p	clos_standard_specializer_p_Low
+
 #endif
 
 /* access */
@@ -175,8 +199,8 @@ void getvalue_clos(addr pos, addr *ret);
 void setvalue_clos(addr pos, addr value);
 void getfuncall_clos(addr pos, int *ret);
 void setfuncall_clos(addr pos, int value);
-void getversion_clos(addr pos, size_t *ret);
-void setversion_clos(addr pos, size_t value);
+void getversion_clos(addr pos, fixnum *ret);
+void setversion_clos(addr pos, fixnum value);
 
 void getslotvector(addr pos, size_t index, addr *ret);
 void setslotvector(addr pos, size_t index, addr value);
@@ -184,6 +208,13 @@ void lenslotvector(addr pos, size_t *ret);
 void getclosvalue(addr pos, size_t index, addr *ret);
 void setclosvalue(addr pos, size_t index, addr value);
 void lenclosvalue(addr pos, size_t *ret);
+
+void clos_standard_ignore(int value);
+int clos_standard_class_p_debug(addr pos);
+int clos_standard_generic_p_debug(addr pos);
+int clos_standard_method_p_debug(addr pos);
+int clos_standard_combination_p_debug(addr pos);
+int clos_standard_specializer_p_debug(addr pos);
 
 /* allocate */
 void slot_alloc(LocalRoot local, addr *ret);
@@ -205,6 +236,17 @@ void clos_alloc(LocalRoot local, addr *ret, addr slots);
 void clos_local(LocalRoot local, addr *ret, addr slots);
 void clos_heap(addr *ret, addr slots);
 
+void closcell_alloc(LocalRoot local, addr *ret, addr name, addr value);
+void closcell_local(LocalRoot local, addr *ret, addr name, addr value);
+void closcell_heap(addr *ret, addr name, addr value);
+void closcell_setname(addr pos, addr name);
+void closcell_getname(addr pos, addr *ret);
+void closcell_setvalue(addr pos, addr value);
+void closcell_getvalue(addr pos, addr *ret);
+int closcellp(addr pos);
+void clos_value_get(addr pos, size_t i, addr *ret);
+void clos_value_set(addr pos, size_t i, addr value);
+
 /* control */
 int closp(addr pos);
 int slotp(addr pos);
@@ -214,6 +256,7 @@ int slot_instance_p(addr pos);
 void clos_set_funcall(addr pos);
 void slot_set_class(addr pos);
 void slot_set_instance(addr pos);
+void slot_set_allocation(addr pos, addr value);
 
 int clos_errorp(addr pos, size_t index, constindex name);
 int clos_getp(addr pos, addr key, addr *ret);

@@ -1,6 +1,7 @@
 #include "bignum.h"
 #include "clos.h"
 #include "condition.h"
+#include "cons.h"
 #include "constant.h"
 #include "integer.h"
 #include "type_parse.h"
@@ -203,6 +204,13 @@ void typeargs_var3opt1(addr *ret, addr var1, addr var2, addr var3, addr opt1)
 	typeargs_full(ret, var1, opt1, Nil, Nil);
 }
 
+void typeargs_var4opt1(addr *ret, addr v1, addr v2, addr v3, addr v4, addr opt1)
+{
+	list_heap(&v1, v1, v2, v3, v4, NULL);
+	conscar_heap(&opt1, opt1);
+	typeargs_full(ret, v1, opt1, Nil, Nil);
+}
+
 void typeargs_var1rest(addr *ret, addr v1, addr rest)
 {
 	conscar_heap(&v1, v1);
@@ -235,6 +243,17 @@ void typeargs_rest(addr *ret, addr rest)
 void typeargs_key(addr *ret, addr key)
 {
 	typeargs_full(ret, Nil, Nil, Nil, key);
+}
+
+void typeargs_method(addr pos)
+{
+	addr var, method1, method2;
+
+	GetArrayA2(pos, 0, &var); /* var */
+	GetTypeTable(&method1, Method1);
+	GetTypeTable(&method2, Method2);
+	lista_heap(&var, method1, method2, var, NULL);
+	SetArrayA2(pos, 0, var); /* var */
 }
 
 

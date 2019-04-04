@@ -259,23 +259,23 @@ static void method_arguments_check4(
 		addr pos1, const struct argument_struct *str1,
 		addr pos2, const struct argument_struct *str2)
 {
-	if (str1->key) { /* not keyp */
-		if (str2->rest)
-			return; /* &key ..., &rest -> ok */
-		if (str2->allow)
-			return; /* &key ..., &key &allow-other-keys -> ok */
-		if (str1->keyp && str2->keyp)
-			return; /* &key, &key -> ok */
-		if (str1->keyp)
-			return; /* &key, ... -> ok */
-		if (str2->keyp)
-			goto error; /* ..., &key -> error */
-		/* &key ..., &key ... */
-		GetArgument(pos1, ArgumentIndex_key, &pos1);
-		GetArgument(pos2, ArgumentIndex_key, &pos2);
-		if (! method_null_set_difference(pos1, pos2))
-			goto error;
-	}
+	if (! str1->key)
+		return; /* not keyp */
+	if (str2->rest)
+		return; /* &key ..., &rest -> ok */
+	if (str2->allow)
+		return; /* &key ..., &key &allow-other-keys -> ok */
+	if (str1->keyp && str2->keyp)
+		return; /* &key, &key -> ok */
+	if (str1->keyp)
+		return; /* &key, ... -> ok */
+	if (str2->keyp)
+		goto error; /* ..., &key -> error */
+	/* &key ..., &key ... */
+	GetArgument(pos1, ArgumentIndex_key, &pos1);
+	GetArgument(pos2, ArgumentIndex_key, &pos2);
+	if (! method_null_set_difference(pos1, pos2))
+		goto error;
 	return;
 
 error:
@@ -481,18 +481,20 @@ static void method_add_replace(Execute ptr,
 	method_push_generic(ptr, generic, method);
 }
 
-static void method_add_check(Execute ptr, addr generic, addr method)
+static int method_add_check(Execute ptr, addr generic, addr method)
 {
 	method_check_method_class(generic, method);
 	method_check_method_qualifiers(ptr, generic, method);
 	method_check_method_arguments(generic, method);
+	return 0;
 }
 
-void method_add_method(Execute ptr, addr generic, addr method)
+int method_add_method(Execute ptr, addr generic, addr method)
 {
 	addr check_method;
 
-	method_add_check(ptr, generic, method);
+	if (method_add_check(ptr, generic, method))
+		return 1;
 	method_replace_check(ptr, generic, method, &check_method);
 	if (check_method != Nil) {
 		method_add_replace(ptr, generic, method, check_method);
@@ -504,6 +506,8 @@ void method_add_method(Execute ptr, addr generic, addr method)
 	}
 	method_cache_remove(ptr->local, generic, method);
 	generic_finalize(generic);
+
+	return 0;
 }
 
 
@@ -517,7 +521,10 @@ void common_method_add(Execute ptr, addr generic, addr method)
 
 	Check(! clos_generic_p(generic), "generic error");
 	Check(! clos_method_p(method), "method error");
-	method_add_check(ptr, generic, method);
+	if (method_add_check(ptr, generic, method)) {
+		fmte("Invalid jump call.", NULL);
+		return;
+	}
 	method_replace_check(ptr, generic, method, &check_method);
 	if (check_method != Nil) {
 		fmte("The method is already exists.", NULL);

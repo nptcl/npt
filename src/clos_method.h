@@ -20,7 +20,7 @@ void method_instance_alloc(LocalRoot local, addr *ret, addr clos,
 		addr lambda_list, addr qualifiers, addr specializers, addr function);
 void method_instance_call(LocalRoot local, addr *ret, addr clos, addr call);
 void method_instance_lambda(LocalRoot local, addr *ret, addr clos, addr lambda);
-void method_add_method(Execute ptr, addr generic, addr method);
+int method_add_method(Execute ptr, addr generic, addr method);
 void common_method_add(Execute ptr, addr generic, addr method);
 void common_method_finalize(addr generic);
 

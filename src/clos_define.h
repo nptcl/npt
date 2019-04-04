@@ -24,6 +24,12 @@ enum CLOS_INDEX {
 	CLOS_INDEX_SIZE
 };
 
+enum CLOS_CELL_INDEX {
+	CLOS_CELL_NAME,
+	CLOS_CELL_VALUE,
+	CLOS_CELL_SIZE
+};
+
 enum Clos_class_Index {
 	Clos_class_name,
 	Clos_class_direct_slots,
@@ -34,7 +40,6 @@ enum Clos_class_Index {
 	Clos_class_finalized_p,
 	Clos_class_prototype,
 	Clos_class_direct_methods,
-	Clos_class_direct_shared,
 	Clos_class_default_initargs,
 	Clos_class_direct_default_initargs,
 	Clos_class_version,

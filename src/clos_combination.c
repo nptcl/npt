@@ -177,17 +177,23 @@ static int qualifiers_equal_list(addr left, addr right)
 static int qualifiers_equal_symbol(Execute ptr, addr left, addr right)
 {
 	int result;
-	addr control;
+	addr control, call;
 
 	push_close_control(ptr, &control);
 	conscar_local(ptr->local, &left, left);
-	getfunctioncheck_local(ptr, right, &right);
-	apply_control(ptr, right, left);
+	getfunctioncheck_local(ptr, right, &call);
+	if (apply_control(ptr, call, left))
+		goto error;
 	getresult_control(ptr, &left);
 	result = left != Nil;
-	free_control(ptr, control);
+	if (free_control(ptr, control))
+		goto error;
 
 	return result;
+
+error:
+	fmte("The predicate ~S don't execute jump operation.", right, NULL);
+	return 0;
 }
 
 static int qualifiers_equal(Execute ptr, addr left, addr right)

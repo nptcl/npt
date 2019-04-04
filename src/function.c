@@ -131,6 +131,22 @@ int parse_callname_heap(addr *ret, addr name)
 	return parse_callname_alloc(NULL, ret, name);
 }
 
+void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol)
+{
+	Check(! symbolp(symbol), "type error");
+	callname_alloc(local, ret, symbol, CALLNAME_SETF);
+}
+void setf_callname_local(LocalRoot local, addr *ret, addr symbol)
+{
+	Check(! symbolp(symbol), "type error");
+	callname_local(local, ret, symbol, CALLNAME_SETF);
+}
+void setf_callname_heap(addr *ret, addr symbol)
+{
+	Check(! symbolp(symbol), "type error");
+	callname_heap(ret, symbol, CALLNAME_SETF);
+}
+
 int parse_setcallname(addr pos, addr name)
 {
 	enum CALLNAME_TYPE type;
@@ -653,13 +669,6 @@ void setcompiled_macro(addr pos, callbind_macro call)
 	str->call.macro = call;
 }
 
-void setcompiled_method(addr pos, callbind_method call)
-{
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_method;
-	str->call.method = call;
-}
-
 void setcompiled_none(addr pos, callbind_none call)
 {
 	struct callbind_struct *str = CallBindCompiled(pos);
@@ -714,6 +723,20 @@ void setcompiled_var3(addr pos, callbind_var3 call)
 	struct callbind_struct *str = CallBindCompiled(pos);
 	str->type = CallBind_var3;
 	str->call.var3 = call;
+}
+
+void setcompiled_var4(addr pos, callbind_var4 call)
+{
+	struct callbind_struct *str = CallBindCompiled(pos);
+	str->type = CallBind_var4;
+	str->call.var4 = call;
+}
+
+void setcompiled_var5(addr pos, callbind_var5 call)
+{
+	struct callbind_struct *str = CallBindCompiled(pos);
+	str->type = CallBind_var5;
+	str->call.var5 = call;
 }
 
 void setcompiled_opt1(addr pos, callbind_opt1 call)
