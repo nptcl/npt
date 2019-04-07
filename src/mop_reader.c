@@ -62,6 +62,7 @@ static void defgeneric_class_name(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_STANDARD_CLASS);
 	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
@@ -75,10 +76,59 @@ static void defgeneric_class_name(Execute ptr)
  *  (setf class-name)
  ***********************************************************************/
 /* (defmethod (setf class-name) (t class) ...) -> t */
-static void defmethod_setf_class_name_class(Execute ptr, addr name, addr gen)
+static void method_setf_class_name(Execute ptr,
+		addr method, addr next, addr symbol, addr pos)
 {
+	stdset_class_name(pos, symbol);
+	setresult_control(ptr, symbol);
 }
 
+static void method_type_setf_class_name(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Symbol);
+	GetTypeTable(&values, T);
+	typeargs_var2(&args, args, values);
+	typeargs_method(args);
+	GetTypeValues(&values, Symbol);
+	type_compiled_heap(args, values, ret);
+}
+
+static void method_argument_setf_class_name(addr *ret)
+{
+	addr pos, list, type1, type2;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 2;
+	ArgumentMethod_var(&type1, SYMBOL);
+	ArgumentMethod_var(&type2, STANDARD_CLASS);
+	list_heap(&list, type1, type2, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+static void defmethod_setf_class_name_class(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var4(call, method_setf_class_name);
+	method_type_setf_class_name(&type);
+	settype_function(call, type);
+	/* method */
+	method_argument_setf_class_name(&pos);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
 
 /* (defgeneric (setf class-name) (t class)) -> t */
 static void defgeneric_setf_class_name(Execute ptr)
@@ -86,7 +136,7 @@ static void defgeneric_setf_class_name(Execute ptr)
 	addr symbol, name, gen;
 
 	GetConst(COMMON_CLASS_NAME, &symbol);
-	mop_argument_generic_var1(&gen);
+	mop_argument_generic_var2(&gen);
 	setf_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	setsetf_symbol(symbol, gen);
@@ -99,9 +149,26 @@ static void defgeneric_setf_class_name(Execute ptr)
 /***********************************************************************
  *  class-slots
  ***********************************************************************/
+static void make_slot_definition_call(Execute ptr)
+{
+	addr value;
+	getdata_control(ptr, &value);
+	setresult_control(ptr, value);
+}
+
+static void make_slot_definition_function(addr value, addr *ret)
+{
+	addr pos;
+
+	compiled_heap(&pos, Nil);
+	setcompiled_empty(pos, make_slot_definition_call);
+	SetDataFunction(pos, value);
+	*ret = pos;
+}
+
 static void make_slot_definition(addr slot, addr *ret)
 {
-	addr clos, key, value;
+	addr clos, key, value, check;
 
 	GetConst(CLOS_STANDARD_SLOT_DEFINITION, &clos);
 	clos_instance_heap(clos, &clos);
@@ -128,12 +195,18 @@ static void make_slot_definition(addr slot, addr *ret)
 	clos_set(clos, key, value);
 	/* slot-definition-initform */
 	GetFormSlot(slot, &value);
-	GetConst(CLOSKEY_INITFORM, &key);
-	clos_set(clos, key, value);
-	/* slot-definition-initfunction */
-	GetFunctionSlot(slot, &value);
-	GetConst(CLOSKEY_INITFUNCTION, &key);
-	clos_set(clos, key, value);
+	if (value != Unbound) {
+		GetConst(CLOSKEY_INITFORM, &key);
+		clos_set(clos, key, value);
+		/* slot-definition-initfunction */
+		GetFunctionSlot(slot, &check);
+		if (check == Nil)
+			make_slot_definition_function(value, &value);
+		else
+			value = check;
+		GetConst(CLOSKEY_INITFUNCTION, &key);
+		clos_set(clos, key, value);
+	}
 	/* result */
 	*ret = clos;
 }
@@ -166,7 +239,7 @@ static void method_type_class_slots(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StandardClass);
+	GetTypeTable(&args, Class);
 	typeargs_var1(&args, args);
 	typeargs_method(args);
 	GetTypeValues(&values, T);
@@ -199,6 +272,7 @@ static void defgeneric_class_slots(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_class_slots(ptr, name, gen, CONSTANT_CLOS_STANDARD_CLASS);
 	defmethod_class_slots(ptr, name, gen, CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
@@ -246,6 +320,7 @@ static void defgeneric_class_direct_slots(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_class_direct_slots(ptr, name, gen,
 			CONSTANT_CLOS_STANDARD_CLASS);
@@ -296,6 +371,7 @@ static void defgeneric_class_default_initargs(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_class_default_initargs(ptr, name, gen,
 			CONSTANT_CLOS_STANDARD_CLASS);
@@ -347,6 +423,7 @@ static void defgeneric_class_direct_default_initargs(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_class_direct_default_initargs(ptr, name, gen,
 			CONSTANT_CLOS_STANDARD_CLASS);
@@ -398,6 +475,7 @@ static void defgeneric_class_precedence_list(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_class_precedence_list(ptr, name, gen,
 			CONSTANT_CLOS_STANDARD_CLASS);
@@ -449,6 +527,7 @@ static void defgeneric_class_direct_superclasses(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_class_direct_superclasses(ptr, name, gen,
 			CONSTANT_CLOS_STANDARD_CLASS);
@@ -500,6 +579,7 @@ static void defgeneric_class_direct_subclasses(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_class_direct_subclasses(ptr, name, gen,
 			CONSTANT_CLOS_STANDARD_CLASS);
@@ -551,6 +631,7 @@ static void defgeneric_class_finalized_p(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_class_finalized_p(ptr, name, gen,
 			CONSTANT_CLOS_STANDARD_CLASS);
@@ -602,6 +683,7 @@ static void defgeneric_class_prototype(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_class_prototype(ptr, name, gen,
 			CONSTANT_CLOS_STANDARD_CLASS);
@@ -668,6 +750,7 @@ static void defgeneric_slot_definition_name(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_slot_definition_name(ptr, name, gen);
 	common_method_finalize(gen);
@@ -727,6 +810,7 @@ static void defgeneric_slot_definition_type(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_slot_definition_type(ptr, name, gen);
 	common_method_finalize(gen);
@@ -787,6 +871,7 @@ static void defgeneric_slot_definition_allocation(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_slot_definition_allocation(ptr, name, gen);
 	common_method_finalize(gen);
@@ -847,6 +932,7 @@ static void defgeneric_slot_definition_initargs(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_slot_definition_initargs(ptr, name, gen);
 	common_method_finalize(gen);
@@ -907,6 +993,7 @@ static void defgeneric_slot_definition_initform(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_slot_definition_initform(ptr, name, gen);
 	common_method_finalize(gen);
@@ -967,6 +1054,7 @@ static void defgeneric_slot_definition_initfunction(Execute ptr)
 	parse_callname_heap(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
 	/* method */
 	defmethod_slot_definition_initfunction(ptr, name, gen);
 	common_method_finalize(gen);

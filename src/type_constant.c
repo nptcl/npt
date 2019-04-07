@@ -57,6 +57,7 @@ DefTypeTable(0,  ASTERISK,             Asterisk             );
 DefTypeTable(0,  ATOM,                 Atom                 );
 DefTypeTable(0,  LIST,                 List                 );
 DefTypeTable(0,  BOOLEAN,              Boolean              );
+DefTypeTable(1,  CLOS,                 Clos                 );
 DefTypeTable(2,  VECTOR,               Vector               );
 DefTypeTable(1,  SIMPLE_VECTOR,        SimpleVector         );
 DefTypeTable(1,  BIT_VECTOR,           BitVector            );
@@ -504,12 +505,13 @@ static void typetable_output_stream(void)
 static void typetable_typespec(void)
 {
 	/* (or [type] symbol (cons * *)) */
-	addr type1, type2, type3, pos;
+	addr type1, type2, type3, type4, pos;
 
 	GetTypeTable(&type1, Type);
 	GetTypeTable(&type2, Symbol);
 	GetTypeTable(&type3, Cons);
-	type3or_heap(type1, type2, type3, &pos);
+	GetTypeTable(&type4, Clos);
+	type4or_heap(type1, type2, type3, type4, &pos);
 	SetTypeTable(TypeSpec, pos);
 }
 
@@ -2497,6 +2499,7 @@ void build_type_constant(void)
 	typetable_Atom();
 	typetable_List();
 	typetable_Boolean();
+	typetable_Clos();
 	typetable_Vector();
 	typetable_SimpleVector();
 	typetable_BitVector();

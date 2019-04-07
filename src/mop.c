@@ -5,12 +5,24 @@
 #include "cons.h"
 #include "lambda.h"
 #include "mop.h"
+#include "package.h"
+#include "symbol.h"
 #include "type_table.h"
+
+void export_mop(addr symbol)
+{
+	addr package;
+
+	Check(! symbolp(symbol), "type error");
+	GetConst(PACKAGE_CLOS, &package);
+	export_package(package, symbol);
+}
+
 
 /*
  *  type
  */
-void mop_argument_generic_var1(addr *ret)
+static void mop_argument_generic_var(addr *ret, unsigned n)
 {
 	addr pos;
 	struct argument_struct *str;
@@ -18,8 +30,31 @@ void mop_argument_generic_var1(addr *ret)
 	argument_heap(&pos);
 	str = ArgumentStruct(pos);
 	str->type = ArgumentType_generic;
-	str->var = 1;
+	str->var = n;
 	*ret = pos;
+}
+
+void mop_argument_generic_var1(addr *ret)
+{
+	mop_argument_generic_var(ret, 1);
+}
+
+void mop_argument_generic_var2(addr *ret)
+{
+	mop_argument_generic_var(ret, 2);
+}
+
+void mop_argument_generic_var3(addr *ret)
+{
+	mop_argument_generic_var(ret, 3);
+}
+void mop_argument_generic_var4(addr *ret)
+{
+	mop_argument_generic_var(ret, 4);
+}
+void mop_argument_generic_var5(addr *ret)
+{
+	mop_argument_generic_var(ret, 5);
 }
 
 void mop_argument_generic_var1rest(addr *ret)

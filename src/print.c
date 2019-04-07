@@ -85,7 +85,7 @@ static int print_unreadable_object(struct PrintFormat *format,
 	if (identity) {
 		if (first == 0)
 			write_char_stream(stream, ' ');
-		snprintf(buffer, 32, "#x%p", (void *)pos);
+		snprintf(buffer, 32, "%p", (void *)pos);
 		print_ascii_stream(stream, buffer);
 	}
 	write_char_stream(stream, '>');

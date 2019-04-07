@@ -37,6 +37,8 @@ struct clos_struct {
 #define SetWritersSlot_Low(x,y)			SetArraySS((x),SLOT_INDEX_WRITERS,(y))
 #define GetDocumentSlot_Low(x,y)		GetArraySS((x),SLOT_INDEX_DOCUMENT,(y))
 #define SetDocumentSlot_Low(x,y)		SetArraySS((x),SLOT_INDEX_DOCUMENT,(y))
+#define GetClassSlot_Low(x,y)			GetArraySS((x),SLOT_INDEX_CLASS,(y))
+#define SetClassSlot_Low(x,y)			SetArraySS((x),SLOT_INDEX_CLASS,(y))
 #define GetAllocationSlot_Low(x,y)		(*(y) = GetUser((x)))
 #define SetAllocationSlot_Low(x,y)		(SetUser((x), (y) != 0))
 #define GetLocationSlot_Low(x,y)		(*(y) = SlotStruct_Low(x)->location)
@@ -86,6 +88,8 @@ struct clos_struct {
 #define SetWritersSlot			setwriters_slot
 #define GetDocumentSlot			getdocument_slot
 #define SetDocumentSlot			setdocument_slot
+#define GetClassSlot			getclass_slot
+#define SetClassSlot			setclass_slot
 #define GetAllocationSlot		getallocation_slot
 #define SetAllocationSlot		setallocation_slot
 #define GetLocationSlot			getlocation_slot
@@ -135,6 +139,8 @@ struct clos_struct {
 #define SetWritersSlot			SetWritersSlot_Low
 #define GetDocumentSlot			GetDocumentSlot_Low
 #define SetDocumentSlot			SetDocumentSlot_Low
+#define GetClassSlot			GetClassSlot_Low
+#define SetClassSlot			SetClassSlot_Low
 #define GetAllocationSlot		GetAllocationSlot_Low
 #define SetAllocationSlot		SetAllocationSlot_Low
 #define GetLocationSlot			GetLocationSlot_Low
@@ -185,6 +191,8 @@ void getwriters_slot(addr pos, addr *ret);
 void setwriters_slot(addr pos, addr value);
 void getdocument_slot(addr pos, addr *ret);
 void setdocument_slot(addr pos, addr value);
+void getclass_slot(addr pos, addr *ret);
+void setclass_slot(addr pos, addr value);
 void getallocation_slot(addr pos, int *ret);
 void setallocation_slot(addr pos, int value);
 void getlocation_slot(addr pos, size_t *ret);
@@ -231,21 +239,11 @@ void slot_vector_copy_alloc(LocalRoot local, addr *ret, addr pos);
 void slot_vector_copy_local(LocalRoot local, addr *ret, addr pos);
 void slot_vector_copy_heap(addr *ret, addr pos);
 void slot_vector_copyheap_alloc(LocalRoot local, addr *ret, addr pos);
+void slot_vector_clear(addr pos);
 
 void clos_alloc(LocalRoot local, addr *ret, addr slots);
 void clos_local(LocalRoot local, addr *ret, addr slots);
 void clos_heap(addr *ret, addr slots);
-
-void closcell_alloc(LocalRoot local, addr *ret, addr name, addr value);
-void closcell_local(LocalRoot local, addr *ret, addr name, addr value);
-void closcell_heap(addr *ret, addr name, addr value);
-void closcell_setname(addr pos, addr name);
-void closcell_getname(addr pos, addr *ret);
-void closcell_setvalue(addr pos, addr value);
-void closcell_getvalue(addr pos, addr *ret);
-int closcellp(addr pos);
-void clos_value_get(addr pos, size_t i, addr *ret);
-void clos_value_set(addr pos, size_t i, addr value);
 
 /* control */
 int closp(addr pos);

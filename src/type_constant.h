@@ -20,6 +20,7 @@ enum TypeTable {
 
 	/* Atomic-Type */
 	TypeTable_Type,
+	TypeTable_Clos,
 	TypeTable_Asterisk,
 	TypeTable_Atom,
 	TypeTable_List,

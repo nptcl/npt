@@ -44,6 +44,7 @@ int clos_method_p(addr clos);
 int clos_combination_p(addr clos);
 int clos_specializer_p(addr clos);
 int clos_referenced_p(addr clos);
+int clos_built_p(addr clos);
 int funcallp(addr pos);
 
 /* make-instance */
@@ -55,12 +56,22 @@ void clos_instance_heap(addr clos, addr *ret);
 void slotvector_set_location(addr slots);
 int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret);
 int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest);
-void allocate_instance_stdclass(addr clos, addr *ret);
+void allocate_instance_stdclass(Execute ptr, addr clos, addr *ret);
 int initialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret);
 int reinitialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret);
 int shared_initialize_stdobject(Execute ptr, addr pos, addr name, addr rest);
 int clos_version_check(Execute ptr, addr pos, addr clos);
 int clos_change_class(Execute ptr, addr pos, addr clos, addr rest, addr *ret);
+int clos_slot_missing(Execute ptr,
+		addr clos, addr pos, addr name, addr operation, addr value);
+int clos_slot_unbound(Execute ptr, addr clos, addr pos, addr name);
+int slot_boundp_using_class_common(Execute ptr,
+		addr clos, addr pos, addr name, int *ret);
+int slot_makunbound_using_class(Execute ptr, addr clos, addr pos, addr key);
+int slot_value_using_class_common(Execute ptr,
+		addr clos, addr pos, addr key, addr *ret);
+int setf_slot_value_using_class_common(Execute ptr,
+		addr clos, addr pos, addr key, addr value);
 
 /* build */
 void build_clos_class(LocalRoot local);

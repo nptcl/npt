@@ -2,6 +2,7 @@
  *  ANSI COMMON LISP: 5. Data and Control Flow
  */
 #include "array.h"
+#include "clos_class.h"
 #include "code.h"
 #include "common_header.h"
 #include "cons.h"
@@ -28,7 +29,7 @@ static void checkfunction(Execute ptr, addr call, addr *ret)
 		if (macro_function_p(call))
 			fmte("Cannot call the macro-function ~S.", call, NULL);
 	}
-	if (GetType(call) != LISPTYPE_FUNCTION)
+	if (! funcallp(call))
 		fmte("The argument ~S is not executable.", call, NULL);
 	*ret = call;
 }

@@ -166,9 +166,9 @@ void degrade_execute(void)
 	DegradeCheck(test_stream);
 	DegradeCheck(test_main);
 	DegradeCheck(test_condition);
-	DegradeCheck(loadrt);
 #if 0
 #endif
+	DegradeCheck(loadrt);
 }
 
 #endif

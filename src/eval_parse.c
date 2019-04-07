@@ -1075,14 +1075,14 @@ static int parse_function_argument(addr *ret, addr value)
 
 	/* lambda function */
 	if (GetType(value) != LISPTYPE_CONS)
-		fmte("function must be a fdefinition form.", NULL);
+		fmte("function ~S must be a fdefinition form.", value, NULL);
 	GetConst(COMMON_LAMBDA, &symbol);
 	GetCar(value, &check);
 	if (check == symbol)
 		return parse_lambda(ret, value);
 
 	/* others */
-	fmte("function must be a fdefinition form.", NULL);
+	fmte("function ~S must be a fdefinition form.", value, NULL);
 
 	return 0;
 }

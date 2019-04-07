@@ -129,6 +129,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 				fmte(":ALLOCATION ~S must be a :instance or :class.", value, NULL);
 			if (allocation != Nil)
 				fmte(":ALLOCATION is already exist.", NULL);
+			allocation = value;
 			continue;
 		}
 
@@ -177,14 +178,14 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 		cons_heap(&others, value, others);
 	}
 
-	/* list :name (quote name) */
-	GetConst(COMMON_QUOTE, &quote);
 	root = Nil;
+	GetConst(COMMON_QUOTE, &quote);
+	/* list :name (quote name) */
 	GetConst(COMMON_LIST, &pos);
 	cons_heap(&root, pos, root);
 	GetConst(KEYWORD_NAME, &pos);
 	cons_heap(&root, pos, root);
-	list_heap(&pos, pos, name, NULL);
+	list_heap(&pos, quote, name, NULL);
 	cons_heap(&root, pos, root);
 	/* :readers (quote (a b c ...)) */
 	if (readers != Nil) {
@@ -304,6 +305,37 @@ static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
 	return 0;
 }
 
+static void defclass_parse_initargs(addr args, addr *ret)
+{
+	/* (:aaa 100 bbb (hello))
+	 * -> (list (list (quote :aaa) (quote 100) (lambda () 100))
+	 *          (list (quote bbb) (quote (hello)) (lambda () (hello))))
+	 */
+	addr root, key, value, list, quote, lambda, a, b, c;
+
+	/* parse */
+	GetConst(COMMON_LIST, &list);
+	GetConst(COMMON_QUOTE, &quote);
+	GetConst(COMMON_LAMBDA, &lambda);
+	for (root = Nil; args != Nil; ) {
+		getcons(args, &key, &args);
+		getcons(args, &value, &args);
+		list_heap(&a, quote, key, NULL);
+		list_heap(&b, quote, value, NULL);
+		list_heap(&c, lambda, Nil, value, NULL);
+		list_heap(&value, list, a, b, c, NULL);
+		cons_heap(&root, value, root);
+	}
+
+	/* result */
+	if (root == Nil)
+		*ret = Nil;
+	else {
+		nreverse_list_unsafe(&root, root);
+		cons_heap(ret, list, root);
+	}
+}
+
 static void defclass_parse_options(addr list, addr *ret)
 {
 	addr root, key, value;
@@ -335,6 +367,8 @@ static void defclass_parse_options(addr list, addr *ret)
 
 		/* :default-initargs */
 		if (DefClassEqConst(key, DEFAULT_INITARGS)) {
+			defclass_parse_initargs(value, &value);
+			GetConst(CLOSKEY_DIRECT_DEFAULT_INITARGS, &key);
 			cons_heap(&root, key, root);
 			cons_heap(&root, value, root);
 			continue;
@@ -466,13 +500,14 @@ static void with_accessors_arguments(addr args, addr g, addr *ret)
 	addr root, var, name, temp;
 
 	for (root = Nil; args != Nil; ) {
+		getcons(args, &var, &args);
 		/* parse */
-		if (symbolp(args)) {
-			var = name = args;
+		if (symbolp(var)) {
+			name = var;
 		}
 		else {
-			if (! consp(args)) goto error;
-			GetCons(args, &var, &temp);
+			if (! consp(var)) goto error;
+			GetCons(var, &var, &temp);
 			if (! consp(temp)) goto error;
 			GetCons(temp, &name, &temp);
 			if (temp != Nil) goto error;
@@ -517,6 +552,7 @@ void with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
 	with_accessors_arguments(var, g, &var);
 	lista_heap(&symm, symm, var, args, NULL);
 	list_heap(&g, g, expr, NULL);
+	list_heap(&g, g, NULL);
 	list_heap(ret, let, g, symm, NULL);
 	return;
 
@@ -536,13 +572,14 @@ static void with_slots_arguments(addr args, addr g, addr *ret)
 	GetConst(COMMON_SLOT_VALUE, &slot);
 	GetConst(COMMON_QUOTE, &quote);
 	for (root = Nil; args != Nil; ) {
+		getcons(args, &var, &args);
 		/* parse */
-		if (symbolp(args)) {
-			var = name = args;
+		if (symbolp(var)) {
+			name = var;
 		}
 		else {
-			if (! consp(args)) goto error;
-			GetCons(args, &var, &temp);
+			if (! consp(var)) goto error;
+			GetCons(var, &var, &temp);
 			if (! consp(temp)) goto error;
 			GetCons(temp, &name, &temp);
 			if (temp != Nil) goto error;
@@ -588,6 +625,7 @@ void with_slots_common(Execute ptr, addr form, addr env, addr *ret)
 	with_slots_arguments(var, g, &var);
 	lista_heap(&symm, symm, var, args, NULL);
 	list_heap(&g, g, expr, NULL);
+	list_heap(&g, g, NULL);
 	list_heap(ret, let, g, symm, NULL);
 	return;
 

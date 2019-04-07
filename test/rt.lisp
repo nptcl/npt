@@ -24,39 +24,41 @@
 ;;  execute
 ;;
 ;; 3. Evaluation and Compilation
-(loadrt #p"rt-eval.lisp");
+(loadrt #p"rt-eval.lisp")
 ;; 4. Types and Classes
-(loadrt #p"rt-types.lisp");
+(loadrt #p"rt-types.lisp")
 ;; 5. Data and Control Flow
-(loadrt #p"rt-data.lisp");
+(loadrt #p"rt-data.lisp")
 ;; 6. Iteration
-(loadrt #p"rt-iteration.lisp");
+(loadrt #p"rt-iteration.lisp")
+;; 7. Objects
+(loadrt #p"rt-objects.lisp")
 ;; 9. Conditions
-(loadrt #p"rt-conditions.lisp");
+(loadrt #p"rt-conditions.lisp")
 ;; 11. Packages
-(loadrt #p"rt-packages.lisp");
+(loadrt #p"rt-packages.lisp")
 ;; 12. Number
-(loadrt #p"rt-numbers.lisp");
+(loadrt #p"rt-numbers.lisp")
 ;; 13. Characters
-(loadrt #p"rt-character.lisp");
+(loadrt #p"rt-character.lisp")
 ;; 14. Conses
-(loadrt #p"rt-conses.lisp");
+(loadrt #p"rt-conses.lisp")
 ;; 15. Arrays
-(loadrt #p"rt-arrays.lisp");
+(loadrt #p"rt-arrays.lisp")
 ;; 16. Strings
-(loadrt #p"rt-strings.lisp");
+(loadrt #p"rt-strings.lisp")
 ;; 17. Sequences
-(loadrt #p"rt-sequences.lisp");
+(loadrt #p"rt-sequences.lisp")
 ;; 18. Hash Tables
-(loadrt #p"rt-hashtables.lisp");
+(loadrt #p"rt-hashtables.lisp")
 ;; 19. Filenames
-(loadrt #p"rt-filenames.lisp");
+(loadrt #p"rt-filenames.lisp")
 ;; 20. Files
-(loadrt #p"rt-files.lisp");
+(loadrt #p"rt-files.lisp")
 ;; 21. Streams
-(loadrt #p"rt-streams.lisp");
+(loadrt #p"rt-streams.lisp")
 ;; 22. Printer
-(loadrt #p"rt-printer.lisp");
+(loadrt #p"rt-printer.lisp")
 ;; finish
 (format t "~&OK.~%")
 

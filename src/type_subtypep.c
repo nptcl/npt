@@ -1,3 +1,4 @@
+#include "clos.h"
 #include "clos_class.h"
 #include "condition.h"
 #include "cons.h"
@@ -7,6 +8,7 @@
 #include "sequence.h"
 #include "rational.h"
 #include "real.h"
+#include "symbol.h"
 #include "type.h"
 #include "type_copy.h"
 #include "type_parse.h"
@@ -67,6 +69,10 @@ static SubtypepResult subtypep_clos(addr left, addr right)
 	if (RefLispDecl(left) != LISPDECL_CLOS) ReturnExclude;
 	GetArrayType(left, 0, &left);
 	GetArrayType(right, 0, &right);
+	if (type_asterisk_p(right))
+		ReturnTrue;
+	if (type_asterisk_p(left))
+		ReturnFalse;
 
 	/*
 	 *  TODO: error
@@ -1534,5 +1540,66 @@ int subtypep_clang(addr left, addr right, int *validp)
 	CheckType(left, LISPTYPE_TYPE);
 	CheckType(right, LISPTYPE_TYPE);
 	return subtypep_execute(left, right, 0, validp);
+}
+
+
+/*
+ *  common
+ */
+static int subtypep_symbol_clos_p(addr x, addr *r)
+{
+	if (! symbolp(x)) return 0;
+	clos_find_class_nil(x, &x);
+	if (x == Nil) return 0;
+	*r = x;
+	return 1;
+}
+
+static int subtypep_clos_p(addr x, addr y, addr *r1, addr *r2)
+{
+	int a, b;
+
+	/* clos */
+	a = closp(x);
+	b = closp(y);
+	if (a && b) {
+		type_clos_heap(x, r1);
+		type_clos_heap(y, r2);
+		return 1;
+	}
+	if (a) {
+		if (! subtypep_symbol_clos_p(y, &y)) return 0;
+		type_clos_heap(x, r1);
+		type_clos_heap(y, r2);
+		return 1;
+	}
+	if (b) {
+		if (! subtypep_symbol_clos_p(x, &x)) return 0;
+		type_clos_heap(x, r1);
+		type_clos_heap(y, r2);
+		return 1;
+	}
+
+	if (! subtypep_symbol_clos_p(x, &x)) return 0;
+	if (! subtypep_symbol_clos_p(y, &y)) return 0;
+	if (clos_built_p(x) && clos_built_p(y)) return 0;
+	type_clos_heap(x, r1);
+	type_clos_heap(y, r2);
+	return 1;
+}
+
+int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2)
+{
+	int result, invalid;
+
+	if (! subtypep_clos_p(x, y, &x, &y)) {
+		if (parse_type(ptr, &x, x, env)) return 1;
+		if (parse_type(ptr, &y, y, env)) return 1;
+	}
+	result = subtypep_clang(x, y, &invalid);
+	*v1 = result? T: Nil;
+	*v2 = invalid? T: Nil;
+
+	return 0;
 }
 

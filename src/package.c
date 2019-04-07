@@ -1832,15 +1832,19 @@ static int check_alreadyuse(addr package, addr pos)
 
 static void check_useconflict(addr package, addr pos)
 {
-	addr table, left, bit;
+	addr list, table, left, bit;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
-	GetPackage(pos, PACKAGE_INDEX_EXPORT, &pos);
-	while (pos != Nil) {
-		GetCons(pos, &left, &pos);
+	GetPackage(pos, PACKAGE_INDEX_EXPORT, &list);
+	while (list != Nil) {
+		GetCons(list, &left, &list);
 		findvalue_hashtable(table, left, &bit);
-		if (bit != Nil && ! StructBitType(bit)->shadow)
-			fmte("Symbol ~S conflict occered.", left, NULL);
+		if (bit != Nil && ! StructBitType(bit)->shadow) {
+			GetBitTypeSymbol(bit, &bit);
+			find_symbol_package(pos, left, &pos);
+			if (bit != pos)
+				fmte("Symbol ~S conflict occered.", left, NULL);
+		}
 	}
 }
 

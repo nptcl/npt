@@ -116,14 +116,8 @@ static void defmacro_deftype(void)
  */
 static void function_subtypep(Execute ptr, addr x, addr y, addr env)
 {
-	int result, invalid;
-
 	if (env == Unbound) env = Nil;
-	if (parse_type(ptr, &x, x, env)) return;
-	if (parse_type(ptr, &y, y, env)) return;
-	result = subtypep_clang(x, y, &invalid);
-	x = result? T: Nil;
-	y = invalid? T: Nil;
+	if (subtypep_common(ptr, x, y, env, &x, &y)) return;
 	setvalues_control(ptr, x, y, NULL);
 }
 

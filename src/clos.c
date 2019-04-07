@@ -133,6 +133,19 @@ void setdocument_slot(addr pos, addr value)
 	SetDocumentSlot_Low(pos, value);
 }
 
+void getclass_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetClassSlot_Low(pos, ret);
+}
+
+void setclass_slot(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	Check(GetStatusReadOnly(pos), "readonly error");
+	SetClassSlot_Low(pos, value);
+}
+
 void getallocation_slot(addr pos, int *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
@@ -422,6 +435,20 @@ void slot_vector_copyheap_alloc(LocalRoot local, addr *ret, addr pos)
 	slot_vector_copy_alloc(local, ret, pos);
 }
 
+void slot_vector_clear(addr pos)
+{
+	addr slot;
+	size_t size, i;
+
+	CheckType(pos, LISPSYSTEM_SLOT_VECTOR);
+	LenSlotVector(pos, &size);
+	for (i = 0; i < size; i++) {
+		GetSlotVector(pos, i, &slot);
+		SetClassSlot(slot, Nil);
+	}
+}
+
+
 /* clos */
 static inline void clos_unsafe(LocalRoot local, addr *ret)
 {
@@ -467,75 +494,6 @@ void clos_local(LocalRoot local, addr *ret, addr slots)
 void clos_heap(addr *ret, addr slots)
 {
 	clos_alloc(NULL, ret, slots);
-}
-
-void closcell_alloc(LocalRoot local, addr *ret, addr name, addr value)
-{
-	addr pos;
-	alloc_array2(local, &pos, LISPTYPE_CLOS, CLOS_CELL_SIZE);
-	SetArrayA2(pos, CLOS_CELL_NAME, name);
-	SetArrayA2(pos, CLOS_CELL_VALUE, value);
-	*ret = pos;
-}
-void closcell_local(LocalRoot local, addr *ret, addr name, addr value)
-{
-	CheckLocal(local);
-	closcell_alloc(local, ret, name, value);
-}
-void closcell_heap(addr *ret, addr name, addr value)
-{
-	closcell_alloc(NULL, ret, name, value);
-}
-
-void closcell_setname(addr pos, addr name)
-{
-	CheckType(pos, LISPSYSTEM_CLOS_CELL);
-	SetArrayA2(pos, CLOS_CELL_NAME, name);
-}
-
-void closcell_getname(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_CLOS_CELL);
-	GetArrayA2(pos, CLOS_CELL_NAME, ret);
-}
-
-void closcell_setvalue(addr pos, addr value)
-{
-	CheckType(pos, LISPSYSTEM_CLOS_CELL);
-	SetArrayA2(pos, CLOS_CELL_VALUE, value);
-}
-
-void closcell_getvalue(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_CLOS_CELL);
-	GetArrayA2(pos, CLOS_CELL_VALUE, ret);
-}
-
-int closcellp(addr pos)
-{
-	return pos != Unbound && GetType(pos) == LISPSYSTEM_CLOS_CELL;
-}
-
-void clos_value_get(addr pos, size_t i, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_CLOS_VALUE);
-	GetClosValue(pos, i, &pos);
-	if (closcellp(pos))
-		closcell_getvalue(pos, ret);
-	else
-		*ret = pos;
-}
-
-void clos_value_set(addr pos, size_t i, addr value)
-{
-	addr check;
-
-	CheckType(pos, LISPSYSTEM_CLOS_VALUE);
-	GetClosValue(pos, i, &check);
-	if (closcellp(pos))
-		closcell_setvalue(check, value);
-	else
-		SetClosValue(pos, i, value);
 }
 
 
@@ -661,7 +619,7 @@ int clos_getp(addr pos, addr key, addr *ret)
 		GetNameSlot(pos, &check);
 		Check(! symbolp(check), "type error");
 		if (check == key) {
-			clos_value_get(vector, i, ret);
+			GetClosValue(vector, i, ret);
 			return 1;
 		}
 	}
@@ -684,7 +642,7 @@ int clos_setp(addr pos, addr key, addr value)
 		GetNameSlot(pos, &check);
 		Check(! symbolp(check), "type error");
 		if (check == key) {
-			clos_value_set(vector, i, value);
+			SetClosValue(vector, i, value);
 			return 1;
 		}
 	}

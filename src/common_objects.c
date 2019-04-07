@@ -452,12 +452,13 @@ static void function_setf_find_class(Execute ptr,
 
 static void type_setf_find_class(addr *ret)
 {
-	addr args, values, type;
+	addr args, values, type1, type2;
 
 	GetTypeTable(&args, Class);
 	GetTypeTable(&values, Symbol);
-	GetTypeTable(&type, EnvironmentNull);
-	typeargs_var2opt2(&args, args, values, args, type);
+	GetTypeTable(&type1, T);
+	GetTypeTable(&type2, EnvironmentNull);
+	typeargs_var2opt2(&args, args, values, type1, type2);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
 }

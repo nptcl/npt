@@ -153,18 +153,11 @@ static void method_ensure_class_using_class_null(Execute ptr,
 
 static void method_type_ensure_class_using_class(addr *ret)
 {
-	addr args, values, key, key1, key2, key3;
+	addr args, values;
 
-	ClosKeyTypeTable(&key1, METACLASS, Class);
-	ClosKeyTypeTable(&key2, DIRECT_SUPERCLASSES, List);
-	ClosKeyTypeTable(&key3, DIRECT_SLOTS, List);
-	list_heap(&key, key1, key2, key3, NULL);
-
-	GetTypeTable(&args, Asterisk);
+	GetTypeTable(&args, T);
 	GetTypeTable(&values, Symbol);
-	list_heap(&args, args, values, NULL);
-	GetTypeTable(&values, T);
-	typeargs_full(&args, args, Nil, values, key);
+	typeargs_var2rest(&args, args, values, args);
 	typeargs_method(args);
 	GetTypeValues(&values, Class);
 	type_compiled_heap(args, values, ret);
@@ -283,7 +276,7 @@ static void defgeneric_ensure_class_using_class_mop(Execute ptr)
 static void method_allocate_instance_stdclass(Execute ptr,
 		addr method, addr next, addr clos, addr rest)
 {
-	allocate_instance_stdclass(clos, &clos);
+	allocate_instance_stdclass(ptr, clos, &clos);
 	setresult_control(ptr, clos);
 }
 
@@ -802,18 +795,6 @@ static void defmethod_slot_unbound(Execute ptr, addr name, addr gen)
 	common_method_add(ptr, gen, pos);
 }
 
-static void mop_argument_generic_var3(addr *ret)
-{
-	addr pos;
-	struct argument_struct *str;
-
-	argument_heap(&pos);
-	str = ArgumentStruct(pos);
-	str->type = ArgumentType_generic;
-	str->var = 3;
-	*ret = pos;
-}
-
 static void defgeneric_slot_unbound_mop(Execute ptr)
 {
 	addr symbol, name, gen;
@@ -869,7 +850,9 @@ static void defgeneric_update_instance_for_redefined_class_mop()
 static void method_slot_boundp_using_class(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
-	setbool_control(ptr, clos_slot_boundp(pos, name));
+	int check;
+	if (slot_boundp_using_class_common(ptr, clos, pos, name, &check)) return;
+	setbool_control(ptr, check);
 }
 
 static void method_argument_slot_boundp_using_class(addr *ret)
@@ -969,7 +952,7 @@ static void defgeneric_slot_exists_p_using_class_mop(Execute ptr)
 static void method_slot_makunbound_using_class(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
-	clos_slot_makunbound(pos, name);
+	if (slot_makunbound_using_class(ptr, clos, pos, name)) return;
 	setresult_control(ptr, pos);
 }
 
@@ -1010,7 +993,7 @@ static void defgeneric_slot_makunbound_using_class_mop(Execute ptr)
 static void method_slot_value_using_class(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
-	clos_check(pos, name, &pos);
+	if (slot_value_using_class_common(ptr, clos, pos, name, &pos)) return;
 	setresult_control(ptr, pos);
 }
 
@@ -1054,7 +1037,7 @@ static void method_setf_slot_value_using_class(Execute ptr,
 	addr value, clos, pos, name;
 
 	list_bind(rest, &value, &clos, &pos, &name, NULL);
-	clos_set(pos, name, value);
+	if (setf_slot_value_using_class_common(ptr, clos, pos, name, value)) return;
 	setresult_control(ptr, value);
 }
 
@@ -1103,18 +1086,6 @@ static void defmethod_setf_slot_value_using_class(Execute ptr, addr name, addr g
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
-}
-
-static void mop_argument_generic_var4(addr *ret)
-{
-	addr pos;
-	struct argument_struct *str;
-
-	argument_heap(&pos);
-	str = ArgumentStruct(pos);
-	str->type = ArgumentType_generic;
-	str->var = 4;
-	*ret = pos;
 }
 
 static void defgeneric_setf_slot_value_using_class_mop(Execute ptr)
