@@ -2,8 +2,10 @@
  *  ANSI COMMON LISP: 7. Objects
  */
 #include "common_header.h"
+#include "clos.h"
 #include "clos_class.h"
 #include "clos_common.h"
+#include "clos_generic.h"
 #include "clos_type.h"
 #include "cons.h"
 #include "mop_common.h"
@@ -27,7 +29,59 @@ static void import_mop_package(constindex index)
 
 
 /* defgeneric_function_keywords(); */
-/* defun_ensure_generic_function(); */
+
+
+/* (defun ensure-generic-function (name &key
+ *     argument-precedence-order
+ *     declare
+ *     documentation
+ *     environment
+ *     lambda-list
+ *     generic-function-class
+ *     method-class
+ *     method-combination
+ */
+static void function_ensure_generic_function(Execute ptr, addr name, addr rest)
+{
+	if (ensure_generic_function_common(ptr, name, rest, &name)) return;
+	setresult_control(ptr, name);
+}
+
+static void type_ensure_generic_function(addr *ret)
+{
+	addr args, values;
+	addr key, key1, key2, key3, key4, key5, key6, key7, key8;
+
+	KeyTypeTable(&key1, ARGUMENT_PRECEDENCE_ORDER, T);
+	KeyTypeTable(&key2, DECLARE, T);
+	KeyTypeTable(&key3, DOCUMENTATION, String);
+	KeyTypeTable(&key4, ENVIRONMENT, EnvironmentNull);
+	KeyTypeTable(&key5, LAMBDA_LIST, T);
+	KeyTypeTable(&key6, GENERIC_FUNCTION_CLASS, T);
+	KeyTypeTable(&key7, METHOD_CLASS, T);
+	KeyTypeTable(&key8, METHOD_COMBINATION, T);
+	list_heap(&key, key1, key2, key3, key4, key5, key6, key7, key8, NULL);
+	/* type */
+	GetTypeTable(&args, T);
+	typeargs_var1key(&args, args, key);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_ensure_generic_function(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ENSURE_GENERIC_FUNCTION, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1dynamic(pos, function_ensure_generic_function);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_ensure_generic_function(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
 
 
 /* (defgeneric allocate-instance ...)  */
@@ -293,7 +347,11 @@ static void defun_setf_slot_value(void)
 }
 
 
-/* defgeneric_method_qualifiers(); */
+/* (defgeneric method-qualifiers ...) */
+static void defgeneric_method_qualifiers(void)
+{
+	ImportMopPackage(METHOD_QUALIFIERS);
+}
 
 
 /* (defgeneric no-applicable-method ...) */
@@ -394,8 +452,48 @@ static void defmacro_defclass(void)
 }
 
 
-/* defmacro_defgeneric(); */
-/* defmacro_defmethod(); */
+/* (defmacro defgeneric (name lambda &rest args) ...) -> generic-function */
+static void function_defgeneric(Execute ptr, addr form, addr env)
+{
+	defgeneric_common(form, env, &form);
+	setresult_control(ptr, form);
+}
+
+static void defmacro_defgeneric(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_DEFGENERIC, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, function_defgeneric);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
+/* (defmacro defmethod
+ *     (name qualifier* lambda declare* document* form*) -> method
+ */
+static void function_defmethod(Execute ptr, addr form, addr env)
+{
+	if (defmethod_common(ptr, form, env, &form)) return;
+	setresult_control(ptr, form);
+}
+
+static void defmacro_defmethod(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_DEFMETHOD, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, function_defmethod);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
 
 
 /* (defun find-class (symbol &optional errorp env) ...) -> class
@@ -480,7 +578,29 @@ static void defun_setf_find_class(void)
 
 
 /* defgeneric_compute_applicable_methods(); */
+
+
 /* defmacro_define_method_combination(); */
+static void function_define_method_combination(Execute ptr, addr form, addr env)
+{
+	define_method_combination_common(ptr, form, env, &form);
+	setresult_control(ptr, form);
+}
+
+static void defmacro_define_method_combination(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_DEFINE_METHOD_COMBINATION, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, function_define_method_combination);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
 /* defgeneric_find_method(); */
 /* defgeneric_add_method(); */
 
@@ -548,7 +668,7 @@ static void defun_class_of(void)
 static void intern_clos_objects(void)
 {
 	/* defgeneric_function_keywords(); */
-	/* defun_ensure_generic_function(); */
+	defun_ensure_generic_function();
 	defgeneric_allocate_instance();
 	defgeneric_reinitialize_instance();
 	defgeneric_shared_initialize();
@@ -562,7 +682,7 @@ static void intern_clos_objects(void)
 	defgeneric_slot_unbound();
 	defun_slot_value();
 	defun_setf_slot_value();
-	/* defgeneric_method_qualifiers(); */
+	defgeneric_method_qualifiers();
 	defgeneric_no_applicable_method();
 	defgeneric_no_next_method();
 	/* defgeneric_remove_method(); */
@@ -573,12 +693,12 @@ static void intern_clos_objects(void)
 	defmacro_with_accessors();
 	defmacro_with_slots();
 	defmacro_defclass();
-	/* defmacro_defgeneric(); */
-	/* defmacro_defmethod(); */
+	defmacro_defgeneric();
+	defmacro_defmethod();
 	defun_find_class();
 	defun_setf_find_class();
 	/* defgeneric_compute_applicable_methods(); */
-	/* defmacro_define_method_combination(); */
+	defmacro_define_method_combination();
 	/* defgeneric_find_method(); */
 	/* defgeneric_add_method(); */
 	defgeneric_initialize_instance();

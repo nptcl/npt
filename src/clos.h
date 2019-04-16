@@ -267,6 +267,10 @@ void clos_getelt(addr pos, size_t index, addr *ret);
 void clos_setelt(addr pos, size_t index, addr value);
 void clos_checkelt(addr pos, size_t index, addr *ret);
 
+void clos_getconst(addr pos, constindex index, addr *ret);
+void clos_setconst(addr pos, constindex index, addr value);
+void clos_checkconst(addr pos, constindex index, addr *ret);
+
 /* check */
 int clos_slot_exists_p(addr pos, addr name);
 int clos_slot_boundp_nil(addr pos, addr name);

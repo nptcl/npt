@@ -20,6 +20,7 @@ void type_value_array(addr *ret, addr value);
 void type_value_float(addr *ret, addr value);
 void type_value_complex(addr *ret, addr value);
 void type_value_pathname(addr *ret, addr value);
+void type_value_environment(addr *ret, addr value);
 void type_value(addr *ret, addr value);
 void init_type_value(void);
 

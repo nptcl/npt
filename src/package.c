@@ -1832,7 +1832,7 @@ static int check_alreadyuse(addr package, addr pos)
 
 static void check_useconflict(addr package, addr pos)
 {
-	addr list, table, left, bit;
+	addr list, table, left, bit, check;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetPackage(pos, PACKAGE_INDEX_EXPORT, &list);
@@ -1841,8 +1841,8 @@ static void check_useconflict(addr package, addr pos)
 		findvalue_hashtable(table, left, &bit);
 		if (bit != Nil && ! StructBitType(bit)->shadow) {
 			GetBitTypeSymbol(bit, &bit);
-			find_symbol_package(pos, left, &pos);
-			if (bit != pos)
+			find_symbol_package(pos, left, &check);
+			if (bit != check)
 				fmte("Symbol ~S conflict occered.", left, NULL);
 		}
 	}

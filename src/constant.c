@@ -104,3 +104,17 @@ void symbolchar_keyword(enum CONSTANT_INDEX index, const char *name)
 	SetConstant(index, symbol);
 }
 
+void quotelist_heap(addr *ret, addr name)
+{
+	addr quote;
+	GetConst(COMMON_QUOTE, &quote);
+	list_heap(ret, quote, name, NULL);
+}
+
+void pushconst_heap(addr *ret, constindex index)
+{
+	addr pos;
+	GetConstant(index, &pos);
+	cons_heap(ret, pos, *ret);
+}
+

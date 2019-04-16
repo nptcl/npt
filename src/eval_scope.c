@@ -249,6 +249,16 @@ static void scope_pathname(addr *ret, addr eval)
 	make_eval_scope(ret, EVAL_PARSE_PATHNAME, type, eval);
 }
 
+static void scope_environment(addr *ret, addr eval)
+{
+	addr type;
+
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &eval);
+	type_value_environment(&type, eval);
+	make_eval_scope(ret, EVAL_PARSE_ENVIRONMENT, type, eval);
+}
+
 static int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons)
 {
 	addr root, expr;
@@ -3844,6 +3854,10 @@ static int scope_eval_downcase(Execute ptr, addr *ret, addr eval)
 
 		case EVAL_PARSE_PATHNAME:
 			scope_pathname(ret, eval);
+			break;
+
+		case EVAL_PARSE_ENVIRONMENT:
+			scope_environment(ret, eval);
 			break;
 
 		case EVAL_PARSE_DECLAIM:

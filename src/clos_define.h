@@ -51,7 +51,6 @@ enum Clos_generic_Index {
 	Clos_generic_argument_precedence_order,
 	Clos_generic_declarations,
 	Clos_generic_method_combination,
-	Clos_generic_combination_arguments,
 	Clos_generic_eqlcheck,
 	Clos_generic_cache,
 	Clos_generic_call,
@@ -67,25 +66,59 @@ enum Clos_method_Index {
 	Clos_method_size
 };
 
-enum Clos_combination_Index {
-	Clos_combination_name,
-	Clos_combination_long_p,
-	Clos_combination_document,
-	Clos_combination_identity,
-	Clos_combination_operator,
-	Clos_combination_lambda_list,
-	Clos_combination_qualifiers,
-	Clos_combination_arguments,
-	Clos_combination_generic,
-	Clos_combination_form,
-	Clos_combination_function,
-	Clos_combination_size
+enum Clos_shortcomb_Index {
+	Clos_shortcomb_name,
+	Clos_shortcomb_document,
+	Clos_shortcomb_identity,
+	Clos_shortcomb_operator,
+	Clos_shortcomb_order,
+	Clos_shortcomb_size
+};
+
+enum Clos_longcomb_Index {
+	Clos_longcomb_name,
+	Clos_longcomb_document,
+	Clos_longcomb_lambda_list,
+	Clos_longcomb_binding,
+	Clos_longcomb_qualifiers,
+	Clos_longcomb_arguments,
+	Clos_longcomb_generic,
+	Clos_longcomb_form,
+	Clos_longcomb_function,
+	Clos_longcomb_size
+};
+
+enum Clos_shortdef_Index {
+	Clos_shortdef_name,
+	Clos_shortdef_document,
+	Clos_shortdef_identity,
+	Clos_shortdef_operator,
+	Clos_shortdef_size
+};
+
+enum Clos_longdef_Index {
+	Clos_longdef_name,
+	Clos_longdef_document,
+	Clos_longdef_lambda_list,
+	Clos_longdef_qualifiers,
+	Clos_longdef_arguments,
+	Clos_longdef_generic,
+	Clos_longdef_form,
+	Clos_longdef_size
 };
 
 enum Clos_specializer_Index {
 	Clos_specializer_object,
 	Clos_specializer_type,
 	Clos_specializer_size
+};
+
+enum Clos_standard {
+	Clos_standard_around,
+	Clos_standard_before,
+	Clos_standard_primary,
+	Clos_standard_after,
+	Clos_standard_size
 };
 
 #endif

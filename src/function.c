@@ -130,6 +130,11 @@ int parse_callname_heap(addr *ret, addr name)
 {
 	return parse_callname_alloc(NULL, ret, name);
 }
+void parse_callname_error(addr *ret, addr name)
+{
+	if (parse_callname_heap(ret, name))
+		fmte("Invalid function name ~S.", name, NULL);
+}
 
 void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol)
 {

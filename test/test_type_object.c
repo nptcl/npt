@@ -51,10 +51,10 @@ static int test_type_object_clos(void)
 {
 	addr x;
 
-	GetConst(COMMON_STANDARD, &x);
-	clos_find_combination(x, &x);
+	GetConst(COMMON_STANDARD_CLASS, &x);
+	clos_find_class(x, &x);
 	type_clos_heap(x, &x);
-	test(check_type_object(x, "method-combination"), "type_object_clos1");
+	test(check_type_object(x, "standard-class"), "type_object_clos1");
 
 	RETURN;
 }

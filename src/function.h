@@ -143,6 +143,7 @@ void callname_heap(addr *ret, addr name, enum CALLNAME_TYPE type);
 int parse_callname_alloc(LocalRoot local, addr *ret, addr name);
 int parse_callname_local(LocalRoot local, addr *ret, addr name);
 int parse_callname_heap(addr *ret, addr name);
+void parse_callname_error(addr *ret, addr name);
 void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol);
 void setf_callname_local(LocalRoot local, addr *ret, addr symbol);
 void setf_callname_heap(addr *ret, addr symbol);

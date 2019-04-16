@@ -349,6 +349,11 @@ void type_value_pathname(addr *ret, addr value)
 		GetTypeTable(ret, LogicalPathname);
 }
 
+void type_value_environment(addr *ret, addr value)
+{
+	GetTypeTable(ret, Environment);
+}
+
 static void type_value_stream(addr *ret, addr value)
 {
 	CheckType(value, LISPTYPE_STREAM);
@@ -414,6 +419,11 @@ static void type_value_bytespec(addr *ret, addr value)
 	GetTypeTable(ret, ByteSpec);
 }
 
+static void type_value_argument(addr *ret, addr value)
+{
+	GetTypeTable(ret, T);
+}
+
 static void type_value_error(addr *ret, addr value)
 {
 	fmte("Invalid type-value ~S.", value, NULL);
@@ -469,5 +479,6 @@ void init_type_value(void)
 	TypeValueTable[LISPTYPE_PPRINT] = type_value_error;
 	TypeValueTable[LISPTYPE_QUOTE] = type_value_quote;
 	TypeValueTable[LISPTYPE_BYTESPEC] = type_value_bytespec;
+	TypeValueTable[LISPSYSTEM_ARGUMENT] = type_value_argument;
 }
 

@@ -10,6 +10,7 @@ enum ArgumentType {
 	ArgumentType_deftype,
 	ArgumentType_generic,
 	ArgumentType_method,
+	ArgumentType_combination,
 	ArgumentType_defsetf,
 	ArgumentType_size,
 };
@@ -75,8 +76,13 @@ struct argument_struct *argumentstruct(addr pos);
 void argument_alloc(LocalRoot local, addr *ret);
 void argument_local(LocalRoot local, addr *ret);
 void argument_heap(addr *ret);
+void argument_ordinary_heap(LocalRoot local, addr *ret, addr cons);
 void argument_generic_heap(LocalRoot local, addr *ret, addr cons);
 void argument_method_heap(LocalRoot local, addr *ret, addr cons);
+void argument_combination_heap(LocalRoot local, addr *ret, addr cons);
+void argument_generic_lambda_heap(addr *ret, addr pos);
+void argument_method_lambda_heap(addr *ret, addr pos);
+void argument_method_ordinary_heap(addr *ret, addr pos);
 
 #endif
 

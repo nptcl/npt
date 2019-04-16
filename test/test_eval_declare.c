@@ -356,12 +356,6 @@ static int test_push_type_declare_heap(void)
 	RETURN;
 }
 
-static void parse_callname_error(addr *ret, addr pos)
-{
-	if (parse_callname_heap(ret, pos))
-		fmte("parse_callname error.", NULL);
-}
-
 static int test_set_ftype_declare_heap(void)
 {
 	addr pos, sym1, sym2, sym3, type1, type2, list, check;

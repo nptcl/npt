@@ -4388,7 +4388,7 @@ static void expansion_pushnew_multiple(Execute ptr,
 	GetConst(COMMON_VALUES, &values);
 	/* (v value) */
 	make_gensym(ptr, &v);
-	list_heap(&args, v, item);
+	list_heap(&args, v, item, NULL);
 	conscar_heap(&args, args);
 	/* (an bn) */
 	list1 = a;

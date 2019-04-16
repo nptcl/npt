@@ -494,6 +494,96 @@ static int test_clos_method_p(void)
 	RETURN;
 }
 
+static int test_clos_define_combination_p(void)
+{
+	addr pos;
+
+	GetConst(CLOS_STANDARD_CLASS, &pos);
+	test(! clos_define_combination_p(pos), "clos_define_combination_p1");
+
+	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_define_combination_p(pos), "clos_define_combination_p2");
+	clos_instance_heap(pos, &pos);
+	test(clos_define_combination_p(pos), "clos_define_combination_p3");
+
+	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_define_combination_p(pos), "clos_define_combination_p4");
+	clos_instance_heap(pos, &pos);
+	test(clos_define_combination_p(pos), "clos_define_combination_p5");
+
+	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_define_combination_p(pos), "clos_define_combination_p6");
+	clos_instance_heap(pos, &pos);
+	test(! clos_define_combination_p(pos), "clos_define_combination_p7");
+
+	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_define_combination_p(pos), "clos_define_combination_p8");
+	clos_instance_heap(pos, &pos);
+	test(! clos_define_combination_p(pos), "clos_define_combination_p9");
+
+	RETURN;
+}
+
+static int test_clos_define_long_combination_p(void)
+{
+	addr pos;
+
+	GetConst(CLOS_STANDARD_CLASS, &pos);
+	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p1");
+
+	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p2");
+	clos_instance_heap(pos, &pos);
+	test(clos_define_long_combination_p(pos), "clos_define_long_combination_p3");
+
+	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p4");
+	clos_instance_heap(pos, &pos);
+	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p5");
+
+	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p6");
+	clos_instance_heap(pos, &pos);
+	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p7");
+
+	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p8");
+	clos_instance_heap(pos, &pos);
+	test(! clos_define_long_combination_p(pos), "clos_define_long_combination_p9");
+
+	RETURN;
+}
+
+static int test_clos_define_short_combination_p(void)
+{
+	addr pos;
+
+	GetConst(CLOS_STANDARD_CLASS, &pos);
+	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p1");
+
+	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p2");
+	clos_instance_heap(pos, &pos);
+	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p3");
+
+	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p4");
+	clos_instance_heap(pos, &pos);
+	test(clos_define_short_combination_p(pos), "clos_define_short_combination_p5");
+
+	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p6");
+	clos_instance_heap(pos, &pos);
+	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p7");
+
+	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p8");
+	clos_instance_heap(pos, &pos);
+	test(! clos_define_short_combination_p(pos), "clos_define_short_combination_p9");
+
+	RETURN;
+}
+
 static int test_clos_combination_p(void)
 {
 	addr pos;
@@ -501,17 +591,85 @@ static int test_clos_combination_p(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	test(! clos_combination_p(pos), "clos_combination_p1");
 
-	GetConst(CLOS_METHOD_COMBINATION, &pos);
+	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
 	test(! clos_combination_p(pos), "clos_combination_p2");
 	clos_instance_heap(pos, &pos);
-	test(clos_combination_p(pos), "clos_combination_p3");
+	test(! clos_combination_p(pos), "clos_combination_p3");
 
-	GetConst(COMBINATION_PLUS, &pos);
-	test(clos_combination_p(pos), "clos_combination_p4");
-
-	GetConst(CLOS_FUNCTION, &pos);
+	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_combination_p(pos), "clos_combination_p4");
 	clos_instance_heap(pos, &pos);
 	test(! clos_combination_p(pos), "clos_combination_p5");
+
+	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_combination_p(pos), "clos_combination_p6");
+	clos_instance_heap(pos, &pos);
+	test(clos_combination_p(pos), "clos_combination_p7");
+
+	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_combination_p(pos), "clos_combination_p8");
+	clos_instance_heap(pos, &pos);
+	test(clos_combination_p(pos), "clos_combination_p9");
+
+	RETURN;
+}
+
+static int test_clos_long_combination_p(void)
+{
+	addr pos;
+
+	GetConst(CLOS_STANDARD_CLASS, &pos);
+	test(! clos_long_combination_p(pos), "clos_long_combination_p1");
+
+	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_long_combination_p(pos), "clos_long_combination_p2");
+	clos_instance_heap(pos, &pos);
+	test(! clos_long_combination_p(pos), "clos_long_combination_p3");
+
+	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_long_combination_p(pos), "clos_long_combination_p4");
+	clos_instance_heap(pos, &pos);
+	test(! clos_long_combination_p(pos), "clos_long_combination_p5");
+
+	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_long_combination_p(pos), "clos_long_combination_p6");
+	clos_instance_heap(pos, &pos);
+	test(clos_long_combination_p(pos), "clos_long_combination_p7");
+
+	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_long_combination_p(pos), "clos_long_combination_p8");
+	clos_instance_heap(pos, &pos);
+	test(! clos_long_combination_p(pos), "clos_long_combination_p9");
+
+	RETURN;
+}
+
+static int test_clos_short_combination_p(void)
+{
+	addr pos;
+
+	GetConst(CLOS_STANDARD_CLASS, &pos);
+	test(! clos_short_combination_p(pos), "clos_short_combination_p1");
+
+	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_short_combination_p(pos), "clos_short_combination_p2");
+	clos_instance_heap(pos, &pos);
+	test(! clos_short_combination_p(pos), "clos_short_combination_p3");
+
+	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_short_combination_p(pos), "clos_short_combination_p4");
+	clos_instance_heap(pos, &pos);
+	test(! clos_short_combination_p(pos), "clos_short_combination_p5");
+
+	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
+	test(! clos_short_combination_p(pos), "clos_short_combination_p6");
+	clos_instance_heap(pos, &pos);
+	test(! clos_short_combination_p(pos), "clos_short_combination_p7");
+
+	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
+	test(! clos_short_combination_p(pos), "clos_short_combination_p8");
+	clos_instance_heap(pos, &pos);
+	test(clos_short_combination_p(pos), "clos_short_combination_p9");
 
 	RETURN;
 }
@@ -1461,18 +1619,18 @@ static int test_clos_stdclass_inherit(void)
 	internchar(LISP_PACKAGE, "METACLASS", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&metaclass, metaclass, name, slots);
-	clos_stdclass_inherit(local, metaclass, metaclass, Nil, 1);
+	clos_stdclass_inherit(local, metaclass, metaclass, Nil);
 
 	internchar(LISP_PACKAGE, "SUPER", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&super, metaclass, name, slots);
-	clos_stdclass_inherit(local, super, metaclass, Nil, 1);
+	clos_stdclass_inherit(local, super, metaclass, Nil);
 
 	internchar(LISP_PACKAGE, "AAA", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&clos, metaclass, name, slots);
 	list_heap(&supers, super, NULL);
-	clos_stdclass_inherit(local, clos, metaclass, supers, 1);
+	clos_stdclass_inherit(local, clos, metaclass, supers);
 
 	GetVersionClos(clos, &version);
 	test(version == 0, "clos_stdclass_inherit1");
@@ -1510,12 +1668,12 @@ static int test_clos_stdclass_single(void)
 	internchar(LISP_PACKAGE, "METACLASS", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&metaclass, metaclass, name, slots);
-	clos_stdclass_inherit(local, metaclass, metaclass, Nil, 1);
+	clos_stdclass_inherit(local, metaclass, metaclass, Nil);
 
 	internchar(LISP_PACKAGE, "SUPER", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&super, metaclass, name, slots);
-	clos_stdclass_inherit(local, super, metaclass, Nil, 1);
+	clos_stdclass_inherit(local, super, metaclass, Nil);
 
 	internchar(LISP_PACKAGE, "AAA", &name);
 	clos_stdclass_slots(&slots);
@@ -1863,15 +2021,12 @@ static int test_clos_stdgeneric_slots(void)
 			"clos_stdgeneric_slots8");
 	test(test_slotname(slots, Clos_generic_method_combination, "METHOD-COMBINATION"),
 			"clos_stdgeneric_slots9");
-	test(test_slotname(slots, Clos_generic_combination_arguments,
-				"COMBINATION-ARGUMENTS"),
-			"clos_stdgeneric_slots10");
 	test(test_slotname(slots, Clos_generic_eqlcheck, "EQLCHECK"),
-			"clos_stdgeneric_slots11");
+			"clos_stdgeneric_slots10");
 	test(test_slotname(slots, Clos_generic_cache, "CACHE"),
-			"clos_stdgeneric_slots12");
+			"clos_stdgeneric_slots11");
 	test(test_slotname(slots, Clos_generic_call, "CALL"),
-			"clos_stdgeneric_slots13");
+			"clos_stdgeneric_slots12");
 
 	RETURN;
 }
@@ -2022,6 +2177,7 @@ static int test_build_clos_class_method(void)
 }
 
 
+#if 0
 /*
  *  method-combination
  */
@@ -2130,6 +2286,7 @@ static int test_build_clos_class_combination(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
@@ -2558,7 +2715,12 @@ static int testbreak_clos_class(void)
 	TestBreak(test_clos_funcallable_p);
 	TestBreak(test_clos_generic_p);
 	TestBreak(test_clos_method_p);
+	TestBreak(test_clos_define_combination_p);
+	TestBreak(test_clos_define_long_combination_p);
+	TestBreak(test_clos_define_short_combination_p);
 	TestBreak(test_clos_combination_p);
+	TestBreak(test_clos_long_combination_p);
+	TestBreak(test_clos_short_combination_p);
 	TestBreak(test_clos_specializer_p);
 	TestBreak(test_funcallp);
 	/* make-instance */
@@ -2604,9 +2766,11 @@ static int testbreak_clos_class(void)
 	TestBreak(test_clos_stdmethod_slots);
 	TestBreak(test_build_clos_class_method);
 	/* method-combination */
+#if 0
 	TestBreak(test_clos_stdcombination_slots);
 	TestBreak(test_build_clos_method_combination);
 	TestBreak(test_build_clos_class_combination);
+#endif
 	/* eql-specializer */
 	TestBreak(test_clos_stdspecializer_slots);
 	TestBreak(test_build_clos_class_specializer);

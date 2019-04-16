@@ -732,6 +732,27 @@ void clos_checkelt(addr pos, size_t index, addr *ret)
 		*ret = check;
 }
 
+void clos_getconst(addr pos, constindex index, addr *ret)
+{
+	addr key;
+	GetConstant(index, &key);
+	clos_get(pos, key, ret);
+}
+
+void clos_setconst(addr pos, constindex index, addr value)
+{
+	addr key;
+	GetConstant(index, &key);
+	clos_set(pos, key, value);
+}
+
+void clos_checkconst(addr pos, constindex index, addr *ret)
+{
+	addr key;
+	GetConstant(index, &key);
+	clos_check(pos, key, ret);
+}
+
 
 /*
  *  check

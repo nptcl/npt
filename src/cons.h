@@ -96,6 +96,8 @@ void copy_tree_alloc(LocalRoot local, addr *ret, addr list);
 void copy_tree_local(LocalRoot local, addr *ret, addr list);
 void copy_tree_heap(addr *ret, addr list);
 
+void pushva_heap(addr *list, ...);
+
 
 /*
  *  plist

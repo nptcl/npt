@@ -995,6 +995,23 @@ void copy_tree_heap(addr *ret, addr list)
 	copy_tree_alloc(NULL, ret, list);
 }
 
+void pushva_heap(addr *list, ...)
+{
+	addr root, pos;
+	va_list args;
+
+	root = *list;
+	va_start(args, list);
+	for (;;) {
+		pos = va_arg(args, addr);
+		if (pos == NULL)
+			break;
+		cons_heap(&root, pos, root);
+	}
+	va_end(args);
+	*list = root;
+}
+
 
 /*
  *  plist

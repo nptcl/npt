@@ -3,7 +3,6 @@
 #include "common.h"
 #include "degrade.h"
 #include "execute.h"
-#include "readlite.h"
 #include "real.h"
 #include "package.h"
 #include "readtable.h"
@@ -157,21 +156,19 @@ static int test_method_check_method_class(void)
 
 static int test_method_check_method_qualifiers(void)
 {
-	addr generic, method, combination, cons;
+	addr gen, method, cons;
 
 	/* generic */
-	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
-	clos_instance_heap(generic, &generic);
-	GetConst(COMMON_STANDARD, &combination);
-	clos_find_combination(combination, &combination);
-	stdset_generic_method_combination(generic, combination);
+	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &gen);
+	clos_instance_heap(gen, &gen);
+	stdset_generic_method_combination(gen, Nil);
 	/* method */
 	method_instance_call(NULL, &method, Nil, Nil);
 	GetConst(KEYWORD_AFTER, &cons);
 	conscar_heap(&cons, cons);
 	stdset_method_qualifiers(method, cons);
 	/* check */
-	method_check_method_qualifiers(Execute_Thread, generic, method);
+	method_check_method_qualifiers(Execute_Thread, gen, method);
 	test(1, "method_check_method_qualifiers1");
 
 	RETURN;
@@ -435,15 +432,13 @@ static int test_method_update_check(void)
 
 static int test_method_push_generic(void)
 {
-	addr generic, combination, array, method, check;
+	addr generic, array, method, check;
 	Execute ptr;
 
 	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
 	clos_instance_heap(generic, &generic);
-	GetConst(COMMON_STANDARD, &combination);
-	clos_find_combination(combination, &combination);
-	stdset_generic_method_combination(generic, combination);
+	stdset_generic_method_combination(generic, Nil);
 	vector4_heap(&array, 4);
 	stdset_generic_methods(generic, array);
 
@@ -552,13 +547,11 @@ static int test_method_cache_remove(void)
 
 static void test_generic_array(addr *ret, addr *array)
 {
-	addr generic, pos;
+	addr generic;
 
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
 	clos_instance_heap(generic, &generic);
-	GetConst(COMMON_STANDARD, &pos);
-	clos_find_combination(pos, &pos);
-	stdset_generic_method_combination(generic, pos);
+	stdset_generic_method_combination(generic, Nil);
 	vector4_heap(array, 4);
 	stdset_generic_methods(generic, *array);
 	*ret = generic;

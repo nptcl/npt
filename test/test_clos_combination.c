@@ -1,9 +1,9 @@
 #include "clos_combination.c"
+#include "clos_class.h"
 #include "degrade.h"
 #include "execute.h"
 #include "function.h"
 
-#if 0
 /*
  *  qualifiers-check
  */
@@ -94,56 +94,142 @@ static int test_qualifiers_equal(void)
 	RETURN;
 }
 
+static int test_check_qualifiers_equal_standard(void)
+{
+	addr pos;
+
+	test(check_qualifiers_equal_standard(Nil), "check_qualifiers_equal_standard1");
+	test(! check_qualifiers_equal_standard(T), "check_qualifiers_equal_standard2");
+
+	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
+	list_heap(&pos, pos, NULL);
+	test(check_qualifiers_equal_standard(pos), "check_qualifiers_equal_standard3");
+
+	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
+	list_heap(&pos, pos, pos, NULL);
+	test(! check_qualifiers_equal_standard(pos), "check_qualifiers_equal_standard4");
+
+	GetConstant(CONSTANT_KEYWORD_BEFORE, &pos);
+	list_heap(&pos, pos, NULL);
+	test(check_qualifiers_equal_standard(pos), "check_qualifiers_equal_standard5");
+
+	GetConstant(CONSTANT_KEYWORD_AFTER, &pos);
+	list_heap(&pos, pos, NULL);
+	test(check_qualifiers_equal_standard(pos), "check_qualifiers_equal_standard6");
+
+	GetConstant(CONSTANT_KEYWORD_TEST, &pos);
+	list_heap(&pos, pos, NULL);
+	test(! check_qualifiers_equal_standard(pos), "check_qualifiers_equal_standard7");
+
+	RETURN;
+}
+
+static void test_standard_qualifiers(addr *ret)
+{
+	/* ((nil (:before))
+	 *  (nil (:after))
+	 *  (nil (:around))
+	 *  (nil (:key))
+	 *  (nil nil))
+	 */
+	addr list, pos;
+
+	list = Nil;
+	/* before */
+	GetConst(KEYWORD_BEFORE, &pos);
+	list_heap(&pos, pos, NULL);
+	list_heap(&pos, Nil, pos, NULL);
+	cons_heap(&list, pos, list);
+	/* after */
+	GetConst(KEYWORD_AFTER, &pos);
+	list_heap(&pos, pos, NULL);
+	list_heap(&pos, Nil, pos, NULL);
+	cons_heap(&list, pos, list);
+	/* around */
+	GetConst(KEYWORD_AROUND, &pos);
+	list_heap(&pos, pos, NULL);
+	list_heap(&pos, Nil, pos, NULL);
+	cons_heap(&list, pos, list);
+	/* key */
+	GetConst(KEYWORD_KEY, &pos);
+	list_heap(&pos, pos, NULL);
+	list_heap(&pos, Nil, pos, NULL);
+	cons_heap(&list, pos, list);
+	/* nil */
+	list_heap(&pos, Nil, Nil, NULL);
+	cons_heap(&list, pos, list);
+	/* result */
+	nreverse_list_unsafe(ret, list);
+}
+
+static void test_make_instance_longcomb(addr *ret)
+{
+	addr pos, comb;
+
+	test_standard_qualifiers(&pos);
+	GetConst(CLOS_LONG_METHOD_COMBINATION, &comb);
+	clos_instance_heap(comb, &comb);
+	stdset_longcomb_qualifiers(comb, pos);
+	*ret = comb;
+}
+
 static int test_check_qualifiers_equal_long(void)
 {
-	addr qualifiers, combination, pos;
+	addr comb, pos;
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	combination_standard_qualifiers(&qualifiers);
-	make_instance_method_combination(&combination, Nil);
-	setf_clos_elt(combination, Clos_combination_qualifiers, qualifiers);
-	test(check_qualifiers_equal_long(ptr, combination, Nil),
+	test_make_instance_longcomb(&comb);
+	test(check_qualifiers_equal_long(ptr, comb, Nil),
 			"check_qualifiers_equal_long1");
-	test(! check_qualifiers_equal_long(ptr, combination, T),
+	test(! check_qualifiers_equal_long(ptr, comb, T),
 			"check_qualifiers_equal_long2");
 	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
 	list_heap(&pos, pos, NULL);
-	test(check_qualifiers_equal_long(ptr, combination, pos),
+	test(check_qualifiers_equal_long(ptr, comb, pos),
 			"check_qualifiers_equal_long3");
 	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
 	list_heap(&pos, pos, pos, NULL);
-	test(! check_qualifiers_equal_long(ptr, combination, pos),
+	test(! check_qualifiers_equal_long(ptr, comb, pos),
 			"check_qualifiers_equal_long4");
 
 	RETURN;
 }
 
+static void test_make_instance_shortcomb(addr *ret)
+{
+	addr comb;
+
+	GetConst(CLOS_SHORT_METHOD_COMBINATION, &comb);
+	clos_instance_heap(comb, &comb);
+	*ret = comb;
+}
+
 static int test_check_qualifiers_equal_short(void)
 {
-	addr combination, name, pos;
+	addr comb, name, pos;
 
-	make_instance_method_combination(&combination, Nil);
+	test_make_instance_shortcomb(&comb);
 	internchar(LISP_PACKAGE, "HELLO", &name);
-	setf_clos_elt(combination, Clos_combination_name, name);
+	stdset_shortcomb_name(comb, name);
 
-	test(! check_qualifiers_equal_short(combination, Nil),
+	test(! check_qualifiers_equal_short(comb, Nil),
 			"check_qualifiers_equal_short1");
-	test(! check_qualifiers_equal_short(combination, T),
+	test(! check_qualifiers_equal_short(comb, T),
 			"check_qualifiers_equal_short2");
 
 	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
 	list_heap(&pos, pos, NULL);
-	test(check_qualifiers_equal_short(combination, pos),
+	test(check_qualifiers_equal_short(comb, pos),
 			"check_qualifiers_equal_short3");
 
 	list_heap(&pos, name, NULL);
-	test(check_qualifiers_equal_short(combination, pos),
+	test(check_qualifiers_equal_short(comb, pos),
 			"check_qualifiers_equal_short4");
 
 	GetConstant(CONSTANT_KEYWORD_BEFORE, &pos);
 	list_heap(&pos, pos, NULL);
-	test(! check_qualifiers_equal_short(combination, pos),
+	test(! check_qualifiers_equal_short(comb, pos),
 			"check_qualifiers_equal_short5");
 
 	RETURN;
@@ -151,24 +237,29 @@ static int test_check_qualifiers_equal_short(void)
 
 static int test_check_qualifiers_equal(void)
 {
-	addr qualifiers, combination, name;
+	addr comb, name, hello;
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	combination_standard_qualifiers(&qualifiers);
-	make_instance_method_combination(&combination, Nil);
-	setf_clos_elt(combination, Clos_combination_qualifiers, qualifiers);
-	internchar(LISP_PACKAGE, "HELLO", &name);
-	setf_clos_elt(combination, Clos_combination_name, name);
-	list_heap(&name, name, NULL);
+	internchar(LISP_PACKAGE, "HELLO", &hello);
+	list_heap(&name, hello, NULL);
 
-	setf_clos_elt(combination, Clos_combination_long_p, T);
-	test(check_qualifiers_equal(ptr, combination, Nil), "check_qualifiers_equal1");
-	test(! check_qualifiers_equal(ptr, combination, name), "check_qualifiers_equal2");
+	/* standard */
+	comb = Nil;
+	test(check_qualifiers_equal(ptr, comb, Nil), "check_qualifiers_equal1");
+	test(! check_qualifiers_equal(ptr, comb, name), "check_qualifiers_equal2");
 
-	setf_clos_elt(combination, Clos_combination_long_p, Nil);
-	test(! check_qualifiers_equal(ptr, combination, Nil), "check_qualifiers_equal3");
-	test(check_qualifiers_equal(ptr, combination, name), "check_qualifiers_equa4");
+	/* long */
+	test_make_instance_longcomb(&comb);
+	stdset_longcomb_name(comb, hello);
+	test(check_qualifiers_equal(ptr, comb, Nil), "check_qualifiers_equal3");
+	test(! check_qualifiers_equal(ptr, comb, name), "check_qualifiers_equal4");
+
+	/* short */
+	test_make_instance_shortcomb(&comb);
+	stdset_shortcomb_name(comb, hello);
+	test(! check_qualifiers_equal(ptr, comb, Nil), "check_qualifiers_equal5");
+	test(check_qualifiers_equal(ptr, comb, name), "check_qualifiers_equal6");
 
 	RETURN;
 }
@@ -179,113 +270,154 @@ static int test_check_qualifiers_equal(void)
  */
 static int test_method_combination_qualifiers_count(void)
 {
-	addr qualifiers, combination;
+	addr comb;
 	size_t size;
 
-	combination_standard_qualifiers(&qualifiers);
-	make_instance_method_combination(&combination, Nil);
-	setf_clos_elt(combination, Clos_combination_qualifiers, qualifiers);
-	setf_clos_elt(combination, Clos_combination_long_p, T);
-	method_combination_qualifiers_count(combination, &size);
-	test(size == 4, "method_combination_qualifiers_count1");
-	setf_clos_elt(combination, Clos_combination_long_p, Nil);
-	method_combination_qualifiers_count(combination, &size);
-	test(size == 2, "method_combination_qualifiers_count2");
+	/* standard */
+	method_combination_qualifiers_count(Nil, &size);
+	test(size == Clos_standard_size, "method_combination_qualifiers_count1");
+
+	/* long */
+	test_make_instance_longcomb(&comb);
+	method_combination_qualifiers_count(comb, &size);
+	test(size == 5, "method_combination_qualifiers_count2");
+
+	/* short */
+	test_make_instance_shortcomb(&comb);
+	method_combination_qualifiers_count(comb, &size);
+	test(size == 2, "method_combination_qualifiers_count3");
 
 	RETURN;
 }
 
-static int test_qualifiers_position_short_nil(void)
+static int test_qualifiers_position_standard_nil(void)
 {
-	addr combination, pos;
-	size_t position;
-
-	make_instance_method_combination(&combination, Nil);
-	internchar(LISP_PACKAGE, "HELLO", &pos);
-	setf_clos_elt(combination, Clos_combination_name, pos);
-	list_heap(&pos, pos, NULL);
-	test(! qualifiers_position_short_nil(pos, combination, &position),
-			"qualifiers_position_short_nil1");
-	test(position == 1, "qualifiers_position_short_nil2");
+	addr pos;
+	size_t index;
 
 	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
 	list_heap(&pos, pos, NULL);
-	test(! qualifiers_position_short_nil(pos, combination, &position),
-			"qualifiers_position_short_nil3");
-	test(position == 0, "qualifiers_position_short_nil4");
+	test(! qualifiers_position_standard_nil(pos, &index),
+			"qualifiers_position_standard_nil1");
+	test(index == Clos_standard_around, "qualifiers_position_standard_nil2");
 
 	GetConstant(CONSTANT_KEYWORD_BEFORE, &pos);
 	list_heap(&pos, pos, NULL);
-	test(qualifiers_position_short_nil(pos, combination, &position),
-			"qualifiers_position_short_nil5");
+	test(! qualifiers_position_standard_nil(pos, &index),
+			"qualifiers_position_standard_nil3");
+	test(index == Clos_standard_before, "qualifiers_position_standard_nil4");
+
+	GetConstant(CONSTANT_KEYWORD_AFTER, &pos);
+	list_heap(&pos, pos, NULL);
+	test(! qualifiers_position_standard_nil(pos, &index),
+			"qualifiers_position_standard_nil5");
+	test(index == Clos_standard_after, "qualifiers_position_standard_nil6");
+
+	test(! qualifiers_position_standard_nil(Nil, &index),
+			"qualifiers_position_standard_nil7");
+	test(index == Clos_standard_primary, "qualifiers_position_standard_nil8");
+
+	test(qualifiers_position_standard_nil(T, &index),
+			"qualifiers_position_standard_nil9");
 
 	RETURN;
 }
 
 static int test_qualifiers_position_long_nil(void)
 {
-	addr qualifiers, combination, pos;
+	addr comb, pos;
 	Execute ptr;
-	size_t position;
+	size_t index;
 
 	ptr = Execute_Thread;
-	combination_standard_qualifiers(&qualifiers);
-	make_instance_method_combination(&combination, Nil);
-	setf_clos_elt(combination, Clos_combination_qualifiers, qualifiers);
+	test_make_instance_longcomb(&comb);
 
 	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
 	list_heap(&pos, pos, NULL);
-	test(! qualifiers_position_long_nil(ptr, pos, combination, &position),
+	test(! qualifiers_position_long_nil(ptr, pos, comb, &index),
 			"qualifiers_position_long_nil1");
-	test(position == 0, "qualifiers_position_long_nil2");
+	test(index == 2, "qualifiers_position_long_nil2");
 
-	test(! qualifiers_position_long_nil(ptr, Nil, combination, &position),
+	test(! qualifiers_position_long_nil(ptr, Nil, comb, &index),
 			"qualifiers_position_long_nil3");
-	test(position == 2, "qualifiers_position_long_nil4");
+	test(index == 4, "qualifiers_position_long_nil4");
 
-	test(qualifiers_position_long_nil(ptr, T, combination, &position),
+	test(qualifiers_position_long_nil(ptr, T, comb, &index),
 			"qualifiers_position_long_nil5");
+
+	RETURN;
+}
+
+static int test_qualifiers_position_short_nil(void)
+{
+	addr comb, pos;
+	size_t index;
+
+	test_make_instance_shortcomb(&comb);
+
+	internchar(LISP_PACKAGE, "HELLO", &pos);
+	stdset_shortcomb_name(comb, pos);
+
+	list_heap(&pos, pos, NULL);
+	test(! qualifiers_position_short_nil(pos, comb, &index),
+			"qualifiers_position_short_nil1");
+	test(index == 1, "qualifiers_position_short_nil2");
+
+	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
+	list_heap(&pos, pos, NULL);
+	test(! qualifiers_position_short_nil(pos, comb, &index),
+			"qualifiers_position_short_nil3");
+	test(index == 0, "qualifiers_position_short_nil4");
+
+	GetConstant(CONSTANT_KEYWORD_BEFORE, &pos);
+	list_heap(&pos, pos, NULL);
+	test(qualifiers_position_short_nil(pos, comb, &index),
+			"qualifiers_position_short_nil5");
 
 	RETURN;
 }
 
 static int test_qualifiers_position_nil(void)
 {
-	addr qualifiers, combination;
+	addr comb;
 	Execute ptr;
-	size_t position;
+	size_t index;
 
 	ptr = Execute_Thread;
-	combination_standard_qualifiers(&qualifiers);
-	make_instance_method_combination(&combination, Nil);
-	setf_clos_elt(combination, Clos_combination_qualifiers, qualifiers);
-	setf_clos_elt(combination, Clos_combination_long_p, T);
-	test(! qualifiers_position_nil(ptr, Nil, combination, &position),
+
+	/* standard */
+	test(! qualifiers_position_nil(ptr, Nil, Nil, &index),
 			"qualifiers_position_nil1");
-	test(position == 2, "qualifiers_position_nil2");
+	test(index == Clos_standard_primary, "qualifiers_position_nil2");
+
+	/* long */
+	test_make_instance_longcomb(&comb);
+	test(! qualifiers_position_nil(ptr, Nil, comb, &index),
+			"qualifiers_position_nil3");
+	test(index == 4, "qualifiers_position_nil4");
 
 	RETURN;
 }
 
 static int test_qualifiers_position(void)
 {
-	addr combination, pos;
+	addr comb, pos;
 	Execute ptr;
-	size_t position;
+	size_t index;
 
 	ptr = Execute_Thread;
-	make_instance_method_combination(&combination, Nil);
-	setf_clos_elt(combination, Clos_combination_long_p, Nil);
+	test_make_instance_shortcomb(&comb);
 	internchar(LISP_PACKAGE, "HELLO", &pos);
-	setf_clos_elt(combination, Clos_combination_name, pos);
+	stdset_shortcomb_name(comb, pos);
 	list_heap(&pos, pos, NULL);
-	qualifiers_position(ptr, pos, combination, &position);
-	test(position == 1, "qualifiers_position1");
+	qualifiers_position(ptr, pos, comb, &index);
+	test(index == 1, "qualifiers_position1");
 
 	RETURN;
 }
 
 
+#if 0
 /*
  *  standard method-combination
  */
@@ -342,7 +474,7 @@ static int test_combination_standard_qualifiers(void)
 {
 	addr left, right;
 
-	combination_standard_qualifiers(&right);
+	test_standard_qualifiers(&right);
 	GetCons(right, &left, &right);
 	test(test_qualifier_check(CONSTANT_KEYWORD_AROUND, left),
 			"combination_standard_qualifiers1");
@@ -386,20 +518,22 @@ static int test_define_method_combination_standard(void)
  */
 static int testbreak_clos_combination(void)
 {
-#if 0
 	/* qualifiers-check */
 	TestBreak(test_qualifiers_equal_list);
 	TestBreak(test_qualifiers_equal_symbol);
 	TestBreak(test_qualifiers_equal);
+	TestBreak(test_check_qualifiers_equal_standard);
 	TestBreak(test_check_qualifiers_equal_long);
 	TestBreak(test_check_qualifiers_equal_short);
 	TestBreak(test_check_qualifiers_equal);
 	/* qualifiers-position */
 	TestBreak(test_method_combination_qualifiers_count);
-	TestBreak(test_qualifiers_position_short_nil);
+	TestBreak(test_qualifiers_position_standard_nil);
 	TestBreak(test_qualifiers_position_long_nil);
+	TestBreak(test_qualifiers_position_short_nil);
 	TestBreak(test_qualifiers_position_nil);
 	TestBreak(test_qualifiers_position);
+#if 0
 	/* standard method-combination */
 	TestBreak(test_make_instance_method_combination);
 	TestBreak(test_define_method_combination_constant);

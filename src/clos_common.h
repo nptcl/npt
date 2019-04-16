@@ -10,5 +10,9 @@ void setf_find_class_common(addr pos, addr name, addr env);
 void with_accessors_common(Execute ptr, addr form, addr env, addr *ret);
 void with_slots_common(Execute ptr, addr form, addr env, addr *ret);
 
+void defgeneric_common(addr form, addr env, addr *ret);
+int defmethod_common(Execute ptr, addr form, addr env, addr *ret);
+void define_method_combination_common(Execute ptr, addr form, addr env, addr *ret);
+
 #endif
 

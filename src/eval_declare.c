@@ -521,8 +521,7 @@ static void check_callname_heap(addr *ret, addr symbol)
 {
 	addr check;
 
-	if (parse_callname_heap(&symbol, symbol))
-		fmte("Invalid function name ~S.", symbol, NULL);
+	parse_callname_error(&symbol, symbol);
 	GetCallName(symbol, &check);
 	check_variable(check);
 	*ret = symbol;
@@ -928,6 +927,24 @@ int parse_declare_heap(Execute ptr, addr env, addr decl, addr *ret)
 	return parse_declare_form(ptr, env, decl, ret, push_declare);
 }
 
+int parse_optimize_heap(addr decl, addr *ret)
+{
+	addr eval, pos, car, tail, optimize;
+
+	eval_declare_heap(&eval);
+	GetConst(COMMON_OPTIMIZE, &optimize);
+	while (decl != Nil) {
+		getcons(decl, &pos, &decl);
+		getcons(pos, &car, &tail);
+		if (car != optimize)
+			return 1;
+		decl_optimize(eval, tail);
+	}
+	*ret = eval;
+
+	return 0;
+}
+
 
 /*
  *  declare_body_documentation
@@ -1028,6 +1045,46 @@ int declare_body_documentation(Execute ptr, addr env,
 	*rbody = cdr;
 
 	return 0;
+}
+
+void documentation_body(addr list, addr *rdoc, addr *rbody)
+{
+	addr pos, check, key, root;
+
+	/* (doc . body) */
+	getcar(list, &check);
+	if (stringp(check)) {
+		*rdoc = check;
+		getcdr(list, rbody);
+		return;
+	}
+
+	/* (??? ...) */
+	GetConst(COMMON_DECLARE, &key);
+	root = Nil;
+	for (root = Nil; list != Nil; ) {
+		getcar(list, &pos);
+		if (! consp(pos))
+			break;
+		getcar(pos, &check);
+		if (check != key)
+			break;
+		cons_heap(&root, pos, root);
+		GetCdr(list, &list);
+	}
+
+	/* string */
+	getcar(list, &check);
+	if (stringp(check)) {
+		*rdoc = check;
+		getcdr(list, &list);
+	}
+	else {
+		*rdoc = Nil;
+	}
+
+	/* result */
+	nreconc_unsafe(rbody, root, list);
 }
 
 

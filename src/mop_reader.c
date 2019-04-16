@@ -59,7 +59,7 @@ static void defgeneric_class_name(Execute ptr)
 
 	GetConst(COMMON_CLASS_NAME, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -235,17 +235,6 @@ static void method_class_slots(Execute ptr, addr method, addr next, addr var)
 	setresult_control(ptr, var);
 }
 
-static void method_type_class_slots(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, Class);
-	typeargs_var1(&args, args);
-	typeargs_method(args);
-	GetTypeValues(&values, T);
-	type_compiled_heap(args, values, ret);
-}
-
 static void defmethod_class_slots(Execute ptr, addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
@@ -253,7 +242,7 @@ static void defmethod_class_slots(Execute ptr, addr name, addr gen, constindex i
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_class_slots);
-	method_type_class_slots(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
@@ -269,7 +258,7 @@ static void defgeneric_class_slots(Execute ptr)
 
 	GetConst(CLOSNAME_CLASS_SLOTS, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -301,7 +290,7 @@ static void defmethod_class_direct_slots(Execute ptr,
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_class_direct_slots);
-	method_type_class_slots(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
@@ -317,7 +306,7 @@ static void defgeneric_class_direct_slots(Execute ptr)
 
 	GetConst(CLOSNAME_CLASS_DIRECT_SLOTS, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -352,7 +341,7 @@ static void defmethod_class_default_initargs(Execute ptr,
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_class_default_initargs);
-	method_type_class_slots(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
@@ -368,7 +357,7 @@ static void defgeneric_class_default_initargs(Execute ptr)
 
 	GetConst(CLOSNAME_CLASS_DEFAULT_INITARGS, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -404,7 +393,7 @@ static void defmethod_class_direct_default_initargs(Execute ptr,
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_class_direct_default_initargs);
-	method_type_class_slots(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
@@ -420,7 +409,7 @@ static void defgeneric_class_direct_default_initargs(Execute ptr)
 
 	GetConst(CLOSNAME_CLASS_DIRECT_DEFAULT_INITARGS, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -456,7 +445,7 @@ static void defmethod_class_precedence_list(Execute ptr,
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_class_precedence_list);
-	method_type_class_slots(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
@@ -472,7 +461,7 @@ static void defgeneric_class_precedence_list(Execute ptr)
 
 	GetConst(CLOSNAME_CLASS_PRECEDENCE_LIST, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -508,7 +497,7 @@ static void defmethod_class_direct_superclasses(Execute ptr,
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_class_direct_superclasses);
-	method_type_class_slots(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
@@ -524,7 +513,7 @@ static void defgeneric_class_direct_superclasses(Execute ptr)
 
 	GetConst(CLOSNAME_CLASS_DIRECT_SUPERCLASSES, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -560,7 +549,7 @@ static void defmethod_class_direct_subclasses(Execute ptr,
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_class_direct_subclasses);
-	method_type_class_slots(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
@@ -576,7 +565,7 @@ static void defgeneric_class_direct_subclasses(Execute ptr)
 
 	GetConst(CLOSNAME_CLASS_DIRECT_SUBCLASSES, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -612,7 +601,7 @@ static void defmethod_class_finalized_p(Execute ptr,
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_class_finalized_p);
-	method_type_class_slots(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
@@ -628,7 +617,7 @@ static void defgeneric_class_finalized_p(Execute ptr)
 
 	GetConst(CLOSNAME_CLASS_FINALIZED_P, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -664,7 +653,7 @@ static void defmethod_class_prototype(Execute ptr,
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_class_prototype);
-	method_type_class_slots(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
@@ -680,7 +669,7 @@ static void defgeneric_class_prototype(Execute ptr)
 
 	GetConst(CLOSNAME_CLASS_PROTOTYPE, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -747,7 +736,7 @@ static void defgeneric_slot_definition_name(Execute ptr)
 
 	GetConst(CLOSNAME_SLOT_DEFINITION_NAME, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -772,17 +761,6 @@ static void method_slot_definition_type(Execute ptr, addr method, addr next, add
 	setresult_control(ptr, var);
 }
 
-static void method_type_slot_definition_type(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, T);
-	typeargs_var1(&args, args);
-	typeargs_method(args);
-	GetTypeValues(&values, T);
-	type_compiled_heap(args, values, ret);
-}
-
 static void defmethod_slot_definition_type(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
@@ -790,7 +768,7 @@ static void defmethod_slot_definition_type(Execute ptr, addr name, addr gen)
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_slot_definition_type);
-	method_type_slot_definition_type(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
@@ -807,7 +785,7 @@ static void defgeneric_slot_definition_type(Execute ptr)
 
 	GetConst(CLOSNAME_SLOT_DEFINITION_TYPE, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -868,7 +846,7 @@ static void defgeneric_slot_definition_allocation(Execute ptr)
 
 	GetConst(CLOSNAME_SLOT_DEFINITION_ALLOCATION, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -894,17 +872,6 @@ static void method_slot_definition_initargs(Execute ptr,
 	setresult_control(ptr, var);
 }
 
-static void method_type_slot_definition_initargs(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, T);
-	typeargs_var1(&args, args);
-	typeargs_method(args);
-	GetTypeValues(&values, T);
-	type_compiled_heap(args, values, ret);
-}
-
 static void defmethod_slot_definition_initargs(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
@@ -912,7 +879,7 @@ static void defmethod_slot_definition_initargs(Execute ptr, addr name, addr gen)
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_slot_definition_initargs);
-	method_type_slot_definition_initargs(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
@@ -929,7 +896,7 @@ static void defgeneric_slot_definition_initargs(Execute ptr)
 
 	GetConst(CLOSNAME_SLOT_DEFINITION_INITARGS, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -955,17 +922,6 @@ static void method_slot_definition_initform(Execute ptr,
 	setresult_control(ptr, var);
 }
 
-static void method_type_slot_definition_initform(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, T);
-	typeargs_var1(&args, args);
-	typeargs_method(args);
-	GetTypeValues(&values, T);
-	type_compiled_heap(args, values, ret);
-}
-
 static void defmethod_slot_definition_initform(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
@@ -973,7 +929,7 @@ static void defmethod_slot_definition_initform(Execute ptr, addr name, addr gen)
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_slot_definition_initform);
-	method_type_slot_definition_initform(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
@@ -990,7 +946,7 @@ static void defgeneric_slot_definition_initform(Execute ptr)
 
 	GetConst(CLOSNAME_SLOT_DEFINITION_INITFORM, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
@@ -1016,17 +972,6 @@ static void method_slot_definition_initfunction(Execute ptr,
 	setresult_control(ptr, var);
 }
 
-static void method_type_slot_definition_initfunction(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, T);
-	typeargs_var1(&args, args);
-	typeargs_method(args);
-	GetTypeValues(&values, T);
-	type_compiled_heap(args, values, ret);
-}
-
 static void defmethod_slot_definition_initfunction(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
@@ -1034,7 +979,7 @@ static void defmethod_slot_definition_initfunction(Execute ptr, addr name, addr 
 	/* function */
 	compiled_heap(&call, name);
 	setcompiled_var3(call, method_slot_definition_initfunction);
-	method_type_slot_definition_initfunction(&type);
+	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
@@ -1051,13 +996,635 @@ static void defgeneric_slot_definition_initfunction(Execute ptr)
 
 	GetConst(CLOSNAME_SLOT_DEFINITION_INITFUNCTION, &symbol);
 	mop_argument_generic_var1(&gen);
-	parse_callname_heap(&name, symbol);
+	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
 	/* method */
 	defmethod_slot_definition_initfunction(ptr, name, gen);
 	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  generic-function-name
+ ***********************************************************************/
+/* (defmethod generic-function-name (clos) ...) -> symbol */
+static void method_generic_function_name(Execute ptr,
+		addr method, addr next, addr var)
+{
+	stdget_generic_name(var, &var);
+	if (callnamep(var))
+		name_callname_heap(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_generic_function_name(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_generic_function_name);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric generic-function-name (clos)) -> symbol */
+static void defgeneric_generic_function_name(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_GENERIC_FUNCTION_NAME, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_generic_function_name(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  (setf generic-function-name)
+ ***********************************************************************/
+/* (defmethod (setf generic-function-name) (t class) ...) -> t */
+static void method_setf_generic_function_name(Execute ptr,
+		addr method, addr next, addr var, addr clos)
+{
+	addr name;
+
+	parse_callname_error(&name, var);
+	stdset_generic_name(clos, name);
+	setresult_control(ptr, var);
+}
+
+static void method_type_setf_generic_function_name(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, T);
+	typeargs_var2(&args, args, values);
+	typeargs_method(args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void method_argument_setf_generic_function_name(addr *ret)
+{
+	addr pos, list, type1, type2;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 2;
+	ArgumentMethod_var(&type1, T);
+	ArgumentMethod_var(&type2, STANDARD_GENERIC_FUNCTION);
+	list_heap(&list, type1, type2, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+static void defmethod_setf_generic_function_name(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var4(call, method_setf_generic_function_name);
+	method_type_setf_generic_function_name(&type);
+	settype_function(call, type);
+	/* method */
+	method_argument_setf_generic_function_name(&pos);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric (setf generic-function-name) (t class)) -> t */
+static void defgeneric_setf_generic_function_name(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_GENERIC_FUNCTION_NAME, &symbol);
+	mop_argument_generic_var2(&gen);
+	setf_callname_heap(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	setsetf_symbol(symbol, gen);
+	/* method */
+	defmethod_setf_generic_function_name(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  generic-function-methods
+ ***********************************************************************/
+/* (defmethod generic-function-methods (clos) ...) -> symbol */
+static void method_generic_function_methods(Execute ptr,
+		addr method, addr next, addr var)
+{
+	addr root, list, pos;
+	size_t size, i;
+
+	stdget_generic_methods(var, &var);
+	lenarray(var, &size);
+	root = Nil;
+	for (i = 0; i < size; i++) {
+		getarray(var, i, &list);
+		while (list != Nil) {
+			getcons(list, &pos, &list);
+			cons_heap(&root, pos, root);
+		}
+	}
+	nreverse_list_unsafe(&root, root);
+	setresult_control(ptr, root);
+}
+
+static void defmethod_generic_function_methods(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_generic_function_methods);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric generic-function-methods (clos)) -> symbol */
+static void defgeneric_generic_function_methods(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_GENERIC_FUNCTION_METHODS, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_generic_function_methods(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  generic-function-lambda-list
+ ***********************************************************************/
+static void method_generic_function_lambda_list(Execute ptr,
+		addr method, addr next, addr var)
+{
+	stdget_generic_lambda_list(var, &var);
+	if (argumentp(var))
+		argument_generic_lambda_heap(&var, var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_generic_function_lambda_list(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_generic_function_lambda_list);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric generic-function-lambda-list (clos)) -> symbol */
+static void defgeneric_generic_function_lambda_list(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_GENERIC_FUNCTION_LAMBDA_LIST, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_generic_function_lambda_list(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  generic-function-argument-precedence-order
+ ***********************************************************************/
+static void method_generic_function_argument_precedence_order(Execute ptr,
+		addr method, addr next, addr var)
+{
+	stdget_generic_argument_precedence_order(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_generic_function_argument_precedence_order(Execute ptr,
+		addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_generic_function_argument_precedence_order);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric generic-function-argument-precedence-order (clos)) -> symbol */
+static void defgeneric_generic_function_argument_precedence_order(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_GENERIC_FUNCTION_ARGUMENT_PRECEDENCE_ORDER, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_generic_function_argument_precedence_order(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  generic-function-declarations
+ ***********************************************************************/
+static void method_generic_function_declarations(Execute ptr,
+		addr method, addr next, addr var)
+{
+	stdget_generic_declarations(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_generic_function_declarations(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_generic_function_declarations);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric generic-function-declarations (clos)) -> symbol */
+static void defgeneric_generic_function_declarations(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_GENERIC_FUNCTION_DECLARATIONS, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_generic_function_declarations(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  generic-function-method-class
+ ***********************************************************************/
+static void method_generic_function_method_class(Execute ptr,
+		addr method, addr next, addr var)
+{
+	stdget_generic_method_class(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_generic_function_method_class(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_generic_function_method_class);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric generic-function-method-class (clos)) -> symbol */
+static void defgeneric_generic_function_method_class(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_GENERIC_FUNCTION_METHOD_CLASS, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_generic_function_method_class(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  generic-function-method-combination
+ ***********************************************************************/
+static void method_generic_function_method_combination(Execute ptr,
+		addr method, addr next, addr var)
+{
+	stdget_generic_method_combination(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_generic_function_method_combination(Execute ptr,
+		addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_generic_function_method_combination);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric generic-function-method-combination (clos)) -> symbol */
+static void defgeneric_generic_function_method_combination(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_GENERIC_FUNCTION_METHOD_COMBINATION, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_generic_function_method_combination(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  method-function
+ ***********************************************************************/
+static void method_method_function(Execute ptr, addr method, addr next, addr var)
+{
+	stdget_method_function(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_method_function(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_method_function);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric method-function (clos)) -> symbol */
+static void defgeneric_method_function(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_METHOD_FUNCTION, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_method_function(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  method-generic-function
+ ***********************************************************************/
+static void method_method_generic_function(Execute ptr,
+		addr method, addr next, addr var)
+{
+	stdget_method_generic_function(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_method_generic_function(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_method_generic_function);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric method-generic-function (clos)) -> symbol */
+static void defgeneric_method_generic_function(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_METHOD_GENERIC_FUNCTION, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_method_generic_function(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  method-lambda-list
+ ***********************************************************************/
+static void method_method_lambda_list(Execute ptr, addr method, addr next, addr var)
+{
+	stdget_method_lambda_list(var, &var);
+	if (argumentp(var))
+		argument_method_lambda_heap(&var, var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_method_lambda_list(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_method_lambda_list);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric method-lambda-list (clos)) -> symbol */
+static void defgeneric_method_lambda_list(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_METHOD_LAMBDA_LIST, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_method_lambda_list(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  method-specializers
+ ***********************************************************************/
+static void method_method_specializers(Execute ptr, addr method, addr next, addr var)
+{
+	stdget_method_specializers(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_method_specializers(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_method_specializers);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric method-specializers (clos)) -> symbol */
+static void defgeneric_method_specializers(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(CLOSNAME_METHOD_SPECIALIZERS, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_method_specializers(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  method-qualifiers
+ ***********************************************************************/
+static void method_method_qualifiers(Execute ptr, addr method, addr next, addr var)
+{
+	stdget_method_qualifiers(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void defmethod_method_qualifiers(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_method_qualifiers);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+/* (defgeneric method-qualifiers (clos)) -> symbol */
+static void defgeneric_method_qualifiers(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(COMMON_METHOD_QUALIFIERS, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_method_qualifiers(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+
+/***********************************************************************
+ *  accessor-method-slot-definition
+ ***********************************************************************/
+static void defgeneric_accessor_method_slot_definition(Execute ptr)
+{
+	//fmte("TODO", NULL);
 }
 
 
@@ -1078,12 +1645,28 @@ void intern_mop_reader(Execute ptr)
 	defgeneric_class_direct_subclasses(ptr);
 	defgeneric_class_finalized_p(ptr);
 	defgeneric_class_prototype(ptr);
-	/* Slot-definitions */
+	/* Slot definitions */
 	defgeneric_slot_definition_name(ptr);
 	defgeneric_slot_definition_type(ptr);
 	defgeneric_slot_definition_allocation(ptr);
 	defgeneric_slot_definition_initargs(ptr);
 	defgeneric_slot_definition_initform(ptr);
 	defgeneric_slot_definition_initfunction(ptr);
+	/* Generic functions */
+	defgeneric_generic_function_name(ptr);
+	defgeneric_setf_generic_function_name(ptr);
+	defgeneric_generic_function_methods(ptr);
+	defgeneric_generic_function_lambda_list(ptr);
+	defgeneric_generic_function_argument_precedence_order(ptr);
+	defgeneric_generic_function_declarations(ptr);
+	defgeneric_generic_function_method_class(ptr);
+	defgeneric_generic_function_method_combination(ptr);
+	/* Methods */
+	defgeneric_method_function(ptr);
+	defgeneric_method_generic_function(ptr);
+	defgeneric_method_lambda_list(ptr);
+	defgeneric_method_specializers(ptr);
+	defgeneric_method_qualifiers(ptr);
+	defgeneric_accessor_method_slot_definition(ptr);
 }
 

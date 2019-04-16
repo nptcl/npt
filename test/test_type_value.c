@@ -84,13 +84,13 @@ static int test_type_value_clos(void)
 {
 	addr x, y;
 
-	GetConst(COMMON_STANDARD, &x);
-	clos_find_combination(x, &y);
+	GetConst(COMMON_STANDARD_CLASS, &x);
+	clos_find_class(x, &y);
 	type_value(&x, y);
 	test(GetType(x) == LISPTYPE_TYPE, "type_value_clos1");
 	test(LispDecl(x) == LISPDECL_CLOS, "type_value_clos2");
 	GetArrayType(x, 0, &x);
-	GetConst(COMMON_METHOD_COMBINATION, &y);
+	GetConst(COMMON_STANDARD_CLASS, &y);
 	clos_find_class(y, &y);
 	test(x == y, "type_value_clos3");
 

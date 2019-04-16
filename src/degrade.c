@@ -132,8 +132,8 @@ void degrade_execute(void)
 	DegradeCheck(test_clos_class);
 	DegradeCheck(test_clos_type);
 	DegradeCheck(test_clos_cache);
-	DegradeCheck(test_clos_combination);
 	DegradeCheck(test_clos_generic);
+	DegradeCheck(test_clos_combination);
 	DegradeCheck(test_clos_method);
 	DegradeCheck(test_type);
 	DegradeCheck(test_type_table);
@@ -166,9 +166,9 @@ void degrade_execute(void)
 	DegradeCheck(test_stream);
 	DegradeCheck(test_main);
 	DegradeCheck(test_condition);
+	DegradeCheck(loadrt);
 #if 0
 #endif
-	DegradeCheck(loadrt);
 }
 
 #endif

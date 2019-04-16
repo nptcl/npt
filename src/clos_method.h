@@ -23,6 +23,8 @@ void method_instance_lambda(LocalRoot local, addr *ret, addr clos, addr lambda);
 int method_add_method(Execute ptr, addr generic, addr method);
 void common_method_add(Execute ptr, addr generic, addr method);
 void common_method_finalize(addr generic);
+void ensure_method_common(Execute ptr, addr *ret,
+		addr name, addr lambda, addr qua, addr spec, addr call);
 
 /* document */
 void methodget_document(addr clos, addr *ret);

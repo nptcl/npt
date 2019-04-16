@@ -73,6 +73,11 @@ enum CONSTANT_INDEX {
 	CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION,
 	CONSTANT_CLOS_METHOD,
 	CONSTANT_CLOS_STANDARD_METHOD,
+	CONSTANT_CLOS_DEFINE_METHOD_COMBINATION,
+	CONSTANT_CLOS_DEFINE_LONG_METHOD_COMBINATION,
+	CONSTANT_CLOS_DEFINE_SHORT_METHOD_COMBINATION,
+	CONSTANT_CLOS_LONG_METHOD_COMBINATION,
+	CONSTANT_CLOS_SHORT_METHOD_COMBINATION,
 	CONSTANT_CLOS_METHOD_COMBINATION,
 	CONSTANT_CLOS_EQL_SPECIALIZER,
 	CONSTANT_CLOS_FUNCALLABLE_STANDARD_OBJECT,
@@ -200,6 +205,9 @@ void commonconstant(enum CONSTANT_INDEX index, const char *name);
 
 void symbolchar_common(enum CONSTANT_INDEX index, const char *name);
 void symbolchar_keyword(enum CONSTANT_INDEX index, const char *name);
+void quotelist_heap(addr *ret, addr name);
+void pushconst_heap(addr *ret, constindex index);
+#define PushConst(a,b) pushconst_heap((a),CONSTANT_##b)
 
 #endif
 

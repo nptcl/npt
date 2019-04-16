@@ -357,6 +357,7 @@ enum TypeTable {
 	TypeCompiled_UpgradedType,
 	TypeCompiled_SlotBoundp,
 	TypeCompiled_SlotBoundp_Method,
+	TypeCompiled_Reader_Method,
 
 	/* Size */
 	TypeTable_Size

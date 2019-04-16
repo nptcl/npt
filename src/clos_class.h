@@ -41,7 +41,14 @@ int clos_class_p(addr clos);
 int clos_funcallable_p(addr clos);
 int clos_generic_p(addr clos);
 int clos_method_p(addr clos);
-int clos_combination_p(addr clos);
+
+int clos_define_combination_p(addr pos);
+int clos_define_long_combination_p(addr pos);
+int clos_define_short_combination_p(addr pos);
+int clos_combination_p(addr pos);
+int clos_long_combination_p(addr pos);
+int clos_short_combination_p(addr pos);
+
 int clos_specializer_p(addr clos);
 int clos_referenced_p(addr clos);
 int clos_built_p(addr clos);

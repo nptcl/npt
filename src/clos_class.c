@@ -206,13 +206,18 @@ int clos_subtype_p(addr clos, addr super)
 	return clos_subclass_p(clos, super);
 }
 
-int clos_class_p(addr clos)
+static int clos_constant_p(addr clos, constindex index)
 {
 	addr super;
 
 	if (! closp(clos)) return 0;
-	GetConst(CLOS_CLASS, &super);
+	GetConstant(index, &super);
 	return clos_subtype_p(clos, super);
+}
+
+int clos_class_p(addr clos)
+{
+	return clos_constant_p(clos, CONSTANT_CLOS_CLASS);
 }
 
 int clos_funcallable_p(addr clos)
@@ -227,38 +232,47 @@ int clos_funcallable_p(addr clos)
 
 int clos_generic_p(addr clos)
 {
-	addr super;
-
-	if (! closp(clos)) return 0;
-	GetConst(CLOS_GENERIC_FUNCTION, &super);
-	return clos_subtype_p(clos, super);
+	return clos_constant_p(clos, CONSTANT_CLOS_GENERIC_FUNCTION);
 }
 
 int clos_method_p(addr clos)
 {
-	addr super;
+	return clos_constant_p(clos, CONSTANT_CLOS_METHOD);
+}
 
-	if (! closp(clos)) return 0;
-	GetConst(CLOS_METHOD, &super);
-	return clos_subtype_p(clos, super);
+int clos_define_combination_p(addr clos)
+{
+	return clos_constant_p(clos, CONSTANT_CLOS_DEFINE_METHOD_COMBINATION);
+}
+
+int clos_define_long_combination_p(addr clos)
+{
+	return clos_constant_p(clos, CONSTANT_CLOS_DEFINE_LONG_METHOD_COMBINATION);
+}
+
+int clos_define_short_combination_p(addr clos)
+{
+	return clos_constant_p(clos, CONSTANT_CLOS_DEFINE_SHORT_METHOD_COMBINATION);
 }
 
 int clos_combination_p(addr clos)
 {
-	addr super;
+	return clos_constant_p(clos, CONSTANT_CLOS_METHOD_COMBINATION);
+}
 
-	if (! closp(clos)) return 0;
-	GetConst(CLOS_METHOD_COMBINATION, &super);
-	return clos_subtype_p(clos, super);
+int clos_long_combination_p(addr clos)
+{
+	return clos_constant_p(clos, CONSTANT_CLOS_LONG_METHOD_COMBINATION);
+}
+
+int clos_short_combination_p(addr clos)
+{
+	return clos_constant_p(clos, CONSTANT_CLOS_SHORT_METHOD_COMBINATION);
 }
 
 int clos_specializer_p(addr clos)
 {
-	addr super;
-
-	if (! closp(clos)) return 0;
-	GetConst(CLOS_EQL_SPECIALIZER, &super);
-	return clos_subtype_p(clos, super);
+	return clos_constant_p(clos, CONSTANT_CLOS_EQL_SPECIALIZER);
 }
 
 int clos_referenced_p(addr clos)
@@ -856,8 +870,7 @@ static void clos_stdclass_prototype(addr clos)
 	stdset_class_prototype(clos, pos);
 }
 
-static void clos_stdclass_inherit(LocalRoot local,
-		addr pos, addr clos, addr supers, int finalp)
+static void clos_stdclass_inherit(LocalRoot local, addr pos, addr clos, addr supers)
 {
 	addr list, super;
 
@@ -874,10 +887,8 @@ static void clos_stdclass_inherit(LocalRoot local,
 		clos_compute_slots(local, pos, &list);
 		stdset_class_slots(pos, list);
 		/* finalized-p */
-		if (finalp) {
-			clos_stdclass_prototype(pos);
-			stdset_class_finalized_p(pos, T);
-		}
+		clos_stdclass_prototype(pos);
+		stdset_class_finalized_p(pos, T);
 	}
 	/* direct-subclasses */
 	while (supers != Nil) {
@@ -896,7 +907,7 @@ static void clos_stdclass_inherit(LocalRoot local,
 static void clos_stdclass_single(LocalRoot local, addr pos, addr clos, addr super)
 {
 	conscar_heap(&super, super);
-	clos_stdclass_inherit(local, pos, clos, super, 1);
+	clos_stdclass_inherit(local, pos, clos, super);
 }
 
 static void clos_stdclass_metaclass(LocalRoot local, addr *ret)
@@ -911,10 +922,10 @@ static void clos_stdclass_metaclass(LocalRoot local, addr *ret)
 	GetConst(COMMON_CLASS, &name);
 	slot_vector_clear(slots);
 	clos_stdclass_make(&classc, stdclass, name, slots);
-	clos_stdclass_inherit(local, classc, classc, Nil, 1);
+	clos_stdclass_inherit(local, classc, classc, Nil);
 	/* make t class */
 	clos_stdclass_empty(&tc, classc, T);
-	clos_stdclass_inherit(local, tc, classc, Nil, 1);
+	clos_stdclass_inherit(local, tc, classc, Nil);
 	GetConst(COMMON_STANDARD_OBJECT, &name);
 	/* make standard-object */
 	clos_stdclass_empty(&stdobject, classc, name);
@@ -951,7 +962,7 @@ static void clos_stdclass_supers(LocalRoot local,
 	addr instance;
 
 	clos_stdclass_make(&instance, metaclass, name, slots);
-	clos_stdclass_inherit(local, instance, metaclass, supers, 1);
+	clos_stdclass_inherit(local, instance, metaclass, supers);
 	*ret = instance;
 }
 
@@ -1064,7 +1075,6 @@ static void clos_stdgeneric_slots(addr *ret)
 	SlotMakeName(slots, ARGUMENT_PRECEDENCE_ORDER, generic_argument_precedence_order);
 	SlotMakeForm(slots, DECLARATIONS, generic_declarations);
 	SlotMakeForm(slots, METHOD_COMBINATION, generic_method_combination);
-	SlotMakeForm(slots, COMBINATION_ARGUMENTS, generic_combination_arguments);
 	SlotMakeName(slots, EQLCHECK, generic_eqlcheck);
 	SlotMakeName(slots, CACHE, generic_cache);
 	SlotMakeName(slots, CALL, generic_call);
@@ -1148,22 +1158,63 @@ static void build_clos_class_method(LocalRoot local)
 /*
  *  method-combination
  */
-static void clos_stdcombination_slots(addr *ret)
+static void clos_stdlongcomb_slots(addr *ret)
 {
 	addr slots;
 
-	slot_vector_heap(&slots, Clos_combination_size);
-	SlotMakeNameSymbol(slots, NAME, combination_name);
-	SlotMakeName(slots, LONG_P, combination_long_p);
-	SlotMakeName(slots, DOCUMENT, combination_document);
-	SlotMakeName(slots, IDENTITY, combination_identity);
-	SlotMakeName(slots, OPERATOR, combination_operator);
-	SlotMakeName(slots, LAMBDA_LIST, combination_lambda_list);
-	SlotMakeName(slots, QUALIFIERS, combination_qualifiers);
-	SlotMakeName(slots, ARGUMENTS, combination_arguments);
-	SlotMakeName(slots, GENERIC, combination_generic);
-	SlotMakeName(slots, FORM, combination_form);
-	SlotMakeName(slots, FUNCTION, combination_function);
+	slot_vector_heap(&slots, Clos_longcomb_size);
+	SlotMakeNameSymbol(slots, NAME, longcomb_name);
+	SlotMakeName(slots, DOCUMENT, longcomb_document);
+	SlotMakeName(slots, LAMBDA_LIST, longcomb_lambda_list);
+	SlotMakeName(slots, BINDING, longcomb_binding);
+	SlotMakeName(slots, QUALIFIERS, longcomb_qualifiers);
+	SlotMakeName(slots, ARGUMENTS, longcomb_arguments);
+	SlotMakeName(slots, GENERIC, longcomb_generic);
+	SlotMakeName(slots, FORM, longcomb_form);
+	SlotMakeName(slots, FUNCTION, longcomb_function);
+	slotvector_set_location(slots);
+	*ret = slots;
+}
+
+static void clos_stdshortcomb_slots(addr *ret)
+{
+	addr slots;
+
+	slot_vector_heap(&slots, Clos_shortcomb_size);
+	SlotMakeNameSymbol(slots, NAME, shortcomb_name);
+	SlotMakeName(slots, DOCUMENT, shortcomb_document);
+	SlotMakeName(slots, IDENTITY, shortcomb_identity);
+	SlotMakeName(slots, OPERATOR, shortcomb_operator);
+	SlotMakeName(slots, ORDER, shortcomb_order);
+	slotvector_set_location(slots);
+	*ret = slots;
+}
+
+static void clos_stdlongdef_slots(addr *ret)
+{
+	addr slots;
+
+	slot_vector_heap(&slots, Clos_longdef_size);
+	SlotMakeNameSymbol(slots, NAME, longdef_name);
+	SlotMakeName(slots, DOCUMENT, longdef_document);
+	SlotMakeName(slots, LAMBDA_LIST, longdef_lambda_list);
+	SlotMakeName(slots, QUALIFIERS, longdef_qualifiers);
+	SlotMakeName(slots, ARGUMENTS, longdef_arguments);
+	SlotMakeName(slots, GENERIC, longdef_generic);
+	SlotMakeName(slots, FORM, longdef_form);
+	slotvector_set_location(slots);
+	*ret = slots;
+}
+
+static void clos_stdshortdef_slots(addr *ret)
+{
+	addr slots;
+
+	slot_vector_heap(&slots, Clos_shortdef_size);
+	SlotMakeNameSymbol(slots, NAME, shortdef_name);
+	SlotMakeName(slots, DOCUMENT, shortdef_document);
+	SlotMakeName(slots, IDENTITY, shortdef_identity);
+	SlotMakeName(slots, OPERATOR, shortdef_operator);
 	slotvector_set_location(slots);
 	*ret = slots;
 }
@@ -1174,41 +1225,80 @@ static void build_clos_method_combination(LocalRoot local)
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	/* method-combination */
-	clos_stdcombination_slots(&slots);
-	ClosMakeClassSlot(local, metaclass, slots,
+	ClosMakeClass1(local, metaclass,
 			COMMON_METHOD_COMBINATION,
 			CLOS_METHOD_COMBINATION,
 			CLOS_STANDARD_OBJECT);
+	/* long-method-combination */
+	clos_stdlongcomb_slots(&slots);
+	ClosMakeClassSlot(local, metaclass, slots,
+			CLOSNAME_LONG_METHOD_COMBINATION,
+			CLOS_LONG_METHOD_COMBINATION,
+			CLOS_METHOD_COMBINATION);
+	/* short-method-combination */
+	clos_stdshortcomb_slots(&slots);
+	ClosMakeClassSlot(local, metaclass, slots,
+			CLOSNAME_SHORT_METHOD_COMBINATION,
+			CLOS_SHORT_METHOD_COMBINATION,
+			CLOS_METHOD_COMBINATION);
+	/* define-method-combination */
+	ClosMakeClass1(local, metaclass,
+			COMMON_DEFINE_METHOD_COMBINATION,
+			CLOS_DEFINE_METHOD_COMBINATION,
+			CLOS_STANDARD_OBJECT);
+	/* define-long-method-combination */
+	clos_stdlongdef_slots(&slots);
+	ClosMakeClassSlot(local, metaclass, slots,
+			CLOSNAME_DEFINE_LONG_METHOD_COMBINATION,
+			CLOS_DEFINE_LONG_METHOD_COMBINATION,
+			CLOS_DEFINE_METHOD_COMBINATION);
+	/* define-short-method-combination */
+	clos_stdshortdef_slots(&slots);
+	ClosMakeClassSlot(local, metaclass, slots,
+			CLOSNAME_DEFINE_SHORT_METHOD_COMBINATION,
+			CLOS_DEFINE_SHORT_METHOD_COMBINATION,
+			CLOS_DEFINE_METHOD_COMBINATION);
 }
 
-static void clos_define_method_combination(LocalRoot local, constindex n, constindex c)
+static void clos_method_combination(LocalRoot local,
+		constindex m, constindex n, constindex c)
 {
 	addr pos, name;
 
-	GetConst(CLOS_METHOD_COMBINATION, &pos);
+	GetConstant(m, &pos);
 	clos_instance_heap(pos, &pos);
 	SetConstant(c, pos);
 	GetConstant(n, &name);
 	clos_define_combination(name, pos);
 }
-#define DefineMethodCombination(p, x) \
-	clos_define_method_combination((p),CONSTANT_COMMON_##x,CONSTANT_COMBINATION_##x)
+#define LongMethodCombination(p, x) { \
+	clos_method_combination((p), \
+			CONSTANT_CLOS_DEFINE_LONG_METHOD_COMBINATION, \
+			CONSTANT_COMMON_##x, \
+			CONSTANT_COMBINATION_##x); \
+}
+#define ShortMethodCombination(p, x) { \
+	clos_method_combination((p), \
+			CONSTANT_CLOS_DEFINE_SHORT_METHOD_COMBINATION, \
+			CONSTANT_COMMON_##x, \
+			CONSTANT_COMBINATION_##x); \
+}
 
 static void build_clos_class_combination(LocalRoot local)
 {
 	/* method-combination */
 	build_clos_method_combination(local);
 	/* standard */
-	DefineMethodCombination(local, STANDARD);
+	LongMethodCombination(local, STANDARD);
 	/* others */
-	DefineMethodCombination(local, PLUS);
-	DefineMethodCombination(local, AND);
-	DefineMethodCombination(local, APPEND);
-	DefineMethodCombination(local, LIST);
-	DefineMethodCombination(local, MAX);
-	DefineMethodCombination(local, MIN);
-	DefineMethodCombination(local, NCONC);
-	DefineMethodCombination(local, PROGN);
+	ShortMethodCombination(local, PLUS);
+	ShortMethodCombination(local, AND);
+	ShortMethodCombination(local, APPEND);
+	ShortMethodCombination(local, LIST);
+	ShortMethodCombination(local, MAX);
+	ShortMethodCombination(local, MIN);
+	ShortMethodCombination(local, NCONC);
+	ShortMethodCombination(local, PROGN);
 }
 
 

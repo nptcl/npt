@@ -68,11 +68,11 @@ static int test_typep_clos(void)
 {
 	addr v;
 
-	v = readr("standard");
-	clos_find_combination(v, &v);
-	test(typep_char(v, "method-combination"), "typep_clos1");
+	v = readr("standard-class");
+	clos_find_class(v, &v);
+	test(typep_char(v, "class"), "typep_clos1");
 	fixnum_heap(&v, 100);
-	test(! typep_char(v, "method-combination"), "typep_clos2");
+	test(! typep_char(v, "class"), "typep_clos2");
 
 	RETURN;
 }

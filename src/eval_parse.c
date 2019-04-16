@@ -1349,8 +1349,7 @@ static int parse_flet_one(addr *ret, addr cons)
 
 	if (GetType(cons) != LISPTYPE_CONS) goto error;
 	GetCons(cons, &name, &cons);
-	if (parse_callname_heap(&call, name))
-		fmte("Invalid of function name ~S.", name, NULL);
+	parse_callname_error(&call, name);
 	check_function_variable(call);
 	if (GetType(cons) != LISPTYPE_CONS) goto error;
 	GetCons(cons, &args, &cons);
@@ -2017,6 +2016,10 @@ static int parse_execute(addr *ret, addr pos)
 
 		case LISPTYPE_PATHNAME:
 			eval_single_parse_heap(ret, EVAL_PARSE_PATHNAME, pos);
+			break;
+
+		case LISPTYPE_ENVIRONMENT:
+			eval_single_parse_heap(ret, EVAL_PARSE_ENVIRONMENT, pos);
 			break;
 
 		case LISPTYPE_SINGLE_FLOAT:
@@ -2874,6 +2877,7 @@ static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 		case EVAL_PARSE_FLOAT:
 		case EVAL_PARSE_FUNCTION:
 		case EVAL_PARSE_PATHNAME:
+		case EVAL_PARSE_ENVIRONMENT:
 		case EVAL_PARSE_QUOTE:
 		case EVAL_PARSE_GO:
 			copy_single(local, ret, pos);

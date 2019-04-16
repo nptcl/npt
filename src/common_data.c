@@ -135,8 +135,7 @@ static void function_fdefinition(Execute ptr, addr name)
 {
 	addr call;
 
-	if (parse_callname_heap(&call, name))
-		fmte("Invalid function name ~S.", name, NULL);
+	parse_callname_error(&call, name);
 	getfunction_callname_global(call, &call);
 	if (call == Unbound)
 		undefined_function(name);
@@ -176,8 +175,7 @@ static void function_setf_fdefinition(Execute ptr, addr value, addr name)
 {
 	addr call;
 
-	if (parse_callname_heap(&call, name))
-		fmte("Invalid function name ~S.", name, NULL);
+	parse_callname_error(&call, name);
 	setfunction_callname_global(call, value);
 	setresult_control(ptr, value);
 }
@@ -216,8 +214,7 @@ static void function_fboundp(Execute ptr, addr name)
 {
 	addr call;
 
-	if (parse_callname_heap(&call, name))
-		fmte("Invalid function name ~S.", name, NULL);
+	parse_callname_error(&call, name);
 	getfunction_callname_global(call, &call);
 	setbool_control(ptr, call != Unbound);
 }
@@ -255,8 +252,7 @@ static void function_fmakunbound(Execute ptr, addr name)
 {
 	addr call;
 
-	if (parse_callname_heap(&call, name))
-		fmte("Invalid function name ~S.", name, NULL);
+	parse_callname_error(&call, name);
 	setfunction_callname_global(call, Unbound);
 	setresult_control(ptr, name);
 }
@@ -426,7 +422,7 @@ static void defun_function_lambda_expression(void)
 /* (defun functionp (object) ...) -> boolean */
 static void function_functionp(Execute ptr, addr var)
 {
-	setbool_control(ptr, functionp(var));
+	setbool_control(ptr, funcallp(var));
 }
 
 static void defun_functionp(void)

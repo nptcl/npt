@@ -1988,6 +1988,7 @@ static void code_execute(LocalRoot local, addr code, addr scope)
 		case EVAL_PARSE_FLOAT:
 		case EVAL_PARSE_QUOTE:
 		case EVAL_PARSE_PATHNAME:
+		case EVAL_PARSE_ENVIRONMENT:
 			code_value(local, code, scope);
 			break;
 

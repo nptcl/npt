@@ -45,16 +45,6 @@ void set_compiler_macro_document(addr key, addr value)
 	fmte("TODO: documentation compiler-macro is not implemented.", NULL);
 }
 
-void get_method_combination_document(addr key, addr *ret)
-{
-	stdget_combination_document(key, ret);
-}
-
-void set_method_combination_document(addr key, addr value)
-{
-	stdset_combination_document(key, value);
-}
-
 void get_standard_method_document(addr key, addr *ret)
 {
 	methodget_document(key, ret);

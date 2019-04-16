@@ -4,7 +4,6 @@
 #include "degrade.h"
 #include "execute.h"
 #include "package.h"
-#include "readlite.h"
 #include "readtable.h"
 #include "real.h"
 #include "stream.h"
@@ -56,7 +55,6 @@ static int test_stdget_generic(void)
 	CheckStdGetGeneric(pos, ARGUMENT_PRECEDENCE_ORDER, argument_precedence_order);
 	CheckStdGetGeneric(pos, DECLARATIONS, declarations);
 	CheckStdGetGeneric(pos, METHOD_COMBINATION, method_combination);
-	CheckStdGetGeneric(pos, COMBINATION_ARGUMENTS, combination_arguments);
 	CheckStdGetGeneric(pos, EQLCHECK, eqlcheck);
 	CheckStdGetGeneric(pos, CACHE, cache);
 	CheckStdGetGeneric(pos, CALL, call);
@@ -138,55 +136,6 @@ static void test_make_generic(addr *ret)
 	addr clos;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &clos);
 	clos_instance_heap(clos, ret);
-}
-
-static int test_comb_standard_getorder(void)
-{
-	addr generic, pos;
-
-	test_make_generic(&generic);
-	GetConst(KEYWORD_MOST_SPECIFIC_FIRST, &pos);
-	list_heap(&pos, pos, NULL);
-	stdset_generic_combination_arguments(generic, pos);
-	comb_standard_getorder(&pos, generic);
-	test(pos == Nil, "comb_standard_getorder1");
-
-	GetConst(KEYWORD_MOST_SPECIFIC_LAST, &pos);
-	list_heap(&pos, pos, NULL);
-	stdset_generic_combination_arguments(generic, pos);
-	comb_standard_getorder(&pos, generic);
-	test(pos == T, "comb_standard_getorder2");
-
-	RETURN;
-}
-
-static int test_comb_standard_order(void)
-{
-	addr pos, left, right;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	list_local(local, &pos, Nil, T, NULL);
-
-	comb_standard_order(local, &pos, Nil, pos);
-	GetCons(pos, &left, &right);
-	test(left == Nil, "comb_standard_order1");
-	GetCons(right, &left, &right);
-	test(left == T, "comb_standard_order2");
-	test(right == Nil, "comb_standard_order3");
-
-	comb_standard_order(local, &pos, T, pos);
-	GetCons(pos, &left, &right);
-	test(left == T, "comb_standard_order4");
-	GetCons(right, &left, &right);
-	test(left == Nil, "comb_standard_order5");
-	test(right == Nil, "comb_standard_order6");
-
-	rollback_local(local, stack);
-
-	RETURN;
 }
 
 static void test_make_method(addr *ret)
@@ -338,7 +287,7 @@ static int test_comb_standard_qualifiers(void)
 	setcompiled_dynamic(call, test_comb_standard_method_call);
 	stdset_method_function(method, call);
 	list_heap(&primary, method, NULL);
-	comb_standard_qualifiers(local, &method, generic, Nil, primary, Nil, Nil);
+	comb_standard_qualifiers(local, &method, generic, Nil, primary, Nil);
 	/* run method */
 	push_close_control(ptr, &control);
 	list_heap(&args, T, NULL);
@@ -374,7 +323,6 @@ static int test_comb_standard(void)
 	push_close_control(ptr, &control);
 	GetClosGenericCall(call, &callproc);
 	test_make_generic(&generic);
-	stdset_generic_combination_arguments(generic, Nil);
 	GetConst(CLOS_STANDARD_METHOD, &args);
 	stdset_generic_method_class(generic, args);
 	list_heap(&args, T, NULL);
@@ -389,11 +337,9 @@ static int test_comb_standard(void)
 
 static int test_comb_lambda(void)
 {
-	addr call, pos;
+	addr call;
 
-	GetConst(COMMON_STANDARD, &pos);
-	clos_find_combination(pos, &pos);
-	comb_lambda(&call, Nil, pos, Nil);
+	comb_lambda(&call, Nil, Nil, Nil);
 	test(call, "comb_lambda1");
 
 	RETURN;
@@ -744,11 +690,7 @@ static int test_generic_make_type(void)
 
 	test_make_generic(&generic);
 	/* method-combination */
-	GetConst(COMMON_STANDARD, &pos);
-	clos_find_combination(pos, &pos);
-	stdset_generic_method_combination(generic, pos);
-	/* combination-arguments */
-	stdset_generic_combination_arguments(generic, Nil);
+	stdset_generic_method_combination(generic, Nil);
 	/* method-class */
 	GetConst(CLOS_STANDARD_METHOD, &pos);
 	stdset_generic_method_class(generic, pos);
@@ -913,8 +855,6 @@ static int testbreak_clos_generic(void)
 	/* call object */
 	TestBreak(test_clos_generic_call_alloc);
 	/* default method-combination */
-	TestBreak(test_comb_standard_getorder);
-	TestBreak(test_comb_standard_order);
 	TestBreak(test_comb_standard_method);
 	TestBreak(test_comb_standard_funcall);
 	TestBreak(test_comb_standard_lambda);

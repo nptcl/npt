@@ -7,6 +7,7 @@
 
 (load #p"test/rtobjects-reader.lisp")
 (load #p"test/rtobjects-class.lisp")
+(load #p"test/rtobjects-generic.lisp")
 
 
 ;;
