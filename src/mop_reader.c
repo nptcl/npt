@@ -1368,6 +1368,8 @@ static void method_generic_function_method_combination(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_generic_method_combination(var, &var);
+	if (var == Nil)
+		GetConst(CLOS_COMBINATION_STANDARD, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1424,7 +1426,7 @@ static void defmethod_method_function(Execute ptr, addr name, addr gen)
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
-	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
@@ -1467,7 +1469,7 @@ static void defmethod_method_generic_function(Execute ptr, addr name, addr gen)
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
-	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
@@ -1511,7 +1513,7 @@ static void defmethod_method_lambda_list(Execute ptr, addr name, addr gen)
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
-	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
@@ -1553,7 +1555,7 @@ static void defmethod_method_specializers(Execute ptr, addr name, addr gen)
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
-	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
@@ -1595,7 +1597,7 @@ static void defmethod_method_qualifiers(Execute ptr, addr name, addr gen)
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
-	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
@@ -1618,13 +1620,45 @@ static void defgeneric_method_qualifiers(Execute ptr)
 }
 
 
-
 /***********************************************************************
  *  accessor-method-slot-definition
  ***********************************************************************/
+static void method_accessor_method_slot_definition(Execute ptr,
+		addr method, addr next, addr var)
+{
+	fmte("There is no accessor-method in ~S.", NULL);
+}
+
+static void defmethod_accessor_method_slot_definition(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_accessor_method_slot_definition);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
 static void defgeneric_accessor_method_slot_definition(Execute ptr)
 {
-	//fmte("TODO", NULL);
+	addr symbol, name, gen;
+
+	GetConst(COMMON_METHOD_QUALIFIERS, &symbol);
+	GetConst(CLOSNAME_ACCESSOR_METHOD_SLOT_DEFINITION, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	export_mop(symbol);
+	/* method */
+	defmethod_accessor_method_slot_definition(ptr, name, gen);
+	common_method_finalize(gen);
 }
 
 

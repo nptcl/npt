@@ -284,6 +284,9 @@ static void clos_generic_call_heap(addr *ret, clos_generic_call call, int size)
 /*****************************************************************************
  *  default method-combination
  *****************************************************************************/
+/*
+ *  standard
+ */
 static int comb_standard_method(Execute ptr, addr car, addr cdr, addr rest)
 {
 	addr call, args;
@@ -339,7 +342,7 @@ static void comb_standard_lambda(Execute ptr)
 	if (after != Nil) {
 		push_close_control(ptr, &control);
 		while (after != Nil) {
-			GetCons(after, &one, &before);
+			GetCons(after, &one, &after);
 			comb_standard_method(ptr, one, Nil, args);
 		}
 		free_control(ptr, control);
@@ -370,6 +373,7 @@ static int generic_no_applicable_method(Execute ptr, addr gen, addr args)
 	local = ptr->local;
 	push_local(local, &stack);
 	GetConst(COMMON_NO_APPLICABLE_METHOD, &call);
+	getfunctioncheck_local(ptr, call, &call);
 	lista_local(local, &args, gen, args, NULL);
 	if (apply_control(ptr, call, args)) return 1;
 	rollback_local(local, stack);
@@ -411,37 +415,72 @@ static int comb_standard_call(Execute ptr, addr inst, addr gen, addr rest)
 	return result;
 }
 
-static void comb_standard(addr *ret, addr data)
+static int comb_standard(addr *ret, addr data)
 {
 	addr pos;
 
 	clos_generic_call_heap(&pos, comb_standard_call, 1);
 	SetClosGenericCallArray(pos, 0, data);
 	*ret = pos;
+
+	return 0;
 }
 
-static void comb_lambda(addr *ret, addr gen, addr comb, addr data)
+
+/*
+ *  method-combination long
+ */
+static int comb_long_call(Execute ptr, addr inst, addr gen, addr rest)
+{
+	addr control, call;
+
+	push_return_control(ptr, &control);
+	GetClosGenericCallArray(inst, 0, &call);
+	if (apply_control(ptr, call, rest)) return 1;
+	free_control(ptr, control);
+
+	return 0;
+}
+
+static int comb_long(Execute ptr, addr *ret, addr gen, addr comb, addr data)
+{
+	addr pos;
+
+	/* make function */
+	if (comb_longform(ptr, &data, gen, comb, data))
+		return 1;
+	Check(! functionp(data), "type error");
+	/* result */
+	clos_generic_call_heap(&pos, comb_long_call, 1);
+	SetClosGenericCallArray(pos, 0, data);
+	*ret = pos;
+
+	return 0;
+}
+
+
+/*
+ *  execute combination
+ */
+static int comb_lambda(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 {
 	/* standard */
-	if (comb == Nil) {
-		comb_standard(ret, data);
-		return;
-	}
+	if (comb == Nil)
+		return comb_standard(ret, data);
 
 	/* long-form */
-	if (clos_long_combination_p(comb)) {
-		fmte("TODO: method-combination is not support yet.", NULL);
-		return;
-	}
+	if (clos_long_combination_p(comb))
+		return comb_long(ptr, ret, gen, comb, data);
 
 	/* short-form */
 	if (clos_short_combination_p(comb)) {
 		fmte("TODO: method-combination is not support yet.", NULL);
-		return;
+		return 0;
 	}
 
 	/* error */
 	fmte("Invalid method-combination ~S.", comb, NULL);
+	return 0;
 }
 
 
@@ -544,7 +583,7 @@ static int generic_sort_compare(int (*call)(addr, addr), addr a, addr b)
 		if (a == Nil || b == Nil) break;
 		GetCons(a, &x, &a);
 		GetCons(b, &y, &b);
-		value = call(x, y);
+		value = (*call)(x, y);
 		if (value < 0) return 1;
 		if (0 < value) return 0;
 	}
@@ -570,7 +609,7 @@ static int generic_sort(addr order, int (*call)(addr, addr), addr a, addr b)
 		GetIndex(pos, &i);
 		nth_unsafe(&x, i, a);
 		nth_unsafe(&y, i, b);
-		value = call(x, y);
+		value = (*call)(x, y);
 		if (value < 0) return 1;
 		if (0 < value) return 0;
 	}
@@ -585,22 +624,18 @@ static int generic_sort_order_call(addr order, addr left, addr right)
 	return generic_sort(order, generic_compare_specializer, left, right);
 }
 
-static void generic_specializer_order(addr *ret, addr gen, addr list)
-{
-	addr order;
-	stdget_generic_argument_precedence_order(gen, &order);
-	simplesort_info_cons_unsafe(ret, list, order, generic_sort_order_call);
-}
-
 static void generic_specializers_sort(addr *ret, addr gen, addr list)
 {
-	if (stdboundp_generic_argument_precedence_order(gen))
-		generic_specializer_order(ret, gen, list);
+	addr order;
+
+	stdget_generic_argument_precedence_order(gen, &order);
+	if (order != Nil)
+		simplesort_info_cons_unsafe(ret, list, order, generic_sort_order_call);
 	else
 		simplesort_cons_unsafe(ret, list, generic_sort_call);
 }
 
-static void generic_make_type(addr *ret, addr gen, addr type)
+static int generic_make_type(Execute ptr, addr *ret, addr gen, addr type)
 {
 	addr array, data, comb, methods, method, list;
 	size_t size, index;
@@ -622,7 +657,7 @@ static void generic_make_type(addr *ret, addr gen, addr type)
 		SetArrayA4(data, index, list);
 	}
 	/* combination */
-	comb_lambda(ret, gen, comb, data);
+	return comb_lambda(ptr, ret, gen, comb, data);
 }
 
 static void generic_make_mapcar_class_of(LocalRoot local,
@@ -650,23 +685,20 @@ static int generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
 {
 	addr eqlcheck, cache, key, value, cons;
 	LocalRoot local;
-	LocalStack stack;
 	clos_generic_call call;
 
 	local = ptr->local;
-	push_local(local, &stack);
-
 	GetClosGenericCallArray(inst, 0, &eqlcheck);
 	GetClosGenericCallArray(inst, 1, &cache);
 	generic_make_mapcar_class_of(local, &key, eqlcheck, args);
 	if (findvalue_hashtable(cache, key, &value)) {
 		/* not found, tranlate to heap-list from dynamic list */
 		copy_list_heap_unsafe(&key, key);
-		generic_make_type(&value, gen, key);
+		if (generic_make_type(ptr, &value, gen, key))
+			return 1;
 		intern_hashheap(cache, key, &cons);
 		SetCdr(cons, value);
 	}
-	rollback_local(local, stack);
 
 	/* clos_generic_call */
 	GetClosGenericCall(value, &call);
@@ -738,20 +770,13 @@ void closrun_execute(Execute ptr, addr clos, addr args)
 	stdget_generic_call(clos, &pos);
 	CheckType(pos, LISPSYSTEM_GENERIC);
 	GetClosGenericCall(pos, &call);
-	call(ptr, pos, clos, args);
+	(*call)(ptr, pos, clos, args);
 }
 
 
 /*****************************************************************************
  *  defgeneric
  *****************************************************************************/
-static void generic_instance_name(addr *ret, addr name)
-{
-	if (! callnamep(name))
-		parse_callname_error(&name, name);
-	*ret = name;
-}
-
 static void generic_instance_cache(addr *ret)
 {
 	hashtable_full_heap(ret,
@@ -766,36 +791,6 @@ static void generic_instance_methods(addr *ret, addr comb)
 	size_t size;
 	method_combination_qualifiers_count(comb, &size);
 	vector4_heap(ret, size);
-}
-
-void generic_instance_heap(LocalRoot local, addr *ret, addr name, addr lambda)
-{
-	addr pos, methods, method, cache;
-
-	generic_instance_name(&name, name);
-	clos_find_generic_nil(name, &pos);
-	if (pos != Nil)
-		fmte("TODO: The generic-function already exists. (no implemented yet)", NULL);
-	argument_generic_heap(local, &lambda, lambda);
-	generic_instance_methods(&methods, Nil);
-	GetConst(CLOS_STANDARD_METHOD, &method);
-	generic_instance_cache(&cache);
-
-	/* make-instance */
-	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	clos_instance_heap(pos, &pos);
-	stdset_generic_name(pos, name);
-	stdset_generic_lambda_list(pos, lambda);
-	stdset_generic_argument_precedence_order(pos, Unbound);
-	stdset_generic_methods(pos, methods);
-	stdset_generic_method_class(pos, method);
-	stdset_generic_method_combination(pos, Nil);
-	stdset_generic_cache(pos, cache);
-
-	/* result */
-	generic_finalize(pos);
-	setcallname_global(name, pos);
-	*ret = pos;
 }
 
 void generic_common_instance(addr *ret, addr name, addr args)
@@ -817,7 +812,7 @@ void generic_common_instance(addr *ret, addr name, addr args)
 	clos_instance_heap(pos, &pos);
 	stdset_generic_name(pos, name);
 	stdset_generic_lambda_list(pos, args);
-	stdset_generic_argument_precedence_order(pos, Unbound);
+	stdset_generic_argument_precedence_order(pos, Nil);
 	stdset_generic_methods(pos, methods);
 	stdset_generic_method_class(pos, method);
 	stdset_generic_method_combination(pos, Nil);
@@ -880,11 +875,44 @@ int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *ret)
 
 
 /*
+ *  generic-empty
+ */
+void generic_empty(addr name, addr lambda, addr *ret)
+{
+	addr pos, method, methods, cache;
+
+	Check(! callnamep(name), "type error");
+	Check(! argumentp(lambda), "type error");
+	Check(ArgumentStruct(lambda)->type != ArgumentType_generic, "argument error");
+
+	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
+	clos_instance_heap(pos, &pos);
+	generic_instance_methods(&methods, Nil);
+	GetConst(CLOS_STANDARD_METHOD, &method);
+	generic_instance_cache(&cache);
+
+	/* setf */
+	stdset_generic_name(pos, name);
+	stdset_generic_lambda_list(pos, lambda);
+	stdset_generic_methods(pos, methods);
+	stdset_generic_method_class(pos, method);
+	stdset_generic_argument_precedence_order(pos, Nil);
+	stdset_generic_method_combination(pos, Nil);
+	stdset_generic_cache(pos, cache);
+
+	/* result */
+	generic_finalize(pos);
+	setcallname_global(name, pos);
+	*ret = pos;
+}
+
+
+/*
  *  generic-add
  */
 int generic_add(struct generic_argument *str, addr *ret)
 {
-	addr pos, comb, methods, cache, order;
+	addr pos, comb, methods, cache;
 
 	/* (make-instance generic-function-class) */
 	GetConst(COMMON_MAKE_INSTANCE, &pos);
@@ -897,14 +925,13 @@ int generic_add(struct generic_argument *str, addr *ret)
 		clos_find_method_combination(pos, comb, &comb);
 	generic_instance_methods(&methods, comb);
 	generic_instance_cache(&cache);
-	order = str->order == Nil? Unbound: str->order;
 
 	/* setf */
 	stdset_generic_name(pos, str->name);
 	stdset_generic_lambda_list(pos, str->lambda);
 	stdset_generic_methods(pos, methods);
 	stdset_generic_method_class(pos, str->method);
-	stdset_generic_argument_precedence_order(pos, order);
+	stdset_generic_argument_precedence_order(pos, str->order);
 	stdset_generic_declarations(pos, str->declare);
 	stdset_generic_method_combination(pos, comb);
 	stdset_generic_cache(pos, cache);

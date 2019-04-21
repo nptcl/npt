@@ -4,6 +4,8 @@
 #include "cons.h"
 #include "constant.h"
 #include "control.h"
+#include "eval.h"
+#include "lambda.h"
 #include "object.h"
 #include "package.h"
 #include "sequence.h"
@@ -86,11 +88,11 @@ void stdset_longcomb_lambda_list(addr pos, addr value)
 
 void stdget_longcomb_binding(addr pos, addr *ret)
 {
-	StdGetLongCombination(pos, ret, binding, LAMBDA_LIST);
+	StdGetLongCombination(pos, ret, binding, BINDING);
 }
 void stdset_longcomb_binding(addr pos, addr value)
 {
-	StdSetLongCombination(pos, value, binding, LAMBDA_LIST);
+	StdSetLongCombination(pos, value, binding, BINDING);
 }
 
 void stdget_longcomb_qualifiers(addr pos, addr *ret)
@@ -674,34 +676,43 @@ void qualifiers_position(Execute ptr, addr qua, addr comb, size_t *ret)
 /*****************************************************************************
  *  standard method-combination
  *****************************************************************************/
-static void clos_define_combination_short(constindex n, constindex c, int ident)
+static void build_clos_method_combination_standard(void)
 {
-	addr name, clos;
+	addr clos, inst, name;
 
-	GetConstant(n, &name);
-	GetConstant(c, &clos);
-	Check(! symbolp(name), "type error");
-	CheckType(clos, LISPTYPE_CLOS);
-
-	stdset_shortdef_name(clos, name);
-	stdset_shortdef_document(clos, Nil);
-	stdset_shortdef_identity(clos, ident? T: Nil);
-	stdset_shortdef_operator(clos, name);
-	clos_define_combination(name, clos);
+	GetConst(CLOS_LONG_METHOD_COMBINATION, &clos);
+	clos_instance_heap(clos, &inst);
+	GetConst(COMMON_STANDARD, &name);
+	stdset_longcomb_name(inst, name);
+	SetConst(CLOS_COMBINATION_STANDARD, inst);
 }
-#define ClosDefineCombinationShort(x,y) \
-	clos_define_combination_short(CONSTANT_COMMON_##x, CONSTANT_COMBINATION_##x, (y));
+
+static void build_clos_method_combination_short(constindex n, int ident)
+{
+	addr clos, inst, name;
+
+	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &clos);
+	clos_instance_heap(clos, &inst);
+	GetConstant(n, &name);
+	stdset_shortdef_name(inst, name);
+	stdset_shortdef_document(inst, Nil);
+	stdset_shortdef_identity(inst, ident? T: Nil);
+	stdset_shortdef_operator(inst, name);
+	clos_define_combination(name, inst);
+}
 
 void build_clos_combination(void)
 {
-	ClosDefineCombinationShort(PLUS, 1);
-	ClosDefineCombinationShort(AND, 1);
-	ClosDefineCombinationShort(APPEND, 1);
-	ClosDefineCombinationShort(LIST, 0);
-	ClosDefineCombinationShort(MAX, 1);
-	ClosDefineCombinationShort(MIN, 1);
-	ClosDefineCombinationShort(NCONC, 1);
-	ClosDefineCombinationShort(PROGN, 1);
+	build_clos_method_combination_standard();
+	build_clos_method_combination_short(CONSTANT_COMMON_PLUS, 1);
+	build_clos_method_combination_short(CONSTANT_COMMON_AND, 1);
+	build_clos_method_combination_short(CONSTANT_COMMON_APPEND, 1);
+	build_clos_method_combination_short(CONSTANT_COMMON_LIST, 0);
+	build_clos_method_combination_short(CONSTANT_COMMON_MAX, 1);
+	build_clos_method_combination_short(CONSTANT_COMMON_MIN, 1);
+	build_clos_method_combination_short(CONSTANT_COMMON_NCONC, 1);
+	build_clos_method_combination_short(CONSTANT_COMMON_OR, 1);
+	build_clos_method_combination_short(CONSTANT_COMMON_PROGN, 1);
 }
 
 
@@ -811,15 +822,14 @@ void clos_find_method_combination(addr gen, addr list, addr *ret)
 	}
 
 	/* long form */
+	clos_find_combination(pos, &pos);
 	if (clos_define_long_combination_p(pos)) {
-		clos_find_combination(pos, &pos);
 		clos_method_combination_long(pos, tail, ret);
 		return;
 	}
 
 	/* short form */
 	if (clos_define_short_combination_p(pos)) {
-		clos_find_combination(pos, &pos);
 		clos_method_combination_short(pos, tail, ret);
 		return;
 	}
@@ -864,5 +874,271 @@ void ensure_define_combination_long_common(addr name, addr lambda, addr spec,
 	stdset_longdef_form(pos, form);
 	/* define-combination */
 	clos_define_combination(name, pos);
+}
+
+
+/*
+ *  long form
+ */
+static void comb_longmacro_lambda(addr *ret, addr args,
+		addr gen, addr inst, addr array, addr decl, addr form)
+{
+	/* `(lambda (generic inst array)
+	 *    (declare (ignorable generic inst array))
+	 *    (destructuring-bind ,args (combination-binding inst)
+	 *      ,declarations
+	 *      ,form))
+	 * 
+	 * `(lambda (generic inst array)
+	 *    (declare (ignorable generic inst array))
+	 *    ,declarations
+	 *    ,form)
+	 */
+	addr root, pos;
+	addr lambda, declare, ignorable, dbind, call;
+
+	/* form */
+	for (root = Nil; decl != Nil; ) {
+		GetCons(decl, &pos, &decl);
+		cons_heap(&root, pos, root);
+	}
+	cons_heap(&root, form, root);
+	nreverse_list_unsafe(&form, root);
+
+	/* destructuring-bind */
+	if (args != Nil) {
+		GetConst(COMMON_DESTRUCTURING_BIND, &dbind);
+		GetConst(CLOSNAME_COMBINATION_BINDING, &call);
+		list_heap(&call, call, inst, NULL);
+		lista_heap(&form, dbind, args, call, form, NULL);
+	}
+
+	/* lambda */
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	list_heap(&ignorable, ignorable, gen, inst, array, NULL);
+	list_heap(&declare, declare, ignorable, NULL);
+	list_heap(&gen, gen, inst, array, NULL);
+	if (args != Nil)
+		list_heap(ret, lambda, gen, declare, form, NULL);
+	else
+		lista_heap(ret, lambda, gen, declare, form, NULL);
+}
+
+static void comb_longmacro_variables(addr args, addr *ret)
+{
+	addr root, list, pos;
+
+	Check(ArgumentStruct(args)->type != ArgumentType_combination, "type error");
+	root = Nil;
+	/* var */
+	GetArgument(args, ArgumentIndex_var, &list);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		cons_heap(&root, pos, root);
+	}
+	/* opt */
+	GetArgument(args, ArgumentIndex_opt, &list);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCar(pos, &pos);
+		cons_heap(&root, pos, root);
+	}
+	/* rest */
+	GetArgument(args, ArgumentIndex_rest, &pos);
+	if (pos != Nil)
+		cons_heap(&root, pos, root);
+	/* key */
+	GetArgument(args, ArgumentIndex_key, &list);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCar(pos, &pos);
+		cons_heap(&root, pos, root);
+	}
+	/* aux */
+	GetArgument(args, ArgumentIndex_aux, &list);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCar(pos, &pos);
+		cons_heap(&root, pos, root);
+	}
+	/* whole */
+	GetArgument(args, ArgumentIndex_whole, &pos);
+	if (pos != Nil)
+		cons_heap(&root, pos, root);
+	/* result */
+	nreverse_list_unsafe(ret, root);
+}
+
+static void comb_longmacro_arguments(addr *ret, addr args, addr form)
+{
+	/* `(let ((var1 'var1)
+	 *        (var2 'var2)
+	 *        ...
+	 *        (auxN 'auxN)
+	 *        (whole 'whole))
+	 *    (declare (ignorable ...))
+	 *    ,form)
+	 */
+	addr root, vars, list, pos, value;
+	addr quote, declare, ignorable, let;
+
+	/* no :arguments */
+	if (args == Nil) {
+		*ret = form;
+		return;
+	}
+
+	/* args */
+	GetConst(COMMON_QUOTE, &quote);
+	comb_longmacro_variables(args, &vars);
+	root = Nil;
+	list = vars;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		list_heap(&value, quote, pos, NULL);
+		list_heap(&pos, pos, value, NULL);
+		cons_heap(&root, pos, root);
+	}
+	nreverse_list_unsafe(&root, root);
+	/* declare */
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	cons_heap(&ignorable, ignorable, list);
+	list_heap(&declare, declare, ignorable, NULL);
+	/* let */
+	GetConst(COMMON_LET, &let);
+	list_heap(ret, let, root, declare, form, NULL);
+}
+
+static void comb_longmacro_form(addr *ret,
+		addr spec, addr gens, addr gen, addr array, addr form)
+{
+	/* `(let* ((,spec0 (qualifiers-elt 'spec0 ,array 0 order0 required0))
+	 *         (,spec1 (qualifiers-elt 'spec1 ,array 1 order1 required1))
+	 *         (,gens ,gen))
+	 *    (declare (ignorable spec0 ... ,gens))
+	 *    ,@form)
+	 */
+	addr args, vars, pos, temp;
+	addr name, order, req, nameq;
+	addr elt, quote, declare, ignorable, leta;
+	fixnum i;
+
+	args = vars = Nil;
+	/* specializers */
+	GetConst(CLOSNAME_QUALIFIERS_ELT, &elt);
+	GetConst(COMMON_QUOTE, &quote);
+	for (i = 0; spec != Nil; i++) {
+		getcons(spec, &pos, &spec);
+		list_bind(pos, &name, &temp, &order, &req, &temp, NULL);
+		fixnum_heap(&pos, i);
+		list_heap(&nameq, quote, name, NULL);
+		list_heap(&pos, elt, nameq, array, pos, order, req, NULL);
+		list_heap(&pos, name, pos, NULL);
+		cons_heap(&vars, name, vars);
+		cons_heap(&args, pos, args);
+	}
+	/* :generic-function */
+	if (gens != Unbound) {
+		list_heap(&pos, gens, gen, NULL);
+		cons_heap(&args, pos, args);
+		cons_heap(&vars, gens, vars);
+	}
+	/* ignorable */
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	nreverse_list_unsafe(&vars, vars);
+	cons_heap(&vars, ignorable, vars);
+	GetConst(COMMON_DECLARE, &declare);
+	list_heap(&declare, declare, vars, NULL);
+	/* let* */
+	GetConst(COMMON_LETA, &leta);
+	nreverse_list_unsafe(&args, args);
+	lista_heap(ret, leta, args, declare, form, NULL);
+}
+
+void comb_longmacro(addr *ret,
+		addr lambda, addr spec, addr args, addr gens, addr decl, addr form)
+{
+	addr gen, inst, array;
+
+	make_symbolchar(&gen, "GENERIC");
+	make_symbolchar(&inst, "COMBINATION");
+	make_symbolchar(&array, "QUALIFIERS");
+
+	comb_longmacro_form(&form, spec, gens, gen, array, form);
+	comb_longmacro_arguments(&form, args, form);
+	comb_longmacro_lambda(ret, lambda, gen, inst, array, decl, form);
+}
+
+static void comb_longform_macrolet(addr *ret, addr gen, addr form)
+{
+	/*  `(lambda (&rest ,args)
+	 *     (declare (ignorable ,args))
+	 *     (macrolet ((make-method (#:expr)
+	 *                  (macro-make-method ,gen #:expr))
+	 *                (call-method (#:car &optional #:cdr)
+	 *                  (macro-call-method #:car #:cdr (quote ,args))))
+	 *       ,form))
+	 */
+	addr lambda, declare, ignorable, macrolet, quote, rest, optional;
+	addr make, call, mmake, mcall;
+	addr args, expr, car, cdr;
+
+	/* constant */
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	GetConst(COMMON_MACROLET, &macrolet);
+	GetConst(COMMON_QUOTE, &quote);
+	GetConst(COMMON_MAKE_METHOD, &make);
+	GetConst(COMMON_CALL_METHOD, &call);
+	GetConst(AMPERSAND_REST, &rest);
+	GetConst(AMPERSAND_OPTIONAL, &optional);
+	GetConst(CLOSNAME_MACRO_MAKE_METHOD, &mmake);
+	GetConst(CLOSNAME_MACRO_CALL_METHOD, &mcall);
+	make_symbolchar(&args, "ARGS");
+	make_symbolchar(&expr, "EXPR");
+	make_symbolchar(&car, "CAR");
+	make_symbolchar(&cdr, "CDR");
+	/* macro */
+	list_heap(&quote, quote, args, NULL);
+	list_heap(&mcall, mcall, car, cdr, quote, NULL);
+	list_heap(&car, car, optional, cdr, NULL);
+	list_heap(&call, call, car, mcall, NULL);
+	list_heap(&mmake, mmake, gen, expr, NULL);
+	list_heap(&expr, expr, NULL);
+	list_heap(&make, make, expr, mmake, NULL);
+	list_heap(&make, make, call, NULL);
+	list_heap(&macrolet, macrolet, make, form, NULL);
+	list_heap(&ignorable, ignorable, args, NULL);
+	list_heap(&declare, declare, ignorable, NULL);
+	list_heap(&rest, rest, args, NULL);
+	list_heap(ret, lambda, rest, declare, macrolet, NULL);
+}
+
+int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
+{
+	addr control, pos;
+
+	/* execute */
+	stdget_longcomb_form(comb, &pos);
+	push_close_control(ptr, &control);
+	if (funcall_control(ptr, pos, gen, comb, data, NULL))
+		return runcode_free_control(ptr, control);
+	getresult_control(ptr, &pos);
+	if (free_control(ptr, control))
+		return 1;
+
+	/* make-form */
+	comb_longform_macrolet(&pos, gen, pos);
+
+	/* eval */
+	push_close_control(ptr, &control);
+	if (eval_execute(ptr, pos))
+		return runcode_free_control(ptr, control);
+	getresult_control(ptr, ret);
+	return free_control(ptr, control);
 }
 

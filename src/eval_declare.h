@@ -55,7 +55,7 @@ void declare_body_form(addr cons, addr *retdecl, addr *retbody);
 int declare_body(Execute ptr, addr env, addr cons, addr *retdecl, addr *retbody);
 int declare_body_documentation(Execute ptr, addr env,
 		addr cons, addr *rdoc, addr *rdecl, addr *rbody);
-void documentation_body(addr list, addr *rdoc, addr *rbody);
+void split_decl_body_doc(addr list, addr *rdoc, addr *rdecl, addr *rbody);
 
 void copy_eval_declare_alloc(LocalRoot local, addr *ret, addr pos);
 void copy_eval_declare_local(LocalRoot local, addr *ret, addr pos);

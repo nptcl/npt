@@ -1219,7 +1219,7 @@ static void clos_stdshortdef_slots(addr *ret)
 	*ret = slots;
 }
 
-static void build_clos_method_combination(LocalRoot local)
+static void build_clos_class_combination(LocalRoot local)
 {
 	addr metaclass, slots;
 
@@ -1258,47 +1258,6 @@ static void build_clos_method_combination(LocalRoot local)
 			CLOSNAME_DEFINE_SHORT_METHOD_COMBINATION,
 			CLOS_DEFINE_SHORT_METHOD_COMBINATION,
 			CLOS_DEFINE_METHOD_COMBINATION);
-}
-
-static void clos_method_combination(LocalRoot local,
-		constindex m, constindex n, constindex c)
-{
-	addr pos, name;
-
-	GetConstant(m, &pos);
-	clos_instance_heap(pos, &pos);
-	SetConstant(c, pos);
-	GetConstant(n, &name);
-	clos_define_combination(name, pos);
-}
-#define LongMethodCombination(p, x) { \
-	clos_method_combination((p), \
-			CONSTANT_CLOS_DEFINE_LONG_METHOD_COMBINATION, \
-			CONSTANT_COMMON_##x, \
-			CONSTANT_COMBINATION_##x); \
-}
-#define ShortMethodCombination(p, x) { \
-	clos_method_combination((p), \
-			CONSTANT_CLOS_DEFINE_SHORT_METHOD_COMBINATION, \
-			CONSTANT_COMMON_##x, \
-			CONSTANT_COMBINATION_##x); \
-}
-
-static void build_clos_class_combination(LocalRoot local)
-{
-	/* method-combination */
-	build_clos_method_combination(local);
-	/* standard */
-	LongMethodCombination(local, STANDARD);
-	/* others */
-	ShortMethodCombination(local, PLUS);
-	ShortMethodCombination(local, AND);
-	ShortMethodCombination(local, APPEND);
-	ShortMethodCombination(local, LIST);
-	ShortMethodCombination(local, MAX);
-	ShortMethodCombination(local, MIN);
-	ShortMethodCombination(local, NCONC);
-	ShortMethodCombination(local, PROGN);
 }
 
 

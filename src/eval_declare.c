@@ -1047,44 +1047,49 @@ int declare_body_documentation(Execute ptr, addr env,
 	return 0;
 }
 
-void documentation_body(addr list, addr *rdoc, addr *rbody)
+void split_decl_body_doc(addr list, addr *rdoc, addr *rdecl, addr *rbody)
 {
-	addr pos, check, key, root;
+	addr car, cdr;
 
-	/* (doc . body) */
-	getcar(list, &check);
-	if (stringp(check)) {
-		*rdoc = check;
-		getcdr(list, rbody);
+	/* nil */
+	if (list == Nil) {
+		*rdoc = *rdecl = *rbody = Nil;
 		return;
 	}
 
-	/* (??? ...) */
-	GetConst(COMMON_DECLARE, &key);
-	root = Nil;
-	for (root = Nil; list != Nil; ) {
-		getcar(list, &pos);
-		if (! consp(pos))
-			break;
-		getcar(pos, &check);
-		if (check != key)
-			break;
-		cons_heap(&root, pos, root);
-		GetCdr(list, &list);
-	}
-
-	/* string */
-	getcar(list, &check);
-	if (stringp(check)) {
-		*rdoc = check;
-		getcdr(list, &list);
-	}
-	else {
+	/* (body) */
+	getcons(list, &car, &cdr);
+	if (cdr == Nil) {
 		*rdoc = Nil;
+		declare_split(list, rdecl, rbody);
+		return;
 	}
 
-	/* result */
-	nreconc_unsafe(rbody, root, list);
+	/* (doc . body) */
+	if (stringp(car)) {
+		*rdoc = car;
+		declare_split(cdr, rdecl, rbody);
+		return;
+	}
+
+	/* (decl . nil) */
+	declare_split(list, rdecl, &cdr);
+	if (cdr == Nil) {
+		*rdoc = *rbody = Nil;
+		return;
+	}
+
+	/* ([decl] doc . body) */
+	getcons(cdr, &car, &list);
+	if (stringp(car)) {
+		*rdoc = car;
+		*rbody = list;
+		return;
+	}
+
+	/* ([decl] . body) */
+	*rdoc = Nil;
+	*rbody = cdr;
 }
 
 

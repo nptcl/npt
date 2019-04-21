@@ -605,7 +605,7 @@ static int test_clos_find_combination(void)
 
 	clos_find_combination_nil(readr("aaa"), &pos);
 	test(pos == Nil, "clos_find_combination1");
-	clos_find_combination_nil(readr("standard"), &pos);
+	clos_find_combination_nil(readr("progn"), &pos);
 	test(closp(pos), "clos_find_combination2");
 	clos_find_combination(readr("+"), &pos);
 	test(closp(pos), "clos_find_combination3");

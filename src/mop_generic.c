@@ -2,6 +2,7 @@
  *  ANSI COMMON LISP: 7. Objects
  *    Common Lisp Object System - Metaobject Protocol
  */
+#include "clos.h"
 #include "clos_combination.h"
 #include "clos_common.h"
 #include "clos_generic.h"
@@ -10,6 +11,7 @@
 #include "cons.h"
 #include "control.h"
 #include "function.h"
+#include "integer.h"
 #include "lambda.h"
 #include "mop.h"
 #include "symbol.h"
@@ -212,7 +214,7 @@ static void defmethod_ensure_generic_function_null(Execute ptr, addr name, addr 
 	common_method_add(ptr, gen, pos);
 }
 
-static void defgeneric_ensure_generic_function_using_class(Execute ptr)
+static void defgeneric_ensure_generic_function_using_class_mop(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -276,7 +278,7 @@ static void type_ensure_method(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defun_ensure_method(void)
+static void defun_ensure_method_mop(void)
 {
 	addr symbol, pos, type;
 
@@ -293,6 +295,80 @@ static void defun_ensure_method(void)
 
 
 /***********************************************************************
+ *  function-keywords
+ ***********************************************************************/
+static void method_function_keywords(Execute ptr, addr method, addr next, addr var)
+{
+	int allow;
+
+	stdget_method_lambda_list(var, &var);
+	argument_method_keywords_heap(var, &var, &allow);
+	setvalues_control(ptr, var, (allow? T: Nil), NULL);
+}
+
+static void method_type_function_keywords(addr *ret)
+{
+	addr args, values, type;
+
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
+	typeargs_method(args);
+	GetTypeTable(&values, List);
+	GetTypeTable(&type, Boolean);
+	typevalues_values2(&values, values, type);
+	type_compiled_heap(args, values, ret);
+}
+
+static void method_argument_function_keywords(addr *ret)
+{
+	addr pos, list;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 1;
+	ArgumentMethod_var(&list, STANDARD_METHOD);
+	list_heap(&list, list, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+static void defmethod_function_keywords(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var3(call, method_function_keywords);
+	method_type_function_keywords(&type);
+	settype_function(call, type);
+	/* method */
+	method_argument_function_keywords(&pos);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+static void defgeneric_function_keywords_mop(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(COMMON_FUNCTION_KEYWORDS, &symbol);
+	mop_argument_generic_var1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	/* method */
+	defmethod_function_keywords(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
  *  flet-method-p
  ***********************************************************************/
 /* (defun clos::flet-method-p (var) ...) -> boolean */
@@ -301,7 +377,7 @@ static void function_flet_method_p(Execute ptr, addr var)
 	setbool_control(ptr, var != Nil);
 }
 
-static void defun_flet_method_p(void)
+static void defun_flet_method_p_mop(void)
 {
 	addr symbol, pos, type;
 
@@ -351,7 +427,7 @@ static void type_flet_next_method(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defun_flet_next_method(void)
+static void defun_flet_next_method_mop(void)
 {
 	addr symbol, pos, type;
 
@@ -362,6 +438,41 @@ static void defun_flet_next_method(void)
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_flet_next_method(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/***********************************************************************
+ *  method-combination-instance
+ ***********************************************************************/
+static void function_method_combination_instance(Execute ptr, addr var)
+{
+	clos_find_combination_nil(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_method_combination_instance(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Symbol);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void define_method_combination_instance_mop(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(CLOSNAME_METHOD_COMBINATION_INSTANCE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_method_combination_instance);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_method_combination_instance(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -400,7 +511,7 @@ static void type_ensure_method_combination_short(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defun_ensure_define_combination_short(void)
+static void defun_ensure_define_combination_short_mop(void)
 {
 	addr symbol, pos, type;
 
@@ -422,17 +533,20 @@ static void defun_ensure_define_combination_short(void)
 static void function_ensure_method_combination_long(Execute ptr,
 		addr name, addr lambda, addr spec, addr rest)
 {
-	addr args, gen, doc, form;
+	addr args, gen, doc, form, decl;
 
 	if (getkeyargs(rest, KEYWORD_ARGUMENTS, &args))
 		args = Nil;
 	if (getkeyargs(rest, KEYWORD_GENERIC_FUNCTION, &gen))
-		GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &gen);
+		gen = Nil;
 	if (getkeyargs(rest, KEYWORD_DOCUMENTATION, &doc))
 		doc = Nil;
 	if (getkeyargs(rest, CLOSKEY_FORM, &form))
 		form = Nil;
-	ensure_define_combination_long_common(name, lambda, spec, args, gen, doc, form);
+	if (getkeyargs(rest, CLOSKEY_DECLARE, &decl))
+		decl = Nil;
+	ensure_define_combination_long_common(name,
+			lambda, spec, args, gen, doc, form, decl);
 	setresult_control(ptr, name);
 }
 
@@ -454,7 +568,7 @@ static void type_ensure_method_combination_long(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defun_ensure_define_combination_long(void)
+static void defun_ensure_define_combination_long_mop(void)
 {
 	addr symbol, pos, type;
 
@@ -471,6 +585,274 @@ static void defun_ensure_define_combination_long(void)
 
 
 /***********************************************************************
+ *  qualifiers-elt
+ ***********************************************************************/
+/* (defun qualifiers-elt (symbol vector index order required) ...) -> result
+ *   symbol   symbol
+ *   vector   vector
+ *   index    index
+ *   order    keyword
+ *   require  t
+ *   result   list
+ */
+static int qualifiers_elt_order(addr symbol, addr order)
+{
+	addr check;
+
+	GetConst(KEYWORD_MOST_SPECIFIC_FIRST, &check);
+	if (check == order)
+		return 0;
+	GetConst(KEYWORD_MOST_SPECIFIC_LAST, &check);
+	if (check == order)
+		return 1;
+	/* error */
+	fmte("Invalid :order ~S in the qualifiers ~S.", order, symbol, NULL);
+	return 0;
+}
+
+static void function_qualifiers_elt(Execute ptr,
+		addr symbol, addr pos, addr index, addr order, addr req)
+{
+	size_t value;
+
+	getindex_error(index, &value);
+	getarray(pos, value, &pos);
+	if (req != Nil && pos == Nil)
+		fmte("The qualifier ~S must be at least one method.", symbol, NULL);
+	if (qualifiers_elt_order(symbol, order))
+		reverse_list_heap_safe(&pos, pos);
+	setresult_control(ptr, pos);
+}
+
+static void type_qualifiers_elt(addr *ret)
+{
+	addr args, values, type1, type2, type3;
+
+	GetTypeTable(&args, Symbol);
+	GetTypeTable(&values, Vector);
+	GetTypeTable(&type1, Index);
+	GetTypeTable(&type2, Keyword);
+	GetTypeTable(&type3, T);
+	typeargs_var5(&args, args, values, type1, type2, type3);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_qualifiers_elt_mop(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(CLOSNAME_QUALIFIERS_ELT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var5(pos, function_qualifiers_elt);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_qualifiers_elt(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/***********************************************************************
+ *  combination-binding
+ ***********************************************************************/
+static void function_combination_binding(Execute ptr, addr var)
+{
+	stdget_longcomb_binding(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_combination_binding(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_combination_binding_mop(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(CLOSNAME_COMBINATION_BINDING, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_combination_binding);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_combination_binding(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/***********************************************************************
+ *  macro-make-method
+ ***********************************************************************/
+static void function_macro_make_method(Execute ptr, addr gen, addr form)
+{
+	/* `(make-method-lambda
+	 *    ,gen
+	 *    (lambda (#:method #:next &rest #:args)
+	 *      (declare (ignore #:method #:next #:args))
+	 *      ,form))
+	 */
+	addr make, lambda, method, next, args, rest, declare, ignore;
+
+	GetConst(CLOSNAME_MAKE_METHOD_LAMBDA, &make);
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORE, &ignore);
+	GetConst(AMPERSAND_REST, &rest);
+	make_symbolchar(&method, "METHOD");
+	make_symbolchar(&next, "NEXT");
+	make_symbolchar(&args, "ARGS");
+	list_heap(&ignore, ignore, method, next, args, NULL);
+	list_heap(&declare, declare, ignore, NULL);
+	list_heap(&method, method, next, rest, args, NULL);
+	list_heap(&lambda, lambda, method, declare, form, NULL);
+	list_heap(&form, make, gen, lambda, NULL);
+	setresult_control(ptr, form);
+}
+
+static void type_macro_make_method(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, T);
+	typeargs_var2(&args, args, values);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_macro_make_method(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(CLOSNAME_MACRO_MAKE_METHOD, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_macro_make_method);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_macro_make_method(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/***********************************************************************
+ *  macro-call-method
+ ***********************************************************************/
+static void function_macro_call_method(Execute ptr, addr car, addr cdr, addr symbol)
+{
+	/* `(let ((#:method ,car))
+	 *    (apply (method-function ,method) ,method (list ,@cdr) ,symbol))
+	 */
+	addr let, apply, methodf, list, method;
+	addr args, root, pos;
+
+	GetConst(COMMON_LET, &let);
+	GetConst(COMMON_APPLY, &apply);
+	GetConst(CLOSNAME_METHOD_FUNCTION, &methodf);
+	GetConst(COMMON_LIST, &list);
+	make_symbolchar(&method, "METHOD");
+	/* args */
+	list_heap(&args, method, car, NULL);
+	list_heap(&args, args, NULL);
+	/* list */
+	conscar_heap(&root, list);
+	while (cdr != Nil) {
+		getcons(cdr, &pos, &cdr);
+		cons_heap(&root, pos, root);
+	}
+	nreverse_list_unsafe(&root, root);
+	/* apply */
+	list_heap(&methodf, methodf, method, NULL);
+	list_heap(&apply, apply, methodf, method, root, symbol, NULL);
+	list_heap(&let, let, args, apply, NULL);
+	/* result */
+	setresult_control(ptr, let);
+}
+
+static void type_macro_call_method(addr *ret)
+{
+	addr args, values, type;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, List);
+	GetTypeTable(&type, Symbol);
+	typeargs_var3(&args, args, values, type);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_macro_call_method(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(CLOSNAME_MACRO_CALL_METHOD, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var3(pos, function_macro_call_method);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_macro_call_method(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/***********************************************************************
+ *  make-method-lambda
+ ***********************************************************************/
+static void function_make_method_lambda(Execute ptr, addr gen, addr call)
+{
+	addr make, clos;
+
+	/* make-instance */
+	stdget_generic_method_class(gen, &clos);
+	GetConst(COMMON_MAKE_INSTANCE, &make);
+	getfunctioncheck_local(ptr, make, &make);
+	if (funcall_control(ptr, make, clos, NULL))
+		return;
+	getresult_control(ptr, &clos);
+	stdset_method_function(clos, call);
+	setresult_control(ptr, clos);
+}
+
+static void type_make_method_lambda(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, T);
+	typeargs_var2(&args, args, values);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_make_method_lambda(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(CLOSNAME_MAKE_METHOD_LAMBDA, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, function_make_method_lambda);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_make_method_lambda(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/***********************************************************************
  *  intern
  ***********************************************************************/
 void intern_mop_generic(Execute ptr)
@@ -479,12 +861,20 @@ void intern_mop_generic(Execute ptr)
 	defgeneric_no_applicable_method_mop(ptr);
 	defgeneric_no_next_method_mop(ptr);
 	/* defgeneric */
-	defgeneric_ensure_generic_function_using_class(ptr);
-	defun_ensure_method();
-	defun_flet_method_p();
-	defun_flet_next_method();
+	defgeneric_ensure_generic_function_using_class_mop(ptr);
+	defun_ensure_method_mop();
+	defgeneric_function_keywords_mop(ptr);
+	/* defmethod */
+	defun_flet_method_p_mop();
+	defun_flet_next_method_mop();
 	/* define-method-combination */
-	defun_ensure_define_combination_short();
-	defun_ensure_define_combination_long();
+	define_method_combination_instance_mop();
+	defun_ensure_define_combination_short_mop();
+	defun_ensure_define_combination_long_mop();
+	defun_qualifiers_elt_mop();
+	defun_combination_binding_mop();
+	defun_macro_make_method();
+	defun_macro_call_method();
+	defun_make_method_lambda();
 }
 

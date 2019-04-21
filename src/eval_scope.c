@@ -139,6 +139,16 @@ static void scope_t(addr *ret, addr eval)
 	make_eval_scope(ret, EVAL_PARSE_T, eval, T);
 }
 
+static void scope_clos(addr *ret, addr eval)
+{
+	addr type;
+
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &eval);
+	type_value_clos(&type, eval);
+	make_eval_scope(ret, EVAL_PARSE_CLOS, type, eval);
+}
+
 static void scope_integer(addr *ret, addr eval)
 {
 	addr type;
@@ -3810,6 +3820,10 @@ static int scope_eval_downcase(Execute ptr, addr *ret, addr eval)
 
 		case EVAL_PARSE_T:
 			scope_t(ret, eval);
+			break;
+
+		case EVAL_PARSE_CLOS:
+			scope_clos(ret, eval);
 			break;
 
 		case EVAL_PARSE_INTEGER:

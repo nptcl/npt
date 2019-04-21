@@ -579,6 +579,10 @@ static int parse_key(addr *ret, addr cons)
 {
 	addr root, pos, var, name, init;
 
+	if (cons == T) {
+		*ret = Nil;
+		return 0;
+	}
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &pos, &cons);
 		/* (var name init svar) */
@@ -1973,6 +1977,10 @@ static int parse_execute(addr *ret, addr pos)
 			eval_single_parse_heap(ret, EVAL_PARSE_T, T);
 			break;
 
+		case LISPTYPE_CLOS:
+			eval_single_parse_heap(ret, EVAL_PARSE_CLOS, pos);
+			break;
+
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:
 			eval_single_parse_heap(ret, EVAL_PARSE_INTEGER, pos);
@@ -2865,6 +2873,7 @@ static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 	switch (RefEvalParseType(pos)) {
 		case EVAL_PARSE_NIL:
 		case EVAL_PARSE_T:
+		case EVAL_PARSE_CLOS:
 		case EVAL_PARSE_INTEGER:
 		case EVAL_PARSE_RATIONAL:
 		case EVAL_PARSE_COMPLEX:

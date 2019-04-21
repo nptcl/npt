@@ -805,13 +805,13 @@ static void infoprint_clos(addr pos)
 
 	/* name */
 	if (! clos_getp(pos, key, &name)) {
-		info_stdarg("UNBOUND");
+		info_stdarg("%p", (void *)pos);
 	}
 	else if (name == Unbound) {
-		info_stdarg("UNBOUND");
+		info_stdarg("%p", (void *)pos);
 	}
 	else if (! symbolp(name)) {
-		info_stdarg("INVALID");
+		info_stdarg("%p", (void *)pos);
 	}
 	else {
 		GetNameSymbol(name, &name);

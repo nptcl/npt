@@ -1,4 +1,5 @@
 #include "clos.h"
+#include "clos_combination.h"
 #include "condition.h"
 #include "cons.h"
 #include "eval_declare.h"
@@ -963,7 +964,7 @@ static void defmethod_parse_function(Execute ptr,
 	GetConst(CLOSNAME_FLET_NEXT_METHOD, &call2);
 	/* lambda */
 	GetConst(COMMON_LAMBDA, &lambda);
-	argument_method_ordinary_heap(&ord, ord);
+	argument_method_lambda_heap(&ord, ord);
 	lista_heap(&ord, lambda, ord, form, NULL);
 	/* apply */
 	GetConst(COMMON_APPLY, &apply);
@@ -1092,38 +1093,40 @@ static void defcomb_short(Execute ptr, addr *ret, addr list, addr name)
 
 static void defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
 {
-	addr args, gen, pos, a, b, kargs, kgen;
+	addr next, args, gen, a, b, c, kargs, kgen;
 
 	GetConst(KEYWORD_ARGUMENTS, &kargs);
 	GetConst(KEYWORD_GENERIC_FUNCTION, &kgen);
-	args = gen = Unbound;
+	gen = Unbound;
+	args = Nil;
 	while (list != Nil) {
-		getcar(list, &pos);
-		if (! consp(pos))
+		getcons(list, &a, &next);
+		if (! consp(a))
 			break;
-		GetCdr(list, &list);
-		GetCons(pos, &a, &b);
+		GetCons(a, &a, &b);
 		/* (:arguments . args) */
 		if (a == kargs) {
 			if (args == Unbound)
 				args = b;
+			list = next;
 			continue;
 		}
 		/* (:generic-function gen) */
 		if (a == kgen) {
 			if (! consp(b))
 				fmte(":GENERIC-FUNCTION ~S must be a cons form.", b, NULL);
-			GetCons(b, &a, &pos);
-			if (pos != Nil)
+			GetCons(b, &a, &c);
+			if (c != Nil)
 				fmte("Invalid :GENERIC-FUNCTION form ~S.", b, NULL);
 			if (! symbolp(a))
 				fmte(":GENERIC-FUNCTION ~S must be a symbol.", a, NULL);
 			if (gen == Unbound)
 				gen = a;
+			list = next;
 			continue;
 		}
-		/* error */
-		fmte("Invalid argument ~S.", pos, NULL);
+		/* form */
+		break;
 	}
 	/* result */
 	*rargs = args;
@@ -1188,7 +1191,7 @@ static void defcomb_long_specifiers(addr *ret, addr list)
 static void defcomb_long(Execute ptr, addr form, addr env, addr *ret,
 		addr list, addr name)
 {
-	addr lambda, spec, args, gen, doc, key, body;
+	addr pos, lambda, spec, args, gen, doc, body, decl;
 
 	/* long form */
 	GetCons(list, &lambda, &list);
@@ -1198,44 +1201,41 @@ static void defcomb_long(Execute ptr, addr form, addr env, addr *ret,
 	defcomb_split_body(list, &args, &gen, &list);
 	/* parser */
 	defcomb_long_specifiers(&spec, spec);
-	argument_ordinary_heap(ptr->local, &lambda, lambda);
-	argument_combination_heap(ptr->local, &args, args);
-	documentation_body(list, &doc, &body);
+	split_decl_body_doc(list, &doc, &decl, &body);
 
 	/* `(ensure-method-combination-long
 	 *    (quote ,name)
+	 *    (quote ,lambda)
 	 *    (quote ,spec)
-	 *    :lambda-list (quote ,lambda)
 	 *    :arguments (quote ,args)
-	 *    :generic-function (find-class (quote ,gen))
+	 *    :generic-function (quote ,gen)
 	 *    :documentation ,doc
-	 *    :form (quote ,form))
+	 *    :form (lambda ...)
 	 */
 	list = Nil;
 	PushConst(&list, CLOSNAME_ENSURE_METHOD_COMBINATION_LONG);
 	/* name */
-	quotelist_heap(&name, name);
-	pushva_heap(&list, name, NULL);
-	/* specifiers */
-	quotelist_heap(&spec, spec);
-	pushva_heap(&list, spec, NULL);
+	quotelist_heap(&pos, name);
+	pushva_heap(&list, pos, NULL);
 	/* lambda-list */
-	PushConst(&list, KEYWORD_LAMBDA_LIST);
-	quotelist_heap(&lambda, lambda);
-	pushva_heap(&list, lambda, NULL);
+	argument_ordinary_heap(ptr->local, &pos, lambda);
+	quotelist_heap(&pos, pos);
+	pushva_heap(&list, pos, NULL);
+	/* specifiers */
+	quotelist_heap(&pos, spec);
+	pushva_heap(&list, pos, NULL);
 	/* arguments */
-	if (args != Unbound) {
+	if (args != Nil) {
+		argument_combination_heap(ptr->local, &args, args);
 		PushConst(&list, KEYWORD_ARGUMENTS);
-		quotelist_heap(&args, args);
-		pushva_heap(&list, args, NULL);
+		quotelist_heap(&pos, args);
+		pushva_heap(&list, pos, NULL);
 	}
 	/* generic-function */
 	if (gen != Unbound) {
 		PushConst(&list, KEYWORD_GENERIC_FUNCTION);
-		quotelist_heap(&gen, gen);
-		GetConst(COMMON_FIND_CLASS, &key);
-		list_heap(&gen, key, gen, NULL);
-		pushva_heap(&list, gen, NULL);
+		quotelist_heap(&pos, gen);
+		pushva_heap(&list, pos, NULL);
 	}
 	/* documentation */
 	if (doc != Nil) {
@@ -1244,7 +1244,7 @@ static void defcomb_long(Execute ptr, addr form, addr env, addr *ret,
 	}
 	/* body */
 	PushConst(&list, CLOSKEY_FORM);
-	quotelist_heap(&body, body);
+	comb_longmacro(&body, lambda, spec, args, gen, decl, body);
 	pushva_heap(&list, body, NULL);
 	/* result */
 	nreverse_list_unsafe(ret, list);

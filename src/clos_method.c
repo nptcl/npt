@@ -552,18 +552,28 @@ void common_method_add(Execute ptr, addr gen, addr method)
 }
 #endif
 
+static void defmethod_make_generic_function(addr name, addr lambda, addr *ret)
+{
+	Check(! callnamep(name), "type error");
+	Check(! argumentp(lambda), "type error");
+	argument_method_to_generic(lambda, &lambda);
+	generic_empty(name, lambda, ret);
+}
+
 void ensure_method_common(Execute ptr, addr *ret,
 		addr name, addr lambda, addr qua, addr spec, addr call)
 {
 	addr gen, method, clos;
 
-	parse_callname_error(&gen, name);
-	getfunction_callname_global(gen, &gen);
+	parse_callname_error(&name, name);
+	getfunction_callname_global(name, &gen);
+	if (! argumentp(lambda))
+		argument_method_heap(ptr->local, &lambda, lambda);
+	if (gen == Unbound)
+		defmethod_make_generic_function(name, lambda, &gen);
 	if (! clos_generic_p(gen))
 		fmte("The function ~S is not generic-function.", gen, NULL);
 	stdget_generic_method_class(gen, &clos);
-	if (! argumentp(lambda))
-		argument_method_heap(ptr->local, &lambda, lambda);
 	method_instance_heap(&method, clos, lambda, qua, spec, call);
 	method_add(ptr, gen, method);
 	*ret = method;

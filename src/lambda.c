@@ -1296,9 +1296,13 @@ ordinary:
 	*ret = list;
 }
 
+
+/*
+ *  expand
+ */
 void argument_generic_lambda_heap(addr *ret, addr pos)
 {
-	addr root, list, var;
+	addr root, list, var, a, b;
 	struct argument_struct *str;
 
 	root = Nil;
@@ -1341,6 +1345,8 @@ void argument_generic_lambda_heap(addr *ret, addr pos)
 		GetArgument(pos, ArgumentIndex_key, &list);
 		while (list != Nil) {
 			GetCons(list, &var, &list);
+			list_bind(var, &a, &b, NULL);
+			list_heap(&var, b, a, NULL);
 			cons_heap(&root, var, root);
 		}
 	}
@@ -1355,19 +1361,21 @@ void argument_generic_lambda_heap(addr *ret, addr pos)
 	nreverse_list_unsafe(ret, root);
 }
 
-void argument_method_lambda_heap(addr *ret, addr pos)
+static void argument_expand_heap(addr *ret, addr pos)
 {
-	addr root, list, var;
+	addr root, list, var, a, b, c, d;
 	struct argument_struct *str;
 
 	root = Nil;
 	str = ArgumentStruct(pos);
-	Check(str->type != ArgumentType_method, "type error");
 	/* var */
 	if (str->var) {
 		GetArgument(pos, ArgumentIndex_var, &list);
 		while (list != Nil) {
 			GetCons(list, &var, &list);
+			if (str->type == ArgumentType_method) {
+				GetCar(var, &var);
+			}
 			cons_heap(&root, var, root);
 		}
 	}
@@ -1379,6 +1387,11 @@ void argument_method_lambda_heap(addr *ret, addr pos)
 		GetArgument(pos, ArgumentIndex_opt, &list);
 		while (list != Nil) {
 			GetCons(list, &var, &list);
+			list_bind(var, &a, &b, &c, NULL);
+			if (c == Nil)
+				list_heap(&var, a, b, NULL);
+			else
+				list_heap(&var, a, b, c, NULL);
 			cons_heap(&root, var, root);
 		}
 	}
@@ -1400,6 +1413,12 @@ void argument_method_lambda_heap(addr *ret, addr pos)
 		GetArgument(pos, ArgumentIndex_key, &list);
 		while (list != Nil) {
 			GetCons(list, &var, &list);
+			list_bind(var, &a, &b, &c, &d, NULL);
+			list_heap(&a, b, a, NULL);
+			if (d == Nil)
+				list_heap(&var, a, c, NULL);
+			else
+				list_heap(&var, a, c, d, NULL);
 			cons_heap(&root, var, root);
 		}
 	}
@@ -1425,72 +1444,91 @@ void argument_method_lambda_heap(addr *ret, addr pos)
 	nreverse_list_unsafe(ret, root);
 }
 
-void argument_method_ordinary_heap(addr *ret, addr pos)
+void argument_ordinary_lambda_heap(addr *ret, addr pos)
 {
-	addr root, list, var;
+	Check(ArgumentStruct(pos)->type != ArgumentType_ordinary, "type error");
+	argument_expand_heap(ret, pos);
+}
+
+void argument_method_lambda_heap(addr *ret, addr pos)
+{
+	Check(ArgumentStruct(pos)->type != ArgumentType_method, "type error");
+	argument_expand_heap(ret, pos);
+}
+
+void argument_method_keywords_heap(addr pos, addr *ret, int *allow)
+{
+	addr root, list, key;
 	struct argument_struct *str;
 
-	root = Nil;
 	str = ArgumentStruct(pos);
 	Check(str->type != ArgumentType_method, "type error");
-	/* var */
-	if (str->var) {
-		GetArgument(pos, ArgumentIndex_var, &list);
-		while (list != Nil) {
-			GetCons(list, &var, &list);
-			GetCar(var, &var); /* (var type) */
-			cons_heap(&root, var, root);
-		}
-	}
-
-	/* opt */
-	if (str->opt) {
-		GetConst(AMPERSAND_OPTIONAL, &list);
-		cons_heap(&root, list, root);
-		GetArgument(pos, ArgumentIndex_opt, &list);
-		while (list != Nil) {
-			GetCons(list, &var, &list);
-			cons_heap(&root, var, root);
-		}
-	}
-
-	/* rest */
-	if (str->rest) {
-		GetConst(AMPERSAND_REST, &list);
-		cons_heap(&root, list, root);
-		GetArgument(pos, ArgumentIndex_rest, &list);
-		cons_heap(&root, list, root);
-	}
-
 	/* key */
-	if (str->key) {
-		GetConst(AMPERSAND_KEY, &list);
-		cons_heap(&root, list, root);
-		GetArgument(pos, ArgumentIndex_key, &list);
-		while (list != Nil) {
-			GetCons(list, &var, &list);
-			cons_heap(&root, var, root);
-		}
+	GetArgument(pos, ArgumentIndex_key, &list);
+	for (root = Nil; list != Nil; ) {
+		/* (var name init sup) */
+		getcons(list, &key, &list);
+		getcdr(key, &key);
+		getcar(key, &key);
+		cons_heap(&root, key, root);
 	}
-
-	/* allow-other-keys */
-	if (str->allow) {
-		GetConst(AMPERSAND_ALLOW, &list);
-		cons_heap(&root, list, root);
-	}
-
-	/* aux */
-	if (str->aux) {
-		GetConst(AMPERSAND_AUX, &list);
-		cons_heap(&root, list, root);
-		GetArgument(pos, ArgumentIndex_aux, &list);
-		while (list != Nil) {
-			GetCons(list, &var, &list);
-			cons_heap(&root, var, root);
-		}
-	}
-
 	/* result */
 	nreverse_list_unsafe(ret, root);
+	*allow = (int)str->allow;
+}
+
+void argument_method_to_generic(addr method, addr *ret)
+{
+	addr pos, list, root, var;
+	struct argument_struct *str1, *str2;
+
+	/* method */
+	str1 = ArgumentStruct(method);
+	Check(str1->type != ArgumentType_method, "type error");
+
+	/* generic */
+	argument_heap(&pos);
+	str2 = ArgumentStruct(pos);
+	str2->type = ArgumentType_generic;
+	/* var */
+	str2->var = str1->var;
+	GetArgument(method, ArgumentIndex_var, &list);
+	for (root = Nil; list != Nil; ) {
+		GetCons(list, &var, &list);
+		cons_heap(&root, var, root);
+	}
+	SetArgument(pos, ArgumentIndex_var, root);
+	/* opt */
+	str2->opt = str1->opt;
+	GetArgument(method, ArgumentIndex_opt, &list);
+	for (root = Nil; list != Nil; ) {
+		GetCons(list, &var, &list);
+		cons_heap(&root, var, root);
+	}
+	SetArgument(pos, ArgumentIndex_opt, root);
+	/* rest */
+	str2->rest = str1->rest;
+	str2->restbody = str1->restbody;
+	GetArgument(method, ArgumentIndex_rest, &list);
+	SetArgument(pos, ArgumentIndex_rest, list);
+	/* key */
+	str2->key = str1->key;
+	str2->keyp = str1->keyp;
+	GetArgument(method, ArgumentIndex_key, &list);
+	for (root = Nil; list != Nil; ) {
+		GetCons(list, &var, &list);
+		cons_heap(&root, var, root);
+	}
+	SetArgument(pos, ArgumentIndex_key, root);
+	/* aux */
+	str2->aux = str1->aux;
+	GetArgument(method, ArgumentIndex_aux, &list);
+	for (root = Nil; list != Nil; ) {
+		GetCons(list, &var, &list);
+		cons_heap(&root, var, root);
+	}
+	SetArgument(pos, ArgumentIndex_aux, root);
+	/* result */
+	*ret = pos;
 }
 

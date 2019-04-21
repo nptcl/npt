@@ -47,6 +47,7 @@ void closrun_execute(Execute ptr, addr pos, addr args);
 void generic_instance_heap(LocalRoot local, addr *ret, addr name, addr lambda);
 void generic_common_instance(addr *ret, addr name, addr args);
 int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *ret);
+void generic_empty(addr name, addr lambda, addr *ret);
 int generic_add(struct generic_argument *ptr, addr *ret);
 int generic_change(struct generic_argument *ptr, addr *ret);
 

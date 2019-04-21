@@ -1453,11 +1453,13 @@ static void code_dbind_code(LocalRoot local, addr code, addr scope, addr *ret)
 
 static void code_destructuring_bind(LocalRoot local, addr code, addr scope)
 {
-	addr expr, args;
+	addr expr, args, pos;
 	modeswitch mode;
 
 	GetEvalScopeIndex(scope, 0, &expr);
 	GetEvalScopeIndex(scope, 1, &args);
+
+	pushstack_return(local, code);
 
 	set_modeswitch(code, &mode);
 	code_execute(local, code, expr);
@@ -1465,6 +1467,10 @@ static void code_destructuring_bind(LocalRoot local, addr code, addr scope)
 	code_dbind_code(local, code, args, &args);
 	Code_leftright(local, code, EXECUTE, args);
 	rollback_modeswitch(code, &mode);
+	if_push_result(local, code);
+
+	popstack(local, code, &pos);
+	Code_leftright(local, code, EXECUTE, pos);
 	if_push_result(local, code);
 }
 
@@ -1977,6 +1983,7 @@ static void code_execute(LocalRoot local, addr code, addr scope)
 			code_t(local, code);
 			break;
 
+		case EVAL_PARSE_CLOS:
 		case EVAL_PARSE_INTEGER:
 		case EVAL_PARSE_RATIONAL:
 		case EVAL_PARSE_COMPLEX:

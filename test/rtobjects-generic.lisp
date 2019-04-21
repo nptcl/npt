@@ -126,3 +126,23 @@
   (defmethod8 "Hello")
   t)
 
+
+;;
+;;  function-keywords
+;;
+(defgeneric function-keywords1 (a &key))
+(defmethod function-keywords1 ((a integer) &key bb ((hello ccc)) (ddd 10))
+  (values a bb ccc ddd))
+(deftest function-keywords.1
+  (function-keywords
+    (car (generic-function-methods #'function-keywords1)))
+  (:bb hello :ddd) nil)
+
+(defgeneric function-keywords2 (a &key))
+(defmethod function-keywords2 ((a integer) &key &allow-other-keys)
+  a)
+(deftest function-keywords.2
+  (function-keywords
+    (car (generic-function-methods #'function-keywords2)))
+  nil t)
+

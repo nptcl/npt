@@ -20,6 +20,8 @@ void stdget_longcomb_form(addr pos, addr *ret);
 void stdset_longcomb_form(addr pos, addr value);
 void stdget_longcomb_function(addr pos, addr *ret);
 void stdset_longcomb_function(addr pos, addr value);
+void stdget_longcomb_binding(addr pos, addr *ret);
+void stdset_longcomb_binding(addr pos, addr value);
 
 void stdget_shortcomb_name(addr pos, addr *ret);
 void stdset_shortcomb_name(addr pos, addr value);
@@ -70,7 +72,12 @@ void clos_find_method_combination(addr gen, addr list, addr *ret);
 void ensure_define_combination_short_common(addr name,
 		addr doc, addr ident, addr oper);
 void ensure_define_combination_long_common(addr name, addr lambda, addr spec,
-		addr args, addr gen, addr doc, addr form);
+		addr args, addr gen, addr doc, addr form, addr decl);
+
+/* long form */
+void comb_longmacro(addr *ret,
+		addr lambda, addr spec, addr args, addr gen, addr decl, addr form);
+int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data);
 
 #endif
 

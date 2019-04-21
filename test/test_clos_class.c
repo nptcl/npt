@@ -417,7 +417,7 @@ static int test_clos_class_p(void)
 	test(clos_class_p(pos), "clos_class_p1");
 	GetConst(CLOS_STANDARD_OBJECT, &pos);
 	test(clos_class_p(pos), "clos_class_p2");
-	GetConst(COMBINATION_STANDARD, &pos);
+	GetConst(CLOS_COMBINATION_STANDARD, &pos);
 	test(! clos_class_p(pos), "clos_class_p3");
 	GetConst(CLOS_CLASS, &pos);
 	test(clos_class_p(pos), "clos_class_p4");

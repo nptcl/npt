@@ -28,7 +28,11 @@ static void import_mop_package(constindex index)
 }
 
 
-/* defgeneric_function_keywords(); */
+/* (defgeneric function-keywords (method)) */
+static void defgeneric_function_keywords(void)
+{
+	ImportMopPackage(FUNCTION_KEYWORDS);
+}
 
 
 /* (defun ensure-generic-function (name &key
@@ -667,7 +671,7 @@ static void defun_class_of(void)
  */
 static void intern_clos_objects(void)
 {
-	/* defgeneric_function_keywords(); */
+	defgeneric_function_keywords();
 	defun_ensure_generic_function();
 	defgeneric_allocate_instance();
 	defgeneric_reinitialize_instance();

@@ -41,7 +41,7 @@ static void type_value_type(addr *ret, addr value)
 	GetTypeTable(ret, Type);
 }
 
-static void type_value_clos(addr *ret, addr value)
+void type_value_clos(addr *ret, addr value)
 {
 	clos_class_of(value, &value);
 	type_clos_heap(value, ret);

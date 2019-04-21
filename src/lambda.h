@@ -80,9 +80,13 @@ void argument_ordinary_heap(LocalRoot local, addr *ret, addr cons);
 void argument_generic_heap(LocalRoot local, addr *ret, addr cons);
 void argument_method_heap(LocalRoot local, addr *ret, addr cons);
 void argument_combination_heap(LocalRoot local, addr *ret, addr cons);
+
+/* expand */
+void argument_ordinary_lambda_heap(addr *ret, addr pos);
 void argument_generic_lambda_heap(addr *ret, addr pos);
 void argument_method_lambda_heap(addr *ret, addr pos);
-void argument_method_ordinary_heap(addr *ret, addr pos);
+void argument_method_keywords_heap(addr pos, addr *ret, int *allow);
+void argument_method_to_generic(addr pos, addr *ret);
 
 #endif
 
