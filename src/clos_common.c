@@ -1044,8 +1044,7 @@ static void defcomb_short(Execute ptr, addr *ret, addr list, addr name)
 	GetConst(KEYWORD_DOCUMENTATION, &kdoc);
 	GetConst(KEYWORD_IDENTITY_WITH_ONE_ARGUMENT, &kident);
 	GetConst(KEYWORD_OPERATOR, &koper);
-	doc = ident = Unbound;
-	oper = name;
+	doc = ident = oper = Unbound;
 	while (list != Nil) {
 		getcons(list, &key, &list);
 		getcons(list, &value, &list);
@@ -1083,12 +1082,15 @@ static void defcomb_short(Execute ptr, addr *ret, addr list, addr name)
 	if (doc != Unbound)
 		pushva_heap(&list, kdoc, doc, NULL);
 	/* identity-with-one-argument */
-	pushva_heap(&list, kident, ident, NULL);
+	if (ident != Unbound)
+		pushva_heap(&list, kident, ident, NULL);
 	/* operator */
-	quotelist_heap(&oper, oper);
-	pushva_heap(&list, koper, oper, NULL);
+	if (oper != Unbound) {
+		quotelist_heap(&oper, oper);
+		pushva_heap(&list, koper, oper, NULL);
+	}
 	/* result */
-	*ret = list;
+	nreverse_list_unsafe(ret, list);
 }
 
 static void defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
@@ -1106,7 +1108,7 @@ static void defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
 		GetCons(a, &a, &b);
 		/* (:arguments . args) */
 		if (a == kargs) {
-			if (args == Unbound)
+			if (args == Nil)
 				args = b;
 			list = next;
 			continue;

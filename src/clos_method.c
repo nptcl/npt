@@ -10,6 +10,7 @@
 #include "hashtable.h"
 #include "lambda.h"
 #include "sequence.h"
+#include "symbol.h"
 
 /*
  *  access
@@ -625,5 +626,61 @@ void methodset_document(addr clos, addr value)
 {
 	stdget_method_function(clos, &clos);
 	setdocumentation_function(clos, value);
+}
+
+
+/*
+ *  common
+ */
+void method_make_method_lambda(addr list, addr env, addr *ret)
+{
+	/* `(lambda (,method ,next &rest ,args)
+	 *    (flet ((next-method-p ()
+	 *             (clos::flet-method-p ,next))
+	 *           (call-next-method (&rest ,rest)
+	 *             (clos::flet-next-method ,method ,next ,args ,rest)))
+	 *      (declare (ignorable #'next-method-p #'call-next-method))
+	 *      (apply (lambda ,lambda-list ,@form) ,args)))
+	 */
+	addr lambda, apply, next1, next2, call1, call2, a, b, c;
+	addr method, next, args, rest, ignorable, declare, arest, flet;
+
+	/* gensym */
+	make_symbolchar(&method, "METHOD");
+	make_symbolchar(&next, "NEXT");
+	make_symbolchar(&args, "ARGS");
+	make_symbolchar(&rest, "REST");
+	/* constant */
+	GetConst(COMMON_NEXT_METHOD_P, &next1);
+	GetConst(CLOSNAME_FLET_METHOD_P, &next2);
+	GetConst(COMMON_CALL_NEXT_METHOD, &call1);
+	GetConst(CLOSNAME_FLET_NEXT_METHOD, &call2);
+	/* apply */
+	GetConst(COMMON_APPLY, &apply);
+	list_heap(&apply, apply, list, args, NULL);
+	/* declare */
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_FUNCTION, &a);
+	list_heap(&b, a, next1, NULL);
+	list_heap(&c, a, call1, NULL);
+	list_heap(&ignorable, ignorable, b, c, NULL);
+	list_heap(&declare, declare, ignorable, NULL);
+	/* next-method-p */
+	list_heap(&next2, next2, next, NULL);
+	list_heap(&next1, next1, Nil, next2, NULL);
+	/* call-next-method */
+	list_heap(&call2, call2, method, next, args, rest, NULL);
+	GetConst(AMPERSAND_REST, &arest);
+	list_heap(&rest, arest, rest, NULL);
+	list_heap(&call1, call1, rest, call2, NULL);
+	/* flet */
+	list_heap(&next1, next1, call1, NULL);
+	GetConst(COMMON_FLET, &flet);
+	list_heap(&flet, flet, next1, declare, apply, NULL);
+	/* lambda */
+	GetConst(COMMON_LAMBDA, &lambda);
+	list_heap(&method, method, next, arest, args, NULL);
+	list_heap(ret, lambda, method, flet, NULL);
 }
 

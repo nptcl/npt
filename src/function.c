@@ -744,6 +744,13 @@ void setcompiled_var5(addr pos, callbind_var5 call)
 	str->call.var5 = call;
 }
 
+void setcompiled_var6(addr pos, callbind_var6 call)
+{
+	struct callbind_struct *str = CallBindCompiled(pos);
+	str->type = CallBind_var6;
+	str->call.var6 = call;
+}
+
 void setcompiled_opt1(addr pos, callbind_opt1 call)
 {
 	struct callbind_struct *str = CallBindCompiled(pos);
@@ -798,6 +805,20 @@ void setcompiled_var3opt1(addr pos, callbind_var3opt1 call)
 	struct callbind_struct *str = CallBindCompiled(pos);
 	str->type = CallBind_var3opt1;
 	str->call.var3opt1 = call;
+}
+
+void setcompiled_var4opt1(addr pos, callbind_var4opt1 call)
+{
+	struct callbind_struct *str = CallBindCompiled(pos);
+	str->type = CallBind_var4opt1;
+	str->call.var4opt1 = call;
+}
+
+void setcompiled_var5opt1(addr pos, callbind_var5opt1 call)
+{
+	struct callbind_struct *str = CallBindCompiled(pos);
+	str->type = CallBind_var5opt1;
+	str->call.var5opt1 = call;
 }
 
 void setcompiled_var1opt2(addr pos, callbind_var1opt2 call)

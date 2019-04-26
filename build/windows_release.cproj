@@ -247,6 +247,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_class.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_generic.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_reader.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_protocols.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_random.c" />

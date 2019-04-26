@@ -38,12 +38,10 @@ void mop_argument_generic_var1(addr *ret)
 {
 	mop_argument_generic_var(ret, 1);
 }
-
 void mop_argument_generic_var2(addr *ret)
 {
 	mop_argument_generic_var(ret, 2);
 }
-
 void mop_argument_generic_var3(addr *ret)
 {
 	mop_argument_generic_var(ret, 3);
@@ -55,6 +53,19 @@ void mop_argument_generic_var4(addr *ret)
 void mop_argument_generic_var5(addr *ret)
 {
 	mop_argument_generic_var(ret, 5);
+}
+
+void mop_argument_generic_var3opt1(addr *ret)
+{
+	addr pos;
+	struct argument_struct *str;
+
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_generic;
+	str->var = 3;
+	str->opt = 1;
+	*ret = pos;
 }
 
 void mop_argument_generic_var1rest(addr *ret)
@@ -153,6 +164,7 @@ void mop_argument_method_var1rest(addr *ret, constindex var1)
 void intern_mop_reader(Execute ptr);
 void intern_mop_class(Execute ptr);
 void intern_mop_generic(Execute ptr);
+void intern_mop_protocols(Execute ptr);
 
 void intern_metaobject_protocol(void)
 {
@@ -162,5 +174,6 @@ void intern_metaobject_protocol(void)
 	intern_mop_class(ptr);
 	intern_mop_reader(ptr);
 	intern_mop_generic(ptr);
+	intern_mop_protocols(ptr);
 }
 

@@ -581,7 +581,11 @@ static void defun_setf_find_class(void)
 }
 
 
-/* defgeneric_compute_applicable_methods(); */
+/* (defgeneric compute-applicable-methods ...) */
+static void defgeneric_compute_applicable_methods(void)
+{
+	ImportMopPackage(COMPUTE_APPLICABLE_METHODS);
+}
 
 
 /* defmacro_define_method_combination(); */
@@ -605,7 +609,13 @@ static void defmacro_define_method_combination(void)
 }
 
 
-/* defgeneric_find_method(); */
+/* (defgeneric find-method ...) */
+static void defgeneric_find_method(void)
+{
+	ImportMopPackage(FIND_METHOD);
+}
+
+
 /* defgeneric_add_method(); */
 
 
@@ -701,9 +711,9 @@ static void intern_clos_objects(void)
 	defmacro_defmethod();
 	defun_find_class();
 	defun_setf_find_class();
-	/* defgeneric_compute_applicable_methods(); */
+	defgeneric_compute_applicable_methods();
 	defmacro_define_method_combination();
-	/* defgeneric_find_method(); */
+	defgeneric_find_method();
 	/* defgeneric_add_method(); */
 	defgeneric_initialize_instance();
 	defgeneric_class_name();

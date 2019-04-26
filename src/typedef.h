@@ -38,6 +38,7 @@ enum CallBind_index {
 	CallBind_var3,
 	CallBind_var4,
 	CallBind_var5,
+	CallBind_var6,
 	CallBind_opt1,
 	CallBind_opt2,
 	CallBind_opt3,
@@ -46,6 +47,8 @@ enum CallBind_index {
 	CallBind_var1opt1,
 	CallBind_var2opt1,
 	CallBind_var3opt1,
+	CallBind_var4opt1,
+	CallBind_var5opt1,
 	CallBind_var1opt2,
 	CallBind_var2opt2,
 	CallBind_var1rest,
@@ -68,6 +71,7 @@ typedef void (*callbind_var2)(Execute, addr, addr);
 typedef void (*callbind_var3)(Execute, addr, addr, addr);
 typedef void (*callbind_var4)(Execute, addr, addr, addr, addr);
 typedef void (*callbind_var5)(Execute, addr, addr, addr, addr, addr);
+typedef void (*callbind_var6)(Execute, addr, addr, addr, addr, addr, addr);
 typedef void (*callbind_opt1)(Execute, addr);
 typedef void (*callbind_opt2)(Execute, addr, addr);
 typedef void (*callbind_opt3)(Execute, addr, addr, addr);
@@ -76,6 +80,8 @@ typedef void (*callbind_opt5)(Execute, addr, addr, addr, addr, addr);
 typedef void (*callbind_var1opt1)(Execute, addr, addr);
 typedef void (*callbind_var2opt1)(Execute, addr, addr, addr);
 typedef void (*callbind_var3opt1)(Execute, addr, addr, addr, addr);
+typedef void (*callbind_var4opt1)(Execute, addr, addr, addr, addr, addr);
+typedef void (*callbind_var5opt1)(Execute, addr, addr, addr, addr, addr, addr);
 typedef void (*callbind_var1opt2)(Execute, addr, addr, addr);
 typedef void (*callbind_var2opt2)(Execute, addr, addr, addr, addr);
 typedef void (*callbind_var1rest)(Execute, addr, addr);
@@ -100,6 +106,7 @@ struct callbind_struct {
 		callbind_var3 var3;
 		callbind_var4 var4;
 		callbind_var5 var5;
+		callbind_var6 var6;
 		callbind_opt1 opt1;
 		callbind_opt2 opt2;
 		callbind_opt3 opt3;
@@ -108,6 +115,8 @@ struct callbind_struct {
 		callbind_var1opt1 var1opt1;
 		callbind_var2opt1 var2opt1;
 		callbind_var3opt1 var3opt1;
+		callbind_var4opt1 var4opt1;
+		callbind_var5opt1 var5opt1;
 		callbind_var1opt2 var1opt2;
 		callbind_var2opt2 var2opt2;
 		callbind_var1rest var1rest;

@@ -428,9 +428,9 @@ static int comb_standard(addr *ret, addr data)
 
 
 /*
- *  method-combination long
+ *  execute combination
  */
-static int comb_long_call(Execute ptr, addr inst, addr gen, addr rest)
+static int comb_define_call(Execute ptr, addr inst, addr gen, addr rest)
 {
 	addr control, call;
 
@@ -451,17 +451,29 @@ static int comb_long(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 		return 1;
 	Check(! functionp(data), "type error");
 	/* result */
-	clos_generic_call_heap(&pos, comb_long_call, 1);
+	clos_generic_call_heap(&pos, comb_define_call, 1);
 	SetClosGenericCallArray(pos, 0, data);
 	*ret = pos;
 
 	return 0;
 }
 
+static int comb_short(Execute ptr, addr *ret, addr gen, addr comb, addr data)
+{
+	addr pos;
 
-/*
- *  execute combination
- */
+	/* make function */
+	if (comb_shortform(ptr, &data, gen, comb, data))
+		return 1;
+	Check(! functionp(data), "type error");
+	/* result */
+	clos_generic_call_heap(&pos, comb_define_call, 1);
+	SetClosGenericCallArray(pos, 0, data);
+	*ret = pos;
+
+	return 0;
+}
+
 static int comb_lambda(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 {
 	/* standard */
@@ -473,10 +485,8 @@ static int comb_lambda(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 		return comb_long(ptr, ret, gen, comb, data);
 
 	/* short-form */
-	if (clos_short_combination_p(comb)) {
-		fmte("TODO: method-combination is not support yet.", NULL);
-		return 0;
-	}
+	if (clos_short_combination_p(comb))
+		return comb_short(ptr, ret, gen, comb, data);
 
 	/* error */
 	fmte("Invalid method-combination ~S.", comb, NULL);
@@ -635,12 +645,11 @@ static void generic_specializers_sort(addr *ret, addr gen, addr list)
 		simplesort_cons_unsafe(ret, list, generic_sort_call);
 }
 
-static int generic_make_type(Execute ptr, addr *ret, addr gen, addr type)
+static void generic_make_array(addr *ret, addr gen, addr type)
 {
-	addr array, data, comb, methods, method, list;
+	addr array, data, methods, method, list;
 	size_t size, index;
 
-	stdget_generic_method_combination(gen, &comb);
 	stdget_generic_methods(gen, &array);
 	LenArrayA4(array, &size);
 	vector4_heap(&data, size);
@@ -656,7 +665,16 @@ static int generic_make_type(Execute ptr, addr *ret, addr gen, addr type)
 		generic_specializers_sort(&list, gen, list);
 		SetArrayA4(data, index, list);
 	}
-	/* combination */
+	*ret = data;
+}
+
+static int generic_make_type(Execute ptr, addr *ret, addr gen, addr type)
+{
+	addr comb, data;
+
+	stdget_generic_method_combination(gen, &comb);
+	generic_make_array(&data, gen, type);
+
 	return comb_lambda(ptr, ret, gen, comb, data);
 }
 
@@ -951,5 +969,92 @@ int generic_change(struct generic_argument *str, addr *ret)
 {
 	fmte("TODO", NULL);
 	return 0;
+}
+
+
+/*
+ *  common
+ */
+void generic_compute_applicable_methods(LocalRoot local,
+		addr gen, addr args, addr *ret)
+{
+	addr data, root, list, pos;
+	LocalStack stack;
+	size_t size, i;
+
+	push_local(local, &stack);
+	stdget_generic_eqlcheck(gen, &data);
+	generic_make_mapcar_class_of(local, &data, data, args);
+	generic_make_array(&data, gen, data);
+	LenArrayA4(data, &size);
+	root = Nil;
+	for (i = 0; i < size; i++) {
+		GetArrayA4(data, i, &list);
+		while (list != Nil) {
+			GetCons(list, &pos, &list);
+			cons_heap(&root, pos, root);
+		}
+	}
+	rollback_local(local, stack);
+	nreverse_list_unsafe(ret, root);
+}
+
+static int generic_find_method_equal(addr method, addr spec)
+{
+	addr left, right, a, b;
+	size_t x, y;
+
+	stdget_method_specializers(method, &left);
+	right = spec;
+	/* length check */
+	x = length_list_safe(left);
+	y = length_list_safe(right);
+	if (x != y) {
+		fmte("The length of specializers ~S "
+				"does not match in the method ~S.", spec, method, NULL);
+		return 0;
+	}
+	/* specializer check */
+	while (left != Nil) {
+		getcons(left, &a, &left);
+		getcons(right, &b, &right);
+		if (a != b)
+			return 0;
+	}
+
+	return 1;
+}
+
+void generic_find_method(Execute ptr,
+		addr gen, addr qua, addr spec, addr errorp, addr *ret)
+{
+	addr comb, list, method;
+	size_t index;
+
+	stdget_generic_method_combination(gen, &comb);
+	if (qualifiers_position_nil(ptr, qua, comb, &index)) {
+		if (errorp != Nil) {
+			fmte("The qualifiers ~S is not found in generic-function ~S.",
+					qua, gen, NULL);
+		}
+		*ret = Nil;
+		return;
+	}
+
+	stdget_generic_methods(gen, &list);
+	GetArrayA4(list, index, &list);
+	while (list != Nil) {
+		GetCons(list, &method, &list);
+		if (generic_find_method_equal(method, spec)) {
+			*ret = method;
+			return;
+		}
+	}
+	/* not found */
+	if (errorp != Nil) {
+		fmte("The specializes ~S is not found in generic-function ~S ~S.",
+				spec, gen, qua, NULL);
+	}
+	*ret = Nil;
 }
 

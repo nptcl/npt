@@ -21,6 +21,7 @@ void mop_argument_generic_var2(addr *ret);
 void mop_argument_generic_var3(addr *ret);
 void mop_argument_generic_var4(addr *ret);
 void mop_argument_generic_var5(addr *ret);
+void mop_argument_generic_var3opt1(addr *ret);
 void mop_argument_generic_var1rest(addr *ret);
 void mop_argument_generic_var2rest(addr *ret);
 void mop_argument_generic_var1rest1key0(addr *ret);

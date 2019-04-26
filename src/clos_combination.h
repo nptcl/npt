@@ -31,6 +31,8 @@ void stdget_shortcomb_identity(addr pos, addr *ret);
 void stdset_shortcomb_identity(addr pos, addr value);
 void stdget_shortcomb_operator(addr pos, addr *ret);
 void stdset_shortcomb_operator(addr pos, addr value);
+void stdget_shortcomb_order(addr pos, addr *ret);
+void stdset_shortcomb_order(addr pos, addr value);
 
 void stdget_longdef_name(addr pos, addr *ret);
 void stdset_longdef_name(addr pos, addr value);
@@ -78,6 +80,7 @@ void ensure_define_combination_long_common(addr name, addr lambda, addr spec,
 void comb_longmacro(addr *ret,
 		addr lambda, addr spec, addr args, addr gen, addr decl, addr form);
 int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data);
+int comb_shortform(Execute ptr, addr *ret, addr gen, addr comb, addr data);
 
 #endif
 

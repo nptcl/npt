@@ -1662,6 +1662,34 @@ toofew:
 	fmte("Too few call argument ~S.", check, NULL);
 }
 
+static void call_callbind_var6(Execute ptr, addr pos, callstr call)
+{
+	addr check, cons, var1, var2, var3, var4, var5, var6;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var1, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var2, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var3, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var4, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var5, &cons);
+	if (cons == Nil) goto toofew;
+	getcons(cons, &var6, &cons);
+	if (cons != Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	(call->call.var6)(ptr, var1, var2, var3, var4, var5, var6);
+	return;
+toofew:
+	GetNameFunction(pos, &check);
+	fmte("Too few call argument ~S.", check, NULL);
+}
+
 static void call_callbind_opt1(Execute ptr, addr pos, callstr call)
 {
 	addr check, cons, opt1;
@@ -1884,6 +1912,87 @@ finish:
 	(call->call.var3opt1)(ptr, var1, var2, var3, opt1);
 }
 
+static void call_callbind_var4opt1(Execute ptr, addr pos, callstr call)
+{
+	addr check, cons, var1, var2, var3, var4, opt1;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var1, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var2, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var3, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var4, &cons);
+	if (cons == Nil) {
+		opt1 = Unbound;
+		goto finish;
+	}
+	getcons(cons, &opt1, &cons);
+	if (cons != Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too many call argument ~S.", check, NULL);
+	}
+finish:
+	(call->call.var4opt1)(ptr, var1, var2, var3, var4, opt1);
+}
+
+static void call_callbind_var5opt1(Execute ptr, addr pos, callstr call)
+{
+	addr check, cons, var1, var2, var3, var4, var5, opt1;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var1, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var2, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var3, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var4, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var5, &cons);
+	if (cons == Nil) {
+		opt1 = Unbound;
+		goto finish;
+	}
+	getcons(cons, &opt1, &cons);
+	if (cons != Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too many call argument ~S.", check, NULL);
+	}
+finish:
+	(call->call.var5opt1)(ptr, var1, var2, var3, var4, var5, opt1);
+}
+
 static void call_callbind_var1opt2(Execute ptr, addr pos, callstr call)
 {
 	addr check, cons, var1, opt1, opt2;
@@ -2083,6 +2192,7 @@ void init_control(void)
 	CallBindTable[CallBind_var3] = call_callbind_var3;
 	CallBindTable[CallBind_var4] = call_callbind_var4;
 	CallBindTable[CallBind_var5] = call_callbind_var5;
+	CallBindTable[CallBind_var6] = call_callbind_var6;
 	CallBindTable[CallBind_opt1] = call_callbind_opt1;
 	CallBindTable[CallBind_opt2] = call_callbind_opt2;
 	CallBindTable[CallBind_opt3] = call_callbind_opt3;
@@ -2091,6 +2201,8 @@ void init_control(void)
 	CallBindTable[CallBind_var1opt1] = call_callbind_var1opt1;
 	CallBindTable[CallBind_var2opt1] = call_callbind_var2opt1;
 	CallBindTable[CallBind_var3opt1] = call_callbind_var3opt1;
+	CallBindTable[CallBind_var4opt1] = call_callbind_var4opt1;
+	CallBindTable[CallBind_var5opt1] = call_callbind_var5opt1;
 	CallBindTable[CallBind_var1opt2] = call_callbind_var1opt2;
 	CallBindTable[CallBind_var2opt2] = call_callbind_var2opt2;
 	CallBindTable[CallBind_var1rest] = call_callbind_var1rest;

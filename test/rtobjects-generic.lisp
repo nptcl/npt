@@ -146,3 +146,93 @@
     (car (generic-function-methods #'function-keywords2)))
   nil t)
 
+
+;;
+;;  find-method
+;;
+(defgeneric find-method1 (a b))
+(defmethod find-method1 ((a integer) (b string))
+  (list a b))
+
+(deftest find-method.1
+  (typep
+    (find-method
+      #'find-method1
+      nil
+      (mapcar #'find-class '(integer string)))
+    'standard-method)
+  t)
+
+(deftest-error find-method.2
+  (find-method
+    #'find-method1
+    nil
+    (mapcar #'find-class '(t string))))
+
+(deftest find-method.3
+  (find-method
+    #'find-method1
+    nil
+    (mapcar #'find-class '(t string))
+    nil)
+  nil)
+
+(deftest-error find-method.4
+  (find-method
+    #'find-method1
+    nil
+    (mapcar #'find-class '(integer))
+    nil))
+
+(deftest-error find-method.5
+  (find-method
+    #'find-method1
+    nil
+    (mapcar #'find-class '(integer t t))
+    nil))
+
+(defgeneric find-method2 (a b))
+(defmethod find-method2 ((a integer) (b string))
+  (list a b))
+
+(defmethod find-method2 ((a ratio) (b string))
+  (list a b))
+
+(defmethod find-method2 ((a t) (b t))
+  (list a b))
+
+(deftest find-method.6
+  (typep
+    (find-method
+      #'find-method2
+      nil
+      (mapcar #'find-class '(integer string)))
+    'standard-method)
+  t)
+
+(deftest find-method.7
+  (typep
+    (find-method
+      #'find-method2
+      nil
+      (mapcar #'find-class '(t t)))
+    'standard-method)
+  t)
+
+(deftest find-method.8
+  (typep
+    (find-method
+      #'find-method2
+      nil
+      (mapcar #'find-class '(ratio string)))
+    'standard-method)
+  t)
+
+(deftest find-method.9
+  (find-method
+    #'find-method2
+    nil
+    (mapcar #'find-class '(integer integer))
+    nil)
+  nil)
+

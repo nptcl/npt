@@ -404,6 +404,11 @@ static void function_flet_next_method(Execute ptr,
 	LocalRoot local;
 	LocalStack stack;
 
+	if (next == Nil) {
+		stdget_method_generic_function(method, &method);
+		fmte("There is no method in generic function ~S.", method, NULL);
+		return;
+	}
 	getcons(next, &method, &next);
 	stdget_method_function(method, &call);
 	if (rest == Nil)
@@ -489,7 +494,7 @@ static void function_ensure_method_combination_short(Execute ptr, addr var, addr
 		doc = Nil;
 	if (getkeyargs(rest, KEYWORD_IDENTITY_WITH_ONE_ARGUMENT, &ident))
 		ident = Nil;
-	if (getkeyargs(rest, KEYWORD_OPERATION, &oper))
+	if (getkeyargs(rest, KEYWORD_OPERATOR, &oper))
 		oper = var;
 	ensure_define_combination_short_common(var, doc, ident, oper);
 	setresult_control(ptr, var);
@@ -694,7 +699,7 @@ static void defun_combination_binding_mop(void)
  ***********************************************************************/
 static void function_macro_make_method(Execute ptr, addr gen, addr form)
 {
-	/* `(make-method-lambda
+	/* `(macro-method-lambda
 	 *    ,gen
 	 *    (lambda (#:method #:next &rest #:args)
 	 *      (declare (ignore #:method #:next #:args))
@@ -702,7 +707,7 @@ static void function_macro_make_method(Execute ptr, addr gen, addr form)
 	 */
 	addr make, lambda, method, next, args, rest, declare, ignore;
 
-	GetConst(CLOSNAME_MAKE_METHOD_LAMBDA, &make);
+	GetConst(CLOSNAME_MACRO_METHOD_LAMBDA, &make);
 	GetConst(COMMON_LAMBDA, &lambda);
 	GetConst(COMMON_DECLARE, &declare);
 	GetConst(COMMON_IGNORE, &ignore);
@@ -808,9 +813,9 @@ static void defun_macro_call_method(void)
 
 
 /***********************************************************************
- *  make-method-lambda
+ *  macro-method-lambda
  ***********************************************************************/
-static void function_make_method_lambda(Execute ptr, addr gen, addr call)
+static void function_macro_method_lambda(Execute ptr, addr gen, addr call)
 {
 	addr make, clos;
 
@@ -825,7 +830,7 @@ static void function_make_method_lambda(Execute ptr, addr gen, addr call)
 	setresult_control(ptr, clos);
 }
 
-static void type_make_method_lambda(addr *ret)
+static void type_macro_method_lambda(addr *ret)
 {
 	addr args, values;
 
@@ -836,19 +841,166 @@ static void type_make_method_lambda(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defun_make_method_lambda(void)
+static void defun_macro_method_lambda(void)
 {
 	addr symbol, pos, type;
 
 	/* function */
-	GetConst(CLOSNAME_MAKE_METHOD_LAMBDA, &symbol);
+	GetConst(CLOSNAME_MACRO_METHOD_LAMBDA, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_make_method_lambda);
+	setcompiled_var2(pos, function_macro_method_lambda);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_make_method_lambda(&type);
+	type_macro_method_lambda(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
+}
+
+
+/***********************************************************************
+ *  compute-applicable-methods
+ ***********************************************************************/
+static void method_compute_applicable_methods_std(Execute ptr,
+		addr method, addr next, addr clos, addr args)
+{
+	generic_compute_applicable_methods(ptr->local, clos, args, &args);
+	setresult_control(ptr, args);
+}
+
+static void method_type_compute_applicable_methods_std(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, List);
+	typeargs_var2(&args, args, values);
+	typeargs_method(args);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void method_argument_compute_applicable_methods_std(addr *ret)
+{
+	addr pos, list, type1, type2;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 2;
+	ArgumentMethod_var(&type1, STANDARD_GENERIC_FUNCTION);
+	ArgumentMethod_var(&type2, T);
+	list_heap(&list, type1, type2, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+static void defmethod_compute_applicable_methods_std(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var4(call, method_compute_applicable_methods_std);
+	method_type_compute_applicable_methods_std(&type);
+	settype_function(call, type);
+	/* method */
+	method_argument_compute_applicable_methods_std(&pos);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+static void defgeneric_compute_applicable_methods_mop(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(COMMON_COMPUTE_APPLICABLE_METHODS, &symbol);
+	mop_argument_generic_var2(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	/* no-method */
+	defmethod_compute_applicable_methods_std(ptr, name, gen);
+	common_method_finalize(gen);
+}
+
+
+/***********************************************************************
+ *  find-method
+ ***********************************************************************/
+static void method_find_method_std(Execute ptr,
+		addr method, addr next, addr clos, addr qua, addr spec, addr errorp)
+{
+	if (errorp == Unbound)
+		errorp = T;
+	generic_find_method(ptr, clos, qua, spec, errorp, &qua);
+	setresult_control(ptr, qua);
+}
+
+static void method_type_find_method_std(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, List);
+	typeargs_var3opt1(&args, args, values, values, args);
+	typeargs_method(args);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void method_argument_find_method_std(addr *ret)
+{
+	addr pos, list, type1, type2;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 3;
+	str->opt = 1;
+	ArgumentMethod_var(&type1, STANDARD_GENERIC_FUNCTION);
+	ArgumentMethod_var(&type2, T);
+	list_heap(&list, type1, type2, type2, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+static void defmethod_find_method_std(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var5opt1(call, method_find_method_std);
+	method_type_find_method_std(&type);
+	settype_function(call, type);
+	/* method */
+	method_argument_find_method_std(&pos);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+static void defgeneric_find_method_mop(Execute ptr)
+{
+	addr symbol, name, gen;
+
+	GetConst(COMMON_FIND_METHOD, &symbol);
+	mop_argument_generic_var3opt1(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	/* no-method */
+	defmethod_find_method_std(ptr, name, gen);
+	common_method_finalize(gen);
 }
 
 
@@ -875,6 +1027,9 @@ void intern_mop_generic(Execute ptr)
 	defun_combination_binding_mop();
 	defun_macro_make_method();
 	defun_macro_call_method();
-	defun_make_method_lambda();
+	defun_macro_method_lambda();
+	/* common */
+	defgeneric_compute_applicable_methods_mop(ptr);
+	defgeneric_find_method_mop(ptr);
 }
 

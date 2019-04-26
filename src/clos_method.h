@@ -30,5 +30,8 @@ void ensure_method_common(Execute ptr, addr *ret,
 void methodget_document(addr clos, addr *ret);
 void methodset_document(addr clos, addr value);
 
+/* common */
+void method_make_method_lambda(addr list, addr env, addr *ret);
+
 #endif
 

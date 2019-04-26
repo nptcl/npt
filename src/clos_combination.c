@@ -567,7 +567,7 @@ void method_combination_qualifiers_count(addr comb, size_t *ret)
 		return;
 	}
 	if (clos_short_combination_p(comb)) {
-		*ret = 2;
+		*ret = Clos_short_size;
 		return;
 	}
 	/* error */
@@ -640,12 +640,12 @@ static int qualifiers_position_short_nil(addr qua, addr comb, size_t *ret)
 		return 1;
 	stdget_shortcomb_name(comb, &name);
 	if (qua == name) {
-		*ret = 1;
+		*ret = Clos_short_primary;
 		return 0;
 	}
 	GetConst(KEYWORD_AROUND, &check);
 	if (qua == check) {
-		*ret = 0;
+		*ret = Clos_short_around;
 		return 0;
 	}
 
@@ -1072,7 +1072,7 @@ void comb_longmacro(addr *ret,
 	comb_longmacro_lambda(ret, lambda, gen, inst, array, decl, form);
 }
 
-static void comb_longform_macrolet(addr *ret, addr gen, addr form)
+static void comb_longform_macrolet(addr *ret, addr args, addr gen, addr form)
 {
 	/*  `(lambda (&rest ,args)
 	 *     (declare (ignorable ,args))
@@ -1084,7 +1084,7 @@ static void comb_longform_macrolet(addr *ret, addr gen, addr form)
 	 */
 	addr lambda, declare, ignorable, macrolet, quote, rest, optional;
 	addr make, call, mmake, mcall;
-	addr args, expr, car, cdr;
+	addr expr, car, cdr;
 
 	/* constant */
 	GetConst(COMMON_LAMBDA, &lambda);
@@ -1098,7 +1098,6 @@ static void comb_longform_macrolet(addr *ret, addr gen, addr form)
 	GetConst(AMPERSAND_OPTIONAL, &optional);
 	GetConst(CLOSNAME_MACRO_MAKE_METHOD, &mmake);
 	GetConst(CLOSNAME_MACRO_CALL_METHOD, &mcall);
-	make_symbolchar(&args, "ARGS");
 	make_symbolchar(&expr, "EXPR");
 	make_symbolchar(&car, "CAR");
 	make_symbolchar(&cdr, "CDR");
@@ -1118,9 +1117,111 @@ static void comb_longform_macrolet(addr *ret, addr gen, addr form)
 	list_heap(ret, lambda, rest, declare, macrolet, NULL);
 }
 
+static void comb_longmacro_lambda_list(addr args, addr *ret)
+{
+	addr root, var, list, a, b;
+	struct argument_struct *str;
+
+
+	str = ArgumentStruct(args);
+	Check(str->type != ArgumentType_combination, "type error");
+
+	root = Nil;
+	/* whole */
+	if (str->whole) {
+		GetConst(AMPERSAND_WHOLE, &var);
+		cons_heap(&root, var, root);
+		GetArgument(args, ArgumentIndex_whole, &var);
+		cons_heap(&root, var, root);
+	}
+
+	/* var & opt */
+	if (str->var || str->opt) {
+		GetConst(AMPERSAND_OPTIONAL, &var);
+		cons_heap(&root, var, root);
+	}
+
+	/* var */
+	GetArgument(args, ArgumentIndex_var, &list);
+	while (list != Nil) {
+		GetCons(list, &var, &list);
+		cons_heap(&root, var, root);
+	}
+
+	/* opt */
+	GetArgument(args, ArgumentIndex_opt, &list);
+	while (list != Nil) {
+		GetCons(list, &var, &list);
+		cons_heap(&root, var, root);
+	}
+
+	/* rest */
+	if (str->rest) {
+		GetConst(AMPERSAND_REST, &var);
+		cons_heap(&root, var, root);
+		GetArgument(args, ArgumentIndex_rest, &var);
+		cons_heap(&root, var, root);
+	}
+
+	/* key */
+	if (str->keyp || str->key) {
+		GetConst(AMPERSAND_KEY, &var);
+		cons_heap(&root, var, root);
+	}
+	GetArgument(args, ArgumentIndex_key, &list);
+	while (list != Nil) {
+		GetCons(list, &var, &list);
+		list_bind(var, &a, &b, NULL);
+		if (b == Nil) {
+			cons_heap(&root, a, root);
+		}
+		else {
+			list_heap(&var, b, a, NULL);
+			cons_heap(&root, var, root);
+		}
+	}
+
+	/* key */
+	if (str->allow) {
+		GetConst(AMPERSAND_ALLOW, &var);
+		cons_heap(&root, var, root);
+	}
+
+	/* result */
+	nreverse_list_unsafe(ret, root);
+}
+
+static void comb_longform_arguments(addr *ret, addr args, addr comb, addr form)
+{
+	addr list, lambda;
+	addr dbind, declare, ignorable;
+
+	/* no :arguments */
+	stdget_longcomb_arguments(comb, &comb);
+	if (comb == Nil) {
+		*ret = form;
+		return;
+	}
+
+	/* (destructuring-bind ,arguments ,args
+	 *   (declare (ignorable ...))
+	 *   ,form)
+	 */
+	comb_longmacro_variables(comb, &list);
+	comb_longmacro_lambda_list(comb, &lambda);
+	/* declare */
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	cons_heap(&ignorable, ignorable, list);
+	list_heap(&declare, declare, ignorable, NULL);
+	/* result */
+	GetConst(COMMON_DESTRUCTURING_BIND, &dbind);
+	list_heap(ret, dbind, lambda, args, declare, form, NULL);
+}
+
 int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 {
-	addr control, pos;
+	addr control, pos, args;
 
 	/* execute */
 	stdget_longcomb_form(comb, &pos);
@@ -1132,7 +1233,97 @@ int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 		return 1;
 
 	/* make-form */
-	comb_longform_macrolet(&pos, gen, pos);
+	make_symbolchar(&args, "ARGS");
+	comb_longform_arguments(&pos, args, comb, pos);
+	comb_longform_macrolet(&pos, args, gen, pos);
+
+	/* eval */
+	push_close_control(ptr, &control);
+	if (eval_execute(ptr, pos))
+		return runcode_free_control(ptr, control);
+	getresult_control(ptr, ret);
+	return free_control(ptr, control);
+}
+
+static void comb_shortform_primary(addr *ret, addr comb, addr list)
+{
+	addr check, call, root;
+
+	GetConst(COMMON_CALL_METHOD, &call);
+	stdget_shortcomb_identity(comb, &check);
+	if (check != Nil && singlep(list)) {
+		GetCar(list, &list);
+		list_heap(ret, call, list, NULL);
+	}
+	else {
+		stdget_shortcomb_operator(comb, &check);
+		conscar_heap(&root, check);
+		while (list != Nil) {
+			getcons(list, &check, &list);
+			list_heap(&check, call, check, NULL);
+			cons_heap(&root, check, root);
+		}
+		nreverse_list_unsafe(ret, root);
+	}
+}
+
+static void comb_shortform_around(addr *ret, addr comb, addr list, addr form)
+{
+	addr pos, root, car, cdr;
+
+	if (list == Nil) {
+		*ret = form;
+		return;
+	}
+
+	getcons(list, &car, &cdr);
+	/* ,@(cdr around) */
+	for (root = Nil; cdr != Nil; ) {
+		getcons(cdr, &pos, &cdr);
+		cons_heap(&root, pos, root);
+	}
+	/* (make-method ,form) */
+	GetConst(COMMON_MAKE_METHOD, &pos);
+	list_heap(&pos, pos, form, NULL);
+	cons_heap(&root, pos, root);
+	nreverse_list_unsafe(&root, root);
+	/* call-methd */
+	GetConst(COMMON_CALL_METHOD, &pos);
+	list_heap(ret, pos, car, root, NULL);
+}
+
+static void comb_shortform_make(addr *ret, addr comb, addr data)
+{
+	addr around, primary, order, check, form;
+
+	Check(lenarrayr(data) != Clos_short_size, "size error");
+	/* method */
+	getarray(data, Clos_short_around, &around);
+	getarray(data, Clos_short_primary, &primary);
+	/* required */
+	if (primary == Nil) {
+		stdget_shortcomb_name(comb, &primary);
+		fmte("The qualifier ~S must be at least one method.", primary, NULL);
+		return;
+	}
+	/* order */
+	stdget_shortcomb_order(comb, &order);
+	GetConst(KEYWORD_MOST_SPECIFIC_LAST, &check);
+	if (order == check)
+		reverse_list_heap_safe(&primary, primary);
+	/* form */
+	comb_shortform_primary(&form, comb, primary);
+	comb_shortform_around(ret, comb, around, form);
+}
+
+int comb_shortform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
+{
+	addr control, pos, args;
+
+	/* make-form */
+	make_symbolchar(&args, "ARGS");
+	comb_shortform_make(&pos, comb, data);
+	comb_longform_macrolet(&pos, args, gen, pos);
 
 	/* eval */
 	push_close_control(ptr, &control);

@@ -51,5 +51,11 @@ void generic_empty(addr name, addr lambda, addr *ret);
 int generic_add(struct generic_argument *ptr, addr *ret);
 int generic_change(struct generic_argument *ptr, addr *ret);
 
+/* common */
+void generic_compute_applicable_methods(LocalRoot local,
+		addr gen, addr args, addr *ret);
+void generic_find_method(Execute ptr,
+		addr gen, addr qua, addr spec, addr errorp, addr *ret);
+
 #endif
 

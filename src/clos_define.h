@@ -121,5 +121,11 @@ enum Clos_standard {
 	Clos_standard_size
 };
 
+enum Clos_short {
+	Clos_short_around,
+	Clos_short_primary,
+	Clos_short_size
+};
+
 #endif
 
