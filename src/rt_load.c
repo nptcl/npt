@@ -1,4 +1,5 @@
 #ifdef LISP_DEGRADE
+#include "bignum.h"
 #include "build.h"
 #include "condition.h"
 #include "constant.h"
@@ -10,6 +11,7 @@
 #include "package.h"
 #include "pathname.h"
 #include "stream.h"
+#include "symbol.h"
 
 /*
  *  Main
@@ -106,6 +108,30 @@ static void loadrt_nicknames(void)
 	loadrt_nickname(LISP_RT, "LISP-RT");
 }
 
+static void loadrt_getindex(Execute ptr)
+{
+	addr symbol, value;
+
+	GetConst(RT_INDEX, &symbol);
+	fixnum_heap(&value, (fixnum)DegradeCount);
+	setspecial_local(ptr, symbol, value);
+}
+
+static void loadrt_setindex(Execute ptr)
+{
+	addr symbol, value;
+	fixnum index;
+
+	GetConst(RT_INDEX, &symbol);
+	getspecial_local(ptr, symbol, &value);
+	if (value != Unbound) {
+		if (! fixnump(value))
+			fmte("Invalid fixnum value ~S.", value, NULL);
+		GetFixnum(value, &index);
+		DegradeCount = (int)index;
+	}
+}
+
 static int loadrt_lisp(const char *name)
 {
 	int result;
@@ -120,7 +146,9 @@ static int loadrt_lisp(const char *name)
 	if (code_run_p(code)) {
 		buildlisp(ptr);
 		loadrt_nicknames();
+		loadrt_getindex(ptr);
 		result = loadrt_execute(ptr, name);
+		loadrt_setindex(ptr);
 	}
 	end_code(ptr);
 	freelisp();

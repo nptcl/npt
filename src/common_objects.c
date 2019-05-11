@@ -372,7 +372,11 @@ static void defgeneric_no_next_method(void)
 }
 
 
-/* defgeneric_remove_method(); */
+/* (defgeneric remove-method ...) */
+static void defgeneric_remove_method(void)
+{
+	ImportMopPackage(REMOVE_METHOD);
+}
 
 
 /* defgeneric_make_instance(); */
@@ -616,7 +620,11 @@ static void defgeneric_find_method(void)
 }
 
 
-/* defgeneric_add_method(); */
+/* (defgeneric add-method ...) */
+static void defgeneric_add_method(void)
+{
+	ImportMopPackage(ADD_METHOD);
+}
 
 
 /* (defgeneric initialize-instance ...) */
@@ -673,7 +681,37 @@ static void defun_class_of(void)
 }
 
 
-/* defun_unbound_slot_instance(); */
+/* (defun unbound-slot-instance ...) */
+static void function_unbound_slot_instance(Execute ptr, addr var)
+{
+	unbound_slot_instance(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_unbound_slot_instance(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Condition);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_unbound_slot_instance(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_UNBOUND_SLOT_INSTANCE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, function_unbound_slot_instance);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_unbound_slot_instance(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
 
 
 /*
@@ -699,7 +737,7 @@ static void intern_clos_objects(void)
 	defgeneric_method_qualifiers();
 	defgeneric_no_applicable_method();
 	defgeneric_no_next_method();
-	/* defgeneric_remove_method(); */
+	defgeneric_remove_method();
 	defgeneric_make_instance();
 	/* defgeneric_make_instances_obsolete(); */
 	/* defgeneric_make_load_form(); */
@@ -714,12 +752,12 @@ static void intern_clos_objects(void)
 	defgeneric_compute_applicable_methods();
 	defmacro_define_method_combination();
 	defgeneric_find_method();
-	/* defgeneric_add_method(); */
+	defgeneric_add_method();
 	defgeneric_initialize_instance();
 	defgeneric_class_name();
 	defgeneric_setf_class_name();
 	defun_class_of();
-	/* defun_unbound_slot_instance(); */
+	defun_unbound_slot_instance();
 }
 
 void intern_common_objects(void)

@@ -519,9 +519,9 @@ static void defconstant_lambda_parameters_limit(void)
 
 
 /* (defmacro defconstant (name value &optional documentation) ...) -> name
- *    name          symbol
- *    value         t
- *    documenation  string
+ *    name           symbol
+ *    value          t
+ *    documentation  string
  */
 static void function_defconstant(Execute ptr, addr form, addr env)
 {
@@ -577,9 +577,9 @@ static void defmacro_defconstant(void)
 
 
 /* (defmacro defparameter (name value &optional documentation) ...) -> name
- *    name          symbol
- *    value         t
- *    documenation  string
+ *    name           symbol
+ *    value          t
+ *    documentation  string
  */
 static void expand_defparameter(Execute ptr, addr symbol, addr value, addr doc)
 {

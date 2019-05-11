@@ -215,7 +215,9 @@ static int test_expandmemory(void)
 
 	heap_front = mem;
 	Tail = mem + 79;
+	lisp_info_enable = 0; /* infoerror */
 	test(expandmemory(80) == NULL, "expandmemory6");
+	lisp_info_enable = 1;
 
 	RETURN;
 }
@@ -538,7 +540,9 @@ static int test_init_heap(void)
 {
 	addr pos;
 
+	lisp_info_enable = 0; /* infoerror */
 	test(init_heap(10000) == 1, "init_heap1");
+	lisp_info_enable = 1;
 	free_heap();
 	test(init_heap(1000*1000) == 0, "init_heap2");
 	free_heap();

@@ -1246,7 +1246,7 @@ int remplist(addr plist, addr key, addr *ret)
 	return remplist_check(plist, key, ret) == RemPlist_Update;
 }
 
-int remplist_heap(addr plist, addr key, addr *ret)
+int remplist_alloc(LocalRoot local, addr plist, addr key, addr *ret)
 {
 	int result;
 	addr root, pos, value;
@@ -1256,8 +1256,8 @@ int remplist_heap(addr plist, addr key, addr *ret)
 		getcons(plist, &pos, &plist);
 		getcons(plist, &value, &plist);
 		if (pos != key) {
-			cons_heap(&root, pos, root);
-			cons_heap(&root, value, root);
+			cons_alloc(local, &root, pos, root);
+			cons_alloc(local, &root, value, root);
 		}
 		else {
 			result = 1;
@@ -1267,6 +1267,18 @@ int remplist_heap(addr plist, addr key, addr *ret)
 
 	return result;
 }
+
+int remplist_local(LocalRoot local, addr plist, addr key, addr *ret)
+{
+	CheckLocal(local);
+	return remplist_alloc(local, plist, key, ret);
+}
+
+int remplist_heap(addr plist, addr key, addr *ret)
+{
+	return remplist_alloc(NULL, plist, key, ret);
+}
+
 
 /* 0:find-value, 1:not-found(Nil) */
 int getplist_constant(addr plist, enum CONSTANT_INDEX index, addr *ret)

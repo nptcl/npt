@@ -37,7 +37,7 @@ static int test_stdget_call(addr pos,
 }
 
 #define CheckStdGetGeneric(a,b,c) { \
-	test(test_stdget_call((a), CONSTANT_CLOSKEY_##b, \
+	test(test_stdget_call((a), CONSTANT_CLOSNAME_##b, \
 				stdset_generic_##c, stdget_generic_##c), "generic_" #c); \
 }
 
@@ -86,7 +86,7 @@ static int test_stdboundp_generic(void)
 }
 
 #define CheckStdGetSpecializer(a,b,c) { \
-	test(test_stdget_call((a), CONSTANT_CLOSKEY_##b, \
+	test(test_stdget_call((a), CONSTANT_CLOSNAME_##b, \
 				stdset_specializer_##c, stdget_specializer_##c), "specializer_" #c); \
 }
 

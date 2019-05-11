@@ -64,7 +64,7 @@
 (deftest referenced-class.4
   (slot-value
     (referenced-class 'no-such-class)
-    :name)
+    'lisp-clos::name)
   no-such-class)
 
 
@@ -88,7 +88,7 @@
 (deftest slot-boundp.3
   (slot-boundp
     (find-class 'standard-class)
-    :name)
+    'lisp-clos::name)
   t)
 
 
@@ -106,7 +106,7 @@
 (deftest slot-exists-p.2
   (let ((inst (make-instance 'standard-class)))
     (values
-      (slot-exists-p inst :name)
+      (slot-exists-p inst 'lisp-clos::name)
       (slot-exists-p inst 'hello)))
   t nil)
 
@@ -662,7 +662,7 @@
       (slot-value inst2 'bbb)
       (slot-value inst2 'ccc)
       (slot-value inst2 'eee)))
-  40 20 30 40 70 60 80)
+  40 20 30 40 50 60 80)
 
 (deftest defclass-initargs.4
   (let ((inst (make-instance 'initargs1 :aaa 10 :bbb 20 :aaa 30)))
@@ -829,7 +829,7 @@
 
 ;;  documentation
 (defclass document1 () ()
-  (:documenation "Hello"))
+  (:documentation "Hello"))
 
 (deftest defclass-documentation.1
   (closp
@@ -845,12 +845,368 @@
 
 
 ;;  readers
-;;  writers
+(defclass readers1 ()
+  ((aaa :reader readers1-aaa)))
 
-;;  redefine
-;;    slot-value
-;;    slot-boundp
-;;    slot-exists-p
-;;    slot-makunbound
-;;  change-class
+(deftest readers.1
+  (let ((inst (make-instance 'readers1)))
+    (setf (slot-value inst 'aaa) 100)
+    (readers1-aaa inst))
+  100)
+
+(defclass readers2 ()
+  ((bbb :reader readers1-aaa)))
+
+(deftest readers.2
+  (let ((a (make-instance 'readers1))
+        (b (make-instance 'readers2)))
+    (setf (slot-value a 'aaa) 200)
+    (setf (slot-value b 'bbb) 300)
+    (values
+      (readers1-aaa a)
+      (readers1-aaa b)))
+  200 300)
+
+(defclass readers3 (readers1)
+  ((ccc :reader readers3-ccc)
+   (ddd :reader readers3-ddd
+        :reader readers3-eee)))
+
+(deftest readers.3
+  (let ((inst (make-instance 'readers3)))
+    (setf (slot-value inst 'aaa) 111)
+    (setf (slot-value inst 'ccc) 222)
+    (setf (slot-value inst 'ddd) 333)
+    (values
+      (readers1-aaa inst)
+      (readers3-ccc inst)
+      (readers3-ddd inst)
+      (readers3-eee inst)))
+  111 222 333 333)
+
+(defclass readers4 ()
+  ((aaa :allocation :class :reader readers4-aaa)))
+
+(defclass readers5 (readers4)
+  ((bbb :allocation :class :reader readers5-bbb)
+   (ccc :allocation :class :reader readers5-ccc)))
+
+(deftest readers.4
+  (let ((inst (make-instance 'readers5))
+        (other (make-instance 'readers5)))
+    (setf (slot-value inst 'aaa) 11)
+    (setf (slot-value inst 'bbb) 22)
+    (setf (slot-value inst 'ccc) 33)
+    (values
+      (readers4-aaa inst)
+      (readers5-bbb inst)
+      (readers5-ccc inst)
+      (readers4-aaa other)
+      (readers5-bbb other)
+      (readers5-ccc other)))
+  11 22 33 11 22 33)
+
+;;  writers
+(defclass writers1 ()
+  ((aaa :writer writers1-aaa)))
+
+(deftest writers.1
+  (let ((inst (make-instance 'writers1)))
+    (values
+      (writers1-aaa 100 inst)
+      (slot-value inst 'aaa)))
+  100 100)
+
+(defclass writers2 ()
+  ((bbb :writer writers1-aaa)))
+
+(deftest writers.2
+  (let ((a (make-instance 'writers1))
+        (b (make-instance 'writers2)))
+    (values
+      (writers1-aaa 200 a)
+      (writers1-aaa 300 b)
+      (slot-value a 'aaa)
+      (slot-value b 'bbb)))
+  200 300 200 300)
+
+(defclass writers3 (writers1)
+  ((ccc :writer writers3-ccc)
+   (ddd :writer writers3-ddd
+        :writer writers3-eee)))
+
+(deftest writers.3
+  (let ((inst (make-instance 'writers3)))
+    (values
+      (writers1-aaa 111 inst)
+      (writers3-ccc 222 inst)
+      (writers3-ddd 333 inst)
+      (writers3-eee 444 inst)
+      (slot-value inst 'aaa)
+      (slot-value inst 'ccc)
+      (slot-value inst 'ddd)))
+  111 222 333 444 111 222 444)
+
+;;  accessors
+(defclass accessors1 ()
+  ((aaa :accessor accessors1-aaa)))
+
+(deftest accessors.1
+  (let ((inst (make-instance 'accessors1)))
+    (values
+      (setf (accessors1-aaa inst) 100)
+      (accessors1-aaa inst)))
+  100 100)
+
+(defclass accessors2 ()
+  ((bbb :accessor accessors1-aaa)))
+
+(deftest accessors.2
+  (let ((a (make-instance 'accessors1))
+        (b (make-instance 'accessors2)))
+    (values
+      (setf (accessors1-aaa a) 200)
+      (setf (accessors1-aaa b) 300)
+      (accessors1-aaa a)
+      (accessors1-aaa b)))
+  200 300 200 300)
+
+(defclass accessors3 (accessors1)
+  ((ccc :accessor accessors3-ccc)
+   (ddd :accessor accessors3-ddd
+        :accessor accessors3-eee)))
+
+(deftest accessors.3
+  (let ((inst (make-instance 'accessors3)))
+    (values
+      (setf (accessors1-aaa inst) 111)
+      (setf (accessors3-ccc inst) 222)
+      (setf (accessors3-ddd inst) 333)
+      (setf (accessors3-eee inst) 444)
+      (accessors1-aaa inst)
+      (accessors3-ccc inst)
+      (accessors3-ddd inst)
+      (accessors3-eee inst)))
+  111 222 333 444 111 222 444 444)
+
+
+;;
+;;  allocate-instance
+;;
+(defclass allocate1 ()
+  ((aaa :initarg :aaa)
+   (bbb :initarg :bbb :initform 10)
+   (ccc :initarg :ccc))
+  (:default-initargs :ccc 20))
+
+(deftest allocate-instance.1
+  (let* ((class (find-class 'allocate1))
+         (inst (allocate-instance class)))
+    (values
+      (slot-boundp inst 'aaa)
+      (slot-boundp inst 'bbb)
+      (slot-boundp inst 'ccc)))
+  nil nil nil)
+
+(defclass allocate2 ()
+  ((aaa :allocation :class :initarg :aaa)
+   (bbb :allocation :class :initarg :bbb :initform 10)
+   (ccc :allocation :class :initarg :ccc))
+  (:default-initargs :ccc 20))
+
+(deftest allocate-instance.2
+  (let* ((class (find-class 'allocate2))
+         (inst (allocate-instance class)))
+    (values
+      (slot-boundp inst 'aaa)
+      (slot-boundp inst 'bbb)
+      (slot-boundp inst 'ccc)))
+  nil t nil)
+
+
+;;
+;;  initialize-instance
+;;
+(defclass initialize1 ()
+  ((aaa :initarg :aaa)
+   (bbb :initarg :bbb :initform 10)
+   (ccc :initarg :ccc))
+  (:default-initargs :ccc 20))
+
+(deftest initialize-instance.1
+  (let* ((class (find-class 'initialize1))
+         (inst (allocate-instance class)))
+    (typep
+      (initialize-instance inst)
+      'initialize1))
+  t)
+
+(deftest initialize-instance.2
+  (let* ((class (find-class 'initialize1))
+         (inst (allocate-instance class)))
+    (initialize-instance inst)
+    (values
+      (slot-boundp inst 'aaa)
+      (slot-value inst 'bbb)
+      (slot-boundp inst 'ccc)))
+  nil 10 nil)
+
+(deftest initialize-instance.3
+  (let* ((class (find-class 'initialize1))
+         (inst (allocate-instance class)))
+    (initialize-instance inst :aaa 10 :bbb 20 :ccc 30 :ddd 40 :aaa 50)
+    (values
+      (slot-value inst 'aaa)
+      (slot-value inst 'bbb)
+      (slot-value inst 'ccc)))
+  10 20 30)
+
+(defclass initialize2 (initialize1) ())
+
+(defmethod initialize-instance :after ((inst initialize2) &rest args)
+  (declare (ignore args))
+  (unless (slot-boundp inst 'ccc)
+    (setf (slot-value inst 'ccc) :hello)))
+
+(deftest initialize-instance.4
+  (let* ((class (find-class 'initialize2))
+         (inst (allocate-instance class)))
+    (initialize-instance inst :aaa 10 :bbb 20 :ccc 30 :ddd 40 :aaa 50)
+    (values
+      (slot-value inst 'aaa)
+      (slot-value inst 'bbb)
+      (slot-value inst 'ccc)))
+  10 20 30)
+
+(deftest initialize-instance.5
+  (let* ((class (find-class 'initialize2))
+         (inst (allocate-instance class)))
+    (initialize-instance inst)
+    (values
+      (slot-boundp inst 'aaa)
+      (slot-value inst 'bbb)
+      (slot-value inst 'ccc)))
+  nil 10 :hello)
+
+
+;;
+;;  reinitialize-instance
+;;
+(defclass reinitialize1 ()
+  ((aaa :initarg :aaa)
+   (bbb :initarg :bbb :initform 10)
+   (ccc :initarg :ccc))
+  (:default-initargs :ccc 20))
+
+(deftest reinitialize-instance.1
+  (let* ((class (find-class 'reinitialize1))
+         (inst (allocate-instance class)))
+    (typep
+      (reinitialize-instance inst)
+      'reinitialize1))
+  t)
+
+(deftest reinitialize-instance.2
+  (let* ((class (find-class 'reinitialize1))
+         (inst (allocate-instance class)))
+    (reinitialize-instance inst)
+    (values
+      (slot-boundp inst 'aaa)
+      (slot-boundp inst 'bbb)
+      (slot-boundp inst 'ccc)))
+  nil nil nil)
+
+(deftest reinitialize-instance.3
+  (let* ((class (find-class 'reinitialize1))
+         (inst (allocate-instance class)))
+    (reinitialize-instance inst :aaa 10 :bbb 20 :ccc 30 :ddd 40 :aaa 50)
+    (values
+      (slot-value inst 'aaa)
+      (slot-value inst 'bbb)
+      (slot-value inst 'ccc)))
+  10 20 30)
+
+(deftest reinitialize-instance.4
+  (let* ((class (find-class 'reinitialize1))
+         (inst (allocate-instance class)))
+    (reinitialize-instance inst :aaa 10)
+    (values
+      (slot-value inst 'aaa)
+      (slot-boundp inst 'bbb)
+      (slot-boundp inst 'ccc)))
+  10 nil nil)
+
+(defclass reinitialize2 (reinitialize1) ())
+
+(defmethod reinitialize-instance :after ((inst reinitialize2) &rest args)
+  (declare (ignore args))
+  (unless (slot-boundp inst 'ccc)
+    (setf (slot-value inst 'ccc) :hello)))
+
+(deftest reinitialize-instance.5
+  (let* ((class (find-class 'reinitialize2))
+         (inst (allocate-instance class)))
+    (reinitialize-instance inst :aaa 10 :bbb 20 :ccc 30 :ddd 40 :aaa 50)
+    (values
+      (slot-value inst 'aaa)
+      (slot-value inst 'bbb)
+      (slot-value inst 'ccc)))
+  10 20 30)
+
+(deftest reinitialize-instance.6
+  (let* ((class (find-class 'reinitialize2))
+         (inst (allocate-instance class)))
+    (reinitialize-instance inst)
+    (values
+      (slot-boundp inst 'aaa)
+      (slot-boundp inst 'bbb)
+      (slot-value inst 'ccc)))
+  nil nil :hello)
+
+
+;;
+;;  shared-initialize
+;;
+(defclass shared1 ()
+  ((aaa :initarg :aaa)
+   (bbb :initarg :bbb :initform 10)
+   (ccc :initarg :ccc)
+   (ddd :allocation :class :initarg :ddd :initarg :zzz)
+   (eee :allocation :class :initarg :eee :initform 20)
+   (fff :allocation :class :initarg :ddd :initform 30))
+  (:default-initargs :ccc 40 :fff 50))
+
+(deftest shared-initialize.1
+  (let* ((class (find-class 'shared1))
+         (inst (allocate-instance class)))
+    (shared-initialize inst '(bbb eee))
+    (values
+      (slot-boundp inst 'aaa)
+      (slot-value inst 'bbb)
+      (slot-boundp inst 'ccc)
+      (slot-boundp inst 'ddd)
+      (slot-value inst 'eee)
+      (slot-value inst 'fff)))
+  nil 10 nil nil 20 30)
+
+(deftest shared-initialize.2
+  (let* ((class (find-class 'shared1))
+         (inst (allocate-instance class)))
+    (shared-initialize inst '(bbb) :bbb 111 :ccc 222)
+    (values
+      (slot-boundp inst 'aaa)
+      (slot-value inst 'bbb)
+      (slot-value inst 'ccc)))
+  nil 111 222)
+
+(deftest shared-initialize.3
+  (let* ((class (find-class 'shared1))
+         (inst (allocate-instance class)))
+    (shared-initialize inst t :bbb 111 :ccc 222 :zzz 333)
+    (values
+      (slot-boundp inst 'aaa)
+      (slot-value inst 'bbb)
+      (slot-value inst 'ccc)
+      (slot-value inst 'ddd)))
+  nil 111 222 333)
 

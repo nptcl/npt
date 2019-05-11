@@ -579,24 +579,9 @@ static void defmethod_make_instance_symbol(Execute ptr, addr name, addr gen)
 static void method_make_instance_stdclass(Execute ptr,
 		addr method, addr next, addr rest)
 {
-	addr call, instance;
-
-	/* allocation-instance */
-	GetConst(COMMON_ALLOCATE_INSTANCE, &call);
-	getfunctioncheck_local(ptr, call, &call);
-	if (callclang_apply(ptr, &instance, call, rest))
+	if (make_instance_stdclass(ptr, rest, &rest))
 		return;
-
-	/* initialize-instance */
-	GetCdr(rest, &rest);
-	cons_local(ptr->local, &rest, instance, rest);
-	GetConst(COMMON_INITIALIZE_INSTANCE, &call);
-	getfunctioncheck_local(ptr, call, &call);
-	if (callclang_apply(ptr, &call, call, rest))
-		return;
-
-	/* result */
-	setresult_control(ptr, instance);
+	setresult_control(ptr, rest);
 }
 
 static void method_type_make_instance_stdclass(addr *ret)

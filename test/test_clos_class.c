@@ -60,7 +60,7 @@ static int test_stdget_class_name(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(KEYWORD_NAME, &k);
+	GetConst(CLOSNAME_NAME, &k);
 	clos_set(pos, k, v);
 	stdget_class_name(pos, &check);
 	test(check == v, "stdget_class_name1");
@@ -79,7 +79,7 @@ static int test_stdget_class_direct_slots(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_DIRECT_SLOTS, &k);
+	GetConst(CLOSNAME_DIRECT_SLOTS, &k);
 	clos_set(pos, k, v);
 	stdget_class_direct_slots(pos, &check);
 	test(check == v, "stdget_class_direct_slots1");
@@ -98,7 +98,7 @@ static int test_stdget_class_direct_subclasses(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_DIRECT_SUBCLASSES, &k);
+	GetConst(CLOSNAME_DIRECT_SUBCLASSES, &k);
 	clos_set(pos, k, v);
 	stdget_class_direct_subclasses(pos, &check);
 	test(check == v, "stdget_class_direct_subclasses1");
@@ -117,7 +117,7 @@ static int test_stdget_class_direct_superclasses(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_DIRECT_SUPERCLASSES, &k);
+	GetConst(CLOSNAME_DIRECT_SUPERCLASSES, &k);
 	clos_set(pos, k, v);
 	stdget_class_direct_superclasses(pos, &check);
 	test(check == v, "stdget_class_direct_superclasses1");
@@ -136,7 +136,7 @@ static int test_stdget_class_precedence_list(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_CLASS_PRECEDENCE_LIST, &k);
+	GetConst(CLOSNAME_CLASS_PRECEDENCE_LIST, &k);
 	clos_set(pos, k, v);
 	stdget_class_precedence_list(pos, &check);
 	test(check == v, "stdget_class_precedence_list1");
@@ -155,7 +155,7 @@ static int test_stdget_class_slots(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_EFFECTIVE_SLOTS, &k);
+	GetConst(CLOSNAME_EFFECTIVE_SLOTS, &k);
 	clos_set(pos, k, v);
 	stdget_class_slots(pos, &check);
 	test(check == v, "stdget_class_slots1");
@@ -174,7 +174,7 @@ static int test_stdget_class_finalized_p(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_FINALIZED_P, &k);
+	GetConst(CLOSNAME_FINALIZED_P, &k);
 	clos_set(pos, k, v);
 	stdget_class_finalized_p(pos, &check);
 	test(check == v, "stdget_class_finalized_p1");
@@ -193,7 +193,7 @@ static int test_stdget_class_prototype(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_PROTOTYPE, &k);
+	GetConst(CLOSNAME_PROTOTYPE, &k);
 	clos_set(pos, k, v);
 	stdget_class_prototype(pos, &check);
 	test(check == v, "stdget_class_prototype1");
@@ -212,7 +212,7 @@ static int test_stdget_class_direct_methods(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_DIRECT_METHODS, &k);
+	GetConst(CLOSNAME_DIRECT_METHODS, &k);
 	clos_set(pos, k, v);
 	stdget_class_direct_methods(pos, &check);
 	test(check == v, "stdget_class_direct_methods1");
@@ -231,7 +231,7 @@ static int test_stdget_class_default_initargs(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_DEFAULT_INITARGS, &k);
+	GetConst(CLOSNAME_DEFAULT_INITARGS, &k);
 	clos_set(pos, k, v);
 	stdget_class_default_initargs(pos, &check);
 	test(check == v, "stdget_class_default_initargs1");
@@ -250,7 +250,7 @@ static int test_stdget_class_direct_default_initargs(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_DIRECT_DEFAULT_INITARGS, &k);
+	GetConst(CLOSNAME_DIRECT_DEFAULT_INITARGS, &k);
 	clos_set(pos, k, v);
 	stdget_class_direct_default_initargs(pos, &check);
 	test(check == v, "stdget_class_direct_default_initargs1");
@@ -269,7 +269,7 @@ static int test_stdget_class_version(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_VERSION, &k);
+	GetConst(CLOSNAME_VERSION, &k);
 	clos_set(pos, k, v);
 	stdget_class_version(pos, &check);
 	test(check == v, "stdget_class_version1");
@@ -281,25 +281,6 @@ static int test_stdget_class_version(void)
 	RETURN;
 }
 
-static int test_stdget_class_update_info(void)
-{
-	addr pos, check, k, v;
-
-	GetConst(CLOS_STANDARD_CLASS, &pos);
-	clos_instance_heap(pos, &pos);
-	v = readr("aaa");
-	GetConst(CLOSKEY_UPDATE_INFO, &k);
-	clos_set(pos, k, v);
-	stdget_class_update_info(pos, &check);
-	test(check == v, "stdget_class_update_info1");
-
-	stdset_class_update_info(pos, T);
-	clos_get(pos, k, &check);
-	test(check == T, "stdset_class_update_info2");
-
-	RETURN;
-}
-
 static int test_stdget_class_document(void)
 {
 	addr pos, check, k, v;
@@ -307,7 +288,7 @@ static int test_stdget_class_document(void)
 	GetConst(CLOS_STANDARD_CLASS, &pos);
 	clos_instance_heap(pos, &pos);
 	v = readr("aaa");
-	GetConst(CLOSKEY_DOCUMENT, &k);
+	GetConst(CLOSNAME_DOCUMENTATION, &k);
 	clos_set(pos, k, v);
 	stdget_class_document(pos, &check);
 	test(check == v, "stdget_class_document1");
@@ -1200,39 +1181,79 @@ static int test_clos_precedence_list(void)
  */
 static int test_clos_slots_name(void)
 {
-	addr slot1, slot2, slot3, pos, cons;
+	int check;
+	addr slot1, slot2, name, pos, cons;
+
+	internchar(LISP_PACKAGE, "HELLO", &name);
+
+	check = clos_slots_name(&cons, name, Nil);
+	test(check == 0, "clos_slots_name1");
 
 	slot_heap(&slot1);
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar(LISP_PACKAGE, "AAA", &pos);
 	SetNameSlot(slot1, pos);
 
-	clos_slots_name(&cons, slot1, Nil);
-	test(cons == Nil, "clos_slots_name1");
-
 	slot_heap(&slot2);
-	internchar(LISP_PACKAGE, "AAA", &pos);
+	internchar(LISP_PACKAGE, "BBB", &pos);
 	SetNameSlot(slot2, pos);
 
-	slot_heap(&slot3);
-	internchar(LISP_PACKAGE, "BBB", &pos);
-	SetNameSlot(slot3, pos);
+	list_heap(&cons, slot1, slot2, NULL);
+	check = clos_slots_name(&cons, name, cons);
+	test(check == 0, "clos_slots_name2");
 
-	list_heap(&cons, slot2, slot3, NULL);
-	clos_slots_name(&cons, slot1, cons);
-	test(cons == Nil, "clos_slots_name2");
-
-	slot_heap(&slot3);
+	slot_heap(&slot2);
 	internchar(LISP_PACKAGE, "HELLO", &pos);
-	SetNameSlot(slot3, pos);
+	SetNameSlot(slot2, pos);
 
-	list_heap(&cons, slot2, slot3, NULL);
-	clos_slots_name(&cons, slot1, cons);
-	test(cons != Nil, "clos_slots_name3");
+	list_heap(&cons, slot1, slot2, NULL);
+	check = clos_slots_name(&cons, name, cons);
+	test(check, "clos_slots_name3");
+	test(cons == slot2, "clos_slots_name4");
 
 	RETURN;
 }
 
-static void slotname_heap(addr *ret, const char *name)
+static int test_clos_slots_push(void)
+{
+	addr a, b, list, v;
+
+	slot_heap(&a);
+	slot_heap(&b);
+	SetArgsSlot(a, Nil);
+	SetArgsSlot(b, Nil);
+	clos_slots_push(a, b);
+	GetArgsSlot(a, &list);
+	test(list == Nil, "clos_slots_push1");
+
+	v = readr("(aaa bbb ccc)");
+	SetArgsSlot(a, v);
+	SetArgsSlot(b, Nil);
+	clos_slots_push(a, b);
+	GetArgsSlot(a, &list);
+	test(equal_function(list, v), "clos_slots_push2");
+
+	v = readr("(aaa bbb ccc)");
+	SetArgsSlot(a, Nil);
+	SetArgsSlot(b, v);
+	clos_slots_push(a, b);
+	GetArgsSlot(a, &list);
+	v = readr("(ccc bbb aaa)");
+	test(equal_function(list, v), "clos_slots_push3");
+
+	v = readr("(aaa bbb ccc)");
+	SetArgsSlot(a, v);
+	v = readr("(ddd bbb ccc eee)");
+	SetArgsSlot(b, v);
+	clos_slots_push(a, b);
+	GetArgsSlot(a, &list);
+	v = readr("(eee ddd aaa bbb ccc)");
+	test(equal_function(list, v), "clos_slots_push4");
+
+	RETURN;
+}
+
+#if 0
+static void test_makeclos_slotname_heap(addr *ret, const char *name)
 {
 	addr symbol;
 	slot_heap(ret);
@@ -1253,7 +1274,7 @@ static void test_makeclos_heap(addr *ret, ...)
 	for (i = 0; ; i++) {
 		name = va_arg(args, const char *);
 		if (name == NULL) break;
-		slotname_heap(&slot, name);
+		test_makeclos_slotname_heap(&slot, name);
 		cons_heap(&cons, slot, cons);
 	}
 	va_end(args);
@@ -1282,44 +1303,45 @@ static int slotnamecheck(addr slot, const char *name)
 	return check == slot;
 }
 
-static int test_clos_slots_gather(void)
+static int test_clos_slots_loop(void)
 {
 	addr clos1, clos2, cons, check, aaa;
 	LocalRoot local;
 	size_t size;
 
+
 	local = Local_Thread;
 	test_makeclos_heap(&clos1, "HELLO", "AAA", "BBB", NULL);
-	clos_slots_gather(local, clos1, &cons, &size);
-	test(cons != Nil, "clos_slots_gather1");
-	test(size == 3, "clos_slots_gather2");
+	clos_slots_loop(local, clos1, &cons, &size);
+	test(cons != Nil, "clos_slots_loop1");
+	test(size == 3, "clos_slots_loop2");
 	GetCons(cons, &check, &cons);
-	test(slotnamecheck(check, "HELLO"), "clos_slots_gather3");
+	test(slotnamecheck(check, "HELLO"), "clos_slots_loop3");
 	GetCons(cons, &check, &cons);
-	test(slotnamecheck(check, "AAA"), "clos_slots_gather4");
+	test(slotnamecheck(check, "AAA"), "clos_slots_loop4");
 	GetCons(cons, &check, &cons);
-	test(slotnamecheck(check, "BBB"), "clos_slots_gather5");
-	test(cons == Nil, "clos_slots_gather6");
+	test(slotnamecheck(check, "BBB"), "clos_slots_loop5");
+	test(cons == Nil, "clos_slots_loop6");
 
 	test_makeclos_heap(&clos2, "AAA", "CCC", NULL);
 	list_heap(&cons, clos2, clos1, NULL);
 	stdset_class_precedence_list(clos2, cons);
-	clos_slots_gather(local, clos2, &cons, &size);
-	test(size == 4, "clos_slots_gather7");
+	clos_slots_loop(local, clos2, &cons, &size);
+	test(size == 4, "clos_slots_loop7");
 	GetCons(cons, &check, &cons);
-	test(slotnamecheck(check, "HELLO"), "clos_slots_gather8");
+	test(slotnamecheck(check, "HELLO"), "clos_slots_loop8");
 	GetCons(cons, &check, &cons);
 	aaa = check;
-	test(slotnamecheck(check, "AAA"), "clos_slots_gather9");
+	test(slotnamecheck(check, "AAA"), "clos_slots_loop9");
 	GetCons(cons, &check, &cons);
-	test(slotnamecheck(check, "BBB"), "clos_slots_gather10");
+	test(slotnamecheck(check, "BBB"), "clos_slots_loop10");
 	GetCons(cons, &check, &cons);
-	test(slotnamecheck(check, "CCC"), "clos_slots_gather11");
-	test(cons == Nil, "clos_slots_gather12");
+	test(slotnamecheck(check, "CCC"), "clos_slots_loop11");
+	test(cons == Nil, "clos_slots_loop12");
 
 	stdget_class_direct_slots(clos2, &cons);
 	GetSlotVector(cons, 0, &cons);
-	test(cons == aaa, "clos_slots_gather13");
+	test(cons == aaa, "clos_slots_loop13");
 
 	RETURN;
 }
@@ -1365,6 +1387,7 @@ static int test_clos_compute_slots(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
@@ -1379,7 +1402,7 @@ static int test_slot_make_name_symbol(void)
 	GetSlotVector(pos, Clos_class_name, &pos);
 	GetTypeSlot(pos, &type);
 	GetNameSlot(pos, &pos);
-	GetConst(CLOSKEY_NAME, &check);
+	GetConst(CLOSNAME_NAME, &check);
 	test(pos == check, "slot_make_name_symbol1");
 	test(LispDecl(type) == LISPDECL_SYMBOL, "slot_make_name_symbol2");
 
@@ -1394,7 +1417,7 @@ static int test_slot_make_name(void)
 	SlotMakeName(pos, EFFECTIVE_SLOTS, class_slots);
 	GetSlotVector(pos, Clos_class_slots, &pos);
 	GetNameSlot(pos, &pos);
-	GetConst(CLOSKEY_EFFECTIVE_SLOTS, &check);
+	GetConst(CLOSNAME_EFFECTIVE_SLOTS, &check);
 	test(pos == check, "slot_make_name1");
 
 	RETURN;
@@ -1409,7 +1432,7 @@ static int test_slot_make_form(void)
 	GetSlotVector(pos, Clos_class_name, &pos);
 	GetFormSlot(pos, &value);
 	GetNameSlot(pos, &pos);
-	GetConst(CLOSKEY_NAME, &check);
+	GetConst(CLOSNAME_NAME, &check);
 	test(pos == check, "slot_make_form1");
 	test(value == Nil, "slot_make_form2");
 
@@ -1425,7 +1448,7 @@ static int test_slot_make_version(void)
 	GetSlotVector(pos, Clos_class_name, &pos);
 	GetFormSlot(pos, &value);
 	GetNameSlot(pos, &pos);
-	GetConst(CLOSKEY_NAME, &check);
+	GetConst(CLOSNAME_NAME, &check);
 	test(pos == check, "slot_make_version1");
 	test(RefFixnum(value) == 0, "slot_make_version2");
 
@@ -1465,7 +1488,7 @@ static int test_slotname(addr slots, int index, const char *name)
 
 	GetSlotVector(slots, index, &pos);
 	GetNameSlot(pos, &pos);
-	internchar_keyword(name, &check);
+	internchar(LISP_CLOS, name, &check);
 
 	return check == pos;
 }
@@ -1514,8 +1537,6 @@ static int test_clos_stdclass_slots(void)
 			"clos_stdclass_slots13");
 	test(test_slotname(slots, Clos_class_version, "VERSION"),
 			"clos_stdclass_slots14");
-	test(test_slotname(slots, Clos_class_update_info, "UPDATE-INFO"),
-			"clos_stdclass_slots15");
 
 	RETURN;
 }
@@ -2095,7 +2116,7 @@ static int test_generic_function_instance(void)
 
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
 	clos_instance_heap(pos, &pos);
-	GetConst(CLOSKEY_EQLCHECK, &name);
+	GetConst(CLOSNAME_EQLCHECK, &name);
 	test(clos_slot_exists_p(pos, name), "generic_function_instance1");
 
 	RETURN;
@@ -2204,7 +2225,7 @@ static int test_clos_stdcombination_slots(void)
 			"clos_stdcombination_slots3");
 	test(test_slotname(slots, Clos_combination_long_p, "LONG-P"),
 			"clos_stdcombination_slots4");
-	test(test_slotname(slots, Clos_combination_document, "DOCUMENT"),
+	test(test_slotname(slots, Clos_combination_document, "DOCUMENTATION"),
 			"clos_stdcombination_slots5");
 	test(test_slotname(slots, Clos_combination_identity, "IDENTITY"),
 			"clos_stdcombination_slots6");
@@ -2479,6 +2500,22 @@ static int checkstructure(const char *name, ...)
 #define CheckStruct2(a,b) \
 	if (checkstructure((a),(b),NULL)) goto error;
 
+static addr readr_clos(const char *str)
+{
+	addr control, ret, symbol, value;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	push_close_control(ptr, &control);
+	GetConst(SPECIAL_PACKAGE, &symbol);
+	GetConst(PACKAGE_CLOS, &value);
+	pushspecial_control(ptr, symbol, value);
+	ret = readr(str);
+	free_control(ptr, control);
+
+	return ret;
+}
+
 static int checkslots_va(const char *name, va_list args)
 {
 	addr x, y;
@@ -2491,7 +2528,7 @@ static int checkslots_va(const char *name, va_list args)
 		ptr = va_arg(args, const char *);
 		if (ptr == NULL)
 			break;
-		clos_get(x, readr(ptr), &y);
+		clos_get(x, readr_clos(ptr), &y);
 	}
 	GetSlotClos(x, &x);
 	LenSlotVector(x, &check);
@@ -2588,35 +2625,35 @@ static int test_class_check_condition(void)
 	CheckClass3("warning", "condition", "t");
 
 	/* slots */
-	CheckSlots2("arithmetic-error", ":operation", ":operands");
-	CheckSlots1("cell-error", ":name");
+	CheckSlots2("arithmetic-error", "operation", "operands");
+	CheckSlots1("cell-error", "name");
 	CheckSlots0("condition");
 	CheckSlots0("control-error");
-	CheckSlots2("division-by-zero", ":operation", ":operands");
-	CheckSlots1("end-of-file", ":stream");
+	CheckSlots2("division-by-zero", "operation", "operands");
+	CheckSlots1("end-of-file", "stream");
 	CheckSlots0("error");
-	CheckSlots1("file-error", ":pathname");
-	CheckSlots2("floating-point-inexact", ":operation", ":operands");
-	CheckSlots2("floating-point-invalid-operation", ":operation", ":operands");
-	CheckSlots2("floating-point-overflow", ":operation", ":operands");
-	CheckSlots2("floating-point-underflow", ":operation", ":operands");
-	CheckSlots1("package-error", ":package");
+	CheckSlots1("file-error", "pathname");
+	CheckSlots2("floating-point-inexact", "operation", "operands");
+	CheckSlots2("floating-point-invalid-operation", "operation", "operands");
+	CheckSlots2("floating-point-overflow", "operation", "operands");
+	CheckSlots2("floating-point-underflow", "operation", "operands");
+	CheckSlots1("package-error", "package");
 	CheckSlots0("parse-error");
-	CheckSlots1("print-not-readable", ":object");
+	CheckSlots1("print-not-readable", "object");
 	CheckSlots0("program-error");
-	CheckSlots1("reader-error", ":stream");
+	CheckSlots1("reader-error", "stream");
 	CheckSlots0("serious-condition");
-	CheckSlots2("simple-condition", ":format-control", ":format-arguments");
-	CheckSlots2("simple-error", ":format-control", ":format-arguments");
+	CheckSlots2("simple-condition", "format-control", "format-arguments");
+	CheckSlots2("simple-error", "format-control", "format-arguments");
 	CheckSlots4("simple-type-error",
-			":format-control", ":format-arguments", ":datum", ":expected-type");
-	CheckSlots2("simple-warning", ":format-control", ":format-arguments");
+			"format-control", "format-arguments", "datum", "expected-type");
+	CheckSlots2("simple-warning", "format-control", "format-arguments");
 	CheckSlots0("storage-condition");
-	CheckSlots1("stream-error", ":stream");
+	CheckSlots1("stream-error", "stream");
 	CheckSlots0("style-warning");
-	CheckSlots2("type-error", ":datum", ":expected-type");
-	CheckSlots1("unbound-variable", ":name");
-	CheckSlots1("undefined-function", ":name");
+	CheckSlots2("type-error", "datum", "expected-type");
+	CheckSlots1("unbound-variable", "name");
+	CheckSlots1("undefined-function", "name");
 	CheckSlots0("warning");
 
 	RETURN;
@@ -2704,7 +2741,6 @@ static int testbreak_clos_class(void)
 	TestBreak(test_stdget_class_default_initargs);
 	TestBreak(test_stdget_class_direct_default_initargs);
 	TestBreak(test_stdget_class_version);
-	TestBreak(test_stdget_class_update_info);
 	TestBreak(test_stdget_class_document);
 	/* check */
 	TestBreak(test_clos_subclass_p);
@@ -2737,8 +2773,11 @@ static int testbreak_clos_class(void)
 	TestBreak(test_clos_precedence_list);
 	/* compute-slots */
 	TestBreak(test_clos_slots_name);
-	TestBreak(test_clos_slots_gather);
+	TestBreak(test_clos_slots_push);
+#if 0
+	TestBreak(test_clos_slots_loop);
 	TestBreak(test_clos_compute_slots);
+#endif
 	/* standard-class */
 	TestBreak(test_slot_make_name_symbol);
 	TestBreak(test_slot_make_name);

@@ -1,19 +1,22 @@
 #ifdef LISP_DEGRADE
 #include <stdio.h>
 #include <stdarg.h>
+#include "constant.h"
 #include "degrade.h"
 #include "execute.h"
+#include "stream_broadcast.h"
+#include "symbol.h"
 #include "typedef.h"
 
 void degrade_execute(void);
 static FILE *file = NULL;
-static int DegradeCount = 1;
-static int DegradeError = 0;
+int DegradeCount = 0;
+int DegradeError = 0;
 int DegradeArgc = 0;
 char **DegradeArgv = NULL;
 char **DegradeEnv = NULL;
 
-#define DEGRADE_WIDTH 40
+#define DEGRADE_WIDTH 60
 static int DegradeSwitch = 1;
 static int DegradePosition;
 
@@ -32,6 +35,7 @@ int degrade_printf(const char *fmt, ...)
 
 int degrade_test(int check, const char *name)
 {
+	DegradeCount++;
 	if (check) {
 		if (DegradeSwitch) {
 			degrade_printf(".");
@@ -42,7 +46,7 @@ int degrade_test(int check, const char *name)
 			}
 		}
 		else {
-			degrade_printf("[OK] %7d: %s\n", DegradeCount++, name);
+			degrade_printf("[OK] %7d: %s\n", DegradeCount, name);
 		}
 		return 0;
 	}
@@ -53,7 +57,7 @@ int degrade_test(int check, const char *name)
 				DegradePosition = 0;
 			}
 		}
-		degrade_printf("[ERROR] %7d: %s\n", DegradeCount++, name);
+		degrade_printf("[ERROR] %7d: %s\n", DegradeCount, name);
 		DegradeError++;
 		return 1;
 	}
@@ -107,13 +111,26 @@ void degrade_increment(void)
 	DegradeError++;
 }
 
+void degrade_output_null(Execute ptr)
+{
+	addr stream, null;
+
+	open_broadcast_stream(&null, Nil);
+	GetConst(SPECIAL_STANDARD_OUTPUT, &stream);
+	setspecial_local(ptr, stream, null);
+	GetConst(SPECIAL_ERROR_OUTPUT, &stream);
+	setspecial_local(ptr, stream, null);
+	GetConst(SPECIAL_DEBUG_IO, &stream);
+	setspecial_local(ptr, stream, null);
+}
+
 int degradelisp(int argc, char *argv[], char *env[])
 {
 	DegradeArgc = argc;
 	DegradeArgv = argv;
 	DegradeEnv = env;
 	file = stdout;
-	DegradeCount = 1;
+	DegradeCount = 0;
 	DegradeError = 0;
 	DegradePosition = 0;
 

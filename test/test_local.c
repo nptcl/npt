@@ -18,7 +18,9 @@ static int test_lowlevel_unsafe(void)
 
 	local.front = pos;
 	local.tail = pos + 15;
+	lisp_info_enable = 0; /* infoerror */
 	ret = lowlevel_unsafe(&local, 10);
+	lisp_info_enable = 1;
 	test(ret == NULL, "lowlevel_unsafe3");
 
 	RETURN;

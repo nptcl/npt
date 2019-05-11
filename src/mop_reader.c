@@ -174,29 +174,29 @@ static void make_slot_definition(addr slot, addr *ret)
 	clos_instance_heap(clos, &clos);
 	/* slot-definition-name */
 	GetNameSlot(slot, &value);
-	GetConst(CLOSKEY_NAME, &key);
+	GetConst(CLOSNAME_NAME, &key);
 	clos_set(clos, key, value);
 	/* slot-definition-type */
 	GetTypeSlot(slot, &value);
 	if (GetType(value) == LISPTYPE_TYPE)
 		type_object(&value, value);
-	GetConst(CLOSKEY_TYPE, &key);
+	GetConst(CLOSNAME_TYPE, &key);
 	clos_set(clos, key, value);
 	/* slot-definition-allocation */
 	if (slot_instance_p(slot))
 		GetConst(KEYWORD_INSTANCE, &value);
 	else
 		GetConst(KEYWORD_CLASS, &value);
-	GetConst(CLOSKEY_ALLOCATION, &key);
+	GetConst(CLOSNAME_ALLOCATION, &key);
 	clos_set(clos, key, value);
 	/* slot-definition-initargs */
 	GetArgsSlot(slot, &value);
-	GetConst(CLOSKEY_INITARGS, &key);
+	GetConst(CLOSNAME_INITARGS, &key);
 	clos_set(clos, key, value);
 	/* slot-definition-initform */
 	GetFormSlot(slot, &value);
 	if (value != Unbound) {
-		GetConst(CLOSKEY_INITFORM, &key);
+		GetConst(CLOSNAME_INITFORM, &key);
 		clos_set(clos, key, value);
 		/* slot-definition-initfunction */
 		GetFunctionSlot(slot, &check);
@@ -204,7 +204,7 @@ static void make_slot_definition(addr slot, addr *ret)
 			make_slot_definition_function(value, &value);
 		else
 			value = check;
-		GetConst(CLOSKEY_INITFUNCTION, &key);
+		GetConst(CLOSNAME_INITFUNCTION, &key);
 		clos_set(clos, key, value);
 	}
 	/* result */
@@ -696,7 +696,7 @@ static void method_slot_definition_name(Execute ptr, addr method, addr next, add
 {
 	addr key;
 
-	GetConst(CLOSKEY_NAME, &key);
+	GetConst(CLOSNAME_NAME, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
 }
@@ -756,7 +756,7 @@ static void method_slot_definition_type(Execute ptr, addr method, addr next, add
 {
 	addr key;
 
-	GetConst(CLOSKEY_TYPE, &key);
+	GetConst(CLOSNAME_TYPE, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
 }
@@ -806,7 +806,7 @@ static void method_slot_definition_allocation(Execute ptr,
 {
 	addr key;
 
-	GetConst(CLOSKEY_ALLOCATION, &key);
+	GetConst(CLOSNAME_ALLOCATION, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
 }
@@ -867,7 +867,7 @@ static void method_slot_definition_initargs(Execute ptr,
 {
 	addr key;
 
-	GetConst(CLOSKEY_INITARGS, &key);
+	GetConst(CLOSNAME_INITARGS, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
 }
@@ -917,7 +917,7 @@ static void method_slot_definition_initform(Execute ptr,
 {
 	addr key;
 
-	GetConst(CLOSKEY_INITFORM, &key);
+	GetConst(CLOSNAME_INITFORM, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
 }
@@ -967,7 +967,7 @@ static void method_slot_definition_initfunction(Execute ptr,
 {
 	addr key;
 
-	GetConst(CLOSKEY_INITFUNCTION, &key);
+	GetConst(CLOSNAME_INITFUNCTION, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
 }

@@ -38,8 +38,8 @@ enum Clos_class_Index {
 	Clos_class_default_initargs,
 	Clos_class_direct_default_initargs,
 	Clos_class_version,
-	Clos_class_update_info,
 	Clos_class_document,
+	Clos_class_redefined_class,
 	Clos_class_size
 };
 

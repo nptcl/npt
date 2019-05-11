@@ -187,6 +187,7 @@ void type_error_adjustable(addr datum);
 /* unbound_slot */
 void instance_unbound_slot(addr *ret, addr instance, addr name);
 void unbound_slot(addr argument, addr name);
+void unbound_slot_instance(addr instance, addr *ret);
 /* unbound_variable */
 void instance_unbound_variable(addr *ret, addr name);
 void unbound_variable(addr name);

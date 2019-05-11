@@ -37,7 +37,7 @@ static int test_stdget_call(addr pos,
 }
 
 #define CheckStdGetMethod(a,b,c) { \
-	test(test_stdget_call((a), CONSTANT_CLOSKEY_##b, \
+	test(test_stdget_call((a), CONSTANT_CLOSNAME_##b, \
 				stdset_method_##c, stdget_method_##c), "method_" #c); \
 }
 
@@ -125,6 +125,7 @@ static int test_method_instance_lambda(void)
 
 	local = Local_Thread;
 	lambda = readr("(a (b integer))");
+	argument_method_heap(local, &lambda, lambda);
 	method_instance_lambda(local, &lambda, Nil, lambda);
 
 	stdget_method_lambda_list(lambda, &check);
@@ -340,6 +341,7 @@ static int test_method_eqlcheck(void)
 
 	local = Local_Thread;
 	method = readr("((a (eql hello)) b (c integer))");
+	argument_method_heap(local, &method, method);
 	method_instance_lambda(local, &method, Nil, method);
 	method_eqlcheck(method, &method);
 

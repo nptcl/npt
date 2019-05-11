@@ -50,7 +50,7 @@
     #'slot-definition-name
     (class-slots
       (find-class 'class-slots2)))
-  (aaa bbb ccc ddd))
+  (ccc ddd aaa bbb))
 
 (deftest class-slots.3
   (listp
@@ -478,7 +478,7 @@
   (slot-value
     (generic-function-method-combination
       #'generic-function-method-combination1)
-    :name)
+    'lisp-clos::name)
   standard)
 
 (defgeneric generic-function-method-combination2 (a)
@@ -487,7 +487,7 @@
   (slot-value
     (generic-function-method-combination
       #'generic-function-method-combination2)
-    :name)
+    'lisp-clos::name)
   progn)
 
 

@@ -1,11 +1,18 @@
 #include "clos.h"
 #include "clos_class.h"
+#include "clos_combination.h"
+#include "clos_generic.h"
+#include "clos_method.h"
 #include "clos_type.h"
 #include "condition.h"
 #include "cons.h"
 #include "control.h"
+#include "equal.h"
+#include "function.h"
 #include "hashtable.h"
 #include "integer.h"
+#include "lambda.h"
+#include "mop.h"
 #include "symbol.h"
 #include "type.h"
 #include "type_table.h"
@@ -53,9 +60,9 @@ static void stdset_class_constant(addr pos, addr value,
 	}
 }
 #define StdGetClass(p,r,a,b) \
-	stdget_class_constant((p), (r), Clos_class_##a, CONSTANT_CLOSKEY_##b)
+	stdget_class_constant((p), (r), Clos_class_##a, CONSTANT_CLOSNAME_##b)
 #define StdSetClass(p,r,a,b) \
-	stdset_class_constant((p), (r), Clos_class_##a, CONSTANT_CLOSKEY_##b)
+	stdset_class_constant((p), (r), Clos_class_##a, CONSTANT_CLOSNAME_##b)
 
 void stdget_class_name(addr pos, addr *ret)
 {
@@ -165,22 +172,22 @@ void stdset_class_version(addr pos, addr value)
 	StdSetClass(pos, value, version, VERSION);
 }
 
-void stdget_class_update_info(addr pos, addr *ret)
-{
-	StdGetClass(pos, ret, update_info, UPDATE_INFO);
-}
-void stdset_class_update_info(addr pos, addr value)
-{
-	StdSetClass(pos, value, update_info, UPDATE_INFO);
-}
-
 void stdget_class_document(addr pos, addr *ret)
 {
-	StdGetClass(pos, ret, document, DOCUMENT);
+	StdGetClass(pos, ret, document, DOCUMENTATION);
 }
 void stdset_class_document(addr pos, addr value)
 {
-	StdSetClass(pos, value, document, DOCUMENT);
+	StdSetClass(pos, value, document, DOCUMENTATION);
+}
+
+void stdget_class_redefined_class(addr pos, addr *ret)
+{
+	StdGetClass(pos, ret, redefined_class, REDEFINED_CLASS);
+}
+void stdset_class_redefined_class(addr pos, addr value)
+{
+	StdSetClass(pos, value, redefined_class, REDEFINED_CLASS);
 }
 
 
@@ -573,66 +580,73 @@ static void clos_precedence_list(LocalRoot local, addr clos, addr *ret)
 /*
  *  compute-slots
  */
-static void clos_slots_name(addr *ret, addr slot, addr list)
+static int clos_slots_name(addr *ret, addr name, addr list)
 {
-	addr pos, next;
+	addr pos, check, next;
 
-	GetNameSlot(slot, &slot);
 	for (; list != Nil; list = next) {
 		GetCons(list, &pos, &next);
-		GetNameSlot(pos, &pos);
-		if (slot == pos) {
-			*ret = list;
-			return;
+		GetNameSlot(pos, &check);
+		if (name == check) {
+			*ret = pos;
+			return 1;
 		}
 	}
-	*ret = Nil;
+
+	return 0;
 }
 
-static void clos_slots_loop(addr classes, addr *ret, size_t *size)
+static void clos_slots_push(addr pos, addr check)
 {
-	addr list, slots, pos, check;
-	size_t count, i, value;
+	addr list, a;
 
-	list = Nil;
+	GetArgsSlot(pos, &list);
+	GetArgsSlot(check, &check);
+	while (check != Nil) {
+		getcons(check, &a, &check);
+		pushnew_heap(list, a, &list);
+	}
+	SetArgsSlot(pos, list);
+}
+
+static void clos_slots_loop(LocalRoot local, addr list, addr *ret, size_t *rsize)
+{
+	addr root, slots, a, b;
+	size_t count, i, size;
+
+	root = Nil;
 	count = 0;
-	while (classes != Nil) {
-		GetCons(classes, &pos, &classes);
-		stdget_class_direct_slots(pos, &slots);
-		LenSlotVector(slots, &value);
-		for (i = 0; i < value; i++) {
-			GetSlotVector(slots, i, &pos);
-			clos_slots_name(&check, pos, list);
-			if (check != Nil) {
-				SetCar(check, pos);
+	while (list != Nil) {
+		GetCons(list, &slots, &list);
+		stdget_class_direct_slots(slots, &slots);
+		LenSlotVector(slots, &size);
+		for (i = 0; i < size; i++) {
+			GetSlotVector(slots, i, &a);
+			GetNameSlot(a, &b);
+			if (clos_slots_name(&b, b, root)) {
+				clos_slots_push(b, a);
 			}
 			else {
-				cons_heap(&list, pos, list);
+				slot_copy_heap(&a, a);
+				cons_local(local, &root, a, root);
 				count++;
 			}
 		}
 	}
-	nreverse_list_unsafe(ret, list);
-	*size = count;
+	nreverse_list_unsafe(ret, root);
+	*rsize = count;
 }
 
-static void clos_slots_gather(LocalRoot local, addr clos, addr *ret, size_t *size)
+static void clos_slots_gather(LocalRoot local, addr clos, addr *ret)
 {
-	stdget_class_precedence_list(clos, &clos);
-	reverse_list_local_unsafe(local, &clos, clos);
-	clos_slots_loop(clos, ret, size);
-}
-
-static void clos_slots_gather_heap(LocalRoot local, addr clos, addr *ret)
-{
-	addr slots, list, pos;
+	addr slots, pos;
 	size_t i;
 
-	clos_slots_gather(local, clos, &list, &i);
+	stdget_class_precedence_list(clos, &clos);
+	clos_slots_loop(local, clos, &clos, &i);
 	slot_vector_heap(&slots, i);
-	for (i = 0; list != Nil; i++) {
-		GetCons(list, &pos, &list);
-		slot_copy_heap(&pos, pos);
+	for (i = 0; clos != Nil; i++) {
+		GetCons(clos, &pos, &clos);
 		SetSlotVector(slots, i, pos);
 		SetLocationSlot(pos, i);
 	}
@@ -646,7 +660,7 @@ static void clos_compute_slots(LocalRoot local, addr clos, addr *ret)
 	CheckLocal(local);
 	CheckType(clos, LISPTYPE_CLOS);
 	push_local(local, &stack);
-	clos_slots_gather_heap(local, clos, ret);
+	clos_slots_gather(local, clos, ret);
 	rollback_local(local, stack);
 }
 
@@ -676,59 +690,92 @@ static void build_clos_class_init(void)
 /*
  *  standard-class
  */
-static void slot_make_name_symbol(addr pos, constindex n1, size_t n2)
+static void slot_make_name_symbol(addr pos, constindex n1, constindex n2, size_t n3)
 {
 	addr slot, value;
 
 	slot_heap(&slot);
+	/* name */
 	GetConstant(n1, &value);
 	SetNameSlot(slot, value);
+	/* type */
 	GetConst(CLOSDATA_SYMBOL_TYPE, &value);
 	CheckType(value, LISPTYPE_TYPE);
 	SetTypeSlot(slot, value);
-	SetSlotVector(pos, n2, slot);
+	/* initargs */
+	GetConstant(n2, &value);
+	conscar_heap(&value, value);
+	SetArgsSlot(slot, value);
+	/* result */
+	SetSlotVector(pos, n3, slot);
 }
+#define SlotMakeNameSymbol_number(x,y,z) \
+	slot_make_name_symbol((x), CONSTANT_CLOSNAME_##y, CONSTANT_CLOSKEY_##y, (z))
 #define SlotMakeNameSymbol(x,y,z) \
-	slot_make_name_symbol((x), CONSTANT_CLOSKEY_##y, Clos_##z)
+	slot_make_name_symbol((x), CONSTANT_CLOSNAME_##y, CONSTANT_CLOSKEY_##y, Clos_##z)
 
-static void slot_make_name(addr pos, constindex n1, size_t n2)
+static void slot_make_name(addr pos, constindex n1, constindex n2, size_t n3)
 {
 	addr slot, value;
 
 	slot_heap(&slot);
+	/* name */
 	GetConstant(n1, &value);
 	SetNameSlot(slot, value);
-	SetSlotVector(pos, n2, slot);
+	/* initargs */
+	GetConstant(n2, &value);
+	conscar_heap(&value, value);
+	SetArgsSlot(slot, value);
+	/* result */
+	SetSlotVector(pos, n3, slot);
 }
+#define SlotMakeName_number(x,y,z) \
+	slot_make_name((x), CONSTANT_CLOSNAME_##y, CONSTANT_CLOSKEY_##y, (z))
 #define SlotMakeName(x,y,z) \
-	slot_make_name((x), CONSTANT_CLOSKEY_##y, Clos_##z)
+	slot_make_name((x), CONSTANT_CLOSNAME_##y, CONSTANT_CLOSKEY_##y, Clos_##z)
 
-static void slot_make_form(addr pos, constindex n1, size_t n2)
+static void slot_make_form(addr pos, constindex n1, constindex n2, size_t n3)
 {
 	addr slot, value;
 
 	slot_heap(&slot);
+	/* name */
 	GetConstant(n1, &value);
 	SetNameSlot(slot, value);
+	/* initform */
 	SetFormSlot(slot, Nil);
-	SetSlotVector(pos, n2, slot);
+	/* initargs */
+	GetConstant(n2, &value);
+	conscar_heap(&value, value);
+	SetArgsSlot(slot, value);
+	/* result */
+	SetSlotVector(pos, n3, slot);
 }
+#define SlotMakeForm_number(x,y,z) \
+	slot_make_form((x), CONSTANT_CLOSNAME_##y, CONSTANT_CLOSKEY_##y, (z))
 #define SlotMakeForm(x,y,z) \
-	slot_make_form((x), CONSTANT_CLOSKEY_##y, Clos_##z)
+	slot_make_form((x), CONSTANT_CLOSNAME_##y, CONSTANT_CLOSKEY_##y, Clos_##z)
 
-static void slot_make_version(addr pos, constindex n1, size_t n2)
+static void slot_make_version(addr pos, constindex n1, constindex n2, size_t n3)
 {
 	addr slot, value;
 
 	slot_heap(&slot);
+	/* name */
 	GetConstant(n1, &value);
 	SetNameSlot(slot, value);
+	/* initform */
 	fixnum_heap(&value, 0);
 	SetFormSlot(slot, value);
-	SetSlotVector(pos, n2, slot);
+	/* initargs */
+	GetConstant(n2, &value);
+	conscar_heap(&value, value);
+	SetArgsSlot(slot, value);
+	/* result */
+	SetSlotVector(pos, n3, slot);
 }
 #define SlotMakeVersion(x,y,z) \
-	slot_make_version((x), CONSTANT_CLOSKEY_##y, Clos_##z)
+	slot_make_version((x), CONSTANT_CLOSNAME_##y, CONSTANT_CLOSKEY_##y, Clos_##z)
 
 void slotvector_set_location(addr slots)
 {
@@ -759,8 +806,8 @@ static void clos_stdclass_slots(addr *ret)
 	SlotMakeForm(slots, DEFAULT_INITARGS, class_default_initargs);
 	SlotMakeForm(slots, DIRECT_DEFAULT_INITARGS, class_direct_default_initargs);
 	SlotMakeVersion(slots, VERSION, class_version);
-	SlotMakeName(slots, UPDATE_INFO, class_update_info);
-	SlotMakeForm(slots, DOCUMENT, class_document);
+	SlotMakeForm(slots, DOCUMENTATION, class_document);
+	SlotMakeForm(slots, REDEFINED_CLASS, class_redefined_class);
 	slotvector_set_location(slots);
 	*ret = slots;
 }
@@ -859,14 +906,34 @@ static void slot_vector_prototype(addr clos, addr slots, addr *ret)
 	*ret = pos;
 }
 
+static void clos_stdclass_prototype_initialize(addr pos, addr slots)
+{
+	addr slot, value;
+	size_t size, i;
+
+	LenSlotVector(slots, &size);
+	GetValueClos(pos, &pos);
+	for (i = 0; i < size; i++) {
+		GetSlotVector(slots, i, &slot);
+		if (slot_class_p(slot)) {
+			GetFormSlot(slot, &value);
+			SetClosValue(pos, i, value);
+		}
+	}
+}
+
 static void clos_stdclass_prototype(addr clos)
 {
-	addr pos, slots;
+	addr pos, slots, new;
 
+	/* make prototype */
 	stdget_class_slots(clos, &slots);
-	slot_vector_prototype(clos, slots, &slots);
-	clos_heap(&pos, slots);
+	slot_vector_prototype(clos, slots, &new);
+	clos_heap(&pos, new);
 	SetClassOfClos(pos, clos);
+	/* initialize shared slots */
+	clos_stdclass_prototype_initialize(pos, slots);
+	/* result */
 	stdset_class_prototype(clos, pos);
 }
 
@@ -1008,8 +1075,6 @@ static void clos_stdclass_va(LocalRoot local, addr m, constindex n, constindex c
 	SetConstant(c, clos);
 }
 
-#define ClosMakeClass0(p,m,a,b) \
-	clos_stdclass_va((p),(m),CONSTANT_##a,CONSTANT_##b,CONSTANT_EMPTY)
 #define ClosMakeClass1(p,m,a,b,c) \
 	clos_stdclass_va((p),(m),CONSTANT_##a,CONSTANT_##b,CONSTANT_##c,CONSTANT_EMPTY)
 #define ClosMakeClass2(p,m,a,b,c,d) { \
@@ -1128,7 +1193,7 @@ static void clos_stdmethod_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_method_size);
 	SlotMakeName(slots, FUNCTION, method_function);
-	SlotMakeName(slots, GENERIC_FUNCTION, method_generic_function);
+	SlotMakeForm(slots, GENERIC_FUNCTION, method_generic_function);
 	SlotMakeName(slots, LAMBDA_LIST, method_lambda_list);
 	SlotMakeName(slots, QUALIFIERS, method_qualifiers);
 	SlotMakeName(slots, SPECIALIZERS, method_specializers);
@@ -1164,7 +1229,7 @@ static void clos_stdlongcomb_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_longcomb_size);
 	SlotMakeNameSymbol(slots, NAME, longcomb_name);
-	SlotMakeName(slots, DOCUMENT, longcomb_document);
+	SlotMakeName(slots, DOCUMENTATION, longcomb_document);
 	SlotMakeName(slots, LAMBDA_LIST, longcomb_lambda_list);
 	SlotMakeName(slots, BINDING, longcomb_binding);
 	SlotMakeName(slots, QUALIFIERS, longcomb_qualifiers);
@@ -1182,7 +1247,7 @@ static void clos_stdshortcomb_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_shortcomb_size);
 	SlotMakeNameSymbol(slots, NAME, shortcomb_name);
-	SlotMakeName(slots, DOCUMENT, shortcomb_document);
+	SlotMakeName(slots, DOCUMENTATION, shortcomb_document);
 	SlotMakeName(slots, IDENTITY, shortcomb_identity);
 	SlotMakeName(slots, OPERATOR, shortcomb_operator);
 	SlotMakeName(slots, ORDER, shortcomb_order);
@@ -1196,7 +1261,7 @@ static void clos_stdlongdef_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_longdef_size);
 	SlotMakeNameSymbol(slots, NAME, longdef_name);
-	SlotMakeName(slots, DOCUMENT, longdef_document);
+	SlotMakeName(slots, DOCUMENTATION, longdef_document);
 	SlotMakeName(slots, LAMBDA_LIST, longdef_lambda_list);
 	SlotMakeName(slots, QUALIFIERS, longdef_qualifiers);
 	SlotMakeName(slots, ARGUMENTS, longdef_arguments);
@@ -1212,7 +1277,7 @@ static void clos_stdshortdef_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_shortdef_size);
 	SlotMakeNameSymbol(slots, NAME, shortdef_name);
-	SlotMakeName(slots, DOCUMENT, shortdef_document);
+	SlotMakeName(slots, DOCUMENTATION, shortdef_document);
 	SlotMakeName(slots, IDENTITY, shortdef_identity);
 	SlotMakeName(slots, OPERATOR, shortdef_operator);
 	slotvector_set_location(slots);
@@ -1292,30 +1357,35 @@ static void build_clos_class_specializer(LocalRoot local)
 /*
  *  condition
  */
-static void clos_stdcondition_slot1(addr *ret, constindex index1)
+static void clos_stdcondition_slot1(addr *ret, constindex n1, constindex n2)
 {
 	addr slots;
 
 	slot_vector_heap(&slots, 1);
-	slot_make_name(slots, index1, 0);
+	slot_make_name(slots, n1, n2, 0);
 	slotvector_set_location(slots);
 	*ret = slots;
 }
 #define SlotMakeCondition1(p,a) \
-	clos_stdcondition_slot1((p), CONSTANT_KEYWORD_##a)
+	clos_stdcondition_slot1((p), CONSTANT_CLOSNAME_##a, CONSTANT_KEYWORD_##a)
 
-static void clos_stdcondition_slot2(addr *ret, constindex index1, constindex index2)
+static void clos_stdcondition_slot2(addr *ret,
+		constindex a1, constindex a2,
+		constindex b1, constindex b2)
 {
 	addr slots;
 
 	slot_vector_heap(&slots, 2);
-	slot_make_name(slots, index1, 0);
-	slot_make_name(slots, index2, 1);
+	slot_make_name(slots, a1, a2, 0);
+	slot_make_name(slots, b1, b2, 1);
 	slotvector_set_location(slots);
 	*ret = slots;
 }
-#define SlotMakeCondition2(p,a,b) \
-	clos_stdcondition_slot2((p), CONSTANT_KEYWORD_##a, CONSTANT_KEYWORD_##b)
+#define SlotMakeCondition2(p,a,b) { \
+	clos_stdcondition_slot2((p), \
+			CONSTANT_CLOSNAME_##a, CONSTANT_KEYWORD_##a, \
+			CONSTANT_CLOSNAME_##b, CONSTANT_KEYWORD_##b); \
+}
 
 static void build_clos_class_condition(LocalRoot local)
 {
@@ -1619,12 +1689,12 @@ static void clos_mop_slot_definition_slots(addr *ret)
 	addr slots;
 
 	slot_vector_heap(&slots, 6);
-	slot_make_name_symbol(slots, CONSTANT_CLOSKEY_NAME, 0);
-	slot_make_name(slots, CONSTANT_CLOSKEY_TYPE, 1);
-	slot_make_name(slots, CONSTANT_CLOSKEY_ALLOCATION, 2);
-	slot_make_name(slots, CONSTANT_CLOSKEY_INITARGS, 3);
-	slot_make_name(slots, CONSTANT_CLOSKEY_INITFORM, 4);
-	slot_make_form(slots, CONSTANT_CLOSKEY_INITFUNCTION, 5);
+	SlotMakeNameSymbol_number(slots, NAME, 0);
+	SlotMakeName_number(slots, TYPE, 1);
+	SlotMakeName_number(slots, ALLOCATION, 2);
+	SlotMakeName_number(slots, INITARGS, 3);
+	SlotMakeName_number(slots, INITFORM, 4);
+	SlotMakeForm_number(slots, INITFUNCTION, 5);
 	slotvector_set_location(slots);
 	*ret = slots;
 }
@@ -1837,68 +1907,308 @@ static void clos_ensure_class_default_initargs(LocalRoot local, addr pos, addr *
 	nreverse_list_unsafe(ret, root);
 }
 
-static void clos_ensure_reader_generic(addr symbol, addr *ret)
+/* reader/writer check */
+static void clos_ensure_reader_check(Execute ptr, addr gen)
 {
-	fmte("TODO1", NULL);
+	addr pos;
+	size_t index;
+
+	/* generic-function */
+	if (gen == Unbound)
+		return;
+	if (functionp(gen))
+		fmte("The function ~S must be a generic-function.", gen, NULL);
+
+	/* qualifiers */
+	stdget_generic_method_combination(gen, &pos);
+	if (qualifiers_position_nil(ptr, Nil, pos, &index))
+		fmte("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
+
+	/* specializer */
+	stdget_generic_lambda_list(gen, &pos);
+	if (! argumentp(pos))
+		argument_generic_heap(ptr->local, &pos, pos);
+	if (ArgumentStruct(pos)->var != 1)
+		fmte("The generic-function ~S must be a 1 specializer.", gen, NULL);
 }
 
-static void clos_ensure_writer_generic(addr symbol, addr *ret)
+static void clos_ensure_writer_method_check(Execute ptr, addr gen)
 {
-	fmte("TODO2", NULL);
+	addr pos;
+	size_t index;
+
+	/* generic-function */
+	if (gen == Unbound)
+		return;
+	if (functionp(gen))
+		fmte("The function ~S must be a generic-function.", gen, NULL);
+
+	/* qualifiers */
+	stdget_generic_method_combination(gen, &pos);
+	if (qualifiers_position_nil(ptr, Nil, pos, &index))
+		fmte("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
+
+	/* specializer */
+	stdget_generic_lambda_list(gen, &pos);
+	if (! argumentp(pos))
+		argument_generic_heap(ptr->local, &pos, pos);
+	if (ArgumentStruct(pos)->var != 2)
+		fmte("The generic-function ~S must be a 2 specializers.", gen, NULL);
 }
 
-static void clos_ensure_reader_method(addr gen, addr slot)
+static void clos_ensure_readers_check(Execute ptr, addr list)
 {
-	fmte("TODO3", NULL);
-}
+	addr name, gen;
 
-static void clos_ensure_writer_method(addr gen, addr slot)
-{
-	fmte("TODO4", NULL);
-}
-
-static void clos_ensure_readers(addr slot)
-{
-	addr list, symbol, gen;
-
-	GetReadersSlot(slot, &list);
 	while (list != Nil) {
-		getcons(list, &symbol, &list);
-		GetFunctionSymbol(symbol, &gen);
-		if (gen == Unbound)
-			clos_ensure_reader_generic(symbol, &gen);
-		clos_ensure_reader_method(gen, slot);
+		getcons(list, &name, &list);
+		parse_callname_error(&name, name);
+		getcallname_global(name, &gen);
+		clos_ensure_reader_check(ptr, gen);
 	}
 }
 
-static void clos_ensure_writers(addr slot)
+static void clos_ensure_writers_check(Execute ptr, addr list)
 {
-	addr list, symbol, gen;
+	addr name, gen;
 
-	GetReadersSlot(slot, &list);
 	while (list != Nil) {
-		getcons(list, &symbol, &list);
-		GetFunctionSymbol(symbol, &gen);
-		if (gen == Unbound)
-			clos_ensure_writer_generic(symbol, &gen);
-		clos_ensure_writer_method(gen, slot);
+		getcons(list, &name, &list);
+		parse_callname_error(&name, name);
+		getcallname_global(name, &gen);
+		clos_ensure_writer_method_check(ptr, gen);
 	}
 }
 
-static int clos_ensure_class_function(addr pos)
+static void clos_ensure_class_function_check(Execute ptr, addr pos)
 {
-	addr slots, slot;
+	addr slots, slot, list;
 	size_t size, i;
 
-	stdget_class_direct_slots(pos, &slots);
+	stdget_class_slots(pos, &slots);
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		clos_ensure_readers(slot);
-		clos_ensure_writers(slot);
+		/* reader */
+		GetReadersSlot(slot, &list);
+		clos_ensure_readers_check(ptr, list);
+		/* writer */
+		GetWritersSlot(slot, &list);
+		clos_ensure_writers_check(ptr, list);
 	}
+}
 
-	return 0;
+/* reader/writer generic */
+static void clos_ensure_reader_generic(Execute ptr, addr name)
+{
+	addr lambda;
+	mop_argument_generic_var1(&lambda);
+	generic_empty(name, lambda, &name);
+}
+
+static void clos_ensure_writer_generic(Execute ptr, addr name)
+{
+	addr lambda;
+	mop_argument_generic_var2(&lambda);
+	generic_empty(name, lambda, &name);
+}
+
+static void clos_ensure_readers_generic(Execute ptr, addr list)
+{
+	addr name, gen;
+
+	while (list != Nil) {
+		getcons(list, &name, &list);
+		parse_callname_error(&name, name);
+		getcallname_global(name, &gen);
+		if (gen != Unbound)
+			continue;
+		clos_ensure_reader_generic(ptr, name);
+	}
+}
+
+static void clos_ensure_writers_generic(Execute ptr, addr list)
+{
+	addr name, gen;
+
+	while (list != Nil) {
+		getcons(list, &name, &list);
+		parse_callname_error(&name, name);
+		getcallname_global(name, &gen);
+		if (gen != Unbound)
+			continue;
+		clos_ensure_writer_generic(ptr, name);
+	}
+}
+
+static void clos_ensure_class_function_generic(Execute ptr, addr pos)
+{
+	addr slots, slot, list;
+	size_t size, i;
+
+	stdget_class_slots(pos, &slots);
+	LenSlotVector(slots, &size);
+	for (i = 0; i < size; i++) {
+		GetSlotVector(slots, i, &slot);
+		/* reader */
+		GetReadersSlot(slot, &list);
+		clos_ensure_readers_generic(ptr, list);
+		/* writer */
+		GetWritersSlot(slot, &list);
+		clos_ensure_writers_generic(ptr, list);
+	}
+}
+
+/* make method */
+static void method_argument_clos_ensure_reader(addr clos, addr *ret)
+{
+	addr pos, list;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 1;
+	list_heap(&list, Nil, clos, NULL);
+	list_heap(&list, list, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+static void function_clos_ensure_reader(Execute ptr, addr method, addr next, addr inst)
+{
+	addr call, symbol;
+
+	/* (slot-value inst symbol) */
+	GetConst(COMMON_SLOT_VALUE, &call);
+	getfunctioncheck_local(ptr, call, &call);
+	getdata_control(ptr, &symbol);
+	funcall_control(ptr, call, inst, symbol, NULL);
+}
+
+static void clos_ensure_reader_method(Execute ptr,
+		addr clos, addr name, addr gen, addr symbol)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	SetDataFunction(call, symbol);
+	setcompiled_var3(call, function_clos_ensure_reader);
+	GetTypeCompiled(&type, Reader_Method);
+	settype_function(call, type);
+	/* method */
+	method_argument_clos_ensure_reader(clos, &pos);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	method_add_method(ptr, gen, pos);
+}
+
+static void method_argument_clos_ensure_writer(addr clos, addr *ret)
+{
+	addr pos, list, type1, type2;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 2;
+	ArgumentMethod_var(&type1, T);
+	list_heap(&type2, Nil, clos, NULL);
+	list_heap(&list, type1, type2, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+static void function_clos_ensure_writer_instance(Execute ptr,
+		addr method, addr next, addr value, addr inst)
+{
+	addr call, symbol;
+
+	/* ((setf slot-value) value inst symbol) */
+	GetConst(COMMON_SLOT_VALUE, &call);
+	getsetfcheck_local(ptr, call, &call);
+	getdata_control(ptr, &symbol);
+	funcall_control(ptr, call, value, inst, symbol, NULL);
+}
+
+static void clos_ensure_writer_method(Execute ptr,
+		addr clos, addr name, addr gen, addr symbol)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	SetDataFunction(call, symbol);
+	setcompiled_var4(call, function_clos_ensure_writer_instance);
+	GetTypeCompiled(&type, Writer_Method);
+	settype_function(call, type);
+	/* method */
+	method_argument_clos_ensure_writer(clos, &pos);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	method_add_method(ptr, gen, pos);
+}
+
+static void clos_ensure_readers_method(Execute ptr, addr pos, addr symbol, addr list)
+{
+	addr name, gen;
+
+	while (list != Nil) {
+		getcons(list, &name, &list);
+		parse_callname_error(&name, name);
+		getcallname_global(name, &gen);
+		Check(gen == Unbound, "generic-function error");
+		clos_ensure_reader_method(ptr, pos, name, gen, symbol);
+	}
+}
+
+static void clos_ensure_writers_method(Execute ptr, addr pos, addr symbol, addr list)
+{
+	addr name, gen;
+
+	while (list != Nil) {
+		getcons(list, &name, &list);
+		parse_callname_error(&name, name);
+		getcallname_global(name, &gen);
+		Check(gen == Unbound, "generic-function error");
+		clos_ensure_writer_method(ptr, pos, name, gen, symbol);
+	}
+}
+
+static void clos_ensure_class_method(Execute ptr, addr pos)
+{
+	addr slots, slot, symbol, list;
+	size_t size, i;
+
+	stdget_class_slots(pos, &slots);
+	LenSlotVector(slots, &size);
+	for (i = 0; i < size; i++) {
+		GetSlotVector(slots, i, &slot);
+		GetNameSlot(slot, &symbol);
+		/* reader */
+		GetReadersSlot(slot, &list);
+		clos_ensure_readers_method(ptr, pos, symbol, list);
+		/* writer */
+		GetWritersSlot(slot, &list);
+		clos_ensure_writers_method(ptr, pos, symbol, list);
+	}
+}
+
+static void clos_ensure_class_function(Execute ptr, addr pos)
+{
+	/* check */
+	clos_ensure_class_function_check(ptr, pos);
+	/* make generic-function */
+	clos_ensure_class_function_generic(ptr, pos);
+	/* make method */
+	clos_ensure_class_method(ptr, pos);
 }
 
 static void clos_ensure_class_subclasses(addr pos)
@@ -1914,7 +2224,7 @@ static void clos_ensure_class_subclasses(addr pos)
 	}
 }
 
-static int clos_ensure_class_init(Execute ptr, addr pos)
+static void clos_ensure_class_init(Execute ptr, addr pos)
 {
 	addr value;
 	LocalRoot local;
@@ -1929,15 +2239,11 @@ static int clos_ensure_class_init(Execute ptr, addr pos)
 	/* default-initargs */
 	clos_ensure_class_default_initargs(local, pos, &value);
 	stdset_class_default_initargs(pos, value);
-	/* function */
-	if (clos_ensure_class_function(pos)) return 1;
 	/* subclasses */
 	clos_ensure_class_subclasses(pos);
-
-	return 0;
 }
 
-static int clos_ensure_class_set(Execute ptr, addr pos, addr name, addr args)
+static void clos_ensure_class_set(Execute ptr, addr pos, addr name, addr args)
 {
 	int referp;
 	addr supers, slots, value;
@@ -1953,7 +2259,8 @@ static int clos_ensure_class_set(Execute ptr, addr pos, addr name, addr args)
 	clos_ensure_class_direct_default_initargs(ptr->local, pos, args, &value);
 	stdset_class_direct_default_initargs(pos, value);
 	/* forward-referenced-class */
-	return referp? 0: clos_ensure_class_init(ptr, pos);
+	if (! referp)
+		clos_ensure_class_init(ptr, pos);
 }
 
 static int clos_finalize(Execute ptr, addr pos);
@@ -2004,11 +2311,11 @@ static int clos_finalize_forward_p(Execute ptr, addr clos, int *ret)
 static int clos_finalize(Execute ptr, addr pos)
 {
 	int check;
-	addr boolp;
+	addr list, value;
 
 	/* finalized check */
-	stdget_class_finalized_p(pos, &boolp);
-	if (boolp != Nil)
+	stdget_class_finalized_p(pos, &value);
+	if (value != Nil)
 		return 0;
 
 	/* referenced class */
@@ -2016,12 +2323,20 @@ static int clos_finalize(Execute ptr, addr pos)
 		return 1;
 	if (check) {
 		/* make class */
-		if (clos_ensure_class_init(ptr, pos))
+		clos_ensure_class_init(ptr, pos);
+	}
+
+	/* superclasses */
+	stdget_class_direct_superclasses(pos, &list);
+	while (list != Nil) {
+		GetCons(list, &value, &list);
+		if (clos_finalize(ptr, value))
 			return 1;
 	}
 
-	/* finalize */
+	/* prototype */
 	clos_stdclass_prototype(pos);
+	clos_ensure_class_function(ptr, pos);
 	stdset_class_finalized_p(pos, T);
 
 	return 0;
@@ -2031,23 +2346,22 @@ int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret)
 {
 	addr metaclass, pos, list;
 	LocalRoot local;
-	LocalStack stack;
 
 	/* :metaclass ... */
 	if (getkeyargs(args, CLOSKEY_METACLASS, &metaclass))
 		GetConst(CLOS_STANDARD_CLASS, &metaclass);
+	local = ptr->local;
+	GetConst(CLOSKEY_METACLASS, &pos);
+	(void)remplist_local(local, args, pos, &args);
 
 	/* (apply #'make-instance metaclass args) */
 	GetConst(COMMON_MAKE_INSTANCE, &pos);
 	getfunctioncheck_local(ptr, pos, &pos);
-	local = ptr->local;
-	push_local(local, &stack);
 	lista_local(local, &list, metaclass, args, NULL);
 	if (callclang_apply(ptr, &pos, pos, list)) return 1;
-	rollback_local(local, stack);
 
 	/* set-class */
-	if (clos_ensure_class_set(ptr, pos, name, args)) return 1;
+	clos_ensure_class_set(ptr, pos, name, args);
 	clos_define_class(name, pos);
 	*ret = pos;
 
@@ -2056,6 +2370,9 @@ int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret)
 
 int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 {
+	/* slot redefined-class */
+	/* redefined */
+	//clos_ensure_class_set(ptr, pos, name, args);
 	fmte("TODO5", NULL);
 	return 0;
 }
@@ -2140,225 +2457,191 @@ int reinitialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret)
  *  shared-initialize
  */
 static int setf_slot_value_call(Execute ptr, addr pos, addr key, addr value);
-static int shared_initialize_setf(Execute ptr, addr pos, size_t i, addr value)
+static int shared_initialize_arguments(Execute ptr,
+		addr pos, addr slot, addr rest, int *ret)
 {
-	addr slot;
+	addr list, key, value;
 
-	GetSlotClos(pos, &slot);
-	GetSlotVector(slot, i, &slot);
-	if (slot_instance_p(slot)) {
-		GetValueClos(pos, &slot);
-		SetClosValue(slot, i, value);
-		return 0;
-	}
-	else {
-		GetNameSlot(slot, &slot);
-		return setf_slot_value_call(ptr, pos, slot, value);
-	}
-}
-
-static int slot_boundp_call(Execute ptr, addr pos, addr key, int *ret);
-static int shared_initialize_boundp(Execute ptr, addr pos, size_t i, int *ret)
-{
-	addr slot;
-
-	GetSlotClos(pos, &slot);
-	GetSlotVector(slot, i, &slot);
-	if (slot_instance_p(slot)) {
-		GetValueClos(pos, &slot);
-		GetClosValue(slot, i, &slot);
-		*ret = (slot != Unbound);
-		return 0;
-	}
-	else {
-		GetNameSlot(slot, &slot);
-		return slot_boundp_call(ptr, pos, slot, ret);
-	}
-}
-
-static int shared_initialize_initargs(Execute ptr,
-		addr pos, size_t i, addr rest, int *ret)
-{
-	addr slot, list1, list2, a, b, v;
-
-	GetSlotClos(pos, &slot);
-	GetSlotVector(slot, i, &slot);
-	GetArgsSlot(slot, &list1);
-	while (list1 != Nil) {
-		getcons(list1, &a, &list1);
-		for (list2 = rest; list2 != Nil; ) {
-			getcons(list2, &b, &list2);
-			getcons(list2, &v, &list2);
-			if (a == b) {
-				*ret = 1;
-				return shared_initialize_setf(ptr, pos, i, v);
-			}
-		}
-	}
-	*ret = 0;
-	return 0;
-}
-
-static int shared_initialize_check(Execute ptr,
-		addr pos, size_t i, addr names, int *ret)
-{
-	int check;
-	addr slot, name, one;
-
-	/* (boundp value) */
-	if (shared_initialize_boundp(ptr, pos, i, &check))
-		return 1;
-	if (check) {
-		*ret = 0;
-		return 0;
-	}
-
-	/* (eq t) */
-	if (names == T) {
+	GetArgsSlot(slot, &list);
+	while (list != Nil) {
+		getcons(list, &key, &list);
+		if (getplist_safe(rest, key, &value))
+			continue;
+		GetNameSlot(slot, &key);
+		if (setf_slot_value_call(ptr, pos, key, value))
+			return 1;
 		*ret = 1;
 		return 0;
 	}
-
-	/* (member name names) */
-	GetSlotClos(pos, &slot);
-	GetSlotVector(slot, i, &slot);
-	GetNameSlot(slot, &name);
-	while (names != Nil) {
-		getcons(names, &one, &names);
-		if (one == name) {
-			*ret = 1;
-			return 0;
-		}
-	}
 	*ret = 0;
 	return 0;
 }
 
-static int shared_initialize_initform(Execute ptr, addr pos, size_t i, int *ret)
+static int slot_boundp_call(Execute ptr, addr pos, addr key, int *ret);
+static int shared_initialize_initform(Execute ptr, addr pos, addr key, addr slot)
 {
-	addr slot, check;
+	int check;
+	addr value;
+
+	/* boundp */
+	if (slot_boundp_call(ptr, pos, key, &check))
+		return 1;
+	if (check)
+		return 0;
 
 	/* initform */
-	GetSlotClos(pos, &slot);
-	GetSlotVector(slot, i, &slot);
-	GetFormSlot(slot, &check);
-	if (check == Unbound) {
-		*ret = 0;
+	GetFormSlot(slot, &value);
+	if (value == Unbound)
 		return 0;
-	}
 
 	/* initfunction */
-	GetFunctionSlot(slot, &check);
-	if (check == Nil) {
+	GetFunctionSlot(slot, &value);
+	if (value == Nil) {
 		/* :initform */
-		GetFormSlot(slot, &check);
+		GetFormSlot(slot, &value);
 	}
 	else {
 		/* funcall */
-		if (callclang_funcall(ptr, &check, check, NULL))
+		if (callclang_funcall(ptr, &value, value, NULL))
 			return 1;
 	}
 
 	/* (setf slot-value) */
-	*ret = 1;
-	return shared_initialize_setf(ptr, pos, i, check);
-}
-
-static int shared_initialize_stdclass(Execute ptr, addr pos, addr name, addr rest)
-{
-	int check;
-	addr slots;
-	size_t size, i;
-
-	GetSlotClos(pos, &slots);
-	LenSlotVector(slots, &size);
-	for (i = 0; i < size; i++) {
-		if (shared_initialize_initargs(ptr, pos, i, rest, &check))
-			return 1;
-		if (check)
-			continue;
-		if (shared_initialize_check(ptr, pos, i, name, &check))
-			return 1;
-		if (! check)
-			continue;
-		if (shared_initialize_initform(ptr, pos, i, &check))
-			return 1;
-		if (check)
-			continue;
-	}
-
-	return 0;
-}
-
-static int shared_initialize_object(Execute ptr, addr pos, addr name, addr rest)
-{
-	addr metaclass;
-
-	clos_class_of(pos, &metaclass);
-	fmte("TODO6: ~S, ~S, ~S", metaclass, pos, name, rest, NULL);
-	return 0;
-}
-
-static int shared_initialize_find(addr slots, addr name, size_t *ret)
-{
-	addr list, check;
-	size_t size, i;
-
-	LenSlotVector(slots, &size);
-	for (i = 0; i < size; i++) {
-		GetSlotVector(slots, i, &list);
-		GetArgsSlot(list, &list);
-		while (list != Nil) {
-			getcons(list, &check, &list);
-			if (name == check) {
-				*ret = i;
-				return 1;
-			}
-		}
-	}
-
-	return 0;
-}
-
-static int shared_initialize_default(Execute ptr, addr pos)
-{
-	addr list, name, slots, temp, value, call;
-	size_t index;
-
-	clos_class_of(pos, &list);
-	stdget_class_default_initargs(list, &list);
-	GetSlotClos(pos, &slots);
-	while (list != Nil) {
-		getcons(list, &temp, &list);
-		list_bind(temp, &name, &value, &call, NULL);
-		if (! shared_initialize_find(slots, name, &index)) {
-			fmte(":DEFAULT-INITARGS ~S is not exist.", name, NULL);
-			return 0;
-		}
-		if (callclang_funcall(ptr, &value, call, NULL))
-			return 1;
-		if (shared_initialize_setf(ptr, pos, index, value))
-			return 1;
-	}
-
-	return 0;
+	return setf_slot_value_call(ptr, pos, key, value);
 }
 
 int shared_initialize_stdobject(Execute ptr, addr pos, addr name, addr rest)
 {
-	addr metaclass;
+	int check;
+	addr slots, slot, key;
+	size_t size, i;
 
-	clos_class_of(pos, &metaclass);
-	clos_class_of(metaclass, &metaclass);
-	if (clos_standard_class_p(metaclass)) {
-		if (shared_initialize_stdclass(ptr, pos, name, rest))
+	GetSlotClos(pos, &slots);
+	LenSlotVector(slots, &size);
+	for (i = 0; i < size; i++) {
+		GetSlotVector(slots, i, &slot);
+		/* initialize arguments */
+		if (shared_initialize_arguments(ptr, pos, slot, rest, &check))
+			return 1;
+		if (check)
+			continue;
+		/* initform */
+		GetNameSlot(slot, &key);
+		if ((name != T) && (! find_list_eq_safe(key, name)))
+			continue;
+		if (shared_initialize_initform(ptr, pos, key, slot))
 			return 1;
 	}
-	else {
-		if (shared_initialize_object(ptr, pos, name, rest))
-			return 1;
+
+	return 0;
+}
+
+
+/*
+ *  make-instance
+ */
+static int make_instance_initargs(Execute ptr, addr clos, addr rest, addr *ret)
+{
+	addr list, root, keys, key, slots, temp, value, call;
+	LocalRoot local;
+
+	local = ptr->local;
+	stdget_class_default_initargs(clos, &list);
+	if (list == Nil) {
+		cons_local(local, ret, clos, rest);
+		return 0;
 	}
-	return shared_initialize_default(ptr, pos);
+
+	/* rest */
+	root = keys = Nil;
+	while (rest != Nil) {
+		getcons(rest, &key, &rest);
+		getcons(rest, &value, &rest);
+		if (! find_list_eq_unsafe(key, keys)) {
+			cons_local(local, &keys, key, keys);
+			cons_local(local, &root, key, root);
+			cons_local(local, &root, value, root);
+		}
+	}
+
+	/* default-initargs */
+	stdget_class_slots(clos, &slots);
+	for (root = Nil; list != Nil; ) {
+		getcons(list, &temp, &list);
+		list_bind(temp, &key, &value, &call, NULL);
+		if (! find_list_eq_unsafe(key, keys)) {
+			if (call != Nil) {
+				if (callclang_funcall(ptr, &value, call, NULL))
+					return 1;
+			}
+			cons_local(local, &keys, key, keys);
+			cons_local(local, &root, key, root);
+			cons_local(local, &root, value, root);
+		}
+	}
+
+	/* result */
+	nreverse_list_unsafe(&root, root);
+	cons_local(local, ret, clos, root);
+
+	return 0;
+}
+
+static void make_instance_check(Execute ptr, addr clos, addr rest)
+{
+	int check;
+	addr slots, slot, key, value;
+	size_t size, i;
+
+	stdget_class_slots(clos, &slots);
+	LenSlotVector(slots, &size);
+	getcdr(rest, &rest);
+	while (rest != Nil) {
+		getcons(rest, &key, &rest);
+		getcdr(rest, &rest);
+		check = 0;
+		for (i = 0; i < size; i++) {
+			GetSlotVector(slots, i, &slot);
+			GetArgsSlot(slot, &value);
+			check |= find_list_eq_safe(key, value);
+		}
+		if (! check) {
+			fmte("The initialize argument ~S don't exist in ~S slots.",
+					key, clos, NULL);
+		}
+	}
+}
+
+int make_instance_stdclass(Execute ptr, addr rest, addr *ret)
+{
+	addr clos, call, instance;
+
+	/* finalize */
+	GetCons(rest, &clos, &rest);
+	clos_finalize(ptr, clos);
+
+	/* initargs */
+	if (make_instance_initargs(ptr, clos, rest, &rest))
+		return 1;
+	make_instance_check(ptr, clos, rest);
+
+	/* allocation-instance */
+	GetConst(COMMON_ALLOCATE_INSTANCE, &call);
+	getfunctioncheck_local(ptr, call, &call);
+	if (callclang_apply(ptr, &instance, call, rest))
+		return 1;
+
+	/* initialize-instance */
+	GetCdr(rest, &rest);
+	cons_local(ptr->local, &rest, instance, rest);
+	GetConst(COMMON_INITIALIZE_INSTANCE, &call);
+	getfunctioncheck_local(ptr, call, &call);
+	if (callclang_apply(ptr, &call, call, rest))
+		return 1;
+
+	/* result */
+	*ret = instance;
+	return 0;
 }
 
 
@@ -2381,6 +2664,19 @@ static int clos_redefined_class(Execute ptr, addr pos, addr clos)
 	rollback_local(local, stack);
 
 	return 0;
+}
+
+int clos_version_diff_p(addr pos)
+{
+	addr clos, check;
+	fixnum a, b;
+
+	clos_class_of(pos, &clos);
+	GetVersionClos(pos, &a);
+	stdget_class_version(clos, &check);
+	GetFixnum(check, &b);
+
+	return a != b;
 }
 
 int clos_version_check(Execute ptr, addr pos, addr clos)

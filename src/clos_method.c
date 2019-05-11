@@ -55,9 +55,9 @@ static void stdset_method_constant(addr pos, addr value,
 	}
 }
 #define StdGetMethod(p,r,a,b) \
-	stdget_method_constant((p), (r), Clos_method_##a, CONSTANT_CLOSKEY_##b)
+	stdget_method_constant((p), (r), Clos_method_##a, CONSTANT_CLOSNAME_##b)
 #define StdSetMethod(p,r,a,b) \
-	stdset_method_constant((p), (r), Clos_method_##a, CONSTANT_CLOSKEY_##b)
+	stdset_method_constant((p), (r), Clos_method_##a, CONSTANT_CLOSNAME_##b)
 
 void stdget_method_function(addr pos, addr *ret)
 {
@@ -168,8 +168,7 @@ void method_instance_lambda(LocalRoot local, addr *ret, addr clos, addr lambda)
 {
 	addr spec;
 
-	if (! argumentp(lambda))
-		argument_method_heap(local, &lambda, lambda);
+	Check(! argumentp(lambda), "type error");
 	method_specializer_list(&spec, lambda);
 	method_instance_heap(ret, clos, lambda, Nil, spec, Nil);
 }
@@ -178,6 +177,17 @@ void method_instance_lambda(LocalRoot local, addr *ret, addr clos, addr lambda)
 /*
  *  add-method
  */
+static void method_check_generic_function(addr gen, addr method)
+{
+	addr check;
+
+	stdget_method_generic_function(method, &check);
+	if (check != Nil && method != gen) {
+		fmte("The method ~S is already exists "
+				"in the generic-function ~S.", method, gen, NULL);
+	}
+}
+
 static void method_check_method_class(addr gen, addr method)
 {
 	stdget_generic_method_class(gen, &gen);
@@ -455,6 +465,7 @@ static int method_remove_method_execute(Execute ptr, addr gen, addr method)
 	GetArrayA4(methods, index, &cons);
 	if (! delete1_cons_eq_unsafe(method, cons, &cons)) return 0;
 	SetArrayA4(methods, index, cons);
+	stdset_method_generic_function(method, Nil);
 
 	return 1;
 }
@@ -482,20 +493,19 @@ static void method_add_replace(Execute ptr,
 	method_push_generic(ptr, gen, method);
 }
 
-static int method_add_check(Execute ptr, addr gen, addr method)
+static void method_add_check(Execute ptr, addr gen, addr method)
 {
+	method_check_generic_function(gen, method);
 	method_check_method_class(gen, method);
 	method_check_method_qualifiers(ptr, gen, method);
 	method_check_method_arguments(gen, method);
-	return 0;
 }
 
-int method_add_method(Execute ptr, addr gen, addr method)
+void method_add_method(Execute ptr, addr gen, addr method)
 {
 	addr check_method;
 
-	if (method_add_check(ptr, gen, method))
-		return 1;
+	method_add_check(ptr, gen, method);
 	method_replace_check(ptr, gen, method, &check_method);
 	if (check_method != Nil) {
 		method_add_replace(ptr, gen, method, check_method);
@@ -507,8 +517,6 @@ int method_add_method(Execute ptr, addr gen, addr method)
 	}
 	method_cache_remove(ptr->local, gen, method);
 	generic_finalize(gen);
-
-	return 0;
 }
 
 
@@ -521,10 +529,7 @@ static void method_add(Execute ptr, addr gen, addr method)
 
 	Check(! clos_generic_p(gen), "generic error");
 	Check(! clos_method_p(method), "method error");
-	if (method_add_check(ptr, gen, method)) {
-		fmte("Invalid jump call.", NULL);
-		return;
-	}
+	method_add_check(ptr, gen, method);
 	method_replace_check(ptr, gen, method, &check_method);
 	if (check_method != Nil) {
 		fmte("The method is already exists.", NULL);

@@ -55,9 +55,9 @@ static void stdset_longcomb_constant(addr pos, addr value,
 	}
 }
 #define StdGetLongCombination(p,r,a,b) \
-	stdget_longcomb_constant((p), (r), Clos_longcomb_##a, CONSTANT_CLOSKEY_##b)
+	stdget_longcomb_constant((p), (r), Clos_longcomb_##a, CONSTANT_CLOSNAME_##b)
 #define StdSetLongCombination(p,r,a,b) \
-	stdset_longcomb_constant((p), (r), Clos_longcomb_##a, CONSTANT_CLOSKEY_##b)
+	stdset_longcomb_constant((p), (r), Clos_longcomb_##a, CONSTANT_CLOSNAME_##b)
 
 void stdget_longcomb_name(addr pos, addr *ret)
 {
@@ -70,11 +70,11 @@ void stdset_longcomb_name(addr pos, addr value)
 
 void stdget_longcomb_document(addr pos, addr *ret)
 {
-	StdGetLongCombination(pos, ret, document, DOCUMENT);
+	StdGetLongCombination(pos, ret, document, DOCUMENTATION);
 }
 void stdset_longcomb_document(addr pos, addr value)
 {
-	StdSetLongCombination(pos, value, document, DOCUMENT);
+	StdSetLongCombination(pos, value, document, DOCUMENTATION);
 }
 
 void stdget_longcomb_lambda_list(addr pos, addr *ret)
@@ -184,9 +184,9 @@ static void stdset_shortcomb_constant(addr pos, addr value,
 	}
 }
 #define StdGetShortCombination(p,r,a,b) \
-	stdget_shortcomb_constant((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSKEY_##b)
+	stdget_shortcomb_constant((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSNAME_##b)
 #define StdSetShortCombination(p,r,a,b) \
-	stdset_shortcomb_constant((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSKEY_##b)
+	stdset_shortcomb_constant((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSNAME_##b)
 
 void stdget_shortcomb_name(addr pos, addr *ret)
 {
@@ -199,11 +199,11 @@ void stdset_shortcomb_name(addr pos, addr value)
 
 void stdget_shortcomb_document(addr pos, addr *ret)
 {
-	StdGetShortCombination(pos, ret, document, DOCUMENT);
+	StdGetShortCombination(pos, ret, document, DOCUMENTATION);
 }
 void stdset_shortcomb_document(addr pos, addr value)
 {
-	StdSetShortCombination(pos, value, document, DOCUMENT);
+	StdSetShortCombination(pos, value, document, DOCUMENTATION);
 }
 
 void stdget_shortcomb_identity(addr pos, addr *ret)
@@ -277,9 +277,9 @@ static void stdset_longdef_constant(addr pos, addr value,
 	}
 }
 #define StdGetLongDefineCombination(p,r,a,b) \
-	stdget_longdef_constant((p), (r), Clos_longdef_##a, CONSTANT_CLOSKEY_##b)
+	stdget_longdef_constant((p), (r), Clos_longdef_##a, CONSTANT_CLOSNAME_##b)
 #define StdSetLongDefineCombination(p,r,a,b) \
-	stdset_longdef_constant((p), (r), Clos_longdef_##a, CONSTANT_CLOSKEY_##b)
+	stdset_longdef_constant((p), (r), Clos_longdef_##a, CONSTANT_CLOSNAME_##b)
 
 void stdget_longdef_name(addr pos, addr *ret)
 {
@@ -292,11 +292,11 @@ void stdset_longdef_name(addr pos, addr value)
 
 void stdget_longdef_document(addr pos, addr *ret)
 {
-	StdGetLongDefineCombination(pos, ret, document, DOCUMENT);
+	StdGetLongDefineCombination(pos, ret, document, DOCUMENTATION);
 }
 void stdset_longdef_document(addr pos, addr value)
 {
-	StdSetLongDefineCombination(pos, value, document, DOCUMENT);
+	StdSetLongDefineCombination(pos, value, document, DOCUMENTATION);
 }
 
 void stdget_longdef_lambda_list(addr pos, addr *ret)
@@ -388,9 +388,9 @@ static void stdset_shortdef_constant(addr pos, addr value,
 	}
 }
 #define StdGetShortDefineCombination(p,r,a,b) \
-	stdget_shortdef_constant((p), (r), Clos_shortdef_##a, CONSTANT_CLOSKEY_##b)
+	stdget_shortdef_constant((p), (r), Clos_shortdef_##a, CONSTANT_CLOSNAME_##b)
 #define StdSetShortDefineCombination(p,r,a,b) \
-	stdset_shortdef_constant((p), (r), Clos_shortdef_##a, CONSTANT_CLOSKEY_##b)
+	stdset_shortdef_constant((p), (r), Clos_shortdef_##a, CONSTANT_CLOSNAME_##b)
 
 void stdget_shortdef_name(addr pos, addr *ret)
 {
@@ -403,11 +403,11 @@ void stdset_shortdef_name(addr pos, addr value)
 
 void stdget_shortdef_document(addr pos, addr *ret)
 {
-	StdGetShortDefineCombination(pos, ret, document, DOCUMENT);
+	StdGetShortDefineCombination(pos, ret, document, DOCUMENTATION);
 }
 void stdset_shortdef_document(addr pos, addr value)
 {
-	StdSetShortDefineCombination(pos, value, document, DOCUMENT);
+	StdSetShortDefineCombination(pos, value, document, DOCUMENTATION);
 }
 
 void stdget_shortdef_identity(addr pos, addr *ret)

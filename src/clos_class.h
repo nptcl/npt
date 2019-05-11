@@ -29,10 +29,10 @@ void stdget_class_direct_default_initargs(addr pos, addr *ret);
 void stdset_class_direct_default_initargs(addr pos, addr value);
 void stdget_class_version(addr pos, addr *ret);
 void stdset_class_version(addr pos, addr value);
-void stdget_class_update_info(addr pos, addr *ret);
-void stdset_class_update_info(addr pos, addr value);
 void stdget_class_document(addr pos, addr *ret);
 void stdset_class_document(addr pos, addr value);
+void stdget_class_redefined_class(addr pos, addr *ret);
+void stdset_class_redefined_class(addr pos, addr value);
 
 /* check */
 int clos_subclass_p(addr clos, addr super);
@@ -67,6 +67,8 @@ void allocate_instance_stdclass(Execute ptr, addr clos, addr *ret);
 int initialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret);
 int reinitialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret);
 int shared_initialize_stdobject(Execute ptr, addr pos, addr name, addr rest);
+int make_instance_stdclass(Execute ptr, addr rest, addr *ret);
+int clos_version_diff_p(addr pos);
 int clos_version_check(Execute ptr, addr pos, addr clos);
 int clos_change_class(Execute ptr, addr pos, addr clos, addr rest, addr *ret);
 int clos_slot_missing(Execute ptr,

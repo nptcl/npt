@@ -387,7 +387,28 @@ static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
 	return check;
 }
 
-static void function_do_tests_execute(Execute ptr)
+static void function_do_tests_getindex(Execute ptr, fixnum *ret)
+{
+	addr symbol, value;
+
+	GetConst(RT_INDEX, &symbol);
+	getspecial_local(ptr, symbol, &value);
+	if (value == Unbound)
+		*ret = 0;
+	else
+		GetFixnum(value, ret);
+}
+
+static void function_do_tests_setindex(Execute ptr, fixnum index)
+{
+	addr symbol, value;
+
+	GetConst(RT_INDEX, &symbol);
+	fixnum_heap(&value, index);
+	setspecial_local(ptr, symbol, value);
+}
+
+static void function_do_tests_execute(Execute ptr, fixnum *value)
 {
 	addr list, table, name, root1, root2, io;
 	fixnum index, count1, count2;
@@ -405,9 +426,9 @@ static void function_do_tests_execute(Execute ptr)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	for (index = 1; list != Nil; index++) {
+	for (index = *value; list != Nil; ) {
 		GetCons(list, &name, &list);
-		if (do_test(ptr, io, name, table, index)) {
+		if (do_test(ptr, io, name, table, ++index)) {
 			cons_local(local, &root1, name, root1);
 			count1++;
 		}
@@ -424,17 +445,22 @@ static void function_do_tests_execute(Execute ptr)
 		fmts(io, "ERROR = ~A~%", intsizeh(count2), NULL);
 	}
 	rollback_local(local, stack);
+	*value = index;
 
 	setbool_control(ptr, count2 == 0);
 }
 
 static void function_do_tests(Execute ptr, addr rest)
 {
+	fixnum index;
+
 	/* argument */
 	if (getkeyargs(rest, KEYWORD_TEST, &rest)) rest = Nil;
 
 	/* do-tests */
-	function_do_tests_execute(ptr);
+	function_do_tests_getindex(ptr, &index);
+	function_do_tests_execute(ptr, &index);
+	function_do_tests_setindex(ptr, index);
 
 	/* rem-all-tests */
 	if (rest != Nil)

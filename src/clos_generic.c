@@ -64,9 +64,9 @@ static void stdset_generic_constant(addr pos, addr value,
 	}
 }
 #define StdGetGeneric(p,r,a,b) \
-	stdget_generic_constant((p), (r), Clos_generic_##a, CONSTANT_CLOSKEY_##b)
+	stdget_generic_constant((p), (r), Clos_generic_##a, CONSTANT_CLOSNAME_##b)
 #define StdSetGeneric(p,r,a,b) \
-	stdset_generic_constant((p), (r), Clos_generic_##a, CONSTANT_CLOSKEY_##b)
+	stdset_generic_constant((p), (r), Clos_generic_##a, CONSTANT_CLOSNAME_##b)
 
 void stdget_generic_name(addr pos, addr *ret)
 {
@@ -236,9 +236,9 @@ static void stdset_specializer_constant(addr pos, addr value,
 	}
 }
 #define StdGetSpecializer(p,r,a,b) \
-	stdget_specializer_constant((p), (r), Clos_specializer_##a, CONSTANT_CLOSKEY_##b)
+	stdget_specializer_constant((p), (r), Clos_specializer_##a, CONSTANT_CLOSNAME_##b)
 #define StdSetSpecializer(p,r,a,b) \
-	stdset_specializer_constant((p), (r), Clos_specializer_##a, CONSTANT_CLOSKEY_##b)
+	stdset_specializer_constant((p), (r), Clos_specializer_##a, CONSTANT_CLOSNAME_##b)
 
 void stdget_specializer_object(addr pos, addr *ret)
 {

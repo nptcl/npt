@@ -2489,7 +2489,7 @@ static void typecompiled_slot_boundp_method(void)
 
 static void typecompiled_reader_method(void)
 {
-	/* (function (t t Class) (values t &rest nil)) */
+	/* (function (t t t) (values t &rest nil)) */
 	addr args, values;
 
 	GetTypeTable(&args, T);
@@ -2498,6 +2498,19 @@ static void typecompiled_reader_method(void)
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, &args);
 	SetTypeCompiled(Reader_Method, args);
+}
+
+static void typecompiled_writer_method(void)
+{
+	/* (function (t t t t) (values t &rest nil)) */
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var2(&args, args, args);
+	typeargs_method(args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(Writer_Method, args);
 }
 
 
@@ -2805,5 +2818,6 @@ void build_type_constant(void)
 	typecompiled_slot_boundp();
 	typecompiled_slot_boundp_method();
 	typecompiled_reader_method();
+	typecompiled_writer_method();
 }
 

@@ -120,6 +120,8 @@ int pushnewplist_heap(addr plist, addr key, addr value, addr *ret);
 enum RemPlist remplist_check(addr plist, addr key, addr *ret);
 enum RemPlist remplist_check_safe(addr plist, addr key, addr *ret);
 int remplist(addr plist, addr key, addr *ret);
+int remplist_alloc(LocalRoot local, addr plist, addr key, addr *ret);
+int remplist_local(LocalRoot local, addr plist, addr key, addr *ret);
 int remplist_heap(addr plist, addr key, addr *ret);
 
 /* 0:find-value, 1:not-found(Nil) */
