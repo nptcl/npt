@@ -13,6 +13,7 @@
 #include "integer.h"
 #include "lambda.h"
 #include "mop.h"
+#include "sequence.h"
 #include "symbol.h"
 #include "type.h"
 #include "type_table.h"
@@ -2342,7 +2343,7 @@ static int clos_finalize(Execute ptr, addr pos)
 	return 0;
 }
 
-int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret)
+static int clos_ensure_class_object(Execute ptr, addr name, addr args, addr *ret)
 {
 	addr metaclass, pos, list;
 	LocalRoot local;
@@ -2358,9 +2359,19 @@ int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret)
 	GetConst(COMMON_MAKE_INSTANCE, &pos);
 	getfunctioncheck_local(ptr, pos, &pos);
 	lista_local(local, &list, metaclass, args, NULL);
-	if (callclang_apply(ptr, &pos, pos, list)) return 1;
 
-	/* set-class */
+	return callclang_apply(ptr, ret, pos, list);
+}
+
+int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret)
+{
+	addr pos;
+
+	/* make-instance */
+	if (clos_ensure_class_object(ptr, name, args, &pos))
+		return 1;
+
+	/* define class */
 	clos_ensure_class_set(ptr, pos, name, args);
 	clos_define_class(name, pos);
 	*ret = pos;
@@ -2368,12 +2379,53 @@ int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret)
 	return 0;
 }
 
+
+/*
+ *  redefine
+ */
+static int clos_ensure_class_redefine_direct(Execute ptr,
+		addr clos, addr name, addr rest)
+{
+	fmte("TODO", NULL);
+	return 0;
+}
+
+static void clos_ensure_class_delete(addr clos, addr temp)
+{
+	addr list, a, b;
+
+	/* remove superclasses */
+	stdget_class_direct_superclasses(temp, &list);
+	while (list != Nil) {
+		getcons(list, &a, &list);
+		stdget_class_direct_subclasses(a, &b);
+		(void)delete_cons_eq_unsafe(clos, b, &b);
+		stdset_class_direct_subclasses(a, b);
+	}
+	stdset_class_direct_superclasses(temp, Nil);
+
+	/* copy class */
+
+	/* remove class table */
+}
+
 int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 {
-	/* slot redefined-class */
+	addr temp;
+
+	/* make-instance */
+	Check(! clos_standard_class_p(clos), "type error");
+	stdget_class_finalized_p(clos, &temp);
+	if (temp == Nil)
+		return clos_ensure_class_redefine_direct(ptr, clos, name, rest);
+	if (clos_ensure_class_object(ptr, name, rest, &temp))
+		return 1;
+
 	/* redefined */
-	//clos_ensure_class_set(ptr, pos, name, args);
-	fmte("TODO5", NULL);
+	clos_ensure_class_delete(clos, temp);
+	clos_ensure_class_set(ptr, clos, name, rest);
+	clos_define_class(name, clos);
+
 	return 0;
 }
 

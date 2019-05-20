@@ -27,6 +27,7 @@
 #include "stream.h"
 #include "stream_string.h"
 #include "strtype.h"
+#include "structure.h"
 #include "symbol.h"
 #include "syscall.h"
 #include "type_parse.h"
@@ -1673,6 +1674,43 @@ static void defun_delete_deftype(void)
 }
 
 
+/* (defun ensure-structure (symbol list &rest args &key &allow-other-keys) ...)
+ *   -> symbol
+ */
+static void syscall_ensure_structure(Execute ptr, addr name, addr slots, addr rest)
+{
+	ensure_structure_common(ptr, name, slots, rest);
+	setresult_control(ptr, name);
+}
+
+static void type_ensure_structure(addr *ret)
+{
+	addr args, values, type;
+
+	GetTypeTable(&args, Symbol);
+	GetTypeTable(&values, List);
+	GetTypeTable(&type, T);
+	typeargs_var2rest(&args, args, values, type);
+	GetTypeValues(&values, Symbol);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_ensure_structure(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_ENSURE_STRUCTURE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2dynamic(pos, syscall_ensure_structure);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_ensure_structure(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  build_syscall
  */
@@ -1784,5 +1822,7 @@ void build_syscall(void)
 	/* type */
 	defun_symbol_deftype();
 	defun_delete_deftype();
+	/* structure */
+	defun_ensure_structure();
 }
 

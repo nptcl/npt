@@ -6,8 +6,10 @@
 #include "clos_class.h"
 #include "clos_common.h"
 #include "clos_generic.h"
+#include "clos_method.h"
 #include "clos_type.h"
 #include "cons.h"
+#include "mop.h"
 #include "mop_common.h"
 #include "package.h"
 
@@ -714,6 +716,36 @@ static void defun_unbound_slot_instance(void)
 }
 
 
+/* 22. Printer */
+static void defgeneric_print_object(void)
+{
+	addr symbol, name, gen;
+
+	GetConst(COMMON_PRINT_OBJECT, &symbol);
+	mop_argument_generic_var2(&gen);
+	parse_callname_error(&name, symbol);
+	generic_common_instance(&gen, name, gen);
+	SetFunctionSymbol(symbol, gen);
+	/* no-method */
+	common_method_finalize(gen);
+}
+
+
+/* 25. Environment */
+static void defgeneric_describe_object(void)
+{
+}
+
+static void defgeneric_documentation(void)
+{
+}
+
+static void defgeneric_setf_documentation(void)
+{
+	/* do nothing */
+}
+
+
 /*
  *  intern
  */
@@ -760,11 +792,23 @@ static void intern_clos_objects(void)
 	defun_unbound_slot_instance();
 }
 
+static void intern_clos_others(void)
+{
+	/* 22. Printer */
+	defgeneric_print_object();
+	/* 25. Environment */
+	defgeneric_describe_object();
+	defgeneric_documentation();
+	defgeneric_setf_documentation();
+}
+
 void intern_common_objects(void)
 {
 	/* metaobject protocol */
 	intern_metaobject_protocol();
-	/* common-lisp package */
+	/* common-lisp objects */
 	intern_clos_objects();
+	/* common-lisp others */
+	intern_clos_others();
 }
 

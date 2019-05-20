@@ -14,7 +14,7 @@ enum EncodeType {
 	EncodeType_utf32le,
 	EncodeType_utf32be,
 	EncodeType_windows,
-	EncodeType_SIZE
+	EncodeType_size
 };
 
 enum EncodeBom {

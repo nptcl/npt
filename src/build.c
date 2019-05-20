@@ -13,6 +13,7 @@
 #include "constant.h"
 #include "control.h"
 #include "copy.h"
+#include "encode.h"
 #include "eval_declare.h"
 #include "execute.h"
 #include "fasl.h"
@@ -81,6 +82,7 @@ void initlisp(void)
 	init_clos();
 	init_control();
 	init_copy();
+	init_encode();
 	init_fasl();
 	init_format();
 	init_print();

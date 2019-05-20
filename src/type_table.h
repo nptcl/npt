@@ -54,6 +54,7 @@ void typeargs_var4rest(addr *ret, addr v1, addr v2, addr v3, addr v4, addr rest)
 void typeargs_rest(addr *ret, addr rest);
 void typeargs_key(addr *ret, addr key);
 void typeargs_method(addr type);
+void typeargs_methodkey(addr type);
 
 /* values */
 void typevalues_result(addr *ret, addr v1);

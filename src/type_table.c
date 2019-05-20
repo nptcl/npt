@@ -256,6 +256,18 @@ void typeargs_method(addr pos)
 	SetArrayA2(pos, 0, var); /* var */
 }
 
+void typeargs_methodkey(addr pos)
+{
+	addr rest;
+
+	typeargs_method(pos);
+	GetArrayA2(pos, 2, &rest); /* rest */
+	if (rest == Nil) {
+		GetTypeTable(&rest, T);
+		SetArrayA2(pos, 2, rest); /* rest */
+	}
+}
+
 
 /*
  *  values

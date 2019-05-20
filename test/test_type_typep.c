@@ -55,8 +55,10 @@ static int typep_asterisk_char(addr x, const char *str)
 	addr y;
 
 	test_parse_char(&y, str);
+	check = 0;
 	if (typep_asterisk_clang(x, y, &check))
 		fmte("typep error");
+
 	return check;
 }
 

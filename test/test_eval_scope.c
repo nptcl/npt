@@ -801,6 +801,7 @@ static int test_specialp_stack_tablevalue(void)
 
 	stack = newstack_nil(ptr);
 	readstring(&symbol, "aa");
+	specialp = 0;
 	result = specialp_stack_tablevalue(stack, symbol, &specialp);
 	test(result == 0, "specialp_stack_tablevalue1");
 

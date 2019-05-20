@@ -1296,6 +1296,16 @@ ordinary:
 	*ret = list;
 }
 
+void argument_boa_heap(LocalRoot local, addr *ret, addr list)
+{
+	struct argument_struct *str;
+
+	argument_ordinary_heap(local, &list, list);
+	str = ArgumentStruct(list);
+	str->type = ArgumentType_boa;
+	*ret = list;
+}
+
 
 /*
  *  expand

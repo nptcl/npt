@@ -33,6 +33,8 @@
 (loadrt #p"rt-iteration.lisp")
 ;; 7. Objects
 (loadrt #p"rt-objects.lisp")
+;; 8. Structures
+(loadrt #p"rt-structures.lisp")
 ;; 9. Conditions
 (loadrt #p"rt-conditions.lisp")
 ;; 11. Packages

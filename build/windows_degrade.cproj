@@ -195,6 +195,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_sequences.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_streams.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_strings.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_structures.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_symbols.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_system.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_types.c" />
@@ -208,7 +209,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\degrade.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\develop.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\document.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\encode.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_encode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\environment.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_equal.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_code.c" />

@@ -17,6 +17,8 @@ static int loadrt_files(void)
 	loadrt_file("rt-data.lisp");
 	/* 6. Iteration */
 	loadrt_file("rt-iteration.lisp");
+	/* 8. Structures */
+	loadrt_file("rt-structures.lisp");
 	/* 7. Objects */
 	loadrt_file("rt-objects.lisp");
 	/* 9. Conditions */

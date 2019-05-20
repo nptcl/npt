@@ -19,6 +19,7 @@
 #include "strtype.h"
 #include "type_parse.h"
 #include "type_subtypep.h"
+#include "type_typep.h"
 
 /* (defun input-stream-p (stream) ...) -> boolean */
 static void function_input_stream_p(Execute ptr, addr pos)
@@ -919,7 +920,7 @@ static enum Stream_Open_Direction function_open_direction(addr value)
 	return Stream_Open_Direction_Input;
 }
 
-static enum Stream_Open_Element function_open_element(addr value)
+static enum Stream_Open_Element function_open_element(Execute ptr, addr value)
 {
 	int validp;
 	addr check, type;
@@ -939,14 +940,16 @@ static enum Stream_Open_Element function_open_element(addr value)
 		return Stream_Open_Element_Binary;
 
 	/* character */
-	GetTypeTable(&type, Character);
-	if (subtypep_clang(value, type, &validp))
-		return Stream_Open_Element_Character;
+	if (! parse_type(ptr, &check, value, Nil)) {
+		GetTypeTable(&type, Character);
+		if (subtypep_clang(check, type, &validp))
+			return Stream_Open_Element_Character;
 
-	/* Binary */
-	GetTypeTable(&type, Unsigned8);
-	if (subtypep_clang(value, type, &validp))
-		return Stream_Open_Element_Binary;
+		/* Binary */
+		GetTypeTable(&type, Unsigned8);
+		if (subtypep_clang(check, type, &validp))
+			return Stream_Open_Element_Binary;
+	}
 
 	/* error */
 	fmte("Invalid :element-type value ~S.", value, NULL);
@@ -1157,7 +1160,7 @@ static void function_open(Execute ptr, addr pos, addr rest)
 	if (getkeyargs(rest, KEYWORD_DIRECTION, &value)) value = Unbound;
 	direction = function_open_direction(value);
 	if (getkeyargs(rest, KEYWORD_ELEMENT_TYPE, &value)) value = Unbound;
-	element = function_open_element(value);
+	element = function_open_element(ptr, value);
 	if (getkeyargs(rest, KEYWORD_IF_EXISTS, &value)) value = Unbound;
 	exists = function_open_ifexists(value, pos);
 	if (getkeyargs(rest, KEYWORD_IF_DOES_NOT_EXIST, &value)) value = Unbound;

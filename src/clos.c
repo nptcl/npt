@@ -146,6 +146,19 @@ void setclass_slot(addr pos, addr value)
 	SetClassSlot_Low(pos, value);
 }
 
+void getreadonly_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetReadOnlySlot_Low(pos, ret);
+}
+
+void setreadonly_slot(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	Check(GetStatusReadOnly(pos), "readonly error");
+	SetReadOnlySlot_Low(pos, value);
+}
+
 void getallocation_slot(addr pos, int *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);

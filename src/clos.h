@@ -39,6 +39,8 @@ struct clos_struct {
 #define SetDocumentSlot_Low(x,y)		SetArraySS((x),SLOT_INDEX_DOCUMENT,(y))
 #define GetClassSlot_Low(x,y)			GetArraySS((x),SLOT_INDEX_CLASS,(y))
 #define SetClassSlot_Low(x,y)			SetArraySS((x),SLOT_INDEX_CLASS,(y))
+#define GetReadOnlySlot_Low(x,y)		GetArraySS((x),SLOT_INDEX_READONLY,(y))
+#define SetReadOnlySlot_Low(x,y)		SetArraySS((x),SLOT_INDEX_READONLY,(y))
 #define GetAllocationSlot_Low(x,y)		(*(y) = GetUser((x)))
 #define SetAllocationSlot_Low(x,y)		(SetUser((x), (y) != 0))
 #define GetLocationSlot_Low(x,y)		(*(y) = SlotStruct_Low(x)->location)
@@ -90,6 +92,8 @@ struct clos_struct {
 #define SetDocumentSlot			setdocument_slot
 #define GetClassSlot			getclass_slot
 #define SetClassSlot			setclass_slot
+#define GetReadOnlySlot			getreadonly_slot
+#define SetReadOnlySlot			setreadonly_slot
 #define GetAllocationSlot		getallocation_slot
 #define SetAllocationSlot		setallocation_slot
 #define GetLocationSlot			getlocation_slot
@@ -141,6 +145,8 @@ struct clos_struct {
 #define SetDocumentSlot			SetDocumentSlot_Low
 #define GetClassSlot			GetClassSlot_Low
 #define SetClassSlot			SetClassSlot_Low
+#define GetReadOnlySlot			GetReadOnlySlot_Low
+#define SetReadOnlySlot			SetReadOnlySlot_Low
 #define GetAllocationSlot		GetAllocationSlot_Low
 #define SetAllocationSlot		SetAllocationSlot_Low
 #define GetLocationSlot			GetLocationSlot_Low
@@ -193,6 +199,8 @@ void getdocument_slot(addr pos, addr *ret);
 void setdocument_slot(addr pos, addr value);
 void getclass_slot(addr pos, addr *ret);
 void setclass_slot(addr pos, addr value);
+void getreadonly_slot(addr pos, addr *ret);
+void setreadonly_slot(addr pos, addr value);
 void getallocation_slot(addr pos, int *ret);
 void setallocation_slot(addr pos, int value);
 void getlocation_slot(addr pos, size_t *ret);

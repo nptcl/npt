@@ -8,6 +8,7 @@ void intern_common_types(void);
 void intern_common_data(void);
 void intern_common_iteration(void);
 void intern_common_objects(void);
+void intern_common_structures(void);
 void intern_common_conditions(void);
 void intern_common_symbols(void);
 void intern_common_packages(void);
@@ -38,6 +39,8 @@ void build_common(void)
 	intern_common_iteration();
 	/* 7. Objects */
 	intern_common_objects();
+	/* 8. Structures */
+	intern_common_structures();
 	/* 9. Conditions */
 	intern_common_conditions();
 	/* 10. Symbols */

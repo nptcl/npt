@@ -31,6 +31,7 @@ int test_code(void);
 int test_control(void);
 int test_pathname(void);
 int test_file_memory(void);
+int test_encode(void);
 int test_file(void);
 int test_stream(void);
 int test_integer(void);
@@ -116,6 +117,7 @@ void degrade_execute(void)
 	DegradeCheck(test_control);
 	DegradeCheck(test_pathname);
 	DegradeCheck(test_file_memory);
+	DegradeCheck(test_encode);
 	DegradeCheck(test_file);
 	//DegradeCheck(test_fasl); /* error */
 	DegradeCheck(test_bigcons);

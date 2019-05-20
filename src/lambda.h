@@ -12,6 +12,7 @@ enum ArgumentType {
 	ArgumentType_method,
 	ArgumentType_combination,
 	ArgumentType_defsetf,
+	ArgumentType_boa,
 	ArgumentType_size,
 };
 
@@ -80,6 +81,7 @@ void argument_ordinary_heap(LocalRoot local, addr *ret, addr cons);
 void argument_generic_heap(LocalRoot local, addr *ret, addr cons);
 void argument_method_heap(LocalRoot local, addr *ret, addr cons);
 void argument_combination_heap(LocalRoot local, addr *ret, addr cons);
+void argument_boa_heap(LocalRoot local, addr *ret, addr cons);
 
 /* expand */
 void argument_ordinary_lambda_heap(addr *ret, addr pos);
