@@ -60,6 +60,43 @@ void make_standard_error(addr *stream)
 	encode_standard_stream(*stream);
 }
 
+int script_header(addr stream)
+{
+	int check;
+	byte a, b;
+	struct filememory *fm;
+
+	CheckType(stream, LISPTYPE_STREAM);
+	fm = PtrFileMemory(stream);
+	/* read UTF-8 BOM */
+	if (readbom8_encode(fm) < 0)
+		return end_filememory(fm);
+	/* #\# */
+	check = getc_filememory(fm, &a);
+	if (check)
+		return check;
+	if (a != '#')
+		return ungetc_filememory(fm, a);
+	/* #\! */
+	check = getc_filememory(fm, &b);
+	if (check)
+		return check;
+	if (b != '!') {
+		ungetc_filememory(fm, b);
+		return ungetc_filememory(fm, a);
+	}
+	/* ... \n */
+	for (;;) {
+		check = getc_filememory(fm, &a);
+		if (check)
+			return check;
+		if (a == 0x0A || a == 0x0D)
+			break;
+	}
+
+	return 0;
+}
+
 
 /*
  *  input
@@ -274,7 +311,7 @@ int open_input_utf16le_stream(Execute ptr, addr *stream, addr file)
 		return 1;
 	fm = PtrFileMemory(file);
 	check = readbom16_encode(fm);
-	if (check < 0 || check == 2) {
+	if (check != 0) {
 		close_filememory(fm);
 		return 1;
 	}
@@ -295,9 +332,9 @@ int open_input_utf16be_stream(Execute ptr, addr *stream, addr file)
 		return 1;
 	fm = PtrFileMemory(file);
 	check = readbom16_encode(fm);
-	if (check < 0 || check == 1) {
+	if (check != 0) {
 		close_filememory(fm);
-		return check;
+		return 1;
 	}
 	fm->encode.type = EncodeType_utf16be;
 	fm->encode.bom = EncodeBom_empty;
@@ -339,7 +376,7 @@ int open_input_utf16bebom_stream(Execute ptr, addr *stream, addr file)
 	check = readbom16_encode(fm);
 	if (check != 2) {
 		close_filememory(fm);
-		return check;
+		return 1;
 	}
 	fm->encode.type = EncodeType_utf16be;
 	fm->encode.bom = EncodeBom_exist;
@@ -382,7 +419,7 @@ int open_input_utf32le_stream(Execute ptr, addr *stream, addr file)
 		return 1;
 	fm = PtrFileMemory(file);
 	check = readbom32_encode(fm);
-	if (check < 0 || check == 2) {
+	if (check != 0) {
 		close_filememory(fm);
 		return 1;
 	}
@@ -403,9 +440,9 @@ int open_input_utf32be_stream(Execute ptr, addr *stream, addr file)
 		return 1;
 	fm = PtrFileMemory(file);
 	check = readbom32_encode(fm);
-	if (check < 0 || check == 1) {
+	if (check != 0) {
 		close_filememory(fm);
-		return check;
+		return 1;
 	}
 	fm->encode.type = EncodeType_utf32be;
 	fm->encode.bom = EncodeBom_empty;
@@ -447,7 +484,7 @@ int open_input_utf32bebom_stream(Execute ptr, addr *stream, addr file)
 	check = readbom32_encode(fm);
 	if (check != 2) {
 		close_filememory(fm);
-		return check;
+		return 1;
 	}
 	fm->encode.type = EncodeType_utf32be;
 	fm->encode.bom = EncodeBom_exist;

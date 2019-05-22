@@ -242,6 +242,8 @@ void (*Stream_clear_input[StreamType_Size])(addr);
 int (*Stream_inputp[StreamType_Size])(addr);
 int (*Stream_outputp[StreamType_Size])(addr);
 int (*Stream_interactivep[StreamType_Size])(addr);
+int (*Stream_characterp[StreamType_Size])(addr);
+int (*Stream_binaryp[StreamType_Size])(addr);
 void (*Stream_element_type[StreamType_Size])(addr, addr *);
 void (*Stream_file_length[StreamType_Size])(addr, addr *);
 int (*Stream_file_position[StreamType_Size])(addr, size_t *);
@@ -413,6 +415,18 @@ int interactivep_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return (Stream_interactivep[GetIndexStream(stream)])(stream);
+}
+
+int characterp_stream(addr stream)
+{
+	CheckType(stream, LISPTYPE_STREAM);
+	return (Stream_characterp[GetIndexStream(stream)])(stream);
+}
+
+int binaryp_stream(addr stream)
+{
+	CheckType(stream, LISPTYPE_STREAM);
+	return (Stream_binaryp[GetIndexStream(stream)])(stream);
 }
 
 void element_type_stream(addr stream, addr *ret)
@@ -749,6 +763,7 @@ static void defvar_system_standard_input(void)
 	make_standard_input(&stream);
 	GetConst(SYSTEM_STANDARD_INPUT, &symbol);
 	SetValueSymbol(symbol, stream);
+	SetConst(STREAM_STDIN, stream);
 }
 
 static void defvar_system_standard_output(void)
@@ -758,6 +773,7 @@ static void defvar_system_standard_output(void)
 	make_standard_output(&stream);
 	GetConst(SYSTEM_STANDARD_OUTPUT, &symbol);
 	SetValueSymbol(symbol, stream);
+	SetConst(STREAM_STDOUT, stream);
 }
 
 static void defvar_system_standard_error(void)
@@ -767,6 +783,7 @@ static void defvar_system_standard_error(void)
 	make_standard_error(&stream);
 	GetConst(SYSTEM_STANDARD_ERROR, &symbol);
 	SetValueSymbol(symbol, stream);
+	SetConst(STREAM_STDERR, stream);
 }
 
 static void defvar_system_prompt(void)
@@ -1696,20 +1713,55 @@ void write_line_common(Execute ptr, addr string, addr rest)
 	terpri_stream(string);
 }
 
-void read_sequence_common(addr *ret, addr seq, addr stream, size_t start, size_t end)
+static void read_sequence_character(addr *ret,
+		addr seq, addr stream, size_t start, size_t end)
 {
 	unicode c;
 	addr value;
 
 	for (; start < end; start++) {
-		if (read_char_stream(stream, &c)) break;
+		if (read_char_stream(stream, &c))
+			break;
 		character_heap(&value, c);
 		setelt_sequence(seq, start, value);
 	}
 	*ret = intsizeh(start);
 }
 
-void write_sequence_common(LocalRoot local,
+static void read_sequence_binary(addr *ret,
+		addr seq, addr stream, size_t start, size_t end)
+{
+	byte c;
+	addr value;
+
+	for (; start < end; start++) {
+		if (read_byte_stream(stream, &c))
+			break;
+		fixnum_heap(&value, c);
+		setelt_sequence(seq, start, value);
+	}
+	*ret = intsizeh(start);
+}
+
+void read_sequence_common(addr *ret, addr seq, addr stream, size_t start, size_t end)
+{
+	/* character stream */
+	if (characterp_stream(stream)) {
+		read_sequence_character(ret, seq, stream, start, end);
+		return;
+	}
+
+	/* binary stream */
+	if (binaryp_stream(stream)) {
+		read_sequence_binary(ret, seq, stream, start, end);
+		return;
+	}
+
+	/* error */
+	fmte("Invalid stream ~S.", stream, NULL);
+}
+
+static void write_sequence_character(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {
 	unicode c;
@@ -1725,6 +1777,45 @@ void write_sequence_common(LocalRoot local,
 		rollback_local(local, stack);
 		write_char_stream(stream, c);
 	}
+}
+
+static void write_sequence_binary(LocalRoot local,
+		addr seq, addr stream, size_t start, size_t end)
+{
+	fixnum c;
+	addr value;
+	LocalStack stack;
+
+	for (; start < end; start++) {
+		push_local(local, &stack);
+		getelt_sequence(local, seq, start, &value);
+		if (! fixnump(value))
+			TypeError(value, INTEGER);
+		GetFixnum(value, &c);
+		rollback_local(local, stack);
+		if (c < 0 || 0xFF < c)
+			fmte("Invalid binary value ~S.", fixnumh(c), NULL);
+		write_byte_stream(stream, (byte)c);
+	}
+}
+
+void write_sequence_common(LocalRoot local,
+		addr seq, addr stream, size_t start, size_t end)
+{
+	/* character stream */
+	if (characterp_stream(stream)) {
+		write_sequence_character(local, seq, stream, start, end);
+		return;
+	}
+
+	/* binary stream */
+	if (binaryp_stream(stream)) {
+		write_sequence_binary(local, seq, stream, start, end);
+		return;
+	}
+
+	/* error */
+	fmte("Invalid stream ~S.", stream, NULL);
 }
 
 int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)

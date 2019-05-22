@@ -124,6 +124,18 @@ static int interactivep_Synonym(addr stream)
 	return interactivep_stream(stream);
 }
 
+static int characterp_Synonym(addr stream)
+{
+	getstream_synonym(stream, &stream);
+	return characterp_stream(stream);
+}
+
+static int binaryp_Synonym(addr stream)
+{
+	getstream_synonym(stream, &stream);
+	return binaryp_stream(stream);
+}
+
 static void element_type_Synonym(addr stream, addr *ret)
 {
 	getstream_synonym(stream, &stream);
@@ -219,6 +231,8 @@ void init_stream_synonym(void)
 	DefineStreamSet(Synonym, inputp);
 	DefineStreamSet(Synonym, outputp);
 	DefineStreamSet(Synonym, interactivep);
+	DefineStreamSet(Synonym, characterp);
+	DefineStreamSet(Synonym, binaryp);
 	DefineStreamSet(Synonym, element_type);
 	DefineStreamSet(Synonym, file_length);
 	DefineStreamSet(Synonym, file_position);

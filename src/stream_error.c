@@ -80,13 +80,25 @@ int inputp_stream_error(addr stream)
 
 int outputp_stream_error(addr stream)
 {
-	fmte("The stream ~S don't run input-stream-p function.", stream, NULL);
+	fmte("The stream ~S don't run output-stream-p function.", stream, NULL);
 	return 0;
 }
 
 int interactivep_stream_error(addr stream)
 {
-	fmte("The stream ~S don't run input-stream-p function.", stream, NULL);
+	fmte("The stream ~S don't run interactive-stream-p function.", stream, NULL);
+	return 0;
+}
+
+int characterp_stream_error(addr stream)
+{
+	fmte("The stream ~S don't run character-stream-p function.", stream, NULL);
+	return 0;
+}
+
+int binaryp_stream_error(addr stream)
+{
+	fmte("The stream ~S don't run binary-stream-p function.", stream, NULL);
 	return 0;
 }
 

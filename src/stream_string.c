@@ -311,6 +311,8 @@ void init_stream_string_input(void)
 	DefineStreamChk(StringInput, inputp, true);
 	DefineStreamChk(StringInput, outputp, false);
 	DefineStreamChk(StringInput, interactivep, false);
+	DefineStreamChk(StringInput, characterp, true);
+	DefineStreamChk(StringInput, binaryp, false);
 	DefineStreamLet(StringInput, element_type, character_stream);
 	DefineStream___(StringInput, file_length);
 	DefineStreamSet(StringInput, file_position);
@@ -546,6 +548,8 @@ void init_stream_string_output(void)
 	DefineStreamChk(StringOutput, inputp, false);
 	DefineStreamChk(StringOutput, outputp, true);
 	DefineStreamChk(StringOutput, interactivep, false);
+	DefineStreamChk(StringOutput, characterp, true);
+	DefineStreamChk(StringOutput, binaryp, false);
 	DefineStreamLet(StringOutput, element_type, character_stream);
 	DefineStream___(StringOutput, file_length);
 	DefineStreamSet(StringOutput, file_position);

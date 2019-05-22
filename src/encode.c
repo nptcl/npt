@@ -194,7 +194,7 @@ static int read_char_ascii(struct filememory *fm, unicode *u)
 	if (check < 0)
 		fmte("getc error", NULL);
 	if (check)
-		return -1;
+		return 1;
 	if (0x80 <= c) {
 		if (fm->encode.error)
 			return -1;
@@ -552,7 +552,7 @@ static int read_hang_ascii(struct filememory *fm, unicode *u, int *hang)
 	if (check < 0)
 		fmte("getc_nonblocking error", NULL);
 	if (check)
-		return -1;
+		return 1;
 	if (size == 0) {
 		*hang = 1;
 		return 0;

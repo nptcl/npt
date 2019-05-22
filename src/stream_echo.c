@@ -178,6 +178,20 @@ static int fresh_line_Echo(addr stream)
 	return fresh_line_stream(stream);
 }
 
+static int characterp_Echo(addr stream)
+{
+	addr input, output;
+	io_Echo(stream, &input, &output);
+	return characterp_stream(input) && characterp_stream(output);
+}
+
+static int binaryp_Echo(addr stream)
+{
+	addr input, output;
+	io_Echo(stream, &input, &output);
+	return binaryp_stream(input) && binaryp_stream(output);
+}
+
 static int file_character_length_Echo(addr stream, unicode u, size_t *ret)
 {
 	output_Echo(stream, &stream);
@@ -237,6 +251,8 @@ void init_stream_echo(void)
 	DefineStreamChk(Echo, inputp, true);
 	DefineStreamChk(Echo, outputp, true);
 	DefineStreamChk(Echo, interactivep, false);
+	DefineStreamSet(Echo, characterp);
+	DefineStreamSet(Echo, binaryp);
 	DefineStreamLet(Echo, element_type, io_stream);
 	DefineStream___(Echo, file_length);
 	DefineStreamDef(Echo, file_position);

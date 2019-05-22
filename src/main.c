@@ -20,6 +20,7 @@
 #include "package.h"
 #include "pathname.h"
 #include "prompt.h"
+#include "stream.h"
 #include "strtype.h"
 #include "symbol.h"
 
@@ -458,13 +459,13 @@ static int args_interactive(const struct unimem *ptr)
 {
 	return equal_unimem_char(ptr, "--interactive");
 }
-static int args_script(const struct unimem *ptr)
-{
-	return equal_unimem_char(ptr, "--script");
-}
 static int args_quit(const struct unimem *ptr)
 {
 	return equal_unimem_char(ptr, "--quit");
+}
+static int args_script(const struct unimem *ptr)
+{
+	return equal_unimem_char(ptr, "--script");
 }
 static int args_load(const struct unimem *ptr)
 {
@@ -473,6 +474,10 @@ static int args_load(const struct unimem *ptr)
 static int args_eval(const struct unimem *ptr)
 {
 	return equal_unimem_char(ptr, "--eval");
+}
+static int args_input(const struct unimem *ptr)
+{
+	return args_load(ptr) || args_eval(ptr) || args_script(ptr);
 }
 
 
@@ -492,6 +497,22 @@ static int mainlisp_load(Execute ptr,
 		fmte("Cannot open file ~S.", file, NULL);
 
 	return result;
+}
+
+static void mainlisp_script(Execute ptr,
+		const struct unimem *name, int *abort)
+{
+	addr file, stream;
+
+	/* open */
+	strvect_sizeu_heap(&file, name->ptr, name->size);
+	pathname_designer_heap(ptr, file, &file);
+	if (open_input_utf8_stream(ptr, &stream, file))
+		fmte("Cannot open file ~S.", file, NULL);
+	script_header(stream);
+	/* load */
+	if (eval_main_load(ptr, stream, 0, abort))
+		fmte("Cannot load file ~S.", file, NULL);
 }
 
 static int mainlisp_loadinit(Execute ptr, int *abort)
@@ -554,6 +575,10 @@ static void mainlisp_args(Execute ptr, size_t index)
 		}
 		if (args_eval(check)) {
 			mainlisp_eval(ptr, Argv[++index], &abort);
+			continue;
+		}
+		if (args_script(check)) {
+			mainlisp_script(ptr, Argv[++index], &abort);
 			continue;
 		}
 		break;
@@ -639,13 +664,15 @@ static void mainlisp_arguments(size_t index)
 			index++;
 			break;
 		}
-		if (args_load(arg) || args_eval(arg)) {
+		if (args_input(arg)) {
 			index++;
-			if (Argc <= index)
-				fmte("Argument error.", NULL);
+			if (Argc <= index) {
+				strvect_sizeu_heap(&value, arg->ptr, arg->size);
+				fmte("Invalid argument ~S.", value, NULL);
+			}
 			continue;
 		}
-		fmte("Invalid argument.", NULL);
+		break;
 	}
 
 	/* make vector */
@@ -1236,13 +1263,15 @@ static int mainargs_loop(size_t *ret)
 			Interactive = 1;
 			continue;
 		}
-		if (args_script(arg)) {
-			Interactive = 0;
-			continue;
-		}
 		if (args_quit(arg)) {
 			Quit = 1;
 			continue;
+		}
+		if (args_script(arg)) {
+			if (Interactive < 0)
+				Interactive = 1;
+			Quit = 1;
+			goto inputs;
 		}
 		if (args_load(arg) || args_eval(arg) || args_argument(arg)) {
 			goto inputs;

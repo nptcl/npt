@@ -19,6 +19,7 @@ int consolep_file(void);
 void make_standard_input(addr *stream);
 void make_standard_output(addr *stream);
 void make_standard_error(addr *stream);
+int script_header(addr stream);
 
 /* input */
 int open_input_stream_external(Execute ptr, addr *stream, addr file, addr format);

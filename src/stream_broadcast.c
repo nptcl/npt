@@ -95,6 +95,36 @@ static int fresh_line_BroadCast(addr stream)
 	return check;
 }
 
+static int characterp_BroadCast(addr stream)
+{
+	int check;
+	addr list;
+
+	CheckBroadCastStream(stream);
+	GetInfoStream(stream, &list);
+	for (check = 1; list != Nil; ) {
+		getcons(list, &stream, &list);
+		check = check && characterp_stream(stream);
+	}
+
+	return check;
+}
+
+static int binaryp_BroadCast(addr stream)
+{
+	int check;
+	addr list;
+
+	CheckBroadCastStream(stream);
+	GetInfoStream(stream, &list);
+	for (check = 1; list != Nil; ) {
+		getcons(list, &stream, &list);
+		check = check && binaryp_stream(stream);
+	}
+
+	return check;
+}
+
 static int last_component_BroadCast(addr stream, addr *ret)
 {
 	addr list;
@@ -258,6 +288,8 @@ void init_stream_broadcast(void)
 	DefineStreamChk(BroadCast, inputp, false);
 	DefineStreamChk(BroadCast, outputp, true);
 	DefineStreamChk(BroadCast, interactivep, false);
+	DefineStreamSet(BroadCast, characterp);
+	DefineStreamSet(BroadCast, binaryp);
 	DefineStreamSet(BroadCast, element_type);
 	DefineStreamSet(BroadCast, file_length);
 	DefineStreamSet(BroadCast, file_position);

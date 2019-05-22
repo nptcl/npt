@@ -300,6 +300,8 @@ int eval_object(Execute ptr, addr eval, addr *ret)
  */
 static int eval_load_fasl_p(addr file)
 {
+	if (streamp(file))
+		return 0;
 	GetPathname(file, PATHNAME_INDEX_TYPE, &file);
 	return stringp(file) &&
 		(string_equalp_char(file, "fasl") || string_equalp_char(file, "fas"));
@@ -352,7 +354,10 @@ static int eval_load_lisp(Execute ptr, int *result, addr file, int exist)
 	addr stream;
 
 	/* stream */
-	if (open_input_stream(ptr, &stream, file)) {
+	if (streamp(file)) {
+		stream = file;
+	}
+	else if (open_input_stream(ptr, &stream, file)) {
 		if (exist)
 			file_error(file);
 		*result = 0;
@@ -379,9 +384,11 @@ static int eval_load_file(Execute ptr, int *result,
 	addr symbol, pos;
 
 	/* wild-pathname-p */
-	pathname_designer_heap(ptr, file, &file);
-	if (wild_pathname_boolean(file, Nil))
-		file_error(file);
+	if (! streamp(file)) {
+		pathname_designer_heap(ptr, file, &file);
+		if (wild_pathname_boolean(file, Nil))
+			file_error(file);
+	}
 	/* package */
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	getspecial_local(ptr, symbol, &pos);

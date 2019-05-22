@@ -19,6 +19,8 @@ int fresh_line_stream_error(addr stream);
 int inputp_stream_error(addr stream);
 int outputp_stream_error(addr stream);
 int interactivep_stream_error(addr stream);
+int characterp_stream_error(addr stream);
+int binaryp_stream_error(addr stream);
 void file_length_stream_error(addr stream, addr *ret);
 int file_character_length_stream_error(addr stream, unicode u, size_t *ret);
 int file_string_length_stream_error(addr stream, addr pos, size_t *ret);

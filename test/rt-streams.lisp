@@ -6,7 +6,7 @@
 (load #p"test/rtstreams-binary.lisp")
 (load #p"test/rtstreams-character.lisp")
 (load #p"test/rtstreams-control.lisp")
-;(load #p"test/rtstreams-encode.lisp")
+(load #p"test/rtstreams-encode.lisp")
 
 
 ;;

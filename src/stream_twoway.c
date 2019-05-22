@@ -133,6 +133,28 @@ static int interactivep_TwoWay(addr stream)
 	return interactivep_stream(input) && interactivep_stream(output);
 }
 
+static int characterp_TwoWay(addr stream)
+{
+	addr input, output;
+
+	CheckTwoWayStream(stream);
+	GetInputStream(stream, &input);
+	GetOutputStream(stream, &output);
+
+	return characterp_stream(input) && characterp_stream(output);
+}
+
+static int binaryp_TwoWay(addr stream)
+{
+	addr input, output;
+
+	CheckTwoWayStream(stream);
+	GetInputStream(stream, &input);
+	GetOutputStream(stream, &output);
+
+	return binaryp_stream(input) && binaryp_stream(output);
+}
+
 static int file_character_length_TwoWay(addr stream, unicode u, size_t *ret)
 {
 	output_twoway(stream, &stream);
@@ -192,6 +214,8 @@ void init_stream_twoway(void)
 	DefineStreamChk(TwoWay, inputp, true);
 	DefineStreamChk(TwoWay, outputp, true);
 	DefineStreamSet(TwoWay, interactivep);
+	DefineStreamSet(TwoWay, characterp);
+	DefineStreamSet(TwoWay, binaryp);
 	DefineStreamLet(TwoWay, element_type, io_stream);
 	DefineStream___(TwoWay, file_length);
 	DefineStreamDef(TwoWay, file_position);

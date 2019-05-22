@@ -146,6 +146,18 @@ static int interactivep_Concatenated(addr stream)
 	return (stream == Nil)? 0: interactivep_stream(stream);
 }
 
+static int characterp_Concatenated(addr stream)
+{
+	current_concatenated(stream, &stream);
+	return (stream == Nil)? 1: characterp_stream(stream);
+}
+
+static int binaryp_Concatenated(addr stream)
+{
+	current_concatenated(stream, &stream);
+	return (stream == Nil)? 1: binaryp_stream(stream);
+}
+
 static void element_type_Concatenated(addr stream, addr *ret)
 {
 	current_concatenated(stream, &stream);
@@ -188,6 +200,8 @@ void init_stream_concatenated(void)
 	DefineStreamChk(Concatenated, inputp, true);
 	DefineStreamSet(Concatenated, outputp);
 	DefineStreamSet(Concatenated, interactivep);
+	DefineStreamSet(Concatenated, characterp);
+	DefineStreamSet(Concatenated, binaryp);
 	DefineStreamSet(Concatenated, element_type);
 	DefineStream___(Concatenated, file_length);
 	DefineStreamDef(Concatenated, file_position);
