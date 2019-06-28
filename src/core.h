@@ -4,7 +4,7 @@
 #include "typedef.h"
 
 void savecore_execute(addr path);
-int make_core(void);
+int save_core(void);
 int load_core(const void *name, size_t size);
 
 #endif

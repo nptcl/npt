@@ -1,8 +1,9 @@
 #ifndef __COPY_HEADER__
 #define __COPY_HEADER__
 
-#include "typedef.h"
+#include <stdarg.h>
 #include "local.h"
+#include "typedef.h"
 
 void copyhard_cons(LocalRoot local, addr *ret, addr pos);
 void copyhard_vectorA2(LocalRoot local, addr *ret, addr left);

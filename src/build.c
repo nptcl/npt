@@ -14,6 +14,7 @@
 #include "control.h"
 #include "copy.h"
 #include "encode.h"
+#include "eval.h"
 #include "eval_declare.h"
 #include "execute.h"
 #include "fasl.h"
@@ -26,6 +27,7 @@
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
+#include "pointer.h"
 #include "print.h"
 #include "random_state.h"
 #include "readtable.h"
@@ -78,18 +80,29 @@ int getproperty(int index)
  */
 void initlisp(void)
 {
+	clear_pointer();
 	init_boole();
 	init_clos();
+	init_code();
+	init_common();
+	init_condition();
 	init_control();
 	init_copy();
 	init_encode();
+	init_eval();
 	init_fasl();
 	init_format();
+	init_heap();
+	init_package();
+	init_pathname();
 	init_print();
 	init_readtable();
+	init_rt();
 	init_stream();
 	init_sxhash();
+	init_syscall();
 	init_type();
+	init_user();
 }
 
 static void clearlisp_force(void)
@@ -131,8 +144,8 @@ int alloclisp(size_t heap, size_t stack)
 	}
 
 	/* heap */
-	if (init_heap(heap)) {
-		Debug("init_heap error.");
+	if (alloc_heap(heap)) {
+		Debug("alloc_heap error.");
 		goto error_file;
 	}
 
@@ -193,10 +206,10 @@ void build_lisproot(Execute ptr)
 
 	nil_heap();
 	t_heap();
-	lisp_root[LISPINDEX_NIL] = Nil;
-	lisp_root[LISPINDEX_T] = T;
 	for (i = 0; i < LISPINDEX_SIZE; i++)
 		lisp_root[i] = Nil;
+	lisp_root[LISPINDEX_NIL] = Nil;
+	lisp_root[LISPINDEX_T] = T;
 	ptr->control = Nil;
 }
 
@@ -325,13 +338,21 @@ int save_lisp(struct filememory *fm)
 	int i;
 
 	/* heap */
-	IfDebug(save_heap(fm), "save_heap error.");
+	if (save_heap(fm)) {
+		Debug("save_heap error.");
+		return 1;
+	}
 
 	/* build.c */
-	IfDebug(writecheck_filememory(fm, &lisp_property, sizeoft(lisp_property)),
-			"writecheck error: lisp_property.");
+	if (writecheck_filememory(fm, &lisp_property, sizeoft(lisp_property))) {
+		Debug("writecheck error: lisp_property.");
+		return 1;
+	}
 	for (i = 0; i < LISPINDEX_SIZE; i++) {
-		IfDebug(writeaddr_filememory(fm, lisp_root[i]), "writeaddr error: lisp_root.");
+		if (writeaddr_filememory(fm, lisp_root[i])) {
+			Debug2("writeaddr error: lisp_root[%d].", i);
+			return 1;
+		}
 	}
 
 	return 0;
@@ -342,13 +363,21 @@ int load_lisp(struct filememory *fm)
 	int i;
 
 	/* heap */
-	IfDebug(load_heap(fm), "load_heap error.");
+	if (load_heap(fm)) {
+		Debug("load_heap error.");
+		return 1;
+	}
 
 	/* build.c */
-	IfDebug(readcheck_filememory(fm, &lisp_property, sizeoft(lisp_property)),
-			"readcheck error: lisp_property.");
+	if (readcheck_filememory(fm, &lisp_property, sizeoft(lisp_property))) {
+		Debug("readcheck error: lisp_property.");
+		return 1;
+	}
 	for (i = 0; i < LISPINDEX_SIZE; i++) {
-		IfDebug(readaddr_filememory(fm, &(lisp_root[i])), "readaddr error: lisp_root.");
+		if (readaddr_filememory(fm, &(lisp_root[i]))) {
+			Debug2("readaddr error: lisp_root[%d].", i);
+			return 1;
+		}
 	}
 	lisp_nil = lisp_root[LISPINDEX_NIL];
 	lisp_t = lisp_root[LISPINDEX_T];

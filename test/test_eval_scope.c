@@ -2100,7 +2100,8 @@ static int test_replace_symbol_macrolet(void)
 	push_close_control(ptr, &control);
 
 	compiled_heap(&call, Nil);
-	setcompiled_var3(call, test_replace_symbol_macrolet_function);
+	SetPointer(p_debug1, var3, test_replace_symbol_macrolet_function);
+	setcompiled_var3(call, p_debug1);
 	GetConst(SPECIAL_MACROEXPAND_HOOK, &hook);
 	pushspecial_control(ptr, hook, call);
 	cons_heap(&pos, T, Nil); /* (form . env) */

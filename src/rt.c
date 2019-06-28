@@ -116,7 +116,7 @@ static void defun_push_entries(void)
 	/* function */
 	GetConst(RT_PUSH_ENTRIES, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, function_push_entries);
+	setcompiled_var3(pos, p_defun_push_entries);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_push_entries(&type);
@@ -173,7 +173,7 @@ static void defun_rem_all_tests(void)
 	/* function */
 	GetConst(RT_REM_ALL_TESTS, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_empty(pos, function_rem_all_tests);
+	setcompiled_empty(pos, p_defun_rem_all_tests);
 	SetFunctionSymbol(symbol, pos);
 	export_symbol(symbol);
 	/* type */
@@ -221,7 +221,7 @@ static void defmacro_deftest(void)
 
 	GetConst(RT_DEFTEST, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_deftest);
+	setcompiled_macro(pos, p_defmacro_deftest);
 	setmacro_symbol(symbol, pos);
 	export_symbol(symbol);
 	/* type */
@@ -284,7 +284,7 @@ static void defmacro_deftest_error(void)
 
 	GetConst(RT_DEFTEST_ERROR, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_deftest_error);
+	setcompiled_macro(pos, p_defmacro_deftest_error);
 	setmacro_symbol(symbol, pos);
 	export_symbol(symbol);
 	/* type */
@@ -485,7 +485,7 @@ static void defun_do_tests(void)
 	/* function */
 	GetConst(RT_DO_TESTS, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, function_do_tests);
+	setcompiled_dynamic(pos, p_defun_do_tests);
 	SetFunctionSymbol(symbol, pos);
 	export_symbol(symbol);
 	/* type */
@@ -508,7 +508,7 @@ static void defun_equalrt(void)
 	/* function */
 	GetConst(RT_EQUALRT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_equalrt);
+	setcompiled_var2(pos, p_defun_equalrt);
 	SetFunctionSymbol(symbol, pos);
 	export_symbol(symbol);
 	/* type */
@@ -521,6 +521,16 @@ static void defun_equalrt(void)
 /*
  *  build
  */
+void init_rt(void)
+{
+	SetPointerCall(defun, var3, push_entries);
+	SetPointerCall(defun, empty, rem_all_tests);
+	SetPointerCall(defmacro, macro, deftest);
+	SetPointerCall(defmacro, macro, deftest_error);
+	SetPointerCall(defun, dynamic, do_tests);
+	SetPointerCall(defun, var2, equalrt);
+}
+
 void build_rt(void)
 {
 	defpackage_rt();

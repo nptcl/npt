@@ -3,7 +3,9 @@
 #include "constant.h"
 #include "copy.h"
 #include "function.h"
+#include "heap.h"
 #include "integer.h"
+#include "memory.h"
 #include "rational.h"
 #include "real.h"
 #include "symbol.h"
@@ -933,78 +935,116 @@ asterisk:
 /*
  *  parse-type
  */
-#define DefListType(a,b,c) \
-	define_parse_type_list(CONSTANT_##a, typelist_##b, LISPDECL_##c)
-typedef int (*define_parse_type_call)(Execute ptr,
-		addr *ret, enum LISPDECL type, addr left, addr right, addr env);
-static void define_parse_type_list(constindex name,
-		define_parse_type_call call,
-		enum LISPDECL type)
-{
-	addr symbol, value, pos;
+typedef int (*call_typelist)(Execute, addr *, enum LISPDECL, addr, addr, addr);
+static call_typelist TypeParseList[LISPDECL_SIZE];
+#define DefListInit(a, b) (TypeParseList[LISPDECL_##a] = typelist_##b)
 
-	/* symbol */
+void init_type_parse(void)
+{
+	/* Compound-type */
+	DefListInit(AND,                 array4      );
+	DefListInit(OR,                  array4      );
+	DefListInit(EQL,                 eql         );
+	DefListInit(MEMBER,              member      );
+	DefListInit(MOD,                 mod         );
+	DefListInit(NOT,                 not         );
+	DefListInit(SATISFIES,           satisfies   );
+	/* LispInit(VALUES,              values      ); */
+
+	/* Atomic-type */
+	DefListInit(CONS,                cons        );
+	DefListInit(FUNCTION,            function    );
+	DefListInit(COMPILED_FUNCTION,   function    );
+	DefListInit(ARRAY,               array       );
+	DefListInit(SIMPLE_ARRAY,        array       );
+	DefListInit(VECTOR,              vector      );
+	DefListInit(SIMPLE_VECTOR,       size        );
+	DefListInit(BIT_VECTOR,          size        );
+	DefListInit(SIMPLE_BIT_VECTOR,   size        );
+	DefListInit(STRING,              size        );
+	DefListInit(BASE_STRING,         size        );
+	DefListInit(SIMPLE_STRING,       size        );
+	DefListInit(SIMPLE_BASE_STRING,  size        );
+	DefListInit(REAL,                real        );
+	DefListInit(RATIONAL,            rational    );
+	DefListInit(INTEGER,             integer     );
+	DefListInit(SIGNED_BYTE,         byte        );
+	DefListInit(UNSIGNED_BYTE,       byte        );
+	DefListInit(COMPLEX,             complex     );
+	DefListInit(FLOAT,               float       );
+	DefListInit(SHORT_FLOAT,         short       );
+	DefListInit(SINGLE_FLOAT,        single      );
+	DefListInit(DOUBLE_FLOAT,        double      );
+	DefListInit(LONG_FLOAT,          long        );
+}
+
+#define SetTypeParseObject(x,v) (*(enum LISPDECL *)PtrBodyB2(x) = (v))
+#define GetTypeParseObject(x,r) (*(r) = *(enum LISPDECL *)PtrBodyB2(x))
+void make_type_parse_object(addr *ret, enum LISPDECL type)
+{
+	addr pos;
+
+	heap_body2(&pos, LISPSYSTEM_TYPE_PARSE, sizeoft(enum LISPDECL));
+	SetTypeParseObject(pos, type);
+	*ret = pos;
+}
+
+static void define_type_parse_object(enum LISPDECL type, constindex name)
+{
+	addr symbol, pos;
+
 	GetConstant(name, &symbol);
 	CheckType(symbol, LISPTYPE_SYMBOL);
-	/* type */
-	fixnum_heap(&value, (fixnum)type);
-	/* compiled */
-	compiled_heap(&pos, symbol);
-	setcompiled_type(pos, call);
-	setsystem_function(pos);
-	SetDataFunction(pos, value);
-	/* set */
+	make_type_parse_object(&pos, type);
 	setlisttype_symbol(symbol, pos);
 }
+#define DefListType(a) define_type_parse_object(LISPDECL_##a, CONSTANT_COMMON_##a)
 
 void build_type_parse(void)
 {
 	/* Compound-type */
-	DefListType(COMMON_AND,                 array4,     AND                 );
-	DefListType(COMMON_OR,                  array4,     OR                  );
-	DefListType(COMMON_EQL,                 eql,        EQL                 );
-	DefListType(COMMON_MEMBER,              member,     MEMBER              );
-	DefListType(COMMON_MOD,                 mod,        MOD                 );
-	DefListType(COMMON_NOT,                 not,        NOT                 );
-	DefListType(COMMON_SATISFIES,           satisfies,  SATISFIES           );
-	/* ListType(COMMON_VALUES,              values,     VALUES              );*/
+	DefListType(AND                 );
+	DefListType(OR                  );
+	DefListType(EQL                 );
+	DefListType(MEMBER              );
+	DefListType(MOD                 );
+	DefListType(NOT                 );
+	DefListType(SATISFIES           );
+	/* ListType(VALUES              );*/
 
 	/* Atomic-type */
-	DefListType(COMMON_CONS,                cons,       CONS                );
-	DefListType(COMMON_FUNCTION,            function,   FUNCTION            );
-	DefListType(COMMON_COMPILED_FUNCTION,   function,   COMPILED_FUNCTION   );
-	DefListType(COMMON_ARRAY,               array,      ARRAY               );
-	DefListType(COMMON_SIMPLE_ARRAY,        array,      SIMPLE_ARRAY        );
-	DefListType(COMMON_VECTOR,              vector,     VECTOR              );
-	DefListType(COMMON_SIMPLE_VECTOR,       size,       SIMPLE_VECTOR       );
-	DefListType(COMMON_BIT_VECTOR,          size,       BIT_VECTOR          );
-	DefListType(COMMON_SIMPLE_BIT_VECTOR,   size,       SIMPLE_BIT_VECTOR   );
-	DefListType(COMMON_STRING,              size,       STRING              );
-	DefListType(COMMON_BASE_STRING,         size,       BASE_STRING         );
-	DefListType(COMMON_SIMPLE_STRING,       size,       SIMPLE_STRING       );
-	DefListType(COMMON_SIMPLE_BASE_STRING,  size,       SIMPLE_BASE_STRING  );
-	DefListType(COMMON_REAL,                real,       REAL                );
-	DefListType(COMMON_RATIONAL,            rational,   RATIONAL            );
-	DefListType(COMMON_INTEGER,             integer,    INTEGER             );
-	DefListType(COMMON_SIGNED_BYTE,         byte,       SIGNED_BYTE         );
-	DefListType(COMMON_UNSIGNED_BYTE,       byte,       UNSIGNED_BYTE       );
-	DefListType(COMMON_COMPLEX,             complex,    COMPLEX             );
-	DefListType(COMMON_FLOAT,               float,      FLOAT               );
-	DefListType(COMMON_SHORT_FLOAT,         short,      SHORT_FLOAT         );
-	DefListType(COMMON_SINGLE_FLOAT,        single,     SINGLE_FLOAT        );
-	DefListType(COMMON_DOUBLE_FLOAT,        double,     DOUBLE_FLOAT        );
-	DefListType(COMMON_LONG_FLOAT,          long,       LONG_FLOAT          );
+	DefListType(CONS                );
+	DefListType(FUNCTION            );
+	DefListType(COMPILED_FUNCTION   );
+	DefListType(ARRAY               );
+	DefListType(SIMPLE_ARRAY        );
+	DefListType(VECTOR              );
+	DefListType(SIMPLE_VECTOR       );
+	DefListType(BIT_VECTOR          );
+	DefListType(SIMPLE_BIT_VECTOR   );
+	DefListType(STRING              );
+	DefListType(BASE_STRING         );
+	DefListType(SIMPLE_STRING       );
+	DefListType(SIMPLE_BASE_STRING  );
+	DefListType(REAL                );
+	DefListType(RATIONAL            );
+	DefListType(INTEGER             );
+	DefListType(SIGNED_BYTE         );
+	DefListType(UNSIGNED_BYTE       );
+	DefListType(COMPLEX             );
+	DefListType(FLOAT               );
+	DefListType(SHORT_FLOAT         );
+	DefListType(SINGLE_FLOAT        );
+	DefListType(DOUBLE_FLOAT        );
+	DefListType(LONG_FLOAT          );
 }
 
 static int parse_type_default(Execute ptr,
 		addr *ret, addr symbol, addr args, addr env)
 {
 	enum LISPDECL type;
-	addr pos, index;
-	union parse_type_union {
-		define_parse_type_call call;
-		void *ptr;
-	} u;
+	call_typelist call;
+	addr pos;
 
 	CheckType(symbol, LISPTYPE_SYMBOL);
 	getlisttype_symbol(symbol, &pos);
@@ -1012,12 +1052,11 @@ static int parse_type_default(Execute ptr,
 		*ret = NULL;
 		return 0;
 	}
-	Check(! compiled_function_p(pos), "type error");
-	GetDataFunction(pos, &index);
-	type = (enum LISPDECL)RefFixnum(index);
-	getcompiled_type(pos, &(u.ptr));
+	CheckType(pos, LISPSYSTEM_TYPE_PARSE);
+	GetTypeParseObject(pos, &type);
+	call = TypeParseList[type];
 
-	return (*(u.call))(ptr, ret, type, symbol, args, env);
+	return (*call)(ptr, ret, type, symbol, args, env);
 }
 
 static int parse_type_list(Execute ptr, addr *ret, addr pos, addr env)

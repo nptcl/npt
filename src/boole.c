@@ -1036,7 +1036,7 @@ void ldb_common(LocalRoot local, addr *ret, addr spec, addr pos)
  *                        ,w)
  *                r))))
  */
-void setf_ldb(Execute ptr, addr form, addr env)
+void function_setf_ldb(Execute ptr, addr form, addr env)
 {
 	addr args, spec, place, ra, rb, rg, rw, rr, a, b, g, w, r, v;
 	addr prog1, setq, dpb;
@@ -1181,7 +1181,7 @@ void mask_field_common(LocalRoot local, addr *ret, addr spec, addr pos)
  *                        ,w)
  *                r))))
  */
-void setf_mask_field(Execute ptr, addr form, addr env)
+void function_setf_mask_field(Execute ptr, addr form, addr env)
 {
 	addr args, spec, place, ra, rb, rg, rw, rr, a, b, g, w, r, v;
 	addr prog1, setq, deposit;

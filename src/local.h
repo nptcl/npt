@@ -2,7 +2,6 @@
 #define __LOCAL_HEADER__
 
 #include <stddef.h>
-#include "lisptype.h"
 #include "typedef.h"
 
 #define LocalCount		128

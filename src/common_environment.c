@@ -20,7 +20,7 @@ static void defun_lisp_implementation_type(void)
 	/* function */
 	GetConst(COMMON_LISP_IMPLEMENTATION_TYPE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_empty(pos, function_lisp_implementation_type);
+	setcompiled_empty(pos, p_defun_lisp_implementation_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, EnvInfo);
@@ -44,7 +44,7 @@ static void defun_lisp_implementation_version(void)
 	/* function */
 	GetConst(COMMON_LISP_IMPLEMENTATION_VERSION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_empty(pos, function_lisp_implementation_version);
+	setcompiled_empty(pos, p_defun_lisp_implementation_version);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, EnvInfo);
@@ -68,7 +68,7 @@ static void defun_short_site_name(void)
 	/* function */
 	GetConst(COMMON_SHORT_SITE_NAME, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_empty(pos, function_short_site_name);
+	setcompiled_empty(pos, p_defun_short_site_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, EnvInfo);
@@ -92,7 +92,7 @@ static void defun_long_site_name(void)
 	/* function */
 	GetConst(COMMON_LONG_SITE_NAME, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_empty(pos, function_long_site_name);
+	setcompiled_empty(pos, p_defun_long_site_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, EnvInfo);
@@ -116,7 +116,7 @@ static void defun_machine_instance(void)
 	/* function */
 	GetConst(COMMON_MACHINE_INSTANCE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_empty(pos, function_machine_instance);
+	setcompiled_empty(pos, p_defun_machine_instance);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, EnvInfo);
@@ -140,7 +140,7 @@ static void defun_machine_type(void)
 	/* function */
 	GetConst(COMMON_MACHINE_TYPE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_empty(pos, function_machine_type);
+	setcompiled_empty(pos, p_defun_machine_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, EnvInfo);
@@ -164,7 +164,7 @@ static void defun_machine_version(void)
 	/* function */
 	GetConst(COMMON_MACHINE_VERSION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_empty(pos, function_machine_version);
+	setcompiled_empty(pos, p_defun_machine_version);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, EnvInfo);
@@ -188,7 +188,7 @@ static void defun_software_type(void)
 	/* function */
 	GetConst(COMMON_SOFTWARE_TYPE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_empty(pos, function_software_type);
+	setcompiled_empty(pos, p_defun_software_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, EnvInfo);
@@ -212,7 +212,7 @@ static void defun_software_version(void)
 	/* function */
 	GetConst(COMMON_SOFTWARE_VERSION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_empty(pos, function_software_version);
+	setcompiled_empty(pos, p_defun_software_version);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, EnvInfo);
@@ -253,7 +253,7 @@ static void defun_user_homedir_pathname(void)
 	/* function */
 	GetConst(COMMON_USER_HOMEDIR_PATHNAME, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, function_user_homedir_pathname);
+	setcompiled_opt1(pos, p_defun_user_homedir_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_user_homedir_pathname(&type);
@@ -263,9 +263,23 @@ static void defun_user_homedir_pathname(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_environment(void)
+void init_common_environment(void)
+{
+	SetPointerCall(defun, empty, lisp_implementation_type);
+	SetPointerCall(defun, empty, lisp_implementation_version);
+	SetPointerCall(defun, empty, short_site_name);
+	SetPointerCall(defun, empty, long_site_name);
+	SetPointerCall(defun, empty, machine_instance);
+	SetPointerCall(defun, empty, machine_type);
+	SetPointerCall(defun, empty, machine_version);
+	SetPointerCall(defun, empty, software_type);
+	SetPointerCall(defun, empty, software_version);
+	SetPointerCall(defun, opt1, user_homedir_pathname);
+}
+
+void build_common_environment(void)
 {
 	defun_lisp_implementation_type();
 	defun_lisp_implementation_version();

@@ -19,6 +19,9 @@ int consolep_file(void);
 void make_standard_input(addr *stream);
 void make_standard_output(addr *stream);
 void make_standard_error(addr *stream);
+void update_standard_input(addr stream);
+void update_standard_output(addr stream);
+void update_standard_error(addr stream);
 int script_header(addr stream);
 
 /* input */
@@ -120,6 +123,13 @@ void clear_input_file(addr stream);
 void finish_output_file(addr stream);
 void force_output_file(addr stream);
 void clear_output_file(addr stream);
+
+
+/*
+ *  core
+ */
+int save_stream_file(addr pos);
+int save_stream_system(addr pos);
 
 #endif
 

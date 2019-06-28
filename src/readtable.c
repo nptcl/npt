@@ -21,6 +21,7 @@
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
+#include "pointer.h"
 #include "quote.h"
 #include "readtable.h"
 #include "sequence.h"
@@ -40,7 +41,7 @@ struct chartable {
 };
 static struct chartable CharTable[0x80];
 
-void init_readtable(void)
+static void init_chartable(void)
 {
 	static const char *const str1 =
 		"!\"#$%&'(),;<=>?[\\]^_`{|}~.+-*/@"
@@ -2101,7 +2102,7 @@ addr readr(const char *code)
  *  macro character
  *****************************************************************************/
 /* (defun double-quote-reader (stream character) ...) -> * */
-static void reader_double_quote(Execute ptr, addr stream, addr code)
+static void function_reader_double_quote(Execute ptr, addr stream, addr code)
 {
 	int escape;
 	unicode u;
@@ -2142,7 +2143,7 @@ static void defun_double_quote_reader(void)
 	/* function */
 	GetConst(SYSTEM_DOUBLE_QUOTE_READER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, reader_double_quote);
+	setcompiled_var2(pos, p_defun_reader_double_quote);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroReader);
@@ -2174,7 +2175,7 @@ static int quote_macro(Execute ptr, int *result,
 	return 0;
 }
 
-static void reader_single_quote(Execute ptr, addr stream, addr code)
+static void function_reader_single_quote(Execute ptr, addr stream, addr code)
 {
 	int check;
 
@@ -2191,7 +2192,7 @@ static void defun_single_quote_reader(void)
 	/* function */
 	GetConst(SYSTEM_SINGLE_QUOTE_READER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, reader_single_quote);
+	setcompiled_var2(pos, p_defun_reader_single_quote);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroReader);
@@ -2349,7 +2350,7 @@ int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursive)
 	return free_check_control(ptr, control, check);
 }
 
-static void reader_parensis_open(Execute ptr, addr stream, addr code)
+static void function_reader_parensis_open(Execute ptr, addr stream, addr code)
 {
 	(void)read_delimited_list(ptr, stream, ')', 1);
 }
@@ -2361,7 +2362,7 @@ static void defun_parensis_open_reader(void)
 	/* function */
 	GetConst(SYSTEM_PARENSIS_OPEN_READER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, reader_parensis_open);
+	setcompiled_var2(pos, p_defun_reader_parensis_open);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroReader);
@@ -2371,7 +2372,7 @@ static void defun_parensis_open_reader(void)
 
 
 /* (defun parensis-close-reader (stream character) ...) -> * */
-static void reader_parensis_close(Execute ptr, addr stream, addr code)
+static void function_reader_parensis_close(Execute ptr, addr stream, addr code)
 {
 	fmte("unmatch close parenthiesis ).", NULL);
 }
@@ -2383,7 +2384,7 @@ static void defun_parensis_close_reader(void)
 	/* function */
 	GetConst(SYSTEM_PARENSIS_CLOSE_READER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, reader_parensis_close);
+	setcompiled_var2(pos, p_defun_reader_parensis_close);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroReader);
@@ -2393,7 +2394,7 @@ static void defun_parensis_close_reader(void)
 
 
 /* (defun semicolon-reader (stream character) ...) -> * */
-void reader_semicolon(Execute ptr, addr stream, addr code)
+static void function_reader_semicolon(Execute ptr, addr stream, addr code)
 {
 	int result;
 	unicode u;
@@ -2412,7 +2413,7 @@ static void defun_semicolon_reader(void)
 	/* function */
 	GetConst(SYSTEM_SEMICOLON_READER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, reader_semicolon);
+	setcompiled_var2(pos, p_defun_reader_semicolon);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroReader);
@@ -2434,7 +2435,7 @@ static int read_backquote(Execute ptr, addr stream, int *result, addr *ret)
 	return free_check_control(ptr, control, check);
 }
 
-void reader_backquote(Execute ptr, addr stream, addr code)
+static void function_reader_backquote(Execute ptr, addr stream, addr code)
 {
 	int check;
 
@@ -2453,7 +2454,7 @@ static void defun_backquote_reader(void)
 	/* function */
 	GetConst(SYSTEM_BACKQUOTE_READER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, reader_backquote);
+	setcompiled_var2(pos, p_defun_reader_backquote);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroReader);
@@ -2474,7 +2475,7 @@ static int read_comma(Execute ptr, addr stream, int *result, addr *ret)
 	return free_check_control(ptr, control, check);
 }
 
-void reader_comma(Execute ptr, addr stream, addr code)
+static void function_reader_comma(Execute ptr, addr stream, addr code)
 {
 	int check;
 	unicode u;
@@ -2483,7 +2484,7 @@ void reader_comma(Execute ptr, addr stream, addr code)
 	getreadinfo(ptr, &code);
 	if (ReadInfoStruct(code)->backquote == 0)
 		fmte("The comma , is not inside backquote.", NULL);
-	
+
 	/* read */
 	if (read_char_stream(stream, &u))
 		fmte("After comma , must be a character or an object.", NULL);
@@ -2519,7 +2520,7 @@ static void defun_comma_reader(void)
 	/* function */
 	GetConst(SYSTEM_COMMA_READER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, reader_comma);
+	setcompiled_var2(pos, p_defun_reader_comma);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroReader);
@@ -2562,7 +2563,7 @@ static int dispatch_parameter(LocalRoot local, addr stream, addr *ret, unicode *
 	return 0;
 }
 
-static void reader_sharp(Execute ptr, addr stream, addr code1)
+static void function_reader_sharp(Execute ptr, addr stream, addr code1)
 {
 	addr arg, pos, code2;
 	unicode c1, c2;
@@ -2595,7 +2596,7 @@ static void defun_sharp_reader(void)
 	/* function */
 	GetConst(SYSTEM_SHARP_READER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, reader_sharp);
+	setcompiled_var2(pos, p_defun_reader_sharp);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroReader);
@@ -2623,7 +2624,7 @@ static void make_macro_reader(void)
  *  dispatch character
  *****************************************************************************/
 /* (defun error-dispatch (stream code arg) ...) -> * */
-static void dispatch_error(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_error(Execute ptr, addr stream, addr code, addr arg)
 {
 	fmte("don't allow ~S dispatch character.", code, NULL);
 }
@@ -2635,7 +2636,7 @@ static void defun_error_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_ERROR_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_error);
+	setcompiled_var3(pos, p_defun_dispatch_error);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -2668,7 +2669,7 @@ static int read_replace(Execute ptr, addr stream, int *result, addr *ret)
 	/* finalize */
 	push_finalize_control(ptr, &control);
 	cons_local(ptr->local, &pos, pos, value);
-	syscall_code(ptr->local, &code, read_replace_finalize, pos);
+	syscall_code(ptr->local, &code, p_read_replace_finalize, pos);
 	setfinalize_control(ptr, control, code);
 	/* code */
 	check = read_recursive(ptr, stream, result, ret);
@@ -2791,7 +2792,7 @@ static void closelabel_readlabel(Execute ptr, addr label, addr pos)
 	normal_readlabel(label);
 }
 
-static void dispatch_equal(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_equal(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr pos, label;
@@ -2812,7 +2813,7 @@ static void defun_equal_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_EQUAL_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_equal);
+	setcompiled_var3(pos, p_defun_dispatch_equal);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -2822,7 +2823,7 @@ static void defun_equal_dispatch(void)
 
 
 /* (defun sharp-dispatch (stream code arg) ...) -> * */
-static void dispatch_sharp(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_sharp(Execute ptr, addr stream, addr code, addr arg)
 {
 	addr pos;
 
@@ -2842,7 +2843,7 @@ static void defun_sharp_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_SHARP_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_sharp);
+	setcompiled_var3(pos, p_defun_dispatch_sharp);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -2852,7 +2853,8 @@ static void defun_sharp_dispatch(void)
 
 
 /* (defun single-quote-dispatch (stream code arg) ...) -> * */
-static void dispatch_single_quote(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_single_quote(Execute ptr,
+		addr stream, addr code, addr arg)
 {
 	int check;
 
@@ -2869,7 +2871,7 @@ static void defun_single_quote_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_SINGLE_QUOTE_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_single_quote);
+	setcompiled_var3(pos, p_defun_dispatch_single_quote);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -2940,7 +2942,8 @@ static void vector_readlabel(Execute ptr, addr pos)
 	}
 }
 
-static void dispatch_parensis_open(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_parensis_open(Execute ptr,
+		addr stream, addr code, addr arg)
 {
 	int check;
 	unicode u;
@@ -3009,7 +3012,7 @@ static void defun_parensis_open_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_PARENSIS_OPEN_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_parensis_open);
+	setcompiled_var3(pos, p_defun_dispatch_parensis_open);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3019,7 +3022,8 @@ static void defun_parensis_open_dispatch(void)
 
 
 /* (defun parensis-close-dispatch (stream code arg) ...) -> * */
-static void dispatch_parensis_close(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_parensis_close(Execute ptr,
+		addr stream, addr code, addr arg)
 {
 	fmte("unmatch close parenthiesis ).", NULL);
 }
@@ -3031,7 +3035,7 @@ static void defun_parensis_close_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_PARENSIS_CLOSE_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_parensis_close);
+	setcompiled_var3(pos, p_defun_dispatch_parensis_close);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3108,7 +3112,7 @@ static void asterisk_bitvector(Execute ptr, addr stream, size_t size)
 	setresult_control(ptr, pos);
 }
 
-static void dispatch_asterisk(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_asterisk(Execute ptr, addr stream, addr code, addr arg)
 {
 	size_t size;
 
@@ -3129,7 +3133,7 @@ static void defun_asterisk_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_ASTERISK_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_asterisk);
+	setcompiled_var3(pos, p_defun_dispatch_asterisk);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3163,7 +3167,7 @@ static void readtable_colon(Execute ptr, addr *ret, addr stream)
 	}
 }
 
-static void dispatch_colon(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_colon(Execute ptr, addr stream, addr code, addr arg)
 {
 	addr control, pos;
 
@@ -3185,7 +3189,7 @@ static void defun_colon_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_COLON_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_colon);
+	setcompiled_var3(pos, p_defun_dispatch_colon);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3195,7 +3199,7 @@ static void defun_colon_dispatch(void)
 
 
 /* (defun less-dispatch (stream code arg) ...) -> * */
-static void dispatch_less(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_less(Execute ptr, addr stream, addr code, addr arg)
 {
 	fmte("Cannot read #< dispatch character.", NULL);
 }
@@ -3207,7 +3211,7 @@ static void defun_less_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_LESS_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_less);
+	setcompiled_var3(pos, p_defun_dispatch_less);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3217,7 +3221,7 @@ static void defun_less_dispatch(void)
 
 
 /* (defun backslash-dispatch (stream code arg) ...) -> * */
-static void dispatch_backslash(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_backslash(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr table, pos;
@@ -3242,7 +3246,7 @@ static void defun_backslash_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_BACKSLASH_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_backslash);
+	setcompiled_var3(pos, p_defun_dispatch_backslash);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3252,7 +3256,7 @@ static void defun_backslash_dispatch(void)
 
 
 /* (defun or-dispatch (stream code arg) ...) -> (values) */
-static void dispatch_or(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_or(Execute ptr, addr stream, addr code, addr arg)
 {
 	unicode u;
 	size_t count;
@@ -3287,7 +3291,7 @@ static void defun_or_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_OR_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_or);
+	setcompiled_var3(pos, p_defun_dispatch_or);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3386,7 +3390,7 @@ static int check_feature(addr list, addr pos)
 	return 0;
 }
 
-static void dispatch_plus(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_plus(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr feature, form, list;
@@ -3417,7 +3421,7 @@ static void defun_plus_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_PLUS_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_plus);
+	setcompiled_var3(pos, p_defun_dispatch_plus);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3427,7 +3431,7 @@ static void defun_plus_dispatch(void)
 
 
 /* (defun minus-dispatch (stream code arg) ...) -> * */
-static void dispatch_minus(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_minus(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr feature, form, list;
@@ -3458,7 +3462,7 @@ static void defun_minus_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_MINUS_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_minus);
+	setcompiled_var3(pos, p_defun_dispatch_minus);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3468,7 +3472,7 @@ static void defun_minus_dispatch(void)
 
 
 /* (defun dot-dispatch (stream code arg) ...) -> * */
-static void dispatch_dot(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_dot(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr eval;
@@ -3491,7 +3495,7 @@ static void defun_dot_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_DOT_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_dot);
+	setcompiled_var3(pos, p_defun_dispatch_dot);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3531,7 +3535,7 @@ static void dispatch_radix_read(Execute ptr, addr stream, fixnum base)
 	setresult_control(ptr, pos);
 }
 
-static void dispatch_radix(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_radix(Execute ptr, addr stream, addr code, addr arg)
 {
 	fixnum value;
 
@@ -3548,7 +3552,7 @@ static void defun_radix_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_RADIX_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_radix);
+	setcompiled_var3(pos, p_defun_dispatch_radix);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3558,7 +3562,7 @@ static void defun_radix_dispatch(void)
 
 
 /* (defun binary-dispatch (stream code arg) ...) -> * */
-static void dispatch_binary(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_binary(Execute ptr, addr stream, addr code, addr arg)
 {
 	dispatch_radix_read(ptr, stream, 2);
 }
@@ -3570,7 +3574,7 @@ static void defun_binary_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_BINARY_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_binary);
+	setcompiled_var3(pos, p_defun_dispatch_binary);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3580,7 +3584,7 @@ static void defun_binary_dispatch(void)
 
 
 /* (defun octal-dispatch (stream code arg) ...) -> * */
-static void dispatch_octal(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_octal(Execute ptr, addr stream, addr code, addr arg)
 {
 	dispatch_radix_read(ptr, stream, 8);
 }
@@ -3592,7 +3596,7 @@ static void defun_octal_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_OCTAL_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_octal);
+	setcompiled_var3(pos, p_defun_dispatch_octal);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3602,7 +3606,7 @@ static void defun_octal_dispatch(void)
 
 
 /* (defun hexdecimal-dispatch (stream code arg) ...) -> * */
-static void dispatch_hexdecimal(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_hexdecimal(Execute ptr, addr stream, addr code, addr arg)
 {
 	dispatch_radix_read(ptr, stream, 16);
 }
@@ -3614,7 +3618,7 @@ static void defun_hexdecimal_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_HEXDECIMAL_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_hexdecimal);
+	setcompiled_var3(pos, p_defun_dispatch_hexdecimal);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3624,7 +3628,7 @@ static void defun_hexdecimal_dispatch(void)
 
 
 /* (defun complex-dispatch (stream code arg) ...) -> * */
-static void dispatch_complex(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_complex(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr form, pos, real, imag;
@@ -3656,7 +3660,7 @@ static void defun_complex_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_COMPLEX_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_complex);
+	setcompiled_var3(pos, p_defun_dispatch_complex);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3666,7 +3670,7 @@ static void defun_complex_dispatch(void)
 
 
 /* (defun array-dispatch (stream code arg) ...) -> * */
-static void dispatch_array(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_array(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr form;
@@ -3688,7 +3692,7 @@ static void defun_array_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_ARRAY_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_array);
+	setcompiled_var3(pos, p_defun_dispatch_array);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3698,7 +3702,7 @@ static void defun_array_dispatch(void)
 
 
 /* (defun pathname-dispatch (stream code arg) ...) -> * */
-static void dispatch_pathname(Execute ptr, addr stream, addr code, addr arg)
+static void function_dispatch_pathname(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr pos;
@@ -3718,7 +3722,7 @@ static void defun_pathname_dispatch(void)
 	/* function */
 	GetConst(SYSTEM_PATHNAME_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, dispatch_pathname);
+	setcompiled_var3(pos, p_defun_dispatch_pathname);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -3792,5 +3796,44 @@ void in_package_lisp_package(void)
 	find_char_package(LISP_PACKAGE, &package);
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	setspecial_local(ptr, symbol, package);
+}
+
+
+/*
+ *  initialize
+ */
+void init_readtable(void)
+{
+	SetPointerCall(defun, var2, reader_double_quote);
+	SetPointerCall(defun, var2, reader_single_quote);
+	SetPointerCall(defun, var2, reader_parensis_open);
+	SetPointerCall(defun, var2, reader_parensis_close);
+	SetPointerCall(defun, var2, reader_semicolon);
+	SetPointerCall(defun, var2, reader_backquote);
+	SetPointerCall(defun, var2, reader_comma);
+	SetPointerCall(defun, var2, reader_sharp);
+	SetPointerCall(defun, var3, dispatch_error);
+	SetPointerCall(defun, var3, dispatch_equal);
+	SetPointerCall(defun, var3, dispatch_sharp);
+	SetPointerCall(defun, var3, dispatch_single_quote);
+	SetPointerCall(defun, var3, dispatch_parensis_open);
+	SetPointerCall(defun, var3, dispatch_parensis_close);
+	SetPointerCall(defun, var3, dispatch_asterisk);
+	SetPointerCall(defun, var3, dispatch_colon);
+	SetPointerCall(defun, var3, dispatch_less);
+	SetPointerCall(defun, var3, dispatch_backslash);
+	SetPointerCall(defun, var3, dispatch_or);
+	SetPointerCall(defun, var3, dispatch_plus);
+	SetPointerCall(defun, var3, dispatch_minus);
+	SetPointerCall(defun, var3, dispatch_dot);
+	SetPointerCall(defun, var3, dispatch_radix);
+	SetPointerCall(defun, var3, dispatch_binary);
+	SetPointerCall(defun, var3, dispatch_octal);
+	SetPointerCall(defun, var3, dispatch_hexdecimal);
+	SetPointerCall(defun, var3, dispatch_complex);
+	SetPointerCall(defun, var3, dispatch_array);
+	SetPointerCall(defun, var3, dispatch_pathname);
+	SetPointerType(empty, read_replace_finalize);
+	init_chartable();
 }
 

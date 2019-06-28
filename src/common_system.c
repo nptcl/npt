@@ -198,7 +198,7 @@ static void defun_load(void)
 	/* function */
 	GetConst(COMMON_LOAD, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_load);
+	setcompiled_var1dynamic(pos, p_defun_load);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_load(&type);
@@ -208,9 +208,14 @@ static void defun_load(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_system(void)
+void init_common_system(void)
+{
+	SetPointerCall(defun, var1dynamic, load);
+}
+
+void build_common_system(void)
 {
 	defvar_features();
 	defvar_compile_file_pathname();

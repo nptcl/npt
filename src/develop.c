@@ -17,7 +17,7 @@ char **DegradeArgv = NULL;
 char **DegradeEnv = NULL;
 
 #define DEGRADE_WIDTH 60
-static int DegradeSwitch = 1;
+static int DegradeSwitch = 0;
 static int DegradePosition;
 
 int degrade_printf(const char *fmt, ...)

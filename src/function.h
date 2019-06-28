@@ -5,6 +5,7 @@
 #include "execute.h"
 #include "local.h"
 #include "memory.h"
+#include "pointer.h"
 
 enum CALLNAME_TYPE {
 	CALLNAME_ERROR = 0,
@@ -30,7 +31,7 @@ struct function_struct {
 	unsigned compiled : 1;
 	unsigned recursive : 1;
 	unsigned system : 1;
-	struct callbind_struct call;
+	pointer index;
 };
 
 #define RefCallName_Low(s)          RefArrayA2((s),0)
@@ -54,7 +55,6 @@ struct function_struct {
 #define RefTableFunction_Low(x)		RefArraySS((x),FUNCTION_INDEX_TABLE)
 #define GetTableFunction_Low(x,v)	GetArraySS((x),FUNCTION_INDEX_TABLE,(v))
 #define SetTableFunction_Low(x,v)	SetArraySS((x),FUNCTION_INDEX_TABLE,(v))
-#define CallBindCompiled_Low(x)		(&(StructFunction_Low(x)->call))
 
 #define GetClosureValueFunction_Low(x,v)	\
 	GetArraySS((x),FUNCTION_INDEX_CLOSURE_VALUE,(v))
@@ -91,7 +91,6 @@ struct function_struct {
 #define RefDataFunction(x)			refdatafunction(x)
 #define GetDataFunction(x,v)		getdatafunction(x,v)
 #define SetDataFunction(x,v)		setdatafunction(x,v)
-#define CallBindCompiled(x)			callbindcompiled(x)
 
 #define GetClosureValueFunction(x,v)	getclosure_value_function(x,v)
 #define SetClosureValueFunction(x,v)	setclosure_value_function(x,v)
@@ -119,7 +118,6 @@ struct function_struct {
 #define RefDataFunction(x)			RefDataFunction_Low(x)
 #define GetDataFunction(x,v)		GetDataFunction_Low(x,v)
 #define SetDataFunction(x,v)		SetDataFunction_Low(x,v)
-#define CallBindCompiled(x)			CallBindCompiled_Low(x)
 
 #define GetClosureValueFunction(x,v)	GetClosureValueFunction_Low(x,v)
 #define SetClosureValueFunction(x,v)	SetClosureValueFunction_Low(x,v)
@@ -213,40 +211,38 @@ void compiled_macro_alloc(LocalRoot local, addr *ret, addr name);
 void compiled_macro_local(LocalRoot local, addr *ret, addr name);
 void compiled_macro_heap(addr *ret, addr name);
 
-void setcompiled_system(addr pos, calltype call);
-void getcompiled_system(addr pos, calltype *ret);
-void setcompiled_type(addr pos, void *call);
-void getcompiled_type(addr pos, void **ret);
-void setcompiled_macro(addr pos, callbind_macro call);
-void setcompiled_none(addr pos, callbind_none call);
-void setcompiled_any(addr pos, callbind_any call);
-void setcompiled_empty(addr pos, callbind_empty call);
-void setcompiled_dynamic(addr pos, callbind_dynamic call);
-void setcompiled_rest(addr pos, callbind_rest call);
-void setcompiled_var1(addr pos, callbind_var1 call);
-void setcompiled_var2(addr pos, callbind_var2 call);
-void setcompiled_var3(addr pos, callbind_var3 call);
-void setcompiled_var4(addr pos, callbind_var4 call);
-void setcompiled_var5(addr pos, callbind_var5 call);
-void setcompiled_var6(addr pos, callbind_var6 call);
-void setcompiled_opt1(addr pos, callbind_opt1 call);
-void setcompiled_opt2(addr pos, callbind_opt2 call);
-void setcompiled_opt3(addr pos, callbind_opt3 call);
-void setcompiled_opt4(addr pos, callbind_opt4 call);
-void setcompiled_opt5(addr pos, callbind_opt5 call);
-void setcompiled_var1opt1(addr pos, callbind_var1opt1 call);
-void setcompiled_var2opt1(addr pos, callbind_var2opt1 call);
-void setcompiled_var3opt1(addr pos, callbind_var3opt1 call);
-void setcompiled_var4opt1(addr pos, callbind_var4opt1 call);
-void setcompiled_var5opt1(addr pos, callbind_var5opt1 call);
-void setcompiled_var1opt2(addr pos, callbind_var1opt2 call);
-void setcompiled_var2opt2(addr pos, callbind_var2opt2 call);
-void setcompiled_var1rest(addr pos, callbind_var1rest call);
-void setcompiled_var2rest(addr pos, callbind_var2rest call);
-void setcompiled_var1dynamic(addr pos, callbind_var1dynamic call);
-void setcompiled_var2dynamic(addr pos, callbind_var2dynamic call);
-void setcompiled_var3dynamic(addr pos, callbind_var3dynamic call);
-void setcompiled_var4dynamic(addr pos, callbind_var4dynamic call);
+void setcompiled_code(addr pos, pointer p);
+void getcompiled_code(addr pos, pointer *ret);
+void setcompiled_macro(addr pos, pointer p);
+void setcompiled_none(addr pos, pointer p);
+void setcompiled_any(addr pos, pointer p);
+void setcompiled_empty(addr pos, pointer p);
+void setcompiled_dynamic(addr pos, pointer p);
+void setcompiled_rest(addr pos, pointer p);
+void setcompiled_var1(addr pos, pointer p);
+void setcompiled_var2(addr pos, pointer p);
+void setcompiled_var3(addr pos, pointer p);
+void setcompiled_var4(addr pos, pointer p);
+void setcompiled_var5(addr pos, pointer p);
+void setcompiled_var6(addr pos, pointer p);
+void setcompiled_opt1(addr pos, pointer p);
+void setcompiled_opt2(addr pos, pointer p);
+void setcompiled_opt3(addr pos, pointer p);
+void setcompiled_opt4(addr pos, pointer p);
+void setcompiled_opt5(addr pos, pointer p);
+void setcompiled_var1opt1(addr pos, pointer p);
+void setcompiled_var2opt1(addr pos, pointer p);
+void setcompiled_var3opt1(addr pos, pointer p);
+void setcompiled_var4opt1(addr pos, pointer p);
+void setcompiled_var5opt1(addr pos, pointer p);
+void setcompiled_var1opt2(addr pos, pointer p);
+void setcompiled_var2opt2(addr pos, pointer p);
+void setcompiled_var1rest(addr pos, pointer p);
+void setcompiled_var2rest(addr pos, pointer p);
+void setcompiled_var1dynamic(addr pos, pointer p);
+void setcompiled_var2dynamic(addr pos, pointer p);
+void setcompiled_var3dynamic(addr pos, pointer p);
+void setcompiled_var4dynamic(addr pos, pointer p);
 
 void function_heap_for_develop(addr *ret, addr name);
 
@@ -254,7 +250,6 @@ struct function_struct *structfunction(addr pos);
 addr reffunction(addr pos);
 void getfunction(addr pos, addr *ret);
 void setfunction(addr pos, addr value);
-struct callbind_struct *callbindcompiled(addr pos);
 addr refnamefunction(addr pos);
 void getnamefunction(addr pos, addr *ret);
 void setnamefunction(addr pos, addr value);

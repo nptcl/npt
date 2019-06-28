@@ -3,6 +3,7 @@
 
 #include "build.h"
 #include "typedef.h"
+#include "typedef_integer.h"
 
 /*****************************************************************************
   Macro

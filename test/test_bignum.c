@@ -1,4 +1,5 @@
 #include "bignum.c"
+#include "c99.h"
 #include "cons.h"
 #include "constant.h"
 #include "degrade.h"

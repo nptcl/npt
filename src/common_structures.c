@@ -650,7 +650,7 @@ static void defmacro_defstruct(void)
 
 	GetConst(COMMON_DEFSTRUCT, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_defstruct);
+	setcompiled_macro(pos, p_defmacro_defstruct);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -684,7 +684,7 @@ static void defun_copy_structure(void)
 	/* function */
 	GetConst(COMMON_COPY_STRUCTURE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_copy_structure);
+	setcompiled_var1(pos, p_defun_copy_structure);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_copy_structure(&type);
@@ -694,9 +694,15 @@ static void defun_copy_structure(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_structures(void)
+void init_common_structures(void)
+{
+	SetPointerCall(defmacro, macro, defstruct);
+	SetPointerCall(defun, var1, copy_structure);
+}
+
+void build_common_structures(void)
 {
 	defmacro_defstruct();
 	defun_copy_structure();

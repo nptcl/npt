@@ -15,6 +15,7 @@
 #include "integer.h"
 #include "memory.h"
 #include "number.h"
+#include "pointer.h"
 #include "print.h"
 #include "prompt.h"
 #include "stream.h"
@@ -284,8 +285,29 @@ void handler_warning(Execute ptr)
 
 	GetConst(CONDITION_WARNING, &pos);
 	compiled_local(ptr->local, &call, Nil);
-	setcompiled_var1(call, function_handler_warning);
+	setcompiled_var1(call, p_defun_handler_warning);
 	pushhandler_control(ptr, pos, call, 0);
+}
+
+
+/*
+ *  (handler-case
+ *    ...
+ *    ((system::savecore #'function-handler-savecore)))
+ */
+static void function_handler_savecore(Execute ptr, addr condition)
+{
+	/* do-nothing */
+}
+
+void handler_savecore(Execute ptr)
+{
+	addr pos, call;
+
+	GetConst(CONDITION_SAVECORE, &pos);
+	compiled_local(ptr->local, &call, Nil);
+	setcompiled_var1(call, p_defun_handler_savecore);
+	pushhandler_control(ptr, pos, call, 1);
 }
 
 
@@ -1263,6 +1285,19 @@ void undefined_function_setf(addr name)
 	undefined_function(name);
 }
 
+/* savecore */
+void instance_savecore_condition(addr *ret)
+{
+	instance_condition(ret, CONSTANT_CONDITION_SAVECORE);
+}
+
+void savecore_condition(void)
+{
+	addr instance;
+	instance_savecore_condition(&instance);
+	error_function(instance);
+}
+
 
 /*
  *  build_condition
@@ -1288,5 +1323,11 @@ void build_condition(Execute ptr)
 {
 	build_variables();
 	set_enable_debugger(1);
+}
+
+void init_condition(void)
+{
+	SetPointerCall(defun, var1, handler_warning);
+	SetPointerCall(defun, var1, handler_savecore);
 }
 

@@ -3,6 +3,7 @@
 
 #include "build.h"
 #include "file_type.h"
+#include "file_memory.h"
 #include "memory.h"
 
 enum STREAM_INDEX {
@@ -303,6 +304,10 @@ void read_sequence_common(addr *ret, addr seq, addr stream, size_t start, size_t
 void write_sequence_common(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end);
 int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret);
+
+/* core */
+void update_standard_stream(void);
+int save_stream(addr pos);
 
 #endif
 

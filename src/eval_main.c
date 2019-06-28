@@ -14,18 +14,18 @@
 /*
  *  restart abort
  */
-static void eval_loop_abort_function(Execute ptr)
+static void function_eval_loop_abort_function(Execute ptr)
 {
 	setresult_control(ptr, Nil);
 }
 
-static void eval_loop_abort_report(Execute ptr, addr stream)
+static void function_eval_loop_abort_report(Execute ptr, addr stream)
 {
 	fmts(stream, "Return to eval-loop.", NULL);
 	setresult_control(ptr, Nil);
 }
 
-static void eval_loop_abort_test(Execute ptr, addr condition)
+static void function_eval_loop_abort_test(Execute ptr, addr condition)
 {
 	setresult_control(ptr, T);
 }
@@ -39,17 +39,17 @@ static void eval_main_restart_abort(addr *ret)
 	restart_heap(&pos, pos);
 	/* function */
 	compiled_heap(&value, Nil);
-	setcompiled_empty(value, eval_loop_abort_function);
+	setcompiled_empty(value, p_defun_eval_loop_abort_function);
 	setfunction_restart(pos, value);
 	/* interactive */
 	setinteractive_restart(pos, Nil);
 	/* report */
 	compiled_heap(&value, Nil);
-	setcompiled_var1(value, eval_loop_abort_report);
+	setcompiled_var1(value, p_defun_eval_loop_abort_report);
 	setreport_restart(pos, value);
 	/* test */
 	compiled_heap(&value, Nil);
-	setcompiled_var1(value, eval_loop_abort_test);
+	setcompiled_var1(value, p_defun_eval_loop_abort_test);
 	settest_restart(pos, value);
 	/* escape */
 	setescape_restart(pos, 1);  /* restart-case */
@@ -326,7 +326,7 @@ static int evalrestart_load(Execute ptr,
 	push_restart_control(ptr, &control);
 	begin_switch(ptr, &jump);
 	check = 0;
-	*result = 1;
+	*result = 0;
 	*abort = 0;
 	if (codejump_run_p(&jump)) {
 		push_eval_main_restart_abort(ptr, &restart);
@@ -351,6 +351,17 @@ int eval_main_load(Execute ptr, addr file, int exists, int *abort)
 	int result;
 	if (evalrestart_load(ptr, file, exists, &result, abort))
 		fmte("Cannot catch a system signal.", NULL);
-	return (result == 0);
+	return result;
+}
+
+
+/*
+ *  initialize
+ */
+void init_eval_main(void)
+{
+	SetPointerCall(defun, empty, eval_loop_abort_function);
+	SetPointerCall(defun, var1, eval_loop_abort_report);
+	SetPointerCall(defun, var1, eval_loop_abort_test);
 }
 

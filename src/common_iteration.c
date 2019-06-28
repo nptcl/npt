@@ -166,7 +166,7 @@ static void defmacro_do(void)
 
 	GetConst(COMMON_DO, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_do);
+	setcompiled_macro(pos, p_defmacro_do);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -185,7 +185,7 @@ static void defmacro_doa(void)
 
 	GetConst(COMMON_DOA, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_doa);
+	setcompiled_macro(pos, p_defmacro_doa);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -245,7 +245,7 @@ static void defmacro_dotimes(void)
 
 	GetConst(COMMON_DOTIMES, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_dotimes);
+	setcompiled_macro(pos, p_defmacro_dotimes);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -331,7 +331,7 @@ static void defmacro_dolist(void)
 
 	GetConst(COMMON_DOLIST, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_dolist);
+	setcompiled_macro(pos, p_defmacro_dolist);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -340,9 +340,17 @@ static void defmacro_dolist(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_iteration(void)
+void init_common_iteration(void)
+{
+	SetPointerCall(defmacro,  macro,  do);
+	SetPointerCall(defmacro,  macro,  doa);
+	SetPointerCall(defmacro,  macro,  dotimes);
+	SetPointerCall(defmacro,  macro,  dolist);
+}
+
+void build_common_iteration(void)
 {
 	defmacro_do();
 	defmacro_doa();

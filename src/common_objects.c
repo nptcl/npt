@@ -81,7 +81,7 @@ static void defun_ensure_generic_function(void)
 	/* function */
 	GetConst(COMMON_ENSURE_GENERIC_FUNCTION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_ensure_generic_function);
+	setcompiled_var1dynamic(pos, p_defun_ensure_generic_function);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_ensure_generic_function(&type);
@@ -160,7 +160,7 @@ static void defun_slot_boundp(void)
 	/* function */
 	GetConst(COMMON_SLOT_BOUNDP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_slot_boundp);
+	setcompiled_var2(pos, p_defun_slot_boundp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, SlotBoundp);
@@ -197,7 +197,7 @@ static void defun_slot_exists_p(void)
 	/* function */
 	GetConst(COMMON_SLOT_EXISTS_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_slot_exists_p);
+	setcompiled_var2(pos, p_defun_slot_exists_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, SlotBoundp);
@@ -234,7 +234,7 @@ static void defun_slot_makunbound(void)
 	/* function */
 	GetConst(COMMON_SLOT_MAKUNBOUND, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_slot_makunbound);
+	setcompiled_var2(pos, p_defun_slot_makunbound);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, SlotBoundp);
@@ -296,7 +296,7 @@ static void defun_slot_value(void)
 	/* function */
 	GetConst(COMMON_SLOT_VALUE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_slot_value);
+	setcompiled_var2(pos, p_defun_slot_value);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_slot_value(&type);
@@ -344,7 +344,7 @@ static void defun_setf_slot_value(void)
 	/* function */
 	GetConst(COMMON_SLOT_VALUE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, function_setf_slot_value);
+	setcompiled_var3(pos, p_defun_setf_slot_value);
 	setsetf_symbol(symbol, pos);
 	/* type */
 	type_setf_slot_value(&type);
@@ -406,7 +406,7 @@ static void defmacro_with_accessors(void)
 
 	GetConst(COMMON_WITH_ACCESSORS, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_with_accessors);
+	setcompiled_macro(pos, p_defmacro_with_accessors);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -427,7 +427,7 @@ static void defmacro_with_slots(void)
 
 	GetConst(COMMON_WITH_SLOTS, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_with_slots);
+	setcompiled_macro(pos, p_defmacro_with_slots);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -454,7 +454,7 @@ static void defmacro_defclass(void)
 
 	GetConst(COMMON_DEFCLASS, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_defclass);
+	setcompiled_macro(pos, p_defmacro_defclass);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -475,7 +475,7 @@ static void defmacro_defgeneric(void)
 
 	GetConst(COMMON_DEFGENERIC, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_defgeneric);
+	setcompiled_macro(pos, p_defmacro_defgeneric);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -498,7 +498,7 @@ static void defmacro_defmethod(void)
 
 	GetConst(COMMON_DEFMETHOD, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_defmethod);
+	setcompiled_macro(pos, p_defmacro_defmethod);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -539,7 +539,7 @@ static void defun_find_class(void)
 	/* function */
 	GetConst(COMMON_FIND_CLASS, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt2(pos, function_find_class);
+	setcompiled_var1opt2(pos, p_defun_find_class);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_find_class(&type);
@@ -578,7 +578,7 @@ static void defun_setf_find_class(void)
 	/* function */
 	GetConst(COMMON_FIND_CLASS, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2opt2(pos, function_setf_find_class);
+	setcompiled_var2opt2(pos, p_defun_setf_find_class);
 	setsetf_symbol(symbol, pos);
 	/* type */
 	type_setf_find_class(&type);
@@ -607,7 +607,7 @@ static void defmacro_define_method_combination(void)
 
 	GetConst(COMMON_DEFINE_METHOD_COMBINATION, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_define_method_combination);
+	setcompiled_macro(pos, p_defmacro_define_method_combination);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -674,7 +674,7 @@ static void defun_class_of(void)
 	/* function */
 	GetConst(COMMON_CLASS_OF, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_class_of);
+	setcompiled_var1(pos, p_defun_class_of);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_class_of(&type);
@@ -707,7 +707,7 @@ static void defun_unbound_slot_instance(void)
 	/* function */
 	GetConst(COMMON_UNBOUND_SLOT_INSTANCE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_unbound_slot_instance);
+	setcompiled_var1(pos, p_defun_unbound_slot_instance);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_unbound_slot_instance(&type);
@@ -747,9 +747,29 @@ static void defgeneric_setf_documentation(void)
 
 
 /*
- *  intern
+ *  function
  */
-static void intern_clos_objects(void)
+static void init_clos_objects(void)
+{
+	SetPointerCall(defun, var1dynamic, ensure_generic_function);
+	SetPointerCall(defun, var2, slot_boundp);
+	SetPointerCall(defun, var2, slot_exists_p);
+	SetPointerCall(defun, var2, slot_makunbound);
+	SetPointerCall(defun, var2, slot_value);
+	SetPointerCall(defun, var3, setf_slot_value);
+	SetPointerCall(defmacro, macro, with_accessors);
+	SetPointerCall(defmacro, macro, with_slots);
+	SetPointerCall(defmacro, macro, defclass);
+	SetPointerCall(defmacro, macro, defgeneric);
+	SetPointerCall(defmacro, macro, defmethod);
+	SetPointerCall(defun, var1opt2, find_class);
+	SetPointerCall(defun, var2opt2, setf_find_class);
+	SetPointerCall(defmacro, macro, define_method_combination);
+	SetPointerCall(defun, var1, class_of);
+	SetPointerCall(defun, var1, unbound_slot_instance);
+}
+
+static void build_clos_objects(void)
 {
 	defgeneric_function_keywords();
 	defun_ensure_generic_function();
@@ -792,7 +812,7 @@ static void intern_clos_objects(void)
 	defun_unbound_slot_instance();
 }
 
-static void intern_clos_others(void)
+static void build_clos_others(void)
 {
 	/* 22. Printer */
 	defgeneric_print_object();
@@ -802,13 +822,21 @@ static void intern_clos_others(void)
 	defgeneric_setf_documentation();
 }
 
-void intern_common_objects(void)
+void init_common_objects(void)
 {
 	/* metaobject protocol */
-	intern_metaobject_protocol();
+	init_metaobject_protocol();
 	/* common-lisp objects */
-	intern_clos_objects();
+	init_clos_objects();
+}
+
+void build_common_objects(void)
+{
+	/* metaobject protocol */
+	build_metaobject_protocol();
+	/* common-lisp objects */
+	build_clos_objects();
 	/* common-lisp others */
-	intern_clos_others();
+	build_clos_others();
 }
 

@@ -8,7 +8,6 @@
 #include "execute.h"
 #include "file_type.h"
 #include "info.h"
-#include "lisptype.h"
 #include "typedef.h"
 
 extern int      lisp_init;

@@ -33,7 +33,7 @@ static void defun_prin1(void)
 	/* function */
 	GetConst(COMMON_PRIN1, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_prin1);
+	setcompiled_var1opt1(pos, p_defun_prin1);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Prin1);
@@ -68,7 +68,7 @@ static void defun_princ(void)
 	/* function */
 	GetConst(COMMON_PRINC, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_princ);
+	setcompiled_var1opt1(pos, p_defun_princ);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Prin1);
@@ -104,7 +104,7 @@ static void defun_print(void)
 	/* function */
 	GetConst(COMMON_PRINT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_print);
+	setcompiled_var1opt1(pos, p_defun_print);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Prin1);
@@ -136,7 +136,7 @@ static void defun_prin1_to_string(void)
 	/* function */
 	GetConst(COMMON_PRIN1_TO_STRING, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_prin1_to_string);
+	setcompiled_var1(pos, p_defun_prin1_to_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Prin1ToString);
@@ -169,7 +169,7 @@ static void defun_princ_to_string(void)
 	/* function */
 	GetConst(COMMON_PRINC_TO_STRING, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_princ_to_string);
+	setcompiled_var1(pos, p_defun_princ_to_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Prin1ToString);
@@ -454,7 +454,7 @@ static void defun_format(void)
 	/* function */
 	GetConst(COMMON_FORMAT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2dynamic(pos, function_format);
+	setcompiled_var2dynamic(pos, p_defun_format);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_format(&type);
@@ -464,9 +464,19 @@ static void defun_format(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_printer(void)
+void init_common_printer(void)
+{
+	SetPointerCall(defun, var1opt1, prin1);
+	SetPointerCall(defun, var1opt1, princ);
+	SetPointerCall(defun, var1opt1, print);
+	SetPointerCall(defun, var1, prin1_to_string);
+	SetPointerCall(defun, var1, princ_to_string);
+	SetPointerCall(defun, var2dynamic, format);
+}
+
+void build_common_printer(void)
 {
 	defun_prin1();
 	defun_princ();

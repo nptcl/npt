@@ -59,7 +59,8 @@ static int test_qualifiers_equal_symbol(void)
 	ptr = Execute_Thread;
 	internchar(LISP_PACKAGE, str, &symbol);
 	compiled_heap(&call, symbol);
-	setcompiled_rest(call, test_symbolcall);
+	SetPointer_rest(p_debug1, test_symbolcall);
+	setcompiled_rest(call, p_debug1);
 	SetFunctionSymbol(symbol, call);
 	test(! qualifiers_equal_symbol(ptr, Nil, symbol), "qualifiers_equal_symbol1");
 	consnil_heap(&args);
@@ -85,7 +86,8 @@ static int test_qualifiers_equal(void)
 
 	internchar(LISP_PACKAGE, str, &right);
 	compiled_heap(&call, right);
-	setcompiled_rest(call, test_symbolcall);
+	SetPointer_rest(p_debug1, test_symbolcall);
+	setcompiled_rest(call, p_debug1);
 	SetFunctionSymbol(right, call);
 	test(qualifiers_equal(ptr, left, right), "qualifiers_equal3");
 

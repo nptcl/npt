@@ -43,7 +43,7 @@ static void defun_coerce(void)
 	/* function */
 	GetConst(COMMON_COERCE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_coerce);
+	setcompiled_var2(pos, p_defun_coerce);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_coerce(&type);
@@ -99,7 +99,7 @@ static void defmacro_deftype(void)
 
 	GetConst(COMMON_DEFTYPE, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_deftype);
+	setcompiled_macro(pos, p_defmacro_deftype);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -140,7 +140,7 @@ static void defun_subtypep(void)
 	/* function */
 	GetConst(COMMON_SUBTYPEP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2opt1(pos, function_subtypep);
+	setcompiled_var2opt1(pos, p_defun_subtypep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_subtypep(&type);
@@ -174,7 +174,7 @@ static void defun_type_of(void)
 	/* function */
 	GetConst(COMMON_TYPE_OF, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_type_of);
+	setcompiled_var1(pos, p_defun_type_of);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_type_of(&type);
@@ -215,7 +215,7 @@ static void defun_typep(void)
 	/* function */
 	GetConst(COMMON_TYPEP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2opt1(pos, function_typep);
+	setcompiled_var2opt1(pos, p_defun_typep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_typep(&type);
@@ -248,7 +248,7 @@ static void defun_type_error_datum(void)
 	/* function */
 	GetConst(COMMON_TYPE_ERROR_DATUM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_type_error_datum);
+	setcompiled_var1(pos, p_defun_type_error_datum);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_type_error_datum(&type);
@@ -281,7 +281,7 @@ static void defun_type_error_expected_type(void)
 	/* function */
 	GetConst(COMMON_TYPE_ERROR_EXPECTED_TYPE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_type_error_expected_type);
+	setcompiled_var1(pos, p_defun_type_error_expected_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_type_error_expected_type(&type);
@@ -291,9 +291,20 @@ static void defun_type_error_expected_type(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_types(void)
+void init_common_types(void)
+{
+	SetPointerCall(defun,     var2,      coerce);
+	SetPointerCall(defmacro,  macro,     deftype);
+	SetPointerCall(defun,     var2opt1,  subtypep);
+	SetPointerCall(defun,     var1,      type_of);
+	SetPointerCall(defun,     var2opt1,  typep);
+	SetPointerCall(defun,     var1,      type_error_datum);
+	SetPointerCall(defun,     var1,      type_error_expected_type);
+}
+
+void build_common_types(void)
 {
 	defun_coerce();
 	defmacro_deftype();

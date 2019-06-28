@@ -83,7 +83,6 @@ void pushargs_allvalues(Execute ptr);
 
 /* call_compiled_function */
 void init_control(void);
-int call_compiled_function(Execute ptr, addr call);
 
 /* execute */
 int signal_control(Execute ptr);

@@ -42,7 +42,7 @@ static void defmethod_class_name(Execute ptr, addr name, addr gen, constindex in
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_class_name);
+	setcompiled_var3(call, p_method_class_name);
 	method_type_class_name(&type);
 	settype_function(call, type);
 	/* method */
@@ -120,7 +120,7 @@ static void defmethod_setf_class_name_class(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var4(call, method_setf_class_name);
+	setcompiled_var4(call, p_method_setf_class_name);
 	method_type_setf_class_name(&type);
 	settype_function(call, type);
 	/* method */
@@ -161,7 +161,7 @@ static void make_slot_definition_function(addr value, addr *ret)
 	addr pos;
 
 	compiled_heap(&pos, Nil);
-	setcompiled_empty(pos, make_slot_definition_call);
+	setcompiled_empty(pos, p_make_slot_definition_call);
 	SetDataFunction(pos, value);
 	*ret = pos;
 }
@@ -241,7 +241,7 @@ static void defmethod_class_slots(Execute ptr, addr name, addr gen, constindex i
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_class_slots);
+	setcompiled_var3(call, p_method_class_slots);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -289,7 +289,7 @@ static void defmethod_class_direct_slots(Execute ptr,
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_class_direct_slots);
+	setcompiled_var3(call, p_method_class_direct_slots);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -340,7 +340,7 @@ static void defmethod_class_default_initargs(Execute ptr,
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_class_default_initargs);
+	setcompiled_var3(call, p_method_class_default_initargs);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -392,7 +392,7 @@ static void defmethod_class_direct_default_initargs(Execute ptr,
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_class_direct_default_initargs);
+	setcompiled_var3(call, p_method_class_direct_default_initargs);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -444,7 +444,7 @@ static void defmethod_class_precedence_list(Execute ptr,
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_class_precedence_list);
+	setcompiled_var3(call, p_method_class_precedence_list);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -496,7 +496,7 @@ static void defmethod_class_direct_superclasses(Execute ptr,
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_class_direct_superclasses);
+	setcompiled_var3(call, p_method_class_direct_superclasses);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -548,7 +548,7 @@ static void defmethod_class_direct_subclasses(Execute ptr,
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_class_direct_subclasses);
+	setcompiled_var3(call, p_method_class_direct_subclasses);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -600,7 +600,7 @@ static void defmethod_class_finalized_p(Execute ptr,
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_class_finalized_p);
+	setcompiled_var3(call, p_method_class_finalized_p);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -652,7 +652,7 @@ static void defmethod_class_prototype(Execute ptr,
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_class_prototype);
+	setcompiled_var3(call, p_method_class_prototype);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -718,7 +718,7 @@ static void defmethod_slot_definition_name(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_slot_definition_name);
+	setcompiled_var3(call, p_method_slot_definition_name);
 	method_type_slot_definition_name(&type);
 	settype_function(call, type);
 	/* method */
@@ -767,7 +767,7 @@ static void defmethod_slot_definition_type(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_slot_definition_type);
+	setcompiled_var3(call, p_method_slot_definition_type);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -828,7 +828,7 @@ static void defmethod_slot_definition_allocation(Execute ptr, addr name, addr ge
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_slot_definition_allocation);
+	setcompiled_var3(call, p_method_slot_definition_allocation);
 	method_type_slot_definition_allocation(&type);
 	settype_function(call, type);
 	/* method */
@@ -878,7 +878,7 @@ static void defmethod_slot_definition_initargs(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_slot_definition_initargs);
+	setcompiled_var3(call, p_method_slot_definition_initargs);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -928,7 +928,7 @@ static void defmethod_slot_definition_initform(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_slot_definition_initform);
+	setcompiled_var3(call, p_method_slot_definition_initform);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -978,7 +978,7 @@ static void defmethod_slot_definition_initfunction(Execute ptr, addr name, addr 
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_slot_definition_initfunction);
+	setcompiled_var3(call, p_method_slot_definition_initfunction);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1025,7 +1025,7 @@ static void defmethod_generic_function_name(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_generic_function_name);
+	setcompiled_var3(call, p_method_generic_function_name);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1103,7 +1103,7 @@ static void defmethod_setf_generic_function_name(Execute ptr, addr name, addr ge
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var4(call, method_setf_generic_function_name);
+	setcompiled_var4(call, p_method_setf_generic_function_name);
 	method_type_setf_generic_function_name(&type);
 	settype_function(call, type);
 	/* method */
@@ -1159,7 +1159,7 @@ static void defmethod_generic_function_methods(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_generic_function_methods);
+	setcompiled_var3(call, p_method_generic_function_methods);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1204,7 +1204,7 @@ static void defmethod_generic_function_lambda_list(Execute ptr, addr name, addr 
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_generic_function_lambda_list);
+	setcompiled_var3(call, p_method_generic_function_lambda_list);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1248,7 +1248,7 @@ static void defmethod_generic_function_argument_precedence_order(Execute ptr,
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_generic_function_argument_precedence_order);
+	setcompiled_var3(call, p_method_generic_function_argument_precedence_order);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1291,7 +1291,7 @@ static void defmethod_generic_function_declarations(Execute ptr, addr name, addr
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_generic_function_declarations);
+	setcompiled_var3(call, p_method_generic_function_declarations);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1334,7 +1334,7 @@ static void defmethod_generic_function_method_class(Execute ptr, addr name, addr
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_generic_function_method_class);
+	setcompiled_var3(call, p_method_generic_function_method_class);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1380,7 +1380,7 @@ static void defmethod_generic_function_method_combination(Execute ptr,
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_generic_function_method_combination);
+	setcompiled_var3(call, p_method_generic_function_method_combination);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1422,7 +1422,7 @@ static void defmethod_method_function(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_method_function);
+	setcompiled_var3(call, p_method_method_function);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1465,7 +1465,7 @@ static void defmethod_method_generic_function(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_method_generic_function);
+	setcompiled_var3(call, p_method_method_generic_function);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1509,7 +1509,7 @@ static void defmethod_method_lambda_list(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_method_lambda_list);
+	setcompiled_var3(call, p_method_method_lambda_list);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1551,7 +1551,7 @@ static void defmethod_method_specializers(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_method_specializers);
+	setcompiled_var3(call, p_method_method_specializers);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1593,7 +1593,7 @@ static void defmethod_method_qualifiers(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_method_qualifiers);
+	setcompiled_var3(call, p_method_method_qualifiers);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1635,7 +1635,7 @@ static void defmethod_accessor_method_slot_definition(Execute ptr, addr name, ad
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_accessor_method_slot_definition);
+	setcompiled_var3(call, p_method_accessor_method_slot_definition);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -1663,9 +1663,49 @@ static void defgeneric_accessor_method_slot_definition(Execute ptr)
 
 
 /***********************************************************************
- *  intern
+ *  function
  ***********************************************************************/
-void intern_mop_reader(Execute ptr)
+void init_mop_reader(Execute ptr)
+{
+	/* Classes */
+	SetPointerType(var3, method_class_name);
+	SetPointerType(var4, method_setf_class_name);
+	SetPointerType(empty, make_slot_definition_call);
+	SetPointerType(var3, method_class_slots);
+	SetPointerType(var3, method_class_direct_slots);
+	SetPointerType(var3, method_class_default_initargs);
+	SetPointerType(var3, method_class_direct_default_initargs);
+	SetPointerType(var3, method_class_precedence_list);
+	SetPointerType(var3, method_class_direct_superclasses);
+	SetPointerType(var3, method_class_direct_subclasses);
+	SetPointerType(var3, method_class_finalized_p);
+	SetPointerType(var3, method_class_prototype);
+	/* Slot definitions */
+	SetPointerType(var3, method_slot_definition_name);
+	SetPointerType(var3, method_slot_definition_type);
+	SetPointerType(var3, method_slot_definition_allocation);
+	SetPointerType(var3, method_slot_definition_initargs);
+	SetPointerType(var3, method_slot_definition_initform);
+	SetPointerType(var3, method_slot_definition_initfunction);
+	/* Generic functions */
+	SetPointerType(var3, method_generic_function_name);
+	SetPointerType(var4, method_setf_generic_function_name);
+	SetPointerType(var3, method_generic_function_methods);
+	SetPointerType(var3, method_generic_function_lambda_list);
+	SetPointerType(var3, method_generic_function_argument_precedence_order);
+	SetPointerType(var3, method_generic_function_declarations);
+	SetPointerType(var3, method_generic_function_method_class);
+	SetPointerType(var3, method_generic_function_method_combination);
+	/* Methods */
+	SetPointerType(var3, method_method_function);
+	SetPointerType(var3, method_method_generic_function);
+	SetPointerType(var3, method_method_lambda_list);
+	SetPointerType(var3, method_method_specializers);
+	SetPointerType(var3, method_method_qualifiers);
+	SetPointerType(var3, method_accessor_method_slot_definition);
+}
+
+void build_mop_reader(Execute ptr)
 {
 	/* Classes */
 	defgeneric_class_name(ptr);

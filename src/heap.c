@@ -6,6 +6,7 @@
 #include "file_memory.h"
 #include "heap.h"
 #include "memory.h"
+#include "stream.h"
 #include "thread.h"
 #include "typedef.h"
 
@@ -501,7 +502,7 @@ static void freemutex(void)
 	destroy_mutexlite(&Mutex);
 }
 
-int init_heap(size_t size)
+int alloc_heap(size_t size)
 {
 	void *ptr;
 
@@ -955,29 +956,13 @@ void heap_arraybody_debug(addr *root, enum LISPTYPE type, size_t array, size_t b
  */
 #define IfWriteCheck(fm,p,s,m) IfDebug(writecheck_filememory((fm),(p),(s)),(m))
 #define IfWriteAddr(fm,p,m) IfDebug(writeaddr_filememory((fm),(p)),(m))
+#define IfWritePtr(fm,p,m) IfDebug(writeptr_filememory((fm),(p)),(m))
+#define IfReadCheck(fm,p,s,m) IfDebug(readcheck_filememory((fm),(p),(s)),(m))
+#define IfReadAddr(fm,p,m) IfDebug(readaddr_filememory((fm),(p)),(m))
+#define IfReadPtr(fm,p,m) IfDebug(readptr_filememory((fm),(p)),(m))
 
-static int save_space1(struct filememory *fm, addr pos, size_t *ret)
-{
-	GetSizeSpace1(pos, ret);
-	IfWriteCheck(fm, pos, 2UL, "writecheck error.");
-	return 0;
-}
-
-static int save_space(struct filememory *fm, addr pos, size_t *ret)
-{
-	GetSizeSpace(pos, ret);
-	IfWriteCheck(fm, pos, 8UL + IdxSize, "writecheck error.");
-	return 0;
-}
-
-static int save_reserved(struct filememory *fm, addr pos, size_t *ret)
-{
-	GetSizeReserved(pos, ret);
-	IfWriteCheck(fm, pos, 8UL + IdxSize, "writecheck error.");
-	return 0;
-}
-
-static int writearray(struct filememory *fm, addr *array, size_t size)
+/* save/load array2 */
+static int writearray(struct filememory *fm, const addr *array, size_t size)
 {
 	size_t i;
 
@@ -987,121 +972,370 @@ static int writearray(struct filememory *fm, addr *array, size_t size)
 
 	return 0;
 }
+static int readarray(struct filememory *fm, addr *array, size_t size)
+{
+	size_t i;
 
-static int save_array2(struct filememory *fm, addr pos)
+	for (i = 0; i < size; i++) {
+		IfReadAddr(fm, array + i, "readaddr error.");
+	}
+
+	return 0;
+}
+
+static int save_object_array2(struct filememory *fm, addr pos)
 {
 	addr *array;
 	size_t size;
 
-	IfWriteCheck(fm, pos, 8UL, "writecheck error: size.");
 	array = PtrArrayA2(pos);
 	size = (size_t)GetLenArrayA2(pos);
 	IfDebug(writearray(fm, array, size), "writearray error.");
 
 	return 0;
 }
-
-static int save_array4(struct filememory *fm, addr pos)
+static int load_object_array2(struct filememory *fm, addr pos)
 {
 	addr *array;
 	size_t size;
 
-	IfWriteCheck(fm, pos, 16UL, "writecheck error: size.");
+	array = PtrArrayA2(pos);
+	size = (size_t)GetLenArrayA2(pos);
+	IfDebug(readarray(fm, array, size), "readarray error.");
+
+	return 0;
+}
+
+
+/* save/load array4 */
+static int save_object_array4(struct filememory *fm, addr pos)
+{
+	addr *array;
+	size_t size;
+
+	IfWriteCheck(fm, pos + 8UL, 8UL, "writecheck error.");
 	array = PtrArrayA4(pos);
 	size = (size_t)GetLenArrayA4(pos);
 	IfDebug(writearray(fm, array, size), "writearray error.");
 
 	return 0;
 }
-
-#ifdef LISP_ARCH_64BIT
-static int save_array8(struct filememory *fm, addr pos)
+static int load_object_array4(struct filememory *fm, addr pos)
 {
 	addr *array;
 	size_t size;
 
-	IfWriteCheck(fm, pos, 24UL, "writecheck error: size.");
+	IfReadCheck(fm, pos + 8UL, 8UL, "readcheck error");
+	array = PtrArrayA4(pos);
+	size = (size_t)GetLenArrayA4(pos);
+	IfDebug(readarray(fm, array, size), "readarray error.");
+
+	return 0;
+}
+
+
+/* save/load array8 */
+#ifdef LISP_ARCH_64BIT
+static int save_object_array8(struct filememory *fm, addr pos)
+{
+	addr *array;
+	size_t size;
+
+	IfWriteCheck(fm, pos + 8UL, 16UL, "writecheck error");
 	array = PtrArrayA8(pos);
 	size = (size_t)GetLenArrayA8(pos);
 	IfDebug(writearray(fm, array, size), "writearray error.");
 
 	return 0;
 }
-#endif
-
-static int save_arraybody(struct filememory *fm, addr pos)
+static int load_object_array8(struct filememory *fm, addr pos)
 {
 	addr *array;
 	size_t size;
 
-	size = (size_t)GetLenBodyAB(pos);
-	IfWriteCheck(fm, pos, 16UL + size, "writecheck error: size.");
-	array = PtrArrayAB(pos);
-	size = (size_t)GetLenArrayAB(pos);
-	IfDebug(writearray(fm, array, size), "writearray error.");
+	IfReadCheck(fm, pos + 8UL, 16UL, "readcheck error");
+	array = PtrArrayA8(pos);
+	size = (size_t)GetLenArrayA8(pos);
+	IfDebug(readarray(fm, array, size), "readarray error.");
 
 	return 0;
 }
+#else
+static int save_object_array8(struct filememory *fm, addr pos)
+{
+	Abort("Invalid object size: size8 [32bit]");
+	return 1;
+}
+static int load_object_array8(struct filememory *fm, addr pos)
+{
+	Abort("Invalid object size: size8 [32bit]");
+	return 1;
+}
+#endif
 
-static int save_smallsize(struct filememory *fm, addr pos)
+
+/* save/load smallsize */
+static int save_object_smallsize(struct filememory *fm, addr pos)
 {
 	addr *array;
+	byte *body;
 	size_t size;
 
-	size = (size_t)GetLenBodySS(pos);
-	IfWriteCheck(fm, pos, 8UL + size, "writecheck error: size.");
+	/* array */
 	array = PtrArraySS(pos);
 	size = (size_t)GetLenArraySS(pos);
 	IfDebug(writearray(fm, array, size), "writearray error.");
+	/* body */
+	body = PtrBodySSa(pos, size);
+	size = (size_t)GetLenBodySS(pos);
+	IfWriteCheck(fm, body, size, "writecheck error");
+
+	return 0;
+}
+static int load_object_smallsize(struct filememory *fm, addr pos)
+{
+	addr *array;
+	byte *body;
+	size_t size;
+
+	/* array */
+	array = PtrArraySS(pos);
+	size = (size_t)GetLenArraySS(pos);
+	IfDebug(readarray(fm, array, size), "readarray error.");
+	/* body */
+	body = PtrBodySSa(pos, size);
+	size = (size_t)GetLenBodySS(pos);
+	IfReadCheck(fm, body, size, "readcheck error");
 
 	return 0;
 }
 
-static int save_object(struct filememory *fm, addr pos, size_t *ret)
+
+/* save/load arraybody */
+static int save_object_arraybody(struct filememory *fm, addr pos)
 {
-	*ret = getobjectlength(pos);
-	switch (GetStatusSize(pos)) {
-		case LISPSIZE_ARRAY2:
-			IfDebug(save_array2(fm, pos), "save_array2");
-			break;
+	addr *array;
+	byte *body;
+	size_t size;
 
-		case LISPSIZE_ARRAY4:
-			IfDebug(save_array4(fm, pos), "save_array4");
-			break;
+	IfWriteCheck(fm, pos + 8UL, 8UL, "writecheck error");
+	/* array */
+	array = PtrArrayAB(pos);
+	size = (size_t)GetLenArrayAB(pos);
+	IfDebug(writearray(fm, array, size), "writearray error.");
+	/* body */
+	body = PtrBodyABa(pos, size);
+	size = (size_t)GetLenBodyAB(pos);
+	IfWriteCheck(fm, body, size, "writecheck error");
 
+	return 0;
+}
+static int load_object_arraybody(struct filememory *fm, addr pos)
+{
+	addr *array;
+	byte *body;
+	size_t size;
+
+	IfReadCheck(fm, pos + 8UL, 8UL, "readcheck error");
+	/* array */
+	array = PtrArrayAB(pos);
+	size = (size_t)GetLenArrayAB(pos);
+	IfDebug(readarray(fm, array, size), "readarray error.");
+	/* body */
+	body = PtrBodyABa(pos, size);
+	size = (size_t)GetLenBodyAB(pos);
+	IfReadCheck(fm, body, size, "readcheck error");
+
+	return 0;
+}
+
+
+/* save/load body2 */
+static int save_object_body2(struct filememory *fm, addr pos)
+{
+	size_t size;
+
+	size = (size_t)GetLenBodyB2(pos);
+	IfWriteCheck(fm, pos + 8UL, size, "writecheck error");
+
+	return 0;
+}
+static int load_object_body2(struct filememory *fm, addr pos)
+{
+	size_t size;
+
+	size = (size_t)GetLenBodyB2(pos);
+	IfReadCheck(fm, pos + 8UL, size, "readcheck error");
+
+	return 0;
+}
+
+
+/* save/load body4 */
+static int save_object_body4(struct filememory *fm, addr pos)
+{
+	size_t size;
+
+	size = (size_t)GetLenBodyB4(pos);
+	IfWriteCheck(fm, pos + 8UL, 8UL + size, "writecheck error.");
+
+	return 0;
+}
+static int load_object_body4(struct filememory *fm, addr pos)
+{
+	size_t size;
+
+	size = (size_t)GetLenBodyB4(pos);
+	IfReadCheck(fm, pos + 8UL, 8UL + size, "readcheck error");
+
+	return 0;
+}
+
+
+/* save/load body8 */
 #ifdef LISP_ARCH_64BIT
-		case LISPSIZE_ARRAY8:
-			IfDebug(save_array8(fm, pos), "save_array8");
-			break;
+static int save_object_body8(struct filememory *fm, addr pos)
+{
+	size_t size;
+
+	size = (size_t)GetLenBodyB8(pos);
+	IfWriteCheck(fm, pos + 8UL, 16UL + size, "writecheck error");
+
+	return 0;
+}
+static int load_object_body8(struct filememory *fm, addr pos)
+{
+	size_t size;
+
+	IfReadCheck(fm, pos + 8UL, 16UL, "readcheck error");
+	size = (size_t)GetLenBodyB8(pos);
+	IfReadCheck(fm, pos + 24UL, size, "readcheck error");
+
+	return 0;
+}
+#else
+static int save_object_body8(struct filememory *fm, addr pos)
+{
+	Abort("Invalid object size: size8 [32bit]");
+	return 1;
+}
+static int load_object_body8(struct filememory *fm, addr pos)
+{
+	Abort("Invalid object size: size8 [32bit]");
+	return 1;
+}
 #endif
 
-		case LISPSIZE_ARRAYBODY:
-			IfDebug(save_arraybody(fm, pos), "save_arraybody");
-			break;
 
-		case LISPSIZE_SMALLSIZE:
-			IfDebug(save_smallsize(fm, pos), "save_smallsize");
-			break;
+/* save/load object */
+typedef int (*save_object_call)(struct filememory *, addr);
+typedef int (*load_object_call)(struct filememory *, addr);
+save_object_call Heap_SaveObject[LISPSIZE_SIZE];
+load_object_call Heap_LoadObject[LISPSIZE_SIZE];
 
-		default:
-			IfWriteCheck(fm, pos, *ret, "writecheck error: size.");
-			break;
+static int save_object(struct filememory *fm, addr pos, size_t *ret)
+{
+	unsigned index;
+
+	*ret = getobjectlength(pos);
+	IfWriteCheck(fm, pos, 8UL, "writecheck error: save_object");
+	index = (unsigned)GetStatusSize(pos);
+	Check(LISPSIZE_SIZE <= index, "size error");
+	return (Heap_SaveObject[index])(fm, pos);
+}
+static int load_object(struct filememory *fm, addr pos, size_t *ret)
+{
+	unsigned index;
+
+	IfReadCheck(fm, pos + 1UL, 7UL, "readcheck error: load_object");
+	index = (unsigned)GetStatusSize(pos);
+	Check(LISPSIZE_SIZE <= index, "size error");
+	if ((Heap_LoadObject[index])(fm, pos)) {
+		Debug("Heap_LoadObject error");
+		return 1;
+	}
+	*ret = getobjectlength(pos);
+
+	return 0;
+}
+
+
+/* save/load space1 */
+static int save_space1(struct filememory *fm, addr pos, size_t *ret)
+{
+	GetSizeSpace1(pos, ret);
+	IfWriteCheck(fm, pos, 2UL, "writecheck error.");
+	return 0;
+}
+static int load_space1(struct filememory *fm, addr pos, size_t *ret)
+{
+	IfDebug(getc_filememory(fm, pos + 1), "readcheck error.");
+	GetSizeSpace1(pos, ret);
+	return 0;
+}
+
+
+/* save/load space */
+static int save_space(struct filememory *fm, addr pos, size_t *ret)
+{
+	size_t size;
+
+	GetSizeSpace(pos, ret);
+	IfDebug(putc_filememory(fm, pos[0]), "putc error.");
+	GetValueSpace(pos, &size);
+	IfWriteCheck(fm, &size, IdxSize, "writecheck error.");
+	return 0;
+}
+static int load_space(struct filememory *fm, addr pos, size_t *ret)
+{
+	IfReadCheck(fm, pos + 8UL, IdxSize, "readcheck error.");
+	GetSizeSpace(pos, ret);
+	return 0;
+}
+
+
+/* save/load reserved */
+static int save_reserved(struct filememory *fm, addr pos, size_t *ret)
+{
+	size_t size;
+
+	GetSizeReserved(pos, ret);
+	IfDebug(putc_filememory(fm, pos[0]), "putc error.");
+	GetValueReserved(pos, &size);
+	IfWriteCheck(fm, &size, IdxSize, "writecheck error.");
+	return 0;
+}
+static int load_reserved(struct filememory *fm, addr pos, size_t *ret)
+{
+	IfReadCheck(fm, pos + 8UL, IdxSize, "readcheck error.");
+	GetSizeReserved(pos, ret);
+	return 0;
+}
+
+
+/* save-dump-stream */
+static int save_object_stream(struct filememory *fm, addr pos, size_t *ret)
+{
+	if (save_stream(pos)) {
+		Debug("save_stream error");
+		return 1;
+	}
+	if (save_object(fm, pos, ret)) {
+		Debug("save_object error");
+		return 1;
 	}
 
 	return 0;
 }
 
-static int save_stream(struct filememory *fm, addr pos, size_t *ret)
-{
-	return 1;
-}
 
+/* save/load dump */
 static int save_dump(struct filememory *fm)
 {
-	addr pos, next;
+	addr pos;
 	size_t size;
 
-	for (pos = heap_root; pos < heap_front; pos = next) {
+	for (pos = heap_root; pos < heap_front; pos += size) {
 		switch (GetType(pos)) {
 			case LISPSYSTEM_SPACE1:
 				IfDebug(save_space1(fm, pos, &size), "save_space1 error.");
@@ -1116,14 +1350,13 @@ static int save_dump(struct filememory *fm)
 				break;
 
 			case LISPTYPE_STREAM:
-				IfDebug(save_stream(fm, pos, &size), "save_stream error.");
+				IfDebug(save_object_stream(fm, pos, &size), "save_object_stream error.");
 				break;
 
 			default:
 				IfDebug(save_object(fm, pos, &size), "save_object error.");
 				break;
 		}
-		next = pos + size;
 	}
 
 	/* END check */
@@ -1131,23 +1364,50 @@ static int save_dump(struct filememory *fm)
 
 	return 0;
 }
-
-static int save_data(struct filememory *fm)
+static int load_dump(struct filememory *fm)
 {
-	IfWriteAddr(fm, heap_front, "writeaddr error: heap_front");
-	IfWriteAddr(fm, heap_pos, "writeaddr error: heap_pos");
+	byte c;
+	addr pos;
+	size_t size;
 
-	return save_dump(fm);
+	for (pos = heap_root; pos < heap_front; pos += size) {
+		IfDebug(getc_filememory(fm, pos), "getc error.");
+		switch (pos[0]) {
+			case LISPSYSTEM_SPACE1:
+				IfDebug(load_space1(fm, pos, &size), "load_space1 error.");
+				break;
+
+			case LISPSYSTEM_SPACE:
+				IfDebug(load_space(fm, pos, &size), "load_space error.");
+				break;
+
+			case LISPSYSTEM_RESERVED:
+				IfDebug(load_reserved(fm, pos, &size), "load_reserved error.");
+				break;
+
+			default:
+				IfDebug(load_object(fm, pos, &size), "load_object error.");
+				break;
+		}
+	}
+
+	/* END check */
+	IfDebug(getc_filememory(fm, &c), "getc error.");
+	IfDebug(c != LISPSYSTEM_END, "end error.");
+
+	return 0;
 }
 
-static size_t cellinfosize(int index)
+
+/* save/load info */
+static size_t save_info_size(int index)
 {
 	size_t size;
 	struct heapcell *ptr;
 
 	size = 0;
 	for (ptr = Info[index].root; ptr; ptr = ptr->next) {
-		size++;
+		size ++;
 	}
 
 	return size;
@@ -1155,24 +1415,60 @@ static size_t cellinfosize(int index)
 
 static int save_info_child(struct filememory *fm, int index)
 {
-	size_t i, size, count;
+	addr *point, pos;
 	struct heapcell *ptr;
-	addr pos;
+	size_t i, size, count;
 
+	/* index */
 	IfWriteCheck(fm, &index, sizeoft(index), "writecheck error: index.");
-	size = cellinfosize(index);
-	IfWriteCheck(fm, &size, sizeoft(size), "writecheck error: size.");
+	/* size */
+	size = save_info_size(index);
+	IfWriteCheck(fm, &size, IdxSize, "writecheck error: size.");
+	/* info */
 	for (ptr = Info[index].root; ptr; ptr = ptr->next) {
 		count = ptr->count;
-		IfWriteCheck(fm, &count, sizeoft(count), "writeaddr error: count.");
+		point = ptr->point;
+		IfWriteCheck(fm, &count, IdxSize, "writecheck error: count.");
 		for (i = 0; i < HeapCount; i++) {
-			IfWriteAddr(fm, ptr->point[i], "writeaddr error: point.");
+			IfWritePtr(fm, point[i], "writeaddr error: point.");
 		}
 	}
 
 	/* error check */
 	pos = NULL;
-	IfWriteAddr(fm, pos, "writeaddr error: null.");
+	IfWriteCheck(fm, &pos, sizeoft(pos), "writecheck error: null");
+
+	return 0;
+}
+static int load_info_child(struct filememory *fm, int index)
+{
+	int check;
+	addr *point, pos;
+	struct heapinfo *info;
+	struct heapcell *cell;
+	size_t i, k, size, count;
+
+	/* index */
+	IfReadCheck(fm, &check, sizeoft(check), "readcheck error: index");
+	IfDebug(check != index, "index error.");
+	/* size */
+	IfReadCheck(fm, &size, IdxSize, "readcheck error: size");
+	/* info */
+	info = &Info[index];
+	cell = NULL;
+	for (k = 0; k < size; k++) {
+		IfReadCheck(fm, &count, IdxSize, "readcheck error: count");
+		cell = cellexpand(info, cell);
+		point = cell->point;
+		cell->count = count;
+		for (i = 0; i < HeapCount; i++) {
+			IfReadPtr(fm, (void **)(point + i), "readaddr error.");
+		}
+	}
+
+	/* error check */
+	IfReadCheck(fm, &pos, sizeoft(pos), "readaddr error: null");
+	IfDebug(pos != NULL, "readaddr error: check");
 
 	return 0;
 }
@@ -1190,174 +1486,6 @@ static int save_info(struct filememory *fm)
 
 	return 0;
 }
-
-int save_heap(struct filememory *fm)
-{
-	IfDebug(save_data(fm), "save_data error.");
-	IfDebug(save_info(fm), "save_info_heap error.");
-
-	return 0;
-}
-
-#define IfReadCheck(fm,p,s,m) IfDebug(readcheck_filememory((fm),(p),(s)),(m))
-static int load_space1(struct filememory *fm, size_t *ret)
-{
-	byte size;
-
-	IfDebug(getc_filememory(fm, &size), "readcheck error.");
-	*ret = (size_t)size;
-
-	return 0;
-}
-
-static int load_space(struct filememory *fm, size_t *ret)
-{
-	IfReadCheck(fm, ret, IdxSize, "readcheck error.");
-	return 0;
-}
-
-static int load_reserved(struct filememory *fm, size_t *ret)
-{
-	IfReadCheck(fm, ret, IdxSize, "readcheck error.");
-	return 0;
-}
-
-static void load_addr(addr *array, size_t size)
-{
-	size_t i;
-
-	for (i = 0; i < size; i++) {
-		array[i] = (addr)(((uintptr_t)array[i]) + ((uintptr_t)heap_root));
-	}
-}
-
-static void load_array(addr pos)
-{
-	switch (GetStatusSize(pos)) {
-		case LISPSIZE_ARRAY2:
-			load_addr(PtrArrayA2(pos), (size_t)GetLenArrayA2(pos));
-			break;
-
-		case LISPSIZE_ARRAY4:
-			load_addr(PtrArrayA4(pos), (size_t)GetLenArrayA4(pos));
-			break;
-
-#ifdef LISP_ARCH_64BIT
-		case LISPSIZE_ARRAY8:
-			load_addr(PtrArrayA8(pos), (size_t)GetLenArrayA8(pos));
-			break;
-#endif
-
-		case LISPSIZE_ARRAYBODY:
-			load_addr(PtrArrayAB(pos), (size_t)GetLenArrayAB(pos));
-			break;
-
-		case LISPSIZE_SMALLSIZE:
-			load_addr(PtrArraySS(pos), (size_t)GetLenArraySS(pos));
-			break;
-
-		default:
-			break;
-	}
-}
-
-static int load_object(struct filememory *fm, addr pos, size_t *ret)
-{
-	size_t size;
-
-	if (GetCheckSize2(pos)) {
-		size = *PtrValue2L(pos);
-		IfReadCheck(fm, pos + 8UL, size - 8UL, "readcheck error: data.");
-	}
-	else {
-		IfReadCheck(fm, pos + 8UL, 8UL, "readcheck error: PtrValueL.");
-		size = *PtrValueL(pos);
-		IfReadCheck(fm, pos + 16UL, size - 16UL, "readcheck error: data.");
-	}
-	load_array(pos);
-	*ret = size;
-
-	return 0;
-}
-
-static int load_dump(struct filememory *fm)
-{
-	byte c;
-	addr pos;
-	size_t size;
-
-	for (pos = heap_root; pos < heap_front; pos += size) {
-		IfReadCheck(fm, pos, 8UL, "readcheck error: header.");
-		switch (GetType(pos)) {
-			case LISPSYSTEM_SPACE1:
-				IfDebug(load_space1(fm, &size), "load_space1 error.");
-				break;
-
-			case LISPSYSTEM_SPACE:
-				IfDebug(load_space(fm, &size), "load_space error.");
-				break;
-
-			case LISPSYSTEM_RESERVED:
-				IfDebug(load_reserved(fm, &size), "load_reserved error.");
-				break;
-
-			default:
-				IfDebug(load_object(fm, pos, &size), "load_object error.");
-				break;
-		}
-	}
-
-	/* END check */
-	IfDebug(getc_filememory(fm, &c), "getc error.");
-	IfDebug(c != LISPSYSTEM_END, "end error.");
-
-	return 0;
-}
-
-static int load_data(struct filememory *fm)
-{
-	size_t size;
-
-	IfReadCheck(fm, &size, sizeoft(size), "readcheck error: heap_front");
-	if (Size < size) {
-		Debug("Heap size too small.");
-		return 1;
-	}
-	heap_front = (addr)(((uintptr_t)heap_root) + ((uintptr_t)size));
-	IfDebug(readaddr_filememory(fm, &heap_pos), "readaddr error: heap_pos");
-
-	return load_dump(fm);
-}
-
-static int load_info_child(struct filememory *fm, int index)
-{
-	int check;
-	size_t i, k, size, count;
-	addr pos;
-	struct heapinfo *info;
-	struct heapcell *cell;
-
-	IfReadCheck(fm, &check, sizeoft(check), "readcheck error: index");
-	IfDebug(check != index, "index error.");
-	IfReadCheck(fm, &size, sizeoft(size), "readcheck error: size");
-	info = &Info[index];
-	cell = NULL;
-	for (k = 0; k < size; k++) {
-		cell = cellexpand(info, cell);
-		IfReadCheck(fm, &count, sizeoft(count), "readcheck error: count.");
-		cell->count = count;
-		for (i = 0; i < HeapCount; i++) {
-			IfDebug(readaddr_filememory(fm, &(cell->point[i])), "readaddr error.");
-		}
-	}
-
-	/* error check */
-	IfDebug(readaddr_filememory(fm, &pos), "readaddr error: null");
-	IfDebug(pos != NULL, "readaddr error: check");
-
-	return 0;
-}
-
 static int load_info(struct filememory *fm)
 {
 	int index;
@@ -1372,11 +1500,83 @@ static int load_info(struct filememory *fm)
 	return 0;
 }
 
-int load_heap(struct filememory *fm)
+
+/* save/load data */
+static int save_data(struct filememory *fm)
 {
-	IfDebug(load_data(fm), "load_data error.");
-	IfDebug(load_info(fm), "load_info error.");
+	IfWritePtr(fm, heap_front, "writeptr error: heap_front");
+	IfWritePtr(fm, heap_pos, "writeptr error: heap_pos");
+	if (save_dump(fm)) {
+		Debug("save_dump error");
+		return 1;
+	}
 
 	return 0;
+}
+static int load_data(struct filememory *fm)
+{
+	IfReadPtr(fm, (void **)&heap_front, "readptr error: heap_front");
+	IfReadPtr(fm, (void **)&heap_pos, "readptr error: heap_pos");
+	if (load_dump(fm)) {
+		Debug("load_dump error");
+		return 1;
+	}
+
+	return 0;
+}
+
+
+/* save/load info */
+int save_heap(struct filememory *fm)
+{
+	if (save_data(fm)) {
+		Debug("save_data error.");
+		return 1;
+	}
+	if (save_info(fm)) {
+		Debug("save_info error.");
+		return 1;
+	}
+
+	return 0;
+}
+int load_heap(struct filememory *fm)
+{
+	if (load_data(fm)) {
+		Debug("load_data error.");
+		return 1;
+	}
+	if (load_info(fm)) {
+		Debug("load_info error.");
+		return 1;
+	}
+
+	return 0;
+}
+
+
+/*
+ *  initialize
+ */
+void init_heap(void)
+{
+	/* save-object */
+	Heap_SaveObject[LISPSIZE_ARRAY2] = save_object_array2;
+	Heap_SaveObject[LISPSIZE_ARRAY4] = save_object_array4;
+	Heap_SaveObject[LISPSIZE_ARRAY8] = save_object_array8;
+	Heap_SaveObject[LISPSIZE_SMALLSIZE] = save_object_smallsize;
+	Heap_SaveObject[LISPSIZE_ARRAYBODY] = save_object_arraybody;
+	Heap_SaveObject[LISPSIZE_BODY2] = save_object_body2;
+	Heap_SaveObject[LISPSIZE_BODY4] = save_object_body4;
+	Heap_SaveObject[LISPSIZE_BODY8] = save_object_body8;
+	/* load-object */
+	Heap_LoadObject[LISPSIZE_ARRAY2] = load_object_array2;
+	Heap_LoadObject[LISPSIZE_ARRAY4] = load_object_array4;
+	Heap_LoadObject[LISPSIZE_ARRAY8] = load_object_array8;
+	Heap_LoadObject[LISPSIZE_SMALLSIZE] = load_object_smallsize;
+	Heap_LoadObject[LISPSIZE_ARRAYBODY] = load_object_arraybody;
+	Heap_LoadObject[LISPSIZE_BODY2] = load_object_body2;
+	Heap_LoadObject[LISPSIZE_BODY4] = load_object_body4;
+	Heap_LoadObject[LISPSIZE_BODY8] = load_object_body8;
 }
 

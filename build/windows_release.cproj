@@ -255,6 +255,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pointer.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\prompt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\quote.c" />
@@ -403,7 +404,6 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_symbol_32.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_symbol_64.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lambda.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lisptype.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\local.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_exp.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_power.h" />
@@ -418,6 +418,9 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\object.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_table.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_type.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\prompt.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\quote.h" />
@@ -465,7 +468,6 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_coerce.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_constant.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_copy.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_decl.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_deftype.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_name.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_number.h" />
@@ -480,6 +482,10 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_upgraded.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_value.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_basic.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_enum.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_integer.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_thread.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\unicode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\user.h" />

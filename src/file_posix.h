@@ -50,8 +50,7 @@ static inline void standard_error_arch(file_type *file)
 	*file = STDERR_FILENO;
 }
 
-static inline int filename_encode(Execute ptr,
-		addr name, const char **const ret)
+static inline int filename_encode(Execute ptr, addr name, const char **const ret)
 {
 	name_pathname_local(ptr, name, &name);
 	if (UTF8_buffer_clang(ptr->local, &name, name)) {
@@ -72,6 +71,29 @@ static inline int open_input_chartype(file_type *ret, const void *name)
 	*ret = file;
 
 	return 0;
+}
+
+static inline int open_input_unicode(file_type *ret, const void *name, size_t size)
+{
+	void *ptr;
+	size_t value;
+
+	ptr = NULL;
+	if (UTF32_length_utf8(name, size, &value))
+		goto error;
+	ptr = malloc(value);
+	if (ptr == NULL)
+		goto error;
+	if (UTF32_make_utf8(ptr, name, value))
+		goto error;
+	if (open_input_chartype(ret, ptr))
+		goto error;
+	free(ptr);
+	return 0;
+
+error:
+	free(ptr);
+	return 1;
 }
 
 static inline int open_input_arch(Execute ptr, file_type *ret, addr name)

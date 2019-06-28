@@ -65,7 +65,7 @@ static void defun_apply(void)
 	/* function */
 	GetConst(COMMON_APPLY, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2dynamic(pos, function_apply);
+	setcompiled_var2dynamic(pos, p_defun_apply);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_apply(&type);
@@ -120,7 +120,7 @@ static void defmacro_defun(void)
 
 	GetConst(COMMON_DEFUN, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_defun);
+	setcompiled_macro(pos, p_defmacro_defun);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -159,7 +159,7 @@ static void defun_fdefinition(void)
 	/* function */
 	GetConst(COMMON_FDEFINITION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_fdefinition);
+	setcompiled_var1(pos, p_defun_fdefinition);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_fdefinition(&type);
@@ -198,7 +198,7 @@ static void defun_setf_fdefinition(void)
 	/* function */
 	GetConst(COMMON_FDEFINITION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_setf_fdefinition);
+	setcompiled_var2(pos, p_defun_setf_fdefinition);
 	setsetf_symbol(symbol, pos);
 	/* type */
 	type_setf_fdefinition(&type);
@@ -236,7 +236,7 @@ static void defun_fboundp(void)
 	/* function */
 	GetConst(COMMON_FBOUNDP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_fboundp);
+	setcompiled_var1(pos, p_defun_fboundp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_fboundp(&type);
@@ -275,7 +275,7 @@ static void defun_fmakunbound(void)
 	/* function */
 	GetConst(COMMON_FMAKUNBOUND, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_fmakunbound);
+	setcompiled_var1(pos, p_defun_fmakunbound);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_fmakunbound(&type);
@@ -334,7 +334,7 @@ static void defun_funcall(void)
 	/* function */
 	GetConst(COMMON_FUNCALL, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_funcall);
+	setcompiled_var1dynamic(pos, p_defun_funcall);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_funcall(&type);
@@ -410,7 +410,7 @@ static void defun_function_lambda_expression(void)
 	/* function */
 	GetConst(COMMON_FUNCTION_LAMBDA_EXPRESSION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_function_lambda_expression);
+	setcompiled_var1(pos, p_defun_function_lambda_expression);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_function_lambda_expression(&type);
@@ -432,7 +432,7 @@ static void defun_functionp(void)
 	/* function */
 	GetConst(COMMON_FUNCTIONP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_functionp);
+	setcompiled_var1(pos, p_defun_functionp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Object_Boolean);
@@ -454,7 +454,7 @@ static void defun_compiled_function_p(void)
 	/* function */
 	GetConst(COMMON_COMPILED_FUNCTION_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_compiled_function_p);
+	setcompiled_var1(pos, p_defun_compiled_function_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Object_Boolean);
@@ -568,7 +568,7 @@ static void defmacro_defconstant(void)
 
 	GetConst(COMMON_DEFCONSTANT, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_defconstant);
+	setcompiled_macro(pos, p_defmacro_defconstant);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -650,7 +650,7 @@ static void defmacro_defparameter(void)
 
 	GetConst(COMMON_DEFPARAMETER, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_defparameter);
+	setcompiled_macro(pos, p_defmacro_defparameter);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -754,7 +754,7 @@ static void defmacro_defvar(void)
 
 	GetConst(COMMON_DEFVAR, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_defvar);
+	setcompiled_macro(pos, p_defmacro_defvar);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -801,7 +801,7 @@ static void defmacro_destructuring_bind(void)
 
 	GetConst(COMMON_DESTRUCTURING_BIND, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_destructuring_bind);
+	setcompiled_macro(pos, p_defmacro_destructuring_bind);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -882,7 +882,7 @@ static void defmacro_psetq(void)
 
 	GetConst(COMMON_PSETQ, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_psetq);
+	setcompiled_macro(pos, p_defmacro_psetq);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -947,7 +947,7 @@ static void defmacro_return(void)
 
 	GetConst(COMMON_RETURN, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_return);
+	setcompiled_macro(pos, p_defmacro_return);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -989,7 +989,7 @@ static void defun_not(void)
 	/* function */
 	GetConst(COMMON_NOT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_not);
+	setcompiled_var1(pos, p_defun_not);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Object_Boolean);
@@ -1011,7 +1011,7 @@ static void defun_eq(void)
 	/* function */
 	GetConst(COMMON_EQ, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_eq);
+	setcompiled_var2(pos, p_defun_eq);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Eq);
@@ -1033,7 +1033,7 @@ static void defun_eql(void)
 	/* function */
 	GetConst(COMMON_EQL, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_eql);
+	setcompiled_var2(pos, p_defun_eql);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Eq);
@@ -1055,7 +1055,7 @@ static void defun_equal(void)
 	/* function */
 	GetConst(COMMON_EQUAL, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_equal);
+	setcompiled_var2(pos, p_defun_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Eq);
@@ -1077,7 +1077,7 @@ static void defun_equalp(void)
 	/* function */
 	GetConst(COMMON_EQUALP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_equalp);
+	setcompiled_var2(pos, p_defun_equalp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Eq);
@@ -1109,7 +1109,7 @@ static void defun_identity(void)
 	/* function */
 	GetConst(COMMON_IDENTITY, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_identity);
+	setcompiled_var1(pos, p_defun_identity);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_identity(&type);
@@ -1119,7 +1119,7 @@ static void defun_identity(void)
 
 
 /* (defun complement (function) ...) -> function */
-static void lambda_complement(Execute ptr, addr rest)
+static void function_lambda_complement(Execute ptr, addr rest)
 {
 	addr pos;
 
@@ -1133,7 +1133,7 @@ static void function_complement(Execute ptr, addr var)
 	addr pos;
 
 	compiled_heap(&pos, Nil);
-	setcompiled_dynamic(pos, lambda_complement);
+	setcompiled_dynamic(pos, p_defun_lambda_complement);
 	SetDataFunction(pos, var);
 	setresult_control(ptr, pos);
 }
@@ -1155,7 +1155,7 @@ static void defun_complement(void)
 	/* function */
 	GetConst(COMMON_COMPLEMENT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_complement);
+	setcompiled_var1(pos, p_defun_complement);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_complement(&type);
@@ -1165,7 +1165,7 @@ static void defun_complement(void)
 
 
 /* (defun constantly (value) ...) -> function */
-static void lambda_constantly(Execute ptr)
+static void function_lambda_constantly(Execute ptr)
 {
 	addr pos;
 	getdata_control(ptr, &pos);
@@ -1177,7 +1177,7 @@ static void function_constantly(Execute ptr, addr var)
 	addr pos;
 
 	compiled_heap(&pos, Nil);
-	setcompiled_any(pos, lambda_constantly);
+	setcompiled_any(pos, p_defun_lambda_constantly);
 	SetDataFunction(pos, var);
 	setresult_control(ptr, pos);
 }
@@ -1199,7 +1199,7 @@ static void defun_constantly(void)
 	/* function */
 	GetConst(COMMON_CONSTANTLY, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_constantly);
+	setcompiled_var1(pos, p_defun_constantly);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_constantly(&type);
@@ -1293,7 +1293,7 @@ static void defun_every(void)
 	/* function */
 	GetConst(COMMON_EVERY, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1rest(pos, function_every);
+	setcompiled_var1rest(pos, p_defun_every);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Every);
@@ -1398,7 +1398,7 @@ static void defun_some(void)
 	/* function */
 	GetConst(COMMON_SOME, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1rest(pos, function_some);
+	setcompiled_var1rest(pos, p_defun_some);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_some(&type);
@@ -1422,7 +1422,7 @@ static void defun_notany(void)
 	/* function */
 	GetConst(COMMON_NOTANY, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1rest(pos, function_notany);
+	setcompiled_var1rest(pos, p_defun_notany);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Every);
@@ -1446,7 +1446,7 @@ static void defun_notevery(void)
 	/* function */
 	GetConst(COMMON_NOTEVERY, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1rest(pos, function_notevery);
+	setcompiled_var1rest(pos, p_defun_notevery);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Every);
@@ -1490,7 +1490,7 @@ static void defmacro_and(void)
 
 	GetConst(COMMON_AND, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_and);
+	setcompiled_macro(pos, p_defmacro_and);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1536,7 +1536,7 @@ static void defmacro_cond(void)
 
 	GetConst(COMMON_COND, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_cond);
+	setcompiled_macro(pos, p_defmacro_cond);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1595,7 +1595,7 @@ static void defmacro_or(void)
 
 	GetConst(COMMON_OR, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_or);
+	setcompiled_macro(pos, p_defmacro_or);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1626,7 +1626,7 @@ static void defmacro_when(void)
 
 	GetConst(COMMON_WHEN, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_when);
+	setcompiled_macro(pos, p_defmacro_when);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1659,7 +1659,7 @@ static void defmacro_unless(void)
 
 	GetConst(COMMON_UNLESS, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_unless);
+	setcompiled_macro(pos, p_defmacro_unless);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1737,7 +1737,7 @@ static void defmacro_case(void)
 
 	GetConst(COMMON_CASE, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_case);
+	setcompiled_macro(pos, p_defmacro_case);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1812,7 +1812,7 @@ static void defmacro_ecase(void)
 
 	GetConst(COMMON_ECASE, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_ecase);
+	setcompiled_macro(pos, p_defmacro_ecase);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1832,7 +1832,7 @@ static void defmacro_ccase(void)
 
 	GetConst(COMMON_CCASE, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_ccase);
+	setcompiled_macro(pos, p_defmacro_ccase);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1910,7 +1910,7 @@ static void defmacro_typecase(void)
 
 	GetConst(COMMON_TYPECASE, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_typecase);
+	setcompiled_macro(pos, p_defmacro_typecase);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1974,7 +1974,7 @@ static void defmacro_etypecase(void)
 
 	GetConst(COMMON_ETYPECASE, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_etypecase);
+	setcompiled_macro(pos, p_defmacro_etypecase);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1994,7 +1994,7 @@ static void defmacro_ctypecase(void)
 
 	GetConst(COMMON_CTYPECASE, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_ctypecase);
+	setcompiled_macro(pos, p_defmacro_ctypecase);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2035,7 +2035,7 @@ static void defmacro_multiple_value_bind(void)
 
 	GetConst(COMMON_MULTIPLE_VALUE_BIND, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_multiple_value_bind);
+	setcompiled_macro(pos, p_defmacro_multiple_value_bind);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2079,7 +2079,7 @@ static void defmacro_multiple_value_list(void)
 
 	GetConst(COMMON_MULTIPLE_VALUE_LIST, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_multiple_value_list);
+	setcompiled_macro(pos, p_defmacro_multiple_value_list);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2125,7 +2125,7 @@ static void defmacro_multiple_value_setq(void)
 
 	GetConst(COMMON_MULTIPLE_VALUE_SETQ, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_multiple_value_setq);
+	setcompiled_macro(pos, p_defmacro_multiple_value_setq);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2146,7 +2146,7 @@ static void defun_values(void)
 	/* function */
 	GetConst(COMMON_VALUES, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, function_values);
+	setcompiled_dynamic(pos, p_defun_values);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeTable(&type, CompiledFunction);
@@ -2162,7 +2162,7 @@ static void define_setf_expander_values(void)
 
 	GetConst(COMMON_VALUES, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, setf_values);
+	setcompiled_macro(pos, p_defmacro_setf_values);
 	SetSetfMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2193,7 +2193,7 @@ static void defun_values_list(void)
 	/* function */
 	GetConst(COMMON_VALUES_LIST, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_values_list);
+	setcompiled_var1(pos, p_defun_values_list);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_values_list(&type);
@@ -2241,7 +2241,7 @@ static void defmacro_nth_value(void)
 
 	GetConst(COMMON_NTH_VALUE, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_nth_value);
+	setcompiled_macro(pos, p_defmacro_nth_value);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2302,7 +2302,7 @@ static void defmacro_prog(void)
 
 	GetConst(COMMON_PROG, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_prog);
+	setcompiled_macro(pos, p_defmacro_prog);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2322,7 +2322,7 @@ static void defmacro_proga(void)
 
 	GetConst(COMMON_PROGA, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_proga);
+	setcompiled_macro(pos, p_defmacro_proga);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2367,7 +2367,7 @@ static void defmacro_prog1(void)
 
 	GetConst(COMMON_PROG1, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_prog1);
+	setcompiled_macro(pos, p_defmacro_prog1);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2402,7 +2402,7 @@ static void defmacro_prog2(void)
 
 	GetConst(COMMON_PROG2, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_prog2);
+	setcompiled_macro(pos, p_defmacro_prog2);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2557,7 +2557,7 @@ static void defmacro_define_modify_macro(void)
 
 	GetConst(COMMON_DEFINE_MODIFY_MACRO, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_define_modify_macro);
+	setcompiled_macro(pos, p_defmacro_define_modify_macro);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2664,7 +2664,7 @@ static void defmacro_defsetf(void)
 
 	GetConst(COMMON_DEFSETF, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_defsetf);
+	setcompiled_macro(pos, p_defmacro_defsetf);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2706,7 +2706,7 @@ static void defmacro_define_setf_expander(void)
 
 	GetConst(COMMON_DEFINE_SETF_EXPANDER, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_define_setf_expander);
+	setcompiled_macro(pos, p_defmacro_define_setf_expander);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2745,7 +2745,7 @@ static void defun_get_setf_expansion(void)
 	/* function */
 	GetConst(COMMON_GET_SETF_EXPANSION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_get_setf_expansion);
+	setcompiled_var1opt1(pos, p_defun_get_setf_expansion);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_get_setf_expansion(&type);
@@ -2874,7 +2874,7 @@ static void defmacro_setf(void)
 
 	GetConst(COMMON_SETF, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_setf);
+	setcompiled_macro(pos, p_defmacro_setf);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2894,7 +2894,7 @@ static void defmacro_psetf(void)
 
 	GetConst(COMMON_PSETF, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_psetf);
+	setcompiled_macro(pos, p_defmacro_psetf);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -3015,7 +3015,7 @@ static void defmacro_shiftf(void)
 
 	GetConst(COMMON_SHIFTF, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_shiftf);
+	setcompiled_macro(pos, p_defmacro_shiftf);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -3098,7 +3098,7 @@ static void defmacro_rotatef(void)
 
 	GetConst(COMMON_ROTATEF, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_rotatef);
+	setcompiled_macro(pos, p_defmacro_rotatef);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -3107,9 +3107,73 @@ static void defmacro_rotatef(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_data(void)
+void init_common_data(void)
+{
+	SetPointerCall(defun,     var2dynamic,  apply);
+	SetPointerCall(defmacro,  macro,        defun);
+	SetPointerCall(defun,     var1,         fdefinition);
+	SetPointerCall(defun,     var2,         setf_fdefinition);
+	SetPointerCall(defun,     var1,         fboundp);
+	SetPointerCall(defun,     var1,         fmakunbound);
+	SetPointerCall(defun,     var1dynamic,  funcall);
+	SetPointerCall(defun,     var1,         function_lambda_expression);
+	SetPointerCall(defun,     var1,         functionp);
+	SetPointerCall(defun,     var1,         compiled_function_p);
+	SetPointerCall(defmacro,  macro,        defconstant);
+	SetPointerCall(defmacro,  macro,        defparameter);
+	SetPointerCall(defmacro,  macro,        defvar);
+	SetPointerCall(defmacro,  macro,        destructuring_bind);
+	SetPointerCall(defmacro,  macro,        psetq);
+	SetPointerCall(defmacro,  macro,        return);
+	SetPointerCall(defun,     var1,         not);
+	SetPointerCall(defun,     var2,         eq);
+	SetPointerCall(defun,     var2,         eql);
+	SetPointerCall(defun,     var2,         equal);
+	SetPointerCall(defun,     var2,         equalp);
+	SetPointerCall(defun,     var1,         identity);
+	SetPointerCall(defun,     dynamic,      lambda_complement);
+	SetPointerCall(defun,     var1,         complement);
+	SetPointerCall(defun,     any,          lambda_constantly);
+	SetPointerCall(defun,     var1,         constantly);
+	SetPointerCall(defun,     var1rest,     every);
+	SetPointerCall(defun,     var1rest,     some);
+	SetPointerCall(defun,     var1rest,     notany);
+	SetPointerCall(defun,     var1rest,     notevery);
+	SetPointerCall(defmacro,  macro,        and);
+	SetPointerCall(defmacro,  macro,        cond);
+	SetPointerCall(defmacro,  macro,        or);
+	SetPointerCall(defmacro,  macro,        when);
+	SetPointerCall(defmacro,  macro,        unless);
+	SetPointerCall(defmacro,  macro,        case);
+	SetPointerCall(defmacro,  macro,        ecase);
+	SetPointerCall(defmacro,  macro,        ccase);
+	SetPointerCall(defmacro,  macro,        typecase);
+	SetPointerCall(defmacro,  macro,        etypecase);
+	SetPointerCall(defmacro,  macro,        ctypecase);
+	SetPointerCall(defmacro,  macro,        multiple_value_bind);
+	SetPointerCall(defmacro,  macro,        multiple_value_list);
+	SetPointerCall(defmacro,  macro,        multiple_value_setq);
+	SetPointerCall(defun,     dynamic,      values);
+	SetPointerCall(defmacro,  macro,        setf_values);
+	SetPointerCall(defun,     var1,         values_list);
+	SetPointerCall(defmacro,  macro,        nth_value);
+	SetPointerCall(defmacro,  macro,        prog);
+	SetPointerCall(defmacro,  macro,        proga);
+	SetPointerCall(defmacro,  macro,        prog1);
+	SetPointerCall(defmacro,  macro,        prog2);
+	SetPointerCall(defmacro,  macro,        define_modify_macro);
+	SetPointerCall(defmacro,  macro,        defsetf);
+	SetPointerCall(defmacro,  macro,        define_setf_expander);
+	SetPointerCall(defun,     var1opt1,     get_setf_expansion);
+	SetPointerCall(defmacro,  macro,        setf);
+	SetPointerCall(defmacro,  macro,        psetf);
+	SetPointerCall(defmacro,  macro,        shiftf);
+	SetPointerCall(defmacro,  macro,        rotatef);
+}
+
+void build_common_data(void)
 {
 	defun_apply();
 	defmacro_defun();

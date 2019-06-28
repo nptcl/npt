@@ -942,7 +942,8 @@ static int test_macro_character_call(void)
 
 	ptr = Execute_Thread;
 	compiled_heap(&call, Nil);
-	setcompiled_var2(call, test_macro_character_call1);
+	SetPointer(p_debug1, var2, test_macro_character_call1);
+	setcompiled_var2(call, p_debug1);
 	check = 999;
 	result = macro_character_call(ptr, &check, &pos, call, Nil, T);
 	test(result == 0, "macro_character_call1");
@@ -975,7 +976,8 @@ static int test_macro_character_execute(void)
 	readtable_heap(&pos);
 
 	compiled_heap(&call, Nil);
-	setcompiled_var2(call, test_macro_character_execute1);
+	SetPointer(p_debug1, var2, test_macro_character_execute1);
+	setcompiled_var2(call, p_debug1);
 	make_readtype(&read, ReadTable_Type_macro_nonterm, 10000, 0);
 	SetReadType(read, call);
 	setreadtype_readtable(pos, 10000, read);

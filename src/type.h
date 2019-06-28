@@ -2,7 +2,6 @@
 #define __TYPE_HEADER__
 
 #include "memory.h"
-#include "type_decl.h"
 #include "typedef.h"
 
 #define LispDecl_Low(p)			((enum LISPDECL)(GetUser(p)))

@@ -2,6 +2,7 @@
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_combination.h"
+#include "clos_generic.h"
 #include "clos_type.h"
 #include "constant.h"
 #include "function.h"
@@ -964,7 +965,9 @@ void clos_forget_all_specializer_unsafe(void)
  */
 void init_clos(void)
 {
-	init_clos_class_of();
+	init_clos_class();
+	init_clos_generic();
+	init_clos_type();
 }
 
 static void build_clos_table(Execute ptr)

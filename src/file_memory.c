@@ -32,6 +32,7 @@ static inline void init_filememory(struct filememory *fm)
 	fm->cache = 1;
 	fm->readio = 0;
 	fm->ungetc = 0;
+	fm->system = filememory_stream;
 	fm->encode.type = EncodeType_utf8;
 	fm->encode.bom = EncodeBom_auto;
 	fm->encode.error = 1;
@@ -57,14 +58,29 @@ static inline void init_output(struct filememory *fm, file_type file)
 }
 
 /* low level open */
-int input_lowlevel_filememory(struct filememory *fm, const void *name)
+int input_unicode_filememory(struct filememory *fm, const void *name, size_t size)
 {
 	file_type file;
 
-	if (open_input_chartype(&file, name)) return 1;
+	if (open_input_unicode(&file, name, size)) return 1;
 	init_input(fm, file);
 
 	return 0;
+}
+
+void update_standard_input_filememory(struct filememory *fm)
+{
+	standard_input_arch(&(fm->file));
+}
+
+void update_standard_output_filememory(struct filememory *fm)
+{
+	standard_output_arch(&(fm->file));
+}
+
+void update_standard_error_filememory(struct filememory *fm)
+{
+	standard_error_arch(&(fm->file));
 }
 
 /* normal function */
@@ -74,6 +90,7 @@ void standard_input_filememory(struct filememory *fm)
 
 	standard_input_arch(&file);
 	init_input(fm, file);
+	fm->system = filememory_stdin;
 	fm->cache = 0;
 }
 
@@ -83,6 +100,7 @@ void standard_output_filememory(struct filememory *fm)
 
 	standard_output_arch(&file);
 	init_output(fm, file);
+	fm->system = filememory_stdout;
 	fm->cache = 0;
 }
 
@@ -92,6 +110,7 @@ void standard_error_filememory(struct filememory *fm)
 
 	standard_error_arch(&file);
 	init_output(fm, file);
+	fm->system = filememory_stderr;
 	fm->cache = 0;
 }
 
@@ -548,18 +567,6 @@ int readforce_filememory(struct filememory *fm, void *dst, size_t size, size_t *
 	return 0;
 }
 
-int readcheck_filememory(struct filememory *fm, void *dst, size_t size)
-{
-	int result;
-	size_t check;
-
-	result = readforce_filememory(fm, dst, size, &check);
-	if (result) return result;
-	if (size != check) return 1;
-
-	return 0;
-}
-
 
 /*
  *  read-nonblocking
@@ -995,18 +1002,6 @@ int write_filememory(struct filememory *fm,
 	return 0;
 }
 
-int writecheck_filememory(struct filememory *fm, const void *dst, size_t size)
-{
-	int result;
-	size_t check;
-
-	result = write_filememory(fm, dst, size, &check);
-	if (result) return result;
-	if (size != check) return 1;
-
-	return 0;
-}
-
 
 /*
  *  putc
@@ -1279,24 +1274,53 @@ int file_position_set_filememory(struct filememory *fm, size_t pos)
 extern addr heap_root;
 extern addr heap_front;
 
-int readaddr_filememory(struct filememory *fm, addr *ret)
+int readcheck_filememory(struct filememory *fm, void *dst, size_t size)
 {
-	int result;
+	size_t check;
+	return readforce_filememory(fm, dst, size, &check) || size != check;
+}
+int writecheck_filememory(struct filememory *fm, const void *dst, size_t size)
+{
+	size_t check;
+	return write_filememory(fm, dst, size, &check) || size != check;
+}
+
+int readptr_filememory(struct filememory *fm, void **ret)
+{
 	uintptr_t ptr;
 
-	result = readcheck_filememory(fm, &ptr, sizeoft(uintptr_t));
-	if (result) return result;
-	if (ptr == (uintptr_t)Unbound) {
-		*ret = Unbound;
+	if (readcheck_filememory(fm, &ptr, sizeoft(uintptr_t))) {
+		Debug("readaddr error: filememory");
+		return 1;
 	}
-	else {
-		ptr += (uintptr_t)heap_root;
-		*ret = (addr)ptr;
-	}
+	if (ptr == (uintptr_t)Unbound)
+		*ret = (void *)Unbound;
+	else
+		*ret = (void *)(heap_root + ptr);
 
 	return 0;
 }
+int writeptr_filememory(struct filememory *fm, const void *pos)
+{
+	uintptr_t ptr;
 
+	if (pos == Unbound) {
+		return writecheck_filememory(fm, &pos, sizeoft(addr));
+	}
+	ptr = (uintptr_t)pos;
+	if (ptr < (uintptr_t)heap_root || (uintptr_t)heap_front < ptr) {
+		Debug("writeaddr error: out of range.");
+		return 1;
+	}
+	ptr -= (uintptr_t)heap_root;
+
+	return writecheck_filememory(fm, &ptr, sizeoft(uintptr_t));
+}
+
+int readaddr_filememory(struct filememory *fm, addr *ret)
+{
+	return readptr_filememory(fm, (void **)ret);
+}
 int writeaddr_filememory(struct filememory *fm, addr pos)
 {
 	uintptr_t ptr;

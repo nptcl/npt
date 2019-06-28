@@ -18,6 +18,7 @@
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
+#include "pointer.h"
 #include "readtable.h"
 #include "sequence.h"
 #include "stream.h"
@@ -2651,7 +2652,7 @@ static void list_logical_pathname_translations(Execute ptr,
 	nreverse_list_unsafe(ret, root);
 }
 
-static void set_logical_pathname_translations_delete(Execute ptr, addr condition)
+static void function_set_logical_pathname_translations(Execute ptr, addr condition)
 {
 	addr table, pos;
 
@@ -2663,7 +2664,7 @@ static void set_logical_pathname_translations_delete(Execute ptr, addr condition
 	error_function(condition);
 }
 
-static void set_logical_pathname_translationsc_code(Execute ptr,
+static void set_logical_pathname_translations_code(Execute ptr,
 		addr host, addr list, addr cons)
 {
 	list_logical_pathname_translations(ptr, &list, host, list);
@@ -2680,12 +2681,12 @@ static int set_logical_pathname_translations_intern(Execute ptr,
 	/* handler-case */
 	GetConst(COMMON_ERROR, &symbol);
 	compiled_local(ptr->local, &call, Nil);
-	setcompiled_var1(call, set_logical_pathname_translations_delete);
+	setcompiled_var1(call, p_defun_set_logical_pathname_translations);
 	pushhandler_control(ptr, symbol, call, 0);
 	/* code */
 	intern_hashheap(table, host, &cons);
 	SetDataFunction(call, host);
-	set_logical_pathname_translationsc_code(ptr, host, list, cons);
+	set_logical_pathname_translations_code(ptr, host, list, cons);
 	/* free */
 	return free_control(ptr, control);
 }
@@ -2698,7 +2699,7 @@ void set_logical_pathname_translations(Execute ptr, addr host, addr list)
 	if (findvalue_hashtable(table, host, &cons))
 		(void)set_logical_pathname_translations_intern(ptr, host, list, table);
 	else
-		set_logical_pathname_translationsc_code(ptr, host, list, cons);
+		set_logical_pathname_translations_code(ptr, host, list, cons);
 }
 
 
@@ -3054,5 +3055,14 @@ void translate_logical_pathname(Execute ptr, addr *ret, addr pos)
 void merge_pathnames(Execute ptr, addr *ret, addr pos, addr defaults, addr version)
 {
 	merge_pathnames_clang(ptr, pos, defaults, version, ret);
+}
+
+
+/*
+ *  initialize
+ */
+void init_pathname(void)
+{
+	SetPointerCall(defun, var1, set_logical_pathname_translations);
 }
 

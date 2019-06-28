@@ -3,79 +3,153 @@
  */
 #include "common_header.h"
 
-void intern_common_eval(void);
-void intern_common_types(void);
-void intern_common_data(void);
-void intern_common_iteration(void);
-void intern_common_objects(void);
-void intern_common_structures(void);
-void intern_common_conditions(void);
-void intern_common_symbols(void);
-void intern_common_packages(void);
-void intern_common_numbers(void);
-void intern_common_characters(void);
-void intern_common_conses(void);
-void intern_common_arrays(void);
-void intern_common_strings(void);
-void intern_common_sequences(void);
-void intern_common_hashtables(void);
-void intern_common_filenames(void);
-void intern_common_files(void);
-void intern_common_streams(void);
-void intern_common_printer(void);
-void intern_common_reader(void);
-void intern_common_system(void);
-void intern_common_environment(void);
+void init_common_eval(void);
+void init_common_types(void);
+void init_common_data(void);
+void init_common_iteration(void);
+void init_common_objects(void);
+void init_common_structures(void);
+void init_common_conditions(void);
+void init_common_symbols(void);
+void init_common_packages(void);
+void init_common_numbers(void);
+void init_common_characters(void);
+void init_common_conses(void);
+void init_common_arrays(void);
+void init_common_strings(void);
+void init_common_sequences(void);
+void init_common_hashtables(void);
+void init_common_filenames(void);
+void init_common_files(void);
+void init_common_streams(void);
+void init_common_printer(void);
+void init_common_reader(void);
+void init_common_system(void);
+void init_common_environment(void);
+
+void build_common_eval(void);
+void build_common_types(void);
+void build_common_data(void);
+void build_common_iteration(void);
+void build_common_objects(void);
+void build_common_structures(void);
+void build_common_conditions(void);
+void build_common_symbols(void);
+void build_common_packages(void);
+void build_common_numbers(void);
+void build_common_characters(void);
+void build_common_conses(void);
+void build_common_arrays(void);
+void build_common_strings(void);
+void build_common_sequences(void);
+void build_common_hashtables(void);
+void build_common_filenames(void);
+void build_common_files(void);
+void build_common_streams(void);
+void build_common_printer(void);
+void build_common_reader(void);
+void build_common_system(void);
+void build_common_environment(void);
+
+void init_common(void)
+{
+	/* 3. Evaluation and Compilation */
+	init_common_eval();
+	/* 4. Types and Classes */
+	init_common_types();
+	/* 5. Data and Control Flow */
+	init_common_data();
+	/* 6. Iteration */
+	init_common_iteration();
+	/* 7. Objects */
+	init_common_objects();
+	/* 8. Structures */
+	init_common_structures();
+	/* 9. Conditions */
+	init_common_conditions();
+	/* 10. Symbols */
+	init_common_symbols();
+	/* 11. Packages */
+	init_common_packages();
+	/* 12. Numbers */
+	init_common_numbers();
+	/* 13. Characters */
+	init_common_characters();
+	/* 14. Conses */
+	init_common_conses();
+	/* 15. Arrays */
+	init_common_arrays();
+	/* 16. Strings */
+	init_common_strings();
+	/* 17. Sequences */
+	init_common_sequences();
+	/* 18. Hash Tables */
+	init_common_hashtables();
+	/* 19. Filenames */
+	init_common_filenames();
+	/* 20. Files */
+	init_common_files();
+	/* 21. Streams */
+	init_common_streams();
+	/* 22. Printer */
+	init_common_printer();
+	/* 23. Reader */
+	init_common_reader();
+	/* 24. System Construction */
+	init_common_system();
+	/* 25. Environment */
+	init_common_environment();
+}
 
 void build_common(void)
 {
 	/* 3. Evaluation and Compilation */
-	intern_common_eval();
+	build_common_eval();
 	/* 4. Types and Classes */
-	intern_common_types();
+	build_common_types();
 	/* 5. Data and Control Flow */
-	intern_common_data();
+	build_common_data();
 	/* 6. Iteration */
-	intern_common_iteration();
+	build_common_iteration();
 	/* 7. Objects */
-	intern_common_objects();
+	build_common_objects();
 	/* 8. Structures */
-	intern_common_structures();
+	build_common_structures();
 	/* 9. Conditions */
-	intern_common_conditions();
+	build_common_conditions();
 	/* 10. Symbols */
-	intern_common_symbols();
+	build_common_symbols();
 	/* 11. Packages */
-	intern_common_packages();
+	build_common_packages();
 	/* 12. Numbers */
-	intern_common_numbers();
+	build_common_numbers();
 	/* 13. Characters */
-	intern_common_characters();
+	build_common_characters();
 	/* 14. Conses */
-	intern_common_conses();
+	build_common_conses();
 	/* 15. Arrays */
-	intern_common_arrays();
+	build_common_arrays();
 	/* 16. Strings */
-	intern_common_strings();
+	build_common_strings();
 	/* 17. Sequences */
-	intern_common_sequences();
+	build_common_sequences();
 	/* 18. Hash Tables */
-	intern_common_hashtables();
+	build_common_hashtables();
 	/* 19. Filenames */
-	intern_common_filenames();
+	build_common_filenames();
 	/* 20. Files */
-	intern_common_files();
+	build_common_files();
 	/* 21. Streams */
-	intern_common_streams();
+	build_common_streams();
 	/* 22. Printer */
-	intern_common_printer();
+	build_common_printer();
 	/* 23. Reader */
-	intern_common_reader();
+	build_common_reader();
 	/* 24. System Construction */
-	intern_common_system();
+	build_common_system();
 	/* 25. Environment */
-	intern_common_environment();
+	build_common_environment();
 	/* After settings */
-	intern_common_after_settings();
+	build_common_after_settings();
 }
 

@@ -103,5 +103,8 @@ void syscall_do_symbols(Execute ptr, addr call, addr package);
 void syscall_do_external_symbols(Execute ptr, addr call, addr package);
 void syscall_do_all_symbols(Execute ptr, addr call);
 
+/* initialize */
+void init_package(void);
+
 #endif
 

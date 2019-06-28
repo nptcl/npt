@@ -35,7 +35,7 @@ static void defun_input_stream_p(void)
 	/* function */
 	GetConst(COMMON_INPUT_STREAM_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_input_stream_p);
+	setcompiled_var1(pos, p_defun_input_stream_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, InputStreamP);
@@ -58,7 +58,7 @@ static void defun_output_stream_p(void)
 	/* function */
 	GetConst(COMMON_OUTPUT_STREAM_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_output_stream_p);
+	setcompiled_var1(pos, p_defun_output_stream_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, InputStreamP);
@@ -81,7 +81,7 @@ static void defun_interactive_stream_p(void)
 	/* function */
 	GetConst(COMMON_INTERACTIVE_STREAM_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_interactive_stream_p);
+	setcompiled_var1(pos, p_defun_interactive_stream_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, InputStreamP);
@@ -104,7 +104,7 @@ static void defun_open_stream_p(void)
 	/* function */
 	GetConst(COMMON_OPEN_STREAM_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_open_stream_p);
+	setcompiled_var1(pos, p_defun_open_stream_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, InputStreamP);
@@ -126,7 +126,7 @@ static void defun_streamp(void)
 	/* function */
 	GetConst(COMMON_STREAMP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_streamp);
+	setcompiled_var1(pos, p_defun_streamp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Object_Boolean);
@@ -160,7 +160,7 @@ static void defun_stream_element_type(void)
 	/* function */
 	GetConst(COMMON_STREAM_ELEMENT_TYPE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_stream_element_type);
+	setcompiled_var1(pos, p_defun_stream_element_type);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_stream_element_type(&type);
@@ -203,7 +203,7 @@ static void defun_read_byte(void)
 	/* function */
 	GetConst(COMMON_READ_BYTE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt2(pos, function_read_byte);
+	setcompiled_var1opt2(pos, p_defun_read_byte);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_read_byte(&type);
@@ -240,7 +240,7 @@ static void defun_write_byte(void)
 	/* function */
 	GetConst(COMMON_WRITE_BYTE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_write_byte);
+	setcompiled_var2(pos, p_defun_write_byte);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_write_byte(&type);
@@ -295,7 +295,7 @@ static void defun_peek_char(void)
 	/* function */
 	GetConst(COMMON_PEEK_CHAR, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt5(pos, function_peek_char);
+	setcompiled_opt5(pos, p_defun_peek_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_peek_char(&type);
@@ -333,7 +333,7 @@ static void defun_read_char(void)
 	/* function */
 	GetConst(COMMON_READ_CHAR, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt4(pos, function_read_char);
+	setcompiled_opt4(pos, p_defun_read_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, ReadChar);
@@ -371,7 +371,7 @@ static void defun_read_char_no_hang(void)
 	/* function */
 	GetConst(COMMON_READ_CHAR_NO_HANG, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt4(pos, function_read_char_no_hang);
+	setcompiled_opt4(pos, p_defun_read_char_no_hang);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, ReadChar);
@@ -406,7 +406,7 @@ static void defun_terpri(void)
 	/* function */
 	GetConst(COMMON_TERPRI, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, function_terpri);
+	setcompiled_opt1(pos, p_defun_terpri);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_terpri(&type);
@@ -443,7 +443,7 @@ static void defun_fresh_line(void)
 	/* function */
 	GetConst(COMMON_FRESH_LINE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, function_fresh_line);
+	setcompiled_opt1(pos, p_defun_fresh_line);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_fresh_line(&type);
@@ -482,7 +482,7 @@ static void defun_unread_char(void)
 	/* function */
 	GetConst(COMMON_UNREAD_CHAR, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_unread_char);
+	setcompiled_var1opt1(pos, p_defun_unread_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_unread_char(&type);
@@ -520,7 +520,7 @@ static void defun_write_char(void)
 	/* function */
 	GetConst(COMMON_WRITE_CHAR, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_write_char);
+	setcompiled_var1opt1(pos, p_defun_write_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_write_char(&type);
@@ -574,7 +574,7 @@ static void defun_read_line(void)
 	/* function */
 	GetConst(COMMON_READ_LINE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt4(pos, function_read_line);
+	setcompiled_opt4(pos, p_defun_read_line);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_read_line(&type);
@@ -597,7 +597,7 @@ static void defun_write_string(void)
 	/* function */
 	GetConst(COMMON_WRITE_STRING, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_write_string);
+	setcompiled_var1dynamic(pos, p_defun_write_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, WriteString);
@@ -620,7 +620,7 @@ static void defun_write_line(void)
 	/* function */
 	GetConst(COMMON_WRITE_LINE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_write_line);
+	setcompiled_var1dynamic(pos, p_defun_write_line);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, WriteString);
@@ -669,7 +669,7 @@ static void defun_read_sequence(void)
 	/* function */
 	GetConst(COMMON_READ_SEQUENCE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2dynamic(pos, function_read_sequence);
+	setcompiled_var2dynamic(pos, p_defun_read_sequence);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_read_sequence(&type);
@@ -712,7 +712,7 @@ static void defun_write_sequence(void)
 	/* function */
 	GetConst(COMMON_WRITE_SEQUENCE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2dynamic(pos, function_write_sequence);
+	setcompiled_var2dynamic(pos, p_defun_write_sequence);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_write_sequence(&type);
@@ -748,7 +748,7 @@ static void defun_file_length(void)
 	/* function */
 	GetConst(COMMON_FILE_LENGTH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_file_length);
+	setcompiled_var1(pos, p_defun_file_length);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_file_length(&type);
@@ -824,7 +824,7 @@ static void defun_file_position(void)
 	/* function */
 	GetConst(COMMON_FILE_POSITION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_file_position);
+	setcompiled_var1opt1(pos, p_defun_file_position);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_file_position(&type);
@@ -874,7 +874,7 @@ static void defun_file_string_length(void)
 	/* function */
 	GetConst(COMMON_FILE_STRING_LENGTH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_file_string_length);
+	setcompiled_var2(pos, p_defun_file_string_length);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_file_string_length(&type);
@@ -1198,7 +1198,7 @@ static void defun_open(void)
 	/* function */
 	GetConst(COMMON_OPEN, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_open);
+	setcompiled_var1dynamic(pos, p_defun_open);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_open(&type);
@@ -1235,7 +1235,7 @@ static void defun_stream_external_format(void)
 	/* function */
 	GetConst(COMMON_STREAM_EXTERNAL_FORMAT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_stream_external_format);
+	setcompiled_var1(pos, p_defun_stream_external_format);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_stream_external_format(&type);
@@ -1300,7 +1300,7 @@ static void defmacro_with_open_file(void)
 
 	GetConst(COMMON_WITH_OPEN_FILE, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_with_open_file);
+	setcompiled_macro(pos, p_defmacro_with_open_file);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1340,7 +1340,7 @@ static void defun_close(void)
 	/* function */
 	GetConst(COMMON_CLOSE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_close);
+	setcompiled_var1dynamic(pos, p_defun_close);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_close(&type);
@@ -1404,7 +1404,7 @@ static void defun_with_open_stream(void)
 
 	GetConst(COMMON_WITH_OPEN_STREAM, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_with_open_stream);
+	setcompiled_macro(pos, p_defmacro_with_open_stream);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1440,7 +1440,7 @@ static void defun_listen(void)
 	/* function */
 	GetConst(COMMON_LISTEN, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, function_listen);
+	setcompiled_opt1(pos, p_defun_listen);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_listen(&type);
@@ -1475,7 +1475,7 @@ static void defun_clear_input(void)
 	/* function */
 	GetConst(COMMON_CLEAR_INPUT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, function_clear_input);
+	setcompiled_opt1(pos, p_defun_clear_input);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_clear_input(&type);
@@ -1498,7 +1498,7 @@ static void defun_finish_output(void)
 	/* function */
 	GetConst(COMMON_FINISH_OUTPUT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, function_finish_output);
+	setcompiled_opt1(pos, p_defun_finish_output);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, FinishOutput);
@@ -1520,7 +1520,7 @@ static void defun_force_output(void)
 	/* function */
 	GetConst(COMMON_FORCE_OUTPUT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, function_force_output);
+	setcompiled_opt1(pos, p_defun_force_output);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, FinishOutput);
@@ -1543,7 +1543,7 @@ static void defun_clear_output(void)
 	/* function */
 	GetConst(COMMON_CLEAR_OUTPUT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, function_clear_output);
+	setcompiled_opt1(pos, p_defun_clear_output);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, FinishOutput);
@@ -1571,7 +1571,7 @@ static void defun_y_or_n_p(void)
 	/* function */
 	GetConst(COMMON_Y_OR_N_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, function_y_or_n_p);
+	setcompiled_dynamic(pos, p_defun_y_or_n_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, YesOrNoP);
@@ -1599,7 +1599,7 @@ static void defun_yes_or_no_p(void)
 	/* function */
 	GetConst(COMMON_YES_OR_NO_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, function_yes_or_no_p);
+	setcompiled_dynamic(pos, p_defun_yes_or_no_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, YesOrNoP);
@@ -1633,7 +1633,7 @@ static void defun_make_synonym_stream(void)
 	/* function */
 	GetConst(COMMON_MAKE_SYNONYM_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_make_synonym_stream);
+	setcompiled_var1(pos, p_defun_make_synonym_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_make_synonym_stream(&type);
@@ -1666,7 +1666,7 @@ static void defun_synonym_stream_symbol(void)
 	/* function */
 	GetConst(COMMON_SYNONYM_STREAM_SYMBOL, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_synonym_stream_symbol);
+	setcompiled_var1(pos, p_defun_synonym_stream_symbol);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_synonym_stream_symbol(&type);
@@ -1702,7 +1702,7 @@ static void defun_make_broadcast_stream(void)
 	/* function */
 	GetConst(COMMON_MAKE_BROADCAST_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_rest(pos, function_make_broadcast_stream);
+	setcompiled_rest(pos, p_defun_make_broadcast_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_make_broadcast_stream(&type);
@@ -1735,7 +1735,7 @@ static void defun_broadcast_stream_streams(void)
 	/* function */
 	GetConst(COMMON_BROADCAST_STREAM_STREAMS, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_broadcast_stream_streams);
+	setcompiled_var1(pos, p_defun_broadcast_stream_streams);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_broadcast_stream_streams(&type);
@@ -1770,7 +1770,7 @@ static void defun_make_two_way_stream(void)
 	/* function */
 	GetConst(COMMON_MAKE_TWO_WAY_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_make_two_way_stream);
+	setcompiled_var2(pos, p_defun_make_two_way_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_make_two_way_stream(&type);
@@ -1804,7 +1804,7 @@ static void defun_two_way_stream_input_stream(void)
 	/* function */
 	GetConst(COMMON_TWO_WAY_STREAM_INPUT_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_two_way_stream_input_stream);
+	setcompiled_var1(pos, p_defun_two_way_stream_input_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_two_way_stream_input_stream(&type);
@@ -1838,7 +1838,7 @@ static void defun_two_way_stream_output_stream(void)
 	/* function */
 	GetConst(COMMON_TWO_WAY_STREAM_OUTPUT_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_two_way_stream_output_stream);
+	setcompiled_var1(pos, p_defun_two_way_stream_output_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_two_way_stream_output_stream(&type);
@@ -1873,7 +1873,7 @@ static void defun_make_echo_stream(void)
 	/* function */
 	GetConst(COMMON_MAKE_ECHO_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_make_echo_stream);
+	setcompiled_var2(pos, p_defun_make_echo_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_make_echo_stream(&type);
@@ -1907,7 +1907,7 @@ static void defun_echo_stream_input_stream(void)
 	/* function */
 	GetConst(COMMON_ECHO_STREAM_INPUT_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_echo_stream_input_stream);
+	setcompiled_var1(pos, p_defun_echo_stream_input_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_echo_stream_input_stream(&type);
@@ -1941,7 +1941,7 @@ static void defun_echo_stream_output_stream(void)
 	/* function */
 	GetConst(COMMON_ECHO_STREAM_OUTPUT_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_echo_stream_output_stream);
+	setcompiled_var1(pos, p_defun_echo_stream_output_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_echo_stream_output_stream(&type);
@@ -1977,7 +1977,7 @@ static void defun_make_concatenated_stream(void)
 	/* function */
 	GetConst(COMMON_MAKE_CONCATENATED_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_rest(pos, function_make_concatenated_stream);
+	setcompiled_rest(pos, p_defun_make_concatenated_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_make_concatenated_stream(&type);
@@ -2010,7 +2010,7 @@ static void defun_concatenated_stream_streams(void)
 	/* function */
 	GetConst(COMMON_CONCATENATED_STREAM_STREAMS, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_concatenated_stream_streams);
+	setcompiled_var1(pos, p_defun_concatenated_stream_streams);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_concatenated_stream_streams(&type);
@@ -2058,7 +2058,7 @@ static void defun_make_string_input_stream(void)
 	/* function */
 	GetConst(COMMON_MAKE_STRING_INPUT_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_make_string_input_stream);
+	setcompiled_var1dynamic(pos, p_defun_make_string_input_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_make_string_input_stream(&type);
@@ -2105,7 +2105,7 @@ static void defun_make_string_output_stream(void)
 	/* function */
 	GetConst(COMMON_MAKE_STRING_OUTPUT_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, function_make_string_output_stream);
+	setcompiled_dynamic(pos, p_defun_make_string_output_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_make_string_output_stream(&type);
@@ -2145,7 +2145,7 @@ static void defun_get_output_stream_string(void)
 	/* function */
 	GetConst(COMMON_GET_OUTPUT_STREAM_STRING, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_get_output_stream_string);
+	setcompiled_var1(pos, p_defun_get_output_stream_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_get_output_stream_string(&type);
@@ -2267,7 +2267,7 @@ static void defmacro_with_input_from_string(void)
 
 	GetConst(COMMON_WITH_INPUT_FROM_STRING, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_with_input_from_string);
+	setcompiled_macro(pos, p_defmacro_with_input_from_string);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2389,7 +2389,7 @@ static void defmacro_with_output_to_string(void)
 
 	GetConst(COMMON_WITH_OUTPUT_TO_STRING, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_with_output_to_string);
+	setcompiled_macro(pos, p_defmacro_with_output_to_string);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -2421,7 +2421,7 @@ static void defun_stream_error_stream(void)
 	/* function */
 	GetConst(COMMON_STREAM_ERROR_STREAM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_stream_error_stream);
+	setcompiled_var1(pos, p_defun_stream_error_stream);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_stream_error_stream(&type);
@@ -2431,9 +2431,66 @@ static void defun_stream_error_stream(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_streams(void)
+void init_common_streams(void)
+{
+	SetPointerCall(defun, var1, input_stream_p);
+	SetPointerCall(defun, var1, output_stream_p);
+	SetPointerCall(defun, var1, interactive_stream_p);
+	SetPointerCall(defun, var1, open_stream_p);
+	SetPointerCall(defun, var1, streamp);
+	SetPointerCall(defun, var1, stream_element_type);
+	SetPointerCall(defun, var1opt2, read_byte);
+	SetPointerCall(defun, var2, write_byte);
+	SetPointerCall(defun, opt5, peek_char);
+	SetPointerCall(defun, opt4, read_char);
+	SetPointerCall(defun, opt4, read_char_no_hang);
+	SetPointerCall(defun, opt1, terpri);
+	SetPointerCall(defun, opt1, fresh_line);
+	SetPointerCall(defun, var1opt1, unread_char);
+	SetPointerCall(defun, var1opt1, write_char);
+	SetPointerCall(defun, opt4, read_line);
+	SetPointerCall(defun, var1dynamic, write_string);
+	SetPointerCall(defun, var1dynamic, write_line);
+	SetPointerCall(defun, var2dynamic, read_sequence);
+	SetPointerCall(defun, var2dynamic, write_sequence);
+	SetPointerCall(defun, var1, file_length);
+	SetPointerCall(defun, var1opt1, file_position);
+	SetPointerCall(defun, var2, file_string_length);
+	SetPointerCall(defun, var1dynamic, open);
+	SetPointerCall(defun, var1, stream_external_format);
+	SetPointerCall(defmacro, macro, with_open_file);
+	SetPointerCall(defun, var1dynamic, close);
+	SetPointerCall(defmacro, macro, with_open_stream);
+	SetPointerCall(defun, opt1, listen);
+	SetPointerCall(defun, opt1, clear_input);
+	SetPointerCall(defun, opt1, finish_output);
+	SetPointerCall(defun, opt1, force_output);
+	SetPointerCall(defun, opt1, clear_output);
+	SetPointerCall(defun, dynamic, y_or_n_p);
+	SetPointerCall(defun, dynamic, yes_or_no_p);
+	SetPointerCall(defun, var1, make_synonym_stream);
+	SetPointerCall(defun, var1, synonym_stream_symbol);
+	SetPointerCall(defun, rest, make_broadcast_stream);
+	SetPointerCall(defun, var1, broadcast_stream_streams);
+	SetPointerCall(defun, var2, make_two_way_stream);
+	SetPointerCall(defun, var1, two_way_stream_input_stream);
+	SetPointerCall(defun, var1, two_way_stream_output_stream);
+	SetPointerCall(defun, var2, make_echo_stream);
+	SetPointerCall(defun, var1, echo_stream_input_stream);
+	SetPointerCall(defun, var1, echo_stream_output_stream);
+	SetPointerCall(defun, rest, make_concatenated_stream);
+	SetPointerCall(defun, var1, concatenated_stream_streams);
+	SetPointerCall(defun, var1dynamic, make_string_input_stream);
+	SetPointerCall(defun, dynamic, make_string_output_stream);
+	SetPointerCall(defun, var1, get_output_stream_string);
+	SetPointerCall(defmacro, macro, with_input_from_string);
+	SetPointerCall(defmacro, macro, with_output_to_string);
+	SetPointerCall(defun, var1, stream_error_stream);
+}
+
+void build_common_streams(void)
 {
 	defun_input_stream_p();
 	defun_output_stream_p();

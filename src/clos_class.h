@@ -1,6 +1,7 @@
 #ifndef __CLOS_CLASS_HEADER__
 #define __CLOS_CLASS_HEADER__
 
+#include "execute.h"
 #include "local.h"
 #include "typedef.h"
 
@@ -84,6 +85,9 @@ int setf_slot_value_using_class_common(Execute ptr,
 
 /* build */
 void build_clos_class(LocalRoot local);
+
+/* initialize */
+void init_clos_class(void);
 
 #endif
 

@@ -7,10 +7,10 @@
 #include "local.h"
 #include "typedef.h"
 
-/* low level open */
-int input_lowlevel_filememory(struct filememory *fm, const void *name);
-
-/* proto-type declaration */
+int input_unicode_filememory(struct filememory *fm, const void *name, size_t size);
+void update_standard_input_filememory(struct filememory *fm);
+void update_standard_output_filememory(struct filememory *fm);
+void update_standard_error_filememory(struct filememory *fm);
 void standard_input_filememory(struct filememory *fm);
 void standard_output_filememory(struct filememory *fm);
 void standard_error_filememory(struct filememory *fm);
@@ -24,7 +24,6 @@ int end_filememory(struct filememory *fm);
 int error_filememory(struct filememory *fm);
 int read_filememory(struct filememory *fm, void *dst, size_t size, size_t *ret);
 int readforce_filememory(struct filememory *fm, void *dst, size_t size, size_t *ret);
-int readcheck_filememory(struct filememory *fm, void *dst, size_t size);
 int read_nonblocking_filememory(struct filememory *fm,
 		void *dst, size_t size, size_t *ret);
 int getc_filememory(struct filememory *fm, byte *pos);
@@ -33,7 +32,7 @@ int ungetc_filememory(struct filememory *fm, byte c);
 int putc_filememory(struct filememory *fm, byte c);
 int write_filememory(struct filememory *fm,
 		const void *dst, size_t size, size_t *ret);
-int writecheck_filememory(struct filememory *fm, const void *dst, size_t size);
+
 int flush_filememory(struct filememory *fm);
 int end_filememory(struct filememory *fm);
 int error_filememory(struct filememory *fm);
@@ -47,6 +46,10 @@ int file_position_end_filememory(struct filememory *fm);
 int file_position_set_filememory(struct filememory *fm, size_t pos);
 
 /* core */
+int readcheck_filememory(struct filememory *fm, void *dst, size_t size);
+int writecheck_filememory(struct filememory *fm, const void *dst, size_t size);
+int readptr_filememory(struct filememory *fm, void **pos);
+int writeptr_filememory(struct filememory *fm, const void *pos);
 int readaddr_filememory(struct filememory *fm, addr *ret);
 int writeaddr_filememory(struct filememory *fm, addr pos);
 

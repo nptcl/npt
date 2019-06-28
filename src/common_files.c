@@ -31,7 +31,7 @@ static void defun_directory(void)
 	/* function */
 	GetConst(COMMON_DIRECTORY, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_directory);
+	setcompiled_var1(pos, p_defun_directory);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_directory(&type);
@@ -54,7 +54,7 @@ static void defun_probe_file(void)
 	/* function */
 	GetConst(COMMON_PROBE_FILE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_probe_file);
+	setcompiled_var1(pos, p_defun_probe_file);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Pathname);
@@ -99,7 +99,7 @@ static void defun_ensure_directories_exist(void)
 	/* function */
 	GetConst(COMMON_ENSURE_DIRECTORIES_EXIST, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_ensure_directories_exist);
+	setcompiled_var1dynamic(pos, p_defun_ensure_directories_exist);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_ensure_directories_exist(&type);
@@ -122,7 +122,7 @@ static void defun_truename(void)
 	/* function */
 	GetConst(COMMON_TRUENAME, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_truename);
+	setcompiled_var1(pos, p_defun_truename);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Pathname);
@@ -155,7 +155,7 @@ static void defun_file_author(void)
 	/* function */
 	GetConst(COMMON_FILE_AUTHOR, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_file_author);
+	setcompiled_var1(pos, p_defun_file_author);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_file_author(&type);
@@ -189,7 +189,7 @@ static void defun_file_write_date(void)
 	/* function */
 	GetConst(COMMON_FILE_WRITE_DATE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_file_write_date);
+	setcompiled_var1(pos, p_defun_file_write_date);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_file_write_date(&type);
@@ -223,7 +223,7 @@ static void defun_rename_file(void)
 	/* function */
 	GetConst(COMMON_RENAME_FILE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_rename_file);
+	setcompiled_var2(pos, p_defun_rename_file);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_rename_file(&type);
@@ -256,7 +256,7 @@ static void defun_delete_file(void)
 	/* function */
 	GetConst(COMMON_DELETE_FILE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_delete_file);
+	setcompiled_var1(pos, p_defun_delete_file);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_delete_file(&type);
@@ -290,7 +290,7 @@ static void defun_file_error_pathname(void)
 	/* function */
 	GetConst(COMMON_FILE_ERROR_PATHNAME, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_file_error_pathname);
+	setcompiled_var1(pos, p_defun_file_error_pathname);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_file_error_pathname(&type);
@@ -300,9 +300,22 @@ static void defun_file_error_pathname(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_files(void)
+void init_common_files(void)
+{
+	SetPointerCall(defun, var1, directory);
+	SetPointerCall(defun, var1, probe_file);
+	SetPointerCall(defun, var1dynamic, ensure_directories_exist);
+	SetPointerCall(defun, var1, truename);
+	SetPointerCall(defun, var1, file_author);
+	SetPointerCall(defun, var1, file_write_date);
+	SetPointerCall(defun, var2, rename_file);
+	SetPointerCall(defun, var1, delete_file);
+	SetPointerCall(defun, var1, file_error_pathname);
+}
+
+void build_common_files(void)
 {
 	defun_directory();
 	defun_probe_file();

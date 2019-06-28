@@ -159,21 +159,34 @@ void mop_argument_method_var1rest(addr *ret, constindex var1)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_mop_reader(Execute ptr);
-void intern_mop_class(Execute ptr);
-void intern_mop_generic(Execute ptr);
-void intern_mop_protocols(Execute ptr);
+void init_mop_reader(void);
+void init_mop_class(void);
+void init_mop_generic(void);
+void init_mop_protocols(void);
 
-void intern_metaobject_protocol(void)
+void build_mop_reader(Execute ptr);
+void build_mop_class(Execute ptr);
+void build_mop_generic(Execute ptr);
+void build_mop_protocols(Execute ptr);
+
+void init_metaobject_protocol(void)
+{
+	init_mop_class();
+	init_mop_reader();
+	init_mop_generic();
+	init_mop_protocols();
+}
+
+void build_metaobject_protocol(void)
 {
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	intern_mop_class(ptr);
-	intern_mop_reader(ptr);
-	intern_mop_generic(ptr);
-	intern_mop_protocols(ptr);
+	build_mop_class(ptr);
+	build_mop_reader(ptr);
+	build_mop_generic(ptr);
+	build_mop_protocols(ptr);
 }
 

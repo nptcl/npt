@@ -145,7 +145,7 @@ static void defmethod_ensure_generic_function_class(Execute ptr, addr name, addr
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var4dynamic(call, method_ensure_generic_function_class);
+	setcompiled_var4dynamic(call, p_method_ensure_generic_function_class);
 	method_type_ensure_generic_function_class(&type);
 	settype_function(call, type);
 	/* method */
@@ -204,7 +204,7 @@ static void defmethod_ensure_generic_function_null(Execute ptr, addr name, addr 
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var4dynamic(call, method_ensure_generic_function_null);
+	setcompiled_var4dynamic(call, p_method_ensure_generic_function_null);
 	method_type_ensure_generic_function_null(&type);
 	settype_function(call, type);
 	/* method */
@@ -285,7 +285,7 @@ static void defun_ensure_method_mop(void)
 	/* function */
 	GetConst(CLOSNAME_ENSURE_METHOD, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_ensure_method);
+	setcompiled_var1dynamic(pos, p_function_ensure_method);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_ensure_method(&type);
@@ -343,7 +343,7 @@ static void defmethod_function_keywords(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var3(call, method_function_keywords);
+	setcompiled_var3(call, p_method_function_keywords);
 	method_type_function_keywords(&type);
 	settype_function(call, type);
 	/* method */
@@ -384,7 +384,7 @@ static void defun_flet_method_p_mop(void)
 	/* function */
 	GetConst(CLOSNAME_FLET_METHOD_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_flet_method_p);
+	setcompiled_var1(pos, p_defun_flet_method_p);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Object_Boolean);
@@ -439,7 +439,7 @@ static void defun_flet_next_method_mop(void)
 	/* function */
 	GetConst(CLOSNAME_FLET_NEXT_METHOD, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var4(pos, function_flet_next_method);
+	setcompiled_var4(pos, p_defun_flet_next_method);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_flet_next_method(&type);
@@ -474,7 +474,7 @@ static void define_method_combination_instance_mop(void)
 	/* function */
 	GetConst(CLOSNAME_METHOD_COMBINATION_INSTANCE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_method_combination_instance);
+	setcompiled_var1(pos, p_defun_method_combination_instance);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_method_combination_instance(&type);
@@ -523,7 +523,7 @@ static void defun_ensure_define_combination_short_mop(void)
 	/* function */
 	GetConst(CLOSNAME_ENSURE_METHOD_COMBINATION_SHORT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, function_ensure_method_combination_short);
+	setcompiled_var1dynamic(pos, p_defun_ensure_method_combination_short);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_ensure_method_combination_short(&type);
@@ -580,7 +580,7 @@ static void defun_ensure_define_combination_long_mop(void)
 	/* function */
 	GetConst(CLOSNAME_ENSURE_METHOD_COMBINATION_LONG, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3dynamic(pos, function_ensure_method_combination_long);
+	setcompiled_var3dynamic(pos, p_defun_ensure_method_combination_long);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_ensure_method_combination_long(&type);
@@ -650,7 +650,7 @@ static void defun_qualifiers_elt_mop(void)
 	/* function */
 	GetConst(CLOSNAME_QUALIFIERS_ELT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var5(pos, function_qualifiers_elt);
+	setcompiled_var5(pos, p_defun_qualifiers_elt);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_qualifiers_elt(&type);
@@ -685,7 +685,7 @@ static void defun_combination_binding_mop(void)
 	/* function */
 	GetConst(CLOSNAME_COMBINATION_BINDING, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_combination_binding);
+	setcompiled_var1(pos, p_defun_combination_binding);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_combination_binding(&type);
@@ -741,7 +741,7 @@ static void defun_macro_make_method(void)
 	/* function */
 	GetConst(CLOSNAME_MACRO_MAKE_METHOD, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_macro_make_method);
+	setcompiled_var2(pos, p_defun_macro_make_method);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_macro_make_method(&type);
@@ -803,7 +803,7 @@ static void defun_macro_call_method(void)
 	/* function */
 	GetConst(CLOSNAME_MACRO_CALL_METHOD, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, function_macro_call_method);
+	setcompiled_var3(pos, p_defun_macro_call_method);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_macro_call_method(&type);
@@ -848,7 +848,7 @@ static void defun_macro_method_lambda(void)
 	/* function */
 	GetConst(CLOSNAME_MACRO_METHOD_LAMBDA, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_macro_method_lambda);
+	setcompiled_var2(pos, p_defun_macro_method_lambda);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_macro_method_lambda(&type);
@@ -904,7 +904,7 @@ static void defmethod_compute_applicable_methods_std(Execute ptr, addr name, add
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var4(call, method_compute_applicable_methods_std);
+	setcompiled_var4(call, p_method_compute_applicable_methods_std);
 	method_type_compute_applicable_methods_std(&type);
 	settype_function(call, type);
 	/* method */
@@ -979,7 +979,7 @@ static void defmethod_find_method_std(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var5opt1(call, method_find_method_std);
+	setcompiled_var5opt1(call, p_method_find_method_std);
 	method_type_find_method_std(&type);
 	settype_function(call, type);
 	/* method */
@@ -1050,7 +1050,7 @@ static void defmethod_add_method_std(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var4(call, method_add_method_std);
+	setcompiled_var4(call, p_method_add_method_std);
 	method_type_add_method_std(&type);
 	settype_function(call, type);
 	/* method */
@@ -1091,7 +1091,7 @@ static void defmethod_remove_method_std(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var4(call, method_remove_method_std);
+	setcompiled_var4(call, p_method_remove_method_std);
 	method_type_add_method_std(&type);
 	settype_function(call, type);
 	/* method */
@@ -1117,9 +1117,31 @@ static void defgeneric_remove_method_mop(Execute ptr)
 
 
 /***********************************************************************
- *  intern
+ *  function
  ***********************************************************************/
-void intern_mop_generic(Execute ptr)
+void init_mop_generic(Execute ptr)
+{
+	SetPointerType(var4dynamic, method_ensure_generic_function_class);
+	SetPointerType(var4dynamic, method_ensure_generic_function_null);
+	SetPointerType(var1dynamic, function_ensure_method);
+	SetPointerType(var3, method_function_keywords);
+	SetPointerCall(defun, var1, flet_method_p);
+	SetPointerCall(defun, var4, flet_next_method);
+	SetPointerCall(defun, var1, method_combination_instance);
+	SetPointerCall(defun, var1dynamic, ensure_method_combination_short);
+	SetPointerCall(defun, var3dynamic, ensure_method_combination_long);
+	SetPointerCall(defun, var5, qualifiers_elt);
+	SetPointerCall(defun, var1, combination_binding);
+	SetPointerCall(defun, var2, macro_make_method);
+	SetPointerCall(defun, var3, macro_call_method);
+	SetPointerCall(defun, var2, macro_method_lambda);
+	SetPointerType(var4, method_compute_applicable_methods_std);
+	SetPointerType(var5opt1, method_find_method_std);
+	SetPointerType(var4, method_add_method_std);
+	SetPointerType(var4, method_remove_method_std);
+}
+
+void build_mop_generic(Execute ptr)
 {
 	/* defclass */
 	defgeneric_no_applicable_method_mop(ptr);

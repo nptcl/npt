@@ -44,7 +44,8 @@ static int test_find_symbol_type(void)
 
 	/* deftype */
 	compiled_heap(&pos, Nil);
-	setcompiled_dynamic(pos, test_find_symbol_type_call);
+	SetPointer(p_debug1, dynamic, test_find_symbol_type_call);
+	setcompiled_dynamic(pos, p_debug1);
 	symbol = readr("TEST-FIND-SYMBOL-TYPE");
 	setdeftype_symbol(symbol, pos);
 	check = find_symbol_type(ptr, &pos, symbol, Nil);
@@ -99,7 +100,8 @@ static int test_type_symbol_p(void)
 
 	/* deftype */
 	compiled_heap(&call, Nil);
-	setcompiled_dynamic(call, test_find_symbol_type_call);
+	SetPointer(p_debug1, dynamic, test_find_symbol_type_call);
+	setcompiled_dynamic(call, p_debug1);
 	pos = readr("TEST-FIND-SYMBOL-TYPE");
 	setdeftype_symbol(pos, call);
 	test(type_symbol_p(pos), "type_symbol_p5");

@@ -33,6 +33,11 @@ int UTF16_size_strlen(const byte16 *src, size_t size, size_t *ret);
 int UTF16_null_makeunicode(unicode *dst, const byte16 *src);
 int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size);
 
+int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret);
+int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret);
+int UTF32_make_utf8(byte *dst, const unicode *src, size_t size);
+int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size);
+
 /* initialize */
 void init_encode(void);
 

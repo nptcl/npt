@@ -2,6 +2,7 @@
 #define __CODE_HEADER__
 
 #include "build.h"
+#include "pointer.h"
 
 enum CodeType {
 	CodeType_Default,
@@ -19,11 +20,12 @@ enum CodeType {
 	CodeType_Size
 };
 
+void init_code(void);
 void build_code(void);
 void code_heap(addr *ret, addr codeA4);
 void code_empty_heap(addr *ret);
 void function_empty_heap(addr *ret, addr name);
-const calltype *getcalltype_code(addr pos);
+const pointer *getcalltype_code(addr pos);
 void getarray_code(addr pos, addr *ret);
 void getargs_code(addr pos, addr *ret);
 
@@ -31,7 +33,7 @@ enum CodeType gettype_code(addr pos);
 void settype_code(addr pos, enum CodeType type);
 void getinfo_code(addr pos, addr *ret);
 void setinfo_code(addr pos, addr value);
-void syscall_code(LocalRoot local, addr *ret, callbind_empty call, addr value);
+void syscall_code(LocalRoot local, addr *ret, pointer call, addr value);
 
 #endif
 

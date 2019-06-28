@@ -18,7 +18,7 @@ static int setf_atom(addr pos)
  *  setf-values
  *  (define-setf-expander values (&rest form &environment env) ...)
  */
-void setf_values(Execute ptr, addr form, addr env)
+void function_setf_values(Execute ptr, addr form, addr env)
 {
 	addr args, a, b, g, w, r, v, car, cdr, values;
 	addr a1, b1, g1, w1, r1;
@@ -80,7 +80,7 @@ void setf_values(Execute ptr, addr form, addr env)
  *      g1)
  *    (getf x g2)
  */
-void setf_getf(Execute ptr, addr form, addr env)
+void function_setf_getf(Execute ptr, addr form, addr env)
 {
 	addr args, place, indicator, value;
 	addr a, b, g, w, r, g1, g2, g3, g4;

@@ -1,8 +1,8 @@
 #ifndef __ARRAY_TYPEDEF_HEADER__
 #define __ARRAY_TYPEDEF_HEADER__
 
+#include <stddef.h>
 #include "define.h"
-#include "lisptype.h"
 #include "typedef.h"
 
 enum ARRAY_INFO {

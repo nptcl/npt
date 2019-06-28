@@ -70,7 +70,7 @@ static void defun_copy_readtable(void)
 	/* function */
 	GetConst(COMMON_COPY_READTABLE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt2(pos, function_copy_readtable);
+	setcompiled_opt2(pos, p_defun_copy_readtable);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_copy_readtable(&type);
@@ -121,7 +121,7 @@ static void defun_make_dispatch_macro_character(void)
 	/* function */
 	GetConst(COMMON_MAKE_DISPATCH_MACRO_CHARACTER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt2(pos, function_make_dispatch_macro_character);
+	setcompiled_var1opt2(pos, p_defun_make_dispatch_macro_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_make_dispatch_macro_character(&type);
@@ -197,7 +197,7 @@ static void defun_read(void)
 	/* function */
 	GetConst(COMMON_READ, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, function_read);
+	setcompiled_dynamic(pos, p_defun_read);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Read);
@@ -273,7 +273,7 @@ static void defun_read_preserving_whitespace(void)
 	/* function */
 	GetConst(COMMON_READ_PRESERVING_WHITESPACE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, function_read_preserving_whitespace);
+	setcompiled_dynamic(pos, p_defun_read_preserving_whitespace);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Read);
@@ -323,7 +323,7 @@ static void defun_read_delimited_list(void)
 	/* function */
 	GetConst(COMMON_READ_DELIMITED_LIST, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt2(pos, function_read_delimited_list);
+	setcompiled_var1opt2(pos, p_defun_read_delimited_list);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_read_delimited_list(&type);
@@ -482,7 +482,7 @@ static void defun_read_from_string(void)
 	/* function */
 	GetConst(COMMON_READ_FROM_STRING, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, function_read_from_string);
+	setcompiled_dynamic(pos, p_defun_read_from_string);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_read_from_string(&type);
@@ -541,7 +541,7 @@ static void defun_readtable_case(void)
 	/* function */
 	GetConst(COMMON_READTABLE_CASE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_readtable_case);
+	setcompiled_var1(pos, p_defun_readtable_case);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_readtable_case(&type);
@@ -604,7 +604,7 @@ static void defun_setf_readtable_case(void)
 	/* function */
 	GetConst(COMMON_READTABLE_CASE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_setf_readtable_case);
+	setcompiled_var2(pos, p_defun_setf_readtable_case);
 	setsetf_symbol(symbol, pos);
 	/* type */
 	type_setf_readtable_case(&type);
@@ -626,7 +626,7 @@ static void defun_readtablep(void)
 	/* function */
 	GetConst(COMMON_READTABLEP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_readtablep);
+	setcompiled_var1(pos, p_defun_readtablep);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Object_Boolean);
@@ -684,7 +684,7 @@ static void defun_get_dispatch_macro_character(void)
 	/* function */
 	GetConst(COMMON_GET_DISPATCH_MACRO_CHARACTER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2opt1(pos, function_get_dispatch_macro_character);
+	setcompiled_var2opt1(pos, p_defun_get_dispatch_macro_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_get_dispatch_macro_character(&type);
@@ -746,7 +746,7 @@ static void defun_set_dispatch_macro_character(void)
 	/* function */
 	GetConst(COMMON_SET_DISPATCH_MACRO_CHARACTER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3opt1(pos, function_set_dispatch_macro_character);
+	setcompiled_var3opt1(pos, p_defun_set_dispatch_macro_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_set_dispatch_macro_character(&type);
@@ -805,7 +805,7 @@ static void defun_get_macro_character(void)
 	/* function */
 	GetConst(COMMON_GET_MACRO_CHARACTER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_get_macro_character);
+	setcompiled_var1opt1(pos, p_defun_get_macro_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_get_macro_character(&type);
@@ -867,7 +867,7 @@ static void defun_set_macro_character(void)
 	/* function */
 	GetConst(COMMON_SET_MACRO_CHARACTER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2opt2(pos, function_set_macro_character);
+	setcompiled_var2opt2(pos, p_defun_set_macro_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_set_macro_character(&type);
@@ -926,7 +926,7 @@ static void defun_set_syntax_from_char(void)
 	/* function */
 	GetConst(COMMON_SET_SYNTAX_FROM_CHAR, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2opt2(pos, function_set_syntax_from_char);
+	setcompiled_var2opt2(pos, p_defun_set_syntax_from_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_set_syntax_from_char(&type);
@@ -1067,7 +1067,7 @@ static void defmacro_with_standard_io_syntax(void)
 
 	GetConst(COMMON_WITH_STANDARD_IO_SYNTAX, &symbol);
 	compiled_macro_heap(&pos, symbol);
-	setcompiled_macro(pos, function_with_standard_io_syntax);
+	setcompiled_macro(pos, p_defmacro_with_standard_io_syntax);
 	SetMacroCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
@@ -1157,9 +1157,28 @@ static void defvar_readtable(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_reader(void)
+void init_common_reader(void)
+{
+	SetPointerCall(defun, opt2, copy_readtable);
+	SetPointerCall(defun, var1opt2, make_dispatch_macro_character);
+	SetPointerCall(defun, dynamic, read);
+	SetPointerCall(defun, dynamic, read_preserving_whitespace);
+	SetPointerCall(defun, var1opt2, read_delimited_list);
+	SetPointerCall(defun, dynamic, read_from_string);
+	SetPointerCall(defun, var1, readtable_case);
+	SetPointerCall(defun, var2, setf_readtable_case);
+	SetPointerCall(defun, var1, readtablep);
+	SetPointerCall(defun, var2opt1, get_dispatch_macro_character);
+	SetPointerCall(defun, var3opt1, set_dispatch_macro_character);
+	SetPointerCall(defun, var1opt1, get_macro_character);
+	SetPointerCall(defun, var2opt2, set_macro_character);
+	SetPointerCall(defun, var2opt2, set_syntax_from_char);
+	SetPointerCall(defmacro, macro, with_standard_io_syntax);
+}
+
+void build_common_reader(void)
 {
 	defun_copy_readtable();
 	defun_make_dispatch_macro_character();

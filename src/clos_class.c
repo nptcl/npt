@@ -13,6 +13,7 @@
 #include "integer.h"
 #include "lambda.h"
 #include "mop.h"
+#include "pointer.h"
 #include "sequence.h"
 #include "symbol.h"
 #include "type.h"
@@ -1559,6 +1560,18 @@ static void build_clos_class_condition(LocalRoot local)
 			CONDITION_STREAM_ERROR);
 }
 
+static void build_clos_class_system(LocalRoot local)
+{
+	addr metaclass;
+
+	GetConst(CLOS_STANDARD_CLASS, &metaclass);
+	/* savecore (serious-condition) */
+	ClosMakeClass1(local, metaclass,
+			SYSTEM_SAVECORE,
+			CONDITION_SAVECORE,
+			CONDITION_SERIOUS_CONDITION);
+}
+
 
 /*
  *  lisp type
@@ -1763,6 +1776,7 @@ void build_clos_class(LocalRoot local)
 	build_clos_class_combination(local);
 	build_clos_class_specializer(local);
 	build_clos_class_condition(local);
+	build_clos_class_system(local);
 	build_clos_class_type(local);
 	build_clos_class_mop(local);
 	build_clos_class_variable();
@@ -2098,7 +2112,7 @@ static void clos_ensure_reader_method(Execute ptr,
 	/* function */
 	compiled_heap(&call, name);
 	SetDataFunction(call, symbol);
-	setcompiled_var3(call, function_clos_ensure_reader);
+	setcompiled_var3(call, p_defun_clos_ensure_reader);
 	GetTypeCompiled(&type, Reader_Method);
 	settype_function(call, type);
 	/* method */
@@ -2147,7 +2161,7 @@ static void clos_ensure_writer_method(Execute ptr,
 	/* function */
 	compiled_heap(&call, name);
 	SetDataFunction(call, symbol);
-	setcompiled_var4(call, function_clos_ensure_writer_instance);
+	setcompiled_var4(call, p_defun_clos_ensure_writer_instance);
 	GetTypeCompiled(&type, Writer_Method);
 	settype_function(call, type);
 	/* method */
@@ -2973,5 +2987,15 @@ int setf_slot_value_using_class_common(Execute ptr,
 	/* slot-missing */
 	GetConst(COMMON_SETF, &check);
 	return clos_slot_missing(ptr, clos, pos, key, check, value);
+}
+
+
+/*
+ *  initialize
+ */
+void init_clos_class(void)
+{
+	SetPointerCall(defun, var3, clos_ensure_reader);
+	SetPointerCall(defun, var4, clos_ensure_writer_instance);
 }
 

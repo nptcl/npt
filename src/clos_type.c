@@ -237,7 +237,7 @@ static void class_of_bit_vector(addr object, addr *ret)
 	GetConst(CLOS_SIMPLE_BIT_VECTOR, ret);
 }
 
-void init_clos_class_of(void)
+void init_clos_type(void)
 {
 	size_t i;
 

@@ -509,8 +509,7 @@ static addr alloc_function(LocalRoot local,
 	ptr->macro = macro;
 	ptr->compiled = compiled;
 	ptr->system = 0;
-	ptr->call.type = CallBind_any;
-	ptr->call.call.ptr = NULL;
+	ptr->index = p_empty;
 
 	return pos;
 }
@@ -639,242 +638,228 @@ void compiled_macro_heap(addr *ret, addr name)
 	*ret = alloc_function(NULL, name, Nil, 1, 1);
 }
 
-void setcompiled_system(addr pos, calltype call)
+void setcompiled_code(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_system;
-	str->call.system = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_code, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void getcompiled_system(addr pos, calltype *ret)
+void getcompiled_code(addr pos, pointer *ret)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	Check(str->type != CallBind_system, "compiled type error");
-	*ret = str->call.system;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	*ret = StructFunction(pos)->index;
+	Check(pointer_table[*ret].type != CallBind_code, "type error");
 }
 
-void setcompiled_type(addr pos, void *call)
+void setcompiled_macro(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_type;
-	str->call.ptr = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_macro, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void getcompiled_type(addr pos, void **ret)
+void setcompiled_none(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	Check(str->type != CallBind_type, "compiled type error");
-	*ret = str->call.ptr;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_none, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_macro(addr pos, callbind_macro call)
+void setcompiled_any(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_macro;
-	str->call.macro = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_any, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_none(addr pos, callbind_none call)
+void setcompiled_dynamic(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_none;
-	str->call.none = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_dynamic, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_any(addr pos, callbind_any call)
+void setcompiled_empty(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_any;
-	str->call.any = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_empty, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_dynamic(addr pos, callbind_dynamic call)
+void setcompiled_rest(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_dynamic;
-	str->call.dynamic = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_rest, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_empty(addr pos, callbind_empty call)
+void setcompiled_var1(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_empty;
-	str->call.empty = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var1, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_rest(addr pos, callbind_rest call)
+void setcompiled_var2(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_rest;
-	str->call.rest = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var2, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var1(addr pos, callbind_var1 call)
+void setcompiled_var3(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var1;
-	str->call.var1 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var3, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var2(addr pos, callbind_var2 call)
+void setcompiled_var4(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var2;
-	str->call.var2 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var4, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var3(addr pos, callbind_var3 call)
+void setcompiled_var5(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var3;
-	str->call.var3 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var5, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var4(addr pos, callbind_var4 call)
+void setcompiled_var6(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var4;
-	str->call.var4 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var6, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var5(addr pos, callbind_var5 call)
+void setcompiled_opt1(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var5;
-	str->call.var5 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_opt1, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var6(addr pos, callbind_var6 call)
+void setcompiled_opt2(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var6;
-	str->call.var6 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_opt2, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_opt1(addr pos, callbind_opt1 call)
+void setcompiled_opt3(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_opt1;
-	str->call.opt1 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_opt3, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_opt2(addr pos, callbind_opt2 call)
+void setcompiled_opt4(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_opt2;
-	str->call.opt2 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_opt4, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_opt3(addr pos, callbind_opt3 call)
+void setcompiled_opt5(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_opt3;
-	str->call.opt3 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_opt5, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_opt4(addr pos, callbind_opt4 call)
+void setcompiled_var1opt1(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_opt4;
-	str->call.opt4 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var1opt1, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_opt5(addr pos, callbind_opt5 call)
+void setcompiled_var2opt1(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_opt5;
-	str->call.opt5 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var2opt1, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var1opt1(addr pos, callbind_var1opt1 call)
+void setcompiled_var3opt1(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var1opt1;
-	str->call.var1opt1 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var3opt1, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var2opt1(addr pos, callbind_var2opt1 call)
+void setcompiled_var4opt1(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var2opt1;
-	str->call.var2opt1 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var4opt1, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var3opt1(addr pos, callbind_var3opt1 call)
+void setcompiled_var5opt1(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var3opt1;
-	str->call.var3opt1 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var5opt1, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var4opt1(addr pos, callbind_var4opt1 call)
+void setcompiled_var1opt2(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var4opt1;
-	str->call.var4opt1 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var1opt2, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var5opt1(addr pos, callbind_var5opt1 call)
+void setcompiled_var2opt2(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var5opt1;
-	str->call.var5opt1 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var2opt2, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var1opt2(addr pos, callbind_var1opt2 call)
+void setcompiled_var1rest(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var1opt2;
-	str->call.var1opt2 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var1rest, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var2opt2(addr pos, callbind_var2opt2 call)
+void setcompiled_var2rest(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var2opt2;
-	str->call.var2opt2 = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var2rest, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var1rest(addr pos, callbind_var1rest call)
+void setcompiled_var1dynamic(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var1rest;
-	str->call.var1rest = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var1dynamic, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var2rest(addr pos, callbind_var2rest call)
+void setcompiled_var2dynamic(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var2rest;
-	str->call.var2rest = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var2dynamic, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var1dynamic(addr pos, callbind_var1dynamic call)
+void setcompiled_var3dynamic(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var1dynamic;
-	str->call.var1dynamic = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var3dynamic, "type error");
+	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var2dynamic(addr pos, callbind_var2dynamic call)
+void setcompiled_var4dynamic(addr pos, pointer p)
 {
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var2dynamic;
-	str->call.var2dynamic = call;
-}
-
-void setcompiled_var3dynamic(addr pos, callbind_var3dynamic call)
-{
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var3dynamic;
-	str->call.var3dynamic = call;
-}
-
-void setcompiled_var4dynamic(addr pos, callbind_var4dynamic call)
-{
-	struct callbind_struct *str = CallBindCompiled(pos);
-	str->type = CallBind_var4dynamic;
-	str->call.var4dynamic = call;
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var4dynamic, "type error");
+	StructFunction(pos)->index = p;
 }
 
 void function_heap_for_develop(addr *ret, addr name)
@@ -905,12 +890,6 @@ void setfunction(addr pos, addr value)
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFunction_Low(pos, value);
-}
-
-struct callbind_struct *callbindcompiled(addr pos)
-{
-	Check(! compiled_function_p(pos), "type error");
-	return CallBindCompiled_Low(pos);
 }
 
 addr refnamefunction(addr pos)

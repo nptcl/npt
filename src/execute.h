@@ -2,9 +2,7 @@
 #define __EXECUTE_HEADER__
 
 #include <setjmp.h>
-#include "thread.h"
-#include "typedef.h"
-#include "lisptype.h"
+#include "typedef_thread.h"
 #include "local.h"
 
 /*
@@ -51,6 +49,7 @@ struct execute {
 	threadid handleid;
 #endif
 };
+typedef struct execute *Execute;
 
 struct CodeJump {
 	Execute ptr;

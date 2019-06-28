@@ -50,14 +50,14 @@ static void type_char_eql(addr *ret)
 	type_compiled_heap(arg, values, ret);
 }
 
-static void defun_char_check(constindex index, void (*call)(Execute, addr, addr))
+static void defun_char_check(constindex index, pointer p)
 {
 	addr symbol, pos, type;
 
 	/* function */
 	GetConstant(index, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, call);
+	setcompiled_var1dynamic(pos, p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_char_eql(&type);
@@ -77,7 +77,7 @@ static void function_char_eql(Execute ptr, addr var, addr list)
 }
 static void defun_char_eql(void)
 {
-	defun_char_check(CONSTANT_COMMON_CHAR_EQL, function_char_eql);
+	defun_char_check(CONSTANT_COMMON_CHAR_EQL, p_defun_char_eql);
 }
 
 
@@ -109,7 +109,7 @@ static void defun_char_not_eql(void)
 	/* function */
 	GetConst(COMMON_CHAR_NOT_EQL, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, function_char_not_eql);
+	setcompiled_dynamic(pos, p_defun_char_not_eql);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_char_eql(&type);
@@ -129,7 +129,7 @@ static void function_char_less(Execute ptr, addr var, addr list)
 }
 static void defun_char_less(void)
 {
-	defun_char_check(CONSTANT_COMMON_CHAR_LESS, function_char_less);
+	defun_char_check(CONSTANT_COMMON_CHAR_LESS, p_defun_char_less);
 }
 
 
@@ -144,7 +144,7 @@ static void function_char_greater(Execute ptr, addr var, addr list)
 }
 static void defun_char_greater(void)
 {
-	defun_char_check(CONSTANT_COMMON_CHAR_GREATER, function_char_greater);
+	defun_char_check(CONSTANT_COMMON_CHAR_GREATER, p_defun_char_greater);
 }
 
 
@@ -159,7 +159,7 @@ static void function_char_less_equal(Execute ptr, addr var, addr list)
 }
 static void defun_char_less_equal(void)
 {
-	defun_char_check(CONSTANT_COMMON_CHAR_LESS_EQUAL, function_char_less_equal);
+	defun_char_check(CONSTANT_COMMON_CHAR_LESS_EQUAL, p_defun_char_less_equal);
 }
 
 
@@ -174,7 +174,7 @@ static void function_char_greater_equal(Execute ptr, addr var, addr list)
 }
 static void defun_char_greater_equal(void)
 {
-	defun_char_check(CONSTANT_COMMON_CHAR_GREATER_EQUAL, function_char_greater_equal);
+	defun_char_check(CONSTANT_COMMON_CHAR_GREATER_EQUAL, p_defun_char_greater_equal);
 }
 
 
@@ -206,7 +206,7 @@ static void function_char_equal(Execute ptr, addr var, addr list)
 }
 static void defun_char_equal(void)
 {
-	defun_char_check(CONSTANT_COMMON_CHAR_EQUAL, function_char_equal);
+	defun_char_check(CONSTANT_COMMON_CHAR_EQUAL, p_defun_char_equal);
 }
 
 
@@ -240,7 +240,7 @@ static void defun_char_not_equal(void)
 	/* function */
 	GetConst(COMMON_CHAR_NOT_EQUAL, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, function_char_not_equal);
+	setcompiled_dynamic(pos, p_defun_char_not_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_char_eql(&type);
@@ -256,7 +256,7 @@ static void function_char_lessp(Execute ptr, addr var, addr list)
 }
 static void defun_char_lessp(void)
 {
-	defun_char_check(CONSTANT_COMMON_CHAR_LESSP, function_char_lessp);
+	defun_char_check(CONSTANT_COMMON_CHAR_LESSP, p_defun_char_lessp);
 }
 
 
@@ -267,7 +267,7 @@ static void function_char_greaterp(Execute ptr, addr var, addr list)
 }
 static void defun_char_greaterp(void)
 {
-	defun_char_check(CONSTANT_COMMON_CHAR_GREATERP, function_char_greaterp);
+	defun_char_check(CONSTANT_COMMON_CHAR_GREATERP, p_defun_char_greaterp);
 }
 
 
@@ -278,7 +278,7 @@ static void function_char_not_lessp(Execute ptr, addr var, addr list)
 }
 static void defun_char_not_lessp(void)
 {
-	defun_char_check(CONSTANT_COMMON_CHAR_NOT_LESSP, function_char_not_lessp);
+	defun_char_check(CONSTANT_COMMON_CHAR_NOT_LESSP, p_defun_char_not_lessp);
 }
 
 
@@ -289,7 +289,7 @@ static void function_char_not_greaterp(Execute ptr, addr var, addr list)
 }
 static void defun_char_not_greaterp(void)
 {
-	defun_char_check(CONSTANT_COMMON_CHAR_NOT_GREATERP, function_char_not_greaterp);
+	defun_char_check(CONSTANT_COMMON_CHAR_NOT_GREATERP, p_defun_char_not_greaterp);
 }
 
 
@@ -359,7 +359,7 @@ static void defun_character(void)
 	/* function */
 	GetConst(COMMON_CHARACTER, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_character);
+	setcompiled_var1(pos, p_defun_character);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_character(&type);
@@ -381,7 +381,7 @@ static void defun_characterp(void)
 	/* function */
 	GetConst(COMMON_CHARACTERP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_characterp);
+	setcompiled_var1(pos, p_defun_characterp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Object_Boolean);
@@ -416,7 +416,7 @@ static void defun_alpha_char_p(void)
 	/* function */
 	GetConst(COMMON_ALPHA_CHAR_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_alpha_char_p);
+	setcompiled_var1(pos, p_defun_alpha_char_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_character_boolean(&type);
@@ -440,7 +440,7 @@ static void defun_alphanumericp(void)
 	/* function */
 	GetConst(COMMON_ALPHANUMERICP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_alphanumericp);
+	setcompiled_var1(pos, p_defun_alphanumericp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_character_boolean(&type);
@@ -496,7 +496,7 @@ static void defun_digit_char(void)
 	/* function */
 	GetConst(COMMON_DIGIT_CHAR, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_digit_char);
+	setcompiled_var1opt1(pos, p_defun_digit_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_digit_char(&type);
@@ -562,7 +562,7 @@ static void defun_digit_char_p(void)
 	/* function */
 	GetConst(COMMON_DIGIT_CHAR_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_digit_char_p);
+	setcompiled_var1opt1(pos, p_defun_digit_char_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_digit_char_p(&type);
@@ -590,7 +590,7 @@ static void defun_graphic_char_p(void)
 	/* function */
 	GetConst(COMMON_GRAPHIC_CHAR_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_graphic_char_p);
+	setcompiled_var1(pos, p_defun_graphic_char_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_character_boolean(&type);
@@ -614,7 +614,7 @@ static void defun_standard_char_p(void)
 	/* function */
 	GetConst(COMMON_STANDARD_CHAR_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_standard_char_p);
+	setcompiled_var1(pos, p_defun_standard_char_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_character_boolean(&type);
@@ -652,7 +652,7 @@ static void defun_char_upcase(void)
 	/* function */
 	GetConst(COMMON_CHAR_UPCASE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_char_upcase);
+	setcompiled_var1(pos, p_defun_char_upcase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_character_character(&type);
@@ -679,7 +679,7 @@ static void defun_char_downcase(void)
 	/* function */
 	GetConst(COMMON_CHAR_DOWNCASE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_char_downcase);
+	setcompiled_var1(pos, p_defun_char_downcase);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_character_character(&type);
@@ -703,7 +703,7 @@ static void defun_upper_case_p(void)
 	/* function */
 	GetConst(COMMON_UPPER_CASE_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_upper_case_p);
+	setcompiled_var1(pos, p_defun_upper_case_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_character_boolean(&type);
@@ -727,7 +727,7 @@ static void defun_lower_case_p(void)
 	/* function */
 	GetConst(COMMON_LOWER_CASE_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_lower_case_p);
+	setcompiled_var1(pos, p_defun_lower_case_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_character_boolean(&type);
@@ -751,7 +751,7 @@ static void defun_both_case_p(void)
 	/* function */
 	GetConst(COMMON_BOTH_CASE_P, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_both_case_p);
+	setcompiled_var1(pos, p_defun_both_case_p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_character_boolean(&type);
@@ -791,7 +791,7 @@ static void defun_char_code(void)
 	/* function */
 	GetConst(COMMON_CHAR_CODE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_char_code);
+	setcompiled_var1(pos, p_defun_char_code);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_char_code(&type);
@@ -807,7 +807,7 @@ static void defun_char_int(void)
 	/* function */
 	GetConst(COMMON_CHAR_INT, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_char_code);
+	setcompiled_var1(pos, p_defun_char_code);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_char_code(&type);
@@ -857,7 +857,7 @@ static void defun_code_char(void)
 	/* function */
 	GetConst(COMMON_CODE_CHAR, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_code_char);
+	setcompiled_var1(pos, p_defun_code_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_code_char(&type);
@@ -894,7 +894,7 @@ static void defun_char_name(void)
 	/* function */
 	GetConst(COMMON_CHAR_NAME, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_char_name);
+	setcompiled_var1(pos, p_defun_char_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_char_name(&type);
@@ -954,7 +954,7 @@ static void defun_name_char(void)
 	/* function */
 	GetConst(COMMON_NAME_CHAR, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_name_char);
+	setcompiled_var1(pos, p_defun_name_char);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_name_char(&type);
@@ -964,9 +964,43 @@ static void defun_name_char(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_characters(void)
+void init_common_characters(void)
+{
+	SetPointerCall(defun, var1dynamic, char_eql);
+	SetPointerCall(defun, var1dynamic, char_less);
+	SetPointerCall(defun, var1dynamic, char_greater);
+	SetPointerCall(defun, var1dynamic, char_less_equal);
+	SetPointerCall(defun, var1dynamic, char_greater_equal);
+	SetPointerCall(defun, var1dynamic, char_equal);
+	SetPointerCall(defun, var1dynamic, char_lessp);
+	SetPointerCall(defun, var1dynamic, char_greaterp);
+	SetPointerCall(defun, var1dynamic, char_not_lessp);
+	SetPointerCall(defun, var1dynamic, char_not_greaterp);
+	SetPointerCall(defun, dynamic, char_not_eql);
+	SetPointerCall(defun, dynamic, char_not_equal);
+	SetPointerCall(defun, var1, character);
+	SetPointerCall(defun, var1, characterp);
+	SetPointerCall(defun, var1, alpha_char_p);
+	SetPointerCall(defun, var1, alphanumericp);
+	SetPointerCall(defun, var1opt1, digit_char);
+	SetPointerCall(defun, var1opt1, digit_char_p);
+	SetPointerCall(defun, var1, graphic_char_p);
+	SetPointerCall(defun, var1, standard_char_p);
+	SetPointerCall(defun, var1, char_upcase);
+	SetPointerCall(defun, var1, char_downcase);
+	SetPointerCall(defun, var1, upper_case_p);
+	SetPointerCall(defun, var1, lower_case_p);
+	SetPointerCall(defun, var1, both_case_p);
+	SetPointerCall(defun, var1, char_code);
+	SetPointerCall(defun, var1, char_code);
+	SetPointerCall(defun, var1, code_char);
+	SetPointerCall(defun, var1, char_name);
+	SetPointerCall(defun, var1, name_char);
+}
+
+void build_common_characters(void)
 {
 	defconstant_char_code_limit();
 	defun_char_eql();

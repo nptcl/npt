@@ -56,5 +56,8 @@ void generic_compute_applicable_methods(LocalRoot local,
 void generic_find_method(Execute ptr,
 		addr gen, addr qua, addr spec, addr errorp, addr *ret);
 
+/* initialize */
+void init_clos_generic(void);
+
 #endif
 

@@ -13,6 +13,7 @@
 #include "number.h"
 #include "object.h"
 #include "package.h"
+#include "pointer.h"
 #include "strtype.h"
 #include "symbol.h"
 
@@ -2587,7 +2588,7 @@ static void defpackage_update(Execute ptr, addr pos, addr rest)
 	defpackage_update_export(local, pos, expt);
 }
 
-static void defpackage_make_delete(Execute ptr, addr condition)
+static void function_defpackage_make(Execute ptr, addr condition)
 {
 	addr pos;
 
@@ -2607,7 +2608,7 @@ static int defpackage_make(Execute ptr, addr pos, addr rest)
 	/* handler-case */
 	GetConst(COMMON_ERROR, &symbol);
 	compiled_local(ptr->local, &call, Nil);
-	setcompiled_var1(call, defpackage_make_delete);
+	setcompiled_var1(call, p_defun_defpackage_make);
 	SetDataFunction(call, pos);
 	pushhandler_control(ptr, symbol, call, 0);
 	/* code */
@@ -2739,5 +2740,14 @@ void syscall_do_all_symbols(Execute ptr, addr call)
 		}
 	}
 	setvalues_nil_control(ptr);
+}
+
+
+/*
+ *  initialize
+ */
+void init_package(void)
+{
+	SetPointerCall(defun, var1, defpackage_make);
 }
 

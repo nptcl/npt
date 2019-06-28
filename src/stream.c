@@ -1871,3 +1871,45 @@ int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 	return 0;
 }
 
+
+/*
+ *  core
+ */
+void update_standard_stream(void)
+{
+	addr pos;
+
+	/* stdin */
+	GetConst(STREAM_STDIN, &pos);
+	update_standard_input(pos);
+	/* stdout */
+	GetConst(STREAM_STDOUT, &pos);
+	update_standard_output(pos);
+	/* stderr */
+	GetConst(STREAM_STDERR, &pos);
+	update_standard_error(pos);
+}
+
+int save_stream(addr pos)
+{
+	switch (PtrStructStream(pos)->type) {
+		case StreamType_BinaryInput:
+		case StreamType_BinaryOutput:
+		case StreamType_BinaryIO:
+		case StreamType_CharacterInput:
+		case StreamType_CharacterOutput:
+		case StreamType_CharacterIO:
+			return save_stream_file(pos);
+
+		case StreamType_BincharInput:
+		case StreamType_BincharOutput:
+		case StreamType_BincharIO:
+			return save_stream_system(pos);
+
+		default:
+			break;
+	}
+
+	return 0;
+}
+

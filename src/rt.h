@@ -1,8 +1,7 @@
 #ifndef __RT_HEADER__
 #define __RT_HEADER__
 
-#include "typedef.h"
-
+void init_rt(void);
 void build_rt(void);
 
 #endif

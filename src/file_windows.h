@@ -120,6 +120,29 @@ static inline int open_input_chartype(file_type *ret, const void *name)
 	return 0;
 }
 
+static inline int open_input_unicode(file_type *ret, const void *name, size_t size)
+{
+	void *ptr;
+	size_t value;
+
+	ptr = NULL;
+	if (UTF32_length_utf16(name, size, &value))
+		goto error;
+	ptr = malloc(value);
+	if (ptr == NULL)
+		goto error;
+	if (UTF32_make_utf16(ptr, name, value))
+		goto error;
+	if (open_input_chartype(ret, ptr))
+		goto error;
+	free(ptr);
+	return 0;
+
+error:
+	free(ptr);
+	return 1;
+}
+
 static inline int open_input_arch(Execute ptr, file_type *ret, addr name)
 {
 	int result;

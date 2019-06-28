@@ -33,7 +33,7 @@ static int test_make_code_call(void)
 	addr array, symbol, cons, call, args, check;
 	LocalRoot local;
 	LocalStack stack;
-	const calltype *ptr;
+	const pointer *ptr;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -53,9 +53,9 @@ static int test_make_code_call(void)
 	test(GetType(args) == LISPTYPE_VECTOR, "make_code_call2");
 	test(GetStatusSize(args) == LISPSIZE_ARRAY4, "make_code_call3");
 	test(ptr != NULL, "make_code_call4");
-	test(ptr[0] == hello_code, "make_code_call5");
-	test(ptr[1] == nop_code, "make_code_call6");
-	test(ptr[2] == abort_code, "make_code_call7");
+	test(ptr[0] == p_hello_code, "make_code_call5");
+	test(ptr[1] == p_nop_code, "make_code_call6");
+	test(ptr[2] == p_abort_code, "make_code_call7");
 
 	GetArrayA4(args, 0, &cons);
 	test(cons == Nil, "make_code_call8");
@@ -95,7 +95,7 @@ static int test_code_alloc(void)
 	test(GetType(pos) == LISPTYPE_CODE, "code_alloc1");
 	str = StructCode(pos);
 	test(str->size == 3, "code_alloc2");
-	test(str->call[0] == hello_code, "code_alloc3");
+	test(str->call[0] == p_hello_code, "code_alloc3");
 
 	GetArrayCode(pos, Code_Call, &call);
 	test(GetType(call) == LISPSYSTEM_CODE, "code_alloc4");

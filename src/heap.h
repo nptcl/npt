@@ -26,7 +26,7 @@ extern addr heap_front;
 extern addr heap_pos;
 
 /* function */
-int init_heap(size_t);
+int alloc_heap(size_t);
 void free_heap(void);
 
 /* gc */
@@ -114,6 +114,9 @@ void heap_arraybody_debug(addr *root, enum LISPTYPE type, size_t array, size_t b
 /* core */
 int save_heap(struct filememory *fm);
 int load_heap(struct filememory *fm);
+
+/* initialize */
+void init_heap(void);
 
 #endif
 

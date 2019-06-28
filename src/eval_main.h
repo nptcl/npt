@@ -8,5 +8,8 @@ int eval_main_loop(Execute ptr);
 void eval_main_string(Execute ptr, addr eval, int *abort);
 int eval_main_load(Execute ptr, addr file, int exists, int *abort);
 
+/* initialize */
+void init_eval_main(void);
+
 #endif
 

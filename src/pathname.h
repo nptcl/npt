@@ -91,5 +91,8 @@ void translate_pathname(Execute ptr, addr *ret, addr pos, addr from, addr to);
 void translate_logical_pathname(Execute ptr, addr *ret, addr pos);
 void merge_pathnames(Execute ptr, addr *ret, addr pos, addr defaults, addr version);
 
+/* initialize */
+void init_pathname(void);
+
 #endif
 

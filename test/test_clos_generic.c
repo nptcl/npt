@@ -113,16 +113,17 @@ static int test_call(Execute ptr, addr instance, addr generic, addr args)
 	return 0;
 }
 
-static int test_clos_generic_call_alloc(void)
+static int test_clos_generic_call_heap(void)
 {
 	addr pos;
 	clos_generic_call call;
 
-	clos_generic_call_alloc(NULL, &pos, test_call, 10);
-	test(GetType(pos) == LISPSYSTEM_GENERIC, "clos_generic_call_alloc1");
-	test(GetStatusSize(pos) == LISPSIZE_SMALLSIZE, "clos_generic_call_alloc2");
-	GetClosGenericCall(pos, &call);
-	test(call == test_call, "clos_generic_call_alloc3");
+	ClosGenericTable[gen_debug] = test_call;
+	clos_generic_call_heap(&pos, gen_debug, 10);
+	test(GetType(pos) == LISPSYSTEM_GENERIC, "clos_generic_call_heap1");
+	test(GetStatusSize(pos) == LISPSIZE_SMALLSIZE, "clos_generic_call_heap2");
+	CallClosGenericCall(pos, &call);
+	test(call == test_call, "clos_generic_call_heap3");
 
 	RETURN;
 }
@@ -165,7 +166,8 @@ static int test_comb_standard_method(void)
 	test_make_method(&method);
 	internchar(LISP_PACKAGE, "TEST-GENERIC1", &call);
 	compiled_heap(&call, call);
-	setcompiled_dynamic(call, test_comb_standard_method_call);
+	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
+	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
 	list_heap(&args, T, NULL);
 	comb_standard_method(ptr, method, Nil, args);
@@ -222,7 +224,8 @@ static int test_comb_standard_funcall(void)
 	test_make_method(&method);
 	internchar(LISP_PACKAGE, "TEST-GENERIC2", &call);
 	compiled_heap(&call, call);
-	setcompiled_dynamic(call, test_comb_standard_funcall_call);
+	SetPointer(p_debug1, dynamic, test_comb_standard_funcall_call);
+	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
 
 	fixnum_local(local, &value1, 10);
@@ -239,7 +242,7 @@ static int test_comb_standard_funcall(void)
 	RETURN;
 }
 
-static int test_comb_standard_lambda(void)
+static int test_function_standard_lambda(void)
 {
 	addr control, method, call, data, args;
 	Execute ptr;
@@ -250,17 +253,18 @@ static int test_comb_standard_lambda(void)
 	test_make_method(&method);
 	internchar(LISP_PACKAGE, "TEST-GENERIC3", &call);
 	compiled_heap(&call, call);
-	setcompiled_dynamic(call, test_comb_standard_method_call);
+	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
+	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
 	list_heap(&args, Nil, Nil, T, NULL);
 	list_heap(&data, method, NULL);
 	list_heap(&data, Nil, data, Nil, Nil, NULL);
 	setdata_control(ptr, data);
 	setargs_list_control(ptr, args);
-	comb_standard_lambda(ptr);
+	function_standard_lambda(ptr);
 
 	getresult_control(ptr, &call);
-	test(call == T, "comb_standard_lambda1");
+	test(call == T, "function_standard_lambda1");
 	free_control(ptr, control);
 
 	RETURN;
@@ -284,7 +288,8 @@ static int test_comb_standard_qualifiers(void)
 	test_make_method(&method);
 	internchar(LISP_PACKAGE, "TEST-GENERIC4", &call);
 	compiled_heap(&call, call);
-	setcompiled_dynamic(call, test_comb_standard_method_call);
+	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
+	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
 	list_heap(&primary, method, NULL);
 	comb_standard_qualifiers(local, &method, generic, Nil, primary, Nil);
@@ -313,7 +318,8 @@ static int test_comb_standard(void)
 	test_make_method(&method);
 	internchar(LISP_PACKAGE, "TEST-GENERIC5", &call);
 	compiled_heap(&call, call);
-	setcompiled_dynamic(call, test_comb_standard_method_call);
+	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
+	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
 	list_heap(&method, method, NULL);
 	SetArrayA4(data, 2, method);
@@ -321,7 +327,7 @@ static int test_comb_standard(void)
 	comb_standard(&call, data);
 	/* clos_generic_call */
 	push_close_control(ptr, &control);
-	GetClosGenericCall(call, &callproc);
+	CallClosGenericCall(call, &callproc);
 	test_make_generic(&generic);
 	GetConst(CLOS_STANDARD_METHOD, &args);
 	stdset_generic_method_class(generic, args);
@@ -660,7 +666,8 @@ static int test_generic_make_type(void)
 	test_make_method(&method);
 	internchar(LISP_PACKAGE, "TEST-GENERIC1", &pos);
 	compiled_heap(&pos, pos);
-	setcompiled_dynamic(pos, test_comb_standard_method_call);
+	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
+	setcompiled_dynamic(pos, p_debug1);
 	stdset_method_function(method, pos);
 	GetConst(CLOS_T, &check);
 	list_heap(&pos, check, NULL);
@@ -674,7 +681,7 @@ static int test_generic_make_type(void)
 	GetConst(CLOS_T, &check);
 	list_heap(&pos, check, NULL);
 	generic_make_type(Execute_Thread, &pos, generic, pos);
-	GetClosGenericCall(pos, &call);
+	CallClosGenericCall(pos, &call);
 	list_heap(&args, T, NULL);
 	ptr = Execute_Thread;
 	/* others */
@@ -734,14 +741,15 @@ static int test_generic_make_lambda_call(void)
 	Execute ptr;
 
 	/* argument */
-	clos_generic_call_heap(&instance, NULL, 2);
+	clos_generic_call_heap(&instance, gen_debug, 2);
 	list_heap(&eqlcheck, T, NULL);
 	SetClosGenericCallArray(instance, 0, eqlcheck);
 	generic_instance_cache(&cache);
 	SetClosGenericCallArray(instance, 1, cache);
 
 	/* intern cache */
-	clos_generic_call_heap(&call, test_hello_call, 2);
+	ClosGenericTable[gen_debug] = test_hello_call;
+	clos_generic_call_heap(&call, gen_debug, 2);
 	GetConst(CLOS_FIXNUM, &pos);
 	list_heap(&pos, pos, NULL);
 	intern_hashheap(cache, pos, &pos);
@@ -783,7 +791,8 @@ static int test_closrun_execute(void)
 	test_make_method(&method);
 	internchar(LISP_PACKAGE, "TEST-GENERIC1", &pos);
 	compiled_heap(&pos, pos);
-	setcompiled_dynamic(pos, test_comb_standard_method_call);
+	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
+	setcompiled_dynamic(pos, p_debug1);
 	stdset_method_function(method, pos);
 	GetConst(CLOS_T, &value);
 	list_heap(&pos, value, NULL);
@@ -819,11 +828,11 @@ static int testbreak_clos_generic(void)
 	TestBreak(test_stdboundp_generic);
 	TestBreak(test_stdget_specializer);
 	/* call object */
-	TestBreak(test_clos_generic_call_alloc);
+	TestBreak(test_clos_generic_call_heap);
 	/* default method-combination */
 	TestBreak(test_comb_standard_method);
 	TestBreak(test_comb_standard_funcall);
-	TestBreak(test_comb_standard_lambda);
+	TestBreak(test_function_standard_lambda);
 	TestBreak(test_comb_standard_qualifiers);
 	TestBreak(test_comb_standard);
 	TestBreak(test_comb_lambda);

@@ -48,6 +48,7 @@ void value_special_restart(Execute ptr, addr symbol, addr *ret);
  *  handler warning
  */
 void handler_warning(Execute ptr);
+void handler_savecore(Execute ptr);
 
 
 /*
@@ -195,6 +196,9 @@ void unbound_variable(addr name);
 void instance_undefined_function(addr *ret, addr name);
 void undefined_function(addr name);
 void undefined_function_setf(addr name);
+/* savecore */
+void instance_savecore_condition(addr *ret);
+void savecore_condition(void);
 
 /* build */
 void build_condition(Execute ptr);

@@ -39,7 +39,7 @@ static void defun_symbolp(void)
 	/* function */
 	GetConst(COMMON_SYMBOLP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_symbolp);
+	setcompiled_var1(pos, p_defun_symbolp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Object_Boolean);
@@ -61,7 +61,7 @@ static void defun_keywordp(void)
 	/* function */
 	GetConst(COMMON_KEYWORDP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_keywordp);
+	setcompiled_var1(pos, p_defun_keywordp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Object_Boolean);
@@ -97,7 +97,7 @@ static void defun_make_symbol(void)
 	/* function */
 	GetConst(COMMON_MAKE_SYMBOL, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_make_symbol);
+	setcompiled_var1(pos, p_defun_make_symbol);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_make_symbol(&type);
@@ -154,7 +154,7 @@ static void defun_copy_symbol(void)
 	/* function */
 	GetConst(COMMON_COPY_SYMBOL, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1opt1(pos, function_copy_symbol);
+	setcompiled_var1opt1(pos, p_defun_copy_symbol);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_copy_symbol(&type);
@@ -198,7 +198,7 @@ static void defun_gensym(void)
 	/* function */
 	GetConst(COMMON_GENSYM, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, function_gensym);
+	setcompiled_opt1(pos, p_defun_gensym);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_gensym(&type);
@@ -237,7 +237,7 @@ static void defun_gentemp(void)
 	/* function */
 	GetConst(COMMON_GENTEMP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt2(pos, function_gentemp);
+	setcompiled_opt2(pos, p_defun_gentemp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_gentemp(&type);
@@ -270,7 +270,7 @@ static void defun_symbol_function(void)
 	/* function */
 	GetConst(COMMON_SYMBOL_FUNCTION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_symbol_function);
+	setcompiled_var1(pos, p_defun_symbol_function);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_symbol_function(&type);
@@ -304,7 +304,7 @@ static void defun_setf_symbol_function(void)
 	/* function */
 	GetConst(COMMON_SYMBOL_FUNCTION, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_setf_symbol_function);
+	setcompiled_var2(pos, p_defun_setf_symbol_function);
 	setsetf_symbol(symbol, pos);
 	/* type */
 	type_setf_symbol_function(&type);
@@ -337,7 +337,7 @@ static void defun_symbol_value(void)
 	/* function */
 	GetConst(COMMON_SYMBOL_VALUE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_symbol_value);
+	setcompiled_var1(pos, p_defun_symbol_value);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_symbol_value(&type);
@@ -371,7 +371,7 @@ static void defun_setf_symbol_value(void)
 	/* function */
 	GetConst(COMMON_SYMBOL_VALUE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_setf_symbol_value);
+	setcompiled_var2(pos, p_defun_setf_symbol_value);
 	setsetf_symbol(symbol, pos);
 	/* type */
 	type_setf_symbol_value(&type);
@@ -404,7 +404,7 @@ static void defun_symbol_plist(void)
 	/* function */
 	GetConst(COMMON_SYMBOL_PLIST, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_symbol_plist);
+	setcompiled_var1(pos, p_defun_symbol_plist);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_symbol_plist(&type);
@@ -438,7 +438,7 @@ static void defun_setf_symbol_plist(void)
 	/* function */
 	GetConst(COMMON_SYMBOL_PLIST, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_setf_symbol_plist);
+	setcompiled_var2(pos, p_defun_setf_symbol_plist);
 	setsetf_symbol(symbol, pos);
 	/* type */
 	type_setf_symbol_plist(&type);
@@ -471,7 +471,7 @@ static void defun_symbol_name(void)
 	/* function */
 	GetConst(COMMON_SYMBOL_NAME, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_symbol_name);
+	setcompiled_var1(pos, p_defun_symbol_name);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_symbol_name(&type);
@@ -506,7 +506,7 @@ static void defun_symbol_package(void)
 	/* function */
 	GetConst(COMMON_SYMBOL_PACKAGE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_symbol_package);
+	setcompiled_var1(pos, p_defun_symbol_package);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_symbol_package(&type);
@@ -548,7 +548,7 @@ static void defun_get(void)
 	/* function */
 	GetConst(COMMON_GET, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2opt1(pos, function_get);
+	setcompiled_var2opt1(pos, p_defun_get);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_get(&type);
@@ -604,7 +604,7 @@ static void defun_remprop(void)
 	/* function */
 	GetConst(COMMON_REMPROP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_remprop);
+	setcompiled_var2(pos, p_defun_remprop);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_remprop(&type);
@@ -627,7 +627,7 @@ static void defun_boundp(void)
 	/* function */
 	GetConst(COMMON_BOUNDP, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_boundp);
+	setcompiled_var1(pos, p_defun_boundp);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Symbol_Boolean);
@@ -660,7 +660,7 @@ static void defun_makunbound(void)
 	/* function */
 	GetConst(COMMON_MAKUNBOUND, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var1(pos, function_makunbound);
+	setcompiled_var1(pos, p_defun_makunbound);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_makunbound(&type);
@@ -694,7 +694,7 @@ static void defun_set(void)
 	/* function */
 	GetConst(COMMON_SET, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var2(pos, function_set);
+	setcompiled_var2(pos, p_defun_set);
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_set(&type);
@@ -704,9 +704,32 @@ static void defun_set(void)
 
 
 /*
- *  intern
+ *  function
  */
-void intern_common_symbols(void)
+void init_common_symbols(void)
+{
+	SetPointerCall(defun, var1, symbolp);
+	SetPointerCall(defun, var1, keywordp);
+	SetPointerCall(defun, var1, make_symbol);
+	SetPointerCall(defun, var1opt1, copy_symbol);
+	SetPointerCall(defun, opt1, gensym);
+	SetPointerCall(defun, opt2, gentemp);
+	SetPointerCall(defun, var1, symbol_function);
+	SetPointerCall(defun, var2, setf_symbol_function);
+	SetPointerCall(defun, var1, symbol_value);
+	SetPointerCall(defun, var2, setf_symbol_value);
+	SetPointerCall(defun, var1, symbol_plist);
+	SetPointerCall(defun, var2, setf_symbol_plist);
+	SetPointerCall(defun, var1, symbol_name);
+	SetPointerCall(defun, var1, symbol_package);
+	SetPointerCall(defun, var2opt1, get);
+	SetPointerCall(defun, var2, remprop);
+	SetPointerCall(defun, var1, boundp);
+	SetPointerCall(defun, var1, makunbound);
+	SetPointerCall(defun, var2, set);
+}
+
+void build_common_symbols(void)
 {
 	defvar_gensym_counter();
 	defun_symbolp();

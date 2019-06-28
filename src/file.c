@@ -60,6 +60,24 @@ void make_standard_error(addr *stream)
 	encode_standard_stream(*stream);
 }
 
+void update_standard_input(addr stream)
+{
+	CheckType(stream, LISPTYPE_STREAM);
+	update_standard_input_filememory(PtrFileMemory(stream));
+}
+
+void update_standard_output(addr stream)
+{
+	CheckType(stream, LISPTYPE_STREAM);
+	update_standard_output_filememory(PtrFileMemory(stream));
+}
+
+void update_standard_error(addr stream)
+{
+	CheckType(stream, LISPTYPE_STREAM);
+	update_standard_error_filememory(PtrFileMemory(stream));
+}
+
 int script_header(addr stream)
 {
 	int check;
@@ -1449,5 +1467,32 @@ void clear_output_file(addr stream)
 	fm = PtrFileMemory(stream);
 	if (clear_output_filememory(fm))
 		fmte("clear-output error.", NULL);
+}
+
+
+/*
+ *  core
+ */
+int save_stream_file(addr pos)
+{
+	struct filememory *fm;
+	struct StructStream *ptr;
+
+	fm = PtrFileMemory(pos);
+	close_filememory(fm);
+	ptr = PtrStructStream(pos);
+	ptr->terpri = 0;
+	ptr->unread_check = 0;
+	ptr->closed = 1;
+
+	return 0;
+}
+
+int save_stream_system(addr pos)
+{
+	if (PtrFileMemory(pos)->system == filememory_stream)
+		return save_stream_file(pos);
+	else
+		return 0;
 }
 

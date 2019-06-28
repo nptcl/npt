@@ -320,7 +320,7 @@ static void eval_load_close(Execute ptr, addr stream)
 	addr control, code;
 
 	push_finalize_control(ptr, &control);
-	syscall_code(ptr->local, &code, eval_load_finalize, stream);
+	syscall_code(ptr->local, &code, p_eval_load_finalize, stream);
 	setfinalize_control(ptr, control, code);
 }
 
@@ -433,5 +433,15 @@ int eval_load(Execute ptr, int *result,
 	push_prompt_info(ptr);
 	check = eval_load_file(ptr, result, file, verbose, print, exist, external);
 	return free_check_control(ptr, control, check);
+}
+
+
+/*
+ *  initialize
+ */
+void init_eval(void)
+{
+	SetPointerType(empty, eval_load_finalize);
+	init_eval_main();
 }
 

@@ -1042,7 +1042,8 @@ static int test_parse_type_list(void)
 
 	/* deftype */
 	compiled_heap(&pos, Nil);
-	setcompiled_dynamic(pos, test_parse_type_list_call);
+	SetPointer(p_debug1, dynamic, test_parse_type_list_call);
+	setcompiled_dynamic(pos, p_debug1);
 	symbol = readr("test-parse-type-list");
 	setdeftype_symbol(symbol, pos);
 	pos = readr("(test-parse-type-list)");

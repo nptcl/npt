@@ -11,13 +11,27 @@
 #include "function.h"
 #include "hashtable.h"
 #include "lambda.h"
+#include "pointer.h"
 #include "sequence.h"
 #include "symbol.h"
 
 /* clos_generic_call */
+enum ClosGenericIndex {
+#ifdef LISP_DEGRADE
+	gen_debug,
+#endif
+	gen_comb_standard_call,
+	gen_comb_define_call,
+	gen_generic_make_lambda_call,
+	gen_generic_no_method,
+	gen_size
+};
 typedef int (*clos_generic_call)(Execute, addr, addr, addr);
-#define GetClosGenericCall(x,y)  (*(y) = *(clos_generic_call *)PtrBodySS(x))
-#define SetClosGenericCall(x,y)  (*(clos_generic_call *)PtrBodySS(x) = (y))
+static clos_generic_call ClosGenericTable[gen_size];
+#define CallClosGenericCall(x,y) \
+	(*(y) = ClosGenericTable[*(enum ClosGenericIndex *)PtrBodySS(x)])
+#define GetClosGenericCall(x,y)  (*(y) = *(enum ClosGenericIndex *)PtrBodySS(x))
+#define SetClosGenericCall(x,y)  (*(enum ClosGenericIndex *)PtrBodySS(x) = (y))
 #define GetClosGenericCallArray(x,i,y)  GetArraySS(x,i,y)
 #define SetClosGenericCallArray(x,i,y)  SetArraySS(x,i,y)
 
@@ -262,22 +276,15 @@ void stdset_specializer_type(addr pos, addr value)
 /*****************************************************************************
  *  clos-generic-call
  *****************************************************************************/
-static void clos_generic_call_alloc(LocalRoot local,
-		addr *ret, clos_generic_call call, int size)
+static void clos_generic_call_heap(addr *ret, enum ClosGenericIndex call, int size)
 {
 	addr pos;
 
 	Check(size < 0, "size error");
 	Check(255 < size, "size error");
-	alloc_smallsize(local, &pos,
-			LISPSYSTEM_GENERIC, size, sizeoft(clos_generic_call));
+	heap_smallsize(&pos, LISPSYSTEM_GENERIC, size, sizeoft(enum ClosGenericIndex));
 	SetClosGenericCall(pos, call);
 	*ret = pos;
-}
-
-static void clos_generic_call_heap(addr *ret, clos_generic_call call, int size)
-{
-	clos_generic_call_alloc(NULL, ret, call, size);
 }
 
 
@@ -310,7 +317,7 @@ static int comb_standard_funcall(Execute ptr, addr rest, addr around, addr prima
 	return comb_standard_method(ptr, around, primary, rest);
 }
 
-static void comb_standard_lambda(Execute ptr)
+static void function_standard_lambda(Execute ptr)
 {
 	addr args, data, before, primary, after, one, control, car, cdr;
 
@@ -357,7 +364,7 @@ static void comb_standard_qualifiers(LocalRoot local,
 	stdget_generic_method_class(gen, &clos);
 	GetConst(SYSTEM_STANDARD, &name);
 	compiled_local(local, &call, name);
-	setcompiled_any(call, comb_standard_lambda);
+	setcompiled_any(call, p_defun_standard_lambda);
 	list_local(local, &data, before, primary, after, NULL);
 	SetDataFunction(call, data);
 	method_instance_call(local, ret, clos, call);
@@ -419,7 +426,7 @@ static int comb_standard(addr *ret, addr data)
 {
 	addr pos;
 
-	clos_generic_call_heap(&pos, comb_standard_call, 1);
+	clos_generic_call_heap(&pos, gen_comb_standard_call, 1);
 	SetClosGenericCallArray(pos, 0, data);
 	*ret = pos;
 
@@ -451,7 +458,7 @@ static int comb_long(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 		return 1;
 	Check(! functionp(data), "type error");
 	/* result */
-	clos_generic_call_heap(&pos, comb_define_call, 1);
+	clos_generic_call_heap(&pos, gen_comb_define_call, 1);
 	SetClosGenericCallArray(pos, 0, data);
 	*ret = pos;
 
@@ -467,7 +474,7 @@ static int comb_short(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 		return 1;
 	Check(! functionp(data), "type error");
 	/* result */
-	clos_generic_call_heap(&pos, comb_define_call, 1);
+	clos_generic_call_heap(&pos, gen_comb_define_call, 1);
 	SetClosGenericCallArray(pos, 0, data);
 	*ret = pos;
 
@@ -719,7 +726,7 @@ static int generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
 	}
 
 	/* clos_generic_call */
-	GetClosGenericCall(value, &call);
+	CallClosGenericCall(value, &call);
 	return (*call)(ptr, value, gen, args);
 }
 
@@ -729,7 +736,7 @@ static void generic_make_lambda(addr gen, addr *ret)
 
 	stdget_generic_eqlcheck(gen, &eqlcheck);
 	stdget_generic_cache(gen, &cache);
-	clos_generic_call_heap(&call, generic_make_lambda_call, 2);
+	clos_generic_call_heap(&call, gen_generic_make_lambda_call, 2);
 	SetClosGenericCallArray(call, 0, eqlcheck);
 	SetClosGenericCallArray(call, 1, cache);
 	*ret = call;
@@ -751,7 +758,7 @@ static void generic_make_generic_call(addr gen, addr *ret)
 
 	GetConst(CLOSDATA_NO_METHOD, &call);
 	if (call == Nil) {
-		clos_generic_call_heap(&call, generic_no_method, 0);
+		clos_generic_call_heap(&call, gen_generic_no_method, 0);
 		SetConstant(CONSTANT_CLOSDATA_NO_METHOD, call);
 	}
 	*ret = call;
@@ -787,7 +794,7 @@ void closrun_execute(Execute ptr, addr clos, addr args)
 		fmte("Cannot exexute a funcallable instance ~S.", clos, NULL);
 	stdget_generic_call(clos, &pos);
 	CheckType(pos, LISPSYSTEM_GENERIC);
-	GetClosGenericCall(pos, &call);
+	CallClosGenericCall(pos, &call);
 	(*call)(ptr, pos, clos, args);
 }
 
@@ -1056,5 +1063,18 @@ void generic_find_method(Execute ptr,
 				spec, gen, qua, NULL);
 	}
 	*ret = Nil;
+}
+
+
+/*
+ *  initialize
+ */
+void init_clos_generic(void)
+{
+	SetPointerCall(defun, any, standard_lambda);
+	ClosGenericTable[gen_comb_standard_call] = comb_standard_call;
+	ClosGenericTable[gen_comb_define_call] = comb_define_call;
+	ClosGenericTable[gen_generic_make_lambda_call] = generic_make_lambda_call;
+	ClosGenericTable[gen_generic_no_method] = generic_no_method;
 }
 

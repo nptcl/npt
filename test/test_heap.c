@@ -536,20 +536,20 @@ static int test_make_mutexheap(void)
 	RETURN;
 }
 
-static int test_init_heap(void)
+static int test_alloc_heap(void)
 {
 	addr pos;
 
 	lisp_info_enable = 0; /* infoerror */
-	test(init_heap(10000) == 1, "init_heap1");
+	test(alloc_heap(10000) == 1, "alloc_heap1");
 	lisp_info_enable = 1;
 	free_heap();
-	test(init_heap(1000*1000) == 0, "init_heap2");
+	test(alloc_heap(1000*1000) == 0, "alloc_heap2");
 	free_heap();
 
 	/* error */
 	CellRoot = CellPos = (struct heapcell *)Unbound;
-	test(init_heap(1000*1000) == 0, "init_heap3");
+	test(alloc_heap(1000*1000) == 0, "alloc_heap3");
 	heap_cons(&pos);
 	free_heap();
 
@@ -627,7 +627,7 @@ static int test_heap_cons(void)
 	int i;
 	addr root, cons;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	test(Cons == 0, "heap_cons1a");
 	heap_cons(&root);
@@ -657,7 +657,7 @@ static int test_heap_symbol(void)
 	int i;
 	addr root, symbol;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	test(Symbol == 0, "heap_symbol1a");
 	heap_symbol(&root);
@@ -687,7 +687,7 @@ static int test_heap_smallsize(void)
 	addr root, cons;
 	size_t size;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	heap_smallsize(&root, LISPTYPE_VECTOR, 10, 20);
 	test(GetType(root) == LISPTYPE_VECTOR, "heap_smallsize1");
@@ -725,7 +725,7 @@ static int test_heap_array2(void)
 	addr root, cons;
 	size_t size;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	heap_array2(&root, LISPTYPE_VECTOR, 10);
 	test(GetType(root) == LISPTYPE_VECTOR, "heap_array2-1");
@@ -755,7 +755,7 @@ static int test_heap_body2(void)
 	addr root, body;
 	size_t size;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	heap_body2(&root, LISPTYPE_VECTOR, 20);
 	body = PtrBodyB2(root);
@@ -779,7 +779,7 @@ static int test_heap_arraybody(void)
 	addr root, cons;
 	size_t size;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	heap_arraybody(&root, LISPTYPE_VECTOR, 10, 20);
 	test(GetType(root) == LISPTYPE_VECTOR, "heap_arraybody1");
@@ -817,7 +817,7 @@ static int test_heap_array4(void)
 	addr root, cons;
 	size_t size;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	heap_array4(&root, LISPTYPE_VECTOR, 10);
 	test(GetType(root) == LISPTYPE_VECTOR, "heap_array4-1");
@@ -847,7 +847,7 @@ static int test_heap_body4(void)
 	addr root, body;
 	size_t size;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	heap_body4(&root, LISPTYPE_VECTOR, 20);
 	body = PtrBodyB4(root);
@@ -872,7 +872,7 @@ static int test_heap_array8(void)
 	addr root, cons;
 	size_t size;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	heap_array8(&root, LISPTYPE_VECTOR, 10);
 	test(GetType(root) == LISPTYPE_VECTOR, "heap_array8-1");
@@ -902,7 +902,7 @@ static int test_heap_body8(void)
 	addr root, body;
 	size_t size;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	heap_body8(&root, LISPTYPE_VECTOR, 20);
 	body = PtrBodyB8(root);
@@ -927,7 +927,7 @@ static int test_heap_array(void)
 	addr root;
 	size_t size;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	heap_array(&root, LISPTYPE_VECTOR, 10);
 	test(GetType(root) == LISPTYPE_VECTOR, "heap_array1");
@@ -946,7 +946,7 @@ static int test_heap_body(void)
 	addr root;
 	size_t size;
 
-	init_heap(1024UL*1024UL*10UL);
+	alloc_heap(1024UL*1024UL*10UL);
 	Nil = Unbound;
 	heap_body(&root, LISPTYPE_VECTOR, 20);
 	test(GetType(root) == LISPTYPE_VECTOR, "heap_body1");
@@ -985,7 +985,7 @@ int test_heap(void)
 	TestBreak(test_allocheap_large);
 	TestBreak(test_allocheap);
 	TestBreak(test_make_mutexheap);
-	TestBreak(test_init_heap);
+	TestBreak(test_alloc_heap);
 	TestBreak(test_foreach_heap);
 	TestBreak(test_cellupdate_heap);
 

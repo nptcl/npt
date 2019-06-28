@@ -489,8 +489,7 @@ static int test_alloc_function(void)
 	test(ptr->macro, "alloc_function5");
 	test(ptr->compiled == 0, "alloc_function6");
 	test(ptr->system == 0, "alloc_function7");
-	test(ptr->call.type == CallBind_any, "alloc_function8");
-	test(ptr->call.call.ptr == NULL, "alloc_function9");
+	test(ptr->index == p_empty, "alloc_function8");
 
 	RETURN;
 }

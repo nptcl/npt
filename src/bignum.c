@@ -18,6 +18,7 @@
 #include "sequence.h"
 #include "stream.h"
 #include "token.h"
+#include "typedef.h"
 
 /*
  *     user:  sign

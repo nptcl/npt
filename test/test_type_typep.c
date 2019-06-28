@@ -1952,6 +1952,7 @@ static int test_typep_asterisk_clang(void)
 
 	fixnum_heap(&value, 20);
 	test_parse_char(&type, "fixnum");
+	check = 0;
 	test(! typep_asterisk_clang(value, type, &check), "typep_asterisk_heap1");
 	test(check, "typep_asterisk_heap2");
 

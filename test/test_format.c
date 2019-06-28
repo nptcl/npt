@@ -2925,7 +2925,8 @@ static int test_format_function(void)
 
 	internchar(LISP_PACKAGE, "FORMAT-FUNCTION-TEST", &symbol);
 	compiled_heap(&call, Nil);
-	setcompiled_dynamic(call, test_format_function_test);
+	SetPointer(p_debug1, dynamic, test_format_function_test);
+	setcompiled_dynamic(call, p_debug1);
 	SetFunctionSymbol(symbol, call);
 	strvect_char_heap(&pos, "~/" LISP_PACKAGE "::format-function-test/-~A");
 	list_heap(&list, fixnum_heapr(10), fixnum_heapr(20), NULL);

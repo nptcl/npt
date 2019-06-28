@@ -493,9 +493,8 @@ static int mainlisp_load(Execute ptr,
 	strvect_sizeu_heap(&file, name->ptr, name->size);
 	pathname_designer_heap(ptr, file, &file);
 	result = eval_main_load(ptr, file, 0, abort);
-	if (error && result)
+	if (error && result == 0)
 		fmte("Cannot open file ~S.", file, NULL);
-
 	return result;
 }
 
@@ -511,13 +510,12 @@ static void mainlisp_script(Execute ptr,
 		fmte("Cannot open file ~S.", file, NULL);
 	script_header(stream);
 	/* load */
-	if (eval_main_load(ptr, stream, 0, abort))
+	if (eval_main_load(ptr, stream, 0, abort) == 0)
 		fmte("Cannot load file ~S.", file, NULL);
 }
 
 static int mainlisp_loadinit(Execute ptr, int *abort)
 {
-	int check;
 	struct string_data *list;
 
 	/* --noinit */
@@ -533,22 +531,13 @@ static int mainlisp_loadinit(Execute ptr, int *abort)
 
 	/* default initfile */
 	for (list = FileName_Init->root; list; list = list->next) {
-		check = mainlisp_load(ptr, list->data, abort, 0);
-		if (check < 0) { /* File is not found. */
+		if (mainlisp_load(ptr, list->data, abort, 0) == 0)
 			continue;
-		}
-		if (check) { /* Invalid init file */
-			errormsg("Cannot read default init file.");
-			return 1;
-		}
-		else { /* success */
-			return 0;
-		}
+		return 0;
 	}
 
-	/* error */
-	errormsg("Cannot read all default init file.");
-	return 1;
+	/* All init file is not found. */
+	return 0;
 }
 
 static void mainlisp_eval(Execute ptr, const struct unimem *str, int *abort)
@@ -702,16 +691,17 @@ static void mainlisp_root(Execute ptr, size_t index)
 	if (codejump_run_p(&jump)) {
 		push_prompt_info(ptr);
 		handler_warning(ptr);
+		handler_savecore(ptr);
 		mainlisp_environment();
 		mainlisp_arguments(index);
 		mainlisp_execute(ptr, index);
 	}
 	end_switch(&jump);
-	throw_switch(&jump);
 	if (free_control(ptr, control)) {
 		errormsg("free_control error.");
 		exitexecute(ptr, LISPCODE_ABORT);
 	}
+	throw_switch(&jump);
 }
 
 static void makunbound_variable(constindex index)
@@ -725,7 +715,8 @@ static int mainlisp_core(Execute ptr)
 {
 	makunbound_variable(CONSTANT_SYSTEM_SPECIAL_ENVIRONMENT);
 	makunbound_variable(CONSTANT_SYSTEM_SPECIAL_ARGUMENTS);
-	return make_core();
+	Result = save_core();
+	return Result;
 }
 
 static int mainlisp_result(Execute ptr, lispcode code)
@@ -897,31 +888,25 @@ static const char *help_message[] = {
 	"OPTIONS:",
 	"  --help             Print this message.",
 	"  --version          Print the version infomation.",
-#if 0
 	"  --core             Core mode.",
-#endif
 	"  --standalone       Standalone mode.",
 #ifdef LISP_DEGRADE
 	"  --degrade          Degrade mode.",
 #endif
 	"  --heap <size>      Heap memory size.",
 	"  --local <size>     Local memory size.",
-#if 0
 	"  --corefile <file>  Core file instead of default file used.",
-#endif
 	"  --initfile <file>  Init file instead of default file used.",
-#if 0
 	"  --nocore           Don't load a default core file.",
-#endif
 	"  --noinit           Don't load a default init file.",
 	"  --debugger         Enable debugger.",
 	"  --nodebugger       Disable debugger.",
 	"  --interactive      Enable interactive mode.",
-	"  --script           Disable interactive mode [script mode].",
 	"  --quit             Exit after load and eval processing.",
 	"",
 	"INPUTS:",
 	"  --load <file>      Load source file.",
+	"  --script <file>    Load script file.",
 	"  --eval <cmd>       Execute command.",
 	"",
 	"If inputs aren't appeared, load from a standard-input.",

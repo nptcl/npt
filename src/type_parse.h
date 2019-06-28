@@ -4,6 +4,7 @@
 #include "execute.h"
 #include "typedef.h"
 
+void init_type_parse(void);
 void build_type_parse(void);
 int parse_type(Execute ptr, addr *ret, addr pos, addr env);
 int parse_type_not(Execute ptr, addr *ret, addr pos, addr env);

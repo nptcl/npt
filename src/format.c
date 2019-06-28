@@ -2,6 +2,7 @@
 #include <math.h>
 #include "bigcons.h"
 #include "bignum.h"
+#include "c99.h"
 #include "character.h"
 #include "charqueue.h"
 #include "condition.h"

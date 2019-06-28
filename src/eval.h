@@ -4,6 +4,7 @@
 #include "code.h"
 #include "memory.h"
 #include "eval_declare.h"
+#include "eval_main.h"
 
 enum EVAL_TYPE {
 	EVAL_TYPE_DECLARE,
@@ -101,6 +102,9 @@ int eval_stream(Execute ptr, addr stream);
 int eval_object(Execute ptr, addr eval, addr *ret);
 int eval_load(Execute ptr, int *result,
 		addr file, addr verbose, addr print, int exist, addr external);
+
+/* initialize */
+void init_eval(void);
 
 #endif
 

@@ -158,6 +158,7 @@ void init_type(void)
 	init_type_copy();
 	init_type_name();
 	init_type_object();
+	init_type_parse();
 	init_type_subtypep();
 	init_type_symbol();
 	init_type_typep();

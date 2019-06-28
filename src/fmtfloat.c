@@ -8,6 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "build.h"
+#include "c99.h"
 #include "fmtfloat.h"
 #include "stream.h"
 

@@ -66,7 +66,7 @@ static void defmethod_make_method_lambda_std(Execute ptr, addr name, addr gen)
 
 	/* function */
 	compiled_heap(&call, name);
-	setcompiled_var6(call, method_make_method_lambda_std);
+	setcompiled_var6(call, p_method_make_method_lambda_std);
 	method_type_make_method_lambda_std(&type);
 	settype_function(call, type);
 	/* method */
@@ -93,9 +93,14 @@ static void defgeneric_make_method_lambda(Execute ptr)
 
 
 /***********************************************************************
- *  intern
+ *  function
  ***********************************************************************/
-void intern_mop_protocols(Execute ptr)
+void init_mop_protocols(Execute ptr)
+{
+	SetPointerType(var6, method_make_method_lambda_std);
+}
+
+void build_mop_protocols(Execute ptr)
 {
 	defgeneric_make_method_lambda(ptr);
 }

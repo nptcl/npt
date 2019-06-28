@@ -438,6 +438,10 @@
 #define LISP_COMPLEX_C99
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable:4996)
+#endif
+
 /* end of header file */
 #endif
 

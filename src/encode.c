@@ -237,6 +237,7 @@ sequence2:
 	readbyteunicode(check, fm, c);
 	if (c < 0x80 || 0xBF < c) goto unicode_error;
 	result |= 0x3F & c;
+	if (result < 0x80) goto range_error;
 	goto normal;
 
 sequence3:
@@ -614,7 +615,7 @@ sequence2:
 	readbyteunicode_nonblocking();
 	if (c < 0x80 || 0xBF < c) goto unicode_error;
 	result |= 0x3F & c;
-	Check(result < 0x0080 || 0x07FF < result, "range error");
+	if (result < 0x80) goto range_error;
 	goto normal;
 
 sequence3:
@@ -1500,6 +1501,33 @@ int length_string_encode(struct filememory *fm, addr pos, size_t *ret)
 /*
  *  unicode buffer
  */
+int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret)
+{
+	size_t i, w;
+	unicode c;
+
+	w = 0;
+	for (i = 0; i < size; i++) {
+		c = ptr[i];
+		if (c < 0x80) w += 1;
+		else if (c < 0x0800) w += 2;
+		else if (c < 0xD800) w += 3;
+		else if (c < 0xE000) return 1; /* surrogate pair */
+		else if (c < 0x010000) w += 3;
+#ifdef UTF8_SEQ5CHECK
+		else if (c < UnicodeCount) w += 4;
+#else
+		else if (c < 0x200000) w += 4;
+		else if (c < 0x04000000) w += 5;
+		else if (c < 0x80000000) w += 6;
+#endif
+		else return 1;
+	}
+	*ret = w;
+
+	return 0;
+}
+
 static int UTF8_length(addr pos, size_t *ret)
 {
 	size_t i, w, size;
@@ -1521,6 +1549,25 @@ static int UTF8_length(addr pos, size_t *ret)
 		else if (c < 0x04000000) w += 5;
 		else if (c < 0x80000000) w += 6;
 #endif
+		else return 1;
+	}
+	*ret = w;
+
+	return 0;
+}
+
+int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret)
+{
+	size_t i, w;
+	unicode c;
+
+	w = 0;
+	for (i = 0; i < size; i++) {
+		c = ptr[i];
+		if (c < 0xD800) w += 1;
+		else if (c < 0xE000) return 1; /* surrogate pair */
+		else if (c < 0x010000) w += 1;
+		else if (c < UnicodeCount) w += 2;
 		else return 1;
 	}
 	*ret = w;
@@ -1656,7 +1703,7 @@ sequence2:
 	readtableunicode(src, size, i, c);
 	if (c < 0x80 || 0xBF < c) goto unicode_error;
 	result |= 0x3F & c;
-	Check(result < 0x0080 || 0x07FF < result, "range error");
+	if (result < 0x80) goto range_error;
 	goto normal;
 
 sequence3:
@@ -1873,6 +1920,38 @@ int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size)
 		else {
 			*(dst++) = (unicode)a;
 		}
+	}
+
+	return 0;
+}
+
+int UTF32_make_utf8(byte *dst, const unicode *src, size_t size)
+{
+	byte data[8];
+	size_t i, ret;
+
+	for (i = 0; i < size; i += ret) {
+		if (UTF8_encode(src[i], data, &ret))
+			return 1;
+		if (size < i + ret)
+			return 1;
+		memcpy(dst + i, data, ret);
+	}
+
+	return 0;
+}
+
+int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size)
+{
+	byte16 data[4];
+	size_t i, ret;
+
+	for (i = 0; i < size; i += ret) {
+		if (UTF16_encode_ptr(src[i], data, &ret))
+			return 1;
+		if (size < i + ret)
+			return 1;
+		memcpy(dst + i, data, ret);
 	}
 
 	return 0;

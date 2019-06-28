@@ -1994,7 +1994,8 @@ static int test_code_multiple_value_call(void)
 
 	readstring(&pos, LISP_PACKAGE "::test-multiple-value-call1");
 	compiled_heap(&call, pos);
-	setcompiled_dynamic(call, test_multiple_value_call1);
+	SetPointer(p_debug1, dynamic, test_multiple_value_call1);
+	setcompiled_dynamic(call, p_debug1);
 	SetFunctionSymbol(pos, call);
 
 	codechar_set(&pos, "(multiple-value-call #'"

@@ -4,7 +4,7 @@
 #include "typedef.h"
 
 /* class-of */
-void init_clos_class_of(void);
+void init_clos_type(void);
 void clos_class_of(addr object, addr *ret);
 
 /* specializer */

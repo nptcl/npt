@@ -3,6 +3,7 @@
 
 #include "execute.h"
 
+void init_common(void);
 void build_common(void);
 
 #endif

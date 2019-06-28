@@ -61,7 +61,7 @@ struct control_struct {
 	unsigned dynamic_result : 1;
 	enum ControlType_Index type;
 	LocalStack stack;
-	const calltype *call;
+	const pointer *call;
 	size_t sizer, point;
 };
 
@@ -1487,14 +1487,9 @@ typedef const struct callbind_struct *callstr;
 typedef void (*callbind_control)(Execute, addr, callstr);
 static callbind_control CallBindTable[CallBind_size];
 
-static void call_callbind_system(Execute ptr, addr pos, callstr call)
+static void call_callbind_code(Execute ptr, addr pos, callstr call)
 {
-	Abort("Cannot call callbind_system in control.");
-}
-
-static void call_callbind_type(Execute ptr, addr pos, callstr call)
-{
-	Abort("Cannot call callbind_system in control.");
+	Abort("Cannot call callbind_code in control.");
 }
 
 static void call_callbind_macro(Execute ptr, addr pos, callstr call)
@@ -2179,8 +2174,7 @@ void init_control(void)
 
 	for (i = 0; i < CallBind_size; i++)
 		CallBindTable[i] = NULL;
-	CallBindTable[CallBind_system] = call_callbind_system;
-	CallBindTable[CallBind_type] = call_callbind_type;
+	CallBindTable[CallBind_code] = call_callbind_code;
 	CallBindTable[CallBind_macro] = call_callbind_macro;
 	CallBindTable[CallBind_none] = call_callbind_none;
 	CallBindTable[CallBind_any] = call_callbind_any;
@@ -2213,16 +2207,16 @@ void init_control(void)
 	CallBindTable[CallBind_var4dynamic] = call_callbind_var4dynamic;
 }
 
-int call_compiled_function(Execute ptr, addr compiled)
+static int call_compiled_function(Execute ptr, addr compiled)
 {
-	int index;
+	struct callbind_struct *str;
 	callbind_control call;
-	callstr str;
+	pointer p;
 
-	str = CallBindCompiled(compiled);
-	index = (int)str->type;
-	Check(CallBind_size <= index, "index error");
-	call = CallBindTable[index];
+	p = StructFunction(compiled)->index;
+	str = &(pointer_table[p]);
+	Check(CallBind_size <= str->type, "index error");
+	call = CallBindTable[str->type];
 	Check(call == NULL, "call error. (build_control?)");
 	(*call)(ptr, compiled, str);
 
@@ -2265,12 +2259,12 @@ static void output_trace(addr control, size_t point)
 
 static void runinfo(Execute ptr,
 		addr *retcontrol,
-		const calltype **retcall,
+		const pointer **retcall,
 		addr **retargs)
 {
 	addr control, pos, *args;
 	struct control_struct *str;
-	const calltype *call;
+	const pointer *call;
 
 	control = ptr->control;
 	str = StructControl(control);
@@ -2346,7 +2340,8 @@ static int runcode_execute(Execute ptr)
 {
 	addr control, *args;
 	enum ExecuteControl *signal;
-	const calltype *call;
+	const pointer *call;
+	callbind_code code;
 	size_t point, *index;
 
 	Check(ptr->signal != ExecuteControl_Run, "signal error");
@@ -2357,7 +2352,8 @@ point:
 	while (*signal == ExecuteControl_Run) {
 		point = (*index)++;
 		OutputTrace(control, point);
-		(call[point])(ptr, args[point]);
+		GetPointer_code(call[point], &code);
+		(code)(ptr, args[point]);
 	}
 	if (ptr->state == ThreadState_Signal)
 		gcsync(ptr);
@@ -2376,7 +2372,7 @@ static int runcode_normal(Execute ptr, addr code)
 	str = StructControl(control);
 	/* set code (for garbage collect) */
 	setcode_control(ptr->local, control, code);
-	/* calltype */
+	/* pointer */
 	str->point = 0;
 	str->call = getcalltype_code(code);
 	/* argument */

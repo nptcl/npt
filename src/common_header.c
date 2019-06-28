@@ -132,9 +132,9 @@ void keyword_start2_end2(size_t size, addr rest, size_t *pstart, size_t *pend)
 
 
 /*
- *  intern_common
+ *  build
  */
-void intern_common_after_settings(void)
+void build_common_after_settings(void)
 {
 	addr symbol, value;
 
