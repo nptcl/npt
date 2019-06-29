@@ -56,55 +56,55 @@ enum EVAL_OPTIMIZE {
 #define PtrEvalBody(x,y)	PtrBodySSa(x,y)
 #define PtrEvalBodyAny(x)	PtrBodySS(x)
 
-addr eval_heapr(enum EVAL_TYPE type, byte array, byte body);
-addr eval_localr(LocalRoot local, enum EVAL_TYPE type, byte array, byte body);
-addr eval_allocr(LocalRoot local, enum EVAL_TYPE type, byte array, byte body);
-void eval_heap(addr *ret, enum EVAL_TYPE type, byte array, byte body);
-void eval_local(LocalRoot local, addr *ret, enum EVAL_TYPE type, byte array, byte body);
-void eval_alloc(LocalRoot local, addr *ret, enum EVAL_TYPE type, byte array, byte body);
+_g addr eval_heapr(enum EVAL_TYPE type, byte array, byte body);
+_g addr eval_localr(LocalRoot local, enum EVAL_TYPE type, byte array, byte body);
+_g addr eval_allocr(LocalRoot local, enum EVAL_TYPE type, byte array, byte body);
+_g void eval_heap(addr *ret, enum EVAL_TYPE type, byte array, byte body);
+_g void eval_local(LocalRoot local, addr *ret, enum EVAL_TYPE type, byte array, byte body);
+_g void eval_alloc(LocalRoot local, addr *ret, enum EVAL_TYPE type, byte array, byte body);
 
-addr refeval(addr pos, size_t index);
-void geteval(addr pos, size_t index, addr *ret);
-void seteval(addr pos, size_t index, addr value);
-enum EVAL_TYPE refevaltype(addr pos);
-void getevaltype(addr pos, enum EVAL_TYPE *ret);
-void setevaltype(addr pos, enum EVAL_TYPE value);
+_g addr refeval(addr pos, size_t index);
+_g void geteval(addr pos, size_t index, addr *ret);
+_g void seteval(addr pos, size_t index, addr value);
+_g enum EVAL_TYPE refevaltype(addr pos);
+_g void getevaltype(addr pos, enum EVAL_TYPE *ret);
+_g void setevaltype(addr pos, enum EVAL_TYPE value);
 
-int eval_p(addr pos);
-int eval_declare_p(addr pos);
-int eval_declare_nil_p(addr pos);
-int eval_parse_p(addr pos);
-int eval_scope_p(addr pos);
-int eval_stack_p(addr pos);
-int eval_tablevalue_p(addr pos);
-int eval_tablefunction_p(addr pos);
-int eval_tablecall_p(addr pos);
-int eval_tabletagbody_p(addr pos);
-int eval_tableblock_p(addr pos);
-int eval_code_p(addr pos);
+_g int eval_p(addr pos);
+_g int eval_declare_p(addr pos);
+_g int eval_declare_nil_p(addr pos);
+_g int eval_parse_p(addr pos);
+_g int eval_scope_p(addr pos);
+_g int eval_stack_p(addr pos);
+_g int eval_tablevalue_p(addr pos);
+_g int eval_tablefunction_p(addr pos);
+_g int eval_tablecall_p(addr pos);
+_g int eval_tabletagbody_p(addr pos);
+_g int eval_tableblock_p(addr pos);
+_g int eval_code_p(addr pos);
 
-void symbol_evalwhen_eval(addr *ret);
-void symbol_toplevel_eval(addr *ret);
-void getevalwhen_eval(Execute ptr, addr *ret);
-void setevalwhen_eval(Execute ptr, addr value);
-void gettoplevel_eval(Execute ptr, addr *ret);
-void settoplevel_eval(Execute ptr, addr value);
-void push_toplevel_eval(Execute ptr, addr value);
-void push_evalwhen_eval(Execute ptr);
-void push_evalwhen_load(Execute ptr);
-int toplevelp_eval(Execute ptr);
+_g void symbol_evalwhen_eval(addr *ret);
+_g void symbol_toplevel_eval(addr *ret);
+_g void getevalwhen_eval(Execute ptr, addr *ret);
+_g void setevalwhen_eval(Execute ptr, addr value);
+_g void gettoplevel_eval(Execute ptr, addr *ret);
+_g void settoplevel_eval(Execute ptr, addr value);
+_g void push_toplevel_eval(Execute ptr, addr value);
+_g void push_evalwhen_eval(Execute ptr);
+_g void push_evalwhen_load(Execute ptr);
+_g int toplevelp_eval(Execute ptr);
 
-int eval_constantp(addr var, addr env, int *result);
-int eval_constantp_stable(addr var);
+_g int eval_constantp(addr var, addr env, int *result);
+_g int eval_constantp_stable(addr var);
 
-int eval_execute(Execute ptr, addr pos);
-int eval_stream(Execute ptr, addr stream);
-int eval_object(Execute ptr, addr eval, addr *ret);
-int eval_load(Execute ptr, int *result,
+_g int eval_execute(Execute ptr, addr pos);
+_g int eval_stream(Execute ptr, addr stream);
+_g int eval_object(Execute ptr, addr eval, addr *ret);
+_g int eval_load(Execute ptr, int *result,
 		addr file, addr verbose, addr print, int exist, addr external);
 
 /* initialize */
-void init_eval(void);
+_g void init_eval(void);
 
 #endif
 

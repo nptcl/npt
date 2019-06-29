@@ -48,26 +48,26 @@
 /*
  *  Variables
  */
-int      lisp_init          = 0;
-addr     lisp_root[LISPINDEX_SIZE];
-addr     lisp_nil           = 0;
-addr     lisp_t             = 0;
-byte32   lisp_property      = 0;
+_g int      lisp_init          = 0;
+_g addr     lisp_root[LISPINDEX_SIZE];
+_g addr     lisp_nil           = 0;
+_g addr     lisp_t             = 0;
+_g byte32   lisp_property      = 0;
 /* for debug */
-int      lisp_info_enable	= 1;
+_g int      lisp_info_enable	= 1;
 
 
 /*
  *  property
  */
-void setproperty(int index, int value)
+_g void setproperty(int index, int value)
 {
 	Check(lisp_init == 0, "lisp error");
 	Check(index < 0 || 32 <= index, "range error");
 	SetShiftValue(lisp_property, index, value, 1UL, byte32);
 }
 
-int getproperty(int index)
+_g int getproperty(int index)
 {
 	Check(lisp_init == 0, "lisp error");
 	Check(index < 0 || 32 <= index, "range error");
@@ -78,7 +78,7 @@ int getproperty(int index)
 /*
  *  Initialize
  */
-void initlisp(void)
+_g void initlisp(void)
 {
 	clear_pointer();
 	init_boole();
@@ -116,7 +116,7 @@ static void clearlisp_force(void)
 	lisp_property      = 0;
 }
 
-int alloclisp(size_t heap, size_t stack)
+_g int alloclisp(size_t heap, size_t stack)
 {
 	if (lisp_init) {
 		Debug("lisp object already allocated.");
@@ -183,7 +183,7 @@ error_file:
 	return 1;
 }
 
-void freelisp(void)
+_g void freelisp(void)
 {
 	if (lisp_init) {
 		free_random_state();
@@ -200,7 +200,7 @@ void freelisp(void)
 /*
  *  buildlisp
  */
-void build_lisproot(Execute ptr)
+_g void build_lisproot(Execute ptr)
 {
 	size_t i;
 
@@ -303,7 +303,7 @@ static void intern_features(void)
 #endif
 }
 
-void buildlisp(Execute ptr)
+_g void buildlisp(Execute ptr)
 {
 	build_lisproot(ptr);
 	build_constant();
@@ -333,7 +333,7 @@ void buildlisp(Execute ptr)
 /*
  *  core
  */
-int save_lisp(struct filememory *fm)
+_g int save_lisp(struct filememory *fm)
 {
 	int i;
 
@@ -358,7 +358,7 @@ int save_lisp(struct filememory *fm)
 	return 0;
 }
 
-int load_lisp(struct filememory *fm)
+_g int load_lisp(struct filememory *fm)
 {
 	int i;
 

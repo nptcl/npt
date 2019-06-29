@@ -266,7 +266,7 @@ static int test_pushleftright(void)
 	RETURN;
 }
 
-static int test_pushlist(void)
+static int test_pushlist_eval(void)
 {
 	addr pos, value;
 	LocalRoot local;
@@ -276,20 +276,20 @@ static int test_pushlist(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	pushlist(local, pos,
+	pushlist_eval(local, pos,
 			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
 	GetEvalCode(pos, EvalCode_Code, &pos);
 	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	test(length_list_unsafe(pos) == 1, "pushlist1");
+	test(length_list_unsafe(pos) == 1, "pushlist_eval1");
 	GetCar(pos, &pos);
-	test(length_list_unsafe(pos) == 3, "pushlist2");
-	test(consp(pos), "pushlist3");
+	test(length_list_unsafe(pos) == 3, "pushlist_eval2");
+	test(consp(pos), "pushlist_eval3");
 	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 10, "pushlist4");
+	test(RefFixnum(value) == 10, "pushlist_eval4");
 	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 20, "pushlist5");
+	test(RefFixnum(value) == 20, "pushlist_eval5");
 	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 30, "pushlist6");
+	test(RefFixnum(value) == 30, "pushlist_eval6");
 
 	rollback_local(local, stack);
 
@@ -2150,7 +2150,7 @@ static int testbreak_eval_code(void)
 	TestBreak(test_save_modeswitch);
 	TestBreak(test_pushdata);
 	TestBreak(test_pushleftright);
-	TestBreak(test_pushlist);
+	TestBreak(test_pushlist_eval);
 	TestBreak(test_code_single);
 	TestBreak(test_code_leftright);
 	TestBreak(test_code_double);

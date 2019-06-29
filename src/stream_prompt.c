@@ -13,12 +13,12 @@
  * #define LISP_PROMPT_EDITLINE    Use editline  (for BSD)
  */
 #ifdef LISP_PROMPT_DEFAULT
-void open_prompt_stream(addr *stream)
+_g void open_prompt_stream(addr *stream)
 {
 	standard_input_stream(Execute_Thread, stream);
 }
 #else
-void open_prompt_stream(addr *stream)
+_g void open_prompt_stream(addr *stream)
 {
 	addr pos, value;
 
@@ -122,7 +122,7 @@ static void clear_input_Prompt(addr stream)
 	clear_input_string_stream(stream);
 }
 
-void init_stream_prompt(void)
+_g void init_stream_prompt(void)
 {
 	DefineStreamSet(Prompt, close);
 	DefineStream___(Prompt, read_binary);

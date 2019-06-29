@@ -8,42 +8,6 @@
 /*
  *  common
  */
-static void single_float_integer_heap(LocalRoot local, addr *ret, single_float v)
-{
-	addr pos;
-	LocalStack stack;
-
-	push_local(local, &stack);
-	if (bignum_single_float_local(local, &pos, v))
-		fmte("bignum_single_float_local error.", NULL);
-	bignum_result_heap(pos, ret);
-	rollback_local(local, stack);
-}
-
-static void double_float_integer_heap(LocalRoot local, addr *ret, double_float v)
-{
-	addr pos;
-	LocalStack stack;
-
-	push_local(local, &stack);
-	if (bignum_double_float_local(local, &pos, v))
-		fmte("bignum_double_float_local error.", NULL);
-	bignum_result_heap(pos, ret);
-	rollback_local(local, stack);
-}
-
-static void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
-{
-	addr pos;
-	LocalStack stack;
-
-	push_local(local, &stack);
-	if (bignum_long_float_local(local, &pos, v))
-		fmte("bignum_long_float_local error.", NULL);
-	bignum_result_heap(pos, ret);
-	rollback_local(local, stack);
-}
-
 static void floor1_float(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
@@ -74,7 +38,7 @@ static void floor1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 	long_float_heap(rem, r);
 }
 
-void floor1_common(LocalRoot local, addr *quot, addr *rem, addr left)
+_g void floor1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -140,7 +104,7 @@ static void ffloor1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 	long_float_heap(rem, r);
 }
 
-void ffloor1_common(LocalRoot local, addr *quot, addr *rem, addr left)
+_g void ffloor1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -827,7 +791,7 @@ static void floor_long_common(LocalRoot local,
 	}
 }
 
-void floor_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void floor_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1482,7 +1446,7 @@ static void ffloor_long_common(addr *quot, addr *rem, addr left, addr right)
 	}
 }
 
-void ffloor_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void ffloor_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1645,7 +1609,7 @@ static void mod_ratio_common(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-void mod_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void mod_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:

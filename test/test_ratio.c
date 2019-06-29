@@ -1200,7 +1200,7 @@ static int test_split_long_float(void)
 	RETURN;
 }
 
-static int test_rational_result_local(void)
+static int test_rational_return_local(void)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -1210,28 +1210,28 @@ static int test_rational_result_local(void)
 	push_local(local, &stack);
 
 	bignum_value_local(local, &pos, SignPlus, 11);
-	rational_result_local(local, SignPlus, 0, pos, &pos);
-	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_result_local1");
-	test(RefFixnum(pos) == 11, "rational_result_local2");
-	test(GetStatusDynamic(pos), "rational_result_local3");
+	rational_return_local(local, SignPlus, 0, pos, &pos);
+	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_return_local1");
+	test(RefFixnum(pos) == 11, "rational_return_local2");
+	test(GetStatusDynamic(pos), "rational_return_local3");
 
 	bignum_value_local(local, &pos, SignPlus, 11);
-	rational_result_local(local, SignMinus, 2, pos, &pos);
-	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_result_local4");
-	test(RefFixnum(pos) == -44, "rational_result_local5");
-	test(GetStatusDynamic(pos), "rational_result_local6");
+	rational_return_local(local, SignMinus, 2, pos, &pos);
+	test(GetType(pos) == LISPTYPE_FIXNUM, "rational_return_local4");
+	test(RefFixnum(pos) == -44, "rational_return_local5");
+	test(GetStatusDynamic(pos), "rational_return_local6");
 
 	bignum_value_local(local, &pos, SignPlus, 11);
-	rational_result_local(local, SignMinus, -2, pos, &pos);
-	test(GetType(pos) == LISPTYPE_RATIO, "rational_result_local7");
-	test(IsMinus(RefSignRatio(pos)), "rational_result_local8");
-	test(GetStatusDynamic(pos), "rational_result_local9");
+	rational_return_local(local, SignMinus, -2, pos, &pos);
+	test(GetType(pos) == LISPTYPE_RATIO, "rational_return_local7");
+	test(IsMinus(RefSignRatio(pos)), "rational_return_local8");
+	test(GetStatusDynamic(pos), "rational_return_local9");
 	GetNumerRatio(pos, &numer);
 	GetDenomRatio(pos, &denom);
-	test(equal_value_bignum(numer, SignPlus, 11), "rational_result_local10");
-	test(equal_value_bignum(denom, SignPlus, 4), "rational_result_local11");
-	test(GetStatusDynamic(numer), "rational_result_local12");
-	test(GetStatusDynamic(denom), "rational_result_local13");
+	test(equal_value_bignum(numer, SignPlus, 11), "rational_return_local10");
+	test(equal_value_bignum(denom, SignPlus, 4), "rational_return_local11");
+	test(GetStatusDynamic(numer), "rational_return_local12");
+	test(GetStatusDynamic(denom), "rational_return_local13");
 
 	rollback_local(local, stack);
 
@@ -7793,7 +7793,7 @@ static int testbreak_ratio(void)
 	TestBreak(test_split_single_float);
 	TestBreak(test_split_double_float);
 	TestBreak(test_split_long_float);
-	TestBreak(test_rational_result_local);
+	TestBreak(test_rational_return_local);
 	TestBreak(test_rational_float_single_local);
 	TestBreak(test_rational_float_double_local);
 	TestBreak(test_rational_float_long_local);

@@ -7,9 +7,9 @@
  *     input: type
  *    output: symbol  [not cons]
  */
-int type_name_p(addr *ret, addr value);
-void type_name(addr *ret, addr value);
-void init_type_name(void);
+_g int type_name_p(addr *ret, addr value);
+_g void type_name(addr *ret, addr value);
+_g void init_type_name(void);
 
 #endif
 

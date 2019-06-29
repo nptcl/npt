@@ -7,7 +7,7 @@
 #include "rational.h"
 #include "real_float.h"
 
-int rationalp(addr pos)
+_g int rationalp(addr pos)
 {
 	enum LISPTYPE type = GetType(pos);
 	return type == LISPTYPE_FIXNUM
@@ -18,7 +18,7 @@ int rationalp(addr pos)
 /*
  *  throw
  */
-void rational_result_local(LocalRoot local, addr pos, addr *ret)
+_g void rational_result_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	if (rationalp(pos))
@@ -27,7 +27,7 @@ void rational_result_local(LocalRoot local, addr pos, addr *ret)
 		integer_result_local(local, pos, ret);
 }
 
-void rational_result_heap(LocalRoot local, addr pos, addr *ret)
+_g void rational_result_heap(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	if (rationalp(pos))
@@ -36,7 +36,7 @@ void rational_result_heap(LocalRoot local, addr pos, addr *ret)
 		integer_result_heap(pos, ret);
 }
 
-void rational_throw_alloc(LocalRoot local, addr pos, addr *ret)
+_g void rational_throw_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -57,18 +57,18 @@ void rational_throw_alloc(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
-void rational_throw_local(LocalRoot local, addr pos, addr *ret)
+_g void rational_throw_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	rational_throw_alloc(local, pos, ret);
 }
 
-void rational_throw_heap(addr pos, addr *ret)
+_g void rational_throw_heap(addr pos, addr *ret)
 {
 	rational_throw_alloc(NULL, pos, ret);
 }
 
-void rational_copy_alloc(LocalRoot local, addr pos, addr *ret)
+_g void rational_copy_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	if (ratiop(pos))
 		ratio_copy_alloc(local, ret, pos);
@@ -76,13 +76,13 @@ void rational_copy_alloc(LocalRoot local, addr pos, addr *ret)
 		integer_copy_alloc(local, pos, ret);
 }
 
-void rational_copy_local(LocalRoot local, addr pos, addr *ret)
+_g void rational_copy_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	rational_copy_alloc(local, pos, ret);
 }
 
-void rational_copy_heap(addr pos, addr *ret)
+_g void rational_copy_heap(addr pos, addr *ret)
 {
 	rational_copy_alloc(NULL, pos, ret);
 }
@@ -91,7 +91,7 @@ void rational_copy_heap(addr pos, addr *ret)
 /*
  *  rational
  */
-int plusp_rational(addr pos)
+_g int plusp_rational(addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -109,7 +109,7 @@ int plusp_rational(addr pos)
 	}
 }
 
-int minusp_rational(addr pos)
+_g int minusp_rational(addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -127,7 +127,7 @@ int minusp_rational(addr pos)
 	}
 }
 
-int zerop_rational(addr pos)
+_g int zerop_rational(addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -202,7 +202,7 @@ static inline int equal_ratio_rational(addr left, addr right)
 	}
 }
 
-int equal_rational(addr left, addr right)
+_g int equal_rational(addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -277,7 +277,7 @@ static inline int compare_ratio_rational(LocalRoot local, addr left, addr right)
 	}
 }
 
-int compare_rational(LocalRoot local, addr left, addr right)
+_g int compare_rational(LocalRoot local, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -295,12 +295,12 @@ int compare_rational(LocalRoot local, addr left, addr right)
 	}
 }
 
-int less_rational_clang(LocalRoot local, addr left, addr right)
+_g int less_rational_clang(LocalRoot local, addr left, addr right)
 {
 	return less_rational(local, left, right);
 }
 
-int less_equal_rational_clang(LocalRoot local, addr left, addr right)
+_g int less_equal_rational_clang(LocalRoot local, addr left, addr right)
 {
 	return less_equal_rational(local, left, right);
 }
@@ -309,7 +309,7 @@ int less_equal_rational_clang(LocalRoot local, addr left, addr right)
 /*
  *  float
  */
-single_float single_float_rational(addr pos)
+_g single_float single_float_rational(addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -327,7 +327,7 @@ single_float single_float_rational(addr pos)
 	}
 }
 
-double_float double_float_rational(addr pos)
+_g double_float double_float_rational(addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -345,7 +345,7 @@ double_float double_float_rational(addr pos)
 	}
 }
 
-long_float long_float_rational(addr pos)
+_g long_float long_float_rational(addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -367,7 +367,7 @@ long_float long_float_rational(addr pos)
 /*
  *  sign-reverse
  */
-void sign_reverse_rational_common(addr pos, addr *ret)
+_g void sign_reverse_rational_common(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -388,7 +388,7 @@ void sign_reverse_rational_common(addr pos, addr *ret)
 	}
 }
 
-void sign_reverse_rational_local(LocalRoot local, addr pos, addr *ret)
+_g void sign_reverse_rational_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	switch (GetType(pos)) {
@@ -414,7 +414,7 @@ void sign_reverse_rational_local(LocalRoot local, addr pos, addr *ret)
 /*
  *  oneplus
  */
-void oneplus_rational_common(LocalRoot local, addr value, addr *ret)
+_g void oneplus_rational_common(LocalRoot local, addr value, addr *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -435,7 +435,7 @@ void oneplus_rational_common(LocalRoot local, addr value, addr *ret)
 	}
 }
 
-void oneminus_rational_common(LocalRoot local, addr value, addr *ret)
+_g void oneminus_rational_common(LocalRoot local, addr value, addr *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -460,7 +460,7 @@ void oneminus_rational_common(LocalRoot local, addr value, addr *ret)
 /*
  *  plus
  */
-void plus_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
@@ -482,7 +482,7 @@ void plus_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *r
 	}
 }
 
-void plus_bignum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_bignum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
@@ -504,7 +504,7 @@ void plus_bignum_rational_common(LocalRoot local, addr left, addr right, addr *r
 	}
 }
 
-void plus_ratio_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_ratio_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
@@ -526,7 +526,7 @@ void plus_ratio_rational_common(LocalRoot local, addr left, addr right, addr *re
 	}
 }
 
-void plus_single_rational_common(addr left, addr right, addr *ret)
+_g void plus_single_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
@@ -548,7 +548,7 @@ void plus_single_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void plus_double_rational_common(addr left, addr right, addr *ret)
+_g void plus_double_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
@@ -570,7 +570,7 @@ void plus_double_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void plus_long_rational_common(addr left, addr right, addr *ret)
+_g void plus_long_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
@@ -592,7 +592,7 @@ void plus_long_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void plus_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocal(local);
 	switch (GetType(left)) {
@@ -680,7 +680,7 @@ static void plus_ratio_rational_local(LocalRoot local, addr left, addr right, ad
 	}
 }
 
-void plus_rational_local(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocal(local);
 	switch (GetType(left)) {
@@ -705,7 +705,7 @@ void plus_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 /*
  *  minus
  */
-void minus_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
@@ -726,7 +726,7 @@ void minus_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *
 			break;
 	}
 }
-void minus_rational_fixnum_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_rational_fixnum_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, right, LISPTYPE_FIXNUM);
 	switch (GetType(left)) {
@@ -748,7 +748,7 @@ void minus_rational_fixnum_common(LocalRoot local, addr left, addr right, addr *
 	}
 }
 
-void minus_bignum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_bignum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
@@ -770,7 +770,7 @@ void minus_bignum_rational_common(LocalRoot local, addr left, addr right, addr *
 	}
 }
 
-void minus_rational_bignum_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_rational_bignum_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, right, LISPTYPE_BIGNUM);
 	switch (GetType(left)) {
@@ -792,7 +792,7 @@ void minus_rational_bignum_common(LocalRoot local, addr left, addr right, addr *
 	}
 }
 
-void minus_ratio_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_ratio_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
@@ -814,7 +814,7 @@ void minus_ratio_rational_common(LocalRoot local, addr left, addr right, addr *r
 	}
 }
 
-void minus_rational_ratio_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_rational_ratio_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, right, LISPTYPE_RATIO);
 	switch (GetType(left)) {
@@ -836,7 +836,7 @@ void minus_rational_ratio_common(LocalRoot local, addr left, addr right, addr *r
 	}
 }
 
-void minus_single_rational_common(addr left, addr right, addr *ret)
+_g void minus_single_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
@@ -858,7 +858,7 @@ void minus_single_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void minus_rational_single_common(addr left, addr right, addr *ret)
+_g void minus_rational_single_common(addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(left)) {
@@ -880,7 +880,7 @@ void minus_rational_single_common(addr left, addr right, addr *ret)
 	}
 }
 
-void minus_double_rational_common(addr left, addr right, addr *ret)
+_g void minus_double_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
@@ -902,7 +902,7 @@ void minus_double_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void minus_rational_double_common(addr left, addr right, addr *ret)
+_g void minus_rational_double_common(addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(left)) {
@@ -924,7 +924,7 @@ void minus_rational_double_common(addr left, addr right, addr *ret)
 	}
 }
 
-void minus_long_rational_common(addr left, addr right, addr *ret)
+_g void minus_long_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
@@ -946,7 +946,7 @@ void minus_long_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void minus_rational_long_common(addr left, addr right, addr *ret)
+_g void minus_rational_long_common(addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	switch (GetType(left)) {
@@ -1037,7 +1037,7 @@ static void minus_ratio_rational_local(LocalRoot local,
 	}
 }
 
-void minus_rational_local(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocal(local);
 	switch (GetType(left)) {
@@ -1059,7 +1059,7 @@ void minus_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-void minus_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocal(local);
 	switch (GetType(left)) {
@@ -1085,7 +1085,7 @@ void minus_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 /*
  *  multi
  */
-void multi_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
@@ -1107,7 +1107,7 @@ void multi_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *
 	}
 }
 
-void multi_bignum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_bignum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
@@ -1129,7 +1129,7 @@ void multi_bignum_rational_common(LocalRoot local, addr left, addr right, addr *
 	}
 }
 
-void multi_ratio_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_ratio_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
@@ -1151,7 +1151,7 @@ void multi_ratio_rational_common(LocalRoot local, addr left, addr right, addr *r
 	}
 }
 
-void multi_single_rational_common(addr left, addr right, addr *ret)
+_g void multi_single_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
@@ -1173,7 +1173,7 @@ void multi_single_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void multi_double_rational_common(addr left, addr right, addr *ret)
+_g void multi_double_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
@@ -1195,7 +1195,7 @@ void multi_double_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void multi_long_rational_common(addr left, addr right, addr *ret)
+_g void multi_long_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
@@ -1217,7 +1217,7 @@ void multi_long_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void multi_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocal(local);
 	switch (GetType(left)) {
@@ -1239,7 +1239,7 @@ void multi_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 	}
 }
 
-void multi_fixnum_rational_local(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_fixnum_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
@@ -1261,7 +1261,7 @@ void multi_fixnum_rational_local(LocalRoot local, addr left, addr right, addr *r
 	}
 }
 
-void multi_bignum_rational_local(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_bignum_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
@@ -1283,7 +1283,7 @@ void multi_bignum_rational_local(LocalRoot local, addr left, addr right, addr *r
 	}
 }
 
-void multi_ratio_rational_local(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_ratio_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
@@ -1305,7 +1305,7 @@ void multi_ratio_rational_local(LocalRoot local, addr left, addr right, addr *re
 	}
 }
 
-void multi_rational_local(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocal(local);
 	switch (GetType(left)) {
@@ -1331,7 +1331,7 @@ void multi_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 /*
  *  div
  */
-void div_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_FIXNUM);
 	switch (GetType(right)) {
@@ -1352,7 +1352,7 @@ void div_fixnum_rational_common(LocalRoot local, addr left, addr right, addr *re
 			break;
 	}
 }
-void div_rational_fixnum_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_rational_fixnum_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, right, LISPTYPE_FIXNUM);
 	switch (GetType(left)) {
@@ -1374,7 +1374,7 @@ void div_rational_fixnum_common(LocalRoot local, addr left, addr right, addr *re
 	}
 }
 
-void div_bignum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_bignum_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_BIGNUM);
 	switch (GetType(right)) {
@@ -1396,7 +1396,7 @@ void div_bignum_rational_common(LocalRoot local, addr left, addr right, addr *re
 	}
 }
 
-void div_rational_bignum_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_rational_bignum_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, right, LISPTYPE_BIGNUM);
 	switch (GetType(left)) {
@@ -1418,7 +1418,7 @@ void div_rational_bignum_common(LocalRoot local, addr left, addr right, addr *re
 	}
 }
 
-void div_ratio_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_ratio_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
@@ -1440,7 +1440,7 @@ void div_ratio_rational_common(LocalRoot local, addr left, addr right, addr *ret
 	}
 }
 
-void div_rational_ratio_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_rational_ratio_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocalType(local, right, LISPTYPE_RATIO);
 	switch (GetType(left)) {
@@ -1462,7 +1462,7 @@ void div_rational_ratio_common(LocalRoot local, addr left, addr right, addr *ret
 	}
 }
 
-void div_single_rational_common(addr left, addr right, addr *ret)
+_g void div_single_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(right)) {
@@ -1484,7 +1484,7 @@ void div_single_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void div_rational_single_common(addr left, addr right, addr *ret)
+_g void div_rational_single_common(addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	switch (GetType(left)) {
@@ -1506,7 +1506,7 @@ void div_rational_single_common(addr left, addr right, addr *ret)
 	}
 }
 
-void div_double_rational_common(addr left, addr right, addr *ret)
+_g void div_double_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(right)) {
@@ -1528,7 +1528,7 @@ void div_double_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void div_rational_double_common(addr left, addr right, addr *ret)
+_g void div_rational_double_common(addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	switch (GetType(left)) {
@@ -1550,7 +1550,7 @@ void div_rational_double_common(addr left, addr right, addr *ret)
 	}
 }
 
-void div_long_rational_common(addr left, addr right, addr *ret)
+_g void div_long_rational_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	switch (GetType(right)) {
@@ -1572,7 +1572,7 @@ void div_long_rational_common(addr left, addr right, addr *ret)
 	}
 }
 
-void div_rational_long_common(addr left, addr right, addr *ret)
+_g void div_rational_long_common(addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	switch (GetType(left)) {
@@ -1663,7 +1663,7 @@ static void div_ratio_rational_local(LocalRoot local,
 	}
 }
 
-void div_rational_local(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckLocal(local);
 	switch (GetType(left)) {
@@ -1689,7 +1689,7 @@ void div_rational_local(LocalRoot local, addr left, addr right, addr *ret)
 /*
  *  inverse
  */
-void inverse_rational_common(LocalRoot local, addr pos, addr *ret)
+_g void inverse_rational_common(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -1715,7 +1715,7 @@ void inverse_rational_common(LocalRoot local, addr pos, addr *ret)
 /*
  *  numerator
  */
-void numerator_common(addr pos, addr *ret)
+_g void numerator_common(addr pos, addr *ret)
 {
 	int sign;
 
@@ -1747,7 +1747,7 @@ void numerator_common(addr pos, addr *ret)
 /*
  *  denominator
  */
-void denominator_common(addr pos, addr *ret)
+_g void denominator_common(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:

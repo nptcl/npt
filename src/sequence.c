@@ -24,7 +24,7 @@
 /*
  *  unsafe
  */
-void copy_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
+_g void copy_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, left;
 
@@ -34,17 +34,17 @@ void copy_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
 	}
 	nreverse_list_unsafe(ret, root);
 }
-void copy_list_local_unsafe(LocalRoot local, addr *ret, addr cons)
+_g void copy_list_local_unsafe(LocalRoot local, addr *ret, addr cons)
 {
 	Check(local == NULL, "local error");
 	copy_list_alloc_unsafe(local, ret, cons);
 }
-void copy_list_heap_unsafe(addr *ret, addr cons)
+_g void copy_list_heap_unsafe(addr *ret, addr cons)
 {
 	copy_list_alloc_unsafe(NULL, ret, cons);
 }
 
-void copy_list_alloc_safe(LocalRoot local, addr *ret, addr cons)
+_g void copy_list_alloc_safe(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, last, pos;
 
@@ -61,17 +61,17 @@ void copy_list_alloc_safe(LocalRoot local, addr *ret, addr cons)
 	}
 	nreverse_list_unsafe_dotted(ret, root, last);
 }
-void copy_list_local_safe(LocalRoot local, addr *ret, addr cons)
+_g void copy_list_local_safe(LocalRoot local, addr *ret, addr cons)
 {
 	Check(local == NULL, "local error");
 	copy_list_alloc_safe(local, ret, cons);
 }
-void copy_list_heap_safe(addr *ret, addr cons)
+_g void copy_list_heap_safe(addr *ret, addr cons)
 {
 	copy_list_alloc_safe(NULL, ret, cons);
 }
 
-int list_length_safe(addr list, size_t *ret)
+_g int list_length_safe(addr list, size_t *ret)
 {
 	addr fast, slow, one;
 	size_t size;
@@ -103,7 +103,7 @@ int list_length_safe(addr list, size_t *ret)
 	return 0;
 }
 
-void make_vector_from_list(addr *ret, addr cons)
+_g void make_vector_from_list(addr *ret, addr cons)
 {
 	addr pos, array;
 	size_t i, size;
@@ -125,7 +125,7 @@ void make_vector_from_list(addr *ret, addr cons)
 	*ret = array;
 }
 
-void make_vector4_from_list(addr *ret, addr cons)
+_g void make_vector4_from_list(addr *ret, addr cons)
 {
 	addr pos, array;
 	size_t i, size;
@@ -147,7 +147,7 @@ void make_vector4_from_list(addr *ret, addr cons)
 	*ret = array;
 }
 
-void simplesort_cons_unsafe(addr *ret, addr cons, int (*call)(addr left, addr right))
+_g void simplesort_cons_unsafe(addr *ret, addr cons, int (*call)(addr left, addr right))
 {
 	addr check, left, right;
 
@@ -168,7 +168,7 @@ void simplesort_cons_unsafe(addr *ret, addr cons, int (*call)(addr left, addr ri
 	}
 }
 
-void simplesort_info_cons_unsafe(addr *ret, addr cons, addr info,
+_g void simplesort_info_cons_unsafe(addr *ret, addr cons, addr info,
 		int (*call)(addr info, addr left, addr right))
 {
 	addr check, left, right;
@@ -190,7 +190,7 @@ void simplesort_info_cons_unsafe(addr *ret, addr cons, addr info,
 	}
 }
 
-void nth_unsafe(addr *ret, size_t index, addr cons)
+_g void nth_unsafe(addr *ret, size_t index, addr cons)
 {
 	if (cons == Nil) {
 		*ret = Nil;
@@ -208,7 +208,7 @@ void nth_unsafe(addr *ret, size_t index, addr cons)
 	}
 }
 
-void append_cons_alloc_unsafe(LocalRoot local,
+_g void append_cons_alloc_unsafe(LocalRoot local,
 		addr *ret, addr cons1, addr cons2)
 {
 	addr stack, left;
@@ -238,19 +238,19 @@ void append_cons_alloc_unsafe(LocalRoot local,
 	*ret = stack;
 }
 
-void append_cons_heap_unsafe(addr *ret, addr cons1, addr cons2)
+_g void append_cons_heap_unsafe(addr *ret, addr cons1, addr cons2)
 {
 	append_cons_alloc_unsafe(NULL, ret, cons1, cons2);
 }
 
-void append_cons_local_unsafe(LocalRoot local,
+_g void append_cons_local_unsafe(LocalRoot local,
 		addr *ret, addr cons1, addr cons2)
 {
 	Check(local == NULL, "local error");
 	append_cons_alloc_unsafe(local, ret, cons1, cons2);
 }
 
-int delete_cons_eq_unsafe(addr key, addr cons, addr *ret)
+_g int delete_cons_eq_unsafe(addr key, addr cons, addr *ret)
 {
 	int update;
 	addr check, cons1, cons2;
@@ -276,7 +276,7 @@ int delete_cons_eq_unsafe(addr key, addr cons, addr *ret)
 	return update;
 }
 
-int delete1_cons_eq_unsafe(addr key, addr cons, addr *ret)
+_g int delete1_cons_eq_unsafe(addr key, addr cons, addr *ret)
 {
 	addr check, cons1, cons2;
 
@@ -300,7 +300,7 @@ int delete1_cons_eq_unsafe(addr key, addr cons, addr *ret)
 	return 0;
 }
 
-void remove_cons_eq_unsafe_alloc(LocalRoot local,
+_g void remove_cons_eq_unsafe_alloc(LocalRoot local,
 		addr key, addr cons, addr *ret)
 {
 	addr result, check;
@@ -313,12 +313,12 @@ void remove_cons_eq_unsafe_alloc(LocalRoot local,
 	nreverse_list_unsafe(ret, result);
 }
 
-void remove_cons_eq_unsafe_heap(addr key, addr cons, addr *ret)
+_g void remove_cons_eq_unsafe_heap(addr key, addr cons, addr *ret)
 {
 	remove_cons_eq_unsafe_alloc(NULL, key, cons, ret);
 }
 
-void remove_cons_eq_unsafe_local(LocalRoot local,
+_g void remove_cons_eq_unsafe_local(LocalRoot local,
 		addr key, addr cons, addr *ret)
 {
 	Check(local == NULL, "local error");
@@ -329,7 +329,7 @@ void remove_cons_eq_unsafe_local(LocalRoot local,
 /*
  *  sequence
  */
-void reverse_sequence_alloc(LocalRoot local, addr *ret, addr pos)
+_g void reverse_sequence_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -362,18 +362,18 @@ void reverse_sequence_alloc(LocalRoot local, addr *ret, addr pos)
 	}
 }
 
-void reverse_sequence_local(LocalRoot local, addr *ret, addr pos)
+_g void reverse_sequence_local(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
 	reverse_sequence_alloc(local, ret, pos);
 }
 
-void reverse_sequence_heap(addr *ret, addr pos)
+_g void reverse_sequence_heap(addr *ret, addr pos)
 {
 	reverse_sequence_alloc(NULL, ret, pos);
 }
 
-void nreverse_sequence(addr *ret, addr pos)
+_g void nreverse_sequence(addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -406,7 +406,7 @@ void nreverse_sequence(addr *ret, addr pos)
 	}
 }
 
-void list_start_end(addr *list, addr *prev,
+_g void list_start_end(addr *list, addr *prev,
 		addr start, addr end, size_t *ret1, size_t *ret2)
 {
 	addr temp;
@@ -439,7 +439,7 @@ void list_start_end(addr *list, addr *prev,
 	*ret2 = index2;
 }
 
-int sequence_start_end(addr start, addr end, size_t size, size_t *ret1, size_t *ret2)
+_g int sequence_start_end(addr start, addr end, size_t size, size_t *ret1, size_t *ret2)
 {
 	size_t index1, index2;
 
@@ -468,7 +468,7 @@ int sequence_start_end(addr start, addr end, size_t size, size_t *ret1, size_t *
 	return 0;
 }
 
-void list_fill_safe(addr list, addr item, addr start, addr end)
+_g void list_fill_safe(addr list, addr item, addr start, addr end)
 {
 	size_t index1, index2;
 
@@ -494,7 +494,7 @@ void list_fill_safe(addr list, addr item, addr start, addr end)
 	}
 }
 
-void vector_fill(addr pos, addr item, addr start, addr end)
+_g void vector_fill(addr pos, addr item, addr start, addr end)
 {
 	size_t index1, index2;
 
@@ -511,7 +511,7 @@ void vector_fill(addr pos, addr item, addr start, addr end)
 /*
  *  sequence control
  */
-int sequencep(addr pos)
+_g int sequencep(addr pos)
 {
 	enum LISPTYPE check;
 
@@ -526,7 +526,7 @@ int sequencep(addr pos)
 		check == LISPTYPE_BITVECTOR ;
 }
 
-size_t length_sequence(addr pos, int fill)
+_g size_t length_sequence(addr pos, int fill)
 {
 	size_t size;
 
@@ -605,7 +605,7 @@ static void getelt_bitvector(addr pos, size_t index, int *ret)
 	bitmemory_getint(pos, index, ret);
 }
 
-void getelt_inplace_sequence(addr pos, size_t index, struct array_value *str)
+_g void getelt_inplace_sequence(addr pos, size_t index, struct array_value *str)
 {
 	int bit;
 
@@ -800,7 +800,7 @@ static void setelt_bit_sequence(addr pos, size_t index, const struct array_value
 	}
 }
 
-void setelt_inplace_sequence(LocalRoot local,
+_g void setelt_inplace_sequence(LocalRoot local,
 		addr pos, size_t index, const struct array_value *str)
 {
 	addr value;
@@ -866,7 +866,7 @@ static void getelt_bitvector_alloc(LocalRoot local, addr pos, size_t index, addr
 	bitmemory_get(local, pos, index, ret);
 }
 
-void getelt_sequence(LocalRoot local, addr pos, size_t index, addr *ret)
+_g void getelt_sequence(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -896,7 +896,7 @@ void getelt_sequence(LocalRoot local, addr pos, size_t index, addr *ret)
 	}
 }
 
-void setelt_sequence(addr pos, size_t index, addr value)
+_g void setelt_sequence(addr pos, size_t index, addr value)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -1209,7 +1209,7 @@ static void sequence_make_sequence(addr *ret, addr type, size_t size, addr value
 	type_error_stdarg(type, Nil, "Invalid type-specifier ~S.", type, NULL);
 }
 
-int make_sequence_sequence(Execute ptr, addr *ret, addr type, addr size, addr rest)
+_g int make_sequence_sequence(Execute ptr, addr *ret, addr type, addr size, addr rest)
 {
 	addr check, element;
 	size_t index;
@@ -1598,7 +1598,7 @@ static void remove_seqrange(seqrange *ptr)
 /*
  *  subseq
  */
-void list_subseq(addr *ret, addr list, addr start, addr end)
+_g void list_subseq(addr *ret, addr list, addr start, addr end)
 {
 	addr root, pos;
 	seqrange range;
@@ -1610,7 +1610,7 @@ void list_subseq(addr *ret, addr list, addr start, addr end)
 	nreverse_list_unsafe(ret, root);
 }
 
-void vector_subseq(addr *ret, addr vector, addr start, addr end)
+_g void vector_subseq(addr *ret, addr vector, addr start, addr end)
 {
 	size_t index1, index2, i;
 	addr root, item;
@@ -1628,7 +1628,7 @@ void vector_subseq(addr *ret, addr vector, addr start, addr end)
 	*ret = root;
 }
 
-void setf_subseq_sequence(addr root, addr pos, addr start, addr end)
+_g void setf_subseq_sequence(addr root, addr pos, addr start, addr end)
 {
 	struct array_value value;
 	seqrange range1, range2;
@@ -2217,7 +2217,7 @@ static int execute_map_sequence(Execute ptr, addr *ret,
 	return 1;
 }
 
-int map_sequence(Execute ptr, addr *ret, addr type, addr call, addr rest)
+_g int map_sequence(Execute ptr, addr *ret, addr type, addr call, addr rest)
 {
 	addr check;
 
@@ -2227,7 +2227,7 @@ int map_sequence(Execute ptr, addr *ret, addr type, addr call, addr rest)
 		return 1;
 	if (type == Nil)
 		return 0;
-	
+
 	return typep_asterisk_error(*ret, check);
 }
 
@@ -2275,7 +2275,7 @@ static int execute_map_into_sequence(Execute ptr, addr var, addr call, addr rest
 	return 0;
 }
 
-int map_into_sequence(Execute ptr, addr var, addr call, addr rest)
+_g int map_into_sequence(Execute ptr, addr var, addr call, addr rest)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -2434,7 +2434,7 @@ static int reverse_reduce_sequence(struct reduce_struct *str, addr *ret)
 	return 0;
 }
 
-int reduce_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int reduce_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	unsigned listp, fromp;
 	addr key, start, end, from, value;
@@ -2578,7 +2578,7 @@ static int reverse_count_sequence(struct count_struct *str, addr *ret)
 	return 0;
 }
 
-int count_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest)
+_g int count_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
 	unsigned listp, fromp;
 	addr from, start, end, key, test1, test2;
@@ -2672,12 +2672,12 @@ static int count_if_argument_sequence(Execute ptr, addr *ret,
 	return value_count_sequence(&str, ret);
 }
 
-int count_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int count_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return count_if_argument_sequence(ptr, ret, call, Nil, pos, rest);
 }
 
-int count_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int count_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return count_if_argument_sequence(ptr, ret, Nil, call, pos, rest);
 }
@@ -3053,7 +3053,7 @@ static int execute_merge_sequence(Execute ptr, addr *ret,
 	return 1;
 }
 
-int merge_sequence(Execute ptr, addr *ret,
+_g int merge_sequence(Execute ptr, addr *ret,
 		addr type, addr pos1, addr pos2, addr call, addr key)
 {
 	addr check;
@@ -3062,7 +3062,7 @@ int merge_sequence(Execute ptr, addr *ret,
 		return 1;
 	if (execute_merge_sequence(ptr, ret, check, pos1, pos2, call, key))
 		return 1;
-	
+
 	return typep_asterisk_error(*ret, check);
 }
 
@@ -3165,7 +3165,7 @@ static int simple_sort_vector_sequence(struct sort_struct *str,
 	return 0;
 }
 
-int simple_sort_sequence(Execute ptr, addr pos, addr call, addr key)
+_g int simple_sort_sequence(Execute ptr, addr pos, addr call, addr key)
 {
 	unsigned listp;
 	struct sort_struct str;
@@ -3282,7 +3282,7 @@ static int quick_sort_vector_sequence(struct sort_struct *str,
 	return 0;
 }
 
-int quick_sort_sequence(Execute ptr, addr pos, addr call, addr key)
+_g int quick_sort_sequence(Execute ptr, addr pos, addr call, addr key)
 {
 	unsigned listp;
 	struct sort_struct str;
@@ -3527,7 +3527,7 @@ static int merge_sort_vector_sequence(struct sort_struct *str,
 	return 0;
 }
 
-int merge_sort_sequence(Execute ptr, addr pos, addr call, addr key)
+_g int merge_sort_sequence(Execute ptr, addr pos, addr call, addr key)
 {
 	unsigned listp;
 	struct sort_struct str;
@@ -3579,7 +3579,7 @@ static int value_find_sequence(struct count_struct *str, addr *ret)
 		}
 	}
 	*ret = Nil;
-	
+
 	return 0;
 }
 
@@ -3599,7 +3599,7 @@ static int reverse_find_sequence(struct count_struct *str, addr *ret)
 	return 0;
 }
 
-int find_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest)
+_g int find_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
 	unsigned listp, fromp;
 	addr from, start, end, key, test1, test2;
@@ -3693,12 +3693,12 @@ static int find_if_argument_sequence(Execute ptr, addr *ret,
 	return value_find_sequence(&str, ret);
 }
 
-int find_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int find_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return find_if_argument_sequence(ptr, ret, call, Nil, pos, rest);
 }
 
-int find_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int find_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return find_if_argument_sequence(ptr, ret, Nil, call, pos, rest);
 }
@@ -3756,7 +3756,7 @@ static int reverse_position_sequence(struct count_struct *str, addr *ret)
 	return 0;
 }
 
-int position_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest)
+_g int position_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
 	unsigned listp, fromp;
 	addr from, start, end, key, test1, test2;
@@ -3850,12 +3850,12 @@ static int position_if_argument_sequence(Execute ptr, addr *ret,
 	return value_position_sequence(&str, ret);
 }
 
-int position_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int position_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return position_if_argument_sequence(ptr, ret, call, Nil, pos, rest);
 }
 
-int position_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int position_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return position_if_argument_sequence(ptr, ret, Nil, call, pos, rest);
 }
@@ -3917,7 +3917,7 @@ static int call_search_sequence(struct search_struct *str,
 		*result = (value == Nil);
 	else
 		*result = (value != Nil);
-	
+
 	return 0;
 }
 
@@ -4107,7 +4107,7 @@ static int search_execute_sequence(Execute ptr, addr *ret,
 	return 0;
 }
 
-int search_sequence(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
+_g int search_sequence(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -4260,7 +4260,7 @@ static int mismatch_execute_sequence(Execute ptr, addr *ret,
 	return 0;
 }
 
-int mismatch_sequence(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
+_g int mismatch_sequence(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -4319,7 +4319,7 @@ static void replace_sequence_eq(LocalRoot local, seqrange *range1, seqrange *ran
 		replace_sequence_list(local, range1, range2);
 }
 
-void replace_sequence(Execute ptr, addr pos1, addr pos2, addr rest)
+_g void replace_sequence(Execute ptr, addr pos1, addr pos2, addr rest)
 {
 	LocalRoot local;
 	addr start1, start2, end1, end2;
@@ -4688,7 +4688,7 @@ static void setcount_sequence(struct count_struct *str, addr count)
 	str->limit = limit;
 }
 
-int substitute_sequence(Execute ptr,
+_g int substitute_sequence(Execute ptr,
 		addr *ret, addr item1, addr item2, addr pos, addr rest)
 {
 	unsigned listp, fromp;
@@ -4807,13 +4807,13 @@ static int substitute_if_argument_sequence(Execute ptr, addr *ret,
 	return 0;
 }
 
-int substitute_if_sequence(Execute ptr,
+_g int substitute_if_sequence(Execute ptr,
 		addr *ret, addr item, addr call, addr pos, addr rest)
 {
 	return substitute_if_argument_sequence(ptr, ret, item, call, Nil, pos, rest);
 }
 
-int substitute_if_not_sequence(Execute ptr,
+_g int substitute_if_not_sequence(Execute ptr,
 		addr *ret, addr item, addr call, addr pos, addr rest)
 {
 	return substitute_if_argument_sequence(ptr, ret, item, Nil, call, pos, rest);
@@ -4909,7 +4909,7 @@ static int normal_nsubstitute_sequence(struct count_struct *str)
 	return 0;
 }
 
-int nsubstitute_sequence(Execute ptr,
+_g int nsubstitute_sequence(Execute ptr,
 		addr item1, addr item2, addr pos, addr rest)
 {
 	unsigned listp, fromp;
@@ -5010,13 +5010,13 @@ static int nsubstitute_if_argument_sequence(Execute ptr,
 	return normal_nsubstitute_sequence(&str);
 }
 
-int nsubstitute_if_sequence(Execute ptr,
+_g int nsubstitute_if_sequence(Execute ptr,
 		addr item, addr call, addr pos, addr rest)
 {
 	return nsubstitute_if_argument_sequence(ptr, item, call, Nil, pos, rest);
 }
 
-int nsubstitute_if_not_sequence(Execute ptr,
+_g int nsubstitute_if_not_sequence(Execute ptr,
 		addr item, addr call, addr pos, addr rest)
 {
 	return nsubstitute_if_argument_sequence(ptr, item, Nil, call, pos, rest);
@@ -5213,7 +5213,7 @@ static void type_concatenate_sequence(addr *ret, addr type, addr rest)
 	type_error_stdarg(type, Nil, "Invalid type-specifier ~S.", type, NULL);
 }
 
-int concatenate_sequence(Execute ptr, addr *ret, addr type, addr rest)
+_g int concatenate_sequence(Execute ptr, addr *ret, addr type, addr rest)
 {
 	addr check;
 
@@ -5610,17 +5610,17 @@ static int remove_if_argument_sequence(Execute ptr, addr *ret,
 	return 0;
 }
 
-int remove_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest)
+_g int remove_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
 	return remove_argument_sequence(ptr, ret, item, pos, rest, 0);
 }
 
-int remove_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int remove_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return remove_if_argument_sequence(ptr, ret, call, Nil, pos, rest, 0);
 }
 
-int remove_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int remove_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return remove_if_argument_sequence(ptr, ret, Nil, call, pos, rest, 0);
 }
@@ -5629,17 +5629,17 @@ int remove_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr res
 /*
  *  delete
  */
-int delete_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest)
+_g int delete_sequence(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
 	return remove_argument_sequence(ptr, ret, item, pos, rest, 1);
 }
 
-int delete_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int delete_if_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return remove_if_argument_sequence(ptr, ret, call, Nil, pos, rest, 1);
 }
 
-int delete_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
+_g int delete_if_not_sequence(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 {
 	return remove_if_argument_sequence(ptr, ret, Nil, call, pos, rest, 1);
 }
@@ -5971,12 +5971,12 @@ static int argument_remove_duplicates(Execute ptr,
 	return 0;
 }
 
-int remove_duplicates_sequence(Execute ptr, addr *ret, addr pos, addr rest)
+_g int remove_duplicates_sequence(Execute ptr, addr *ret, addr pos, addr rest)
 {
 	return argument_remove_duplicates(ptr, ret, pos, rest, 0);
 }
 
-int delete_duplicates_sequence(Execute ptr, addr *ret, addr pos, addr rest)
+_g int delete_duplicates_sequence(Execute ptr, addr *ret, addr pos, addr rest)
 {
 	return argument_remove_duplicates(ptr, ret, pos, rest, 1);
 }

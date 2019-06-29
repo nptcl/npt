@@ -4,8 +4,8 @@
 #include "local.h"
 #include "typedef.h"
 
-void gcd_number(LocalRoot local, addr args, addr *ret);
-void lcm_number(LocalRoot local, addr args, addr *ret);
+_g void gcd_number(LocalRoot local, addr args, addr *ret);
+_g void lcm_number(LocalRoot local, addr args, addr *ret);
 
 #endif
 

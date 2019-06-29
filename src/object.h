@@ -155,28 +155,28 @@ enum SYMBOL_INDEX {
 #endif
 
 /* alloc */
-addr allocr_cons(LocalRoot);
-addr allocr_symbol(LocalRoot);
-addr allocr_array2_memory(LocalRoot, enum LISPTYPE, byte16);
-addr allocr_array4_memory(LocalRoot, enum LISPTYPE, byte32);
-addr allocr_body2_memory(LocalRoot, enum LISPTYPE, byte16);
-addr allocr_body4_memory(LocalRoot, enum LISPTYPE, byte32);
-addr allocr_smallsize_memory(LocalRoot, enum LISPTYPE, byte, byte);
-addr allocr_arraybody_memory(LocalRoot, enum LISPTYPE, byte16, byte16);
-addr allocr_array(LocalRoot, enum LISPTYPE, size_t);
-addr allocr_body(LocalRoot, enum LISPTYPE, size_t);
+_g addr allocr_cons(LocalRoot);
+_g addr allocr_symbol(LocalRoot);
+_g addr allocr_array2_memory(LocalRoot, enum LISPTYPE, byte16);
+_g addr allocr_array4_memory(LocalRoot, enum LISPTYPE, byte32);
+_g addr allocr_body2_memory(LocalRoot, enum LISPTYPE, byte16);
+_g addr allocr_body4_memory(LocalRoot, enum LISPTYPE, byte32);
+_g addr allocr_smallsize_memory(LocalRoot, enum LISPTYPE, byte, byte);
+_g addr allocr_arraybody_memory(LocalRoot, enum LISPTYPE, byte16, byte16);
+_g addr allocr_array(LocalRoot, enum LISPTYPE, size_t);
+_g addr allocr_body(LocalRoot, enum LISPTYPE, size_t);
 #ifdef LISP_ARCH_64BIT
-addr allocr_array8(LocalRoot, enum LISPTYPE, size_t);
-addr allocr_body8(LocalRoot, enum LISPTYPE, size_t);
+_g addr allocr_array8(LocalRoot, enum LISPTYPE, size_t);
+_g addr allocr_body8(LocalRoot, enum LISPTYPE, size_t);
 #endif
 
 #ifdef LISP_DEBUG
-addr allocr_array2_debug(LocalRoot, enum LISPTYPE, size_t);
-addr allocr_array4_debug(LocalRoot, enum LISPTYPE, size_t);
-addr allocr_body2_debug(LocalRoot, enum LISPTYPE, size_t);
-addr allocr_body4_debug(LocalRoot, enum LISPTYPE, size_t);
-addr allocr_smallsize_debug(LocalRoot, enum LISPTYPE, size_t, size_t);
-addr allocr_arraybody_debug(LocalRoot, enum LISPTYPE, size_t, size_t);
+_g addr allocr_array2_debug(LocalRoot, enum LISPTYPE, size_t);
+_g addr allocr_array4_debug(LocalRoot, enum LISPTYPE, size_t);
+_g addr allocr_body2_debug(LocalRoot, enum LISPTYPE, size_t);
+_g addr allocr_body4_debug(LocalRoot, enum LISPTYPE, size_t);
+_g addr allocr_smallsize_debug(LocalRoot, enum LISPTYPE, size_t, size_t);
+_g addr allocr_arraybody_debug(LocalRoot, enum LISPTYPE, size_t, size_t);
 #define allocr_array2 allocr_array2_debug
 #define allocr_array4 allocr_array4_debug
 #define allocr_body2 allocr_body2_debug
@@ -192,28 +192,28 @@ addr allocr_arraybody_debug(LocalRoot, enum LISPTYPE, size_t, size_t);
 #define allocr_arraybody allocr_arraybody_memory((m),(t),(byte16)(a),(byte16)(b))
 #endif
 
-void alloc_cons(LocalRoot, addr *);
-void alloc_symbol(LocalRoot, addr *);
-void alloc_array2_memory(LocalRoot, addr *, enum LISPTYPE, byte16);
-void alloc_array4_memory(LocalRoot, addr *, enum LISPTYPE, byte32);
-void alloc_body2_memory(LocalRoot, addr *, enum LISPTYPE, byte16);
-void alloc_body4_memory(LocalRoot, addr *, enum LISPTYPE, byte32);
-void alloc_smallsize_memory(LocalRoot, addr *, enum LISPTYPE, byte, byte);
-void alloc_arraybody_memory(LocalRoot, addr *, enum LISPTYPE, byte16, byte16);
-void alloc_array(LocalRoot, addr *, enum LISPTYPE, size_t);
-void alloc_body(LocalRoot, addr *, enum LISPTYPE, size_t);
+_g void alloc_cons(LocalRoot, addr *);
+_g void alloc_symbol(LocalRoot, addr *);
+_g void alloc_array2_memory(LocalRoot, addr *, enum LISPTYPE, byte16);
+_g void alloc_array4_memory(LocalRoot, addr *, enum LISPTYPE, byte32);
+_g void alloc_body2_memory(LocalRoot, addr *, enum LISPTYPE, byte16);
+_g void alloc_body4_memory(LocalRoot, addr *, enum LISPTYPE, byte32);
+_g void alloc_smallsize_memory(LocalRoot, addr *, enum LISPTYPE, byte, byte);
+_g void alloc_arraybody_memory(LocalRoot, addr *, enum LISPTYPE, byte16, byte16);
+_g void alloc_array(LocalRoot, addr *, enum LISPTYPE, size_t);
+_g void alloc_body(LocalRoot, addr *, enum LISPTYPE, size_t);
 #ifdef LISP_ARCH_64BIT
-void alloc_array8(LocalRoot, addr *, enum LISPTYPE, size_t);
-void alloc_body8(LocalRoot, addr *, enum LISPTYPE, size_t);
+_g void alloc_array8(LocalRoot, addr *, enum LISPTYPE, size_t);
+_g void alloc_body8(LocalRoot, addr *, enum LISPTYPE, size_t);
 #endif
 
 #ifdef LISP_DEBUG
-void alloc_array2_debug(LocalRoot, addr *, enum LISPTYPE, size_t);
-void alloc_array4_debug(LocalRoot, addr *, enum LISPTYPE, size_t);
-void alloc_body2_debug(LocalRoot, addr *, enum LISPTYPE, size_t);
-void alloc_body4_debug(LocalRoot, addr *, enum LISPTYPE, size_t);
-void alloc_smallsize_debug(LocalRoot, addr *, enum LISPTYPE, size_t, size_t);
-void alloc_arraybody_debug(LocalRoot, addr *, enum LISPTYPE, size_t, size_t);
+_g void alloc_array2_debug(LocalRoot, addr *, enum LISPTYPE, size_t);
+_g void alloc_array4_debug(LocalRoot, addr *, enum LISPTYPE, size_t);
+_g void alloc_body2_debug(LocalRoot, addr *, enum LISPTYPE, size_t);
+_g void alloc_body4_debug(LocalRoot, addr *, enum LISPTYPE, size_t);
+_g void alloc_smallsize_debug(LocalRoot, addr *, enum LISPTYPE, size_t, size_t);
+_g void alloc_arraybody_debug(LocalRoot, addr *, enum LISPTYPE, size_t, size_t);
 #define alloc_array2 alloc_array2_debug
 #define alloc_array4 alloc_array4_debug
 #define alloc_body2 alloc_body2_debug
@@ -232,192 +232,192 @@ void alloc_arraybody_debug(LocalRoot, addr *, enum LISPTYPE, size_t, size_t);
 #endif
 
 /* init / free */
-void build_object(void);
+_g void build_object(void);
 
 /* system t object */
-void nil_heap(void);
-void t_heap(void);
+_g void nil_heap(void);
+_g void t_heap(void);
 
 /* cons object */
-void consnil_heap(addr *ret);
-void conscar_heap(addr *ret, addr left);
-void conscdr_heap(addr *ret, addr right);
-void cons_heap(addr *ret, addr left, addr right);
-void consnil_local(LocalRoot local, addr *ret);
-void conscar_local(LocalRoot local, addr *ret, addr left);
-void conscdr_local(LocalRoot local, addr *ret, addr right);
-void cons_local(LocalRoot local, addr *ret, addr left, addr right);
-void consnil_alloc(LocalRoot local, addr *ret);
-void conscar_alloc(LocalRoot local, addr *ret, addr left);
-void conscdr_alloc(LocalRoot local, addr *ret, addr right);
-void cons_alloc(LocalRoot local, addr *ret, addr left, addr right);
+_g void consnil_heap(addr *ret);
+_g void conscar_heap(addr *ret, addr left);
+_g void conscdr_heap(addr *ret, addr right);
+_g void cons_heap(addr *ret, addr left, addr right);
+_g void consnil_local(LocalRoot local, addr *ret);
+_g void conscar_local(LocalRoot local, addr *ret, addr left);
+_g void conscdr_local(LocalRoot local, addr *ret, addr right);
+_g void cons_local(LocalRoot local, addr *ret, addr left, addr right);
+_g void consnil_alloc(LocalRoot local, addr *ret);
+_g void conscar_alloc(LocalRoot local, addr *ret, addr left);
+_g void conscdr_alloc(LocalRoot local, addr *ret, addr right);
+_g void cons_alloc(LocalRoot local, addr *ret, addr left, addr right);
 
-addr consnil_heapr(void);
-addr conscar_heapr(addr left);
-addr conscdr_heapr(addr right);
-addr cons_heapr(addr left, addr right);
-addr consnil_localr(LocalRoot local);
-addr conscar_localr(LocalRoot local, addr left);
-addr conscdr_localr(LocalRoot local, addr right);
-addr cons_localr(LocalRoot local, addr left, addr right);
-addr consnil_allocr(LocalRoot local);
-addr conscar_allocr(LocalRoot local, addr left);
-addr conscdr_allocr(LocalRoot local, addr right);
-addr cons_allocr(LocalRoot local, addr left, addr right);
+_g addr consnil_heapr(void);
+_g addr conscar_heapr(addr left);
+_g addr conscdr_heapr(addr right);
+_g addr cons_heapr(addr left, addr right);
+_g addr consnil_localr(LocalRoot local);
+_g addr conscar_localr(LocalRoot local, addr left);
+_g addr conscdr_localr(LocalRoot local, addr right);
+_g addr cons_localr(LocalRoot local, addr left, addr right);
+_g addr consnil_allocr(LocalRoot local);
+_g addr conscar_allocr(LocalRoot local, addr left);
+_g addr conscdr_allocr(LocalRoot local, addr right);
+_g addr cons_allocr(LocalRoot local, addr left, addr right);
 
-addr refconscar_unsafe(addr pos);
-addr refconscdr_unsafe(addr pos);
-void getconscar_unsafe(addr pos, addr *ret);
-void getconscdr_unsafe(addr pos, addr *ret);
-void getcons_unsafe(addr pos, addr *left, addr *right);
-void setconscar_unsafe(addr pos, addr value);
-void setconscdr_unsafe(addr pos, addr value);
-void setcons_unsafe(addr pos, addr left, addr right);
-void setconscar_force(addr pos, addr value);
-void setconscdr_force(addr pos, addr value);
-void setcons_force(addr pos, addr left, addr right);
+_g addr refconscar_unsafe(addr pos);
+_g addr refconscdr_unsafe(addr pos);
+_g void getconscar_unsafe(addr pos, addr *ret);
+_g void getconscdr_unsafe(addr pos, addr *ret);
+_g void getcons_unsafe(addr pos, addr *left, addr *right);
+_g void setconscar_unsafe(addr pos, addr value);
+_g void setconscdr_unsafe(addr pos, addr value);
+_g void setcons_unsafe(addr pos, addr left, addr right);
+_g void setconscar_force(addr pos, addr value);
+_g void setconscdr_force(addr pos, addr value);
+_g void setcons_force(addr pos, addr left, addr right);
 
 /* list */
-int listp(addr pos);
-int consp(addr pos);
-int singlep(addr pos);
-void list_alloc_stdarg(LocalRoot local, addr *ret, va_list args);
-addr list_heapr(addr pos, ...);
-addr list_localr(LocalRoot local, ...);
-addr list_allocr(LocalRoot local, ...);
-void list_heap(addr *ret, ...);
-void list_local(LocalRoot local, addr *ret, ...);
-void list_alloc(LocalRoot local, addr *ret, ...);
+_g int listp(addr pos);
+_g int consp(addr pos);
+_g int singlep(addr pos);
+_g void list_alloc_stdarg(LocalRoot local, addr *ret, va_list args);
+_g addr list_heapr(addr pos, ...);
+_g addr list_localr(LocalRoot local, ...);
+_g addr list_allocr(LocalRoot local, ...);
+_g void list_heap(addr *ret, ...);
+_g void list_local(LocalRoot local, addr *ret, ...);
+_g void list_alloc(LocalRoot local, addr *ret, ...);
 
 /* vector object */
-addr vector2_heapr(size_t size);
-addr vector2_localr(LocalRoot local, size_t size);
-addr vector2_allocr(LocalRoot local, size_t size);
-void vector2_heap(addr *ret, size_t size);
-void vector2_local(LocalRoot local, addr *ret, size_t size);
-void vector2_alloc(LocalRoot local, addr *ret, size_t size);
+_g addr vector2_heapr(size_t size);
+_g addr vector2_localr(LocalRoot local, size_t size);
+_g addr vector2_allocr(LocalRoot local, size_t size);
+_g void vector2_heap(addr *ret, size_t size);
+_g void vector2_local(LocalRoot local, addr *ret, size_t size);
+_g void vector2_alloc(LocalRoot local, addr *ret, size_t size);
 
-addr vector4_heapr(size_t size);
-addr vector4_localr(LocalRoot local, size_t size);
-addr vector4_allocr(LocalRoot local, size_t size);
-void vector4_heap(addr *ret, size_t size);
-void vector4_local(LocalRoot local, addr *ret, size_t size);
-void vector4_alloc(LocalRoot local, addr *ret, size_t size);
+_g addr vector4_heapr(size_t size);
+_g addr vector4_localr(LocalRoot local, size_t size);
+_g addr vector4_allocr(LocalRoot local, size_t size);
+_g void vector4_heap(addr *ret, size_t size);
+_g void vector4_local(LocalRoot local, addr *ret, size_t size);
+_g void vector4_alloc(LocalRoot local, addr *ret, size_t size);
 
-addr vector_heapr(size_t size);
-addr vector_localr(LocalRoot local, size_t size);
-addr vector_allocr(LocalRoot local, size_t size);
-void vector_heap(addr *ret, size_t size);
-void vector_local(LocalRoot local, addr *ret, size_t size);
-void vector_alloc(LocalRoot local, addr *ret, size_t size);
+_g addr vector_heapr(size_t size);
+_g addr vector_localr(LocalRoot local, size_t size);
+_g addr vector_allocr(LocalRoot local, size_t size);
+_g void vector_heap(addr *ret, size_t size);
+_g void vector_local(LocalRoot local, addr *ret, size_t size);
+_g void vector_alloc(LocalRoot local, addr *ret, size_t size);
 
-void copy_vector4_alloc(LocalRoot local, addr *ret, addr pos);
-void copy_vector4_local(LocalRoot local, addr *ret, addr pos);
-void copy_vector4_heap(addr *ret, addr pos);
-void copy_vector_alloc(LocalRoot local, addr *ret, addr pos);
-void copy_vector_local(LocalRoot local, addr *ret, addr pos);
-void copy_vector_heap(addr *ret, addr pos);
+_g void copy_vector4_alloc(LocalRoot local, addr *ret, addr pos);
+_g void copy_vector4_local(LocalRoot local, addr *ret, addr pos);
+_g void copy_vector4_heap(addr *ret, addr pos);
+_g void copy_vector_alloc(LocalRoot local, addr *ret, addr pos);
+_g void copy_vector_local(LocalRoot local, addr *ret, addr pos);
+_g void copy_vector_heap(addr *ret, addr pos);
 
 #ifdef LISP_ARCH_64BIT
-addr vector8_heapr(size_t size);
-addr vector8_localr(LocalRoot local, size_t size);
-addr vector8_allocr(LocalRoot local, size_t size);
-void vector8_heap(addr *ret, size_t size);
-void vector8_local(LocalRoot local, addr *ret, size_t size);
-void vector8_alloc(LocalRoot local, addr *ret, size_t size);
+_g addr vector8_heapr(size_t size);
+_g addr vector8_localr(LocalRoot local, size_t size);
+_g addr vector8_allocr(LocalRoot local, size_t size);
+_g void vector8_heap(addr *ret, size_t size);
+_g void vector8_local(LocalRoot local, addr *ret, size_t size);
+_g void vector8_alloc(LocalRoot local, addr *ret, size_t size);
 #endif
 
 /* fixnum object */
-addr make_fixnum_heapr(fixnum value);
-addr fixnum_heapr(fixnum value);
-addr fixnum_localr(LocalRoot local, fixnum value);
-addr fixnum_allocr(LocalRoot local, fixnum value);
+_g addr make_fixnum_heapr(fixnum value);
+_g addr fixnum_heapr(fixnum value);
+_g addr fixnum_localr(LocalRoot local, fixnum value);
+_g addr fixnum_allocr(LocalRoot local, fixnum value);
 
-void make_fixnum_heap(addr *ret, fixnum value);
-void fixnum_heap(addr *ret, fixnum value);
-void fixnum_local(LocalRoot local, addr *ret, fixnum value);
-void fixnum_alloc(LocalRoot local, addr *ret, fixnum value);
+_g void make_fixnum_heap(addr *ret, fixnum value);
+_g void fixnum_heap(addr *ret, fixnum value);
+_g void fixnum_local(LocalRoot local, addr *ret, fixnum value);
+_g void fixnum_alloc(LocalRoot local, addr *ret, fixnum value);
 
 #define fixnuma fixnum_allocr
 #define fixnumh fixnum_heapr
 #define fixnuml(v) fixnum_localr(Local_Thread, (v))
 
-const fixnum *ptrfixnum(addr pos);
-fixnum reffixnum(addr pos);
-void getfixnum(addr pos, fixnum *ret);
-void setfixnum(addr pos, fixnum value);
-int fixnumequal(addr left, addr right);
-int fixnumcompare(addr left, addr right);
+_g const fixnum *ptrfixnum(addr pos);
+_g fixnum reffixnum(addr pos);
+_g void getfixnum(addr pos, fixnum *ret);
+_g void setfixnum(addr pos, fixnum value);
+_g int fixnumequal(addr left, addr right);
+_g int fixnumcompare(addr left, addr right);
 
 /* index object */
-addr index_heapr(size_t value);
-addr index_localr(LocalRoot local, size_t value);
-addr index_allocr(LocalRoot local, size_t value);
-void index_heap(addr *ret, size_t value);
-void index_local(LocalRoot local, addr *ret, size_t value);
-void index_alloc(LocalRoot local, addr *ret, size_t value);
+_g addr index_heapr(size_t value);
+_g addr index_localr(LocalRoot local, size_t value);
+_g addr index_allocr(LocalRoot local, size_t value);
+_g void index_heap(addr *ret, size_t value);
+_g void index_local(LocalRoot local, addr *ret, size_t value);
+_g void index_alloc(LocalRoot local, addr *ret, size_t value);
 
-const size_t *ptrindex(addr pos);
-size_t refindex(addr pos);
-void getindex(addr pos, size_t *ret);
-void setindex(addr pos, size_t value);
-void incindex(addr pos, size_t value);
-void decindex(addr pos, size_t value);
+_g const size_t *ptrindex(addr pos);
+_g size_t refindex(addr pos);
+_g void getindex(addr pos, size_t *ret);
+_g void setindex(addr pos, size_t value);
+_g void incindex(addr pos, size_t value);
+_g void decindex(addr pos, size_t value);
 
 /* float */
-addr single_float_heapr(single_float value);
-addr single_float_localr(LocalRoot local, single_float value);
-addr single_float_allocr(LocalRoot local, single_float value);
-void single_float_heap(addr *ret, single_float value);
-void single_float_local(LocalRoot local, addr *ret, single_float value);
-void single_float_alloc(LocalRoot local, addr *ret, single_float value);
-const single_float *ptrsinglefloat(addr pos);
-single_float refsinglefloat(addr pos);
-void getsinglefloat(addr pos, single_float *ret);
-void setsinglefloat(addr pos, single_float value);
+_g addr single_float_heapr(single_float value);
+_g addr single_float_localr(LocalRoot local, single_float value);
+_g addr single_float_allocr(LocalRoot local, single_float value);
+_g void single_float_heap(addr *ret, single_float value);
+_g void single_float_local(LocalRoot local, addr *ret, single_float value);
+_g void single_float_alloc(LocalRoot local, addr *ret, single_float value);
+_g const single_float *ptrsinglefloat(addr pos);
+_g single_float refsinglefloat(addr pos);
+_g void getsinglefloat(addr pos, single_float *ret);
+_g void setsinglefloat(addr pos, single_float value);
 
-addr double_float_heapr(double_float value);
-addr double_float_localr(LocalRoot local, double_float value);
-addr double_float_allocr(LocalRoot local, double_float value);
-void double_float_heap(addr *ret, double_float value);
-void double_float_local(LocalRoot local, addr *ret, double_float value);
-void double_float_alloc(LocalRoot local, addr *ret, double_float value);
-const double_float *ptrdoublefloat(addr pos);
-double_float refdoublefloat(addr pos);
-void getdoublefloat(addr pos, double_float *ret);
-void setdoublefloat(addr pos, double_float value);
+_g addr double_float_heapr(double_float value);
+_g addr double_float_localr(LocalRoot local, double_float value);
+_g addr double_float_allocr(LocalRoot local, double_float value);
+_g void double_float_heap(addr *ret, double_float value);
+_g void double_float_local(LocalRoot local, addr *ret, double_float value);
+_g void double_float_alloc(LocalRoot local, addr *ret, double_float value);
+_g const double_float *ptrdoublefloat(addr pos);
+_g double_float refdoublefloat(addr pos);
+_g void getdoublefloat(addr pos, double_float *ret);
+_g void setdoublefloat(addr pos, double_float value);
 
-addr long_float_heapr(long_float value);
-addr long_float_localr(LocalRoot local, long_float value);
-addr long_float_allocr(LocalRoot local, long_float value);
-void long_float_heap(addr *ret, long_float value);
-void long_float_local(LocalRoot local, addr *ret, long_float value);
-void long_float_alloc(LocalRoot local, addr *ret, long_float value);
-const long_float *ptrlongfloat(addr pos);
-long_float reflongfloat(addr pos);
-void getlongfloat(addr pos, long_float *ret);
-void setlongfloat(addr pos, long_float value);
+_g addr long_float_heapr(long_float value);
+_g addr long_float_localr(LocalRoot local, long_float value);
+_g addr long_float_allocr(LocalRoot local, long_float value);
+_g void long_float_heap(addr *ret, long_float value);
+_g void long_float_local(LocalRoot local, addr *ret, long_float value);
+_g void long_float_alloc(LocalRoot local, addr *ret, long_float value);
+_g const long_float *ptrlongfloat(addr pos);
+_g long_float reflongfloat(addr pos);
+_g void getlongfloat(addr pos, long_float *ret);
+_g void setlongfloat(addr pos, long_float value);
 
 /* queue object */
-addr queue_heapr(void);
-addr queue_localr(LocalRoot local);
-addr queue_allocr(LocalRoot local);
-void queue_heap(addr *ret);
-void queue_local(LocalRoot local, addr *ret);
-void queue_alloc(LocalRoot local, addr *ret);
-void pushqueue_heap(addr pos, addr insert);
-void pushqueue_local(LocalRoot local, addr pos, addr insert);
-void pushqueue_alloc(LocalRoot local, addr pos, addr insert);
-void dotqueue(addr pos, addr right);
-void clearqueue(addr pos);
+_g addr queue_heapr(void);
+_g addr queue_localr(LocalRoot local);
+_g addr queue_allocr(LocalRoot local);
+_g void queue_heap(addr *ret);
+_g void queue_local(LocalRoot local, addr *ret);
+_g void queue_alloc(LocalRoot local, addr *ret);
+_g void pushqueue_heap(addr pos, addr insert);
+_g void pushqueue_local(LocalRoot local, addr pos, addr insert);
+_g void pushqueue_alloc(LocalRoot local, addr pos, addr insert);
+_g void dotqueue(addr pos, addr right);
+_g void clearqueue(addr pos);
 
-addr rootqueuer(addr pos);
-addr tailqueuer(addr pos);
-void rootqueue(addr pos, addr *ret);
-void tailqueue(addr pos, addr *ret);
-int firstqueue(addr pos, addr *ret);
-int lastqueue(addr pos, addr *ret);
-int nthqueue(addr pos, size_t index, addr *ret);
+_g addr rootqueuer(addr pos);
+_g addr tailqueuer(addr pos);
+_g void rootqueue(addr pos, addr *ret);
+_g void tailqueue(addr pos, addr *ret);
+_g int firstqueue(addr pos, addr *ret);
+_g int lastqueue(addr pos, addr *ret);
+_g int nthqueue(addr pos, size_t index, addr *ret);
 
 #endif
 

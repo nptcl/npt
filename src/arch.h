@@ -6,24 +6,24 @@
 #include "typedef.h"
 
 /* localtime */
-void nowtime_string(char *ptr, size_t size);
+_g void nowtime_string(char *ptr, size_t size);
 
 /* readforce */
 #ifdef LISP_POSIX
-int read_posix(int file, void *pos, size_t size, size_t *ret);
-int readforce_posix(int file, void *pos, size_t size, size_t *ret);
+_g int read_posix(int file, void *pos, size_t size, size_t *ret);
+_g int readforce_posix(int file, void *pos, size_t size, size_t *ret);
 #endif
 #ifdef LISP_WINDOWS
 #include <windows.h>
-int read_windows(HANDLE file, void *pos, size_t size, size_t *ret);
-int readforce_windows(HANDLE file, void *pos, size_t size, size_t *ret);
+_g int read_windows(HANDLE file, void *pos, size_t size, size_t *ret);
+_g int readforce_windows(HANDLE file, void *pos, size_t size, size_t *ret);
 #endif
-int read_clang(FILE *file, void *pos, size_t size, size_t *ret);
-int readforce_clang(FILE *file, void *pos, size_t size, size_t *ret);
+_g int read_clang(FILE *file, void *pos, size_t size, size_t *ret);
+_g int readforce_clang(FILE *file, void *pos, size_t size, size_t *ret);
 
 /* safe */
-int multisafe_size(size_t left, size_t right, size_t *result);
-int plussafe_size(size_t a, size_t b, size_t *result);
+_g int multisafe_size(size_t left, size_t right, size_t *result);
+_g int plussafe_size(size_t a, size_t b, size_t *result);
 
 #endif
 

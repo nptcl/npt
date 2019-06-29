@@ -22,7 +22,7 @@ static void vector_pop_array(addr pos, addr *ret)
 	array_get(NULL, pos, str->front, ret);
 }
 
-void vector_pop_common(addr pos, addr *ret)
+_g void vector_pop_common(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
@@ -57,7 +57,7 @@ static void vector_push_array(addr pos, addr value, addr *ret)
 	}
 }
 
-void vector_push_common(addr value, addr pos, addr *ret)
+_g void vector_push_common(addr value, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
@@ -221,7 +221,7 @@ static void vector_push_extend_array(addr pos, addr value, addr extension, addr 
 	str->front++;
 }
 
-void vector_push_extend_common(addr value, addr pos, addr extension, addr *ret)
+_g void vector_push_extend_common(addr value, addr pos, addr extension, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
@@ -238,7 +238,7 @@ void vector_push_extend_common(addr value, addr pos, addr extension, addr *ret)
 	}
 }
 
-void vector_get(addr pos, size_t index, addr *ret)
+_g void vector_get(addr pos, size_t index, addr *ret)
 {
 	size_t size;
 
@@ -249,7 +249,7 @@ void vector_get(addr pos, size_t index, addr *ret)
 	getarray(pos, index, ret);
 }
 
-void vector_aref(addr pos, addr args, addr *ret)
+_g void vector_aref(addr pos, addr args, addr *ret)
 {
 	addr arg;
 	size_t index;
@@ -267,7 +267,7 @@ void vector_aref(addr pos, addr args, addr *ret)
 	vector_get(pos, index, ret);
 }
 
-void vector_set(addr pos, size_t index, addr value)
+_g void vector_set(addr pos, size_t index, addr value)
 {
 	size_t size;
 
@@ -278,7 +278,7 @@ void vector_set(addr pos, size_t index, addr value)
 	setarray(pos, index, value);
 }
 
-void vector_setf_aref(addr pos, addr args, addr value)
+_g void vector_setf_aref(addr pos, addr args, addr value)
 {
 	addr arg;
 	size_t index;
@@ -298,7 +298,7 @@ void vector_setf_aref(addr pos, addr args, addr value)
 	vector_set(pos, index, value);
 }
 
-void vector_array_dimension(addr pos, addr arg, size_t size, addr *ret)
+_g void vector_array_dimension(addr pos, addr arg, size_t size, addr *ret)
 {
 	size_t check;
 
@@ -311,14 +311,14 @@ void vector_array_dimension(addr pos, addr arg, size_t size, addr *ret)
 	make_index_integer_alloc(NULL, ret, size);
 }
 
-void vector_array_dimensions(size_t size, addr *ret)
+_g void vector_array_dimensions(size_t size, addr *ret)
 {
 	addr pos;
 	make_index_integer_alloc(NULL, &pos, size);
 	conscar_heap(ret, pos);
 }
 
-int vector_array_in_bounds_p(addr rest, size_t size)
+_g int vector_array_in_bounds_p(addr rest, size_t size)
 {
 	addr pos;
 	size_t check;
@@ -336,7 +336,7 @@ int vector_array_in_bounds_p(addr rest, size_t size)
 	return check < size;
 }
 
-void vector_array_row_major_index(addr rest, size_t size, addr *ret)
+_g void vector_array_row_major_index(addr rest, size_t size, addr *ret)
 {
 	if (! vector_array_in_bounds_p(rest, size))
 		fmte("Out of range ~S.", intsizeh(size), NULL);
@@ -410,13 +410,13 @@ static void vector_signed_check(enum ARRAY_TYPE type, int bytesize)
 	}
 }
 
-void vector_signed_uninit(addr *ret, size_t size, enum ARRAY_TYPE type, int bs)
+_g void vector_signed_uninit(addr *ret, size_t size, enum ARRAY_TYPE type, int bs)
 {
 	vector_signed_check(type, bs);
 	vector_type(ret, size, type, bs, Unbound);
 }
 
-void vector_signed(addr *ret, size_t size, enum ARRAY_TYPE type, int bs, addr value)
+_g void vector_signed(addr *ret, size_t size, enum ARRAY_TYPE type, int bs, addr value)
 {
 	vector_signed_check(type, bs);
 	if (value == Unbound)
@@ -424,7 +424,7 @@ void vector_signed(addr *ret, size_t size, enum ARRAY_TYPE type, int bs, addr va
 	vector_type(ret, size, type, bs, value);
 }
 
-void vector_float_uninit(addr *ret, size_t size, enum ARRAY_TYPE type)
+_g void vector_float_uninit(addr *ret, size_t size, enum ARRAY_TYPE type)
 {
 	switch (type) {
 		case ARRAY_TYPE_SINGLE_FLOAT:
@@ -439,7 +439,7 @@ void vector_float_uninit(addr *ret, size_t size, enum ARRAY_TYPE type)
 	vector_type(ret, size, type, 0, Unbound);
 }
 
-void vector_float(addr *ret, size_t size, enum ARRAY_TYPE type, addr value)
+_g void vector_float(addr *ret, size_t size, enum ARRAY_TYPE type, addr value)
 {
 	switch (type) {
 		case ARRAY_TYPE_SINGLE_FLOAT:
@@ -464,7 +464,7 @@ void vector_float(addr *ret, size_t size, enum ARRAY_TYPE type, addr value)
 	vector_type(ret, size, type, 0, value);
 }
 
-void vector_setelt(addr pos, size_t index, addr value)
+_g void vector_setelt(addr pos, size_t index, addr value)
 {
 	size_t size;
 
@@ -476,7 +476,7 @@ void vector_setelt(addr pos, size_t index, addr value)
 	setarray(pos, index, value);
 }
 
-void vector_adjust(addr *ret, addr array, size_t size, addr value, addr check)
+_g void vector_adjust(addr *ret, addr array, size_t size, addr value, addr check)
 {
 	addr pos, temp;
 	size_t i, arraysize;
@@ -497,7 +497,7 @@ void vector_adjust(addr *ret, addr array, size_t size, addr value, addr check)
 	*ret = pos;
 }
 
-void vector_reverse(LocalRoot local, addr *ret, addr pos)
+_g void vector_reverse(LocalRoot local, addr *ret, addr pos)
 {
 	addr one, temp;
 	size_t size, x, y;
@@ -512,7 +512,7 @@ void vector_reverse(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
-void vector_nreverse(addr *ret, addr pos)
+_g void vector_nreverse(addr *ret, addr pos)
 {
 	addr a, b;
 	size_t size, x, y;

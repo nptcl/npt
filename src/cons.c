@@ -11,49 +11,49 @@
 /*
  *  list
  */
-void getcons(addr cons, addr *left, addr *right)
+_g void getcons(addr cons, addr *left, addr *right)
 {
 	if (cons != Nil && GetType(cons) != LISPTYPE_CONS)
 		TypeError(cons, CONS);
 	GetCons(cons, left, right);
 }
 
-void getcar(addr cons, addr *left)
+_g void getcar(addr cons, addr *left)
 {
 	if (cons != Nil && GetType(cons) != LISPTYPE_CONS)
 		TypeError(cons, CONS);
 	GetCar(cons, left);
 }
 
-void getcdr(addr cons, addr *right)
+_g void getcdr(addr cons, addr *right)
 {
 	if (cons != Nil && GetType(cons) != LISPTYPE_CONS)
 		TypeError(cons, CONS);
 	GetCdr(cons, right);
 }
 
-void setcons(addr cons, addr left, addr right)
+_g void setcons(addr cons, addr left, addr right)
 {
 	if (GetType(cons) != LISPTYPE_CONS)
 		TypeError(cons, CONS);
 	SetCons(cons, left, right);
 }
 
-void setcar(addr cons, addr left)
+_g void setcar(addr cons, addr left)
 {
 	if (GetType(cons) != LISPTYPE_CONS)
 		TypeError(cons, CONS);
 	SetCar(cons, left);
 }
 
-void setcdr(addr cons, addr right)
+_g void setcdr(addr cons, addr right)
 {
 	if (GetType(cons) != LISPTYPE_CONS)
 		TypeError(cons, CONS);
 	SetCdr(cons, right);
 }
 
-void getnth(addr cons, size_t index, addr *ret)
+_g void getnth(addr cons, size_t index, addr *ret)
 {
 	while (index--) {
 		if (cons == Nil) {
@@ -65,7 +65,7 @@ void getnth(addr cons, size_t index, addr *ret)
 	getcar(cons, ret);
 }
 
-void getnth_large(addr cons, addr index, addr *ret)
+_g void getnth_large(addr cons, addr index, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -86,7 +86,7 @@ finish:
 	rollback_local(local, stack);
 }
 
-void getnth_unbound_unsafe(addr cons, size_t index, addr *ret)
+_g void getnth_unbound_unsafe(addr cons, size_t index, addr *ret)
 {
 	for (;;) {
 		if (cons == Nil) {
@@ -99,7 +99,7 @@ void getnth_unbound_unsafe(addr cons, size_t index, addr *ret)
 	GetCar(cons, ret);
 }
 
-void getnth_unsafe(addr cons, size_t index, addr *ret)
+_g void getnth_unsafe(addr cons, size_t index, addr *ret)
 {
 	while (index--) {
 		if (cons == Nil) {
@@ -111,7 +111,7 @@ void getnth_unsafe(addr cons, size_t index, addr *ret)
 	GetCar(cons, ret);
 }
 
-void getnthcdr(addr cons, size_t index, addr *ret)
+_g void getnthcdr(addr cons, size_t index, addr *ret)
 {
 	while (index--) {
 		if (cons == Nil) {
@@ -123,7 +123,7 @@ void getnthcdr(addr cons, size_t index, addr *ret)
 	*ret = cons;
 }
 
-void getnthcdr_large(addr cons, addr index, addr *ret)
+_g void getnthcdr_large(addr cons, addr index, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -144,7 +144,7 @@ finish:
 	rollback_local(local, stack);
 }
 
-void getnthcdr_unsafe(addr cons, size_t index, addr *ret)
+_g void getnthcdr_unsafe(addr cons, size_t index, addr *ret)
 {
 	while (index--) {
 		if (cons == Nil) {
@@ -156,7 +156,7 @@ void getnthcdr_unsafe(addr cons, size_t index, addr *ret)
 	*ret = cons;
 }
 
-void setnth(addr cons, size_t index, addr value)
+_g void setnth(addr cons, size_t index, addr value)
 {
 	addr cdr;
 
@@ -166,7 +166,7 @@ void setnth(addr cons, size_t index, addr value)
 	SetCar(cdr, value);
 }
 
-size_t length_list_safe(addr right)
+_g size_t length_list_safe(addr right)
 {
 	size_t size;
 
@@ -179,7 +179,7 @@ size_t length_list_safe(addr right)
 	return size;
 }
 
-size_t length_list_safe_dotted(addr right)
+_g size_t length_list_safe_dotted(addr right)
 {
 	size_t size;
 
@@ -190,7 +190,7 @@ size_t length_list_safe_dotted(addr right)
 	return size;
 }
 
-size_t length_list_unsafe(addr cons)
+_g size_t length_list_unsafe(addr cons)
 {
 	size_t size;
 
@@ -201,7 +201,7 @@ size_t length_list_unsafe(addr cons)
 	return size;
 }
 
-int equal_length_list_unsafe(addr left, addr right)
+_g int equal_length_list_unsafe(addr left, addr right)
 {
 	while (left != Nil) {
 		if (right == Nil) return 0;
@@ -242,7 +242,7 @@ static void nconc_concat(addr list, addr args)
 	}
 }
 
-void nconc_safe(addr args, addr *ret)
+_g void nconc_safe(addr args, addr *ret)
 {
 	addr pos;
 
@@ -273,7 +273,7 @@ void nconc_safe(addr args, addr *ret)
 	*ret = pos;
 }
 
-void nconc2_safe(addr left, addr right, addr *ret)
+_g void nconc2_safe(addr left, addr right, addr *ret)
 {
 	addr check;
 
@@ -330,7 +330,7 @@ static void append_concat(addr last, addr args, addr *ret)
 	nreverse_list_unsafe_dotted(ret, root, last);
 }
 
-void append_safe(addr args, addr *ret)
+_g void append_safe(addr args, addr *ret)
 {
 	addr pos;
 
@@ -361,7 +361,7 @@ void append_safe(addr args, addr *ret)
 	*ret = pos;
 }
 
-void append2_safe(addr left, addr right, addr *ret)
+_g void append2_safe(addr left, addr right, addr *ret)
 {
 	addr root, pos;
 
@@ -380,7 +380,7 @@ void append2_safe(addr left, addr right, addr *ret)
 	nreconc_unsafe(ret, root, right);
 }
 
-void butlast_safe(addr *ret, addr list, size_t index)
+_g void butlast_safe(addr *ret, addr list, size_t index)
 {
 	addr root, pos;
 	size_t size;
@@ -398,12 +398,12 @@ void butlast_safe(addr *ret, addr list, size_t index)
 	nreverse_list_unsafe(ret, root);
 }
 
-void butlast_large(addr *ret, addr list, addr index)
+_g void butlast_large(addr *ret, addr list, addr index)
 {
 	fmte("TODO: large", NULL);
 }
 
-void nbutlast_safe(addr *ret, addr list, size_t index)
+_g void nbutlast_safe(addr *ret, addr list, size_t index)
 {
 	size_t size;
 
@@ -418,12 +418,12 @@ void nbutlast_safe(addr *ret, addr list, size_t index)
 	SetCdr(list, Nil);
 }
 
-void nbutlast_large(addr *ret, addr list, addr index)
+_g void nbutlast_large(addr *ret, addr list, addr index)
 {
 	fmte("TODO: large", NULL);
 }
 
-void last_safe(addr *ret, addr list, size_t index)
+_g void last_safe(addr *ret, addr list, size_t index)
 {
 	size_t size;
 
@@ -438,12 +438,12 @@ void last_safe(addr *ret, addr list, size_t index)
 	*ret = list;
 }
 
-void last_large(addr *ret, addr list, addr index)
+_g void last_large(addr *ret, addr list, addr index)
 {
 	fmte("TODO: large", NULL);
 }
 
-void butandlast_safe(addr *but, addr *last, addr list, size_t index)
+_g void butandlast_safe(addr *but, addr *last, addr list, size_t index)
 {
 	addr root, pos;
 	size_t size;
@@ -463,7 +463,7 @@ void butandlast_safe(addr *but, addr *last, addr list, size_t index)
 	*last = list;
 }
 
-int find_list_eq_unsafe(addr key, addr cons)
+_g int find_list_eq_unsafe(addr key, addr cons)
 {
 	addr check;
 
@@ -475,7 +475,7 @@ int find_list_eq_unsafe(addr key, addr cons)
 	return 0;
 }
 
-int find_list_eq_safe(addr key, addr cons)
+_g int find_list_eq_safe(addr key, addr cons)
 {
 	addr check;
 
@@ -487,7 +487,7 @@ int find_list_eq_safe(addr key, addr cons)
 	return 0;
 }
 
-int find_list_eql_unsafe(addr key, addr cons)
+_g int find_list_eql_unsafe(addr key, addr cons)
 {
 	addr check;
 
@@ -499,7 +499,7 @@ int find_list_eql_unsafe(addr key, addr cons)
 	return 0;
 }
 
-int find_list_equal_unsafe(addr key, addr cons)
+_g int find_list_equal_unsafe(addr key, addr cons)
 {
 	addr check;
 
@@ -511,7 +511,7 @@ int find_list_equal_unsafe(addr key, addr cons)
 	return 0;
 }
 
-int pushnew_alloc(LocalRoot local, addr list, addr value, addr *ret)
+_g int pushnew_alloc(LocalRoot local, addr list, addr value, addr *ret)
 {
 	if (! find_list_eq_unsafe(value, list)) {
 		cons_alloc(local, ret, value, list);
@@ -521,18 +521,18 @@ int pushnew_alloc(LocalRoot local, addr list, addr value, addr *ret)
 	return 0;
 }
 
-int pushnew_local(LocalRoot local, addr list, addr value, addr *ret)
+_g int pushnew_local(LocalRoot local, addr list, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushnew_alloc(local, list, value, ret);
 }
 
-int pushnew_heap(addr list, addr value, addr *ret)
+_g int pushnew_heap(addr list, addr value, addr *ret)
 {
 	return pushnew_alloc(NULL, list, value, ret);
 }
 
-int pushnew_equal_alloc(LocalRoot local, addr list, addr value, addr *ret)
+_g int pushnew_equal_alloc(LocalRoot local, addr list, addr value, addr *ret)
 {
 	if (! find_list_equal_unsafe(value, list)) {
 		cons_alloc(local, ret, value, list);
@@ -542,13 +542,13 @@ int pushnew_equal_alloc(LocalRoot local, addr list, addr value, addr *ret)
 	return 0;
 }
 
-int pushnew_equal_local(LocalRoot local, addr list, addr value, addr *ret)
+_g int pushnew_equal_local(LocalRoot local, addr list, addr value, addr *ret)
 {
 	CheckLocal(local);
 	return pushnew_equal_alloc(local, list, value, ret);
 }
 
-int pushnew_equal_heap(addr list, addr value, addr *ret)
+_g int pushnew_equal_heap(addr list, addr value, addr *ret)
 {
 	return pushnew_equal_alloc(NULL, list, value, ret);
 }
@@ -558,7 +558,7 @@ int pushnew_equal_heap(addr list, addr value, addr *ret)
  *  list
  */
 /* `(list* ,first ,@cons) */
-void lista_alloc_safe(LocalRoot local, addr *ret, addr first, addr cons)
+_g void lista_alloc_safe(LocalRoot local, addr *ret, addr first, addr cons)
 {
 	addr pos, root;
 
@@ -570,17 +570,17 @@ void lista_alloc_safe(LocalRoot local, addr *ret, addr first, addr cons)
 	}
 	nreverse_list_unsafe_dotted(ret, root, first);
 }
-void lista_local_safe(LocalRoot local, addr *ret, addr first, addr cons)
+_g void lista_local_safe(LocalRoot local, addr *ret, addr first, addr cons)
 {
 	Check(local == NULL, "local error");
 	lista_alloc_safe(local, ret, first, cons);
 }
-void lista_heap_safe(addr *ret, addr first, addr cons)
+_g void lista_heap_safe(addr *ret, addr first, addr cons)
 {
 	lista_alloc_safe(NULL, ret, first, cons);
 }
 
-void lista_stdarg_alloc(LocalRoot local, addr *ret, va_list args)
+_g void lista_stdarg_alloc(LocalRoot local, addr *ret, va_list args)
 {
 	addr pos1, pos2, pos3, cons;
 
@@ -620,7 +620,7 @@ void lista_stdarg_alloc(LocalRoot local, addr *ret, va_list args)
 	}
 }
 
-addr lista_allocr(LocalRoot local, ...)
+_g addr lista_allocr(LocalRoot local, ...)
 {
 	addr pos;
 	va_list args;
@@ -632,7 +632,7 @@ addr lista_allocr(LocalRoot local, ...)
 	return pos;
 }
 
-addr lista_localr(LocalRoot local, ...)
+_g addr lista_localr(LocalRoot local, ...)
 {
 	addr pos;
 	va_list args;
@@ -645,7 +645,7 @@ addr lista_localr(LocalRoot local, ...)
 	return pos;
 }
 
-addr lista_heapr(addr pos, ...)
+_g addr lista_heapr(addr pos, ...)
 {
 	addr pos1, pos2, pos3, cons;
 	va_list args;
@@ -689,7 +689,7 @@ addr lista_heapr(addr pos, ...)
 	return pos;
 }
 
-void lista_alloc(LocalRoot local, addr *ret, ...)
+_g void lista_alloc(LocalRoot local, addr *ret, ...)
 {
 	va_list args;
 
@@ -698,7 +698,7 @@ void lista_alloc(LocalRoot local, addr *ret, ...)
 	va_end(args);
 }
 
-void lista_local(LocalRoot local, addr *ret, ...)
+_g void lista_local(LocalRoot local, addr *ret, ...)
 {
 	va_list args;
 
@@ -708,7 +708,7 @@ void lista_local(LocalRoot local, addr *ret, ...)
 	va_end(args);
 }
 
-void lista_heap(addr *ret, ...)
+_g void lista_heap(addr *ret, ...)
 {
 	va_list args;
 
@@ -717,7 +717,7 @@ void lista_heap(addr *ret, ...)
 	va_end(args);
 }
 
-void List_bind(addr list, ...)
+_g void List_bind(addr list, ...)
 {
 	addr pos, *ret;
 	va_list args;
@@ -736,7 +736,7 @@ void List_bind(addr list, ...)
 	va_end(args);
 }
 
-void list_bind(addr list, ...)
+_g void list_bind(addr list, ...)
 {
 	addr pos, *ret;
 	va_list args;
@@ -757,7 +757,7 @@ void list_bind(addr list, ...)
 	va_end(args);
 }
 
-void Lista_bind(addr list, ...)
+_g void Lista_bind(addr list, ...)
 {
 	addr *ret1, *ret2, pos;
 	va_list args;
@@ -783,7 +783,7 @@ finish:
 	va_end(args);
 }
 
-void lista_bind(addr list, ...)
+_g void lista_bind(addr list, ...)
 {
 	addr *ret1, *ret2, pos;
 	va_list args;
@@ -815,7 +815,7 @@ finish:
 /*
  *  nreverse
  */
-void nreverse_list_unsafe(addr *ret, addr cons)
+_g void nreverse_list_unsafe(addr *ret, addr cons)
 {
 	addr tail, next;
 
@@ -834,13 +834,13 @@ void nreverse_list_unsafe(addr *ret, addr cons)
 	*ret = cons;
 }
 
-addr nreverse_list_unsafe_inplace(addr cons)
+_g addr nreverse_list_unsafe_inplace(addr cons)
 {
 	nreverse_list_unsafe(&cons, cons);
 	return cons;
 }
 
-void nreverse_list_unsafe_dotted(addr *ret, addr cons, addr tail)
+_g void nreverse_list_unsafe_dotted(addr *ret, addr cons, addr tail)
 {
 	addr next;
 
@@ -861,7 +861,7 @@ void nreverse_list_unsafe_dotted(addr *ret, addr cons, addr tail)
 	*ret = cons;
 }
 
-void revappend_safe(addr *ret, addr list, addr tail)
+_g void revappend_safe(addr *ret, addr list, addr tail)
 {
 	addr pos;
 
@@ -879,7 +879,7 @@ void revappend_safe(addr *ret, addr list, addr tail)
 	*ret = tail;
 }
 
-void nreconc_safe(addr *ret, addr list, addr tail)
+_g void nreconc_safe(addr *ret, addr list, addr tail)
 {
 	addr next;
 
@@ -900,18 +900,18 @@ void nreconc_safe(addr *ret, addr list, addr tail)
 	*ret = list;
 }
 
-void reverse_list_heap_unsafe(addr *ret, addr cons)
+_g void reverse_list_heap_unsafe(addr *ret, addr cons)
 {
 	reverse_list_alloc_unsafe(NULL, ret, cons);
 }
 
-void reverse_list_local_unsafe(LocalRoot local, addr *ret, addr cons)
+_g void reverse_list_local_unsafe(LocalRoot local, addr *ret, addr cons)
 {
 	Check(local == NULL, "local error");
 	reverse_list_alloc_unsafe(local, ret, cons);
 }
 
-void reverse_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
+_g void reverse_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, left;
 
@@ -922,7 +922,7 @@ void reverse_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons)
 	*ret = root;
 }
 
-void nreverse_list_safe(addr *ret, addr cons)
+_g void nreverse_list_safe(addr *ret, addr cons)
 {
 	addr tail, next;
 
@@ -941,24 +941,24 @@ void nreverse_list_safe(addr *ret, addr cons)
 	*ret = cons;
 }
 
-addr nreverse_list_safe_inplace(addr cons)
+_g addr nreverse_list_safe_inplace(addr cons)
 {
 	nreverse_list_safe(&cons, cons);
 	return cons;
 }
 
-void reverse_list_heap_safe(addr *ret, addr cons)
+_g void reverse_list_heap_safe(addr *ret, addr cons)
 {
 	reverse_list_alloc_safe(NULL, ret, cons);
 }
 
-void reverse_list_local_safe(LocalRoot local, addr *ret, addr cons)
+_g void reverse_list_local_safe(LocalRoot local, addr *ret, addr cons)
 {
 	Check(local == NULL, "local error");
 	reverse_list_alloc_safe(local, ret, cons);
 }
 
-void reverse_list_alloc_safe(LocalRoot local, addr *ret, addr cons)
+_g void reverse_list_alloc_safe(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, left;
 
@@ -969,7 +969,7 @@ void reverse_list_alloc_safe(LocalRoot local, addr *ret, addr cons)
 	*ret = root;
 }
 
-void copy_tree_alloc(LocalRoot local, addr *ret, addr cdr)
+_g void copy_tree_alloc(LocalRoot local, addr *ret, addr cdr)
 {
 	addr car;
 
@@ -984,18 +984,18 @@ void copy_tree_alloc(LocalRoot local, addr *ret, addr cdr)
 	}
 }
 
-void copy_tree_local(LocalRoot local, addr *ret, addr list)
+_g void copy_tree_local(LocalRoot local, addr *ret, addr list)
 {
 	Check(local == NULL, "local error");
 	copy_tree_alloc(local, ret, list);
 }
 
-void copy_tree_heap(addr *ret, addr list)
+_g void copy_tree_heap(addr *ret, addr list)
 {
 	copy_tree_alloc(NULL, ret, list);
 }
 
-void pushva_heap(addr *list, ...)
+_g void pushva_heap(addr *list, ...)
 {
 	addr root, pos;
 	va_list args;
@@ -1017,7 +1017,7 @@ void pushva_heap(addr *list, ...)
  *  plist
  */
 /* 0:find-value, 1:not-found(Nil) */
-int getplist(addr plist, addr key, addr *ret)
+_g int getplist(addr plist, addr key, addr *ret)
 {
 	addr check;
 
@@ -1036,7 +1036,7 @@ int getplist(addr plist, addr key, addr *ret)
 	return 1;
 }
 
-int getplist_safe(addr plist, addr key, addr *ret)
+_g int getplist_safe(addr plist, addr key, addr *ret)
 {
 	addr check;
 
@@ -1054,7 +1054,7 @@ int getplist_safe(addr plist, addr key, addr *ret)
 }
 
 /* 0:find-and-set, 1:make-new-cons */
-int setplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+_g int setplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	addr check, cons;
 
@@ -1072,18 +1072,18 @@ int setplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-int setplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+_g int setplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplist_alloc(local, plist, key, value, ret);
 }
-int setplist_heap(addr plist, addr key, addr value, addr *ret)
+_g int setplist_heap(addr plist, addr key, addr value, addr *ret)
 {
 	return setplist_alloc(NULL, plist, key, value, ret);
 }
 
 /* 0:find-and-set, 1:make-new-cons */
-int setplist_alloc_safe(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+_g int setplist_alloc_safe(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	addr check, cons;
 
@@ -1099,17 +1099,17 @@ int setplist_alloc_safe(LocalRoot local, addr plist, addr key, addr value, addr 
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-int setplist_local_safe(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+_g int setplist_local_safe(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplist_alloc_safe(local, plist, key, value, ret);
 }
-int setplist_heap_safe(addr plist, addr key, addr value, addr *ret)
+_g int setplist_heap_safe(addr plist, addr key, addr value, addr *ret)
 {
 	return setplist_alloc_safe(NULL, plist, key, value, ret);
 }
 
-int pushplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+_g int pushplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	addr cons, check;
 
@@ -1130,16 +1130,16 @@ int pushplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-int pushplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+_g int pushplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushplist_alloc(local, plist, key, value, ret);
 }
-int pushplist_heap(addr plist, addr key, addr value, addr *ret)
+_g int pushplist_heap(addr plist, addr key, addr value, addr *ret)
 {
 	return pushplist_alloc(NULL, plist, key, value, ret);
 }
-int pushnewplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+_g int pushnewplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	addr cons, check;
 
@@ -1161,17 +1161,17 @@ int pushnewplist_alloc(LocalRoot local, addr plist, addr key, addr value, addr *
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-int pushnewplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+_g int pushnewplist_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushnewplist_alloc(local, plist, key, value, ret);
 }
-int pushnewplist_heap(addr plist, addr key, addr value, addr *ret)
+_g int pushnewplist_heap(addr plist, addr key, addr value, addr *ret)
 {
 	return pushnewplist_alloc(NULL, plist, key, value, ret);
 }
 
-enum RemPlist remplist_check(addr plist, addr key, addr *ret)
+_g enum RemPlist remplist_check(addr plist, addr key, addr *ret)
 {
 	addr root, check;
 
@@ -1208,7 +1208,7 @@ enum RemPlist remplist_check(addr plist, addr key, addr *ret)
 	return RemPlist_NotFound;
 }
 
-enum RemPlist remplist_check_safe(addr plist, addr key, addr *ret)
+_g enum RemPlist remplist_check_safe(addr plist, addr key, addr *ret)
 {
 	addr root, check;
 
@@ -1241,12 +1241,12 @@ enum RemPlist remplist_check_safe(addr plist, addr key, addr *ret)
 	return RemPlist_NotFound;
 }
 
-int remplist(addr plist, addr key, addr *ret)
+_g int remplist(addr plist, addr key, addr *ret)
 {
 	return remplist_check(plist, key, ret) == RemPlist_Update;
 }
 
-int remplist_alloc(LocalRoot local, addr plist, addr key, addr *ret)
+_g int remplist_alloc(LocalRoot local, addr plist, addr key, addr *ret)
 {
 	int result;
 	addr root, pos, value;
@@ -1268,27 +1268,27 @@ int remplist_alloc(LocalRoot local, addr plist, addr key, addr *ret)
 	return result;
 }
 
-int remplist_local(LocalRoot local, addr plist, addr key, addr *ret)
+_g int remplist_local(LocalRoot local, addr plist, addr key, addr *ret)
 {
 	CheckLocal(local);
 	return remplist_alloc(local, plist, key, ret);
 }
 
-int remplist_heap(addr plist, addr key, addr *ret)
+_g int remplist_heap(addr plist, addr key, addr *ret)
 {
 	return remplist_alloc(NULL, plist, key, ret);
 }
 
 
 /* 0:find-value, 1:not-found(Nil) */
-int getplist_constant(addr plist, enum CONSTANT_INDEX index, addr *ret)
+_g int getplist_constant(addr plist, enum CONSTANT_INDEX index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	Check(key == Unbound, "unbound error");
 	return getplist(plist, key, ret);
 }
-int getplist_constant_safe(addr plist, enum CONSTANT_INDEX index, addr *ret)
+_g int getplist_constant_safe(addr plist, enum CONSTANT_INDEX index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
@@ -1297,81 +1297,82 @@ int getplist_constant_safe(addr plist, enum CONSTANT_INDEX index, addr *ret)
 }
 
 /* 0:find-and-set, 1:make-new-cons */
-int setplist_constant_alloc(LocalRoot local, addr plist,
+_g int setplist_constant_alloc(LocalRoot local, addr plist,
 		enum CONSTANT_INDEX index, addr value, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return setplist_alloc(local, plist, key, value, ret);
 }
-int setplist_constant_local(LocalRoot local, addr plist,
+_g int setplist_constant_local(LocalRoot local, addr plist,
 		enum CONSTANT_INDEX index, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplist_constant_alloc(local, plist, index, value, ret);
 }
-int setplist_constant_heap(addr plist,
+_g int setplist_constant_heap(addr plist,
 		enum CONSTANT_INDEX index, addr value, addr *ret)
 {
 	return setplist_constant_alloc(NULL, plist, index, value, ret);
 }
-int pushplist_constant_alloc(LocalRoot local, addr plist,
+_g int pushplist_constant_alloc(LocalRoot local, addr plist,
 		enum CONSTANT_INDEX index, addr value, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return pushplist_alloc(local, plist, key, value, ret);
 }
-int pushplist_constant_local(LocalRoot local, addr plist,
+_g int pushplist_constant_local(LocalRoot local, addr plist,
 		enum CONSTANT_INDEX index, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushplist_constant_alloc(local, plist, index, value, ret);
 }
-int pushplist_constant_heap(addr plist,
+_g int pushplist_constant_heap(addr plist,
 		enum CONSTANT_INDEX index, addr value, addr *ret)
 {
 	return pushplist_constant_alloc(NULL, plist, index, value, ret);
 }
-int pushnewplist_constant_alloc(LocalRoot local, addr plist,
+_g int pushnewplist_constant_alloc(LocalRoot local, addr plist,
 		enum CONSTANT_INDEX index, addr value, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return pushnewplist_alloc(local, plist, key, value, ret);
 }
-int pushnewplist_constant_local(LocalRoot local, addr plist,
+_g int pushnewplist_constant_local(LocalRoot local, addr plist,
 		enum CONSTANT_INDEX index, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushnewplist_constant_alloc(local, plist, index, value, ret);
 }
-int pushnewplist_constant_heap(addr plist,
+_g int pushnewplist_constant_heap(addr plist,
 		enum CONSTANT_INDEX index, addr value, addr *ret)
 {
 	return pushnewplist_constant_alloc(NULL, plist, index, value, ret);
 }
 
-enum RemPlist remplist_check_constant(addr plist, enum CONSTANT_INDEX index, addr *ret)
+_g enum RemPlist remplist_check_constant(addr plist,
+		enum CONSTANT_INDEX index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return remplist_check(plist, key, ret);
 }
-int remplist_constant(addr plist, enum CONSTANT_INDEX index, addr *ret)
+_g int remplist_constant(addr plist, enum CONSTANT_INDEX index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return remplist(plist, key, ret);
 }
 
-int getplistplist(addr plist, addr key1, addr key2, addr *ret)
+_g int getplistplist(addr plist, addr key1, addr key2, addr *ret)
 {
 	(void)getplist(plist, key1, &plist);
 	return getplist(plist, key2, ret);
 }
 
-int setplistplist(addr plist, addr key1, addr key2, addr value, addr *ret)
+_g int setplistplist(addr plist, addr key1, addr key2, addr value, addr *ret)
 {
 	addr check;
 
@@ -1391,7 +1392,7 @@ int setplistplist(addr plist, addr key1, addr key2, addr value, addr *ret)
 	return 1;
 }
 
-int setplistplist_alloc(LocalRoot local,
+_g int setplistplist_alloc(LocalRoot local,
 		addr plist, addr key1, addr key2, addr value, addr *ret)
 {
 	addr cons, find, child, check;
@@ -1425,18 +1426,18 @@ int setplistplist_alloc(LocalRoot local,
 	cons_alloc(local, ret, key1, plist);
 	return 1;
 }
-int setplistplist_local(LocalRoot local,
+_g int setplistplist_local(LocalRoot local,
 		addr plist, addr key1, addr key2, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplistplist_alloc(local, plist, key1, key2, value, ret);
 }
-int setplistplist_heap(addr plist, addr key1, addr key2, addr value, addr *ret)
+_g int setplistplist_heap(addr plist, addr key1, addr key2, addr value, addr *ret)
 {
 	return setplistplist_alloc(NULL, plist, key1, key2, value, ret);
 }
 
-int setplistplist_heap_force(addr plist, addr key1, addr key2, addr value, addr *ret)
+_g int setplistplist_heap_force(addr plist, addr key1, addr key2, addr value, addr *ret)
 {
 	addr cons, find, child, check;
 
@@ -1477,7 +1478,7 @@ int setplistplist_heap_force(addr plist, addr key1, addr key2, addr value, addr 
  *  eql
  */
 /* 0:find-value, 1:not-found(Nil) */
-int getplist_eql(addr plist, addr name, addr *ret)
+_g int getplist_eql(addr plist, addr name, addr *ret)
 {
 	addr check;
 
@@ -1496,7 +1497,7 @@ int getplist_eql(addr plist, addr name, addr *ret)
 	return 1;
 }
 
-int setplist_eql_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+_g int setplist_eql_alloc(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	addr check, cons;
 
@@ -1515,22 +1516,22 @@ int setplist_eql_alloc(LocalRoot local, addr plist, addr key, addr value, addr *
 
 	return 1;
 }
-int setplist_eql_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
+_g int setplist_eql_local(LocalRoot local, addr plist, addr key, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplist_eql_alloc(local, plist, key, value, ret);
 }
-int setplist_eql_heap(addr plist, addr key, addr value, addr *ret)
+_g int setplist_eql_heap(addr plist, addr key, addr value, addr *ret)
 {
 	return setplist_eql_alloc(NULL, plist, key, value, ret);
 }
 
-int getplistplist_eql(addr plist, addr key, addr name, addr *ret)
+_g int getplistplist_eql(addr plist, addr key, addr name, addr *ret)
 {
 	(void)getplist(plist, key, &plist);
 	return getplist_eql(plist, name, ret);
 }
-int setplistplist_eql_alloc(LocalRoot local,
+_g int setplistplist_eql_alloc(LocalRoot local,
 		addr plist, addr key, addr name, addr value, addr *ret)
 {
 	addr cons, find, child, check;
@@ -1564,13 +1565,13 @@ int setplistplist_eql_alloc(LocalRoot local,
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-int setplistplist_eql_local(LocalRoot local,
+_g int setplistplist_eql_local(LocalRoot local,
 		addr plist, addr key, addr name, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplistplist_eql_alloc(local, plist, key, name, value, ret);
 }
-int setplistplist_eql_heap(addr plist, addr key, addr name, addr value, addr *ret)
+_g int setplistplist_eql_heap(addr plist, addr key, addr name, addr value, addr *ret)
 {
 	return setplistplist_eql_alloc(NULL, plist, key, name, value, ret);
 }
@@ -1580,7 +1581,7 @@ int setplistplist_eql_heap(addr plist, addr key, addr name, addr value, addr *re
  *  callname
  */
 /* 0:find-value, 1:not-found(Nil) */
-int getplist_callname(addr plist, addr callname, addr *ret)
+_g int getplist_callname(addr plist, addr callname, addr *ret)
 {
 	addr check;
 
@@ -1599,7 +1600,7 @@ int getplist_callname(addr plist, addr callname, addr *ret)
 	return 1;
 }
 
-int setplist_callname_alloc(LocalRoot local,
+_g int setplist_callname_alloc(LocalRoot local,
 		addr plist, addr callname, addr value, addr *ret)
 {
 	addr check, cons;
@@ -1619,18 +1620,18 @@ int setplist_callname_alloc(LocalRoot local,
 	return 1;
 }
 
-int setplist_callname_local(LocalRoot local,
+_g int setplist_callname_local(LocalRoot local,
 		addr plist, addr callname, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplist_callname_alloc(local, plist, callname, value, ret);
 }
-int setplist_callname_heap(addr plist, addr callname, addr value, addr *ret)
+_g int setplist_callname_heap(addr plist, addr callname, addr value, addr *ret)
 {
 	return setplist_callname_alloc(NULL, plist, callname, value, ret);
 }
 
-int pushnewplist_callname_alloc(LocalRoot local,
+_g int pushnewplist_callname_alloc(LocalRoot local,
 		addr plist, addr key, addr callname, addr *ret)
 {
 	addr cons, check;
@@ -1653,24 +1654,24 @@ int pushnewplist_callname_alloc(LocalRoot local,
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-int pushnewplist_callname_local(LocalRoot local,
+_g int pushnewplist_callname_local(LocalRoot local,
 		addr plist, addr key, addr callname, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushnewplist_callname_alloc(local, plist, key, callname, ret);
 }
-int pushnewplist_callname_heap(addr plist,
+_g int pushnewplist_callname_heap(addr plist,
 		addr key, addr callname, addr *ret)
 {
 	return pushnewplist_callname_alloc(NULL, plist, key, callname, ret);
 }
 
-int getplistplist_callname(addr plist, addr key, addr callname, addr *ret)
+_g int getplistplist_callname(addr plist, addr key, addr callname, addr *ret)
 {
 	(void)getplist(plist, key, &plist);
 	return getplist_callname(plist, callname, ret);
 }
-int setplistplist_callname(addr plist, addr key, addr callname, addr value)
+_g int setplistplist_callname(addr plist, addr key, addr callname, addr value)
 {
 	addr check;
 
@@ -1690,7 +1691,7 @@ int setplistplist_callname(addr plist, addr key, addr callname, addr value)
 	return 1;
 }
 
-int setplistplist_callname_alloc(LocalRoot local,
+_g int setplistplist_callname_alloc(LocalRoot local,
 		addr plist, addr key, addr callname, addr value, addr *ret)
 {
 	addr cons, find, child, check;
@@ -1724,18 +1725,18 @@ int setplistplist_callname_alloc(LocalRoot local,
 	cons_alloc(local, ret, key, plist);
 	return 1;
 }
-int setplistplist_callname_local(LocalRoot local,
+_g int setplistplist_callname_local(LocalRoot local,
 		addr plist, addr key, addr callname, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplistplist_callname_alloc(local, plist, key, callname, value, ret);
 }
-int setplistplist_callname_heap(addr plist,
+_g int setplistplist_callname_heap(addr plist,
 		addr key, addr callname, addr value, addr *ret)
 {
 	return setplistplist_callname_alloc(NULL, plist, key, callname, value, ret);
 }
-int setplistplist_callname_heap_force(addr plist,
+_g int setplistplist_callname_heap_force(addr plist,
 		addr key, addr callname, addr value, addr *ret)
 {
 	addr cons, find, child, check;
@@ -1772,7 +1773,7 @@ int setplistplist_callname_heap_force(addr plist,
 	return 1;
 }
 
-int pushnewlist_callname_alloc(LocalRoot local, addr list, addr callname, addr *ret)
+_g int pushnewlist_callname_alloc(LocalRoot local, addr list, addr callname, addr *ret)
 {
 	if (! find_list_callname_unsafe(callname, list)) {
 		cons_alloc(local, ret, callname, list);
@@ -1782,12 +1783,12 @@ int pushnewlist_callname_alloc(LocalRoot local, addr list, addr callname, addr *
 	return 0;
 }
 
-int pushnewlist_callname_heap(addr list, addr callname, addr *ret)
+_g int pushnewlist_callname_heap(addr list, addr callname, addr *ret)
 {
 	return pushnewlist_callname_alloc(NULL, list, callname, ret);
 }
 
-int find_list_callname_unsafe(addr callname, addr list)
+_g int find_list_callname_unsafe(addr callname, addr list)
 {
 	addr check;
 
@@ -1803,7 +1804,7 @@ int find_list_callname_unsafe(addr callname, addr list)
 /*
  *  assoc
  */
-int getassoc(addr key, addr list, addr *ret)
+_g int getassoc(addr key, addr list, addr *ret)
 {
 	addr left, right;
 
@@ -1822,7 +1823,7 @@ int getassoc(addr key, addr list, addr *ret)
 	return 1;
 }
 
-int getrassoc(addr key, addr list, addr *ret)
+_g int getrassoc(addr key, addr list, addr *ret)
 {
 	addr left, right;
 

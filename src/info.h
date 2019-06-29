@@ -5,15 +5,16 @@
  *  Print object for debug.
  *    Similary to print-object function but info don't use stream object.
  */
+#include "define.h"
 #include "typedef.h"
 
-void info(const char *, ...);
-void info_noeol(const char *, ...);
-void infobit(addr pos);
-void infoprint(addr pos);
-void infoprint_noeol(addr pos);
-void infoerror(const char *, int, const char *, const char *, ...);
-void infosystem(void);
+_g void info(const char *, ...);
+_g void info_noeol(const char *, ...);
+_g void infobit(addr pos);
+_g void infoprint(addr pos);
+_g void infoprint_noeol(addr pos);
+_g void infoerror(const char *, int, const char *, const char *, ...);
+_g void infosystem(void);
 
 #endif
 

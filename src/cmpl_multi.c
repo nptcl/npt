@@ -46,7 +46,7 @@ static int multi_real_complex(addr left, addr right, addr *ret)
 	}
 }
 
-void multi_rational_complex_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_rational_complex_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	addr real, imag;
 
@@ -62,25 +62,25 @@ void multi_rational_complex_common(LocalRoot local, addr left, addr right, addr 
 	}
 }
 
-void multi_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
 	multi_rational_complex_common(local, left, right, ret);
 }
 
-void multi_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
 	multi_rational_complex_common(local, left, right, ret);
 }
 
-void multi_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
 	multi_rational_complex_common(local, left, right, ret);
 }
 
-void multi_sc_number_common(addr left, addr right, addr *ret)
+_g void multi_sc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -88,7 +88,7 @@ void multi_sc_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void multi_dc_number_common(addr left, addr right, addr *ret)
+_g void multi_dc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -96,7 +96,7 @@ void multi_dc_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void multi_lc_number_common(addr left, addr right, addr *ret)
+_g void multi_lc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -127,7 +127,7 @@ static void multi_cc_rational_common(LocalRoot local, addr left, addr right, add
 	rollback_local(local, stack);
 }
 
-void multi_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	single_float as, bs, cs, ds;
 	double_float ad, bd, cd, dd;
@@ -202,7 +202,7 @@ static void inverse_complex_rational(LocalRoot local, addr pos, addr *ret)
 	rollback_local(local, stack);
 }
 
-void inverse_complex_common(LocalRoot local, addr pos, addr *ret)
+_g void inverse_complex_common(LocalRoot local, addr pos, addr *ret)
 {
 	single_float as, bs, ds;
 	double_float ad, bd, dd;
@@ -338,7 +338,7 @@ static int div_complex_real(addr left, addr right, addr *ret)
 	}
 }
 
-void div_rational_complex_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_rational_complex_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	LocalStack stack;
 	addr a, b, a2, b2, ab;
@@ -368,7 +368,7 @@ void div_rational_complex_common(LocalRoot local, addr left, addr right, addr *r
 	}
 }
 
-void div_complex_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_complex_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	LocalStack stack;
 	addr a, b;
@@ -392,43 +392,43 @@ void div_complex_rational_common(LocalRoot local, addr left, addr right, addr *r
 	}
 }
 
-void div_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
 	div_rational_complex_common(local, left, right, ret);
 }
 
-void div_cf_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_cf_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_FIXNUM);
 	div_complex_rational_common(local, left, right, ret);
 }
 
-void div_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
 	div_rational_complex_common(local, left, right, ret);
 }
 
-void div_cb_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_cb_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_BIGNUM);
 	div_complex_rational_common(local, left, right, ret);
 }
 
-void div_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
 	div_rational_complex_common(local, left, right, ret);
 }
 
-void div_cr_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_cr_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_RATIO);
 	div_complex_rational_common(local, left, right, ret);
 }
 
-void div_sc_number_common(addr left, addr right, addr *ret)
+_g void div_sc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -436,7 +436,7 @@ void div_sc_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void div_cs_number_common(addr left, addr right, addr *ret)
+_g void div_cs_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
@@ -444,7 +444,7 @@ void div_cs_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void div_dc_number_common(addr left, addr right, addr *ret)
+_g void div_dc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -452,7 +452,7 @@ void div_dc_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void div_cd_number_common(addr left, addr right, addr *ret)
+_g void div_cd_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
@@ -460,7 +460,7 @@ void div_cd_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void div_lc_number_common(addr left, addr right, addr *ret)
+_g void div_lc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -468,7 +468,7 @@ void div_lc_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void div_cl_number_common(addr left, addr right, addr *ret)
+_g void div_cl_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_LONG_FLOAT);
@@ -508,7 +508,7 @@ static void div_cc_rational_common(LocalRoot local, addr left, addr right, addr 
 	rollback_local(local, stack);
 }
 
-void div_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	single_float as, bs, cs, ds, xs, ys, zs;
 	double_float ad, bd, cd, dd, xd, yd, zd;

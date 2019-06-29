@@ -100,7 +100,7 @@ static void type_name_stream(addr *ret, addr value)
 	GetConst(COMMON_STREAM, ret);
 }
 
-int type_name_p(addr *ret, addr value)
+_g int type_name_p(addr *ret, addr value)
 {
 	enum LISPTYPE type;
 	constindex index;
@@ -138,13 +138,13 @@ int type_name_p(addr *ret, addr value)
 	return 0;
 }
 
-void type_name(addr *ret, addr value)
+_g void type_name(addr *ret, addr value)
 {
 	if (type_name_p(ret, value))
 		fmte("Invalid value, ~A.", value, NULL);
 }
 
-void init_type_name(void)
+_g void init_type_name(void)
 {
 	int i;
 

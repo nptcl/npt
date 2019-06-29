@@ -442,33 +442,33 @@ static int test_getpackage(void)
 /*
  *  make_package
  */
-static int test_pushlist(void)
+static int test_pushlist_package(void)
 {
 	addr pos, check, left, right;
 
 	internpackage(&pos, "BITPACKAGE");
 	SetPackage(pos, PACKAGE_INDEX_EXPORT, Nil);
 	GetPackage(pos, PACKAGE_INDEX_EXPORT, &check);
-	test(check == Nil, "pushlist1");
+	test(check == Nil, "pushlist_package1");
 	strvect_char_heap(&check, "AAA");
-	pushlist(pos, PACKAGE_INDEX_EXPORT, check);
+	pushlist_package(pos, PACKAGE_INDEX_EXPORT, check);
 
 	GetPackage(pos, PACKAGE_INDEX_EXPORT, &right);
-	test(GetType(right) == LISPTYPE_CONS, "pushlist2");
+	test(GetType(right) == LISPTYPE_CONS, "pushlist_package2");
 	GetCons(right, &left, &right);
-	test(string_equal_char(left, "AAA"), "pushlist3");
-	test(right == Nil, "pushlist4");
+	test(string_equal_char(left, "AAA"), "pushlist_package3");
+	test(right == Nil, "pushlist_package4");
 
 	strvect_char_heap(&check, "BBB");
-	pushlist(pos, PACKAGE_INDEX_EXPORT, check);
+	pushlist_package(pos, PACKAGE_INDEX_EXPORT, check);
 
 	GetPackage(pos, PACKAGE_INDEX_EXPORT, &right);
-	test(GetType(right) == LISPTYPE_CONS, "pushlist5");
+	test(GetType(right) == LISPTYPE_CONS, "pushlist_package5");
 	GetCons(right, &left, &right);
-	test(string_equal_char(left, "BBB"), "pushlist6");
+	test(string_equal_char(left, "BBB"), "pushlist_package6");
 	GetCons(right, &left, &right);
-	test(string_equal_char(left, "AAA"), "pushlist7");
-	test(right == Nil, "pushlist8");
+	test(string_equal_char(left, "AAA"), "pushlist_package7");
+	test(right == Nil, "pushlist_package8");
 
 	SetPackage(pos, PACKAGE_INDEX_EXPORT, Nil);
 
@@ -496,10 +496,10 @@ static int test_pushnewlist(void)
 	strvect_char_heap(&pos2, "STR2");
 	strvect_char_heap(&pos3, "STR3");
 	strvect_char_heap(&pos4, "STR4");
-	pushlist(pos, PACKAGE_INDEX_EXPORT, pos1);
-	pushlist(pos, PACKAGE_INDEX_EXPORT, pos2);
-	pushlist(pos, PACKAGE_INDEX_EXPORT, pos3);
-	pushlist(pos, PACKAGE_INDEX_EXPORT, pos1);
+	pushlist_package(pos, PACKAGE_INDEX_EXPORT, pos1);
+	pushlist_package(pos, PACKAGE_INDEX_EXPORT, pos2);
+	pushlist_package(pos, PACKAGE_INDEX_EXPORT, pos3);
+	pushlist_package(pos, PACKAGE_INDEX_EXPORT, pos1);
 
 	GetPackage(pos, PACKAGE_INDEX_EXPORT, &cons);
 	test(listlength(cons) == 4, "pushnewlist1");
@@ -742,7 +742,7 @@ static void exportchar(const char *package, const char *name)
 	ptr = StructBitType(bit);
 	ptr->intern = PACKAGE_TYPE_EXTERNAL;
 	ptr->expt = 1;
-	pushlist(pos, PACKAGE_INDEX_EXPORT, key);
+	pushlist_package(pos, PACKAGE_INDEX_EXPORT, key);
 }
 
 static int test_append_exportname(void)
@@ -1039,15 +1039,15 @@ static int test_allunintern_uselist(void)
 	internpackage(&pos, "BITPACKAGE");
 	internpackage(&p1, "BITPACKAGE1");
 	internpackage(&p2, "BITPACKAGE2");
-	pushlist(p1, PACKAGE_INDEX_USED, pos);
-	pushlist(p2, PACKAGE_INDEX_USED, p1);
-	pushlist(p2, PACKAGE_INDEX_USED, pos);
+	pushlist_package(p1, PACKAGE_INDEX_USED, pos);
+	pushlist_package(p2, PACKAGE_INDEX_USED, p1);
+	pushlist_package(p2, PACKAGE_INDEX_USED, pos);
 	inheritedchar("BITPACKAGE1", "AAA", &cons);
 	inheritedchar("BITPACKAGE2", "AAA", &cons);
-	pushlist(pos, PACKAGE_INDEX_USE, p1);
-	pushlist(pos, PACKAGE_INDEX_USE, p2);
+	pushlist_package(pos, PACKAGE_INDEX_USE, p1);
+	pushlist_package(pos, PACKAGE_INDEX_USE, p2);
 	strvect_char_heap(&cons, "AAA");
-	pushlist(pos, PACKAGE_INDEX_EXPORT, cons);
+	pushlist_package(pos, PACKAGE_INDEX_EXPORT, cons);
 	makelist(&cons, p1, p2, NULL);
 	allunintern_uselist(pos);
 	test(findbit(p1, "AAA") == Nil, "allunintern_uselist1");
@@ -1124,7 +1124,7 @@ static int test_delete_package(void)
 
 	force_delete_package("BITPACKAGE");
 	internpackage(&pos, "BITPACKAGE");
-	pushlist(pos, PACKAGE_INDEX_USED, T);
+	pushlist_package(pos, PACKAGE_INDEX_USED, T);
 	testerror(delete_package(pos), "delete_package2");
 	SetPackage(pos, PACKAGE_INDEX_USED, Nil);
 
@@ -1760,8 +1760,8 @@ static int test_uninterncheck(void)
 	internchar("AAA", "HELLO", &symbol);
 	test(uninterncheck(pos, symbol) == 0, "uninterncheck3");
 
-	pushlist(pos, PACKAGE_INDEX_USE, p1);
-	pushlist(pos, PACKAGE_INDEX_USE, p2);
+	pushlist_package(pos, PACKAGE_INDEX_USE, p1);
+	pushlist_package(pos, PACKAGE_INDEX_USE, p2);
 	StructBitType(findbit(pos, "HELLO"))->shadow = 1;
 	StructBitType(findbit(p1, "HELLO"))->expt = 1;
 	StructBitType(findbit(p2, "HELLO"))->expt = 1;
@@ -1808,8 +1808,8 @@ static int test_intern_inherited_unintern(void)
 	internchar("CCC", "HELLO", &name);
 	StructBitType(findbit(pos1, "HELLO"))->expt = 1;
 	strvect_char_heap(&name, "HELLO");
-	pushlist(pos, PACKAGE_INDEX_USE, pos1);
-	pushlist(pos, PACKAGE_INDEX_USE, pos2);
+	pushlist_package(pos, PACKAGE_INDEX_USE, pos1);
+	pushlist_package(pos, PACKAGE_INDEX_USE, pos2);
 	intern_inherited_unintern(pos, name);
 	bit = findbit(pos, "HELLO");
 	ptr = StructBitType(bit);
@@ -1827,11 +1827,11 @@ static int test_remove_shadowing_symbols(void)
 	force_delete_package("AAA");
 	internpackage(&pos, "AAA");
 	internchar("AAA", "ZZZZ", &symbol);
-	pushlist(pos, PACKAGE_INDEX_SHADOW, symbol);
+	pushlist_package(pos, PACKAGE_INDEX_SHADOW, symbol);
 	internchar("AAA", "QQQQ", &symbol);
-	pushlist(pos, PACKAGE_INDEX_SHADOW, symbol);
+	pushlist_package(pos, PACKAGE_INDEX_SHADOW, symbol);
 	internchar("AAA", "HELLO", &symbol);
-	pushlist(pos, PACKAGE_INDEX_SHADOW, symbol);
+	pushlist_package(pos, PACKAGE_INDEX_SHADOW, symbol);
 	GetPackage(pos, PACKAGE_INDEX_SHADOW, &cons);
 	test(listlength(cons) == 3, "remove_shadowing_symbol1");
 	test(findeq(cons, symbol), "remove_shadowing_symbol2");
@@ -1853,8 +1853,8 @@ static int test_uninternsymbol(void)
 	internpackage(&pos1, "BBB");
 	internchar("AAA", "HELLO", &arg);
 	internchar("BBB", "HELLO", &symbol);
-	pushlist(pos, PACKAGE_INDEX_USE, pos1);
-	pushlist(pos, PACKAGE_INDEX_SHADOW, arg);
+	pushlist_package(pos, PACKAGE_INDEX_USE, pos1);
+	pushlist_package(pos, PACKAGE_INDEX_SHADOW, arg);
 	StructBitType(findbit(pos, "HELLO"))->shadow = 1;
 	StructBitType(findbit(pos1, "HELLO"))->expt = 1;
 	uninternsymbol(pos, arg);
@@ -2243,8 +2243,8 @@ static int test_check_exportsymbol(void)
 	internpackage(&pos1, "BBB");
 	internpackage(&pos2, "CCC");
 	internchar("AAA", "HELLO", &symbol);
-	pushlist(pos, PACKAGE_INDEX_USED, pos1);
-	pushlist(pos, PACKAGE_INDEX_USED, pos2);
+	pushlist_package(pos, PACKAGE_INDEX_USED, pos1);
+	pushlist_package(pos, PACKAGE_INDEX_USED, pos2);
 	testnormal(check_exportsymbol(pos, symbol), "check_exportsymbol3");
 
 	internchar("CCC", "HELLO", &symbol);
@@ -2457,8 +2457,8 @@ static int test_unexport_usedbylist(void)
 	internpackage(&pos1, "AAA");
 	internpackage(&pos2, "BBB");
 	internpackage(&pos3, "CCC");
-	pushlist(pos1, PACKAGE_INDEX_USED, pos2);
-	pushlist(pos1, PACKAGE_INDEX_USED, pos3);
+	pushlist_package(pos1, PACKAGE_INDEX_USED, pos2);
+	pushlist_package(pos1, PACKAGE_INDEX_USED, pos3);
 
 	internchar("AAA", "HELLO", &symbol);
 	strvect_char_heap(&name, "HELLO");
@@ -2627,10 +2627,10 @@ static int test_check_alreadyuse(void)
 	internpackage(&pos2, "BBB");
 	internpackage(&pos3, "CCC");
 	test(check_alreadyuse(pos1, pos2) == 0, "check_alreadyuse1");
-	pushlist(pos1, PACKAGE_INDEX_USE, pos2);
+	pushlist_package(pos1, PACKAGE_INDEX_USE, pos2);
 	test(check_alreadyuse(pos1, pos2), "check_alreadyuse2");
 	test(check_alreadyuse(pos1, pos3) == 0, "check_alreadyuse3");
-	pushlist(pos1, PACKAGE_INDEX_USE, pos3);
+	pushlist_package(pos1, PACKAGE_INDEX_USE, pos3);
 	test(check_alreadyuse(pos1, pos2), "check_alreadyuse4");
 	test(check_alreadyuse(pos1, pos3), "check_alreadyuse5");
 	test(check_alreadyuse(pos2, pos1) == 0, "check_alreadyuse6");
@@ -2678,7 +2678,7 @@ static int test_check_usepackage(void)
 	export_package(pos2, symbol);
 	testerror(check_usepackage(pos1, pos2), "check_usepackage1");
 
-	pushlist(pos1, PACKAGE_INDEX_USE, pos2);
+	pushlist_package(pos1, PACKAGE_INDEX_USE, pos2);
 	testnormal(check_usepackage(pos1, pos2), "check_usepackage2");
 
 	RETURN;
@@ -3076,7 +3076,7 @@ static int testbreak_package(void)
 	TestBreak(test_initpackage);
 	TestBreak(test_getpackage);
 	/* make_package */
-	TestBreak(test_pushlist);
+	TestBreak(test_pushlist_package);
 	TestBreak(test_pushnewlist);
 	TestBreak(test_check_nicknames);
 	TestBreak(test_check_listconflict);

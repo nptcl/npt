@@ -12,7 +12,7 @@
 /*
  *  build_constant
  */
-void build_constant(void)
+_g void build_constant(void)
 {
 	addr array;
 	size_t i;
@@ -27,7 +27,7 @@ void build_constant(void)
 /*
  *  interface
  */
-void specialconstant(enum CONSTANT_INDEX index, const char *package, const char *name)
+_g void specialconstant(enum CONSTANT_INDEX index, const char *package, const char *name)
 {
 	addr symbol;
 
@@ -36,7 +36,7 @@ void specialconstant(enum CONSTANT_INDEX index, const char *package, const char 
 	SetConstant(index, symbol);
 }
 
-void gensymconstant(enum CONSTANT_INDEX index, const char *name)
+_g void gensymconstant(enum CONSTANT_INDEX index, const char *name)
 {
 	addr string, symbol;
 
@@ -46,7 +46,7 @@ void gensymconstant(enum CONSTANT_INDEX index, const char *name)
 	SetConstant(index, symbol);
 }
 
-void keywordconstant(enum CONSTANT_INDEX index, const char *name)
+_g void keywordconstant(enum CONSTANT_INDEX index, const char *name)
 {
 	addr symbol;
 
@@ -54,7 +54,7 @@ void keywordconstant(enum CONSTANT_INDEX index, const char *name)
 	SetConstant(index, symbol);
 }
 
-void commonconstant(enum CONSTANT_INDEX index, const char *name)
+_g void commonconstant(enum CONSTANT_INDEX index, const char *name)
 {
 	addr symbol;
 
@@ -84,7 +84,7 @@ static void copy_symbolchar(char *dst, const char *src, size_t size)
 	dst[i] = 0;
 }
 
-void symbolchar_common(enum CONSTANT_INDEX index, const char *name)
+_g void symbolchar_common(enum CONSTANT_INDEX index, const char *name)
 {
 	char buffer[SYMBOLCHAR_SIZE];
 	addr symbol;
@@ -94,7 +94,7 @@ void symbolchar_common(enum CONSTANT_INDEX index, const char *name)
 	SetConstant(index, symbol);
 }
 
-void symbolchar_keyword(enum CONSTANT_INDEX index, const char *name)
+_g void symbolchar_keyword(enum CONSTANT_INDEX index, const char *name)
 {
 	char buffer[SYMBOLCHAR_SIZE];
 	addr symbol;
@@ -104,14 +104,14 @@ void symbolchar_keyword(enum CONSTANT_INDEX index, const char *name)
 	SetConstant(index, symbol);
 }
 
-void quotelist_heap(addr *ret, addr name)
+_g void quotelist_heap(addr *ret, addr name)
 {
 	addr quote;
 	GetConst(COMMON_QUOTE, &quote);
 	list_heap(ret, quote, name, NULL);
 }
 
-void pushconst_heap(addr *ret, constindex index)
+_g void pushconst_heap(addr *ret, constindex index)
 {
 	addr pos;
 	GetConstant(index, &pos);

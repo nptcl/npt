@@ -13,7 +13,7 @@
 /*
  *  string check
  */
-int array_stringp(addr pos)
+_g int array_stringp(addr pos)
 {
 	struct array_struct *str;
 	Check(GetType(pos) != LISPTYPE_ARRAY, "type error");
@@ -21,45 +21,45 @@ int array_stringp(addr pos)
 	return str->dimension == 1 && str->type == ARRAY_TYPE_CHARACTER;
 }
 
-int strarrayp(addr pos)
+_g int strarrayp(addr pos)
 {
 	if (GetType(pos) != LISPTYPE_ARRAY) return 0;
 	return array_stringp(pos);
 }
 
-int stringp(addr pos)
+_g int stringp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_STRING || strarrayp(pos);
 }
 
-int string_designer_p(addr pos)
+_g int string_designer_p(addr pos)
 {
 	return stringp(pos) || symbolp(pos) || characterp(pos);
 }
 
-int string_base_p(addr pos)
+_g int string_base_p(addr pos)
 {
 	if (strvectp(pos))
 		return strvect_base_p(pos);
-	
+
 	if (strarrayp(pos))
 		return strarray_base_p(pos);
-	
+
 	return 0;
 }
 
-int string_simple_p(addr pos)
+_g int string_simple_p(addr pos)
 {
 	if (strvectp(pos))
 		return strvect_simple_p(pos);
-	
+
 	if (strarrayp(pos))
 		return strarray_simple_p(pos);
-	
+
 	return 0;
 }
 
-int strarray_base_p(addr pos)
+_g int strarray_base_p(addr pos)
 {
 	enum CHARACTER_TYPE type;
 
@@ -78,12 +78,12 @@ int strarray_base_p(addr pos)
 	}
 }
 
-int strarray_simple_p(addr pos)
+_g int strarray_simple_p(addr pos)
 {
 	return strarrayp(pos) && array_simple_p(pos);
 }
 
-void strarray_update_character_type(addr pos)
+_g void strarray_update_character_type(addr pos)
 {
 	enum CHARACTER_TYPE type;
 	const unicode *body;
@@ -103,7 +103,7 @@ void strarray_update_character_type(addr pos)
 /*
  *  strarray
  */
-addr strarray_allocr(LocalRoot local, size_t len)
+_g addr strarray_allocr(LocalRoot local, size_t len)
 {
 	addr pos;
 
@@ -113,30 +113,30 @@ addr strarray_allocr(LocalRoot local, size_t len)
 
 	return pos;
 }
-addr strarray_localr(LocalRoot local, size_t len)
+_g addr strarray_localr(LocalRoot local, size_t len)
 {
 	Check(local == NULL, "local error");
 	return strarray_allocr(local, len);
 }
-addr strarray_heapr(size_t len)
+_g addr strarray_heapr(size_t len)
 {
 	return strarray_allocr(NULL, len);
 }
-void strarray_alloc(LocalRoot local, addr *ret, size_t len)
+_g void strarray_alloc(LocalRoot local, addr *ret, size_t len)
 {
 	*ret = strarray_allocr(local, len);
 }
-void strarray_local(LocalRoot local, addr *ret, size_t len)
+_g void strarray_local(LocalRoot local, addr *ret, size_t len)
 {
 	Check(local == NULL, "local error");
 	*ret = strarray_allocr(local, len);
 }
-void strarray_heap(addr *ret, size_t len)
+_g void strarray_heap(addr *ret, size_t len)
 {
 	*ret = strarray_allocr(NULL, len);
 }
 
-addr strarray_char_allocr(LocalRoot local, const char *arg)
+_g addr strarray_char_allocr(LocalRoot local, const char *arg)
 {
 	addr pos;
 	unicode *destroy;
@@ -151,30 +151,30 @@ addr strarray_char_allocr(LocalRoot local, const char *arg)
 
 	return pos;
 }
-addr strarray_char_localr(LocalRoot local, const char *arg)
+_g addr strarray_char_localr(LocalRoot local, const char *arg)
 {
 	Check(local == NULL, "local error");
 	return strarray_char_allocr(local, arg);
 }
-addr strarray_char_heapr(const char *arg)
+_g addr strarray_char_heapr(const char *arg)
 {
 	return strarray_char_allocr(NULL, arg);
 }
-void strarray_char_alloc(LocalRoot local, addr *ret, const char *arg)
+_g void strarray_char_alloc(LocalRoot local, addr *ret, const char *arg)
 {
 	*ret = strarray_char_allocr(local, arg);
 }
-void strarray_char_local(LocalRoot local, addr *ret, const char *arg)
+_g void strarray_char_local(LocalRoot local, addr *ret, const char *arg)
 {
 	Check(local == NULL, "local error");
 	*ret = strarray_char_allocr(local, arg);
 }
-void strarray_char_heap(addr *ret, const char *arg)
+_g void strarray_char_heap(addr *ret, const char *arg)
 {
 	*ret = strarray_char_allocr(NULL, arg);
 }
 
-addr strarray_size1_allocr(LocalRoot local, const char *arg, size_t size)
+_g addr strarray_size1_allocr(LocalRoot local, const char *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -188,30 +188,30 @@ addr strarray_size1_allocr(LocalRoot local, const char *arg, size_t size)
 
 	return pos;
 }
-addr strarray_size1_localr(LocalRoot local, const char *arg, size_t size)
+_g addr strarray_size1_localr(LocalRoot local, const char *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	return strarray_size1_allocr(local, arg, size);
 }
-addr strarray_size1_heapr(const char *arg, size_t size)
+_g addr strarray_size1_heapr(const char *arg, size_t size)
 {
 	return strarray_size1_allocr(NULL, arg, size);
 }
-void strarray_size1_alloc(LocalRoot local, addr *ret, const char *arg, size_t size)
+_g void strarray_size1_alloc(LocalRoot local, addr *ret, const char *arg, size_t size)
 {
 	*ret = strarray_size1_allocr(local, arg, size);
 }
-void strarray_size1_local(LocalRoot local, addr *ret, const char *arg, size_t size)
+_g void strarray_size1_local(LocalRoot local, addr *ret, const char *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	*ret = strarray_size1_allocr(local, arg, size);
 }
-void strarray_size1_heap(addr *ret, const char *arg, size_t size)
+_g void strarray_size1_heap(addr *ret, const char *arg, size_t size)
 {
 	*ret = strarray_size1_allocr(NULL, arg, size);
 }
 
-addr strarray_sizeu_allocr(LocalRoot local, const unicode *arg, size_t size)
+_g addr strarray_sizeu_allocr(LocalRoot local, const unicode *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -223,60 +223,60 @@ addr strarray_sizeu_allocr(LocalRoot local, const unicode *arg, size_t size)
 
 	return pos;
 }
-addr strarray_sizeu_localr(LocalRoot local, const unicode *arg, size_t size)
+_g addr strarray_sizeu_localr(LocalRoot local, const unicode *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	return strarray_sizeu_allocr(local, arg, size);
 }
-addr strarray_sizeu_heapr(const unicode *arg, size_t size)
+_g addr strarray_sizeu_heapr(const unicode *arg, size_t size)
 {
 	return strarray_sizeu_allocr(NULL, arg, size);
 }
-void strarray_sizeu_alloc(LocalRoot local, addr *ret, const unicode *arg, size_t size)
+_g void strarray_sizeu_alloc(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	*ret = strarray_sizeu_allocr(local, arg, size);
 }
-void strarray_sizeu_local(LocalRoot local, addr *ret, const unicode *arg, size_t size)
+_g void strarray_sizeu_local(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	*ret = strarray_sizeu_allocr(local, arg, size);
 }
-void strarray_sizeu_heap(addr *ret, const unicode *arg, size_t size)
+_g void strarray_sizeu_heap(addr *ret, const unicode *arg, size_t size)
 {
 	*ret = strarray_sizeu_allocr(NULL, arg, size);
 }
 
-void strarray_length(addr pos, size_t *ret)
+_g void strarray_length(addr pos, size_t *ret)
 {
 	Check(! array_stringp(pos), "string type error");
 	*ret = ArrayInfoStruct(pos)->front;
 }
 
-void strarray_length_buffer(addr pos, size_t *ret)
+_g void strarray_length_buffer(addr pos, size_t *ret)
 {
 	Check(! array_stringp(pos), "string type error");
 	*ret = ArrayInfoStruct(pos)->size;
 }
 
-void strarray_posbodylen(addr pos, const unicode **body, size_t *len)
+_g void strarray_posbodylen(addr pos, const unicode **body, size_t *len)
 {
 	Check(! array_stringp(pos), "string type error");
 	*body = (const unicode *)array_ptrread(pos, 0);
 	*len = ArrayInfoStruct(pos)->front;
 }
 
-unicode strarray_refc(addr pos, size_t index)
+_g unicode strarray_refc(addr pos, size_t index)
 {
 	Check(! array_stringp(pos), "string type error");
 	return *(const unicode *)array_ptrread(pos, index);
 }
 
-void strarray_getc(addr pos, size_t index, unicode *u)
+_g void strarray_getc(addr pos, size_t index, unicode *u)
 {
 	*u = strarray_refc(pos, index);
 }
 
-void strarray_setc(addr pos, size_t index, unicode u)
+_g void strarray_setc(addr pos, size_t index, unicode u)
 {
 	enum CHARACTER_TYPE type;
 
@@ -288,7 +288,7 @@ void strarray_setc(addr pos, size_t index, unicode u)
 	*(unicode *)array_ptrwrite(pos, index) = u;
 }
 
-int strarray_equal_binary(addr left, const unicode *right, size_t size2)
+_g int strarray_equal_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -299,7 +299,7 @@ int strarray_equal_binary(addr left, const unicode *right, size_t size2)
 	return memu_equal(body, right, size1, size2);
 }
 
-int strarray_equalp_binary(addr left, const unicode *right, size_t size2)
+_g int strarray_equalp_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -310,7 +310,7 @@ int strarray_equalp_binary(addr left, const unicode *right, size_t size2)
 	return memu_equalp(body, right, size1, size2);
 }
 
-int strarray_equal_char(addr left, const char *right)
+_g int strarray_equal_char(addr left, const char *right)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -322,7 +322,7 @@ int strarray_equal_char(addr left, const char *right)
 	return memu1_equal(body1, (const byte *)right, size1, size2);
 }
 
-int strarray_equalp_char(addr left, const char *right)
+_g int strarray_equalp_char(addr left, const char *right)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -334,7 +334,7 @@ int strarray_equalp_char(addr left, const char *right)
 	return memu1_equalp(body1, (const byte *)right, size1, size2);
 }
 
-int strarray_equal(addr left, addr right)
+_g int strarray_equal(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -346,7 +346,7 @@ int strarray_equal(addr left, addr right)
 	return strarray_equal_binary(left, body, size);
 }
 
-int strarray_equalp(addr left, addr right)
+_g int strarray_equalp(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -358,7 +358,7 @@ int strarray_equalp(addr left, addr right)
 	return strarray_equalp_binary(left, body, size);
 }
 
-int strarray_character_equal(addr left, addr right)
+_g int strarray_character_equal(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -370,7 +370,7 @@ int strarray_character_equal(addr left, addr right)
 	return size == 1 && body[0] == RefCharacter(right);
 }
 
-int strarray_character_equalp(addr left, addr right)
+_g int strarray_character_equalp(addr left, addr right)
 {
 	const unicode *body;
 	unicode a, b;
@@ -386,7 +386,7 @@ int strarray_character_equalp(addr left, addr right)
 	return toUpperUnicode(a) == toUpperUnicode(b);
 }
 
-int strarray_compare_binary(addr left, const unicode *right, size_t size2)
+_g int strarray_compare_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -397,7 +397,7 @@ int strarray_compare_binary(addr left, const unicode *right, size_t size2)
 	return memu_compare(body, right, size1, size2);
 }
 
-int strarray_comparep_binary(addr left, const unicode *right, size_t size2)
+_g int strarray_comparep_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -408,7 +408,7 @@ int strarray_comparep_binary(addr left, const unicode *right, size_t size2)
 	return memu_comparep(body, right, size1, size2);
 }
 
-int strarray_compare_char(addr left, const char *right)
+_g int strarray_compare_char(addr left, const char *right)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -420,7 +420,7 @@ int strarray_compare_char(addr left, const char *right)
 	return memu1_compare(body1, (const byte *)right, size1, size2);
 }
 
-int strarray_comparep_char(addr left, const char *right)
+_g int strarray_comparep_char(addr left, const char *right)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -432,7 +432,7 @@ int strarray_comparep_char(addr left, const char *right)
 	return memu1_comparep(body1, (const byte *)right, size1, size2);
 }
 
-int strarray_compare(addr left, addr right)
+_g int strarray_compare(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -444,7 +444,7 @@ int strarray_compare(addr left, addr right)
 	return strarray_compare_binary(left, body, size);
 }
 
-int strarray_comparep(addr left, addr right)
+_g int strarray_comparep(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -460,7 +460,7 @@ int strarray_comparep(addr left, addr right)
 /*
  *  string
  */
-addr string_allocr(LocalRoot local, addr pos)
+_g addr string_allocr(LocalRoot local, addr pos)
 {
 	const unicode *body;
 	size_t size;
@@ -478,34 +478,34 @@ addr string_allocr(LocalRoot local, addr pos)
 	return strvect_sizeu_allocr(local, body, size);
 }
 
-addr string_localr(LocalRoot local, addr pos)
+_g addr string_localr(LocalRoot local, addr pos)
 {
 	Check(local == NULL, "local error");
 	return string_allocr(local, pos);
 }
 
-addr string_heapr(addr pos)
+_g addr string_heapr(addr pos)
 {
 	return string_allocr(NULL, pos);
 }
 
-void string_alloc(LocalRoot local, addr *ret, addr pos)
+_g void string_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	*ret = string_allocr(local, pos);
 }
 
-void string_local(LocalRoot local, addr *ret, addr pos)
+_g void string_local(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
 	*ret = string_allocr(local, pos);
 }
 
-void string_heap(addr *ret, addr pos)
+_g void string_heap(addr *ret, addr pos)
 {
 	*ret = string_allocr(NULL, pos);
 }
 
-void string_length(addr pos, size_t *ret)
+_g void string_length(addr pos, size_t *ret)
 {
 	if (strvect_string_p(pos)) {
 		strvect_length(pos, ret);
@@ -518,7 +518,7 @@ void string_length(addr pos, size_t *ret)
 	fmte("Argument ~S must be a string type.", pos, NULL);
 }
 
-void string_posbodylen(addr pos, const unicode **body, size_t *len)
+_g void string_posbodylen(addr pos, const unicode **body, size_t *len)
 {
 	if (strvect_string_p(pos)) {
 		strvect_posbodylen(pos, body, len);
@@ -531,7 +531,7 @@ void string_posbodylen(addr pos, const unicode **body, size_t *len)
 	fmte("Argument ~S must be a string type.", pos, NULL);
 }
 
-unicode string_refc(addr pos, size_t index)
+_g unicode string_refc(addr pos, size_t index)
 {
 	if (strvect_string_p(pos))
 		return strvect_refc(pos, index);
@@ -541,12 +541,12 @@ unicode string_refc(addr pos, size_t index)
 	return 0;
 }
 
-void string_getc(addr pos, size_t index, unicode *u)
+_g void string_getc(addr pos, size_t index, unicode *u)
 {
 	*u = string_refc(pos, index);
 }
 
-void string_setc(addr pos, size_t index, unicode u)
+_g void string_setc(addr pos, size_t index, unicode u)
 {
 	if (strvect_string_p(pos)) {
 		strvect_setc(pos, index, u);
@@ -559,7 +559,7 @@ void string_setc(addr pos, size_t index, unicode u)
 	fmte("Argument ~S must be a string type.", pos, NULL);
 }
 
-int string_equal_binary(addr left, const unicode *right, size_t len)
+_g int string_equal_binary(addr left, const unicode *right, size_t len)
 {
 	if (strvect_string_p(left))
 		return strvect_equal_binary(left, right, len);
@@ -569,7 +569,7 @@ int string_equal_binary(addr left, const unicode *right, size_t len)
 	return 0;
 }
 
-int string_equalp_binary(addr left, const unicode *right, size_t len)
+_g int string_equalp_binary(addr left, const unicode *right, size_t len)
 {
 	if (strvect_string_p(left))
 		return strvect_equalp_binary(left, right, len);
@@ -579,7 +579,7 @@ int string_equalp_binary(addr left, const unicode *right, size_t len)
 	return 0;
 }
 
-int string_equal_char(addr left, const char *right)
+_g int string_equal_char(addr left, const char *right)
 {
 	if (strvect_string_p(left))
 		return strvect_equal_char(left, right);
@@ -589,7 +589,7 @@ int string_equal_char(addr left, const char *right)
 	return 0;
 }
 
-int string_equalp_char(addr left, const char *right)
+_g int string_equalp_char(addr left, const char *right)
 {
 	if (strvect_string_p(left))
 		return strvect_equalp_char(left, right);
@@ -611,7 +611,7 @@ static int strvect_strarray_equal(addr left, addr right)
 	return strvect_equal_binary(left, body, size);
 }
 
-int string_equal(addr left, addr right)
+_g int string_equal(addr left, addr right)
 {
 	if (strvect_string_p(left)) {
 		if (strvect_string_p(right))
@@ -642,7 +642,7 @@ static int strvect_strarray_equalp(addr left, addr right)
 	return strvect_equalp_binary(left, body, size);
 }
 
-int string_equalp(addr left, addr right)
+_g int string_equalp(addr left, addr right)
 {
 	if (strvect_string_p(left)) {
 		if (strvect_string_p(right))
@@ -661,7 +661,7 @@ int string_equalp(addr left, addr right)
 	return 0;
 }
 
-int string_character_equal(addr left, addr right)
+_g int string_character_equal(addr left, addr right)
 {
 	if (strvect_string_p(left))
 		return strvect_character_equal(left, right);
@@ -671,7 +671,7 @@ int string_character_equal(addr left, addr right)
 	return 0;
 }
 
-int string_character_equalp(addr left, addr right)
+_g int string_character_equalp(addr left, addr right)
 {
 	if (strvect_string_p(left))
 		return strvect_character_equalp(left, right);
@@ -681,7 +681,7 @@ int string_character_equalp(addr left, addr right)
 	return 0;
 }
 
-int string_compare_binary(addr left, const unicode *right, size_t size2)
+_g int string_compare_binary(addr left, const unicode *right, size_t size2)
 {
 	if (strvect_string_p(left))
 		return strvect_compare_binary(left, right, size2);
@@ -691,7 +691,7 @@ int string_compare_binary(addr left, const unicode *right, size_t size2)
 	return 0;
 }
 
-int string_comparep_binary(addr left, const unicode *right, size_t size2)
+_g int string_comparep_binary(addr left, const unicode *right, size_t size2)
 {
 	if (strvect_string_p(left))
 		return strvect_comparep_binary(left, right, size2);
@@ -701,7 +701,7 @@ int string_comparep_binary(addr left, const unicode *right, size_t size2)
 	return 0;
 }
 
-int string_compare_char(addr left, const char *right)
+_g int string_compare_char(addr left, const char *right)
 {
 	if (strvect_string_p(left))
 		return strvect_compare_char(left, right);
@@ -711,7 +711,7 @@ int string_compare_char(addr left, const char *right)
 	return 0;
 }
 
-int string_comparep_char(addr left, const char *right)
+_g int string_comparep_char(addr left, const char *right)
 {
 	if (strvect_string_p(left))
 		return strvect_comparep_char(left, right);
@@ -721,7 +721,7 @@ int string_comparep_char(addr left, const char *right)
 	return 0;
 }
 
-int strvect_strarray_compare(addr left, addr right)
+_g int strvect_strarray_compare(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -733,7 +733,7 @@ int strvect_strarray_compare(addr left, addr right)
 	return strvect_compare_binary(left, body, size);
 }
 
-int strarray_strvect_compare(addr left, addr right)
+_g int strarray_strvect_compare(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -745,7 +745,7 @@ int strarray_strvect_compare(addr left, addr right)
 	return strarray_compare_binary(left, body, size);
 }
 
-int string_compare(addr left, addr right)
+_g int string_compare(addr left, addr right)
 {
 	if (strvect_string_p(left)) {
 		if (strvect_string_p(right))
@@ -764,7 +764,7 @@ int string_compare(addr left, addr right)
 	return 0;
 }
 
-int strvect_strarray_comparep(addr left, addr right)
+_g int strvect_strarray_comparep(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -776,7 +776,7 @@ int strvect_strarray_comparep(addr left, addr right)
 	return strvect_comparep_binary(left, body, size);
 }
 
-int strarray_strvect_comparep(addr left, addr right)
+_g int strarray_strvect_comparep(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -788,7 +788,7 @@ int strarray_strvect_comparep(addr left, addr right)
 	return strarray_comparep_binary(left, body, size);
 }
 
-int string_comparep(addr left, addr right)
+_g int string_comparep(addr left, addr right)
 {
 	if (strvect_string_p(left)) {
 		if (strvect_string_p(right))
@@ -807,7 +807,7 @@ int string_comparep(addr left, addr right)
 	return 0;
 }
 
-int string_designer_equal(addr left, addr right)
+_g int string_designer_equal(addr left, addr right)
 {
 	int check1, check2, check3, check4;
 
@@ -831,7 +831,7 @@ int string_designer_equal(addr left, addr right)
 	return 0;
 }
 
-int string_designer_alloc(LocalRoot local, addr *ret, addr pos)
+_g int string_designer_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	if (stringp(pos)) {
 		*ret = pos;
@@ -849,18 +849,18 @@ int string_designer_alloc(LocalRoot local, addr *ret, addr pos)
 	return 0;
 }
 
-int string_designer_local(LocalRoot local, addr *ret, addr pos)
+_g int string_designer_local(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
 	return string_designer_alloc(local, ret, pos);
 }
 
-int string_designer_heap(addr *ret, addr pos)
+_g int string_designer_heap(addr *ret, addr pos)
 {
 	return string_designer_alloc(NULL, ret, pos);
 }
 
-int string_designer_string(addr *ret, addr pos)
+_g int string_designer_string(addr *ret, addr pos)
 {
 	if (stringp(pos)) {
 		*ret = pos;

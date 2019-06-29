@@ -267,7 +267,7 @@ static void expt_rational_common(LocalRoot local, addr *ret, addr base, addr pow
 	}
 }
 
-void expt_common(LocalRoot local, addr *ret, addr base, addr power)
+_g void expt_common(LocalRoot local, addr *ret, addr base, addr power)
 {
 	struct mathcomplex2_struct str;
 

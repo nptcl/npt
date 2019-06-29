@@ -10,7 +10,7 @@
 /*
  *  type
  */
-enum LISPTYPE gettype(addr pos)
+_g enum LISPTYPE gettype(addr pos)
 {
 	if (pos == Unbound) return LISPSYSTEM_UNBOUND;
 	if (pos == Nil) return LISPTYPE_NIL;
@@ -23,7 +23,7 @@ enum LISPTYPE gettype(addr pos)
 /*
  *  size class
  */
-int LISPCLASS_Array[0xFF] = {
+_g int LISPCLASS_Array[0xFF] = {
 	/* cons */
 	ConsLength, ConsLength, ConsLength, ConsLength,
 	ConsLength, ConsLength, ConsLength, ConsLength,
@@ -44,7 +44,7 @@ int LISPCLASS_Array[0xFF] = {
 /*
  *  size class
  */
-enum LISPCLASS size_class(size_t size)
+_g enum LISPCLASS size_class(size_t size)
 {
 	/* Size1 */
 	if (size <= 16UL)
@@ -66,7 +66,7 @@ enum LISPCLASS size_class(size_t size)
 	return LISPCLASS_SizeM;
 }
 
-size_t size_split(size_t size)
+_g size_t size_split(size_t size)
 {
 	enum LISPCLASS check;
 
@@ -86,7 +86,7 @@ size_t size_split(size_t size)
 	}
 }
 
-void size_and_class(size_t size, enum LISPCLASS *index, size_t *result)
+_g void size_and_class(size_t size, enum LISPCLASS *index, size_t *result)
 {
 	enum LISPCLASS check;
 
@@ -107,7 +107,7 @@ void size_and_class(size_t size, enum LISPCLASS *index, size_t *result)
 	*index = check;
 }
 
-size_t getobjectlength(addr pos)
+_g size_t getobjectlength(addr pos)
 {
 	Check(pos == Unbound, "unbound error");
 	Check(GetType(pos) == LISPSYSTEM_SPACE, "type space error");
@@ -117,7 +117,7 @@ size_t getobjectlength(addr pos)
 	return GetCheckSize2(pos)? *PtrValue2L(pos): *PtrValueL(pos);
 }
 
-size_t getmemorylength(addr pos)
+_g size_t getmemorylength(addr pos)
 {
 	size_t size;
 
@@ -142,7 +142,7 @@ size_t getmemorylength(addr pos)
 	return size;
 }
 
-int valid_header(addr pos)
+_g int valid_header(addr pos)
 {
 	return (unsigned)GetType(pos) < LISPSYSTEM_CHECK;
 }
@@ -151,34 +151,34 @@ int valid_header(addr pos)
 /*
  *  lenarray
  */
-void lenarrayA2(addr pos, size_t *ret)
+_g void lenarrayA2(addr pos, size_t *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY2, "type error");
 	*ret = GetLenArrayA2(pos);
 }
-void lenarraySS(addr pos, size_t *ret)
+_g void lenarraySS(addr pos, size_t *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "type error");
 	*ret = GetLenArraySS(pos);
 }
-void lenarrayA4(addr pos, size_t *ret)
+_g void lenarrayA4(addr pos, size_t *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY4, "type error");
 	*ret = GetLenArrayA4(pos);
 }
-void lenarrayAB(addr pos, size_t *ret)
+_g void lenarrayAB(addr pos, size_t *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "type error");
 	*ret = GetLenArrayAB(pos);
 }
 #ifdef LISP_ARCH_64BIT
-void lenarrayA8(addr pos, size_t *ret)
+_g void lenarrayA8(addr pos, size_t *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY8, "type error");
 	*ret = (size_t)GetLenArrayA8(pos);
 }
 #endif
-void lenarray(addr pos, size_t *ret)
+_g void lenarray(addr pos, size_t *ret)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_ARRAY2:
@@ -209,34 +209,34 @@ void lenarray(addr pos, size_t *ret)
 	}
 }
 
-size_t lenarrayA2r(addr pos)
+_g size_t lenarrayA2r(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY2, "type error");
 	return GetLenArrayA2(pos);
 }
-size_t lenarraySSr(addr pos)
+_g size_t lenarraySSr(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "type error");
 	return GetLenArraySS(pos);
 }
-size_t lenarrayA4r(addr pos)
+_g size_t lenarrayA4r(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY4, "type error");
 	return GetLenArrayA4(pos);
 }
-size_t lenarrayABr(addr pos)
+_g size_t lenarrayABr(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "type error");
 	return GetLenArrayAB(pos);
 }
 #ifdef LISP_ARCH_64BIT
-size_t lenarrayA8r(addr pos)
+_g size_t lenarrayA8r(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY8, "type error");
 	return (size_t)GetLenArrayA8(pos);
 }
 #endif
-size_t lenarrayr(addr pos)
+_g size_t lenarrayr(addr pos)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_ARRAY2:
@@ -266,34 +266,34 @@ size_t lenarrayr(addr pos)
 /*
  *  lenbody
  */
-void lenbodyB2(addr pos, size_t *ret)
+_g void lenbodyB2(addr pos, size_t *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY2, "type error");
 	*ret = GetLenBodyB2(pos);
 }
-void lenbodySS(addr pos, size_t *ret)
+_g void lenbodySS(addr pos, size_t *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "type error");
 	*ret = GetLenBodySS(pos);
 }
-void lenbodyB4(addr pos, size_t *ret)
+_g void lenbodyB4(addr pos, size_t *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY4, "type error");
 	*ret = GetLenBodyB4(pos);
 }
-void lenbodyAB(addr pos, size_t *ret)
+_g void lenbodyAB(addr pos, size_t *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "type error");
 	*ret = GetLenBodyAB(pos);
 }
 #ifdef LISP_ARCH_64BIT
-void lenbodyB8(addr pos, size_t *ret)
+_g void lenbodyB8(addr pos, size_t *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY8, "type error");
 	*ret = GetLenBodyB8(pos);
 }
 #endif
-void lenbody(addr pos, size_t *ret)
+_g void lenbody(addr pos, size_t *ret)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_BODY2:
@@ -324,34 +324,34 @@ void lenbody(addr pos, size_t *ret)
 	}
 }
 
-size_t lenbodyB2r(addr pos)
+_g size_t lenbodyB2r(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY2, "type error");
 	return GetLenBodyB2(pos);
 }
-size_t lenbodySSr(addr pos)
+_g size_t lenbodySSr(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "type error");
 	return GetLenBodySS(pos);
 }
-size_t lenbodyB4r(addr pos)
+_g size_t lenbodyB4r(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY4, "type error");
 	return GetLenBodyB4(pos);
 }
-size_t lenbodyABr(addr pos)
+_g size_t lenbodyABr(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "type error");
 	return GetLenBodyAB(pos);
 }
 #ifdef LISP_ARCH_64BIT
-size_t lenbodyB8r(addr pos)
+_g size_t lenbodyB8r(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY8, "type error");
 	return GetLenBodyB8(pos);
 }
 #endif
-size_t lenbodyr(addr pos)
+_g size_t lenbodyr(addr pos)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_BODY2:
@@ -383,46 +383,46 @@ size_t lenbodyr(addr pos)
 /*
  *  posbody
  */
-void posbodySSa(addr pos, size_t array, addr *ret)
+_g void posbodySSa(addr pos, size_t array, addr *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "type error");
 	Check(array != GetLenArraySS(pos), "array length error");
 	*ret = PtrBodySSa(pos, array);
 }
-void posbodyABa(addr pos, size_t array, addr *ret)
+_g void posbodyABa(addr pos, size_t array, addr *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "type error");
 	Check(array != GetLenArrayAB(pos), "array length error");
 	*ret = PtrBodyABa(pos, array);
 }
-void posbodyB2(addr pos, addr *ret)
+_g void posbodyB2(addr pos, addr *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY2, "type error");
 	*ret = PtrBodyB2(pos);
 }
-void posbodySS(addr pos, addr *ret)
+_g void posbodySS(addr pos, addr *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "type error");
 	*ret = PtrBodySS(pos);
 }
-void posbodyB4(addr pos, addr *ret)
+_g void posbodyB4(addr pos, addr *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY4, "type error");
 	*ret = PtrBodyB4(pos);
 }
-void posbodyAB(addr pos, addr *ret)
+_g void posbodyAB(addr pos, addr *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "type error");
 	*ret = PtrBodyAB(pos);
 }
 #ifdef LISP_ARCH_64BIT
-void posbodyB8(addr pos, addr *ret)
+_g void posbodyB8(addr pos, addr *ret)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY8, "type error");
 	*ret = PtrBodyB8(pos);
 }
 #endif
-void posbody(addr pos, addr *ret)
+_g void posbody(addr pos, addr *ret)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_BODY2:
@@ -453,46 +453,46 @@ void posbody(addr pos, addr *ret)
 	}
 }
 
-addr posbodySSar(addr pos, size_t array)
+_g addr posbodySSar(addr pos, size_t array)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "type error");
 	Check(array != GetLenArraySS(pos), "array length error");
 	return PtrBodySSa(pos, array);
 }
-addr posbodyABar(addr pos, size_t array)
+_g addr posbodyABar(addr pos, size_t array)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "type error");
 	Check(array != GetLenArrayAB(pos), "array length error");
 	return PtrBodyABa(pos, array);
 }
-addr posbodyB2r(addr pos)
+_g addr posbodyB2r(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY2, "type error");
 	return PtrBodyB2(pos);
 }
-addr posbodySSr(addr pos)
+_g addr posbodySSr(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "type error");
 	return PtrBodySS(pos);
 }
-addr posbodyB4r(addr pos)
+_g addr posbodyB4r(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY4, "type error");
 	return PtrBodyB4(pos);
 }
-addr posbodyABr(addr pos)
+_g addr posbodyABr(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "type error");
 	return PtrBodyAB(pos);
 }
 #ifdef LISP_ARCH_64BIT
-addr posbodyB8r(addr pos)
+_g addr posbodyB8r(addr pos)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY8, "type error");
 	return PtrBodyB8(pos);
 }
 #endif
-addr posbodyr(addr pos)
+_g addr posbodyr(addr pos)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_BODY2:
@@ -524,53 +524,53 @@ addr posbodyr(addr pos)
 /*
  *  posbodylen
  */
-void posbodylenSSa(addr pos, size_t array, addr *body, size_t *len)
+_g void posbodylenSSa(addr pos, size_t array, addr *body, size_t *len)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "type error");
 	Check(array != GetLenArraySS(pos), "array length error");
 	*body = PtrBodySSa(pos, array);
 	*len = GetLenBodySS(pos);
 }
-void posbodylenABa(addr pos, size_t array, addr *body, size_t *len)
+_g void posbodylenABa(addr pos, size_t array, addr *body, size_t *len)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "type error");
 	Check(array != GetLenArrayAB(pos), "array length error");
 	*body = PtrBodyABa(pos, array);
 	*len = GetLenBodyAB(pos);
 }
-void posbodylenB2(addr pos, addr *body, size_t *len)
+_g void posbodylenB2(addr pos, addr *body, size_t *len)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY2, "size error");
 	*body = PtrBodyB2(pos);
 	*len = GetLenBodyB2(pos);
 }
-void posbodylenSS(addr pos, addr *body, size_t *len)
+_g void posbodylenSS(addr pos, addr *body, size_t *len)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "size error");
 	*body = PtrBodySS(pos);
 	*len = GetLenBodySS(pos);
 }
-void posbodylenB4(addr pos, addr *body, size_t *len)
+_g void posbodylenB4(addr pos, addr *body, size_t *len)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY4, "size error");
 	*body = PtrBodyB4(pos);
 	*len = GetLenBodyB4(pos);
 }
-void posbodylenAB(addr pos, addr *body, size_t *len)
+_g void posbodylenAB(addr pos, addr *body, size_t *len)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "size error");
 	*body = PtrBodyAB(pos);
 	*len = GetLenBodyAB(pos);
 }
 #ifdef LISP_ARCH_64BIT
-void posbodylenB8(addr pos, addr *body, size_t *len)
+_g void posbodylenB8(addr pos, addr *body, size_t *len)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_BODY8, "size error");
 	*body = PtrBodyB8(pos);
 	*len = GetLenBodyB8(pos);
 }
 #endif
-void posbodylen(addr pos, addr *body, size_t *len)
+_g void posbodylen(addr pos, addr *body, size_t *len)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_BODY2:
@@ -610,39 +610,39 @@ void posbodylen(addr pos, addr *body, size_t *len)
 /*
  *  getarray
  */
-void getarrayA2(addr pos, size_t index, addr *value)
+_g void getarrayA2(addr pos, size_t index, addr *value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY2, "size error");
 	Check(GetLenArrayA2(pos) <= index, "length error");
 	*value = PtrArrayA2(pos)[index];
 }
-void getarraySS(addr pos, size_t index, addr *value)
+_g void getarraySS(addr pos, size_t index, addr *value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "size error");
 	Check(GetLenArraySS(pos) <= index, "length error");
 	*value = PtrArraySS(pos)[index];
 }
-void getarrayA4(addr pos, size_t index, addr *value)
+_g void getarrayA4(addr pos, size_t index, addr *value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY4, "size error");
 	Check(GetLenArrayA4(pos) <= index, "length error");
 	*value = PtrArrayA4(pos)[index];
 }
-void getarrayAB(addr pos, size_t index, addr *value)
+_g void getarrayAB(addr pos, size_t index, addr *value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "size error");
 	Check(GetLenArrayAB(pos) <= index, "length error");
 	*value = PtrArrayAB(pos)[index];
 }
 #ifdef LISP_ARCH_64BIT
-void getarrayA8(addr pos, size_t index, addr *value)
+_g void getarrayA8(addr pos, size_t index, addr *value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY8, "size error");
 	Check(GetLenArrayA8(pos) <= index, "length error");
 	*value = PtrArrayA8(pos)[index];
 }
 #endif
-void getarray(addr pos, size_t index, addr *value)
+_g void getarray(addr pos, size_t index, addr *value)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_ARRAY2:
@@ -673,39 +673,39 @@ void getarray(addr pos, size_t index, addr *value)
 	}
 }
 
-addr refarrayA2(addr pos, size_t index)
+_g addr refarrayA2(addr pos, size_t index)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY2, "size error");
 	Check(GetLenArrayA2(pos) <= index, "length error");
 	return PtrArrayA2(pos)[index];
 }
-addr refarraySS(addr pos, size_t index)
+_g addr refarraySS(addr pos, size_t index)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "size error");
 	Check(GetLenArraySS(pos) <= index, "length error");
 	return PtrArraySS(pos)[index];
 }
-addr refarrayA4(addr pos, size_t index)
+_g addr refarrayA4(addr pos, size_t index)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY4, "size error");
 	Check(GetLenArrayA4(pos) <= index, "length error");
 	return PtrArrayA4(pos)[index];
 }
-addr refarrayAB(addr pos, size_t index)
+_g addr refarrayAB(addr pos, size_t index)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "size error");
 	Check(GetLenArrayAB(pos) <= index, "length error");
 	return PtrArrayAB(pos)[index];
 }
 #ifdef LISP_ARCH_64BIT
-addr refarrayA8(addr pos, size_t index)
+_g addr refarrayA8(addr pos, size_t index)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY8, "size error");
 	Check(GetLenArrayA8(pos) <= index, "length error");
 	return PtrArrayA8(pos)[index];
 }
 #endif
-addr getarrayr(addr pos, size_t index)
+_g addr refarray(addr pos, size_t index)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_ARRAY2:
@@ -737,7 +737,7 @@ addr getarrayr(addr pos, size_t index)
 /*
  *  setarray
  */
-int checkdynamic(addr pos, addr value)
+_g int checkdynamic(addr pos, addr value)
 {
 	int check;
 
@@ -751,7 +751,7 @@ int checkdynamic(addr pos, addr value)
 	}
 	return 0;
 }
-void setarrayA2(addr pos, size_t index, addr value)
+_g void setarrayA2(addr pos, size_t index, addr value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY2, "size error");
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -759,7 +759,7 @@ void setarrayA2(addr pos, size_t index, addr value)
 	CheckDynamic(pos, value);
 	PtrArrayA2(pos)[index] = value;
 }
-void setarraySS(addr pos, size_t index, addr value)
+_g void setarraySS(addr pos, size_t index, addr value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "size error");
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -767,7 +767,7 @@ void setarraySS(addr pos, size_t index, addr value)
 	CheckDynamic(pos, value);
 	PtrArraySS(pos)[index] = value;
 }
-void setarrayA4(addr pos, size_t index, addr value)
+_g void setarrayA4(addr pos, size_t index, addr value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY4, "size error");
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -775,7 +775,7 @@ void setarrayA4(addr pos, size_t index, addr value)
 	CheckDynamic(pos, value);
 	PtrArrayA4(pos)[index] = value;
 }
-void setarrayAB(addr pos, size_t index, addr value)
+_g void setarrayAB(addr pos, size_t index, addr value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "size error");
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -784,7 +784,7 @@ void setarrayAB(addr pos, size_t index, addr value)
 	PtrArrayAB(pos)[index] = value;
 }
 #ifdef LISP_ARCH_64BIT
-void setarrayA8(addr pos, size_t index, addr value)
+_g void setarrayA8(addr pos, size_t index, addr value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY8, "size error");
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -793,7 +793,7 @@ void setarrayA8(addr pos, size_t index, addr value)
 	PtrArrayA8(pos)[index] = value;
 }
 #endif
-void setarray(addr pos, size_t index, addr value)
+_g void setarray(addr pos, size_t index, addr value)
 {
 	switch (GetStatusSize(pos)) {
 		case LISPSIZE_ARRAY2:
@@ -824,32 +824,32 @@ void setarray(addr pos, size_t index, addr value)
 	}
 }
 
-void setarrayA2_force(addr pos, size_t index, addr value)
+_g void setarrayA2_force(addr pos, size_t index, addr value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY2, "size error");
 	Check(GetLenArrayA2(pos) <= index, "length error");
 	PtrArrayA2(pos)[index] = value;
 }
-void setarraySS_force(addr pos, size_t index, addr value)
+_g void setarraySS_force(addr pos, size_t index, addr value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_SMALLSIZE, "size error");
 	Check(GetLenArraySS(pos) <= index, "length error");
 	PtrArraySS(pos)[index] = value;
 }
-void setarrayA4_force(addr pos, size_t index, addr value)
+_g void setarrayA4_force(addr pos, size_t index, addr value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY4, "size error");
 	Check(GetLenArrayA4(pos) <= index, "length error");
 	PtrArrayA4(pos)[index] = value;
 }
-void setarrayAB_force(addr pos, size_t index, addr value)
+_g void setarrayAB_force(addr pos, size_t index, addr value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAYBODY, "size error");
 	Check(GetLenArrayAB(pos) <= index, "length error");
 	PtrArrayAB(pos)[index] = value;
 }
 #ifdef LISP_ARCH_64BIT
-void setarrayA8_force(addr pos, size_t index, addr value)
+_g void setarrayA8_force(addr pos, size_t index, addr value)
 {
 	Check(GetStatusSize(pos) != LISPSIZE_ARRAY8, "size error");
 	Check(GetLenArrayA8(pos) <= index, "length error");
@@ -861,7 +861,7 @@ void setarrayA8_force(addr pos, size_t index, addr value)
 /*
  *  object
  */
-void nilarray2(addr pos, size_t size)
+_g void nilarray2(addr pos, size_t size)
 {
 	size_t i;
 	addr *array;
@@ -872,7 +872,7 @@ void nilarray2(addr pos, size_t size)
 	for (i = 0; i < size; i++)
 		array[i] = Nil;
 }
-void nilarray4(addr pos, size_t size)
+_g void nilarray4(addr pos, size_t size)
 {
 	size_t i;
 	addr *array;
@@ -884,7 +884,7 @@ void nilarray4(addr pos, size_t size)
 		array[i] = Nil;
 }
 #ifdef LISP_ARCH_64BIT
-void nilarray8(addr pos, size_t size)
+_g void nilarray8(addr pos, size_t size)
 {
 	size_t i;
 	addr *array;
@@ -896,7 +896,7 @@ void nilarray8(addr pos, size_t size)
 }
 #endif
 
-void unboundarray2(addr pos, size_t size)
+_g void unboundarray2(addr pos, size_t size)
 {
 	size_t i;
 	addr *array;
@@ -907,7 +907,7 @@ void unboundarray2(addr pos, size_t size)
 	for (i = 0; i < size; i++)
 		array[i] = Unbound;
 }
-void unboundarray4(addr pos, size_t size)
+_g void unboundarray4(addr pos, size_t size)
 {
 	size_t i;
 	addr *array;
@@ -919,7 +919,7 @@ void unboundarray4(addr pos, size_t size)
 		array[i] = Unbound;
 }
 #ifdef LISP_ARCH_64BIT
-void unboundarray8(addr pos, size_t size)
+_g void unboundarray8(addr pos, size_t size)
 {
 	size_t i;
 	addr *array;

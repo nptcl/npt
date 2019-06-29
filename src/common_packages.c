@@ -1399,7 +1399,7 @@ static void defun_package_error_package(void)
 /*
  *  function
  */
-void init_common_packages(void)
+_g void init_common_packages(void)
 {
 	SetPointerCall(defun, var1opt1, export);
 	SetPointerCall(defun, var1opt1, find_symbol);
@@ -1432,7 +1432,7 @@ void init_common_packages(void)
 	SetPointerCall(defun, var1, package_error_package);
 }
 
-void build_common_packages(void)
+_g void build_common_packages(void)
 {
 	defun_export();
 	defun_find_symbol();

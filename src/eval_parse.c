@@ -250,7 +250,7 @@ static int parse_parse_type(addr *ret, addr type)
 /*
  *  memory
  */
-void eval_parse_alloc(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte array)
+_g void eval_parse_alloc(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte array)
 {
 	addr pos;
 
@@ -260,64 +260,64 @@ void eval_parse_alloc(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte arr
 
 	*ret = pos;
 }
-void eval_parse_local(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte array)
+_g void eval_parse_local(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte array)
 {
 	Check(local == NULL, "local error");
 	eval_parse_alloc(local, ret, type, array);
 }
-void eval_parse_heap(addr *ret, enum EVAL_PARSE type, byte array)
+_g void eval_parse_heap(addr *ret, enum EVAL_PARSE type, byte array)
 {
 	eval_parse_alloc(NULL, ret, type, array);
 }
 
-void eval_single_parse_alloc(LocalRoot local,
+_g void eval_single_parse_alloc(LocalRoot local,
 		addr *ret, enum EVAL_PARSE type, addr value)
 {
 	eval_parse_alloc(local, ret, type, 1);
 	SetEvalParse(*ret, 0, value);
 }
-void eval_single_parse_local(LocalRoot local,
+_g void eval_single_parse_local(LocalRoot local,
 		addr *ret, enum EVAL_PARSE type, addr value)
 {
 	Check(local == NULL, "local error");
 	eval_single_parse_alloc(local, ret, type, value);
 }
-void eval_single_parse_heap(addr *ret, enum EVAL_PARSE type, addr value)
+_g void eval_single_parse_heap(addr *ret, enum EVAL_PARSE type, addr value)
 {
 	eval_single_parse_alloc(NULL, ret, type, value);
 }
 
-struct eval_parse *structevalparse(addr pos)
+_g struct eval_parse *structevalparse(addr pos)
 {
 	Check(! eval_parse_p(pos), "type error");
 	return StructEvalParse_Low(pos);
 }
-addr refevalparse(addr pos, size_t index)
+_g addr refevalparse(addr pos, size_t index)
 {
 	Check(! eval_parse_p(pos), "type error");
 	return RefEvalParse_Low(pos, index);
 }
-void getevalparse(addr pos, size_t index, addr *ret)
+_g void getevalparse(addr pos, size_t index, addr *ret)
 {
 	Check(! eval_parse_p(pos), "type error");
 	GetEvalParse_Low(pos, index, ret);
 }
-void setevalparse(addr pos, size_t index, addr value)
+_g void setevalparse(addr pos, size_t index, addr value)
 {
 	Check(! eval_parse_p(pos), "type error");
 	SetEvalParse_Low(pos, index, value);
 }
-enum EVAL_PARSE refevalparsetype(addr pos)
+_g enum EVAL_PARSE refevalparsetype(addr pos)
 {
 	Check(! eval_parse_p(pos), "type error");
 	return RefEvalParseType_Low(pos);
 }
-void getevalparsetype(addr pos, enum EVAL_PARSE *ret)
+_g void getevalparsetype(addr pos, enum EVAL_PARSE *ret)
 {
 	Check(! eval_parse_p(pos), "type error");
 	GetEvalParseType_Low(pos, ret);
 }
-void setevalparsetype(addr pos, enum EVAL_PARSE value)
+_g void setevalparsetype(addr pos, enum EVAL_PARSE value)
 {
 	Check(! eval_parse_p(pos), "type error");
 	SetEvalParseType_Low(pos, value);
@@ -351,7 +351,7 @@ static int parse_progn(addr *ret, addr cons)
 }
 
 /* let / let* */
-void check_variable(addr symbol)
+_g void check_variable(addr symbol)
 {
 	if (! IsSymbol(symbol))
 		fmte("The variable ~S must be a symbol.", symbol, NULL);
@@ -359,7 +359,7 @@ void check_variable(addr symbol)
 		fmte("The variable ~S don't allow constant symbol.", symbol, NULL);
 }
 
-void check_function_variable(addr symbol)
+_g void check_function_variable(addr symbol)
 {
 	addr check;
 
@@ -679,7 +679,7 @@ static int parse_defun(addr *ret, addr cons)
 }
 
 /* defmacro */
-int parse_macro_lambda_list(addr *ret, addr args);
+_g int parse_macro_lambda_list(addr *ret, addr args);
 static int parse_macro_var(addr *ret, addr cons)
 {
 	addr root, var;
@@ -711,7 +711,7 @@ static inline void parse_macro_rest(addr *ret)
 	}
 }
 
-int parse_macro_lambda_list(addr *ret, addr args)
+_g int parse_macro_lambda_list(addr *ret, addr args)
 {
 	addr var, opt, rest, key, allow, aux, whole, env;
 
@@ -1158,7 +1158,7 @@ static int parse_unwind_protect(addr *ret, addr cons)
 }
 
 /* tagbody */
-int tagbody_tag_p(addr pos)
+_g int tagbody_tag_p(addr pos)
 {
 	/*
 	 * Common Lisp the Language, 2nd Edition
@@ -1716,7 +1716,7 @@ static int findsymbol_environment(addr symbol, addr env, addr *ret)
 	return 0;
 }
 
-int findmacro_environment(addr symbol, addr env, addr *ret)
+_g int findmacro_environment(addr symbol, addr env, addr *ret)
 {
 	addr list;
 
@@ -1783,7 +1783,7 @@ static int macroexpand1_function(addr *ret, addr form, addr env, int *result)
 	}
 }
 
-int macroexpand1(addr *ret, addr form, addr env, int *result)
+_g int macroexpand1(addr *ret, addr form, addr env, int *result)
 {
 	if (symbolp(form))
 		return macroexpand1_symbol(ret, form, env, result);
@@ -1795,7 +1795,7 @@ int macroexpand1(addr *ret, addr form, addr env, int *result)
 	}
 }
 
-int macroexpand(addr *ret, addr form, addr env, int *result)
+_g int macroexpand(addr *ret, addr form, addr env, int *result)
 {
 	int check, value;
 	addr pos;
@@ -2052,7 +2052,7 @@ static int parse_execute(addr *ret, addr pos)
 	return 0;
 }
 
-int eval_parse(addr *ret, addr pos)
+_g int eval_parse(addr *ret, addr pos)
 {
 	int check;
 	addr control;
@@ -3024,18 +3024,18 @@ static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 	}
 }
 
-void copy_eval_parse_alloc(LocalRoot local, addr *ret, addr eval)
+_g void copy_eval_parse_alloc(LocalRoot local, addr *ret, addr eval)
 {
 	copy_eval_parse(local, ret, eval);
 }
 
-void copy_eval_parse_local(LocalRoot local, addr *ret, addr eval)
+_g void copy_eval_parse_local(LocalRoot local, addr *ret, addr eval)
 {
 	Check(local == NULL, "local error");
 	copy_eval_parse_alloc(local, ret, eval);
 }
 
-void copy_eval_parse_heap(addr *ret, addr eval)
+_g void copy_eval_parse_heap(addr *ret, addr eval)
 {
 	copy_eval_parse_alloc(NULL, ret, eval);
 }

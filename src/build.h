@@ -10,13 +10,13 @@
 #include "info.h"
 #include "typedef.h"
 
-extern int      lisp_init;
-extern addr     lisp_root[LISPINDEX_SIZE];
-extern addr     lisp_nil;
-extern addr     lisp_t;
-extern byte32   lisp_property;
+__extern int      lisp_init;
+__extern addr     lisp_root[LISPINDEX_SIZE];
+__extern addr     lisp_nil;
+__extern addr     lisp_t;
+__extern byte32   lisp_property;
 /* for debug */
-extern int      lisp_info_enable;
+__extern int      lisp_info_enable;
 
 #define LISP_PACKAGE            LISPNAME
 #define LISP_SYSTEM             LISPNAME "-SYSTEM"
@@ -75,22 +75,22 @@ extern int      lisp_info_enable;
 /*
  *  function
  */
-void setproperty(int index, int value);
-int getproperty(int index);
-void initlisp(void);
-int alloclisp(size_t heap, size_t stack);
-void freelisp(void);
-int degradelisp(int argc, char *argv[], char *env[]);
+_g void setproperty(int index, int value);
+_g int getproperty(int index);
+_g void initlisp(void);
+_g int alloclisp(size_t heap, size_t stack);
+_g void freelisp(void);
+_g int degradelisp(int argc, char *argv[], char *env[]);
 
-void build_lisproot(Execute ptr);
-void buildlisp(Execute ptr);
+_g void build_lisproot(Execute ptr);
+_g void buildlisp(Execute ptr);
 
 
 /*
  *  core
  */
-int save_lisp(struct filememory *fm);
-int load_lisp(struct filememory *fm);
+_g int save_lisp(struct filememory *fm);
+_g int load_lisp(struct filememory *fm);
 
 #endif
 

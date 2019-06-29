@@ -342,7 +342,7 @@ static void defmacro_dolist(void)
 /*
  *  function
  */
-void init_common_iteration(void)
+_g void init_common_iteration(void)
 {
 	SetPointerCall(defmacro,  macro,  do);
 	SetPointerCall(defmacro,  macro,  doa);
@@ -350,7 +350,7 @@ void init_common_iteration(void)
 	SetPointerCall(defmacro,  macro,  dolist);
 }
 
-void build_common_iteration(void)
+_g void build_common_iteration(void)
 {
 	defmacro_do();
 	defmacro_doa();

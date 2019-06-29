@@ -64,7 +64,7 @@ static void setlimit(addr pos)
 	}
 }
 
-void hashtable_full_alloc(LocalRoot local, addr *ret,
+_g void hashtable_full_alloc(LocalRoot local, addr *ret,
 		enum HASHTABLE_TEST test, size_t size,
 		double_float resize, double_float threshold)
 {
@@ -97,7 +97,7 @@ void hashtable_full_alloc(LocalRoot local, addr *ret,
 	*ret = pos;
 }
 
-void hashtable_full_local(LocalRoot local, addr *ret,
+_g void hashtable_full_local(LocalRoot local, addr *ret,
 		enum HASHTABLE_TEST test, size_t size,
 		double_float resize, double_float threshold)
 {
@@ -105,14 +105,14 @@ void hashtable_full_local(LocalRoot local, addr *ret,
 	hashtable_full_alloc(local, ret, test, size, resize, threshold);
 }
 
-void hashtable_full_heap(addr *ret,
+_g void hashtable_full_heap(addr *ret,
 		enum HASHTABLE_TEST test, size_t size,
 		double_float resize, double_float threshold)
 {
 	hashtable_full_alloc(NULL, ret, test, size, resize, threshold);
 }
 
-void hashtable_integer_alloc(LocalRoot local, addr *ret,
+_g void hashtable_integer_alloc(LocalRoot local, addr *ret,
 		enum HASHTABLE_TEST test, size_t size,
 		size_t resize, double_float threshold)
 {
@@ -145,7 +145,7 @@ void hashtable_integer_alloc(LocalRoot local, addr *ret,
 	*ret = pos;
 }
 
-void hashtable_integer_local(LocalRoot local, addr *ret,
+_g void hashtable_integer_local(LocalRoot local, addr *ret,
 		enum HASHTABLE_TEST test, size_t size,
 		size_t resize, double_float threshold)
 {
@@ -153,7 +153,7 @@ void hashtable_integer_local(LocalRoot local, addr *ret,
 	hashtable_integer_alloc(local, ret, test, size, resize, threshold);
 }
 
-void hashtable_integer_heap(addr *ret,
+_g void hashtable_integer_heap(addr *ret,
 		enum HASHTABLE_TEST test, size_t size,
 		size_t resize, double_float threshold)
 {
@@ -161,7 +161,7 @@ void hashtable_integer_heap(addr *ret,
 }
 
 /* default */
-void hashtable_heap(addr *ret)
+_g void hashtable_heap(addr *ret)
 {
 	hashtable_full_heap(ret,
 			HASHTABLE_TEST_DEFAULT,
@@ -170,7 +170,7 @@ void hashtable_heap(addr *ret)
 			HASHTABLE_REHASH_THRESHOLD_DEFAULT);
 }
 
-void hashtable_local(LocalRoot local, addr *ret)
+_g void hashtable_local(LocalRoot local, addr *ret)
 {
 	hashtable_full_local(local, ret,
 			HASHTABLE_TEST_DEFAULT,
@@ -179,7 +179,7 @@ void hashtable_local(LocalRoot local, addr *ret)
 			HASHTABLE_REHASH_THRESHOLD_DEFAULT);
 }
 
-void hashtable_alloc(LocalRoot local, addr *ret)
+_g void hashtable_alloc(LocalRoot local, addr *ret)
 {
 	if (local)
 		hashtable_local(local, ret);
@@ -187,7 +187,7 @@ void hashtable_alloc(LocalRoot local, addr *ret)
 		hashtable_heap(ret);
 }
 
-void hashtable_size_heap(addr *ret, size_t size)
+_g void hashtable_size_heap(addr *ret, size_t size)
 {
 	hashtable_full_heap(ret,
 			HASHTABLE_TEST_DEFAULT,
@@ -196,7 +196,7 @@ void hashtable_size_heap(addr *ret, size_t size)
 			HASHTABLE_REHASH_THRESHOLD_DEFAULT);
 }
 
-void hashtable_size_local(LocalRoot local, addr *ret, size_t size)
+_g void hashtable_size_local(LocalRoot local, addr *ret, size_t size)
 {
 	hashtable_full_local(local, ret,
 			HASHTABLE_TEST_DEFAULT,
@@ -205,7 +205,7 @@ void hashtable_size_local(LocalRoot local, addr *ret, size_t size)
 			HASHTABLE_REHASH_THRESHOLD_DEFAULT);
 }
 
-void hashtable_size_alloc(LocalRoot local, addr *ret, size_t size)
+_g void hashtable_size_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	if (local)
 		hashtable_size_local(local, ret, size);
@@ -213,7 +213,7 @@ void hashtable_size_alloc(LocalRoot local, addr *ret, size_t size)
 		hashtable_size_heap(ret, size);
 }
 
-void clear_hashtable_local(addr pos)
+_g void clear_hashtable_local(addr pos)
 {
 	addr temp;
 	size_t i, size;
@@ -225,7 +225,7 @@ void clear_hashtable_local(addr pos)
 	PtrStructHashtable(pos)->count = 0;
 }
 
-void clear_hashtable_heap(addr pos)
+_g void clear_hashtable_heap(addr pos)
 {
 	addr temp;
 	size_t size;
@@ -242,7 +242,7 @@ void clear_hashtable_heap(addr pos)
 	setlimit(pos);
 }
 
-void clear_hashtable(addr pos)
+_g void clear_hashtable(addr pos)
 {
 	if (GetStatusDynamic(pos))
 		clear_hashtable_heap(pos);
@@ -250,25 +250,25 @@ void clear_hashtable(addr pos)
 		clear_hashtable_local(pos);
 }
 
-int hashtablep(addr pos)
+_g int hashtablep(addr pos)
 {
 	return GetType(pos) == LISPTYPE_HASHTABLE;
 }
 
-void gettest_hashtable(addr pos, enum HASHTABLE_TEST *ret)
+_g void gettest_hashtable(addr pos, enum HASHTABLE_TEST *ret)
 {
 	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
 	*ret = PtrStructHashtable(pos)->test;
 }
 
-void settest_hashtable(addr pos, enum HASHTABLE_TEST value)
+_g void settest_hashtable(addr pos, enum HASHTABLE_TEST value)
 {
 	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	PtrStructHashtable(pos)->test = value;
 }
 
-void gettest_symbol_hashtable(addr pos, addr *ret)
+_g void gettest_symbol_hashtable(addr pos, addr *ret)
 {
 	enum HASHTABLE_TEST test;
 
@@ -300,25 +300,25 @@ void gettest_symbol_hashtable(addr pos, addr *ret)
 	}
 }
 
-void getcount_hashtable(addr pos, size_t *ret)
+_g void getcount_hashtable(addr pos, size_t *ret)
 {
 	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
 	*ret = PtrStructHashtable(pos)->count;
 }
 
-void inccount_hashtable(addr pos, size_t value)
+_g void inccount_hashtable(addr pos, size_t value)
 {
 	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
 	PtrStructHashtable(pos)->count += value;
 }
 
-void getsize_hashtable(addr pos, size_t *ret)
+_g void getsize_hashtable(addr pos, size_t *ret)
 {
 	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
 	*ret = PtrStructHashtable(pos)->size;
 }
 
-void setrehash_float_hashtable(addr pos, double_float value)
+_g void setrehash_float_hashtable(addr pos, double_float value)
 {
 	struct StructHashtable *ptr;
 
@@ -332,7 +332,7 @@ void setrehash_float_hashtable(addr pos, double_float value)
 	setlimit(pos);
 }
 
-int getrehash_float_hashtable(addr pos, double_float *ret)
+_g int getrehash_float_hashtable(addr pos, double_float *ret)
 {
 	struct StructHashtable *ptr;
 
@@ -344,7 +344,7 @@ int getrehash_float_hashtable(addr pos, double_float *ret)
 	return 1;
 }
 
-void setrehash_integer_hashtable(addr pos, size_t value)
+_g void setrehash_integer_hashtable(addr pos, size_t value)
 {
 	struct StructHashtable *ptr;
 
@@ -357,7 +357,7 @@ void setrehash_integer_hashtable(addr pos, size_t value)
 	setlimit(pos);
 }
 
-int getrehash_integer_hashtable(addr pos, size_t *ret)
+_g int getrehash_integer_hashtable(addr pos, size_t *ret)
 {
 	struct StructHashtable *ptr;
 
@@ -369,7 +369,7 @@ int getrehash_integer_hashtable(addr pos, size_t *ret)
 	return 1;
 }
 
-void getrehash_threshold_hashtable(addr pos, double_float *ret)
+_g void getrehash_threshold_hashtable(addr pos, double_float *ret)
 {
 	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
 	*ret = PtrStructHashtable(pos)->threshold;
@@ -518,7 +518,7 @@ static void resize_rehash(LocalRoot local, addr pos, size_t resize)
 	SetTableHash(pos, next);
 }
 
-void force_resize_hashtable(addr pos, size_t size)
+_g void force_resize_hashtable(addr pos, size_t size)
 {
 	LocalRoot local;
 
@@ -614,20 +614,20 @@ static int static_intern_hashtable(LocalRoot local, addr pos, addr key, addr *re
 	return 0; /* find */
 }
 
-int intern_hashheap(addr pos, addr key, addr *ret)
+_g int intern_hashheap(addr pos, addr key, addr *ret)
 {
 	Check(GetStatusDynamic(pos), "dynamic error");
 	return static_intern_hashtable(NULL, pos, key, ret);
 }
 
-int intern_hashlocal(LocalRoot local, addr pos, addr key, addr *ret)
+_g int intern_hashlocal(LocalRoot local, addr pos, addr key, addr *ret)
 {
 	Check(local == NULL, "local error");
 	Check(! GetStatusDynamic(pos), "dynamic error");
 	return static_intern_hashtable(local, pos, key, ret);
 }
 
-int intern_hashalloc(LocalRoot local, addr pos, addr key, addr *ret)
+_g int intern_hashalloc(LocalRoot local, addr pos, addr key, addr *ret)
 {
 	/* heap check */
 	Check(! GetStatusDynamic(pos) && local != NULL, "local error");
@@ -636,7 +636,7 @@ int intern_hashalloc(LocalRoot local, addr pos, addr key, addr *ret)
 	return static_intern_hashtable(local, pos, key, ret);
 }
 
-int intern_hashtable(LocalRoot local, addr pos, addr key, addr *ret)
+_g int intern_hashtable(LocalRoot local, addr pos, addr key, addr *ret)
 {
 	if (GetStatusDynamic(pos)) {
 		if (local == NULL)
@@ -648,7 +648,7 @@ int intern_hashtable(LocalRoot local, addr pos, addr key, addr *ret)
 	}
 }
 
-void findcons_hashtable(addr pos, addr key, addr *ret)
+_g void findcons_hashtable(addr pos, addr key, addr *ret)
 {
 	size_t index;
 	addr array, root, left, right, check;
@@ -671,7 +671,7 @@ void findcons_hashtable(addr pos, addr key, addr *ret)
 	*ret = Nil;
 }
 
-int findvalue_hashtable(addr pos, addr key, addr *ret)
+_g int findvalue_hashtable(addr pos, addr key, addr *ret)
 {
 	addr cons;
 
@@ -692,7 +692,7 @@ int findvalue_hashtable(addr pos, addr key, addr *ret)
 /*
  *  delete
  */
-int delete_hashtable(addr pos, addr key)
+_g int delete_hashtable(addr pos, addr key)
 {
 	size_t index;
 	addr array, root, left, right, leftkey, prev;
@@ -729,7 +729,7 @@ int delete_hashtable(addr pos, addr key)
 /*
  *  map-function
  */
-void allkeys_hashtable_alloc(LocalRoot local, addr pos, addr *ret)
+_g void allkeys_hashtable_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	addr cons, cell, result;
 	size_t size, index;
@@ -751,12 +751,12 @@ void allkeys_hashtable_alloc(LocalRoot local, addr pos, addr *ret)
 	*ret = result;
 }
 
-void allkeys_hashtable_heap(addr pos, addr *ret)
+_g void allkeys_hashtable_heap(addr pos, addr *ret)
 {
 	allkeys_hashtable_alloc(NULL, pos, ret);
 }
 
-void allkeys_hashtable_local(LocalRoot local, addr pos, addr *ret)
+_g void allkeys_hashtable_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	allkeys_hashtable_alloc(local, pos, ret);
@@ -783,7 +783,7 @@ static int equalp_allelement(addr left, addr right, int (*call)(addr, addr))
 	return 1;
 }
 
-int equalcall_hashtable(addr left, addr right, int (*call)(addr, addr))
+_g int equalcall_hashtable(addr left, addr right, int (*call)(addr, addr))
 {
 	struct StructHashtable *str1, *str2;
 
@@ -796,18 +796,18 @@ int equalcall_hashtable(addr left, addr right, int (*call)(addr, addr))
 	return 1;
 }
 
-int equalp_hashtable(addr left, addr right)
+_g int equalp_hashtable(addr left, addr right)
 {
 	return equalcall_hashtable(left, right, equalp_function);
 }
 
-int equalrt_hashtable(addr left, addr right)
+_g int equalrt_hashtable(addr left, addr right)
 {
 	return equalcall_hashtable(left, right, equalrt_function);
 }
 
 /* clang */
-void findcons_char_hashtable(addr pos, const char *key, addr *ret)
+_g void findcons_char_hashtable(addr pos, const char *key, addr *ret)
 {
 	fixnum value;
 	addr array, root, left, right, check;
@@ -845,7 +845,7 @@ void findcons_char_hashtable(addr pos, const char *key, addr *ret)
 	*ret = Nil;
 }
 
-int findvalue_char_hashtable(addr pos, const char *key, addr *ret)
+_g int findvalue_char_hashtable(addr pos, const char *key, addr *ret)
 {
 	addr cons;
 
@@ -862,7 +862,7 @@ int findvalue_char_hashtable(addr pos, const char *key, addr *ret)
 	}
 }
 
-void findcons_unicode_hashtable(addr pos, unicode key, addr *ret)
+_g void findcons_unicode_hashtable(addr pos, unicode key, addr *ret)
 {
 	fixnum value;
 	addr array, root, left, right, check;
@@ -901,7 +901,7 @@ void findcons_unicode_hashtable(addr pos, unicode key, addr *ret)
 	*ret = Nil;
 }
 
-int findvalue_unicode_hashtable(addr pos, unicode key, addr *ret)
+_g int findvalue_unicode_hashtable(addr pos, unicode key, addr *ret)
 {
 	addr cons;
 
@@ -918,7 +918,7 @@ int findvalue_unicode_hashtable(addr pos, unicode key, addr *ret)
 	}
 }
 
-void findcons_character2_hashtable(addr pos, unicode a, unicode b, addr *ret)
+_g void findcons_character2_hashtable(addr pos, unicode a, unicode b, addr *ret)
 {
 	fixnum value;
 	addr array, root, left, right, check;
@@ -956,7 +956,7 @@ void findcons_character2_hashtable(addr pos, unicode a, unicode b, addr *ret)
 	*ret = Nil;
 }
 
-int findvalue_character2_hashtable(addr pos, unicode a, unicode b, addr *ret)
+_g int findvalue_character2_hashtable(addr pos, unicode a, unicode b, addr *ret)
 {
 	addr cons;
 
@@ -996,7 +996,7 @@ enum HashIterator {
 #define GetHashIterator GetArraySS
 #define SetHashIterator SetArraySS
 
-void hash_iterator_alloc(LocalRoot local, addr *ret, addr table)
+_g void hash_iterator_alloc(LocalRoot local, addr *ret, addr table)
 {
 	addr pos, array;
 	struct StructHashIterator *ptr;
@@ -1016,18 +1016,18 @@ void hash_iterator_alloc(LocalRoot local, addr *ret, addr table)
 	*ret = pos;
 }
 
-void hash_iterator_local(LocalRoot local, addr *ret, addr table)
+_g void hash_iterator_local(LocalRoot local, addr *ret, addr table)
 {
 	Check(local == NULL, "local error");
 	hash_iterator_alloc(local, ret, table);
 }
 
-void hash_iterator_heap(addr *ret, addr table)
+_g void hash_iterator_heap(addr *ret, addr table)
 {
 	hash_iterator_alloc(NULL, ret, table);
 }
 
-void set_hash_iterator(addr pos, addr table)
+_g void set_hash_iterator(addr pos, addr table)
 {
 	addr array;
 	struct StructHashIterator *ptr;
@@ -1043,7 +1043,7 @@ void set_hash_iterator(addr pos, addr table)
 }
 
 /* 0:finish, 1:find */
-int next_hash_iterator(addr pos, addr *key, addr *value)
+_g int next_hash_iterator(addr pos, addr *key, addr *value)
 {
 	addr list, array, cons;
 	struct StructHashIterator *ptr;

@@ -43,7 +43,7 @@ static void get_prompt_info(Execute ptr, addr *ret)
 	getspecialcheck_local(ptr, symbol, ret);
 }
 
-void push_prompt_info(Execute ptr)
+_g void push_prompt_info(Execute ptr)
 {
 	addr symbol, value;
 
@@ -52,42 +52,42 @@ void push_prompt_info(Execute ptr)
 	pushspecial_control(ptr, symbol, value);
 }
 
-size_t getindex_prompt(Execute ptr)
+_g size_t getindex_prompt(Execute ptr)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	return PtrPromptInfo(pos)->index;
 }
 
-void setindex_prompt(Execute ptr, size_t index)
+_g void setindex_prompt(Execute ptr, size_t index)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	PtrPromptInfo(pos)->index = index;
 }
 
-int getbreak_prompt(Execute ptr)
+_g int getbreak_prompt(Execute ptr)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	return PtrPromptInfo(pos)->break_p;
 }
 
-void setbreak_prompt(Execute ptr, int value)
+_g void setbreak_prompt(Execute ptr, int value)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	PtrPromptInfo(pos)->break_p = (value != 0);
 }
 
-int getshow_prompt(Execute ptr)
+_g int getshow_prompt(Execute ptr)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
 	return PtrPromptInfo(pos)->show_p;
 }
 
-void setshow_prompt(Execute ptr, int value)
+_g void setshow_prompt(Execute ptr, int value)
 {
 	addr pos;
 	get_prompt_info(ptr, &pos);
@@ -95,7 +95,7 @@ void setshow_prompt(Execute ptr, int value)
 }
 
 #ifdef LISP_PROMPT_DEFAULT
-void show_prompt(Execute ptr, addr io)
+_g void show_prompt(Execute ptr, addr io)
 {
 	char buffer[64];
 	addr pos;
@@ -117,7 +117,7 @@ void show_prompt(Execute ptr, addr io)
 	finish_output_stream(io);
 }
 
-int input_prompt(addr *ret)
+_g int input_prompt(addr *ret)
 {
 	fmte("input-prompt is not supported.", NULL);
 	return 1;
@@ -137,7 +137,7 @@ int input_prompt(addr *ret)
 #define HISTORY_SIZE	100
 static size_t ReadLine_Size = 0;
 
-void show_prompt(Execute ptr, addr io)
+_g void show_prompt(Execute ptr, addr io)
 {
 	addr pos;
 	struct prompt_info *str;
@@ -185,7 +185,7 @@ static char *make_prompt(void)
 	return ret;
 }
 
-int input_prompt(addr *ret)
+_g int input_prompt(addr *ret)
 {
 	addr pos;
 	char *str;

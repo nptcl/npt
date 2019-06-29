@@ -36,7 +36,7 @@ static void make_input_string(addr *ret, addr string, size_t start, size_t end)
 	*ret = pos;
 }
 
-void open_input_string_stream(addr *ret, addr string)
+_g void open_input_string_stream(addr *ret, addr string)
 {
 	size_t size;
 
@@ -46,7 +46,7 @@ void open_input_string_stream(addr *ret, addr string)
 	make_input_string(ret, string, 0, size);
 }
 
-void open_input_string_stream1(addr *ret, addr string, size_t start)
+_g void open_input_string_stream1(addr *ret, addr string, size_t start)
 {
 	addr pos1, pos2;
 	size_t size;
@@ -63,7 +63,7 @@ void open_input_string_stream1(addr *ret, addr string, size_t start)
 	make_input_string(ret, string, start, size);
 }
 
-void open_input_string_stream2(addr *ret, addr string, size_t start, size_t end)
+_g void open_input_string_stream2(addr *ret, addr string, size_t start, size_t end)
 {
 	addr pos1, pos2;
 	size_t size;
@@ -92,14 +92,14 @@ void open_input_string_stream2(addr *ret, addr string, size_t start, size_t end)
 	make_input_string(ret, string, start, end);
 }
 
-void open_input_char_stream(addr *stream, const char *str)
+_g void open_input_char_stream(addr *stream, const char *str)
 {
 	addr pos;
 	strvect_char_heap(&pos, str);
 	open_input_string_stream(stream, pos);
 }
 
-void null_input_string_stream(addr *stream)
+_g void null_input_string_stream(addr *stream)
 {
 	addr pos;
 	struct StructStream *str;
@@ -113,7 +113,7 @@ void null_input_string_stream(addr *stream)
 	*stream = pos;
 }
 
-void getindex_input_stream(addr stream, size_t *ret)
+_g void getindex_input_stream(addr stream, size_t *ret)
 {
 	struct stream_StringInput *input;
 
@@ -180,7 +180,7 @@ static int read_hang_StringInput(addr stream, unicode *c, int *hang)
 	return result;
 }
 
-void setvalue_input_string_stream(addr stream, addr value)
+_g void setvalue_input_string_stream(addr stream, addr value)
 {
 	struct StructStream *str;
 	struct stream_StringInput *input;
@@ -202,7 +202,7 @@ void setvalue_input_string_stream(addr stream, addr value)
 	str->terpri = 0;
 }
 
-void clear_input_string_stream(addr stream)
+_g void clear_input_string_stream(addr stream)
 {
 	struct StructStream *str;
 	struct stream_StringInput *input;
@@ -294,7 +294,7 @@ static void clear_input_StringInput(addr stream)
 	/* Don't care unread-char */
 }
 
-void init_stream_string_input(void)
+_g void init_stream_string_input(void)
 {
 	DefineStreamDef(StringInput, close);
 	DefineStream___(StringInput, read_binary);
@@ -347,7 +347,7 @@ static int extend_string_p(addr stream)
 	return output->extend_p;
 }
 
-void open_output_string_stream(addr *stream, size_t size)
+_g void open_output_string_stream(addr *stream, size_t size)
 {
 	addr pos, queue;
 	struct stream_StringOutput *str;
@@ -360,7 +360,7 @@ void open_output_string_stream(addr *stream, size_t size)
 	*stream = pos;
 }
 
-void string_stream_alloc(LocalRoot local, addr stream, addr *string)
+_g void string_stream_alloc(LocalRoot local, addr stream, addr *string)
 {
 	addr queue;
 
@@ -372,18 +372,18 @@ void string_stream_alloc(LocalRoot local, addr stream, addr *string)
 	make_charqueue_alloc(local, queue, string);
 }
 
-void string_stream_local(LocalRoot local, addr stream, addr *string)
+_g void string_stream_local(LocalRoot local, addr stream, addr *string)
 {
 	Check(local == NULL, "local error");
 	string_stream_alloc(local, stream, string);
 }
 
-void string_stream_heap(addr stream, addr *string)
+_g void string_stream_heap(addr stream, addr *string)
 {
 	string_stream_alloc(NULL, stream, string);
 }
 
-void clear_output_string_stream(addr stream)
+_g void clear_output_string_stream(addr stream)
 {
 	addr queue;
 
@@ -394,7 +394,7 @@ void clear_output_string_stream(addr stream)
 	clear_charqueue(queue);
 }
 
-void open_extend_output_stream(addr *stream, addr array)
+_g void open_extend_output_stream(addr *stream, addr array)
 {
 	addr pos;
 	struct stream_StringOutput *str;
@@ -531,7 +531,7 @@ static int file_string_length_StringOutput(addr stream, addr pos, size_t *ret)
 	return 0;
 }
 
-void init_stream_string_output(void)
+_g void init_stream_string_output(void)
 {
 	DefineStreamSet(StringOutput, close);
 	DefineStream___(StringOutput, read_binary);

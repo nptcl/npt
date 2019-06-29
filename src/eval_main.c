@@ -229,7 +229,7 @@ static int eval_loop_restart(Execute ptr, addr stream, int *ret)
 	return free_check_control(ptr, control, check);
 }
 
-int eval_main_loop(Execute ptr)
+_g int eval_main_loop(Execute ptr)
 {
 	int exit;
 	addr stream;
@@ -304,7 +304,7 @@ static int evalrestart_string(Execute ptr, addr eval, int *abort)
 	return free_check_control(ptr, control, check);
 }
 
-void eval_main_string(Execute ptr, addr eval, int *abort)
+_g void eval_main_string(Execute ptr, addr eval, int *abort)
 {
 	if (evalrestart_string(ptr, eval, abort))
 		fmte("Cannot catch a system signal.", NULL);
@@ -346,7 +346,7 @@ static int evalrestart_load(Execute ptr,
 	return free_check_control(ptr, control, check);
 }
 
-int eval_main_load(Execute ptr, addr file, int exists, int *abort)
+_g int eval_main_load(Execute ptr, addr file, int exists, int *abort)
 {
 	int result;
 	if (evalrestart_load(ptr, file, exists, &result, abort))
@@ -358,7 +358,7 @@ int eval_main_load(Execute ptr, addr file, int exists, int *abort)
 /*
  *  initialize
  */
-void init_eval_main(void)
+_g void init_eval_main(void)
 {
 	SetPointerCall(defun, empty, eval_loop_abort_function);
 	SetPointerCall(defun, var1, eval_loop_abort_report);

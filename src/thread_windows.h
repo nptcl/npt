@@ -15,13 +15,13 @@
 /*
  *  mutexlite
  */
-int make_mutexlite(mutexlite *ptr)
+_g int make_mutexlite(mutexlite *ptr)
 {
 	InitializeCriticalSection(ptr);
 	return 0;
 }
 
-int make_rwlocklite(rwlocklite *ptr)
+_g int make_rwlocklite(rwlocklite *ptr)
 {
 	InitializeSRWLock(ptr);
 	return 0;
@@ -31,7 +31,7 @@ int make_rwlocklite(rwlocklite *ptr)
 /*
  *  semaphore windows
  */
-int trylock_semwindows(semwindows *ptr)
+_g int trylock_semwindows(semwindows *ptr)
 {
 	DWORD result = WaitForSingleObject(*ptr, 0);
 	if (result == WAIT_TIMEOUT) return 1;
@@ -46,18 +46,18 @@ int trylock_semwindows(semwindows *ptr)
 /*
  *  binary semaphore  [condition variable]
  */
-void make_binsemlite(binsemlite *ptr)
+_g void make_binsemlite(binsemlite *ptr)
 {
 	make_mutexlite(&ptr->mutex);
 	make_condlite(&ptr->cond);
 	ptr->value = 1;
 }
-void destroy_binsemlite(binsemlite *ptr)
+_g void destroy_binsemlite(binsemlite *ptr)
 {
 	destroy_condlite(&ptr->cond);
 	destroy_mutexlite(&ptr->mutex);
 }
-void lock_binsemlite(binsemlite *ptr)
+_g void lock_binsemlite(binsemlite *ptr)
 {
 	lock_mutexlite(&ptr->mutex);
 	while (ptr->value <= 0)
@@ -65,7 +65,7 @@ void lock_binsemlite(binsemlite *ptr)
 	ptr->value--;
 	unlock_mutexlite(&ptr->mutex);
 }
-void unlock_binsemlite(binsemlite *ptr)
+_g void unlock_binsemlite(binsemlite *ptr)
 {
 	lock_mutexlite(&ptr->mutex);
 	/* binary semaphore check */
@@ -80,7 +80,7 @@ void unlock_binsemlite(binsemlite *ptr)
 	ptr->value++;
 	unlock_mutexlite(&ptr->mutex);
 }
-int trylock_binsemlite(binsemlite *ptr)
+_g int trylock_binsemlite(binsemlite *ptr)
 {
 	int result;
 
@@ -114,7 +114,7 @@ static DWORD WINAPI start_routine(LPVOID pvoid)
 	return 0;
 }
 
-int create_thread(execfunction proc, Execute arg)
+_g int create_thread(execfunction proc, Execute arg)
 {
 	HANDLE result;
 
@@ -134,7 +134,7 @@ int create_thread(execfunction proc, Execute arg)
 	return 0;
 }
 
-int join_thread(threadhandle *handle)
+_g int join_thread(threadhandle *handle)
 {
 	if (WaitForSingleObject(*handle, INFINITE) == WAIT_FAILED) {
 		fprintf(stderr, "WaitForSingleObject error\n");

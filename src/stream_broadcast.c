@@ -9,7 +9,7 @@
 	Check(! broadcast_stream_p(stream), "type error"); \
 }
 
-void open_broadcast_stream(addr *stream, addr list)
+_g void open_broadcast_stream(addr *stream, addr list)
 {
 	addr pos;
 
@@ -20,7 +20,7 @@ void open_broadcast_stream(addr *stream, addr list)
 	*stream = pos;
 }
 
-void push_broadcast_stream(addr stream, addr input)
+_g void push_broadcast_stream(addr stream, addr input)
 {
 	addr list;
 
@@ -30,7 +30,7 @@ void push_broadcast_stream(addr stream, addr input)
 	SetInfoStream(stream, list);
 }
 
-void get_broadcast_stream(addr stream, addr *ret)
+_g void get_broadcast_stream(addr stream, addr *ret)
 {
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, ret);
@@ -271,7 +271,7 @@ static void clear_output_BroadCast(addr stream)
 	}
 }
 
-void init_stream_broadcast(void)
+_g void init_stream_broadcast(void)
 {
 	DefineStreamDef(BroadCast, close);
 	DefineStream___(BroadCast, read_binary);

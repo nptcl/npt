@@ -1,5 +1,7 @@
+#include <math.h>
 #include "condition.h"
 #include "cmpl.h"
+#include "cmpl_arch.h"
 #include "cmpl_math.h"
 #include "define.h"
 
@@ -9,18 +11,10 @@
 #define powl_define powl
 #endif
 
-#if defined(LISP_COMPLEX_WINDOWS)
-#include "cmpl_windows.h"
-#elif defined(LISP_COMPLEX_CPLUSPLUS)
-#include "cmpl_cpp.h"
-#else
-#include "cmpl_c99.h"
-#endif
-
 /*
  *  expt
  */
-void expt_f(single_float a, single_float b, single_float c, single_float d,
+_g void expt_f(single_float a, single_float b, single_float c, single_float d,
 		single_float *re, single_float *im)
 {
 	single_float x, y;
@@ -41,7 +35,7 @@ void expt_f(single_float a, single_float b, single_float c, single_float d,
 	}
 }
 
-void expt_d(double_float a, double_float b, double_float c, double_float d,
+_g void expt_d(double_float a, double_float b, double_float c, double_float d,
 		double_float *re, double_float *im)
 {
 	double_float x, y;
@@ -62,7 +56,7 @@ void expt_d(double_float a, double_float b, double_float c, double_float d,
 	}
 }
 
-void expt_l(long_float a, long_float b, long_float c, long_float d,
+_g void expt_l(long_float a, long_float b, long_float c, long_float d,
 		long_float *re, long_float *im)
 {
 	long_float x, y;
@@ -87,7 +81,7 @@ void expt_l(long_float a, long_float b, long_float c, long_float d,
 /*
  *  clogb
  */
-void clogb_f(single_float a, single_float b, single_float c, single_float d,
+_g void clogb_f(single_float a, single_float b, single_float c, single_float d,
 		single_float *re, single_float *im)
 {
 	addr real, imag;
@@ -114,7 +108,7 @@ void clogb_f(single_float a, single_float b, single_float c, single_float d,
 	*im = (b*c - a*d) / denom;
 }
 
-void clogb_d(double_float a, double_float b, double_float c, double_float d,
+_g void clogb_d(double_float a, double_float b, double_float c, double_float d,
 		double_float *re, double_float *im)
 {
 	addr real, imag;
@@ -141,7 +135,7 @@ void clogb_d(double_float a, double_float b, double_float c, double_float d,
 	*im = (b*c - a*d) / denom;
 }
 
-void clogb_l(long_float a, long_float b, long_float c, long_float d,
+_g void clogb_l(long_float a, long_float b, long_float c, long_float d,
 		long_float *re, long_float *im)
 {
 	addr real, imag;
@@ -172,17 +166,17 @@ void clogb_l(long_float a, long_float b, long_float c, long_float d,
 /*
  *  csqrt
  */
-void csqrt_f(single_float real, single_float imag, single_float *re, single_float *im)
+_g void csqrt_f(single_float real, single_float imag, single_float *re, single_float *im)
 {
 	expt_f(real, imag, 0.5f, 0.0f, re, im);
 }
 
-void csqrt_d(double_float real, double_float imag, double_float *re, double_float *im)
+_g void csqrt_d(double_float real, double_float imag, double_float *re, double_float *im)
 {
 	expt_d(real, imag, 0.5, 0.0, re, im);
 }
 
-void csqrt_l(long_float real, long_float imag, long_float *re, long_float *im)
+_g void csqrt_l(long_float real, long_float imag, long_float *re, long_float *im)
 {
 	expt_l(real, imag, 0.5L, 0.0L, re, im);
 }

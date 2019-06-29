@@ -302,7 +302,7 @@ static void defun_file_error_pathname(void)
 /*
  *  function
  */
-void init_common_files(void)
+_g void init_common_files(void)
 {
 	SetPointerCall(defun, var1, directory);
 	SetPointerCall(defun, var1, probe_file);
@@ -315,7 +315,7 @@ void init_common_files(void)
 	SetPointerCall(defun, var1, file_error_pathname);
 }
 
-void build_common_files(void)
+_g void build_common_files(void)
 {
 	defun_directory();
 	defun_probe_file();

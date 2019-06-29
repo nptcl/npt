@@ -9,7 +9,7 @@
 #include "symbol.h"
 #include "type_table.h"
 
-void export_mop(addr symbol)
+_g void export_mop(addr symbol)
 {
 	addr package;
 
@@ -34,28 +34,28 @@ static void mop_argument_generic_var(addr *ret, unsigned n)
 	*ret = pos;
 }
 
-void mop_argument_generic_var1(addr *ret)
+_g void mop_argument_generic_var1(addr *ret)
 {
 	mop_argument_generic_var(ret, 1);
 }
-void mop_argument_generic_var2(addr *ret)
+_g void mop_argument_generic_var2(addr *ret)
 {
 	mop_argument_generic_var(ret, 2);
 }
-void mop_argument_generic_var3(addr *ret)
+_g void mop_argument_generic_var3(addr *ret)
 {
 	mop_argument_generic_var(ret, 3);
 }
-void mop_argument_generic_var4(addr *ret)
+_g void mop_argument_generic_var4(addr *ret)
 {
 	mop_argument_generic_var(ret, 4);
 }
-void mop_argument_generic_var5(addr *ret)
+_g void mop_argument_generic_var5(addr *ret)
 {
 	mop_argument_generic_var(ret, 5);
 }
 
-void mop_argument_generic_var3opt1(addr *ret)
+_g void mop_argument_generic_var3opt1(addr *ret)
 {
 	addr pos;
 	struct argument_struct *str;
@@ -68,7 +68,7 @@ void mop_argument_generic_var3opt1(addr *ret)
 	*ret = pos;
 }
 
-void mop_argument_generic_var1rest(addr *ret)
+_g void mop_argument_generic_var1rest(addr *ret)
 {
 	addr pos;
 	struct argument_struct *str;
@@ -81,7 +81,7 @@ void mop_argument_generic_var1rest(addr *ret)
 	*ret = pos;
 }
 
-void mop_argument_generic_var2rest(addr *ret)
+_g void mop_argument_generic_var2rest(addr *ret)
 {
 	addr pos;
 	struct argument_struct *str;
@@ -109,29 +109,29 @@ static void mop_argument_generic_varnrest1key0(addr *ret, unsigned var)
 	*ret = pos;
 }
 
-void mop_argument_generic_var1rest1key0(addr *ret)
+_g void mop_argument_generic_var1rest1key0(addr *ret)
 {
 	mop_argument_generic_varnrest1key0(ret, 1);
 }
 
-void mop_argument_generic_var2rest1key0(addr *ret)
+_g void mop_argument_generic_var2rest1key0(addr *ret)
 {
 	mop_argument_generic_varnrest1key0(ret, 2);
 }
 
-void mop_argument_generic_var4rest1key0(addr *ret)
+_g void mop_argument_generic_var4rest1key0(addr *ret)
 {
 	mop_argument_generic_varnrest1key0(ret, 4);
 }
 
-void mop_argument_method_var(addr *ret, constindex index)
+_g void mop_argument_method_var(addr *ret, constindex index)
 {
 	addr pos;
 	GetConstant(index, &pos);
 	list_heap(ret, Nil, pos, NULL);
 }
 
-void mop_argument_method_var1(addr *ret, constindex var1)
+_g void mop_argument_method_var1(addr *ret, constindex var1)
 {
 	addr pos, list;
 	struct argument_struct *str;
@@ -149,7 +149,7 @@ void mop_argument_method_var1(addr *ret, constindex var1)
 	*ret = pos;
 }
 
-void mop_argument_method_var1rest(addr *ret, constindex var1)
+_g void mop_argument_method_var1rest(addr *ret, constindex var1)
 {
 	addr pos;
 	mop_argument_method_var1(&pos, var1);
@@ -161,17 +161,17 @@ void mop_argument_method_var1rest(addr *ret, constindex var1)
 /*
  *  function
  */
-void init_mop_reader(void);
-void init_mop_class(void);
-void init_mop_generic(void);
-void init_mop_protocols(void);
+_g void init_mop_reader(void);
+_g void init_mop_class(void);
+_g void init_mop_generic(void);
+_g void init_mop_protocols(void);
 
-void build_mop_reader(Execute ptr);
-void build_mop_class(Execute ptr);
-void build_mop_generic(Execute ptr);
-void build_mop_protocols(Execute ptr);
+_g void build_mop_reader(Execute ptr);
+_g void build_mop_class(Execute ptr);
+_g void build_mop_generic(Execute ptr);
+_g void build_mop_protocols(Execute ptr);
 
-void init_metaobject_protocol(void)
+_g void init_metaobject_protocol(void)
 {
 	init_mop_class();
 	init_mop_reader();
@@ -179,7 +179,7 @@ void init_metaobject_protocol(void)
 	init_mop_protocols();
 }
 
-void build_metaobject_protocol(void)
+_g void build_metaobject_protocol(void)
 {
 	Execute ptr;
 

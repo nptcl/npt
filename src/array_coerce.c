@@ -56,76 +56,76 @@ static void array_coerce_type_heap(addr *ret, addr array,
 	*ret = pos;
 }
 
-void array_coerce_t_heap(addr *ret, addr array)
+_g void array_coerce_t_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_T, 0);
 }
 
-void array_coerce_bit_heap(addr *ret, addr array)
+_g void array_coerce_bit_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_BIT, 0);
 }
 
-void array_coerce_character_heap(addr *ret, addr array)
+_g void array_coerce_character_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_CHARACTER, 0);
 }
 
-void array_coerce_signed8_heap(addr *ret, addr array)
+_g void array_coerce_signed8_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_SIGNED, 8);
 }
 
-void array_coerce_signed16_heap(addr *ret, addr array)
+_g void array_coerce_signed16_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_SIGNED, 16);
 }
 
-void array_coerce_signed32_heap(addr *ret, addr array)
+_g void array_coerce_signed32_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_SIGNED, 32);
 }
 
 #ifdef LISP_64BIT
-void array_coerce_signed64_heap(addr *ret, addr array)
+_g void array_coerce_signed64_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_SIGNED, 64);
 }
 #endif
 
-void array_coerce_unsigned8_heap(addr *ret, addr array)
+_g void array_coerce_unsigned8_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_UNSIGNED, 8);
 }
 
-void array_coerce_unsigned16_heap(addr *ret, addr array)
+_g void array_coerce_unsigned16_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_UNSIGNED, 16);
 }
 
-void array_coerce_unsigned32_heap(addr *ret, addr array)
+_g void array_coerce_unsigned32_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_UNSIGNED, 32);
 }
 
 #ifdef LISP_64BIT
-void array_coerce_unsigned64_heap(addr *ret, addr array)
+_g void array_coerce_unsigned64_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_UNSIGNED, 64);
 }
 #endif
 
-void array_coerce_single_heap(addr *ret, addr array)
+_g void array_coerce_single_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_SINGLE_FLOAT, 0);
 }
 
-void array_coerce_double_heap(addr *ret, addr array)
+_g void array_coerce_double_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_DOUBLE_FLOAT, 0);
 }
 
-void array_coerce_long_heap(addr *ret, addr array)
+_g void array_coerce_long_heap(addr *ret, addr array)
 {
 	array_coerce_type_heap(ret, array, ARRAY_TYPE_LONG_FLOAT, 0);
 }
@@ -144,61 +144,61 @@ static void vector_coerce_type_heap(addr *ret,
 	*ret = pos;
 }
 
-void vector_coerce_signed8_heap(addr *ret, size_t size)
+_g void vector_coerce_signed8_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_SIGNED, 8, size);
 }
 
-void vector_coerce_signed16_heap(addr *ret, size_t size)
+_g void vector_coerce_signed16_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_SIGNED, 16, size);
 }
 
-void vector_coerce_signed32_heap(addr *ret, size_t size)
+_g void vector_coerce_signed32_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_SIGNED, 32, size);
 }
 
 #ifdef LISP_64BIT
-void vector_coerce_signed64_heap(addr *ret, size_t size)
+_g void vector_coerce_signed64_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_SIGNED, 64, size);
 }
 #endif
 
-void vector_coerce_unsigned8_heap(addr *ret, size_t size)
+_g void vector_coerce_unsigned8_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_UNSIGNED, 8, size);
 }
 
-void vector_coerce_unsigned16_heap(addr *ret, size_t size)
+_g void vector_coerce_unsigned16_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_UNSIGNED, 16, size);
 }
 
-void vector_coerce_unsigned32_heap(addr *ret, size_t size)
+_g void vector_coerce_unsigned32_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_UNSIGNED, 32, size);
 }
 
 #ifdef LISP_64BIT
-void vector_coerce_unsigned64_heap(addr *ret, size_t size)
+_g void vector_coerce_unsigned64_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_UNSIGNED, 64, size);
 }
 #endif
 
-void vector_coerce_single_heap(addr *ret, size_t size)
+_g void vector_coerce_single_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_SINGLE_FLOAT, 0, size);
 }
 
-void vector_coerce_double_heap(addr *ret, size_t size)
+_g void vector_coerce_double_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_DOUBLE_FLOAT, 0, size);
 }
 
-void vector_coerce_long_heap(addr *ret, size_t size)
+_g void vector_coerce_long_heap(addr *ret, size_t size)
 {
 	vector_coerce_type_heap(ret, ARRAY_TYPE_LONG_FLOAT, 0, size);
 }
@@ -207,7 +207,7 @@ void vector_coerce_long_heap(addr *ret, size_t size)
 /*
  *  array_coerce_bit
  */
-int array_coerce_bit_t(addr pos, int *ret)
+_g int array_coerce_bit_t(addr pos, int *ret)
 {
 	fixnum v;
 
@@ -347,7 +347,7 @@ static int array_coerce_bit_unsigned(struct array_value *ptr, int *ret)
 	}
 }
 
-int array_coerce_bit(addr pos, size_t i, int *ret)
+_g int array_coerce_bit(addr pos, size_t i, int *ret)
 {
 	struct array_value value;
 
@@ -375,7 +375,7 @@ int array_coerce_bit(addr pos, size_t i, int *ret)
 /*
  *  array_coerce_character
  */
-int array_coerce_character_t(addr pos, unicode *ret)
+_g int array_coerce_character_t(addr pos, unicode *ret)
 {
 	size_t size;
 
@@ -397,7 +397,7 @@ int array_coerce_character_t(addr pos, unicode *ret)
 	return 1;
 }
 
-int array_coerce_character(addr pos, size_t i, unicode *ret)
+_g int array_coerce_character(addr pos, size_t i, unicode *ret)
 {
 	struct array_value value;
 
@@ -419,7 +419,7 @@ int array_coerce_character(addr pos, size_t i, unicode *ret)
 /*
  *  array_coerce_signed8
  */
-int array_coerce_signed8_t(addr pos, int8_t *ret)
+_g int array_coerce_signed8_t(addr pos, int8_t *ret)
 {
 	fixnum v;
 
@@ -544,7 +544,7 @@ static int array_coerce_signed8_unsigned(addr pos,
 	}
 }
 
-int array_coerce_signed8(addr pos, size_t i, int8_t *ret)
+_g int array_coerce_signed8(addr pos, size_t i, int8_t *ret)
 {
 	struct array_value value;
 
@@ -574,7 +574,7 @@ int array_coerce_signed8(addr pos, size_t i, int8_t *ret)
 /*
  *  array_coerce_signed16
  */
-int array_coerce_signed16_t(addr pos, int16_t *ret)
+_g int array_coerce_signed16_t(addr pos, int16_t *ret)
 {
 	fixnum v;
 
@@ -689,7 +689,7 @@ static int array_coerce_signed16_unsigned(addr pos,
 	}
 }
 
-int array_coerce_signed16(addr pos, size_t i, int16_t *ret)
+_g int array_coerce_signed16(addr pos, size_t i, int16_t *ret)
 {
 	struct array_value value;
 
@@ -719,7 +719,7 @@ int array_coerce_signed16(addr pos, size_t i, int16_t *ret)
 /*
  *  array_coerce_signed32
  */
-int array_coerce_signed32_t(addr pos, int32_t *ret)
+_g int array_coerce_signed32_t(addr pos, int32_t *ret)
 {
 	fixnum v;
 
@@ -824,7 +824,7 @@ static int array_coerce_signed32_unsigned(addr pos,
 	}
 }
 
-int array_coerce_signed32(addr pos, size_t i, int32_t *ret)
+_g int array_coerce_signed32(addr pos, size_t i, int32_t *ret)
 {
 	struct array_value value;
 
@@ -855,7 +855,7 @@ int array_coerce_signed32(addr pos, size_t i, int32_t *ret)
 /*
  *  array_coerce_signed64
  */
-int array_coerce_signed64_t(addr pos, int64_t *ret)
+_g int array_coerce_signed64_t(addr pos, int64_t *ret)
 {
 	fixnum v;
 
@@ -936,7 +936,7 @@ static int array_coerce_signed64_unsigned(addr pos,
 	}
 }
 
-int array_coerce_signed64(addr pos, size_t i, int64_t *ret)
+_g int array_coerce_signed64(addr pos, size_t i, int64_t *ret)
 {
 	struct array_value value;
 
@@ -967,7 +967,7 @@ int array_coerce_signed64(addr pos, size_t i, int64_t *ret)
 /*
  *  array_coerce_unsigned8
  */
-int array_coerce_unsigned8_t(addr pos, uint8_t *ret)
+_g int array_coerce_unsigned8_t(addr pos, uint8_t *ret)
 {
 	fixnum v;
 
@@ -1092,7 +1092,7 @@ static int array_coerce_unsigned8_unsigned(addr pos,
 	}
 }
 
-int array_coerce_unsigned8(addr pos, size_t i, uint8_t *ret)
+_g int array_coerce_unsigned8(addr pos, size_t i, uint8_t *ret)
 {
 	struct array_value value;
 
@@ -1122,7 +1122,7 @@ int array_coerce_unsigned8(addr pos, size_t i, uint8_t *ret)
 /*
  *  array_coerce_unsigned16
  */
-int array_coerce_unsigned16_t(addr pos, uint16_t *ret)
+_g int array_coerce_unsigned16_t(addr pos, uint16_t *ret)
 {
 	fixnum v;
 
@@ -1242,7 +1242,7 @@ static int array_coerce_unsigned16_unsigned(addr pos,
 	}
 }
 
-int array_coerce_unsigned16(addr pos, size_t i, uint16_t *ret)
+_g int array_coerce_unsigned16(addr pos, size_t i, uint16_t *ret)
 {
 	struct array_value value;
 
@@ -1273,7 +1273,7 @@ int array_coerce_unsigned16(addr pos, size_t i, uint16_t *ret)
  *  array_coerce_unsigned32
  */
 #ifdef LISP_64BIT
-int array_coerce_unsigned32_t(addr pos, uint32_t *ret)
+_g int array_coerce_unsigned32_t(addr pos, uint32_t *ret)
 {
 	fixnum v;
 
@@ -1303,7 +1303,7 @@ int array_coerce_unsigned32_t(addr pos, uint32_t *ret)
 	}
 }
 #else
-int array_coerce_unsigned32_t(addr pos, uint32_t *ret)
+_g int array_coerce_unsigned32_t(addr pos, uint32_t *ret)
 {
 	int sign;
 	fixnum v;
@@ -1421,7 +1421,7 @@ static int array_coerce_unsigned32_unsigned(addr pos,
 	}
 }
 
-int array_coerce_unsigned32(addr pos, size_t i, uint32_t *ret)
+_g int array_coerce_unsigned32(addr pos, size_t i, uint32_t *ret)
 {
 	struct array_value value;
 
@@ -1452,7 +1452,7 @@ int array_coerce_unsigned32(addr pos, size_t i, uint32_t *ret)
  *  array_coerce_unsigned64
  */
 #ifdef LISP_64BIT
-int array_coerce_unsigned64_t(addr pos, uint64_t *ret)
+_g int array_coerce_unsigned64_t(addr pos, uint64_t *ret)
 {
 	int sign;
 	fixnum v;
@@ -1555,7 +1555,7 @@ static int array_coerce_unsigned64_unsigned(addr pos,
 	}
 }
 
-int array_coerce_unsigned64(addr pos, size_t i, uint64_t *ret)
+_g int array_coerce_unsigned64(addr pos, size_t i, uint64_t *ret)
 {
 	struct array_value value;
 
@@ -1586,7 +1586,7 @@ int array_coerce_unsigned64(addr pos, size_t i, uint64_t *ret)
 /*
  *  array_coerce_single
  */
-int array_coerce_single_t(addr value, single_float *ret)
+_g int array_coerce_single_t(addr value, single_float *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -1672,7 +1672,7 @@ static int array_coerce_single_unsigned(const struct array_value *ptr,
 	}
 }
 
-int array_coerce_single(addr pos, size_t i, single_float *ret)
+_g int array_coerce_single(addr pos, size_t i, single_float *ret)
 {
 	struct array_value value;
 
@@ -1714,7 +1714,7 @@ int array_coerce_single(addr pos, size_t i, single_float *ret)
 /*
  *  array_coerce_double
  */
-int array_coerce_double_t(addr value, double_float *ret)
+_g int array_coerce_double_t(addr value, double_float *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -1800,7 +1800,7 @@ static int array_coerce_double_unsigned(const struct array_value *ptr,
 	}
 }
 
-int array_coerce_double(addr pos, size_t i, double_float *ret)
+_g int array_coerce_double(addr pos, size_t i, double_float *ret)
 {
 	struct array_value value;
 
@@ -1842,7 +1842,7 @@ int array_coerce_double(addr pos, size_t i, double_float *ret)
 /*
  *  array_coerce_long
  */
-int array_coerce_long_t(addr value, long_float *ret)
+_g int array_coerce_long_t(addr value, long_float *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -1928,7 +1928,7 @@ static int array_coerce_long_unsigned(const struct array_value *ptr,
 	}
 }
 
-int array_coerce_long(addr pos, size_t i, long_float *ret)
+_g int array_coerce_long(addr pos, size_t i, long_float *ret)
 {
 	struct array_value value;
 
@@ -1970,83 +1970,83 @@ int array_coerce_long(addr pos, size_t i, long_float *ret)
 /*
  *  vector_coerce_bit
  */
-int vector_coerce_bit(addr pos, size_t i, int *ret)
+_g int vector_coerce_bit(addr pos, size_t i, int *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_bit_t(pos, ret);
 }
 
-int vector_coerce_character(addr pos, size_t i, unicode *ret)
+_g int vector_coerce_character(addr pos, size_t i, unicode *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_character_t(pos, ret);
 }
 
-int vector_coerce_signed8(addr pos, size_t i, int8_t *ret)
+_g int vector_coerce_signed8(addr pos, size_t i, int8_t *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_signed8_t(pos, ret);
 }
 
-int vector_coerce_signed16(addr pos, size_t i, int16_t *ret)
+_g int vector_coerce_signed16(addr pos, size_t i, int16_t *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_signed16_t(pos, ret);
 }
 
-int vector_coerce_signed32(addr pos, size_t i, int32_t *ret)
+_g int vector_coerce_signed32(addr pos, size_t i, int32_t *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_signed32_t(pos, ret);
 }
 
 #ifdef LISP_64BIT
-int vector_coerce_signed64(addr pos, size_t i, int64_t *ret)
+_g int vector_coerce_signed64(addr pos, size_t i, int64_t *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_signed64_t(pos, ret);
 }
 #endif
 
-int vector_coerce_unsigned8(addr pos, size_t i, uint8_t *ret)
+_g int vector_coerce_unsigned8(addr pos, size_t i, uint8_t *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_unsigned8_t(pos, ret);
 }
 
-int vector_coerce_unsigned16(addr pos, size_t i, uint16_t *ret)
+_g int vector_coerce_unsigned16(addr pos, size_t i, uint16_t *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_unsigned16_t(pos, ret);
 }
 
-int vector_coerce_unsigned32(addr pos, size_t i, uint32_t *ret)
+_g int vector_coerce_unsigned32(addr pos, size_t i, uint32_t *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_unsigned32_t(pos, ret);
 }
 
 #ifdef LISP_64BIT
-int vector_coerce_unsigned64(addr pos, size_t i, uint64_t *ret)
+_g int vector_coerce_unsigned64(addr pos, size_t i, uint64_t *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_unsigned64_t(pos, ret);
 }
 #endif
 
-int vector_coerce_single(addr pos, size_t i, single_float *ret)
+_g int vector_coerce_single(addr pos, size_t i, single_float *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_single_t(pos, ret);
 }
 
-int vector_coerce_double(addr pos, size_t i, double_float *ret)
+_g int vector_coerce_double(addr pos, size_t i, double_float *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_double_t(pos, ret);
 }
 
-int vector_coerce_long(addr pos, size_t i, long_float *ret)
+_g int vector_coerce_long(addr pos, size_t i, long_float *ret)
 {
 	getarray(pos, i, &pos);
 	return array_coerce_long_t(pos, ret);

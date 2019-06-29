@@ -737,7 +737,7 @@ static void defun_sxhash(void)
 /*
  *  function
  */
-void init_common_hashtables(void)
+_g void init_common_hashtables(void)
 {
 	SetPointerCall(defun, dynamic, make_hash_table);
 	SetPointerCall(defun, var1, hash_table_p);
@@ -755,7 +755,7 @@ void init_common_hashtables(void)
 	SetPointerCall(defun, var1, sxhash);
 }
 
-void build_common_hashtables(void)
+_g void build_common_hashtables(void)
 {
 	defun_make_hash_table();
 	defun_hash_table_p();

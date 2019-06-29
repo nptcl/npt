@@ -48,12 +48,12 @@ struct fmtdecimal_struct {
 
 typedef struct fmtdecimal_struct *fmtdecimal;
 
-int fmtdecimal_zerop(fmtdecimal str);
-int fmtdecimal_round(fmtdecimal str, unsigned i);
-int fmtdecimal_single_float(fmtdecimal str, single_float value, int round);
-int fmtdecimal_double_float(fmtdecimal str, double_float value, int round);
-int fmtdecimal_long_float(fmtdecimal str, long_float value, int round);
-void fmtdecimal_dump(FILE *file, fmtdecimal str);
+_g int fmtdecimal_zerop(fmtdecimal str);
+_g int fmtdecimal_round(fmtdecimal str, unsigned i);
+_g int fmtdecimal_single_float(fmtdecimal str, single_float value, int round);
+_g int fmtdecimal_double_float(fmtdecimal str, double_float value, int round);
+_g int fmtdecimal_long_float(fmtdecimal str, long_float value, int round);
+_g void fmtdecimal_dump(FILE *file, fmtdecimal str);
 
 
 /*****************************************************************************
@@ -81,20 +81,20 @@ struct fmtfloat_struct {
 
 typedef struct fmtfloat_struct *fmtfloat;
 
-void fmtfloat_fixed(addr stream, fmtfloat fmt, fmtdecimal dec);
-void fmtfloat_exponent(addr stream, fmtfloat fmt, fmtdecimal dec);
-void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec);
-void fmtfloat_dollars(addr stream, fmtfloat fmt, fmtdecimal dec);
+_g void fmtfloat_fixed(addr stream, fmtfloat fmt, fmtdecimal dec);
+_g void fmtfloat_exponent(addr stream, fmtfloat fmt, fmtdecimal dec);
+_g void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec);
+_g void fmtfloat_dollars(addr stream, fmtfloat fmt, fmtdecimal dec);
 
 
 /*****************************************************************************
  *  princ / prin1
  *****************************************************************************/
-int fmtfloat_princ_single_float(addr stream,
+_g int fmtfloat_princ_single_float(addr stream,
 		single_float value, int markerp, unicode marker);
-int fmtfloat_princ_double_float(addr stream,
+_g int fmtfloat_princ_double_float(addr stream,
 		double_float value, int markerp, unicode marker);
-int fmtfloat_princ_long_float(addr stream,
+_g int fmtfloat_princ_long_float(addr stream,
 		long_float value, int markerp, unicode marker);
 
 #endif

@@ -13,7 +13,7 @@
 #include "rational.h"
 #include "real_float.h"
 
-int numberp(addr pos)
+_g int numberp(addr pos)
 {
 	enum LISPTYPE type = GetType(pos);
 	return type == LISPTYPE_FIXNUM
@@ -26,7 +26,7 @@ int numberp(addr pos)
 		|| type == LISPTYPE_SHORT_FLOAT;
 }
 
-void number_result_local(LocalRoot local, addr pos, addr *ret)
+_g void number_result_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	if (complexp(pos))
@@ -35,7 +35,7 @@ void number_result_local(LocalRoot local, addr pos, addr *ret)
 		rational_result_local(local, pos, ret);
 }
 
-void number_result_heap(LocalRoot local, addr pos, addr *ret)
+_g void number_result_heap(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	if (complexp(pos))
@@ -44,7 +44,7 @@ void number_result_heap(LocalRoot local, addr pos, addr *ret)
 		rational_result_heap(local, pos, ret);
 }
 
-void number_throw_alloc(LocalRoot local, addr pos, addr *ret)
+_g void number_throw_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -81,18 +81,18 @@ void number_throw_alloc(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
-void number_throw_local(LocalRoot local, addr pos, addr *ret)
+_g void number_throw_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	number_throw_alloc(local, pos, ret);
 }
 
-void number_throw_heap(addr pos, addr *ret)
+_g void number_throw_heap(addr pos, addr *ret)
 {
 	number_throw_alloc(NULL, pos, ret);
 }
 
-void number_copy_alloc(LocalRoot local, addr pos, addr *ret)
+_g void number_copy_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	if (complexp(pos))
 		complex_copy_alloc(local, pos, ret);
@@ -100,13 +100,13 @@ void number_copy_alloc(LocalRoot local, addr pos, addr *ret)
 		real_copy_alloc(local, pos, ret);
 }
 
-void number_copy_local(LocalRoot local, addr pos, addr *ret)
+_g void number_copy_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	number_copy_alloc(local, pos, ret);
 }
 
-void number_copy_heap(addr pos, addr *ret)
+_g void number_copy_heap(addr pos, addr *ret)
 {
 	number_copy_alloc(NULL, pos, ret);
 }
@@ -115,7 +115,7 @@ void number_copy_heap(addr pos, addr *ret)
 /*
  *  number function
  */
-int zerop_number(addr pos)
+_g int zerop_number(addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -210,7 +210,7 @@ static int equal_bignum_number(addr left, addr right)
 	return 0;
 }
 
-int equal_ratio_number(LocalRoot local, addr left, addr right)
+_g int equal_ratio_number(LocalRoot local, addr left, addr right)
 {
 	CheckType(left, LISPTYPE_RATIO);
 	switch (GetType(right)) {
@@ -370,7 +370,7 @@ static int equal_complex_number(LocalRoot local, addr left, addr right)
 	return 0;
 }
 
-int equal_number(LocalRoot local, addr left, addr right)
+_g int equal_number(LocalRoot local, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -405,7 +405,7 @@ int equal_number(LocalRoot local, addr left, addr right)
 /*
  *  operator
  */
-void oneplus_number_common(LocalRoot local, addr value, addr *ret)
+_g void oneplus_number_common(LocalRoot local, addr value, addr *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -442,7 +442,7 @@ void oneplus_number_common(LocalRoot local, addr value, addr *ret)
 	}
 }
 
-void oneminus_number_common(LocalRoot local, addr value, addr *ret)
+_g void oneminus_number_common(LocalRoot local, addr value, addr *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_FIXNUM:
@@ -479,7 +479,7 @@ void oneminus_number_common(LocalRoot local, addr value, addr *ret)
 	}
 }
 
-void sign_reverse_number_common(addr left, addr *ret)
+_g void sign_reverse_number_common(addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -516,7 +516,7 @@ void sign_reverse_number_common(addr left, addr *ret)
 	}
 }
 
-void sign_reverse_number_local(LocalRoot local, addr left, addr *ret)
+_g void sign_reverse_number_local(LocalRoot local, addr left, addr *ret)
 {
 	Check(local == NULL, "local error");
 	switch (GetType(left)) {
@@ -825,7 +825,7 @@ static inline void plus_complex_number_heap(LocalRoot local,
 	}
 }
 
-void plus_number_heap(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_number_heap(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1136,7 +1136,7 @@ static inline void minus_complex_number_heap(LocalRoot local,
 	}
 }
 
-void minus_number_heap(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_number_heap(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1446,7 +1446,7 @@ static inline void multi_complex_number_heap(LocalRoot local,
 	}
 }
 
-void multi_number_heap(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_number_heap(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1487,7 +1487,7 @@ void multi_number_heap(LocalRoot local, addr left, addr right, addr *ret)
 /*
  *  inverse
  */
-void inverse_number_heap(LocalRoot local, addr left, addr *ret)
+_g void inverse_number_heap(LocalRoot local, addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1798,7 +1798,7 @@ static inline void div_complex_number_heap(LocalRoot local,
 	}
 }
 
-void div_number_heap(LocalRoot local, addr left, addr right, addr *ret)
+_g void div_number_heap(LocalRoot local, addr left, addr right, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1839,7 +1839,7 @@ void div_number_heap(LocalRoot local, addr left, addr right, addr *ret)
 /*
  *  abs
  */
-void abs_number_common(addr left, addr *ret)
+_g void abs_number_common(addr left, addr *ret)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1946,7 +1946,7 @@ static void signum_ratio_common(addr pos, addr *ret)
 		fixnum_heap(ret, minusp_ratio(pos)? -1: 1);
 }
 
-void signum_number_common(addr pos, addr *ret)
+_g void signum_number_common(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -2033,7 +2033,7 @@ static void sqrt_long_common(struct mathreal2_struct *ptr, addr *ret)
 	}
 }
 
-void sqrt_number_common(addr pos, addr *ret)
+_g void sqrt_number_common(addr pos, addr *ret)
 {
 	struct mathreal2_struct str;
 

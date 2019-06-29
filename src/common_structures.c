@@ -696,13 +696,13 @@ static void defun_copy_structure(void)
 /*
  *  function
  */
-void init_common_structures(void)
+_g void init_common_structures(void)
 {
 	SetPointerCall(defmacro, macro, defstruct);
 	SetPointerCall(defun, var1, copy_structure);
 }
 
-void build_common_structures(void)
+_g void build_common_structures(void)
 {
 	defmacro_defstruct();
 	defun_copy_structure();

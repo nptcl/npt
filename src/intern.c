@@ -64,7 +64,7 @@ static void intern_symbol_package(addr package, struct symbol_header *str, addr 
 	SetArrayHash(package, index, cdr);
 }
 
-void intern_symbol_header(void)
+_g void intern_symbol_header(void)
 {
 	addr symbol, p_common, p_keyword, p_system, p_code, p_clos, p_rt;
 	struct symbol_header *table;

@@ -8,7 +8,7 @@
 	Check(! twoway_stream_p(stream), "type error"); \
 }
 
-void open_twoway_stream(addr *stream, addr input, addr output)
+_g void open_twoway_stream(addr *stream, addr input, addr output)
 {
 	addr pos;
 
@@ -20,25 +20,25 @@ void open_twoway_stream(addr *stream, addr input, addr output)
 	*stream = pos;
 }
 
-void get_twoway_input_stream(addr stream, addr *ret)
+_g void get_twoway_input_stream(addr stream, addr *ret)
 {
 	CheckTwoWayStream(stream);
 	GetInputStream(stream, ret);
 }
 
-void set_twoway_input_stream(addr stream, addr input)
+_g void set_twoway_input_stream(addr stream, addr input)
 {
 	CheckTwoWayStream(stream);
 	SetInputStream(stream, input);
 }
 
-void get_twoway_output_stream(addr stream, addr *ret)
+_g void get_twoway_output_stream(addr stream, addr *ret)
 {
 	CheckTwoWayStream(stream);
 	GetOutputStream(stream, ret);
 }
 
-void set_twoway_output_stream(addr stream, addr output)
+_g void set_twoway_output_stream(addr stream, addr output)
 {
 	CheckTwoWayStream(stream);
 	SetOutputStream(stream, output);
@@ -197,7 +197,7 @@ static void clear_output_TwoWay(addr stream)
 	clear_output_stream(stream);
 }
 
-void init_stream_twoway(void)
+_g void init_stream_twoway(void)
 {
 	DefineStreamDef(TwoWay, close);
 	DefineStreamSet(TwoWay, read_binary);

@@ -20,7 +20,7 @@
 /*
  *  memory
  */
-void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
+_g void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
 {
 	int i;
 	addr pos;
@@ -47,12 +47,12 @@ void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
 		str->optimize[i] = -1;
 	*ret = pos;
 }
-void eval_stack_local(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
+_g void eval_stack_local(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
 {
 	Check(local == NULL, "local error");
 	eval_stack_alloc(local, ret, type);
 }
-void eval_stack_heap(addr *ret, enum EVAL_STACK_MODE type)
+_g void eval_stack_heap(addr *ret, enum EVAL_STACK_MODE type)
 {
 	/* for global stack */
 	eval_stack_alloc(NULL, ret, type);
@@ -62,42 +62,42 @@ void eval_stack_heap(addr *ret, enum EVAL_STACK_MODE type)
 /*
  *  eval-stack
  */
-struct eval_stack *structevalstack(addr pos)
+_g struct eval_stack *structevalstack(addr pos)
 {
 	Check(! eval_stack_p(pos), "type error");
 	return StructEvalStack_Low(pos);
 }
-enum EVAL_STACK_MODE refevalstacktype(addr pos)
+_g enum EVAL_STACK_MODE refevalstacktype(addr pos)
 {
 	Check(! eval_stack_p(pos), "type error");
 	return RefEvalStackType_Low(pos);
 }
-void getevalstacktype(addr pos, enum EVAL_STACK_MODE *ret)
+_g void getevalstacktype(addr pos, enum EVAL_STACK_MODE *ret)
 {
 	Check(! eval_stack_p(pos), "type error");
 	GetEvalStackType_Low(pos, ret);
 }
-void setevalstacktype(addr pos, enum EVAL_STACK_MODE value)
+_g void setevalstacktype(addr pos, enum EVAL_STACK_MODE value)
 {
 	Check(! eval_stack_p(pos), "type error");
 	SetEvalStackType_Low(pos, value);
 }
-void getevalstacknext(addr pos, addr *ret)
+_g void getevalstacknext(addr pos, addr *ret)
 {
 	Check(! eval_stack_p(pos), "type error");
 	GetEvalStackNext_Low(pos, ret);
 }
-void setevalstacknext(addr pos, addr value)
+_g void setevalstacknext(addr pos, addr value)
 {
 	Check(! eval_stack_p(pos), "type error");
 	SetEvalStackNext_Low(pos, value);
 }
-void getevalstacktable(addr pos, addr *ret)
+_g void getevalstacktable(addr pos, addr *ret)
 {
 	Check(! eval_stack_p(pos), "type error");
 	GetEvalStackTable_Low(pos, ret);
 }
-void setevalstacktable(addr pos, addr value)
+_g void setevalstacktable(addr pos, addr value)
 {
 	Check(! eval_stack_p(pos), "type error");
 	SetEvalStackTable_Low(pos, value);
@@ -116,13 +116,13 @@ static void getglobal_symbol(addr *ret)
 	GetConst(SYSTEM_EVAL_SCOPE_GLOBAL, ret);
 }
 
-void getstack_eval(Execute ptr, addr *ret)
+_g void getstack_eval(Execute ptr, addr *ret)
 {
 	addr symbol;
 	getstack_symbol(&symbol);
 	getspecialcheck_local(ptr, symbol, ret);
 }
-void getglobal_eval(Execute ptr, addr *ret)
+_g void getglobal_eval(Execute ptr, addr *ret)
 {
 	addr symbol;
 	getglobal_symbol(&symbol);
@@ -147,7 +147,7 @@ static void make_closure_plist(LocalRoot local, addr stack)
 	setplist_constant_nil(local, stack, CONSTANT_SYSTEM_CLOSURE_BLOCK);
 }
 
-addr newstack_eval(Execute ptr, enum EVAL_STACK_MODE type)
+_g addr newstack_eval(Execute ptr, enum EVAL_STACK_MODE type)
 {
 	addr stack, symbol, next;
 
@@ -204,7 +204,7 @@ static void closestack_unsafe(Execute ptr)
 	rollback_local(ptr->local, stack);
 }
 
-void freestack_eval(Execute ptr, addr scope)
+_g void freestack_eval(Execute ptr, addr scope)
 {
 	addr symbol, pos;
 
@@ -226,7 +226,7 @@ void freestack_eval(Execute ptr, addr scope)
 	}
 }
 
-void init_eval_stack(Execute ptr)
+_g void init_eval_stack(Execute ptr)
 {
 	addr symbol, stack;
 
@@ -241,7 +241,7 @@ void init_eval_stack(Execute ptr)
 	newstack_nil(ptr);
 }
 
-void free_eval_stack(Execute ptr)
+_g void free_eval_stack(Execute ptr)
 {
 	addr symbol;
 
@@ -251,7 +251,7 @@ void free_eval_stack(Execute ptr)
 	setspecial_local(ptr, symbol, Nil);
 }
 
-int globalp_stack_eval(addr pos)
+_g int globalp_stack_eval(addr pos)
 {
 	Check(! eval_stack_p(pos), "type error");
 	return StructEvalStack(pos)->globalp;
@@ -384,7 +384,7 @@ static void apply_declare_switch(LocalRoot local,
 	}
 }
 
-void apply_declaim_stack(Execute ptr, addr declare)
+_g void apply_declaim_stack(Execute ptr, addr declare)
 {
 	addr stack;
 
@@ -397,7 +397,7 @@ void apply_declaim_stack(Execute ptr, addr declare)
 /*
  *  declare
  */
-void apply_declare_stack(LocalRoot local, addr stack, addr declare)
+_g void apply_declare_stack(LocalRoot local, addr stack, addr declare)
 {
 	if (declare == Nil) return;
 	apply_declare_switch(local, stack, declare, 0);
@@ -431,7 +431,7 @@ static void apply_plistsymbol_stack(LocalRoot local,
 	}
 }
 
-void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare)
+_g void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare)
 {
 	addr pos;
 
@@ -487,7 +487,7 @@ static void apply_plistcall_stack(LocalRoot local,
 	}
 }
 
-void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare)
+_g void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare)
 {
 	addr pos;
 

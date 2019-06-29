@@ -3,9 +3,9 @@
 
 #include "execute.h"
 
-void gcexec(void);
-void gcsync(Execute ptr);
-void heap_check(void);
+_g void gcexec(void);
+_g void gcsync(Execute ptr);
+_g void heap_check(void);
 
 #endif
 

@@ -237,7 +237,7 @@ static void class_of_bit_vector(addr object, addr *ret)
 	GetConst(CLOS_SIMPLE_BIT_VECTOR, ret);
 }
 
-void init_clos_type(void)
+_g void init_clos_type(void)
 {
 	size_t i;
 
@@ -273,7 +273,7 @@ void init_clos_type(void)
 	class_of_call[LISPTYPE_BITVECTOR] = class_of_bit_vector;
 }
 
-void clos_class_of(addr object, addr *ret)
+_g void clos_class_of(addr object, addr *ret)
 {
 	enum LISPTYPE type;
 
@@ -292,7 +292,7 @@ void clos_class_of(addr object, addr *ret)
 /*
  *  specializer
  */
-void clos_intern_specializer(addr object, addr *ret)
+_g void clos_intern_specializer(addr object, addr *ret)
 {
 	addr pos, type;
 

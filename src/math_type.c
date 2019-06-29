@@ -11,7 +11,7 @@
 /*
  *  getmathtype
  */
-enum MathType getmathtype_float(struct mathtype_struct *ptr, addr pos)
+_g enum MathType getmathtype_float(struct mathtype_struct *ptr, addr pos)
 {
 	enum MathType type;
 
@@ -319,7 +319,7 @@ static void getmathreal2_long(struct mathreal2_struct *ptr, addr x, addr y)
 	ptr->v.l.b = value;
 }
 
-enum MathType getmathreal2_float(struct mathreal2_struct *ptr, addr x, addr y)
+_g enum MathType getmathreal2_float(struct mathreal2_struct *ptr, addr x, addr y)
 {
 	enum MathType type;
 
@@ -359,7 +359,7 @@ static void getmathreal2_rational(struct mathreal2_struct *ptr, addr x, addr y)
 	ptr->v.a.y = y;
 }
 
-enum MathType getmathreal2_addr(struct mathreal2_struct *ptr, addr x, addr y)
+_g enum MathType getmathreal2_addr(struct mathreal2_struct *ptr, addr x, addr y)
 {
 	enum MathType type;
 
@@ -467,7 +467,7 @@ static enum MathType getmathcomplex1_inverse_type(addr pos)
 	}
 }
 
-enum MathType getmathcomplex1_complex(struct mathreal2_struct *ptr, addr pos)
+_g enum MathType getmathcomplex1_complex(struct mathreal2_struct *ptr, addr pos)
 {
 	switch (GetTypeComplex(pos)) {
 		case ComplexType_single:
@@ -499,7 +499,7 @@ enum MathType getmathcomplex1_complex(struct mathreal2_struct *ptr, addr pos)
 	return ptr->type;
 }
 
-enum MathType getmathcomplex1_log(struct mathreal2_struct *ptr, addr pos)
+_g enum MathType getmathcomplex1_log(struct mathreal2_struct *ptr, addr pos)
 {
 	enum MathType type;
 
@@ -539,7 +539,7 @@ enum MathType getmathcomplex1_log(struct mathreal2_struct *ptr, addr pos)
 	return type;
 }
 
-enum MathType getmathcomplex1_inverse(struct mathreal2_struct *ptr, addr pos)
+_g enum MathType getmathcomplex1_inverse(struct mathreal2_struct *ptr, addr pos)
 {
 	enum MathType type;
 
@@ -578,7 +578,7 @@ enum MathType getmathcomplex1_inverse(struct mathreal2_struct *ptr, addr pos)
 	return type;
 }
 
-enum MathType getmathcomplex1_sqrt(struct mathreal2_struct *ptr, addr pos)
+_g enum MathType getmathcomplex1_sqrt(struct mathreal2_struct *ptr, addr pos)
 {
 	enum MathType type;
 
@@ -914,7 +914,7 @@ static void getmathcomplex2_long(struct mathcomplex2_struct *ptr, addr x, addr y
 	ptr->v.l.d = imag;
 }
 
-enum MathType getmathcomplex2_float(struct mathcomplex2_struct *ptr, addr x, addr y)
+_g enum MathType getmathcomplex2_float(struct mathcomplex2_struct *ptr, addr x, addr y)
 {
 	enum MathType type;
 
@@ -958,7 +958,7 @@ static void getmathcomplex2_rational(struct mathcomplex2_struct *ptr, addr x, ad
 	ptr->v.a.y = y;
 }
 
-enum MathType getmathcomplex2_addr(struct mathcomplex2_struct *ptr, addr x, addr y)
+_g enum MathType getmathcomplex2_addr(struct mathcomplex2_struct *ptr, addr x, addr y)
 {
 	enum MathType type;
 

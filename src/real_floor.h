@@ -4,11 +4,11 @@
 #include "local.h"
 #include "typedef.h"
 
-void floor1_common(LocalRoot local, addr *quot, addr *rem, addr left);
-void ffloor1_common(LocalRoot local, addr *quot, addr *rem, addr left);
-void floor_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
-void ffloor_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
-void mod_rational_common(LocalRoot local, addr left, addr right, addr *ret);
+_g void floor1_common(LocalRoot local, addr *quot, addr *rem, addr left);
+_g void ffloor1_common(LocalRoot local, addr *quot, addr *rem, addr left);
+_g void floor_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
+_g void ffloor_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
+_g void mod_rational_common(LocalRoot local, addr left, addr right, addr *ret);
 
 #endif
 

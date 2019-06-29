@@ -3,8 +3,8 @@
 
 #include "typedef.h"
 
-void open_prompt_stream(addr *stream);
-void init_stream_prompt(void);
+_g void open_prompt_stream(addr *stream);
+_g void init_stream_prompt(void);
 
 #endif
 

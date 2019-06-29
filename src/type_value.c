@@ -16,12 +16,12 @@
 typedef void (*type_value_call)(addr *, addr);
 static type_value_call TypeValueTable[LISPTYPE_SIZE];
 
-void type_value_nil(addr *ret)
+_g void type_value_nil(addr *ret)
 {
 	GetTypeTable(ret, Null);
 }
 
-void type_value_t(addr *ret)
+_g void type_value_t(addr *ret)
 {
 	GetTypeTable(ret, Boolean);
 }
@@ -41,7 +41,7 @@ static void type_value_type(addr *ret, addr value)
 	GetTypeTable(ret, Type);
 }
 
-void type_value_clos(addr *ret, addr value)
+_g void type_value_clos(addr *ret, addr value)
 {
 	clos_class_of(value, &value);
 	type_clos_heap(value, ret);
@@ -134,7 +134,7 @@ static void type_value_array_multiple(addr *ret, addr value)
 	type2_heap(decl, type, array, ret);
 }
 
-void type_value_array(addr *ret, addr value)
+_g void type_value_array(addr *ret, addr value)
 {
 	size_t size;
 
@@ -150,7 +150,7 @@ void type_value_array(addr *ret, addr value)
 		type_value_array_multiple(ret, value);
 }
 
-void type_value_vector(addr *ret, addr value)
+_g void type_value_vector(addr *ret, addr value)
 {
 	addr arg;
 	size_t size;
@@ -161,7 +161,7 @@ void type_value_vector(addr *ret, addr value)
 	type1_heap(LISPDECL_SIMPLE_VECTOR, arg, ret);
 }
 
-void type_value_character(addr *ret, addr value)
+_g void type_value_character(addr *ret, addr value)
 {
 	addr pos;
 	enum CHARACTER_TYPE type;
@@ -212,7 +212,7 @@ static void type_value_strvect(addr *ret, addr value)
 	*ret = pos;
 }
 
-void type_value_string(addr *ret, addr value)
+_g void type_value_string(addr *ret, addr value)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_STRING:
@@ -255,13 +255,13 @@ static void type_realvalue(enum LISPDECL type, addr value, addr *ret)
 	type4_heap(type, Nil, value, Nil, value, ret);
 }
 
-void type_value_integer(addr *ret, addr value)
+_g void type_value_integer(addr *ret, addr value)
 {
 	Check(! integerp(value), "type error");
 	type_realvalue(LISPDECL_INTEGER, value, ret);
 }
 
-void type_value_rational(addr *ret, addr value)
+_g void type_value_rational(addr *ret, addr value)
 {
 	Check(! rationalp(value), "type error");
 	type_realvalue(LISPDECL_RATIONAL, value, ret);
@@ -285,7 +285,7 @@ static void type_value_long(addr *ret, addr value)
 	type_realvalue(LISPDECL_LONG_FLOAT, value, ret);
 }
 
-void type_value_float(addr *ret, addr value)
+_g void type_value_float(addr *ret, addr value)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -306,7 +306,7 @@ void type_value_float(addr *ret, addr value)
 	}
 }
 
-void type_value_complex(addr *ret, addr value)
+_g void type_value_complex(addr *ret, addr value)
 {
 	addr real, imag, type;
 
@@ -340,7 +340,7 @@ static void type_value_random_state(addr *ret, addr value)
 	GetTypeTable(ret, RandomState);
 }
 
-void type_value_pathname(addr *ret, addr value)
+_g void type_value_pathname(addr *ret, addr value)
 {
 	Check(! pathnamep(value), "type error");
 	if (pathname_pathname_p(value))
@@ -349,7 +349,7 @@ void type_value_pathname(addr *ret, addr value)
 		GetTypeTable(ret, LogicalPathname);
 }
 
-void type_value_environment(addr *ret, addr value)
+_g void type_value_environment(addr *ret, addr value)
 {
 	GetTypeTable(ret, Environment);
 }
@@ -398,7 +398,7 @@ static void type_value_stream(addr *ret, addr value)
 		GetTypeTable(ret, Stream);
 }
 
-void type_value_bitvector(addr *ret, addr value)
+_g void type_value_bitvector(addr *ret, addr value)
 {
 	addr arg;
 	size_t size;
@@ -429,7 +429,7 @@ static void type_value_error(addr *ret, addr value)
 	fmte("Invalid type-value ~S.", value, NULL);
 }
 
-void type_value(addr *ret, addr value)
+_g void type_value(addr *ret, addr value)
 {
 	type_value_call call;
 
@@ -440,7 +440,7 @@ void type_value(addr *ret, addr value)
 		call(ret, value);
 }
 
-void init_type_value(void)
+_g void init_type_value(void)
 {
 	TypeValueTable[LISPTYPE_NIL] = type_value_nil_call;
 	TypeValueTable[LISPTYPE_T] = type_value_t_call;

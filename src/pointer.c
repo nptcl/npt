@@ -2,9 +2,9 @@
 #include "build.h"
 #include "pointer.h"
 
-struct callbind_struct pointer_table[p_size];
+_g struct callbind_struct pointer_table[p_size];
 
-void clear_pointer(void)
+_g void clear_pointer(void)
 {
 #ifdef LISP_DEBUG
 	int p;

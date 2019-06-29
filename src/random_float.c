@@ -46,7 +46,7 @@ static char *strfloat_32bit(char *ptr, uint32_t value)
 #define RANDOM_FLOAT32_TIMES	2
 #define RANDOM_FLOAT32_BUFFER	(RANDOM_PRINTF32*RANDOM_FLOAT32_TIMES)
 #define RANDOM_FLOAT32_DATA		(4+2+1 + RANDOM_FLOAT32_BUFFER)
-float float_random_32bit(struct random_state *state)
+_g float float_random_32bit(struct random_state *state)
 {
 	/* "0x0.FFFFFFFFp0": 4+2+1 + size*times */
 	char data[RANDOM_FLOAT32_DATA];
@@ -71,7 +71,7 @@ float float_random_32bit(struct random_state *state)
 #define RANDOM_DOUBLE32_TIMES	4
 #define RANDOM_DOUBLE32_BUFFER	(RANDOM_PRINTF32*RANDOM_DOUBLE32_TIMES)
 #define RANDOM_DOUBLE32_DATA	(4+2+1 + RANDOM_DOUBLE32_BUFFER)
-double double_random_32bit(struct random_state *state)
+_g double double_random_32bit(struct random_state *state)
 {
 	/* "0x0.FFFFFFFFp0": 4+2+1 + size*times */
 	unsigned i;
@@ -101,7 +101,7 @@ double double_random_32bit(struct random_state *state)
 #define RANDOM_LONG32_TIMES		8
 #define RANDOM_LONG32_BUFFER	(RANDOM_PRINTF32*RANDOM_LONG32_TIMES)
 #define RANDOM_LONG32_DATA		(4+2+1 + RANDOM_LONG32_BUFFER)
-long double long_random_32bit(struct random_state *state)
+_g long double long_random_32bit(struct random_state *state)
 {
 	/* "0x0.FFFFFFFFp0": 4+2+1 + size*times */
 	unsigned i;
@@ -139,7 +139,7 @@ static char *strfloat_64bit(char *ptr, uint64_t value)
 #define RANDOM_FLOAT64_TIMES	1
 #define RANDOM_FLOAT64_BUFFER	(RANDOM_PRINTF64*RANDOM_FLOAT64_TIMES)
 #define RANDOM_FLOAT64_DATA		(4+2+1 + RANDOM_FLOAT64_BUFFER)
-float float_random_64bit(struct random_state *state)
+_g float float_random_64bit(struct random_state *state)
 {
 	/* "0x0.FFFFFFFFp0": 4+2+1 + size*times */
 	char data[RANDOM_FLOAT64_DATA];
@@ -164,7 +164,7 @@ float float_random_64bit(struct random_state *state)
 #define RANDOM_DOUBLE64_TIMES	2
 #define RANDOM_DOUBLE64_BUFFER	(RANDOM_PRINTF64*RANDOM_DOUBLE64_TIMES)
 #define RANDOM_DOUBLE64_DATA	(4+2+1 + RANDOM_DOUBLE64_BUFFER)
-double double_random_64bit(struct random_state *state)
+_g double double_random_64bit(struct random_state *state)
 {
 	/* "0x0.FFFFFFFFp0": 4+2+1 + size*times */
 	unsigned i;
@@ -194,7 +194,7 @@ double double_random_64bit(struct random_state *state)
 #define RANDOM_LONG64_TIMES		4
 #define RANDOM_LONG64_BUFFER	(RANDOM_PRINTF64*RANDOM_LONG64_TIMES)
 #define RANDOM_LONG64_DATA		(4+2+1 + RANDOM_LONG64_BUFFER)
-long double long_random_64bit(struct random_state *state)
+_g long double long_random_64bit(struct random_state *state)
 {
 	/* "0x0.FFFFFFFFp0": 4+2+1 + size*times */
 	unsigned i;

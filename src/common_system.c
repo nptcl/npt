@@ -210,12 +210,12 @@ static void defun_load(void)
 /*
  *  function
  */
-void init_common_system(void)
+_g void init_common_system(void)
 {
 	SetPointerCall(defun, var1dynamic, load);
 }
 
-void build_common_system(void)
+_g void build_common_system(void)
 {
 	defvar_features();
 	defvar_compile_file_pathname();

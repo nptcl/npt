@@ -3623,10 +3623,10 @@ static int test_make_type_ordinary(void)
 	lambda_tablevalue(local, &str);
 	make_type_ordinary(local, str.args, &pos);
 	test(lenarrayr(pos) == 4, "make_type_ordinary1");
-	test(getarrayr(pos, 0) == Nil, "make_type_ordinary2");
-	test(getarrayr(pos, 1) == Nil, "make_type_ordinary3");
-	test(getarrayr(pos, 2) == Nil, "make_type_ordinary4");
-	test(getarrayr(pos, 3) == Nil, "make_type_ordinary5");
+	test(refarray(pos, 0) == Nil, "make_type_ordinary2");
+	test(refarray(pos, 1) == Nil, "make_type_ordinary3");
+	test(refarray(pos, 2) == Nil, "make_type_ordinary4");
+	test(refarray(pos, 3) == Nil, "make_type_ordinary5");
 
 	newstack_nil(ptr);
 	parse_eval_string(&pos,
@@ -3637,10 +3637,10 @@ static int test_make_type_ordinary(void)
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 	lambda_tablevalue(local, &str);
 	make_type_ordinary(local, str.args, &pos);
-	test(getarrayr(pos, 0) != Nil, "make_type_ordinary6");
-	test(getarrayr(pos, 1) != Nil, "make_type_ordinary7");
-	test(getarrayr(pos, 2) != Nil, "make_type_ordinary8");
-	test(getarrayr(pos, 3) != Nil, "make_type_ordinary9");
+	test(refarray(pos, 0) != Nil, "make_type_ordinary6");
+	test(refarray(pos, 1) != Nil, "make_type_ordinary7");
+	test(refarray(pos, 2) != Nil, "make_type_ordinary8");
+	test(refarray(pos, 3) != Nil, "make_type_ordinary9");
 
 	free_eval_stack(ptr);
 	free_control(ptr, control);

@@ -8,7 +8,7 @@
 	Check(! echo_stream_p(stream), "type error"); \
 }
 
-void open_echo_stream(addr *stream, addr input, addr output)
+_g void open_echo_stream(addr *stream, addr input, addr output)
 {
 	addr pos;
 
@@ -20,25 +20,25 @@ void open_echo_stream(addr *stream, addr input, addr output)
 	*stream = pos;
 }
 
-void get_echo_input_stream(addr stream, addr *ret)
+_g void get_echo_input_stream(addr stream, addr *ret)
 {
 	CheckEchoStream(stream);
 	GetInputStream(stream, ret);
 }
 
-void set_echo_input_stream(addr stream, addr input)
+_g void set_echo_input_stream(addr stream, addr input)
 {
 	CheckEchoStream(stream);
 	SetInputStream(stream, input);
 }
 
-void get_echo_output_stream(addr stream, addr *ret)
+_g void get_echo_output_stream(addr stream, addr *ret)
 {
 	CheckEchoStream(stream);
 	GetOutputStream(stream, ret);
 }
 
-void set_echo_output_stream(addr stream, addr output)
+_g void set_echo_output_stream(addr stream, addr output)
 {
 	CheckEchoStream(stream);
 	SetOutputStream(stream, output);
@@ -234,7 +234,7 @@ static void clear_output_Echo(addr stream)
 	clear_output_stream(stream);
 }
 
-void init_stream_echo(void)
+_g void init_stream_echo(void)
 {
 	DefineStreamDef(Echo, close);
 	DefineStreamSet(Echo, read_binary);

@@ -10,7 +10,7 @@
  *  localtime
  */
 #ifdef LISP_THREAD_WINDOWS
-void nowtime_string(char *ptr, size_t size)
+_g void nowtime_string(char *ptr, size_t size)
 {
 	SYSTEMTIME st;
 	GetLocalTime(&st);
@@ -19,7 +19,7 @@ void nowtime_string(char *ptr, size_t size)
 }
 #else
 #include <time.h>
-void nowtime_string(char *ptr, size_t size)
+_g void nowtime_string(char *ptr, size_t size)
 {
 	char data[32];
 	time_t now;
@@ -50,7 +50,7 @@ void nowtime_string(char *ptr, size_t size)
 #include <unistd.h>
 
 /* Posix read */
-int read_posix(int file, void *pos, size_t size, size_t *ret)
+_g int read_posix(int file, void *pos, size_t size, size_t *ret)
 {
 	ssize_t check;
 
@@ -68,7 +68,7 @@ int read_posix(int file, void *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-int readforce_posix(int file, void *ptr, size_t size, size_t *ret)
+_g int readforce_posix(int file, void *ptr, size_t size, size_t *ret)
 {
 	ssize_t check;
 	size_t count, rsize, diff;
@@ -102,7 +102,7 @@ int readforce_posix(int file, void *ptr, size_t size, size_t *ret)
 
 #ifdef LISP_WINDOWS
 /* Windows ReadFile */
-int read_windows(HANDLE file, void *pos, size_t size, size_t *ret)
+_g int read_windows(HANDLE file, void *pos, size_t size, size_t *ret)
 {
 	BOOL check;
 	DWORD dsize;
@@ -122,7 +122,7 @@ int read_windows(HANDLE file, void *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-int readforce_windows(HANDLE file, void *ptr, size_t size, size_t *ret)
+_g int readforce_windows(HANDLE file, void *ptr, size_t size, size_t *ret)
 {
 	int check;
 	size_t count, rsize, diff;
@@ -157,7 +157,7 @@ int readforce_windows(HANDLE file, void *ptr, size_t size, size_t *ret)
 #endif
 
 /* ANSI-C fread */
-int read_clang(FILE *file, void *pos, size_t size, size_t *ret)
+_g int read_clang(FILE *file, void *pos, size_t size, size_t *ret)
 {
 	size_t check;
 
@@ -175,7 +175,7 @@ int read_clang(FILE *file, void *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-int readforce_clang(FILE *file, void *ptr, size_t size, size_t *ret)
+_g int readforce_clang(FILE *file, void *ptr, size_t size, size_t *ret)
 {
 	int check;
 	size_t count, rsize, diff;
@@ -211,7 +211,7 @@ int readforce_clang(FILE *file, void *ptr, size_t size, size_t *ret)
 /*
  *  safe
  */
-int multisafe_size(size_t left, size_t right, size_t *result)
+_g int multisafe_size(size_t left, size_t right, size_t *result)
 {
 	size_t temp;
 
@@ -229,7 +229,7 @@ int multisafe_size(size_t left, size_t right, size_t *result)
 	return 0;
 }
 
-int plussafe_size(size_t a, size_t b, size_t *result)
+_g int plussafe_size(size_t a, size_t b, size_t *result)
 {
 	if (a > SIZE_MAX - b)
 		return 1;

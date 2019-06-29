@@ -237,7 +237,7 @@ static void array_bitcalc_bb(addr *ret,
 	bitmemory_bitcalc(opt, pos1, pos2, call);
 }
 
-void array_bitcalc(addr *ret, addr pos1, addr pos2, addr opt, bitcalc_call call)
+_g void array_bitcalc(addr *ret, addr pos1, addr pos2, addr opt, bitcalc_call call)
 {
 	int check1, check2;
 
@@ -261,7 +261,7 @@ void array_bitcalc(addr *ret, addr pos1, addr pos2, addr opt, bitcalc_call call)
 	}
 }
 
-void array_bitnot_array(addr *ret, addr pos, addr opt)
+_g void array_bitnot_array(addr *ret, addr pos, addr opt)
 {
 	struct array_struct *str;
 
@@ -290,7 +290,7 @@ void array_bitnot_array(addr *ret, addr pos, addr opt)
 	bitmemory_bitnot(opt, pos);
 }
 
-void array_bitnot_bitmemory(addr *ret, addr pos, addr opt)
+_g void array_bitnot_bitmemory(addr *ret, addr pos, addr opt)
 {
 	size_t size;
 
@@ -314,7 +314,7 @@ void array_bitnot_bitmemory(addr *ret, addr pos, addr opt)
 	bitmemory_bitnot(opt, pos);
 }
 
-void array_bitnot(addr *ret, addr pos, addr opt)
+_g void array_bitnot(addr *ret, addr pos, addr opt)
 {
 	if (array_bitvector_type(pos))
 		array_bitnot_array(ret, pos, opt);
@@ -322,7 +322,7 @@ void array_bitnot(addr *ret, addr pos, addr opt)
 		array_bitnot_bitmemory(ret, pos, opt);
 }
 
-void array_fill(addr pos, addr item, addr start, addr end)
+_g void array_fill(addr pos, addr item, addr start, addr end)
 {
 	size_t index1, index2;
 	struct array_struct *str;
@@ -424,7 +424,7 @@ static void array_subseq_type(addr *ret, addr pos, size_t index1, size_t index2)
 	}
 }
 
-void array_subseq(addr *ret, addr pos, addr start, addr end)
+_g void array_subseq(addr *ret, addr pos, addr start, addr end)
 {
 	size_t index1, index2;
 	struct array_struct *str;
@@ -434,7 +434,7 @@ void array_subseq(addr *ret, addr pos, addr start, addr end)
 	array_subseq_type(ret, pos, index1, index2);
 }
 
-void array_reverse_t(LocalRoot local, addr *ret, addr pos)
+_g void array_reverse_t(LocalRoot local, addr *ret, addr pos)
 {
 	addr one, temp;
 	size_t size, x, y;
@@ -452,7 +452,7 @@ void array_reverse_t(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
-void array_reverse_bit(LocalRoot local, addr *ret, addr pos)
+_g void array_reverse_bit(LocalRoot local, addr *ret, addr pos)
 {
 	int temp;
 	addr one;
@@ -469,7 +469,7 @@ void array_reverse_bit(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
-void array_reverse_character(LocalRoot local, addr *ret, addr pos)
+_g void array_reverse_character(LocalRoot local, addr *ret, addr pos)
 {
 	unicode temp;
 	addr one;
@@ -521,7 +521,7 @@ static void array_make_simple_vector(LocalRoot local, addr *ret,
 	*ret = pos;
 }
 
-void array_reverse_size(LocalRoot local, addr *ret, addr pos)
+_g void array_reverse_size(LocalRoot local, addr *ret, addr pos)
 {
 	struct array_struct *str;
 	addr one;
@@ -540,7 +540,7 @@ void array_reverse_size(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
-void array_reverse(LocalRoot local, addr *ret, addr pos)
+_g void array_reverse(LocalRoot local, addr *ret, addr pos)
 {
 	struct array_struct *str;
 
@@ -565,7 +565,7 @@ void array_reverse(LocalRoot local, addr *ret, addr pos)
 	}
 }
 
-void array_nreverse(addr *ret, addr pos)
+_g void array_nreverse(addr *ret, addr pos)
 {
 	size_t size, x, y;
 	struct array_value a, b;

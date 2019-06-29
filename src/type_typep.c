@@ -1297,7 +1297,7 @@ static int typep_byte(addr value, addr type, int *ret)
 /*
  *  typep-clang
  */
-int typep_table(addr value, addr type, int *ret)
+_g int typep_table(addr value, addr type, int *ret)
 {
 	call_type_typep call;
 
@@ -1307,7 +1307,7 @@ int typep_table(addr value, addr type, int *ret)
 	return call(value, type, ret);
 }
 
-void init_type_typep(void)
+_g void init_type_typep(void)
 {
 	int i;
 
@@ -1405,13 +1405,13 @@ static int typep_call(addr value, addr type, int asterisk, int *ret)
 	return 0;
 }
 
-int typep_clang(addr value, addr type, int *ret)
+_g int typep_clang(addr value, addr type, int *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	return typep_call(value, type, 0, ret);
 }
 
-int typep_asterisk_clang(addr value, addr type, int *ret)
+_g int typep_asterisk_clang(addr value, addr type, int *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	return typep_call(value, type, 1, ret);

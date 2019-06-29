@@ -5,7 +5,7 @@
 /*
  *  clang function
  */
-void defconstant_symbol(addr symbol, addr value)
+_g void defconstant_symbol(addr symbol, addr value)
 {
 	setspecial_symbol(symbol);
 	SetValueSymbol(symbol, value);
@@ -24,19 +24,19 @@ static void check_function_macro(addr symbol)
 		fmte("The macro-function ~S is already exist.", symbol, NULL);
 }
 
-void setfunction_common(addr symbol, addr value)
+_g void setfunction_common(addr symbol, addr value)
 {
 	check_function_macro(symbol);
 	SetFunctionSymbol(symbol, value);
 }
 
-void setmacro_common(addr symbol, addr value)
+_g void setmacro_common(addr symbol, addr value)
 {
 	check_function_macro(symbol);
 	setmacro_symbol(symbol, value);
 }
 
-void setsetfmacro_common(addr symbol, addr value)
+_g void setsetfmacro_common(addr symbol, addr value)
 {
 	addr check;
 
@@ -46,7 +46,7 @@ void setsetfmacro_common(addr symbol, addr value)
 	setsetfmacro_symbol(symbol, value);
 }
 
-void define_special_operator(constindex index)
+_g void define_special_operator(constindex index)
 {
 	addr symbol;
 	GetConstant(index, &symbol);
@@ -112,19 +112,19 @@ static void keyword_start_end_constant(constindex cstart, constindex cend,
 	*pend = end;
 }
 
-void keyword_start_end(size_t size, addr rest, size_t *pstart, size_t *pend)
+_g void keyword_start_end(size_t size, addr rest, size_t *pstart, size_t *pend)
 {
 	keyword_start_end_constant(CONSTANT_KEYWORD_START, CONSTANT_KEYWORD_END,
 			size, rest, pstart, pend);
 }
 
-void keyword_start1_end1(size_t size, addr rest, size_t *pstart, size_t *pend)
+_g void keyword_start1_end1(size_t size, addr rest, size_t *pstart, size_t *pend)
 {
 	keyword_start_end_constant(CONSTANT_KEYWORD_START1, CONSTANT_KEYWORD_END1,
 			size, rest, pstart, pend);
 }
 
-void keyword_start2_end2(size_t size, addr rest, size_t *pstart, size_t *pend)
+_g void keyword_start2_end2(size_t size, addr rest, size_t *pstart, size_t *pend)
 {
 	keyword_start_end_constant(CONSTANT_KEYWORD_START2, CONSTANT_KEYWORD_END2,
 			size, rest, pstart, pend);
@@ -134,7 +134,7 @@ void keyword_start2_end2(size_t size, addr rest, size_t *pstart, size_t *pend)
 /*
  *  build
  */
-void build_common_after_settings(void)
+_g void build_common_after_settings(void)
 {
 	addr symbol, value;
 

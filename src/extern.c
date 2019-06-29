@@ -1,6 +1,5 @@
 #include "build.h"
 #include "condition.h"
-#include "extern.h"
 #include "memory.h"
 #include "object.h"
 #include "type_constant.h"

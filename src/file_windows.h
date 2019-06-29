@@ -56,7 +56,7 @@ static void init_console(void)
 	consolep = 1;
 }
 
-int init_file(void)
+_g int init_file(void)
 {
 	if (init_fileio(&fileio_input, STD_INPUT_HANDLE)) return 1;
 	if (init_fileio(&fileio_output, STD_OUTPUT_HANDLE)) return 1;
@@ -66,11 +66,11 @@ int init_file(void)
 	return 0;
 }
 
-void free_file(void)
+_g void free_file(void)
 {
 }
 
-int consolep_file(void)
+_g int consolep_file(void)
 {
 	return consolep;
 }
@@ -403,7 +403,7 @@ static void large_integer_value(PLARGE_INTEGER ptr, size_t *ret)
 static inline int file_length_arch(file_type file, size_t *ret)
 {
 	LARGE_INTEGER size;
-	
+
 	if (! GetFileSizeEx(file, &size)) {
 		*ret = 0;
 		return 1;

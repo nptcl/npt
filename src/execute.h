@@ -2,6 +2,7 @@
 #define __EXECUTE_HEADER__
 
 #include <setjmp.h>
+#include "define.h"
 #include "typedef_thread.h"
 #include "local.h"
 
@@ -62,9 +63,9 @@ typedef struct CodeJump codejump;
 /*
  *  threadlocal
  */
-extern threadlocal ThreadLocal_Execute;
-extern threadlocal ThreadLocal_Index;
-extern threadlocal ThreadLocal_Local;
+__extern threadlocal ThreadLocal_Execute;
+__extern threadlocal ThreadLocal_Index;
+__extern threadlocal ThreadLocal_Local;
 
 #ifdef LISP_THREAD_DISABLE
 #define Execute_Thread (getexecute(0))
@@ -80,24 +81,24 @@ extern threadlocal ThreadLocal_Local;
 /*
  *  function
  */
-int init_execute(size_t);
-void free_execute(void);
-void set_execute_local(struct execute *ptr);
-int make_execute(execfunction, struct execute **, size_t);
-void setstate_execute(struct execute *, enum ThreadState);
-int join_execute(struct execute *);
-size_t count_execute(void);
+_g int init_execute(size_t);
+_g void free_execute(void);
+_g void set_execute_local(struct execute *ptr);
+_g int make_execute(execfunction, struct execute **, size_t);
+_g void setstate_execute(struct execute *, enum ThreadState);
+_g int join_execute(struct execute *);
+_g size_t count_execute(void);
 
-int joinindex_execute(size_t);
-int create_thread(execfunction, struct execute *);
-int join_thread(threadhandle *);
+_g int joinindex_execute(size_t);
+_g int create_thread(execfunction, struct execute *);
+_g int join_thread(threadhandle *);
 
-struct execute *getexecute(size_t index);
-void exitexecute(struct execute *ptr, lispcode code);
-void exitindex(size_t index, lispcode code);
+_g struct execute *getexecute(size_t index);
+_g void exitexecute(struct execute *ptr, lispcode code);
+_g void exitindex(size_t index, lispcode code);
 #define exitthis(code) exitexecute(Execute_Thread, code)
-void abortexecute(struct execute *ptr);
-void abortindex(size_t index);
+_g void abortexecute(struct execute *ptr);
+_g void abortindex(size_t index);
 #define abortthis() abortexecute(Execute_Thread)
 
 
@@ -118,12 +119,12 @@ void abortindex(size_t index);
 	Execute __ptr = Execute_Thread; \
 	begin_code(__ptr, code); \
 }
-int begin_code_check(Execute ptr, lispcode *code);
-void end_code(Execute ptr);
-void end_code_thread(void);
-int code_run_p(lispcode code);
-int code_end_p(lispcode code);
-int code_error_p(lispcode code);
+_g int begin_code_check(Execute ptr, lispcode *code);
+_g void end_code(Execute ptr);
+_g void end_code_thread(void);
+_g int code_run_p(lispcode code);
+_g int code_end_p(lispcode code);
+_g int code_error_p(lispcode code);
 
 #define begin_switch(ptr, jump) { \
 	int __begin_value; \
@@ -135,35 +136,35 @@ int code_error_p(lispcode code);
 	Execute __ptr = Execute_Thread; \
 	begin_switch(__ptr, jump); \
 }
-void begin_switch_check(Execute ptr, codejump *code);
-void end_switch(codejump *code);
-int codejump_run_p(codejump *code);
-int codejump_end_p(codejump *code);
-int codejump_error_p(codejump *code);
+_g void begin_switch_check(Execute ptr, codejump *code);
+_g void end_switch(codejump *code);
+_g int codejump_run_p(codejump *code);
+_g int codejump_end_p(codejump *code);
+_g int codejump_error_p(codejump *code);
 
-void exit_code(Execute ptr, lispcode code);
-void exit_code_thread(lispcode code);
-void break_code(Execute ptr);
-void break_code_thread(void);
-void throw_code(Execute ptr, lispcode code);
-void throw_code_thread(lispcode code);
-void throw_switch(codejump *code);
+_g void exit_code(Execute ptr, lispcode code);
+_g void exit_code_thread(lispcode code);
+_g void break_code(Execute ptr);
+_g void break_code_thread(void);
+_g void throw_code(Execute ptr, lispcode code);
+_g void throw_code_thread(lispcode code);
+_g void throw_switch(codejump *code);
 
 
 /*
  *  gc sync
  */
-void gcstate_execute(void);
-void gcstart_execute(struct execute *ptr);
-void gcwait_execute(struct execute *ptr);
-void gcend_execute(void);
-void foreach_execute(void (*call)(struct execute *));
-int foreach_check_execute(int (*call)(struct execute *));
+_g void gcstate_execute(void);
+_g void gcstart_execute(struct execute *ptr);
+_g void gcwait_execute(struct execute *ptr);
+_g void gcend_execute(void);
+_g void foreach_execute(void (*call)(struct execute *));
+_g int foreach_check_execute(int (*call)(struct execute *));
 
 /*
  *  exit
  */
-void exit_execute(int value);
+_g void exit_execute(int value);
 
 #endif
 

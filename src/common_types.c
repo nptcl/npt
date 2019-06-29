@@ -293,7 +293,7 @@ static void defun_type_error_expected_type(void)
 /*
  *  function
  */
-void init_common_types(void)
+_g void init_common_types(void)
 {
 	SetPointerCall(defun,     var2,      coerce);
 	SetPointerCall(defmacro,  macro,     deftype);
@@ -304,7 +304,7 @@ void init_common_types(void)
 	SetPointerCall(defun,     var1,      type_error_expected_type);
 }
 
-void build_common_types(void)
+_g void build_common_types(void)
 {
 	defun_coerce();
 	defmacro_deftype();

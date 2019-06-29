@@ -45,7 +45,7 @@ enum Restart_Index {
 #define GetRestart		GetArrayA2
 #define SetRestart		SetArrayA2
 
-void restart_heap(addr *ret, addr name)
+_g void restart_heap(addr *ret, addr name)
 {
 	addr pos;
 
@@ -57,91 +57,91 @@ void restart_heap(addr *ret, addr name)
 	*ret = pos;
 }
 
-void getname_restart(addr pos, addr *ret)
+_g void getname_restart(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	GetRestart(pos, Restart_Name, ret);
 }
 
-void setname_restart(addr pos, addr value)
+_g void setname_restart(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	SetRestart(pos, Restart_Name, value);
 }
 
-void getfunction_restart(addr pos, addr *ret)
+_g void getfunction_restart(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	GetRestart(pos, Restart_Function, ret);
 }
 
-void setfunction_restart(addr pos, addr value)
+_g void setfunction_restart(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	SetRestart(pos, Restart_Function, value);
 }
 
-void getinteractive_restart(addr pos, addr *ret)
+_g void getinteractive_restart(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	GetRestart(pos, Restart_Interactive, ret);
 }
 
-void setinteractive_restart(addr pos, addr value)
+_g void setinteractive_restart(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	SetRestart(pos, Restart_Interactive, value);
 }
 
-void getreport_restart(addr pos, addr *ret)
+_g void getreport_restart(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	GetRestart(pos, Restart_Report, ret);
 }
 
-void setreport_restart(addr pos, addr value)
+_g void setreport_restart(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	SetRestart(pos, Restart_Report, value);
 }
 
-void gettest_restart(addr pos, addr *ret)
+_g void gettest_restart(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	GetRestart(pos, Restart_Test, ret);
 }
 
-void settest_restart(addr pos, addr value)
+_g void settest_restart(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	SetRestart(pos, Restart_Test, value);
 }
 
-void getcondition_restart(addr pos, addr *ret)
+_g void getcondition_restart(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	GetRestart(pos, Restart_Condition, ret);
 }
 
-void setcondition_restart(addr pos, addr value)
+_g void setcondition_restart(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	SetRestart(pos, Restart_Condition, value);
 }
 
-void getreference_restart(addr pos, addr *ret)
+_g void getreference_restart(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	GetRestart(pos, Restart_Reference, ret);
 }
 
-void setreference_restart(addr pos, addr value)
+_g void setreference_restart(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_RESTART);
 	SetRestart(pos, Restart_Reference, value);
 }
 
-void setescape_restart(addr pos, int value)
+_g void setescape_restart(addr pos, int value)
 {
 	byte u;
 
@@ -151,7 +151,7 @@ void setescape_restart(addr pos, int value)
 	SetUser(pos, u);
 }
 
-int getescape_restart(addr pos)
+_g int getescape_restart(addr pos)
 {
 	byte u;
 
@@ -161,7 +161,7 @@ int getescape_restart(addr pos)
 	return GetBitByte(u, 0);
 }
 
-void setenable_restart(addr pos, int value)
+_g void setenable_restart(addr pos, int value)
 {
 	byte u;
 
@@ -171,7 +171,7 @@ void setenable_restart(addr pos, int value)
 	SetUser(pos, u);
 }
 
-int getenable_restart(addr pos)
+_g int getenable_restart(addr pos)
 {
 	byte u;
 
@@ -181,7 +181,7 @@ int getenable_restart(addr pos)
 	return GetBitByte(u, 1);
 }
 
-void setredirect_restart(addr pos, int value)
+_g void setredirect_restart(addr pos, int value)
 {
 	byte u;
 
@@ -191,7 +191,7 @@ void setredirect_restart(addr pos, int value)
 	SetUser(pos, u);
 }
 
-int getredirect_restart(addr pos)
+_g int getredirect_restart(addr pos)
 {
 	byte u;
 
@@ -205,7 +205,7 @@ int getredirect_restart(addr pos)
 /*
  *  restart code
  */
-void function_global_restart(Execute ptr, addr symbol, addr *ret)
+_g void function_global_restart(Execute ptr, addr symbol, addr *ret)
 {
 	addr pos;
 
@@ -215,12 +215,12 @@ void function_global_restart(Execute ptr, addr symbol, addr *ret)
 	*ret = pos;
 }
 
-void function_local_restart(Execute ptr, addr symbol, addr *ret)
+_g void function_local_restart(Execute ptr, addr symbol, addr *ret)
 {
 	getfunctioncheck_local(ptr, symbol, ret);
 }
 
-void setf_global_restart(Execute ptr, addr symbol, addr *ret)
+_g void setf_global_restart(Execute ptr, addr symbol, addr *ret)
 {
 	addr pos;
 
@@ -230,12 +230,12 @@ void setf_global_restart(Execute ptr, addr symbol, addr *ret)
 	*ret = pos;
 }
 
-void setf_local_restart(Execute ptr, addr symbol, addr *ret)
+_g void setf_local_restart(Execute ptr, addr symbol, addr *ret)
 {
 	getsetfcheck_local(ptr, symbol, ret);
 }
 
-void value_global_restart(Execute ptr, addr symbol, addr *ret)
+_g void value_global_restart(Execute ptr, addr symbol, addr *ret)
 {
 	addr pos;
 
@@ -245,12 +245,12 @@ void value_global_restart(Execute ptr, addr symbol, addr *ret)
 	*ret = pos;
 }
 
-void value_lexical_restart(Execute ptr, addr symbol, addr *ret)
+_g void value_lexical_restart(Execute ptr, addr symbol, addr *ret)
 {
 	getlexicalcheck_local(ptr, symbol, ret);
 }
 
-void value_special_restart(Execute ptr, addr symbol, addr *ret)
+_g void value_special_restart(Execute ptr, addr symbol, addr *ret)
 {
 	getspecialcheck_local(ptr, symbol, ret);
 }
@@ -279,7 +279,7 @@ static void function_handler_warning(Execute ptr, addr condition)
 	}
 }
 
-void handler_warning(Execute ptr)
+_g void handler_warning(Execute ptr)
 {
 	addr pos, call;
 
@@ -300,7 +300,7 @@ static void function_handler_savecore(Execute ptr, addr condition)
 	/* do-nothing */
 }
 
-void handler_savecore(Execute ptr)
+_g void handler_savecore(Execute ptr)
 {
 	addr pos, call;
 
@@ -497,7 +497,7 @@ static void abort_debugger(void)
 	abortthis();
 }
 
-int invoke_debugger(addr condition)
+_g int invoke_debugger(addr condition)
 {
 	if (enable_debugger_p()) {
 		if (enter_debugger(condition))
@@ -510,14 +510,14 @@ int invoke_debugger(addr condition)
 	return 0;
 }
 
-void set_enable_debugger(int value)
+_g void set_enable_debugger(int value)
 {
 	addr pos;
 	GetConst(SYSTEM_ENABLE_DEBUGGER, &pos);
 	setspecial_local(Execute_Thread, pos, value? T: Nil);
 }
 
-void set_enable_interactive(int value)
+_g void set_enable_interactive(int value)
 {
 	addr pos;
 	GetConst(SYSTEM_ENABLE_INTERACTIVE, &pos);
@@ -526,7 +526,7 @@ void set_enable_interactive(int value)
 
 
 #if 0
-void invoke_restart(Execute ptr, addr restart, addr args)
+_g void invoke_restart(Execute ptr, addr restart, addr args)
 {
 }
 #endif
@@ -535,7 +535,7 @@ void invoke_restart(Execute ptr, addr restart, addr args)
 /*
  *  condition for clang
  */
-int conditionp(addr pos)
+_g int conditionp(addr pos)
 {
 	addr super;
 
@@ -544,7 +544,7 @@ int conditionp(addr pos)
 	return clos_subclass_p(pos, super);
 }
 
-int condition_instance_p(addr pos)
+_g int condition_instance_p(addr pos)
 {
 	addr super;
 
@@ -553,7 +553,7 @@ int condition_instance_p(addr pos)
 	return clos_subtype_p(pos, super);
 }
 
-int signal_function(addr condition)
+_g int signal_function(addr condition)
 {
 	int check;
 	addr signals, type;
@@ -573,7 +573,7 @@ int signal_function(addr condition)
 	return invoke_handler_control(ptr, condition);
 }
 
-void error_function(addr condition)
+_g void error_function(addr condition)
 {
 	if (! signal_function(condition)) {
 		if (invoke_debugger(condition)) {
@@ -582,7 +582,7 @@ void error_function(addr condition)
 	}
 }
 
-void format_error(const char *str, ...)
+_g void format_error(const char *str, ...)
 {
 	addr format, cons;
 	va_list args;
@@ -594,7 +594,7 @@ void format_error(const char *str, ...)
 	simple_error(format, cons);
 }
 
-void format_warning(const char *str, ...)
+_g void format_warning(const char *str, ...)
 {
 	addr format, cons;
 	va_list args;
@@ -613,11 +613,11 @@ static void instance_condition(addr *ret, constindex condition)
 	GetConstant(condition, &pos);
 	clos_instance_heap(pos, ret);
 }
-void instance_serious_condition(addr *ret)
+_g void instance_serious_condition(addr *ret)
 {
 	instance_condition(ret, CONSTANT_CONDITION_SERIOUS_CONDITION);
 }
-void serious_condition(void)
+_g void serious_condition(void)
 {
 	addr instance;
 	instance_serious_condition(&instance);
@@ -637,40 +637,40 @@ static void instance_condition2(addr *ret, constindex index,
 	clos_setconst(instance, index2, pos2);
 	*ret = instance;
 }
-void instance_simple_condition(addr *ret, addr control, addr args)
+_g void instance_simple_condition(addr *ret, addr control, addr args)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_SIMPLE_CONDITION,
 			CONSTANT_CLOSNAME_FORMAT_CONTROL, control,
 			CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args);
 }
-void simple_condition(addr control, addr args)
+_g void simple_condition(addr control, addr args)
 {
 	addr instance;
 	instance_simple_condition(&instance, control, args);
 	error_function(instance);
 }
-void simple_condition_format(addr condition, addr *control, addr *arguments)
+_g void simple_condition_format(addr condition, addr *control, addr *arguments)
 {
 	ClosCheckConst(condition, CLOSNAME_FORMAT_CONTROL, control);
 	ClosCheckConst(condition, CLOSNAME_FORMAT_ARGUMENTS, arguments);
 }
-void simple_condition_format_control(addr condition, addr *ret)
+_g void simple_condition_format_control(addr condition, addr *ret)
 {
 	ClosCheckConst(condition, CLOSNAME_FORMAT_CONTROL, ret);
 }
-void simple_condition_format_arguments(addr condition, addr *ret)
+_g void simple_condition_format_arguments(addr condition, addr *ret)
 {
 	ClosCheckConst(condition, CLOSNAME_FORMAT_ARGUMENTS, ret);
 }
 
 /* simple_error (simple_condition) :format-control :format-arguments */
-void instance_simple_error(addr *ret, addr control, addr args)
+_g void instance_simple_error(addr *ret, addr control, addr args)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_SIMPLE_ERROR,
 			CONSTANT_CLOSNAME_FORMAT_CONTROL, control,
 			CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args);
 }
-void simple_error(addr control, addr args)
+_g void simple_error(addr control, addr args)
 {
 	addr instance;
 	instance_simple_error(&instance, control, args);
@@ -678,11 +678,11 @@ void simple_error(addr control, addr args)
 }
 
 /* error (serious_condition) */
-void instance_error_condition(addr *ret)
+_g void instance_error_condition(addr *ret)
 {
 	instance_condition(ret, CONSTANT_CONDITION_ERROR);
 }
-void error_condition(void)
+_g void error_condition(void)
 {
 	addr instance;
 	instance_error_condition(&instance);
@@ -690,11 +690,11 @@ void error_condition(void)
 }
 
 /* warning (condition) */
-void instance_warning_condition(addr *ret)
+_g void instance_warning_condition(addr *ret)
 {
 	instance_condition(ret, CONSTANT_CONDITION_WARNING);
 }
-void warning_condition(void)
+_g void warning_condition(void)
 {
 	addr instance;
 	instance_warning_condition(&instance);
@@ -702,13 +702,13 @@ void warning_condition(void)
 }
 
 /* simple_warning (simple_condition warning) :format-control :format-arguments */
-void instance_simple_warning(addr *ret, addr control, addr args)
+_g void instance_simple_warning(addr *ret, addr control, addr args)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_SIMPLE_WARNING,
 			CONSTANT_CLOSNAME_FORMAT_CONTROL, control,
 			CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args);
 }
-void simple_warning(addr control, addr args)
+_g void simple_warning(addr control, addr args)
 {
 	addr instance;
 	instance_simple_warning(&instance, control, args);
@@ -718,11 +718,11 @@ void simple_warning(addr control, addr args)
 }
 
 /* storage_condition (serious_condition) */
-void instance_storage_condition(addr *ret)
+_g void instance_storage_condition(addr *ret)
 {
 	instance_condition(ret, CONSTANT_CONDITION_STORAGE_CONDITION);
 }
-void storage_condition(void)
+_g void storage_condition(void)
 {
 	addr instance;
 	instance_storage_condition(&instance);
@@ -730,47 +730,47 @@ void storage_condition(void)
 }
 
 /* arithmetic_error (error) :operation :operands */
-void instance_arithmetic_error(addr *ret, addr operation, addr operands)
+_g void instance_arithmetic_error(addr *ret, addr operation, addr operands)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_ARITHMETIC_ERROR,
 			CONSTANT_CLOSNAME_OPERATION, operation,
 			CONSTANT_CLOSNAME_OPERANDS, operands);
 }
-void arithmetic_error(addr operation, addr operands)
+_g void arithmetic_error(addr operation, addr operands)
 {
 	addr instance;
 	instance_arithmetic_error(&instance, operation, operands);
 	error_function(instance);
 }
-void arithmetic_error_operation(addr instance, addr *ret)
+_g void arithmetic_error_operation(addr instance, addr *ret)
 {
 	ClosCheckConst(instance, CLOSNAME_OPERATION, ret);
 }
-void arithmetic_error_operands(addr instance, addr *ret)
+_g void arithmetic_error_operands(addr instance, addr *ret)
 {
 	ClosCheckConst(instance, CLOSNAME_OPERANDS, ret);
 }
 
 /* floating_point_inexact (arithmetic_error) :operation :operands */
-void instance_floating_point_inexact(addr *ret, addr operation, addr operands)
+_g void instance_floating_point_inexact(addr *ret, addr operation, addr operands)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_FLOATING_POINT_INEXACT,
 			CONSTANT_CLOSNAME_OPERATION, operation,
 			CONSTANT_CLOSNAME_OPERANDS, operands);
 }
-void floating_point_inexact(addr operation, addr operands)
+_g void floating_point_inexact(addr operation, addr operands)
 {
 	addr instance;
 	instance_floating_point_inexact(&instance, operation, operands);
 	error_function(instance);
 }
-void floating_point_inexact_constant(constindex index, addr operands)
+_g void floating_point_inexact_constant(constindex index, addr operands)
 {
 	addr operation;
 	GetConstant(index, &operation);
 	floating_point_inexact(operation, operands);
 }
-void floating_point_inexact_stdarg(constindex index, ...)
+_g void floating_point_inexact_stdarg(constindex index, ...)
 {
 	addr operands;
 	va_list args;
@@ -782,25 +782,25 @@ void floating_point_inexact_stdarg(constindex index, ...)
 }
 
 /* floating_point_invalid_operation (arithmetic_error) :operation :operands */
-void instance_floating_point_invalid_operation(addr *ret, addr operation, addr operands)
+_g void instance_floating_point_invalid_operation(addr *ret, addr operation, addr operands)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_FLOATING_POINT_INVALID_OPERATION,
 			CONSTANT_CLOSNAME_OPERATION, operation,
 			CONSTANT_CLOSNAME_OPERANDS, operands);
 }
-void floating_point_invalid_operation(addr operation, addr operands)
+_g void floating_point_invalid_operation(addr operation, addr operands)
 {
 	addr instance;
 	instance_floating_point_invalid_operation(&instance, operation, operands);
 	error_function(instance);
 }
-void floating_point_invalid_operation_constant(constindex index, addr operands)
+_g void floating_point_invalid_operation_constant(constindex index, addr operands)
 {
 	addr operation;
 	GetConstant(index, &operation);
 	floating_point_invalid_operation(operation, operands);
 }
-void floating_point_invalid_operation_stdarg(constindex index, ...)
+_g void floating_point_invalid_operation_stdarg(constindex index, ...)
 {
 	addr operands;
 	va_list args;
@@ -812,25 +812,25 @@ void floating_point_invalid_operation_stdarg(constindex index, ...)
 }
 
 /* floating_point_overflow (arithmetic_error) :operation :operands */
-void instance_floating_point_overflow(addr *ret, addr operation, addr operands)
+_g void instance_floating_point_overflow(addr *ret, addr operation, addr operands)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_FLOATING_POINT_OVERFLOW,
 			CONSTANT_CLOSNAME_OPERATION, operation,
 			CONSTANT_CLOSNAME_OPERANDS, operands);
 }
-void floating_point_overflow(addr operation, addr operands)
+_g void floating_point_overflow(addr operation, addr operands)
 {
 	addr instance;
 	instance_floating_point_overflow(&instance, operation, operands);
 	error_function(instance);
 }
-void floating_point_overflow_constant(constindex index, addr operands)
+_g void floating_point_overflow_constant(constindex index, addr operands)
 {
 	addr operation;
 	GetConstant(index, &operation);
 	floating_point_overflow(operation, operands);
 }
-void floating_point_overflow_stdarg(constindex index, ...)
+_g void floating_point_overflow_stdarg(constindex index, ...)
 {
 	addr operands;
 	va_list args;
@@ -842,25 +842,25 @@ void floating_point_overflow_stdarg(constindex index, ...)
 }
 
 /* floating_point_underflow (arithmetic_error) :operation :operands */
-void instance_floating_point_underflow(addr *ret, addr operation, addr operands)
+_g void instance_floating_point_underflow(addr *ret, addr operation, addr operands)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_FLOATING_POINT_UNDERFLOW,
 			CONSTANT_CLOSNAME_OPERATION, operation,
 			CONSTANT_CLOSNAME_OPERANDS, operands);
 }
-void floating_point_underflow(addr operation, addr operands)
+_g void floating_point_underflow(addr operation, addr operands)
 {
 	addr instance;
 	instance_floating_point_underflow(&instance, operation, operands);
 	error_function(instance);
 }
-void floating_point_underflow_constant(constindex index, addr operands)
+_g void floating_point_underflow_constant(constindex index, addr operands)
 {
 	addr operation;
 	GetConstant(index, &operation);
 	floating_point_underflow(operation, operands);
 }
-void floating_point_underflow_stdarg(constindex index, ...)
+_g void floating_point_underflow_stdarg(constindex index, ...)
 {
 	addr operands;
 	va_list args;
@@ -872,25 +872,25 @@ void floating_point_underflow_stdarg(constindex index, ...)
 }
 
 /* division_by_zero (arithmetic_error) :operation :operands */
-void instance_division_by_zero(addr *ret, addr operation, addr operands)
+_g void instance_division_by_zero(addr *ret, addr operation, addr operands)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_DIVISION_BY_ZERO,
 			CONSTANT_CLOSNAME_OPERATION, operation,
 			CONSTANT_CLOSNAME_OPERANDS, operands);
 }
-void division_by_zero(addr operation, addr operands)
+_g void division_by_zero(addr operation, addr operands)
 {
 	addr instance;
 	instance_division_by_zero(&instance, operation, operands);
 	error_function(instance);
 }
-void division_by_zero_constant(constindex index, addr operands)
+_g void division_by_zero_constant(constindex index, addr operands)
 {
 	addr operation;
 	GetConstant(index, &operation);
 	division_by_zero(operation, operands);
 }
-void division_by_zero_stdarg(constindex index, ...)
+_g void division_by_zero_stdarg(constindex index, ...)
 {
 	addr operands;
 	va_list args;
@@ -901,14 +901,14 @@ void division_by_zero_stdarg(constindex index, ...)
 	division_by_zero_constant(index, operands);
 }
 
-void division_by_zero_real1(constindex index, addr left)
+_g void division_by_zero_real1(constindex index, addr left)
 {
 	number_throw_heap(left, &left);
 	list_heap(&left, left, NULL);
 	division_by_zero_constant(index, left);
 }
 
-void division_by_zero_real2(constindex index, addr left, addr right)
+_g void division_by_zero_real2(constindex index, addr left, addr right)
 {
 	number_throw_heap(left, &left);
 	number_throw_heap(right, &right);
@@ -916,17 +916,17 @@ void division_by_zero_real2(constindex index, addr left, addr right)
 	division_by_zero_constant(index, left);
 }
 
-void division_by_zero0(void)
+_g void division_by_zero0(void)
 {
 	division_by_zero_constant(CONSTANT_COMMON_SLASH, Nil);
 }
 
-void division_by_zero1(addr left)
+_g void division_by_zero1(addr left)
 {
 	division_by_zero_real1(CONSTANT_COMMON_SLASH, left);
 }
 
-void division_by_zero2(addr left, addr right)
+_g void division_by_zero2(addr left, addr right)
 {
 	division_by_zero_real2(CONSTANT_COMMON_SLASH, left, right);
 }
@@ -943,28 +943,28 @@ static void instance_condition1(addr *ret, constindex index,
 	clos_setconst(instance, index1, pos1);
 	*ret = instance;
 }
-void instance_cell_error(addr *ret, addr name)
+_g void instance_cell_error(addr *ret, addr name)
 {
 	instance_condition1(ret, CONSTANT_CONDITION_CELL_ERROR,
 			CONSTANT_CLOSNAME_NAME, name);
 }
-void cell_error(addr name)
+_g void cell_error(addr name)
 {
 	addr instance;
 	instance_cell_error(&instance, name);
 	error_function(instance);
 }
-void cell_error_name(addr instance, addr *ret)
+_g void cell_error_name(addr instance, addr *ret)
 {
 	ClosCheckConst(instance, CLOSNAME_NAME, ret);
 }
 
 /* control_error (error) */
-void instance_control_error(addr *ret)
+_g void instance_control_error(addr *ret)
 {
 	instance_condition(ret, CONSTANT_CONDITION_CONTROL_ERROR);
 }
-void control_error(void)
+_g void control_error(void)
 {
 	addr instance;
 	instance_control_error(&instance);
@@ -972,29 +972,29 @@ void control_error(void)
 }
 
 /* stream_error (error) :stream */
-void instance_stream_error(addr *ret, addr stream)
+_g void instance_stream_error(addr *ret, addr stream)
 {
 	instance_condition1(ret, CONSTANT_CONDITION_STREAM_ERROR,
 			CONSTANT_CLOSNAME_STREAM, stream);
 }
-void stream_error(addr stream)
+_g void stream_error(addr stream)
 {
 	addr instance;
 	instance_stream_error(&instance, stream);
 	error_function(instance);
 }
-void stream_error_stream(addr instance, addr *ret)
+_g void stream_error_stream(addr instance, addr *ret)
 {
 	ClosCheckConst(instance, CLOSNAME_STREAM, ret);
 }
 
 /* end_of_file (stream_error) :stream */
-void instance_end_of_file(addr *ret, addr stream)
+_g void instance_end_of_file(addr *ret, addr stream)
 {
 	instance_condition1(ret, CONSTANT_CONDITION_END_OF_FILE,
 			CONSTANT_CLOSNAME_STREAM, stream);
 }
-void end_of_file(addr stream)
+_g void end_of_file(addr stream)
 {
 	addr instance;
 	instance_end_of_file(&instance, stream);
@@ -1002,12 +1002,12 @@ void end_of_file(addr stream)
 }
 
 /* reader_error (parse_error stream_error) :stream */
-void instance_reader_error(addr *ret, addr stream)
+_g void instance_reader_error(addr *ret, addr stream)
 {
 	instance_condition1(ret, CONSTANT_CONDITION_READER_ERROR,
 			CONSTANT_CLOSNAME_STREAM, stream);
 }
-void reader_error(addr stream)
+_g void reader_error(addr stream)
 {
 	addr instance;
 	instance_reader_error(&instance, stream);
@@ -1015,45 +1015,45 @@ void reader_error(addr stream)
 }
 
 /* file_error (error) :pathname */
-void instance_file_error(addr *ret, addr pathname)
+_g void instance_file_error(addr *ret, addr pathname)
 {
 	instance_condition1(ret, CONSTANT_CONDITION_FILE_ERROR,
 			CONSTANT_CLOSNAME_PATHNAME, pathname);
 }
-void file_error(addr pathname)
+_g void file_error(addr pathname)
 {
 	addr instance;
 	instance_file_error(&instance, pathname);
 	error_function(instance);
 }
-void file_error_pathname(addr *ret, addr instance)
+_g void file_error_pathname(addr *ret, addr instance)
 {
 	ClosCheckConst(instance, CLOSNAME_PATHNAME, ret);
 }
 
 /* package_error (error) :package */
-void instance_package_error(addr *ret, addr package)
+_g void instance_package_error(addr *ret, addr package)
 {
 	instance_condition1(ret, CONSTANT_CONDITION_PACKAGE_ERROR,
 			CONSTANT_CLOSNAME_PACKAGE, package);
 }
-void package_error(addr package)
+_g void package_error(addr package)
 {
 	addr instance;
 	instance_reader_error(&instance, package);
 	error_function(instance);
 }
-void package_error_package(addr *ret, addr instance)
+_g void package_error_package(addr *ret, addr instance)
 {
 	ClosCheckConst(instance, CLOSNAME_PACKAGE, ret);
 }
 
 /* parse_error (error) */
-void instance_parse_error(addr *ret)
+_g void instance_parse_error(addr *ret)
 {
 	instance_condition(ret, CONSTANT_CONDITION_PARSE_ERROR);
 }
-void parse_error(void)
+_g void parse_error(void)
 {
 	addr instance;
 	instance_parse_error(&instance);
@@ -1061,12 +1061,12 @@ void parse_error(void)
 }
 
 /* print_not_readable (error) :object */
-void instance_print_not_readable(addr *ret, addr object)
+_g void instance_print_not_readable(addr *ret, addr object)
 {
 	instance_condition1(ret, CONSTANT_CONDITION_PRINT_NOT_READABLE,
 			CONSTANT_CLOSNAME_OBJECT, object);
 }
-void print_not_readable(addr object)
+_g void print_not_readable(addr object)
 {
 	addr instance;
 	instance_reader_error(&instance, object);
@@ -1074,11 +1074,11 @@ void print_not_readable(addr object)
 }
 
 /* program_error (error) */
-void instance_program_error(addr *ret)
+_g void instance_program_error(addr *ret)
 {
 	instance_condition(ret, CONSTANT_CONDITION_PROGRAM_ERROR);
 }
-void program_error(void)
+_g void program_error(void)
 {
 	addr instance;
 	instance_program_error(&instance);
@@ -1086,11 +1086,11 @@ void program_error(void)
 }
 
 /* style_warning (warning) */
-void instance_style_warning(addr *ret)
+_g void instance_style_warning(addr *ret)
 {
 	instance_condition(ret, CONSTANT_CONDITION_STYLE_WARNING);
 }
-void style_warning(void)
+_g void style_warning(void)
 {
 	addr instance;
 	instance_style_warning(&instance);
@@ -1098,13 +1098,13 @@ void style_warning(void)
 }
 
 /* type_error (error) :datum :expected-type */
-void instance_type_error(addr *ret, addr datum, addr expected)
+_g void instance_type_error(addr *ret, addr datum, addr expected)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_TYPE_ERROR,
 			CONSTANT_CLOSNAME_DATUM, datum,
 			CONSTANT_CLOSNAME_EXPECTED_TYPE, expected);
 }
-void type_error(addr datum, addr expected)
+_g void type_error(addr datum, addr expected)
 {
 	addr instance;
 	copylocal_object(NULL, &datum, datum);
@@ -1113,24 +1113,24 @@ void type_error(addr datum, addr expected)
 	error_function(instance);
 }
 
-void type_error_constant(addr datum, constindex expected)
+_g void type_error_constant(addr datum, constindex expected)
 {
 	addr type;
 	GetConstant(expected, &type);
 	type_error(datum, type);
 }
 
-void type_error_datum(addr instance, addr *ret)
+_g void type_error_datum(addr instance, addr *ret)
 {
 	ClosCheckConst(instance, CLOSNAME_DATUM, ret);
 }
 
-void type_error_expected(addr instance, addr *ret)
+_g void type_error_expected(addr instance, addr *ret)
 {
 	ClosCheckConst(instance, CLOSNAME_EXPECTED_TYPE, ret);
 }
 
-int typep_error(addr value, addr type)
+_g int typep_error(addr value, addr type)
 {
 	int check;
 
@@ -1146,7 +1146,7 @@ int typep_error(addr value, addr type)
 	return 0;
 }
 
-int typep_asterisk_error(addr value, addr type)
+_g int typep_asterisk_error(addr value, addr type)
 {
 	int check;
 
@@ -1180,7 +1180,7 @@ static void instance_condition4(addr *ret, constindex index,
 	clos_setconst(instance, index4, pos4);
 	*ret = instance;
 }
-void instance_simple_type_error(addr *ret,
+_g void instance_simple_type_error(addr *ret,
 		addr control, addr args, addr datum, addr expected)
 {
 	instance_condition4(ret, CONSTANT_CONDITION_SIMPLE_TYPE_ERROR,
@@ -1189,14 +1189,14 @@ void instance_simple_type_error(addr *ret,
 			CONSTANT_CLOSNAME_DATUM, datum,
 			CONSTANT_CLOSNAME_EXPECTED_TYPE, expected);
 }
-void simple_type_error(addr control, addr args, addr datum, addr expected)
+_g void simple_type_error(addr control, addr args, addr datum, addr expected)
 {
 	addr instance;
 	instance_simple_type_error(&instance, control, args, datum, expected);
 	error_function(instance);
 }
 
-void type_error_stdarg(addr datum, addr expected, const char *fmt, ...)
+_g void type_error_stdarg(addr datum, addr expected, const char *fmt, ...)
 {
 	addr control, list;
 	va_list args;
@@ -1210,7 +1210,7 @@ void type_error_stdarg(addr datum, addr expected, const char *fmt, ...)
 	simple_type_error(control, list, datum, expected);
 }
 
-void type_error_fill_pointer(addr datum)
+_g void type_error_fill_pointer(addr datum)
 {
 	addr expected;
 	GetConst(COMMON_VECTOR, &expected);
@@ -1218,7 +1218,7 @@ void type_error_fill_pointer(addr datum)
 			"The vector ~S don't have a fill-pointer.", datum, NULL);
 }
 
-void type_error_fill_pointer_zero(addr datum)
+_g void type_error_fill_pointer_zero(addr datum)
 {
 	addr expected;
 	GetConst(COMMON_VECTOR, &expected);
@@ -1226,7 +1226,7 @@ void type_error_fill_pointer_zero(addr datum)
 			"The vector ~S fill-pointer is 0.", datum, NULL);
 }
 
-void type_error_adjustable(addr datum)
+_g void type_error_adjustable(addr datum)
 {
 	addr expected;
 	GetConst(COMMON_VECTOR, &expected);
@@ -1235,30 +1235,30 @@ void type_error_adjustable(addr datum)
 }
 
 /* unbound_slot (cell_error) :instance :name */
-void instance_unbound_slot(addr *ret, addr instance, addr name)
+_g void instance_unbound_slot(addr *ret, addr instance, addr name)
 {
 	instance_condition2(ret, CONSTANT_CONDITION_UNBOUND_SLOT,
 			CONSTANT_CLOSNAME_INSTANCE, instance,
 			CONSTANT_CLOSNAME_NAME, name);
 }
-void unbound_slot(addr argument, addr name)
+_g void unbound_slot(addr argument, addr name)
 {
 	addr instance;
 	instance_unbound_slot(&instance, argument, name);
 	error_function(instance);
 }
-void unbound_slot_instance(addr instance, addr *ret)
+_g void unbound_slot_instance(addr instance, addr *ret)
 {
 	ClosCheckConst(instance, CLOSNAME_INSTANCE, ret);
 }
 
 /* unbound_variable (cell_error) :name */
-void instance_unbound_variable(addr *ret, addr name)
+_g void instance_unbound_variable(addr *ret, addr name)
 {
 	instance_condition1(ret, CONSTANT_CONDITION_UNBOUND_VARIABLE,
 			CONSTANT_CLOSNAME_NAME, name);
 }
-void unbound_variable(addr name)
+_g void unbound_variable(addr name)
 {
 	addr instance;
 	instance_unbound_variable(&instance, name);
@@ -1266,18 +1266,18 @@ void unbound_variable(addr name)
 }
 
 /* undefined_function (cell_error) :name */
-void instance_undefined_function(addr *ret, addr name)
+_g void instance_undefined_function(addr *ret, addr name)
 {
 	instance_condition1(ret, CONSTANT_CONDITION_UNDEFINED_FUNCTION,
 			CONSTANT_CLOSNAME_NAME, name);
 }
-void undefined_function(addr name)
+_g void undefined_function(addr name)
 {
 	addr instance;
 	instance_undefined_function(&instance, name);
 	error_function(instance);
 }
-void undefined_function_setf(addr name)
+_g void undefined_function_setf(addr name)
 {
 	addr setf;
 	GetConst(COMMON_SETF, &setf);
@@ -1286,12 +1286,12 @@ void undefined_function_setf(addr name)
 }
 
 /* savecore */
-void instance_savecore_condition(addr *ret)
+_g void instance_savecore_condition(addr *ret)
 {
 	instance_condition(ret, CONSTANT_CONDITION_SAVECORE);
 }
 
-void savecore_condition(void)
+_g void savecore_condition(void)
 {
 	addr instance;
 	instance_savecore_condition(&instance);
@@ -1319,13 +1319,13 @@ static void build_variables(void)
 	SetValueSymbol(symbol, T);
 }
 
-void build_condition(Execute ptr)
+_g void build_condition(Execute ptr)
 {
 	build_variables();
 	set_enable_debugger(1);
 }
 
-void init_condition(void)
+_g void init_condition(void)
 {
 	SetPointerCall(defun, var1, handler_warning);
 	SetPointerCall(defun, var1, handler_savecore);

@@ -77,7 +77,7 @@ static void make_bitpackage(addr *ret, addr name, addr package)
 	*ret = bit;
 }
 
-void make_bitpackage_symbol(addr *ret, addr *symbol, addr name, addr package)
+_g void make_bitpackage_symbol(addr *ret, addr *symbol, addr name, addr package)
 {
 	make_bitpackage(ret, name, package);
 	GetBitTypeSymbol(*ret, symbol);
@@ -199,7 +199,7 @@ static addr findcharacterlocal(addr pos)
 	return pos;
 }
 
-void find_package(addr pos, addr *ret)
+_g void find_package(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_PACKAGE:
@@ -236,7 +236,7 @@ error:
 	*ret = NULL;
 }
 
-addr findr_char_package(const char *name)
+_g addr findr_char_package(const char *name)
 {
 	addr pos;
 
@@ -246,7 +246,7 @@ addr findr_char_package(const char *name)
 	return pos;
 }
 
-void find_char_package(const char *name, addr *ret)
+_g void find_char_package(const char *name, addr *ret)
 {
 	*ret = findr_char_package(name);
 }
@@ -369,7 +369,7 @@ static void set_default_package(addr package)
 }
 
 static void append_nicknames(addr pos, addr right);
-void build_package_settings(void)
+_g void build_package_settings(void)
 {
 	addr package, common, cons;
 
@@ -429,7 +429,7 @@ static void system_package(const char *name, size_t size, constindex index)
 #define SystemPackage(x,y,z) { \
 	system_package(LISP_##x, LISP_PACKAGE_COUNT_##y, CONSTANT_PACKAGE_##z); \
 }
-void build_package(void)
+_g void build_package(void)
 {
 	addr root, package, user;
 
@@ -459,7 +459,7 @@ void build_package(void)
 	import_exit_and_quit(user);
 }
 
-void getpackage(Execute ptr, addr *ret)
+_g void getpackage(Execute ptr, addr *ret)
 {
 	addr pos;
 
@@ -470,17 +470,17 @@ void getpackage(Execute ptr, addr *ret)
 	*ret = pos;
 }
 
-int packagep(addr pos)
+_g int packagep(addr pos)
 {
 	return GetType(pos) == LISPTYPE_PACKAGE;
 }
 
-int package_designer_p(addr pos)
+_g int package_designer_p(addr pos)
 {
 	return packagep(pos) || string_designer_p(pos);
 }
 
-int package_designer_equal(addr left, addr right)
+_g int package_designer_equal(addr left, addr right)
 {
 	if (packagep(left))
 		GetPackage(left, PACKAGE_INDEX_NAME, &left);
@@ -490,13 +490,13 @@ int package_designer_equal(addr left, addr right)
 	return string_designer_equal(left, right);
 }
 
-void getdocument_package(addr pos, addr *ret)
+_g void getdocument_package(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	GetPackage(pos, PACKAGE_INDEX_DOCUMENT, ret);
 }
 
-void setdocument_package(addr pos, addr value)
+_g void setdocument_package(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	SetPackage(pos, PACKAGE_INDEX_DOCUMENT, value);
@@ -506,7 +506,7 @@ void setdocument_package(addr pos, addr value)
 /*
  *  make_package
  */
-static void pushlist(addr package, enum PACKAGE_INDEX index, addr pos)
+static void pushlist_package(addr package, enum PACKAGE_INDEX index, addr pos)
 {
 	addr check, right;
 
@@ -535,7 +535,7 @@ static void pushnewlist(addr package, enum PACKAGE_INDEX index, addr pos)
 		if (left == pos)
 			return; /* don't push */
 	}
-	pushlist(package, index, pos);
+	pushlist_package(package, index, pos);
 }
 
 static void check_nicknames(addr name, addr right)
@@ -605,7 +605,7 @@ static void append_nicknames(addr pos, addr right)
 			if (check == Nil) {
 				SetCdr(cons, pos);
 				/* push nickname */
-				pushlist(pos, PACKAGE_INDEX_NICKNAME, left);
+				pushlist_package(pos, PACKAGE_INDEX_NICKNAME, left);
 			}
 		}
 	}
@@ -653,7 +653,7 @@ static void append_usepackage(addr pos, addr right)
 	}
 }
 
-void make_package(addr name, addr names, addr use, addr *ret)
+_g void make_package(addr name, addr names, addr use, addr *ret)
 {
 	addr pos;
 
@@ -778,7 +778,7 @@ static void allunintern(addr pos)
  *  return 0:  delete package.
  *  return 1:  package name is nil.
  */
-int delete_package(addr pos)
+_g int delete_package(addr pos)
 {
 	addr name, right, table;
 
@@ -904,7 +904,7 @@ static void intern_renameone(addr pos, addr table, addr name, int nickname)
 			SetPackage(pos, PACKAGE_INDEX_NAME, name);
 		}
 		else {
-			pushlist(pos, PACKAGE_INDEX_NICKNAME, name);
+			pushlist_package(pos, PACKAGE_INDEX_NICKNAME, name);
 		}
 	}
 }
@@ -921,7 +921,7 @@ static void intern_allnames(addr pos, addr name, addr right)
 	}
 }
 
-void rename_package(addr pos, addr name, addr right, addr *ret)
+_g void rename_package(addr pos, addr name, addr right, addr *ret)
 {
 	package_designer(pos, &pos);
 	/* check conflict */
@@ -938,31 +938,31 @@ void rename_package(addr pos, addr name, addr right, addr *ret)
 /*
  *  package function
  */
-void getname_package(addr pos, addr *ret)
+_g void getname_package(addr pos, addr *ret)
 {
 	package_designer(pos, &pos);
 	GetPackage(pos, PACKAGE_INDEX_NAME, ret);
 }
 
-void getnickname_package(addr pos, addr *ret)
+_g void getnickname_package(addr pos, addr *ret)
 {
 	package_designer(pos, &pos);
 	GetPackage(pos, PACKAGE_INDEX_NICKNAME, ret);
 }
 
-void getuselist_package(addr pos, addr *ret)
+_g void getuselist_package(addr pos, addr *ret)
 {
 	package_designer(pos, &pos);
 	GetPackage(pos, PACKAGE_INDEX_USE, ret);
 }
 
-void getusedbylist_package(addr pos, addr *ret)
+_g void getusedbylist_package(addr pos, addr *ret)
 {
 	package_designer(pos, &pos);
 	GetPackage(pos, PACKAGE_INDEX_USED, ret);
 }
 
-void getshadow_package(addr pos, addr *ret)
+_g void getshadow_package(addr pos, addr *ret)
 {
 	package_designer(pos, &pos);
 	GetPackage(pos, PACKAGE_INDEX_SHADOW, ret);
@@ -984,7 +984,7 @@ static void find_char_bitpackage(addr package, const char *name, addr *ret)
 	findvalue_char_hashtable(package, name, ret);
 }
 
-enum PACKAGE_TYPE find_symbol_package(addr package, addr name, addr *ret)
+_g enum PACKAGE_TYPE find_symbol_package(addr package, addr name, addr *ret)
 {
 	Check(! stringp(name), "type error");
 	package_designer(package, &package);
@@ -1017,7 +1017,7 @@ static void push_basesymbol(addr key, addr left, addr name, addr *cons)
 	}
 }
 
-void find_allsymbols_package(addr name, addr *ret)
+_g void find_allsymbols_package(addr name, addr *ret)
 {
 	addr array, left, right, key, cons;
 	size_t i, size;
@@ -1050,7 +1050,7 @@ static void push_basepackage(addr key, addr package, addr *cons)
 		cons_heap(cons, package, *cons);
 }
 
-void list_all_packages(addr *ret)
+_g void list_all_packages(addr *ret)
 {
 	addr array, left, right, key, cons;
 	size_t i, size;
@@ -1102,7 +1102,7 @@ static enum PACKAGE_TYPE intern_package_table(addr package, addr name, addr *ret
 	return StructBitType(name)->intern;
 }
 
-enum PACKAGE_TYPE intern_package(addr package, addr name, addr *ret)
+_g enum PACKAGE_TYPE intern_package(addr package, addr name, addr *ret)
 {
 	Check(package == NULL, "null error");
 	Check(package == Nil, "nil error");
@@ -1112,7 +1112,7 @@ enum PACKAGE_TYPE intern_package(addr package, addr name, addr *ret)
 	return intern_package_table(package, name, ret);
 }
 
-enum PACKAGE_TYPE intern_char_package(addr package, const char *name, addr *ret)
+_g enum PACKAGE_TYPE intern_char_package(addr package, const char *name, addr *ret)
 {
 	addr symbol;
 
@@ -1260,7 +1260,7 @@ static void uninternsymbol(addr package, addr symbol)
 	}
 }
 
-int unintern_package(addr package, addr symbol)
+_g int unintern_package(addr package, addr symbol)
 {
 	Check(! IsSymbol(symbol), "type error");
 	package_designer(package, &package);
@@ -1371,7 +1371,7 @@ static void importlist(addr package, addr pos)
 	}
 }
 
-void import_package(addr package, addr pos)
+_g void import_package(addr package, addr pos)
 {
 	package_designer(package, &package);
 	switch (GetType(pos)) {
@@ -1409,7 +1409,7 @@ static void shadowsymbol(addr package, addr pos)
 	}
 	if (! ptr->shadow) {
 		GetBitTypeSymbol(bit, &pos);
-		pushlist(package, PACKAGE_INDEX_SHADOW, pos);
+		pushlist_package(package, PACKAGE_INDEX_SHADOW, pos);
 		SetBitTypeShadow(bit, 1);
 	}
 }
@@ -1434,7 +1434,7 @@ static void shadowlist(addr package, addr pos)
 	}
 }
 
-void shadow_package(addr package, addr pos)
+_g void shadow_package(addr package, addr pos)
 {
 	package_designer(package, &package);
 	switch (GetType(pos)) {
@@ -1485,7 +1485,7 @@ static void shadowimportsymbol(addr package, addr symbol)
 
 	if (StructBitType(bit)->shadow == 0) {
 		GetBitTypeSymbol(bit, &symbol);
-		pushlist(package, PACKAGE_INDEX_SHADOW, symbol);
+		pushlist_package(package, PACKAGE_INDEX_SHADOW, symbol);
 		SetBitTypeShadow(bit, 1);
 	}
 }
@@ -1508,7 +1508,7 @@ static void shadowimportlist(addr package, addr pos)
 	}
 }
 
-void shadowing_import_package(addr package, addr pos)
+_g void shadowing_import_package(addr package, addr pos)
 {
 	package_designer(package, &package);
 	switch (GetType(pos)) {
@@ -1613,7 +1613,7 @@ static void exportsymbol_nocheck(addr package, addr symbol)
 		ptr->intern = PACKAGE_TYPE_EXTERNAL;
 	}
 	intern_export_symbol(package, symbol, name);
-	pushlist(package, PACKAGE_INDEX_EXPORT, name);
+	pushlist_package(package, PACKAGE_INDEX_EXPORT, name);
 }
 
 static void exportsymbol(addr package, addr symbol)
@@ -1648,7 +1648,7 @@ static void exportlist(addr package, addr pos)
 	}
 }
 
-void export_package(addr package, addr pos)
+_g void export_package(addr package, addr pos)
 {
 	package_designer(package, &package);
 	switch (GetType(pos)) {
@@ -1787,7 +1787,7 @@ static void unexportlist(addr package, addr pos)
 	}
 }
 
-void unexport_package(addr package, addr pos)
+_g void unexport_package(addr package, addr pos)
 {
 	addr check;
 
@@ -1878,8 +1878,8 @@ static void usepackageoperator(addr package, addr pos)
 			SetCdr(cons, bit);
 		}
 	}
-	pushlist(package, PACKAGE_INDEX_USE, pos);
-	pushlist(pos, PACKAGE_INDEX_USED, package);
+	pushlist_package(package, PACKAGE_INDEX_USE, pos);
+	pushlist_package(pos, PACKAGE_INDEX_USED, package);
 }
 
 static void check_usepackagelist(addr package, addr right)
@@ -1941,7 +1941,7 @@ static void usepackagelist(addr package, addr pos)
 	}
 }
 
-void use_package(addr package, addr pos)
+_g void use_package(addr package, addr pos)
 {
 	package_designer(package, &package);
 	switch (GetType(pos)) {
@@ -2031,7 +2031,7 @@ static void unusepackagelist(addr package, addr pos)
 	}
 }
 
-void unuse_package(addr package, addr pos)
+_g void unuse_package(addr package, addr pos)
 {
 	package_designer(package, &package);
 	switch (GetType(pos)) {
@@ -2065,7 +2065,7 @@ error:
 /*
  *  in-package
  */
-void in_package(Execute ptr, addr package, addr *ret)
+_g void in_package(Execute ptr, addr package, addr *ret)
 {
 	addr symbol;
 
@@ -2079,7 +2079,7 @@ void in_package(Execute ptr, addr package, addr *ret)
 /*
  *  for C language
  */
-enum PACKAGE_TYPE intern_default_package(Execute ptr, addr name, addr *ret)
+_g enum PACKAGE_TYPE intern_default_package(Execute ptr, addr name, addr *ret)
 {
 	addr package;
 
@@ -2087,7 +2087,7 @@ enum PACKAGE_TYPE intern_default_package(Execute ptr, addr name, addr *ret)
 	return intern_package(package, name, ret);
 }
 
-enum PACKAGE_TYPE internchar(const char *pname, const char *sname, addr *ret)
+_g enum PACKAGE_TYPE internchar(const char *pname, const char *sname, addr *ret)
 {
 	addr package, name;
 
@@ -2104,21 +2104,21 @@ enum PACKAGE_TYPE internchar(const char *pname, const char *sname, addr *ret)
 	return intern_char_package(package, sname, ret);
 }
 
-addr interncharr(const char *pname, const char *sname)
+_g addr interncharr(const char *pname, const char *sname)
 {
 	addr pos;
 	internchar(pname, sname, &pos);
 	return pos;
 }
 
-enum PACKAGE_TYPE internchar_default(Execute ptr, const char *name, addr *ret)
+_g enum PACKAGE_TYPE internchar_default(Execute ptr, const char *name, addr *ret)
 {
 	addr package;
 	getpackage(ptr, &package);
 	return intern_char_package(package, name, ret);
 }
 
-enum PACKAGE_TYPE internchar_check(Execute ptr,
+_g enum PACKAGE_TYPE internchar_check(Execute ptr,
 		const char *pname, const char *sname, addr *ret)
 {
 	if (pname)
@@ -2127,14 +2127,14 @@ enum PACKAGE_TYPE internchar_check(Execute ptr,
 		return internchar_default(ptr, sname, ret);
 }
 
-addr internchar_checkr(Execute ptr, const char *pname, const char *sname)
+_g addr internchar_checkr(Execute ptr, const char *pname, const char *sname)
 {
 	addr pos;
 	internchar_check(ptr, pname, sname, &pos);
 	return pos;
 }
 
-void setkeyword_package(addr pos)
+_g void setkeyword_package(addr pos)
 {
 	addr check;
 
@@ -2145,7 +2145,7 @@ void setkeyword_package(addr pos)
 	}
 }
 
-enum PACKAGE_TYPE internchar_keyword(const char *name, addr *ret)
+_g enum PACKAGE_TYPE internchar_keyword(const char *name, addr *ret)
 {
 	enum PACKAGE_TYPE type;
 	addr pos;
@@ -2158,7 +2158,7 @@ enum PACKAGE_TYPE internchar_keyword(const char *name, addr *ret)
 	return type;
 }
 
-enum PACKAGE_TYPE interncommon(const char *name, addr *ret)
+_g enum PACKAGE_TYPE interncommon(const char *name, addr *ret)
 {
 	enum PACKAGE_TYPE type;
 	addr package, pos;
@@ -2171,14 +2171,14 @@ enum PACKAGE_TYPE interncommon(const char *name, addr *ret)
 	return type;
 }
 
-addr interncommonr(const char *name)
+_g addr interncommonr(const char *name)
 {
 	addr ret;
 	(void)interncommon(name, &ret);
 	return ret;
 }
 
-int checksymbol_package(addr symbol, addr package)
+_g int checksymbol_package(addr symbol, addr package)
 {
 	enum PACKAGE_TYPE type;
 	addr check, name;
@@ -2189,14 +2189,14 @@ int checksymbol_package(addr symbol, addr package)
 	return type != PACKAGE_TYPE_NIL && check == symbol;
 }
 
-int checksymbol_default_package(Execute ptr, addr symbol)
+_g int checksymbol_default_package(Execute ptr, addr symbol)
 {
 	addr package;
 	getpackage(ptr, &package);
 	return checksymbol_package(symbol, package);
 }
 
-void make_gentemp(Execute ptr, addr prefix, addr package, addr *ret)
+_g void make_gentemp(Execute ptr, addr prefix, addr package, addr *ret)
 {
 	enum PACKAGE_TYPE type;
 	int keyword;
@@ -2250,7 +2250,7 @@ void make_gentemp(Execute ptr, addr prefix, addr package, addr *ret)
 /*
  *  iterator
  */
-void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret)
+_g void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret)
 {
 	switch (type) {
 		case PACKAGE_TYPE_INTERNAL:
@@ -2293,7 +2293,7 @@ enum PackageIterator {
 #define GetPackageIterator GetArraySS
 #define SetPackageIterator SetArraySS
 
-void package_iterator_alloc(LocalRoot local, addr *ret,
+_g void package_iterator_alloc(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited)
 {
 	addr pos, package, table;
@@ -2339,14 +2339,14 @@ void package_iterator_alloc(LocalRoot local, addr *ret,
 	*ret = pos;
 }
 
-void package_iterator_local(LocalRoot local, addr *ret,
+_g void package_iterator_local(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited)
 {
 	Check(local == NULL, "local error");
 	package_iterator_alloc(local, ret, list, internal, external, inherited);
 }
 
-void package_iterator_heap(addr *ret,
+_g void package_iterator_heap(addr *ret,
 		addr list, int internal, int external, int inherited)
 {
 	package_iterator_alloc(NULL, ret, list, internal, external, inherited);
@@ -2394,7 +2394,7 @@ static void forward_package_iterator(addr pos)
 	SetPackageIterator(pos, PackageIterator_Package, package);
 }
 
-enum PACKAGE_TYPE next_package_iterator(addr pos, addr *rets, addr *retp)
+_g enum PACKAGE_TYPE next_package_iterator(addr pos, addr *rets, addr *retp)
 {
 	enum PACKAGE_TYPE type;
 	struct StructPackageIterator *ptr;
@@ -2655,7 +2655,7 @@ static int defpackage_execute(Execute ptr, addr rest)
 	return 0;
 }
 
-void syscall_defpackage(Execute ptr, addr rest)
+_g void syscall_defpackage(Execute ptr, addr rest)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -2690,12 +2690,12 @@ static int syscall_do_symbols_check(Execute ptr, addr call, addr package)
 	return 0;
 }
 
-void syscall_do_symbols(Execute ptr, addr call, addr package)
+_g void syscall_do_symbols(Execute ptr, addr call, addr package)
 {
 	(void)syscall_do_symbols_check(ptr, call, package);
 }
 
-void syscall_do_external_symbols(Execute ptr, addr call, addr package)
+_g void syscall_do_external_symbols(Execute ptr, addr call, addr package)
 {
 	addr table, list, bit;
 	size_t size, i;
@@ -2719,7 +2719,7 @@ void syscall_do_external_symbols(Execute ptr, addr call, addr package)
 	setvalues_nil_control(ptr);
 }
 
-void syscall_do_all_symbols(Execute ptr, addr call)
+_g void syscall_do_all_symbols(Execute ptr, addr call)
 {
 	addr array, left, right, key, check;
 	size_t i, size;
@@ -2746,7 +2746,7 @@ void syscall_do_all_symbols(Execute ptr, addr call)
 /*
  *  initialize
  */
-void init_package(void)
+_g void init_package(void)
 {
 	SetPointerCall(defun, var1, defpackage_make);
 }

@@ -8,42 +8,6 @@
 /*
  *  common
  */
-static void single_float_integer_heap(LocalRoot local, addr *ret, single_float v)
-{
-	addr pos;
-	LocalStack stack;
-
-	push_local(local, &stack);
-	if (bignum_single_float_local(local, &pos, v))
-		fmte("bignum_single_float_local error.", NULL);
-	bignum_result_heap(pos, ret);
-	rollback_local(local, stack);
-}
-
-static void double_float_integer_heap(LocalRoot local, addr *ret, double_float v)
-{
-	addr pos;
-	LocalStack stack;
-
-	push_local(local, &stack);
-	if (bignum_double_float_local(local, &pos, v))
-		fmte("bignum_double_float_local error.", NULL);
-	bignum_result_heap(pos, ret);
-	rollback_local(local, stack);
-}
-
-static void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
-{
-	addr pos;
-	LocalStack stack;
-
-	push_local(local, &stack);
-	if (bignum_long_float_local(local, &pos, v))
-		fmte("bignum_long_float_local error.", NULL);
-	bignum_result_heap(pos, ret);
-	rollback_local(local, stack);
-}
-
 static void round1_float(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
@@ -74,7 +38,7 @@ static void round1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 	long_float_heap(rem, r);
 }
 
-void round1_common(LocalRoot local, addr *quot, addr *rem, addr left)
+_g void round1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -140,7 +104,7 @@ static void fround1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 	long_float_heap(rem, r);
 }
 
-void fround1_common(LocalRoot local, addr *quot, addr *rem, addr left)
+_g void fround1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -827,7 +791,7 @@ static void round_long_common(LocalRoot local,
 	}
 }
 
-void round_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void round_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1482,7 +1446,7 @@ static void fround_long_common(addr *quot, addr *rem, addr left, addr right)
 	}
 }
 
-void fround_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void fround_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:

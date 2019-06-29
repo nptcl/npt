@@ -39,12 +39,12 @@
 /*
  *  tools
  */
-void threaderror(void)
+_g void threaderror(void)
 {
 	Abort("thread error");
 }
 
-void wrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
+_g void wrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
 {
 	if (lock1 == lock2) {
 		wrlock_rwlocklite(lock1);
@@ -64,7 +64,7 @@ trylock2:
 	goto trylock1;
 }
 
-void unwrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
+_g void unwrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
 {
 	if (lock1 == lock2) {
 		unwrlock_rwlocklite(lock1);
@@ -76,7 +76,7 @@ void unwrlock2_rwlocklite(rwlocklite *lock1, rwlocklite *lock2)
 }
 
 #define SwapVariable(a,b,temp) { temp = a; a = b; b = temp; }
-void wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
+_g void wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
 {
 	int check1, check2;
 	rwlocklite *temp;
@@ -133,7 +133,7 @@ trylock3: /* m3->m1->m2 */
 	}
 }
 
-void unwrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
+_g void unwrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3)
 {
 	int check1, check2;
 

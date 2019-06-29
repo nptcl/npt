@@ -1,5 +1,6 @@
 #include "bignum.h"
 #include "cmpl.h"
+#include "cmpl_arch.h"
 #include "cmpl_math.h"
 #include "condition.h"
 #include "ratio.h"
@@ -95,7 +96,7 @@ static void forcel_complex_common(struct mathcall_struct *ptr,
 	complex_long_heap(ret, real, imag);
 }
 
-void call_common(struct mathcall_struct *ptr, addr pos, addr *ret)
+_g void call_common(struct mathcall_struct *ptr, addr pos, addr *ret)
 {
 	struct mathtype_struct str;
 
@@ -123,7 +124,7 @@ void call_common(struct mathcall_struct *ptr, addr pos, addr *ret)
 	}
 }
 
-void call_range_common(struct mathcall_struct *ptr, addr pos, addr *ret)
+_g void call_range_common(struct mathcall_struct *ptr, addr pos, addr *ret)
 {
 	single_float vs;
 	double_float vd;
@@ -166,7 +167,7 @@ void call_range_common(struct mathcall_struct *ptr, addr pos, addr *ret)
 	}
 }
 
-void exp_common(addr pos, addr *ret)
+_g void exp_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -180,7 +181,7 @@ void exp_common(addr pos, addr *ret)
 	call_common(&str, pos, ret);
 }
 
-void sin_common(addr pos, addr *ret)
+_g void sin_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -194,7 +195,7 @@ void sin_common(addr pos, addr *ret)
 	call_common(&str, pos, ret);
 }
 
-void cos_common(addr pos, addr *ret)
+_g void cos_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -208,7 +209,7 @@ void cos_common(addr pos, addr *ret)
 	call_common(&str, pos, ret);
 }
 
-void tan_common(addr pos, addr *ret)
+_g void tan_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -222,7 +223,7 @@ void tan_common(addr pos, addr *ret)
 	call_common(&str, pos, ret);
 }
 
-void sinh_common(addr pos, addr *ret)
+_g void sinh_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -236,7 +237,7 @@ void sinh_common(addr pos, addr *ret)
 	call_common(&str, pos, ret);
 }
 
-void cosh_common(addr pos, addr *ret)
+_g void cosh_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -250,7 +251,7 @@ void cosh_common(addr pos, addr *ret)
 	call_common(&str, pos, ret);
 }
 
-void tanh_common(addr pos, addr *ret)
+_g void tanh_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -268,7 +269,7 @@ static int asinf_range(single_float v)  { return -1.0f <= v && v <= 1.0f; }
 static int asind_range(double_float v)  { return -1.0  <= v && v <= 1.0;  }
 static int asinl_range(long_float v)    { return -1.0L <= v && v <= 1.0L; }
 
-void asin_common(addr pos, addr *ret)
+_g void asin_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -285,7 +286,7 @@ void asin_common(addr pos, addr *ret)
 	call_range_common(&str, pos, ret);
 }
 
-void acos_common(addr pos, addr *ret)
+_g void acos_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -302,7 +303,7 @@ void acos_common(addr pos, addr *ret)
 	call_range_common(&str, pos, ret);
 }
 
-void atan_common(addr pos, addr *ret)
+_g void atan_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -316,7 +317,7 @@ void atan_common(addr pos, addr *ret)
 	call_common(&str, pos, ret);
 }
 
-void asinh_common(addr pos, addr *ret)
+_g void asinh_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -334,7 +335,7 @@ static int acoshf_range(single_float v)  { return 1.0f <= v; }
 static int acoshd_range(double_float v)  { return 1.0  <= v; }
 static int acoshl_range(long_float v)    { return 1.0L <= v; }
 
-void acosh_common(addr pos, addr *ret)
+_g void acosh_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -351,7 +352,7 @@ void acosh_common(addr pos, addr *ret)
 	call_range_common(&str, pos, ret);
 }
 
-void atanh_common(addr pos, addr *ret)
+_g void atanh_common(addr pos, addr *ret)
 {
 	struct mathcall_struct str;
 
@@ -390,7 +391,7 @@ static inline void cis_l(long_float x, long_float *Re, long_float *Im)
 	*Im = sinl(x);
 }
 
-void cis_common(addr pos, addr *ret)
+_g void cis_common(addr pos, addr *ret)
 {
 	single_float single1, single2;
 	double_float double1, double2;
@@ -425,7 +426,7 @@ void cis_common(addr pos, addr *ret)
 /*
  *  tan2
  */
-void atan2_common(addr left, addr right, addr *ret)
+_g void atan2_common(addr left, addr right, addr *ret)
 {
 	struct mathreal2_struct str;
 
@@ -488,7 +489,7 @@ static void log_natural_complex(addr value, addr *ret)
 	}
 }
 
-void log_natural_common(addr value, addr *ret)
+_g void log_natural_common(addr value, addr *ret)
 {
 	struct mathreal2_struct str;
 	single_float reals, imags;
@@ -523,7 +524,7 @@ void log_natural_common(addr value, addr *ret)
 	}
 }
 
-void log_base_common(addr value, addr base, addr *ret)
+_g void log_base_common(addr value, addr base, addr *ret)
 {
 	single_float reals, imags;
 	double_float reald, imagd;
@@ -560,7 +561,7 @@ void log_base_common(addr value, addr base, addr *ret)
 /*
  *  phase
  */
-void phase_common(addr pos, addr *ret)
+_g void phase_common(addr pos, addr *ret)
 {
 	single_float sr, si;
 	double_float dr, di;

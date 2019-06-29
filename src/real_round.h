@@ -4,10 +4,10 @@
 #include "local.h"
 #include "typedef.h"
 
-void round1_common(LocalRoot local, addr *quot, addr *rem, addr left);
-void fround1_common(LocalRoot local, addr *quot, addr *rem, addr left);
-void round_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
-void fround_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
+_g void round1_common(LocalRoot local, addr *quot, addr *rem, addr left);
+_g void fround1_common(LocalRoot local, addr *quot, addr *rem, addr left);
+_g void round_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
+_g void fround_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right);
 
 #endif
 

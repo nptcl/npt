@@ -18,7 +18,7 @@
 /*
  *  character
  */
-addr make_character_allocr(LocalRoot local, unicode value)
+_g addr make_character_allocr(LocalRoot local, unicode value)
 {
 	addr pos;
 	alloc_body2(local, &pos, LISPTYPE_CHARACTER, sizeoft(unicode));
@@ -26,12 +26,12 @@ addr make_character_allocr(LocalRoot local, unicode value)
 	return pos;
 }
 
-addr character_localr(LocalRoot local, unicode value)
+_g addr character_localr(LocalRoot local, unicode value)
 {
 	Check(local == NULL, "local error");
 	return make_character_allocr(local, value);
 }
-addr character_heapr(unicode value)
+_g addr character_heapr(unicode value)
 {
 	addr cache, pos;
 
@@ -46,7 +46,7 @@ addr character_heapr(unicode value)
 	}
 	return make_character_allocr(NULL, value);
 }
-addr character_allocr(LocalRoot local, unicode value)
+_g addr character_allocr(LocalRoot local, unicode value)
 {
 	if (local)
 		return character_localr(local, value);
@@ -54,38 +54,38 @@ addr character_allocr(LocalRoot local, unicode value)
 		return character_heapr(value);
 }
 
-void character_alloc(LocalRoot local, addr *ret, unicode value)
+_g void character_alloc(LocalRoot local, addr *ret, unicode value)
 {
 	*ret = character_allocr(local, value);
 }
-void character_local(LocalRoot local, addr *ret, unicode value)
+_g void character_local(LocalRoot local, addr *ret, unicode value)
 {
 	*ret = character_localr(local, value);
 }
-void character_heap(addr *ret, unicode value)
+_g void character_heap(addr *ret, unicode value)
 {
 	*ret = character_heapr(value);
 }
 
-const unicode *ptrcharacter(addr pos)
+_g const unicode *ptrcharacter(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
 	return PtrCharacter_Low(pos);
 }
 
-unicode refcharacter(addr pos)
+_g unicode refcharacter(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
 	return RefCharacter_Low(pos);
 }
 
-void getcharacter(addr pos, unicode *value)
+_g void getcharacter(addr pos, unicode *value)
 {
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
 	GetCharacter_Low(pos, value);
 }
 
-enum CHARACTER_TYPE character_type(unicode u)
+_g enum CHARACTER_TYPE character_type(unicode u)
 {
 	if (isStandardType(u))
 		return CHARACTER_TYPE_STANDARD;
@@ -97,7 +97,7 @@ enum CHARACTER_TYPE character_type(unicode u)
 	return CHARACTER_TYPE_INVALID;
 }
 
-void setcharacter_unsafe(addr pos, unicode value)
+_g void setcharacter_unsafe(addr pos, unicode value)
 {
 	enum CHARACTER_TYPE type;
 
@@ -110,27 +110,27 @@ void setcharacter_unsafe(addr pos, unicode value)
 	SetCharacter_Low(pos, value);
 }
 
-int standard_char_p(addr pos)
+_g int standard_char_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CHARACTER && isstandardtype(RefCharacter(pos));
 }
 
-int base_char_p(addr pos)
+_g int base_char_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CHARACTER && isbasetype(RefCharacter(pos));
 }
 
-int extended_char_p(addr pos)
+_g int extended_char_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CHARACTER && isextendedtype(RefCharacter(pos));
 }
 
-int characterp(addr pos)
+_g int characterp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CHARACTER;
 }
 
-int unicode_equalp(unicode left, unicode right)
+_g int unicode_equalp(unicode left, unicode right)
 {
 	return toUpperUnicode(left) == toUpperUnicode(right);
 }
@@ -141,14 +141,14 @@ int unicode_equalp(unicode left, unicode right)
 	return 0; \
 }
 
-int unicode_comparep(unicode left, unicode right)
+_g int unicode_comparep(unicode left, unicode right)
 {
 	left = toUpperUnicode(left);
 	right = toUpperUnicode(right);
 	ReturnCompare(left, right);
 }
 
-int character_equal(addr left, addr right)
+_g int character_equal(addr left, addr right)
 {
 	unicode a, b;
 
@@ -160,7 +160,7 @@ int character_equal(addr left, addr right)
 	return a == b;
 }
 
-int character_equalp(addr left, addr right)
+_g int character_equalp(addr left, addr right)
 {
 	unicode a, b;
 
@@ -172,7 +172,7 @@ int character_equalp(addr left, addr right)
 	return toUpperUnicode(a) == toUpperUnicode(b);
 }
 
-int character_compare(addr left, addr right)
+_g int character_compare(addr left, addr right)
 {
 	unicode a, b;
 
@@ -183,7 +183,7 @@ int character_compare(addr left, addr right)
 	ReturnCompare(a, b);
 }
 
-int character_comparep(addr left, addr right)
+_g int character_comparep(addr left, addr right)
 {
 	unicode a, b;
 
@@ -196,7 +196,7 @@ int character_comparep(addr left, addr right)
 	ReturnCompare(a, b);
 }
 
-int character_unicode_equal(addr left, unicode right)
+_g int character_unicode_equal(addr left, unicode right)
 {
 	unicode u;
 
@@ -206,7 +206,7 @@ int character_unicode_equal(addr left, unicode right)
 	return u == right;
 }
 
-int character_unicode_equalp(addr left, unicode right)
+_g int character_unicode_equalp(addr left, unicode right)
 {
 	unicode u;
 
@@ -216,7 +216,7 @@ int character_unicode_equalp(addr left, unicode right)
 	return toUpperUnicode(u) == toUpperUnicode(right);
 }
 
-int character_unicode_compare(addr left, unicode right)
+_g int character_unicode_compare(addr left, unicode right)
 {
 	unicode u;
 
@@ -225,7 +225,7 @@ int character_unicode_compare(addr left, unicode right)
 	ReturnCompare(u, right);
 }
 
-int character_unicode_comparep(addr left, unicode right)
+_g int character_unicode_comparep(addr left, unicode right)
 {
 	unicode u;
 
@@ -239,7 +239,7 @@ int character_unicode_comparep(addr left, unicode right)
 
 /* character2 */
 #define PtrCharacter2(x) ((unicode *)PtrBodyB2(x))
-void character2_heap(addr *ret, unicode a, unicode b)
+_g void character2_heap(addr *ret, unicode a, unicode b)
 {
 	addr pos;
 	unicode *ptr;
@@ -251,32 +251,32 @@ void character2_heap(addr *ret, unicode a, unicode b)
 	*ret = pos;
 }
 
-unicode refcharacter2a(addr pos)
+_g unicode refcharacter2a(addr pos)
 {
 	return PtrCharacter2(pos)[0];
 }
 
-unicode refcharacter2b(addr pos)
+_g unicode refcharacter2b(addr pos)
 {
 	return PtrCharacter2(pos)[1];
 }
 
-void getcharacter2a(addr pos, unicode *ret)
+_g void getcharacter2a(addr pos, unicode *ret)
 {
 	*ret = PtrCharacter2(pos)[0];
 }
 
-void getcharacter2b(addr pos, unicode *ret)
+_g void getcharacter2b(addr pos, unicode *ret)
 {
 	*ret = PtrCharacter2(pos)[1];
 }
 
-void setcharacter2a(addr pos, unicode value)
+_g void setcharacter2a(addr pos, unicode value)
 {
 	PtrCharacter2(pos)[0] = value;
 }
 
-void setcharacter2b(addr pos, unicode value)
+_g void setcharacter2b(addr pos, unicode value)
 {
 	PtrCharacter2(pos)[1] = value;
 }
@@ -340,45 +340,45 @@ void setcharacter2b(addr pos, unicode value)
 	return 0; \
 }
 
-int memu_equal(const unicode *p1, const unicode *p2, size_t s1, size_t s2)
+_g int memu_equal(const unicode *p1, const unicode *p2, size_t s1, size_t s2)
 {
 	if (s1 != s2) return 0;
 	return memcmp(p1, p2, s1 * sizeoft(unicode)) == 0;
 }
 
-int memu_compare(const unicode *p1, const unicode *p2, size_t s1, size_t s2)
+_g int memu_compare(const unicode *p1, const unicode *p2, size_t s1, size_t s2)
 {
 	if (s1 < s2) return -1;
 	if (s1 > s2) return 1;
 	return memcmp(p1, p2, s1 * sizeoft(unicode));
 }
 
-int memu_equalp(const unicode *p1, const unicode *p2, size_t s1, size_t s2)
+_g int memu_equalp(const unicode *p1, const unicode *p2, size_t s1, size_t s2)
 {
 	equalp_code(p1, p2, s1, s2);
 }
 
-int memu_comparep(const unicode *p1, const unicode *p2, size_t s1, size_t s2)
+_g int memu_comparep(const unicode *p1, const unicode *p2, size_t s1, size_t s2)
 {
 	comparep_code(p1, p2, s1, s2);
 }
 
-int memu1_equal(const unicode *p1, const byte *p2, size_t s1, size_t s2)
+_g int memu1_equal(const unicode *p1, const byte *p2, size_t s1, size_t s2)
 {
 	equal_code(p1, p2, s1, s2);
 }
 
-int memu1_equalp(const unicode *p1, const byte *p2, size_t s1, size_t s2)
+_g int memu1_equalp(const unicode *p1, const byte *p2, size_t s1, size_t s2)
 {
 	equalp_code(p1, p2, s1, s2);
 }
 
-int memu1_compare(const unicode *p1, const byte *p2, size_t s1, size_t s2)
+_g int memu1_compare(const unicode *p1, const byte *p2, size_t s1, size_t s2)
 {
 	compare_code(p1, p2, s1, s2);
 }
 
-int memu1_comparep(const unicode *p1, const byte *p2, size_t s1, size_t s2)
+_g int memu1_comparep(const unicode *p1, const byte *p2, size_t s1, size_t s2)
 {
 	comparep_code(p1, p2, s1, s2);
 }
@@ -387,7 +387,7 @@ int memu1_comparep(const unicode *p1, const byte *p2, size_t s1, size_t s2)
 /*
  *  strvect
  */
-addr strvect_allocr(LocalRoot local, size_t len)
+_g addr strvect_allocr(LocalRoot local, size_t len)
 {
 	addr pos;
 
@@ -397,72 +397,72 @@ addr strvect_allocr(LocalRoot local, size_t len)
 
 	return pos;
 }
-addr strvect_localr(LocalRoot local, size_t len)
+_g addr strvect_localr(LocalRoot local, size_t len)
 {
 	Check(local == NULL, "local error");
 	return strvect_allocr(local, len);
 }
-addr strvect_heapr(size_t len)
+_g addr strvect_heapr(size_t len)
 {
 	return strvect_allocr(NULL, len);
 }
-void strvect_alloc(LocalRoot local, addr *ret, size_t len)
+_g void strvect_alloc(LocalRoot local, addr *ret, size_t len)
 {
 	*ret = strvect_allocr(local, len);
 }
-void strvect_local(LocalRoot local, addr *ret, size_t len)
+_g void strvect_local(LocalRoot local, addr *ret, size_t len)
 {
 	Check(local == NULL, "local error");
 	*ret = strvect_allocr(local, len);
 }
-void strvect_heap(addr *ret, size_t len)
+_g void strvect_heap(addr *ret, size_t len)
 {
 	*ret = strvect_allocr(NULL, len);
 }
 
-addr strvect_character_allocr(LocalRoot local, addr pos)
+_g addr strvect_character_allocr(LocalRoot local, addr pos)
 {
 	unicode u;
 	GetCharacter(pos, &u);
 	return strvect_sizeu_allocr(local, &u, 1);
 }
-addr strvect_character_localr(LocalRoot local, addr pos)
+_g addr strvect_character_localr(LocalRoot local, addr pos)
 {
 	Check(local == NULL, "local error");
 	return strvect_character_allocr(local, pos);
 }
-addr strvect_character_heapr(addr pos)
+_g addr strvect_character_heapr(addr pos)
 {
 	return strvect_character_allocr(NULL, pos);
 }
-void strvect_character_alloc(LocalRoot local, addr *ret, addr pos)
+_g void strvect_character_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	*ret = strvect_character_allocr(local, pos);
 }
-void strvect_character_local(LocalRoot local, addr *ret, addr pos)
+_g void strvect_character_local(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
 	*ret = strvect_character_allocr(local, pos);
 }
-void strvect_character_heap(addr *ret, addr pos)
+_g void strvect_character_heap(addr *ret, addr pos)
 {
 	*ret = strvect_character_allocr(NULL, pos);
 }
 
-void strvect_length(addr pos, size_t *ret)
+_g void strvect_length(addr pos, size_t *ret)
 {
 	Check(GetType(pos) != LISPTYPE_STRING, "type left error");
 	GetStringSize(pos, ret);
 }
 
-void strvect_posbodylen(addr pos, const unicode **body, size_t *len)
+_g void strvect_posbodylen(addr pos, const unicode **body, size_t *len)
 {
 	Check(GetType(pos) != LISPTYPE_STRING, "type error");
 	GetStringSize(pos, len);
 	GetStringUnicode(pos, body);
 }
 
-enum CHARACTER_TYPE unicode_character_type(enum CHARACTER_TYPE type, unicode u)
+_g enum CHARACTER_TYPE unicode_character_type(enum CHARACTER_TYPE type, unicode u)
 {
 	if (type == CHARACTER_TYPE_EMPTY) {
 		return character_type(u);
@@ -483,7 +483,7 @@ enum CHARACTER_TYPE unicode_character_type(enum CHARACTER_TYPE type, unicode u)
 	return CHARACTER_TYPE_INVALID;
 }
 
-void strvect_update_character_type(addr pos)
+_g void strvect_update_character_type(addr pos)
 {
 	enum CHARACTER_TYPE type;
 	const unicode *body;
@@ -499,12 +499,12 @@ void strvect_update_character_type(addr pos)
 	SetCharacterType(pos, type);
 }
 
-int strvectp(addr pos)
+_g int strvectp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_STRING;
 }
 
-int strvect_base_p(addr pos)
+_g int strvect_base_p(addr pos)
 {
 	enum CHARACTER_TYPE type;
 
@@ -523,13 +523,13 @@ int strvect_base_p(addr pos)
 	}
 }
 
-int strvect_simple_p(addr pos)
+_g int strvect_simple_p(addr pos)
 {
 	CheckType(pos, LISPTYPE_STRING);
 	return 0;
 }
 
-addr strvect_char_allocr(LocalRoot local, const char *arg)
+_g addr strvect_char_allocr(LocalRoot local, const char *arg)
 {
 	addr pos;
 	unicode *destroy;
@@ -544,30 +544,30 @@ addr strvect_char_allocr(LocalRoot local, const char *arg)
 
 	return pos;
 }
-addr strvect_char_localr(LocalRoot local, const char *arg)
+_g addr strvect_char_localr(LocalRoot local, const char *arg)
 {
 	Check(local == NULL, "local error");
 	return strvect_char_allocr(local, arg);
 }
-addr strvect_char_heapr(const char *arg)
+_g addr strvect_char_heapr(const char *arg)
 {
 	return strvect_char_allocr(NULL, arg);
 }
-void strvect_char_alloc(LocalRoot local, addr *ret, const char *arg)
+_g void strvect_char_alloc(LocalRoot local, addr *ret, const char *arg)
 {
 	*ret = strvect_char_allocr(local, arg);
 }
-void strvect_char_local(LocalRoot local, addr *ret, const char *arg)
+_g void strvect_char_local(LocalRoot local, addr *ret, const char *arg)
 {
 	Check(local == NULL, "local error");
 	*ret = strvect_char_allocr(local, arg);
 }
-void strvect_char_heap(addr *ret, const char *arg)
+_g void strvect_char_heap(addr *ret, const char *arg)
 {
 	*ret = strvect_char_allocr(NULL, arg);
 }
 
-void strvect_char1_alloc(LocalRoot local, addr *ret, const char *arg, unicode c)
+_g void strvect_char1_alloc(LocalRoot local, addr *ret, const char *arg, unicode c)
 {
 	addr pos;
 	unicode *destroy;
@@ -582,17 +582,17 @@ void strvect_char1_alloc(LocalRoot local, addr *ret, const char *arg, unicode c)
 	strvect_update_character_type(pos);
 	*ret = pos;
 }
-void strvect_char1_local(LocalRoot local, addr *ret, const char *arg, unicode c)
+_g void strvect_char1_local(LocalRoot local, addr *ret, const char *arg, unicode c)
 {
 	Check(local == NULL, "local error");
 	strvect_char1_alloc(local, ret, arg, c);
 }
-void strvect_char1_heap(addr *ret, const char *arg, unicode c)
+_g void strvect_char1_heap(addr *ret, const char *arg, unicode c)
 {
 	strvect_char1_alloc(NULL, ret, arg, c);
 }
 
-addr strvect_size1_allocr(LocalRoot local, const char *arg, size_t size)
+_g addr strvect_size1_allocr(LocalRoot local, const char *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -606,30 +606,30 @@ addr strvect_size1_allocr(LocalRoot local, const char *arg, size_t size)
 
 	return pos;
 }
-addr strvect_size1_localr(LocalRoot local, const char *arg, size_t size)
+_g addr strvect_size1_localr(LocalRoot local, const char *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	return strvect_size1_allocr(local, arg, size);
 }
-addr strvect_size1_heapr(const char *arg, size_t size)
+_g addr strvect_size1_heapr(const char *arg, size_t size)
 {
 	return strvect_size1_allocr(NULL, arg, size);
 }
-void strvect_size1_alloc(LocalRoot local, addr *ret, const char *arg, size_t size)
+_g void strvect_size1_alloc(LocalRoot local, addr *ret, const char *arg, size_t size)
 {
 	*ret = strvect_size1_allocr(local, arg, size);
 }
-void strvect_size1_local(LocalRoot local, addr *ret, const char *arg, size_t size)
+_g void strvect_size1_local(LocalRoot local, addr *ret, const char *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	*ret = strvect_size1_allocr(local, arg, size);
 }
-void strvect_size1_heap(addr *ret, const char *arg, size_t size)
+_g void strvect_size1_heap(addr *ret, const char *arg, size_t size)
 {
 	*ret = strvect_size1_allocr(NULL, arg, size);
 }
 
-addr strvect_sizeu_allocr(LocalRoot local, const unicode *arg, size_t size)
+_g addr strvect_sizeu_allocr(LocalRoot local, const unicode *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -641,25 +641,25 @@ addr strvect_sizeu_allocr(LocalRoot local, const unicode *arg, size_t size)
 
 	return pos;
 }
-addr strvect_sizeu_localr(LocalRoot local, const unicode *arg, size_t size)
+_g addr strvect_sizeu_localr(LocalRoot local, const unicode *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	return strvect_sizeu_allocr(local, arg, size);
 }
-addr strvect_sizeu_heapr(const unicode *arg, size_t size)
+_g addr strvect_sizeu_heapr(const unicode *arg, size_t size)
 {
 	return strvect_sizeu_allocr(NULL, arg, size);
 }
-void strvect_sizeu_alloc(LocalRoot local, addr *ret, const unicode *arg, size_t size)
+_g void strvect_sizeu_alloc(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	*ret = strvect_sizeu_allocr(local, arg, size);
 }
-void strvect_sizeu_local(LocalRoot local, addr *ret, const unicode *arg, size_t size)
+_g void strvect_sizeu_local(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	Check(local == NULL, "local error");
 	*ret = strvect_sizeu_allocr(local, arg, size);
 }
-void strvect_sizeu_heap(addr *ret, const unicode *arg, size_t size)
+_g void strvect_sizeu_heap(addr *ret, const unicode *arg, size_t size)
 {
 	*ret = strvect_sizeu_allocr(NULL, arg, size);
 }
@@ -668,7 +668,7 @@ void strvect_sizeu_heap(addr *ret, const unicode *arg, size_t size)
 /*
  *  strvect_equal
  */
-int strvect_equal_binary(addr left, const unicode *right, size_t size2)
+_g int strvect_equal_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -679,7 +679,7 @@ int strvect_equal_binary(addr left, const unicode *right, size_t size2)
 	return memu_equal(body, right, size1, size2);
 }
 
-int strvect_equalp_binary(addr left, const unicode *right, size_t size2)
+_g int strvect_equalp_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -690,7 +690,7 @@ int strvect_equalp_binary(addr left, const unicode *right, size_t size2)
 	return memu_equalp(body, right, size1, size2);
 }
 
-int strvect_equal_char(addr left, const char *body2)
+_g int strvect_equal_char(addr left, const char *body2)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -702,7 +702,7 @@ int strvect_equal_char(addr left, const char *body2)
 	return memu1_equal(body1, (const byte *)body2, size1, size2);
 }
 
-int strvect_equalp_char(addr left, const char *body2)
+_g int strvect_equalp_char(addr left, const char *body2)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -714,7 +714,7 @@ int strvect_equalp_char(addr left, const char *body2)
 	return memu1_equalp(body1, (const byte *)body2, size1, size2);
 }
 
-int strvect_equal(addr left, addr right)
+_g int strvect_equal(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -726,7 +726,7 @@ int strvect_equal(addr left, addr right)
 	return strvect_equal_binary(left, body, size);
 }
 
-int strvect_equalp(addr left, addr right)
+_g int strvect_equalp(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -738,7 +738,7 @@ int strvect_equalp(addr left, addr right)
 	return strvect_equalp_binary(left, body, size);
 }
 
-int strvect_character_equal(addr left, addr right)
+_g int strvect_character_equal(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -750,7 +750,7 @@ int strvect_character_equal(addr left, addr right)
 	return size == 1 && body[0] == RefCharacter(right);
 }
 
-int strvect_character_equalp(addr left, addr right)
+_g int strvect_character_equalp(addr left, addr right)
 {
 	const unicode *body;
 	unicode a, b;
@@ -770,7 +770,7 @@ int strvect_character_equalp(addr left, addr right)
 /*
  *  strvect_compare
  */
-int strvect_compare_binary(addr left, const unicode *right, size_t size2)
+_g int strvect_compare_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -781,7 +781,7 @@ int strvect_compare_binary(addr left, const unicode *right, size_t size2)
 	return memu_compare(body, right, size1, size2);
 }
 
-int strvect_comparep_binary(addr left, const unicode *right, size_t size2)
+_g int strvect_comparep_binary(addr left, const unicode *right, size_t size2)
 {
 	const unicode *body;
 	size_t size1;
@@ -792,7 +792,7 @@ int strvect_comparep_binary(addr left, const unicode *right, size_t size2)
 	return memu_comparep(body, right, size1, size2);
 }
 
-int strvect_compare_char(addr left, const char *body2)
+_g int strvect_compare_char(addr left, const char *body2)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -804,7 +804,7 @@ int strvect_compare_char(addr left, const char *body2)
 	return memu1_compare(body1, (const byte *)body2, size1, size2);
 }
 
-int strvect_comparep_char(addr left, const char *body2)
+_g int strvect_comparep_char(addr left, const char *body2)
 {
 	const unicode *body1;
 	size_t size1, size2;
@@ -816,7 +816,7 @@ int strvect_comparep_char(addr left, const char *body2)
 	return memu1_comparep(body1, (const byte *)body2, size1, size2);
 }
 
-int strvect_compare(addr left, addr right)
+_g int strvect_compare(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -828,7 +828,7 @@ int strvect_compare(addr left, addr right)
 	return strvect_compare_binary(left, body, size);
 }
 
-int strvect_comparep(addr left, addr right)
+_g int strvect_comparep(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -844,7 +844,7 @@ int strvect_comparep(addr left, addr right)
 /*
  *  getc/setc
  */
-unicode strvect_refc(addr pos, size_t index)
+_g unicode strvect_refc(addr pos, size_t index)
 {
 	const unicode *body;
 #ifdef LISP_DEBUG
@@ -861,12 +861,12 @@ unicode strvect_refc(addr pos, size_t index)
 	return body[index];
 }
 
-void strvect_getc(addr pos, size_t index, unicode *c)
+_g void strvect_getc(addr pos, size_t index, unicode *c)
 {
 	*c = strvect_refc(pos, index);
 }
 
-void strvect_setc(addr pos, size_t index, unicode c)
+_g void strvect_setc(addr pos, size_t index, unicode c)
 {
 	enum CHARACTER_TYPE type;
 	unicode *destroy;
@@ -888,7 +888,7 @@ void strvect_setc(addr pos, size_t index, unicode c)
 	destroy[index] = c;
 }
 
-void strvect_setall(addr pos, unicode c)
+_g void strvect_setall(addr pos, unicode c)
 {
 	enum CHARACTER_TYPE type;
 	unicode *destroy;
@@ -905,7 +905,7 @@ void strvect_setall(addr pos, unicode c)
 		destroy[i] = c;
 }
 
-void strvect_get(LocalRoot local, addr pos, size_t index, addr *ret)
+_g void strvect_get(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	unicode c;
 	size_t size;
@@ -918,7 +918,7 @@ void strvect_get(LocalRoot local, addr pos, size_t index, addr *ret)
 	character_alloc(local, ret, c);
 }
 
-void strvect_aref(LocalRoot local, addr pos, addr args, addr *ret)
+_g void strvect_aref(LocalRoot local, addr pos, addr args, addr *ret)
 {
 	addr arg;
 	size_t index;
@@ -934,7 +934,7 @@ void strvect_aref(LocalRoot local, addr pos, addr args, addr *ret)
 	strvect_get(local, pos, index, ret);
 }
 
-void strvect_set(addr pos, size_t index, addr value)
+_g void strvect_set(addr pos, size_t index, addr value)
 {
 	size_t size;
 
@@ -947,7 +947,7 @@ void strvect_set(addr pos, size_t index, addr value)
 	strvect_setc(pos, index, RefCharacter(value));
 }
 
-void strvect_setf_aref(addr pos, addr args, addr value)
+_g void strvect_setf_aref(addr pos, addr args, addr value)
 {
 	addr arg;
 	size_t index;
@@ -965,7 +965,7 @@ void strvect_setf_aref(addr pos, addr args, addr value)
 	strvect_set(pos, index, value);
 }
 
-void strvect_fill(addr pos, addr item, addr start, addr end)
+_g void strvect_fill(addr pos, addr item, addr start, addr end)
 {
 	size_t index1, index2;
 	unicode c;
@@ -983,7 +983,7 @@ void strvect_fill(addr pos, addr item, addr start, addr end)
 	strvect_update_character_type(pos);
 }
 
-void strvect_subseq_index(addr *ret, addr pos, size_t index1, size_t index2)
+_g void strvect_subseq_index(addr *ret, addr pos, size_t index1, size_t index2)
 {
 	unicode *data1;
 	const unicode *data2;
@@ -1000,7 +1000,7 @@ void strvect_subseq_index(addr *ret, addr pos, size_t index1, size_t index2)
 	*ret = root;
 }
 
-void strvect_subseq(addr *ret, addr pos, addr start, addr end)
+_g void strvect_subseq(addr *ret, addr pos, addr start, addr end)
 {
 	size_t index1, index2;
 
@@ -1009,7 +1009,7 @@ void strvect_subseq(addr *ret, addr pos, addr start, addr end)
 	strvect_subseq_index(ret, pos, index1, index2);
 }
 
-void strvect_setget(addr pos1, size_t index1, addr pos2, size_t index2)
+_g void strvect_setget(addr pos1, size_t index1, addr pos2, size_t index2)
 {
 	unicode value;
 
@@ -1017,7 +1017,7 @@ void strvect_setget(addr pos1, size_t index1, addr pos2, size_t index2)
 	strvect_setc(pos1, index1, value);
 }
 
-void strvect_adjust(addr *ret, addr array, size_t size, addr value, addr check)
+_g void strvect_adjust(addr *ret, addr array, size_t size, addr value, addr check)
 {
 	unicode temp, defvalue;
 	addr pos;
@@ -1044,7 +1044,7 @@ void strvect_adjust(addr *ret, addr array, size_t size, addr value, addr check)
 	*ret = pos;
 }
 
-void strvect_reverse(LocalRoot local, addr *ret, addr pos)
+_g void strvect_reverse(LocalRoot local, addr *ret, addr pos)
 {
 	unicode c;
 	addr one;
@@ -1060,7 +1060,7 @@ void strvect_reverse(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
-void strvect_nreverse(addr *ret, addr pos)
+_g void strvect_nreverse(addr *ret, addr pos)
 {
 	unicode a, b;
 	size_t size, x, y;
@@ -1082,7 +1082,7 @@ void strvect_nreverse(addr *ret, addr pos)
 
 
 /* string utf16 object */
-addr string8_size_allocr(LocalRoot local, const char *name, size_t size)
+_g addr string8_size_allocr(LocalRoot local, const char *name, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -1098,30 +1098,30 @@ addr string8_size_allocr(LocalRoot local, const char *name, size_t size)
 
 	return pos;
 }
-addr string8_size_localr(LocalRoot local, const char *name, size_t size)
+_g addr string8_size_localr(LocalRoot local, const char *name, size_t size)
 {
 	Check(local == NULL, "local error");
 	return string8_size_allocr(local, name, size);
 }
-addr string8_size_heapr(const char *name, size_t size)
+_g addr string8_size_heapr(const char *name, size_t size)
 {
 	return string8_size_allocr(NULL, name, size);
 }
-void string8_size_alloc(LocalRoot local, addr *ret, const char *name, size_t size)
+_g void string8_size_alloc(LocalRoot local, addr *ret, const char *name, size_t size)
 {
 	*ret = string8_size_allocr(local, name, size);
 }
-void string8_size_local(LocalRoot local, addr *ret, const char *name, size_t size)
+_g void string8_size_local(LocalRoot local, addr *ret, const char *name, size_t size)
 {
 	Check(local == NULL, "local error");
 	*ret = string8_size_allocr(local, name, size);
 }
-void string8_size_heap(addr *ret, const char *name, size_t size)
+_g void string8_size_heap(addr *ret, const char *name, size_t size)
 {
 	*ret = string8_size_allocr(NULL, name, size);
 }
 
-addr string8_null_allocr(LocalRoot local, const char *name)
+_g addr string8_null_allocr(LocalRoot local, const char *name)
 {
 	addr pos;
 	unicode *destroy;
@@ -1137,30 +1137,30 @@ addr string8_null_allocr(LocalRoot local, const char *name)
 
 	return pos;
 }
-addr string8_null_localr(LocalRoot local, const char *name)
+_g addr string8_null_localr(LocalRoot local, const char *name)
 {
 	Check(local == NULL, "local error");
 	return string8_null_allocr(local, name);
 }
-addr string8_null_heapr(const char *name)
+_g addr string8_null_heapr(const char *name)
 {
 	return string8_null_allocr(NULL, name);
 }
-void string8_null_alloc(LocalRoot local, addr *ret, const char *name)
+_g void string8_null_alloc(LocalRoot local, addr *ret, const char *name)
 {
 	*ret = string8_null_allocr(local, name);
 }
-void string8_null_local(LocalRoot local, addr *ret, const char *name)
+_g void string8_null_local(LocalRoot local, addr *ret, const char *name)
 {
 	Check(local == NULL, "local error");
 	*ret = string8_null_allocr(local, name);
 }
-void string8_null_heap(addr *ret, const char *name)
+_g void string8_null_heap(addr *ret, const char *name)
 {
 	*ret = string8_null_allocr(NULL, name);
 }
 
-addr string16_size_allocr(LocalRoot local, const byte16 *name, size_t size)
+_g addr string16_size_allocr(LocalRoot local, const byte16 *name, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -1176,30 +1176,30 @@ addr string16_size_allocr(LocalRoot local, const byte16 *name, size_t size)
 
 	return pos;
 }
-addr string16_size_localr(LocalRoot local, const byte16 *name, size_t size)
+_g addr string16_size_localr(LocalRoot local, const byte16 *name, size_t size)
 {
 	Check(local == NULL, "local error");
 	return string16_size_allocr(local, name, size);
 }
-addr string16_size_heapr(const byte16 *name, size_t size)
+_g addr string16_size_heapr(const byte16 *name, size_t size)
 {
 	return string16_size_allocr(NULL, name, size);
 }
-void string16_size_alloc(LocalRoot local, addr *ret, const byte16 *name, size_t size)
+_g void string16_size_alloc(LocalRoot local, addr *ret, const byte16 *name, size_t size)
 {
 	*ret = string16_size_allocr(local, name, size);
 }
-void string16_size_local(LocalRoot local, addr *ret, const byte16 *name, size_t size)
+_g void string16_size_local(LocalRoot local, addr *ret, const byte16 *name, size_t size)
 {
 	Check(local == NULL, "local error");
 	*ret = string16_size_allocr(local, name, size);
 }
-void string16_size_heap(addr *ret, const byte16 *name, size_t size)
+_g void string16_size_heap(addr *ret, const byte16 *name, size_t size)
 {
 	*ret = string16_size_allocr(NULL, name, size);
 }
 
-addr string16_null_allocr(LocalRoot local, const byte16 *name)
+_g addr string16_null_allocr(LocalRoot local, const byte16 *name)
 {
 	addr pos;
 	unicode *destroy;
@@ -1215,25 +1215,25 @@ addr string16_null_allocr(LocalRoot local, const byte16 *name)
 
 	return pos;
 }
-addr string16_null_localr(LocalRoot local, const byte16 *name)
+_g addr string16_null_localr(LocalRoot local, const byte16 *name)
 {
 	Check(local == NULL, "local error");
 	return string16_null_allocr(local, name);
 }
-addr string16_null_heapr(const byte16 *name)
+_g addr string16_null_heapr(const byte16 *name)
 {
 	return string16_null_allocr(NULL, name);
 }
-void string16_null_alloc(LocalRoot local, addr *ret, const byte16 *name)
+_g void string16_null_alloc(LocalRoot local, addr *ret, const byte16 *name)
 {
 	*ret = string16_null_allocr(local, name);
 }
-void string16_null_local(LocalRoot local, addr *ret, const byte16 *name)
+_g void string16_null_local(LocalRoot local, addr *ret, const byte16 *name)
 {
 	Check(local == NULL, "local error");
 	*ret = string16_null_allocr(local, name);
 }
-void string16_null_heap(addr *ret, const byte16 *name)
+_g void string16_null_heap(addr *ret, const byte16 *name)
 {
 	*ret = string16_null_allocr(NULL, name);
 }

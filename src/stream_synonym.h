@@ -3,10 +3,10 @@
 
 #include "typedef.h"
 
-void open_synonym_stream(addr *stream, addr symbol);
-void get_synonym_stream(addr stream, addr *ret);
-void set_synonym_stream(addr stream, addr symbol);
-void init_stream_synonym(void);
+_g void open_synonym_stream(addr *stream, addr symbol);
+_g void get_synonym_stream(addr stream, addr *ret);
+_g void set_synonym_stream(addr stream, addr symbol);
+_g void init_stream_synonym(void);
 
 #endif
 

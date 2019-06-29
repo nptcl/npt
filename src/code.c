@@ -1146,7 +1146,7 @@ static void progv_code(Execute ptr, addr right)
 
 /* initcode */
 #define initcode(x) SetPointer_code(p_##x##_code, x##_code)
-void init_code(void)
+_g void init_code(void)
 {
 	/* system */
 	initcode(hello);
@@ -1285,7 +1285,7 @@ static void defcode_constant(constindex index, pointer p)
 }
 
 #define defcode(x,y) defcode_constant(CONSTANT_CODE_##x, p_##y##_code)
-void build_code(void)
+_g void build_code(void)
 {
 	/* system */
 	defcode(HELLO, hello);
@@ -1495,68 +1495,68 @@ static void code_alloc(LocalRoot local, addr *ret, addr codeA4)
 	*ret = pos;
 }
 
-void code_heap(addr *ret, addr codeA4)
+_g void code_heap(addr *ret, addr codeA4)
 {
 	code_alloc(NULL, ret, codeA4);
 }
 
-void code_empty_heap(addr *ret)
+_g void code_empty_heap(addr *ret)
 {
 	addr pos;
 	vector4_heap(&pos, 0);
 	code_heap(ret, pos);
 }
 
-void function_empty_heap(addr *ret, addr name)
+_g void function_empty_heap(addr *ret, addr name)
 {
 	addr pos;
 	code_empty_heap(&pos);
 	function_heap(ret, name, pos);
 }
 
-const pointer *getcalltype_code(addr pos)
+_g const pointer *getcalltype_code(addr pos)
 {
 	CheckType(pos, LISPTYPE_CODE);
 	return StructCode(pos)->call;
 }
 
-void getarray_code(addr pos, addr *ret)
+_g void getarray_code(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CODE);
 	GetArrayCode(pos, Code_Array, ret);
 }
 
-void getargs_code(addr pos, addr *ret)
+_g void getargs_code(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CODE);
 	GetArrayCode(pos, Code_Argument, ret);
 }
 
-enum CodeType gettype_code(addr pos)
+_g enum CodeType gettype_code(addr pos)
 {
 	CheckType(pos, LISPTYPE_CODE);
 	return StructCode(pos)->type;
 }
 
-void settype_code(addr pos, enum CodeType type)
+_g void settype_code(addr pos, enum CodeType type)
 {
 	CheckType(pos, LISPTYPE_CODE);
 	StructCode(pos)->type = type;
 }
 
-void getinfo_code(addr pos, addr *ret)
+_g void getinfo_code(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CODE);
 	GetArrayCode(pos, Code_Info, ret);
 }
 
-void setinfo_code(addr pos, addr value)
+_g void setinfo_code(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_CODE);
 	SetArrayCode(pos, Code_Info, value);
 }
 
-void syscall_code(LocalRoot local, addr *ret, pointer call, addr value)
+_g void syscall_code(LocalRoot local, addr *ret, pointer call, addr value)
 {
 	addr pos, code, list;
 

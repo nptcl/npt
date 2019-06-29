@@ -54,20 +54,20 @@ static uint64_t xorshift128plus_64bit(uint64_t *s0, uint64_t *s1)
 }
 
 /* random */
-uint32_t random_number_32bit(struct random_state *state)
+_g uint32_t random_number_32bit(struct random_state *state)
 {
 	return xorshift128_32bit(
 			&state->seed.u32[0], &state->seed.u32[1],
 			&state->seed.u32[2], &state->seed.u32[3]);
 }
 
-uint64_t random_number_64bit(struct random_state *state)
+_g uint64_t random_number_64bit(struct random_state *state)
 {
 	return xorshift128plus_64bit(&state->seed.u64[0], &state->seed.u64[1]);
 }
 
 /* 0 ... value */
-uint32_t random_equal_32bit(struct random_state *state, uint32_t value)
+_g uint32_t random_equal_32bit(struct random_state *state, uint32_t value)
 {
 	int shift;
 	uint32_t check, result;
@@ -87,7 +87,7 @@ uint32_t random_equal_32bit(struct random_state *state, uint32_t value)
 	return result;
 }
 
-uint64_t random_equal_64bit(struct random_state *state, uint64_t value)
+_g uint64_t random_equal_64bit(struct random_state *state, uint64_t value)
 {
 	int shift;
 	uint64_t check, result;
@@ -108,31 +108,31 @@ uint64_t random_equal_64bit(struct random_state *state, uint64_t value)
 }
 
 /* 0 ... value-1 */
-uint32_t random_less_32bit(struct random_state *state, uint32_t value)
+_g uint32_t random_less_32bit(struct random_state *state, uint32_t value)
 {
 	if (value <= 1UL) return 0UL;
 	return random_equal_32bit(state, value - 1UL);
 }
 
-uint64_t random_less_64bit(struct random_state *state, uint64_t value)
+_g uint64_t random_less_64bit(struct random_state *state, uint64_t value)
 {
 	if (value <= 1UL) return 0UL;
 	return random_equal_64bit(state, value - 1UL);
 }
 
 /* seed */
-void random_seed_buffer(struct random_state *state, const void *ptr, size_t size)
+_g void random_seed_buffer(struct random_state *state, const void *ptr, size_t size)
 {
 	sequence_md5encode(ptr, size, state->seed.u32);
 }
 
-void random_seed_string(struct random_state *state, const char *word)
+_g void random_seed_string(struct random_state *state, const char *word)
 {
 	sequence_md5encode(word, strlen(word), state->seed.u32);
 }
 
 /* check */
-int random_state_equal(struct random_state *a, struct random_state *b)
+_g int random_state_equal(struct random_state *a, struct random_state *b)
 {
 	return memcmp(&(a->seed.u32), &(b->seed.u32),
 			(size_t)(sizeof(uint32_t) * 4)) == 0;

@@ -1495,7 +1495,7 @@ static int type_optimize(LocalRoot local, addr *ret, addr type)
 	return result;
 }
 
-int type_optimize_local(LocalRoot local, addr *ret, addr type)
+_g int type_optimize_local(LocalRoot local, addr *ret, addr type)
 {
 	int result;
 
@@ -1513,7 +1513,7 @@ int type_optimize_local(LocalRoot local, addr *ret, addr type)
 	return result;
 }
 
-int type_optimize_heap(LocalRoot local, addr *ret, addr type)
+_g int type_optimize_heap(LocalRoot local, addr *ret, addr type)
 {
 	int result;
 	LocalStack stack;
@@ -1528,13 +1528,13 @@ int type_optimize_heap(LocalRoot local, addr *ret, addr type)
 	return result;
 }
 
-int type_optimized_p(addr type)
+_g int type_optimized_p(addr type)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	return RefLispDecl(type) == LISPDECL_OPTIMIZED;
 }
 
-void get_type_optimized(addr *ret, addr type)
+_g void get_type_optimized(addr *ret, addr type)
 {
 	if (type_optimized_p(type)) {
 		GetArrayType(type, 0, ret);

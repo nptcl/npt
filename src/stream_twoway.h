@@ -3,12 +3,12 @@
 
 #include "typedef.h"
 
-void open_twoway_stream(addr *stream, addr input, addr output);
-void get_twoway_input_stream(addr stream, addr *ret);
-void set_twoway_input_stream(addr stream, addr input);
-void get_twoway_output_stream(addr stream, addr *ret);
-void set_twoway_output_stream(addr stream, addr output);
-void init_stream_twoway(void);
+_g void open_twoway_stream(addr *stream, addr input, addr output);
+_g void get_twoway_input_stream(addr stream, addr *ret);
+_g void set_twoway_input_stream(addr stream, addr input);
+_g void get_twoway_output_stream(addr stream, addr *ret);
+_g void set_twoway_output_stream(addr stream, addr output);
+_g void init_stream_twoway(void);
 
 #endif
 

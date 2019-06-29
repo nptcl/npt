@@ -64,19 +64,19 @@ static void quote_heap(addr *ret, enum QuoteType type, addr value)
 	quote2_heap(ret, type, value, value);
 }
 
-void getvalue_quote(addr pos, addr *ret)
+_g void getvalue_quote(addr pos, addr *ret)
 {
 	Check(! quotep(pos), "type error");
 	GetQuote(pos, QuoteIndex_Value, ret);
 }
 
-void getprint_quote(addr pos, addr *ret)
+_g void getprint_quote(addr pos, addr *ret)
 {
 	Check(! quotep(pos), "type error");
 	GetQuote(pos, QuoteIndex_Print, ret);
 }
 
-int quotep(addr pos)
+_g int quotep(addr pos)
 {
 	return GetType(pos) == LISPTYPE_QUOTE;
 }
@@ -87,52 +87,52 @@ static int quote_type_p(addr pos, enum QuoteType type)
 		&& RefQuoteType(pos) == type;
 }
 
-int quote_back_p(addr pos)
+_g int quote_back_p(addr pos)
 {
 	return quote_type_p(pos, QuoteType_Back);
 }
 
-int quote_comma_p(addr pos)
+_g int quote_comma_p(addr pos)
 {
 	return quote_type_p(pos, QuoteType_Comma);
 }
 
-int quote_atsign_p(addr pos)
+_g int quote_atsign_p(addr pos)
 {
 	return quote_type_p(pos, QuoteType_AtSign);
 }
 
-int quote_dot_p(addr pos)
+_g int quote_dot_p(addr pos)
 {
 	return quote_type_p(pos, QuoteType_Dot);
 }
 
-int quote_quote_p(addr pos)
+_g int quote_quote_p(addr pos)
 {
 	return quote_type_p(pos, QuoteExecute_Quote);
 }
 
-int quote_append_p(addr pos)
+_g int quote_append_p(addr pos)
 {
 	return quote_type_p(pos, QuoteExecute_Append);
 }
 
-int quote_nconc_p(addr pos)
+_g int quote_nconc_p(addr pos)
 {
 	return quote_type_p(pos, QuoteExecute_Nconc);
 }
 
-int quote_list_p(addr pos)
+_g int quote_list_p(addr pos)
 {
 	return quote_type_p(pos, QuoteExecute_List);
 }
 
-int quote_lista_p(addr pos)
+_g int quote_lista_p(addr pos)
 {
 	return quote_type_p(pos, QuoteExecute_Lista);
 }
 
-int quote_clobberable_p(addr pos)
+_g int quote_clobberable_p(addr pos)
 {
 	return quote_type_p(pos, QuoteExecute_Clobberable);
 }
@@ -732,7 +732,7 @@ static void bq_completely_process(addr pos, addr *ret)
 	bq_remove_tokens(pos, ret);
 }
 
-void quote_back_heap(addr *ret, addr form)
+_g void quote_back_heap(addr *ret, addr form)
 {
 	addr pos, value;
 
@@ -741,17 +741,17 @@ void quote_back_heap(addr *ret, addr form)
 	*ret = pos;
 }
 
-void quote_comma_heap(addr *ret, addr form)
+_g void quote_comma_heap(addr *ret, addr form)
 {
 	quote_heap(ret, QuoteType_Comma, form);
 }
 
-void quote_atsign_heap(addr *ret, addr form)
+_g void quote_atsign_heap(addr *ret, addr form)
 {
 	quote_heap(ret, QuoteType_AtSign, form);
 }
 
-void quote_dot_heap(addr *ret, addr form)
+_g void quote_dot_heap(addr *ret, addr form)
 {
 	quote_heap(ret, QuoteType_Dot, form);
 }

@@ -1119,7 +1119,7 @@ static void defgeneric_remove_method_mop(Execute ptr)
 /***********************************************************************
  *  function
  ***********************************************************************/
-void init_mop_generic(Execute ptr)
+_g void init_mop_generic(void)
 {
 	SetPointerType(var4dynamic, method_ensure_generic_function_class);
 	SetPointerType(var4dynamic, method_ensure_generic_function_null);
@@ -1141,7 +1141,7 @@ void init_mop_generic(Execute ptr)
 	SetPointerType(var4, method_remove_method_std);
 }
 
-void build_mop_generic(Execute ptr)
+_g void build_mop_generic(Execute ptr)
 {
 	/* defclass */
 	defgeneric_no_applicable_method_mop(ptr);

@@ -103,10 +103,10 @@ static int test_typeargs_empty(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_empty1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_empty2");
 	test(lenarrayr(pos) == 4, "typeargs_empty3");
-	test(getarrayr(pos, 0) == Nil, "typeargs_empty4");
-	test(getarrayr(pos, 1) == Nil, "typeargs_empty5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_empty6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_empty7");
+	test(refarray(pos, 0) == Nil, "typeargs_empty4");
+	test(refarray(pos, 1) == Nil, "typeargs_empty5");
+	test(refarray(pos, 2) == Nil, "typeargs_empty6");
+	test(refarray(pos, 3) == Nil, "typeargs_empty7");
 
 	RETURN;
 }
@@ -123,10 +123,10 @@ static int test_typeargs_full(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_full1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_full2");
 	test(lenarrayr(pos) == 4, "typeargs_full3");
-	test(getarrayr(pos, 0) == v1, "typeargs_full4");
-	test(getarrayr(pos, 1) == v2, "typeargs_full5");
-	test(getarrayr(pos, 2) == v3, "typeargs_full6");
-	test(getarrayr(pos, 3) == v4, "typeargs_full7");
+	test(refarray(pos, 0) == v1, "typeargs_full4");
+	test(refarray(pos, 1) == v2, "typeargs_full5");
+	test(refarray(pos, 2) == v3, "typeargs_full6");
+	test(refarray(pos, 3) == v4, "typeargs_full7");
 
 	RETURN;
 }
@@ -140,9 +140,9 @@ static int test_typeargs_var1(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var1-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var1-2");
 	test(lenarrayr(pos) == 4, "typeargs_var1-3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var1-5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var1-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var1-7");
+	test(refarray(pos, 1) == Nil, "typeargs_var1-5");
+	test(refarray(pos, 2) == Nil, "typeargs_var1-6");
+	test(refarray(pos, 3) == Nil, "typeargs_var1-7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -162,9 +162,9 @@ static int test_typeargs_var2(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var2-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var2-2");
 	test(lenarrayr(pos) == 4, "typeargs_var2-3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var2-5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var2-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var2-7");
+	test(refarray(pos, 1) == Nil, "typeargs_var2-5");
+	test(refarray(pos, 2) == Nil, "typeargs_var2-6");
+	test(refarray(pos, 3) == Nil, "typeargs_var2-7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -187,9 +187,9 @@ static int test_typeargs_var3(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var3-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var3-2");
 	test(lenarrayr(pos) == 4, "typeargs_var3-3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var3-5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var3-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var3-7");
+	test(refarray(pos, 1) == Nil, "typeargs_var3-5");
+	test(refarray(pos, 2) == Nil, "typeargs_var3-6");
+	test(refarray(pos, 3) == Nil, "typeargs_var3-7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -215,9 +215,9 @@ static int test_typeargs_var4(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var4-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var4-2");
 	test(lenarrayr(pos) == 4, "typeargs_var4-3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var4-5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var4-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var4-7");
+	test(refarray(pos, 1) == Nil, "typeargs_var4-5");
+	test(refarray(pos, 2) == Nil, "typeargs_var4-6");
+	test(refarray(pos, 3) == Nil, "typeargs_var4-7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -246,9 +246,9 @@ static int test_typeargs_var5(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var5-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var5-2");
 	test(lenarrayr(pos) == 4, "typeargs_var5-3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var5-5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var5-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var5-7");
+	test(refarray(pos, 1) == Nil, "typeargs_var5-5");
+	test(refarray(pos, 2) == Nil, "typeargs_var5-6");
+	test(refarray(pos, 3) == Nil, "typeargs_var5-7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -276,9 +276,9 @@ static int test_typeargs_var1key(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var1key1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var1key2");
 	test(lenarrayr(pos) == 4, "typeargs_var1key3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var1key5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var1key6");
-	test(getarrayr(pos, 3) == key, "typeargs_var1key6");
+	test(refarray(pos, 1) == Nil, "typeargs_var1key5");
+	test(refarray(pos, 2) == Nil, "typeargs_var1key6");
+	test(refarray(pos, 3) == key, "typeargs_var1key6");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -299,9 +299,9 @@ static int test_typeargs_var2key(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var2key1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var2key2");
 	test(lenarrayr(pos) == 4, "typeargs_var2key3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var2key5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var2key6");
-	test(getarrayr(pos, 3) == key, "typeargs_var2key6");
+	test(refarray(pos, 1) == Nil, "typeargs_var2key5");
+	test(refarray(pos, 2) == Nil, "typeargs_var2key6");
+	test(refarray(pos, 3) == key, "typeargs_var2key6");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -325,9 +325,9 @@ static int test_typeargs_var3key(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var3key1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var3key2");
 	test(lenarrayr(pos) == 4, "typeargs_var3key3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var3key5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var3key6");
-	test(getarrayr(pos, 3) == key, "typeargs_var3key6");
+	test(refarray(pos, 1) == Nil, "typeargs_var3key5");
+	test(refarray(pos, 2) == Nil, "typeargs_var3key6");
+	test(refarray(pos, 3) == key, "typeargs_var3key6");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -354,9 +354,9 @@ static int test_typeargs_var4key(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var4key1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var4key2");
 	test(lenarrayr(pos) == 4, "typeargs_var4key3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var4key5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var4key6");
-	test(getarrayr(pos, 3) == key, "typeargs_var4key6");
+	test(refarray(pos, 1) == Nil, "typeargs_var4key5");
+	test(refarray(pos, 2) == Nil, "typeargs_var4key6");
+	test(refarray(pos, 3) == key, "typeargs_var4key6");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -381,9 +381,9 @@ static int test_typeargs_opt1(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_opt1-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_opt1-2");
 	test(lenarrayr(pos) == 4, "typeargs_opt1-3");
-	test(getarrayr(pos, 0) == Nil, "typeargs_opt1-5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_opt1-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_opt1-7");
+	test(refarray(pos, 0) == Nil, "typeargs_opt1-5");
+	test(refarray(pos, 2) == Nil, "typeargs_opt1-6");
+	test(refarray(pos, 3) == Nil, "typeargs_opt1-7");
 
 	getarray(pos, 1, &list);
 	getcons(list, &check, &list);
@@ -403,9 +403,9 @@ static int test_typeargs_opt2(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_opt2-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_opt2-2");
 	test(lenarrayr(pos) == 4, "typeargs_opt2-3");
-	test(getarrayr(pos, 0) == Nil, "typeargs_opt2-5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_opt2-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_opt2-7");
+	test(refarray(pos, 0) == Nil, "typeargs_opt2-5");
+	test(refarray(pos, 2) == Nil, "typeargs_opt2-6");
+	test(refarray(pos, 3) == Nil, "typeargs_opt2-7");
 
 	getarray(pos, 1, &list);
 	getcons(list, &check, &list);
@@ -428,9 +428,9 @@ static int test_typeargs_opt3(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_opt3-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_opt3-2");
 	test(lenarrayr(pos) == 4, "typeargs_opt3-3");
-	test(getarrayr(pos, 0) == Nil, "typeargs_opt3-5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_opt3-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_opt3-7");
+	test(refarray(pos, 0) == Nil, "typeargs_opt3-5");
+	test(refarray(pos, 2) == Nil, "typeargs_opt3-6");
+	test(refarray(pos, 3) == Nil, "typeargs_opt3-7");
 
 	getarray(pos, 1, &list);
 	getcons(list, &check, &list);
@@ -456,9 +456,9 @@ static int test_typeargs_opt4(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_opt4-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_opt4-2");
 	test(lenarrayr(pos) == 4, "typeargs_opt4-3");
-	test(getarrayr(pos, 0) == Nil, "typeargs_opt4-5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_opt4-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_opt4-7");
+	test(refarray(pos, 0) == Nil, "typeargs_opt4-5");
+	test(refarray(pos, 2) == Nil, "typeargs_opt4-6");
+	test(refarray(pos, 3) == Nil, "typeargs_opt4-7");
 
 	getarray(pos, 1, &list);
 	getcons(list, &check, &list);
@@ -487,9 +487,9 @@ static int test_typeargs_opt5(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_opt5-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_opt5-2");
 	test(lenarrayr(pos) == 4, "typeargs_opt5-3");
-	test(getarrayr(pos, 0) == Nil, "typeargs_opt5-5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_opt5-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_opt5-7");
+	test(refarray(pos, 0) == Nil, "typeargs_opt5-5");
+	test(refarray(pos, 2) == Nil, "typeargs_opt5-6");
+	test(refarray(pos, 3) == Nil, "typeargs_opt5-7");
 
 	getarray(pos, 1, &list);
 	getcons(list, &check, &list);
@@ -517,8 +517,8 @@ static int test_typeargs_var1opt1(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var1opt1-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var1opt1-2");
 	test(lenarrayr(pos) == 4, "typeargs_var1opt1-3");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var1opt1-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var1opt1-7");
+	test(refarray(pos, 2) == Nil, "typeargs_var1opt1-6");
+	test(refarray(pos, 3) == Nil, "typeargs_var1opt1-7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -544,8 +544,8 @@ static int test_typeargs_var1opt2(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var1opt2-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var1opt2-2");
 	test(lenarrayr(pos) == 4, "typeargs_var1opt2-3");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var1opt2-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var1opt2-7");
+	test(refarray(pos, 2) == Nil, "typeargs_var1opt2-6");
+	test(refarray(pos, 3) == Nil, "typeargs_var1opt2-7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -574,8 +574,8 @@ static int test_typeargs_var1opt2key(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var1opt2key1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var1opt2key2");
 	test(lenarrayr(pos) == 4, "typeargs_var1opt2key3");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var1opt2key6");
-	test(getarrayr(pos, 3) == key, "typeargs_var1opt2key7");
+	test(refarray(pos, 2) == Nil, "typeargs_var1opt2key6");
+	test(refarray(pos, 3) == key, "typeargs_var1opt2key7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -603,8 +603,8 @@ static int test_typeargs_var2opt1(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var2opt1-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var2opt1-2");
 	test(lenarrayr(pos) == 4, "typeargs_var2opt1-3");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var2opt1-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var2opt1-7");
+	test(refarray(pos, 2) == Nil, "typeargs_var2opt1-6");
+	test(refarray(pos, 3) == Nil, "typeargs_var2opt1-7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -633,8 +633,8 @@ static int test_typeargs_var2opt2(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var2opt2-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var2opt2-2");
 	test(lenarrayr(pos) == 4, "typeargs_var2opt2-3");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var2opt2-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var2opt2-7");
+	test(refarray(pos, 2) == Nil, "typeargs_var2opt2-6");
+	test(refarray(pos, 3) == Nil, "typeargs_var2opt2-7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -665,8 +665,8 @@ static int test_typeargs_var3opt1(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var3opt1-1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var3opt1-2");
 	test(lenarrayr(pos) == 4, "typeargs_var3opt1-3");
-	test(getarrayr(pos, 2) == Nil, "typeargs_var3opt1-6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var3opt1-7");
+	test(refarray(pos, 2) == Nil, "typeargs_var3opt1-6");
+	test(refarray(pos, 3) == Nil, "typeargs_var3opt1-7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -695,9 +695,9 @@ static int test_typeargs_var1rest(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var1rest1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var1rest2");
 	test(lenarrayr(pos) == 4, "typeargs_var1rest3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var1rest5");
-	test(getarrayr(pos, 2) == rest, "typeargs_var1rest6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var1rest7");
+	test(refarray(pos, 1) == Nil, "typeargs_var1rest5");
+	test(refarray(pos, 2) == rest, "typeargs_var1rest6");
+	test(refarray(pos, 3) == Nil, "typeargs_var1rest7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -718,9 +718,9 @@ static int test_typeargs_var2rest(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var2rest1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var2rest2");
 	test(lenarrayr(pos) == 4, "typeargs_var2rest3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var2rest5");
-	test(getarrayr(pos, 2) == rest, "typeargs_var2rest6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var2rest7");
+	test(refarray(pos, 1) == Nil, "typeargs_var2rest5");
+	test(refarray(pos, 2) == rest, "typeargs_var2rest6");
+	test(refarray(pos, 3) == Nil, "typeargs_var2rest7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -744,9 +744,9 @@ static int test_typeargs_var3rest(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var3rest1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var3rest2");
 	test(lenarrayr(pos) == 4, "typeargs_var3rest3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var3rest5");
-	test(getarrayr(pos, 2) == rest, "typeargs_var3rest6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var3rest7");
+	test(refarray(pos, 1) == Nil, "typeargs_var3rest5");
+	test(refarray(pos, 2) == rest, "typeargs_var3rest6");
+	test(refarray(pos, 3) == Nil, "typeargs_var3rest7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -773,9 +773,9 @@ static int test_typeargs_var4rest(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_var4rest1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_var4rest2");
 	test(lenarrayr(pos) == 4, "typeargs_var4rest3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_var4rest5");
-	test(getarrayr(pos, 2) == rest, "typeargs_var4rest6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_var4rest7");
+	test(refarray(pos, 1) == Nil, "typeargs_var4rest5");
+	test(refarray(pos, 2) == rest, "typeargs_var4rest6");
+	test(refarray(pos, 3) == Nil, "typeargs_var4rest7");
 
 	getarray(pos, 0, &list);
 	getcons(list, &check, &list);
@@ -800,9 +800,9 @@ static int test_typeargs_rest(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_rest1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_rest2");
 	test(lenarrayr(pos) == 4, "typeargs_rest3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_rest5");
-	test(getarrayr(pos, 2) == v1, "typeargs_rest6");
-	test(getarrayr(pos, 3) == Nil, "typeargs_rest7");
+	test(refarray(pos, 1) == Nil, "typeargs_rest5");
+	test(refarray(pos, 2) == v1, "typeargs_rest6");
+	test(refarray(pos, 3) == Nil, "typeargs_rest7");
 
 	RETURN;
 }
@@ -816,9 +816,9 @@ static int test_typeargs_key(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "typeargs_key1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "typeargs_key2");
 	test(lenarrayr(pos) == 4, "typeargs_key3");
-	test(getarrayr(pos, 1) == Nil, "typeargs_key5");
-	test(getarrayr(pos, 2) == Nil, "typeargs_key6");
-	test(getarrayr(pos, 3) == v1, "typeargs_key7");
+	test(refarray(pos, 1) == Nil, "typeargs_key5");
+	test(refarray(pos, 2) == Nil, "typeargs_key6");
+	test(refarray(pos, 3) == v1, "typeargs_key7");
 
 	RETURN;
 }
@@ -835,8 +835,8 @@ static int test_typevalues_result(void)
 	typevalues_result(&pos, v1);
 	test(GetType(pos) == LISPTYPE_TYPE, "typevalues_result1");
 	test(RefLispDecl(pos) == LISPDECL_VALUES, "typevalues_result2");
-	test(getarrayr(pos, 1) == Nil, "typevalues_result3");
-	test(getarrayr(pos, 3) == Nil, "typevalues_result4");
+	test(refarray(pos, 1) == Nil, "typevalues_result3");
+	test(refarray(pos, 3) == Nil, "typevalues_result4");
 
 	getarray(pos, 2, &check);
 	test(RefLispDecl(check) == LISPDECL_NIL, "typevalues_result5");
@@ -858,8 +858,8 @@ static int test_typevalues_values2(void)
 	typevalues_values2(&pos, v1, v2);
 	test(GetType(pos) == LISPTYPE_TYPE, "typevalues_values2-1");
 	test(RefLispDecl(pos) == LISPDECL_VALUES, "typevalues_values2-2");
-	test(getarrayr(pos, 1) == Nil, "typevalues_values2-3");
-	test(getarrayr(pos, 3) == Nil, "typevalues_values2-4");
+	test(refarray(pos, 1) == Nil, "typevalues_values2-3");
+	test(refarray(pos, 3) == Nil, "typevalues_values2-4");
 
 	getarray(pos, 2, &check);
 	test(RefLispDecl(check) == LISPDECL_NIL, "typevalues_values2-5");
@@ -884,8 +884,8 @@ static int test_typevalues_values3(void)
 	typevalues_values3(&pos, v1, v2, v3);
 	test(GetType(pos) == LISPTYPE_TYPE, "typevalues_values3-1");
 	test(RefLispDecl(pos) == LISPDECL_VALUES, "typevalues_values3-2");
-	test(getarrayr(pos, 1) == Nil, "typevalues_values3-3");
-	test(getarrayr(pos, 3) == Nil, "typevalues_values3-4");
+	test(refarray(pos, 1) == Nil, "typevalues_values3-3");
+	test(refarray(pos, 3) == Nil, "typevalues_values3-4");
 
 	getarray(pos, 2, &check);
 	test(RefLispDecl(check) == LISPDECL_NIL, "typevalues_values3-5");
@@ -913,8 +913,8 @@ static int test_typevalues_values4(void)
 	typevalues_values4(&pos, v1, v2, v3, v4);
 	test(GetType(pos) == LISPTYPE_TYPE, "typevalues_values4-1");
 	test(RefLispDecl(pos) == LISPDECL_VALUES, "typevalues_values4-2");
-	test(getarrayr(pos, 1) == Nil, "typevalues_values4-3");
-	test(getarrayr(pos, 3) == Nil, "typevalues_values4-4");
+	test(refarray(pos, 1) == Nil, "typevalues_values4-3");
+	test(refarray(pos, 3) == Nil, "typevalues_values4-4");
 
 	getarray(pos, 2, &check);
 	test(RefLispDecl(check) == LISPDECL_NIL, "typevalues_values4-5");
@@ -945,8 +945,8 @@ static int test_typevalues_values5(void)
 	typevalues_values5(&pos, v1, v2, v3, v4, v5);
 	test(GetType(pos) == LISPTYPE_TYPE, "typevalues_values5-1");
 	test(RefLispDecl(pos) == LISPDECL_VALUES, "typevalues_values5-2");
-	test(getarrayr(pos, 1) == Nil, "typevalues_values5-3");
-	test(getarrayr(pos, 3) == Nil, "typevalues_values5-4");
+	test(refarray(pos, 1) == Nil, "typevalues_values5-3");
+	test(refarray(pos, 3) == Nil, "typevalues_values5-4");
 
 	getarray(pos, 2, &check);
 	test(RefLispDecl(check) == LISPDECL_NIL, "typevalues_values5-5");
@@ -975,9 +975,9 @@ static int test_typevalues_rest(void)
 	typevalues_rest(&pos, v1);
 	test(GetType(pos) == LISPTYPE_TYPE, "typevalues_rest1");
 	test(RefLispDecl(pos) == LISPDECL_VALUES, "typevalues_rest2");
-	test(getarrayr(pos, 0) == Nil, "typevalues_rest3");
-	test(getarrayr(pos, 1) == Nil, "typevalues_rest3");
-	test(getarrayr(pos, 3) == Nil, "typevalues_rest4");
+	test(refarray(pos, 0) == Nil, "typevalues_rest3");
+	test(refarray(pos, 1) == Nil, "typevalues_rest3");
+	test(refarray(pos, 3) == Nil, "typevalues_rest4");
 
 	getarray(pos, 2, &check);
 	test(check == v1, "typevalues_rest5");
@@ -1234,8 +1234,8 @@ static int test_type2and_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_AND, "type2and_alloc9");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "type2and_alloc10");
-	test(getarrayr(pos, 0) == x, "type2and_alloc11");
-	test(getarrayr(pos, 1) == y, "type2and_alloc12");
+	test(refarray(pos, 0) == x, "type2and_alloc11");
+	test(refarray(pos, 1) == y, "type2and_alloc12");
 
 	/* alloc NULL */
 	GetTypeTable(&x, Symbol);
@@ -1276,8 +1276,8 @@ static int test_type2and_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_AND, "type2and_alloc21");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "type2and_alloc22");
-	test(getarrayr(pos, 0) == x, "type2and_alloc23");
-	test(getarrayr(pos, 1) == y, "type2and_alloc24");
+	test(refarray(pos, 0) == x, "type2and_alloc23");
+	test(refarray(pos, 1) == y, "type2and_alloc24");
 
 	/* local */
 	GetTypeTable(&x, Symbol);
@@ -1318,8 +1318,8 @@ static int test_type2and_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_AND, "type2and_local9");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "type2and_local10");
-	test(getarrayr(pos, 0) == x, "type2and_local11");
-	test(getarrayr(pos, 1) == y, "type2and_local12");
+	test(refarray(pos, 0) == x, "type2and_local11");
+	test(refarray(pos, 1) == y, "type2and_local12");
 
 	/* heap */
 	GetTypeTable(&x, Symbol);
@@ -1360,8 +1360,8 @@ static int test_type2and_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_AND, "type2and_heap9");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "type2and_heap10");
-	test(getarrayr(pos, 0) == x, "type2and_heap11");
-	test(getarrayr(pos, 1) == y, "type2and_heap12");
+	test(refarray(pos, 0) == x, "type2and_heap11");
+	test(refarray(pos, 1) == y, "type2and_heap12");
 
 	rollback_local(local, stack);
 
@@ -1416,8 +1416,8 @@ static int test_type2or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type2or_alloc9");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "type2or_alloc10");
-	test(getarrayr(pos, 0) == x, "type2or_alloc11");
-	test(getarrayr(pos, 1) == y, "type2or_alloc12");
+	test(refarray(pos, 0) == x, "type2or_alloc11");
+	test(refarray(pos, 1) == y, "type2or_alloc12");
 
 	/* alloc NULL */
 	GetTypeTable(&x, Symbol);
@@ -1458,8 +1458,8 @@ static int test_type2or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type2or_alloc21");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "type2or_alloc22");
-	test(getarrayr(pos, 0) == x, "type2or_alloc23");
-	test(getarrayr(pos, 1) == y, "type2or_alloc24");
+	test(refarray(pos, 0) == x, "type2or_alloc23");
+	test(refarray(pos, 1) == y, "type2or_alloc24");
 
 	/* local */
 	GetTypeTable(&x, Symbol);
@@ -1500,8 +1500,8 @@ static int test_type2or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type2or_local9");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "type2or_local10");
-	test(getarrayr(pos, 0) == x, "type2or_local11");
-	test(getarrayr(pos, 1) == y, "type2or_local12");
+	test(refarray(pos, 0) == x, "type2or_local11");
+	test(refarray(pos, 1) == y, "type2or_local12");
 
 	/* heap */
 	GetTypeTable(&x, Symbol);
@@ -1542,8 +1542,8 @@ static int test_type2or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type2or_heap9");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "type2or_heap10");
-	test(getarrayr(pos, 0) == x, "type2or_heap11");
-	test(getarrayr(pos, 1) == y, "type2or_heap12");
+	test(refarray(pos, 0) == x, "type2or_heap11");
+	test(refarray(pos, 1) == y, "type2or_heap12");
 
 	rollback_local(local, stack);
 
@@ -1568,9 +1568,9 @@ static int test_type3or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type3or_alloc3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 3, "type3or_alloc4");
-	test(getarrayr(pos, 0) == a, "type3or_alloc5");
-	test(getarrayr(pos, 1) == b, "type3or_alloc6");
-	test(getarrayr(pos, 2) == c, "type3or_alloc7");
+	test(refarray(pos, 0) == a, "type3or_alloc5");
+	test(refarray(pos, 1) == b, "type3or_alloc6");
+	test(refarray(pos, 2) == c, "type3or_alloc7");
 
 	type3or_alloc(NULL, a, b, c, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type3or_alloc8");
@@ -1578,9 +1578,9 @@ static int test_type3or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type3or_alloc10");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 3, "type3or_alloc11");
-	test(getarrayr(pos, 0) == a, "type3or_alloc12");
-	test(getarrayr(pos, 1) == b, "type3or_alloc13");
-	test(getarrayr(pos, 2) == c, "type3or_alloc14");
+	test(refarray(pos, 0) == a, "type3or_alloc12");
+	test(refarray(pos, 1) == b, "type3or_alloc13");
+	test(refarray(pos, 2) == c, "type3or_alloc14");
 
 	type3or_local(local, a, b, c, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type3or_local1");
@@ -1588,9 +1588,9 @@ static int test_type3or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type3or_local3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 3, "type3or_local4");
-	test(getarrayr(pos, 0) == a, "type3or_local5");
-	test(getarrayr(pos, 1) == b, "type3or_local6");
-	test(getarrayr(pos, 2) == c, "type3or_local7");
+	test(refarray(pos, 0) == a, "type3or_local5");
+	test(refarray(pos, 1) == b, "type3or_local6");
+	test(refarray(pos, 2) == c, "type3or_local7");
 
 	type3or_heap(a, b, c, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type3or_heap1");
@@ -1598,9 +1598,9 @@ static int test_type3or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type3or_heap3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 3, "type3or_heap4");
-	test(getarrayr(pos, 0) == a, "type3or_heap5");
-	test(getarrayr(pos, 1) == b, "type3or_heap6");
-	test(getarrayr(pos, 2) == c, "type3or_heap7");
+	test(refarray(pos, 0) == a, "type3or_heap5");
+	test(refarray(pos, 1) == b, "type3or_heap6");
+	test(refarray(pos, 2) == c, "type3or_heap7");
 
 	rollback_local(local, stack);
 
@@ -1626,10 +1626,10 @@ static int test_type4or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type4or_alloc3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 4, "type4or_alloc4");
-	test(getarrayr(pos, 0) == a, "type4or_alloc5");
-	test(getarrayr(pos, 1) == b, "type4or_alloc6");
-	test(getarrayr(pos, 2) == c, "type4or_alloc7");
-	test(getarrayr(pos, 3) == d, "type4or_alloc8");
+	test(refarray(pos, 0) == a, "type4or_alloc5");
+	test(refarray(pos, 1) == b, "type4or_alloc6");
+	test(refarray(pos, 2) == c, "type4or_alloc7");
+	test(refarray(pos, 3) == d, "type4or_alloc8");
 
 	type4or_alloc(NULL, a, b, c, d, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type4or_alloc9");
@@ -1637,10 +1637,10 @@ static int test_type4or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type4or_alloc11");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 4, "type4or_alloc12");
-	test(getarrayr(pos, 0) == a, "type4or_alloc13");
-	test(getarrayr(pos, 1) == b, "type4or_alloc14");
-	test(getarrayr(pos, 2) == c, "type4or_alloc15");
-	test(getarrayr(pos, 3) == d, "type4or_alloc16");
+	test(refarray(pos, 0) == a, "type4or_alloc13");
+	test(refarray(pos, 1) == b, "type4or_alloc14");
+	test(refarray(pos, 2) == c, "type4or_alloc15");
+	test(refarray(pos, 3) == d, "type4or_alloc16");
 
 	type4or_local(local, a, b, c, d, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type4or_local1");
@@ -1648,10 +1648,10 @@ static int test_type4or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type4or_local3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 4, "type4or_local4");
-	test(getarrayr(pos, 0) == a, "type4or_local5");
-	test(getarrayr(pos, 1) == b, "type4or_local6");
-	test(getarrayr(pos, 2) == c, "type4or_local7");
-	test(getarrayr(pos, 3) == d, "type4or_local8");
+	test(refarray(pos, 0) == a, "type4or_local5");
+	test(refarray(pos, 1) == b, "type4or_local6");
+	test(refarray(pos, 2) == c, "type4or_local7");
+	test(refarray(pos, 3) == d, "type4or_local8");
 
 	type4or_heap(a, b, c, d, &pos);
 	test(GetType(pos) == LISPTYPE_TYPE, "type4or_heap1");
@@ -1659,10 +1659,10 @@ static int test_type4or_alloc(void)
 	test(RefLispDecl(pos) == LISPDECL_OR, "type4or_heap3");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 4, "type4or_heap4");
-	test(getarrayr(pos, 0) == a, "type4or_heap5");
-	test(getarrayr(pos, 1) == b, "type4or_heap6");
-	test(getarrayr(pos, 2) == c, "type4or_heap7");
-	test(getarrayr(pos, 3) == d, "type4or_heap8");
+	test(refarray(pos, 0) == a, "type4or_heap5");
+	test(refarray(pos, 1) == b, "type4or_heap6");
+	test(refarray(pos, 2) == c, "type4or_heap7");
+	test(refarray(pos, 3) == d, "type4or_heap8");
 
 	rollback_local(local, stack);
 

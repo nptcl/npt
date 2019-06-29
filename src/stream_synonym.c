@@ -9,7 +9,7 @@
 	Check(! synonym_stream_p(stream), "type error"); \
 }
 
-void open_synonym_stream(addr *stream, addr symbol)
+_g void open_synonym_stream(addr *stream, addr symbol)
 {
 	addr pos;
 
@@ -20,13 +20,13 @@ void open_synonym_stream(addr *stream, addr symbol)
 	*stream = pos;
 }
 
-void get_synonym_stream(addr stream, addr *ret)
+_g void get_synonym_stream(addr stream, addr *ret)
 {
 	CheckSynonymStream(stream);
 	GetInfoStream(stream, ret);
 }
 
-void set_synonym_stream(addr stream, addr symbol)
+_g void set_synonym_stream(addr stream, addr symbol)
 {
 	CheckSynonymStream(stream);
 	CheckType(symbol, LISPTYPE_SYMBOL);
@@ -214,7 +214,7 @@ static void clear_output_Synonym(addr stream)
 	clear_output_stream(stream);
 }
 
-void init_stream_synonym(void)
+_g void init_stream_synonym(void)
 {
 	DefineStreamDef(Synonym, close);
 	DefineStreamSet(Synonym, read_binary);

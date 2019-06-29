@@ -4,7 +4,7 @@
 /*
  *  posix semaphore
  */
-int trylock_semposix(semposix *sem)
+_g int trylock_semposix(semposix *sem)
 {
 	int result;
 
@@ -17,7 +17,7 @@ int trylock_semposix(semposix *sem)
 	return 0;
 }
 
-int get_semposix(semposix *sem)
+_g int get_semposix(semposix *sem)
 {
 	int result;
 
@@ -45,7 +45,7 @@ static void *start_routine(void *pvoid)
 	return NULL;
 }
 
-int create_thread(execfunction proc, Execute arg)
+_g int create_thread(execfunction proc, Execute arg)
 {
 	if (pthread_create(&arg->handle, NULL, start_routine, (void *)arg)) {
 		fprintf(stderr, "pthread_create error\n");
@@ -55,7 +55,7 @@ int create_thread(execfunction proc, Execute arg)
 	return 0;
 }
 
-int join_thread(threadhandle *handle)
+_g int join_thread(threadhandle *handle)
 {
 	return pthread_join(*handle, NULL);
 }

@@ -6,7 +6,7 @@
 /*
  *  cache -> nil | (object1 ...)
  */
-void hashindex_cache(addr right, size_t size, size_t *ret)
+_g void hashindex_cache(addr right, size_t size, size_t *ret)
 {
 	addr left;
 	size_t value, index;
@@ -21,7 +21,7 @@ void hashindex_cache(addr right, size_t size, size_t *ret)
 	*ret = value % size;
 }
 
-int cache_equal_function(addr right1, addr right2)
+_g int cache_equal_function(addr right1, addr right2)
 {
 	int check1, check2;
 	addr left1, left2;

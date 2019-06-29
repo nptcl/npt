@@ -8,42 +8,6 @@
 /*
  *  common
  */
-static void single_float_integer_heap(LocalRoot local, addr *ret, single_float v)
-{
-	addr pos;
-	LocalStack stack;
-
-	push_local(local, &stack);
-	if (bignum_single_float_local(local, &pos, v))
-		fmte("bignum_single_float_local error.", NULL);
-	bignum_result_heap(pos, ret);
-	rollback_local(local, stack);
-}
-
-static void double_float_integer_heap(LocalRoot local, addr *ret, double_float v)
-{
-	addr pos;
-	LocalStack stack;
-
-	push_local(local, &stack);
-	if (bignum_double_float_local(local, &pos, v))
-		fmte("bignum_double_float_local error.", NULL);
-	bignum_result_heap(pos, ret);
-	rollback_local(local, stack);
-}
-
-static void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
-{
-	addr pos;
-	LocalStack stack;
-
-	push_local(local, &stack);
-	if (bignum_long_float_local(local, &pos, v))
-		fmte("bignum_long_float_local error.", NULL);
-	bignum_result_heap(pos, ret);
-	rollback_local(local, stack);
-}
-
 static void ceiling1_float(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	single_float v, r;
@@ -74,7 +38,7 @@ static void ceiling1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 	long_float_heap(rem, r);
 }
 
-void ceiling1_common(LocalRoot local, addr *quot, addr *rem, addr left)
+_g void ceiling1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -140,7 +104,7 @@ static void fceiling1_long(LocalRoot local, addr *quot, addr *rem, addr left)
 	long_float_heap(rem, r);
 }
 
-void fceiling1_common(LocalRoot local, addr *quot, addr *rem, addr left)
+_g void fceiling1_common(LocalRoot local, addr *quot, addr *rem, addr left)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -827,7 +791,7 @@ static void ceiling_long_common(LocalRoot local,
 	}
 }
 
-void ceiling_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void ceiling_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1482,7 +1446,7 @@ static void fceiling_long_common(addr *quot, addr *rem, addr left, addr right)
 	}
 }
 
-void fceiling_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void fceiling_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:

@@ -16,7 +16,7 @@
 /*
  *  alloc
  */
-addr allocr_cons(LocalRoot local)
+_g addr allocr_cons(LocalRoot local)
 {
 	if (local)
 		return localr_cons(local);
@@ -24,7 +24,7 @@ addr allocr_cons(LocalRoot local)
 		return heapr_cons();
 }
 
-addr allocr_symbol(LocalRoot local)
+_g addr allocr_symbol(LocalRoot local)
 {
 	if (local)
 		return localr_symbol(local);
@@ -32,7 +32,7 @@ addr allocr_symbol(LocalRoot local)
 		return heapr_symbol();
 }
 
-addr allocr_array2_memory(LocalRoot local, enum LISPTYPE type, byte16 array)
+_g addr allocr_array2_memory(LocalRoot local, enum LISPTYPE type, byte16 array)
 {
 	if (local)
 		return localr_array2(local, type, array);
@@ -40,7 +40,7 @@ addr allocr_array2_memory(LocalRoot local, enum LISPTYPE type, byte16 array)
 		return heapr_array2(type, array);
 }
 
-addr allocr_array4_memory(LocalRoot local, enum LISPTYPE type, byte32 array)
+_g addr allocr_array4_memory(LocalRoot local, enum LISPTYPE type, byte32 array)
 {
 	if (local)
 		return localr_array4(local, type, array);
@@ -48,7 +48,7 @@ addr allocr_array4_memory(LocalRoot local, enum LISPTYPE type, byte32 array)
 		return heapr_array4(type, array);
 }
 
-addr allocr_body2_memory(LocalRoot local, enum LISPTYPE type, byte16 body)
+_g addr allocr_body2_memory(LocalRoot local, enum LISPTYPE type, byte16 body)
 {
 	if (local)
 		return localr_body2(local, type, body);
@@ -56,7 +56,7 @@ addr allocr_body2_memory(LocalRoot local, enum LISPTYPE type, byte16 body)
 		return heapr_body2(type, body);
 }
 
-addr allocr_body4_memory(LocalRoot local, enum LISPTYPE type, byte32 body)
+_g addr allocr_body4_memory(LocalRoot local, enum LISPTYPE type, byte32 body)
 {
 	if (local)
 		return localr_body4(local, type, body);
@@ -64,7 +64,7 @@ addr allocr_body4_memory(LocalRoot local, enum LISPTYPE type, byte32 body)
 		return heapr_body4(type, body);
 }
 
-addr allocr_smallsize_memory(LocalRoot local,
+_g addr allocr_smallsize_memory(LocalRoot local,
 		enum LISPTYPE type, byte array, byte body)
 {
 	if (local)
@@ -73,7 +73,7 @@ addr allocr_smallsize_memory(LocalRoot local,
 		return heapr_smallsize(type, array, body);
 }
 
-addr allocr_arraybody_memory(LocalRoot local,
+_g addr allocr_arraybody_memory(LocalRoot local,
 		enum LISPTYPE type, byte16 array, byte16 body)
 {
 	if (local)
@@ -82,7 +82,7 @@ addr allocr_arraybody_memory(LocalRoot local,
 		return heapr_arraybody(type, array, body);
 }
 
-addr allocr_array(LocalRoot local, enum LISPTYPE type, size_t array)
+_g addr allocr_array(LocalRoot local, enum LISPTYPE type, size_t array)
 {
 	if (local)
 		return localr_array(local, type, array);
@@ -90,7 +90,7 @@ addr allocr_array(LocalRoot local, enum LISPTYPE type, size_t array)
 		return heapr_array(type, array);
 }
 
-addr allocr_body(LocalRoot local, enum LISPTYPE type, size_t body)
+_g addr allocr_body(LocalRoot local, enum LISPTYPE type, size_t body)
 {
 	if (local)
 		return localr_body(local, type, body);
@@ -99,7 +99,7 @@ addr allocr_body(LocalRoot local, enum LISPTYPE type, size_t body)
 }
 
 #ifdef LISP_ARCH_64BIT
-addr allocr_array8(LocalRoot local, enum LISPTYPE type, size_t array)
+_g addr allocr_array8(LocalRoot local, enum LISPTYPE type, size_t array)
 {
 	if (local)
 		return localr_array8(local, type, array);
@@ -107,7 +107,7 @@ addr allocr_array8(LocalRoot local, enum LISPTYPE type, size_t array)
 		return heapr_array8(type, array);
 }
 
-addr allocr_body8(LocalRoot local, enum LISPTYPE type, size_t body)
+_g addr allocr_body8(LocalRoot local, enum LISPTYPE type, size_t body)
 {
 	if (local)
 		return localr_body8(local, type, body);
@@ -116,7 +116,7 @@ addr allocr_body8(LocalRoot local, enum LISPTYPE type, size_t body)
 }
 #endif
 
-void alloc_cons(LocalRoot local, addr *ret)
+_g void alloc_cons(LocalRoot local, addr *ret)
 {
 	if (local)
 		local_cons(local, ret);
@@ -124,7 +124,7 @@ void alloc_cons(LocalRoot local, addr *ret)
 		heap_cons(ret);
 }
 
-void alloc_symbol(LocalRoot local, addr *ret)
+_g void alloc_symbol(LocalRoot local, addr *ret)
 {
 	if (local)
 		local_symbol(local, ret);
@@ -132,7 +132,7 @@ void alloc_symbol(LocalRoot local, addr *ret)
 		heap_symbol(ret);
 }
 
-void alloc_array2_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte16 array)
+_g void alloc_array2_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte16 array)
 {
 	if (local)
 		local_array2(local, ret, type, array);
@@ -140,7 +140,7 @@ void alloc_array2_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte16 
 		heap_array2(ret, type, array);
 }
 
-void alloc_array4_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte32 array)
+_g void alloc_array4_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte32 array)
 {
 	if (local)
 		local_array4(local, ret, type, array);
@@ -148,7 +148,7 @@ void alloc_array4_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte32 
 		heap_array4(ret, type, array);
 }
 
-void alloc_body2_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte16 body)
+_g void alloc_body2_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte16 body)
 {
 	if (local)
 		local_body2(local, ret, type, body);
@@ -156,7 +156,7 @@ void alloc_body2_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte16 b
 		heap_body2(ret, type, body);
 }
 
-void alloc_body4_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte32 body)
+_g void alloc_body4_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte32 body)
 {
 	if (local)
 		local_body4(local, ret, type, body);
@@ -164,7 +164,7 @@ void alloc_body4_memory(LocalRoot local, addr *ret, enum LISPTYPE type, byte32 b
 		heap_body4(ret, type, body);
 }
 
-void alloc_smallsize_memory(LocalRoot local,
+_g void alloc_smallsize_memory(LocalRoot local,
 		addr *ret, enum LISPTYPE type, byte array, byte body)
 {
 	if (local)
@@ -173,7 +173,7 @@ void alloc_smallsize_memory(LocalRoot local,
 		heap_smallsize(ret, type, array, body);
 }
 
-void alloc_arraybody_memory(LocalRoot local,
+_g void alloc_arraybody_memory(LocalRoot local,
 		addr *ret, enum LISPTYPE type, byte16 array, byte16 body)
 {
 	if (local)
@@ -182,7 +182,7 @@ void alloc_arraybody_memory(LocalRoot local,
 		heap_arraybody(ret, type, array, body);
 }
 
-void alloc_array(LocalRoot local, addr *ret, enum LISPTYPE type, size_t array)
+_g void alloc_array(LocalRoot local, addr *ret, enum LISPTYPE type, size_t array)
 {
 	if (local)
 		local_array(local, ret, type, array);
@@ -190,7 +190,7 @@ void alloc_array(LocalRoot local, addr *ret, enum LISPTYPE type, size_t array)
 		heap_array(ret, type, array);
 }
 
-void alloc_body(LocalRoot local, addr *ret, enum LISPTYPE type, size_t body)
+_g void alloc_body(LocalRoot local, addr *ret, enum LISPTYPE type, size_t body)
 {
 	if (local)
 		local_body(local, ret, type, body);
@@ -199,7 +199,7 @@ void alloc_body(LocalRoot local, addr *ret, enum LISPTYPE type, size_t body)
 }
 
 #ifdef LISP_ARCH_64BIT
-void alloc_array8(LocalRoot local, addr *ret, enum LISPTYPE type, size_t array)
+_g void alloc_array8(LocalRoot local, addr *ret, enum LISPTYPE type, size_t array)
 {
 	if (local)
 		local_array8(local, ret, type, array);
@@ -207,7 +207,7 @@ void alloc_array8(LocalRoot local, addr *ret, enum LISPTYPE type, size_t array)
 		heap_array8(ret, type, array);
 }
 
-void alloc_body8(LocalRoot local, addr *ret, enum LISPTYPE type, size_t body)
+_g void alloc_body8(LocalRoot local, addr *ret, enum LISPTYPE type, size_t body)
 {
 	if (local)
 		local_body8(local, ret, type, body);
@@ -217,34 +217,34 @@ void alloc_body8(LocalRoot local, addr *ret, enum LISPTYPE type, size_t body)
 #endif
 
 #ifdef LISP_DEBUG
-addr allocr_array2_debug(LocalRoot local, enum LISPTYPE type, size_t array)
+_g addr allocr_array2_debug(LocalRoot local, enum LISPTYPE type, size_t array)
 {
 	Check(0xFFFFUL < array, "size error");
 	return allocr_array2_memory(local, type, (byte16)array);
 }
-addr allocr_array4_debug(LocalRoot local, enum LISPTYPE type, size_t array)
+_g addr allocr_array4_debug(LocalRoot local, enum LISPTYPE type, size_t array)
 {
 	Check(0xFFFFFFFFUL < array, "size error");
 	return allocr_array4_memory(local, type, (byte32)array);
 }
-addr allocr_body2_debug(LocalRoot local, enum LISPTYPE type, size_t body)
+_g addr allocr_body2_debug(LocalRoot local, enum LISPTYPE type, size_t body)
 {
 	Check(0xFFFFUL < body, "size error");
 	return allocr_body2_memory(local, type, (byte16)body);
 }
-addr allocr_body4_debug(LocalRoot local, enum LISPTYPE type, size_t body)
+_g addr allocr_body4_debug(LocalRoot local, enum LISPTYPE type, size_t body)
 {
 	Check(0xFFFFFFFFUL < body, "size error");
 	return allocr_body4_memory(local, type, (byte32)body);
 }
-addr allocr_smallsize_debug(LocalRoot local,
+_g addr allocr_smallsize_debug(LocalRoot local,
 		enum LISPTYPE type, size_t array, size_t body)
 {
 	Check(0xFFUL < array, "array size error");
 	Check(0xFFUL < body, "body size error");
 	return allocr_smallsize_memory(local, type, (byte)array, (byte)body);
 }
-addr allocr_arraybody_debug(LocalRoot local,
+_g addr allocr_arraybody_debug(LocalRoot local,
 		enum LISPTYPE type, size_t array, size_t body)
 {
 	Check(0xFFFFUL < array, "array size error");
@@ -252,34 +252,34 @@ addr allocr_arraybody_debug(LocalRoot local,
 	return allocr_arraybody_memory(local, type, (byte16)array, (byte16)body);
 }
 
-void alloc_array2_debug(LocalRoot local, addr *ret, enum LISPTYPE type, size_t array)
+_g void alloc_array2_debug(LocalRoot local, addr *ret, enum LISPTYPE type, size_t array)
 {
 	Check(0xFFFFUL < array, "size error");
 	alloc_array2_memory(local, ret, type, (byte16)array);
 }
-void alloc_array4_debug(LocalRoot local, addr *ret, enum LISPTYPE type, size_t array)
+_g void alloc_array4_debug(LocalRoot local, addr *ret, enum LISPTYPE type, size_t array)
 {
 	Check(0xFFFFFFFFUL < array, "size error");
 	alloc_array4_memory(local, ret, type, (byte32)array);
 }
-void alloc_body2_debug(LocalRoot local, addr *ret, enum LISPTYPE type, size_t body)
+_g void alloc_body2_debug(LocalRoot local, addr *ret, enum LISPTYPE type, size_t body)
 {
 	Check(0xFFFFUL < body, "size error");
 	alloc_body2_memory(local, ret, type, (byte16)body);
 }
-void alloc_body4_debug(LocalRoot local, addr *ret, enum LISPTYPE type, size_t body)
+_g void alloc_body4_debug(LocalRoot local, addr *ret, enum LISPTYPE type, size_t body)
 {
 	Check(0xFFFFFFFFUL < body, "size error");
 	alloc_body4_memory(local, ret, type, (byte32)body);
 }
-void alloc_smallsize_debug(LocalRoot local,
+_g void alloc_smallsize_debug(LocalRoot local,
 		addr *ret, enum LISPTYPE type, size_t array, size_t body)
 {
 	Check(0xFFUL < array, "array size error");
 	Check(0xFFUL < body, "body size error");
 	alloc_smallsize_memory(local, ret, type, (byte)array, (byte)body);
 }
-void alloc_arraybody_debug(LocalRoot local,
+_g void alloc_arraybody_debug(LocalRoot local,
 		addr *ret, enum LISPTYPE type, size_t array, size_t body)
 {
 	Check(0xFFFFUL < array, "array size error");
@@ -292,7 +292,7 @@ void alloc_arraybody_debug(LocalRoot local,
 /*
  *  init/free
  */
-void build_object(void)
+_g void build_object(void)
 {
 	addr pos;
 
@@ -311,7 +311,7 @@ void build_object(void)
 /*
  *  system object
  */
-void nil_heap(void)
+_g void nil_heap(void)
 {
 	addr pos, name;
 
@@ -333,7 +333,7 @@ void nil_heap(void)
 	SetStatusValue(pos, LISPSTATUS_READONLY, 1);
 }
 
-void t_heap(void)
+_g void t_heap(void)
 {
 	addr pos, name;
 
@@ -350,62 +350,62 @@ void t_heap(void)
 }
 
 /* cons */
-addr consnil_heapr(void)
+_g addr consnil_heapr(void)
 {
 	return heapr_cons();
 }
-void consnil_heap(addr *ret)
+_g void consnil_heap(addr *ret)
 {
 	heap_cons(ret);
 }
-addr conscar_heapr(addr left)
+_g addr conscar_heapr(addr left)
 {
 	addr pos;
 	heap_cons(&pos);
 	SetCar_Low(pos, left);
 	return pos;
 }
-void conscar_heap(addr *ret, addr left)
+_g void conscar_heap(addr *ret, addr left)
 {
 	heap_cons(ret);
 	SetCar_Low(*ret, left);
 }
-addr conscdr_heapr(addr right)
+_g addr conscdr_heapr(addr right)
 {
 	addr pos;
 	heap_cons(&pos);
 	SetCdr_Low(pos, right);
 	return pos;
 }
-void conscdr_heap(addr *ret, addr right)
+_g void conscdr_heap(addr *ret, addr right)
 {
 	heap_cons(ret);
 	SetCdr_Low(*ret, right);
 }
-addr cons_heapr(addr left, addr right)
+_g addr cons_heapr(addr left, addr right)
 {
 	addr pos;
 	heap_cons(&pos);
 	SetCons_Low(pos, left, right);
 	return pos;
 }
-void cons_heap(addr *ret, addr left, addr right)
+_g void cons_heap(addr *ret, addr left, addr right)
 {
 	heap_cons(ret);
 	SetCons_Low(*ret, left, right);
 }
 
-addr consnil_localr(LocalRoot local)
+_g addr consnil_localr(LocalRoot local)
 {
 	Check(local == NULL, "local error");
 	return localr_cons(local);
 }
-void consnil_local(LocalRoot local, addr *ret)
+_g void consnil_local(LocalRoot local, addr *ret)
 {
 	Check(local == NULL, "local error");
 	local_cons(local, ret);
 }
-addr conscar_localr(LocalRoot local, addr left)
+_g addr conscar_localr(LocalRoot local, addr left)
 {
 	addr pos;
 	Check(local == NULL, "local error");
@@ -413,13 +413,13 @@ addr conscar_localr(LocalRoot local, addr left)
 	SetCar_Low(pos, left);
 	return pos;
 }
-void conscar_local(LocalRoot local, addr *ret, addr left)
+_g void conscar_local(LocalRoot local, addr *ret, addr left)
 {
 	Check(local == NULL, "local error");
 	local_cons(local, ret);
 	SetCar_Low(*ret, left);
 }
-addr conscdr_localr(LocalRoot local, addr right)
+_g addr conscdr_localr(LocalRoot local, addr right)
 {
 	addr pos;
 	Check(local == NULL, "local error");
@@ -427,13 +427,13 @@ addr conscdr_localr(LocalRoot local, addr right)
 	SetCdr_Low(pos, right);
 	return pos;
 }
-void conscdr_local(LocalRoot local, addr *ret, addr right)
+_g void conscdr_local(LocalRoot local, addr *ret, addr right)
 {
 	Check(local == NULL, "local error");
 	local_cons(local, ret);
 	SetCdr_Low(*ret, right);
 }
-addr cons_localr(LocalRoot local, addr left, addr right)
+_g addr cons_localr(LocalRoot local, addr left, addr right)
 {
 	addr pos;
 	Check(local == NULL, "local error");
@@ -441,63 +441,63 @@ addr cons_localr(LocalRoot local, addr left, addr right)
 	SetCons_Low(pos, left, right);
 	return pos;
 }
-void cons_local(LocalRoot local, addr *ret, addr left, addr right)
+_g void cons_local(LocalRoot local, addr *ret, addr left, addr right)
 {
 	Check(local == NULL, "local error");
 	local_cons(local, ret);
 	SetCons_Low(*ret, left, right);
 }
 
-addr consnil_allocr(LocalRoot local)
+_g addr consnil_allocr(LocalRoot local)
 {
 	if (local)
 		return consnil_localr(local);
 	else
 		return consnil_heapr();
 }
-void consnil_alloc(LocalRoot local, addr *ret)
+_g void consnil_alloc(LocalRoot local, addr *ret)
 {
 	if (local)
 		consnil_local(local, ret);
 	else
 		consnil_heap(ret);
 }
-addr conscar_allocr(LocalRoot local, addr left)
+_g addr conscar_allocr(LocalRoot local, addr left)
 {
 	if (local)
 		return conscar_localr(local, left);
 	else
 		return conscar_heapr(left);
 }
-void conscar_alloc(LocalRoot local, addr *ret, addr left)
+_g void conscar_alloc(LocalRoot local, addr *ret, addr left)
 {
 	if (local)
 		conscar_local(local, ret, left);
 	else
 		conscar_heap(ret, left);
 }
-addr conscdr_allocr(LocalRoot local, addr right)
+_g addr conscdr_allocr(LocalRoot local, addr right)
 {
 	if (local)
 		return conscdr_localr(local, right);
 	else
 		return conscdr_heapr(right);
 }
-void conscdr_alloc(LocalRoot local, addr *ret, addr right)
+_g void conscdr_alloc(LocalRoot local, addr *ret, addr right)
 {
 	if (local)
 		conscdr_local(local, ret, right);
 	else
 		conscdr_heap(ret, right);
 }
-addr cons_allocr(LocalRoot local, addr left, addr right)
+_g addr cons_allocr(LocalRoot local, addr left, addr right)
 {
 	if (local)
 		return cons_localr(local, left, right);
 	else
 		return cons_heapr(left, right);
 }
-void cons_alloc(LocalRoot local, addr *ret, addr left, addr right)
+_g void cons_alloc(LocalRoot local, addr *ret, addr left, addr right)
 {
 	if (local)
 		cons_local(local, ret, left, right);
@@ -505,78 +505,78 @@ void cons_alloc(LocalRoot local, addr *ret, addr left, addr right)
 		cons_heap(ret, left, right);
 }
 
-addr refconscar_unsafe(addr pos)
+_g addr refconscar_unsafe(addr pos)
 {
 	Check(! IsList(pos), "type error");
 	return RefCar_Low(pos);
 }
-addr refconscdr_unsafe(addr pos)
+_g addr refconscdr_unsafe(addr pos)
 {
 	Check(! IsList(pos), "type error");
 	return RefCdr_Low(pos);
 }
-void getconscar_unsafe(addr pos, addr *ret)
+_g void getconscar_unsafe(addr pos, addr *ret)
 {
 	Check(! IsList(pos), "type error");
 	GetCar_Low(pos, ret);
 }
-void getconscdr_unsafe(addr pos, addr *ret)
+_g void getconscdr_unsafe(addr pos, addr *ret)
 {
 	Check(! IsList(pos), "type error");
 	GetCdr_Low(pos, ret);
 }
-void getcons_unsafe(addr pos, addr *left, addr *right)
+_g void getcons_unsafe(addr pos, addr *left, addr *right)
 {
 	Check(! IsList(pos), "type error");
 	GetCons_Low(pos, left, right);
 }
-void setconscar_unsafe(addr pos, addr value)
+_g void setconscar_unsafe(addr pos, addr value)
 {
 	Check(! IsCons(pos), "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetCar_Low(pos, value);
 }
-void setconscdr_unsafe(addr pos, addr value)
+_g void setconscdr_unsafe(addr pos, addr value)
 {
 	Check(! IsCons(pos), "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetCdr_Low(pos, value);
 }
-void setcons_unsafe(addr pos, addr left, addr right)
+_g void setcons_unsafe(addr pos, addr left, addr right)
 {
 	Check(! IsCons(pos), "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetCons_Low(pos, left, right);
 }
 
-void setconscar_force(addr pos, addr value)
+_g void setconscar_force(addr pos, addr value)
 {
 	Check(! IsCons(pos), "type error");
 	SetCar_force(pos, value);
 }
-void setconscdr_force(addr pos, addr value)
+_g void setconscdr_force(addr pos, addr value)
 {
 	Check(! IsCons(pos), "type error");
 	SetCdr_force(pos, value);
 }
-void setcons_force(addr pos, addr left, addr right)
+_g void setcons_force(addr pos, addr left, addr right)
 {
 	Check(! IsArray(pos), "type error");
 	SetCons_Low(pos, left, right);
 }
 
 /* list */
-int listp(addr pos)
+_g int listp(addr pos)
 {
 	return IsList(pos);
 }
 
-int consp(addr pos)
+_g int consp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CONS;
 }
 
-int singlep(addr pos)
+_g int singlep(addr pos)
 {
 	if (GetType(pos) == LISPTYPE_CONS) {
 		GetCdr(pos, &pos);
@@ -586,7 +586,7 @@ int singlep(addr pos)
 	return 0;
 }
 
-void list_alloc_stdarg(LocalRoot local, addr *ret, va_list args)
+_g void list_alloc_stdarg(LocalRoot local, addr *ret, va_list args)
 {
 	addr left, right, next;
 
@@ -607,7 +607,7 @@ void list_alloc_stdarg(LocalRoot local, addr *ret, va_list args)
 	}
 }
 
-addr list_heapr(addr pos, ...)
+_g addr list_heapr(addr pos, ...)
 {
 	addr left, right, next;
 	va_list args;
@@ -630,7 +630,7 @@ addr list_heapr(addr pos, ...)
 	return pos;
 }
 
-addr list_localr(LocalRoot local, ...)
+_g addr list_localr(LocalRoot local, ...)
 {
 	addr pos;
 	va_list args;
@@ -643,7 +643,7 @@ addr list_localr(LocalRoot local, ...)
 	return pos;
 }
 
-addr list_allocr(LocalRoot local, ...)
+_g addr list_allocr(LocalRoot local, ...)
 {
 	addr pos;
 	va_list args;
@@ -655,7 +655,7 @@ addr list_allocr(LocalRoot local, ...)
 	return pos;
 }
 
-void list_heap(addr *ret, ...)
+_g void list_heap(addr *ret, ...)
 {
 	va_list args;
 
@@ -664,7 +664,7 @@ void list_heap(addr *ret, ...)
 	va_end(args);
 }
 
-void list_local(LocalRoot local, addr *ret, ...)
+_g void list_local(LocalRoot local, addr *ret, ...)
 {
 	va_list args;
 
@@ -674,7 +674,7 @@ void list_local(LocalRoot local, addr *ret, ...)
 	va_end(args);
 }
 
-void list_alloc(LocalRoot local, addr *ret, ...)
+_g void list_alloc(LocalRoot local, addr *ret, ...)
 {
 	va_list args;
 
@@ -684,29 +684,29 @@ void list_alloc(LocalRoot local, addr *ret, ...)
 }
 
 /* vector */
-addr vector2_heapr(size_t size)
+_g addr vector2_heapr(size_t size)
 {
 	Check(0xFFFFUL < size, "size error");
 	return heapr_array2(LISPTYPE_VECTOR, size);
 }
-void vector2_heap(addr *ret, size_t size)
+_g void vector2_heap(addr *ret, size_t size)
 {
 	Check(0xFFFFUL < size, "size error");
 	heap_array2(ret, LISPTYPE_VECTOR, size);
 }
-addr vector2_localr(LocalRoot local, size_t size)
+_g addr vector2_localr(LocalRoot local, size_t size)
 {
 	Check(local == NULL, "local error");
 	Check(0xFFFFUL < size, "size error");
 	return localr_array2(local, LISPTYPE_VECTOR, size);
 }
-void vector2_local(LocalRoot local, addr *ret, size_t size)
+_g void vector2_local(LocalRoot local, addr *ret, size_t size)
 {
 	Check(local == NULL, "local error");
 	Check(0xFFFFUL < size, "size error");
 	local_array2(local, ret, LISPTYPE_VECTOR, size);
 }
-addr vector2_allocr(LocalRoot local, size_t size)
+_g addr vector2_allocr(LocalRoot local, size_t size)
 {
 	Check(0xFFFFUL < size, "size error");
 	if (local)
@@ -714,7 +714,7 @@ addr vector2_allocr(LocalRoot local, size_t size)
 	else
 		return vector2_heapr(size);
 }
-void vector2_alloc(LocalRoot local, addr *ret, size_t size)
+_g void vector2_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	Check(0xFFFFUL < size, "size error");
 	if (local)
@@ -723,29 +723,29 @@ void vector2_alloc(LocalRoot local, addr *ret, size_t size)
 		vector2_heap(ret, size);
 }
 
-addr vector4_heapr(size_t size)
+_g addr vector4_heapr(size_t size)
 {
 	Check(0xFFFFFFFFUL < size, "size error");
 	return heapr_array4(LISPTYPE_VECTOR, size);
 }
-void vector4_heap(addr *ret, size_t size)
+_g void vector4_heap(addr *ret, size_t size)
 {
 	Check(0xFFFFFFFFUL < size, "size error");
 	heap_array4(ret, LISPTYPE_VECTOR, size);
 }
-addr vector4_localr(LocalRoot local, size_t size)
+_g addr vector4_localr(LocalRoot local, size_t size)
 {
 	Check(0xFFFFFFFFUL < size, "size error");
 	Check(local == NULL, "local error");
 	return localr_array4(local, LISPTYPE_VECTOR, size);
 }
-void vector4_local(LocalRoot local, addr *ret, size_t size)
+_g void vector4_local(LocalRoot local, addr *ret, size_t size)
 {
 	Check(local == NULL, "local error");
 	Check(0xFFFFFFFFUL < size, "size error");
 	local_array4(local, ret, LISPTYPE_VECTOR, size);
 }
-addr vector4_allocr(LocalRoot local, size_t size)
+_g addr vector4_allocr(LocalRoot local, size_t size)
 {
 	Check(0xFFFFFFFFUL < size, "size error");
 	if (local)
@@ -753,7 +753,7 @@ addr vector4_allocr(LocalRoot local, size_t size)
 	else
 		return vector4_heapr(size);
 }
-void vector4_alloc(LocalRoot local, addr *ret, size_t size)
+_g void vector4_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	Check(0xFFFFFFFFUL < size, "size error");
 	if (local)
@@ -763,32 +763,32 @@ void vector4_alloc(LocalRoot local, addr *ret, size_t size)
 }
 
 #ifdef LISP_ARCH_64BIT
-addr vector8_heapr(size_t size)
+_g addr vector8_heapr(size_t size)
 {
 	return heapr_array8(LISPTYPE_VECTOR, size);
 }
-void vector8_heap(addr *ret, size_t size)
+_g void vector8_heap(addr *ret, size_t size)
 {
 	heap_array8(ret, LISPTYPE_VECTOR, size);
 }
-addr vector8_localr(LocalRoot local, size_t size)
+_g addr vector8_localr(LocalRoot local, size_t size)
 {
 	Check(local == NULL, "local error");
 	return localr_array8(local, LISPTYPE_VECTOR, size);
 }
-void vector8_local(LocalRoot local, addr *ret, size_t size)
+_g void vector8_local(LocalRoot local, addr *ret, size_t size)
 {
 	Check(local == NULL, "local error");
 	local_array8(local, ret, LISPTYPE_VECTOR, size);
 }
-addr vector8_allocr(LocalRoot local, size_t size)
+_g addr vector8_allocr(LocalRoot local, size_t size)
 {
 	if (local)
 		return vector8_localr(local, size);
 	else
 		return vector8_heapr(size);
 }
-void vector8_alloc(LocalRoot local, addr *ret, size_t size)
+_g void vector8_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	if (local)
 		vector8_local(local, ret, size);
@@ -797,32 +797,32 @@ void vector8_alloc(LocalRoot local, addr *ret, size_t size)
 }
 #endif
 
-addr vector_heapr(size_t size)
+_g addr vector_heapr(size_t size)
 {
 	return heapr_array(LISPTYPE_VECTOR, size);
 }
-void vector_heap(addr *ret, size_t size)
+_g void vector_heap(addr *ret, size_t size)
 {
 	heap_array(ret, LISPTYPE_VECTOR, size);
 }
-addr vector_localr(LocalRoot local, size_t size)
+_g addr vector_localr(LocalRoot local, size_t size)
 {
 	Check(local == NULL, "local error");
 	return localr_array(local, LISPTYPE_VECTOR, size);
 }
-void vector_local(LocalRoot local, addr *ret, size_t size)
+_g void vector_local(LocalRoot local, addr *ret, size_t size)
 {
 	Check(local == NULL, "local error");
 	local_array(local, ret, LISPTYPE_VECTOR, size);
 }
-addr vector_allocr(LocalRoot local, size_t size)
+_g addr vector_allocr(LocalRoot local, size_t size)
 {
 	if (local)
 		return vector_localr(local, size);
 	else
 		return vector_heapr(size);
 }
-void vector_alloc(LocalRoot local, addr *ret, size_t size)
+_g void vector_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	if (local)
 		vector_local(local, ret, size);
@@ -831,7 +831,7 @@ void vector_alloc(LocalRoot local, addr *ret, size_t size)
 }
 
 /* copy vector */
-void copy_vector4_alloc(LocalRoot local, addr *ret, addr pos)
+_g void copy_vector4_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	addr array, one;
 	size_t size, i;
@@ -847,18 +847,18 @@ void copy_vector4_alloc(LocalRoot local, addr *ret, addr pos)
 	*ret = pos;
 }
 
-void copy_vector4_local(LocalRoot local, addr *ret, addr pos)
+_g void copy_vector4_local(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
 	copy_vector4_alloc(local, ret, pos);
 }
 
-void copy_vector4_heap(addr *ret, addr pos)
+_g void copy_vector4_heap(addr *ret, addr pos)
 {
 	copy_vector4_alloc(NULL, ret, pos);
 }
 
-void copy_vector_alloc(LocalRoot local, addr *ret, addr pos)
+_g void copy_vector_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	addr array, one;
 	size_t size, i;
@@ -892,19 +892,19 @@ void copy_vector_alloc(LocalRoot local, addr *ret, addr pos)
 	*ret = array;
 }
 
-void copy_vector_local(LocalRoot local, addr *ret, addr pos)
+_g void copy_vector_local(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
 	copy_vector_alloc(local, ret, pos);
 }
 
-void copy_vector_heap(addr *ret, addr pos)
+_g void copy_vector_heap(addr *ret, addr pos)
 {
 	copy_vector_alloc(NULL, ret, pos);
 }
 
 /* fixnum */
-addr make_fixnum_heapr(fixnum value)
+_g addr make_fixnum_heapr(fixnum value)
 {
 	addr pos;
 
@@ -914,12 +914,12 @@ addr make_fixnum_heapr(fixnum value)
 
 	return pos;
 }
-void make_fixnum_heap(addr *ret, fixnum value)
+_g void make_fixnum_heap(addr *ret, fixnum value)
 {
 	*ret = make_fixnum_heapr(value);
 }
 
-addr fixnum_heapr(fixnum value)
+_g addr fixnum_heapr(fixnum value)
 {
 	addr cache, pos;
 	size_t index;
@@ -935,12 +935,12 @@ addr fixnum_heapr(fixnum value)
 	}
 	return make_fixnum_heapr(value);
 }
-void fixnum_heap(addr *ret, fixnum value)
+_g void fixnum_heap(addr *ret, fixnum value)
 {
 	*ret = fixnum_heapr(value);
 }
 
-addr fixnum_localr(LocalRoot local, fixnum value)
+_g addr fixnum_localr(LocalRoot local, fixnum value)
 {
 	addr pos;
 	Check(local == NULL, "local error");
@@ -948,21 +948,21 @@ addr fixnum_localr(LocalRoot local, fixnum value)
 	SetFixnum_Low(pos, value);
 	return pos;
 }
-void fixnum_local(LocalRoot local, addr *ret, fixnum value)
+_g void fixnum_local(LocalRoot local, addr *ret, fixnum value)
 {
 	Check(local == NULL, "local error");
 	local_body2(local, ret, LISPTYPE_FIXNUM, sizeof(value));
 	SetFixnum_Low(*ret, value);
 }
 
-addr fixnum_allocr(LocalRoot local, fixnum value)
+_g addr fixnum_allocr(LocalRoot local, fixnum value)
 {
 	if (local)
 		return fixnum_localr(local, value);
 	else
 		return fixnum_heapr(value);
 }
-void fixnum_alloc(LocalRoot local, addr *ret, fixnum value)
+_g void fixnum_alloc(LocalRoot local, addr *ret, fixnum value)
 {
 	if (local)
 		fixnum_local(local, ret, value);
@@ -970,36 +970,36 @@ void fixnum_alloc(LocalRoot local, addr *ret, fixnum value)
 		fixnum_heap(ret, value);
 }
 
-const fixnum *ptrfixnum(addr pos)
+_g const fixnum *ptrfixnum(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_FIXNUM, "type error");
 	return PtrFixnum_Low(pos);
 }
-fixnum reffixnum(addr pos)
+_g fixnum reffixnum(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_FIXNUM, "type error");
 	return RefFixnum_Low(pos);
 }
-void getfixnum(addr pos, fixnum *ret)
+_g void getfixnum(addr pos, fixnum *ret)
 {
 	Check(GetType(pos) != LISPTYPE_FIXNUM, "type error");
 	GetFixnum_Low(pos, ret);
 }
-void setfixnum(addr pos, fixnum value)
+_g void setfixnum(addr pos, fixnum value)
 {
 	Check(GetType(pos) != LISPTYPE_FIXNUM, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFixnum_Low(pos, value);
 }
 
-int fixnumequal(addr left, addr right)
+_g int fixnumequal(addr left, addr right)
 {
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type error");
 	Check(GetType(right) != LISPTYPE_FIXNUM, "type error");
 	return RefBodyB2(left, fixnum) == RefBodyB2(right, fixnum);
 }
 
-int fixnumcompare(addr left, addr right)
+_g int fixnumcompare(addr left, addr right)
 {
 	fixnum value1, value2;
 
@@ -1014,19 +1014,19 @@ int fixnumcompare(addr left, addr right)
 }
 
 /* index */
-addr index_heapr(size_t value)
+_g addr index_heapr(size_t value)
 {
 	addr pos;
 	heap_body2(&pos, LISPTYPE_INDEX, sizeof(value));
 	SetIndex_Low(pos, value);
 	return pos;
 }
-void index_heap(addr *ret, size_t value)
+_g void index_heap(addr *ret, size_t value)
 {
 	heap_body2(ret, LISPTYPE_INDEX, sizeof(value));
 	SetIndex_Low(*ret, value);
 }
-addr index_localr(LocalRoot local, size_t value)
+_g addr index_localr(LocalRoot local, size_t value)
 {
 	addr pos;
 	Check(local == NULL, "local error");
@@ -1034,20 +1034,20 @@ addr index_localr(LocalRoot local, size_t value)
 	SetIndex_Low(pos, value);
 	return pos;
 }
-void index_local(LocalRoot local, addr *ret, size_t value)
+_g void index_local(LocalRoot local, addr *ret, size_t value)
 {
 	Check(local == NULL, "local error");
 	local_body2(local, ret, LISPTYPE_INDEX, sizeof(value));
 	SetIndex_Low(*ret, value);
 }
-addr index_allocr(LocalRoot local, size_t value)
+_g addr index_allocr(LocalRoot local, size_t value)
 {
 	if (local)
 		return index_localr(local, value);
 	else
 		return index_heapr(value);
 }
-void index_alloc(LocalRoot local, addr *ret, size_t value)
+_g void index_alloc(LocalRoot local, addr *ret, size_t value)
 {
 	if (local)
 		index_local(local, ret, value);
@@ -1055,34 +1055,34 @@ void index_alloc(LocalRoot local, addr *ret, size_t value)
 		index_heap(ret, value);
 }
 
-const size_t *ptrindex(addr pos)
+_g const size_t *ptrindex(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_INDEX, "type error");
 	return PtrIndex_Low(pos);
 }
-size_t refindex(addr pos)
+_g size_t refindex(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_INDEX, "type error");
 	return RefIndex_Low(pos);
 }
-void getindex(addr pos, size_t *ret)
+_g void getindex(addr pos, size_t *ret)
 {
 	Check(GetType(pos) != LISPTYPE_INDEX, "type error");
 	GetIndex_Low(pos, ret);
 }
-void setindex(addr pos, size_t value)
+_g void setindex(addr pos, size_t value)
 {
 	Check(GetType(pos) != LISPTYPE_INDEX, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetIndex_Low(pos, value);
 }
-void incindex(addr pos, size_t value)
+_g void incindex(addr pos, size_t value)
 {
 	Check(GetType(pos) != LISPTYPE_INDEX, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	IncIndex_Low(pos, value);
 }
-void decindex(addr pos, size_t value)
+_g void decindex(addr pos, size_t value)
 {
 	Check(GetType(pos) != LISPTYPE_INDEX, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -1090,7 +1090,7 @@ void decindex(addr pos, size_t value)
 }
 
 /* float */
-addr single_float_heapr(single_float value)
+_g addr single_float_heapr(single_float value)
 {
 	addr pos;
 	heap_body2(&pos, LISPTYPE_SINGLE_FLOAT, sizeof(value));
@@ -1098,13 +1098,13 @@ addr single_float_heapr(single_float value)
 	SetStatusValue(pos, LISPSTATUS_READONLY, 1);
 	return pos;
 }
-void single_float_heap(addr *ret, single_float value)
+_g void single_float_heap(addr *ret, single_float value)
 {
 	heap_body2(ret, LISPTYPE_SINGLE_FLOAT, sizeof(value));
 	SetSingleFloat_Low(*ret, value);
 	SetStatusValue(*ret, LISPSTATUS_READONLY, 1);
 }
-addr single_float_localr(LocalRoot local, single_float value)
+_g addr single_float_localr(LocalRoot local, single_float value)
 {
 	addr pos;
 	Check(local == NULL, "local error");
@@ -1113,21 +1113,21 @@ addr single_float_localr(LocalRoot local, single_float value)
 	SetStatusValue(pos, LISPSTATUS_READONLY, 1);
 	return pos;
 }
-void single_float_local(LocalRoot local, addr *ret, single_float value)
+_g void single_float_local(LocalRoot local, addr *ret, single_float value)
 {
 	Check(local == NULL, "local error");
 	local_body2(local, ret, LISPTYPE_SINGLE_FLOAT, sizeof(value));
 	SetSingleFloat_Low(*ret, value);
 	SetStatusValue(*ret, LISPSTATUS_READONLY, 1);
 }
-addr single_float_allocr(LocalRoot local, single_float value)
+_g addr single_float_allocr(LocalRoot local, single_float value)
 {
 	if (local)
 		return single_float_localr(local, value);
 	else
 		return single_float_heapr(value);
 }
-void single_float_alloc(LocalRoot local, addr *ret, single_float value)
+_g void single_float_alloc(LocalRoot local, addr *ret, single_float value)
 {
 	if (local)
 		single_float_local(local, ret, value);
@@ -1135,29 +1135,29 @@ void single_float_alloc(LocalRoot local, addr *ret, single_float value)
 		single_float_heap(ret, value);
 }
 
-const single_float *ptrsinglefloat(addr pos)
+_g const single_float *ptrsinglefloat(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_SINGLE_FLOAT, "type error");
 	return PtrSingleFloat_Low(pos);
 }
-single_float refsinglefloat(addr pos)
+_g single_float refsinglefloat(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_SINGLE_FLOAT, "type error");
 	return RefSingleFloat_Low(pos);
 }
-void getsinglefloat(addr pos, single_float *ret)
+_g void getsinglefloat(addr pos, single_float *ret)
 {
 	Check(GetType(pos) != LISPTYPE_SINGLE_FLOAT, "type error");
 	GetSingleFloat_Low(pos, ret);
 }
-void setsinglefloat(addr pos, single_float value)
+_g void setsinglefloat(addr pos, single_float value)
 {
 	Check(GetType(pos) != LISPTYPE_SINGLE_FLOAT, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetSingleFloat_Low(pos, value);
 }
 
-addr double_float_heapr(double_float value)
+_g addr double_float_heapr(double_float value)
 {
 	addr pos;
 	heap_body2(&pos, LISPTYPE_DOUBLE_FLOAT, sizeof(value));
@@ -1165,13 +1165,13 @@ addr double_float_heapr(double_float value)
 	SetStatusValue(pos, LISPSTATUS_READONLY, 1);
 	return pos;
 }
-void double_float_heap(addr *ret, double_float value)
+_g void double_float_heap(addr *ret, double_float value)
 {
 	heap_body2(ret, LISPTYPE_DOUBLE_FLOAT, sizeof(value));
 	SetDoubleFloat_Low(*ret, value);
 	SetStatusValue(*ret, LISPSTATUS_READONLY, 1);
 }
-addr double_float_localr(LocalRoot local, double_float value)
+_g addr double_float_localr(LocalRoot local, double_float value)
 {
 	addr pos;
 	Check(local == NULL, "local error");
@@ -1180,21 +1180,21 @@ addr double_float_localr(LocalRoot local, double_float value)
 	SetStatusValue(pos, LISPSTATUS_READONLY, 1);
 	return pos;
 }
-void double_float_local(LocalRoot local, addr *ret, double_float value)
+_g void double_float_local(LocalRoot local, addr *ret, double_float value)
 {
 	Check(local == NULL, "local error");
 	local_body2(local, ret, LISPTYPE_DOUBLE_FLOAT, sizeof(value));
 	SetDoubleFloat_Low(*ret, value);
 	SetStatusValue(*ret, LISPSTATUS_READONLY, 1);
 }
-addr double_float_allocr(LocalRoot local, double_float value)
+_g addr double_float_allocr(LocalRoot local, double_float value)
 {
 	if (local)
 		return double_float_localr(local, value);
 	else
 		return double_float_heapr(value);
 }
-void double_float_alloc(LocalRoot local, addr *ret, double_float value)
+_g void double_float_alloc(LocalRoot local, addr *ret, double_float value)
 {
 	if (local)
 		double_float_local(local, ret, value);
@@ -1202,29 +1202,29 @@ void double_float_alloc(LocalRoot local, addr *ret, double_float value)
 		double_float_heap(ret, value);
 }
 
-const double_float *ptrdoublefloat(addr pos)
+_g const double_float *ptrdoublefloat(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_DOUBLE_FLOAT, "type error");
 	return PtrDoubleFloat_Low(pos);
 }
-double_float refdoublefloat(addr pos)
+_g double_float refdoublefloat(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_DOUBLE_FLOAT, "type error");
 	return RefDoubleFloat_Low(pos);
 }
-void getdoublefloat(addr pos, double_float *ret)
+_g void getdoublefloat(addr pos, double_float *ret)
 {
 	Check(GetType(pos) != LISPTYPE_DOUBLE_FLOAT, "type error");
 	GetDoubleFloat_Low(pos, ret);
 }
-void setdoublefloat(addr pos, double_float value)
+_g void setdoublefloat(addr pos, double_float value)
 {
 	Check(GetType(pos) != LISPTYPE_DOUBLE_FLOAT, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetDoubleFloat_Low(pos, value);
 }
 
-addr long_float_heapr(long_float value)
+_g addr long_float_heapr(long_float value)
 {
 	addr pos;
 	heap_body2(&pos, LISPTYPE_LONG_FLOAT, sizeof(value));
@@ -1232,13 +1232,13 @@ addr long_float_heapr(long_float value)
 	SetStatusValue(pos, LISPSTATUS_READONLY, 1);
 	return pos;
 }
-void long_float_heap(addr *ret, long_float value)
+_g void long_float_heap(addr *ret, long_float value)
 {
 	heap_body2(ret, LISPTYPE_LONG_FLOAT, sizeof(value));
 	SetLongFloat_Low(*ret, value);
 	SetStatusValue(*ret, LISPSTATUS_READONLY, 1);
 }
-addr long_float_localr(LocalRoot local, long_float value)
+_g addr long_float_localr(LocalRoot local, long_float value)
 {
 	addr pos;
 	Check(local == NULL, "local error");
@@ -1247,21 +1247,21 @@ addr long_float_localr(LocalRoot local, long_float value)
 	SetStatusValue(pos, LISPSTATUS_READONLY, 1);
 	return pos;
 }
-void long_float_local(LocalRoot local, addr *ret, long_float value)
+_g void long_float_local(LocalRoot local, addr *ret, long_float value)
 {
 	Check(local == NULL, "local error");
 	local_body2(local, ret, LISPTYPE_LONG_FLOAT, sizeof(value));
 	SetLongFloat_Low(*ret, value);
 	SetStatusValue(*ret, LISPSTATUS_READONLY, 1);
 }
-addr long_float_allocr(LocalRoot local, long_float value)
+_g addr long_float_allocr(LocalRoot local, long_float value)
 {
 	if (local)
 		return long_float_localr(local, value);
 	else
 		return long_float_heapr(value);
 }
-void long_float_alloc(LocalRoot local, addr *ret, long_float value)
+_g void long_float_alloc(LocalRoot local, addr *ret, long_float value)
 {
 	if (local)
 		long_float_local(local, ret, value);
@@ -1269,22 +1269,22 @@ void long_float_alloc(LocalRoot local, addr *ret, long_float value)
 		long_float_heap(ret, value);
 }
 
-const long_float *ptrlongfloat(addr pos)
+_g const long_float *ptrlongfloat(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_LONG_FLOAT, "type error");
 	return PtrLongFloat_Low(pos);
 }
-long_float reflongfloat(addr pos)
+_g long_float reflongfloat(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_LONG_FLOAT, "type error");
 	return RefLongFloat_Low(pos);
 }
-void getlongfloat(addr pos, long_float *ret)
+_g void getlongfloat(addr pos, long_float *ret)
 {
 	Check(GetType(pos) != LISPTYPE_LONG_FLOAT, "type error");
 	GetLongFloat_Low(pos, ret);
 }
-void setlongfloat(addr pos, long_float value)
+_g void setlongfloat(addr pos, long_float value)
 {
 	Check(GetType(pos) != LISPTYPE_LONG_FLOAT, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
@@ -1292,32 +1292,32 @@ void setlongfloat(addr pos, long_float value)
 }
 
 /* queue */
-addr queue_heapr(void)
+_g addr queue_heapr(void)
 {
 	return consnil_heapr();
 }
-addr queue_localr(LocalRoot local)
+_g addr queue_localr(LocalRoot local)
 {
 	return consnil_localr(local);
 }
-addr queue_allocr(LocalRoot local)
+_g addr queue_allocr(LocalRoot local)
 {
 	return consnil_allocr(local);
 }
-void queue_heap(addr *ret)
+_g void queue_heap(addr *ret)
 {
 	consnil_heap(ret);
 }
-void queue_local(LocalRoot local, addr *ret)
+_g void queue_local(LocalRoot local, addr *ret)
 {
 	consnil_local(local, ret);
 }
-void queue_alloc(LocalRoot local, addr *ret)
+_g void queue_alloc(LocalRoot local, addr *ret)
 {
 	consnil_alloc(local, ret);
 }
 
-void pushqueue_alloc(LocalRoot local, addr pos, addr insert)
+_g void pushqueue_alloc(LocalRoot local, addr pos, addr insert)
 {
 	addr right, make;
 
@@ -1332,16 +1332,16 @@ void pushqueue_alloc(LocalRoot local, addr pos, addr insert)
 		SetCdr(pos, make);
 	}
 }
-void pushqueue_heap(addr pos, addr insert)
+_g void pushqueue_heap(addr pos, addr insert)
 {
 	pushqueue_alloc(NULL, pos, insert);
 }
-void pushqueue_local(LocalRoot local, addr pos, addr insert)
+_g void pushqueue_local(LocalRoot local, addr pos, addr insert)
 {
 	Check(local == NULL, "localroot error");
 	pushqueue_alloc(local, pos, insert);
 }
-void dotqueue(addr pos, addr right)
+_g void dotqueue(addr pos, addr right)
 {
 	addr cons;
 
@@ -1352,28 +1352,28 @@ void dotqueue(addr pos, addr right)
 	}
 	SetCdr(cons, right);
 }
-void clearqueue(addr pos)
+_g void clearqueue(addr pos)
 {
 	SetCons(pos, Nil, Nil);
 }
 
-addr rootqueuer(addr pos)
+_g addr rootqueuer(addr pos)
 {
 	return RefCar(pos);
 }
-addr tailqueuer(addr pos)
+_g addr tailqueuer(addr pos)
 {
 	return RefCdr(pos);
 }
-void rootqueue(addr pos, addr *ret)
+_g void rootqueue(addr pos, addr *ret)
 {
 	GetCar(pos, ret);
 }
-void tailqueue(addr pos, addr *ret)
+_g void tailqueue(addr pos, addr *ret)
 {
 	GetCdr(pos, ret);
 }
-int firstqueue(addr pos, addr *ret)
+_g int firstqueue(addr pos, addr *ret)
 {
 	addr cons;
 
@@ -1383,7 +1383,7 @@ int firstqueue(addr pos, addr *ret)
 
 	return 0;
 }
-int lastqueue(addr pos, addr *ret)
+_g int lastqueue(addr pos, addr *ret)
 {
 	addr cons;
 
@@ -1393,7 +1393,7 @@ int lastqueue(addr pos, addr *ret)
 
 	return 0;
 }
-int nthqueue(addr pos, size_t index, addr *ret)
+_g int nthqueue(addr pos, size_t index, addr *ret)
 {
 	size_t i;
 	addr right;

@@ -1232,7 +1232,7 @@ static void defgeneric_change_class_mop(Execute ptr)
 /***********************************************************************
  *  function
  ***********************************************************************/
-void init_mop_class(Execute ptr)
+_g void init_mop_class(void)
 {
 	SetPointerCall(defun, var1, referenced_class);
 	SetPointerCall(defun, var1dynamic, ensure_class);
@@ -1255,7 +1255,7 @@ void init_mop_class(Execute ptr)
 	SetPointerType(var4dynamic, method_change_class_symbol);
 }
 
-void build_mop_class(Execute ptr)
+_g void build_mop_class(Execute ptr)
 {
 	defun_referenced_class_mop();
 	defun_ensure_class_mop();

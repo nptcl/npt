@@ -25,36 +25,36 @@
 #define isExtendedType(x)	(0x80000000UL <= (x))
 
 /* character check */
-int isbasechar(unicode x);
-int isuppercase(unicode x);
-int islowercase(unicode x);
-int isdigitcase(unicode x);
-int isalphabetic(unicode x);
-int isalphanumeric(unicode x);
-int isgraphunicode(unicode x);
-int isspaceunicode(unicode x);
-unicode toupperunicode(unicode x);
-unicode tolowerunicode(unicode x);
+_g int isbasechar(unicode x);
+_g int isuppercase(unicode x);
+_g int islowercase(unicode x);
+_g int isdigitcase(unicode x);
+_g int isalphabetic(unicode x);
+_g int isalphanumeric(unicode x);
+_g int isgraphunicode(unicode x);
+_g int isspaceunicode(unicode x);
+_g unicode toupperunicode(unicode x);
+_g unicode tolowerunicode(unicode x);
 
 /* character type */
-int issurrogatepair(unicode x);
-int isbaserange(unicode x);
-int isstandardtype(unicode x);
-int isbasetype(unicode x);
-int isextendedtype(unicode x);
+_g int issurrogatepair(unicode x);
+_g int isbaserange(unicode x);
+_g int isstandardtype(unicode x);
+_g int isbasetype(unicode x);
+_g int isextendedtype(unicode x);
 
 /* equal */
-int character_equal_unicode(addr left, unicode right);
-int character_equalp_unicode(addr left, unicode right);
-int character2_equal_unicode(addr left, unicode a, unicode b);
-int character2_equalp_unicode(addr left, unicode a, unicode b);
+_g int character_equal_unicode(addr left, unicode right);
+_g int character_equalp_unicode(addr left, unicode right);
+_g int character2_equal_unicode(addr left, unicode a, unicode b);
+_g int character2_equalp_unicode(addr left, unicode a, unicode b);
 
 /* character table */
-void build_character(void);
-int findtable_unicode_name(addr *ret, unicode u);
-int findtable_char_name(addr *ret, addr pos);
-int findtable_name_char(addr *ret, addr name);
-int find_name_char(addr *ret, addr name);
+_g void build_character(void);
+_g int findtable_unicode_name(addr *ret, unicode u);
+_g int findtable_char_name(addr *ret, addr pos);
+_g int findtable_name_char(addr *ret, addr name);
+_g int find_name_char(addr *ret, addr name);
 
 #endif
 

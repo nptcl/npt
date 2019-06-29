@@ -80,21 +80,21 @@ struct eval_scope {
 #define SetEvalScopeIndex(p,i,v)	SetEvalScopeIndex_Low(p,i,v)
 #endif
 
-struct eval_scope *structevalscope(addr pos);
-enum EVAL_PARSE refevalscopetype(addr pos);
-void getevalscopetype(addr pos, enum EVAL_PARSE *ret);
-void setevalscopetype(addr pos, enum EVAL_PARSE value);
-addr refevalscopethe(addr pos);
-void getevalscopethe(addr pos, addr *ret);
-void setevalscopethe(addr pos, addr value);
-addr refevalscopevalue(addr pos);
-void getevalscopevalue(addr pos, addr *ret);
-void setevalscopevalue(addr pos, addr value);
-addr refevalscopeindex(addr pos, size_t size);
-void getevalscopeindex(addr pos, size_t size, addr *ret);
-void setevalscopeindex(addr pos, size_t size, addr value);
+_g struct eval_scope *structevalscope(addr pos);
+_g enum EVAL_PARSE refevalscopetype(addr pos);
+_g void getevalscopetype(addr pos, enum EVAL_PARSE *ret);
+_g void setevalscopetype(addr pos, enum EVAL_PARSE value);
+_g addr refevalscopethe(addr pos);
+_g void getevalscopethe(addr pos, addr *ret);
+_g void setevalscopethe(addr pos, addr value);
+_g addr refevalscopevalue(addr pos);
+_g void getevalscopevalue(addr pos, addr *ret);
+_g void setevalscopevalue(addr pos, addr value);
+_g addr refevalscopeindex(addr pos, size_t size);
+_g void getevalscopeindex(addr pos, size_t size, addr *ret);
+_g void setevalscopeindex(addr pos, size_t size, addr value);
 
-int eval_scope(Execute ptr, addr *ret, addr eval);
+_g int eval_scope(Execute ptr, addr *ret, addr eval);
 
 #endif
 

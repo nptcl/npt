@@ -479,7 +479,7 @@ static void english_bignum(LocalRoot local, addr stream, addr pos, int cardinal)
 	english_output(stream, &str, minus);
 }
 
-void english_integer(LocalRoot local, addr stream, addr pos, int cardinal)
+_g void english_integer(LocalRoot local, addr stream, addr pos, int cardinal)
 {
 	int sign;
 	addr copy;
@@ -536,7 +536,7 @@ static void english_unit_string(LocalRoot local,
 		make_charqueue_heap(queue, ret);
 }
 
-void english_unit_local(LocalRoot local, addr *ret, addr pos, int cardinal)
+_g void english_unit_local(LocalRoot local, addr *ret, addr pos, int cardinal)
 {
 	fixnum value;
 
@@ -546,7 +546,7 @@ void english_unit_local(LocalRoot local, addr *ret, addr pos, int cardinal)
 	english_unit_string(local, ret, value, cardinal, 1);
 }
 
-void english_unit_heap(LocalRoot local, addr *ret, addr pos, int cardinal)
+_g void english_unit_heap(LocalRoot local, addr *ret, addr pos, int cardinal)
 {
 	fixnum value;
 	LocalStack stack;
@@ -665,7 +665,7 @@ static void roma_call(addr stream, int value, int subp)
 	}
 }
 
-void roma_integer(addr stream, fixnum value, int subp)
+_g void roma_integer(addr stream, fixnum value, int subp)
 {
 	Check(! (1 <= value && value <= 3999), "value error");
 	roma_call(stream, (int)value, subp);

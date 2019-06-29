@@ -3109,7 +3109,7 @@ static void defmacro_rotatef(void)
 /*
  *  function
  */
-void init_common_data(void)
+_g void init_common_data(void)
 {
 	SetPointerCall(defun,     var2dynamic,  apply);
 	SetPointerCall(defmacro,  macro,        defun);
@@ -3173,7 +3173,7 @@ void init_common_data(void)
 	SetPointerCall(defmacro,  macro,        rotatef);
 }
 
-void build_common_data(void)
+_g void build_common_data(void)
 {
 	defun_apply();
 	defmacro_defun();

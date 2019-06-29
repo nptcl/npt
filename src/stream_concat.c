@@ -9,7 +9,7 @@
 	Check(! concatenated_stream_p(stream), "type error"); \
 }
 
-void open_concatenated_stream(addr *stream, addr list)
+_g void open_concatenated_stream(addr *stream, addr list)
 {
 	addr pos;
 
@@ -20,7 +20,7 @@ void open_concatenated_stream(addr *stream, addr list)
 	*stream = pos;
 }
 
-void push_concatenated_stream(addr stream, addr input)
+_g void push_concatenated_stream(addr stream, addr input)
 {
 	addr list;
 
@@ -30,7 +30,7 @@ void push_concatenated_stream(addr stream, addr input)
 	SetInfoStream(stream, list);
 }
 
-void get_concatenated_stream(addr stream, addr *ret)
+_g void get_concatenated_stream(addr stream, addr *ret)
 {
 	CheckConcatenatedStream(stream);
 	GetInfoStream(stream, ret);
@@ -183,7 +183,7 @@ static void clear_input_Concatenated(addr stream)
 		clear_input_stream(stream);
 }
 
-void init_stream_concatenated(void)
+_g void init_stream_concatenated(void)
 {
 	DefineStreamDef(Concatenated, close);
 	DefineStreamSet(Concatenated, read_binary);

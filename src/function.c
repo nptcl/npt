@@ -13,12 +13,12 @@
 /*
  *  callname
  */
-void make_callname_alloc(LocalRoot local, addr *ret)
+_g void make_callname_alloc(LocalRoot local, addr *ret)
 {
 	alloc_array2(local, ret, LISPTYPE_CALLNAME, 1);
 }
 
-addr callname_allocr(LocalRoot local, addr name, enum CALLNAME_TYPE type)
+_g addr callname_allocr(LocalRoot local, addr name, enum CALLNAME_TYPE type)
 {
 	addr pos;
 
@@ -29,31 +29,31 @@ addr callname_allocr(LocalRoot local, addr name, enum CALLNAME_TYPE type)
 
 	return pos;
 }
-addr callname_localr(LocalRoot local, addr name, enum CALLNAME_TYPE type)
+_g addr callname_localr(LocalRoot local, addr name, enum CALLNAME_TYPE type)
 {
 	Check(local == NULL, "local error");
 	return callname_allocr(local, name, type);
 }
-addr callname_heapr(addr name, enum CALLNAME_TYPE type)
+_g addr callname_heapr(addr name, enum CALLNAME_TYPE type)
 {
 	return callname_allocr(NULL, name, type);
 }
 
-void callname_alloc(LocalRoot local, addr *ret, addr name, enum CALLNAME_TYPE type)
+_g void callname_alloc(LocalRoot local, addr *ret, addr name, enum CALLNAME_TYPE type)
 {
 	*ret = callname_allocr(local, name, type);
 }
-void callname_local(LocalRoot local, addr *ret, addr name, enum CALLNAME_TYPE type)
+_g void callname_local(LocalRoot local, addr *ret, addr name, enum CALLNAME_TYPE type)
 {
 	Check(local == NULL, "local error");
 	*ret = callname_allocr(local, name, type);
 }
-void callname_heap(addr *ret, addr name, enum CALLNAME_TYPE type)
+_g void callname_heap(addr *ret, addr name, enum CALLNAME_TYPE type)
 {
 	*ret = callname_allocr(NULL, name, type);
 }
 
-enum CALLNAME_TYPE parse_callname(addr name, addr *ret)
+_g enum CALLNAME_TYPE parse_callname(addr name, addr *ret)
 {
 	enum CALLNAME_TYPE type;
 	addr setf, cons;
@@ -88,30 +88,30 @@ error:
 	return CALLNAME_ERROR;
 }
 
-int function_name_p(addr name)
+_g int function_name_p(addr name)
 {
 	if (GetType(name) == LISPTYPE_CALLNAME) return 1;
 	return parse_callname(name, &name) != CALLNAME_ERROR;
 }
 
-int callnamep(addr pos)
+_g int callnamep(addr pos)
 {
 	return GetType(pos) == LISPTYPE_CALLNAME;
 }
 
-int symbol_callname_p(addr call)
+_g int symbol_callname_p(addr call)
 {
 	CheckType(call, LISPTYPE_CALLNAME);
 	return RefCallNameType(call) == CALLNAME_SYMBOL;
 }
 
-int setf_callname_p(addr call)
+_g int setf_callname_p(addr call)
 {
 	CheckType(call, LISPTYPE_CALLNAME);
 	return RefCallNameType(call) == CALLNAME_SETF;
 }
 
-int parse_callname_alloc(LocalRoot local, addr *ret, addr name)
+_g int parse_callname_alloc(LocalRoot local, addr *ret, addr name)
 {
 	enum CALLNAME_TYPE type;
 
@@ -121,38 +121,38 @@ int parse_callname_alloc(LocalRoot local, addr *ret, addr name)
 
 	return 0;
 }
-int parse_callname_local(LocalRoot local, addr *ret, addr name)
+_g int parse_callname_local(LocalRoot local, addr *ret, addr name)
 {
 	Check(local == NULL, "local error");
 	return parse_callname_alloc(local, ret, name);
 }
-int parse_callname_heap(addr *ret, addr name)
+_g int parse_callname_heap(addr *ret, addr name)
 {
 	return parse_callname_alloc(NULL, ret, name);
 }
-void parse_callname_error(addr *ret, addr name)
+_g void parse_callname_error(addr *ret, addr name)
 {
 	if (parse_callname_heap(ret, name))
 		fmte("Invalid function name ~S.", name, NULL);
 }
 
-void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol)
+_g void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol)
 {
 	Check(! symbolp(symbol), "type error");
 	callname_alloc(local, ret, symbol, CALLNAME_SETF);
 }
-void setf_callname_local(LocalRoot local, addr *ret, addr symbol)
+_g void setf_callname_local(LocalRoot local, addr *ret, addr symbol)
 {
 	Check(! symbolp(symbol), "type error");
 	callname_local(local, ret, symbol, CALLNAME_SETF);
 }
-void setf_callname_heap(addr *ret, addr symbol)
+_g void setf_callname_heap(addr *ret, addr symbol)
 {
 	Check(! symbolp(symbol), "type error");
 	callname_heap(ret, symbol, CALLNAME_SETF);
 }
 
-int parse_setcallname(addr pos, addr name)
+_g int parse_setcallname(addr pos, addr name)
 {
 	enum CALLNAME_TYPE type;
 
@@ -166,48 +166,48 @@ int parse_setcallname(addr pos, addr name)
 	return 0;
 }
 
-addr refcallname(addr pos)
+_g addr refcallname(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	return RefCallName_Low(pos);
 }
-void getcallname(addr pos, addr *value)
+_g void getcallname(addr pos, addr *value)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	GetCallName_Low(pos, value);
 }
-void setcallname(addr pos, addr value)
+_g void setcallname(addr pos, addr value)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetCallName_Low(pos, value);
 }
 
-enum CALLNAME_TYPE refcallnametype(addr pos)
+_g enum CALLNAME_TYPE refcallnametype(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	return RefCallNameType_Low(pos);
 }
-void getcallnametype(addr pos, enum CALLNAME_TYPE *value)
+_g void getcallnametype(addr pos, enum CALLNAME_TYPE *value)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	GetCallNameType_Low(pos, value);
 }
-void setcallnametype(addr pos, enum CALLNAME_TYPE value)
+_g void setcallnametype(addr pos, enum CALLNAME_TYPE value)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetCallNameType_Low(pos, value);
 }
 
-int callname_constant_p(addr pos)
+_g int callname_constant_p(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	GetCallName(pos, &pos);
 	return GetStatusReadOnly(pos);
 }
 
-int equal_callname(addr left, addr right)
+_g int equal_callname(addr left, addr right)
 {
 	Check(GetType(left) != LISPTYPE_CALLNAME, "type left error");
 	Check(GetType(right) != LISPTYPE_CALLNAME, "type right error");
@@ -215,7 +215,7 @@ int equal_callname(addr left, addr right)
 		&& (RefCallName_Low(left) == RefCallName_Low(right));
 }
 
-enum CALLNAME_TYPE getfunction_callname_global(addr pos, addr *ret)
+_g enum CALLNAME_TYPE getfunction_callname_global(addr pos, addr *ret)
 {
 	enum CALLNAME_TYPE type;
 
@@ -239,7 +239,7 @@ enum CALLNAME_TYPE getfunction_callname_global(addr pos, addr *ret)
 	return type;
 }
 
-enum CALLNAME_TYPE getfunction_callname_local(Execute ptr, addr pos, addr *ret)
+_g enum CALLNAME_TYPE getfunction_callname_local(Execute ptr, addr pos, addr *ret)
 {
 	enum CALLNAME_TYPE type;
 
@@ -263,7 +263,7 @@ enum CALLNAME_TYPE getfunction_callname_local(Execute ptr, addr pos, addr *ret)
 	return type;
 }
 
-enum CALLNAME_TYPE getfunctioncheck_callname_local(Execute ptr, addr pos, addr *ret)
+_g enum CALLNAME_TYPE getfunctioncheck_callname_local(Execute ptr, addr pos, addr *ret)
 {
 	enum CALLNAME_TYPE type;
 
@@ -276,7 +276,7 @@ enum CALLNAME_TYPE getfunctioncheck_callname_local(Execute ptr, addr pos, addr *
 	return type;
 }
 
-void setfunction_callname_global(addr pos, addr value)
+_g void setfunction_callname_global(addr pos, addr value)
 {
 	enum CALLNAME_TYPE type;
 
@@ -298,17 +298,17 @@ void setfunction_callname_global(addr pos, addr value)
 	}
 }
 
-void copy_callname_alloc(LocalRoot local, addr *ret, addr pos)
+_g void copy_callname_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
 	callname_alloc(local, ret, RefCallName_Low(pos), RefCallNameType_Low(pos));
 }
-void copy_callname_local(LocalRoot local, addr *ret, addr pos)
+_g void copy_callname_local(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
 	copy_callname_alloc(local, ret, pos);
 }
-void copy_callname_heap(addr *ret, addr pos)
+_g void copy_callname_heap(addr *ret, addr pos)
 {
 	copy_callname_alloc(NULL, ret, pos);
 }
@@ -327,7 +327,7 @@ static enum CALLNAME_TYPE callnametype(addr pos, addr *value)
 	}
 }
 
-addr refcallname_local(Execute ptr, addr pos)
+_g addr refcallname_local(Execute ptr, addr pos)
 {
 	Check(pos == Unbound, "unbound error");
 	switch (callnametype(pos, &pos)) {
@@ -345,11 +345,11 @@ addr refcallname_local(Execute ptr, addr pos)
 
 	return NULL;
 }
-void getcallname_local(Execute ptr, addr pos, addr *value)
+_g void getcallname_local(Execute ptr, addr pos, addr *value)
 {
 	*value = refcallname_local(ptr, pos);
 }
-void setcallname_local(Execute ptr, addr pos, addr value)
+_g void setcallname_local(Execute ptr, addr pos, addr value)
 {
 	Check(pos == Unbound, "unbound error");
 	switch (callnametype(pos, &pos)) {
@@ -367,7 +367,7 @@ void setcallname_local(Execute ptr, addr pos, addr value)
 			break;
 	}
 }
-addr refcallnamecheck_local(Execute ptr, addr pos)
+_g addr refcallnamecheck_local(Execute ptr, addr pos)
 {
 	Check(pos == Unbound, "unbound error");
 	switch (callnametype(pos, &pos)) {
@@ -385,12 +385,12 @@ addr refcallnamecheck_local(Execute ptr, addr pos)
 
 	return NULL;
 }
-void getcallnamecheck_local(Execute ptr, addr pos, addr *value)
+_g void getcallnamecheck_local(Execute ptr, addr pos, addr *value)
 {
 	*value = refcallnamecheck_local(ptr, pos);
 }
 
-addr refcallname_global(addr pos)
+_g addr refcallname_global(addr pos)
 {
 	Check(pos == Unbound, "unbound error");
 	switch (callnametype(pos, &pos)) {
@@ -408,11 +408,11 @@ addr refcallname_global(addr pos)
 
 	return NULL;
 }
-void getcallname_global(addr pos, addr *value)
+_g void getcallname_global(addr pos, addr *value)
 {
 	*value = refcallname_global(pos);
 }
-void setcallname_global(addr pos, addr value)
+_g void setcallname_global(addr pos, addr value)
 {
 	Check(pos == Unbound, "unbound error");
 	switch (callnametype(pos, &pos)) {
@@ -429,7 +429,7 @@ void setcallname_global(addr pos, addr value)
 			fmte("Invalid function name.", NULL);
 	}
 }
-addr refcallnamecheck_global(addr pos)
+_g addr refcallnamecheck_global(addr pos)
 {
 	addr value;
 	getcallname_global(pos, &value);
@@ -439,7 +439,7 @@ addr refcallnamecheck_global(addr pos)
 	}
 	return value;
 }
-void getcallnamecheck_global(addr pos, addr *ret)
+_g void getcallnamecheck_global(addr pos, addr *ret)
 {
 	getcallname_global(pos, ret);
 	if (*ret == Unbound) {
@@ -448,7 +448,7 @@ void getcallnamecheck_global(addr pos, addr *ret)
 	}
 }
 
-void name_callname_alloc(LocalRoot local, addr pos, addr *ret)
+_g void name_callname_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	enum CALLNAME_TYPE type;
 	addr setf;
@@ -472,13 +472,13 @@ void name_callname_alloc(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
-void name_callname_local(LocalRoot local, addr pos, addr *ret)
+_g void name_callname_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	name_callname_alloc(local, pos, ret);
 }
 
-void name_callname_heap(addr pos, addr *ret)
+_g void name_callname_heap(addr pos, addr *ret)
 {
 	name_callname_alloc(NULL, pos, ret);
 }
@@ -514,397 +514,397 @@ static addr alloc_function(LocalRoot local,
 	return pos;
 }
 
-addr function_allocr(LocalRoot local, addr name, addr code)
+_g addr function_allocr(LocalRoot local, addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
 	return alloc_function(local, name, code, 0, 0);
 }
-addr function_localr(LocalRoot local, addr name, addr code)
+_g addr function_localr(LocalRoot local, addr name, addr code)
 {
 	Check(local == NULL, "local error");
 	CheckType(code, LISPTYPE_CODE);
 	return alloc_function(local, name, code, 0, 0);
 }
-addr function_heapr(addr name, addr code)
+_g addr function_heapr(addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
 	return alloc_function(NULL, name, code, 0, 0);
 }
 
-void function_alloc(LocalRoot local, addr *ret, addr name, addr code)
+_g void function_alloc(LocalRoot local, addr *ret, addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
 	*ret = alloc_function(local, name, code, 0, 0);
 }
-void function_local(LocalRoot local, addr *ret, addr name, addr code)
+_g void function_local(LocalRoot local, addr *ret, addr name, addr code)
 {
 	Check(local == NULL, "local error");
 	CheckType(code, LISPTYPE_CODE);
 	*ret = alloc_function(local, name, code, 0, 0);
 }
-void function_heap(addr *ret, addr name, addr code)
+_g void function_heap(addr *ret, addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
 	*ret = alloc_function(NULL, name, code, 0, 0);
 }
 
-addr macro_allocr(LocalRoot local, addr name, addr code)
+_g addr macro_allocr(LocalRoot local, addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
 	return alloc_function(local, name, code, 1, 0);
 }
-addr macro_localr(LocalRoot local, addr name, addr code)
+_g addr macro_localr(LocalRoot local, addr name, addr code)
 {
 	Check(local == NULL, "local error");
 	CheckType(code, LISPTYPE_CODE);
 	return alloc_function(local, name, code, 1, 0);
 }
-addr macro_heapr(addr name, addr code)
+_g addr macro_heapr(addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
 	return alloc_function(NULL, name, code, 1, 0);
 }
 
-void macro_alloc(LocalRoot local, addr *ret, addr name, addr code)
+_g void macro_alloc(LocalRoot local, addr *ret, addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
 	*ret = alloc_function(local, name, code, 1, 0);
 }
-void macro_local(LocalRoot local, addr *ret, addr name, addr code)
+_g void macro_local(LocalRoot local, addr *ret, addr name, addr code)
 {
 	Check(local == NULL, "local error");
 	CheckType(code, LISPTYPE_CODE);
 	*ret = alloc_function(local, name, code, 1, 0);
 }
-void macro_heap(addr *ret, addr name, addr code)
+_g void macro_heap(addr *ret, addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
 	*ret = alloc_function(NULL, name, code, 1, 0);
 }
 
-addr compiled_allocr(LocalRoot local, addr name)
+_g addr compiled_allocr(LocalRoot local, addr name)
 {
 	return alloc_function(local, name, Nil, 0, 1);
 }
-addr compiled_localr(LocalRoot local, addr name)
+_g addr compiled_localr(LocalRoot local, addr name)
 {
 	Check(local == NULL, "local error");
 	return alloc_function(local, name, Nil, 0, 1);
 }
-addr compiled_heapr(addr name)
+_g addr compiled_heapr(addr name)
 {
 	return alloc_function(NULL, name, Nil, 0, 1);
 }
 
-void compiled_alloc(LocalRoot local, addr *ret, addr name)
+_g void compiled_alloc(LocalRoot local, addr *ret, addr name)
 {
 	*ret = alloc_function(local, name, Nil, 0, 1);
 }
-void compiled_local(LocalRoot local, addr *ret, addr name)
+_g void compiled_local(LocalRoot local, addr *ret, addr name)
 {
 	Check(local == NULL, "local error");
 	*ret = alloc_function(local, name, Nil, 0, 1);
 }
-void compiled_heap(addr *ret, addr name)
+_g void compiled_heap(addr *ret, addr name)
 {
 	*ret = alloc_function(NULL, name, Nil, 0, 1);
 }
 
-addr compiled_macro_allocr(LocalRoot local, addr name)
+_g addr compiled_macro_allocr(LocalRoot local, addr name)
 {
 	return alloc_function(local, name, Nil, 1, 1);
 }
-addr compiled_macro_localr(LocalRoot local, addr name)
+_g addr compiled_macro_localr(LocalRoot local, addr name)
 {
 	Check(local == NULL, "local error");
 	return alloc_function(local, name, Nil, 1, 1);
 }
-addr compiled_macro_heapr(addr name)
+_g addr compiled_macro_heapr(addr name)
 {
 	return alloc_function(NULL, name, Nil, 1, 1);
 }
 
-void compiled_macro_alloc(LocalRoot local, addr *ret, addr name)
+_g void compiled_macro_alloc(LocalRoot local, addr *ret, addr name)
 {
 	*ret = alloc_function(local, name, Nil, 1, 1);
 }
-void compiled_macro_local(LocalRoot local, addr *ret, addr name)
+_g void compiled_macro_local(LocalRoot local, addr *ret, addr name)
 {
 	Check(local == NULL, "local error");
 	*ret = alloc_function(local, name, Nil, 1, 1);
 }
-void compiled_macro_heap(addr *ret, addr name)
+_g void compiled_macro_heap(addr *ret, addr name)
 {
 	*ret = alloc_function(NULL, name, Nil, 1, 1);
 }
 
-void setcompiled_code(addr pos, pointer p)
+_g void setcompiled_code(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_code, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void getcompiled_code(addr pos, pointer *ret)
+_g void getcompiled_code(addr pos, pointer *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	*ret = StructFunction(pos)->index;
 	Check(pointer_table[*ret].type != CallBind_code, "type error");
 }
 
-void setcompiled_macro(addr pos, pointer p)
+_g void setcompiled_macro(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_macro, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_none(addr pos, pointer p)
+_g void setcompiled_none(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_none, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_any(addr pos, pointer p)
+_g void setcompiled_any(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_any, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_dynamic(addr pos, pointer p)
+_g void setcompiled_dynamic(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_dynamic, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_empty(addr pos, pointer p)
+_g void setcompiled_empty(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_empty, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_rest(addr pos, pointer p)
+_g void setcompiled_rest(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_rest, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var1(addr pos, pointer p)
+_g void setcompiled_var1(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var1, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var2(addr pos, pointer p)
+_g void setcompiled_var2(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var2, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var3(addr pos, pointer p)
+_g void setcompiled_var3(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var3, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var4(addr pos, pointer p)
+_g void setcompiled_var4(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var4, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var5(addr pos, pointer p)
+_g void setcompiled_var5(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var5, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var6(addr pos, pointer p)
+_g void setcompiled_var6(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var6, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_opt1(addr pos, pointer p)
+_g void setcompiled_opt1(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_opt1, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_opt2(addr pos, pointer p)
+_g void setcompiled_opt2(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_opt2, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_opt3(addr pos, pointer p)
+_g void setcompiled_opt3(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_opt3, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_opt4(addr pos, pointer p)
+_g void setcompiled_opt4(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_opt4, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_opt5(addr pos, pointer p)
+_g void setcompiled_opt5(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_opt5, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var1opt1(addr pos, pointer p)
+_g void setcompiled_var1opt1(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var1opt1, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var2opt1(addr pos, pointer p)
+_g void setcompiled_var2opt1(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var2opt1, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var3opt1(addr pos, pointer p)
+_g void setcompiled_var3opt1(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var3opt1, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var4opt1(addr pos, pointer p)
+_g void setcompiled_var4opt1(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var4opt1, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var5opt1(addr pos, pointer p)
+_g void setcompiled_var5opt1(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var5opt1, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var1opt2(addr pos, pointer p)
+_g void setcompiled_var1opt2(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var1opt2, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var2opt2(addr pos, pointer p)
+_g void setcompiled_var2opt2(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var2opt2, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var1rest(addr pos, pointer p)
+_g void setcompiled_var1rest(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var1rest, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var2rest(addr pos, pointer p)
+_g void setcompiled_var2rest(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var2rest, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var1dynamic(addr pos, pointer p)
+_g void setcompiled_var1dynamic(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var1dynamic, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var2dynamic(addr pos, pointer p)
+_g void setcompiled_var2dynamic(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var2dynamic, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var3dynamic(addr pos, pointer p)
+_g void setcompiled_var3dynamic(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var3dynamic, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_var4dynamic(addr pos, pointer p)
+_g void setcompiled_var4dynamic(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var4dynamic, "type error");
 	StructFunction(pos)->index = p;
 }
 
-void function_heap_for_develop(addr *ret, addr name)
+_g void function_heap_for_develop(addr *ret, addr name)
 {
 	*ret = alloc_function(NULL, name, Nil, 0, 0);
 }
 
-struct function_struct *structfunction(addr pos)
+_g struct function_struct *structfunction(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	return StructFunction_Low(pos);
 }
 
-addr reffunction(addr pos)
+_g addr reffunction(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	return RefFunction_Low(pos);
 }
 
-void getfunction(addr pos, addr *ret)
+_g void getfunction(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	GetFunction_Low(pos, ret);
 }
 
-void setfunction(addr pos, addr value)
+_g void setfunction(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFunction_Low(pos, value);
 }
 
-addr refnamefunction(addr pos)
+_g addr refnamefunction(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	return RefNameFunction_Low(pos);
 }
 
-void getnamefunction(addr pos, addr *ret)
+_g void getnamefunction(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	GetNameFunction_Low(pos, ret);
 }
 
-void setnamefunction(addr pos, addr value)
+_g void setnamefunction(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	CheckType(value, LISPTYPE_CALLNAME);
@@ -912,78 +912,78 @@ void setnamefunction(addr pos, addr value)
 	SetNameFunction_Low(pos, value);
 }
 
-addr refdatafunction(addr pos)
+_g addr refdatafunction(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	return RefDataFunction_Low(pos);
 }
 
-void getdatafunction(addr pos, addr *ret)
+_g void getdatafunction(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	GetDataFunction_Low(pos, ret);
 }
 
-void setdatafunction(addr pos, addr value)
+_g void setdatafunction(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetDataFunction_Low(pos, value);
 }
 
-void getclosure_value_function(addr pos, addr *ret)
+_g void getclosure_value_function(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	GetClosureValueFunction_Low(pos, ret);
 }
 
-void setclosure_value_function(addr pos, addr value)
+_g void setclosure_value_function(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetClosureValueFunction_Low(pos, value);
 }
 
-void getclosure_function_function(addr pos, addr *ret)
+_g void getclosure_function_function(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	GetClosureFunctionFunction_Low(pos, ret);
 }
 
-void setclosure_function_function(addr pos, addr value)
+_g void setclosure_function_function(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetClosureFunctionFunction_Low(pos, value);
 }
 
-void getclosure_tagbody_function(addr pos, addr *ret)
+_g void getclosure_tagbody_function(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	GetClosureTagbodyFunction_Low(pos, ret);
 }
 
-void setclosure_tagbody_function(addr pos, addr value)
+_g void setclosure_tagbody_function(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetClosureTagbodyFunction_Low(pos, value);
 }
 
-void getclosure_block_function(addr pos, addr *ret)
+_g void getclosure_block_function(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	GetClosureBlockFunction_Low(pos, ret);
 }
 
-void setclosure_block_function(addr pos, addr value)
+_g void setclosure_block_function(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetClosureBlockFunction_Low(pos, value);
 }
 
-void pushclosure_value_function(addr pos, addr key, addr value)
+_g void pushclosure_value_function(addr pos, addr key, addr value)
 {
 	addr cons;
 
@@ -994,7 +994,7 @@ void pushclosure_value_function(addr pos, addr key, addr value)
 	SetClosureValueFunction_Low(pos, cons);
 }
 
-void pushclosure_function_function(addr pos, addr key, addr value)
+_g void pushclosure_function_function(addr pos, addr key, addr value)
 {
 	addr cons;
 
@@ -1005,7 +1005,7 @@ void pushclosure_function_function(addr pos, addr key, addr value)
 	SetClosureFunctionFunction_Low(pos, cons);
 }
 
-void pushclosure_tagbody_function(addr pos, addr key, addr value)
+_g void pushclosure_tagbody_function(addr pos, addr key, addr value)
 {
 	addr cons;
 
@@ -1016,7 +1016,7 @@ void pushclosure_tagbody_function(addr pos, addr key, addr value)
 	SetClosureTagbodyFunction_Low(pos, cons);
 }
 
-void pushclosure_block_function(addr pos, addr value)
+_g void pushclosure_block_function(addr pos, addr value)
 {
 	addr cons;
 
@@ -1035,7 +1035,7 @@ static void getplist_function(addr pos, enum CONSTANT_INDEX index, addr *ret)
 	GetConstant(index, &type);
 	getplist(pos, type, ret);
 }
-void gettype_function(addr pos, addr *ret)
+_g void gettype_function(addr pos, addr *ret)
 {
 	getplist_function(pos, CONSTANT_SYSTEM_TYPE_FUNCTION, ret);
 }
@@ -1052,62 +1052,62 @@ static void setplist_function(addr pos,
 	if (setplist_heap(table, type, value, &table))
 		SetTableFunction_Low(pos, table);
 }
-void settype_function(addr pos, addr value)
+_g void settype_function(addr pos, addr value)
 {
 	setplist_function(pos, CONSTANT_SYSTEM_TYPE_FUNCTION, value);
 }
 
-void getdocumentation_function(addr pos, addr *ret)
+_g void getdocumentation_function(addr pos, addr *ret)
 {
 	getplist_function(pos, CONSTANT_COMMON_DOCUMENTATION, ret);
 }
 
-void setdocumentation_function(addr pos, addr value)
+_g void setdocumentation_function(addr pos, addr value)
 {
 	setplist_function(pos, CONSTANT_COMMON_DOCUMENTATION, value);
 }
 
-void getlambda_expression_function(addr pos, addr *ret)
+_g void getlambda_expression_function(addr pos, addr *ret)
 {
 	getplist_function(pos, CONSTANT_COMMON_LAMBDA, ret);
 }
 
-void setlambda_expression_function(addr pos, addr value)
+_g void setlambda_expression_function(addr pos, addr value)
 {
 	setplist_function(pos, CONSTANT_COMMON_LAMBDA, value);
 }
 
-void setsystem_function(addr pos)
+_g void setsystem_function(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	StructFunction_Low(pos)->system = 1;
 }
 
-int functionp(addr pos)
+_g int functionp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION;
 }
 
-int funcall_function_p(addr pos)
+_g int funcall_function_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION &&
 		StructFunction_Low(pos)->macro == 0;
 }
 
-int macro_function_p(addr pos)
+_g int macro_function_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION &&
 		StructFunction_Low(pos)->macro;
 }
 
-int interpreted_function_p(addr pos)
+_g int interpreted_function_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION &&
 		StructFunction_Low(pos)->compiled == 0;
 }
 
-int interpreted_funcall_function_p(addr pos)
+_g int interpreted_funcall_function_p(addr pos)
 {
 	struct function_struct *ptr;
 	if (GetType(pos) != LISPTYPE_FUNCTION) return 0;
@@ -1115,7 +1115,7 @@ int interpreted_funcall_function_p(addr pos)
 	return ptr->compiled == 0 && ptr->macro == 0;
 }
 
-int interpreted_macro_function_p(addr pos)
+_g int interpreted_macro_function_p(addr pos)
 {
 	struct function_struct *ptr;
 	if (GetType(pos) != LISPTYPE_FUNCTION) return 0;
@@ -1123,13 +1123,13 @@ int interpreted_macro_function_p(addr pos)
 	return ptr->compiled == 0 && ptr->macro;
 }
 
-int compiled_function_p(addr pos)
+_g int compiled_function_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION &&
 		StructFunction_Low(pos)->compiled;
 }
 
-int compiled_funcall_function_p(addr pos)
+_g int compiled_funcall_function_p(addr pos)
 {
 	struct function_struct *ptr;
 	if (GetType(pos) != LISPTYPE_FUNCTION) return 0;
@@ -1137,7 +1137,7 @@ int compiled_funcall_function_p(addr pos)
 	return ptr->compiled && ptr->macro == 0;
 }
 
-int compiled_macro_function_p(addr pos)
+_g int compiled_macro_function_p(addr pos)
 {
 	struct function_struct *ptr;
 	if (GetType(pos) != LISPTYPE_FUNCTION) return 0;
@@ -1145,20 +1145,20 @@ int compiled_macro_function_p(addr pos)
 	return ptr->compiled && ptr->macro;
 }
 
-int system_function_p(addr pos)
+_g int system_function_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION &&
 		StructFunction_Low(pos)->system;
 }
 
-void setrecursive_function(addr pos)
+_g void setrecursive_function(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	StructFunction_Low(pos)->recursive = 1;
 }
 
-int recursivep_function(addr pos)
+_g int recursivep_function(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION &&
 		StructFunction_Low(pos)->recursive;

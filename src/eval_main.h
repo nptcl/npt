@@ -4,12 +4,12 @@
 #include "local.h"
 #include "typedef.h"
 
-int eval_main_loop(Execute ptr);
-void eval_main_string(Execute ptr, addr eval, int *abort);
-int eval_main_load(Execute ptr, addr file, int exists, int *abort);
+_g int eval_main_loop(Execute ptr);
+_g void eval_main_string(Execute ptr, addr eval, int *abort);
+_g int eval_main_load(Execute ptr, addr file, int exists, int *abort);
 
 /* initialize */
-void init_eval_main(void);
+_g void init_eval_main(void);
 
 #endif
 

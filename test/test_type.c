@@ -1036,8 +1036,8 @@ static int test_type_member_heap(void)
 	GetArrayType(pos, 0, &array);
 	test(GetStatusSize(array) == LISPSIZE_ARRAY4, "type_member_heap7");
 	test(lenarrayr(array) == 2, "type_member_heap8");
-	test(getarrayr(array, 0) == pos1, "type_member_heap9");
-	test(getarrayr(array, 1) == pos2, "type_member_heap10");
+	test(refarray(array, 0) == pos1, "type_member_heap9");
+	test(refarray(array, 1) == pos2, "type_member_heap10");
 
 	RETURN;
 }

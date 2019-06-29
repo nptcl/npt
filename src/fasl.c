@@ -187,7 +187,7 @@ static int faslexecute(Execute ptr, addr input)
 	return 0;
 }
 
-int fasl_stream(Execute ptr, addr input)
+_g int fasl_stream(Execute ptr, addr input)
 {
 	int result;
 
@@ -1309,7 +1309,7 @@ static int nop_fasl(Execute ptr, addr input, addr *ret)
 /*
  *  initialize
  */
-void init_fasl(void)
+_g void init_fasl(void)
 {
 	memset(faslcall, 0, sizeoft(faslcall));
 	faslcall[0x00] = nil_fasl;
@@ -1401,7 +1401,7 @@ void init_fasl(void)
 	faslcall[0xFF] = nop_fasl;
 }
 
-void build_fasl(void)
+_g void build_fasl(void)
 {
 	addr pos;
 

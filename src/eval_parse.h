@@ -94,36 +94,36 @@ struct eval_parse {
 #define SetEvalParseType(x,v)		SetEvalParseType_Low(x,v)
 #endif
 
-void eval_parse_alloc(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte array);
-void eval_parse_local(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte array);
-void eval_parse_heap(addr *ret, enum EVAL_PARSE type, byte array);
+_g void eval_parse_alloc(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte array);
+_g void eval_parse_local(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte array);
+_g void eval_parse_heap(addr *ret, enum EVAL_PARSE type, byte array);
 
-void eval_single_parse_alloc(LocalRoot local,
+_g void eval_single_parse_alloc(LocalRoot local,
 		addr *ret, enum EVAL_PARSE type, addr value);
-void eval_single_parse_local(LocalRoot local,
+_g void eval_single_parse_local(LocalRoot local,
 		addr *ret, enum EVAL_PARSE type, addr value);
-void eval_single_parse_heap(addr *ret, enum EVAL_PARSE type, addr value);
+_g void eval_single_parse_heap(addr *ret, enum EVAL_PARSE type, addr value);
 
-struct eval_parse *structevalparse(addr pos);
-addr refevalparse(addr pos, size_t index);
-void getevalparse(addr pos, size_t index, addr *ret);
-void setevalparse(addr pos, size_t index, addr value);
-enum EVAL_PARSE refevalparsetype(addr pos);
-void getevalparsetype(addr pos, enum EVAL_PARSE *ret);
-void setevalparsetype(addr pos, enum EVAL_PARSE value);
-void check_variable(addr symbol);
-void check_function_variable(addr symbol);
-int tagbody_tag_p(addr pos);
-int eval_parse(addr *ret, addr pos);
+_g struct eval_parse *structevalparse(addr pos);
+_g addr refevalparse(addr pos, size_t index);
+_g void getevalparse(addr pos, size_t index, addr *ret);
+_g void setevalparse(addr pos, size_t index, addr value);
+_g enum EVAL_PARSE refevalparsetype(addr pos);
+_g void getevalparsetype(addr pos, enum EVAL_PARSE *ret);
+_g void setevalparsetype(addr pos, enum EVAL_PARSE value);
+_g void check_variable(addr symbol);
+_g void check_function_variable(addr symbol);
+_g int tagbody_tag_p(addr pos);
+_g int eval_parse(addr *ret, addr pos);
 
-void copy_eval_parse_alloc(LocalRoot local, addr *ret, addr eval);
-void copy_eval_parse_local(LocalRoot local, addr *ret, addr eval);
-void copy_eval_parse_heap(addr *ret, addr eval);
+_g void copy_eval_parse_alloc(LocalRoot local, addr *ret, addr eval);
+_g void copy_eval_parse_local(LocalRoot local, addr *ret, addr eval);
+_g void copy_eval_parse_heap(addr *ret, addr eval);
 
-int parse_macro_lambda_list(addr *ret, addr args);
-int findmacro_environment(addr symbol, addr env, addr *ret);
-int macroexpand1(addr *ret, addr form, addr env, int *result);
-int macroexpand(addr *ret, addr form, addr env, int *result);
+_g int parse_macro_lambda_list(addr *ret, addr args);
+_g int findmacro_environment(addr symbol, addr env, addr *ret);
+_g int macroexpand1(addr *ret, addr form, addr env, int *result);
+_g int macroexpand(addr *ret, addr form, addr env, int *result);
 
 #endif
 

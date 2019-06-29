@@ -12,7 +12,7 @@
 /*
  *  oneplus
  */
-void oneplus_complex_heap(LocalRoot local, addr pos, addr *ret)
+_g void oneplus_complex_heap(LocalRoot local, addr pos, addr *ret)
 {
 	enum ComplexType type;
 	addr real, imag;
@@ -42,7 +42,7 @@ void oneplus_complex_heap(LocalRoot local, addr pos, addr *ret)
 	complex_heap(ret, real, imag);
 }
 
-void oneminus_complex_heap(LocalRoot local, addr pos, addr *ret)
+_g void oneminus_complex_heap(LocalRoot local, addr pos, addr *ret)
 {
 	enum ComplexType type;
 	addr real, imag;
@@ -104,7 +104,7 @@ static int plus_real_complex(addr left, addr right, addr *ret)
 	}
 }
 
-void plus_rational_complex_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_rational_complex_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	addr real, imag;
 
@@ -119,25 +119,25 @@ void plus_rational_complex_common(LocalRoot local, addr left, addr right, addr *
 	}
 }
 
-void plus_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
 	plus_rational_complex_common(local, left, right, ret);
 }
 
-void plus_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
 	plus_rational_complex_common(local, left, right, ret);
 }
 
-void plus_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
 	plus_rational_complex_common(local, left, right, ret);
 }
 
-void plus_sc_number_common(addr left, addr right, addr *ret)
+_g void plus_sc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -145,7 +145,7 @@ void plus_sc_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void plus_dc_number_common(addr left, addr right, addr *ret)
+_g void plus_dc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -153,7 +153,7 @@ void plus_dc_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void plus_lc_number_common(addr left, addr right, addr *ret)
+_g void plus_lc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -180,7 +180,7 @@ static void plus_cc_rational_common(LocalRoot local, addr left, addr right, addr
 	rollback_local(local, stack);
 }
 
-void plus_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	struct mathcomplex2_struct str;
 
@@ -275,7 +275,7 @@ static int minus_complex_real(addr left, addr right, addr *ret)
 	}
 }
 
-void minus_rational_complex_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_rational_complex_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	LocalStack stack;
 	addr a, b;
@@ -295,7 +295,7 @@ void minus_rational_complex_common(LocalRoot local, addr left, addr right, addr 
 	}
 }
 
-void minus_complex_rational_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_complex_rational_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	LocalStack stack;
 	addr a, b;
@@ -314,43 +314,43 @@ void minus_complex_rational_common(LocalRoot local, addr left, addr right, addr 
 	}
 }
 
-void minus_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_fc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_FIXNUM);
 	minus_rational_complex_common(local, left, right, ret);
 }
 
-void minus_cf_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_cf_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_FIXNUM);
 	minus_complex_rational_common(local, left, right, ret);
 }
 
-void minus_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_bc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_BIGNUM);
 	minus_rational_complex_common(local, left, right, ret);
 }
 
-void minus_cb_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_cb_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_BIGNUM);
 	minus_complex_rational_common(local, left, right, ret);
 }
 
-void minus_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_rc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_RATIO);
 	minus_rational_complex_common(local, left, right, ret);
 }
 
-void minus_cr_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_cr_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	CheckType(right, LISPTYPE_RATIO);
 	minus_complex_rational_common(local, left, right, ret);
 }
 
-void minus_sc_number_common(addr left, addr right, addr *ret)
+_g void minus_sc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -358,7 +358,7 @@ void minus_sc_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void minus_cs_number_common(addr left, addr right, addr *ret)
+_g void minus_cs_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
@@ -366,7 +366,7 @@ void minus_cs_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void minus_dc_number_common(addr left, addr right, addr *ret)
+_g void minus_dc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -374,7 +374,7 @@ void minus_dc_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void minus_cd_number_common(addr left, addr right, addr *ret)
+_g void minus_cd_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
@@ -382,7 +382,7 @@ void minus_cd_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void minus_lc_number_common(addr left, addr right, addr *ret)
+_g void minus_lc_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
@@ -390,7 +390,7 @@ void minus_lc_number_common(addr left, addr right, addr *ret)
 		fmte("Type error", NULL);
 }
 
-void minus_cl_number_common(addr left, addr right, addr *ret)
+_g void minus_cl_number_common(addr left, addr right, addr *ret)
 {
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_LONG_FLOAT);
@@ -418,7 +418,7 @@ static void minus_cc_rational_common(LocalRoot local, addr left, addr right, add
 	rollback_local(local, stack);
 }
 
-void minus_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	struct mathcomplex2_struct str;
 

@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "define.h"
 
 #ifdef _WIN32
 
@@ -25,10 +26,11 @@
 #include <inttypes.h>
 
 #endif
-#endif
 
-const char *setlocale_c(int category);
-int vsnprintc(char *, size_t, const char *, va_list);
-int snprintc(char *, size_t, const char *, ...);
-int sscanc(const char *buffer, const char *fmt, ...);
+_g const char *setlocale_c(int category);
+_g int vsnprintc(char *, size_t, const char *, va_list);
+_g int snprintc(char *, size_t, const char *, ...);
+_g int sscanc(const char *buffer, const char *fmt, ...);
+
+#endif
 

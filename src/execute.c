@@ -34,9 +34,9 @@ size_t *Degrade_execute_Position(void) { return &Position; }
 #endif
 
 /* thread local */
-threadlocal ThreadLocal_Execute;
-threadlocal ThreadLocal_Index;
-threadlocal ThreadLocal_Local;
+_g threadlocal ThreadLocal_Execute;
+_g threadlocal ThreadLocal_Index;
+_g threadlocal ThreadLocal_Local;
 
 
 /*
@@ -54,7 +54,7 @@ static void free_execute_local(void)
 	destroy_threadlocal(ThreadLocal_Index);
 	destroy_threadlocal(ThreadLocal_Local);
 }
-void set_execute_local(struct execute *ptr)
+_g void set_execute_local(struct execute *ptr)
 {
 	set_threadlocal(ThreadLocal_Execute, (void *)ptr);
 	set_threadlocal(ThreadLocal_Index, (void *)&ptr->index);
@@ -167,7 +167,7 @@ static int init_mainthread(struct execute **ptr, size_t size)
 	return 0;
 }
 
-int init_execute(size_t size)
+_g int init_execute(size_t size)
 {
 	struct execute **ptr;
 
@@ -218,7 +218,7 @@ error1:
 	return 1;
 }
 
-void free_execute(void)
+_g void free_execute(void)
 {
 	size_t i;
 	struct execute *bit;
@@ -325,14 +325,14 @@ finish:
 	return 0;
 }
 
-void setstate_execute(struct execute *ptr, enum ThreadState value)
+_g void setstate_execute(struct execute *ptr, enum ThreadState value)
 {
 	lock_mutexlite(&Mutex);
 	ptr->state = value;
 	unlock_mutexlite(&Mutex);
 }
 
-int make_execute(execfunction proc, struct execute **ret, size_t size)
+_g int make_execute(execfunction proc, struct execute **ret, size_t size)
 {
 	struct execute *ptr;
 
@@ -358,7 +358,7 @@ int make_execute(execfunction proc, struct execute **ret, size_t size)
 	return 0;
 }
 
-int join_execute(struct execute *ptr)
+_g int join_execute(struct execute *ptr)
 {
 	int result;
 
@@ -399,7 +399,7 @@ error:
 	return 1;
 }
 
-size_t count_execute(void)
+_g size_t count_execute(void)
 {
 	size_t i, count;
 
@@ -412,12 +412,12 @@ size_t count_execute(void)
 	return count;
 }
 
-int joinindex_execute(size_t index)
+_g int joinindex_execute(size_t index)
 {
 	return join_execute(ExecuteArray[index]);
 }
 
-struct execute *getexecute(size_t index)
+_g struct execute *getexecute(size_t index)
 {
 	struct execute *result;
 
@@ -433,7 +433,7 @@ struct execute *getexecute(size_t index)
 	return result;
 }
 
-void exitexecute(struct execute *ptr, lispcode code)
+_g void exitexecute(struct execute *ptr, lispcode code)
 {
 	if (ptr == NULL || (! GetPropertyExecute(ptr, LISPPROP_JUMP))) {
 		Debug("exitexecute error");
@@ -442,7 +442,7 @@ void exitexecute(struct execute *ptr, lispcode code)
 	exit_code(ptr, code);
 }
 
-void exitindex(size_t index, lispcode code)
+_g void exitindex(size_t index, lispcode code)
 {
 	struct execute *ptr;
 
@@ -455,7 +455,7 @@ void exitindex(size_t index, lispcode code)
 	exitexecute(ptr, code);
 }
 
-void abortexecute(struct execute *ptr)
+_g void abortexecute(struct execute *ptr)
 {
 	if (ptr == NULL || (! GetPropertyExecute(ptr, LISPPROP_JUMP))) {
 		if (ptr == NULL || ptr->index == 0) {
@@ -470,7 +470,7 @@ void abortexecute(struct execute *ptr)
 	exitexecute(ptr, LISPCODE_ABORT);
 }
 
-void abortindex(size_t index)
+_g void abortindex(size_t index)
 {
 	struct execute *ptr;
 
@@ -493,7 +493,7 @@ void abortindex(size_t index)
 /*
  *  codejump
  */
-int begin_code_check(Execute ptr, lispcode *code)
+_g int begin_code_check(Execute ptr, lispcode *code)
 {
 	if (GetPropertyExecute(ptr, LISPPROP_JUMP)) {
 		*code = LISPCODE_CONFLICT;
@@ -505,83 +505,83 @@ int begin_code_check(Execute ptr, lispcode *code)
 	}
 }
 
-void end_code(Execute ptr)
+_g void end_code(Execute ptr)
 {
 	SetPropertyExecute((ptr), LISPPROP_JUMP, 0);
 	ClearJmpBuf(ptr->exec);
 }
-void end_code_thread(void)
+_g void end_code_thread(void)
 {
 	end_code(Execute_Thread);
 }
 
-int code_run_p(lispcode code)
+_g int code_run_p(lispcode code)
 {
 	return code == LISPCODE_EXECUTE;
 }
-int code_end_p(lispcode code)
+_g int code_end_p(lispcode code)
 {
 	return code == LISPCODE_SUCCESS;
 }
-int code_error_p(lispcode code)
+_g int code_error_p(lispcode code)
 {
 	return code >= LISPCODE_ERROR;
 }
 
-void begin_switch_check(Execute ptr, codejump *code)
+_g void begin_switch_check(Execute ptr, codejump *code)
 {
 	Check(! GetPropertyExecute(ptr, LISPPROP_JUMP), "begin_switch error");
 	code->ptr = ptr;
 	CopyJmpBuf(&(code->jump), ptr->exec);
 }
 
-void end_switch(codejump *code)
+_g void end_switch(codejump *code)
 {
 	Execute ptr = code->ptr;
 	CopyJmpBuf(ptr->exec, &(code->jump));
 }
 
-int codejump_run_p(codejump *code)
+_g int codejump_run_p(codejump *code)
 {
 	return code_run_p(code->code);
 }
-int codejump_end_p(codejump *code)
+_g int codejump_end_p(codejump *code)
 {
 	return code_end_p(code->code);
 }
-int codejump_error_p(codejump *code)
+_g int codejump_error_p(codejump *code)
 {
 	return code_error_p(code->code);
 }
 
-void exit_code(Execute ptr, lispcode code)
+_g void exit_code(Execute ptr, lispcode code)
 {
 	longjmp(*(ptr->exec), code);
 }
-void exit_code_thread(lispcode code)
+_g void exit_code_thread(lispcode code)
 {
 	exit_code(Execute_Thread, code);
 }
 
-void break_code(Execute ptr)
+_g void break_code(Execute ptr)
 {
 	exit_code(ptr, LISPCODE_SUCCESS);
 }
-void break_code_thread(void)
+_g void break_code_thread(void)
 {
 	break_code(Execute_Thread);
 }
 
-void throw_code(Execute ptr, lispcode code)
+_g void throw_code(Execute ptr, lispcode code)
 {
 	if (code_error_p(code))
 		exit_code(ptr, code);
 }
-void throw_code_thread(lispcode code)
+_g void throw_code_thread(lispcode code)
 {
 	throw_code(Execute_Thread, code);
 }
-void throw_switch(codejump *code)
+_g void throw_switch(codejump *code)
 {
 	throw_code(code->ptr, code->code);
 }
@@ -590,7 +590,7 @@ void throw_switch(codejump *code)
 /*
  *  gc sync
  */
-void gcstate_execute(void)
+_g void gcstate_execute(void)
 {
 	size_t i;
 	struct execute *ptr;
@@ -618,7 +618,7 @@ void gcstate_execute(void)
 	unlock_mutexlite(&Mutex);
 }
 
-void gcstart_execute(struct execute *ptr)
+_g void gcstart_execute(struct execute *ptr)
 {
 	size_t i;
 
@@ -643,7 +643,7 @@ loop:
 	unlock_mutexlite(&Mutex);
 }
 
-void gcwait_execute(struct execute *ptr)
+_g void gcwait_execute(struct execute *ptr)
 {
 	lock_mutexlite(&Mutex);
 	while (ptr->state != ThreadState_Run)
@@ -651,7 +651,7 @@ void gcwait_execute(struct execute *ptr)
 	unlock_mutexlite(&Mutex);
 }
 
-void gcend_execute(void)
+_g void gcend_execute(void)
 {
 	size_t i;
 	struct execute *ptr;
@@ -666,7 +666,7 @@ void gcend_execute(void)
 	unlock_mutexlite(&Mutex);
 }
 
-void foreach_execute(void (*call)(struct execute *))
+_g void foreach_execute(void (*call)(struct execute *))
 {
 	size_t i;
 	struct execute *ptr;
@@ -678,7 +678,7 @@ void foreach_execute(void (*call)(struct execute *))
 	}
 }
 
-int foreach_check_execute(int (*call)(struct execute *))
+_g int foreach_check_execute(int (*call)(struct execute *))
 {
 	size_t i;
 	struct execute *ptr;
@@ -698,7 +698,7 @@ int foreach_check_execute(int (*call)(struct execute *))
 /*
  *  exit
  */
-void exit_execute(int value)
+_g void exit_execute(int value)
 {
 	Execute ptr;
 

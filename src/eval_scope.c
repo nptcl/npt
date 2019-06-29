@@ -54,68 +54,68 @@ static void make_eval_scope(addr *ret, enum EVAL_PARSE parse, addr type, addr va
 /*
  *  eval-scope
  */
-struct eval_scope *structevalscope(addr pos)
+_g struct eval_scope *structevalscope(addr pos)
 {
 	Check(! eval_scope_p(pos), "type error");
 	return StructEvalScope_Low(pos);
 
 }
-enum EVAL_PARSE refevalscopetype(addr pos)
+_g enum EVAL_PARSE refevalscopetype(addr pos)
 {
 	Check(! eval_scope_p(pos), "type error");
 	return RefEvalScopeType_Low(pos);
 }
-void getevalscopetype(addr pos, enum EVAL_PARSE *ret)
+_g void getevalscopetype(addr pos, enum EVAL_PARSE *ret)
 {
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeType_Low(pos, ret);
 }
-void setevalscopetype(addr pos, enum EVAL_PARSE value)
+_g void setevalscopetype(addr pos, enum EVAL_PARSE value)
 {
 	Check(! eval_scope_p(pos), "type error");
 	SetEvalScopeType_Low(pos, value);
 }
-addr refevalscopethe(addr pos)
+_g addr refevalscopethe(addr pos)
 {
 	Check(! eval_scope_p(pos), "type error");
 	return RefEvalScopeThe_Low(pos);
 }
-void getevalscopethe(addr pos, addr *ret)
+_g void getevalscopethe(addr pos, addr *ret)
 {
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeThe_Low(pos, ret);
 }
-void setevalscopethe(addr pos, addr value)
+_g void setevalscopethe(addr pos, addr value)
 {
 	Check(! eval_scope_p(pos), "type error");
 	SetEvalScopeThe_Low(pos, value);
 }
-addr refevalscopevalue(addr pos)
+_g addr refevalscopevalue(addr pos)
 {
 	Check(! eval_scope_p(pos), "type error");
 	return RefEvalScopeValue_Low(pos);
 }
-void getevalscopevalue(addr pos, addr *ret)
+_g void getevalscopevalue(addr pos, addr *ret)
 {
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeValue_Low(pos, ret);
 }
-void setevalscopevalue(addr pos, addr value)
+_g void setevalscopevalue(addr pos, addr value)
 {
 	Check(! eval_scope_p(pos), "type error");
 	SetEvalScopeValue_Low(pos, value);
 }
-addr refevalscopeindex(addr pos, size_t index)
+_g addr refevalscopeindex(addr pos, size_t index)
 {
 	Check(! eval_scope_p(pos), "type error");
 	return RefEvalScopeIndex_Low(pos, index);
 }
-void getevalscopeindex(addr pos, size_t index, addr *ret)
+_g void getevalscopeindex(addr pos, size_t index, addr *ret)
 {
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeIndex_Low(pos, index, ret);
 }
-void setevalscopeindex(addr pos, size_t index, addr value)
+_g void setevalscopeindex(addr pos, size_t index, addr value)
 {
 	Check(! eval_scope_p(pos), "type error");
 	SetEvalScopeIndex_Low(pos, index, value);
@@ -844,7 +844,7 @@ static void let_applytable(Execute ptr, struct let_struct *str)
 static void ignore_checkvalue(addr stack)
 {
 	enum IgnoreType ignore;
-	int reference;
+	int reference, special;
 	addr key, table, symbol, value;
 
 	GetConst(SYSTEM_TABLE_VALUE, &key);
@@ -857,8 +857,9 @@ static void ignore_checkvalue(addr stack)
 		/* check ignore */
 		ignore = getignore_tablevalue(value);
 		reference = getreference_tablevalue(value);
+		special = getspecialp_tablevalue(value);
 
-		if (ignore == IgnoreType_None && (! reference)) {
+		if (ignore == IgnoreType_None && (! reference) && (! special)) {
 			fmtw("Unused variable ~S.", symbol, NULL);
 		}
 		if (ignore == IgnoreType_Ignore && reference) {
@@ -4019,7 +4020,7 @@ static int scope_eval(Execute ptr, addr *ret, addr eval)
 	return 0;
 }
 
-int eval_scope(Execute ptr, addr *ret, addr eval)
+_g int eval_scope(Execute ptr, addr *ret, addr eval)
 {
 	addr control;
 

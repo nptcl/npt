@@ -1,6 +1,7 @@
 #include "bignum.h"
 #include "build.h"
 #include "cmpl.h"
+#include "cmpl_arch.h"
 #include "cmpl_math.h"
 #include "condition.h"
 #include "equal.h"
@@ -13,51 +14,51 @@
 #include "real_float.h"
 #include "type.h"
 
-int complexp(addr pos)
+_g int complexp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_COMPLEX;
 }
 
-void setreal_complex(addr pos, addr value)
+_g void setreal_complex(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_COMPLEX);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetRealComplex_Low(pos, value);
 }
 
-void getreal_complex(addr pos, addr *ret)
+_g void getreal_complex(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_COMPLEX);
 	GetRealComplex_Low(pos, ret);
 }
 
-void setimag_complex(addr pos, addr value)
+_g void setimag_complex(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_COMPLEX);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetImagComplex_Low(pos, value);
 }
 
-void getimag_complex(addr pos, addr *ret)
+_g void getimag_complex(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_COMPLEX);
 	GetImagComplex_Low(pos, ret);
 }
 
-void settype_complex(addr pos, int value)
+_g void settype_complex(addr pos, int value)
 {
 	CheckType(pos, LISPTYPE_COMPLEX);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetTypeComplex_Low(pos, value);
 }
 
-enum ComplexType gettype_complex(addr pos)
+_g enum ComplexType gettype_complex(addr pos)
 {
 	CheckType(pos, LISPTYPE_COMPLEX);
 	return GetTypeComplex_Low(pos);
 }
 
-enum ComplexType getcomplex(addr pos, enum ComplexType *type, addr *real, addr *imag)
+_g enum ComplexType getcomplex(addr pos, enum ComplexType *type, addr *real, addr *imag)
 {
 	CheckType(pos, LISPTYPE_COMPLEX);
 	*type = GetTypeComplex_Low(pos);
@@ -66,7 +67,7 @@ enum ComplexType getcomplex(addr pos, enum ComplexType *type, addr *real, addr *
 	return *type;
 }
 
-enum ComplexType getcomplexr(addr pos, addr *real, addr *imag)
+_g enum ComplexType getcomplexr(addr pos, addr *real, addr *imag)
 {
 	CheckType(pos, LISPTYPE_COMPLEX);
 	GetRealComplex_Low(pos, real);
@@ -79,7 +80,7 @@ enum ComplexType getcomplexr(addr pos, addr *real, addr *imag)
  *  rational complex  -> #c(1/2 3)
  *  float complex     -> #c(0.5 3.0)
  */
-void make_complex_unsafe(LocalRoot local, addr *ret, enum ComplexType type)
+_g void make_complex_unsafe(LocalRoot local, addr *ret, enum ComplexType type)
 {
 	alloc_array2(local, ret, LISPTYPE_COMPLEX, 2);
 	SetTypeComplex(*ret, type);
@@ -495,24 +496,24 @@ static void complex1_alloc(LocalRoot local, addr *ret, addr real)
 	}
 }
 
-void complex_alloc(LocalRoot local, addr *ret, addr real, addr imag)
+_g void complex_alloc(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	if (imag == Unbound)
 		complex1_alloc(local, ret, real);
 	else
 		complex2_alloc(local, ret, real, imag);
 }
-void complex_local(LocalRoot local, addr *ret, addr real, addr imag)
+_g void complex_local(LocalRoot local, addr *ret, addr real, addr imag)
 {
 	Check(local == NULL, "local error");
 	complex_alloc(local, ret, real, imag);
 }
-void complex_heap(addr *ret, addr real, addr imag)
+_g void complex_heap(addr *ret, addr real, addr imag)
 {
 	complex_alloc(NULL, ret, real, imag);
 }
 
-void complex_single_alloc(LocalRoot local,
+_g void complex_single_alloc(LocalRoot local,
 		addr *ret, single_float real, single_float imag)
 {
 	addr pos1, pos2;
@@ -521,19 +522,19 @@ void complex_single_alloc(LocalRoot local,
 	single_float_check_alloc(local, &pos2, imag);
 	complex_unsafe_alloc(local, ret, pos1, pos2, ComplexType_single);
 }
-void complex_single_local(LocalRoot local,
+_g void complex_single_local(LocalRoot local,
 		addr *ret, single_float real, single_float imag)
 {
 	Check(local == NULL, "local error");
 	complex_single_alloc(local, ret, real, imag);
 }
-void complex_single_heap(addr *ret,
+_g void complex_single_heap(addr *ret,
 		single_float real, single_float imag)
 {
 	complex_single_alloc(NULL, ret, real, imag);
 }
 
-void complex_double_alloc(LocalRoot local,
+_g void complex_double_alloc(LocalRoot local,
 		addr *ret, double_float real, double_float imag)
 {
 	addr pos1, pos2;
@@ -542,19 +543,19 @@ void complex_double_alloc(LocalRoot local,
 	double_float_check_alloc(local, &pos2, imag);
 	complex_unsafe_alloc(local, ret, pos1, pos2, ComplexType_double);
 }
-void complex_double_local(LocalRoot local,
+_g void complex_double_local(LocalRoot local,
 		addr *ret, double_float real, double_float imag)
 {
 	Check(local == NULL, "local error");
 	complex_double_alloc(local, ret, real, imag);
 }
-void complex_double_heap(addr *ret,
+_g void complex_double_heap(addr *ret,
 		double_float real, double_float imag)
 {
 	complex_double_alloc(NULL, ret, real, imag);
 }
 
-void complex_long_alloc(LocalRoot local,
+_g void complex_long_alloc(LocalRoot local,
 		addr *ret, long_float real, long_float imag)
 {
 	addr pos1, pos2;
@@ -563,19 +564,19 @@ void complex_long_alloc(LocalRoot local,
 	long_float_check_alloc(local, &pos2, imag);
 	complex_unsafe_alloc(local, ret, pos1, pos2, ComplexType_long);
 }
-void complex_long_local(LocalRoot local,
+_g void complex_long_local(LocalRoot local,
 		addr *ret, long_float real, long_float imag)
 {
 	Check(local == NULL, "local error");
 	complex_long_alloc(local, ret, real, imag);
 }
-void complex_long_heap(addr *ret,
+_g void complex_long_heap(addr *ret,
 		long_float real, long_float imag)
 {
 	complex_long_alloc(NULL, ret, real, imag);
 }
 
-void complex_copy_alloc(LocalRoot local, addr pos, addr *ret)
+_g void complex_copy_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	enum ComplexType type;
 	addr real, imag;
@@ -586,17 +587,17 @@ void complex_copy_alloc(LocalRoot local, addr pos, addr *ret)
 	real_copy_alloc(local, imag, &imag);
 	complex_unsafe_alloc(local, ret, real, imag, type);
 }
-void complex_copy_local(LocalRoot local, addr pos, addr *ret)
+_g void complex_copy_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	complex_copy_alloc(local, pos, ret);
 }
-void complex_copy_heap(addr pos, addr *ret)
+_g void complex_copy_heap(addr pos, addr *ret)
 {
 	complex_copy_alloc(NULL, pos, ret);
 }
 
-void complex_result_local(LocalRoot local, addr pos, addr *ret)
+_g void complex_result_local(LocalRoot local, addr pos, addr *ret)
 {
 	addr real, imag;
 
@@ -613,7 +614,7 @@ void complex_result_local(LocalRoot local, addr pos, addr *ret)
 		complex_local(local, ret, real, imag);
 	}
 }
-void complex_result_heap(LocalRoot local, addr pos, addr *ret)
+_g void complex_result_heap(LocalRoot local, addr pos, addr *ret)
 {
 	addr real, imag;
 
@@ -631,7 +632,7 @@ void complex_result_heap(LocalRoot local, addr pos, addr *ret)
 	}
 }
 
-void complex_throw_alloc(LocalRoot local, addr pos, addr *ret)
+_g void complex_throw_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	Check(GetType(pos) != LISPTYPE_COMPLEX, "type error");
 	if (GetStatusDynamic(pos))
@@ -639,13 +640,13 @@ void complex_throw_alloc(LocalRoot local, addr pos, addr *ret)
 	else
 		*ret = pos;
 }
-void complex_throw_local(LocalRoot local, addr pos, addr *ret)
+_g void complex_throw_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	complex_throw_alloc(local, pos, ret);
 }
 
-void complex_throw_heap(addr pos, addr *ret)
+_g void complex_throw_heap(addr pos, addr *ret)
 {
 	complex_throw_alloc(NULL, pos, ret);
 }
@@ -673,7 +674,7 @@ static enum ComplexType complex_force_type(addr pos)
 	}
 }
 
-void complex_force_heap(addr *ret, addr real, addr imag, enum ComplexType type)
+_g void complex_force_heap(addr *ret, addr real, addr imag, enum ComplexType type)
 {
 	addr pos;
 
@@ -698,7 +699,7 @@ void complex_force_heap(addr *ret, addr real, addr imag, enum ComplexType type)
 	*ret = pos;
 }
 
-void single_float_complex(addr pos, single_float *re, single_float *im)
+_g void single_float_complex(addr pos, single_float *re, single_float *im)
 {
 	addr real, imag;
 
@@ -731,7 +732,7 @@ void single_float_complex(addr pos, single_float *re, single_float *im)
 	}
 }
 
-void double_float_complex(addr pos, double_float *re, double_float *im)
+_g void double_float_complex(addr pos, double_float *re, double_float *im)
 {
 	addr real, imag;
 
@@ -764,7 +765,7 @@ void double_float_complex(addr pos, double_float *re, double_float *im)
 	}
 }
 
-void long_float_complex(addr pos, long_float *re, long_float *im)
+_g void long_float_complex(addr pos, long_float *re, long_float *im)
 {
 	addr real, imag;
 
@@ -806,7 +807,7 @@ static int zerop_call_complex(addr pos, int (*call)(addr))
 	return call(check);
 }
 
-int zerop_complex(addr pos)
+_g int zerop_complex(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_COMPLEX, "type error");
 	switch (GetTypeComplex(pos)) {
@@ -828,7 +829,7 @@ int zerop_complex(addr pos)
 	}
 }
 
-int eql_complex(addr left, addr right)
+_g int eql_complex(addr left, addr right)
 {
 	addr check1, check2;
 
@@ -843,7 +844,7 @@ int eql_complex(addr left, addr right)
 	return eql_function(check1, check2);
 }
 
-int equal_complex(LocalRoot local, addr left, addr right)
+_g int equal_complex(LocalRoot local, addr left, addr right)
 {
 	addr check1, check2;
 
@@ -858,7 +859,7 @@ int equal_complex(LocalRoot local, addr left, addr right)
 	return equal_real(local, check1, check2);
 }
 
-int equal_fc_number(addr left, addr right)
+_g int equal_fc_number(addr left, addr right)
 {
 	addr check;
 
@@ -871,7 +872,7 @@ int equal_fc_number(addr left, addr right)
 	return equal_fixnum_real(left, check);
 }
 
-int equal_bc_number(addr left, addr right)
+_g int equal_bc_number(addr left, addr right)
 {
 	addr check;
 
@@ -884,7 +885,7 @@ int equal_bc_number(addr left, addr right)
 	return equal_bignum_real(left, check);
 }
 
-int equal_rc_number(LocalRoot local, addr left, addr right)
+_g int equal_rc_number(LocalRoot local, addr left, addr right)
 {
 	addr check;
 
@@ -897,7 +898,7 @@ int equal_rc_number(LocalRoot local, addr left, addr right)
 	return equal_ratio_real(local, left, check);
 }
 
-int equal_sc_number(LocalRoot local, addr left, addr right)
+_g int equal_sc_number(LocalRoot local, addr left, addr right)
 {
 	addr check;
 
@@ -910,7 +911,7 @@ int equal_sc_number(LocalRoot local, addr left, addr right)
 	return equal_single_float_real(local, left, check);
 }
 
-int equal_dc_number(LocalRoot local, addr left, addr right)
+_g int equal_dc_number(LocalRoot local, addr left, addr right)
 {
 	addr check;
 
@@ -923,7 +924,7 @@ int equal_dc_number(LocalRoot local, addr left, addr right)
 	return equal_double_float_real(local, left, check);
 }
 
-int equal_lc_number(LocalRoot local, addr left, addr right)
+_g int equal_lc_number(LocalRoot local, addr left, addr right)
 {
 	addr check;
 
@@ -936,7 +937,7 @@ int equal_lc_number(LocalRoot local, addr left, addr right)
 	return equal_long_float_real(local, left, check);
 }
 
-void sign_reverse_complex_common(addr pos, addr *ret)
+_g void sign_reverse_complex_common(addr pos, addr *ret)
 {
 	enum ComplexType type;
 	addr real, imag;
@@ -970,7 +971,7 @@ void sign_reverse_complex_common(addr pos, addr *ret)
 	complex_unsafe_heap(ret, real, imag, type);
 }
 
-void sign_reverse_complex_local(LocalRoot local, addr pos, addr *ret)
+_g void sign_reverse_complex_local(LocalRoot local, addr pos, addr *ret)
 {
 	enum ComplexType type;
 	addr real, imag;
@@ -1009,7 +1010,7 @@ void sign_reverse_complex_local(LocalRoot local, addr pos, addr *ret)
 /*
  *  abs
  */
-void abs_complex_common(addr pos, addr *ret)
+_g void abs_complex_common(addr pos, addr *ret)
 {
 	addr real, imag;
 	single_float vf, v2;
@@ -1085,7 +1086,7 @@ static void signum_complex_long(addr pos, addr *ret)
 		complex_long_heap(ret, real/denom, imag/denom);
 }
 
-void signum_complex_common(addr pos, addr *ret)
+_g void signum_complex_common(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_COMPLEX);
 	switch (GetTypeComplex(pos)) {

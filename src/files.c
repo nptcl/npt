@@ -1,5 +1,4 @@
 #include "files.h"
-#include "pathname.h"
 
 #if defined(LISP_POSIX)
 #include "files_posix.h"

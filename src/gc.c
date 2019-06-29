@@ -320,7 +320,7 @@ static void replacespace(void)
 /*
  *  mergespace
  */
-int sizeobject(addr pos, size_t *ret)
+static int sizeobject(addr pos, size_t *ret)
 {
 	switch (GetType(pos)) {
 		case LISPSYSTEM_SPACE1:
@@ -384,7 +384,7 @@ static void mergespace(void)
 /*
  *  interface
  */
-void gcexec(void)
+_g void gcexec(void)
 {
 	setallobject();
 	walkthrough();
@@ -393,7 +393,7 @@ void gcexec(void)
 	mergespace();
 }
 
-void gcsync(Execute ptr)
+_g void gcsync(Execute ptr)
 {
 	gcstart_execute(ptr);
 	if (ptr->index == 0) {
@@ -558,7 +558,7 @@ static int heap_check_space(void)
 	return 0;
 }
 
-void heap_check(void)
+_g void heap_check(void)
 {
 	info("HEAP-CHECK: start.");
 	info("HEAP-CHECK: check-reference.");

@@ -1890,7 +1890,7 @@ static void defun_ensure_structure(void)
 /*
  *  function
  */
-void init_syscall(void)
+_g void init_syscall(void)
 {
 	SetPointerSysCall(defun, empty, hello);
 	SetPointerSysCall(defun, dynamic, fixnum_plus);
@@ -1947,7 +1947,7 @@ void init_syscall(void)
 	SetPointerSysCall(defun, var2dynamic, ensure_structure);
 }
 
-void build_syscall(void)
+_g void build_syscall(void)
 {
 	/* system call */
 	defun_hello();

@@ -20,20 +20,20 @@ enum CodeType {
 	CodeType_Size
 };
 
-void init_code(void);
-void build_code(void);
-void code_heap(addr *ret, addr codeA4);
-void code_empty_heap(addr *ret);
-void function_empty_heap(addr *ret, addr name);
-const pointer *getcalltype_code(addr pos);
-void getarray_code(addr pos, addr *ret);
-void getargs_code(addr pos, addr *ret);
+_g void init_code(void);
+_g void build_code(void);
+_g void code_heap(addr *ret, addr codeA4);
+_g void code_empty_heap(addr *ret);
+_g void function_empty_heap(addr *ret, addr name);
+_g const pointer *getcalltype_code(addr pos);
+_g void getarray_code(addr pos, addr *ret);
+_g void getargs_code(addr pos, addr *ret);
 
-enum CodeType gettype_code(addr pos);
-void settype_code(addr pos, enum CodeType type);
-void getinfo_code(addr pos, addr *ret);
-void setinfo_code(addr pos, addr value);
-void syscall_code(LocalRoot local, addr *ret, pointer call, addr value);
+_g enum CodeType gettype_code(addr pos);
+_g void settype_code(addr pos, enum CodeType type);
+_g void getinfo_code(addr pos, addr *ret);
+_g void setinfo_code(addr pos, addr value);
+_g void syscall_code(LocalRoot local, addr *ret, pointer call, addr value);
 
 #endif
 

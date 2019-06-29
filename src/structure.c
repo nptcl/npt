@@ -5,7 +5,7 @@
 #include "structure.h"
 #include "symbol.h"
 
-int structure_instance_p(addr pos)
+_g int structure_instance_p(addr pos)
 {
 	addr super;
 
@@ -14,12 +14,12 @@ int structure_instance_p(addr pos)
 	return clos_subtype_p(pos, super);
 }
 
-int equalp_structure(addr left, addr right)
+_g int equalp_structure(addr left, addr right)
 {
 	return 0;
 }
 
-int equalrt_structure(addr left, addr right)
+_g int equalrt_structure(addr left, addr right)
 {
 	return 0;
 }
@@ -53,7 +53,7 @@ static void structure_instance(addr *ret, addr name)
 	*ret = instance;
 }
 
-void ensure_structure_common(Execute ptr, addr name, addr slots, addr rest)
+_g void ensure_structure_common(Execute ptr, addr name, addr slots, addr rest)
 {
 	addr instance, doc;
 
@@ -73,7 +73,7 @@ void ensure_structure_common(Execute ptr, addr name, addr slots, addr rest)
 /*
  *  copy-structure
  */
-void copy_structure_common(addr var, addr *ret)
+_g void copy_structure_common(addr var, addr *ret)
 {
 	*ret = Nil;
 }

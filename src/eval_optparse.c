@@ -52,7 +52,7 @@ static int speed_on(optvalue opt)
 static int checkparse(optvalue opt, addr pos);
 static int optparse(LocalRoot local, addr *ret, optvalue opt, addr pos);
 
-void optparse_extract(LocalRoot local,
+_g void optparse_extract(LocalRoot local,
 		addr *pos,
 		int *update,
 		optvalue opt,
@@ -2615,7 +2615,7 @@ static int optparse(LocalRoot local, addr *ret, optvalue opt, addr pos)
 	return result;
 }
 
-int eval_optparse(LocalRoot local, addr *ret, addr pos)
+_g int eval_optparse(LocalRoot local, addr *ret, addr pos)
 {
 	int result;
 	addr check;

@@ -611,7 +611,7 @@ static void copy_dispatch_readtable(addr from, addr to)
 	}
 }
 
-void copy_readtable(addr from, addr to)
+_g void copy_readtable(addr from, addr to)
 {
 	addr a, b;
 
@@ -633,7 +633,7 @@ void copy_readtable(addr from, addr to)
 	copy_dispatch_readtable(a, b);
 }
 
-void copy_readtable_heap(addr from, addr *ret)
+_g void copy_readtable_heap(addr from, addr *ret)
 {
 	addr to, a, b;
 
@@ -660,7 +660,7 @@ void copy_readtable_heap(addr from, addr *ret)
 	*ret = to;
 }
 
-void copy_default_readtable(addr pos)
+_g void copy_default_readtable(addr pos)
 {
 	int i;
 	addr one;
@@ -681,7 +681,7 @@ void copy_default_readtable(addr pos)
 	default_dispatch_readtype(one, '#');
 }
 
-void readtable_heap(addr *ret)
+_g void readtable_heap(addr *ret)
 {
 	addr pos, one;
 
@@ -718,7 +718,7 @@ static void setreadtype_readtable(addr pos, unicode code, addr type)
 	}
 }
 
-void make_dispatch_macro_character(addr pos, addr character, int nonterm)
+_g void make_dispatch_macro_character(addr pos, addr character, int nonterm)
 {
 	unicode code;
 	addr type, call;
@@ -784,7 +784,7 @@ static void get_default_dispatch_sharp(addr code, addr *ret)
 	*ret = Nil;
 }
 
-void get_default_dispatch_macro(addr code1, addr code2, addr *ret)
+_g void get_default_dispatch_macro(addr code1, addr code2, addr *ret)
 {
 	unicode u;
 
@@ -849,7 +849,7 @@ error:
 	return 1;
 }
 
-void get_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr *ret)
+_g void get_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr *ret)
 {
 	addr check;
 
@@ -871,7 +871,7 @@ error:
 	fmte("The character ~S is not dispatch macro.", check, NULL);
 }
 
-void rem_dispatch_macro_character(addr pos, unicode u1, unicode u2)
+_g void rem_dispatch_macro_character(addr pos, unicode u1, unicode u2)
 {
 	addr check, key;
 
@@ -897,7 +897,7 @@ error:
 	fmte("The character ~S is not dispatch macro.", check, NULL);
 }
 
-void set_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr call)
+_g void set_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr call)
 {
 	addr check, cons;
 
@@ -943,7 +943,7 @@ error:
 		return; \
 	} \
 }
-void get_default_macro_character(unicode u, addr *ret, int *nonterm)
+_g void get_default_macro_character(unicode u, addr *ret, int *nonterm)
 {
 	addr pos;
 
@@ -959,7 +959,7 @@ void get_default_macro_character(unicode u, addr *ret, int *nonterm)
 	*nonterm = 0;
 }
 
-void get_macro_character(addr pos, unicode u, addr *ret, int *nonterm)
+_g void get_macro_character(addr pos, unicode u, addr *ret, int *nonterm)
 {
 	addr type;
 	struct readtype_struct *str;
@@ -987,7 +987,7 @@ void get_macro_character(addr pos, unicode u, addr *ret, int *nonterm)
 	}
 }
 
-void set_macro_character(addr pos, unicode u, int nonterm, addr call)
+_g void set_macro_character(addr pos, unicode u, int nonterm, addr call)
 {
 	addr type;
 	enum ReadTable_Type value;
@@ -1121,7 +1121,7 @@ static void setdispatch_default(addr pos, unicode u, addr call)
 	default_dispatch_readtype(one, u);
 }
 
-void set_syntax_from_default(unicode u1, unicode u2, addr to)
+_g void set_syntax_from_default(unicode u1, unicode u2, addr to)
 {
 	addr pos;
 
@@ -1178,7 +1178,7 @@ static void copy_dispatch_macro(unicode u1, unicode u2, addr to, addr from)
 	}
 }
 
-void set_syntax_from_char(unicode u1, unicode u2, addr to, addr from)
+_g void set_syntax_from_char(unicode u1, unicode u2, addr to, addr from)
 {
 	addr one, type, call;
 	struct readtype_struct *str;
@@ -2000,19 +2000,19 @@ static int readtable_front(Execute ptr,
 /*
  *  read
  */
-enum ReadTable_Case getcase_readtable(addr pos)
+_g enum ReadTable_Case getcase_readtable(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_READTABLE, "type error");
 	return *PtrCaseReadtable(pos);
 }
 
-void setcase_readtable(addr pos, enum ReadTable_Case mode)
+_g void setcase_readtable(addr pos, enum ReadTable_Case mode)
 {
 	Check(GetType(pos) != LISPTYPE_READTABLE, "type error");
 	*PtrCaseReadtable(pos) = mode;
 }
 
-void getreadtable(Execute ptr, addr *ret)
+_g void getreadtable(Execute ptr, addr *ret)
 {
 	addr pos;
 
@@ -2030,7 +2030,7 @@ static int read_call(Execute ptr, addr stream, int *result, addr *ret)
 	return readtable_front(ptr, result, ret, stream, table);
 }
 
-int read_stream(Execute ptr, addr stream, int *result, addr *ret)
+_g int read_stream(Execute ptr, addr stream, int *result, addr *ret)
 {
 	int check;
 	addr control, info;
@@ -2041,7 +2041,7 @@ int read_stream(Execute ptr, addr stream, int *result, addr *ret)
 	return free_check_control(ptr, control, check);
 }
 
-int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
+_g int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
 {
 	int check;
 	addr control, info;
@@ -2053,7 +2053,7 @@ int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
 	return free_check_control(ptr, control, check);
 }
 
-int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
+_g int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 {
 	int check;
 	addr control, info;
@@ -2064,7 +2064,7 @@ int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 	return free_check_control(ptr, control, check);
 }
 
-int read_from_string(int *result, addr *ret, addr pos)
+_g int read_from_string(int *result, addr *ret, addr pos)
 {
 	addr stream;
 
@@ -2075,7 +2075,7 @@ int read_from_string(int *result, addr *ret, addr pos)
 	return 0;
 }
 
-int readstring(addr *ret, const char *code)
+_g int readstring(addr *ret, const char *code)
 {
 	int result;
 	addr stream;
@@ -2088,7 +2088,7 @@ int readstring(addr *ret, const char *code)
 	return result;
 }
 
-addr readr(const char *code)
+_g addr readr(const char *code)
 {
 	addr pos;
 	if (readstring(&pos, code))
@@ -2331,7 +2331,7 @@ static int delimited_execute(Execute ptr, addr stream, unicode limit)
 	return 0;
 }
 
-int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursive)
+_g int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursive)
 {
 	int check;
 	addr control, info;
@@ -3773,7 +3773,7 @@ static void makeconstant(void)
 	SetStatusReadOnly(symbol);
 }
 
-void build_readtable(void)
+_g void build_readtable(void)
 {
 	addr table, constant;
 
@@ -3787,7 +3787,7 @@ void build_readtable(void)
 	SetValueSymbol(constant, table);
 }
 
-void in_package_lisp_package(void)
+_g void in_package_lisp_package(void)
 {
 	addr package, symbol;
 	Execute ptr;
@@ -3802,7 +3802,7 @@ void in_package_lisp_package(void)
 /*
  *  initialize
  */
-void init_readtable(void)
+_g void init_readtable(void)
 {
 	SetPointerCall(defun, var2, reader_double_quote);
 	SetPointerCall(defun, var2, reader_single_quote);

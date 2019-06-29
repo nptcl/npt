@@ -23,7 +23,7 @@ static void array_struct_copy(addr pos, addr array)
 	*str1 = *str2;
 }
 
-void array_size_copy(LocalRoot local, addr pos, addr array)
+_g void array_size_copy(LocalRoot local, addr pos, addr array)
 {
 	addr temp;
 	size_t size;
@@ -88,7 +88,7 @@ static void array_memory_copy(LocalRoot local, addr pos, addr array)
 	SetArrayInfo(pos, ARRAY_INFO_MEMORY, mem);
 }
 
-void array_copy_alloc(LocalRoot local, addr *ret, addr array)
+_g void array_copy_alloc(LocalRoot local, addr *ret, addr array)
 {
 	addr pos;
 
@@ -104,13 +104,13 @@ void array_copy_alloc(LocalRoot local, addr *ret, addr array)
 	*ret = pos;
 }
 
-void array_copy_local(LocalRoot local, addr *ret, addr array)
+_g void array_copy_local(LocalRoot local, addr *ret, addr array)
 {
 	Check(local == NULL, "local error");
 	array_copy_alloc(local, ret, array);
 }
 
-void array_copy_heap(addr *ret, addr array)
+_g void array_copy_heap(addr *ret, addr array)
 {
 	array_copy_alloc(NULL, ret, array);
 }

@@ -361,7 +361,7 @@ static void info_start(const char *fmt, ...)
 	va_end(args);
 }
 
-void info(const char *fmt, ...)
+_g void info(const char *fmt, ...)
 {
 	va_list args;
 
@@ -373,7 +373,7 @@ void info(const char *fmt, ...)
 	}
 }
 
-void info_noeol(const char *fmt, ...)
+_g void info_noeol(const char *fmt, ...)
 {
 	va_list args;
 
@@ -385,7 +385,7 @@ void info_noeol(const char *fmt, ...)
 	}
 }
 
-void infoerror(const char *first, int line, const char *func, const char *fmt, ...)
+_g void infoerror(const char *first, int line, const char *func, const char *fmt, ...)
 {
 	va_list args;
 
@@ -406,7 +406,7 @@ static void infotime(void)
 	info("  %s", buffer);
 }
 
-void infosystem(void)
+_g void infosystem(void)
 {
 	info("*** SYSTEM-INFORMATION BEGIN ***");
 	infotime();
@@ -510,7 +510,7 @@ static void infobit_info(addr pos)
 	}
 }
 
-void infobit(addr pos)
+_g void infobit(addr pos)
 {
 	info("*** LISPBIT BEGIN ***");
 	if (infobit_system(pos)) {
@@ -521,13 +521,13 @@ void infobit(addr pos)
 	info("*** LISPBIT END ***");
 }
 
-void infoprint(addr pos)
+_g void infoprint(addr pos)
 {
 	infoprint_stream(pos, 0);
 	info_eol();
 }
 
-void infoprint_noeol(addr pos)
+_g void infoprint_noeol(addr pos)
 {
 	infoprint_stream(pos, 0);
 }

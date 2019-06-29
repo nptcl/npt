@@ -23,113 +23,113 @@
 /*
  *  eval-object
  */
-addr eval_allocr(LocalRoot local, enum EVAL_TYPE type, byte array, byte body)
+_g addr eval_allocr(LocalRoot local, enum EVAL_TYPE type, byte array, byte body)
 {
 	addr pos;
 	alloc_smallsize(local, &pos, LISPTYPE_EVAL, array, body);
 	SetEvalType(pos, type);
 	return pos;
 }
-addr eval_heapr(enum EVAL_TYPE type, byte array, byte body)
+_g addr eval_heapr(enum EVAL_TYPE type, byte array, byte body)
 {
 	return eval_allocr(NULL, type, array, body);
 }
-addr eval_localr(LocalRoot local, enum EVAL_TYPE type, byte array, byte body)
+_g addr eval_localr(LocalRoot local, enum EVAL_TYPE type, byte array, byte body)
 {
 	Check(local == NULL, "local error");
 	return eval_allocr(local, type, array, body);
 }
-void eval_alloc(LocalRoot local, addr *ret, enum EVAL_TYPE type, byte array, byte body)
+_g void eval_alloc(LocalRoot local, addr *ret, enum EVAL_TYPE type, byte array, byte body)
 {
 	alloc_smallsize(local, ret, LISPTYPE_EVAL, array, body);
 	SetEvalType(*ret, type);
 }
-void eval_heap(addr *ret, enum EVAL_TYPE type, byte array, byte body)
+_g void eval_heap(addr *ret, enum EVAL_TYPE type, byte array, byte body)
 {
 	eval_alloc(NULL, ret, type, array, body);
 }
-void eval_local(LocalRoot local, addr *ret, enum EVAL_TYPE type, byte array, byte body)
+_g void eval_local(LocalRoot local, addr *ret, enum EVAL_TYPE type, byte array, byte body)
 {
 	Check(local == NULL, "local error");
 	eval_alloc(local, ret, type, array, body);
 }
 
-addr refeval(addr pos, size_t index)
+_g addr refeval(addr pos, size_t index)
 {
 	Check(GetType(pos) != LISPTYPE_EVAL, "type error");
 	return RefEval_Low(pos, index);
 }
-void geteval(addr pos, size_t index, addr *ret)
+_g void geteval(addr pos, size_t index, addr *ret)
 {
 	Check(GetType(pos) != LISPTYPE_EVAL, "type error");
 	GetEval_Low(pos, index, ret);
 }
-void seteval(addr pos, size_t index, addr value)
+_g void seteval(addr pos, size_t index, addr value)
 {
 	Check(GetType(pos) != LISPTYPE_EVAL, "type error");
 	SetEval_Low(pos, index, value);
 }
-enum EVAL_TYPE refevaltype(addr pos)
+_g enum EVAL_TYPE refevaltype(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_EVAL, "type error");
 	return RefEvalType_Low(pos);
 }
-void getevaltype(addr pos, enum EVAL_TYPE *ret)
+_g void getevaltype(addr pos, enum EVAL_TYPE *ret)
 {
 	Check(GetType(pos) != LISPTYPE_EVAL, "type error");
 	GetEvalType_Low(pos, ret);
 }
-void setevaltype(addr pos, enum EVAL_TYPE value)
+_g void setevaltype(addr pos, enum EVAL_TYPE value)
 {
 	Check(GetType(pos) != LISPTYPE_EVAL, "type error");
 	SetEvalType_Low(pos, value);
 }
 
-int eval_p(addr pos)
+_g int eval_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL;
 }
-int eval_declare_p(addr pos)
+_g int eval_declare_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_DECLARE;
 }
-int eval_declare_nil_p(addr pos)
+_g int eval_declare_nil_p(addr pos)
 {
 	return pos == Nil || eval_declare_p(pos);
 }
-int eval_parse_p(addr pos)
+_g int eval_parse_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_PARSE;
 }
-int eval_scope_p(addr pos)
+_g int eval_scope_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_SCOPE;
 }
-int eval_stack_p(addr pos)
+_g int eval_stack_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_STACK;
 }
-int eval_tablevalue_p(addr pos)
+_g int eval_tablevalue_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLEVALUE;
 }
-int eval_tablefunction_p(addr pos)
+_g int eval_tablefunction_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLEFUNCTION;
 }
-int eval_tablecall_p(addr pos)
+_g int eval_tablecall_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLECALL;
 }
-int eval_tabletagbody_p(addr pos)
+_g int eval_tabletagbody_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLETAGBODY;
 }
-int eval_tableblock_p(addr pos)
+_g int eval_tableblock_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLEBLOCK;
 }
-int eval_code_p(addr pos)
+_g int eval_code_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_CODE;
 }
@@ -138,45 +138,45 @@ int eval_code_p(addr pos)
 /*
  *  symbol
  */
-void symbol_evalwhen_eval(addr *ret)
+_g void symbol_evalwhen_eval(addr *ret)
 {
 	GetConst(SYSTEM_EVAL_SCOPE_EVAL_WHEN, ret);
 }
 
-void symbol_toplevel_eval(addr *ret)
+_g void symbol_toplevel_eval(addr *ret)
 {
 	GetConst(SYSTEM_EVAL_SCOPE_TOPLEVEL, ret);
 }
 
-void getevalwhen_eval(Execute ptr, addr *ret)
+_g void getevalwhen_eval(Execute ptr, addr *ret)
 {
 	addr symbol;
 	symbol_evalwhen_eval(&symbol);
 	getspecialcheck_local(ptr, symbol, ret);
 }
 
-void setevalwhen_eval(Execute ptr, addr value)
+_g void setevalwhen_eval(Execute ptr, addr value)
 {
 	addr symbol;
 	symbol_evalwhen_eval(&symbol);
 	setspecial_local(ptr, symbol, value);
 }
 
-void gettoplevel_eval(Execute ptr, addr *ret)
+_g void gettoplevel_eval(Execute ptr, addr *ret)
 {
 	addr symbol;
 	symbol_toplevel_eval(&symbol);
 	getspecialcheck_local(ptr, symbol, ret);
 }
 
-void settoplevel_eval(Execute ptr, addr value)
+_g void settoplevel_eval(Execute ptr, addr value)
 {
 	addr symbol;
 	symbol_toplevel_eval(&symbol);
 	setspecial_local(ptr, symbol, value);
 }
 
-void push_toplevel_eval(Execute ptr, addr value)
+_g void push_toplevel_eval(Execute ptr, addr value)
 {
 	addr symbol;
 
@@ -184,7 +184,7 @@ void push_toplevel_eval(Execute ptr, addr value)
 	pushspecial_control(ptr, symbol, value);
 }
 
-void push_evalwhen_eval(Execute ptr)
+_g void push_evalwhen_eval(Execute ptr)
 {
 	addr symbol, value;
 
@@ -193,7 +193,7 @@ void push_evalwhen_eval(Execute ptr)
 	pushspecial_control(ptr, symbol, value);
 }
 
-void push_evalwhen_load(Execute ptr)
+_g void push_evalwhen_load(Execute ptr)
 {
 	addr symbol, value;
 
@@ -202,7 +202,7 @@ void push_evalwhen_load(Execute ptr)
 	pushspecial_control(ptr, symbol, value);
 }
 
-int toplevelp_eval(Execute ptr)
+_g int toplevelp_eval(Execute ptr)
 {
 	addr pos;
 	symbol_toplevel_eval(&pos);
@@ -214,7 +214,7 @@ int toplevelp_eval(Execute ptr)
 /*
  *  macro
  */
-int eval_constantp_stable(addr var)
+_g int eval_constantp_stable(addr var)
 {
 	addr check;
 
@@ -234,7 +234,7 @@ int eval_constantp_stable(addr var)
 	}
 }
 
-int eval_constantp(addr var, addr env, int *result)
+_g int eval_constantp(addr var, addr env, int *result)
 {
 	int check;
 	addr pos;
@@ -252,7 +252,7 @@ int eval_constantp(addr var, addr env, int *result)
 /*
  *  eval
  */
-int eval_execute(Execute ptr, addr pos)
+_g int eval_execute(Execute ptr, addr pos)
 {
 	if (eval_parse(&pos, pos)) return 1;
 	/*eval_optparse(ptr->local, &pos, pos);*/
@@ -261,7 +261,7 @@ int eval_execute(Execute ptr, addr pos)
 	return runcode_control(ptr, pos);
 }
 
-int eval_stream(Execute ptr, addr stream)
+_g int eval_stream(Execute ptr, addr stream)
 {
 	int check;
 	addr pos;
@@ -278,7 +278,7 @@ int eval_stream(Execute ptr, addr stream)
 	return 0;
 }
 
-int eval_object(Execute ptr, addr eval, addr *ret)
+_g int eval_object(Execute ptr, addr eval, addr *ret)
 {
 	addr control;
 
@@ -423,7 +423,7 @@ static int eval_load_file(Execute ptr, int *result,
 		return eval_load_lisp(ptr, result, file, exist);
 }
 
-int eval_load(Execute ptr, int *result,
+_g int eval_load(Execute ptr, int *result,
 		addr file, addr verbose, addr print, int exist, addr external)
 {
 	int check;
@@ -439,7 +439,7 @@ int eval_load(Execute ptr, int *result,
 /*
  *  initialize
  */
-void init_eval(void)
+_g void init_eval(void)
 {
 	SetPointerType(empty, eval_load_finalize);
 	init_eval_main();

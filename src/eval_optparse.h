@@ -3,7 +3,7 @@
 
 #include "typedef.h"
 
-int eval_optparse(LocalRoot local, addr *ret, addr eval);
+_g int eval_optparse(LocalRoot local, addr *ret, addr eval);
 
 #endif
 

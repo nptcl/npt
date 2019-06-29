@@ -22,7 +22,7 @@ static void function_prin1(Execute ptr, addr var, addr stream)
 	format_print(ptr, &format);
 	format.escape = 1;
 	format.ptr = ptr;
-	if (write_print(&format, var, stream)) return;
+	if (write_print(&format, stream, var)) return;
 	setresult_control(ptr, var);
 }
 
@@ -57,7 +57,7 @@ static void function_princ(Execute ptr, addr var, addr stream)
 	format.escape = 0;
 	format.readably = 0;
 	format.ptr = ptr;
-	if (write_print(&format, var, stream)) return;
+	if (write_print(&format, stream, var)) return;
 	setresult_control(ptr, var);
 }
 
@@ -92,7 +92,7 @@ static void function_print(Execute ptr, addr var, addr stream)
 	format.escape = 1;
 	format.ptr = ptr;
 	terpri_stream(stream);
-	if (write_print(&format, var, stream)) return;
+	if (write_print(&format, stream, var)) return;
 	write_char_stream(stream, ' ');
 	setresult_control(ptr, var);
 }
@@ -123,7 +123,7 @@ static void function_prin1_to_string(Execute ptr, addr var)
 	format.escape = 1;
 	format.ptr = ptr;
 	open_output_string_stream(&stream, 0);
-	if (write_print(&format, var, stream)) return;
+	if (write_print(&format, stream, var)) return;
 	string_stream_heap(stream, &var);
 	close_stream(stream);
 	setresult_control(ptr, var);
@@ -156,7 +156,7 @@ static void function_princ_to_string(Execute ptr, addr var)
 	format.readably = 0;
 	format.ptr = ptr;
 	open_output_string_stream(&stream, 0);
-	if (write_print(&format, var, stream)) return;
+	if (write_print(&format, stream, var)) return;
 	string_stream_heap(stream, &var);
 	close_stream(stream);
 	setresult_control(ptr, var);
@@ -466,7 +466,7 @@ static void defun_format(void)
 /*
  *  function
  */
-void init_common_printer(void)
+_g void init_common_printer(void)
 {
 	SetPointerCall(defun, var1opt1, prin1);
 	SetPointerCall(defun, var1opt1, princ);
@@ -476,7 +476,7 @@ void init_common_printer(void)
 	SetPointerCall(defun, var2dynamic, format);
 }
 
-void build_common_printer(void)
+_g void build_common_printer(void)
 {
 	defun_prin1();
 	defun_princ();

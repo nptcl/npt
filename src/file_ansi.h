@@ -23,16 +23,16 @@
 #define fopen_append(x) fopen(x, "ab")
 #endif
 
-int init_file(void)
+_g int init_file(void)
 {
 	return 0;
 }
 
-void free_file(void)
+_g void free_file(void)
 {
 }
 
-int consolep_file(void)
+_g int consolep_file(void)
 {
 	return 0;
 }

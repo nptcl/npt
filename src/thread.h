@@ -11,37 +11,37 @@
  */
 #ifdef LISP_THREAD_SINGLE
 /* mutex */
-int make_mutexlite(mutexlite *mutex);
-void destroy_mutexlite(mutexlite *mutex);
-void lock_mutexlite(mutexlite *mutex);
-int trylock_mutexlite(mutexlite *mutex);
-void unlock_mutexlite(mutexlite *mutex);
+_g int make_mutexlite(mutexlite *mutex);
+_g void destroy_mutexlite(mutexlite *mutex);
+_g void lock_mutexlite(mutexlite *mutex);
+_g int trylock_mutexlite(mutexlite *mutex);
+_g void unlock_mutexlite(mutexlite *mutex);
 /* read / write */
-int make_rwlocklite(rwlocklite *lock);
-void destroy_rwlocklite(rwlocklite *lock);
-void rdlock_rwlocklite(rwlocklite *lock);
-void wrlock_rwlocklite(rwlocklite *lock);
-int tryrdlock_rwlocklite(rwlocklite *lock);
-int trywrlock_rwlocklite(rwlocklite *lock);
-void unrdlock_rwlocklite(rwlocklite *lock);
-void unwrlock_rwlocklite(rwlocklite *lock);
+_g int make_rwlocklite(rwlocklite *lock);
+_g void destroy_rwlocklite(rwlocklite *lock);
+_g void rdlock_rwlocklite(rwlocklite *lock);
+_g void wrlock_rwlocklite(rwlocklite *lock);
+_g int tryrdlock_rwlocklite(rwlocklite *lock);
+_g int trywrlock_rwlocklite(rwlocklite *lock);
+_g void unrdlock_rwlocklite(rwlocklite *lock);
+_g void unwrlock_rwlocklite(rwlocklite *lock);
 /* thread local */
-void make_threadlocal(threadlocal *key);
-void destroy_threadlocal(threadlocal key);
-const void *get_threadlocal(threadlocal key);
-void set_threadlocal(threadlocal key, const void *value);
+_g void make_threadlocal(threadlocal *key);
+_g void destroy_threadlocal(threadlocal key);
+_g const void *get_threadlocal(threadlocal key);
+_g void set_threadlocal(threadlocal key, const void *value);
 /* binary semaphore */
-void make_binsem(binsem *x);
-void destroy_binsem(binsem *x);
-void lock_binsem(binsem *x);
-int trylock_binsem(binsem *x);
-void unlock_binsem(binsem *x);
+_g void make_binsem(binsem *x);
+_g void destroy_binsem(binsem *x);
+_g void lock_binsem(binsem *x);
+_g int trylock_binsem(binsem *x);
+_g void unlock_binsem(binsem *x);
 /* condition variable */
-void make_condlite(condlite *x);
-void destroy_condlite(condlite *x);
-void wait_condlite(condlite *x, mutexlite *m);
-void signal_condlite(condlite *x);
-void broadcast_condlite(condlite *x);
+_g void make_condlite(condlite *x);
+_g void destroy_condlite(condlite *x);
+_g void wait_condlite(condlite *x, mutexlite *m);
+_g void signal_condlite(condlite *x);
+_g void broadcast_condlite(condlite *x);
 #endif
 
 
@@ -189,14 +189,14 @@ void broadcast_condlite(condlite *x);
 		threaderror(); \
 	} \
 }
-int trylock_semposix(semposix *sem);
+_g int trylock_semposix(semposix *sem);
 #define unlock_semposix(x) { \
 	if (sem_post(x)) { \
 		Debug("sem_post error"); \
 		threaderror(); \
 	} \
 }
-int get_semposix(semposix *sem);
+_g int get_semposix(semposix *sem);
 
 /* binary semaphore */
 #define make_binsem(x) make_semposix((x), 1);
@@ -253,7 +253,7 @@ int get_semposix(semposix *sem);
 #include <Synchapi.h>
 
 /* mutex */
-int make_mutexlite(mutexlite *);
+_g int make_mutexlite(mutexlite *);
 #define destroy_mutexlite DeleteCriticalSection
 #define lock_mutexlite EnterCriticalSection
 /* trylock_mutelite return zero if success. */
@@ -262,7 +262,7 @@ int make_mutexlite(mutexlite *);
 #define unlock_mutexlite LeaveCriticalSection
 
 /* read / write  [SRWLock Vista module] */
-int make_rwlocklite(rwlocklite *);
+_g int make_rwlocklite(rwlocklite *);
 #define destroy_rwlocklite(rw)
 #define rdlock_rwlocklite(rw) AcquireSRWLockShared(rw)
 #define wrlock_rwlocklite(rw) AcquireSRWLockExclusive(rw)
@@ -314,7 +314,7 @@ int make_rwlocklite(rwlocklite *);
 		threaderror(); \
 	} \
 }
-int trylock_semwindows(semwindows *ptr);
+_g int trylock_semwindows(semwindows *ptr);
 #define unlock_semwindows(x) { \
 	if (ReleaseSemaphore(*(x), 1, NULL) == 0) { \
 		Debug("ReleaseSemaphore (semaphore) error"); \
@@ -336,11 +336,11 @@ int trylock_semwindows(semwindows *ptr);
 #define lock_binsem lock_binsemlite
 #define unlock_binsem unlock_binsemlite
 #define trylock_binsem trylock_binsemlite
-void make_binsemlite(binsemlite *ptr);
-void destroy_binsemlite(binsemlite *ptr);
-void lock_binsemlite(binsemlite *ptr);
-void unlock_binsemlite(binsemlite *ptr);
-int trylock_binsemlite(binsemlite *ptr);
+_g void make_binsemlite(binsemlite *ptr);
+_g void destroy_binsemlite(binsemlite *ptr);
+_g void lock_binsemlite(binsemlite *ptr);
+_g void unlock_binsemlite(binsemlite *ptr);
+_g int trylock_binsemlite(binsemlite *ptr);
 
 /* condition variable */
 #define make_condlite(x) InitializeConditionVariable(x)
@@ -360,11 +360,11 @@ int trylock_binsemlite(binsemlite *ptr);
 /*
  *  tools
  */
-void threaderror(void);
-void wrlock2_rwlocklite(rwlocklite *, rwlocklite *);
-void unwrlock2_rwlocklite(rwlocklite *, rwlocklite *);
-void wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3);
-void unwrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3);
+_g void threaderror(void);
+_g void wrlock2_rwlocklite(rwlocklite *, rwlocklite *);
+_g void unwrlock2_rwlocklite(rwlocklite *, rwlocklite *);
+_g void wrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3);
+_g void unwrlock3_rwlocklite(rwlocklite *m1, rwlocklite *m2, rwlocklite *m3);
 
 #endif
 

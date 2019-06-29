@@ -28,7 +28,7 @@ static void array_settype_value(addr pos, enum ARRAY_TYPE type, unsigned size)
 	str->bytesize = size;
 }
 
-void array_settype(addr pos)
+_g void array_settype(addr pos)
 {
 	struct array_struct *str;
 	addr type;
@@ -38,7 +38,7 @@ void array_settype(addr pos)
 	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
 }
 
-void array_element_size(addr pos)
+_g void array_element_size(addr pos)
 {
 	struct array_struct *str;
 
@@ -71,7 +71,7 @@ void array_element_size(addr pos)
 	}
 }
 
-int array_equal_type(struct array_struct *a, enum ARRAY_TYPE type, unsigned size)
+_g int array_equal_type(struct array_struct *a, enum ARRAY_TYPE type, unsigned size)
 {
 	if (a->type != type)
 		return 0;
@@ -81,14 +81,14 @@ int array_equal_type(struct array_struct *a, enum ARRAY_TYPE type, unsigned size
 		return 1;
 }
 
-void array_element_type(addr pos, addr *ret)
+_g void array_element_type(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
 	GetArrayInfo(pos, ARRAY_INFO_TYPE, &pos);
 	type_object(ret, pos);
 }
 
-size_t array_vector_length(addr pos, int fill)
+_g size_t array_vector_length(addr pos, int fill)
 {
 	struct array_struct *str;
 
@@ -97,7 +97,7 @@ size_t array_vector_length(addr pos, int fill)
 	return fill? str->front: str->size;
 }
 
-void array_rowlength(addr pos, size_t *ret)
+_g void array_rowlength(addr pos, size_t *ret)
 {
 	struct array_struct *str;
 
@@ -106,7 +106,7 @@ void array_rowlength(addr pos, size_t *ret)
 	*ret = (str->fillpointer)? str->front: str->size;
 }
 
-int array_dimension_equal(addr a, addr b)
+_g int array_dimension_equal(addr a, addr b)
 {
 	struct array_struct *str1, *str2;
 	size_t size, i;
@@ -232,7 +232,7 @@ static void array_setsize(LocalRoot local, addr pos, addr value)
 	str->size = str->front = str->refer = size;
 }
 
-void array_setsize_heap(addr pos, addr value)
+_g void array_setsize_heap(addr pos, addr value)
 {
 	array_setsize(NULL, pos, value);
 }
@@ -244,14 +244,14 @@ static void array_allocate_t(LocalRoot local, addr pos, struct array_struct *str
 	SetArrayInfo(pos, ARRAY_INFO_MEMORY, array);
 }
 
-void array_allocate_bit(LocalRoot local, addr pos, struct array_struct *str)
+_g void array_allocate_bit(LocalRoot local, addr pos, struct array_struct *str)
 {
 	addr array;
 	bitmemory_unsafe(local, &array, str->size);
 	SetArrayInfo(pos, ARRAY_INFO_MEMORY, array);
 }
 
-void array_allocate_size(LocalRoot local, addr pos, struct array_struct *str)
+_g void array_allocate_size(LocalRoot local, addr pos, struct array_struct *str)
 {
 	addr array;
 	size_t size;
@@ -262,7 +262,7 @@ void array_allocate_size(LocalRoot local, addr pos, struct array_struct *str)
 	SetArrayInfo(pos, ARRAY_INFO_MEMORY, array);
 }
 
-void array_allocate(LocalRoot local, addr pos, struct array_struct *str)
+_g void array_allocate(LocalRoot local, addr pos, struct array_struct *str)
 {
 	switch (str->type) {
 		case ARRAY_TYPE_EMPTY:
@@ -348,7 +348,7 @@ static void array_memory_extend(LocalRoot local, addr pos,
 		array_memory_fill(pos, fill);
 }
 
-void array_memory_make(LocalRoot local, addr pos,
+_g void array_memory_make(LocalRoot local, addr pos,
 		addr adjustable, addr fillpointer, addr displaced, addr offset)
 {
 	int check1, check2, check3;
@@ -1206,7 +1206,7 @@ static void array_initial_contents(LocalRoot local, addr pos, addr contents)
 		array_contents_setf(local, pos, contents);
 }
 
-void array_initial_make(LocalRoot local, addr pos, addr initial, addr contents)
+_g void array_initial_make(LocalRoot local, addr pos, addr initial, addr contents)
 {
 	struct array_struct *str;
 
@@ -1229,7 +1229,7 @@ void array_initial_make(LocalRoot local, addr pos, addr initial, addr contents)
 	}
 }
 
-void make_array_common(addr *ret, addr dimension,
+_g void make_array_common(addr *ret, addr dimension,
 		addr type, addr initial, addr contents,
 		addr adjustable, addr fillpointer, addr displaced, addr offset)
 {
@@ -1292,7 +1292,7 @@ static void array_size_contents(LocalRoot local,
 	str->size = str->front = str->refer = size;
 }
 
-void array_contents_heap(addr *ret, addr rank, addr contents)
+_g void array_contents_heap(addr *ret, addr rank, addr contents)
 {
 	addr pos;
 
@@ -1333,7 +1333,7 @@ static void array_checkfill(addr pos, struct array_struct *str)
 	}
 }
 
-void array_character_alloc(LocalRoot local, addr pos)
+_g void array_character_alloc(LocalRoot local, addr pos)
 {
 	struct array_struct *str;
 
@@ -1345,7 +1345,7 @@ void array_character_alloc(LocalRoot local, addr pos)
 	array_allocate(local, pos, str);
 }
 
-void array_build_alloc(LocalRoot local, addr pos)
+_g void array_build_alloc(LocalRoot local, addr pos)
 {
 	struct array_struct *str;
 
@@ -1357,7 +1357,7 @@ void array_build_alloc(LocalRoot local, addr pos)
 	array_allocate(local, pos, str);
 }
 
-void array_build_heap(addr pos)
+_g void array_build_heap(addr pos)
 {
 	array_build_alloc(NULL, pos);
 }
@@ -1584,7 +1584,7 @@ static void array_getindex(LocalRoot local,
 	}
 }
 
-int array_get_t(addr pos, size_t index, addr *ret)
+_g int array_get_t(addr pos, size_t index, addr *ret)
 {
 	struct array_struct *str;
 
@@ -1596,7 +1596,7 @@ int array_get_t(addr pos, size_t index, addr *ret)
 	return 0;
 }
 
-int array_get_bit(addr pos, size_t index, int *ret)
+_g int array_get_bit(addr pos, size_t index, int *ret)
 {
 	struct array_struct *str;
 
@@ -1615,7 +1615,7 @@ int array_get_bit(addr pos, size_t index, int *ret)
 	return 0;
 }
 
-int array_get_unicode(addr pos, size_t index, unicode *ret)
+_g int array_get_unicode(addr pos, size_t index, unicode *ret)
 {
 	struct array_struct *str;
 
@@ -1635,7 +1635,7 @@ int array_get_unicode(addr pos, size_t index, unicode *ret)
 	return 0;
 }
 
-void array_get(LocalRoot local, addr pos, size_t index, addr *ret)
+_g void array_get(LocalRoot local, addr pos, size_t index, addr *ret)
 {
 	addr mem;
 	arraymemory_get(pos, index, &mem, &index);
@@ -1706,7 +1706,7 @@ static void arraymemory_setlong(addr pos, size_t index, long_float value)
 	((long_float *)arrayspec_ptr(pos))[index] = value;
 }
 
-int array_set_bit(LocalRoot local, addr pos, size_t index, int value)
+_g int array_set_bit(LocalRoot local, addr pos, size_t index, int value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1732,7 +1732,7 @@ int array_set_bit(LocalRoot local, addr pos, size_t index, int value)
 	return 0;
 }
 
-int array_set_character(LocalRoot local, addr pos, size_t index, unicode value)
+_g int array_set_character(LocalRoot local, addr pos, size_t index, unicode value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1756,7 +1756,7 @@ int array_set_character(LocalRoot local, addr pos, size_t index, unicode value)
 	return 0;
 }
 
-int array_set_signed8(LocalRoot local, addr pos, size_t index, int8_t value)
+_g int array_set_signed8(LocalRoot local, addr pos, size_t index, int8_t value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1780,7 +1780,7 @@ int array_set_signed8(LocalRoot local, addr pos, size_t index, int8_t value)
 	return 0;
 }
 
-int array_set_signed16(LocalRoot local, addr pos, size_t index, int16_t value)
+_g int array_set_signed16(LocalRoot local, addr pos, size_t index, int16_t value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1804,7 +1804,7 @@ int array_set_signed16(LocalRoot local, addr pos, size_t index, int16_t value)
 	return 0;
 }
 
-int array_set_signed32(LocalRoot local, addr pos, size_t index, int32_t value)
+_g int array_set_signed32(LocalRoot local, addr pos, size_t index, int32_t value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1829,7 +1829,7 @@ int array_set_signed32(LocalRoot local, addr pos, size_t index, int32_t value)
 }
 
 #ifdef LISP_64BIT
-int array_set_signed64(LocalRoot local, addr pos, size_t index, int64_t value)
+_g int array_set_signed64(LocalRoot local, addr pos, size_t index, int64_t value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1854,7 +1854,7 @@ int array_set_signed64(LocalRoot local, addr pos, size_t index, int64_t value)
 }
 #endif
 
-int array_set_unsigned8(LocalRoot local, addr pos, size_t index, uint8_t value)
+_g int array_set_unsigned8(LocalRoot local, addr pos, size_t index, uint8_t value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1878,7 +1878,7 @@ int array_set_unsigned8(LocalRoot local, addr pos, size_t index, uint8_t value)
 	return 0;
 }
 
-int array_set_unsigned16(LocalRoot local, addr pos, size_t index, uint16_t value)
+_g int array_set_unsigned16(LocalRoot local, addr pos, size_t index, uint16_t value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1902,7 +1902,7 @@ int array_set_unsigned16(LocalRoot local, addr pos, size_t index, uint16_t value
 	return 0;
 }
 
-int array_set_unsigned32(LocalRoot local, addr pos, size_t index, uint32_t value)
+_g int array_set_unsigned32(LocalRoot local, addr pos, size_t index, uint32_t value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1927,7 +1927,7 @@ int array_set_unsigned32(LocalRoot local, addr pos, size_t index, uint32_t value
 }
 
 #ifdef LISP_64BIT
-int array_set_unsigned64(LocalRoot local, addr pos, size_t index, uint64_t value)
+_g int array_set_unsigned64(LocalRoot local, addr pos, size_t index, uint64_t value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1952,7 +1952,7 @@ int array_set_unsigned64(LocalRoot local, addr pos, size_t index, uint64_t value
 }
 #endif
 
-int array_set_single(LocalRoot local, addr pos, size_t index, single_float value)
+_g int array_set_single(LocalRoot local, addr pos, size_t index, single_float value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -1976,7 +1976,7 @@ int array_set_single(LocalRoot local, addr pos, size_t index, single_float value
 	return 0;
 }
 
-int array_set_double(LocalRoot local, addr pos, size_t index, double_float value)
+_g int array_set_double(LocalRoot local, addr pos, size_t index, double_float value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -2000,7 +2000,7 @@ int array_set_double(LocalRoot local, addr pos, size_t index, double_float value
 	return 0;
 }
 
-int array_set_long(LocalRoot local, addr pos, size_t index, long_float value)
+_g int array_set_long(LocalRoot local, addr pos, size_t index, long_float value)
 {
 	addr temp;
 	struct array_struct *str;
@@ -2024,7 +2024,7 @@ int array_set_long(LocalRoot local, addr pos, size_t index, long_float value)
 	return 0;
 }
 
-void array_set(addr pos, size_t index, addr value)
+_g void array_set(addr pos, size_t index, addr value)
 {
 	struct array_struct *str;
 	addr mem;
@@ -2072,7 +2072,7 @@ static void array_setget_type(addr p1, addr m1, size_t s1, addr m2, size_t s2)
 	}
 }
 
-void array_setget(addr p1, size_t s1, addr p2, size_t s2)
+_g void array_setget(addr p1, size_t s1, addr p2, size_t s2)
 {
 	struct array_struct *str1, *str2;
 	addr m1, m2;
@@ -2115,7 +2115,7 @@ static void array_get_inplace_type(addr pos,
 	memcpy(&(str->value), data, element);
 }
 
-void array_get_inplace(addr pos, size_t index, struct array_value *value)
+_g void array_get_inplace(addr pos, size_t index, struct array_value *value)
 {
 	struct array_struct *str;
 
@@ -2150,7 +2150,7 @@ static void array_set_inplace_type(addr pos,
 	memcpy(data, &(str->value), element);
 }
 
-int array_set_inplace(addr pos, size_t index, const struct array_value *value)
+_g int array_set_inplace(addr pos, size_t index, const struct array_value *value)
 {
 	struct array_struct *str;
 
@@ -2216,19 +2216,19 @@ static size_t array_arefindex(addr pos, addr args)
 	return index;
 }
 
-void array_aref(LocalRoot local, addr pos, addr args, addr *ret)
+_g void array_aref(LocalRoot local, addr pos, addr args, addr *ret)
 {
 	size_t index = array_arefindex(pos, args);
 	array_get(local, pos, index, ret);
 }
 
-void array_setf_aref(addr pos, addr args, addr value)
+_g void array_setf_aref(addr pos, addr args, addr value)
 {
 	size_t index = array_arefindex(pos, args);
 	array_set(pos, index, value);
 }
 
-void array_aref_bit(LocalRoot local, addr pos, addr args, addr *ret)
+_g void array_aref_bit(LocalRoot local, addr pos, addr args, addr *ret)
 {
 	int value;
 	size_t index;
@@ -2239,7 +2239,7 @@ void array_aref_bit(LocalRoot local, addr pos, addr args, addr *ret)
 	fixnum_alloc(local, ret, (fixnum)value);
 }
 
-void array_setf_aref_bit(addr pos, addr args, addr value)
+_g void array_setf_aref_bit(addr pos, addr args, addr value)
 {
 	int check;
 	size_t index;
@@ -2251,7 +2251,7 @@ void array_setf_aref_bit(addr pos, addr args, addr value)
 	array_set(pos, index, value);
 }
 
-void array_array_dimension(addr array, addr axis, addr *ret)
+_g void array_array_dimension(addr array, addr axis, addr *ret)
 {
 	struct array_struct *str;
 	size_t index, dimension;
@@ -2276,7 +2276,7 @@ void array_array_dimension(addr array, addr axis, addr *ret)
 	make_index_integer_alloc(NULL, ret, index);
 }
 
-void array_array_dimensions(addr array, addr *ret)
+_g void array_array_dimensions(addr array, addr *ret)
 {
 	struct array_struct *str;
 	const size_t *data;
@@ -2296,7 +2296,7 @@ void array_array_dimensions(addr array, addr *ret)
 	*ret = root;
 }
 
-void array_array_displacement(addr array, addr *displaced, addr *offset)
+_g void array_array_displacement(addr array, addr *displaced, addr *offset)
 {
 	struct array_struct *str;
 
@@ -2312,7 +2312,7 @@ void array_array_displacement(addr array, addr *displaced, addr *offset)
 	}
 }
 
-int array_array_in_bounds_p(addr array, addr rest)
+_g int array_array_in_bounds_p(addr array, addr rest)
 {
 	int result;
 	struct array_struct *str;
@@ -2350,13 +2350,13 @@ int array_array_in_bounds_p(addr array, addr rest)
 	return result;
 }
 
-void array_array_row_major_index(addr array, addr rest, addr *ret)
+_g void array_array_row_major_index(addr array, addr rest, addr *ret)
 {
 	size_t value = array_arefindex(array, rest);
 	*ret = intsizeh(value);
 }
 
-int array_fill_pointer(addr array, addr *ret)
+_g int array_fill_pointer(addr array, addr *ret)
 {
 	struct array_struct *str;
 
@@ -2367,7 +2367,7 @@ int array_fill_pointer(addr array, addr *ret)
 	return 0;
 }
 
-int array_setf_fill_pointer(addr array, addr value)
+_g int array_setf_fill_pointer(addr array, addr value)
 {
 	struct array_struct *str;
 	size_t size;
@@ -2385,7 +2385,7 @@ int array_setf_fill_pointer(addr array, addr value)
 	return 0;
 }
 
-int array_fill_pointer_start(addr array)
+_g int array_fill_pointer_start(addr array)
 {
 	struct array_struct *str;
 
@@ -2399,7 +2399,7 @@ int array_fill_pointer_start(addr array)
 	}
 }
 
-int array_fill_pointer_end(addr array)
+_g int array_fill_pointer_end(addr array)
 {
 	struct array_struct *str;
 
@@ -2410,7 +2410,7 @@ int array_fill_pointer_end(addr array)
 		return 0;
 }
 
-int array_fill_pointer_set(addr array, size_t size)
+_g int array_fill_pointer_set(addr array, size_t size)
 {
 	struct array_struct *str;
 
@@ -2484,7 +2484,7 @@ static void array_value_unsigned(LocalRoot local,
 	}
 }
 
-void array_value_alloc(LocalRoot local, addr *ret, const struct array_value *str)
+_g void array_value_alloc(LocalRoot local, addr *ret, const struct array_value *str)
 {
 	switch (str->type) {
 		case ARRAY_TYPE_BIT:
@@ -2521,13 +2521,13 @@ void array_value_alloc(LocalRoot local, addr *ret, const struct array_value *str
 	}
 }
 
-void array_value_local(LocalRoot local, addr *ret, const struct array_value *str)
+_g void array_value_local(LocalRoot local, addr *ret, const struct array_value *str)
 {
 	Check(local == NULL, "local error");
 	array_value_alloc(local, ret, str);
 }
 
-void array_value_heap(addr *ret, const struct array_value *str)
+_g void array_value_heap(addr *ret, const struct array_value *str)
 {
 	array_value_alloc(NULL, ret, str);
 }

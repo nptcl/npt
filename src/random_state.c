@@ -20,7 +20,7 @@
 static int InitRandomState = 0;
 static mutexlite Mutex;
 
-struct random_state *struct_random_state(addr pos)
+_g struct random_state *struct_random_state(addr pos)
 {
 	CheckType(pos, LISPTYPE_RANDOM_STATE);
 	return PtrBodyRandomState(pos);
@@ -267,7 +267,7 @@ static void random_seed_os(struct md5encode *md5)
 /*
  *  interface
  */
-int init_random_state(void)
+_g int init_random_state(void)
 {
 	if (InitRandomState) {
 		Debug("InitRandomState error.");
@@ -282,7 +282,7 @@ int init_random_state(void)
 	return 0;
 }
 
-void free_random_state(void)
+_g void free_random_state(void)
 {
 	if (InitRandomState) {
 		destroy_mutexlite(&Mutex);
@@ -310,7 +310,7 @@ static void make_random_seed(struct md5encode *md5)
 	ptr = NULL;
 }
 
-void random_state_alloc(LocalRoot local, addr *ret)
+_g void random_state_alloc(LocalRoot local, addr *ret)
 {
 	addr pos;
 
@@ -319,12 +319,12 @@ void random_state_alloc(LocalRoot local, addr *ret)
 	memset(struct_random_state(pos), 0, sizeoft(struct random_state));
 	*ret = pos;
 }
-void random_state_local(LocalRoot local, addr *ret)
+_g void random_state_local(LocalRoot local, addr *ret)
 {
 	Check(local == NULL, "local error");
 	random_state_alloc(local, ret);
 }
-void random_state_heap(addr *ret)
+_g void random_state_heap(addr *ret)
 {
 	random_state_alloc(NULL, ret);
 }
@@ -342,7 +342,7 @@ static void make_randomly_seed(struct random_state *ptr)
 	zeroset(result, MD5ENCODE_SIZE);
 }
 
-void copy_random_state(addr left, addr right)
+_g void copy_random_state(addr left, addr right)
 {
 	struct random_state *ptr1, *ptr2;
 
@@ -353,7 +353,7 @@ void copy_random_state(addr left, addr right)
 	memcpy(ptr1, ptr2, sizeoft(struct random_state));
 }
 
-void randomly_random_state(addr left)
+_g void randomly_random_state(addr left)
 {
 	struct random_state *ptr;
 
@@ -363,7 +363,7 @@ void randomly_random_state(addr left)
 	make_randomly_seed(ptr);
 }
 
-void constant_random_state(Execute ptr, addr left)
+_g void constant_random_state(Execute ptr, addr left)
 {
 	addr right;
 
@@ -374,7 +374,7 @@ void constant_random_state(Execute ptr, addr left)
 	copy_random_state(left, right);
 }
 
-void make_random_state_heap(Execute ptr, addr *ret, addr state)
+_g void make_random_state_heap(Execute ptr, addr *ret, addr state)
 {
 	addr pos;
 
@@ -398,7 +398,7 @@ void make_random_state_heap(Execute ptr, addr *ret, addr state)
 #define RANDOM_STATE_SIZE	4
 #define RANDOM_STATE_UNION	u32
 #endif
-void make_bignum_random_state_alloc(LocalRoot local, addr pos, addr *ret)
+_g void make_bignum_random_state_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	int i;
 	struct random_state *state;
@@ -411,18 +411,18 @@ void make_bignum_random_state_alloc(LocalRoot local, addr pos, addr *ret)
 	*ret = pos;
 }
 
-void make_bignum_random_state_local(LocalRoot local, addr pos, addr *ret)
+_g void make_bignum_random_state_local(LocalRoot local, addr pos, addr *ret)
 {
 	Check(local == NULL, "local error");
 	make_bignum_random_state_alloc(local, pos, ret);
 }
 
-void make_bignum_random_state_heap(addr pos, addr *ret)
+_g void make_bignum_random_state_heap(addr pos, addr *ret)
 {
 	make_bignum_random_state_alloc(NULL, pos, ret);
 }
 
-int equal_random_state_addr(addr left, addr right)
+_g int equal_random_state_addr(addr left, addr right)
 {
 	struct random_state *state1, *state2;
 

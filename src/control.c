@@ -81,7 +81,7 @@ struct control_struct {
 #define exit_control(ptr)			exit_code(ptr, LISPCODE_CONTROL);
 
 #ifdef LISP_DEBUG
-void output_result_execute(void)
+_g void output_result_execute(void)
 {
 	addr pos, value;
 	Execute ptr;
@@ -284,7 +284,7 @@ static int stack_check_control(Execute ptr)
 }
 #endif
 
-void pushlexical_control(Execute ptr, addr pos, addr value)
+_g void pushlexical_control(Execute ptr, addr pos, addr value)
 {
 	addr control, list, snapshot;
 
@@ -299,7 +299,7 @@ void pushlexical_control(Execute ptr, addr pos, addr value)
 	pushlexical_unsafe(ptr, pos, value);
 }
 
-void pushspecial_control(Execute ptr, addr pos, addr value)
+_g void pushspecial_control(Execute ptr, addr pos, addr value)
 {
 	addr control, list, snapshot;
 
@@ -314,7 +314,7 @@ void pushspecial_control(Execute ptr, addr pos, addr value)
 	pushspecial_unsafe(ptr, pos, value);
 }
 
-void pushcallname_control(Execute ptr, addr pos, addr value)
+_g void pushcallname_control(Execute ptr, addr pos, addr value)
 {
 	addr symbol;
 
@@ -325,7 +325,7 @@ void pushcallname_control(Execute ptr, addr pos, addr value)
 		pushsetf_control(ptr, symbol, value);
 }
 
-void pushfunction_control(Execute ptr, addr pos, addr value)
+_g void pushfunction_control(Execute ptr, addr pos, addr value)
 {
 	addr control, table, key, snapshot;
 
@@ -341,7 +341,7 @@ void pushfunction_control(Execute ptr, addr pos, addr value)
 	pushfunction_unsafe(ptr, pos, value);
 }
 
-void pushsetf_control(Execute ptr, addr pos, addr value)
+_g void pushsetf_control(Execute ptr, addr pos, addr value)
 {
 	addr control, table, key, snapshot;
 
@@ -420,33 +420,33 @@ static void push_stack_control(Execute ptr, addr *ret, enum ControlType_Index ty
 	push_control(ptr, type);
 	*ret = ptr->control;
 }
-void push_return_control(Execute ptr, addr *ret)
+_g void push_return_control(Execute ptr, addr *ret)
 {
 	push_stack_control(ptr, ret, ControlType_Return);
 }
-void push_push_control(Execute ptr, addr *ret)
+_g void push_push_control(Execute ptr, addr *ret)
 {
 	push_stack_control(ptr, ret, ControlType_Push);
 }
-void push_close_control(Execute ptr, addr *ret)
+_g void push_close_control(Execute ptr, addr *ret)
 {
 	push_stack_control(ptr, ret, ControlType_Close);
 }
-void push_local_control(Execute ptr, addr *ret)
+_g void push_local_control(Execute ptr, addr *ret)
 {
 	push_stack_control(ptr, ret, ControlType_Local);
 }
-void push_protect_control(Execute ptr, addr *ret)
+_g void push_protect_control(Execute ptr, addr *ret)
 {
 	push_stack_control(ptr, ret, ControlType_Protect);
 }
-void push_finalize_control(Execute ptr, addr *ret)
+_g void push_finalize_control(Execute ptr, addr *ret)
 {
 	push_stack_control(ptr, ret, ControlType_Finalize);
 	/* table allocate */
 	settable_control(ptr->local, *ret, CONSTANT_COMMON_UNWIND_PROTECT, Nil);
 }
-void setfinalize_control(Execute ptr, addr control, addr code)
+_g void setfinalize_control(Execute ptr, addr control, addr code)
 {
 	settable_control(ptr->local, control, CONSTANT_COMMON_UNWIND_PROTECT, code);
 }
@@ -459,7 +459,7 @@ static void push_block_control(Execute ptr, addr *ret)
 {
 	push_stack_control(ptr, ret, ControlType_Block);
 }
-void push_restart_control(Execute ptr, addr *ret)
+_g void push_restart_control(Execute ptr, addr *ret)
 {
 	push_stack_control(ptr, ret, ControlType_Restart);
 }
@@ -475,19 +475,19 @@ static void push_argument_control(Execute ptr, addr *ret)
 }
 
 /* free_control */
-void runcode_push(Execute ptr, struct runcode_value *value)
+_g void runcode_push(Execute ptr, struct runcode_value *value)
 {
 	value->signal = ptr->signal;
 	value->data = ptr->data;
 }
 
-void runcode_rollback(Execute ptr, const struct runcode_value *value)
+_g void runcode_rollback(Execute ptr, const struct runcode_value *value)
 {
 	ptr->signal = value->signal;
 	ptr->data = value->data;
 }
 
-int runcode_free_control(Execute ptr, addr control)
+_g int runcode_free_control(Execute ptr, addr control)
 {
 	struct runcode_value value;
 
@@ -498,7 +498,7 @@ int runcode_free_control(Execute ptr, addr control)
 	return 1;
 }
 
-int free_check_control(Execute ptr, addr control, int check)
+_g int free_check_control(Execute ptr, addr control, int check)
 {
 	if (check)
 		return runcode_free_control(ptr, control);
@@ -799,7 +799,7 @@ static void pop_control_unsafe(Execute ptr)
 	}
 }
 
-int free_control(Execute ptr, addr control)
+_g int free_control(Execute ptr, addr control)
 {
 	addr root;
 
@@ -825,24 +825,24 @@ int free_control(Execute ptr, addr control)
 /*
  *  getcontrol
  */
-void getdata_control(Execute ptr, addr *ret)
+_g void getdata_control(Execute ptr, addr *ret)
 {
 	GetControl(ptr->control, Control_Data, ret);
 }
 
-void setdata_control(Execute ptr, addr value)
+_g void setdata_control(Execute ptr, addr value)
 {
 	SetControl(ptr->control, Control_Data, value);
 }
 
-void array_data_control(Execute ptr, size_t size)
+_g void array_data_control(Execute ptr, size_t size)
 {
 	addr pos;
 	vector4_local(ptr->local, &pos, size);
 	SetControl(ptr->control, Control_Data, pos);
 }
 
-void getdata_array_control(Execute ptr, size_t index, addr *ret)
+_g void getdata_array_control(Execute ptr, size_t index, addr *ret)
 {
 	addr array;
 
@@ -851,7 +851,7 @@ void getdata_array_control(Execute ptr, size_t index, addr *ret)
 	GetArrayA4(array, index, ret);
 }
 
-void setdata_array_control(Execute ptr, size_t index, addr value)
+_g void setdata_array_control(Execute ptr, size_t index, addr value)
 {
 	addr array;
 
@@ -860,7 +860,7 @@ void setdata_array_control(Execute ptr, size_t index, addr value)
 	SetArrayA4(array, index, value);
 }
 
-void pushhandler_control(Execute ptr, addr name, addr call, int escape)
+_g void pushhandler_control(Execute ptr, addr name, addr call, int escape)
 {
 	addr pos;
 
@@ -880,7 +880,7 @@ void pushhandler_control(Execute ptr, addr name, addr call, int escape)
 	pushtable_control(ptr, CONSTANT_SYSTEM_HANDLER, pos);
 }
 
-void reverse_handler_control(Execute ptr)
+_g void reverse_handler_control(Execute ptr)
 {
 	addr control, cons;
 
@@ -890,12 +890,12 @@ void reverse_handler_control(Execute ptr)
 	settable_control(ptr->local, control, CONSTANT_SYSTEM_HANDLER, cons);
 }
 
-void pushobject_restart_control(Execute ptr, addr object)
+_g void pushobject_restart_control(Execute ptr, addr object)
 {
 	pushtable_control(ptr, CONSTANT_SYSTEM_RESTART, object);
 }
 
-void pushbind_restart_control(Execute ptr, addr list, int escape)
+_g void pushbind_restart_control(Execute ptr, addr list, int escape)
 {
 	addr name, form, inter, report, test, pos;
 
@@ -912,7 +912,7 @@ void pushbind_restart_control(Execute ptr, addr list, int escape)
 	pushobject_restart_control(ptr, pos);
 }
 
-void reverse_restart_control(Execute ptr)
+_g void reverse_restart_control(Execute ptr)
 {
 	addr control, cons;
 
@@ -959,7 +959,7 @@ static int wake_handler(Execute ptr, addr control, addr instance, addr array)
 	return 0;
 }
 
-int invoke_handler_control(Execute ptr, addr instance)
+_g int invoke_handler_control(Execute ptr, addr instance)
 {
 	int result;
 	addr control, cons, array;
@@ -1008,7 +1008,7 @@ static void rollback_restart_control(addr control, addr restart, addr *ret)
 	fmte("The restart ~S is invalid.", restart, NULL);
 }
 
-int invoke_restart_control(Execute ptr, addr restart, addr args)
+_g int invoke_restart_control(Execute ptr, addr restart, addr args)
 {
 	int escape;
 	addr call, info, control;
@@ -1039,7 +1039,7 @@ int invoke_restart_control(Execute ptr, addr restart, addr args)
 	return 0;
 }
 
-int invoke_restart_interactively_control(Execute ptr, addr restart)
+_g int invoke_restart_interactively_control(Execute ptr, addr restart)
 {
 	addr args;
 
@@ -1101,7 +1101,7 @@ static int find_restart_stack(Execute ptr, addr symbol, addr condition, addr *re
 	return 0; /* not found */
 }
 
-int find_restart_control(Execute ptr, addr name, addr condition, addr *ret)
+_g int find_restart_control(Execute ptr, addr name, addr condition, addr *ret)
 {
 	/* name = restart */
 	if (GetType(name) == LISPTYPE_RESTART) {
@@ -1124,7 +1124,7 @@ int find_restart_control(Execute ptr, addr name, addr condition, addr *ret)
 	return find_restart_stack(ptr, name, condition, ret);
 }
 
-void compute_restarts_control(Execute ptr, addr condition, addr *ret)
+_g void compute_restarts_control(Execute ptr, addr condition, addr *ret)
 {
 	addr control, root, list, restart;
 
@@ -1148,13 +1148,13 @@ void compute_restarts_control(Execute ptr, addr condition, addr *ret)
 /*
  *  argument
  */
-void setargs_control(Execute ptr, addr value)
+_g void setargs_control(Execute ptr, addr value)
 {
 	setargs_nil_control(ptr);
 	pushargs_control(ptr, value);
 }
 
-void setargs_va_control(Execute ptr, ...)
+_g void setargs_va_control(Execute ptr, ...)
 {
 	addr pos;
 	va_list args;
@@ -1169,7 +1169,7 @@ void setargs_va_control(Execute ptr, ...)
 	va_end(args);
 }
 
-void setargs_nil_control(Execute ptr)
+_g void setargs_nil_control(Execute ptr)
 {
 	addr root;
 
@@ -1179,19 +1179,19 @@ void setargs_nil_control(Execute ptr)
 	SetControl(root, Control_ConsTail, Nil);
 }
 
-void setargs_list_control(Execute ptr, addr list)
+_g void setargs_list_control(Execute ptr, addr list)
 {
 	setargs_nil_control(ptr);
 	pushargs_list_control(ptr, list);
 }
 
-void setargs_list_control_unsafe(Execute ptr, addr list)
+_g void setargs_list_control_unsafe(Execute ptr, addr list)
 {
 	SetControl(ptr->control, Control_Cons, list);
 	SetControl(ptr->control, Control_ConsTail, Nil);
 }
 
-void pushargs_control(Execute ptr, addr value)
+_g void pushargs_control(Execute ptr, addr value)
 {
 	addr root, cons, next;
 
@@ -1210,7 +1210,7 @@ void pushargs_control(Execute ptr, addr value)
 	}
 }
 
-void pushargs_list_control(Execute ptr, addr list)
+_g void pushargs_list_control(Execute ptr, addr list)
 {
 	addr pos;
 
@@ -1220,7 +1220,7 @@ void pushargs_list_control(Execute ptr, addr list)
 	}
 }
 
-void getargs_control(Execute ptr, size_t index, addr *ret)
+_g void getargs_control(Execute ptr, size_t index, addr *ret)
 {
 	addr root;
 
@@ -1229,7 +1229,7 @@ void getargs_control(Execute ptr, size_t index, addr *ret)
 	getnth_unbound_unsafe(root, index, ret);
 }
 
-void getargs_tail_control(Execute ptr, addr *ret)
+_g void getargs_tail_control(Execute ptr, addr *ret)
 {
 	addr cons;
 
@@ -1237,7 +1237,7 @@ void getargs_tail_control(Execute ptr, addr *ret)
 	GetCar(cons, ret);
 }
 
-void getargs_list_control_unsafe(Execute ptr, size_t index, addr *ret)
+_g void getargs_list_control_unsafe(Execute ptr, size_t index, addr *ret)
 {
 	addr root;
 
@@ -1246,7 +1246,7 @@ void getargs_list_control_unsafe(Execute ptr, size_t index, addr *ret)
 	getnthcdr_unsafe(root, index, ret);
 }
 
-void getargs_list_control_heap(Execute ptr, size_t index, addr *ret)
+_g void getargs_list_control_heap(Execute ptr, size_t index, addr *ret)
 {
 	addr cons;
 
@@ -1300,18 +1300,18 @@ static void nreverse_values_unsafe(Execute ptr)
 	SetControl(ptr->control, Control_Result, list);
 }
 
-void setresult_control(Execute ptr, addr value)
+_g void setresult_control(Execute ptr, addr value)
 {
 	setvalues_nil_control(ptr);
 	pushvalues_unsafe(ptr, value);
 }
 
-void setbool_control(Execute ptr, int value)
+_g void setbool_control(Execute ptr, int value)
 {
 	setresult_control(ptr, value? T: Nil);
 }
 
-void setvalues_control(Execute ptr, ...)
+_g void setvalues_control(Execute ptr, ...)
 {
 	addr pos;
 	va_list args;
@@ -1327,7 +1327,7 @@ void setvalues_control(Execute ptr, ...)
 	nreverse_values_unsafe(ptr);
 }
 
-void setvalues_nil_control(Execute ptr)
+_g void setvalues_nil_control(Execute ptr)
 {
 	addr root;
 
@@ -1337,7 +1337,7 @@ void setvalues_nil_control(Execute ptr)
 	close_result(root);
 }
 
-void setvalues_list_control(Execute ptr, addr list)
+_g void setvalues_list_control(Execute ptr, addr list)
 {
 	addr pos;
 
@@ -1349,7 +1349,7 @@ void setvalues_list_control(Execute ptr, addr list)
 	nreverse_values_unsafe(ptr);
 }
 
-void getresult_control(Execute ptr, addr *ret)
+_g void getresult_control(Execute ptr, addr *ret)
 {
 	addr root;
 
@@ -1360,7 +1360,7 @@ void getresult_control(Execute ptr, addr *ret)
 		*ret = Nil;
 }
 
-void getvalues_control(Execute ptr, size_t index, addr *ret)
+_g void getvalues_control(Execute ptr, size_t index, addr *ret)
 {
 	addr root;
 	struct control_struct *str;
@@ -1381,7 +1381,7 @@ void getvalues_control(Execute ptr, size_t index, addr *ret)
 	}
 }
 
-void getvalues_nil_control(Execute ptr, size_t index, addr *ret)
+_g void getvalues_nil_control(Execute ptr, size_t index, addr *ret)
 {
 	getvalues_control(ptr, index, ret);
 	if (*ret == Unbound) *ret = Nil;
@@ -1426,34 +1426,34 @@ static void getvalues_list_control(Execute ptr, LocalRoot local, addr *ret)
 	}
 }
 
-void getvalues_list_control_local(Execute ptr, addr *ret)
+_g void getvalues_list_control_local(Execute ptr, addr *ret)
 {
 	getvalues_list_control(ptr, ptr->local, ret);
 }
 
-void getvalues_list_control_heap(Execute ptr, addr *ret)
+_g void getvalues_list_control_heap(Execute ptr, addr *ret)
 {
 	getvalues_list_control(ptr, NULL, ret);
 }
 
-void getvalues_unsafe_control(Execute ptr, size_t index, addr *ret)
+_g void getvalues_unsafe_control(Execute ptr, size_t index, addr *ret)
 {
 	Check(ControlSize_Result <= index, "size error");
 	GetResultControl(ptr->control, index, ret);
 }
 
-void setvalues_unsafe_control(Execute ptr, size_t index, addr value)
+_g void setvalues_unsafe_control(Execute ptr, size_t index, addr value)
 {
 	Check(ControlSize_Result <= index, "size error");
 	SetResultControl(ptr->control, index, value);
 }
 
-size_t lengthvalues_control(Execute ptr)
+_g size_t lengthvalues_control(Execute ptr)
 {
 	return StructControl(ptr->control)->sizer;
 }
 
-void pushargs_allvalues(Execute ptr)
+_g void pushargs_allvalues(Execute ptr)
 {
 	int check;
 	addr root, pos, cons;
@@ -2168,7 +2168,7 @@ static void call_callbind_var4dynamic(Execute ptr, addr pos, callstr call)
 	(call->call.var4dynamic)(ptr, var1, var2, var3, var4, rest);
 }
 
-void init_control(void)
+_g void init_control(void)
 {
 	int i;
 
@@ -2231,7 +2231,7 @@ static int call_compiled_function(Execute ptr, addr compiled)
 #include <sys/time.h>
 static unsigned roottime = 0;
 static unsigned prevtime = 0;
-void output_timestamp(void)
+_g void output_timestamp(void)
 {
 	struct timeval now;
 	gettimeofday(&now, NULL);
@@ -2466,13 +2466,13 @@ static int runcode_restart(Execute ptr, addr code)
 	return runcode_free(ptr, control, code, runcode_switch);
 }
 
-int signal_control(Execute ptr)
+_g int signal_control(Execute ptr)
 {
 	Check(ptr->signal == ExecuteControl_Point, "signal error");
 	return ptr->signal != ExecuteControl_Run;
 }
 
-int runcode_control(Execute ptr, addr code)
+_g int runcode_control(Execute ptr, addr code)
 {
 	addr control;
 
@@ -2620,7 +2620,7 @@ static int execute_function(Execute ptr, addr pos)
 	return runcode_free(ptr, control, pos, execute_normal);
 }
 
-int execute_control(Execute ptr, addr call)
+_g int execute_control(Execute ptr, addr call)
 {
 	addr args;
 
@@ -2673,7 +2673,7 @@ static int checkargs_opt(addr array, addr *args)
 	return 0;
 }
 
-static void callargs_keyvalue(LocalRoot local, int keyvalue, addr cons, addr *ret)
+static void contargs_keyvalue(LocalRoot local, int keyvalue, addr cons, addr *ret)
 {
 	if (keyvalue == 0) {
 		/* name */
@@ -2686,7 +2686,7 @@ static void callargs_keyvalue(LocalRoot local, int keyvalue, addr cons, addr *re
 	}
 }
 
-static void callargs_key(LocalRoot local, int keyvalue, addr cons, addr *ret)
+static void contargs_key(LocalRoot local, int keyvalue, addr cons, addr *ret)
 {
 	addr pos, array;
 	size_t size, i;
@@ -2704,7 +2704,7 @@ static void callargs_key(LocalRoot local, int keyvalue, addr cons, addr *ret)
 	size = length_list_unsafe(cons);
 	if (size == 1) {
 		GetCar(cons, &pos);
-		callargs_keyvalue(local, keyvalue, pos, ret);
+		contargs_keyvalue(local, keyvalue, pos, ret);
 		return;
 	}
 
@@ -2712,7 +2712,7 @@ static void callargs_key(LocalRoot local, int keyvalue, addr cons, addr *ret)
 	vector4_local(local, &array, size);
 	for (i = 0; cons != Nil; i++) {
 		GetCons(cons, &pos, &cons);
-		callargs_keyvalue(local, keyvalue, pos, &pos);
+		contargs_keyvalue(local, keyvalue, pos, &pos);
 		SetArrayA4(array, i, pos);
 	}
 	type1_alloc(local, LISPDECL_OR, array, ret);
@@ -2738,7 +2738,7 @@ static int checkargs_restkey(LocalRoot local, addr array, addr args)
 		}
 		/* &key */
 		if (key != Nil) {
-			callargs_key(local, keyvalue, key, &type);
+			contargs_key(local, keyvalue, key, &type);
 			if (typep_asterisk_error(value, type))
 				return 1;
 		}
@@ -2747,7 +2747,7 @@ static int checkargs_restkey(LocalRoot local, addr array, addr args)
 	/* error check */
 	if (key != Nil && keyvalue)
 		fmte("Invalid keyword argument.", NULL);
-	
+
 	return 0;
 }
 
@@ -2791,7 +2791,7 @@ static int execute_typecheck(LocalRoot local, addr call, addr args)
 	return execute_checkargs(local, type, args);
 }
 
-int apply_control(Execute ptr, addr call, addr args)
+_g int apply_control(Execute ptr, addr call, addr args)
 {
 	Check(ptr->control == Nil, "root error");
 	Check(call == Unbound, "Function is Unbound.");
@@ -2812,14 +2812,14 @@ int apply_control(Execute ptr, addr call, addr args)
 	}
 }
 
-int stdarg_control(Execute ptr, addr call, va_list args)
+_g int stdarg_control(Execute ptr, addr call, va_list args)
 {
 	addr list;
 	list_alloc_stdarg(ptr->local, &list, args);
 	return apply_control(ptr, call, list);
 }
 
-int funcall_control(Execute ptr, addr call, ...)
+_g int funcall_control(Execute ptr, addr call, ...)
 {
 	int result;
 	va_list args;
@@ -2831,7 +2831,7 @@ int funcall_control(Execute ptr, addr call, ...)
 	return result;
 }
 
-int call_control(Execute ptr, addr args)
+_g int call_control(Execute ptr, addr args)
 {
 	addr call;
 
@@ -2840,7 +2840,7 @@ int call_control(Execute ptr, addr args)
 	return apply_control(ptr, call, args);
 }
 
-void goto_control(Execute ptr, size_t point)
+_g void goto_control(Execute ptr, size_t point)
 {
 	struct control_struct *str;
 
@@ -2871,7 +2871,7 @@ static int go_find_control(Execute ptr, addr *ret, addr tag)
 	return 0;
 }
 
-void go_control(Execute ptr, addr tag)
+_g void go_control(Execute ptr, addr tag)
 {
 	addr pos;
 	struct taginfo_struct *str;
@@ -2910,7 +2910,7 @@ static int return_from_find_control(Execute ptr, addr *next, addr *ret, addr nam
 	return 0;
 }
 
-void return_from_control(Execute ptr, addr name)
+_g void return_from_control(Execute ptr, addr name)
 {
 	addr pos, next;
 	struct taginfo_struct *str;
@@ -2929,7 +2929,7 @@ void return_from_control(Execute ptr, addr name)
 	ptr->data = (void *)str;
 }
 
-void catch_control(Execute ptr, addr name)
+_g void catch_control(Execute ptr, addr name)
 {
 	addr pos;
 	getcatch_control(ptr->control, &pos);
@@ -2957,7 +2957,7 @@ static int throw_find_control(Execute ptr, addr *next, addr *ret, addr name)
 	return 0;
 }
 
-void throw_control(Execute ptr, addr name)
+_g void throw_control(Execute ptr, addr name)
 {
 	addr pos, next;
 
@@ -2971,13 +2971,13 @@ void throw_control(Execute ptr, addr name)
 	ptr->data = (void *)StructTagInfo(pos);
 }
 
-void gettagbody_execute(Execute ptr, addr *ret, addr name)
+_g void gettagbody_execute(Execute ptr, addr *ret, addr name)
 {
 	if (! go_find_control(ptr, ret, name))
 		fmte("Cannot find tag name ~S", name, NULL);
 }
 
-void getblock_execute(Execute ptr, addr *ret, addr name)
+_g void getblock_execute(Execute ptr, addr *ret, addr name)
 {
 	addr temp;
 	if (! return_from_find_control(ptr, &temp, ret, name))
@@ -2995,7 +2995,7 @@ static void set_eval_control(LocalRoot local, addr control)
 	settable_control(local, control, CONSTANT_SYSTEM_EVAL_LEXICAL, T);
 }
 
-void hide_lexical_control(Execute ptr)
+_g void hide_lexical_control(Execute ptr)
 {
 	addr control, pos, list, symbol;
 
@@ -3016,7 +3016,7 @@ void hide_lexical_control(Execute ptr)
 /*
  *  C language
  */
-int callablep(addr pos)
+_g int callablep(addr pos)
 {
 	Check(pos == Unbound, "type error");
 	switch (GetType(pos)) {
@@ -3074,12 +3074,12 @@ static int values_apply(Execute ptr, LocalRoot local,
 	}
 }
 
-int callclang_values_apply_local(Execute ptr, addr *ret, addr call, addr cons)
+_g int callclang_values_apply_local(Execute ptr, addr *ret, addr call, addr cons)
 {
 	return values_apply(ptr, ptr->local, ret, call, cons);
 }
 
-int callclang_values_apply_heap(Execute ptr, addr *ret, addr call, addr cons)
+_g int callclang_values_apply_heap(Execute ptr, addr *ret, addr call, addr cons)
 {
 	return values_apply(ptr, NULL, ret, call, cons);
 }
@@ -3102,17 +3102,17 @@ static int values_stdarg(Execute ptr, LocalRoot local,
 	}
 }
 
-int callclang_values_stdarg_local(Execute ptr, addr *ret, addr call, va_list args)
+_g int callclang_values_stdarg_local(Execute ptr, addr *ret, addr call, va_list args)
 {
 	return values_stdarg(ptr, ptr->local, ret, call, args);
 }
 
-int callclang_values_stdarg_heap(Execute ptr, addr *ret, addr call, va_list args)
+_g int callclang_values_stdarg_heap(Execute ptr, addr *ret, addr call, va_list args)
 {
 	return values_stdarg(ptr, NULL, ret, call, args);
 }
 
-int callclang_values_funcall_local(Execute ptr, addr *ret, addr call, ...)
+_g int callclang_values_funcall_local(Execute ptr, addr *ret, addr call, ...)
 {
 	int result;
 	va_list args;
@@ -3124,7 +3124,7 @@ int callclang_values_funcall_local(Execute ptr, addr *ret, addr call, ...)
 	return result;
 }
 
-int callclang_values_funcall_heap(Execute ptr, addr *ret, addr call, ...)
+_g int callclang_values_funcall_heap(Execute ptr, addr *ret, addr call, ...)
 {
 	int result;
 	va_list args;
@@ -3136,7 +3136,7 @@ int callclang_values_funcall_heap(Execute ptr, addr *ret, addr call, ...)
 	return result;
 }
 
-int callclang_values_char_local(Execute ptr, addr *ret,
+_g int callclang_values_char_local(Execute ptr, addr *ret,
 		const char *package, const char *name, ...)
 {
 	int result;
@@ -3151,7 +3151,7 @@ int callclang_values_char_local(Execute ptr, addr *ret,
 	return result;
 }
 
-int callclang_values_char_heap(Execute ptr, addr *ret,
+_g int callclang_values_char_heap(Execute ptr, addr *ret,
 		const char *package, const char *name, ...)
 {
 	int result;
@@ -3166,7 +3166,7 @@ int callclang_values_char_heap(Execute ptr, addr *ret,
 	return result;
 }
 
-int callclang_apply(Execute ptr, addr *ret, addr call, addr cons)
+_g int callclang_apply(Execute ptr, addr *ret, addr call, addr cons)
 {
 	addr control;
 
@@ -3183,7 +3183,7 @@ int callclang_apply(Execute ptr, addr *ret, addr call, addr cons)
 	}
 }
 
-int callclang_stdarg(Execute ptr, addr *ret, addr call, va_list args)
+_g int callclang_stdarg(Execute ptr, addr *ret, addr call, va_list args)
 {
 	addr control;
 
@@ -3200,7 +3200,7 @@ int callclang_stdarg(Execute ptr, addr *ret, addr call, va_list args)
 	}
 }
 
-int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
+_g int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 {
 	int check;
 	addr control;
@@ -3222,7 +3222,7 @@ int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 	}
 }
 
-int callclang_char(Execute ptr, addr *ret,
+_g int callclang_char(Execute ptr, addr *ret,
 		const char *package, const char *name, ...)
 {
 	int check;
@@ -3277,7 +3277,7 @@ static void info_stack_control(addr control, size_t index)
 		info_stack_control(control, index + 1);
 }
 
-void info_control(addr control)
+_g void info_control(addr control)
 {
 	info_stack_control(control, 0);
 	info("**** STACK-FRAME END   ***");

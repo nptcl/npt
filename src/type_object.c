@@ -488,7 +488,7 @@ static void type_object_complex(addr *ret, addr pos)
 	list_heap(ret, name, pos, NULL);
 }
 
-void type_object(addr *ret, addr pos)
+_g void type_object(addr *ret, addr pos)
 {
 	type_object_call call;
 	addr result, notp;
@@ -506,7 +506,7 @@ void type_object(addr *ret, addr pos)
 	Check(*ret == Unbound, "unbound error");
 }
 
-void init_type_object(void)
+_g void init_type_object(void)
 {
 	int i;
 

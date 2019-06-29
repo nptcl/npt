@@ -404,7 +404,7 @@ static void array_adjust_bitvector(addr *ret, addr array, addr dimension,
 	*ret = pos;
 }
 
-void array_adjust_array(addr *ret, addr array, addr dimension,
+_g void array_adjust_array(addr *ret, addr array, addr dimension,
 		addr type, addr initial, addr contents,
 		addr fillpointer, addr displaced, addr offset)
 {

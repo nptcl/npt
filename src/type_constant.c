@@ -2517,7 +2517,7 @@ static void typecompiled_writer_method(void)
 /*
  *  Interface
  */
-void build_type_constant(void)
+_g void build_type_constant(void)
 {
 	/* Atomic-Type */
 	typetable_Type();

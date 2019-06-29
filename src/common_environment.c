@@ -265,7 +265,7 @@ static void defun_user_homedir_pathname(void)
 /*
  *  function
  */
-void init_common_environment(void)
+_g void init_common_environment(void)
 {
 	SetPointerCall(defun, empty, lisp_implementation_type);
 	SetPointerCall(defun, empty, lisp_implementation_version);
@@ -279,7 +279,7 @@ void init_common_environment(void)
 	SetPointerCall(defun, opt1, user_homedir_pathname);
 }
 
-void build_common_environment(void)
+_g void build_common_environment(void)
 {
 	defun_lisp_implementation_type();
 	defun_lisp_implementation_version();

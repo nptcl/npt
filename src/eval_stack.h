@@ -61,31 +61,31 @@ struct eval_stack {
 #define newstack_tagbody(p) newstack_eval((p), EVAL_STACK_MODE_TAGBODY)
 #define newstack_block(p) newstack_eval((p), EVAL_STACK_MODE_BLOCK)
 
-void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type);
-void eval_stack_local(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type);
-void eval_stack_heap(addr *ret, enum EVAL_STACK_MODE type);
+_g void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type);
+_g void eval_stack_local(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type);
+_g void eval_stack_heap(addr *ret, enum EVAL_STACK_MODE type);
 
-struct eval_stack *structevalstack(addr pos);
-enum EVAL_STACK_MODE refevalstacktype(addr pos);
-void getevalstacktype(addr pos, enum EVAL_STACK_MODE *ret);
-void setevalstacktype(addr pos, enum EVAL_STACK_MODE value);
-void getevalstacknext(addr pos, addr *ret);
-void setevalstacknext(addr pos, addr value);
-void getevalstacktable(addr pos, addr *ret);
-void setevalstacktable(addr pos, addr value);
+_g struct eval_stack *structevalstack(addr pos);
+_g enum EVAL_STACK_MODE refevalstacktype(addr pos);
+_g void getevalstacktype(addr pos, enum EVAL_STACK_MODE *ret);
+_g void setevalstacktype(addr pos, enum EVAL_STACK_MODE value);
+_g void getevalstacknext(addr pos, addr *ret);
+_g void setevalstacknext(addr pos, addr value);
+_g void getevalstacktable(addr pos, addr *ret);
+_g void setevalstacktable(addr pos, addr value);
 
-void getstack_eval(Execute ptr, addr *ret);
-void getglobal_eval(Execute ptr, addr *ret);
-addr newstack_eval(Execute ptr, enum EVAL_STACK_MODE type);
-void freestack_eval(Execute ptr, addr scope);
-void init_eval_stack(Execute ptr);
-void free_eval_stack(Execute ptr);
-int globalp_stack_eval(addr pos);
+_g void getstack_eval(Execute ptr, addr *ret);
+_g void getglobal_eval(Execute ptr, addr *ret);
+_g addr newstack_eval(Execute ptr, enum EVAL_STACK_MODE type);
+_g void freestack_eval(Execute ptr, addr scope);
+_g void init_eval_stack(Execute ptr);
+_g void free_eval_stack(Execute ptr);
+_g int globalp_stack_eval(addr pos);
 
-void apply_declaim_stack(Execute ptr, addr declare);
-void apply_declare_stack(LocalRoot local, addr stack, addr declare);
-void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare);
-void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare);
+_g void apply_declaim_stack(Execute ptr, addr declare);
+_g void apply_declare_stack(LocalRoot local, addr stack, addr declare);
+_g void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr declare);
+_g void apply_declare_function_stack(LocalRoot local, addr stack, addr call, addr declare);
 
 #endif
 

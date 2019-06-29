@@ -16,13 +16,13 @@
 #include "strtype.h"
 #include "structure.h"
 
-int atom_function(addr pos)
+_g int atom_function(addr pos)
 {
 	Check(pos == Unbound, "Unbound-variable");
 	return GetType(pos) != LISPTYPE_CONS;
 }
 
-int eq_function(addr a, addr b)
+_g int eq_function(addr a, addr b)
 {
 	Check(a == Unbound, "Unbound-variable");
 	Check(b == Unbound, "Unbound-variable");
@@ -84,7 +84,7 @@ static int eql_function_ratio(addr a, enum LISPTYPE type2, addr b)
 	}
 }
 
-int eql_function(addr a, addr b)
+_g int eql_function(addr a, addr b)
 {
 	enum LISPTYPE type1, type2;
 
@@ -185,7 +185,7 @@ static int equal_function_pathname(addr a, addr b)
 	return pathnamep(a) && pathnamep(b) && pathname_equal(a, b);
 }
 
-int equal_function(addr a, addr b)
+_g int equal_function(addr a, addr b)
 {
 	Check(a == Unbound, "Unbound-variable");
 	Check(b == Unbound, "Unbound-variable");
@@ -516,7 +516,7 @@ static int equalp_function_structure(addr a, addr b)
 		return 0;
 }
 
-int equalp_function(addr a, addr b)
+_g int equalp_function(addr a, addr b)
 {
 	Check(a == Unbound, "Unbound-variable");
 	Check(b == Unbound, "Unbound-variable");
@@ -806,7 +806,7 @@ static int equalrt_function_structure(addr a, addr b)
 		return 0;
 }
 
-int equalrt_function(addr a, addr b)
+_g int equalrt_function(addr a, addr b)
 {
 	Check(a == Unbound, "Unbound-variable");
 	Check(b == Unbound, "Unbound-variable");

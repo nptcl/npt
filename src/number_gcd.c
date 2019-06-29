@@ -75,7 +75,7 @@ static void gcd_loop_number(LocalRoot local, addr left, addr first, addr args)
 	}
 }
 
-void gcd_number(LocalRoot local, addr args, addr *ret)
+_g void gcd_number(LocalRoot local, addr args, addr *ret)
 {
 	addr left, right, pos, first_left, first_right;
 	LocalStack stack;
@@ -149,7 +149,7 @@ static void lcm_calc_number(LocalRoot local, addr *ret, addr left, addr right)
 	rollback_local(local, stack);
 }
 
-void lcm_loop_number(LocalRoot local, addr left, addr args, addr *ret)
+_g void lcm_loop_number(LocalRoot local, addr left, addr args, addr *ret)
 {
 	addr right;
 
@@ -165,7 +165,7 @@ void lcm_loop_number(LocalRoot local, addr left, addr args, addr *ret)
 	*ret = left;
 }
 
-void lcm_number(LocalRoot local, addr args, addr *ret)
+_g void lcm_number(LocalRoot local, addr args, addr *ret)
 {
 	addr left;
 

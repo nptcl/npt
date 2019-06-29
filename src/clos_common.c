@@ -458,12 +458,12 @@ error:
 	return 0;
 }
 
-int defclass_common(Execute ptr, addr form, addr env, addr *ret)
+_g int defclass_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	return defclass_define_condition(ptr, form, env, ret, 1);
 }
 
-int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
+_g int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	return defclass_define_condition(ptr, form, env, ret, 0);
 }
@@ -473,7 +473,7 @@ int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
  *  find-class
  *    TODO: environment
  */
-void find_class_common(addr pos, int errorp, addr env, addr *ret)
+_g void find_class_common(addr pos, int errorp, addr env, addr *ret)
 {
 	Check(! symbolp(pos), "type error");
 	if (errorp)
@@ -487,7 +487,7 @@ void find_class_common(addr pos, int errorp, addr env, addr *ret)
  *  (setf find-class)
  *    TODO: environment
  */
-void setf_find_class_common(addr pos, addr name, addr env)
+_g void setf_find_class_common(addr pos, addr name, addr env)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(! symbolp(name), "type error");
@@ -532,7 +532,7 @@ error:
 			"a symbol or (var name) form.", args, NULL);
 }
 
-void with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
+_g void with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	/* `(let ((,#:g ,expr))
 	 *    (symbol-macrolet ((,var1 (,name1 ,#:g))
@@ -605,7 +605,7 @@ error:
 			"a symbol or (var name) form.", args, NULL);
 }
 
-void with_slots_common(Execute ptr, addr form, addr env, addr *ret)
+_g void with_slots_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	/* `(let ((,#:g ,expr))
 	 *    (symbol-macrolet ((,var1 (slot-value ,#:g ',name1))
@@ -823,7 +823,7 @@ static void defgeneric_push_quote(addr *ret, addr key, addr value, addr root)
 	defgeneric_push_value(ret, key, value, root);
 }
 
-void defgeneric_common(addr form, addr env, addr *ret)
+_g void defgeneric_common(addr form, addr env, addr *ret)
 {
 	addr args, name, lambda, order, decl, doc, comb, gen, method, code, key;
 
@@ -994,7 +994,7 @@ static void defmethod_parse_function(Execute ptr,
 	list_heap(ret, lambda, method, flet, NULL);
 }
 
-int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
+_g int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, name, qua, spec, lambda, quote;
 	addr key1, key2, key3, key4, key5;
@@ -1256,7 +1256,7 @@ error:
 	fmte("Invalid DEFINE-METHOD-COMBINATION form ~S.", form, NULL);
 }
 
-void define_method_combination_common(Execute ptr, addr form, addr env, addr *ret)
+_g void define_method_combination_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr list, name, check;
 

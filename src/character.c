@@ -8,37 +8,37 @@
 /*
  *  character check
  */
-int isbasechar(unicode x)
+_g int isbasechar(unicode x)
 {
 	return isBaseChar(x);
 }
 
-int isuppercase(unicode x)
+_g int isuppercase(unicode x)
 {
 	return isUpperCase(x);
 }
 
-int islowercase(unicode x)
+_g int islowercase(unicode x)
 {
 	return isLowerCase(x);
 }
 
-int isdigitcase(unicode x)
+_g int isdigitcase(unicode x)
 {
 	return isDigitCase(x);
 }
 
-int isalphabetic(unicode x)
+_g int isalphabetic(unicode x)
 {
 	return isAlphabetic(x);
 }
 
-int isalphanumeric(unicode x)
+_g int isalphanumeric(unicode x)
 {
 	return isAlphanumeric(x);
 }
 
-int isgraphunicode(unicode x)
+_g int isgraphunicode(unicode x)
 {
 	if (x < 0x80)
 		return _isGraphUnicode(x);
@@ -46,17 +46,17 @@ int isgraphunicode(unicode x)
 		return isBaseType(x);
 }
 
-int isspaceunicode(unicode x)
+_g int isspaceunicode(unicode x)
 {
 	return isSpaceUnicode(x);
 }
 
-unicode toupperunicode(unicode x)
+_g unicode toupperunicode(unicode x)
 {
 	return toUpperUnicode(x);
 }
 
-unicode tolowerunicode(unicode x)
+_g unicode tolowerunicode(unicode x)
 {
 	return toLowerUnicode(x);
 }
@@ -65,40 +65,40 @@ unicode tolowerunicode(unicode x)
 /*
  *  character type
  */
-int issurrogatepair(unicode x)
+_g int issurrogatepair(unicode x)
 {
 	return isSurrogatePair(x);
 }
 
-int isbaserange(unicode x)
+_g int isbaserange(unicode x)
 {
 	return isBaseRange(x);
 }
 
-int isstandardtype(unicode x)
+_g int isstandardtype(unicode x)
 {
 	return isStandardType(x);
 }
 
-int isbasetype(unicode x)
+_g int isbasetype(unicode x)
 {
 	return isBaseType(x);
 }
 
-int isextendedtype(unicode x)
+_g int isextendedtype(unicode x)
 {
 	return isExtendedType(x);
 }
 
 
 /* equal */
-int character_equal_unicode(addr left, unicode right)
+_g int character_equal_unicode(addr left, unicode right)
 {
 	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
 	return RefCharacter(left) == right;
 }
 
-int character_equalp_unicode(addr left, unicode right)
+_g int character_equalp_unicode(addr left, unicode right)
 {
 	unicode u;
 
@@ -107,13 +107,13 @@ int character_equalp_unicode(addr left, unicode right)
 	return toUpperUnicode(u) == toUpperUnicode(right);
 }
 
-int character2_equal_unicode(addr left, unicode a, unicode b)
+_g int character2_equal_unicode(addr left, unicode a, unicode b)
 {
 	CheckType(left, LISPSYSTEM_CHARACTER2);
 	return refcharacter2a(left) == a && refcharacter2b(left) == b;
 }
 
-int character2_equalp_unicode(addr left, unicode a, unicode b)
+_g int character2_equalp_unicode(addr left, unicode a, unicode b)
 {
 	unicode c, d;
 
@@ -177,13 +177,13 @@ static void build_character_name(void)
 	Root(LISPINDEX_NAME_CHAR) = getchar;
 }
 
-void build_character(void)
+_g void build_character(void)
 {
 	build_character_cache();
 	build_character_name();
 }
 
-int findtable_unicode_name(addr *ret, unicode u)
+_g int findtable_unicode_name(addr *ret, unicode u)
 {
 	addr table;
 
@@ -191,13 +191,13 @@ int findtable_unicode_name(addr *ret, unicode u)
 	return findvalue_unicode_hashtable(table, u, ret);
 }
 
-int findtable_char_name(addr *ret, addr pos)
+_g int findtable_char_name(addr *ret, addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
 	return findtable_unicode_name(ret, RefCharacter(pos));
 }
 
-int findtable_name_char(addr *ret, addr name)
+_g int findtable_name_char(addr *ret, addr name)
 {
 	addr table;
 
@@ -237,7 +237,7 @@ static int unicode_code(addr name, size_t size, unicode *ret)
 	return 0;
 }
 
-int find_name_char(addr *ret, addr name)
+_g int find_name_char(addr *ret, addr name)
 {
 	unicode u;
 	size_t size;

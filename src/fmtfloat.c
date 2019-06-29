@@ -23,8 +23,8 @@
 #ifdef LISP_DEGRADE
 #define WriteChar		fmtfloat_write_char
 #define PrintAscii		fmtfloat_print_ascii
-void fmtfloat_write_char(addr stream, unicode c);
-void fmtfloat_print_ascii(addr stream, const char *);
+_g void fmtfloat_write_char(addr stream, unicode c);
+_g void fmtfloat_print_ascii(addr stream, const char *);
 #else
 #define WriteChar		write_char_stream
 #define PrintAscii		print_ascii_stream
@@ -252,12 +252,12 @@ static void fmtdecimal_carry(fmtdecimal str, unsigned i)
 	}
 }
 
-int fmtdecimal_zerop(fmtdecimal str)
+_g int fmtdecimal_zerop(fmtdecimal str)
 {
 	return str->size == 1 && str->fraction[0] == 0;
 }
 
-int fmtdecimal_round(fmtdecimal str, unsigned i)
+_g int fmtdecimal_round(fmtdecimal str, unsigned i)
 {
 	int check, zerop;
 	byte *ptr;
@@ -318,7 +318,7 @@ static int fmtdecimal_long_parse(fmtdecimal str, const char *fmt, long_float val
 	return fmtdecimal_input(str, buffer);
 }
 
-int fmtdecimal_single_float(fmtdecimal str, single_float value, int round)
+_g int fmtdecimal_single_float(fmtdecimal str, single_float value, int round)
 {
 	if (fmtdecimal_single_parse(str, FMTDECIMAL_FLOAT_PARSE, value)) return 1;
 	if (0 <= round)
@@ -326,7 +326,7 @@ int fmtdecimal_single_float(fmtdecimal str, single_float value, int round)
 	return 0;
 }
 
-int fmtdecimal_double_float(fmtdecimal str, double_float value, int round)
+_g int fmtdecimal_double_float(fmtdecimal str, double_float value, int round)
 {
 	if (fmtdecimal_double_parse(str, FMTDECIMAL_DOUBLE_PARSE, value)) return 1;
 	if (0 <= round)
@@ -334,7 +334,7 @@ int fmtdecimal_double_float(fmtdecimal str, double_float value, int round)
 	return 0;
 }
 
-int fmtdecimal_long_float(fmtdecimal str, long_float value, int round)
+_g int fmtdecimal_long_float(fmtdecimal str, long_float value, int round)
 {
 	if (fmtdecimal_long_parse(str, FMTDECIMAL_LONG_PARSE, value)) return 1;
 	if (0 <= round)
@@ -350,7 +350,7 @@ static int fmtdecimal_char(byte c)
 		return '.';
 }
 
-void fmtdecimal_dump(FILE *file, fmtdecimal str)
+_g void fmtdecimal_dump(FILE *file, fmtdecimal str)
 {
 	byte *ptr;
 	unsigned size, i, c;
@@ -889,7 +889,7 @@ static void fixed_limit(addr stream, fmtfloat fmt, fmtdecimal dec)
 	}
 }
 
-void fmtfloat_fixed(addr stream, fmtfloat fmt, fmtdecimal dec)
+_g void fmtfloat_fixed(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	int wp, dp, wpnot, dpnot;
 
@@ -1395,7 +1395,7 @@ static void exponent_limit(addr stream, fmtfloat fmt, fmtdecimal dec)
 	}
 }
 
-void fmtfloat_exponent(addr stream, fmtfloat fmt, fmtdecimal dec)
+_g void fmtfloat_exponent(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	int wp, dp, wpnot, dpnot;
 
@@ -1433,7 +1433,7 @@ static int fmtfloat_general_fixedp(fmtdecimal dec, fmtfloat fmt)
 		return 0; /* ~E */
 }
 
-void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec)
+_g void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum n, ww, dd, d, ee, q;
 
@@ -1482,7 +1482,7 @@ void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec)
 	}
 }
 
-void fmtfloat_dollars(addr stream, fmtfloat fmt, fmtdecimal dec)
+_g void fmtfloat_dollars(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum e, round, index;
 	size_t d, n, w, sign, n1, n2, size, p, i;
@@ -1534,7 +1534,7 @@ void fmtfloat_dollars(addr stream, fmtfloat fmt, fmtdecimal dec)
 /*
  *  ~F  Fixed floating-point
  */
-void fmtfloat_fixed_float(addr stream, single_float value,
+_g void fmtfloat_fixed_float(addr stream, single_float value,
 		int sign,
 		fixnum w,
 		fixnum d,
@@ -1566,7 +1566,7 @@ void fmtfloat_fixed_float(addr stream, single_float value,
 	fmtfloat_fixed(stream, &fmt, &dec);
 }
 
-void fmtfloat_fixed_double(addr stream, double_float value,
+_g void fmtfloat_fixed_double(addr stream, double_float value,
 		int sign,
 		fixnum w,
 		fixnum d,
@@ -1602,7 +1602,7 @@ void fmtfloat_fixed_double(addr stream, double_float value,
 /*
  *  ~E  Exponential floating-point
  */
-void fmtfloat_exponent_float(addr stream, single_float value,
+_g void fmtfloat_exponent_float(addr stream, single_float value,
 		int sign,
 		fixnum w,
 		fixnum d,
@@ -1642,7 +1642,7 @@ void fmtfloat_exponent_float(addr stream, single_float value,
 	fmtfloat_exponent(stream, &fmt, &dec);
 }
 
-void fmtfloat_exponent_double(addr stream, double_float value,
+_g void fmtfloat_exponent_double(addr stream, double_float value,
 		int sign,
 		fixnum w,
 		fixnum d,
@@ -1723,7 +1723,7 @@ static void fmtfloat_princ(addr stream, fmtfloat fmt, fmtdecimal dec,
 	}
 }
 
-int fmtfloat_princ_single_float(addr stream,
+_g int fmtfloat_princ_single_float(addr stream,
 		single_float value, int markerp, unicode marker)
 {
 	struct fmtfloat_struct fmt;
@@ -1738,7 +1738,7 @@ int fmtfloat_princ_single_float(addr stream,
 	return 0;
 }
 
-int fmtfloat_princ_double_float(addr stream,
+_g int fmtfloat_princ_double_float(addr stream,
 		double_float value, int markerp, unicode marker)
 {
 	struct fmtfloat_struct fmt;
@@ -1753,7 +1753,7 @@ int fmtfloat_princ_double_float(addr stream,
 	return 0;
 }
 
-int fmtfloat_princ_long_float(addr stream,
+_g int fmtfloat_princ_long_float(addr stream,
 		long_float value, int markerp, unicode marker)
 {
 	struct fmtfloat_struct fmt;

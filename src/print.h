@@ -38,18 +38,18 @@ struct PrintFormat {
 	fixnum margin; /* *print-right-margin* */
 };
 
-int write_print(struct PrintFormat *format, addr stream, addr object);
-void format_print(Execute ptr, struct PrintFormat *format);
-int princ_print(Execute ptr, addr stream, addr object);
-int prin1_print(Execute ptr, addr stream, addr object);
-int princ_string(Execute ptr, LocalRoot local, addr *ret, addr object);
-int prin1_string(Execute ptr, LocalRoot local, addr *ret, addr object);
+_g int write_print(struct PrintFormat *format, addr stream, addr object);
+_g void format_print(Execute ptr, struct PrintFormat *format);
+_g int princ_print(Execute ptr, addr stream, addr object);
+_g int prin1_print(Execute ptr, addr stream, addr object);
+_g int princ_string(Execute ptr, LocalRoot local, addr *ret, addr object);
+_g int prin1_string(Execute ptr, LocalRoot local, addr *ret, addr object);
 
 /* pretty print */
-void pprint_dispatch_heap(addr *ret);
+_g void pprint_dispatch_heap(addr *ret);
 
 /* initialize */
-void init_print();
+_g void init_print();
 
 #endif
 

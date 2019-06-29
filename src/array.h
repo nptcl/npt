@@ -72,59 +72,59 @@
 #endif
 
 /* accessor */
-void arraygen_set_debug(addr pos, size_t index, addr value);
-void arraygen_get_debug(addr pos, size_t index, addr *ret);
-void arraygen_len_debug(addr pos, size_t *ret);
-size_t arraygen_lenr_debug(addr pos);
-void arrayspec_pos_debug(addr pos, addr *ret);
-addr arrayspec_ptr_debug(addr po);
-size_t *arraysize_ptr_debug(addr pos);
-struct array_struct *arrayinfo_struct_debug(addr pos);
-addr refarrayinfo_debug(addr pos, size_t index);
-void getarrayinfo_debug(addr pos, size_t index, addr *ret);
-void setarrayinfo_debug(addr pos, size_t index, addr value);
-void lenarrayinfo_debug(addr pos, size_t *ret);
-size_t lenarrayinfor_debug(addr pos);
+_g void arraygen_set_debug(addr pos, size_t index, addr value);
+_g void arraygen_get_debug(addr pos, size_t index, addr *ret);
+_g void arraygen_len_debug(addr pos, size_t *ret);
+_g size_t arraygen_lenr_debug(addr pos);
+_g void arrayspec_pos_debug(addr pos, addr *ret);
+_g addr arrayspec_ptr_debug(addr po);
+_g size_t *arraysize_ptr_debug(addr pos);
+_g struct array_struct *arrayinfo_struct_debug(addr pos);
+_g addr refarrayinfo_debug(addr pos, size_t index);
+_g void getarrayinfo_debug(addr pos, size_t index, addr *ret);
+_g void setarrayinfo_debug(addr pos, size_t index, addr value);
+_g void lenarrayinfo_debug(addr pos, size_t *ret);
+_g size_t lenarrayinfor_debug(addr pos);
 
 /* memory allocate */
-void arraygen_alloc(LocalRoot local, addr *ret, size_t size);
-void arraygen_local(LocalRoot local, addr *ret, size_t size);
-void arraygen_heap(addr *ret, size_t size);
-void arrayspec_alloc(LocalRoot local, addr *ret, size_t size);
-void arrayspec_local(LocalRoot local, addr *ret, size_t size);
-void arrayspec_heap(addr *ret, size_t size);
-void arrayinfo_alloc(LocalRoot local, addr *ret);
-void arrayinfo_local(LocalRoot local, addr *ret);
-void arrayinfo_heap(addr *ret);
-void arraysize_alloc(LocalRoot local, addr *ret, size_t index);
-void arraysize_local(LocalRoot local, addr *ret, size_t index);
-void arraysize_heap(addr *ret, size_t index);
-void arraysize_copy_alloc(LocalRoot local, addr *ret, addr pos, size_t size);
-void arraysize_copy_local(LocalRoot local, addr *ret, addr pos, size_t size);
-void arraysize_copy_heap(addr *ret, addr pos, size_t size);
-void array_empty_alloc(LocalRoot local, addr *ret);
-void array_empty_local(LocalRoot local, addr *ret);
-void array_empty_heap(addr *ret);
-void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size);
-void array_local(LocalRoot local, addr *ret, size_t index, size_t size);
-void array_heap(addr *ret, size_t index, size_t size);
-void array_va_alloc(LocalRoot local, addr *ret, ...);
-void array_va_local(LocalRoot local, addr *ret, ...);
-void array_va_heap(addr *ret, ...);
+_g void arraygen_alloc(LocalRoot local, addr *ret, size_t size);
+_g void arraygen_local(LocalRoot local, addr *ret, size_t size);
+_g void arraygen_heap(addr *ret, size_t size);
+_g void arrayspec_alloc(LocalRoot local, addr *ret, size_t size);
+_g void arrayspec_local(LocalRoot local, addr *ret, size_t size);
+_g void arrayspec_heap(addr *ret, size_t size);
+_g void arrayinfo_alloc(LocalRoot local, addr *ret);
+_g void arrayinfo_local(LocalRoot local, addr *ret);
+_g void arrayinfo_heap(addr *ret);
+_g void arraysize_alloc(LocalRoot local, addr *ret, size_t index);
+_g void arraysize_local(LocalRoot local, addr *ret, size_t index);
+_g void arraysize_heap(addr *ret, size_t index);
+_g void arraysize_copy_alloc(LocalRoot local, addr *ret, addr pos, size_t size);
+_g void arraysize_copy_local(LocalRoot local, addr *ret, addr pos, size_t size);
+_g void arraysize_copy_heap(addr *ret, addr pos, size_t size);
+_g void array_empty_alloc(LocalRoot local, addr *ret);
+_g void array_empty_local(LocalRoot local, addr *ret);
+_g void array_empty_heap(addr *ret);
+_g void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size);
+_g void array_local(LocalRoot local, addr *ret, size_t index, size_t size);
+_g void array_heap(addr *ret, size_t index, size_t size);
+_g void array_va_alloc(LocalRoot local, addr *ret, ...);
+_g void array_va_local(LocalRoot local, addr *ret, ...);
+_g void array_va_heap(addr *ret, ...);
 
 /* type check */
-int arrayp(addr pos);
-int array_simple_p(addr pos);
-int array_vector_p(addr pos);
-int array_size_vector_p(addr pos, size_t size);
-int array_general_p(addr pos);
-int array_specialized_p(addr pos);
-int array_simple_vector_p(addr pos);
+_g int arrayp(addr pos);
+_g int array_simple_p(addr pos);
+_g int array_vector_p(addr pos);
+_g int array_size_vector_p(addr pos, size_t size);
+_g int array_general_p(addr pos);
+_g int array_specialized_p(addr pos);
+_g int array_simple_vector_p(addr pos);
 
 /* memory access */
-const size_t *array_ptrsize(addr pos);
-void *array_ptrwrite(addr pos, size_t index);
-const void *array_ptrread(addr pos, size_t index);
+_g const size_t *array_ptrsize(addr pos);
+_g void *array_ptrwrite(addr pos, size_t index);
+_g const void *array_ptrread(addr pos, size_t index);
 
 #endif
 

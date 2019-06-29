@@ -6,7 +6,7 @@
 #include "typedef.h"
 
 typedef enum pointer_index pointer;
-extern struct callbind_struct pointer_table[];
+__extern struct callbind_struct pointer_table[];
 
 #define ExecPointer(x, y) (pointer_table[x].call.y)
 
@@ -89,7 +89,7 @@ extern struct callbind_struct pointer_table[];
 #define SetPointer_var4dynamic(p, x)  SetPointer(p, var4dynamic, x)
 #define GetPointer_var4dynamic(p, x)  GetPointer(p, var4dynamic, x)
 
-void clear_pointer(void);
+_g void clear_pointer(void);
 
 #endif
 

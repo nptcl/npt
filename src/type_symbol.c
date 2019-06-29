@@ -20,7 +20,7 @@ static void define_symbol_type(constindex name, enum TypeTable type)
 	setsymboltype_symbol(symbol, value);
 }
 
-void build_type_symbol(void)
+_g void build_type_symbol(void)
 {
 	DefSymbolType(COMMON_ASTERISK,             Asterisk            );
 
@@ -101,7 +101,7 @@ static void define_type_symbol(enum LISPDECL type, constindex name)
 	TypeSymbolTable[(int)type] = name;
 }
 
-void init_type_symbol(void)
+_g void init_type_symbol(void)
 {
 	DefTypeSymbol(EMPTY,                EMPTY                       );
 	DefTypeSymbol(OPTIMIZED,            EMPTY                       );
@@ -194,7 +194,7 @@ void init_type_symbol(void)
  *    3. find deftype.
  *    4. return unbound.
  */
-int find_symbol_type(Execute ptr, addr *ret, addr symbol, addr env)
+_g int find_symbol_type(Execute ptr, addr *ret, addr symbol, addr env)
 {
 	addr check;
 
@@ -228,7 +228,7 @@ int find_symbol_type(Execute ptr, addr *ret, addr symbol, addr env)
 /*
  *  type -> symbol
  */
-constindex getdeclname(enum LISPDECL type)
+_g constindex getdeclname(enum LISPDECL type)
 {
 	Check(LISPDECL_SIZE <= type, "index error");
 	return TypeSymbolTable[type];
@@ -238,7 +238,7 @@ constindex getdeclname(enum LISPDECL type)
 /*
  *  function
  */
-int type_symbol_p(addr symbol)
+_g int type_symbol_p(addr symbol)
 {
 	addr check;
 
@@ -259,3 +259,4 @@ int type_symbol_p(addr symbol)
 	/* find deftype */
 	return symbol_deftypep(symbol);
 }
+

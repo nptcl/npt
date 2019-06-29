@@ -351,7 +351,7 @@ static void loop_directory_files(struct directory_struct *str)
 	loop_directory_files(str);
 }
 
-void directory_files(Execute ptr, addr *ret, addr pos)
+_g void directory_files(Execute ptr, addr *ret, addr pos)
 {
 	struct directory_struct str;
 
@@ -390,7 +390,7 @@ static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	*ret = lstat(str, &st)? Nil: T;
 }
 
-void probe_file_files(Execute ptr, addr *ret, addr pos)
+_g void probe_file_files(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -483,7 +483,7 @@ static void ensure_directories_exist_run_files(Execute ptr,
 	*ret = result;
 }
 
-void ensure_directories_exist_files(Execute ptr,
+_g void ensure_directories_exist_files(Execute ptr,
 		addr *ret1, addr *ret2, addr pos, int verbose)
 {
 	addr value;
@@ -550,7 +550,7 @@ static void file_author_run_files(Execute ptr, addr *ret, addr pos)
 		string8_null_heap(ret, ppw->pw_name);
 }
 
-void file_author_files(Execute ptr, addr *ret, addr pos)
+_g void file_author_files(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -598,7 +598,7 @@ static void file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 	plus_ii_real_common(local, symbol, value, ret);
 }
 
-void file_write_date_files(Execute ptr, addr *ret, addr pos)
+_g void file_write_date_files(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -649,7 +649,7 @@ static void rename_file_run_files(Execute ptr,
 	*ret3 = to;
 }
 
-void rename_file_files(Execute ptr,
+_g void rename_file_files(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr file, addr to)
 {
 	LocalRoot local;
@@ -688,7 +688,7 @@ static void delete_file_run_files(Execute ptr, addr pos)
 		close_stream(pos);
 }
 
-void delete_file_files(Execute ptr, addr pos)
+_g void delete_file_files(Execute ptr, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;

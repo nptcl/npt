@@ -706,7 +706,7 @@ static void defun_set(void)
 /*
  *  function
  */
-void init_common_symbols(void)
+_g void init_common_symbols(void)
 {
 	SetPointerCall(defun, var1, symbolp);
 	SetPointerCall(defun, var1, keywordp);
@@ -729,7 +729,7 @@ void init_common_symbols(void)
 	SetPointerCall(defun, var2, set);
 }
 
-void build_common_symbols(void)
+_g void build_common_symbols(void)
 {
 	defvar_gensym_counter();
 	defun_symbolp();

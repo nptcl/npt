@@ -939,7 +939,7 @@ typedef int (*call_typelist)(Execute, addr *, enum LISPDECL, addr, addr, addr);
 static call_typelist TypeParseList[LISPDECL_SIZE];
 #define DefListInit(a, b) (TypeParseList[LISPDECL_##a] = typelist_##b)
 
-void init_type_parse(void)
+_g void init_type_parse(void)
 {
 	/* Compound-type */
 	DefListInit(AND,                 array4      );
@@ -980,7 +980,7 @@ void init_type_parse(void)
 
 #define SetTypeParseObject(x,v) (*(enum LISPDECL *)PtrBodyB2(x) = (v))
 #define GetTypeParseObject(x,r) (*(r) = *(enum LISPDECL *)PtrBodyB2(x))
-void make_type_parse_object(addr *ret, enum LISPDECL type)
+_g void make_type_parse_object(addr *ret, enum LISPDECL type)
 {
 	addr pos;
 
@@ -1000,7 +1000,7 @@ static void define_type_parse_object(enum LISPDECL type, constindex name)
 }
 #define DefListType(a) define_type_parse_object(LISPDECL_##a, CONSTANT_COMMON_##a)
 
-void build_type_parse(void)
+_g void build_type_parse(void)
 {
 	/* Compound-type */
 	DefListType(AND                 );
@@ -1124,7 +1124,7 @@ static int parse_type_null(Execute ptr, addr *ret, addr pos, addr env)
 	}
 }
 
-int parse_type(Execute ptr, addr *ret, addr pos, addr env)
+_g int parse_type(Execute ptr, addr *ret, addr pos, addr env)
 {
 	if (parse_type_null(ptr, ret, pos, env))
 		return 1;
@@ -1134,7 +1134,7 @@ int parse_type(Execute ptr, addr *ret, addr pos, addr env)
 	return 0;
 }
 
-int parse_type_not(Execute ptr, addr *ret, addr pos, addr env)
+_g int parse_type_not(Execute ptr, addr *ret, addr pos, addr env)
 {
 	if (parse_type(ptr, &pos, pos, env))
 		return 1;
@@ -1145,7 +1145,7 @@ int parse_type_not(Execute ptr, addr *ret, addr pos, addr env)
 	return 0;
 }
 
-int parse_type_noaster(Execute ptr, addr *ret, addr pos, addr env)
+_g int parse_type_noaster(Execute ptr, addr *ret, addr pos, addr env)
 {
 	addr aster;
 
@@ -1155,14 +1155,14 @@ int parse_type_noaster(Execute ptr, addr *ret, addr pos, addr env)
 	return parse_type(ptr, ret, pos, env);
 }
 
-void parse_type_unsafe(addr *ret, addr pos)
+_g void parse_type_unsafe(addr *ret, addr pos)
 {
 	if (parse_type(Execute_Thread, ret, pos, Nil))
 		fmte("parse-type error.", NULL);
 }
 
 /* debug */
-int parse_type_values(Execute ptr, addr *ret, addr type, addr env)
+_g int parse_type_values(Execute ptr, addr *ret, addr type, addr env)
 {
 	return type_function_values(ptr, ret, type, env);
 }

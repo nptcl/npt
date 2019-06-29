@@ -4,13 +4,13 @@
 /*
  *  mutexlite
  */
-int make_mutexlite(mutexlite *mutex)
+_g int make_mutexlite(mutexlite *mutex)
 {
 	*mutex = 0;
 	return 0;
 }
 
-void destroy_mutexlite(mutexlite *mutex)
+_g void destroy_mutexlite(mutexlite *mutex)
 {
 	if (*mutex) {
 		Debug("destroy_mutexlite error.");
@@ -18,7 +18,7 @@ void destroy_mutexlite(mutexlite *mutex)
 	}
 }
 
-void lock_mutexlite(mutexlite *mutex)
+_g void lock_mutexlite(mutexlite *mutex)
 {
 	if (*mutex) {
 		Debug("lock_mutexlite error.");
@@ -27,7 +27,7 @@ void lock_mutexlite(mutexlite *mutex)
 	*mutex = 1;
 }
 
-int trylock_mutexlite(mutexlite *mutex)
+_g int trylock_mutexlite(mutexlite *mutex)
 {
 	if (*mutex) {
 		Debug("trylock_mutexlite error.");
@@ -37,7 +37,7 @@ int trylock_mutexlite(mutexlite *mutex)
 	return 0;
 }
 
-void unlock_mutexlite(mutexlite *mutex)
+_g void unlock_mutexlite(mutexlite *mutex)
 {
 	if (*mutex == 0) {
 		Debug("unlock_mutexlite error.");
@@ -50,13 +50,13 @@ void unlock_mutexlite(mutexlite *mutex)
 /*
  *  rwlocklite
  */
-int make_rwlocklite(rwlocklite *lock)
+_g int make_rwlocklite(rwlocklite *lock)
 {
 	*lock = 0;
 	return 0;
 }
 
-void destroy_rwlocklite(rwlocklite *lock)
+_g void destroy_rwlocklite(rwlocklite *lock)
 {
 	if (*lock) {
 		Debug("destroy_rwlocklite error.");
@@ -64,7 +64,7 @@ void destroy_rwlocklite(rwlocklite *lock)
 	}
 }
 
-void rdlock_rwlocklite(rwlocklite *lock)
+_g void rdlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock == 2) {
 		Debug("rdlock_rwlocklite error.");
@@ -73,7 +73,7 @@ void rdlock_rwlocklite(rwlocklite *lock)
 	*lock = 1;
 }
 
-void wrlock_rwlocklite(rwlocklite *lock)
+_g void wrlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock) {
 		Debug("wrlock_rwlocklite error.");
@@ -82,7 +82,7 @@ void wrlock_rwlocklite(rwlocklite *lock)
 	*lock = 2;
 }
 
-int tryrdlock_rwlocklite(rwlocklite *lock)
+_g int tryrdlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock == 2) {
 		Debug("tryrdlock_rwlocklite error.");
@@ -92,7 +92,7 @@ int tryrdlock_rwlocklite(rwlocklite *lock)
 	return 0;
 }
 
-int trywrlock_rwlocklite(rwlocklite *lock)
+_g int trywrlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock) {
 		Debug("trywrlock_rwlocklite error.");
@@ -102,7 +102,7 @@ int trywrlock_rwlocklite(rwlocklite *lock)
 	return 0;
 }
 
-void unrdlock_rwlocklite(rwlocklite *lock)
+_g void unrdlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock != 1) {
 		Debug("unrdlock_rwlocklite error.");
@@ -110,7 +110,7 @@ void unrdlock_rwlocklite(rwlocklite *lock)
 	}
 }
 
-void unwrlock_rwlocklite(rwlocklite *lock)
+_g void unwrlock_rwlocklite(rwlocklite *lock)
 {
 	if (*lock != 2) {
 		Debug("unwrlock_rwlocklite error.");
@@ -122,7 +122,7 @@ void unwrlock_rwlocklite(rwlocklite *lock)
 /*
  *  threadlocal
  */
-void make_threadlocal(threadlocal *key)
+_g void make_threadlocal(threadlocal *key)
 {
 	struct threadlocal_single *ptr;
 	ptr = malloctype(struct threadlocal_single);
@@ -130,7 +130,7 @@ void make_threadlocal(threadlocal *key)
 	*key = ptr;
 }
 
-void destroy_threadlocal(threadlocal key)
+_g void destroy_threadlocal(threadlocal key)
 {
 	if (key == NULL) {
 		Debug("destroy_threadlocal error");
@@ -139,7 +139,7 @@ void destroy_threadlocal(threadlocal key)
 	free(key);
 }
 
-const void *get_threadlocal(threadlocal key)
+_g const void *get_threadlocal(threadlocal key)
 {
 	if (key == NULL) {
 		Debug("get_threadlocal error");
@@ -148,7 +148,7 @@ const void *get_threadlocal(threadlocal key)
 	return key->value;
 }
 
-void set_threadlocal(threadlocal key, const void *value)
+_g void set_threadlocal(threadlocal key, const void *value)
 {
 	if (key == NULL) {
 		Debug("set_threadlocal error");
@@ -161,17 +161,17 @@ void set_threadlocal(threadlocal key, const void *value)
 /*
  *  binary semaphore
  */
-void make_binsem(binsem *x)
+_g void make_binsem(binsem *x)
 {
 	*x = 0;
 }
 
 /* ARGSUSED0 */
-void destroy_binsem(binsem *x)
+_g void destroy_binsem(binsem *x)
 {
 }
 
-void lock_binsem(binsem *x)
+_g void lock_binsem(binsem *x)
 {
 	if (*x) {
 		Debug("lock_binsem error.");
@@ -180,7 +180,7 @@ void lock_binsem(binsem *x)
 	*x = 1;
 }
 
-int trylock_binsem(binsem *x)
+_g int trylock_binsem(binsem *x)
 {
 	if (*x) {
 		Debug("trylock_binsem error.");
@@ -190,7 +190,7 @@ int trylock_binsem(binsem *x)
 	return 0;
 }
 
-void unlock_binsem(binsem *x)
+_g void unlock_binsem(binsem *x)
 {
 	if (*x == 0) {
 		Debug("unlock_mutexlite error.");
@@ -203,28 +203,28 @@ void unlock_binsem(binsem *x)
 /*
  *  condition variable
  */
-void make_condlite(condlite *x)
+_g void make_condlite(condlite *x)
 {
 	*x = 0;
 }
 
 /* ARGSUSED0 */
-void destroy_condlite(condlite *x)
+_g void destroy_condlite(condlite *x)
 {
 }
 
 /* ARGSUSED0 */
-void wait_condlite(condlite *x, mutexlite *m)
+_g void wait_condlite(condlite *x, mutexlite *m)
 {
 }
 
 /* ARGSUSED0 */
-void signal_condlite(condlite *x)
+_g void signal_condlite(condlite *x)
 {
 }
 
 /* ARGSUSED0 */
-void broadcast_condlite(condlite *x)
+_g void broadcast_condlite(condlite *x)
 {
 }
 

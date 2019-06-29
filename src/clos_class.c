@@ -66,128 +66,128 @@ static void stdset_class_constant(addr pos, addr value,
 #define StdSetClass(p,r,a,b) \
 	stdset_class_constant((p), (r), Clos_class_##a, CONSTANT_CLOSNAME_##b)
 
-void stdget_class_name(addr pos, addr *ret)
+_g void stdget_class_name(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, name, NAME);
 }
-void stdset_class_name(addr pos, addr value)
+_g void stdset_class_name(addr pos, addr value)
 {
 	StdSetClass(pos, value, name, NAME);
 }
 
-void stdget_class_direct_slots(addr pos, addr *ret)
+_g void stdget_class_direct_slots(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, direct_slots, DIRECT_SLOTS);
 }
-void stdset_class_direct_slots(addr pos, addr value)
+_g void stdset_class_direct_slots(addr pos, addr value)
 {
 	StdSetClass(pos, value, direct_slots, DIRECT_SLOTS);
 }
 
-void stdget_class_direct_subclasses(addr pos, addr *ret)
+_g void stdget_class_direct_subclasses(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, direct_subclasses, DIRECT_SUBCLASSES);
 }
-void stdset_class_direct_subclasses(addr pos, addr value)
+_g void stdset_class_direct_subclasses(addr pos, addr value)
 {
 	StdSetClass(pos, value, direct_subclasses, DIRECT_SUBCLASSES);
 }
 
-void stdget_class_direct_superclasses(addr pos, addr *ret)
+_g void stdget_class_direct_superclasses(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, direct_superclasses, DIRECT_SUPERCLASSES);
 }
-void stdset_class_direct_superclasses(addr pos, addr value)
+_g void stdset_class_direct_superclasses(addr pos, addr value)
 {
 	StdSetClass(pos, value, direct_superclasses, DIRECT_SUPERCLASSES);
 }
 
-void stdget_class_precedence_list(addr pos, addr *ret)
+_g void stdget_class_precedence_list(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, precedence_list, CLASS_PRECEDENCE_LIST);
 }
-void stdset_class_precedence_list(addr pos, addr value)
+_g void stdset_class_precedence_list(addr pos, addr value)
 {
 	StdSetClass(pos, value, precedence_list, CLASS_PRECEDENCE_LIST);
 }
 
-void stdget_class_slots(addr pos, addr *ret)
+_g void stdget_class_slots(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, slots, EFFECTIVE_SLOTS);
 }
-void stdset_class_slots(addr pos, addr value)
+_g void stdset_class_slots(addr pos, addr value)
 {
 	StdSetClass(pos, value, slots, EFFECTIVE_SLOTS);
 }
 
-void stdget_class_finalized_p(addr pos, addr *ret)
+_g void stdget_class_finalized_p(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, finalized_p, FINALIZED_P);
 }
-void stdset_class_finalized_p(addr pos, addr value)
+_g void stdset_class_finalized_p(addr pos, addr value)
 {
 	StdSetClass(pos, value, finalized_p, FINALIZED_P);
 }
 
-void stdget_class_prototype(addr pos, addr *ret)
+_g void stdget_class_prototype(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, prototype, PROTOTYPE);
 }
-void stdset_class_prototype(addr pos, addr value)
+_g void stdset_class_prototype(addr pos, addr value)
 {
 	StdSetClass(pos, value, prototype, PROTOTYPE);
 }
 
-void stdget_class_direct_methods(addr pos, addr *ret)
+_g void stdget_class_direct_methods(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, direct_methods, DIRECT_METHODS);
 }
-void stdset_class_direct_methods(addr pos, addr value)
+_g void stdset_class_direct_methods(addr pos, addr value)
 {
 	StdSetClass(pos, value, direct_methods, DIRECT_METHODS);
 }
 
-void stdget_class_default_initargs(addr pos, addr *ret)
+_g void stdget_class_default_initargs(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, default_initargs, DEFAULT_INITARGS);
 }
-void stdset_class_default_initargs(addr pos, addr value)
+_g void stdset_class_default_initargs(addr pos, addr value)
 {
 	StdSetClass(pos, value, default_initargs, DEFAULT_INITARGS);
 }
 
-void stdget_class_direct_default_initargs(addr pos, addr *ret)
+_g void stdget_class_direct_default_initargs(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, direct_default_initargs, DIRECT_DEFAULT_INITARGS);
 }
-void stdset_class_direct_default_initargs(addr pos, addr value)
+_g void stdset_class_direct_default_initargs(addr pos, addr value)
 {
 	StdSetClass(pos, value, direct_default_initargs, DIRECT_DEFAULT_INITARGS);
 }
 
-void stdget_class_version(addr pos, addr *ret)
+_g void stdget_class_version(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, version, VERSION);
 }
-void stdset_class_version(addr pos, addr value)
+_g void stdset_class_version(addr pos, addr value)
 {
 	StdSetClass(pos, value, version, VERSION);
 }
 
-void stdget_class_document(addr pos, addr *ret)
+_g void stdget_class_document(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, document, DOCUMENTATION);
 }
-void stdset_class_document(addr pos, addr value)
+_g void stdset_class_document(addr pos, addr value)
 {
 	StdSetClass(pos, value, document, DOCUMENTATION);
 }
 
-void stdget_class_redefined_class(addr pos, addr *ret)
+_g void stdget_class_redefined_class(addr pos, addr *ret)
 {
 	StdGetClass(pos, ret, redefined_class, REDEFINED_CLASS);
 }
-void stdset_class_redefined_class(addr pos, addr value)
+_g void stdset_class_redefined_class(addr pos, addr value)
 {
 	StdSetClass(pos, value, redefined_class, REDEFINED_CLASS);
 }
@@ -196,7 +196,7 @@ void stdset_class_redefined_class(addr pos, addr value)
 /*
  *  check
  */
-int clos_subclass_p(addr clos, addr super)
+_g int clos_subclass_p(addr clos, addr super)
 {
 	CheckType(clos, LISPTYPE_CLOS);
 	CheckType(super, LISPTYPE_CLOS);
@@ -205,7 +205,7 @@ int clos_subclass_p(addr clos, addr super)
 	return find_list_eq_unsafe(super, clos);
 }
 
-int clos_subtype_p(addr clos, addr super)
+_g int clos_subtype_p(addr clos, addr super)
 {
 	CheckType(clos, LISPTYPE_CLOS);
 	CheckType(super, LISPTYPE_CLOS);
@@ -224,12 +224,12 @@ static int clos_constant_p(addr clos, constindex index)
 	return clos_subtype_p(clos, super);
 }
 
-int clos_class_p(addr clos)
+_g int clos_class_p(addr clos)
 {
 	return clos_constant_p(clos, CONSTANT_CLOS_CLASS);
 }
 
-int clos_funcallable_p(addr clos)
+_g int clos_funcallable_p(addr clos)
 {
 	addr super;
 
@@ -239,52 +239,52 @@ int clos_funcallable_p(addr clos)
 	return clos_subtype_p(clos, super);
 }
 
-int clos_generic_p(addr clos)
+_g int clos_generic_p(addr clos)
 {
 	return clos_constant_p(clos, CONSTANT_CLOS_GENERIC_FUNCTION);
 }
 
-int clos_method_p(addr clos)
+_g int clos_method_p(addr clos)
 {
 	return clos_constant_p(clos, CONSTANT_CLOS_METHOD);
 }
 
-int clos_define_combination_p(addr clos)
+_g int clos_define_combination_p(addr clos)
 {
 	return clos_constant_p(clos, CONSTANT_CLOS_DEFINE_METHOD_COMBINATION);
 }
 
-int clos_define_long_combination_p(addr clos)
+_g int clos_define_long_combination_p(addr clos)
 {
 	return clos_constant_p(clos, CONSTANT_CLOS_DEFINE_LONG_METHOD_COMBINATION);
 }
 
-int clos_define_short_combination_p(addr clos)
+_g int clos_define_short_combination_p(addr clos)
 {
 	return clos_constant_p(clos, CONSTANT_CLOS_DEFINE_SHORT_METHOD_COMBINATION);
 }
 
-int clos_combination_p(addr clos)
+_g int clos_combination_p(addr clos)
 {
 	return clos_constant_p(clos, CONSTANT_CLOS_METHOD_COMBINATION);
 }
 
-int clos_long_combination_p(addr clos)
+_g int clos_long_combination_p(addr clos)
 {
 	return clos_constant_p(clos, CONSTANT_CLOS_LONG_METHOD_COMBINATION);
 }
 
-int clos_short_combination_p(addr clos)
+_g int clos_short_combination_p(addr clos)
 {
 	return clos_constant_p(clos, CONSTANT_CLOS_SHORT_METHOD_COMBINATION);
 }
 
-int clos_specializer_p(addr clos)
+_g int clos_specializer_p(addr clos)
 {
 	return clos_constant_p(clos, CONSTANT_CLOS_EQL_SPECIALIZER);
 }
 
-int clos_referenced_p(addr clos)
+_g int clos_referenced_p(addr clos)
 {
 	addr super;
 
@@ -294,7 +294,7 @@ int clos_referenced_p(addr clos)
 	return clos == super;
 }
 
-int clos_built_p(addr clos)
+_g int clos_built_p(addr clos)
 {
 	addr super;
 
@@ -303,7 +303,7 @@ int clos_built_p(addr clos)
 	return clos_subtype_p(clos, super);
 }
 
-int funcallp(addr pos)
+_g int funcallp(addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FUNCTION:
@@ -376,7 +376,7 @@ static void clos_instance_unsafe(LocalRoot local, addr clos, addr slots, addr *r
 	}
 	*ret = instance;
 }
-void clos_instance_alloc(LocalRoot local, addr clos, addr *ret)
+_g void clos_instance_alloc(LocalRoot local, addr clos, addr *ret)
 {
 	addr pos;
 
@@ -389,12 +389,12 @@ void clos_instance_alloc(LocalRoot local, addr clos, addr *ret)
 	stdget_class_slots(clos, &pos);
 	clos_instance_unsafe(local, clos, pos, ret);
 }
-void clos_instance_local(LocalRoot local, addr clos, addr *ret)
+_g void clos_instance_local(LocalRoot local, addr clos, addr *ret)
 {
 	CheckLocal(local);
 	clos_instance_alloc(local, clos, ret);
 }
-void clos_instance_heap(addr clos, addr *ret)
+_g void clos_instance_heap(addr clos, addr *ret)
 {
 	clos_instance_alloc(NULL, clos, ret);
 }
@@ -779,7 +779,7 @@ static void slot_make_version(addr pos, constindex n1, constindex n2, size_t n3)
 #define SlotMakeVersion(x,y,z) \
 	slot_make_version((x), CONSTANT_CLOSNAME_##y, CONSTANT_CLOSKEY_##y, Clos_##z)
 
-void slotvector_set_location(addr slots)
+_g void slotvector_set_location(addr slots)
 {
 	addr pos;
 	size_t size, i;
@@ -1084,7 +1084,7 @@ static void clos_stdclass_va(LocalRoot local, addr m, constindex n, constindex c
 			CONSTANT_##a,CONSTANT_##b,CONSTANT_##c,CONSTANT_##d,CONSTANT_EMPTY); \
 }
 
-void clos_stdclass_slotsconstant(LocalRoot local, addr metaclass, addr slots,
+_g void clos_stdclass_slotsconstant(LocalRoot local, addr metaclass, addr slots,
 		constindex n, constindex c, constindex s)
 {
 	addr name, supers, clos;
@@ -1735,7 +1735,7 @@ static void build_clos_class_mop(LocalRoot local)
 /*
  *  build-clos-class
  */
-void build_clos_class_variable(void)
+_g void build_clos_class_variable(void)
 {
 	addr pos;
 
@@ -1767,7 +1767,7 @@ void build_clos_class_variable(void)
 	Clos_standard_specializer = pos;
 }
 
-void build_clos_class(LocalRoot local)
+_g void build_clos_class(LocalRoot local)
 {
 	build_clos_class_init();
 	build_clos_class_standard(local);
@@ -2377,7 +2377,7 @@ static int clos_ensure_class_object(Execute ptr, addr name, addr args, addr *ret
 	return callclang_apply(ptr, ret, pos, list);
 }
 
-int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret)
+_g int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret)
 {
 	addr pos;
 
@@ -2423,7 +2423,7 @@ static void clos_ensure_class_delete(addr clos, addr temp)
 	/* remove class table */
 }
 
-int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
+_g int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 {
 	addr temp;
 
@@ -2447,7 +2447,7 @@ int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 /*
  *  allocate-initialize
  */
-void allocate_instance_stdclass(Execute ptr, addr clos, addr *ret)
+_g void allocate_instance_stdclass(Execute ptr, addr clos, addr *ret)
 {
 	addr instance, slots, slot, name;
 	size_t size, i, loc;
@@ -2506,13 +2506,13 @@ static int initialize_instance(Execute ptr, addr pos, addr type, addr rest, addr
 	return 0;
 }
 
-int initialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret)
+_g int initialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	/* (apply #'shared-initialize instance T initargs) */
 	return initialize_instance(ptr, pos, T, rest, ret);
 }
 
-int reinitialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret)
+_g int reinitialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	/* (apply #'shared-initialize instance () initargs) */
 	return initialize_instance(ptr, pos, Nil, rest, ret);
@@ -2576,7 +2576,7 @@ static int shared_initialize_initform(Execute ptr, addr pos, addr key, addr slot
 	return setf_slot_value_call(ptr, pos, key, value);
 }
 
-int shared_initialize_stdobject(Execute ptr, addr pos, addr name, addr rest)
+_g int shared_initialize_stdobject(Execute ptr, addr pos, addr name, addr rest)
 {
 	int check;
 	addr slots, slot, key;
@@ -2678,7 +2678,7 @@ static void make_instance_check(Execute ptr, addr clos, addr rest)
 	}
 }
 
-int make_instance_stdclass(Execute ptr, addr rest, addr *ret)
+_g int make_instance_stdclass(Execute ptr, addr rest, addr *ret)
 {
 	addr clos, call, instance;
 
@@ -2732,7 +2732,7 @@ static int clos_redefined_class(Execute ptr, addr pos, addr clos)
 	return 0;
 }
 
-int clos_version_diff_p(addr pos)
+_g int clos_version_diff_p(addr pos)
 {
 	addr clos, check;
 	fixnum a, b;
@@ -2745,7 +2745,7 @@ int clos_version_diff_p(addr pos)
 	return a != b;
 }
 
-int clos_version_check(Execute ptr, addr pos, addr clos)
+_g int clos_version_check(Execute ptr, addr pos, addr clos)
 {
 	addr check;
 	fixnum a, b;
@@ -2766,7 +2766,7 @@ int clos_version_check(Execute ptr, addr pos, addr clos)
 /*
  *  change-class
  */
-int clos_change_class(Execute ptr, addr pos, addr clos, addr rest, addr *ret)
+_g int clos_change_class(Execute ptr, addr pos, addr clos, addr rest, addr *ret)
 {
 	fmte("TODO8", NULL);
 	return 0;
@@ -2776,7 +2776,7 @@ int clos_change_class(Execute ptr, addr pos, addr clos, addr rest, addr *ret)
 /*
  *  slot-missing
  */
-int clos_slot_missing(Execute ptr,
+_g int clos_slot_missing(Execute ptr,
 		addr clos, addr pos, addr name, addr operation, addr value)
 {
 	addr call;
@@ -2786,7 +2786,7 @@ int clos_slot_missing(Execute ptr,
 	return funcall_control(ptr, call, clos, pos, name, operation, value, NULL);
 }
 
-int clos_slot_unbound(Execute ptr, addr clos, addr pos, addr name)
+_g int clos_slot_unbound(Execute ptr, addr clos, addr pos, addr name)
 {
 	addr call;
 
@@ -2811,7 +2811,7 @@ static int slot_boundp_call(Execute ptr, addr pos, addr key, int *ret)
 	return 0;
 }
 
-int slot_boundp_using_class_common(Execute ptr,
+_g int slot_boundp_using_class_common(Execute ptr,
 		addr clos, addr pos, addr key, int *ret)
 {
 	addr slots, slot, check;
@@ -2857,7 +2857,7 @@ static int slot_makunbound_call(Execute ptr, addr pos, addr key)
 	return callclang_funcall(ptr, &pos, call, pos, key, NULL);
 }
 
-int slot_makunbound_using_class(Execute ptr, addr clos, addr pos, addr key)
+_g int slot_makunbound_using_class(Execute ptr, addr clos, addr pos, addr key)
 {
 	addr slots, slot, check;
 	size_t size, i;
@@ -2933,7 +2933,7 @@ static int slot_value_using_class_getp(Execute ptr,
 	return clos_slot_missing(ptr, clos, pos, key, check, Unbound);
 }
 
-int slot_value_using_class_common(Execute ptr,
+_g int slot_value_using_class_common(Execute ptr,
 		addr clos, addr pos, addr key, addr *ret)
 {
 	if (slot_value_using_class_getp(ptr, clos, pos, key, ret))
@@ -2957,7 +2957,7 @@ static int setf_slot_value_call(Execute ptr, addr pos, addr key, addr value)
 	return callclang_funcall(ptr, &value, call, value, pos, key, NULL);
 }
 
-int setf_slot_value_using_class_common(Execute ptr,
+_g int setf_slot_value_using_class_common(Execute ptr,
 		addr clos, addr pos, addr key, addr value)
 {
 	addr slots, slot, check;
@@ -2993,7 +2993,7 @@ int setf_slot_value_using_class_common(Execute ptr,
 /*
  *  initialize
  */
-void init_clos_class(void)
+_g void init_clos_class(void)
 {
 	SetPointerCall(defun, var3, clos_ensure_reader);
 	SetPointerCall(defun, var4, clos_ensure_writer_instance);

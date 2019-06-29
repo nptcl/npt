@@ -1142,3 +1142,35 @@
       (interactive-stream-p stream)))
   t t t t)
 
+
+;;
+;;  special variables
+;;
+(deftest debug-io-special.1
+  (lisp-system::specialp '*debug-io*)
+  t)
+
+(deftest error-output-special.1
+  (lisp-system::specialp '*error-output*)
+  t)
+
+(deftest query-io-special.1
+  (lisp-system::specialp '*query-io*)
+  t)
+
+(deftest standard-input-special.1
+  (lisp-system::specialp '*standard-input*)
+  t)
+
+(deftest standard-output-special.1
+  (lisp-system::specialp '*standard-output*)
+  t)
+
+(deftest trace-output-special.1
+  (lisp-system::specialp '*trace-output*)
+  t)
+
+(deftest terminal-io-special.1
+  (lisp-system::specialp '*terminal-io*)
+  t)
+

@@ -3,8 +3,8 @@
 
 #include "execute.h"
 
-void init_common(void);
-void build_common(void);
+_g void init_common(void);
+_g void build_common(void);
 
 #endif
 

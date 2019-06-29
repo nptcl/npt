@@ -91,14 +91,14 @@ static void defun_ensure_generic_function(void)
 
 
 /* (defgeneric allocate-instance ...)  */
-void static defgeneric_allocate_instance(void)
+static void defgeneric_allocate_instance(void)
 {
 	ImportMopPackage(ALLOCATE_INSTANCE);
 }
 
 
 /* (defgeneric reinitialize-instance ...) */
-void static defgeneric_reinitialize_instance(void)
+static void defgeneric_reinitialize_instance(void)
 {
 	ImportMopPackage(REINITIALIZE_INSTANCE);
 }
@@ -354,7 +354,7 @@ static void defun_setf_slot_value(void)
 
 
 /* (defgeneric method-qualifiers ...) */
-static void defgeneric_method_qualifiers(void)
+static void defgeneric_method_qualifiers_import(void)
 {
 	ImportMopPackage(METHOD_QUALIFIERS);
 }
@@ -637,14 +637,14 @@ static void defgeneric_initialize_instance(void)
 
 
 /* (defgeneric class-name ...) */
-static void defgeneric_class_name(void)
+static void defgeneric_class_name_import(void)
 {
 	ImportMopPackage(CLASS_NAME);
 }
 
 
 /* (defgeneric (setf class-name) ...) */
-static void defgeneric_setf_class_name(void)
+static void defgeneric_setf_class_name_import(void)
 {
 	/* do-nothing */
 }
@@ -786,7 +786,7 @@ static void build_clos_objects(void)
 	defgeneric_slot_unbound();
 	defun_slot_value();
 	defun_setf_slot_value();
-	defgeneric_method_qualifiers();
+	defgeneric_method_qualifiers_import();
 	defgeneric_no_applicable_method();
 	defgeneric_no_next_method();
 	defgeneric_remove_method();
@@ -806,8 +806,8 @@ static void build_clos_objects(void)
 	defgeneric_find_method();
 	defgeneric_add_method();
 	defgeneric_initialize_instance();
-	defgeneric_class_name();
-	defgeneric_setf_class_name();
+	defgeneric_class_name_import();
+	defgeneric_setf_class_name_import();
 	defun_class_of();
 	defun_unbound_slot_instance();
 }
@@ -822,7 +822,7 @@ static void build_clos_others(void)
 	defgeneric_setf_documentation();
 }
 
-void init_common_objects(void)
+_g void init_common_objects(void)
 {
 	/* metaobject protocol */
 	init_metaobject_protocol();
@@ -830,7 +830,7 @@ void init_common_objects(void)
 	init_clos_objects();
 }
 
-void build_common_objects(void)
+_g void build_common_objects(void)
 {
 	/* metaobject protocol */
 	build_metaobject_protocol();

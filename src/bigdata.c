@@ -124,7 +124,7 @@ static inline void plusnumber(bigtype *result, bigtype *carry)
 #endif
 }
 
-void plusnumber_bigdata(bigtype *result, bigtype *carry)
+_g void plusnumber_bigdata(bigtype *result, bigtype *carry)
 {
 	plusnumber(result, carry);
 }
@@ -167,7 +167,7 @@ static inline void multicarry(bigtype *result, bigtype value, bigtype *carry)
 	*carry += value;
 }
 
-void multicarry_bigdata(bigtype *result, bigtype value, bigtype *carry)
+_g void multicarry_bigdata(bigtype *result, bigtype value, bigtype *carry)
 {
 	multicarry(result, value, carry);
 }
@@ -184,7 +184,7 @@ static void inline multicarry4(bigtype *result,
 /*****************************************************************************
   compare
  *****************************************************************************/
-int equal_bigdata(addr left, addr right)
+_g int equal_bigdata(addr left, addr right)
 {
 	size_t size1, size2;
 
@@ -198,7 +198,7 @@ int equal_bigdata(addr left, addr right)
 	return bigcmp(PtrDataBignum(left), PtrDataBignum(right), size1) == 0;
 }
 
-int compare_bigdata(addr left, addr right)
+_g int compare_bigdata(addr left, addr right)
 {
 	const bigtype *data1, *data2;
 	size_t size1, size2, i, index;
@@ -273,7 +273,7 @@ static inline void minuscarry4(bigtype *result,
 
 #define TailCopy(a,b,s,i) bigcpy((a)+(i), (b)+(i), ((s)-(i)))
 
-void setplusvalue_bigdata(addr set, addr left, int sign, fixed right)
+_g void setplusvalue_bigdata(addr set, addr left, int sign, fixed right)
 {
 	addr root;
 	bigtype *data1;
@@ -296,7 +296,7 @@ void setplusvalue_bigdata(addr set, addr left, int sign, fixed right)
 	SetSignBignum(set, sign);
 }
 
-void plusvalue_bigdata_alloc(LocalRoot local,
+_g void plusvalue_bigdata_alloc(LocalRoot local,
 		addr left, int sign, fixed right, addr *ret)
 {
 	addr pos;
@@ -307,7 +307,7 @@ void plusvalue_bigdata_alloc(LocalRoot local,
 	*ret = pos;
 }
 
-void setminusvalue_bigdata(addr set, addr left, int sign, fixed right)
+_g void setminusvalue_bigdata(addr set, addr left, int sign, fixed right)
 {
 	addr root;
 	bigtype *data1, value;
@@ -346,7 +346,7 @@ void setminusvalue_bigdata(addr set, addr left, int sign, fixed right)
 	sizepress_bignum(set);
 }
 
-void minusvalue_bigdata_alloc(LocalRoot local,
+_g void minusvalue_bigdata_alloc(LocalRoot local,
 		addr left, int sign, fixed right, addr *ret)
 {
 	addr pos;
@@ -382,7 +382,7 @@ static void plusloop(addr pos, size_t size1, size_t size2,
 	ptr->size = size2;
 }
 
-void plus_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
+_g void plus_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
 {
 	addr pos;
 	const bigtype *data1, *data2;
@@ -403,7 +403,7 @@ void plus_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	*ret = pos;
 }
 
-void letplus_noexpand_bigdata(addr left, addr right)
+_g void letplus_noexpand_bigdata(addr left, addr right)
 {
 	addr root;
 	const bigtype *data1, *data2;
@@ -456,7 +456,7 @@ static void minus_bigdata_call(LocalRoot local,
 	setminus_bigdata_call(*ret, data1, size1, data2, size2);
 }
 
-void minus_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
+_g void minus_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
 {
 	addr root;
 	size_t size1, size2;
@@ -472,7 +472,7 @@ void minus_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
 	minus_bigdata_call(local, ret, data1, size1, data2, size2);
 }
 
-int minuscheck_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
+_g int minuscheck_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int check;
 	addr root;
@@ -520,7 +520,7 @@ static void setminus_noexpand(addr pos, addr left, addr right)
 	setminus_bigdata_call(pos, data1, size1, data2, size2);
 }
 
-int letminus_noexpand_bigdata(addr left, addr right)
+_g int letminus_noexpand_bigdata(addr left, addr right)
 {
 	int check;
 
@@ -543,7 +543,7 @@ int letminus_noexpand_bigdata(addr left, addr right)
 /*****************************************************************************
   multiple
  *****************************************************************************/
-void multicarry_fixnum(LocalRoot local, fixnum left, fixnum right, addr *ret)
+_g void multicarry_fixnum(LocalRoot local, fixnum left, fixnum right, addr *ret)
 {
 	int sign1, sign2;
 	fixed fixed1, fixed2;
@@ -566,7 +566,7 @@ void multicarry_fixnum(LocalRoot local, fixnum left, fixnum right, addr *ret)
 	}
 }
 
-void multicarry_bignum(LocalRoot local, fixnum left, fixnum right, addr *ret)
+_g void multicarry_bignum(LocalRoot local, fixnum left, fixnum right, addr *ret)
 {
 	int sign1, sign2;
 	fixed fixed1, fixed2;
@@ -581,7 +581,7 @@ void multicarry_bignum(LocalRoot local, fixnum left, fixnum right, addr *ret)
 		bignum_value_alloc(local, ret, sign1, fixed1);
 }
 
-void setmultivalue_bigdata(addr pos, addr left, bigtype right)
+_g void setmultivalue_bigdata(addr pos, addr left, bigtype right)
 {
 	addr root;
 	bigtype *data1, carry;
@@ -604,7 +604,7 @@ void setmultivalue_bigdata(addr pos, addr left, bigtype right)
 	SetSizeBignum(pos, i);
 }
 
-void setmulti_bigdata(addr pos, addr left, addr right)
+_g void setmulti_bigdata(addr pos, addr left, addr right)
 {
 	addr root;
 	size_t size1, size2, a, b, c;
@@ -635,7 +635,7 @@ void setmulti_bigdata(addr pos, addr left, addr right)
 	SetSizeBignum(pos, c);
 }
 
-void multi_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
+_g void multi_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret)
 {
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
@@ -1157,7 +1157,7 @@ static bigtype letdivvalue_buffer(addr left, bigtype right)
 	return carry;
 }
 
-void letdiv_noexpand_bigdata(LocalRoot local, addr left, addr right)
+_g void letdiv_noexpand_bigdata(LocalRoot local, addr left, addr right)
 {
 	int check1, check2, compare;
 	size_t size1, size2;
@@ -1247,7 +1247,7 @@ static bigtype remvalue_buffer(addr left, bigtype right)
 	return carry;
 }
 
-void setrem_noexpand_bigdata(LocalRoot local, addr set, addr left, addr right)
+_g void setrem_noexpand_bigdata(LocalRoot local, addr set, addr left, addr right)
 {
 	int check1, check2, compare;
 	size_t size1, size2;
@@ -1298,7 +1298,7 @@ void setrem_noexpand_bigdata(LocalRoot local, addr set, addr left, addr right)
 	setrem_noexpand(local, set, left, right);
 }
 
-void divrem_bigdata_local(LocalRoot local,
+_g void divrem_bigdata_local(LocalRoot local,
 		addr *quot, addr *rem, addr left, addr right)
 {
 	int check1, check2, compare;
@@ -1364,7 +1364,7 @@ void divrem_bigdata_local(LocalRoot local,
 /*
  *  shift
  */
-void power2_bigdata_alloc(LocalRoot local, addr *ret, size_t value)
+_g void power2_bigdata_alloc(LocalRoot local, addr *ret, size_t value)
 {
 	size_t count;
 	bigtype *data;
@@ -1382,7 +1382,7 @@ void power2_bigdata_alloc(LocalRoot local, addr *ret, size_t value)
 	*ret = pos;
 }
 
-void division2_bigdata_alloc(LocalRoot local, addr *ret, addr left)
+_g void division2_bigdata_alloc(LocalRoot local, addr *ret, addr left)
 {
 	addr pos, root;
 	bigtype *data1, *data2, carry, value;
@@ -1413,7 +1413,7 @@ void division2_bigdata_alloc(LocalRoot local, addr *ret, addr left)
 	*ret = pos;
 }
 
-void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value)
+_g void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value)
 {
 	addr pos, root;
 	size_t size, count, dsize, i;
@@ -1459,7 +1459,7 @@ void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value)
 	*ret = pos;
 }
 
-void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value)
+_g void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value)
 {
 	addr pos, root;
 	size_t size, count, dsize, i;
@@ -1503,7 +1503,7 @@ void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value
 /*
  *  output
  */
-bigtype letdiv_half_bigdata(addr left, bigtype right)
+_g bigtype letdiv_half_bigdata(addr left, bigtype right)
 {
 	addr root;
 	bigtype *data, carry;

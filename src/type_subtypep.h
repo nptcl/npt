@@ -13,11 +13,11 @@ enum SUBTYPEP_RESULT {
 };
 typedef enum SUBTYPEP_RESULT SubtypepResult;
 
-void init_type_subtypep(void);
-SubtypepResult subtypep_result(addr left, addr right, int asterisk);
-int subtypep_asterisk_clang(addr left, addr right, int *validp);
-int subtypep_clang(addr left, addr right, int *validp);
-int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2);
+_g void init_type_subtypep(void);
+_g SubtypepResult subtypep_result(addr left, addr right, int asterisk);
+_g int subtypep_asterisk_clang(addr left, addr right, int *validp);
+_g int subtypep_clang(addr left, addr right, int *validp);
+_g int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2);
 
 #endif
 

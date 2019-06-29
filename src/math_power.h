@@ -4,7 +4,7 @@
 #include "local.h"
 #include "typedef.h"
 
-void expt_common(LocalRoot local, addr *ret, addr base, addr power);
+_g void expt_common(LocalRoot local, addr *ret, addr base, addr power);
 
 #endif
 

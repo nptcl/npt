@@ -4,11 +4,11 @@
 #include "execute.h"
 #include "typedef.h"
 
-void getdeftype(addr symbol, addr *ret);
-void setdeftype(addr symbol, addr pos);
-int symbol_deftypep(addr symbol);
-int execute_list_deftype(Execute ptr, addr *ret, addr list, addr env);
-int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env);
+_g void getdeftype(addr symbol, addr *ret);
+_g void setdeftype(addr symbol, addr pos);
+_g int symbol_deftypep(addr symbol);
+_g int execute_list_deftype(Execute ptr, addr *ret, addr list, addr env);
+_g int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env);
 
 #endif
 

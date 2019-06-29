@@ -954,7 +954,7 @@ static void defun_use_value(void)
 /*
  *  function
  */
-void init_common_conditions(void)
+_g void init_common_conditions(void)
 {
 	SetPointerCall(defun, var1rest, error);
 	SetPointerCall(defmacro, macro, handler_bind);
@@ -975,7 +975,7 @@ void init_common_conditions(void)
 	SetPointerCall(defun, opt1, use_value);
 }
 
-void build_common_conditions(void)
+_g void build_common_conditions(void)
 {
 	/* defun_cell_error_name(); */
 	/* defmacro_assert(); */

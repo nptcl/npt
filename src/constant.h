@@ -191,17 +191,17 @@ typedef enum CONSTANT_INDEX constindex;
 #define GetConst(i,v)		GetConstant(CONSTANT_##i, (v))
 #define SetConst(i,v)		SetConstant(CONSTANT_##i, (v))
 
-void build_constant(void);
-void intern_symbol_header(void);
-void specialconstant(enum CONSTANT_INDEX index, const char *package, const char *name);
-void gensymconstant(enum CONSTANT_INDEX index, const char *name);
-void keywordconstant(enum CONSTANT_INDEX index, const char *name);
-void commonconstant(enum CONSTANT_INDEX index, const char *name);
+_g void build_constant(void);
+_g void intern_symbol_header(void);
+_g void specialconstant(enum CONSTANT_INDEX index, const char *package, const char *name);
+_g void gensymconstant(enum CONSTANT_INDEX index, const char *name);
+_g void keywordconstant(enum CONSTANT_INDEX index, const char *name);
+_g void commonconstant(enum CONSTANT_INDEX index, const char *name);
 
-void symbolchar_common(enum CONSTANT_INDEX index, const char *name);
-void symbolchar_keyword(enum CONSTANT_INDEX index, const char *name);
-void quotelist_heap(addr *ret, addr name);
-void pushconst_heap(addr *ret, constindex index);
+_g void symbolchar_common(enum CONSTANT_INDEX index, const char *name);
+_g void symbolchar_keyword(enum CONSTANT_INDEX index, const char *name);
+_g void quotelist_heap(addr *ret, addr name);
+_g void pushconst_heap(addr *ret, constindex index);
 #define PushConst(a,b) pushconst_heap((a),CONSTANT_##b)
 
 #endif

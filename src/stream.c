@@ -29,89 +29,89 @@
 #include "strtype.h"
 #include "symbol.h"
 
-void *ptrbody_stream(addr stream)
+_g void *ptrbody_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return PtrBodyStream_Low(stream);
 }
 
-struct StructStream *ptrstruct_stream(addr stream)
+_g struct StructStream *ptrstruct_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return PtrStructStream_Low(stream);
 }
 
-void *ptrdata_stream(addr stream)
+_g void *ptrdata_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return PtrDataStream_Low(stream);
 }
 
-void gettype_stream(addr stream, enum StreamType *ret)
+_g void gettype_stream(addr stream, enum StreamType *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	GetTypeStream_Low(stream, ret);
 }
 
-size_t getindex_stream(addr stream)
+_g size_t getindex_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return GetIndexStream_Low(stream);
 }
 
-void getpathname_stream(addr stream, addr *ret)
+_g void getpathname_stream(addr stream, addr *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	GetPathnameStream_Low(stream, ret);
 }
 
-void setpathname_stream(addr stream, addr value)
+_g void setpathname_stream(addr stream, addr value)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	Check(GetStatusReadOnly(stream), "readonly error");
 	SetPathnameStream_Low(stream, value);
 }
 
-void getinfo_stream(addr stream, addr *ret)
+_g void getinfo_stream(addr stream, addr *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	GetInfoStream_Low(stream, ret);
 }
 
-void setinfo_stream(addr stream, addr value)
+_g void setinfo_stream(addr stream, addr value)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	Check(GetStatusReadOnly(stream), "readonly error");
 	SetInfoStream_Low(stream, value);
 }
 
-void getinput_stream(addr stream, addr *ret)
+_g void getinput_stream(addr stream, addr *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	GetInputStream_Low(stream, ret);
 }
 
-void setinput_stream(addr stream, addr value)
+_g void setinput_stream(addr stream, addr value)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	Check(GetStatusReadOnly(stream), "readonly error");
 	SetInputStream_Low(stream, value);
 }
 
-void getoutput_stream(addr stream, addr *ret)
+_g void getoutput_stream(addr stream, addr *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	GetOutputStream_Low(stream, ret);
 }
 
-void setoutput_stream(addr stream, addr value)
+_g void setoutput_stream(addr stream, addr value)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	Check(GetStatusReadOnly(stream), "readonly error");
 	SetOutputStream_Low(stream, value);
 }
 
-void stream_alloc(LocalRoot local, addr *ret, enum StreamType type, size_t size)
+_g void stream_alloc(LocalRoot local, addr *ret, enum StreamType type, size_t size)
 {
 	struct StructStream *ptr;
 	size_t allsize;
@@ -131,23 +131,23 @@ void stream_alloc(LocalRoot local, addr *ret, enum StreamType type, size_t size)
 	ptr->closed = 0;
 }
 
-void stream_heap(addr *ret, enum StreamType type, size_t size)
+_g void stream_heap(addr *ret, enum StreamType type, size_t size)
 {
 	stream_alloc(NULL, ret, type, size);
 }
 
-enum StreamType getstreamtype(addr stream)
+_g enum StreamType getstreamtype(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return PtrStructStream(stream)->type;
 }
 
-int streamp(addr stream)
+_g int streamp(addr stream)
 {
 	return GetType(stream) == LISPTYPE_STREAM;
 }
 
-int file_stream_p(addr stream)
+_g int file_stream_p(addr stream)
 {
 	enum StreamType check;
 
@@ -164,49 +164,49 @@ int file_stream_p(addr stream)
 		|| check == StreamType_BincharIO;
 }
 
-int broadcast_stream_p(addr stream)
+_g int broadcast_stream_p(addr stream)
 {
 	return streamp(stream)
 		&& getstreamtype(stream) == StreamType_BroadCast;
 }
 
-int concatenated_stream_p(addr stream)
+_g int concatenated_stream_p(addr stream)
 {
 	return streamp(stream)
 		&& getstreamtype(stream) == StreamType_Concatenated;
 }
 
-int echo_stream_p(addr stream)
+_g int echo_stream_p(addr stream)
 {
 	return streamp(stream)
 		&& getstreamtype(stream) == StreamType_Echo;
 }
 
-int synonym_stream_p(addr stream)
+_g int synonym_stream_p(addr stream)
 {
 	return streamp(stream)
 		&& getstreamtype(stream) == StreamType_Synonym;
 }
 
-int twoway_stream_p(addr stream)
+_g int twoway_stream_p(addr stream)
 {
 	return streamp(stream)
 		&& getstreamtype(stream) == StreamType_TwoWay;
 }
 
-int input_string_stream_p(addr stream)
+_g int input_string_stream_p(addr stream)
 {
 	return streamp(stream)
 		&& getstreamtype(stream) == StreamType_StringInput;
 }
 
-int output_string_stream_p(addr stream)
+_g int output_string_stream_p(addr stream)
 {
 	return streamp(stream)
 		&& getstreamtype(stream) == StreamType_StringOutput;
 }
 
-int string_stream_p(addr stream)
+_g int string_stream_p(addr stream)
 {
 	enum StreamType check;
 
@@ -216,7 +216,7 @@ int string_stream_p(addr stream)
 		|| check == StreamType_StringOutput;
 }
 
-int prompt_stream_p(addr stream)
+_g int prompt_stream_p(addr stream)
 {
 	return streamp(stream)
 		&& getstreamtype(stream) == StreamType_Prompt;
@@ -226,38 +226,38 @@ int prompt_stream_p(addr stream)
 /*****************************************************************************
  *  function
  *****************************************************************************/
-int (*Stream_close[StreamType_Size])(addr, int);
-int (*Stream_read_binary[StreamType_Size])(addr, void *, size_t, size_t *);
-int (*Stream_readforce_binary[StreamType_Size])(addr, void *, size_t, size_t *);
-int (*Stream_read_byte[StreamType_Size])(addr, byte *);
-int (*Stream_unread_byte[StreamType_Size])(addr, byte);
-int (*Stream_write_binary[StreamType_Size])(addr, const void *, size_t, size_t *);
-int (*Stream_write_byte[StreamType_Size])(addr, byte);
-int (*Stream_read_char[StreamType_Size])(addr, unicode *);
-int (*Stream_read_hang[StreamType_Size])(addr, unicode *, int *);
-void (*Stream_unread_char[StreamType_Size])(addr, unicode);
-void (*Stream_write_char[StreamType_Size])(addr, unicode);
-int (*Stream_fresh_line[StreamType_Size])(addr);
-void (*Stream_clear_input[StreamType_Size])(addr);
-int (*Stream_inputp[StreamType_Size])(addr);
-int (*Stream_outputp[StreamType_Size])(addr);
-int (*Stream_interactivep[StreamType_Size])(addr);
-int (*Stream_characterp[StreamType_Size])(addr);
-int (*Stream_binaryp[StreamType_Size])(addr);
-void (*Stream_element_type[StreamType_Size])(addr, addr *);
-void (*Stream_file_length[StreamType_Size])(addr, addr *);
-int (*Stream_file_position[StreamType_Size])(addr, size_t *);
-int (*Stream_file_position_start[StreamType_Size])(addr);
-int (*Stream_file_position_end[StreamType_Size])(addr);
-int (*Stream_file_position_set[StreamType_Size])(addr, size_t);
-int (*Stream_file_character_length[StreamType_Size])(addr, unicode, size_t *);
-int (*Stream_file_string_length[StreamType_Size])(addr, addr, size_t *);
-int (*Stream_listen[StreamType_Size])(addr);
-void (*Stream_finish_output[StreamType_Size])(addr);
-void (*Stream_force_output[StreamType_Size])(addr);
-void (*Stream_clear_output[StreamType_Size])(addr);
+_g int (*Stream_close[StreamType_Size])(addr, int);
+_g int (*Stream_read_binary[StreamType_Size])(addr, void *, size_t, size_t *);
+_g int (*Stream_readforce_binary[StreamType_Size])(addr, void *, size_t, size_t *);
+_g int (*Stream_read_byte[StreamType_Size])(addr, byte *);
+_g int (*Stream_unread_byte[StreamType_Size])(addr, byte);
+_g int (*Stream_write_binary[StreamType_Size])(addr, const void *, size_t, size_t *);
+_g int (*Stream_write_byte[StreamType_Size])(addr, byte);
+_g int (*Stream_read_char[StreamType_Size])(addr, unicode *);
+_g int (*Stream_read_hang[StreamType_Size])(addr, unicode *, int *);
+_g void (*Stream_unread_char[StreamType_Size])(addr, unicode);
+_g void (*Stream_write_char[StreamType_Size])(addr, unicode);
+_g int (*Stream_fresh_line[StreamType_Size])(addr);
+_g void (*Stream_clear_input[StreamType_Size])(addr);
+_g int (*Stream_inputp[StreamType_Size])(addr);
+_g int (*Stream_outputp[StreamType_Size])(addr);
+_g int (*Stream_interactivep[StreamType_Size])(addr);
+_g int (*Stream_characterp[StreamType_Size])(addr);
+_g int (*Stream_binaryp[StreamType_Size])(addr);
+_g void (*Stream_element_type[StreamType_Size])(addr, addr *);
+_g void (*Stream_file_length[StreamType_Size])(addr, addr *);
+_g int (*Stream_file_position[StreamType_Size])(addr, size_t *);
+_g int (*Stream_file_position_start[StreamType_Size])(addr);
+_g int (*Stream_file_position_end[StreamType_Size])(addr);
+_g int (*Stream_file_position_set[StreamType_Size])(addr, size_t);
+_g int (*Stream_file_character_length[StreamType_Size])(addr, unicode, size_t *);
+_g int (*Stream_file_string_length[StreamType_Size])(addr, addr, size_t *);
+_g int (*Stream_listen[StreamType_Size])(addr);
+_g void (*Stream_finish_output[StreamType_Size])(addr);
+_g void (*Stream_force_output[StreamType_Size])(addr);
+_g void (*Stream_clear_output[StreamType_Size])(addr);
 
-int close_abort_stream(addr stream, int abort)
+_g int close_abort_stream(addr stream, int abort)
 {
 	int result;
 	struct StructStream *ptr;
@@ -272,19 +272,19 @@ int close_abort_stream(addr stream, int abort)
 	return result;
 }
 
-int open_stream_p(addr stream)
+_g int open_stream_p(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return PtrStructStream(stream)->closed == 0;
 }
 
-int closep_stream(addr stream)
+_g int closep_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return PtrStructStream(stream)->closed != 0;
 }
 
-void close_stream(addr stream)
+_g void close_stream(addr stream)
 {
 	(void)close_abort_stream(stream, 0);
 }
@@ -297,216 +297,216 @@ void close_stream(addr stream)
 	} \
 }
 
-int read_binary_stream(addr stream, void *pos, size_t size, size_t *ret)
+_g int read_binary_stream(addr stream, void *pos, size_t size, size_t *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_read_binary[(int)ptr->type])(stream, pos, size, ret);
 }
 
-int readforce_binary_stream(addr stream, void *pos, size_t size, size_t *ret)
+_g int readforce_binary_stream(addr stream, void *pos, size_t size, size_t *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_readforce_binary[(int)ptr->type])(stream, pos, size, ret);
 }
 
-int read_byte_stream(addr stream, byte *c)
+_g int read_byte_stream(addr stream, byte *c)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_read_byte[(int)ptr->type])(stream, c);
 }
 
-int unread_byte_stream(addr stream, byte c)
+_g int unread_byte_stream(addr stream, byte c)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_unread_byte[(int)ptr->type])(stream, c);
 }
 
-int write_binary_stream(addr stream, const void *pos, size_t size, size_t *ret)
+_g int write_binary_stream(addr stream, const void *pos, size_t size, size_t *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_write_binary[(int)ptr->type])(stream, pos, size, ret);
 }
 
-int write_byte_stream(addr stream, byte c)
+_g int write_byte_stream(addr stream, byte c)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_write_byte[(int)ptr->type])(stream, c);
 }
 
-int read_char_stream(addr stream, unicode *c)
+_g int read_char_stream(addr stream, unicode *c)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_read_char[(int)ptr->type])(stream, c);
 }
 
-int read_hang_stream(addr stream, unicode *c, int *hang)
+_g int read_hang_stream(addr stream, unicode *c, int *hang)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_read_hang[(int)ptr->type])(stream, c, hang);
 }
 
-void unread_char_stream(addr stream, unicode c)
+_g void unread_char_stream(addr stream, unicode c)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	(Stream_unread_char[(int)ptr->type])(stream, c);
 }
 
-void write_char_stream(addr stream, unicode c)
+_g void write_char_stream(addr stream, unicode c)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	(Stream_write_char[(int)ptr->type])(stream, c);
 }
 
-void terpri_stream(addr stream)
+_g void terpri_stream(addr stream)
 {
 	write_char_stream(stream, '\n');
 	PtrStructStream(stream)->terpri = 0;
 }
 
-int fresh_line_stream(addr stream)
+_g int fresh_line_stream(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_fresh_line[(int)ptr->type])(stream);
 }
 
-void pageout_stream(addr stream)
+_g void pageout_stream(addr stream)
 {
 	write_char_stream(stream, '\f');
 }
 
-void clear_input_stream(addr stream)
+_g void clear_input_stream(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	(Stream_clear_input[(int)ptr->type])(stream);
 }
 
-size_t terpri_position_stream(addr stream)
+_g size_t terpri_position_stream(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return PtrStructStream(stream)->terpri;
 }
 
-int inputp_stream(addr stream)
+_g int inputp_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return (Stream_inputp[GetIndexStream(stream)])(stream);
 }
 
-int outputp_stream(addr stream)
+_g int outputp_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return (Stream_outputp[GetIndexStream(stream)])(stream);
 }
 
-int interactivep_stream(addr stream)
+_g int interactivep_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return (Stream_interactivep[GetIndexStream(stream)])(stream);
 }
 
-int characterp_stream(addr stream)
+_g int characterp_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return (Stream_characterp[GetIndexStream(stream)])(stream);
 }
 
-int binaryp_stream(addr stream)
+_g int binaryp_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	return (Stream_binaryp[GetIndexStream(stream)])(stream);
 }
 
-void element_type_stream(addr stream, addr *ret)
+_g void element_type_stream(addr stream, addr *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	(Stream_element_type[(int)ptr->type])(stream, ret);
 }
 
-void file_length_stream(addr stream, addr *ret)
+_g void file_length_stream(addr stream, addr *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	(Stream_file_length[(int)ptr->type])(stream, ret);
 }
 
-int file_position_stream(addr stream, size_t *ret)
+_g int file_position_stream(addr stream, size_t *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_file_position[(int)ptr->type])(stream, ret);
 }
 
-int file_position_start_stream(addr stream)
+_g int file_position_start_stream(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_file_position_start[(int)ptr->type])(stream);
 }
 
-int file_position_end_stream(addr stream)
+_g int file_position_end_stream(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_file_position_end[(int)ptr->type])(stream);
 }
 
-int file_position_set_stream(addr stream, size_t pos)
+_g int file_position_set_stream(addr stream, size_t pos)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_file_position_set[(int)ptr->type])(stream, pos);
 }
 
-int file_character_length_stream(addr stream, unicode u, size_t *ret)
+_g int file_character_length_stream(addr stream, unicode u, size_t *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_file_character_length[(int)ptr->type])(stream, u, ret);
 }
 
-int file_string_length_stream(addr stream, addr pos, size_t *ret)
+_g int file_string_length_stream(addr stream, addr pos, size_t *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_file_string_length[(int)ptr->type])(stream, pos, ret);
 }
 
-int listen_stream(addr stream)
+_g int listen_stream(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_listen[(int)ptr->type])(stream);
 }
 
-void finish_output_stream(addr stream)
+_g void finish_output_stream(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	(Stream_finish_output[(int)ptr->type])(stream);
 }
 
-void force_output_stream(addr stream)
+_g void force_output_stream(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	(Stream_force_output[(int)ptr->type])(stream);
 }
 
-void clear_output_stream(addr stream)
+_g void clear_output_stream(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
@@ -517,12 +517,12 @@ void clear_output_stream(addr stream)
 /*
  *  default
  */
-int close_default_stream(addr stream, int abort)
+_g int close_default_stream(addr stream, int abort)
 {
 	return 1;
 }
 
-int read_char_default_stream(addr stream, unicode *c)
+_g int read_char_default_stream(addr stream, unicode *c)
 {
 	struct StructStream *ptr;
 
@@ -537,7 +537,7 @@ int read_char_default_stream(addr stream, unicode *c)
 	}
 }
 
-int read_hang_default_stream(addr stream, unicode *c, int *hang)
+_g int read_hang_default_stream(addr stream, unicode *c, int *hang)
 {
 	struct StructStream *ptr;
 
@@ -553,7 +553,7 @@ int read_hang_default_stream(addr stream, unicode *c, int *hang)
 	}
 }
 
-void unread_char_default_stream(addr stream, unicode c)
+_g void unread_char_default_stream(addr stream, unicode c)
 {
 	struct StructStream *ptr;
 
@@ -566,7 +566,7 @@ void unread_char_default_stream(addr stream, unicode c)
 	ptr->unread_check = 1;
 }
 
-void write_char_default_stream(addr stream, unicode c)
+_g void write_char_default_stream(addr stream, unicode c)
 {
 	struct StructStream *ptr;
 
@@ -578,7 +578,7 @@ void write_char_default_stream(addr stream, unicode c)
 		ptr->terpri++;
 }
 
-int fresh_line_default_stream(addr stream)
+_g int fresh_line_default_stream(addr stream)
 {
 	if (PtrStructStream(stream)->terpri) {
 		terpri_stream(stream);
@@ -589,27 +589,27 @@ int fresh_line_default_stream(addr stream)
 	}
 }
 
-int checkp_true_stream(addr stream)
+_g int checkp_true_stream(addr stream)
 {
 	return 1;
 }
 
-int checkp_false_stream(addr stream)
+_g int checkp_false_stream(addr stream)
 {
 	return 0;
 }
 
-void element_type_character_stream(addr stream, addr *ret)
+_g void element_type_character_stream(addr stream, addr *ret)
 {
 	GetConst(COMMON_CHARACTER, ret);
 }
 
-void element_type_binary_stream(addr stream, addr *ret)
+_g void element_type_binary_stream(addr stream, addr *ret)
 {
 	GetConst(STREAM_BINARY_TYPE, ret);
 }
 
-void element_type_io_stream(addr stream, addr *ret)
+_g void element_type_io_stream(addr stream, addr *ret)
 {
 	addr input, output;
 
@@ -626,7 +626,7 @@ void element_type_io_stream(addr stream, addr *ret)
 	}
 }
 
-void file_length_default_stream(addr stream, addr *ret)
+_g void file_length_default_stream(addr stream, addr *ret)
 {
 	size_t size;
 
@@ -637,35 +637,35 @@ void file_length_default_stream(addr stream, addr *ret)
 		*ret = intsizeh(size);
 }
 
-int file_position_default_stream(addr stream, size_t *ret)
+_g int file_position_default_stream(addr stream, size_t *ret)
 {
 	return 1;
 }
 
-int file_position_start_default_stream(addr stream)
+_g int file_position_start_default_stream(addr stream)
 {
 	return 1;
 }
 
-int file_position_end_default_stream(addr stream)
+_g int file_position_end_default_stream(addr stream)
 {
 	return 1;
 }
 
-int file_position_set_default_stream(addr stream, size_t pos)
+_g int file_position_set_default_stream(addr stream, size_t pos)
 {
 	return 1;
 }
 
-void finish_output_default_stream(addr stream)
+_g void finish_output_default_stream(addr stream)
 {
 }
 
-void force_output_default_stream(addr stream)
+_g void force_output_default_stream(addr stream)
 {
 }
 
-void clear_output_default_stream(addr stream)
+_g void clear_output_default_stream(addr stream)
 {
 }
 
@@ -673,7 +673,7 @@ void clear_output_default_stream(addr stream)
 /*
  *  clang
  */
-void print_ascii_stream(addr stream, const char *data)
+_g void print_ascii_stream(addr stream, const char *data)
 {
 	unicode c;
 
@@ -686,7 +686,7 @@ void print_ascii_stream(addr stream, const char *data)
 	}
 }
 
-void print_unicode_stream(addr stream, const unicode *data)
+_g void print_unicode_stream(addr stream, const unicode *data)
 {
 	unicode c;
 
@@ -699,7 +699,7 @@ void print_unicode_stream(addr stream, const unicode *data)
 	}
 }
 
-void print_string_stream(addr stream, addr pos)
+_g void print_string_stream(addr stream, addr pos)
 {
 	unicode c;
 	size_t size, i;
@@ -716,7 +716,7 @@ void print_string_stream(addr stream, addr pos)
 /*
  *  initialize
  */
-void init_stream(void)
+_g void init_stream(void)
 {
 	init_stream_binary_input();
 	init_stream_binary_output();
@@ -900,7 +900,7 @@ static void defvar_end_of_line(void)
 	SetValueSymbol(symbol, value);
 }
 
-void build_stream(void)
+_g void build_stream(void)
 {
 	defvar_stream_binary_type();
 	defvar_external_format();
@@ -926,37 +926,37 @@ static void specialvalue(Execute ptr, constindex index, addr *ret)
 	getspecialcheck_local(ptr, symbol, ret);
 }
 
-void standard_input_stream(Execute ptr, addr *ret)
+_g void standard_input_stream(Execute ptr, addr *ret)
 {
 	specialvalue(ptr, CONSTANT_SPECIAL_STANDARD_INPUT, ret);
 }
 
-void standard_output_stream(Execute ptr, addr *ret)
+_g void standard_output_stream(Execute ptr, addr *ret)
 {
 	specialvalue(ptr, CONSTANT_SPECIAL_STANDARD_OUTPUT, ret);
 }
 
-void error_output_stream(Execute ptr, addr *ret)
+_g void error_output_stream(Execute ptr, addr *ret)
 {
 	specialvalue(ptr, CONSTANT_SPECIAL_ERROR_OUTPUT, ret);
 }
 
-void trace_output_stream(Execute ptr, addr *ret)
+_g void trace_output_stream(Execute ptr, addr *ret)
 {
 	specialvalue(ptr, CONSTANT_SPECIAL_TRACE_OUTPUT, ret);
 }
 
-void terminal_io_stream(Execute ptr, addr *ret)
+_g void terminal_io_stream(Execute ptr, addr *ret)
 {
 	specialvalue(ptr, CONSTANT_SPECIAL_TERMINAL_IO, ret);
 }
 
-void debug_io_stream(Execute ptr, addr *ret)
+_g void debug_io_stream(Execute ptr, addr *ret)
 {
 	specialvalue(ptr, CONSTANT_SPECIAL_DEBUG_IO, ret);
 }
 
-void query_io_stream(Execute ptr, addr *ret)
+_g void query_io_stream(Execute ptr, addr *ret)
 {
 	specialvalue(ptr, CONSTANT_SPECIAL_QUERY_IO, ret);
 }
@@ -1364,7 +1364,7 @@ static void open_direct_probe_stream(Execute ptr, addr *ret, addr pos,
 	*ret = pos;
 }
 
-void open_stream(Execute ptr, addr *ret, addr pos,
+_g void open_stream(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Direction direction,
 		enum Stream_Open_Element type,
 		enum Stream_Open_IfExists if1,
@@ -1399,7 +1399,7 @@ void open_stream(Execute ptr, addr *ret, addr pos,
 /*
  *  read-char
  */
-void stream_designer(Execute ptr, addr pos, addr *ret, int inputp)
+_g void stream_designer(Execute ptr, addr pos, addr *ret, int inputp)
 {
 	addr type;
 	constindex index;
@@ -1429,7 +1429,7 @@ void stream_designer(Execute ptr, addr pos, addr *ret, int inputp)
 	type_error(pos, type);
 }
 
-void read_byte_common(addr *ret, addr stream, int errorp, addr value)
+_g void read_byte_common(addr *ret, addr stream, int errorp, addr value)
 {
 	byte c;
 
@@ -1444,7 +1444,7 @@ void read_byte_common(addr *ret, addr stream, int errorp, addr value)
 	fixnum_heap(ret, (fixnum)c);
 }
 
-void write_byte_common(addr stream, addr value)
+_g void write_byte_common(addr stream, addr value)
 {
 	addr pos;
 	fixnum c;
@@ -1518,7 +1518,7 @@ static void peek_char_character(addr *ret,
 	}
 }
 
-void peek_char_common(Execute ptr, addr *ret,
+_g void peek_char_common(Execute ptr, addr *ret,
 		addr type, addr stream, int errorp, addr value, int recp)
 {
 	stream_designer(ptr, stream, &stream, 1);
@@ -1530,7 +1530,7 @@ void peek_char_common(Execute ptr, addr *ret,
 		peek_char_character(ret, type, stream, errorp, value, recp);
 }
 
-void read_char_no_hang_common(Execute ptr, addr *ret,
+_g void read_char_no_hang_common(Execute ptr, addr *ret,
 		addr pos, int errorp, addr value, int recp)
 {
 	int hang;
@@ -1552,7 +1552,7 @@ void read_char_no_hang_common(Execute ptr, addr *ret,
 	character_heap(ret, u);
 }
 
-void read_char_common(Execute ptr, addr *ret,
+_g void read_char_common(Execute ptr, addr *ret,
 		addr pos, int errorp, addr value, int recp)
 {
 	unicode u;
@@ -1576,7 +1576,7 @@ enum EndOfLine_Mode {
 	EndOfLine_CRLF
 };
 
-enum EndOfLine_Mode get_end_of_line_mode(Execute ptr)
+_g enum EndOfLine_Mode get_end_of_line_mode(Execute ptr)
 {
 	addr pos, check;
 
@@ -1603,7 +1603,7 @@ enum EndOfLine_Mode get_end_of_line_mode(Execute ptr)
 	return EndOfLine_Auto;
 }
 
-void read_line_common(Execute ptr, addr *ret, int *miss,
+_g void read_line_common(Execute ptr, addr *ret, int *miss,
 		addr pos, int errorp, addr value, int recp)
 {
 	int check;
@@ -1702,12 +1702,12 @@ static void write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
 	*ret = stream;
 }
 
-void write_string_common(Execute ptr, addr string, addr rest)
+_g void write_string_common(Execute ptr, addr string, addr rest)
 {
 	write_string_stream(ptr, string, rest, &string);
 }
 
-void write_line_common(Execute ptr, addr string, addr rest)
+_g void write_line_common(Execute ptr, addr string, addr rest)
 {
 	write_string_stream(ptr, string, rest, &string);
 	terpri_stream(string);
@@ -1743,7 +1743,7 @@ static void read_sequence_binary(addr *ret,
 	*ret = intsizeh(start);
 }
 
-void read_sequence_common(addr *ret, addr seq, addr stream, size_t start, size_t end)
+_g void read_sequence_common(addr *ret, addr seq, addr stream, size_t start, size_t end)
 {
 	/* character stream */
 	if (characterp_stream(stream)) {
@@ -1799,7 +1799,7 @@ static void write_sequence_binary(LocalRoot local,
 	}
 }
 
-void write_sequence_common(LocalRoot local,
+_g void write_sequence_common(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {
 	/* character stream */
@@ -1818,7 +1818,7 @@ void write_sequence_common(LocalRoot local,
 	fmte("Invalid stream ~S.", stream, NULL);
 }
 
-int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
+_g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 {
 	int miss;
 	unicode c;
@@ -1875,7 +1875,7 @@ int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 /*
  *  core
  */
-void update_standard_stream(void)
+_g void update_standard_stream(void)
 {
 	addr pos;
 
@@ -1890,7 +1890,7 @@ void update_standard_stream(void)
 	update_standard_error(pos);
 }
 
-int save_stream(addr pos)
+_g int save_stream(addr pos)
 {
 	switch (PtrStructStream(pos)->type) {
 		case StreamType_BinaryInput:

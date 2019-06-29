@@ -25,7 +25,7 @@ static length_char_calltype length_char_call[EncodeType_size];
 /*
  *  Byte Order Mark
  */
-int readbom8_encode(struct filememory *fm)
+_g int readbom8_encode(struct filememory *fm)
 {
 	byte c;
 	int check;
@@ -59,7 +59,7 @@ exist:
 	return 1;
 }
 
-int readbom16_encode(struct filememory *fm)
+_g int readbom16_encode(struct filememory *fm)
 {
 	byte a, b;
 	int check;
@@ -94,7 +94,7 @@ big_endian:
 	return 2;
 }
 
-int readbom32_encode(struct filememory *fm)
+_g int readbom32_encode(struct filememory *fm)
 {
 	byte a, b, c, d;
 	int check;
@@ -137,7 +137,7 @@ big_endian:
 	return 2;
 }
 
-int writebom8_encode(struct filememory *fm)
+_g int writebom8_encode(struct filememory *fm)
 {
 	if (putc_filememory(fm, 0xEF)) return 1;
 	if (putc_filememory(fm, 0xBB)) return 1;
@@ -145,7 +145,7 @@ int writebom8_encode(struct filememory *fm)
 	return 0;
 }
 
-int writebom16_encode(struct filememory *fm, int big_endian_p)
+_g int writebom16_encode(struct filememory *fm, int big_endian_p)
 {
 	if (big_endian_p) {
 		if (putc_filememory(fm, 0xFE)) return 1;
@@ -158,7 +158,7 @@ int writebom16_encode(struct filememory *fm, int big_endian_p)
 	return 0;
 }
 
-int writebom32_encode(struct filememory *fm, int big_endian_p)
+_g int writebom32_encode(struct filememory *fm, int big_endian_p)
 {
 	if (big_endian_p) {
 		if (putc_filememory(fm, 0x00)) return 1;
@@ -528,7 +528,7 @@ static void init_encode_read_char(void)
 	read_char_call[EncodeType_windows] = read_char_windows;
 }
 
-int read_char_encode(struct filememory *fm, unicode *c)
+_g int read_char_encode(struct filememory *fm, unicode *c)
 {
 	return (read_char_call[(int)fm->encode.type])(fm, c);
 }
@@ -970,7 +970,7 @@ static void init_encode_read_hang(void)
 	read_hang_call[EncodeType_windows] = read_hang_windows;
 }
 
-int read_hang_encode(struct filememory *fm, unicode *c, int *hang)
+_g int read_hang_encode(struct filememory *fm, unicode *c, int *hang)
 {
 	return (read_hang_call[(int)fm->encode.type])(fm, c, hang);
 }
@@ -1337,7 +1337,7 @@ static void init_encode_write_char(void)
 	write_char_call[EncodeType_windows] = write_char_windows;
 }
 
-int write_char_encode(struct filememory *fm, unicode u)
+_g int write_char_encode(struct filememory *fm, unicode u)
 {
 	return (write_char_call[(int)fm->encode.type])(fm, u);
 }
@@ -1467,7 +1467,7 @@ static int length_char_operator(struct filememory *fm, unicode c)
 	return (length_char_call[(int)fm->encode.type])(fm, c);
 }
 
-int length_char_encode(struct filememory *fm, unicode c)
+_g int length_char_encode(struct filememory *fm, unicode c)
 {
 	int check;
 
@@ -1478,7 +1478,7 @@ int length_char_encode(struct filememory *fm, unicode c)
 		return check;
 }
 
-int length_string_encode(struct filememory *fm, addr pos, size_t *ret)
+_g int length_string_encode(struct filememory *fm, addr pos, size_t *ret)
 {
 	int check;
 	unicode c;
@@ -1501,7 +1501,7 @@ int length_string_encode(struct filememory *fm, addr pos, size_t *ret)
 /*
  *  unicode buffer
  */
-int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret)
+_g int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret)
 {
 	size_t i, w;
 	unicode c;
@@ -1556,7 +1556,7 @@ static int UTF8_length(addr pos, size_t *ret)
 	return 0;
 }
 
-int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret)
+_g int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret)
 {
 	size_t i, w;
 	unicode c;
@@ -1632,7 +1632,7 @@ static int UTF16_make(byte16 *dst, addr pos)
 	return 0;
 }
 
-int UTF8_buffer_clang(LocalRoot local, addr *ret, addr string)
+_g int UTF8_buffer_clang(LocalRoot local, addr *ret, addr string)
 {
 	addr pos, body;
 	size_t size;
@@ -1648,7 +1648,7 @@ int UTF8_buffer_clang(LocalRoot local, addr *ret, addr string)
 	return 0;
 }
 
-int UTF16_buffer_clang(LocalRoot local, addr *ret, addr string)
+_g int UTF16_buffer_clang(LocalRoot local, addr *ret, addr string)
 {
 	addr pos, body;
 	size_t size;
@@ -1798,12 +1798,12 @@ end_of_file:
 	return 0;
 }
 
-int UTF8_null_strlen(const byte *src, size_t *ret)
+_g int UTF8_null_strlen(const byte *src, size_t *ret)
 {
 	return UTF8_table(NULL, src, 0, ret);
 }
 
-int UTF8_size_strlen(const byte *src, size_t size, size_t *ret)
+_g int UTF8_size_strlen(const byte *src, size_t size, size_t *ret)
 {
 	if (size == 0) {
 		*ret = 0;
@@ -1813,12 +1813,12 @@ int UTF8_size_strlen(const byte *src, size_t size, size_t *ret)
 	return UTF8_table(NULL, src, size, ret);
 }
 
-int UTF8_null_makeunicode(unicode *dst, const byte *src)
+_g int UTF8_null_makeunicode(unicode *dst, const byte *src)
 {
 	return UTF8_table(dst, src, 0, NULL);
 }
 
-int UTF8_size_makeunicode(unicode *dst, const byte *src, size_t size)
+_g int UTF8_size_makeunicode(unicode *dst, const byte *src, size_t size)
 {
 	if (size == 0)
 		return 0;
@@ -1826,7 +1826,7 @@ int UTF8_size_makeunicode(unicode *dst, const byte *src, size_t size)
 	return UTF8_table(dst, src, size, NULL);
 }
 
-int UTF16_null_strlen(const byte16 *src, size_t *ret)
+_g int UTF16_null_strlen(const byte16 *src, size_t *ret)
 {
 	size_t count;
 	byte16 c;
@@ -1848,7 +1848,7 @@ int UTF16_null_strlen(const byte16 *src, size_t *ret)
 	return 0;
 }
 
-int UTF16_size_strlen(const byte16 *src, size_t size, size_t *ret)
+_g int UTF16_size_strlen(const byte16 *src, size_t size, size_t *ret)
 {
 	size_t count, i;
 	byte16 c;
@@ -1875,7 +1875,7 @@ int UTF16_size_strlen(const byte16 *src, size_t size, size_t *ret)
 	return 0;
 }
 
-int UTF16_null_makeunicode(unicode *dst, const byte16 *src)
+_g int UTF16_null_makeunicode(unicode *dst, const byte16 *src)
 {
 	byte16 a, b;
 
@@ -1899,7 +1899,7 @@ int UTF16_null_makeunicode(unicode *dst, const byte16 *src)
 	return 0;
 }
 
-int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size)
+_g int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size)
 {
 	size_t i;
 	byte16 a, b;
@@ -1925,7 +1925,7 @@ int UTF16_size_makeunicode(unicode *dst, const byte16 *src, size_t size)
 	return 0;
 }
 
-int UTF32_make_utf8(byte *dst, const unicode *src, size_t size)
+_g int UTF32_make_utf8(byte *dst, const unicode *src, size_t size)
 {
 	byte data[8];
 	size_t i, ret;
@@ -1941,7 +1941,7 @@ int UTF32_make_utf8(byte *dst, const unicode *src, size_t size)
 	return 0;
 }
 
-int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size)
+_g int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size)
 {
 	byte16 data[4];
 	size_t i, ret;
@@ -1961,7 +1961,7 @@ int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size)
 /*
  *  initialize
  */
-void init_encode(void)
+_g void init_encode(void)
 {
 	init_encode_read_char();
 	init_encode_read_hang();

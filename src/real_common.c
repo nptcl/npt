@@ -18,11 +18,11 @@ static void single_float_least_positive(addr *ret)
 {
 	single_float_heap(ret, FLT_TRUE_MIN);
 }
-void double_float_least_positive(addr *ret)
+_g void double_float_least_positive(addr *ret)
 {
 	double_float_heap(ret, DBL_TRUE_MIN);
 }
-void long_float_least_positive(addr *ret)
+_g void long_float_least_positive(addr *ret)
 {
 	long_float_heap(ret, LDBL_TRUE_MIN);
 }
@@ -30,11 +30,11 @@ static void single_float_least_negative(addr *ret)
 {
 	single_float_heap(ret, -FLT_TRUE_MIN);
 }
-void double_float_least_negative(addr *ret)
+_g void double_float_least_negative(addr *ret)
 {
 	double_float_heap(ret, -DBL_TRUE_MIN);
 }
-void long_float_least_negative(addr *ret)
+_g void long_float_least_negative(addr *ret)
 {
 	long_float_heap(ret, -LDBL_TRUE_MIN);
 }
@@ -44,12 +44,12 @@ static void single_float_least_positive(addr *ret)
 	const static single_float v = 1.40129846E-45F;
 	single_float_heap(ret, v == 0.0f? FLT_MIN: v);
 }
-void double_float_least_positive(addr *ret)
+_g void double_float_least_positive(addr *ret)
 {
 	const static double_float v = 4.9406564584124654E-324;
 	double_float_heap(ret, v == 0.0? DBL_MIN: v);
 }
-void long_float_least_positive(addr *ret)
+_g void long_float_least_positive(addr *ret)
 {
 	const static long_float v = 3.6451995318824746025E-4951L;
 	long_float_heap(ret, v == 0.0L? LDBL_MIN: v);
@@ -59,12 +59,12 @@ static void single_float_least_negative(addr *ret)
 	const static single_float v = 1.40129846E-45F;
 	single_float_heap(ret, v == 0.0f? -FLT_MIN: -v);
 }
-void double_float_least_negative(addr *ret)
+_g void double_float_least_negative(addr *ret)
 {
 	const static double_float v = 4.9406564584124654E-324;
 	double_float_heap(ret, v == 0.0? -DBL_MIN: -v);
 }
-void long_float_least_negative(addr *ret)
+_g void long_float_least_negative(addr *ret)
 {
 	const static long_float v = 3.6451995318824746025E-4951L;
 	long_float_heap(ret, v == 0.0L? -LDBL_MIN: -v);
@@ -75,11 +75,11 @@ static void single_float_least_positive_normalized(addr *ret)
 {
 	single_float_heap(ret, FLT_MIN);
 }
-void double_float_least_positive_normalized(addr *ret)
+_g void double_float_least_positive_normalized(addr *ret)
 {
 	double_float_heap(ret, DBL_MIN);
 }
-void long_float_least_positive_normalized(addr *ret)
+_g void long_float_least_positive_normalized(addr *ret)
 {
 	long_float_heap(ret, LDBL_MIN);
 }
@@ -87,11 +87,11 @@ static void single_float_least_negative_normalized(addr *ret)
 {
 	single_float_heap(ret, -FLT_MIN);
 }
-void double_float_least_negative_normalized(addr *ret)
+_g void double_float_least_negative_normalized(addr *ret)
 {
 	double_float_heap(ret, -DBL_MIN);
 }
-void long_float_least_negative_normalized(addr *ret)
+_g void long_float_least_negative_normalized(addr *ret)
 {
 	long_float_heap(ret, -LDBL_MIN);
 }
@@ -106,22 +106,22 @@ static void single_float_negative_epsilon(addr *ret)
 	single_float_heap(ret, FLT_EPSILON * 0.25f);
 }
 
-void double_float_epsilon(addr *ret)
+_g void double_float_epsilon(addr *ret)
 {
 	double_float_heap(ret, DBL_EPSILON * 0.5);
 }
 
-void double_float_negative_epsilon(addr *ret)
+_g void double_float_negative_epsilon(addr *ret)
 {
 	double_float_heap(ret, DBL_EPSILON * 0.25);
 }
 
-void long_float_epsilon(addr *ret)
+_g void long_float_epsilon(addr *ret)
 {
 	long_float_heap(ret, LDBL_EPSILON * 0.5L);
 }
 
-void long_float_negative_epsilon(addr *ret)
+_g void long_float_negative_epsilon(addr *ret)
 {
 	long_float_heap(ret, LDBL_EPSILON * 0.25L);
 }
@@ -172,7 +172,7 @@ static void build_float_epsilon(void)
 	SetConstant(CONSTANT_SINGLE_FLOAT_NEGATIVE_EPSILON, value);
 }
 
-void build_real(void)
+_g void build_real(void)
 {
 	build_index_max();
 	build_float_max();
@@ -356,7 +356,7 @@ static void long_float_cast(addr *ret, addr pos)
 	}
 }
 
-void float_common(addr *ret, addr pos, addr type)
+_g void float_common(addr *ret, addr pos, addr type)
 {
 	if (type == Unbound) {
 		unbound_float_cast(ret, pos);

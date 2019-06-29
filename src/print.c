@@ -36,7 +36,7 @@
 #define PRINT_STREAM_SIZE		64
 
 typedef int (*calltype_write_print)(struct PrintFormat *, addr, addr);
-calltype_write_print call_write_print[LISPTYPE_SIZE];
+static calltype_write_print call_write_print[LISPTYPE_SIZE];
 
 static int print_unreadable_object(struct PrintFormat *format,
 		addr stream, addr pos, int type, int identity,
@@ -394,7 +394,7 @@ static int write_character(struct PrintFormat *format, addr stream, addr object)
 /*
  *  string
  */
-static int write_string(struct PrintFormat *format, addr stream, addr object)
+static int write_strtype(struct PrintFormat *format, addr stream, addr object)
 {
 	const unicode *body;
 	unicode c;
@@ -1362,7 +1362,7 @@ static int write_pathname(struct PrintFormat *format, addr stream, addr pos)
 	name_pathname_local(ptr, pos, &pos);
 	if (format->escape)
 		print_ascii_stream(stream, "#p");
-	(void)write_string(format, stream, pos);
+	(void)write_strtype(format, stream, pos);
 	rollback_local(local, stack);
 
 	return 0;
@@ -1559,7 +1559,7 @@ static int write_bytespec(struct PrintFormat *format, addr stream, addr pos)
 /*
  *  write
  */
-int write_print(struct PrintFormat *format, addr stream, addr object)
+_g int write_print(struct PrintFormat *format, addr stream, addr object)
 {
 	int index = (int)GetType(object);
 	return (call_write_print[index])(format, stream, object);
@@ -1587,7 +1587,7 @@ static int write_system(struct PrintFormat *format, addr stream, addr pos)
 	return print_unreadable_object(format, stream, pos, 1, 1, NULL);
 }
 
-void init_print(void)
+_g void init_print(void)
 {
 	int i;
 
@@ -1604,7 +1604,7 @@ void init_print(void)
 	call_write_print[LISPTYPE_ARRAY] = write_array;
 	call_write_print[LISPTYPE_VECTOR] = write_vector;
 	call_write_print[LISPTYPE_CHARACTER] = write_character;
-	call_write_print[LISPTYPE_STRING] = write_string;
+	call_write_print[LISPTYPE_STRING] = write_strtype;
 	call_write_print[LISPTYPE_HASHTABLE] = write_hashtable;
 	call_write_print[LISPTYPE_READTABLE] = write_system;
 	call_write_print[LISPTYPE_SYMBOL] = write_symbol;
@@ -1737,7 +1737,7 @@ static fixnum getintnil(Execute ptr, constindex index)
 	return value;
 }
 
-void format_print(Execute ptr, struct PrintFormat *format)
+_g void format_print(Execute ptr, struct PrintFormat *format)
 {
 	format->array = getboolean(ptr, CONSTANT_SPECIAL_PRINT_ARRAY);
 	format->circle = getboolean(ptr, CONSTANT_SPECIAL_PRINT_CIRCLE);
@@ -1760,7 +1760,7 @@ void format_print(Execute ptr, struct PrintFormat *format)
 	format->margin = getintnil(ptr, CONSTANT_SPECIAL_PRINT_RIGHT_MARGIN);
 }
 
-int princ_print(Execute ptr, addr stream, addr object)
+_g int princ_print(Execute ptr, addr stream, addr object)
 {
 	struct PrintFormat format;
 
@@ -1771,7 +1771,7 @@ int princ_print(Execute ptr, addr stream, addr object)
 	return write_print(&format, stream, object);
 }
 
-int prin1_print(Execute ptr, addr stream, addr object)
+_g int prin1_print(Execute ptr, addr stream, addr object)
 {
 	struct PrintFormat format;
 
@@ -1781,7 +1781,7 @@ int prin1_print(Execute ptr, addr stream, addr object)
 	return write_print(&format, stream, object);
 }
 
-int princ_string(Execute ptr, LocalRoot local, addr *ret, addr object)
+_g int princ_string(Execute ptr, LocalRoot local, addr *ret, addr object)
 {
 	addr stream;
 
@@ -1793,7 +1793,7 @@ int princ_string(Execute ptr, LocalRoot local, addr *ret, addr object)
 	return 0;
 }
 
-int prin1_string(Execute ptr, LocalRoot local, addr *ret, addr object)
+_g int prin1_string(Execute ptr, LocalRoot local, addr *ret, addr object)
 {
 	addr stream;
 
@@ -1809,7 +1809,7 @@ int prin1_string(Execute ptr, LocalRoot local, addr *ret, addr object)
 /*
  *  pretty print
  */
-void pprint_dispatch_heap(addr *ret)
+_g void pprint_dispatch_heap(addr *ret)
 {
 	heap_smallsize(ret, LISPTYPE_PPRINT, 1, 0);
 }

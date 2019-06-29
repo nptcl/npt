@@ -21,7 +21,7 @@
  *   (import lisp-system::infoprint 'rt)
  *   (export lisp-system::infoprint 'rt)
  */
-void import_export_symbol_rt(constindex index)
+_g void import_export_symbol_rt(constindex index)
 {
 	addr symbol, package;
 
@@ -521,7 +521,7 @@ static void defun_equalrt(void)
 /*
  *  build
  */
-void init_rt(void)
+_g void init_rt(void)
 {
 	SetPointerCall(defun, var3, push_entries);
 	SetPointerCall(defun, empty, rem_all_tests);
@@ -531,7 +531,7 @@ void init_rt(void)
 	SetPointerCall(defun, var2, equalrt);
 }
 
-void build_rt(void)
+_g void build_rt(void)
 {
 	defpackage_rt();
 	defvar_entries();

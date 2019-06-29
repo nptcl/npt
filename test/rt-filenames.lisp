@@ -431,6 +431,30 @@
 
 
 ;;
+;;  error
+;;
+(deftest pathname-host-string.1
+  (pathname-host "abcd:;aaa.txt")
+  "abcd")
+
+(deftest pathname-directory-string.1
+  (pathname-directory "/usr/local/bin/aaa.txt")
+  (:absolute "usr" "local" "bin"))
+
+(deftest pathname-name-string.1
+  (pathname-name "/usr/local/bin/aaa.txt")
+  "aaa")
+
+(deftest pathname-type-string.1
+  (pathname-type "/usr/local/bin/aaa.txt")
+  "txt")
+
+(deftest pathname-version-string.1
+  (pathname-version "abcd:;aaa;bbb;name.txt.100")
+  100)
+
+
+;;
 ;;  do-tests
 ;;
 (do-tests :test t)

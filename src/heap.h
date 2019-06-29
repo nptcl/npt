@@ -20,45 +20,45 @@ struct heapinfo {
 };
 
 /* variable */
-extern void *heap_alloc;
-extern addr heap_root;
-extern addr heap_front;
-extern addr heap_pos;
+__extern void *heap_alloc;
+__extern addr heap_root;
+__extern addr heap_front;
+__extern addr heap_pos;
 
 /* function */
-int alloc_heap(size_t);
-void free_heap(void);
+_g int alloc_heap(size_t);
+_g void free_heap(void);
 
 /* gc */
-void makespace(addr pos, size_t size);
-void makereserved(addr pos, size_t size);
-void foreach_heap(void (*call)(struct heapinfo *));
-int foreach_check_heap(int (*call)(struct heapinfo *));
-void cellupdate_heap(void);
-int valid_heap(const void *);
+_g void makespace(addr pos, size_t size);
+_g void makereserved(addr pos, size_t size);
+_g void foreach_heap(void (*call)(struct heapinfo *));
+_g int foreach_check_heap(int (*call)(struct heapinfo *));
+_g void cellupdate_heap(void);
+_g int valid_heap(const void *);
 
-addr heapr_cons(void);
-addr heapr_symbol(void);
-addr heapr_array2_memory(enum LISPTYPE type, byte16 array);
-addr heapr_array4_memory(enum LISPTYPE type, byte32 array);
-addr heapr_body2_memory(enum LISPTYPE type, byte16 body);
-addr heapr_body4_memory(enum LISPTYPE type, byte32 body);
-addr heapr_smallsize_memory(enum LISPTYPE type, byte array, byte body);
-addr heapr_arraybody_memory(enum LISPTYPE type, byte16 array, byte16 body);
-addr heapr_array(enum LISPTYPE type, size_t array);
-addr heapr_body(enum LISPTYPE type, size_t body);
+_g addr heapr_cons(void);
+_g addr heapr_symbol(void);
+_g addr heapr_array2_memory(enum LISPTYPE type, byte16 array);
+_g addr heapr_array4_memory(enum LISPTYPE type, byte32 array);
+_g addr heapr_body2_memory(enum LISPTYPE type, byte16 body);
+_g addr heapr_body4_memory(enum LISPTYPE type, byte32 body);
+_g addr heapr_smallsize_memory(enum LISPTYPE type, byte array, byte body);
+_g addr heapr_arraybody_memory(enum LISPTYPE type, byte16 array, byte16 body);
+_g addr heapr_array(enum LISPTYPE type, size_t array);
+_g addr heapr_body(enum LISPTYPE type, size_t body);
 #ifdef LISP_ARCH_64BIT
-addr heapr_array8(enum LISPTYPE type, size_t array);
-addr heapr_body8(enum LISPTYPE type, size_t body);
+_g addr heapr_array8(enum LISPTYPE type, size_t array);
+_g addr heapr_body8(enum LISPTYPE type, size_t body);
 #endif
 
 #ifdef LISP_DEBUG
-addr heapr_array2_debug(enum LISPTYPE type, size_t array);
-addr heapr_array4_debug(enum LISPTYPE type, size_t array);
-addr heapr_body2_debug(enum LISPTYPE type, size_t body);
-addr heapr_body4_debug(enum LISPTYPE type, size_t body);
-addr heapr_smallsize_debug(enum LISPTYPE type, size_t array, size_t body);
-addr heapr_arraybody_debug(enum LISPTYPE type, size_t array, size_t body);
+_g addr heapr_array2_debug(enum LISPTYPE type, size_t array);
+_g addr heapr_array4_debug(enum LISPTYPE type, size_t array);
+_g addr heapr_body2_debug(enum LISPTYPE type, size_t body);
+_g addr heapr_body4_debug(enum LISPTYPE type, size_t body);
+_g addr heapr_smallsize_debug(enum LISPTYPE type, size_t array, size_t body);
+_g addr heapr_arraybody_debug(enum LISPTYPE type, size_t array, size_t body);
 #define heapr_array2 heapr_array2_debug
 #define heapr_array4 heapr_array4_debug
 #define heapr_body2 heapr_body2_debug
@@ -74,28 +74,28 @@ addr heapr_arraybody_debug(enum LISPTYPE type, size_t array, size_t body);
 #define heapr_arraybody(t,a,b) heapr_arraybody_memory((t),(byte16)(a),(byte16)(b))
 #endif
 
-void heap_cons(addr *root);
-void heap_symbol(addr *root);
-void heap_array2_memory(addr *root, enum LISPTYPE type, byte16 array);
-void heap_array4_memory(addr *root, enum LISPTYPE type, byte32 array);
-void heap_body2_memory(addr *root, enum LISPTYPE type, byte16 body);
-void heap_body4_memory(addr *root, enum LISPTYPE type, byte32 body);
-void heap_smallsize_memory(addr *root, enum LISPTYPE type, byte array, byte body);
-void heap_arraybody_memory(addr *root, enum LISPTYPE type, byte16 array, byte16 body);
-void heap_array(addr *root, enum LISPTYPE type, size_t array);
-void heap_body(addr *root, enum LISPTYPE type, size_t body);
+_g void heap_cons(addr *root);
+_g void heap_symbol(addr *root);
+_g void heap_array2_memory(addr *root, enum LISPTYPE type, byte16 array);
+_g void heap_array4_memory(addr *root, enum LISPTYPE type, byte32 array);
+_g void heap_body2_memory(addr *root, enum LISPTYPE type, byte16 body);
+_g void heap_body4_memory(addr *root, enum LISPTYPE type, byte32 body);
+_g void heap_smallsize_memory(addr *root, enum LISPTYPE type, byte array, byte body);
+_g void heap_arraybody_memory(addr *root, enum LISPTYPE type, byte16 array, byte16 body);
+_g void heap_array(addr *root, enum LISPTYPE type, size_t array);
+_g void heap_body(addr *root, enum LISPTYPE type, size_t body);
 #ifdef LISP_ARCH_64BIT
-void heap_array8(addr *root, enum LISPTYPE type, size_t array);
-void heap_body8(addr *root, enum LISPTYPE type, size_t body);
+_g void heap_array8(addr *root, enum LISPTYPE type, size_t array);
+_g void heap_body8(addr *root, enum LISPTYPE type, size_t body);
 #endif
 
 #ifdef LISP_DEBUG
-void heap_array2_debug(addr *root, enum LISPTYPE type, size_t array);
-void heap_array4_debug(addr *root, enum LISPTYPE type, size_t array);
-void heap_body2_debug(addr *root, enum LISPTYPE type, size_t body);
-void heap_body4_debug(addr *root, enum LISPTYPE type, size_t body);
-void heap_smallsize_debug(addr *root, enum LISPTYPE type, size_t array, size_t body);
-void heap_arraybody_debug(addr *root, enum LISPTYPE type, size_t array, size_t body);
+_g void heap_array2_debug(addr *root, enum LISPTYPE type, size_t array);
+_g void heap_array4_debug(addr *root, enum LISPTYPE type, size_t array);
+_g void heap_body2_debug(addr *root, enum LISPTYPE type, size_t body);
+_g void heap_body4_debug(addr *root, enum LISPTYPE type, size_t body);
+_g void heap_smallsize_debug(addr *root, enum LISPTYPE type, size_t array, size_t body);
+_g void heap_arraybody_debug(addr *root, enum LISPTYPE type, size_t array, size_t body);
 #define heap_array2 heap_array2_debug
 #define heap_array4 heap_array4_debug
 #define heap_body2 heap_body2_debug
@@ -112,11 +112,11 @@ void heap_arraybody_debug(addr *root, enum LISPTYPE type, size_t array, size_t b
 #endif
 
 /* core */
-int save_heap(struct filememory *fm);
-int load_heap(struct filememory *fm);
+_g int save_heap(struct filememory *fm);
+_g int load_heap(struct filememory *fm);
 
 /* initialize */
-void init_heap(void);
+_g void init_heap(void);
 
 #endif
 

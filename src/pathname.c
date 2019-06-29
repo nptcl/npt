@@ -42,7 +42,7 @@
 /*
  *  logical-pathname table
  */
-void build_pathname(void)
+_g void build_pathname(void)
 {
 	addr value, symbol;
 
@@ -65,7 +65,7 @@ static void table_logical_pathname(addr *ret)
 	GetValueSymbol(symbol, ret);
 }
 
-void sethost_pathname(addr key, addr value)
+_g void sethost_pathname(addr key, addr value)
 {
 	addr list;
 
@@ -75,7 +75,7 @@ void sethost_pathname(addr key, addr value)
 }
 
 /* found=0, notfound=1 */
-int gethost_pathname(addr key, addr *ret)
+_g int gethost_pathname(addr key, addr *ret)
 {
 	addr list;
 	table_logical_pathname(&list);
@@ -86,7 +86,7 @@ int gethost_pathname(addr key, addr *ret)
 /*
  *  pathname object
  */
-void make_pathname_alloc(LocalRoot local, addr *ret, int logical)
+_g void make_pathname_alloc(LocalRoot local, addr *ret, int logical)
 {
 	alloc_array2(local, ret, LISPTYPE_PATHNAME, PATHNAME_INDEX_SIZE);
 	SetLogicalPathname(*ret, logical);
@@ -112,7 +112,7 @@ static void setpathname(LocalRoot local, addr pos, addr host, addr device,
 	SetPathname(pos, PATHNAME_INDEX_VERSION, version);
 }
 
-void pathname_alloc(LocalRoot local, addr *ret,
+_g void pathname_alloc(LocalRoot local, addr *ret,
 		addr host, addr device, addr directory, addr name, addr type)
 {
 	addr version;
@@ -121,19 +121,19 @@ void pathname_alloc(LocalRoot local, addr *ret,
 	GetConst(KEYWORD_UNSPECIFIC, &version);
 	setpathname(local, *ret, host, device, directory, name, type, version);
 }
-void pathname_local(LocalRoot local, addr *ret,
+_g void pathname_local(LocalRoot local, addr *ret,
 		addr host, addr device, addr directory, addr name, addr type)
 {
 	Check(local == NULL, "local error");
 	pathname_alloc(local, ret, host, device, directory, name, type);
 }
-void pathname_heap(addr *ret,
+_g void pathname_heap(addr *ret,
 		addr host, addr device, addr directory, addr name, addr type)
 {
 	pathname_alloc(NULL, ret, host, device, directory, name, type);
 }
 
-void logical_pathname_alloc(LocalRoot local, addr *ret, addr host,
+_g void logical_pathname_alloc(LocalRoot local, addr *ret, addr host,
 		addr directory, addr name, addr type, addr version)
 {
 	addr device;
@@ -142,34 +142,34 @@ void logical_pathname_alloc(LocalRoot local, addr *ret, addr host,
 	make_pathname_alloc(local, ret, 1);
 	setpathname(local, *ret, host, device, directory, name, type, version);
 }
-void logical_pathname_local(LocalRoot local, addr *ret, addr host,
+_g void logical_pathname_local(LocalRoot local, addr *ret, addr host,
 		addr directory, addr name, addr type, addr version)
 {
 	Check(local == NULL, "local error");
 	logical_pathname_alloc(local, ret, host, directory, name, type, version);
 }
-void logical_pathname_heap(addr *ret, addr host,
+_g void logical_pathname_heap(addr *ret, addr host,
 		addr directory, addr name, addr type, addr version)
 {
 	logical_pathname_alloc(NULL, ret, host, directory, name, type, version);
 }
 
-int pathnamep(addr pos)
+_g int pathnamep(addr pos)
 {
 	return GetType(pos) == LISPTYPE_PATHNAME;
 }
 
-int pathname_pathname_p(addr pos)
+_g int pathname_pathname_p(addr pos)
 {
 	return pathnamep(pos) && RefLogicalPathname(pos) == 0;
 }
 
-int pathname_logical_p(addr pos)
+_g int pathname_logical_p(addr pos)
 {
 	return pathnamep(pos) && RefLogicalPathname(pos) != 0;
 }
 
-void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b)
+_g void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b)
 {
 	addr value;
 
@@ -178,7 +178,7 @@ void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b)
 	SetPathname(b, i, value);
 }
 
-void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos)
+_g void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	int i;
 	addr one;
@@ -194,7 +194,7 @@ void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos)
 #else
 #define LispPathnameEqual equal_function
 #endif
-int pathname_equal(addr a, addr b)
+_g int pathname_equal(addr a, addr b)
 {
 	addr check1, check2;
 
@@ -1076,7 +1076,7 @@ static void parse_pathname_host_heap(Execute ptr, addr thing, addr host, addr *r
 	parse_pathname_full_heap(ptr, thing, host, Nil, 0, end, 0, ret, &end);
 }
 
-void parse_pathname_char_heap(Execute ptr, const char *str, addr *ret)
+_g void parse_pathname_char_heap(Execute ptr, const char *str, addr *ret)
 {
 	addr thing;
 	LocalRoot local;
@@ -1089,7 +1089,7 @@ void parse_pathname_char_heap(Execute ptr, const char *str, addr *ret)
 	rollback_local(local, stack);
 }
 
-void pathname_designer_alloc(Execute ptr, addr pos, addr *ret, int localp)
+_g void pathname_designer_alloc(Execute ptr, addr pos, addr *ret, int localp)
 {
 	addr value, type;
 	LocalRoot local;
@@ -1129,12 +1129,12 @@ void pathname_designer_alloc(Execute ptr, addr pos, addr *ret, int localp)
 	TypeError(pos, PATHNAME);
 }
 
-void pathname_designer_heap(Execute ptr, addr pos, addr *ret)
+_g void pathname_designer_heap(Execute ptr, addr pos, addr *ret)
 {
 	pathname_designer_alloc(ptr, pos, ret, 0);
 }
 
-void pathname_designer_local(Execute ptr, addr pos, addr *ret)
+_g void pathname_designer_local(Execute ptr, addr pos, addr *ret)
 {
 	pathname_designer_alloc(ptr, pos, ret, 1);
 }
@@ -1310,7 +1310,7 @@ static int wildcard_version_pathname(addr a, addr b)
 	return b == wild;
 }
 
-int wildcard_pathname(addr a, addr b, int wild)
+_g int wildcard_pathname(addr a, addr b, int wild)
 {
 	addr check1, check2;
 
@@ -1784,7 +1784,7 @@ static void translate_pathname_heap(Execute ptr,
 /*
  *  physical-pathname
  */
-void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp)
+_g void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp)
 {
 	LocalRoot local;
 	addr host, list, left, right;
@@ -1812,12 +1812,12 @@ void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp)
 	fmte("The logical-pathname ~S don't match translate table.", pos, NULL);
 }
 
-void physical_pathname_heap(Execute ptr, addr pos, addr *ret)
+_g void physical_pathname_heap(Execute ptr, addr pos, addr *ret)
 {
 	physical_pathname_alloc(ptr, pos, ret, 0);
 }
 
-void physical_pathname_local(Execute ptr, addr pos, addr *ret)
+_g void physical_pathname_local(Execute ptr, addr pos, addr *ret)
 {
 	physical_pathname_alloc(ptr, pos, ret, 1);
 }
@@ -1909,7 +1909,7 @@ static void file_name_pathname_alloc(LocalpRoot local, addr pos, addr *ret)
 	rollback_localp(local, stack);
 }
 
-void file_name_pathname_heap(LocalRoot local, addr pos, addr *ret)
+_g void file_name_pathname_heap(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -1919,7 +1919,7 @@ void file_name_pathname_heap(LocalRoot local, addr pos, addr *ret)
 	file_name_pathname_alloc(&buffer, pos, ret);
 }
 
-void file_name_pathname_local(LocalRoot local, addr pos, addr *ret)
+_g void file_name_pathname_local(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -2012,7 +2012,7 @@ static void directory_name_pathname_alloc(LocalpRoot local, addr pos, addr *ret)
 	rollback_localp(local, stack);
 }
 
-void directory_name_pathname_heap(LocalRoot local, addr pos, addr *ret)
+_g void directory_name_pathname_heap(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -2022,7 +2022,7 @@ void directory_name_pathname_heap(LocalRoot local, addr pos, addr *ret)
 	directory_name_pathname_alloc(&buffer, pos, ret);
 }
 
-void directory_name_pathname_local(LocalRoot local, addr pos, addr *ret)
+_g void directory_name_pathname_local(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -2133,7 +2133,7 @@ static void name_pathname_alloc(Execute ptr, LocalpRoot local, addr pos, addr *r
 	rollback_localp(local, stack);
 }
 
-void name_pathname_heap(Execute ptr, addr pos, addr *ret)
+_g void name_pathname_heap(Execute ptr, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -2142,7 +2142,7 @@ void name_pathname_heap(Execute ptr, addr pos, addr *ret)
 	name_pathname_alloc(ptr, &buffer, pos, ret);
 }
 
-void name_pathname_local(Execute ptr, addr pos, addr *ret)
+_g void name_pathname_local(Execute ptr, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
@@ -2264,7 +2264,7 @@ static void merge_pathname_object(Execute ptr,
 		pathname_heap(ret, host, device, directory, name, type);
 }
 
-void merge_pathnames_clang(Execute ptr,
+_g void merge_pathnames_clang(Execute ptr,
 		addr pos, addr defaults, addr defver, addr *ret)
 {
 	addr host;
@@ -2487,7 +2487,7 @@ static void make_pathname_case(addr *directory, addr *name, addr *type)
 	make_pathname_string(type);
 }
 
-void make_pathname(Execute ptr, addr *ret, addr rest)
+_g void make_pathname(Execute ptr, addr *ret, addr rest)
 {
 
 	/* (defun make-pathname (&key host device directory name type version defaults case)
@@ -2557,7 +2557,7 @@ void make_pathname(Execute ptr, addr *ret, addr rest)
 /*
  *  pathname accessor
  */
-void pathname_host(addr pos, addr *ret, int localp)
+_g void pathname_host(addr pos, addr *ret, int localp)
 {
 	GetPathname(pos, PATHNAME_INDEX_HOST, &pos);
 	if (! localp)
@@ -2565,7 +2565,7 @@ void pathname_host(addr pos, addr *ret, int localp)
 	*ret = pos;
 }
 
-void pathname_device(addr pos, addr *ret, int localp)
+_g void pathname_device(addr pos, addr *ret, int localp)
 {
 	GetPathname(pos, PATHNAME_INDEX_DEVICE, &pos);
 	if (! localp)
@@ -2573,7 +2573,7 @@ void pathname_device(addr pos, addr *ret, int localp)
 	*ret = pos;
 }
 
-void pathname_directory(addr pos, addr *ret, int localp)
+_g void pathname_directory(addr pos, addr *ret, int localp)
 {
 	GetPathname(pos, PATHNAME_INDEX_DIRECTORY, &pos);
 	if (! localp) {
@@ -2583,7 +2583,7 @@ void pathname_directory(addr pos, addr *ret, int localp)
 	*ret = pos;
 }
 
-void pathname_name(addr pos, addr *ret, int localp)
+_g void pathname_name(addr pos, addr *ret, int localp)
 {
 	GetPathname(pos, PATHNAME_INDEX_NAME, &pos);
 	if (! localp)
@@ -2591,7 +2591,7 @@ void pathname_name(addr pos, addr *ret, int localp)
 	*ret = pos;
 }
 
-void pathname_type(addr pos, addr *ret, int localp)
+_g void pathname_type(addr pos, addr *ret, int localp)
 {
 	GetPathname(pos, PATHNAME_INDEX_TYPE, &pos);
 	if (! localp)
@@ -2599,7 +2599,7 @@ void pathname_type(addr pos, addr *ret, int localp)
 	*ret = pos;
 }
 
-void pathname_version(addr pos, addr *ret)
+_g void pathname_version(addr pos, addr *ret)
 {
 	GetPathname(pos, PATHNAME_INDEX_VERSION, ret);
 }
@@ -2608,7 +2608,7 @@ void pathname_version(addr pos, addr *ret)
 /*
  *  logical-pathname-translations
  */
-void get_logical_pathname_translations(addr host, addr *ret)
+_g void get_logical_pathname_translations(addr host, addr *ret)
 {
 	gethost_pathname(host, ret);
 }
@@ -2691,7 +2691,7 @@ static int set_logical_pathname_translations_intern(Execute ptr,
 	return free_control(ptr, control);
 }
 
-void set_logical_pathname_translations(Execute ptr, addr host, addr list)
+_g void set_logical_pathname_translations(Execute ptr, addr host, addr list)
 {
 	addr table, cons;
 
@@ -2706,7 +2706,7 @@ void set_logical_pathname_translations(Execute ptr, addr host, addr list)
 /*
  *  logical-pathname
  */
-void logical_pathname(Execute ptr, addr *ret, addr pos)
+_g void logical_pathname(Execute ptr, addr *ret, addr pos)
 {
 	addr value, type;
 
@@ -2723,7 +2723,7 @@ void logical_pathname(Execute ptr, addr *ret, addr pos)
 /*
  *  namestring
  */
-void namestring_pathname(Execute ptr, addr *ret, addr pos)
+_g void namestring_pathname(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -2741,7 +2741,7 @@ void namestring_pathname(Execute ptr, addr *ret, addr pos)
 	}
 }
 
-void file_namestring_pathname(Execute ptr, addr *ret, addr pos)
+_g void file_namestring_pathname(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -2759,7 +2759,7 @@ void file_namestring_pathname(Execute ptr, addr *ret, addr pos)
 	}
 }
 
-void directory_namestring_pathname(Execute ptr, addr *ret, addr pos)
+_g void directory_namestring_pathname(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -2777,7 +2777,7 @@ void directory_namestring_pathname(Execute ptr, addr *ret, addr pos)
 	}
 }
 
-void host_namestring_pathname(Execute ptr, addr *ret, addr pos)
+_g void host_namestring_pathname(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -2872,7 +2872,7 @@ static int enough_merge_pathname(LocalRoot local, addr a, addr b, addr *ret)
 	return enough_directory_pathname(local, a, pos1, pos2, ret);
 }
 
-void enough_namestring_pathname(Execute ptr, addr *ret, addr pos, addr defaults)
+_g void enough_namestring_pathname(Execute ptr, addr *ret, addr pos, addr defaults)
 {
 	addr value;
 
@@ -2887,7 +2887,7 @@ void enough_namestring_pathname(Execute ptr, addr *ret, addr pos, addr defaults)
 /*
  *  parse-namestring
  */
-void parse_namestring(Execute ptr, addr *ret, addr *position,
+_g void parse_namestring(Execute ptr, addr *ret, addr *position,
 		addr thing, addr host, addr defaults, addr start, addr end, addr junk)
 {
 	addr check, type;
@@ -2956,7 +2956,7 @@ static int wild_pathname_string(addr pos)
 	return 0;
 }
 
-int wild_pathname_boolean(addr file, addr field)
+_g int wild_pathname_boolean(addr file, addr field)
 {
 	addr check, pos, wild1, wild2, value;
 
@@ -3006,7 +3006,7 @@ int wild_pathname_boolean(addr file, addr field)
 	return 0;
 }
 
-void wild_pathname_p(Execute ptr, addr *ret, addr file, addr field)
+_g void wild_pathname_p(Execute ptr, addr *ret, addr file, addr field)
 {
 	int check;
 
@@ -3020,7 +3020,7 @@ void wild_pathname_p(Execute ptr, addr *ret, addr file, addr field)
 /*
  *  pathname-match-p
  */
-void pathname_match_p(Execute ptr, addr *ret, addr a, addr b)
+_g void pathname_match_p(Execute ptr, addr *ret, addr a, addr b)
 {
 	int check;
 
@@ -3034,7 +3034,7 @@ void pathname_match_p(Execute ptr, addr *ret, addr a, addr b)
 /*
  *  translate-pathname
  */
-void translate_pathname(Execute ptr, addr *ret, addr pos, addr from, addr to)
+_g void translate_pathname(Execute ptr, addr *ret, addr pos, addr from, addr to)
 {
 	translate_pathname_heap(ptr, ret, pos, from, to);
 }
@@ -3043,7 +3043,7 @@ void translate_pathname(Execute ptr, addr *ret, addr pos, addr from, addr to)
 /*
  *  translate-logical-pathname
  */
-void translate_logical_pathname(Execute ptr, addr *ret, addr pos)
+_g void translate_logical_pathname(Execute ptr, addr *ret, addr pos)
 {
 	physical_pathname_heap(ptr, pos, ret);
 }
@@ -3052,7 +3052,7 @@ void translate_logical_pathname(Execute ptr, addr *ret, addr pos)
 /*
  *  merge-pathnames
  */
-void merge_pathnames(Execute ptr, addr *ret, addr pos, addr defaults, addr version)
+_g void merge_pathnames(Execute ptr, addr *ret, addr pos, addr defaults, addr version)
 {
 	merge_pathnames_clang(ptr, pos, defaults, version, ret);
 }
@@ -3061,7 +3061,7 @@ void merge_pathnames(Execute ptr, addr *ret, addr pos, addr defaults, addr versi
 /*
  *  initialize
  */
-void init_pathname(void)
+_g void init_pathname(void)
 {
 	SetPointerCall(defun, var1, set_logical_pathname_translations);
 }

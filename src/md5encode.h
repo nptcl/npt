@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include "define.h"
 
 #define MD5ENCODE_SIZE 16
 
@@ -36,11 +37,11 @@ struct md5encode {
 	int pos;
 };
 
-void clear_md5encode(struct md5encode *);
-void read_md5encode(struct md5encode *, const void *, size_t);
-void calc_md5encode(struct md5encode *, void *);
-void sequence_md5encode(const void *, size_t, void *);
-void string_md5encode(const char *, void *);
+_g void clear_md5encode(struct md5encode *);
+_g void read_md5encode(struct md5encode *, const void *, size_t);
+_g void calc_md5encode(struct md5encode *, void *);
+_g void sequence_md5encode(const void *, size_t, void *);
+_g void string_md5encode(const char *, void *);
 
 #endif
 

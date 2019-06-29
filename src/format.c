@@ -3021,7 +3021,7 @@ static int format_function(fmtprint print, struct fmtchar *str)
 }
 
 #define SetFormatCallTable(x,y) (FormatCallTable[(size_t)(x)] = (y))
-void init_format(void)
+_g void init_format(void)
 {
 	int i;
 
@@ -3123,7 +3123,7 @@ static int fmtcall_args(Execute ptr, addr stream, addr format, struct fmtstack *
 /*
  *  format
  */
-int format_stream_args(Execute ptr, addr stream, addr format, addr args, addr *tail)
+_g int format_stream_args(Execute ptr, addr stream, addr format, addr args, addr *tail)
 {
 	struct fmtstack stack;
 
@@ -3139,7 +3139,7 @@ int format_stream_args(Execute ptr, addr stream, addr format, addr args, addr *t
 	return 0;
 }
 
-int format_string_args(Execute ptr, addr format, addr args, addr *ret, addr *tail)
+_g int format_string_args(Execute ptr, addr format, addr args, addr *ret, addr *tail)
 {
 	addr stream;
 
@@ -3154,7 +3154,7 @@ int format_string_args(Execute ptr, addr format, addr args, addr *ret, addr *tai
 	return 0;
 }
 
-int format_args(Execute ptr,
+_g int format_args(Execute ptr,
 		addr stream, addr format, addr args, addr *ret, addr *tail)
 {
 	if (stream == Nil) {
@@ -3174,17 +3174,17 @@ int format_args(Execute ptr,
 	return 0;
 }
 
-int format_stream_lisp(Execute ptr, addr stream, addr format, addr args)
+_g int format_stream_lisp(Execute ptr, addr stream, addr format, addr args)
 {
 	return format_stream_args(ptr, stream, format, args, &args);
 }
 
-int format_string_lisp(Execute ptr, addr format, addr args, addr *ret)
+_g int format_string_lisp(Execute ptr, addr format, addr args, addr *ret)
 {
 	return format_string_args(ptr, format, args, ret, &args);
 }
 
-int format_lisp(Execute ptr, addr stream, addr format, addr args, addr *ret)
+_g int format_lisp(Execute ptr, addr stream, addr format, addr args, addr *ret)
 {
 	return format_args(ptr, stream, format, args, ret, &args);
 }
@@ -3193,7 +3193,7 @@ int format_lisp(Execute ptr, addr stream, addr format, addr args, addr *ret)
 /*
  *  format clang
  */
-int format_stdarg(addr stream, const char *str, va_list args)
+_g int format_stdarg(addr stream, const char *str, va_list args)
 {
 	addr format, list;
 	Execute ptr;
@@ -3211,7 +3211,7 @@ int format_stdarg(addr stream, const char *str, va_list args)
 	return 0;
 }
 
-int format_stream(addr stream, const char *str, ...)
+_g int format_stream(addr stream, const char *str, ...)
 {
 	int check;
 	va_list args;
@@ -3223,7 +3223,7 @@ int format_stream(addr stream, const char *str, ...)
 	return check;
 }
 
-int format(const char *str, ...)
+_g int format(const char *str, ...)
 {
 	int check;
 	addr stream;
@@ -3237,7 +3237,7 @@ int format(const char *str, ...)
 	return check;
 }
 
-addr format_string_stdarg(LocalRoot local, const char *str, va_list args)
+_g addr format_string_stdarg(LocalRoot local, const char *str, va_list args)
 {
 	addr stream, pos;
 
@@ -3252,7 +3252,7 @@ addr format_string_stdarg(LocalRoot local, const char *str, va_list args)
 	return pos;
 }
 
-addr format_alloc(LocalRoot local, const char *str, ...)
+_g addr format_alloc(LocalRoot local, const char *str, ...)
 {
 	addr pos;
 	va_list args;
@@ -3264,7 +3264,7 @@ addr format_alloc(LocalRoot local, const char *str, ...)
 	return pos;
 }
 
-addr format_local(LocalRoot local, const char *str, ...)
+_g addr format_local(LocalRoot local, const char *str, ...)
 {
 	addr pos;
 	va_list args;
@@ -3277,7 +3277,7 @@ addr format_local(LocalRoot local, const char *str, ...)
 	return pos;
 }
 
-addr format_heap(const char *str, ...)
+_g addr format_heap(const char *str, ...)
 {
 	addr pos;
 	va_list args;
@@ -3289,7 +3289,7 @@ addr format_heap(const char *str, ...)
 	return pos;
 }
 
-addr fmtl(const char *str, ...)
+_g addr fmtl(const char *str, ...)
 {
 	addr pos;
 	va_list args;
@@ -3305,7 +3305,7 @@ addr fmtl(const char *str, ...)
 /*
  *  printf -> string
  */
-addr localf_stdarg(LocalRoot local, const char *str, va_list args)
+_g addr localf_stdarg(LocalRoot local, const char *str, va_list args)
 {
 	int size;
 	addr pos;
@@ -3332,7 +3332,7 @@ addr localf_stdarg(LocalRoot local, const char *str, va_list args)
 	return pos;
 }
 
-addr heapf_stdarg(const char *str, va_list args)
+_g addr heapf_stdarg(const char *str, va_list args)
 {
 	int size;
 	addr pos;
@@ -3363,7 +3363,7 @@ addr heapf_stdarg(const char *str, va_list args)
 	return pos;
 }
 
-addr allocf_stdarg(LocalRoot local, const char *str, va_list args)
+_g addr allocf_stdarg(LocalRoot local, const char *str, va_list args)
 {
 	if (local)
 		return localf_stdarg(local, str, args);
@@ -3371,7 +3371,7 @@ addr allocf_stdarg(LocalRoot local, const char *str, va_list args)
 		return heapf_stdarg(str, args);
 }
 
-addr allocf(LocalRoot local, const char *str, ...)
+_g addr allocf(LocalRoot local, const char *str, ...)
 {
 	addr pos;
 	va_list args;
@@ -3383,7 +3383,7 @@ addr allocf(LocalRoot local, const char *str, ...)
 	return pos;
 }
 
-addr localf(const char *str, ...)
+_g addr localf(const char *str, ...)
 {
 	addr pos;
 	va_list args;
@@ -3395,7 +3395,7 @@ addr localf(const char *str, ...)
 	return pos;
 }
 
-addr heapf(const char *str, ...)
+_g addr heapf(const char *str, ...)
 {
 	addr pos;
 	va_list args;

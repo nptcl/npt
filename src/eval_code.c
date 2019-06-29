@@ -232,7 +232,7 @@ static void pushleftright(LocalRoot local, addr code, addr left, addr right)
 	pushdata(local, code, right);
 }
 
-static void pushlist(LocalRoot local, addr code, addr pos, ...)
+static void pushlist_eval(LocalRoot local, addr code, addr pos, ...)
 {
 	addr cons;
 	va_list args;
@@ -266,7 +266,7 @@ static void code_double(LocalRoot local,
 {
 	addr first;
 	GetConstant(index, &first);
-	pushlist(local, code, first, left, right, NULL);
+	pushlist_eval(local, code, first, left, right, NULL);
 }
 
 static void code_push3(LocalRoot local,
@@ -274,7 +274,7 @@ static void code_push3(LocalRoot local,
 {
 	addr first;
 	GetConstant(index, &first);
-	pushlist(local, code, first, left, right, third, NULL);
+	pushlist_eval(local, code, first, left, right, third, NULL);
 }
 
 static void code_push5(LocalRoot local,
@@ -283,7 +283,7 @@ static void code_push5(LocalRoot local,
 {
 	addr first;
 	GetConstant(index, &first);
-	pushlist(local, code, first, a, b, c, d, e, NULL);
+	pushlist_eval(local, code, first, a, b, c, d, e, NULL);
 }
 
 #ifdef LISP_DEGRADE
@@ -818,7 +818,7 @@ static void code_symbol_set(LocalRoot local, addr code, addr symbol, addr table)
 	if (check) {
 		GetConstantCode(specialp, SPECIAL_SET_TYPE, LEXICAL_SET_TYPE, &first);
 		gettype_tablevalue(table, &type);
-		pushlist(local, code, first, symbol, type, NULL);
+		pushlist_eval(local, code, first, symbol, type, NULL);
 	}
 	else {
 		GetConstantCode(specialp, SPECIAL_SET, LEXICAL_SET, &first);
@@ -836,7 +836,7 @@ static void code_symbol_push(LocalRoot local, addr code, addr symbol, addr table
 	if (check) {
 		GetConstantCode(specialp, SPECIAL_PUSH_TYPE, LEXICAL_PUSH_TYPE, &first);
 		gettype_tablevalue(table, &type);
-		pushlist(local, code, first, symbol, type, NULL);
+		pushlist_eval(local, code, first, symbol, type, NULL);
 	}
 	else {
 		GetConstantCode(specialp, SPECIAL_PUSH, LEXICAL_PUSH, &first);
@@ -854,7 +854,7 @@ static void code_symbol_remove(LocalRoot local, addr code, addr symbol, addr tab
 	if (check) {
 		GetConstantCode(specialp, SPECIAL_TYPE, LEXICAL_TYPE, &first);
 		gettype_tablevalue(table, &type);
-		pushlist(local, code, first, symbol, type, NULL);
+		pushlist_eval(local, code, first, symbol, type, NULL);
 	}
 }
 
@@ -944,7 +944,7 @@ static void code_check_value(LocalRoot local, addr code, addr pos, addr type)
 	specialp = getspecialp_tablevalue(pos);
 	getname_tablevalue(pos, &pos);
 	GetConstantCode(specialp, SPECIAL_TYPE, LEXICAL_TYPE, &first);
-	pushlist(local, code, first, pos, type, NULL);
+	pushlist_eval(local, code, first, pos, type, NULL);
 }
 
 static void code_check_function(LocalRoot local, addr code, addr pos, addr type)
@@ -953,13 +953,14 @@ static void code_check_function(LocalRoot local, addr code, addr pos, addr type)
 	addr first;
 
 	globalp = getglobalp_tablefunction(pos);
-	GetCallName(pos, &pos);
+	getname_tablefunction(pos, &pos);
 	symbolp = (RefCallNameType(pos) == CALLNAME_SYMBOL);
 	if (globalp)
 		GetConstantCode(symbolp, FUNCTION_GLOBAL_TYPE, SETF_GLOBAL_TYPE, &first);
 	else
 		GetConstantCode(symbolp, FUNCTION_LOCAL_TYPE, SETF_LOCAL_TYPE, &first);
-	pushlist(local, code, first, pos, type, NULL);
+	GetCallName(pos, &pos);
+	pushlist_eval(local, code, first, pos, type, NULL);
 }
 
 static void code_free_declare(LocalRoot local, addr code, addr cons)
@@ -1016,11 +1017,11 @@ static void code_let_args(LocalRoot local, addr code, addr args)
 		if (check) {
 			GetConstantCode(specialp, LET_SPECIAL_TYPE, LET_LEXICAL_TYPE, &first);
 			gettype_tablevalue(pos, &type);
-			pushlist(local, code, first, name, index, type, NULL);
+			pushlist_eval(local, code, first, name, index, type, NULL);
 		}
 		else {
 			GetConstantCode(specialp, LET_SPECIAL, LET_LEXICAL, &first);
-			pushlist(local, code, first, name, index, NULL);
+			pushlist_eval(local, code, first, name, index, NULL);
 		}
 	}
 }
@@ -1058,7 +1059,7 @@ static void code_leta_args(LocalRoot local, addr code, addr args)
 		if (check) {
 			GetConstantCode(specialp, LETA_SPECIAL_TYPE, LETA_LEXICAL_TYPE, &first);
 			gettype_tablevalue(pos, &type);
-			pushlist(local, code, first, name, type, NULL);
+			pushlist_eval(local, code, first, name, type, NULL);
 		}
 		else {
 			GetConstantCode(specialp, LETA_SPECIAL, LETA_LEXICAL, &first);
@@ -1097,7 +1098,7 @@ static void code_setq_execute(LocalRoot local, addr code, addr pos, addr form)
 	if (check) {
 		GetConstantCode(specialp, SETQ_SPECIAL_TYPE, SETQ_LEXICAL_TYPE, &first);
 		gettype_tablevalue(pos, &type);
-		pushlist(local, code, first, name, type, NULL);
+		pushlist_eval(local, code, first, name, type, NULL);
 	}
 	else {
 		GetConstantCode(specialp, SETQ_SPECIAL, SETQ_LEXICAL, &first);
@@ -2150,7 +2151,7 @@ static void eval_code_execute(LocalRoot local, addr *ret, addr scope)
 	popstack(local, code, ret);
 }
 
-void eval_code(LocalRoot local, addr *ret, addr scope)
+_g void eval_code(LocalRoot local, addr *ret, addr scope)
 {
 	LocalStack stack;
 

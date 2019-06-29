@@ -29,82 +29,82 @@ enum PACKAGE_TYPE {
 #define SetPackage      SetArrayA2
 
 /* package root */
-void build_package(void);
-void getpackage(Execute ptr, addr *ret);
-int packagep(addr pos);
-int package_designer_p(addr pos);
-int package_designer_equal(addr left, addr right);
-void getdocument_package(addr pos, addr *ret);
-void setdocument_package(addr pos, addr value);
+_g void build_package(void);
+_g void getpackage(Execute ptr, addr *ret);
+_g int packagep(addr pos);
+_g int package_designer_p(addr pos);
+_g int package_designer_equal(addr left, addr right);
+_g void getdocument_package(addr pos, addr *ret);
+_g void setdocument_package(addr pos, addr value);
 
 /* package function */
-void make_bitpackage_symbol(addr *ret, addr *symbol, addr name, addr package);
-void make_package(addr name, addr names, addr use, addr *ret);
-int delete_package(addr pos);
-void rename_package(addr pos, addr name, addr names, addr *ret);
+_g void make_bitpackage_symbol(addr *ret, addr *symbol, addr name, addr package);
+_g void make_package(addr name, addr names, addr use, addr *ret);
+_g int delete_package(addr pos);
+_g void rename_package(addr pos, addr name, addr names, addr *ret);
 
-void getname_package(addr pos, addr *ret);
-void getnickname_package(addr pos, addr *ret);
-void getuselist_package(addr pos, addr *ret);
-void getusedbylist_package(addr pos, addr *ret);
-void getshadow_package(addr pos, addr *ret);
+_g void getname_package(addr pos, addr *ret);
+_g void getnickname_package(addr pos, addr *ret);
+_g void getuselist_package(addr pos, addr *ret);
+_g void getusedbylist_package(addr pos, addr *ret);
+_g void getshadow_package(addr pos, addr *ret);
 
-enum PACKAGE_TYPE find_symbol_package(addr package, addr name, addr *ret);
-void find_package(addr name, addr *ret);
-addr findr_char_package(const char *name);
-void find_char_package(const char *name, addr *ret);
-void find_allsymbols_package(addr name, addr *ret);
-void list_all_packages(addr *ret);
+_g enum PACKAGE_TYPE find_symbol_package(addr package, addr name, addr *ret);
+_g void find_package(addr name, addr *ret);
+_g addr findr_char_package(const char *name);
+_g void find_char_package(const char *name, addr *ret);
+_g void find_allsymbols_package(addr name, addr *ret);
+_g void list_all_packages(addr *ret);
 
 /* symbol control */
-enum PACKAGE_TYPE intern_package(addr package, addr name, addr *ret);
-enum PACKAGE_TYPE intern_char_package(addr package, const char *name, addr *ret);
-int unintern_package(addr package, addr symbol);
-void import_package(addr package, addr symbol);
-void shadow_package(addr package, addr symbol);
-void shadowing_import_package(addr package, addr symbol);
-void export_package(addr package, addr symbol);
-void unexport_package(addr package, addr symbol);
-void use_package(addr package, addr symbol);
-void unuse_package(addr package, addr symbol);
+_g enum PACKAGE_TYPE intern_package(addr package, addr name, addr *ret);
+_g enum PACKAGE_TYPE intern_char_package(addr package, const char *name, addr *ret);
+_g int unintern_package(addr package, addr symbol);
+_g void import_package(addr package, addr symbol);
+_g void shadow_package(addr package, addr symbol);
+_g void shadowing_import_package(addr package, addr symbol);
+_g void export_package(addr package, addr symbol);
+_g void unexport_package(addr package, addr symbol);
+_g void use_package(addr package, addr symbol);
+_g void unuse_package(addr package, addr symbol);
 
-void in_package(Execute ptr, addr package, addr *ret);
+_g void in_package(Execute ptr, addr package, addr *ret);
 
 /* develop function */
-enum PACKAGE_TYPE intern_default_package(Execute ptr, addr name, addr *ret);
-enum PACKAGE_TYPE internchar(const char *pname, const char *sname, addr *ret);
-addr interncharr(const char *pname, const char *sname);
-enum PACKAGE_TYPE internchar_default(Execute ptr, const char *sname, addr *ret);
-enum PACKAGE_TYPE internchar_check(Execute ptr,
+_g enum PACKAGE_TYPE intern_default_package(Execute ptr, addr name, addr *ret);
+_g enum PACKAGE_TYPE internchar(const char *pname, const char *sname, addr *ret);
+_g addr interncharr(const char *pname, const char *sname);
+_g enum PACKAGE_TYPE internchar_default(Execute ptr, const char *sname, addr *ret);
+_g enum PACKAGE_TYPE internchar_check(Execute ptr,
 		const char *pname, const char *sname, addr *ret);
-addr internchar_checkr(Execute ptr, const char *pname, const char *sname);
-void setkeyword_package(addr pos);
-enum PACKAGE_TYPE internchar_keyword(const char *sname, addr *ret);
-enum PACKAGE_TYPE interncommon(const char *name, addr *ret);
-addr interncommonr(const char *name);
+_g addr internchar_checkr(Execute ptr, const char *pname, const char *sname);
+_g void setkeyword_package(addr pos);
+_g enum PACKAGE_TYPE internchar_keyword(const char *sname, addr *ret);
+_g enum PACKAGE_TYPE interncommon(const char *name, addr *ret);
+_g addr interncommonr(const char *name);
 
-int checksymbol_package(addr symbol, addr package);
-int checksymbol_default_package(Execute ptr, addr symbol);
-void make_gentemp(Execute ptr, addr prefix, addr package, addr *ret);
+_g int checksymbol_package(addr symbol, addr package);
+_g int checksymbol_default_package(Execute ptr, addr symbol);
+_g void make_gentemp(Execute ptr, addr prefix, addr package, addr *ret);
 
 /* iterator */
-void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret);
-void package_iterator_alloc(LocalRoot local, addr *ret,
+_g void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret);
+_g void package_iterator_alloc(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited);
-void package_iterator_local(LocalRoot local, addr *ret,
+_g void package_iterator_local(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited);
-void package_iterator_heap(addr *ret,
+_g void package_iterator_heap(addr *ret,
 		addr list, int internal, int external, int inherited);
-enum PACKAGE_TYPE next_package_iterator(addr pos, addr *rets, addr *retp);
+_g enum PACKAGE_TYPE next_package_iterator(addr pos, addr *rets, addr *retp);
 
 /* syscall */
-void syscall_defpackage(Execute ptr, addr rest);
-void syscall_do_symbols(Execute ptr, addr call, addr package);
-void syscall_do_external_symbols(Execute ptr, addr call, addr package);
-void syscall_do_all_symbols(Execute ptr, addr call);
+_g void syscall_defpackage(Execute ptr, addr rest);
+_g void syscall_do_symbols(Execute ptr, addr call, addr package);
+_g void syscall_do_external_symbols(Execute ptr, addr call, addr package);
+_g void syscall_do_all_symbols(Execute ptr, addr call);
 
 /* initialize */
-void init_package(void);
+_g void init_package(void);
 
 #endif
 

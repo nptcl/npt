@@ -417,7 +417,7 @@ static int write_string_call(addr stream, int escape,
 	format_print(Execute_Thread, &fmt);
 	fmt.escape = escape;
 	strvect_char_heap(&str, input);
-	write_string(&fmt, stream, str);
+	write_strtype(&fmt, stream, str);
 
 	/* check */
 	string_stream_heap(stream, &check);

@@ -4,6 +4,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include <float.h>
+#include "define_compile.h"
 #include "version.h"
 
 /*

@@ -340,7 +340,7 @@ static addr typecopy_array(LocalRoot local, addr type)
 	return pos;
 }
 
-void init_type_copy(void)
+_g void init_type_copy(void)
 {
 	int i;
 
@@ -430,7 +430,7 @@ void init_type_copy(void)
 /*
  *  type-copy
  */
-addr type_copy_allocr(LocalRoot local, addr type)
+_g addr type_copy_allocr(LocalRoot local, addr type)
 {
 	call_type_copy call;
 	addr pos;
@@ -443,25 +443,25 @@ addr type_copy_allocr(LocalRoot local, addr type)
 
 	return pos;
 }
-addr type_copy_localr(LocalRoot local, addr type)
+_g addr type_copy_localr(LocalRoot local, addr type)
 {
 	Check(local == NULL, "local error");
 	return type_copy_allocr(local, type);
 }
-addr type_copy_heapr(addr type)
+_g addr type_copy_heapr(addr type)
 {
 	return type_copy_allocr(NULL, type);
 }
-void type_copy_alloc(LocalRoot local, addr *ret, addr type)
+_g void type_copy_alloc(LocalRoot local, addr *ret, addr type)
 {
 	*ret = type_copy_allocr(local, type);
 }
-void type_copy_local(LocalRoot local, addr *ret, addr type)
+_g void type_copy_local(LocalRoot local, addr *ret, addr type)
 {
 	Check(local == NULL, "local error");
 	*ret = type_copy_allocr(local, type);
 }
-void type_copy_heap(addr *ret, addr type)
+_g void type_copy_heap(addr *ret, addr type)
 {
 	*ret = type_copy_allocr(NULL, type);
 }
@@ -470,14 +470,14 @@ void type_copy_heap(addr *ret, addr type)
 /*
  *  type-throw
  */
-void type_throw_alloc(LocalRoot local, addr pos, addr *ret)
+_g void type_throw_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	if (local)
 		type_throw_local(local, pos, ret);
 	else
 		type_throw_heap(pos, ret);
 }
-void type_throw_local(LocalRoot local, addr pos, addr *ret)
+_g void type_throw_local(LocalRoot local, addr pos, addr *ret)
 {
 	CheckLocal(local);
 	if (GetStatusDynamic(pos))
@@ -485,7 +485,7 @@ void type_throw_local(LocalRoot local, addr pos, addr *ret)
 	else
 		type_copy_local(local, ret, pos);
 }
-void type_throw_heap(addr pos, addr *ret)
+_g void type_throw_heap(addr pos, addr *ret)
 {
 	if (GetStatusDynamic(pos))
 		type_copy_heap(ret, pos);

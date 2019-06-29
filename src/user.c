@@ -53,7 +53,7 @@ static void init_user_call(Execute ptr, addr rest)
 	(*call)(ptr, rest);
 }
 
-void init_user(void)
+_g void init_user(void)
 {
 	SetPointer_dynamic(p_user, init_user_call);
 }
@@ -68,7 +68,7 @@ static void hello_user(Execute ptr, addr right)
 }
 
 
-void build_user(void)
+_g void build_user(void)
 {
 	defuser("HELLO", hello_user);
 }

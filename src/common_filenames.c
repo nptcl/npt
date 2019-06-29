@@ -138,6 +138,7 @@ static int pathname_case_local_p(addr rest)
 
 static void function_pathname_host(Execute ptr, addr pos, addr rest)
 {
+	pathname_designer_heap(ptr, pos, &pos);
 	pathname_host(pos, &pos, pathname_case_local_p(rest));
 	setresult_control(ptr, pos);
 }
@@ -171,6 +172,7 @@ static void defun_pathname_host(void)
 /* (defun pathname-device (pathname &key case) ...) -> (or string symbol) */
 static void function_pathname_device(Execute ptr, addr pos, addr rest)
 {
+	pathname_designer_heap(ptr, pos, &pos);
 	pathname_device(pos, &pos, pathname_case_local_p(rest));
 	setresult_control(ptr, pos);
 }
@@ -204,6 +206,7 @@ static void defun_pathname_device(void)
 /* (defun pathname-directory (pathname &key case) ...) -> (or string symbol) */
 static void function_pathname_directory(Execute ptr, addr pos, addr rest)
 {
+	pathname_designer_heap(ptr, pos, &pos);
 	pathname_directory(pos, &pos, pathname_case_local_p(rest));
 	setresult_control(ptr, pos);
 }
@@ -237,6 +240,7 @@ static void defun_pathname_directory(void)
 /* (defun pathname-name (pathname &key case) ...) -> (or string symbol) */
 static void function_pathname_name(Execute ptr, addr pos, addr rest)
 {
+	pathname_designer_heap(ptr, pos, &pos);
 	pathname_name(pos, &pos, pathname_case_local_p(rest));
 	setresult_control(ptr, pos);
 }
@@ -270,6 +274,7 @@ static void defun_pathname_name(void)
 /* (defun pathname-type (pathname &key case) ...) -> (or string symbol) */
 static void function_pathname_type(Execute ptr, addr pos, addr rest)
 {
+	pathname_designer_heap(ptr, pos, &pos);
 	pathname_type(pos, &pos, pathname_case_local_p(rest));
 	setresult_control(ptr, pos);
 }
@@ -300,9 +305,10 @@ static void defun_pathname_type(void)
 }
 
 
-/* (defun pathname-version (pathname &key case) ...) -> (or string symbol) */
+/* (defun pathname-version (pathname) ...) -> (or string symbol) */
 static void function_pathname_version(Execute ptr, addr pos)
 {
+	pathname_designer_heap(ptr, pos, &pos);
 	pathname_version(pos, &pos);
 	setresult_control(ptr, pos);
 }
@@ -311,7 +317,7 @@ static void type_pathname_version(addr *ret)
 {
 	addr arg, values;
 
-	GetTypeTable(&arg, Pathname);
+	GetTypeTable(&arg, PathnameDesigner);
 	typeargs_var1(&arg, arg);
 	GetTypeTable(&values, PathnameVersion);
 	typevalues_result(&values, values);
@@ -883,7 +889,7 @@ static void defun_merge_pathnames(void)
 /*
  *  function
  */
-void init_common_filenames(void)
+_g void init_common_filenames(void)
 {
 	SetPointerCall(defun, var1, pathname);
 	SetPointerCall(defun, dynamic, make_pathname);
@@ -911,7 +917,7 @@ void init_common_filenames(void)
 	SetPointerCall(defun, var1opt2, merge_pathnames);
 }
 
-void build_common_filenames(void)
+_g void build_common_filenames(void)
 {
 	defun_pathname();
 	defun_make_pathname();

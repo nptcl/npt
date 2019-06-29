@@ -26,7 +26,7 @@
 	SetStatusReadOnly(__pos); \
 	SetConst(ARRAY_##b##n, __pos); \
 }
-void build_type_upgraded(void)
+_g void build_type_upgraded(void)
 {
 	SetConstCommon(T);
 	SetConstCommon(BIT);
@@ -50,7 +50,7 @@ void build_type_upgraded(void)
 /*
  *  upgraded-array-element-type
  */
-int upgraded_array0_equal(addr left, addr right)
+_g int upgraded_array0_equal(addr left, addr right)
 {
 	enum LISPDECL decl;
 
@@ -198,7 +198,7 @@ static void upgraded_array_optimize(LocalRoot local,
 	rollback_local(local, stack);
 }
 
-void upgraded_array_value(addr type, enum ARRAY_TYPE *ret, int *size)
+_g void upgraded_array_value(addr type, enum ARRAY_TYPE *ret, int *size)
 {
 	upgraded_array_optimize(Local_Thread, type, ret, size);
 }
@@ -255,7 +255,7 @@ static void upgraded_array_type_unsigned(int size, addr *ret)
 	}
 }
 
-void upgraded_array_object(enum ARRAY_TYPE type, int size, addr *ret)
+_g void upgraded_array_object(enum ARRAY_TYPE type, int size, addr *ret)
 {
 	switch (type) {
 		case ARRAY_TYPE_BIT:
@@ -303,7 +303,7 @@ static void type_upgraded_type_local(LocalRoot local, addr type, addr *ret)
 	upgraded_array_object(value, size, ret);
 }
 
-void upgraded_array_type(addr type, addr *ret)
+_g void upgraded_array_type(addr type, addr *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	type_upgraded_type_local(Local_Thread, type, ret);
@@ -361,7 +361,7 @@ static void upgraded_array_const_unsigned(int size, addr *ret)
 	}
 }
 
-void upgraded_array_const(enum ARRAY_TYPE type, int size, addr *ret)
+_g void upgraded_array_const(enum ARRAY_TYPE type, int size, addr *ret)
 {
 	switch (type) {
 		case ARRAY_TYPE_BIT:
@@ -398,7 +398,7 @@ void upgraded_array_const(enum ARRAY_TYPE type, int size, addr *ret)
 	}
 }
 
-int upgraded_array_common(Execute ptr, addr env, addr pos, addr *ret)
+_g int upgraded_array_common(Execute ptr, addr env, addr pos, addr *ret)
 {
 	int size;
 	enum ARRAY_TYPE type;
@@ -410,17 +410,17 @@ int upgraded_array_common(Execute ptr, addr env, addr pos, addr *ret)
 }
 
 /* make local */
-void upgraded_array_t_local(LocalRoot local, addr *ret)
+_g void upgraded_array_t_local(LocalRoot local, addr *ret)
 {
 	type0_local(local, LISPDECL_T, ret);
 }
 
-void upgraded_array_bit_local(LocalRoot local, addr *ret)
+_g void upgraded_array_bit_local(LocalRoot local, addr *ret)
 {
 	type0_local(local, LISPDECL_BIT, ret);
 }
 
-void upgraded_array_character_local(LocalRoot local, addr *ret)
+_g void upgraded_array_character_local(LocalRoot local, addr *ret)
 {
 	type0_local(local, LISPDECL_CHARACTER, ret);
 }
@@ -429,7 +429,7 @@ void upgraded_array_character_local(LocalRoot local, addr *ret)
 /*
  *  upgraded-complex-part-type
  */
-void upgraded_complex_type(addr type, addr *ret)
+_g void upgraded_complex_type(addr type, addr *ret)
 {
 	int validp;
 	addr right;
@@ -537,7 +537,7 @@ static void upgraded_complex_const(addr pos, addr *ret)
 	*ret = 0;
 }
 
-int upgraded_complex_common(Execute ptr, addr env, addr pos, addr *ret)
+_g int upgraded_complex_common(Execute ptr, addr env, addr pos, addr *ret)
 {
 	if (parse_type(ptr, &pos, pos, env)) return 1;
 	upgraded_complex_const(pos, ret);

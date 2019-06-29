@@ -7,81 +7,81 @@
 /*
  *  accessor
  */
-void arraygen_set_debug(addr pos, size_t index, addr value)
+_g void arraygen_set_debug(addr pos, size_t index, addr value)
 {
 	CheckType(pos, LISPSYSTEM_ARRAY_GENERAL);
 	Check(arraygen_lenr_Low(pos) <= index, "size error");
 	arraygen_set_Low(pos, index, value);
 }
 
-void arraygen_get_debug(addr pos, size_t index, addr *ret)
+_g void arraygen_get_debug(addr pos, size_t index, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_ARRAY_GENERAL);
 	Check(arraygen_lenr_Low(pos) <= index, "size error");
 	arraygen_get_Low(pos, index, ret);
 }
 
-void arraygen_len_debug(addr pos, size_t *ret)
+_g void arraygen_len_debug(addr pos, size_t *ret)
 {
 	CheckType(pos, LISPSYSTEM_ARRAY_GENERAL);
 	arraygen_len_Low(pos, ret);
 }
 
-size_t arraygen_lenr_debug(addr pos)
+_g size_t arraygen_lenr_debug(addr pos)
 {
 	return arraygen_lenr_Low(pos);
 }
 
-void arrayspec_pos_debug(addr pos, addr *ret)
+_g void arrayspec_pos_debug(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_ARRAY_SPECIALIZED);
 	arrayspec_pos_Low(pos, ret);
 }
 
-addr arrayspec_ptr_debug(addr pos)
+_g addr arrayspec_ptr_debug(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_ARRAY_SPECIALIZED);
 	return arrayspec_ptr_Low(pos);
 }
 
-size_t *arraysize_ptr_debug(addr pos)
+_g size_t *arraysize_ptr_debug(addr pos)
 {
 	CheckType(pos, LISPSYSTEM_ARRAY_DIMENSION);
 	return arraysize_ptr_Low(pos);
 }
 
-struct array_struct *arrayinfo_struct_debug(addr pos)
+_g struct array_struct *arrayinfo_struct_debug(addr pos)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
 	return arrayinfo_struct_Low(pos);
 }
 
-addr refarrayinfo_debug(addr pos, size_t index)
+_g addr refarrayinfo_debug(addr pos, size_t index)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
 	return RefArrayInfo_Low(pos, index);
 }
 
-void getarrayinfo_debug(addr pos, size_t index, addr *ret)
+_g void getarrayinfo_debug(addr pos, size_t index, addr *ret)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
 	GetArrayInfo_Low(pos, index, ret);
 }
 
-void setarrayinfo_debug(addr pos, size_t index, addr value)
+_g void setarrayinfo_debug(addr pos, size_t index, addr value)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetArrayInfo_Low(pos, index, value);
 }
 
-void lenarrayinfo_debug(addr pos, size_t *ret)
+_g void lenarrayinfo_debug(addr pos, size_t *ret)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
 	LenArrayInfo_Low(pos, ret);
 }
 
-size_t lenarrayinfor_debug(addr pos)
+_g size_t lenarrayinfor_debug(addr pos)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
 	return LenArrayInfor_Low(pos);
@@ -91,45 +91,45 @@ size_t lenarrayinfor_debug(addr pos)
 /*
  *  memory allocate
  */
-void arraygen_alloc(LocalRoot local, addr *ret, size_t size)
+_g void arraygen_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	arraygen_alloc_Low(local, ret, LISPSYSTEM_ARRAY_GENERAL, size);
 }
-void arraygen_local(LocalRoot local, addr *ret, size_t size)
+_g void arraygen_local(LocalRoot local, addr *ret, size_t size)
 {
 	CheckLocal(local);
 	arraygen_alloc(local, ret, size);
 }
-void arraygen_heap(addr *ret, size_t size)
+_g void arraygen_heap(addr *ret, size_t size)
 {
 	arraygen_alloc(NULL, ret, size);
 }
 
-void arrayspec_alloc(LocalRoot local, addr *ret, size_t size)
+_g void arrayspec_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	arrayspec_alloc_Low(local, ret, LISPSYSTEM_ARRAY_SPECIALIZED, size);
 }
-void arrayspec_local(LocalRoot local, addr *ret, size_t size)
+_g void arrayspec_local(LocalRoot local, addr *ret, size_t size)
 {
 	CheckLocal(local);
 	arrayspec_alloc(local, ret, size);
 }
-void arrayspec_heap(addr *ret, size_t size)
+_g void arrayspec_heap(addr *ret, size_t size)
 {
 	arrayspec_alloc(NULL, ret, size);
 }
 
-void arrayinfo_alloc(LocalRoot local, addr *ret)
+_g void arrayinfo_alloc(LocalRoot local, addr *ret)
 {
 	arrayinfo_alloc_Low(local, ret, LISPTYPE_ARRAY,
 			ARRAY_INFO_SIZE, sizeoft(struct array_struct));
 }
-void arrayinfo_local(LocalRoot local, addr *ret)
+_g void arrayinfo_local(LocalRoot local, addr *ret)
 {
 	CheckLocal(local);
 	arrayinfo_alloc(local, ret);
 }
-void arrayinfo_heap(addr *ret)
+_g void arrayinfo_heap(addr *ret)
 {
 	arrayinfo_alloc(NULL, ret);
 }
@@ -138,23 +138,23 @@ static void arraysize1_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	arraysize1_alloc_Low(local, ret, LISPSYSTEM_ARRAY_DIMENSION, size);
 }
-void arraysize_alloc(LocalRoot local, addr *ret, size_t index)
+_g void arraysize_alloc(LocalRoot local, addr *ret, size_t index)
 {
 	if (multisafe_size(IdxSize, index, &index))
 		fmte("Index overflow.", NULL);
 	arraysize1_alloc(local, ret, index);
 }
-void arraysize_local(LocalRoot local, addr *ret, size_t index)
+_g void arraysize_local(LocalRoot local, addr *ret, size_t index)
 {
 	CheckLocal(local);
 	arraysize_alloc(local, ret, index);
 }
-void arraysize_heap(addr *ret, size_t index)
+_g void arraysize_heap(addr *ret, size_t index)
 {
 	arraysize_alloc(NULL, ret, index);
 }
 
-void arraysize_copy_alloc(LocalRoot local, addr *ret, addr pos, size_t size)
+_g void arraysize_copy_alloc(LocalRoot local, addr *ret, addr pos, size_t size)
 {
 	addr one;
 	size_t *data1;
@@ -167,17 +167,17 @@ void arraysize_copy_alloc(LocalRoot local, addr *ret, addr pos, size_t size)
 	memcpy(data1, data2, IdxSize * size);
 	*ret = one;
 }
-void arraysize_copy_local(LocalRoot local, addr *ret, addr pos, size_t size)
+_g void arraysize_copy_local(LocalRoot local, addr *ret, addr pos, size_t size)
 {
 	CheckLocal(local);
 	arraysize_copy_alloc(local, ret, pos, size);
 }
-void arraysize_copy_heap(addr *ret, addr pos, size_t size)
+_g void arraysize_copy_heap(addr *ret, addr pos, size_t size)
 {
 	arraysize_copy_alloc(NULL, ret, pos, size);
 }
 
-void array_empty_alloc(LocalRoot local, addr *ret)
+_g void array_empty_alloc(LocalRoot local, addr *ret)
 {
 	addr pos;
 	struct array_struct *str;
@@ -188,17 +188,17 @@ void array_empty_alloc(LocalRoot local, addr *ret)
 	str->type = ARRAY_TYPE_EMPTY;
 	*ret = pos;
 }
-void array_empty_local(LocalRoot local, addr *ret)
+_g void array_empty_local(LocalRoot local, addr *ret)
 {
 	CheckLocal(local);
 	array_empty_alloc(local, ret);
 }
-void array_empty_heap(addr *ret)
+_g void array_empty_heap(addr *ret)
 {
 	array_empty_alloc(NULL, ret);
 }
 
-void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
+_g void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
 {
 	addr pos, temp;
 	struct array_struct *str;
@@ -223,12 +223,12 @@ void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
 	/* result */
 	*ret = pos;
 }
-void array_local(LocalRoot local, addr *ret, size_t index, size_t size)
+_g void array_local(LocalRoot local, addr *ret, size_t index, size_t size)
 {
 	CheckLocal(local);
 	array_alloc(local, ret, index, size);
 }
-void array_heap(addr *ret, size_t index, size_t size)
+_g void array_heap(addr *ret, size_t index, size_t size)
 {
 	array_alloc(NULL, ret, index, size);
 }
@@ -261,7 +261,7 @@ static void array_va_stdarg(LocalRoot local, addr *ret, va_list args)
 	/* result */
 	*ret = pos;
 }
-void array_va_alloc(LocalRoot local, addr *ret, ...)
+_g void array_va_alloc(LocalRoot local, addr *ret, ...)
 {
 	va_list args;
 
@@ -269,7 +269,7 @@ void array_va_alloc(LocalRoot local, addr *ret, ...)
 	array_va_stdarg(local, ret, args);
 	va_end(args);
 }
-void array_va_local(LocalRoot local, addr *ret, ...)
+_g void array_va_local(LocalRoot local, addr *ret, ...)
 {
 	va_list args;
 
@@ -278,7 +278,7 @@ void array_va_local(LocalRoot local, addr *ret, ...)
 	array_va_stdarg(local, ret, args);
 	va_end(args);
 }
-void array_va_heap(addr *ret, ...)
+_g void array_va_heap(addr *ret, ...)
 {
 	va_list args;
 
@@ -291,22 +291,22 @@ void array_va_heap(addr *ret, ...)
 /*
  *  type check
  */
-int arrayp(addr pos)
+_g int arrayp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_ARRAY;
 }
 
-int array_simple_p(addr pos)
+_g int array_simple_p(addr pos)
 {
 	return arrayp(pos) && ArrayInfoStruct(pos)->simple;
 }
 
-int array_vector_p(addr pos)
+_g int array_vector_p(addr pos)
 {
 	return arrayp(pos) && ArrayInfoStruct(pos)->dimension == 1;
 }
 
-int array_size_vector_p(addr pos, size_t size)
+_g int array_size_vector_p(addr pos, size_t size)
 {
 	struct array_struct *str;
 
@@ -319,7 +319,7 @@ int array_size_vector_p(addr pos, size_t size)
 	return ArrayInfoStruct(pos)->size == size;
 }
 
-int array_general_p(addr pos)
+_g int array_general_p(addr pos)
 {
 	struct array_struct *str;
 
@@ -330,7 +330,7 @@ int array_general_p(addr pos)
 	return str->type == ARRAY_TYPE_T;
 }
 
-int array_specialized_p(addr pos)
+_g int array_specialized_p(addr pos)
 {
 	struct array_struct *str;
 
@@ -341,7 +341,7 @@ int array_specialized_p(addr pos)
 	return str->type != ARRAY_TYPE_T;
 }
 
-int array_simple_vector_p(addr pos)
+_g int array_simple_vector_p(addr pos)
 {
 	struct array_struct *str;
 
@@ -355,7 +355,7 @@ int array_simple_vector_p(addr pos)
 /*
  *  memory access
  */
-const size_t *array_ptrsize(addr pos)
+_g const size_t *array_ptrsize(addr pos)
 {
 	struct array_struct *str;
 
@@ -374,7 +374,7 @@ const size_t *array_ptrsize(addr pos)
 	}
 }
 
-void *array_ptrwrite(addr pos, size_t index)
+_g void *array_ptrwrite(addr pos, size_t index)
 {
 	enum ARRAY_TYPE type;
 	struct array_struct *str;
@@ -394,7 +394,7 @@ void *array_ptrwrite(addr pos, size_t index)
 	return (void *)(arrayspec_ptr(pos) + (index * str->element));
 }
 
-const void *array_ptrread(addr pos, size_t index)
+_g const void *array_ptrread(addr pos, size_t index)
 {
 	return (const void *)array_ptrwrite(pos, index);
 }

@@ -4,7 +4,7 @@
 #include "stream_file.h"
 #include "stream.h"
 
-void init_stream_binary_input(void)
+_g void init_stream_binary_input(void)
 {
 	DefineStreamLet(BinaryInput, close, stream_file);
 	DefineStreamLet(BinaryInput, read_binary, file);
@@ -38,7 +38,7 @@ void init_stream_binary_input(void)
 	DefineStream___(BinaryInput, clear_output);
 }
 
-void init_stream_binary_output(void)
+_g void init_stream_binary_output(void)
 {
 	DefineStreamLet(BinaryOutput, close, stream_file);
 	DefineStream___(BinaryOutput, read_binary);
@@ -72,7 +72,7 @@ void init_stream_binary_output(void)
 	DefineStreamLet(BinaryOutput, clear_output, file);
 }
 
-void init_stream_binary_io(void)
+_g void init_stream_binary_io(void)
 {
 	DefineStreamLet(BinaryIO, close, stream_file);
 	DefineStreamLet(BinaryIO, read_binary, file);
@@ -106,7 +106,7 @@ void init_stream_binary_io(void)
 	DefineStreamLet(BinaryIO, clear_output, file);
 }
 
-void init_stream_character_input(void)
+_g void init_stream_character_input(void)
 {
 	DefineStreamLet(CharacterInput, close, stream_file);
 	DefineStream___(CharacterInput, read_binary);
@@ -140,7 +140,7 @@ void init_stream_character_input(void)
 	DefineStream___(CharacterInput, clear_output);
 }
 
-void init_stream_character_output(void)
+_g void init_stream_character_output(void)
 {
 	DefineStreamLet(CharacterOutput, close, stream_file);
 	DefineStream___(CharacterOutput, read_binary);
@@ -174,7 +174,7 @@ void init_stream_character_output(void)
 	DefineStreamLet(CharacterOutput, clear_output, file);
 }
 
-void init_stream_character_io(void)
+_g void init_stream_character_io(void)
 {
 	DefineStreamLet(CharacterIO, close, stream_file);
 	DefineStream___(CharacterIO, read_binary);
@@ -208,7 +208,7 @@ void init_stream_character_io(void)
 	DefineStreamLet(CharacterIO, clear_output, file);
 }
 
-void init_stream_binchar_input(void)
+_g void init_stream_binchar_input(void)
 {
 	DefineStreamLet(BincharInput, close, stream_file);
 	DefineStreamLet(BincharInput, read_binary, file);
@@ -242,7 +242,7 @@ void init_stream_binchar_input(void)
 	DefineStream___(BincharInput, clear_output);
 }
 
-void init_stream_binchar_output(void)
+_g void init_stream_binchar_output(void)
 {
 	DefineStreamLet(BincharOutput, close, stream_file);
 	DefineStream___(BincharOutput, read_binary);
@@ -276,7 +276,7 @@ void init_stream_binchar_output(void)
 	DefineStreamLet(BincharOutput, clear_output, file);
 }
 
-void init_stream_binchar_io(void)
+_g void init_stream_binchar_io(void)
 {
 	DefineStreamLet(BincharIO, close, stream_file);
 	DefineStreamLet(BincharIO, read_binary, file);

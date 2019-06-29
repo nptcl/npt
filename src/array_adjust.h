@@ -3,7 +3,7 @@
 
 #include "typedef.h"
 
-void array_adjust_array(addr *ret, addr array, addr dimension,
+_g void array_adjust_array(addr *ret, addr array, addr dimension,
 		addr type, addr initial, addr contents,
 		addr fillpointer, addr displaced, addr offset);
 

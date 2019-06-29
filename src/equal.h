@@ -3,12 +3,12 @@
 
 #include "build.h"
 
-int atom_function(addr pos);
-int eq_function(addr left, addr right);
-int eql_function(addr left, addr right);
-int equal_function(addr left, addr right);
-int equalp_function(addr left, addr right);
-int equalrt_function(addr left, addr right);
+_g int atom_function(addr pos);
+_g int eq_function(addr left, addr right);
+_g int eql_function(addr left, addr right);
+_g int equal_function(addr left, addr right);
+_g int equalp_function(addr left, addr right);
+_g int equalrt_function(addr left, addr right);
 
 #define atom atom_function
 #define eq eq_function
