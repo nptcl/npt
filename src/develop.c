@@ -12,9 +12,6 @@ void degrade_execute(void);
 static FILE *file = NULL;
 int DegradeCount = 0;
 int DegradeError = 0;
-int DegradeArgc = 0;
-char **DegradeArgv = NULL;
-char **DegradeEnv = NULL;
 
 #define DEGRADE_WIDTH 60
 static int DegradeSwitch = 0;
@@ -124,11 +121,8 @@ void degrade_output_null(Execute ptr)
 	setspecial_local(ptr, stream, null);
 }
 
-int degradelisp(int argc, char *argv[], char *env[])
+int degradelisp(void)
 {
-	DegradeArgc = argc;
-	DegradeArgv = argv;
-	DegradeEnv = env;
 	file = stdout;
 	DegradeCount = 0;
 	DegradeError = 0;
@@ -153,7 +147,7 @@ int degradelisp(int argc, char *argv[], char *env[])
 #else
 #include "info.h"
 
-int degradelisp(int argc, char *argv[], char *env[])
+int degradelisp(void)
 {
 	info("degrade-mode is not implemented.");
 	return 0;

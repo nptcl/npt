@@ -1289,7 +1289,7 @@ int test_type(void)
 		build_type();
 		build_common();
 		build_clos(ptr);
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_type();
 	}
 	end_code(ptr);

@@ -225,7 +225,7 @@ int test_stream(void)
 		build_common();
 		build_readtable();
 		build_pathname();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_stream();
 	}
 	end_code(ptr);

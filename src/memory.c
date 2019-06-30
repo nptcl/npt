@@ -23,7 +23,7 @@ _g enum LISPTYPE gettype(addr pos)
 /*
  *  size class
  */
-_g int LISPCLASS_Array[0xFF] = {
+_g int LISPCLASS_Array[0x0100] = {
 	/* cons */
 	ConsLength, ConsLength, ConsLength, ConsLength,
 	ConsLength, ConsLength, ConsLength, ConsLength,

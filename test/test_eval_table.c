@@ -140,7 +140,7 @@ int test_eval_table(void)
 		build_character();
 		build_package();
 		build_symbol();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_eval_table();
 	}
 	end_code(ptr);

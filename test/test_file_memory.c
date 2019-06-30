@@ -1309,7 +1309,7 @@ int test_file_memory(void)
 		build_common();
 		build_readtable();
 		build_pathname();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_file_memory();
 	}
 	end_code(ptr);

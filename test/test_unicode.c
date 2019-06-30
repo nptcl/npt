@@ -1092,7 +1092,7 @@ int test_unicode(void)
 		build_constant();
 		build_object();
 		build_character();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_unicode();
 	}
 	end_code(ptr);

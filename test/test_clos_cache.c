@@ -83,7 +83,7 @@ int test_clos_cache(void)
 		build_object();
 		build_package();
 		build_clos(ptr);
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_clos_cache();
 	}
 	end_code(ptr);

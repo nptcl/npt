@@ -2966,7 +2966,7 @@ int test_readtable(void)
 		build_common();
 		build_readtable();
 		build_code();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_readtable();
 	}
 	end_code(ptr);

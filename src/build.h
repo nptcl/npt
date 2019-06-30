@@ -10,7 +10,7 @@
 #include "info.h"
 #include "typedef.h"
 
-__extern int      lisp_init;
+__extern int      lisp_initialize;
 __extern addr     lisp_root[LISPINDEX_SIZE];
 __extern addr     lisp_nil;
 __extern addr     lisp_t;
@@ -80,7 +80,7 @@ _g int getproperty(int index);
 _g void initlisp(void);
 _g int alloclisp(size_t heap, size_t stack);
 _g void freelisp(void);
-_g int degradelisp(int argc, char *argv[], char *env[]);
+_g int degradelisp(void);
 
 _g void build_lisproot(Execute ptr);
 _g void buildlisp(Execute ptr);

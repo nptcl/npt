@@ -52,7 +52,7 @@
  *            B2: [T S C U][b b s s]
  ****************************************************************************/
 
-__extern int LISPCLASS_Array[];
+__extern int LISPCLASS_Array[0x0100];
 
 enum LISPSIZE {
 	LISPSIZE_ARRAY2      = 0,

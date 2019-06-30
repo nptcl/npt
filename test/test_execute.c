@@ -77,8 +77,8 @@ static int test_foreach_execute(void)
 		call_foreach_execute_check[i] = 0xAA;
 	}
 	ExecuteArray = array;
-	Size = 10;
-	Position = 3;
+	ExecuteSize = 10;
+	ExecutePosition = 3;
 	body[1].state = ThreadState_Empty;
 	foreach_execute(call_foreach_execute);
 

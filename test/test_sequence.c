@@ -498,7 +498,7 @@ int test_sequence(void)
 		build_constant();
 		build_object();
 		//build_package();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testgroup_sequence();
 	}
 	end_code(ptr);

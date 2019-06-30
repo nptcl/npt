@@ -1945,7 +1945,7 @@ int test_type_table(void)
 		build_type();
 		build_common();
 		build_clos(ptr);
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_type_table();
 	}
 	end_code(ptr);

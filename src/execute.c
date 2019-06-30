@@ -22,15 +22,15 @@
  *  execute
  */
 static struct execute **ExecuteArray = NULL;
-static mutexlite Mutex;
-static condlite Cond;
-static size_t Size;
-static size_t Position;
+static mutexlite ExecuteMutex;
+static condlite ExecuteCond;
+static size_t ExecuteSize;
+static size_t ExecutePosition;
 
 #ifdef LISP_DEGRADE
 struct execute ***Degrade_execute_Execute(void) { return &ExecuteArray; }
-size_t *Degrade_execute_Size(void) { return &Size; }
-size_t *Degrade_execute_Position(void) { return &Position; }
+size_t *Degrade_execute_Size(void) { return &ExecuteSize; }
+size_t *Degrade_execute_Position(void) { return &ExecutePosition; }
 #endif
 
 /* thread local */
@@ -122,7 +122,7 @@ static void freebuffer(struct execute **ptr)
 	size_t i;
 
 	if (ptr) {
-		for (i = 0; i < Size; i++)
+		for (i = 0; i < ExecuteSize; i++)
 			freemembit(ptr[i]);
 		free(ptr);
 	}
@@ -188,11 +188,11 @@ _g int init_execute(size_t size)
 	}
 
 	/* sync object */
-	if (make_mutexlite(&Mutex)) {
+	if (make_mutexlite(&ExecuteMutex)) {
 		Debug("make_mutexlite error");
 		goto error1;
 	}
-	make_condlite(&Cond);
+	make_condlite(&ExecuteCond);
 
 	/* threadlocal */
 	init_execute_local();
@@ -205,16 +205,16 @@ _g int init_execute(size_t size)
 
 	/* Global variables */
 	ExecuteArray = ptr;
-	Size = EXECUTE_SIZE;
-	Position = 1;
+	ExecuteSize = EXECUTE_SIZE;
+	ExecutePosition = 1;
 
 	return 0;
 
 error3:
 	freebuffer(ptr);
-	destroy_condlite(&Cond);
+	destroy_condlite(&ExecuteCond);
 error1:
-	destroy_mutexlite(&Mutex);
+	destroy_mutexlite(&ExecuteMutex);
 	return 1;
 }
 
@@ -226,7 +226,7 @@ _g void free_execute(void)
 	if (ExecuteArray == NULL) return;
 
 	/* ExecuteArray */
-	for (i = 0; i < Size; i++) {
+	for (i = 0; i < ExecuteSize; i++) {
 		bit = ExecuteArray[i];
 		if (bit->state != ThreadState_Empty) {
 			free_local(bit->local);
@@ -238,11 +238,11 @@ _g void free_execute(void)
 	free_execute_local();
 
 	/* Global variables */
-	destroy_condlite(&Cond);
-	destroy_mutexlite(&Mutex);
+	destroy_condlite(&ExecuteCond);
+	destroy_mutexlite(&ExecuteMutex);
 	freebuffer(ExecuteArray);
 	ExecuteArray = 0;
-	Size = 0;
+	ExecuteSize = 0;
 }
 
 static int extendmemory(void)
@@ -250,30 +250,30 @@ static int extendmemory(void)
 	size_t size, i, k;
 	struct execute **ptr, *bit;
 
-	size = Size + EXECUTE_PLUS;
+	size = ExecuteSize + EXECUTE_PLUS;
 	ptr = reallocsize(ExecuteArray, struct execute *, size);
 	if (ptr == NULL) {
 		Debug("reallocsize error");
 		return 1;
 	}
-	for (i = Size; i < size; i++) {
+	for (i = ExecuteSize; i < size; i++) {
 		bit = allocmembit(i);
 		if (bit == NULL) {
 			Debug("allocmembit error");
-			for (k = Size; k < i; k++)
+			for (k = ExecuteSize; k < i; k++)
 				freemembit(ptr[k]);
 			/* for realloc */
 			ExecuteArray = ptr;
 			/* try recovery */
-			ptr = reallocsize(ExecuteArray, struct execute *, Size);
+			ptr = reallocsize(ExecuteArray, struct execute *, ExecuteSize);
 			if (ptr) ExecuteArray = ptr;
 			return 1;
 		}
 		ptr[i] = bit;
 	}
 	ExecuteArray = ptr;
-	Position = Size;
-	Size = size;
+	ExecutePosition = ExecuteSize;
+	ExecuteSize = size;
 
 	return 0;
 }
@@ -283,18 +283,18 @@ static int findempty(struct execute **ret)
 	size_t index;
 
 	/* first try */
-	for (index = Position; index < Size; index++) {
+	for (index = ExecutePosition; index < ExecuteSize; index++) {
 		if (ExecuteArray[index]->state == ThreadState_Empty) {
-			Position = index;
+			ExecutePosition = index;
 			*ret = ExecuteArray[index];
 			return 1;
 		}
 	}
 
 	/* second try */
-	for (index = 1; index < Position; index++) {
+	for (index = 1; index < ExecutePosition; index++) {
 		if (ExecuteArray[index]->state == ThreadState_Empty) {
-			Position = index;
+			ExecutePosition = index;
 			*ret = ExecuteArray[index];
 			return 1;
 		}
@@ -305,7 +305,7 @@ static int findempty(struct execute **ret)
 
 static int findstate(struct execute **ptr)
 {
-	lock_mutexlite(&Mutex);
+	lock_mutexlite(&ExecuteMutex);
 
 	/* find state=ThreadState_Empty */
 	if (findempty(ptr)) goto finish;
@@ -313,23 +313,23 @@ static int findstate(struct execute **ptr)
 	/* extend memory */
 	if (extendmemory()) {
 		Debug("expandmemory error");
-		unlock_mutexlite(&Mutex);
+		unlock_mutexlite(&ExecuteMutex);
 		return 1;
 	}
-	*ptr = ExecuteArray[Position];
+	*ptr = ExecuteArray[ExecutePosition];
 
 finish:
 	(*ptr)->state = ThreadState_Run;
-	unlock_mutexlite(&Mutex);
+	unlock_mutexlite(&ExecuteMutex);
 
 	return 0;
 }
 
 _g void setstate_execute(struct execute *ptr, enum ThreadState value)
 {
-	lock_mutexlite(&Mutex);
+	lock_mutexlite(&ExecuteMutex);
 	ptr->state = value;
-	unlock_mutexlite(&Mutex);
+	unlock_mutexlite(&ExecuteMutex);
 }
 
 _g int make_execute(execfunction proc, struct execute **ret, size_t size)
@@ -362,7 +362,7 @@ _g int join_execute(struct execute *ptr)
 {
 	int result;
 
-	lock_mutexlite(&Mutex);
+	lock_mutexlite(&ExecuteMutex);
 	switch (ptr->state) {
 		case ThreadState_Empty:
 			break;
@@ -381,11 +381,11 @@ _g int join_execute(struct execute *ptr)
 			Debug("join_thread  state error");
 			goto error;
 	}
-	unlock_mutexlite(&Mutex);
+	unlock_mutexlite(&ExecuteMutex);
 	return 0;
 
 join:
-	unlock_mutexlite(&Mutex);
+	unlock_mutexlite(&ExecuteMutex);
 	result = join_thread(&ptr->handle);
 	if (result) {
 		Debug("join_thread error");
@@ -395,7 +395,7 @@ join:
 	return 0;
 
 error:
-	unlock_mutexlite(&Mutex);
+	unlock_mutexlite(&ExecuteMutex);
 	return 1;
 }
 
@@ -404,7 +404,7 @@ _g size_t count_execute(void)
 	size_t i, count;
 
 	count = 0;
-	for (i = 0; i < Size; i++) {
+	for (i = 0; i < ExecuteSize; i++) {
 		if (ExecuteArray[i]->state != ThreadState_Empty)
 			count++;
 	}
@@ -421,14 +421,14 @@ _g struct execute *getexecute(size_t index)
 {
 	struct execute *result;
 
-	lock_mutexlite(&Mutex);
-	if (Size <= index) {
-		unlock_mutexlite(&Mutex);
+	lock_mutexlite(&ExecuteMutex);
+	if (ExecuteSize <= index) {
+		unlock_mutexlite(&ExecuteMutex);
 		Debug("index error");
 		return NULL;
 	}
 	result = ExecuteArray[index];
-	unlock_mutexlite(&Mutex);
+	unlock_mutexlite(&ExecuteMutex);
 
 	return result;
 }
@@ -595,8 +595,8 @@ _g void gcstate_execute(void)
 	size_t i;
 	struct execute *ptr;
 
-	lock_mutexlite(&Mutex);
-	for (i = 0; i < Size; i++) {
+	lock_mutexlite(&ExecuteMutex);
+	for (i = 0; i < ExecuteSize; i++) {
 		ptr = ExecuteArray[i];
 		switch (ptr->state) {
 			case ThreadState_Empty:
@@ -614,21 +614,21 @@ _g void gcstate_execute(void)
 				break;
 		}
 	}
-	broadcast_condlite(&Cond);
-	unlock_mutexlite(&Mutex);
+	broadcast_condlite(&ExecuteCond);
+	unlock_mutexlite(&ExecuteMutex);
 }
 
 _g void gcstart_execute(struct execute *ptr)
 {
 	size_t i;
 
-	lock_mutexlite(&Mutex);
+	lock_mutexlite(&ExecuteMutex);
 	ptr->state = ThreadState_GcStart;
 loop:
-	for (i = 0; i < Size; i++) {
+	for (i = 0; i < ExecuteSize; i++) {
 		switch (ExecuteArray[i]->state) {
 			case ThreadState_Signal:
-				wait_condlite(&Cond, &Mutex);
+				wait_condlite(&ExecuteCond, &ExecuteMutex);
 				goto loop;
 
 			case ThreadState_Run:
@@ -640,15 +640,15 @@ loop:
 				break;
 		}
 	}
-	unlock_mutexlite(&Mutex);
+	unlock_mutexlite(&ExecuteMutex);
 }
 
 _g void gcwait_execute(struct execute *ptr)
 {
-	lock_mutexlite(&Mutex);
+	lock_mutexlite(&ExecuteMutex);
 	while (ptr->state != ThreadState_Run)
-		wait_condlite(&Cond, &Mutex);
-	unlock_mutexlite(&Mutex);
+		wait_condlite(&ExecuteCond, &ExecuteMutex);
+	unlock_mutexlite(&ExecuteMutex);
 }
 
 _g void gcend_execute(void)
@@ -656,14 +656,14 @@ _g void gcend_execute(void)
 	size_t i;
 	struct execute *ptr;
 
-	lock_mutexlite(&Mutex);
-	for (i = 0; i < Size; i++) {
+	lock_mutexlite(&ExecuteMutex);
+	for (i = 0; i < ExecuteSize; i++) {
 		ptr = ExecuteArray[i];
 		if (ptr->state == ThreadState_GcStart)
 			ptr->state = ThreadState_Run;
 	}
-	broadcast_condlite(&Cond);
-	unlock_mutexlite(&Mutex);
+	broadcast_condlite(&ExecuteCond);
+	unlock_mutexlite(&ExecuteMutex);
 }
 
 _g void foreach_execute(void (*call)(struct execute *))
@@ -671,7 +671,7 @@ _g void foreach_execute(void (*call)(struct execute *))
 	size_t i;
 	struct execute *ptr;
 
-	for (i = 0; i < Position; i++) {
+	for (i = 0; i < ExecutePosition; i++) {
 		ptr = ExecuteArray[i];
 		if (ptr->state != ThreadState_Empty)
 			call(ptr);
@@ -683,7 +683,7 @@ _g int foreach_check_execute(int (*call)(struct execute *))
 	size_t i;
 	struct execute *ptr;
 
-	for (i = 0; i < Position; i++) {
+	for (i = 0; i < ExecutePosition; i++) {
 		ptr = ExecuteArray[i];
 		if (ptr->state != ThreadState_Empty) {
 			if (call(ptr))

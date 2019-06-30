@@ -2849,7 +2849,7 @@ int test_clos_class(void)
 		build_syscall();
 		build_common();
 		build_readtable();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_clos_class();
 	}
 	end_code(ptr);

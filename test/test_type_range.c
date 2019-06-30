@@ -606,7 +606,7 @@ int test_type_range(void)
 		build_syscall();
 		build_common();
 		build_readtable();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_type_range();
 	}
 	end_code(ptr);

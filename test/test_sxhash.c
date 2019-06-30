@@ -168,7 +168,7 @@ int test_sxhash(void)
 		build_constant();
 		build_object();
 		build_character();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_sxhash();
 	}
 	end_code(ptr);

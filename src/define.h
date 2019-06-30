@@ -439,8 +439,16 @@
 #define LISP_COMPLEX_C99
 #endif
 
+/* windows */
 #ifdef _MSC_VER
 #pragma warning(disable:4996)
+#endif
+
+/* main */
+#if (defined LISP_WINMAIN) || (defined LISP_WINDOWS_WIDE)
+#define LISP_WINMAIN_WIDE
+#else
+#undef LISP_WINMAIN_WIDE
 #endif
 
 /* end of header file */

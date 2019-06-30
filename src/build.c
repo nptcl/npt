@@ -48,13 +48,13 @@
 /*
  *  Variables
  */
-_g int      lisp_init          = 0;
+_g int      lisp_initialize    = 0;
 _g addr     lisp_root[LISPINDEX_SIZE];
 _g addr     lisp_nil           = 0;
 _g addr     lisp_t             = 0;
 _g byte32   lisp_property      = 0;
 /* for debug */
-_g int      lisp_info_enable	= 1;
+_g int      lisp_info_enable   = 1;
 
 
 /*
@@ -62,14 +62,14 @@ _g int      lisp_info_enable	= 1;
  */
 _g void setproperty(int index, int value)
 {
-	Check(lisp_init == 0, "lisp error");
+	Check(lisp_initialize == 0, "lisp error");
 	Check(index < 0 || 32 <= index, "range error");
 	SetShiftValue(lisp_property, index, value, 1UL, byte32);
 }
 
 _g int getproperty(int index)
 {
-	Check(lisp_init == 0, "lisp error");
+	Check(lisp_initialize == 0, "lisp error");
 	Check(index < 0 || 32 <= index, "range error");
 	return GetShiftValue(lisp_property, index, 1UL);
 }
@@ -118,7 +118,7 @@ static void clearlisp_force(void)
 
 _g int alloclisp(size_t heap, size_t stack)
 {
-	if (lisp_init) {
+	if (lisp_initialize) {
 		Debug("lisp object already allocated.");
 		return 1;
 	}
@@ -168,7 +168,7 @@ _g int alloclisp(size_t heap, size_t stack)
 	}
 
 	/* check */
-	lisp_init = 1;
+	lisp_initialize = 1;
 
 	return 0;
 
@@ -185,7 +185,7 @@ error_file:
 
 _g void freelisp(void)
 {
-	if (lisp_init) {
+	if (lisp_initialize) {
 		free_random_state();
 		free_symbol();
 		free_execute();
@@ -193,7 +193,7 @@ _g void freelisp(void)
 		free_file();
 		clearlisp_force();
 	}
-	lisp_init = 0;
+	lisp_initialize = 0;
 }
 
 

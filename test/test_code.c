@@ -154,7 +154,7 @@ int test_code(void)
 		build_common();
 		build_readtable();
 		build_pathname();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_code();
 	}
 	end_code(ptr);

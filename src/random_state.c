@@ -18,7 +18,7 @@
 #define RANDOM_DEVICE_SIZE 256
 
 static int InitRandomState = 0;
-static mutexlite Mutex;
+static mutexlite RandomStateMutex;
 
 _g struct random_state *struct_random_state(addr pos)
 {
@@ -273,7 +273,7 @@ _g int init_random_state(void)
 		Debug("InitRandomState error.");
 		return 1;
 	}
-	if (make_mutexlite(&Mutex)) {
+	if (make_mutexlite(&RandomStateMutex)) {
 		Debug("make_mutexlite error.");
 		return 1;
 	}
@@ -285,7 +285,7 @@ _g int init_random_state(void)
 _g void free_random_state(void)
 {
 	if (InitRandomState) {
-		destroy_mutexlite(&Mutex);
+		destroy_mutexlite(&RandomStateMutex);
 		InitRandomState = 0;
 	}
 }
@@ -299,9 +299,9 @@ static void make_random_seed(struct md5encode *md5)
 	/* environment */
 	random_seed_os(md5);
 	/* counter */
-	lock_mutexlite(&Mutex);
+	lock_mutexlite(&RandomStateMutex);
 	counter++;
-	unlock_mutexlite(&Mutex);
+	unlock_mutexlite(&RandomStateMutex);
 	readmd5(md5, &counter, sizeof(counter));
 	/* function pointer */
 	call = make_random_seed;

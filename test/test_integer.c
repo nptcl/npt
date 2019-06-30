@@ -52,7 +52,7 @@ int test_integer(void)
 		build_type();
 		build_syscall();
 		build_common();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_integer();
 	}
 	end_code(ptr);

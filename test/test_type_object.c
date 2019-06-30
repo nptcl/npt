@@ -537,7 +537,7 @@ int test_type_object(void)
 		build_readtable();
 		build_pathname();
 		build_eval_declare();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_type_object();
 	}
 	end_code(ptr);

@@ -315,7 +315,7 @@ int test_equal(void)
 		build_syscall();
 		build_common();
 		build_readtable();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_equal();
 	}
 	end_code(ptr);

@@ -1,7 +1,7 @@
-#ifndef __LISP_HEADER__
-#define __LISP_HEADER__
+#ifndef __LISP_OBJECT_HEADER__
+#define __LISP_OBJECT_HEADER__
 
-typedef unsigned char *addr;
+#include "typedef_basic.h"
 
 void lisp0_car(addr list, addr *ret);
 void lisp0_cdr(addr list, addr *ret);

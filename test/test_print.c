@@ -870,7 +870,7 @@ int test_print(void)
 		build_readtable();
 		build_pathname();
 		build_code();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_print();
 	}
 	end_code(ptr);

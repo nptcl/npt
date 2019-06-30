@@ -565,7 +565,7 @@ int test_clos_combination(void)
 		build_object();
 		build_package();
 		build_clos(ptr);
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_clos_combination();
 	}
 	end_code(ptr);

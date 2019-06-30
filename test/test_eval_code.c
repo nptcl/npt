@@ -2255,7 +2255,7 @@ int test_eval_code(void)
 		build_eval_declare();
 		build_code();
 		test_build_eval_scope();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_eval_code();
 	}
 	end_code(ptr);

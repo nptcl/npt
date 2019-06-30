@@ -223,7 +223,10 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_table.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_execute.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_argv.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_string.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_fasl.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_file_memory.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_file.c" />
@@ -382,7 +385,8 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_string.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\fasl.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_ansi.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_memory.h" />
@@ -408,6 +412,10 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_symbol_64.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lambda.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\local.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_argv.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_init.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_string.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_exp.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_power.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_type.h" />

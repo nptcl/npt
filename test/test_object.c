@@ -570,7 +570,7 @@ int test_object(void)
 	lisp_info_enable = 1;
 	begin_code_thread(&code);
 	if (code_run_p(code)) {
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_object();
 	}
 	end_code_thread();

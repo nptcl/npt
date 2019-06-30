@@ -1022,7 +1022,7 @@ int test_strtype(void)
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_strtype();
 	}
 	end_code(ptr);

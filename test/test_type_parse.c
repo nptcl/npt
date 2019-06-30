@@ -1249,7 +1249,7 @@ int test_type_parse(void)
 		build_pathname();
 		build_eval_declare();
 		build_clos(ptr);
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_type_parse();
 	}
 	end_code(ptr);

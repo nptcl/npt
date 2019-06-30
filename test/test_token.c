@@ -429,7 +429,7 @@ int test_token(void)
 		build_common();
 		build_readtable();
 		build_pathname();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_token();
 	}
 	end_code(ptr);

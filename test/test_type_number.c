@@ -1910,7 +1910,7 @@ int test_type_number(void)
 		build_syscall();
 		build_common();
 		build_readtable();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_type_number();
 	}
 	end_code(ptr);

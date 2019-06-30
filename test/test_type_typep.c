@@ -2090,7 +2090,7 @@ int test_type_typep(void)
 		build_readtable();
 		build_pathname();
 		build_eval_declare();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_type_typep();
 	}
 	end_code(ptr);

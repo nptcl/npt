@@ -6,18 +6,250 @@
 ;;
 (defvar +name+)
 (defparameter +url+ "https://github.com/nptcl/npt")
-(defparameter +output-source+ #p"lisp.c")
-(defparameter +output-header+ #p"lisp.h")
-(defparameter +base+ '(#p"./" #p"../" #p"../src/"))
-(defvar *include* nil)
-(defvar *header-print* nil)
-(defvar *header-include* nil)
+(defparameter +base+ '(#p"./" #p"../" #p"src/" #p"../src/"))
+(defvar *include-list*)
+(defvar *header-print*)
+(defvar *header-include*)
 
 
 ;;
-;;  file list
+;;  tools
 ;;
-(defparameter *header-files*
+(defun read-line-stream (&optional (s *standard-input*))
+  (do ((x (read-line s nil nil)
+          (read-line s nil nil))
+       list)
+    ((null x) (nreverse list))
+    (push x list)))
+
+(defun read-line-list (&optional (s *standard-input*))
+  (if (streamp s)
+    (read-line-stream s)
+    (with-open-file (x s)
+      (read-line-stream x))))
+
+(defmacro dbind (&rest args)
+  `(destructuring-bind ,@args))
+
+(defmacro mvbind (&rest args)
+  `(multiple-value-bind ,@args))
+
+(defmacro mapfn ((x) expr &body body)
+  `(mapcar
+     (lambda (,x) ,@body)
+     ,expr))
+
+(defun eecho (&rest args &aux check)
+  (dolist (x args)
+    (if check
+      (princ " " *error-output*)
+      (setq check t))
+    (princ x *error-output*))
+  (terpri *error-output*))
+
+(defun eechos (&rest args &aux check)
+  (dolist (x args)
+    (if check
+      (princ " " *error-output*)
+      (setq check t))
+    (prin1 x *error-output*))
+  (terpri *error-output*))
+
+(defparameter +trim+ '(#\Space #\Tab))
+(defun triml (x)
+  (string-left-trim +trim+ x))
+
+(defun trim (x)
+  (string-trim +trim+ x))
+
+(defmacro aif (expr then &optional else)
+  `(let ((it ,expr))
+     (if it ,then ,else)))
+
+(defmacro awhen (expr &body body)
+  `(aif ,expr (progn ,@body)))
+
+(defun filter (call lst &key (key #'values) &aux acc)
+  (dolist (x lst (nreverse acc))
+    (let ((val (funcall call (funcall key x))))
+      (if val (push val acc)))))
+
+(defmacro filtfn ((x) expr &body body)
+  `(filter
+     (lambda (,x) ,@body)
+     ,expr))
+
+(defmacro dobind (bind expr &body body)
+  (let ((g (gensym)))
+    `(dolist (,g ,expr)
+       (dbind ,bind ,g
+         ,@body))))
+
+(defun mklist (x)
+  (if (listp x) x (list x)))
+
+
+;;
+;;  make-source
+;;
+(defun echo (&rest args)
+  (dolist (x args)
+    (format t "~&~A~%" x)))
+
+(defun pragma-push ()
+  (echo
+    "#ifdef __clang__"
+    "#pragma clang diagnostic push"
+    "#pragma clang diagnostic ignored \"-Wunused-function\""
+    "#endif"
+    "#ifdef __GNUC__"
+    "#pragma GCC diagnostic push"
+    "#pragma GCC diagnostic ignored \"-Wunused-function\""
+    "#endif"))
+
+(defun pragma-pop ()
+  (echo
+    "#ifdef __clang__"
+    "#pragma clang diagnostic pop"
+    "#endif"
+    "#ifdef __GNUC__"
+    "#pragma GCC diagnostic pop"
+    "#endif"))
+
+(defun source-file (x)
+  (dolist (base +base+)
+    (let ((x (merge-pathnames x base)))
+      (if (probe-file x)
+        (return x)))))
+
+(defun read-line-source (x)
+  (read-line-list
+    (source-file x)))
+
+(defun position-string (list str)
+  (position-if
+    (lambda (x)
+      (position x list :test 'eql))
+    str))
+
+(defun position-string-not (list str)
+  (position-if-not
+    (lambda (x)
+      (position x list :test 'eql))
+    str))
+
+(defun split-whitespace (x)
+  (aif (position-string-not +trim+ x)
+    (let ((x (subseq x it)))
+      (aif (position-string +trim+ x)
+        (cons (subseq x 0 it) (split-whitespace (subseq x it)))
+        (list x)))))
+
+(defun include-p (x)
+  (let ((list (split-whitespace x)))
+    (when (= (length list) 2)
+      (dbind (x y) list
+        (when (equal x "#include")
+          (values t y))))))
+
+(defun include-system-p (x)
+  (mvbind (x y) (include-p x)
+    (when (and x (char= (char y 0) #\<))
+      (values t y))))
+
+(defun header-check (x)
+  (or (not (include-p x))
+      (and *header-print* (include-system-p x))))
+
+(defun header-first (file ignore)
+  (if ignore
+    (fresh-line)
+    (format t "~2&"))
+  (let ((name (pathname-name file))
+        (type (pathname-type file))
+        (asterisk "************************************************************"))
+    (format t "/~A~%" asterisk)
+    (format t " *  ~A.~A~%" name type)
+    (format t " ~A/~%" asterisk)))
+
+(defun header-inline (x)
+  (declare (ftype function header-read))
+  (mvbind (x y) (include-p x)
+    (let ((y (string-trim "\"" y)))
+      (awhen (and x (find y (mklist *header-include*) :test 'equal))
+        (let ((*header-print* t))
+          (header-read y))
+        t))))
+
+(defun header-read (file &optional ignore)
+  (header-first file ignore)
+  (dolist (x (read-line-source file))
+    (or (header-inline x)
+        (when (header-check x)
+          (write-line x))))
+  (fresh-line))
+
+(defun header-include-file (x)
+  (dolist (x (read-line-source x))
+    (mvbind (check name) (include-system-p x)
+      (when check
+        (pushnew name *include-list* :test 'equal)))))
+
+(defun file-include-list (list)
+  (filtfn (x) list
+    (if (consp x)
+      (dbind (x . y) x
+        (unless (getf y :header)
+          x))
+      x)))
+
+(defun header-all-list (list)
+  (mapfn (x) list
+    (if (consp x)
+      x
+      (list x))))
+
+(defun header-load (list)
+  (dolist (x (file-include-list list))
+    (format *error-output* "Include-file: ~A.~%" x)
+    (header-include-file x)))
+
+(defun header-output (list)
+  (dobind (x . y) (header-all-list list)
+    (format *error-output* "Output-file: ~A.~%" x)
+    (let ((*header-print* (getf y :header))
+          (*header-include* (getf y :include)))
+      (header-read x))))
+
+
+;;
+;;  main
+;;
+(defun set-implementation-list (&optional (file "version.h"))
+  (filtfn (x) (read-line-source file)
+    (let ((x (split-whitespace x)))
+      (when (= (length x) 3)
+        x))))
+
+(defun set-implementation-name ()
+  (dobind (x y z) (set-implementation-list)
+    (when (and (equal x "#define")
+               (equal y "Lispname"))
+      (setq +name+ (string-trim "\"" z))
+      (format *error-output* "Name: ~A~%" +name+))))
+
+(defmacro with-output-file ((file) &body body)
+  `(with-open-file (*standard-output*
+                     ,file :direction :output
+                     :if-exists :supersede :if-does-not-exist :create)
+     (let (*include-list* *header-print* *header-include*)
+       ,@body)))
+
+
+;;
+;;  lisp.c
+;;
+(defparameter *lispc-header*
   '("version.h"
     "define.h"
     "typedef_basic.h"
@@ -169,9 +401,16 @@
     "common.h"
     "mop_common.h"
     "mop.h"
-    "user.h"))
+    "user.h"
+    "main_string.h"
+    "main_argv.h"
+    "main_init.h"
+    "main_object.h"
+    "extern_init.h"
+    "extern_string.h"
+    ))
 
-(defparameter *source-files*
+(defparameter *lispc-source*
   '(("arch.c" :header t)
     "array_adjust.c"
     "array_coerce.c"
@@ -346,285 +585,95 @@
     "type.c"
     "unicode.c"
     "user.c"
-    "extern.c"
-    ;;"main.c"
+    ("extern_argv.c" :header t)
+    "extern_init.c"
+    "extern_object.c"
+    "extern_string.c"
     ))
 
-
-;;
-;;  tools
-;;
-(defun read-line-stream (&optional (s *standard-input*))
-  (do ((x (read-line s nil nil)
-          (read-line s nil nil))
-       list)
-    ((null x) (nreverse list))
-    (push x list)))
-
-(defun read-line-list (&optional (s *standard-input*))
-  (if (streamp s)
-    (read-line-stream s)
-    (with-open-file (x s)
-      (read-line-stream x))))
-
-(defmacro dbind (&rest args)
-  `(destructuring-bind ,@args))
-
-(defmacro mvbind (&rest args)
-  `(multiple-value-bind ,@args))
-
-(defmacro mapfn ((x) expr &body body)
-  `(mapcar
-     (lambda (,x) ,@body)
-     ,expr))
-
-(defun eecho (&rest args &aux check)
-  (dolist (x args)
-    (if check
-      (princ " " *error-output*)
-      (setq check t))
-    (princ x *error-output*))
-  (terpri *error-output*))
-
-(defun eechos (&rest args &aux check)
-  (dolist (x args)
-    (if check
-      (princ " " *error-output*)
-      (setq check t))
-    (prin1 x *error-output*))
-  (terpri *error-output*))
-
-(defparameter +trim+ '(#\Space #\Tab))
-(defun triml (x)
-  (string-left-trim +trim+ x))
-
-(defun trim (x)
-  (string-trim +trim+ x))
-
-(defmacro aif (expr then &optional else)
-  `(let ((it ,expr))
-     (if it ,then ,else)))
-
-(defmacro awhen (expr &body body)
-  `(aif ,expr (progn ,@body)))
-
-(defun filter (call lst &key (key #'values) &aux acc)
-  (dolist (x lst (nreverse acc))
-    (let ((val (funcall call (funcall key x))))
-      (if val (push val acc)))))
-
-(defmacro filtfn ((x) expr &body body)
-  `(filter
-     (lambda (,x) ,@body)
-     ,expr))
-
-(defmacro dobind (bind expr &body body)
-  (let ((g (gensym)))
-    `(dolist (,g ,expr)
-       (dbind ,bind ,g
-         ,@body))))
-
-(defun mklist (x)
-  (if (listp x) x (list x)))
-
-
-;;
-;;  make-source
-;;
-(defun echo (&rest args)
-  (dolist (x args)
-    (format t "~&~A~%" x)))
-
-(defun pragma-push ()
-  (echo
-    "#ifdef __clang__"
-    "#pragma clang diagnostic push"
-    "#pragma clang diagnostic ignored \"-Wunused-function\""
-    "#endif"
-    "#ifdef __GNUC__"
-    "#pragma GCC diagnostic push"
-    "#pragma GCC diagnostic ignored \"-Wunused-function\""
-    "#endif"))
-
-(defun pragma-pop ()
-  (echo
-    "#ifdef __clang__"
-    "#pragma clang diagnostic pop"
-    "#endif"
-    "#ifdef __GNUC__"
-    "#pragma GCC diagnostic pop"
-    "#endif"))
-
-(defun header-comment ()
+(defun header-common ()
   (format t "/*~%")
   (format t " *  ~A -- Lisp Programming Language.~%" +name+)
   (when +url+
     (format t " *  ~A~%" +url+))
-  (format t " */~%")
+  (format t " */~%"))
+
+(defun header-comment ()
+  (header-common)
   (pragma-push)
   (terpri)
   (format t "#define _g static~%")
   (format t "#define _s static~%")
   (format t "#define __extern static~%")
   (terpri)
-  (dolist (x (sort *include* #'string<))
+  (dolist (x (sort *include-list* #'string<))
     (format t "#include ~A~%" x))
   (terpri))
 
-(defun source-file (x)
-  (dolist (base +base+)
-    (let ((x (merge-pathnames x base)))
-      (if (probe-file x)
-        (return x)))))
+(defun output-lisp-c (&optional (file "lisp.c"))
+  (with-output-file
+    (file)
+    (header-load *lispc-header*)
+    (header-load *lispc-source*)
+    (header-comment)
+    (header-output *lispc-header*)
+    (header-output *lispc-source*)
+    (pragma-pop)
+    (terpri))
+  (format *error-output* "~&*** Source File -> ~A~%" file))
 
-(defun read-line-source (x)
-  (read-line-list
-    (source-file x)))
 
-(defun position-string (list str)
-  (position-if
-    (lambda (x)
-      (position x list :test 'eql))
-    str))
+;;
+;;  lisp.h
+;;
+(defparameter *lisph-header*
+  '("define.h"
+    "typedef_basic.h"
+    "main_string.h"
+    "main_argv.h"
+    "main_init.h"
+    "main_object.h"))
 
-(defun position-string-not (list str)
-  (position-if-not
-    (lambda (x)
-      (position x list :test 'eql))
-    str))
+(defun output-lisp-h (&optional (file "lisp.h"))
+  (with-output-file
+    (file)
+    (header-load *lisph-header*)
+    (header-common)
+    (format t "~&#ifndef __LISP_HEADER__~%")
+    (format t "~&#define __LISP_HEADER__~%")
+    (terpri)
+    (dolist (x (sort *include-list* #'string<))
+      (format t "#include ~A~%" x))
+    (terpri)
+    (header-output *lisph-header*)
+    (format t "~&#endif~%")
+    (terpri))
+  (format *error-output* "~&*** Header File -> ~A~%" file))
 
-(defun split-whitespace (x)
-  (aif (position-string-not +trim+ x)
-    (let ((x (subseq x it)))
-      (aif (position-string +trim+ x)
-        (cons (subseq x 0 it) (split-whitespace (subseq x it)))
-        (list x)))))
 
-(defun include-p (x)
-  (let ((list (split-whitespace x)))
-    (when (= (length list) 2)
-      (dbind (x y) list
-        (when (equal x "#include")
-          (values t y))))))
-
-(defun include-system-p (x)
-  (mvbind (x y) (include-p x)
-    (when (and x (char= (char y 0) #\<))
-      (values t y))))
-
-(defun header-check (x)
-  (or (not (include-p x))
-      (and *header-print* (include-system-p x))))
-
-(defun header-first (file ignore)
-  (if ignore
-    (fresh-line)
-    (format t "~2&"))
-  (let ((name (pathname-name file))
-        (type (pathname-type file))
-        (asterisk "************************************************************"))
-    (format t "/~A~%" asterisk)
-    (format t " *  ~A.~A~%" name type)
-    (format t " ~A/~%" asterisk)))
-
-(defun header-inline (x)
-  (declare (ftype function header-load))
-  (mvbind (x y) (include-p x)
-    (let ((y (string-trim "\"" y)))
-      (awhen (and x (find y (mklist *header-include*) :test 'equal))
-        (let ((*header-print* t))
-          (header-load y))
-        t))))
-
-(defun header-load (file &optional ignore)
-  (header-first file ignore)
-  (dolist (x (read-line-source file))
-    (or (header-inline x)
-        (when (header-check x)
-          (write-line x))))
-  (fresh-line))
-
-(defun header-include-file (x)
-  (dolist (x (read-line-source x))
-    (mvbind (check name) (include-system-p x)
-      (when check
-        (pushnew name *include* :test 'equal)))))
-
-(defun file-include-list (list)
-  (filtfn (x) list
-    (if (consp x)
-      (dbind (x . y) x
-        (unless (getf y :header)
-          x))
-      x)))
-
-(defun header-all-list (list)
-  (mapfn (x) list
-    (if (consp x)
-      x
-      (list x))))
-
-(defun header-include (list)
-  (dolist (x (file-include-list list))
-    (format *error-output* "Include-file: ~A.~%" x)
-    (header-include-file x)))
-
-(defun header-output (list)
-  (dobind (x . y) (header-all-list list)
-    (format *error-output* "Output-file: ~A.~%" x)
-    (let ((*header-print* (getf y :header))
-          (*header-include* (getf y :include)))
-      (header-load x))))
-
-(defun make-source ()
-  (header-include *header-files*)
-  (header-include *source-files*)
-  (header-comment)
-  (header-output *header-files*)
-  (header-output *source-files*)
-  (pragma-pop)
-  (terpri))
+;;
+;;  shell.c
+;;
+(defun output-shell-c (&optional (input "main.c") (output "shell.c"))
+  (with-output-file
+    (output)
+    (header-common)
+    (format t "~&#include \"lisp.h\"~%")
+    (dolist (x (remove-if
+                 #'include-p
+                 (read-line-source input)))
+      (write-line x))
+    (terpri))
+  (format *error-output* "~&*** Source File -> ~A~%" output))
 
 
 ;;
 ;;  main
 ;;
-(defun set-implementation-list (&optional (file "version.h"))
-  (filtfn (x) (read-line-source file)
-    (let ((x (split-whitespace x)))
-      (when (= (length x) 3)
-        x))))
-
-(defun set-implementation-name ()
-  (dobind (x y z) (set-implementation-list)
-    (when (and (equal x "#define")
-               (equal y "Lispname"))
-      (setq +name+ (string-trim "\"" z))
-      (format *error-output* "Name: ~A~%" +name+))))
-
-(defmacro with-output-file ((file) &body body)
-  `(with-open-file (*standard-output*
-                     ,file :direction :output
-                     :if-exists :supersede :if-does-not-exist :create)
-     ,@body))
-
-(defun output-lisp-c (&optional (file +output-source+))
-  (with-output-file
-    (file)
-    (make-source))
-  (format *error-output* "~&---~%")
-  (format *error-output* "~&Source File -> ~A~%" file))
-
-(defun output-lisp-h (&optional (file +output-header+))
-  (with-output-file
-    (file)
-    (dolist (x (read-line-source "extern.h"))
-      (write-line x)))
-  (format *error-output* "~&Header File -> ~A~%" file))
-
 (defun main ()
   (set-implementation-name)
   (output-lisp-c)
-  (output-lisp-h))
+  (output-lisp-h)
+  (output-shell-c))
 (main)
 

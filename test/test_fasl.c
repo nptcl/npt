@@ -1521,7 +1521,7 @@ int test_fasl(void)
 		build_code();
 		build_pathname();
 		build_common();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_faslcode();
 	}
 	end_code(ptr);

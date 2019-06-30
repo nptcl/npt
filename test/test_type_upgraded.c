@@ -690,7 +690,7 @@ int test_type_upgraded(void)
 		build_pathname();
 		build_eval_declare();
 		build_clos(ptr);
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_type_upgraded();
 	}
 	end_code(ptr);

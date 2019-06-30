@@ -534,7 +534,7 @@ int test_charqueue(void)
 	ptr = Execute_Thread;
 	begin_code(ptr, &code);
 	if (code_run_p(code)) {
-		lisp_init = 1;
+		lisp_initialize = 1;
 		build_lisproot(ptr);
 		build_constant();
 		build_object();

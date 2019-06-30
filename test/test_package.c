@@ -3205,7 +3205,7 @@ int test_package(void)
 		build_syscall();
 		build_common();
 		build_readtable();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_package();
 	}
 	end_code(ptr);

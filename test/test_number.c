@@ -95,7 +95,7 @@ int test_number(void)
 		build_lisproot(ptr);
 		build_constant();
 		build_object();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_number();
 	}
 	end_code(ptr);

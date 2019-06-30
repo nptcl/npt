@@ -959,7 +959,7 @@ int test_lambda(void)
 		build_constant();
 		build_object();
 		build_package();
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testgroup_lambda();
 	}
 	end_code(ptr);

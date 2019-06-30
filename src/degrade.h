@@ -6,9 +6,6 @@
 
 extern int DegradeCount;
 extern int DegradeError;
-extern int DegradeArgc;
-extern char **DegradeArgv;
-extern char **DegradeEnv;
 int degrade_printf(const char *fmt, ...);
 int degrade_test(int check, const char *name);
 void degrade_title(const char *name);

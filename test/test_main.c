@@ -16,6 +16,7 @@
 #include "syscall.h"
 #include "type.h"
 
+#if 0
 static int test_make_unimem(void)
 {
 	struct unimem *ptr;
@@ -473,6 +474,7 @@ static int test_make_envarray(void)
 	RETURN;
 }
 #endif
+#endif
 
 
 /*
@@ -480,6 +482,7 @@ static int test_make_envarray(void)
  */
 static int testbreak_main(void)
 {
+#if 0
 	TestBreak(test_make_unimem);
 	TestBreak(test_make_string_list);
 	TestBreak(test_copy_unicode_char);
@@ -503,6 +506,7 @@ static int testbreak_main(void)
 	TestBreak(test_make_envmemory);
 	TestBreak(test_setenvvar);
 	TestBreak(test_make_envarray);
+#endif
 
 	return 0;
 }
@@ -522,7 +526,7 @@ int test_main(void)
 	begin_code(ptr, &code);
 	if (code_run_p(code)) {
 		buildlisp(ptr);
-		lisp_init = 1;
+		lisp_initialize = 1;
 		result = testbreak_main();
 	}
 	end_code(ptr);
