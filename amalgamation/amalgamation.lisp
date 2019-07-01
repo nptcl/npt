@@ -5,7 +5,9 @@
 ;;  variables
 ;;
 (defvar +name+)
-(defparameter +url+ "https://github.com/nptcl/npt")
+(defparameter +url+
+  '("https://github.com/nptcl/npt"
+    "https://github.com/nptcl/npt-amalgamation"))
 (defparameter +base+ '(#p"./" #p"../" #p"src/" #p"../src/"))
 (defvar *include-list*)
 (defvar *header-print*)
@@ -594,8 +596,8 @@
 (defun header-common ()
   (format t "/*~%")
   (format t " *  ~A -- Lisp Programming Language.~%" +name+)
-  (when +url+
-    (format t " *  ~A~%" +url+))
+  (dolist (x +url+)
+    (format t " *    ~A~%" x))
   (format t " */~%"))
 
 (defun header-comment ()
