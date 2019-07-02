@@ -1,6 +1,7 @@
 /*
  *  ANSI COMMON LISP: 9. Conditions
  */
+#include "condition.h"
 #include "clos.h"
 #include "clos_common.h"
 #include "cons.h"
@@ -10,59 +11,95 @@
 #include "type_parse.h"
 #include "unicode.h"
 
+/* (defun cell-error-name (condition) ...) -> t */
+static void function_cell_error_name(Execute ptr, addr var)
+{
+	cell_error_name(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_cell_error_name(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, CellError);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_cell_error_name(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_CELL_ERROR_NAME, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_cell_error_name);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_cell_error_name(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun error (datum &rest args) ...) -> nil
  *   datum  (or string symbol condition)
  *   args   (&rest t)
  *   nil    nil  ;; not null
  */
-static void function_error(Execute ptr, addr datum, addr rest)
+static int function_error_datum(Execute ptr, addr datum, addr rest, addr *ret)
 {
-	addr make_instance;
-
-	/* string -> simple-error */
-	if (stringp(datum)) {
-		simple_error(datum, rest);
-		goto abort;
-	}
+	addr make;
 
 	/* symbol -> (make-instance symbol ...) */
 	if (symbolp(datum)) {
 		clos_find_class(datum, &datum);
 		if (! conditionp(datum))
 			fmte("The class ~S is not a condition subclass.", datum, NULL);
-		GetConst(COMMON_MAKE_INSTANCE, &make_instance);
-		if (callclang_funcall(ptr, &datum, make_instance, datum, rest, NULL)) return;
-		error_function(datum);
-		goto abort;
+		GetConst(COMMON_MAKE_INSTANCE, &make);
+		lista_local(ptr->local, &rest, datum, rest, NULL);
+		if (callclang_apply(ptr, ret, make, rest)) return 1;
+		return 0;
 	}
 
 	/* condition -> (error condition) */
 	if (condition_instance_p(datum)) {
-		if (rest != Nil)
-			fmte("The error argument ~S must be a nil "
+		if (rest != Nil) {
+			fmte("The datum argument ~S must be a nil "
 					"if first argument is condition type.", datum, NULL);
-		error_function(datum);
-		goto abort;
+		}
+		*ret = datum;
+		return 0;
 	}
-	fmte("Invalid error argument ~S.", datum, NULL);
+	fmte("Invalid datum argument ~S.", datum, NULL);
 
-abort:
+	return 0;
+}
+
+static void function_error(Execute ptr, addr datum, addr rest)
+{
+	if (stringp(datum)) {
+		/* string -> simple-error */
+		simple_error(datum, rest);
+	}
+	else {
+		if (function_error_datum(ptr, datum, rest, &datum)) return;
+		error_function(datum);
+	}
+
 	/* The error function may not return normally. */
 	setvalues_nil_control(ptr);
 }
 
 static void type_error_function(addr *ret)
 {
-	addr arg, values, string, symbol, condition, rest;
+	addr args, values;
 
-	GetTypeTable(&string, String);
-	GetTypeTable(&symbol, Symbol);
-	GetTypeTable(&condition, Condition);
-	type3or_heap(string, symbol, condition, &arg);
-	GetTypeTable(&rest, T);
-	typeargs_var1rest(&arg, arg, rest);
+	GetTypeArgs(&args, Error);
 	GetTypeValues(&values, Nil);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_error(void)
@@ -76,6 +113,132 @@ static void defun_error(void)
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_error_function(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun signal (datum &rest args) ...) -> nil */
+static void function_signal(Execute ptr, addr datum, addr rest)
+{
+	if (stringp(datum)) {
+		/* string -> simple-condition */
+		simple_condition(datum, rest);
+	}
+	else {
+		if (function_error_datum(ptr, datum, rest, &datum)) return;
+		signal_function(datum);
+	}
+	setresult_control(ptr, Nil);
+}
+
+static void defun_signal(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SIGNAL, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1rest(pos, p_defun_signal);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, Signal);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun defun-simple-condition-format-control (condition) ...) -> t */
+static void function_simple_condition_format_control(Execute ptr, addr var)
+{
+	simple_condition_format_control(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_simple_condition_format_control(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, SimpleCondition);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_simple_condition_format_control(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SIMPLE_CONDITION_FORMAT_CONTROL, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_simple_condition_format_control);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_simple_condition_format_control(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun simple-condition-format-arguments (conditino) ...) -> list */
+static void function_simple_condition_format_arguments(Execute ptr, addr var)
+{
+	simple_condition_format_arguments(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_simple_condition_format_arguments(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, SimpleCondition);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_simple_condition_format_arguments(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SIMPLE_CONDITION_FORMAT_ARGUMENTS, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_simple_condition_format_arguments);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_simple_condition_format_arguments(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun warn (datum &rest args) ...) -> nil */
+static void function_warn(Execute ptr, addr datum, addr rest)
+{
+	if (stringp(datum)) {
+		/* string -> simple-warning */
+		instance_simple_warning(&datum, datum, rest);
+	}
+	else if (function_error_datum(ptr, datum, rest, &datum)) {
+		/* throw */
+		return;
+	}
+	warning_restart_case(ptr, datum);
+}
+
+static void defun_warn(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_WARN, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1rest(pos, p_defun_warn);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, Signal);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -320,7 +483,7 @@ static void type_make_condition(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, T);
-	GetTypeTable(&values, Condition);
+	GetTypeTable(&values, ConditionDesigner);
 	typeargs_var1rest(&args, values, args);
 	typevalues_result(&values, values);
 	type_compiled_heap(args, values, ret);
@@ -356,12 +519,12 @@ static void function_compute_restarts(Execute ptr, addr pos)
 
 static void type_compute_restarts(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeArgs(&arg, OptConditionNull);
+	GetTypeArgs(&args, OptConditionNull);
 	GetTypeTable(&values, Restart);
 	typevalues_rest(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_compute_restarts(void)
@@ -397,15 +560,15 @@ static void function_find_restart(Execute ptr, addr var, addr opt)
 
 static void type_find_restart(addr *ret)
 {
-	addr condition, arg, values;
+	addr condition, args, values;
 
-	GetTypeTable(&arg, RestartDesigner);
+	GetTypeTable(&args, RestartDesigner);
 	GetTypeTable(&condition, ConditionNull);
-	typeargs_var1opt1(&arg, arg, condition);
+	typeargs_var1opt1(&args, args, condition);
 	/* restart */
 	GetTypeTable(&values, RestartNull);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_find_restart(void)
@@ -436,13 +599,13 @@ static void function_invoke_restart(Execute ptr, addr var, addr rest)
 
 static void type_invoke_restart(addr *ret)
 {
-	addr arg, values, restart;
+	addr args, values, restart;
 
 	GetTypeTable(&restart, RestartDesigner);
-	GetTypeTable(&arg, T);
-	typeargs_var1rest(&arg, restart, arg);
+	GetTypeTable(&args, T);
+	typeargs_var1rest(&args, restart, args);
 	GetTypeTable(&values, Asterisk);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_invoke_restart(void)
@@ -472,12 +635,12 @@ static void function_invoke_restart_interactively(Execute ptr, addr var)
 
 static void type_invoke_restart_interactively(addr *ret)
 {
-	addr arg, values, restart;
+	addr args, values;
 
-	GetTypeTable(&restart, RestartDesigner);
-	typeargs_var1(&arg, restart);
+	GetTypeTable(&args, RestartDesigner);
+	typeargs_var1(&args, args);
 	GetTypeTable(&values, Asterisk);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_invoke_restart_interactively(void)
@@ -540,6 +703,19 @@ static void restart_bind_test(addr *args, addr *test)
 	}
 }
 
+static void restart_function_symbol(addr pos, addr *ret)
+{
+	addr funct;
+
+	if (pos != Nil && symbolp(pos)) {
+		GetConst(COMMON_FUNCTION, &funct);
+		list_heap(ret, funct, pos, NULL);
+	}
+	else {
+		*ret = pos;
+	}
+}
+
 static void restart_bind_binding(addr args, addr *ret)
 {
 	addr pos, name, lambda, inter, report, test;
@@ -570,6 +746,9 @@ static void restart_bind_binding(addr args, addr *ret)
 		else
 			fmte("Invalid key parameter ~S.", pos, NULL);
 	}
+	restart_function_symbol(inter, &inter);
+	restart_function_symbol(report, &report);
+	restart_function_symbol(test, &test);
 	list_heap(&name, quote, name, NULL);
 	list_heap(ret, list, name, lambda, inter, report, test, NULL);
 }
@@ -702,6 +881,10 @@ static void restart_case_clauses(addr right, addr *ret)
 			else
 				break;
 		}
+		/* symbol */
+		restart_function_symbol(inter, &inter);
+		restart_function_symbol(report, &report);
+		restart_function_symbol(test, &test);
 		/* (list 'name (lambda ...) ...) */
 		list_heap(&name, quote, name, NULL);
 		lista_heap(&form, lambda, ord, form, NULL);
@@ -742,6 +925,39 @@ static void defmacro_restart_case(void)
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
+}
+
+
+/* (defun restart-name (restart) ...) -> symbol */
+static void function_restart_name(Execute ptr, addr var)
+{
+	getname_restart(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_restart_name(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, RestartDesigner);
+	typeargs_var1(&args, args);
+	GetTypeTable(&values, Symbol);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_restart_name(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_RESTART_NAME, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_restart_name);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_restart_name(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
 }
 
 
@@ -865,7 +1081,7 @@ static void function_muffle_warning(Execute ptr, addr opt)
 	if (opt == Unbound) opt = Nil;
 	GetConst(COMMON_MUFFLE_WARNING, &pos);
 	if (! find_restart_control(ptr, pos, opt, &opt))
-		fmte("The restart name ~S is not found.", pos, NULL);
+		control_error();
 	(void)invoke_restart_control(ptr, opt, Nil);
 }
 
@@ -886,16 +1102,17 @@ static void defun_muffle_warning(void)
 
 
 /*
- *  (defun store-value (&optional condition) ...) -> nil
+ *  (defun store-value (object &optional condition) ...) -> nil
  */
-static void function_store_value(Execute ptr, addr opt)
+static void function_store_value(Execute ptr, addr var, addr opt)
 {
 	addr pos;
 
 	if (opt == Unbound) opt = Nil;
 	GetConst(COMMON_STORE_VALUE, &pos);
 	if (find_restart_control(ptr, pos, opt, &opt)) {
-		if (invoke_restart_control(ptr, opt, Nil)) {
+		list_local(ptr->local, &var, var, NULL);
+		if (invoke_restart_control(ptr, opt, var)) {
 			return;
 		}
 	}
@@ -909,10 +1126,10 @@ static void defun_store_value(void)
 	/* function */
 	GetConst(COMMON_STORE_VALUE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, p_defun_store_value);
+	setcompiled_var1opt1(pos, p_defun_store_value);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetTypeCompiled(&type, Continue);
+	GetTypeCompiled(&type, StoreValue);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -921,14 +1138,15 @@ static void defun_store_value(void)
 /*
  *  (defun use-value (&optional condition) ...) -> nil
  */
-static void function_use_value(Execute ptr, addr opt)
+static void function_use_value(Execute ptr, addr var, addr opt)
 {
 	addr pos;
 
 	if (opt == Unbound) opt = Nil;
 	GetConst(COMMON_USE_VALUE, &pos);
 	if (find_restart_control(ptr, pos, opt, &opt)) {
-		if (invoke_restart_control(ptr, opt, Nil)) {
+		list_local(ptr->local, &var, var, NULL);
+		if (invoke_restart_control(ptr, opt, var)) {
 			return;
 		}
 	}
@@ -942,10 +1160,10 @@ static void defun_use_value(void)
 	/* function */
 	GetConst(COMMON_USE_VALUE, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_opt1(pos, p_defun_use_value);
+	setcompiled_var1opt1(pos, p_defun_use_value);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	GetTypeCompiled(&type, Continue);
+	GetTypeCompiled(&type, StoreValue);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -956,7 +1174,12 @@ static void defun_use_value(void)
  */
 _g void init_common_conditions(void)
 {
+	SetPointerCall(defun, var1, cell_error_name);
 	SetPointerCall(defun, var1rest, error);
+	SetPointerCall(defun, var1rest, signal);
+	SetPointerCall(defun, var1, simple_condition_format_control);
+	SetPointerCall(defun, var1, simple_condition_format_arguments);
+	SetPointerCall(defun, var1rest, warn);
 	SetPointerCall(defmacro, macro, handler_bind);
 	SetPointerCall(defmacro, macro, handler_case);
 	SetPointerCall(defmacro, macro, define_condition);
@@ -967,27 +1190,28 @@ _g void init_common_conditions(void)
 	SetPointerCall(defun, var1, invoke_restart_interactively);
 	SetPointerCall(defmacro, macro, restart_bind);
 	SetPointerCall(defmacro, macro, restart_case);
+	SetPointerCall(defun, var1, restart_name);
 	SetPointerCall(defmacro, macro, with_condition_restarts);
 	SetPointerCall(defun, opt1, abort);
 	SetPointerCall(defun, opt1, continue);
 	SetPointerCall(defun, opt1, muffle_warning);
-	SetPointerCall(defun, opt1, store_value);
-	SetPointerCall(defun, opt1, use_value);
+	SetPointerCall(defun, var1opt1, store_value);
+	SetPointerCall(defun, var1opt1, use_value);
 }
 
 _g void build_common_conditions(void)
 {
-	/* defun_cell_error_name(); */
+	defun_cell_error_name();
 	/* defmacro_assert(); */
 	defun_error();
 	/* defun_cerror(); */
 	/* defmacro_check_type(); */
 	/* defun_invalid_method_error(); */
 	/* defun_method_combination_error(); */
-	/* defun_signal(); */
-	/* defun_simple_condition_format_control(); */
-	/* defun_simple_condition_format_arguments(); */
-	/* defun_warn(); */
+	defun_signal();
+	defun_simple_condition_format_control();
+	defun_simple_condition_format_arguments();
+	defun_warn();
 	/* defun_invoke_debugger(); */
 	/* defun_break(); */
 	/* defvar_debugger_hook(); */
@@ -1003,7 +1227,7 @@ _g void build_common_conditions(void)
 	defun_invoke_restart_interactively();
 	defmacro_restart_bind();
 	defmacro_restart_case();
-	/* defun_restart_name(); */
+	defun_restart_name();
 	defmacro_with_condition_restarts();
 	/* defmacro_with_simple_restart(); */
 	defun_abort();

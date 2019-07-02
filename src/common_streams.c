@@ -2406,12 +2406,12 @@ static void function_stream_error_stream(Execute ptr, addr var)
 
 static void type_stream_error_stream(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, Condition);
-	typeargs_var1(&arg, arg);
-	GetTypeValues(&values, Stream);
-	type_compiled_heap(arg, values, ret);
+	GetTypeTable(&args, StreamError);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_stream_error_stream(void)

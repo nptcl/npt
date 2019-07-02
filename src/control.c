@@ -1041,7 +1041,13 @@ _g int invoke_restart_control(Execute ptr, addr restart, addr args)
 
 _g int invoke_restart_interactively_control(Execute ptr, addr restart)
 {
-	addr args;
+	addr args, value;
+
+	if (symbolp(restart)) {
+		if (! find_restart_control(ptr, restart, Nil, &value))
+			fmte("The restart name ~S is not found.", restart, NULL);
+		restart = value;
+	}
 
 	redirect_restart(restart, &restart);
 	getinteractive_restart(restart, &args);

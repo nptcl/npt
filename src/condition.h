@@ -69,6 +69,7 @@ _g int signal_function(addr condition);
 _g void error_function(addr condition);
 _g void format_error(const char *str, ...);
 #define fmte format_error
+_g int warning_restart_case(Execute ptr, addr instance);
 _g void format_warning(const char *str, ...);
 #define fmtw format_warning
 
@@ -92,7 +93,7 @@ _g void instance_warning_condition(addr *ret);
 _g void warning_condition(void);
 /* simple_warning */
 _g void instance_simple_warning(addr *ret, addr control, addr args);
-_g void simple_warning(addr control, addr args);
+_g int simple_warning(addr control, addr args);
 /* storage_condition */
 _g void instance_storage_condition(addr *ret);
 _g void storage_condition(void);
@@ -151,17 +152,18 @@ _g void reader_error(addr stream);
 /* file_error */
 _g void instance_file_error(addr *ret, addr pathname);
 _g void file_error(addr pathname);
-_g void file_error_pathname(addr *ret, addr instance);
+_g void file_error_pathname(addr instance, addr *ret);
 /* package_error */
 _g void instance_package_error(addr *ret, addr package);
 _g void package_error(addr package);
-_g void package_error_package(addr *ret, addr instance);
+_g void package_error_package(addr instance, addr *ret);
 /* parse_error */
 _g void instance_parse_error(addr *ret);
 _g void parse_error(void);
 /* print_not_readable */
 _g void instance_print_not_readable(addr *ret, addr object);
 _g void print_not_readable(addr object);
+_g void print_not_readable_object(addr instance, addr *ret);
 /* program_error */
 _g void instance_program_error(addr *ret);
 _g void program_error(void);

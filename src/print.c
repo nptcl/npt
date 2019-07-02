@@ -1500,18 +1500,20 @@ static int write_restart_body(struct PrintFormat *format, addr stream, addr pos)
 
 static int write_restart(struct PrintFormat *format, addr stream, addr pos)
 {
-	addr name;
+	addr report;
 	Execute ptr;
 
 	ptr = format->ptr;
-	getname_restart(pos, &name);
-	if (name == Nil || format->escape) {
+	getreport_restart(pos, &report);
+	if (report == Nil || format->escape) {
 		/* #<RESTART NAME #xADDRESS> */
 		return print_unreadable_object(format, stream, pos, 1, 1, write_restart_body);
 	}
+	else if (stringp(report)) {
+		return write_strtype(format, stream, report);
+	}
 	else {
-		getreport_restart(pos, &name);
-		return callclang_funcall(ptr, &name, name, stream, NULL);
+		return callclang_funcall(ptr, &report, report, stream, NULL);
 	}
 }
 

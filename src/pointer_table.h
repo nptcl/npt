@@ -292,7 +292,13 @@ enum pointer_index {
 	p_defmacro_defstruct,
 	p_defun_copy_structure,
 	/* common-condition */
+	p_defun_cell_error_name,
 	p_defun_error,
+	p_defun_signal,
+	p_defun_simple_condition_format_control,
+	p_defun_simple_condition_format_arguments,
+	p_defun_warn,
+	p_defun_warn_restart,
 	p_defmacro_handler_bind,
 	p_defmacro_handler_case,
 	p_defmacro_define_condition,
@@ -303,6 +309,7 @@ enum pointer_index {
 	p_defun_invoke_restart_interactively,
 	p_defmacro_restart_bind,
 	p_defmacro_restart_case,
+	p_defun_restart_name,
 	p_defmacro_with_condition_restarts,
 	p_defun_abort,
 	p_defun_continue,
@@ -869,6 +876,7 @@ enum pointer_index {
 	p_defun_print,
 	p_defun_prin1_to_string,
 	p_defun_princ_to_string,
+	p_defun_print_not_readable_object,
 	p_defun_format,
 	/* common-reader */
 	p_defun_copy_readtable,
@@ -889,6 +897,7 @@ enum pointer_index {
 	/* common-system */
 	p_defun_load,
 	/* common-environment */
+	p_defun_decode_universal_time,
 	p_defun_lisp_implementation_type,
 	p_defun_lisp_implementation_version,
 	p_defun_short_site_name,
@@ -941,6 +950,7 @@ enum pointer_index {
 	/* pathname */
 	p_defun_set_logical_pathname_translations,
 	/* condition */
+	p_defun_restart_warning,
 	p_defun_handler_warning,
 	p_defun_handler_savecore,
 	/* eval-main */

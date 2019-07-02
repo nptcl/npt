@@ -235,7 +235,7 @@ static void type_type_error_datum(addr *ret)
 {
 	addr arg, values;
 
-	GetTypeTable(&arg, Condition);
+	GetTypeTable(&arg, TypeError);
 	typeargs_var1(&arg, arg);
 	GetTypeValues(&values, T);
 	type_compiled_heap(arg, values, ret);
@@ -268,9 +268,10 @@ static void type_type_error_expected_type(addr *ret)
 {
 	addr arg, values;
 
-	GetTypeTable(&arg, Condition);
+	GetTypeTable(&arg, TypeError);
 	typeargs_var1(&arg, arg);
-	GetTypeValues(&values, TypeSymbol);
+	GetTypeTable(&values, TypeSpec);
+	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }
 

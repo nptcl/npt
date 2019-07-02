@@ -414,9 +414,39 @@ static void defvar_print_right_margin(void)
 }
 
 
-/*
- *  print function
- */
+/* (defun print-not-readable-object (print-not-readable) ...) -> t */
+static void function_print_not_readable_object(Execute ptr, addr var)
+{
+	print_not_readable_object(var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_print_not_readable_object(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, PrintNotReadable);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_print_not_readable_object(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_PRINT_NOT_READABLE_OBJECT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_print_not_readable_object);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_print_not_readable_object(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun format (destination control-string &rest args) -> restul
  *   destination     (or null (eql t) stream string)
  *   control-string  string
@@ -473,6 +503,7 @@ _g void init_common_printer(void)
 	SetPointerCall(defun, var1opt1, print);
 	SetPointerCall(defun, var1, prin1_to_string);
 	SetPointerCall(defun, var1, princ_to_string);
+	SetPointerCall(defun, var1, print_not_readable_object);
 	SetPointerCall(defun, var2dynamic, format);
 }
 
@@ -498,6 +529,7 @@ _g void build_common_printer(void)
 	defvar_print_pretty();
 	defvar_print_readably();
 	defvar_print_right_margin();
+	defun_print_not_readable_object();
 	defun_format();
 }
 

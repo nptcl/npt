@@ -71,7 +71,7 @@ static int mainparse_inputs_length(lisparrayu argv, size_t index, size_t *ret)
 	for (size = 0; index < allsize; size++) {
 		s = ptr[index++];
 		if (! mainparse_inputs_string(s, &type)) {
-			lisperror_noeol("Invalid argument ");
+			lisperror_noeol("Invalid argument.");
 			output_stringu(s, lisperror_stream());
 			lisperror(".");
 			return 1;

@@ -62,6 +62,7 @@ _g void typevalues_values2(addr *ret, addr v1, addr v2);
 _g void typevalues_values3(addr *ret, addr v1, addr v2, addr v3);
 _g void typevalues_values4(addr *ret, addr v1, addr v2, addr v3, addr v4);
 _g void typevalues_values5(addr *ret, addr v1, addr v2, addr v3, addr v4, addr v5);
+_g void typevalues_values_va(addr *ret, ...);
 _g void typevalues_rest(addr *ret, addr type);
 
 /* asterisk */

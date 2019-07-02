@@ -9,7 +9,7 @@ enum lispargv_execute {
 	lispargv_load,
 	lispargv_eval,
 	lispargv_script,
-	lispargv_minusminus,
+	lispargv_minusminus
 };
 
 struct lispargv_string {

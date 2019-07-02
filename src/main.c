@@ -4,7 +4,6 @@
 
 static int main_execute(struct lispargv *ptr)
 {
-	lisp_init();
 	if (ptr->mode_help)
 		return lisp_main_help(stdout);
 	if (ptr->mode_version)
@@ -13,7 +12,6 @@ static int main_execute(struct lispargv *ptr)
 		return lisp_main_degrade(ptr);
 	lisp_argv_init(ptr);
 	lisp_argv_run(ptr);
-	lisp_free();
 
 	return lisp_code? 1: lisp_result;
 }
@@ -24,11 +22,13 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 	int result;
 	struct lispargv *ptr;
 
+	lisp_init();
 	ptr = lispargv_windows();
 	if (ptr == NULL)
 		return 1;
 	result = main_execute(ptr);
 	free_lispargv(ptr);
+	lisp_free();
 
 	return result;
 }
@@ -38,11 +38,13 @@ int main(int argc, char *argv[], char *env[])
 	int result;
 	struct lispargv *ptr;
 
+	lisp_init();
 	ptr = lispargv_main(argc, argv, env);
 	if (ptr == NULL)
 		return 1;
 	result = main_execute(ptr);
 	free_lispargv(ptr);
+	lisp_free();
 
 	return result;
 }

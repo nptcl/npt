@@ -86,8 +86,13 @@ enum TypeTable {
 
 	/* Condition */
 	TypeTable_ArithmeticError,
+	TypeTable_CellError,
 	TypeTable_FileError,
 	TypeTable_PackageError,
+	TypeTable_PrintNotReadable,
+	TypeTable_SimpleCondition,
+	TypeTable_StreamError,
+	TypeTable_TypeError,
 
 	/* Type */
 	TypeTable_Cxr,
@@ -149,6 +154,7 @@ enum TypeTable {
 	TypeTable_PathnameDesigner,
 	TypeTable_StreamDesigner,
 	TypeTable_ReadtableDesigner,
+	TypeTable_ConditionDesigner,
 	TypeTable_Index,
 	TypeTable_IndexNull,
 	TypeTable_Intplus,
@@ -225,6 +231,7 @@ enum TypeTable {
 	TypeArgs_OptConditionNull,
 	TypeArgs_PackageDesigner,
 	TypeArgs_PathnameCase,
+	TypeArgs_Error,
 
 	/* Values */
 	TypeValues_Nil,
@@ -287,6 +294,7 @@ enum TypeTable {
 	TypeCompiled_MacroExpand,
 	TypeCompiled_Abort,
 	TypeCompiled_Continue,
+	TypeCompiled_StoreValue,
 	TypeCompiled_MacroReader,
 	TypeCompiled_MacroDispatch,
 	TypeCompiled_Read,
@@ -359,6 +367,7 @@ enum TypeTable {
 	TypeCompiled_SlotBoundp_Method,
 	TypeCompiled_Reader_Method,
 	TypeCompiled_Writer_Method,
+	TypeCompiled_Signal,
 
 	/* Size */
 	TypeTable_Size

@@ -20,6 +20,7 @@
 #include "prompt.h"
 #include "stream.h"
 #include "stream_string.h"
+#include "strtype.h"
 #include "symbol.h"
 #include "type.h"
 #include "type_copy.h"
@@ -273,6 +274,7 @@ static void function_handler_warning(Execute ptr, addr condition)
 		fmts(stream, "~&WARNING: ", NULL);
 		if (format_lisp(ptr, stream, format, args, &args))
 			fmte("Invalid format result.", NULL);
+		fresh_line_stream(stream);
 	}
 	else {
 		fmts(stream, "~&WARNING: ~S~%", condition, NULL);
@@ -395,12 +397,14 @@ static void output_restarts_debugger(Execute ptr, addr io, addr list)
 		getname_restart(pos, &symbol);
 		getreport_restart(pos, &name);
 		if (name != Nil) {
-			open_output_string_stream(&str, 0);
-			check = callclang_funcall(ptr, &name, name, str, NULL);
-			if (check)
-				fmte("Invalid restart report.", NULL);
-			string_stream_heap(str, &name);
-			close_stream(str);
+			if (! stringp(name)) {
+				open_output_string_stream(&str, 0);
+				check = callclang_funcall(ptr, &name, name, str, NULL);
+				if (check)
+					fmte("Invalid restart report.", NULL);
+				string_stream_heap(str, &name);
+				close_stream(str);
+			}
 		}
 		fmts(io, "~2@A. ~16A ~A~%", intsizeh(index), symbol, name, NULL);
 	}
@@ -584,26 +588,78 @@ _g void error_function(addr condition)
 
 _g void format_error(const char *str, ...)
 {
-	addr format, cons;
+	addr format, list;
 	va_list args;
 
 	strvect_char_heap(&format, str);
 	va_start(args, str);
-	copylocal_list_stdarg(NULL, &cons, args);
+	copylocal_list_stdarg(NULL, &list, args);
 	va_end(args);
-	simple_error(format, cons);
+	simple_error(format, list);
+}
+
+static void function_restart_warning(Execute ptr)
+{
+	setresult_control(ptr, Nil);
+}
+
+static void warning_restart_make(addr *ret)
+{
+	addr inst, pos;
+
+	GetConst(COMMON_MUFFLE_WARNING, &pos);
+	restart_heap(&inst, pos);
+	compiled_heap(&pos, Nil);
+	setcompiled_empty(pos, p_defun_restart_warning);
+	setfunction_restart(inst, pos);
+	setinteractive_restart(inst, Nil);
+	setreport_restart(inst, Nil);
+	settest_restart(inst, Nil);
+	setescape_restart(inst, 1);
+	*ret = inst;
+}
+
+_g int warning_restart_case(Execute ptr, addr instance)
+{
+	addr control, pos;
+	codejump jump;
+
+	/* execute */
+	push_restart_control(ptr, &control);
+
+	begin_switch(ptr, &jump);
+	if (codejump_run_p(&jump)) {
+		warning_restart_make(&pos);
+		pushobject_restart_control(ptr, pos);
+		(void)signal_function(instance);
+	}
+	end_switch(&jump);
+
+	/* restart abort */
+	if (jump.code == LISPCODE_CONTROL) {
+		ptr->signal = ExecuteControl_Run;
+		return free_control(ptr, control);
+	}
+
+	/* free control */
+	throw_switch(&jump);
+	setresult_control(ptr, Nil);
+	return free_control(ptr, control);
 }
 
 _g void format_warning(const char *str, ...)
 {
-	addr format, cons;
+	addr format, list, instance;
 	va_list args;
 
 	strvect_char_heap(&format, str);
 	va_start(args, str);
-	copylocal_list_stdarg(NULL, &cons, args);
+	copylocal_list_stdarg(NULL, &list, args);
 	va_end(args);
-	simple_warning(format, cons);
+	/* instance */
+	instance_simple_warning(&instance, format, list);
+	if (warning_restart_case(Execute_Thread, instance))
+		fmte("signal error.", NULL);
 }
 
 /* serious_condition (condition) */
@@ -647,7 +703,7 @@ _g void simple_condition(addr control, addr args)
 {
 	addr instance;
 	instance_simple_condition(&instance, control, args);
-	error_function(instance);
+	(void)signal_function(instance);
 }
 _g void simple_condition_format(addr condition, addr *control, addr *arguments)
 {
@@ -708,13 +764,11 @@ _g void instance_simple_warning(addr *ret, addr control, addr args)
 			CONSTANT_CLOSNAME_FORMAT_CONTROL, control,
 			CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args);
 }
-_g void simple_warning(addr control, addr args)
+_g int simple_warning(addr control, addr args)
 {
 	addr instance;
 	instance_simple_warning(&instance, control, args);
-	if (signal_function(instance)) {
-		abort_debugger();
-	}
+	return signal_function(instance);
 }
 
 /* storage_condition (serious_condition) */
@@ -1026,7 +1080,7 @@ _g void file_error(addr pathname)
 	instance_file_error(&instance, pathname);
 	error_function(instance);
 }
-_g void file_error_pathname(addr *ret, addr instance)
+_g void file_error_pathname(addr instance, addr *ret)
 {
 	ClosCheckConst(instance, CLOSNAME_PATHNAME, ret);
 }
@@ -1043,7 +1097,7 @@ _g void package_error(addr package)
 	instance_reader_error(&instance, package);
 	error_function(instance);
 }
-_g void package_error_package(addr *ret, addr instance)
+_g void package_error_package(addr instance, addr *ret)
 {
 	ClosCheckConst(instance, CLOSNAME_PACKAGE, ret);
 }
@@ -1072,6 +1126,12 @@ _g void print_not_readable(addr object)
 	instance_reader_error(&instance, object);
 	error_function(instance);
 }
+
+_g void print_not_readable_object(addr instance, addr *ret)
+{
+	ClosCheckConst(instance, CLOSNAME_OBJECT, ret);
+}
+
 
 /* program_error (error) */
 _g void instance_program_error(addr *ret)
@@ -1327,6 +1387,7 @@ _g void build_condition(Execute ptr)
 
 _g void init_condition(void)
 {
+	SetPointerCall(defun, empty, restart_warning);
 	SetPointerCall(defun, var1, handler_warning);
 	SetPointerCall(defun, var1, handler_savecore);
 }

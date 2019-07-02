@@ -174,11 +174,11 @@
     (format t " *  ~A.~A~%" name type)
     (format t " ~A/~%" asterisk)))
 
+(declaim (ftype function header-read))
 (defun header-inline (x)
-  (declare (ftype function header-read))
   (mvbind (x y) (include-p x)
     (let ((y (string-trim "\"" y)))
-      (awhen (and x (find y (mklist *header-include*) :test 'equal))
+      (when (and x (find y (mklist *header-include*) :test 'equal))
         (let ((*header-print* t))
           (header-read y))
         t))))

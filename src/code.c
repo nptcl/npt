@@ -1036,7 +1036,7 @@ static void throw_operator_code(Execute ptr, addr right)
 	throw_control(ptr, right);
 }
 
-static void push_handler_code(Execute ptr, addr right, int escape)
+static void push_handler_code(Execute ptr, int escape)
 {
 	addr args, symbol, lambda;
 
@@ -1051,15 +1051,15 @@ static void push_handler_code(Execute ptr, addr right, int escape)
 
 static void handler_bind_code(Execute ptr, addr right)
 {
-	push_handler_code(ptr, right, 0);
+	push_handler_code(ptr, 0);
 }
 
 static void handler_case_code(Execute ptr, addr right)
 {
-	push_handler_code(ptr, right, 1);
+	push_handler_code(ptr, 1);
 }
 
-static void push_restart_code(Execute ptr, addr right, int escape)
+static void push_restart_code(Execute ptr, int escape)
 {
 	addr args, list;
 
@@ -1073,12 +1073,12 @@ static void push_restart_code(Execute ptr, addr right, int escape)
 
 static void restart_bind_code(Execute ptr, addr right)
 {
-	push_restart_code(ptr, right, 0);
+	push_restart_code(ptr, 0);
 }
 
 static void restart_case_code(Execute ptr, addr right)
 {
-	push_restart_code(ptr, right, 1);
+	push_restart_code(ptr, 1);
 }
 
 static void multiple_value_bind_code(Execute ptr, addr right)

@@ -2196,6 +2196,7 @@ static int call_handler(LocalRoot local, addr code, addr scope)
 	call_allcons(local, code, args);
 	popstack(local, code, &args);
 	Code_leftright(local, code, EXECUTE, args);
+	if_push_result(local, code);
 
 	return 1;
 }
@@ -2209,6 +2210,7 @@ static int call_restart(LocalRoot local, addr code, addr scope)
 	call_allcons(local, code, args);
 	popstack(local, code, &args);
 	Code_leftright(local, code, EXECUTE, args);
+	if_push_result(local, code);
 
 	return 1;
 }

@@ -268,7 +268,7 @@ static void defun_delete_file(void)
 /* (defun file-error-pathname (condition) ...) -> pathname-designer */
 static void function_file_error_pathname(Execute ptr, addr var)
 {
-	file_error_pathname(&var, var);
+	file_error_pathname(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -278,7 +278,7 @@ static void type_file_error_pathname(addr *ret)
 
 	GetTypeTable(&arg, FileError);
 	typeargs_var1(&arg, arg);
-	GetTypeTable(&values, PathnameDesigner);
+	GetTypeTable(&values, T);
 	typevalues_result(&values, values);
 	type_compiled_heap(arg, values, ret);
 }

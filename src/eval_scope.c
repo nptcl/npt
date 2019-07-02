@@ -14,6 +14,7 @@
 #include "sequence.h"
 #include "symbol.h"
 #include "type.h"
+#include "type_object.h"
 #include "type_parse.h"
 #include "type_subtypep.h"
 #include "type_table.h"
@@ -815,15 +816,24 @@ static int checktype_p(addr left, addr right, int *check)
 	}
 }
 
+static void checktype_warning(addr name, addr type, addr expected)
+{
+	type_object(&type, type);
+	type_object(&expected, expected);
+	fmte("The object ~S must be a ~S type but ~S type.", name, expected, type, NULL);
+}
+
 static void checktype_value(addr value, addr init)
 {
 	int check;
-	addr type;
+	addr type, name;
 
 	gettype_tablevalue(value, &type);
 	GetEvalScopeThe(init, &init);
-	if (checktype_p(init, type, &check))
-		fmtw("Type conflict occured.", NULL);
+	if (checktype_p(init, type, &check)) {
+		getname_tablevalue(value, &name);
+		checktype_warning(name, type, init);
+	}
 	setcheck_tablevalue(value, check);
 }
 
@@ -2857,10 +2867,18 @@ static int call_first(Execute ptr, addr *ret, addr first)
 	return 0;
 }
 
+static void check_tablecall_warning(addr name, addr type, addr actual)
+{
+	type_object(&type, type);
+	type_object(&actual, actual);
+	fmte("The object ~S expected a ~S type but the initialize form is ~S type.",
+			name, actual, name, NULL);
+}
+
 static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
 {
 	int check;
-	addr table;
+	addr table, type, name;
 
 	/* tablecall */
 	if (scope_eval(ptr, &eval, eval)) return 1;
@@ -2869,9 +2887,11 @@ static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
 	settype_tablecall(table, right);
 	setvalue_tablecall(table, eval);
 	/* checktype */
-	GetEvalScopeThe(eval, &eval);
-	if (checktype_p(eval, right, &check))
-		fmtw("Type conflict occured.", NULL);
+	GetEvalScopeThe(eval, &type);
+	if (checktype_p(type, right, &check)) {
+		GetEvalScopeValue(eval, &name);
+		check_tablecall_warning(name, type, right);
+	}
 	setcheck_tablecall(table, check);
 	/* result */
 	*ret = table;
@@ -3158,6 +3178,14 @@ static int scope_values(Execute ptr, addr *ret, addr eval)
 	return 0;
 }
 
+static void the_check_warning(addr expected, addr actual)
+{
+	type_object(&actual, actual);
+	type_object(&expected, expected);
+	fmte("The special operator THE accept a ~S type, "
+			"but actually the form is ~S type.", expected, actual, NULL);
+}
+
 static void the_check(Execute ptr, addr eval, addr right, addr *ret)
 {
 	int check;
@@ -3165,7 +3193,7 @@ static void the_check(Execute ptr, addr eval, addr right, addr *ret)
 
 	GetEvalScopeThe(eval, &left);
 	if (checktype_p(left, right, &check))
-		fmtw("Type conflict occured.", NULL);
+		the_check_warning(left, right);
 	*ret = check? T: Nil;
 }
 

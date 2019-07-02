@@ -147,9 +147,14 @@ static void define_type_table_condition(constindex index, enum TypeTable type)
 		define_type_table_condition(CONSTANT_CONDITION_##x, TypeTable_##y); \
 	}
 
-DefTypeTableCondition(ARITHMETIC_ERROR,  ArithmeticError);
-DefTypeTableCondition(FILE_ERROR,        FileError);
-DefTypeTableCondition(PACKAGE_ERROR,     PackageError);
+DefTypeTableCondition(ARITHMETIC_ERROR,    ArithmeticError);
+DefTypeTableCondition(CELL_ERROR,          CellError);
+DefTypeTableCondition(FILE_ERROR,          FileError);
+DefTypeTableCondition(PACKAGE_ERROR,       PackageError);
+DefTypeTableCondition(PRINT_NOT_READABLE,  PrintNotReadable);
+DefTypeTableCondition(SIMPLE_CONDITION,    SimpleCondition);
+DefTypeTableCondition(STREAM_ERROR,        StreamError);
+DefTypeTableCondition(TYPE_ERROR,          TypeError);
 
 
 /*
@@ -453,6 +458,18 @@ static void typetable_readtabledesigner(void)
 	GetTypeTable(&type2, Null);
 	type2or_heap(type1, type2, &pos);
 	SetTypeTable(ReadtableDesigner, pos);
+}
+
+static void typetable_conditiondesigner(void)
+{
+	/* (or string symbol condition) */
+	addr type1, type2, type3, pos;
+
+	GetTypeTable(&type1, String);
+	GetTypeTable(&type2, Symbol);
+	GetTypeTable(&type3, Condition);
+	type3or_heap(type1, type2, type3, &pos);
+	SetTypeTable(ConditionDesigner, pos);
 }
 
 static void typetable_index(void)
@@ -1109,6 +1126,16 @@ static void typeargs_pathnamecase(void)
 	SetTypeArgs(PathnameCase, args);
 }
 
+static void typeargs_error(void)
+{
+	addr args, type;
+
+	GetTypeTable(&args, ConditionDesigner);
+	GetTypeTable(&type, T);
+	typeargs_var1rest(&args, args, type);
+	SetTypeArgs(Error, args);
+}
+
 
 /*
  *  Values
@@ -1414,6 +1441,19 @@ static void typecompiled_continue(void)
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, &args);
 	SetTypeCompiled(Continue, args);
+}
+
+static void typecompiled_storevalue(void)
+{
+	addr args, values;
+
+	/* (function (t &optional (or condition null)) null) */
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, ConditionNull);
+	typeargs_var1opt1(&args, args, values);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(StoreValue, args);
 }
 
 static void typecompiled_macroreader(void)
@@ -2513,6 +2553,16 @@ static void typecompiled_writer_method(void)
 	SetTypeCompiled(Writer_Method, args);
 }
 
+static void typecompiled_signal(void)
+{
+	addr args, values;
+
+	GetTypeArgs(&args, Error);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(Signal, args);
+}
+
 
 /*
  *  Interface
@@ -2587,8 +2637,13 @@ _g void build_type_constant(void)
 
 	/* Condition */
 	typetable_ArithmeticError();
+	typetable_CellError();
 	typetable_FileError();
 	typetable_PackageError();
+	typetable_PrintNotReadable();
+	typetable_SimpleCondition();
+	typetable_StreamError();
+	typetable_TypeError();
 
 	/* Type */
 	typetable_cxr();
@@ -2612,6 +2667,7 @@ _g void build_type_constant(void)
 	typetable_pathnamedesigner();
 	typetable_streamdesigner();
 	typetable_readtabledesigner();
+	typetable_conditiondesigner();
 	typetable_index();
 	typetable_indexnull();
 	typetable_intplus();
@@ -2685,6 +2741,7 @@ _g void build_type_constant(void)
 	typeargs_optconditionnull();
 	typeargs_packagedesigner();
 	typeargs_pathnamecase();
+	typeargs_error();
 
 	/* Values */
 	typevalues_Nil();
@@ -2747,6 +2804,7 @@ _g void build_type_constant(void)
 	typecompiled_macroexpand();
 	typecompiled_abort();
 	typecompiled_continue();
+	typecompiled_storevalue();
 	typecompiled_macroreader();
 	typecompiled_macrodispatch();
 	typecompiled_read();
@@ -2819,5 +2877,6 @@ _g void build_type_constant(void)
 	typecompiled_slot_boundp_method();
 	typecompiled_reader_method();
 	typecompiled_writer_method();
+	typecompiled_signal();
 }
 

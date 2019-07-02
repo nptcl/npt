@@ -327,6 +327,22 @@ _g void typevalues_values5(addr *ret, addr v1, addr v2, addr v3, addr v4, addr v
 	SetStatusReadOnly(*ret);
 }
 
+_g void typevalues_values_va(addr *ret, ...)
+{
+	/* (values ... &rest nil) */
+	addr args, type;
+	va_list va;
+
+	/* args */
+	va_start(va, ret);
+	list_alloc_stdarg(NULL, &args, va);
+	va_end(va);
+	/* type */
+	GetTypeTable(&type, Nil);
+	type_values_heap(args, Nil, type, Nil, ret);
+	SetStatusReadOnly(*ret);
+}
+
 _g void typevalues_rest(addr *ret, addr type)
 {
 	/* (values &rest type) */
