@@ -18,7 +18,7 @@ checkerr "make clean error";
 make -f ${file} depend
 checkerr "make depend error";
 
-make -f ${file} build ${@}
+make -f ${file} build ${MAKEOPT} ${@}
 checkerr "make build error";
 
 echo OK

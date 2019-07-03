@@ -481,7 +481,6 @@
     (input-stream-p stream))
   t)
 
-#|
 (deftest close-output-stream-p.1
   (with-temp-file
     (let ((input (open *file* :direction :output
@@ -507,7 +506,7 @@
           (close input)
           (open-stream-p input)))))
   t nil)
-|#
+
 
 ;;  file-stream
 ;;  broadcast-stream

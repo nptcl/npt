@@ -13,6 +13,7 @@
 #include "lambda.h"
 #include "pointer.h"
 #include "sequence.h"
+#include "sort.h"
 #include "symbol.h"
 
 /* clos_generic_call */

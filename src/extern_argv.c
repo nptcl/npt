@@ -49,7 +49,7 @@ static int mainparse_inputs_string(lispstringu s, enum lispargv_execute *ret)
 		return 1;
 	}
 	if (LispArgv_equal(s, Script)) {
-		*ret = lispargv_load;
+		*ret = lispargv_script;
 		return 1;
 	}
 	if (LispArgv_equal(s, MinusMinus)) {

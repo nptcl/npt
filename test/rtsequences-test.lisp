@@ -1,7 +1,6 @@
 ;;
 ;;  ANSI COMMON LISP: 17. Sequences
 ;;
-#|
 (deftest copy-seq.1
   (copy-seq nil)
   nil)
@@ -74,6 +73,74 @@
                    :initial-element #\a
                    :fill-pointer 3)
        3))
+
+(deftest setf-elt.1
+  (let ((x '(10 20 30 40 50)))
+    (values
+      (setf (elt x 3) 999)
+      x))
+  999 (10 20 30 999 50))
+
+(deftest setf-elt.2
+  (let ((x '(10 20 30 40 50)))
+    (values
+      (setf (elt x 0) 999)
+      x))
+  999 (999 20 30 40 50))
+
+(deftest setf-elt.3
+  (let ((x '(10 20 30 40 50)))
+    (values
+      (setf (elt x 4) 999)
+      x))
+  999 (10 20 30 40 999))
+
+(deftest-error setf-elt.4
+  (let ((x '(10 20 30 40 50)))
+    (setf (elt x 5) 999)))
+
+(deftest setf-elt.5
+  (let ((x #(a b c d e)))
+    (values
+      (setf (elt x 1) 'z)
+      x))
+  z #(a z c d e))
+
+(deftest setf-elt.6
+  (let ((x #1a(a b c d e)))
+    (values
+      (setf (elt x 1) 'z)
+      x))
+  z #(a z c d e))
+
+(deftest setf-elt.7
+  (let ((x "Hello"))
+    (values
+      (setf (elt x 1) #\a)
+      x))
+  #\a "Hallo")
+
+(deftest setf-elt.8
+  (let ((x #*110011011))
+    (values
+      (setf (elt x 1) 0)
+      x))
+  0 #*100011011)
+
+(deftest setf-elt.9
+  (let ((x (make-array 10 :element-type 'character
+                       :initial-element #\a
+                       :fill-pointer 3)))
+    (values
+      (setf (elt x 2) #\z)
+      x))
+  #\z "aaz")
+
+(deftest-error setf-elt.10
+  (let ((x (make-array 10 :element-type 'character
+                       :initial-element #\a
+                       :fill-pointer 3)))
+    (setf (elt x 3) #\z)))
 
 (deftest fill.1
   (fill nil 10)
@@ -1222,54 +1289,6 @@
   (merge 'string '(#\1 #\3 #\4 #\6 #\8) "259" #'char<)
   "12345689")
 
-(deftest sort.1
-  (sort () #'<)
-  nil)
-
-(deftest sort.2
-  (sort #() #'<)
-  #())
-
-(deftest sort.3
-  (sort '(3 4 8 5 1 2 9 8 7) #'<)
-  (1 2 3 4 5 7 8 8 9))
-
-(deftest sort.4
-  (sort '(3 4 8 5 1 2 9 8 7) #'>)
-  (9 8 8 7 5 4 3 2 1))
-
-(deftest sort.5
-  (sort #(3 4 8 5 1 2 9 8 7) #'<)
-  #(1 2 3 4 5 7 8 8 9))
-
-(deftest sort.6
-  (sort #(3 4 8 5 1 2 9 8 7) #'>)
-  #(9 8 8 7 5 4 3 2 1))
-
-(deftest stable-sort.1
-  (stable-sort () #'<)
-  nil)
-
-(deftest stable-sort.2
-  (stable-sort #() #'<)
-  #())
-
-(deftest stable-sort.3
-  (stable-sort '(3 4 8 5 1 2 9 8 7) #'<)
-  (1 2 3 4 5 7 8 8 9))
-
-(deftest stable-sort.4
-  (stable-sort '(3 4 8 5 1 2 9 8 7) #'>)
-  (9 8 8 7 5 4 3 2 1))
-
-(deftest stable-sort.5
-  (stable-sort #(3 4 8 5 1 2 9 8 7) #'<)
-  #(1 2 3 4 5 7 8 8 9))
-
-(deftest stable-sort.6
-  (stable-sort #(3 4 8 5 1 2 9 8 7) #'>)
-  #(9 8 8 7 5 4 3 2 1))
-
 (deftest find.1
   (find #\c nil)
   nil)
@@ -1433,7 +1452,6 @@
 (deftest search-vector.7
   (search "bd" "abcd")
   nil)
-|#
 
 (deftest search-list-end.1
   (search nil '(a b c d) :from-end t)
@@ -1491,7 +1509,6 @@
   (search "bd" "abcd" :from-end t)
   nil)
 
-#|
 (deftest mismatch.1
   (mismatch "abcd" "ABCDE" :test #'char-equal)
   4)
@@ -1539,5 +1556,4 @@
 
 (deftest-error concatenate.4
   (concatenate '(vector * 2) "a" "bc"))
-|#
 

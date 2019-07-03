@@ -25,6 +25,7 @@
 #include "ratio.h"
 #include "readtable.h"
 #include "sequence.h"
+#include "sort.h"
 #include "stream.h"
 #include "stream_string.h"
 #include "strtype.h"
@@ -1214,6 +1215,32 @@ static void defun_simple_sort(void)
 }
 
 
+/* (defun bubble-sort (sequence call &key key) ...) -> sequence */
+static void syscall_bubble_sort(Execute ptr, addr pos, addr call, addr rest)
+{
+	addr key;
+
+	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (bubble_sort_sequence(ptr, pos, call, key)) return;
+	setresult_control(ptr, pos);
+}
+
+static void defun_bubble_sort(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_BUBBLE_SORT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2dynamic(pos, p_defun_syscall_bubble_sort);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, Sort);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun quick-sort (sequence call &key key) ...) -> sequence */
 static void syscall_quick_sort(Execute ptr, addr pos, addr call, addr rest)
 {
@@ -1923,6 +1950,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, array_general_p);
 	SetPointerSysCall(defun, var1, array_specialized_p);
 	SetPointerSysCall(defun, var2dynamic, simple_sort);
+	SetPointerSysCall(defun, var2dynamic, bubble_sort);
 	SetPointerSysCall(defun, var2dynamic, quick_sort);
 	SetPointerSysCall(defun, var2dynamic, merge_sort);
 	SetPointerSysCall(defun, opt1, exit);
@@ -1988,6 +2016,7 @@ _g void build_syscall(void)
 	defun_array_general_p();
 	defun_array_specialized_p();
 	defun_simple_sort();
+	defun_bubble_sort();
 	defun_quick_sort();
 	defun_merge_sort();
 	defun_exit();

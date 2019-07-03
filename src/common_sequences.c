@@ -10,6 +10,7 @@
 #include "integer.h"
 #include "number.h"
 #include "sequence.h"
+#include "sort.h"
 #include "strtype.h"
 #include "type_parse.h"
 #include "unicode.h"
@@ -109,6 +110,45 @@ static void defun_elt(void)
 	type_elt(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun (setf elt) (value sequence index) ...) -> t */
+static void function_setf_elt(Execute ptr, addr value, addr pos, addr index)
+{
+	size_t size;
+
+	if (getindex_integer(index, &size))
+		fmte("Too large index ~S.", index, NULL);
+	setelt_sequence(pos, size, value);
+	setresult_control(ptr, value);
+}
+
+static void type_setf_elt(addr *ret)
+{
+	addr arg, values, type;
+
+	GetTypeTable(&arg, Sequence);
+	GetTypeTable(&values, Index);
+	GetTypeTable(&type, T);
+	typeargs_var3(&arg, type, arg, values);
+	GetTypeValues(&values, T);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_setf_elt(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ELT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var3(pos, p_defun_setf_elt);
+	setsetf_symbol(symbol, pos);
+	/* type */
+	type_setf_elt(&type);
+	settype_function(pos, type);
+	settype_setf_symbol(symbol, type);
 }
 
 
@@ -1396,6 +1436,7 @@ _g void init_common_sequences(void)
 {
 	SetPointerCall(defun, var1, copy_seq);
 	SetPointerCall(defun, var2, elt);
+	SetPointerCall(defun, var3, setf_elt);
 	SetPointerCall(defun, var2dynamic, fill);
 	SetPointerCall(defun, var2dynamic, make_sequence);
 	SetPointerCall(defun, var2opt1, subseq);
@@ -1442,6 +1483,7 @@ _g void build_common_sequences(void)
 {
 	defun_copy_seq();
 	defun_elt();
+	defun_setf_elt();
 	defun_fill();
 	defun_make_sequence();
 	defun_subseq();

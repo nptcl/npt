@@ -27,6 +27,7 @@ int test_gc(void);
 int test_sxhash(void);
 int test_hashtable(void);
 int test_sequence(void);
+int test_sort(void);
 int test_code(void);
 int test_control(void);
 int test_pathname(void);
@@ -113,6 +114,7 @@ void degrade_execute(void)
 	DegradeCheck(test_sxhash);
 	DegradeCheck(test_hashtable);
 	DegradeCheck(test_sequence);
+	DegradeCheck(test_sort);
 	DegradeCheck(test_code);
 	DegradeCheck(test_control);
 	DegradeCheck(test_pathname);

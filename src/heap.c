@@ -14,7 +14,7 @@
 _g void					*heap_alloc = 0;
 _g addr					 heap_root = 0;
 _g addr					 heap_front = 0;
-_g addr                     heap_pos = 0;
+_g addr                  heap_pos = 0;
 
 /* static varibales */
 static mutexlite         Mutex;
@@ -25,6 +25,12 @@ static int               Cons = 0;
 static mutexlite         ConsMutex;
 static int               Symbol = 0;
 static mutexlite         SymbolMutex;
+
+static size_t            GcCounter = 0;
+static addr              GcCheck1 = 0;
+static addr              GcCheck2 = 0;
+static addr              GcCheck3 = 0;
+static addr              GcCheck4 = 0;
 
 static struct heapinfo  *Info = 0;
 static struct heapcell  *CellPos = 0;
@@ -194,12 +200,55 @@ static addr allocfront_unlock(size_t size)
 	return pos;
 }
 
+/*
+ *  gccheck
+ *   0xF0	93%
+ *  *0xE0	87%		5bit	32tims
+ *   0xD0	81%
+ *  *0xC0	75%		6bit	64tims
+ *   0xB0	68%
+ *  *0xA0	62%		7bit	128tims
+ *   0x90	56%
+ *  *0x80	50%		8bit	256tims
+ */
+static void gccheck_execute_heap(void)
+{
+	GcCounter = 0;
+	gcstate_execute();
+}
+
+static void gccheck_heap(void)
+{
+	GcCounter++;
+	if (GcCheck4 < heap_pos) {
+		if (GcCounter & (1UL << 3UL))
+			gccheck_execute_heap();
+		return;
+	}
+	if (GcCheck3 < heap_pos) {
+		if (GcCounter & (1UL << 4UL))
+			gccheck_execute_heap();
+		return;
+	}
+	if (GcCheck2 < heap_pos) {
+		if (GcCounter & (1UL << 5UL))
+			gccheck_execute_heap();
+		return;
+	}
+	if (GcCheck1 < heap_pos) {
+		if (GcCounter & (1UL << 6UL))
+			gccheck_execute_heap();
+		return;
+	}
+}
+
 static addr alloclock(size_t size, addr (*call)(size_t))
 {
 	addr result;
 
 	lock_mutexlite(&Mutex);
 	result = call(size);
+	gccheck_heap();
 	unlock_mutexlite(&Mutex);
 	if (result == NULL) memoryerror_heap();
 
@@ -474,11 +523,21 @@ static int tailheap(void)
 static void frontheap(void *ptr, size_t size)
 {
 	int align;
+	size_t q;
 
+	/* memory */
 	align = Align8Space(ptr);
 	Size = size - align;
 	heap_pos = heap_front = FrontMax = heap_root = align + (addr)ptr;
 	CheckAlign8(heap_pos, "align8 error");
+
+	/* gccheck */
+	q = Size / 0x10;
+	GcCheck1 = heap_root + (q * 0x08);
+	GcCheck2 = heap_root + (q * 0x0A);
+	GcCheck3 = heap_root + (q * 0x0C);
+	GcCheck4 = heap_root + (q * 0x0E);
+	GcCounter = 0;
 }
 
 static int initmutex(void)
@@ -570,6 +629,11 @@ _g void free_heap(void)
 		Info = 0;
 		CellPos = 0;
 		CellRoot = 0;
+		GcCounter = 0;
+		GcCheck1 = 0;
+		GcCheck2 = 0;
+		GcCheck3 = 0;
+		GcCheck4 = 0;
 		heap_alloc = 0;
 	}
 }

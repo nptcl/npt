@@ -726,6 +726,7 @@ enum pointer_index {
 	/* common-sequences */
 	p_defun_copy_seq,
 	p_defun_elt,
+	p_defun_setf_elt,
 	p_defun_fill,
 	p_defun_make_sequence,
 	p_defun_subseq,
@@ -996,6 +997,7 @@ enum pointer_index {
 	p_defun_syscall_array_general_p,
 	p_defun_syscall_array_specialized_p,
 	p_defun_syscall_simple_sort,
+	p_defun_syscall_bubble_sort,
 	p_defun_syscall_quick_sort,
 	p_defun_syscall_merge_sort,
 	p_defun_syscall_exit,
