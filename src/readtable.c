@@ -2153,8 +2153,7 @@ static void defun_double_quote_reader(void)
 
 
 /* (defun single-quote-reader (stream character) ...) -> * */
-static int quote_macro(Execute ptr, int *result,
-		enum CONSTANT_INDEX index, addr stream)
+static int quote_macro(Execute ptr, int *result, constindex index, addr stream)
 {
 	int check;
 	addr pos, quote;
@@ -2743,7 +2742,7 @@ static void replace_array_readlabel(Execute ptr, addr pos, addr left, addr right
 	if (str->type != ARRAY_TYPE_T) return;
 	/* general array */
 	size = str->size;
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	for (i = 0; i < size; i++) {
 		arraygen_get(pos, i, &check);
 		if (check == left)

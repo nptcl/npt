@@ -5,7 +5,6 @@
 #include "pointer_type.h"
 #include "typedef.h"
 
-typedef enum pointer_index pointer;
 __extern struct callbind_struct pointer_table[p_size];
 
 #define ExecPointer(x, y) (pointer_table[x].call.y)

@@ -454,7 +454,7 @@ static int test_define_method_combination_constant(void)
 	RETURN;
 }
 
-static int test_qualifier_check(enum CONSTANT_INDEX index, addr one)
+static int test_qualifier_check(constindex index, addr one)
 {
 	addr left, right;
 

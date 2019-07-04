@@ -52,7 +52,7 @@ static inline void standard_error_arch(file_type *file)
 	*file = stderr;
 }
 
-static inline int filename_encode(Execute ptr, addr name, const void **const ret)
+static inline int filename_encode(Execute ptr, addr name, const byte **const ret)
 {
 	name_pathname_local(ptr, name, &name);
 	if (UTF_buffer_clang(ptr->local, &name, name)) {
@@ -64,7 +64,7 @@ static inline int filename_encode(Execute ptr, addr name, const void **const ret
 	return 0;
 }
 
-static inline int open_input_chartype(file_type *ret, const void *name)
+static inline int open_input_chartype(file_type *ret, const char *name)
 {
 	file_type file;
 
@@ -75,20 +75,20 @@ static inline int open_input_chartype(file_type *ret, const void *name)
 	return 0;
 }
 
-static inline int open_input_unicode(file_type *ret, const void *name, size_t size)
+static inline int open_input_unicode(file_type *ret, const unicode *name, size_t size)
 {
-	void *ptr;
+	byte *ptr;
 	size_t value;
 
 	ptr = NULL;
 	if (UTF32_length_utf8(name, size, &value))
 		goto error;
-	ptr = malloc(value);
+	ptr = (byte *)malloc(value);
 	if (ptr == NULL)
 		goto error;
 	if (UTF32_make_utf8(ptr, name, value))
 		goto error;
-	if (open_input_chartype(ret, ptr))
+	if (open_input_chartype(ret, (const char *)ptr))
 		goto error;
 	free(ptr);
 	return 0;
@@ -103,7 +103,7 @@ static inline int open_input_arch(Execute ptr, file_type *ret, addr name)
 	int result;
 	LocalRoot local;
 	LocalStack stack;
-	const void *clang;
+	const byte *clang;
 
 	result = 0;
 	local = ptr->local;
@@ -112,7 +112,7 @@ static inline int open_input_arch(Execute ptr, file_type *ret, addr name)
 		result = 2;
 		goto finish;
 	}
-	if (open_input_chartype(ret, clang)) {
+	if (open_input_chartype(ret, (const char *)clang)) {
 		result = 1;
 		goto finish;
 	}
@@ -123,7 +123,7 @@ finish:
 }
 
 static inline int open_output_chartype(file_type *ret,
-		const void *name, enum FileOutput mode)
+		const char *name, enum FileOutput mode)
 {
 	file_type file;
 
@@ -159,7 +159,7 @@ static inline int open_output_arch(Execute ptr, file_type *ret,
 	int result;
 	LocalRoot local;
 	LocalStack stack;
-	const void *clang;
+	const byte *clang;
 
 	result = 0;
 	local = ptr->local;
@@ -168,7 +168,7 @@ static inline int open_output_arch(Execute ptr, file_type *ret,
 		result = 2;
 		goto finish;
 	}
-	if (open_output_chartype(ret, clang, mode)) {
+	if (open_output_chartype(ret, (const char *)clang, mode)) {
 		result = 1;
 		goto finish;
 	}
@@ -179,7 +179,7 @@ finish:
 }
 
 static inline int open_io_chartype(file_type *ret,
-		const void *name, enum FileOutput mode)
+		const char *name, enum FileOutput mode)
 {
 	file_type file;
 
@@ -206,7 +206,7 @@ static inline int open_io_arch(Execute ptr, file_type *ret,
 	int result;
 	LocalRoot local;
 	LocalStack stack;
-	const void *utf8;
+	const byte *utf8;
 
 	result = 0;
 	local = ptr->local;
@@ -215,7 +215,7 @@ static inline int open_io_arch(Execute ptr, file_type *ret,
 		result = 2;
 		goto finish;
 	}
-	if (open_io_chartype(ret, utf8, mode)) {
+	if (open_io_chartype(ret, (const char *)utf8, mode)) {
 		result = 1;
 		goto finish;
 	}
@@ -306,7 +306,11 @@ static inline int file_position_arch(file_type file, size_t *ret)
 		*ret = 0;
 		return 1;
 	}
+#if defined(__GNUC__) && (! defined(__clang__))
+	*ret = (size_t)pos.__pos;
+#else
 	*ret = (size_t)pos;
+#endif
 
 	return 0;
 }

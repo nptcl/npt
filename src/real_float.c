@@ -12,7 +12,7 @@
 
 _g void single_float_check_alloc(LocalRoot local, addr *ret, single_float value)
 {
-	enum fltclass type;
+	fltclasstype type;
 
 	type = getfltclassify(value);
 	if (type != fltclass_normal)
@@ -33,7 +33,7 @@ _g void single_float_check_heap(addr *ret, single_float value)
 
 _g void double_float_check_alloc(LocalRoot local, addr *ret, double_float value)
 {
-	enum fltclass type;
+	fltclasstype type;
 
 	type = getfltclassify(value);
 	if (type != fltclass_normal)
@@ -54,7 +54,7 @@ _g void double_float_check_heap(addr *ret, double_float value)
 
 _g void long_float_check_alloc(LocalRoot local, addr *ret, long_float value)
 {
-	enum fltclass type;
+	fltclasstype type;
 
 	type = getfltclassify(value);
 	if (type != fltclass_normal)
@@ -590,7 +590,7 @@ _g int less_equal_ll_clang(addr left, addr right)
 /*
  *  strtof
  */
-_g enum fltclass fltclassify(int check, int sign)
+_g fltclasstype fltclassify(int check, int sign)
 {
 	if (check == FP_INFINITE) {
 		if (sign)
@@ -605,7 +605,7 @@ _g enum fltclass fltclassify(int check, int sign)
 	return fltclass_normal;
 }
 
-_g void float_fltclass(constindex index, enum fltclass type, ...)
+_g void float_fltclass(constindex index, fltclasstype type, ...)
 {
 	va_list args;
 	addr list;
@@ -713,7 +713,7 @@ static long_float strtold_c(const char *str)
 
 _g single_float check_strtof(const char *str, addr pos)
 {
-	enum fltclass type;
+	fltclasstype type;
 	single_float value;
 
 	value = strtof_c(str);
@@ -728,7 +728,7 @@ _g single_float check_strtof(const char *str, addr pos)
 
 _g double_float check_strtod(const char *str, addr pos)
 {
-	enum fltclass type;
+	fltclasstype type;
 	double_float value;
 
 	value = strtod_c(str);
@@ -743,7 +743,7 @@ _g double_float check_strtod(const char *str, addr pos)
 
 _g long_float check_strtold(const char *str, addr pos)
 {
-	enum fltclass type;
+	fltclasstype type;
 	long_float value;
 
 	value = strtold_c(str);
@@ -758,7 +758,7 @@ _g long_float check_strtold(const char *str, addr pos)
 
 _g single_float check_strtof_reverse(const char *str, addr pos)
 {
-	enum fltclass type;
+	fltclasstype type;
 	single_float value;
 
 	value = strtof_c(str);
@@ -773,7 +773,7 @@ _g single_float check_strtof_reverse(const char *str, addr pos)
 
 _g double_float check_strtod_reverse(const char *str, addr pos)
 {
-	enum fltclass type;
+	fltclasstype type;
 	double_float value;
 
 	value = strtod_c(str);
@@ -788,7 +788,7 @@ _g double_float check_strtod_reverse(const char *str, addr pos)
 
 _g long_float check_strtold_reverse(const char *str, addr pos)
 {
-	enum fltclass type;
+	fltclasstype type;
 	long_float value;
 
 	value = strtold_c(str);
@@ -807,7 +807,7 @@ _g long_float check_strtold_reverse(const char *str, addr pos)
  */
 _g void plus_float_sv_alloc(LocalRoot local, addr left, single_float right, addr *ret)
 {
-	enum fltclass type;
+	fltclasstype type;
 	addr temp;
 	single_float value;
 
@@ -823,7 +823,7 @@ _g void plus_float_sv_alloc(LocalRoot local, addr left, single_float right, addr
 
 _g void plus_float_dv_alloc(LocalRoot local, addr left, double_float right, addr *ret)
 {
-	enum fltclass type;
+	fltclasstype type;
 	addr temp;
 	double_float value;
 
@@ -839,7 +839,7 @@ _g void plus_float_dv_alloc(LocalRoot local, addr left, double_float right, addr
 
 _g void plus_float_lv_alloc(LocalRoot local, addr left, long_float right, addr *ret)
 {
-	enum fltclass type;
+	fltclasstype type;
 	addr temp;
 	long_float value;
 
@@ -888,7 +888,7 @@ _g void plus_float_lv_heap(addr left, long_float right, addr *ret)
 
 _g void minus_float_sv_alloc(LocalRoot local, addr left, single_float right, addr *ret)
 {
-	enum fltclass type;
+	fltclasstype type;
 	addr temp;
 	single_float value;
 
@@ -904,7 +904,7 @@ _g void minus_float_sv_alloc(LocalRoot local, addr left, single_float right, add
 
 _g void minus_float_dv_alloc(LocalRoot local, addr left, double_float right, addr *ret)
 {
-	enum fltclass type;
+	fltclasstype type;
 	addr temp;
 	double_float value;
 
@@ -920,7 +920,7 @@ _g void minus_float_dv_alloc(LocalRoot local, addr left, double_float right, add
 
 _g void minus_float_lv_alloc(LocalRoot local, addr left, long_float right, addr *ret)
 {
-	enum fltclass type;
+	fltclasstype type;
 	addr temp;
 	long_float value;
 
@@ -969,7 +969,7 @@ _g void minus_float_lv_heap(addr left, long_float right, addr *ret)
 
 _g void minus_float_vs_alloc(LocalRoot local, single_float left, addr right, addr *ret)
 {
-	enum fltclass type;
+	fltclasstype type;
 	addr temp;
 	single_float value;
 
@@ -985,7 +985,7 @@ _g void minus_float_vs_alloc(LocalRoot local, single_float left, addr right, add
 
 _g void minus_float_vd_alloc(LocalRoot local, double_float left, addr right, addr *ret)
 {
-	enum fltclass type;
+	fltclasstype type;
 	addr temp;
 	double_float value;
 
@@ -1001,7 +1001,7 @@ _g void minus_float_vd_alloc(LocalRoot local, double_float left, addr right, add
 
 _g void minus_float_vl_alloc(LocalRoot local, long_float left, addr right, addr *ret)
 {
-	enum fltclass type;
+	fltclasstype type;
 	addr temp;
 	long_float value;
 
@@ -3318,7 +3318,7 @@ _g long_float cast_sl_float(single_float v)
 
 _g single_float cast_ds_float(double_float v)
 {
-	enum fltclass type;
+	fltclasstype type;
 	single_float ret;
 	addr pos;
 
@@ -3339,7 +3339,7 @@ _g long_float cast_dl_float(double_float v)
 
 _g single_float cast_ls_float(long_float v)
 {
-	enum fltclass type;
+	fltclasstype type;
 	single_float ret;
 	addr pos;
 
@@ -3355,7 +3355,7 @@ _g single_float cast_ls_float(long_float v)
 
 _g double_float cast_ld_float(long_float v)
 {
-	enum fltclass type;
+	fltclasstype type;
 	double_float ret;
 	addr pos;
 

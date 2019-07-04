@@ -163,7 +163,7 @@ _g addr newstack_eval(Execute ptr, enum EVAL_STACK_MODE type)
 	return stack;
 }
 
-static void closestack_index(addr stack, enum CONSTANT_INDEX index)
+static void closestack_index(addr stack, constindex index)
 {
 	addr key, cons, next;
 
@@ -262,7 +262,7 @@ _g int globalp_stack_eval(addr pos)
  *  declaim
  */
 static void apply_pushnew_stack(LocalRoot local,
-		addr stack, addr cons, enum CONSTANT_INDEX index)
+		addr stack, addr cons, constindex index)
 {
 	addr key, table, symbol;
 
@@ -276,7 +276,7 @@ static void apply_pushnew_stack(LocalRoot local,
 }
 
 static void apply_pushnew_callname_stack(LocalRoot local,
-		addr stack, addr cons, enum CONSTANT_INDEX index)
+		addr stack, addr cons, constindex index)
 {
 	addr key, table, callname;
 
@@ -291,7 +291,7 @@ static void apply_pushnew_callname_stack(LocalRoot local,
 }
 
 static void apply_plist_stack(LocalRoot local,
-		addr stack, addr cons, enum CONSTANT_INDEX index)
+		addr stack, addr cons, constindex index)
 {
 	addr key, table, symbol, value;
 
@@ -308,7 +308,7 @@ static void apply_plist_stack(LocalRoot local,
 }
 
 static void apply_plist_callname_stack(LocalRoot local,
-		addr stack, addr cons, enum CONSTANT_INDEX index)
+		addr stack, addr cons, constindex index)
 {
 	addr key, table, callname, value;
 
@@ -405,7 +405,7 @@ _g void apply_declare_stack(LocalRoot local, addr stack, addr declare)
 
 /* for let* arguments */
 static void apply_pushsymbol_stack(LocalRoot local,
-		addr stack, addr symbol, addr cons, enum CONSTANT_INDEX index)
+		addr stack, addr symbol, addr cons, constindex index)
 {
 	addr key, table;
 
@@ -418,7 +418,7 @@ static void apply_pushsymbol_stack(LocalRoot local,
 }
 
 static void apply_plistsymbol_stack(LocalRoot local,
-		addr stack, addr symbol, addr cons, enum CONSTANT_INDEX index)
+		addr stack, addr symbol, addr cons, constindex index)
 {
 	addr key, table;
 
@@ -458,7 +458,7 @@ _g void apply_declare_value_stack(LocalRoot local, addr stack, addr symbol, addr
 
 /* for labels arguments */
 static void apply_pushcall_stack(LocalRoot local,
-		addr stack, addr call, addr cons, enum CONSTANT_INDEX index)
+		addr stack, addr call, addr cons, constindex index)
 {
 	addr key, table;
 
@@ -473,7 +473,7 @@ static void apply_pushcall_stack(LocalRoot local,
 }
 
 static void apply_plistcall_stack(LocalRoot local,
-		addr stack, addr call, addr cons, enum CONSTANT_INDEX index)
+		addr stack, addr call, addr cons, constindex index)
 {
 	addr key, table;
 

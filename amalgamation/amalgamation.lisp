@@ -154,14 +154,20 @@
         (when (equal x "#include")
           (values t y))))))
 
+(defun extern-p (x)
+  (let ((list (split-whitespace x)))
+    (when (<= 1 (length list))
+      (equal (car list) "__extern"))))
+
 (defun include-system-p (x)
   (mvbind (x y) (include-p x)
     (when (and x (char= (char y 0) #\<))
       (values t y))))
 
 (defun header-check (x)
-  (or (not (include-p x))
-      (and *header-print* (include-system-p x))))
+  (and (not (extern-p x))
+       (or (not (include-p x))
+           (and *header-print* (include-system-p x)))))
 
 (defun header-first (file ignore)
   (if ignore
@@ -414,7 +420,8 @@
     ))
 
 (defparameter *lispc-source*
-  '(("arch.c" :header t)
+  '("variable.c"
+    ("arch.c" :header t)
     "array_adjust.c"
     "array_coerce.c"
     "array_common.c"
@@ -609,6 +616,12 @@
   (format t "#define _g static~%")
   (format t "#define _s static~%")
   (format t "#define __extern static~%")
+  (terpri)
+  (echo
+    "#ifdef __cplusplus"
+    "#define __STDC_LIMIT_MACROS"
+    "#define __STDC_CONSTANT_MACROS"
+    "#endif")
   (terpri)
   (dolist (x (sort *include-list* #'string<))
     (format t "#include ~A~%" x))

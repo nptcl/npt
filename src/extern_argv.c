@@ -523,7 +523,7 @@ static int argv_argv_windows(lisparrayu *ret)
 	ptr = CommandLineToArgvW(GetCommandLineW(), &argc);
 	if (ptr == NULL)
 		return 1;
-	a = arrayu_argv_utf16(argc, ptr);
+	a = arrayu_argv_utf16(argc, (const byte16 *const *)ptr);
 	if (a == NULL) {
 		(void)LocalFree((HLOCAL)ptr);
 		return 1;
@@ -555,15 +555,15 @@ static int argv_env_main(lisptableu *ret, char *env[])
 }
 
 #ifdef LISP_WINMAIN_WIDE
-static argv_env_windows(lisptableu *ret)
+static int argv_env_windows(lisptableu *ret)
 {
-	LPVOID ptr = NULL;
+	LPWCH ptr = NULL;
 	lisptableu a;
 
 	ptr = GetEnvironmentStringsW();
 	if (ptr == NULL)
 		return 1;
-	a = tableu_env_windows(ptr);
+	a = tableu_env_windows((const byte16 *)ptr);
 	FreeEnvironmentStrings(ptr);
 	if (a == NULL)
 		return 1;

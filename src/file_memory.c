@@ -58,7 +58,7 @@ static inline void init_output(struct filememory *fm, file_type file)
 }
 
 /* low level open */
-_g int input_unicode_filememory(struct filememory *fm, const void *name, size_t size)
+_g int input_unicode_filememory(struct filememory *fm, const unicode *name, size_t size)
 {
 	file_type file;
 
@@ -1133,8 +1133,10 @@ _g int listen_filememory(struct filememory *fm)
 	if (fm->mode != filememory_normal) return 1;
 	if (fm->index == 0) {
 		check = read_ready_arch(fm->file);
+#ifdef LISP_DEBUG
 		if (check < 0)
 			Debug("read_ready_arch error");
+#endif
 		return check;
 	}
 

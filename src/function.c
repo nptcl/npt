@@ -1026,7 +1026,7 @@ _g void pushclosure_block_function(addr pos, addr value)
 	SetClosureBlockFunction_Low(pos, cons);
 }
 
-static void getplist_function(addr pos, enum CONSTANT_INDEX index, addr *ret)
+static void getplist_function(addr pos, constindex index, addr *ret)
 {
 	addr type;
 
@@ -1040,8 +1040,7 @@ _g void gettype_function(addr pos, addr *ret)
 	getplist_function(pos, CONSTANT_SYSTEM_TYPE_FUNCTION, ret);
 }
 
-static void setplist_function(addr pos,
-		enum CONSTANT_INDEX index, addr value)
+static void setplist_function(addr pos, constindex index, addr value)
 {
 	addr table, type;
 

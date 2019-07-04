@@ -27,7 +27,7 @@ _g void build_constant(void)
 /*
  *  interface
  */
-_g void specialconstant(enum CONSTANT_INDEX index, const char *package, const char *name)
+_g void specialconstant(constindex index, const char *package, const char *name)
 {
 	addr symbol;
 
@@ -36,7 +36,7 @@ _g void specialconstant(enum CONSTANT_INDEX index, const char *package, const ch
 	SetConstant(index, symbol);
 }
 
-_g void gensymconstant(enum CONSTANT_INDEX index, const char *name)
+_g void gensymconstant(constindex index, const char *name)
 {
 	addr string, symbol;
 
@@ -46,7 +46,7 @@ _g void gensymconstant(enum CONSTANT_INDEX index, const char *name)
 	SetConstant(index, symbol);
 }
 
-_g void keywordconstant(enum CONSTANT_INDEX index, const char *name)
+_g void keywordconstant(constindex index, const char *name)
 {
 	addr symbol;
 
@@ -54,7 +54,7 @@ _g void keywordconstant(enum CONSTANT_INDEX index, const char *name)
 	SetConstant(index, symbol);
 }
 
-_g void commonconstant(enum CONSTANT_INDEX index, const char *name)
+_g void commonconstant(constindex index, const char *name)
 {
 	addr symbol;
 
@@ -84,7 +84,7 @@ static void copy_symbolchar(char *dst, const char *src, size_t size)
 	dst[i] = 0;
 }
 
-_g void symbolchar_common(enum CONSTANT_INDEX index, const char *name)
+_g void symbolchar_common(constindex index, const char *name)
 {
 	char buffer[SYMBOLCHAR_SIZE];
 	addr symbol;
@@ -94,7 +94,7 @@ _g void symbolchar_common(enum CONSTANT_INDEX index, const char *name)
 	SetConstant(index, symbol);
 }
 
-_g void symbolchar_keyword(enum CONSTANT_INDEX index, const char *name)
+_g void symbolchar_keyword(constindex index, const char *name)
 {
 	char buffer[SYMBOLCHAR_SIZE];
 	addr symbol;

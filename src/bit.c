@@ -43,7 +43,11 @@ _g int bit_getint(addr pos, int *ret)
  */
 struct bitbuffer_struct {
 	size_t index, array;
+#ifdef __cplusplus
+	fixed data[1];
+#else
 	fixed data[];
+#endif
 };
 
 #define BitBufferStruct(x) ((struct bitbuffer_struct *)PtrBodySSa(x, 1))
@@ -168,7 +172,11 @@ _g void push_bitcons(LocalRoot local, addr pos, int value)
  */
 struct bitmemory_struct {
 	size_t bitsize, fixedsize;
+#ifdef __cplusplus
+	fixed data[1];
+#else
 	fixed data[];
+#endif
 };
 
 #define BitMemoryStruct(x) ((struct bitmemory_struct *)posbodyr(x))

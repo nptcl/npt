@@ -18,7 +18,7 @@ enum AMPERSAND_ARGUMENT {
 	AMPERSAND_SIZE
 };
 
-static int constant_eq(enum CONSTANT_INDEX index, addr pos)
+static int constant_eq(constindex index, addr pos)
 {
 	addr check;
 	GetConstant(index, &check);

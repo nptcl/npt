@@ -244,7 +244,7 @@ static void pushlist_eval(LocalRoot local, addr code, addr pos, ...)
 	pushdata(local, code, pos);
 }
 
-static void code_single(LocalRoot local, addr code, enum CONSTANT_INDEX index)
+static void code_single(LocalRoot local, addr code, constindex index)
 {
 	addr pos;
 
@@ -254,7 +254,7 @@ static void code_single(LocalRoot local, addr code, enum CONSTANT_INDEX index)
 }
 
 static void code_leftright(LocalRoot local,
-		addr code, enum CONSTANT_INDEX index, addr right)
+		addr code, constindex index, addr right)
 {
 	addr pos;
 	GetConstant(index, &pos);
@@ -262,7 +262,7 @@ static void code_leftright(LocalRoot local,
 }
 
 static void code_double(LocalRoot local,
-		addr code, enum CONSTANT_INDEX index, addr left, addr right)
+		addr code, constindex index, addr left, addr right)
 {
 	addr first;
 	GetConstant(index, &first);
@@ -270,7 +270,7 @@ static void code_double(LocalRoot local,
 }
 
 static void code_push3(LocalRoot local,
-		addr code, enum CONSTANT_INDEX index, addr left, addr right, addr third)
+		addr code, constindex index, addr left, addr right, addr third)
 {
 	addr first;
 	GetConstant(index, &first);
@@ -278,7 +278,7 @@ static void code_push3(LocalRoot local,
 }
 
 static void code_push5(LocalRoot local,
-		addr code, enum CONSTANT_INDEX index,
+		addr code, constindex index,
 		addr a, addr b, addr c, addr d, addr e)
 {
 	addr first;
@@ -287,7 +287,7 @@ static void code_push5(LocalRoot local,
 }
 
 #ifdef LISP_DEGRADE
-static void code_list(LocalRoot local, addr code, enum CONSTANT_INDEX index, ...)
+static void code_list(LocalRoot local, addr code, constindex index, ...)
 {
 	addr pos, cons;
 	va_list args;
@@ -1130,7 +1130,7 @@ static void code_setq(LocalRoot local, addr code, addr scope)
 
 static void code_function(LocalRoot local, addr code, addr scope)
 {
-	enum CONSTANT_INDEX index;
+	constindex index;
 	int globalp, symbolp;
 	addr pos;
 

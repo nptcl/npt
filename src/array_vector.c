@@ -79,7 +79,7 @@ static void vector_push_extend_t(addr pos, size_t prev, size_t next)
 	addr dst, src, temp;
 	size_t i;
 
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &src);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &src);
 	arraygen_heap(&dst, next);
 	if (src != Nil) {
 		Check(lenarrayr(src) != prev, "size error");
@@ -89,7 +89,7 @@ static void vector_push_extend_t(addr pos, size_t prev, size_t next)
 			arraygen_set(dst, i, temp);
 		}
 	}
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, dst);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, dst);
 }
 
 static void vector_push_extend_bit(addr pos, size_t prev, size_t next)
@@ -100,9 +100,9 @@ static void vector_push_extend_bit(addr pos, size_t prev, size_t next)
 #ifdef LISP_DEBUG
 	bitmemory_memset(dst, 1);
 #endif
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &src);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &src);
 	bitmemory_copy_unsafe(dst, src, (prev < next)? prev: next);
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, dst);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, dst);
 }
 
 static void vector_push_extend_size(addr pos,
@@ -114,7 +114,7 @@ static void vector_push_extend_size(addr pos,
 
 	prev *= element;
 	next *= element;
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &src);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &src);
 	arrayspec_heap(&dst, next);
 	if (src != Nil) {
 		Check(lenbodyr(src) != prev, "size error");
@@ -130,7 +130,7 @@ static void vector_push_extend_size(addr pos,
 #endif
 		memcpy(data1, data2, next);
 	}
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, dst);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, dst);
 }
 
 static void vector_push_extend_resize(addr pos,
@@ -361,7 +361,7 @@ static void vector_dimension(addr pos, size_t size)
 	str = ArrayInfoStruct(pos);
 	str->dimension = 1;
 	str->size = str->front = str->refer = size;
-	SetArrayInfo(pos, ARRAY_INFO_DIMENSION, Nil);
+	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, Nil);
 }
 
 static void vector_type(addr *ret,

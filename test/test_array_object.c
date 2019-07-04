@@ -68,28 +68,28 @@ static int test_array_settype(void)
 	str = ArrayInfoStruct(pos);
 	str->type = ARRAY_TYPE_EMPTY;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_T, "array_settype1");
 
 	str->type = ARRAY_TYPE_T;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_T, "array_settype2");
 
 	str->type = ARRAY_TYPE_BIT;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_BIT, "array_settype3");
 
 	str->type = ARRAY_TYPE_CHARACTER;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_CHARACTER, "array_settype4");
 
 	str->type = ARRAY_TYPE_SIGNED;
 	str->bytesize = 8;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_SIGNED_BYTE, "array_settype5");
 	GetArrayType(type, 0, &type);
 	test(RefFixnum(type) == 8, "array_settype6");
@@ -97,7 +97,7 @@ static int test_array_settype(void)
 	str->type = ARRAY_TYPE_SIGNED;
 	str->bytesize = 16;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_SIGNED_BYTE, "array_settype7");
 	GetArrayType(type, 0, &type);
 	test(RefFixnum(type) == 16, "array_settype8");
@@ -105,7 +105,7 @@ static int test_array_settype(void)
 	str->type = ARRAY_TYPE_SIGNED;
 	str->bytesize = 32;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_SIGNED_BYTE, "array_settype9");
 	GetArrayType(type, 0, &type);
 	test(RefFixnum(type) == 32, "array_settype10");
@@ -114,7 +114,7 @@ static int test_array_settype(void)
 	str->type = ARRAY_TYPE_SIGNED;
 	str->bytesize = 64;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_SIGNED_BYTE, "array_settype11");
 	GetArrayType(type, 0, &type);
 	test(RefFixnum(type) == 64, "array_settype12");
@@ -123,7 +123,7 @@ static int test_array_settype(void)
 	str->type = ARRAY_TYPE_UNSIGNED;
 	str->bytesize = 8;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_UNSIGNED_BYTE, "array_settype13");
 	GetArrayType(type, 0, &type);
 	test(RefFixnum(type) == 8, "array_settype14");
@@ -131,7 +131,7 @@ static int test_array_settype(void)
 	str->type = ARRAY_TYPE_UNSIGNED;
 	str->bytesize = 16;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_UNSIGNED_BYTE, "array_settype15");
 	GetArrayType(type, 0, &type);
 	test(RefFixnum(type) == 16, "array_settype16");
@@ -139,7 +139,7 @@ static int test_array_settype(void)
 	str->type = ARRAY_TYPE_UNSIGNED;
 	str->bytesize = 32;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_UNSIGNED_BYTE, "array_settype17");
 	GetArrayType(type, 0, &type);
 	test(RefFixnum(type) == 32, "array_settype18");
@@ -148,7 +148,7 @@ static int test_array_settype(void)
 	str->type = ARRAY_TYPE_UNSIGNED;
 	str->bytesize = 64;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_UNSIGNED_BYTE, "array_settype19");
 	GetArrayType(type, 0, &type);
 	test(RefFixnum(type) == 64, "array_settype20");
@@ -156,17 +156,17 @@ static int test_array_settype(void)
 
 	str->type = ARRAY_TYPE_SINGLE_FLOAT;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_SINGLE_FLOAT, "array_settype21");
 
 	str->type = ARRAY_TYPE_DOUBLE_FLOAT;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_DOUBLE_FLOAT, "array_settype22");
 
 	str->type = ARRAY_TYPE_LONG_FLOAT;
 	array_settype(pos);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_LONG_FLOAT, "array_settype23");
 
 	RETURN;
@@ -183,7 +183,7 @@ static int test_array_upgraded(void)
 	str = ArrayInfoStruct(pos);
 	test(str->type == ARRAY_TYPE_CHARACTER, "array_upgraded1");
 	test(str->bytesize == 0, "array_upgraded2");
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_CHARACTER, "array_upgraded3");
 
 	type = readr("(mod 256)");
@@ -191,7 +191,7 @@ static int test_array_upgraded(void)
 	array_upgraded(pos, type);
 	test(str->type == ARRAY_TYPE_UNSIGNED, "array_upgraded4");
 	test(str->bytesize == 8, "array_upgraded5");
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &type);
 	test(RefLispDecl(type) == LISPDECL_UNSIGNED_BYTE, "array_upgraded6");
 
 	RETURN;
@@ -239,10 +239,10 @@ static int test_array_setsize(void)
 	array_empty_alloc(NULL, &pos);
 	str = ArrayInfoStruct(pos);
 	str->dimension = 10;
-	SetArrayInfo(pos, ARRAY_INFO_DIMENSION, T);
+	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, T);
 	array_setsize(NULL, pos, Nil);
 	test(str->dimension == 0, "array_setsize1");
-	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_setsize2");
 	test(str->size == 1, "array_setsize3");
 	test(str->front == 1, "array_setsize4");
@@ -251,7 +251,7 @@ static int test_array_setsize(void)
 	fixnum_heap(&check, 10);
 	array_setsize(NULL, pos, check);
 	test(str->dimension == 1, "array_setsize6");
-	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_setsize7");
 	test(str->size == 10, "array_setsize8");
 	test(str->front == 10, "array_setsize9");
@@ -260,7 +260,7 @@ static int test_array_setsize(void)
 	list_heap(&check, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	array_setsize(NULL, pos, check);
 	test(str->dimension == 3, "array_setsize11");
-	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_DIMENSION, "array_setsize12");
 	data = array_ptrsize(pos);
 	test(data[0] == 10, "array_setsize13");
@@ -282,7 +282,7 @@ static int test_array_allocate_t(void)
 	str = ArrayInfoStruct(pos);
 	str->size = 10;
 	array_allocate_t(NULL, pos, str);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_GENERAL, "array_allocate_t1");
 	test(lenarrayr(check) == 10, "array_allocate_t2");
 
@@ -300,20 +300,20 @@ static int test_array_allocate_bit(void)
 
 	str->size = 0;
 	array_allocate_bit(NULL, pos, str);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	test(bitmemoryp(check), "array_allocate_bit1");
 	bitmemory_length(check, &size);
 	test(size == 0, "array_allocate_bit2");
 
 	str->size = 1;
 	array_allocate_bit(NULL, pos, str);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	bitmemory_length(check, &size);
 	test(size == 1, "array_allocate_bit3");
 
 	str->size = 100;
 	array_allocate_bit(NULL, pos, str);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	bitmemory_length(check, &size);
 	test(size == 100, "array_allocate_bit4");
 
@@ -331,7 +331,7 @@ static int test_array_allocate_size(void)
 	str->size = 10;
 	str->element = 4;
 	array_allocate_size(NULL, pos, str);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_SPECIALIZED, "array_allocate_size1");
 	lenbody(check, &size);
 	test(size == 40, "array_allocate_size2");
@@ -339,7 +339,7 @@ static int test_array_allocate_size(void)
 	str->size = 32;
 	str->element = 2;
 	array_allocate_size(NULL, pos, str);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	lenbody(check, &size);
 	test(size == 64, "array_allocate_size3");
 
@@ -357,7 +357,7 @@ static int test_array_allocate(void)
 	str->size = 10;
 	str->type = ARRAY_TYPE_T;
 	array_allocate(NULL, pos, str);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_GENERAL, "array_allocate1");
 	lenarray(check, &size);
 	test(size == 10, "array_allocate2");
@@ -366,7 +366,7 @@ static int test_array_allocate(void)
 	str->size = 10;
 	str->type = ARRAY_TYPE_BIT;
 	array_allocate(NULL, pos, str);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	test(bitmemoryp(check), "array_allocate3");
 	bitmemory_length(check, &size);
 	test(size == 10, "array_allocate4");
@@ -376,7 +376,7 @@ static int test_array_allocate(void)
 	str->element = 4;
 	str->type = ARRAY_TYPE_CHARACTER;
 	array_allocate(NULL, pos, str);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_SPECIALIZED, "array_allocate5");
 	lenbody(check, &size);
 	test(size == 40, "array_allocate6");
@@ -433,15 +433,15 @@ static int test_array_memory_displaced(void)
 	str1->size = 5;
 	str2->size = 10;
 	array_memory_displaced(pos1, pos2, fixnumh(0));
-	GetArrayInfo(pos1, ARRAY_INFO_DISPLACED, &check);
+	GetArrayInfo(pos1, ARRAY_INDEX_DISPLACED, &check);
 	test(check == pos2, "array_memory_displaced1");
 	test(str1->offset == 0, "array_memory_displaced2");
 
 	str1->size = 10;
 	str2->size = 10;
-	SetArrayInfo(pos1, ARRAY_INFO_DISPLACED, Nil);
+	SetArrayInfo(pos1, ARRAY_INDEX_DISPLACED, Nil);
 	array_memory_displaced(pos1, pos2, fixnumh(20));
-	GetArrayInfo(pos1, ARRAY_INFO_DISPLACED, &check);
+	GetArrayInfo(pos1, ARRAY_INDEX_DISPLACED, &check);
 	test(check == pos2, "array_memory_displaced3");
 	test(str1->offset == 20, "array_memory_displaced4");
 
@@ -482,7 +482,7 @@ static int test_array_memory_extend(void)
 	array_memory_extend(NULL, pos, fixnumh(5), Nil, fixnumh(0));
 	test(str->front == 5, "array_memory_extend1");
 
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_GENERAL, "array_memory_extend2");
 
 	RETURN;
@@ -499,7 +499,7 @@ static int test_array_memory_make(void)
 	str->type = ARRAY_TYPE_T;
 	str->size = 10;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_GENERAL, "array_memory_make1");
 	test(lenarrayr(check) == 10, "array_memory_make2");
 	test(str->simple, "array_memory_make3");
@@ -524,7 +524,7 @@ static int test_array_initial_t(void)
 	str->size = 10;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_t(pos, T, 3);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	arraygen_get(pos, 0, &check);
 	test(check == T, "array_initial_t1");
 	arraygen_get(pos, 2, &check);
@@ -548,7 +548,7 @@ static int test_array_initial_bit(void)
 	str->size = 100;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_bit(pos, fixnumh(0), 100);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	bitmemory_getint(mem, 0, &value);
 	test(value == 0, "array_initial_bit1");
 	bitmemory_getint(mem, 50, &value);
@@ -578,7 +578,7 @@ static int test_array_memset(void)
 	u = 66666;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_memset(pos, (const void *)&u);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (unicode *)arrayspec_ptr(mem);
 	test(data[0] == 66666, "array_memset1");
 	test(data[99] == 66666, "array_memset2");
@@ -601,7 +601,7 @@ static int test_array_initial_character(void)
 	character_heap(&value, 66666);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_character(pos, value);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (unicode *)arrayspec_ptr(mem);
 	test(data[0] == 66666, "array_initial_character1");
 	test(data[99] == 66666, "array_initial_character2");
@@ -623,7 +623,7 @@ static int test_array_initial_signed8(void)
 	str->size = 10;
 	str->element = 1;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int8_t *)arrayspec_ptr(mem);
 
 	array_initial_signed8(pos, fixnumh(-0x80));
@@ -651,7 +651,7 @@ static int test_array_initial_signed16(void)
 	str->size = 10;
 	str->element = 2;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int16_t *)arrayspec_ptr(mem);
 
 	array_initial_signed16(pos, fixnumh(-0x8000));
@@ -679,7 +679,7 @@ static int test_array_initial_signed32(void)
 	str->size = 10;
 	str->element = 4;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int32_t *)arrayspec_ptr(mem);
 
 	array_initial_signed32(pos, fixnumh(0x12345678));
@@ -704,7 +704,7 @@ static int test_array_initial_signed64(void)
 	str->size = 10;
 	str->element = 8;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int64_t *)arrayspec_ptr(mem);
 
 	array_initial_signed64(pos, fixnumh(0x123456789ABCDEFFULL));
@@ -735,7 +735,7 @@ static int test_array_initial_signed(void)
 	str->bytesize = 8;
 	str->element = 1;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data1 = (int8_t *)arrayspec_ptr(mem);
 	array_initial_signed(pos, fixnumh(0x55));
 	test(data1[0] == 0x55, "array_initial_signed1");
@@ -743,7 +743,7 @@ static int test_array_initial_signed(void)
 	str->bytesize = 16;
 	str->element = 2;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data2 = (int16_t *)arrayspec_ptr(mem);
 	array_initial_signed(pos, fixnumh(0x55));
 	test(data2[4] == 0x55, "array_initial_signed2");
@@ -751,7 +751,7 @@ static int test_array_initial_signed(void)
 	str->bytesize = 32;
 	str->element = 4;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data3 = (int32_t *)arrayspec_ptr(mem);
 	array_initial_signed(pos, fixnumh(0x55));
 	test(data3[9] == 0x55, "array_initial_signed3");
@@ -760,7 +760,7 @@ static int test_array_initial_signed(void)
 	str->bytesize = 64;
 	str->element = 8;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data4 = (int64_t *)arrayspec_ptr(mem);
 	array_initial_signed(pos, fixnumh(0x55));
 	test(data4[7] == 0x55, "array_initial_signed4");
@@ -783,7 +783,7 @@ static int test_array_initial_unsigned8(void)
 	str->size = 10;
 	str->element = 1;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint8_t *)arrayspec_ptr(mem);
 
 	array_initial_unsigned8(pos, fixnumh(0x00));
@@ -815,7 +815,7 @@ static int test_array_initial_unsigned16(void)
 	str->size = 10;
 	str->element = 2;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint16_t *)arrayspec_ptr(mem);
 
 	array_initial_unsigned16(pos, fixnumh(0x0000));
@@ -847,7 +847,7 @@ static int test_array_initial_unsigned32(void)
 	str->size = 10;
 	str->element = 4;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint32_t *)arrayspec_ptr(mem);
 
 	array_initial_unsigned32(pos, fixnumh(0x12345678));
@@ -872,7 +872,7 @@ static int test_array_initial_unsigned64(void)
 	str->size = 10;
 	str->element = 8;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint64_t *)arrayspec_ptr(mem);
 
 	array_initial_unsigned64(pos, fixnumh(0x123456789ABCDEFFULL));
@@ -903,7 +903,7 @@ static int test_array_initial_unsigned(void)
 	str->bytesize = 8;
 	str->element = 1;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data1 = (uint8_t *)arrayspec_ptr(mem);
 	array_initial_unsigned(pos, fixnumh(0x55));
 	test(data1[0] == 0x55, "array_initial_unsigned1");
@@ -911,7 +911,7 @@ static int test_array_initial_unsigned(void)
 	str->bytesize = 16;
 	str->element = 2;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data2 = (uint16_t *)arrayspec_ptr(mem);
 	array_initial_unsigned(pos, fixnumh(0x55));
 	test(data2[4] == 0x55, "array_initial_unsigned2");
@@ -919,7 +919,7 @@ static int test_array_initial_unsigned(void)
 	str->bytesize = 32;
 	str->element = 4;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data3 = (uint32_t *)arrayspec_ptr(mem);
 	array_initial_unsigned(pos, fixnumh(0x55));
 	test(data3[9] == 0x55, "array_initial_unsigned3");
@@ -928,7 +928,7 @@ static int test_array_initial_unsigned(void)
 	str->bytesize = 64;
 	str->element = 8;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data4 = (uint64_t *)arrayspec_ptr(mem);
 	array_initial_unsigned(pos, fixnumh(0x55));
 	test(data4[7] == 0x55, "array_initial_unsigned4");
@@ -952,7 +952,7 @@ static int test_array_initial_single(void)
 	single_float_heap(&value, 10.23f);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_single(pos, value);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (single_float *)arrayspec_ptr(mem);
 	test(data[0] == 10.23f, "array_initial_single1");
 	test(data[99] == 10.23f, "array_initial_single2");
@@ -975,7 +975,7 @@ static int test_array_initial_double(void)
 	double_float_heap(&value, 10.23);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_double(pos, value);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (double_float *)arrayspec_ptr(mem);
 	test(data[0] == 10.23, "array_initial_double1");
 	test(data[99] == 10.23, "array_initial_double2");
@@ -998,7 +998,7 @@ static int test_array_initial_long(void)
 	long_float_heap(&value, 10.23L);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_long(pos, value);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (long_float *)arrayspec_ptr(mem);
 	test(data[0] == 10.23L, "array_initial_long1");
 	test(data[99] == 10.23L, "array_initial_long2");
@@ -1021,7 +1021,7 @@ static int test_array_initial(void)
 	index_heap(&value, 10);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, value);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(check == value, "array_initial1");
 	arraygen_get(mem, 9, &check);
@@ -1031,7 +1031,7 @@ static int test_array_initial(void)
 	str->element = sizeoft(unicode);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, character_heapr(100));
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (long_float *)arrayspec_ptr(mem);
 	test(((unicode *)data)[0] == 100, "array_initial3");
 	test(((unicode *)data)[9] == 100, "array_initial4");
@@ -1051,7 +1051,7 @@ static int test_setf_t_index_array(void)
 	str->size = 10;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 3, T);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	arraygen_get(pos, 3, &check);
 	test(check == T, "setf_t_index_array1");
 	arraygen_get(pos, 2, &check);
@@ -1075,7 +1075,7 @@ static int test_setf_bit_index_array(void)
 	array_initial_bit(pos, fixnumh(0), 100);
 	for (i = 10; i < 20; i++)
 		array_setindex(pos, i, fixnumh(1));
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	test(! bitmemory_refint(mem, 0), "setf_bit_index_array1");
 	test(! bitmemory_refint(mem, 1), "setf_bit_index_array2");
 	test(! bitmemory_refint(mem, 9), "setf_bit_index_array3");
@@ -1101,7 +1101,7 @@ static int test_setf_character_index_array(void)
 	character_heap(&value, 66666);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 10, value);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (unicode *)arrayspec_ptr(mem);
 	test(data[10] == 66666, "setf_character_index_array1");
 	test(data[11] != 66666, "setf_character_index_array2");
@@ -1123,7 +1123,7 @@ static int test_setf_signed8_index_array(void)
 	str->size = 10;
 	str->element = 1;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int8_t *)arrayspec_ptr(mem);
 
 	array_setindex(pos, 0, fixnumh(-0x80));
@@ -1151,7 +1151,7 @@ static int test_setf_signed16_index_array(void)
 	str->size = 10;
 	str->element = 2;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int16_t *)arrayspec_ptr(mem);
 
 	array_setindex(pos, 0, fixnumh(-0x8000));
@@ -1179,7 +1179,7 @@ static int test_setf_signed32_index_array(void)
 	str->size = 10;
 	str->element = 4;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int32_t *)arrayspec_ptr(mem);
 
 	array_setindex(pos, 0, fixnumh(0x12345678));
@@ -1204,7 +1204,7 @@ static int test_setf_signed64_index_array(void)
 	str->size = 10;
 	str->element = 8;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int64_t *)arrayspec_ptr(mem);
 
 	array_setindex(pos, 9, fixnumh(0x123456789ABCDEFFULL));
@@ -1235,7 +1235,7 @@ static int test_setf_signed_index_array(void)
 	str->bytesize = 8;
 	str->element = 1;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data1 = (int8_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 0, fixnumh(0x55));
 	test(data1[0] == 0x55, "setf_signed_index_array1");
@@ -1243,7 +1243,7 @@ static int test_setf_signed_index_array(void)
 	str->bytesize = 16;
 	str->element = 2;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data2 = (int16_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 4, fixnumh(0x55));
 	test(data2[4] == 0x55, "setf_signed_index_array2");
@@ -1251,7 +1251,7 @@ static int test_setf_signed_index_array(void)
 	str->bytesize = 32;
 	str->element = 4;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data3 = (int32_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 9, fixnumh(0x55));
 	test(data3[9] == 0x55, "setf_signed_index_array3");
@@ -1260,7 +1260,7 @@ static int test_setf_signed_index_array(void)
 	str->bytesize = 64;
 	str->element = 8;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data4 = (int64_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 7, fixnumh(0x55));
 	test(data4[7] == 0x55, "setf_signed_index_array4");
@@ -1283,7 +1283,7 @@ static int test_setf_unsigned8_index_array(void)
 	str->size = 10;
 	str->element = 1;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint8_t *)arrayspec_ptr(mem);
 
 	array_setindex(pos, 0, fixnumh(0x00));
@@ -1314,7 +1314,7 @@ static int test_setf_unsigned16_index_array(void)
 	str->size = 10;
 	str->element = 2;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint16_t *)arrayspec_ptr(mem);
 
 	array_setindex(pos, 0, fixnumh(0x0000));
@@ -1343,7 +1343,7 @@ static int test_setf_unsigned32_index_array(void)
 	str->size = 10;
 	str->element = 4;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint32_t *)arrayspec_ptr(mem);
 
 	array_setindex(pos, 0, fixnumh(0x12345678));
@@ -1367,7 +1367,7 @@ static int test_setf_unsigned64_index_array(void)
 	str->size = 10;
 	str->element = 8;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint64_t *)arrayspec_ptr(mem);
 
 	array_setindex(pos, 9, fixnumh(0x123456789ABCDEFFULL));
@@ -1397,7 +1397,7 @@ static int test_setf_unsigned_index_array(void)
 	str->bytesize = 8;
 	str->element = 1;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data1 = (uint8_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 0, fixnumh(0x55));
 	test(data1[0] == 0x55, "setf_unsigned_index_array1");
@@ -1405,7 +1405,7 @@ static int test_setf_unsigned_index_array(void)
 	str->bytesize = 16;
 	str->element = 2;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data2 = (uint16_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 4, fixnumh(0x55));
 	test(data2[4] == 0x55, "setf_unsigned_index_array2");
@@ -1413,7 +1413,7 @@ static int test_setf_unsigned_index_array(void)
 	str->bytesize = 32;
 	str->element = 4;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data3 = (uint32_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 9, fixnumh(0x55));
 	test(data3[9] == 0x55, "setf_unsigned_index_array3");
@@ -1422,7 +1422,7 @@ static int test_setf_unsigned_index_array(void)
 	str->bytesize = 64;
 	str->element = 8;
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data4 = (uint64_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 7, fixnumh(0x55));
 	test(data4[7] == 0x55, "setf_unsigned_index_array4");
@@ -1446,7 +1446,7 @@ static int test_setf_single_float_index_array(void)
 	single_float_heap(&value, 10.23f);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 0, value);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (single_float *)arrayspec_ptr(mem);
 	test(data[0] == 10.23f, "setf_single_float_index_array1");
 
@@ -1468,7 +1468,7 @@ static int test_setf_double_float_index_array(void)
 	double_float_heap(&value, 10.23);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 99, value);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (double_float *)arrayspec_ptr(mem);
 	test(data[99] == 10.23, "setf_double_float_index_array1");
 
@@ -1490,7 +1490,7 @@ static int test_setf_long_float_index_array(void)
 	long_float_heap(&value, 10.23L);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 0, value);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (long_float *)arrayspec_ptr(mem);
 	test(data[0] == 10.23L, "setf_long_float_index_array1");
 
@@ -1512,7 +1512,7 @@ static int test_array_setindex(void)
 	index_heap(&value, 10);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 0, value);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(check == value, "array_setindex1");
 	arraygen_get(mem, 9, &check);
@@ -1522,7 +1522,7 @@ static int test_array_setindex(void)
 	str->element = sizeoft(unicode);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 9, character_heapr(100));
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (long_float *)arrayspec_ptr(mem);
 	test(((unicode *)data)[9] == 100, "array_setindex3");
 
@@ -1544,7 +1544,7 @@ static int test_array_contents_setf(void)
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	/* test */
 	array_contents_setf(local, pos, readr("(1 2 a b 5 6)"));
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(RefFixnum(check) == 1, "array_contents_setf1");
 	arraygen_get(mem, 1, &check);
@@ -1561,7 +1561,7 @@ static int test_array_contents_setf(void)
 	array_setsize(NULL, pos, readr("(2 3)"));
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_contents_setf(local, pos, readr("((1 2 3) (4 5 6))"));
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(RefFixnum(check) == 1, "array_contents_setf7");
 	arraygen_get(mem, 1, &check);
@@ -1582,7 +1582,7 @@ static int test_array_contents_setf(void)
 				"((d e f) (3 1 2))"
 				"((g h i) (2 3 1))"
 				"((j k l) (0 0 0))))"));
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(check == readr("a"), "array_contents_setf13");
 	arraygen_get(mem, 4, &check);
@@ -1608,7 +1608,7 @@ static int test_array_initial_contents(void)
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	/* test */
 	array_initial_contents(local, pos, readr("(1 2 a b 5 6)"));
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(RefFixnum(check) == 1, "array_initial_contents1");
 	arraygen_get(mem, 1, &check);
@@ -1617,7 +1617,7 @@ static int test_array_initial_contents(void)
 	array_setsize(NULL, pos, Nil);
 	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_contents(local, pos, readr("9"));
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
 	test(RefFixnum(check) == 9, "array_initial_contents3");
 
@@ -1648,7 +1648,7 @@ static int test_array_size_contents(void)
 	array_size_contents(NULL, pos, fixnumh(0), T);
 	str = ArrayInfoStruct(pos);
 	test(str->dimension == 0, "array_size_contents1");
-	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_size_contents2");
 
 	array_size_contents(NULL, pos, fixnumh(1), readr("(10 20 30)"));
@@ -1692,7 +1692,7 @@ static int test_array_ptrwrite(void)
 	array_va_heap(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	arrayspec_alloc(NULL, &mem, 1000);
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, mem);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, mem);
 	str->element = 4;
 	str->type = ARRAY_TYPE_CHARACTER;
 
@@ -1768,31 +1768,31 @@ static int test_set_element_size(void)
 	test(str->type == ARRAY_TYPE_T, "set_element_size2");
 
 	GetTypeTable(&type, Bit);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, type);
 	set_element_size(pos, str);
 	test(str->element == 0, "set_element_size3");
 	test(str->type == ARRAY_TYPE_BIT, "set_element_size4");
 
 	GetTypeTable(&type, Character);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, type);
 	set_element_size(pos, str);
 	test(str->element == sizeoft(unicode), "set_element_size5");
 	test(str->type == ARRAY_TYPE_CHARACTER, "set_element_size6");
 
 	type_signed_heap(32, &type);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, type);
 	set_element_size(pos, str);
 	test(str->element == 4, "set_element_size7");
 	test(str->type == ARRAY_TYPE_SIGNED, "set_element_size8");
 
 	type_unsigned_heap(32, &type);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, type);
 	set_element_size(pos, str);
 	test(str->element == 4, "set_element_size9");
 	test(str->type == ARRAY_TYPE_UNSIGNED, "set_element_size10");
 
 	GetTypeTable(&type, DoubleFloat);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, type);
 	set_element_size(pos, str);
 	test(str->element == sizeoft(double_float), "set_element_size11");
 	test(str->type == ARRAY_TYPE_DOUBLE_FLOAT, "set_element_size12");
@@ -1827,7 +1827,7 @@ static int test_array_build_alloc(void)
 
 	array_va_heap(&pos, 10, 0);
 	array_build_alloc(NULL, pos);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_GENERAL, "array_build_alloc1");
 	lenarray(check, &size);
 	test(size == 10, "array_build_alloc2");

@@ -1,10 +1,10 @@
 /*
  *  xorshift+
  */
-#include <string.h>
-#include <inttypes.h>
 #include "random.h"
 #include "md5encode.h"
+#include <string.h>
+#include <inttypes.h>
 
 #define MASK32BIT 0xFFFFFFFFUL
 #define MASK64BIT 0xFFFFFFFFFFFFFFFFULL

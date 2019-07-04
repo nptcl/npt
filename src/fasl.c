@@ -557,7 +557,7 @@ static int wstring8_fasl(Execute ptr, addr input, addr *ret)
 /* call */
 /* ARGSUSED0 */
 static void makenamesymbol(Execute ptr,
-		enum CONSTANT_INDEX index, addr input, size_t size, addr *ret)
+		constindex index, addr input, size_t size, addr *ret)
 {
 	addr name, package;
 
@@ -602,7 +602,7 @@ static int call8_fasl(Execute ptr, addr input, addr *ret)
 /* wcall */
 /* ARGSUSED0 */
 static void makenamesymbolu(Execute ptr,
-		enum CONSTANT_INDEX index, addr input, size_t size, addr *ret)
+		constindex index, addr input, size_t size, addr *ret)
 {
 	addr name, package;
 

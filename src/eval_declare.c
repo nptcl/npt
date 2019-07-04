@@ -226,8 +226,7 @@ static void push_ftype_declare_heap(addr pos, addr callname, addr type)
 }
 
 static void plist_constant_declare_heap(addr pos, addr symbol,
-		enum CONSTANT_INDEX constant,
-		enum EVAL_DECLARE declare)
+		constindex constant, enum EVAL_DECLARE declare)
 {
 	addr list, value;
 
@@ -240,8 +239,7 @@ static void plist_constant_declare_heap(addr pos, addr symbol,
 }
 
 static void plist_callname_declare_heap(addr pos, addr callname,
-		enum CONSTANT_INDEX constant,
-		enum EVAL_DECLARE declare)
+		constindex constant, enum EVAL_DECLARE declare)
 {
 	addr list, value;
 

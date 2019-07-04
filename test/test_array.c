@@ -72,11 +72,11 @@ static int test_setarrayinfo(void)
 	addr pos, check;
 
 	array_empty_heap(&pos);
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, T);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &check);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, T);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
 	test(check == T, "setarrayinfo1");
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, Nil);
-	check = RefArrayInfo(pos, ARRAY_INFO_MEMORY);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, Nil);
+	check = RefArrayInfo(pos, ARRAY_INDEX_MEMORY);
 	test(check == Nil, "setarrayinfo2");
 
 	RETURN;
@@ -304,36 +304,36 @@ static int test_array_alloc(void)
 
 	array_alloc(NULL, &pos, 0, 5);
 	test(GetType(pos) == LISPTYPE_ARRAY, "array_alloc1");
-	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_alloc2");
 	str = ArrayInfoStruct(pos);
 	test(str->type == ARRAY_TYPE_T, "array_alloc3");
 	test(str->dimension == 0, "array_alloc4");
 	test(str->size == 5, "array_alloc5");
 	test(str->front == 5, "array_alloc6");
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &check);
 	test(RefLispDecl(check) == LISPDECL_T, "array_alloc7");
 
 	array_alloc(NULL, &pos, 1, 5);
-	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_alloc8");
 	str = ArrayInfoStruct(pos);
 	test(str->type == ARRAY_TYPE_T, "array_alloc9");
 	test(str->dimension == 1, "array_alloc10");
 	test(str->size == 5, "array_alloc11");
 	test(str->front == 5, "array_alloc12");
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &check);
 	test(RefLispDecl(check) == LISPDECL_T, "array_alloc13");
 
 	array_alloc(NULL, &pos, 3, 6);
-	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_DIMENSION, "array_alloc14");
 	str = ArrayInfoStruct(pos);
 	test(str->type == ARRAY_TYPE_T, "array_alloc15");
 	test(str->dimension == 3, "array_alloc16");
 	test(str->size == 6, "array_alloc17");
 	test(str->front == 6, "array_alloc18");
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &check);
 	test(RefLispDecl(check) == LISPDECL_T, "array_alloc19");
 
 	RETURN;
@@ -347,7 +347,7 @@ static int test_array_va_alloc(void)
 
 	array_va_alloc(NULL, &pos, 0);
 	test(GetType(pos) == LISPTYPE_ARRAY, "array_va_alloc1");
-	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_va_alloc2");
 	str = ArrayInfoStruct(pos);
 	test(str->dimension == 0, "array_va_alloc3");
@@ -355,7 +355,7 @@ static int test_array_va_alloc(void)
 
 	array_va_alloc(NULL, &pos, 10, 0);
 	test(GetType(pos) == LISPTYPE_ARRAY, "array_va_alloc5");
-	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(check == Nil, "array_va_alloc6");
 	str = ArrayInfoStruct(pos);
 	test(str->dimension == 1, "array_va_alloc7");
@@ -363,7 +363,7 @@ static int test_array_va_alloc(void)
 
 	array_va_alloc(NULL, &pos, 2, 3, 4, 0);
 	test(GetType(pos) == LISPTYPE_ARRAY, "array_va_alloc9");
-	GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &check);
+	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &check);
 	test(GetType(check) == LISPSYSTEM_ARRAY_DIMENSION, "array_va_alloc10");
 	str = ArrayInfoStruct(pos);
 	test(str->dimension == 3, "array_va_alloc11");
@@ -475,7 +475,7 @@ static int test_array_ptrwrite(void)
 	array_va_heap(&pos, 10, 0);
 	str = ArrayInfoStruct(pos);
 	arrayspec_alloc(NULL, &mem, 1000);
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, mem);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, mem);
 	str->element = 4;
 	str->type = ARRAY_TYPE_CHARACTER;
 

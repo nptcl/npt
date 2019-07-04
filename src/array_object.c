@@ -22,7 +22,7 @@ static void array_settype_value(addr pos, enum ARRAY_TYPE type, unsigned size)
 	struct array_struct *str;
 
 	upgraded_array_object(type, size, &value);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, value);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, value);
 	str = ArrayInfoStruct(pos);
 	str->type = type;
 	str->bytesize = size;
@@ -35,7 +35,7 @@ _g void array_settype(addr pos)
 
 	str = ArrayInfoStruct(pos);
 	upgraded_array_object(str->type, str->bytesize, &type);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, type);
 }
 
 _g void array_element_size(addr pos)
@@ -84,7 +84,7 @@ _g int array_equal_type(struct array_struct *a, enum ARRAY_TYPE type, unsigned s
 _g void array_element_type(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
-	GetArrayInfo(pos, ARRAY_INFO_TYPE, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &pos);
 	type_object(ret, pos);
 }
 
@@ -170,7 +170,7 @@ static void array_setsize0(addr pos, size_t *ret)
 
 	str = ArrayInfoStruct(pos);
 	str->dimension = 0;
-	SetArrayInfo(pos, ARRAY_INFO_DIMENSION, Nil);
+	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, Nil);
 	*ret = 1;
 }
 
@@ -184,7 +184,7 @@ static void array_setsize1(addr pos, addr value, size_t *ret)
 	if (getindex_integer(value, ret))
 		fmte("Array index ~A is too large.", value, NULL);
 	str->dimension = 1;
-	SetArrayInfo(pos, ARRAY_INFO_DIMENSION, Nil);
+	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, Nil);
 }
 
 static void array_setsize2(LocalRoot local, addr pos, addr value, size_t *ret)
@@ -208,7 +208,7 @@ static void array_setsize2(LocalRoot local, addr pos, addr value, size_t *ret)
 		data[i] = size;
 	}
 	str->dimension = i;
-	SetArrayInfo(pos, ARRAY_INFO_DIMENSION, temp);
+	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, temp);
 	array_getsize(pos, ret);
 }
 
@@ -241,14 +241,14 @@ static void array_allocate_t(LocalRoot local, addr pos, struct array_struct *str
 {
 	addr array;
 	arraygen_alloc(local, &array, str->size);
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, array);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, array);
 }
 
 _g void array_allocate_bit(LocalRoot local, addr pos, struct array_struct *str)
 {
 	addr array;
 	bitmemory_unsafe(local, &array, str->size);
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, array);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, array);
 }
 
 _g void array_allocate_size(LocalRoot local, addr pos, struct array_struct *str)
@@ -259,7 +259,7 @@ _g void array_allocate_size(LocalRoot local, addr pos, struct array_struct *str)
 	if (multisafe_size(str->size , str->element, &size))
 		fmte("size overflow.", NULL);
 	arrayspec_alloc(local, &array, size);
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, array);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, array);
 }
 
 _g void array_allocate(LocalRoot local, addr pos, struct array_struct *str)
@@ -299,7 +299,7 @@ static void array_memory_displaced(addr pos, addr displaced, addr offset)
 	}
 	if (! array_equal_type(str1, str2->type, str2->bytesize))
 		fmte("Array type must be equal to displaced array.", NULL);
-	SetArrayInfo(pos, ARRAY_INFO_DISPLACED, displaced);
+	SetArrayInfo(pos, ARRAY_INDEX_DISPLACED, displaced);
 
 	/* displaced-index-offset */
 	if (! integerp(offset))
@@ -378,7 +378,7 @@ static void array_initial_t(addr pos, addr value, size_t size)
 {
 	size_t i;
 
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	for (i = 0; i < size; i++)
 		arraygen_set(pos, i, value);
 }
@@ -392,7 +392,7 @@ static void array_initial_bit(addr pos, addr value, size_t size)
 	GetFixnum(value, &init);
 	if (init != 0 && init != 1)
 		fmte(":initail-element ~A must be 0 or 1.", value, NULL);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	bitmemory_memset(pos, (int)init);
 }
 
@@ -405,7 +405,7 @@ static void array_memset(addr pos, const void *src)
 	str = ArrayInfoStruct(pos);
 	size = str->size;
 	elem = str->element;
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	dst = (byte *)arrayspec_ptr(pos);
 	for (i = 0; i < size; i++) {
 		memcpy(dst, src, elem);
@@ -437,7 +437,7 @@ static void array_initial_signed8(addr pos, addr value)
 	if (init < INT8_MIN || INT8_MAX < init)
 		goto error;
 	str = ArrayInfoStruct(pos);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	data = (void *)arrayspec_ptr(pos);
 	memset(data, (byte)init, str->size);
 	return;
@@ -552,7 +552,7 @@ static void array_initial_unsigned8(addr pos, addr value)
 	if (UINT8_MAX < init)
 		goto error;
 	str = ArrayInfoStruct(pos);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	data = (byte *)arrayspec_ptr(pos);
 	memset(data, (byte)init, str->size);
 	return;
@@ -1087,7 +1087,7 @@ static void arraymemory_set(addr pos, addr mem, size_t index, addr value)
 static void array_setindex(addr pos, size_t index, addr value)
 {
 	addr mem;
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraymemory_set(pos, mem, index, value);
 }
 
@@ -1266,13 +1266,13 @@ static void array_size_contents(LocalRoot local,
 	str = ArrayInfoStruct(pos);
 	if (rank == 0) {
 		str->dimension = 0;
-		SetArrayInfo(pos, ARRAY_INFO_DIMENSION, Nil);
+		SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, Nil);
 		size = 1;
 	}
 	else if (rank == 1) {
 		str->dimension = 1;
 		size = length_list_safe(contents);
-		SetArrayInfo(pos, ARRAY_INFO_DIMENSION, Nil);
+		SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, Nil);
 	}
 	else {
 		str->dimension = rank;
@@ -1284,7 +1284,7 @@ static void array_size_contents(LocalRoot local,
 			data[i] = length_list_safe(contents);
 			GetCar(contents, &contents);
 		}
-		SetArrayInfo(pos, ARRAY_INFO_DIMENSION, temp);
+		SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, temp);
 		array_getsize(pos, &size);
 	}
 
@@ -1368,7 +1368,7 @@ _g void array_build_heap(addr pos)
  */
 static void arraymemory_index(addr pos, size_t index, addr *retp, size_t *rets)
 {
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, retp);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, retp);
 	*rets = index;
 }
 
@@ -1387,7 +1387,7 @@ static void arraymemory_get(addr pos, size_t index, addr *retp, size_t *rets)
 		arraymemory_index(pos, index - str->refer, retp, rets);
 	}
 	else {
-		GetArrayInfo(pos, ARRAY_INFO_DISPLACED, &pos);
+		GetArrayInfo(pos, ARRAY_INDEX_DISPLACED, &pos);
 		index += str->offset;
 		arraymemory_get(pos, index, retp, rets);
 	}
@@ -2303,7 +2303,7 @@ _g void array_array_displacement(addr array, addr *displaced, addr *offset)
 	CheckType(array, LISPTYPE_ARRAY);
 	str = ArrayInfoStruct(array);
 	if (str->displaced) {
-		GetArrayInfo(array, ARRAY_INFO_DISPLACED, displaced);
+		GetArrayInfo(array, ARRAY_INDEX_DISPLACED, displaced);
 		make_index_integer_alloc(NULL, offset, str->offset);
 	}
 	else {

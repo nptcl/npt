@@ -46,18 +46,6 @@
 
 
 /*
- *  Variables
- */
-_g int      lisp_initialize    = 0;
-_g addr     lisp_root[LISPINDEX_SIZE];
-_g addr     lisp_nil           = 0;
-_g addr     lisp_t             = 0;
-_g byte32   lisp_property      = 0;
-/* for debug */
-_g int      lisp_info_enable   = 1;
-
-
-/*
  *  property
  */
 _g void setproperty(int index, int value)

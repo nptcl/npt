@@ -34,7 +34,7 @@
 
 #define arraysize_ptr_Low(p)		((size_t *)PtrBodyB4(p))
 #define arrayinfo_struct_Low(p)		\
-	((struct array_struct *)PtrBodySSa((p), ARRAY_INFO_SIZE))
+	((struct array_struct *)PtrBodySSa((p), ARRAY_INDEX_SIZE))
 #define RefArrayInfo_Low			RefArraySS
 #define GetArrayInfo_Low			GetArraySS
 #define SetArrayInfo_Low			SetArraySS

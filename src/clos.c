@@ -10,16 +10,7 @@
 #include "package.h"
 #include "symbol.h"
 
-/*
- *  class check
- */
-_g addr Clos_standard_class = 0;
-_g addr Clos_standard_generic = 0;
-_g addr Clos_standard_method = 0;
-_g addr Clos_standard_combination = 0;
-_g addr Clos_standard_specializer = 0;
 static int Clos_standard_ignore = 0;
-
 
 /*
  *  access

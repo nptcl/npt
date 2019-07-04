@@ -36,21 +36,21 @@ __extern int      lisp_info_enable;
 #define PACKAGE_HASHSIZE        16
 
 #ifdef LISP_DEBUG
-#define Info(x) info(x)
-#define Debug(x) infoerror(__FILE__, __LINE__, __func__, x)
-#define Debug2(x,y) infoerror(__FILE__, __LINE__, __func__, x, y)
-#define Check(x,y) {if (x) {Debug(y); abortthis();}}
-#define Check2(x,y1,y2) {if (x) {Debug(y1,y2); abortthis();}}
-#define SetProperty(i,v)  setproperty((i), (v))
-#define GetProperty(i)    getproperty(i)
+#define Info(x)             info(x)
+#define Debug(x)            infoerror(__FILE__, __LINE__, __func__, x)
+#define Debug2(x,y)         infoerror(__FILE__, __LINE__, __func__, x, y)
+#define Check(x,y)          {if (x) {Debug(y); abortthis();}}
+#define Check2(x,y1,y2)     {if (x) {Debug(y1,y2); abortthis();}}
+#define SetProperty(i,v)    setproperty((i), (v))
+#define GetProperty(i)      getproperty(i)
 #else
-#define Info(x)
-#define Debug(x)
-#define Debug2(x,y)
-#define Check(x,y)
-#define Check2(x,y1,y2)
-#define SetProperty(i,v)  SetShiftValue(lisp_property,i,v,1UL,byte32)
-#define GetProperty(i)    GetShiftValue(lisp_property,i,1UL)
+#define Info(x)             ;
+#define Debug(x)            ;
+#define Debug2(x,y)         ;
+#define Check(x,y)          ;
+#define Check2(x,y1,y2)     ;
+#define SetProperty(i,v)    SetShiftValue(lisp_property,i,v,1UL,byte32)
+#define GetProperty(i)      GetShiftValue(lisp_property,i,1UL)
 #endif
 
 #define Abort(x)			{Debug(x); abortthis();}

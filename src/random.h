@@ -22,9 +22,9 @@
 #ifndef __RANDOM_HEADER__
 #define __RANDOM_HEADER__
 
+#include "define.h"
 #include <stddef.h>
 #include <stdint.h>
-#include "define.h"
 
 struct random_state {
 	union {

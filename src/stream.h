@@ -43,7 +43,11 @@ struct StructStream {
 	enum StreamType type;
 	unicode unread;
 	size_t terpri;
-	byte64 data[]; /* alignment 8byte */
+#ifdef __cplusplus
+	byte64 data[1];
+#else
+	byte64 data[0];
+#endif
 };
 
 #define PtrBodyStream_Low(x)		((void *)PtrBodyABa(x, STREAM_INDEX_SIZE))

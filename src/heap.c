@@ -10,12 +10,6 @@
 #include "thread.h"
 #include "typedef.h"
 
-/* external variable */
-_g void					*heap_alloc = 0;
-_g addr					 heap_root = 0;
-_g addr					 heap_front = 0;
-_g addr                  heap_pos = 0;
-
 /* static varibales */
 static mutexlite         Mutex;
 static size_t            Size = 0;

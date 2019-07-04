@@ -2028,7 +2028,7 @@ static void lambda_update(struct lambda_struct *str)
 }
 
 static void getclosure(addr table, void (*copycall)(LocalRoot, addr *, addr),
-		enum CONSTANT_INDEX index, addr *ret)
+		constindex index, addr *ret)
 {
 	addr key, cons, root, name, value;
 

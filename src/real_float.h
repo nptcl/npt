@@ -12,18 +12,24 @@ enum fltclass {
 	fltclass_underflow,
 	fltclass_nan
 };
-_g enum fltclass fltclassify(int check, int sign);
-_g void float_fltclass(constindex index, enum fltclass type, ...);
+#ifdef __cplusplus
+typedef int fltclasstype;
+#else
+typedef enum fltclass fltclasstype;
+#endif
+
+_g fltclasstype fltclassify(int check, int sign);
+_g void float_fltclass(constindex index, fltclasstype type, ...);
 #define getfltclassify(v) fltclassify(fpclassify(v), signbit(v))
 #define getfltclassify_reverse(v) fltclassify(fpclassify(v), (! signbit(v)))
 #define float_errorcheck1(index, v, left) { \
-	enum fltclass __type = getfltclassify(v); \
+	fltclasstype __type = getfltclassify(v); \
 	if (__type != fltclass_normal) { \
 		float_fltclass((index), __type, (left), NULL); \
 	} \
 }
 #define float_errorcheck2(index, v, left, right) { \
-	enum fltclass __type = getfltclassify(v); \
+	fltclasstype __type = getfltclassify(v); \
 	if (__type != fltclass_normal) { \
 		float_fltclass((index), __type, (left), (right), NULL); \
 	} \

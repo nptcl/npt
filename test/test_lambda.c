@@ -392,7 +392,7 @@ finish:
 	RETURN;
 }
 
-static void import_constant_test(addr package, enum CONSTANT_INDEX index)
+static void import_constant_test(addr package, constindex index)
 {
 	addr symbol;
 	GetConstant(index, &symbol);

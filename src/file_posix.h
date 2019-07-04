@@ -50,7 +50,7 @@ static inline void standard_error_arch(file_type *file)
 	*file = STDERR_FILENO;
 }
 
-static inline int filename_encode(Execute ptr, addr name, const char **const ret)
+static inline int filename_encode(Execute ptr, addr name, const byte **const ret)
 {
 	name_pathname_local(ptr, name, &name);
 	if (UTF8_buffer_clang(ptr->local, &name, name)) {
@@ -62,31 +62,31 @@ static inline int filename_encode(Execute ptr, addr name, const char **const ret
 	return 0;
 }
 
-static inline int open_input_chartype(file_type *ret, const void *name)
+static inline int open_input_chartype(file_type *ret, const char *name)
 {
 	file_type file;
 
-	file = open((const char *)name, O_RDONLY);
+	file = open(name, O_RDONLY);
 	if (file < 0) return 1;
 	*ret = file;
 
 	return 0;
 }
 
-static inline int open_input_unicode(file_type *ret, const void *name, size_t size)
+static inline int open_input_unicode(file_type *ret, const unicode *name, size_t size)
 {
-	void *ptr;
+	byte *ptr;
 	size_t value;
 
 	ptr = NULL;
 	if (UTF32_length_utf8(name, size, &value))
 		goto error;
-	ptr = malloc(value);
+	ptr = (byte *)malloc(value);
 	if (ptr == NULL)
 		goto error;
 	if (UTF32_make_utf8(ptr, name, value))
 		goto error;
-	if (open_input_chartype(ret, ptr))
+	if (open_input_chartype(ret, (const char *)ptr))
 		goto error;
 	free(ptr);
 	return 0;
@@ -101,7 +101,7 @@ static inline int open_input_arch(Execute ptr, file_type *ret, addr name)
 	int result;
 	LocalRoot local;
 	LocalStack stack;
-	const char *utf8;
+	const byte *utf8;
 
 	result = 0;
 	local = ptr->local;
@@ -110,7 +110,7 @@ static inline int open_input_arch(Execute ptr, file_type *ret, addr name)
 		result = 2;
 		goto finish;
 	}
-	if (open_input_chartype(ret, utf8)) {
+	if (open_input_chartype(ret, (const char *)utf8)) {
 		result = 1;
 		goto finish;
 	}
@@ -145,7 +145,7 @@ static inline int open_output_arch(Execute ptr, file_type *ret,
 	LocalRoot local;
 	LocalStack stack;
 	file_type file;
-	const char *utf8;
+	const byte *utf8;
 
 	result = 0;
 	local = ptr->local;
@@ -155,7 +155,7 @@ static inline int open_output_arch(Execute ptr, file_type *ret,
 		goto finish;
 	}
 
-	file = open_output_call(utf8, mode);
+	file = open_output_call((const char *)utf8, mode);
 	if (file < 0) {
 		result = 1;
 		goto finish;
@@ -192,7 +192,7 @@ static inline int open_io_arch(Execute ptr, file_type *ret,
 	LocalRoot local;
 	LocalStack stack;
 	file_type file;
-	const char *utf8;
+	const byte *utf8;
 
 	result = 0;
 	local = ptr->local;
@@ -202,7 +202,7 @@ static inline int open_io_arch(Execute ptr, file_type *ret,
 		goto finish;
 	}
 
-	file = open_io_call(utf8, mode);
+	file = open_io_call((const char *)utf8, mode);
 	if (file < 0) {
 		result = 1;
 		goto finish;

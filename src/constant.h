@@ -182,7 +182,11 @@ enum CONSTANT_INDEX {
 	CONSTANT_SIZE
 };
 
+#ifdef __cplusplus
+typedef int constindex;
+#else
 typedef enum CONSTANT_INDEX constindex;
+#endif
 
 #define RetConstant(i)		RetArrayA4(Root(LISPINDEX_CONST),(i))
 #define GetConstant(i,v)	GetArrayA4(Root(LISPINDEX_CONST),(i),(v))
@@ -193,13 +197,13 @@ typedef enum CONSTANT_INDEX constindex;
 
 _g void build_constant(void);
 _g void intern_symbol_header(void);
-_g void specialconstant(enum CONSTANT_INDEX index, const char *package, const char *name);
-_g void gensymconstant(enum CONSTANT_INDEX index, const char *name);
-_g void keywordconstant(enum CONSTANT_INDEX index, const char *name);
-_g void commonconstant(enum CONSTANT_INDEX index, const char *name);
+_g void specialconstant(constindex index, const char *package, const char *name);
+_g void gensymconstant(constindex index, const char *name);
+_g void keywordconstant(constindex index, const char *name);
+_g void commonconstant(constindex index, const char *name);
 
-_g void symbolchar_common(enum CONSTANT_INDEX index, const char *name);
-_g void symbolchar_keyword(enum CONSTANT_INDEX index, const char *name);
+_g void symbolchar_common(constindex index, const char *name);
+_g void symbolchar_keyword(constindex index, const char *name);
 _g void quotelist_heap(addr *ret, addr name);
 _g void pushconst_heap(addr *ret, constindex index);
 #define PushConst(a,b) pushconst_heap((a),CONSTANT_##b)

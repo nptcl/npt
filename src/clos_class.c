@@ -926,12 +926,12 @@ static void clos_stdclass_prototype_initialize(addr pos, addr slots)
 
 static void clos_stdclass_prototype(addr clos)
 {
-	addr pos, slots, new;
+	addr pos, slots, value;
 
 	/* make prototype */
 	stdget_class_slots(clos, &slots);
-	slot_vector_prototype(clos, slots, &new);
-	clos_heap(&pos, new);
+	slot_vector_prototype(clos, slots, &value);
+	clos_heap(&pos, value);
 	SetClassOfClos(pos, clos);
 	/* initialize shared slots */
 	clos_stdclass_prototype_initialize(pos, slots);

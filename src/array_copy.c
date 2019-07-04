@@ -12,10 +12,10 @@ static void array_struct_copy(addr pos, addr array)
 	addr temp;
 
 	/* array */
-	GetArrayInfo(array, ARRAY_INFO_TYPE, &temp);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, temp);
-	GetArrayInfo(array, ARRAY_INFO_DISPLACED, &temp);
-	SetArrayInfo(pos, ARRAY_INFO_DISPLACED, temp);
+	GetArrayInfo(array, ARRAY_INDEX_TYPE, &temp);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, temp);
+	GetArrayInfo(array, ARRAY_INDEX_DISPLACED, &temp);
+	SetArrayInfo(pos, ARRAY_INDEX_DISPLACED, temp);
 
 	/* body */
 	str1 = ArrayInfoStruct(pos);
@@ -28,12 +28,12 @@ _g void array_size_copy(LocalRoot local, addr pos, addr array)
 	addr temp;
 	size_t size;
 
-	GetArrayInfo(array, ARRAY_INFO_DIMENSION, &temp);
+	GetArrayInfo(array, ARRAY_INDEX_DIMENSION, &temp);
 	if (temp != Nil) {
 		size = ArrayInfoStruct(array)->dimension;
 		arraysize_copy_alloc(local, &temp, temp, size);
 	}
-	SetArrayInfo(pos, ARRAY_INFO_DIMENSION, temp);
+	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, temp);
 }
 
 static void copy_array_general(LocalRoot local, addr *ret, addr pos, size_t size)
@@ -66,7 +66,7 @@ static void array_memory_copy(LocalRoot local, addr pos, addr array)
 	addr mem;
 	struct array_struct *str;
 
-	GetArrayInfo(array, ARRAY_INFO_MEMORY, &mem);
+	GetArrayInfo(array, ARRAY_INDEX_MEMORY, &mem);
 	switch (GetType(mem)) {
 		case LISPTYPE_BITVECTOR:
 			bitmemory_copy_alloc(local, &mem, mem);
@@ -85,7 +85,7 @@ static void array_memory_copy(LocalRoot local, addr pos, addr array)
 		default:
 			break;
 	}
-	SetArrayInfo(pos, ARRAY_INFO_MEMORY, mem);
+	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, mem);
 }
 
 _g void array_copy_alloc(LocalRoot local, addr *ret, addr array)

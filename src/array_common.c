@@ -27,8 +27,8 @@ static void array_bitcalc_struct(addr pos, addr src)
 	str1->dimension = str2->dimension;
 	str1->offset = 0;
 	str1->refer = str2->front;
-	GetArrayInfo(src, ARRAY_INFO_TYPE, &type);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, type);
+	GetArrayInfo(src, ARRAY_INDEX_TYPE, &type);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, type);
 }
 
 static void array_bitcalc_size(addr pos, addr src)
@@ -46,7 +46,7 @@ static void array_bitcalc_size(addr pos, addr src)
 		data1 = arraysize_ptr(temp);
 		for (i = 0; i < size; i++)
 			data1[i] = data2[i];
-		SetArrayInfo(pos, ARRAY_INFO_DIMENSION, temp);
+		SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, temp);
 	}
 }
 
@@ -95,13 +95,13 @@ static int array_bitvector_size_equal(addr pos1, addr pos2)
 	if (check1) {
 		if (ArrayInfoStruct(pos1)->dimension != 1)
 			return 0;
-		GetArrayInfo(pos1, ARRAY_INFO_MEMORY, &pos1);
+		GetArrayInfo(pos1, ARRAY_INDEX_MEMORY, &pos1);
 		return bitmemory_equal_length(pos1, pos2);
 	}
 	if (check2) {
 		if (ArrayInfoStruct(pos2)->dimension != 1)
 			return 0;
-		GetArrayInfo(pos2, ARRAY_INFO_MEMORY, &pos2);
+		GetArrayInfo(pos2, ARRAY_INDEX_MEMORY, &pos2);
 		return bitmemory_equal_length(pos1, pos2);
 	}
 	else {
@@ -119,18 +119,18 @@ static void array_bitcalc_aa(addr *ret,
 	if (opt == Nil) {
 		array_bitcalc_make(pos1, &opt);
 		*ret = opt;
-		GetArrayInfo(opt, ARRAY_INFO_MEMORY, &opt);
+		GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	else if (opt == T) {
 		*ret = opt = pos1;
-		GetArrayInfo(opt, ARRAY_INFO_MEMORY, &opt);
+		GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	else {
 		if (! array_bitvector_size_equal(pos1, opt))
 			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
-			GetArrayInfo(opt, ARRAY_INFO_MEMORY, &opt);
+			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos1);
 	if (str->type != ARRAY_TYPE_BIT)
@@ -140,8 +140,8 @@ static void array_bitcalc_aa(addr *ret,
 		fmte("Array ~S must be a bit type.", pos2, NULL);
 	if (! bitvectorp(*ret))
 		fmte("Array ~S must be a bit type.", *ret, NULL);
-	GetArrayInfo(pos1, ARRAY_INFO_MEMORY, &pos1);
-	GetArrayInfo(pos2, ARRAY_INFO_MEMORY, &pos2);
+	GetArrayInfo(pos1, ARRAY_INDEX_MEMORY, &pos1);
+	GetArrayInfo(pos2, ARRAY_INDEX_MEMORY, &pos2);
 	bitmemory_bitcalc(opt, pos1, pos2, call);
 }
 
@@ -160,21 +160,21 @@ static void array_bitcalc_ab(addr *ret,
 	}
 	else if (opt == T) {
 		*ret = pos1;
-		GetArrayInfo(pos1, ARRAY_INFO_MEMORY, &opt);
+		GetArrayInfo(pos1, ARRAY_INDEX_MEMORY, &opt);
 	}
 	else {
 		if (! array_bitvector_size_equal(pos1, opt))
 			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
-			GetArrayInfo(opt, ARRAY_INFO_MEMORY, &opt);
+			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos1);
 	if (str->type != ARRAY_TYPE_BIT)
 		fmte("Array ~S must be a bit type.", pos1, NULL);
 	if (! bitvectorp(*ret))
 		fmte("Array ~S must be a bit type.", *ret, NULL);
-	GetArrayInfo(pos1, ARRAY_INFO_MEMORY, &pos1);
+	GetArrayInfo(pos1, ARRAY_INDEX_MEMORY, &pos1);
 	bitmemory_bitcalc(opt, pos1, pos2, call);
 }
 
@@ -199,14 +199,14 @@ static void array_bitcalc_ba(addr *ret,
 			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
-			GetArrayInfo(opt, ARRAY_INFO_MEMORY, &opt);
+			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos2);
 	if (str->type != ARRAY_TYPE_BIT)
 		fmte("Array ~S must be a bit type.", pos2, NULL);
 	if (! bitvectorp(*ret))
 		fmte("Array ~S must be a bit type.", *ret, NULL);
-	GetArrayInfo(pos2, ARRAY_INFO_MEMORY, &pos2);
+	GetArrayInfo(pos2, ARRAY_INDEX_MEMORY, &pos2);
 	bitmemory_bitcalc(opt, pos1, pos2, call);
 }
 
@@ -230,7 +230,7 @@ static void array_bitcalc_bb(addr *ret,
 			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
-			GetArrayInfo(opt, ARRAY_INFO_MEMORY, &opt);
+			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	if (! bitvectorp(*ret))
 		fmte("Array ~S must be a bit type.", *ret, NULL);
@@ -268,25 +268,25 @@ _g void array_bitnot_array(addr *ret, addr pos, addr opt)
 	if (opt == Nil) {
 		array_bitcalc_make(pos, &opt);
 		*ret = opt;
-		GetArrayInfo(opt, ARRAY_INFO_MEMORY, &opt);
+		GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	else if (opt == T) {
 		*ret = opt = pos;
-		GetArrayInfo(opt, ARRAY_INFO_MEMORY, &opt);
+		GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	else {
 		if (! array_bitvector_size_equal(pos, opt))
 			fmte("Length don't match ~S and optional ~S", pos, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
-			GetArrayInfo(opt, ARRAY_INFO_MEMORY, &opt);
+			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos);
 	if (str->type != ARRAY_TYPE_BIT)
 		fmte("Array ~S must be a bit type.", pos, NULL);
 	if (! bitvectorp(*ret))
 		fmte("Array ~S must be a bit type.", *ret, NULL);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	bitmemory_bitnot(opt, pos);
 }
 
@@ -307,7 +307,7 @@ _g void array_bitnot_bitmemory(addr *ret, addr pos, addr opt)
 			fmte("Length don't match ~S and optional ~S", pos, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
-			GetArrayInfo(opt, ARRAY_INFO_MEMORY, &opt);
+			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	if (! bitvectorp(*ret))
 		fmte("Array ~S must be a bit type.", *ret, NULL);
@@ -385,8 +385,8 @@ static void array_subseq_specialized(addr *ret,
 	array_subseq_specialized_make(&pos, array, diff);
 
 	/* subseq */
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &mem1);
-	GetArrayInfo(array, ARRAY_INFO_MEMORY, &mem2);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem1);
+	GetArrayInfo(array, ARRAY_INDEX_MEMORY, &mem2);
 	data1 = (byte *)arrayspec_ptr(mem1);
 	data2 = (const byte *)arrayspec_ptr(mem2);
 	element = ArrayInfoStruct(pos)->element;
@@ -401,12 +401,12 @@ static void array_subseq_type(addr *ret, addr pos, size_t index1, size_t index2)
 	str = ArrayInfoStruct(pos);
 	switch (str->type) {
 		case ARRAY_TYPE_BIT:
-			GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+			GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 			bitmemory_subseq_index(ret, pos, index1, index2);
 			break;
 
 		case ARRAY_TYPE_CHARACTER:
-			GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+			GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 			strvect_subseq_index(ret, pos, index1, index2);
 			break;
 

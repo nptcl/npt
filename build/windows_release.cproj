@@ -321,6 +321,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\type.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\unicode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\user.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\variable.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\alloc.h" />

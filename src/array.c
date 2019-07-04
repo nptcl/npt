@@ -122,7 +122,7 @@ _g void arrayspec_heap(addr *ret, size_t size)
 _g void arrayinfo_alloc(LocalRoot local, addr *ret)
 {
 	arrayinfo_alloc_Low(local, ret, LISPTYPE_ARRAY,
-			ARRAY_INFO_SIZE, sizeoft(struct array_struct));
+			ARRAY_INDEX_SIZE, sizeoft(struct array_struct));
 }
 _g void arrayinfo_local(LocalRoot local, addr *ret)
 {
@@ -210,7 +210,7 @@ _g void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
 	/* dimension */
 	if (2 <= index) {
 		arraysize_alloc(local, &temp, index);
-		SetArrayInfo(pos, ARRAY_INFO_DIMENSION, temp);
+		SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, temp);
 	}
 	str->dimension = index;
 	str->size = str->front = str->refer = size;
@@ -218,7 +218,7 @@ _g void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
 	/* type */
 	str->type = ARRAY_TYPE_T;
 	GetTypeTable(&temp, T);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, temp);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, temp);
 
 	/* result */
 	*ret = pos;
@@ -252,7 +252,7 @@ static void array_va_stdarg(LocalRoot local, addr *ret, va_list args)
 	/* make */
 	array_alloc(local, &pos, index, allcount);
 	if (2 <= index) {
-		GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &dimension);
+		GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &dimension);
 		data = arraysize_ptr(dimension);
 		for (i = 0; i < index; i++)
 			data[i] = (size_t)va_arg(args, unsigned);
@@ -369,7 +369,7 @@ _g const size_t *array_ptrsize(addr pos)
 			return (const size_t *)&(str->size);
 
 		default:
-			GetArrayInfo(pos, ARRAY_INFO_DIMENSION, &pos);
+			GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &pos);
 			return arraysize_ptr(pos);
 	}
 }
@@ -389,7 +389,7 @@ _g void *array_ptrwrite(addr pos, size_t index)
 		fmte("The object is not specialized array.", NULL);
 	if (size <= index)
 		fmte("Index is too large.", NULL);
-	GetArrayInfo(pos, ARRAY_INFO_MEMORY, &pos);
+	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 
 	return (void *)(arrayspec_ptr(pos) + (index * str->element));
 }

@@ -187,7 +187,7 @@ static void array_adjust_replace(addr pos, addr array)
 	str2 = ArrayInfoStruct(pos);
 	*str1 = *str2;
 
-	for (i = 0; i < ARRAY_INFO_SIZE; i++) {
+	for (i = 0; i < ARRAY_INDEX_SIZE; i++) {
 		GetArrayInfo(pos, i, &temp);
 		SetArrayInfo(pos, i, temp);
 	}

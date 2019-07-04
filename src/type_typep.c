@@ -306,7 +306,7 @@ static int typep_vector_array(addr value, addr type, int *ret)
 	addr left, right;
 
 	GetArrayType(type, 0, &left);
-	GetArrayInfo(value, ARRAY_INFO_TYPE, &right);
+	GetArrayInfo(value, ARRAY_INDEX_TYPE, &right);
 	if ((! type_asterisk_p(left)) && (! upgraded_array0_equal(left, right))) {
 		*ret = 0;
 		return 0;
@@ -358,7 +358,7 @@ static int typep_type_vector_array(addr value, addr type, enum LISPDECL decl, in
 {
 	addr check;
 
-	GetArrayInfo(value, ARRAY_INFO_TYPE, &check);
+	GetArrayInfo(value, ARRAY_INDEX_TYPE, &check);
 	if ((! type_asterisk_p(check)) && (RefLispDecl(check) != decl)) {
 		*ret = 0;
 		return 0;
@@ -775,7 +775,7 @@ static int equal_array_dimension(addr value, addr right)
 	size_t i, size, *psize;
 
 	/* size check */
-	GetArrayInfo(value, ARRAY_INFO_DIMENSION, &left);
+	GetArrayInfo(value, ARRAY_INDEX_DIMENSION, &left);
 	size = ArrayInfoStruct(value)->dimension;
 	LenArrayA4(right, &i);
 	if (size != i) return 0;
@@ -835,7 +835,7 @@ static int typep_array_array(addr value, addr type)
 	addr left, right;
 
 	GetArrayType(type, 0, &left);
-	GetArrayInfo(value, ARRAY_INFO_TYPE, &right);
+	GetArrayInfo(value, ARRAY_INDEX_TYPE, &right);
 	if ((! type_asterisk_p(left)) && (! upgraded_array0_equal(left, right)))
 		return 0;
 	GetArrayType(type, 1, &type);

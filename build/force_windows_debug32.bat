@@ -28,10 +28,12 @@ if errorlevel 1 (
 
 REM *** Clean
 set build_proj=build\windows_degrade.cproj
-msbuild %build_proj% /t:clean
-if errorlevel 1 (
-	echo msbuild clean error
-	goto error
+if not "%1" == "no-clean" (
+	msbuild %build_proj% /t:clean
+	if errorlevel 1 (
+		echo msbuild clean error
+		goto error
+	)
 )
 
 

@@ -102,7 +102,7 @@ static inline int filename_encode(Execute ptr, addr name, LPCWSTR *ret)
 	return 0;
 }
 
-static inline int open_input_chartype(file_type *ret, const void *name)
+static inline int open_input_chartype(file_type *ret, LPCWSTR name)
 {
 	file_type file;
 
@@ -120,20 +120,20 @@ static inline int open_input_chartype(file_type *ret, const void *name)
 	return 0;
 }
 
-static inline int open_input_unicode(file_type *ret, const void *name, size_t size)
+static inline int open_input_unicode(file_type *ret, const unicode *name, size_t size)
 {
-	void *ptr;
+	byte16 *ptr;
 	size_t value;
 
 	ptr = NULL;
 	if (UTF32_length_utf16(name, size, &value))
 		goto error;
-	ptr = malloc(value);
+	ptr = (byte16 *)malloc(sizeoft(byte16) * value);
 	if (ptr == NULL)
 		goto error;
 	if (UTF32_make_utf16(ptr, name, value))
 		goto error;
-	if (open_input_chartype(ret, ptr))
+	if (open_input_chartype(ret, (LPCWSTR)ptr))
 		goto error;
 	free(ptr);
 	return 0;
@@ -168,7 +168,7 @@ finish:
 }
 
 static inline int open_output_chartype(file_type *ret,
-		const void *name, enum FileOutput mode)
+		LPCWSTR name, enum FileOutput mode)
 {
 	file_type file;
 
@@ -242,7 +242,7 @@ finish:
 }
 
 static inline int open_io_chartype(file_type *ret,
-		const void *name, enum FileOutput mode)
+		LPCWSTR name, enum FileOutput mode)
 {
 	file_type file;
 

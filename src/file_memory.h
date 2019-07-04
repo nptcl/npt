@@ -7,7 +7,7 @@
 #include "local.h"
 #include "typedef.h"
 
-_g int input_unicode_filememory(struct filememory *fm, const void *name, size_t size);
+_g int input_unicode_filememory(struct filememory *fm, const unicode *name, size_t size);
 _g void update_standard_input_filememory(struct filememory *fm);
 _g void update_standard_output_filememory(struct filememory *fm);
 _g void update_standard_error_filememory(struct filememory *fm);

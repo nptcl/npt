@@ -293,6 +293,7 @@ enum pointer_index {
 	p_defun_copy_structure,
 	/* common-condition */
 	p_defun_cell_error_name,
+	p_defmacro_assert,
 	p_defun_error,
 	p_defun_signal,
 	p_defun_simple_condition_format_control,
@@ -1023,6 +1024,8 @@ enum pointer_index {
 	/* size */
 	p_size
 };
+
+typedef enum pointer_index pointer;
 
 #endif
 

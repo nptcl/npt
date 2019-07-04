@@ -33,11 +33,6 @@ size_t *Degrade_execute_Size(void) { return &ExecuteSize; }
 size_t *Degrade_execute_Position(void) { return &ExecutePosition; }
 #endif
 
-/* thread local */
-_g threadlocal ThreadLocal_Execute;
-_g threadlocal ThreadLocal_Index;
-_g threadlocal ThreadLocal_Local;
-
 
 /*
  *  execute

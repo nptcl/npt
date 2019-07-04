@@ -16,7 +16,7 @@ enum symbol_package {
 };
 
 struct symbol_header {
-	enum CONSTANT_INDEX index;
+	constindex index;
 	enum symbol_package package;
 	const char *symbol;
 	size_t length;

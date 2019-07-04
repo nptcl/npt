@@ -139,7 +139,7 @@ static void files_push_directory_files(struct directory_struct *str,
 	if (wcscmp(name, L"..") == 0) return;
 	local = str->local;
 	push_local(local, &stack);
-	string16_null_local(local, &path, name);
+	string16_null_local(local, &path, (const byte16 *)name);
 	files_name_directory_files(str, base, path);
 	rollback_local(local, stack);
 }
@@ -205,7 +205,7 @@ static void wild_push_directory_files(struct directory_struct *str, const WCHAR 
 	local = str->local;
 	pos = str->pos;
 	push_local(local, &stack);
-	string16_null_local(local, &path, name);
+	string16_null_local(local, &path, (const byte16 *)name);
 	/* directory check */
 	if (wild_check_directory_files(str, path)) {
 		/* backup list */
@@ -275,7 +275,7 @@ static void inferiors_push_directory_files(struct directory_struct *str,
 	local = str->local;
 	pos = str->pos;
 	push_local(local, &stack);
-	string16_null_local(local, &path, name);
+	string16_null_local(local, &path, (const byte16 *)name);
 	/* directory check */
 	if (wild_check_directory_files(str, path)) {
 		/* backup list */
@@ -567,7 +567,7 @@ _g void file_author_files(Execute ptr, addr *ret, addr pos)
 	}
 
 	/* result */
-	string16_null_heap(ret, name);
+	string16_null_heap(ret, (const byte16 *)name);
 	return;
 
 finish_nil:

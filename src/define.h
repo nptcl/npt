@@ -1,6 +1,15 @@
 #ifndef __DEFINE_HEADER__
 #define __DEFINE_HEADER__
 
+#ifdef __cplusplus
+#ifdef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
+#endif
+
 #include <limits.h>
 #include <stdint.h>
 #include <float.h>

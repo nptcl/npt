@@ -122,7 +122,7 @@ _g void output_result_execute(void)
 /*
  *  taginfo
  */
-static int gettable_control(addr pos, enum CONSTANT_INDEX index, addr *ret)
+static int gettable_control(addr pos, constindex index, addr *ret)
 {
 	addr key;
 
@@ -132,7 +132,7 @@ static int gettable_control(addr pos, enum CONSTANT_INDEX index, addr *ret)
 	return getplist(pos, key, ret) == 0;
 }
 static void settable_control(LocalRoot local,
-		addr control, enum CONSTANT_INDEX index, addr value)
+		addr control, constindex index, addr value)
 {
 	addr key, table;
 
@@ -357,7 +357,7 @@ _g void pushsetf_control(Execute ptr, addr pos, addr value)
 	pushsetf_unsafe(ptr, pos, value);
 }
 
-static void pushtable_control(Execute ptr, enum CONSTANT_INDEX index, addr pos)
+static void pushtable_control(Execute ptr, constindex index, addr pos)
 {
 	addr control, key, table, cons;
 	LocalRoot local;

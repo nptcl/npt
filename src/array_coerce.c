@@ -28,12 +28,12 @@ static void array_coerce_type_struct(addr pos, addr array,
 	str1->dimension = str2->dimension;
 	str1->offset = 0;
 	str1->size = str1->front = str1->refer = str2->front; /* fill-pointer */
-	SetArrayInfo(pos, ARRAY_INFO_DISPLACED, Nil);
+	SetArrayInfo(pos, ARRAY_INDEX_DISPLACED, Nil);
 	/* type */
 	str1->type = type;
 	str1->bytesize = size;
 	upgraded_array_object(str1->type, str1->bytesize, &value);
-	SetArrayInfo(pos, ARRAY_INFO_TYPE, value);
+	SetArrayInfo(pos, ARRAY_INDEX_TYPE, value);
 	array_element_size(pos);
 }
 

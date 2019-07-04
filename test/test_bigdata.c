@@ -1683,11 +1683,13 @@ static int test_divhalf(void)
 
 static int test_getshiftvalue(void)
 {
-	bigtype a;
+	bigtype a, b;
 
 	a = 1;
 	test(getshiftvalue(&a) == BIGNUM_FULLBIT - 1, "getshiftvalue1");
-	test(a == (1LL << (BIGNUM_FULLBIT - 1)), "getshiftvalue2");
+	b = BIGNUM_FULLBIT - 1ULL;
+	b = 1ULL << b;
+	test(a == b, "getshiftvalue2");
 	a = 2;
 	test(getshiftvalue(&a) == BIGNUM_FULLBIT - 2, "getshiftvalue2");
 	a = 3;

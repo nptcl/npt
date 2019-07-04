@@ -5,8 +5,8 @@
 #include "cmpl_math.h"
 #include "define.h"
 
-#ifdef __clang__
-#define powl_define pow
+#if defined(__clang__)
+#define powl_define(x,y) pow((double)(x), (double)(y))
 #else
 #define powl_define powl
 #endif

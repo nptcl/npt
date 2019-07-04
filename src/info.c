@@ -1061,10 +1061,10 @@ static void infoprint_reserved(addr pos)
 
 static void infoprint_default(addr pos)
 {
-	int type;
+	enum LISPTYPE type;
 	const char *ptr;
 	
-	type = (int)info_gettype(pos);
+	type = info_gettype(pos);
 	ptr = infochar_lisp(type);
 	info_stdarg("#<OBJECT %s %d[0x%X]>", ptr, type, type);
 }

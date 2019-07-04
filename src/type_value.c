@@ -88,7 +88,7 @@ static void type_value_array_nil(addr *ret, addr value)
 	struct array_struct *str;
 	addr type, pos;
 
-	GetArrayInfo(value, ARRAY_INFO_TYPE, &type);
+	GetArrayInfo(value, ARRAY_INDEX_TYPE, &type);
 	str = ArrayInfoStruct(value);
 	decl = str->simple? LISPDECL_SIMPLE_ARRAY: LISPDECL_ARRAY;
 	fixnum_heap(&pos, 0);
@@ -101,8 +101,8 @@ static void type_value_array_single(addr *ret, addr value)
 	struct array_struct *str;
 	addr type, pos, array;
 
-	GetArrayInfo(value, ARRAY_INFO_TYPE, &type);
-	GetArrayInfo(value, ARRAY_INFO_DIMENSION, &pos);
+	GetArrayInfo(value, ARRAY_INDEX_TYPE, &type);
+	GetArrayInfo(value, ARRAY_INDEX_DIMENSION, &pos);
 	str = ArrayInfoStruct(value);
 	decl = str->simple? LISPDECL_SIMPLE_ARRAY: LISPDECL_ARRAY;
 	make_index_integer_heap(&pos, str->size);
@@ -118,8 +118,8 @@ static void type_value_array_multiple(addr *ret, addr value)
 	addr type, pos, array;
 	size_t *psize, size, i;
 
-	GetArrayInfo(value, ARRAY_INFO_TYPE, &type);
-	GetArrayInfo(value, ARRAY_INFO_DIMENSION, &pos);
+	GetArrayInfo(value, ARRAY_INDEX_TYPE, &type);
+	GetArrayInfo(value, ARRAY_INDEX_DIMENSION, &pos);
 	str = ArrayInfoStruct(value);
 	decl = str->simple? LISPDECL_SIMPLE_ARRAY: LISPDECL_ARRAY;
 	size = str->dimension;

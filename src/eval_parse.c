@@ -1834,7 +1834,7 @@ static int parse_backquote(addr *ret, addr pos)
 }
 
 /* parse_cons */
-static int check_constant(addr call, enum CONSTANT_INDEX index)
+static int check_constant(addr call, constindex index)
 {
 	addr check;
 	GetConstant(index, &check);

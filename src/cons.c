@@ -1281,14 +1281,14 @@ _g int remplist_heap(addr plist, addr key, addr *ret)
 
 
 /* 0:find-value, 1:not-found(Nil) */
-_g int getplist_constant(addr plist, enum CONSTANT_INDEX index, addr *ret)
+_g int getplist_constant(addr plist, constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	Check(key == Unbound, "unbound error");
 	return getplist(plist, key, ret);
 }
-_g int getplist_constant_safe(addr plist, enum CONSTANT_INDEX index, addr *ret)
+_g int getplist_constant_safe(addr plist, constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
@@ -1298,68 +1298,68 @@ _g int getplist_constant_safe(addr plist, enum CONSTANT_INDEX index, addr *ret)
 
 /* 0:find-and-set, 1:make-new-cons */
 _g int setplist_constant_alloc(LocalRoot local, addr plist,
-		enum CONSTANT_INDEX index, addr value, addr *ret)
+		constindex index, addr value, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return setplist_alloc(local, plist, key, value, ret);
 }
 _g int setplist_constant_local(LocalRoot local, addr plist,
-		enum CONSTANT_INDEX index, addr value, addr *ret)
+		constindex index, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return setplist_constant_alloc(local, plist, index, value, ret);
 }
 _g int setplist_constant_heap(addr plist,
-		enum CONSTANT_INDEX index, addr value, addr *ret)
+		constindex index, addr value, addr *ret)
 {
 	return setplist_constant_alloc(NULL, plist, index, value, ret);
 }
 _g int pushplist_constant_alloc(LocalRoot local, addr plist,
-		enum CONSTANT_INDEX index, addr value, addr *ret)
+		constindex index, addr value, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return pushplist_alloc(local, plist, key, value, ret);
 }
 _g int pushplist_constant_local(LocalRoot local, addr plist,
-		enum CONSTANT_INDEX index, addr value, addr *ret)
+		constindex index, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushplist_constant_alloc(local, plist, index, value, ret);
 }
 _g int pushplist_constant_heap(addr plist,
-		enum CONSTANT_INDEX index, addr value, addr *ret)
+		constindex index, addr value, addr *ret)
 {
 	return pushplist_constant_alloc(NULL, plist, index, value, ret);
 }
 _g int pushnewplist_constant_alloc(LocalRoot local, addr plist,
-		enum CONSTANT_INDEX index, addr value, addr *ret)
+		constindex index, addr value, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return pushnewplist_alloc(local, plist, key, value, ret);
 }
 _g int pushnewplist_constant_local(LocalRoot local, addr plist,
-		enum CONSTANT_INDEX index, addr value, addr *ret)
+		constindex index, addr value, addr *ret)
 {
 	Check(local == NULL, "local error");
 	return pushnewplist_constant_alloc(local, plist, index, value, ret);
 }
 _g int pushnewplist_constant_heap(addr plist,
-		enum CONSTANT_INDEX index, addr value, addr *ret)
+		constindex index, addr value, addr *ret)
 {
 	return pushnewplist_constant_alloc(NULL, plist, index, value, ret);
 }
 
 _g enum RemPlist remplist_check_constant(addr plist,
-		enum CONSTANT_INDEX index, addr *ret)
+		constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);
 	return remplist_check(plist, key, ret);
 }
-_g int remplist_constant(addr plist, enum CONSTANT_INDEX index, addr *ret)
+_g int remplist_constant(addr plist, constindex index, addr *ret)
 {
 	addr key;
 	GetConstant(index, &key);

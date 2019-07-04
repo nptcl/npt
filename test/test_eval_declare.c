@@ -53,8 +53,7 @@ static int get_ftype_declare(addr pos, addr callname, addr *ret)
 }
 
 static int eq_constant_declare(addr pos, addr symbol,
-		enum CONSTANT_INDEX constant,
-		enum EVAL_DECLARE declare)
+		constindex constant, enum EVAL_DECLARE declare)
 {
 	Check(! eval_declare_p(pos), "type error");
 	CheckType(symbol, LISPTYPE_SYMBOL);
@@ -66,8 +65,7 @@ static int eq_constant_declare(addr pos, addr symbol,
 }
 
 static int eq_callname_declare(addr pos, addr callname,
-		enum CONSTANT_INDEX constant,
-		enum EVAL_DECLARE declare)
+		constindex constant, enum EVAL_DECLARE declare)
 {
 	addr value;
 

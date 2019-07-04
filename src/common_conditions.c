@@ -44,6 +44,27 @@ static void defun_cell_error_name(void)
 }
 
 
+/* (defmacro assert (form &optional (place*) format &rest args) ...) -> nil */
+static void function_assert(Execute ptr, addr var, addr env)
+{
+	/* TODO */
+	setresult_control(ptr, Nil);
+}
+
+static void defmacro_assert(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_ASSERT, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_assert);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
 /* (defun error (datum &rest args) ...) -> nil
  *   datum  (or string symbol condition)
  *   args   (&rest t)
@@ -1175,6 +1196,7 @@ static void defun_use_value(void)
 _g void init_common_conditions(void)
 {
 	SetPointerCall(defun, var1, cell_error_name);
+	SetPointerCall(defmacro, macro, assert);
 	SetPointerCall(defun, var1rest, error);
 	SetPointerCall(defun, var1rest, signal);
 	SetPointerCall(defun, var1, simple_condition_format_control);
@@ -1202,7 +1224,7 @@ _g void init_common_conditions(void)
 _g void build_common_conditions(void)
 {
 	defun_cell_error_name();
-	/* defmacro_assert(); */
+	defmacro_assert();
 	defun_error();
 	/* defun_cerror(); */
 	/* defmacro_check_type(); */

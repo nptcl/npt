@@ -223,13 +223,13 @@ _g void setplist_symbol(addr symbol, addr value)
 	SetSymbol(symbol, SYMBOL_INDEX_PLIST, value);
 }
 
-static void getinfo_constant(addr symbol, enum CONSTANT_INDEX index, addr *ret)
+static void getinfo_constant(addr symbol, constindex index, addr *ret)
 {
 	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
 	*ret = getplist_constant(symbol, index, &symbol)? Nil: symbol;
 }
-static void setinfo_constant(addr symbol, enum CONSTANT_INDEX index, addr value)
+static void setinfo_constant(addr symbol, constindex index, addr value)
 {
 	addr plist;
 
@@ -239,7 +239,7 @@ static void setinfo_constant(addr symbol, enum CONSTANT_INDEX index, addr value)
 	if (setplist_constant_heap(plist, index, value, &plist))
 		SetInfoSymbol_Low(symbol, plist);
 }
-static void reminfo_constant(addr symbol, enum CONSTANT_INDEX index)
+static void reminfo_constant(addr symbol, constindex index)
 {
 	addr plist;
 
@@ -536,7 +536,7 @@ _g void remdeftype_symbol(addr symbol)
 	reminfo_constant(symbol, CONSTANT_SYSTEM_DEFTYPE);
 }
 
-static void setinfo_force(addr symbol, enum CONSTANT_INDEX index, addr value)
+static void setinfo_force(addr symbol, constindex index, addr value)
 {
 	addr plist;
 

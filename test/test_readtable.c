@@ -279,7 +279,7 @@ static int test_array_readtype(void)
 
 	vector2_heap(&pos, 0x80);
 	array_readtype(pos, ReadTable_Type_constituent, 'a');
-	GetArrayA2(pos, 'a', &pos);
+	GetArrayA2(pos, (size_t)'a', &pos);
 	test(GetType(pos) == LISPSYSTEM_READTYPE, "array_readtype1");
 	str = ReadTypeStruct(pos);
 	test(str->type == ReadTable_Type_constituent, "array_readtype2");
@@ -296,7 +296,7 @@ static int test_macro_readtype(void)
 
 	vector2_heap(&pos, 0x80);
 	TermReadType(pos, '"', DOUBLE_QUOTE);
-	GetArrayA2(pos, '"', &pos);
+	GetArrayA2(pos, (size_t)'"', &pos);
 	test(GetType(pos) == LISPSYSTEM_READTYPE, "macro_readtype1");
 	str = ReadTypeStruct(pos);
 	test(str->type == ReadTable_Type_macro_term, "macro_readtype2");
@@ -310,7 +310,7 @@ static int test_macro_readtype(void)
 
 	vector2_heap(&pos, 0x80);
 	DispatchReadType(pos, '#', SHARP);
-	GetArrayA2(pos, '#', &pos);
+	GetArrayA2(pos, (size_t)'#', &pos);
 	test(GetType(pos) == LISPSYSTEM_READTYPE, "macro_readtype7");
 	str = ReadTypeStruct(pos);
 	test(str->type == ReadTable_Type_macro_nonterm, "macro_readtype8");
@@ -332,22 +332,22 @@ static int test_default_array_readtype(void)
 
 	vector2_heap(&pos, 0x80);
 	default_array_readtype(pos);
-	GetArrayA2(pos, ' ', &check);
+	GetArrayA2(pos, (size_t)' ', &check);
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_whitespace, "default_array_readtype1");
-	GetArrayA2(pos, 'a', &check);
+	GetArrayA2(pos, (size_t)'a', &check);
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_constituent, "default_array_readtype2");
-	GetArrayA2(pos, '\\', &check);
+	GetArrayA2(pos, (size_t)'\\', &check);
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_escape_single, "default_array_readtype3");
-	GetArrayA2(pos, '|', &check);
+	GetArrayA2(pos, (size_t)'|', &check);
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_escape_multiple, "default_array_readtype4");
-	GetArrayA2(pos, '"', &check);
+	GetArrayA2(pos, (size_t)'"', &check);
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_macro_term, "default_array_readtype5");
-	GetArrayA2(pos, '#', &check);
+	GetArrayA2(pos, (size_t)'#', &check);
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_macro_nonterm, "default_array_readtype6");
 
@@ -403,7 +403,7 @@ static int test_make_array_readtype(void)
 	test(GetType(pos) == LISPTYPE_VECTOR, "make_array_readtype1");
 	LenArrayA2(pos, &size);
 	test(size == 0x80, "make_array_readtype1");
-	GetArrayA2(pos, 'a', &check);
+	GetArrayA2(pos, (size_t)'a', &check);
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_constituent, "make_array_readtype3");
 
@@ -452,13 +452,13 @@ static int test_copy_array_readtable(void)
 	SetArrayA2(pos2, 1, T);
 	copy_array_readtable(pos1, pos2);
 
-	GetArrayA2(pos2, ' ', &check);
+	GetArrayA2(pos2, (size_t)' ', &check);
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_whitespace, "copy_array_readtable1");
-	GetArrayA2(pos2, 'a', &check);
+	GetArrayA2(pos2, (size_t)'a', &check);
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_constituent, "copy_array_readtable2");
-	GetArrayA2(pos1, 'a', &check2);
+	GetArrayA2(pos1, (size_t)'a', &check2);
 	test(check != check2, "copy_array_readtable3");
 	GetArrayA2(pos2, 1, &check);
 	test(check == Nil, "copy_array_readtable4");
@@ -594,13 +594,13 @@ static int test_copy_readtable(void)
 	GetArrayReadtable(pos1, &a);
 	GetArrayReadtable(pos2, &b);
 	make_readtype(&value, ReadTable_Type_constituent, 'a', 0);
-	SetArrayA2(a, 'a', value);
+	SetArrayA2(a, (size_t)'a', value);
 	make_readtype(&value, ReadTable_Type_constituent, 'b', 0);
-	SetArrayA2(a, 'b', value);
+	SetArrayA2(a, (size_t)'b', value);
 	make_readtype(&value, ReadTable_Type_whitespace, 'b', 0);
-	SetArrayA2(b, 'b', value);
+	SetArrayA2(b, (size_t)'b', value);
 	make_readtype(&value, ReadTable_Type_whitespace, 'c', 0);
-	SetArrayA2(b, 'c', value);
+	SetArrayA2(b, (size_t)'c', value);
 	/* table */
 	GetTableReadtable(pos1, &a);
 	GetTableReadtable(pos2, &b);
@@ -642,13 +642,13 @@ static int test_copy_readtable(void)
 	/* copy */
 	copy_readtable(pos1, pos2);
 	GetArrayReadtable(pos2, &a);
-	GetArrayA2(a, 'a', &b);
+	GetArrayA2(a, (size_t)'a', &b);
 	str = ReadTypeStruct(b);
 	test(str->type == ReadTable_Type_constituent, "copy_readtable1");
-	GetArrayA2(a, 'b', &b);
+	GetArrayA2(a, (size_t)'b', &b);
 	str = ReadTypeStruct(b);
 	test(str->type == ReadTable_Type_constituent, "copy_readtable2");
-	GetArrayA2(a, 'c', &b);
+	GetArrayA2(a, (size_t)'c', &b);
 	test(b == Nil, "copy_readtable3");
 
 	GetTableReadtable(pos2, &a);
@@ -695,9 +695,9 @@ static int test_copy_readtable_heap(void)
 	/* array */
 	GetArrayReadtable(pos1, &a);
 	make_readtype(&value, ReadTable_Type_constituent, 'a', 0);
-	SetArrayA2(a, 'a', value);
+	SetArrayA2(a, (size_t)'a', value);
 	make_readtype(&value, ReadTable_Type_constituent, 'b', 0);
-	SetArrayA2(a, 'b', value);
+	SetArrayA2(a, (size_t)'b', value);
 	/* table */
 	GetTableReadtable(pos1, &a);
 	make_readtype(&value, ReadTable_Type_constituent, 'd', 0);
@@ -721,13 +721,13 @@ static int test_copy_readtable_heap(void)
 	/* copy */
 	copy_readtable_heap(pos1, &pos2);
 	GetArrayReadtable(pos2, &a);
-	GetArrayA2(a, 'a', &b);
+	GetArrayA2(a, (size_t)'a', &b);
 	str = ReadTypeStruct(b);
 	test(str->type == ReadTable_Type_constituent, "copy_readtable_heap1");
-	GetArrayA2(a, 'b', &b);
+	GetArrayA2(a, (size_t)'b', &b);
 	str = ReadTypeStruct(b);
 	test(str->type == ReadTable_Type_constituent, "copy_readtable_heap2");
-	GetArrayA2(a, 'c', &b);
+	GetArrayA2(a, (size_t)'c', &b);
 	test(b == Nil, "copy_readtable_heap3");
 
 	GetTableReadtable(pos2, &a);
@@ -763,7 +763,7 @@ static int test_readtable_heap(void)
 	test(*PtrCaseReadtable(pos) == ReadTable_upcase, "readtable_heap1");
 
 	GetArrayReadtable(pos, &a);
-	GetArrayA2(a, 'a', &value);
+	GetArrayA2(a, (size_t)'a', &value);
 	str = ReadTypeStruct(value);
 	test(str->type == ReadTable_Type_constituent, "readtable_heap2");
 
@@ -786,7 +786,7 @@ static int test_readtable_heap(void)
 	copy_readtable(pos, check);
 
 	GetArrayReadtable(check, &a);
-	GetArrayA2(a, 'a', &value);
+	GetArrayA2(a, (size_t)'a', &value);
 	str = ReadTypeStruct(value);
 	test(str->type == ReadTable_Type_constituent, "readtable_heap5");
 
@@ -802,7 +802,7 @@ static int test_readtable_heap(void)
 	copy_readtable_heap(pos, &check);
 
 	GetArrayReadtable(check, &a);
-	GetArrayA2(a, 'a', &value);
+	GetArrayA2(a, (size_t)'a', &value);
 	str = ReadTypeStruct(value);
 	test(str->type == ReadTable_Type_constituent, "readtable_heap8");
 
@@ -824,7 +824,7 @@ static int test_setreadtype_readtable(void)
 	readtable_heap(&pos);
 	setreadtype_readtable(pos, 'z', T);
 	GetArrayReadtable(pos, &check);
-	GetArrayA2(check, 'z', &check);
+	GetArrayA2(check, (size_t)'z', &check);
 	test(check == T, "setreadtype_readtable1");
 
 	setreadtype_readtable(pos, 10000, T);
@@ -846,14 +846,14 @@ static int test_make_dispatch_macro_character(void)
 	character_heap(&check, '%');
 	make_dispatch_macro_character(pos, check, 1);
 	GetArrayReadtable(pos, &pos);
-	GetArrayA2(pos, '$', &check);
+	GetArrayA2(pos, (size_t)'$', &check);
 	test(GetType(check) == LISPSYSTEM_READTYPE, "make_dispatch_macro_character1");
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_macro_term, "make_dispatch_macro_character2");
 	GetReadType(check, &check);
 	test(check != Nil, "make_dispatch_macro_character3");
 
-	GetArrayA2(pos, '%', &check);
+	GetArrayA2(pos, (size_t)'%', &check);
 	test(GetType(check) == LISPSYSTEM_READTYPE, "make_dispatch_macro_character4");
 	str = ReadTypeStruct(check);
 	test(str->type == ReadTable_Type_macro_nonterm, "make_dispatch_macro_character5");
