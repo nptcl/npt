@@ -1299,7 +1299,6 @@ lisp-system::restart-end
 lisp-system::push-return
 lisp-system::redirect-restart
 (lisp-system::*enable-debugger* :name enable-debugger :constant system)
-(lisp-system::*enable-interactive* :name enable-interactive :constant system)
 
 (lisp-system::*parse-environment* :name eval-parse-environment :constant system)
 (lisp-system::*scope* :name eval-scope :constant system)
@@ -1471,12 +1470,14 @@ lisp-code::lexical-set
 lisp-code::lexical-set-type
 lisp-code::lexical-push
 lisp-code::lexical-push-type
+lisp-code::lexical-remove
 
 lisp-code::special-type
 lisp-code::special-set
 lisp-code::special-set-type
 lisp-code::special-push
 lisp-code::special-push-type
+lisp-code::special-remove
 
 lisp-code::setq-lexical
 lisp-code::setq-lexical-type
@@ -1737,6 +1738,7 @@ lisp-system::exit
 lisp-system::quit
 lisp-system::end-input-stream
 lisp-system::make-extend-output-stream
+lisp-system::prompt-for
 lisp-system::closp
 lisp-system::fixnump
 lisp-system::bignump

@@ -16,6 +16,8 @@
 #include "memory.h"
 #include "object.h"
 #include "pathname.h"
+#include "print.h"
+#include "readtable.h"
 #include "sequence.h"
 #include "stream.h"
 #include "stream_broadcast.h"
@@ -28,6 +30,8 @@
 #include "stream_twoway.h"
 #include "strtype.h"
 #include "symbol.h"
+#include "type_parse.h"
+#include "type_typep.h"
 
 _g void *ptrbody_stream(addr stream)
 {
@@ -1787,11 +1791,49 @@ _g void write_sequence_common(LocalRoot local,
 	fmte("Invalid stream ~S.", stream, NULL);
 }
 
+_g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
+{
+	int result;
+	addr stream, spec, value;
+
+	/* output */
+	query_io_stream(ptr, &stream);
+	fresh_line_stream(stream);
+	if (princ_print(ptr, stream, prompt))
+		return 1;
+	finish_output_stream(stream);
+
+	/* query */
+	if (type != T) {
+		if (parse_type(ptr, &spec, type, Nil))
+			return 1;
+	}
+	for (;;) {
+		clear_input_stream(stream);
+		if (read_stream(ptr, stream, &result, &value))
+			return 1;
+		if (result)
+			fmte("Can't read from *query-io* stream.", NULL);
+		if (type == T)
+			break;
+		if (typep_clang(value, spec, &result))
+			return 1;
+		if (result)
+			break;
+
+		fmts(stream, "~%Please answer ~A type: ", type, NULL);
+		finish_output_stream(stream);
+	}
+	*ret = value;
+
+	return 0;
+}
+
 _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 {
 	int miss;
 	unicode c;
-	addr control, stream, pos, value;
+	addr control, stream, pos;
 	size_t size;
 
 	/* argument */
@@ -1814,11 +1856,10 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 	finish_output_stream(stream);
 
 	/* query */
-	make_gensym(ptr, &value);
 	for (;;) {
 		clear_input_stream(stream);
-		read_line_common(ptr, &pos, &miss, stream, 1, value, 0);
-		if (pos == value)
+		read_line_common(ptr, &pos, &miss, stream, 1, Unbound, 0);
+		if (pos == Unbound)
 			fmte("*query-io* don't read yes/or question.", NULL);
 		if (exactp) {
 			if (string_equalp_char(pos, "yes")) { *ret = 1; break; }

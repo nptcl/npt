@@ -27,7 +27,6 @@
 #define LispArgv_Noinit         "--noinit"
 #define LispArgv_Debugger       "--debugger"
 #define LispArgv_Nodebugger     "--nodebugger"
-#define LispArgv_Interactive    "--interactive"
 #define LispArgv_Quit           "--quit"
 #define LispArgv_Script         "--script"
 #define LispArgv_Load           "--load"
@@ -298,8 +297,7 @@ static void mainparse_mode(struct lispargv *ptr, enum LispMode mode)
 			ptr->nocore = 0;
 			ptr->noinit = 0;
 			ptr->debugger = 1;
-			ptr->interactive = 0;
-			ptr->interactive_p = 0;
+			ptr->debugger_p = 0;
 			ptr->quit = 0;
 			break;
 
@@ -308,8 +306,7 @@ static void mainparse_mode(struct lispargv *ptr, enum LispMode mode)
 			ptr->nocore = 0;
 			ptr->noinit = 0;
 			ptr->debugger = 1;
-			ptr->interactive = 0;
-			ptr->interactive_p = 0;
+			ptr->debugger_p = 0;
 			ptr->quit = 0;
 			break;
 
@@ -319,8 +316,7 @@ static void mainparse_mode(struct lispargv *ptr, enum LispMode mode)
 			ptr->nocore = 1;
 			ptr->noinit = 1;
 			ptr->debugger = 1;
-			ptr->interactive = 0;
-			ptr->interactive_p = 0;
+			ptr->debugger_p = 0;
 			ptr->quit = 0;
 			break;
 	}
@@ -413,15 +409,12 @@ static int mainparse_loop(struct lispargv *ptr)
 		}
 		if (LispArgv_equal(s, Debugger)) {
 			ptr->debugger = 1;
+			ptr->debugger_p = 1;
 			continue;
 		}
 		if (LispArgv_equal(s, Nodebugger)) {
 			ptr->debugger = 0;
-			continue;
-		}
-		if (LispArgv_equal(s, Interactive)) {
-			ptr->interactive = 1;
-			ptr->interactive = 1;
+			ptr->debugger_p = 1;
 			continue;
 		}
 		if (LispArgv_equal(s, Quit)) {
@@ -429,8 +422,8 @@ static int mainparse_loop(struct lispargv *ptr)
 			continue;
 		}
 		if (LispArgv_equal(s, Script)) {
-			if (ptr->interactive_p == 0)
-				ptr->interactive = ptr->interactive_p = 1;
+			if (ptr->debugger_p == 0)
+				ptr->debugger = 0;
 			ptr->quit = 1;
 			goto inputs;
 		}

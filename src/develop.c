@@ -14,7 +14,7 @@ int DegradeCount = 0;
 int DegradeError = 0;
 
 #define DEGRADE_WIDTH 60
-static int DegradeSwitch = 0;
+static int DegradeSwitch = 1;
 static int DegradePosition;
 
 int degrade_printf(const char *fmt, ...)

@@ -11,6 +11,7 @@
 #include "equal.h"
 #include "eval.h"
 #include "file.h"
+#include "format.h"
 #include "function.h"
 #include "gc.h"
 #include "hashtable.h"
@@ -1419,6 +1420,51 @@ static void defun_make_extend_output_stream(void)
 }
 
 
+/* (defun prompt-for (type &rest args) ...) -> t */
+static void syscall_prompt_for(Execute ptr, addr type, addr args)
+{
+	addr format;
+
+	if (args == Nil) {
+		strvect_char_heap(&format, "Input> ");
+	}
+	else {
+		getcons(args, &format, &args);
+		if (format_string_lisp(ptr, format, args, &format))
+			return;
+	}
+	if (prompt_for_stream(ptr, type, format, &format))
+		return;
+	setresult_control(ptr, format);
+}
+
+static void type_prompt_for(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, TypeSpec);
+	GetTypeTable(&values, T);
+	typeargs_var1rest(&args, args, values);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_prompt_for(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_PROMPT_FOR, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_syscall_prompt_for);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_prompt_for(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun closp (object) ...) -> boolean */
 static void syscall_closp(Execute ptr, addr var)
 {
@@ -1957,6 +2003,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, opt1, exit);
 	SetPointerSysCall(defun, var1, end_input_stream);
 	SetPointerSysCall(defun, var1dynamic, make_extend_output_stream);
+	SetPointerSysCall(defun, var1dynamic, prompt_for);
 	SetPointerSysCall(defun, var1, closp);
 	SetPointerSysCall(defun, var1, fixnump);
 	SetPointerSysCall(defun, var1, bignump);
@@ -2024,6 +2071,7 @@ _g void build_syscall(void)
 	/* streams */
 	defun_end_input_stream();
 	defun_make_extend_output_stream();
+	defun_prompt_for();
 	/* type */
 	defun_closp();
 	defun_fixnump();

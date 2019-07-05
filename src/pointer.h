@@ -79,6 +79,8 @@ __extern struct callbind_struct pointer_table[p_size];
 #define GetPointer_var1rest(p, x)     GetPointer(p, var1rest, x)
 #define SetPointer_var2rest(p, x)     SetPointer(p, var2rest, x)
 #define GetPointer_var2rest(p, x)     GetPointer(p, var2rest, x)
+#define SetPointer_opt1rest(p, x)     SetPointer(p, opt1rest, x)
+#define GetPointer_opt1rest(p, x)     GetPointer(p, opt1rest, x)
 #define SetPointer_var1dynamic(p, x)  SetPointer(p, var1dynamic, x)
 #define GetPointer_var1dynamic(p, x)  GetPointer(p, var1dynamic, x)
 #define SetPointer_var2dynamic(p, x)  SetPointer(p, var2dynamic, x)
@@ -87,6 +89,8 @@ __extern struct callbind_struct pointer_table[p_size];
 #define GetPointer_var3dynamic(p, x)  GetPointer(p, var3dynamic, x)
 #define SetPointer_var4dynamic(p, x)  SetPointer(p, var4dynamic, x)
 #define GetPointer_var4dynamic(p, x)  GetPointer(p, var4dynamic, x)
+#define SetPointer_opt1dynamic(p, x)  SetPointer(p, opt1dynamic, x)
+#define GetPointer_opt1dynamic(p, x)  GetPointer(p, opt1dynamic, x)
 
 _g void clear_pointer(void);
 

@@ -239,10 +239,12 @@ _g void setcompiled_var1opt2(addr pos, pointer p);
 _g void setcompiled_var2opt2(addr pos, pointer p);
 _g void setcompiled_var1rest(addr pos, pointer p);
 _g void setcompiled_var2rest(addr pos, pointer p);
+_g void setcompiled_opt1rest(addr pos, pointer p);
 _g void setcompiled_var1dynamic(addr pos, pointer p);
 _g void setcompiled_var2dynamic(addr pos, pointer p);
 _g void setcompiled_var3dynamic(addr pos, pointer p);
 _g void setcompiled_var4dynamic(addr pos, pointer p);
+_g void setcompiled_opt1dynamic(addr pos, pointer p);
 
 _g void function_heap_for_develop(addr *ret, addr name);
 

@@ -51,6 +51,7 @@ _g void typeargs_var1rest(addr *ret, addr v1, addr rest);
 _g void typeargs_var2rest(addr *ret, addr v1, addr v2, addr rest);
 _g void typeargs_var3rest(addr *ret, addr v1, addr v2, addr v3, addr rest);
 _g void typeargs_var4rest(addr *ret, addr v1, addr v2, addr v3, addr v4, addr rest);
+_g void typeargs_opt1rest(addr *ret, addr opt1, addr rest);
 _g void typeargs_rest(addr *ret, addr rest);
 _g void typeargs_key(addr *ret, addr key);
 _g void typeargs_method(addr type);

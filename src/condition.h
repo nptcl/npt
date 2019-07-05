@@ -54,10 +54,8 @@ _g void handler_savecore(Execute ptr);
 /*
  *  debugger
  */
-_g int invoke_debugger(addr condition);
+_g int invoke_debugger(Execute ptr, addr condition);
 _g void set_enable_debugger(int value);
-_g void set_enable_interactive(int value);
-//void invoke_restart(Execute ptr, addr restart, addr args);
 
 
 /*
@@ -66,6 +64,7 @@ _g void set_enable_interactive(int value);
 _g int conditionp(addr pos);
 _g int condition_instance_p(addr pos);
 _g int signal_function(addr condition);
+_g int error_common(Execute ptr, addr condition);
 _g void error_function(addr condition);
 _g void format_error(const char *str, ...);
 #define fmte format_error
@@ -78,7 +77,7 @@ _g void instance_serious_condition(addr *ret);
 _g void serious_condition(void);
 /* simple_condition */
 _g void instance_simple_condition(addr *ret, addr control, addr args);
-_g void simple_condition(addr control, addr args);
+_g int simple_condition(addr control, addr args);
 _g void simple_condition_format(addr condition, addr *control, addr *arguments);
 _g void simple_condition_format_control(addr condition, addr *ret);
 _g void simple_condition_format_arguments(addr condition, addr *ret);

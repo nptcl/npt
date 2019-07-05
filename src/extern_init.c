@@ -107,7 +107,6 @@ static const char *lisp_main_help_message[] = {
 	"  --noinit           Don't load a default init file.",
 	"  --debugger         Enable debugger.",
 	"  --nodebugger       Disable debugger.",
-	"  --interactive      Enable interactive mode.",
 	"  --quit             Exit after load and eval processing.",
 	"",
 	"INPUTS:",
@@ -476,20 +475,16 @@ static int lisp_argv_loadinit(Execute ptr, struct lispargv *argv, int *abort)
 	lispstringu file;
 
 	/* --noinit */
-	if (argv->noinit) {
+	if (argv->noinit)
 		return 0;  /* success */
-	}
 
 	/* --initfile */
 	file = argv->init;
-	if (file) {
-		lisp_argv_load(ptr, file, abort, 1);
-		return 0;
-	}
+	if (file)
+		return lisp_argv_load(ptr, file, abort, 1);
 
 	/* default initfile */
 	lisp_argv_load_default(ptr, argv, abort);
-
 	/* All init file is not found. */
 	return 0;
 }
@@ -534,15 +529,13 @@ static void lisp_argv_inputs(Execute ptr, struct lispargv *argv)
 	}
 }
 
-static void lisp_argv_interactive(Execute ptr, struct lispargv *argv)
+static void lisp_argv_debugger(Execute ptr, struct lispargv *argv)
 {
 	int v;
 
 	/* debugger */
-	set_enable_debugger(argv->debugger);
-	/* interactive */
-	v = argv->interactive_p? argv->interactive: consolep_file();
-	set_enable_interactive(v);
+	v = argv->debugger_p? argv->debugger: consolep_file();
+	set_enable_debugger(v);
 	/* eval-loop */
 	eval_main_loop(ptr);
 }
@@ -562,10 +555,10 @@ static void lisp_argv_execute(Execute ptr, struct lispargv *argv)
 	if (abort == 0)
 		lisp_argv_inputs(ptr, argv);
 
-	/* interactive mode */
+	/* debugger */
 	setindex_prompt(ptr, 0);
 	if (argv->quit == 0)
-		lisp_argv_interactive(ptr, argv);
+		lisp_argv_debugger(ptr, argv);
 }
 
 

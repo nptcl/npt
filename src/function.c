@@ -834,6 +834,13 @@ _g void setcompiled_var2rest(addr pos, pointer p)
 	StructFunction(pos)->index = p;
 }
 
+_g void setcompiled_opt1rest(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_opt1rest, "type error");
+	StructFunction(pos)->index = p;
+}
+
 _g void setcompiled_var1dynamic(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
@@ -859,6 +866,13 @@ _g void setcompiled_var4dynamic(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var4dynamic, "type error");
+	StructFunction(pos)->index = p;
+}
+
+_g void setcompiled_opt1dynamic(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_opt1dynamic, "type error");
 	StructFunction(pos)->index = p;
 }
 

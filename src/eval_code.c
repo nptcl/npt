@@ -856,6 +856,10 @@ static void code_symbol_remove(LocalRoot local, addr code, addr symbol, addr tab
 		gettype_tablevalue(table, &type);
 		pushlist_eval(local, code, first, symbol, type, NULL);
 	}
+	else {
+		GetConstantCode(specialp, SPECIAL_REMOVE, LEXICAL_REMOVE, &first);
+		pushleftright(local, code, first, symbol);
+	}
 }
 
 static void code_symbol(LocalRoot local, addr code, addr scope)

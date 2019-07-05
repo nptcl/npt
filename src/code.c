@@ -346,6 +346,11 @@ static void lexical_push_type_code(Execute ptr, addr right)
 	pushargs_control(ptr, right);
 }
 
+static void lexical_remove_code(Execute ptr, addr right)
+{
+	getlexicalcheck_local(ptr, right, &right);
+}
+
 static void special_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
@@ -383,6 +388,11 @@ static void special_push_type_code(Execute ptr, addr right)
 	List_bind(right, &symbol, &type, NULL);
 	getspecialcheck_local(ptr, symbol, &right);
 	pushargs_control(ptr, right);
+}
+
+static void special_remove_code(Execute ptr, addr right)
+{
+	getspecialcheck_local(ptr, right, &right);
 }
 
 
@@ -1201,11 +1211,13 @@ _g void init_code(void)
 	initcode(lexical_set_type);
 	initcode(lexical_push);
 	initcode(lexical_push_type);
+	initcode(lexical_remove);
 	initcode(special_type);
 	initcode(special_set);
 	initcode(special_push);
 	initcode(special_set_type);
 	initcode(special_push_type);
+	initcode(special_remove);
 
 	/* setq */
 	initcode(setq_lexical);
@@ -1340,11 +1352,13 @@ _g void build_code(void)
 	defcode(LEXICAL_SET_TYPE, lexical_set_type);
 	defcode(LEXICAL_PUSH, lexical_push);
 	defcode(LEXICAL_PUSH_TYPE, lexical_push_type);
+	defcode(LEXICAL_REMOVE, lexical_remove);
 	defcode(SPECIAL_TYPE, special_type);
 	defcode(SPECIAL_SET, special_set);
 	defcode(SPECIAL_PUSH, special_push);
 	defcode(SPECIAL_SET_TYPE, special_set_type);
 	defcode(SPECIAL_PUSH_TYPE, special_push_type);
+	defcode(SPECIAL_REMOVE, lexical_remove);
 
 	/* setq */
 	defcode(SETQ_LEXICAL, setq_lexical);

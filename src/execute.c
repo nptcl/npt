@@ -75,7 +75,7 @@ static struct execute *allocmembit(size_t index)
 	bit->index = index;
 	bit->property = 0;
 	bit->signal = ExecuteControl_Run;
-	bit->data = NULL;
+	bit->taginfo = NULL;
 	bit->result = 0;
 
 	return bit;
@@ -549,6 +549,11 @@ _g int codejump_error_p(codejump *code)
 	return code_error_p(code->code);
 }
 
+_g int codejump_control_p(codejump *code)
+{
+	return code_error_p(code->code) && (code->code != LISPCODE_CONTROL);
+}
+
 _g void exit_code(Execute ptr, lispcode code)
 {
 	longjmp(*(ptr->exec), code);
@@ -579,6 +584,11 @@ _g void throw_code_thread(lispcode code)
 _g void throw_switch(codejump *code)
 {
 	throw_code(code->ptr, code->code);
+}
+_g int equal_control_restart(Execute ptr, addr control)
+{
+	struct taginfo_struct *str = ptr->taginfo;
+	return str && str->control == control;
 }
 
 

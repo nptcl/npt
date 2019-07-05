@@ -433,12 +433,26 @@ static int findchar_stringu(lispstringu str, unicode v, size_t *ret)
 static int split_keyvalue_main(lispstringu str, lispstringu *key, lispstringu *value)
 {
 	lispstringu k, v;
-	size_t a, b;
+	size_t a, b, s;
 
+	s = str->size;
+	if (s == 0) {
+		k = make_stringu(1);
+		if (k == NULL)
+			return 1;
+		v = make_stringu(1);
+		if (v == NULL) {
+			free_stringu(k);
+			return 1;
+		}
+		a = b = 0;
+		goto result;
+	}
+	s--;
 	if (findchar_stringu(str, '=', &a))
-		b = str->size - a - 1UL;
+		b = s - a - 1UL;
 	else {
-		a = str->size - 1UL;
+		a = s - 1UL;
 		b = 0;
 	}
 	k = make_stringu(a + 1UL);
@@ -451,6 +465,8 @@ static int split_keyvalue_main(lispstringu str, lispstringu *key, lispstringu *v
 	}
 	memcpy(k->ptr, str->ptr, a * sizeoft(unicode));
 	memcpy(v->ptr, str->ptr+a+1, b * sizeoft(unicode));
+
+result:
 	k->ptr[a] = 0;
 	v->ptr[b] = 0;
 	*key = k;

@@ -199,12 +199,6 @@ enum TagInfo_Index {
 	TagInfo_Name,
 	TagInfo_Size
 };
-struct taginfo_struct {
-	unsigned open : 1;
-	unsigned thr : 1;
-	size_t point;
-	addr control;
-};
 #define PtrTagInfo(p)		PtrBodySSa((p), TagInfo_Size)
 #define StructTagInfo(p)	((struct taginfo_struct *)PtrTagInfo(p))
 #define GetNameTagInfo(p,v)	GetArraySS(p, TagInfo_Name, v)
@@ -222,6 +216,7 @@ static void taginfo_heap(addr *ret, addr control, addr tag, size_t point, int th
 		copylocal_object(NULL, &tag, tag);
 	SetNameTagInfo(pos, tag);
 	str->open = 1;
+	str->wake = 0;
 	str->thr = thr;
 	str->point = point;
 	str->control = control;
@@ -478,13 +473,13 @@ static void push_argument_control(Execute ptr, addr *ret)
 _g void runcode_push(Execute ptr, struct runcode_value *value)
 {
 	value->signal = ptr->signal;
-	value->data = ptr->data;
+	value->taginfo = ptr->taginfo;
 }
 
 _g void runcode_rollback(Execute ptr, const struct runcode_value *value)
 {
 	ptr->signal = value->signal;
-	ptr->data = value->data;
+	ptr->taginfo = value->taginfo;
 }
 
 _g int runcode_free_control(Execute ptr, addr control)
@@ -591,7 +586,7 @@ static int close_protect(Execute ptr, addr pos)
 	/* execute */
 	runcode_push(ptr, &value);
 	ptr->signal = ExecuteControl_Run;
-	ptr->data = NULL;
+	ptr->taginfo = NULL;
 	check = runcode_control(ptr, code);
 	if (! check) {
 		runcode_rollback(ptr, &value);
@@ -929,16 +924,16 @@ static int gethandler_control(addr pos, addr *ret)
 
 static void wake_call_handler(Execute ptr, addr control, addr call, addr pos, int escape)
 {
-	addr info;
+	addr tag;
 
 	if (funcall_control(ptr, call, pos, NULL)) {
 		exit_control(ptr);
 	}
 	if (escape) {
 		copy_values_control(ptr->control, control);
-		getcondition_control(control, &info);
+		getcondition_control(control, &tag);
 		ptr->signal = ExecuteControl_Throw;
-		ptr->data = (void *)StructTagInfo(info);
+		ptr->taginfo = StructTagInfo(tag);
 		exit_control(ptr);
 	}
 }
@@ -1011,7 +1006,7 @@ static void rollback_restart_control(addr control, addr restart, addr *ret)
 _g int invoke_restart_control(Execute ptr, addr restart, addr args)
 {
 	int escape;
-	addr call, info, control;
+	addr call, tag, control;
 
 	if (symbolp(restart)) {
 		if (! find_restart_control(ptr, restart, Nil, &call))
@@ -1029,9 +1024,9 @@ _g int invoke_restart_control(Execute ptr, addr restart, addr args)
 	if (escape) {
 		rollback_restart_control(ptr->control, restart, &control);
 		copy_values_control(ptr->control, control);
-		getrestart_control(control, &info);
+		getrestart_control(control, &tag);
 		ptr->signal = ExecuteControl_Throw;
-		ptr->data = (void *)StructTagInfo(info);
+		ptr->taginfo = StructTagInfo(tag);
 		exit_control(ptr);
 		return 1;
 	}
@@ -2088,6 +2083,22 @@ static void call_callbind_var2rest(Execute ptr, addr pos, callstr call)
 	(call->call.var2rest)(ptr, var1, var2, rest);
 }
 
+static void call_callbind_opt1rest(Execute ptr, addr pos, callstr call)
+{
+	addr cons, opt1, rest;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) {
+		opt1 = Unbound;
+		rest = Nil;
+	}
+	else {
+		getcar(cons, &opt1);
+		getargs_list_control_heap(ptr, 1, &rest);
+	}
+	(call->call.opt1rest)(ptr, opt1, rest);
+}
+
 static void call_callbind_var1dynamic(Execute ptr, addr pos, callstr call)
 {
 	addr check, cons, var1, rest;
@@ -2174,6 +2185,22 @@ static void call_callbind_var4dynamic(Execute ptr, addr pos, callstr call)
 	(call->call.var4dynamic)(ptr, var1, var2, var3, var4, rest);
 }
 
+static void call_callbind_opt1dynamic(Execute ptr, addr pos, callstr call)
+{
+	addr cons, opt1, rest;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) {
+		opt1 = Unbound;
+		rest = Nil;
+	}
+	else {
+		getcar(cons, &opt1);
+		getargs_list_control_unsafe(ptr, 1, &rest);
+	}
+	(call->call.opt1dynamic)(ptr, opt1, rest);
+}
+
 _g void init_control(void)
 {
 	int i;
@@ -2207,10 +2234,12 @@ _g void init_control(void)
 	CallBindTable[CallBind_var2opt2] = call_callbind_var2opt2;
 	CallBindTable[CallBind_var1rest] = call_callbind_var1rest;
 	CallBindTable[CallBind_var2rest] = call_callbind_var2rest;
+	CallBindTable[CallBind_opt1rest] = call_callbind_opt1rest;
 	CallBindTable[CallBind_var1dynamic] = call_callbind_var1dynamic;
 	CallBindTable[CallBind_var2dynamic] = call_callbind_var2dynamic;
 	CallBindTable[CallBind_var3dynamic] = call_callbind_var3dynamic;
 	CallBindTable[CallBind_var4dynamic] = call_callbind_var4dynamic;
+	CallBindTable[CallBind_opt1dynamic] = call_callbind_opt1dynamic;
 }
 
 static int call_compiled_function(Execute ptr, addr compiled)
@@ -2290,18 +2319,21 @@ static void runcode_update_point(Execute ptr)
 	struct taginfo_struct *str2;
 
 	str1 = StructControl(ptr->control);
-	str2 = (struct taginfo_struct *)ptr->data;
+	str2 = ptr->taginfo;
 	str1->point = str2->point;
 }
 
-static int runcode_normal_throw(Execute ptr)
+static int runcode_throw(Execute ptr, codejump *jump)
 {
 	struct taginfo_struct *str;
 
+	str = ptr->taginfo;
 	/* throw */
-	str = (struct taginfo_struct *)ptr->data;
-	if (str->control != ptr->control)
+	if (str->control != ptr->control) {
+		if (jump && str->wake)
+			throw_switch(jump);
 		return 0;
+	}
 
 	/* block */
 	if (str->thr) {
@@ -2315,7 +2347,7 @@ static int runcode_normal_throw(Execute ptr)
 	return 1;
 }
 
-static int runcode_normal_signal(Execute ptr)
+static int runcode_signal(Execute ptr, codejump *jump)
 {
 	switch (ptr->signal) {
 		case ExecuteControl_End:
@@ -2327,7 +2359,7 @@ static int runcode_normal_signal(Execute ptr)
 			return 1;
 
 		case ExecuteControl_Throw:
-			return runcode_normal_throw(ptr);
+			return runcode_throw(ptr, jump);
 
 		default:
 			Abort("signal error");
@@ -2363,7 +2395,7 @@ point:
 	}
 	if (ptr->state == ThreadState_Signal)
 		gcsync(ptr);
-	if (runcode_normal_signal(ptr))
+	if (runcode_signal(ptr, NULL))
 		goto point;
 
 	return ptr->signal != ExecuteControl_Run;
@@ -2406,13 +2438,15 @@ point:
 	if (codejump_run_p(&jump))
 		(void)runcode_normal(ptr, code);
 	end_switch(&jump);
+	if (codejump_control_p(&jump))
+		throw_switch(&jump);
 	if (ptr->state == ThreadState_Signal)
 		gcsync(ptr);
 	if (ptr->signal == ExecuteControl_Run)
 		return 0;
 	if (ptr->signal == ExecuteControl_Throw)
 		rollback_control(ptr, control);
-	if (runcode_normal_signal(ptr))
+	if (runcode_signal(ptr, &jump))
 		goto point;
 
 	return ptr->signal != ExecuteControl_Run;
@@ -2431,7 +2465,7 @@ static int runcode_tagbody(Execute ptr, addr code)
 
 	push_tagbody_control(ptr, &control);
 	push_taginfo(ptr->local, control, code);
-	return runcode_free(ptr, control, code, runcode_normal);
+	return runcode_free(ptr, control, code, runcode_switch);
 }
 
 static int runcode_block(Execute ptr, addr code)
@@ -2440,7 +2474,7 @@ static int runcode_block(Execute ptr, addr code)
 
 	push_block_control(ptr, &control);
 	push_blockinfo(ptr->local, control, code);
-	return runcode_free(ptr, control, code, runcode_normal);
+	return runcode_free(ptr, control, code, runcode_switch);
 }
 
 static int runcode_catch(Execute ptr, addr code)
@@ -2449,7 +2483,7 @@ static int runcode_catch(Execute ptr, addr code)
 
 	push_return_control(ptr, &control);
 	push_catchinfo(ptr->local, control, code);
-	return runcode_free(ptr, control, code, runcode_normal);
+	return runcode_free(ptr, control, code, runcode_switch);
 }
 
 static int runcode_condition(Execute ptr, addr code)
@@ -2462,13 +2496,21 @@ static int runcode_condition(Execute ptr, addr code)
 	return runcode_free(ptr, control, code, runcode_switch);
 }
 
-static int runcode_restart(Execute ptr, addr code)
+void push_restart_initialize_control(Execute ptr, addr *ret)
 {
 	addr control, pos;
 
 	push_restart_control(ptr, &control);
 	taginfo_heap(&pos, control, Unbound, 0, 1);
+	StructTagInfo(pos)->wake = 1;
 	setrestart_control(ptr->local, control, pos);
+	*ret = control;
+}
+
+static int runcode_restart(Execute ptr, addr code)
+{
+	addr control;
+	push_restart_initialize_control(ptr, &control);
 	return runcode_free(ptr, control, code, runcode_switch);
 }
 
@@ -2523,10 +2565,10 @@ _g int runcode_control(Execute ptr, addr code)
 
 		case CodeType_Default:
 		default:
-			return runcode_normal(ptr, code);
+			return runcode_switch(ptr, code);
 	}
 
-	return runcode_free(ptr, control, code, runcode_normal);
+	return runcode_free(ptr, control, code, runcode_switch);
 }
 
 static int execute_normal(Execute ptr, addr pos)
@@ -2670,7 +2712,7 @@ static int checkargs_opt(addr array, addr *args)
 
 	GetArrayA2(array, 1, &array); /* opt */
 	while (*args != Nil && array != Nil) {
-		GetCons(*args, &value, args);
+		getcons(*args, &value, args);
 		GetCons(array, &type, &array);
 		if (typep_asterisk_error(value, type))
 			return 1;
@@ -2736,7 +2778,7 @@ static int checkargs_restkey(LocalRoot local, addr array, addr args)
 			fmte("Too many argument.", NULL);
 	}
 	for (keyvalue = 0; args != Nil; keyvalue = (! keyvalue)) {
-		GetCons(args, &value, &args);
+		getcons(args, &value, &args);
 		/* &rest */
 		if (rest != Nil) {
 			if (typep_asterisk_error(value, rest))
@@ -2891,7 +2933,7 @@ _g void go_control(Execute ptr, addr tag)
 
 	/* rollback */
 	ptr->signal = ExecuteControl_Throw;
-	ptr->data = (void *)str;
+	ptr->taginfo = str;
 }
 
 static int return_from_find_control(Execute ptr, addr *next, addr *ret, addr name)
@@ -2932,7 +2974,7 @@ _g void return_from_control(Execute ptr, addr name)
 	copy_values_control(ptr->control, next);
 	/* rollback */
 	ptr->signal = ExecuteControl_Throw;
-	ptr->data = (void *)str;
+	ptr->taginfo = str;
 }
 
 _g void catch_control(Execute ptr, addr name)
@@ -2974,7 +3016,7 @@ _g void throw_control(Execute ptr, addr name)
 	copy_values_control(ptr->control, next);
 	/* rollback */
 	ptr->signal = ExecuteControl_Throw;
-	ptr->data = (void *)StructTagInfo(pos);
+	ptr->taginfo = StructTagInfo(pos);
 }
 
 _g void gettagbody_execute(Execute ptr, addr *ret, addr name)

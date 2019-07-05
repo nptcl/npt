@@ -269,7 +269,6 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\random_state.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\ratio.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rational.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\readlite.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\readtable.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_ceiling.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_common.c" />
@@ -443,7 +442,6 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\random.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\ratio.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rational.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\readlite.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\readtable.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_ceiling.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_common.h" />

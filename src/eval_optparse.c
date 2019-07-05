@@ -108,7 +108,6 @@ static int checkvalue(addr pos)
 		case EVAL_PARSE_ARRAY:
 		case EVAL_PARSE_VECTOR:
 		case EVAL_PARSE_STRING:
-		case EVAL_PARSE_SYMBOL:
 		case EVAL_PARSE_FLOAT:
 		case EVAL_PARSE_QUOTE:
 		case EVAL_PARSE_FUNCTION:

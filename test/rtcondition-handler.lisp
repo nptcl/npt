@@ -173,3 +173,42 @@
       (warn "Hello")))
   "")
 
+
+;;
+;;  function
+;;
+(deftest ignore-errors.1
+  (ignore-errors)
+  nil)
+
+(deftest ignore-errors.2
+  (ignore-errors
+    10)
+  10)
+
+(deftest ignore-errors.3
+  (ignore-errors
+    10 20 30)
+  30)
+
+(defvar *error-variables*)
+(deftest ignore-errors.4
+  (multiple-value-bind (a b)
+    (ignore-errors
+      10 20 *error-variables*)
+    (values a (null b)))
+  nil nil)
+
+(deftest ignore-errors.5
+  (multiple-value-bind (a b)
+    (ignore-errors
+      10 20 *error-variables* 30 40)
+    (values a (null b)))
+  nil nil)
+
+(deftest cerror.1
+  (handler-case
+    (cerror "Hello" "ABCD")
+    (error () :hello))
+  :hello)
+

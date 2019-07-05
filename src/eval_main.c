@@ -116,7 +116,7 @@ static void eval_loop_shift(Execute ptr, addr list)
 	setlexical_local(ptr, sym3, pos3);
 }
 
-static void eval_loop_output(Execute ptr, addr stream, addr control)
+_g void eval_loop_output(Execute ptr, addr stream, addr control)
 {
 	addr list;
 
@@ -154,7 +154,7 @@ static int eval_loop_execute(Execute ptr, addr stream, int *ret)
 
 	/* EOF */
 	if (result) {
-		fmts(stream, "~&", NULL);
+		fresh_line_stream(stream);
 		*ret = 1;
 		return 0;
 	}
@@ -207,18 +207,22 @@ static int eval_loop_restart(Execute ptr, addr stream, int *ret)
 	codejump jump;
 
 	/* execute */
-	push_restart_control(ptr, &control);
-
-	begin_switch(ptr, &jump);
+	push_restart_initialize_control(ptr, &control);
 	check = 0;
+	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
 		push_eval_main_restart_abort(ptr, &restart);
 		check = eval_loop_execute(ptr, stream, ret);
 	}
 	end_switch(&jump);
+	if (check)
+		return 1;
 
 	/* restart abort */
 	if (jump.code == LISPCODE_CONTROL) {
+		if (! equal_control_restart(ptr, control))
+			throw_switch(&jump);
+		/* abort */
 		*ret = 0;
 		ptr->signal = ExecuteControl_Run;
 		return free_control(ptr, control);
@@ -226,7 +230,7 @@ static int eval_loop_restart(Execute ptr, addr stream, int *ret)
 
 	/* free control */
 	throw_switch(&jump);
-	return free_check_control(ptr, control, check);
+	return free_control(ptr, control);
 }
 
 _g int eval_main_loop(Execute ptr)
@@ -282,18 +286,23 @@ static int evalrestart_string(Execute ptr, addr eval, int *abort)
 	codejump jump;
 
 	/* execute */
-	push_restart_control(ptr, &control);
-	begin_switch(ptr, &jump);
+	push_restart_initialize_control(ptr, &control);
 	check = 0;
 	*abort = 0;
+	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
 		push_eval_main_restart_abort(ptr, &restart);
 		check = evalcall_string_result(ptr, eval);
 	}
 	end_switch(&jump);
+	if (check)
+		return 1;
 
 	/* restart abort */
 	if (jump.code == LISPCODE_CONTROL) {
+		if (! equal_control_restart(ptr, control))
+			throw_switch(&jump);
+		/* abort */
 		*abort = 1;
 		ptr->signal = ExecuteControl_Run;
 		return free_control(ptr, control);
@@ -301,7 +310,7 @@ static int evalrestart_string(Execute ptr, addr eval, int *abort)
 
 	/* free control */
 	throw_switch(&jump);
-	return free_check_control(ptr, control, check);
+	return free_control(ptr, control);
 }
 
 _g void eval_main_string(Execute ptr, addr eval, int *abort)
@@ -309,7 +318,6 @@ _g void eval_main_string(Execute ptr, addr eval, int *abort)
 	if (evalrestart_string(ptr, eval, abort))
 		fmte("Cannot catch a system signal.", NULL);
 }
-
 
 
 /*
@@ -323,19 +331,24 @@ static int evalrestart_load(Execute ptr,
 	codejump jump;
 
 	/* execute */
-	push_restart_control(ptr, &control);
-	begin_switch(ptr, &jump);
+	push_restart_initialize_control(ptr, &control);
 	check = 0;
 	*result = 0;
 	*abort = 0;
+	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
 		push_eval_main_restart_abort(ptr, &restart);
 		check = eval_load(ptr, result, file, Nil, Nil, exists, Unbound);
 	}
 	end_switch(&jump);
+	if (check)
+		return 1;
 
 	/* restart abort */
 	if (jump.code == LISPCODE_CONTROL) {
+		if (! equal_control_restart(ptr, control))
+			throw_switch(&jump);
+		/* abort */
 		*abort = 1;
 		ptr->signal = ExecuteControl_Run;
 		return free_control(ptr, control);
@@ -343,7 +356,7 @@ static int evalrestart_load(Execute ptr,
 
 	/* free control */
 	throw_switch(&jump);
-	return free_check_control(ptr, control, check);
+	return free_control(ptr, control);
 }
 
 _g int eval_main_load(Execute ptr, addr file, int exists, int *abort)

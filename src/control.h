@@ -7,7 +7,7 @@
 
 struct runcode_value {
 	enum ExecuteControl signal;
-	void *data;
+	struct taginfo_struct *taginfo;
 };
 
 /* symstack */
@@ -83,6 +83,9 @@ _g void pushargs_allvalues(Execute ptr);
 
 /* call_compiled_function */
 _g void init_control(void);
+
+/* condition/restart */
+void push_restart_initialize_control(Execute ptr, addr *ret);
 
 /* execute */
 _g int signal_control(Execute ptr);

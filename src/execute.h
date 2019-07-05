@@ -24,11 +24,20 @@ enum ExecuteControl {
 	ExecuteControl_End,
 	ExecuteControl_Point,
 	ExecuteControl_Throw,
+	ExecuteControl_Jump,
 	ExecuteControl_Size
 };
 
 struct execute;
 typedef void (*execfunction)(struct execute *);
+
+struct taginfo_struct {
+	unsigned open : 1;
+	unsigned thr : 1;
+	unsigned wake : 1;
+	size_t point;
+	addr control;
+};
 
 struct execute {
 	/* lisp info */
@@ -36,7 +45,7 @@ struct execute {
 	LocalRoot local;
 	addr control;
 	enum ExecuteControl signal;
-	void *data;
+	struct taginfo_struct *taginfo;
 	int result;
 
 	/* thread info */
@@ -141,6 +150,7 @@ _g void end_switch(codejump *code);
 _g int codejump_run_p(codejump *code);
 _g int codejump_end_p(codejump *code);
 _g int codejump_error_p(codejump *code);
+_g int codejump_control_p(codejump *code);
 
 _g void exit_code(Execute ptr, lispcode code);
 _g void exit_code_thread(lispcode code);
@@ -149,6 +159,7 @@ _g void break_code_thread(void);
 _g void throw_code(Execute ptr, lispcode code);
 _g void throw_code_thread(lispcode code);
 _g void throw_switch(codejump *code);
+_g int equal_control_restart(Execute ptr, addr control);
 
 
 /*

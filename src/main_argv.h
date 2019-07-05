@@ -34,8 +34,7 @@ struct lispargv {
 	unsigned nocore : 1;
 	unsigned noinit : 1;
 	unsigned debugger : 1;
-	unsigned interactive : 1;
-	unsigned interactive_p : 1;
+	unsigned debugger_p : 1;
 	unsigned quit : 1;
 	size_t heap, local, index, start;
 	lispstringu core;

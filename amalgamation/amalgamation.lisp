@@ -543,7 +543,6 @@
     "random.c"
     "ratio.c"
     "rational.c"
-    "readlite.c"
     "readtable.c"
     "real_ceiling.c"
     "real_common.c"

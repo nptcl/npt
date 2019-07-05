@@ -410,3 +410,54 @@
         (list a b c)))
   (10 20 30))
 
+(deftest handler-bind-continue.1
+  (handler-bind ((error #'continue))
+    (cerror "Hello" "aaa"))
+  nil)
+
+(defun type-error-hello (c)
+  (when (typep c 'type-error)
+    (let ((r (find-restart 'store-value c)))
+      (handler-case
+        (invoke-restart r :hello)
+        (error ())))))
+
+(deftest handler-bind-store-value.1
+  (let ((x 100))
+    (handler-bind ((type-error #'type-error-hello))
+      (check-type x symbol)
+      x))
+  :hello)
+
+(defgeneric invalid-method-error-test ())
+(defmethod invalid-method-error-test () :hello)
+
+(deftest invalid-method-error.1
+  (handler-case
+    (progn
+      (invalid-method-error
+        (find-method #'invalid-method-error-test nil nil) "Hello: ~A" 10)
+      :hello)
+    (error (c)
+      (let ((s (apply #'format nil
+                      (simple-condition-format-control c)
+                      (simple-condition-format-arguments c))))
+        (values
+          (null (search "Hello" s))
+          (null (search "10" s))))))
+  nil nil)
+
+(deftest method-combination-error.1
+  (handler-case
+    (progn
+      (method-combination-error "Hello: ~A" 10)
+      :hello)
+    (error (c)
+      (let ((s (apply #'format nil
+                      (simple-condition-format-control c)
+                      (simple-condition-format-arguments c))))
+        (values
+          (null (search "Hello" s))
+          (null (search "10" s))))))
+  nil nil)
+

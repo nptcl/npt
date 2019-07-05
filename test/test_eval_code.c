@@ -1315,7 +1315,7 @@ static int test_code_progn(void)
 	getargs_code(pos, &check);
 	count = lenarrayr(check);
 
-	codechar_set(&pos, "(progn 10 20 hello aaa :hello 30 40)");
+	codechar_set(&pos, "(progn 10 20 'hello 'aaa :hello 30 40)");
 	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &check);

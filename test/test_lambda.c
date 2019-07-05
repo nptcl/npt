@@ -1,8 +1,21 @@
 #include "lambda.c"
+#include "clos.h"
+#include "character.h"
+#include "code.h"
+#include "condition.h"
+#include "common.h"
+#include "control.h"
 #include "degrade.h"
-#include "package.h"
-#include "readlite.h"
+#include "function.h"
+#include "object.h"
+#include "print.h"
+#include "pathname.h"
 #include "readtable.h"
+#include "stream.h"
+#include "strtype.h"
+#include "syscall.h"
+#include "type.h"
+#include "type_table.h"
 
 static int test_constant_eq(void)
 {
@@ -12,7 +25,7 @@ static int test_constant_eq(void)
 	test(constant_eq(CONSTANT_AMPERSAND_OPTIONAL, symbol), "constant_eq1");
 	internchar("KEYWORD", "TEST", &symbol);
 	test(! constant_eq(CONSTANT_AMPERSAND_OPTIONAL, symbol), "constant_eq2");
-	
+
 	RETURN;
 }
 
@@ -373,7 +386,7 @@ static int test_push_varcons_generic_function(void)
 	test(check == pos, "push_varcons_generic_function1");
 	test(cons == Nil, "push_varcons_generic_function2");
 	rollback_local(local, stack);
-	
+
 	RETURN;
 }
 
@@ -417,9 +430,10 @@ static void import_test(void)
 	import_constant_test(package, CONSTANT_AMPERSAND_ENVIRONMENT);
 }
 
-static void readlite_test(addr *ret, const char *str)
+static void lambda_readtest(addr *ret, const char *str)
 {
-	readlite_package_heap(ret, LISP_PACKAGE, str);
+	if (readstring(ret, str))
+		fmte("error");
 }
 
 static int eqtree(addr left, addr right)
@@ -443,17 +457,17 @@ static int test_lambda_generic_function_var(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readlite_test(&check, "(nil nil nil nil nil)");
+	lambda_readtest(&check, "(nil nil nil nil nil)");
 	lambda_generic_function(local, &pos, Nil);
 	test(eqtree(pos, check), "lambda_generic_function_var1");
 
-	readlite_test(&pos, "(var)");
-	readlite_test(&check, "((var) nil nil nil nil)");
+	lambda_readtest(&pos, "(var)");
+	lambda_readtest(&check, "((var) nil nil nil nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_var2");
 
-	readlite_test(&pos, "(aaa bbb)");
-	readlite_test(&check, "((aaa bbb) nil nil nil nil)");
+	lambda_readtest(&pos, "(aaa bbb)");
+	lambda_readtest(&check, "((aaa bbb) nil nil nil nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_var3");
 
@@ -472,18 +486,18 @@ static int test_lambda_generic_function_opt(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readlite_test(&pos, "(&optional)");
-	readlite_test(&check, "(nil nil nil nil nil)");
+	lambda_readtest(&pos, "(&optional)");
+	lambda_readtest(&check, "(nil nil nil nil nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_opt1");
 
-	readlite_test(&pos, "(&optional aaa)");
-	readlite_test(&check, "(nil (aaa) nil nil nil)");
+	lambda_readtest(&pos, "(&optional aaa)");
+	lambda_readtest(&check, "(nil (aaa) nil nil nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_opt2");
 
-	readlite_test(&pos, "(aaa &optional bbb (ccc))");
-	readlite_test(&check, "((aaa) (bbb ccc) nil nil nil)");
+	lambda_readtest(&pos, "(aaa &optional bbb (ccc))");
+	lambda_readtest(&check, "((aaa) (bbb ccc) nil nil nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_opt3");
 
@@ -502,23 +516,23 @@ static int test_lambda_generic_function_rest(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readlite_test(&pos, "(&rest args)");
-	readlite_test(&check, "(nil nil args nil nil)");
+	lambda_readtest(&pos, "(&rest args)");
+	lambda_readtest(&check, "(nil nil args nil nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_rest1");
 
-	readlite_test(&pos, "(aaa &rest args)");
-	readlite_test(&check, "((aaa) nil args nil nil)");
+	lambda_readtest(&pos, "(aaa &rest args)");
+	lambda_readtest(&check, "((aaa) nil args nil nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_rest2");
 
-	readlite_test(&pos, "(&optional aaa &rest args)");
-	readlite_test(&check, "(nil (aaa) args nil nil)");
+	lambda_readtest(&pos, "(&optional aaa &rest args)");
+	lambda_readtest(&check, "(nil (aaa) args nil nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_rest2");
 
-	readlite_test(&pos, "(aaa &optional bbb (ccc) &rest ddd)");
-	readlite_test(&check, "((aaa) (bbb ccc) ddd nil nil)");
+	lambda_readtest(&pos, "(aaa &optional bbb (ccc) &rest ddd)");
+	lambda_readtest(&check, "((aaa) (bbb ccc) ddd nil nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_rest3");
 
@@ -537,33 +551,33 @@ static int test_lambda_generic_function_key(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readlite_test(&pos, "(&key)");
-	readlite_test(&check, "(nil nil nil t nil)");
+	lambda_readtest(&pos, "(&key)");
+	lambda_readtest(&check, "(nil nil nil t nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_key1");
 
-	readlite_test(&pos, "(&key aaa)");
-	readlite_test(&check, "(nil nil nil ((aaa :aaa)) nil)");
+	lambda_readtest(&pos, "(&key aaa)");
+	lambda_readtest(&check, "(nil nil nil ((aaa :aaa)) nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_key2");
 
-	readlite_test(&pos, "(aaa &key (bbb))");
-	readlite_test(&check, "((aaa) nil nil ((bbb :bbb)) nil)");
+	lambda_readtest(&pos, "(aaa &key (bbb))");
+	lambda_readtest(&check, "((aaa) nil nil ((bbb :bbb)) nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_key3");
 
-	readlite_test(&pos, "(aaa &key ((ccc ddd)))");
-	readlite_test(&check, "((aaa) nil nil ((ddd ccc)) nil)");
+	lambda_readtest(&pos, "(aaa &key ((ccc ddd)))");
+	lambda_readtest(&check, "((aaa) nil nil ((ddd ccc)) nil)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_key4");
 
-	readlite_test(&pos, "(&key &allow-other-keys)");
-	readlite_test(&check, "(nil nil nil t t)");
+	lambda_readtest(&pos, "(&key &allow-other-keys)");
+	lambda_readtest(&check, "(nil nil nil t t)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_key5");
 
-	readlite_test(&pos, "(&key aaa &allow-other-keys)");
-	readlite_test(&check, "(nil nil nil ((aaa :aaa)) t)");
+	lambda_readtest(&pos, "(&key aaa &allow-other-keys)");
+	lambda_readtest(&check, "(nil nil nil ((aaa :aaa)) t)");
 	lambda_generic_function(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_generic_function_key6");
 
@@ -587,12 +601,12 @@ static int test_atleast_argument_count(void)
 	atleast_argument_count(pos, &size);
 	test(size == 0, "atleast_argument_count1");
 
-	readlite_test(&pos, "(var)");
+	lambda_readtest(&pos, "(var)");
 	lambda_generic_function(local, &pos, pos);
 	atleast_argument_count(pos, &size);
 	test(size == 1, "atleast_argument_count2");
 
-	readlite_test(&pos, "(aaa bbb)");
+	lambda_readtest(&pos, "(aaa bbb)");
 	lambda_generic_function(local, &pos, pos);
 	atleast_argument_count(pos, &size);
 	test(size == 2, "atleast_argument_count3");
@@ -686,28 +700,28 @@ static int test_lambda_specialized_var(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readlite_test(&check, "(nil nil nil nil nil nil)");
+	lambda_readtest(&check, "(nil nil nil nil nil nil)");
 	lambda_specialized(local, &pos, Nil);
 	test(eqtree(pos, check), "lambda_specialized_var1");
 
-	readlite_test(&pos, "(var)");
-	readlite_test(&check, "(((var t)) nil nil nil nil nil)");
+	lambda_readtest(&pos, "(var)");
+	lambda_readtest(&check, "(((var t)) nil nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_var2");
 
-	readlite_test(&pos, "(aaa bbb)");
-	readlite_test(&check, "(((aaa t) (bbb t)) nil nil nil nil nil)");
+	lambda_readtest(&pos, "(aaa bbb)");
+	lambda_readtest(&check, "(((aaa t) (bbb t)) nil nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_var3");
 
-	readlite_test(&pos, "(aaa (bbb fixnum))");
-	readlite_test(&check,
+	lambda_readtest(&pos, "(aaa (bbb fixnum))");
+	lambda_readtest(&check,
 			"(((aaa t) (bbb fixnum)) nil nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_var4");
 
-	readlite_test(&pos, "((aaa (eql hello)) bbb)");
-	readlite_test(&check,
+	lambda_readtest(&pos, "((aaa (eql hello)) bbb)");
+	lambda_readtest(&check,
 			"(((aaa (eql hello)) (bbb t)) nil nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_var5");
@@ -727,40 +741,40 @@ static int test_lambda_specialized_opt(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readlite_test(&check, "(nil nil nil nil nil nil)");
+	lambda_readtest(&check, "(nil nil nil nil nil nil)");
 	lambda_specialized(local, &pos, Nil);
 	test(eqtree(pos, check), "lambda_specialized_opt1");
 
-	readlite_test(&pos, "(&optional)");
-	readlite_test(&check, "(nil nil nil nil nil nil)");
+	lambda_readtest(&pos, "(&optional)");
+	lambda_readtest(&check, "(nil nil nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_opt2");
 
-	readlite_test(&pos, "(&optional aaa)");
-	readlite_test(&check, "(nil ((aaa nil nil)) nil nil nil nil)");
+	lambda_readtest(&pos, "(&optional aaa)");
+	lambda_readtest(&check, "(nil ((aaa nil nil)) nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_opt3");
 
-	readlite_test(&pos, "(aaa &optional (bbb))");
-	readlite_test(&check,
+	lambda_readtest(&pos, "(aaa &optional (bbb))");
+	lambda_readtest(&check,
 			"(((aaa t)) ((bbb nil nil)) nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_opt4");
 
-	readlite_test(&pos, "(&optional (bbb) ccc)");
-	readlite_test(&check,
+	lambda_readtest(&pos, "(&optional (bbb) ccc)");
+	lambda_readtest(&check,
 			"(nil ((bbb nil nil) (ccc nil nil)) nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_opt5");
 
-	readlite_test(&pos, "(&optional (ccc t))");
-	readlite_test(&check,
+	lambda_readtest(&pos, "(&optional (ccc t))");
+	lambda_readtest(&check,
 			"(nil ((ccc t nil)) nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_opt6");
 
-	readlite_test(&pos, "(&optional (ddd t eee))");
-	readlite_test(&check,
+	lambda_readtest(&pos, "(&optional (ddd t eee))");
+	lambda_readtest(&check,
 			"(nil ((ddd t eee)) nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_opt7");
@@ -780,24 +794,24 @@ static int test_lambda_specialized_rest(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readlite_test(&pos, "(&rest args)");
-	readlite_test(&check, "(nil nil args nil nil nil)");
+	lambda_readtest(&pos, "(&rest args)");
+	lambda_readtest(&check, "(nil nil args nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_rest1");
 
-	readlite_test(&pos, "(&optional &rest args)");
-	readlite_test(&check, "(nil nil args nil nil nil)");
+	lambda_readtest(&pos, "(&optional &rest args)");
+	lambda_readtest(&check, "(nil nil args nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_rest2");
 
-	readlite_test(&pos, "(&optional bbb &rest args)");
-	readlite_test(&check,
+	lambda_readtest(&pos, "(&optional bbb &rest args)");
+	lambda_readtest(&check,
 			"(nil ((bbb nil nil)) args nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_rest3");
 
-	readlite_test(&pos, "(bbb &rest ccc)");
-	readlite_test(&check, "(((bbb t)) nil ccc nil nil nil)");
+	lambda_readtest(&pos, "(bbb &rest ccc)");
+	lambda_readtest(&check, "(((bbb t)) nil ccc nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_rest4");
 
@@ -816,34 +830,34 @@ static int test_lambda_specialized_key(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readlite_test(&pos, "(&key)");
-	readlite_test(&check, "(nil nil nil t nil nil)");
+	lambda_readtest(&pos, "(&key)");
+	lambda_readtest(&check, "(nil nil nil t nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_key1");
 
-	readlite_test(&pos, "(&rest args &key &allow-other-keys)");
-	readlite_test(&check, "(nil nil args t t nil)");
+	lambda_readtest(&pos, "(&rest args &key &allow-other-keys)");
+	lambda_readtest(&check, "(nil nil args t t nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_key2");
 
-	readlite_test(&pos, "(&optional &key aaa)");
-	readlite_test(&check, "(nil nil nil ((aaa :aaa nil nil)) nil nil)");
+	lambda_readtest(&pos, "(&optional &key aaa)");
+	lambda_readtest(&check, "(nil nil nil ((aaa :aaa nil nil)) nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_key3");
 
-	readlite_test(&pos, "(zzz &key (aaa) &allow-other-keys)");
-	readlite_test(&check, "(((zzz t)) nil nil ((aaa :aaa nil nil)) t nil)");
+	lambda_readtest(&pos, "(zzz &key (aaa) &allow-other-keys)");
+	lambda_readtest(&check, "(((zzz t)) nil nil ((aaa :aaa nil nil)) t nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_key4");
 
-	readlite_test(&pos, "(&key (aaa t) (bbb ccc ddd))");
-	readlite_test(&check,
+	lambda_readtest(&pos, "(&key (aaa t) (bbb ccc ddd))");
+	lambda_readtest(&check,
 			"(nil nil nil ((aaa :aaa t nil) (bbb :bbb ccc ddd)) nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_key5");
 
-	readlite_test(&pos, "(&key ((aa bb) cc dd) &allow-other-keys)");
-	readlite_test(&check, "(nil nil nil ((bb aa cc dd)) t nil)");
+	lambda_readtest(&pos, "(&key ((aa bb) cc dd) &allow-other-keys)");
+	lambda_readtest(&check, "(nil nil nil ((bb aa cc dd)) t nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_key6");
 
@@ -862,33 +876,33 @@ static int test_lambda_specialized_aux(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	readlite_test(&pos, "(&aux)");
-	readlite_test(&check, "(nil nil nil nil nil nil)");
+	lambda_readtest(&pos, "(&aux)");
+	lambda_readtest(&check, "(nil nil nil nil nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_aux1");
 
-	readlite_test(&pos, "(&optional &key &aux)");
-	readlite_test(&check, "(nil nil nil t nil nil)");
+	lambda_readtest(&pos, "(&optional &key &aux)");
+	lambda_readtest(&check, "(nil nil nil t nil nil)");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_aux2");
 
-	readlite_test(&pos, "(aaa &aux bbb)");
-	readlite_test(&check, "(((aaa t)) nil nil nil nil ((bbb nil)))");
+	lambda_readtest(&pos, "(aaa &aux bbb)");
+	lambda_readtest(&check, "(((aaa t)) nil nil nil nil ((bbb nil)))");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_aux3");
 
-	readlite_test(&pos, "(&key &allow-other-keys &aux (bbb))");
-	readlite_test(&check, "(nil nil nil t t ((bbb nil)))");
+	lambda_readtest(&pos, "(&key &allow-other-keys &aux (bbb))");
+	lambda_readtest(&check, "(nil nil nil t t ((bbb nil)))");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_aux4");
 
-	readlite_test(&pos, "(&aux (bbb ccc))");
-	readlite_test(&check, "(nil nil nil nil nil ((bbb ccc)))");
+	lambda_readtest(&pos, "(&aux (bbb ccc))");
+	lambda_readtest(&check, "(nil nil nil nil nil ((bbb ccc)))");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_aux5");
 
-	readlite_test(&pos, "(&aux (aaa) bbb)");
-	readlite_test(&check, "(nil nil nil nil nil ((aaa nil) (bbb nil)))");
+	lambda_readtest(&pos, "(&aux (aaa) bbb)");
+	lambda_readtest(&check, "(nil nil nil nil nil ((aaa nil) (bbb nil)))");
 	lambda_specialized(local, &pos, pos);
 	test(eqtree(pos, check), "lambda_specialized_aux6");
 
@@ -958,7 +972,17 @@ int test_lambda(void)
 		build_lisproot(ptr);
 		build_constant();
 		build_object();
+		build_character();
 		build_package();
+		build_stream();
+		build_symbol();
+		build_clos(ptr);
+		build_condition(ptr);
+		build_type();
+		build_syscall();
+		build_common();
+		build_readtable();
+		build_code();
 		lisp_initialize = 1;
 		result = testgroup_lambda();
 	}

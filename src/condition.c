@@ -8,8 +8,10 @@
 #include "constant.h"
 #include "control.h"
 #include "copy.h"
+#include "eval.h"
 #include "execute.h"
 #include "file.h"
+#include "format.h"
 #include "function.h"
 #include "heap.h"
 #include "integer.h"
@@ -410,6 +412,17 @@ static void output_restarts_debugger(Execute ptr, addr io, addr list)
 	}
 }
 
+static int eval_debugger(Execute ptr, addr io, addr eval)
+{
+	addr control;
+
+	push_close_control(ptr, &control);
+	if (eval_execute(ptr, eval))
+		return runcode_free_control(ptr, control);
+	eval_loop_output(ptr, io, control);
+	return free_control(ptr, control);
+}
+
 static int enter_debugger(addr condition)
 {
 	int check, result;
@@ -417,14 +430,9 @@ static int enter_debugger(addr condition)
 	Execute ptr;
 	size_t index, select, size;
 
+	/* restarts */
 	ptr = Execute_Thread;
 	debug_io_stream(ptr, &io);
-	clos_class_of(condition, &pos);
-	stdget_class_name(pos, &pos);
-	fmts(io, "~&ERROR: ~S~%", pos, NULL);
-	output_debugger(ptr, io, condition);
-
-	/* restarts */
 	compute_restarts_control(ptr, condition, &list);
 	if (list == Nil) {
 		fmts(io, "There is no restarts, abort.~%", NULL);
@@ -445,7 +453,7 @@ loop:
 	/* Interupt */
 	if (check) {
 		fmte("Invalid operation.", NULL);
-		goto error;
+		goto exit;
 	}
 	/* EOF */
 	if (result) {
@@ -459,7 +467,8 @@ loop:
 	}
 	/* check */
 	if (! fixnump(pos)) {
-		fmts(io, "Invalid integer value ~A.~%", pos, NULL);
+		if (eval_debugger(ptr, io, pos))
+			return 1;
 		goto loop;
 	}
 	if (getindex_integer(pos, &select)) {
@@ -475,7 +484,6 @@ loop:
 	if (invoke_restart_interactively_control(ptr, pos)) return 1;
 	goto loop;
 
-error:
 exit:
 	exit_code_thread(LISPCODE_ERROR);
 	return 0;
@@ -489,29 +497,48 @@ static int enable_debugger_p(void)
 	return pos != Nil;
 }
 
-static void abort_debugger(void)
+static int invoke_standard_debugger(Execute ptr, addr condition)
 {
-	addr io;
-	Execute ptr;
+	addr io, pos;
 
-	ptr = Execute_Thread;
-	GetConst(SPECIAL_DEBUG_IO, &io);
-	getspecialcheck_local(ptr, io, &io);
-	fmts(io, "~&abort.~%", NULL);
-	abortthis();
+	/* output condition */
+	debug_io_stream(ptr, &io);
+	clos_class_of(condition, &pos);
+	stdget_class_name(pos, &pos);
+	fmts(io, "~&ERROR: ~S~%", pos, NULL);
+	output_debugger(ptr, io, condition);
+
+	/* no-debugger */
+	if (! enable_debugger_p()) {
+		fmts(io, "~2&Debugger is not enabled.~%", NULL);
+		abortthis();
+		return 1;
+	}
+
+	/* debugger */
+	return enter_debugger(condition);
 }
 
-_g int invoke_debugger(addr condition)
+_g int invoke_debugger(Execute ptr, addr condition)
 {
-	if (enable_debugger_p()) {
-		if (enter_debugger(condition))
-			return 1;
-	}
-	else {
-		abort_debugger();
-	}
+	int check;
+	addr symbol, prior, call, control;
 
-	return 0;
+	GetConst(SPECIAL_DEBUGGER_HOOK, &symbol);
+	getspecialcheck_local(ptr, symbol, &prior);
+	if (prior == Nil)
+		return invoke_standard_debugger(ptr, condition);
+	/* call function */
+	call = prior;
+	if (symbolp(call))
+		getfunctioncheck_local(ptr, call, &call);
+	push_close_control(ptr, &control);
+	pushspecial_control(ptr, symbol, Nil);
+	check = funcall_control(ptr, call, condition, prior, NULL);
+	if (free_check_control(ptr, control, check))
+		return 1;
+	/* invoke-debugger is not returned. */
+	return invoke_standard_debugger(ptr, condition);
 }
 
 _g void set_enable_debugger(int value)
@@ -520,20 +547,6 @@ _g void set_enable_debugger(int value)
 	GetConst(SYSTEM_ENABLE_DEBUGGER, &pos);
 	setspecial_local(Execute_Thread, pos, value? T: Nil);
 }
-
-_g void set_enable_interactive(int value)
-{
-	addr pos;
-	GetConst(SYSTEM_ENABLE_INTERACTIVE, &pos);
-	setspecial_local(Execute_Thread, pos, value? T: Nil);
-}
-
-
-#if 0
-_g void invoke_restart(Execute ptr, addr restart, addr args)
-{
-}
-#endif
 
 
 /*
@@ -572,17 +585,22 @@ _g int signal_function(addr condition)
 	if (typep_asterisk_clang(condition, type, &check))
 		fmte("Invalid typep ~S.", type, NULL);
 	if (check)
-		return invoke_debugger(condition);
+		return invoke_debugger(ptr, condition);
 	/* signal */
 	return invoke_handler_control(ptr, condition);
 }
 
+_g int error_common(Execute ptr, addr condition)
+{
+	return signal_function(condition)
+		|| invoke_debugger(ptr, condition);
+}
+
 _g void error_function(addr condition)
 {
-	if (! signal_function(condition)) {
-		if (invoke_debugger(condition)) {
-			abort_debugger();
-		}
+	if (error_common(Execute_Thread, condition)) {
+		fmte("~&Invalid signal call.~%", NULL);
+		abortthis();
 	}
 }
 
@@ -621,22 +639,27 @@ static void warning_restart_make(addr *ret)
 
 _g int warning_restart_case(Execute ptr, addr instance)
 {
+	int check;
 	addr control, pos;
 	codejump jump;
 
 	/* execute */
-	push_restart_control(ptr, &control);
-
+	push_restart_initialize_control(ptr, &control);
+	check = 0;
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
 		warning_restart_make(&pos);
 		pushobject_restart_control(ptr, pos);
-		(void)signal_function(instance);
+		check = signal_function(instance);
 	}
 	end_switch(&jump);
+	if (check)
+		return 1;
 
 	/* restart abort */
 	if (jump.code == LISPCODE_CONTROL) {
+		if (! equal_control_restart(ptr, control))
+			throw_switch(&jump);
 		ptr->signal = ExecuteControl_Run;
 		return free_control(ptr, control);
 	}
@@ -699,11 +722,11 @@ _g void instance_simple_condition(addr *ret, addr control, addr args)
 			CONSTANT_CLOSNAME_FORMAT_CONTROL, control,
 			CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args);
 }
-_g void simple_condition(addr control, addr args)
+_g int simple_condition(addr control, addr args)
 {
 	addr instance;
 	instance_simple_condition(&instance, control, args);
-	(void)signal_function(instance);
+	return signal_function(instance);
 }
 _g void simple_condition_format(addr condition, addr *control, addr *arguments)
 {
@@ -1362,26 +1385,13 @@ _g void savecore_condition(void)
 /*
  *  build_condition
  */
-static void build_variables(void)
+_g void build_condition(Execute ptr)
 {
 	addr symbol;
-
-	/* common-lisp::*break-on-signals* */
-	GetConst(SPECIAL_BREAK_ON_SIGNALS, &symbol);
-	SetValueSymbol(symbol, Nil);
 
 	/* debugger */
 	GetConst(SYSTEM_ENABLE_DEBUGGER, &symbol);
 	SetValueSymbol(symbol, T);
-
-	/* interactive */
-	GetConst(SYSTEM_ENABLE_INTERACTIVE, &symbol);
-	SetValueSymbol(symbol, T);
-}
-
-_g void build_condition(Execute ptr)
-{
-	build_variables();
 	set_enable_debugger(1);
 }
 

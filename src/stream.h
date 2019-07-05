@@ -307,6 +307,7 @@ _g void write_line_common(Execute ptr, addr string, addr rest);
 _g void read_sequence_common(addr *ret, addr seq, addr stream, size_t start, size_t end);
 _g void write_sequence_common(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end);
+_g int prompt_for_stream(Execute ptr, addr check, addr prompt, addr *ret);
 _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret);
 
 /* core */
