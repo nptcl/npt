@@ -126,7 +126,6 @@ source = \
 	src/random_state.c \
 	test/test_ratio.c \
 	src/rational.c \
-	src/readlite.c \
 	test/test_readtable.c \
 	src/real_ceiling.c \
 	src/real_common.c \
@@ -307,7 +306,6 @@ release_source = \
 	src/random_state.c \
 	src/ratio.c \
 	src/rational.c \
-	src/readlite.c \
 	src/readtable.c \
 	src/real_ceiling.c \
 	src/real_common.c \
