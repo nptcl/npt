@@ -8,14 +8,7 @@ checkerr()
 	fi
 }
 
-if [ -f Makefile ]; then
-	make clean
-	checkerr "make clean error";
-fi
-
 rm -f Makefile
-checkerr "rm Makefile error"
-
 rm -f Makefile.in
 rm -f aclocal.m4
 rm -fr autom4te.cache/
@@ -31,6 +24,7 @@ rm -f config.h f config.log f config.status
 rm -fr src/.deps/
 rm -f src/.dirstamp
 rm -f stamp-h1
+rm -f config.version
 
 echo OK
 

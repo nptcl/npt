@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "define.h"
 #include "degrade.h"
 
 #ifdef LISP_DEGRADE

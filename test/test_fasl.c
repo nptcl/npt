@@ -1,7 +1,7 @@
-#include "degrade.h"
 #include "fasl.c"
 #include "common.h"
 #include "constant.h"
+#include "degrade.h"
 #include "function.h"
 #include "pathname.h"
 

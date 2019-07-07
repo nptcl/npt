@@ -1,6 +1,25 @@
 #ifndef __DEFINE_HEADER__
 #define __DEFINE_HEADER__
 
+/*
+ *  autoconf
+ */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#undef PACKAGE
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_URL
+#undef PACKAGE_VERSION
+#undef VERSION
+#endif
+
+
+/*
+ *  define.h
+ */
 #ifdef __cplusplus
 #ifdef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
@@ -67,7 +86,14 @@
  */
 #undef LISP_ARCH_64BIT
 #undef LISP_ARCH_32BIT
-#if (0xFFFFFFFFUL < SIZE_MAX)
+
+#if (SIZEOF_VOID_P == 8)
+#define LISP_ARCH_MODE "64bit"
+#define LISP_ARCH_64BIT
+#elif (SIZEOF_VOID_P == 4)
+#define LISP_ARCH_MODE "32bit"
+#define LISP_ARCH_32BIT
+#elif (0xFFFFFFFFUL < SIZE_MAX)
 #define LISP_ARCH_MODE "64bit"
 #define LISP_ARCH_64BIT
 #else
