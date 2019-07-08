@@ -13,7 +13,7 @@ $ make install
 ```
 
 
-## Compile (script)
+## Install (script)
 
 FreeBSD
 ```
