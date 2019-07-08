@@ -164,8 +164,8 @@ AS_IF([test x$enable_degrade = xyes],
 
 ## fixnum size
 AS_CASE([$enable_fixnum],
-  [32], AC_DEFINE([LISP_32BIT], [1], [finxum 32bit]),
-  [64], AC_DEFINE([LISP_64BIT], [1], [finxum 64bit]),
+  [32], AC_DEFINE([LISP_32BIT], [1], [fixnum 32bit]),
+  [64], AC_DEFINE([LISP_64BIT], [1], [fixnum 64bit]),
   [auto], [],
   AC_MSG_ERROR([--enable-fixnum argument must be 32 or 64]))
 
