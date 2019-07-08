@@ -3,6 +3,7 @@
 #include <string.h>
 #include "alloc.h"
 #include "build.h"
+#include "define.h"
 #include "file_memory.h"
 #include "heap.h"
 #include "memory.h"

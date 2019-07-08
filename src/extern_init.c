@@ -4,6 +4,7 @@
 #include "constant.h"
 #include "control.h"
 #include "core.h"
+#include "define.h"
 #include "eval_main.h"
 #include "extern_init.h"
 #include "extern_string.h"
@@ -156,6 +157,7 @@ int lisp_main_version_text(FILE *file)
 	fprintf(file, "%-20s %s\n", "Execute mode", LISP_MODE_STRING);
 	fprintf(file, "%-20s %s\n", "Release mode", LISP_DEBUG_STRING);
 	fprintf(file, "%-20s %s\n", "Degrade mode", LISP_DEGRADE_STRING);
+	fprintf(file, "%-20s %s\n", "Prompt mode", LISP_PROMPT_STRING);
 	fprintf(file, "-----\n");
 	lisp_result = 0;
 
@@ -176,6 +178,7 @@ int lisp_main_version_script(FILE *file)
 	fprintf(file, "%s\t%s\n", "execute-mode", LISP_MODE_STRING);
 	fprintf(file, "%s\t%s\n", "release-mode", LISP_DEBUG_STRING);
 	fprintf(file, "%s\t%s\n", "degrade-mode", LISP_DEGRADE_STRING);
+	fprintf(file, "%s\t%s\n", "prompt-mode", LISP_PROMPT_STRING);
 	lisp_result = 0;
 
 	return 0;

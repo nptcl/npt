@@ -1,6 +1,11 @@
+m4_define([init_name],     [npt])
+m4_define([init_version],  m4_include([develop/version.config]))
+m4_define([init_report],   [nptcl <nptlisp@gmail.com>])
+m4_define([init_tarname],  [npt])
+m4_define([init_url],      [https://github.com/nptcl/npt])
+
 AC_PREREQ([2.69])
-AC_INIT([npt], m4_include([config.version]), [nptcl <nptlisp@gmail.com>],
-  [npt], [https://github.com/nptcl/npt])
+AC_INIT(init_name, init_version, init_report, init_tarname, init_url)
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
@@ -25,7 +30,8 @@ AC_CHECK_HEADERS([fcntl.h float.h inttypes.h limits.h locale.h stddef.h] dnl
 [stdint.h stdlib.h string.h wchar.h])
 AC_CHECK_HEADERS([sys/stat.h sys/types.h sys/time.h unistd.h])
 AC_CHECK_HEADERS([readline/readline.h])
-AC_CHECK_HEADERS([edit/readline.h edit/readline/readline.h])
+AC_CHECK_HEADERS([edit/readline/readline.h edit/readline.h] dnl
+[editline/readline.h editline/editline.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
@@ -53,7 +59,7 @@ AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
 AC_FUNC_STRTOLD
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([floor memset mkdir modf pow setlocale sqrt strchr strtol strtoul ])
+AC_CHECK_FUNCS([floor memset mkdir modf pow setlocale sqrt strchr strtol strtoul])
 AC_FUNC_STAT
 AC_FUNC_LSTAT
 AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
@@ -74,22 +80,18 @@ AC_ARG_ENABLE([degrade],
   AC_HELP_STRING([--enable-degrade], [[mode] use default degrade-mode]))
 AC_ARG_ENABLE([debug],
   AC_HELP_STRING([--enable-debug], [develop mode (very slow)]))
-AC_ARG_ENABLE([fixnum-size],
-  AC_HELP_STRING([--enable-fixnum], [use fixnum size either 32 or 64]))
+#AC_ARG_ENABLE([fixnum],
+#  AC_HELP_STRING([--enable-fixnum], [use fixnum size either 32 or 64]),
+#  [], [enable_fixnum=auto])
+enable_fixnum=auto
 
 AC_CANONICAL_HOST
 AS_CASE([$host_os],
-  [freebsd*], [lisp_freebsd=yes]
-              [lisp_posix=yes],
-  [linux*],   [lisp_linux=yes]
-              [lisp_posix=yes],
-  [*cygwin*], [lisp_ansi=yes]
-              [lisp_ansi_windows=yes]
-              [lisp_posix=yes],
-  [win*],     [lisp_windows=yes]
-              [lisp_posix=no],
-  [*],        [lisp_ansi=yes]
-              [lisp_posix=no])
+  [*bsd*],   [lisp_freebsd=yes],
+  [linux*],  [lisp_linux=yes],
+  [*win*],   [lisp_windows=yes],
+  [*WIN*],   [lisp_windows=yes],
+  [*],       [lisp_freebsd=yes])
 
 AS_IF([test x$lisp_ansi = xyes],
         AC_DEFINE([LISP_ANSI],         [1], [ANSI-C]),
@@ -115,12 +117,6 @@ AS_IF([test x$with_readline = xyes -a x$with_editline = xyes],
         [lisp_readline=yes]
         [lisp_editline=no],
       [test x$lisp_editline = xyes],
-        [lisp_readline=no]
-        [lisp_editline=yes],
-      [test x$lisp_linux = xyes],
-        [lisp_readline=yes]
-        [lisp_editline=no],
-      [test x$lisp_freebsd = xyes],
         [lisp_readline=no]
         [lisp_editline=yes])
 
@@ -165,6 +161,13 @@ AS_IF([test x$enable_core = xyes],
   AC_DEFINE([LISP_MODE_CORE], [1], [core-mode]))
 AS_IF([test x$enable_degrade = xyes],
   AC_DEFINE([LISP_MODE_DEGRADE], [1], [degrade-mode]))
+
+## fixnum size
+AS_CASE([$enable_fixnum],
+  [32], AC_DEFINE([LISP_32BIT], [1], [finxum 32bit]),
+  [64], AC_DEFINE([LISP_64BIT], [1], [finxum 64bit]),
+  [auto], [],
+  AC_MSG_ERROR([--enable-fixnum argument must be 32 or 64]))
 
 ## output
 AC_OUTPUT

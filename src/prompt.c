@@ -125,13 +125,30 @@ _g int input_prompt(addr *ret)
 #endif
 
 #if defined(LISP_PROMPT_READLINE) || defined(LISP_PROMPT_EDITLINE)
+/* readline */
 #ifdef LISP_PROMPT_READLINE
 #include <readline/readline.h>
 #include <readline/history.h>
 #endif
+
+/* editline */
 #ifdef LISP_PROMPT_EDITLINE
+#if defined(HAVE_EDITLINE_EDITLINE_H)
+#include <editline/editline.h>
+#include <editline/history.h>
+#elif defined(HAVE_EDITLINE_READLINE_H)
+#include <editline/readline.h>
+#include <editline/history.h>
+#elif defined(HAVE_EDIT_READLINE_H)
+#include <edit/readline.h>
+#include <edit/history.h>
+#elif defined(HAVE_EDIT_READLINE_READLINE_H)
 #include <edit/readline/readline.h>
 #include <edit/readline/history.h>
+#else
+#include <edit/readline/readline.h>
+#include <edit/readline/history.h>
+#endif
 #endif
 
 #define HISTORY_SIZE	100

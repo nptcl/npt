@@ -97,8 +97,8 @@
 #define LISP_ARCH_MODE "64bit"
 #define LISP_ARCH_64BIT
 #else
-#define LISP_ARCH_32BIT
 #define LISP_ARCH_MODE "32bit"
+#define LISP_ARCH_32BIT
 #endif
 
 
@@ -421,16 +421,20 @@
 
 /* readline editline */
 #if defined(LISP_PROMPT_DEFAULT)
+#define LISP_PROMPT_STRING "ansi-c"
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE
 #elif defined(LISP_PROMPT_READLINE)
+#define LISP_PROMPT_STRING "readline"
 #undef LISP_PROMPT_DEFAULT
 #undef LISP_PROMPT_EDITLINE
 #elif defined(LISP_PROMPT_EDITLINE)
+#define LISP_PROMPT_STRING "editline"
 #undef LISP_PROMPT_DEFAULT
 #undef LISP_PROMPT_READLINE
 #else
 #define LISP_PROMPT_DEFAULT
+#define LISP_PROMPT_STRING "ansi-c"
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE
 #endif

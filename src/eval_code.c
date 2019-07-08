@@ -2,6 +2,7 @@
 #include "condition.h"
 #include "cons.h"
 #include "control.h"
+#include "define.h"
 #include "eval.h"
 #include "eval_code.h"
 #include "eval_declare.h"

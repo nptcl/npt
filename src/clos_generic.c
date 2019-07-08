@@ -7,6 +7,7 @@
 #include "condition.h"
 #include "cons.h"
 #include "control.h"
+#include "define.h"
 #include "equal.h"
 #include "function.h"
 #include "hashtable.h"

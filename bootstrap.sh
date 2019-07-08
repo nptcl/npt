@@ -1,28 +1,27 @@
 #!/bin/sh
-
-file="src/version.h"
-output="config.version"
-version_a=$(grep LISP_VERSION_A ${file} | awk '{print $3}')
-version_b=$(grep LISP_VERSION_B ${file} | awk '{print $3}')
-version_c=$(grep LISP_VERSION_C ${file} | awk '{print $3}')
-echo -n "${version_a}.${version_b}.${version_c}" > ${output}
-
-## autoconf
-aclocal || {
+aclocal
+if [ $? -ne 0 ]; then
 	echo "aclocal error"
 	exit 1
-}
-autoheader || {
+fi
+
+autoheader
+if [ $? -ne 0 ]; then
 	echo "autoheader error"
 	exit 1
-}
-automake -a -c || {
+fi
+
+automake -a -c
+if [ $? -ne 0 ]; then
 	echo "automake error"
 	exit 1
-}
-autoconf || {
+fi
+
+autoconf
+if [ $? -ne 0 ]; then
 	echo "autoconf error"
 	exit 1
-}
+fi
+
 echo OK
 

@@ -8,7 +8,7 @@
 (defparameter +url+
   '("https://github.com/nptcl/npt"
     "https://github.com/nptcl/npt-amalgamation"))
-(defparameter +base+ '(#p"./" #p"../" #p"src/" #p"../src/"))
+(defparameter +base+ '(#p"./" #p"../" #p"../../src/"))
 (defvar *include-list*)
 (defvar *header-print*)
 (defvar *header-include*)
@@ -111,11 +111,11 @@
 
 (defun pragma-pop ()
   (echo
-    "#ifdef __clang__"
-    "#pragma clang diagnostic pop"
-    "#endif"
     "#ifdef __GNUC__"
     "#pragma GCC diagnostic pop"
+    "#endif"
+    "#ifdef __clang__"
+    "#pragma clang diagnostic pop"
     "#endif"))
 
 (defun source-file (x)

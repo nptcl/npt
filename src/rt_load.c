@@ -1,3 +1,5 @@
+#include "define.h"
+
 #ifdef LISP_DEGRADE
 #include "bignum.h"
 #include "build.h"

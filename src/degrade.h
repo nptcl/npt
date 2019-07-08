@@ -1,6 +1,8 @@
 #ifndef __DEGRADE_HEADER__
 #define __DEGRADE_HEADER__
 
+#include "define.h"
+
 #ifdef LISP_DEGRADE
 #include "execute.h"
 

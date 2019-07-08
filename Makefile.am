@@ -1,5 +1,5 @@
 if LISP_DEGRADE
-CFLAGS += -Isrc
+CFLAGS += -Isrc -Itest
 include src/source.mk
 else
 include src/release.mk

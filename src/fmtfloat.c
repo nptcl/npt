@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include "build.h"
 #include "c99.h"
+#include "define.h"
 #include "fmtfloat.h"
 #include "stream.h"
 

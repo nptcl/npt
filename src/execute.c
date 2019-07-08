@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include "alloc.h"
 #include "build.h"
-#include "local.h"
+#include "define.h"
 #include "execute.h"
+#include "local.h"
 #include "thread.h"
 
 #ifdef LISP_DEBUG

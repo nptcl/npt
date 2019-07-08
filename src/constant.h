@@ -2,6 +2,7 @@
 #define __CONSTANT_HEADER__
 
 #include "build.h"
+#include "define.h"
 #include "local.h"
 #include "memory.h"
 

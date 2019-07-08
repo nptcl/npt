@@ -1,5 +1,6 @@
 #include "constant.h"
 #include "condition.h"
+#include "define.h"
 #include "hashtable.h"
 #include "package.h"
 #include "sxhash.h"
@@ -26,7 +27,7 @@ struct symbol_header {
 };
 
 static struct symbol_header SymbolHeader[] = {
-#ifdef LISP_ARCH_64BIT
+#ifdef LISP_64BIT
 #include "intern_symbol_64.h"
 #else
 #include "intern_symbol_32.h"

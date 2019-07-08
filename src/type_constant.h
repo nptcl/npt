@@ -1,6 +1,8 @@
 #ifndef __TYPE_CONSTANT_HEADER__
 #define __TYPE_CONSTANT_HEADER__
 
+#include "define.h"
+
 enum TypeTable {
 #ifdef LISP_DEGRADE
 	/* Debug */

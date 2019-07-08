@@ -1,6 +1,8 @@
 #ifndef __POINTER_TABLE_HEADER__
 #define __POINTER_TABLE_HEADER__
 
+#include "define.h"
+
 enum pointer_index {
 	p_empty,
 	p_user,
