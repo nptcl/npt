@@ -2,7 +2,18 @@
 
 Npt is a small Lisp Programming Language.
 
-## Compile
+## Install (configure)
+
+```
+$ tar zxf npt-x.x.x.tar.gz
+$ cd npt-x.x.x
+$ ./configure
+$ make
+$ make install
+```
+
+
+## Compile (script)
 
 FreeBSD
 ```
@@ -12,6 +23,7 @@ $ ./bsd_release.sh
 ...
 $
 ```
+
 Linux
 ```
 $ tar zxf npt-x.x.x.tar.gz
@@ -21,8 +33,7 @@ $ ./linux_release.sh
 $
 ```
 
-## Install
-
+Install
 ```
 $ su
 # cp -i npt /usr/local/bin/.
@@ -50,6 +61,7 @@ $
 ## License
 
 [The Unlicense](LICENSE)
+
 
 ## Distribution
 
