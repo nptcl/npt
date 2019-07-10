@@ -587,7 +587,10 @@ _g int signal_function(addr condition)
 	if (check)
 		return invoke_debugger(ptr, condition);
 	/* signal */
-	return invoke_handler_control(ptr, condition);
+	if (invoke_handler_control(ptr, condition, &check))
+		return 1;
+
+	return 0;
 }
 
 _g int error_common(Execute ptr, addr condition)
@@ -668,6 +671,20 @@ _g int warning_restart_case(Execute ptr, addr instance)
 	throw_switch(&jump);
 	setresult_control(ptr, Nil);
 	return free_control(ptr, control);
+}
+
+_g int signal_warning(const char *str, ...)
+{
+	addr format, list, instance;
+	va_list args;
+
+	strvect_char_heap(&format, str);
+	va_start(args, str);
+	copylocal_list_stdarg(NULL, &list, args);
+	va_end(args);
+	/* instance */
+	instance_simple_warning(&instance, format, list);
+	return warning_restart_case(Execute_Thread, instance);
 }
 
 _g void format_warning(const char *str, ...)

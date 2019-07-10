@@ -922,23 +922,25 @@ static int gethandler_control(addr pos, addr *ret)
 	return gettable_control(pos, CONSTANT_SYSTEM_HANDLER, ret);
 }
 
-static void wake_call_handler(Execute ptr, addr control, addr call, addr pos, int escape)
+static int wake_call_handler(Execute ptr, addr control, addr call, addr pos, int escape)
 {
 	addr tag;
 
-	if (funcall_control(ptr, call, pos, NULL)) {
-		exit_control(ptr);
-	}
+	if (funcall_control(ptr, call, pos, NULL))
+		return 1;
 	if (escape) {
 		copy_values_control(ptr->control, control);
 		getcondition_control(control, &tag);
 		ptr->signal = ExecuteControl_Throw;
 		ptr->taginfo = StructTagInfo(tag);
 		exit_control(ptr);
+		return 0;
 	}
+
+	return 0;
 }
 
-static int wake_handler(Execute ptr, addr control, addr instance, addr array)
+static int wake_handler(Execute ptr, addr control, addr instance, addr array, int *ret)
 {
 	addr clos, value;
 
@@ -946,17 +948,19 @@ static int wake_handler(Execute ptr, addr control, addr instance, addr array)
 	if (clos != Nil && clos_subtype_p(instance, clos)) {
 		SetArrayA2(array, 0, Nil);
 		GetArrayA2(array, 1, &value);
-		wake_call_handler(ptr, control, value, instance, GetUser(array));
+		if (wake_call_handler(ptr, control, value, instance, GetUser(array)))
+			return 1;
 		SetArrayA2(array, 0, clos);
-		return 1;
+		*ret = 1;
+		return 0;
 	}
-
+	*ret = 0;
 	return 0;
 }
 
-_g int invoke_handler_control(Execute ptr, addr instance)
+_g int invoke_handler_control(Execute ptr, addr instance, int *ret)
 {
-	int result;
+	int result, check;
 	addr control, cons, array;
 
 	control = ptr->control;
@@ -964,12 +968,14 @@ _g int invoke_handler_control(Execute ptr, addr instance)
 		gethandler_control(control, &cons);
 		while (cons != Nil) {
 			GetCons(cons, &array, &cons);
-			result |= wake_handler(ptr, control, instance, array);
+			if (wake_handler(ptr, control, instance, array, &check))
+				return 1;
+			result |= check;
 		}
 		GetControl(control, Control_Next, &control);
 	}
-
-	return result;
+	*ret = result;
+	return 0;
 }
 
 static void redirect_restart(addr restart, addr *ret)
