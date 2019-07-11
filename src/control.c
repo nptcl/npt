@@ -958,6 +958,24 @@ static int wake_handler(Execute ptr, addr control, addr instance, addr array, in
 	return 0;
 }
 
+_g int find_condition_control(Execute ptr, addr instance)
+{
+	addr control, list, array, clos;
+
+	for (control = ptr->control; control != Nil; ) {
+		gethandler_control(control, &list);
+		while (list != Nil) {
+			GetCons(list, &array, &list);
+			GetArrayA2(array, 0, &clos);
+			if (clos != Nil && clos_subtype_p(instance, clos))
+				return 1;
+		}
+		GetControl(control, Control_Next, &control);
+	}
+
+	return 0;
+}
+
 _g int invoke_handler_control(Execute ptr, addr instance, int *ret)
 {
 	int result, check;

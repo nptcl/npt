@@ -219,11 +219,11 @@
 (deftest compute-restarts.3
   (let ((inst (make-condition 'testcond :aaa 10)))
     (restart-case
-      (length (compute-restarts inst))
+      (<= 2 (length (compute-restarts inst)))
       (aa () :hello)
       (bb () :test (lambda (x) (eql (slot-exists-and-value x 'aaa) 100)))
       (cc ())))
-  2)
+  t)
 
 (deftest invoke-restart.1
   (restart-case

@@ -429,8 +429,14 @@ static void function_cerror(Execute ptr, addr restart, addr datum, addr rest)
 		if (function_error_datum(ptr, datum, rest, &datum))
 			return;
 	}
-	if (signal_function(datum))
+
+	/* wake condition */
+	if (find_condition_control(ptr, datum)) {
+		if (signal_function(datum))
+			return;
+		setresult_control(ptr, Nil);
 		return;
+	}
 
 	/* Can't handle the condition. */
 	if (function_cerror_make(ptr, &restart, restart, rest))
