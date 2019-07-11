@@ -12,6 +12,7 @@
 #include "constant.h"
 #include "control.h"
 #include "equal.h"
+#include "eval.h"
 #include "file.h"
 #include "function.h"
 #include "hashtable.h"
@@ -1641,8 +1642,25 @@ static void maketoken_gensym(Execute ptr, addr *ret)
 	}
 }
 
+static int read_suppress_p(Execute ptr)
+{
+	addr pos;
+
+	/* *read-suppress */
+	GetConst(SPECIAL_READ_SUPPRESS, &pos);
+	getspecialcheck_local(ptr, pos, &pos);
+	return pos != Nil;
+}
+
 static void maketoken(Execute ptr, addr *ret)
 {
+	/* *read-suppress */
+	if (read_suppress_p(ptr)) {
+		*ret = Nil;
+		return;
+	}
+
+	/* make token */
 	if (getstate_readinfo(ptr) != ReadInfo_State_Gensym)
 		maketoken_normal(ptr, ret);
 	else
@@ -1992,6 +2010,8 @@ static int readtable_front(Execute ptr,
 		if (0 <= check)
 			break;
 	}
+	if (read_suppress_p(ptr))
+		*ret = Nil;
 	*result = check;
 	return 0;
 }
@@ -3231,6 +3251,10 @@ static void function_dispatch_backslash(Execute ptr, addr stream, addr code, add
 		return;
 	if (check)
 		fmte("Cannot read character name.", NULL);
+	if (read_suppress_p(ptr)) {
+		setresult_control(ptr, Nil);
+		return;
+	}
 	if (! symbolp(pos))
 		fmte("Invalid character type ~S.", pos, NULL);
 	if (find_name_char(&pos, pos))
@@ -3389,6 +3413,19 @@ static int check_feature(addr list, addr pos)
 	return 0;
 }
 
+static int read_ignore(Execute ptr, addr stream, int *result)
+{
+	/* (let ((*read-suppress* t)) ...) */
+	int check;
+	addr control, symbol;
+
+	push_close_control(ptr, &control);
+	GetConst(SPECIAL_READ_SUPPRESS, &symbol);
+	pushspecial_control(ptr, symbol, T);
+	check = read_recursive(ptr, stream, result, &stream);
+	return free_check_control(ptr, control, check);
+}
+
 static void function_dispatch_plus(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
@@ -3399,18 +3436,24 @@ static void function_dispatch_plus(Execute ptr, addr stream, addr code, addr arg
 		return;
 	if (check)
 		fmte("After dispatch #+ must be a feature form.", NULL);
-	if (read_recursive(ptr, stream, &check, &form))
-		return;
-	if (check)
-		fmte("After dispatch #+feature must be a object.", NULL);
 
 	/* check *features* */
 	GetConst(SPECIAL_FEATURES, &list);
 	getspecialcheck_local(ptr, list, &list);
-	if (check_feature(list, feature))
+	if (check_feature(list, feature)) {
+		if (read_recursive(ptr, stream, &check, &form))
+			return;
+		if (check)
+			fmte("After dispatch #+feature must be a object.", NULL);
 		setresult_control(ptr, form);
-	else
+	}
+	else {
+		if (read_ignore(ptr, stream, &check))
+			return;
+		if (check)
+			fmte("After dispatch #+feature must be a object.", NULL);
 		setvalues_nil_control(ptr);
+	}
 }
 
 static void defun_plus_dispatch(void)
@@ -3440,18 +3483,24 @@ static void function_dispatch_minus(Execute ptr, addr stream, addr code, addr ar
 		return;
 	if (check)
 		fmte("After dispatch #- must be a feature form.", NULL);
-	if (read_recursive(ptr, stream, &check, &form))
-		return;
-	if (check)
-		fmte("After dispatch #-feature must be a object.", NULL);
 
 	/* check *features* */
 	GetConst(SPECIAL_FEATURES, &list);
 	getspecialcheck_local(ptr, list, &list);
-	if (! check_feature(list, feature))
+	if (! check_feature(list, feature)) {
+		if (read_recursive(ptr, stream, &check, &form))
+			return;
+		if (check)
+			fmte("After dispatch #-feature must be a object.", NULL);
 		setresult_control(ptr, form);
-	else
+	}
+	else {
+		if (read_ignore(ptr, stream, &check))
+			return;
+		if (check)
+			fmte("After dispatch #-feature must be a object.", NULL);
 		setvalues_nil_control(ptr);
+	}
 }
 
 static void defun_minus_dispatch(void)
@@ -3484,6 +3533,12 @@ static void function_dispatch_dot(Execute ptr, addr stream, addr code, addr arg)
 		return;
 	if (check)
 		fmte("After dispatch #. must be a object.", NULL);
+	if (read_suppress_p(ptr)) {
+		setresult_control(ptr, Nil);
+		return;
+	}
+	if (eval_object(ptr, eval, &eval))
+		return;
 	setresult_control(ptr, eval);
 }
 
@@ -3529,6 +3584,10 @@ static void dispatch_radix_read(Execute ptr, addr stream, fixnum base)
 		return;
 	if (check)
 		fmte("After radix dispatch #<n>r must be an integer.", NULL);
+	if (read_suppress_p(ptr)) {
+		setresult_control(ptr, Nil);
+		return;
+	}
 	if (! integerp(pos))
 		fmte("The radix value ~S must be an integer.", pos, NULL);
 	setresult_control(ptr, pos);
@@ -3539,8 +3598,10 @@ static void function_dispatch_radix(Execute ptr, addr stream, addr code, addr ar
 	fixnum value;
 
 	getfixnumtype(arg, &value);
-	if (! isBaseChar(value))
-		fmte("The radix ~S must be a number between 2 and 36.", arg, NULL);
+	if (! isBaseChar(value)) {
+		if (! read_suppress_p(ptr))
+			fmte("The radix ~S must be a number between 2 and 36.", arg, NULL);
+	}
 	dispatch_radix_read(ptr, stream, value);
 }
 
@@ -3636,6 +3697,10 @@ static void function_dispatch_complex(Execute ptr, addr stream, addr code, addr 
 		return;
 	if (check)
 		fmte("After complex dispatch must be a (real imag) form.", NULL);
+	if (read_suppress_p(ptr)) {
+		setresult_control(ptr, Nil);
+		return;
+	}
 	pos = form;
 	if (! consp(pos)) goto error;
 	GetCons(pos, &real, &pos);
@@ -3671,13 +3736,18 @@ static void defun_complex_dispatch(void)
 /* (defun array-dispatch (stream code arg) ...) -> * */
 static void function_dispatch_array(Execute ptr, addr stream, addr code, addr arg)
 {
-	int check;
+	int check, ignore;
 	addr form;
 
-	if (arg == Nil)
+	ignore = read_suppress_p(ptr);
+	if (arg == Nil && (! ignore))
 		fmte("There is no rank parameter at the #<n>a dispatch.", NULL);
 	if (read_recursive(ptr, stream, &check, &form))
 		return;
+	if (ignore) {
+		setresult_control(ptr, Nil);
+		return;
+	}
 	if (check)
 		fmte("After array dispatch must be an initial-contents form.", NULL);
 	array_contents_heap(&form, arg, form);
@@ -3710,6 +3780,10 @@ static void function_dispatch_pathname(Execute ptr, addr stream, addr code, addr
 		return;
 	if (check)
 		fmte("After #p must be a pathname-designer.", NULL);
+	if (read_suppress_p(ptr)) {
+		setresult_control(ptr, Nil);
+		return;
+	}
 	pathname_designer_heap(ptr, pos, &pos);
 	setresult_control(ptr, pos);
 }
@@ -3731,28 +3805,28 @@ static void defun_pathname_dispatch(void)
 
 static void make_macro_dispatch(void)
 {
-	defun_error_dispatch();
-	defun_equal_dispatch();
-	defun_sharp_dispatch();
-	defun_single_quote_dispatch();
-	defun_parensis_open_dispatch();
-	defun_parensis_close_dispatch();
-	defun_asterisk_dispatch();
-	defun_colon_dispatch();
-	defun_less_dispatch();
-	defun_backslash_dispatch();
-	defun_or_dispatch();
-	defun_plus_dispatch();
-	defun_minus_dispatch();
-	defun_dot_dispatch();
-	defun_radix_dispatch();
-	defun_binary_dispatch();
-	defun_octal_dispatch();
-	defun_hexdecimal_dispatch();
-	defun_complex_dispatch();
-	defun_array_dispatch();
-	defun_pathname_dispatch();
-	//defun_structure_dispatch();
+	defun_error_dispatch();           /* whitespace */
+	defun_equal_dispatch();           /* #= */
+	defun_sharp_dispatch();           /* ## */
+	defun_single_quote_dispatch();    /* #' */
+	defun_parensis_open_dispatch();   /* #( */
+	defun_parensis_close_dispatch();  /* #) */
+	defun_asterisk_dispatch();        /* #* */
+	defun_colon_dispatch();           /* #: */
+	defun_less_dispatch();            /* #< */
+	defun_backslash_dispatch();       /* #\ */
+	defun_or_dispatch();              /* #| */
+	defun_plus_dispatch();            /* #+ */
+	defun_minus_dispatch();           /* #- */
+	defun_dot_dispatch();             /* #. */
+	defun_radix_dispatch();           /* #R */
+	defun_binary_dispatch();          /* #B */
+	defun_octal_dispatch();           /* #O */
+	defun_hexdecimal_dispatch();      /* #X */
+	defun_complex_dispatch();         /* #C */
+	defun_array_dispatch();           /* #A */
+	defun_pathname_dispatch();        /* #P */
+	//defun_structure_dispatch();     /* #S */
 }
 
 

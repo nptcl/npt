@@ -1120,7 +1120,7 @@ static void defvar_read_eval(void)
 	setspecial_symbol(symbol);
 
 	/* type */
-	GetTypeTable(&type, Boolean);
+	GetTypeTable(&type, T);
 	settype_value_symbol(symbol, type);
 }
 
@@ -1136,7 +1136,7 @@ static void defvar_read_suppress(void)
 	setspecial_symbol(symbol);
 
 	/* type */
-	GetTypeTable(&type, Boolean);
+	GetTypeTable(&type, T);
 	settype_value_symbol(symbol, type);
 }
 

@@ -47,6 +47,8 @@ static int loadrt_files(void)
 	loadrt_file("rt-streams.lisp");
 	/* 22. Printer */
 	loadrt_file("rt-printer.lisp");
+	/* 23. Reader */
+	loadrt_file("rt-reader.lisp");
 #if 0
 #endif
 

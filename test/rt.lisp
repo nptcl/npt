@@ -61,6 +61,8 @@
 (loadrt #p"rt-streams.lisp")
 ;; 22. Printer
 (loadrt #p"rt-printer.lisp")
+;; 23. Reader
+(loadrt #p"rt-reader.lisp")
 ;; finish
 (format t "~&OK.~%")
 
