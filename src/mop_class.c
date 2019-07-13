@@ -16,6 +16,7 @@
 #include "function.h"
 #include "lambda.h"
 #include "mop.h"
+#include "structure.h"
 #include "symbol.h"
 #include "type_table.h"
 
@@ -613,6 +614,47 @@ static void defmethod_make_instance_stdclass(Execute ptr, addr name, addr gen)
 }
 
 
+/* (defmethod make-instance
+ *     ((class structure-class) &rest initargs &key) ...)
+ *   -> instance
+ */
+static void method_make_instance_structure(Execute ptr,
+		addr method, addr next, addr rest)
+{
+	if (make_instance_structure(ptr, rest, &rest))
+		return;
+	setresult_control(ptr, rest);
+}
+
+static void method_type_make_instance_structure(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, StructureClass);
+	GetTypeTable(&values, T);
+	typeargs_var1rest(&args, args, values);
+	typeargs_method(args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defmethod_make_instance_structure(Execute ptr, addr name, addr gen)
+{
+	addr pos, call, type;
+
+	/* function */
+	compiled_heap(&call, name);
+	setcompiled_var2dynamic(call, p_method_make_instance_structure);
+	method_type_make_instance_structure(&type);
+	settype_function(call, type);
+	/* method */
+	ArgumentMethod_var1rest(&pos, STRUCTURE_CLASS);
+	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	stdset_method_function(pos, call);
+	common_method_add(ptr, gen, pos);
+}
+
+
 /* (defgeneric make-instance
  *      (class &rest initargs &key allow-other-keys) ...)
  *    -> instance
@@ -629,6 +671,7 @@ static void defgeneric_make_instance_mop(Execute ptr)
 	/* method */
 	defmethod_make_instance_symbol(ptr, name, gen);
 	defmethod_make_instance_stdclass(ptr, name, gen);
+	defmethod_make_instance_structure(ptr, name, gen);
 	common_method_finalize(gen);
 }
 
@@ -840,7 +883,7 @@ static void method_slot_boundp_using_class(Execute ptr,
 	setbool_control(ptr, check);
 }
 
-static void method_argument_slot_boundp_using_class(addr *ret)
+static void method_argument_slot_boundp_using_class(addr *ret, constindex index)
 {
 	addr pos, list, type1, type2, type3;
 	struct argument_struct *str;
@@ -851,7 +894,7 @@ static void method_argument_slot_boundp_using_class(addr *ret)
 	str->type = ArgumentType_method;
 	/* var */
 	str->var = 3;
-	ArgumentMethod_var(&type1, STANDARD_CLASS);
+	mop_argument_method_var(&type1, index);
 	ArgumentMethod_var(&type2, T);
 	ArgumentMethod_var(&type3, SYMBOL);
 	list_heap(&list, type1, type2, type3, NULL);
@@ -860,7 +903,8 @@ static void method_argument_slot_boundp_using_class(addr *ret)
 	*ret = pos;
 }
 
-static void defmethod_slot_boundp_using_class(Execute ptr, addr name, addr gen)
+static void defmethod_slot_boundp_using_class(Execute ptr,
+		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
 
@@ -870,7 +914,7 @@ static void defmethod_slot_boundp_using_class(Execute ptr, addr name, addr gen)
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
 	/* method */
-	method_argument_slot_boundp_using_class(&pos);
+	method_argument_slot_boundp_using_class(&pos, index);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
@@ -886,7 +930,8 @@ static void defgeneric_slot_boundp_using_class_mop(Execute ptr)
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	/* method */
-	defmethod_slot_boundp_using_class(ptr, name, gen);
+	defmethod_slot_boundp_using_class(ptr, name, gen, CONSTANT_CLOS_STANDARD_CLASS);
+	defmethod_slot_boundp_using_class(ptr, name, gen, CONSTANT_CLOS_STRUCTURE_CLASS);
 	common_method_finalize(gen);
 }
 
@@ -900,7 +945,8 @@ static void method_slot_exists_p_using_class(Execute ptr,
 	setbool_control(ptr, clos_slot_exists_p(pos, name));
 }
 
-static void defmethod_slot_exists_p_using_class(Execute ptr, addr name, addr gen)
+static void defmethod_slot_exists_p_using_class(Execute ptr,
+		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
 
@@ -910,7 +956,7 @@ static void defmethod_slot_exists_p_using_class(Execute ptr, addr name, addr gen
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
 	/* method */
-	method_argument_slot_boundp_using_class(&pos);
+	method_argument_slot_boundp_using_class(&pos, index);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
@@ -926,7 +972,8 @@ static void defgeneric_slot_exists_p_using_class_mop(Execute ptr)
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	/* method */
-	defmethod_slot_exists_p_using_class(ptr, name, gen);
+	defmethod_slot_exists_p_using_class(ptr, name, gen, CONSTANT_CLOS_STANDARD_CLASS);
+	defmethod_slot_exists_p_using_class(ptr, name, gen, CONSTANT_CLOS_STRUCTURE_CLASS);
 	common_method_finalize(gen);
 }
 
@@ -941,7 +988,8 @@ static void method_slot_makunbound_using_class(Execute ptr,
 	setresult_control(ptr, pos);
 }
 
-static void defmethod_slot_makunbound_using_class(Execute ptr, addr name, addr gen)
+static void defmethod_slot_makunbound_using_class(Execute ptr,
+		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
 
@@ -951,7 +999,7 @@ static void defmethod_slot_makunbound_using_class(Execute ptr, addr name, addr g
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
 	/* method */
-	method_argument_slot_boundp_using_class(&pos);
+	method_argument_slot_boundp_using_class(&pos, index);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
@@ -967,7 +1015,8 @@ static void defgeneric_slot_makunbound_using_class_mop(Execute ptr)
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	/* method */
-	defmethod_slot_makunbound_using_class(ptr, name, gen);
+	defmethod_slot_makunbound_using_class(ptr, name, gen, CONSTANT_CLOS_STANDARD_CLASS);
+	defmethod_slot_makunbound_using_class(ptr, name, gen, CONSTANT_CLOS_STRUCTURE_CLASS);
 	common_method_finalize(gen);
 }
 
@@ -982,7 +1031,8 @@ static void method_slot_value_using_class(Execute ptr,
 	setresult_control(ptr, pos);
 }
 
-static void defmethod_slot_value_using_class(Execute ptr, addr name, addr gen)
+static void defmethod_slot_value_using_class(Execute ptr,
+		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
 
@@ -992,7 +1042,7 @@ static void defmethod_slot_value_using_class(Execute ptr, addr name, addr gen)
 	GetTypeCompiled(&type, SlotBoundp_Method);
 	settype_function(call, type);
 	/* method */
-	method_argument_slot_boundp_using_class(&pos);
+	method_argument_slot_boundp_using_class(&pos, index);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
@@ -1008,7 +1058,8 @@ static void defgeneric_slot_value_using_class_mop(Execute ptr)
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	/* method */
-	defmethod_slot_value_using_class(ptr, name, gen);
+	defmethod_slot_value_using_class(ptr, name, gen, CONSTANT_CLOS_STANDARD_CLASS);
+	defmethod_slot_value_using_class(ptr, name, gen, CONSTANT_CLOS_STRUCTURE_CLASS);
 	common_method_finalize(gen);
 }
 
@@ -1244,6 +1295,7 @@ _g void init_mop_class(void)
 	SetPointerType(var4dynamic, method_shared_initialize_stdobject);
 	SetPointerType(var3dynamic, method_make_instance_symbol);
 	SetPointerType(var2dynamic, method_make_instance_stdclass);
+	SetPointerType(var2dynamic, method_make_instance_structure);
 	SetPointerType(var2dynamic, method_slot_missing);
 	SetPointerType(var2dynamic, method_slot_unbound);
 	SetPointerType(var5, method_slot_boundp_using_class);

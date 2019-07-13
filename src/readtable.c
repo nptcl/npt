@@ -29,6 +29,7 @@
 #include "stream.h"
 #include "stream_string.h"
 #include "strtype.h"
+#include "structure.h"
 #include "symbol.h"
 #include "token.h"
 #include "type_table.h"
@@ -490,9 +491,7 @@ static void default_dispatch_readtype(addr pos, unicode u)
 	DispatchCharacter(pos, u, 'O',  OCTAL);
 	DispatchCharacter(pos, u, 'P',  PATHNAME);
 	DispatchCharacter(pos, u, 'R',  RADIX);
-#if 0
 	DispatchCharacter(pos, u, 'S',  STRUCTURE);
-#endif
 	DispatchCharacter(pos, u, 'X',  HEXDECIMAL);
 }
 
@@ -778,9 +777,7 @@ static void get_default_dispatch_sharp(addr code, addr *ret)
 	DefaultDispatch(u, 'O',  OCTAL);
 	DefaultDispatch(u, 'P',  PATHNAME);
 	DefaultDispatch(u, 'R',  RADIX);
-#if 0
 	DefaultDispatch(u, 'S',  STRUCTURE);
-#endif
 	DefaultDispatch(u, 'X',  HEXDECIMAL);
 	*ret = Nil;
 }
@@ -3803,6 +3800,48 @@ static void defun_pathname_dispatch(void)
 	settype_function_symbol(symbol, type);
 }
 
+
+/* (defun structure-dispatch (stream code arg) ...) -> structure-object */
+static void function_dispatch_structure(Execute ptr, addr stream, addr code, addr arg)
+{
+	int check;
+	addr pos, rest;
+
+	if (read_recursive(ptr, stream, &check, &pos))
+		return;
+	if (check)
+		goto error;
+	if (read_suppress_p(ptr)) {
+		setresult_control(ptr, Nil);
+		return;
+	}
+	if (! consp(pos))
+		goto error;
+	GetCons(pos, &pos, &rest);
+	if (structure_constructor_common(ptr, pos, rest, &pos))
+		return;
+	setresult_control(ptr, pos);
+	return;
+
+error:
+	fmte("After #s must be (name key value ...) form.", NULL);
+}
+
+static void defun_structure_dispatch(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_STRUCTURE_DISPATCH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var3(pos, p_defun_dispatch_structure);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroDispatch);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
 static void make_macro_dispatch(void)
 {
 	defun_error_dispatch();           /* whitespace */
@@ -3826,7 +3865,7 @@ static void make_macro_dispatch(void)
 	defun_complex_dispatch();         /* #C */
 	defun_array_dispatch();           /* #A */
 	defun_pathname_dispatch();        /* #P */
-	//defun_structure_dispatch();     /* #S */
+	defun_structure_dispatch();       /* #S */
 }
 
 
@@ -3906,6 +3945,7 @@ _g void init_readtable(void)
 	SetPointerCall(defun, var3, dispatch_complex);
 	SetPointerCall(defun, var3, dispatch_array);
 	SetPointerCall(defun, var3, dispatch_pathname);
+	SetPointerCall(defun, var3, dispatch_structure);
 	SetPointerType(empty, read_replace_finalize);
 	init_chartable();
 }

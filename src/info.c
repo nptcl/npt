@@ -783,7 +783,7 @@ static void infoprint_clos(addr pos)
 	info_stdarg("#<");
 	/* class-of */
 	GetClassOfClos(pos, &check);
-	GetConst(KEYWORD_NAME, &key);
+	GetConst(CLOSNAME_NAME, &key);
 	if (key == Unbound) {
 		info_stdarg("CLOS>");
 		return;

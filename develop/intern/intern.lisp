@@ -1241,6 +1241,20 @@ lisp-clos::order
 (:binding                    :constant closkey)
 (:order                      :constant closkey)
 
+;;  structure
+lisp-clos::slots
+lisp-clos::include
+lisp-clos::vector
+lisp-clos::named
+lisp-clos::named-index
+lisp-clos::value
+(:slots                      :constant closkey)
+(:include                    :constant closkey)
+(:vector                     :constant closkey)
+(:named                      :constant closkey)
+(:named-index                :constant closkey)
+(:value                      :constant closkey)
+
 ;;  system
 lisp-system::value ;; symbol, function
 lisp-system::function ;; symbol, function
@@ -1348,6 +1362,13 @@ lisp-system::prompt-stream
 
 lisp-system::symbol-macro-expander
 lisp-system::defconstant
+
+
+;;
+;;  structure
+;;
+lisp-system::structure-gensym
+lisp-system::structure-constructor
 
 
 ;;

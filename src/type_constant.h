@@ -210,6 +210,8 @@ enum TypeTable {
 	TypeTable_ClassNull,
 	TypeTable_StandardClass,
 	TypeTable_StandardObject,
+	TypeTable_StructureClass,
+	TypeTable_StructureObject,
 
 	/* Array */
 	TypeTable_Array_T,
@@ -370,6 +372,7 @@ enum TypeTable {
 	TypeCompiled_Reader_Method,
 	TypeCompiled_Writer_Method,
 	TypeCompiled_Signal,
+	TypeCompiled_PrintObject_Method,
 
 	/* Size */
 	TypeTable_Size

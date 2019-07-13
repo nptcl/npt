@@ -30,6 +30,8 @@ _g void getnthcdr(addr cons, size_t index, addr *ret);
 _g void getnthcdr_large(addr cons, addr index, addr *ret);
 _g void getnthcdr_unsafe(addr cons, size_t index, addr *ret);
 _g void setnth(addr cons, size_t index, addr value);
+_g void setnth_unsafe(addr cons, size_t index, addr value);
+_g int length_list_check(addr list, size_t *ret);
 _g size_t length_list_safe(addr cons);
 _g size_t length_list_safe_dotted(addr cons);
 _g size_t length_list_unsafe(addr cons);
@@ -208,6 +210,12 @@ _g int find_list_callname_unsafe(addr callname, addr list);
  */
 _g int getassoc(addr key, addr list, addr *ret);
 _g int getrassoc(addr key, addr list, addr *ret);
+
+
+/*
+ *  list-sequence
+ */
+_g void list_nil_heap(addr *ret, size_t size);
 
 #endif
 

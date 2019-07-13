@@ -8,6 +8,7 @@
 #include "cmpl.h"
 #include "clos.h"
 #include "clos_class.h"
+#include "clos_generic.h"
 #include "condition.h"
 #include "constant.h"
 #include "control.h"
@@ -20,6 +21,7 @@
 #include "package.h"
 #include "pathname.h"
 #include "print.h"
+#include "print_object.h"
 #include "quote.h"
 #include "random_state.h"
 #include "ratio.h"
@@ -35,10 +37,9 @@
 
 #define PRINT_STREAM_SIZE		64
 
-typedef int (*calltype_write_print)(struct PrintFormat *, addr, addr);
 static calltype_write_print call_write_print[LISPTYPE_SIZE];
 
-static int print_unreadable_object(struct PrintFormat *format,
+_g int print_unreadable_object(struct PrintFormat *format,
 		addr stream, addr pos, int type, int identity,
 		calltype_write_print call)
 {
@@ -99,32 +100,17 @@ static int print_unreadable_object(struct PrintFormat *format,
 /*
  *  clos, structure
  */
-static int write_structure(struct PrintFormat *format, addr stream, addr pos)
-{
-	/* TODO: structure */
-	print_ascii_stream(stream, "#S(...)");
-	return 0;
-}
-
-static int write_clos_body(struct PrintFormat *format, addr stream, addr pos)
-{
-	if (clos_class_p(pos)) {
-		stdget_class_name(pos, &pos);
-		return write_print(format, stream, pos);
-	}
-	else {
-		return 0;
-	}
-}
-
 static int write_clos(struct PrintFormat *format, addr stream, addr pos)
 {
-	if (structure_instance_p(pos))
-		return write_structure(format, stream, pos);
-	if (clos_class_p(pos))
-		return print_unreadable_object(format, stream, pos, 1, 0, write_clos_body);
-	else
-		return print_unreadable_object(format, stream, pos, 1, 1, NULL);
+	addr generic;
+	Execute ptr;
+
+	Check(! closp(pos), "type error");
+	ptr = format->ptr;
+	GetConst(COMMON_PRINT_OBJECT, &generic);
+	getfunctioncheck_local(ptr, generic, &generic);
+
+	return callclang_funcall(ptr, &pos, generic, pos, stream, NULL);
 }
 
 
@@ -1589,72 +1575,6 @@ static int write_system(struct PrintFormat *format, addr stream, addr pos)
 	return print_unreadable_object(format, stream, pos, 1, 1, NULL);
 }
 
-_g void init_print(void)
-{
-	int i;
-
-	/* error */
-	for (i = 0; i < LISPTYPE_SIZE; i++)
-		call_write_print[i] = write_error;
-
-	/* call */
-	call_write_print[LISPTYPE_NIL] = write_symbol;
-	call_write_print[LISPTYPE_T] = write_symbol;
-	call_write_print[LISPTYPE_TYPE] = write_system;
-	call_write_print[LISPTYPE_CLOS] = write_clos;
-	call_write_print[LISPTYPE_CONS] = write_cons;
-	call_write_print[LISPTYPE_ARRAY] = write_array;
-	call_write_print[LISPTYPE_VECTOR] = write_vector;
-	call_write_print[LISPTYPE_CHARACTER] = write_character;
-	call_write_print[LISPTYPE_STRING] = write_strtype;
-	call_write_print[LISPTYPE_HASHTABLE] = write_hashtable;
-	call_write_print[LISPTYPE_READTABLE] = write_system;
-	call_write_print[LISPTYPE_SYMBOL] = write_symbol;
-	call_write_print[LISPTYPE_FIXNUM] = write_fixnum;
-	call_write_print[LISPTYPE_BIGNUM] = write_bignum;
-	call_write_print[LISPTYPE_RATIO] = write_ratio;
-	call_write_print[LISPTYPE_SHORT_FLOAT] = write_error;
-	call_write_print[LISPTYPE_SINGLE_FLOAT] = write_single_float;
-	call_write_print[LISPTYPE_DOUBLE_FLOAT] = write_double_float;
-	call_write_print[LISPTYPE_LONG_FLOAT] = write_long_float;
-	call_write_print[LISPTYPE_COMPLEX] = write_complex;
-	call_write_print[LISPTYPE_CONTROL] = write_system;
-	call_write_print[LISPTYPE_CODE] = write_system;
-	call_write_print[LISPTYPE_CALLNAME] = write_callname;
-	call_write_print[LISPTYPE_FUNCTION] = write_function;
-	call_write_print[LISPTYPE_INDEX] = write_index;
-	call_write_print[LISPTYPE_SYSTEM] = write_system;
-	call_write_print[LISPTYPE_PACKAGE] = write_package;
-	call_write_print[LISPTYPE_RANDOM_STATE] = write_random_state;
-	call_write_print[LISPTYPE_PATHNAME] = write_pathname;
-	call_write_print[LISPTYPE_STREAM] = write_stream;
-	call_write_print[LISPTYPE_QUOTE] = write_quote;
-	call_write_print[LISPTYPE_RESTART] = write_restart;
-	call_write_print[LISPTYPE_EVAL] = write_system;
-	call_write_print[LISPTYPE_ENVIRONMENT] = write_system;
-	call_write_print[LISPTYPE_BITVECTOR] = write_bitvector;
-	call_write_print[LISPTYPE_PPRINT] = write_system;
-	call_write_print[LISPTYPE_BYTESPEC] = write_bytespec;
-
-	call_write_print[LISPSYSTEM_CHARACTER2] = write_system;
-	call_write_print[LISPSYSTEM_CHARQUEUE] = write_system;
-	call_write_print[LISPSYSTEM_CHARBIT] = write_system;
-	call_write_print[LISPSYSTEM_SYMSTACK] = write_system;
-	call_write_print[LISPSYSTEM_SYMARRAY] = write_system;
-	call_write_print[LISPSYSTEM_BITTYPE] = write_system;
-	call_write_print[LISPSYSTEM_READLABEL] = write_system;
-	call_write_print[LISPSYSTEM_READINFO] = write_system;
-	call_write_print[LISPSYSTEM_READTYPE] = write_system;
-	call_write_print[LISPSYSTEM_BITCONS] = write_system;
-	call_write_print[LISPSYSTEM_BITBUFFER] = write_system;
-	call_write_print[LISPSYSTEM_HASHITERATOR] = write_system;
-	call_write_print[LISPSYSTEM_PACKAGEITERATOR] = write_system;
-	call_write_print[LISPSYSTEM_TAGINFO] = write_system;
-	call_write_print[LISPSYSTEM_ARRAY_DIMENSION] = write_system;
-	call_write_print[LISPSYSTEM_ARRAY_GENERAL] = write_system;
-	call_write_print[LISPSYSTEM_ARRAY_SPECIALIZED] = write_system;
-}
-
 
 /*
  *  print
@@ -1814,5 +1734,86 @@ _g int prin1_string(Execute ptr, LocalRoot local, addr *ret, addr object)
 _g void pprint_dispatch_heap(addr *ret)
 {
 	heap_smallsize(ret, LISPTYPE_PPRINT, 1, 0);
+}
+
+
+/*
+ *  initialize
+ */
+_g void build_print(Execute ptr)
+{
+	build_print_object(ptr);
+}
+
+static void init_print_call(void)
+{
+	int i;
+
+	/* error */
+	for (i = 0; i < LISPTYPE_SIZE; i++)
+		call_write_print[i] = write_error;
+
+	/* call */
+	call_write_print[LISPTYPE_NIL] = write_symbol;
+	call_write_print[LISPTYPE_T] = write_symbol;
+	call_write_print[LISPTYPE_TYPE] = write_system;
+	call_write_print[LISPTYPE_CLOS] = write_clos;
+	call_write_print[LISPTYPE_CONS] = write_cons;
+	call_write_print[LISPTYPE_ARRAY] = write_array;
+	call_write_print[LISPTYPE_VECTOR] = write_vector;
+	call_write_print[LISPTYPE_CHARACTER] = write_character;
+	call_write_print[LISPTYPE_STRING] = write_strtype;
+	call_write_print[LISPTYPE_HASHTABLE] = write_hashtable;
+	call_write_print[LISPTYPE_READTABLE] = write_system;
+	call_write_print[LISPTYPE_SYMBOL] = write_symbol;
+	call_write_print[LISPTYPE_FIXNUM] = write_fixnum;
+	call_write_print[LISPTYPE_BIGNUM] = write_bignum;
+	call_write_print[LISPTYPE_RATIO] = write_ratio;
+	call_write_print[LISPTYPE_SHORT_FLOAT] = write_error;
+	call_write_print[LISPTYPE_SINGLE_FLOAT] = write_single_float;
+	call_write_print[LISPTYPE_DOUBLE_FLOAT] = write_double_float;
+	call_write_print[LISPTYPE_LONG_FLOAT] = write_long_float;
+	call_write_print[LISPTYPE_COMPLEX] = write_complex;
+	call_write_print[LISPTYPE_CONTROL] = write_system;
+	call_write_print[LISPTYPE_CODE] = write_system;
+	call_write_print[LISPTYPE_CALLNAME] = write_callname;
+	call_write_print[LISPTYPE_FUNCTION] = write_function;
+	call_write_print[LISPTYPE_INDEX] = write_index;
+	call_write_print[LISPTYPE_SYSTEM] = write_system;
+	call_write_print[LISPTYPE_PACKAGE] = write_package;
+	call_write_print[LISPTYPE_RANDOM_STATE] = write_random_state;
+	call_write_print[LISPTYPE_PATHNAME] = write_pathname;
+	call_write_print[LISPTYPE_STREAM] = write_stream;
+	call_write_print[LISPTYPE_QUOTE] = write_quote;
+	call_write_print[LISPTYPE_RESTART] = write_restart;
+	call_write_print[LISPTYPE_EVAL] = write_system;
+	call_write_print[LISPTYPE_ENVIRONMENT] = write_system;
+	call_write_print[LISPTYPE_BITVECTOR] = write_bitvector;
+	call_write_print[LISPTYPE_PPRINT] = write_system;
+	call_write_print[LISPTYPE_BYTESPEC] = write_bytespec;
+
+	call_write_print[LISPSYSTEM_CHARACTER2] = write_system;
+	call_write_print[LISPSYSTEM_CHARQUEUE] = write_system;
+	call_write_print[LISPSYSTEM_CHARBIT] = write_system;
+	call_write_print[LISPSYSTEM_SYMSTACK] = write_system;
+	call_write_print[LISPSYSTEM_SYMARRAY] = write_system;
+	call_write_print[LISPSYSTEM_BITTYPE] = write_system;
+	call_write_print[LISPSYSTEM_READLABEL] = write_system;
+	call_write_print[LISPSYSTEM_READINFO] = write_system;
+	call_write_print[LISPSYSTEM_READTYPE] = write_system;
+	call_write_print[LISPSYSTEM_BITCONS] = write_system;
+	call_write_print[LISPSYSTEM_BITBUFFER] = write_system;
+	call_write_print[LISPSYSTEM_HASHITERATOR] = write_system;
+	call_write_print[LISPSYSTEM_PACKAGEITERATOR] = write_system;
+	call_write_print[LISPSYSTEM_TAGINFO] = write_system;
+	call_write_print[LISPSYSTEM_ARRAY_DIMENSION] = write_system;
+	call_write_print[LISPSYSTEM_ARRAY_GENERAL] = write_system;
+	call_write_print[LISPSYSTEM_ARRAY_SPECIALIZED] = write_system;
+}
+
+_g void init_print(void)
+{
+	init_print_call();
+	init_print_object();
 }
 

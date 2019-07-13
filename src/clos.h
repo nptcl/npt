@@ -12,7 +12,7 @@ __extern addr Clos_standard_combination;
 __extern addr Clos_standard_specializer;
 
 struct slot_struct {
-	size_t location;
+	size_t location, access;
 };
 
 struct clos_struct {
@@ -45,6 +45,8 @@ struct clos_struct {
 #define SetAllocationSlot_Low(x,y)		(SetUser((x), (y) != 0))
 #define GetLocationSlot_Low(x,y)		(*(y) = SlotStruct_Low(x)->location)
 #define SetLocationSlot_Low(x,y)		(SlotStruct_Low(x)->location = (y))
+#define GetAccessSlot_Low(x,y)			(*(y) = SlotStruct_Low(x)->access)
+#define SetAccessSlot_Low(x,y)			(SlotStruct_Low(x)->access = (y))
 
 #define PtrClosStruct_Low(x)			PtrBodySSa((x),CLOS_INDEX_SIZE)
 #define ClosStruct_Low(x)				((struct clos_struct *)PtrClosStruct_Low(x))
@@ -98,6 +100,8 @@ struct clos_struct {
 #define SetAllocationSlot		setallocation_slot
 #define GetLocationSlot			getlocation_slot
 #define SetLocationSlot			setlocation_slot
+#define GetAccessSlot			getaccess_slot
+#define SetAccessSlot			setaccess_slot
 
 #define ClosStruct				struct_clos
 #define GetClassOfClos			getclassof_clos
@@ -151,6 +155,8 @@ struct clos_struct {
 #define SetAllocationSlot		SetAllocationSlot_Low
 #define GetLocationSlot			GetLocationSlot_Low
 #define SetLocationSlot			SetLocationSlot_Low
+#define GetAccessSlot			GetAccessSlot_Low
+#define SetAccessSlot			SetAccessSlot_Low
 
 #define ClosStruct				ClosStruct_Low
 #define GetClassOfClos			GetClassOfClos_Low
@@ -205,6 +211,8 @@ _g void getallocation_slot(addr pos, int *ret);
 _g void setallocation_slot(addr pos, int value);
 _g void getlocation_slot(addr pos, size_t *ret);
 _g void setlocation_slot(addr pos, size_t value);
+_g void getaccess_slot(addr pos, size_t *ret);
+_g void setaccess_slot(addr pos, size_t value);
 
 _g struct clos_struct *struct_clos(addr pos);
 _g void getclassof_clos(addr pos, addr *ret);
@@ -256,6 +264,8 @@ _g void clos_heap(addr *ret, addr slots);
 /* control */
 _g int closp(addr pos);
 _g int slotp(addr pos);
+_g int clos_value_p(addr pos);
+_g int slot_vector_p(addr pos);
 _g int clos_funcall_p(addr pos);
 _g int slot_class_p(addr pos);
 _g int slot_instance_p(addr pos);

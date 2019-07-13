@@ -116,6 +116,7 @@ package.c
 pathname.c
 pointer.c
 print.c
+print_object.c
 prompt.c
 quote.c
 radix.c

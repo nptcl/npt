@@ -228,6 +228,7 @@ enum pointer_index {
 	p_method_shared_initialize_stdobject,
 	p_method_make_instance_symbol,
 	p_method_make_instance_stdclass,
+	p_method_make_instance_structure,
 	p_method_slot_missing,
 	p_method_slot_unbound,
 	p_method_slot_boundp_using_class,
@@ -894,6 +895,9 @@ enum pointer_index {
 	p_defun_princ_to_string,
 	p_defun_print_not_readable_object,
 	p_defun_format,
+	p_method_print_object_t,
+	p_method_print_object_class,
+	p_method_print_object_structure_object,
 	/* common-reader */
 	p_defun_copy_readtable,
 	p_defun_make_dispatch_macro_character,
@@ -960,6 +964,7 @@ enum pointer_index {
 	p_defun_dispatch_complex,
 	p_defun_dispatch_array,
 	p_defun_dispatch_pathname,
+	p_defun_dispatch_structure,
 	p_read_replace_finalize,
 	/* package */
 	p_defun_defpackage_make,
@@ -980,6 +985,25 @@ enum pointer_index {
 	p_defmacro_deftest_error,
 	p_defun_do_tests,
 	p_defun_equalrt,
+	/* structure */
+	p_defun_structure_reader_list,
+	p_defun_structure_reader_vector,
+	p_defun_structure_reader_clos,
+	p_defun_structure_writer_list,
+	p_defun_structure_writer_vector,
+	p_defun_structure_writer_clos,
+	p_defun_structure_constructor_list,
+	p_defun_structure_constructor_vector,
+	p_defun_structure_constructor_clos,
+	p_defun_structure_copier_list,
+	p_defun_structure_copier_vector,
+	p_defun_structure_copier_clos,
+	p_defun_structure_predicate_list,
+	p_defun_structure_predicate_vector,
+	p_defun_structure_predicate_clos,
+	p_method_defstruct_default,
+	p_method_defstruct_object,
+	p_method_defstruct_function,
 	/* syscall */
 	p_defun_syscall_hello,
 	p_defun_syscall_fixnum_plus,
@@ -1035,6 +1059,7 @@ enum pointer_index {
 	p_defun_syscall_symbol_deftype,
 	p_defun_syscall_delete_deftype,
 	p_defun_syscall_ensure_structure,
+	p_defun_syscall_structure_constructor,
 
 	/* size */
 	p_size

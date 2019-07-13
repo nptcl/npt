@@ -177,6 +177,19 @@ _g void setlocation_slot(addr pos, size_t value)
 	SetLocationSlot_Low(pos, value);
 }
 
+_g void getaccess_slot(addr pos, size_t *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetAccessSlot_Low(pos, ret);
+}
+
+_g void setaccess_slot(addr pos, size_t value)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	Check(GetStatusReadOnly(pos), "readonly error");
+	SetAccessSlot_Low(pos, value);
+}
+
 _g struct clos_struct *struct_clos(addr pos)
 {
 	CheckType(pos, LISPTYPE_CLOS);
@@ -338,6 +351,7 @@ _g void slot_alloc(LocalRoot local, addr *ret)
 	slot_unsafe(local, &pos);
 	SetAllocationSlot_Low(pos, 0);
 	SetLocationSlot_Low(pos, 0);
+	SetAccessSlot_Low(pos, 0);
 	SetNameSlot_Low(pos, Unbound);
 	SetFormSlot_Low(pos, Unbound);
 	*ret = pos;
@@ -366,6 +380,7 @@ _g void slot_copy_alloc(LocalRoot local, addr *ret, addr slot)
 	str1 = SlotStruct_Low(slot);
 	str2 = SlotStruct_Low(pos);
 	str2->location = str1->location;
+	str2->access = str1->access;
 	GetAllocationSlot_Low(slot, &check);
 	SetAllocationSlot_Low(pos, check);
 
@@ -513,6 +528,16 @@ _g int closp(addr pos)
 _g int slotp(addr pos)
 {
 	return GetType(pos) == LISPSYSTEM_SLOT;
+}
+
+_g int slot_vector_p(addr pos)
+{
+	return GetType(pos) == LISPSYSTEM_SLOT_VECTOR;
+}
+
+_g int clos_value_p(addr pos)
+{
+	return GetType(pos) == LISPSYSTEM_CLOS_VALUE;
 }
 
 _g int clos_funcall_p(addr pos)

@@ -128,5 +128,19 @@ enum Clos_short {
 	Clos_short_size
 };
 
+enum Clos_structure_Index {
+	Clos_structure_name,
+	Clos_structure_slots,
+	Clos_structure_documentation,
+	Clos_structure_include,
+	Clos_structure_precedence_list,
+	Clos_structure_type,
+	Clos_structure_vector,
+	Clos_structure_named,
+	Clos_structure_named_index,
+	Clos_structure_value,
+	Clos_structure_size
+};
+
 #endif
 

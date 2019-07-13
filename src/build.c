@@ -34,6 +34,7 @@
 #include "real_common.h"
 #include "rt.h"
 #include "stream.h"
+#include "structure.h"
 #include "sxhash.h"
 #include "symbol.h"
 #include "syscall.h"
@@ -87,6 +88,7 @@ _g void initlisp(void)
 	init_readtable();
 	init_rt();
 	init_stream();
+	init_structure();
 	init_sxhash();
 	init_syscall();
 	init_type();
@@ -306,6 +308,7 @@ _g void buildlisp(Execute ptr)
 	build_type();
 	build_syscall();
 	build_common();
+	build_print(ptr);
 	build_readtable();
 	build_pathname();
 	build_eval_declare();

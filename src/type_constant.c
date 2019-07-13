@@ -984,6 +984,24 @@ static void typetable_standardobject(void)
 	SetTypeTable(StandardObject, pos);
 }
 
+static void typetable_structureclass(void)
+{
+	addr pos;
+
+	GetConst(CLOS_STRUCTURE_CLASS, &pos);
+	type_clos_heap(pos, &pos);
+	SetTypeTable(StructureClass, pos);
+}
+
+static void typetable_structureobject(void)
+{
+	addr pos;
+
+	GetConst(CLOS_STRUCTURE_OBJECT, &pos);
+	type_clos_heap(pos, &pos);
+	SetTypeTable(StructureObject, pos);
+}
+
 
 /*
  *  Array
@@ -2563,6 +2581,20 @@ static void typecompiled_signal(void)
 	SetTypeCompiled(Signal, args);
 }
 
+static void typecompiled_print_object_method(void)
+{
+	/* (function (t t t stream) (values t &rest nil)) */
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, Stream);
+	typeargs_var2(&args, args, values);
+	typeargs_method(args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(PrintObject_Method, args);
+}
+
 
 /*
  *  Interface
@@ -2718,6 +2750,8 @@ _g void build_type_constant(void)
 	typetable_classnull();
 	typetable_standardclass();
 	typetable_standardobject();
+	typetable_structureclass();
+	typetable_structureobject();
 
 	/* Array */
 	typetable_array_t();
@@ -2878,5 +2912,6 @@ _g void build_type_constant(void)
 	typecompiled_reader_method();
 	typecompiled_writer_method();
 	typecompiled_signal();
+	typecompiled_print_object_method();
 }
 

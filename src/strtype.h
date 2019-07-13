@@ -103,5 +103,10 @@ _g int string_designer_local(LocalRoot local, addr *ret, addr pos);
 _g int string_designer_heap(addr *ret, addr pos);
 _g int string_designer_string(addr *ret, addr pos);
 
+_g void string_concat_heap(addr *ret, addr a, addr b);
+_g void string_concat_hyphen_heap(addr *ret, addr a, addr b);
+_g void string_concat_char1_heap(addr *ret, const char *str, addr b);
+_g void string_concat_char2_heap(addr *ret, addr a, const char *str);
+
 #endif
 

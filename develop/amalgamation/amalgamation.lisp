@@ -64,6 +64,9 @@
 (defun trim (x)
   (string-trim +trim+ x))
 
+(defun trimqq (x)
+  (string-trim "\"" x))
+
 (defmacro aif (expr then &optional else)
   `(let ((it ,expr))
      (if it ,then ,else)))
@@ -151,8 +154,9 @@
   (let ((list (split-whitespace x)))
     (when (= (length list) 2)
       (dbind (x y) list
-        (when (equal x "#include")
-          (values t y))))))
+        (and (equal x "#include")
+             (not (equalp (trimqq y) "config.h"))
+             (values t y))))))
 
 (defun extern-p (x)
   (let ((list (split-whitespace x)))
@@ -183,7 +187,7 @@
 (declaim (ftype function header-read))
 (defun header-inline (x)
   (mvbind (x y) (include-p x)
-    (let ((y (string-trim "\"" y)))
+    (let ((y (trimqq y)))
       (when (and x (find y (mklist *header-include*) :test 'equal))
         (let ((*header-print* t))
           (header-read y))
@@ -243,7 +247,7 @@
   (dobind (x y z) (set-implementation-list)
     (when (and (equal x "#define")
                (equal y "Lispname"))
-      (setq +name+ (string-trim "\"" z))
+      (setq +name+ (trimqq z))
       (format *error-output* "Name: ~A~%" +name+))))
 
 (defmacro with-output-file ((file) &body body)
@@ -352,6 +356,7 @@
     "package.h"
     "readtable.h"
     "print.h"
+    "print_object.h"
     "prompt.h"
     "quote.h"
     "radix.h"
@@ -535,6 +540,7 @@
     "pathname.c"
     "pointer.c"
     "print.c"
+    "print_object.c"
     ("prompt.c" :header t)
     "quote.c"
     "radix.c"
@@ -608,6 +614,17 @@
     (format t " *    ~A~%" x))
   (format t " */~%"))
 
+(defun header-cplusplus ()
+  (echo
+    "#ifdef __cplusplus"
+    "#ifndef __STDC_LIMIT_MACROS"
+    "#define __STDC_LIMIT_MACROS"
+    "#endif"
+    "#ifndef __STDC_CONSTANT_MACROS"
+    "#define __STDC_CONSTANT_MACROS"
+    "#endif"
+    "#endif"))
+
 (defun header-comment ()
   (header-common)
   (pragma-push)
@@ -616,11 +633,7 @@
   (format t "#define _s static~%")
   (format t "#define __extern static~%")
   (terpri)
-  (echo
-    "#ifdef __cplusplus"
-    "#define __STDC_LIMIT_MACROS"
-    "#define __STDC_CONSTANT_MACROS"
-    "#endif")
+  (header-cplusplus)
   (terpri)
   (dolist (x (sort *include-list* #'string<))
     (format t "#include ~A~%" x))
@@ -657,6 +670,8 @@
     (header-common)
     (format t "~&#ifndef __LISP_HEADER__~%")
     (format t "~&#define __LISP_HEADER__~%")
+    (terpri)
+    (header-cplusplus)
     (terpri)
     (dolist (x (sort *include-list* #'string<))
       (format t "#include ~A~%" x))

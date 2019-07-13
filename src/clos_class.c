@@ -1101,6 +1101,25 @@ _g void clos_stdclass_slotsconstant(LocalRoot local, addr metaclass, addr slots,
 #define ClosMakeClassSlot(p,m,s,a,b,c) \
 	clos_stdclass_slotsconstant((p),(m),(s),CONSTANT_##a,CONSTANT_##b,CONSTANT_##c);
 
+static void clos_structure_slots(addr *ret)
+{
+	addr slots;
+
+	slot_vector_heap(&slots, Clos_structure_size);
+	SlotMakeNameSymbol(slots, NAME, structure_name);
+	SlotMakeForm(slots, SLOTS, structure_slots);
+	SlotMakeForm(slots, DOCUMENTATION, structure_documentation);
+	SlotMakeForm(slots, INCLUDE, structure_include);
+	SlotMakeName(slots, CLASS_PRECEDENCE_LIST, structure_precedence_list);
+	SlotMakeName(slots, TYPE, structure_type);
+	SlotMakeName(slots, VECTOR, structure_vector);
+	SlotMakeName(slots, NAMED, structure_named);
+	SlotMakeName(slots, NAMED_INDEX, structure_named_index);
+	SlotMakeName(slots, VALUE, structure_value);
+	slotvector_set_location(slots);
+	*ret = slots;
+}
+
 static void build_clos_class_standard(LocalRoot local)
 {
 	addr metaclass, structure, slots;
@@ -1108,7 +1127,8 @@ static void build_clos_class_standard(LocalRoot local)
 	/* standard-class, others */
 	clos_stdclass_metaclass(local, &metaclass);
 	/* structure-class */
-	ClosMakeClass1(local, metaclass,
+	clos_structure_slots(&slots);
+	ClosMakeClassSlot(local, metaclass, slots,
 			COMMON_STRUCTURE_CLASS,
 			CLOS_STRUCTURE_CLASS,
 			CLOS_CLASS);

@@ -166,6 +166,29 @@ _g void setnth(addr cons, size_t index, addr value)
 	SetCar(cdr, value);
 }
 
+_g void setnth_unsafe(addr cons, size_t index, addr value)
+{
+	addr cdr;
+
+	getnthcdr_unsafe(cons, index, &cdr);
+	Check(! consp(cdr), "type error");
+	SetCar(cdr, value);
+}
+
+_g int length_list_check(addr list, size_t *ret)
+{
+	size_t i;
+
+	for (i = 0; list != Nil; i++) {
+		if (GetType(list) != LISPTYPE_CONS)
+			return 1;
+		GetCdr(list, &list);
+	}
+	*ret = i;
+
+	return 0;
+}
+
 _g size_t length_list_safe(addr right)
 {
 	size_t size;
@@ -1840,5 +1863,20 @@ _g int getrassoc(addr key, addr list, addr *ret)
 	*ret = Nil;
 
 	return 1;
+}
+
+
+/*
+ *  list-sequence
+ */
+_g void list_nil_heap(addr *ret, size_t size)
+{
+	addr list;
+	size_t i;
+
+	list = Nil;
+	for (i = 0; i < size; i++)
+		cons_heap(&list, Nil, list);
+	*ret = list;
 }
 

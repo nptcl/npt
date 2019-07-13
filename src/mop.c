@@ -2,6 +2,7 @@
  *  ANSI COMMON LISP: 7. Objects
  *    Common Lisp Object System - Metaobject Protocol
  */
+#include "clos.h"
 #include "cons.h"
 #include "lambda.h"
 #include "mop.h"
@@ -154,6 +155,26 @@ _g void mop_argument_method_var1rest(addr *ret, constindex var1)
 	addr pos;
 	mop_argument_method_var1(&pos, var1);
 	ArgumentStruct(pos)->rest = 1;
+	*ret = pos;
+}
+
+_g void mop_argument_method_print_object(addr *ret, addr clos)
+{
+	addr pos, pos1, pos2;
+	struct argument_struct *str;
+
+	Check(! closp(clos), "type error");
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 2;
+	list_heap(&pos1, Nil, clos, NULL);
+	mop_argument_method_var(&pos2, CONSTANT_CLOS_STREAM);
+	list_heap(&pos1, pos1, pos2, NULL);
+	SetArgument(pos, ArgumentIndex_var, pos1);
+	/* result */
 	*ret = pos;
 }
 

@@ -2,6 +2,8 @@
 #define __FORMAT_HEADER__
 
 #include <stdarg.h>
+#include "execute.h"
+#include "local.h"
 #include "typedef.h"
 
 /* format */

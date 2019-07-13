@@ -131,11 +131,11 @@ am__npt_SOURCES_DIST = alloc.c arch.c array.c array_adjust.c \
 	md5encode.c memory.c mop.c mop_class.c mop_generic.c \
 	mop_reader.c mop_protocols.c number.c number_gcd.c \
 	number_random.c object.c package.c pathname.c pointer.c \
-	print.c prompt.c quote.c radix.c random.c random_float.c \
-	random_state.c ratio.c rational.c readtable.c real_ceiling.c \
-	real_common.c real_decode.c real_division.c real_float.c \
-	real_floor.c real_round.c real_truncate.c real.c rt.c \
-	rt_load.c sequence.c setf.c sort.c stream_broadcast.c \
+	print.c print_object.c prompt.c quote.c radix.c random.c \
+	random_float.c random_state.c ratio.c rational.c readtable.c \
+	real_ceiling.c real_common.c real_decode.c real_division.c \
+	real_float.c real_floor.c real_round.c real_truncate.c real.c \
+	rt.c rt_load.c sequence.c setf.c sort.c stream_broadcast.c \
 	stream_concat.c stream_echo.c stream_error.c stream_file.c \
 	stream_prompt.c stream_string.c stream_synonym.c \
 	stream_twoway.c stream.c strtype.c structure.c sxhash.c \
@@ -244,9 +244,9 @@ am__npt_SOURCES_DIST = alloc.c arch.c array.c array_adjust.c \
 @LISP_DEGRADE_FALSE@	number_random.$(OBJEXT) object.$(OBJEXT) \
 @LISP_DEGRADE_FALSE@	package.$(OBJEXT) pathname.$(OBJEXT) \
 @LISP_DEGRADE_FALSE@	pointer.$(OBJEXT) print.$(OBJEXT) \
-@LISP_DEGRADE_FALSE@	prompt.$(OBJEXT) quote.$(OBJEXT) \
-@LISP_DEGRADE_FALSE@	radix.$(OBJEXT) random.$(OBJEXT) \
-@LISP_DEGRADE_FALSE@	random_float.$(OBJEXT) \
+@LISP_DEGRADE_FALSE@	print_object.$(OBJEXT) prompt.$(OBJEXT) \
+@LISP_DEGRADE_FALSE@	quote.$(OBJEXT) radix.$(OBJEXT) \
+@LISP_DEGRADE_FALSE@	random.$(OBJEXT) random_float.$(OBJEXT) \
 @LISP_DEGRADE_FALSE@	random_state.$(OBJEXT) ratio.$(OBJEXT) \
 @LISP_DEGRADE_FALSE@	rational.$(OBJEXT) readtable.$(OBJEXT) \
 @LISP_DEGRADE_FALSE@	real_ceiling.$(OBJEXT) \
@@ -371,9 +371,10 @@ am__npt_SOURCES_DIST = alloc.c arch.c array.c array_adjust.c \
 @LISP_DEGRADE_TRUE@	test_object.$(OBJEXT) \
 @LISP_DEGRADE_TRUE@	test_package.$(OBJEXT) \
 @LISP_DEGRADE_TRUE@	test_pathname.$(OBJEXT) pointer.$(OBJEXT) \
-@LISP_DEGRADE_TRUE@	test_print.$(OBJEXT) prompt.$(OBJEXT) \
-@LISP_DEGRADE_TRUE@	test_quote.$(OBJEXT) test_radix.$(OBJEXT) \
-@LISP_DEGRADE_TRUE@	random.$(OBJEXT) random_float.$(OBJEXT) \
+@LISP_DEGRADE_TRUE@	test_print.$(OBJEXT) print_object.$(OBJEXT) \
+@LISP_DEGRADE_TRUE@	prompt.$(OBJEXT) test_quote.$(OBJEXT) \
+@LISP_DEGRADE_TRUE@	test_radix.$(OBJEXT) random.$(OBJEXT) \
+@LISP_DEGRADE_TRUE@	random_float.$(OBJEXT) \
 @LISP_DEGRADE_TRUE@	random_state.$(OBJEXT) test_ratio.$(OBJEXT) \
 @LISP_DEGRADE_TRUE@	rational.$(OBJEXT) test_readtable.$(OBJEXT) \
 @LISP_DEGRADE_TRUE@	real_ceiling.$(OBJEXT) \
@@ -632,14 +633,15 @@ top_srcdir = @top_srcdir@
 @LISP_DEGRADE_FALSE@	mop_class.c mop_generic.c mop_reader.c \
 @LISP_DEGRADE_FALSE@	mop_protocols.c number.c number_gcd.c \
 @LISP_DEGRADE_FALSE@	number_random.c object.c package.c \
-@LISP_DEGRADE_FALSE@	pathname.c pointer.c print.c prompt.c \
-@LISP_DEGRADE_FALSE@	quote.c radix.c random.c random_float.c \
-@LISP_DEGRADE_FALSE@	random_state.c ratio.c rational.c \
-@LISP_DEGRADE_FALSE@	readtable.c real_ceiling.c real_common.c \
-@LISP_DEGRADE_FALSE@	real_decode.c real_division.c real_float.c \
-@LISP_DEGRADE_FALSE@	real_floor.c real_round.c real_truncate.c \
-@LISP_DEGRADE_FALSE@	real.c rt.c rt_load.c sequence.c setf.c \
-@LISP_DEGRADE_FALSE@	sort.c stream_broadcast.c stream_concat.c \
+@LISP_DEGRADE_FALSE@	pathname.c pointer.c print.c \
+@LISP_DEGRADE_FALSE@	print_object.c prompt.c quote.c radix.c \
+@LISP_DEGRADE_FALSE@	random.c random_float.c random_state.c \
+@LISP_DEGRADE_FALSE@	ratio.c rational.c readtable.c \
+@LISP_DEGRADE_FALSE@	real_ceiling.c real_common.c real_decode.c \
+@LISP_DEGRADE_FALSE@	real_division.c real_float.c real_floor.c \
+@LISP_DEGRADE_FALSE@	real_round.c real_truncate.c real.c rt.c \
+@LISP_DEGRADE_FALSE@	rt_load.c sequence.c setf.c sort.c \
+@LISP_DEGRADE_FALSE@	stream_broadcast.c stream_concat.c \
 @LISP_DEGRADE_FALSE@	stream_echo.c stream_error.c stream_file.c \
 @LISP_DEGRADE_FALSE@	stream_prompt.c stream_string.c \
 @LISP_DEGRADE_FALSE@	stream_synonym.c stream_twoway.c stream.c \
@@ -697,9 +699,10 @@ top_srcdir = @top_srcdir@
 @LISP_DEGRADE_TRUE@	test_number.c number_gcd.c number_random.c \
 @LISP_DEGRADE_TRUE@	test_object.c test_package.c \
 @LISP_DEGRADE_TRUE@	test_pathname.c pointer.c test_print.c \
-@LISP_DEGRADE_TRUE@	prompt.c test_quote.c test_radix.c random.c \
-@LISP_DEGRADE_TRUE@	random_float.c random_state.c test_ratio.c \
-@LISP_DEGRADE_TRUE@	rational.c test_readtable.c real_ceiling.c \
+@LISP_DEGRADE_TRUE@	print_object.c prompt.c test_quote.c \
+@LISP_DEGRADE_TRUE@	test_radix.c random.c random_float.c \
+@LISP_DEGRADE_TRUE@	random_state.c test_ratio.c rational.c \
+@LISP_DEGRADE_TRUE@	test_readtable.c real_ceiling.c \
 @LISP_DEGRADE_TRUE@	real_common.c real_decode.c real_division.c \
 @LISP_DEGRADE_TRUE@	real_float.c real_floor.c real_round.c \
 @LISP_DEGRADE_TRUE@	real_truncate.c real.c rt.c rt_load.c \
@@ -946,6 +949,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pathname.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pointer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/print.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/print_object.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/prompt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/quote.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/radix.Po@am__quote@

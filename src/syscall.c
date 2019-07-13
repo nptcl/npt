@@ -1928,7 +1928,8 @@ static void defun_delete_deftype(void)
  */
 static void syscall_ensure_structure(Execute ptr, addr name, addr slots, addr rest)
 {
-	ensure_structure_common(ptr, name, slots, rest);
+	if (ensure_structure_common(ptr, name, slots, rest))
+		return;
 	setresult_control(ptr, name);
 }
 
@@ -1955,6 +1956,44 @@ static void defun_ensure_structure(void)
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_ensure_structure(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun structure-constructor (symbol &rest t &key &other-allow-keys) ...)
+ *   -> structure-object
+ */
+static void syscall_structure_constructor(Execute ptr, addr symbol, addr rest)
+{
+	if (structure_constructor_common(ptr, symbol, rest, &rest))
+		return;
+	setresult_control(ptr, rest);
+}
+
+static void type_structure_constructor(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Symbol);
+	GetTypeTable(&values, T);
+	typeargs_var1rest(&args, args, values);
+	GetTypeTable(&values, StructureObject);
+	typevalues_result(&values, values);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_structure_constructor(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_STRUCTURE_CONSTRUCTOR, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_syscall_structure_constructor);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_structure_constructor(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -2020,6 +2059,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, symbol_deftype);
 	SetPointerSysCall(defun, var1, delete_deftype);
 	SetPointerSysCall(defun, var2dynamic, ensure_structure);
+	SetPointerSysCall(defun, var1dynamic, structure_constructor);
 }
 
 _g void build_syscall(void)
@@ -2093,5 +2133,6 @@ _g void build_syscall(void)
 	defun_delete_deftype();
 	/* structure */
 	defun_ensure_structure();
+	defun_structure_constructor();
 }
 

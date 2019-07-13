@@ -216,22 +216,22 @@ static void gccheck_heap(void)
 {
 	GcCounter++;
 	if (GcCheck4 < heap_pos) {
-		if (GcCounter & (1UL << 3UL))
-			gccheck_execute_heap();
-		return;
-	}
-	if (GcCheck3 < heap_pos) {
-		if (GcCounter & (1UL << 4UL))
-			gccheck_execute_heap();
-		return;
-	}
-	if (GcCheck2 < heap_pos) {
 		if (GcCounter & (1UL << 5UL))
 			gccheck_execute_heap();
 		return;
 	}
-	if (GcCheck1 < heap_pos) {
+	if (GcCheck3 < heap_pos) {
 		if (GcCounter & (1UL << 6UL))
+			gccheck_execute_heap();
+		return;
+	}
+	if (GcCheck2 < heap_pos) {
+		if (GcCounter & (1UL << 7UL))
+			gccheck_execute_heap();
+		return;
+	}
+	if (GcCheck1 < heap_pos) {
+		if (GcCounter & (1UL << 8UL))
 			gccheck_execute_heap();
 		return;
 	}

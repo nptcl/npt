@@ -106,5 +106,8 @@ _g void type4realf_heap(addr a, float b, addr c, float d, addr *ret);
 _g void type2realf_ab_heap(addr a, float b, addr *ret);
 _g void type2realf_cd_heap(addr c, float d, addr *ret);
 
+/* vector */
+_g void type_vector1_heap(size_t size, addr *ret);
+
 #endif
 

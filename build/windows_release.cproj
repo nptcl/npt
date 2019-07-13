@@ -261,6 +261,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pointer.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\prompt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\quote.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\radix.c" />
@@ -433,6 +434,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_type.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print_object.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\prompt.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\quote.h" />

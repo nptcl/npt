@@ -31,6 +31,7 @@ _g void mop_argument_generic_var4rest1key0(addr *ret);
 _g void mop_argument_method_var(addr *ret, constindex index);
 _g void mop_argument_method_var1(addr *ret, constindex var1);
 _g void mop_argument_method_var1rest(addr *ret, constindex var1);
+_g void mop_argument_method_print_object(addr *ret, addr pos);
 
 #endif
 

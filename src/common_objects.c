@@ -719,15 +719,7 @@ static void defun_unbound_slot_instance(void)
 /* 22. Printer */
 static void defgeneric_print_object(void)
 {
-	addr symbol, name, gen;
-
-	GetConst(COMMON_PRINT_OBJECT, &symbol);
-	mop_argument_generic_var2(&gen);
-	parse_callname_error(&name, symbol);
-	generic_common_instance(&gen, name, gen);
-	SetFunctionSymbol(symbol, gen);
-	/* no-method */
-	common_method_finalize(gen);
+	/* build_print(); */
 }
 
 

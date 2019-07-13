@@ -21,7 +21,7 @@
  *  define.h
  */
 #ifdef __cplusplus
-#ifdef __STDC_LIMIT_MACROS
+#ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
 #endif
 #ifndef __STDC_CONSTANT_MACROS
@@ -421,7 +421,7 @@
 
 /* readline editline */
 #if defined(LISP_PROMPT_DEFAULT)
-#define LISP_PROMPT_STRING "ansi-c"
+#define LISP_PROMPT_STRING "lisp"
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE
 #elif defined(LISP_PROMPT_READLINE)
@@ -434,7 +434,7 @@
 #undef LISP_PROMPT_READLINE
 #else
 #define LISP_PROMPT_DEFAULT
-#define LISP_PROMPT_STRING "ansi-c"
+#define LISP_PROMPT_STRING "lisp"
 #undef LISP_PROMPT_READLINE
 #undef LISP_PROMPT_EDITLINE
 #endif

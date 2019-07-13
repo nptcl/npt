@@ -81,7 +81,7 @@ _g void argument_ordinary_heap(LocalRoot local, addr *ret, addr cons);
 _g void argument_generic_heap(LocalRoot local, addr *ret, addr cons);
 _g void argument_method_heap(LocalRoot local, addr *ret, addr cons);
 _g void argument_combination_heap(LocalRoot local, addr *ret, addr cons);
-_g void argument_boa_heap(LocalRoot local, addr *ret, addr cons);
+_g void argument_boa_heap(LocalRoot local, addr *ret, addr cons, addr g);
 
 /* expand */
 _g void argument_ordinary_lambda_heap(addr *ret, addr pos);
@@ -89,6 +89,8 @@ _g void argument_generic_lambda_heap(addr *ret, addr pos);
 _g void argument_method_lambda_heap(addr *ret, addr pos);
 _g void argument_method_keywords_heap(addr pos, addr *ret, int *allow);
 _g void argument_method_to_generic(addr pos, addr *ret);
+_g void argument_boa_lambda_heap(addr *ret, addr pos);
+_g void argument_boa_variables_heap(addr *ret, addr pos);
 
 #endif
 

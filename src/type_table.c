@@ -674,3 +674,17 @@ _g void type2realf_cd_heap(addr c, float d, addr *ret)
 	type2declf_cd_heap(LISPDECL_REAL, c, d, ret);
 }
 
+
+/*
+ *  vector
+ */
+_g void type_vector1_heap(size_t size, addr *ret)
+{
+	addr first, second;
+
+	GetTypeTable(&first, Asterisk);
+	vector4_heap(&second, 1);
+	SetArrayA4(second, 0, intsizeh(size));
+	type2_heap(LISPDECL_ARRAY, first, second, ret);
+}
+

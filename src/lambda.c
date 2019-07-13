@@ -747,7 +747,7 @@ finish:
 /*
  *  lambda_ordinary
  */
-_g void lambda_ordinary(LocalRoot local, addr *ret, addr cons)
+static void lambda_ordinary_g(LocalRoot local, addr *ret, addr cons, addr g)
 {
 	addr instance, name, var, opt, rest, key, key_p, allow, aux, one;
 	addr symbol, init, sup;
@@ -776,7 +776,7 @@ optional_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_REST, one)) goto rest_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_KEY, one)) goto key_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one)) goto aux_argument;
-	ordinary_opt(one, &symbol, &init, &sup);
+	ordinary_opt_default(one, g, &symbol, &init, &sup);
 	push_varcons_ordinary(local, instance, symbol);
 	if (sup != Nil)
 		push_varcons_ordinary(local, instance, sup);
@@ -804,7 +804,7 @@ key_argument:
 key_loop:
 	if (constant_eq(CONSTANT_AMPERSAND_ALLOW, one)) goto allow_argument;
 	if (constant_eq(CONSTANT_AMPERSAND_AUX, one)) goto aux_argument;
-	ordinary_key(local, name, one, &symbol, &one, &init, &sup);
+	ordinary_key_default(local, name, one, g, &symbol, &one, &init, &sup);
 	push_varcons_ordinary(local, instance, symbol);
 	if (sup != Nil)
 		push_varcons_ordinary(local, instance, sup);
@@ -838,6 +838,11 @@ finish:
 			allow,
 			nreverse_list_unsafe_inplace(aux),
 			NULL);
+}
+
+_g void lambda_ordinary(LocalRoot local, addr *ret, addr cons)
+{
+	lambda_ordinary_g(local, ret, cons, Nil);
 }
 
 
@@ -1136,14 +1141,14 @@ _g void argument_heap(addr *ret)
 	argument_alloc(NULL, ret);
 }
 
-_g void argument_ordinary_heap(LocalRoot local, addr *ret, addr list)
+static void argument_ordinary_heap_g(LocalRoot local, addr *ret, addr list, addr g)
 {
 	addr pos, var, opt, rest, key, allow, aux;
 	struct argument_struct *str;
 
 	CheckLocal(local);
 	/* parse */
-	lambda_ordinary(local, &list, list);
+	lambda_ordinary_g(local, &list, list, g);
 	List_bind(list, &var, &opt, &rest, &key, &allow, &aux, NULL);
 	/* object */
 	argument_heap(&pos);
@@ -1177,6 +1182,11 @@ _g void argument_ordinary_heap(LocalRoot local, addr *ret, addr list)
 	SetArgument(pos, ArgumentIndex_aux, aux);
 	/* result */
 	*ret = pos;
+}
+
+_g void argument_ordinary_heap(LocalRoot local, addr *ret, addr list)
+{
+	argument_ordinary_heap_g(local, ret, list, Nil);
 }
 
 _g void argument_generic_heap(LocalRoot local, addr *ret, addr list)
@@ -1296,11 +1306,11 @@ ordinary:
 	*ret = list;
 }
 
-_g void argument_boa_heap(LocalRoot local, addr *ret, addr list)
+_g void argument_boa_heap(LocalRoot local, addr *ret, addr list, addr g)
 {
 	struct argument_struct *str;
 
-	argument_ordinary_heap(local, &list, list);
+	argument_ordinary_heap_g(local, &list, list, g);
 	str = ArgumentStruct(list);
 	str->type = ArgumentType_boa;
 	*ret = list;
@@ -1540,5 +1550,70 @@ _g void argument_method_to_generic(addr method, addr *ret)
 	SetArgument(pos, ArgumentIndex_aux, root);
 	/* result */
 	*ret = pos;
+}
+
+_g void argument_boa_lambda_heap(addr *ret, addr pos)
+{
+	Check(ArgumentStruct(pos)->type != ArgumentType_boa, "type error");
+	argument_expand_heap(ret, pos);
+}
+
+_g void argument_boa_variables_heap(addr *ret, addr pos)
+{
+	addr root, list, var, a, b, c, d;
+	struct argument_struct *str;
+
+	root = Nil;
+	str = ArgumentStruct(pos);
+	/* var */
+	if (str->var) {
+		GetArgument(pos, ArgumentIndex_var, &list);
+		while (list != Nil) {
+			GetCons(list, &var, &list);
+			if (str->type == ArgumentType_method) {
+				GetCar(var, &var);
+			}
+			cons_heap(&root, var, root);
+		}
+	}
+
+	/* opt */
+	if (str->opt) {
+		GetArgument(pos, ArgumentIndex_opt, &list);
+		while (list != Nil) {
+			GetCons(list, &var, &list);
+			list_bind(var, &a, &b, &c, NULL);
+			cons_heap(&root, a, root);
+		}
+	}
+
+	/* rest */
+	if (str->rest) {
+		GetArgument(pos, ArgumentIndex_rest, &a);
+		cons_heap(&root, a, root);
+	}
+
+	/* key */
+	if (str->key) {
+		GetArgument(pos, ArgumentIndex_key, &list);
+		while (list != Nil) {
+			GetCons(list, &var, &list);
+			list_bind(var, &a, &b, &c, &d, NULL);
+			cons_heap(&root, a, root);
+		}
+	}
+
+	/* aux */
+	if (str->aux) {
+		GetArgument(pos, ArgumentIndex_aux, &list);
+		while (list != Nil) {
+			GetCons(list, &var, &list);
+			GetCar(var, &a);
+			cons_heap(&root, a, root);
+		}
+	}
+
+	/* result */
+	nreverse_list_unsafe(ret, root);
 }
 

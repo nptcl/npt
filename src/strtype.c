@@ -618,7 +618,8 @@ _g int string_equal(addr left, addr right)
 			return strvect_equal(left, right);
 		if (strarrayp(right))
 			return strvect_strarray_equal(left, right);
-		fmte("Argument ~S must be a string type.", left, NULL);
+		fmte("Argument ~S must be a string type.", right, NULL);
+		return 0;
 	}
 	else if (strarrayp(left)) {
 		if (strvect_string_p(right))
@@ -626,7 +627,9 @@ _g int string_equal(addr left, addr right)
 		if (strarrayp(right))
 			return strarray_equal(left, right);
 		fmte("Argument ~S must be a string type.", right, NULL);
+		return 0;
 	}
+	fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -649,7 +652,8 @@ _g int string_equalp(addr left, addr right)
 			return strvect_equalp(left, right);
 		if (strarrayp(right))
 			return strvect_strarray_equalp(left, right);
-		fmte("Argument ~S must be a string type.", left, NULL);
+		fmte("Argument ~S must be a string type.", right, NULL);
+		return 0;
 	}
 	else if (strarrayp(left)) {
 		if (strvect_string_p(right))
@@ -657,7 +661,9 @@ _g int string_equalp(addr left, addr right)
 		if (strarrayp(right))
 			return strarray_equalp(left, right);
 		fmte("Argument ~S must be a string type.", right, NULL);
+		return 0;
 	}
+	fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -752,7 +758,8 @@ _g int string_compare(addr left, addr right)
 			return strvect_compare(left, right);
 		if (strarrayp(right))
 			return strvect_strarray_compare(left, right);
-		fmte("Argument ~S must be a string type.", left, NULL);
+		fmte("Argument ~S must be a string type.", right, NULL);
+		return 0;
 	}
 	else if (strarrayp(left)) {
 		if (strvect_string_p(right))
@@ -760,7 +767,9 @@ _g int string_compare(addr left, addr right)
 		if (strarrayp(right))
 			return strarray_compare(left, right);
 		fmte("Argument ~S must be a string type.", right, NULL);
+		return 0;
 	}
+	fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -795,7 +804,8 @@ _g int string_comparep(addr left, addr right)
 			return strvect_comparep(left, right);
 		if (strarrayp(right))
 			return strvect_strarray_comparep(left, right);
-		fmte("Argument ~S must be a string type.", left, NULL);
+		fmte("Argument ~S must be a string type.", right, NULL);
+		return 0;
 	}
 	else if (strarrayp(left)) {
 		if (strvect_string_p(right))
@@ -803,7 +813,9 @@ _g int string_comparep(addr left, addr right)
 		if (strarrayp(right))
 			return strarray_comparep(left, right);
 		fmte("Argument ~S must be a string type.", right, NULL);
+		return 0;
 	}
+	fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -872,5 +884,96 @@ _g int string_designer_string(addr *ret, addr pos)
 	}
 
 	return 0;
+}
+
+
+/*
+ *  concatenate
+ */
+_g void string_concat_heap(addr *ret, addr a, addr b)
+{
+	unicode u;
+	addr c;
+	size_t x, y, i;
+
+	Check(! stringp(a), "type error");
+	Check(! stringp(b), "type error");
+	string_length(a, &x);
+	string_length(b, &y);
+	strvect_heap(&c, x + y);
+	for (i = 0; i < x; i++) {
+		string_getc(a, i, &u);
+		string_setc(c, i, u);
+	}
+	for (i = 0; i < y; i++) {
+		string_getc(b, i, &u);
+		string_setc(c, i+x, u);
+	}
+	*ret = c;
+}
+
+_g void string_concat_hyphen_heap(addr *ret, addr a, addr b)
+{
+	unicode u;
+	addr c;
+	size_t x, y, i;
+
+	Check(! stringp(a), "type error");
+	Check(! stringp(b), "type error");
+	string_length(a, &x);
+	string_length(b, &y);
+	strvect_heap(&c, x + y + 1UL);
+	for (i = 0; i < x; i++) {
+		string_getc(a, i, &u);
+		string_setc(c, i, u);
+	}
+	string_setc(c, i, (unicode)'-');
+	for (i = 0; i < y; i++) {
+		string_getc(b, i, &u);
+		string_setc(c, i+x+1UL, u);
+	}
+	*ret = c;
+}
+
+_g void string_concat_char1_heap(addr *ret, const char *str, addr b)
+{
+	const byte *a;
+	addr c;
+	unicode u;
+	size_t x, y, i;
+
+	Check(! stringp(b), "type error");
+	x = strlen(str);
+	a = (const byte *)str;
+	string_length(b, &y);
+	strvect_heap(&c, x + y);
+	for (i = 0; i < x; i++)
+		string_setc(c, i, (unicode)a[i]);
+	for (i = 0; i < y; i++) {
+		string_getc(b, i, &u);
+		string_setc(c, i+x, u);
+	}
+	*ret = c;
+}
+
+_g void string_concat_char2_heap(addr *ret, addr a, const char *str)
+{
+	const byte *b;
+	addr c;
+	unicode u;
+	size_t x, y, i;
+
+	Check(! stringp(a), "type error");
+	string_length(a, &x);
+	y = strlen(str);
+	b = (const byte *)str;
+	strvect_heap(&c, x + y);
+	for (i = 0; i < x; i++) {
+		string_getc(a, i, &u);
+		string_setc(c, i, u);
+	}
+	for (i = 0; i < y; i++)
+		string_setc(c, i+x, (unicode)b[i]);
+	*ret = c;
 }
 

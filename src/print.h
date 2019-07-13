@@ -38,6 +38,11 @@ struct PrintFormat {
 	fixnum margin; /* *print-right-margin* */
 };
 
+typedef int (*calltype_write_print)(struct PrintFormat *, addr, addr);
+
+_g int print_unreadable_object(struct PrintFormat *format,
+		addr stream, addr pos, int type, int identity,
+		calltype_write_print call);
 _g int write_print(struct PrintFormat *format, addr stream, addr object);
 _g void format_print(Execute ptr, struct PrintFormat *format);
 _g int princ_print(Execute ptr, addr stream, addr object);
@@ -49,7 +54,8 @@ _g int prin1_string(Execute ptr, LocalRoot local, addr *ret, addr object);
 _g void pprint_dispatch_heap(addr *ret);
 
 /* initialize */
-_g void init_print();
+_g void build_print(Execute ptr);
+_g void init_print(void);
 
 #endif
 

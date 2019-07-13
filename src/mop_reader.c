@@ -64,6 +64,7 @@ static void defgeneric_class_name(Execute ptr)
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
 	/* method */
+	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_STRUCTURE_CLASS);
 	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_STANDARD_CLASS);
 	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
 	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
@@ -466,6 +467,8 @@ static void defgeneric_class_precedence_list(Execute ptr)
 	SetFunctionSymbol(symbol, gen);
 	export_mop(symbol);
 	/* method */
+	defmethod_class_precedence_list(ptr, name, gen,
+			CONSTANT_CLOS_STRUCTURE_CLASS);
 	defmethod_class_precedence_list(ptr, name, gen,
 			CONSTANT_CLOS_STANDARD_CLASS);
 	defmethod_class_precedence_list(ptr, name, gen,
