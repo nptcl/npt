@@ -4,6 +4,7 @@
 #include "bignum.h"
 #include "build.h"
 #include "condition.h"
+#include "cons.h"
 #include "constant.h"
 #include "control.h"
 #include "degrade.h"
@@ -104,10 +105,20 @@ static void loadrt_nickname(const char *str1, const char *str2)
 
 static void loadrt_nicknames(void)
 {
+	addr symbol, keyword, cons;
+
 	loadrt_nickname(LISP_SYSTEM, "LISP-SYSTEM");
 	loadrt_nickname(LISP_USER, "LISP-USER");
 	loadrt_nickname(LISP_CLOS, "LISP-CLOS");
 	loadrt_nickname(LISP_RT, "LISP-RT");
+
+	/* push :lisp-degrade */
+	GetConst(SPECIAL_FEATURES, &symbol);
+	internchar_keyword("LISP-DEGRADE", &keyword);
+	GetValueSymbol(symbol, &cons);
+	Check(find_list_eq_unsafe(keyword, cons), "push error");
+	cons_heap(&cons, keyword, cons);
+	SetValueSymbol(symbol, cons);
 }
 
 static void loadrt_getindex(Execute ptr)

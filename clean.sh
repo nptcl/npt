@@ -34,6 +34,8 @@ if [ "$1" == "all" ]; then
   rm -fr src/.deps/
   rm -f src/.dirstamp
   rm -f stamp-h1
+  rm -rf .deps/
+  rm -f _debug.txt
 else
   rm -f Makefile
   #rm -f Makefile.in
@@ -54,6 +56,8 @@ else
   rm -fr src/.deps/
   rm -f src/.dirstamp
   rm -f stamp-h1
+  rm -rf .deps/
+  rm -f _debug.txt
 fi
 
 echo OK

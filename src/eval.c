@@ -389,6 +389,13 @@ static int eval_load_file(Execute ptr, int *result,
 		if (wild_pathname_boolean(file, Nil))
 			file_error(file);
 	}
+	/* load-pathname */
+	GetConst(SPECIAL_LOAD_PATHNAME, &symbol);
+	pushspecial_control(ptr, symbol, file);
+	/* load-truename */
+	GetConst(SPECIAL_LOAD_TRUENAME, &symbol);
+	physical_pathname_heap(ptr, file, &file);
+	pushspecial_control(ptr, symbol, file);
 	/* package */
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	getspecial_local(ptr, symbol, &pos);

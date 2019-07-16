@@ -63,6 +63,8 @@
 (loadrt #p"rt-printer.lisp")
 ;; 23. Reader
 (loadrt #p"rt-reader.lisp")
+;; 24. System Construction
+(loadrt #p"rt-system.lisp")
 ;; finish
 (format t "~&OK.~%")
 

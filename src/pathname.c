@@ -1109,7 +1109,7 @@ _g void pathname_designer_alloc(Execute ptr, addr pos, addr *ret, int localp)
 			type_error_stdarg(pos, type,
 					"The stream ~S does not have a pathname object.", pos, NULL);
 		}
-		copylocal_object(local, ret, pos);
+		copylocal_object(local, ret, value);
 		return;
 	}
 

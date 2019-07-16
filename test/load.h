@@ -17,10 +17,10 @@ static int loadrt_files(void)
 	loadrt_file("rt-data.lisp");
 	/* 6. Iteration */
 	loadrt_file("rt-iteration.lisp");
-	/* 8. Structures */
-	loadrt_file("rt-structures.lisp");
 	/* 7. Objects */
 	loadrt_file("rt-objects.lisp");
+	/* 8. Structures */
+	loadrt_file("rt-structures.lisp");
 	/* 9. Conditions */
 	loadrt_file("rt-conditions.lisp");
 	/* 11. Packages */
@@ -49,6 +49,8 @@ static int loadrt_files(void)
 	loadrt_file("rt-printer.lisp");
 	/* 23. Reader */
 	loadrt_file("rt-reader.lisp");
+	/* 24. System Construction */
+	loadrt_file("rt-system.lisp");
 #if 0
 #endif
 
