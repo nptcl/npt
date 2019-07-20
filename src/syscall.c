@@ -17,6 +17,7 @@
 #include "hashtable.h"
 #include "integer.h"
 #include "lambda.h"
+#include "loop_bind.h"
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
@@ -1999,6 +2000,40 @@ static void defun_structure_constructor(void)
 }
 
 
+/* (defun loop-bind (tree type value) ...) -> tree */
+static void syscall_loop_bind(Execute ptr, addr a, addr b, addr c)
+{
+	if (loop_bind_common(ptr, a, b, c, &a))
+		return;
+	setresult_control(ptr, a);
+}
+
+static void type_loop_bind(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var3(&args, args, args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_loop_bind(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_LOOP_BIND, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var3(pos, p_defun_syscall_loop_bind);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_loop_bind(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -2060,6 +2095,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, delete_deftype);
 	SetPointerSysCall(defun, var2dynamic, ensure_structure);
 	SetPointerSysCall(defun, var1dynamic, structure_constructor);
+	SetPointerSysCall(defun, var3, loop_bind);
 }
 
 _g void build_syscall(void)
@@ -2134,5 +2170,7 @@ _g void build_syscall(void)
 	/* structure */
 	defun_ensure_structure();
 	defun_structure_constructor();
+	/* loop */
+	defun_loop_bind();
 }
 

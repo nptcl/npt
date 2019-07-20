@@ -2136,6 +2136,50 @@
     (values a b c d e f))
   30 40 50 60 10 20)
 
+(deftest ccase.1
+  (let ((x 'hello))
+    (values
+      (handler-bind
+        ((type-error
+           (lambda (c)
+             (store-value 999 c))))
+        (ccase x (10 :aaa) (20 :bbb) (999 :ccc)))
+      x))
+  :ccc 999)
+
+(deftest ccase.2
+  (let ((x '(a b c d)))
+    (values
+      (handler-bind
+        ((type-error
+           (lambda (c)
+             (store-value 999 c))))
+        (ccase (car x) (10 :aaa) (20 :bbb) (999 :ccc)))
+      x))
+  :ccc (999 b c d))
+
+(deftest ctypecase.1
+  (let ((x 'hello))
+    (values
+      (handler-bind
+        ((type-error
+           (lambda (c)
+             (store-value 999 c))))
+        (ctypecase x (string :aaa) (integer :bbb) (float :ccc)))
+      x))
+  :bbb 999)
+
+(deftest ctypecase.2
+  (let ((x '(a b c d)))
+    (values
+      (handler-bind
+        ((type-error
+           (lambda (c)
+             (store-value 999 c))))
+        (ctypecase (car x) (string :aaa) (integer :bbb) (float :ccc)))
+      x))
+  :bbb (999 b c d))
+
 
 ;;
 ;;  do-tests

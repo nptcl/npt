@@ -2520,7 +2520,7 @@ static int runcode_condition(Execute ptr, addr code)
 	return runcode_free(ptr, control, code, runcode_switch);
 }
 
-void push_restart_initialize_control(Execute ptr, addr *ret)
+_g void push_restart_initialize_control(Execute ptr, addr *ret)
 {
 	addr control, pos;
 

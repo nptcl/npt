@@ -29,7 +29,7 @@ struct defstruct {
 	size_t size, offset, size_value, named_index;
 };
 
-void defstruct_clean(struct defstruct *ptr);
+_g void defstruct_clean(struct defstruct *ptr);
 
 /* access */
 _g void stdget_structure_name(addr pos, addr *ret);

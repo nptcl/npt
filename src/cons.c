@@ -32,6 +32,30 @@ _g void getcdr(addr cons, addr *right)
 	GetCdr(cons, right);
 }
 
+_g int consp_getcons(addr cons, addr *left, addr *right)
+{
+	if (! consp(cons))
+		return 0;
+	GetCons(cons, left, right);
+	return 1;
+}
+
+_g int consp_getcar(addr cons, addr *left)
+{
+	if (! consp(cons))
+		return 0;
+	GetCar(cons, left);
+	return 1;
+}
+
+_g int consp_getcdr(addr cons, addr *right)
+{
+	if (! consp(cons))
+		return 0;
+	GetCdr(cons, right);
+	return 1;
+}
+
 _g void setcons(addr cons, addr left, addr right)
 {
 	if (GetType(cons) != LISPTYPE_CONS)

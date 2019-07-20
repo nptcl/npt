@@ -27,7 +27,7 @@
 /*
  *  defstruct-struct
  */
-void defstruct_clean(struct defstruct *ptr)
+_g void defstruct_clean(struct defstruct *ptr)
 {
 	clearpoint(ptr);
 	ptr->conc_name = Unbound;
@@ -2334,7 +2334,7 @@ _g void copy_structure_common(addr inst, addr *ret)
 /*
  *  initialize
  */
-void init_structure(void)
+_g void init_structure(void)
 {
 	SetPointerCall(defun, var1, structure_reader_list);
 	SetPointerCall(defun, var1, structure_reader_vector);

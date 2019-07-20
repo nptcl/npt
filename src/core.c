@@ -147,7 +147,7 @@ static int load_root(struct filememory *fm)
 /*
  *  make-core
  */
-void savecore_execute(addr file)
+_g void savecore_execute(addr file)
 {
 	addr symbol;
 	Execute ptr;
@@ -207,7 +207,7 @@ static int open_corefile(struct filememory *fm)
 	return 0;
 }
 
-int save_core(void)
+_g int save_core(void)
 {
 	struct filememory fm;
 
@@ -247,7 +247,7 @@ error:
 	return 1;
 }
 
-int load_core(const unicode *name, size_t size)
+_g int load_core(const unicode *name, size_t size)
 {
 	struct filememory fm;
 

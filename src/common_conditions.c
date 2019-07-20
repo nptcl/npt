@@ -113,13 +113,13 @@ static int function_assert_prompt(Execute ptr, addr env, addr *ret, addr place)
 	/* (multiple-value-bind (a b g w r) (get-setf-expansion PLACE)
 	 *   (declare (ignore r))
 	 *   `(when (y-or-n-p "Do you want to set a new value in ~A? " ',place)
-	 *      (let ((,a1 ,b1) (,a2 ,b2) ... ,g)
+	 *      (let* ((,a1 ,b1) (,a2 ,b2) ... ,g)
 	 *        (declare (ignorable ,a1 ,a2 ...))
 	 *        (setq ,g (eval (prompt-for t "Input ~A> " ',place)))
 	 *        ,w)))
 	 */
 	addr a, b, g, w, r;
-	addr when, yornp, let, declare, ignorable, setq, eval, prompt, quote;
+	addr when, yornp, leta, declare, ignorable, setq, eval, prompt, quote;
 	addr str1, str2, root, x, y;
 
 	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
@@ -129,7 +129,7 @@ static int function_assert_prompt(Execute ptr, addr env, addr *ret, addr place)
 	strvect_char_heap(&str2, "Input ~A> ");
 	GetConst(COMMON_WHEN, &when);
 	GetConst(COMMON_Y_OR_N_P, &yornp);
-	GetConst(COMMON_LET, &let);
+	GetConst(COMMON_LETA, &leta);
 	GetConst(COMMON_DECLARE, &declare);
 	GetConst(COMMON_IGNORABLE, &ignorable);
 	GetConst(COMMON_SETQ, &setq);
@@ -143,7 +143,7 @@ static int function_assert_prompt(Execute ptr, addr env, addr *ret, addr place)
 	list_heap(&setq, setq, g, prompt, NULL);
 	lista_heap(&ignorable, ignorable, a, NULL);
 	list_heap(&declare, declare, ignorable, NULL);
-	/* let */
+	/* let* */
 	for (root = Nil; a != Nil; ) {
 		getcons(a, &x, &a);
 		getcons(b, &y, &b);
@@ -152,10 +152,10 @@ static int function_assert_prompt(Execute ptr, addr env, addr *ret, addr place)
 	}
 	cons_heap(&root, g, root);
 	nreverse_list_unsafe(&root, root);
-	list_heap(&let, let, root, declare, setq, w, NULL);
+	list_heap(&leta, leta, root, declare, setq, w, NULL);
 	/* when */
 	list_heap(&yornp, yornp, str1, place, NULL);
-	list_heap(ret, when, yornp, let, NULL);
+	list_heap(ret, when, yornp, leta, NULL);
 
 	return 0;
 }
@@ -478,7 +478,7 @@ static void defun_cerror(void)
 static int function_check_type_expand(Execute ptr, addr env, addr *ret,
 		addr place, addr type, addr string)
 {
-	/* (let ((a1 b1) (a2 b2) ... (value r) g)
+	/* (let* ((a1 b1) (a2 b2) ... (value r) g)
 	 *   (declare (ignorable a1 a2 ...))
 	 *   (tagbody
 	 *     loop
@@ -500,7 +500,7 @@ static int function_check_type_expand(Execute ptr, addr env, addr *ret,
 	 *             :format-arguments (list value string)))))))
 	 */
 	addr a, b, g, r, w, v, s, str1, str2, str3;
-	addr let, declare, ignorable, tagbody, loop, restart, store, lambda, setq;
+	addr leta, declare, ignorable, tagbody, loop, restart, store, lambda, setq;
 	addr value, go, report, inter, princ, list, eval, prompt, unless;
 	addr typep, quote, invoke, make, simple, datum, expect, control, arguments;
 	addr x, y, root;
@@ -522,7 +522,7 @@ static int function_check_type_expand(Execute ptr, addr env, addr *ret,
 	make_symbolchar(&s, "STREAM");
 	make_symbolchar(&loop, "LOOP");
 	make_symbolchar(&value, "VALUE");
-	GetConst(COMMON_LET, &let);
+	GetConst(COMMON_LETA, &leta);
 	GetConst(COMMON_DECLARE, &declare);
 	GetConst(COMMON_IGNORABLE, &ignorable);
 	GetConst(COMMON_TAGBODY, &tagbody);
@@ -571,7 +571,7 @@ static int function_check_type_expand(Execute ptr, addr env, addr *ret,
 	list_heap(&store, store, NULL);
 	list_heap(&restart, restart, store, unless, NULL);
 	list_heap(&tagbody, tagbody, loop, restart, NULL);
-	/* let */
+	/* let* */
 	lista_heap(&ignorable, ignorable, a, NULL);
 	list_heap(&declare, declare, ignorable, NULL);
 	for (root = Nil; a != Nil; ) {
@@ -584,7 +584,7 @@ static int function_check_type_expand(Execute ptr, addr env, addr *ret,
 	cons_heap(&root, value, root);
 	cons_heap(&root, g, root);
 	nreverse_list_unsafe(&root, root);
-	list_heap(ret, let, root, declare, tagbody, NULL);
+	list_heap(ret, leta, root, declare, tagbody, NULL);
 
 	return 0;
 }

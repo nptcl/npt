@@ -1365,6 +1365,49 @@ lisp-system::defconstant
 
 
 ;;
+;;  iteration
+;;
+lisp-system::loop-initially
+lisp-system::loop-finally
+lisp-system::loop-with
+lisp-system::loop-for-as
+lisp-system::loop-for-as-in-list
+lisp-system::loop-for-as-on-list
+lisp-system::loop-for-as-equals-then
+lisp-system::loop-for-as-across
+lisp-system::loop-for-as-hash
+lisp-system::loop-for-as-package-symbol
+lisp-system::loop-for-as-package-present
+lisp-system::loop-for-as-package-external
+lisp-system::loop-for-as-arithmetic-up
+lisp-system::loop-for-as-arithmetic-downto
+lisp-system::loop-for-as-arithmetic-downfrom
+lisp-system::loop-do
+lisp-system::loop-return
+lisp-system::loop-if
+lisp-system::loop-unless
+lisp-system::loop-collect
+lisp-system::loop-append
+lisp-system::loop-nconc
+lisp-system::loop-count
+lisp-system::loop-sum
+lisp-system::loop-maximize
+lisp-system::loop-minimize
+lisp-system::loop-while
+lisp-system::loop-until
+lisp-system::loop-repeat
+lisp-system::loop-always
+lisp-system::loop-never
+lisp-system::loop-thereis
+lisp-system::next-loop
+lisp-system::end-loop
+lisp-system::value-loop
+lisp-system::function-loop
+lisp-system::it-loop
+lisp-system::loop-bind
+
+
+;;
 ;;  structure
 ;;
 lisp-system::structure-gensym

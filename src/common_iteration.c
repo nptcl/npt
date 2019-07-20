@@ -4,6 +4,7 @@
 #include "common_header.h"
 #include "cons.h"
 #include "eval_declare.h"
+#include "loop.h"
 #include "type_parse.h"
 
 /* (defmacro do/do* (var end [declaration] [tag-statement]) ...) -> result */
@@ -339,6 +340,29 @@ static void defmacro_dolist(void)
 }
 
 
+/* (defmacro loop (&rest args) ...) */
+static void function_loop(Execute ptr, addr form, addr env)
+{
+	getcdr(form, &form);
+	if (loop_common(ptr, &form, form))
+		return;
+	setresult_control(ptr, form);
+}
+
+static void defmacro_loop(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_LOOP, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_loop);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
 /*
  *  function
  */
@@ -348,6 +372,7 @@ _g void init_common_iteration(void)
 	SetPointerCall(defmacro,  macro,  doa);
 	SetPointerCall(defmacro,  macro,  dotimes);
 	SetPointerCall(defmacro,  macro,  dolist);
+	SetPointerCall(defmacro,  macro,  loop);
 }
 
 _g void build_common_iteration(void)
@@ -356,5 +381,6 @@ _g void build_common_iteration(void)
 	defmacro_doa();
 	defmacro_dotimes();
 	defmacro_dolist();
+	defmacro_loop();
 }
 

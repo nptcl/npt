@@ -176,7 +176,7 @@ _g single_float lisp_floor1_s(single_float a, single_float *rem)
 	return floorf(a);
 }
 
-double_float lisp_floor1_d(double_float a, double_float *rem)
+_g double_float lisp_floor1_d(double_float a, double_float *rem)
 {
 	double_float m;
 
@@ -2972,7 +2972,7 @@ _g void rem_number_common(LocalRoot local, addr a, addr b, addr *ret)
 /*
  *  integer-heap
  */
-void single_float_integer_heap(LocalRoot local, addr *ret, single_float v)
+_g void single_float_integer_heap(LocalRoot local, addr *ret, single_float v)
 {
 	addr pos;
 	LocalStack stack;
@@ -2984,7 +2984,7 @@ void single_float_integer_heap(LocalRoot local, addr *ret, single_float v)
 	rollback_local(local, stack);
 }
 
-void double_float_integer_heap(LocalRoot local, addr *ret, double_float v)
+_g void double_float_integer_heap(LocalRoot local, addr *ret, double_float v)
 {
 	addr pos;
 	LocalStack stack;
@@ -2996,7 +2996,7 @@ void double_float_integer_heap(LocalRoot local, addr *ret, double_float v)
 	rollback_local(local, stack);
 }
 
-void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
+_g void long_float_integer_heap(LocalRoot local, addr *ret, long_float v)
 {
 	addr pos;
 	LocalStack stack;

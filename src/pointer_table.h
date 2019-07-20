@@ -200,6 +200,7 @@ enum pointer_index {
 	p_defmacro_doa,
 	p_defmacro_dotimes,
 	p_defmacro_dolist,
+	p_defmacro_loop,
 	/* common-objects */
 	p_defun_ensure_generic_function,
 	p_defun_slot_boundp,
@@ -1060,6 +1061,7 @@ enum pointer_index {
 	p_defun_syscall_delete_deftype,
 	p_defun_syscall_ensure_structure,
 	p_defun_syscall_structure_constructor,
+	p_defun_syscall_loop_bind,
 
 	/* size */
 	p_size

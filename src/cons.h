@@ -19,6 +19,9 @@ enum RemPlist {
 _g void getcons(addr cons, addr *left, addr *right);
 _g void getcar(addr cons, addr *left);
 _g void getcdr(addr cons, addr *right);
+_g int consp_getcons(addr cons, addr *left, addr *right);
+_g int consp_getcar(addr cons, addr *left);
+_g int consp_getcdr(addr cons, addr *right);
 _g void setcons(addr cons, addr left, addr right);
 _g void setcar(addr cons, addr left);
 _g void setcdr(addr cons, addr right);

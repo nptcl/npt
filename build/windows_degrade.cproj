@@ -242,6 +242,12 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\intern.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_lambda.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_local.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_bind.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_main.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_parse.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_symbol.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_variables.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_main.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\math_exp.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\math_power.c" />
@@ -414,6 +420,12 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_symbol_64.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lambda.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\local.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_bind.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_main.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_parse.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_symbol.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_variables.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_argv.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_init.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_object.h" />

@@ -135,9 +135,9 @@ _g void rem_number_common(LocalRoot local, addr a, addr b, addr *ret);
 /*
  *  integer-heap
  */
-void single_float_integer_heap(LocalRoot local, addr *ret, single_float v);
-void double_float_integer_heap(LocalRoot local, addr *ret, double_float v);
-void long_float_integer_heap(LocalRoot local, addr *ret, long_float v);
+_g void single_float_integer_heap(LocalRoot local, addr *ret, single_float v);
+_g void double_float_integer_heap(LocalRoot local, addr *ret, double_float v);
+_g void long_float_integer_heap(LocalRoot local, addr *ret, long_float v);
 
 #endif
 

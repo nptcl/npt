@@ -86,7 +86,7 @@ _g void pushargs_allvalues(Execute ptr);
 _g void init_control(void);
 
 /* condition/restart */
-void push_restart_initialize_control(Execute ptr, addr *ret);
+_g void push_restart_initialize_control(Execute ptr, addr *ret);
 
 /* execute */
 _g int signal_control(Execute ptr);

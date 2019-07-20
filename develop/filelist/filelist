@@ -97,6 +97,12 @@ integer.c
 intern.c
 lambda.c
 local.c
+loop.c
+loop_bind.c
+loop_main.c
+loop_parse.c
+loop_symbol.c
+loop_variables.c
 main.c
 math_exp.c
 math_power.c

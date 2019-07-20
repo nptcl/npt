@@ -11,8 +11,11 @@
 #include "eval_parse.h"
 #include "hashtable.h"
 #include "lambda.h"
+#include "print.h"
 #include "sequence.h"
 #include "setf.h"
+#include "stream.h"
+#include "stream_string.h"
 #include "strtype.h"
 #include "type_parse.h"
 
@@ -780,6 +783,8 @@ static void function_destructuring_bind(Execute ptr, addr form, addr env)
 	if (! consp(args)) goto error;
 	GetCons(args, &expr, &args);
 	/* parse */
+	if (! listp(lambda))
+		fmte("destructuring-bind argument ~S must be a list type.", lambda, NULL);
 	lambda_macro(ptr->local, &lambda, lambda, Nil);
 	check_destructuring_bind(lambda);
 	if (declare_body(ptr, env, args, &decl, &args))
@@ -1821,9 +1826,193 @@ static void defmacro_ecase(void)
 
 
 /* (defmacro ccase (keyplace &rest args) -> result */
+static int function_ccase_comma(Execute ptr, addr stream, addr x, int *first)
+{
+	if (*first)
+		*first = 0;
+	else
+		print_ascii_stream(stream, ", ");
+	return princ_print(ptr, stream, x);
+}
+
+static int function_ccase_string(Execute ptr,
+		addr *ret, addr *rtype, addr place, addr args)
+{
+	int first;
+	addr stream, pos, x, list;
+
+	/* member */
+	GetConst(COMMON_MEMBER, &list);
+	conscar_heap(&list, list);
+	/* stream */
+	open_output_string_stream(&stream, 0);
+	fmts(stream, "The value of ~A, ~~A, is not ", place, NULL);
+	/* loop */
+	for (first = 1; args != Nil; ) {
+		getcons(args, &pos, &args);
+		getcar(pos, &pos);
+		if (consp(pos)) {
+			while (pos != Nil) {
+				getcons(pos, &x, &pos);
+				if (function_ccase_comma(ptr, stream, x, &first))
+					goto throw;
+				cons_heap(&list, x, list);
+			}
+		}
+		else {
+			if (function_ccase_comma(ptr, stream, pos, &first))
+				goto throw;
+			cons_heap(&list, pos, list);
+		}
+	}
+	write_char_stream(stream, '.');
+	string_stream_heap(stream, ret);
+	close_stream(stream);
+	nreverse_list_unsafe(rtype, list);
+	return 0;
+
+throw:
+	close_stream(stream);
+	return 1;
+}
+
+static int function_ccase_expand(Execute ptr,
+		addr env, addr *ret, addr place, addr args)
+{
+	/* (let* ((a1 b1) (a2 b2) ... (value r) g)
+	 *   (declare (ignorable a1 a2 ...))
+	 *   (block result
+	 *     (tagbody
+	 *       loop
+	 *       (restart-bind
+	 *         ((store-value
+	 *            (lambda (v) (setq g v value v) w (go loop))
+	 *            :report-function
+	 *              (lambda (s)
+	 *                (princ "Retry ccase with new value xx." s))
+	 *            :interactive-function
+	 *              (lambda ()
+	 *                (list (eval (prompt-for t "Input xx> "))))))
+	 *         (return-from result
+	 *           (case value
+	 *             (...)
+	 *             (t (error
+	 *                  (make-condition 'simple-type-error
+	 *                    :datum value
+	 *                    :expected-type '(member ...)
+	 *                    :format-control "The value of xx, ~A, is not xx"
+	 *                    :format-arguments (list value))))))))))
+	 */
+	addr a, b, g, r, w, v, s, str1, str2, str3;
+	addr leta, declare, ignorable, tagbody, loop, restart, store, lambda, setq;
+	addr value, go, report, inter, princ, list, eval, prompt, case_;
+	addr quote, invoke, make, simple, datum, expect, control, arguments;
+	addr x, y, root, type, block, retfrom, result;
+
+	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
+		return 1;
+	getcar(g, &g);
+	str1 = fmth("Retry ccase with new value ~A.", place, NULL);
+	str2 = fmth("Input ~A> ", place, NULL);
+	if (function_ccase_string(ptr, &str3, &type, place, args))
+		return 1;
+	make_symbolchar(&v, "V");
+	make_symbolchar(&s, "STREAM");
+	make_symbolchar(&loop, "LOOP");
+	make_symbolchar(&value, "VALUE");
+	make_symbolchar(&result, "RESULT");
+	GetConst(COMMON_LETA, &leta);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	GetConst(COMMON_TAGBODY, &tagbody);
+	GetConst(COMMON_RESTART_BIND, &restart);
+	GetConst(COMMON_STORE_VALUE, &store);
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_SETQ, &setq);
+	GetConst(COMMON_GO, &go);
+	GetConst(KEYWORD_REPORT_FUNCTION, &report);
+	GetConst(KEYWORD_INTERACTIVE_FUNCTION, &inter);
+	GetConst(COMMON_PRINC, &princ);
+	GetConst(COMMON_LIST, &list);
+	GetConst(COMMON_EVAL, &eval);
+	GetConst(SYSTEM_PROMPT_FOR, &prompt);
+	GetConst(COMMON_CASE, &case_);
+	GetConst(COMMON_QUOTE, &quote);
+	GetConst(COMMON_ERROR, &invoke);
+	GetConst(COMMON_MAKE_CONDITION, &make);
+	GetConst(COMMON_SIMPLE_TYPE_ERROR, &simple);
+	GetConst(KEYWORD_DATUM, &datum);
+	GetConst(KEYWORD_EXPECTED_TYPE, &expect);
+	GetConst(KEYWORD_FORMAT_CONTROL, &control);
+	GetConst(KEYWORD_FORMAT_ARGUMENTS, &arguments);
+	GetConst(COMMON_BLOCK, &block);
+	GetConst(COMMON_RETURN_FROM, &retfrom);
+	/* expand */
+	list_heap(&x, list, value, NULL);
+	list_heap(&type, quote, type, NULL);
+	list_heap(&simple, quote, simple, NULL);
+	list_heap(&make, make, simple,
+			datum, value, expect, type, control, str3, arguments, x, NULL);
+	list_heap(&invoke, invoke, make, NULL);
+	list_heap(&invoke, T, invoke, NULL);
+	conscar_heap(&case_, case_);
+	cons_heap(&case_, value, case_);
+	while (args != Nil) {
+		getcons(args, &x, &args);
+		cons_heap(&case_, x, case_);
+	}
+	cons_heap(&case_, invoke, case_);
+	nreverse_list_unsafe(&case_, case_);
+	list_heap(&case_, retfrom, result, case_, NULL);
+	list_heap(&prompt, prompt, T, str2, NULL);
+	list_heap(&eval, eval, prompt, NULL);
+	list_heap(&list, list, eval, NULL);
+	list_heap(&x, lambda, Nil, list, NULL);
+	list_heap(&princ, princ, str1, s, NULL);
+	list_heap(&s, s, NULL);
+	list_heap(&y, lambda, s, princ, NULL);
+	list_heap(&go, go, loop, NULL);
+	list_heap(&setq, setq, g, v, value, v, NULL);
+	list_heap(&v, v, NULL);
+	list_heap(&lambda, lambda, v, setq, w, go, NULL);
+	list_heap(&store, store, lambda, report, y, inter, x, NULL);
+	list_heap(&store, store, NULL);
+	list_heap(&restart, restart, store, case_, NULL);
+	list_heap(&tagbody, tagbody, loop, restart, NULL);
+	list_heap(&tagbody, block, result, tagbody, NULL);
+	/* let* */
+	lista_heap(&ignorable, ignorable, a, NULL);
+	list_heap(&declare, declare, ignorable, NULL);
+	for (root = Nil; a != Nil; ) {
+		getcons(a, &x, &a);
+		getcons(b, &y, &b);
+		list_heap(&x, x, y, NULL);
+		cons_heap(&root, x, root);
+	}
+	list_heap(&value, value, r, NULL);
+	cons_heap(&root, value, root);
+	cons_heap(&root, g, root);
+	nreverse_list_unsafe(&root, root);
+	list_heap(ret, leta, root, declare, tagbody, NULL);
+
+	return 0;
+}
+
 static void function_ccase(Execute ptr, addr form, addr env)
 {
-	fmte("TODO", NULL);
+	addr args, x;
+
+	getcdr(form, &form);
+	if (! consp(form))
+		goto error;
+	GetCons(form, &x, &args);
+	if (function_ccase_expand(ptr, env, &x, x, args))
+		return;
+	setresult_control(ptr, x);
+	return;
+
+error:
+	fmte("CCASE arguments ~S must be (place &rest args) form.", form, NULL);
 }
 
 static void defmacro_ccase(void)
@@ -1983,9 +2172,151 @@ static void defmacro_etypecase(void)
 
 
 /* (defmacro ctypecase (key &rest clauses) ...) -> result */
+static void function_ctypecase_string(Execute ptr, addr *ret, addr args)
+{
+	addr list, pos;
+
+	GetConst(COMMON_OR, &list);
+	conscar_heap(&list, list);
+	while (args != Nil) {
+		getcons(args, &pos, &args);
+		getcar(pos, &pos);
+		cons_heap(&list, pos, list);
+	}
+	nreverse_list_unsafe(ret, list);
+}
+
+static int function_ctypecase_expand(Execute ptr,
+		addr env, addr *ret, addr place, addr args)
+{
+	/* (let* ((a1 b1) (a2 b2) ... (value r) g)
+	 *   (declare (ignorable a1 a2 ...))
+	 *   (block result
+	 *     (tagbody
+	 *       loop
+	 *       (restart-bind
+	 *         ((store-value
+	 *            (lambda (v) (setq g v value v) w (go loop))
+	 *            :report-function
+	 *              (lambda (s)
+	 *                (princ "Retry ctypecase with new value xx." s))
+	 *            :interactive-function
+	 *              (lambda ()
+	 *                (list (eval (prompt-for t "Input xx> "))))))
+	 *         (return-from result
+	 *           (typecase value
+	 *             (...)
+	 *             (t (error
+	 *                  (make-condition 'type-error
+	 *                    :datum value
+	 *                    :expected-type '(or ...))))))))))
+	 */
+	addr a, b, g, r, w, v, s, str1, str2;
+	addr leta, declare, ignorable, tagbody, loop, restart, store, lambda, setq;
+	addr value, go, report, inter, princ, list, eval, prompt, case_;
+	addr quote, invoke, make, simple, datum, expect;
+	addr x, y, root, type, block, retfrom, result;
+
+	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
+		return 1;
+	getcar(g, &g);
+	str1 = fmth("Retry ctypecase with new value ~A.", place, NULL);
+	str2 = fmth("Input ~A> ", place, NULL);
+	function_ctypecase_string(ptr, &type, args);
+	make_symbolchar(&v, "V");
+	make_symbolchar(&s, "STREAM");
+	make_symbolchar(&loop, "LOOP");
+	make_symbolchar(&value, "VALUE");
+	make_symbolchar(&result, "RESULT");
+	GetConst(COMMON_LETA, &leta);
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
+	GetConst(COMMON_TAGBODY, &tagbody);
+	GetConst(COMMON_RESTART_BIND, &restart);
+	GetConst(COMMON_STORE_VALUE, &store);
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_SETQ, &setq);
+	GetConst(COMMON_GO, &go);
+	GetConst(KEYWORD_REPORT_FUNCTION, &report);
+	GetConst(KEYWORD_INTERACTIVE_FUNCTION, &inter);
+	GetConst(COMMON_PRINC, &princ);
+	GetConst(COMMON_LIST, &list);
+	GetConst(COMMON_EVAL, &eval);
+	GetConst(SYSTEM_PROMPT_FOR, &prompt);
+	GetConst(COMMON_TYPECASE, &case_);
+	GetConst(COMMON_QUOTE, &quote);
+	GetConst(COMMON_ERROR, &invoke);
+	GetConst(COMMON_MAKE_CONDITION, &make);
+	GetConst(COMMON_TYPE_ERROR, &simple);
+	GetConst(KEYWORD_DATUM, &datum);
+	GetConst(KEYWORD_EXPECTED_TYPE, &expect);
+	GetConst(COMMON_BLOCK, &block);
+	GetConst(COMMON_RETURN_FROM, &retfrom);
+	/* expand */
+	list_heap(&x, list, value, NULL);
+	list_heap(&type, quote, type, NULL);
+	list_heap(&simple, quote, simple, NULL);
+	list_heap(&make, make, simple, datum, value, expect, type, NULL);
+	list_heap(&invoke, invoke, make, NULL);
+	list_heap(&invoke, T, invoke, NULL);
+	conscar_heap(&case_, case_);
+	cons_heap(&case_, value, case_);
+	while (args != Nil) {
+		getcons(args, &x, &args);
+		cons_heap(&case_, x, case_);
+	}
+	cons_heap(&case_, invoke, case_);
+	nreverse_list_unsafe(&case_, case_);
+	list_heap(&case_, retfrom, result, case_, NULL);
+	list_heap(&prompt, prompt, T, str2, NULL);
+	list_heap(&eval, eval, prompt, NULL);
+	list_heap(&list, list, eval, NULL);
+	list_heap(&x, lambda, Nil, list, NULL);
+	list_heap(&princ, princ, str1, s, NULL);
+	list_heap(&s, s, NULL);
+	list_heap(&y, lambda, s, princ, NULL);
+	list_heap(&go, go, loop, NULL);
+	list_heap(&setq, setq, g, v, value, v, NULL);
+	list_heap(&v, v, NULL);
+	list_heap(&lambda, lambda, v, setq, w, go, NULL);
+	list_heap(&store, store, lambda, report, y, inter, x, NULL);
+	list_heap(&store, store, NULL);
+	list_heap(&restart, restart, store, case_, NULL);
+	list_heap(&tagbody, tagbody, loop, restart, NULL);
+	list_heap(&tagbody, block, result, tagbody, NULL);
+	/* let* */
+	lista_heap(&ignorable, ignorable, a, NULL);
+	list_heap(&declare, declare, ignorable, NULL);
+	for (root = Nil; a != Nil; ) {
+		getcons(a, &x, &a);
+		getcons(b, &y, &b);
+		list_heap(&x, x, y, NULL);
+		cons_heap(&root, x, root);
+	}
+	list_heap(&value, value, r, NULL);
+	cons_heap(&root, value, root);
+	cons_heap(&root, g, root);
+	nreverse_list_unsafe(&root, root);
+	list_heap(ret, leta, root, declare, tagbody, NULL);
+
+	return 0;
+}
+
 static void function_ctypecase(Execute ptr, addr form, addr env)
 {
-	fmte("TODO", NULL);
+	addr args, x;
+
+	getcdr(form, &form);
+	if (! consp(form))
+		goto error;
+	GetCons(form, &x, &args);
+	if (function_ctypecase_expand(ptr, env, &x, x, args))
+		return;
+	setresult_control(ptr, x);
+	return;
+
+error:
+	fmte("CTYPECASE arguments ~S must be (place &rest args) form.", form, NULL);
 }
 
 static void defmacro_ctypecase(void)

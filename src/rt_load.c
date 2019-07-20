@@ -171,13 +171,13 @@ static int loadrt_lisp(const char *name)
 }
 
 #include "load.h"
-int loadrt(void)
+_g int loadrt(void)
 {
 	TITLE;
 	return loadrt_files();
 }
 #else
-int loadrt(void)
+_g int loadrt(void)
 {
 	return 1;
 }

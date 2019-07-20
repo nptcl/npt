@@ -3,9 +3,9 @@
 
 #include "typedef.h"
 
-void savecore_execute(addr path);
-int save_core(void);
-int load_core(const unicode *name, size_t size);
+_g void savecore_execute(addr path);
+_g int save_core(void);
+_g int load_core(const unicode *name, size_t size);
 
 #endif
 
