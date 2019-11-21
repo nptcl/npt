@@ -515,8 +515,7 @@ static void loop_variables_for_as_in_list(addr *form, addr list)
 
 	list_bind(list, &var, &type, &value, &step, &g, NULL);
 	loop_with_single_bind(form, g, Unbound, value);
-	if (consp(var))
-		loop_let_variables(form, var);
+	loop_let_variables(form, var);
 }
 
 static void loop_push_for_as_on_list(Execute ptr, addr *expr1, addr *expr2, addr list)
