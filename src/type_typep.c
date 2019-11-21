@@ -1287,9 +1287,21 @@ static int typep_prompt_stream(addr value, addr type, int *ret)
 	return 0;
 }
 
+static int typep_pretty_stream(addr value, addr type, int *ret)
+{
+	*ret = pretty_stream_p(value);
+	return 0;
+}
+
 static int typep_byte(addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_BYTESPEC);
+	return 0;
+}
+
+static int typep_print_dispatch(addr value, addr type, int *ret)
+{
+	*ret = (GetType(value) == LISPTYPE_PRINT_DISPATCH);
 	return 0;
 }
 
@@ -1389,7 +1401,9 @@ _g void init_type_typep(void)
 	TypeTypep[LISPDECL_SYNONYM_STREAM] = typep_synonym_stream;
 	TypeTypep[LISPDECL_TWO_WAY_STREAM] = typep_two_way_stream;
 	TypeTypep[LISPDECL_PROMPT_STREAM] = typep_prompt_stream;
+	TypeTypep[LISPDECL_PRETTY_STREAM] = typep_pretty_stream;
 	TypeTypep[LISPDECL_BYTESPEC] = typep_byte;
+	TypeTypep[LISPDECL_PRINT_DISPATCH] = typep_print_dispatch;
 }
 
 static int typep_call(addr value, addr type, int asterisk, int *ret)

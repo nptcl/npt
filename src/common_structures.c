@@ -792,7 +792,7 @@ static void defstruct_make_print_object(struct defstruct *ptr, addr *ret, addr p
 
 static void defstruct_make(struct defstruct *ptr, addr *ret)
 {
-	/* `(ensure-structure 
+	/* `(ensure-structure
 	 *    ',name
 	 *    (list (list ',name (lambda () ,init) ',type ',readonly)
 	 *          (list ...))
@@ -920,7 +920,7 @@ static void defmacro_defstruct(void)
 }
 
 
-/* 
+/*
  *  (defun copy-structure (structure) ...) -> structure
  */
 static void function_copy_structure(Execute ptr, addr var)

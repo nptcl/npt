@@ -25,7 +25,6 @@
       (nreverse list)))
   30 (10 20))
 
-
 (deftest loop-initially.3
   (let (list)
     (values

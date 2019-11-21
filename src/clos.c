@@ -883,7 +883,7 @@ _g void clos_find_generic_nil(addr name, addr *ret)
 	getcallname_global(name, &name);
 	if (name == Unbound || (! closp(name)))
 		*ret = Nil;
-	else 
+	else
 		*ret = name;
 }
 

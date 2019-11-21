@@ -1709,24 +1709,18 @@ static void code_if_true(LocalRoot local, addr code, addr then, addr last)
 	addr label_else, label_end;
 
 	check = (RefEvalScopeType(last) == EVAL_PARSE_NIL);
-	if (check) {
-		/* (if expr then) */
-		make_label(local, code, &label_end);
-		code_if_nil(local, code, label_end);
-		code_execute(local, code, then);
-		push_label(local, code, label_end);
-	}
-	else {
-		/* (if expr then else) */
-		make_label(local, code, &label_else);
-		make_label(local, code, &label_end);
-		code_if_nil(local, code, label_else);
-		code_execute(local, code, then);
-		code_goto(local, code, label_end);
-		push_label(local, code, label_else);
+	/* (if expr then else) */
+	make_label(local, code, &label_else);
+	make_label(local, code, &label_end);
+	code_if_nil(local, code, label_else);
+	code_execute(local, code, then);
+	code_goto(local, code, label_end);
+	push_label(local, code, label_else);
+	if (check)
+		code_nil(local, code);
+	else
 		code_execute(local, code, last);
-		push_label(local, code, label_end);
-	}
+	push_label(local, code, label_end);
 }
 
 static void code_if_false(LocalRoot local, addr code, addr then, addr last)
@@ -1735,24 +1729,18 @@ static void code_if_false(LocalRoot local, addr code, addr then, addr last)
 	addr label_else, label_end;
 
 	check = (RefEvalScopeType(last) == EVAL_PARSE_NIL);
-	if (check) {
-		/* (if (not expr) then) */
-		make_label(local, code, &label_end);
-		code_if_t(local, code, label_end);
-		code_execute(local, code, then);
-		push_label(local, code, label_end);
-	}
-	else {
-		/* (if (not expr) then else) */
-		make_label(local, code, &label_else);
-		make_label(local, code, &label_end);
-		code_if_t(local, code, label_else);
-		code_execute(local, code, then);
-		code_goto(local, code, label_end);
-		push_label(local, code, label_else);
+	/* (if (not expr) then else) */
+	make_label(local, code, &label_else);
+	make_label(local, code, &label_end);
+	code_if_t(local, code, label_else);
+	code_execute(local, code, then);
+	code_goto(local, code, label_end);
+	push_label(local, code, label_else);
+	if (check)
+		code_nil(local, code);
+	else
 		code_execute(local, code, last);
-		push_label(local, code, label_end);
-	}
+	push_label(local, code, label_end);
 }
 
 static void code_if(LocalRoot local, addr code, addr scope)

@@ -888,7 +888,7 @@ static void comb_longmacro_lambda(addr *ret, addr args,
 	 *    (destructuring-bind ,args (combination-binding inst)
 	 *      ,declarations
 	 *      ,form))
-	 * 
+	 *
 	 * `(lambda (generic inst array)
 	 *    (declare (ignorable generic inst array))
 	 *    ,declarations

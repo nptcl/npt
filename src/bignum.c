@@ -1705,6 +1705,12 @@ _g int getfixnumtype(addr pos, fixnum *ret)
 	return 1;
 }
 
+_g void getfixnum_error(addr pos, fixnum *ret)
+{
+	if (getfixnumtype(pos, ret))
+		TypeError(pos, FIXNUM);
+}
+
 _g int getfixed1_bignum(addr pos, int *sign, fixed *ret)
 {
 	CheckType(pos, LISPTYPE_BIGNUM);
@@ -3429,8 +3435,32 @@ _g void decimal_charqueue_integer_local(LocalRoot local, addr pos, addr queue)
  */
 /* base=2, 64bit -> 1+64+1 -> 66+padding -> 72? */
 #define FIXNUM_BUFFER_SIZE  128
-_g void output_nosign_fixnum(LocalRoot local,
-		addr stream, fixnum value, unsigned base, int upperp)
+_g void output_nosign_index(addr stream, size_t n, unsigned base, int upperp)
+{
+	size_t m;
+	char buffer[FIXNUM_BUFFER_SIZE], *ptr, chara;
+
+	/* zero */
+	if (n == 0) {
+		write_char_stream(stream, '0');
+		return;
+	}
+
+	/* loop */
+	chara = upperp? 'A': 'a';
+	ptr = buffer + FIXNUM_BUFFER_SIZE - 1;
+	*(ptr--) = 0;
+	while (n != 0) {
+		m = n % base;
+		n = n / base;
+		*(ptr--) = (char)((m <= 9)? ('0' + m): (chara - 10 + m));
+		Check(ptr <= buffer, "buffer error");
+	}
+
+	print_ascii_stream(stream, ptr + 1);
+}
+
+_g void output_nosign_fixnum(addr stream, fixnum value, unsigned base, int upperp)
 {
 	int sign;
 	bigtype m, n;

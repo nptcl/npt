@@ -111,8 +111,10 @@ DefTypeTable(0,  STRING_STREAM,        StringStream         );
 DefTypeTable(0,  SYNONYM_STREAM,       SynonymStream        );
 DefTypeTable(0,  TWO_WAY_STREAM,       TwoWayStream         );
 DefTypeTable(0,  PROMPT_STREAM,        PromptStream         );
+DefTypeTable(0,  PRETTY_STREAM,        PrettyStream         );
 DefTypeTable(0,  QUOTE,                Quote                );
 DefTypeTable(0,  BYTESPEC,             ByteSpec             );
+DefTypeTable(0,  PRINT_DISPATCH,       PrintDispatch        );
 
 static void typetable_Nil(void)
 {
@@ -375,6 +377,11 @@ static void typetable_pathnamenull(void)
 static void typetable_packagenull(void)
 {
 	SetTypeTableNull(Package);
+}
+
+static void typetable_printdispatchnull(void)
+{
+	SetTypeTableNull(PrintDispatch);
 }
 
 static void typetable_stringdesigner(void)
@@ -679,6 +686,18 @@ static void typetable_case_sensitivity(void)
 	SetTypeTable(CaseSensitivity, pos);
 }
 
+static void typetable_print_case(void)
+{
+	addr key1, key2, key3;
+
+	GetConst(KEYWORD_UPCASE, &key1);
+	GetConst(KEYWORD_DOWNCASE, &key2);
+	GetConst(KEYWORD_CAPITALIZE, &key3);
+	type_member_heap(&key1, key1, key2, key3, NULL);
+	SetTypeTable(PrintCase, key1);
+}
+
+
 static void typetable_keytestlist(void)
 {
 	/* &key (:key      [function-designer])
@@ -935,6 +954,28 @@ static void typetable_externalformat(void)
 	GetTypeTable(&type2, String);
 	type2or_heap(type1, type2, &type1);
 	SetTypeTable(ExternalFormat, type1);
+}
+
+static void typetable_pprint_newline(void)
+{
+	addr type, key1, key2, key3, key4;
+	GetConst(KEYWORD_LINEAR, &key1);
+	GetConst(KEYWORD_FILL, &key2);
+	GetConst(KEYWORD_MISER, &key3);
+	GetConst(KEYWORD_MANDATORY, &key4);
+	type_member_heap(&type, key1, key2, key3, key4, NULL);
+	SetTypeTable(PprintNewline, type);
+}
+
+static void typetable_pprint_tabular(void)
+{
+	addr type, key1, key2, key3, key4;
+	GetConst(KEYWORD_LINE, &key1);
+	GetConst(KEYWORD_SECTION, &key2);
+	GetConst(KEYWORD_LINE_RELATIVE, &key3);
+	GetConst(KEYWORD_SECTION_RELATIVE, &key4);
+	type_member_heap(&type, key1, key2, key3, key4, NULL);
+	SetTypeTable(PprintTabular, type);
 }
 
 static void typetable_method(void)
@@ -1199,6 +1240,7 @@ DefTypeValues(StringNull);
 DefTypeValues(SimpleString);
 DefTypeValues(Stream);
 DefTypeValues(StreamNull);
+DefTypeValues(PrettyStream);
 DefTypeValues(Function);
 DefTypeValues(EqlT);
 DefTypeValues(Package);
@@ -1801,13 +1843,13 @@ static void typecompiled_packagenicknames(void)
 static void typecompiled_prin1(void)
 {
 	/*  (function
-	 *    (t &optional stream)
+	 *    (t &optional stream-designer)
 	 *    (values t &rest nil))
 	 */
 	addr args, values;
 
 	GetTypeTable(&args, T);
-	GetTypeTable(&values, Stream);
+	GetTypeTable(&values, StreamDesigner);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, &args);
@@ -2595,6 +2637,21 @@ static void typecompiled_print_object_method(void)
 	SetTypeCompiled(PrintObject_Method, args);
 }
 
+static void typecompiled_pprint_fill(void)
+{
+	/* (function (output-stream-designer t &optional t t)
+	 *           (values null &rest nil))
+	 */
+	addr args, values;
+
+	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&values, T);
+	typeargs_var2opt2(&args, args, values, values, values);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(PprintFill, args);
+}
+
 
 /*
  *  Interface
@@ -2664,8 +2721,10 @@ _g void build_type_constant(void)
 	typetable_SynonymStream();
 	typetable_TwoWayStream();
 	typetable_PromptStream();
+	typetable_PrettyStream();
 	typetable_Quote();
 	typetable_ByteSpec();
+	typetable_PrintDispatch();
 
 	/* Condition */
 	typetable_ArithmeticError();
@@ -2692,6 +2751,7 @@ _g void build_type_constant(void)
 	typetable_integernull();
 	typetable_pathnamenull();
 	typetable_packagenull();
+	typetable_printdispatchnull();
 	typetable_stringdesigner();
 	typetable_packagedesigner();
 	typetable_functiondesigner();
@@ -2719,6 +2779,7 @@ _g void build_type_constant(void)
 	typetable_floatsymbol();
 	typetable_eqlt();
 	typetable_case_sensitivity();
+	typetable_print_case();
 	typetable_keytestlist();
 	typetable_rehashsize();
 	typetable_rehashthreshold();
@@ -2745,6 +2806,8 @@ _g void build_type_constant(void)
 	typetable_openifexists();
 	typetable_openifdoesnotexist();
 	typetable_externalformat();
+	typetable_pprint_newline();
+	typetable_pprint_tabular();
 	typetable_method();
 	typetable_class();
 	typetable_classnull();
@@ -2794,6 +2857,7 @@ _g void build_type_constant(void)
 	typevalues_SimpleString();
 	typevalues_Stream();
 	typevalues_StreamNull();
+	typevalues_PrettyStream();
 	typevalues_Function();
 	typevalues_EqlT();
 	typevalues_Package();
@@ -2913,5 +2977,6 @@ _g void build_type_constant(void)
 	typecompiled_writer_method();
 	typecompiled_signal();
 	typecompiled_print_object_method();
+	typecompiled_pprint_fill();
 }
 

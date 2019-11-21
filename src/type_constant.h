@@ -83,8 +83,10 @@ enum TypeTable {
 	TypeTable_SynonymStream,
 	TypeTable_TwoWayStream,
 	TypeTable_PromptStream,
+	TypeTable_PrettyStream,
 	TypeTable_Quote,
 	TypeTable_ByteSpec,
+	TypeTable_PrintDispatch,
 
 	/* Condition */
 	TypeTable_ArithmeticError,
@@ -149,6 +151,7 @@ enum TypeTable {
 	TypeTable_IntegerNull,
 	TypeTable_PathnameNull,
 	TypeTable_PackageNull,
+	TypeTable_PrintDispatchNull,
 	TypeTable_StringDesigner,
 	TypeTable_PackageDesigner,
 	TypeTable_FunctionDesigner,
@@ -176,6 +179,7 @@ enum TypeTable {
 	TypeTable_FloatSymbol,
 	TypeTable_EqlT,
 	TypeTable_CaseSensitivity,
+	TypeTable_PrintCase,
 	TypeTable_KeyTestList,
 	TypeTable_RehashSize,
 	TypeTable_RehashThreshold,
@@ -202,6 +206,8 @@ enum TypeTable {
 	TypeTable_OpenIfExists,
 	TypeTable_OpenIfDoesNotExist,
 	TypeTable_ExternalFormat,
+	TypeTable_PprintNewline,
+	TypeTable_PprintTabular,
 
 	TypeTable_Method,
 	TypeTable_Method1,
@@ -254,6 +260,7 @@ enum TypeTable {
 	TypeValues_SimpleString,
 	TypeValues_Stream,
 	TypeValues_StreamNull,
+	TypeValues_PrettyStream,
 	TypeValues_Function,
 	TypeValues_EqlT,
 	TypeValues_Package,
@@ -373,6 +380,7 @@ enum TypeTable {
 	TypeCompiled_Writer_Method,
 	TypeCompiled_Signal,
 	TypeCompiled_PrintObject_Method,
+	TypeCompiled_PprintFill,
 
 	/* Size */
 	TypeTable_Size

@@ -5,6 +5,7 @@
 #include "build.h"
 #include "constant.h"
 #include "execute.h"
+#include "type_constant.h"
 
 /*
  *  restart
@@ -179,6 +180,8 @@ _g void type_error_datum(addr instance, addr *ret);
 _g void type_error_expected(addr instance, addr *ret);
 _g int typep_error(addr value, addr type);
 _g int typep_asterisk_error(addr value, addr type);
+_g int typep_typetable(addr value, enum TypeTable type);
+#define TypepTypeTable(a,b) typep_typetable((a),TypeTable_##b)
 /* simple_type_error */
 _g void instance_simple_type_error(addr *ret,
 		addr control, addr args, addr datum, addr expected);

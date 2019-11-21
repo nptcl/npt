@@ -465,7 +465,7 @@ static void defun_setf_cxr(constindex index, pointer p, enum TypeTable cxr)
 
 	/* function */
 	GetConstant(index, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2(pos, p);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -2466,7 +2466,7 @@ static void defun_setf_nth(void)
 
 	/* function */
 	GetConst(COMMON_NTH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var3(pos, p_defun_setf_nth);
 	setsetf_symbol(symbol, pos);
 	/* type */

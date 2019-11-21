@@ -7,6 +7,7 @@
 #include "common_header.h"
 #include "cons.h"
 #include "constant.h"
+#include "eastasian.h"
 #include "equal.h"
 #include "file.h"
 #include "files.h"
@@ -17,6 +18,7 @@
 #include "object.h"
 #include "pathname.h"
 #include "print.h"
+#include "print_write.h"
 #include "readtable.h"
 #include "sequence.h"
 #include "stream.h"
@@ -24,6 +26,7 @@
 #include "stream_concat.h"
 #include "stream_echo.h"
 #include "stream_file.h"
+#include "stream_pretty.h"
 #include "stream_prompt.h"
 #include "stream_string.h"
 #include "stream_synonym.h"
@@ -224,6 +227,12 @@ _g int prompt_stream_p(addr stream)
 {
 	return streamp(stream)
 		&& getstreamtype(stream) == StreamType_Prompt;
+}
+
+_g int pretty_stream_p(addr stream)
+{
+	return streamp(stream)
+		&& getstreamtype(stream) == StreamType_Pretty;
 }
 
 
@@ -548,7 +557,7 @@ _g void write_char_default_stream(addr stream, unicode c)
 	if (c == '\n' || c == '\f')
 		ptr->terpri = 0;
 	else
-		ptr->terpri++;
+		ptr->terpri += eastasian_width(c);
 }
 
 _g int fresh_line_default_stream(addr stream)
@@ -708,6 +717,7 @@ _g void init_stream(void)
 	init_stream_twoway();
 	init_stream_echo();
 	init_stream_prompt();
+	init_stream_pretty();
 }
 
 static void defvar_stream_binary_type(void)
@@ -932,6 +942,19 @@ _g void debug_io_stream(Execute ptr, addr *ret)
 _g void query_io_stream(Execute ptr, addr *ret)
 {
 	specialvalue(ptr, CONSTANT_SPECIAL_QUERY_IO, ret);
+}
+
+_g void output_stream_designer(Execute ptr, addr stream, addr *ret)
+{
+	if (stream == Unbound)
+		standard_output_stream(ptr, ret);
+	else if (stream == Nil)
+		terminal_io_stream(ptr, ret);
+	else if (stream == T)
+		standard_output_stream(ptr, ret);
+	else
+		*ret = stream;
+	Check(! streamp(*ret), "type error");
 }
 
 

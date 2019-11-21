@@ -9,9 +9,11 @@
 #include "equal.h"
 #include "eval_declare.h"
 #include "eval_parse.h"
+#include "format.h"
 #include "hashtable.h"
 #include "lambda.h"
 #include "print.h"
+#include "print_write.h"
 #include "sequence.h"
 #include "setf.h"
 #include "stream.h"
@@ -200,7 +202,7 @@ static void defun_setf_fdefinition(void)
 
 	/* function */
 	GetConst(COMMON_FDEFINITION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2(pos, p_defun_setf_fdefinition);
 	setsetf_symbol(symbol, pos);
 	/* type */

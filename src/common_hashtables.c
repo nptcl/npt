@@ -490,7 +490,7 @@ static void defun_setf_gethash(void)
 
 	/* function */
 	GetConst(COMMON_GETHASH, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var3opt1(pos, p_defun_setf_gethash);
 	setsetf_symbol(symbol, pos);
 	/* type */

@@ -4,6 +4,8 @@
 #include "constant.h"
 #include "define.h"
 #include "environment.h"
+#include "format.h"
+#include "function.h"
 #include "hashtable.h"
 #include "integer.h"
 #include "object.h"
@@ -61,6 +63,35 @@ _g void decode_universal_time(LocalRoot local,
 		decode_universal_time_nil(local, u, pos);
 	else
 		decode_universal_time_zone(local, u, pos, zone);
+}
+
+
+/*
+ *  disassemble
+ */
+static void disassemble_code(addr stream, addr pos)
+{
+	addr code;
+
+	CheckType(pos, LISPTYPE_FUNCTION);
+	GetFunction(pos, &code);
+	if (code == Nil)
+		return;
+	CheckType(code, LISPTYPE_CODE);
+
+}
+
+_g void disassemble_common(addr stream, addr pos)
+{
+	CheckType(stream, LISPTYPE_STREAM);
+	CheckType(pos, LISPTYPE_FUNCTION);
+	if (compiled_function_p(pos)) {
+		fmts(stream, "COMPILED-FUNCTION.~%");
+	}
+	else {
+		fmts(stream, "INTERPRETED-FUNCTION.~%");
+		disassemble_code(stream, pos);
+	}
 }
 
 

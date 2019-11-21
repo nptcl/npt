@@ -343,7 +343,7 @@ static void defun_setf_slot_value(void)
 
 	/* function */
 	GetConst(COMMON_SLOT_VALUE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var3(pos, p_defun_setf_slot_value);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -577,7 +577,7 @@ static void defun_setf_find_class(void)
 
 	/* function */
 	GetConst(COMMON_FIND_CLASS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2opt2(pos, p_defun_setf_find_class);
 	setsetf_symbol(symbol, pos);
 	/* type */

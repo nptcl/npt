@@ -986,6 +986,7 @@ static int test_macro_character_execute(void)
 	setreadtype_readtable(pos, 10000, read);
 
 	test_macro_character_execute_value = 1;
+	check = 0;
 	result = macro_character_execute(ptr, &check, &value, 10000, Nil, pos);
 	test(result == 0, "macro_character_execute1");
 	test(check == 1, "macro_character_execute2");

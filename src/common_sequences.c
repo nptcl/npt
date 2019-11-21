@@ -142,7 +142,7 @@ static void defun_setf_elt(void)
 
 	/* function */
 	GetConst(COMMON_ELT, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var3(pos, p_defun_setf_elt);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -359,7 +359,7 @@ static void defun_setf_subseq(void)
 
 	/* function */
 	GetConst(COMMON_SUBSEQ, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var3opt1(pos, p_defun_setf_subseq);
 	setsetf_symbol(symbol, pos);
 	/* type */

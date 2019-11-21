@@ -20,6 +20,7 @@
 #include "pointer.h"
 #include "print.h"
 #include "prompt.h"
+#include "readtable.h"
 #include "stream.h"
 #include "stream_string.h"
 #include "strtype.h"
@@ -28,6 +29,7 @@
 #include "type_copy.h"
 #include "type_object.h"
 #include "type_parse.h"
+#include "type_table.h"
 #include "type_typep.h"
 
 /*
@@ -1260,6 +1262,13 @@ _g int typep_asterisk_error(addr value, addr type)
 	}
 
 	return 0;
+}
+
+_g int typep_typetable(addr value, enum TypeTable type)
+{
+	addr pos;
+	gettypetable(type, &pos);
+	return typep_asterisk_error(value, pos);
 }
 
 /* simple_type_error (simple_condition type_error)

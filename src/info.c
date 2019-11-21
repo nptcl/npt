@@ -70,7 +70,7 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPTYPE_EVAL:					return "eval";
 		case LISPTYPE_ENVIRONMENT:			return "environment";
 		case LISPTYPE_BITVECTOR:			return "bitvector";
-		case LISPTYPE_PPRINT:				return "pprint";
+		case LISPTYPE_PRINT_DISPATCH:		return "print-dispatch";
 		case LISPTYPE_BYTESPEC:				return "bytespec";
 
 		case LISPSYSTEM_FIXNUM_CACHE:		return "?fixnum-cache";
@@ -206,6 +206,7 @@ static const char *infochar_decl(enum LISPDECL decl)
 		case LISPDECL_SYNONYM_STREAM:		return "synonym-stream";
 		case LISPDECL_TWO_WAY_STREAM:		return "two-way-stream";
 		case LISPDECL_PROMPT_STREAM:		return "prompt-stream";
+		case LISPDECL_PRETTY_STREAM:		return "pretty-stream";
 		default:							return "invalid";
 	}
 }
@@ -990,6 +991,7 @@ static void infoprint_streamtype(addr pos)
 		case StreamType_TwoWay: info_stdarg("TWOWAY"); break;
 		case StreamType_Echo: info_stdarg("ECHO"); break;
 		case StreamType_Prompt: info_stdarg("PROMPT"); break;
+		case StreamType_Pretty: info_stdarg("PRETTY"); break;
 		default: info_stdarg("ERROR"); break;
 	}
 	info_stdarg(">");
@@ -1063,7 +1065,7 @@ static void infoprint_default(addr pos)
 {
 	enum LISPTYPE type;
 	const char *ptr;
-	
+
 	type = info_gettype(pos);
 	ptr = infochar_lisp(type);
 	info_stdarg("#<OBJECT %s %d[0x%X]>", ptr, type, type);

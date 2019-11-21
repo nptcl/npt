@@ -75,6 +75,8 @@ __extern struct callbind_struct pointer_table[p_size];
 #define GetPointer_var1opt2(p, x)     GetPointer(p, var1opt2, x)
 #define SetPointer_var2opt2(p, x)     SetPointer(p, var2opt2, x)
 #define GetPointer_var2opt2(p, x)     GetPointer(p, var2opt2, x)
+#define SetPointer_var2opt3(p, x)     SetPointer(p, var2opt3, x)
+#define GetPointer_var2opt3(p, x)     GetPointer(p, var2opt3, x)
 #define SetPointer_var1rest(p, x)     SetPointer(p, var1rest, x)
 #define GetPointer_var1rest(p, x)     GetPointer(p, var1rest, x)
 #define SetPointer_var2rest(p, x)     SetPointer(p, var2rest, x)

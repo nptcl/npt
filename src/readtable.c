@@ -24,6 +24,7 @@
 #include "pathname.h"
 #include "pointer.h"
 #include "quote.h"
+#include "rational.h"
 #include "readtable.h"
 #include "sequence.h"
 #include "stream.h"
@@ -2017,6 +2018,32 @@ static int readtable_front(Execute ptr,
 /*
  *  read
  */
+enum ReadTable_float float_readtable(Execute ptr)
+{
+	addr pos, check;
+
+	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &pos);
+	getspecialcheck_local(ptr, pos, &pos);
+	GetConst(COMMON_SINGLE_FLOAT, &check);
+	if (check == pos) return ReadTable_single;
+	GetConst(COMMON_DOUBLE_FLOAT, &check);
+	if (check == pos) return ReadTable_double;
+	GetConst(COMMON_LONG_FLOAT, &check);
+	if (check == pos) return ReadTable_long;
+	GetConst(COMMON_SHORT_FLOAT, &check);
+	if (check == pos) return ReadTable_short;
+	fmte("Invalid *read-default-float-format* value ~S.", pos, NULL);
+
+	return ReadTable_single;
+}
+
+_g enum ReadTable_Case readcase_readtable(Execute ptr)
+{
+	addr pos;
+	getreadtable(ptr, &pos);
+	return getcase_readtable(pos);
+}
+
 _g enum ReadTable_Case getcase_readtable(addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_READTABLE, "type error");
@@ -3585,7 +3612,7 @@ static void dispatch_radix_read(Execute ptr, addr stream, fixnum base)
 		setresult_control(ptr, Nil);
 		return;
 	}
-	if (! integerp(pos))
+	if (! rationalp(pos))
 		fmte("The radix value ~S must be an integer.", pos, NULL);
 	setresult_control(ptr, pos);
 }
@@ -3731,6 +3758,37 @@ static void defun_complex_dispatch(void)
 
 
 /* (defun array-dispatch (stream code arg) ...) -> * */
+static int find_array_eq_unsafe(addr key, addr array)
+{
+	addr check;
+	size_t size, i;
+
+	array_rowlength(array, &size);
+	for (i = 0; i < size; i++) {
+		(void)array_get_t(array, i, &check);
+		if (key == check)
+			return 1;
+	}
+
+	return 0;
+}
+
+static void array_readlabel(Execute ptr, addr pos)
+{
+	addr list, label, value;
+
+	if (getreplace_readinfo(ptr, &list)) {
+		while (list != Nil) {
+			GetCons(list, &label, &list);
+			if (gensymp_readlabel(label)) {
+				GetReadLabel(label, ReadLabel_Value, &value);
+				if (find_array_eq_unsafe(value, pos))
+					push_replace_readlabel(label, pos);
+			}
+		}
+	}
+}
+
 static void function_dispatch_array(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check, ignore;
@@ -3748,6 +3806,7 @@ static void function_dispatch_array(Execute ptr, addr stream, addr code, addr ar
 	if (check)
 		fmte("After array dispatch must be an initial-contents form.", NULL);
 	array_contents_heap(&form, arg, form);
+	array_readlabel(ptr, form);
 	setresult_control(ptr, form);
 }
 
@@ -3776,7 +3835,7 @@ static void function_dispatch_pathname(Execute ptr, addr stream, addr code, addr
 	if (read_recursive(ptr, stream, &check, &pos))
 		return;
 	if (check)
-		fmte("After #p must be a pathname-designer.", NULL);
+		fmte("After #P must be a pathname-designer.", NULL);
 	if (read_suppress_p(ptr)) {
 		setresult_control(ptr, Nil);
 		return;

@@ -13,6 +13,7 @@
 #include "constant.h"
 #include "control.h"
 #include "copy.h"
+#include "eastasian.h"
 #include "encode.h"
 #include "eval.h"
 #include "eval_declare.h"
@@ -77,6 +78,7 @@ _g void initlisp(void)
 	init_condition();
 	init_control();
 	init_copy();
+	init_eastasian();
 	init_encode();
 	init_eval();
 	init_fasl();

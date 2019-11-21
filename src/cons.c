@@ -627,6 +627,46 @@ _g void lista_heap_safe(addr *ret, addr first, addr cons)
 	lista_alloc_safe(NULL, ret, first, cons);
 }
 
+_g void lista_stdarg_safe(LocalRoot local, addr *ret, va_list args)
+{
+	addr pos1, pos2, pos3, cons;
+
+	pos1 = va_arg(args, addr);
+	/* nil */
+	if (pos1 == NULL) {
+		fmte("LIST* must be at least one argument.", NULL);
+		*ret = Nil; /* error */
+		return;
+	}
+
+	/* dot list */
+	pos2 = va_arg(args, addr);
+	if (pos2 == NULL) {
+		*ret = pos1;
+		return;
+	}
+
+	/* result */
+	conscar_alloc(local, &cons, pos1);
+	*ret = cons;
+
+	/* loop */
+	for (;;) {
+		pos3 = va_arg(args, addr);
+		if (pos3 == NULL) {
+			/* (pos1 . pos2) */
+			setcdr(cons, pos2);
+			return;
+		}
+
+		/* (pos1 pos2 . ?) */
+		conscar_alloc(local, &pos1, pos2);
+		setcdr(cons, pos1);
+		cons = pos1;
+		pos2 = pos3;
+	}
+}
+
 _g void lista_stdarg_alloc(LocalRoot local, addr *ret, va_list args)
 {
 	addr pos1, pos2, pos3, cons;

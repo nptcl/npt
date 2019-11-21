@@ -66,6 +66,7 @@ _g void lista_alloc_safe(LocalRoot local, addr *ret, addr first, addr cons);
 _g void lista_local_safe(LocalRoot local, addr *ret, addr first, addr cons);
 _g void lista_heap_safe(addr *ret, addr first, addr cons);
 
+_g void lista_stdarg_safe(LocalRoot local, addr *ret, va_list args);
 _g void lista_stdarg_alloc(LocalRoot local, addr *ret, va_list args);
 _g addr lista_allocr(LocalRoot local, ...);
 _g addr lista_localr(LocalRoot local, ...);

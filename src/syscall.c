@@ -1,6 +1,7 @@
 #include "array.h"
 #include "bigdata.h"
 #include "bignum.h"
+#include "character.h"
 #include "cmpl.h"
 #include "condition.h"
 #include "cons.h"
@@ -8,6 +9,7 @@
 #include "control.h"
 #include "core.h"
 #include "document.h"
+#include "eastasian.h"
 #include "equal.h"
 #include "eval.h"
 #include "file.h"
@@ -21,6 +23,9 @@
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
+#include "print.h"
+#include "print_pretty.h"
+#include "print_write.h"
 #include "quote.h"
 #include "radix.h"
 #include "random_state.h"
@@ -29,6 +34,7 @@
 #include "sequence.h"
 #include "sort.h"
 #include "stream.h"
+#include "stream_pretty.h"
 #include "stream_string.h"
 #include "strtype.h"
 #include "structure.h"
@@ -1679,6 +1685,186 @@ static void defun_large_number(void)
 }
 
 
+/* (defun format-formatter (string &rest args) ...) -> list */
+static void syscall_format_formatter(Execute ptr, addr var, addr args)
+{
+	addr stream;
+
+	standard_output_stream(ptr, &stream);
+	if (format_stream_args(ptr, stream, var, args, &var))
+		return;
+	setresult_control(ptr, var);
+}
+
+static void type_format_formatter(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, String);
+	GetTypeTable(&values, T);
+	typeargs_var1rest(&args, args, values);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_format_formatter(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_FORMAT_FORMATTER, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_syscall_format_formatter);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_format_formatter(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun print-unreadable-call (stream pos type identity body) ...) -> null */
+static void syscall_print_unreadable_call(Execute ptr,
+		addr stream, addr pos, addr type, addr identity, addr body)
+{
+	int check1, check2;
+
+	check1 = (type != Nil);
+	check2 = (identity != Nil);
+	if (print_unreadable_common(ptr, stream, pos, check1, check2, body))
+		return;
+	setresult_control(ptr, Nil);
+}
+
+static void type_print_unreadable_call(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, StreamDesigner);
+	typeargs_var5(&args, values, args, args, args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_print_unreadable_call(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_PRINT_UNREADABLE_CALL, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var5(pos, p_defun_syscall_print_unreadable_call);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_print_unreadable_call(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun east-asian-width (input) ...) -> result
+ *   input   (or character integer)
+ *   result  (or null (integer 0 *))
+ */
+static void syscall_east_asian_width(Execute ptr, addr var)
+{
+	unicode c;
+	fixnum v;
+
+	if (characterp(var)) {
+		GetCharacter(var, &c);
+		if (UnicodeCount <= c)
+			goto error;
+	}
+	else if (fixnump(var)) {
+		GetFixnum(var, &v);
+		if (v < 0 || UnicodeCount <= v)
+			goto error;
+		c = (unicode)v;
+	}
+	else {
+		if (TypepTypeTable(var, IntplusNull))
+			return;
+		goto error;
+	}
+	v = (fixnum)eastasian_width(c);
+	fixnum_heap(&var, v);
+	setresult_control(ptr, var);
+	return;
+
+error:
+	fixnum_heap(&var, 0);
+	setresult_control(ptr, var);
+}
+
+static void type_east_asian_width(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Character);
+	GetTypeTable(&values, Integer);
+	type2or_heap(args, values, &args);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, IntplusNull);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_east_asian_width(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_EAST_ASIAN_WIDTH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_east_asian_width);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_east_asian_width(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun write-default (stream object) ...) -> t */
+static void syscall_write_default(Execute ptr, addr stream, addr var)
+{
+	addr control;
+
+	output_stream_designer(ptr, stream, &stream);
+	push_close_control(ptr, &control);
+	if (write_default_print(ptr, stream, var))
+		return;
+	setresult_control(ptr, var);
+}
+
+static void type_write_default(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&values, T);
+	typeargs_var2(&args, args, values);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_write_default(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_WRITE_DEFAULT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, p_defun_syscall_write_default);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_write_default(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun make-bignum (integer) ...) -> bignum */
 static void syscall_make_bignum(Execute ptr, addr var)
 {
@@ -2034,6 +2220,220 @@ static void defun_loop_bind(void)
 }
 
 
+/* (defun make-pprint-stream (stream object
+ *     prefix per-line-prefix suffix) ...) -> result
+ *   stream           stream
+ *   object           t
+ *   prefix           string
+ *   per-line-prefix  string
+ *   suffix           string
+ *   result           stream-pretty
+ */
+static void syscall_make_pprint_stream(Execute ptr,
+		addr stream, addr object, addr prefix, addr perline, addr suffix)
+{
+	open_pretty_stream(ptr, &stream, stream, object, prefix, perline, suffix);
+	setresult_control(ptr, stream);
+}
+
+static void type_syscall_make_pprint_stream(addr *ret)
+{
+	addr args, values, type1, type2, type3;
+
+	GetTypeTable(&type1, Stream);
+	GetTypeTable(&type2, T);
+	GetTypeTable(&type3, StringNull);
+	typeargs_var5(&args, type1, type2, type3, type3, type3);
+	GetTypeValues(&values, PrettyStream);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_make_pprint_stream(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_MAKE_PPRINT_STREAM, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var5(pos, p_defun_syscall_make_pprint_stream);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_make_pprint_stream(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun pprint-catch (stream-pretty) ...) -> symbol */
+static void syscall_pprint_catch(Execute ptr, addr stream)
+{
+	Check(! pretty_stream_p(stream), "type error");
+	catch_pretty_stream(stream, &stream);
+	setresult_control(ptr, stream);
+}
+
+static void type_syscall_pprint_catch(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, PrettyStream);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Symbol);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_pprint_catch(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_PPRINT_CATCH, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_pprint_catch);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_pprint_catch(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun pprint-exit (stream-pretty) ...) -> nil */
+static void syscall_pprint_exit(Execute ptr, addr stream)
+{
+	Check(! pretty_stream_p(stream), "type error");
+	if (pprint_exit_common(ptr, stream)) return;
+	setresult_control(ptr, Nil);
+}
+
+static void type_syscall_pprint_exit(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, PrettyStream);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_pprint_exit(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_PPRINT_EXIT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_pprint_exit);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_pprint_exit(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun pprint-pop (stream-pretty) ...) -> t */
+static void syscall_pprint_pop(Execute ptr, addr stream)
+{
+	Check(! pretty_stream_p(stream), "type error");
+	if (pprint_pop_common(ptr, stream, &stream)) return;
+	setresult_control(ptr, stream);
+}
+
+static void type_syscall_pprint_pop(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, PrettyStream);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_pprint_pop(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_PPRINT_POP, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_pprint_pop);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_pprint_pop(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun pprint-close (stream-pretty) ...) -> nil */
+static void syscall_pprint_close(Execute ptr, addr stream)
+{
+	Check(! pretty_stream_p(stream), "type error");
+	close_pretty_stream(stream);
+	setresult_control(ptr, Nil);
+}
+
+static void type_syscall_pprint_close(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, PrettyStream);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_pprint_close(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_PPRINT_CLOSE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_pprint_close);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_pprint_close(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun pprint-next (stream-pretty) ...) -> nil */
+static void syscall_pprint_next(Execute ptr, addr stream)
+{
+	Check(! pretty_stream_p(stream), "type error");
+	next_pretty_stream(stream);
+	setresult_control(ptr, Nil);
+}
+
+static void type_syscall_pprint_next(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, PrettyStream);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_pprint_next(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_PPRINT_NEXT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_pprint_next);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_pprint_next(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -2087,6 +2487,10 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, double_float_p);
 	SetPointerSysCall(defun, var1, long_float_p);
 	SetPointerSysCall(defun, var1opt1, large_number);
+	SetPointerSysCall(defun, var1dynamic, format_formatter);
+	SetPointerSysCall(defun, var5, print_unreadable_call);
+	SetPointerSysCall(defun, var1, east_asian_width);
+	SetPointerSysCall(defun, var2, write_default);
 	SetPointerSysCall(defun, var1, make_bignum);
 	SetPointerSysCall(defun, var2, make_ratio);
 	SetPointerSysCall(defun, var2, make_complex);
@@ -2096,6 +2500,12 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var2dynamic, ensure_structure);
 	SetPointerSysCall(defun, var1dynamic, structure_constructor);
 	SetPointerSysCall(defun, var3, loop_bind);
+	SetPointerSysCall(defun, var5, make_pprint_stream);
+	SetPointerSysCall(defun, var1, pprint_catch);
+	SetPointerSysCall(defun, var1, pprint_exit);
+	SetPointerSysCall(defun, var1, pprint_pop);
+	SetPointerSysCall(defun, var1, pprint_close);
+	SetPointerSysCall(defun, var1, pprint_next);
 }
 
 _g void build_syscall(void)
@@ -2159,6 +2569,10 @@ _g void build_syscall(void)
 	defun_long_float_p();
 	/* printer */
 	defun_large_number();
+	defun_format_formatter();
+	defun_print_unreadable_call();
+	defun_east_asian_width();
+	defun_write_default();
 	/* number */
 	defun_make_bignum();
 	defun_make_ratio();
@@ -2172,5 +2586,12 @@ _g void build_syscall(void)
 	defun_structure_constructor();
 	/* loop */
 	defun_loop_bind();
+	/* print */
+	defun_make_pprint_stream();
+	defun_pprint_catch();
+	defun_pprint_exit();
+	defun_pprint_pop();
+	defun_pprint_close();
+	defun_pprint_next();
 }
 

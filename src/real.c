@@ -607,6 +607,16 @@ _g int less_equal_real_clang(LocalRoot local, addr left, addr right)
 	return less_equal_real(local, left, right);
 }
 
+_g int greater_real_clang(LocalRoot local, addr left, addr right)
+{
+	return greater_real(local, left, right);
+}
+
+_g int greater_equal_real_clang(LocalRoot local, addr left, addr right)
+{
+	return greater_equal_real(local, left, right);
+}
+
 _g double_float cast_double_float_unsafe(addr value)
 {
 	switch (GetType(value)) {

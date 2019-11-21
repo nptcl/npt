@@ -197,6 +197,13 @@ _g void typeargs_var2opt2(addr *ret, addr var1, addr var2, addr opt1, addr opt2)
 	typeargs_full(ret, var1, opt1, Nil, Nil);
 }
 
+_g void typeargs_var2opt3(addr *ret, addr v1, addr v2, addr o1, addr o2, addr o3)
+{
+	list_heap(&v1, v1, v2, NULL);
+	list_heap(&o1, o1, o2, o3, NULL);
+	typeargs_full(ret, v1, o1, Nil, Nil);
+}
+
 _g void typeargs_var3opt1(addr *ret, addr var1, addr var2, addr var3, addr opt1)
 {
 	list_heap(&var1, var1, var2, var3, NULL);

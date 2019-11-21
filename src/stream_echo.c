@@ -150,7 +150,7 @@ static int read_hang_Echo(addr stream, unicode *u, int *hang)
 	if (result == 0) {
 		if (check == 0 && ptr->unread_check == 0)
 			write_char_stream(output, *u);
-		*hang = check;	
+		*hang = check;
 	}
 	ptr->unread_check = 0;
 

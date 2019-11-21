@@ -11,6 +11,7 @@ struct universal_time_struct {
 
 _g void decode_universal_time(LocalRoot local,
 		struct universal_time_struct *u, addr pos, addr zone);
+_g void disassemble_common(addr stream, addr pos);
 _g void implementation_type_common(addr *ret);
 _g void implementation_version_common(addr *ret);
 _g void short_site_name_common(addr *ret);

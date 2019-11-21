@@ -65,6 +65,8 @@
 (loadrt #p"rt-reader.lisp")
 ;; 24. System Construction
 (loadrt #p"rt-system.lisp")
+;; Error
+(loadrt #p"rt-error.lisp")
 ;; finish
 (format t "~&OK.~%")
 

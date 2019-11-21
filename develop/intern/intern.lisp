@@ -64,13 +64,17 @@
 :allocation
 :and
 :append
+:array
 :argument-precedence-order
 :arguments
 :around
+:base
 :before
+:block
 :capitalize
 :case
 :class
+:circle
 :common
 :compile-toplevel
 :conc-name
@@ -78,6 +82,7 @@
 :copier
 :count
 :create
+:current
 :datum
 :declare
 :default
@@ -97,12 +102,14 @@
 :end2
 :environment
 :error
+:escape
 :execute
 :exit                  ;; is not common-lisp.
 :expected-type
 :export
 :external
 :external-format
+:fill
 :fill-pointer
 :from-end
 :format-arguments
@@ -110,7 +117,9 @@
 :full
 :generic-function
 :generic-function-class
+:gensym
 :host
+:identity
 :identity-with-one-argument
 :if-does-not-exist
 :if-exists
@@ -135,12 +144,21 @@
 :junk-allowed
 :key
 :lambda-list
+:length
+:level
+:linear
+:line
+:line-relative
+:lines
 :load-toplevel
 :local
+:mandatory
 :metaclass
 :method
 :method-class
 :method-combination
+:miser
+:miser-width
 :most-specific-first
 :most-specific-last
 :name
@@ -160,15 +178,20 @@
 :overwrite
 :package
 :pathname
+:per-line-prefix
+:pprint-dispatch
 :predicate
+:prefix
 :preserve
 :preserving-whitespace
+:pretty
 :print
 :print-function
 :print-object
 :probe
 :radix
 :read-only
+:readably
 :reader
 :rehash-size
 :rehash-threshold
@@ -178,6 +201,9 @@
 :report
 :report-function
 :required
+:right-margin
+:section
+:section-relative
 :shadow
 :shadowing-import-from
 :size
@@ -185,6 +211,7 @@
 :start1
 :start2
 :stream
+:suffix
 :supersede
 :test
 :test-function
@@ -1359,6 +1386,7 @@ lisp-system::space1
 lisp-system::reserved
 lisp-system::end
 lisp-system::prompt-stream
+lisp-system::pretty-stream
 
 lisp-system::symbol-macro-expander
 lisp-system::defconstant
@@ -1483,6 +1511,13 @@ lisp-system::cr
 lisp-system::lf
 lisp-system::crlf
 lisp-system::auto
+
+
+;;
+;;  printer
+;;
+lisp-system::print-dispatch
+(lisp-system::*print-write* :constant system :name print-write)
 
 
 ;;
@@ -1812,6 +1847,10 @@ lisp-system::single-float-p
 lisp-system::double-float-p
 lisp-system::long-float-p
 lisp-system::large-number
+lisp-system::format-formatter
+lisp-system::print-unreadable-call
+lisp-system::east-asian-width
+lisp-system::write-default
 lisp-system::make-bignum
 lisp-system::make-ratio
 lisp-system::make-complex
@@ -1820,6 +1859,12 @@ lisp-system::symbol-deftype
 lisp-system::delete-deftype
 lisp-system::ensure-class
 lisp-system::ensure-structure
+lisp-system::make-pprint-stream
+lisp-system::pprint-catch
+lisp-system::pprint-exit
+lisp-system::pprint-pop
+lisp-system::pprint-close
+lisp-system::pprint-next
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

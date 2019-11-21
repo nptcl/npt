@@ -86,8 +86,10 @@ _g void build_type_symbol(void)
 	DefSymbolType(COMMON_SYNONYM_STREAM,       SynonymStream       );
 	DefSymbolType(COMMON_TWO_WAY_STREAM,       TwoWayStream        );
 	DefSymbolType(SYSTEM_PROMPT_STREAM,        PromptStream        );
+	DefSymbolType(SYSTEM_PRETTY_STREAM,        PrettyStream        );
 	DefSymbolType(SYSTEM_QUOTE,                Quote               );
 	DefSymbolType(SYSTEM_BYTESPEC,             ByteSpec            );
+	DefSymbolType(SYSTEM_PRINT_DISPATCH,       PrintDispatch       );
 }
 
 
@@ -182,8 +184,10 @@ _g void init_type_symbol(void)
 	DefTypeSymbol(SYNONYM_STREAM,       COMMON_SYNONYM_STREAM       );
 	DefTypeSymbol(TWO_WAY_STREAM,       COMMON_TWO_WAY_STREAM       );
 	DefTypeSymbol(PROMPT_STREAM,        SYSTEM_PROMPT_STREAM        );
+	DefTypeSymbol(PRETTY_STREAM,        SYSTEM_PRETTY_STREAM        );
 	DefTypeSymbol(QUOTE,                SYSTEM_QUOTE                );
 	DefTypeSymbol(BYTESPEC,             SYSTEM_BYTESPEC             );
+	DefTypeSymbol(PRINT_DISPATCH,       SYSTEM_PRINT_DISPATCH       );
 }
 
 

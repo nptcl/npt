@@ -3,6 +3,7 @@
  */
 #include "common_header.h"
 #include "environment.h"
+#include "stream.h"
 #include "type_parse.h"
 
 /* (defun decode-universal-time (time &optional zone) ...)
@@ -67,6 +68,51 @@ static void defun_decode_universal_time(void)
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_decode_universal_time(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun disassemble (extended-function-designer) ...) -> nil */
+static void function_disassemble(Execute ptr, addr var)
+{
+	addr stream, check;
+
+	standard_output_stream(ptr, &stream);
+	if (symbolp(var)) {
+		getfunction_local(ptr, var, &check);
+		if (check == Unbound) {
+			getmacro_symbol(var, &check);
+			if (check == Unbound)
+				fmte("Invalid argument ~S.", var);
+		}
+		var = check;
+	}
+	disassemble_common(stream, var);
+	setresult_control(ptr, Nil);
+}
+
+static void type_disassemble(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, FunctionDesigner);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_disassemble(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_DISASSEMBLE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_disassemble);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_disassemble(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -335,6 +381,7 @@ static void defun_user_homedir_pathname(void)
 _g void init_common_environment(void)
 {
 	SetPointerCall(defun, var1opt1, decode_universal_time);
+	SetPointerCall(defun, var1, disassemble);
 	SetPointerCall(defun, empty, lisp_implementation_type);
 	SetPointerCall(defun, empty, lisp_implementation_version);
 	SetPointerCall(defun, empty, short_site_name);
@@ -365,7 +412,7 @@ _g void build_common_environment(void)
 	/*internal_time_units_per_second*/
 	/*get_internal_real_time*/
 	/*get_internal_run_time*/
-	/*disassemble*/
+	defun_disassemble();
 	/*documentation*/
 	/*(setf documentation)*/
 	/*room*/

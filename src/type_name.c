@@ -87,6 +87,10 @@ static void type_name_stream(addr *ret, addr value)
 			GetConst(SYSTEM_PROMPT_STREAM, ret);
 			return;
 
+		case StreamType_Pretty:
+			GetConst(SYSTEM_PRETTY_STREAM, ret);
+			return;
+
 		default:
 			break;
 	}
@@ -186,8 +190,8 @@ _g void init_type_name(void)
 	DefTypeName(LISPTYPE_EVAL, SYSTEM_EVAL);
 	DefTypeName(LISPTYPE_ENVIRONMENT, SYSTEM_ENVIRONMENT);
 	DefTypeName(LISPTYPE_BITVECTOR, COMMON_BIT_VECTOR);
-	DefTypeName(LISPTYPE_PPRINT, COMMON_PPRINT);
 	DefTypeName(LISPTYPE_BYTESPEC, SYSTEM_BYTESPEC);
+	DefTypeName(LISPTYPE_PRINT_DISPATCH, SYSTEM_PRINT_DISPATCH);
 
 	DefTypeName(LISPSYSTEM_CHARACTER2, SYSTEM_CHARACTER2);
 	DefTypeName(LISPSYSTEM_CHARQUEUE, SYSTEM_CHARQUEUE);

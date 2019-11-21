@@ -5,6 +5,7 @@
 #include "cons.h"
 #include "integer.h"
 #include "print.h"
+#include "print_dispatch.h"
 #include "readtable.h"
 #include "type_parse.h"
 #include "stream.h"
@@ -603,7 +604,7 @@ static void defun_setf_readtable_case(void)
 
 	/* function */
 	GetConst(COMMON_READTABLE_CASE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2(pos, p_defun_setf_readtable_case);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -1015,9 +1016,9 @@ static void function_with_standard_io_syntax(Execute ptr, addr form, addr env)
 	list_heap(&value, symbol, Nil, NULL);
 	cons_heap(&args, value, args);
 
-	/* (*print-readably* t) */
+	/* (*print-readably* nil) */
 	GetConst(SPECIAL_PRINT_READABLY, &symbol);
-	list_heap(&value, symbol, T, NULL);
+	list_heap(&value, symbol, Nil, NULL);
 	cons_heap(&args, value, args);
 
 	/* (*print-right-margin* nil) */

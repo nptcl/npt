@@ -84,6 +84,7 @@ int test_fmtfloat(void);
 int test_condition(void);
 int test_bit(void);
 int test_main(void);
+int test_extern_object(void);
 int loadrt(void);
 
 
@@ -171,6 +172,7 @@ void degrade_execute(void)
 	DegradeCheck(test_stream);
 	DegradeCheck(test_main);
 	DegradeCheck(test_condition);
+	DegradeCheck(test_extern_object);
 	DegradeCheck(loadrt);
 #if 0
 #endif

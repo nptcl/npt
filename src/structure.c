@@ -1037,7 +1037,7 @@ static void structure_slot_writer_list(addr data, addr symbol)
 	addr pos, type;
 
 	/* function */
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2(pos, p_defun_structure_writer_list);
 	setsetf_symbol(symbol, pos);
 	SetDataFunction(pos, data);
@@ -1156,7 +1156,7 @@ static void structure_slot_writer_vector(addr data, addr symbol)
 	addr pos, type;
 
 	/* function */
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2(pos, p_defun_structure_writer_vector);
 	setsetf_symbol(symbol, pos);
 	SetDataFunction(pos, data);
@@ -1263,7 +1263,7 @@ static void structure_slot_writer_clos(addr instance, addr slot, addr symbol)
 	addr pos, type;
 
 	/* function */
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2(pos, p_defun_structure_writer_clos);
 	setsetf_symbol(symbol, pos);
 	SetDataFunction(pos, slot);

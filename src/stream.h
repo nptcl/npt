@@ -34,6 +34,7 @@ enum StreamType {
 	StreamType_Echo,
 	/* system object */
 	StreamType_Prompt,
+	StreamType_Pretty,
 	StreamType_Size
 };
 
@@ -123,6 +124,7 @@ _g int input_string_stream_p(addr stream);
 _g int output_string_stream_p(addr stream);
 _g int string_stream_p(addr stream);
 _g int prompt_stream_p(addr stream);
+_g int pretty_stream_p(addr stream);
 
 _g int open_stream_p(addr stream);
 _g int closep_stream(addr stream);
@@ -143,6 +145,7 @@ _g void trace_output_stream(Execute ptr, addr *ret);
 _g void terminal_io_stream(Execute ptr, addr *ret);
 _g void debug_io_stream(Execute ptr, addr *ret);
 _g void query_io_stream(Execute ptr, addr *ret);
+_g void output_stream_designer(Execute ptr, addr stream, addr *ret);
 
 /* function */
 #define DefineStreamLet(x,y,z) Stream_##y[StreamType_##x] = y##_##z;

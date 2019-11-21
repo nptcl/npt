@@ -610,6 +610,13 @@ _g void compiled_heap(addr *ret, addr name)
 	*ret = alloc_function(NULL, name, Nil, 0, 1);
 }
 
+_g void compiled_setf_heap(addr *ret, addr symbol)
+{
+	Check(! symbolp(symbol), "type error.");
+	setf_callname_heap(&symbol, symbol);
+	*ret = alloc_function(NULL, symbol, Nil, 0, 1);
+}
+
 _g addr compiled_macro_allocr(LocalRoot local, addr name)
 {
 	return alloc_function(local, name, Nil, 1, 1);
@@ -817,6 +824,13 @@ _g void setcompiled_var2opt2(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_var2opt2, "type error");
+	StructFunction(pos)->index = p;
+}
+
+_g void setcompiled_var2opt3(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_var2opt3, "type error");
 	StructFunction(pos)->index = p;
 }
 

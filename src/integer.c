@@ -390,7 +390,7 @@ _g void output_nosign_integer(LocalRoot local, addr stream,
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			output_nosign_fixnum(local, stream, RefFixnum(pos), base, upperp);
+			output_nosign_fixnum(stream, RefFixnum(pos), base, upperp);
 			break;
 
 		case LISPTYPE_BIGNUM:
@@ -674,6 +674,31 @@ _g int getindex_sign_integer(addr pos, int *sign, size_t *ret)
 			*ret = 0;
 			return 1;
 	}
+}
+
+_g int getunsigned_integer(addr pos, size_t *ret)
+{
+	fixnum value;
+
+	if (! fixnump(pos)) return 1;
+	GetFixnum(pos, &value);
+	if (value < 0) return 1;
+	*ret = (size_t)value;
+
+	return 0;
+}
+
+_g void getunsigned_error(addr pos, size_t *ret)
+{
+	if (getunsigned_integer(pos, ret))
+		TypeError(pos, FIXNUM);
+}
+
+_g void fixnum_unsigned_error(addr *ret, size_t value)
+{
+	if (value <= (size_t)FIXNUM_MAX)
+		fmte("Too large value ~S.", intsizeh(value), NULL);
+	fixnum_heap(ret, (fixnum)value);
 }
 
 

@@ -387,6 +387,10 @@ static void type_value_stream(addr *ret, addr value)
 			GetTypeTable(ret, PromptStream);
 			return;
 
+		case StreamType_Pretty:
+			GetTypeTable(ret, PrettyStream);
+			return;
+
 		default:
 			break;
 	}
@@ -396,6 +400,11 @@ static void type_value_stream(addr *ret, addr value)
 		GetTypeTable(ret, FileStream);
 	else
 		GetTypeTable(ret, Stream);
+}
+
+static void type_value_restart(addr *ret, addr value)
+{
+	GetTypeTable(ret, Restart);
 }
 
 _g void type_value_bitvector(addr *ret, addr value)
@@ -417,6 +426,11 @@ static void type_value_quote(addr *ret, addr value)
 static void type_value_bytespec(addr *ret, addr value)
 {
 	GetTypeTable(ret, ByteSpec);
+}
+
+static void type_value_print_dispatch(addr *ret, addr value)
+{
+	GetTypeTable(ret, PrintDispatch);
 }
 
 static void type_value_argument(addr *ret, addr value)
@@ -472,13 +486,13 @@ _g void init_type_value(void)
 	TypeValueTable[LISPTYPE_RANDOM_STATE] = type_value_random_state;
 	TypeValueTable[LISPTYPE_PATHNAME] = type_value_pathname;
 	TypeValueTable[LISPTYPE_STREAM] = type_value_stream;
-	TypeValueTable[LISPTYPE_RESTART] = type_value_error;
+	TypeValueTable[LISPTYPE_RESTART] = type_value_restart;
 	TypeValueTable[LISPTYPE_EVAL] = type_value_error;
-	TypeValueTable[LISPTYPE_ENVIRONMENT] = type_value_error;
+	TypeValueTable[LISPTYPE_ENVIRONMENT] = type_value_environment;
 	TypeValueTable[LISPTYPE_BITVECTOR] = type_value_bitvector;
-	TypeValueTable[LISPTYPE_PPRINT] = type_value_error;
 	TypeValueTable[LISPTYPE_QUOTE] = type_value_quote;
 	TypeValueTable[LISPTYPE_BYTESPEC] = type_value_bytespec;
+	TypeValueTable[LISPTYPE_PRINT_DISPATCH] = type_value_print_dispatch;
 	TypeValueTable[LISPSYSTEM_ARGUMENT] = type_value_argument;
 }
 

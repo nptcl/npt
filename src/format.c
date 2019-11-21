@@ -16,6 +16,8 @@
 #include "number.h"
 #include "package.h"
 #include "print.h"
+#include "print_pretty.h"
+#include "print_write.h"
 #include "radix.h"
 #include "ratio.h"
 #include "sequence.h"
@@ -60,9 +62,9 @@
  * tT		Tabulate
  * *		Ignore
  * ?		Indirection
- * _		[pretty print] Conditional newline
- * wW		[pretty print] Write
- * iI		[pretty print] Indent
+ * _		Conditional newline
+ * wW		Write
+ * iI		Indent
  * ()		Case conversion
  * []		Conditional expression
  * ;		sparate
@@ -1075,7 +1077,7 @@ static void format_ascii_parameter(fmtprint print, addr pos,
 	if (pos == Nil && colon)
 		strvect_char_local(print->local, &pos, "()");
 	else
-		princ_string(print->ptr, print->local, &pos, pos);
+		princ_string_local(print->ptr, &pos, pos);
 	write_margin(print, pos, atsign, mincol, colinc, minpad, padchar);
 }
 
@@ -1180,7 +1182,7 @@ static int format_s_express(fmtprint print, struct fmtchar *str)
 	if (pos == Nil && str->colon)
 		strvect_char_local(local, &pos, "()");
 	else
-		prin1_string(ptr, local, &pos, pos);
+		prin1_string_local(ptr, &pos, pos);
 	write_margin(print, pos, str->atsign, mincol, colinc, minpad, padchar);
 
 	return free_control(ptr, control);
@@ -2329,16 +2331,20 @@ static int format_tabulate(fmtprint print, struct fmtchar *str)
 		return 1;
 	}
 
-	index = (fixnum)terpri_position_stream(print->stream);
-	Check(index < 0, "cast error");
 	if (str->colon) {
-		fmte("TODO: pretty print is not implemented.", NULL);
-		return 1;
+		if (str->atsign)
+			print_tab_relative(print->stream, (size_t)column, (size_t)colinc);
+		else
+			print_tab_section(print->stream, (size_t)column, (size_t)colinc);
 	}
-	if (str->atsign)
-		tabulate_relative(print, column, colinc, index);
-	else
-		tabulate_absolute(print, column, colinc, index);
+	else {
+		index = (fixnum)terpri_position_stream(print->stream);
+		Check(index < 0, "cast error");
+		if (str->atsign)
+			tabulate_relative(print, column, colinc, index);
+		else
+			tabulate_absolute(print, column, colinc, index);
+	}
 
 	return 0;
 }
@@ -2408,6 +2414,51 @@ static int format_indirection(fmtprint print, struct fmtchar *str)
 		fmtprint_pop(print, str, &format);
 		return fmtcall_args(print->ptr, print->stream, format, print->rest);
 	}
+
+	return 0;
+}
+
+static int format_newline(fmtprint print, struct fmtchar *str)
+{
+	if (str->colon && str->atsign)
+		pprint_newline_common(pprint_newline_mandatory, print->stream);
+	else if (str->colon)
+		pprint_newline_common(pprint_newline_fill, print->stream);
+	else if (str->atsign)
+		pprint_newline_common(pprint_newline_miser, print->stream);
+	else
+		pprint_newline_common(pprint_newline_linear, print->stream);
+	return 0;
+}
+
+static int format_write(fmtprint print, struct fmtchar *str)
+{
+	Execute ptr;
+	addr control, pos;
+
+	ptr = print->ptr;
+	push_close_control(ptr, &control);
+	if (str->colon) {
+		push_pretty_print(ptr, 1);
+	}
+	if (str->atsign) {
+		push_level_nil_print(ptr);
+		push_length_nil_print(ptr);
+	}
+	fmtprint_pop(print, str, &pos);
+	if (write_print(ptr, print->stream, pos))
+		return 1;
+	return free_control(ptr, control);
+}
+
+static int format_indent(fmtprint print, struct fmtchar *str)
+{
+	fixnum n;
+
+	fmtint_default(print, str, 0, &n, 0);
+	if (str->atsign)
+		fmte("The format ~I don't accept @ operator (~@I).", NULL);
+	pprint_indent(! str->colon, n, print->stream);
 
 	return 0;
 }
@@ -3062,11 +3113,11 @@ _g void init_format(void)
 	SetFormatCallTable('T', format_tabulate);
 	SetFormatCallTable('*', format_ignore);
 	SetFormatCallTable('?', format_indirection);
-	/*SetFormatCallTable('_', format_newline);*/ /* pretty printing */
-	/*SetFormatCallTable('w', format_write);*/ /* pretty printing */
-	/*SetFormatCallTable('W', format_write);*/ /* pretty printing */
-	/*SetFormatCallTable('i', format_indent);*/ /* pretty printing */
-	/*SetFormatCallTable('I', format_indent);*/ /* pretty printing */
+	SetFormatCallTable('_', format_newline);
+	SetFormatCallTable('w', format_write);
+	SetFormatCallTable('W', format_write);
+	SetFormatCallTable('i', format_indent);
+	SetFormatCallTable('I', format_indent);
 	SetFormatCallTable('(', format_case);
 	SetFormatCallTable(')', format_case_close);
 	SetFormatCallTable('[', format_condition);

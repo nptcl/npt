@@ -8,7 +8,7 @@
 #include "common_header.h"
 #include "format.h"
 #include "hashtable.h"
-#include "print.h"
+#include "print_write.h"
 #include "setf.h"
 #include "strtype.h"
 #include "type_parse.h"
@@ -360,7 +360,7 @@ static void defun_error(void)
 }
 
 
-/* (defun cerror (continue-format datum &args) ...) -> null */ 
+/* (defun cerror (continue-format datum &args) ...) -> null */
 static void function_cerror_continue(Execute ptr)
 {
 	/* do nothing */
@@ -515,7 +515,7 @@ static int function_check_type_expand(Execute ptr, addr env, addr *ret,
 		if (parse_type(ptr, &string, type, env))
 			return 1;
 		type_object(&string, string);
-		if (princ_string(ptr, NULL, &string, string))
+		if (princ_string_heap(ptr, &string, string))
 			return 1;
 	}
 	make_symbolchar(&v, "V");

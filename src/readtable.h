@@ -50,6 +50,8 @@ _g void get_macro_character(addr pos, unicode u, addr *ret, int *nonterm);
 _g void set_macro_character(addr pos, unicode u, int nonterm, addr call);
 _g void set_syntax_from_default(unicode u1, unicode u2, addr to);
 _g void set_syntax_from_char(unicode u1, unicode u2, addr to, addr from);
+enum ReadTable_float float_readtable(Execute ptr);
+_g enum ReadTable_Case readcase_readtable(Execute ptr);
 _g enum ReadTable_Case getcase_readtable(addr pos);
 _g void setcase_readtable(addr pos, enum ReadTable_Case mode);
 _g void getreadtable(Execute ptr, addr *ret);

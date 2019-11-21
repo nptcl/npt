@@ -2,8 +2,6 @@
 #define __PRINT_HEADER__
 
 #include <stdarg.h>
-#include "format.h"
-#include "readtable.h"
 #include "typedef.h"
 
 enum PrintCase {
@@ -16,42 +14,49 @@ enum PrintCase {
 	PrintCase_escape,
 	PrintCase_size
 };
+typedef int (*calltype_print)(Execute ptr, addr stream, addr object);
 
-struct PrintFormat {
-	unsigned array : 1; /* *print-array* */
-	unsigned circle : 1; /* *print-circle* */
-	unsigned escape : 1; /* *print-escape* */
-	unsigned gensym : 1; /* *print-gensym* */
-	unsigned pretty : 1; /* *print-pretty* */
-	unsigned radix : 1; /* *print-radix* */
-	unsigned readably : 1; /* *print-readably* */
-	enum PrintCase printcase : 5; /* *print-case* */
-	enum PrintCase readcase : 5;
-	enum ReadTable_float readfloat : 4;
-	unsigned base; /* *print-base* */
-	Execute ptr;
-	addr dispatch; /* *print-pprint-dispatch* */
-	fixnum length; /* *print-length* */
-	fixnum level, now; /* *print-level* */
-	fixnum lines; /* *print-lines* */
-	fixnum width; /* *print-miser-width* */
-	fixnum margin; /* *print-right-margin* */
-};
+_g int array_print(Execute ptr);
+_g unsigned base_print(Execute ptr);
+_g int radix_print(Execute ptr);
+_g enum PrintCase case_print(Execute ptr);
+_g int circle_print(Execute ptr);
+_g int escape_print(Execute ptr);
+_g int gensym_print(Execute ptr);
+_g int readably_print(Execute ptr);
+_g int pretty_print(Execute ptr);
+_g int level_print(Execute ptr, size_t *ret);
+_g int length_print(Execute ptr, size_t *ret);
+_g int lines_print(Execute ptr, size_t *ret);
+_g int miser_width_print(Execute ptr, size_t *ret);
+_g void right_margin_print(Execute ptr, size_t *ret);
+_g void pprint_dispatch_print(Execute ptr, addr *ret);
 
-typedef int (*calltype_write_print)(struct PrintFormat *, addr, addr);
+_g void push_array_print(Execute ptr, int value);
+_g void push_base_print(Execute ptr, unsigned base);
+_g void push_radix_print(Execute ptr, int value);
+_g void push_case_print(Execute ptr, enum PrintCase pcase);
+_g void push_circle_print(Execute ptr, int value);
+_g void push_escape_print(Execute ptr, int value);
+_g void push_gensym_print(Execute ptr, int value);
+_g void push_readably_print(Execute ptr, int value);
+_g void push_pretty_print(Execute ptr, int value);
+_g void push_level_print(Execute ptr, size_t value);
+_g void push_level_nil_print(Execute ptr);
+_g void push_length_print(Execute ptr, size_t value);
+_g void push_length_nil_print(Execute ptr);
+_g void push_lines_print(Execute ptr, size_t value);
+_g void push_lines_nil_print(Execute ptr);
+_g void push_miser_width_print(Execute ptr, size_t value);
+_g void push_miser_width_nil_print(Execute ptr);
+_g void push_right_margin_print(Execute ptr, size_t value);
+_g void push_right_margin_nil_print(Execute ptr);
+_g void push_pprint_dispatch(Execute ptr, addr value);
 
-_g int print_unreadable_object(struct PrintFormat *format,
-		addr stream, addr pos, int type, int identity,
-		calltype_write_print call);
-_g int write_print(struct PrintFormat *format, addr stream, addr object);
-_g void format_print(Execute ptr, struct PrintFormat *format);
-_g int princ_print(Execute ptr, addr stream, addr object);
-_g int prin1_print(Execute ptr, addr stream, addr object);
-_g int princ_string(Execute ptr, LocalRoot local, addr *ret, addr object);
-_g int prin1_string(Execute ptr, LocalRoot local, addr *ret, addr object);
-
-/* pretty print */
-_g void pprint_dispatch_heap(addr *ret);
+_g int print_unreadable_object(Execute ptr, addr stream, addr pos,
+		int type, int identity, calltype_print call);
+_g int print_unreadable_common(Execute ptr, addr stream, addr pos,
+		int type, int identity, addr body);
 
 /* initialize */
 _g void build_print(Execute ptr);

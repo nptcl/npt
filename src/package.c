@@ -2178,6 +2178,44 @@ _g addr interncommonr(const char *name)
 	return ret;
 }
 
+_g int externalp_package(addr symbol, addr package)
+{
+	addr name, left, right;
+
+	Check(! symbolp(symbol), "type error");
+	CheckType(package, LISPTYPE_PACKAGE);
+
+	/* export check */
+	GetNameSymbol(symbol, &name);
+	GetPackage(package, PACKAGE_INDEX_TABLE, &right);
+	findvalue_hashtable(right, name, &right);
+	if (right == Nil)
+		return 1;
+
+	/* table */
+	GetBitTypeSymbol(right, &left);
+	return left != symbol;
+}
+
+_g int exportp_package(addr symbol, addr package)
+{
+	addr name, left, right;
+
+	Check(! symbolp(symbol), "type error");
+	CheckType(package, LISPTYPE_PACKAGE);
+
+	/* export check */
+	GetNameSymbol(symbol, &name);
+	GetPackage(package, PACKAGE_INDEX_TABLE, &right);
+	findvalue_hashtable(right, name, &right);
+	if (right == Nil)
+		return 0;
+
+	/* table */
+	GetBitTypeSymbol(right, &left);
+	return (left == symbol) && (int)StructBitType(right)->expt;
+}
+
 _g int checksymbol_package(addr symbol, addr package)
 {
 	enum PACKAGE_TYPE type;

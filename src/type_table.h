@@ -45,6 +45,7 @@ _g void typeargs_var1opt2(addr *ret, addr var1, addr opt1, addr opt2);
 _g void typeargs_var1opt2key(addr *ret, addr var1, addr opt1, addr opt2, addr key);
 _g void typeargs_var2opt1(addr *ret, addr var1, addr var2, addr opt1);
 _g void typeargs_var2opt2(addr *ret, addr var1, addr var2, addr opt1, addr opt2);
+_g void typeargs_var2opt3(addr *ret, addr v1, addr v2, addr o1, addr o2, addr o3);
 _g void typeargs_var3opt1(addr *ret, addr var1, addr var2, addr var3, addr opt1);
 _g void typeargs_var4opt1(addr *ret, addr v1, addr v2, addr v3, addr v4, addr opt1);
 _g void typeargs_var1rest(addr *ret, addr v1, addr rest);

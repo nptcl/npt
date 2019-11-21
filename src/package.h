@@ -83,6 +83,8 @@ _g enum PACKAGE_TYPE internchar_keyword(const char *sname, addr *ret);
 _g enum PACKAGE_TYPE interncommon(const char *name, addr *ret);
 _g addr interncommonr(const char *name);
 
+_g int externalp_package(addr symbol, addr package);
+_g int exportp_package(addr symbol, addr package);
 _g int checksymbol_package(addr symbol, addr package);
 _g int checksymbol_default_package(Execute ptr, addr symbol);
 _g void make_gentemp(Execute ptr, addr prefix, addr package, addr *ret);

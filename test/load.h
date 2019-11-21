@@ -51,6 +51,8 @@ static int loadrt_files(void)
 	loadrt_file("rt-reader.lisp");
 	/* 24. System Construction */
 	loadrt_file("rt-system.lisp");
+	/* Error */
+	loadrt_file("rt-error.lisp");
 #if 0
 #endif
 

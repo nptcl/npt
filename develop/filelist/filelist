@@ -58,6 +58,7 @@ common_types.c
 common.c
 condition.c
 cons.c
+console.c
 constant.c
 control.c
 copy.c
@@ -65,6 +66,8 @@ core.c
 degrade.c
 develop.c
 document.c
+eastasian.c
+eastasian_table.c
 encode.c
 environment.c
 equal.c
@@ -122,7 +125,10 @@ package.c
 pathname.c
 pointer.c
 print.c
+print_dispatch.c
 print_object.c
+print_pretty.c
+print_write.c
 prompt.c
 quote.c
 radix.c
@@ -151,6 +157,7 @@ stream_concat.c
 stream_echo.c
 stream_error.c
 stream_file.c
+stream_pretty.c
 stream_prompt.c
 stream_string.c
 stream_synonym.c

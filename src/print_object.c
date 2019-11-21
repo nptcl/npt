@@ -2,12 +2,14 @@
 #include "clos_class.h"
 #include "clos_generic.h"
 #include "clos_method.h"
+#include "clos_type.h"
 #include "constant.h"
 #include "control.h"
 #include "function.h"
 #include "mop.h"
 #include "print.h"
 #include "print_object.h"
+#include "print_write.h"
 #include "stream.h"
 #include "structure.h"
 #include "symbol.h"
@@ -16,13 +18,17 @@
 /*
  *  t
  */
+static int method_print_object_t_body(Execute ptr, addr stream, addr pos)
+{
+	clos_class_of(pos, &pos);
+	stdget_class_name(pos, &pos);
+	return princ_print(ptr, stream, pos);
+}
+
 static void method_print_object_t(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	struct PrintFormat format;
-
-	format_print(ptr, &format);
-	if (print_unreadable_object(&format, stream, pos, 1, 1, NULL))
+	if (print_unreadable_object(ptr, stream, pos, 0, 1, method_print_object_t_body))
 		return;
 	setresult_control(ptr, pos);
 }
@@ -31,21 +37,21 @@ static void method_print_object_t(Execute ptr,
 /*
  *  class
  */
-static int write_clos_body(struct PrintFormat *format, addr stream, addr pos)
-{
-	Check(! clos_class_p(pos), "type error");
-	stdget_class_name(pos, &pos);
-	return write_print(format, stream, pos);
-}
-
 static void method_print_object_class(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	struct PrintFormat format;
+	addr class_of, name;
 
-	format_print(ptr, &format);
-	if (print_unreadable_object(&format, stream, pos, 1, 0, write_clos_body))
-		return;
+	clos_class_of(pos, &class_of);
+	stdget_class_name(class_of, &class_of);
+	stdget_class_name(pos, &name);
+	/* #<CLASS-OF CLASS-NAME> */
+	print_ascii_stream(stream, "#<");
+	if (princ_print(ptr, stream, class_of)) return;
+	write_char_stream(stream, ' ');
+	if (princ_print(ptr, stream, name)) return;
+	write_char_stream(stream, '>');
+	/* result */
 	setresult_control(ptr, pos);
 }
 
@@ -53,7 +59,7 @@ static void method_print_object_class(Execute ptr,
 /*
  *  structure-object
  */
-static int write_structure(struct PrintFormat *format, addr stream, addr pos)
+static int write_structure(Execute ptr, addr stream, addr pos)
 {
 	addr x, y, z;
 	size_t size, i;
@@ -66,7 +72,7 @@ static int write_structure(struct PrintFormat *format, addr stream, addr pos)
 	}
 	stdget_structure_name(x, &x);
 	print_ascii_stream(stream, "#S(");
-	if (write_print(format, stream, x)) return 1;
+	if (write_print(ptr, stream, x)) return 1;
 	/* slot */
 	GetSlotClos(pos, &x);
 	GetValueClos(pos, &y);
@@ -77,13 +83,13 @@ static int write_structure(struct PrintFormat *format, addr stream, addr pos)
 		GetNameSlot(z, &z);
 		GetNameSymbol(z, &z);
 		write_char_stream(stream, ':');
-		if (princ_print(format->ptr, stream, z)) return 1;
+		if (princ_print(ptr, stream, z)) return 1;
 		write_char_stream(stream, ' ');
 		GetClosValue(y, i, &z);
 		if (z == Unbound)
 			print_ascii_stream(stream, "#<UNBOUND>");
 		else
-			if (write_print(format, stream, z)) return 1;
+			if (write_print(ptr, stream, z)) return 1;
 	}
 	write_char_stream(stream, ')');
 
@@ -100,10 +106,7 @@ static void method_print_object_structure_object(Execute ptr,
 
 _g int print_structure(Execute ptr, addr stream, addr pos)
 {
-	struct PrintFormat format;
-
-	format_print(ptr, &format);
-	return write_structure(&format, stream, pos);
+	return write_structure(ptr, stream, pos);
 }
 
 

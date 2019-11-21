@@ -6,6 +6,7 @@
 #include "common.h"
 #include "control.h"
 #include "degrade.h"
+#include "package.h"
 #include "pathname.h"
 #include "ratio.h"
 #include "readtable.h"
@@ -15,6 +16,7 @@
 #include "type.h"
 #include "type_table.h"
 
+#if 0
 #define testString(stream, string, name) { \
 	addr __check; \
 	string_stream_heap(stream, &__check); \
@@ -803,6 +805,7 @@ static int test_getboolean(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
@@ -810,6 +813,7 @@ static int test_getboolean(void)
  */
 static int testbreak_print(void)
 {
+#if 0
 	in_package_lisp_package();
 
 	TestBreak(test_write_radix_front);
@@ -837,6 +841,7 @@ static int testbreak_print(void)
 	TestBreak(test_write_cons);
 	/* print */
 	TestBreak(test_getboolean);
+#endif
 
 	return 0;
 }

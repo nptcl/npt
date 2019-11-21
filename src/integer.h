@@ -71,8 +71,11 @@ _g addr reference_index_integer_heap(size_t value);
 #define intsizea reference_index_integer_alloc
 #define intsizeh reference_index_integer_heap
 #define intsizel(v) reference_index_integer_local(Local_Thread, (v))
-
 _g int getindex_sign_integer(addr pos, int *sign, size_t *ret);
+
+_g int getunsigned_integer(addr pos, size_t *ret);
+_g void getunsigned_error(addr pos, size_t *ret);
+_g void fixnum_unsigned_error(addr *ret, size_t value);
 
 /* standard type */
 _g void int8_integer_alloc(LocalRoot local, addr *ret, int8_t value);

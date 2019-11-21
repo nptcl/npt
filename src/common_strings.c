@@ -232,7 +232,7 @@ static void defun_setf_char(void)
 
 	/* function */
 	GetConst(COMMON_CHAR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var3(pos, p_defun_setf_char);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -261,7 +261,7 @@ static void defun_setf_schar(void)
 
 	/* function */
 	GetConst(COMMON_SCHAR, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var3(pos, p_defun_setf_char);
 	setsetf_symbol(symbol, pos);
 	/* type */

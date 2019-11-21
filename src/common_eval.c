@@ -215,7 +215,7 @@ static void defun_setf_macro_function(void)
 
 	/* function */
 	GetConst(COMMON_MACRO_FUNCTION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2opt1(pos, p_defun_setf_macro_function);
 	setsetf_symbol(symbol, pos);
 	/* type */

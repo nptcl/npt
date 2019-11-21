@@ -286,6 +286,7 @@ _g int bignum_signed_byte_p(addr value, size_t size);
 
 _g int getfixnum_bignum(addr pos, fixnum *ret);
 _g int getfixnumtype(addr pos, fixnum *ret);
+_g void getfixnum_error(addr pos, fixnum *ret);
 _g int getfixed1_bignum(addr pos, int *sign, fixed *ret);
 
 /*
@@ -358,8 +359,8 @@ _g void decimal_charqueue_fixnum_local(LocalRoot local, addr pos, addr queue);
 _g void decimal_charqueue_bignum_local(LocalRoot local, addr pos, addr queue);
 _g void decimal_charqueue_integer_local(LocalRoot local, addr pos, addr queue);
 
-_g void output_nosign_fixnum(LocalRoot local, addr stream,
-		fixnum value, unsigned base, int upperp);
+_g void output_nosign_index(addr stream, size_t value, unsigned base, int upperp);
+_g void output_nosign_fixnum(addr stream, fixnum value, unsigned base, int upperp);
 _g void output_nosign_bignum(LocalRoot local, addr stream,
 		addr pos, unsigned base, int upperp);
 _g void output_nosign_comma_fixnum(LocalRoot local, addr stream,

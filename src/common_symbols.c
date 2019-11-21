@@ -303,7 +303,7 @@ static void defun_setf_symbol_function(void)
 
 	/* function */
 	GetConst(COMMON_SYMBOL_FUNCTION, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2(pos, p_defun_setf_symbol_function);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -370,7 +370,7 @@ static void defun_setf_symbol_value(void)
 
 	/* function */
 	GetConst(COMMON_SYMBOL_VALUE, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2(pos, p_defun_setf_symbol_value);
 	setsetf_symbol(symbol, pos);
 	/* type */
@@ -437,7 +437,7 @@ static void defun_setf_symbol_plist(void)
 
 	/* function */
 	GetConst(COMMON_SYMBOL_PLIST, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2(pos, p_defun_setf_symbol_plist);
 	setsetf_symbol(symbol, pos);
 	/* type */

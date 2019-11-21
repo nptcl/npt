@@ -28,7 +28,7 @@ static int save_coreheader(struct filememory *fm)
 
 	cleartype(header);
 	memcpy(header.magic, CoreHeader, CoreHeaderSize);
-	header.endian = 1; 
+	header.endian = 1;
 	header.a = LISP_VERSION_A;
 	header.b = LISP_VERSION_B;
 	header.c = LISP_VERSION_C;

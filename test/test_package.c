@@ -4,6 +4,7 @@
 #include "degrade.h"
 #include "package.c"
 #include "print.h"
+#include "readtable.h"
 #include "stream.h"
 #include "syscall.h"
 #include "type.h"

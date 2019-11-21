@@ -431,7 +431,7 @@ static void defun_setf_logical_pathname_translations(void)
 
 	/* function */
 	GetConst(COMMON_LOGICAL_PATHNAME_TRANSLATIONS, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_setf_heap(&pos, symbol);
 	setcompiled_var2(pos, p_defun_setf_logical_pathname_translations);
 	setsetf_symbol(symbol, pos);
 	/* type */

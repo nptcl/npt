@@ -2074,6 +2074,44 @@ finish:
 	(call->call.var2opt2)(ptr, var1, var2, opt1, opt2);
 }
 
+static void call_callbind_var2opt3(Execute ptr, addr pos, callstr call)
+{
+	addr check, cons, var1, var2, opt1, opt2, opt3;
+
+	GetControl(ptr->control, Control_Cons, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var1, &cons);
+	if (cons == Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too few call argument ~S.", check, NULL);
+	}
+	getcons(cons, &var2, &cons);
+	if (cons == Nil) {
+		opt1 = opt2 = opt3 = Unbound;
+		goto finish;
+	}
+	getcons(cons, &opt1, &cons);
+	if (cons == Nil) {
+		opt2 = opt3 = Unbound;
+		goto finish;
+	}
+	getcons(cons, &opt2, &cons);
+	if (cons == Nil) {
+		opt3 = Unbound;
+		goto finish;
+	}
+	getcons(cons, &opt3, &cons);
+	if (cons != Nil) {
+		GetNameFunction(pos, &check);
+		fmte("Too many call argument ~S.", check, NULL);
+	}
+finish:
+	(call->call.var2opt3)(ptr, var1, var2, opt1, opt2, opt3);
+}
+
 static void call_callbind_var1rest(Execute ptr, addr pos, callstr call)
 {
 	addr check, cons, var1, rest;
@@ -2256,6 +2294,7 @@ _g void init_control(void)
 	CallBindTable[CallBind_var5opt1] = call_callbind_var5opt1;
 	CallBindTable[CallBind_var1opt2] = call_callbind_var1opt2;
 	CallBindTable[CallBind_var2opt2] = call_callbind_var2opt2;
+	CallBindTable[CallBind_var2opt3] = call_callbind_var2opt3;
 	CallBindTable[CallBind_var1rest] = call_callbind_var1rest;
 	CallBindTable[CallBind_var2rest] = call_callbind_var2rest;
 	CallBindTable[CallBind_opt1rest] = call_callbind_opt1rest;

@@ -38,6 +38,8 @@ _g int compare_real(LocalRoot local, addr left, addr right);
 
 _g int less_real_clang(LocalRoot local, addr left, addr right);
 _g int less_equal_real_clang(LocalRoot local, addr left, addr right);
+_g int greater_real_clang(LocalRoot local, addr left, addr right);
+_g int greater_equal_real_clang(LocalRoot local, addr left, addr right);
 
 _g double_float cast_double_float_unsafe(addr value);
 
