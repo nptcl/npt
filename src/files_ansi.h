@@ -42,3 +42,12 @@ _g void delete_file_files(Execute ptr, addr pos)
 	fmte("DELETE-FILE function is not supported in ANSI-C mode.", NULL);
 }
 
+_g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
+{
+	if (! errorp) {
+		*ret = Nil;
+		return;
+	}
+	simple_file_error_stdarg(file, "TRUENAME is not support in ANSI-C mode.", NULL);
+}
+

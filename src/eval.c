@@ -8,6 +8,7 @@
 #include "eval_scope.h"
 #include "fasl.h"
 #include "file.h"
+#include "files.h"
 #include "format.h"
 #include "function.h"
 #include "object.h"
@@ -381,7 +382,7 @@ static int eval_load_file(Execute ptr, int *result,
 		addr file, addr verbose, addr print, int exist,
 		addr external)
 {
-	addr symbol, pos;
+	addr symbol, pos, truename;
 
 	/* wild-pathname-p */
 	if (! streamp(file)) {
@@ -395,7 +396,8 @@ static int eval_load_file(Execute ptr, int *result,
 	/* load-truename */
 	GetConst(SPECIAL_LOAD_TRUENAME, &symbol);
 	physical_pathname_heap(ptr, file, &file);
-	pushspecial_control(ptr, symbol, file);
+	truename_files(ptr, file, &truename, 0);
+	pushspecial_control(ptr, symbol, truename);
 	/* package */
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	getspecial_local(ptr, symbol, &pos);

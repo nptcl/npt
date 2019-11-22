@@ -219,6 +219,47 @@ static int test_type_getarraytype(void)
 	RETURN;
 }
 
+static int test_type_getvalues1(void)
+{
+	addr pos, aster, type;
+
+	/* (values) */
+	type_heap(&aster, LISPDECL_T, 0);
+	type_values_heap(Nil, Nil, aster, Nil, &pos);
+	type_getvalues1(pos, &pos);
+	test(RefLispDecl(pos) == LISPDECL_T, "type_getvalues1-1");
+
+	/* (values &rest integer) */
+	type_heap(&pos, LISPDECL_INTEGER, 0);
+	type_values_heap(Nil, Nil, pos, Nil, &pos);
+	type_getvalues1(pos, &pos);
+	test(RefLispDecl(pos) == LISPDECL_INTEGER, "type_getvalues1-2");
+
+	/* (values integer) */
+	type_heap(&pos, LISPDECL_INTEGER, 0);
+	list_heap(&pos, pos, NULL);
+	type_values_heap(pos, Nil, aster, Nil, &pos);
+	type_getvalues1(pos, &pos);
+	test(RefLispDecl(pos) == LISPDECL_INTEGER, "type_getvalues1-3");
+
+	/* (values &optional integer) */
+	type_heap(&pos, LISPDECL_INTEGER, 0);
+	list_heap(&pos, pos, NULL);
+	type_values_heap(Nil, pos, aster, Nil, &pos);
+	type_getvalues1(pos, &pos);
+	test(RefLispDecl(pos) == LISPDECL_INTEGER, "type_getvalues1-4");
+
+	/* (values null integer) */
+	type_heap(&pos, LISPDECL_NULL, 0);
+	type_heap(&type, LISPDECL_INTEGER, 0);
+	list_heap(&pos, pos, type, NULL);
+	type_values_heap(pos, Nil, aster, Nil, &pos);
+	type_getvalues1(pos, &pos);
+	test(RefLispDecl(pos) == LISPDECL_NULL, "type_getvalues1-5");
+
+	RETURN;
+}
+
 
 /*
  *  check
@@ -1225,6 +1266,7 @@ static int testbreak_type(void)
 	TestBreak(test_type_revnotdecl);
 	TestBreak(test_type_setnotobject);
 	TestBreak(test_type_getarraytype);
+	TestBreak(test_type_getvalues1);
 	/* check */
 	TestBreak(test_decl_character_p);
 	TestBreak(test_decl_float_p);

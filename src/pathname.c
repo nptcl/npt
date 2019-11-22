@@ -733,7 +733,7 @@ finish:
 	return;
 
 error:
-	fmte("Invalid logical-pathname ~S.", body, NULL);
+	fmte("Invalid logical-pathname ~S.", thing, NULL);
 }
 
 static void parser_unix_pathname(struct fileparse *pa)
@@ -790,7 +790,7 @@ next1:
 	if (c == '/') goto next2;
 	if (c == '.') { di = ni; dp = 1; }
 	if (logical == 0 && c == ':') {
-		if (check_host_logical_pathname(local, charqueue)) {
+		if (check_host_logical_pathname(local, charqueue) == 0) {
 			/* parser logical */
 			*pa = backup;
 			parser_logical_pathname(pa);
@@ -879,7 +879,7 @@ universal: /* ignore */
 	goto start;
 
 drive:
-	if (check_drive_logical_pathname(local, (int)c)) {
+	if (check_drive_logical_pathname(local, (int)c) == 0) {
 		/* parser logical */
 		*pa = backup;
 		parser_logical_pathname(pa);
@@ -920,7 +920,7 @@ next1:
 	if (slashp(c)) goto next2;
 	if (c == '.') { di = ni; dp = 1; }
 	if (logical == 0 && c == ':') {
-		if (check_host_logical_pathname(local, charqueue)) {
+		if (check_host_logical_pathname(local, charqueue) == 0) {
 			/* parser logical */
 			*pa = backup;
 			parser_logical_pathname(pa);
@@ -1797,7 +1797,7 @@ _g void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp)
 		return;
 	}
 
-	/* logica pathname */
+	/* logical pathname */
 	GetPathname(pos, PATHNAME_INDEX_HOST, &host);
 	if (gethost_pathname(host, &list))
 		fmte("The logical-hostname ~S is not exist.", host, NULL);

@@ -782,3 +782,71 @@ _g void delete_file_files(Execute ptr, addr pos)
 	rollback_local(local, stack);
 }
 
+
+/*
+ *  truename
+ */
+_g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
+{
+	addr pos;
+	const unicode *u;
+	wchar_t *str, *dst;
+	size_t s32, s16;
+	LocalRoot local;
+	LocalStack stack;
+	DWORD check;
+
+	/* wild-check */
+	physical_pathname_heap(ptr, file, &pos);
+	if (wild_pathname_boolean(pos, Nil)) {
+		if (! errorp)
+			goto error_nil;
+		simple_file_error_stdarg(file,
+				"TRUENAME don't allow the wildcard filename ~S.", file, NULL);
+		return;
+	}
+	name_pathname_heap(ptr, pos, &pos);
+
+	/* realpath */
+	string_posbodylen(pos, &u, &s32);
+	if (UTF32_length_utf16(u, s32, &s16)) {
+		if (! errorp)
+			goto error_nil;
+		simple_file_error_stdarg(file, "Invalid unicode string ~S.", pos, NULL);
+		return;
+	}
+	local = ptr->local;
+	push_local(local, &stack);
+	str = (wchar_t *)lowlevel_local(local, (s16 + 1UL) * sizeoft(wchar_t));
+	if (UTF32_make_utf16((byte16 *)str, u, s32)) {
+		if (! errorp)
+			goto error_nil_rollback;
+		simple_file_error_stdarg(file, "Invalid unicode string ~S.", pos, NULL);
+		goto error;
+	}
+	str[s16] = 0;
+
+	/* API */
+	dst = (wchar_t *)lowlevel_local(local, MAX_PATH * sizeoft(wchar_t));
+	check = GetFullPathNameW(str, MAX_PATH, dst, NULL);
+	if (check == 0) {
+		if (! errorp)
+			goto error_nil_rollback;
+		simple_file_error_stdarg(file, "Cannot find the TRUENAME ~S file.", file, NULL);
+		goto error;
+	}
+
+	/* make-pathname */
+	string16_size_heap(&pos, dst, (size_t)check);
+	pathname_designer_heap(ptr, pos, ret);
+
+error:
+	rollback_local(local, stack);
+	return;
+
+error_nil_rollback:
+	rollback_local(local, stack);
+error_nil:
+	*ret = Nil;
+}
+

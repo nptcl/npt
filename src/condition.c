@@ -611,14 +611,14 @@ _g void error_function(addr condition)
 
 _g void format_error(const char *str, ...)
 {
-	addr format, list;
-	va_list args;
+	addr format, args;
+	va_list va;
 
 	strvect_char_heap(&format, str);
-	va_start(args, str);
-	copylocal_list_stdarg(NULL, &list, args);
-	va_end(args);
-	simple_error(format, list);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+	simple_error(format, args);
 }
 
 static void function_restart_warning(Execute ptr)
@@ -677,29 +677,29 @@ _g int warning_restart_case(Execute ptr, addr instance)
 
 _g int signal_warning(const char *str, ...)
 {
-	addr format, list, instance;
-	va_list args;
+	addr format, args, instance;
+	va_list va;
 
 	strvect_char_heap(&format, str);
-	va_start(args, str);
-	copylocal_list_stdarg(NULL, &list, args);
-	va_end(args);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
 	/* instance */
-	instance_simple_warning(&instance, format, list);
+	instance_simple_warning(&instance, format, args);
 	return warning_restart_case(Execute_Thread, instance);
 }
 
 _g void format_warning(const char *str, ...)
 {
-	addr format, list, instance;
-	va_list args;
+	addr format, args, instance;
+	va_list va;
 
 	strvect_char_heap(&format, str);
-	va_start(args, str);
-	copylocal_list_stdarg(NULL, &list, args);
-	va_end(args);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
 	/* instance */
-	instance_simple_warning(&instance, format, list);
+	instance_simple_warning(&instance, format, args);
 	if (warning_restart_case(Execute_Thread, instance))
 		fmte("signal error.", NULL);
 }
@@ -869,11 +869,11 @@ _g void floating_point_inexact_constant(constindex index, addr operands)
 _g void floating_point_inexact_stdarg(constindex index, ...)
 {
 	addr operands;
-	va_list args;
+	va_list va;
 
-	va_start(args, index);
-	list_alloc_stdarg(NULL, &operands, args);
-	va_end(args);
+	va_start(va, index);
+	list_alloc_stdarg(NULL, &operands, va);
+	va_end(va);
 	floating_point_inexact_constant(index, operands);
 }
 
@@ -899,11 +899,11 @@ _g void floating_point_invalid_operation_constant(constindex index, addr operand
 _g void floating_point_invalid_operation_stdarg(constindex index, ...)
 {
 	addr operands;
-	va_list args;
+	va_list va;
 
-	va_start(args, index);
-	list_alloc_stdarg(NULL, &operands, args);
-	va_end(args);
+	va_start(va, index);
+	list_alloc_stdarg(NULL, &operands, va);
+	va_end(va);
 	floating_point_invalid_operation_constant(index, operands);
 }
 
@@ -929,11 +929,11 @@ _g void floating_point_overflow_constant(constindex index, addr operands)
 _g void floating_point_overflow_stdarg(constindex index, ...)
 {
 	addr operands;
-	va_list args;
+	va_list va;
 
-	va_start(args, index);
-	list_alloc_stdarg(NULL, &operands, args);
-	va_end(args);
+	va_start(va, index);
+	list_alloc_stdarg(NULL, &operands, va);
+	va_end(va);
 	floating_point_overflow_constant(index, operands);
 }
 
@@ -959,11 +959,11 @@ _g void floating_point_underflow_constant(constindex index, addr operands)
 _g void floating_point_underflow_stdarg(constindex index, ...)
 {
 	addr operands;
-	va_list args;
+	va_list va;
 
-	va_start(args, index);
-	list_alloc_stdarg(NULL, &operands, args);
-	va_end(args);
+	va_start(va, index);
+	list_alloc_stdarg(NULL, &operands, va);
+	va_end(va);
 	floating_point_underflow_constant(index, operands);
 }
 
@@ -989,11 +989,11 @@ _g void division_by_zero_constant(constindex index, addr operands)
 _g void division_by_zero_stdarg(constindex index, ...)
 {
 	addr operands;
-	va_list args;
+	va_list va;
 
-	va_start(args, index);
-	list_alloc_stdarg(NULL, &operands, args);
-	va_end(args);
+	va_start(va, index);
+	list_alloc_stdarg(NULL, &operands, va);
+	va_end(va);
 	division_by_zero_constant(index, operands);
 }
 
@@ -1307,16 +1307,16 @@ _g void simple_type_error(addr control, addr args, addr datum, addr expected)
 
 _g void type_error_stdarg(addr datum, addr expected, const char *fmt, ...)
 {
-	addr control, list;
-	va_list args;
+	addr control, args;
+	va_list va;
 
 	strvect_char_heap(&control, fmt);
-	va_start(args, fmt);
-	copylocal_list_stdarg(NULL, &list, args);
-	va_end(args);
+	va_start(va, fmt);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
 	copylocal_object(NULL, &datum, datum);
 	copylocal_object(NULL, &expected, expected);
-	simple_type_error(control, list, datum, expected);
+	simple_type_error(control, args, datum, expected);
 }
 
 _g void type_error_fill_pointer(addr datum)
@@ -1405,6 +1405,39 @@ _g void savecore_condition(void)
 	addr instance;
 	instance_savecore_condition(&instance);
 	error_function(instance);
+}
+
+/* simple_file_error */
+_g void instance_simple_file_error(addr *ret, addr pathname, addr control, addr args)
+{
+	addr instance;
+
+	GetConst(CONDITION_SIMPLE_FILE_ERROR, &instance);
+	clos_instance_heap(instance, &instance);
+	clos_setconst(instance, CONSTANT_CLOSNAME_PATHNAME, pathname);
+	clos_setconst(instance, CONSTANT_CLOSNAME_FORMAT_CONTROL, control);
+	clos_setconst(instance, CONSTANT_CLOSNAME_FORMAT_ARGUMENTS, args);
+	*ret = instance;
+}
+
+_g void simple_file_error(addr pathname, addr control, addr args)
+{
+	addr instance;
+	instance_simple_file_error(&instance, pathname, control, args);
+	error_function(instance);
+}
+
+_g void simple_file_error_stdarg(addr pathname, const char *fmt, ...)
+{
+	addr control, args;
+	va_list va;
+
+	strvect_char_heap(&control, fmt);
+	va_start(va, fmt);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+	copylocal_object(NULL, &pathname, pathname);
+	simple_file_error(pathname, control, args);
 }
 
 

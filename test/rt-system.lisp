@@ -30,9 +30,8 @@
 
 (load #p"test/rtsystem-load1.lisp")
 
-(progn
-  (setf (logical-pathname-translations "hello") '(("aaa;bbb;*.*" "test/")))
-  (load #p"hello:aaa;bbb;rtsystem-load2.lisp"))
+(setf (logical-pathname-translations "hello") '(("aaa;bbb;*.*" "test/")))
+(load (parse-namestring "hello:aaa;bbb;rtsystem-load2.lisp"))
 
 
 ;;

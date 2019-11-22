@@ -63,6 +63,7 @@ _g addr type_refarraytype(addr pos, size_t index);
 _g void type_getarraytype(addr pos, size_t index, addr *ret);
 _g void type_setarraytype(addr pos, size_t index, addr value);
 _g void type_lenarraytype(addr pos, size_t *ret);
+_g void type_getvalues1(addr type, addr *ret);
 
 _g void init_type(void);
 _g void build_type(void);

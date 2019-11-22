@@ -13,6 +13,7 @@ _g void file_write_date_files(Execute ptr, addr *ret, addr pos);
 _g void rename_file_files(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr file, addr to);
 _g void delete_file_files(Execute ptr, addr pos);
+_g void truename_files(Execute ptr, addr file, addr *ret, int errorp);
 
 #endif
 

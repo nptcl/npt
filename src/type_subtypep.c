@@ -995,6 +995,7 @@ static SubtypepResult subtypep_eql_type(addr left, addr right)
 	int check;
 
 	GetArrayType(left, 0, &left);
+	type_getvalues1(right, &right);
 	if (typep_table(left, right, &check))
 		fmte("SUBTYPEP don't execute RETURN-FROM/CATCH code.", NULL);
 	if (check) {
@@ -1010,6 +1011,7 @@ static SubtypepResult subtypep_type_eql(addr left, addr right)
 	int check;
 
 	GetArrayType(right, 0, &right);
+	type_getvalues1(left, &left);
 	if (typep_table(right, left, &check))
 		fmte("SUBTYPEP don't execute RETURN-FROM/CATCH code.", NULL);
 	if (check) {
@@ -1118,32 +1120,11 @@ static int subtypep_values_values(addr left, addr right)
 	return 1;
 }
 
-static void values_first_type(addr type, addr *ret)
-{
-	addr check;
-
-	Check(RefLispDecl(type) != LISPDECL_VALUES, "type decl error");
-	/* var */
-	GetArrayType(type, 0, &check);
-	if (check != Nil) {
-		GetCar(check, ret);
-		return;
-	}
-	/* opt */
-	GetArrayType(type, 1, &check);
-	if (check != Nil) {
-		GetCar(check, ret);
-		return;
-	}
-	/* rest */
-	GetArrayType(type, 2, ret);
-}
-
 static int subtypep_values_type(addr left, addr right)
 {
 	Check(RefLispDecl(left) != LISPDECL_VALUES, "decl left error");
 	Check(RefNotDecl(left), "left not error");
-	values_first_type(left, &left);
+	type_getvalues1(left, &left);
 	return subtypep_boolean(left, right);
 }
 
@@ -1151,7 +1132,7 @@ static int subtypep_type_values(addr left, addr right)
 {
 	Check(RefLispDecl(right) != LISPDECL_VALUES, "decl right error");
 	Check(RefNotDecl(right), "right not error");
-	values_first_type(right, &right);
+	type_getvalues1(right, &right);
 	return subtypep_boolean(left, right);
 }
 

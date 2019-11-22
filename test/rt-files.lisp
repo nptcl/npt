@@ -20,9 +20,25 @@
   (probe-file #p"./")
   t)
 
-(deftest truename.1
-  (truename #p"aaa/hello.txt")
-  #p"aaa/hello.txt")
+#+unix
+(deftest-error truename-error-posix.1
+  (truename #p"no-such/file-name-truename-error.txt"))
+
+#+unix
+(deftest truename-error-posix.2
+  (char
+    (namestring
+      (truename #p"test/rt-files.lisp"))
+    0)
+  #\/)  ;; absolute pathname
+
+#+windows
+(deftest truename-error-windows.1
+  (subseq
+    (namestring
+      (truename #p"test/rt-files.lisp"))
+    1 3)
+  ":\\")  ;; absolute pathname
 
 
 ;;

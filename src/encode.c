@@ -1951,7 +1951,7 @@ _g int UTF32_make_utf16(byte16 *dst, const unicode *src, size_t size)
 			return 1;
 		if (size < i + ret)
 			return 1;
-		memcpy(dst + i, data, ret);
+		memcpy(dst + i, data, ret * 2UL);
 	}
 
 	return 0;

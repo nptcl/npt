@@ -148,6 +148,33 @@ _g void type_lenarraytype(addr pos, size_t *ret)
 	LenArrayType_Low(pos, ret);
 }
 
+_g void type_getvalues1(addr type, addr *ret)
+{
+	addr check;
+
+	CheckType(type, LISPTYPE_TYPE);
+	/* normal type */
+	if (RefLispDecl(type) != LISPDECL_VALUES) {
+		*ret = type;
+		return;
+	}
+	/* var */
+	GetArrayType(type, 0, &check);
+	if (check != Nil) {
+		GetCar(check, ret);
+		return;
+	}
+	/* opt */
+	GetArrayType(type, 1, &check);
+	if (check != Nil) {
+		GetCar(check, ret);
+		return;
+	}
+	/* rest */
+	GetArrayType(type, 2, ret);
+}
+
+
 
 /*
  *  init

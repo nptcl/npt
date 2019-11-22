@@ -1902,37 +1902,6 @@ static int test_subtypep_values_values(void)
 	RETURN;
 }
 
-static int test_values_first_type(void)
-{
-	addr pos;
-
-	extractchar(&pos, "(values)");
-	values_first_type(pos, &pos);
-	test(RefLispDecl(pos) == LISPDECL_T, "values_first_type1");
-
-	extractchar(&pos, "(values &rest integer)");
-	values_first_type(pos, &pos);
-	test(RefLispDecl(pos) == LISPDECL_INTEGER, "values_first_type2");
-
-	extractchar(&pos, "(values integer)");
-	values_first_type(pos, &pos);
-	test(RefLispDecl(pos) == LISPDECL_INTEGER, "values_first_type3");
-
-	extractchar(&pos, "(values &optional integer)");
-	values_first_type(pos, &pos);
-	test(RefLispDecl(pos) == LISPDECL_INTEGER, "values_first_type4");
-
-	extractchar(&pos, "(values null integer)");
-	values_first_type(pos, &pos);
-	test(RefLispDecl(pos) == LISPDECL_NULL, "values_first_type5");
-
-	extractchar(&pos, "(values null integer)");
-	values_first_type(pos, &pos);
-	test(RefLispDecl(pos) == LISPDECL_NULL, "values_first_type6");
-
-	RETURN;
-}
-
 static int test_subtypep_values_type(void)
 {
 	addr left, right;
@@ -2556,7 +2525,6 @@ static int testbreak_type_subtypep(void)
 	TestBreak(test_gettype_values);
 	TestBreak(test_subtypep_boolean);
 	TestBreak(test_subtypep_values_values);
-	TestBreak(test_values_first_type);
 	TestBreak(test_subtypep_values_type);
 	TestBreak(test_subtypep_type_values);
 	TestBreak(test_subtypep_values_call);

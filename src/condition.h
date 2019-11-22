@@ -204,6 +204,10 @@ _g void undefined_function_setf(addr name);
 /* savecore */
 _g void instance_savecore_condition(addr *ret);
 _g void savecore_condition(void);
+/* simple_file_error */
+_g void instance_simple_file_error(addr *ret, addr pathname, addr control, addr args);
+_g void simple_file_error(addr pathname, addr control, addr args);
+_g void simple_file_error_stdarg(addr pathname, const char *fmt, ...);
 
 /* build */
 _g void build_condition(Execute ptr);

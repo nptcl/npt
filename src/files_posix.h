@@ -4,6 +4,8 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -697,5 +699,75 @@ _g void delete_file_files(Execute ptr, addr pos)
 	push_local(local, &stack);
 	delete_file_run_files(ptr, pos);
 	rollback_local(local, stack);
+}
+
+
+/*
+ *  truename
+ */
+_g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
+{
+	addr pos;
+	const unicode *u;
+	char *str, *temp;
+	size_t s32, s8;
+	LocalRoot local;
+	LocalStack stack;
+
+	/* wild-check */
+	physical_pathname_heap(ptr, file, &pos);
+	if (wild_pathname_boolean(pos, Nil)) {
+		if (! errorp)
+			goto error_nil;
+		simple_file_error_stdarg(file,
+				"TRUENAME don't allow the wildcard filename ~S.", file, NULL);
+		return;
+	}
+	name_pathname_heap(ptr, pos, &pos);
+
+	/* realpath */
+	string_posbodylen(pos, &u, &s32);
+	if (UTF32_length_utf8(u, s32, &s8)) {
+		if (! errorp)
+			goto error_nil;
+		simple_file_error_stdarg(file, "Invalid unicode string ~S.", pos, NULL);
+		return;
+	}
+	local = ptr->local;
+	push_local(local, &stack);
+	str = (char *)lowlevel_local(local, s8 + 1UL);
+	if (UTF32_make_utf8((byte *)str, u, s32)) {
+		if (! errorp)
+			goto error_nil_rollback;
+		simple_file_error_stdarg(file, "Invalid unicode string ~S.", pos, NULL);
+		goto error;
+	}
+	str[s8] = 0;
+
+	/* API */
+	str = realpath(str, NULL); /* malloc */
+	if (str == NULL) {
+		if (! errorp)
+			goto error_nil_rollback;
+		simple_file_error_stdarg(file, "Cannot find the TRUENAME ~S file.", file, NULL);
+		goto error;
+	}
+	s8 = strlen(str) + 1UL;
+	temp = (char *)lowlevel_local(local, s8);
+	memcpy(temp, str, s8);
+	free(str);
+
+	/* make-pathname */
+	string8_null_heap(&pos, str);
+	pathname_designer_heap(ptr, pos, ret);
+
+error:
+	rollback_local(local, stack);
+	return;
+
+error_nil_rollback:
+	rollback_local(local, stack);
+error_nil:
+	*ret = Nil;
 }
 

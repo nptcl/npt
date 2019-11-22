@@ -1393,6 +1393,12 @@ lisp-system::defconstant
 
 
 ;;
+;;  condition
+;;
+lisp-system::simple-file-error
+
+
+;;
 ;;  iteration
 ;;
 lisp-system::loop-initially
@@ -1656,6 +1662,7 @@ lisp-clos::forward-referenced-class
 lisp-clos::eql-specializer
 lisp-clos::slot-definition
 lisp-clos::standard-slot-definition
+
 
 ;;
 ;;  metaobject protocol

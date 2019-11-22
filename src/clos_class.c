@@ -1419,12 +1419,12 @@ static void build_clos_class_condition(LocalRoot local)
 			COMMON_CONDITION,
 			CLOS_CONDITION,
 			CLOS_STANDARD_OBJECT);
-	/* serious_condition (condition) */
+	/* serious-condition (condition) */
 	ClosMakeClass1(local, metaclass,
 			COMMON_SERIOUS_CONDITION,
 			CONDITION_SERIOUS_CONDITION,
 			CLOS_CONDITION);
-	/* simple_condition (condition) :format-control :format-arguments*/
+	/* simple-condition (condition) :format-control :format-arguments*/
 	SlotMakeCondition2(&slots, FORMAT_CONTROL, FORMAT_ARGUMENTS);
 	ClosMakeClassSlot(local, metaclass, slots,
 			COMMON_SIMPLE_CONDITION,
@@ -1435,95 +1435,95 @@ static void build_clos_class_condition(LocalRoot local)
 			COMMON_WARNING,
 			CONDITION_WARNING,
 			CLOS_CONDITION);
-	/* error (serious_condition) */
+	/* error (serious-condition) */
 	ClosMakeClass1(local, metaclass,
 			COMMON_ERROR,
 			CONDITION_ERROR,
 			CONDITION_SERIOUS_CONDITION);
-	/* storage_condition (serious_condition) */
+	/* storage-condition (serious-condition) */
 	ClosMakeClass1(local, metaclass,
 			COMMON_STORAGE_CONDITION,
 			CONDITION_STORAGE_CONDITION,
 			CONDITION_SERIOUS_CONDITION);
-	/* arithmetic_error (error) :operation :operands */
+	/* arithmetic-error (error) :operation :operands */
 	SlotMakeCondition2(&slots, OPERATION, OPERANDS);
 	ClosMakeClassSlot(local, metaclass, slots,
 			COMMON_ARITHMETIC_ERROR,
 			CONDITION_ARITHMETIC_ERROR,
 			CONDITION_ERROR);
-	/* cell_error (error) :name */
+	/* cell-error (error) :name */
 	SlotMakeCondition1(&slots, NAME);
 	ClosMakeClassSlot(local, metaclass, slots,
 			COMMON_CELL_ERROR,
 			CONDITION_CELL_ERROR,
 			CONDITION_ERROR);
-	/* control_error (error) */
+	/* control-error (error) */
 	ClosMakeClass1(local, metaclass,
 			COMMON_CONTROL_ERROR,
 			CONDITION_CONTROL_ERROR,
 			CONDITION_ERROR);
-	/* file_error (error) :pathname */
+	/* file-error (error) :pathname */
 	SlotMakeCondition1(&slots, PATHNAME);
 	ClosMakeClassSlot(local, metaclass, slots,
 			COMMON_FILE_ERROR,
 			CONDITION_FILE_ERROR,
 			CONDITION_ERROR);
-	/* package_error (error) :package */
+	/* package-error (error) :package */
 	SlotMakeCondition1(&slots, PACKAGE);
 	ClosMakeClassSlot(local, metaclass, slots,
 			COMMON_PACKAGE_ERROR,
 			CONDITION_PACKAGE_ERROR,
 			CONDITION_ERROR);
-	/* parse_error (error) */
+	/* parse-error (error) */
 	ClosMakeClass1(local, metaclass,
 			COMMON_PARSE_ERROR,
 			CONDITION_PARSE_ERROR,
 			CONDITION_ERROR);
-	/* print_not_readable (error) :object */
+	/* print-not-readable (error) :object */
 	SlotMakeCondition1(&slots, OBJECT);
 	ClosMakeClassSlot(local, metaclass, slots,
 			COMMON_PRINT_NOT_READABLE,
 			CONDITION_PRINT_NOT_READABLE,
 			CONDITION_ERROR);
-	/* program_error (error) */
+	/* program-error (error) */
 	ClosMakeClass1(local, metaclass,
 			COMMON_PROGRAM_ERROR,
 			CONDITION_PROGRAM_ERROR,
 			CONDITION_ERROR);
-	/* stream_error (error) :stream */
+	/* stream-error (error) :stream */
 	SlotMakeCondition1(&slots, STREAM);
 	ClosMakeClassSlot(local, metaclass, slots,
 			COMMON_STREAM_ERROR,
 			CONDITION_STREAM_ERROR,
 			CONDITION_ERROR);
-	/* type_error (error) :datum :expected-type */
+	/* type-error (error) :datum :expected-type */
 	SlotMakeCondition2(&slots, DATUM, EXPECTED_TYPE);
 	ClosMakeClassSlot(local, metaclass, slots,
 			COMMON_TYPE_ERROR,
 			CONDITION_TYPE_ERROR,
 			CONDITION_ERROR);
-	/* unbound_slot (cell_error) :instance :name */
+	/* unbound-slot (cell-error) :instance :name */
 	SlotMakeCondition1(&slots, INSTANCE);
 	ClosMakeClassSlot(local, metaclass, slots,
 			COMMON_UNBOUND_SLOT,
 			CONDITION_UNBOUND_SLOT,
 			CONDITION_CELL_ERROR);
-	/* unbound_variable (cell_error) :name */
+	/* unbound-variable (cell-error) :name */
 	ClosMakeClass1(local, metaclass,
 			COMMON_UNBOUND_VARIABLE,
 			CONDITION_UNBOUND_VARIABLE,
 			CONDITION_CELL_ERROR);
-	/* undefined_function (cell_error) :name */
+	/* undefined-function (cell-error) :name */
 	ClosMakeClass1(local, metaclass,
 			COMMON_UNDEFINED_FUNCTION,
 			CONDITION_UNDEFINED_FUNCTION,
 			CONDITION_CELL_ERROR);
-	/* style_warning (warning) */
+	/* style-warning (warning) */
 	ClosMakeClass1(local, metaclass,
 			COMMON_STYLE_WARNING,
 			CONDITION_STYLE_WARNING,
 			CONDITION_WARNING);
-	/* simple_error (simple_condition error) :format-control :format-arguments */
+	/* simple-error (simple-condition error) :format-control :format-arguments */
 	ClosMakeClass2(local, metaclass,
 			COMMON_SIMPLE_ERROR,
 			CONDITION_SIMPLE_ERROR,
@@ -1536,48 +1536,54 @@ static void build_clos_class_condition(LocalRoot local)
 			CONDITION_SIMPLE_TYPE_ERROR,
 			CONDITION_SIMPLE_CONDITION,
 			CONDITION_TYPE_ERROR);
-	/* simple_warning (simple_condition warning) :format-control :format-arguments */
+	/* simple-warning (simple-condition warning) :format-control :format-arguments */
 	ClosMakeClass2(local, metaclass,
 			COMMON_SIMPLE_WARNING,
 			CONDITION_SIMPLE_WARNING,
 			CONDITION_SIMPLE_CONDITION,
 			CONDITION_WARNING);
-	/* division_by_zero (arithmetic_error) :operation :operands */
+	/* division-by-zero (arithmetic-error) :operation :operands */
 	ClosMakeClass1(local, metaclass,
 			COMMON_DIVISION_BY_ZERO,
 			CONDITION_DIVISION_BY_ZERO,
 			CONDITION_ARITHMETIC_ERROR);
-	/* floating_point_inexact (arithmetic_error) :operation :operands */
+	/* floating-point-inexact (arithmetic-error) :operation :operands */
 	ClosMakeClass1(local, metaclass,
 			COMMON_FLOATING_POINT_INEXACT,
 			CONDITION_FLOATING_POINT_INEXACT,
 			CONDITION_ARITHMETIC_ERROR);
-	/* floating_point_invalid_operation (arithmetic_error) :operation :operands */
+	/* floating-point-invalid-operation (arithmetic-error) :operation :operands */
 	ClosMakeClass1(local, metaclass,
 			COMMON_FLOATING_POINT_INVALID_OPERATION,
 			CONDITION_FLOATING_POINT_INVALID_OPERATION,
 			CONDITION_ARITHMETIC_ERROR);
-	/* floating_point_overflow (arithmetic_error) :operation :operands */
+	/* floating-point-overflow (arithmetic-error) :operation :operands */
 	ClosMakeClass1(local, metaclass,
 			COMMON_FLOATING_POINT_OVERFLOW,
 			CONDITION_FLOATING_POINT_OVERFLOW,
 			CONDITION_ARITHMETIC_ERROR);
-	/* floating_point_underflow (arithmetic_error) :operation :operands */
+	/* floating-point-underflow (arithmetic-error) :operation :operands */
 	ClosMakeClass1(local, metaclass,
 			COMMON_FLOATING_POINT_UNDERFLOW,
 			CONDITION_FLOATING_POINT_UNDERFLOW,
 			CONDITION_ARITHMETIC_ERROR);
-	/* end_of_file (stream_error) :stream */
+	/* end-of-file (stream-error) :stream */
 	ClosMakeClass1(local, metaclass,
 			COMMON_END_OF_FILE,
 			CONDITION_END_OF_FILE,
 			CONDITION_STREAM_ERROR);
-	/* reader_error (parse_error stream_error) :stream */
+	/* reader-error (parse-error stream-error) :stream */
 	ClosMakeClass2(local, metaclass,
 			COMMON_READER_ERROR,
 			CONDITION_READER_ERROR,
 			CONDITION_PARSE_ERROR,
 			CONDITION_STREAM_ERROR);
+	/* lisp-system::simple-file-error (simple-error file-error) */
+	ClosMakeClass2(local, metaclass,
+			SYSTEM_SIMPLE_FILE_ERROR,
+			CONDITION_SIMPLE_FILE_ERROR,
+			CONDITION_SIMPLE_ERROR,
+			CONDITION_FILE_ERROR);
 }
 
 static void build_clos_class_system(LocalRoot local)

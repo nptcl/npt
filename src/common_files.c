@@ -111,7 +111,7 @@ static void defun_ensure_directories_exist(void)
 /* (defun truename (pathspec) ...) -> pathname */
 static void function_truename(Execute ptr, addr pos)
 {
-	physical_pathname_heap(ptr, pos, &pos);
+	truename_files(ptr, pos, &pos, 1);
 	setresult_control(ptr, pos);
 }
 
