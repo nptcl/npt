@@ -6,12 +6,6 @@
 #include "file_memory.h"
 #include "thread.h"
 
-enum read_unicode_enum {
-	read_unicode_enum_normal,
-	read_unicode_enum_nonblocking,
-	read_unicode_enum_buffer
-};
-
 enum read_unicode_result {
 	read_unicode_result_normal,
 	read_unicode_result_error,
@@ -21,7 +15,6 @@ enum read_unicode_result {
 
 #define READ_UNICODE_DATA 8
 struct read_unicode_struct {
-	enum read_unicode_enum type;
 	byte data[READ_UNICODE_DATA];
 	struct filememory *fm;
 	int hang;
@@ -227,7 +220,6 @@ int read_utf8_normal(struct filememory *fm, unicode *ret)
 #ifdef LISP_DEBUG
 	aatype(str);
 #endif
-	str.type = read_unicode_enum_normal;
 	str.fm = fm;
 	str.rollback = 0;
 
@@ -261,7 +253,6 @@ int read_utf8_nonblocking(struct filememory *fm, unicode *ret, int *hang)
 #ifdef LISP_DEBUG
 	aatype(str);
 #endif
-	str.type = read_unicode_enum_nonblocking;
 	str.fm = fm;
 	str.rollback = 0;
 	str.hang = 0;
@@ -304,7 +295,6 @@ int read_utf8_buffer(unicode *dst, const byte *src, size_t size, size_t *ret)
 #endif
 	str.index = 0;
 	for (count = 0; ; count++) {
-		str.type = read_unicode_enum_buffer;
 		str.rollback = 0;
 		str.src = src;
 		str.size = size;
@@ -421,7 +411,6 @@ int read_utf16_normal(struct filememory *fm, unicode *ret, int be)
 #ifdef LISP_DEBUG
 	aatype(str);
 #endif
-	str.type = read_unicode_enum_normal;
 	str.fm = fm;
 	str.rollback = 0;
 
@@ -438,7 +427,6 @@ int read_utf16_nonblocking(struct filememory *fm, unicode *ret, int *hang, int b
 #ifdef LISP_DEBUG
 	aatype(str);
 #endif
-	str.type = read_unicode_enum_nonblocking;
 	str.fm = fm;
 	str.rollback = 0;
 	str.hang = 0;
@@ -537,7 +525,6 @@ int read_utf32_normal(struct filememory *fm, unicode *ret, int be)
 #ifdef LISP_DEBUG
 	aatype(str);
 #endif
-	str.type = read_unicode_enum_normal;
 	str.fm = fm;
 	str.rollback = 0;
 
@@ -554,7 +541,6 @@ int read_utf32_nonblocking(struct filememory *fm, unicode *ret, int *hang, int b
 #ifdef LISP_DEBUG
 	aatype(str);
 #endif
-	str.type = read_unicode_enum_nonblocking;
 	str.fm = fm;
 	str.rollback = 0;
 	str.hang = 0;

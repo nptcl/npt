@@ -368,6 +368,11 @@ _g void directory_files(Execute ptr, addr *ret, addr pos)
 /*
  *  probe-file
  */
+static int probe_file_boolean(const WCHAR *file)
+{
+	return PathFileExistsW(file) == TRUE;
+}
+
 static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
 {
 	addr value;
@@ -389,7 +394,7 @@ static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	if (UTF16_buffer_clang(ptr->local, &pos, pos))
 		fmte("Cannot decode UTF-16 string ~S.", pos, NULL);
 	str = (const WCHAR *)posbodyr(pos);
-	*ret = PathFileExistsW(str) == TRUE ? T : Nil;
+	*ret = probe_file_boolean(str)? T: Nil;
 }
 
 _g void probe_file_files(Execute ptr, addr *ret, addr pos)
@@ -660,12 +665,13 @@ static void rename_file_run_files(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr pos, addr to)
 {
 	LocalRoot local;
-	addr file, from, value;
+	addr file, from, value, true1, true2;
 	const WCHAR *str1, *str2;
 
 	pathname_designer_heap(ptr, pos, &file);
 	physical_pathname_heap(ptr, file, &from);
 	physical_pathname_heap(ptr, to, &to);
+	truename_files(ptr, from, &true1, 0);
 	if (wild_pathname_boolean(from, Nil))
 		fmte("Cannot rename wildcard pathname from ~S", from, NULL);
 	if (wild_pathname_boolean(to, Nil))
@@ -680,17 +686,24 @@ static void rename_file_run_files(Execute ptr,
 	if (UTF16_buffer_clang(local, &value, value))
 		fmte("Cannot decode UTF-16 string ~S.", to, NULL);
 	str2 = (const WCHAR *)posbodyr(value);
-
+	/* check */
+	if (probe_file_boolean(str2)) {
+		simple_file_error_stdarg(to, "The file ~S is already exist.", to, NULL);
+		return;
+	}
 	/* rename */
-	if (MoveFileW(str1, str2) == 0)
-		file_error(file);
+	if (MoveFileW(str1, str2) == 0) {
+		simple_file_error_stdarg(to, "Cannot rename ~S to ~S.", from, to, NULL);
+		return;
+	}
 	/* stream */
 	if (streamp(pos))
 		SetPathnameStream(pos, to);
 	/* result */
-	*ret1 = file;
-	*ret2 = from;
-	*ret3 = to;
+	truename_files(ptr, to, &true2, 0);
+	*ret1 = to;
+	*ret2 = true1;
+	*ret3 = true2;
 }
 
 _g void rename_file_files(Execute ptr,
@@ -736,7 +749,7 @@ static BOOL DeleteFileAsyncW(LPCWSTR name)
 	}
 
 	if (! MoveFileExW(name, temp, MOVEFILE_REPLACE_EXISTING)) {
-		Debug("MoveFileExW error.");
+		/* Debug("MoveFileExW error."); */
 		return 0;
 	}
 
@@ -764,8 +777,10 @@ static void delete_file_run_files(Execute ptr, addr pos)
 		fmte("Cannot decode UTF-16 string ~S.", file, NULL);
 	str = (const WCHAR *)posbodyr(value);
 	/* delete */
-	if (DeleteFileAsyncW(str) == 0)
-		file_error(file);
+	if (DeleteFileAsyncW(str) == 0) {
+		simple_file_error_stdarg(pos, "Cannot delete ~S.", file, NULL);
+		return;
+	}
 	/* stream */
 	if (streamp(pos))
 		close_stream(pos);

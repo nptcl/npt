@@ -16,9 +16,7 @@
 _g int readbom8_encode(struct filememory *fm);
 _g int readbom16_encode(struct filememory *fm); /* 1:le, 2:be */
 _g int readbom32_encode(struct filememory *fm); /* 1:le, 2:be */
-_g int writebom8_encode(struct filememory *fm);
-_g int writebom16_encode(struct filememory *fm, int bigp);
-_g int writebom32_encode(struct filememory *fm, int bigp);
+_g int writebom_encode(struct filememory *fm);
 
 _g int read_char_encode(struct filememory *fm, unicode *c);
 _g int read_hang_encode(struct filememory *fm, unicode *c, int *hang);

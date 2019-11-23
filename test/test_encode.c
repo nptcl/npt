@@ -359,7 +359,8 @@ static int test_writebom8_encode(void)
 	struct filememory fm;
 
 	test_open_output_filememory(&fm);
-	check = writebom8_encode(&fm);
+	fm.encode.type = EncodeType_utf8;
+	check = writebom_encode(&fm);
 	test(check == 0, "writebom8_encode1");
 	check = putc_filememory(&fm, 'A');
 	test(check == 0, "writebom8_encode2");
@@ -380,7 +381,8 @@ static int test_writebom16_encode(void)
 
 	/* big-endian */
 	test_open_output_filememory(&fm);
-	check = writebom16_encode(&fm, 1);
+	fm.encode.type = EncodeType_utf16be;
+	check = writebom_encode(&fm);
 	test(check == 0, "writebom16_encode1");
 	check = putc_filememory(&fm, 'A');
 	test(check == 0, "writebom16_encode2");
@@ -391,7 +393,8 @@ static int test_writebom16_encode(void)
 
 	/* little-endian */
 	test_open_output_filememory(&fm);
-	check = writebom16_encode(&fm, 0);
+	fm.encode.type = EncodeType_utf16le;
+	check = writebom_encode(&fm);
 	test(check == 0, "writebom16_encode5");
 	check = putc_filememory(&fm, 'Z');
 	test(check == 0, "writebom16_encode6");
@@ -412,7 +415,8 @@ static int test_writebom32_encode(void)
 
 	/* big-endian */
 	test_open_output_filememory(&fm);
-	check = writebom32_encode(&fm, 1);
+	fm.encode.type = EncodeType_utf32be;
+	check = writebom_encode(&fm);
 	test(check == 0, "writebom32_encode1");
 	check = putc_filememory(&fm, 'A');
 	test(check == 0, "writebom32_encode2");
@@ -423,7 +427,8 @@ static int test_writebom32_encode(void)
 
 	/* little-endian */
 	test_open_output_filememory(&fm);
-	check = writebom32_encode(&fm, 0);
+	fm.encode.type = EncodeType_utf32le;
+	check = writebom_encode(&fm);
 	test(check == 0, "writebom32_encode5");
 	check = putc_filememory(&fm, 'Z');
 	test(check == 0, "writebom32_encode6");

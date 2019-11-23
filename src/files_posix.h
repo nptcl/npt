@@ -367,11 +367,16 @@ _g void directory_files(Execute ptr, addr *ret, addr pos)
 /*
  *  probe-file
  */
+static int probe_file_boolean(const char *file)
+{
+	struct stat st;
+	return lstat(file, &st) == 0;
+}
+
 static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
 {
 	addr value;
 	const char *str;
-	struct stat st;
 
 	/* filename */
 	if (stringp(pos))
@@ -389,7 +394,7 @@ static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	if (UTF8_buffer_clang(ptr->local, &pos, pos))
 		fmte("Cannot decode UTF-8 string ~S.", pos, NULL);
 	str = (const char *)posbodyr(pos);
-	*ret = lstat(str, &st)? Nil: T;
+	*ret = probe_file_boolean(str)? T: Nil;
 }
 
 _g void probe_file_files(Execute ptr, addr *ret, addr pos)
@@ -619,12 +624,13 @@ static void rename_file_run_files(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr pos, addr to)
 {
 	LocalRoot local;
-	addr file, from, value;
+	addr file, from, value, true1, true2;
 	const char *str1, *str2;
 
 	pathname_designer_heap(ptr, pos, &file);
 	physical_pathname_heap(ptr, file, &from);
 	physical_pathname_heap(ptr, to, &to);
+	truename_files(ptr, from, &true1, 0);
 	if (wild_pathname_boolean(from, Nil))
 		fmte("Cannot rename wildcard pathname from ~S", from, NULL);
 	if (wild_pathname_boolean(to, Nil))
@@ -639,16 +645,24 @@ static void rename_file_run_files(Execute ptr,
 	if (UTF8_buffer_clang(local, &value, value))
 		fmte("Cannot decode UTF-8 string ~S.", to, NULL);
 	str2 = (const char *)posbodyr(value);
+	/* check */
+	if (probe_file_boolean(str2)) {
+		simple_file_error_stdarg(to, "The file ~S is already exist.", to, NULL);
+		return;
+	}
 	/* rename */
-	if (rename(str1, str2))
-		file_error(file);
+	if (rename(str1, str2)) {
+		simple_file_error_stdarg(to, "Cannot rename ~S to ~S.", from, to, NULL);
+		return;
+	}
 	/* stream */
 	if (streamp(pos))
 		SetPathnameStream(pos, to);
 	/* result */
-	*ret1 = file;
-	*ret2 = from;
-	*ret3 = to;
+	truename_files(ptr, to, &true2, 0);
+	*ret1 = to;
+	*ret2 = true1;
+	*ret3 = true2;
 }
 
 _g void rename_file_files(Execute ptr,
@@ -683,8 +697,10 @@ static void delete_file_run_files(Execute ptr, addr pos)
 		fmte("Cannot decode UTF-8 string ~S.", file, NULL);
 	str = (const char *)posbodyr(value);
 	/* delete */
-	if (unlink(str))
-		file_error(file);
+	if (unlink(str)) {
+		simple_file_error_stdarg(pos, "Cannot delete ~S.", file, NULL);
+		return;
+	}
 	/* stream */
 	if (streamp(pos))
 		close_stream(pos);
