@@ -219,6 +219,7 @@ static void defun_read_byte(void)
 static void function_write_byte(Execute ptr, addr value, addr stream)
 {
 	write_byte_common(stream, value);
+	exitpoint_stream(stream);
 	setresult_control(ptr, value);
 }
 
@@ -386,6 +387,7 @@ static void function_terpri(Execute ptr, addr stream)
 	if (stream == Unbound)
 		standard_output_stream(ptr, &stream);
 	terpri_stream(stream);
+	exitpoint_stream(stream);
 	setresult_control(ptr, Nil);
 }
 
@@ -423,6 +425,7 @@ static void function_fresh_line(Execute ptr, addr stream)
 	if (stream == Unbound)
 		standard_output_stream(ptr, &stream);
 	check = fresh_line_stream(stream);
+	exitpoint_stream(stream);
 	setbool_control(ptr, check);
 }
 
@@ -499,6 +502,7 @@ static void function_write_char(Execute ptr, addr pos, addr stream)
 	stream_designer(ptr, stream, &stream, 0);
 	GetCharacter(pos, &c);
 	write_char_stream(stream, c);
+	exitpoint_stream(stream);
 	setresult_control(ptr, pos);
 }
 
@@ -686,6 +690,7 @@ static void function_write_sequence(Execute ptr, addr var, addr stream, addr res
 	start = length_sequence(var, 0);
 	keyword_start_end(start, rest, &start, &end);
 	write_sequence_common(ptr->local, var, stream, start, end);
+	exitpoint_stream(stream);
 	setresult_control(ptr, var);
 }
 

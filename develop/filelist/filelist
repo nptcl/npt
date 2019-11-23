@@ -69,6 +69,7 @@ document.c
 eastasian.c
 eastasian_table.c
 encode.c
+encode_unicode.c
 environment.c
 equal.c
 eval_code.c

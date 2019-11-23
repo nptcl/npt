@@ -123,6 +123,7 @@ _g void clear_input_file(addr stream);
 _g void finish_output_file(addr stream);
 _g void force_output_file(addr stream);
 _g void clear_output_file(addr stream);
+_g void exitpoint_file(addr stream);
 
 
 /*

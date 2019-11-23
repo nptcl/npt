@@ -608,10 +608,10 @@ static int static_intern_hashtable(LocalRoot local, addr pos, addr key, addr *re
 	if (findroot(equal, root, key, ret)) {
 		appendroot(local, array, index, root, key, ret);
 		PtrStructHashtable(pos)->count++;
-		return 1; /* notfound, create */
+		return 0; /* notfound, create */
 	}
 
-	return 0; /* find */
+	return 1; /* find */
 }
 
 _g int intern_hashheap(addr pos, addr key, addr *ret)
@@ -680,11 +680,11 @@ _g int findvalue_hashtable(addr pos, addr key, addr *ret)
 
 	if (cons != Nil) {
 		GetCdr(cons, ret);
-		return 0;
+		return 1;
 	}
 	else {
 		*ret = Nil;
-		return 1;
+		return 0;
 	}
 }
 
@@ -775,7 +775,7 @@ static int equalp_allelement(addr left, addr right, int (*call)(addr, addr))
 		while (cons != Nil) {
 			GetCons(cons, &key, &cons);
 			GetCons(key, &key, &value1);
-			if (findvalue_hashtable(right, key, &value2)) return 0;
+			if (findvalue_hashtable(right, key, &value2) == 0) return 0;
 			if (! call(value1, value2)) return 0;
 		}
 	}
@@ -854,11 +854,11 @@ _g int findvalue_char_hashtable(addr pos, const char *key, addr *ret)
 
 	if (cons != Nil) {
 		GetCdr(cons, ret);
-		return 0;
+		return 1;
 	}
 	else {
 		*ret = Nil;
-		return 1;
+		return 0;
 	}
 }
 
@@ -910,11 +910,11 @@ _g int findvalue_unicode_hashtable(addr pos, unicode key, addr *ret)
 
 	if (cons != Nil) {
 		GetCdr(cons, ret);
-		return 0;
+		return 1;
 	}
 	else {
 		*ret = Nil;
-		return 1;
+		return 0;
 	}
 }
 
@@ -965,11 +965,11 @@ _g int findvalue_character2_hashtable(addr pos, unicode a, unicode b, addr *ret)
 
 	if (cons != Nil) {
 		GetCdr(cons, ret);
-		return 0;
+		return 1;
 	}
 	else {
 		*ret = Nil;
-		return 1;
+		return 0;
 	}
 }
 

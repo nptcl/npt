@@ -234,6 +234,12 @@ static void clear_output_Echo(addr stream)
 	clear_output_stream(stream);
 }
 
+static void exitpoint_Echo(addr stream)
+{
+	output_Echo(stream, &stream);
+	exitpoint_stream(stream);
+}
+
 _g void init_stream_echo(void)
 {
 	DefineStreamDef(Echo, close);
@@ -266,5 +272,6 @@ _g void init_stream_echo(void)
 	DefineStreamSet(Echo, finish_output);
 	DefineStreamSet(Echo, force_output);
 	DefineStreamSet(Echo, clear_output);
+	DefineStreamSet(Echo, exitpoint);
 }
 

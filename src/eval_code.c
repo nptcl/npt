@@ -84,7 +84,7 @@ typedef struct evalcode_switch modeswitch;
  */
 static void alloc_evalcode_stack(LocalRoot local, addr *ret)
 {
-	alloc_smallsize(local, ret, LISPTYPE_SYSTEM,
+	alloc_smallsize(local, ret, LISPSYSTEM_EVALSTACK,
 			EvalCodeStack_Size, sizeoft(struct evalcode_stack));
 }
 

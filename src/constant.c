@@ -17,7 +17,7 @@ _g void build_constant(void)
 	addr array;
 	size_t i;
 
-	heap_array4(&array, LISPTYPE_SYSTEM, CONSTANT_SIZE);
+	heap_array4(&array, LISPSYSTEM_CONSTANT, CONSTANT_SIZE);
 	for (i = 0; i < CONSTANT_SIZE; i++)
 		SetArrayA4(array, i, Unbound);
 	SetRoot(LISPINDEX_CONST, array);

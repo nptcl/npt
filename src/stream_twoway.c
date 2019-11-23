@@ -197,6 +197,12 @@ static void clear_output_TwoWay(addr stream)
 	clear_output_stream(stream);
 }
 
+static void exitpoint_TwoWay(addr stream)
+{
+	output_twoway(stream, &stream);
+	exitpoint_stream(stream);
+}
+
 _g void init_stream_twoway(void)
 {
 	DefineStreamDef(TwoWay, close);
@@ -229,5 +235,6 @@ _g void init_stream_twoway(void)
 	DefineStreamSet(TwoWay, finish_output);
 	DefineStreamSet(TwoWay, force_output);
 	DefineStreamSet(TwoWay, clear_output);
+	DefineStreamSet(TwoWay, exitpoint);
 }
 

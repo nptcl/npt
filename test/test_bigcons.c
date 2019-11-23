@@ -32,7 +32,7 @@ static int test_bigbuffer_local(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	bigbuffer_local(local, &pos, 100);
-	test(GetType(pos) == LISPTYPE_SYSTEM, "bigbuffer1");
+	test(GetType(pos) == LISPSYSTEM_BIGBUFFER, "bigbuffer1");
 	test(GetStatusSize(pos) == LISPSIZE_ARRAYBODY, "bigbuffer2");
 	test(bbuffer(pos).count == 1, "bigbuffer3");
 	test(bbuffer(pos).buffer[0] == 100, "bigbuffer4");
@@ -79,7 +79,7 @@ static int test_bigcons_local(void)
 	push_local(local, &stack);
 
 	bigcons_local(local, &pos);
-	test(GetType(pos) == LISPTYPE_SYSTEM, "bigcons1");
+	test(GetType(pos) == LISPSYSTEM_BIGCONS, "bigcons1");
 	test(GetStatusSize(pos) == LISPSIZE_SMALLSIZE, "bigcons2");
 	GetCountBigcons(pos, &size);
 	test(size == 1, "bigcons3");

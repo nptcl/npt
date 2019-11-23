@@ -26,7 +26,7 @@ static int test_alloc_evalcode_stack(void)
 	addr pos;
 
 	alloc_evalcode_stack(NULL, &pos);
-	test(GetType(pos) == LISPTYPE_SYSTEM, "alloc_evalcode_stack1");
+	test(GetType(pos) == LISPSYSTEM_EVALSTACK, "alloc_evalcode_stack1");
 
 	RETURN;
 }
@@ -40,7 +40,7 @@ static int test_evalcode_stack_local(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	evalcode_stack_local(local, &pos, CodeType_Default);
-	test(GetType(pos) == LISPTYPE_SYSTEM, "evalcode_stack_local1");
+	test(GetType(pos) == LISPSYSTEM_EVALSTACK, "evalcode_stack_local1");
 	test(StructEvalCodeStack(pos)->stack != NULL, "evalcode_stack_local2");
 
 	rollback_local(local, stack);

@@ -5,6 +5,13 @@
 #include "local.h"
 #include "typedef.h"
 
+#define LISP_UTF8_SEQ5CHECK
+#define UTF16range(x) (0xD800 <= (x) && (x) < 0xE000)
+#define UTF16high(x) (0xD800 <= (x) && (x) < 0xDC00)
+#define UTF16low(x) (0xDC00 <= (x) && (x) < 0xE000)
+#define UTF16unicode(a, b) \
+	((((((a)>>6UL)&0x0FUL)+1UL)<<16UL) | (((a)&0x3FUL)<<10UL) | ((b)&0x03FFUL))
+
 /* Byte Order Mark */
 _g int readbom8_encode(struct filememory *fm);
 _g int readbom16_encode(struct filememory *fm); /* 1:le, 2:be */

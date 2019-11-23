@@ -214,6 +214,12 @@ static void clear_output_Synonym(addr stream)
 	clear_output_stream(stream);
 }
 
+static void exitpoint_Synonym(addr stream)
+{
+	getstream_synonym(stream, &stream);
+	exitpoint_stream(stream);
+}
+
 _g void init_stream_synonym(void)
 {
 	DefineStreamDef(Synonym, close);
@@ -246,5 +252,6 @@ _g void init_stream_synonym(void)
 	DefineStreamSet(Synonym, finish_output);
 	DefineStreamSet(Synonym, force_output);
 	DefineStreamSet(Synonym, clear_output);
+	DefineStreamSet(Synonym, exitpoint);
 }
 

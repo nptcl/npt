@@ -186,6 +186,7 @@ __extern int (*Stream_listen[StreamType_Size])(addr);
 __extern void (*Stream_finish_output[StreamType_Size])(addr);
 __extern void (*Stream_force_output[StreamType_Size])(addr);
 __extern void (*Stream_clear_output[StreamType_Size])(addr);
+__extern void (*Stream_exitpoint[StreamType_Size])(addr);
 
 _g int close_abort_stream(addr stream, int abort);
 _g int read_binary_stream(addr stream, void *pos, size_t size, size_t *ret);
@@ -217,6 +218,7 @@ _g int listen_stream(addr stream);
 _g void finish_output_stream(addr stream);
 _g void force_output_stream(addr stream);
 _g void clear_output_stream(addr stream);
+_g void exitpoint_stream(addr stream);
 
 _g int close_default_stream(addr stream, int abort);
 _g int read_char_default_stream(addr stream, unicode *c);
@@ -237,6 +239,7 @@ _g int file_position_set_default_stream(addr stream, size_t pos);
 _g void finish_output_default_stream(addr stream);
 _g void force_output_default_stream(addr stream);
 _g void clear_output_default_stream(addr stream);
+_g void exitpoint_default_stream(addr stream);
 
 
 /*

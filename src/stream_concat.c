@@ -183,6 +183,13 @@ static void clear_input_Concatenated(addr stream)
 		clear_input_stream(stream);
 }
 
+static void exitpoint_Concatenated(addr stream)
+{
+	current_concatenated(stream, &stream);
+	if (stream != Nil)
+		exitpoint_stream(stream);
+}
+
 _g void init_stream_concatenated(void)
 {
 	DefineStreamDef(Concatenated, close);
@@ -215,5 +222,6 @@ _g void init_stream_concatenated(void)
 	DefineStream___(Concatenated, finish_output);
 	DefineStream___(Concatenated, force_output);
 	DefineStream___(Concatenated, clear_output);
+	DefineStreamSet(Concatenated, exitpoint);
 }
 

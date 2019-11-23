@@ -326,6 +326,7 @@ _g void init_stream_string_input(void)
 	DefineStream___(StringInput, finish_output);
 	DefineStream___(StringInput, force_output);
 	DefineStream___(StringInput, clear_output);
+	DefineStreamDef(StringInput, exitpoint);
 }
 
 
@@ -563,5 +564,6 @@ _g void init_stream_string_output(void)
 	DefineStreamDef(StringOutput, finish_output);
 	DefineStreamDef(StringOutput, force_output);
 	DefineStreamDef(StringOutput, clear_output);
+	DefineStreamDef(StringOutput, exitpoint);
 }
 

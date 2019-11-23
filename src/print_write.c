@@ -188,7 +188,7 @@ static int intern_print_write(Execute ptr, addr pos)
 
 	print_write_object(ptr, &write);
 	get_table_print_write(write, &cons);
-	if (intern_hashheap(cons, pos, &cons)) {
+	if (intern_hashheap(cons, pos, &cons) == 0) {
 		/* make */
 		print_check_heap(&pos, pos);
 		SetCdr(cons, pos);
@@ -208,7 +208,7 @@ static int find_print_write(Execute ptr, addr key, addr *ret)
 
 	print_write_object(ptr, &pos);
 	get_table_print_write(pos, &pos);
-	(void)findvalue_hashtable(pos, key, ret);
+	findvalue_hashtable(pos, key, ret);
 	CheckType(*ret, LISPSYSTEM_PRINT_CHECK);
 
 	return ptr_print_check(*ret)->index == 0;
@@ -1397,15 +1397,15 @@ static int WriteCall_character(Execute ptr, addr stream, addr object)
 	}
 
 	if (findtable_char_name(&pos, object)) {
+		/* found */
+		print_ascii_stream(stream, "#\\");
+		WriteCall_character_string(stream, pos);
+	}
+	else {
 		/* not found */
 		print_ascii_stream(stream, "#\\");
 		GetCharacter(object, &u);
 		WriteCall_character_name(stream, u);
-	}
-	else {
-		/* found */
-		print_ascii_stream(stream, "#\\");
-		WriteCall_character_string(stream, pos);
 	}
 
 	return 0;
@@ -2226,7 +2226,6 @@ _g void init_print_write(void)
 	WriteCallTable[LISPTYPE_CALLNAME] = WriteCall_callname;
 	WriteCallTable[LISPTYPE_FUNCTION] = WriteCall_function;
 	WriteCallTable[LISPTYPE_INDEX] = WriteCall_index;
-	WriteCallTable[LISPTYPE_SYSTEM] = WriteCall_system;
 	WriteCallTable[LISPTYPE_PACKAGE] = WriteCall_package;
 	WriteCallTable[LISPTYPE_RANDOM_STATE] = WriteCall_random_state;
 	WriteCallTable[LISPTYPE_PATHNAME] = WriteCall_pathname;

@@ -481,7 +481,6 @@ _g void init_type_value(void)
 	TypeValueTable[LISPTYPE_CALLNAME] = type_value_error;
 	TypeValueTable[LISPTYPE_FUNCTION] = type_value_function;
 	TypeValueTable[LISPTYPE_INDEX] = type_value_error;
-	TypeValueTable[LISPTYPE_SYSTEM] = type_value_error;
 	TypeValueTable[LISPTYPE_PACKAGE] = type_value_package;
 	TypeValueTable[LISPTYPE_RANDOM_STATE] = type_value_random_state;
 	TypeValueTable[LISPTYPE_PATHNAME] = type_value_pathname;

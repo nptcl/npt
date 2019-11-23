@@ -76,7 +76,7 @@ static void function_push_entries(Execute ptr, addr name, addr expr, addr values
 	/* check *entries-table* */
 	GetConst(RT_ENTRIES_TABLE, &table);
 	getspecialcheck_local(ptr, table, &table);
-	if (findvalue_hashtable(table, name, &pos) == 0) {
+	if (findvalue_hashtable(table, name, &pos)) {
 		fmtw("The deftest ~S is already exist.", name, NULL);
 	}
 	else  {
@@ -363,7 +363,7 @@ static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
 	codejump jump;
 	LocalRoot local;
 
-	if (findvalue_hashtable(table, name, &expr))
+	if (! findvalue_hashtable(table, name, &expr))
 		fmte("The deftest ~S is not exist.", name, NULL);
 	GetCons(expr, &expr, &values);
 

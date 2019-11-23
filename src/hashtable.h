@@ -87,7 +87,7 @@ _g void allkeys_hashtable_local(LocalRoot local, addr pos, addr *ret);
 _g void allkeys_hashtable_alloc(LocalRoot local, addr pos, addr *ret);
 
 _g void force_resize_hashtable(addr pos, size_t size);
-/* found=0, notfound=1 */
+/* found=1, notfound=0 */
 _g int intern_hashheap(addr pos, addr key, addr *ret);
 _g int intern_hashlocal(LocalRoot root, addr pos, addr key, addr *ret);
 _g int intern_hashalloc(LocalRoot root, addr pos, addr key, addr *ret);
@@ -97,7 +97,7 @@ _g void findcons_hashtable(addr pos, addr key, addr *ret);
 _g void findcons_char_hashtable(addr pos, const char *key, addr *ret);
 _g void findcons_unicode_hashtable(addr pos, unicode key, addr *ret);
 _g void findcons_character2_hashtable(addr pos, unicode a, unicode b, addr *ret);
-/* found=0, notfound=1 */
+/* found=1, notfound=0 */
 _g int findvalue_hashtable(addr pos, addr key, addr *ret);
 _g int findvalue_char_hashtable(addr pos, const char *key, addr *ret);
 _g int findvalue_unicode_hashtable(addr pos, unicode key, addr *ret);

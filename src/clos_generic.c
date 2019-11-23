@@ -718,7 +718,7 @@ static int generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
 	GetClosGenericCallArray(inst, 0, &eqlcheck);
 	GetClosGenericCallArray(inst, 1, &cache);
 	generic_make_mapcar_class_of(local, &key, eqlcheck, args);
-	if (findvalue_hashtable(cache, key, &value)) {
+	if (! findvalue_hashtable(cache, key, &value)) {
 		/* not found, tranlate to heap-list from dynamic list */
 		copy_list_heap_unsafe(&key, key);
 		if (generic_make_type(ptr, &value, gen, key))

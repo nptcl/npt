@@ -871,7 +871,7 @@ static void defun_code_char(void)
  */
 static void function_char_name(Execute ptr, addr var)
 {
-	if (! findtable_char_name(&var, var))
+	if (findtable_char_name(&var, var))
 		setresult_control(ptr, var);
 	else
 		setresult_control(ptr, Nil);
@@ -920,7 +920,7 @@ static void function_name_char(Execute ptr, addr var)
 		GetCharacter(var, &u);
 		strvect_local(local, &var, 1);
 		strvect_setc(var, 0, u);
-		if (! findtable_name_char(&var, var))
+		if (findtable_name_char(&var, var))
 			setresult_control(ptr, var);
 		else
 			setresult_control(ptr, Nil);
@@ -930,7 +930,7 @@ static void function_name_char(Execute ptr, addr var)
 		/* symbol, string */
 		if (symbolp(var))
 			GetNameSymbol(var, &var);
-		if (! findtable_name_char(&var, var))
+		if (findtable_name_char(&var, var))
 			setresult_control(ptr, var);
 		else
 			setresult_control(ptr, Nil);

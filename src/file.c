@@ -1469,6 +1469,15 @@ _g void clear_output_file(addr stream)
 		fmte("clear-output error.", NULL);
 }
 
+_g void exitpoint_file(addr stream)
+{
+	struct filememory *fm;
+
+	CheckFileStream(stream);
+	fm = PtrFileMemory(stream);
+	exitpoint_filememory(fm);
+}
+
 
 /*
  *  core

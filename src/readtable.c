@@ -3281,7 +3281,7 @@ static void function_dispatch_backslash(Execute ptr, addr stream, addr code, add
 	}
 	if (! symbolp(pos))
 		fmte("Invalid character type ~S.", pos, NULL);
-	if (find_name_char(&pos, pos))
+	if (! find_name_char(&pos, pos))
 		fmte("The character name ~S is not found.", pos, NULL);
 	setresult_control(ptr, pos);
 }

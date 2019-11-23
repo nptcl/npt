@@ -42,13 +42,13 @@ static int test_sethost_pathname(void)
 	addr key, value;
 
 	strvect_char_heap(&key, "hello");
-	test(gethost_pathname(key, &value) != 0, "gethost_pathname1");
-	test(gethost_pathname(key, &value) != 0, "gethost_pathname2");
+	test(gethost_pathname(key, &value) == 0, "gethost_pathname1");
+	test(gethost_pathname(key, &value) == 0, "gethost_pathname2");
 	sethost_pathname(key, T);
-	test(gethost_pathname(key, &value) == 0, "gethost_pathname3");
+	test(gethost_pathname(key, &value) != 0, "gethost_pathname3");
 	test(value == T, "gethost_pathname4");
 	sethost_pathname(key, Nil);
-	test(gethost_pathname(key, &value) == 0, "gethost_pathname5");
+	test(gethost_pathname(key, &value) != 0, "gethost_pathname5");
 	test(value == Nil, "gethost_pathname6");
 
 	RETURN;

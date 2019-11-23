@@ -74,7 +74,7 @@ _g void sethost_pathname(addr key, addr value)
 	SetCdr(list, value);
 }
 
-/* found=0, notfound=1 */
+/* found=1, notfound=0 */
 _g int gethost_pathname(addr key, addr *ret)
 {
 	addr list;
@@ -790,7 +790,7 @@ next1:
 	if (c == '/') goto next2;
 	if (c == '.') { di = ni; dp = 1; }
 	if (logical == 0 && c == ':') {
-		if (check_host_logical_pathname(local, charqueue) == 0) {
+		if (check_host_logical_pathname(local, charqueue)) {
 			/* parser logical */
 			*pa = backup;
 			parser_logical_pathname(pa);
@@ -879,7 +879,7 @@ universal: /* ignore */
 	goto start;
 
 drive:
-	if (check_drive_logical_pathname(local, (int)c) == 0) {
+	if (check_drive_logical_pathname(local, (int)c)) {
 		/* parser logical */
 		*pa = backup;
 		parser_logical_pathname(pa);
@@ -920,7 +920,7 @@ next1:
 	if (slashp(c)) goto next2;
 	if (c == '.') { di = ni; dp = 1; }
 	if (logical == 0 && c == ':') {
-		if (check_host_logical_pathname(local, charqueue) == 0) {
+		if (check_host_logical_pathname(local, charqueue)) {
 			/* parser logical */
 			*pa = backup;
 			parser_logical_pathname(pa);
@@ -1799,7 +1799,7 @@ _g void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp)
 
 	/* logical pathname */
 	GetPathname(pos, PATHNAME_INDEX_HOST, &host);
-	if (gethost_pathname(host, &list))
+	if (! gethost_pathname(host, &list))
 		fmte("The logical-hostname ~S is not exist.", host, NULL);
 	while (list != Nil) {
 		GetCons(list, &right, &list);
@@ -2697,9 +2697,9 @@ _g void set_logical_pathname_translations(Execute ptr, addr host, addr list)
 
 	table_logical_pathname(&table);
 	if (findvalue_hashtable(table, host, &cons))
-		(void)set_logical_pathname_translations_intern(ptr, host, list, table);
-	else
 		set_logical_pathname_translations_code(ptr, host, list, cons);
+	else
+		set_logical_pathname_translations_intern(ptr, host, list, table);
 }
 
 

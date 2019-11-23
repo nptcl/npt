@@ -271,6 +271,18 @@ static void clear_output_BroadCast(addr stream)
 	}
 }
 
+static void exitpoint_BroadCast(addr stream)
+{
+	addr list;
+
+	CheckBroadCastStream(stream);
+	GetInfoStream(stream, &list);
+	while (list != Nil) {
+		getcons(list, &stream, &list);
+		exitpoint_stream(stream);
+	}
+}
+
 _g void init_stream_broadcast(void)
 {
 	DefineStreamDef(BroadCast, close);
@@ -303,5 +315,6 @@ _g void init_stream_broadcast(void)
 	DefineStreamSet(BroadCast, finish_output);
 	DefineStreamSet(BroadCast, force_output);
 	DefineStreamSet(BroadCast, clear_output);
+	DefineStreamSet(BroadCast, exitpoint);
 }
 

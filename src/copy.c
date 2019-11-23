@@ -276,7 +276,6 @@ static void init_copyhard_call(void)
 	TableCopy[LISPTYPE_CALLNAME] = copyhard_callname;
 	TableCopy[LISPTYPE_FUNCTION] = copyhard_error;
 	TableCopy[LISPTYPE_INDEX] = copyhard_error;
-	TableCopy[LISPTYPE_SYSTEM] = copyhard_error;
 	TableCopy[LISPTYPE_PACKAGE] = copyhard_error;
 	TableCopy[LISPTYPE_RANDOM_STATE] = copyhard_random_state;
 	TableCopy[LISPTYPE_PATHNAME] = copyhard_pathname;
@@ -422,7 +421,6 @@ static void init_checklocal_call(void)
 	TableCheckSoft[LISPTYPE_CALLNAME] = checklocal_callname;
 	TableCheckSoft[LISPTYPE_FUNCTION] = checklocal_function;
 	TableCheckSoft[LISPTYPE_INDEX] = checklocal_error;
-	TableCheckSoft[LISPTYPE_SYSTEM] = checklocal_error;
 	TableCheckSoft[LISPTYPE_PACKAGE] = checklocal_error;
 	TableCheckSoft[LISPTYPE_RANDOM_STATE] = checklocal_default;
 	TableCheckSoft[LISPTYPE_PATHNAME] = checklocal_pathname;
@@ -689,7 +687,6 @@ static void init_copylocal_call(void)
 	TableCopySoft[LISPTYPE_CALLNAME] = copylocal_callname;
 	TableCopySoft[LISPTYPE_FUNCTION] = copylocal_error;
 	TableCopySoft[LISPTYPE_INDEX] = copylocal_error;
-	TableCopySoft[LISPTYPE_SYSTEM] = copylocal_error;
 	TableCopySoft[LISPTYPE_PACKAGE] = copylocal_error;
 	TableCopySoft[LISPTYPE_RANDOM_STATE] = copylocal_error;
 	TableCopySoft[LISPTYPE_PATHNAME] = copylocal_pathname;

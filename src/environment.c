@@ -486,7 +486,7 @@ _g void user_homedir_pathname_common(Execute ptr, addr *ret)
 	getspecialcheck_local(ptr, pos, &pos);
 	if (pos == Nil)
 		goto error;
-	if (findvalue_char_hashtable(pos, "HOME", &pos))
+	if (! findvalue_char_hashtable(pos, "HOME", &pos))
 		goto error;
 	/* /home/name -> /home/name/ */
 	local = ptr->local;

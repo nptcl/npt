@@ -376,7 +376,7 @@ static int test_method_update_eqlcheck(void)
 	stdget_generic_cache(generic, &cache);
 	intern_hashheap(cache, key, &value);
 	method_update_eqlcheck(generic, method, 1);
-	test(findvalue_hashtable(cache, key, &value) == 0, "method_update_eqlcheck1");
+	test(findvalue_hashtable(cache, key, &value), "method_update_eqlcheck1");
 
 	stdget_generic_eqlcheck(generic, &cons);
 	GetCons(cons, &value, &cons);
@@ -393,7 +393,7 @@ static int test_method_update_eqlcheck(void)
 	list_heap(&cons, cons, cons, value, NULL);
 	stdset_method_specializers(method, cons);
 	method_update_eqlcheck(generic, method, 1);
-	test(findvalue_hashtable(cache, key, &value) != 0, "method_update_eqlcheck6");
+	test(findvalue_hashtable(cache, key, &value) == 0, "method_update_eqlcheck6");
 
 	stdget_generic_eqlcheck(generic, &cons);
 	GetCons(cons, &value, &cons);
@@ -528,21 +528,21 @@ static int test_method_cache_remove(void)
 	intern_hashheap(cache, key, &value);
 	stdset_method_specializers(method, cons);
 	method_cache_remove(local, generic, method);
-	test(findvalue_hashtable(cache, key, &value), "method_cache_remove2");
+	test(findvalue_hashtable(cache, key, &value) == 0, "method_cache_remove2");
 
 	list_heap(&key, integer, integer, NULL);
 	list_heap(&cons, fixnum, fixnum, NULL);
 	intern_hashheap(cache, key, &value);
 	stdset_method_specializers(method, cons);
 	method_cache_remove(local, generic, method);
-	test(findvalue_hashtable(cache, key, &value) == 0, "method_cache_remove3");
+	test(findvalue_hashtable(cache, key, &value), "method_cache_remove3");
 
 	list_heap(&key, integer, integer, NULL);
 	list_heap(&cons, real, fixnum, NULL);
 	intern_hashheap(cache, key, &value);
 	stdset_method_specializers(method, cons);
 	method_cache_remove(local, generic, method);
-	test(findvalue_hashtable(cache, key, &value) == 0, "method_cache_remove4");
+	test(findvalue_hashtable(cache, key, &value), "method_cache_remove4");
 
 	RETURN;
 }

@@ -13,7 +13,7 @@ _g void bigbuffer_local(LocalRoot local, addr *ret, bigtype value)
 	struct bigbuffer *ptr;
 
 	Check(0xFFFF < sizeoft(struct bigbuffer), "size error");
-	local_arraybody(local, &pos, LISPTYPE_SYSTEM, 1, sizeof(struct bigbuffer));
+	local_arraybody(local, &pos, LISPSYSTEM_BIGBUFFER, 1, sizeof(struct bigbuffer));
 	ptr = StructBigbuffer(pos);
 #ifdef LISP_DEBUG
 	aamemory(ptr, sizeof(struct bigbuffer));
@@ -28,7 +28,7 @@ _g void bigcons_local(LocalRoot local, addr *ret)
 	addr cons, pos;
 
 	bigbuffer_local(local, &cons, 0);
-	local_smallsize(local, &pos, LISPTYPE_SYSTEM, 1, sizeoft(struct bigcons_struct));
+	local_smallsize(local, &pos, LISPSYSTEM_BIGCONS, 1, sizeoft(struct bigcons_struct));
 	SetUser(pos, 0);
 	SetCountBigcons(pos, 1);
 	SetRootBigcons(pos, cons);

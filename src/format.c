@@ -1428,9 +1428,9 @@ static int format_character(fmtprint print, struct fmtchar *str)
 		/* ~:C or ~:@C */
 		fmtprint_pop(print, str, &pos);
 		if (findtable_char_name(&name, pos))
-			fmtprint_putc(print, RefCharacter(pos));
-		else
 			write_string(print, name);
+		else
+			fmtprint_putc(print, RefCharacter(pos));
 	}
 	else {
 		/* ~C */
@@ -3186,6 +3186,7 @@ _g int format_stream_args(Execute ptr, addr stream, addr format, addr args, addr
 		return 1;
 	}
 	*tail = stack.front;
+	exitpoint_stream(stream);
 
 	return 0;
 }

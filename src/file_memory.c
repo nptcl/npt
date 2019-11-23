@@ -948,23 +948,6 @@ static int writenormal(struct filememory *fm,
 	return 0;
 }
 
-static int writenocache(struct filememory *fm,
-		const byte *pos, size_t size, size_t *ret)
-{
-	int check;
-
-	Check(fm->index, "index error");
-	check = writeforce(fm->file, pos, size, ret);
-	stream_errorcheck(fm, check, "writeforce");
-	flush_arch(fm->file);
-	if (check) {
-		fm->mode = filememory_end;
-		return check;
-	}
-
-	return 0;
-}
-
 _g int write_filememory(struct filememory *fm,
 		const void *dst, size_t size, size_t *ret)
 {
@@ -985,10 +968,7 @@ _g int write_filememory(struct filememory *fm,
 
 	switch (fm->mode) {
 		case filememory_normal:
-			if (fm->cache)
-				return writenormal(fm, (byte *)dst, size, ret);
-			else
-				return writenocache(fm, (byte *)dst, size, ret);
+			return writenormal(fm, (byte *)dst, size, ret);
 
 		case filememory_end:
 			return 1;
@@ -1025,12 +1005,6 @@ static int putcnormal(struct filememory *fm, byte c)
 	return 0;
 }
 
-static int putcnocache(struct filememory *fm, byte c)
-{
-	size_t dummy;
-	return writenocache(fm, &c, 1, &dummy);
-}
-
 _g int putc_filememory(struct filememory *fm, byte c)
 {
 	if (fm->direct == filememory_input) {
@@ -1046,10 +1020,7 @@ _g int putc_filememory(struct filememory *fm, byte c)
 
 	switch (fm->mode) {
 		case filememory_normal:
-			if (fm->cache)
-				return putcnormal(fm, c);
-			else
-				return putcnocache(fm, c);
+			return putcnormal(fm, c);
 
 		case filememory_end:
 			return 1;
@@ -1103,6 +1074,12 @@ sync:
 		flush_arch(fm->file);
 
 	return 0;
+}
+
+_g void exitpoint_filememory(struct filememory *fm)
+{
+	if (fm->cache == 0)
+		(void)flush_filememory(fm);
 }
 
 _g int end_filememory(struct filememory *fm)

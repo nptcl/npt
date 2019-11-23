@@ -207,22 +207,22 @@ static int test_defnametable(void)
 	defnametable(getname, getchar, 0x08, "Backspace");
 
 	check = findvalue_unicode_hashtable(getname, 0x08, &pos);
-	test(check == 0, "defnametable1");
+	test(check, "defnametable1");
 	test(string_equalp_char(pos, "Backspace"), "defnametable2");
 
 	check = findvalue_unicode_hashtable(getname, 0x09, &pos);
-	test(check == 0, "defnametable3");
+	test(check, "defnametable3");
 	test(string_equalp_char(pos, "Tab"), "defnametable4");
 
 	check = findvalue_unicode_hashtable(getname, 0xFF, &pos);
-	test(check, "defnametable5");
+	test(check == 0, "defnametable5");
 
 	check = findvalue_char_hashtable(getchar, "baCKspaCE", &pos);
-	test(check == 0, "defnametable6");
+	test(check, "defnametable6");
 	test(RefCharacter(pos) == 0x08, "defnametable7");
 
 	check = findvalue_char_hashtable(getchar, "Hello", &pos);
-	test(check, "defnametable8");
+	test(check == 0, "defnametable8");
 
 	RETURN;
 }
@@ -233,11 +233,11 @@ static int test_findtable_unicode_name(void)
 	addr pos;
 
 	check = findtable_unicode_name(&pos, 0x0C);
-	test(check == 0, "findtable_unicode_name1");
+	test(check, "findtable_unicode_name1");
 	test(string_equalp_char(pos, "Page"), "findtable_unicode_name2");
 
 	check = findtable_unicode_name(&pos, 0xF0000000UL);
-	test(check, "findtable_unicode_name3");
+	test(check == 0, "findtable_unicode_name3");
 
 	RETURN;
 }
@@ -249,12 +249,12 @@ static int test_findtable_char_name(void)
 
 	character_heap(&pos, 0x0C);
 	check = findtable_char_name(&pos, pos);
-	test(check == 0, "findtable_char_name1");
+	test(check, "findtable_char_name1");
 	test(string_equalp_char(pos, "Page"), "findtable_char_name2");
 
 	character_heap(&pos, 0xF0000000UL);
 	check = findtable_char_name(&pos, pos);
-	test(check, "findtable_char_name3");
+	test(check == 0, "findtable_char_name3");
 
 	RETURN;
 }
@@ -266,12 +266,12 @@ static int test_findtable_name_char(void)
 
 	strvect_char_heap(&pos, "space");
 	check = findtable_name_char(&pos, pos);
-	test(check == 0, "findtable_name_char1");
+	test(check, "findtable_name_char1");
 	test(RefCharacter(pos) == 0x20, "findtable_name_char2");
 
 	strvect_char_heap(&pos, "Hello");
 	check = findtable_name_char(&pos, pos);
-	test(check, "findtable_name_char3");
+	test(check == 0, "findtable_name_char3");
 
 	RETURN;
 }
@@ -323,25 +323,25 @@ static int test_find_name_char(void)
 
 	strvect_heap(&pos, 0);
 	check = find_name_char(&pos, pos);
-	test(check, "find_name_char1");
+	test(check == 0, "find_name_char1");
 
 	strvect_char_heap(&pos, "e");
 	check = find_name_char(&pos, pos);
-	test(check == 0 && RefCharacter(pos) == 'e', "find_name_char2");
+	test(check && RefCharacter(pos) == 'e', "find_name_char2");
 
 	strvect_char_heap(&pos, "U32");
 	check = find_name_char(&pos, pos);
-	test(check == 0 && RefCharacter(pos) == 0x32, "find_name_char3");
+	test(check && RefCharacter(pos) == 0x32, "find_name_char3");
 
 	strvect_char_heap(&pos, "backspace");
 	check = find_name_char(&pos, pos);
-	test(check == 0 && RefCharacter(pos) == 0x08, "find_name_char4");
+	test(check && RefCharacter(pos) == 0x08, "find_name_char4");
 
 	strvect_char_heap(&name, "SPACE");
 	symbol_heap(&pos);
 	SetNameSymbol(pos, name);
 	check = find_name_char(&pos, pos);
-	test(check == 0 && RefCharacter(pos) == 0x20, "find_name_char5");
+	test(check && RefCharacter(pos) == 0x20, "find_name_char5");
 
 	RETURN;
 }

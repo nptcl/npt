@@ -60,7 +60,6 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPTYPE_CALLNAME:				return "callname";
 		case LISPTYPE_FUNCTION:				return "function";
 		case LISPTYPE_INDEX:				return "index";
-		case LISPTYPE_SYSTEM:				return "system";
 		case LISPTYPE_PACKAGE:				return "package";
 		case LISPTYPE_RANDOM_STATE:			return "random-state";
 		case LISPTYPE_PATHNAME:				return "pathname";
@@ -73,8 +72,11 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPTYPE_PRINT_DISPATCH:		return "print-dispatch";
 		case LISPTYPE_BYTESPEC:				return "bytespec";
 
+		case LISPSYSTEM_CONSTANT:			return "?constant";
 		case LISPSYSTEM_FIXNUM_CACHE:		return "?fixnum-cache";
 		case LISPSYSTEM_CHARACTER_CACHE:	return "?character-cache";
+		case LISPSYSTEM_BIGBUFFER:			return "?bigbuffer";
+		case LISPSYSTEM_BIGCONS:			return "?bigcons";
 		case LISPSYSTEM_BIGDATA:			return "?bigdata";
 		case LISPSYSTEM_CHARACTER2:			return "?character2";
 		case LISPSYSTEM_CHARQUEUE:			return "?charqueue";
@@ -102,6 +104,14 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPSYSTEM_CLOS_VALUE:			return "?clos-value";
 		case LISPSYSTEM_GENERIC:			return "?generic";
 		case LISPSYSTEM_ARGUMENT:			return "?argument";
+		case LISPSYSTEM_UNICODE:			return "?unicode";
+		case LISPSYSTEM_TYPE_PARSE:			return "?type-parse";
+		case LISPSYSTEM_STRUCTURE_TYPE:		return "?structure-type";
+		case LISPSYSTEM_PRINT_TABLE:		return "?print-table";
+		case LISPSYSTEM_PRINT_WRITE:		return "?print-write";
+		case LISPSYSTEM_PRINT_CHECK:		return "?print-check";
+		case LISPSYSTEM_EVALSTACK:			return "?eval-stack";
+		case LISPSYSTEM_USER:				return "?user";
 		case LISPSYSTEM_CHECK:				return "?check";
 
 		case LISPSYSTEM_UNBOUND:			return "unboundtype";

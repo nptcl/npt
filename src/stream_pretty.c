@@ -384,5 +384,6 @@ _g void init_stream_pretty(void)
 	DefineStreamSet(Pretty, finish_output);
 	DefineStreamSet(Pretty, force_output);
 	DefineStreamSet(Pretty, clear_output);
+	DefineStreamDef(Pretty, exitpoint);
 }
 

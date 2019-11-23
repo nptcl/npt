@@ -525,9 +525,9 @@ static int test_intern_hashtable(void)
 
 	/* findvalue */
 	strvect_char_heap(&key, "key5555");
-	test(findvalue_hashtable(table, key, &value) == 1, "intern_hashtable8");
+	test(findvalue_hashtable(table, key, &value) == 0, "intern_hashtable8");
 	strvect_char_heap(&key, "key555");
-	test(findvalue_hashtable(table, key, &value) == 0, "intern_hashtable9");
+	test(findvalue_hashtable(table, key, &value) == 1, "intern_hashtable9");
 	test(strvect_equal_char(value, "value555"), "intern_hashtable10");
 
 	RETURN;

@@ -214,6 +214,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eastasian.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eastasian_table.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\encode.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\encode_unicode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\environment.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\equal.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_code.c" />
@@ -391,6 +392,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\degrade.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\document.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eastasian.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\encode_unicode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\encode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\environment.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\equal.h" />

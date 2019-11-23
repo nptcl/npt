@@ -495,6 +495,13 @@ _g void clear_output_stream(addr stream)
 	(Stream_clear_output[(int)ptr->type])(stream);
 }
 
+_g void exitpoint_stream(addr stream)
+{
+	struct StructStream *ptr;
+	CheckStream(stream, ptr);
+	(Stream_exitpoint[(int)ptr->type])(stream);
+}
+
 
 /*
  *  default
@@ -648,6 +655,10 @@ _g void force_output_default_stream(addr stream)
 }
 
 _g void clear_output_default_stream(addr stream)
+{
+}
+
+_g void exitpoint_default_stream(addr stream)
 {
 }
 
@@ -1701,12 +1712,14 @@ static void write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
 _g void write_string_common(Execute ptr, addr string, addr rest)
 {
 	write_string_stream(ptr, string, rest, &string);
+	exitpoint_stream(string);
 }
 
 _g void write_line_common(Execute ptr, addr string, addr rest)
 {
 	write_string_stream(ptr, string, rest, &string);
 	terpri_stream(string);
+	exitpoint_stream(string);
 }
 
 static void read_sequence_character(addr *ret,

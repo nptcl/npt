@@ -728,6 +728,7 @@ static void function_write(Execute ptr, addr var, addr args)
 	push_return_control(ptr, &control);
 	format_keyword_print(ptr, args);
 	if (write_print(ptr, stream, var)) return;
+	exitpoint_stream(stream);
 	setresult_control(ptr, var);
 }
 
@@ -792,6 +793,7 @@ static void function_prin1(Execute ptr, addr var, addr stream)
 {
 	output_stream_designer(ptr, stream, &stream);
 	if (prin1_print(ptr, stream, var)) return;
+	exitpoint_stream(stream);
 	setresult_control(ptr, var);
 }
 
@@ -818,6 +820,7 @@ static void function_princ(Execute ptr, addr var, addr stream)
 {
 	output_stream_designer(ptr, stream, &stream);
 	if (princ_print(ptr, stream, var)) return;
+	exitpoint_stream(stream);
 	setresult_control(ptr, var);
 }
 
@@ -844,6 +847,7 @@ static void function_print(Execute ptr, addr var, addr stream)
 {
 	output_stream_designer(ptr, stream, &stream);
 	if (print_print(ptr, stream, var)) return;
+	exitpoint_stream(stream);
 	setresult_control(ptr, var);
 }
 
@@ -870,6 +874,7 @@ static void function_pprint(Execute ptr, addr var, addr stream)
 {
 	output_stream_designer(ptr, stream, &stream);
 	if (pprint_print(ptr, stream, var)) return;
+	exitpoint_stream(stream);
 	setvalues_nil_control(ptr);
 }
 

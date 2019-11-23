@@ -146,11 +146,11 @@ static void defnametable(addr getname, addr getchar, unicode u, const char *name
 
 	character_heap(&pos, u);
 	strvect_char_heap(&string, name);
-	if (intern_hashheap(getname, pos, &cons) != 0) {
+	if (intern_hashheap(getname, pos, &cons) == 0) {
 		/* not found */
 		SetCdr(cons, string);
 	}
-	if (intern_hashheap(getchar, string, &cons) != 0) {
+	if (intern_hashheap(getchar, string, &cons) == 0) {
 		/* not found */
 		SetCdr(cons, pos);
 	}
@@ -248,18 +248,18 @@ _g int find_name_char(addr *ret, addr name)
 	Check(! stringp(name), "type error");
 	string_length(name, &size);
 	if (size == 0) {
-		return 1;
+		return 0;
 	}
 	if (size == 1) {
 		/* form #\a */
 		string_getc(name, 0, &u);
 		character_heap(ret, u);
-		return 0;
+		return 1;
 	}
 	if (! unicode_code(name, size, &u)) {
 		/* for #\u123 */
 		character_heap(ret, u);
-		return 0;
+		return 1;
 	}
 
 	return findtable_name_char(ret, name);

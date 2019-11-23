@@ -325,6 +325,7 @@
     "document.h"
     "eastasian.h"
     "encode.h"
+    "encode_unicode.h"
     "environment.h"
     "equal.h"
     "eval_code.h"
@@ -508,6 +509,7 @@
     "eastasian_table.c"
     "eastasian.c"
     "encode.c"
+    "encode_unicode.c"
     ("environment.c" :header t)
     "equal.c"
     "eval_code.c"

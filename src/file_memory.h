@@ -34,6 +34,7 @@ _g int write_filememory(struct filememory *fm,
 		const void *dst, size_t size, size_t *ret);
 
 _g int flush_filememory(struct filememory *fm);
+_g void exitpoint_filememory(struct filememory *fm);
 _g int end_filememory(struct filememory *fm);
 _g int error_filememory(struct filememory *fm);
 _g int listen_filememory(struct filememory *fm);

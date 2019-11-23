@@ -145,3 +145,8 @@ _g void clear_output_stream_error(addr stream)
 	fmte("The stream ~S don't run clear-output function.", stream, NULL);
 }
 
+_g void exitpoint_stream_error(addr stream)
+{
+	fmte("The stream ~S don't run exitpoint function.", stream, NULL);
+}
+
