@@ -381,7 +381,7 @@ _g void getrehash_threshold_hashtable(addr pos, double_float *ret)
  */
 static void hashindex_eq(addr key, size_t size, size_t *ret)
 {
-	*ret = sxhash_pointer(key) % size;
+	*ret = sxhash_eq(key) % size;
 }
 
 static void hashindex_eql(addr key, size_t size, size_t *ret)

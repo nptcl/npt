@@ -15,7 +15,7 @@ _g void hashindex_cache(addr right, size_t size, size_t *ret)
 	for (index = 0; right != Nil; index++) {
 		Check(GetType(right) != LISPTYPE_CONS, "type error");
 		GetCons(right, &left, &right);
-		value += sxhash_pointer(left) + index;
+		value += sxhash_eq(left) + index;
 	}
 
 	*ret = value % size;

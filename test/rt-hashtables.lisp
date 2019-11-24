@@ -259,6 +259,28 @@
 
 
 ;;
+;;  equalp
+;;
+(deftest sxhash-equalp.1
+  (let ((a (make-hash-table :test 'equal))
+        (b (make-hash-table :test 'equalp)))
+    (setf (gethash 1 a) 'aaa)
+    (setf (gethash 1.0f0 a) 'bbb)
+    (setf (gethash 1.0d0 a) 'ccc)
+    (setf (gethash 1 b) 'ddd)
+    (setf (gethash 1.0f0 b) 'eee)
+    (setf (gethash 1.0d0 b) 'fff)
+    (values
+      (gethash 1 a)
+      (gethash 1.0f0 a)
+      (gethash 1.0d0 a)
+      (gethash 1 b)
+      (gethash 1.0f0 b)
+      (gethash 1.0d0 b)))
+  aaa bbb ccc fff fff fff)
+
+
+;;
 ;;  do-tests
 ;;
 (do-tests :test t)

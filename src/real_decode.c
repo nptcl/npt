@@ -900,7 +900,8 @@ _g void rationalize_common(LocalRoot local, addr pos, addr *ret)
 		return;
 	}
 	if (floatp(pos)) {
-		rationalize_float(local, pos, ret);
+		rationalize_float(local, pos, &pos);
+		ratio_result_noreduction_heap(local, pos, ret);
 		return;
 	}
 
