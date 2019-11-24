@@ -23,6 +23,8 @@ static int loadrt_files(void)
 	loadrt_file("rt-structures.lisp");
 	/* 9. Conditions */
 	loadrt_file("rt-conditions.lisp");
+	/* 10. Symbols */
+	loadrt_file("rt-symbols.lisp");
 	/* 11. Packages */
 	loadrt_file("rt-packages.lisp");
 	/* 12. Number */

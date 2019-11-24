@@ -274,42 +274,6 @@ static void defun_setf_schar(void)
 /* (defun string (x) ...) -> string
  *   x  (or string symbol character)  ;; string-designer
  */
-#if 0
-static void function_string(Execute ptr, addr var)
-{
-	unicode u;
-
-	switch (GetType(var)) {
-		case LISPTYPE_STRING:
-			goto finish;
-
-		case LISPTYPE_ARRAY:
-			if (strarrayp(var))
-				goto finish;
-			break;
-
-		case LISPTYPE_NIL:
-		case LISPTYPE_T:
-		case LISPTYPE_SYMBOL:
-			GetNameSymbol(var, &var);
-			goto finish;
-
-		case LISPTYPE_CHARACTER:
-			GetCharacter(var, &u);
-			strvect_heap(&var, 1);
-			strvect_setc(var, 0, u);
-			goto finish;
-
-		default:
-			break;
-	}
-	fmte("Type error.", NULL);
-	return;
-
-finish:
-	setresult_control(ptr, var);
-}
-#endif
 static void function_string(Execute ptr, addr var)
 {
 	if (! string_designer_heap(&var, var))

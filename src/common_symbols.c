@@ -119,18 +119,19 @@ static void function_copy_symbol(Execute ptr, addr var, addr opt)
 
 	if (opt != Nil) {
 		/* symbol-value */
-		value_special_restart(ptr, var, &pos);
+		GetValueSymbol(var, &pos);
 		SetValueSymbol(symbol, pos);
 		/* symbol-function */
-		function_global_restart(ptr, var, &pos);
-		SetFunctionCommon(var, pos);
+		GetFunctionSymbol(var, &pos);
+		SetFunctionSymbol(symbol, pos);
 		/* symbol-setf */
-		setf_global_restart(ptr, var, &pos);
-		setsetf_symbol(var, pos);
+		getsetf_symbol(var, &pos);
+		if (pos != Unbound)
+			setsetf_symbol(symbol, pos);
 		/* property-list */
 		GetPlistSymbol(var, &pos);
 		copy_list_heap_unsafe(&pos, pos);
-		SetPlistSymbol(var, pos);
+		SetPlistSymbol(symbol, pos);
 	}
 
 	setresult_control(ptr, symbol);
@@ -557,6 +558,50 @@ static void defun_get(void)
 }
 
 
+/*
+ * (defun (setf get) (symbol indicator &optional default) ...) -> object
+ *   symbol     symbol
+ *   indicator  object
+ *   default    object  ;; default nil
+ */
+static void function_setf_get(Execute ptr,
+		addr value, addr symbol, addr key, addr ignored)
+{
+	addr list;
+
+	GetPlistSymbol(symbol, &list);
+	if (setplist_heap_safe(list, key, value, &list))
+		SetPlistSymbol(symbol, list);
+	setresult_control(ptr, value);
+}
+
+static void type_setf_get(addr *ret)
+{
+	addr arg, values, type;
+
+	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&type, T);
+	typeargs_var3opt1(&arg, type, arg, type, type);
+	GetTypeValues(&values, T);
+	type_compiled_heap(arg, values, ret);
+}
+
+static void defun_setf_get(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_GET, &symbol);
+	compiled_setf_heap(&pos, symbol);
+	setcompiled_var3opt1(pos, p_defun_setf_get);
+	setsetf_symbol(symbol, pos);
+	/* type */
+	type_setf_get(&type);
+	settype_function(pos, type);
+	settype_setf_symbol(symbol, type);
+}
+
+
 /* (defun remprop (symbol indicator) ...) -> boolean
  *   symbol     symbol
  *   indicator  object
@@ -723,6 +768,7 @@ _g void init_common_symbols(void)
 	SetPointerCall(defun, var1, symbol_name);
 	SetPointerCall(defun, var1, symbol_package);
 	SetPointerCall(defun, var2opt1, get);
+	SetPointerCall(defun, var3opt1, setf_get);
 	SetPointerCall(defun, var2, remprop);
 	SetPointerCall(defun, var1, boundp);
 	SetPointerCall(defun, var1, makunbound);
@@ -747,6 +793,7 @@ _g void build_common_symbols(void)
 	defun_symbol_name();
 	defun_symbol_package();
 	defun_get();
+	defun_setf_get();
 	defun_remprop();
 	defun_boundp();
 	defun_makunbound();

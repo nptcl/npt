@@ -73,7 +73,7 @@ int lisp_symbol_p(addr x)
 
 int lisp0_symbol_p(addr x)
 {
-	return GetType(x) == LISPTYPE_SYMBOL;
+	return symbolp(x);
 }
 
 int lisp0_array_p(addr x)

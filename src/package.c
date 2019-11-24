@@ -1093,13 +1093,21 @@ static int intern_bitpackage(addr package, addr name, addr *ret)
 
 static enum PACKAGE_TYPE intern_package_table(addr package, addr name, addr *ret)
 {
-	if (intern_bitpackage(package, name, &name)) {
-		GetBitTypeSymbol(name, ret);
-		return PACKAGE_TYPE_NIL;
-	}
-	GetBitTypeSymbol(name, ret);
+	enum PACKAGE_TYPE result;
+	addr keyword, bit;
 
-	return StructBitType(name)->intern;
+	/* intern */
+	result = intern_bitpackage(package, name, &bit)?
+		PACKAGE_TYPE_NIL:
+		StructBitType(bit)->intern;
+	GetBitTypeSymbol(bit, ret);
+
+	/* keyword */
+	GetConst(PACKAGE_KEYWORD, &keyword);
+	if (keyword == package)
+		setkeyword_package(*ret);
+
+	return result;
 }
 
 _g enum PACKAGE_TYPE intern_package(addr package, addr name, addr *ret)

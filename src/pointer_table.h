@@ -349,6 +349,7 @@ enum pointer_index {
 	p_defun_symbol_name,
 	p_defun_symbol_package,
 	p_defun_get,
+	p_defun_setf_get,
 	p_defun_remprop,
 	p_defun_boundp,
 	p_defun_makunbound,

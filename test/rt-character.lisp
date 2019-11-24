@@ -861,6 +861,10 @@
   (char-name #\Z)
   nil)  ;; Unicode: LATIN-CAPITAL-LETTER-Z
 
+(deftest char-name-error.6
+  (char-name #\T)
+  nil)  ;; Unicode: LATIN-CAPITAL-LETTER-T
+
 (deftest name-char.1
   (name-char 'space)
   #\Space)

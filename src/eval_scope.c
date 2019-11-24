@@ -820,7 +820,9 @@ static void checktype_warning(addr name, addr type, addr expected)
 {
 	type_object(&type, type);
 	type_object(&expected, expected);
-	fmte("The object ~S must be a ~S type but ~S type.", name, expected, type, NULL);
+	type_error_stdarg(name, expected,
+			"The object ~S must be a ~S type but ~S type.",
+			name, expected, type, NULL);
 }
 
 static void checktype_value(addr value, addr init)
@@ -2867,12 +2869,13 @@ static int call_first(Execute ptr, addr *ret, addr first)
 	return 0;
 }
 
-static void check_tablecall_warning(addr name, addr type, addr actual)
+static void check_tablecall_warning(addr name, addr type, addr expected)
 {
 	type_object(&type, type);
-	type_object(&actual, actual);
-	fmte("The object ~S expected a ~S type but the initialize form is ~S type.",
-			name, actual, name, NULL);
+	type_object(&expected, expected);
+	type_error_stdarg(name, expected,
+			"The object ~S expected a ~S type but the initialize form is ~S type.",
+			name, expected, type, NULL);
 }
 
 static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
@@ -3178,12 +3181,14 @@ static int scope_values(Execute ptr, addr *ret, addr eval)
 	return 0;
 }
 
-static void the_check_warning(addr expected, addr actual)
+static void the_check_warning(addr type, addr expected)
 {
-	type_object(&actual, actual);
+	type_object(&type, type);
 	type_object(&expected, expected);
-	fmte("The special operator THE accept a ~S type, "
-			"but actually the form is ~S type.", expected, actual, NULL);
+	type_error_stdarg(Nil, expected,
+			"The special operator THE accept a ~S type, "
+			"but actually the form is ~S type.",
+			expected, type, NULL);
 }
 
 static void the_check(Execute ptr, addr eval, addr right, addr *ret)

@@ -37,6 +37,8 @@
 (loadrt #p"rt-structures.lisp")
 ;; 9. Conditions
 (loadrt #p"rt-conditions.lisp")
+;; 10. Symbols
+(loadrt #p"rt-symbols.lisp")
 ;; 11. Packages
 (loadrt #p"rt-packages.lisp")
 ;; 12. Number

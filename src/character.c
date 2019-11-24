@@ -242,7 +242,7 @@ _g int find_name_char(addr *ret, addr name)
 	unicode u;
 	size_t size;
 
-	if (GetType(name) == LISPTYPE_SYMBOL) {
+	if (symbolp(name)) {
 		GetNameSymbol(name, &name);
 	}
 	Check(! stringp(name), "type error");

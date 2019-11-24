@@ -17,6 +17,7 @@
 #include "real_float.h"
 #include "sequence.h"
 #include "stream.h"
+#include "stream_string.h"
 #include "token.h"
 #include "typedef.h"
 
@@ -3404,12 +3405,25 @@ _g void decimal_charqueue_fixnum_local(LocalRoot local, addr pos, addr queue)
 
 _g void decimal_charqueue_bignum_local(LocalRoot local, addr pos, addr queue)
 {
-	LocalStack stack;
+	addr stream, value;
 
 	Check(GetType(pos) != LISPTYPE_BIGNUM, "type error");
-	push_local(local, &stack);
-	rollback_local(local, stack);
-	Abort("TODO");
+	/* zero */
+	if (zerop_bignum(pos)) {
+		push_charqueue_local(local, queue, '0');
+		return;
+	}
+
+	/* sign */
+	if (minusp_bignum(pos))
+		push_charqueue_local(local, queue, '-');
+
+	/* body */
+	open_output_string_stream(&stream, 0);
+	output_nosign_bignum(local, stream, pos, 10, 0);
+	string_stream_heap(stream, &value);
+	close_stream(stream);
+	pushstring_charqueue_local(local, queue, value);
 }
 
 _g void decimal_charqueue_integer_local(LocalRoot local, addr pos, addr queue)

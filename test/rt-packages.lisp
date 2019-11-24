@@ -592,6 +592,15 @@
   "TODO"
   "TODO")
 
+(deftest intern-error.1
+  (let ((x (intern "KEYWORD-TEST" "KEYWORD")))
+    (values
+      (symbol-name
+        (symbol-value x))
+      (package-name
+        (symbol-package x))))
+  "KEYWORD-TEST" "KEYWORD")
+
 
 ;;
 ;;  do-tests
