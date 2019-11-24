@@ -8,9 +8,11 @@
 #include "control.h"
 #include "copy.h"
 #include "equal.h"
+#include "files.h"
 #include "function.h"
 #include "hashtable.h"
 #include "heap.h"
+#include "input.h"
 #include "integer.h"
 #include "local.h"
 #include "memory.h"
@@ -3055,6 +3057,36 @@ _g void translate_logical_pathname(Execute ptr, addr *ret, addr pos)
 _g void merge_pathnames(Execute ptr, addr *ret, addr pos, addr defaults, addr version)
 {
 	merge_pathnames_clang(ptr, pos, defaults, version, ret);
+}
+
+
+/*
+ *  load-logical-pathname-translations
+ */
+_g int load_logical_pathname_translations_common(Execute ptr, addr host, int *ret)
+{
+	addr defaults, file, x;
+
+	/* pathname */
+	GetConst(SYSTEM_LOAD_LOGICAL_PATHNAME_TRANSLATIONS, &defaults);
+	getspecial_local(ptr, defaults, &defaults);
+	defaults_pathname_heap(ptr, &defaults, defaults);
+	pathname_heap(&file, Nil, Nil, Nil, host, Nil);
+	merge_pathnames_clang(ptr, host, defaults, Unbound, &file);
+	/* load */
+	probe_file_files(ptr, &x, file);
+	if (x != T) {
+		/* host file is not exist */
+		*ret = 0;
+		return 0;
+	}
+	/* read file */
+	if (readlist_input(ptr, file, &x))
+		return 1;
+	set_logical_pathname_translations(ptr, host, x);
+	*ret = 1;
+
+	return 0;
 }
 
 

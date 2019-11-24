@@ -97,6 +97,7 @@ gc.c
 hashtable.c
 heap.c
 info.c
+input.c
 integer.c
 intern.c
 lambda.c

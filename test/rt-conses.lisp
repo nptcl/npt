@@ -438,6 +438,16 @@
     a)
   (10 20 30))
 
+(deftest butlast.5
+  (values
+    (butlast '(a b c) 0)
+    (butlast '(a b c) 1)
+    (butlast '(a b c) 2)
+    (butlast '(a b c) 3)
+    (butlast '(a b c) 4)
+    (butlast '(a b c) 100000000000000000000000000000000000000))
+  (a b c) (a b) (a) nil nil nil)
+
 (deftest nbutlast.1
   (nbutlast nil)
   nil)
@@ -456,6 +466,16 @@
     a)
   (10 20))
 
+(deftest nbutlast.5
+  (values
+    (nbutlast (list 'a 'b 'c) 0)
+    (nbutlast (list 'a 'b 'c) 1)
+    (nbutlast (list 'a 'b 'c) 2)
+    (nbutlast (list 'a 'b 'c) 3)
+    (nbutlast (list 'a 'b 'c) 4)
+    (nbutlast (list 'a 'b 'c) 100000000000000000000000000000000000000))
+  (a b c) (a b) (a) nil nil nil)
+
 (deftest last.1
   (last nil)
   nil)
@@ -467,6 +487,16 @@
 (deftest last.3
   (last '(a b c d))
   (d))
+
+(deftest last.4
+  (values
+    (last '(a b c) 0)
+    (last '(a b c) 1)
+    (last '(a b c) 2)
+    (last '(a b c) 3)
+    (last '(a b c) 4)
+    (last '(a b c) 100000000000000000000000000000000000000))
+  nil (c) (b c) (a b c) (a b c) (a b c))
 
 (deftest ldiff.1
   (ldiff nil nil)

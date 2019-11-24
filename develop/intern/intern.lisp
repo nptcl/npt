@@ -1493,6 +1493,8 @@ lisp-system::universal
 lisp-system::device
 lisp-system::logical-pathname
 lisp-system::time1970
+(lisp-system::*load-logical-pathname-translations*
+  :constant system :name load-logical-pathname-translations)
 
 
 ;;

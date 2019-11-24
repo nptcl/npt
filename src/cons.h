@@ -43,12 +43,9 @@ _g void nconc_safe(addr args, addr *ret);
 _g void nconc2_safe(addr left, addr right, addr *ret);
 _g void append_safe(addr args, addr *ret);
 _g void append2_safe(addr left, addr right, addr *ret);
-_g void butlast_safe(addr *ret, addr list, size_t index);
-_g void butlast_large(addr *ret, addr list, addr index);
-_g void nbutlast_safe(addr *ret, addr list, size_t index);
-_g void nbutlast_large(addr *ret, addr list, addr index);
-_g void last_safe(addr *ret, addr list, size_t index);
-_g void last_large(addr *ret, addr list, addr index);
+_g void butlast_common(addr *ret, addr list, addr index);
+_g void nbutlast_common(addr *ret, addr list, addr index);
+_g void last_common(addr *ret, addr list, addr index);
 _g void butandlast_safe(addr *but, addr *last, addr list, size_t index);
 
 _g int find_list_eq_unsafe(addr key, addr cons);

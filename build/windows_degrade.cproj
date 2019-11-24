@@ -244,6 +244,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\info.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_integer.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\intern.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\input.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_lambda.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_local.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop.c" />
@@ -426,6 +427,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\hashtable.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\heap.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\info.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\input.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\integer.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_const.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_count.h" />

@@ -340,11 +340,22 @@ static void defun_pathname_version(void)
 }
 
 
-/* (defun load-logical-pathname-translations (host) ...) -> boolean */
+/* (defun load-logical-pathname-translations (host) ...) -> boolean
+ *   load-file:
+ *     (merge-pathnames
+ *       (make-pathname :name host)
+ *       :defaults lisp-system::*load-logical-pathname-translations*)
+ *   format:
+ *     (logical-path1 physical-path1)
+ *     (logical-path2 physical-path2)
+ *     ...
+ */
 static void function_load_logical_pathname_translations(Execute ptr, addr pos)
 {
-	/* TODO */
-	setresult_control(ptr, Nil);
+	int check;
+	if (load_logical_pathname_translations_common(ptr, pos, &check))
+		return;
+	setbool_control(ptr, check);
 }
 
 static void type_load_logical_pathname_translations(addr *ret)

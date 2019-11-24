@@ -3268,22 +3268,12 @@ static void defun_nreconc(void)
 }
 
 
-/* (defun butlast (list &optional index) ...) -> list
+/* (defun butlast (list &optional intplus) ...) -> list
  *    index  (integer 0 *)
  */
 static void function_butlast(Execute ptr, addr list, addr index)
 {
-	size_t size;
-
-	if (index == Unbound) {
-		butlast_safe(&list, list, 1);
-	}
-	else {
-		if (getindex_integer(index, &size))
-			butlast_large(&list, list, index);
-		else
-			butlast_safe(&list, list, size);
-	}
+	butlast_common(&list, list, index);
 	setresult_control(ptr, list);
 }
 
@@ -3303,22 +3293,12 @@ static void defun_butlast(void)
 }
 
 
-/* (defun nbutlast (list &optional index) ...) -> list
+/* (defun nbutlast (list &optional intplus) ...) -> list
  *    index  (integer 0 *)
  */
 static void function_nbutlast(Execute ptr, addr list, addr index)
 {
-	size_t size;
-
-	if (index == Unbound) {
-		nbutlast_safe(&list, list, 1);
-	}
-	else {
-		if (getindex_integer(index, &size))
-			nbutlast_large(&list, list, index);
-		else
-			nbutlast_safe(&list, list, size);
-	}
+	nbutlast_common(&list, list, index);
 	setresult_control(ptr, list);
 }
 
@@ -3338,23 +3318,13 @@ static void defun_nbutlast(void)
 }
 
 
-/* (defun last (list &optional index) ...) -> object
+/* (defun last (list &optional intplus) ...) -> object
  *   index   (integer 0 *)
  *   object  t
  */
 static void function_last(Execute ptr, addr list, addr index)
 {
-	size_t size;
-
-	if (index == Unbound) {
-		last_safe(&list, list, 1);
-	}
-	else {
-		if (getindex_integer(index, &size))
-			last_large(&list, list, index);
-		else
-			last_safe(&list, list, size);
-	}
+	last_common(&list, list, index);
 	setresult_control(ptr, list);
 }
 

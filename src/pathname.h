@@ -90,6 +90,7 @@ _g void pathname_match_p(Execute ptr, addr *ret, addr pos, addr wild);
 _g void translate_pathname(Execute ptr, addr *ret, addr pos, addr from, addr to);
 _g void translate_logical_pathname(Execute ptr, addr *ret, addr pos);
 _g void merge_pathnames(Execute ptr, addr *ret, addr pos, addr defaults, addr version);
+_g int load_logical_pathname_translations_common(Execute ptr, addr pos, int *ret);
 
 /* initialize */
 _g void init_pathname(void);

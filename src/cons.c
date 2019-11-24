@@ -5,6 +5,7 @@
 #include "copy.h"
 #include "equal.h"
 #include "function.h"
+#include "integer.h"
 #include "object.h"
 #include "sequence.h"
 
@@ -427,7 +428,7 @@ _g void append2_safe(addr left, addr right, addr *ret)
 	nreconc_unsafe(ret, root, right);
 }
 
-_g void butlast_safe(addr *ret, addr list, size_t index)
+static void butlast_index(addr *ret, addr list, size_t index)
 {
 	addr root, pos;
 	size_t size;
@@ -445,12 +446,33 @@ _g void butlast_safe(addr *ret, addr list, size_t index)
 	nreverse_list_unsafe(ret, root);
 }
 
-_g void butlast_large(addr *ret, addr list, addr index)
+static void butlast_large(addr *ret, addr list, addr index)
 {
-	fmte("TODO: large", NULL);
+	addr size;
+	size_t value;
+
+	value = length_list_safe_dotted(list);
+	size = intsizeh(value);
+	if (! less_equal_integer(size, index))
+		fmte("Too large butlast index ~S.", index);
+	*ret = Nil;
 }
 
-_g void nbutlast_safe(addr *ret, addr list, size_t index)
+_g void butlast_common(addr *ret, addr list, addr index)
+{
+	size_t size;
+
+	if (index == Unbound) {
+		butlast_index(ret, list, 1);
+		return;
+	}
+	if (getindex_integer(index, &size))
+		butlast_large(ret, list, index);
+	else
+		butlast_index(ret, list, size);
+}
+
+static void nbutlast_index(addr *ret, addr list, size_t index)
 {
 	size_t size;
 
@@ -465,18 +487,39 @@ _g void nbutlast_safe(addr *ret, addr list, size_t index)
 	SetCdr(list, Nil);
 }
 
-_g void nbutlast_large(addr *ret, addr list, addr index)
+static void nbutlast_large(addr *ret, addr list, addr index)
 {
-	fmte("TODO: large", NULL);
+	addr size;
+	size_t value;
+
+	value = length_list_safe_dotted(list);
+	size = intsizeh(value);
+	if (! less_equal_integer(size, index))
+		fmte("Too large nbutlast index ~S.", index);
+	*ret = Nil;
 }
 
-_g void last_safe(addr *ret, addr list, size_t index)
+_g void nbutlast_common(addr *ret, addr list, addr index)
+{
+	size_t size;
+
+	if (index == Unbound) {
+		nbutlast_index(ret, list, 1);
+		return;
+	}
+	if (getindex_integer(index, &size))
+		nbutlast_large(ret, list, index);
+	else
+		nbutlast_index(ret, list, size);
+}
+
+static void last_index(addr *ret, addr list, size_t index)
 {
 	size_t size;
 
 	size = length_list_safe_dotted(list);
 	if (size < index) {
-		*ret = Nil;
+		*ret = list;
 		return;
 	}
 	size -= index;
@@ -485,9 +528,30 @@ _g void last_safe(addr *ret, addr list, size_t index)
 	*ret = list;
 }
 
-_g void last_large(addr *ret, addr list, addr index)
+static void last_large(addr *ret, addr list, addr index)
 {
-	fmte("TODO: large", NULL);
+	addr size;
+	size_t value;
+
+	value = length_list_safe_dotted(list);
+	size = intsizeh(value);
+	if (! less_equal_integer(size, index))
+		fmte("Too large nbutlast index ~S.", index);
+	*ret = list;
+}
+
+_g void last_common(addr *ret, addr list, addr index)
+{
+	size_t size;
+
+	if (index == Unbound) {
+		last_index(ret, list, 1);
+		return;
+	}
+	if (getindex_integer(index, &size))
+		last_large(ret, list, index);
+	else
+		last_index(ret, list, size);
 }
 
 _g void butandlast_safe(addr *but, addr *last, addr list, size_t index)

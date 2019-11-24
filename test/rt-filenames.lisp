@@ -117,10 +117,6 @@
     (parse-namestring "logical-name:;aaa;bbb;name.txt.newest"))
   :newest)
 
-(deftest load-logical-pathname-translations.1
-  (load-logical-pathname-translations "TEST-PATH1")
-  nil)
-
 (deftest logical-pathname-translations.1
   (logical-pathname-translations "TEST-PATH2")
   nil)
@@ -487,6 +483,31 @@
 (deftest merge-pathnames.1
   (merge-pathnames #p"bin/aaa.bin" #p"/usr/local/")
   #p"/usr/local/bin/aaa.bin")
+
+(deftest load-logical-pathname-translations.1
+  (load-logical-pathname-translations "no-such-logical-pathname")
+  nil)
+
+(deftest load-logical-pathname-translations.2
+  (let ((lisp-system::*load-logical-pathname-translations*
+          (make-pathname :type "lisp" :defaults #p"test/")))
+    (load-logical-pathname-translations "rtfilenames-logical"))
+  t)
+
+(deftest load-logical-pathname-translations.3
+  (let ((lisp-system::*load-logical-pathname-translations*
+          (make-pathname :type "lisp" :defaults #p"test/")))
+    (load-logical-pathname-translations "rtfilenames-logical")
+    (values
+      (equal
+        (translate-logical-pathname
+          (parse-namestring "rtfilenames-logical:path;to;hello.txt"))
+        (parse-namestring "/ccc/ddd/eee/hello.txt"))
+      (equal
+        (translate-logical-pathname
+          (parse-namestring "rtfilenames-logical:zzz.txt"))
+        (parse-namestring "/aaa/bbb/zzz.txt"))))
+  t t)
 
 
 ;;

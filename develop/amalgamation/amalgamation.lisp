@@ -348,6 +348,7 @@
     "gc.h"
     "hashtable.h"
     "heap.h"
+    "input.h"
     "integer.h"
     "lambda.h"
     "math_exp.h"
@@ -535,6 +536,7 @@
     "hashtable.c"
     "heap.c"
     "info.c"
+    "input.c"
     "integer.c"
     ("intern.c" :include ("intern_symbol_64.h" "intern_symbol_32.h"))
     "lambda.c"

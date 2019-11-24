@@ -1022,6 +1022,8 @@ enum pointer_index {
 	p_method_defstruct_default,
 	p_method_defstruct_object,
 	p_method_defstruct_function,
+	/* input */
+	p_readlist_finalize,
 	/* syscall */
 	p_defun_syscall_hello,
 	p_defun_syscall_fixnum_plus,

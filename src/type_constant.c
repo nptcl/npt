@@ -1441,11 +1441,11 @@ static void typecompiled_renconc(void)
 
 static void typecompiled_butlast(void)
 {
-	/* (function (list &optional index) (values list &rest nil)) */
+	/* (function (list &optional intplus) (values list &rest nil)) */
 	addr args, values, type;
 
 	GetTypeTable(&args, List);
-	GetTypeTable(&type, Index);
+	GetTypeTable(&type, Intplus);
 	typeargs_var1opt1(&args, args, type);
 	GetTypeValues(&values, List);
 	type_compiled_heap(args, values, &args);
