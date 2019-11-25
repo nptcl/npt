@@ -3,6 +3,7 @@
  */
 #include "common_header.h"
 #include "cons.h"
+#include "cons_plist.h"
 #include "files.h"
 #include "pathname.h"
 #include "type_parse.h"

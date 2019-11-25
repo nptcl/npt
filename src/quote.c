@@ -12,6 +12,7 @@
 #include "constant.h"
 #include "control.h"
 #include "cons.h"
+#include "cons_list.h"
 #include "equal.h"
 #include "heap.h"
 #include "object.h"

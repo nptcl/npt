@@ -40,7 +40,7 @@ static inline void init_filememory(struct filememory *fm)
 	fm->encode.code = 0;
 }
 
-static inline void init_input(struct filememory *fm, file_type file)
+static inline void init_input_filememory(struct filememory *fm, file_type file)
 {
 	init_filememory(fm);
 	fm->file = file;
@@ -63,7 +63,7 @@ _g int input_unicode_filememory(struct filememory *fm, const unicode *name, size
 	file_type file;
 
 	if (open_input_unicode(&file, name, size)) return 1;
-	init_input(fm, file);
+	init_input_filememory(fm, file);
 
 	return 0;
 }
@@ -89,7 +89,7 @@ _g void standard_input_filememory(struct filememory *fm)
 	file_type file;
 
 	standard_input_arch(&file);
-	init_input(fm, file);
+	init_input_filememory(fm, file);
 	fm->system = filememory_stdin;
 	fm->cache = 0;
 }
@@ -121,7 +121,7 @@ _g int open_input_filememory(Execute ptr, struct filememory *fm, addr name)
 	if (open_input_arch(ptr, &file, name)) {
 		return 1;
 	}
-	init_input(fm, file);
+	init_input_filememory(fm, file);
 
 	return 0;
 }

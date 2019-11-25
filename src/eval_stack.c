@@ -1,5 +1,7 @@
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
+#include "cons_plist.h"
 #include "constant.h"
 #include "control.h"
 #include "copy.h"

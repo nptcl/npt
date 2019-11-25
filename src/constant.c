@@ -1,5 +1,6 @@
 #include <string.h>
 #include "build.h"
+#include "cons.h"
 #include "constant.h"
 #include "hashtable.h"
 #include "memory.h"

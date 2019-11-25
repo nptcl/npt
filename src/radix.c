@@ -6,6 +6,7 @@
 #include "charqueue.h"
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
 #include "local.h"
 #include "object.h"
 #include "radix.h"

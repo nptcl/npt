@@ -1,4 +1,5 @@
 #include "cons.h"
+#include "cons_list.h"
 #include "sequence.h"
 #include "type.h"
 #include "type_copy.h"
@@ -664,7 +665,7 @@ static void merge_range_orplus(LocalRoot local, addr *ret, addr left, addr right
 {
 	int update, result;
 
-	append_cons_local_unsafe(local, &left, left, right);
+	append2_local_unsafe(local, left, right, &left);
 	for (result = 0; ; result |= update) {
 		update = 0;
 		extpaircall(local, range_or_check, &left, &update);

@@ -6,6 +6,7 @@
 #define __FILE_ANSI_HEADER__
 
 #include <stdio.h>
+#include "cons.h"
 #include "encode.h"
 #include "object.h"
 #include "pathname.h"

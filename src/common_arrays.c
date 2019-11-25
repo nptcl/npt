@@ -9,6 +9,8 @@
 #include "bit.h"
 #include "common_header.h"
 #include "cons.h"
+#include "cons_list.h"
+#include "cons_plist.h"
 #include "integer.h"
 #include "sequence.h"
 #include "type.h"

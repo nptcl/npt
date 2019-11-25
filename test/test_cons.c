@@ -1,4 +1,6 @@
 #include "cons.c"
+#include "cons_list.h"
+#include "cons_plist.h"
 #include "clos.h"
 #include "common.h"
 #include "condition.h"
@@ -56,29 +58,43 @@ static int test_length_list_unsafe(void)
 	RETURN;
 }
 
-static int test_nconc_safe(void)
+static int test_append2_alloc_unsafe(void)
 {
-	addr check, list, list1, list2;
+	addr check, cons, next, v1, v2, v3, v4, v5;
 
-	nconc_safe(Nil, &check);
-	test(check == Nil, "nconc_safe1");
-	list_heap(&list1, T, T, NULL);
-	list_heap(&list, list1, NULL);
-	nconc_safe(list, &check);
-	test(list1 == check, "nconc_safe2");
-	list_heap(&list1, T, T, NULL);
-	list_heap(&list, Nil, Nil, list1, Nil, Nil, NULL);
-	nconc_safe(list, &check);
-	test(list1 == check, "nconc_safe3");
-	test(length_list_unsafe(check) == 2, "nconc_safe4");
+	append2_alloc_unsafe(NULL, Nil, Nil, &check);
+	test(check == Nil, "append2_alloc_unsafe1");
+	consnil_heap(&cons);
+	append2_alloc_unsafe(NULL, cons, Nil, &check);
+	test(check == cons, "append2_alloc_unsafe2");
+	append2_alloc_unsafe(NULL, Nil, cons, &check);
+	test(check == cons, "append2_alloc_unsafe3");
 
-	list_heap(&list1, fixnumh(10), fixnumh(20), NULL);
-	list_heap(&list2, fixnumh(30), fixnumh(40), fixnumh(50), NULL);
-	list_heap(&list, list1, list2, NULL);
-	nconc_safe(list, &check);
-	test(list1 == check, "nconc_safe5");
-	test(length_list_unsafe(check) == 5, "nconc_safe6");
-	test(length_list_unsafe(list2) == 3, "nconc_safe7");
+	fixnum_heap(&v1, 10);
+	fixnum_heap(&v2, 20);
+	fixnum_heap(&v3, 30);
+	fixnum_heap(&v4, 40);
+	fixnum_heap(&v5, 50);
+
+	list_heap(&cons, v1, NULL);
+	list_heap(&next, v3, v4, v5, NULL);
+	append2_alloc_unsafe(NULL, cons, next, &check);
+	test(check != cons, "append2_alloc_unsafe4");
+	test(check != next, "append2_alloc_unsafe5");
+	GetCons(check, &cons, &check);
+	test(cons == v1, "append2_alloc_unsafe6");
+	test(check == next, "append2_alloc_unsafe7");
+
+	list_heap(&cons, v1, v2, NULL);
+	list_heap(&next, v3, v4, v5, NULL);
+	append2_alloc_unsafe(NULL, cons, next, &check);
+	test(check != cons, "append2_alloc_unsafe8");
+	test(check != next, "append2_alloc_unsafe9");
+	GetCons(check, &cons, &check);
+	test(cons == v1, "append2_alloc_unsafe10");
+	GetCons(check, &cons, &check);
+	test(cons == v2, "append2_alloc_unsafe11");
+	test(check == next, "append2_alloc_unsafe12");
 
 	RETURN;
 }
@@ -1258,7 +1274,7 @@ static int testbreak_cons(void)
 	TestBreak(test_getcons);
 	TestBreak(test_length_list_safe);
 	TestBreak(test_length_list_unsafe);
-	TestBreak(test_nconc_safe);
+	TestBreak(test_append2_alloc_unsafe);
 	TestBreak(test_find_list_eq_unsafe);
 	/* reverse */
 	TestBreak(test_nreverse_list_unsafe);

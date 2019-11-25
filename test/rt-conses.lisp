@@ -356,6 +356,16 @@
   (nconc (list 10 20) (list 30 40 50) (list 60))
   (10 20 30 40 50 60))
 
+(deftest nconc.6
+  (let ((x '(t t)))
+    (eq (nconc x) x))
+  t)
+
+(deftest nconc.7
+  (let ((x '(t t)))
+    (eq (nconc nil nil x nil nil) x))
+  t)
+
 (deftest append.1
   (append)
   nil)

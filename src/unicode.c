@@ -975,7 +975,7 @@ _g void strvect_fill(addr pos, addr item, addr start, addr end)
 		fmte("FILL tem ~S must be a character type.", item, NULL);
 	GetCharacter(item, &c);
 	strvect_length(pos, &index1);
-	sequence_start_end(start, end, index1, &index1, &index2);
+	size_start_end_sequence(start, end, index1, &index1, &index2);
 
 	/* fill */
 	for (; index1 < index2; index1++)
@@ -1005,7 +1005,7 @@ _g void strvect_subseq(addr *ret, addr pos, addr start, addr end)
 	size_t index1, index2;
 
 	strvect_length(pos, &index1);
-	sequence_start_end(start, end, index1, &index1, &index2);
+	size_start_end_sequence(start, end, index1, &index1, &index2);
 	strvect_subseq_index(ret, pos, index1, index2);
 }
 

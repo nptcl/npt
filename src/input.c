@@ -1,6 +1,7 @@
 #include "code.h"
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
 #include "control.h"
 #include "file.h"
 #include "input.h"
@@ -54,7 +55,7 @@ static int readlist_unwind_protect(Execute ptr, addr file, addr *ret)
 	return free_check_control(ptr, control, check);
 }
 
-int readlist_input(Execute ptr, addr file, addr *ret)
+_g int readlist_input(Execute ptr, addr file, addr *ret)
 {
 	int check;
 	addr list;
@@ -73,7 +74,7 @@ int readlist_input(Execute ptr, addr file, addr *ret)
 /*
  *  initialize
  */
-void init_input(void)
+_g void init_input(void)
 {
 	SetPointerType(empty, readlist_finalize);
 }

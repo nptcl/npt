@@ -6,6 +6,7 @@
 #define __FILE_WINDOWS_HEADER__
 
 #include <windows.h>
+#include "cons.h"
 #include "condition.h"
 #include "encode.h"
 #include "object.h"

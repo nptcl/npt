@@ -11,6 +11,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "cons.h"
+#include "cons_list.h"
 #include "encode.h"
 #include "local.h"
 #include "object.h"

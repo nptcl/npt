@@ -6,6 +6,7 @@
 #include "cmpl.h"
 #include "character.h"
 #include "condition.h"
+#include "cons.h"
 #include "equal.h"
 #include "hashtable.h"
 #include "memory.h"

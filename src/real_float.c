@@ -5,6 +5,7 @@
 #include "c99.h"
 #include "cmpl.h"
 #include "condition.h"
+#include "cons.h"
 #include "object.h"
 #include "ratio.h"
 #include "real_float.h"

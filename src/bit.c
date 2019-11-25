@@ -558,7 +558,7 @@ _g void bitmemory_fill(addr pos, addr item, addr start, addr end)
 		return;
 	}
 	bitmemory_length(pos, &index1);
-	sequence_start_end(start, end, index1, &index1, &index2);
+	size_start_end_sequence(start, end, index1, &index1, &index2);
 	bitmemory_fillset(pos, value, index1, index2);
 }
 
@@ -582,7 +582,7 @@ _g void bitmemory_subseq(addr *ret, addr pos, addr start, addr end)
 	size_t index1, index2;
 
 	bitmemory_length(pos, &index1);
-	sequence_start_end(start, end, index1, &index1, &index2);
+	size_start_end_sequence(start, end, index1, &index1, &index2);
 	bitmemory_subseq_index(ret, pos, index1, index2);
 }
 

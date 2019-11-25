@@ -203,6 +203,9 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\condition.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cons.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cons_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cons_list.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cons_plist.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\console.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\constant.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\control.c" />
@@ -297,6 +300,10 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt_load.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence_iterator.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence_range.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence_write.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\setf.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sort.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_broadcast.c" />
@@ -380,6 +387,9 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common_header.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\condition.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cons_common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cons_list.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cons_plist.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cons.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\console_ansi.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\console_posix.h" />
@@ -485,6 +495,10 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rt.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_iterator.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_range.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_write.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\setf.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sort.h" />

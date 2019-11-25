@@ -2,6 +2,7 @@
 #include "clos.h"
 #include "code.h"
 #include "common.h"
+#include "cons.h"
 #include "condition.h"
 #include "degrade.h"
 #include "package.h"

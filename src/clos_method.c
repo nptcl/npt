@@ -6,6 +6,7 @@
 #include "clos_type.h"
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
 #include "function.h"
 #include "hashtable.h"
 #include "lambda.h"
@@ -463,7 +464,7 @@ static int method_remove_method_execute(Execute ptr, addr gen, addr method)
 	stdget_method_qualifiers(method, &qua);
 	if (qualifiers_position_nil(ptr, qua, comb, &index)) return 0;
 	GetArrayA4(methods, index, &cons);
-	if (! delete1_cons_eq_unsafe(method, cons, &cons)) return 0;
+	if (! delete1_list_eq_unsafe(method, cons, &cons)) return 0;
 	SetArrayA4(methods, index, cons);
 	stdset_method_generic_function(method, Nil);
 

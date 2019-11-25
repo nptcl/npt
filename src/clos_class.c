@@ -6,6 +6,8 @@
 #include "clos_type.h"
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
+#include "cons_plist.h"
 #include "control.h"
 #include "equal.h"
 #include "function.h"
@@ -2439,7 +2441,7 @@ static void clos_ensure_class_delete(addr clos, addr temp)
 	while (list != Nil) {
 		getcons(list, &a, &list);
 		stdget_class_direct_subclasses(a, &b);
-		(void)delete_cons_eq_unsafe(clos, b, &b);
+		(void)delete_list_eq_unsafe(clos, b, &b);
 		stdset_class_direct_subclasses(a, b);
 	}
 	stdset_class_direct_superclasses(temp, Nil);

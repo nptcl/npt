@@ -329,7 +329,7 @@ _g void array_fill(addr pos, addr item, addr start, addr end)
 
 	/* argument */
 	str = ArrayInfoStruct(pos);
-	sequence_start_end(start, end, str->size, &index1, &index2);
+	size_start_end_sequence(start, end, str->size, &index1, &index2);
 
 	/* fill */
 	for (; index1 < index2; index1++)
@@ -430,7 +430,7 @@ _g void array_subseq(addr *ret, addr pos, addr start, addr end)
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
-	sequence_start_end(start, end, str->size, &index1, &index2);
+	size_start_end_sequence(start, end, str->size, &index1, &index2);
 	array_subseq_type(ret, pos, index1, index2);
 }
 

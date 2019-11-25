@@ -39,15 +39,15 @@ static int test_init_filememory(void)
 	RETURN;
 }
 
-static int test_init_input(void)
+static int test_init_input_filememory(void)
 {
 	struct filememory fm;
 
 	aatype(fm);
-	init_input(&fm, 0);
-	test(fm.file == 0, "init_input1");
-	test(fm.mode == filememory_normal, "init_input2");
-	test(fm.direct == filememory_input, "init_input3");
+	init_input_filememory(&fm, 0);
+	test(fm.file == 0, "init_input_filememory1");
+	test(fm.mode == filememory_normal, "init_input_filememory2");
+	test(fm.direct == filememory_input, "init_input_filememory3");
 
 	RETURN;
 }
@@ -1237,7 +1237,7 @@ static int test_putcnormal(void)
 static int testbreak_file_memory(void)
 {
 	TestBreak(test_init_filememory);
-	TestBreak(test_init_input);
+	TestBreak(test_init_input_filememory);
 	TestBreak(test_init_output);
 	TestBreak(test_standard_input_filememory);
 	TestBreak(test_standard_output_filememory);

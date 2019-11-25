@@ -281,13 +281,6 @@ _g void setcons_force(addr pos, addr left, addr right);
 _g int listp(addr pos);
 _g int consp(addr pos);
 _g int singlep(addr pos);
-_g void list_alloc_stdarg(LocalRoot local, addr *ret, va_list args);
-_g addr list_heapr(addr pos, ...);
-_g addr list_localr(LocalRoot local, ...);
-_g addr list_allocr(LocalRoot local, ...);
-_g void list_heap(addr *ret, ...);
-_g void list_local(LocalRoot local, addr *ret, ...);
-_g void list_alloc(LocalRoot local, addr *ret, ...);
 
 /* vector object */
 _g addr vector2_heapr(size_t size);

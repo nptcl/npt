@@ -2,6 +2,7 @@
 #include "character.h"
 #include "clos.h"
 #include "common.h"
+#include "cons.h"
 #include "constant.h"
 #include "degrade.h"
 #include "object.h"

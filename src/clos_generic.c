@@ -6,6 +6,7 @@
 #include "clos_type.h"
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
 #include "control.h"
 #include "define.h"
 #include "equal.h"
@@ -314,7 +315,7 @@ static int comb_standard_method(Execute ptr, addr car, addr cdr, addr rest)
 
 static int comb_standard_funcall(Execute ptr, addr rest, addr around, addr primary)
 {
-	append_cons_local_unsafe(ptr->local, &around, around, primary);
+	append2_local_unsafe(ptr->local, around, primary, &around);
 	GetCons(around, &around, &primary);
 	return comb_standard_method(ptr, around, primary, rest);
 }
@@ -626,8 +627,8 @@ static int generic_sort(addr order, int (*call)(addr, addr), addr a, addr b)
 	while (order != Nil) {
 		GetCons(order, &pos, &order);
 		GetIndex(pos, &i);
-		nth_unsafe(&x, i, a);
-		nth_unsafe(&y, i, b);
+		getnth_unsafe(a, i, &x);
+		getnth_unsafe(b, i, &y);
 		value = (*call)(x, y);
 		if (value < 0) return 1;
 		if (0 < value) return 0;

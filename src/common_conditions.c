@@ -5,6 +5,7 @@
 #include "clos.h"
 #include "clos_common.h"
 #include "cons.h"
+#include "cons_list.h"
 #include "common_header.h"
 #include "format.h"
 #include "hashtable.h"

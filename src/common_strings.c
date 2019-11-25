@@ -6,6 +6,7 @@
 #include "character.h"
 #include "common_header.h"
 #include "cons.h"
+#include "cons_plist.h"
 #include "integer.h"
 #include "strtype.h"
 #include "type_parse.h"

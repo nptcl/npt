@@ -1,6 +1,8 @@
 #include "build.h"
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
+#include "cons_plist.h"
 #include "constant.h"
 #include "eval.h"
 #include "eval_declare.h"

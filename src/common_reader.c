@@ -3,6 +3,8 @@
  */
 #include "common_header.h"
 #include "cons.h"
+#include "cons_list.h"
+#include "cons_plist.h"
 #include "integer.h"
 #include "print.h"
 #include "print_dispatch.h"

@@ -4,8 +4,8 @@
 #include "execute.h"
 #include "typedef.h"
 
-int readlist_input(Execute ptr, addr file, addr *ret);
-void init_input(void);
+_g int readlist_input(Execute ptr, addr file, addr *ret);
+_g void init_input(void);
 
 #endif
 

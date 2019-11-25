@@ -309,6 +309,21 @@ _g int type_range_p(addr pos)
 	return decl_range_p(LispDecl(pos));
 }
 
+_g int type_string_p(addr pos)
+{
+	CheckType(pos, LISPTYPE_TYPE);
+	switch (LispDecl(pos)) {
+		case LISPDECL_STRING:
+		case LISPDECL_BASE_STRING:
+		case LISPDECL_SIMPLE_STRING:
+		case LISPDECL_SIMPLE_BASE_STRING:
+			return 1;
+
+		default:
+			return 0;
+	}
+}
+
 
 /*
  *  copy

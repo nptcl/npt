@@ -2,6 +2,7 @@
 #include "bignum.h"
 #include "condition.h"
 #include "constant.h"
+#include "cons.h"
 #include "type.h"
 #include "type_object.h"
 #include "type_optimize.h"

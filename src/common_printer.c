@@ -3,6 +3,7 @@
  */
 #include "common_header.h"
 #include "cons.h"
+#include "cons_plist.h"
 #include "eval_declare.h"
 #include "format.h"
 #include "integer.h"

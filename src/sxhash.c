@@ -106,7 +106,7 @@ static fixed sxfixed_binary(const byte *u, size_t size)
 	return value;
 }
 
-static _g fixnum sxhash_binary_equal(const void *pos, size_t size)
+static fixnum sxhash_binary_equal(const void *pos, size_t size)
 {
 	return (fixnum)FIXNUM_BODY(sxfixed_binary((const byte *)pos, size));
 }
@@ -134,7 +134,7 @@ static fixed fixed_binary_p(const byte *u, size_t size)
 	return value;
 }
 
-static _g fixnum sxhash_binary_equalp(const void *pos, size_t size)
+static fixnum sxhash_binary_equalp(const void *pos, size_t size)
 {
 	return (fixnum)FIXNUM_BODY(fixed_binary_p((const byte *)pos, size));
 }

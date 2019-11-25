@@ -3,6 +3,7 @@
  */
 #include "common_header.h"
 #include "cons.h"
+#include "cons_plist.h"
 #include "eval.h"
 #include "file.h"
 #include "type_parse.h"

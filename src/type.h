@@ -78,6 +78,7 @@ _g int type_astert_p(addr pos);
 _g int type_function_aster_p(addr pos);
 _g int type_asterisk_p(addr pos);
 _g int type_range_p(addr pos);
+_g int type_string_p(addr pos);
 
 /* copy */
 _g void type_copy_unsafe_alloc(LocalRoot local, addr *ret, addr left);

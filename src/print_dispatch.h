@@ -52,16 +52,16 @@ enum PrintDispatch_Index {
 #endif
 
 /* access */
-void getlistprintdispatch(addr pos, addr *ret);
-void setlistprintdispatch(addr pos, addr value);
-void gettypeprinttable(addr pos, addr *ret);
-void settypeprinttable(addr pos, addr value);
-void getspecifierprinttable(addr pos, addr *ret);
-void setspecifierprinttable(addr pos, addr value);
-void getfunctionprinttable(addr pos, addr *ret);
-void setfunctionprinttable(addr pos, addr value);
-void getpriorityprinttable(addr pos, addr *ret);
-void setpriorityprinttable(addr pos, addr value);
+_g void getlistprintdispatch(addr pos, addr *ret);
+_g void setlistprintdispatch(addr pos, addr value);
+_g void gettypeprinttable(addr pos, addr *ret);
+_g void settypeprinttable(addr pos, addr value);
+_g void getspecifierprinttable(addr pos, addr *ret);
+_g void setspecifierprinttable(addr pos, addr value);
+_g void getfunctionprinttable(addr pos, addr *ret);
+_g void setfunctionprinttable(addr pos, addr value);
+_g void getpriorityprinttable(addr pos, addr *ret);
+_g void setpriorityprinttable(addr pos, addr value);
 
 /* function */
 _g int find_function_print_dispatch(LocalRoot local, addr var, addr table, addr *ret);

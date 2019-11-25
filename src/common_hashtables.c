@@ -4,6 +4,7 @@
 #include "bignum.h"
 #include "common_header.h"
 #include "cons.h"
+#include "cons_plist.h"
 #include "hashtable.h"
 #include "integer.h"
 #include "number.h"

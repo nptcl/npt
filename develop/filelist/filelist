@@ -58,6 +58,9 @@ common_types.c
 common.c
 condition.c
 cons.c
+cons_common.c
+cons_list.c
+cons_plist.c
 console.c
 constant.c
 control.c
@@ -152,6 +155,10 @@ real.c
 rt.c
 rt_load.c
 sequence.c
+sequence_common.c
+sequence_iterator.c
+sequence_range.c
+sequence_write.c
 setf.c
 sort.c
 stream_broadcast.c

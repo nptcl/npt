@@ -4,6 +4,8 @@
 #include "clos_type.h"
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
+#include "cons_plist.h"
 #include "constant.h"
 #include "control.h"
 #include "equal.h"
@@ -913,7 +915,7 @@ static int structure_type_list_p(addr type, addr var)
 
 	/* listp */
 	ptr = PtrStructureType(type);
-	if (length_list_check(var, &size))
+	if (length_list_p(var, &size))
 		return 0;
 	/* length */
 	if (size < ptr->size_value)
@@ -1395,6 +1397,17 @@ static int structure_constructor_instance_list(Execute ptr,
 	return 0;
 }
 
+static void make_structure_nil(addr *ret, size_t size)
+{
+	addr list;
+	size_t i;
+
+	list = Nil;
+	for (i = 0; i < size; i++)
+		cons_heap(&list, Nil, list);
+	*ret = list;
+}
+
 static int make_structure_list(Execute ptr, addr *ret, addr pos, addr args)
 {
 	addr instance, slots, list, name;
@@ -1406,7 +1419,7 @@ static int make_structure_list(Execute ptr, addr *ret, addr pos, addr args)
 	GetSlotStructureType(pos, &slots);
 	/* make */
 	structure_constructor_dynamic(instance, slots, args, str->errorp);
-	list_nil_heap(&list, str->size_value);
+	make_structure_nil(&list, str->size_value);
 	if (structure_constructor_instance_list(ptr, list, slots, args))
 		return 1;
 	if (str->named) {

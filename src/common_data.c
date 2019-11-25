@@ -6,6 +6,7 @@
 #include "code.h"
 #include "common_header.h"
 #include "cons.h"
+#include "cons_list.h"
 #include "equal.h"
 #include "eval_declare.h"
 #include "eval_parse.h"

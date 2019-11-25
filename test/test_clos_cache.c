@@ -1,5 +1,6 @@
 #include "clos_cache.c"
 #include "clos.h"
+#include "cons.h"
 #include "constant.h"
 #include "degrade.h"
 #include "execute.h"

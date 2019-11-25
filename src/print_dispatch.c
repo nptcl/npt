@@ -1,4 +1,6 @@
 #include "cons.h"
+#include "cons_list.h"
+#include "constant.h"
 #include "equal.h"
 #include "function.h"
 #include "heap.h"
@@ -11,65 +13,65 @@
 /*
  *  access
  */
-void getlistprintdispatch(addr pos, addr *ret)
+_g void getlistprintdispatch(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_PRINT_DISPATCH);
 	GetListPrintDispatch_Low(pos, ret);
 }
 
-void setlistprintdispatch(addr pos, addr value)
+_g void setlistprintdispatch(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_PRINT_DISPATCH);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetListPrintDispatch_Low(pos, value);
 }
 
-void gettypeprinttable(addr pos, addr *ret)
+_g void gettypeprinttable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	GetTypePrintTable_Low(pos, ret);
 }
 
-void settypeprinttable(addr pos, addr value)
+_g void settypeprinttable(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetTypePrintTable_Low(pos, value);
 }
 
-void getspecifierprinttable(addr pos, addr *ret)
+_g void getspecifierprinttable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	GetSpecifierPrintTable_Low(pos, ret);
 }
 
-void setspecifierprinttable(addr pos, addr value)
+_g void setspecifierprinttable(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetSpecifierPrintTable_Low(pos, value);
 }
 
-void getfunctionprinttable(addr pos, addr *ret)
+_g void getfunctionprinttable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	GetFunctionPrintTable_Low(pos, ret);
 }
 
-void setfunctionprinttable(addr pos, addr value)
+_g void setfunctionprinttable(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFunctionPrintTable_Low(pos, value);
 }
 
-void getpriorityprinttable(addr pos, addr *ret)
+_g void getpriorityprinttable(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	GetPriorityPrintTable_Low(pos, ret);
 }
 
-void setpriorityprinttable(addr pos, addr value)
+_g void setpriorityprinttable(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_PRINT_TABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");

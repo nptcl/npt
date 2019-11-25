@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
 #include "copy.h"
 #include "encode.h"
 #include "format.h"

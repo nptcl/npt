@@ -4,6 +4,8 @@
 #include "clos_generic.h"
 #include "code.h"
 #include "cons.h"
+#include "cons_list.h"
+#include "cons_plist.h"
 #include "condition.h"
 #include "constant.h"
 #include "control.h"

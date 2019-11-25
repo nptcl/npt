@@ -3,6 +3,7 @@
  */
 #include "common_header.h"
 #include "cons.h"
+#include "cons_plist.h"
 #include "integer.h"
 #include "package.h"
 #include "pathname.h"

@@ -1,6 +1,7 @@
 #include <string.h>
 #include "condition.h"
 #include "cons.h"
+#include "cons_plist.h"
 #include "constant.h"
 #include "function.h"
 #include "heap.h"
