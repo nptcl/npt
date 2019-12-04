@@ -202,7 +202,7 @@ static int getindex_print(Execute ptr, constindex index, size_t *ret)
 		return 0;
 	}
 	else {
-		getunsigned_error(pos, ret);
+		getindex_fixnum(pos, ret);
 		return 1;
 	}
 }
@@ -212,7 +212,7 @@ static void push_integer_print(Execute ptr, constindex index, size_t value)
 	addr symbol, pos;
 
 	GetConstant(index, &symbol);
-	fixnum_unsigned_error(&pos, value);
+	fixnum_index_heap(&pos, value);
 	pushspecial_control(ptr, symbol, pos);
 }
 
@@ -296,7 +296,7 @@ _g void right_margin_print(Execute ptr, size_t *ret)
 	if (pos == Nil)
 		*ret = getwidth_console();
 	else
-		getunsigned_error(pos, ret);
+		getindex_fixnum(pos, ret);
 }
 
 _g void push_right_margin_print(Execute ptr, size_t value)

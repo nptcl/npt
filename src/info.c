@@ -110,6 +110,7 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPSYSTEM_PRINT_TABLE:		return "?print-table";
 		case LISPSYSTEM_PRINT_WRITE:		return "?print-write";
 		case LISPSYSTEM_PRINT_CHECK:		return "?print-check";
+		case LISPSYSTEM_PRINT_PRETTY:		return "?print-pretty";
 		case LISPSYSTEM_EVALSTACK:			return "?eval-stack";
 		case LISPSYSTEM_USER:				return "?user";
 		case LISPSYSTEM_CHECK:				return "?check";

@@ -7,7 +7,7 @@
 #include "common_header.h"
 #include "cons.h"
 #include "constant.h"
-#include "eastasian.h"
+#include "eastasian_unicode.h"
 #include "equal.h"
 #include "file.h"
 #include "files.h"
@@ -351,8 +351,9 @@ _g void write_char_stream(addr stream, unicode c)
 
 _g void terpri_stream(addr stream)
 {
-	write_char_stream(stream, '\n');
-	PtrStructStream(stream)->terpri = 0;
+	struct StructStream *ptr;
+	CheckStream(stream, ptr);
+	(Stream_terpri[(int)ptr->type])(stream);
 }
 
 _g int fresh_line_stream(addr stream)
@@ -567,15 +568,18 @@ _g void write_char_default_stream(addr stream, unicode c)
 		ptr->terpri += eastasian_width(c);
 }
 
+_g void terpri_default_stream(addr stream)
+{
+	write_char_stream(stream, '\n');
+	PtrStructStream(stream)->terpri = 0;
+}
+
 _g int fresh_line_default_stream(addr stream)
 {
-	if (PtrStructStream(stream)->terpri) {
-		terpri_stream(stream);
-		return 1;
-	}
-	else {
+	if (PtrStructStream(stream)->terpri == 0)
 		return 0;
-	}
+	terpri_stream(stream);
+	return 1;
 }
 
 _g int checkp_true_stream(addr stream)
@@ -959,9 +963,9 @@ _g void output_stream_designer(Execute ptr, addr stream, addr *ret)
 {
 	if (stream == Unbound)
 		standard_output_stream(ptr, ret);
-	else if (stream == Nil)
-		terminal_io_stream(ptr, ret);
 	else if (stream == T)
+		terminal_io_stream(ptr, ret);
+	else if (stream == Nil)
 		standard_output_stream(ptr, ret);
 	else
 		*ret = stream;
@@ -1456,7 +1460,7 @@ _g void write_byte_common(addr stream, addr value)
 	addr pos;
 	fixnum c;
 
-	if (getfixnumtype(value, &c) || c < 0 || 0xFF < c) {
+	if (GetFixnum_signed(value, &c) || c < 0 || 0xFF < c) {
 		GetConst(STREAM_BINARY_TYPE, &pos);
 		type_error(value, pos);
 	}

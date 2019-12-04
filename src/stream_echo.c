@@ -172,6 +172,12 @@ static void write_char_Echo(addr stream, unicode u)
 	write_char_stream(stream, u);
 }
 
+static void terpri_Echo(addr stream)
+{
+	output_Echo(stream, &stream);
+	terpri_stream(stream);
+}
+
 static int fresh_line_Echo(addr stream)
 {
 	output_Echo(stream, &stream);
@@ -253,6 +259,7 @@ _g void init_stream_echo(void)
 	DefineStreamSet(Echo, read_hang);
 	DefineStreamSet(Echo, unread_char);
 	DefineStreamSet(Echo, write_char);
+	DefineStreamSet(Echo, terpri);
 	DefineStreamSet(Echo, fresh_line);
 	DefineStreamChk(Echo, inputp, true);
 	DefineStreamChk(Echo, outputp, true);

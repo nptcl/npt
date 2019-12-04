@@ -494,7 +494,7 @@ _g void make_indexmax_alloc(LocalRoot local, addr *ret)
 }
 
 #if (FIXNUM_MAX <= SIZE_MAX)
-static int getindex_fixnum(addr pos, size_t *ret)
+static int getindex_integer_fixnum(addr pos, size_t *ret)
 {
 	fixnum value;
 
@@ -505,7 +505,7 @@ static int getindex_fixnum(addr pos, size_t *ret)
 	return 0;
 }
 #else
-static int getindex_fixnum(addr pos, size_t *ret)
+static int getindex_integer_fixnum(addr pos, size_t *ret)
 {
 	fixnum value;
 
@@ -519,7 +519,7 @@ static int getindex_fixnum(addr pos, size_t *ret)
 #endif
 
 #if (BIGNUM_FULL < SIZE_MAX)
-static int getindex_bignum(addr pos, size_t *ret)
+static int getindex_integer_bignum(addr pos, size_t *ret)
 {
 	int sign;
 	size_t size, i, value;
@@ -542,7 +542,7 @@ static int getindex_bignum(addr pos, size_t *ret)
 }
 
 #else
-static int getindex_bignum(addr pos, size_t *ret)
+static int getindex_integer_bignum(addr pos, size_t *ret)
 {
 	int sign;
 	bigtype value;
@@ -560,16 +560,16 @@ static int getindex_bignum(addr pos, size_t *ret)
 }
 #endif
 
-_g int getindex_integer(addr pos, size_t *ret)
+_g int GetIndex_integer(addr pos, size_t *ret)
 {
 	addr type;
 
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			return getindex_fixnum(pos, ret);
+			return getindex_integer_fixnum(pos, ret);
 
 		case LISPTYPE_BIGNUM:
-			return getindex_bignum(pos, ret);
+			return getindex_integer_bignum(pos, ret);
 
 		default:
 			GetTypeTable(&type, Index);
@@ -578,18 +578,18 @@ _g int getindex_integer(addr pos, size_t *ret)
 	}
 }
 
-_g void getindex_error(addr pos, size_t *ret)
+_g void getindex_integer(addr pos, size_t *ret)
 {
 	addr type;
 
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			if (getindex_fixnum(pos, ret))
+			if (getindex_integer_fixnum(pos, ret))
 				goto error;
 			break;
 
 		case LISPTYPE_BIGNUM:
-			if (getindex_bignum(pos, ret))
+			if (getindex_integer_bignum(pos, ret))
 				goto error;
 			break;
 
@@ -676,7 +676,7 @@ _g int getindex_sign_integer(addr pos, int *sign, size_t *ret)
 	}
 }
 
-_g int getunsigned_integer(addr pos, size_t *ret)
+_g int GetIndex_fixnum(addr pos, size_t *ret)
 {
 	fixnum value;
 
@@ -688,13 +688,13 @@ _g int getunsigned_integer(addr pos, size_t *ret)
 	return 0;
 }
 
-_g void getunsigned_error(addr pos, size_t *ret)
+_g void getindex_fixnum(addr pos, size_t *ret)
 {
-	if (getunsigned_integer(pos, ret))
+	if (GetIndex_fixnum(pos, ret))
 		TypeError(pos, FIXNUM);
 }
 
-_g void fixnum_unsigned_error(addr *ret, size_t value)
+_g void fixnum_index_heap(addr *ret, size_t value)
 {
 	if (value <= (size_t)FIXNUM_MAX)
 		fmte("Too large value ~S.", intsizeh(value), NULL);

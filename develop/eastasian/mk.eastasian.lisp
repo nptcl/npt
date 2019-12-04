@@ -3,7 +3,7 @@
 
 (declaim (optimize safety))
 (defconstant +width+ #p"EastAsianWidth.txt")
-(defconstant +header+ #p"eastasian.h")
+(defconstant +header+ #p"eastasian_unicode.h")
 (defconstant +source+ #p"eastasian_table.c")
 
 ;;
@@ -260,9 +260,9 @@
   (format t "};~%"))
 
 (defun write-header-table ()
-  (format t "__extern unsigned EastAsianSymbol[EastAsian_Size];~%")
-  (format t "__extern const enum EastAsianType EastAsianAscii[0x80];~%")
-  (format t "__extern const struct eastasian_struct ")
+  (format t "_g unsigned EastAsianSymbol[EastAsian_Size];~%")
+  (format t "_g const enum EastAsianType EastAsianAscii[0x80];~%")
+  (format t "_g const struct eastasian_struct ")
   (format t "EastAsianTable[EastAsianTable_Size];~%"))
 
 (defun write-source-list ()
@@ -302,14 +302,15 @@
 (defun write-header ()
   (with-overwrite-file (*standard-output* +header+)
     (write-comment)
-    (format t "#ifndef __EASTASIAN_HEADER__~%")
-    (format t "#define __EASTASIAN_HEADER__~2%")
+    (format t "#ifndef __EASTASIAN_UNICODE_HEADER__~%")
+    (format t "#define __EASTASIAN_UNICODE_HEADER__~2%")
     (format t "#include \"define.h\"~%")
     (format t "#include \"typedef.h\"~2%")
     (format t "#define EastAsianTable_Size ~A~2%" (length *width-table*))
     (write-structure)
     (terpri)
     (write-header-table)
+    (format t "_g enum EastAsianType eastasian_symbol(unicode c);~%")
     (format t "_g unsigned eastasian_width(unicode c);~%")
     (format t "_g void init_eastasian(void);~2%")
     (format t "#endif~2%")))
@@ -317,7 +318,7 @@
 (defun write-source ()
   (with-overwrite-file (*standard-output* +source+)
     (write-comment)
-    (format t "#include \"eastasian.h\"~2%")
+    (format t "#include \"eastasian_unicode.h\"~2%")
     (write-source-table)
     (terpri)
     (write-source-ascii)

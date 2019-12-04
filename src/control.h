@@ -16,6 +16,7 @@ _g void pushspecial_control(Execute ptr, addr pos, addr value);
 _g void pushcallname_control(Execute ptr, addr pos, addr value);
 _g void pushfunction_control(Execute ptr, addr pos, addr value);
 _g void pushsetf_control(Execute ptr, addr pos, addr value);
+_g int existspecial_control(Execute ptr, addr pos);
 
 /* stack */
 _g void push_return_control(Execute ptr, addr *ret);

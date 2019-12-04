@@ -2286,30 +2286,6 @@ static int format_line_escape(fmtprint print, struct fmtchar *str)
 	return 0;
 }
 
-static void tabulate_absolute(fmtprint print,
-		fixnum column, fixnum colinc, fixnum index)
-{
-	if (index < column) {
-		write_times(print, ' ', (size_t)(column - index));
-	}
-	else if (colinc) {
-		column = ((index / colinc) + 1) * colinc;
-		write_times(print, ' ', (size_t)(column - index));
-	}
-}
-
-static void tabulate_relative(fmtprint print,
-		fixnum column, fixnum colinc, fixnum index)
-{
-	index += column;
-	if (colinc) {
-		index %= colinc;
-		if (index)
-			column += colinc - index;
-	}
-	write_times(print, ' ', (size_t)column);
-}
-
 static int format_tabulate(fmtprint print, struct fmtchar *str)
 {
 	fixnum column, colinc, index;
@@ -2334,17 +2310,17 @@ static int format_tabulate(fmtprint print, struct fmtchar *str)
 
 	if (str->colon) {
 		if (str->atsign)
-			print_tab_relative(print->stream, (size_t)column, (size_t)colinc);
+			pprint_tab_section_relative(print->ptr, print->stream, column, colinc);
 		else
-			print_tab_section(print->stream, (size_t)column, (size_t)colinc);
+			pprint_tab_section(print->ptr, print->stream, column, colinc);
 	}
 	else {
 		index = (fixnum)terpri_position_stream(print->stream);
 		Check(index < 0, "cast error");
 		if (str->atsign)
-			tabulate_relative(print, column, colinc, index);
+			pprint_tab_relative_force(print->stream, column, colinc, index);
 		else
-			tabulate_absolute(print, column, colinc, index);
+			pprint_tab_absolute_force(print->stream, column, colinc, index);
 	}
 
 	return 0;
@@ -2422,13 +2398,13 @@ static int format_indirection(fmtprint print, struct fmtchar *str)
 static int format_newline(fmtprint print, struct fmtchar *str)
 {
 	if (str->colon && str->atsign)
-		pprint_newline_common(pprint_newline_mandatory, print->stream);
+		pprint_newline_common(print->ptr, pprint_newline_mandatory, print->stream);
 	else if (str->colon)
-		pprint_newline_common(pprint_newline_fill, print->stream);
+		pprint_newline_common(print->ptr, pprint_newline_fill, print->stream);
 	else if (str->atsign)
-		pprint_newline_common(pprint_newline_miser, print->stream);
+		pprint_newline_common(print->ptr, pprint_newline_miser, print->stream);
 	else
-		pprint_newline_common(pprint_newline_linear, print->stream);
+		pprint_newline_common(print->ptr, pprint_newline_linear, print->stream);
 	return 0;
 }
 
@@ -2459,7 +2435,7 @@ static int format_indent(fmtprint print, struct fmtchar *str)
 	fmtint_default(print, str, 0, &n, 0);
 	if (str->atsign)
 		fmte("The format ~I don't accept @ operator (~@I).", NULL);
-	pprint_indent(! str->colon, n, print->stream);
+	pprint_indent_common(print->ptr, ! str->colon, n, print->stream);
 
 	return 0;
 }

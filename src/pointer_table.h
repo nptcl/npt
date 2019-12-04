@@ -1074,7 +1074,6 @@ enum pointer_index {
 	p_defun_syscall_large_number,
 	p_defun_syscall_format_formatter,
 	p_defun_syscall_print_unreadable_call,
-	p_defun_syscall_east_asian_width,
 	p_defun_syscall_write_default,
 	p_defun_syscall_make_bignum,
 	p_defun_syscall_make_ratio,
@@ -1086,11 +1085,15 @@ enum pointer_index {
 	p_defun_syscall_structure_constructor,
 	p_defun_syscall_loop_bind,
 	p_defun_syscall_make_pprint_stream,
-	p_defun_syscall_pprint_catch,
+	p_defun_syscall_pprint_gensym,
 	p_defun_syscall_pprint_exit,
 	p_defun_syscall_pprint_pop,
 	p_defun_syscall_pprint_close,
-	p_defun_syscall_pprint_next,
+	p_defun_syscall_pprint_check,
+	p_defun_syscall_pprint_pretty,
+	p_defun_syscall_eastasian_set,
+	p_defun_syscall_eastasian_get,
+	p_defun_syscall_eastasian_width,
 
 	/* size */
 	p_size

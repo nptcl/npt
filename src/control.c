@@ -379,6 +379,14 @@ static void pushblock_control(Execute ptr, addr pos)
 	pushtable_control(ptr, CONSTANT_COMMON_BLOCK, pos);
 }
 
+_g int existspecial_control(Execute ptr, addr pos)
+{
+	addr list;
+	GetControl(ptr->control, Control_Special, &list);
+	return getplist(list, pos, &list) == 0;
+}
+
+
 
 /*
  *  stack

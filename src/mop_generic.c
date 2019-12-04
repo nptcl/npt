@@ -622,7 +622,7 @@ static void function_qualifiers_elt(Execute ptr,
 {
 	size_t value;
 
-	getindex_error(index, &value);
+	getindex_integer(index, &value);
 	getarray(pos, value, &pos);
 	if (req != Nil && pos == Nil)
 		fmte("The qualifier ~S must be at least one method.", symbol, NULL);

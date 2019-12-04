@@ -908,7 +908,7 @@ static void function_row_major_aref(Execute ptr, addr array, addr index)
 {
 	size_t size;
 
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		fmte("Index ~A is too large.", index, NULL);
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
@@ -967,7 +967,7 @@ static void function_setf_row_major_aref(Execute ptr,
 {
 	size_t size;
 
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		fmte("Index ~A is too large.", index, NULL);
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
@@ -1121,7 +1121,7 @@ static void function_svref(Execute ptr, addr pos, addr index)
 {
 	size_t size;
 
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		fmte("Index ~A is too large.", index, NULL);
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
@@ -1171,7 +1171,7 @@ static void function_setf_svref(Execute ptr, addr value, addr pos, addr index)
 {
 	size_t size;
 
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		fmte("Index ~A is too large.", index, NULL);
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:

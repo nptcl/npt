@@ -83,7 +83,7 @@ static void make_hash_table_size(addr rest, size_t *ret)
 	if (! integerp(pos)) {
 		TypeError(pos, INTEGER);
 	}
-	if (getindex_integer(pos, ret)) {
+	if (GetIndex_integer(pos, ret)) {
 		fmte("Invalid hash size ~S.", pos, NULL);
 	}
 }
@@ -101,7 +101,7 @@ static void make_hash_table_rehash_size(addr rest,
 		return;
 	}
 	if (integerp(pos)) {
-		if (getindex_integer(pos, &valuei))
+		if (GetIndex_integer(pos, &valuei))
 			fmte("Invalid rehash-size ~S.", pos, NULL);
 		if (valuei < 1UL)
 			fmte("rehash-size ~S must be greater than 1.", pos, NULL);

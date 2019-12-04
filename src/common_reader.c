@@ -411,7 +411,7 @@ static void function_read_from_string(Execute ptr, addr args)
 		start = 0;
 	}
 	else {
-		if (getindex_integer(pos, &start))
+		if (GetIndex_integer(pos, &start))
 			fmte("Too large start value ~S.", pos, NULL);
 	}
 	/* key end */
@@ -420,7 +420,7 @@ static void function_read_from_string(Execute ptr, addr args)
 		string_length(str, &end);
 	}
 	else {
-		if (getindex_integer(pos, &end))
+		if (GetIndex_integer(pos, &end))
 			fmte("Too large end value ~S.", pos, NULL);
 	}
 	/* key preserving-whitespace */

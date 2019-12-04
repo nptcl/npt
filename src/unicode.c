@@ -929,7 +929,7 @@ _g void strvect_aref(LocalRoot local, addr pos, addr args, addr *ret)
 	GetCons(args, &arg, &args);
 	if (args != Nil)
 		fmte("AREF argument ~S must be (integer) form.", args, NULL);
-	if (getindex_integer(arg, &index))
+	if (GetIndex_integer(arg, &index))
 		fmte("Invalid index arg ~S.", arg, NULL);
 	strvect_get(local, pos, index, ret);
 }
@@ -960,7 +960,7 @@ _g void strvect_setf_aref(addr pos, addr args, addr value)
 	GetCons(args, &arg, &args);
 	if (args != Nil)
 		fmte("AREF argument ~S must be (integer) form.", args, NULL);
-	if (getindex_integer(arg, &index))
+	if (GetIndex_integer(arg, &index))
 		fmte("Invalid index arg ~S.", arg, NULL);
 	strvect_set(pos, index, value);
 }

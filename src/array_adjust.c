@@ -228,7 +228,7 @@ static void array_adjust_vectorcheck(addr pos, size_t *ret)
 	if (singlep(pos))
 		GetCar(pos, &pos);
 	if (integerp(pos)) {
-		if (getindex_integer(pos, ret))
+		if (GetIndex_integer(pos, ret))
 			fmte("Dimension ~A is too large.", pos, NULL);
 		return;
 	}

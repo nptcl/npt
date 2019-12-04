@@ -284,9 +284,11 @@ _g int bignum_unsigned_byte_p(addr value, size_t size);
 _g int fixnum_signed_byte_p(addr value, size_t size);
 _g int bignum_signed_byte_p(addr value, size_t size);
 
-_g int getfixnum_bignum(addr pos, fixnum *ret);
-_g int getfixnumtype(addr pos, fixnum *ret);
-_g void getfixnum_error(addr pos, fixnum *ret);
+_g int GetFixnum_bignum(addr pos, fixnum *ret);
+_g int GetFixnum_signed(addr pos, fixnum *ret);
+_g void getfixnum_signed(addr pos, fixnum *ret);
+_g int GetFixnum_unsigned(addr pos, fixnum *ret);
+_g void getfixnum_unsigned(addr pos, fixnum *ret);
 _g int getfixed1_bignum(addr pos, int *sign, fixed *ret);
 
 /*

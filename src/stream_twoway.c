@@ -116,6 +116,12 @@ static void write_char_TwoWay(addr stream, unicode u)
 	write_char_stream(stream, u);
 }
 
+static void terpri_TwoWay(addr stream)
+{
+	output_twoway(stream, &stream);
+	terpri_stream(stream);
+}
+
 static int fresh_line_TwoWay(addr stream)
 {
 	output_twoway(stream, &stream);
@@ -216,6 +222,7 @@ _g void init_stream_twoway(void)
 	DefineStreamSet(TwoWay, read_hang);
 	DefineStreamSet(TwoWay, unread_char);
 	DefineStreamSet(TwoWay, write_char);
+	DefineStreamSet(TwoWay, terpri);
 	DefineStreamSet(TwoWay, fresh_line);
 	DefineStreamChk(TwoWay, inputp, true);
 	DefineStreamChk(TwoWay, outputp, true);

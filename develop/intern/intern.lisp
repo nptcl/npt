@@ -1391,6 +1391,8 @@ lisp-system::pretty-stream
 lisp-system::symbol-macro-expander
 lisp-system::defconstant
 
+(lisp-system::*gchold* :name gchold :constant system)
+
 
 ;;
 ;;  condition
@@ -1526,6 +1528,12 @@ lisp-system::auto
 ;;
 lisp-system::print-dispatch
 (lisp-system::*print-write* :constant system :name print-write)
+lisp-system::n
+lisp-system::a
+lisp-system::h
+lisp-system::w
+lisp-system::f
+lisp-system::na
 
 
 ;;
@@ -1858,7 +1866,6 @@ lisp-system::long-float-p
 lisp-system::large-number
 lisp-system::format-formatter
 lisp-system::print-unreadable-call
-lisp-system::east-asian-width
 lisp-system::write-default
 lisp-system::make-bignum
 lisp-system::make-ratio
@@ -1869,11 +1876,15 @@ lisp-system::delete-deftype
 lisp-system::ensure-class
 lisp-system::ensure-structure
 lisp-system::make-pprint-stream
-lisp-system::pprint-catch
+lisp-system::pprint-gensym
 lisp-system::pprint-exit
 lisp-system::pprint-pop
+lisp-system::pprint-check
 lisp-system::pprint-close
-lisp-system::pprint-next
+lisp-system::pprint-pretty
+lisp-system::eastasian-set
+lisp-system::eastasian-get
+lisp-system::eastasian-width
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

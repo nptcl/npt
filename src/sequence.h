@@ -17,7 +17,6 @@ _g void list_start_end_sequence(addr *list, addr *prev,
 _g int size_start_end_sequence(addr start, addr end,
 		size_t size, size_t *ret1, size_t *ret2);
 
-
 /* common */
 _g size_t length_sequence(addr pos, int fill);
 _g void getelt_inplace_sequence(addr pos, size_t index, struct array_value *str);

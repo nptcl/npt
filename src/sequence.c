@@ -55,7 +55,7 @@ static void vector_error_sequence(addr type, addr arg, size_t size)
 		return;
 	if (! integerp(arg))
 		type_error_stdarg(Nil, Nil, "Invalid type-specifier ~S.", type, NULL);
-	if (getindex_integer(arg, &check))
+	if (GetIndex_integer(arg, &check))
 		fmte("Index size ~S is too large.", arg, NULL);
 	if (check != size) {
 		type_error_stdarg(Nil, Nil,
@@ -94,7 +94,7 @@ _g void array_check_sequence(addr type, size_t size)
 
 	/* integer */
 	if (integerp(arg)) {
-		if (getindex_integer(arg, &check))
+		if (GetIndex_integer(arg, &check))
 			fmte("Index size ~S is too large.", arg, NULL);
 		if (check != 1)
 			type_error_stdarg(Nil, Nil, "Array ~S dimension must be 1.", type, NULL);
@@ -107,7 +107,7 @@ _g void array_check_sequence(addr type, size_t size)
 		if (check != 1)
 			type_error_stdarg(Nil, Nil, "Array ~S dimension must be 1.", type, NULL);
 		GetArrayA4(arg, 0, &arg);
-		if (getindex_integer(arg, &check))
+		if (GetIndex_integer(arg, &check))
 			fmte("Index size ~S is too large.", arg, NULL);
 		if (check != size) {
 			type_error_stdarg(Nil, Nil,
@@ -180,10 +180,10 @@ _g void list_start_end_sequence(addr *list, addr *prev,
 	size_t index1, index2, i;
 
 	/* argument */
-	if (getindex_integer(start, &index1))
+	if (GetIndex_integer(start, &index1))
 		fmte(":START ~A is too large.", start, NULL);
 	if (end != Nil && end != Unbound) {
-		if (getindex_integer(end, &index2))
+		if (GetIndex_integer(end, &index2))
 			fmte(":END ~A is too large.", end, NULL);
 		if (index2 < index1)
 			fmte(":START ~A must be less than equal to :END ~A.", start, end, NULL);
@@ -215,10 +215,10 @@ _g int size_start_end_sequence(addr start, addr end,
 		*ret1 = *ret2 = 0;
 		return 1;
 	}
-	if (getindex_integer(start, &index1))
+	if (GetIndex_integer(start, &index1))
 		fmte(":START ~A is too large.", start, NULL);
 	if (end != Nil && end != Unbound) {
-		if (getindex_integer(end, &index2))
+		if (GetIndex_integer(end, &index2))
 			fmte(":END ~A is too large.", end, NULL);
 		if (size < index2)
 			fmte(":END ~A must be less than sequence length.", end, NULL);

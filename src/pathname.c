@@ -2917,11 +2917,11 @@ _g void parse_namestring(Execute ptr, addr *ret, addr *position,
 	}
 	/* string */
 	if (stringp(thing)) {
-		if (getindex_integer(start, &index1))
+		if (GetIndex_integer(start, &index1))
 			fmte("Invalid :start value ~S.", start, NULL);
 		if (end == Nil)
 			string_length(thing, &index2);
-		else if (getindex_integer(end, &index2))
+		else if (GetIndex_integer(end, &index2))
 			fmte("Invalid :start value ~S.", end, NULL);
 		parse_pathname_full_heap(ptr, thing, host, defaults,
 				index1, index2, junk != Nil, &thing, &index1);

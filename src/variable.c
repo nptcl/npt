@@ -64,6 +64,7 @@ _g int (*Stream_read_char[StreamType_Size])(addr, unicode *);
 _g int (*Stream_read_hang[StreamType_Size])(addr, unicode *, int *);
 _g void (*Stream_unread_char[StreamType_Size])(addr, unicode);
 _g void (*Stream_write_char[StreamType_Size])(addr, unicode);
+_g void (*Stream_terpri[StreamType_Size])(addr);
 _g int (*Stream_fresh_line[StreamType_Size])(addr);
 _g void (*Stream_clear_input[StreamType_Size])(addr);
 _g int (*Stream_inputp[StreamType_Size])(addr);

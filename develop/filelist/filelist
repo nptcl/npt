@@ -71,6 +71,7 @@ develop.c
 document.c
 eastasian.c
 eastasian_table.c
+eastasian_unicode.c
 encode.c
 encode_unicode.c
 environment.c

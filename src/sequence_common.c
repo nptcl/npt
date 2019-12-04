@@ -334,7 +334,7 @@ _g int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr r
 
 	if (getkeyargs(rest, KEYWORD_INITIAL_ELEMENT, &element))
 		element = Unbound;
-	if (getindex_integer(size, &index))
+	if (GetIndex_integer(size, &index))
 		fmte("Too large index ~S.", size, NULL);
 	if (parse_type(ptr, &check, type, Nil))
 		return 1;
@@ -2671,7 +2671,7 @@ static void setcount_sequence(struct count_struct *str, addr count)
 		count = fixnumh(0);
 		limit = 0;
 	}
-	else if (getindex_integer(count, &limit)) {
+	else if (GetIndex_integer(count, &limit)) {
 		fmte(":COUNT argument ~S is too large.", count, NULL);
 	}
 	str->count = count;

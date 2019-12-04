@@ -67,7 +67,7 @@ static void getsize_keyword_start(addr key, addr rest, addr *reta, size_t *rets)
 		*rets = 0;
 	}
 	else {
-		getindex_error(pos, rets);
+		getindex_integer(pos, rets);
 		*reta = pos;
 	}
 }
@@ -82,7 +82,7 @@ static void getsize_keyword_end(addr key, addr rest, size_t size,
 		*rets = size;
 	}
 	else {
-		getindex_error(pos, rets);
+		getindex_integer(pos, rets);
 		*reta = pos;
 	}
 }

@@ -209,6 +209,28 @@ _g void nconc2_safe(addr left, addr right, addr *ret)
 	}
 }
 
+_g void nconc2_unsafe(addr left, addr right, addr *ret)
+{
+	addr check;
+
+	if (left == Nil) {
+		*ret = right;
+		return;
+	}
+	*ret = left;
+	if (right == Nil) {
+		return;
+	}
+	for (;;) {
+		GetCdr(left, &check);
+		if (! consp(check)) {
+			SetCdr(left, right);
+			break;
+		}
+		left = check;
+	}
+}
+
 _g void append2_safe(addr left, addr right, addr *ret)
 {
 	addr root, pos;

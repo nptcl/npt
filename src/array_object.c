@@ -182,7 +182,7 @@ static void array_setsize1(addr pos, addr value, size_t *ret)
 	str = ArrayInfoStruct(pos);
 	if (minusp_integer(value))
 		fmte("Array index ~A must be a non-negative integer.", value, NULL);
-	if (getindex_integer(value, ret))
+	if (GetIndex_integer(value, ret))
 		fmte("Array index ~A is too large.", value, NULL);
 	str->dimension = 1;
 	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, Nil);
@@ -204,7 +204,7 @@ static void array_setsize2(LocalRoot local, addr pos, addr value, size_t *ret)
 			fmte("Array index ~A must be an integer.", index, NULL);
 		if (minusp_integer(index))
 			fmte("Array index ~A must be a non-negative integer.", index, NULL);
-		if (getindex_integer(index, &size))
+		if (GetIndex_integer(index, &size))
 			fmte("Array index ~A is too large.", index, NULL);
 		data[i] = size;
 	}
@@ -307,7 +307,7 @@ static void array_memory_displaced(addr pos, addr displaced, addr offset)
 		fmte("Array offset ~A must be an integer.", offset, NULL);
 	if (minusp_integer(offset))
 		fmte("Array offset ~A must be a non-negative integer.", offset, NULL);
-	if (getindex_integer(offset, &size))
+	if (GetIndex_integer(offset, &size))
 		fmte("Array offset ~A is too large.", offset, NULL);
 	str1->offset = size;
 }
@@ -325,7 +325,7 @@ static void array_memory_fill(addr pos, addr fill)
 			fmte("fill-pointer ~A must be an integer.", fill, NULL);
 		if (minusp_integer(fill))
 			fmte("fill-pointer ~A must be a non-negative integer.", fill, NULL);
-		if (getindex_integer(fill, &size))
+		if (GetIndex_integer(fill, &size))
 			fmte("fill-pointer ~A is too large.", fill, NULL);
 		if (str->size < size)
 			fmte("fill-pointer ~A must be less than array size.", fill, NULL);
@@ -1262,7 +1262,7 @@ static void array_size_contents(LocalRoot local,
 	size_t i, rank, size, *data;
 	addr temp;
 
-	if (getindex_integer(rankarg, &rank))
+	if (GetIndex_integer(rankarg, &rank))
 		fmte("Array rank ~A is too large.", rankarg, NULL);
 	str = ArrayInfoStruct(pos);
 	if (rank == 0) {
@@ -2178,7 +2178,7 @@ static size_t array1arefindex(addr pos, addr args, struct array_struct *str)
 	GetCons(args, &arg, &args);
 	if (args != Nil)
 		fmte("Subscripts ~S too many arguments.", args, NULL);
-	if (getindex_integer(arg, &index))
+	if (GetIndex_integer(arg, &index))
 		fmte("Invalid subscript argument ~S.", arg, NULL);
 	if (str->front <= index)
 		fmte("Subscript ~S is too large.", arg, NULL);
@@ -2206,7 +2206,7 @@ static size_t array_arefindex(addr pos, addr args)
 		if (dimension <= depth)
 			fmte("Subscripts ~A is too large.", args, NULL);
 		GetCons(list, &check, &list);
-		if (getindex_integer(check, &value))
+		if (GetIndex_integer(check, &value))
 			fmte("Invalid index value ~S.", check, NULL);
 		index = depth? (index * data[depth]): 0;
 		index += value;
@@ -2263,7 +2263,7 @@ _g void array_array_dimension(addr array, addr axis, addr *ret)
 	if (dimension == 0) {
 		fmte("The array have no dimension.", NULL);
 	}
-	if (getindex_integer(axis, &index)) {
+	if (GetIndex_integer(axis, &index)) {
 		if (minusp_integer(axis))
 			fmte("Index ~A must be a non-negative integer.", axis, NULL);
 		else
@@ -2334,7 +2334,7 @@ _g int array_array_in_bounds_p(addr array, addr rest)
 		GetCons(list, &pos, &list);
 		if (! integerp(pos))
 			fmte("The subscript ~S must be integer type.", pos, NULL);
-		if (getindex_integer(pos, &check)) {
+		if (GetIndex_integer(pos, &check)) {
 			/* minus or large value */
 			result = 0;
 			continue;
@@ -2375,7 +2375,7 @@ _g int array_setf_fill_pointer(addr array, addr value)
 
 	str = ArrayInfoStruct(array);
 	if (! str->fillpointer) return 1;
-	if (getindex_integer(value, &size))
+	if (GetIndex_integer(value, &size))
 		fmte("Invalid fill-pointer value ~S.", value, NULL);
 	if (str->size <= size) {
 		fmte("Fill-pointer value ~A must be less than array size ~A.",

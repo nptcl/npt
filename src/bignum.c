@@ -20,6 +20,7 @@
 #include "stream_string.h"
 #include "token.h"
 #include "typedef.h"
+#include "type_table.h"
 
 /*
  *     user:  sign
@@ -1666,7 +1667,7 @@ _g int bignum_signed_byte_p(addr value, size_t size)
 	return 1;
 }
 
-_g int getfixnum_bignum(addr pos, fixnum *ret)
+_g int GetFixnum_bignum(addr pos, fixnum *ret)
 {
 	int sign;
 	bigtype value;
@@ -1689,7 +1690,7 @@ _g int getfixnum_bignum(addr pos, fixnum *ret)
 	return 1;
 }
 
-_g int getfixnumtype(addr pos, fixnum *ret)
+_g int GetFixnum_signed(addr pos, fixnum *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -1697,7 +1698,7 @@ _g int getfixnumtype(addr pos, fixnum *ret)
 			return 0;
 
 		case LISPTYPE_BIGNUM:
-			return getfixnum_bignum(pos, ret);
+			return GetFixnum_bignum(pos, ret);
 
 		default:
 			break;
@@ -1706,10 +1707,43 @@ _g int getfixnumtype(addr pos, fixnum *ret)
 	return 1;
 }
 
-_g void getfixnum_error(addr pos, fixnum *ret)
+_g void getfixnum_signed(addr pos, fixnum *ret)
 {
-	if (getfixnumtype(pos, ret))
+	if (GetFixnum_signed(pos, ret))
 		TypeError(pos, FIXNUM);
+}
+
+_g int GetFixnum_unsigned(addr pos, fixnum *ret)
+{
+	fixnum v;
+
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			GetFixnum(pos, &v);
+			break;
+
+		case LISPTYPE_BIGNUM:
+			if (GetFixnum_bignum(pos, &v))
+				return 1;
+			break;
+
+		default:
+			return 1;
+	}
+	if (v < 0)
+		return 1;
+	*ret = v;
+	return 0;
+}
+
+_g void getfixnum_unsigned(addr pos, fixnum *ret)
+{
+	addr type;
+
+	if (GetFixnum_unsigned(pos, ret)) {
+		type4integer_heap(Nil, 0, Nil, FIXNUM_MAX, &type);
+		type_error(pos, type);
+	}
 }
 
 _g int getfixed1_bignum(addr pos, int *sign, fixed *ret)

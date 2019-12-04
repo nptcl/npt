@@ -80,7 +80,7 @@ static void function_char(Execute ptr, addr var1, addr var2)
 	unicode u;
 	size_t index, size;
 
-	if (getindex_integer(var2, &index))
+	if (GetIndex_integer(var2, &index))
 		fmte("Too large index value ~S.", var2, NULL);
 	if (GetType(var1) == LISPTYPE_STRING) {
 		strvect_length(var1, &size);
@@ -138,7 +138,7 @@ static void function_schar(Execute ptr, addr var1, addr var2)
 	unicode u;
 	size_t index, size;
 
-	if (getindex_integer(var2, &index))
+	if (GetIndex_integer(var2, &index))
 		fmte("Too large index value ~S.", var2, NULL);
 	if (GetType(var1) == LISPTYPE_STRING) {
 		strvect_length(var1, &size);
@@ -193,7 +193,7 @@ static void function_setf_char(Execute ptr, addr value, addr pos, addr index)
 	size_t size;
 	unicode c;
 
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		fmte("Too large index value ~S.", index, NULL);
 	GetCharacter(value, &c);
 	switch (GetType(pos)) {
@@ -1287,7 +1287,7 @@ static void function_make_string(Execute ptr, addr var, addr rest)
 	size_t size;
 
 	/* size */
-	if (getindex_integer(var, &size))
+	if (GetIndex_integer(var, &size))
 		fmte("Too large index value ~S.", var, NULL);
 
 	/* initial-elemnet */

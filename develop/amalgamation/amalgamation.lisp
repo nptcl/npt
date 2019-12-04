@@ -327,6 +327,7 @@
     "copy.h"
     "document.h"
     "eastasian.h"
+    "eastasian_unicode.h"
     "encode.h"
     "encode_unicode.h"
     "environment.h"
@@ -517,8 +518,9 @@
     "degrade.c"
     "develop.c"
     "document.c"
-    "eastasian_table.c"
     "eastasian.c"
+    "eastasian_table.c"
+    "eastasian_unicode.c"
     "encode.c"
     "encode_unicode.c"
     ("environment.c" :header t)

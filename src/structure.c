@@ -97,7 +97,7 @@ static void ensure_structure_struct(struct defstruct *str,
 	if (! getkeyargs(args, KEYWORD_INITIAL_OFFSET, &pos)) {
 		str->initial_offset_p = 1;
 		str->initial_offset = pos;
-		getindex_error(pos, &(str->offset));
+		getindex_integer(pos, &(str->offset));
 	}
 	/* :named */
 	if (! getkeyargs(args, KEYWORD_NAMED, &pos)) {
@@ -760,7 +760,7 @@ static void structure_slots_make(struct defstruct *ptr)
 		stdget_structure_slots(pos, &list);
 		stdget_structure_value(pos, &pos);
 		if (pos != Nil)
-			getindex_error(pos, &value);
+			getindex_integer(pos, &value);
 		args = ptr->iargs;
 		LenSlotVector(list, &count);
 		for (i = 0; i < count; i++) {
@@ -2235,7 +2235,7 @@ static int make_structure_common_vector(Execute ptr, addr *ret,
 	str->errorp = errorp;
 	str->named = (named != Nil);
 	str->size = size;
-	getindex_error(value, &size);
+	getindex_integer(value, &size);
 	str->size_value = size;
 
 	return make_structure_vector(ptr, ret, pos, rest);
@@ -2263,7 +2263,7 @@ static int make_structure_common_list(Execute ptr, addr *ret,
 	str->errorp = errorp;
 	str->named = (named != Nil);
 	str->size = size;
-	getindex_error(value, &size);
+	getindex_integer(value, &size);
 	str->size_value = size;
 
 	return make_structure_list(ptr, ret, pos, rest);

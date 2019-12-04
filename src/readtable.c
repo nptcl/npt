@@ -2997,7 +2997,7 @@ static void function_dispatch_parensis_open(Execute ptr,
 	size_t size, limit;
 
 	/* parameter */
-	if (arg != Nil && getindex_integer(arg, &limit))
+	if (arg != Nil && GetIndex_integer(arg, &limit))
 		fmte("Too large dispatch parameter ~S.", arg, NULL);
 
 	/* read list */
@@ -3164,7 +3164,7 @@ static void function_dispatch_asterisk(Execute ptr, addr stream, addr code, addr
 		asterisk_bitcons(ptr, stream, code);
 	}
 	else {
-		if (getindex_integer(arg, &size))
+		if (GetIndex_integer(arg, &size))
 			fmte("The index size ~S is too large.", arg, NULL);
 		asterisk_bitvector(ptr, stream, size);
 	}
@@ -3622,7 +3622,7 @@ static void function_dispatch_radix(Execute ptr, addr stream, addr code, addr ar
 {
 	fixnum value;
 
-	getfixnumtype(arg, &value);
+	GetFixnum_signed(arg, &value);
 	if (! isBaseChar(value)) {
 		if (! read_suppress_p(ptr))
 			fmte("The radix ~S must be a number between 2 and 36.", arg, NULL);

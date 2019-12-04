@@ -168,7 +168,7 @@ static void vector_push_extend_displaced(addr pos, addr extension)
 		size = diff;
 	}
 	else {
-		if (getindex_integer(extension, &size))
+		if (GetIndex_integer(extension, &size))
 			fmte("Invalid extension value ~S.", extension, NULL);
 	}
 	size += diff;
@@ -191,7 +191,7 @@ static void vector_push_extend_normal(addr pos, addr extension)
 		size = str->size;
 	}
 	else {
-		if (getindex_integer(extension, &size))
+		if (GetIndex_integer(extension, &size))
 			fmte("Invalid extension value ~S.", extension, NULL);
 	}
 	size += str->size;
@@ -262,7 +262,7 @@ _g void vector_aref(addr pos, addr args, addr *ret)
 		fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	if (! integerp(arg))
 		fmte("AREF argument ~S must be a non-negative integer.", arg, NULL);
-	if (getindex_integer(arg, &index))
+	if (GetIndex_integer(arg, &index))
 		fmte("Invalid index arg ~S.", arg, NULL);
 	vector_get(pos, index, ret);
 }
@@ -293,7 +293,7 @@ _g void vector_setf_aref(addr pos, addr args, addr value)
 		fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	if (! integerp(arg))
 		fmte("AREF argument ~S must be a non-negative integer.", arg, NULL);
-	if (getindex_integer(arg, &index))
+	if (GetIndex_integer(arg, &index))
 		fmte("Invalid index arg ~S.", arg, NULL);
 	vector_set(pos, index, value);
 }
@@ -304,7 +304,7 @@ _g void vector_array_dimension(addr pos, addr arg, size_t size, addr *ret)
 
 	if (! integerp(arg))
 		fmte("ARRAY-DIMENSION argument ~S must be integer type.", arg, NULL);
-	if (getindex_integer(arg, &check))
+	if (GetIndex_integer(arg, &check))
 		fmte("Invalid index arg ~S.", arg, NULL);
 	if (check != 0)
 		fmte("Array rank ~A must be less than equal to 1.", arg, NULL);
@@ -330,7 +330,7 @@ _g int vector_array_in_bounds_p(addr rest, size_t size)
 		fmte("The subscripts ~S is too many argumens.", rest, NULL);
 	if (! integerp(pos))
 		fmte("The subscript ~S must be integer type.", pos, NULL);
-	if (getindex_integer(pos, &check))
+	if (GetIndex_integer(pos, &check))
 		return 0;
 
 	return check < size;

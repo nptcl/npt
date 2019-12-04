@@ -917,6 +917,11 @@ _g int fixnumcompare(addr left, addr right)
 }
 
 /* index */
+_g int indexp(addr pos)
+{
+	return GetType(pos) == LISPTYPE_INDEX;
+}
+
 _g addr index_heapr(size_t value)
 {
 	addr pos;

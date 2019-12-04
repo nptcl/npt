@@ -542,7 +542,7 @@ _g void english_unit_local(LocalRoot local, addr *ret, addr pos, int cardinal)
 	fixnum value;
 
 	Check(local == NULL, "local error");
-	if (getfixnumtype(pos, &value))
+	if (GetFixnum_signed(pos, &value))
 		fmte("The argument ~S must be a positive fixnum.", pos, NULL);
 	english_unit_string(local, ret, value, cardinal, 1);
 }
@@ -553,7 +553,7 @@ _g void english_unit_heap(LocalRoot local, addr *ret, addr pos, int cardinal)
 	LocalStack stack;
 
 	Check(local == NULL, "local error");
-	if (getfixnumtype(pos, &value))
+	if (GetFixnum_signed(pos, &value))
 		fmte("The argument ~S must be a positive fixnum.", pos, NULL);
 
 	push_local(local, &stack);

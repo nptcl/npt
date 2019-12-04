@@ -429,7 +429,7 @@ _g int array_coerce_signed8_t(addr pos, int8_t *ret)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			if (getfixnum_bignum(pos, &v)) return 1;
+			if (GetFixnum_bignum(pos, &v)) return 1;
 			break;
 
 		case LISPTYPE_RATIO:
@@ -584,7 +584,7 @@ _g int array_coerce_signed16_t(addr pos, int16_t *ret)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			if (getfixnum_bignum(pos, &v)) return 1;
+			if (GetFixnum_bignum(pos, &v)) return 1;
 			break;
 
 		case LISPTYPE_RATIO:
@@ -729,7 +729,7 @@ _g int array_coerce_signed32_t(addr pos, int32_t *ret)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			if (getfixnum_bignum(pos, &v)) return 1;
+			if (GetFixnum_bignum(pos, &v)) return 1;
 			break;
 
 		case LISPTYPE_RATIO:
@@ -865,7 +865,7 @@ _g int array_coerce_signed64_t(addr pos, int64_t *ret)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			if (getfixnum_bignum(pos, &v)) return 1;
+			if (GetFixnum_bignum(pos, &v)) return 1;
 			break;
 
 		case LISPTYPE_RATIO:
@@ -977,7 +977,7 @@ _g int array_coerce_unsigned8_t(addr pos, uint8_t *ret)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			if (getfixnum_bignum(pos, &v)) return 1;
+			if (GetFixnum_bignum(pos, &v)) return 1;
 			break;
 
 		case LISPTYPE_RATIO:
@@ -1132,7 +1132,7 @@ _g int array_coerce_unsigned16_t(addr pos, uint16_t *ret)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			if (getfixnum_bignum(pos, &v)) return 1;
+			if (GetFixnum_bignum(pos, &v)) return 1;
 			break;
 
 		case LISPTYPE_RATIO:
@@ -1283,7 +1283,7 @@ _g int array_coerce_unsigned32_t(addr pos, uint32_t *ret)
 			break;
 
 		case LISPTYPE_BIGNUM:
-			if (getfixnum_bignum(pos, &v)) return 1;
+			if (GetFixnum_bignum(pos, &v)) return 1;
 			break;
 
 		case LISPTYPE_RATIO:

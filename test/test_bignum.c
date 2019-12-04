@@ -2896,7 +2896,7 @@ static int test_bignum_signed_byte_p(void)
 	RETURN;
 }
 
-static int test_getfixnum_bignum(void)
+static int test_GetFixnum_bignum(void)
 {
 	addr pos;
 	LocalRoot local;
@@ -2907,36 +2907,36 @@ static int test_getfixnum_bignum(void)
 	push_local(local, &stack);
 
 	bignum_value_local(local, &pos, SignPlus, 10);
-	test(getfixnum_bignum(pos, &value) == 0, "getfixnum_bignum1");
-	test(value == 10, "getfixnum_bignum2");
+	test(GetFixnum_bignum(pos, &value) == 0, "GetFixnum_bignum1");
+	test(value == 10, "GetFixnum_bignum2");
 
 	bignum_value_local(local, &pos, SignMinus, 20);
-	test(getfixnum_bignum(pos, &value) == 0, "getfixnum_bignum3");
-	test(value == -20, "getfixnum_bignum4");
+	test(GetFixnum_bignum(pos, &value) == 0, "GetFixnum_bignum3");
+	test(value == -20, "GetFixnum_bignum4");
 
 	bignum_value2_local(local, &pos, SignPlus, 10, 20);
-	test(getfixnum_bignum(pos, &value), "getfixnum_bignum5");
+	test(GetFixnum_bignum(pos, &value), "GetFixnum_bignum5");
 
 	bignum_value_local(local, &pos, SignPlus, FIXNUM_MAX);
-	test(getfixnum_bignum(pos, &value) == 0, "getfixnum_bignum6");
-	test(value == FIXNUM_MAX, "getfixnum_bignum7");
+	test(GetFixnum_bignum(pos, &value) == 0, "GetFixnum_bignum6");
+	test(value == FIXNUM_MAX, "GetFixnum_bignum7");
 
 	bignum_value_local(local, &pos, SignPlus, ((bigtype)FIXNUM_MAX) + 1UL);
-	test(getfixnum_bignum(pos, &value), "getfixnum_bignum8");
+	test(GetFixnum_bignum(pos, &value), "GetFixnum_bignum8");
 
 	bignum_value_local(local, &pos, SignMinus, FIXNUM_UMIN);
-	test(getfixnum_bignum(pos, &value) == 0, "getfixnum_bignum9");
-	test(value == FIXNUM_MIN, "getfixnum_bignum10");
+	test(GetFixnum_bignum(pos, &value) == 0, "GetFixnum_bignum9");
+	test(value == FIXNUM_MIN, "GetFixnum_bignum10");
 
 	bignum_value_local(local, &pos, SignMinus, FIXNUM_UMIN + 1UL);
-	test(getfixnum_bignum(pos, &value), "getfixnum_bignum11");
+	test(GetFixnum_bignum(pos, &value), "GetFixnum_bignum11");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_getfixnumtype(void)
+static int test_GetFixnum_signed(void)
 {
 	addr pos;
 	LocalRoot local;
@@ -2948,18 +2948,18 @@ static int test_getfixnumtype(void)
 
 	fixnum_heap(&pos, 10);
 	value = 999;
-	test(getfixnumtype(pos, &value) == 0, "getfixnumtype1");
-	test(value == 10, "getfixnumtype2");
+	test(GetFixnum_signed(pos, &value) == 0, "GetFixnum_signed1");
+	test(value == 10, "GetFixnum_signed2");
 
 	bignum_value_local(local, &pos, SignMinus, 20);
-	test(getfixnumtype(pos, &value) == 0, "getfixnumtype3");
-	test(value == -20, "getfixnumtype4");
+	test(GetFixnum_signed(pos, &value) == 0, "GetFixnum_signed3");
+	test(value == -20, "GetFixnum_signed4");
 
 	bignum_value2_local(local, &pos, SignPlus, 10, 20);
-	test(getfixnumtype(pos, &value), "getfixnumtype5");
+	test(GetFixnum_signed(pos, &value), "GetFixnum_signed5");
 
 	character_local(local, &pos, 'A');
-	test(getfixnumtype(pos, &value), "getfixnumtype6");
+	test(GetFixnum_signed(pos, &value), "GetFixnum_signed6");
 
 	rollback_local(local, stack);
 
@@ -5810,8 +5810,8 @@ static int testbreak_bignum(void)
 	TestBreak(test_bignum_unsigned_byte_p);
 	TestBreak(test_fixnum_signed_byte_p);
 	TestBreak(test_bignum_signed_byte_p);
-	TestBreak(test_getfixnum_bignum);
-	TestBreak(test_getfixnumtype);
+	TestBreak(test_GetFixnum_bignum);
+	TestBreak(test_GetFixnum_signed);
 	/* plus / minus */
 	TestBreak(test_plusvalue);
 	TestBreak(test_minusvalue);

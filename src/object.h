@@ -343,6 +343,7 @@ _g int fixnumequal(addr left, addr right);
 _g int fixnumcompare(addr left, addr right);
 
 /* index object */
+_g int indexp(addr pos);
 _g addr index_heapr(size_t value);
 _g addr index_localr(LocalRoot local, size_t value);
 _g addr index_allocr(LocalRoot local, size_t value);

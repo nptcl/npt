@@ -807,7 +807,7 @@ _g void make_list_common(addr var, addr rest, addr *ret)
 	size_t size;
 
 	/* argument */
-	if (getindex_integer(var, &size))
+	if (GetIndex_integer(var, &size))
 		fmte("Too large index value ~S.", var, NULL);
 	if (getplist_constant(rest, CONSTANT_KEYWORD_INITIAL_ELEMENT, &element))
 		element = Nil;
@@ -1126,7 +1126,7 @@ _g void nth_common(addr index, addr list, addr *ret)
 {
 	size_t size;
 
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		getnth_large(list, index, ret);
 	else
 		getnth(list, size, ret);
@@ -1140,7 +1140,7 @@ _g void setf_nth_common(addr value, addr index, addr list)
 {
 	size_t size;
 
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		fmte("Too large index value ~S.", index, NULL);
 	setnth(list, size, value);
 }
@@ -1153,7 +1153,7 @@ _g void nthcdr_common(addr index, addr list, addr *ret)
 {
 	size_t size;
 
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		getnthcdr_large(list, index, ret);
 	else
 		getnthcdr(list, size, ret);
@@ -1825,7 +1825,7 @@ _g void butlast_common(addr list, addr index, addr *ret)
 		index_butlast_cons(list, 1, ret);
 		return;
 	}
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		large_butlast_cons(list, index, ret);
 	else
 		index_butlast_cons(list, size, ret);
@@ -1870,7 +1870,7 @@ _g void nbutlast_common(addr list, addr index, addr *ret)
 		index_nbutlast_cons(list, 1, ret);
 		return;
 	}
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		large_nbutlast_cons(list, index, ret);
 	else
 		index_nbutlast_cons(list, size, ret);
@@ -1915,7 +1915,7 @@ _g void last_common(addr list, addr index, addr *ret)
 		index_last_cons(list, 1, ret);
 		return;
 	}
-	if (getindex_integer(index, &size))
+	if (GetIndex_integer(index, &size))
 		large_last_cons(list, index, ret);
 	else
 		index_last_cons(list, size, ret);

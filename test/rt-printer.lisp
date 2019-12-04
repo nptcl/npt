@@ -24,6 +24,7 @@
 (load #p"test/rtprinter-write.lisp")
 (load #p"test/rtprinter-sequence.lisp")
 (load #p"test/rtprinter-object.lisp")
+(load #p"test/rtprinter-pretty.lisp")
 
 
 ;;

@@ -5,6 +5,13 @@
 #include "print.h"
 #include "typedef.h"
 
+_g void push_write_object(Execute ptr);
+_g void getdepth_print_write(Execute ptr, size_t *ret);
+_g void setdepth_print_write(Execute ptr, size_t value);
+_g void write_check_all_clear(Execute ptr);
+_g void write_check_call(Execute ptr, addr pos);
+_g int pprint_pop_circle(Execute ptr, addr stream, addr pos);
+_g int pprint_check_circle(Execute ptr, addr pos, addr *ret);
 _g int write_default_print(Execute ptr, addr stream, addr object);
 _g int write_print(Execute ptr, addr stream, addr object);
 _g int princ_print(Execute ptr, addr stream, addr object);

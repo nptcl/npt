@@ -6,7 +6,7 @@
  *  East Asian Width
  *    http://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt
  */
-#include "eastasian.h"
+#include "eastasian_unicode.h"
 
 _g unsigned EastAsianSymbol[EastAsian_Size];
 _g const struct eastasian_struct EastAsianTable[EastAsianTable_Size] = {

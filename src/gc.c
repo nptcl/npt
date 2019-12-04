@@ -1,11 +1,14 @@
 /*
  *  Garbage Collection
  */
+#include "constant.h"
+#include "control.h"
 #include "heap.h"
 #include "info.h"
 #include "gc.h"
 #include "memory.h"
 #include "stream.h"
+#include "symbol.h"
 
 #define IsObjectValue(x)    ((x) < LISPSYSTEM_SPACE)
 #define IsObject(x)         (IsObjectValue(GetType(x)))
@@ -574,5 +577,110 @@ _g void heap_check(void)
 		return;
 	}
 	info("HEAP-CHECK: end.");
+}
+
+
+/*
+ *  gchold
+ */
+#define SetGcHold(x,i,y) { \
+	Check(GetStatusDynamic(x), "gchold error"); \
+	SetArrayA2((x),(i),(y)); \
+}
+
+static void gchold_object_local(LocalRoot local, addr *ret, size_t size)
+{
+	Check(0xFFFFUL <= size, "size error");
+	heap_array2_memory(ret, LISPSYSTEM_GCHOLD, (byte16)size);
+}
+
+static void gchold_object_heap(addr *ret, size_t size)
+{
+	Check(0xFFFFUL <= size, "size error");
+	heap_array2_memory(ret, LISPSYSTEM_GCHOLD, (byte16)size);
+}
+
+_g void gchold_local(LocalRoot local, addr pos)
+{
+	addr array;
+	gchold_object_local(local, &array, 1);
+	SetGcHold(array, 0, pos);
+}
+
+_g void gchold_va_local(LocalRoot local, ...)
+{
+	addr pos, array;
+	size_t size, i;
+	va_list args, dest;
+
+	/* index */
+	va_start(args, local);
+	va_copy(dest, args);
+	for (size = 0; ; size++) {
+		pos = va_arg(dest, addr);
+		if (pos == NULL) break;
+	}
+
+	/* make */
+	gchold_object_local(local, &array, size);
+	for (i = 0; ; i++) {
+		pos = va_arg(args, addr);
+		if (pos == NULL) break;
+		Check(size <= i, "size error");
+		SetGcHold(array, i, pos);
+	}
+	Check(size != (i + 1UL), "size error");
+}
+
+static void gchold_execute_special(Execute ptr, addr value)
+{
+	addr symbol, pos;
+
+	GetConst(SYSTEM_GCHOLD, &symbol);
+	if (existspecial_control(ptr, symbol)) {
+		getspecial_local(ptr, symbol, &pos);
+		cons_heap(&value, value, (pos == Unbound)? Nil: pos);
+		setspecial_local(ptr, symbol, value);
+	}
+	else {
+		conscar_heap(&value, value);
+		pushspecial_control(ptr, symbol, value);
+	}
+}
+
+_g void gchold_execute(Execute ptr, addr pos)
+{
+	addr array;
+	gchold_object_heap(&array, 1);
+	SetGcHold(array, 0, pos);
+	gchold_execute_special(ptr, array);
+}
+
+_g void gchold_va_execute(Execute ptr, ...)
+{
+	addr pos, array;
+	size_t size, i;
+	va_list args, dest;
+
+	/* index */
+	va_start(args, ptr);
+	va_copy(dest, args);
+	for (size = 0; ; size++) {
+		pos = va_arg(dest, addr);
+		if (pos == NULL) break;
+	}
+
+	/* make */
+	gchold_object_heap(&array, size);
+	for (i = 0; ; i++) {
+		pos = va_arg(args, addr);
+		if (pos == NULL) break;
+		Check(size <= i, "size error");
+		SetGcHold(array, i, pos);
+	}
+	Check(size != (i + 1UL), "size error");
+
+	/* push */
+	gchold_execute_special(ptr, array);
 }
 

@@ -28,7 +28,7 @@ static void decode_universal_time_zone(LocalRoot local,
 	minus_rational_common(local, pos, zone, &pos);
 	if (rationalp(pos))
 		truncate1_common(local, &pos, &temp, pos);
-	if (! getindex_integer(pos, &value)) {
+	if (! GetIndex_integer(pos, &value)) {
 		u->second = intsizeh(value % 60);
 		value /= 60;
 		u->minute = intsizeh(value % 60);

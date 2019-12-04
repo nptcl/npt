@@ -84,10 +84,7 @@ _g int setplistplist_eql_local(LocalRoot local,
 		addr plist, addr key1, addr key2, addr value, addr *ret);
 _g int setplistplist_eql_heap(addr plist, addr key1, addr key2, addr value, addr *ret);
 
-
-/*
- *  callname
- */
+/* callname */
 _g int getplist_callname(addr plist, addr callname, addr *ret);
 _g int setplist_callname_alloc(LocalRoot local,
 		addr plist, addr callname, addr value, addr *ret);

@@ -541,7 +541,7 @@ static int defstruct_parse_initial_offset(struct defstruct *ptr, addr option)
 		fmte("DEFSTRUCT :INITIAL-OFFSET already exists.", NULL);
 		return 0;
 	}
-	getindex_error(check, &size);
+	getindex_integer(check, &size);
 	ptr->initial_offset_p = 1;
 	ptr->initial_offset = check;
 

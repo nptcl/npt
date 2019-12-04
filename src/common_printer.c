@@ -1,6 +1,7 @@
 /*
  *  ANSI COMMON LISP: 22. Printer
  */
+#include "bignum.h"
 #include "common_header.h"
 #include "cons.h"
 #include "cons_plist.h"
@@ -197,10 +198,10 @@ static void defun_pprint_linear(void)
 static void function_pprint_tabular(Execute ptr,
 		addr stream, addr pos, addr colon, addr atsign, addr tabsize)
 {
-	size_t size;
+	fixnum size;
 
 	output_stream_designer(ptr, stream, &stream);
-	getindex_error(tabsize, &size);
+	getfixnum_unsigned(tabsize, &size);
 	pprint_tabular_common(stream, pos, colon != Nil, size);
 	setresult_control(ptr, Nil);
 }
@@ -261,7 +262,7 @@ static void function_pprint_indent(Execute ptr, addr rel, addr n, addr stream)
 	if (! fixnump(n))
 		fmte("Too large indent value ~S.", n, NULL);
 	GetFixnum(n, &value);
-	pprint_indent(block_p, value, stream);
+	pprint_indent_common(ptr, block_p, value, stream);
 	setresult_control(ptr, Nil);
 }
 
@@ -320,15 +321,15 @@ static void function_pprint_logical_block(Execute ptr, addr form, addr env)
 		getcons(list, &key, &list);
 		getcons(list, &value, &list);
 		if (key == key1) {
-			if (value1 != Unbound)
+			if (value1 == Unbound)
 				value1 = value;
 		}
 		else if (key == key2) {
-			if (value2 != Unbound)
+			if (value2 == Unbound)
 				value2 = value;
 		}
 		else if (key == key3) {
-			if (value3 != Unbound)
+			if (value3 == Unbound)
 				value3 = value;
 		}
 		else {
@@ -396,7 +397,7 @@ static void function_pprint_newline(Execute ptr, addr kind, addr stream)
 
 	value = pprint_newline_symbol(kind);
 	output_stream_designer(ptr, stream, &stream);
-	pprint_newline_common(value, stream);
+	pprint_newline_common(ptr, value, stream);
 	setresult_control(ptr, Nil);
 }
 
@@ -458,13 +459,13 @@ static void function_pprint_tab(Execute ptr,
 		addr kind, addr column, addr colinc, addr stream)
 {
 	enum pprint_tabular value;
-	size_t a, b;
+	fixnum a, b;
 
 	value = pprint_tabular_symbol(kind);
-	getindex_error(column, &a);
-	getindex_error(colinc, &b);
+	getfixnum_unsigned(column, &a);
+	getfixnum_unsigned(colinc, &b);
 	output_stream_designer(ptr, stream, &stream);
-	pprint_tab_common(value, a, b, stream);
+	pprint_tab_common(ptr, stream, value, a, b);
 	setresult_control(ptr, Nil);
 }
 

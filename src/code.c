@@ -1121,7 +1121,7 @@ static void nth_value_code(Execute ptr, addr right)
 		fmte("NTH-VALUE argument ~S must be integer type.", nth, NULL);
 	if (! zerop_or_plusp_integer(nth))
 		fmte("NTH-VALUE argument ~S must be greater than equal to 0.", nth, NULL);
-	if (getindex_integer(nth, &index)) {
+	if (GetIndex_integer(nth, &index)) {
 		setresult_control(ptr, Nil);
 	}
 	else {

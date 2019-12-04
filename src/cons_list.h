@@ -23,6 +23,7 @@ _g int length_list_p(addr list, size_t *ret);
 
 /* list */
 _g void nconc2_safe(addr left, addr right, addr *ret);
+_g void nconc2_unsafe(addr left, addr right, addr *ret);
 _g void append2_safe(addr left, addr right, addr *ret);
 _g void append2_heap_unsafe(addr list1, addr list2, addr *ret);
 _g void append2_local_unsafe(LocalRoot local, addr list1, addr list2, addr *ret);
@@ -67,10 +68,7 @@ _g int pushnewlist_callname_alloc(LocalRoot local, addr list, addr callname, add
 _g int pushnewlist_callname_heap(addr list, addr callname, addr *ret);
 _g int find_list_callname_unsafe(addr callname, addr list);
 
-
-/*
- *  copy-list
- */
+/* copy-list */
 _g void copy_list_heap_unsafe(addr *ret, addr cons);
 _g void copy_list_local_unsafe(LocalRoot local, addr *ret, addr cons);
 _g void copy_list_alloc_unsafe(LocalRoot local, addr *ret, addr cons);
@@ -78,6 +76,7 @@ _g void copy_list_heap_safe(addr *ret, addr cons);
 _g void copy_list_local_safe(LocalRoot local, addr *ret, addr cons);
 _g void copy_list_alloc_safe(LocalRoot local, addr *ret, addr cons);
 
+/* delete / remove */
 _g int delete_list_eq_unsafe(addr key, addr cons, addr *ret);
 _g int delete1_list_eq_unsafe(addr key, addr cons, addr *ret);
 _g void remove_list_eq_unsafe_heap(addr key, addr cons, addr *ret);

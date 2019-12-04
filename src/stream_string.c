@@ -307,6 +307,7 @@ _g void init_stream_string_input(void)
 	DefineStreamSet(StringInput, read_hang);
 	DefineStreamSet(StringInput, unread_char);
 	DefineStream___(StringInput, write_char);
+	DefineStream___(StringInput, terpri);
 	DefineStream___(StringInput, fresh_line);
 	DefineStreamChk(StringInput, inputp, true);
 	DefineStreamChk(StringInput, outputp, false);
@@ -545,6 +546,7 @@ _g void init_stream_string_output(void)
 	DefineStream___(StringOutput, read_hang);
 	DefineStream___(StringOutput, unread_char);
 	DefineStreamSet(StringOutput, write_char);
+	DefineStreamDef(StringOutput, terpri);
 	DefineStreamDef(StringOutput, fresh_line);
 	DefineStreamChk(StringOutput, inputp, false);
 	DefineStreamChk(StringOutput, outputp, true);

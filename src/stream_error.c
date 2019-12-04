@@ -66,6 +66,11 @@ _g void write_char_stream_error(addr stream, unicode c)
 	fmte("The stream ~S don't run write-char function.", stream, NULL);
 }
 
+_g void terpri_stream_error(addr stream)
+{
+	fmte("The stream ~S don't run terpri function.", stream, NULL);
+}
+
 _g int fresh_line_stream_error(addr stream)
 {
 	fmte("The stream ~S don't run fresh-line function.", stream, NULL);

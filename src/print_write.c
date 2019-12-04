@@ -25,6 +25,7 @@
 #include "ratio.h"
 #include "readtable.h"
 #include "stream.h"
+#include "stream_pretty.h"
 #include "stream_string.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -36,7 +37,6 @@ static calltype_print_check WriteCheckTable[LISPTYPE_SIZE];
 static calltype_print WriteCircleTable[LISPTYPE_SIZE];
 static calltype_print WriteCallTable[LISPTYPE_SIZE];
 
-static void write_check_call(Execute ptr, addr pos);
 static int write_circle_call(Execute ptr, addr stream, addr pos);
 static int write_print_call(Execute ptr, addr stream, addr pos);
 
@@ -132,7 +132,7 @@ static void print_write_heap(addr *ret)
 	*ret = pos;
 }
 
-static void push_write_object(Execute ptr)
+_g void push_write_object(Execute ptr)
 {
 	addr symbol, pos;
 
@@ -155,14 +155,14 @@ static void print_write_object(Execute ptr, addr *ret)
 	*ret = pos;
 }
 
-static void getdepth_print_write(Execute ptr, size_t *ret)
+_g void getdepth_print_write(Execute ptr, size_t *ret)
 {
 	addr pos;
 	print_write_object(ptr, &pos);
 	*ret = ptr_print_write(pos)->depth;
 }
 
-static void setdepth_print_write(Execute ptr, size_t value)
+_g void setdepth_print_write(Execute ptr, size_t value)
 {
 	addr pos;
 	print_write_object(ptr, &pos);
@@ -214,6 +214,20 @@ static int find_print_write(Execute ptr, addr key, addr *ret)
 	return ptr_print_check(*ret)->index == 0;
 }
 
+_g void write_check_all_clear(Execute ptr)
+{
+	addr pos, key, value;
+
+	print_write_object(ptr, &pos);
+	get_table_print_write(pos, &pos);
+	/* loop */
+	hash_iterator_heap(&pos, pos);
+	while (next_hash_iterator(pos, &key, &value)) {
+		CheckType(value, LISPSYSTEM_PRINT_CHECK);
+		ptr_print_check(value)->first = 0;
+	}
+}
+
 
 /*
  *  default
@@ -243,14 +257,57 @@ static int WriteCall_system(Execute ptr, addr stream, addr pos)
  */
 static void WriteCheckCall_cons(Execute ptr, addr pos)
 {
+	int lenp, levelp;
 	addr x;
+	size_t len, level, depth, i;
 
+	lenp = length_print(ptr, &len);
+	levelp = level_print(ptr, &level);
+	getdepth_print_write(ptr, &depth);
+
+	/* *print-level* */
+	if (levelp && level <= depth)
+		return;
+
+	/* intern */
+	if (intern_print_write(ptr, pos) == 0)
+		return;
+
+	/* list */
 	CheckType(pos, LISPTYPE_CONS);
-	if (intern_print_write(ptr, pos)) {
+	setdepth_print_write(ptr, depth + 1);
+	for (i = 0; ; i++) {
+		/* *print-length* */
+		if (lenp && len <= i)
+			break;
+		/* cons */
 		GetCons(pos, &x, &pos);
 		write_check_call(ptr, x);
-		write_check_call(ptr, pos);
+		if (! consp(pos))
+			break;
+		if (intern_print_write(ptr, pos) == 0)
+			break;
 	}
+	setdepth_print_write(ptr, depth);
+}
+
+_g int pprint_pop_circle(Execute ptr, addr stream, addr pos)
+{
+	addr x;
+	size_t index;
+
+	if (find_print_write(ptr, pos, &x))
+		return 0;
+	/* found */
+	if (get_first_print_check(x) == 0)
+		fmte("Invalid loop object.", NULL);
+
+	print_ascii_stream(stream, ". #");
+	index = get_index_print_check(x);
+	output_nosign_fixnum(stream, index, 10, 1);
+	/* #3# */
+	write_char_stream(stream, '#');
+	return 1;
 }
 
 static int WriteCircle_find(Execute ptr, addr stream, addr pos)
@@ -274,6 +331,38 @@ static int WriteCircle_find(Execute ptr, addr stream, addr pos)
 	else {
 		/* #3# */
 		write_char_stream(stream, '#');
+		return 1;
+	}
+}
+
+_g int pprint_check_circle(Execute ptr, addr pos, addr *ret)
+{
+	addr x, stream;
+	size_t index;
+
+	CheckType(pos, LISPTYPE_CONS);
+	if (find_print_write(ptr, pos, &x)) {
+		*ret = Nil;
+		return 0;
+	}
+
+	/* found */
+	open_output_string_stream(&stream, 0);
+	write_char_stream(stream, '#');
+	index = get_index_print_check(x);
+	output_nosign_fixnum(stream, index, 10, 1);
+	/* first, second */
+	if (get_first_print_check(x) == 0) {
+		/* #3= (...) */
+		write_char_stream(stream, '=');
+		set_first_print_check(x);
+		string_stream_heap(stream, ret);
+		return 0;
+	}
+	else {
+		/* #3# */
+		write_char_stream(stream, '#');
+		string_stream_heap(stream, ret);
 		return 1;
 	}
 }
@@ -1900,6 +1989,10 @@ static int WriteBody_stream(Execute ptr, addr stream, addr pos)
 			print_ascii_stream(stream, "PROMPT-STREAM");
 			break;
 
+		case StreamType_Pretty:
+			print_ascii_stream(stream, "PRETTY-STREAM");
+			break;
+
 		default:
 			print_ascii_stream(stream, "STREAM");
 			break;
@@ -2010,7 +2103,7 @@ static int WriteCall_bytespec(Execute ptr, addr stream, addr pos)
 /*
  *  table
  */
-static void write_check_call(Execute ptr, addr pos)
+_g void write_check_call(Execute ptr, addr pos)
 {
 	int index;
 	calltype_print_check call;
@@ -2050,8 +2143,12 @@ int write_default_print(Execute ptr, addr stream, addr pos)
 	if (! circle_print(ptr))
 		return write_print_call(ptr, stream, pos);
 	/* circle */
-	push_write_object(ptr);
-	write_check_call(ptr, pos);
+	if (discard_pretty_stream(stream))
+		return 0;
+	if (! pretty_stream_p(stream)) {
+		push_write_object(ptr);
+		write_check_call(ptr, pos);
+	}
 	return write_circle_call(ptr, stream, pos);
 }
 
@@ -2062,10 +2159,10 @@ static int write_pretty_print(Execute ptr, addr stream, addr pos)
 	pprint_dispatch_print(ptr, &dispatch);
 	if (find_function_print_dispatch(ptr->local, pos, dispatch, &dispatch))
 		return 1;
-	if (dispatch != Nil)
-		return callclang_funcall(ptr, &dispatch, dispatch, stream, pos, NULL);
-	else
+	if (dispatch == Nil)
 		return write_default_print(ptr, stream, pos);
+	else
+		return callclang_funcall(ptr, &dispatch, dispatch, stream, pos, NULL);
 }
 
 _g int write_print(Execute ptr, addr stream, addr pos)

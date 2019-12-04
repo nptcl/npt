@@ -1157,7 +1157,7 @@ static int type_second_size(addr type, unsigned *ret)
 
 	/* (array (signed-byte size) *) */
 	GetArrayType(check, 0, &check);
-	if (getindex_integer(check, &size))
+	if (GetIndex_integer(check, &size))
 		return 1;
 
 	switch (size) {

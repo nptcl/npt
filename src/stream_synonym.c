@@ -100,6 +100,12 @@ static void write_char_Synonym(addr stream, unicode u)
 	write_char_stream(stream, u);
 }
 
+static void terpri_Synonym(addr stream)
+{
+	getstream_synonym(stream, &stream);
+	terpri_stream(stream);
+}
+
 static int fresh_line_Synonym(addr stream)
 {
 	getstream_synonym(stream, &stream);
@@ -233,6 +239,7 @@ _g void init_stream_synonym(void)
 	DefineStreamSet(Synonym, read_hang);
 	DefineStreamSet(Synonym, unread_char);
 	DefineStreamSet(Synonym, write_char);
+	DefineStreamSet(Synonym, terpri);
 	DefineStreamSet(Synonym, fresh_line);
 	DefineStreamSet(Synonym, inputp);
 	DefineStreamSet(Synonym, outputp);

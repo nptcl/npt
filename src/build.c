@@ -14,7 +14,7 @@
 #include "constant.h"
 #include "control.h"
 #include "copy.h"
-#include "eastasian.h"
+#include "eastasian_unicode.h"
 #include "encode.h"
 #include "eval.h"
 #include "eval_declare.h"

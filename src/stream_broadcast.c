@@ -80,6 +80,18 @@ static void write_char_BroadCast(addr stream, unicode c)
 	}
 }
 
+static void terpri_BroadCast(addr stream)
+{
+	addr list;
+
+	CheckBroadCastStream(stream);
+	GetInfoStream(stream, &list);
+	while (list != Nil) {
+		getcons(list, &stream, &list);
+		terpri_stream(stream);
+	}
+}
+
 static int fresh_line_BroadCast(addr stream)
 {
 	int check;
@@ -296,6 +308,7 @@ _g void init_stream_broadcast(void)
 	DefineStream___(BroadCast, read_hang);
 	DefineStream___(BroadCast, unread_char);
 	DefineStreamSet(BroadCast, write_char);
+	DefineStreamSet(BroadCast, terpri);
 	DefineStreamSet(BroadCast, fresh_line);
 	DefineStreamChk(BroadCast, inputp, false);
 	DefineStreamChk(BroadCast, outputp, true);

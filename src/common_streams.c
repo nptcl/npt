@@ -801,7 +801,7 @@ static void function_file_position(Execute ptr, addr stream, addr pos)
 	}
 
 	/* set index */
-	getindex_error(pos, &size);
+	getindex_integer(pos, &size);
 	result = file_position_set_stream(stream, size);
 	setbool_control(ptr, ! result);
 }

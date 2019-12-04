@@ -495,7 +495,7 @@ static int logbitp_fixnum(addr index, addr pos)
 
 	CheckType(pos, LISPTYPE_FIXNUM);
 	GetFixnum(pos, &(u.sign));
-	if (getindex_integer(index, &size) || LISP_INTEGER_BIT <= size) {
+	if (GetIndex_integer(index, &size) || LISP_INTEGER_BIT <= size) {
 		/* out of range */
 		return u.sign < 0;
 	}
@@ -547,7 +547,7 @@ static int logbitp_bignum(addr index, addr pos)
 	GetSignBignum(pos, &sign);
 	GetSizeBignum(pos, &size);
 	check = size * BIGNUM_FULLBIT;
-	if (getindex_integer(index, &size) || check <= size)
+	if (GetIndex_integer(index, &size) || check <= size)
 		return IsPlus(sign)? 0: 1;
 	/* sign */
 	if (IsPlus(sign))

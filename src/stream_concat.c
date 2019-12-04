@@ -203,6 +203,7 @@ _g void init_stream_concatenated(void)
 	DefineStreamSet(Concatenated, read_hang);
 	DefineStreamSet(Concatenated, unread_char);
 	DefineStream___(Concatenated, write_char);
+	DefineStream___(Concatenated, terpri);
 	DefineStream___(Concatenated, fresh_line);
 	DefineStreamChk(Concatenated, inputp, true);
 	DefineStreamSet(Concatenated, outputp);

@@ -474,7 +474,7 @@ loop:
 			return 1;
 		goto loop;
 	}
-	if (getindex_integer(pos, &select)) {
+	if (GetIndex_integer(pos, &select)) {
 		fmts(io, "Illegal integer value ~A.~%", pos, NULL);
 		goto loop;
 	}

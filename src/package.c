@@ -2680,7 +2680,7 @@ static int defpackage_execute(Execute ptr, addr rest)
 	GetCons(rest, &size, &rest);
 	sizep = (size != Nil);
 	if (sizep) {
-		if (getindex_integer(size, &value))
+		if (GetIndex_integer(size, &value))
 			fmte(":size ~S is too large.", size, NULL);
 	}
 	GetCons(rest, &doc, &rest);
