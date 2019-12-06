@@ -32,8 +32,6 @@
 #include "type_name.h"
 #include "unicode.h"
 
-typedef void (*calltype_print_check)(Execute ptr, addr pos);
-static calltype_print_check WriteCheckTable[LISPTYPE_SIZE];
 static calltype_print WriteCircleTable[LISPTYPE_SIZE];
 static calltype_print WriteCallTable[LISPTYPE_SIZE];
 
@@ -473,17 +471,35 @@ static int WriteCall_cons(Execute ptr, addr stream, addr pos)
  */
 static void WriteCheckCall_vector(Execute ptr, addr pos)
 {
+	int lenp, levelp;
 	addr x;
-	size_t size, i;
+	size_t len, level, depth, size, i;
 
+	lenp = length_print(ptr, &len);
+	levelp = level_print(ptr, &level);
+	getdepth_print_write(ptr, &depth);
+
+	/* *print-level* */
+	if (levelp && level <= depth)
+		return;
+
+	/* intern */
+	if (intern_print_write(ptr, pos) == 0)
+		return;
+
+	/* list */
 	CheckType(pos, LISPTYPE_VECTOR);
-	if (intern_print_write(ptr, pos)) {
-		lenarray(pos, &size);
-		for (i = 0; i < size; i++) {
-			getarray(pos, i, &x);
-			write_check_call(ptr, x);
-		}
+	lenarray(pos, &size);
+	setdepth_print_write(ptr, depth + 1);
+	for (i = 0; i < size; i++) {
+		/* *print-length* */
+		if (lenp && len <= i)
+			break;
+		/* vector */
+		getarray(pos, i, &x);
+		write_check_call(ptr, x);
 	}
+	setdepth_print_write(ptr, depth);
 }
 
 static int WriteCircleCall_vector(Execute ptr, addr stream, addr pos)
@@ -574,27 +590,23 @@ static int WriteCall_vector(Execute ptr, addr stream, addr pos)
 /*
  *  array
  */
-static void WriteCheckCall_array(Execute ptr, addr pos)
-{
-	addr x;
-	size_t i, size;
-	struct array_struct *str;
+struct write_array_struct {
+	Execute ptr;
+	addr pos, stream;
+	const size_t *data;
+	size_t dimension, depth, index;
+};
 
-	CheckType(pos, LISPTYPE_ARRAY);
-	if (array_specialized_p(pos))
-		return;
-	if (! intern_print_write(ptr, pos))
-		return;
-	str = ArrayInfoStruct(pos);
-	size = str->front;
-	for (i = 0; i < size; i++) {
-#ifdef LISP_DEBUG
-		Check(array_get_t(pos, i, &x), "array_get_t error");
-#else
-		(void)array_get_t(pos, i, &x);
-#endif
-		write_check_call(ptr, x);
-	}
+static void make_write_array(struct write_array_struct *str,
+		Execute ptr, addr stream, addr pos, const size_t *data, size_t dimension)
+{
+	str->ptr = ptr;
+	str->stream = stream;
+	str->pos = pos;
+	str->data = data;
+	str->dimension = dimension;
+	str->depth = 0;
+	str->index = 0;
 }
 
 static int WriteArray_specialized_p(addr pos)
@@ -604,6 +616,82 @@ static int WriteArray_specialized_p(addr pos)
 	str = ArrayInfoStruct(pos);
 	return (str->dimension == 1)
 		&& (str->type == ARRAY_TYPE_BIT || str->type == ARRAY_TYPE_CHARACTER);
+}
+
+static void WriteCheckCall_array_print(struct write_array_struct *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr pos;
+
+	local = str->ptr->local;
+	push_local(local, &stack);
+	array_get(local, str->pos, str->index++, &pos);
+	write_check_call(str->ptr, pos);
+	rollback_local(local, stack);
+}
+
+static void WriteCheckCall_array_call(struct write_array_struct *str)
+{
+	int lenp;
+	const size_t *data;
+	size_t len, i, loop, depth;
+
+	/* output */
+	depth = str->depth;
+	if (str->dimension <= str->depth) {
+		WriteCheckCall_array_print(str);
+		return;
+	}
+
+	/* restrict */
+	data = str->data;
+	loop = data[depth];
+	lenp = length_print(str->ptr, &len);
+
+	str->depth++;
+	for (i = 0; i < loop; i++) {
+		/* *print-length* */
+		if (lenp && len <= i) {
+			str->index += loop - i;
+			break;
+		}
+		/* array */
+		WriteCheckCall_array_call(str);
+	}
+	str->depth--;
+}
+
+static void WriteCheckCall_array(Execute ptr, addr pos)
+{
+	int check;
+	const size_t *data;
+	size_t dimension, level, depth;
+	struct write_array_struct str;
+
+	/* *print-level* */
+	check = level_print(ptr, &level);
+	getdepth_print_write(ptr, &depth);
+	if (check && level <= depth)
+		return;
+
+	/* intern */
+	if (intern_print_write(ptr, pos) == 0)
+		return;
+
+	/* specialized */
+	if (WriteArray_specialized_p(pos))
+		return;
+
+	/* prefix */
+	dimension = ArrayInfoStruct(pos)->dimension;
+	data = array_ptrsize(pos);
+
+	/* body */
+	setdepth_print_write(ptr, depth + 1);
+	make_write_array(&str, ptr, Nil, pos, data, dimension);
+	WriteCheckCall_array_call(&str);
+	setdepth_print_write(ptr, depth);
 }
 
 static int WriteArray_bit(Execute ptr, addr stream, addr pos)
@@ -637,25 +725,6 @@ static int WriteArray_specialized(Execute ptr, addr stream, addr pos)
 	}
 
 	return 0;
-}
-
-struct write_array_struct {
-	Execute ptr;
-	addr pos, stream;
-	const size_t *data;
-	size_t dimension, depth, index;
-};
-
-static void make_write_array(struct write_array_struct *str,
-		Execute ptr, addr stream, addr pos, const size_t *data, size_t dimension)
-{
-	str->ptr = ptr;
-	str->stream = stream;
-	str->pos = pos;
-	str->data = data;
-	str->dimension = dimension;
-	str->depth = 0;
-	str->index = 0;
 }
 
 static int WriteCircleCall_array_print(struct write_array_struct *str)
@@ -2105,13 +2174,22 @@ static int WriteCall_bytespec(Execute ptr, addr stream, addr pos)
  */
 _g void write_check_call(Execute ptr, addr pos)
 {
-	int index;
-	calltype_print_check call;
+	switch (GetType(pos)) {
+		case LISPTYPE_CONS:
+			WriteCheckCall_cons(ptr, pos);
+			break;
 
-	index = (int)GetType(pos);
-	call = WriteCheckTable[index];
-	if (call)
-		(*call)(ptr, pos);
+		case LISPTYPE_VECTOR:
+			WriteCheckCall_vector(ptr, pos);
+			break;
+
+		case LISPTYPE_ARRAY:
+			WriteCheckCall_array(ptr, pos);
+			break;
+
+		default:
+			break;
+	}
 }
 
 static int write_circle_call(Execute ptr, addr stream, addr pos)
@@ -2284,20 +2362,16 @@ _g void init_print_write(void)
 	/* error */
 	for (i = 0; i < LISPTYPE_SIZE; i++) {
 		WriteCallTable[i] = WriteCall_error;
-		WriteCheckTable[i] = NULL;
 		WriteCircleTable[i] = NULL;
 	}
 
 	/* cons */
-	WriteCheckTable[LISPTYPE_CONS] = WriteCheckCall_cons;
 	WriteCircleTable[LISPTYPE_CONS] = WriteCircleCall_cons;
 	WriteCallTable[LISPTYPE_CONS] = WriteCall_cons;
 	/* vector */
-	WriteCheckTable[LISPTYPE_VECTOR] = WriteCheckCall_vector;
 	WriteCircleTable[LISPTYPE_VECTOR] = WriteCircleCall_vector;
 	WriteCallTable[LISPTYPE_VECTOR] = WriteCall_vector;
 	/* array */
-	WriteCheckTable[LISPTYPE_ARRAY] = WriteCheckCall_array;
 	WriteCircleTable[LISPTYPE_ARRAY] = WriteCircleCall_array;
 	WriteCallTable[LISPTYPE_ARRAY] = WriteCall_array;
 	/* object */

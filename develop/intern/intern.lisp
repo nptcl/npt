@@ -1534,6 +1534,10 @@ lisp-system::h
 lisp-system::w
 lisp-system::f
 lisp-system::na
+(lisp-system::*default-print-dispatch*
+  :constant system :name default-print-dispatch)
+(lisp-system::*empty-print-dispatch*
+  :constant system :name empty-print-dispatch)
 
 
 ;;

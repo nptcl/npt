@@ -1600,3 +1600,40 @@ _g void syscall_code(LocalRoot local, addr *ret, pointer call, addr value)
 	*ret = code;
 }
 
+_g void catch_syscall_code(addr *ret, pointer call, addr tag, addr value)
+{
+	addr pos, code, list;
+
+	/* function */
+	compiled_heap(&pos, Nil);
+	setcompiled_empty(pos, call);
+	SetDataFunction(pos, value);
+	/* catch
+	 *   (set . tag)
+	 *   (catch)
+	 *   (set . function)
+	 *   (call)
+	 *   (end)
+	 */
+	vector4_heap(&code, 5);
+	GetConst(CODE_SET, &list);
+	cons_heap(&list, list, tag);
+	setarray(code, 0, list);
+	GetConst(CODE_CATCH, &list);
+	conscar_heap(&list, list);
+	setarray(code, 1, list);
+	GetConst(CODE_SET, &list);
+	cons_heap(&list, list, pos);
+	setarray(code, 2, list);
+	GetConst(CODE_CALL, &list);
+	conscar_heap(&list, list);
+	setarray(code, 3, list);
+	GetConst(CODE_END, &list);
+	conscar_heap(&list, list);
+	setarray(code, 4, list);
+	code_heap(&code, code);
+	settype_code(code, CodeType_Catch);
+	/* function */
+	function_heap(ret, Nil, code);
+}
+

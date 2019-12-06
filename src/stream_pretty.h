@@ -7,7 +7,9 @@
 /* pretty-stream object */
 _g void open_pretty_stream(Execute ptr, addr *ret,
 		addr stream, addr root, addr prefix, addr perline, addr suffix);
+_g void setlistp_pretty_stream(addr stream, int value);
 _g int listp_pretty_stream(addr stream);
+_g void setdiscard_pretty_stream(addr stream, int value);
 _g int discard_pretty_stream(addr stream);
 _g size_t length_pretty_stream(addr stream);
 _g int first_pretty_stream(addr stream);
@@ -21,6 +23,7 @@ _g void result_pretty_stream(addr stream, addr *ret);
 _g void sharp_pretty_stream(addr stream, addr *ret);
 _g void setsharp_pretty_stream(addr stream, addr value);
 /* pretty-stream function */
+_g void setdepth_pretty_stream(Execute ptr, addr stream, size_t inc);
 _g void close_pretty_stream(Execute ptr, addr stream);
 _g void push_pretty_stream(addr stream, addr pos);
 _g int pop_pretty_stream(addr stream, addr *ret);

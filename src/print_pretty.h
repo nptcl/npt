@@ -22,9 +22,6 @@ enum pprint_tabular {
 _g int pprint_exit_common(Execute ptr, addr stream);
 _g int pprint_pop_common(Execute ptr, addr stream, addr *ret);
 _g int check_pretty_stream(Execute ptr, addr stream);
-_g void pprint_fill_common(addr stream, addr list, int colon);
-_g void pprint_linear_common(addr stream, addr list, int colon);
-_g void pprint_tabular_common(addr stream, addr list, int colon, fixnum size);
 _g void expand_pprint_logical_block_common(Execute ptr,
 		addr *ret, addr stream, addr pos,
 		addr prefix, addr per, addr suffix, addr decl, addr body);
@@ -37,9 +34,9 @@ _g void pprint_tab_section(Execute ptr, addr stream, fixnum column, fixnum colin
 _g void pprint_tab_section_relative(Execute ptr,
 		addr stream, fixnum column, fixnum colinc);
 _g void pprint_tab_absolute_force(addr stream,
-		fixnum column, fixnum colinc, fixnum index);
+		fixnum column, fixnum colinc, fixnum now);
 _g void pprint_tab_relative_force(addr stream,
-		fixnum column, fixnum colinc, fixnum index);
+		fixnum column, fixnum colinc, fixnum now);
 _g void pprint_output(Execute ptr, addr stream, addr pos);
 
 #endif

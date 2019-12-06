@@ -2,12 +2,14 @@
 #include "cons_list.h"
 #include "constant.h"
 #include "equal.h"
+#include "execute.h"
 #include "function.h"
 #include "heap.h"
 #include "integer.h"
 #include "print_dispatch.h"
 #include "real.h"
 #include "symbol.h"
+#include "type_table.h"
 #include "type_typep.h"
 
 /*
@@ -227,12 +229,14 @@ static void set_print_dispatch(addr spec, addr type,
 /*
  *  common
  */
-_g void copy_pprint_dispatch_common(addr var, addr *ret)
+_g void copy_pprint_dispatch_common(Execute ptr, addr var, addr *ret)
 {
-	if (var == Nil)
-		pprint_dispatch_heap(ret);
-	else
-		copy_pprint_dispatch(var, ret);
+	if (var == Nil) {
+		GetConst(SYSTEM_DEFAULT_PRINT_DISPATCH, &var);
+		getspecialcheck_local(ptr, var, &var);
+		CheckType(var, LISPTYPE_PRINT_DISPATCH);
+	}
+	copy_pprint_dispatch(var, ret);
 }
 
 _g int pprint_dispatch_common(Execute ptr, addr var, addr table, addr *x, addr *y)
@@ -267,5 +271,60 @@ _g void set_pprint_dispatch_common(LocalRoot local,
 		Check(! integerp(priority), "type error: priority");
 		set_print_dispatch(spec, type, call, priority, table);
 	}
+}
+
+
+/*
+ *  *default-print-dispatch*
+ */
+static void build_print_dispatch_empty(void)
+{
+	addr symbol, pos;
+
+	/* system::*empty-print-dispatch* */
+	pprint_dispatch_heap(&pos);
+	GetConst(SYSTEM_EMPTY_PRINT_DISPATCH, &symbol);
+	SetValueSymbol(symbol, pos);
+}
+
+static void build_print_dispatch_table(addr *ret)
+{
+	addr symbol, pos;
+
+	pprint_dispatch_heap(&pos);
+	/* system::*default-print-dispatch* */
+	GetConst(SYSTEM_DEFAULT_PRINT_DISPATCH, &symbol);
+	SetValueSymbol(symbol, pos);
+	/* common-lisp::*print-pprint-dispatch* */
+	GetConst(SPECIAL_PRINT_PPRINT_DISPATCH, &symbol);
+	SetValueSymbol(symbol, pos);
+	/* result */
+	*ret = pos;
+}
+
+static void build_print_dispatch_cons(LocalRoot local, addr dispatch)
+{
+	/* (system::set-pprint-dispatch
+	 *   'cons 'cons #'pprint-fill -10 dispatch)
+	 */
+	addr spec, type, call, priority;
+
+	GetConst(COMMON_CONS, &spec);
+	GetTypeTable(&type, Cons);
+	GetConst(COMMON_PPRINT_FILL, &call);
+	GetFunctionSymbol(call, &call);
+	fixnum_heap(&priority, -10);
+	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
+}
+
+_g void build_print_dispatch(void)
+{
+	LocalRoot local;
+	addr dispatch;
+
+	local = Local_Thread;
+	build_print_dispatch_empty();
+	build_print_dispatch_table(&dispatch);
+	build_print_dispatch_cons(local, dispatch);
 }
 

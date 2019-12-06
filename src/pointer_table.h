@@ -1024,6 +1024,16 @@ enum pointer_index {
 	p_method_defstruct_function,
 	/* input */
 	p_readlist_finalize,
+	/* pprint */
+	p_pprint_logical_block_close,
+	p_pprint_logical_block_fill,
+	p_pprint_logical_block_fill_form,
+	p_pprint_logical_block_linear,
+	p_pprint_logical_block_linear_form,
+	p_pprint_logical_block_tabular,
+	p_pprint_logical_block_tabular_form,
+	p_pprint_logical_block_vector,
+	p_pprint_logical_block_vector_form,
 	/* syscall */
 	p_defun_syscall_hello,
 	p_defun_syscall_fixnum_plus,

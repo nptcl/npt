@@ -28,10 +28,7 @@ enum print_pretty {
 	print_pretty_tabular_line,
 	print_pretty_tabular_section,
 	print_pretty_tabular_liner,
-	print_pretty_tabular_sectionr,
-	print_pretty_output_fill,
-	print_pretty_output_linear,
-	print_pretty_output_tabular
+	print_pretty_tabular_sectionr
 };
 
 struct print_pretty_struct {
@@ -205,20 +202,6 @@ static void size2_pretty_heap(addr *ret, enum print_pretty type, fixnum a, fixnu
 	*ret = pos;
 }
 
-static void output_pretty_heap(addr *ret,
-		enum print_pretty type, addr list, int colonp, fixnum size)
-{
-	addr pos;
-	struct print_pretty_struct *ptr;
-
-	print_pretty_heap(&pos, type);
-	SetArraySS(pos, 0, list);
-	ptr = struct_print_pretty(pos);
-	ptr->colon = (colonp != 0);
-	ptr->value = size;
-	*ret = pos;
-}
-
 
 /*
  *  common
@@ -228,7 +211,7 @@ _g void expand_pprint_logical_block_common(Execute ptr,
 		addr prefix, addr perline, addr suffix, addr decl, addr body)
 {
 	/* `(let ((,symbol (system::make-pprint-stream
-	 *                   ,symbol ,pos ',prefix ',perline ',suffix)))
+	 *                   ,symbol ,pos ,prefix ,perline ,suffix)))
 	 *    ,@decl
 	 *    (system::pprint-pretty
 	 *      ,symbol
@@ -296,9 +279,6 @@ _g void expand_pprint_logical_block_common(Execute ptr,
 	list_heap(&unwind, unwind, catch, close, NULL);
 	list_heap(&lambda, lambda, Nil, unwind, NULL);
 	list_heap(&pretty, pretty, symbol, lambda, NULL);
-	list_heap(&prefix, quote, prefix, NULL);
-	list_heap(&perline, quote, perline, NULL);
-	list_heap(&suffix, quote, suffix, NULL);
 	list_heap(&x, make, symbol, pos, prefix, perline, suffix, NULL);
 	list_heap(&x, symbol, x, NULL);
 	list_heap(&x, x, NULL);
@@ -387,6 +367,7 @@ _g int check_pretty_stream(Execute ptr, addr stream)
 	if (level_print(ptr, &level)) {
 		getdepth_print_write(ptr, &depth);
 		if (level <= depth) {
+			setlistp_pretty_stream(stream, 0);
 			write_char_stream(stream, '#');
 			return pprint_throw(ptr, stream);
 		}
@@ -395,15 +376,20 @@ _g int check_pretty_stream(Execute ptr, addr stream)
 	/* atom */
 	root_pretty_stream(stream, &root);
 	if (! listp(root)) {
-		return write_print(ptr, stream, root)
-			|| pprint_throw(ptr, stream);
+		return write_print(ptr, stream, root) || pprint_throw(ptr, stream);
 	}
+
+	/* increment depth */
+	setdepth_pretty_stream(ptr, stream, 1);
 
 	/* circle */
 	if (circle_print(ptr)) {
 		if (consp(root)) {
-			if (pprint_check_circle(ptr, root, &root))
-				return 1;
+			if (pprint_check_circle(ptr, root, &root)) {
+				setlistp_pretty_stream(stream, 0);
+				print_string_stream(stream, root);
+				return pprint_throw(ptr, stream);
+			}
 			if (root != Nil)
 				setsharp_pretty_stream(stream, root);
 		}
@@ -411,27 +397,6 @@ _g int check_pretty_stream(Execute ptr, addr stream)
 	}
 
 	return 0;
-}
-
-_g void pprint_fill_common(addr stream, addr list, int colon)
-{
-	addr pos;
-	output_pretty_heap(&pos, print_pretty_output_fill, list, colon, 0);
-	push_pretty_stream(stream, pos);
-}
-
-_g void pprint_linear_common(addr stream, addr list, int colon)
-{
-	addr pos;
-	output_pretty_heap(&pos, print_pretty_output_linear, list, colon, 0);
-	push_pretty_stream(stream, pos);
-}
-
-_g void pprint_tabular_common(addr stream, addr list, int colon, fixnum size)
-{
-	addr pos;
-	output_pretty_heap(&pos, print_pretty_output_tabular, list, colon, size);
-	push_pretty_stream(stream, pos);
 }
 
 static int pretty_common_p(Execute ptr, addr stream)
@@ -541,45 +506,45 @@ static void pprint_tab_output(addr stream, fixnum size)
 }
 
 static void pprint_tab_absolute_size(fixnum *ret,
-		fixnum column, fixnum colinc, fixnum index)
+		fixnum column, fixnum colinc, fixnum base, fixnum now)
 {
-	if (index < column) {
-		column -= index;
+	if (now < column) {
+		column -= now;
 	}
 	else if (colinc) {
-		column = ((index / colinc) + 1) * colinc;
-		column -= index;
+		column = ((now / colinc) + 1) * colinc;
+		column -= now;
 	}
 	else {
 		column = 0;
+	}
+	*ret = (column < 0)? 0: column + base;
+}
+
+static void pprint_tab_relative_size(fixnum *ret,
+		fixnum column, fixnum colinc, fixnum base, fixnum now)
+{
+	now += column - base;
+	if (colinc) {
+		now %= colinc;
+		if (now)
+			column += colinc - now;
 	}
 	*ret = (column < 0)? 0: column;
 }
 
 _g void pprint_tab_absolute_force(addr stream,
-		fixnum column, fixnum colinc, fixnum index)
+		fixnum column, fixnum colinc, fixnum now)
 {
-	pprint_tab_absolute_size(&index, column, colinc, index);
-	pprint_tab_output(stream, index);
-}
-
-static void pprint_tab_relative_size(fixnum *ret,
-		fixnum column, fixnum colinc, fixnum index)
-{
-	index += column;
-	if (colinc) {
-		index %= colinc;
-		if (index)
-			column += colinc - index;
-	}
-	*ret = (column < 0)? 0: column;
+	pprint_tab_absolute_size(&now, column, colinc, 0, now);
+	pprint_tab_output(stream, now);
 }
 
 _g void pprint_tab_relative_force(addr stream,
-		fixnum column, fixnum colinc, fixnum index)
+		fixnum column, fixnum colinc, fixnum now)
 {
-	pprint_tab_relative_size(&index, column, colinc, index);
-	pprint_tab_output(stream, index);
+	pprint_tab_relative_size(&now, column, colinc, 0, now);
+	pprint_tab_output(stream, now);
 }
 
 
@@ -657,9 +622,12 @@ struct pretty_block {
 	addr pretty, root, list, perline;
 	unsigned miserp : 1;
 	unsigned newlinep : 1;
+	unsigned previous : 1;
+	unsigned break_lines_p : 1;
+	unsigned print_lines_p : 1;
 	unsigned print_miser_p : 1;
-	size_t print_miser, print_margin;
-	size_t indent, base, now, current, section;
+	size_t print_lines, print_miser, print_margin;
+	size_t indent, base, now, current, section, lines;
 };
 
 static void pretty_push_object(struct pretty_block *ptr, addr pos)
@@ -675,6 +643,17 @@ static void pretty_push_terpri(struct pretty_block *ptr)
 static void pretty_push_newline(struct pretty_block *ptr)
 {
 	pretty_push_object(ptr, Nil);
+}
+
+static void pretty_push_char(struct pretty_block *ptr, const char *str)
+{
+	addr pos;
+	size_t size;
+
+	strvect_char_heap(&pos, str);
+	pretty_push_object(ptr, pos);
+	eastasian_length(pos, &size);
+	ptr->now += size;
 }
 
 static void pretty_push_string(struct pretty_block *ptr, addr pos, size_t *ret)
@@ -750,31 +729,28 @@ static void pretty_suffix_plus(addr pos, size_t *size)
 
 static void pretty_tabular_plus(struct pretty_block *ptr, addr pos, size_t *size)
 {
-	fixnum value, column, colinc, index;
+	fixnum value, column, colinc, now;
 	struct print_pretty_struct *str;
 
 	str = struct_print_pretty(pos);
 	column = str->value;
 	colinc = str->colinc;
+	now = ptr->now;
 	switch (str->type) {
 		case print_pretty_tabular_line:
-			index = ptr->now;
-			pprint_tab_absolute_size(&value, column, colinc, index);
+			pprint_tab_absolute_size(&value, column, colinc, 0, now);
 			break;
 
 		case print_pretty_tabular_section:
-			index = ptr->section;
-			pprint_tab_absolute_size(&value, column, colinc, index);
+			pprint_tab_absolute_size(&value, column, colinc, ptr->section, now);
 			break;
 
 		case print_pretty_tabular_liner:
-			index = ptr->now;
-			pprint_tab_relative_size(&value, column, colinc, index);
+			pprint_tab_relative_size(&value, column, colinc, 0, now);
 			break;
 
 		case print_pretty_tabular_sectionr:
-			index = ptr->section;
-			pprint_tab_relative_size(&value, column, colinc, index);
+			pprint_tab_relative_size(&value, column, colinc, ptr->section, now);
 			break;
 
 		default:
@@ -787,6 +763,7 @@ static void pretty_tabular_plus(struct pretty_block *ptr, addr pos, size_t *size
 
 static int pretty_front_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 {
+	int listp;
 	addr list, x;
 	size_t size, value, section;
 
@@ -794,9 +771,12 @@ static int pretty_front_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 	size = 0;
 	section = ptr->now;
 	/* prefix */
-	pretty_prefix_plus(pos, &value);
-	size += value;
-	ptr->now += value;
+	listp = listp_pretty_stream(pos);
+	if (listp) {
+		pretty_prefix_plus(pos, &value);
+		size += value;
+		ptr->now += value;
+	}
 	ptr->section = ptr->now;
 	/* loop */
 	result_pretty_stream(pos, &list);
@@ -834,9 +814,11 @@ static int pretty_front_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 		ptr->now += value;
 	}
 	/* suffix */
-	pretty_suffix_plus(pos, &value);
-	size += value;
-	ptr->now += value;
+	if (listp) {
+		pretty_suffix_plus(pos, &value);
+		size += value;
+		ptr->now += value;
+	}
 	/* result */
 	ptr->section = section;
 	*ret = size;
@@ -891,6 +873,7 @@ static int pretty_front_newline(struct pretty_block *ptr,
 
 static int pretty_tail_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 {
+	int listp;
 	addr list, x;
 	size_t size, value, section;
 
@@ -898,9 +881,12 @@ static int pretty_tail_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 	size = 0;
 	section = ptr->now;
 	/* prefix */
-	pretty_prefix_plus(pos, &value);
-	size += value;
-	ptr->now += value;
+	listp = listp_pretty_stream(pos);
+	if (listp) {
+		pretty_prefix_plus(pos, &value);
+		size += value;
+		ptr->now += value;
+	}
 	ptr->section = ptr->now;
 	/* loop */
 	result_pretty_stream(pos, &list);
@@ -939,9 +925,11 @@ static int pretty_tail_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 		ptr->now += value;
 	}
 	/* suffix */
-	pretty_suffix_plus(pos, &value);
-	size += value;
-	ptr->now += value;
+	if (listp) {
+		pretty_suffix_plus(pos, &value);
+		size += value;
+		ptr->now += value;
+	}
 	/* result */
 	ptr->section = section;
 	*ret = size;
@@ -1064,8 +1052,22 @@ static void pretty_output_perline(struct pretty_block *ptr)
 	}
 }
 
+static int pretty_output_lines(struct pretty_block *ptr)
+{
+	if (! ptr->print_lines_p)
+		return 0;
+	ptr->lines++;
+	if (ptr->lines < ptr->print_lines)
+		return 0;
+	pretty_push_char(ptr, " ..");
+	ptr->break_lines_p = 1;
+	return 1;
+}
+
 static void pretty_output_terpri(struct pretty_block *ptr)
 {
+	if (pretty_output_lines(ptr))
+		return;
 	/* terpri */
 	pretty_push_terpri(ptr);
 	ptr->now = 0;
@@ -1079,10 +1081,13 @@ static void pretty_output_terpri(struct pretty_block *ptr)
 		pretty_push_size(ptr, ptr->current - ptr->now);
 	/* current */
 	ptr->section = ptr->now;
+	ptr->previous = 0;
 }
 
 static void pretty_output_newline(struct pretty_block *ptr)
 {
+	if (pretty_output_lines(ptr))
+		return;
 	/* terpri */
 	pretty_push_newline(ptr);
 	ptr->now = 0;
@@ -1099,6 +1104,7 @@ static void pretty_output_newline(struct pretty_block *ptr)
 		pretty_push_size(ptr, ptr->indent);
 	/* current */
 	ptr->section = ptr->now;
+	ptr->previous = 0;
 }
 
 static void pretty_output_fill(struct pretty_block *ptr, addr list)
@@ -1112,10 +1118,17 @@ static void pretty_output_fill(struct pretty_block *ptr, addr list)
 		return;
 	}
 
+	/* previous section */
+	if (ptr->previous) {
+		pretty_output_newline(ptr);
+		return;
+	}
+
 	/* normal */
 	(void)pretty_tail_section(ptr, list, &size);
-	if (ptr->print_margin <= ptr->now + size)
+	if (ptr->print_margin < ptr->now + size) {
 		pretty_output_newline(ptr);
+	}
 }
 
 static void pretty_output_indent_block(struct pretty_block *ptr, addr pos)
@@ -1150,7 +1163,7 @@ static void pretty_output_tabular_line(struct pretty_block *ptr, addr pos)
 
 	str = struct_print_pretty(pos);
 	value = ptr->now;
-	pprint_tab_absolute_size(&value, str->value, str->colinc, value);
+	pprint_tab_absolute_size(&value, str->value, str->colinc, 0, value);
 	pretty_push_size(ptr, (size_t)value);
 }
 
@@ -1161,7 +1174,7 @@ static void pretty_output_tabular_section(struct pretty_block *ptr, addr pos)
 
 	str = struct_print_pretty(pos);
 	value = ptr->now;
-	pprint_tab_relative_size(&value, str->value, str->colinc, value);
+	pprint_tab_relative_size(&value, str->value, str->colinc, 0, value);
 	pretty_push_size(ptr, (size_t)value);
 }
 
@@ -1171,8 +1184,8 @@ static void pretty_output_tabular_liner(struct pretty_block *ptr, addr pos)
 	struct print_pretty_struct *str;
 
 	str = struct_print_pretty(pos);
-	value = ptr->section;
-	pprint_tab_absolute_size(&value, str->value, str->colinc, value);
+	value = ptr->now;
+	pprint_tab_absolute_size(&value, str->value, str->colinc, ptr->section, value);
 	pretty_push_size(ptr, (size_t)value);
 }
 
@@ -1182,8 +1195,8 @@ static void pretty_output_tabular_sectionr(struct pretty_block *ptr, addr pos)
 	struct print_pretty_struct *str;
 
 	str = struct_print_pretty(pos);
-	value = ptr->section;
-	pprint_tab_relative_size(&value, str->value, str->colinc, value);
+	value = ptr->now;
+	pprint_tab_relative_size(&value, str->value, str->colinc, ptr->section, value);
 	pretty_push_size(ptr, (size_t)value);
 }
 
@@ -1194,6 +1207,11 @@ static void pretty_output(struct pretty_block *ptr)
 
 	list = ptr->list;
 	while (list != Nil) {
+		/* lines */
+		if (ptr->break_lines_p) {
+			break;
+		}
+		/* list */
 		GetCons(list, &x, &list);
 		if (stringp(x)) {
 			pretty_push_string(ptr, x, NULL);
@@ -1355,12 +1373,14 @@ static void pretty_struct(struct pretty_block *ptr, addr pretty)
 	str.root = Nil;
 	str.miserp = 0;
 	str.newlinep = 0;
+	str.previous = 0;
 	result_pretty_stream(pretty, &(str.list));
 	/* value */
 	str.base = ptr->base;
 	str.current = 0;
 	str.section = 0;
 	str.indent = 0;
+	str.lines = 0;
 	/* print */
 	if (listp_pretty_stream(pretty)) {
 		pretty_prefix(&str);
@@ -1375,6 +1395,7 @@ static void pretty_struct(struct pretty_block *ptr, addr pretty)
 	/* result */
 	pretty_result(&str, ptr);
 	ptr->now = str.now;
+	ptr->previous = str.newlinep;
 }
 
 
@@ -1393,6 +1414,7 @@ static void pprint_initialize(struct pretty_block *str, Execute ptr, addr stream
 
 	/* value */
 	str->newlinep = 0;
+	str->previous = 0;
 	str->miserp = 0;
 	size = terpri_position_stream(stream);
 	str->base = size;
@@ -1400,8 +1422,12 @@ static void pprint_initialize(struct pretty_block *str, Execute ptr, addr stream
 	str->current = 0;
 	str->section = 0;
 	str->indent = 0;
+	str->lines = 0;
+	str->print_lines = 0;
 	str->print_miser = 0;
 	str->print_margin = 0;
+	str->break_lines_p = 0;
+	str->print_lines_p = lines_print(ptr, &(str->print_lines));
 	str->print_miser_p = miser_width_print(ptr, &(str->print_miser));
 	right_margin_print(ptr, &(str->print_margin));
 }

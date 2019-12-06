@@ -1,18 +1,6 @@
 ;;
 ;;  ANSI COMMON LISP: 22. Printer
 ;;
-(defun mkstr (&rest args)
-  (apply #'concatenate 'string (mapcar #'string args)))
-
-(defmacro pprint-logical-block-output
-  ((margin &optional width &rest args &key &allow-other-keys) &body body)
-  `(let ((*print-pretty* t)
-         (*print-right-margin* ,margin)
-         (*print-miser-width* ,width))
-     (with-output-to-string (*standard-output*)
-       (pprint-logical-block (nil nil ,@args)
-         ,@body))))
-
 
 ;;
 ;;  pprint-logical-block
@@ -752,27 +740,30 @@
            ";;;        (X Y)" #\newline
            ";;;   (* X Y))"))
 
-(defun examples-pprint-let (*standard-output* list)
-  (pprint-logical-block (nil list :prefix "(" :suffix ")")
-    (write (pprint-pop))
+(defun examples-pprint-let (stream list)
+  (pprint-logical-block (stream list :prefix "(" :suffix ")")
+    ;; let
+    (write (pprint-pop) :stream stream)
     (pprint-exit-if-list-exhausted)
-    (write-char #\Space)
-    (pprint-logical-block (nil (pprint-pop) :prefix "(" :suffix ")")
+    (write-char #\Space stream)
+    ;; args
+    (pprint-logical-block (stream (pprint-pop) :prefix "(" :suffix ")")
       (pprint-exit-if-list-exhausted)
-      (loop (pprint-logical-block (nil (pprint-pop) :prefix "(" :suffix ")")
+      (loop (pprint-logical-block (stream (pprint-pop) :prefix "(" :suffix ")")
               (pprint-exit-if-list-exhausted)
-              (loop (write (pprint-pop))
+              (loop (write (pprint-pop) :stream stream)
                     (pprint-exit-if-list-exhausted)
-                    (write-char #\Space)
-                    (pprint-newline :linear)))
+                    (write-char #\Space stream)
+                    (pprint-newline :linear stream)))
             (pprint-exit-if-list-exhausted)
-            (write-char #\Space)
-            (pprint-newline :fill)))
-    (pprint-indent :block 1)
+            (write-char #\Space stream)
+            (pprint-newline :fill stream)))
+    ;; body
+    (pprint-indent :block 1 stream)
     (loop (pprint-exit-if-list-exhausted)
-          (write-char #\Space)
-          (pprint-newline :linear)
-          (write (pprint-pop)))))
+          (write-char #\Space stream)
+          (pprint-newline :linear stream)
+          (write (pprint-pop) :stream stream))))
 
 (deftest pprint-let-examples.1
   (let ((*print-pretty* t)
@@ -786,11 +777,57 @@
         '#1=(let (x (*print-length* (f (g 3)))
                     (z . 2) (k (car y)))
               (setq x (sqrt z)) #1#))))
+  "#1=(LET (X (*PRINT-LENGTH* (F #)) (Z . 2) (K (CAR Y))) (SETQ X (SQRT Z)) #1#)")
+
+(deftest pprint-let-examples.2
+  (let ((*print-pprint-dispatch* lisp-system::*empty-print-dispatch*)
+        (*print-pretty* t)
+        (*print-circle* t)
+        (*print-level* 4)
+        (*print-right-margin* 77)
+        (*print-miser-width* nil))
+    (with-output-to-string (stream)
+      (examples-pprint-let
+        stream
+        '#1=(let (x (*print-length* (f (g 3)))
+                    (z . 2) (k (car y)))
+              (setq x (sqrt z)) #1#))))
+  "#1=(LET (X (*PRINT-LENGTH* (F #)) (Z . 2) (K (CAR Y))) (SETQ X (SQRT Z)) #1#)")
+
+(deftest pprint-let-examples.3
+  (let ((*print-pretty* t)
+        (*print-circle* t)
+        (*print-level* 4)
+        (*print-right-margin* 76)
+        (*print-miser-width* nil))
+    (with-output-to-string (stream)
+      (examples-pprint-let
+        stream
+        '#1=(let (x (*print-length* (f (g 3)))
+                    (z . 2) (k (car y)))
+              (setq x (sqrt z)) #1#))))
   #.(mkstr "#1=(LET (X (*PRINT-LENGTH* (F #)) (Z . 2) (K (CAR Y)))" #\newline
            "     (SETQ X (SQRT Z))" #\newline
            "     #1#)"))
 
-(deftest pprint-let-examples.2
+(deftest pprint-let-examples.4
+  (let ((*print-pprint-dispatch* lisp-system::*empty-print-dispatch*)
+        (*print-pretty* t)
+        (*print-circle* t)
+        (*print-level* 4)
+        (*print-right-margin* 76)
+        (*print-miser-width* nil))
+    (with-output-to-string (stream)
+      (examples-pprint-let
+        stream
+        '#1=(let (x (*print-length* (f (g 3)))
+                    (z . 2) (k (car y)))
+              (setq x (sqrt z)) #1#))))
+  #.(mkstr "#1=(LET (X (*PRINT-LENGTH* (F #)) (Z . 2) (K (CAR Y)))" #\newline
+           "     (SETQ X (SQRT Z))" #\newline
+           "     #1#)"))
+
+(deftest pprint-let-examples.5
   (let ((*print-pretty* t)
         (*print-circle* t)
         (*print-level* 4)
@@ -807,8 +844,48 @@
            "     (SETQ X (SQRT Z))" #\newline
            "     #1#)"))
 
-(deftest pprint-let-examples.3
+(deftest pprint-let-examples.6
+  (let ((*print-pprint-dispatch* lisp-system::*empty-print-dispatch*)
+        (*print-pretty* t)
+        (*print-circle* t)
+        (*print-level* 4)
+        (*print-right-margin* 35)
+        (*print-miser-width* nil))
+    (with-output-to-string (stream)
+      (examples-pprint-let
+        stream
+        '#1=(let (x (*print-length* (f (g 3)))
+                    (z . 2) (k (car y)))
+              (setq x (sqrt z)) #1#))))
+  #.(mkstr "#1=(LET (X (*PRINT-LENGTH* (F #))" #\newline
+           "         (Z . 2) (K (CAR Y)))" #\newline
+           "     (SETQ X (SQRT Z))" #\newline
+           "     #1#)"))
+
+(deftest pprint-let-examples.7
   (let ((*print-pretty* t)
+        (*print-circle* t)
+        (*print-level* 4)
+        (*print-length* 3)
+        (*print-right-margin* 22)
+        (*print-miser-width* nil))
+    (with-output-to-string (stream)
+      (examples-pprint-let
+        stream
+        '#1=(let (x (*print-length* (f (g 3)))
+                    (z . 2) (k (car y)))
+              (setq x (sqrt z)) #1#))))
+  #.(mkstr
+      "(LET (X" #\newline
+      "      (*PRINT-LENGTH*" #\newline
+      "       (F #))" #\newline
+      "      (Z . 2) ...)" #\newline
+      "  (SETQ X (SQRT Z))" #\newline
+      "  ...)"))
+
+(deftest pprint-let-examples.8
+  (let ((*print-pprint-dispatch* lisp-system::*empty-print-dispatch*)
+        (*print-pretty* t)
         (*print-circle* t)
         (*print-level* 4)
         (*print-length* 3)
@@ -849,4 +926,61 @@
   #.(mkstr "#(12 34 567 8" #\newline
            "  9012 34 567" #\newline
            "  89 0 1 23)"))
+
+(defun examples-pprint-tabular (s list &optional (colon-p t) at-sign-p (tabsize nil))
+  (declare (ignore at-sign-p))
+  (when (null tabsize) (setq tabsize 16))
+  (pprint-logical-block (s list :prefix (if colon-p "(" "")
+                           :suffix (if colon-p ")" ""))
+    (pprint-exit-if-list-exhausted)
+    (loop (write (pprint-pop) :stream s)
+          (pprint-exit-if-list-exhausted)
+          (write-char #\Space s)
+          (pprint-tab :section-relative 0 tabsize s)
+          (pprint-newline :fill s))))
+
+(deftest pprint-tabular-examples.1
+  (let ((*print-pretty* t)
+        (*print-right-margin* 25)
+        (*print-miser-width* nil))
+    (with-output-to-string (stream)
+      (princ "Roads " stream)
+      (examples-pprint-tabular stream '(elm main maple center) nil nil 8)))
+  #.(mkstr "Roads ELM     MAIN" #\newline
+           "      MAPLE   CENTER"))
+
+
+;;
+;;  lines
+;;
+(deftest pprint-lines.1
+  (let ((*print-pretty* t)
+        (*print-right-margin* 11)
+        (*print-miser-width* nil)
+        (*print-lines* 10))
+    (with-output-to-string (*standard-output*)
+      (pprint-logical-block (nil nil)
+        (princ "AAA") (pprint-newline :linear)
+        (princ "BBB") (pprint-newline :linear)
+        (princ "CCC") (pprint-newline :linear)
+        (princ "DDD") (pprint-newline :linear))))
+  #.(mkstr "AAA" #\newline
+           "BBB" #\newline
+           "CCC" #\newline
+           "DDD" #\newline))
+
+(deftest pprint-lines.2
+  (let ((*print-pretty* t)
+        (*print-right-margin* 11)
+        (*print-miser-width* nil)
+        (*print-lines* 3))
+    (with-output-to-string (*standard-output*)
+      (pprint-logical-block (nil nil)
+        (princ "AAA") (pprint-newline :linear)
+        (princ "BBB") (pprint-newline :linear)
+        (princ "CCC") (pprint-newline :linear)
+        (princ "DDD") (pprint-newline :linear))))
+  #.(mkstr "AAA" #\newline
+           "BBB" #\newline
+           "CCC .."))
 

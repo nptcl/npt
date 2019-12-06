@@ -10,6 +10,7 @@
 #include "integer.h"
 #include "print.h"
 #include "print_dispatch.h"
+#include "print_function.h"
 #include "print_pretty.h"
 #include "print_write.h"
 #include "stream.h"
@@ -22,7 +23,7 @@ static void function_copy_pprint_dispatch(Execute ptr, addr var)
 {
 	if (var == Unbound)
 		pprint_dispatch_print(ptr, &var);
-	copy_pprint_dispatch_common(var, &var);
+	copy_pprint_dispatch_common(ptr, var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -138,8 +139,10 @@ static void defun_pprint_dispatch(void)
 static void function_pprint_fill(Execute ptr,
 		addr stream, addr pos, addr colon, addr atsign)
 {
+	if (colon == Unbound) colon = T;
 	output_stream_designer(ptr, stream, &stream);
-	pprint_fill_common(stream, pos, colon != Nil);
+	if (pprint_fill_common(ptr, stream, pos, colon != Nil))
+		return;
 	setresult_control(ptr, Nil);
 }
 
@@ -168,8 +171,10 @@ static void defun_pprint_fill(void)
 static void function_pprint_linear(Execute ptr,
 		addr stream, addr pos, addr colon, addr atsign)
 {
+	if (colon == Unbound) colon = T;
 	output_stream_designer(ptr, stream, &stream);
-	pprint_linear_common(stream, pos, colon != Nil);
+	if (pprint_linear_common(ptr, stream, pos, colon != Nil))
+		return;
 	setresult_control(ptr, Nil);
 }
 
@@ -200,9 +205,12 @@ static void function_pprint_tabular(Execute ptr,
 {
 	fixnum size;
 
+	if (colon == Unbound) colon = T;
+	if (tabsize == Unbound) fixnum_heap(&tabsize, 16);
 	output_stream_designer(ptr, stream, &stream);
 	getfixnum_unsigned(tabsize, &size);
-	pprint_tabular_common(stream, pos, colon != Nil, size);
+	if (pprint_tabular_common(ptr, stream, pos, colon != Nil, size))
+		return;
 	setresult_control(ptr, Nil);
 }
 
@@ -1181,12 +1189,10 @@ static void defvar_print_miser_width(void)
 /* (defvar *print-pprint-dispatch* [pprint-dispatch-type]) */
 static void defvar_print_pprint_dispatch(void)
 {
-	addr symbol, type, pos;
+	addr symbol, type;
 
 	/* symbol */
 	GetConst(SPECIAL_PRINT_PPRINT_DISPATCH, &symbol);
-	pprint_dispatch_heap(&pos);
-	SetValueSymbol(symbol, pos);
 	setspecial_symbol(symbol);
 	/* type */
 	GetTypeTable(&type, PrintDispatch);

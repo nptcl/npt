@@ -8,6 +8,8 @@
 #include "heap.h"
 #include "integer.h"
 #include "print.h"
+#include "print_dispatch.h"
+#include "print_function.h"
 #include "print_object.h"
 #include "print_write.h"
 #include "readtable.h"
@@ -394,11 +396,13 @@ _g int print_unreadable_common(Execute ptr, addr stream, addr pos,
 _g void build_print(Execute ptr)
 {
 	build_print_object(ptr);
+	build_print_dispatch();
 }
 
 _g void init_print(void)
 {
-	init_print_write();
+	init_print_function();
 	init_print_object();
+	init_print_write();
 }
 

@@ -132,6 +132,7 @@ pathname.c
 pointer.c
 print.c
 print_dispatch.c
+print_function.c
 print_object.c
 print_pretty.c
 print_write.c

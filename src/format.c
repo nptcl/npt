@@ -2288,7 +2288,7 @@ static int format_line_escape(fmtprint print, struct fmtchar *str)
 
 static int format_tabulate(fmtprint print, struct fmtchar *str)
 {
-	fixnum column, colinc, index;
+	fixnum column, colinc, now;
 
 	if (2 < str->size) {
 		formatabort_args(print, str, 2);
@@ -2315,12 +2315,12 @@ static int format_tabulate(fmtprint print, struct fmtchar *str)
 			pprint_tab_section(print->ptr, print->stream, column, colinc);
 	}
 	else {
-		index = (fixnum)terpri_position_stream(print->stream);
-		Check(index < 0, "cast error");
+		now = (fixnum)terpri_position_stream(print->stream);
+		Check(now < 0, "cast error");
 		if (str->atsign)
-			pprint_tab_relative_force(print->stream, column, colinc, index);
+			pprint_tab_relative_force(print->stream, column, colinc, now);
 		else
-			pprint_tab_absolute_force(print->stream, column, colinc, index);
+			pprint_tab_absolute_force(print->stream, column, colinc, now);
 	}
 
 	return 0;

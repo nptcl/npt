@@ -27,6 +27,7 @@
 static void infobit_body(addr pos);
 static void infoprint_stream(addr pos, int depth);
 static FILE *InfoStream = NULL;
+static int InfoDepth = INFO_DEPTH;
 
 
 /*
@@ -535,12 +536,21 @@ _g void infobit(addr pos)
 
 _g void infoprint(addr pos)
 {
+	InfoDepth = INFO_DEPTH;
+	infoprint_stream(pos, 0);
+	info_eol();
+}
+
+_g void infoprint_depth(addr pos, int depth)
+{
+	InfoDepth = depth;
 	infoprint_stream(pos, 0);
 	info_eol();
 }
 
 _g void infoprint_noeol(addr pos)
 {
+	InfoDepth = INFO_DEPTH;
 	infoprint_stream(pos, 0);
 }
 
@@ -602,17 +612,22 @@ static void infoprint_cons(addr pos, int depth)
 	int next;
 	addr left;
 
-	if (INFO_DEPTH <= depth) {
+	if (InfoDepth <= depth) {
 		info_stdarg("...");
 		return;
 	}
 	info_stdarg("(");
-	for (next = 0; ; next = 1) {
+	for (next = 0; ; next++) {
 		GetCons(pos, &left, &pos);
-		if (next) info_stdarg(" ");
+		if (next)
+			info_stdarg(" ");
 		infoprint_stream(left, depth);
 		if (pos == Nil) {
 			info_stdarg(")");
+			return;
+		}
+		if (InfoDepth <= next) {
+			info_stdarg(" ...)");
 			return;
 		}
 		if (pos == Unbound || GetType(pos) != LISPTYPE_CONS) {
@@ -756,7 +771,7 @@ static void infoprint_vector(addr array, int depth)
 	addr pos;
 	size_t i, len;
 
-	if (INFO_DEPTH <= depth) {
+	if (InfoDepth <= depth) {
 		info_stdarg("...");
 		return;
 	}

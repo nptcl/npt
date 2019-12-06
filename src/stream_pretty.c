@@ -65,13 +65,19 @@ static void alive_pretty_stream(addr stream)
 		fmte("The stream ~S is already closed.", stream, NULL);
 }
 
+_g void setlistp_pretty_stream(addr stream, int value)
+{
+	CheckPrettyStream(stream);
+	PtrPrettyStream(stream)->list = value;
+}
+
 _g int listp_pretty_stream(addr stream)
 {
 	return pretty_stream_p(stream)
 		&& PtrPrettyStream(stream)->list != 0;
 }
 
-static void setdiscard_pretty_stream(addr stream, int value)
+_g void setdiscard_pretty_stream(addr stream, int value)
 {
 	CheckPrettyStream(stream);
 	PtrPrettyStream(stream)->discard = value;
@@ -288,7 +294,7 @@ static void nreverse_unsafe_pretty_stream(addr stream)
 	SetArrayA2(stream, StreamPretty_Stack, stack);
 }
 
-static void setdepth_pretty_stream(Execute ptr, addr stream, size_t inc)
+_g void setdepth_pretty_stream(Execute ptr, addr stream, size_t inc)
 {
 	size_t depth = PtrPrettyStream(stream)->depth;
 	setdepth_print_write(ptr, depth + inc);
@@ -396,7 +402,6 @@ _g int call_pretty_stream(Execute ptr, addr stream, addr call)
 		push_return_control(ptr, &pos);
 		push_write_object(ptr);
 	}
-	setdepth_pretty_stream(ptr, stream, 1);
 	/* normal */
 	if (! circle_print(ptr))
 		return callclang_funcall(ptr, &pos, call, NULL);
@@ -406,14 +411,11 @@ _g int call_pretty_stream(Execute ptr, addr stream, addr call)
 	setdiscard_pretty_stream(stream, 1);
 	root_pretty_stream(stream, &pos);
 	/* check */
-	setdepth_pretty_stream(ptr, stream, 0);
 	write_check_call(ptr, pos);
-	setdepth_pretty_stream(ptr, stream, 1);
 	/* call */
 	if (callclang_funcall(ptr, &pos, call, NULL))
 		return 1;
 	/* circle output */
-	setdepth_pretty_stream(ptr, stream, 1);
 	rollback_pretty_stream(stream);
 	write_check_all_clear(ptr);
 	return callclang_funcall(ptr, &pos, call, NULL);
