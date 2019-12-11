@@ -147,16 +147,14 @@ static int load_root(struct filememory *fm)
 /*
  *  make-core
  */
-_g void savecore_execute(addr file)
+_g void savecore_execute(Execute ptr, addr file)
 {
 	addr symbol;
-	Execute ptr;
 
 	if (Index_Thread != 0)
 		fmte("Thread Index must be 0.", NULL);
 	if (count_execute() != 1)
 		fmte("Any child thread must be destroyed.", NULL);
-	ptr = Execute_Thread;
 	pathname_designer_heap(ptr, file, &file);
 	name_pathname_heap(ptr, file, &file);
 	GetConst(SYSTEM_SAVECORE_VALUE, &symbol);
@@ -175,23 +173,21 @@ static void save_core_stream(Execute ptr, struct filememory *fm)
 		fmte("file open error.", NULL);
 }
 
-static void save_core_result(void)
+static void save_core_result(Execute ptr)
 {
 	addr pos;
 
 	GetConst(SYSTEM_SAVECORE_VALUE, &pos);
 	GetValueSymbol(pos, &pos);
-	format("~&Core file: ~A~%", pos, NULL);
+	format_stdout(ptr, "~&Core file: ~A~%", pos, NULL);
 }
 
-static int open_corefile(struct filememory *fm)
+static int open_corefile(Execute ptr, struct filememory *fm)
 {
 	lispcode code;
 	LocalRoot local;
 	LocalStack stack;
-	Execute ptr;
 
-	ptr = Execute_Thread;
 	local = ptr->local;
 	push_local(local, &stack);
 	begin_code(ptr, &code);
@@ -207,12 +203,12 @@ static int open_corefile(struct filememory *fm)
 	return 0;
 }
 
-_g int save_core(void)
+_g int save_core(Execute ptr)
 {
 	struct filememory fm;
 
 	/* open file */
-	if (open_corefile(&fm)) {
+	if (open_corefile(ptr, &fm)) {
 		Debug("open_corefile error.");
 		return 1;
 	}
@@ -237,7 +233,7 @@ _g int save_core(void)
 	}
 
 	/* result output */
-	save_core_result();
+	save_core_result(ptr);
 	return 0;
 
 error:

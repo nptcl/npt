@@ -9,6 +9,7 @@
 #include "control.h"
 #include "equal.h"
 #include "function.h"
+#include "gc.h"
 #include "integer.h"
 #include "number.h"
 #include "object.h"
@@ -27,23 +28,23 @@
 #include "type_subtypep.h"
 #include "type_upgraded.h"
 
-static int typep_call(addr value, addr type, int asterisk, int *ret);
-typedef int (*call_type_typep)(addr value, addr type, int *ret);
+static int typep_call(Execute ptr, addr value, addr type, int asterisk, int *ret);
+typedef int (*call_type_typep)(Execute ptr, addr value, addr type, int *ret);
 static call_type_typep TypeTypep[LISPDECL_SIZE];
 
-static int typep_invalid(addr value, addr type, int *ret)
+static int typep_invalid(Execute ptr, addr value, addr type, int *ret)
 {
 	fmte("Invalid type ~S.", type, NULL);
 	return 0;
 }
 
-static int typep_type(addr value, addr type, int *ret)
+static int typep_type(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_TYPE);
 	return 0;
 }
 
-static int typep_clos(addr value, addr type, int *ret)
+static int typep_clos(Execute ptr, addr value, addr type, int *ret)
 {
 	if (GetType(value) != LISPTYPE_CLOS) {
 		*ret = 0;
@@ -54,23 +55,23 @@ static int typep_clos(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_asterisk(addr value, addr type, int *ret)
+static int typep_asterisk(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = 1;
 	return 0;
 }
 
-static int typep_optimized(addr value, addr type, int *ret)
+static int typep_optimized(Execute ptr, addr value, addr type, int *ret)
 {
 	GetArrayType(type, 0, &type);
-	return typep_call(value, type, 1, ret);
+	return typep_call(ptr, value, type, 1, ret);
 }
 
 
 /*
  *  Compound-type
  */
-static int typep_and(addr value, addr type, int *ret)
+static int typep_and(Execute ptr, addr value, addr type, int *ret)
 {
 	int result;
 	addr check;
@@ -80,9 +81,8 @@ static int typep_and(addr value, addr type, int *ret)
 	LenArrayA4(type, &size);
 	for (i = 0; i < size; i++) {
 		GetArrayA4(type, i, &check);
-		if (typep_call(value, check, 1, &result)) {
+		if (typep_call(ptr, value, check, 1, &result))
 			return 1;
-		}
 		if (! result) {
 			*ret = 0;
 			return 0;
@@ -92,7 +92,7 @@ static int typep_and(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_or(addr value, addr type, int *ret)
+static int typep_or(Execute ptr, addr value, addr type, int *ret)
 {
 	int result;
 	addr check;
@@ -102,9 +102,8 @@ static int typep_or(addr value, addr type, int *ret)
 	LenArrayA4(type, &size);
 	for (i = 0; i < size; i++) {
 		GetArrayA4(type, i, &check);
-		if (typep_call(value, check, 1, &result)) {
+		if (typep_call(ptr, value, check, 1, &result))
 			return 1;
-		}
 		if (result) {
 			*ret = 1;
 			return 0;
@@ -114,14 +113,14 @@ static int typep_or(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_eql(addr value, addr type, int *ret)
+static int typep_eql(Execute ptr, addr value, addr type, int *ret)
 {
 	GetArrayType(type, 0, &type);
 	*ret = eql_function(value, type);
 	return 0;
 }
 
-static int typep_member(addr value, addr type, int *ret)
+static int typep_member(Execute ptr, addr value, addr type, int *ret)
 {
 	addr check;
 	size_t i, size;
@@ -139,21 +138,18 @@ static int typep_member(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_not(addr value, addr type, int *ret)
+static int typep_not(Execute ptr, addr value, addr type, int *ret)
 {
 	int result;
 
 	GetArrayType(type, 0, &type);
-	if (typep_call(value, type, 1, &result)) {
+	if (typep_call(ptr, value, type, 1, &result))
 		return 1;
-	}
-	else {
-		*ret = (! result);
-		return 0;
-	}
+	*ret = (! result);
+	return 0;
 }
 
-static int typep_mod(addr value, addr type, int *ret)
+static int typep_mod(Execute ptr, addr value, addr type, int *ret)
 {
 	if (! integerp(value)) {
 		*ret = 0;
@@ -168,19 +164,18 @@ static int typep_mod(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_satisfies(addr value, addr type, int *ret)
+static int typep_satisfies(Execute ptr, addr value, addr type, int *ret)
 {
 	GetArrayType(type, 0, &type);
-	if (callclang_funcall(Execute_Thread, &type, type, value, NULL)) {
+	if (ptr == NULL)
 		return 1;
-	}
-	else {
-		*ret = (type != Nil);
-		return 0;
-	}
+	if (callclang_funcall(ptr, &type, type, value, NULL))
+		return 1;
+	*ret = (type != Nil);
+	return 0;
 }
 
-static int typep_values(addr value, addr type, int *ret)
+static int typep_values(Execute ptr, addr value, addr type, int *ret)
 {
 	fmte("The values type don't use in typep context.", NULL);
 	*ret = 0;
@@ -191,19 +186,19 @@ static int typep_values(addr value, addr type, int *ret)
 /*
  *  Extract-type
  */
-static int typep_atom(addr value, addr type, int *ret)
+static int typep_atom(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (! IsCons(value));
 	return 0;
 }
 
-static int typep_list(addr value, addr type, int *ret)
+static int typep_list(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = IsList(value);
 	return 0;
 }
 
-static int typep_boolean(addr value, addr type, int *ret)
+static int typep_boolean(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (value == Nil || value == T);
 	return 0;
@@ -315,7 +310,7 @@ static int typep_vector_array(addr value, addr type, int *ret)
 	return typep_vector_dimension(value, type, ret);
 }
 
-static int typep_vector(addr value, addr type, int *ret)
+static int typep_vector(Execute ptr, addr value, addr type, int *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_VECTOR:
@@ -367,7 +362,7 @@ static int typep_type_vector_array(addr value, addr type, enum LISPDECL decl, in
 	return typep_vector_dimension(value, check, ret);
 }
 
-static int typep_simple_vector(addr value, addr type, int *ret)
+static int typep_simple_vector(Execute ptr, addr value, addr type, int *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_VECTOR:
@@ -386,7 +381,7 @@ static int typep_simple_vector(addr value, addr type, int *ret)
 	}
 }
 
-static int typep_bit_vector(addr value, addr type, int *ret)
+static int typep_bit_vector(Execute ptr, addr value, addr type, int *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_ARRAY:
@@ -402,7 +397,7 @@ static int typep_bit_vector(addr value, addr type, int *ret)
 	}
 }
 
-static int typep_simple_bit_vector(addr value, addr type, int *ret)
+static int typep_simple_bit_vector(Execute ptr, addr value, addr type, int *ret)
 {
 	switch (GetType(value)) {
 		case LISPTYPE_ARRAY:
@@ -422,7 +417,7 @@ static int typep_simple_bit_vector(addr value, addr type, int *ret)
 	}
 }
 
-static int typep_extended_char(addr value, addr type, int *ret)
+static int typep_extended_char(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = extended_char_p(value);
 	return 0;
@@ -444,7 +439,7 @@ static int typep_string_size(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_string(addr value, addr type, int *ret)
+static int typep_string(Execute ptr, addr value, addr type, int *ret)
 {
 	if (! stringp(value)) {
 		*ret = 0;
@@ -467,7 +462,7 @@ static int typep_base_string_size(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_base_string(addr value, addr type, int *ret)
+static int typep_base_string(Execute ptr, addr value, addr type, int *ret)
 {
 	if (! stringp(value)) {
 		*ret = 0;
@@ -476,37 +471,33 @@ static int typep_base_string(addr value, addr type, int *ret)
 	return typep_base_string_size(value, type, ret);
 }
 
-static int typep_simple_string(addr value, addr type, int *ret)
+static int typep_simple_string(Execute ptr, addr value, addr type, int *ret)
 {
 	enum LISPTYPE check;
 
 	check = GetType(value);
-	if (check == LISPTYPE_STRING) {
+	if (check == LISPTYPE_STRING)
 		return typep_string_size(value, type, ret);
-	}
-	if (strarrayp(value) && array_simple_p(value)) {
+	if (strarrayp(value) && array_simple_p(value))
 		return typep_string_size(value, type, ret);
-	}
 	*ret = 0;
 	return 0;
 }
 
-static int typep_simple_base_string(addr value, addr type, int *ret)
+static int typep_simple_base_string(Execute ptr, addr value, addr type, int *ret)
 {
 	enum LISPTYPE check;
 
 	check = GetType(value);
-	if (check == LISPTYPE_STRING) {
+	if (check == LISPTYPE_STRING)
 		return typep_base_string_size(value, type, ret);
-	}
-	if (strarrayp(value) && array_simple_p(value)) {
+	if (strarrayp(value) && array_simple_p(value))
 		return typep_base_string_size(value, type, ret);
-	}
 	*ret = 0;
 	return 0;
 }
 
-static int typep_signed_byte(addr value, addr type, int *ret)
+static int typep_signed_byte(Execute ptr, addr value, addr type, int *ret)
 {
 	addr check;
 	enum LISPTYPE listtype;
@@ -534,7 +525,7 @@ static int typep_signed_byte(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_unsigned_byte(addr value, addr type, int *ret)
+static int typep_unsigned_byte(Execute ptr, addr value, addr type, int *ret)
 {
 	addr check;
 	enum LISPTYPE listtype;
@@ -562,7 +553,7 @@ static int typep_unsigned_byte(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_bit(addr value, addr type, int *ret)
+static int typep_bit(Execute ptr, addr value, addr type, int *ret)
 {
 	enum LISPTYPE lisptype;
 	fixnum check;
@@ -589,7 +580,7 @@ static int fbf_bignum(fixnum left, addr value, fixnum right)
 		&& compare_bignum_value(value, right) <= 0;
 }
 
-static int typep_fixnum(addr value, addr type, int *ret)
+static int typep_fixnum(Execute ptr, addr value, addr type, int *ret)
 {
 	enum LISPTYPE lisptype;
 
@@ -608,7 +599,7 @@ static int typep_fixnum(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_bignum(addr value, addr type, int *ret)
+static int typep_bignum(Execute ptr, addr value, addr type, int *ret)
 {
 	enum LISPTYPE lisptype;
 
@@ -631,25 +622,25 @@ static int typep_bignum(addr value, addr type, int *ret)
 /*
  *  Atomic-type
  */
-static int typep_nil(addr value, addr type, int *ret)
+static int typep_nil(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = 0;
 	return 0;
 }
 
-static int typep_t(addr value, addr type, int *ret)
+static int typep_t(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = 1;
 	return 0;
 }
 
-static int typep_null(addr value, addr type, int *ret)
+static int typep_null(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (value == Nil);
 	return 0;
 }
 
-static int typep_cons(addr value, addr type, int *ret)
+static int typep_cons(Execute ptr, addr value, addr type, int *ret)
 {
 	int result;
 	addr left, check;
@@ -660,48 +651,47 @@ static int typep_cons(addr value, addr type, int *ret)
 	}
 	GetCons(value, &left, &value);
 	GetArrayType(type, 0, &check);
-	if (typep_call(left, check, 1, &result)) {
+	if (typep_call(ptr, left, check, 1, &result))
 		return 1;
-	}
 	if (! result) {
 		*ret = 0;
 		return 0;
 	}
 	GetArrayType(type, 1, &check);
-	return typep_call(value, check, 1, ret);
+	return typep_call(ptr, value, check, 1, ret);
 }
 
-static int typep_hash_table(addr value, addr type, int *ret)
+static int typep_hash_table(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_HASHTABLE);
 	return 0;
 }
 
-static int typep_symbol(addr value, addr type, int *ret)
+static int typep_symbol(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = symbolp(value);
 	return 0;
 }
 
-static int typep_keyword(addr value, addr type, int *ret)
+static int typep_keyword(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = keywordp(value);
 	return 0;
 }
 
-static int typep_package(addr value, addr type, int *ret)
+static int typep_package(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_PACKAGE);
 	return 0;
 }
 
-static int typep_random_state(addr value, addr type, int *ret)
+static int typep_random_state(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_RANDOM_STATE);
 	return 0;
 }
 
-static int typep_readtable(addr value, addr type, int *ret)
+static int typep_readtable(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_READTABLE);
 	return 0;
@@ -723,7 +713,7 @@ static int typep_function_check(addr value, addr right, int *ret)
 	return 0;
 }
 
-static int typep_function(addr value, addr type, int *ret)
+static int typep_function(Execute ptr, addr value, addr type, int *ret)
 {
 	addr check;
 
@@ -737,7 +727,7 @@ static int typep_function(addr value, addr type, int *ret)
 	return typep_function_check(value, type, ret);
 }
 
-static int typep_compiled_function(addr value, addr type, int *ret)
+static int typep_compiled_function(Execute ptr, addr value, addr type, int *ret)
 {
 	addr check;
 
@@ -751,19 +741,19 @@ static int typep_compiled_function(addr value, addr type, int *ret)
 	return typep_function_check(value, type, ret);
 }
 
-static int typep_pathname(addr value, addr type, int *ret)
+static int typep_pathname(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = pathnamep(value);
 	return 0;
 }
 
-static int typep_logical_pathname(addr value, addr type, int *ret)
+static int typep_logical_pathname(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = pathname_logical_p(value);
 	return 0;
 }
 
-static int typep_sequence(addr value, addr type, int *ret)
+static int typep_sequence(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = sequencep(value);
 	return 0;
@@ -978,7 +968,7 @@ static int typep_array_result(addr value, addr type)
 	return 0;
 }
 
-static int typep_array(addr value, addr type, int *ret)
+static int typep_array(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = typep_array_result(value, type);
 	return 0;
@@ -1006,43 +996,43 @@ static int typep_simple_array_result(addr value, addr type)
 	return 0;
 }
 
-static int typep_simple_array(addr value, addr type, int *ret)
+static int typep_simple_array(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = typep_simple_array_result(value, type);
 	return 0;
 }
 
-static int typep_character(addr value, addr type, int *ret)
+static int typep_character(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_CHARACTER);
 	return 0;
 }
 
-static int typep_base_char(addr value, addr type, int *ret)
+static int typep_base_char(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = base_char_p(value);
 	return 0;
 }
 
-static int typep_standard_char(addr value, addr type, int *ret)
+static int typep_standard_char(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = standard_char_p(value);
 	return 0;
 }
 
-static int typep_number(addr value, addr type, int *ret)
+static int typep_number(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = numberp(value);
 	return 0;
 }
 
-static int typep_ratio(addr value, addr type, int *ret)
+static int typep_ratio(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_RATIO);
 	return 0;
 }
 
-static int typep_complex(addr value, addr type, int *ret)
+static int typep_complex(Execute ptr, addr value, addr type, int *ret)
 {
 	int result;
 	addr check;
@@ -1053,15 +1043,14 @@ static int typep_complex(addr value, addr type, int *ret)
 	}
 	GetRealComplex(value, &check);
 	GetArrayType(type, 0, &type);
-	if (typep_call(check, type, 1, &result)) {
+	if (typep_call(ptr, check, type, 1, &result))
 		return 1;
-	}
 	if (! result) {
 		*ret = 0;
 		return 0;
 	}
 	GetImagComplex(value, &check);
-	return typep_call(check, type, 1, ret);
+	return typep_call(ptr, check, type, 1, ret);
 }
 
 
@@ -1146,7 +1135,7 @@ static int typep_range_local(LocalRoot local, addr value, addr type,
 	return 1;
 }
 
-static int typep_integer(addr value, addr type, int *ret)
+static int typep_integer(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = typep_range_nolocal(value, type,
 			integerp,
@@ -1155,7 +1144,7 @@ static int typep_integer(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_rational(addr value, addr type, int *ret)
+static int typep_rational(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = typep_range_local(Local_Thread, value, type,
 			rationalp,
@@ -1164,7 +1153,7 @@ static int typep_rational(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_real(addr value, addr type, int *ret)
+static int typep_real(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = typep_range_local(Local_Thread, value, type,
 			realp,
@@ -1173,7 +1162,7 @@ static int typep_real(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_float(addr value, addr type, int *ret)
+static int typep_float(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = typep_range_nolocal(value, type,
 			floatp,
@@ -1186,7 +1175,7 @@ static int single_float_p_clang(addr value)
 {
 	return (GetType(value) == LISPTYPE_SINGLE_FLOAT);
 }
-static int typep_single_float(addr value, addr type, int *ret)
+static int typep_single_float(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = typep_range_nolocal(value, type,
 			single_float_p_clang,
@@ -1199,7 +1188,7 @@ static int double_float_p_clang(addr value)
 {
 	return (GetType(value) == LISPTYPE_DOUBLE_FLOAT);
 }
-static int typep_double_float(addr value, addr type, int *ret)
+static int typep_double_float(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = typep_range_nolocal(value, type,
 			double_float_p_clang,
@@ -1212,7 +1201,7 @@ static int long_float_p_clang(addr value)
 {
 	return (GetType(value) == LISPTYPE_LONG_FLOAT);
 }
-static int typep_long_float(addr value, addr type, int *ret)
+static int typep_long_float(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = typep_range_nolocal(value, type,
 			long_float_p_clang,
@@ -1221,85 +1210,85 @@ static int typep_long_float(addr value, addr type, int *ret)
 	return 0;
 }
 
-static int typep_restart(addr value, addr type, int *ret)
+static int typep_restart(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_RESTART);
 	return 0;
 }
 
-static int typep_environment(addr value, addr type, int *ret)
+static int typep_environment(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_ENVIRONMENT);
 	return 0;
 }
 
-static int typep_stream(addr value, addr type, int *ret)
+static int typep_stream(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = streamp(value);
 	return 0;
 }
 
-static int typep_broadcast_stream(addr value, addr type, int *ret)
+static int typep_broadcast_stream(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = broadcast_stream_p(value);
 	return 0;
 }
 
-static int typep_concatenated_stream(addr value, addr type, int *ret)
+static int typep_concatenated_stream(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = concatenated_stream_p(value);
 	return 0;
 }
 
-static int typep_echo_stream(addr value, addr type, int *ret)
+static int typep_echo_stream(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = echo_stream_p(value);
 	return 0;
 }
 
-static int typep_file_stream(addr value, addr type, int *ret)
+static int typep_file_stream(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = file_stream_p(value);
 	return 0;
 }
 
-static int typep_string_stream(addr value, addr type, int *ret)
+static int typep_string_stream(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = string_stream_p(value);
 	return 0;
 }
 
-static int typep_synonym_stream(addr value, addr type, int *ret)
+static int typep_synonym_stream(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = synonym_stream_p(value);
 	return 0;
 }
 
-static int typep_two_way_stream(addr value, addr type, int *ret)
+static int typep_two_way_stream(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = twoway_stream_p(value);
 	return 0;
 }
 
-static int typep_prompt_stream(addr value, addr type, int *ret)
+static int typep_prompt_stream(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = prompt_stream_p(value);
 	return 0;
 }
 
-static int typep_pretty_stream(addr value, addr type, int *ret)
+static int typep_pretty_stream(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = pretty_stream_p(value);
 	return 0;
 }
 
-static int typep_byte(addr value, addr type, int *ret)
+static int typep_byte(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_BYTESPEC);
 	return 0;
 }
 
-static int typep_print_dispatch(addr value, addr type, int *ret)
+static int typep_print_dispatch(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_PRINT_DISPATCH);
 	return 0;
@@ -1309,14 +1298,14 @@ static int typep_print_dispatch(addr value, addr type, int *ret)
 /*
  *  typep-clang
  */
-_g int typep_table(addr value, addr type, int *ret)
+_g int typep_table(Execute ptr, addr value, addr type, int *ret)
 {
 	call_type_typep call;
 
 	CheckType(type, LISPTYPE_TYPE);
 	call = TypeTypep[(int)RefLispDecl(type)];
 	Check(call == NULL, "build error");
-	return call(value, type, ret);
+	return call(ptr, value, type, ret);
 }
 
 _g void init_type_typep(void)
@@ -1406,28 +1395,32 @@ _g void init_type_typep(void)
 	TypeTypep[LISPDECL_PRINT_DISPATCH] = typep_print_dispatch;
 }
 
-static int typep_call(addr value, addr type, int asterisk, int *ret)
+static int typep_call(Execute ptr, addr value, addr type, int asterisk, int *ret)
 {
 	int result;
+	LocalHold hold;
 
 	if ((! asterisk) && type_asterisk_p(type))
 		fmte("typep don't allow to be asterisk *.", NULL);
-	if (typep_table(value, type, &result))
+	hold = LocalHold_local(ptr);
+	localhold_pushva_force(hold, value, type, NULL);
+	if (typep_table(ptr, value, type, &result))
 		return 1;
+	localhold_end(hold);
 	*ret = RefNotDecl(type)? (! result): result;
 
 	return 0;
 }
 
-_g int typep_clang(addr value, addr type, int *ret)
+_g int typep_clang(Execute ptr, addr value, addr type, int *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
-	return typep_call(value, type, 0, ret);
+	return typep_call(ptr, value, type, 0, ret);
 }
 
-_g int typep_asterisk_clang(addr value, addr type, int *ret)
+_g int typep_asterisk_clang(Execute ptr, addr value, addr type, int *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
-	return typep_call(value, type, 1, ret);
+	return typep_call(ptr, value, type, 1, ret);
 }
 

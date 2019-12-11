@@ -1822,7 +1822,6 @@ lisp-system::hexdecimal-dispatch
 
 lisp-system::backquote
 lisp-system::hello
-(lisp-system::fixnum+ :constant system :name fixnum-plus)
 lisp-system::infobit
 lisp-system::infoprint
 lisp-system::gc

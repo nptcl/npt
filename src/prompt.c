@@ -107,11 +107,11 @@ _g void show_prompt(Execute ptr, addr io)
 		return;
 	}
 	if (str->index == 0) {
-		fmts(io, "~&* ", NULL);
+		print_ascii_stream(io, "~&* ");
 	}
 	else {
 		snprintf(buffer, 64, "~&%zu* ", str->index);
-		fmts(io, buffer, NULL);
+		print_ascii_stream(io, buffer);
 	}
 	str->show_p = 0;
 	finish_output_stream(io);

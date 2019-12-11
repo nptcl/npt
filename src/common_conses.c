@@ -1240,7 +1240,7 @@ static void defun_nsubst_if_not(void)
 static void function_tree_equal(Execute ptr, addr tree1, addr tree2, addr key)
 {
 	int result;
-	if (tree_equal_common(ptr, tree1, tree2, key, &result)) return ;
+	if (tree_equal_common(ptr, tree1, tree2, key, &result)) return;
 	setbool_control(ptr, result);
 }
 
@@ -2364,7 +2364,7 @@ static void defun_rassoc_if_not(void)
 static void function_get_properties(Execute ptr, addr plist, addr indicator)
 {
 	addr key, value, list;
-	get_properties_common(ptr, plist, indicator, &key, &value, &list);
+	get_properties_common(plist, indicator, &key, &value, &list);
 	setvalues_control(ptr, key, value, list, NULL);
 }
 

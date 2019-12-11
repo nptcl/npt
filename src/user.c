@@ -64,7 +64,7 @@ _g void init_user(void)
  *****************************************************************************/
 static void hello_user(Execute ptr, addr right)
 {
-	format("~&Hello user.~%", NULL);
+	format_stdout(ptr, "~&Hello user.~%", NULL);
 }
 
 

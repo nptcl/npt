@@ -4,6 +4,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "equal.h"
+#include "gc.h"
 #include "integer.h"
 #include "object.h"
 #include "sequence.h"
@@ -995,10 +996,17 @@ static SubtypepResult subtypep_eql_type(addr left, addr right)
 {
 	int check;
 
-	GetArrayType(left, 0, &left);
+	/* (subtypep '(eql x) '(satisfies y)) */
 	type_getvalues1(right, &right);
-	if (typep_table(left, right, &check))
-		fmte("SUBTYPEP don't execute RETURN-FROM/CATCH code.", NULL);
+	if (RefLispDecl(right) == LISPDECL_SATISFIES) {
+		ReturnInvalid;
+	}
+
+	/* (subtypep '(eql x) right) */
+	GetArrayType(left, 0, &left);
+	if (typep_table(NULL, left, right, &check)) {
+		ReturnInvalid;
+	}
 	if (check) {
 		ReturnTrue;
 	}
@@ -1011,10 +1019,17 @@ static SubtypepResult subtypep_type_eql(addr left, addr right)
 {
 	int check;
 
-	GetArrayType(right, 0, &right);
+	/* (subtypep '(satisfies x) '(eql y)) */
 	type_getvalues1(left, &left);
-	if (typep_table(right, left, &check))
-		fmte("SUBTYPEP don't execute RETURN-FROM/CATCH code.", NULL);
+	if (RefLispDecl(left) == LISPDECL_SATISFIES) {
+		ReturnInvalid;
+	}
+
+	/* (subtypep left '(eql x)) */
+	GetArrayType(right, 0, &right);
+	if (typep_table(NULL, right, left, &check)) {
+		ReturnInvalid;
+	}
 	if (check) {
 		ReturnFalse;
 	}
@@ -1576,14 +1591,20 @@ static int subtypep_clos_p(addr x, addr y, addr *r1, addr *r2)
 _g int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2)
 {
 	int result, invalid;
+	LocalHold hold;
 
+	hold = LocalHold_local(ptr);
+	localhold_pushva_force(hold, x, y, env, NULL);
 	if (! subtypep_clos_p(x, y, &x, &y)) {
 		if (parse_type(ptr, &x, x, env)) return 1;
+		localhold_push(hold, x);
 		if (parse_type(ptr, &y, y, env)) return 1;
+		localhold_push(hold, y);
 	}
 	result = subtypep_clang(x, y, &invalid);
 	*v1 = result? T: Nil;
 	*v2 = invalid? T: Nil;
+	localhold_end(hold);
 
 	return 0;
 }

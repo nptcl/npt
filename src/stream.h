@@ -110,7 +110,6 @@ _g void setinput_stream(addr stream, addr value);
 _g void getoutput_stream(addr stream, addr *ret);
 _g void setoutput_stream(addr stream, addr value);
 
-_g void stream_alloc(LocalRoot local, addr *ret, enum StreamType type, size_t size);
 _g void stream_heap(addr *ret, enum StreamType type, size_t size);
 _g enum StreamType getstreamtype(addr stream);
 _g int streamp(addr stream);
@@ -127,7 +126,7 @@ _g int prompt_stream_p(addr stream);
 _g int pretty_stream_p(addr stream);
 
 _g int open_stream_p(addr stream);
-_g int closep_stream(addr stream);
+_g void force_open_stream(addr stream, addr *ret);
 _g void close_stream(addr stream);
 _g void terpri_stream(addr stream);
 _g void pageout_stream(addr stream);

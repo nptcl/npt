@@ -12,6 +12,7 @@
 #include "eval_stack.h"
 #include "eval_table.h"
 #include "function.h"
+#include "gc.h"
 #include "object.h"
 #include "sequence.h"
 #include "symbol.h"
@@ -23,6 +24,27 @@
 #include "type_value.h"
 
 static int scope_eval(Execute ptr, addr *ret, addr eval);
+static int localhold_scope_eval(LocalHold hold, Execute ptr, addr *ret, addr eval)
+{
+	if (scope_eval(ptr, ret, eval))
+		return 1;
+	localhold_push(hold, *ret);
+	return 0;
+}
+
+static int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons);
+static int localhold_scope_allcons(LocalHold hold,
+		Execute ptr, addr *retcons, addr *rettype, addr cons)
+{
+	if (scope_allcons(ptr, retcons, rettype, cons))
+		return 1;
+	if (rettype)
+		localhold_pushva(hold, *retcons, *rettype, NULL);
+	else
+		localhold_push(hold, *retcons);
+	return 0;
+}
+
 
 /*
  *  memory
@@ -275,19 +297,26 @@ static void scope_environment(addr *ret, addr eval)
 static int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons)
 {
 	addr root, expr;
+	LocalHold hold;
 
+	/* cons */
+	hold = LocalHold_array(ptr, 1);
 	for (root = expr = Nil; cons != Nil; ) {
 		GetCons(cons, &expr, &cons);
 		if (scope_eval(ptr, &expr, expr)) return 1;
 		cons_heap(&root, expr, root);
+		localhold_set(hold, 0, root);
 	}
+	localhold_end(hold);
+	nreverse_list_unsafe(retcons, root);
+
+	/* type */
 	if (rettype) {
 		if (expr == Nil)
 			type_value_nil(rettype);
 		else
 			GetEvalScopeThe(expr, rettype);
 	}
-	nreverse_list_unsafe(retcons, root);
 
 	return 0;
 }
@@ -511,6 +540,7 @@ static void apply_declare(Execute ptr, addr stack, addr decl, addr *ret)
 	}
 	check_declare_stack(ptr, stack, decl, ret);
 	apply_declare_stack(ptr->local, stack, decl);
+	gchold_push_local(ptr->local, *ret);
 }
 
 
@@ -520,6 +550,13 @@ static void apply_declare(Execute ptr, addr stack, addr decl, addr *ret)
 struct let_struct {
 	addr stack, args, decl, doc, cons, free, the;
 };
+
+static void init_let_struct(struct let_struct *str)
+{
+	memset(str, 0, sizeoft(struct let_struct));
+	str->stack = str->args = str->decl = str->doc
+		= str->cons = str->free = str->the = Nil;
+}
 
 static void check_scope_variable(addr symbol)
 {
@@ -925,9 +962,16 @@ static int let_execute(Execute ptr, struct let_struct *str)
 	return 0;
 }
 
+static void localhold_let_struct(LocalRoot local, struct let_struct *str)
+{
+	gchold_pushva_force_local(local, str->stack, str->args, str->decl,
+			str->doc, str->cons, str->free, str->the, NULL);
+}
+
 static int let_call(Execute ptr, struct let_struct *str)
 {
 	str->stack = newstack_nil(ptr);
+	localhold_let_struct(ptr->local, str);
 	if (let_execute(ptr, str)) return 1;
 	freestack_eval(ptr, str->stack);
 
@@ -939,7 +983,7 @@ static int scope_let(Execute ptr, addr *ret, addr eval)
 	struct let_struct str;
 
 	Check(! eval_parse_p(eval), "type error");
-	memset(&str, 0, sizeoft(struct let_struct));
+	init_let_struct(&str);
 	GetEvalParse(eval, 0, &str.args);
 	GetEvalParse(eval, 1, &str.decl);
 	GetEvalParse(eval, 2, &str.cons);
@@ -1030,6 +1074,7 @@ static int leta_execute(Execute ptr, struct let_struct *str)
 static int leta_call(Execute ptr, struct let_struct *str)
 {
 	str->stack = newstack_nil(ptr);
+	localhold_let_struct(ptr->local, str);
 	if (leta_execute(ptr, str)) return 1;
 	freestack_eval(ptr, str->stack);
 
@@ -1041,7 +1086,7 @@ static int scope_leta(Execute ptr, addr *ret, addr eval)
 	struct let_struct str;
 
 	Check(! eval_parse_p(eval), "type error");
-	memset(&str, 0, sizeoft(struct let_struct));
+	init_let_struct(&str);
 	GetEvalParse(eval, 0, &str.args);
 	GetEvalParse(eval, 1, &str.decl);
 	GetEvalParse(eval, 2, &str.cons);
@@ -1224,7 +1269,7 @@ static int symbol_macrolet_p(Execute ptr, addr symbol, addr *ret)
 	return symbol_macrolet_global_p(ptr, symbol, ret);
 }
 
-static int replace_symbol_macrolet(Execute ptr, addr *ret, addr form)
+static int scope_symbol_replace(Execute ptr, addr *ret, addr form)
 {
 	addr hook, call, env;
 
@@ -1238,9 +1283,13 @@ static int replace_symbol_macrolet(Execute ptr, addr *ret, addr form)
 	if (consp(form)) {
 		GetCons(form, &form, &env);
 	}
-	else
+	else {
 		env = Nil;
-	if (callclang_funcall(ptr, &form, hook, call, form, env, NULL)) return 1;
+	}
+	if (callclang_funcall(ptr, &form, hook, call, form, env, NULL)) {
+		return 1;
+	}
+
 	return scope_eval(ptr, ret, form);
 }
 
@@ -1261,7 +1310,7 @@ static int scope_symbol(Execute ptr, addr *ret, addr eval)
 	if (keywordp(eval))
 		make_scope_keyword(ptr, eval, ret);
 	else if (symbol_macrolet_p(ptr, eval, &form))
-		return replace_symbol_macrolet(ptr, ret, form);
+		return scope_symbol_replace(ptr, ret, form);
 	else
 		make_scope_symbol(ptr, eval, ret);
 
@@ -1271,6 +1320,7 @@ static int scope_symbol(Execute ptr, addr *ret, addr eval)
 static int setq_cons(Execute ptr, addr cons, addr *ret, addr *type)
 {
 	addr root, var, form;
+	LocalHold hold;
 
 	if (cons == Nil) {
 		GetTypeTable(type, Null);
@@ -1278,6 +1328,7 @@ static int setq_cons(Execute ptr, addr cons, addr *ret, addr *type)
 		return 0;
 	}
 
+	hold = LocalHold_array(ptr, 1);
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &var, &cons);
 		GetCons(var, &var, &form);
@@ -1288,7 +1339,9 @@ static int setq_cons(Execute ptr, addr cons, addr *ret, addr *type)
 
 		cons_heap(&var, var, form);
 		cons_heap(&root, var, root);
+		localhold_set(hold, 0, root);
 	}
+	localhold_end(hold);
 	nreverse_list_unsafe(ret, root);
 
 	return 0;
@@ -1676,7 +1729,7 @@ static int lambda_init_opt(Execute ptr, addr stack, addr args, addr decl, addr *
 	addr root, list, var, init, svar;
 	LocalRoot local;
 
-	local = Local_Thread;
+	local = ptr->local;
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &init, &svar, NULL);
@@ -1697,7 +1750,7 @@ static int lambda_init_key(Execute ptr, addr stack, addr args, addr decl, addr *
 	addr root, list, var, name, init, svar;
 	LocalRoot local;
 
-	local = Local_Thread;
+	local = ptr->local;
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &name, &init, &svar, NULL);
@@ -1718,7 +1771,7 @@ static int lambda_init_aux(Execute ptr, addr stack, addr args, addr decl, addr *
 	addr root, list, var, init;
 	LocalRoot local;
 
-	local = Local_Thread;
+	local = ptr->local;
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &init, NULL);
@@ -1842,7 +1895,7 @@ static void type_ordinary_var(LocalRoot local, addr args, addr *ret)
 		GetCons(args, &var, &args);
 		gettype_tablevalue(var, &var);
 		copylocal_object(local, &var, var);
-		cons_alloc(local, &root, var, root);
+		cons_local(local, &root, var, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
@@ -1856,7 +1909,7 @@ static void type_ordinary_opt(LocalRoot local, addr args, addr *ret)
 		GetCar(var, &var);
 		gettype_tablevalue(var, &var);
 		copylocal_object(local, &var, var);
-		cons_alloc(local, &root, var, root);
+		cons_local(local, &root, var, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
@@ -1882,8 +1935,8 @@ static void type_ordinary_key(LocalRoot local, addr args, addr allow, addr *ret)
 		GetCar(name, &name);
 		gettype_tablevalue(var, &var);
 		copylocal_object(local, &var, var);
-		cons_alloc(local, &var, name, var);
-		cons_alloc(local, &root, var, root);
+		cons_local(local, &var, name, var);
+		cons_local(local, &root, var, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
@@ -1902,7 +1955,7 @@ static void make_type_ordinary(LocalRoot local, addr args, addr *ret)
 	type_ordinary_key(local, key, allow, &key);
 
 	/* type-function vector */
-	vector2_alloc(local, &array, 4);
+	vector2_local(local, &array, 4);
 	SetArrayA2(array, 0, var);
 	SetArrayA2(array, 1, opt);
 	SetArrayA2(array, 2, rest);
@@ -1919,13 +1972,11 @@ static void lambda_type_incomplete(LocalRoot local, addr args, addr *ret)
 	type3_local(local, LISPDECL_FUNCTION, args, aster, Nil, ret);
 }
 
-static void lambda_declare(Execute ptr, struct lambda_struct *str)
+static void lambda_declare(LocalRoot local, struct lambda_struct *str)
 {
 	addr table, type;
-	LocalRoot local;
 
 	/* incomplete type */
-	local = ptr->local;
 	lambda_type_incomplete(local, str->args, &type);
 	str->the = type;
 
@@ -1943,6 +1994,7 @@ static int lambda_progn(Execute ptr, struct lambda_struct *str)
 	addr the, type;
 
 	if (scope_allcons(ptr, &str->cons, &type, str->cons)) return 1;
+	gchold_pushva_local(ptr->local, str->cons, type, NULL);
 	/* (function [args] *) -> (function [args] [values]) */
 	the = str->the;
 	SetArrayType(the, 1, type);
@@ -2094,7 +2146,7 @@ static int lambda_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	if (lambda_init(ptr, str)) return 1;
 	apply_declare(ptr, stack, str->decl, &str->free);
 	lambda_tablevalue(ptr->local, str);
-	lambda_declare(ptr, str);
+	lambda_declare(ptr->local, str);
 	if (lambda_progn(ptr, str)) return 1;
 	ignore_checkvalue(stack);
 	lambda_update(str);
@@ -2117,9 +2169,17 @@ static int lambda_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	return 0;
 }
 
+static void localhold_lambda_struct(LocalRoot local, struct lambda_struct *str)
+{
+	gchold_pushva_force_local(local, str->stack, str->call,
+			str->table, str->args, str->decl, str->doc,
+			str->cons, str->clos, str->free, str->the, str->form, NULL);
+}
+
 static int lambda_object(Execute ptr, struct lambda_struct *str, addr *ret)
 {
 	str->stack = newstack_lambda(ptr);
+	localhold_lambda_struct(ptr->local, str);
 	if (lambda_execute(ptr, str, ret)) return 1;
 	freestack_eval(ptr, str->stack);
 	str->stack = NULL;
@@ -2192,6 +2252,7 @@ static int scope_defun(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 2, &str.decl);
 	GetEvalParse(eval, 3, &str.doc);
 	GetEvalParse(eval, 4, &str.cons);
+
 	if (lambda_object(ptr, &str, &eval)) return 1;
 	defun_update(ptr, &str);
 	defun_the(eval, &str);
@@ -2219,7 +2280,7 @@ static int macro_init_var(Execute ptr, addr stack, addr args, addr decl, addr *r
 		else {
 			ifdeclvalue(ptr, stack, var, decl, NULL);
 		}
-		cons_alloc(local, &root, var, root);
+		cons_local(local, &root, var, root);
 	}
 	nreverse_list_unsafe(ret, root);
 
@@ -2264,7 +2325,7 @@ static void macro_tablevalue_var(Execute ptr, addr stack, addr args, addr *ret)
 	addr root, var;
 	LocalRoot local;
 
-	local = Local_Thread;
+	local = ptr->local;
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &var, &args);
 		if (consp(var))
@@ -2398,6 +2459,7 @@ static int macro_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 static int macro_lambda_object(Execute ptr, struct lambda_struct *str, addr *ret)
 {
 	str->stack = newstack_lambda(ptr);
+	localhold_lambda_struct(ptr->local, str);
 	if (macro_execute(ptr, str, ret)) return 1;
 	freestack_eval(ptr, str->stack);
 	str->stack = NULL;
@@ -2477,12 +2539,17 @@ static int scope_deftype(Execute ptr, addr *ret, addr eval)
 static int scope_destructuring_bind(Execute ptr, addr *ret, addr eval)
 {
 	addr args, expr, type;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &expr);
 	GetEvalParse(eval, 1, &args);
-	if (scope_eval(ptr, &expr, expr)) return 1;
-	if (scope_eval(ptr, &args, args)) return 1;
+
+	hold = LocalHold_local(ptr);
+	if (localhold_scope_eval(hold, ptr, &expr, expr)) return 1;
+	if (localhold_scope_eval(hold, ptr, &args, args)) return 1;
+	localhold_end(hold);
+
 	GetEvalScopeThe(args, &type);
 	eval_scope_size(&eval, 2, EVAL_PARSE_DESTRUCTURING_BIND, type, Nil);
 	SetEvalScopeIndex(eval, 0, expr);
@@ -2533,7 +2600,7 @@ static void scope_define_symbol_macro(Execute ptr, addr *ret, addr eval)
 /*
  *  symbol-macrolet
  */
-static void apply_symbol_macrolet(Execute ptr, addr stack, addr args)
+static void apply_symbol_macrolet(addr stack, addr args)
 {
 	addr list, symbol, form, env;
 
@@ -2551,7 +2618,7 @@ static int symbol_macrolet_execute(Execute ptr,
 
 	stack = newstack_nil(ptr);
 	apply_declare(ptr, stack, decl, free);
-	apply_symbol_macrolet(ptr, stack, args);
+	apply_symbol_macrolet(stack, args);
 	if (scope_allcons(ptr, ret, type, cons)) return 1;
 	freestack_eval(ptr, stack);
 
@@ -2682,7 +2749,7 @@ static void tablefunction_update(addr table, addr *ret, addr call)
 	copy_tablefunction(NULL, ret, call);
 }
 
-static void flet_update(Execute ptr, struct let_struct *str)
+static void flet_update(struct let_struct *str)
 {
 	addr stack, args, key, root, call, eval;
 
@@ -2713,7 +2780,7 @@ static int flet_execute(Execute ptr, struct let_struct *str)
 	flet_applytable(ptr, str);
 	if (scope_allcons(ptr, &str->cons, &str->the, str->cons)) return 1;
 	ignore_checkfunction(stack);
-	flet_update(ptr, str);
+	flet_update(str);
 
 	return 0;
 }
@@ -2721,6 +2788,7 @@ static int flet_execute(Execute ptr, struct let_struct *str)
 static int flet_object(Execute ptr, struct let_struct *str)
 {
 	str->stack = newstack_nil(ptr);
+	localhold_let_struct(ptr->local, str);
 	if (flet_execute(ptr, str)) return 1;
 	freestack_eval(ptr, str->stack);
 
@@ -2732,7 +2800,7 @@ static int scope_flet(Execute ptr, addr *ret, addr eval)
 	struct let_struct str;
 
 	Check(! eval_parse_p(eval), "type error");
-	memset(&str, 0, sizeoft(struct let_struct));
+	init_let_struct(&str);
 	GetEvalParse(eval, 0, &str.args);
 	GetEvalParse(eval, 1, &str.decl);
 	GetEvalParse(eval, 2, &str.cons);
@@ -2790,7 +2858,7 @@ static void find_tablefunction_error(addr stack, addr call, addr *ret)
 		fmte("Cannot find table function ~S.", call, NULL);
 }
 
-static void labels_checktype(Execute ptr, struct let_struct *str)
+static void labels_checktype(struct let_struct *str)
 {
 	addr stack, args, call, eval;
 
@@ -2811,10 +2879,10 @@ static int labels_execute(Execute ptr, struct let_struct *str)
 	stack = str->stack;
 	if (labels_init(ptr, str)) return 1;
 	apply_declare(ptr, stack, str->decl, &str->free);
-	labels_checktype(ptr, str);
+	labels_checktype(str);
 	if (scope_allcons(ptr, &str->cons, &str->the, str->cons)) return 1;
 	ignore_checkfunction(stack);
-	flet_update(ptr, str);
+	flet_update(str);
 
 	return 0;
 }
@@ -2822,6 +2890,7 @@ static int labels_execute(Execute ptr, struct let_struct *str)
 static int labels_object(Execute ptr, struct let_struct *str)
 {
 	str->stack = newstack_nil(ptr);
+	localhold_let_struct(ptr->local, str);
 	if (labels_execute(ptr, str)) return 1;
 	freestack_eval(ptr, str->stack);
 
@@ -2833,7 +2902,7 @@ static int scope_labels(Execute ptr, addr *ret, addr eval)
 	struct let_struct str;
 
 	Check(! eval_parse_p(eval), "type error");
-	memset(&str, 0, sizeoft(struct let_struct));
+	init_let_struct(&str);
 	GetEvalParse(eval, 0, &str.args);
 	GetEvalParse(eval, 1, &str.decl);
 	GetEvalParse(eval, 2, &str.cons);
@@ -2907,15 +2976,19 @@ static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
 static int callargs_var(Execute ptr, addr array, addr *args, addr *root)
 {
 	addr eval, right;
+	LocalHold hold;
 
 	GetArrayA2(array, 0, &array);
+	hold = LocalHold_array(ptr, 1);
 	while (array != Nil) {
 		if (*args == Nil) return 1;
 		GetCons(*args, &eval, args);
 		GetCons(array, &right, &array);
 		if (check_tablecall(ptr, eval, right, &eval)) return 1;
 		cons_heap(root, eval, *root);
+		localhold_set(hold, 0, *root);
 	}
+	localhold_end(hold);
 
 	return 0;
 }
@@ -2923,14 +2996,18 @@ static int callargs_var(Execute ptr, addr array, addr *args, addr *root)
 static int callargs_opt(Execute ptr, addr array, addr *args, addr *root)
 {
 	addr eval, right;
+	LocalHold hold;
 
 	GetArrayA2(array, 1, &array);
+	hold = LocalHold_array(ptr, 1);
 	while (*args != Nil && array != Nil) {
 		GetCons(*args, &eval, args);
 		GetCons(array, &right, &array);
 		if (check_tablecall(ptr, eval, right, &eval)) return 1;
 		cons_heap(root, eval, *root);
+		localhold_set(hold, 0, *root);
 	}
+	localhold_end(hold);
 
 	return 0;
 }
@@ -3010,6 +3087,7 @@ static int callargs_restkey(Execute ptr,
 {
 	int keyvalue;
 	addr rest, key, eval, type1, type2, right;
+	LocalHold hold;
 
 	GetArrayA2(array, 2, &rest);
 	GetArrayA2(array, 3, &key);
@@ -3017,6 +3095,8 @@ static int callargs_restkey(Execute ptr,
 		*result = *args != Nil;
 		return 0;
 	}
+
+	hold = LocalHold_array(ptr, 1);
 	for (keyvalue = 0; *args != Nil; keyvalue = (! keyvalue)) {
 		GetCons(*args, &eval, args);
 		type1 = type2 = Nil;
@@ -3030,7 +3110,9 @@ static int callargs_restkey(Execute ptr,
 		type_and_nil(NULL, type1, type2, &right);
 		if (check_tablecall(ptr, eval, right, &eval)) return 1;
 		cons_heap(root, eval, *root);
+		localhold_set(hold, 0, *root);
 	}
+	localhold_end(hold);
 
 	/* error check */
 	if (key != Nil && keyvalue)
@@ -3044,16 +3126,21 @@ static int callargs_check(Execute ptr, addr array, addr args, addr *ret)
 {
 	int check;
 	addr root;
+	LocalHold hold;
 
 	root = Nil;
+	hold = LocalHold_array(ptr, 1);
 	/* var */
 	if (callargs_var(ptr, array, &args, &root)) goto toofew;
+	localhold_set(hold, 0, root);
 	/* opt */
 	if (args == Nil) goto final;
 	if (callargs_opt(ptr, array, &args, &root)) return 1;
+	localhold_set(hold, 0, root);
 	/* rest, key */
 	if (args == Nil) goto final;
 	if (callargs_restkey(ptr, array, &args, &root, &check)) return 1;
+	localhold_set(hold, 0, root);
 	if (check) goto toomany;
 	goto final;
 
@@ -3064,6 +3151,7 @@ toomany:
 	fmtw("Too many arguments.", NULL);
 	goto final;
 final:
+	localhold_end(hold);
 	nreverse_list_unsafe(ret, root);
 
 	return 0;
@@ -3088,13 +3176,17 @@ static int asterisk_function_argument(addr type, addr *ret)
 static int callargs_nocheck(Execute ptr, addr args, addr *ret)
 {
 	addr root, eval, type;
+	LocalHold hold;
 
+	GetTypeTable(&type, Asterisk);
+	hold = LocalHold_array(ptr, 1);
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &eval, &args);
-		GetTypeTable(&type, Asterisk);
 		if (check_tablecall(ptr, eval, type, &eval)) return 1;
 		cons_heap(&root, eval, root);
+		localhold_set(hold, 0, root);
 	}
+	localhold_end(hold);
 	nreverse_list_unsafe(ret, root);
 
 	return 0;
@@ -3131,14 +3223,20 @@ static void call_result(addr *ret, addr first)
 static int scope_call(Execute ptr, addr *ret, addr eval)
 {
 	addr first, args, type;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &first);
 	GetEvalParse(eval, 1, &args);
 
+	hold = LocalHold_local(ptr);
 	if (call_first(ptr, &first, first)) return 1;
+	localhold_push(hold, first);
 	if (call_args(ptr, &args, first, args)) return 1;
+	localhold_push(hold, args);
 	call_result(&type, first);
+	localhold_push(hold, type);
+	localhold_end(hold);
 
 	eval_scope_size(&eval, 2, EVAL_PARSE_CALL, type, eval);
 	SetEvalScopeIndex(eval, 0, first);
@@ -3151,8 +3249,10 @@ static int scope_call(Execute ptr, addr *ret, addr eval)
 static int values_args(Execute ptr, addr args, addr *retargs, addr *rettype)
 {
 	addr root, var, rest, eval, type;
+	LocalHold hold;
 
 	/* progn and typelist */
+	hold = LocalHold_array(ptr, 2);
 	for (root = var = Nil; args != Nil; ) {
 		GetCons(args, &eval, &args);
 		if (scope_eval(ptr, &eval, eval)) return 1;
@@ -3160,7 +3260,10 @@ static int values_args(Execute ptr, addr args, addr *retargs, addr *rettype)
 		/* push */
 		cons_heap(&root, eval, root);
 		cons_heap(&var, type, var);
+		localhold_set(hold, 0, root);
+		localhold_set(hold, 1, var);
 	}
+	localhold_end(hold);
 	nreverse_list_unsafe(retargs, root);
 	nreverse_list_unsafe(&var, var);
 
@@ -3193,7 +3296,7 @@ static void the_check_warning(addr type, addr expected)
 			expected, type, NULL);
 }
 
-static void the_check(Execute ptr, addr eval, addr right, addr *ret)
+static void the_check(addr eval, addr right, addr *ret)
 {
 	int check;
 	addr left;
@@ -3213,7 +3316,7 @@ static int scope_the(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &form);
 
 	if (scope_eval(ptr, &form, form)) return 1;
-	the_check(ptr, form, type, &check);
+	the_check(form, type, &check);
 
 	eval_scope_size(&eval, 1, EVAL_PARSE_THE, type, form);
 	SetEvalScopeIndex(eval, 0, check);
@@ -3256,15 +3359,19 @@ static int scope_locally(Execute ptr, addr *ret, addr eval)
 static int scope_if(Execute ptr, addr *ret, addr eval)
 {
 	addr expr, then, last, type1, type2, type;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &expr);
 	GetEvalParse(eval, 1, &then);
 	GetEvalParse(eval, 2, &last);
 
-	if (scope_eval(ptr, &expr, expr)) return 1;
-	if (scope_eval(ptr, &then, then)) return 1;
-	if (scope_eval(ptr, &last, last)) return 1;
+	hold = LocalHold_local(ptr);
+	if (localhold_scope_eval(hold, ptr, &expr, expr)) return 1;
+	if (localhold_scope_eval(hold, ptr, &then, then)) return 1;
+	if (localhold_scope_eval(hold, ptr, &last, last)) return 1;
+	localhold_end(hold);
+
 	GetEvalScopeThe(then, &type1);
 	GetEvalScopeThe(last, &type2);
 	type2or_heap(type1, type2, &type);
@@ -3281,13 +3388,16 @@ static int scope_if(Execute ptr, addr *ret, addr eval)
 static int scope_unwind_protect(Execute ptr, addr *ret, addr eval)
 {
 	addr protect, cleanup, type;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &protect);
 	GetEvalParse(eval, 1, &cleanup);
 
-	if (scope_eval(ptr, &protect, protect)) return 1;
-	if (scope_allcons(ptr, &cleanup, NULL, cleanup)) return 1;
+	hold = LocalHold_local(ptr);
+	if (localhold_scope_eval(hold, ptr, &protect, protect)) return 1;
+	if (localhold_scope_allcons(hold, ptr, &cleanup, NULL, cleanup)) return 1;
+	localhold_end(hold);
 	GetEvalScopeThe(protect, &type);
 
 	eval_scope_size(&eval, 2, EVAL_PARSE_UNWIND_PROTECT, type, eval);
@@ -3328,7 +3438,9 @@ static void tagbody_push(addr stack, addr cons)
 static int tagbody_allcons(Execute ptr, addr body, addr *ret)
 {
 	addr root, pos;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	for (root = Nil; body != Nil; ) {
 		GetCons(body, &pos, &body);
 		if (RefEvalParseType(pos) == EVAL_PARSE_TAG) {
@@ -3339,7 +3451,9 @@ static int tagbody_allcons(Execute ptr, addr body, addr *ret)
 			if (scope_eval(ptr, &pos, pos)) return 1;
 		}
 		cons_heap(&root, pos, root);
+		localhold_set(hold, 0, root);
 	}
+	localhold_end(hold);
 	nreverse_list_unsafe(ret, root);
 
 	return 0;
@@ -3587,14 +3701,18 @@ static int scope_return_from(Execute ptr, addr *ret, addr eval)
 static int scope_catch(Execute ptr, addr *ret, addr eval)
 {
 	addr tag, cons, type;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &tag);
 	GetEvalParse(eval, 1, &cons);
 
-	if (scope_eval(ptr, &tag, tag)) return 1;
-	if (scope_allcons(ptr, &cons, &type, cons)) return 1;
+	hold = LocalHold_local(ptr);
+	if (localhold_scope_eval(hold, ptr, &tag, tag)) return 1;
+	if (localhold_scope_allcons(hold, ptr, &cons, &type, cons)) return 1;
+	localhold_end(hold);
 	GetTypeTable(&type, Asterisk);
+
 	eval_scope_size(&eval, 2, EVAL_PARSE_CATCH, type, eval);
 	SetEvalScopeIndex(eval, 0, tag);
 	SetEvalScopeIndex(eval, 1, cons);
@@ -3606,14 +3724,18 @@ static int scope_catch(Execute ptr, addr *ret, addr eval)
 static int scope_throw(Execute ptr, addr *ret, addr eval)
 {
 	addr tag, form, type;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &tag);
 	GetEvalParse(eval, 1, &form);
 
-	if (scope_eval(ptr, &tag, tag)) return 1;
-	if (scope_eval(ptr, &form, form)) return 1;
+	hold = LocalHold_local(ptr);
+	if (localhold_scope_eval(hold, ptr, &tag, tag)) return 1;
+	if (localhold_scope_eval(hold, ptr, &form, form)) return 1;
+	localhold_end(hold);
 	GetTypeTable(&type, Nil);
+
 	eval_scope_size(&eval, 2, EVAL_PARSE_THROW, type, eval);
 	SetEvalScopeIndex(eval, 0, tag);
 	SetEvalScopeIndex(eval, 1, form);
@@ -3674,6 +3796,13 @@ struct mvbind_struct {
 	addr stack, args, decl, doc, cons, free, the;
 };
 
+static void init_mvbind_struct(struct mvbind_struct *str)
+{
+	memset(str, 0, sizeoft(struct mvbind_struct));
+	str->stack = str->args = str->decl = str->doc
+		= str->cons = str->free = str->the = Nil;
+}
+
 static void mvbind_maketable(Execute ptr, struct mvbind_struct *str)
 {
 	addr stack, decl, args, var;
@@ -3688,7 +3817,7 @@ static void mvbind_maketable(Execute ptr, struct mvbind_struct *str)
 	}
 }
 
-static void mvbind_update(Execute ptr, struct mvbind_struct *str)
+static void mvbind_update(struct mvbind_struct *str)
 {
 	addr stack, args, key, root, var;
 
@@ -3715,7 +3844,7 @@ static int mvbind_execute(Execute ptr, struct mvbind_struct *str)
 	apply_declare(ptr, stack, str->decl, &str->free);
 	if (scope_allcons(ptr, &str->cons, &str->the, str->cons)) return 1;
 	ignore_checkvalue(stack);
-	mvbind_update(ptr, str);
+	mvbind_update(str);
 
 	return 0;
 }
@@ -3724,16 +3853,18 @@ static int scope_multiple_value_bind(Execute ptr, addr *ret, addr eval)
 {
 	struct mvbind_struct str;
 	addr expr;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
-	memset(&str, 0, sizeoft(struct mvbind_struct));
+	init_mvbind_struct(&str);
 	GetEvalParse(eval, 0, &str.args);
 	GetEvalParse(eval, 1, &expr);
 	GetEvalParse(eval, 2, &str.decl);
 	GetEvalParse(eval, 3, &str.doc);
 	GetEvalParse(eval, 4, &str.cons);
 
-	if (scope_eval(ptr, &expr, expr)) return 1;
+	hold = LocalHold_local(ptr);
+	if (localhold_scope_eval(hold, ptr, &expr, expr)) return 1;
 	str.stack = newstack_nil(ptr);
 	if (mvbind_execute(ptr, &str)) return 1;
 	freestack_eval(ptr, str.stack);
@@ -3764,15 +3895,19 @@ static int function_result_type(addr expr, addr *ret)
 static int scope_multiple_value_call(Execute ptr, addr *ret, addr eval)
 {
 	addr expr, cons, type;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &expr);
 	GetEvalParse(eval, 1, &cons);
 
-	if (scope_eval(ptr, &expr, expr)) return 1;
-	if (scope_allcons(ptr, &cons, NULL, cons)) return 1;
+	hold = LocalHold_local(ptr);
+	if (localhold_scope_eval(hold, ptr, &expr, expr)) return 1;
+	if (localhold_scope_allcons(hold, ptr, &cons, NULL, cons)) return 1;
+	localhold_end(hold);
 	if (function_result_type(expr, &type))
 		GetTypeTable(&type, Asterisk);
+
 	eval_scope_size(&eval, 2, EVAL_PARSE_MULTIPLE_VALUE_CALL, type, eval);
 	SetEvalScopeIndex(eval, 0, expr);
 	SetEvalScopeIndex(eval, 1, cons);
@@ -3785,14 +3920,18 @@ static int scope_multiple_value_call(Execute ptr, addr *ret, addr eval)
 static int scope_multiple_value_prog1(Execute ptr, addr *ret, addr eval)
 {
 	addr expr, cons, type;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &expr);
 	GetEvalParse(eval, 1, &cons);
 
-	if (scope_eval(ptr, &expr, expr)) return 1;
-	if (scope_allcons(ptr, &cons, NULL, cons)) return 1;
+	hold = LocalHold_local(ptr);
+	if (localhold_scope_eval(hold, ptr, &expr, expr)) return 1;
+	if (localhold_scope_allcons(hold, ptr, &cons, NULL, cons)) return 1;
+	localhold_end(hold);
 	GetEvalScopeThe(expr, &type);
+
 	eval_scope_size(&eval, 2, EVAL_PARSE_MULTIPLE_VALUE_PROG1, type, eval);
 	SetEvalScopeIndex(eval, 0, expr);
 	SetEvalScopeIndex(eval, 1, cons);
@@ -3805,14 +3944,18 @@ static int scope_multiple_value_prog1(Execute ptr, addr *ret, addr eval)
 static int scope_nth_value(Execute ptr, addr *ret, addr eval)
 {
 	addr nth, expr, type;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &nth);
 	GetEvalParse(eval, 1, &expr);
 
-	if (scope_eval(ptr, &nth, nth)) return 1;
-	if (scope_eval(ptr, &expr, expr)) return 1;
+	hold = LocalHold_local(ptr);
+	if (localhold_scope_eval(hold, ptr, &nth, nth)) return 1;
+	if (localhold_scope_eval(hold, ptr, &expr, expr)) return 1;
+	localhold_end(hold);
 	GetEvalScopeThe(expr, &type);
+
 	eval_scope_size(&eval, 2, EVAL_PARSE_NTH_VALUE, type, eval);
 	SetEvalScopeIndex(eval, 0, nth);
 	SetEvalScopeIndex(eval, 1, expr);
@@ -3825,15 +3968,19 @@ static int scope_nth_value(Execute ptr, addr *ret, addr eval)
 static int scope_progv(Execute ptr, addr *ret, addr eval)
 {
 	addr symbols, values, body, type;
+	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &symbols);
 	GetEvalParse(eval, 1, &values);
 	GetEvalParse(eval, 2, &body);
 
-	if (scope_eval(ptr, &symbols, symbols)) return 1;
-	if (scope_eval(ptr, &values, values)) return 1;
-	if (scope_allcons(ptr, &body, &type, body)) return 1;
+	hold = LocalHold_local(ptr);
+	if (localhold_scope_eval(hold, ptr, &symbols, symbols)) return 1;
+	if (localhold_scope_eval(hold, ptr, &values, values)) return 1;
+	if (localhold_scope_allcons(hold, ptr, &body, &type, body)) return 1;
+	localhold_end(hold);
+
 	eval_scope_size(&eval, 3, EVAL_PARSE_PROGV, type, eval);
 	SetEvalScopeIndex(eval, 0, symbols);
 	SetEvalScopeIndex(eval, 1, values);
@@ -4034,41 +4181,57 @@ static int scope_eval_downlevel(Execute ptr, addr *ret, addr eval)
 
 static int scope_eval(Execute ptr, addr *ret, addr eval)
 {
+	LocalHold hold;
+
 	Check(GetType(eval) != LISPTYPE_EVAL, "type error");
 	Check(RefEvalType(eval) != EVAL_TYPE_PARSE, "eval type error");
 
 	/* toplevel form */
+	hold = LocalHold_local_push(ptr, eval);
 	switch (RefEvalParseType(eval)) {
 		case EVAL_PARSE_PROGN:
-			return scope_progn(ptr, ret, eval);
+			Return1(scope_progn(ptr, ret, eval));
+			break;
 
 		case EVAL_PARSE_LOCALLY:
-			return scope_locally(ptr, ret, eval);
+			Return1(scope_locally(ptr, ret, eval));
+			break;
 
 		case EVAL_PARSE_EVAL_WHEN:
-			return scope_eval_when(ptr, ret, eval);
+			Return1(scope_eval_when(ptr, ret, eval));
+			break;
 
 		default:
-			return scope_eval_downlevel(ptr, ret, eval);
+			Return1(scope_eval_downlevel(ptr, ret, eval));
+			break;
 	}
+	localhold_end(hold);
 
 	return 0;
 }
 
 _g int eval_scope(Execute ptr, addr *ret, addr eval)
 {
+	int check;
 	addr control;
+	LocalHold hold;
 
 	/* push */
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
 	init_eval_stack(ptr);
-	if (scope_eval(ptr, ret, eval)) {
-		return runcode_free_control(ptr, control);
+	check = scope_eval(ptr, ret, eval);
+	localhold_set(hold, 0, *ret);
+	if (check) {
+		Return1(runcode_free_control(ptr, control));
 	}
 	else {
 		free_eval_stack(ptr);
-		return free_control(ptr, control);
+		Return1(free_control(ptr, control));
 	}
+	localhold_end(hold);
+
+	return 0;
 }
 

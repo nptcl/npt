@@ -88,7 +88,7 @@ static void function_disassemble(Execute ptr, addr var)
 		}
 		var = check;
 	}
-	disassemble_common(stream, var);
+	Return0(disassemble_common(ptr, stream, var));
 	setresult_control(ptr, Nil);
 }
 

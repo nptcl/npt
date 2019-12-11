@@ -8,6 +8,7 @@
 #include "eval_declare.h"
 #include "eval_scope.h"
 #include "function.h"
+#include "gc.h"
 #include "object.h"
 #include "sequence.h"
 #include "strtype.h"
@@ -770,20 +771,20 @@ static int decl_otherwise(Execute ptr, addr env, addr eval, addr type, addr cons
 		return 0;
 	}
 
-	/* type */
-	if (type_symbol_p(type)) {
-		if (parse_type(ptr, &type, type, env))
-			return 1;
-		while (cons != Nil) {
-			getcons(cons, &symbol, &cons);
-			check_variable(symbol);
-			push_type_declare_heap(eval, symbol, type);
-		}
+	if (! type_symbol_p(type)) {
+		/* Not implementation */
+		fmtw("Declaration ~S is not implemented.", type, NULL);
 		return 0;
 	}
 
-	/* Not implementation */
-	fmtw("Declaration ~S is not implemented.", type, NULL);
+	if (parse_type(ptr, &type, type, env))
+		return 1;
+	while (cons != Nil) {
+		getcons(cons, &symbol, &cons);
+		check_variable(symbol);
+		push_type_declare_heap(eval, symbol, type);
+	}
+
 	return 0;
 }
 
@@ -902,8 +903,10 @@ static int parse_declare_form(Execute ptr, addr env, addr decl, addr *ret,
 		int (*call)(Execute, addr ,addr, addr, addr))
 {
 	addr eval, car, tail;
+	LocalHold hold;
 
 	eval_declare_heap(&eval);
+	hold = LocalHold_local_push(ptr, eval);
 	while (decl != Nil) {
 		getcons(decl, &car, &decl);
 		getcons(car, &car, &tail);
@@ -912,6 +915,7 @@ static int parse_declare_form(Execute ptr, addr env, addr decl, addr *ret,
 		if (call(ptr, env, eval, car, tail))
 			return 1;
 	}
+	localhold_end(hold);
 	*ret = eval;
 
 	return 0;
@@ -989,14 +993,12 @@ _g void declare_body_form(addr list, addr *retdecl, addr *retbody)
 _g int declare_body(Execute ptr, addr env, addr cons, addr *retdecl, addr *retbody)
 {
 	addr decl;
+
 	declare_split(cons, &decl, retbody);
-	if (decl != Nil) {
+	if (decl != Nil)
 		return parse_declare_heap(ptr, env, decl, retdecl);
-	}
-	else {
-		*retdecl = Nil;
-		return 0;
-	}
+	*retdecl = Nil;
+	return 0;
 }
 
 _g int declare_body_documentation(Execute ptr, addr env,
@@ -1024,9 +1026,8 @@ _g int declare_body_documentation(Execute ptr, addr env,
 	}
 
 	/* (decl . nil) */
-	if (declare_body(ptr, env, cons, rdecl, &cdr)) {
+	if (declare_body(ptr, env, cons, rdecl, &cdr))
 		return 1;
-	}
 	if (cdr == Nil) {
 		*rdoc = *rbody = Nil;
 		return 0;

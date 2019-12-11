@@ -11,6 +11,7 @@
 #include "cons_list.h"
 #include "copy.h"
 #include "execute.h"
+#include "gc.h"
 #include "integer.h"
 #include "local.h"
 #include "ratio.h"
@@ -25,7 +26,7 @@
 #include "type_typep.h"
 #include "type_value.h"
 
-static int coerce_type(addr pos, addr type, addr *ret);
+static int coerce_type(Execute ptr, addr pos, addr type, addr *ret);
 
 /*
  *  type
@@ -38,11 +39,11 @@ static void coerce_error(addr pos, addr type)
 			"Cannot covert value ~A to a ~S type.", pos, type, NULL);
 }
 
-static int coerce_typep(addr pos, addr value, addr type, addr *ret)
+static int coerce_typep(Execute ptr, addr pos, addr value, addr type, addr *ret)
 {
 	int check;
 
-	if (typep_clang(value, type, &check))
+	if (typep_clang(ptr, value, type, &check))
 		return 1;
 	if (! check)
 		coerce_error(pos, type);
@@ -54,53 +55,53 @@ static int coerce_typep(addr pos, addr value, addr type, addr *ret)
 /*
  *  float
  */
-static int coerce_fixnum_single(addr pos, addr type, addr *ret)
+static int coerce_fixnum_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_FIXNUM);
 	single_float_fixnum_heap(&value, pos);
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_bignum_single(addr pos, addr type, addr *ret)
+static int coerce_bignum_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_BIGNUM);
 	single_float_bignum_heap(&value, pos);
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_ratio_single(addr pos, addr type, addr *ret)
+static int coerce_ratio_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_RATIO);
 	single_float_ratio_heap(&value, pos);
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_float(addr pos, addr type, addr *ret)
+static int coerce_float(Execute ptr, addr pos, addr type, addr *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
 		case LISPTYPE_DOUBLE_FLOAT:
 		case LISPTYPE_LONG_FLOAT:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 
 		case LISPTYPE_FIXNUM:
-			return coerce_fixnum_single(pos, type, ret);
+			return coerce_fixnum_single(ptr, pos, type, ret);
 
 		case LISPTYPE_BIGNUM:
-			return coerce_bignum_single(pos, type, ret);
+			return coerce_bignum_single(ptr, pos, type, ret);
 
 		case LISPTYPE_RATIO:
-			return coerce_ratio_single(pos, type, ret);
+			return coerce_ratio_single(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
@@ -108,48 +109,48 @@ static int coerce_float(addr pos, addr type, addr *ret)
 /*
  *  single-float
  */
-static int coerce_double_single(addr pos, addr type, addr *ret)
+static int coerce_double_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
 	single_float_heap(&value, cast_ds_value(pos));
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_long_single(addr pos, addr type, addr *ret)
+static int coerce_long_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	single_float_heap(&value, cast_ls_value(pos));
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_single(addr pos, addr type, addr *ret)
+static int coerce_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return coerce_double_single(pos, type, ret);
+			return coerce_double_single(ptr, pos, type, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			return coerce_long_single(pos, type, ret);
+			return coerce_long_single(ptr, pos, type, ret);
 
 		case LISPTYPE_FIXNUM:
-			return coerce_fixnum_single(pos, type, ret);
+			return coerce_fixnum_single(ptr, pos, type, ret);
 
 		case LISPTYPE_BIGNUM:
-			return coerce_bignum_single(pos, type, ret);
+			return coerce_bignum_single(ptr, pos, type, ret);
 
 		case LISPTYPE_RATIO:
-			return coerce_ratio_single(pos, type, ret);
+			return coerce_ratio_single(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
@@ -157,75 +158,75 @@ static int coerce_single(addr pos, addr type, addr *ret)
 /*
  *  double-float
  */
-static int coerce_single_double(addr pos, addr type, addr *ret)
+static int coerce_single_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
 	double_float_heap(&value, cast_sd_value(pos));
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_long_double(addr pos, addr type, addr *ret)
+static int coerce_long_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	double_float_heap(&value, cast_ld_value(pos));
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_fixnum_double(addr pos, addr type, addr *ret)
+static int coerce_fixnum_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_FIXNUM);
 	double_float_fixnum_heap(&value, pos);
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_bignum_double(addr pos, addr type, addr *ret)
+static int coerce_bignum_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_BIGNUM);
 	double_float_bignum_heap(&value, pos);
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_ratio_double(addr pos, addr type, addr *ret)
+static int coerce_ratio_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_RATIO);
 	double_float_ratio_heap(&value, pos);
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_double(addr pos, addr type, addr *ret)
+static int coerce_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			return coerce_single_double(pos, type, ret);
+			return coerce_single_double(ptr, pos, type, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			return coerce_long_double(pos, type, ret);
+			return coerce_long_double(ptr, pos, type, ret);
 
 		case LISPTYPE_FIXNUM:
-			return coerce_fixnum_double(pos, type, ret);
+			return coerce_fixnum_double(ptr, pos, type, ret);
 
 		case LISPTYPE_BIGNUM:
-			return coerce_bignum_double(pos, type, ret);
+			return coerce_bignum_double(ptr, pos, type, ret);
 
 		case LISPTYPE_RATIO:
-			return coerce_ratio_double(pos, type, ret);
+			return coerce_ratio_double(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
@@ -233,75 +234,75 @@ static int coerce_double(addr pos, addr type, addr *ret)
 /*
  *  long-float
  */
-static int coerce_single_long(addr pos, addr type, addr *ret)
+static int coerce_single_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
 	long_float_heap(&value, cast_sl_value(pos));
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_double_long(addr pos, addr type, addr *ret)
+static int coerce_double_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
 	long_float_heap(&value, cast_dl_value(pos));
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_fixnum_long(addr pos, addr type, addr *ret)
+static int coerce_fixnum_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_FIXNUM);
 	long_float_fixnum_heap(&value, pos);
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_bignum_long(addr pos, addr type, addr *ret)
+static int coerce_bignum_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_BIGNUM);
 	long_float_bignum_heap(&value, pos);
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_ratio_long(addr pos, addr type, addr *ret)
+static int coerce_ratio_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr value;
 
 	CheckType(pos, LISPTYPE_RATIO);
 	long_float_ratio_heap(&value, pos);
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_long(addr pos, addr type, addr *ret)
+static int coerce_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			return coerce_single_long(pos, type, ret);
+			return coerce_single_long(ptr, pos, type, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			return coerce_double_long(pos, type, ret);
+			return coerce_double_long(ptr, pos, type, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 
 		case LISPTYPE_FIXNUM:
-			return coerce_fixnum_long(pos, type, ret);
+			return coerce_fixnum_long(ptr, pos, type, ret);
 
 		case LISPTYPE_BIGNUM:
-			return coerce_bignum_long(pos, type, ret);
+			return coerce_bignum_long(ptr, pos, type, ret);
 
 		case LISPTYPE_RATIO:
-			return coerce_ratio_long(pos, type, ret);
+			return coerce_ratio_long(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
@@ -309,25 +310,29 @@ static int coerce_long(addr pos, addr type, addr *ret)
 /*
  *  complex
  */
-static int coerce_complex_complex(addr pos, addr type, addr *ret)
+static int coerce_complex_complex(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr real, imag;
+	LocalHold hold;
 
 	GetArrayType(type, 0, &type);
 	GetRealComplex(pos, &real);
 	GetImagComplex(pos, &imag);
-	if (coerce_type(real, type, &real)) return 1;
-	if (coerce_type(imag, type, &imag)) return 1;
+
+	if (coerce_type(ptr, real, type, &real)) return 1;
+	hold = LocalHold_local_push(ptr, real);
+	if (coerce_type(ptr, imag, type, &imag)) return 1;
+	localhold_end(hold);
 	complex_heap(ret, real, imag);
 
 	return 0;
 }
 
-static int coerce_complex_real(addr pos, addr type, addr *ret)
+static int coerce_complex_real(Execute ptr, addr pos, addr type, addr *ret)
 {
 	GetArrayType(type, 0, &type);
 	if (! type_asterisk_p(type)) {
-		if (coerce_type(pos, type, &pos))
+		if (coerce_type(ptr, pos, type, &pos))
 			return 1;
 	}
 	complex_heap(ret, pos, fixnumh(0));
@@ -335,28 +340,29 @@ static int coerce_complex_real(addr pos, addr type, addr *ret)
 	return 0;
 }
 
-static int coerce_complex(addr pos, addr type, addr *ret)
+static int coerce_complex(Execute ptr, addr pos, addr type, addr *ret)
 {
 	if (complexp(pos))
-		return coerce_complex_complex(pos, type, ret);
+		return coerce_complex_complex(ptr, pos, type, ret);
 	if (realp(pos))
-		return coerce_complex_real(pos, type, ret);
+		return coerce_complex_real(ptr, pos, type, ret);
 	else
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 }
 
 
 /*
  *  charcter
  */
-static int coerce_unicode_character(addr pos, unicode c, addr type, addr *ret)
+static int coerce_unicode_character(Execute ptr,
+		addr pos, unicode c, addr type, addr *ret)
 {
 	addr value;
 	character_heap(&value, c);
-	return coerce_typep(pos, value, type, ret);
+	return coerce_typep(ptr, pos, value, type, ret);
 }
 
-static int coerce_string_character(addr pos, addr type, addr *ret)
+static int coerce_string_character(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unicode c;
 	size_t size;
@@ -365,10 +371,10 @@ static int coerce_string_character(addr pos, addr type, addr *ret)
 	if (size != 1)
 		coerce_error(pos, type);
 	string_getc(pos, 0, &c);
-	return coerce_unicode_character(pos, c, type, ret);
+	return coerce_unicode_character(ptr, pos, c, type, ret);
 }
 
-static int coerce_symbol_character(addr pos, addr type, addr *ret)
+static int coerce_symbol_character(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr name;
 	unicode c;
@@ -379,34 +385,34 @@ static int coerce_symbol_character(addr pos, addr type, addr *ret)
 	if (size != 1)
 		coerce_error(pos, type);
 	string_getc(name, 0, &c);
-	return coerce_unicode_character(pos, c, type, ret);
+	return coerce_unicode_character(ptr, pos, c, type, ret);
 }
 
-static int coerce_character(addr pos, addr type, addr *ret)
+static int coerce_character(Execute ptr, addr pos, addr type, addr *ret)
 {
 	/* (or symbol string character) */
 	if (stringp(pos))
-		return coerce_string_character(pos, type, ret);
+		return coerce_string_character(ptr, pos, type, ret);
 	else if (symbolp(pos))
-		return coerce_symbol_character(pos, type, ret);
+		return coerce_symbol_character(ptr, pos, type, ret);
 	else
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 }
 
 
 /*
  *  function
  */
-static int coerce_function(addr pos, addr type, addr *ret)
+static int coerce_function(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr call;
 
 	if (symbolp(pos)) {
-		getfunctioncheck_local(Execute_Thread, pos, &call);
-		return coerce_typep(pos, call, type, ret);
+		getfunctioncheck_local(ptr, pos, &call);
+		return coerce_typep(ptr, pos, call, type, ret);
 	}
 	else {
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
@@ -414,7 +420,7 @@ static int coerce_function(addr pos, addr type, addr *ret)
 /*
  *  list
  */
-static int coerce_vector_list(addr pos, addr type, addr *ret)
+static int coerce_vector_list(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr list, x;
 	size_t size, i;
@@ -427,10 +433,10 @@ static int coerce_vector_list(addr pos, addr type, addr *ret)
 	}
 	nreverse_list_unsafe(&list, list);
 
-	return coerce_typep(pos, list, type, ret);
+	return coerce_typep(ptr, pos, list, type, ret);
 }
 
-static int coerce_string_list(addr pos, addr type, addr *ret)
+static int coerce_string_list(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unicode c;
 	addr list, x;
@@ -445,17 +451,17 @@ static int coerce_string_list(addr pos, addr type, addr *ret)
 	}
 	nreverse_list_unsafe(&list, list);
 
-	return coerce_typep(pos, list, type, ret);
+	return coerce_typep(ptr, pos, list, type, ret);
 }
 
-static int coerce_array_list(addr pos, addr type, addr *ret)
+static int coerce_array_list(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr list, x;
 	size_t size, i;
 
 	/* not vector */
 	if (! array_vector_p(pos))
-		return coerce_typep(pos, type, type, ret);
+		return coerce_typep(ptr, pos, type, type, ret);
 
 	/* cast list */
 	list = Nil;
@@ -466,10 +472,10 @@ static int coerce_array_list(addr pos, addr type, addr *ret)
 	}
 	nreverse_list_unsafe(&list, list);
 
-	return coerce_typep(pos, list, type, ret);
+	return coerce_typep(ptr, pos, list, type, ret);
 }
 
-static int coerce_bitvector_list(addr pos, addr type, addr *ret)
+static int coerce_bitvector_list(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr list, x;
@@ -484,26 +490,26 @@ static int coerce_bitvector_list(addr pos, addr type, addr *ret)
 	}
 	nreverse_list_unsafe(&list, list);
 
-	return coerce_typep(pos, list, type, ret);
+	return coerce_typep(ptr, pos, list, type, ret);
 }
 
-static int coerce_list(addr pos, addr type, addr *ret)
+static int coerce_list(Execute ptr, addr pos, addr type, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_VECTOR:
-			return coerce_vector_list(pos, type, ret);
+			return coerce_vector_list(ptr, pos, type, ret);
 
 		case LISPTYPE_STRING:
-			return coerce_string_list(pos, type, ret);
+			return coerce_string_list(ptr, pos, type, ret);
 
 		case LISPTYPE_ARRAY:
-			return coerce_array_list(pos, type, ret);
+			return coerce_array_list(ptr, pos, type, ret);
 
 		case LISPTYPE_BITVECTOR:
-			return coerce_bitvector_list(pos, type, ret);
+			return coerce_bitvector_list(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
@@ -512,7 +518,7 @@ static int coerce_list(addr pos, addr type, addr *ret)
  *  array
  */
 /* array.bit -> array.t */
-static int coerce_aa_bit_t(addr pos, addr type, addr *ret)
+static int coerce_aa_bit_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int bit;
 	addr array, value;
@@ -530,11 +536,11 @@ static int coerce_aa_bit_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.character -> array.t */
-static int coerce_aa_character_t(addr pos, addr type, addr *ret)
+static int coerce_aa_character_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unicode c;
 	addr array, value;
@@ -552,11 +558,11 @@ static int coerce_aa_character_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.signed8 -> array.t */
-static int coerce_aa_signed8_t(addr pos, addr type, addr *ret)
+static int coerce_aa_signed8_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int8_t v;
 	addr array, value;
@@ -574,11 +580,11 @@ static int coerce_aa_signed8_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.signed16 -> array.t */
-static int coerce_aa_signed16_t(addr pos, addr type, addr *ret)
+static int coerce_aa_signed16_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int16_t v;
 	addr array, value;
@@ -596,11 +602,11 @@ static int coerce_aa_signed16_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.signed32 -> array.t */
-static int coerce_aa_signed32_t(addr pos, addr type, addr *ret)
+static int coerce_aa_signed32_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int32_t v;
 	addr array, value;
@@ -618,12 +624,12 @@ static int coerce_aa_signed32_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 #ifdef LISP_64BIT
 /* array.signed64 -> array.t */
-static int coerce_aa_signed64_t(addr pos, addr type, addr *ret)
+static int coerce_aa_signed64_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int64_t v;
 	addr array, value;
@@ -641,26 +647,27 @@ static int coerce_aa_signed64_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 #endif
 
 /* array.signed -> array.t */
-static int coerce_aa_signed_t(addr pos, addr type, unsigned size, addr *ret)
+static int coerce_aa_signed_t(Execute ptr,
+		addr pos, addr type, unsigned size, addr *ret)
 {
 	switch (size) {
 		case 8:
-			return coerce_aa_signed8_t(pos, type, ret);
+			return coerce_aa_signed8_t(ptr, pos, type, ret);
 
 		case 16:
-			return coerce_aa_signed16_t(pos, type, ret);
+			return coerce_aa_signed16_t(ptr, pos, type, ret);
 
 		case 32:
-			return coerce_aa_signed32_t(pos, type, ret);
+			return coerce_aa_signed32_t(ptr, pos, type, ret);
 
 #ifdef LISP_64BIT
 		case 64:
-			return coerce_aa_signed64_t(pos, type, ret);
+			return coerce_aa_signed64_t(ptr, pos, type, ret);
 #endif
 
 		default:
@@ -670,7 +677,7 @@ static int coerce_aa_signed_t(addr pos, addr type, unsigned size, addr *ret)
 }
 
 /* array.unsigned8 -> array.t */
-static int coerce_aa_unsigned8_t(addr pos, addr type, addr *ret)
+static int coerce_aa_unsigned8_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint8_t v;
 	addr array, value;
@@ -688,11 +695,11 @@ static int coerce_aa_unsigned8_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.unsigned16 -> array.t */
-static int coerce_aa_unsigned16_t(addr pos, addr type, addr *ret)
+static int coerce_aa_unsigned16_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint16_t v;
 	addr array, value;
@@ -710,11 +717,11 @@ static int coerce_aa_unsigned16_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.unsigned32 -> array.t */
-static int coerce_aa_unsigned32_t(addr pos, addr type, addr *ret)
+static int coerce_aa_unsigned32_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint32_t v;
 	addr array, value;
@@ -736,12 +743,12 @@ static int coerce_aa_unsigned32_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 #ifdef LISP_64BIT
 /* array.unsigned64 -> array.t */
-static int coerce_aa_unsigned64_t(addr pos, addr type, addr *ret)
+static int coerce_aa_unsigned64_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint64_t v;
 	addr array, value;
@@ -759,26 +766,27 @@ static int coerce_aa_unsigned64_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 #endif
 
 /* array.unsigned -> array.t */
-static int coerce_aa_unsigned_t(addr pos, addr type, unsigned size, addr *ret)
+static int coerce_aa_unsigned_t(Execute ptr,
+		addr pos, addr type, unsigned size, addr *ret)
 {
 	switch (size) {
 		case 8:
-			return coerce_aa_unsigned8_t(pos, type, ret);
+			return coerce_aa_unsigned8_t(ptr, pos, type, ret);
 
 		case 16:
-			return coerce_aa_unsigned16_t(pos, type, ret);
+			return coerce_aa_unsigned16_t(ptr, pos, type, ret);
 
 		case 32:
-			return coerce_aa_unsigned32_t(pos, type, ret);
+			return coerce_aa_unsigned32_t(ptr, pos, type, ret);
 
 #ifdef LISP_64BIT
 		case 64:
-			return coerce_aa_unsigned64_t(pos, type, ret);
+			return coerce_aa_unsigned64_t(ptr, pos, type, ret);
 #endif
 
 		default:
@@ -788,7 +796,7 @@ static int coerce_aa_unsigned_t(addr pos, addr type, unsigned size, addr *ret)
 }
 
 /* array.single-float -> array.t */
-static int coerce_aa_single_t(addr pos, addr type, addr *ret)
+static int coerce_aa_single_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	single_float v;
 	addr array, value;
@@ -806,11 +814,11 @@ static int coerce_aa_single_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.double-float -> array.t */
-static int coerce_aa_double_t(addr pos, addr type, addr *ret)
+static int coerce_aa_double_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	double_float v;
 	addr array, value;
@@ -828,11 +836,11 @@ static int coerce_aa_double_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.long-float -> array.t */
-static int coerce_aa_long_t(addr pos, addr type, addr *ret)
+static int coerce_aa_long_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	long_float v;
 	addr array, value;
@@ -850,47 +858,47 @@ static int coerce_aa_long_t(addr pos, addr type, addr *ret)
 		array_set(array, i, value);
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array -> array.t */
-static int coerce_aa_t(addr pos, addr type, addr *ret)
+static int coerce_aa_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	switch (str->type) {
 		case ARRAY_TYPE_T:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 
 		case ARRAY_TYPE_BIT:
-			return coerce_aa_bit_t(pos, type, ret);
+			return coerce_aa_bit_t(ptr, pos, type, ret);
 
 		case ARRAY_TYPE_CHARACTER:
-			return coerce_aa_character_t(pos, type, ret);
+			return coerce_aa_character_t(ptr, pos, type, ret);
 
 		case ARRAY_TYPE_SIGNED:
-			return coerce_aa_signed_t(pos, type, str->bytesize, ret);
+			return coerce_aa_signed_t(ptr, pos, type, str->bytesize, ret);
 
 		case ARRAY_TYPE_UNSIGNED:
-			return coerce_aa_unsigned_t(pos, type, str->bytesize, ret);
+			return coerce_aa_unsigned_t(ptr, pos, type, str->bytesize, ret);
 
 		case ARRAY_TYPE_SINGLE_FLOAT:
-			return coerce_aa_single_t(pos, type, ret);
+			return coerce_aa_single_t(ptr, pos, type, ret);
 
 		case ARRAY_TYPE_DOUBLE_FLOAT:
-			return coerce_aa_double_t(pos, type, ret);
+			return coerce_aa_double_t(ptr, pos, type, ret);
 
 		case ARRAY_TYPE_LONG_FLOAT:
-			return coerce_aa_long_t(pos, type, ret);
+			return coerce_aa_long_t(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* array.t -> bitvector */
-static int coerce_aa_bitvector(addr pos, addr type, addr *ret)
+static int coerce_aa_bitvector(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr vector;
@@ -906,11 +914,11 @@ static int coerce_aa_bitvector(addr pos, addr type, addr *ret)
 		bitmemory_setint(vector, i, v);
 	}
 
-	return coerce_typep(pos, vector, type, ret);
+	return coerce_typep(ptr, pos, vector, type, ret);
 }
 
 /* array.* -> array.bit */
-static int coerce_aa_type_bit(addr pos, addr type, addr *ret)
+static int coerce_aa_type_bit(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr array;
@@ -918,7 +926,7 @@ static int coerce_aa_type_bit(addr pos, addr type, addr *ret)
 
 	/* bit-vector */
 	if (array_vector_p(pos))
-		return coerce_aa_bitvector(pos, type, ret);
+		return coerce_aa_bitvector(ptr, pos, type, ret);
 
 	/* array.bit */
 	array_rowlength(pos, &size);
@@ -934,11 +942,11 @@ static int coerce_aa_type_bit(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array -> array.bit */
-static int coerce_aa_bit(addr pos, addr type, addr *ret)
+static int coerce_aa_bit(Execute ptr, addr pos, addr type, addr *ret)
 {
 	struct array_struct *str;
 
@@ -948,15 +956,15 @@ static int coerce_aa_bit(addr pos, addr type, addr *ret)
 		case ARRAY_TYPE_BIT:
 		case ARRAY_TYPE_SIGNED:
 		case ARRAY_TYPE_UNSIGNED:
-			return coerce_aa_type_bit(pos, type, ret);
+			return coerce_aa_type_bit(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* array.t -> string */
-static int coerce_aa_string(addr pos, addr type, addr *ret)
+static int coerce_aa_string(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unicode v;
 	addr vector;
@@ -972,11 +980,11 @@ static int coerce_aa_string(addr pos, addr type, addr *ret)
 		strvect_setc(vector, i, v);
 	}
 
-	return coerce_typep(pos, vector, type, ret);
+	return coerce_typep(ptr, pos, vector, type, ret);
 }
 
 /* array.t -> array.character */
-static int coerce_aa_t_character(addr pos, addr type, addr *ret)
+static int coerce_aa_t_character(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unicode v;
 	addr array;
@@ -984,7 +992,7 @@ static int coerce_aa_t_character(addr pos, addr type, addr *ret)
 
 	/* bit-vector */
 	if (array_vector_p(pos))
-		return coerce_aa_string(pos, type, ret);
+		return coerce_aa_string(ptr, pos, type, ret);
 
 	/* array.bit */
 	array_rowlength(pos, &size);
@@ -1000,27 +1008,27 @@ static int coerce_aa_t_character(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array -> array.character */
-static int coerce_aa_character(addr pos, addr type, addr *ret)
+static int coerce_aa_character(Execute ptr, addr pos, addr type, addr *ret)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	switch (str->type) {
 		case ARRAY_TYPE_T:
-			return coerce_aa_t_character(pos, type, ret);
+			return coerce_aa_t_character(ptr, pos, type, ret);
 
 		case ARRAY_TYPE_CHARACTER:
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* array.* -> array.signed8 */
-static int coerce_aa_signed8(addr pos, addr type, addr *ret)
+static int coerce_aa_signed8(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int8_t v;
 	addr array;
@@ -1039,11 +1047,11 @@ static int coerce_aa_signed8(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.* -> array.signed16 */
-static int coerce_aa_signed16(addr pos, addr type, addr *ret)
+static int coerce_aa_signed16(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int16_t v;
 	addr array;
@@ -1062,11 +1070,11 @@ static int coerce_aa_signed16(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.* -> array.signed32 */
-static int coerce_aa_signed32(addr pos, addr type, addr *ret)
+static int coerce_aa_signed32(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int32_t v;
 	addr array;
@@ -1085,12 +1093,12 @@ static int coerce_aa_signed32(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 #ifdef LISP_64BIT
 /* array.* -> array.signed64 */
-static int coerce_aa_signed64(addr pos, addr type, addr *ret)
+static int coerce_aa_signed64(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int64_t v;
 	addr array;
@@ -1109,26 +1117,27 @@ static int coerce_aa_signed64(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 #endif
 
 /* array.* -> array.signed */
-static int coerce_aa_type_signed(addr pos, addr type, unsigned size, addr *ret)
+static int coerce_aa_type_signed(Execute ptr,
+		addr pos, addr type, unsigned size, addr *ret)
 {
 	switch (size) {
 		case 8:
-			return coerce_aa_signed8(pos, type, ret);
+			return coerce_aa_signed8(ptr, pos, type, ret);
 
 		case 16:
-			return coerce_aa_signed16(pos, type, ret);
+			return coerce_aa_signed16(ptr, pos, type, ret);
 
 		case 32:
-			return coerce_aa_signed32(pos, type, ret);
+			return coerce_aa_signed32(ptr, pos, type, ret);
 
 #ifdef LISP_64BIT
 		case 64:
-			return coerce_aa_signed64(pos, type, ret);
+			return coerce_aa_signed64(ptr, pos, type, ret);
 #endif
 
 		default:
@@ -1175,28 +1184,28 @@ static int type_second_size(addr type, unsigned *ret)
 	}
 }
 
-static int coerce_aa_signed(addr pos, addr type, addr *ret)
+static int coerce_aa_signed(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unsigned size;
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	if (type_second_size(type, &size))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 	switch (str->type) {
 		case ARRAY_TYPE_T:
 		case ARRAY_TYPE_BIT:
 		case ARRAY_TYPE_SIGNED:
 		case ARRAY_TYPE_UNSIGNED:
-			return coerce_aa_type_signed(pos, type, size, ret);
+			return coerce_aa_type_signed(ptr, pos, type, size, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* array.* -> array.unsigned8 */
-static int coerce_aa_unsigned8(addr pos, addr type, addr *ret)
+static int coerce_aa_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint8_t v;
 	addr array;
@@ -1215,11 +1224,11 @@ static int coerce_aa_unsigned8(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.* -> array.unsigned16 */
-static int coerce_aa_unsigned16(addr pos, addr type, addr *ret)
+static int coerce_aa_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint16_t v;
 	addr array;
@@ -1238,11 +1247,11 @@ static int coerce_aa_unsigned16(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array.* -> array.unsigned32 */
-static int coerce_aa_unsigned32(addr pos, addr type, addr *ret)
+static int coerce_aa_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint32_t v;
 	addr array;
@@ -1261,12 +1270,12 @@ static int coerce_aa_unsigned32(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 #ifdef LISP_64BIT
 /* array.* -> array.unsigned64 */
-static int coerce_aa_unsigned64(addr pos, addr type, addr *ret)
+static int coerce_aa_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint64_t v;
 	addr array;
@@ -1285,26 +1294,27 @@ static int coerce_aa_unsigned64(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 #endif
 
 /* array.* -> array.unsigned */
-static int coerce_aa_type_unsigned(addr pos, addr type, unsigned size, addr *ret)
+static int coerce_aa_type_unsigned(Execute ptr,
+		addr pos, addr type, unsigned size, addr *ret)
 {
 	switch (size) {
 		case 8:
-			return coerce_aa_unsigned8(pos, type, ret);
+			return coerce_aa_unsigned8(ptr, pos, type, ret);
 
 		case 16:
-			return coerce_aa_unsigned16(pos, type, ret);
+			return coerce_aa_unsigned16(ptr, pos, type, ret);
 
 		case 32:
-			return coerce_aa_unsigned32(pos, type, ret);
+			return coerce_aa_unsigned32(ptr, pos, type, ret);
 
 #ifdef LISP_64BIT
 		case 64:
-			return coerce_aa_unsigned64(pos, type, ret);
+			return coerce_aa_unsigned64(ptr, pos, type, ret);
 #endif
 
 		default:
@@ -1314,28 +1324,28 @@ static int coerce_aa_type_unsigned(addr pos, addr type, unsigned size, addr *ret
 }
 
 /* array -> array.unsigned */
-static int coerce_aa_unsigned(addr pos, addr type, addr *ret)
+static int coerce_aa_unsigned(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unsigned size;
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	if (type_second_size(type, &size))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 	switch (str->type) {
 		case ARRAY_TYPE_T:
 		case ARRAY_TYPE_BIT:
 		case ARRAY_TYPE_SIGNED:
 		case ARRAY_TYPE_UNSIGNED:
-			return coerce_aa_type_unsigned(pos, type, size, ret);
+			return coerce_aa_type_unsigned(ptr, pos, type, size, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* array.float -> array.single */
-static int coerce_aa_type_single(addr pos, addr type, addr *ret)
+static int coerce_aa_type_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	single_float v;
 	addr array;
@@ -1354,11 +1364,11 @@ static int coerce_aa_type_single(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array -> array.single-float */
-static int coerce_aa_single(addr pos, addr type, addr *ret)
+static int coerce_aa_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	struct array_struct *str;
 
@@ -1370,15 +1380,15 @@ static int coerce_aa_single(addr pos, addr type, addr *ret)
 		case ARRAY_TYPE_UNSIGNED:
 		case ARRAY_TYPE_DOUBLE_FLOAT:
 		case ARRAY_TYPE_LONG_FLOAT:
-			return coerce_aa_type_single(pos, type, ret);
+			return coerce_aa_type_single(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* array.float -> array.double */
-static int coerce_aa_type_double(addr pos, addr type, addr *ret)
+static int coerce_aa_type_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	double_float v;
 	addr array;
@@ -1397,11 +1407,11 @@ static int coerce_aa_type_double(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array -> array.double-float */
-static int coerce_aa_double(addr pos, addr type, addr *ret)
+static int coerce_aa_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	struct array_struct *str;
 
@@ -1413,15 +1423,15 @@ static int coerce_aa_double(addr pos, addr type, addr *ret)
 		case ARRAY_TYPE_UNSIGNED:
 		case ARRAY_TYPE_SINGLE_FLOAT:
 		case ARRAY_TYPE_LONG_FLOAT:
-			return coerce_aa_type_double(pos, type, ret);
+			return coerce_aa_type_double(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* array.float -> array.long */
-static int coerce_aa_type_long(addr pos, addr type, addr *ret)
+static int coerce_aa_type_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	long_float v;
 	addr array;
@@ -1440,11 +1450,11 @@ static int coerce_aa_type_long(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* array -> array.long-float */
-static int coerce_aa_long(addr pos, addr type, addr *ret)
+static int coerce_aa_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	struct array_struct *str;
 
@@ -1456,56 +1466,56 @@ static int coerce_aa_long(addr pos, addr type, addr *ret)
 		case ARRAY_TYPE_UNSIGNED:
 		case ARRAY_TYPE_SINGLE_FLOAT:
 		case ARRAY_TYPE_DOUBLE_FLOAT:
-			return coerce_aa_type_long(pos, type, ret);
+			return coerce_aa_type_long(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* array -> array */
-static int coerce_aa(addr pos, addr type, addr *ret)
+static int coerce_aa(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr upg;
 
 	/* (array * .) */
 	GetArrayType(type, 0, &upg);
 	if (type_asterisk_p(upg))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 
 	/* (array upg .) */
 	switch (LispDecl(upg)) {
 		case LISPDECL_T:
-			return coerce_aa_t(pos, type, ret);
+			return coerce_aa_t(ptr, pos, type, ret);
 
 		case LISPDECL_BIT:
-			return coerce_aa_bit(pos, type, ret);
+			return coerce_aa_bit(ptr, pos, type, ret);
 
 		case LISPDECL_CHARACTER:
-			return coerce_aa_character(pos, type, ret);
+			return coerce_aa_character(ptr, pos, type, ret);
 
 		case LISPDECL_SIGNED_BYTE:
-			return coerce_aa_signed(pos, type, ret);
+			return coerce_aa_signed(ptr, pos, type, ret);
 
 		case LISPDECL_UNSIGNED_BYTE:
-			return coerce_aa_unsigned(pos, type, ret);
+			return coerce_aa_unsigned(ptr, pos, type, ret);
 
 		case LISPDECL_SINGLE_FLOAT:
-			return coerce_aa_single(pos, type, ret);
+			return coerce_aa_single(ptr, pos, type, ret);
 
 		case LISPDECL_DOUBLE_FLOAT:
-			return coerce_aa_double(pos, type, ret);
+			return coerce_aa_double(ptr, pos, type, ret);
 
 		case LISPDECL_LONG_FLOAT:
-			return coerce_aa_long(pos, type, ret);
+			return coerce_aa_long(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* vector -> array.bit */
-static int coerce_av_bit(addr pos, addr type, addr *ret)
+static int coerce_av_bit(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr vector;
@@ -1521,11 +1531,11 @@ static int coerce_av_bit(addr pos, addr type, addr *ret)
 		bitmemory_setint(vector, i, v);
 	}
 
-	return coerce_typep(pos, vector, type, ret);
+	return coerce_typep(ptr, pos, vector, type, ret);
 }
 
 /* vector -> array.character */
-static int coerce_av_character(addr pos, addr type, addr *ret)
+static int coerce_av_character(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unicode v;
 	addr vector;
@@ -1541,11 +1551,11 @@ static int coerce_av_character(addr pos, addr type, addr *ret)
 		strvect_setc(vector, i, v);
 	}
 
-	return coerce_typep(pos, vector, type, ret);
+	return coerce_typep(ptr, pos, vector, type, ret);
 }
 
 /* vector -> array.signed8 */
-static int coerce_av_signed8(addr pos, addr type, addr *ret)
+static int coerce_av_signed8(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int8_t v;
 	addr array;
@@ -1564,11 +1574,11 @@ static int coerce_av_signed8(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* vector -> array.signed16 */
-static int coerce_av_signed16(addr pos, addr type, addr *ret)
+static int coerce_av_signed16(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int16_t v;
 	addr array;
@@ -1587,11 +1597,11 @@ static int coerce_av_signed16(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* vector -> array.signed32 */
-static int coerce_av_signed32(addr pos, addr type, addr *ret)
+static int coerce_av_signed32(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int32_t v;
 	addr array;
@@ -1610,12 +1620,12 @@ static int coerce_av_signed32(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 #ifdef LISP_64BIT
 /* vector -> array.signed64 */
-static int coerce_av_signed64(addr pos, addr type, addr *ret)
+static int coerce_av_signed64(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int64_t v;
 	addr array;
@@ -1634,30 +1644,30 @@ static int coerce_av_signed64(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 #endif
 
 /* vector -> array.signed */
-static int coerce_av_signed(addr pos, addr type, addr *ret)
+static int coerce_av_signed(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unsigned size;
 
 	if (type_second_size(type, &size))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 	switch (size) {
 		case 8:
-			return coerce_av_signed8(pos, type, ret);
+			return coerce_av_signed8(ptr, pos, type, ret);
 
 		case 16:
-			return coerce_av_signed16(pos, type, ret);
+			return coerce_av_signed16(ptr, pos, type, ret);
 
 		case 32:
-			return coerce_av_signed32(pos, type, ret);
+			return coerce_av_signed32(ptr, pos, type, ret);
 
 #ifdef LISP_64BIT
 		case 64:
-			return coerce_av_signed64(pos, type, ret);
+			return coerce_av_signed64(ptr, pos, type, ret);
 #endif
 
 		default:
@@ -1668,7 +1678,7 @@ static int coerce_av_signed(addr pos, addr type, addr *ret)
 }
 
 /* vector -> array.unsigned8 */
-static int coerce_av_unsigned8(addr pos, addr type, addr *ret)
+static int coerce_av_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint8_t v;
 	addr array;
@@ -1687,11 +1697,11 @@ static int coerce_av_unsigned8(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* vector -> array.unsigned16 */
-static int coerce_av_unsigned16(addr pos, addr type, addr *ret)
+static int coerce_av_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint16_t v;
 	addr array;
@@ -1710,11 +1720,11 @@ static int coerce_av_unsigned16(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* vector -> array.unsigned32 */
-static int coerce_av_unsigned32(addr pos, addr type, addr *ret)
+static int coerce_av_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint32_t v;
 	addr array;
@@ -1733,12 +1743,12 @@ static int coerce_av_unsigned32(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 #ifdef LISP_64BIT
 /* vector -> array.unsigned64 */
-static int coerce_av_unsigned64(addr pos, addr type, addr *ret)
+static int coerce_av_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint64_t v;
 	addr array;
@@ -1757,30 +1767,30 @@ static int coerce_av_unsigned64(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 #endif
 
 /* vector -> array.unsigned */
-static int coerce_av_unsigned(addr pos, addr type, addr *ret)
+static int coerce_av_unsigned(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unsigned size;
 
 	if (type_second_size(type, &size))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 	switch (size) {
 		case 8:
-			return coerce_av_unsigned8(pos, type, ret);
+			return coerce_av_unsigned8(ptr, pos, type, ret);
 
 		case 16:
-			return coerce_av_unsigned16(pos, type, ret);
+			return coerce_av_unsigned16(ptr, pos, type, ret);
 
 		case 32:
-			return coerce_av_unsigned32(pos, type, ret);
+			return coerce_av_unsigned32(ptr, pos, type, ret);
 
 #ifdef LISP_64BIT
 		case 64:
-			return coerce_av_unsigned64(pos, type, ret);
+			return coerce_av_unsigned64(ptr, pos, type, ret);
 #endif
 
 		default:
@@ -1791,7 +1801,7 @@ static int coerce_av_unsigned(addr pos, addr type, addr *ret)
 }
 
 /* vector -> array.single-float */
-static int coerce_av_single(addr pos, addr type, addr *ret)
+static int coerce_av_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	single_float v;
 	addr array;
@@ -1810,11 +1820,11 @@ static int coerce_av_single(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* vector -> array.double-float */
-static int coerce_av_double(addr pos, addr type, addr *ret)
+static int coerce_av_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	double_float v;
 	addr array;
@@ -1833,11 +1843,11 @@ static int coerce_av_double(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* vector -> array.long-float */
-static int coerce_av_long(addr pos, addr type, addr *ret)
+static int coerce_av_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	long_float v;
 	addr array;
@@ -1856,52 +1866,52 @@ static int coerce_av_long(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* vector -> array */
-static int coerce_av(addr pos, addr type, addr *ret)
+static int coerce_av(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr upg;
 
 	/* (array * .) */
 	GetArrayType(type, 0, &upg);
 	if (type_asterisk_p(upg))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 
 	/* (array upg .) */
 	switch (LispDecl(upg)) {
 		case LISPDECL_T:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 
 		case LISPDECL_BIT:
-			return coerce_av_bit(pos, type, ret);
+			return coerce_av_bit(ptr, pos, type, ret);
 
 		case LISPDECL_CHARACTER:
-			return coerce_av_character(pos, type, ret);
+			return coerce_av_character(ptr, pos, type, ret);
 
 		case LISPDECL_SIGNED_BYTE:
-			return coerce_av_signed(pos, type, ret);
+			return coerce_av_signed(ptr, pos, type, ret);
 
 		case LISPDECL_UNSIGNED_BYTE:
-			return coerce_av_unsigned(pos, type, ret);
+			return coerce_av_unsigned(ptr, pos, type, ret);
 
 		case LISPDECL_SINGLE_FLOAT:
-			return coerce_av_single(pos, type, ret);
+			return coerce_av_single(ptr, pos, type, ret);
 
 		case LISPDECL_DOUBLE_FLOAT:
-			return coerce_av_double(pos, type, ret);
+			return coerce_av_double(ptr, pos, type, ret);
 
 		case LISPDECL_LONG_FLOAT:
-			return coerce_av_long(pos, type, ret);
+			return coerce_av_long(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* string -> array.t */
-static int coerce_as_t(addr pos, addr type, addr *ret)
+static int coerce_as_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unicode c;
 	addr vector, value;
@@ -1915,31 +1925,31 @@ static int coerce_as_t(addr pos, addr type, addr *ret)
 		setarray(vector, i, value);
 	}
 
-	return coerce_typep(pos, vector, type, ret);
+	return coerce_typep(ptr, pos, vector, type, ret);
 }
 
 /* string -> array */
-static int coerce_as(addr pos, addr type, addr *ret)
+static int coerce_as(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr upg;
 
 	/* (array * .) */
 	GetArrayType(type, 0, &upg);
 	if (type_asterisk_p(upg))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 
 	/* (array upg .) */
 	switch (LispDecl(upg)) {
 		case LISPDECL_T:
-			return coerce_as_t(pos, type, ret);
+			return coerce_as_t(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* bit-vector -> array.t */
-static int coerce_ab_t(addr pos, addr type, addr *ret)
+static int coerce_ab_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr vector, value;
@@ -1953,11 +1963,11 @@ static int coerce_ab_t(addr pos, addr type, addr *ret)
 		setarray(vector, i, value);
 	}
 
-	return coerce_typep(pos, vector, type, ret);
+	return coerce_typep(ptr, pos, vector, type, ret);
 }
 
 /* bit-vector -> array.signed8 */
-static int coerce_ab_signed8(addr pos, addr type, addr *ret)
+static int coerce_ab_signed8(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr array;
@@ -1973,11 +1983,11 @@ static int coerce_ab_signed8(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* bit-vector -> array.signed16 */
-static int coerce_ab_signed16(addr pos, addr type, addr *ret)
+static int coerce_ab_signed16(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr array;
@@ -1993,11 +2003,11 @@ static int coerce_ab_signed16(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* bit-vector -> array.signed32 */
-static int coerce_ab_signed32(addr pos, addr type, addr *ret)
+static int coerce_ab_signed32(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr array;
@@ -2013,12 +2023,12 @@ static int coerce_ab_signed32(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 #ifdef LISP_64BIT
 /* bit-vector -> array.signed64 */
-static int coerce_ab_signed64(addr pos, addr type, addr *ret)
+static int coerce_ab_signed64(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr array;
@@ -2034,30 +2044,30 @@ static int coerce_ab_signed64(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 #endif
 
 /* bit-vector -> array.signed */
-static int coerce_ab_signed(addr pos, addr type, addr *ret)
+static int coerce_ab_signed(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unsigned size;
 
 	if (type_second_size(type, &size))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 	switch (size) {
 		case 8:
-			return coerce_ab_signed8(pos, type, ret);
+			return coerce_ab_signed8(ptr, pos, type, ret);
 
 		case 16:
-			return coerce_ab_signed16(pos, type, ret);
+			return coerce_ab_signed16(ptr, pos, type, ret);
 
 		case 32:
-			return coerce_ab_signed32(pos, type, ret);
+			return coerce_ab_signed32(ptr, pos, type, ret);
 
 #ifdef LISP_64BIT
 		case 64:
-			return coerce_ab_signed64(pos, type, ret);
+			return coerce_ab_signed64(ptr, pos, type, ret);
 #endif
 
 		default:
@@ -2068,7 +2078,7 @@ static int coerce_ab_signed(addr pos, addr type, addr *ret)
 }
 
 /* bit-vector -> array.unsigned8 */
-static int coerce_ab_unsigned8(addr pos, addr type, addr *ret)
+static int coerce_ab_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr array;
@@ -2084,11 +2094,11 @@ static int coerce_ab_unsigned8(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* bit-vector -> array.unsigned16 */
-static int coerce_ab_unsigned16(addr pos, addr type, addr *ret)
+static int coerce_ab_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr array;
@@ -2104,11 +2114,11 @@ static int coerce_ab_unsigned16(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* bit-vector -> array.unsigned32 */
-static int coerce_ab_unsigned32(addr pos, addr type, addr *ret)
+static int coerce_ab_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr array;
@@ -2124,12 +2134,12 @@ static int coerce_ab_unsigned32(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 #ifdef LISP_64BIT
 /* bit-vector -> array.unsigned64 */
-static int coerce_ab_unsigned64(addr pos, addr type, addr *ret)
+static int coerce_ab_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr array;
@@ -2145,30 +2155,30 @@ static int coerce_ab_unsigned64(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 #endif
 
 /* bit-vector -> array.unsigned */
-static int coerce_ab_unsigned(addr pos, addr type, addr *ret)
+static int coerce_ab_unsigned(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unsigned size;
 
 	if (type_second_size(type, &size))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 	switch (size) {
 		case 8:
-			return coerce_ab_unsigned8(pos, type, ret);
+			return coerce_ab_unsigned8(ptr, pos, type, ret);
 
 		case 16:
-			return coerce_ab_unsigned16(pos, type, ret);
+			return coerce_ab_unsigned16(ptr, pos, type, ret);
 
 		case 32:
-			return coerce_ab_unsigned32(pos, type, ret);
+			return coerce_ab_unsigned32(ptr, pos, type, ret);
 
 #ifdef LISP_64BIT
 		case 64:
-			return coerce_ab_unsigned64(pos, type, ret);
+			return coerce_ab_unsigned64(ptr, pos, type, ret);
 #endif
 
 		default:
@@ -2179,33 +2189,33 @@ static int coerce_ab_unsigned(addr pos, addr type, addr *ret)
 }
 
 /* bit-vector -> array */
-static int coerce_ab(addr pos, addr type, addr *ret)
+static int coerce_ab(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr upg;
 
 	/* (array * .) */
 	GetArrayType(type, 0, &upg);
 	if (type_asterisk_p(upg))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 
 	/* (array upg .) */
 	switch (LispDecl(upg)) {
 		case LISPDECL_T:
-			return coerce_ab_t(pos, type, ret);
+			return coerce_ab_t(ptr, pos, type, ret);
 
 		case LISPDECL_SIGNED_BYTE:
-			return coerce_ab_signed(pos, type, ret);
+			return coerce_ab_signed(ptr, pos, type, ret);
 
 		case LISPDECL_UNSIGNED_BYTE:
-			return coerce_ab_unsigned(pos, type, ret);
+			return coerce_ab_unsigned(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* list -> array.bit */
-static int coerce_al_t(addr pos, addr type, addr *ret)
+static int coerce_al_t(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr vector, value;
 	size_t size, i;
@@ -2217,11 +2227,11 @@ static int coerce_al_t(addr pos, addr type, addr *ret)
 		setarray(vector, i, value);
 	}
 
-	return coerce_typep(pos, vector, type, ret);
+	return coerce_typep(ptr, pos, vector, type, ret);
 }
 
 /* list -> array.bit */
-static int coerce_al_bit(addr pos, addr type, addr *ret)
+static int coerce_al_bit(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int v;
 	addr vector, value;
@@ -2238,11 +2248,11 @@ static int coerce_al_bit(addr pos, addr type, addr *ret)
 		bitmemory_setint(vector, i, v);
 	}
 
-	return coerce_typep(pos, vector, type, ret);
+	return coerce_typep(ptr, pos, vector, type, ret);
 }
 
 /* list -> array.character */
-static int coerce_al_character(addr pos, addr type, addr *ret)
+static int coerce_al_character(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unicode v;
 	addr vector, value;
@@ -2259,11 +2269,11 @@ static int coerce_al_character(addr pos, addr type, addr *ret)
 		strvect_setc(vector, i, v);
 	}
 
-	return coerce_typep(pos, vector, type, ret);
+	return coerce_typep(ptr, pos, vector, type, ret);
 }
 
 /* list -> array.signed8 */
-static int coerce_al_signed8(addr pos, addr type, addr *ret)
+static int coerce_al_signed8(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int8_t v;
 	addr array, value;
@@ -2283,11 +2293,11 @@ static int coerce_al_signed8(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* list -> array.signed16 */
-static int coerce_al_signed16(addr pos, addr type, addr *ret)
+static int coerce_al_signed16(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int16_t v;
 	addr array, value;
@@ -2307,11 +2317,11 @@ static int coerce_al_signed16(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* list -> array.signed32 */
-static int coerce_al_signed32(addr pos, addr type, addr *ret)
+static int coerce_al_signed32(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int32_t v;
 	addr array, value;
@@ -2331,12 +2341,12 @@ static int coerce_al_signed32(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 #ifdef LISP_64BIT
 /* list -> array.signed64 */
-static int coerce_al_signed64(addr pos, addr type, addr *ret)
+static int coerce_al_signed64(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int64_t v;
 	addr array, value;
@@ -2356,30 +2366,30 @@ static int coerce_al_signed64(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 #endif
 
 /* list -> array.signed */
-static int coerce_al_signed(addr pos, addr type, addr *ret)
+static int coerce_al_signed(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unsigned size;
 
 	if (type_second_size(type, &size))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 	switch (size) {
 		case 8:
-			return coerce_al_signed8(pos, type, ret);
+			return coerce_al_signed8(ptr, pos, type, ret);
 
 		case 16:
-			return coerce_al_signed16(pos, type, ret);
+			return coerce_al_signed16(ptr, pos, type, ret);
 
 		case 32:
-			return coerce_al_signed32(pos, type, ret);
+			return coerce_al_signed32(ptr, pos, type, ret);
 
 #ifdef LISP_64BIT
 		case 64:
-			return coerce_al_signed64(pos, type, ret);
+			return coerce_al_signed64(ptr, pos, type, ret);
 #endif
 
 		default:
@@ -2390,7 +2400,7 @@ static int coerce_al_signed(addr pos, addr type, addr *ret)
 }
 
 /* list -> array.unsigned8 */
-static int coerce_al_unsigned8(addr pos, addr type, addr *ret)
+static int coerce_al_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint8_t v;
 	addr array, value;
@@ -2410,11 +2420,11 @@ static int coerce_al_unsigned8(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* list -> array.unsigned16 */
-static int coerce_al_unsigned16(addr pos, addr type, addr *ret)
+static int coerce_al_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint16_t v;
 	addr array, value;
@@ -2434,11 +2444,11 @@ static int coerce_al_unsigned16(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* list -> array.unsigned32 */
-static int coerce_al_unsigned32(addr pos, addr type, addr *ret)
+static int coerce_al_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint32_t v;
 	addr array, value;
@@ -2458,12 +2468,12 @@ static int coerce_al_unsigned32(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 #ifdef LISP_64BIT
 /* list -> array.unsigned64 */
-static int coerce_al_unsigned64(addr pos, addr type, addr *ret)
+static int coerce_al_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 {
 	uint64_t v;
 	addr array, value;
@@ -2483,30 +2493,30 @@ static int coerce_al_unsigned64(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 #endif
 
 /* list -> array.unsigned */
-static int coerce_al_unsigned(addr pos, addr type, addr *ret)
+static int coerce_al_unsigned(Execute ptr, addr pos, addr type, addr *ret)
 {
 	unsigned size;
 
 	if (type_second_size(type, &size))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 	switch (size) {
 		case 8:
-			return coerce_al_unsigned8(pos, type, ret);
+			return coerce_al_unsigned8(ptr, pos, type, ret);
 
 		case 16:
-			return coerce_al_unsigned16(pos, type, ret);
+			return coerce_al_unsigned16(ptr, pos, type, ret);
 
 		case 32:
-			return coerce_al_unsigned32(pos, type, ret);
+			return coerce_al_unsigned32(ptr, pos, type, ret);
 
 #ifdef LISP_64BIT
 		case 64:
-			return coerce_al_unsigned64(pos, type, ret);
+			return coerce_al_unsigned64(ptr, pos, type, ret);
 #endif
 
 		default:
@@ -2517,7 +2527,7 @@ static int coerce_al_unsigned(addr pos, addr type, addr *ret)
 }
 
 /* list -> array.single-float */
-static int coerce_al_single(addr pos, addr type, addr *ret)
+static int coerce_al_single(Execute ptr, addr pos, addr type, addr *ret)
 {
 	single_float v;
 	addr array, value;
@@ -2537,11 +2547,11 @@ static int coerce_al_single(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* list -> array.double-float */
-static int coerce_al_double(addr pos, addr type, addr *ret)
+static int coerce_al_double(Execute ptr, addr pos, addr type, addr *ret)
 {
 	double_float v;
 	addr array, value;
@@ -2561,11 +2571,11 @@ static int coerce_al_double(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* list -> array.long-float */
-static int coerce_al_long(addr pos, addr type, addr *ret)
+static int coerce_al_long(Execute ptr, addr pos, addr type, addr *ret)
 {
 	long_float v;
 	addr array, value;
@@ -2585,72 +2595,72 @@ static int coerce_al_long(addr pos, addr type, addr *ret)
 		}
 	}
 
-	return coerce_typep(pos, array, type, ret);
+	return coerce_typep(ptr, pos, array, type, ret);
 }
 
 /* list -> array */
-static int coerce_al(addr pos, addr type, addr *ret)
+static int coerce_al(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr upg;
 
 	/* (array * .) */
 	GetArrayType(type, 0, &upg);
 	if (type_asterisk_p(upg))
-		return coerce_typep(pos, pos, type, ret);
+		return coerce_typep(ptr, pos, pos, type, ret);
 
 	/* (array upg .) */
 	switch (LispDecl(upg)) {
 		case LISPDECL_T:
-			return coerce_al_t(pos, type, ret);
+			return coerce_al_t(ptr, pos, type, ret);
 
 		case LISPDECL_BIT:
-			return coerce_al_bit(pos, type, ret);
+			return coerce_al_bit(ptr, pos, type, ret);
 
 		case LISPDECL_CHARACTER:
-			return coerce_al_character(pos, type, ret);
+			return coerce_al_character(ptr, pos, type, ret);
 
 		case LISPDECL_SIGNED_BYTE:
-			return coerce_al_signed(pos, type, ret);
+			return coerce_al_signed(ptr, pos, type, ret);
 
 		case LISPDECL_UNSIGNED_BYTE:
-			return coerce_al_unsigned(pos, type, ret);
+			return coerce_al_unsigned(ptr, pos, type, ret);
 
 		case LISPDECL_SINGLE_FLOAT:
-			return coerce_al_single(pos, type, ret);
+			return coerce_al_single(ptr, pos, type, ret);
 
 		case LISPDECL_DOUBLE_FLOAT:
-			return coerce_al_double(pos, type, ret);
+			return coerce_al_double(ptr, pos, type, ret);
 
 		case LISPDECL_LONG_FLOAT:
-			return coerce_al_long(pos, type, ret);
+			return coerce_al_long(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
 /* ? -> array */
-static int coerce_array(addr pos, addr type, addr *ret)
+static int coerce_array(Execute ptr, addr pos, addr type, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
-			return coerce_aa(pos, type, ret);
+			return coerce_aa(ptr, pos, type, ret);
 
 		case LISPTYPE_VECTOR:
-			return coerce_av(pos, type, ret);
+			return coerce_av(ptr, pos, type, ret);
 
 		case LISPTYPE_STRING:
-			return coerce_as(pos, type, ret);
+			return coerce_as(ptr, pos, type, ret);
 
 		case LISPTYPE_BITVECTOR:
-			return coerce_ab(pos, type, ret);
+			return coerce_ab(ptr, pos, type, ret);
 
 		case LISPTYPE_CONS:
 		case LISPTYPE_NIL:
-			return coerce_al(pos, type, ret);
+			return coerce_al(ptr, pos, type, ret);
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
 }
 
@@ -2658,7 +2668,7 @@ static int coerce_array(addr pos, addr type, addr *ret)
 /*
  *  table
  */
-typedef int (*coerce_call)(addr pos, addr type, addr *ret);
+typedef int (*coerce_call)(Execute ptr, addr pos, addr type, addr *ret);
 static coerce_call CoerceTable[LISPDECL_SIZE];
 
 _g void init_type_coerce(void)
@@ -2684,7 +2694,7 @@ _g void init_type_coerce(void)
 	CoerceTable[LISPDECL_SIMPLE_ARRAY] = coerce_array;
 }
 
-static int coerce_table(addr pos, addr type, addr *ret)
+static int coerce_table(Execute ptr, addr pos, addr type, addr *ret)
 {
 	enum LISPDECL decl;
 	coerce_call call;
@@ -2694,13 +2704,13 @@ static int coerce_table(addr pos, addr type, addr *ret)
 	/* call table */
 	call = CoerceTable[(int)decl];
 	if (call)
-		return (*call)(pos, type, ret);
+		return (*call)(ptr, pos, type, ret);
 	/* others */
 	*ret = Unbound;
 	return 0;
 }
 
-static int coerce_optimize(addr pos, addr type, addr *ret)
+static int coerce_optimize(Execute ptr, addr pos, addr type, addr *ret)
 {
 	int check;
 	LocalRoot local;
@@ -2710,33 +2720,46 @@ static int coerce_optimize(addr pos, addr type, addr *ret)
 	push_local(local, &stack);
 	type_optimize_local(local, &type, type);
 	get_type_optimized(&type, type);
-	check = coerce_table(pos, type, ret);
+	check = coerce_table(ptr, pos, type, ret);
 	rollback_local(local, stack);
 
 	return check;
 }
 
-static int coerce_type(addr pos, addr type, addr *ret)
+static int coerce_type_call(Execute ptr, addr pos, addr type, addr *ret)
 {
 	addr check;
 
 	CheckType(type, LISPTYPE_TYPE);
 	if (! RefNotDecl(type)) {
-		if (coerce_table(pos, type, &check))
+		if (coerce_table(ptr, pos, type, &check))
 			return 1;
 		if (check != Unbound) {
 			*ret = check;
 			return 0;
 		}
 	}
-	if (coerce_optimize(pos, type, &check))
+	if (coerce_optimize(ptr, pos, type, &check))
 		return 1;
 	if (check != Unbound) {
 		*ret = check;
 		return 0;
 	}
 
-	return coerce_typep(pos, pos, type, ret);
+	return coerce_typep(ptr, pos, pos, type, ret);
+}
+
+static int coerce_type(Execute ptr, addr pos, addr type, addr *ret)
+{
+	LocalHold hold;
+
+	hold = LocalHold_local(ptr);
+	localhold_pushva(hold, pos, type, NULL);
+	if (coerce_type_call(ptr, pos, type, ret))
+		return 1;
+	localhold_end(hold);
+
+	return 0;
 }
 
 static int coerce_parse(Execute ptr, addr pos, addr type, addr *ret)
@@ -2744,10 +2767,10 @@ static int coerce_parse(Execute ptr, addr pos, addr type, addr *ret)
 	if (parse_type(ptr, &type, type, Nil))
 		return 1;
 	else
-		return coerce_type(pos, type, ret);
+		return coerce_type(ptr, pos, type, ret);
 }
 
-_g int coerce_common(Execute ptr, addr pos, addr type, addr *ret)
+static int coerce_execute(Execute ptr, addr pos, addr type, addr *ret)
 {
 	switch (GetType(type)) {
 		case LISPTYPE_NIL:
@@ -2756,14 +2779,27 @@ _g int coerce_common(Execute ptr, addr pos, addr type, addr *ret)
 			return coerce_parse(ptr, pos, type, ret);
 
 		case LISPTYPE_TYPE:
-			return coerce_type(pos, type, ret);
+			return coerce_type(ptr, pos, type, ret);
 
 		case LISPTYPE_T:
 			*ret = pos;
 			return 0;
 
 		default:
-			return coerce_typep(pos, pos, type, ret);
+			return coerce_typep(ptr, pos, pos, type, ret);
 	}
+}
+
+_g int coerce_common(Execute ptr, addr pos, addr type, addr *ret)
+{
+	LocalHold hold;
+
+	hold = LocalHold_local(ptr);
+	localhold_pushva(hold, pos, type, NULL);
+	if (coerce_execute(ptr, pos, type, ret))
+		return 1;
+	localhold_end(hold);
+
+	return 0;
 }
 

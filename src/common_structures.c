@@ -15,7 +15,7 @@
  *  (defmacro defstruct (name [doc] slots*) ...) -> symbol
  */
 /* defstruct-slots */
-static int defstruct_parse_slot(struct defstruct *ptr, addr pos,
+static int defstruct_parse_slot(struct defstruct *str, addr pos,
 		addr *rname, addr *rinit, addr *rtype, addr *rreadonly)
 {
 	addr gensym, list, name, init, type, readonly, key, value, key1, key2;
@@ -55,7 +55,7 @@ static int defstruct_parse_slot(struct defstruct *ptr, addr pos,
 		/* :type */
 		if (key == key1) {
 			if (type == gensym) {
-				if (parse_type(ptr->ptr, &type, value, ptr->env))
+				if (parse_type(str->ptr, &type, value, str->env))
 					return 1;
 			}
 			continue;
@@ -81,28 +81,32 @@ finish:
 	return 0;
 }
 
-static int defstruct_parse_slots_result(struct defstruct *ptr,
+static int defstruct_parse_slots_result(struct defstruct *str,
 		addr list, addr *ret)
 {
 	addr root, pos, name, init, type, readonly;
+	LocalHold hold;
 
+	hold = LocalHold_array(str->ptr, 1);
 	for (root = Nil; list != Nil; ) {
 		getcons(list, &pos, &list);
-		if (defstruct_parse_slot(ptr, pos, &name, &init, &type, &readonly))
+		if (defstruct_parse_slot(str, pos, &name, &init, &type, &readonly))
 			return 1;
 		list_heap(&pos, name, init, type, readonly, NULL);
 		cons_heap(&root, pos, root);
+		localhold_set(hold, 0, root);
 	}
+	localhold_end(hold);
 	nreverse_list_unsafe(ret, root);
 
 	return 0;
 }
 
-static int defstruct_parse_slots(struct defstruct *ptr, addr list)
+static int defstruct_parse_slots(struct defstruct *str, addr list)
 {
-	if (defstruct_parse_slots_result(ptr, list, &list))
+	if (defstruct_parse_slots_result(str, list, &list))
 		return 1;
-	ptr->slots = list;
+	str->slots = list;
 
 	return 0;
 }
@@ -153,22 +157,22 @@ error:
 #define defstruct_option1(x,y,z) \
 	defstruct_parse_name_option1(CONSTANT_KEYWORD_##x,(y),(z))
 
-static int defstruct_parse_conc_name(struct defstruct *ptr, addr pos)
+static int defstruct_parse_conc_name(struct defstruct *str, addr pos)
 {
 	if (! defstruct_option1(CONC_NAME, pos, &pos)) {
 		return 0;
 	}
-	if (ptr->conc_name_p) {
+	if (str->conc_name_p) {
 		fmte("DEFSTRUCT :CONC-NAME is already exist.", NULL);
 		return 0;
 	}
-	ptr->conc_name_p = 1;
+	str->conc_name_p = 1;
 	if (pos == Unbound || pos == Nil) {
-		ptr->conc_name = Nil;
+		str->conc_name = Nil;
 		return 1;
 	}
 	if (string_designer_heap(&pos, pos)) {
-		ptr->conc_name = pos;
+		str->conc_name = pos;
 		return 1;
 	}
 	fmte("DEFSTRUCT :CONC-NAME ~S must be a string-designer.", pos, NULL);
@@ -176,12 +180,12 @@ static int defstruct_parse_conc_name(struct defstruct *ptr, addr pos)
 	return 0;
 }
 
-static int defstruct_parse_copier(struct defstruct *ptr, addr pos)
+static int defstruct_parse_copier(struct defstruct *str, addr pos)
 {
 	if (! defstruct_option1(COPIER, pos, &pos)) {
 		return 0;
 	}
-	if (ptr->copier_p) {
+	if (str->copier_p) {
 		fmte("DEFSTRUCT :COPIER is already exist.", NULL);
 		return 0;
 	}
@@ -197,17 +201,17 @@ static int defstruct_parse_copier(struct defstruct *ptr, addr pos)
 	return 0;
 
 store:
-	ptr->copier_p = 1;
-	ptr->copier = pos;
+	str->copier_p = 1;
+	str->copier = pos;
 	return 1;
 }
 
-static int defstruct_parse_predicate(struct defstruct *ptr, addr pos)
+static int defstruct_parse_predicate(struct defstruct *str, addr pos)
 {
 	if (! defstruct_option1(PREDICATE, pos, &pos)) {
 		return 0;
 	}
-	if (ptr->predicate_p) {
+	if (str->predicate_p) {
 		fmte("DEFSTRUCT :PREDICATE is already exist.", NULL);
 		return 0;
 	}
@@ -223,8 +227,8 @@ static int defstruct_parse_predicate(struct defstruct *ptr, addr pos)
 	return 0;
 
 store:
-	ptr->predicate_p = 1;
-	ptr->predicate = pos;
+	str->predicate_p = 1;
+	str->predicate = pos;
 	return 1;
 }
 
@@ -284,7 +288,7 @@ error:
 	return 0;
 }
 
-static int defstruct_parse_constructor(struct defstruct *ptr, addr pos)
+static int defstruct_parse_constructor(struct defstruct *str, addr pos)
 {
 	addr args, g;
 
@@ -297,18 +301,18 @@ static int defstruct_parse_constructor(struct defstruct *ptr, addr pos)
 		fmte(":CONSTRUCTOR name ~S must be a symbol.", pos, NULL);
 		return 0;
 	}
-	ptr->constructor_p = 1;
+	str->constructor_p = 1;
 	if (pos == Nil) {
-		ptr->constructor = Nil;
+		str->constructor = Nil;
 		return 1;
 	}
 	if (args != Unbound) {
 		GetConst(SYSTEM_STRUCTURE_GENSYM, &g);
 		quotelist_heap(&g, g);
-		argument_boa_heap(ptr->ptr->local, &args, args, g);
+		argument_boa_heap(str->ptr->local, &args, args, g);
 		cons_heap(&pos, pos, args);
 	}
-	cons_heap(&(ptr->constructor), pos, ptr->constructor);
+	cons_heap(&(str->constructor), pos, str->constructor);
 
 	return 1;
 }
@@ -340,7 +344,7 @@ error:
 	return 0;
 }
 
-static int defstruct_parse_include(struct defstruct *ptr, addr pos)
+static int defstruct_parse_include(struct defstruct *str, addr pos)
 {
 	addr args;
 
@@ -350,13 +354,13 @@ static int defstruct_parse_include(struct defstruct *ptr, addr pos)
 		fmte(":INCLUDE name ~S must be a symbol.", pos, NULL);
 		return 0;
 	}
-	if (ptr->include_p) {
+	if (str->include_p) {
 		fmte("DEFSTRUCT :INCLUDE is already exist.", NULL);
 		return 0;
 	}
-	ptr->include_p = 1;
-	ptr->iname = pos;
-	ptr->iargs = args;
+	str->include_p = 1;
+	str->iname = pos;
+	str->iargs = args;
 
 	return 1;
 }
@@ -403,47 +407,47 @@ error:
 	return 0;
 }
 
-static int defstruct_parse_print_object(struct defstruct *ptr, addr pos)
+static int defstruct_parse_print_object(struct defstruct *str, addr pos)
 {
 	if (! defstruct_parse_print_object1(CONSTANT_KEYWORD_PRINT_OBJECT, pos, &pos))
 		return 0;
 	if (pos == Unbound)
 		GetConst(SYSTEM_STRUCTURE_GENSYM, &pos);
-	if (ptr->print_object_p) {
+	if (str->print_object_p) {
 		fmte("DEFSTRUCT :PRINT-OBJECT is already exist.", NULL);
 		return 0;
 	}
-	if (ptr->print_function_p) {
+	if (str->print_function_p) {
 		fmte("DEFSTRUCT :PRINT-FUNCTION is already exist.", NULL);
 		return 0;
 	}
-	ptr->print_object_p = 1;
-	ptr->print_object = pos;
+	str->print_object_p = 1;
+	str->print_object = pos;
 
 	return 1;
 }
 
-static int defstruct_parse_print_function(struct defstruct *ptr, addr pos)
+static int defstruct_parse_print_function(struct defstruct *str, addr pos)
 {
 	if (! defstruct_parse_print_object1(CONSTANT_KEYWORD_PRINT_FUNCTION, pos, &pos))
 		return 0;
 	if (pos == Unbound)
 		GetConst(SYSTEM_STRUCTURE_GENSYM, &pos);
-	if (ptr->print_object_p) {
+	if (str->print_object_p) {
 		fmte("DEFSTRUCT :PRINT-OBJECT is already exist.", NULL);
 		return 0;
 	}
-	if (ptr->print_function_p) {
+	if (str->print_function_p) {
 		fmte("DEFSTRUCT :PRINT-FUNCTION is already exist.", NULL);
 		return 0;
 	}
-	ptr->print_function_p = 1;
-	ptr->print_function = pos;
+	str->print_function_p = 1;
+	str->print_function = pos;
 
 	return 1;
 }
 
-static int defstruct_parse_type(struct defstruct *ptr, addr option)
+static int defstruct_parse_type(struct defstruct *str, addr option)
 {
 	addr key, check, pos, a, b;
 
@@ -459,23 +463,23 @@ static int defstruct_parse_type(struct defstruct *ptr, addr option)
 	GetCons(pos, &pos, &check);
 	if (check != Nil)
 		goto error;
-	if (ptr->type_p) {
+	if (str->type_p) {
 		fmte("DEFSTRUCT :TYPE already exists.", NULL);
 		return 0;
 	}
 	/* list */
 	GetConst(COMMON_LIST, &check);
 	if (pos == check) {
-		ptr->type_p = 1;
-		ptr->type_list_p = 1;
+		str->type_p = 1;
+		str->type_list_p = 1;
 		return 1;
 	}
 	/* vector */
 	GetConst(COMMON_VECTOR, &check);
 	if (pos == check) {
-		ptr->type_p = 1;
-		ptr->type_vector_p = 1;
-		ptr->type_vector = T;
+		str->type_p = 1;
+		str->type_vector_p = 1;
+		str->type_vector = T;
 		return 1;
 	}
 	/* (vector type) */
@@ -490,9 +494,9 @@ static int defstruct_parse_type(struct defstruct *ptr, addr option)
 	GetCons(b, &a, &b);
 	if (b != Nil)
 		goto type_error;
-	ptr->type_p = 1;
-	ptr->type_vector_p = 1;
-	ptr->type_vector = a;
+	str->type_p = 1;
+	str->type_vector_p = 1;
+	str->type_vector = a;
 	return 1;
 
 error:
@@ -504,23 +508,23 @@ type_error:
 	return 0;
 }
 
-static int defstruct_parse_named(struct defstruct *ptr, addr option)
+static int defstruct_parse_named(struct defstruct *str, addr option)
 {
 	addr key;
 
 	GetConst(KEYWORD_NAMED, &key);
 	if (option != key)
 		return 0;
-	if (ptr->named_p) {
+	if (str->named_p) {
 		fmte("DEFSTRUCT :named already exists.", NULL);
 		return 0;
 	}
-	ptr->named_p = 1;
+	str->named_p = 1;
 
 	return 1;
 }
 
-static int defstruct_parse_initial_offset(struct defstruct *ptr, addr option)
+static int defstruct_parse_initial_offset(struct defstruct *str, addr option)
 {
 	addr key, check, pos;
 	size_t size;
@@ -537,13 +541,13 @@ static int defstruct_parse_initial_offset(struct defstruct *ptr, addr option)
 	GetCons(pos, &check, &pos);
 	if (pos != Nil)
 		goto error;
-	if (ptr->initial_offset_p) {
+	if (str->initial_offset_p) {
 		fmte("DEFSTRUCT :INITIAL-OFFSET already exists.", NULL);
 		return 0;
 	}
 	getindex_integer(check, &size);
-	ptr->initial_offset_p = 1;
-	ptr->initial_offset = check;
+	str->initial_offset_p = 1;
+	str->initial_offset = check;
 
 	return 1;
 
@@ -553,12 +557,13 @@ error:
 	return 0;
 }
 
-static int defstruct_parse_name(struct defstruct *ptr, addr name)
+static int defstruct_parse_name(struct defstruct *str, addr name)
 {
 	addr list, pos;
+	LocalHold hold;
 
 	if (symbolp(name)) {
-		ptr->name = name;
+		str->name = name;
 		return 0;
 	}
 	if (! consp(name)) {
@@ -570,8 +575,8 @@ static int defstruct_parse_name(struct defstruct *ptr, addr name)
 		fmte("DEFSTRUCT name ~S must be a symbol.", name, NULL);
 		return 0;
 	}
-	ptr->name = name;
-	ptr->constructor = Nil;
+	str->name = name;
+	str->constructor = Nil;
 	/* loop */
 	while (list != Nil) {
 		if (! consp(list)) {
@@ -579,49 +584,52 @@ static int defstruct_parse_name(struct defstruct *ptr, addr name)
 			return 0;
 		}
 		GetCons(list, &pos, &list);
-		if (defstruct_parse_conc_name(ptr, pos))
+		if (defstruct_parse_conc_name(str, pos))
 			continue;
-		if (defstruct_parse_constructor(ptr, pos))
+		if (defstruct_parse_constructor(str, pos))
 			continue;
-		if (defstruct_parse_copier(ptr, pos))
+		if (defstruct_parse_copier(str, pos))
 			continue;
-		if (defstruct_parse_predicate(ptr, pos))
+		if (defstruct_parse_predicate(str, pos))
 			continue;
-		if (defstruct_parse_include(ptr, pos))
+		if (defstruct_parse_include(str, pos))
 			continue;
-		if (defstruct_parse_print_object(ptr, pos))
+		if (defstruct_parse_print_object(str, pos))
 			continue;
-		if (defstruct_parse_print_function(ptr, pos))
+		if (defstruct_parse_print_function(str, pos))
 			continue;
-		if (defstruct_parse_type(ptr, pos))
+		if (defstruct_parse_type(str, pos))
 			continue;
-		if (defstruct_parse_named(ptr, pos))
+		if (defstruct_parse_named(str, pos))
 			continue;
-		if (defstruct_parse_initial_offset(ptr, pos))
+		if (defstruct_parse_initial_offset(str, pos))
 			continue;
 		fmte("Invalid DEFSTRUCT option ~S.", pos, NULL);
 	}
 
 	/* parse slots */
-	if (ptr->include_p) {
-		if (defstruct_parse_slots_result(ptr, ptr->iargs, &(ptr->iargs)))
+	hold = LocalHold_local(str->ptr);
+	localhold_destruct(hold, str);
+	if (str->include_p) {
+		if (defstruct_parse_slots_result(str, str->iargs, &(str->iargs)))
 			return 1;
 	}
 
 	/* parse-type */
-	if (ptr->type_vector_p) {
-		if (parse_type(ptr->ptr, &(ptr->type_vector), ptr->type_vector, ptr->env))
+	if (str->type_vector_p) {
+		if (parse_type(str->ptr, &(str->type_vector), str->type_vector, str->env))
 			return 1;
 	}
+	localhold_end(hold);
 
 	/* named check */
-	if (ptr->named_p && (! ptr->type_p)) {
+	if (str->named_p && (! str->type_p)) {
 		fmte("There is :NAMED option but no :TYPE option.", NULL);
 		return 0;
 	}
 
 	/* initial-offset check */
-	if (ptr->initial_offset_p && (! ptr->type_p)) {
+	if (str->initial_offset_p && (! str->type_p)) {
 		fmte("There is :INITIAL-OFFSET option but no :TYPE option.", NULL);
 		return 0;
 	}
@@ -629,26 +637,26 @@ static int defstruct_parse_name(struct defstruct *ptr, addr name)
 	return 0;
 }
 
-static void defstruct_parse_document(struct defstruct *ptr, addr pos, addr *ret)
+static void defstruct_parse_document(struct defstruct *str, addr pos, addr *ret)
 {
 	addr a, b;
 
 	if (! consp(pos)) {
-		ptr->doc = NULL;
+		str->doc = NULL;
 		*ret = pos;
 		return;
 	}
 	GetCons(pos, &a, &b);
 	if (! stringp(a)) {
-		ptr->doc = NULL;
+		str->doc = NULL;
 		*ret = pos;
 		return;
 	}
-	ptr->doc = a;
+	str->doc = a;
 	*ret = b;
 }
 
-static int defstruct_parse(struct defstruct *ptr, addr form)
+static int defstruct_parse(struct defstruct *str, addr form)
 {
 	addr args, name;
 
@@ -656,10 +664,10 @@ static int defstruct_parse(struct defstruct *ptr, addr form)
 	if (! consp(args))
 		goto error;
 	GetCons(args, &name, &args);
-	if (defstruct_parse_name(ptr, name))
+	if (defstruct_parse_name(str, name))
 		return 1;
-	defstruct_parse_document(ptr, args, &args);
-	return defstruct_parse_slots(ptr, args);
+	defstruct_parse_document(str, args, &args);
+	return defstruct_parse_slots(str, args);
 
 error:
 	fmte("DEFSTRUCT form ~S must be a (defstruct name [doc] {slot}*", form, NULL);
@@ -740,14 +748,14 @@ static void defstruct_constructor_lambda(addr *ret, addr cons, addr symbol)
 	list_heap(ret, list, name, args, NULL);
 }
 
-static void defstruct_make_constructor(struct defstruct *ptr, addr *ret, addr root)
+static void defstruct_make_constructor(struct defstruct *str, addr *ret, addr root)
 {
 	int check;
 	addr list, symbol, keyword, pos;
 
-	check = ptr->constructor_p;
-	list = ptr->constructor;
-	symbol = ptr->name;
+	check = str->constructor_p;
+	list = str->constructor;
+	symbol = str->name;
 	GetConst(KEYWORD_CONSTRUCTOR, &keyword);
 	if (! check) {
 		cons_heap(&root, keyword, root);
@@ -769,7 +777,7 @@ static void defstruct_make_constructor(struct defstruct *ptr, addr *ret, addr ro
 	*ret = root;
 }
 
-static void defstruct_make_print_object(struct defstruct *ptr, addr *ret, addr pos)
+static void defstruct_make_print_object(addr *ret, addr pos)
 {
 	addr symbol, g;
 
@@ -791,7 +799,7 @@ static void defstruct_make_print_object(struct defstruct *ptr, addr *ret, addr p
 	list_heap(ret, symbol, Nil, pos, NULL);
 }
 
-static void defstruct_make(struct defstruct *ptr, addr *ret)
+static void defstruct_make(struct defstruct *str, addr *ret)
 {
 	/* `(ensure-structure
 	 *    ',name
@@ -807,89 +815,89 @@ static void defstruct_make(struct defstruct *ptr, addr *ret)
 	GetConst(SYSTEM_ENSURE_STRUCTURE, &pos);
 	cons_heap(&root, pos, root);
 	/* name, slots */
-	quotelist_heap(&pos, ptr->name);
+	quotelist_heap(&pos, str->name);
 	cons_heap(&root, pos, root);
-	defstruct_slots_list(&pos, ptr->slots, Unbound);
+	defstruct_slots_list(&pos, str->slots, Unbound);
 	cons_heap(&root, pos, root);
 	/* :documentation */
-	if (ptr->doc) {
+	if (str->doc) {
 		GetConst(KEYWORD_DOCUMENTATION, &pos);
 		cons_heap(&root, pos, root);
-		cons_heap(&root, ptr->doc, root);
+		cons_heap(&root, str->doc, root);
 	}
 	/* :conc-name */
-	if (ptr->conc_name_p) {
+	if (str->conc_name_p) {
 		GetConst(KEYWORD_CONC_NAME, &pos);
 		cons_heap(&root, pos, root);
-		quotelist_heap(&pos, ptr->conc_name);
+		quotelist_heap(&pos, str->conc_name);
 		cons_heap(&root, pos, root);
 	}
 	/* :type */
-	if (ptr->type_list_p) {
+	if (str->type_list_p) {
 		GetConst(KEYWORD_TYPE, &pos);
 		cons_heap(&root, pos, root);
 		GetConst(COMMON_LIST, &pos);
 		quotelist_heap(&pos, pos);
 		cons_heap(&root, pos, root);
 	}
-	if (ptr->type_vector_p) {
+	if (str->type_vector_p) {
 		GetConst(KEYWORD_TYPE, &pos);
 		cons_heap(&root, pos, root);
-		quotelist_heap(&pos, ptr->type_vector);
+		quotelist_heap(&pos, str->type_vector);
 		cons_heap(&root, pos, root);
 	}
 	/* :named */
-	if (ptr->named_p) {
+	if (str->named_p) {
 		GetConst(KEYWORD_NAMED, &pos);
 		cons_heap(&root, pos, root);
 		cons_heap(&root, T, root);
 	}
 	/* :initial-offset */
-	if (ptr->initial_offset_p) {
+	if (str->initial_offset_p) {
 		GetConst(KEYWORD_INITIAL_OFFSET, &pos);
 		cons_heap(&root, pos, root);
-		quotelist_heap(&pos, ptr->initial_offset);
+		quotelist_heap(&pos, str->initial_offset);
 		cons_heap(&root, pos, root);
 	}
 	/* :copier */
-	if (ptr->copier_p && ptr->copier != T) {
+	if (str->copier_p && str->copier != T) {
 		GetConst(KEYWORD_COPIER, &pos);
 		cons_heap(&root, pos, root);
-		quotelist_heap(&pos, ptr->copier);
+		quotelist_heap(&pos, str->copier);
 		cons_heap(&root, pos, root);
 	}
 	/* :predicate */
-	if (ptr->predicate_p) {
+	if (str->predicate_p) {
 		GetConst(KEYWORD_PREDICATE, &pos);
 		cons_heap(&root, pos, root);
-		quotelist_heap(&pos, ptr->predicate);
+		quotelist_heap(&pos, str->predicate);
 		cons_heap(&root, pos, root);
 	}
 	/* :include */
-	if (ptr->include_p) {
+	if (str->include_p) {
 		/* :include (list 'iname ...) */
 		GetConst(KEYWORD_INCLUDE, &pos);
 		cons_heap(&root, pos, root);
-		quotelist_heap(&pos, ptr->iname);
-		defstruct_slots_list(&pos, ptr->iargs, pos);
+		quotelist_heap(&pos, str->iname);
+		defstruct_slots_list(&pos, str->iargs, pos);
 		cons_heap(&root, pos, root);
 	}
-	if (ptr->print_object_p) {
+	if (str->print_object_p) {
 		/* :print-object ... */
 		GetConst(KEYWORD_PRINT_OBJECT, &pos);
 		cons_heap(&root, pos, root);
-		defstruct_make_print_object(ptr, &pos, ptr->print_object);
+		defstruct_make_print_object(&pos, str->print_object);
 		cons_heap(&root, pos, root);
 	}
-	if (ptr->print_function_p) {
+	if (str->print_function_p) {
 		/* :print-function ... */
 		GetConst(KEYWORD_PRINT_FUNCTION, &pos);
 		cons_heap(&root, pos, root);
-		defstruct_make_print_object(ptr, &pos, ptr->print_function);
+		defstruct_make_print_object(&pos, str->print_function);
 		cons_heap(&root, pos, root);
 	}
 	/* :constructor */
-	defstruct_make_constructor(ptr, &root, root);
+	defstruct_make_constructor(str, &root, root);
 	/* result */
 	nreverse_list_unsafe(ret, root);
 }
@@ -897,13 +905,17 @@ static void defstruct_make(struct defstruct *ptr, addr *ret)
 static void function_defstruct(Execute ptr, addr form, addr env)
 {
 	struct defstruct str;
+	LocalHold hold;
 
 	defstruct_clean(&str);
 	str.ptr = ptr;
 	str.env = env;
+	hold = LocalHold_local(ptr);
+	localhold_pushva_force(hold, form, env, NULL);
 	if (defstruct_parse(&str, form))
 		return;
 	defstruct_make(&str, &form);
+	localhold_end(hold);
 	setresult_control(ptr, form);
 }
 

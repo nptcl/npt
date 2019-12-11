@@ -923,7 +923,7 @@ static void codechar_call(addr *ret, const char *str,
 
 	evalcode_local(local, &code);
 	readstring(&pos, str);
-	eval_parse(&pos, pos);
+	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	call(local, code, pos);
 	popstack(local, code, ret);
@@ -1518,18 +1518,18 @@ static int test_code_call(void)
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
 
-	codechar_set(&pos, "(" LISP_SYSTEM "::fixnum+)");
+	codechar_set(&pos, "(+)");
 	setvalues_control(ptr, T, T, T, NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "code_call1");
 
-	codechar_set(&pos, "(" LISP_SYSTEM "::fixnum+ 10 20 30 40 50)");
+	codechar_set(&pos, "(+ 10 20 30 40 50)");
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 150, "code_call2");
 
-	codechar_set(&pos, "((lambda () (" LISP_SYSTEM "::fixnum+ 10 20 30 40 50)))");
+	codechar_set(&pos, "((lambda () (+ 10 20 30 40 50)))");
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 150, "code_call3");
@@ -1547,7 +1547,7 @@ static int test_code_lambda(void)
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
 
-	codechar_set(&pos, "(lambda () (" LISP_SYSTEM "::fixnum+ 10 20 30 40 50))");
+	codechar_set(&pos, "(lambda () (+ 10 20 30 40 50))");
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(functionp(pos), "code_lambda1");
@@ -1570,7 +1570,7 @@ static int test_code_defun(void)
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
 
-	codechar_set(&pos, "(defun aaa () (" LISP_SYSTEM "::fixnum+ 10 20 30 40 50))");
+	codechar_set(&pos, "(defun aaa () (+ 10 20 30 40 50))");
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(symbolp(pos), "code_defun1");
@@ -2033,12 +2033,12 @@ static int test_code_multiple_value_call(void)
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_multiple_value_call5");
 
-	codechar_set(&pos, "(multiple-value-call #'" LISP_SYSTEM "::fixnum+)");
+	codechar_set(&pos, "(multiple-value-call #'+)");
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "code_multiple_value_call6");
 
-	codechar_set(&pos, "(multiple-value-call #'" LISP_SYSTEM "::fixnum+ (values))");
+	codechar_set(&pos, "(multiple-value-call #'+ (values))");
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "code_multiple_value_call7");
@@ -2061,13 +2061,13 @@ static int test_callconst_symbol_p(void)
 	push_close_control(ptr, &control);
 
 	readstring(&pos, "(hello 10 20 30)");
-	eval_parse(&pos, pos);
+	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	GetEvalScopeIndex(pos, 0, &pos);
 	test(! callconst_symbol_p(pos, CONSTANT_SYSTEM_HANDLER), "callconst_symbol_p1");
 
 	readstring(&pos, "(" LISP_SYSTEM "::handler 10 20 30)");
-	eval_parse(&pos, pos);
+	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	GetEvalScopeIndex(pos, 0, &pos);
 	test(callconst_symbol_p(pos, CONSTANT_SYSTEM_HANDLER), "callconst_symbol_p2");

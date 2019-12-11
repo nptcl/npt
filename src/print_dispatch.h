@@ -64,7 +64,7 @@ _g void getpriorityprinttable(addr pos, addr *ret);
 _g void setpriorityprinttable(addr pos, addr value);
 
 /* function */
-_g int find_function_print_dispatch(LocalRoot local, addr var, addr table, addr *ret);
+_g int find_function_print_dispatch(Execute ptr, addr var, addr table, addr *ret);
 _g int print_dispatch_p(addr pos);
 _g void pprint_dispatch_heap(addr *ret);
 _g void copy_pprint_dispatch_common(Execute ptr, addr var, addr *ret);

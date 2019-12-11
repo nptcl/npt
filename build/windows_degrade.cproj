@@ -211,6 +211,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_control.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\copy.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\core.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\data.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\degrade.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\develop.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\document.c" />
@@ -222,6 +223,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\environment.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_equal.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_code.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_copy.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_declare.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_main.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_optparse.c" />
@@ -269,6 +271,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_reader.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_protocols.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_number.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_random.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_object.c" />
@@ -400,6 +403,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\copy.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\core.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\data.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\define_compile.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\define.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\degrade.h" />
@@ -411,6 +415,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\environment.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\equal.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_code.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_copy.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_declare.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_main.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_optparse.h" />
@@ -465,6 +470,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\memory.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\mop_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\mop.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_random.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number.h" />

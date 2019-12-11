@@ -16,6 +16,7 @@
 #include "eval.h"
 #include "file.h"
 #include "function.h"
+#include "gc.h"
 #include "hashtable.h"
 #include "heap.h"
 #include "integer.h"
@@ -814,7 +815,9 @@ static int macro_character_call(Execute ptr, int *result, addr *ret,
 		addr call, addr stream, addr code)
 {
 	addr control;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	if (funcall_control(ptr, call, stream, code, NULL)) {
 		return runcode_free_control(ptr, control);
@@ -824,15 +827,20 @@ static int macro_character_call(Execute ptr, int *result, addr *ret,
 	}
 	else {
 		getresult_control(ptr, ret);
+		localhold_set(hold, 0, *ret);
 		*result = 1;
 	}
-	return free_control(ptr, control);
+	Return1(free_control(ptr, control));
+	localhold_end(hold);
+
+	return 0;
 }
 
 static int macro_character_execute(Execute ptr, int *result, addr *ret,
 		unicode c, addr stream, addr table)
 {
 	addr call, code;
+	LocalHold hold;
 
 	character_heap(&code, c);
 	readtype_readtable(table, c, &call);
@@ -842,11 +850,16 @@ static int macro_character_execute(Execute ptr, int *result, addr *ret,
 	if (call == Nil)
 		goto error;
 	*result = 0;
-	return macro_character_call(ptr, result, ret, call, stream, code);
+
+	hold = LocalHold_local_push(ptr, code);
+	Return1(macro_character_call(ptr, result, ret, call, stream, code));
+	localhold_end(hold);
+	return 0;
 
 error:
+	*result = 0;
 	fmte("Character ~S don't have a macro code.", code, NULL);
-	return 1;
+	return 0;
 }
 
 _g void get_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr *ret)
@@ -1981,9 +1994,11 @@ static int readtable_novalue(Execute ptr, int *result, addr *ret,
 		fmte("eof error", NULL);
 		return 1;
 	}
+
 	if (macro_character_execute(ptr, &check, &pos, u, stream, table)) {
 		return 1;
 	}
+
 	if (check) {
 		*result = 0;
 		*ret = pos;
@@ -2079,42 +2094,66 @@ _g int read_stream(Execute ptr, addr stream, int *result, addr *ret)
 {
 	int check;
 	addr control, info;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	pushreadinfo(ptr, &info);
 	check = read_call(ptr, stream, result, ret);
-	return free_check_control(ptr, control, check);
+	if (*result == 0)
+		localhold_set(hold, 0, *ret);
+	Return1(free_check_control(ptr, control, check));
+	localhold_end(hold);
+
+	return 0;
 }
 
 _g int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
 {
 	int check;
 	addr control, info;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	pushreadinfo(ptr, &info);
 	ReadInfoStruct(info)->preserving = 1;
 	check = read_call(ptr, stream, result, ret);
-	return free_check_control(ptr, control, check);
+	if (*result == 0)
+		localhold_set(hold, 0, *ret);
+	Return1(free_check_control(ptr, control, check));
+	localhold_end(hold);
+
+	return 0;
 }
 
 _g int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 {
 	int check;
 	addr control, info;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	pushreadinfo_recursive(ptr, &info);
 	check = read_call(ptr, stream, result, ret);
-	return free_check_control(ptr, control, check);
+	if (*result == 0)
+		localhold_set(hold, 0, *ret);
+	Return1(free_check_control(ptr, control, check));
+	localhold_end(hold);
+
+	return 0;
 }
 
-_g int read_from_string(int *result, addr *ret, addr pos)
+_g int read_from_string(Execute ptr, int *result, addr *ret, addr pos)
 {
 	addr stream;
+	LocalHold hold;
 
 	open_input_string_stream(&stream, pos);
-	if (read_stream(Execute_Thread, stream, result, ret)) return 1;
+	hold = LocalHold_local_push(ptr, stream);
+	if (read_stream(ptr, stream, result, ret)) return 1;
+	localhold_end(hold);
 	close_stream(stream);
 
 	return 0;
@@ -2327,11 +2366,13 @@ static int delimited_execute(Execute ptr, addr stream, unicode limit)
 	int mode, check;
 	unicode u;
 	addr table, pos, root, dotsym, queue;
+	LocalHold hold;
 
 	mode = 0;
 	GetConst(SYSTEM_READTABLE_DOT, &dotsym);
 	getreadtable(ptr, &table);
 	queue_heap(&queue);
+	hold = LocalHold_local_push(ptr, queue);
 	for (;;) {
 		if (read_char_stream(stream, &u))
 			fmte("Don't allow end-of-file in the parensis.", NULL);
@@ -2363,6 +2404,7 @@ static int delimited_execute(Execute ptr, addr stream, unicode limit)
 			continue;
 		pushqueue_readlabel(ptr, queue, pos);
 	}
+	localhold_end(hold);
 
 	if (mode == 1) { /* (a b . ) */
 		fmte("dot no allowed here", NULL);
@@ -2471,12 +2513,19 @@ static int read_backquote(Execute ptr, addr stream, int *result, addr *ret)
 {
 	int check;
 	addr control, info;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	pushreadinfo_recursive(ptr, &info);
 	ReadInfoStruct(info)->backquote++;
 	check = read_call(ptr, stream, result, ret);
-	return free_check_control(ptr, control, check);
+	if (*result == 0)
+		localhold_set(hold, 0, *ret);
+	Return1(free_check_control(ptr, control, check));
+	localhold_end(hold);
+
+	return 0;
 }
 
 static void function_reader_backquote(Execute ptr, addr stream, addr code)
@@ -2511,12 +2560,19 @@ static int read_comma(Execute ptr, addr stream, int *result, addr *ret)
 {
 	int check;
 	addr control, info;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	pushreadinfo_recursive(ptr, &info);
 	ReadInfoStruct(info)->backquote--;
 	check = read_call(ptr, stream, result, ret);
-	return free_check_control(ptr, control, check);
+	if (*result == 0)
+		localhold_set(hold, 0, *ret);
+	Return1(free_check_control(ptr, control, check));
+	localhold_end(hold);
+
+	return 0;
 }
 
 static void function_reader_comma(Execute ptr, addr stream, addr code)
@@ -2704,12 +2760,14 @@ static int read_replace(Execute ptr, addr stream, int *result, addr *ret)
 	int check;
 	addr pos, value, control, code;
 	struct readinfo_struct *str;
+	LocalHold hold;
 
 	/* readinfo */
 	getreadinfo(ptr, &pos);
 	str = ReadInfoStruct(pos);
 	value = str->replace? T: Nil;
 	str->replace = 1;
+	hold = LocalHold_array(ptr, 1);
 	/* finalize */
 	push_finalize_control(ptr, &control);
 	cons_local(ptr->local, &pos, pos, value);
@@ -2717,7 +2775,12 @@ static int read_replace(Execute ptr, addr stream, int *result, addr *ret)
 	setfinalize_control(ptr, control, code);
 	/* code */
 	check = read_recursive(ptr, stream, result, ret);
-	return free_check_control(ptr, control, check);
+	if (*result == 0)
+		localhold_set(hold, 0, *ret);
+	Return1(free_check_control(ptr, control, check));
+	localhold_end(hold);
+
+	return 0;
 }
 
 static int find_readlabel(addr key, addr list, addr *ret)
@@ -3353,18 +3416,25 @@ static int read_feature(Execute ptr, addr stream, int *result, addr *ret)
 {
 	int check;
 	addr control, symbol, keyword;
+	LocalHold hold;
 
 	/* (let ((*package* (find-package "KEYWORD")))
 	 *   (read))
 	 */
 	/* push */
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	GetConst(PACKAGE_KEYWORD, &keyword);
 	pushspecial_control(ptr, symbol, keyword);
 	check = read_recursive(ptr, stream, result, ret);
-	return free_check_control(ptr, control, check);
+	if (*result == 0)
+		localhold_set(hold, 0, *ret);
+	Return1(free_check_control(ptr, control, check));
+	localhold_end(hold);
+
+	return 0;
 }
 
 static int feature_eq_constant(addr pos, constindex index1, constindex index2)
@@ -3455,6 +3525,7 @@ static void function_dispatch_plus(Execute ptr, addr stream, addr code, addr arg
 {
 	int check;
 	addr feature, form, list;
+	LocalHold hold;
 
 	/* read feature, read form */
 	if (read_feature(ptr, stream, &check, &feature))
@@ -3465,9 +3536,11 @@ static void function_dispatch_plus(Execute ptr, addr stream, addr code, addr arg
 	/* check *features* */
 	GetConst(SPECIAL_FEATURES, &list);
 	getspecialcheck_local(ptr, list, &list);
+	hold = LocalHold_local_push(ptr, feature);
 	if (check_feature(list, feature)) {
 		if (read_recursive(ptr, stream, &check, &form))
 			return;
+		localhold_end(hold);
 		if (check)
 			fmte("After dispatch #+feature must be a object.", NULL);
 		setresult_control(ptr, form);
@@ -3475,6 +3548,7 @@ static void function_dispatch_plus(Execute ptr, addr stream, addr code, addr arg
 	else {
 		if (read_ignore(ptr, stream, &check))
 			return;
+		localhold_end(hold);
 		if (check)
 			fmte("After dispatch #+feature must be a object.", NULL);
 		setvalues_nil_control(ptr);
@@ -3502,6 +3576,7 @@ static void function_dispatch_minus(Execute ptr, addr stream, addr code, addr ar
 {
 	int check;
 	addr feature, form, list;
+	LocalHold hold;
 
 	/* read feature, read form */
 	if (read_feature(ptr, stream, &check, &feature))
@@ -3512,9 +3587,11 @@ static void function_dispatch_minus(Execute ptr, addr stream, addr code, addr ar
 	/* check *features* */
 	GetConst(SPECIAL_FEATURES, &list);
 	getspecialcheck_local(ptr, list, &list);
+	hold = LocalHold_local_push(ptr, feature);
 	if (! check_feature(list, feature)) {
 		if (read_recursive(ptr, stream, &check, &form))
 			return;
+		localhold_end(hold);
 		if (check)
 			fmte("After dispatch #-feature must be a object.", NULL);
 		setresult_control(ptr, form);
@@ -3522,6 +3599,7 @@ static void function_dispatch_minus(Execute ptr, addr stream, addr code, addr ar
 	else {
 		if (read_ignore(ptr, stream, &check))
 			return;
+		localhold_end(hold);
 		if (check)
 			fmte("After dispatch #-feature must be a object.", NULL);
 		setvalues_nil_control(ptr);
@@ -3549,6 +3627,7 @@ static void function_dispatch_dot(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr eval;
+	LocalHold hold;
 
 	GetConst(SPECIAL_READ_EVAL, &eval);
 	getspecialcheck_local(ptr, eval, &eval);
@@ -3562,8 +3641,11 @@ static void function_dispatch_dot(Execute ptr, addr stream, addr code, addr arg)
 		setresult_control(ptr, Nil);
 		return;
 	}
+
+	hold = LocalHold_local_push(ptr, eval);
 	if (eval_object(ptr, eval, &eval))
 		return;
+	localhold_end(hold);
 	setresult_control(ptr, eval);
 }
 
@@ -3589,15 +3671,22 @@ static int dispatch_radix_execute(Execute ptr, addr stream, fixnum base,
 {
 	int check;
 	addr control, symbol, value;
+	LocalHold hold;
 
 	/* push */
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
 	GetConst(SPECIAL_READ_BASE, &symbol);
 	fixnum_heap(&value, base);
 	pushspecial_control(ptr, symbol, value);
 	check = read_recursive(ptr, stream, result, ret);
-	return free_check_control(ptr, control, check);
+	if (*result == 0)
+		localhold_set(hold, 0, *ret);
+	Return1(free_check_control(ptr, control, check));
+	localhold_end(hold);
+
+	return 0;
 }
 
 static void dispatch_radix_read(Execute ptr, addr stream, fixnum base)
@@ -3866,6 +3955,7 @@ static void function_dispatch_structure(Execute ptr, addr stream, addr code, add
 {
 	int check;
 	addr pos, rest;
+	LocalHold hold;
 
 	if (read_recursive(ptr, stream, &check, &pos))
 		return;
@@ -3878,8 +3968,12 @@ static void function_dispatch_structure(Execute ptr, addr stream, addr code, add
 	if (! consp(pos))
 		goto error;
 	GetCons(pos, &pos, &rest);
+
+	hold = LocalHold_local_push(ptr, pos);
 	if (structure_constructor_common(ptr, pos, rest, &pos))
 		return;
+	localhold_end(hold);
+
 	setresult_control(ptr, pos);
 	return;
 

@@ -8,6 +8,7 @@
 #include "cons_list.h"
 #include "common_header.h"
 #include "format.h"
+#include "gc.h"
 #include "hashtable.h"
 #include "print_write.h"
 #include "setf.h"
@@ -183,7 +184,19 @@ static int function_assert_list(Execute ptr, addr env,
 	 */
 	addr tagbody, restart, cont, lambda, go, report;
 	addr format, unless, invoke, make, quote, simple, control, arguments, list;
-	addr loop, s, str, a, b;
+	addr loop, s, str, a, b, c;
+	LocalHold hold;
+
+	/* places */
+	hold = LocalHold_array(ptr, 1);
+	for (a = Nil; places != Nil; ) {
+		getcons(places, &b, &places);
+		if (function_assert_prompt(ptr, env, &b, b))
+			return 1;
+		cons_heap(&a, b, a);
+		localhold_set(hold, 0, a);
+	}
+	localhold_end(hold);
 
 	/* variable */
 	make_symbolchar(&loop, "LOOP");
@@ -211,9 +224,9 @@ static int function_assert_list(Execute ptr, addr env,
 	else {
 		GetConst(COMMON_LIST, &list);
 		strvect_char_heap(&output, "Failed assersion ~A");
-		list_heap(&a, quote, test, NULL);
-		list_heap(&list, list, a, NULL);
-		list_heap(&a, list, test, NULL);
+		list_heap(&c, quote, test, NULL);
+		list_heap(&list, list, c, NULL);
+		list_heap(&c, list, test, NULL);
 	}
 	list_heap(&simple, quote, simple, NULL);
 	list_heap(&make, make, simple, control, output, arguments, list, NULL);
@@ -225,12 +238,6 @@ static int function_assert_list(Execute ptr, addr env,
 	list_heap(&s, s, NULL);
 	list_heap(&format, lambda, s, format, NULL);
 	/* prompt */
-	for (a = Nil; places != Nil; ) {
-		getcons(places, &b, &places);
-		if (function_assert_prompt(ptr, env, &b, b))
-			return 1;
-		cons_heap(&a, b, a);
-	}
 	list_heap(&go, go, loop, NULL);
 	cons_heap(&a, go, a);
 	nreverse_list_unsafe(&a, a);
@@ -306,16 +313,16 @@ static int function_error_datum(Execute ptr, addr datum, addr rest, addr *ret)
 	}
 
 	/* condition -> (error condition) */
-	if (condition_instance_p(datum)) {
-		if (rest != Nil) {
-			fmte("The datum argument ~S must be a nil "
-					"if first argument is condition type.", datum, NULL);
-		}
-		*ret = datum;
+	if (! condition_instance_p(datum)) {
+		fmte("Invalid datum argument ~S.", datum, NULL);
 		return 0;
 	}
-	fmte("Invalid datum argument ~S.", datum, NULL);
-
+	if (rest != Nil) {
+		fmte("The datum argument ~S must be a nil "
+				"if first argument is condition type.", datum, NULL);
+		return 0;
+	}
+	*ret = datum;
 	return 0;
 }
 
@@ -324,13 +331,12 @@ static void function_error(Execute ptr, addr datum, addr rest)
 	if (stringp(datum)) {
 		/* string -> simple-error */
 		simple_error(datum, rest);
+		return;
 	}
-	else {
-		if (function_error_datum(ptr, datum, rest, &datum))
-			return;
-		if (error_common(ptr, datum))
-			return;
-	}
+	if (function_error_datum(ptr, datum, rest, &datum))
+		return;
+	if (error_common(ptr, datum))
+		return;
 
 	/* The error function may not return normally. */
 	setvalues_nil_control(ptr);
@@ -421,29 +427,34 @@ static int function_cerror_restart(Execute ptr, addr restart, addr datum)
 
 static void function_cerror(Execute ptr, addr restart, addr datum, addr rest)
 {
+	LocalHold hold;
+
 	/* signal */
 	if (stringp(datum)) {
 		/* string -> simple-condition */
 		instance_simple_error(&datum, datum, rest);
 	}
-	else {
-		if (function_error_datum(ptr, datum, rest, &datum))
-			return;
+	else if (function_error_datum(ptr, datum, rest, &datum)) {
+		return;
 	}
 
 	/* wake condition */
 	if (find_condition_control(ptr, datum)) {
-		if (signal_function(datum))
+		if (signal_function(ptr, datum))
 			return;
 		setresult_control(ptr, Nil);
 		return;
 	}
 
 	/* Can't handle the condition. */
+	hold = LocalHold_local(ptr);
+	localhold_push(hold, datum);
 	if (function_cerror_make(ptr, &restart, restart, rest))
 		return;
+	localhold_push(hold, restart);
 	if (function_cerror_restart(ptr, restart, datum))
 		return;
+	localhold_end(hold);
 	setresult_control(ptr, Nil);
 }
 
@@ -505,20 +516,38 @@ static int function_check_type_expand(Execute ptr, addr env, addr *ret,
 	addr value, go, report, inter, princ, list, eval, prompt, unless;
 	addr typep, quote, invoke, make, simple, datum, expect, control, arguments;
 	addr x, y, root;
+	LocalHold hold;
 
 	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
 		return 1;
+	hold = LocalHold_local(ptr);
+	localhold_pushva(hold, a, b, g, w, r, NULL);
 	getcar(g, &g);
-	str1 = fmth("Retry check-type with new value ~A.", place, NULL);
-	str2 = fmth("Input ~A> ", place, NULL);
-	str3 = fmth("The value of ~A, ~~A, is not ~~(~~A~~).", place, NULL);
+
+	Return1(format_string(ptr, &str1,
+				"Retry check-type with new value ~A.", place, NULL));
+	localhold_push(hold, str1);
+
+	Return1(format_string(ptr, &str2,
+				"Input ~A> ", place, NULL));
+	localhold_push(hold, str2);
+
+	Return1(format_string(ptr, &str3,
+				"The value of ~A, ~~A, is not ~~(~~A~~).", place, NULL));
+	localhold_push(hold, str2);
+
 	if (string == Nil) {
 		if (parse_type(ptr, &string, type, env))
 			return 1;
+		localhold_push(hold, string);
+
 		type_object(&string, string);
+		localhold_push(hold, string);
 		if (princ_string_heap(ptr, &string, string))
 			return 1;
 	}
+	localhold_end(hold);
+
 	make_symbolchar(&v, "V");
 	make_symbolchar(&s, "STREAM");
 	make_symbolchar(&loop, "LOOP");
@@ -723,11 +752,10 @@ static void function_signal(Execute ptr, addr datum, addr rest)
 		/* string -> simple-condition */
 		instance_simple_condition(&datum, datum, rest);
 	}
-	else {
-		if (function_error_datum(ptr, datum, rest, &datum))
-			return;
+	else if (function_error_datum(ptr, datum, rest, &datum)) {
+		return;
 	}
-	if (signal_function(datum))
+	if (signal_function(ptr, datum))
 		return;
 	setresult_control(ptr, Nil);
 }
@@ -886,11 +914,17 @@ static void function_break_continue(Execute ptr)
 static int function_break_invoke(Execute ptr, addr format, addr args)
 {
 	addr symbol, condition;
+	LocalHold hold;
 
 	GetConst(SPECIAL_DEBUGGER_HOOK, &symbol);
 	pushspecial_control(ptr, symbol, Nil);
 	instance_simple_condition(&condition, format, args);
-	return invoke_debugger(ptr, condition);
+
+	hold = LocalHold_local_push(ptr, condition);
+	Return1(invoke_debugger(ptr, condition));
+	localhold_end(hold);
+
+	return 0;
 }
 
 static int function_break_restart(Execute ptr, addr restart, addr format, addr args)
@@ -925,7 +959,7 @@ static int function_break_restart(Execute ptr, addr restart, addr format, addr a
 	return free_control(ptr, control);
 }
 
-static int function_break_make(Execute ptr, addr *ret)
+static int function_break_make(addr *ret)
 {
 	static const char *message = "Return from BREAK.";
 	addr inst, pos;
@@ -956,15 +990,20 @@ static void function_break(Execute ptr, addr format, addr args)
 	 *   nil)
 	 */
 	addr restart;
+	LocalHold hold;
 
+	hold = LocalHold_local(ptr);
 	if (format == Unbound) {
 		strvect_char_heap(&format, "Break");
+		localhold_push(hold, format);
 		args = Nil;
 	}
-	if (function_break_make(ptr, &restart))
+	if (function_break_make(&restart))
 		return;
+	localhold_push(hold, restart);
 	if (function_break_restart(ptr, restart, format, args))
 		return;
+	localhold_end(hold);
 	setresult_control(ptr, Nil);
 }
 
@@ -1044,7 +1083,7 @@ static void defvar_break_on_signals(void)
  *      (lisp-system::handler-bind name1 lambda1 ...)
  *      body...)
  */
-static void handler_bind_clauses(Execute ptr, addr right, addr *ret)
+static void handler_bind_clauses(addr right, addr *ret)
 {
 	addr cons, symbol, quote, root, name, lambda, temp;
 
@@ -1083,7 +1122,7 @@ static void function_handler_bind(Execute ptr, addr right, addr env)
 	}
 
 	GetConst(SYSTEM_HANDLER, &symbol);
-	handler_bind_clauses(ptr, right, &right);
+	handler_bind_clauses(right, &right);
 	if (body == Nil)
 		consnil_heap(&body);
 	lista_heap(&right, symbol, right, body, NULL);
@@ -1135,7 +1174,7 @@ static void handler_case_lambda_gensym(Execute ptr, addr form, addr *ret)
 	lista_heap(ret, pos, args, declare, form, NULL);
 }
 
-static void handler_case_lambda(Execute ptr, addr args, addr form, addr *ret)
+static void handler_case_lambda(addr args, addr form, addr *ret)
 {
 	addr pos;
 	GetConst(COMMON_LAMBDA, &pos);
@@ -1171,7 +1210,7 @@ static void handler_case_clauses(Execute ptr, addr right, addr *ret, addr *reter
 			if (args == Nil)
 				handler_case_lambda_gensym(ptr, form, &cons);
 			else if (singlep(args))
-				handler_case_lambda(ptr, args, form, &cons);
+				handler_case_lambda(args, form, &cons);
 			else {
 				fmte("The argument ~S in handler-case clause "
 						"must be a nil or (var) form.", args, NULL);
@@ -1584,7 +1623,7 @@ static void restart_bind_binding(addr args, addr *ret)
 	list_heap(ret, list, name, lambda, inter, report, test, NULL);
 }
 
-static void restart_bind_clauses(Execute ptr, addr right, addr *ret)
+static void restart_bind_clauses(addr right, addr *ret)
 {
 	addr cons, symbol, quote, root;
 
@@ -1616,7 +1655,7 @@ static void function_restart_bind(Execute ptr, addr right, addr env)
 	}
 
 	GetConst(SYSTEM_RESTART, &symbol);
-	restart_bind_clauses(ptr, right, &right);
+	restart_bind_clauses(right, &right);
 	if (body == Nil)
 		consnil_heap(&body);
 	lista_heap(&right, symbol, right, body, NULL);
@@ -1947,9 +1986,8 @@ static void function_continue(Execute ptr, addr opt)
 	if (opt == Unbound) opt = Nil;
 	GetConst(COMMON_CONTINUE, &pos);
 	if (find_restart_control(ptr, pos, opt, &opt)) {
-		if (invoke_restart_control(ptr, opt, Nil)) {
+		if (invoke_restart_control(ptr, opt, Nil))
 			return;
-		}
 	}
 	setresult_control(ptr, Nil);
 }

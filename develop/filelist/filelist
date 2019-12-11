@@ -66,6 +66,7 @@ constant.c
 control.c
 copy.c
 core.c
+data.c
 degrade.c
 develop.c
 document.c
@@ -77,6 +78,7 @@ encode_unicode.c
 environment.c
 equal.c
 eval_code.c
+eval_copy.c
 eval_declare.c
 eval_main.c
 eval_optparse.c
@@ -124,6 +126,7 @@ mop_generic.c
 mop_reader.c
 mop_protocols.c
 number.c
+number_common.c
 number_gcd.c
 number_random.c
 object.c

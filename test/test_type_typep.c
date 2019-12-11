@@ -34,10 +34,15 @@ static void test_parse_char(addr *ret, const char *str)
 	test_parse_type_error(ret, readr(str));
 }
 
+static int TypepClang(addr value, addr type, int *ret)
+{
+	return typep_clang(Execute_Thread, value, type, ret);
+}
+
 static int typep_object(addr x, addr y) 
 {
 	int check = 0;
-	if (typep_clang(x, y, &check))
+	if (TypepClang(x, y, &check))
 		fmte("typep error");
 	return check;
 }
@@ -49,6 +54,11 @@ static int typep_char(addr x, const char *str)
 	return typep_object(x, y);
 }
 
+static int TypepAsteriskClang(addr x, addr y, int *ret)
+{
+	return typep_asterisk_clang(Execute_Thread, x, y, ret);
+}
+
 static int typep_asterisk_char(addr x, const char *str)
 {
 	int check;
@@ -56,7 +66,7 @@ static int typep_asterisk_char(addr x, const char *str)
 
 	test_parse_char(&y, str);
 	check = 0;
-	if (typep_asterisk_clang(x, y, &check))
+	if (TypepAsteriskClang(x, y, &check))
 		fmte("typep error");
 
 	return check;
@@ -1876,10 +1886,15 @@ static int test_typep_table(void)
 
 	fixnum_heap(&x, 20);
 	test_parse_char(&y, "fixnum");
-	test(! typep_table(x, y, &check), "typep_table1");
+	test(! typep_table(Execute_Thread, x, y, &check), "typep_table1");
 	test(check, "typep_table2");
 
 	RETURN;
+}
+
+static int TypepCall(addr value, addr type, int aster, int *ret)
+{
+	return typep_call(Execute_Thread, value, type, aster, ret);
 }
 
 static int test_typep_call(void)
@@ -1889,43 +1904,43 @@ static int test_typep_call(void)
 
 	fixnum_heap(&value, 20);
 	test_parse_char(&type, "fixnum");
-	test(! typep_call(value, type, 0, &check), "typep_call1");
+	test(! TypepCall(value, type, 0, &check), "typep_call1");
 	test(check, "typep_call2");
 
 	test_parse_char(&type, "fixnum");
-	test(! typep_call(value, type, 1, &check), "typep_call3");
+	test(! TypepCall(value, type, 1, &check), "typep_call3");
 	test(check, "typep_call4");
 
 	test_parse_char(&type, "*");
-	test(! typep_call(value, type, 1, &check), "typep_call5");
+	test(! TypepCall(value, type, 1, &check), "typep_call5");
 	test(check, "typep_call6");
 
 	test_parse_char(&type, "cons");
-	test(! typep_call(value, type, 0, &check), "typep_call7");
+	test(! TypepCall(value, type, 0, &check), "typep_call7");
 	test(! check, "typep_call8");
 
 	test_parse_char(&type, "fixnum");
 	type_copy_heap(&type, type);
 	SetNotDecl(type, 1);
-	test(! typep_call(value, type, 0, &check), "typep_call9");
+	test(! TypepCall(value, type, 0, &check), "typep_call9");
 	test(! check, "typep_call10");
 
 	test_parse_char(&type, "fixnum");
 	type_copy_heap(&type, type);
 	SetNotDecl(type, 1);
-	test(! typep_call(value, type, 1, &check), "typep_call11");
+	test(! TypepCall(value, type, 1, &check), "typep_call11");
 	test(! check, "typep_call12");
 
 	test_parse_char(&type, "*");
 	type_copy_heap(&type, type);
 	SetNotDecl(type, 1);
-	test(! typep_call(value, type, 1, &check), "typep_call13");
+	test(! TypepCall(value, type, 1, &check), "typep_call13");
 	test(! check, "typep_call14");
 
 	test_parse_char(&type, "cons");
 	type_copy_heap(&type, type);
 	SetNotDecl(type, 1);
-	test(! typep_call(value, type, 0, &check), "typep_call15");
+	test(! TypepCall(value, type, 0, &check), "typep_call15");
 	test(check, "typep_call16");
 
 	RETURN;
@@ -1939,7 +1954,7 @@ static int test_typep_clang(void)
 	fixnum_heap(&value, 20);
 	test_parse_char(&type, "fixnum");
 	check = 0;
-	test(! typep_clang(value, type, &check), "typep_clang1");
+	test(! TypepClang(value, type, &check), "typep_clang1");
 	test(check, "typep_clang2");
 
 	RETURN;
@@ -1953,11 +1968,11 @@ static int test_typep_asterisk_clang(void)
 	fixnum_heap(&value, 20);
 	test_parse_char(&type, "fixnum");
 	check = 0;
-	test(! typep_asterisk_clang(value, type, &check), "typep_asterisk_heap1");
+	test(! TypepAsteriskClang(value, type, &check), "typep_asterisk_heap1");
 	test(check, "typep_asterisk_heap2");
 
 	test_parse_char(&type, "*");
-	test(! typep_asterisk_clang(value, type, &check), "typep_asterisk_heap3");
+	test(! TypepAsteriskClang(value, type, &check), "typep_asterisk_heap3");
 	test(check, "typep_asterisk_heap4");
 
 	RETURN;

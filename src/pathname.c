@@ -398,7 +398,7 @@ static void check_parse_logical_pathname(struct fileparse *pa)
 	pos = pa->version;
 	check_version_logical_pathname(pos);
 	if (stringp(pos)) {
-		if (read_from_string(&check, &pos, pos))
+		if (read_from_string(pa->ptr, &check, &pos, pos))
 			fmte("Cannot read ~S object.", pa->version, NULL);
 		if (check)
 			fmte("Cannot read ~S object.", pa->version, NULL);
@@ -1791,7 +1791,7 @@ static void translate_pathname_heap(Execute ptr,
 _g void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp)
 {
 	LocalRoot local;
-	addr host, list, left, right;
+	addr host, list, left, right, value;
 
 	/* physical pathname */
 	local = localp? ptr->local: NULL;
@@ -1807,9 +1807,9 @@ _g void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp)
 		fmte("The logical-hostname ~S is not exist.", host, NULL);
 	while (list != Nil) {
 		GetCons(list, &right, &list);
-		List_bind(right, &left, &right, NULL);
+		List_bind(right, &left, &value, NULL);
 		if (wildcard_pathname(pos, left, 1)) {
-			translate_pathname_alloc(ptr, ret, pos, left, right, localp);
+			translate_pathname_alloc(ptr, ret, pos, left, value, localp);
 			return;
 		}
 	}
@@ -2213,8 +2213,7 @@ static void mergecopy(addr pos, enum PATHNAME_INDEX type, addr defpath, addr *re
 	}
 }
 
-static void merge_pathname_object(Execute ptr,
-		addr pos, addr defaults, addr defver, addr *ret)
+static void merge_pathname_object(addr pos, addr defaults, addr defver, addr *ret)
 {
 	addr check1, check2;
 	addr host, device, directory, name, type, version;
@@ -2286,7 +2285,7 @@ _g void merge_pathnames_clang(Execute ptr,
 		GetConst(KEYWORD_NEWEST, &defver);
 
 	/* merge */
-	merge_pathname_object(ptr, pos, defaults, defver, ret);
+	merge_pathname_object(pos, defaults, defver, ret);
 }
 
 

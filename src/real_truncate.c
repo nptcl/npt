@@ -791,7 +791,7 @@ static void truncate_long_common(LocalRoot local,
 	}
 }
 
-_g void truncate_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void truncate2_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1446,7 +1446,7 @@ static void ftruncate_long_common(addr *quot, addr *rem, addr left, addr right)
 	}
 }
 
-_g void ftruncate_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void ftruncate2_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1478,6 +1478,22 @@ _g void ftruncate_common(LocalRoot local, addr *quot, addr *rem, addr left, addr
 			TypeError(left, REAL);
 			break;
 	}
+}
+
+_g void truncate_common(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+{
+	if (div == Unbound)
+		truncate1_common(local, ret1, ret2, var);
+	else
+		truncate2_common(local, ret1, ret2, var, div);
+}
+
+_g void ftruncate_common(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+{
+	if (div == Unbound)
+		ftruncate1_common(local, ret1, ret2, var);
+	else
+		ftruncate2_common(local, ret1, ret2, var, div);
 }
 
 

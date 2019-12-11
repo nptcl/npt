@@ -4,6 +4,7 @@
 #include "constant.h"
 #include "control.h"
 #include "eval_parse.h"
+#include "gc.h"
 #include "setf.h"
 #include "symbol.h"
 
@@ -215,19 +216,31 @@ static int setf_expander(Execute ptr, addr call, addr form, addr env,
 		addr *vars, addr *vals, addr *store, addr *writer, addr *reader)
 {
 	addr control;
+	LocalHold hold;
 
 	/* push */
+	hold = LocalHold_array(ptr, 5);
 	push_close_control(ptr, &control);
 	/* code */
-	if (funcall_control(ptr, call, form, env, NULL))
-		return runcode_free_control(ptr, control);
-	getvalues_nil_control(ptr, 0, vars);
-	getvalues_nil_control(ptr, 1, vals);
-	getvalues_nil_control(ptr, 2, store);
-	getvalues_nil_control(ptr, 3, writer);
-	getvalues_nil_control(ptr, 4, reader);
-	/* free */
-	return free_control(ptr, control);
+	if (funcall_control(ptr, call, form, env, NULL)) {
+		Return1(runcode_free_control(ptr, control));
+	}
+	else {
+		getvalues_nil_control(ptr, 0, vars);
+		getvalues_nil_control(ptr, 1, vals);
+		getvalues_nil_control(ptr, 2, store);
+		getvalues_nil_control(ptr, 3, writer);
+		getvalues_nil_control(ptr, 4, reader);
+		localhold_set(hold, 0, *vars);
+		localhold_set(hold, 1, *vals);
+		localhold_set(hold, 2, *store);
+		localhold_set(hold, 3, *writer);
+		localhold_set(hold, 4, *reader);
+		Return1(free_control(ptr, control));
+	}
+	localhold_end(hold);
+
+	return 0;
 }
 
 _g int get_setf_expansion(Execute ptr, addr form, addr env,
@@ -237,7 +250,7 @@ _g int get_setf_expansion(Execute ptr, addr form, addr env,
 	addr pos, symbol, args, check;
 
 	/* macroexpand */
-	if (macroexpand(&pos, form, env, &result))
+	if (macroexpand(ptr, &pos, form, env, &result))
 		return 1;
 	if (result)
 		form = pos;

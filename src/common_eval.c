@@ -152,7 +152,7 @@ static void function_macro_function(Execute ptr, addr symbol, addr env)
 {
 	int check;
 	if (env == Unbound) env = Nil;
-	check = findmacro_environment(symbol, env, &symbol);
+	check = find_environment(symbol, env, &symbol);
 	setresult_control(ptr, check? symbol: Nil);
 }
 
@@ -231,7 +231,7 @@ static void function_macroexpand(Execute ptr, addr form, addr env)
 	int check;
 
 	if (env == Unbound) env = Nil;
-	if (macroexpand(&form, form, env, &check))
+	if (macroexpand(ptr, &form, form, env, &check))
 		return;
 	if (check)
 		setvalues_control(ptr, form, T, NULL);
@@ -261,7 +261,7 @@ static void function_macroexpand_1(Execute ptr, addr form, addr env)
 	int check;
 
 	if (env == Unbound) env = Nil;
-	if (macroexpand1(&form, form, env, &check))
+	if (macroexpand1(ptr, &form, form, env, &check))
 		return;
 	if (check)
 		setvalues_control(ptr, form, T, NULL);
@@ -402,7 +402,7 @@ static void function_constantp(Execute ptr, addr var, addr opt)
 	int check;
 
 	if (opt == Unbound) opt = Nil;
-	if (eval_constantp(var, opt, &check))
+	if (eval_constantp(ptr, var, opt, &check))
 		return;
 	setbool_control(ptr, check);
 }

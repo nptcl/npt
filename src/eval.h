@@ -94,7 +94,7 @@ _g void push_evalwhen_eval(Execute ptr);
 _g void push_evalwhen_load(Execute ptr);
 _g int toplevelp_eval(Execute ptr);
 
-_g int eval_constantp(addr var, addr env, int *result);
+_g int eval_constantp(Execute ptr, addr var, addr env, int *result);
 _g int eval_constantp_stable(addr var);
 
 _g int eval_execute(Execute ptr, addr pos);

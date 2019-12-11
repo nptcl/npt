@@ -2,6 +2,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
+#include "gc.h"
 #include "loop.h"
 #include "loop_bind.h"
 #include "loop_main.h"
@@ -134,6 +135,7 @@ static int loop_extended_common(Execute ptr,
 {
 	addr form, init, final, with, expr1, expr2;
 	struct loop_main str;
+	LocalHold hold;
 
 	/* initially, finally, with */
 	init = final = with = expr1 = expr2 = form = Nil;
@@ -141,8 +143,13 @@ static int loop_extended_common(Execute ptr,
 	loop_filter_initially(&body, &init);
 	loop_filter_finally(&vars, &final);
 	loop_filter_finally(&body, &final);
+
+	hold = LocalHold_local(ptr);
+	localhold_pushva_force(hold, vars, body, init, final, NULL);
 	if (loop_filter_with(ptr, &vars, &with))
 		return 1;
+	localhold_end(hold);
+
 	loop_push_for_as(ptr, &expr1, &expr2, vars);
 	make_loop_main(&str, form, init, named);
 	loop_push_main(&str, body);
@@ -182,6 +189,7 @@ static void loop_simple_common(addr *ret, addr form)
 _g int loop_common(Execute ptr, addr *ret, addr list)
 {
 	addr named, vars, body;
+	LocalHold hold;
 
 	/* (loop) */
 	if (list == Nil) {
@@ -206,8 +214,11 @@ _g int loop_common(Execute ptr, addr *ret, addr list)
 	}
 
 	/* extended-loop */
+	hold = LocalHold_local(ptr);
+	localhold_pushva_force(hold, named, vars, body, NULL);
 	if (loop_extended_common(ptr, ret, named, vars, body))
 		return 1;
+	localhold_end(hold);
 
 	return 0;
 }

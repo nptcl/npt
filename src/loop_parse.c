@@ -181,33 +181,33 @@ struct for_as_arithmetic {
 	addr from1, from2, to1, to2, by;
 };
 
-static void clear_for_as_arithmetic(struct for_as_arithmetic *ptr)
+static void clear_for_as_arithmetic(struct for_as_arithmetic *str)
 {
-	ptr->from1 = ptr->from2 = ptr->to1 = ptr->to2 = ptr->by = Unbound;
+	str->from1 = str->from2 = str->to1 = str->to2 = str->by = Unbound;
 }
 
 static int loop_parse_for_as_arithmetic_struct(
-		struct for_as_arithmetic *ptr, addr *list, addr pos)
+		struct for_as_arithmetic *str, addr *list, addr pos)
 {
 loop:
 	if (loop_symbol_arithmetic1_p(pos)) {
-		if (ptr->from1 != Unbound)
+		if (str->from1 != Unbound)
 			fmte("FOR-AS FROM expr already exists.", NULL);
-		ptr->from1 = pos;
-		if (! consp_getcons(*list, &(ptr->from2), list))
+		str->from1 = pos;
+		if (! consp_getcons(*list, &(str->from2), list))
 			return 1;
 	}
 	else if (loop_symbol_arithmetic2_p(pos)) {
-		if (ptr->to1 != Unbound)
+		if (str->to1 != Unbound)
 			fmte("FOR-AS TO expr already exists.", NULL);
-		ptr->to1 = pos;
-		if (! consp_getcons(*list, &(ptr->to2), list))
+		str->to1 = pos;
+		if (! consp_getcons(*list, &(str->to2), list))
 			return 1;
 	}
 	else if (loop_symbol_by_p(pos)) {
-		if (ptr->by != Unbound)
+		if (str->by != Unbound)
 			fmte("FOR-AS BY expr already exists.", NULL);
-		if (! consp_getcons(*list, &(ptr->by), list))
+		if (! consp_getcons(*list, &(str->by), list))
 			return 1;
 	}
 	else {
@@ -223,14 +223,14 @@ loop:
 	goto loop;
 }
 
-static int loop_parse_for_as_arithmetic1_p(struct for_as_arithmetic *ptr)
+static int loop_parse_for_as_arithmetic1_p(struct for_as_arithmetic *str)
 {
 	int check1, check2, check3, a, b, c;
 	addr x, y, z;
 
-	x = ptr->from1;
-	y = ptr->to1;
-	z = ptr->by;
+	x = str->from1;
+	y = str->to1;
+	z = str->by;
 	check1 = (x == Unbound);
 	check2 = (y == Unbound);
 	check3 = (z == Unbound);
@@ -255,13 +255,13 @@ static int loop_parse_for_as_arithmetic1_p(struct for_as_arithmetic *ptr)
 	return 1;
 }
 
-static int loop_parse_for_as_arithmetic2_p(struct for_as_arithmetic *ptr)
+static int loop_parse_for_as_arithmetic2_p(struct for_as_arithmetic *str)
 {
 	int check1, check2, a, b;
 	addr x, y;
 
-	x = ptr->from1;
-	y = ptr->to1;
+	x = str->from1;
+	y = str->to1;
 	check1 = (x == Unbound);
 	check2 = (y == Unbound);
 	/* from */
@@ -280,13 +280,13 @@ static int loop_parse_for_as_arithmetic2_p(struct for_as_arithmetic *ptr)
 	return 1;
 }
 
-static int loop_parse_for_as_arithmetic3_p(struct for_as_arithmetic *ptr)
+static int loop_parse_for_as_arithmetic3_p(struct for_as_arithmetic *str)
 {
 	int check1, check2, a, b, c;
 	addr x, y;
 
-	x = ptr->from1;
-	y = ptr->to1;
+	x = str->from1;
+	y = str->to1;
 	check1 = (x == Unbound);
 	check2 = (y == Unbound);
 	/* from */

@@ -1,6 +1,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "eval.h"
+#include "eval_copy.h"
 #include "eval_declare.h"
 #include "eval_optparse.h"
 #include "eval_parse.h"

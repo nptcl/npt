@@ -158,7 +158,14 @@ int lisp_main_version_text(FILE *file)
 	fprintf(file, "%-20s %s\n", "Release mode", LISP_DEBUG_STRING);
 	fprintf(file, "%-20s %s\n", "Degrade mode", LISP_DEGRADE_STRING);
 	fprintf(file, "%-20s %s\n", "Prompt mode", LISP_PROMPT_STRING);
+#ifdef LISP_DEBUG_MEMORY
+	fprintf(file, "%-20s %s\n", "Debug Memory", "true");
+#endif
+#ifdef LISP_DEBUG_FORCE_GC
+	fprintf(file, "%-20s %d\n", "Force GC", LISP_DEBUG_FORCE_GC);
+#endif
 	fprintf(file, "-----\n");
+	
 	lisp_result = 0;
 
 	return 0;
@@ -179,6 +186,16 @@ int lisp_main_version_script(FILE *file)
 	fprintf(file, "%s\t%s\n", "release-mode", LISP_DEBUG_STRING);
 	fprintf(file, "%s\t%s\n", "degrade-mode", LISP_DEGRADE_STRING);
 	fprintf(file, "%s\t%s\n", "prompt-mode", LISP_PROMPT_STRING);
+#ifdef LISP_DEBUG_MEMORY
+	fprintf(file, "%s\t%s\n", "debug-memory", "true");
+#else
+	fprintf(file, "%s\t%s\n", "debug-memory", "false");
+#endif
+#ifdef LISP_DEBUG_FORCE_GC
+	fprintf(file, "%s\t%d\n", "force-gc", LISP_DEBUG_FORCE_GC);
+#else
+	fprintf(file, "%s\t%s\n", "force-gc", "disable");
+#endif
 	lisp_result = 0;
 
 	return 0;
@@ -538,7 +555,7 @@ static void lisp_argv_debugger(Execute ptr, struct lispargv *argv)
 
 	/* debugger */
 	v = argv->debugger_p? argv->debugger: consolep_file();
-	set_enable_debugger(v);
+	set_enable_debugger(ptr, v);
 	/* eval-loop */
 	eval_main_loop(ptr);
 }
@@ -679,7 +696,7 @@ static int lisp_argv_core(Execute ptr)
 {
 	lisp_argv_makunbound(CONSTANT_SYSTEM_SPECIAL_ENVIRONMENT);
 	lisp_argv_makunbound(CONSTANT_SYSTEM_SPECIAL_ARGUMENTS);
-	lisp_result = save_core();
+	lisp_result = save_core(ptr);
 	return lisp_result;
 }
 

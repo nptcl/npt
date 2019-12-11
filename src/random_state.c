@@ -367,6 +367,7 @@ _g void constant_random_state(Execute ptr, addr left)
 {
 	addr right;
 
+	Check(ptr == NULL, "execute error");
 	GetConst(SPECIAL_RANDOM_STATE, &right);
 	getspecialcheck_local(ptr, right, &right);
 	if (GetType(right) != LISPTYPE_RANDOM_STATE)

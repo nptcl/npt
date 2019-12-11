@@ -3050,116 +3050,6 @@ static int test_format_args(void)
 
 
 /*
- *  format clang
- */
-static void test_format_stdarg_call(addr stream, const char *format, ...)
-{
-	va_list args;
-
-	va_start(args, format);
-	format_stdarg(stream, format, args);
-	va_end(args);
-}
-
-static int test_format_stdarg(void)
-{
-	addr stream, pos;
-
-	open_output_string_stream(&stream, 0);
-	test_format_stdarg_call(stream, "Hello~A",
-			fixnum_heapr(10), fixnum_heapr(20), NULL);
-	string_stream_heap(stream, &pos);
-	test(string_equal_char(pos, "Hello10"), "format_stdarg1");
-
-	RETURN;
-}
-
-static int test_format_stream(void)
-{
-	addr stream, pos;
-
-	open_output_string_stream(&stream, 0);
-	format_stream(stream, "Hello~A", fixnum_heapr(10), fixnum_heapr(20), NULL);
-	string_stream_heap(stream, &pos);
-	test(string_equal_char(pos, "Hello10"), "format_stream1");
-
-	RETURN;
-}
-
-static addr test_format_string_stdarg_call(LocalRoot local, const char *format, ...)
-{
-	addr result;
-	va_list args;
-
-	va_start(args, format);
-	result = format_string_stdarg(local, format, args);
-	va_end(args);
-
-	return result;
-}
-
-static int test_format_string_stdarg(void)
-{
-	addr pos;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-
-	pos = test_format_string_stdarg_call(NULL, "Hello~A",
-			fixnum_heapr(10), fixnum_heapr(20), NULL);
-	test(string_equal_char(pos, "Hello10"), "format_string_stdarg1");
-	pos = format_alloc(NULL, "Hello~A", fixnum_heapr(10), fixnum_heapr(20), NULL);
-	test(string_equal_char(pos, "Hello10"), "format_alloc1");
-	pos = format_local(local, "Hello~A", fixnum_heapr(10), fixnum_heapr(20), NULL);
-	test(string_equal_char(pos, "Hello10"), "format_local1");
-	test(GetStatusDynamic(pos), "format_local2");
-	pos = format_heap("Hello~A", fixnum_heapr(10), fixnum_heapr(20), NULL);
-	test(string_equal_char(pos, "Hello10"), "format_heap1");
-	test(! GetStatusDynamic(pos), "format_heap2");
-
-	pos = fmta(NULL, "Hello~A", fixnum_heapr(10), fixnum_heapr(20), NULL);
-	test(string_equal_char(pos, "Hello10"), "fmta1");
-	pos = fmtl("Hello~A", fixnum_heapr(10), fixnum_heapr(20), NULL);
-	test(string_equal_char(pos, "Hello10"), "fmtl1");
-	test(GetStatusDynamic(pos), "fmtl2");
-	pos = fmth("Hello~A", fixnum_heapr(10), fixnum_heapr(20), NULL);
-	test(string_equal_char(pos, "Hello10"), "fmth1");
-	test(! GetStatusDynamic(pos), "fmth2");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-
-/* printf -> string */
-static int test_allocf(void)
-{
-	addr pos;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-
-	pos = localf("Hello%d", 10);
-	test(string_equal_char(pos, "Hello10"), "local1");
-
-	pos = heapf("Hello%d", 10);
-	test(string_equal_char(pos, "Hello10"), "heap1");
-
-	pos = allocf(local, "Hello%d", 10);
-	test(string_equal_char(pos, "Hello10"), "allocf1");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-
-/*
  *  main
  */
 static int testbreak_format(void)
@@ -3239,12 +3129,6 @@ static int testbreak_format(void)
 	TestBreak(test_format_stream_args);
 	TestBreak(test_format_string_args);
 	TestBreak(test_format_args);
-	/* format clang */
-	TestBreak(test_format_stdarg);
-	TestBreak(test_format_stream);
-	TestBreak(test_format_string_stdarg);
-	/* printf -> string */
-	TestBreak(test_allocf);
 
 	return 0;
 }

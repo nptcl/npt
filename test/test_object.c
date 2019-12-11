@@ -561,19 +561,21 @@ static int testbreak_object(void)
 
 int test_object(void)
 {
-	lispcode code;
 	int result;
+	lispcode code;
+	Execute ptr;
 
 	TITLE;
 	freelisp();
 	alloclisp(0, 0);
 	lisp_info_enable = 1;
-	begin_code_thread(&code);
+	ptr = Execute_Thread;
+	begin_code(ptr, &code);
 	if (code_run_p(code)) {
 		lisp_initialize = 1;
 		result = testbreak_object();
 	}
-	end_code_thread();
+	end_code(ptr);
 	freelisp();
 	TestCheck(code_error_p(code));
 	lisp_info_enable = 1;

@@ -285,7 +285,7 @@ static void defun_symbol_function(void)
 /* (defun (setf symbol-function) (function symbol) ...) -> function */
 static void function_setf_symbol_function(Execute ptr, addr var1, addr var2)
 {
-	SetFunctionCommon(var2, var1);
+	SetFunctionSymbol(var2, var1);
 	setresult_control(ptr, var1);
 }
 

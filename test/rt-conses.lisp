@@ -715,6 +715,10 @@
   (mapcan #'list '(10 20 30) nil '(40 50 60))
   nil)
 
+(deftest mapcan-error.7
+  (mapcan #'values '(nil (d e f) (g h i)))
+  (d e f g h i))
+
 (deftest mapl.1
   (mapl #'list '(10 20 30))
   (10 20 30))

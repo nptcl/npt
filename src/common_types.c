@@ -192,7 +192,7 @@ static void function_typep(Execute ptr, addr x, addr y, addr env)
 
 	if (env == Unbound) env = Nil;
 	if (parse_type(ptr, &y, y, env)) return;
-	if (typep_clang(x, y, &check)) return;
+	if (typep_clang(ptr, x, y, &check)) return;
 	setbool_control(ptr, check);
 }
 

@@ -11,6 +11,7 @@
 #include "files.h"
 #include "format.h"
 #include "function.h"
+#include "gc.h"
 #include "object.h"
 #include "pathname.h"
 #include "prompt.h"
@@ -235,12 +236,12 @@ _g int eval_constantp_stable(addr var)
 	}
 }
 
-_g int eval_constantp(addr var, addr env, int *result)
+_g int eval_constantp(Execute ptr, addr var, addr env, int *result)
 {
 	int check;
 	addr pos;
 
-	if (macroexpand(&pos, var, env, &check))
+	if (macroexpand(ptr, &pos, var, env, &check))
 		return 1;
 	if (check)
 		var = pos;
@@ -255,10 +256,23 @@ _g int eval_constantp(addr var, addr env, int *result)
  */
 _g int eval_execute(Execute ptr, addr pos)
 {
-	if (eval_parse(&pos, pos)) return 1;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	localhold_set(hold, 0, pos);
+	/* parse */
+	if (eval_parse(ptr, &pos, pos)) return 1;
+	localhold_set(hold, 0, pos);
+	/* optimize parse */
 	/*eval_optparse(ptr->local, &pos, pos);*/
+	/* scope */
 	if (eval_scope(ptr, &pos, pos)) return 1;
+	localhold_set(hold, 0, pos);
+	/* code generator */
 	eval_code(ptr->local, &pos, pos);
+	localhold_set(hold, 0, pos);
+	/* execute */
+	localhold_end(hold);
 	return runcode_control(ptr, pos);
 }
 
@@ -282,17 +296,24 @@ _g int eval_stream(Execute ptr, addr stream)
 _g int eval_object(Execute ptr, addr eval, addr *ret)
 {
 	addr control;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	push_toplevel_eval(ptr, Nil);
 	push_evalwhen_eval(ptr);
+	gchold_push_local(ptr->local, eval);
 	if (eval_execute(ptr, eval)) {
-		return runcode_free_control(ptr, control);
+		Return1(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
-		return free_control(ptr, control);
+		localhold_set(hold, 0, *ret);
+		Return1(free_control(ptr, control));
 	}
+	localhold_end(hold);
+
+	return 0;
 }
 
 
@@ -328,7 +349,9 @@ static void eval_load_close(Execute ptr, addr stream)
 static int eval_load_fasl(Execute ptr, int *result, addr file, int exist)
 {
 	addr stream;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	/* stream */
 	if (open_input_binary_stream(ptr, &stream, file)) {
 		if (exist)
@@ -336,15 +359,18 @@ static int eval_load_fasl(Execute ptr, int *result, addr file, int exist)
 		*result = 0;
 		return 0;
 	}
+	localhold_set(hold, 0, stream);
 	eval_load_close(ptr, stream);
 
 	/* fasl */
 	if (fasl_stream(ptr, stream)) {
 		close_stream(stream);
+		localhold_end(hold);
 		return 1;
 	}
 	else {
 		close_stream(stream);
+		localhold_end(hold);
 		*result = 1;
 		return 0;
 	}

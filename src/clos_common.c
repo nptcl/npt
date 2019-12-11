@@ -5,6 +5,7 @@
 #include "cons_list.h"
 #include "eval_declare.h"
 #include "function.h"
+#include "gc.h"
 #include "lambda.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -73,6 +74,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 	addr name, key, value, pos, root, quote;
 	addr readers, writers, allocation, initargs, initform, initfunction;
 	addr type, doc, others;
+	LocalHold hold;
 
 	/* name */
 	if (! consp(list))
@@ -91,6 +93,8 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 	type = Nil;
 	doc = Nil;
 	others = Nil;
+
+	hold = LocalHold_array(ptr, 6);
 	while (list != Nil) {
 		/* key - value */
 		if (! consp(list))
@@ -105,6 +109,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 			if (! non_nil_symbol_p(value))
 				fmte(":READER ~S must be a non-nil symbol.", value, NULL);
 			pushnew_heap(readers, value, &readers);
+			localhold_set(hold, 0, readers);
 			continue;
 		}
 
@@ -113,6 +118,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 			if (! function_name_p(value))
 				fmte(":WRITER ~S must be function name.", value, NULL);
 			pushnew_equal_heap(writers, value, &writers);
+			localhold_set(hold, 1, writers);
 			continue;
 		}
 
@@ -121,9 +127,12 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 			if (! non_nil_symbol_p(value))
 				fmte(":ACCESSOR ~S must be a non-nil symbol.", value, NULL);
 			pushnew_heap(readers, value, &readers);
+			localhold_set(hold, 0, readers);
+
 			GetConst(COMMON_SETF, &pos);
 			list_heap(&value, pos, value, NULL);
 			pushnew_equal_heap(writers, value, &writers);
+			localhold_set(hold, 1, writers);
 			continue;
 		}
 
@@ -142,6 +151,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 			if (! symbolp(value))
 				fmte(":INITARG ~S must be a symbol.", value, NULL);
 			pushnew_heap(initargs, value, &initargs);
+			localhold_set(hold, 2, initargs);
 			continue;
 		}
 
@@ -152,6 +162,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 			initform = value;
 			GetConst(COMMON_LAMBDA, &pos);
 			list_heap(&initfunction, pos, Nil, value, NULL);
+			localhold_set(hold, 3, initfunction);
 			continue;
 		}
 
@@ -161,6 +172,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 				fmte(":TYPE is already exist.", NULL);
 			if (parse_type(ptr, &type, value, env))
 				return 1;
+			localhold_set(hold, 4, type);
 			continue;
 		}
 
@@ -180,7 +192,9 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 		list_heap(&value, pos, value, NULL);
 		cons_heap(&others, key, others);
 		cons_heap(&others, value, others);
+		localhold_set(hold, 5, others);
 	}
+	localhold_end(hold);
 
 	root = Nil;
 	GetConst(COMMON_QUOTE, &quote);
@@ -286,15 +300,20 @@ static int defclass_parse_slot(Execute ptr, addr env, addr list, addr *ret)
 static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
 {
 	addr root, pos;
+	LocalHold hold;
 
 	/* check */
 	if (list == Nil) {
 		*ret = Nil;
 		return 0;
 	}
+	/* hold */
+	hold = LocalHold_array(ptr, 1);
+	localhold_pushva_force(hold, env, list, NULL);
 	/* (list ,@mapcar) */
 	GetConst(COMMON_LIST, &root);
 	conscar_heap(&root, root);
+	localhold_set(hold, 0, root);
 	while (list != Nil) {
 		if (! consp(list))
 			fmte("DEFCLASS slot-specifier ~S must be a list.", list, NULL);
@@ -302,7 +321,9 @@ static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
 		if (defclass_parse_slot(ptr, env, pos, &pos))
 			return 1;
 		cons_heap(&root, pos, root);
+		localhold_set(hold, 0, root);
 	}
+	localhold_end(hold);
 	/* result */
 	nreverse_list_unsafe(ret, root);
 
@@ -423,6 +444,7 @@ static int defclass_define_condition(Execute ptr,
 	 *     ,@class-options)
 	 */
 	addr first, args, name, supers, slots, options, ensure, key1, key2;
+	LocalHold hold;
 
 	/* destructuring-bind */
 	getcons(form, &first, &args);
@@ -433,12 +455,15 @@ static int defclass_define_condition(Execute ptr,
 	if (! consp(args)) goto error;
 	GetCons(args, &slots, &options);
 
+	hold = LocalHold_local(ptr);
 	/* name */
 	GetConst(COMMON_QUOTE, &key1);
 	list_heap(&name, key1, name, NULL);
+	localhold_push(hold, name);
 
 	/* parse */
 	defclass_parse_superclasses(supers, defclass, &supers);
+	localhold_push(hold, supers);
 	if (defclass_parse_slots(ptr, env, slots, &slots)) return 1;
 	defclass_parse_options(options, &options);
 
@@ -1036,7 +1061,7 @@ error:
 /*
  *  define-method-combination
  */
-static void defcomb_short(Execute ptr, addr *ret, addr list, addr name)
+static void defcomb_short(addr *ret, addr list, addr name)
 {
 	addr doc, ident, oper, key, value;
 	addr kdoc, kident, koper, quote;
@@ -1191,7 +1216,7 @@ static void defcomb_long_specifiers(addr *ret, addr list)
 	nreverse_list_unsafe(ret, root);
 }
 
-static void defcomb_long(Execute ptr, addr form, addr env, addr *ret,
+static void defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 		addr list, addr name)
 {
 	addr pos, lambda, spec, args, gen, doc, body, decl;
@@ -1221,7 +1246,7 @@ static void defcomb_long(Execute ptr, addr form, addr env, addr *ret,
 	quotelist_heap(&pos, name);
 	pushva_heap(&list, pos, NULL);
 	/* lambda-list */
-	argument_ordinary_heap(ptr->local, &pos, lambda);
+	argument_ordinary_heap(local, &pos, lambda);
 	quotelist_heap(&pos, pos);
 	pushva_heap(&list, pos, NULL);
 	/* specifiers */
@@ -1229,7 +1254,7 @@ static void defcomb_long(Execute ptr, addr form, addr env, addr *ret,
 	pushva_heap(&list, pos, NULL);
 	/* arguments */
 	if (args != Nil) {
-		argument_combination_heap(ptr->local, &args, args);
+		argument_combination_heap(local, &args, args);
 		PushConst(&list, KEYWORD_ARGUMENTS);
 		quotelist_heap(&pos, args);
 		pushva_heap(&list, pos, NULL);
@@ -1257,7 +1282,7 @@ error:
 	fmte("Invalid DEFINE-METHOD-COMBINATION form ~S.", form, NULL);
 }
 
-_g void define_method_combination_common(Execute ptr, addr form, addr env, addr *ret)
+_g void define_method_combination_common(LocalRoot local, addr form, addr env, addr *ret)
 {
 	addr list, name, check;
 
@@ -1269,17 +1294,17 @@ _g void define_method_combination_common(Execute ptr, addr form, addr env, addr 
 	if (! symbolp(name))
 		fmte("DEFINE-METHOD-COMBINATION name ~S must be a symbol.", name, NULL);
 	if (list == Nil) {
-		defcomb_short(ptr, ret, list, name);
+		defcomb_short(ret, list, name);
 		return;
 	}
 	if (! consp(list))
 		goto error;
 	GetCar(list, &check);
 	if (keywordp(check)) {
-		defcomb_short(ptr, ret, list, name);
+		defcomb_short(ret, list, name);
 		return;
 	}
-	defcomb_long(ptr, form, env, ret, list, name);
+	defcomb_long(local, form, env, ret, list, name);
 	return;
 
 error:

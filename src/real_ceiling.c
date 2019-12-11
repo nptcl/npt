@@ -791,7 +791,7 @@ static void ceiling_long_common(LocalRoot local,
 	}
 }
 
-_g void ceiling_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void ceiling2_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1446,7 +1446,7 @@ static void fceiling_long_common(addr *quot, addr *rem, addr left, addr right)
 	}
 }
 
-_g void fceiling_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void fceiling2_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1478,5 +1478,21 @@ _g void fceiling_common(LocalRoot local, addr *quot, addr *rem, addr left, addr 
 			TypeError(left, REAL);
 			break;
 	}
+}
+
+_g void ceiling_common(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+{
+	if (div == Unbound)
+		ceiling1_common(local, ret1, ret2, var);
+	else
+		ceiling2_common(local, ret1, ret2, var, div);
+}
+
+_g void fceiling_common(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+{
+	if (div == Unbound)
+		fceiling1_common(local, ret1, ret2, var);
+	else
+		fceiling2_common(local, ret1, ret2, var, div);
 }
 

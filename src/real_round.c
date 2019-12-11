@@ -791,7 +791,7 @@ static void round_long_common(LocalRoot local,
 	}
 }
 
-_g void round_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void round2_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1446,7 +1446,7 @@ static void fround_long_common(addr *quot, addr *rem, addr left, addr right)
 	}
 }
 
-_g void fround_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
+_g void fround2_common(LocalRoot local, addr *quot, addr *rem, addr left, addr right)
 {
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
@@ -1478,5 +1478,21 @@ _g void fround_common(LocalRoot local, addr *quot, addr *rem, addr left, addr ri
 			TypeError(left, REAL);
 			break;
 	}
+}
+
+_g void round_common(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+{
+	if (div == Unbound)
+		round1_common(local, ret1, ret2, var);
+	else
+		round2_common(local, ret1, ret2, var, div);
+}
+
+_g void fround_common(LocalRoot local, addr var, addr div, addr *ret1, addr *ret2)
+{
+	if (div == Unbound)
+		fround1_common(local, ret1, ret2, var);
+	else
+		fround2_common(local, ret1, ret2, var, div);
 }
 

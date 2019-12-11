@@ -1536,6 +1536,7 @@ static int test_parse_declare_form(void)
 	addr pos, cons;
 
 	readstring(&cons, "((special aaa bbb) (inline ccc))");
+	pos = NULL;
 	result = parse_declare_form(Execute_Thread, Nil, cons, &pos, push_declare);
 	test(result == 0, "parse_declare_form1");
 	getall_special_declare(pos, &cons);
@@ -1577,6 +1578,7 @@ static int test_parse_declare_heap(void)
 			"(dynamic-extent jj (function kk))"
 			"(optimize speed)"
 			"(integer xxx))");
+	pos = NULL;
 	result = parse_declare_heap(Execute_Thread, Nil, cons, &pos);
 	test(result == 0, "parse_declare_heap1");
 	getall_special_declare(pos, &cons);
@@ -1736,6 +1738,7 @@ static int test_copy_declare_type_v(void)
 	addr cons, pos, source, symbol, check;
 
 	readstring(&cons, "((type integer aaa) (type string bbb))");
+	source = NULL;
 	parse_declare_heap(Execute_Thread, Nil, cons, &source);
 	eval_declare_heap(&pos);
 	copy_declare_type_v(NULL, EVAL_DECLARE_TYPE_VALUE, source, pos);
@@ -1756,6 +1759,7 @@ static int test_copy_declare_type_f(void)
 	addr cons, pos, source, symbol, check;
 
 	readstring(&cons, "((ftype integer aaa) (ftype string bbb))");
+	source = NULL;
 	parse_declare_heap(Execute_Thread, Nil, cons, &source);
 	eval_declare_heap(&pos);
 	copy_declare_type_f(NULL, EVAL_DECLARE_TYPE_FUNCTION, source, pos);
@@ -1778,7 +1782,9 @@ static int test_copy_declare_push_v(void)
 	addr cons, pos, source, symbol;
 
 	readstring(&cons, "((special aaa bbb ccc))");
+	source = NULL;
 	parse_declare_heap(Execute_Thread, Nil, cons, &source);
+	pos = NULL;
 	eval_declare_heap(&pos);
 	copy_declare_push_v(NULL, EVAL_DECLARE_SPECIAL, source, pos);
 	getall_special_declare(pos, &pos);
@@ -1798,6 +1804,7 @@ static int test_copy_declare_push_f(void)
 	addr cons, pos, source, symbol;
 
 	readstring(&cons, "((dynamic-extent #'aaa #'(setf bbb) #'ccc))");
+	source = NULL;
 	parse_declare_heap(Execute_Thread, Nil, cons, &source);
 	eval_declare_heap(&pos);
 	copy_declare_push_f(NULL, EVAL_DECLARE_DYNAMIC_FUNCTION, source, pos);
@@ -1821,6 +1828,7 @@ static int test_copy_declare_plist_v(void)
 	addr cons, pos, source, symbol, check, key;
 
 	readstring(&cons, "((ignore aaa bbb))");
+	source = NULL;
 	parse_declare_heap(Execute_Thread, Nil, cons, &source);
 	eval_declare_heap(&pos);
 	copy_declare_plist_v(NULL, EVAL_DECLARE_IGNORE_VALUE, source, pos);
@@ -1843,6 +1851,7 @@ static int test_copy_declare_plist_f(void)
 	addr cons, pos, source, symbol, check, key;
 
 	readstring(&cons, "((inline aaa bbb))");
+	source = NULL;
 	parse_declare_heap(Execute_Thread, Nil, cons, &source);
 	eval_declare_heap(&pos);
 	copy_declare_plist_f(NULL, EVAL_DECLARE_INLINE, source, pos);
@@ -1867,6 +1876,7 @@ static int test_copy_eval_declare_alloc(void)
 	addr cons, pos, source, symbol;
 
 	readstring(&cons, "((special aaa) (inline bbb) (optimize speed))");
+	source = NULL;
 	parse_declare_heap(Execute_Thread, Nil, cons, &source);
 	copy_eval_declare_alloc(NULL, &pos, source);
 	test(get_optimize_speed_declare(pos) == 3, "copy_eval_declare_alloc1");
@@ -1888,6 +1898,7 @@ static int test_copy_eval_declare_local(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	readstring(&cons, "((special aaa) (inline bbb) (optimize speed))");
+	source = NULL;
 	parse_declare_heap(Execute_Thread, Nil, cons, &source);
 	copy_eval_declare_local(local, &pos, source);
 	test(get_optimize_speed_declare(pos) == 3, "copy_eval_declare_local1");
@@ -1910,6 +1921,7 @@ static int test_copy_eval_declare_heap(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	readstring(&cons, "((special aaa) (inline bbb) (optimize speed))");
+	source = NULL;
 	parse_declare_heap(Execute_Thread, Nil, cons, &source);
 	copy_eval_declare_heap(&pos, source);
 	test(get_optimize_speed_declare(pos) == 3, "copy_eval_declare_heap1");

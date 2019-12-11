@@ -380,10 +380,18 @@ static int test_walkthrough_local(void)
 {
 	testspace mem;
 	struct execute exec;
+	struct localroot local;
+	struct localcell cell;
 
 	cleartype(exec);
+	cleartype(local);
+	cleartype(cell);
 	resetrecursive_make(mem, STRING, BODY4);
-	exec.control = (addr)mem;
+	exec.local = &local;
+	local.cell = &cell;
+	cell.count = 1;
+	cell.point[0] = mem;
+	cell.next = NULL;
 	walkthrough_local(&exec);
 	test(GetStatusGc(mem) == 0, "walkthrough_local1");
 
@@ -395,6 +403,7 @@ static int test_walkthrough(void)
 	testspace mem1, mem2;
 	int i;
 	struct execute **exec, *ptr;
+	struct localcell cell;
 
 	/* heap */
 	for (i = 0; i < LISPINDEX_SIZE; i++)
@@ -408,7 +417,10 @@ static int test_walkthrough(void)
 	ptr->state = ThreadState_Run;
 	resetrecursive_make(mem2, CONS, ARRAY4);
 	*PtrLenArrayA4(mem2) = 0;
-	ptr->control = (addr)mem2;
+	cleartype(cell);
+	cell.point[0] = mem2;
+	cell.count = 1;
+	ptr->local->cell = &cell;
 
 	/* check */
 	walkthrough();

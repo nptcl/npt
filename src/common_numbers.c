@@ -13,6 +13,7 @@
 #include "math_exp.h"
 #include "math_power.h"
 #include "number.h"
+#include "number_common.h"
 #include "number_gcd.h"
 #include "number_random.h"
 #include "package.h"
@@ -34,18 +35,8 @@
 /* (defun = (first &rest numbers) ...) -> boolean */
 static void function_number_equal(Execute ptr, addr left, addr rest)
 {
-	addr right;
-	LocalRoot local;
-
-	local = ptr->local;
-	for (; rest != Nil; left = right) {
-		getcons(rest, &right, &rest);
-		if (! equal_number(local, left, right)) {
-			setresult_control(ptr, Nil);
-			return;
-		}
-	}
-	setresult_control(ptr, T);
+	int check = number_equal_common(ptr->local, left, rest);
+	setbool_control(ptr, check);
 }
 
 static void defun_number_equal(void)
@@ -67,21 +58,8 @@ static void defun_number_equal(void)
 /* (defun /= (first &rest numbers) ...) -> boolean */
 static void function_number_not_equal(Execute ptr, addr left, addr rest)
 {
-	addr right, list;
-	LocalRoot local;
-
-	local = ptr->local;
-	while (rest != Nil) {
-		for (list = rest; list != Nil; ) {
-			getcons(list, &right, &list);
-			if (equal_number(local, left, right)) {
-				setresult_control(ptr, Nil);
-				return;
-			}
-		}
-		getcons(rest, &left, &rest);
-	}
-	setresult_control(ptr, T);
+	int check = number_not_equal_common(ptr->local, left, rest);
+	setbool_control(ptr, check);
 }
 
 static void defun_number_not_equal(void)
@@ -103,18 +81,8 @@ static void defun_number_not_equal(void)
 /* (defun < (first &rest numbers) ...) -> boolean */
 static void function_number_less(Execute ptr, addr left, addr rest)
 {
-	addr right;
-	LocalRoot local;
-
-	local = ptr->local;
-	for (; rest != Nil; left = right) {
-		getcons(rest, &right, &rest);
-		if (! less_number(local, left, right)) {
-			setresult_control(ptr, Nil);
-			return;
-		}
-	}
-	setresult_control(ptr, T);
+	int check = number_less_common(ptr->local, left, rest);
+	setbool_control(ptr, check);
 }
 
 static void defun_number_less(void)
@@ -136,18 +104,8 @@ static void defun_number_less(void)
 /* (defun > (first &rest numbers) ...) -> boolean */
 static void function_number_greater(Execute ptr, addr left, addr rest)
 {
-	addr right;
-	LocalRoot local;
-
-	local = ptr->local;
-	for (; rest != Nil; left = right) {
-		getcons(rest, &right, &rest);
-		if (! greater_number(local, left, right)) {
-			setresult_control(ptr, Nil);
-			return;
-		}
-	}
-	setresult_control(ptr, T);
+	int check = number_greater_common(ptr->local, left, rest);
+	setbool_control(ptr, check);
 }
 
 static void defun_number_greater(void)
@@ -169,18 +127,8 @@ static void defun_number_greater(void)
 /* (defun <= (first &rest numbers) ...) -> boolean */
 static void function_number_less_equal(Execute ptr, addr left, addr rest)
 {
-	addr right;
-	LocalRoot local;
-
-	local = ptr->local;
-	for (; rest != Nil; left = right) {
-		getcons(rest, &right, &rest);
-		if (! less_equal_number(local, left, right)) {
-			setresult_control(ptr, Nil);
-			return;
-		}
-	}
-	setresult_control(ptr, T);
+	int check = number_less_equal_common(ptr->local, left, rest);
+	setbool_control(ptr, check);
 }
 
 static void defun_number_less_equal(void)
@@ -202,18 +150,8 @@ static void defun_number_less_equal(void)
 /* (defun >= (first &rest numbers) ...) -> boolean */
 static void function_number_greater_equal(Execute ptr, addr left, addr rest)
 {
-	addr right;
-	LocalRoot local;
-
-	local = ptr->local;
-	for (; rest != Nil; left = right) {
-		getcons(rest, &right, &rest);
-		if (! greater_equal_number(local, left, right)) {
-			setresult_control(ptr, Nil);
-			return;
-		}
-	}
-	setresult_control(ptr, T);
+	int check = number_greater_equal_common(ptr->local, left, rest);
+	setbool_control(ptr, check);
 }
 
 static void defun_number_greater_equal(void)
@@ -235,16 +173,7 @@ static void defun_number_greater_equal(void)
 /* (defun max (real &rest real) ...) -> real */
 static void function_max(Execute ptr, addr left, addr rest)
 {
-	addr right;
-	LocalRoot local;
-
-	local = ptr->local;
-	while (rest != Nil) {
-		getcons(rest, &right, &rest);
-		if (less_number(local, left, right)) {
-			left = right;
-		}
-	}
+	max_common(ptr->local, left, rest, &left);
 	setresult_control(ptr, left);
 }
 
@@ -267,16 +196,7 @@ static void defun_max(void)
 /* (defun min (real &rest real) ...) -> real */
 static void function_min(Execute ptr, addr left, addr rest)
 {
-	addr right;
-	LocalRoot local;
-
-	local = ptr->local;
-	while (rest != Nil) {
-		getcons(rest, &right, &rest);
-		if (greater_number(local, left, right)) {
-			left = right;
-		}
-	}
+	min_common(ptr->local, left, rest, &left);
 	setresult_control(ptr, left);
 }
 
@@ -370,10 +290,7 @@ static void defun_zerop(void)
  */
 static void function_floor(Execute ptr, addr var, addr div)
 {
-	if (div == Unbound)
-		floor1_common(ptr->local, &var, &div, var);
-	else
-		floor_common(ptr->local, &var, &div, var, div);
+	floor_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
 }
 
@@ -401,10 +318,7 @@ static void defun_floor(void)
  */
 static void function_ffloor(Execute ptr, addr var, addr div)
 {
-	if (div == Unbound)
-		ffloor1_common(ptr->local, &var, &div, var);
-	else
-		ffloor_common(ptr->local, &var, &div, var, div);
+	ffloor_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
 }
 
@@ -432,10 +346,7 @@ static void defun_ffloor(void)
  */
 static void function_ceiling(Execute ptr, addr var, addr div)
 {
-	if (div == Unbound)
-		ceiling1_common(ptr->local, &var, &div, var);
-	else
-		ceiling_common(ptr->local, &var, &div, var, div);
+	ceiling_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
 }
 
@@ -463,10 +374,7 @@ static void defun_ceiling(void)
  */
 static void function_fceiling(Execute ptr, addr var, addr div)
 {
-	if (div == Unbound)
-		fceiling1_common(ptr->local, &var, &div, var);
-	else
-		fceiling_common(ptr->local, &var, &div, var, div);
+	fceiling_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
 }
 
@@ -494,10 +402,7 @@ static void defun_fceiling(void)
  */
 static void function_truncate(Execute ptr, addr var, addr div)
 {
-	if (div == Unbound)
-		truncate1_common(ptr->local, &var, &div, var);
-	else
-		truncate_common(ptr->local, &var, &div, var, div);
+	truncate_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
 }
 
@@ -525,10 +430,7 @@ static void defun_truncate(void)
  */
 static void function_ftruncate(Execute ptr, addr var, addr div)
 {
-	if (div == Unbound)
-		ftruncate1_common(ptr->local, &var, &div, var);
-	else
-		ftruncate_common(ptr->local, &var, &div, var, div);
+	ftruncate_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
 }
 
@@ -556,10 +458,7 @@ static void defun_ftruncate(void)
  */
 static void function_round(Execute ptr, addr var, addr div)
 {
-	if (div == Unbound)
-		round1_common(ptr->local, &var, &div, var);
-	else
-		round_common(ptr->local, &var, &div, var, div);
+	round_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
 }
 
@@ -587,10 +486,7 @@ static void defun_round(void)
  */
 static void function_fround(Execute ptr, addr var, addr div)
 {
-	if (div == Unbound)
-		fround1_common(ptr->local, &var, &div, var);
-	else
-		fround_common(ptr->local, &var, &div, var, div);
+	fround_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
 }
 
@@ -830,10 +726,7 @@ static void defun_acos(void)
 /* (defun atan (number &optional real) ...) -> number */
 static void function_atan(Execute ptr, addr var, addr opt)
 {
-	if (opt == Unbound)
-		atan_common(var, &var);
-	else
-		atan2_common(var, opt, &var);
+	atan_optional_common(var, opt, &var);
 	setresult_control(ptr, var);
 }
 
@@ -992,24 +885,8 @@ static void defun_expt(void)
 /* (defun + (&rest number) ...) -> number */
 static void function_plus(Execute ptr, addr rest)
 {
-	addr left, right;
-	LocalRoot local;
-
-	/* nil */
-	if (rest == Nil) {
-		fixnum_heap(&rest, 0);
-		setresult_control(ptr, rest);
-		return;
-	}
-
-	/* list */
-	local = ptr->local;
-	getcons(rest, &left, &rest);
-	while (rest != Nil) {
-		getcons(rest, &right, &rest);
-		plus_number_heap(local, left, right, &left);
-	}
-	setresult_control(ptr, left);
+	plus_common(ptr->local, rest, &rest);
+	setresult_control(ptr, rest);
 }
 
 static void defun_plus(void)
@@ -1031,23 +908,8 @@ static void defun_plus(void)
 /* (defun - (&rest number) ...) -> number */
 static void function_minus(Execute ptr, addr left, addr rest)
 {
-	addr right;
-	LocalRoot local;
-
-	/* nil */
-	if (rest == Nil) {
-		sign_reverse_number_common(left, &left);
-		setresult_control(ptr, left);
-		return;
-	}
-
-	/* list */
-	local = ptr->local;
-	while (rest != Nil) {
-		getcons(rest, &right, &rest);
-		minus_number_heap(local, left, right, &left);
-	}
-	setresult_control(ptr, left);
+	minus_common(ptr->local, left, rest, &rest);
+	setresult_control(ptr, rest);
 }
 
 static void defun_minus(void)
@@ -1069,24 +931,8 @@ static void defun_minus(void)
 /* (defun * (&rest number) ...) -> number */
 static void function_asterisk(Execute ptr, addr rest)
 {
-	addr left, right;
-	LocalRoot local;
-
-	/* nil */
-	if (rest == Nil) {
-		fixnum_heap(&rest, 1);
-		setresult_control(ptr, rest);
-		return;
-	}
-
-	/* list */
-	local = ptr->local;
-	getcons(rest, &left, &rest);
-	while (rest != Nil) {
-		getcons(rest, &right, &rest);
-		multi_number_heap(local, left, right, &left);
-	}
-	setresult_control(ptr, left);
+	asterisk_common(ptr->local, rest, &rest);
+	setresult_control(ptr, rest);
 }
 
 static void defun_asterisk(void)
@@ -1108,23 +954,8 @@ static void defun_asterisk(void)
 /* (defun / (number &rest number) ...) -> number */
 static void function_slash(Execute ptr, addr left, addr rest)
 {
-	addr right;
-	LocalRoot local;
-
-	/* nil */
-	local = ptr->local;
-	if (rest == Nil) {
-		inverse_number_heap(local, left, &left);
-		setresult_control(ptr, left);
-		return;
-	}
-
-	/* list */
-	while (rest != Nil) {
-		getcons(rest, &right, &rest);
-		div_number_heap(local, left, right, &left);
-	}
-	setresult_control(ptr, left);
+	slash_common(ptr->local, left, rest, &rest);
+	setresult_control(ptr, rest);
 }
 
 static void defun_slash(void)
@@ -1318,76 +1149,10 @@ static void defun_lcm(void)
 
 
 /* (defmacro incf (place &optional number) ...) -> number) */
-static void expand_incf(Execute ptr, addr *ret, addr place, addr value, addr env)
-{
-	addr a, b, g, w, r;
-	addr c, d, ig, args, leta, declare, ignorable, setq, plus;
-
-	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
-		return;
-	if (! singlep(g)) {
-		fmte("INCF place ~S don't allow a multiple store value.", place, NULL);
-		return;
-	}
-
-	/* (let* ((a1 b1)
-	 *        (a2 b2)
-	 *        g)
-	 *   (declare (ignorable a1 a2))
-	 *   (setq g (+ r value))  ;; (setq g (1+ r))
-	 *   w g)
-	 */
-	args = Nil;
-	for (ig = a; a != Nil; ) {
-		getcons(a, &c, &a);
-		getcons(b, &d, &b);
-		list_heap(&c, c, d, NULL);
-		cons_heap(&args, c, args);
-	}
-	getcar(g, &g);
-	cons_heap(&args, g, args);
-	nreverse_list_unsafe(&args, args);
-	/* declare */
-	GetConst(COMMON_IGNORABLE, &ignorable);
-	cons_heap(&ignorable, ignorable, ig);
-	GetConst(COMMON_DECLARE, &declare);
-	list_heap(&declare, declare, ignorable, NULL);
-	/* setq */
-	GetConst(COMMON_SETQ, &setq);
-	if (value == Unbound) {
-		GetConst(COMMON_ONE_PLUS, &plus);
-		list_heap(&plus, plus, r, NULL);
-	}
-	else {
-		GetConst(COMMON_PLUS, &plus);
-		list_heap(&plus, plus, r, value, NULL);
-	}
-	list_heap(&setq, setq, g, plus, NULL);
-	/* let* */
-	GetConst(COMMON_LETA, &leta);
-	list_heap(ret, leta, args, declare, setq, w, g, NULL);
-}
-
 static void function_incf(Execute ptr, addr form, addr env)
 {
-	addr args, place, value;
-
-	getcdr(form, &form);
-	if (form == Nil) goto error;
-	getcons(form, &place, &args);
-	if (args == Nil) {
-		value = Unbound;
-	}
-	else {
-		getcons(args, &value, &args);
-		if (args != Nil) goto error;
-	}
-	expand_incf(ptr, &value, place, value, env);
-	setresult_control(ptr, value);
-	return;
-
-error:
-	fmte("INCF ~S must be (place &optional value) form.", form, NULL);
+	incf_common(ptr, form, env, &form);
+	setresult_control(ptr, form);
 }
 
 static void defmacro_incf(void)
@@ -1405,76 +1170,10 @@ static void defmacro_incf(void)
 
 
 /* (defmacro decf (place &optional number) ...) -> number) */
-static void expand_decf(Execute ptr, addr *ret, addr place, addr value, addr env)
-{
-	addr a, b, g, w, r;
-	addr c, d, ig, args, leta, declare, ignorable, setq, minus;
-
-	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
-		return;
-	if (! singlep(g)) {
-		fmte("DECF place ~S don't allow a multiple store value.", place, NULL);
-		return;
-	}
-
-	/* (let* ((a1 b1)
-	 *        (a2 b2)
-	 *        g)
-	 *   (declare (ignorable a1 a2))
-	 *   (setq g (- r value))  ;; (setq g (1- r))
-	 *   w g)
-	 */
-	args = Nil;
-	for (ig = a; a != Nil; ) {
-		getcons(a, &c, &a);
-		getcons(b, &d, &b);
-		list_heap(&c, c, d, NULL);
-		cons_heap(&args, c, args);
-	}
-	getcar(g, &g);
-	cons_heap(&args, g, args);
-	nreverse_list_unsafe(&args, args);
-	/* declare */
-	GetConst(COMMON_IGNORABLE, &ignorable);
-	cons_heap(&ignorable, ignorable, ig);
-	GetConst(COMMON_DECLARE, &declare);
-	list_heap(&declare, declare, ignorable, NULL);
-	/* setq */
-	GetConst(COMMON_SETQ, &setq);
-	if (value == Unbound) {
-		GetConst(COMMON_ONE_MINUS, &minus);
-		list_heap(&minus, minus, r, NULL);
-	}
-	else {
-		GetConst(COMMON_MINUS, &minus);
-		list_heap(&minus, minus, r, value, NULL);
-	}
-	list_heap(&setq, setq, g, minus, NULL);
-	/* let* */
-	GetConst(COMMON_LETA, &leta);
-	list_heap(ret, leta, args, declare, setq, w, g, NULL);
-}
-
 static void function_decf(Execute ptr, addr form, addr env)
 {
-	addr args, place, value;
-
-	getcdr(form, &form);
-	if (form == Nil) goto error;
-	getcons(form, &place, &args);
-	if (args == Nil) {
-		value = Unbound;
-	}
-	else {
-		getcons(args, &value, &args);
-		if (args != Nil) goto error;
-	}
-	expand_decf(ptr, &value, place, value, env);
-	setresult_control(ptr, value);
-	return;
-
-error:
-	fmte("DECF ~S must be (place &optional value) form.", form, NULL);
+	decf_common(ptr, form, env, &form);
+	setresult_control(ptr, form);
 }
 
 static void defmacro_decf(void)
@@ -1494,10 +1193,7 @@ static void defmacro_decf(void)
 /* (defun log (number &optional number) ...) -> number */
 static void function_log(Execute ptr, addr value, addr base)
 {
-	if (base == Unbound)
-		log_natural_common(value, &value);
-	else
-		log_base_common(value, base, &value);
+	log_common(value, base, &value);
 	setresult_control(ptr, value);
 }
 
@@ -1632,8 +1328,7 @@ static void defun_sqrt(void)
  */
 static void function_make_random_state(Execute ptr, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
-	make_random_state_heap(ptr, &opt, opt);
+	make_random_state_heap(ptr, &opt, (opt == Unbound)? Nil: opt);
 	setresult_control(ptr, opt);
 }
 
@@ -1673,12 +1368,7 @@ static void defun_make_random_state(void)
  */
 static void function_random(Execute ptr, addr limit, addr state)
 {
-	if (state == Unbound) {
-		/* symbol-value *random-state* */
-		GetConst(SPECIAL_RANDOM_STATE, &state);
-		getspecialcheck_local(ptr, state, &state);
-	}
-	random_number_common(ptr->local, limit, state, &limit);
+	random_common(ptr, limit, state, &limit);
 	setresult_control(ptr, limit);
 }
 
@@ -1743,7 +1433,7 @@ static void defvar_random_state(void)
 
 	/* symbol */
 	GetConst(SPECIAL_RANDOM_STATE, &symbol);
-	make_random_state_heap(Execute_Thread, &value, T);
+	make_random_state_heap(NULL, &value, T);
 	SetValueSymbol(symbol, value);
 	setspecial_symbol(symbol);
 
@@ -1839,18 +1529,7 @@ static void defun_complexp(void)
 /* (defun conjugate (number) ...) -> number */
 static void function_conjugate(Execute ptr, addr var)
 {
-	addr real, imag;
-
-	if (complexp(var)) {
-		GetRealComplex(var, &real);
-		GetImagComplex(var, &imag);
-		sign_reverse_real_common(imag, &imag);
-		complex_heap(&var, real, imag);
-	}
-	else if (! realp(var)) {
-		TypeError(var, NUMBER);
-		var = Nil;
-	}
+	conjugate_common(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1896,10 +1575,7 @@ static void defun_phase(void)
 /* (defun realpart (number) ...) -> real */
 static void function_realpart(Execute ptr, addr var)
 {
-	if (complexp(var)) {
-		GetRealComplex(var, &var);
-	}
-	real_throw_heap(var, &var);
+	realpart_common(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1922,13 +1598,7 @@ static void defun_realpart(void)
 /* (defun imagpart (number) ...) -> real */
 static void function_imagpart(Execute ptr, addr var)
 {
-	if (complexp(var)) {
-		GetImagComplex(var, &var);
-		real_throw_heap(var, &var);
-	}
-	else {
-		fixnum_heap(&var, 0);
-	}
+	imagpart_common(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1953,9 +1623,7 @@ static void defun_imagpart(void)
  */
 static void function_upgraded_complex_part_type(Execute ptr, addr pos, addr env)
 {
-	if (env == Unbound)
-		env = Nil;
-	if (upgraded_complex_common(ptr, env, pos, &pos))
+	if (upgraded_complex_common(ptr, (env == Unbound)? Nil: env, pos, &pos))
 		return;
 	setresult_control(ptr, pos);
 }
@@ -2246,15 +1914,7 @@ static void defun_integerp(void)
  */
 static void function_parse_integer(Execute ptr, addr var, addr rest)
 {
-	addr radix, junk;
-	size_t size, start, end;
-
-	string_length(var, &size);
-	keyword_start_end(size, rest, &start, &end);
-	if (getkeyargs(rest, KEYWORD_RADIX, &radix)) fixnum_heap(&radix, 10);
-	if (getkeyargs(rest, KEYWORD_JUNK_ALLOWED, &junk)) junk = Nil;
-	parse_integer_common(ptr->local, var, start, end,
-			(unsigned)RefFixnum(radix), junk != Nil, &var, &rest);
+	parse_integer_common(ptr->local, var, rest, &var, &rest);
 	setvalues_control(ptr, var, rest, NULL);
 }
 
@@ -2641,8 +2301,7 @@ static void defun_logbitp(void)
 static void function_logcount(Execute ptr, addr pos)
 {
 	size_t size = logcount_common(pos);
-	make_index_integer_alloc(NULL, &pos, size);
-	setresult_control(ptr, pos);
+	setresult_control(ptr, intsizeh(size));
 }
 
 static void type_logcount(addr *ret)

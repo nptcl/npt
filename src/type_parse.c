@@ -4,6 +4,7 @@
 #include "constant.h"
 #include "copy.h"
 #include "function.h"
+#include "gc.h"
 #include "heap.h"
 #include "integer.h"
 #include "memory.h"
@@ -18,6 +19,16 @@
 #include "type_table.h"
 #include "type_upgraded.h"
 
+static int localhold_parse_type(LocalHold hold,
+		Execute ptr, addr *ret, addr pos, addr env)
+{
+	if (parse_type(ptr, ret, pos, env))
+		return 1;
+	localhold_push(hold, *ret);
+	return 0;
+}
+
+
 /*
  *  and/or
  */
@@ -26,6 +37,7 @@ static int typelist_array4(Execute ptr, addr *ret,
 {
 	addr pos, aster, list, array;
 	size_t size;
+	LocalHold hold;
 
 	GetConst(COMMON_ASTERISK, &aster);
 	for (size = 0, list = right; list != Nil; size++) {
@@ -37,13 +49,16 @@ static int typelist_array4(Execute ptr, addr *ret,
 	}
 	if (0xFFFFFFFFUL < size)
 		fmte("~A arguments S~ too long.", left, right, NULL);
+
 	vector4_heap(&array, size);
+	hold = LocalHold_local_push(ptr, array);
 	for (size = 0; right != Nil; size++) {
 		GetCons(right, &pos, &right);
 		if (parse_type(ptr, &pos, pos, env))
 			return 1;
 		SetArrayA4(array, size, pos);
 	}
+	localhold_end(hold);
 	type1_heap(type, array, ret);
 
 	return 0;
@@ -175,6 +190,7 @@ static int typelist_cons(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
 {
 	addr list, car, cdr, aster;
+	LocalHold hold;
 
 	/* no arguments */
 	if (right == Nil)
@@ -184,11 +200,12 @@ static int typelist_cons(Execute ptr, addr *ret,
 		fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &car, &list);
 	GetConst(COMMON_ASTERISK, &aster);
+	hold = LocalHold_local(ptr);
 	if (list == Nil) {
 		/* one argument */
 		if (car == aster)
 			goto asterisk;
-		if (parse_type(ptr, &car, car, env))
+		if (localhold_parse_type(hold, ptr, &car, car, env))
 			return 1;
 		GetTypeTable(&cdr, Asterisk);
 	}
@@ -201,11 +218,12 @@ static int typelist_cons(Execute ptr, addr *ret,
 			fmte("~A arguments ~S must have 1 or 2 arguments.", left, right, NULL);
 		if (car == aster && cdr == aster)
 			goto asterisk;
-		if (parse_type(ptr, &car, car, env))
+		if (localhold_parse_type(hold, ptr, &car, car, env))
 			return 1;
-		if (parse_type(ptr, &cdr, cdr, env))
+		if (localhold_parse_type(hold, ptr, &cdr, cdr, env))
 			return 1;
 	}
+	localhold_end(hold);
 	type2_heap(type, car, cdr, ret);
 	return 0;
 
@@ -221,11 +239,13 @@ static int type_function_lambda(Execute ptr, addr *ret, addr list, addr env)
 {
 	addr const_opt, const_rest, const_key;
 	addr var, opt, rest, key, one, name, type;
+	LocalHold hold;
 
 	GetConst(AMPERSAND_OPTIONAL, &const_opt);
 	GetConst(AMPERSAND_REST, &const_rest);
 	GetConst(AMPERSAND_KEY, &const_key);
 	var = opt = rest = key = one = Nil;
+	hold = LocalHold_array(ptr, 5);
 
 var_label:
 	if (list == Nil) goto final;
@@ -235,6 +255,7 @@ var_label:
 	if (one == const_key) goto key_label;
 	if (parse_type(ptr, &one, one, env)) return 1;
 	cons_heap(&var, one, var);
+	localhold_set(hold, 0, var);
 	goto var_label;
 
 opt_label:
@@ -246,6 +267,7 @@ opt_label:
 	if (one == const_key) goto key_label;
 	if (parse_type(ptr, &one, one, env)) return 1;
 	cons_heap(&opt, one, opt);
+	localhold_set(hold, 1, opt);
 	goto opt_label;
 
 rest_label:
@@ -255,6 +277,7 @@ rest_label:
 	if (one == const_opt || one == const_rest || one == const_key)
 		fmte("After &rest parameter don't allow to be a &-symbol.", NULL);
 	if (parse_type(ptr, &rest, one, env)) return 1;
+	localhold_set(hold, 2, rest);
 	if (list == Nil) goto final;
 	getcons(list, &one, &list);
 	if (one != const_key)
@@ -270,15 +293,18 @@ key_label:
 		fmte("After &key parameter must be a list.", NULL);
 	getcons(one, &name, &one);
 	copyheap(&name, name);
+	localhold_set(hold, 3, name);
 	getcons(one, &type, &one);
 	if (one != Nil)
 		fmte("&key parameter must be a (key type) list.", NULL);
 	if (parse_type(ptr, &type, type, env)) return 1;
 	cons_heap(&one, name, type);
 	cons_heap(&key, one, key);
+	localhold_set(hold, 4, key);
 	goto key_label;
 
 final:
+	localhold_end(hold);
 	vector2_heap(&one, 4);
 	SetArrayA2(one, 0, nreverse_list_unsafe_inplace(var));
 	SetArrayA2(one, 1, nreverse_list_unsafe_inplace(opt));
@@ -299,9 +325,8 @@ static int type_function_list(Execute ptr, addr *ret, addr right, addr env)
 		GetTypeTable(ret, Asterisk);
 		return 0;
 	}
-	else {
-		return type_function_lambda(ptr, ret, right, env);
-	}
+
+	return type_function_lambda(ptr, ret, right, env);
 }
 
 /*  typespec* [&optional typespec*] [&rest typespec]
@@ -316,6 +341,7 @@ static int type_values_typespec(Execute ptr, addr list, addr env,
 #ifdef LISP_VALUES_ALLOW_ENABLE
 	addr const_allow;
 #endif
+	LocalHold hold;
 
 	GetConst(AMPERSAND_OPTIONAL, &const_opt);
 	GetConst(AMPERSAND_REST, &const_rest);
@@ -323,6 +349,7 @@ static int type_values_typespec(Execute ptr, addr list, addr env,
 	GetConst(AMPERSAND_ALLOW, &const_allow);
 #endif
 	vars = opt = rest = allow = Nil;
+	hold = LocalHold_array(ptr, 3);
 
 var_label:
 	if (list == Nil) goto final;
@@ -334,6 +361,7 @@ var_label:
 #endif
 	if (parse_type(ptr, &var, var, env)) return 1;
 	cons_heap(&vars, var, vars);
+	localhold_set(hold, 0, vars);
 	goto var_label;
 
 optional_label:
@@ -345,6 +373,7 @@ optional_label:
 #endif
 	if (parse_type(ptr, &var, var, env)) return 1;
 	cons_heap(&opt, var, opt);
+	localhold_set(hold, 1, opt);
 	goto optional_label;
 
 rest_label:
@@ -358,6 +387,7 @@ rest_label:
 		fmte("After &rest argument must be a type.", NULL);
 #endif
 	if (parse_type(ptr, &rest, var, env)) return 1;
+	localhold_set(hold, 2, rest);
 	if (list == Nil) goto final;
 	getcons(list, &var, &list);
 #ifdef LISP_VALUES_ALLOW_ENABLE
@@ -374,6 +404,7 @@ allow_label:
 #endif
 
 final:
+	localhold_end(hold);
 	nreverse_list_unsafe(retvar, vars);
 	nreverse_list_unsafe(retopt, opt);
 	*retrest = rest;
@@ -413,6 +444,7 @@ static int typelist_function(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
 {
 	addr list, aster, first, second;
+	LocalHold hold;
 
 	/* no arguments */
 	if (right == Nil)
@@ -441,8 +473,10 @@ static int typelist_function(Execute ptr, addr *ret,
 			goto asterisk;
 		if (type_function_list(ptr, &first, first, env))
 			return 1;
+		hold = LocalHold_local_push(ptr, first);
 		if (type_function_values(ptr, &second, second, env))
 			return 1;
+		localhold_end(hold);
 	}
 	type3_heap(type, first, second, Nil, ret);
 	return 0;
@@ -1127,8 +1161,14 @@ static int parse_type_null(Execute ptr, addr *ret, addr pos, addr env)
 
 _g int parse_type(Execute ptr, addr *ret, addr pos, addr env)
 {
+	LocalHold hold;
+
+	hold = LocalHold_local(ptr);
+	localhold_pushva_force(hold, pos, env, NULL);
 	if (parse_type_null(ptr, ret, pos, env))
 		return 1;
+	localhold_end(hold);
+
 	if (*ret == NULL)
 		fmte("Invalid type-spec ~S.", pos, NULL);
 
@@ -1165,6 +1205,14 @@ _g void parse_type_unsafe(addr *ret, addr pos)
 /* debug */
 _g int parse_type_values(Execute ptr, addr *ret, addr type, addr env)
 {
-	return type_function_values(ptr, ret, type, env);
+	LocalHold hold;
+
+	hold = LocalHold_local(ptr);
+	localhold_pushva_force(hold, type, env, NULL);
+	if (type_function_values(ptr, ret, type, env))
+		return 1;
+	localhold_end(hold);
+
+	return 0;
 }
 

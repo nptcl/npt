@@ -276,13 +276,12 @@ static void function_handler_warning(Execute ptr, addr condition)
 	if (clos_subtype_p(condition, pos)) {
 		simple_condition_format_control(condition, &format);
 		simple_condition_format_arguments(condition, &args);
-		fmts(stream, "~&WARNING: ", NULL);
-		if (format_lisp(ptr, stream, format, args, &args))
-			fmte("Invalid format result.", NULL);
+		Return0(format_stream(ptr, stream, "~&WARNING: ", NULL));
+		Return0(format_lisp(ptr, stream, format, args, &args));
 		fresh_line_stream(stream);
 	}
 	else {
-		fmts(stream, "~&WARNING: ~S~%", condition, NULL);
+		Return0(format_stream(ptr, stream, "~&WARNING: ~S~%", condition, NULL));
 	}
 }
 
@@ -321,29 +320,32 @@ _g void handler_savecore(Execute ptr)
 /*
  *  debugger
  */
-static void output_unbound_variable(Execute ptr, addr stream, addr condition)
+static int output_unbound_variable(Execute ptr, addr stream, addr condition)
 {
 	cell_error_name(condition, &condition);
-	fmts(stream, "Unbound variable ~S.~%", condition, NULL);
+	return format_stream(ptr, stream, "Unbound variable ~S.~%", condition, NULL);
 }
 
-static void output_undefined_function(Execute ptr, addr stream, addr condition)
+static int output_undefined_function(Execute ptr, addr stream, addr condition)
 {
 	cell_error_name(condition, &condition);
-	fmts(stream, "Undefined function ~S.~%", condition, NULL);
+	return format_stream(ptr, stream, "Undefined function ~S.~%", condition, NULL);
 }
 
-static void output_simple_error(Execute ptr, addr stream, addr condition)
+static int output_simple_error(Execute ptr, addr stream, addr condition)
 {
 	addr control, arguments;
 
 	simple_condition_format(condition, &control, &arguments);
-	format_stream_lisp(ptr, stream, control, arguments);
+	if (format_stream_lisp(ptr, stream, control, arguments))
+		return 1;
 	fresh_line_stream(stream);
 	terpri_stream(stream);
+
+	return 0;
 }
 
-static void output_type_error(addr stream, addr instance)
+static int output_type_error(Execute ptr, addr stream, addr instance)
 {
 	addr datum, expected;
 
@@ -351,11 +353,13 @@ static void output_type_error(addr stream, addr instance)
 	type_error_expected(instance, &expected);
 	if (GetType(expected) == LISPTYPE_TYPE)
 		type_object(&expected, expected);
-	fmts(stream, "Value ~S must be a ~S type.~%", datum, expected, NULL);
+	return format_stream(ptr, stream,
+			"Value ~S must be a ~S type.~%", datum, expected, NULL);
 }
 
-static void output_condition(addr stream, addr condition)
+static int output_condition(Execute ptr, addr stream, addr condition)
 {
+	return 0;
 }
 
 static int condition_check_p(constindex index, addr condition)
@@ -368,29 +372,23 @@ static int condition_check_p(constindex index, addr condition)
 }
 #define ConditionCheck(x,y) condition_check_p(CONSTANT_CONDITION_##x,(y))
 
-static void output_debugger(Execute ptr, addr stream, addr pos)
+static int output_debugger(Execute ptr, addr stream, addr pos)
 {
-	if (ConditionCheck(UNBOUND_VARIABLE, pos)) {
-		output_unbound_variable(ptr, stream, pos);
-	}
-	if (ConditionCheck(UNDEFINED_FUNCTION, pos)) {
-		output_undefined_function(ptr, stream, pos);
-	}
-	else if (ConditionCheck(SIMPLE_CONDITION, pos)) {
-		output_simple_error(ptr, stream, pos);
-	}
-	else if (ConditionCheck(TYPE_ERROR, pos)) {
-		output_type_error(stream, pos);
-	}
-	else if (condition_instance_p(pos)) {
-		output_condition(stream, pos);
-	}
-	else {
-		fmts(stream, "Invalid condition type ~S~%", pos, NULL);
-	}
+	if (ConditionCheck(UNBOUND_VARIABLE, pos))
+		return output_unbound_variable(ptr, stream, pos);
+	if (ConditionCheck(UNDEFINED_FUNCTION, pos))
+		return output_undefined_function(ptr, stream, pos);
+	if (ConditionCheck(SIMPLE_CONDITION, pos))
+		return output_simple_error(ptr, stream, pos);
+	if (ConditionCheck(TYPE_ERROR, pos))
+		return output_type_error(ptr, stream, pos);
+	if (condition_instance_p(pos))
+		return output_condition(ptr, stream, pos);
+	/* otherwise */
+	return format_stream(ptr, stream, "Invalid condition type ~S~%", pos, NULL);
 }
 
-static void output_restarts_debugger(Execute ptr, addr io, addr list)
+static int output_restarts_debugger(Execute ptr, addr io, addr list)
 {
 	int check;
 	addr pos, symbol, name, str;
@@ -411,8 +409,11 @@ static void output_restarts_debugger(Execute ptr, addr io, addr list)
 				close_stream(str);
 			}
 		}
-		fmts(io, "~2@A. ~16A ~A~%", intsizeh(index), symbol, name, NULL);
+		return format_stream(ptr, io, "~2@A. ~16A ~A~%",
+				intsizeh(index), symbol, name, NULL);
 	}
+
+	return 0;
 }
 
 static int eval_debugger(Execute ptr, addr io, addr eval)
@@ -422,26 +423,25 @@ static int eval_debugger(Execute ptr, addr io, addr eval)
 	push_close_control(ptr, &control);
 	if (eval_execute(ptr, eval))
 		return runcode_free_control(ptr, control);
-	eval_loop_output(ptr, io, control);
+	Return1(eval_loop_output(ptr, io, control));
 	return free_control(ptr, control);
 }
 
-static int enter_debugger(addr condition)
+static int enter_debugger(Execute ptr, addr condition)
 {
 	int check, result;
 	addr io, pos, list, exit;
-	Execute ptr;
 	size_t index, select, size;
 
 	/* restarts */
-	ptr = Execute_Thread;
 	debug_io_stream(ptr, &io);
 	compute_restarts_control(ptr, condition, &list);
 	if (list == Nil) {
-		fmts(io, "There is no restarts, abort.~%", NULL);
+		Return1(format_stream(ptr, io, "There is no restarts, abort.~%", NULL));
 		abortthis();
+		return 0;
 	}
-	output_restarts_debugger(ptr, io, list);
+	Return1(output_restarts_debugger(ptr, io, list));
 	size = length_list_unsafe(list);
 
 	/* eval loop */
@@ -475,28 +475,28 @@ loop:
 		goto loop;
 	}
 	if (GetIndex_integer(pos, &select)) {
-		fmts(io, "Illegal integer value ~A.~%", pos, NULL);
+		Return1(format_stream(ptr, io, "Illegal integer value ~A.~%", pos, NULL));
 		goto loop;
 	}
 	if (size <= select) {
-		fmts(io, "Too large index value ~A.~%", pos, NULL);
+		Return1(format_stream(ptr, io, "Too large index value ~A.~%", pos, NULL));
 		goto loop;
 	}
 	/* execute */
 	getnth_unsafe(list, select, &pos);
-	if (invoke_restart_interactively_control(ptr, pos)) return 1;
+	Return1(invoke_restart_interactively_control(ptr, pos));
 	goto loop;
 
 exit:
-	exit_code_thread(LISPCODE_ERROR);
+	exit_code(ptr, LISPCODE_ERROR);
 	return 0;
 }
 
-static int enable_debugger_p(void)
+static int enable_debugger_p(Execute ptr)
 {
 	addr pos;
 	GetConst(SYSTEM_ENABLE_DEBUGGER, &pos);
-	getspecialcheck_local(Execute_Thread, pos, &pos);
+	getspecialcheck_local(ptr, pos, &pos);
 	return pos != Nil;
 }
 
@@ -508,18 +508,18 @@ static int invoke_standard_debugger(Execute ptr, addr condition)
 	debug_io_stream(ptr, &io);
 	clos_class_of(condition, &pos);
 	stdget_class_name(pos, &pos);
-	fmts(io, "~&ERROR: ~S~%", pos, NULL);
-	output_debugger(ptr, io, condition);
+	Return1(format_stream(ptr, io, "~&ERROR: ~S~%", pos, NULL));
+	Return1(output_debugger(ptr, io, condition));
 
 	/* no-debugger */
-	if (! enable_debugger_p()) {
-		fmts(io, "~2&Debugger is not enabled.~%", NULL);
+	if (! enable_debugger_p(ptr)) {
+		Return1(format_stream(ptr, io, "~2&Debugger is not enabled.~%", NULL));
 		abortthis();
-		return 1;
+		return 0;
 	}
 
 	/* debugger */
-	return enter_debugger(condition);
+	return enter_debugger(ptr, condition);
 }
 
 _g int invoke_debugger(Execute ptr, addr condition)
@@ -544,11 +544,11 @@ _g int invoke_debugger(Execute ptr, addr condition)
 	return invoke_standard_debugger(ptr, condition);
 }
 
-_g void set_enable_debugger(int value)
+_g void set_enable_debugger(Execute ptr, int value)
 {
 	addr pos;
 	GetConst(SYSTEM_ENABLE_DEBUGGER, &pos);
-	setspecial_local(Execute_Thread, pos, value? T: Nil);
+	setspecial_local(ptr, pos, value? T: Nil);
 }
 
 
@@ -573,19 +573,17 @@ _g int condition_instance_p(addr pos)
 	return clos_subtype_p(pos, super);
 }
 
-_g int signal_function(addr condition)
+_g int signal_function(Execute ptr, addr condition)
 {
 	int check;
 	addr signals, type;
-	Execute ptr;
 
-	ptr = Execute_Thread;
 	/* break-on-signals */
 	GetConst(SPECIAL_BREAK_ON_SIGNALS, &signals);
 	getspecialcheck_local(ptr, signals, &signals);
 	if (parse_type(ptr, &type, signals, Nil))
 		fmte("Invalid *break-on-signals* type ~S.", signals, NULL);
-	if (typep_asterisk_clang(condition, type, &check))
+	if (typep_asterisk_clang(ptr, condition, type, &check))
 		fmte("Invalid typep ~S.", type, NULL);
 	if (check)
 		return invoke_debugger(ptr, condition);
@@ -598,7 +596,7 @@ _g int signal_function(addr condition)
 
 _g int error_common(Execute ptr, addr condition)
 {
-	return signal_function(condition)
+	return signal_function(ptr, condition)
 		|| invoke_debugger(ptr, condition);
 }
 
@@ -607,19 +605,8 @@ _g void error_function(addr condition)
 	if (error_common(Execute_Thread, condition)) {
 		fmte("~&Invalid signal call.~%", NULL);
 		abortthis();
+		return;
 	}
-}
-
-_g void format_error(const char *str, ...)
-{
-	addr format, args;
-	va_list va;
-
-	strvect_char_heap(&format, str);
-	va_start(va, str);
-	copylocal_list_stdarg(NULL, &args, va);
-	va_end(va);
-	simple_error(format, args);
 }
 
 static void function_restart_warning(Execute ptr)
@@ -656,7 +643,7 @@ _g int warning_restart_case(Execute ptr, addr instance)
 	if (codejump_run_p(&jump)) {
 		warning_restart_make(&pos);
 		pushobject_restart_control(ptr, pos);
-		check = signal_function(instance);
+		check = signal_function(ptr, instance);
 	}
 	end_switch(&jump);
 	if (check)
@@ -676,7 +663,7 @@ _g int warning_restart_case(Execute ptr, addr instance)
 	return free_control(ptr, control);
 }
 
-_g int signal_warning(const char *str, ...)
+_g int signal_warning(Execute ptr, const char *str, ...)
 {
 	addr format, args, instance;
 	va_list va;
@@ -687,7 +674,19 @@ _g int signal_warning(const char *str, ...)
 	va_end(va);
 	/* instance */
 	instance_simple_warning(&instance, format, args);
-	return warning_restart_case(Execute_Thread, instance);
+	return warning_restart_case(ptr, instance);
+}
+
+_g void format_error(const char *str, ...)
+{
+	addr format, args;
+	va_list va;
+
+	strvect_char_heap(&format, str);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+	simple_error(format, args);
 }
 
 _g void format_warning(const char *str, ...)
@@ -746,7 +745,7 @@ _g int simple_condition(addr control, addr args)
 {
 	addr instance;
 	instance_simple_condition(&instance, control, args);
-	return signal_function(instance);
+	return signal_function(Execute_Thread, instance);
 }
 _g void simple_condition_format(addr condition, addr *control, addr *arguments)
 {
@@ -811,7 +810,7 @@ _g int simple_warning(addr control, addr args)
 {
 	addr instance;
 	instance_simple_warning(&instance, control, args);
-	return signal_function(instance);
+	return signal_function(Execute_Thread, instance);
 }
 
 /* storage_condition (serious_condition) */
@@ -1233,13 +1232,12 @@ _g void type_error_expected(addr instance, addr *ret)
 	ClosCheckConst(instance, CLOSNAME_EXPECTED_TYPE, ret);
 }
 
-_g int typep_error(addr value, addr type)
+_g int typep_error(Execute ptr, addr value, addr type)
 {
 	int check;
 
-	if (typep_clang(value, type, &check)) {
+	if (typep_clang(ptr, value, type, &check))
 		return 1;
-	}
 	if (! check) {
 		copyheap(&value, value);
 		type_copy_heap(&type, type);
@@ -1249,13 +1247,12 @@ _g int typep_error(addr value, addr type)
 	return 0;
 }
 
-_g int typep_asterisk_error(addr value, addr type)
+_g int typep_asterisk_error(Execute ptr, addr value, addr type)
 {
 	int check;
 
-	if (typep_asterisk_clang(value, type, &check)) {
+	if (typep_asterisk_clang(ptr, value, type, &check))
 		return 1;
-	}
 	if (! check) {
 		copyheap(&value, value);
 		type_copy_heap(&type, type);
@@ -1265,11 +1262,11 @@ _g int typep_asterisk_error(addr value, addr type)
 	return 0;
 }
 
-_g int typep_typetable(addr value, enum TypeTable type)
+_g int typep_typetable(Execute ptr, addr value, enum TypeTable type)
 {
 	addr pos;
 	gettypetable(type, &pos);
-	return typep_asterisk_error(value, pos);
+	return typep_asterisk_error(ptr, value, pos);
 }
 
 /* simple_type_error (simple_condition type_error)
@@ -1452,7 +1449,7 @@ _g void build_condition(Execute ptr)
 	/* debugger */
 	GetConst(SYSTEM_ENABLE_DEBUGGER, &symbol);
 	SetValueSymbol(symbol, T);
-	set_enable_debugger(1);
+	set_enable_debugger(ptr, 1);
 }
 
 _g void init_condition(void)

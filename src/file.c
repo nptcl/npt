@@ -24,7 +24,7 @@ static void standard_constant_stream(addr *stream,
 	stream_heap(&pos, type, sizeoft(struct filememory));
 	fm = PtrFileMemory(pos);
 	call(fm);
-	*stream = pos;
+	force_open_stream(pos, stream);
 }
 
 static void encode_standard_stream(addr pos)
@@ -234,7 +234,7 @@ _g int open_input_binary_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_binary;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -249,7 +249,7 @@ _g int open_input_ascii_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_ascii;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -270,7 +270,7 @@ _g int open_input_utf8_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_utf8;
 	fm->encode.bom = EncodeBom_auto;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -291,7 +291,7 @@ _g int open_input_utf8bom_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_utf8;
 	fm->encode.bom = EncodeBom_exist;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -315,7 +315,7 @@ _g int open_input_utf16_stream(Execute ptr, addr *stream, addr file)
 		fm->encode.type = EncodeType_utf16be;
 	fm->encode.bom = EncodeBom_auto;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -336,7 +336,7 @@ _g int open_input_utf16le_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_utf16le;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -357,7 +357,7 @@ _g int open_input_utf16be_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_utf16be;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -378,7 +378,7 @@ _g int open_input_utf16lebom_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_utf16le;
 	fm->encode.bom = EncodeBom_exist;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -399,7 +399,7 @@ _g int open_input_utf16bebom_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_utf16be;
 	fm->encode.bom = EncodeBom_exist;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -423,7 +423,7 @@ _g int open_input_utf32_stream(Execute ptr, addr *stream, addr file)
 		fm->encode.type = EncodeType_utf32be;
 	fm->encode.bom = EncodeBom_auto;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -444,7 +444,7 @@ _g int open_input_utf32le_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_utf32le;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -465,7 +465,7 @@ _g int open_input_utf32be_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_utf32be;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -486,7 +486,7 @@ _g int open_input_utf32lebom_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_utf32le;
 	fm->encode.bom = EncodeBom_exist;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -507,7 +507,7 @@ _g int open_input_utf32bebom_stream(Execute ptr, addr *stream, addr file)
 	fm->encode.type = EncodeType_utf32be;
 	fm->encode.bom = EncodeBom_exist;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -621,7 +621,7 @@ _g int open_output_binary_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_binary;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -637,7 +637,7 @@ _g int open_output_ascii_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_ascii;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -657,7 +657,7 @@ _g int open_output_utf8_stream(Execute ptr, addr *stream,
 		close_filememory(fm);
 		return 1;
 	}
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -677,7 +677,7 @@ _g int open_output_utf16le_stream(Execute ptr, addr *stream,
 		close_filememory(fm);
 		return 1;
 	}
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -697,7 +697,7 @@ _g int open_output_utf16be_stream(Execute ptr, addr *stream,
 		close_filememory(fm);
 		return 1;
 	}
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -717,7 +717,7 @@ _g int open_output_utf32le_stream(Execute ptr, addr *stream,
 		close_filememory(fm);
 		return 1;
 	}
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -737,7 +737,7 @@ _g int open_output_utf32be_stream(Execute ptr, addr *stream,
 		close_filememory(fm);
 		return 1;
 	}
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -850,7 +850,7 @@ _g int open_io_binary_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_binary;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -866,7 +866,7 @@ _g int open_io_ascii_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_ascii;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -882,7 +882,7 @@ _g int open_io_utf8_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_utf8;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -902,7 +902,7 @@ _g int open_io_utf8bom_stream(Execute ptr, addr *stream,
 		close_filememory(fm);
 		return 1;
 	}
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -918,7 +918,7 @@ _g int open_io_utf16_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_utf16be;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -934,7 +934,7 @@ _g int open_io_utf16le_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_utf16le;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -950,7 +950,7 @@ _g int open_io_utf16be_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_utf16be;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -970,7 +970,7 @@ _g int open_io_utf16lebom_stream(Execute ptr, addr *stream,
 		close_filememory(fm);
 		return 1;
 	}
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -990,7 +990,7 @@ _g int open_io_utf16bebom_stream(Execute ptr, addr *stream,
 		close_filememory(fm);
 		return 1;
 	}
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -1006,7 +1006,7 @@ _g int open_io_utf32_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_utf32be;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -1022,7 +1022,7 @@ _g int open_io_utf32le_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_utf32le;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -1038,7 +1038,7 @@ _g int open_io_utf32be_stream(Execute ptr, addr *stream,
 	fm->encode.type = EncodeType_utf32be;
 	fm->encode.bom = EncodeBom_empty;
 	fm->encode.error = 1;
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -1058,7 +1058,7 @@ _g int open_io_utf32lebom_stream(Execute ptr, addr *stream,
 		close_filememory(fm);
 		return 1;
 	}
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }
@@ -1078,7 +1078,7 @@ _g int open_io_utf32bebom_stream(Execute ptr, addr *stream,
 		close_filememory(fm);
 		return 1;
 	}
-	*stream = file;
+	force_open_stream(file, stream);
 
 	return 0;
 }

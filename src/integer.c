@@ -1228,7 +1228,7 @@ _g void integer_length_common(addr pos, addr *ret)
 /*
  *  parse-integer
  */
-_g void parse_integer_common(LocalRoot local,
+_g void parse_integer_clang(LocalRoot local,
 		addr string, size_t start, size_t end, unsigned radix, int junk,
 		addr *ret, addr *position)
 {

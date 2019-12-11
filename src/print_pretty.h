@@ -22,8 +22,7 @@ enum pprint_tabular {
 _g int pprint_exit_common(Execute ptr, addr stream);
 _g int pprint_pop_common(Execute ptr, addr stream, addr *ret);
 _g int check_pretty_stream(Execute ptr, addr stream);
-_g void expand_pprint_logical_block_common(Execute ptr,
-		addr *ret, addr stream, addr pos,
+_g void expand_pprint_logical_block_common(addr *ret, addr stream, addr pos,
 		addr prefix, addr per, addr suffix, addr decl, addr body);
 _g void pprint_indent_common(Execute ptr, int block_p, fixnum n, addr stream);
 _g void pprint_newline_common(Execute ptr, enum pprint_newline kind, addr stream);

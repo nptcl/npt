@@ -13,6 +13,7 @@
 #include "files.h"
 #include "format.h"
 #include "heap.h"
+#include "gc.h"
 #include "integer.h"
 #include "memory.h"
 #include "object.h"
@@ -118,7 +119,7 @@ _g void setoutput_stream(addr stream, addr value)
 	SetOutputStream_Low(stream, value);
 }
 
-_g void stream_alloc(LocalRoot local, addr *ret, enum StreamType type, size_t size)
+static void stream_alloc(LocalRoot local, addr *ret, enum StreamType type, size_t size)
 {
 	struct StructStream *ptr;
 	size_t allsize;
@@ -135,7 +136,7 @@ _g void stream_alloc(LocalRoot local, addr *ret, enum StreamType type, size_t si
 	ptr->terpri = 0;
 	ptr->unread = 0;
 	ptr->unread_check = 0;
-	ptr->closed = 0;
+	ptr->closed = 1;
 }
 
 _g void stream_heap(addr *ret, enum StreamType type, size_t size)
@@ -260,10 +261,11 @@ _g int open_stream_p(addr stream)
 	return PtrStructStream(stream)->closed == 0;
 }
 
-_g int closep_stream(addr stream)
+_g void force_open_stream(addr stream, addr *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
-	return PtrStructStream(stream)->closed != 0;
+	PtrStructStream(stream)->closed = 0;
+	*ret = stream;
 }
 
 _g void close_stream(addr stream)
@@ -1835,9 +1837,12 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 {
 	int result;
 	addr stream, spec, value;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	/* output */
 	query_io_stream(ptr, &stream);
+	localhold_push(hold, stream);
 	fresh_line_stream(stream);
 	if (princ_print(ptr, stream, prompt))
 		return 1;
@@ -1847,23 +1852,27 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 	if (type != T) {
 		if (parse_type(ptr, &spec, type, Nil))
 			return 1;
+		localhold_push(hold, spec);
 	}
 	for (;;) {
 		clear_input_stream(stream);
 		if (read_stream(ptr, stream, &result, &value))
 			return 1;
+		localhold_set(hold, 0, value);
+
 		if (result)
 			fmte("Can't read from *query-io* stream.", NULL);
 		if (type == T)
 			break;
-		if (typep_clang(value, spec, &result))
+		if (typep_clang(ptr, value, spec, &result))
 			return 1;
 		if (result)
 			break;
 
-		fmts(stream, "~%Please answer ~A type: ", type, NULL);
+		format_stream(ptr, stream, "~%Please answer ~A type: ", type, NULL);
 		finish_output_stream(stream);
 	}
+	localhold_end(hold);
 	*ret = value;
 
 	return 0;
@@ -1875,6 +1884,7 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 	unicode c;
 	addr control, stream, pos;
 	size_t size;
+	LocalHold hold;
 
 	/* argument */
 	if (args == Nil) {
@@ -1884,15 +1894,18 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 		GetCons(args, &control, &args);
 	}
 
+	hold = LocalHold_array(ptr, 1);
 	/* output */
 	query_io_stream(ptr, &stream);
+	localhold_push(hold, stream);
+
 	if (control != Nil) {
 		fresh_line_stream(stream);
 		if (format_lisp(ptr, stream, control, args, &control))
 			return 1;
-		fmts(stream, " ", NULL);
+		print_ascii_stream(stream, " ");
 	}
-	fmts(stream, exactp? "(yes or no) ": "(y or n) ", NULL);
+	print_ascii_stream(stream, exactp? "(yes or no) ": "(y or n) ");
 	finish_output_stream(stream);
 
 	/* query */
@@ -1904,7 +1917,7 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 		if (exactp) {
 			if (string_equalp_char(pos, "yes")) { *ret = 1; break; }
 			if (string_equalp_char(pos, "no")) { *ret = 0; break; }
-			fmts(stream, "~%Please answer yes or no: ", NULL);
+			format_stream(ptr, stream, "~%Please answer yes or no: ", NULL);
 		}
 		else {
 			string_length(pos, &size);
@@ -1913,10 +1926,11 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 				if (toUpperUnicode(c) == 'Y') { *ret = 1; break; }
 				if (toUpperUnicode(c) == 'N') { *ret = 0; break; }
 			}
-			fmts(stream, "~%Please answer y or n: ", NULL);
+			format_stream(ptr, stream, "~%Please answer y or n: ", NULL);
 		}
 		finish_output_stream(stream);
 	}
+	localhold_end(hold);
 
 	return 0;
 }

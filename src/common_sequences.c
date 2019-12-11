@@ -20,7 +20,7 @@
 /* (defun copy-seq (sequence) ...) -> sequence */
 static void function_copy_seq(Execute ptr, addr var)
 {
-	copy_seq_common(ptr, var, &var);
+	copy_seq_common(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -138,7 +138,7 @@ static void function_fill(Execute ptr, addr var, addr item, addr rest)
 
 	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
 	if (getkeyargs(rest, KEYWORD_END, &end)) end = Nil;
-	fill_common(ptr, var, item, start, end);
+	fill_common(var, item, start, end);
 	setresult_control(ptr, var);
 }
 
@@ -224,7 +224,7 @@ static void defun_make_sequence(void)
  */
 static void function_subseq(Execute ptr, addr var, addr start, addr end)
 {
-	subseq_common(ptr, var, start, end, &var);
+	subseq_common(var, start, end, &var);
 	setresult_control(ptr, var);
 }
 

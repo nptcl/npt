@@ -2762,7 +2762,7 @@ _g int execute_control(Execute ptr, addr call)
 	}
 }
 
-static int checkargs_var(addr array, addr *args)
+static int checkargs_var(Execute ptr, addr array, addr *args)
 {
 	addr value, type;
 
@@ -2772,14 +2772,14 @@ static int checkargs_var(addr array, addr *args)
 			fmte("Too few argument.", NULL);
 		getcons(*args, &value, args);
 		GetCons(array, &type, &array);
-		if (typep_asterisk_error(value, type))
+		if (typep_asterisk_error(ptr, value, type))
 			return 1;
 	}
 
 	return 0;
 }
 
-static int checkargs_opt(addr array, addr *args)
+static int checkargs_opt(Execute ptr, addr array, addr *args)
 {
 	addr value, type;
 
@@ -2787,7 +2787,7 @@ static int checkargs_opt(addr array, addr *args)
 	while (*args != Nil && array != Nil) {
 		getcons(*args, &value, args);
 		GetCons(array, &type, &array);
-		if (typep_asterisk_error(value, type))
+		if (typep_asterisk_error(ptr, value, type))
 			return 1;
 	}
 
@@ -2799,7 +2799,7 @@ static void contargs_keyvalue(LocalRoot local, int keyvalue, addr cons, addr *re
 	if (keyvalue == 0) {
 		/* name */
 		GetCar(cons, &cons);
-		type_eql_alloc(local, cons, ret);
+		type_eql_local(local, cons, ret);
 	}
 	else {
 		/* type */
@@ -2807,8 +2807,9 @@ static void contargs_keyvalue(LocalRoot local, int keyvalue, addr cons, addr *re
 	}
 }
 
-static void contargs_key(LocalRoot local, int keyvalue, addr cons, addr *ret)
+static void contargs_key(Execute ptr, int keyvalue, addr cons, addr *ret)
 {
+	LocalRoot local;
 	addr pos, array;
 	size_t size, i;
 
@@ -2822,6 +2823,7 @@ static void contargs_key(LocalRoot local, int keyvalue, addr cons, addr *ret)
 	}
 
 	/* &key */
+	local = ptr->local;
 	size = length_list_unsafe(cons);
 	if (size == 1) {
 		GetCar(cons, &pos);
@@ -2836,10 +2838,10 @@ static void contargs_key(LocalRoot local, int keyvalue, addr cons, addr *ret)
 		contargs_keyvalue(local, keyvalue, pos, &pos);
 		SetArrayA4(array, i, pos);
 	}
-	type1_alloc(local, LISPDECL_OR, array, ret);
+	type1_local(local, LISPDECL_OR, array, ret);
 }
 
-static int checkargs_restkey(LocalRoot local, addr array, addr args)
+static int checkargs_restkey(Execute ptr, addr array, addr args)
 {
 	int keyvalue;
 	addr rest, key, value, type;
@@ -2854,13 +2856,13 @@ static int checkargs_restkey(LocalRoot local, addr array, addr args)
 		getcons(args, &value, &args);
 		/* &rest */
 		if (rest != Nil) {
-			if (typep_asterisk_error(value, rest))
+			if (typep_asterisk_error(ptr, value, rest))
 				return 1;
 		}
 		/* &key */
 		if (key != Nil) {
-			contargs_key(local, keyvalue, key, &type);
-			if (typep_asterisk_error(value, type))
+			contargs_key(ptr, keyvalue, key, &type);
+			if (typep_asterisk_error(ptr, value, type))
 				return 1;
 		}
 	}
@@ -2872,30 +2874,32 @@ static int checkargs_restkey(LocalRoot local, addr array, addr args)
 	return 0;
 }
 
-static int execute_checkargs(LocalRoot local, addr array, addr args)
+static int execute_checkargs(Execute ptr, addr array, addr args)
 {
+	LocalRoot local;
 	LocalStack stack;
 
 	/* var */
-	if (checkargs_var(array, &args))
+	if (checkargs_var(ptr, array, &args))
 		return 1;
 	if (args == Nil)
 		return 0;
 	/* opt */
-	if (checkargs_opt(array, &args))
+	if (checkargs_opt(ptr, array, &args))
 		return 1;
 	if (args == Nil)
 		return 0;
 	/* rest, key */
+	local = ptr->local;
 	push_local(local, &stack);
-	if (checkargs_restkey(local, array, args))
+	if (checkargs_restkey(ptr, array, args))
 		return 1;
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int execute_typecheck(LocalRoot local, addr call, addr args)
+static int execute_typecheck(Execute ptr, addr call, addr args)
 {
 	addr type;
 
@@ -2909,7 +2913,7 @@ static int execute_typecheck(LocalRoot local, addr call, addr args)
 		return 0;
 
 	/* type check */
-	return execute_checkargs(local, type, args);
+	return execute_checkargs(ptr, type, args);
 }
 
 _g int apply_control(Execute ptr, addr call, addr args)
@@ -2918,7 +2922,7 @@ _g int apply_control(Execute ptr, addr call, addr args)
 	Check(call == Unbound, "Function is Unbound.");
 	switch (GetType(call)) {
 		case LISPTYPE_FUNCTION:
-			if (execute_typecheck(ptr->local, call, args))
+			if (execute_typecheck(ptr, call, args))
 				return 1;
 			setargs_list_control_unsafe(ptr, args);
 			return execute_function(ptr, call);
@@ -3181,18 +3185,24 @@ static int values_apply(Execute ptr, LocalRoot local,
 		addr *ret, addr call, addr cons)
 {
 	addr control;
+	LocalHold hold;
 
 	callclang_function(ptr, &call, call);
 	/* push */
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
 	if (apply_control(ptr, call, cons)) {
-		return runcode_free_control(ptr, control);
+		Return1(runcode_free_control(ptr, control));
 	}
 	else {
 		getvalues_list_control(ptr, local, ret);
-		return free_control(ptr, control);
+		localhold_set(hold, 0, *ret);
+		Return1(free_control(ptr, control));
 	}
+	localhold_end(hold);
+
+	return 0;
 }
 
 _g int callclang_values_apply_local(Execute ptr, addr *ret, addr call, addr cons)
@@ -3209,18 +3219,24 @@ static int values_stdarg(Execute ptr, LocalRoot local,
 		addr *ret, addr call, va_list args)
 {
 	addr control;
+	LocalHold hold;
 
 	callclang_function(ptr, &call, call);
 	/* push */
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
 	if (stdarg_control(ptr, call, args)) {
-		return runcode_free_control(ptr, control);
+		Return1(runcode_free_control(ptr, control));
 	}
 	else {
 		getvalues_list_control(ptr, local, ret);
-		return free_control(ptr, control);
+		localhold_set(hold, 0, *ret);
+		Return1(free_control(ptr, control));
 	}
+	localhold_end(hold);
+
+	return 0;
 }
 
 _g int callclang_values_stdarg_local(Execute ptr, addr *ret, addr call, va_list args)
@@ -3290,35 +3306,47 @@ _g int callclang_values_char_heap(Execute ptr, addr *ret,
 _g int callclang_apply(Execute ptr, addr *ret, addr call, addr cons)
 {
 	addr control;
+	LocalHold hold;
 
 	callclang_function(ptr, &call, call);
 	/* push */
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
 	if (apply_control(ptr, call, cons)) {
-		return runcode_free_control(ptr, control);
+		Return1(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
-		return free_control(ptr, control);
+		localhold_set(hold, 0, *ret);
+		Return1(free_control(ptr, control));
 	}
+	localhold_end(hold);
+
+	return 0;
 }
 
 _g int callclang_stdarg(Execute ptr, addr *ret, addr call, va_list args)
 {
 	addr control;
+	LocalHold hold;
 
 	callclang_function(ptr, &call, call);
 	/* push */
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
 	if (stdarg_control(ptr, call, args)) {
-		return runcode_free_control(ptr, control);
+		Return1(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
-		return free_control(ptr, control);
+		localhold_set(hold, 0, *ret);
+		Return1(free_control(ptr, control));
 	}
+	localhold_end(hold);
+
+	return 0;
 }
 
 _g int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
@@ -3326,21 +3354,27 @@ _g int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 	int check;
 	addr control;
 	va_list args;
+	LocalHold hold;
 
 	callclang_function(ptr, &call, call);
 	/* push */
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
 	va_start(args, call);
 	check = stdarg_control(ptr, call, args);
 	va_end(args);
 	if (check) {
-		return runcode_free_control(ptr, control);
+		Return1(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
-		return free_control(ptr, control);
+		localhold_set(hold, 0, *ret);
+		Return1(free_control(ptr, control));
 	}
+	localhold_end(hold);
+
+	return 0;
 }
 
 _g int callclang_char(Execute ptr, addr *ret,
@@ -3349,22 +3383,28 @@ _g int callclang_char(Execute ptr, addr *ret,
 	int check;
 	addr control, call;
 	va_list args;
+	LocalHold hold;
 
 	internchar(package, name, &call);
 	callclang_function(ptr, &call, call);
 	/* push */
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
 	va_start(args, name);
 	check = stdarg_control(ptr, call, args);
 	va_end(args);
 	if (check) {
-		return runcode_free_control(ptr, control);
+		Return1(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
-		return free_control(ptr, control);
+		localhold_set(hold, 0, *ret);
+		Return1(free_control(ptr, control));
 	}
+	localhold_end(hold);
+
+	return 0;
 }
 
 

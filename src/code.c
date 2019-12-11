@@ -12,6 +12,7 @@
 #include "function.h"
 #include "format.h"
 #include "heap.h"
+#include "gc.h"
 #include "info.h"
 #include "integer.h"
 #include "number.h"
@@ -132,22 +133,22 @@ static void declaim_special_code(Execute ptr, addr right)
 
 static void declaim_type_value_code(Execute ptr, addr right)
 {
-	addr symbol;
+	addr symbol, type;
 
-	List_bind(right, &symbol, &right, NULL);
-	settype_value_symbol(symbol, right);
+	List_bind(right, &symbol, &type, NULL);
+	settype_value_symbol(symbol, type);
 }
 
 static void declaim_type_function_code(Execute ptr, addr right)
 {
-	addr key, symbol;
+	addr key, symbol, type;
 
-	List_bind(right, &key, &right, NULL);
+	List_bind(right, &key, &type, NULL);
 	GetCallName(key, &symbol);
 	if (symbol_callname_p(key))
-		settype_function_symbol(symbol, right);
+		settype_function_symbol(symbol, type);
 	else
-		settype_setf_symbol(symbol, right);
+		settype_setf_symbol(symbol, type);
 }
 
 static void declaim_inline_code(Execute ptr, addr right)
@@ -224,16 +225,16 @@ static void local_result_code(Execute ptr, addr right)
  */
 static void let_lexical_code(Execute ptr, addr right)
 {
-	addr symbol;
+	addr symbol, value;
 
-	List_bind(right, &symbol, &right, NULL);
-	getdata_array_control(ptr, RefIndex(right), &right);
-	pushlexical_control(ptr, symbol, right);
+	List_bind(right, &symbol, &value, NULL);
+	getdata_array_control(ptr, RefIndex(value), &value);
+	pushlexical_control(ptr, symbol, value);
 }
 
-static int typep_unbound_error(addr value, addr type)
+static int typep_unbound_error(Execute ptr, addr value, addr type)
 {
-	return (value == Unbound)? 0: typep_error(value, type);
+	return (value == Unbound)? 0: typep_error(ptr, value, type);
 }
 
 static void let_lexical_type_code(Execute ptr, addr right)
@@ -242,18 +243,18 @@ static void let_lexical_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &value, &type, NULL);
 	getdata_array_control(ptr, RefIndex(value), &value);
-	if (typep_error(value, type))
+	if (typep_error(ptr, value, type))
 		return;
 	pushlexical_control(ptr, symbol, value);
 }
 
 static void let_special_code(Execute ptr, addr right)
 {
-	addr symbol;
+	addr symbol, value;
 
-	List_bind(right, &symbol, &right, NULL);
-	getdata_array_control(ptr, RefIndex(right), &right);
-	pushspecial_control(ptr, symbol, right);
+	List_bind(right, &symbol, &value, NULL);
+	getdata_array_control(ptr, RefIndex(value), &value);
+	pushspecial_control(ptr, symbol, value);
 }
 
 static void let_special_type_code(Execute ptr, addr right)
@@ -262,7 +263,7 @@ static void let_special_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &value, &type, NULL);
 	getdata_array_control(ptr, RefIndex(value), &value);
-	if (typep_error(value, type))
+	if (typep_error(ptr, value, type))
 		return;
 	pushspecial_control(ptr, symbol, value);
 }
@@ -281,7 +282,7 @@ static void leta_lexical_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &type, NULL);
 	getresult_control(ptr, &right);
-	if (typep_error(right, type))
+	if (typep_error(ptr, right, type))
 		return;
 	pushlexical_control(ptr, symbol, right);
 }
@@ -300,7 +301,7 @@ static void leta_special_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &type, NULL);
 	getresult_control(ptr, &right);
-	if (typep_error(right, type))
+	if (typep_error(ptr, right, type))
 		return;
 	pushspecial_control(ptr, symbol, right);
 }
@@ -315,7 +316,7 @@ static void lexical_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &type, NULL);
 	getlexical_local(ptr, symbol, &right);
-	(void)typep_unbound_error(right, type);
+	(void)typep_unbound_error(ptr, right, type);
 }
 
 static void lexical_set_code(Execute ptr, addr right)
@@ -359,7 +360,7 @@ static void special_type_code(Execute ptr, addr right)
 
 	List_bind(right, &symbol, &type, NULL);
 	getspecial_local(ptr, symbol, &right);
-	(void)typep_unbound_error(right, type);
+	(void)typep_unbound_error(ptr, right, type);
 }
 
 static void special_set_code(Execute ptr, addr right)
@@ -422,7 +423,7 @@ static void setq_lexical_type_code(Execute ptr, addr right)
 	List_bind(right, &symbol, &type, NULL);
 	check_readonly_variable(symbol);
 	getresult_control(ptr, &right);
-	if (typep_error(right, type))
+	if (typep_error(ptr, right, type))
 		return;
 	setlexical_local(ptr, symbol, right);
 }
@@ -442,7 +443,7 @@ static void setq_special_type_code(Execute ptr, addr right)
 	List_bind(right, &symbol, &type, NULL);
 	check_readonly_variable(symbol);
 	getresult_control(ptr, &right);
-	if (typep_error(right, type))
+	if (typep_error(ptr, right, type))
 		return;
 	setspecial_local(ptr, symbol, right);
 }
@@ -457,7 +458,7 @@ static void function_global_type_code(Execute ptr, addr right)
 
 	List_bind(right, &call, &type, NULL);
 	function_global_restart(ptr, call, &right);
-	(void)typep_unbound_error(right, type);
+	(void)typep_unbound_error(ptr, right, type);
 }
 
 static void function_global_set_code(Execute ptr, addr right)
@@ -478,7 +479,7 @@ static void function_local_type_code(Execute ptr, addr right)
 
 	List_bind(right, &call, &type, NULL);
 	getfunction_local(ptr, call, &right);
-	(void)typep_unbound_error(right, type);
+	(void)typep_unbound_error(ptr, right, type);
 }
 
 static void function_local_set_code(Execute ptr, addr right)
@@ -499,7 +500,7 @@ static void setf_global_type_code(Execute ptr, addr right)
 
 	List_bind(right, &call, &type, NULL);
 	getsetf_symbol(call, &right);
-	(void)typep_unbound_error(right, type);
+	(void)typep_unbound_error(ptr, right, type);
 }
 
 static void setf_global_set_code(Execute ptr, addr right)
@@ -520,7 +521,7 @@ static void setf_local_type_code(Execute ptr, addr right)
 
 	List_bind(right, &call, &type, NULL);
 	getsetf_local(ptr, call, &right);
-	(void)typep_unbound_error(right, type);
+	(void)typep_unbound_error(ptr, right, type);
 }
 
 static void setf_local_set_code(Execute ptr, addr right)
@@ -608,7 +609,7 @@ static void bind_variable(Execute ptr, addr left, addr right, int ignore)
 	/* type check */
 	if (! ignore && getcheck_tablevalue(left)) {
 		gettype_tablevalue(left, &type);
-		if (typep_error(right, type))
+		if (typep_error(ptr, right, type))
 			return;
 	}
 
@@ -624,14 +625,18 @@ static void bind_variable(Execute ptr, addr left, addr right, int ignore)
 static int bind_initialize(Execute ptr, addr var, addr init)
 {
 	addr control;
+	LocalHold hold;
 
 	/* push */
+	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
 	if (runcode_control(ptr, init))
 		return runcode_free_control(ptr, control);
 	getresult_control(ptr, &init);
+	localhold_set(hold, 0, init);
 	if (free_control(ptr, control)) return 1;
+	localhold_end(hold);
 	bind_variable(ptr, var, init, 0);
 
 	return 0;
@@ -714,8 +719,8 @@ static int lambda_bind_key(Execute ptr, addr cons, int allow, addr args)
 
 	/* bind */
 	while (cons != Nil) {
-		getcons(cons, &var, &cons);
-		List_bind(var, &var, &name, &init, &svar, NULL);
+		getcons(cons, &right, &cons);
+		List_bind(right, &var, &name, &init, &svar, NULL);
 		if (getplist(args, name, &value) == 0) {
 			bind_variable(ptr, var, value, 0);
 			if (svar != Nil)
@@ -748,11 +753,11 @@ static void lambda_bind_allow(Execute ptr, addr args)
 
 static int lambda_bind_aux(Execute ptr, addr cons)
 {
-	addr var, init;
+	addr list, var, init;
 
 	while (cons != Nil) {
-		getcons(cons, &var, &cons);
-		List_bind(var, &var, &init, NULL);
+		getcons(cons, &list, &cons);
+		List_bind(list, &var, &init, NULL);
 		if (bind_initialize(ptr, var, init)) return 1;
 	}
 
@@ -895,20 +900,20 @@ static void destructuring_bind_code(Execute ptr, addr right)
 
 static void macro_lambda_code(Execute ptr, addr right)
 {
-	addr form;
+	addr form, value;
 
-	List_bind(right, &form, &right, NULL);
+	List_bind(right, &form, &value, NULL);
 	macro_heap(&form, Nil, form);
-	setdocumentation_function(form, right);
+	setdocumentation_function(form, value);
 	setresult_control(ptr, form);
 }
 
 static void defmacro_code(Execute ptr, addr right)
 {
-	addr symbol;
+	addr symbol, value;
 
-	List_bind(right, &symbol, &right, NULL);
-	setmacro_symbol(symbol, right);
+	List_bind(right, &symbol, &value, NULL);
+	setmacro_symbol(symbol, value);
 	setresult_control(ptr, symbol);
 }
 
@@ -955,11 +960,11 @@ static void defun_code(Execute ptr, addr right)
 
 static void flet_code(Execute ptr, addr right)
 {
-	addr call;
+	addr call, value;
 
-	List_bind(right, &call, &right, NULL);
-	getdata_array_control(ptr, RefIndex(right), &right);
-	pushcallname_control(ptr, call, right);
+	List_bind(right, &call, &value, NULL);
+	getdata_array_control(ptr, RefIndex(value), &value);
+	pushcallname_control(ptr, call, value);
 }
 
 static void labels_code(Execute ptr, addr right)
@@ -981,7 +986,7 @@ static void call_type_code(Execute ptr, addr right)
 	addr value;
 
 	getargs_tail_control(ptr, &value);
-	(void)typep_error(value, right);
+	(void)typep_error(ptr, value, right);
 }
 
 static void values_nil_code(Execute ptr, addr right)
@@ -1000,7 +1005,7 @@ static void the_code(Execute ptr, addr right)
 	addr value;
 
 	getresult_control(ptr, &value);
-	(void)typep_error(value, right);
+	(void)typep_error(ptr, value, right);
 }
 
 static void if_nil_code(Execute ptr, addr right)

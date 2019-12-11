@@ -2,6 +2,7 @@
 #define __STRUCTURE_HEADER__
 
 #include "execute.h"
+#include "gc.h"
 #include "typedef.h"
 
 /*
@@ -29,6 +30,7 @@ struct defstruct {
 	size_t size, offset, size_value, named_index;
 };
 
+_g void localhold_destruct(LocalHold hold, struct defstruct *str);
 _g void defstruct_clean(struct defstruct *ptr);
 
 /* access */
@@ -60,7 +62,7 @@ _g int structure_class_p(addr pos);
 _g int structure_instance_p(addr pos);
 _g int equalp_structure(addr a, addr b);
 _g int equalrt_structure(addr a, addr b);
-_g int ensure_structure_common(Execute ptr, addr name, addr slots, addr rest);
+_g void ensure_structure_common(Execute ptr, addr name, addr slots, addr rest);
 _g int structure_constructor_common(Execute ptr, addr symbol, addr rest, addr *ret);
 _g int make_instance_structure(Execute ptr, addr rest, addr *ret);
 _g void copy_structure_common(addr var, addr *ret);

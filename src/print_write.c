@@ -9,11 +9,12 @@
 #include "condition.h"
 #include "constant.h"
 #include "control.h"
+#include "execute.h"
 #include "fmtfloat.h"
 #include "function.h"
 #include "hashtable.h"
 #include "heap.h"
-#include "execute.h"
+#include "gc.h"
 #include "integer.h"
 #include "package.h"
 #include "pathname.h"
@@ -2235,7 +2236,7 @@ static int write_pretty_print(Execute ptr, addr stream, addr pos)
 	addr dispatch;
 
 	pprint_dispatch_print(ptr, &dispatch);
-	if (find_function_print_dispatch(ptr->local, pos, dispatch, &dispatch))
+	if (find_function_print_dispatch(ptr, pos, dispatch, &dispatch))
 		return 1;
 	if (dispatch == Nil)
 		return write_default_print(ptr, stream, pos);
@@ -2245,6 +2246,7 @@ static int write_pretty_print(Execute ptr, addr stream, addr pos)
 
 _g int write_print(Execute ptr, addr stream, addr pos)
 {
+	gchold_push_local(ptr->local, stream);
 	if (pretty_print(ptr))
 		return write_pretty_print(ptr, stream, pos);
 	else

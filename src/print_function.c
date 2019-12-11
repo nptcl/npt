@@ -4,6 +4,7 @@
 #include "control.h"
 #include "constant.h"
 #include "function.h"
+#include "gc.h"
 #include "pointer.h"
 #include "print_function.h"
 #include "print_pretty.h"
@@ -85,11 +86,14 @@ static int pprint_type_common(Execute ptr,
 		strvect_char_heap(&suffix, ")");
 	}
 	open_pretty_stream(ptr, &stream, stream, list, prefix, Nil, suffix);
+
 	/* function */
 	compiled_heap(&lambda, Nil);
 	setcompiled_empty(lambda, type);
 	SetDataFunction(lambda, stream);
+
 	/* call */
+	gchold_pushva_local(ptr->local, stream, lambda, NULL);
 	return call_pretty_stream(ptr, stream, lambda);
 }
 
@@ -221,14 +225,18 @@ _g int pprint_tabular_common(Execute ptr,
 		strvect_char_heap(&suffix, ")");
 	}
 	open_pretty_stream(ptr, &stream, stream, list, prefix, Nil, suffix);
+
 	/* closure */
 	fixnum_heap(&cons, size);
 	cons_heap(&cons, stream, cons);
+
 	/* function */
 	compiled_heap(&lambda, Nil);
 	setcompiled_empty(lambda, p_pprint_logical_block_tabular);
 	SetDataFunction(lambda, cons);
+
 	/* call */
+	gchold_pushva_local(ptr->local, stream, lambda, NULL);
 	return call_pretty_stream(ptr, stream, lambda);
 }
 
@@ -304,13 +312,17 @@ _g int vector_default_dispatch(Execute ptr, addr stream, addr pos)
 	strvect_char_heap(&prefix, "#(");
 	strvect_char_heap(&suffix, ")");
 	open_pretty_stream(ptr, &stream, stream, Nil, prefix, Nil, suffix);
+
 	/* closure */
 	cons_heap(&cons, stream, pos);
+
 	/* function */
 	compiled_heap(&lambda, Nil);
 	setcompiled_empty(lambda, p_pprint_logical_block_vector);
 	SetDataFunction(lambda, cons);
+
 	/* call */
+	gchold_pushva_local(ptr->local, stream, lambda, NULL);
 	return call_pretty_stream(ptr, stream, lambda);
 }
 

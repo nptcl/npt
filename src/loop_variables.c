@@ -2,6 +2,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
+#include "gc.h"
 #include "loop.h"
 #include "loop_bind.h"
 #include "loop_parse.h"
@@ -50,7 +51,9 @@ _g void loop_filter_finally(addr *form, addr *list)
 static int loop_filter_with_default(Execute ptr, addr list, addr *ret)
 {
 	addr root, pos, var, type, value;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	for (root = Nil; list != Nil; ) {
 		GetCons(list, &pos, &list);
 		list_bind(pos, &var, &type, &value, NULL);
@@ -60,7 +63,9 @@ static int loop_filter_with_default(Execute ptr, addr list, addr *ret)
 			list_heap(&pos, var, type, value, NULL);
 		}
 		cons_heap(&root, pos, root);
+		localhold_set(hold, 0, root);
 	}
+	localhold_end(hold);
 	nreverse_list_unsafe(ret, root);
 
 	return 0;
@@ -69,22 +74,27 @@ static int loop_filter_with_default(Execute ptr, addr list, addr *ret)
 _g int loop_filter_with(Execute ptr, addr *form, addr *list)
 {
 	addr root, x, y, z;
+	LocalHold hold;
 
 	GetConst(SYSTEM_LOOP_WITH, &z);
+	hold = LocalHold_array(ptr, 2);
 	for (root = Nil; *form != Nil; ) {
 		GetCons(*form, &x, form);
 		Check(! consp(x), "type error");
 		GetCar(x, &y);
 		if (y != z) {
 			cons_heap(&root, x, root);
+			localhold_set(hold, 0, root);
 		}
 		else {
 			GetCdr(x, &x);
 			if (loop_filter_with_default(ptr, x, &x))
 				return 1;
 			cons_heap(list, x, *list);
+			localhold_set(hold, 1, *list);
 		}
 	}
+	localhold_end(hold);
 	nreverse_list_unsafe(form, root);
 
 	return 0;

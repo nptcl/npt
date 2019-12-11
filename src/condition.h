@@ -56,7 +56,7 @@ _g void handler_savecore(Execute ptr);
  *  debugger
  */
 _g int invoke_debugger(Execute ptr, addr condition);
-_g void set_enable_debugger(int value);
+_g void set_enable_debugger(Execute ptr, int value);
 
 
 /*
@@ -64,14 +64,15 @@ _g void set_enable_debugger(int value);
  */
 _g int conditionp(addr pos);
 _g int condition_instance_p(addr pos);
-_g int signal_function(addr condition);
+_g int signal_function(Execute ptr, addr condition);
 _g int error_common(Execute ptr, addr condition);
 _g void error_function(addr condition);
-_g void format_error(const char *str, ...);
-#define fmte format_error
 _g int warning_restart_case(Execute ptr, addr instance);
-_g int signal_warning(const char *str, ...);
+_g int signal_warning(Execute ptr, const char *str, ...);
+
+_g void format_error(const char *str, ...);
 _g void format_warning(const char *str, ...);
+#define fmte format_error
 #define fmtw format_warning
 
 /* serious_condition */
@@ -178,10 +179,10 @@ _g void type_error_constant(addr datum, constindex expected);
 #define TypeError(a,b) type_error_constant((a), CONSTANT_COMMON_##b)
 _g void type_error_datum(addr instance, addr *ret);
 _g void type_error_expected(addr instance, addr *ret);
-_g int typep_error(addr value, addr type);
-_g int typep_asterisk_error(addr value, addr type);
-_g int typep_typetable(addr value, enum TypeTable type);
-#define TypepTypeTable(a,b) typep_typetable((a),TypeTable_##b)
+_g int typep_error(Execute ptr, addr value, addr type);
+_g int typep_asterisk_error(Execute ptr, addr value, addr type);
+_g int typep_typetable(Execute ptr, addr value, enum TypeTable type);
+#define TypepTypeTable(p,a,b) typep_typetable((p),(a),TypeTable_##b)
 /* simple_type_error */
 _g void instance_simple_type_error(addr *ret,
 		addr control, addr args, addr datum, addr expected);

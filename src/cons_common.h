@@ -50,7 +50,7 @@ _g void pairlis_common(addr keys, addr data, addr list, addr *ret);
 _g int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret);
 _g int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
 _g int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *ret);
-_g void get_properties_common(Execute ptr, addr plist, addr indicator,
+_g void get_properties_common(addr plist, addr indicator,
 		addr *rkey, addr *rvalue, addr *rlist);
 _g int remf_common(Execute ptr, addr form, addr env, addr *ret);
 _g int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret);

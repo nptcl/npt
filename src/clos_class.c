@@ -2042,21 +2042,21 @@ static void clos_ensure_class_function_check(Execute ptr, addr pos)
 }
 
 /* reader/writer generic */
-static void clos_ensure_reader_generic(Execute ptr, addr name)
+static void clos_ensure_reader_generic(addr name)
 {
 	addr lambda;
 	mop_argument_generic_var1(&lambda);
 	generic_empty(name, lambda, &name);
 }
 
-static void clos_ensure_writer_generic(Execute ptr, addr name)
+static void clos_ensure_writer_generic(addr name)
 {
 	addr lambda;
 	mop_argument_generic_var2(&lambda);
 	generic_empty(name, lambda, &name);
 }
 
-static void clos_ensure_readers_generic(Execute ptr, addr list)
+static void clos_ensure_readers_generic(addr list)
 {
 	addr name, gen;
 
@@ -2066,11 +2066,11 @@ static void clos_ensure_readers_generic(Execute ptr, addr list)
 		getcallname_global(name, &gen);
 		if (gen != Unbound)
 			continue;
-		clos_ensure_reader_generic(ptr, name);
+		clos_ensure_reader_generic(name);
 	}
 }
 
-static void clos_ensure_writers_generic(Execute ptr, addr list)
+static void clos_ensure_writers_generic(addr list)
 {
 	addr name, gen;
 
@@ -2080,11 +2080,11 @@ static void clos_ensure_writers_generic(Execute ptr, addr list)
 		getcallname_global(name, &gen);
 		if (gen != Unbound)
 			continue;
-		clos_ensure_writer_generic(ptr, name);
+		clos_ensure_writer_generic(name);
 	}
 }
 
-static void clos_ensure_class_function_generic(Execute ptr, addr pos)
+static void clos_ensure_class_function_generic(addr pos)
 {
 	addr slots, slot, list;
 	size_t size, i;
@@ -2095,10 +2095,10 @@ static void clos_ensure_class_function_generic(Execute ptr, addr pos)
 		GetSlotVector(slots, i, &slot);
 		/* reader */
 		GetReadersSlot(slot, &list);
-		clos_ensure_readers_generic(ptr, list);
+		clos_ensure_readers_generic(list);
 		/* writer */
 		GetWritersSlot(slot, &list);
-		clos_ensure_writers_generic(ptr, list);
+		clos_ensure_writers_generic(list);
 	}
 }
 
@@ -2249,7 +2249,7 @@ static void clos_ensure_class_function(Execute ptr, addr pos)
 	/* check */
 	clos_ensure_class_function_check(ptr, pos);
 	/* make generic-function */
-	clos_ensure_class_function_generic(ptr, pos);
+	clos_ensure_class_function_generic(pos);
 	/* make method */
 	clos_ensure_class_method(ptr, pos);
 }
@@ -2267,12 +2267,10 @@ static void clos_ensure_class_subclasses(addr pos)
 	}
 }
 
-static void clos_ensure_class_init(Execute ptr, addr pos)
+static void clos_ensure_class_init(LocalRoot local, addr pos)
 {
 	addr value;
-	LocalRoot local;
 
-	local = ptr->local;
 	/* class-precedence-list */
 	clos_precedence_list(local, pos, &value);
 	stdset_class_precedence_list(pos, value);
@@ -2286,7 +2284,7 @@ static void clos_ensure_class_init(Execute ptr, addr pos)
 	clos_ensure_class_subclasses(pos);
 }
 
-static void clos_ensure_class_set(Execute ptr, addr pos, addr name, addr args)
+static void clos_ensure_class_set(LocalRoot local, addr pos, addr name, addr args)
 {
 	int referp;
 	addr supers, slots, value;
@@ -2299,11 +2297,11 @@ static void clos_ensure_class_set(Execute ptr, addr pos, addr name, addr args)
 	clos_stdclass_direct_slots(pos, slots);
 	stdset_class_direct_superclasses(pos, supers);
 	/* direct-default-initargs */
-	clos_ensure_class_direct_default_initargs(ptr->local, pos, args, &value);
+	clos_ensure_class_direct_default_initargs(local, pos, args, &value);
 	stdset_class_direct_default_initargs(pos, value);
 	/* forward-referenced-class */
 	if (! referp)
-		clos_ensure_class_init(ptr, pos);
+		clos_ensure_class_init(local, pos);
 }
 
 static int clos_finalize(Execute ptr, addr pos);
@@ -2366,7 +2364,7 @@ static int clos_finalize(Execute ptr, addr pos)
 		return 1;
 	if (check) {
 		/* make class */
-		clos_ensure_class_init(ptr, pos);
+		clos_ensure_class_init(ptr->local, pos);
 	}
 
 	/* superclasses */
@@ -2414,7 +2412,7 @@ _g int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret)
 		return 1;
 
 	/* define class */
-	clos_ensure_class_set(ptr, pos, name, args);
+	clos_ensure_class_set(ptr->local, pos, name, args);
 	clos_define_class(name, pos);
 	*ret = pos;
 
@@ -2465,7 +2463,7 @@ _g int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 
 	/* redefined */
 	clos_ensure_class_delete(clos, temp);
-	clos_ensure_class_set(ptr, clos, name, rest);
+	clos_ensure_class_set(ptr->local, clos, name, rest);
 	clos_define_class(name, clos);
 
 	return 0;

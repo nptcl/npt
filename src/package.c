@@ -56,13 +56,13 @@ static int intern_bitpackage(addr package, addr name, addr *ret);
 static void alloc_bitpackage(addr *ret, addr symbol, enum PACKAGE_TYPE type)
 {
 	addr bit;
-	struct bittype_struct *ptr;
+	struct bittype_struct *str;
 
 	heap_smallsize(&bit, LISPSYSTEM_BITTYPE, 1, sizeof(struct bittype_struct));
 	SetBitTypeSymbol(bit, symbol);
-	ptr = StructBitType(bit);
-	clearpoint(ptr);
-	ptr->intern = type;
+	str = StructBitType(bit);
+	clearpoint(str);
+	str->intern = type;
 	*ret = bit;
 }
 
@@ -114,28 +114,28 @@ static void inheritedbitpackage(addr *ret, addr symbol)
 static void shadowintern_bitpackage(addr bit, addr name, addr package)
 {
 	addr symbol;
-	struct bittype_struct *ptr;
+	struct bittype_struct *str;
 
 	symbol_heap(&symbol);
 	setname_symbol(symbol, name);
 	setpackage_symbol(symbol, package);
 	SetBitTypeSymbol(bit, symbol);
-	ptr = StructBitType(bit);
-	ptr->intern = PACKAGE_TYPE_INTERNAL;
-	ptr->base = 1;
-	ptr->inherit = 0;
+	str = StructBitType(bit);
+	str->intern = PACKAGE_TYPE_INTERNAL;
+	str->base = 1;
+	str->inherit = 0;
 }
 
 static void shadowimport_bitpackage(addr bit, addr symbol)
 {
-	struct bittype_struct *ptr;
+	struct bittype_struct *str;
 
 	SetBitTypeSymbol(bit, symbol);
-	ptr = StructBitType(bit);
-	ptr->intern = PACKAGE_TYPE_INTERNAL;
-	ptr->base = 0;
-	ptr->import = 1;
-	ptr->inherit = 0;
+	str = StructBitType(bit);
+	str->intern = PACKAGE_TYPE_INTERNAL;
+	str->base = 0;
+	str->import = 1;
+	str->inherit = 0;
 }
 
 
@@ -1407,16 +1407,16 @@ _g void import_package(addr package, addr pos)
 static void shadowsymbol(addr package, addr pos)
 {
 	addr bit;
-	struct bittype_struct *ptr;
+	struct bittype_struct *str;
 
 	string_designer(pos, &pos);
 	intern_bitpackage(package, pos, &bit);
-	ptr = StructBitType(bit);
-	if (ptr->inherit) {
+	str = StructBitType(bit);
+	if (str->inherit) {
 		/* change type to intern from inherit. */
 		shadowintern_bitpackage(bit, pos, package);
 	}
-	if (! ptr->shadow) {
+	if (! str->shadow) {
 		GetBitTypeSymbol(bit, &pos);
 		pushlist_package(package, PACKAGE_INDEX_SHADOW, pos);
 		SetBitTypeShadow(bit, 1);
@@ -1479,15 +1479,15 @@ error:
 static void shadowimportsymbol(addr package, addr symbol)
 {
 	addr bit, check;
-	struct bittype_struct *ptr;
+	struct bittype_struct *str;
 
 	if (import_bitpackage(package, symbol, &bit)) {
-		ptr = StructBitType(bit);
+		str = StructBitType(bit);
 		/* conflict, change type to intern from import. */
-		if (ptr->shadow) {
+		if (str->shadow) {
 			GetBitTypeSymbol(bit, &check);
 			remove_shadowing_symbols(package, check);
-			ptr->shadow = 0;
+			str->shadow = 0;
 		}
 		shadowimport_bitpackage(bit, symbol);
 	}
@@ -1599,27 +1599,27 @@ static void intern_export_symbol(addr package, addr symbol, addr name)
 static void exportsymbol_nocheck(addr package, addr symbol)
 {
 	addr table, bit, name;
-	struct bittype_struct *ptr;
+	struct bittype_struct *str;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetNameSymbol(symbol, &name);
 	findvalue_hashtable(table, name, &bit);
-	ptr = StructBitType(bit);
-	if (ptr->expt) {
+	str = StructBitType(bit);
+	if (str->expt) {
 		/* symbol is already exported. */
 		return;
 	}
-	if (ptr->inherit) {
+	if (str->inherit) {
 		/* If the symbol type is inherited, the type change to import.  */
-		ptr->inherit = 0;
-		ptr->import = 1;
-		ptr->expt = 1;
-		ptr->intern = PACKAGE_TYPE_EXTERNAL;
+		str->inherit = 0;
+		str->import = 1;
+		str->expt = 1;
+		str->intern = PACKAGE_TYPE_EXTERNAL;
 	}
 	else {
 		/* export symbol */
-		ptr->expt = 1;
-		ptr->intern = PACKAGE_TYPE_EXTERNAL;
+		str->expt = 1;
+		str->intern = PACKAGE_TYPE_EXTERNAL;
 	}
 	intern_export_symbol(package, symbol, name);
 	pushlist_package(package, PACKAGE_INDEX_EXPORT, name);
@@ -1752,15 +1752,15 @@ static void unexport_usedbylist(addr package, addr symbol)
 static void unexport_symboltype(addr package, addr symbol)
 {
 	addr table, name, bit;
-	struct bittype_struct *ptr;
+	struct bittype_struct *str;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetNameSymbol(symbol, &name);
 	findvalue_hashtable(table, name, &bit);
-	ptr = StructBitType(bit);
-	if (ptr->expt) {
-		ptr->intern = PACKAGE_TYPE_INTERNAL;
-		ptr->expt = 0;
+	str = StructBitType(bit);
+	if (str->expt) {
+		str->intern = PACKAGE_TYPE_INTERNAL;
+		str->expt = 0;
 		remove_export_list(package, name);
 	}
 }
@@ -2091,7 +2091,6 @@ _g void in_package(Execute ptr, addr package, addr *ret)
 _g enum PACKAGE_TYPE intern_default_package(Execute ptr, addr name, addr *ret)
 {
 	addr package;
-
 	getpackage(ptr, &package);
 	return intern_package(package, name, ret);
 }
@@ -2344,23 +2343,23 @@ _g void package_iterator_alloc(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited)
 {
 	addr pos, package, table;
-	struct StructPackageIterator *ptr;
+	struct StructPackageIterator *str;
 
 	/* object */
 	alloc_smallsize(local, &pos,
 			LISPSYSTEM_PACKAGEITERATOR,
 			PackageIterator_Size,
 			sizeoft(struct StructPackageIterator));
-	ptr = PtrStructPackageIterator(pos);
-	clearpoint(ptr);
-	ptr->internal = (internal != 0);
-	ptr->external = (external != 0);
-	ptr->inherited = (inherited != 0);
-	ptr->finish = 0;
+	str = PtrStructPackageIterator(pos);
+	clearpoint(str);
+	str->internal = (internal != 0);
+	str->external = (external != 0);
+	str->inherited = (inherited != 0);
+	str->finish = 0;
 
 	/* no-package */
 	if (list == Nil) {
-		ptr->finish = 1;
+		str->finish = 1;
 		*ret = pos;
 		return;
 	}
@@ -2403,17 +2402,17 @@ static enum PACKAGE_TYPE hash_package_iterator(addr pos, addr *rets, addr *retp)
 {
 	enum PACKAGE_TYPE type;
 	addr table, key, value;
-	struct StructPackageIterator *ptr;
+	struct StructPackageIterator *str;
 	struct bittype_struct *bit;
 
-	ptr = PtrStructPackageIterator(pos);
+	str = PtrStructPackageIterator(pos);
 	GetPackageIterator(pos, PackageIterator_Table, &table);
 	while (next_hash_iterator(table, &key, &value)) {
 		bit = StructBitType(value);
 		type = bit->intern;
-		if ((ptr->internal && type == PACKAGE_TYPE_INTERNAL) ||
-				(ptr->external && type == PACKAGE_TYPE_EXTERNAL) ||
-				(ptr->inherited && type == PACKAGE_TYPE_INHERITED)) {
+		if ((str->internal && type == PACKAGE_TYPE_INTERNAL) ||
+				(str->external && type == PACKAGE_TYPE_EXTERNAL) ||
+				(str->inherited && type == PACKAGE_TYPE_INHERITED)) {
 			GetBitTypeSymbol(value, rets);
 			GetPackageIterator(pos, PackageIterator_Package, retp);
 			return type;
@@ -2444,11 +2443,11 @@ static void forward_package_iterator(addr pos)
 _g enum PACKAGE_TYPE next_package_iterator(addr pos, addr *rets, addr *retp)
 {
 	enum PACKAGE_TYPE type;
-	struct StructPackageIterator *ptr;
+	struct StructPackageIterator *str;
 
 	CheckType(pos, LISPSYSTEM_PACKAGEITERATOR);
-	ptr = PtrStructPackageIterator(pos);
-	while (! ptr->finish) {
+	str = PtrStructPackageIterator(pos);
+	while (! str->finish) {
 		type = hash_package_iterator(pos, rets, retp);
 		if (type != PACKAGE_TYPE_NIL) return type;
 		forward_package_iterator(pos);
@@ -2611,12 +2610,10 @@ static void defpackage_update_export(LocalRoot local, addr pos, addr list)
 	exportlist(pos, root);
 }
 
-static void defpackage_update(Execute ptr, addr pos, addr rest)
+static void defpackage_update(LocalRoot local, addr pos, addr rest)
 {
 	addr nicknames, use, shadow, shadowing, import, expt, intern;
-	LocalRoot local;
 
-	local = ptr->local;
 	List_bind(rest, &nicknames, &use, &shadow, &shadowing,
 			&import, &expt, &intern, NULL);
 	/* nicknames */
@@ -2659,7 +2656,7 @@ static int defpackage_make(Execute ptr, addr pos, addr rest)
 	SetDataFunction(call, pos);
 	pushhandler_control(ptr, symbol, call, 0);
 	/* code */
-	defpackage_update(ptr, pos, rest);
+	defpackage_update(ptr->local, pos, rest);
 	/* free */
 	return free_control(ptr, control);
 }
@@ -2695,7 +2692,7 @@ static int defpackage_execute(Execute ptr, addr rest)
 	else {
 		if (sizep)
 			resize_pacakge(pos, value);
-		defpackage_update(ptr, pos, rest);
+		defpackage_update(ptr->local, pos, rest);
 	}
 	setresult_control(ptr, pos);
 

@@ -451,6 +451,14 @@ _g void atan2_common(addr left, addr right, addr *ret)
 	}
 }
 
+_g void atan_optional_common(addr var, addr opt, addr *ret)
+{
+	if (opt == Unbound)
+		atan_common(var, ret);
+	else
+		atan2_common(var, opt, ret);
+}
+
 
 /*
  *  log
@@ -555,6 +563,14 @@ _g void log_base_common(addr value, addr base, addr *ret)
 			*ret = 0;
 			return;
 	}
+}
+
+_g void log_common(addr value, addr base, addr *ret)
+{
+	if (base == Unbound)
+		log_natural_common(value, ret);
+	else
+		log_base_common(value, base, ret);
 }
 
 

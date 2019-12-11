@@ -12,6 +12,8 @@
 #include "eval.h"
 #include "file.h"
 #include "format.h"
+#include "gc.h"
+#include "heap.h"
 #include "package.h"
 #include "pathname.h"
 #include "stream.h"
@@ -24,6 +26,7 @@ static int rtload_execute(Execute ptr, addr stream)
 {
 	addr pos;
 
+	gchold_push_local(ptr->local, stream);
 	/* test execute */
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_load(ptr);
@@ -60,7 +63,7 @@ static int loadrt_init(Execute ptr, const char *name)
 
 	/* title */
 	strvect_char_heap(&file, name);
-	fmts(T, "~&[~A]~%", file, NULL);
+	Return1(format_stdout(ptr, "~&[~A]~%", file, NULL));
 
 	/* (let ((*package* (find-package 'common-lisp-user))) ...) */
 	find_char_package(LISP_COMMON_USER, &package);
@@ -175,6 +178,9 @@ static int loadrt_lisp(const char *name)
 _g int loadrt(void)
 {
 	TITLE;
+#ifdef LISP_DEBUG_FORCE_GC
+	GcCounterForce = LISP_DEBUG_FORCE_GC;
+#endif
 	return loadrt_files();
 }
 #else

@@ -597,7 +597,7 @@ static void defgeneric_compute_applicable_methods(void)
 /* defmacro_define_method_combination(); */
 static void function_define_method_combination(Execute ptr, addr form, addr env)
 {
-	define_method_combination_common(ptr, form, env, &form);
+	define_method_combination_common(ptr->local, form, env, &form);
 	setresult_control(ptr, form);
 }
 

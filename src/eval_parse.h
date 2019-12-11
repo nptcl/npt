@@ -94,6 +94,8 @@ struct eval_parse {
 #define SetEvalParseType(x,v)		SetEvalParseType_Low(x,v)
 #endif
 
+_g void copy_environment(addr *ret, addr pos);
+
 _g void eval_parse_alloc(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte array);
 _g void eval_parse_local(LocalRoot local, addr *ret, enum EVAL_PARSE type, byte array);
 _g void eval_parse_heap(addr *ret, enum EVAL_PARSE type, byte array);
@@ -114,16 +116,13 @@ _g void setevalparsetype(addr pos, enum EVAL_PARSE value);
 _g void check_variable(addr symbol);
 _g void check_function_variable(addr symbol);
 _g int tagbody_tag_p(addr pos);
-_g int eval_parse(addr *ret, addr pos);
+_g int eval_parse(Execute ptr, addr *ret, addr pos);
 
-_g void copy_eval_parse_alloc(LocalRoot local, addr *ret, addr eval);
-_g void copy_eval_parse_local(LocalRoot local, addr *ret, addr eval);
-_g void copy_eval_parse_heap(addr *ret, addr eval);
-
-_g int parse_macro_lambda_list(addr *ret, addr args);
-_g int findmacro_environment(addr symbol, addr env, addr *ret);
-_g int macroexpand1(addr *ret, addr form, addr env, int *result);
-_g int macroexpand(addr *ret, addr form, addr env, int *result);
+_g int parse_ordinary(Execute ptr, addr *ret, addr args);
+_g int parse_macro_lambda_list(Execute ptr, addr *ret, addr args);
+_g int find_environment(addr symbol, addr env, addr *ret);
+_g int macroexpand1(Execute ptr, addr *ret, addr form, addr env, int *result);
+_g int macroexpand(Execute ptr, addr *ret, addr form, addr env, int *result);
 
 #endif
 

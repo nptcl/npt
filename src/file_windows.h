@@ -362,6 +362,10 @@ static inline int writecall_arch(file_type file,
 
 static inline int close_arch(file_type file)
 {
+	if (file == fileio_input) return 0;
+	if (file == fileio_output) return 0;
+	if (file == fileio_error) return 0;
+
 	if (CloseHandle(file) == 0) {
 		Debug("CloseHandle error");
 		return 1;

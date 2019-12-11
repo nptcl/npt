@@ -6,6 +6,7 @@
 #include "control.h"
 #include "equal.h"
 #include "execute.h"
+#include "gc.h"
 #include "integer.h"
 #include "setf.h"
 #include "symbol.h"
@@ -13,12 +14,9 @@
 static int function_call_cons(Execute ptr, int *result,
 		addr item, addr key, addr test, addr check, int notret)
 {
-	if (key != Nil) {
-		if (callclang_funcall(ptr, &check, key, check, NULL))
-			return 1;
-	}
-	if (callclang_funcall(ptr, &check, test, item, check, NULL))
-		return 1;
+	if (key != Nil)
+		Return1(callclang_funcall(ptr, &check, key, check, NULL));
+	Return1(callclang_funcall(ptr, &check, test, item, check, NULL));
 	*result = (notret? (check == Nil): (check != Nil));
 	return 0;
 }
@@ -26,12 +24,9 @@ static int function_call_cons(Execute ptr, int *result,
 static int function_if_call_cons(Execute ptr, int *result,
 		addr key, addr call, addr check)
 {
-	if (key != Nil) {
-		if (callclang_funcall(ptr, &check, key, check, NULL))
-			return 1;
-	}
-	if (callclang_funcall(ptr, &check, call, check, NULL))
-		return 1;
+	if (key != Nil)
+		Return1(callclang_funcall(ptr, &check, key, check, NULL));
+	Return1(callclang_funcall(ptr, &check, call, check, NULL));
 	*result = (check != Nil);
 	return 0;
 }
@@ -137,27 +132,33 @@ static int recursive_sublis_cons(struct sublis_struct *str, addr tree, addr *ret
 {
 	int check;
 	addr car, cdr;
+	LocalHold hold;
 
-	if (! consp(tree)) {
-		if (replace_sublis_cons(str, tree, &check, ret))
-			return 1;
+	/* atom */
+	if (! consp(tree))
+		return replace_sublis_cons(str, tree, &check, ret);
+
+	/* car */
+	hold = LocalHold_local(str->ptr);
+	GetCons(tree, &car, &cdr);
+	Return1(replace_sublis_cons(str, car, &check, &car));
+	localhold_push(hold, car);
+	if (! check) {
+		Return1(recursive_sublis_cons(str, car, &car));
+		localhold_push(hold, car);
 	}
-	else {
-		GetCons(tree, &car, &cdr);
-		if (replace_sublis_cons(str, car, &check, &car))
-			return 1;
-		if (! check) {
-			if (recursive_sublis_cons(str, car, &car))
-				return 1;
-		}
-		if (replace_sublis_cons(str, cdr, &check, &cdr))
-			return 1;
-		if (! check) {
-			if (recursive_sublis_cons(str, cdr, &cdr))
-				return 1;
-		}
-		cons_heap(ret, car, cdr);
+
+	/* cdr */
+	Return1(replace_sublis_cons(str, cdr, &check, &cdr));
+	localhold_push(hold, cdr);
+	if (! check) {
+		Return1(recursive_sublis_cons(str, cdr, &cdr));
+		localhold_push(hold, cdr);
 	}
+
+	/* result */
+	localhold_end(hold);
+	cons_heap(ret, car, cdr);
 
 	return 0;
 }
@@ -215,28 +216,34 @@ static int recursive_nsublis_cons(struct sublis_struct *str, addr tree, addr *re
 {
 	int check;
 	addr car, cdr;
+	LocalHold hold;
 
-	if (! consp(tree)) {
-		if (replace_sublis_cons(str, tree, &check, ret))
-			return 1;
+	/* atom */
+	if (! consp(tree))
+		return replace_sublis_cons(str, tree, &check, ret);
+
+	/* car */
+	hold = LocalHold_local(str->ptr);
+	GetCons(tree, &car, &cdr);
+	Return1(replace_sublis_cons(str, car, &check, &car));
+	localhold_push(hold, car);
+	if (! check) {
+		Return1(recursive_nsublis_cons(str, car, &car));
+		localhold_push(hold, car);
 	}
-	else {
-		GetCons(tree, &car, &cdr);
-		if (replace_sublis_cons(str, car, &check, &car))
-			return 1;
-		if (! check) {
-			if (recursive_nsublis_cons(str, car, &car))
-				return 1;
-		}
-		if (replace_sublis_cons(str, cdr, &check, &cdr))
-			return 1;
-		if (! check) {
-			if (recursive_nsublis_cons(str, cdr, &cdr))
-				return 1;
-		}
-		SetCons(tree, car, cdr);
-		*ret = tree;
+
+	/* cdr */
+	Return1(replace_sublis_cons(str, cdr, &check, &cdr));
+	localhold_push(hold, cdr);
+	if (! check) {
+		Return1(recursive_nsublis_cons(str, cdr, &cdr));
+		localhold_push(hold, cdr);
 	}
+
+	/* result */
+	localhold_end(hold);
+	SetCons(tree, car, cdr);
+	*ret = tree;
 
 	return 0;
 }
@@ -375,27 +382,33 @@ static int recursive_subst_cons(struct subst_struct *str, addr tree, addr *ret)
 {
 	int check;
 	addr car, cdr;
+	LocalHold hold;
 
-	if (! consp(tree)) {
-		if (replace_subst_cons(str, tree, &check, ret))
-			return 1;
+	/* atom */
+	if (! consp(tree))
+		return replace_subst_cons(str, tree, &check, ret);
+
+	/* car */
+	hold = LocalHold_local(str->ptr);
+	GetCons(tree, &car, &cdr);
+	Return1(replace_subst_cons(str, car, &check, &car));
+	localhold_push(hold, car);
+	if (! check) {
+		Return1(recursive_subst_cons(str, car, &car));
+		localhold_push(hold, car);
 	}
-	else {
-		GetCons(tree, &car, &cdr);
-		if (replace_subst_cons(str, car, &check, &car))
-			return 1;
-		if (! check) {
-			if (recursive_subst_cons(str, car, &car))
-				return 1;
-		}
-		if (replace_subst_cons(str, cdr, &check, &cdr))
-			return 1;
-		if (! check) {
-			if (recursive_subst_cons(str, cdr, &cdr))
-				return 1;
-		}
-		cons_heap(ret, car, cdr);
+
+	/* cdr */
+	Return1(replace_subst_cons(str, cdr, &check, &cdr));
+	localhold_push(hold, cdr);
+	if (! check) {
+		Return1(recursive_subst_cons(str, cdr, &cdr));
+		localhold_push(hold, cdr);
 	}
+
+	/* result */
+	localhold_end(hold);
+	cons_heap(ret, car, cdr);
 
 	return 0;
 }
@@ -417,28 +430,34 @@ static int recursive_nsubst_cons(struct subst_struct *str, addr tree, addr *ret)
 {
 	int check;
 	addr car, cdr;
+	LocalHold hold;
 
-	if (! consp(tree)) {
-		if (replace_subst_cons(str, tree, &check, ret))
-			return 1;
+	/* atom */
+	if (! consp(tree))
+		return replace_subst_cons(str, tree, &check, ret);
+
+	/* car */
+	hold = LocalHold_local(str->ptr);
+	GetCons(tree, &car, &cdr);
+	Return1(replace_subst_cons(str, car, &check, &car));
+	localhold_push(hold, car);
+	if (! check) {
+		Return1(recursive_nsubst_cons(str, car, &car));
+		localhold_push(hold, car);
 	}
-	else {
-		GetCons(tree, &car, &cdr);
-		if (replace_subst_cons(str, car, &check, &car))
-			return 1;
-		if (! check) {
-			if (recursive_nsubst_cons(str, car, &car))
-				return 1;
-		}
-		if (replace_subst_cons(str, cdr, &check, &cdr))
-			return 1;
-		if (! check) {
-			if (recursive_nsubst_cons(str, cdr, &cdr))
-				return 1;
-		}
-		SetCons(tree, car, cdr);
-		*ret = tree;
+
+	/* cdr */
+	Return1(replace_subst_cons(str, cdr, &check, &cdr));
+	localhold_push(hold, cdr);
+	if (! check) {
+		Return1(recursive_nsubst_cons(str, cdr, &cdr));
+		localhold_push(hold, cdr);
 	}
+
+	/* result */
+	localhold_end(hold);
+	SetCons(tree, car, cdr);
+	*ret = tree;
 
 	return 0;
 }
@@ -542,27 +561,33 @@ static int recursive_subst_if_cons(struct subst_struct *str, addr tree, addr *re
 {
 	int check;
 	addr car, cdr;
+	LocalHold hold;
 
-	if (! consp(tree)) {
-		if (replace_subst_if(str, tree, &check, ret))
-			return 1;
+	/* atom */
+	if (! consp(tree))
+		return replace_subst_if(str, tree, &check, ret);
+
+	/* car */
+	hold = LocalHold_local(str->ptr);
+	GetCons(tree, &car, &cdr);
+	Return1(replace_subst_if(str, car, &check, &car));
+	localhold_push(hold, car);
+	if (! check) {
+		Return1(recursive_subst_if_cons(str, car, &car));
+		localhold_push(hold, car);
 	}
-	else {
-		GetCons(tree, &car, &cdr);
-		if (replace_subst_if(str, car, &check, &car))
-			return 1;
-		if (! check) {
-			if (recursive_subst_if_cons(str, car, &car))
-				return 1;
-		}
-		if (replace_subst_if(str, cdr, &check, &cdr))
-			return 1;
-		if (! check) {
-			if (recursive_subst_if_cons(str, cdr, &cdr))
-				return 1;
-		}
-		cons_heap(ret, car, cdr);
+
+	/* cdr */
+	Return1(replace_subst_if(str, cdr, &check, &cdr));
+	localhold_push(hold, cdr);
+	if (! check) {
+		Return1(recursive_subst_if_cons(str, cdr, &cdr));
+		localhold_push(hold, cdr);
 	}
+
+	/* result */
+	localhold_end(hold);
+	cons_heap(ret, car, cdr);
 
 	return 0;
 }
@@ -584,28 +609,34 @@ static int recursive_nsubst_if_cons(struct subst_struct *str, addr tree, addr *r
 {
 	int check;
 	addr car, cdr;
+	LocalHold hold;
 
-	if (! consp(tree)) {
-		if (replace_subst_if(str, tree, &check, ret))
-			return 1;
+	/* atom */
+	if (! consp(tree))
+		return replace_subst_if(str, tree, &check, ret);
+
+	/* car */
+	hold = LocalHold_local(str->ptr);
+	GetCons(tree, &car, &cdr);
+	Return1(replace_subst_if(str, car, &check, &car));
+	localhold_push(hold, car);
+	if (! check) {
+		Return1(recursive_nsubst_if_cons(str, car, &car));
+		localhold_push(hold, car);
 	}
-	else {
-		GetCons(tree, &car, &cdr);
-		if (replace_subst_if(str, car, &check, &car))
-			return 1;
-		if (! check) {
-			if (recursive_nsubst_if_cons(str, car, &car))
-				return 1;
-		}
-		if (replace_subst_if(str, cdr, &check, &cdr))
-			return 1;
-		if (! check) {
-			if (recursive_nsubst_if_cons(str, cdr, &cdr))
-				return 1;
-		}
-		SetCons(tree, car, cdr);
-		*ret = tree;
+
+	/* cdr */
+	Return1(replace_subst_if(str, cdr, &check, &cdr));
+	localhold_push(hold, cdr);
+	if (! check) {
+		Return1(recursive_nsubst_if_cons(str, cdr, &cdr));
+		localhold_push(hold, cdr);
 	}
+
+	/* result */
+	localhold_end(hold);
+	SetCons(tree, car, cdr);
+	*ret = tree;
 
 	return 0;
 }
@@ -822,7 +853,7 @@ _g void make_list_common(addr var, addr rest, addr *ret)
 /*
  *  push
  */
-static void single_push_cons(Execute ptr, addr *ret,
+static void single_push_cons(addr *ret,
 		addr item, addr a, addr b, addr g, addr w, addr r)
 {
 	/* (let* ((a1 b1)
@@ -934,7 +965,7 @@ static int expansion_push_cons(Execute ptr, addr *ret, addr item, addr place, ad
 	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
 		return 1;
 	if (singlep(g))
-		single_push_cons(ptr, ret, item, a, b, g, w, r);
+		single_push_cons(ret, item, a, b, g, w, r);
 	else
 		multiple_push_cons(ptr, ret, item, a, b, g, w, r);
 
@@ -1324,7 +1355,7 @@ finish:
  */
 _g int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
 {
-	addr result, pos, car, cdr, args, next, temp1, temp2;
+	addr result, pos, car, cdr, args, next, temp1, temp2, hold;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -1347,6 +1378,8 @@ _g int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
 	if (callclang_apply(ptr, &pos, call, args))
 		return 1;
 	cons_heap(&result, pos, result);
+	gchold_local(local, &hold, 1);
+	setgchold(hold, 0, result);
 
 	/* second */
 	for (;;) {
@@ -1364,6 +1397,7 @@ _g int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
 		if (callclang_apply(ptr, &pos, call, args))
 			return 1;
 		cons_heap(&result, pos, result);
+		setgchold(hold, 0, result);
 	}
 
 finish:
@@ -1379,7 +1413,7 @@ finish:
  */
 _g int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
 {
-	addr result, pos, car, cdr, args, next, temp1, temp2, head;
+	addr result, pos, car, cdr, args, next, temp1, temp2, head, hold;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -1402,6 +1436,8 @@ _g int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
 	if (callclang_apply(ptr, &head, call, args))
 		return 1;
 	result = head;
+	gchold_local(local, &hold, 1);
+	setgchold(hold, 0, result);
 
 	/* second */
 	for (;;) {
@@ -1420,8 +1456,15 @@ _g int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
 			return 1;
 		/* nconc */
 		if (pos != Nil) {
-			setlastcdr_safe(head, pos);
-			head = pos;
+			if (result == Nil) {
+				result = head = pos;
+				gchold_local(local, &hold, 1);
+				setgchold(hold, 0, result);
+			}
+			else {
+				setlastcdr_safe(head, pos);
+				head = pos;
+			}
 		}
 	}
 
@@ -1495,7 +1538,7 @@ finish:
 _g int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	int loop;
-	addr result, pos, cdr, args, next, temp1, temp2;
+	addr result, pos, cdr, args, next, temp1, temp2, hold;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -1520,6 +1563,8 @@ _g int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
 	if (callclang_apply(ptr, &pos, call, args))
 		return 1;
 	cons_heap(&result, pos, result);
+	gchold_local(local, &hold, 1);
+	setgchold(hold, 0, result);
 
 	/* second */
 	while (loop) {
@@ -1537,6 +1582,7 @@ _g int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
 		if (callclang_apply(ptr, &pos, call, args))
 			return 1;
 		cons_heap(&result, pos, result);
+		setgchold(hold, 0, result);
 	}
 
 finish:
@@ -1553,7 +1599,7 @@ finish:
 _g int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
 {
 	int loop;
-	addr result, pos, cdr, args, next, temp1, temp2, head;
+	addr result, pos, cdr, args, next, temp1, temp2, head, hold;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -1578,6 +1624,8 @@ _g int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
 	if (callclang_apply(ptr, &head, call, args))
 		return 1;
 	result = head;
+	gchold_local(local, &hold, 1);
+	setgchold(hold, 0, result);
 
 	/* second */
 	while (loop) {
@@ -1596,8 +1644,15 @@ _g int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
 			return 1;
 		/* nconc */
 		if (pos != Nil) {
-			setlastcdr_safe(head, pos);
-			head = pos;
+			if (result == Nil) {
+				result = head = pos;
+				gchold_local(local, &hold, 1);
+				setgchold(hold, 0, result);
+			}
+			else {
+				setlastcdr_safe(head, pos);
+				head = pos;
+			}
 		}
 	}
 
@@ -2224,7 +2279,7 @@ _g int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *
 /*
  *  get-properties
  */
-_g void get_properties_common(Execute ptr, addr plist, addr indicator,
+_g void get_properties_common(addr plist, addr indicator,
 		addr *rkey, addr *rvalue, addr *rlist)
 {
 	addr key, value, next, list, check;
@@ -2351,14 +2406,19 @@ static int test_intersection_cons(Execute ptr, addr *ret,
 {
 	int check;
 	addr list, left;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	for (list = Nil; list1 != Nil; ) {
 		getcons(list1, &left, &list1);
 		if (check_intersection_cons(ptr, &check, left, list2, key, test, notret))
 			return 1;
-		if (check)
+		if (check) {
 			cons_heap(&list, left, list);
+			localhold_set(hold, 0, list);
+		}
 	}
+	localhold_end(hold);
 	*ret = list;
 
 	return 0;
@@ -2512,7 +2572,7 @@ _g int adjoin_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 /*
  *  pushnew
  */
-static void single_pushnew_cons(Execute ptr, addr *ret,
+static void single_pushnew_cons(addr *ret,
 		addr item, addr rest, addr a, addr b, addr g, addr w, addr r)
 {
 	/* (let* ((a1 b1)
@@ -2625,7 +2685,7 @@ static int expansion_pushnew_cons(Execute ptr, addr *ret,
 	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
 		return 1;
 	if (singlep(g))
-		single_pushnew_cons(ptr, ret, item, rest, a, b, g, w, r);
+		single_pushnew_cons(ret, item, rest, a, b, g, w, r);
 	else
 		multiple_pushnew_cons(ptr, ret, item, rest, a, b, g, w, r);
 
@@ -2658,14 +2718,19 @@ static int test_set_difference_cons(Execute ptr, addr *ret,
 {
 	int check;
 	addr list, left;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	for (list = Nil; list1 != Nil; ) {
 		getcons(list1, &left, &list1);
 		if (check_intersection_cons(ptr, &check, left, list2, key, test, notret))
 			return 1;
-		if (! check)
+		if (! check) {
 			cons_heap(&list, left, list);
+			localhold_set(hold, 0, list);
+		}
 	}
+	localhold_end(hold);
 	*ret = list;
 
 	return 0;
@@ -2774,15 +2839,19 @@ static int test_set_exclusive_or_cons(Execute ptr, addr *ret,
 {
 	int check;
 	addr result, list, left;
+	LocalHold hold;
 
 	result = Nil;
 	/* left -> right */
+	hold = LocalHold_array(ptr, 1);
 	for (list = list1; list != Nil; ) {
 		getcons(list, &left, &list);
 		if (check_intersection_cons(ptr, &check, left, list2, key, test, notret))
 			return 1;
-		if (! check)
+		if (! check) {
 			cons_heap(&result, left, result);
+			localhold_set(hold, 0, result);
+		}
 	}
 
 	/* right -> left */
@@ -2790,9 +2859,14 @@ static int test_set_exclusive_or_cons(Execute ptr, addr *ret,
 		getcons(list, &left, &list);
 		if (check_intersection_cons(ptr, &check, left, list1, key, test, notret))
 			return 1;
-		if (! check)
+		if (! check) {
 			cons_heap(&result, left, result);
+			localhold_set(hold, 0, result);
+		}
 	}
+
+	/* result */
+	localhold_end(hold);
 	*ret = result;
 
 	return 0;
@@ -2834,20 +2908,27 @@ static int test_nset_exclusive_or_cons(Execute ptr, addr *ret,
 {
 	int check;
 	addr result, list, left;
+	LocalHold hold;
 
-	/* right -> left */
 	result = Nil;
+	/* right -> left */
+	hold = LocalHold_array(ptr, 1);
 	for (list = list2; list != Nil; ) {
 		getcons(list, &left, &list);
 		if (check_intersection_cons(ptr, &check, left, list1, key, test, notret))
 			return 1;
-		if (! check)
+		if (! check) {
 			cons_heap(&result, left, result);
+			localhold_set(hold, 0, result);
+		}
 	}
 
 	/* left -> right */
 	if (test_nset_difference_cons(ptr, &list1, list1, list2, key, test, notret))
 		return 1;
+
+	/* result */
+	localhold_end(hold);
 	nconc2_safe(result, list1, ret);
 
 	return 0;
@@ -2938,15 +3019,19 @@ static int test_union_cons(Execute ptr, addr *ret,
 {
 	int check;
 	addr list, left;
+	LocalHold hold;
 
-	/* left */
 	list = Nil;
+	/* left */
+	hold = LocalHold_array(ptr, 1);
 	while (list1 != Nil) {
 		getcons(list1, &left, &list1);
 		if (check_intersection_cons(ptr, &check, left, list, key, test, notret))
 			return 1;
-		if (! check)
+		if (! check) {
 			cons_heap(&list, left, list);
+			localhold_set(hold, 0, list);
+		}
 	}
 
 	/* right */
@@ -2954,9 +3039,14 @@ static int test_union_cons(Execute ptr, addr *ret,
 		getcons(list2, &left, &list2);
 		if (check_intersection_cons(ptr, &check, left, list, key, test, notret))
 			return 1;
-		if (! check)
+		if (! check) {
 			cons_heap(&list, left, list);
+			localhold_set(hold, 0, list);
+		}
 	}
+
+	/* result */
+	localhold_end(hold);
 	*ret = list;
 
 	return 0;
@@ -3042,19 +3132,27 @@ static int test_nunion_cons(Execute ptr, addr *ret,
 {
 	int check;
 	addr left;
+	LocalHold hold;
 
 	/* left */
 	if (single_nunion_cons(ptr, &list1, list1, key, test, notret))
 		return 1;
+	hold = LocalHold_array(ptr, 1);
+	localhold_set(hold, 0, list1);
 
 	/* right */
 	while (list2 != Nil) {
 		getcons(list2, &left, &list2);
 		if (check_intersection_cons(ptr, &check, left, list1, key, test, notret))
 			return 1;
-		if (! check)
+		if (! check) {
 			cons_heap(&list1, left, list1);
+			localhold_set(hold, 0, list1);
+		}
 	}
+
+	/* result */
+	localhold_end(hold);
 	*ret = list1;
 
 	return 0;

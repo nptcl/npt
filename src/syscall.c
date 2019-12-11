@@ -76,52 +76,6 @@ static void defun_hello(void)
 
 
 /*
- *  fixnum+
- */
-static void syscall_fixnum_plus(Execute ptr, addr list)
-{
-	addr pos;
-	fixnum value;
-
-	for (value = 0; list != Nil; ) {
-		getcons(list, &pos, &list);
-		if (! fixnump(pos)) {
-			setresult_control(ptr, Nil);
-			return;
-		}
-		value += RefFixnum(pos);
-	}
-	fixnum_heap(&pos, value);
-	setresult_control(ptr, pos);
-}
-
-static void type_fixnum_plus(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, Fixnum);
-	typeargs_rest(&args, args);
-	GetTypeTable(&values, Asterisk);
-	type_compiled_heap(args, values, ret);
-}
-
-static void defun_fixnum_plus(void)
-{
-	addr symbol, pos, type;
-
-	/* function */
-	GetConst(SYSTEM_FIXNUM_PLUS, &symbol);
-	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, p_defun_syscall_fixnum_plus);
-	SetFunctionSymbol(symbol, pos);
-	/* type */
-	type_fixnum_plus(&type);
-	settype_function(pos, type);
-	settype_function_symbol(symbol, type);
-}
-
-
-/*
  *  infobit
  */
 static void syscall_infobit(Execute ptr, addr list)
@@ -246,7 +200,7 @@ static void defun_gc(void)
 static void syscall_savecore(Execute ptr, addr file)
 {
 	pathname_designer_local(ptr, file, &file);
-	savecore_execute(file);
+	savecore_execute(ptr, file);
 	setresult_control(ptr, Nil);
 }
 
@@ -281,13 +235,13 @@ static void defun_savecore(void)
  */
 static void syscall_redirect_restart_call(Execute ptr, addr right)
 {
-	addr condition, pos;
+	addr condition, value, pos;
 
-	list_bind(right, &condition, &right, NULL);
+	list_bind(right, &condition, &value, NULL);
 	if (! conditionp(condition))
 		fmte("The argument ~S must be a condition.", condition, NULL);
-	while (right != Nil) {
-		getcons(right, &pos, &right);
+	while (value != Nil) {
+		getcons(value, &pos, &value);
 		if (GetType(pos) != LISPTYPE_RESTART)
 			fmte("The argument ~S must be a restart.", pos, NULL);
 		pushbind_restart_control(ptr, pos, 0);
@@ -927,17 +881,23 @@ static void syscall_defsetf_short(Execute ptr,
 {
 	int check;
 	addr a, b, g, w, r, pos, v;
+	LocalHold hold;
 
 	if (env == Unbound) env = Nil;
 	make_gensym(ptr, &g);
 	conscar_heap(&w, update);
 	conscar_heap(&r, access);
 	a = b = Nil;
+
+	hold = LocalHold_array(ptr, 5);
+	localhold_set(hold, 2, g);
+	localhold_set(hold, 3, w);
+	localhold_set(hold, 4, r);
 	while (args != Nil) {
 		if (! consp(args))
 			fmte("Invalid call argument ~S.", args, NULL);
 		GetCons(args, &pos, &args);
-		if (eval_constantp(pos, env, &check))
+		if (eval_constantp(ptr, pos, env, &check))
 			return;
 		if (check) {
 			cons_heap(&w, pos, w);
@@ -949,8 +909,14 @@ static void syscall_defsetf_short(Execute ptr,
 			cons_heap(&b, pos, b);
 			cons_heap(&w, v, w);
 			cons_heap(&r, v, r);
+			localhold_set(hold, 0, a);
+			localhold_set(hold, 1, b);
 		}
+		localhold_set(hold, 3, w);
+		localhold_set(hold, 4, r);
 	}
+	localhold_end(hold);
+
 	cons_heap(&w, g, w);
 	nreverse_list_unsafe(&a, a);
 	nreverse_list_unsafe(&b, b);
@@ -1094,6 +1060,7 @@ static void syscall_defsetf_write(Execute ptr, addr *ret, addr c, addr d, addr b
 	 */
 	addr root, x, y;
 	addr quote, let, declare, ignorable;
+	LocalHold hold;
 
 	GetConst(COMMON_QUOTE, &quote);
 	GetConst(COMMON_LET, &let);
@@ -1114,14 +1081,16 @@ static void syscall_defsetf_write(Execute ptr, addr *ret, addr c, addr d, addr b
 	list_heap(&declare, declare, ignorable, NULL);
 	/* let */
 	lista_heap(&root, let, root, declare, body, NULL);
+	hold = LocalHold_local_push(ptr, root);
 	eval_object(ptr, root, ret);
+	localhold_end(hold);
 }
 
-//static void syscall_defsetf_long(Execute ptr, addr rest)
 static void syscall_defsetf_long(Execute ptr, addr rest)
 {
 	addr access, lambda, store, body, args, env;
 	addr quote, a, b, c, d, g, w, r;
+	LocalHold hold;
 
 	list_bind(rest, &access, &lambda, &store, &body, &args, &env, NULL);
 	lambda_defsetf(ptr->local, &lambda, lambda);
@@ -1134,7 +1103,12 @@ static void syscall_defsetf_long(Execute ptr, addr rest)
 	 *   '(access d...))
 	 */
 	GetConst(COMMON_QUOTE, &quote);
+
+	hold = LocalHold_local(ptr);
+	localhold_pushva(hold, a, b, c, d, g, NULL);
 	syscall_defsetf_write(ptr, &w, c, d, body);
+	localhold_end(hold);
+
 	cons_heap(&r, access, d);
 	setvalues_control(ptr, a, b, g, w, r, NULL);
 }
@@ -1433,6 +1407,7 @@ static void defun_make_extend_output_stream(void)
 static void syscall_prompt_for(Execute ptr, addr type, addr args)
 {
 	addr format;
+	LocalHold hold;
 
 	if (args == Nil) {
 		strvect_char_heap(&format, "Input> ");
@@ -1442,8 +1417,11 @@ static void syscall_prompt_for(Execute ptr, addr type, addr args)
 		if (format_string_lisp(ptr, format, args, &format))
 			return;
 	}
+
+	hold = LocalHold_local_push(ptr, format);
 	if (prompt_for_stream(ptr, type, format, &format))
 		return;
+	localhold_end(hold);
 	setresult_control(ptr, format);
 }
 
@@ -1691,10 +1669,13 @@ static void defun_large_number(void)
 static void syscall_format_formatter(Execute ptr, addr var, addr args)
 {
 	addr stream;
+	LocalHold hold;
 
 	standard_output_stream(ptr, &stream);
+	hold = LocalHold_local_push(ptr, stream);
 	if (format_stream_args(ptr, stream, var, args, &var))
 		return;
+	localhold_end(hold);
 	setresult_control(ptr, var);
 }
 
@@ -1769,11 +1750,14 @@ static void defun_print_unreadable_call(void)
 static void syscall_write_default(Execute ptr, addr stream, addr var)
 {
 	addr control;
+	LocalHold hold;
 
 	output_stream_designer(ptr, stream, &stream);
 	push_close_control(ptr, &control);
+	hold = LocalHold_local_push(ptr, stream);
 	if (write_default_print(ptr, stream, var))
 		return;
+	localhold_end(hold);
 	setresult_control(ptr, var);
 }
 
@@ -2054,8 +2038,7 @@ static void defun_delete_deftype(void)
  */
 static void syscall_ensure_structure(Execute ptr, addr name, addr slots, addr rest)
 {
-	if (ensure_structure_common(ptr, name, slots, rest))
-		return;
+	ensure_structure_common(ptr, name, slots, rest);
 	setresult_control(ptr, name);
 }
 
@@ -2527,7 +2510,6 @@ static void defun_eastasian_width(void)
 _g void init_syscall(void)
 {
 	SetPointerSysCall(defun, empty, hello);
-	SetPointerSysCall(defun, dynamic, fixnum_plus);
 	SetPointerSysCall(defun, dynamic, infobit);
 	SetPointerSysCall(defun, dynamic, infoprint);
 	SetPointerSysCall(defun, dynamic, gc);
@@ -2602,7 +2584,6 @@ _g void build_syscall(void)
 {
 	/* system call */
 	defun_hello();
-	defun_fixnum_plus();
 	defun_infobit();
 	defun_infoprint();
 	defun_gc();

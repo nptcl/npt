@@ -11,6 +11,7 @@
 #include "define.h"
 #include "equal.h"
 #include "function.h"
+#include "gc.h"
 #include "hashtable.h"
 #include "lambda.h"
 #include "pointer.h"
@@ -681,11 +682,15 @@ static void generic_make_array(addr *ret, addr gen, addr type)
 static int generic_make_type(Execute ptr, addr *ret, addr gen, addr type)
 {
 	addr comb, data;
+	LocalHold hold;
 
 	stdget_generic_method_combination(gen, &comb);
 	generic_make_array(&data, gen, type);
+	hold = LocalHold_local_push(ptr, data);
+	Return1(comb_lambda(ptr, ret, gen, comb, data));
+	localhold_end(hold);
 
-	return comb_lambda(ptr, ret, gen, comb, data);
+	return 0;
 }
 
 static void generic_make_mapcar_class_of(LocalRoot local,
@@ -712,8 +717,9 @@ static void generic_make_mapcar_class_of(LocalRoot local,
 static int generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
 {
 	addr eqlcheck, cache, key, value, cons;
-	LocalRoot local;
 	clos_generic_call call;
+	LocalRoot local;
+	LocalHold hold;
 
 	local = ptr->local;
 	GetClosGenericCallArray(inst, 0, &eqlcheck);
@@ -722,8 +728,9 @@ static int generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
 	if (! findvalue_hashtable(cache, key, &value)) {
 		/* not found, tranlate to heap-list from dynamic list */
 		copy_list_heap_unsafe(&key, key);
-		if (generic_make_type(ptr, &value, gen, key))
-			return 1;
+		hold = LocalHold_local_push(ptr, key);
+		Return1(generic_make_type(ptr, &value, gen, key));
+		localhold_end(hold);
 		intern_hashheap(cache, key, &cons);
 		SetCdr(cons, value);
 	}

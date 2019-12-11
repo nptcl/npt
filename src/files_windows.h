@@ -438,9 +438,10 @@ static void merge_directory_pathname(LocalRoot local, addr *ret, addr pos, addr 
 	*ret = one;
 }
 
-static void ensure_directories_exist_run_files(LocalRoot local,
+static void ensure_directories_exist_run_files(Execute ptr,
 		addr *ret, addr pos, int verbose)
 {
+	LocalRoot local;
 	LocalStack stack;
 	const WCHAR *str;
 	addr list, value, root, temp, result;
@@ -452,6 +453,7 @@ static void ensure_directories_exist_run_files(LocalRoot local,
 	if (! consp(list))
 		fmte("Invalid pathname directory ~S.", pos, NULL);
 	result = Nil;
+	local = ptr->local;
 	conscar_local(local, &root, value);
 	while (list != Nil) {
 		GetCons(list, &value, &list);
@@ -477,7 +479,7 @@ static void ensure_directories_exist_run_files(LocalRoot local,
 		result = T;
 		/* verbose */
 		if (verbose)
-			format("~&Creating directory: ~S~%", temp, NULL);
+			format_stdout(ptr, "~&Creating directory: ~S~%", temp, NULL);
 		/* continue */
 		rollback_local(local, stack);
 	}
@@ -503,7 +505,7 @@ _g void ensure_directories_exist_files(Execute ptr,
 	/* loop */
 	local = ptr->local;
 	push_local(local, &stack);
-	ensure_directories_exist_run_files(local, ret2, pos, verbose);
+	ensure_directories_exist_run_files(ptr, ret2, pos, verbose);
 	rollback_local(local, stack);
 	/* result */
 	*ret1 = pos;

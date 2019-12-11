@@ -6,6 +6,7 @@
 #include "control.h"
 #include "eastasian.h"
 #include "heap.h"
+#include "gc.h"
 #include "integer.h"
 #include "object.h"
 #include "print.h"
@@ -46,12 +47,12 @@ static struct print_pretty_struct *struct_print_pretty(addr pos)
 static void print_pretty_heap(addr *ret, enum print_pretty type)
 {
 	addr pos;
-	struct print_pretty_struct *ptr;
+	struct print_pretty_struct *str;
 
 	heap_smallsize(&pos, LISPSYSTEM_PRINT_PRETTY,
 			1UL, sizeoft(struct print_pretty_struct));
-	ptr = struct_print_pretty(pos);
-	ptr->type = type;
+	str = struct_print_pretty(pos);
+	str->type = type;
 	*ret = pos;
 }
 
@@ -110,13 +111,13 @@ static int pretty_print_terpri_p(addr pos)
 
 static int pretty_print_force_p(addr pos)
 {
-	struct print_pretty_struct *ptr;
+	struct print_pretty_struct *str;
 
 	if (! print_pretty_p(pos))
 		return 0;
-	ptr = struct_print_pretty(pos);
-	return ptr->type == print_pretty_newline_mandatory
-		|| ptr->type == print_pretty_newline_terpri;
+	str = struct_print_pretty(pos);
+	return str->type == print_pretty_newline_mandatory
+		|| str->type == print_pretty_newline_terpri;
 }
 
 static int pretty_print_indent_block_p(addr pos)
@@ -133,13 +134,13 @@ static int pretty_print_indent_current_p(addr pos)
 
 static int pretty_print_indent_p(addr pos)
 {
-	struct print_pretty_struct *ptr;
+	struct print_pretty_struct *str;
 
 	if (! print_pretty_p(pos))
 		return 0;
-	ptr = struct_print_pretty(pos);
-	return ptr->type == print_pretty_indent_block
-		|| ptr->type == print_pretty_indent_current;
+	str = struct_print_pretty(pos);
+	return str->type == print_pretty_indent_block
+		|| str->type == print_pretty_indent_current;
 }
 
 static int pretty_print_tabular_line_p(addr pos)
@@ -168,37 +169,37 @@ static int pretty_print_tabular_sectionr_p(addr pos)
 
 static int pretty_print_tabular_p(addr pos)
 {
-	struct print_pretty_struct *ptr;
+	struct print_pretty_struct *str;
 
 	if (! print_pretty_p(pos))
 		return 0;
-	ptr = struct_print_pretty(pos);
-	return ptr->type == print_pretty_tabular_line
-		|| ptr->type == print_pretty_tabular_section
-		|| ptr->type == print_pretty_tabular_liner
-		|| ptr->type == print_pretty_tabular_sectionr;
+	str = struct_print_pretty(pos);
+	return str->type == print_pretty_tabular_line
+		|| str->type == print_pretty_tabular_section
+		|| str->type == print_pretty_tabular_liner
+		|| str->type == print_pretty_tabular_sectionr;
 }
 
 static void fixnum_pretty_heap(addr *ret, enum print_pretty type, fixnum a)
 {
 	addr pos;
-	struct print_pretty_struct *ptr;
+	struct print_pretty_struct *str;
 
 	print_pretty_heap(&pos, type);
-	ptr = struct_print_pretty(pos);
-	ptr->value = a;
+	str = struct_print_pretty(pos);
+	str->value = a;
 	*ret = pos;
 }
 
 static void size2_pretty_heap(addr *ret, enum print_pretty type, fixnum a, fixnum b)
 {
 	addr pos;
-	struct print_pretty_struct *ptr;
+	struct print_pretty_struct *str;
 
 	print_pretty_heap(&pos, type);
-	ptr = struct_print_pretty(pos);
-	ptr->value = a;
-	ptr->colinc = b;
+	str = struct_print_pretty(pos);
+	str->value = a;
+	str->colinc = b;
 	*ret = pos;
 }
 
@@ -206,8 +207,7 @@ static void size2_pretty_heap(addr *ret, enum print_pretty type, fixnum a, fixnu
 /*
  *  common
  */
-_g void expand_pprint_logical_block_common(Execute ptr,
-		addr *ret, addr symbol, addr pos,
+_g void expand_pprint_logical_block_common(addr *ret, addr symbol, addr pos,
 		addr prefix, addr perline, addr suffix, addr decl, addr body)
 {
 	/* `(let ((,symbol (system::make-pprint-stream
@@ -318,8 +318,9 @@ static int pprint_pop_atom(Execute ptr, addr stream)
 	if (! first_pretty_stream(stream))
 		print_ascii_stream(stream, ". ");
 	pop_pretty_stream(stream, &pos);
-	return write_print(ptr, stream, pos)
-		|| pprint_throw(ptr, stream);
+	Return1(write_print(ptr, stream, pos));
+
+	return pprint_throw(ptr, stream);
 }
 
 static int pprint_length_check(Execute ptr, addr stream)

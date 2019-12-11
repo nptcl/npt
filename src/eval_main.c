@@ -5,6 +5,7 @@
 #include "execute.h"
 #include "format.h"
 #include "function.h"
+#include "gc.h"
 #include "prompt.h"
 #include "readtable.h"
 #include "stream.h"
@@ -21,7 +22,7 @@ static void function_eval_loop_abort_function(Execute ptr)
 
 static void function_eval_loop_abort_report(Execute ptr, addr stream)
 {
-	fmts(stream, "Return to eval-loop.", NULL);
+	Return0(format_stream(ptr, stream, "Return to eval-loop.", NULL));
 	setresult_control(ptr, Nil);
 }
 
@@ -116,13 +117,13 @@ static void eval_loop_shift(Execute ptr, addr list)
 	setlexical_local(ptr, sym3, pos3);
 }
 
-_g void eval_loop_output(Execute ptr, addr stream, addr control)
+_g int eval_loop_output(Execute ptr, addr stream, addr control)
 {
 	addr list;
 
 	getvalues_list_control_heap(ptr, &list);
 	eval_loop_shift(ptr, list);
-	fmts(stream, "~&~{~S~%~}~&", list, NULL);
+	return format_stream(ptr, stream, "~&~{~S~%~}~&", list, NULL);
 }
 
 static int eval_loop_stream(Execute ptr, addr stream, addr pos)
@@ -137,7 +138,7 @@ static int eval_loop_stream(Execute ptr, addr stream, addr pos)
 		return runcode_free_control(ptr, control);
 	}
 	else {
-		eval_loop_output(ptr, stream, pos);
+		Return1(eval_loop_output(ptr, stream, pos));
 		return free_control(ptr, control);
 	}
 }
@@ -268,12 +269,16 @@ static int evalcall_string_result(Execute ptr, addr eval)
 {
 	int check;
 	addr stream, control;
+	LocalHold hold;
 
 	push_close_control(ptr, &control);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
+
 	open_input_string_stream(&stream, eval);
+	hold = LocalHold_local_push(ptr, stream);
 	check = eval_stream(ptr, stream);
+	localhold_end(hold);
 	close_stream(stream);
 
 	return free_check_control(ptr, control, check);

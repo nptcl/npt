@@ -17,7 +17,7 @@ _g void open_synonym_stream(addr *stream, addr symbol)
 		TypeError(symbol, SYMBOL);
 	stream_heap(&pos, StreamType_Synonym, 0);
 	SetInfoStream(pos, symbol);
-	*stream = pos;
+	force_open_stream(pos, stream);
 }
 
 _g void get_synonym_stream(addr stream, addr *ret)

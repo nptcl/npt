@@ -135,7 +135,7 @@ static int test_speed_on(void)
 static void parse_eval_string(addr *ret, const char *str)
 {
 	readstring(ret, str);
-	eval_parse(ret, *ret);
+	eval_parse(Execute_Thread, ret, *ret);
 }
 
 static int test_check_evaltype(void)
@@ -254,7 +254,7 @@ static void implicit_string(addr *ret, const char *str)
 	Check(! listp(cons), "type error");
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &pos, &cons);
-		eval_parse(&pos, pos);
+		eval_parse(Execute_Thread, &pos, pos);
 		cons_heap(&root, pos, root);
 	}
 	nreverse_list_unsafe(ret, root);

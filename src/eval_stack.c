@@ -514,4 +514,3 @@ _g void apply_declare_function_stack(LocalRoot local, addr stack, addr call, add
 	/* declaration is proclamation only. */
 }
 
-

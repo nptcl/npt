@@ -1036,7 +1036,6 @@ enum pointer_index {
 	p_pprint_logical_block_vector_form,
 	/* syscall */
 	p_defun_syscall_hello,
-	p_defun_syscall_fixnum_plus,
 	p_defun_syscall_infobit,
 	p_defun_syscall_infoprint,
 	p_defun_syscall_gc,

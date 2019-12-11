@@ -362,6 +362,14 @@
 #define LISP_MEMORY_UNINIT
 #endif
 
+/* garbage collection */
+#ifdef LISP_DEBUG
+#ifndef LISP_DEBUG_MEMORY
+#define LISP_DEBUG_MEMORY
+#endif
+#endif
+/* #define LISP_DEBUG_FORCE_GC 1 */
+
 /* long float */
 #if defined(LISP_FLOAT_LONG_64)
 #define LISP_FLOAT_LONG			64

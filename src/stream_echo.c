@@ -17,7 +17,7 @@ _g void open_echo_stream(addr *stream, addr input, addr output)
 	stream_heap(&pos, StreamType_Echo, 0);
 	SetInputStream(pos, input);
 	SetOutputStream(pos, output);
-	*stream = pos;
+	force_open_stream(pos, stream);
 }
 
 _g void get_echo_input_stream(addr stream, addr *ret)

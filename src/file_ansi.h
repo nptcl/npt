@@ -269,6 +269,10 @@ static inline int writecall_arch(file_type file,
 
 static inline int close_arch(file_type file)
 {
+	if (file == stdin) return 0;
+	if (file == stdout) return 0;
+	if (file == stderr) return 0;
+
 	if (fclose(file)) {
 		Debug("close error");
 		return 1;

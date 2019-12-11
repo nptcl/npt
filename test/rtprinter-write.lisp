@@ -15,10 +15,21 @@
 
 (deftest write-nil.3
   (with-default-print
+    (write-to-string nil))
+
+  "NIL")
+
+(deftest write-nil.4
+  (with-default-print
+    (let ((*print-circle* t))
+      (princ-to-string nil)))
+  "NIL")
+
+(deftest write-nil.5
+  (with-default-print
     (let ((*print-circle* t))
       (write-to-string nil)))
   "NIL")
-
 
 ;; t
 (deftest write-t.1

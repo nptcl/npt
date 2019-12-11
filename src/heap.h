@@ -24,6 +24,9 @@ __extern void *heap_alloc;
 __extern addr heap_root;
 __extern addr heap_front;
 __extern addr heap_pos;
+#ifdef LISP_DEBUG_FORCE_GC
+__extern size_t GcCounterForce;
+#endif
 
 /* function */
 _g int alloc_heap(size_t);

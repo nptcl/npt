@@ -559,28 +559,16 @@ _g void exit_code(Execute ptr, lispcode code)
 {
 	longjmp(*(ptr->exec), code);
 }
-_g void exit_code_thread(lispcode code)
-{
-	exit_code(Execute_Thread, code);
-}
 
 _g void break_code(Execute ptr)
 {
 	exit_code(ptr, LISPCODE_SUCCESS);
-}
-_g void break_code_thread(void)
-{
-	break_code(Execute_Thread);
 }
 
 _g void throw_code(Execute ptr, lispcode code)
 {
 	if (code_error_p(code))
 		exit_code(ptr, code);
-}
-_g void throw_code_thread(lispcode code)
-{
-	throw_code(Execute_Thread, code);
 }
 _g void throw_switch(codejump *code)
 {
@@ -601,6 +589,9 @@ _g void gcstate_execute(void)
 	size_t i;
 	struct execute *ptr;
 
+	if (ExecuteArray == NULL)
+		return;
+
 	lock_mutexlite(&ExecuteMutex);
 	for (i = 0; i < ExecuteSize; i++) {
 		ptr = ExecuteArray[i];
@@ -614,8 +605,15 @@ _g void gcstate_execute(void)
 				ptr->state = ThreadState_Signal;
 				break;
 
+			case ThreadState_Signal:
+				break;
+
+			case ThreadState_GcStart:
+				Debug("state error: GcStart");
+				exitthis(LISPCODE_ERROR);
+
 			default:
-				Debug("state error");
+				Debug("state error: [invalid]");
 				exitthis(LISPCODE_ERROR);
 				break;
 		}

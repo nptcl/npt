@@ -3149,7 +3149,7 @@ static int fmtcall_args(Execute ptr, addr stream, addr format, struct fmtstack *
 
 
 /*
- *  format
+ *  format arguments
  */
 _g int format_stream_args(Execute ptr, addr stream, addr format, addr args, addr *tail)
 {
@@ -3186,23 +3186,26 @@ _g int format_string_args(Execute ptr, addr format, addr args, addr *ret, addr *
 _g int format_args(Execute ptr,
 		addr stream, addr format, addr args, addr *ret, addr *tail)
 {
-	if (stream == Nil) {
+	if (stream == Nil)
 		return format_string_args(ptr, format, args, ret, tail);
-	}
-	else if (stream == T) {
+
+	if (stream == T) {
 		standard_output_stream(ptr, &stream);
 		return format_stream_args(ptr, stream, format, args, tail);
 	}
-	else if (stringp(stream)) {
-		Abort("TODO: make vector-push-extend stream.");
-	}
-	else {
-		return format_stream_args(ptr, stream, format, args, tail);
+
+	if (stringp(stream)) {
+		fmte("TODO: make vector-push-extend stream.", NULL);
+		return 0;
 	}
 
-	return 0;
+	return format_stream_args(ptr, stream, format, args, tail);
 }
 
+
+/*
+ *  format function
+ */
 _g int format_stream_lisp(Execute ptr, addr stream, addr format, addr args)
 {
 	return format_stream_args(ptr, stream, format, args, &args);
@@ -3222,217 +3225,57 @@ _g int format_lisp(Execute ptr, addr stream, addr format, addr args, addr *ret)
 /*
  *  format clang
  */
-_g int format_stdarg(addr stream, const char *str, va_list args)
+static int format_stdarg(Execute ptr,
+		addr stream, const char *str, va_list args, addr *ret)
 {
 	addr format, list;
-	Execute ptr;
 	LocalRoot local;
 	LocalStack stack;
 
-	ptr = Execute_Thread;
 	local = ptr->local;
 	push_local(local, &stack);
 	strvect_char_local(local, &format, str);
 	list_alloc_stdarg(local, &list, args);
-	if (format_lisp(ptr, stream, format, list, &list)) return 1;
+	if (format_lisp(ptr, stream, format, list, ret))
+		return 1;
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-_g int format_stream(addr stream, const char *str, ...)
+_g int format_stream(Execute ptr, addr stream, const char *str, ...)
 {
 	int check;
 	va_list args;
 
 	va_start(args, str);
-	check = format_stdarg(stream, str, args);
+	check = format_stdarg(ptr, stream, str, args, NULL);
 	va_end(args);
 
 	return check;
 }
 
-_g int format(const char *str, ...)
+_g int format_string(Execute ptr, addr *ret, const char *str, ...)
 {
 	int check;
-	addr stream;
 	va_list args;
 
-	standard_output_stream(Execute_Thread, &stream);
 	va_start(args, str);
-	check = format_stdarg(stream, str, args);
+	check = format_stdarg(ptr, Nil, str, args, ret);
 	va_end(args);
 
 	return check;
 }
 
-_g addr format_string_stdarg(LocalRoot local, const char *str, va_list args)
+_g int format_stdout(Execute ptr, const char *str, ...)
 {
-	addr stream, pos;
-
-	open_output_string_stream(&stream, 0);
-	if (format_stdarg(stream, str, args)) {
-		fmte("Cannot execute format call.", NULL);
-		return NULL;
-	}
-	string_stream_alloc(local, stream, &pos);
-	close_stream(stream);
-
-	return pos;
-}
-
-_g addr format_alloc(LocalRoot local, const char *str, ...)
-{
-	addr pos;
+	int check;
 	va_list args;
 
 	va_start(args, str);
-	pos = format_string_stdarg(local, str, args);
+	check = format_stdarg(ptr, T, str, args, NULL);
 	va_end(args);
 
-	return pos;
-}
-
-_g addr format_local(LocalRoot local, const char *str, ...)
-{
-	addr pos;
-	va_list args;
-
-	Check(local == NULL, "local error");
-	va_start(args, str);
-	pos = format_string_stdarg(local, str, args);
-	va_end(args);
-
-	return pos;
-}
-
-_g addr format_heap(const char *str, ...)
-{
-	addr pos;
-	va_list args;
-
-	va_start(args, str);
-	pos = format_string_stdarg(NULL, str, args);
-	va_end(args);
-
-	return pos;
-}
-
-_g addr fmtl(const char *str, ...)
-{
-	addr pos;
-	va_list args;
-
-	va_start(args, str);
-	pos = format_string_stdarg(Local_Thread, str, args);
-	va_end(args);
-
-	return pos;
-}
-
-
-/*
- *  printf -> string
- */
-_g addr localf_stdarg(LocalRoot local, const char *str, va_list args)
-{
-	int size;
-	addr pos;
-	char *ptr;
-	va_list copy;
-
-	Check(local == NULL, "local error");
-	va_copy(copy, args);
-	size = vsnprintc(NULL, 0, str, copy);
-	if (size < 0) {
-		fmte("vsnprintc error.", NULL);
-		return NULL;
-	}
-	size++;
-
-	ptr = (char *)lowlevel_local(local, size);
-	size = vsnprintc(ptr, size, str, args);
-	if (size < 0) {
-		fmte("vsnprintc error.", NULL);
-		return NULL;
-	}
-	strvect_char_local(local, &pos, ptr);
-
-	return pos;
-}
-
-_g addr heapf_stdarg(const char *str, va_list args)
-{
-	int size;
-	addr pos;
-	char *ptr;
-	LocalRoot local;
-	LocalStack stack;
-	va_list copy;
-
-	va_copy(copy, args);
-	size = vsnprintc(NULL, 0, str, copy);
-	if (size < 0) {
-		fmte("vsnprintc error.", NULL);
-		return NULL;
-	}
-	size++;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	ptr = (char *)lowlevel_local(local, size);
-	size = vsnprintc(ptr, size, str, args);
-	if (size < 0) {
-		fmte("vsnprintc error.", NULL);
-		return NULL;
-	}
-	strvect_char_heap(&pos, ptr);
-	rollback_local(local, stack);
-
-	return pos;
-}
-
-_g addr allocf_stdarg(LocalRoot local, const char *str, va_list args)
-{
-	if (local)
-		return localf_stdarg(local, str, args);
-	else
-		return heapf_stdarg(str, args);
-}
-
-_g addr allocf(LocalRoot local, const char *str, ...)
-{
-	addr pos;
-	va_list args;
-
-	va_start(args, str);
-	pos = allocf_stdarg(local, str, args);
-	va_end(args);
-
-	return pos;
-}
-
-_g addr localf(const char *str, ...)
-{
-	addr pos;
-	va_list args;
-
-	va_start(args, str);
-	pos = localf_stdarg(Local_Thread, str, args);
-	va_end(args);
-
-	return pos;
-}
-
-_g addr heapf(const char *str, ...)
-{
-	addr pos;
-	va_list args;
-
-	va_start(args, str);
-	pos = heapf_stdarg(str, args);
-	va_end(args);
-
-	return pos;
+	return check;
 }
 

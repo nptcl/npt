@@ -81,17 +81,19 @@ static void disassemble_code(addr stream, addr pos)
 
 }
 
-_g void disassemble_common(addr stream, addr pos)
+_g int disassemble_common(Execute ptr, addr stream, addr pos)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	CheckType(pos, LISPTYPE_FUNCTION);
 	if (compiled_function_p(pos)) {
-		fmts(stream, "COMPILED-FUNCTION.~%");
+		Return1(format_stream(ptr, stream, "COMPILED-FUNCTION.~%", NULL));
 	}
 	else {
-		fmts(stream, "INTERPRETED-FUNCTION.~%");
+		Return1(format_stream(ptr, stream, "INTERPRETED-FUNCTION.~%", NULL));
 		disassemble_code(stream, pos);
 	}
+
+	return 0;
 }
 
 

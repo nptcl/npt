@@ -324,36 +324,40 @@ static int do_test_equal(Execute ptr, addr expr, addr values, addr *ret)
 	return 1;
 }
 
-static void do_test_output(LocalRoot local, addr io,
+static void do_test_output(Execute ptr, addr io,
 		int check, addr name, addr values, addr result, fixnum index)
 {
 	addr pos;
+	LocalRoot local;
 	LocalStack stack;
 
+	local = ptr->local;
 	push_local(local, &stack);
 	fixnum_local(local, &pos, index);
 	if (check) {
-		fmts(io, "~&[RT] ~6@A: ~A~%", pos, name, NULL);
+		format_stream(ptr, io, "~&[RT] ~6@A: ~A~%", pos, name, NULL);
 	}
 	else {
-		fmts(io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL);
-		fmts(io, "  *** Expect:~{ ~S~}~%", values, NULL);
-		fmts(io, "  *** Actial:~{ ~S~}~%", result, NULL);
+		format_stream(ptr, io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL);
+		format_stream(ptr, io, "  *** Expect:~{ ~S~}~%", values, NULL);
+		format_stream(ptr, io, "  *** Actial:~{ ~S~}~%", result, NULL);
 	}
 	rollback_local(local, stack);
 }
 
-static void do_test_output_unhandling(LocalRoot local,
+static void do_test_output_unhandling(Execute ptr,
 		addr io, addr name, addr values, fixnum index)
 {
 	addr pos;
+	LocalRoot local;
 	LocalStack stack;
 
+	local = ptr->local;
 	push_local(local, &stack);
 	fixnum_local(local, &pos, index);
-	fmts(io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL);
-	fmts(io, "  *** Expect:~{ ~S~}~%", values, NULL);
-	fmts(io, "  *** Actual: #<System error, unhandling signal>~%", NULL);
+	format_stream(ptr, io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL);
+	format_stream(ptr, io, "  *** Expect:~{ ~S~}~%", values, NULL);
+	format_stream(ptr, io, "  *** Actual: #<System error, unhandling signal>~%", NULL);
 	rollback_local(local, stack);
 }
 
@@ -362,26 +366,24 @@ static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
 	int check;
 	addr control, expr, values, result;
 	codejump jump;
-	LocalRoot local;
 
 	if (! findvalue_hashtable(table, name, &expr))
 		fmte("The deftest ~S is not exist.", name, NULL);
 	GetCons(expr, &expr, &values);
 
 	push_close_control(ptr, &control);
-	local = ptr->local;
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
 		check = do_test_equal(ptr, expr, values, &result);
-		do_test_output(local, io, check, name, values, result, index);
+		do_test_output(ptr, io, check, name, values, result, index);
 	}
 	end_switch(&jump);
 	if (codejump_error_p(&jump)) {
-		do_test_output_unhandling(local, io, name, values, index);
+		do_test_output_unhandling(ptr, io, name, values, index);
 		check = 0;
 	}
 	if (free_control(ptr, control)) {
-		do_test_output_unhandling(local, io, name, values, index);
+		do_test_output_unhandling(ptr, io, name, values, index);
 		check = 0;
 	}
 
@@ -439,11 +441,11 @@ static void function_do_tests_execute(Execute ptr, fixnum *value)
 		}
 	}
 	if (count2) {
-		fmts(io, "~%", NULL);
-		fmts(io, "*************~%", NULL);
-		fmts(io, "*** ERROR ***~%", NULL);
-		fmts(io, "*************~2%", NULL);
-		fmts(io, "ERROR = ~A~%", intsizeh(count2), NULL);
+		format_stream(ptr, io, "~%", NULL);
+		format_stream(ptr, io, "*************~%", NULL);
+		format_stream(ptr, io, "*** ERROR ***~%", NULL);
+		format_stream(ptr, io, "*************~2%", NULL);
+		format_stream(ptr, io, "ERROR = ~A~%", intsizeh(count2), NULL);
 	}
 	rollback_local(local, stack);
 	*value = index;

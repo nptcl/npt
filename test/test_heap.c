@@ -123,29 +123,29 @@ static int test_makespace(void)
 
 	memset(mem, 0xBB, 1000);
 	makespace(mem, 2);
-	test(mem[0] == LISPSYSTEM_SPACE1, "makespace2");
-	test(mem[1] == 0, "makespace3");
-	test(mem[2] == 0xBB, "makespace4");
+	test(mem[0] == LISPSYSTEM_SPACE1, "makespace1");
+	test(mem[1] == 0, "makespace2");
+	test(mem[2] == 0xBB, "makespace3");
 
 	memset(mem, 0xAA, 1000);
 	size = 8UL + IdxSize - 1;
 	makespace(mem, size);
-	test(mem[0] == LISPSYSTEM_SPACE1, "makespace5");
-	test(mem[1] == size - 2, "makespace6");
+	test(mem[0] == LISPSYSTEM_SPACE1, "makespace4");
+	test(mem[1] == size - 2, "makespace5");
 
 	memset(mem, 0xAA, 1000);
 	size = 8UL + IdxSize;
 	makespace(mem, size);
-	test(mem[0] == LISPSYSTEM_SPACE, "makespace7");
+	test(mem[0] == LISPSYSTEM_SPACE, "makespace6");
 	memcpy(&value, mem + 8, IdxSize);
-	test(value == 0, "makespace8");
+	test(value == 0, "makespace7");
 
 	memset(mem, 0xAA, 1000);
 	size = 100;
 	makespace(mem, size);
-	test(mem[0] == LISPSYSTEM_SPACE, "makespace9");
+	test(mem[0] == LISPSYSTEM_SPACE, "makespace8");
 	memcpy(&value, mem + 8, IdxSize);
-	test(value == 100 - 8 - IdxSize, "makespace10");
+	test(value == 100 - 8 - IdxSize, "makespace9");
 
 	RETURN;
 }

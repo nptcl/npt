@@ -7,6 +7,7 @@
 #include "cons_plist.h"
 #include "eval_declare.h"
 #include "format.h"
+#include "gc.h"
 #include "integer.h"
 #include "print.h"
 #include "print_dispatch.h"
@@ -349,7 +350,7 @@ static void function_pprint_logical_block(Execute ptr, addr form, addr env)
 	if (value1 == Unbound) value1 = Nil;
 	if (value2 == Unbound) value2 = Nil;
 	if (value3 == Unbound) value3 = Nil;
-	expand_pprint_logical_block_common(ptr, &pos,
+	expand_pprint_logical_block_common(&pos,
 			stream, pos, value1, value2, value3, decl, args);
 	setresult_control(ptr, pos);
 	return;
@@ -516,7 +517,7 @@ static void expand_print_unreadable_object(addr *ret,
 		addr pos, addr stream, addr type, addr identity, addr body)
 {
 	/* `(list-system::print-unreadable-call
-	*     ,stream ,object ,type ,identity ,(when body `(lambda () ,@body)))
+	 *     ,stream ,object ,type ,identity ,(when body `(lambda () ,@body)))
 	 */
 	addr call, lambda;
 
@@ -735,6 +736,7 @@ static void function_write(Execute ptr, addr var, addr args)
 	if (getkeyargs(args, KEYWORD_STREAM, &stream))
 		stream = Unbound;
 	output_stream_designer(ptr, stream, &stream);
+
 	push_return_control(ptr, &control);
 	format_keyword_print(ptr, args);
 	if (write_print(ptr, stream, var)) return;

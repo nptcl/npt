@@ -12,7 +12,7 @@ _g void with_slots_common(Execute ptr, addr form, addr env, addr *ret);
 
 _g void defgeneric_common(addr form, addr env, addr *ret);
 _g int defmethod_common(Execute ptr, addr form, addr env, addr *ret);
-_g void define_method_combination_common(Execute ptr, addr form, addr env, addr *ret);
+_g void define_method_combination_common(LocalRoot local, addr form, addr env, addr *ret);
 
 #endif
 

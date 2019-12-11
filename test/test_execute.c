@@ -28,33 +28,6 @@ static int test_begin_code(void)
 	RETURN;
 }
 
-static int test_begin_code_thread(void)
-{
-	int finish;
-	lispcode result;
-	Execute ptr;
-
-	init_execute(0);
-	finish = 0;
-	ptr = getexecute(0);
-	begin_code_thread(&result);
-	if (result == LISPCODE_EXECUTE) {
-		exit_code_thread(LISPCODE_SUCCESS);
-		finish = 1;
-	}
-	else {
-		test(result == LISPCODE_SUCCESS, "begin_code_thread1");
-		test(GetPropertyExecute(ptr, LISPPROP_JUMP), "begin_code_thread2");
-		finish = 2;
-		end_code_thread();
-	}
-	test(finish == 2, "begin_code_thread3");
-	test(GetPropertyExecute(ptr, LISPPROP_JUMP) == 0, "begin_code_thread4");
-	free_execute();
-
-	RETURN;
-}
-
 static int call_foreach_execute_check[10];
 static void call_foreach_execute(Execute ptr)
 {
@@ -99,7 +72,6 @@ int test_execute(void)
 	TITLE;
 
 	TestBreak(test_begin_code);
-	TestBreak(test_begin_code_thread);
 	TestBreak(test_foreach_execute);
 
 	return 0;

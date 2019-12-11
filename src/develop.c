@@ -6,6 +6,7 @@
 #include "constant.h"
 #include "degrade.h"
 #include "execute.h"
+#include "heap.h"
 #include "stream_broadcast.h"
 #include "symbol.h"
 #include "typedef.h"
@@ -130,6 +131,9 @@ int degradelisp(void)
 	DegradeError = 0;
 	DegradePosition = 0;
 
+#ifdef LISP_DEBUG_FORCE_GC
+	GcCounterForce = 0;
+#endif
 	degrade_printf("DEGRADE - start: %s\n", LISP_INFO);
 	degrade_execute();
 	degrade_freshline();

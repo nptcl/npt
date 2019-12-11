@@ -74,6 +74,7 @@ int test_type_value(void);
 int test_eval(void);
 int test_eval_declare(void);
 int test_eval_parse(void);
+int test_eval_copy(void);
 int test_eval_optparse(void);
 int test_eval_table(void);
 int test_eval_stack(void);
@@ -159,6 +160,7 @@ void degrade_execute(void)
 	DegradeCheck(test_eval);
 	DegradeCheck(test_eval_declare);
 	DegradeCheck(test_eval_parse);
+	DegradeCheck(test_eval_copy);
 	//DegradeCheck(test_eval_optparse); /* error */
 	DegradeCheck(test_eval_table);
 	DegradeCheck(test_eval_stack);

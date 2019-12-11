@@ -277,7 +277,7 @@ _g void open_pretty_stream(Execute ptr, addr *ret,
 	make_info_pretty_stream(ptr, &info, stream, root, prefix, perline, suffix);
 	SetInfoStream(pos, info);
 	/* result */
-	*ret = pos;
+	force_open_stream(pos, ret);
 }
 
 

@@ -33,7 +33,7 @@ static void make_input_string(addr *ret, addr string, size_t start, size_t end)
 	input->index = start;
 	input->size = end;
 	SetInfoStream(pos, string);
-	*ret = pos;
+	force_open_stream(pos, ret);
 }
 
 _g void open_input_string_stream(addr *ret, addr string)
@@ -359,7 +359,7 @@ _g void open_output_string_stream(addr *stream, size_t size)
 	str->extend_p = 0;
 	charqueue_heap(&queue, size);
 	SetInfoStream(pos, queue);
-	*stream = pos;
+	force_open_stream(pos, stream);
 }
 
 _g void string_stream_alloc(LocalRoot local, addr stream, addr *string)
@@ -405,7 +405,7 @@ _g void open_extend_output_stream(addr *stream, addr array)
 	str = PtrStringOutputStream(pos);
 	str->extend_p = 1;
 	SetInfoStream(pos, array);
-	*stream = pos;
+	force_open_stream(pos, stream);
 }
 
 static int close_StringOutput(addr stream, int abort)

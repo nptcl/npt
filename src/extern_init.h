@@ -5,7 +5,7 @@
 #include "define.h"
 
 #ifdef LISP_DEBUG
-#define DefaultHeapSize	  (128UL * 1024UL * 1024UL);
+#define DefaultHeapSize	  (64UL * 1024UL * 1024UL);
 #define DefaultLocalSize  (16UL * 1024UL * 1024UL);
 #else
 #define DefaultHeapSize	  (1024UL * 1024UL * 1024UL);

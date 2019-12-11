@@ -86,6 +86,9 @@ __extern threadlocal ThreadLocal_Local;
 #define Index_Thread (*(const size_t *)get_threadlocal(ThreadLocal_Index))
 #endif
 
+#define Return0(x) { if (x) return; }
+#define Return1(x) { if (x) return 1; }
+
 
 /*
  *  function
@@ -124,13 +127,8 @@ _g void abortindex(size_t index);
 		*(code) = (lispcode)__begin_code; \
 	} \
 }
-#define begin_code_thread(code) { \
-	Execute __ptr = Execute_Thread; \
-	begin_code(__ptr, code); \
-}
 _g int begin_code_check(Execute ptr, lispcode *code);
 _g void end_code(Execute ptr);
-_g void end_code_thread(void);
 _g int code_run_p(lispcode code);
 _g int code_end_p(lispcode code);
 _g int code_error_p(lispcode code);
@@ -141,10 +139,6 @@ _g int code_error_p(lispcode code);
 	setjmp_execute((ptr), &__begin_value); \
 	(jump)->code = (lispcode)__begin_value; \
 }
-#define begin_switch_thread(jump) { \
-	Execute __ptr = Execute_Thread; \
-	begin_switch(__ptr, jump); \
-}
 _g void begin_switch_check(Execute ptr, codejump *code);
 _g void end_switch(codejump *code);
 _g int codejump_run_p(codejump *code);
@@ -153,11 +147,8 @@ _g int codejump_error_p(codejump *code);
 _g int codejump_control_p(codejump *code);
 
 _g void exit_code(Execute ptr, lispcode code);
-_g void exit_code_thread(lispcode code);
 _g void break_code(Execute ptr);
-_g void break_code_thread(void);
 _g void throw_code(Execute ptr, lispcode code);
-_g void throw_code_thread(lispcode code);
 _g void throw_switch(codejump *code);
 _g int equal_control_restart(Execute ptr, addr control);
 

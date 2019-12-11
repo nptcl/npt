@@ -484,7 +484,7 @@ static void ensure_directories_exist_run_files(Execute ptr,
 		result = T;
 		/* verbose */
 		if (verbose)
-			format("~&Creating directory: ~S~%", temp, NULL);
+			format_stdout(ptr, "~&Creating directory: ~S~%", temp, NULL);
 		/* continue */
 		rollback_local(local, stack);
 	}

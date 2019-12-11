@@ -135,7 +135,7 @@ static void copy_pprint_dispatch(addr var, addr *ret)
 	*ret = x;
 }
 
-static int find_print_dispatch(LocalRoot local, addr var, addr list, addr *ret)
+static int find_print_dispatch(Execute ptr, addr var, addr list, addr *ret)
 {
 	int check;
 	addr pos, type, result, a, b;
@@ -145,11 +145,11 @@ static int find_print_dispatch(LocalRoot local, addr var, addr list, addr *ret)
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		GetTypePrintTable(pos, &type);
-		if (typep_clang(var, type, &check))
+		if (typep_clang(ptr, var, type, &check))
 			return 1;
 		if (check) {
 			GetPriorityPrintTable(pos, &b);
-			if (a == Nil || less_real_clang(local, a, b)) {
+			if (a == Nil || less_real_clang(ptr->local, a, b)) {
 				a = b;
 				result = pos;
 			}
@@ -160,9 +160,9 @@ static int find_print_dispatch(LocalRoot local, addr var, addr list, addr *ret)
 	return 0;
 }
 
-_g int find_function_print_dispatch(LocalRoot local, addr var, addr table, addr *ret)
+_g int find_function_print_dispatch(Execute ptr, addr var, addr table, addr *ret)
 {
-	if (find_print_dispatch(local, var, table, &var))
+	if (find_print_dispatch(ptr, var, table, &var))
 		return 1;
 	if (var != Nil)
 		GetFunctionPrintTable(var, &var);
@@ -242,7 +242,7 @@ _g void copy_pprint_dispatch_common(Execute ptr, addr var, addr *ret)
 _g int pprint_dispatch_common(Execute ptr, addr var, addr table, addr *x, addr *y)
 {
 	CheckType(table, LISPTYPE_PRINT_DISPATCH);
-	if (find_print_dispatch(ptr->local, var, table, &var))
+	if (find_print_dispatch(ptr, var, table, &var))
 		return 1;
 	if (var != Nil) {
 		GetFunctionPrintTable(var, x);
