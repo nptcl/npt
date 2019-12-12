@@ -1538,6 +1538,10 @@ lisp-system::na
   :constant system :name default-print-dispatch)
 (lisp-system::*empty-print-dispatch*
   :constant system :name empty-print-dispatch)
+lisp-system::dispatch-vector
+lisp-system::dispatch-call
+lisp-system::dispatch-defun
+lisp-system::dispatch-let
 
 
 ;;

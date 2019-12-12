@@ -9,7 +9,7 @@ static int getwidth_console_check(size_t *ret)
 		return 1;
 	if (ws.ws_row <= 0)
 		return 1;
-	*ret = (size_t)ws.ws_row;
+	*ret = (size_t)ws.ws_col;
 
 	return 0;
 }

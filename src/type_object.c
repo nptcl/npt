@@ -4,6 +4,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
+#include "copy.h"
 #include "sequence.h"
 #include "type.h"
 #include "type_number.h"
@@ -79,6 +80,7 @@ static void type_object_operator1(addr *ret, constindex index, addr pos)
 	addr name;
 	GetConstant(index, &name);
 	GetArrayType(pos, 0, &pos);
+	copyheap(&pos, pos);
 	list_heap(ret, name, pos, NULL);
 }
 
@@ -97,6 +99,7 @@ static void type_object_member(addr *ret, addr pos)
 	for (root = Nil; size; ) {
 		size--;
 		GetArrayA4(array, size, &temp);
+		copyheap(&temp, temp);
 		cons_heap(&root, temp, root);
 	}
 	GetConst(COMMON_MEMBER, &temp);
@@ -357,7 +360,7 @@ static void type_object_arraydimension(addr pos, addr *ret)
 	size_t size;
 
 	if (GetType(pos) == LISPTYPE_FIXNUM) {
-		*ret = pos;
+		copyheap(ret, pos);
 		return;
 	}
 	Check(GetType(pos) != LISPTYPE_VECTOR, "type error");
@@ -365,6 +368,7 @@ static void type_object_arraydimension(addr pos, addr *ret)
 	for (root = Nil; size; ) {
 		size--;
 		GetArrayA4(pos, size, &temp);
+		copyheap(&temp, temp);
 		cons_heap(&root, temp, root);
 	}
 	*ret = root;
@@ -380,7 +384,7 @@ static void type_object_arraytype(addr *ret, constindex index, addr pos)
 	GetArrayType(pos, 0, &type);
 	GetArrayType(pos, 1, &pos);
 	if (type_asterisk_p(type) && type_asterisk_p(pos)) {
-		*ret = name;
+		copyheap(ret, name);
 		return;
 	}
 	if (type_asterisk_p(type))

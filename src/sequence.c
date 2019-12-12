@@ -44,6 +44,28 @@ _g int listp_sequence(addr pos)
 	}
 }
 
+_g int vectorp_sequence(addr pos)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_NIL:
+		case LISPTYPE_CONS:
+			return 0;
+
+		case LISPTYPE_VECTOR:
+		case LISPTYPE_STRING:
+		case LISPTYPE_BITVECTOR:
+			return 1;
+
+		case LISPTYPE_ARRAY:
+			return array_vector_p(pos);
+
+		default:
+			TypeError(pos, SEQUENCE);
+			return 0;
+	}
+}
+
+
 /*
  *  size-check
  */
@@ -363,7 +385,7 @@ static void setelt_bit_t_sequence(addr pos,
 	fixnum check;
 
 	value = str->value.object;
-	GetFixnum(str->value.object, &check);
+	GetFixnum(value, &check);
 	if (check == 0)
 		bitmemory_setint(pos, index, 0);
 	else if (check == 1)
@@ -514,6 +536,32 @@ static void setelt_bit_sequence(addr pos, size_t index, const struct array_value
 	}
 }
 
+static void setelt_string_sequence(addr pos,
+		size_t index, const struct array_value *str)
+{
+	addr value;
+	unicode c;
+
+	/* t */
+	if (str->type == ARRAY_TYPE_T) {
+		value = str->value.object;
+		if (! characterp(value))
+			fmte("The object ~S must be a character type,", value, NULL);
+		GetCharacter(value, &c);
+		strvect_setc(pos, index, c);
+		return;
+	}
+
+	/* character */
+	if (str->type == ARRAY_TYPE_CHARACTER) {
+		strvect_setc(pos, index, str->value.character);
+		return;
+	}
+
+	/* others */
+	fmte("The element of sequence  ~S must be a character type.", pos, NULL);
+}
+
 _g void setelt_inplace_sequence(LocalRoot local,
 		addr pos, size_t index, const struct array_value *str)
 {
@@ -532,9 +580,7 @@ _g void setelt_inplace_sequence(LocalRoot local,
 			break;
 
 		case LISPTYPE_STRING:
-			if (str->type != ARRAY_TYPE_CHARACTER)
-				fmte("type error", NULL);
-			strvect_setc(pos, index, str->value.character);
+			setelt_string_sequence(pos, index, str);
 			break;
 
 		case LISPTYPE_ARRAY:

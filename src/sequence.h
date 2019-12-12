@@ -7,6 +7,7 @@
 
 _g int sequencep(addr pos);
 _g int listp_sequence(addr pos);
+_g int vectorp_sequence(addr pos);
 _g void vector_check_sequence(addr type, size_t size);
 _g void simple_vector_check_sequence(addr type, size_t size);
 _g void array_check_sequence(addr type, size_t size);

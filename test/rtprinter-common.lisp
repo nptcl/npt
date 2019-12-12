@@ -203,3 +203,54 @@
         (princ-to-string 200))))
   "200")
 
+(deftest print-unreadable-object.1
+  (with-output-to-string (stream)
+    (print-unreadable-object (t stream)
+      (princ "HELLO" stream)))
+  "#<HELLO>")
+
+(deftest print-unreadable-object.2
+  (with-output-to-string (stream)
+    (print-unreadable-object ('(a b) stream :type t)
+      (princ "HELLO" stream)))
+  "#<CONS HELLO>")
+
+(deftest print-unreadable-object.3
+  (remove-if
+    (lambda (x)
+      (or (char<= #\0 x #\9) (char<= #\a x #\f) (char<= #\A x #\F)))
+    (with-output-to-string (stream)
+      (print-unreadable-object ('(a b) stream :identity t)
+        (princ "WXYZ" stream))))
+  "#<WXYZ #x>")
+
+(deftest print-unreadable-object.4
+  (remove-if
+    (lambda (x)
+      (or (char<= #\0 x #\9) (char<= #\a x #\f) (char<= #\A x #\F)))
+    (with-output-to-string (stream)
+      (print-unreadable-object ('(a b) stream :identity t :type t)
+        (princ "WXYZ" stream))))
+  "#<ONS WXYZ #x>")
+
+(deftest print-unreadable-object.5
+  (remove-if
+    (lambda (x)
+      (or (char<= #\0 x #\9) (char<= #\a x #\f) (char<= #\A x #\F)))
+    (with-output-to-string (stream)
+      (print-unreadable-object
+        ('(a b) stream :identity t :type t :identity nil :type nil)
+        (princ "WXYZ" stream))))
+  "#<ONS WXYZ #x>")
+
+
+;;
+;;  eastasian width
+;;
+(deftest eastasian.1
+  (let ((control (concatenate 'string '(#\u3042 #\u3044 #\u3046) "~10Tdef")))
+    (coerce (format nil control) 'list))
+  (#\u3042 #\u3044 #\u3046
+   #\space #\space #\space #\space
+   #\d #\e #\f))
+

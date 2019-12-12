@@ -1,6 +1,43 @@
 ;;
 ;;  ANSI COMMON LISP: 22. Printer
 ;;
+
+;;
+;;  formatter
+;;
+(deftest formatter.1
+  (functionp
+    (formatter "Hello"))
+  t)
+
+(deftest formatter.2
+  (let (result)
+    (values
+      (with-output-to-string (stream)
+        (setq result (funcall (formatter "Hello") stream)))
+      result))
+  "Hello" nil)
+
+(deftest formatter.3
+  (let (result)
+    (values
+      (with-output-to-string (stream)
+        (setq result (funcall (formatter "Hello") stream 10 20 30)))
+      result))
+  "Hello" (10 20 30))
+
+(deftest formatter.4
+  (let (result)
+    (values
+      (with-output-to-string (stream)
+        (setq result (funcall (formatter "Hello: ~A") stream 10 20 30)))
+      result))
+  "Hello: 10" (20 30))
+
+
+;;
+;;  format
+;;
 (deftest format.1
   (equal (format nil "~S" (copy-readtable))
          (format nil "~S" (copy-readtable)))
@@ -57,4 +94,13 @@
 (deftest format-r.9
   (format nil "~R" 1606938044258990275541962092341162602522202993782792835301376)
   "one novendecillion, six hundred and six octodecillion, nine hundred and thirty-eight septendecillion, forty-four sedecillion, two hundred and fifty-eight quindecillion, nine hundred and ninety quattuordecillion, two hundred and seventy-five tredecillion, five hundred and forty-one duodecillion, nine hundred and sixty-two undecillion, ninety-two decillion, three hundred and forty-one nonillion, one hundred and sixty-two octillion, six hundred and two septillion, five hundred and twenty-two sextillion, two hundred and two quintillion, nine hundred and ninety-three quadrillion, seven hundred and eighty-two trillion, seven hundred and ninety-two billion, eight hundred and thirty-five million, three hundred and one thousand, three hundred and seventy-six")
+
+
+;;
+;;  pretty printing
+;;
+(deftest format-w.1
+  (with-default-print
+    (format nil "ABC ~W DEF" 10))
+  "ABC 10 DEF")
 

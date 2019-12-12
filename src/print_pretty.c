@@ -468,13 +468,13 @@ _g void pprint_tab_common(Execute ptr,
 			push_pretty_stream(stream, pos);
 			break;
 
-		case pprint_tabular_line_relative:
-			size2_pretty_heap(&pos, print_pretty_tabular_liner, a, b);
+		case pprint_tabular_section:
+			size2_pretty_heap(&pos, print_pretty_tabular_section, a, b);
 			push_pretty_stream(stream, pos);
 			break;
 
-		case pprint_tabular_section:
-			size2_pretty_heap(&pos, print_pretty_tabular_section, a, b);
+		case pprint_tabular_line_relative:
+			size2_pretty_heap(&pos, print_pretty_tabular_liner, a, b);
 			push_pretty_stream(stream, pos);
 			break;
 
@@ -509,17 +509,19 @@ static void pprint_tab_output(addr stream, fixnum size)
 static void pprint_tab_absolute_size(fixnum *ret,
 		fixnum column, fixnum colinc, fixnum base, fixnum now)
 {
+	fixnum plus;
+
+	now -= base;
 	if (now < column) {
-		column -= now;
+		*ret = column - now;
+		return;
 	}
-	else if (colinc) {
-		column = ((now / colinc) + 1) * colinc;
-		column -= now;
+	if (colinc == 0) {
+		*ret = 0;
+		return;
 	}
-	else {
-		column = 0;
-	}
-	*ret = (column < 0)? 0: column + base;
+	plus = column + (((now - column) / colinc) + 1UL) * colinc;
+	*ret = plus - now;
 }
 
 static void pprint_tab_relative_size(fixnum *ret,
@@ -1134,7 +1136,7 @@ static void pretty_output_fill(struct pretty_block *ptr, addr list)
 
 static void pretty_output_indent_block(struct pretty_block *ptr, addr pos)
 {
-	static struct print_pretty_struct *str;
+	struct print_pretty_struct *str;
 
 	str = struct_print_pretty(pos);
 	ptr->indent = (size_t)str->value;
@@ -1145,7 +1147,7 @@ static void pretty_output_indent_block(struct pretty_block *ptr, addr pos)
 static void pretty_output_indent_current(struct pretty_block *ptr, addr pos)
 {
 	fixnum value;
-	static struct print_pretty_struct *str;
+	struct print_pretty_struct *str;
 
 	str = struct_print_pretty(pos);
 	value = ptr->now - ptr->current;
@@ -1175,7 +1177,7 @@ static void pretty_output_tabular_section(struct pretty_block *ptr, addr pos)
 
 	str = struct_print_pretty(pos);
 	value = ptr->now;
-	pprint_tab_relative_size(&value, str->value, str->colinc, 0, value);
+	pprint_tab_absolute_size(&value, str->value, str->colinc, ptr->section, value);
 	pretty_push_size(ptr, (size_t)value);
 }
 
@@ -1186,7 +1188,7 @@ static void pretty_output_tabular_liner(struct pretty_block *ptr, addr pos)
 
 	str = struct_print_pretty(pos);
 	value = ptr->now;
-	pprint_tab_absolute_size(&value, str->value, str->colinc, ptr->section, value);
+	pprint_tab_relative_size(&value, str->value, str->colinc, 0, value);
 	pretty_push_size(ptr, (size_t)value);
 }
 

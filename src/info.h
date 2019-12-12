@@ -14,6 +14,7 @@ _g void infobit(addr pos);
 _g void infoprint(addr pos);
 _g void infoprint_depth(addr pos, int depth);
 _g void infoprint_noeol(addr pos);
+_g void infoprint_once(addr pos, const char *name);
 _g void infoerror(const char *, int, const char *, const char *, ...);
 _g void infosystem(void);
 

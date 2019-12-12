@@ -2490,21 +2490,21 @@ static int test_format_tabulate(void)
 	strvect_char_heap(&pos, "~4,3T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
-	test(string_equal_char(pos, "      "), "format_tabulate6");
+	test(string_equal_char(pos, "       "), "format_tabulate6");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream(stream, "     ");
 	strvect_char_heap(&pos, "~4,8T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
-	test(string_equal_char(pos, "        "), "format_tabulate7");
+	test(string_equal_char(pos, "            "), "format_tabulate7");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream(stream, "    ");
 	strvect_char_heap(&pos, "~4,8T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
-	test(string_equal_char(pos, "        "), "format_tabulate8");
+	test(string_equal_char(pos, "            "), "format_tabulate8");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream(stream, "     ");

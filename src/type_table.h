@@ -83,14 +83,17 @@ _g void type4aster_heap(enum LISPDECL type, addr *ret);
 
 /* and/or */
 _g void type2and_alloc(LocalRoot local, addr a, addr b, addr *ret);
+_g void type3and_alloc(LocalRoot local, addr a, addr b, addr c, addr *ret);
+_g void type2and_local(LocalRoot local, addr a, addr b, addr *ret);
+_g void type3and_local(LocalRoot local, addr a, addr b, addr c, addr *ret);
+_g void type2and_heap(addr a, addr b, addr *ret);
+_g void type3and_heap(addr a, addr b, addr c, addr *ret);
 _g void type2or_alloc(LocalRoot local, addr a, addr b, addr *ret);
 _g void type3or_alloc(LocalRoot local, addr a, addr b, addr c, addr *ret);
 _g void type4or_alloc(LocalRoot local, addr a, addr b, addr c, addr d, addr *ret);
-_g void type2and_local(LocalRoot local, addr a, addr b, addr *ret);
 _g void type2or_local(LocalRoot local, addr a, addr b, addr *ret);
 _g void type3or_local(LocalRoot local, addr a, addr b, addr c, addr *ret);
 _g void type4or_local(LocalRoot local, addr a, addr b, addr c, addr d, addr *ret);
-_g void type2and_heap(addr a, addr b, addr *ret);
 _g void type2or_heap(addr a, addr b, addr *ret);
 _g void type3or_heap(addr a, addr b, addr c, addr *ret);
 _g void type4or_heap(addr a, addr b, addr c, addr d, addr *ret);

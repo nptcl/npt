@@ -555,6 +555,23 @@ _g void infoprint_noeol(addr pos)
 	infoprint_stream(pos, 0);
 }
 
+_g void infoprint_once(addr pos, const char *name)
+{
+	FILE *backup, *file;
+
+	file = fopen(name, "w");
+	if (file == NULL) {
+		fprintf(stderr, "fopen error\n");
+		exit(1);
+	}
+	backup = InfoStream;
+	InfoStream = file;
+	infoprint(pos);
+	/* close */
+	InfoStream = backup;
+	fclose(file);
+}
+
 
 /*
  *  function type

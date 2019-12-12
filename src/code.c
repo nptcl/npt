@@ -682,7 +682,7 @@ static int lambda_bind_opt(Execute ptr, addr cons, addr *args)
 static void lambda_bind_rest(Execute ptr, addr rest, addr args)
 {
 	/*copylist_force_heap(args, &args);*/
-	copy_list_heap_unsafe(&args, args);
+	copy_list_heap_safe(&args, args);
 	bind_variable(ptr, rest, args, 1);
 }
 
@@ -794,7 +794,7 @@ static void lambda_bind_code(Execute ptr, addr right)
 static void macro_bind_whole(Execute ptr, addr whole, addr form)
 {
 	if (whole != Nil) {
-		copy_list_heap_unsafe(&form, form);
+		copy_list_heap_safe(&form, form);
 		bind_variable(ptr, whole, form, 1);
 	}
 }
@@ -832,7 +832,7 @@ static void macro_bind_rest(Execute ptr, addr rest, addr args)
 	addr var;
 
 	getcons(rest, &var, &rest);  /* (value . &rest) */
-	copy_list_heap_unsafe(&args, args);
+	copy_list_heap_safe(&args, args);
 	bind_variable(ptr, var, args, 1);
 }
 

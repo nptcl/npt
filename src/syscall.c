@@ -1666,17 +1666,18 @@ static void defun_large_number(void)
 
 
 /* (defun format-formatter (string &rest args) ...) -> list */
-static void syscall_format_formatter(Execute ptr, addr var, addr args)
+static void syscall_format_formatter(Execute ptr, addr string, addr args)
 {
 	addr stream;
 	LocalHold hold;
 
 	standard_output_stream(ptr, &stream);
+	stream_designer(ptr, stream, &stream, 0);
 	hold = LocalHold_local_push(ptr, stream);
-	if (format_stream_args(ptr, stream, var, args, &var))
+	if (format_stream_args(ptr, stream, string, args, &args))
 		return;
 	localhold_end(hold);
-	setresult_control(ptr, var);
+	setresult_control(ptr, args);
 }
 
 static void type_format_formatter(addr *ret)

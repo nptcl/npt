@@ -220,7 +220,7 @@ static void push_features(const char *name)
 	SetValueSymbol(symbol, cons);
 }
 
-static void intern_features(void)
+static void set_features(void)
 {
 	addr symbol;
 
@@ -298,6 +298,13 @@ static void intern_features(void)
 #endif
 }
 
+static void set_pretty_printing(void)
+{
+	addr symbol;
+	GetConst(SPECIAL_PRINT_PRETTY, &symbol);
+	SetValueSymbol(symbol, T);
+}
+
 _g void buildlisp(Execute ptr)
 {
 	build_lisproot(ptr);
@@ -321,7 +328,8 @@ _g void buildlisp(Execute ptr)
 	build_code();
 	build_user();
 	build_rt();
-	intern_features();
+	set_features();
+	set_pretty_printing();
 	gcexec();
 }
 

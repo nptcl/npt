@@ -34,6 +34,7 @@ static int coerce_type(Execute ptr, addr pos, addr type, addr *ret);
 static void coerce_error(addr pos, addr type)
 {
 	copyheap(&pos, pos);
+	copyheap(&type, type);
 	type_object(&type, type);
 	type_error_stdarg(pos, type,
 			"Cannot covert value ~A to a ~S type.", pos, type, NULL);
@@ -2606,7 +2607,7 @@ static int coerce_al(Execute ptr, addr pos, addr type, addr *ret)
 	/* (array * .) */
 	GetArrayType(type, 0, &upg);
 	if (type_asterisk_p(upg))
-		return coerce_typep(ptr, pos, pos, type, ret);
+		return coerce_al_t(ptr, pos, type, ret);
 
 	/* (array upg .) */
 	switch (LispDecl(upg)) {

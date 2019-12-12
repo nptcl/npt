@@ -208,6 +208,7 @@ enum TypeTable {
 	TypeTable_ExternalFormat,
 	TypeTable_PprintNewline,
 	TypeTable_PprintTabular,
+	TypeTable_Format,
 
 	TypeTable_Method,
 	TypeTable_Method1,
@@ -381,6 +382,7 @@ enum TypeTable {
 	TypeCompiled_Signal,
 	TypeCompiled_PrintObject_Method,
 	TypeCompiled_PprintFill,
+	TypeCompiled_DispatchFunction,
 
 	/* Size */
 	TypeTable_Size

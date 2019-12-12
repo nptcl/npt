@@ -3,6 +3,7 @@
 #include "array_vector.h"
 #include "charqueue.h"
 #include "condition.h"
+#include "eastasian_unicode.h"
 #include "integer.h"
 #include "object.h"
 #include "stream_error.h"
@@ -434,7 +435,7 @@ static void write_char_StringOutput_normal(addr stream, unicode c)
 	if (c == '\n' || c == '\f')
 		ptr->terpri = 0;
 	else
-		ptr->terpri++;
+		ptr->terpri += eastasian_width(c);
 }
 
 static void write_char_StringOutput_extend(addr stream, unicode c)
@@ -454,7 +455,7 @@ static void write_char_StringOutput_extend(addr stream, unicode c)
 	if (c == '\n' || c == '\f')
 		ptr->terpri = 0;
 	else
-		ptr->terpri++;
+		ptr->terpri += eastasian_width(c);
 }
 
 static void write_char_StringOutput(addr stream, unicode c)

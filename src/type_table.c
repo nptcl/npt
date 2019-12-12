@@ -513,6 +513,17 @@ _g void type2or_alloc(LocalRoot local, addr a, addr b, addr *ret)
 	type1_alloc(local, LISPDECL_OR, array, ret);
 }
 
+_g void type3and_alloc(LocalRoot local, addr a, addr b, addr c, addr *ret)
+{
+	addr array;
+
+	vector4_alloc(local, &array, 3);
+	SetArrayA4(array, 0, a);
+	SetArrayA4(array, 1, b);
+	SetArrayA4(array, 2, c);
+	type1_alloc(local, LISPDECL_AND, array, ret);
+}
+
 _g void type3or_alloc(LocalRoot local, addr a, addr b, addr c, addr *ret)
 {
 	addr array;
@@ -548,6 +559,12 @@ _g void type2or_local(LocalRoot local, addr a, addr b, addr *ret)
 	type2or_alloc(local, a, b, ret);
 }
 
+_g void type3and_local(LocalRoot local, addr a, addr b, addr c, addr *ret)
+{
+	CheckLocal(local);
+	type3and_alloc(local, a, b, c, ret);
+}
+
 _g void type3or_local(LocalRoot local, addr a, addr b, addr c, addr *ret)
 {
 	CheckLocal(local);
@@ -568,6 +585,11 @@ _g void type2and_heap(addr a, addr b, addr *ret)
 _g void type2or_heap(addr a, addr b, addr *ret)
 {
 	type2or_alloc(NULL, a, b, ret);
+}
+
+_g void type3and_heap(addr a, addr b, addr c, addr *ret)
+{
+	type3and_alloc(NULL, a, b, c, ret);
 }
 
 _g void type3or_heap(addr a, addr b, addr c, addr *ret)

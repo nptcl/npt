@@ -638,3 +638,19 @@
       result))
   long-float t #(12.0L0 0.25L0 300.0L0))
 
+
+;;
+;;  error
+;;
+(deftest coerce-error.1
+  (coerce '(10 20 30) 'vector)
+  #(10 20 30))
+
+(deftest coerce-error.2
+  (coerce #(10 20 30) 'list)
+  (10 20 30))
+
+(deftest coerce-error.3
+  (coerce #*11001 'vector)
+  #(1 1 0 0 1))
+

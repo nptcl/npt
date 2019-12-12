@@ -287,25 +287,24 @@ static void build_print_dispatch_empty(void)
 	SetValueSymbol(symbol, pos);
 }
 
-static void build_print_dispatch_table(addr *ret)
+static void build_print_dispatch_table(addr dispatch)
 {
 	addr symbol, pos;
 
-	pprint_dispatch_heap(&pos);
+	copy_pprint_dispatch(dispatch, &pos);
 	/* system::*default-print-dispatch* */
 	GetConst(SYSTEM_DEFAULT_PRINT_DISPATCH, &symbol);
-	SetValueSymbol(symbol, pos);
+	SetValueSymbol(symbol, dispatch);
 	/* common-lisp::*print-pprint-dispatch* */
 	GetConst(SPECIAL_PRINT_PPRINT_DISPATCH, &symbol);
 	SetValueSymbol(symbol, pos);
-	/* result */
-	*ret = pos;
 }
 
 static void build_print_dispatch_cons(LocalRoot local, addr dispatch)
 {
 	/* (system::set-pprint-dispatch
-	 *   'cons 'cons #'pprint-fill -10 dispatch)
+	 *   'cons
+	 *   type #'pprint-fill -10 dispatch)
 	 */
 	addr spec, type, call, priority;
 
@@ -317,14 +316,160 @@ static void build_print_dispatch_cons(LocalRoot local, addr dispatch)
 	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
 }
 
+static void make_print_dispatch_function(addr *ret, constindex name, pointer id)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConstant(name, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, id);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, DispatchFunction);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+	/* result */
+	*ret = pos;
+}
+
+static void build_print_dispatch_vector(LocalRoot local, addr dispatch)
+{
+	/* (system::set-pprint-dispatch
+	 *  '(and vector (not string) (not bit-vector))
+	 *  type #<FUNCTION> 0 dispatch)
+	 */
+	addr spec, type, call, priority;
+	addr type1, type2, type3;
+
+	/* spec */
+	GetConst(COMMON_VECTOR, &type1);
+	GetConst(COMMON_NOT, &type);
+	GetConst(COMMON_STRING, &type2);
+	list_heap(&type2, type, type2, NULL);
+	GetConst(COMMON_BIT_VECTOR, &type3);
+	list_heap(&type3, type, type3, NULL);
+	GetConst(COMMON_AND, &type);
+	list_heap(&spec, type, type1, type2, type3, NULL);
+	/* type */
+	GetTypeTable(&type1, Vector);
+	GetTypeTable(&type3, Asterisk);
+	type1not_heap(LISPDECL_STRING, type3, &type2);
+	type1not_heap(LISPDECL_BIT_VECTOR, type3, &type3);
+	type3and_heap(type1, type2, type3, &type);
+	/* function */
+	make_print_dispatch_function(&call,
+			CONSTANT_SYSTEM_DISPATCH_VECTOR,
+			p_pprint_dispatch_vector);
+	/* set */
+	fixnum_heap(&priority, 0);
+	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
+}
+
+static void build_print_dispatch_call(LocalRoot local, addr dispatch)
+{
+	/* (system::set-pprint-dispatch
+	 *   '(cons (and symbol (satisfies fboundp)))
+	 *   type #<FUNCTION> -5 dispatch)
+	 */
+	addr spec, type, call, priority;
+	addr type1, type2, type3, fboundp;
+
+	/* spec */
+	GetConst(COMMON_SATISFIES, &type3);
+	GetConst(COMMON_FBOUNDP, &fboundp);
+	list_heap(&type3, type3, fboundp, NULL);
+	GetConst(COMMON_AND, &type1);
+	GetConst(COMMON_SYMBOL, &type2);
+	list_heap(&type2, type1, type2, type3, NULL);
+	GetConst(COMMON_CONS, &type1);
+	list_heap(&spec, type1, type2, NULL);
+	/* type */
+	type_satisfies_heap(fboundp, &type3);
+	GetTypeTable(&type2, Symbol);
+	type2and_heap(type2, type3, &type1);
+	GetTypeTable(&type2, Asterisk);
+	type2_heap(LISPDECL_CONS, type1, type2, &type);
+	/* function */
+	make_print_dispatch_function(&call,
+			CONSTANT_SYSTEM_DISPATCH_CALL,
+			p_pprint_dispatch_call);
+	/* set */
+	fixnum_heap(&priority, -5);
+	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
+}
+
+static void build_print_dispatch_defun(LocalRoot local, addr dispatch)
+{
+	/* (system::set-pprint-dispatch
+	 *   '(cons (eql defun))
+	 *   type #<FUNCTION> 0 dispatch)
+	 */
+	addr spec, type, call, priority;
+	addr type1, type2, defun;
+
+	/* spec */
+	GetConst(COMMON_EQL, &type1);
+	GetConst(COMMON_DEFUN, &defun);
+	list_heap(&type2, type1, defun, NULL);
+	GetConst(COMMON_CONS, &type1);
+	list_heap(&spec, type1, type2, NULL);
+	/* type */
+	type_eql_heap(defun, &type1);
+	GetTypeTable(&type2, Asterisk);
+	type2_heap(LISPDECL_CONS, type1, type2, &type);
+	/* function */
+	make_print_dispatch_function(&call,
+			CONSTANT_SYSTEM_DISPATCH_DEFUN,
+			p_pprint_dispatch_defun);
+	/* set */
+	fixnum_heap(&priority, 0);
+	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
+}
+
+static void build_print_dispatch_let(LocalRoot local, addr dispatch)
+{
+	/* (system::set-pprint-dispatch
+	 *   '(cons (eql let))
+	 *   type #<FUNCTION> 0 dispatch)
+	 */
+	addr spec, type, call, priority;
+	addr type1, type2, let;
+
+	/* spec */
+	GetConst(COMMON_EQL, &type1);
+	GetConst(COMMON_LET, &let);
+	list_heap(&type2, type1, let, NULL);
+	GetConst(COMMON_CONS, &type1);
+	list_heap(&spec, type1, type2, NULL);
+	/* type */
+	type_eql_heap(let, &type1);
+	GetTypeTable(&type2, Asterisk);
+	type2_heap(LISPDECL_CONS, type1, type2, &type);
+	/* function */
+	make_print_dispatch_function(&call,
+			CONSTANT_SYSTEM_DISPATCH_LET,
+			p_pprint_dispatch_let);
+	/* set */
+	fixnum_heap(&priority, 0);
+	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
+}
+
 _g void build_print_dispatch(void)
 {
 	LocalRoot local;
 	addr dispatch;
 
 	local = Local_Thread;
-	build_print_dispatch_empty();
-	build_print_dispatch_table(&dispatch);
+	pprint_dispatch_heap(&dispatch);
+	/* build */
 	build_print_dispatch_cons(local, dispatch);
+	build_print_dispatch_vector(local, dispatch);
+	build_print_dispatch_call(local, dispatch);
+	build_print_dispatch_defun(local, dispatch);
+	build_print_dispatch_let(local, dispatch);
+	/* set variable */
+	build_print_dispatch_empty();
+	build_print_dispatch_table(dispatch);
 }
 

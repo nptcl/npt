@@ -979,6 +979,19 @@ static void typetable_pprint_tabular(void)
 	SetTypeTable(PprintTabular, type);
 }
 
+static void typetable_format(void)
+{
+	addr type, null, eqlt, stream, string;
+
+	/* (or null (eql t) stream string) */
+	GetTypeTable(&null, Null);
+	GetTypeTable(&eqlt, EqlT);
+	GetTypeTable(&stream, Stream);
+	GetTypeTable(&string, String);
+	type4or_heap(null, eqlt, stream, string, &type);
+	SetTypeTable(Format, type);
+}
+
 static void typetable_method(void)
 {
 	addr pos;
@@ -2653,6 +2666,19 @@ static void typecompiled_pprint_fill(void)
 	SetTypeCompiled(PprintFill, args);
 }
 
+static void typecompiled_dispatch_function(void)
+{
+	/* (function (output-stream-designer t) (values T &rest nil)) */
+	addr args, values;
+
+	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&values, T);
+	typeargs_var2(&args, args, values);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(DispatchFunction, args);
+}
+
 
 /*
  *  Interface
@@ -2809,6 +2835,7 @@ _g void build_type_constant(void)
 	typetable_externalformat();
 	typetable_pprint_newline();
 	typetable_pprint_tabular();
+	typetable_format();
 	typetable_method();
 	typetable_class();
 	typetable_classnull();
@@ -2979,5 +3006,6 @@ _g void build_type_constant(void)
 	typecompiled_signal();
 	typecompiled_print_object_method();
 	typecompiled_pprint_fill();
+	typecompiled_dispatch_function();
 }
 

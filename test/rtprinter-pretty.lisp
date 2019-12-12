@@ -648,13 +648,173 @@
 ;;
 ;;  tab
 ;;
-(deftest pprint-tab.10
-  (pprint-logical-block-output
-    (100 nil)
-    (princ "AAA")
-    (pprint-tab :line 10 4)
-    (princ "BBB"))
-  "AAA       BBB")
+(defun pprint-tab-test (type x y z)
+  (let ((*print-pretty* t)
+        (*print-miser-width* nil)
+        (*print-right-margin* 100))
+    (with-output-to-string (*standard-output*)
+      (when z
+        (princ z))
+      (pprint-logical-block (nil nil)
+        (princ "AAAAA")
+        (pprint-tab type x y)
+        (princ "BBB")))))
+
+(defun pprint-tab-list (type &optional z)
+  (loop for x from 0 to 15
+        collect (pprint-tab-test type x 4 z)))
+
+(deftest pprint-tab.1
+  (pprint-tab-list :line)
+  ("AAAAA   BBB"
+   "AAAAA    BBB"
+   "AAAAA BBB"
+   "AAAAA  BBB"
+   "AAAAA   BBB"
+   "AAAAA    BBB"
+   "AAAAA BBB"
+   "AAAAA  BBB"
+   "AAAAA   BBB"
+   "AAAAA    BBB"
+   "AAAAA     BBB"
+   "AAAAA      BBB"
+   "AAAAA       BBB"
+   "AAAAA        BBB"
+   "AAAAA         BBB"
+   "AAAAA          BBB"))
+
+(deftest pprint-tab.2
+  (pprint-tab-list :line "ZZ")
+  ("ZZAAAAA BBB"
+   "ZZAAAAA  BBB"
+   "ZZAAAAA   BBB"
+   "ZZAAAAA    BBB"
+   "ZZAAAAA BBB"
+   "ZZAAAAA  BBB"
+   "ZZAAAAA   BBB"
+   "ZZAAAAA    BBB"
+   "ZZAAAAA BBB"
+   "ZZAAAAA  BBB"
+   "ZZAAAAA   BBB"
+   "ZZAAAAA    BBB"
+   "ZZAAAAA     BBB"
+   "ZZAAAAA      BBB"
+   "ZZAAAAA       BBB"
+   "ZZAAAAA        BBB"))
+
+(deftest pprint-tab.3
+  (pprint-tab-list :section)
+  ("AAAAA   BBB"
+   "AAAAA    BBB"
+   "AAAAA BBB"
+   "AAAAA  BBB"
+   "AAAAA   BBB"
+   "AAAAA    BBB"
+   "AAAAA BBB"
+   "AAAAA  BBB"
+   "AAAAA   BBB"
+   "AAAAA    BBB"
+   "AAAAA     BBB"
+   "AAAAA      BBB"
+   "AAAAA       BBB"
+   "AAAAA        BBB"
+   "AAAAA         BBB"
+   "AAAAA          BBB"))
+
+(deftest pprint-tab.4
+  (pprint-tab-list :section "ZZ")
+  ("ZZAAAAA   BBB"
+   "ZZAAAAA    BBB"
+   "ZZAAAAA BBB"
+   "ZZAAAAA  BBB"
+   "ZZAAAAA   BBB"
+   "ZZAAAAA    BBB"
+   "ZZAAAAA BBB"
+   "ZZAAAAA  BBB"
+   "ZZAAAAA   BBB"
+   "ZZAAAAA    BBB"
+   "ZZAAAAA     BBB"
+   "ZZAAAAA      BBB"
+   "ZZAAAAA       BBB"
+   "ZZAAAAA        BBB"
+   "ZZAAAAA         BBB"
+   "ZZAAAAA          BBB"))
+
+(deftest pprint-tab.5
+  (pprint-tab-list :line-relative)
+  ("AAAAA   BBB"
+   "AAAAA   BBB"
+   "AAAAA   BBB"
+   "AAAAA   BBB"
+   "AAAAA       BBB"
+   "AAAAA       BBB"
+   "AAAAA       BBB"
+   "AAAAA       BBB"
+   "AAAAA           BBB"
+   "AAAAA           BBB"
+   "AAAAA           BBB"
+   "AAAAA           BBB"
+   "AAAAA               BBB"
+   "AAAAA               BBB"
+   "AAAAA               BBB"
+   "AAAAA               BBB"))
+
+(deftest pprint-tab.6
+  (pprint-tab-list :line-relative "ZZ")
+  ("ZZAAAAA BBB"
+   "ZZAAAAA BBB"
+   "ZZAAAAA     BBB"
+   "ZZAAAAA     BBB"
+   "ZZAAAAA     BBB"
+   "ZZAAAAA     BBB"
+   "ZZAAAAA         BBB"
+   "ZZAAAAA         BBB"
+   "ZZAAAAA         BBB"
+   "ZZAAAAA         BBB"
+   "ZZAAAAA             BBB"
+   "ZZAAAAA             BBB"
+   "ZZAAAAA             BBB"
+   "ZZAAAAA             BBB"
+   "ZZAAAAA                 BBB"
+   "ZZAAAAA                 BBB"))
+
+(deftest pprint-tab.7
+  (pprint-tab-list :section-relative)
+  ("AAAAA   BBB"
+   "AAAAA   BBB"
+   "AAAAA   BBB"
+   "AAAAA   BBB"
+   "AAAAA       BBB"
+   "AAAAA       BBB"
+   "AAAAA       BBB"
+   "AAAAA       BBB"
+   "AAAAA           BBB"
+   "AAAAA           BBB"
+   "AAAAA           BBB"
+   "AAAAA           BBB"
+   "AAAAA               BBB"
+   "AAAAA               BBB"
+   "AAAAA               BBB"
+   "AAAAA               BBB"))
+
+(deftest pprint-tab.8
+  (pprint-tab-list :section-relative "ZZ")
+  ("ZZAAAAA   BBB"
+   "ZZAAAAA   BBB"
+   "ZZAAAAA   BBB"
+   "ZZAAAAA   BBB"
+   "ZZAAAAA       BBB"
+   "ZZAAAAA       BBB"
+   "ZZAAAAA       BBB"
+   "ZZAAAAA       BBB"
+   "ZZAAAAA           BBB"
+   "ZZAAAAA           BBB"
+   "ZZAAAAA           BBB"
+   "ZZAAAAA           BBB"
+   "ZZAAAAA               BBB"
+   "ZZAAAAA               BBB"
+   "ZZAAAAA               BBB"
+   "ZZAAAAA               BBB"))
 
 
 ;;

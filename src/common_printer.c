@@ -16,6 +16,7 @@
 #include "print_write.h"
 #include "stream.h"
 #include "stream_string.h"
+#include "strtype.h"
 #include "type_parse.h"
 #include "type_table.h"
 
@@ -59,23 +60,32 @@ static void defun_copy_pprint_dispatch(void)
 static void function_formatter(Execute ptr, addr var, addr env)
 {
 	/* `(lambda (*standard-output* &rest args)
-	 *    (apply (function lisp-system::format-formatter) t string args))
+	 *    (apply (function lisp-system::format-formatter) string args))
 	 */
-	addr lambda, output, rest, args, apply, fsym, formatter;
+	addr string, lambda, output, rest, args, apply, symbol, formatter;
 
 	getcdr(var, &var);
+	if (! consp(var)) goto error;
+	GetCons(var, &string, &var);
+	if (! stringp(string)) goto error;
+	if (var != Nil) goto error;
+
 	GetConst(COMMON_LAMBDA, &lambda);
 	GetConst(SPECIAL_STANDARD_OUTPUT, &output);
 	GetConst(AMPERSAND_REST, &rest);
 	make_symbolchar(&args, "ARGS");
 	GetConst(COMMON_APPLY, &apply);
-	GetConst(COMMON_FUNCTION, &fsym);
+	GetConst(COMMON_FUNCTION, &symbol);
 	GetConst(SYSTEM_FORMAT_FORMATTER, &formatter);
-	list_heap(&fsym, fsym, formatter, NULL);
-	list_heap(&apply, apply, fsym, T, var, args, NULL);
+	list_heap(&symbol, symbol, formatter, NULL);
+	list_heap(&apply, apply, symbol, string, args, NULL);
 	list_heap(&output, output, rest, args, NULL);
 	list_heap(&lambda, lambda, output, apply, NULL);
 	setresult_control(ptr, lambda);
+	return;
+
+error:
+	fmte("FORMATTER argument must be a (string) form.", NULL);
 }
 
 static void defmacro_formatter(void)
@@ -549,11 +559,11 @@ static void function_print_unreadable_object(Execute ptr, addr form, addr env)
 		getcons(list, &key, &list);
 		getcons(list, &value, &list);
 		if (key == key1) {
-			if (value1 != Unbound)
+			if (value1 == Unbound)
 				value1 = value;
 		}
 		else if (key == key2) {
-			if (value2 != Unbound)
+			if (value2 == Unbound)
 				value2 = value;
 		}
 		else {
@@ -561,6 +571,8 @@ static void function_print_unreadable_object(Execute ptr, addr form, addr env)
 		}
 	}
 	/* result */
+	if (value1 == Unbound) value1 = Nil;
+	if (value2 == Unbound) value2 = Nil;
 	expand_print_unreadable_object(&pos, pos, stream, value1, value2, args);
 	setresult_control(ptr, pos);
 	return;
@@ -1209,7 +1221,7 @@ static void defvar_print_pretty(void)
 
 	/* symbol */
 	GetConst(SPECIAL_PRINT_PRETTY, &symbol);
-	SetValueSymbol(symbol, Nil);
+	SetValueSymbol(symbol, Nil); /* set T in buildlisp() */
 	setspecial_symbol(symbol);
 	/* type */
 	GetTypeTable(&type, T);
@@ -1294,18 +1306,12 @@ static void function_format(Execute ptr, addr var, addr format, addr args)
 
 static void type_format(addr *ret)
 {
-	addr args, values, null, eqlt, stream, string, orv, any;
+	addr args, values, type;
 
-	/* (or null (eql t) stream string) */
-	GetTypeTable(&null, Null);
-	GetTypeTable(&eqlt, EqlT);
-	GetTypeTable(&stream, Stream);
-	GetTypeTable(&string, String);
-	type4or_heap(null, eqlt, stream, string, &orv);
-	/* ((or ...) string &rest t) */
-	GetTypeTable(&any, T);
-	typeargs_var2rest(&args, orv, string, any);
-	/* (values (or null string) &rest nil) */
+	GetTypeTable(&args, Format);
+	GetTypeTable(&values, T);
+	GetTypeTable(&type, String);
+	typeargs_var2rest(&args, args, type, values);
 	GetTypeValues(&values, StringNull);
 	type_compiled_heap(args, values, ret);
 }

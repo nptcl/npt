@@ -1426,10 +1426,8 @@ _g void stream_designer(Execute ptr, addr pos, addr *ret, int inputp)
 	}
 
 	/* symbol */
-	if (symbolp(pos)) {
-		getspecialcheck_local(ptr, pos, ret);
-		return;
-	}
+	if (symbolp(pos))
+		getspecialcheck_local(ptr, pos, &pos);
 
 	/* stream */
 	if (streamp(pos)) {
