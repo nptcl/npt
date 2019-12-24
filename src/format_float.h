@@ -84,7 +84,7 @@ typedef struct fmtfloat_struct *fmtfloat;
 _g void fmtfloat_fixed(addr stream, fmtfloat fmt, fmtdecimal dec);
 _g void fmtfloat_exponent(addr stream, fmtfloat fmt, fmtdecimal dec);
 _g void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec);
-_g void fmtfloat_dollars(addr stream, fmtfloat fmt, fmtdecimal dec);
+_g void fmtfloat_monetary(addr stream, fmtfloat fmt, fmtdecimal dec);
 
 
 /*****************************************************************************

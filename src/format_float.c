@@ -10,7 +10,7 @@
 #include "build.h"
 #include "c99.h"
 #include "define.h"
-#include "fmtfloat.h"
+#include "format_float.h"
 #include "stream.h"
 
 #define FMTDECIMAL_FLOAT_PARSE	"%+20.10e"
@@ -495,13 +495,6 @@ static void exponent_stream(addr stream, fmtfloat fmt, fmtdecimal dec)
 	char buffer[32];
 	size_t size, i;
 
-	if (fmt->sign_exponent == 0) {
-		if (fmt->markerp) {
-			WriteChar(stream, fmt->marker);
-			WriteChar(stream, '0');
-		}
-		return;
-	}
 	value = getexponent(fmt, dec);
 	if (value < 0)
 		value = -value; /* no carry */
@@ -540,8 +533,10 @@ static void fixed_free(addr stream, fmtfloat fmt, fmtdecimal dec)
 	WriteChar(stream, '.');
 	fixed_small(stream, fmt, dec);
 	/* exponent */
-	if (fmt->markerp)
-		exponent_stream(stream, fmt, dec);
+	if (fmt->markerp) {
+		WriteChar(stream, fmt->marker);
+		WriteChar(stream, '0');
+	}
 }
 
 static size_t getsignsize(fmtfloat fmt, fmtdecimal dec)
@@ -1488,7 +1483,7 @@ _g void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec)
 	}
 }
 
-_g void fmtfloat_dollars(addr stream, fmtfloat fmt, fmtdecimal dec)
+_g void fmtfloat_monetary(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum e, round, index;
 	size_t d, n, w, sign, n1, n2, size, p, i;
@@ -1722,7 +1717,7 @@ static void fmtfloat_princ(addr stream, fmtfloat fmt, fmtdecimal dec,
 		fmt->e = 1;
 		fmt->markerp = 1;
 		fmt->marker = marker;
-		fmt->sign_exponent = 1; /* 0 if princ / prin1 */
+		fmt->sign_exponent = 0; /* 0 if princ / prin1 */
 		fmtfloat_exponent(stream, fmt, dec);
 	}
 }

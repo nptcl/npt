@@ -5,6 +5,11 @@
 #include "execute.h"
 #include "typedef.h"
 
+#ifdef LISP_DEBUG_FORCE_GC
+__extern size_t GcCounterForce;
+#endif
+__extern size_t ControlCounter;
+
 struct runcode_value {
 	enum ExecuteControl signal;
 	struct taginfo_struct *taginfo;

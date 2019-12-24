@@ -25,14 +25,8 @@
  */
 _g void apply_common(Execute ptr, addr call, addr arg, addr args)
 {
-	LocalRoot local;
-	LocalStack stack;
-
-	local = ptr->local;
-	push_local(local, &stack);
-	lista_local_safe(local, &args, arg, args);
-	if (apply_control(ptr, call, args)) return;
-	rollback_local(local, stack);
+	lista_local_safe(ptr->local, &args, arg, args);
+	(void)apply_control(ptr, call, args);
 }
 
 
@@ -1023,6 +1017,7 @@ static int function_ccase_string(Execute ptr,
 	open_output_string_stream(&stream, 0);
 	hold = LocalHold_array(ptr, 2);
 	localhold_set(hold, 0, stream);
+	localhold_set(hold, 1, list);
 	if (format_stream(ptr, stream, "The value of ~A, ~~A, is not ", place, NULL))
 		goto throw;
 	/* loop */
@@ -1100,8 +1095,10 @@ static int function_ccase_expand(Execute ptr,
 	getcar(g, &g);
 	Return1(format_string(ptr, &str1,
 				"Retry ccase with new value ~A.", place, NULL));
+	localhold_push(hold, str1);
 	Return1(format_string(ptr, &str2,
 				"Input ~A> ", place, NULL));
+	localhold_push(hold, str2);
 	if (function_ccase_string(ptr, &str3, &type, place, args))
 		return 1;
 	localhold_end(hold);
@@ -1385,8 +1382,10 @@ static int function_ctypecase_expand(Execute ptr,
 	getcar(g, &g);
 	Return1(format_string(ptr, &str1,
 				"Retry ctypecase with new value ~A.", place, NULL));
+	localhold_push(hold, str1);
 	Return1(format_string(ptr, &str2,
 				"Input ~A> ", place, NULL));
+	localhold_push(hold, str2);
 	function_ctypecase_string(ptr, &type, args);
 	localhold_end(hold);
 

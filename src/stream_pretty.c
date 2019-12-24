@@ -574,6 +574,12 @@ static void clear_output_Pretty(addr stream)
 	clear_output_stream(stream);
 }
 
+static int terminal_width_Pretty(addr stream, size_t *ret)
+{
+	getstream_pretty_stream(stream, &stream);
+	return terminal_width_stream(stream, ret);
+}
+
 _g void init_stream_pretty(void)
 {
 	DefineStreamSet(Pretty, close);
@@ -608,5 +614,6 @@ _g void init_stream_pretty(void)
 	DefineStreamSet(Pretty, force_output);
 	DefineStreamSet(Pretty, clear_output);
 	DefineStreamDef(Pretty, exitpoint);
+	DefineStreamSet(Pretty, terminal_width);
 }
 

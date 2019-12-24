@@ -1,3 +1,4 @@
+#include "file.h"
 #include "prompt.h"
 #include "stream_error.h"
 #include "stream_string.h"
@@ -155,5 +156,7 @@ _g void init_stream_prompt(void)
 	DefineStream___(Prompt, finish_output);
 	DefineStream___(Prompt, force_output);
 	DefineStream___(Prompt, clear_output);
+	DefineStream___(Prompt, exitpoint);
+	DefineStreamLet(Prompt, terminal_width, file);
 }
 

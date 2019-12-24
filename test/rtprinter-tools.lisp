@@ -36,3 +36,7 @@
        (pprint-logical-block (nil nil ,@args)
          ,@body))))
 
+(defmacro format-nil (str &rest args)
+  ;;`(format (formatter ,str) ,@args)
+  `(format nil ,str ,@args))
+

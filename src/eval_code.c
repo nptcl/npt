@@ -1134,13 +1134,29 @@ static void code_setq(LocalRoot local, addr code, addr scope)
 	if_push_result(local, code);
 }
 
-static void code_function(LocalRoot local, addr code, addr scope)
+static void code_function_object(LocalRoot local, addr code, addr pos)
+{
+	CheckTypeEvalCode(code);
+	switch (evalcode_mode(code)) {
+		case EvalCode_ModeSet:
+			Code_leftright(local, code, SET, pos);
+			break;
+
+		case EvalCode_ModePush:
+			Code_leftright(local, code, PUSH, pos);
+			break;
+
+		case EvalCode_ModeRemove:
+		default:
+			break;
+	}
+}
+
+static void code_function_callname(LocalRoot local, addr code, addr pos)
 {
 	constindex index;
 	int globalp, symbolp;
-	addr pos;
 
-	GetEvalScopeValue(scope, &pos);
 	globalp = getglobalp_tablefunction(pos);
 	getname_tablefunction(pos, &pos);
 	symbolp = (RefCallNameType(pos) == CALLNAME_SYMBOL);
@@ -1164,6 +1180,15 @@ static void code_function(LocalRoot local, addr code, addr scope)
 			return;
 	}
 	code_leftright(local, code, index, pos);
+}
+
+static void code_function(LocalRoot local, addr code, addr scope)
+{
+	GetEvalScopeValue(scope, &scope);
+	if (functionp(scope))
+		code_function_object(local, code, scope);
+	else
+		code_function_callname(local, code, scope);
 }
 
 static void ordinary_bind_opt(LocalRoot local, addr code, addr args, addr *ret)

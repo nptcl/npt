@@ -329,6 +329,7 @@ _g void init_stream_string_input(void)
 	DefineStream___(StringInput, force_output);
 	DefineStream___(StringInput, clear_output);
 	DefineStreamDef(StringInput, exitpoint);
+	DefineStreamDef(StringInput, terminal_width);
 }
 
 
@@ -336,7 +337,9 @@ _g void init_stream_string_input(void)
  *  StringOutput
  *****************************************************************************/
 struct stream_StringOutput {
-	int extend_p;
+	unsigned extend_p : 1;
+	unsigned width_p : 1;
+	size_t width;
 };
 
 #define CheckOutputStringStream(stream) { \
@@ -358,9 +361,28 @@ _g void open_output_string_stream(addr *stream, size_t size)
 	stream_heap(&pos, StreamType_StringOutput, sizeoft(struct stream_StringOutput));
 	str = PtrStringOutputStream(pos);
 	str->extend_p = 0;
+	str->width_p = 0;
+	str->width = 0;
 	charqueue_heap(&queue, size);
 	SetInfoStream(pos, queue);
 	force_open_stream(pos, stream);
+}
+
+_g void copy_terminal_width_string_stream(addr stream, addr src)
+{
+	struct stream_StringOutput *str;
+	size_t size;
+
+	CheckOutputStringStream(stream);
+	str = PtrStringOutputStream(stream);
+	if (terminal_width_stream(src, &size)) {
+		str->width_p = 0;
+		str->width = 0;
+	}
+	else {
+		str->width_p = 1;
+		str->width = size;
+	}
 }
 
 _g void string_stream_alloc(LocalRoot local, addr stream, addr *string)
@@ -405,6 +427,8 @@ _g void open_extend_output_stream(addr *stream, addr array)
 	stream_heap(&pos, StreamType_StringOutput, sizeoft(struct stream_StringOutput));
 	str = PtrStringOutputStream(pos);
 	str->extend_p = 1;
+	str->width_p = 0;
+	str->width = 0;
 	SetInfoStream(pos, array);
 	force_open_stream(pos, stream);
 }
@@ -534,6 +558,18 @@ static int file_string_length_StringOutput(addr stream, addr pos, size_t *ret)
 	return 0;
 }
 
+static int terminal_width_StringOutput(addr stream, size_t *ret)
+{
+	struct stream_StringOutput *str;
+
+	CheckOutputStringStream(stream);
+	str = PtrStringOutputStream(stream);
+	if (str->width_p)
+		*ret = str->width;
+
+	return str->width_p;
+}
+
 _g void init_stream_string_output(void)
 {
 	DefineStreamSet(StringOutput, close);
@@ -568,5 +604,6 @@ _g void init_stream_string_output(void)
 	DefineStreamDef(StringOutput, force_output);
 	DefineStreamDef(StringOutput, clear_output);
 	DefineStreamDef(StringOutput, exitpoint);
+	DefineStreamSet(StringOutput, terminal_width);
 }
 

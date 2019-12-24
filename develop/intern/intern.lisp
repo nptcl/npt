@@ -1770,6 +1770,7 @@ lisp-clos::make-method-lambda
 (lisp-rt::*index* :constant rt :name index)
 (lisp-rt::*entries* :constant rt :name entries)
 (lisp-rt::*entries-table* :constant rt :name entries-table)
+(lisp-rt::*entries-warning* :constant rt :name entries-warning)
 lisp-rt::error  ;; for deftest-error
 lisp-rt::push-entries
 lisp-rt::deftest
@@ -1822,7 +1823,7 @@ lisp-system::octal-dispatch
 lisp-system::pathname-dispatch
 lisp-system::radix-dispatch
 lisp-system::structure-dispatch
-lisp-system::hexdecimal-dispatch
+lisp-system::hexadecimal-dispatch
 
 lisp-system::backquote
 lisp-system::hello
@@ -1871,7 +1872,6 @@ lisp-system::single-float-p
 lisp-system::double-float-p
 lisp-system::long-float-p
 lisp-system::large-number
-lisp-system::format-formatter
 lisp-system::print-unreadable-call
 lisp-system::write-default
 lisp-system::make-bignum

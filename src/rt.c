@@ -9,7 +9,9 @@
 #include "function.h"
 #include "hashtable.h"
 #include "integer.h"
+#include "gc.h"
 #include "package.h"
+#include "print_write.h"
 #include "rt.h"
 #include "stream.h"
 #include "symbol.h"
@@ -65,27 +67,49 @@ static void defvar_entries_table(void)
 }
 
 
+/* (defvar lisp-rt::*entries-warning* [queue])
+ *   *entries*  (root . tail)
+ */
+static void defvar_entries_warning(void)
+{
+	addr symbol, pos;
+
+	GetConst(RT_ENTRIES_WARNING, &symbol);
+	setspecial_symbol(symbol);
+	queue_heap(&pos);
+	SetValueSymbol(symbol, pos);
+}
+
+
 /* (defun push-entries (name expr values) ...) -> nil
  *   name    symbol
  *   expr    t
  *   values  list
  */
+static void rt_push_entries(Execute ptr, constindex index, addr name)
+{
+	addr queue;
+
+	GetConstant(index, &queue);
+	getspecialcheck_local(ptr, queue, &queue);
+	Check(! consp(queue), "*entries* error");
+	pushqueue_heap(queue, name);
+}
+
 static void function_push_entries(Execute ptr, addr name, addr expr, addr values)
 {
-	addr table, pos, queue, list;
+	addr table, pos, list;
 
 	/* check *entries-table* */
 	GetConst(RT_ENTRIES_TABLE, &table);
 	getspecialcheck_local(ptr, table, &table);
 	if (findvalue_hashtable(table, name, &pos)) {
 		fmtw("The deftest ~S is already exist.", name, NULL);
+		rt_push_entries(ptr, CONSTANT_RT_ENTRIES_WARNING, name);
 	}
 	else  {
 		/* push *entries* */
-		GetConst(RT_ENTRIES, &queue);
-		getspecialcheck_local(ptr, queue, &queue);
-		Check(! consp(queue), "*entries* error");
-		pushqueue_heap(queue, name);
+		rt_push_entries(ptr, CONSTANT_RT_ENTRIES, name);
 	}
 
 	/* intern *entries-table* */
@@ -137,14 +161,23 @@ static void export_symbol(addr symbol)
 	export_package(package, symbol);
 }
 
+static void rm_all_tests_clear(Execute ptr, constindex index)
+{
+	addr pos;
+
+	GetConstant(index, &pos);
+	getspecialcheck_local(ptr, pos, &pos);
+	clearqueue(pos);
+}
+
 static void rem_all_tests(Execute ptr)
 {
 	addr symbol, pos;
 
 	/* (setq *entries* (list nil)) */
-	GetConst(RT_ENTRIES, &symbol);
-	getspecialcheck_local(ptr, symbol, &pos);
-	clearqueue(pos);
+	rm_all_tests_clear(ptr, CONSTANT_RT_ENTRIES);
+	/* (setq *entries-warning* (list nil)) */
+	rm_all_tests_clear(ptr, CONSTANT_RT_ENTRIES_WARNING);
 	/* (clrhash *entries-table*) */
 	GetConst(RT_ENTRIES_TABLE, &symbol);
 	getspecialcheck_local(ptr, symbol, &pos);
@@ -324,6 +357,20 @@ static int do_test_equal(Execute ptr, addr expr, addr values, addr *ret)
 	return 1;
 }
 
+static void do_test_output_loop(Execute ptr, addr io, const char *str, addr list)
+{
+	/* format_stream(ptr, io, "  *** Expect:~{ ~S~}~%", values, NULL); */
+	addr pos;
+
+	print_ascii_stream(io, str);
+	while (list != Nil) {
+		getcons(list, &pos, &list);
+		write_char_stream(io, ' ');
+		prin1_print(ptr, io, pos);
+	}
+	terpri_stream(io);
+}
+
 static void do_test_output(Execute ptr, addr io,
 		int check, addr name, addr values, addr result, fixnum index)
 {
@@ -333,15 +380,16 @@ static void do_test_output(Execute ptr, addr io,
 
 	local = ptr->local;
 	push_local(local, &stack);
-	fixnum_local(local, &pos, index);
+	fixnum_heap(&pos, index);
 	if (check) {
 		format_stream(ptr, io, "~&[RT] ~6@A: ~A~%", pos, name, NULL);
 	}
 	else {
 		format_stream(ptr, io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL);
-		format_stream(ptr, io, "  *** Expect:~{ ~S~}~%", values, NULL);
-		format_stream(ptr, io, "  *** Actial:~{ ~S~}~%", result, NULL);
+		do_test_output_loop(ptr, io, "  *** Expect:", values);
+		do_test_output_loop(ptr, io, "  *** Actial:", result);
 	}
+
 	rollback_local(local, stack);
 }
 
@@ -354,9 +402,9 @@ static void do_test_output_unhandling(Execute ptr,
 
 	local = ptr->local;
 	push_local(local, &stack);
-	fixnum_local(local, &pos, index);
+	fixnum_heap(&pos, index);
 	format_stream(ptr, io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL);
-	format_stream(ptr, io, "  *** Expect:~{ ~S~}~%", values, NULL);
+	do_test_output_loop(ptr, io, "  *** Expect:", values);
 	format_stream(ptr, io, "  *** Actual: #<System error, unhandling signal>~%", NULL);
 	rollback_local(local, stack);
 }
@@ -441,12 +489,24 @@ static void function_do_tests_execute(Execute ptr, fixnum *value)
 		}
 	}
 	if (count2) {
+		make_index_integer_heap(&root2, count2);
+		gchold_push_local(local, root2);
 		format_stream(ptr, io, "~%", NULL);
 		format_stream(ptr, io, "*************~%", NULL);
 		format_stream(ptr, io, "*** ERROR ***~%", NULL);
 		format_stream(ptr, io, "*************~2%", NULL);
-		format_stream(ptr, io, "ERROR = ~A~%", intsizeh(count2), NULL);
+		format_stream(ptr, io, "ERROR = ~A~%", root2, NULL);
 	}
+
+	/* *entries-warning* */
+	GetConst(RT_ENTRIES_WARNING, &list);
+	getspecialcheck_local(ptr, list, &list);
+	rootqueue(list, &list);
+	if (list != Nil) {
+		format_stream(ptr, io, "~&[DUPCATED] These testcases is ignored.~%", NULL);
+		format_stream(ptr, io, "  *** Testcase: ~A~2%", list, NULL);
+	}
+
 	rollback_local(local, stack);
 	*value = index;
 
@@ -539,6 +599,7 @@ _g void build_rt(void)
 	defpackage_rt();
 	defvar_entries();
 	defvar_entries_table();
+	defvar_entries_warning();
 	defun_push_entries();
 	defun_rem_all_tests();
 	defmacro_deftest();

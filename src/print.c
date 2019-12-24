@@ -2,7 +2,6 @@
 #include "character.h"
 #include "condition.h"
 #include "cons.h"
-#include "console.h"
 #include "constant.h"
 #include "control.h"
 #include "heap.h"
@@ -289,16 +288,21 @@ _g void push_miser_width_nil_print(Execute ptr)
 }
 
 /* print-right-margin */
-_g void right_margin_print(Execute ptr, size_t *ret)
+_g void right_margin_print(Execute ptr, addr stream, size_t *ret)
 {
 	addr pos;
+	size_t size;
 
 	GetConst(SPECIAL_PRINT_RIGHT_MARGIN, &pos);
 	getspecialcheck_local(ptr, pos, &pos);
-	if (pos == Nil)
-		*ret = getwidth_console();
-	else
+	if (pos == Nil) {
+		if (terminal_width_stream(stream, &size))
+			size = PRINT_DEFAULT_WIDTH;
+		*ret = size;
+	}
+	else {
 		getindex_fixnum(pos, ret);
+	}
 }
 
 _g void push_right_margin_print(Execute ptr, size_t value)

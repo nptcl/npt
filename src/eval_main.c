@@ -1,3 +1,4 @@
+#include "cons.h"
 #include "condition.h"
 #include "control.h"
 #include "eval.h"
@@ -6,6 +7,7 @@
 #include "format.h"
 #include "function.h"
 #include "gc.h"
+#include "print_write.h"
 #include "prompt.h"
 #include "readtable.h"
 #include "stream.h"
@@ -119,11 +121,22 @@ static void eval_loop_shift(Execute ptr, addr list)
 
 _g int eval_loop_output(Execute ptr, addr stream, addr control)
 {
-	addr list;
+	addr list, pos;
 
 	getvalues_list_control_heap(ptr, &list);
 	eval_loop_shift(ptr, list);
-	return format_stream(ptr, stream, "~&~{~S~%~}~&", list, NULL);
+	/* format_stream(ptr, stream, "~&~{~S~%~}~&", list, NULL); */
+	fresh_line_stream(stream);
+	while (list != Nil) {
+		getcons(list, &pos, &list);
+		if (prin1_print(ptr, stream, pos))
+			return 1;
+		terpri_stream(stream);
+	}
+	fresh_line_stream(stream);
+	force_output_stream(stream);
+
+	return 0;
 }
 
 static int eval_loop_stream(Execute ptr, addr stream, addr pos)

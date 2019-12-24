@@ -383,6 +383,7 @@ enum TypeTable {
 	TypeCompiled_PrintObject_Method,
 	TypeCompiled_PprintFill,
 	TypeCompiled_DispatchFunction,
+	TypeCompiled_FormatterFunction,
 
 	/* Size */
 	TypeTable_Size

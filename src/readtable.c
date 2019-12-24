@@ -495,7 +495,7 @@ static void default_dispatch_readtype(addr pos, unicode u)
 	DispatchCharacter(pos, u, 'P',  PATHNAME);
 	DispatchCharacter(pos, u, 'R',  RADIX);
 	DispatchCharacter(pos, u, 'S',  STRUCTURE);
-	DispatchCharacter(pos, u, 'X',  HEXDECIMAL);
+	DispatchCharacter(pos, u, 'X',  HEXADECIMAL);
 }
 
 static void array_readtype_heap(addr *ret)
@@ -781,7 +781,7 @@ static void get_default_dispatch_sharp(addr code, addr *ret)
 	DefaultDispatch(u, 'P',  PATHNAME);
 	DefaultDispatch(u, 'R',  RADIX);
 	DefaultDispatch(u, 'S',  STRUCTURE);
-	DefaultDispatch(u, 'X',  HEXDECIMAL);
+	DefaultDispatch(u, 'X',  HEXADECIMAL);
 	*ret = Nil;
 }
 
@@ -3779,20 +3779,20 @@ static void defun_octal_dispatch(void)
 }
 
 
-/* (defun hexdecimal-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_hexdecimal(Execute ptr, addr stream, addr code, addr arg)
+/* (defun hexadecimal-dispatch (stream code arg) ...) -> * */
+static void function_dispatch_hexadecimal(Execute ptr, addr stream, addr code, addr arg)
 {
 	dispatch_radix_read(ptr, stream, 16);
 }
 
-static void defun_hexdecimal_dispatch(void)
+static void defun_hexadecimal_dispatch(void)
 {
 	addr symbol, pos, type;
 
 	/* function */
-	GetConst(SYSTEM_HEXDECIMAL_DISPATCH, &symbol);
+	GetConst(SYSTEM_HEXADECIMAL_DISPATCH, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_var3(pos, p_defun_dispatch_hexdecimal);
+	setcompiled_var3(pos, p_defun_dispatch_hexadecimal);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, MacroDispatch);
@@ -4015,7 +4015,7 @@ static void make_macro_dispatch(void)
 	defun_radix_dispatch();           /* #R */
 	defun_binary_dispatch();          /* #B */
 	defun_octal_dispatch();           /* #O */
-	defun_hexdecimal_dispatch();      /* #X */
+	defun_hexadecimal_dispatch();     /* #X */
 	defun_complex_dispatch();         /* #C */
 	defun_array_dispatch();           /* #A */
 	defun_pathname_dispatch();        /* #P */
@@ -4095,7 +4095,7 @@ _g void init_readtable(void)
 	SetPointerCall(defun, var3, dispatch_radix);
 	SetPointerCall(defun, var3, dispatch_binary);
 	SetPointerCall(defun, var3, dispatch_octal);
-	SetPointerCall(defun, var3, dispatch_hexdecimal);
+	SetPointerCall(defun, var3, dispatch_hexadecimal);
 	SetPointerCall(defun, var3, dispatch_complex);
 	SetPointerCall(defun, var3, dispatch_array);
 	SetPointerCall(defun, var3, dispatch_pathname);

@@ -404,7 +404,6 @@ static void function_flet_next_method(Execute ptr,
 {
 	addr call;
 	LocalRoot local;
-	LocalStack stack;
 
 	if (next == Nil) {
 		stdget_method_generic_function(method, &method);
@@ -417,10 +416,8 @@ static void function_flet_next_method(Execute ptr,
 		rest = args;
 	/* call method */
 	local = ptr->local;
-	push_local(local, &stack);
 	lista_local(local, &rest, method, next, rest, NULL);
-	if (apply_control(ptr, call, rest)) return;
-	rollback_local(local, stack);
+	(void)apply_control(ptr, call, rest);
 }
 
 static void type_flet_next_method(addr *ret)

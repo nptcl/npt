@@ -96,8 +96,11 @@ fasl.c
 file_memory.c
 file.c
 files.c
-fmtfloat.c
 format.c
+format_float.c
+format_function.c
+format_parse.c
+format_print.c
 function.c
 gc.c
 hashtable.c

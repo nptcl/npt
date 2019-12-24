@@ -224,5 +224,6 @@ _g void init_stream_concatenated(void)
 	DefineStream___(Concatenated, force_output);
 	DefineStream___(Concatenated, clear_output);
 	DefineStreamSet(Concatenated, exitpoint);
+	DefineStream___(Concatenated, terminal_width);
 }
 

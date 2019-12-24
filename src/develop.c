@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "constant.h"
+#include "control.h"
 #include "degrade.h"
 #include "execute.h"
-#include "heap.h"
 #include "stream_broadcast.h"
 #include "symbol.h"
 #include "typedef.h"

@@ -14,6 +14,7 @@
 #include "file.h"
 #include "format.h"
 #include "function.h"
+#include "gc.h"
 #include "heap.h"
 #include "integer.h"
 #include "memory.h"
@@ -283,6 +284,7 @@ static void function_handler_warning(Execute ptr, addr condition)
 	else {
 		Return0(format_stream(ptr, stream, "~&WARNING: ~S~%", condition, NULL));
 	}
+	force_output_stream(stream);
 }
 
 _g void handler_warning(Execute ptr)
@@ -596,6 +598,7 @@ _g int signal_function(Execute ptr, addr condition)
 
 _g int error_common(Execute ptr, addr condition)
 {
+	gchold_push_local(ptr->local, condition);
 	return signal_function(ptr, condition)
 		|| invoke_debugger(ptr, condition);
 }

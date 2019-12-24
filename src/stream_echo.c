@@ -246,6 +246,12 @@ static void exitpoint_Echo(addr stream)
 	exitpoint_stream(stream);
 }
 
+static int terminal_width_Echo(addr stream, size_t *ret)
+{
+	output_Echo(stream, &stream);
+	return terminal_width_stream(stream, ret);
+}
+
 _g void init_stream_echo(void)
 {
 	DefineStreamDef(Echo, close);
@@ -280,5 +286,6 @@ _g void init_stream_echo(void)
 	DefineStreamSet(Echo, force_output);
 	DefineStreamSet(Echo, clear_output);
 	DefineStreamSet(Echo, exitpoint);
+	DefineStreamSet(Echo, terminal_width);
 }
 

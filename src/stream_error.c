@@ -155,3 +155,9 @@ _g void exitpoint_stream_error(addr stream)
 	fmte("The stream ~S don't run exitpoint function.", stream, NULL);
 }
 
+_g int terminal_width_stream_error(addr stream, size_t *ret)
+{
+	/* fmte("The stream ~S don't run terminal-width function.", stream, NULL); */
+	return 1;
+}
+

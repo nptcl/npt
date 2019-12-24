@@ -682,7 +682,8 @@ static int lambda_bind_opt(Execute ptr, addr cons, addr *args)
 static void lambda_bind_rest(Execute ptr, addr rest, addr args)
 {
 	/*copylist_force_heap(args, &args);*/
-	copy_list_heap_safe(&args, args);
+	/*copy_list_heap_safe(&args, args);*/
+	copyheap(&args, args);
 	bind_variable(ptr, rest, args, 1);
 }
 

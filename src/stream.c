@@ -384,6 +384,18 @@ _g size_t terpri_position_stream(addr stream)
 	return PtrStructStream(stream)->terpri;
 }
 
+_g void set_terpri_position_stream(addr stream, size_t size)
+{
+	struct StructStream *ptr;
+	CheckStream(stream, ptr);
+	PtrStructStream(stream)->terpri = size;
+}
+
+_g void copy_terpri_position_stream(addr stream, addr src)
+{
+	set_terpri_position_stream(stream, terpri_position_stream(src));
+}
+
 _g int inputp_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
@@ -503,6 +515,13 @@ _g void exitpoint_stream(addr stream)
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	(Stream_exitpoint[(int)ptr->type])(stream);
+}
+
+_g int terminal_width_stream(addr stream, size_t *ret)
+{
+	struct StructStream *ptr;
+	CheckStream(stream, ptr);
+	return (Stream_terminal_width[(int)ptr->type])(stream, ret);
 }
 
 
@@ -654,10 +673,12 @@ _g int file_position_set_default_stream(addr stream, size_t pos)
 
 _g void finish_output_default_stream(addr stream)
 {
+	exitpoint_stream(stream);
 }
 
 _g void force_output_default_stream(addr stream)
 {
+	exitpoint_stream(stream);
 }
 
 _g void clear_output_default_stream(addr stream)
@@ -666,6 +687,11 @@ _g void clear_output_default_stream(addr stream)
 
 _g void exitpoint_default_stream(addr stream)
 {
+}
+
+_g int terminal_width_default_stream(addr stream, size_t *ret)
+{
+	return 1;
 }
 
 

@@ -1,4 +1,5 @@
 #include "condition.h"
+#include "console.h"
 #include "encode.h"
 #include "file.h"
 #include "file_memory.h"
@@ -1476,6 +1477,11 @@ _g void exitpoint_file(addr stream)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	exitpoint_filememory(fm);
+}
+
+_g int terminal_width_file(addr stream, size_t *ret)
+{
+	return getwidth_console(ret);
 }
 
 

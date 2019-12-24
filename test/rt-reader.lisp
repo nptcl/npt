@@ -235,18 +235,18 @@
   (read-hello "(100 #-Hello #oABC)")
   (100))
 
-(deftest read-suppress-hexdecimal.1
+(deftest read-suppress-hexadecimal.1
   (read-hello "(100 #+Hello #xFF)")
   (100 255))
 
-(deftest read-suppress-hexdecimal.2
+(deftest read-suppress-hexadecimal.2
   (read-hello "(100 #-Hello #xFF)")
   (100))
 
-(deftest-error read-suppress-hexdecimal.3
+(deftest-error read-suppress-hexadecimal.3
   (read-hello "(100 #+Hello #xHello)"))
 
-(deftest read-suppress-hexdecimal.4
+(deftest read-suppress-hexadecimal.4
   (read-hello "(100 #-Hello #xHello)")
   (100))
 

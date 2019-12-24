@@ -1,4 +1,4 @@
-#include "fmtfloat.c"
+#include "format_float.c"
 #include "degrade.h"
 
 /*
@@ -273,7 +273,7 @@ static int test_fixed_basic(void)
 /*
  *  main
  */
-static int testbreak_fmtfloat(void)
+static int testbreak_format_float(void)
 {
 	TestBreak(test_case_fixed);
 	TestBreak(test_case_exponent);
@@ -286,8 +286,8 @@ static int testbreak_fmtfloat(void)
 /*
  *  dummy function
  */
-int test_fmtfloat(void)
+int test_format_float(void)
 {
-	return testbreak_fmtfloat();
+	return testbreak_format_float();
 }
 

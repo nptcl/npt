@@ -2679,6 +2679,18 @@ static void typecompiled_dispatch_function(void)
 	SetTypeCompiled(DispatchFunction, args);
 }
 
+static void typecompiled_formatter_function(void)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Stream);
+	GetTypeTable(&values, T);
+	typeargs_var1rest(&args, args, values);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(FormatterFunction, args);
+}
+
 
 /*
  *  Interface
@@ -3007,5 +3019,6 @@ _g void build_type_constant(void)
 	typecompiled_print_object_method();
 	typecompiled_pprint_fill();
 	typecompiled_dispatch_function();
+	typecompiled_formatter_function();
 }
 

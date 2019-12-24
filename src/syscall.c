@@ -16,6 +16,7 @@
 #include "eval.h"
 #include "file.h"
 #include "format.h"
+#include "format_function.h"
 #include "function.h"
 #include "gc.h"
 #include "hashtable.h"
@@ -1665,48 +1666,6 @@ static void defun_large_number(void)
 }
 
 
-/* (defun format-formatter (string &rest args) ...) -> list */
-static void syscall_format_formatter(Execute ptr, addr string, addr args)
-{
-	addr stream;
-	LocalHold hold;
-
-	standard_output_stream(ptr, &stream);
-	stream_designer(ptr, stream, &stream, 0);
-	hold = LocalHold_local_push(ptr, stream);
-	if (format_stream_args(ptr, stream, string, args, &args))
-		return;
-	localhold_end(hold);
-	setresult_control(ptr, args);
-}
-
-static void type_format_formatter(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, String);
-	GetTypeTable(&values, T);
-	typeargs_var1rest(&args, args, values);
-	GetTypeValues(&values, List);
-	type_compiled_heap(args, values, ret);
-}
-
-static void defun_format_formatter(void)
-{
-	addr symbol, pos, type;
-
-	/* function */
-	GetConst(SYSTEM_FORMAT_FORMATTER, &symbol);
-	compiled_heap(&pos, symbol);
-	setcompiled_var1dynamic(pos, p_defun_syscall_format_formatter);
-	SetFunctionSymbol(symbol, pos);
-	/* type */
-	type_format_formatter(&type);
-	settype_function(pos, type);
-	settype_function_symbol(symbol, type);
-}
-
-
 /* (defun print-unreadable-call (stream pos type identity body) ...) -> null */
 static void syscall_print_unreadable_call(Execute ptr,
 		addr stream, addr pos, addr type, addr identity, addr body)
@@ -2557,7 +2516,6 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, double_float_p);
 	SetPointerSysCall(defun, var1, long_float_p);
 	SetPointerSysCall(defun, var1opt1, large_number);
-	SetPointerSysCall(defun, var1dynamic, format_formatter);
 	SetPointerSysCall(defun, var5, print_unreadable_call);
 	SetPointerSysCall(defun, var2, write_default);
 	SetPointerSysCall(defun, var1, make_bignum);
@@ -2641,7 +2599,6 @@ _g void build_syscall(void)
 	defun_long_float_p();
 	/* printer */
 	defun_large_number();
-	defun_format_formatter();
 	defun_print_unreadable_call();
 	defun_write_default();
 	/* number */

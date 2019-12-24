@@ -29,6 +29,11 @@
 #undef LISP_DEBUG_TRACE
 //#define LISP_DEBUG_TRACE
 
+#ifdef LISP_DEBUG_FORCE_GC
+_g size_t GcCounterForce = 0;
+#endif
+_g size_t ControlCounter = 0;
+
 
 /*
  *  control
@@ -1162,20 +1167,25 @@ _g int find_restart_control(Execute ptr, addr name, addr condition, addr *ret)
 _g void compute_restarts_control(Execute ptr, addr condition, addr *ret)
 {
 	addr control, root, list, restart;
+	LocalHold hold;
 
 	if (condition != Nil && (! condition_instance_p(condition)))
 		fmte("The argument ~S must be a NIL or condition.", condition, NULL);
+	hold = LocalHold_array(ptr, 1);
 	control = ptr->control;
 	for (root = Nil; control != Nil; ) {
 		getrestart_object(control, &list);
 		while (list != Nil) {
 			GetCons(list, &restart, &list);
 			redirect_restart(restart, &restart);
-			if (condition_test(ptr, restart, condition))
+			if (condition_test(ptr, restart, condition)) {
 				pushnew_heap(root, restart, &root);
+				localhold_set(hold, 0, root);
+			}
 		}
 		GetControl(control, Control_Next, &control);
 	}
+	localhold_end(hold);
 	nreverse_list_unsafe(ret, root);
 }
 
@@ -2313,6 +2323,11 @@ _g void init_control(void)
 	CallBindTable[CallBind_var3dynamic] = call_callbind_var3dynamic;
 	CallBindTable[CallBind_var4dynamic] = call_callbind_var4dynamic;
 	CallBindTable[CallBind_opt1dynamic] = call_callbind_opt1dynamic;
+
+#ifdef LISP_DEBUG_FORCE_GC
+	GcCounterForce = LISP_DEBUG_FORCE_GC;
+#endif
+	ControlCounter = 0;
 }
 
 static int call_compiled_function(Execute ptr, addr compiled)
@@ -2465,6 +2480,12 @@ point:
 		OutputTrace(control, point);
 		GetPointer_code(call[point], &code);
 		(code)(ptr, args[point]);
+		/* counter */
+		ControlCounter++;
+#ifdef LISP_DEBUG_FORCE_GC
+		if (GcCounterForce && (ControlCounter % GcCounterForce) == 0)
+			gcstate_execute();
+#endif
 	}
 	if (ptr->state == ThreadState_Signal)
 		gcsync(ptr);

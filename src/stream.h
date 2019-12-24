@@ -131,6 +131,8 @@ _g void close_stream(addr stream);
 _g void terpri_stream(addr stream);
 _g void pageout_stream(addr stream);
 _g size_t terpri_position_stream(addr stream);
+_g void set_terpri_position_stream(addr stream, size_t size);
+_g void copy_terpri_position_stream(addr stream, addr src);
 _g void print_ascii_stream(addr stream, const char *data);
 _g void print_unicode_stream(addr stream, const unicode *data);
 _g void print_string_stream(addr stream, addr pos);
@@ -187,6 +189,7 @@ __extern void (*Stream_finish_output[StreamType_Size])(addr);
 __extern void (*Stream_force_output[StreamType_Size])(addr);
 __extern void (*Stream_clear_output[StreamType_Size])(addr);
 __extern void (*Stream_exitpoint[StreamType_Size])(addr);
+__extern int (*Stream_terminal_width[StreamType_Size])(addr, size_t *);
 
 _g int close_abort_stream(addr stream, int abort);
 _g int read_binary_stream(addr stream, void *pos, size_t size, size_t *ret);
@@ -219,6 +222,7 @@ _g void finish_output_stream(addr stream);
 _g void force_output_stream(addr stream);
 _g void clear_output_stream(addr stream);
 _g void exitpoint_stream(addr stream);
+_g int terminal_width_stream(addr stream, size_t *ret);
 
 _g int close_default_stream(addr stream, int abort);
 _g int read_char_default_stream(addr stream, unicode *c);
@@ -241,6 +245,7 @@ _g void finish_output_default_stream(addr stream);
 _g void force_output_default_stream(addr stream);
 _g void clear_output_default_stream(addr stream);
 _g void exitpoint_default_stream(addr stream);
+_g int terminal_width_default_stream(addr stream, size_t *ret);
 
 
 /*

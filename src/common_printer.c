@@ -7,6 +7,8 @@
 #include "cons_plist.h"
 #include "eval_declare.h"
 #include "format.h"
+#include "format_function.h"
+#include "format_parse.h"
 #include "gc.h"
 #include "integer.h"
 #include "print.h"
@@ -57,35 +59,41 @@ static void defun_copy_pprint_dispatch(void)
 
 
 /* (defmacro formatter (string) ...) -> function */
+static void formatter_call(Execute ptr, addr stream, addr args)
+{
+	addr format;
+
+	getdata_control(ptr, &format);
+	if (format_execute(ptr, stream, format, args, &args))
+		return;
+	setresult_control(ptr, args);
+}
+
 static void function_formatter(Execute ptr, addr var, addr env)
 {
-	/* `(lambda (*standard-output* &rest args)
-	 *    (apply (function lisp-system::format-formatter) string args))
-	 */
-	addr string, lambda, output, rest, args, apply, symbol, formatter;
+	addr pos, type;
 
+	/* macro */
 	getcdr(var, &var);
-	if (! consp(var)) goto error;
-	GetCons(var, &string, &var);
-	if (! stringp(string)) goto error;
-	if (var != Nil) goto error;
-
-	GetConst(COMMON_LAMBDA, &lambda);
-	GetConst(SPECIAL_STANDARD_OUTPUT, &output);
-	GetConst(AMPERSAND_REST, &rest);
-	make_symbolchar(&args, "ARGS");
-	GetConst(COMMON_APPLY, &apply);
-	GetConst(COMMON_FUNCTION, &symbol);
-	GetConst(SYSTEM_FORMAT_FORMATTER, &formatter);
-	list_heap(&symbol, symbol, formatter, NULL);
-	list_heap(&apply, apply, symbol, string, args, NULL);
-	list_heap(&output, output, rest, args, NULL);
-	list_heap(&lambda, lambda, output, apply, NULL);
-	setresult_control(ptr, lambda);
+	if (! singlep(var))
+		goto error;
+	GetCar(var, &var);
+	if (! stringp(var))
+		goto error;
+	/* function */
+	compiled_heap(&pos, Nil);
+	setcompiled_var1dynamic(pos, p_formatter_call);
+	GetTypeCompiled(&type, FormatterFunction);
+	settype_function(pos, type);
+	/* format */
+	format_parse_heap(ptr->local, &var, var);
+	SetDataFunction(pos, var);
+	/* result */
+	setresult_control(ptr, pos);
 	return;
 
 error:
-	fmte("FORMATTER argument must be a (string) form.", NULL);
+	fmte("FORMATTER argument must be a (FORMATTER string) form.", NULL);
 }
 
 static void defmacro_formatter(void)
@@ -1359,6 +1367,7 @@ _g void init_common_printer(void)
 	SetPointerCall(defun, var1, princ_to_string);
 	SetPointerCall(defun, var1, print_not_readable_object);
 	SetPointerCall(defun, var2dynamic, format);
+	SetPointerType(var1dynamic, formatter_call);
 }
 
 _g void build_common_printer(void)

@@ -124,6 +124,7 @@ _g void finish_output_file(addr stream);
 _g void force_output_file(addr stream);
 _g void clear_output_file(addr stream);
 _g void exitpoint_file(addr stream);
+_g int terminal_width_file(addr stream, size_t *ret);
 
 
 /*

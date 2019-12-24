@@ -19,6 +19,7 @@ enum pprint_tabular {
 	pprint_tabular_section_relative
 };
 
+_g int pprint_throw(Execute ptr, addr stream);
 _g int pprint_exit_common(Execute ptr, addr stream);
 _g int pprint_pop_common(Execute ptr, addr stream, addr *ret);
 _g int check_pretty_stream(Execute ptr, addr stream);

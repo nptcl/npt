@@ -12,16 +12,18 @@ _g void write_check_all_clear(Execute ptr);
 _g void write_check_call(Execute ptr, addr pos);
 _g int pprint_pop_circle(Execute ptr, addr stream, addr pos);
 _g int pprint_check_circle(Execute ptr, addr pos, addr *ret);
-_g int write_default_print(Execute ptr, addr stream, addr object);
-_g int write_print(Execute ptr, addr stream, addr object);
-_g int princ_print(Execute ptr, addr stream, addr object);
-_g int prin1_print(Execute ptr, addr stream, addr object);
-_g int print_print(Execute ptr, addr stream, addr object);
-_g int pprint_print(Execute ptr, addr stream, addr object);
-_g int princ_string_heap(Execute ptr, addr *ret, addr object);
-_g int princ_string_local(Execute ptr, addr *ret, addr object);
-_g int prin1_string_heap(Execute ptr, addr *ret, addr object);
-_g int prin1_string_local(Execute ptr, addr *ret, addr object);
+_g int write_default_print(Execute ptr, addr stream, addr pos);
+_g int write_print(Execute ptr, addr stream, addr pos);
+_g int princ_print(Execute ptr, addr stream, addr pos);
+_g int prin1_print(Execute ptr, addr stream, addr pos);
+_g int print_print(Execute ptr, addr stream, addr pos);
+_g int pprint_print(Execute ptr, addr stream, addr pos);
+_g int write_string_heap(Execute ptr, addr *ret, addr pos);
+_g int write_string_local(Execute ptr, addr *ret, addr pos);
+_g int princ_string_heap(Execute ptr, addr *ret, addr pos);
+_g int princ_string_local(Execute ptr, addr *ret, addr pos);
+_g int prin1_string_heap(Execute ptr, addr *ret, addr pos);
+_g int prin1_string_local(Execute ptr, addr *ret, addr pos);
 _g void init_print_write(void);
 
 #endif

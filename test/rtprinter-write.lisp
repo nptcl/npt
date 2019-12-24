@@ -628,11 +628,11 @@
 
 (deftest write-single-float.3
   (write-float-print 'single-float 1f20)
-  "1.0E+20" "1.0E+20")
+  "1.0E20" "1.0E20")
 
 (deftest write-single-float.4
   (write-float-print 'double-float 1f20)
-  "1.0F+20" "1.0F+20")
+  "1.0F20" "1.0F20")
 
 (deftest write-single-float.5
   (write-float-print 'double-float 3f-20)
@@ -650,11 +650,11 @@
 
 (deftest write-double-float.3
   (write-float-print 'double-float 1d20)
-  "1.0E+20" "1.0E+20")
+  "1.0E20" "1.0E20")
 
 (deftest write-double-float.4
   (write-float-print 'long-float 1d20)
-  "1.0D+20" "1.0D+20")
+  "1.0D20" "1.0D20")
 
 (deftest write-double-float.5
   (write-float-print 'long-float 3d-20)
@@ -672,11 +672,11 @@
 
 (deftest write-long-float.3
   (write-float-print 'long-float 1L20)
-  "1.0E+20" "1.0E+20")
+  "1.0E20" "1.0E20")
 
 (deftest write-long-float.4
   (write-float-print 'single-float 1L20)
-  "1.0L+20" "1.0L+20")
+  "1.0L20" "1.0L20")
 
 (deftest write-long-float.5
   (write-float-print 'single-float 3L-20)

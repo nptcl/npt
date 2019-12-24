@@ -85,4 +85,5 @@ _g void (*Stream_finish_output[StreamType_Size])(addr);
 _g void (*Stream_force_output[StreamType_Size])(addr);
 _g void (*Stream_clear_output[StreamType_Size])(addr);
 _g void (*Stream_exitpoint[StreamType_Size])(addr);
+_g int (*Stream_terminal_width[StreamType_Size])(addr, size_t *);
 

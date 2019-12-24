@@ -226,6 +226,12 @@ static void exitpoint_Synonym(addr stream)
 	exitpoint_stream(stream);
 }
 
+static int terminal_width_Synonym(addr stream, size_t *ret)
+{
+	getstream_synonym(stream, &stream);
+	return terminal_width_stream(stream, ret);
+}
+
 _g void init_stream_synonym(void)
 {
 	DefineStreamDef(Synonym, close);
@@ -260,5 +266,6 @@ _g void init_stream_synonym(void)
 	DefineStreamSet(Synonym, force_output);
 	DefineStreamSet(Synonym, clear_output);
 	DefineStreamSet(Synonym, exitpoint);
+	DefineStreamSet(Synonym, terminal_width);
 }
 

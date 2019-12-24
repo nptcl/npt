@@ -433,7 +433,7 @@ static int test_make_dispatch_readtype(void)
 	make_dispatch_readtype(&pos);
 	findvalue_character2_hashtable(pos, '#', 'X', &check);
 	test(check != Nil, "make_dispatch_readtype1");
-	GetConst(SYSTEM_HEXDECIMAL_DISPATCH, &call);
+	GetConst(SYSTEM_HEXADECIMAL_DISPATCH, &call);
 	GetFunctionSymbol(call, &call);
 	test(call == check, "make_dispatch_readtype2");
 
@@ -2753,14 +2753,14 @@ static int test_octal_dispatch(void)
 	RETURN;
 }
 
-static int test_hexdecimal_dispatch(void)
+static int test_hexadecimal_dispatch(void)
 {
 	addr pos;
 
-	test(! readstring(&pos, "#xFEab"), "hexdecimal_dispatch1");
-	test(RefFixnum(pos) == 65195, "hexdecimal_dispatch2");
-	test(! readstring(&pos, "#x-123F"), "hexdecimal_dispatch3");
-	test(RefFixnum(pos) == -4671, "hexdecimal_dispatch4");
+	test(! readstring(&pos, "#xFEab"), "hexadecimal_dispatch1");
+	test(RefFixnum(pos) == 65195, "hexadecimal_dispatch2");
+	test(! readstring(&pos, "#x-123F"), "hexadecimal_dispatch3");
+	test(RefFixnum(pos) == -4671, "hexadecimal_dispatch4");
 
 	RETURN;
 }
@@ -2931,7 +2931,7 @@ static int testbreak_readtable(void)
 	TestBreak(test_radix_dispatch);
 	TestBreak(test_binary_dispatch);
 	TestBreak(test_octal_dispatch);
-	TestBreak(test_hexdecimal_dispatch);
+	TestBreak(test_hexadecimal_dispatch);
 	TestBreak(test_complex_dispatch);
 	//TestBreak(test_array_dispatch); /* TODO */
 	TestBreak(test_pathname_dispatch);

@@ -241,8 +241,11 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\file_memory.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\file.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\files.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\fmtfloat.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\format.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\format_float.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\format_function.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\format_parse.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\format_print.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\function.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\gc.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\hashtable.c" />
@@ -438,7 +441,11 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\files_posix.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\files_windows.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\files.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\fmtfloat.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format_float.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format_function.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format_parse.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format_print.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format_typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\function.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\gc.h" />

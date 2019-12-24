@@ -1678,19 +1678,42 @@ static int callname_tablefunction(Execute ptr, addr stack, addr call, addr *ret)
 	return 0; /* local-scope */
 }
 
-static void scope_function(Execute ptr, addr *ret, addr eval)
+static void scope_function_object(Execute ptr, addr *ret, addr eval)
 {
-	addr call, value, type, stack;
+	addr type;
 
-	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &call);
-	/* callname */
+	gettype_function(eval, &type);
+	if (type == Nil)
+		GetTypeTable(&type, Function);
+	make_eval_scope(ret, EVAL_PARSE_FUNCTION, type, eval);
+}
+
+static void scope_function_callname(Execute ptr, addr *ret, addr call)
+{
+	addr value, type, stack;
+
 	getstack_eval(ptr, &stack);
 	callname_tablefunction(ptr, stack, call, &value);
 	setreference_tablefunction(value, 1);
 	copy_tablefunction(NULL, &value, value);
 	gettype_tablefunction(value, &type);
 	make_eval_scope(ret, EVAL_PARSE_FUNCTION, type, value);
+}
+
+static void scope_function(Execute ptr, addr *ret, addr eval)
+{
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &eval);
+
+	if (functionp(eval)) {
+		scope_function_object(ptr, ret, eval);
+		return;
+	}
+	if (callnamep(eval)) {
+		scope_function_callname(ptr, ret, eval);
+		return;
+	}
+	fmte("Invalid object type ~S", eval, NULL);
 }
 
 

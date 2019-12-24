@@ -10,7 +10,7 @@
 #include "constant.h"
 #include "control.h"
 #include "execute.h"
-#include "fmtfloat.h"
+#include "format_float.h"
 #include "function.h"
 #include "hashtable.h"
 #include "heap.h"
@@ -2298,6 +2298,44 @@ _g int pprint_print(Execute ptr, addr stream, addr pos)
 	terpri_stream(stream);
 	check = write_print(ptr, stream, pos);
 
+	return free_check_control(ptr, control, check);
+}
+
+_g int write_string_heap(Execute ptr, addr *ret, addr pos)
+{
+	int check;
+	addr control, stream;
+
+	push_close_control(ptr, &control);
+	open_output_string_stream(&stream, 0);
+	check = write_print(ptr, stream, pos);
+	if (check) {
+		*ret = NULL;
+		goto finish;
+	}
+	string_stream_heap(stream, ret);
+	close_stream(stream);
+
+finish:
+	return free_check_control(ptr, control, check);
+}
+
+_g int write_string_local(Execute ptr, addr *ret, addr pos)
+{
+	int check;
+	addr control, stream;
+
+	push_close_control(ptr, &control);
+	open_output_string_stream(&stream, 0);
+	check = write_print(ptr, stream, pos);
+	if (check) {
+		*ret = NULL;
+		goto finish;
+	}
+	string_stream_local(ptr->local, stream, ret);
+	close_stream(stream);
+
+finish:
 	return free_check_control(ptr, control, check);
 }
 

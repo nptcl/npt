@@ -4,6 +4,8 @@
 #include <stdarg.h>
 #include "typedef.h"
 
+#define PRINT_DEFAULT_WIDTH		72
+
 enum PrintCase {
 	PrintCase_unread = 0,
 	PrintCase_upcase,
@@ -29,7 +31,7 @@ _g int level_print(Execute ptr, size_t *ret);
 _g int length_print(Execute ptr, size_t *ret);
 _g int lines_print(Execute ptr, size_t *ret);
 _g int miser_width_print(Execute ptr, size_t *ret);
-_g void right_margin_print(Execute ptr, size_t *ret);
+_g void right_margin_print(Execute ptr, addr stream, size_t *ret);
 _g void pprint_dispatch_print(Execute ptr, addr *ret);
 
 _g void push_array_print(Execute ptr, int value);

@@ -31,10 +31,6 @@ static struct heapinfo  *Info = 0;
 static struct heapcell  *CellPos = 0;
 static struct heapcell  *CellRoot = 0;
 
-#ifdef LISP_DEBUG_FORCE_GC
-size_t GcCounterForce = 0;
-#endif
-
 #ifdef LISP_DEGRADE
 _g struct heapinfo **Degrade_heap_Info(void) { return &Info; }
 #endif
@@ -221,12 +217,6 @@ static void gccheck_execute_heap(void)
 static void gccheck_heap(void)
 {
 	GcCounter++;
-#ifdef LISP_DEBUG_FORCE_GC
-	if (GcCounterForce && ((GcCounter % GcCounterForce) == 0)) {
-		gccheck_execute_heap();
-		return;
-	}
-#endif
 	if (GcCheck4 < heap_pos) {
 		if (GcCounter & (1UL << 5UL))
 			gccheck_execute_heap();

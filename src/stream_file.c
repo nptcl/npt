@@ -38,6 +38,7 @@ _g void init_stream_binary_input(void)
 	DefineStream___(BinaryInput, force_output);
 	DefineStream___(BinaryInput, clear_output);
 	DefineStreamDef(BinaryInput, exitpoint);
+	DefineStream___(BinaryInput, terminal_width);
 }
 
 _g void init_stream_binary_output(void)
@@ -74,6 +75,7 @@ _g void init_stream_binary_output(void)
 	DefineStreamLet(BinaryOutput, force_output, file);
 	DefineStreamLet(BinaryOutput, clear_output, file);
 	DefineStreamDef(BinaryOutput, exitpoint);
+	DefineStreamDef(BinaryOutput, terminal_width);
 }
 
 _g void init_stream_binary_io(void)
@@ -110,6 +112,7 @@ _g void init_stream_binary_io(void)
 	DefineStreamLet(BinaryIO, force_output, file);
 	DefineStreamLet(BinaryIO, clear_output, file);
 	DefineStreamDef(BinaryIO, exitpoint);
+	DefineStreamDef(BinaryIO, terminal_width);
 }
 
 _g void init_stream_character_input(void)
@@ -146,6 +149,7 @@ _g void init_stream_character_input(void)
 	DefineStream___(CharacterInput, force_output);
 	DefineStream___(CharacterInput, clear_output);
 	DefineStreamDef(CharacterInput, exitpoint);
+	DefineStream___(CharacterInput, terminal_width);
 }
 
 _g void init_stream_character_output(void)
@@ -182,6 +186,7 @@ _g void init_stream_character_output(void)
 	DefineStreamLet(CharacterOutput, force_output, file);
 	DefineStreamLet(CharacterOutput, clear_output, file);
 	DefineStreamDef(CharacterOutput, exitpoint);
+	DefineStreamDef(CharacterOutput, terminal_width);
 }
 
 _g void init_stream_character_io(void)
@@ -218,6 +223,7 @@ _g void init_stream_character_io(void)
 	DefineStreamLet(CharacterIO, force_output, file);
 	DefineStreamLet(CharacterIO, clear_output, file);
 	DefineStreamDef(CharacterIO, exitpoint);
+	DefineStreamDef(CharacterIO, terminal_width);
 }
 
 _g void init_stream_binchar_input(void)
@@ -254,6 +260,7 @@ _g void init_stream_binchar_input(void)
 	DefineStream___(BincharInput, force_output);
 	DefineStream___(BincharInput, clear_output);
 	DefineStreamLet(BincharInput, exitpoint, file);
+	DefineStream___(BincharInput, terminal_width);
 }
 
 _g void init_stream_binchar_output(void)
@@ -290,6 +297,7 @@ _g void init_stream_binchar_output(void)
 	DefineStreamLet(BincharOutput, force_output, file);
 	DefineStreamLet(BincharOutput, clear_output, file);
 	DefineStreamLet(BincharOutput, exitpoint, file);
+	DefineStreamLet(BincharOutput, terminal_width, file);
 }
 
 _g void init_stream_binchar_io(void)
@@ -326,5 +334,6 @@ _g void init_stream_binchar_io(void)
 	DefineStreamLet(BincharIO, force_output, file);
 	DefineStreamLet(BincharIO, clear_output, file);
 	DefineStreamLet(BincharIO, exitpoint, file);
+	DefineStreamLet(BincharIO, terminal_width, file);
 }
 

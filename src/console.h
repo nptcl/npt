@@ -5,9 +5,7 @@
 #include "typedef.h"
 #include <stddef.h>
 
-#define LISP_CONSOLE_DEFAULT_WIDTH 80
-
-_g size_t getwidth_console(void);
+_g int getwidth_console(size_t *ret);
 
 #endif
 

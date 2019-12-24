@@ -1,5 +1,5 @@
-_g size_t getwidth_console(void)
+_g int getwidth_console(size_t *ret)
 {
-	return LISP_CONSOLE_DEFAULT_WIDTH;
+	return 1;
 }
 

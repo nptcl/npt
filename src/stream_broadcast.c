@@ -329,5 +329,6 @@ _g void init_stream_broadcast(void)
 	DefineStreamSet(BroadCast, force_output);
 	DefineStreamSet(BroadCast, clear_output);
 	DefineStreamSet(BroadCast, exitpoint);
+	DefineStream___(BroadCast, terminal_width);
 }
 

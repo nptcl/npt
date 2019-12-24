@@ -293,7 +293,7 @@ _g void expand_pprint_logical_block_common(addr *ret, addr symbol, addr pos,
 	nreverse_list_unsafe(ret, let);
 }
 
-static int pprint_throw(Execute ptr, addr stream)
+_g int pprint_throw(Execute ptr, addr stream)
 {
 	gensym_pretty_stream(stream, &stream);
 	throw_control(ptr, stream);
@@ -506,6 +506,11 @@ static void pprint_tab_output(addr stream, fixnum size)
 		write_char_stream(stream, ' ');
 }
 
+static fixnum pprint_colinc_division(fixnum size, fixnum colinc)
+{
+	return ((size / colinc) + 1) * colinc;
+}
+
 static void pprint_tab_absolute_size(fixnum *ret,
 		fixnum column, fixnum colinc, fixnum base, fixnum now)
 {
@@ -520,7 +525,7 @@ static void pprint_tab_absolute_size(fixnum *ret,
 		*ret = 0;
 		return;
 	}
-	plus = column + (((now - column) / colinc) + 1UL) * colinc;
+	plus = column + pprint_colinc_division(now - column, colinc);
 	*ret = plus - now;
 }
 
@@ -1432,7 +1437,7 @@ static void pprint_initialize(struct pretty_block *str, Execute ptr, addr stream
 	str->break_lines_p = 0;
 	str->print_lines_p = lines_print(ptr, &(str->print_lines));
 	str->print_miser_p = miser_width_print(ptr, &(str->print_miser));
-	right_margin_print(ptr, &(str->print_margin));
+	right_margin_print(ptr, stream, &(str->print_margin));
 }
 
 _g void pprint_output(Execute ptr, addr stream, addr pretty)
