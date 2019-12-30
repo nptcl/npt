@@ -2,6 +2,7 @@
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
+#include "copy.h"
 #include "format.h"
 #include "format_parse.h"
 #include "format_print.h"
@@ -9,6 +10,7 @@
 #include "print_pretty.h"
 #include "stream.h"
 #include "stream_string.h"
+#include "stream_pretty.h"
 #include "strtype.h"
 
 /*
@@ -61,6 +63,8 @@ _g addr fmtprint_make_string(fmtprint print, addr *ret)
 	gchold_push_local(print->local, stream);
 	copy_terpri_position_stream(stream, src);
 	copy_terminal_width_string_stream(stream, src);
+	if (pretty_stream_p(src))
+		set_pretty_output_string_stream(stream);
 	print->string = stream;
 	*ret = stream;
 
@@ -95,23 +99,30 @@ _g struct format_operator *fmtprint_operator(fmtprint print)
 		(print->now + (byte *)format_pointer(print->format));
 }
 
+
+/*
+ *  putc
+ */
 static void fmtprint_char(fmtprint print, unicode u)
 {
 	addr stream;
 
 	stream = print->stream;
-	if (print->pretty && print->fill) {
-		if (print->fill_check) {
-			if (u != ' ')
-				print->fill_check = 0;
-		}
-		else {
-			if (u == ' ') {
-				pprint_newline_common(print->ptr, pprint_newline_fill, stream);
-				print->fill_check = 1;
-			}
-		}
+	if (print->pretty == 0)
+		goto output;
+	if (print->fill == 0)
+		goto output;
+
+	if (u == ' ') {
+		print->fill_white = 1;
+		goto output;
 	}
+	if (print->fill_white && print->fill_ignore == 0)
+		pprint_newline_common(print->ptr, pprint_newline_fill, stream);
+	print->fill_white = 0;
+	print->fill_ignore = 0;
+
+output:
 	write_char_stream(stream, u);
 }
 
@@ -169,19 +180,65 @@ _g void fmtprint_string(fmtprint print, addr string)
 	}
 }
 
-_g void fmtprint_pop(fmtprint print, struct format_operator *str, addr *ret)
+
+/*
+ *  pop
+ */
+static void fmtprint_pop_error(fmtprint print, struct format_operator *str,
+		addr list, addr *car, addr *cdr, size_t n)
+{
+	addr pos;
+	size_t i;
+
+	for (i = 0; i < n; i++) {
+		if (! consp(list)) {
+			fmtprop_abort(print, str, "Too few format arguments.", NULL);
+			return;
+		}
+		getcons(list, &pos, &list);
+	}
+	if (car)
+		*car = pos;
+	*cdr = list;
+}
+
+static int fmtprint_pop1(fmtprint print, struct format_operator *str, addr *ret)
 {
 	struct fmtstack *ptr;
 
 	ptr = print->rest;
-	if (ptr->front == Nil) {
-		fmtprop_abort(print, str, "Too few format arguments.", NULL);
-		return;
-	}
-	getcons(ptr->front, ret, &(ptr->front));
+	fmtprint_pop_error(print, str, ptr->front, ret, &(ptr->front), 1);
 	ptr->index++;
+
+	return 0;
 }
 
+static int fmtprint_pop2(fmtprint print, struct format_operator *str, addr *ret)
+{
+	addr stream;
+
+	stream = print->stream;
+	Check(! pretty_stream_p(stream), "pretty stream error");
+	return pprint_pop_common(print->ptr, stream, ret);
+}
+
+_g int fmtprint_pop(fmtprint print, struct format_operator *str, addr *ret)
+{
+	addr pos;
+
+	if (print->pretty == 0) {
+		return fmtprint_pop1(print, str, ret);
+	}
+	else {
+		Return1(fmtprint_pop2(print, str, ret));
+		return fmtprint_pop1(print, str, &pos);
+	}
+}
+
+
+/*
+ *  peek
+ */
 _g void fmtprint_peek(fmtprint print, struct format_operator *str, addr *ret)
 {
 	struct fmtstack *ptr;
@@ -194,51 +251,122 @@ _g void fmtprint_peek(fmtprint print, struct format_operator *str, addr *ret)
 	getcar(ptr->front, ret);
 }
 
-_g void fmtprint_forward(fmtprint print, struct format_operator *str, size_t count)
+
+/*
+ *  forward
+ */
+static void fmtprint_forward1(fmtprint print, struct format_operator *str, size_t n)
 {
-	addr front;
-	size_t i;
 	struct fmtstack *ptr;
 
 	ptr = print->rest;
-	front = ptr->front;
-	for (i = 0; i < count; i++) {
-		if (front == Nil) {
-			fmtprop_abort(print, str, "Too few format arguments.", NULL);
-			return;
-		}
-		getcdr(front, &front);
-		ptr->index++;
-	}
-	ptr->front = front;
+	fmtprint_pop_error(print, str, ptr->front, NULL, &(ptr->front), n);
+	ptr->index += n;
 }
 
-_g void fmtprint_rollback(fmtprint print, struct format_operator *str, size_t count)
+static void fmtprint_forward2(fmtprint print, struct format_operator *str, size_t n)
 {
-	addr root;
-	size_t size;
-	struct fmtstack *ptr;
+	addr stream, list;
 
-	ptr = print->rest;
-	root = ptr->root;
-	size = ptr->index;
-	if (size < count) {
+	stream = print->stream;
+	Check(! pretty_stream_p(stream), "pretty stream error");
+
+	root_pretty_stream(stream, &list);
+	fmtprint_pop_error(print, str, list, NULL, &list, n);
+	setroot_pretty_stream(stream, list);
+}
+
+_g void fmtprint_forward(fmtprint print, struct format_operator *str, size_t n)
+{
+	if (n == 0)
+		return;
+	fmtprint_forward1(print, str, n);
+	if (print->pretty)
+		fmtprint_forward2(print, str, n);
+}
+
+
+/*
+ *  rollback
+ */
+_g void fmtprint_rollback1(fmtprint print, struct format_operator *str, size_t n)
+{
+	struct fmtstack *rest;
+	size_t size;
+
+	rest = print->rest;
+	size = rest->index;
+	if (size < n) {
 		fmtprop_abort(print, str, "Cannot rollback ~~:*.", NULL);
 		return;
 	}
-	size -= count;
-	ptr->index = size;
-	getnthcdr_unsafe(root, size, &root);
-	ptr->front = root;
+	rest->front = rest->root;
+	rest->index = 0;
+	size -= n;
+	fmtprint_pop_error(print, str, rest->front, NULL, &(rest->front), size);
+	rest->index = size;
 }
 
-_g void fmtprint_absolute(fmtprint print, struct format_operator *str, size_t count)
+_g void fmtprint_rollback2(fmtprint print, struct format_operator *str, size_t n)
 {
-	struct fmtstack *ptr;
+	addr stream;
 
-	ptr = print->rest;
-	ptr->front = ptr->root;
-	ptr->index = 0;
-	fmtprint_forward(print, str, count);
+	stream = print->stream;
+	Check(! pretty_stream_p(stream), "pretty stream error");
+	setroot_pretty_stream(stream, print->rest->front);
+}
+
+_g void fmtprint_rollback(fmtprint print, struct format_operator *str, size_t n)
+{
+	if (n == 0)
+		return;
+	fmtprint_rollback1(print, str, n);
+	if (print->pretty)
+		fmtprint_rollback2(print, str, n);
+}
+
+
+/*
+ *  absolute
+ */
+_g void fmtprint_absolute(fmtprint print, struct format_operator *str, size_t n)
+{
+	size_t now;
+
+	now = print->rest->index;
+	if (now < n)
+		fmtprint_forward(print, str, n - now);
+	else
+		fmtprint_rollback(print, str, now - n);
+}
+
+
+/*
+ *  clear
+ */
+static void fmtprint_clear1(fmtprint print)
+{
+	struct fmtstack *rest;
+
+	rest = print->rest;
+	rest->root = Nil;
+	rest->front = Nil;
+	rest->index = 0;
+}
+
+static void fmtprint_clear2(fmtprint print)
+{
+	addr stream;
+
+	stream = print->stream;
+	Check(! pretty_stream_p(stream), "pretty stream error");
+	setroot_pretty_stream(stream, Nil);
+}
+
+_g void fmtprint_clear(fmtprint print)
+{
+	fmtprint_clear1(print);
+	if (print->pretty)
+		fmtprint_clear2(print);
 }
 

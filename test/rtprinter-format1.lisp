@@ -34,3 +34,27 @@
       result))
   "Hello: 10" (20 30))
 
+
+;;
+;;  format
+;;
+(deftest format.1
+  (with-output-to-string (*standard-output*)
+    (format t "Hello: ~A" 10))
+  "Hello: 10")
+
+(deftest format.2
+  (format nil "Hello: ~A" 10)
+  "Hello: 10")
+
+(deftest format.3
+  (let ((value (make-array 10 :element-type 'character :fill-pointer 0 :adjustable t)))
+    (format value "Hello: ~A" 10)
+    value)
+  "Hello: 10")
+
+(deftest format.4
+  (with-output-to-string (stream)
+    (format stream "Hello: ~A" 10))
+  "Hello: 10")
+

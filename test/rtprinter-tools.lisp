@@ -36,7 +36,11 @@
        (pprint-logical-block (nil nil ,@args)
          ,@body))))
 
-(defmacro format-nil (str &rest args)
-  ;;`(format (formatter ,str) ,@args)
-  `(format nil ,str ,@args))
+(defmacro with-empty-dispatch (&body body)
+  `(let ((*print-pprint-dispatch* lisp-system::*empty-print-dispatch*)
+         (*print-pretty* t)
+         (*print-circle* t)
+         (*print-right-margin* 80)
+         (*print-miser-width* nil))
+     ,@body))
 

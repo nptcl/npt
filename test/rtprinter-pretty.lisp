@@ -836,7 +836,7 @@
 ;;
 ;;  examples
 ;;
-(defun examples-pprint-defun (*standard-output* list)
+(defun pprint-defun-examples (*standard-output* list)
   (pprint-logical-block (nil list :prefix "(" :suffix ")")
     (write (first list))
     (write-char #\Space)
@@ -856,7 +856,7 @@
         (*print-right-margin* 26)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-defun stream '(defun prod (x y) (* x y)))))
+      (pprint-defun-examples stream '(defun prod (x y) (* x y)))))
   "(DEFUN PROD (X Y) (* X Y))")
 
 (deftest pprint-defun-examples.2
@@ -864,7 +864,7 @@
         (*print-right-margin* 25)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-defun stream '(defun prod (x y) (* x y)))))
+      (pprint-defun-examples stream '(defun prod (x y) (* x y)))))
   #.(mkstr "(DEFUN PROD (X Y)" #\newline
            "  (* X Y))"))
 
@@ -873,7 +873,7 @@
         (*print-right-margin* 15)
         (*print-miser-width* 13))
     (with-output-to-string (stream)
-      (examples-pprint-defun stream '(defun prod (x y) (* x y)))))
+      (pprint-defun-examples stream '(defun prod (x y) (* x y)))))
   #.(mkstr "(DEFUN PROD" #\newline
            "       (X Y)" #\newline
            "  (* X Y))"))
@@ -883,7 +883,7 @@
         (*print-right-margin* 15)
         (*print-miser-width* 14))
     (with-output-to-string (stream)
-      (examples-pprint-defun stream '(defun prod (x y) (* x y)))))
+      (pprint-defun-examples stream '(defun prod (x y) (* x y)))))
   #.(mkstr "(DEFUN" #\newline
            " PROD" #\newline
            " (X Y)" #\newline
@@ -895,12 +895,12 @@
         (*print-miser-width* nil))
     (with-output-to-string (stream)
       (pprint-logical-block (stream nil :per-line-prefix ";;; ")
-        (examples-pprint-defun stream '(defun prod (x y) (* x y))))))
+        (pprint-defun-examples stream '(defun prod (x y) (* x y))))))
   #.(mkstr ";;; (DEFUN PROD" #\newline
            ";;;        (X Y)" #\newline
            ";;;   (* X Y))"))
 
-(defun examples-pprint-let (stream list)
+(defun pprint-let-examples (stream list)
   (pprint-logical-block (stream list :prefix "(" :suffix ")")
     ;; let
     (write (pprint-pop) :stream stream)
@@ -932,7 +932,7 @@
         (*print-right-margin* 77)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-let
+      (pprint-let-examples
         stream
         '#1=(let (x (*print-length* (f (g 3)))
                     (z . 2) (k (car y)))
@@ -947,7 +947,7 @@
         (*print-right-margin* 77)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-let
+      (pprint-let-examples
         stream
         '#1=(let (x (*print-length* (f (g 3)))
                     (z . 2) (k (car y)))
@@ -961,7 +961,7 @@
         (*print-right-margin* 76)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-let
+      (pprint-let-examples
         stream
         '#1=(let (x (*print-length* (f (g 3)))
                     (z . 2) (k (car y)))
@@ -978,7 +978,7 @@
         (*print-right-margin* 76)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-let
+      (pprint-let-examples
         stream
         '#1=(let (x (*print-length* (f (g 3)))
                     (z . 2) (k (car y)))
@@ -994,7 +994,7 @@
         (*print-right-margin* 35)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-let
+      (pprint-let-examples
         stream
         '#1=(let (x (*print-length* (f (g 3)))
                     (z . 2) (k (car y)))
@@ -1012,7 +1012,7 @@
         (*print-right-margin* 35)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-let
+      (pprint-let-examples
         stream
         '#1=(let (x (*print-length* (f (g 3)))
                     (z . 2) (k (car y)))
@@ -1030,7 +1030,7 @@
         (*print-right-margin* 22)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-let
+      (pprint-let-examples
         stream
         '#1=(let (x (*print-length* (f (g 3)))
                     (z . 2) (k (car y)))
@@ -1052,7 +1052,7 @@
         (*print-right-margin* 22)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-let
+      (pprint-let-examples
         stream
         '#1=(let (x (*print-length* (f (g 3)))
                     (z . 2) (k (car y)))
@@ -1065,7 +1065,7 @@
       "  (SETQ X (SQRT Z))" #\newline
       "  ...)"))
 
-(defun examples-pprint-vector (*standard-output* v)
+(defun pprint-vector-examples (*standard-output* v)
   (pprint-logical-block (nil nil :prefix "#(" :suffix ")")
     (let ((end (length v)) (i 0))
       (when (plusp end)
@@ -1080,7 +1080,7 @@
         (*print-right-margin* 15)
         (*print-miser-width* nil))
     (with-output-to-string (stream)
-      (examples-pprint-vector
+      (pprint-vector-examples
         stream
         '#(12 34 567 8 9012 34 567 89 0 1 23))))
   #.(mkstr "#(12 34 567 8" #\newline

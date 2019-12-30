@@ -5,6 +5,7 @@
 (load #p"test/rtprinter-format1.lisp")
 (load #p"test/rtprinter-format2.lisp")
 (load #p"test/rtprinter-format3.lisp")
+(load #p"test/rtprinter-format4.lisp")
 (load #p"test/rtprinter-common.lisp")
 (load #p"test/rtprinter-write.lisp")
 (load #p"test/rtprinter-sequence.lisp")

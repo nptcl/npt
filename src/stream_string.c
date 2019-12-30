@@ -339,6 +339,7 @@ _g void init_stream_string_input(void)
 struct stream_StringOutput {
 	unsigned extend_p : 1;
 	unsigned width_p : 1;
+	unsigned pretty : 1;
 	size_t width;
 };
 
@@ -362,6 +363,7 @@ _g void open_output_string_stream(addr *stream, size_t size)
 	str = PtrStringOutputStream(pos);
 	str->extend_p = 0;
 	str->width_p = 0;
+	str->pretty = 0;
 	str->width = 0;
 	charqueue_heap(&queue, size);
 	SetInfoStream(pos, queue);
@@ -419,6 +421,18 @@ _g void clear_output_string_stream(addr stream)
 	clear_charqueue(queue);
 }
 
+_g void set_pretty_output_string_stream(addr stream)
+{
+	CheckOutputStringStream(stream);
+	PtrStringOutputStream(stream)->pretty = 1;
+}
+
+_g int get_pretty_output_string_stream(addr stream)
+{
+	CheckOutputStringStream(stream);
+	return PtrStringOutputStream(stream)->pretty != 0;
+}
+
 _g void open_extend_output_stream(addr *stream, addr array)
 {
 	addr pos;
@@ -428,6 +442,7 @@ _g void open_extend_output_stream(addr *stream, addr array)
 	str = PtrStringOutputStream(pos);
 	str->extend_p = 1;
 	str->width_p = 0;
+	str->pretty = 0;
 	str->width = 0;
 	SetInfoStream(pos, array);
 	force_open_stream(pos, stream);

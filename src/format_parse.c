@@ -2203,7 +2203,7 @@ static void format_size_LogicalBlock_output(struct fmtchar *list, size_t *ret)
 
 static int format_end_separator(struct fmtchar *x)
 {
-	return x == NULL || x->type == FormatType_ClauseSeparator;
+	return x->type == FormatType_ClauseSeparator || x->character == '>';
 }
 
 static void format_size_LogicalBlock_text(
@@ -2211,16 +2211,17 @@ static void format_size_LogicalBlock_text(
 {
 	Check(x == NULL, "Invalid prefix in logical block.");
 	if (format_end_separator(x)) {
-		*next = x? x->next: NULL;
-		*ret = 0;
+		*next = x->next;
+		*ret = IdxSize;
 		return;
 	}
 	if (x->type != FormatType_Output)
 		goto error;
 	format_size_LogicalBlock_output(x, ret);
 	x = x->next;
+	Check(x == NULL, "Invalid prefix in logical block.");
 	if (format_end_separator(x)) {
-		*next = x? x->next: NULL;
+		*next = x->next;
 		return;
 	}
 	goto error;
@@ -2249,6 +2250,10 @@ static void format_size_LogicalBlock_prefix(struct fmtchar *list, size_t *ret)
 		}
 		if (x->type == FormatType_ClauseSeparator) {
 			x = x->next;
+			break;
+		}
+		if (x->character == '>') {
+			x = NULL;
 			break;
 		}
 		format_size(x, &value);
@@ -2297,8 +2302,7 @@ static void format_size_LogicalBlock(struct fmtchar *list, size_t *ret)
 	*ret = size;
 }
 
-static void format_write_LogicalBlock_output(
-		struct format_operator *str, struct fmtchar *x, byte *ptr)
+static void format_write_LogicalBlock_output(struct fmtchar *x, byte *ptr, size_t *ret)
 {
 	addr pos;
 	struct fmtargs *root;
@@ -2321,29 +2325,27 @@ static void format_write_LogicalBlock_output(
 	/* write */
 	Check(b < a, "size1 error");
 	Check(count != (b - a), "size2 error");
-	ptr += str->size;
 	*(size_t *)ptr = count;
-	ptr += IdxSize;
-	data = (unicode *)ptr;
+	data = (unicode *)(ptr + IdxSize);
 	pos = x->format;
-	for (i = 0; a <= b; a++) {
+	for (i = 0; a < b; a++) {
 		string_getc(pos, a, &u);
 		data[i++] = u;
 	}
 	/* size */
-	str->size += IdxSize + count * sizeoft(unicode);
+	*ret = IdxSize + count * sizeoft(unicode);
 }
 
-static void format_write_LogicalBlock_prefix(
-		struct format_operator *str, struct fmtchar *x, byte *ptr)
+static void format_write_LogicalBlock_prefix(struct fmtchar *x, byte *ptr, size_t *ret)
 {
 	if (format_end_separator(x)) {
-		*(size_t *)(ptr + str->size) = 0;
-		str->size += IdxSize;
-		return;
+		*(size_t *)ptr = 0;
+		*ret = IdxSize;
 	}
-	Check(x->type != FormatType_Output, "type error");
-	format_write_LogicalBlock_output(str, x, ptr);
+	else {
+		Check(x->type != FormatType_Output, "type error");
+		format_write_LogicalBlock_output(x, ptr, ret);
+	}
 }
 
 static void format_write_LogicalBlock_next(
@@ -2354,19 +2356,20 @@ static void format_write_LogicalBlock_next(
 	for (i = 0; i < count; i++) {
 		for (;;) {
 			Check(x == NULL, "fmtchar error");
-			if (x->type == FormatType_ClauseSeparator)
+			if (x->type == FormatType_ClauseSeparator) {
+				x = x->next;
 				break;
+			}
 			x = x->next;
 		}
 	}
 	*ret = x;
 }
 
-static void format_write_LogicalBlock_suffix(
-		struct format_operator *str, struct fmtchar *x, byte *ptr)
+static void format_write_LogicalBlock_suffix(struct fmtchar *x, byte *ptr, size_t *ret)
 {
 	format_write_LogicalBlock_next(2, x, &x);
-	format_write_LogicalBlock_prefix(str, x, ptr);
+	format_write_LogicalBlock_prefix(x, ptr, ret);
 }
 
 static void format_write_LogicalBlock(struct fmtchar *list, byte *ptr, size_t *ret)
@@ -2379,15 +2382,19 @@ static void format_write_LogicalBlock(struct fmtchar *list, byte *ptr, size_t *r
 	str = format_write_operator(list, ptr, 0);
 	/* prefix */
 	x = list->option;
-	if (list->prefix)
-		format_write_LogicalBlock_prefix(str, x, ptr);
-	/* suffix */
-	if (list->suffix)
-		format_write_LogicalBlock_suffix(str, x, ptr);
-	/* body */
-	if (list->prefix)
-		format_write_LogicalBlock_next(1, x, &x);
 	size = str->size;
+	if (str->prefix) {
+		format_write_LogicalBlock_prefix(x, ptr + size, &value);
+		size += value;
+	}
+	/* suffix */
+	if (str->suffix) {
+		format_write_LogicalBlock_suffix(x, ptr + size, &value);
+		size += value;
+	}
+	/* body */
+	if (str->prefix)
+		format_write_LogicalBlock_next(1, x, &x);
 	for (; ! format_end_separator(x); x = x->next) {
 		format_write(x, ptr + size, &value);
 		size += value;

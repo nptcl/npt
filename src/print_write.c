@@ -2224,7 +2224,7 @@ int write_default_print(Execute ptr, addr stream, addr pos)
 	/* circle */
 	if (discard_pretty_stream(stream))
 		return 0;
-	if (! pretty_stream_p(stream)) {
+	if (! push_pretty_stream_p(stream)) {
 		push_write_object(ptr);
 		write_check_call(ptr, pos);
 	}

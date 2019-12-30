@@ -10,6 +10,7 @@
 #include "stream_error.h"
 #include "stream_pretty.h"
 #include "stream.h"
+#include "stream_string.h"
 #include "strtype.h"
 #include "symbol.h"
 
@@ -122,6 +123,18 @@ _g void root_pretty_stream(addr stream, addr *ret)
 {
 	getinfo_pretty_stream(stream, &stream);
 	GetArrayA2(stream, StreamPretty_Root, ret);
+}
+
+_g void setroot_pretty_stream(addr stream, addr value)
+{
+	getinfo_pretty_stream(stream, &stream);
+	SetArrayA2(stream, StreamPretty_Root, value);
+}
+
+_g void object_pretty_stream(addr stream, addr *ret)
+{
+	getinfo_pretty_stream(stream, &stream);
+	GetArrayA2(stream, StreamPretty_Object, ret);
 }
 
 static void queue_pretty_stream(addr stream, addr *ret)
@@ -363,11 +376,17 @@ static void character_pretty_stream(addr stream, unicode u)
 	}
 }
 
-static int output_pretty_stream_p(addr stream)
+_g int push_pretty_stream_p(addr stream)
 {
-	addr output;
-	getstream_pretty_stream(stream, &output);
-	return pretty_stream_p(output);
+	return output_string_stream_p(stream)?
+		get_pretty_output_string_stream(stream):
+		pretty_stream_p(stream);
+}
+
+static int Push_pretty_stream_p(addr stream)
+{
+	getstream_pretty_stream(stream, &stream);
+	return push_pretty_stream_p(stream);
 }
 
 static void rollback_pretty_stream(addr stream)
@@ -393,19 +412,21 @@ static void rollback_pretty_stream(addr stream)
 
 _g int call_pretty_stream(Execute ptr, addr stream, addr call)
 {
+	int check;
 	addr pos;
 
 	Check(! pretty_stream_p(stream), "type error");
 	Check(! functionp(call), "type error");
 
-	if (! output_pretty_stream_p(stream)) {
+	check = Push_pretty_stream_p(stream);
+	if (! check) {
 		push_return_control(ptr, &pos);
 		push_write_object(ptr);
 	}
 	/* normal */
 	if (! circle_print(ptr))
 		return callclang_funcall(ptr, &pos, call, NULL);
-	if (output_pretty_stream_p(stream))
+	if (check)
 		return callclang_funcall(ptr, &pos, call, NULL);
 	/* circle check */
 	setdiscard_pretty_stream(stream, 1);

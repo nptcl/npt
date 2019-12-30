@@ -19,6 +19,7 @@
 #include "format_typedef.h"
 #include "function.h"
 #include "gc.h"
+#include "heap.h"
 #include "local.h"
 #include "integer.h"
 #include "object.h"
@@ -58,29 +59,35 @@ static void fmtint_count(fmtprint print, fixnum *ret)
 	Check(*ret < 0, "cast error");
 }
 
-static int fmtint_argument(fmtprint print, struct format_operator *str, fixnum *ret)
+static int fmtint_argument(fmtprint print, struct format_operator *str,
+		fixnum *ret, int *check)
 {
 	addr pos;
 
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	if (pos == Nil)
-		return 1;
+		goto return_nil;
 	if (bignump(pos)) {
 		fmtprop_abort(print, str, "Too large the format argument ~S.", pos, NULL);
-		return 1;
+		goto return_nil;
 	}
 	if (! fixnump(pos)) {
 		fmtprop_abort(print, str,
 				"The format argument ~S must be an integer.", pos, NULL);
-		return 1;
+		goto return_nil;
 	}
 	GetFixnum(pos, ret);
+	*check = 0;
+	return 0;
 
+return_nil:
+	*ret = 0;
+	*check = 1;
 	return 0;
 }
 
-static int fmtint_nilp(fmtprint print, struct format_operator *str,
-		unsigned index, fixnum *ret)
+static int fmtint_nilp(fmtprint print, struct format_operator *str, unsigned index,
+		fixnum *ret, int *check)
 {
 	struct format_argument *arg;
 
@@ -88,38 +95,43 @@ static int fmtint_nilp(fmtprint print, struct format_operator *str,
 	arg = format_getargs(str, index);
 	switch (arg->type) {
 		case fmtargs_nil:
-			return 1;
+			*ret = 0;
+			*check = 1;
+			return 0;
 
 		case fmtargs_integer:
 			*ret = arg->u.value;
+			*check = 0;
 			return 0;
 
 		case fmtargs_count:
 			fmtint_count(print, ret);
+			*check = 0;
 			return 0;
 
 		case fmtargs_argument:
-			return fmtint_argument(print, str, ret);
+			return fmtint_argument(print, str, ret, check);
 
 		default:
 			fmtprop_abort(print, str, "The format parameter must be an integer.", NULL);
-			return 1;
+			*ret = 0;
+			*check = 1;
+			return 0;
 	}
-
-	return 0;
 }
 
 static int fmtchar_argument(fmtprint print, struct format_operator *str, unicode *ret)
 {
 	addr pos;
 
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	if (pos == Nil)
 		return 1;
 	if (! characterp(pos)) {
 		fmtprop_abort(print, str,
 				"The format argument ~S must be a character.", pos, NULL);
-		return 1;
+		*ret = 0;
+		return 0;
 	}
 	GetCharacter(pos, ret);
 
@@ -146,19 +158,25 @@ static int fmtchar_nilp(fmtprint print,
 
 		case fmtargs_count:
 		default:
+			*ret = 0;
 			fmtprop_abort(print, str,
 					"The format argument must be a character.", NULL);
-			return 1;
+			return 0;
 	}
 
 	return 0;
 }
 
-static void fmtint_default(fmtprint print, struct format_operator *str,
+static int fmtint_default(fmtprint print, struct format_operator *str,
 		unsigned index, fixnum *ret, fixnum defvar)
 {
-	if (fmtint_nilp(print, str, index, ret))
+	int check;
+
+	Return1(fmtint_nilp(print, str, index, ret, &check));
+	if (check)
 		*ret = defvar;
+
+	return 0;
 }
 
 static void fmtchar_default(fmtprint print, struct format_operator *str,
@@ -320,28 +338,28 @@ static int format_call_Aesthetic(fmtprint print, struct format_operator *str)
 	unicode padchar;
 
 	Check(4 < str->args_size, "size error");
-	fmtint_default(print, str, 0, &mincol, 0);
-	fmtint_default(print, str, 1, &colinc, 1);
-	fmtint_default(print, str, 2, &minpad, 0);
+	Return1(fmtint_default(print, str, 0, &mincol, 0));
+	Return1(fmtint_default(print, str, 1, &colinc, 1));
+	Return1(fmtint_default(print, str, 2, &minpad, 0));
 	fmtchar_default(print, str, 3, &padchar, ' ');
 	if (mincol < 0) {
 		fmtargs_abort(print, str, 0,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 	if (colinc < 1) {
 		fmtargs_abort(print, str, 1,
 				"The parameter must be greater than 1.", NULL);
-		return 1;
+		return 0;
 	}
 	if (minpad < 0) {
 		fmtargs_abort(print, str, 2,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 
 	/* output */
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	return format_call_print(print, pos, str->colon, str->atsign,
 			mincol, colinc, minpad, padchar, 0);
 }
@@ -353,28 +371,28 @@ static int format_call_Standard(fmtprint print, struct format_operator *str)
 	unicode padchar;
 
 	Check(4 < str->args_size, "size error");
-	fmtint_default(print, str, 0, &mincol, 0);
-	fmtint_default(print, str, 1, &colinc, 1);
-	fmtint_default(print, str, 2, &minpad, 0);
+	Return1(fmtint_default(print, str, 0, &mincol, 0));
+	Return1(fmtint_default(print, str, 1, &colinc, 1));
+	Return1(fmtint_default(print, str, 2, &minpad, 0));
 	fmtchar_default(print, str, 3, &padchar, ' ');
 	if (mincol < 0) {
 		fmtargs_abort(print, str, 0,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 	if (colinc < 1) {
 		fmtargs_abort(print, str, 1,
 				"The parameter must be greater than 1.", NULL);
-		return 1;
+		return 0;
 	}
 	if (minpad < 0) {
 		fmtargs_abort(print, str, 2,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 
 	/* output */
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	return format_call_print(print, pos, str->colon, str->atsign,
 			mincol, colinc, minpad, padchar, 1);
 }
@@ -395,7 +413,7 @@ static int format_radix_parameter(fmtprint print, struct format_operator *str,
 	size = (size_t)range;
 	Check(size < 0, "cast error");
 
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	if (! integerp(pos))
 		return format_call_print(print, pos, 0, 1, mincol, 1, 0, padchar, 0);
 
@@ -439,19 +457,19 @@ static int format_radix_integer(fmtprint print,
 	push_escape_print(ptr, 0);
 	push_radix_print(ptr, 0);
 	push_base_print(ptr, radix);
-	fmtint_default(print, str, 0, &mincol, 0);
+	Return1(fmtint_default(print, str, 0, &mincol, 0));
 	fmtchar_default(print, str, 1, &padchar, ' ');
 	fmtchar_default(print, str, 2, &comma, ',');
-	fmtint_default(print, str, 3, &range, 3);
+	Return1(fmtint_default(print, str, 3, &range, 3));
 	if (mincol < 0) {
 		fmtargs_abort(print, str, 0,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 	if (range < 1) {
 		fmtargs_abort(print, str, 3,
 				"The parameter must be greate than 1.", NULL);
-		return 1;
+		return 0;
 	}
 
 	check = format_radix_parameter(print, str, radix, mincol, padchar, range, comma);
@@ -499,28 +517,28 @@ static int format_call_Radix(fmtprint print, struct format_operator *str)
 	push_escape_print(ptr, 0);
 	push_radix_print(ptr, 0);
 
-	fmtint_default(print, str, 0, &range, 10);
+	Return1(fmtint_default(print, str, 0, &range, 10));
 	if (! isBaseChar(range)) {
 		fmtargs_abort(print, str, 0,
 				"The parameter must be an integer between 2 and 36.", NULL);
-		return 1;
+		return 0;
 	}
 	radix = (unsigned)range;
 	push_base_print(ptr, radix);
 
-	fmtint_default(print, str, 1, &mincol, 0);
+	Return1(fmtint_default(print, str, 1, &mincol, 0));
 	fmtchar_default(print, str, 2, &padchar, ' ');
 	fmtchar_default(print, str, 3, &comma, ',');
-	fmtint_default(print, str, 4, &range, 3);
+	Return1(fmtint_default(print, str, 4, &range, 3));
 	if (mincol < 0) {
 		fmtargs_abort(print, str, 1,
 				"The paramter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 	if (range < 2) {
 		fmtargs_abort(print, str, 4,
 				"The parameter must be greater than 1.", NULL);
-		return 1;
+		return 0;
 	}
 	format_radix_parameter(print, str, radix, mincol, padchar, range, comma);
 
@@ -588,7 +606,7 @@ static int format_call_RadixText(fmtprint print, struct format_operator *str)
 	push_radix_print(ptr, 0);
 	push_base_print(ptr, 10);
 	/* output */
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	if (str->atsign)
 		format_call_RadixText_roma(print, str, pos);
 	else
@@ -611,7 +629,7 @@ static int format_call_Plural(fmtprint print, struct format_operator *str)
 		fmtprint_rollback(print, str, 1);
 
 	/* plural */
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	if (! str->atsign) {
 		if (! eql_function(pos, fixnum_heapr(1)))
 			fmtprint_putc(print, 's');
@@ -654,7 +672,7 @@ static int format_call_Character(fmtprint print, struct format_operator *str)
 	addr pos, name;
 
 	Check(0 < str->args_size, "size error");
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	if (! characterp(pos)) {
 		fmtprop_abort(print, str,
 				"The argument ~S must be a character.", pos, NULL);
@@ -683,59 +701,65 @@ static int format_call_Character(fmtprint print, struct format_operator *str)
 /*
  *  Fixed
  */
-static void fmtfloat_w(fmtprint print,
+static int fmtfloat_w(fmtprint print,
 		struct format_operator *str, fmtfloat ff, unsigned index)
 {
 	int check;
 	fixnum value;
 
-	check = fmtint_nilp(print, str, index, &value);
+	Return1(fmtint_nilp(print, str, index, &value, &check));
 	if (! check && value < 0) {
 		fmtargs_abort(print, str, index,
 				"The parameter must be a positive integer.", NULL);
-		return;
+		return 0;
 	}
 	ff->wp = ! check;
 	ff->w = check? 0: (size_t)value;
+
+	return 0;
 }
 
-static void fmtfloat_d(fmtprint print,
+static int fmtfloat_d(fmtprint print,
 		struct format_operator *str, fmtfloat ff, unsigned index)
 {
 	int check;
 	fixnum value;
 
-	check = fmtint_nilp(print, str, index, &value);
+	Return1(fmtint_nilp(print, str, index, &value, &check));
 	if (! check && value < 0) {
 		fmtargs_abort(print, str, index,
 				"The parameter must be a positive integer.", NULL);
-		return;
+		return 0;
 	}
 	ff->dp = ! check;
 	ff->d = check? 0: (size_t)value;
+
+	return 0;
 }
 
-static void fmtfloat_e(fmtprint print,
+static int fmtfloat_e(fmtprint print,
 		struct format_operator *str, fmtfloat ff, unsigned index)
 {
 	fixnum value;
 
-	fmtint_default(print, str, index, &value, 1);
+	Return1(fmtint_default(print, str, index, &value, 1));
 	if (value < 0) {
 		fmtargs_abort(print, str, index,
 				"The parameter must be a positive integer.", NULL);
-		return;
+		return 0;
 	}
 	if (value == 0)
 		value = 1;
 	ff->ep = 1;
 	ff->e = (size_t)value;
+
+	return 0;
 }
 
-static void fmtfloat_k(fmtprint print,
+static int fmtfloat_k(fmtprint print,
 		struct format_operator *str, fmtfloat ff, unsigned index, fixnum value)
 {
-	fmtint_default(print, str, index, &(ff->k), value);
+	return fmtint_default(print, str, index, &(ff->k), value);
 }
 
 static void fmtfloat_overflowchar(fmtprint print,
@@ -815,17 +839,19 @@ static void format_fixed_long(fmtprint print, fmtfloat ff, addr pos)
 	fmtprint_stream_output(print);
 }
 
-static void format_fixed_argument(fmtprint print,
+static int format_fixed_argument(fmtprint print,
 		struct format_operator *str, fmtfloat ff)
 {
 	clearpoint(ff);
-	fmtfloat_w(print, str, ff, 0);
-	fmtfloat_d(print, str, ff, 1);
-	fmtfloat_k(print, str, ff, 2, 0);
+	Return1(fmtfloat_w(print, str, ff, 0));
+	Return1(fmtfloat_d(print, str, ff, 1));
+	Return1(fmtfloat_k(print, str, ff, 2, 0));
 	fmtfloat_overflowchar(print, str, ff, 3);
 	fmtfloat_padchar(print, str, ff, 4);
 	ff->k_bias = 0; /* 0 if fixed */
 	ff->sign = str->atsign;
+
+	return 0;
 }
 
 static void format_fixed_fixnum(fmtprint print, fmtfloat ff, addr pos)
@@ -849,12 +875,12 @@ static void format_fixed_ratio(fmtprint print, fmtfloat ff, addr pos)
 	format_fixed_single(print, ff, pos);
 }
 
-static void format_fixed_float(fmtprint print,
+static int format_fixed_float(fmtprint print,
 		struct format_operator *str, fmtfloat ff)
 {
 	addr pos;
 
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	switch (GetType(pos)) {
 		case LISPTYPE_DOUBLE_FLOAT:
 			format_fixed_double(print, ff, pos);
@@ -883,8 +909,10 @@ static void format_fixed_float(fmtprint print,
 		default:
 			fmtprop_abort(print, str,
 					"~~F argument ~S must be a real type.", pos, NULL);
-			return;
+			return 0;
 	}
+
+	return 0;
 }
 
 static int format_call_Fixed(fmtprint print, struct format_operator *str)
@@ -898,8 +926,8 @@ static int format_call_Fixed(fmtprint print, struct format_operator *str)
 	push_close_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
-	format_fixed_argument(print, str, &ff);
-	format_fixed_float(print, str, &ff);
+	Return1(format_fixed_argument(print, str, &ff));
+	Return1(format_fixed_float(print, str, &ff));
 
 	return free_control(ptr, control);
 }
@@ -968,20 +996,22 @@ static void format_exponent_long(fmtprint print, fmtfloat ff, addr pos)
 	fmtprint_stream_output(print);
 }
 
-static void format_exponent_argument(fmtprint print,
+static int format_exponent_argument(fmtprint print,
 		struct format_operator *str, fmtfloat ff)
 {
 	memset(ff, 0, sizeoft(struct fmtfloat_struct));
-	fmtfloat_w(print, str, ff, 0);
-	fmtfloat_d(print, str, ff, 1);
-	fmtfloat_e(print, str, ff, 2);
-	fmtfloat_k(print, str, ff, 3, 1);
+	Return1(fmtfloat_w(print, str, ff, 0));
+	Return1(fmtfloat_d(print, str, ff, 1));
+	Return1(fmtfloat_e(print, str, ff, 2));
+	Return1(fmtfloat_k(print, str, ff, 3, 1));
 	fmtfloat_overflowchar(print, str, ff, 4);
 	fmtfloat_padchar(print, str, ff, 5);
 	ff->k_bias = 1; /* 1 if exponent */
 	ff->markerp = 1;
 	ff->sign_exponent = 1;
 	ff->sign = str->atsign;
+
+	return 0;
 }
 
 static unicode fmtfloat_default_marker(Execute ptr)
@@ -1102,8 +1132,8 @@ static int format_call_Exponential(fmtprint print, struct format_operator *str)
 	push_close_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
-	format_exponent_argument(print, str, &ff);
-	fmtprint_pop(print, str, &pos);
+	Return1(format_exponent_argument(print, str, &ff));
+	Return1(fmtprint_pop(print, str, &pos));
 	fmtfloat_marker(print, str, &ff, pos);
 	format_exponent_float(print, str, &ff, pos);
 
@@ -1114,12 +1144,14 @@ static int format_call_Exponential(fmtprint print, struct format_operator *str)
 /*
  *  General
  */
-static void fmtfloat_e_general(fmtprint print,
+static int fmtfloat_e_general(fmtprint print,
 		struct format_operator *str, fmtfloat ff, unsigned index)
 {
+	int check;
 	fixnum value;
 
-	if (fmtint_nilp(print, str, index, &value)) {
+	Return1(fmtint_nilp(print, str, index, &value, &check));
+	if (check) {
 		ff->ep = 0;
 		ff->e = 1;
 	}
@@ -1127,24 +1159,28 @@ static void fmtfloat_e_general(fmtprint print,
 		if (value < 0) {
 			fmtargs_abort(print, str, index,
 					"The parameter must be a positive integer.", NULL);
-			return;
+			return 0;
 		}
 		ff->ep = 1;
 		ff->e = (size_t)(value? value: 1);
 	}
+
+	return 0;
 }
 
-static void format_general_argument(fmtprint print,
+static int format_general_argument(fmtprint print,
 		struct format_operator *str, fmtfloat ff)
 {
 	memset(ff, 0, sizeoft(struct fmtfloat_struct));
-	fmtfloat_w(print, str, ff, 0);
-	fmtfloat_d(print, str, ff, 1);
-	fmtfloat_e_general(print, str, ff, 2);
-	fmtfloat_k(print, str, ff, 3, 1);
+	Return1(fmtfloat_w(print, str, ff, 0));
+	Return1(fmtfloat_d(print, str, ff, 1));
+	Return1(fmtfloat_e_general(print, str, ff, 2));
+	Return1(fmtfloat_k(print, str, ff, 3, 1));
 	fmtfloat_overflowchar(print, str, ff, 4);
 	fmtfloat_padchar(print, str, ff, 5);
 	ff->sign = str->atsign;
+
+	return 0;
 }
 
 static void format_general_single(fmtprint print, fmtfloat ff, addr pos)
@@ -1274,8 +1310,8 @@ static int format_call_General(fmtprint print, struct format_operator *str)
 	push_close_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
-	format_general_argument(print, str, &ff);
-	fmtprint_pop(print, str, &pos);
+	Return1(format_general_argument(print, str, &ff));
+	Return1(fmtprint_pop(print, str, &pos));
 	fmtfloat_marker(print, str, &ff, pos);
 	format_general_float(print, str, &ff, pos);
 
@@ -1377,7 +1413,7 @@ static int format_monetary_float(fmtprint print,
 {
 	addr pos;
 
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	switch (GetType(pos)) {
 		case LISPTYPE_DOUBLE_FLOAT:
 			format_monetary_double(print, ff, pos);
@@ -1410,32 +1446,36 @@ static int format_monetary_float(fmtprint print,
 	return 0;
 }
 
-static void fmtfloat_n(fmtprint print,
+static int fmtfloat_n(fmtprint print,
 		struct format_operator *str, fmtfloat ff, unsigned index)
 {
 	int check;
 	fixnum value;
 
-	check = fmtint_nilp(print, str, index, &value);
+	Return1(fmtint_nilp(print, str, index, &value, &check));
 	if (! check && value < 0) {
 		fmtargs_abort(print, str, index,
 				"The parameter must be a positive integer.", NULL);
-		return;
+		return 0;
 	}
 	ff->np = ! check;
 	ff->n = check? 0: (size_t)value;
+
+	return 0;
 }
 
-static void format_monetary_argument(fmtprint print,
+static int format_monetary_argument(fmtprint print,
 		struct format_operator *str, fmtfloat ff)
 {
 	memset(ff, 0, sizeoft(struct fmtfloat_struct));
-	fmtfloat_d(print, str, ff, 0);
-	fmtfloat_n(print, str, ff, 1);
-	fmtfloat_w(print, str, ff, 2);
+	Return1(fmtfloat_d(print, str, ff, 0));
+	Return1(fmtfloat_n(print, str, ff, 1));
+	Return1(fmtfloat_w(print, str, ff, 2));
 	fmtfloat_padchar(print, str, ff, 3);
 	ff->sign = str->atsign;
 	ff->markerp = str->colon;
+
+	return 0;
 }
 
 static int format_call_Monetary(fmtprint print, struct format_operator *str)
@@ -1450,7 +1490,7 @@ static int format_call_Monetary(fmtprint print, struct format_operator *str)
 	push_close_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
-	format_monetary_argument(print, str, &ff);
+	Return1(format_monetary_argument(print, str, &ff));
 	check = format_monetary_float(print, str, &ff);
 
 	return free_check_control(ptr, control, check);
@@ -1466,11 +1506,11 @@ static int format_call_Newline(fmtprint print, struct format_operator *str)
 	fixnum i, size;
 
 	Check(1 < str->args_size, "size error");
-	fmtint_default(print, str, 0, &size, 1);
+	Return1(fmtint_default(print, str, 0, &size, 1));
 	if (size < 0) {
 		fmtargs_abort(print, str, 0,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 
 	fmtprint_stream(print, &stream);
@@ -1491,11 +1531,11 @@ static int format_call_FreshLine(fmtprint print, struct format_operator *str)
 	fixnum i, size;
 
 	Check(1 < str->args_size, "size error");
-	fmtint_default(print, str, 0, &size, 1);
+	Return1(fmtint_default(print, str, 0, &size, 1));
 	if (size < 0) {
 		fmtargs_abort(print, str, 0,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 	if (size) {
 		fmtprint_stream(print, &stream);
@@ -1518,11 +1558,11 @@ static int format_call_Page(fmtprint print, struct format_operator *str)
 	fixnum i, size;
 
 	Check(1 < str->args_size, "size error");
-	fmtint_default(print, str, 0, &size, 1);
+	Return1(fmtint_default(print, str, 0, &size, 1));
 	if (size < 0) {
 		fmtargs_abort(print, str, 0,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 
 	fmtprint_stream(print, &stream);
@@ -1542,11 +1582,11 @@ static int format_call_Tilde(fmtprint print, struct format_operator *str)
 	fixnum size;
 
 	Check(1 < str->args_size, "size error");
-	fmtint_default(print, str, 0, &size, 1);
+	Return1(fmtint_default(print, str, 0, &size, 1));
 	if (size < 0) {
 		fmtargs_abort(print, str, 0,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 	fmtprint_putc_times(print, '~', size);
 
@@ -1592,17 +1632,17 @@ static int format_call_Tabulate(fmtprint print, struct format_operator *str)
 	fixnum column, colinc, now;
 
 	Check(2 < str->args_size, "size error");
-	fmtint_default(print, str, 0, &column, 1);
-	fmtint_default(print, str, 1, &colinc, 1);
+	Return1(fmtint_default(print, str, 0, &column, 1));
+	Return1(fmtint_default(print, str, 1, &colinc, 1));
 	if (column < 0) {
 		fmtargs_abort(print, str, 0,
 				"The parameter must be greater than equal to 0.", NULL);
-		return 1;
+		return 0;
 	}
 	if (colinc < 0) {
 		fmtargs_abort(print, str, 1,
 				"The parameter must be greater than equal to 0.", NULL);
-		return 1;
+		return 0;
 	}
 
 	if (str->colon) {
@@ -1635,11 +1675,11 @@ static int format_call_GoTo(fmtprint print, struct format_operator *str)
 
 	Check(1 < str->args_size, "size error");
 	if (! str->atsign) {
-		fmtint_default(print, str, 0, &count, 1);
+		Return1(fmtint_default(print, str, 0, &count, 1));
 		if (count < 0) {
 			fmtargs_abort(print, str, 0,
 					"The parameter must be greater than equal to 0.", NULL);
-			return 1;
+			return 0;
 		}
 		if (! str->colon)
 			fmtprint_forward(print, str, (size_t)count);
@@ -1647,11 +1687,11 @@ static int format_call_GoTo(fmtprint print, struct format_operator *str)
 			fmtprint_rollback(print, str, (size_t)count);
 	}
 	else {
-		fmtint_default(print, str, 0, &count, 0);
+		Return1(fmtint_default(print, str, 0, &count, 0));
 		if (count < 0) {
 			fmtargs_abort(print, str, 0,
 					"The parameter must be greater than equal to 0.", NULL);
-			return 1;
+			return 0;
 		}
 		if (! str->colon) {
 			fmtprint_absolute(print, str, (size_t)count);
@@ -1659,7 +1699,7 @@ static int format_call_GoTo(fmtprint print, struct format_operator *str)
 		else {
 			fmtprop_abort(print, str,
 					"The parameter don't accept both : and @ parameter (~~:@*).", NULL);
-			return 1;
+			return 0;
 		}
 	}
 
@@ -1714,8 +1754,9 @@ static int format_call_Recursive_function(fmtprint print,
 				"The FORMATTER ~S return illegal arguments ~S.", format, args, NULL);
 		return 0;
 	}
-	for (; size2 < size1; size2++)
-		fmtprint_pop(print, str, &args);
+	for (; size2 < size1; size2++) {
+		Return1(fmtprint_pop(print, str, &args));
+	}
 
 	return 0;
 }
@@ -1765,12 +1806,12 @@ static int format_call_Recursive(fmtprint print, struct format_operator *str)
 	Check(0 < str->args_size, "size error");
 	Check(str->colon, "Invalid argument [colon].");
 	if (str->atsign) {
-		fmtprint_pop(print, str, &format);
+		Return1(fmtprint_pop(print, str, &format));
 		return format_call_Recursive_atsign(print, str, format);
 	}
 	else {
-		fmtprint_pop(print, str, &format);
-		fmtprint_pop(print, str, &args);
+		Return1(fmtprint_pop(print, str, &format));
+		Return1(fmtprint_pop(print, str, &args));
 		return format_call_Recursive_call(print, format, args, &args);
 	}
 }
@@ -1790,9 +1831,6 @@ static int format_call_ConditionalNewline(fmtprint print, struct format_operator
 		pprint_newline_common(print->ptr, pprint_newline_miser, print->stream);
 	else
 		pprint_newline_common(print->ptr, pprint_newline_linear, print->stream);
-	/* Logical Block: ~<...~:@> */
-	if (print->pretty && print->fill)
-		print->fill_check = 1;
 	return 0;
 }
 
@@ -1815,7 +1853,7 @@ static int format_call_Write(fmtprint print, struct format_operator *str)
 		push_level_nil_print(ptr);
 		push_length_nil_print(ptr);
 	}
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	fmtprint_stream(print, &stream);
 	if (write_print(ptr, stream, pos))
 		return free_check_control(ptr, control, 1);
@@ -1833,7 +1871,7 @@ static int format_call_Indent(fmtprint print, struct format_operator *str)
 
 	Check(1 < str->args_size, "size error");
 	Check(str->atsign, "Invalid argument [atsign].");
-	fmtint_default(print, str, 0, &n, 0);
+	Return1(fmtint_default(print, str, 0, &n, 0));
 	pprint_indent_common(print->ptr, ! str->colon, n, print->stream);
 
 	return 0;
@@ -1934,19 +1972,20 @@ clause_else:
 
 static int format_condition_select(fmtprint print, struct format_operator *str)
 {
-	int ignore;
+	int check, ignore;
 	addr pos;
 	fixnum index;
 
 	Check(1 < str->args_size, "size error");
 	/* index */
 	ignore = 0;
-	if (fmtint_nilp(print, str, 0, &index)) {
-		fmtprint_pop(print, str, &pos);
+	Return1(fmtint_nilp(print, str, 0, &index, &check));
+	if (check) {
+		Return1(fmtprint_pop(print, str, &pos));
 		if (! integerp(pos)) {
 			fmtprop_abort(print, str,
 					"The argument ~S must be an integer.", pos, NULL);
-			return 1;
+			return 0;
 		}
 		if (fixnump(pos)) {
 			GetFixnum(pos, &index);
@@ -1966,7 +2005,7 @@ static int format_condition_boolean(fmtprint print, struct format_operator *str)
 	addr pos;
 
 	Check(0 < str->args_size, "size error");
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	return format_condition_index(print, str, (pos != Nil), 0);
 }
 
@@ -1978,7 +2017,7 @@ static int format_condition_true(fmtprint print, struct format_operator *str)
 	fmtprint_peek(print, str, &pos);
 	if (pos != Nil)
 		return format_condition_index(print, str, 0, 0);
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	return 0; /* do nothing */
 }
 
@@ -2021,31 +2060,49 @@ static int format_call_Iteration_exit(
 static int format_call_Iteration_list(fmtprint print,
 		struct format_operator *str, int forcep)
 {
-	int intp;
-	addr pos;
+	int intp, check, result;
+	addr pos, stream, root;
 	fixnum index, i;
 	struct fmtstack args;
 	size_t now;
 
 	/* argument */
-	fmtprint_pop(print, str, &pos);
-	intp = fmtint_nilp(print, str, 0, &index);
+	Return1(fmtprint_pop(print, str, &pos));
+	Return1(fmtint_nilp(print, str, 0, &index, &intp));
 
-	/* loop */
+	/* save */
 	args.root = pos;
 	args.front = pos;
 	args.index = 0;
 	print->rest = &args;
 	now = print->now;
+
+	stream = print->stream;
+	check = pretty_stream_p(stream);
+	if (check) {
+		root_pretty_stream(stream, &root);
+		gchold_push_local(print->local, root);
+		setroot_pretty_stream(stream, pos);
+	}
+
+	/* loop */
+	result = 0;
 	for (i = 0; print->loop; i++) {
 		if (format_call_Iteration_exit(intp, i, index, args.front, &forcep))
 			break;
 		print->now = now;
-		if (fmtcall(print, NULL))
-			return 1;
+		if (fmtcall(print, NULL)) {
+			result = 1;
+			goto finish;
+		}
 	}
 
-	return 0;
+	/* rollback */
+finish:
+	if (check)
+		setroot_pretty_stream(stream, root);
+
+	return result;
 }
 
 static int format_call_Iteration_rest(fmtprint print,
@@ -2056,7 +2113,7 @@ static int format_call_Iteration_rest(fmtprint print,
 	struct fmtstack *rest;
 	size_t now;
 
-	intp = fmtint_nilp(print, str, 0, &index);
+	Return1(fmtint_nilp(print, str, 0, &index, &intp));
 	now = print->now;
 	rest = print->rest;
 	for (i = 0; print->loop; i++) {
@@ -2073,18 +2130,27 @@ static int format_call_Iteration_rest(fmtprint print,
 static int format_call_Iteration_listargs(fmtprint print,
 		struct format_operator *str, int forcep)
 {
-	int intp, check;
+	int intp, check, result, loop_check;
 	fixnum index, i;
-	addr car, cdr;
+	addr stream, root, car, cdr;
 	struct fmtstack args;
 	size_t now;
 
 	/* argument */
-	fmtprint_pop(print, str, &cdr);
-	intp = fmtint_nilp(print, str, 0, &index);
+	Return1(fmtprint_pop(print, str, &cdr));
+	Return1(fmtint_nilp(print, str, 0, &index, &intp));
+
+	/* save */
+	stream = print->stream;
+	check = pretty_stream_p(stream);
+	if (check) {
+		root_pretty_stream(stream, &root);
+		gchold_push_local(print->local, root);
+	}
 
 	/* loop */
 	now = print->now;
+	result = 0;
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, cdr, &forcep))
 			break;
@@ -2095,33 +2161,49 @@ static int format_call_Iteration_listargs(fmtprint print,
 		print->now = now;
 		print->rest = &args;
 		print->last = (cdr == Nil);
-		if (fmtcall(print, &check))
-			return 1;
 		if (check)
+			setroot_pretty_stream(stream, car);
+		if (fmtcall(print, &loop_check)) {
+			result = 1;
+			goto finish;
+		}
+		if (loop_check)
 			break;
 		print->loop = 1;
 	}
 
-	return 0;
+	/* rollback */
+finish:
+	if (check)
+		setroot_pretty_stream(stream, root);
+
+	return result;
 }
 
 static int format_call_Iteration_restargs(fmtprint print,
 		struct format_operator *str, int forcep)
 {
-	int intp, check;
-	addr pos;
+	int intp, check, result, loop_check;
+	addr stream, pos, root;
 	fixnum index, i;
 	struct fmtstack *rest, args;
 	size_t now;
 
-	intp = fmtint_nilp(print, str, 0, &index);
+	Return1(fmtint_nilp(print, str, 0, &index, &intp));
 	now = print->now;
 	rest = print->rest;
+
+	/* save */
+	stream = print->stream;
+	check = pretty_stream_p(stream);
+
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, rest->front, &forcep))
 			break;
 		print->rest = rest;
-		fmtprint_pop(print, str, &pos);
+		Return1(fmtprint_pop(print, str, &pos));
+		if (check)
+			root_pretty_stream(stream, &root);
 
 		args.root = pos;
 		args.front = pos;
@@ -2129,9 +2211,14 @@ static int format_call_Iteration_restargs(fmtprint print,
 		print->now = now;
 		print->rest = &args;
 		print->last = (rest->front == Nil);
-		if (fmtcall(print, &check))
-			return 1;
 		if (check)
+			setroot_pretty_stream(stream, pos);
+		result = fmtcall(print, &loop_check);
+		if (check)
+			setroot_pretty_stream(stream, root);
+		if (result)
+			return 1;
+		if (loop_check)
 			break;
 		print->loop = 1;
 	}
@@ -2153,6 +2240,7 @@ static int format_call_Iteration_function(fmtprint print, struct format_operator
 
 static int format_call_Iteration_call(fmtprint print, struct format_operator *str)
 {
+	int result;
 	struct fmtstack *rest;
 	size_t now;
 
@@ -2161,43 +2249,60 @@ static int format_call_Iteration_call(fmtprint print, struct format_operator *st
 	rest = print->rest;
 	/* execute */
 	print->now += format_bytesize(1);
-	if (format_call_Iteration_function(print, str))
-		return 1;
+	result = format_call_Iteration_function(print, str);
 	/* rollback */
 	print->now = now;
 	print->rest = rest;
 	print->loop = 1;
 
-	return 0;
+	return result;
 }
 
 /* empty */
 static int format_call_Iteration2_list(fmtprint print,
 		struct format_operator *str, addr format)
 {
-	int intp, forcep;
-	addr pos;
+	int intp, forcep, result, check;
+	addr pos, stream, root;
 	fixnum index, i;
 	struct fmtstack args;
 
 	/* argument */
-	fmtprint_pop(print, str, &pos);
-	intp = fmtint_nilp(print, str, 0, &index);
+	Return1(fmtprint_pop(print, str, &pos));
+	Return1(fmtint_nilp(print, str, 0, &index, &intp));
 	forcep = str->close_colon;
 
-	/* loop */
+	/* save */
 	args.root = pos;
 	args.front = pos;
 	args.index = 0;
 	print->rest = &args;
+
+	stream = print->stream;
+	check = pretty_stream_p(stream);
+	if (check) {
+		root_pretty_stream(stream, &root);
+		gchold_push_local(print->local, root);
+		setroot_pretty_stream(stream, pos);
+	}
+
+	/* loop */
+	result = 0;
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, args.front, &forcep))
 			break;
-		if (format_call_Recursive_function(print, str, format))
-			return 1;
+		if (format_call_Recursive_function(print, str, format)) {
+			result = 1;
+			goto finish;
+		}
 	}
 
-	return 0;
+	/* rollback */
+finish:
+	if (check)
+		setroot_pretty_stream(stream, root);
+
+	return result;
 }
 
 static int format_call_Iteration2_rest(fmtprint print,
@@ -2207,7 +2312,7 @@ static int format_call_Iteration2_rest(fmtprint print,
 	fixnum index, i;
 	struct fmtstack *rest;
 
-	intp = fmtint_nilp(print, str, 0, &index);
+	Return1(fmtint_nilp(print, str, 0, &index, &intp));
 	forcep = str->close_colon;
 	rest = print->rest;
 	for (i = 0; ; i++) {
@@ -2223,17 +2328,26 @@ static int format_call_Iteration2_rest(fmtprint print,
 static int format_call_Iteration2_listargs(fmtprint print,
 		struct format_operator *str, addr format)
 {
-	int intp, forcep;
+	int intp, forcep, result, check;
 	fixnum index, i;
-	addr car, cdr;
+	addr stream, root, car, cdr;
 	struct fmtstack args;
 
 	/* argument */
-	fmtprint_pop(print, str, &cdr);
-	intp = fmtint_nilp(print, str, 0, &index);
+	Return1(fmtprint_pop(print, str, &cdr));
+	Return1(fmtint_nilp(print, str, 0, &index, &intp));
+
+	/* save */
+	stream = print->stream;
+	check = pretty_stream_p(stream);
+	if (check) {
+		root_pretty_stream(stream, &root);
+		gchold_push_local(print->local, root);
+	}
 
 	/* loop */
 	forcep = str->close_colon;
+	result = 0;
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, cdr, &forcep))
 			break;
@@ -2243,36 +2357,57 @@ static int format_call_Iteration2_listargs(fmtprint print,
 		args.index = 0;
 		print->rest = &args;
 		print->last = (cdr == Nil);
-		if (format_call_Recursive_call(print, format, car, &car))
-			return 1;
+		if (check)
+			setroot_pretty_stream(stream, car);
+		if (format_call_Recursive_call(print, format, car, &car)) {
+			result = 1;
+			goto finish;
+		}
 	}
 
-	return 0;
+	/* rollback */
+finish:
+	if (check)
+		setroot_pretty_stream(stream, root);
+
+	return result;
 }
 
 static int format_call_Iteration2_restargs(fmtprint print,
 		struct format_operator *str, addr format)
 {
-	int intp, forcep;
-	addr pos;
+	int intp, forcep, check, result;
+	addr stream, pos, root;
 	fixnum index, i;
 	struct fmtstack *rest, args;
 
-	intp = fmtint_nilp(print, str, 0, &index);
+	Return1(fmtint_nilp(print, str, 0, &index, &intp));
 	forcep = str->close_colon;
 	rest = print->rest;
+
+	/* save */
+	stream = print->stream;
+	check = pretty_stream_p(stream);
+
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, rest->front, &forcep))
 			break;
 		print->rest = rest;
-		fmtprint_pop(print, str, &pos);
+		Return1(fmtprint_pop(print, str, &pos));
+		if (check)
+			root_pretty_stream(stream, &root);
 
 		args.root = pos;
 		args.front = pos;
 		args.index = 0;
 		print->rest = &args;
 		print->last = (rest->front == Nil);
-		if (format_call_Recursive_call(print, format, pos, &pos))
+		if (check)
+			setroot_pretty_stream(stream, pos);
+		result = format_call_Recursive_call(print, format, pos, &pos);
+		if (check)
+			setroot_pretty_stream(stream, root);
+		if (result)
 			return 1;
 	}
 
@@ -2308,6 +2443,7 @@ static int format_call_Iteration2_function(
 static int format_call_Iteration2_format(
 		fmtprint print, struct format_operator *str, addr format)
 {
+	int result;
 	addr backup_format;
 	struct fmtstack *backup_rest;
 	size_t backup_now;
@@ -2320,15 +2456,14 @@ static int format_call_Iteration2_format(
 	print->format = format;
 	fmtprint_format_forward(print);
 	/* call */
-	if (format_call_Iteration_function(print, str))
-		return 1;
+	result = format_call_Iteration_function(print, str);
 	/* rollback */
 	print->format = backup_format;
 	print->now = backup_now;
 	print->rest = backup_rest;
 	print->loop = 1;
 
-	return 0;
+	return result;
 }
 
 static int format_call_Iteration2(fmtprint print, struct format_operator *str)
@@ -2336,7 +2471,7 @@ static int format_call_Iteration2(fmtprint print, struct format_operator *str)
 	addr format;
 
 	/* first */
-	fmtprint_pop(print, str, &format);
+	Return1(fmtprint_pop(print, str, &format));
 	if (functionp(format))
 		return format_call_Iteration2_function(print, str, format);
 	if (formatp(format))
@@ -2357,11 +2492,19 @@ static int format_call_Iteration(fmtprint print, struct format_operator *str)
 	 *  "~@{"		"~{ ~S ~S~}" 'a '1 'b '2 'c '3
 	 *  "~:@{"		"~{ ~S ~S~}" '(a 1) '(b 2) '(c 3)
 	 */
+	int result;
+	unsigned escape;
+
 	Check(1 < str->args_size, "size error");
+	escape = print->escape;
+	print->escape = 1;
 	if (str->option_check)
-		return format_call_Iteration2(print, str);
+		result = format_call_Iteration2(print, str);
 	else
-		return format_call_Iteration_call(print, str);
+		result = format_call_Iteration_call(print, str);
+	print->escape = escape;
+
+	return result;
 }
 
 
@@ -2401,28 +2544,30 @@ static int format_call_Justification_vector1(struct format_justification *just)
 	return 0;
 }
 
-static void format_call_Justificaion_separator(
+static int format_call_Justificaion_separator(
 		fmtprint print, struct format_operator *str,
 		size_t *rcount, size_t *rwidth)
 {
+	int check;
 	fixnum count, width;
 	size_t value;
 
 	/* NULL */
 	if (rcount == NULL)
-		return;
+		return 0;
 
 	/* first */
-	fmtint_default(print, str, 0, &count, 0);
+	Return1(fmtint_default(print, str, 0, &count, 0));
 	if (count < 0) {
 		fmtargs_abort(print, str, 0,
 				"The paramter must be a non-negative integer.", NULL);
-		return;
+		return 0;
 	}
 	*rcount = (size_t)count;
 
 	/* second */
-	if (fmtint_nilp(print, str, 1, &width)) {
+	Return1(fmtint_nilp(print, str, 1, &width, &check));
+	if (check) {
 		if (terminal_width_stream(print->stream, &value))
 			value = PRINT_DEFAULT_WIDTH;
 		*rwidth = value;
@@ -2431,10 +2576,12 @@ static void format_call_Justificaion_separator(
 		if (width < 0) {
 			fmtargs_abort(print, str, 1,
 					"The parameter must be non-negative integer.", NULL);
-			return;
+			return 0;
 		}
 		*rwidth = (size_t)width;
 	}
+
+	return 0;
 }
 
 static int format_call_Justificaion_fmtcall(fmtprint print,
@@ -2456,7 +2603,7 @@ static int format_call_Justificaion_fmtcall(fmtprint print,
 			break;
 		/* ~:; */
 		if (type == FormatType_ClauseSeparator) {
-			format_call_Justificaion_separator(print, str, count, width);
+			Return1(format_call_Justificaion_separator(print, str, count, width));
 			break;
 		}
 		/* delete-space */
@@ -2492,9 +2639,11 @@ static int format_call_Justificaion_call(struct format_justification *just,
 	local = print->local;
 
 	fmtprint_copy(&loop, print);
-	loop.pretty = print->pretty;
+	loop.pretty = 0;
+	loop.escape = 0;
 	loop.fill = print->fill;
-	loop.fill_check = print->fill_check;
+	loop.fill_white = print->fill_white;
+	loop.fill_ignore = print->fill_ignore;
 	loop.conversion = print->conversion;
 	loop.now = now;
 	loop.rest = print->rest;
@@ -2704,24 +2853,24 @@ static int format_call_Justification(fmtprint print, struct format_operator *str
 	unicode padchar;
 
 	Check(4 < str->args_size, "size error");
-	fmtint_default(print, str, 0, &mincol, 0);
-	fmtint_default(print, str, 1, &colinc, 1);
-	fmtint_default(print, str, 2, &minpad, 0);
+	Return1(fmtint_default(print, str, 0, &mincol, 0));
+	Return1(fmtint_default(print, str, 1, &colinc, 1));
+	Return1(fmtint_default(print, str, 2, &minpad, 0));
 	fmtchar_default(print, str, 3, &padchar, ' ');
 	if (mincol < 0) {
 		fmtargs_abort(print, str, 0,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 	if (colinc < 1) {
 		fmtargs_abort(print, str, 1,
 				"The parameter must be greater than 1.", NULL);
-		return 1;
+		return 0;
 	}
 	if (minpad < 0) {
 		fmtargs_abort(print, str, 2,
 				"The parameter must be a positive integer.", NULL);
-		return 1;
+		return 0;
 	}
 
 	cleartype(just);
@@ -2745,6 +2894,148 @@ static int format_call_Justification(fmtprint print, struct format_operator *str
 /*
  *  LogicalBlock
  */
+struct format_pretty_struct {
+	struct fmtprint_struct print;
+	size_t index;
+};
+
+enum FormatPrettyIndex {
+	FormatPrettyIndex_Stream,
+	FormatPrettyIndex_Root,
+	FormatPrettyIndex_Front,
+	FormatPrettyIndex_Size
+};
+
+static void set_format_pretty(addr pos, size_t index, addr value)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	SetArraySS(pos, index, value);
+}
+static void get_format_pretty(addr pos, size_t index, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	GetArraySS(pos, index, ret);
+}
+static void *pointer_format_pretty(addr pos)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	return (void *)PtrBodySS(pos);
+}
+
+static void getstream_format_pretty(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	get_format_pretty(pos, FormatPrettyIndex_Stream, ret);
+}
+static void setstream_format_pretty(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	set_format_pretty(pos, FormatPrettyIndex_Stream, value);
+}
+
+static void getroot_format_pretty(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	get_format_pretty(pos, FormatPrettyIndex_Root, ret);
+}
+static void setroot_format_pretty(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	set_format_pretty(pos, FormatPrettyIndex_Root, value);
+}
+
+static void getfront_format_pretty(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	get_format_pretty(pos, FormatPrettyIndex_Front, ret);
+}
+static void setfront_format_pretty(addr pos, addr value)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	set_format_pretty(pos, FormatPrettyIndex_Front, value);
+}
+
+static struct format_pretty_struct *struct_format_pretty(addr pos)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	return (struct format_pretty_struct *)pointer_format_pretty(pos);
+}
+static fmtprint fmtprint_format_pretty(addr pos)
+{
+	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
+	return (fmtprint)&(struct_format_pretty(pos)->print);
+}
+
+static void read_format_pretty(addr pos, fmtprint print, struct fmtstack *rest)
+{
+	addr root, front;
+	struct format_pretty_struct *str;
+
+	/* structure */
+	str = struct_format_pretty(pos);
+	*print = str->print;
+	print->rest = rest;
+
+	/* list */
+	getroot_format_pretty(pos, &root);
+	getfront_format_pretty(pos, &front);
+	rest->root = root;
+	rest->front = front;
+	rest->index = str->index;
+}
+
+static void format_pretty_heap(addr *ret, addr stream, struct fmtstack *rest)
+{
+	addr pos;
+	struct format_pretty_struct *str;
+
+	heap_smallsize(&pos, LISPSYSTEM_FORMAT_PRETTY,
+			FormatPrettyIndex_Size,
+			sizeoft(struct format_pretty_struct));
+	str = struct_format_pretty(pos);
+#ifdef LISP_DEBUG
+	aamemory(str, sizeoft(struct format_pretty_struct));
+#endif
+	setstream_format_pretty(pos, stream);
+	setroot_format_pretty(pos, rest->root);
+	setfront_format_pretty(pos, rest->front);
+	str->index = rest->index;
+	*ret = pos;
+}
+
+static void format_logicalblock2(Execute ptr)
+{
+	addr pos, stream;
+	struct fmtprint_struct print;
+	struct fmtstack rest;
+
+	getdata_control(ptr, &pos);
+	getstream_format_pretty(pos, &stream);
+	Return0(check_pretty_stream(ptr, stream));
+	read_format_pretty(pos, &print, &rest);
+	fmtcall(&print, NULL);
+}
+
+static void format_logicalblock1(Execute ptr)
+{
+	int check;
+	addr pretty, stream, control, code, gensym;
+
+	/* stream */
+	getdata_control(ptr, &pretty);
+	getstream_format_pretty(pretty, &stream);
+	Check(! pretty_stream_p(stream), "type error");
+	/* unwind-protect */
+	push_finalize_control(ptr, &control);
+	syscall_code(ptr->local, &code, p_pprint_logical_block_close, stream);
+	setfinalize_control(ptr, control, code);
+	/* code */
+	gensym_pretty_stream(stream, &gensym);
+	catch_syscall_code(&code, p_format_logicalblock2, gensym, pretty);
+	check = callclang_funcall(ptr, &code, code, NULL);
+	free_check_control(ptr, control, check);
+}
+
 static size_t format_make_strvect_alloc(LocalRoot local, addr *ret, byte *ptr)
 {
 	unicode *data;
@@ -2759,68 +3050,6 @@ static size_t format_make_strvect_alloc(LocalRoot local, addr *ret, byte *ptr)
 static size_t format_make_strvect_heap(addr *ret, byte *ptr)
 {
 	return format_make_strvect_alloc(NULL, ret, ptr);
-}
-
-struct format_pretty_struct {
-	fmtprint print;
-};
-
-static struct format_pretty_struct *getstruct_format_pretty(addr pos)
-{
-	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
-	return (struct format_pretty_struct *)PtrBodySS(pos);
-}
-
-static void getstream_format_pretty(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_FORMAT_PRETTY);
-	GetArraySS(pos, 0, ret);
-}
-
-static void format_pretty_local(LocalRoot local,
-		addr *ret, addr stream, fmtprint print)
-{
-	addr pos;
-	struct format_pretty_struct *pretty;
-
-	local_smallsize(local, &pos, LISPSYSTEM_FORMAT_PRETTY,
-			1, sizeoft(struct format_pretty_struct));
-	SetArraySS(pos, 0, stream);
-	pretty = getstruct_format_pretty(pos);
-	pretty->print = print;
-	*ret = pos;
-}
-
-static void format_logicalblock2(Execute ptr)
-{
-	addr pos;
-	fmtprint print;
-	struct format_pretty_struct *pretty;
-
-	getdata_control(ptr, &pos);
-	pretty = getstruct_format_pretty(pos);
-	print = pretty->print;
-	fmtcall(print, NULL);
-}
-
-static void format_logicalblock1(Execute ptr)
-{
-	int check;
-	addr stream, control, code, gensym;
-
-	/* stream */
-	getdata_control(ptr, &stream);
-	getstream_format_pretty(stream, &stream);
-	Check(! pretty_stream_p(stream), "type error");
-	/* unwind-protect */
-	push_finalize_control(ptr, &control);
-	syscall_code(ptr->local, &code, p_pprint_logical_block_close, stream);
-	setfinalize_control(ptr, control, code);
-	/* code */
-	gensym_pretty_stream(stream, &gensym);
-	catch_syscall_code(&code, p_format_logicalblock2, gensym, stream);
-	check = callclang_funcall(ptr, &code, code, NULL);
-	free_check_control(ptr, control, check);
 }
 
 static void format_call_LogicalBlock_prefix(struct format_operator *str,
@@ -2863,47 +3092,90 @@ static void format_call_LogicalBlock_prefix(struct format_operator *str,
 	*ret = now;
 }
 
-static int format_call_LogicalBlock_call(fmtprint print, struct format_operator *str)
+static void format_call_LogicalBlock_lambda(
+		fmtprint print, struct format_operator *str, addr pos,
+		addr *rstream, addr *rlambda)
 {
-	int backup_pretty, backup_fill, backup_fill_check;
-	addr prefix, perline, suffix, stream, pos, lambda;
-	Execute ptr;
+	addr data, prefix, perline, suffix, stream, lambda;
 	LocalRoot local;
-	size_t now, backup_now;
+	Execute ptr;
+	size_t now;
+	fmtprint save;
 
 	/* make-pprint-stream */
-	stream = print->stream;
 	ptr = print->ptr;
 	local = ptr->local;
 	format_call_LogicalBlock_prefix(str, &prefix, &perline, &suffix, &now);
+	gchold_pushva_local(local, prefix, perline, suffix, NULL);
 
-	fmtprint_pop(print, str, &pos);
-	open_pretty_stream(ptr, &stream, stream, pos, prefix, perline, suffix);
-	backup_now = print->now;
-	backup_pretty = print->pretty;
-	backup_fill = print->fill;
-	backup_fill_check = print->fill_check;
-	print->now = now;
-	print->pretty = 1;
-	print->fill = str->close_atsign;
-	print->fill_check = 0;
+	/* object */
+	open_pretty_stream(ptr, &stream, print->stream, pos, prefix, perline, suffix);
+	format_pretty_heap(&data, stream, print->rest);
+	save = fmtprint_format_pretty(data);
+	*save = *print;
+	save->stream = stream;
+	save->now += now;
+	save->pretty = 1;
+	save->fill = str->close_atsign;
+	save->rest = NULL;
 
 	/* function */
 	compiled_heap(&lambda, Nil);
 	setcompiled_empty(lambda, p_format_logicalblock1);
-	format_pretty_local(local, &pos, stream, print);
-	SetDataFunction(lambda, pos);
+	SetDataFunction(lambda, data);
+	gchold_push_local(local, lambda);
+
+	/* result */
+	*rstream = stream;
+	*rlambda = lambda;
+}
+
+static int format_call_LogicalBlock_call1(fmtprint print, struct format_operator *str)
+{
+	addr pos, stream;
+	struct fmtstack *rest, args;
+
+	/* argument */
+	Return1(fmtprint_pop(print, str, &pos));
+	copyheap(&pos, pos);
+	rest = print->rest;
+	print->rest = &args;
+	args.root = pos;
+	args.front = pos;
+	args.index = 0;
+	format_call_LogicalBlock_lambda(print, str, pos, &stream, &pos);
 
 	/* call */
-	gchold_push_local(local, lambda);
-	if (call_pretty_stream(ptr, stream, lambda))
+	if (call_pretty_stream(print->ptr, stream, pos))
 		return 1;
 
-	/* rollback */
-	print->now = backup_now;
-	print->pretty = backup_pretty;
-	print->fill = backup_fill;
-	print->fill_check = backup_fill_check;
+	/* rest */
+	print->rest = rest;
+
+	return 0;
+}
+
+static int format_call_LogicalBlock_call2(fmtprint print, struct format_operator *str)
+{
+	addr pos, stream;
+	struct fmtstack *rest;
+	size_t index;
+
+	/* argument */
+	rest = print->rest;
+	index = rest->index;
+	copyheap(&(rest->root), rest->root);
+	rest->front = rest->root;
+	rest->index = 0;
+	fmtprint_absolute(print, str, index);
+	format_call_LogicalBlock_lambda(print, str, rest->front, &stream, &pos);
+
+	/* call */
+	if (call_pretty_stream(print->ptr, stream, pos))
+		return 1;
+
+	/* atsign */
+	fmtprint_clear(print);
 
 	return 0;
 }
@@ -2914,11 +3186,13 @@ static int format_call_LogicalBlock(fmtprint print, struct format_operator *str)
 	Execute ptr;
 	addr control;
 
-	fmte("TODO", NULL);
 	Check(0 < str->args_size, "size error");
 	ptr = print->ptr;
 	push_close_control(ptr, &control);
-	check = format_call_LogicalBlock_call(print, str);
+	if (str->atsign == 0)
+		check = format_call_LogicalBlock_call1(print, str);
+	else
+		check = format_call_LogicalBlock_call2(print, str);
 	return free_check_control(ptr, control, check);
 }
 
@@ -2934,9 +3208,12 @@ static int format_call_EscapeUpward(fmtprint print, struct format_operator *str)
 	Check(3 < str->args_size, "size error");
 	Check(str->atsign, "atsign error");
 	v1 = v2 = v3 = 0;
-	ex1 = ! fmtint_nilp(print, str, 0, &v1);
-	ex2 = ! fmtint_nilp(print, str, 1, &v2);
-	ex3 = ! fmtint_nilp(print, str, 2, &v3);
+	Return1(fmtint_nilp(print, str, 0, &v1, &ex1));
+	Return1(fmtint_nilp(print, str, 1, &v2, &ex2));
+	Return1(fmtint_nilp(print, str, 2, &v3, &ex3));
+	ex1 = ! ex1;
+	ex2 = ! ex2;
+	ex3 = ! ex3;
 
 	if (ex1 && ex2 && ex3) {
 		if (v1 <= v2 && v2 <= v3)
@@ -2965,7 +3242,7 @@ static int format_call_EscapeUpward(fmtprint print, struct format_operator *str)
 	}
 
 break_outside:
-	if (print->pretty)
+	if (print->escape == 0 && print->pretty)
 		return pprint_throw(print->ptr, print->stream);
 	print->loop = 0;
 	print->loop_colon = str->colon;
@@ -2987,7 +3264,7 @@ static int format_call_ClauseSeparator(fmtprint print, struct format_operator *s
 /*
  *  CallFunction
  */
-static void format_call_CallFunction_object(fmtprint print,
+static int format_call_CallFunction_object(fmtprint print,
 		struct format_operator *str, size_t index, addr *ret)
 {
 	fixnum value;
@@ -3010,8 +3287,7 @@ static void format_call_CallFunction_object(fmtprint print,
 			break;
 
 		case fmtargs_argument:
-			fmtprint_pop(print, str, ret);
-			break;
+			return fmtprint_pop(print, str, ret);
 
 		case fmtargs_count:
 			fmtint_count(print, &value);
@@ -3020,8 +3296,10 @@ static void format_call_CallFunction_object(fmtprint print,
 
 		default:
 			fmtprop_abort(print, str, "Invalid format parameter.", NULL);
-			return;
+			return 0;
 	}
+
+	return 0;
 }
 
 static void format_call_CallFunction_call(fmtprint print,
@@ -3045,7 +3323,7 @@ static int format_call_CallFunction(fmtprint print, struct format_operator *str)
 
 	/* (symbol stream pos colon atsign ...) */
 	local = print->local;
-	fmtprint_pop(print, str, &pos);
+	Return1(fmtprint_pop(print, str, &pos));
 	/* list */
 	push_local(local, &stack);
 	root = Nil;
@@ -3056,7 +3334,7 @@ static int format_call_CallFunction(fmtprint print, struct format_operator *str)
 	/* arguments */
 	size = str->args_size;
 	for (i = 0; i < size; i++) {
-		format_call_CallFunction_object(print, str, i, &pos);
+		Return1(format_call_CallFunction_object(print, str, i, &pos));
 		cons_local(local, &root, pos, root);
 	}
 	nreverse_list_unsafe(&root, root);

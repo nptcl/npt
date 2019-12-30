@@ -48,6 +48,7 @@ static int test_fmtint_count(void)
 
 static int test_fmtint_argument(void)
 {
+	int check;
 	addr rest;
 	struct fmtprint_struct print;
 	struct fmtstack args;
@@ -68,10 +69,13 @@ static int test_fmtint_argument(void)
 	print.rest = &args;
 
 	value = 0;
-	test(! fmtint_argument(&print, NULL, &value), "fmtint_argument1");
+	fmtint_argument(&print, NULL, &value, &check);
+	test(! check, "fmtint_argument1");
 	test(value == 10, "fmtint_argument2");
-	test(fmtint_argument(&print, NULL, &value), "fmtint_argument3");
-	test(! fmtint_argument(&print, NULL, &value), "fmtint_argument4");
+	fmtint_argument(&print, NULL, &value, &check);
+	test(check, "fmtint_argument3");
+	fmtint_argument(&print, NULL, &value, &check);
+	test(! check, "fmtint_argument4");
 	test(value == 30, "fmtint_argument5");
 
 	RETURN;
@@ -91,6 +95,7 @@ static struct format_operator *test_fmtoperator(addr format)
 
 static int test_fmtint_nilp(void)
 {
+	int check;
 	addr rest, pos;
 	LocalRoot local;
 	LocalStack stack;
@@ -114,25 +119,32 @@ static int test_fmtint_nilp(void)
 	format_parse_local(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	value = 0;
-	test(! fmtint_nilp(&print, comm, 0, &value), "fmtint_nilp1");
+	fmtint_nilp(&print, comm, 0, &value, &check);
+	test(! check, "fmtint_nilp1");
 	test(value == 0, "fmtint_nilp2");
-	test(! fmtint_nilp(&print, comm, 1, &value), "fmtint_nilp3");
+	fmtint_nilp(&print, comm, 1, &value, &check);
+	test(! check, "fmtint_nilp3");
 	test(value == 20, "fmtint_nilp4");
 
 	strvect_char_local(local, &pos, "~#,vA");
 	format_parse_local(local, &pos, pos);
 	comm = test_fmtoperator(pos);
-	test(! fmtint_nilp(&print, comm, 0, &value), "fmtint_nilp5");
+	fmtint_nilp(&print, comm, 0, &value, &check);
+	test(! check, "fmtint_nilp5");
 	test(value == 3, "fmtint_nilp6");
-	test(! fmtint_nilp(&print, comm, 1, &value), "fmtint_nilp7");
+	fmtint_nilp(&print, comm, 1, &value, &check);
+	test(! check, "fmtint_nilp7");
 	test(value == 10, "fmtint_nilp8");
-	test(fmtint_nilp(&print, comm, 1, &value), "fmtint_nilp9");
+	fmtint_nilp(&print, comm, 1, &value, &check);
+	test(check, "fmtint_nilp9");
 
 	strvect_char_local(local, &pos, "~,20^");
 	format_parse_local(local, &pos, pos);
 	comm = test_fmtoperator(pos);
-	test(fmtint_nilp(&print, comm, 0, &value), "fmtint_nilp10");
-	test(! fmtint_nilp(&print, comm, 1, &value), "fmtint_nilp11");
+	fmtint_nilp(&print, comm, 0, &value, &check);
+	test(check, "fmtint_nilp10");
+	fmtint_nilp(&print, comm, 1, &value, &check);
+	test(! check, "fmtint_nilp11");
 	test(value == 20, "fmtint_nilp12");
 
 	rollback_local(local, stack);

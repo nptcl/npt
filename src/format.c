@@ -78,6 +78,19 @@ _g int format_string_lisp(Execute ptr, addr format, addr args, addr *ret)
 	return 0;
 }
 
+_g int format_array_lisp(Execute ptr, addr array, addr format, addr args, addr *ret)
+{
+	int result;
+	addr stream;
+
+	open_extend_output_stream(&stream, array);
+	result = format_stream_lisp(ptr, stream, format, args);
+	close_stream(stream);
+	*ret = array;
+
+	return result;
+}
+
 _g int format_lisp(Execute ptr, addr stream, addr format, addr args, addr *ret)
 {
 	if (stream == Nil)
@@ -88,10 +101,8 @@ _g int format_lisp(Execute ptr, addr stream, addr format, addr args, addr *ret)
 		return format_stream_lisp(ptr, stream, format, args);
 	}
 
-	if (stringp(stream)) {
-		fmte("TODO: make vector-push-extend stream.", NULL);
-		return 0;
-	}
+	if (stringp(stream))
+		return format_array_lisp(ptr, stream, format, args, ret);
 
 	return format_stream_lisp(ptr, stream, format, args);
 }

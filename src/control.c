@@ -2470,7 +2470,6 @@ static int runcode_execute(Execute ptr)
 	callbind_code code;
 	size_t point, *index;
 
-	Check(ptr->signal != ExecuteControl_Run, "signal error");
 	runinfo(ptr, &control, &call, &args);
 	signal = &ptr->signal;
 	index = runcode_point(ptr);
@@ -2525,7 +2524,6 @@ static int runcode_switch(Execute ptr, addr code)
 	addr control;
 	codejump jump;
 
-	Check(ptr->signal != ExecuteControl_Run, "signal error");
 	control = ptr->control;
 point:
 	begin_switch(ptr, &jump);
