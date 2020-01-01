@@ -5,9 +5,6 @@
 #include <stddef.h>
 #include "typedef.h"
 
-/* localtime */
-_g void nowtime_string(char *ptr, size_t size);
-
 /* readforce */
 #ifdef LISP_POSIX
 _g int read_posix(int file, void *pos, size_t size, size_t *ret);

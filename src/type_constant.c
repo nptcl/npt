@@ -992,6 +992,44 @@ static void typetable_format(void)
 	SetTypeTable(Format, type);
 }
 
+static void typetable_time_second(void)
+{
+	addr type;
+	type4integer_heap(Nil, 0, Nil, 59, &type);
+	SetTypeTable(TimeSecond, type);
+}
+
+static void typetable_time_hour(void)
+{
+	addr type;
+	type4integer_heap(Nil, 0, Nil, 23, &type);
+	SetTypeTable(TimeHour, type);
+}
+
+static void typetable_time_day(void)
+{
+	addr type;
+	type4integer_heap(Nil, 1, Nil, 31, &type);
+	SetTypeTable(TimeDay, type);
+}
+
+static void typetable_time_month(void)
+{
+	addr type;
+	type4integer_heap(Nil, 1, Nil, 12, &type);
+	SetTypeTable(TimeMonth, type);
+}
+
+static void typetable_time_zone(void)
+{
+	addr v1, v2, type;
+
+	fixnum_heap(&v1, -24);
+	fixnum_heap(&v2, 24);
+	type4_heap(LISPDECL_RATIONAL, Nil, v1, Nil, v2, &type);
+	SetTypeTable(TimeZone, type);
+}
+
 static void typetable_method(void)
 {
 	addr pos;
@@ -1165,6 +1203,13 @@ static void typetable_array_unsigned64(void)
 /*
  *  Arguments
  */
+static void typeargs_empty_constant(void)
+{
+	addr pos;
+	typeargs_empty(&pos);
+	SetTypeArgs(Empty, pos);
+}
+
 static void typeargs_optconditionnull(void)
 {
 	addr pos;
@@ -1280,6 +1325,28 @@ DefTypeValues(Complex);
 DefTypeValues(TypeSymbol);
 DefTypeValues(Class);
 DefTypeValues(ClassNull);
+
+
+/*
+ *  Values
+ */
+static void typevalues_decode_universal_time(void)
+{
+	addr sec, hour, day, month, year, week, daylight, zone;
+	addr values;
+
+	GetTypeTable(&sec, TimeSecond);
+	GetTypeTable(&hour, TimeHour);
+	GetTypeTable(&day, TimeDay);
+	GetTypeTable(&month, TimeMonth);
+	GetTypeTable(&year, Intplus);
+	type4integer_heap(Nil, 0, Nil, 6, &week);
+	GetTypeTable(&daylight, Boolean);
+	GetTypeTable(&zone, TimeZone);
+	typevalues_values_va(&values,
+			sec, sec, hour, day, month, year, week, daylight, zone, NULL);
+	SetTypeValues(DecodeUniversalTime, values);
+}
 
 
 /*
@@ -2691,6 +2758,16 @@ static void typecompiled_formatter_function(void)
 	SetTypeCompiled(FormatterFunction, args);
 }
 
+static void typecompiled_get_internal_real_time(void)
+{
+	addr args, values;
+
+	GetTypeArgs(&args, Empty);
+	GetTypeValues(&values, Intplus);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(GetInternalRealTime, args);
+}
+
 
 /*
  *  Interface
@@ -2848,6 +2925,11 @@ _g void build_type_constant(void)
 	typetable_pprint_newline();
 	typetable_pprint_tabular();
 	typetable_format();
+	typetable_time_second();
+	typetable_time_hour();
+	typetable_time_day();
+	typetable_time_month();
+	typetable_time_zone();
 	typetable_method();
 	typetable_class();
 	typetable_classnull();
@@ -2875,6 +2957,7 @@ _g void build_type_constant(void)
 #endif
 
 	/* Arguments */
+	typeargs_empty_constant();
 	typeargs_optconditionnull();
 	typeargs_packagedesigner();
 	typeargs_pathnamecase();
@@ -2923,6 +3006,8 @@ _g void build_type_constant(void)
 	typevalues_TypeSymbol();
 	typevalues_Class();
 	typevalues_ClassNull();
+
+	typevalues_decode_universal_time();
 
 	/* Compiled-Function */
 	typecompiled_object_boolean();
@@ -3020,5 +3105,6 @@ _g void build_type_constant(void)
 	typecompiled_pprint_fill();
 	typecompiled_dispatch_function();
 	typecompiled_formatter_function();
+	typecompiled_get_internal_real_time();
 }
 

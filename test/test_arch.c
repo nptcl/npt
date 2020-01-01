@@ -5,6 +5,7 @@
 
 #define TESTFILE "_debug.txt"
 
+#if 0
 static int test_nowtime_string(void)
 {
 	char mem[100];
@@ -22,6 +23,7 @@ static int test_nowtime_string(void)
 
 	RETURN;
 }
+#endif
 
 static int test_write_file(const char *str)
 {
@@ -184,7 +186,7 @@ static int test_readforce_windows(void)
 int test_arch(void)
 {
 	TITLE;
-	TestBreak(test_nowtime_string);
+	/* TestBreak(test_nowtime_string); */
 	TestBreak(test_read_clang);
 	TestBreak(test_readforce_clang);
 #ifdef LISP_POSIX

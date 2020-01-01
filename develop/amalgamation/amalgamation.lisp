@@ -273,6 +273,7 @@
     "alloc.h"
     "c99.h"
     "local.h"
+    "localtime.h"
     "execute.h"
     ("file_type.h" :header t)
     "info.h"
@@ -332,7 +333,9 @@
     "eastasian_unicode.h"
     "encode.h"
     "encode_unicode.h"
-    "environment.h"
+    "env_code.h"
+    "env_time.h"
+    "env_version.h"
     "equal.h"
     "eval_code.h"
     "eval_copy.h"
@@ -533,7 +536,9 @@
     "eastasian_unicode.c"
     "encode.c"
     "encode_unicode.c"
-    ("environment.c" :header t)
+    "env_code.c"
+    ("env_time.c" :header t)
+    ("env_version.c" :header t)
     "equal.c"
     "eval_code.c"
     "eval_copy.c"
@@ -567,6 +572,7 @@
     ("intern.c" :include ("intern_symbol_64.h" "intern_symbol_32.h"))
     "lambda.c"
     "local.c"
+    ("localtime.c" :header t)
     "math_exp.c"
     "math_power.c"
     "math_type.c"

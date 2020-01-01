@@ -355,7 +355,7 @@ static int eval_load_fasl(Execute ptr, int *result, addr file, int exist)
 	/* stream */
 	if (open_input_binary_stream(ptr, &stream, file)) {
 		if (exist)
-			file_error(file);
+			simple_file_error_stdarg(file, "Cannot open file ~S.", file, NULL);
 		*result = 0;
 		return 0;
 	}
@@ -386,7 +386,7 @@ static int eval_load_lisp(Execute ptr, int *result, addr file, int exist)
 	}
 	else if (open_input_stream(ptr, &stream, file)) {
 		if (exist)
-			file_error(file);
+			simple_file_error_stdarg(file, "Cannot open file ~S.", file, NULL);
 		*result = 0;
 		return 0;
 	}
@@ -408,7 +408,7 @@ static int eval_load_file(Execute ptr, int *result,
 		addr file, addr verbose, addr print, int exist,
 		addr external)
 {
-	addr symbol, pos, truename;
+	addr symbol, pos, truename, value;
 
 	/* wild-pathname-p */
 	if (! streamp(file)) {
@@ -418,11 +418,18 @@ static int eval_load_file(Execute ptr, int *result,
 	}
 	/* load-pathname */
 	GetConst(SPECIAL_LOAD_PATHNAME, &symbol);
-	pushspecial_control(ptr, symbol, file);
+	if (streamp(file)) {
+		physical_pathname_heap(ptr, file, &value);
+		pushspecial_control(ptr, symbol, value);
+	}
+	else {
+		physical_pathname_heap(ptr, file, &file);
+		pushspecial_control(ptr, symbol, file);
+		value = file;
+	}
 	/* load-truename */
 	GetConst(SPECIAL_LOAD_TRUENAME, &symbol);
-	physical_pathname_heap(ptr, file, &file);
-	truename_files(ptr, file, &truename, 0);
+	truename_files(ptr, value, &truename, 0);
 	pushspecial_control(ptr, symbol, truename);
 	/* package */
 	GetConst(SPECIAL_PACKAGE, &symbol);

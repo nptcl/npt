@@ -938,6 +938,11 @@ enum pointer_index {
 	p_defun_load,
 	/* common-environment */
 	p_defun_decode_universal_time,
+	p_defun_encode_universal_time,
+	p_defun_get_universal_time,
+	p_defun_get_decoded_time,
+	p_defun_get_internal_real_time,
+	p_defun_get_internal_run_time,
 	p_defun_disassemble,
 	p_defun_lisp_implementation_type,
 	p_defun_lisp_implementation_version,

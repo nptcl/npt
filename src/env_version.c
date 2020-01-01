@@ -1,101 +1,10 @@
-#include <time.h>
-#include "build.h"
-#include "condition.h"
 #include "constant.h"
-#include "define.h"
-#include "environment.h"
-#include "format.h"
-#include "function.h"
+#include "env_version.h"
 #include "hashtable.h"
-#include "integer.h"
-#include "object.h"
-#include "rational.h"
-#include "real_truncate.h"
 #include "pathname.h"
 #include "strtype.h"
 #include "symbol.h"
 #include "unicode.h"
-
-/*
- *  decode-universal-time
- */
-static void decode_universal_time_zone(LocalRoot local,
-		struct universal_time_struct *u, addr pos, addr zone)
-{
-	addr temp;
-	size_t value;
-
-	minus_rational_common(local, pos, zone, &pos);
-	if (rationalp(pos))
-		truncate1_common(local, &pos, &temp, pos);
-	if (! GetIndex_integer(pos, &value)) {
-		u->second = intsizeh(value % 60);
-		value /= 60;
-		u->minute = intsizeh(value % 60);
-		value /= 60;
-		u->hour = intsizeh(value % 24);
-		value /= 24;
-		fmte("TODO", NULL);
-	}
-	u->zone = zone;
-	fmte("TODO", NULL);
-}
-
-/* universal time: 1900/01/01
- *    struct time: 1970/01/01
- *  1900-1970 -> 17 leap-days
- *  universal-time(1900) -> 0
- *  universal-time(1970)
- *   -> (70[year]*365 + 17)[day] * 24[hour] * 60[min] * 60[sec]
- *      (* (+ (* 70 365) 17) 24 60 60)
- *      -> 2208988800
- */
-static void decode_universal_time_nil(LocalRoot local,
-		struct universal_time_struct *u, addr pos)
-{
-	fmte("TODO", NULL);
-}
-
-_g void decode_universal_time(LocalRoot local,
-		struct universal_time_struct *u, addr pos, addr zone)
-{
-	if (zone == Nil)
-		decode_universal_time_nil(local, u, pos);
-	else
-		decode_universal_time_zone(local, u, pos, zone);
-}
-
-
-/*
- *  disassemble
- */
-static void disassemble_code(addr stream, addr pos)
-{
-	addr code;
-
-	CheckType(pos, LISPTYPE_FUNCTION);
-	GetFunction(pos, &code);
-	if (code == Nil)
-		return;
-	CheckType(code, LISPTYPE_CODE);
-
-}
-
-_g int disassemble_common(Execute ptr, addr stream, addr pos)
-{
-	CheckType(stream, LISPTYPE_STREAM);
-	CheckType(pos, LISPTYPE_FUNCTION);
-	if (compiled_function_p(pos)) {
-		Return1(format_stream(ptr, stream, "COMPILED-FUNCTION.~%", NULL));
-	}
-	else {
-		Return1(format_stream(ptr, stream, "INTERPRETED-FUNCTION.~%", NULL));
-		disassemble_code(stream, pos);
-	}
-
-	return 0;
-}
-
 
 /*
  *  lisp-implementation-type

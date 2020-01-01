@@ -192,12 +192,12 @@ static void function_rem_all_tests(Execute ptr)
 
 static void type_rem_all_tests(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	typeargs_empty(&arg);
+	GetTypeArgs(&args, Empty);
 	GetTypeTable(&values, Null);
 	typevalues_result(&values, values);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_rem_all_tests(void)

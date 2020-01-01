@@ -2,21 +2,24 @@
  *  ANSI COMMON LISP: 25. Environment
  */
 #include "common_header.h"
-#include "environment.h"
+#include "cons.h"
+#include "env_code.h"
+#include "env_time.h"
+#include "env_version.h"
 #include "stream.h"
 #include "type_parse.h"
 
 /* (defun decode-universal-time (time &optional zone) ...)
- *     -> second, minute, hour, date, month, year, day, daylight-p, zone
+ *     -> second, minute, hour, day, month, year, day, daylight-p, zone
  *   time        integer
  *   zone        (or null (rational -24 24))
  *   second      (integer 0 59)  ;; ignoring leap seconds
  *   minute      (integer 0 59)
  *   hour        (integer 0 23)
- *   date        (integer 1 31)
+ *   day         (integer 1 31)
  *   month       (integer 1 12)
  *   year        integer
- *   day         (integer 0 6)  ;; 0 means Monday.
+ *   week        (integer 0 6)  ;; 0 means Monday.
  *   daylight-p  boolean
  */
 static void function_decode_universal_time(Execute ptr, addr pos, addr zone)
@@ -24,36 +27,21 @@ static void function_decode_universal_time(Execute ptr, addr pos, addr zone)
 	struct universal_time_struct u;
 
 	if (zone == Unbound) zone = Nil;
-	decode_universal_time(ptr->local, &u, pos, zone);
+	decode_universal_time_common(ptr->local, &u, pos, zone);
 	setvalues_control(ptr,
 			u.second, u.minute, u.hour,
 			u.date, u.month, u.year,
-			u.day, u.daylight_p, u.zone, NULL);
+			u.week, u.daylight_p, u.zone, NULL);
 }
 
 static void type_decode_universal_time(addr *ret)
 {
-	addr integer, sec, hour, date, mon, day, daylight, zone;
 	addr args, values;
 
-	/* zone */
-	fixnum_heap(&args, -24);
-	fixnum_heap(&values, 24);
-	type4_heap(LISPDECL_RATIONAL, Nil, args, Nil, values, &zone);
-	GetTypeTable(&args, Null);
-	type2or_heap(args, zone, &zone);
-	/* others */
-	GetTypeTable(&integer, Integer);
-	type4integer_heap(Nil, 0, Nil, 59, &sec);
-	type4integer_heap(Nil, 0, Nil, 23, &hour);
-	type4integer_heap(Nil, 1, Nil, 31, &date);
-	type4integer_heap(Nil, 1, Nil, 12, &mon);
-	type4integer_heap(Nil, 0, Nil, 6, &day);
-	GetTypeTable(&daylight, Boolean);
-	/* type */
-	typeargs_var1opt1(&args, integer, zone);
-	typevalues_values_va(&values,
-			sec, sec, hour, date, mon, integer, day, daylight, zone, NULL);
+	GetTypeTable(&args, Intplus);
+	GetTypeTable(&values, TimeZone);
+	typeargs_var1opt1(&args, args, values);
+	GetTypeValues(&values, DecodeUniversalTime);
 	type_compiled_heap(args, values, ret);
 }
 
@@ -68,6 +56,205 @@ static void defun_decode_universal_time(void)
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	type_decode_universal_time(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun encode-universal-time
+ *     (second minute hour day month year &optional zone) ...)
+ *     -> universal-time
+ *   second          (integer 0 59)
+ *   minute          (integer 0 59)
+ *   hour            (integer 0 23)
+ *   day             (integer 1 31)
+ *   month           (integer 1 12)
+ *   year            (integer 0 *)
+ *   zone            (rational -24 24)
+ *   universal-time  (integer 0 *)
+ */
+static void function_encode_universal_time(Execute ptr, addr rest)
+{
+	addr s, mi, h, d, m, y, z;
+
+	if (! consp_getcons(rest, &s, &rest)) goto error;
+	if (! consp_getcons(rest, &mi, &rest)) goto error;
+	if (! consp_getcons(rest, &h, &rest)) goto error;
+	if (! consp_getcons(rest, &d, &rest)) goto error;
+	if (! consp_getcons(rest, &m, &rest)) goto error;
+	if (! consp_getcons(rest, &y, &rest)) goto error;
+	if (! consp_getcons(rest, &z, &rest)) z = Unbound;
+	if (consp(rest)) goto error;
+	encode_universal_time_common(ptr->local, &s, s, mi, h, d, m, y, z);
+	setresult_control(ptr, s);
+	return;
+
+error:
+	fmte("Invalid argument ENCODE-UNIVERSAL-TIME.", NULL);
+}
+
+static void type_encode_universal_time(addr *ret)
+{
+	addr args, values, plus, sec, hour, day, month, zone;
+
+	GetTypeTable(&sec, TimeSecond);
+	GetTypeTable(&hour, TimeHour);
+	GetTypeTable(&day, TimeDay);
+	GetTypeTable(&month, TimeMonth);
+	GetTypeTable(&plus, Intplus);
+	GetTypeTable(&zone, TimeZone);
+	list_heap(&args, sec, sec, hour, day, month, plus, NULL);
+	list_heap(&values, zone, NULL);
+	typeargs_full(&args, args, values, Nil, Nil);
+	GetTypeValues(&values, Intplus);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_encode_universal_time(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ENCODE_UNIVERSAL_TIME, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_dynamic(pos, p_defun_encode_universal_time);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_encode_universal_time(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun get-universal-time () ...) -> universal-time */
+static void function_get_universal_time(Execute ptr)
+{
+	addr pos;
+	get_universal_time_common(ptr->local, &pos);
+	setresult_control(ptr, pos);
+}
+
+static void type_get_universal_time(addr *ret)
+{
+	addr args, values;
+
+	GetTypeArgs(&args, Empty);
+	GetTypeValues(&values, Intplus);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_get_universal_time(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_GET_UNIVERSAL_TIME, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_empty(pos, p_defun_get_universal_time);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_get_universal_time(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun get-decoded-time () ...)
+ *   -> second, minute, hour, date, month, year, week, daylight-p, zone
+ * (get-decoded-time) == (decode-universal-time (get-universal-time))
+ */
+static void function_get_decoded_time(Execute ptr)
+{
+	struct universal_time_struct u;
+
+	get_decoded_time_common(ptr->local, &u);
+	setvalues_control(ptr,
+			u.second, u.minute, u.hour,
+			u.date, u.month, u.year,
+			u.week, u.daylight_p, u.zone, NULL);
+}
+
+static void type_get_decoded_time(addr *ret)
+{
+	addr args, values;
+
+	GetTypeArgs(&args, Empty);
+	GetTypeValues(&values, DecodeUniversalTime);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_get_decoded_time(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_GET_DECODED_TIME, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_empty(pos, p_defun_get_decoded_time);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_get_decoded_time(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defconstant internal-time-units-per-second [imlementation-dependency]) */
+static void defconstant_internal_time_units_per_second(void)
+{
+	addr symbol, value;
+	fixnum units;
+
+	GetConst(COMMON_INTERNAL_TIME_UNITS_PER_SECOND, &symbol);
+	get_internal_time_units_per_second(&units);
+	fixnum_heap(&value, units);
+	SetValueSymbol(symbol, value);
+}
+
+
+/* (defun get-internal-real-time () ...) -> (integer 0 *) */
+static void function_get_internal_real_time(Execute ptr)
+{
+	addr pos;
+	get_internal_real_time_common(ptr->local, &pos);
+	setresult_control(ptr, pos);
+}
+
+static void defun_get_internal_real_time(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_GET_INTERNAL_REAL_TIME, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_empty(pos, p_defun_get_internal_real_time);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, GetInternalRealTime);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun get-internal-run-time () ...) -> (integer 0 *) */
+static void function_get_internal_run_time(Execute ptr)
+{
+	addr pos;
+	get_internal_run_time_common(&pos);
+	setresult_control(ptr, pos);
+}
+
+static void defun_get_internal_run_time(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_GET_INTERNAL_RUN_TIME, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_empty(pos, p_defun_get_internal_run_time);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, GetInternalRealTime);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -381,6 +568,11 @@ static void defun_user_homedir_pathname(void)
 _g void init_common_environment(void)
 {
 	SetPointerCall(defun, var1opt1, decode_universal_time);
+	SetPointerCall(defun, dynamic, encode_universal_time);
+	SetPointerCall(defun, empty, get_universal_time);
+	SetPointerCall(defun, empty, get_decoded_time);
+	SetPointerCall(defun, empty, get_internal_real_time);
+	SetPointerCall(defun, empty, get_internal_run_time);
 	SetPointerCall(defun, var1, disassemble);
 	SetPointerCall(defun, empty, lisp_implementation_type);
 	SetPointerCall(defun, empty, lisp_implementation_version);
@@ -397,9 +589,9 @@ _g void init_common_environment(void)
 _g void build_common_environment(void)
 {
 	defun_decode_universal_time();
-	/*defun_encode_universal_time();*/
-	/*get_universal_time*/
-	/*get_decoded_time*/
+	defun_encode_universal_time();
+	defun_get_universal_time();
+	defun_get_decoded_time();
 	/*sleep*/
 	/*apropos*/
 	/*apropos_list*/
@@ -409,9 +601,9 @@ _g void build_common_environment(void)
 	/*untrace*/
 	/*step*/
 	/*time*/
-	/*internal_time_units_per_second*/
-	/*get_internal_real_time*/
-	/*get_internal_run_time*/
+	defconstant_internal_time_units_per_second();
+	defun_get_internal_real_time();
+	defun_get_internal_run_time();
 	defun_disassemble();
 	/*documentation*/
 	/*(setf documentation)*/

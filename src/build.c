@@ -27,6 +27,7 @@
 #include "heap.h"
 #include "hashtable.h"
 #include "input.h"
+#include "localtime.h"
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
@@ -87,6 +88,7 @@ _g void initlisp(void)
 	init_format();
 	init_heap();
 	init_input();
+	init_localtime();
 	init_package();
 	init_pathname();
 	init_print();

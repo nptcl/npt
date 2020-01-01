@@ -1545,6 +1545,12 @@ lisp-system::dispatch-let
 
 
 ;;
+;;  environment
+;;
+(lisp-system::*encode-universal-1970* :constant system :name encode-universal-1970)
+
+
+;;
 ;;  code
 ;;
 lisp-code::hello

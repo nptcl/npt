@@ -5,44 +5,6 @@
 #include "condition.h"
 #include "define.h"
 
-
-/*
- *  localtime
- */
-#ifdef LISP_THREAD_WINDOWS
-_g void nowtime_string(char *ptr, size_t size)
-{
-	SYSTEMTIME st;
-	GetLocalTime(&st);
-	snprintf(ptr, size, "%04d/%02d/%02d-%2d:%02d:%02d",
-			st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
-}
-#else
-#include <time.h>
-_g void nowtime_string(char *ptr, size_t size)
-{
-	char data[32];
-	time_t now;
-	struct tm *str;
-	size_t ret;
-
-	/* size */
-	if (size == 0) return;
-	size--;
-
-	/* time */
-	now = time(NULL);
-	if (now == (time_t)-1)
-		fmte("time error", NULL);
-	str = localtime(&now);
-	ret = strftime(data, 32, "%Y/%m/%d-%H:%M:%S", str);
-	size = ret < size? ret: size;
-	memcpy(ptr, data, size);
-	ptr[size] = 0;
-}
-#endif
-
-
 /*
  *  readforce arch
  */

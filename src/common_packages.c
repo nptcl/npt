@@ -184,11 +184,11 @@ static void function_list_all_packages(Execute ptr)
 
 static void type_list_all_packages(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	typeargs_empty(&arg);
+	GetTypeArgs(&args, Empty);
 	GetTypeValues(&values, List);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_list_all_packages(void)

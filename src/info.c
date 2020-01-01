@@ -12,6 +12,7 @@
 #include "eval_stack.h"
 #include "function.h"
 #include "info.h"
+#include "localtime.h"
 #include "memory.h"
 #include "object.h"
 #include "package.h"
@@ -416,7 +417,10 @@ static void infotime(void)
 {
 	char buffer[32];
 
-	nowtime_string(buffer, 32);
+	if (nowtime_string(buffer, 32)) {
+		Abort("nowtime_string error");
+		return;
+	}
 	info("  %s", buffer);
 }
 

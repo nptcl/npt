@@ -209,6 +209,11 @@ enum TypeTable {
 	TypeTable_PprintNewline,
 	TypeTable_PprintTabular,
 	TypeTable_Format,
+	TypeTable_TimeSecond,
+	TypeTable_TimeHour,
+	TypeTable_TimeDay,
+	TypeTable_TimeMonth,
+	TypeTable_TimeZone,
 
 	TypeTable_Method,
 	TypeTable_Method1,
@@ -239,6 +244,7 @@ enum TypeTable {
 #endif
 
 	/* Arguments */
+	TypeArgs_Empty,
 	TypeArgs_OptConditionNull,
 	TypeArgs_PackageDesigner,
 	TypeArgs_PathnameCase,
@@ -287,6 +293,8 @@ enum TypeTable {
 	TypeValues_TypeSymbol,
 	TypeValues_Class,
 	TypeValues_ClassNull,
+
+	TypeValues_DecodeUniversalTime,
 
 	/* Compiled-Function */
 	TypeCompiled_Object_Boolean,
@@ -384,6 +392,7 @@ enum TypeTable {
 	TypeCompiled_PprintFill,
 	TypeCompiled_DispatchFunction,
 	TypeCompiled_FormatterFunction,
+	TypeCompiled_GetInternalRealTime,
 
 	/* Size */
 	TypeTable_Size

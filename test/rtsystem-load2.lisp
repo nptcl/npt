@@ -7,7 +7,7 @@
       (last (pathname-directory x))
       (pathname-name x)
       (pathname-type x)))
-  ("bbb") "rtsystem-load2" "lisp")
+  ("test") "rtsystem-load2" "lisp")
 
 (deftest *load-truename*.6
   (let ((x #.*load-truename*))

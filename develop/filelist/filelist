@@ -75,7 +75,9 @@ eastasian_table.c
 eastasian_unicode.c
 encode.c
 encode_unicode.c
-environment.c
+env_code.c
+env_time.c
+env_version.c
 equal.c
 eval_code.c
 eval_copy.c
@@ -111,6 +113,7 @@ integer.c
 intern.c
 lambda.c
 local.c
+localtime.c
 loop.c
 loop_bind.c
 loop_main.c
