@@ -334,8 +334,11 @@
     "encode.h"
     "encode_unicode.h"
     "env_code.h"
+    "env_describe.h"
+    "env_function.h"
     "env_time.h"
     "env_version.h"
+    "environment.h"
     "equal.h"
     "eval_code.h"
     "eval_copy.h"
@@ -537,8 +540,11 @@
     "encode.c"
     "encode_unicode.c"
     "env_code.c"
+    "env_describe.c"
+    "env_function.c"
     ("env_time.c" :header t)
     ("env_version.c" :header t)
+    "environment.c"
     "equal.c"
     "eval_code.c"
     "eval_copy.c"

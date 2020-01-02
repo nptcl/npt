@@ -122,6 +122,18 @@ static void terpri_TwoWay(addr stream)
 	terpri_stream(stream);
 }
 
+static size_t getleft_TwoWay(addr stream)
+{
+	output_twoway(stream, &stream);
+	return getleft_stream(stream);
+}
+
+static void setleft_TwoWay(addr stream, size_t value)
+{
+	output_twoway(stream, &stream);
+	setleft_stream(stream, value);
+}
+
 static int fresh_line_TwoWay(addr stream)
 {
 	output_twoway(stream, &stream);
@@ -229,6 +241,8 @@ _g void init_stream_twoway(void)
 	DefineStreamSet(TwoWay, unread_char);
 	DefineStreamSet(TwoWay, write_char);
 	DefineStreamSet(TwoWay, terpri);
+	DefineStreamSet(TwoWay, getleft);
+	DefineStreamSet(TwoWay, setleft);
 	DefineStreamSet(TwoWay, fresh_line);
 	DefineStreamChk(TwoWay, inputp, true);
 	DefineStreamChk(TwoWay, outputp, true);

@@ -1321,3 +1321,12 @@ _g int writeaddr_filememory(struct filememory *fm, addr pos)
 	return writecheck_filememory(fm, &ptr, sizeoft(uintptr_t));
 }
 
+_g int readsize_filememory(struct filememory *fm, size_t *ret)
+{
+	return readcheck_filememory(fm, ret, sizeoft(size_t));
+}
+
+_g int writesize_filememory(struct filememory *fm, size_t pos)
+{
+	return writecheck_filememory(fm, &pos, sizeoft(size_t));
+}

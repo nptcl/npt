@@ -178,6 +178,18 @@ static void terpri_Echo(addr stream)
 	terpri_stream(stream);
 }
 
+static size_t getleft_Echo(addr stream)
+{
+	output_Echo(stream, &stream);
+	return getleft_stream(stream);
+}
+
+static void setleft_Echo(addr stream, size_t value)
+{
+	output_Echo(stream, &stream);
+	setleft_stream(stream, value);
+}
+
 static int fresh_line_Echo(addr stream)
 {
 	output_Echo(stream, &stream);
@@ -266,6 +278,8 @@ _g void init_stream_echo(void)
 	DefineStreamSet(Echo, unread_char);
 	DefineStreamSet(Echo, write_char);
 	DefineStreamSet(Echo, terpri);
+	DefineStreamSet(Echo, getleft);
+	DefineStreamSet(Echo, setleft);
 	DefineStreamSet(Echo, fresh_line);
 	DefineStreamChk(Echo, inputp, true);
 	DefineStreamChk(Echo, outputp, true);

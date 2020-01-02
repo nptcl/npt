@@ -941,6 +941,14 @@ enum pointer_index {
 	p_defun_encode_universal_time,
 	p_defun_get_universal_time,
 	p_defun_get_decoded_time,
+	p_defun_apropos,
+	p_defun_apropos_list,
+	p_defun_describe,
+	p_method_describe_object_t,
+	p_method_describe_object_class,
+	p_method_describe_object_standard_object,
+	p_method_describe_object_structure_object,
+	p_defmacro_time,
 	p_defun_get_internal_real_time,
 	p_defun_get_internal_run_time,
 	p_defun_disassemble,
@@ -1124,6 +1132,7 @@ enum pointer_index {
 	p_defun_syscall_eastasian_set,
 	p_defun_syscall_eastasian_get,
 	p_defun_syscall_eastasian_width,
+	p_defun_syscall_timeinfo,
 
 	/* size */
 	p_size

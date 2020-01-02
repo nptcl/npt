@@ -12,6 +12,7 @@
 #include "core.h"
 #include "document.h"
 #include "eastasian.h"
+#include "env_time.h"
 #include "equal.h"
 #include "eval.h"
 #include "file.h"
@@ -2464,6 +2465,44 @@ static void defun_eastasian_width(void)
 }
 
 
+/* (defun timeinfo () ...) -> (values intplus intplus intplus intplus) */
+static void syscall_timeinfo(Execute ptr)
+{
+	addr real, run, size, count;
+
+	get_internal_real_time_common(ptr->local, &real);
+	get_internal_run_time_common(&run);
+	make_index_integer_heap(&size, heap_object);
+	make_index_integer_heap(&count, heap_count);
+	setvalues_control(ptr, real, run, size, count, NULL);
+}
+
+static void type_syscall_timeinfo(addr *ret)
+{
+	addr args, values;
+
+	GetTypeArgs(&args, Empty);
+	GetTypeTable(&values, Intplus);
+	typevalues_values_va(&values, values, values, values, values, NULL);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_timeinfo(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_TIMEINFO, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_empty(pos, p_defun_syscall_timeinfo);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_timeinfo(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -2537,6 +2576,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var3, eastasian_set);
 	SetPointerSysCall(defun, var1, eastasian_get);
 	SetPointerSysCall(defun, var1, eastasian_width);
+	SetPointerSysCall(defun, empty, timeinfo);
 }
 
 _g void build_syscall(void)
@@ -2626,5 +2666,7 @@ _g void build_syscall(void)
 	defun_eastasian_set();
 	defun_eastasian_get();
 	defun_eastasian_width();
+	/* environment */
+	defun_timeinfo();
 }
 

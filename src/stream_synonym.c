@@ -106,6 +106,18 @@ static void terpri_Synonym(addr stream)
 	terpri_stream(stream);
 }
 
+static size_t getleft_Synonym(addr stream)
+{
+	getstream_synonym(stream, &stream);
+	return getleft_stream(stream);
+}
+
+static void setleft_Synonym(addr stream, size_t value)
+{
+	getstream_synonym(stream, &stream);
+	setleft_stream(stream, value);
+}
+
 static int fresh_line_Synonym(addr stream)
 {
 	getstream_synonym(stream, &stream);
@@ -246,6 +258,8 @@ _g void init_stream_synonym(void)
 	DefineStreamSet(Synonym, unread_char);
 	DefineStreamSet(Synonym, write_char);
 	DefineStreamSet(Synonym, terpri);
+	DefineStreamSet(Synonym, getleft);
+	DefineStreamSet(Synonym, setleft);
 	DefineStreamSet(Synonym, fresh_line);
 	DefineStreamSet(Synonym, inputp);
 	DefineStreamSet(Synonym, outputp);

@@ -271,6 +271,11 @@ _g void software_version_common(addr *ret)
 	const char *pversion;
 	UINT usize;
 
+#ifdef LISP_32BIT
+	*ret = Nil;
+	return;
+#endif
+
 	/* VERSION.DLL */
 	version_dll = LoadLibraryA("VERSION.DLL");
 	if (version_dll == NULL) {
@@ -394,8 +399,8 @@ _g void user_homedir_pathname_common(Execute ptr, addr *ret)
 	LocalStack stack;
 
 	GetConst(SYSTEM_SPECIAL_ENVIRONMENT, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
-	if (pos == Nil)
+	getspecial_local(ptr, pos, &pos);
+	if (pos == Unbound || pos == Nil)
 		goto error;
 	if (! findvalue_char_hashtable(pos, "HOME", &pos))
 		goto error;

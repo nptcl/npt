@@ -137,6 +137,8 @@ _g void init_stream_prompt(void)
 	DefineStreamDef(Prompt, unread_char);
 	DefineStream___(Prompt, write_char);
 	DefineStream___(Prompt, terpri);
+	DefineStream___(Prompt, getleft);
+	DefineStream___(Prompt, setleft);
 	DefineStream___(Prompt, fresh_line);
 	DefineStreamChk(Prompt, inputp, true);
 	DefineStreamChk(Prompt, outputp, false);

@@ -59,18 +59,18 @@ static int test_envstack_heap(void)
 	RETURN;
 }
 
-static int test_init_environment(void)
+static int test_init_parse_environment(void)
 {
 	Execute ptr;
 	addr control, pos;
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	environment_symbol(&pos);
 	getspecialcheck_local(ptr, pos, &pos);
-	test(GetType(pos) == LISPSYSTEM_ENVROOT, "init_environment1");
-	test(lenarrayr(pos) == 2, "init_environment2");
+	test(GetType(pos) == LISPSYSTEM_ENVROOT, "init_parse_environment1");
+	test(lenarrayr(pos) == 2, "init_parse_environment2");
 	free_control(ptr, control);
 
 	RETURN;
@@ -83,7 +83,7 @@ static int test_snapshot_envstack(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	snapshot_envstack(ptr, &pos);
 	test(pos == Nil, "snapshot_envstack1");
 
@@ -107,7 +107,7 @@ static int test_push_envstack(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	fixnum_heap(&v1, 10);
 	fixnum_heap(&v2, 20);
 	fixnum_heap(&v3, 30);
@@ -149,7 +149,7 @@ static int test_rollback_envstack(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 
 	push_envstack(ptr, 1, T, Nil, T);
 	push_envstack(ptr, 1, T, Nil, T);
@@ -177,7 +177,7 @@ static int test_defmacro_envstack(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	fixnum_heap(&v1, 10);
 	fixnum_heap(&v2, 20);
 	fixnum_heap(&v3, 30);
@@ -233,7 +233,7 @@ static int test_environment_heap(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 
 	environment_symbol(&pos);
 	getspecialcheck_local(ptr, pos, &pos);
@@ -1277,7 +1277,7 @@ static int test_parse_defmacro(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
@@ -1310,7 +1310,7 @@ static int test_parse_macrolet_args(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
@@ -1344,7 +1344,7 @@ static int test_parse_macrolet(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
@@ -1369,7 +1369,7 @@ static int test_parse_define_symbol_macro(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
@@ -1392,7 +1392,7 @@ static int test_parse_symbol_macrolet_args(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
@@ -1418,7 +1418,7 @@ static int test_parse_symbol_macrolet(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
@@ -1452,7 +1452,7 @@ static int test_parse_lambda(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 
 	readstring(&cons, "(lambda ())");
 	parse_lambda(ptr, &cons, cons);
@@ -1494,7 +1494,7 @@ static int test_parse_function_argument(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 
 	internchar(LISP_PACKAGE, "HELLO", &cons);
 	parse_function_argument(ptr, &cons, cons);
@@ -1873,7 +1873,7 @@ static int test_parse_flet_one(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 
 	readstring(&cons, "(hello ())");
 	parse_flet_one(ptr, &cons, cons);
@@ -1904,7 +1904,7 @@ static int test_parse_flet_args(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 
 	readstring(&cons, "((aaa (a) :aaa) (bbb (b) :bbb))");
 	parse_flet_args(ptr, &cons, cons);
@@ -2119,7 +2119,7 @@ static int test_findstack_environment(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 
 	fixnum_heap(&v1, 10);
 	name = readr("aaa");
@@ -2152,7 +2152,7 @@ static int test_check_macro_function(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 
 	sym1 = readr("aaa");
 	sym2 = readr("bbb");
@@ -2217,7 +2217,7 @@ static int test_parse_macro(void)
 
 	ptr = Execute_Thread;
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 
 	/*
 	 *  common_eval.c:
@@ -2245,7 +2245,7 @@ static int testbreak_eval_parse(void)
 	TestBreak(test_environment_symbol);
 	TestBreak(test_envroot_heap);
 	TestBreak(test_envstack_heap);
-	TestBreak(test_init_environment);
+	TestBreak(test_init_parse_environment);
 	TestBreak(test_snapshot_envstack);
 	TestBreak(test_push_envstack);
 	TestBreak(test_rollback_envstack);

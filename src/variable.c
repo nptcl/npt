@@ -20,10 +20,12 @@ _g int      lisp_info_enable   = 1;
 /*
  *  heap
  */
-_g void *heap_alloc = 0;
-_g addr  heap_root = 0;
-_g addr  heap_front = 0;
-_g addr  heap_pos = 0;
+_g void   *heap_alloc = 0;
+_g addr    heap_root = 0;
+_g addr    heap_front = 0;
+_g addr    heap_pos = 0;
+_g size_t  heap_object = 0;
+_g size_t  heap_count = 0;
 
 
 /*
@@ -65,6 +67,8 @@ _g int (*Stream_read_hang[StreamType_Size])(addr, unicode *, int *);
 _g void (*Stream_unread_char[StreamType_Size])(addr, unicode);
 _g void (*Stream_write_char[StreamType_Size])(addr, unicode);
 _g void (*Stream_terpri[StreamType_Size])(addr);
+_g size_t (*Stream_getleft[StreamType_Size])(addr);
+_g void (*Stream_setleft[StreamType_Size])(addr, size_t);
 _g int (*Stream_fresh_line[StreamType_Size])(addr);
 _g void (*Stream_clear_input[StreamType_Size])(addr);
 _g int (*Stream_inputp[StreamType_Size])(addr);

@@ -16,6 +16,7 @@
 #include "copy.h"
 #include "eastasian_unicode.h"
 #include "encode.h"
+#include "environment.h"
 #include "eval.h"
 #include "eval_declare.h"
 #include "execute.h"
@@ -83,6 +84,7 @@ _g void initlisp(void)
 	init_copy();
 	init_eastasian();
 	init_encode();
+	init_environment();
 	init_eval();
 	init_fasl();
 	init_format();
@@ -323,6 +325,7 @@ _g void buildlisp(Execute ptr)
 	build_syscall();
 	build_common();
 	build_print(ptr);
+	build_environment(ptr);
 	build_readtable();
 	build_pathname();
 	build_eval_declare();

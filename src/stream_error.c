@@ -71,6 +71,17 @@ _g void terpri_stream_error(addr stream)
 	fmte("The stream ~S don't run terpri function.", stream, NULL);
 }
 
+_g size_t getleft_stream_error(addr stream)
+{
+	fmte("The stream ~S don't run getleft function.", stream, NULL);
+	return 0;
+}
+
+_g void setleft_stream_error(addr stream, size_t value)
+{
+	fmte("The stream ~S don't run setleft function.", stream, NULL);
+}
+
 _g int fresh_line_stream_error(addr stream)
 {
 	fmte("The stream ~S don't run fresh-line function.", stream, NULL);

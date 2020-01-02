@@ -72,7 +72,7 @@ static void envstack_heap(addr *ret, addr next, addr call, addr lambda, addr cal
 	*ret = pos;
 }
 
-static void init_environment(Execute ptr)
+static void init_parse_environment(Execute ptr)
 {
 	addr symbol, pos;
 
@@ -2287,7 +2287,7 @@ _g int eval_parse(Execute ptr, addr *ret, addr pos)
 
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
-	init_environment(ptr);
+	init_parse_environment(ptr);
 	check = parse_execute(ptr, ret, pos);
 	localhold_set(hold, 0, *ret);
 	Return1(free_check_control(ptr, control, check));

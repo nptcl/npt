@@ -2786,6 +2786,28 @@ _g void syscall_do_all_symbols(Execute ptr, addr call)
 	setvalues_nil_control(ptr);
 }
 
+_g void all_symbols_package(addr package, addr *ret)
+{
+	addr table, list, bit, root;
+	size_t size, i;
+
+	package_designer(package, &package);
+	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
+	GetTableHash(table, &table);
+	LenArrayHash(table, &size);
+	root = Nil;
+	for (i = 0; i < size; i++) {
+		GetArrayHash(table, i, &list);
+		while (list != Nil) {
+			GetCons(list, &bit, &list);
+			GetCdr(bit, &bit);
+			GetBitTypeSymbol(bit, &bit);
+			cons_heap(&root, bit, root);
+		}
+	}
+	*ret = root;
+}
+
 
 /*
  *  initialize

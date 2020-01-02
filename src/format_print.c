@@ -61,7 +61,7 @@ _g addr fmtprint_make_string(fmtprint print, addr *ret)
 	src = print->stream;
 	open_output_string_stream(&stream, 0);
 	gchold_push_local(print->local, stream);
-	copy_terpri_position_stream(stream, src);
+	copyleft_stream(stream, src);
 	copy_terminal_width_string_stream(stream, src);
 	if (pretty_stream_p(src))
 		set_pretty_output_string_stream(stream);
@@ -78,7 +78,7 @@ _g void fmtprint_stream(fmtprint print, addr *ret)
 	stream = print->string;
 	Check(! output_string_stream_p(stream), "string-stream error");
 	clear_output_string_stream(stream);
-	copy_terpri_position_stream(stream, print->stream);
+	copyleft_stream(stream, print->stream);
 	*ret = stream;
 }
 

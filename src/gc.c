@@ -149,13 +149,13 @@ static void freegcobject(void)
 /*
  *  replacespace
  */
-static void replacememory_small(struct heapinfo *info)
+static void replacememory_small(struct heapinfo *str)
 {
 	struct heapcell *cell;
 	size_t i, count, size;
 	addr pos, *array;
 
-	for (cell = info->root; cell; cell = cell->next) {
+	for (cell = str->root; cell; cell = cell->next) {
 		count = cell->count;
 		array = cell->point;
 		for (i = 0; i < count; i++) {
@@ -164,18 +164,23 @@ static void replacememory_small(struct heapinfo *info)
 			if (GetStatusGc(pos)) {
 				size = getobjectlength(pos);
 				makereserved(pos, size);
+				/* statistics */
+				Check(heap_object < size, "heap_object error");
+				Check(heap_count == 0, "heap_count error");
+				heap_object -= size;
+				heap_count--;
 			}
 		}
 	}
 }
 
-static void replacememory_large(struct heapinfo *info)
+static void replacememory_large(struct heapinfo *str)
 {
 	struct heapcell *cell;
 	size_t i, count, size;
 	addr pos, *array;
 
-	for (cell = info->root; cell; cell = cell->next) {
+	for (cell = str->root; cell; cell = cell->next) {
 		count = cell->count;
 		array = cell->point;
 		for (i = 0; i < count; i++) {
@@ -185,6 +190,11 @@ static void replacememory_large(struct heapinfo *info)
 				size = getobjectlength(pos);
 				makespace(pos, size);
 				array[i] = Unbound;
+				/* statistics */
+				Check(heap_object < size, "heap_object error");
+				Check(heap_count == 0, "heap_count error");
+				heap_object -= size;
+				heap_count--;
 			}
 		}
 	}

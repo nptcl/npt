@@ -53,6 +53,8 @@ _g int readptr_filememory(struct filememory *fm, void **pos);
 _g int writeptr_filememory(struct filememory *fm, const void *pos);
 _g int readaddr_filememory(struct filememory *fm, addr *ret);
 _g int writeaddr_filememory(struct filememory *fm, addr pos);
+_g int readsize_filememory(struct filememory *fm, size_t *ret);
+_g int writesize_filememory(struct filememory *fm, size_t pos);
 
 #endif
 

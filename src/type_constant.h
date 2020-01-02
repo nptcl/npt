@@ -154,6 +154,7 @@ enum TypeTable {
 	TypeTable_PrintDispatchNull,
 	TypeTable_StringDesigner,
 	TypeTable_PackageDesigner,
+	TypeTable_PackageDesignerNull,
 	TypeTable_FunctionDesigner,
 	TypeTable_RestartDesigner,
 	TypeTable_PathnameDesigner,
@@ -295,6 +296,7 @@ enum TypeTable {
 	TypeValues_ClassNull,
 
 	TypeValues_DecodeUniversalTime,
+	TypeValues_Empty,
 
 	/* Compiled-Function */
 	TypeCompiled_Object_Boolean,

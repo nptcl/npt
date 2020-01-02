@@ -1424,7 +1424,7 @@ static void pprint_initialize(struct pretty_block *str, Execute ptr, addr stream
 	str->newlinep = 0;
 	str->previous = 0;
 	str->miserp = 0;
-	size = terpri_position_stream(stream);
+	size = getleft_stream(stream);
 	str->base = size;
 	str->now = size;
 	str->current = 0;

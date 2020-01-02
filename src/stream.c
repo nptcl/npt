@@ -358,6 +358,25 @@ _g void terpri_stream(addr stream)
 	(Stream_terpri[(int)ptr->type])(stream);
 }
 
+_g size_t getleft_stream(addr stream)
+{
+	struct StructStream *ptr;
+	CheckStream(stream, ptr);
+	return (Stream_getleft[(int)ptr->type])(stream);
+}
+
+_g void setleft_stream(addr stream, size_t value)
+{
+	struct StructStream *ptr;
+	CheckStream(stream, ptr);
+	(Stream_setleft[(int)ptr->type])(stream, value);
+}
+
+_g void copyleft_stream(addr stream, addr src)
+{
+	setleft_stream(stream, getleft_stream(src));
+}
+
 _g int fresh_line_stream(addr stream)
 {
 	struct StructStream *ptr;
@@ -375,25 +394,6 @@ _g void clear_input_stream(addr stream)
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	(Stream_clear_input[(int)ptr->type])(stream);
-}
-
-_g size_t terpri_position_stream(addr stream)
-{
-	struct StructStream *ptr;
-	CheckStream(stream, ptr);
-	return PtrStructStream(stream)->terpri;
-}
-
-_g void set_terpri_position_stream(addr stream, size_t size)
-{
-	struct StructStream *ptr;
-	CheckStream(stream, ptr);
-	PtrStructStream(stream)->terpri = size;
-}
-
-_g void copy_terpri_position_stream(addr stream, addr src)
-{
-	set_terpri_position_stream(stream, terpri_position_stream(src));
 }
 
 _g int inputp_stream(addr stream)
@@ -579,9 +579,30 @@ _g void unread_char_default_stream(addr stream, unicode c)
 
 _g void write_char_default_stream(addr stream, unicode c)
 {
+	write_char_file(stream, c);
+	charleft_default_stream(stream, c);
+}
+
+_g void terpri_default_stream(addr stream)
+{
+	write_char_stream(stream, '\n');
+	setleft_default_stream(stream, 0);
+}
+
+_g size_t getleft_default_stream(addr stream)
+{
+	return PtrStructStream(stream)->terpri;
+}
+
+_g void setleft_default_stream(addr stream, size_t value)
+{
+	PtrStructStream(stream)->terpri = value;
+}
+
+_g void charleft_default_stream(addr stream, unicode c)
+{
 	struct StructStream *ptr;
 
-	write_char_file(stream, c);
 	ptr = PtrStructStream(stream);
 	if (c == '\n' || c == '\f')
 		ptr->terpri = 0;
@@ -589,15 +610,9 @@ _g void write_char_default_stream(addr stream, unicode c)
 		ptr->terpri += eastasian_width(c);
 }
 
-_g void terpri_default_stream(addr stream)
-{
-	write_char_stream(stream, '\n');
-	PtrStructStream(stream)->terpri = 0;
-}
-
 _g int fresh_line_default_stream(addr stream)
 {
-	if (PtrStructStream(stream)->terpri == 0)
+	if (getleft_stream(stream) == 0)
 		return 0;
 	terpri_stream(stream);
 	return 1;

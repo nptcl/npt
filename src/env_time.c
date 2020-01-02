@@ -258,12 +258,13 @@ static void decode_universal_diff(LocalRoot local, addr value, addr *ret)
 }
 
 static void decode_universal_time_nil(LocalRoot local,
-		struct universal_time_struct *u, addr pos)
+		struct universal_time_struct *u, addr time)
 {
 	size_t value;
 	time_t timer;
 	fixnum offset;
 	struct tm str;
+	addr pos;
 
 	/* zone offset */
 	if (encode_universal_offset(&offset)) {
@@ -273,7 +274,7 @@ static void decode_universal_time_nil(LocalRoot local,
 	offset /= 60 * 60;
 
 	/* universal time */
-	decode_universal_diff(local, pos, &pos);
+	decode_universal_diff(local, time, &pos);
 	if (GetIndex_integer(pos, &value))
 		goto decode_default;
 
@@ -291,7 +292,7 @@ static void decode_universal_time_nil(LocalRoot local,
 	return;
 
 decode_default:
-	decode_universal_default(local, u, pos, offset);
+	decode_universal_default(local, u, time, offset);
 }
 
 _g void decode_universal_time_common(LocalRoot local,

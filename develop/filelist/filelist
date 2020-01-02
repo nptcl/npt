@@ -76,8 +76,11 @@ eastasian_unicode.c
 encode.c
 encode_unicode.c
 env_code.c
+env_describe.c
+env_function.c
 env_time.c
 env_version.c
+environment.c
 equal.c
 eval_code.c
 eval_copy.c

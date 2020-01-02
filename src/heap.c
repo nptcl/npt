@@ -387,6 +387,10 @@ static void allocheap_small(size_t size, int index, addr *ret)
 	pos = cell->point[cell->count++];
 	Check(GetType(pos) != LISPSYSTEM_RESERVED, "type error");
 	*ret = pos;
+
+	/* statistics */
+	heap_object += size;
+	heap_count++;
 }
 
 static void allocheap_large(size_t size, int index, addr *ret)
@@ -406,6 +410,10 @@ static void allocheap_large(size_t size, int index, addr *ret)
 	pos = allocfront(size);
 	cell->point[cell->count++] = pos;
 	*ret = pos;
+
+	/* statistics */
+	heap_object += size;
+	heap_count++;
 }
 
 static void allocheap(size_t size, enum LISPTYPE type, addr *root, int size2)
@@ -526,6 +534,8 @@ static void frontheap(void *ptr, size_t size)
 	align = Align8Space(ptr);
 	Size = size - align;
 	heap_pos = heap_front = FrontMax = heap_root = align + (addr)ptr;
+	heap_object = 0;
+	heap_count = 0;
 	CheckAlign8(heap_pos, "align8 error");
 
 	/* gccheck */
@@ -618,6 +628,8 @@ _g void free_heap(void)
 		heap_root = 0;
 		heap_front = 0;
 		heap_pos = 0;
+		heap_object = 0;
+		heap_count = 0;
 		Size = 0;
 		FrontMax = 0;
 		Tail = 0;
@@ -1018,9 +1030,11 @@ _g void heap_arraybody_debug(addr *root, enum LISPTYPE type, size_t array, size_
 #define IfWriteCheck(fm,p,s,m) IfDebug(writecheck_filememory((fm),(p),(s)),(m))
 #define IfWriteAddr(fm,p,m) IfDebug(writeaddr_filememory((fm),(p)),(m))
 #define IfWritePtr(fm,p,m) IfDebug(writeptr_filememory((fm),(p)),(m))
+#define IfWriteSize(fm,p,m) IfDebug(writesize_filememory((fm),(p)),(m))
 #define IfReadCheck(fm,p,s,m) IfDebug(readcheck_filememory((fm),(p),(s)),(m))
 #define IfReadAddr(fm,p,m) IfDebug(readaddr_filememory((fm),(p)),(m))
 #define IfReadPtr(fm,p,m) IfDebug(readptr_filememory((fm),(p)),(m))
+#define IfReadSize(fm,p,m) IfDebug(readsize_filememory((fm),(p)),(m))
 
 /* save/load array2 */
 static int writearray(struct filememory *fm, const addr *array, size_t size)
@@ -1565,6 +1579,8 @@ static int load_info(struct filememory *fm)
 /* save/load data */
 static int save_data(struct filememory *fm)
 {
+	IfWriteSize(fm, heap_object, "writeptr error: heap_object");
+	IfWriteSize(fm, heap_count, "writeptr error: heap_count");
 	IfWritePtr(fm, heap_front, "writeptr error: heap_front");
 	IfWritePtr(fm, heap_pos, "writeptr error: heap_pos");
 	if (save_dump(fm)) {
@@ -1576,6 +1592,8 @@ static int save_data(struct filememory *fm)
 }
 static int load_data(struct filememory *fm)
 {
+	IfReadSize(fm, &heap_object, "readptr error: heap_object");
+	IfReadSize(fm, &heap_count, "readptr error: heap_count");
 	IfReadPtr(fm, (void **)&heap_front, "readptr error: heap_front");
 	IfReadPtr(fm, (void **)&heap_pos, "readptr error: heap_pos");
 	if (load_dump(fm)) {

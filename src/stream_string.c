@@ -309,6 +309,8 @@ _g void init_stream_string_input(void)
 	DefineStreamSet(StringInput, unread_char);
 	DefineStream___(StringInput, write_char);
 	DefineStream___(StringInput, terpri);
+	DefineStream___(StringInput, getleft);
+	DefineStream___(StringInput, setleft);
 	DefineStream___(StringInput, fresh_line);
 	DefineStreamChk(StringInput, inputp, true);
 	DefineStreamChk(StringInput, outputp, false);
@@ -457,7 +459,6 @@ static int close_StringOutput(addr stream, int abort)
 
 static void write_char_StringOutput_normal(addr stream, unicode c)
 {
-	struct StructStream *ptr;
 	addr queue;
 
 	/* stream */
@@ -470,16 +471,11 @@ static void write_char_StringOutput_normal(addr stream, unicode c)
 		push_charqueue_heap(queue, c);
 
 	/* terpri */
-	ptr = PtrStructStream(stream);
-	if (c == '\n' || c == '\f')
-		ptr->terpri = 0;
-	else
-		ptr->terpri += eastasian_width(c);
+	charleft_default_stream(stream, c);
 }
 
 static void write_char_StringOutput_extend(addr stream, unicode c)
 {
-	struct StructStream *ptr;
 	addr queue, value;
 
 	/* stream */
@@ -490,11 +486,7 @@ static void write_char_StringOutput_extend(addr stream, unicode c)
 	vector_push_extend_common(value, queue, Unbound, &value);
 
 	/* terpri */
-	ptr = PtrStructStream(stream);
-	if (c == '\n' || c == '\f')
-		ptr->terpri = 0;
-	else
-		ptr->terpri += eastasian_width(c);
+	charleft_default_stream(stream, c);
 }
 
 static void write_char_StringOutput(addr stream, unicode c)
@@ -599,6 +591,8 @@ _g void init_stream_string_output(void)
 	DefineStream___(StringOutput, unread_char);
 	DefineStreamSet(StringOutput, write_char);
 	DefineStreamDef(StringOutput, terpri);
+	DefineStreamDef(StringOutput, getleft);
+	DefineStreamDef(StringOutput, setleft);
 	DefineStreamDef(StringOutput, fresh_line);
 	DefineStreamChk(StringOutput, inputp, false);
 	DefineStreamChk(StringOutput, outputp, true);

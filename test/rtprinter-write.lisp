@@ -789,22 +789,22 @@
 (deftest write-pathname.1
   (with-default-print
     (let ((v (make-pathname :host 'lisp-system::unix
-                            :defaults #p"/usr/local/bin/npt")))
+                            :defaults #p"/usr/local/bin/hello")))
       (values
         (prin1-to-string v)
         (princ-to-string v))))
-  "#P\"/usr/local/bin/npt\""
-  "/usr/local/bin/npt")
+  "#P\"/usr/local/bin/hello\""
+  "/usr/local/bin/hello")
 
 (deftest write-pathname.2
   (with-default-print
     (let ((v (make-pathname :host 'lisp-system::windows
-                            :defaults #p"/usr/local/bin/npt")))
+                            :defaults #p"/usr/local/bin/hello")))
       (values
         (prin1-to-string v)
         (princ-to-string v))))
-  "#P\"\\\\usr\\\\local\\\\bin\\\\npt\""
-  "\\usr\\local\\bin\\npt")
+  "#P\"\\\\usr\\\\local\\\\bin\\\\hello\""
+  "\\usr\\local\\bin\\hello")
 
 
 ;;  stream

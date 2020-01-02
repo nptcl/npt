@@ -18,6 +18,8 @@ _g void init_stream_binary_input(void)
 	DefineStream___(BinaryInput, unread_char);
 	DefineStream___(BinaryInput, write_char);
 	DefineStream___(BinaryInput, terpri);
+	DefineStream___(BinaryInput, getleft);
+	DefineStream___(BinaryInput, setleft);
 	DefineStream___(BinaryInput, fresh_line);
 	DefineStreamChk(BinaryInput, inputp, true);
 	DefineStreamChk(BinaryInput, outputp, false);
@@ -55,6 +57,8 @@ _g void init_stream_binary_output(void)
 	DefineStream___(BinaryOutput, unread_char);
 	DefineStream___(BinaryOutput, write_char);
 	DefineStream___(BinaryOutput, terpri);
+	DefineStream___(BinaryOutput, getleft);
+	DefineStream___(BinaryOutput, setleft);
 	DefineStream___(BinaryOutput, fresh_line);
 	DefineStreamChk(BinaryOutput, inputp, false);
 	DefineStreamChk(BinaryOutput, outputp, true);
@@ -92,6 +96,8 @@ _g void init_stream_binary_io(void)
 	DefineStream___(BinaryIO, unread_char);
 	DefineStream___(BinaryIO, write_char);
 	DefineStream___(BinaryIO, terpri);
+	DefineStream___(BinaryIO, getleft);
+	DefineStream___(BinaryIO, setleft);
 	DefineStream___(BinaryIO, fresh_line);
 	DefineStreamChk(BinaryIO, inputp, true);
 	DefineStreamChk(BinaryIO, outputp, true);
@@ -129,6 +135,8 @@ _g void init_stream_character_input(void)
 	DefineStreamDef(CharacterInput, unread_char);
 	DefineStream___(CharacterInput, write_char);
 	DefineStream___(CharacterInput, terpri);
+	DefineStream___(CharacterInput, getleft);
+	DefineStream___(CharacterInput, setleft);
 	DefineStream___(CharacterInput, fresh_line);
 	DefineStreamChk(CharacterInput, inputp, true);
 	DefineStreamChk(CharacterInput, outputp, false);
@@ -166,6 +174,8 @@ _g void init_stream_character_output(void)
 	DefineStream___(CharacterOutput, unread_char);
 	DefineStreamDef(CharacterOutput, write_char);
 	DefineStreamDef(CharacterOutput, terpri);
+	DefineStreamDef(CharacterOutput, getleft);
+	DefineStreamDef(CharacterOutput, setleft);
 	DefineStreamDef(CharacterOutput, fresh_line);
 	DefineStreamChk(CharacterOutput, inputp, false);
 	DefineStreamChk(CharacterOutput, outputp, true);
@@ -203,6 +213,8 @@ _g void init_stream_character_io(void)
 	DefineStreamDef(CharacterIO, unread_char);
 	DefineStreamDef(CharacterIO, write_char);
 	DefineStreamDef(CharacterIO, terpri);
+	DefineStreamDef(CharacterIO, getleft);
+	DefineStreamDef(CharacterIO, setleft);
 	DefineStreamDef(CharacterIO, fresh_line);
 	DefineStreamChk(CharacterIO, inputp, true);
 	DefineStreamChk(CharacterIO, outputp, true);
@@ -240,6 +252,8 @@ _g void init_stream_binchar_input(void)
 	DefineStreamDef(BincharInput, unread_char);
 	DefineStream___(BincharInput, write_char);
 	DefineStream___(BincharInput, terpri);
+	DefineStream___(BincharInput, getleft);
+	DefineStream___(BincharInput, setleft);
 	DefineStream___(BincharInput, fresh_line);
 	DefineStreamChk(BincharInput, inputp, true);
 	DefineStreamChk(BincharInput, outputp, false);
@@ -277,6 +291,8 @@ _g void init_stream_binchar_output(void)
 	DefineStream___(BincharOutput, unread_char);
 	DefineStreamDef(BincharOutput, write_char);
 	DefineStreamDef(BincharOutput, terpri);
+	DefineStreamDef(BincharOutput, getleft);
+	DefineStreamDef(BincharOutput, setleft);
 	DefineStreamDef(BincharOutput, fresh_line);
 	DefineStreamChk(BincharOutput, inputp, false);
 	DefineStreamChk(BincharOutput, outputp, true);
@@ -314,6 +330,8 @@ _g void init_stream_binchar_io(void)
 	DefineStreamDef(BincharIO, unread_char);
 	DefineStreamDef(BincharIO, write_char);
 	DefineStreamDef(BincharIO, terpri);
+	DefineStreamDef(BincharIO, getleft);
+	DefineStreamDef(BincharIO, setleft);
 	DefineStreamDef(BincharIO, fresh_line);
 	DefineStreamChk(BincharIO, inputp, true);
 	DefineStreamChk(BincharIO, outputp, true);

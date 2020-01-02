@@ -481,6 +481,18 @@ static void terpri_Pretty(addr stream)
 	pprint_newline_terpri(stream);
 }
 
+static size_t getleft_Pretty(addr stream)
+{
+	getstream_pretty_stream(stream, &stream);
+	return getleft_stream(stream);
+}
+
+static void setleft_Pretty(addr stream, size_t value)
+{
+	getstream_pretty_stream(stream, &stream);
+	setleft_stream(stream, value);
+}
+
 static int fresh_line_Pretty(addr stream)
 {
 	getstream_pretty_stream(stream, &stream);
@@ -615,6 +627,8 @@ _g void init_stream_pretty(void)
 	DefineStreamSet(Pretty, unread_char);
 	DefineStreamSet(Pretty, write_char);
 	DefineStreamSet(Pretty, terpri);
+	DefineStreamSet(Pretty, getleft);
+	DefineStreamSet(Pretty, setleft);
 	DefineStreamSet(Pretty, fresh_line);
 	DefineStreamSet(Pretty, inputp);
 	DefineStreamSet(Pretty, outputp);

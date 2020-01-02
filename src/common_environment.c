@@ -4,6 +4,8 @@
 #include "common_header.h"
 #include "cons.h"
 #include "env_code.h"
+#include "env_describe.h"
+#include "env_function.h"
 #include "env_time.h"
 #include "env_version.h"
 #include "stream.h"
@@ -196,6 +198,129 @@ static void defun_get_decoded_time(void)
 	type_get_decoded_time(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun apropos (string-designer) ...) -> (values) */
+static void function_apropos(Execute ptr, addr var, addr opt)
+{
+	Return0(apropos_common(ptr, var, (opt == Unbound)? Nil: opt));
+	setvalues_nil_control(ptr);
+}
+
+static void type_apropos(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&values, PackageDesignerNull);
+	typeargs_var1opt1(&args, args, values);
+	GetTypeValues(&values, Empty);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_apropos(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_APROPOS, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, p_defun_apropos);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_apropos(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun apropos-list (string-designer) ...) -> (values) */
+static void function_apropos_list(Execute ptr, addr var, addr opt)
+{
+	Return0(apropos_list_common(ptr, var, (opt == Unbound)? Nil: opt, &var));
+	setresult_control(ptr, var);
+}
+
+static void type_apropos_list(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&values, PackageDesignerNull);
+	typeargs_var1opt1(&args, args, values);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_apropos_list(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_APROPOS_LIST, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, p_defun_apropos_list);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_apropos_list(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun describe (object &optional stream) ...) -> (values) */
+static void function_describe(Execute ptr, addr var, addr opt)
+{
+	Return0(describe_common(ptr, var, opt));
+	setvalues_nil_control(ptr);
+}
+
+static void type_describe(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, StreamDesigner);
+	typeargs_var1opt1(&args, args, values);
+	GetTypeValues(&values, Empty);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_describe(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_DESCRIBE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, p_defun_describe);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_describe(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defmacro time (form) ...) -> result) */
+static void function_time(Execute ptr, addr form, addr env)
+{
+	time_common(ptr, form, env, &form);
+	setresult_control(ptr, form);
+}
+
+static void defmacro_time(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_TIME, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_time);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
 }
 
 
@@ -571,6 +696,10 @@ _g void init_common_environment(void)
 	SetPointerCall(defun, dynamic, encode_universal_time);
 	SetPointerCall(defun, empty, get_universal_time);
 	SetPointerCall(defun, empty, get_decoded_time);
+	SetPointerCall(defun, var1opt1, apropos);
+	SetPointerCall(defun, var1opt1, apropos_list);
+	SetPointerCall(defun, var1opt1, describe);
+	SetPointerCall(defmacro, macro, time);
 	SetPointerCall(defun, empty, get_internal_real_time);
 	SetPointerCall(defun, empty, get_internal_run_time);
 	SetPointerCall(defun, var1, disassemble);
@@ -593,14 +722,13 @@ _g void build_common_environment(void)
 	defun_get_universal_time();
 	defun_get_decoded_time();
 	/*sleep*/
-	/*apropos*/
-	/*apropos_list*/
-	/*describe*/
-	/*describe_object*/
+	defun_apropos();
+	defun_apropos_list();
+	defun_describe();
 	/*trace*/
 	/*untrace*/
 	/*step*/
-	/*time*/
+	defmacro_time();
 	defconstant_internal_time_units_per_second();
 	defun_get_internal_real_time();
 	defun_get_internal_run_time();
@@ -611,16 +739,6 @@ _g void build_common_environment(void)
 	/*ed*/
 	/*inspect*/
 	/*dribble*/
-	/*minus1*/
-	/*plus1*/
-	/*plus2*/
-	/*plus3*/
-	/*asterisk1*/
-	/*asterisk2*/
-	/*asterisk3*/
-	/*slash1*/
-	/*slash2*/
-	/*slash3*/
 	defun_lisp_implementation_type();
 	defun_lisp_implementation_version();
 	defun_short_site_name();

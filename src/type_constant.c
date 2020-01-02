@@ -410,6 +410,11 @@ static void typetable_packagedesigner(void)
 	SetTypeTable(PackageDesigner, pos);
 }
 
+static void typetable_packagedesignernull(void)
+{
+	SetTypeTableNull(PackageDesigner);
+}
+
 static void typetable_functiondesigner(void)
 {
 	/* (or function symbol) */
@@ -1346,6 +1351,13 @@ static void typevalues_decode_universal_time(void)
 	typevalues_values_va(&values,
 			sec, sec, hour, day, month, year, week, daylight, zone, NULL);
 	SetTypeValues(DecodeUniversalTime, values);
+}
+
+static void typevalues_empty(void)
+{
+	addr values;
+	typevalues_rest(&values, Nil);
+	SetTypeValues(Empty, values);
 }
 
 
@@ -2870,6 +2882,7 @@ _g void build_type_constant(void)
 	typetable_printdispatchnull();
 	typetable_stringdesigner();
 	typetable_packagedesigner();
+	typetable_packagedesignernull();
 	typetable_functiondesigner();
 	typetable_restartdesigner();
 	typetable_pathnamedesigner();
@@ -3008,6 +3021,7 @@ _g void build_type_constant(void)
 	typevalues_ClassNull();
 
 	typevalues_decode_universal_time();
+	typevalues_empty();
 
 	/* Compiled-Function */
 	typecompiled_object_boolean();

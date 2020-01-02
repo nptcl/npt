@@ -1654,7 +1654,7 @@ static int format_call_Tabulate(fmtprint print, struct format_operator *str)
 		fmtprint_stream_output(print);
 	}
 	else {
-		now = (fixnum)terpri_position_stream(print->stream);
+		now = (fixnum)getleft_stream(print->stream);
 		Check(now < 0, "cast error");
 		if (str->atsign)
 			pprint_tab_relative_force(print->stream, column, colinc, now);
@@ -2839,7 +2839,7 @@ static int format_call_Justification2(struct format_justification *just)
 	format_call_Justification_count(just);
 	/* terminal */
 	stream = print->stream;
-	now = terpri_position_stream(stream);
+	now = getleft_stream(stream);
 	if (just->width < now + just->mincol + just->count)
 		fmtprint_string(print, prefix);
 	/* output */

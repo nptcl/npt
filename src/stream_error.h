@@ -16,6 +16,8 @@ _g int read_hang_stream_error(addr stream, unicode *ret, int *hang);
 _g void unread_char_stream_error(addr stream, unicode c);
 _g void write_char_stream_error(addr stream, unicode c);
 _g void terpri_stream_error(addr stream);
+_g size_t getleft_stream_error(addr stream);
+_g void setleft_stream_error(addr stream, size_t value);
 _g int fresh_line_stream_error(addr stream);
 _g int inputp_stream_error(addr stream);
 _g int outputp_stream_error(addr stream);

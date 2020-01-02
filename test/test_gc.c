@@ -1063,6 +1063,9 @@ static int test_mergespace(void)
  */
 static int testbreak_gc(void)
 {
+	heap_object = 0xFFFFFF;
+	heap_count = 0xFFFF;
+
 	/* setallobject */
 	TestBreak(test_setallarray);
 	TestBreak(test_setallobject_heap);

@@ -1898,6 +1898,7 @@ lisp-system::pprint-pretty
 lisp-system::eastasian-set
 lisp-system::eastasian-get
 lisp-system::eastasian-width
+lisp-system::timeinfo
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

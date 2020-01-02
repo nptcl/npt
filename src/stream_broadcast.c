@@ -78,6 +78,7 @@ static void write_char_BroadCast(addr stream, unicode c)
 		getcons(list, &stream, &list);
 		write_char_stream(stream, c);
 	}
+	charleft_default_stream(stream, c);
 }
 
 static void terpri_BroadCast(addr stream)
@@ -90,6 +91,19 @@ static void terpri_BroadCast(addr stream)
 		getcons(list, &stream, &list);
 		terpri_stream(stream);
 	}
+	setleft_default_stream(stream, 0);
+}
+
+static size_t getleft_BroadCast(addr stream)
+{
+	CheckBroadCastStream(stream);
+	return getleft_default_stream(stream);
+}
+
+static void setleft_BroadCast(addr stream, size_t value)
+{
+	CheckBroadCastStream(stream);
+	setleft_default_stream(stream, value);
 }
 
 static int fresh_line_BroadCast(addr stream)
@@ -309,6 +323,8 @@ _g void init_stream_broadcast(void)
 	DefineStream___(BroadCast, unread_char);
 	DefineStreamSet(BroadCast, write_char);
 	DefineStreamSet(BroadCast, terpri);
+	DefineStreamSet(BroadCast, getleft);
+	DefineStreamSet(BroadCast, setleft);
 	DefineStreamSet(BroadCast, fresh_line);
 	DefineStreamChk(BroadCast, inputp, false);
 	DefineStreamChk(BroadCast, outputp, true);

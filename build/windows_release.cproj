@@ -221,8 +221,11 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\encode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\encode_unicode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\env_code.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\env_describe.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\env_function.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\env_time.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\env_version.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\environment.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\equal.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_code.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_copy.c" />
@@ -419,8 +422,11 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\encode_unicode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\encode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\env_code.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\env_describe.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\env_function.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\env_time.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\env_version.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\environment.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\equal.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_code.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_copy.h" />

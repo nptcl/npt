@@ -24,6 +24,8 @@ __extern void *heap_alloc;
 __extern addr heap_root;
 __extern addr heap_front;
 __extern addr heap_pos;
+__extern size_t heap_object;
+__extern size_t heap_count;
 
 /* function */
 _g int alloc_heap(size_t);

@@ -142,10 +142,6 @@ static void defmethod_print_object(Execute ptr, addr name, addr gen,
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
 }
-#define DefMethod_PrintObject(ptr, name, gen, p, c) { \
-	defmethod_print_object((ptr), (name), (gen), \
-			p_method_print_object_##p, CONSTANT_CLOS_##c); \
-}
 
 
 /*
@@ -158,6 +154,10 @@ _g void init_print_object(void)
 	SetPointerType(var4, method_print_object_structure_object);
 }
 
+#define DefMethod_PrintObject(ptr, name, gen, p, c) { \
+	defmethod_print_object((ptr), (name), (gen), \
+			p_method_print_object_##p, CONSTANT_CLOS_##c); \
+}
 static void build_print_object_method(Execute ptr, addr name, addr gen)
 {
 	DefMethod_PrintObject(ptr, name, gen, t, T);
