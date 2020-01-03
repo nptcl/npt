@@ -57,3 +57,43 @@
       (describe (make-instance 'describe-test))))
   "Hello")
 
+(deftest time.1
+  (< 0 (length
+         (with-output-to-string (*trace-output*)
+           (time (values 10 20 30)))))
+  t)
+
+(deftest time.2
+  (with-open-stream (*trace-output* (make-broadcast-stream))
+    (time (values 10 20 30)))
+  10 20 30)
+
+(deftest room.1
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (room))
+  nil)
+
+(deftest room.2
+  (let ((x (with-output-to-string (*standard-output*) (room))))
+    (and (stringp x)
+         (< 0 (length x))))
+  t)
+
+(deftest room.3
+  (let ((x (with-output-to-string (*standard-output*) (room :default))))
+    (and (stringp x)
+         (< 0 (length x))))
+  t)
+
+(deftest room.4
+  (let ((x (with-output-to-string (*standard-output*) (room t))))
+    (and (stringp x)
+         (< 0 (length x))))
+  t)
+
+(deftest room.5
+  (let ((x (with-output-to-string (*standard-output*) (room nil))))
+    (and (stringp x)
+         (< 0 (length x))))
+  t)
+

@@ -952,6 +952,8 @@ enum pointer_index {
 	p_defun_get_internal_real_time,
 	p_defun_get_internal_run_time,
 	p_defun_disassemble,
+	p_defun_room,
+	p_defun_ed,
 	p_defun_lisp_implementation_type,
 	p_defun_lisp_implementation_version,
 	p_defun_short_site_name,
@@ -1133,6 +1135,8 @@ enum pointer_index {
 	p_defun_syscall_eastasian_get,
 	p_defun_syscall_eastasian_width,
 	p_defun_syscall_timeinfo,
+	p_defun_syscall_ed_function,
+	p_defun_syscall_run_program,
 
 	/* size */
 	p_size

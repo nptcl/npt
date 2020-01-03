@@ -430,6 +430,78 @@ static void defun_disassemble(void)
 }
 
 
+/* (defun room (&optional x) ...) -> null
+ *   x  (member t nil :default)
+ */
+static void function_room(Execute ptr, addr var)
+{
+	room_common(ptr, var);
+	setresult_control(ptr, Nil);
+}
+
+static void type_room(addr *ret)
+{
+	addr args, values;
+
+	GetConst(KEYWORD_DEFAULT, &args);
+	type_member_heap(&args, Nil, T, args, NULL);
+	typeargs_opt1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_room(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ROOM, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_opt1(pos, p_defun_room);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_room(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun ed (&optional x) ...) -> null */
+static void function_ed(Execute ptr, addr var)
+{
+	Return0(ed_common(ptr, var));
+	setresult_control(ptr, Nil);
+}
+
+static void type_ed(addr *ret)
+{
+	addr args, values, type1, type2, type3;
+
+	GetTypeTable(&type1, Null);
+	GetTypeTable(&type2, PathnameDesigner);
+	GetTypeTable(&type3, FunctionName);
+	type3or_heap(type1, type2, type3, &args);
+	typeargs_opt1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_ed(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ED, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_opt1(pos, p_defun_ed);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_ed(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun lisp-implementation-type () ...) -> (or string null)  */
 static void function_lisp_implementation_type(Execute ptr)
 {
@@ -703,6 +775,8 @@ _g void init_common_environment(void)
 	SetPointerCall(defun, empty, get_internal_real_time);
 	SetPointerCall(defun, empty, get_internal_run_time);
 	SetPointerCall(defun, var1, disassemble);
+	SetPointerCall(defun, opt1, room);
+	SetPointerCall(defun, opt1, ed);
 	SetPointerCall(defun, empty, lisp_implementation_type);
 	SetPointerCall(defun, empty, lisp_implementation_version);
 	SetPointerCall(defun, empty, short_site_name);
@@ -735,8 +809,8 @@ _g void build_common_environment(void)
 	defun_disassemble();
 	/*documentation*/
 	/*(setf documentation)*/
-	/*room*/
-	/*ed*/
+	defun_room();
+	defun_ed();
 	/*inspect*/
 	/*dribble*/
 	defun_lisp_implementation_type();

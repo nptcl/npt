@@ -26,6 +26,7 @@ __extern addr heap_front;
 __extern addr heap_pos;
 __extern size_t heap_object;
 __extern size_t heap_count;
+__extern size_t heap_gc_count;
 
 /* function */
 _g int alloc_heap(size_t);
@@ -38,6 +39,10 @@ _g void foreach_heap(void (*call)(struct heapinfo *));
 _g int foreach_check_heap(int (*call)(struct heapinfo *));
 _g void cellupdate_heap(void);
 _g int valid_heap(const void *);
+_g size_t get_heap_object(void);
+_g size_t get_heap_count(void);
+_g size_t get_heap_gc_count(void);
+_g size_t get_heap_size(void);
 
 _g addr heapr_cons(void);
 _g addr heapr_symbol(void);

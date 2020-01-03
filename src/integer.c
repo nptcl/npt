@@ -696,7 +696,7 @@ _g void getindex_fixnum(addr pos, size_t *ret)
 
 _g void fixnum_index_heap(addr *ret, size_t value)
 {
-	if (value <= (size_t)FIXNUM_MAX)
+	if ((size_t)FIXNUM_MAX <= value)
 		fmte("Too large value ~S.", intsizeh(value), NULL);
 	fixnum_heap(ret, (fixnum)value);
 }

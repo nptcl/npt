@@ -1548,6 +1548,9 @@ lisp-system::dispatch-let
 ;;  environment
 ;;
 (lisp-system::*encode-universal-1970* :constant system :name encode-universal-1970)
+(lisp-system::*ed-function* :constant system :name ed-function)
+(lisp-system::*ed-tempfile* :constant system :name ed-tempfile)
+(lisp-system::*ed-program* :constant system :name ed-program)
 
 
 ;;
@@ -1899,6 +1902,7 @@ lisp-system::eastasian-set
 lisp-system::eastasian-get
 lisp-system::eastasian-width
 lisp-system::timeinfo
+lisp-system::run-program
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

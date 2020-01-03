@@ -384,6 +384,7 @@
     "print_object.h"
     "print_pretty.h"
     "print_write.h"
+    "process.h"
     "prompt.h"
     "quote.h"
     "radix.h"
@@ -603,6 +604,7 @@
     "print_object.c"
     "print_pretty.c"
     "print_write.c"
+    ("process.c" :header t)
     ("prompt.c" :header t)
     "quote.c"
     "radix.c"

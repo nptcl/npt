@@ -33,13 +33,13 @@ _g void apply_common(Execute ptr, addr call, addr arg, addr args)
 /*
  *  defun
  */
-_g int defun_common(Execute ptr, addr right, addr env, addr *ret)
+_g int defun_common(Execute ptr, addr form, addr env, addr *ret)
 {
-	addr eval, name, args, decl, doc;
+	addr right, eval, name, args, decl, doc;
 	LocalHold hold;
 
 	/* (defun . right) */
-	getcdr(right, &right);
+	getcdr(form, &right);
 	if (right == Nil)
 		fmte("defun form must have at least a name and body.", NULL);
 	if (GetType(right) != LISPTYPE_CONS)
@@ -72,7 +72,7 @@ _g int defun_common(Execute ptr, addr right, addr env, addr *ret)
 
 	/* (eval::defun name args decl doc body) */
 	GetConst(SYSTEM_DEFUN, &eval);
-	list_heap(ret, eval, name, args, decl, doc, right, NULL);
+	list_heap(ret, eval, name, args, decl, doc, right, form, NULL);
 	localhold_end(hold);
 	return 0;
 }

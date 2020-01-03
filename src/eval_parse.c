@@ -711,11 +711,11 @@ static void implicit_block(addr *ret, addr name, addr list)
 
 static int parse_defun(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, name, args, decl, doc, body;
+	addr eval, name, args, decl, doc, body, form;
 	LocalHold hold;
 
-	/* (eval::defun name args decl doc body) */
-	List_bind(cons, &name, &args, &decl, &doc, &body, NULL);
+	/* (eval::defun name args decl doc body form) */
+	List_bind(cons, &name, &args, &decl, &doc, &body, &form, NULL);
 
 	/* parse */
 	hold = LocalHold_local(ptr);
@@ -727,12 +727,13 @@ static int parse_defun(Execute ptr, addr *ret, addr cons)
 	localhold_end(hold);
 
 	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_DEFUN, 5);
+	eval_parse_heap(&eval, EVAL_PARSE_DEFUN, 6);
 	SetEvalParse(eval, 0, name);
 	SetEvalParse(eval, 1, args);
 	SetEvalParse(eval, 2, decl);
 	SetEvalParse(eval, 3, doc);
 	SetEvalParse(eval, 4, body);
+	SetEvalParse(eval, 5, form);
 	*ret = eval;
 
 	return 0;

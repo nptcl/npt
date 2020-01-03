@@ -1105,6 +1105,16 @@ _g void setlambda_expression_function(addr pos, addr value)
 	setplist_function(pos, CONSTANT_COMMON_LAMBDA, value);
 }
 
+_g void getdefunform_function(addr pos, addr *ret)
+{
+	getplist_function(pos, CONSTANT_COMMON_DEFUN, ret);
+}
+
+_g void setdefunform_function(addr pos, addr value)
+{
+	setplist_function(pos, CONSTANT_COMMON_DEFUN, value);
+}
+
 _g void setsystem_function(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);

@@ -548,7 +548,7 @@ _g void get_internal_real_time_common(LocalRoot local, addr *ret)
 	addr a, b;
 
 	value = GetTickCount64();
-	integer_fixed_local(local, &a, signplus_bignum, (fixed)(value >> 32ULL));
+	bignum_value_local(local, &a, signplus_bignum, (fixed)(value >> 32ULL));
 	integer_fixed_local(local, &b, signplus_bignum, (fixed)(0xFFFFFFFFULL & value));
 	shiftup_bignum_local(local, &a, a, 32);
 	plus_ii_real_common(local, a, b, ret);

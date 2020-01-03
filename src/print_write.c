@@ -1827,6 +1827,7 @@ static int WriteBody_callname(Execute ptr, addr stream, addr pos)
 	local = ptr->local;
 	push_local(local, &stack);
 	name_callname_local(local, pos, &pos);
+	print_ascii_stream(stream, "CALLNAME ");
 	if (write_print_call(ptr, stream, pos))
 		return 1;
 	rollback_local(local, stack);
@@ -1836,7 +1837,7 @@ static int WriteBody_callname(Execute ptr, addr stream, addr pos)
 
 static int WriteCall_callname(Execute ptr, addr stream, addr pos)
 {
-	return print_unreadable_object(ptr, stream, pos, 1, 1, WriteBody_callname);
+	return print_unreadable_object(ptr, stream, pos, 0, 1, WriteBody_callname);
 }
 
 

@@ -21,7 +21,7 @@ struct stream_Pretty {
 	unsigned list : 1;
 	unsigned discard : 1;
 	unsigned alive : 1;
-	size_t length, depth;
+	size_t length, depth, terpri;
 };
 
 #define CheckPrettyStream(stream) { \
@@ -285,6 +285,7 @@ _g void open_pretty_stream(Execute ptr, addr *ret,
 	str->discard = discard_pretty_stream(stream);
 	str->alive = 1;
 	str->length = 0;
+	str->terpri = getleft_stream(stream);
 	getdepth_print_write(ptr, &(str->depth));
 	/* info */
 	make_info_pretty_stream(ptr, &info, stream, root, prefix, perline, suffix);
@@ -408,6 +409,7 @@ static void rollback_pretty_stream(addr stream)
 	str->discard = 0;
 	str->alive = 1;
 	str->length = 0;
+	setleft_stream(stream, str->terpri);
 }
 
 _g int call_pretty_stream(Execute ptr, addr stream, addr call)

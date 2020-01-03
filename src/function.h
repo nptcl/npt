@@ -280,6 +280,8 @@ _g void getdocumentation_function(addr pos, addr *ret);
 _g void setdocumentation_function(addr pos, addr value);
 _g void getlambda_expression_function(addr pos, addr *ret);
 _g void setlambda_expression_function(addr pos, addr value);
+_g void getdefunform_function(addr pos, addr *ret);
+_g void setdefunform_function(addr pos, addr value);
 
 _g void setsystem_function(addr pos);
 _g int functionp(addr pos);

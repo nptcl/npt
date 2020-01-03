@@ -293,6 +293,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print_pretty.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print_write.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\process.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\prompt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_quote.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_radix.c" />
@@ -505,6 +506,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print_pretty.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print_write.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\process.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\prompt.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\quote.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\radix.h" />

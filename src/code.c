@@ -542,25 +542,29 @@ static void setf_local_push_code(Execute ptr, addr right)
  */
 static void lambda_code(Execute ptr, addr right)
 {
-	addr name, code, type, doc, form;
+	addr name, code, type, doc, form, defun;
 
-	List_bind(right, &name, &code, &type, &doc, &form, NULL);
+	List_bind(right, &name, &code, &type, &doc, &form, &defun, NULL);
 	function_heap(&code, name, code);
 	settype_function(code, type);
 	setdocumentation_function(code, doc);
 	setlambda_expression_function(code, form);
+	if (defun != Nil)
+		setdefunform_function(code, defun);
 	setresult_control(ptr, code);
 }
 
 static void lambda_self_code(Execute ptr, addr right)
 {
-	addr name, code, type, doc, form;
+	addr name, code, type, doc, form, defun;
 
-	List_bind(right, &name, &code, &type, &doc, &form, NULL);
+	List_bind(right, &name, &code, &type, &doc, &form, &defun, NULL);
 	function_heap(&code, name, code);
 	settype_function(code, type);
 	setdocumentation_function(code, doc);
 	setlambda_expression_function(code, form);
+	if (defun != Nil)
+		setdefunform_function(code, defun);
 	setrecursive_function(code);
 	setresult_control(ptr, code);
 }

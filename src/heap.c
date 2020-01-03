@@ -536,6 +536,7 @@ static void frontheap(void *ptr, size_t size)
 	heap_pos = heap_front = FrontMax = heap_root = align + (addr)ptr;
 	heap_object = 0;
 	heap_count = 0;
+	heap_gc_count = 0;
 	CheckAlign8(heap_pos, "align8 error");
 
 	/* gccheck */
@@ -630,6 +631,7 @@ _g void free_heap(void)
 		heap_pos = 0;
 		heap_object = 0;
 		heap_count = 0;
+		heap_gc_count = 0;
 		Size = 0;
 		FrontMax = 0;
 		Tail = 0;
@@ -686,6 +688,26 @@ _g void cellupdate_heap(void)
 _g int valid_heap(const void *pos)
 {
 	return (heap_root <= (addr)pos) && ((addr)pos <= heap_front);
+}
+
+_g size_t get_heap_object(void)
+{
+	return heap_object;
+}
+
+_g size_t get_heap_count(void)
+{
+	return heap_count;
+}
+
+_g size_t get_heap_gc_count(void)
+{
+	return heap_gc_count;
+}
+
+_g size_t get_heap_size(void)
+{
+	return Size;
 }
 
 
@@ -1581,6 +1603,7 @@ static int save_data(struct filememory *fm)
 {
 	IfWriteSize(fm, heap_object, "writeptr error: heap_object");
 	IfWriteSize(fm, heap_count, "writeptr error: heap_count");
+	IfWriteSize(fm, heap_gc_count, "writeptr error: heap_gc_count");
 	IfWritePtr(fm, heap_front, "writeptr error: heap_front");
 	IfWritePtr(fm, heap_pos, "writeptr error: heap_pos");
 	if (save_dump(fm)) {
@@ -1594,6 +1617,7 @@ static int load_data(struct filememory *fm)
 {
 	IfReadSize(fm, &heap_object, "readptr error: heap_object");
 	IfReadSize(fm, &heap_count, "readptr error: heap_count");
+	IfReadSize(fm, &heap_gc_count, "readptr error: heap_gc_count");
 	IfReadPtr(fm, (void **)&heap_front, "readptr error: heap_front");
 	IfReadPtr(fm, (void **)&heap_pos, "readptr error: heap_pos");
 	if (load_dump(fm)) {

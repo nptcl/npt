@@ -30,6 +30,7 @@
 #include "print.h"
 #include "print_pretty.h"
 #include "print_write.h"
+#include "process.h"
 #include "quote.h"
 #include "radix.h"
 #include "random_state.h"
@@ -2472,8 +2473,8 @@ static void syscall_timeinfo(Execute ptr)
 
 	get_internal_real_time_common(ptr->local, &real);
 	get_internal_run_time_common(&run);
-	make_index_integer_heap(&size, heap_object);
-	make_index_integer_heap(&count, heap_count);
+	make_index_integer_heap(&size, get_heap_object());
+	make_index_integer_heap(&count, get_heap_count());
 	setvalues_control(ptr, real, run, size, count, NULL);
 }
 
@@ -2500,6 +2501,83 @@ static void defun_timeinfo(void)
 	type_syscall_timeinfo(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun ed-function (file) ...) -> null
+ *    file  (or null string)
+ */
+static void syscall_ed_function(Execute ptr, addr file)
+{
+	ed_process(ptr, file);
+	setresult_control(ptr, Nil);
+}
+
+static void type_syscall_ed_function(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, StringNull);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_ed_function(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_ED_FUNCTION, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_ed_function);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_ed_function(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+	/* (defvar *ed-function* [function]) */
+	SetValueSymbol(symbol, pos);
+}
+
+
+/* (defun run-program (program args) ...) -> status */
+static void syscall_run_program(Execute ptr, addr var, addr args, addr rest)
+{
+	run_process(ptr->local, var, args, rest, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_syscall_run_program(addr *ret)
+{
+	addr args, values, key;
+
+	/* key */
+	key = Nil;
+
+	/* type */
+	GetTypeTable(&args, String);
+	GetTypeTable(&values, List);
+	typeargs_var2key(&args, args, values, key);
+	GetTypeValues(&values, Integer);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_run_program(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_RUN_PROGRAM, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2dynamic(pos, p_defun_syscall_run_program);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_run_program(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+	/* (defvar *ed-function* [function]) */
+	SetValueSymbol(symbol, pos);
 }
 
 
@@ -2577,6 +2655,8 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, eastasian_get);
 	SetPointerSysCall(defun, var1, eastasian_width);
 	SetPointerSysCall(defun, empty, timeinfo);
+	SetPointerSysCall(defun, var1, ed_function);
+	SetPointerSysCall(defun, var2dynamic, run_program);
 }
 
 _g void build_syscall(void)
@@ -2668,5 +2748,7 @@ _g void build_syscall(void)
 	defun_eastasian_width();
 	/* environment */
 	defun_timeinfo();
+	defun_ed_function();
+	defun_run_program();
 }
 

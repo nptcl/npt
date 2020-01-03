@@ -21,6 +21,7 @@ enum EvalLambda_Index {
 	EvalLambda_The,
 	EvalLambda_Free,
 	EvalLambda_Form,
+	EvalLambda_Defun,
 	EvalLambda_Size
 };
 

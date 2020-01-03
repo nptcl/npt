@@ -414,6 +414,7 @@ _g void gcexec(void)
 	freegcobject();
 	replacespace();
 	mergespace();
+	heap_gc_count++;
 }
 
 _g void gcsync(Execute ptr)

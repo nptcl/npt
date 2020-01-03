@@ -1721,7 +1721,7 @@ static void scope_function(Execute ptr, addr *ret, addr eval)
  *  lambda
  */
 struct lambda_struct {
-	addr stack, call, table, args, decl, doc, cons, clos, free, the, form;
+	addr stack, call, table, args, decl, doc, cons, clos, free, the, form, defun;
 	unsigned globalp;
 	enum EVAL_PARSE eval;
 };
@@ -1732,7 +1732,7 @@ static void init_lambda_struct(struct lambda_struct *str,
 	memset(str, 0, sizeoft(struct lambda_struct));
 	str->stack = str->call = str->table = str->args =
 		str->decl = str->doc = str->cons = str->clos =
-		str->free = str->the = str->form = Nil;
+		str->free = str->the = str->form = str->defun = Nil;
 	str->globalp = globalp;
 	str->eval = eval;
 }
@@ -2187,6 +2187,7 @@ static int lambda_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	SetEvalScopeIndex(eval, EvalLambda_The, str->the);
 	SetEvalScopeIndex(eval, EvalLambda_Free, str->free);
 	SetEvalScopeIndex(eval, EvalLambda_Form, str->form);
+	SetEvalScopeIndex(eval, EvalLambda_Defun, str->defun);
 	*ret = eval;
 
 	return 0;
@@ -2275,6 +2276,7 @@ static int scope_defun(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 2, &str.decl);
 	GetEvalParse(eval, 3, &str.doc);
 	GetEvalParse(eval, 4, &str.cons);
+	GetEvalParse(eval, 5, &str.defun);
 
 	if (lambda_object(ptr, &str, &eval)) return 1;
 	defun_update(ptr, &str);

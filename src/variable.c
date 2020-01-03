@@ -26,6 +26,7 @@ _g addr    heap_front = 0;
 _g addr    heap_pos = 0;
 _g size_t  heap_object = 0;
 _g size_t  heap_count = 0;
+_g size_t  heap_gc_count = 0;
 
 
 /*

@@ -279,13 +279,13 @@ static void code_push3(LocalRoot local,
 	pushlist_eval(local, code, first, left, right, third, NULL);
 }
 
-static void code_push5(LocalRoot local,
+static void code_push6(LocalRoot local,
 		addr code, constindex index,
-		addr a, addr b, addr c, addr d, addr e)
+		addr a, addr b, addr c, addr d, addr e, addr f)
 {
 	addr first;
 	GetConstant(index, &first);
-	pushlist_eval(local, code, first, a, b, c, d, e, NULL);
+	pushlist_eval(local, code, first, a, b, c, d, e, f, NULL);
 }
 
 #ifdef LISP_DEGRADE
@@ -1311,17 +1311,20 @@ static void code_lambda_clos(LocalRoot local, addr code, addr clos)
 static void code_lambda_operator(LocalRoot local,
 		addr code, addr name, addr scope, addr pos)
 {
-	addr doc, table, form, the;
+	addr doc, table, the, form, defun;
 
 	GetEvalScopeIndex(scope, EvalLambda_Table, &table);
 	GetEvalScopeIndex(scope, EvalLambda_Doc, &doc);
-	GetEvalScopeIndex(scope, EvalLambda_Form, &form);
 	GetEvalScopeIndex(scope, EvalLambda_The, &the);
+	GetEvalScopeIndex(scope, EvalLambda_Form, &form);
+	GetEvalScopeIndex(scope, EvalLambda_Defun, &defun);
 	if ((name != Nil) && getreference_tablefunction(table)) {
-		code_push5(local, code, CONSTANT_CODE_LAMBDA_SELF, name, pos, the, doc, form);
+		code_push6(local, code, CONSTANT_CODE_LAMBDA_SELF,
+				name, pos, the, doc, form, defun);
 	}
 	else {
-		code_push5(local, code, CONSTANT_CODE_LAMBDA, name, pos, the, doc, form);
+		code_push6(local, code, CONSTANT_CODE_LAMBDA,
+				name, pos, the, doc, form, defun);
 	}
 }
 
