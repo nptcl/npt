@@ -19,6 +19,9 @@ _g void get_decoded_time_common(LocalRoot local, struct universal_time_struct *u
 _g void get_internal_time_units_per_second(fixnum *ret);
 _g void get_internal_real_time_common(LocalRoot local, addr *ret);
 _g void get_internal_run_time_common(addr *ret);
+_g int sleep_common(Execute ptr, addr var);
+
+_g void init_environemnt_time(void);
 
 #endif
 

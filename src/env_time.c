@@ -3,16 +3,33 @@
 #include "control.h"
 #include "condition.h"
 #include "env_time.h"
+#include "function.h"
+#include "gc.h"
 #include "integer.h"
 #include "localtime.h"
 #include "object.h"
+#include "pointer.h"
+#include "ratio.h"
 #include "rational.h"
+#include "real_division.h"
+#include "real_float.h"
 #include "real_floor.h"
+#include "real_truncate.h"
 #include "symbol.h"
-
 
 #define ENCODE_UNIVERSAL_1900  693961
 #define ENCODE_UNIVERSAL_1970  719528
+
+#ifdef LISP_POSIX
+#define LISP_SLEEP_INTERVAL		1000000
+#define LISP_SLEEP_INTERVAL_F	1.0e6
+#endif
+
+#ifdef LISP_WINDOWS
+#define LISP_SLEEP_INTERVAL		1000
+#define LISP_SLEEP_INTERVAL_F	1.0e3
+#endif
+
 
 /*
  *  decode-universal-time
@@ -537,7 +554,7 @@ _g void get_decoded_time_common(LocalRoot local, struct universal_time_struct *u
 
 _g void get_internal_time_units_per_second(fixnum *ret)
 {
-	*ret = 1000;
+	*ret = LISP_SLEEP_INTERVAL;
 }
 _g void get_internal_real_time_common(LocalRoot local, addr *ret)
 {
@@ -564,7 +581,7 @@ _g void get_internal_time_units_per_second(fixnum *ret)
 	struct timeval tv;
 
 	if (gettimeofday(&tv, NULL) == 0)
-		*ret = 1000000;
+		*ret = LISP_SLEEP_INTERVAL;
 	else
 		*ret = 1;
 }
@@ -576,7 +593,7 @@ _g void get_internal_real_time_common(LocalRoot local, addr *ret)
 	if (gettimeofday(&tv, NULL) == 0) {
 		make_index_integer_local(local, &high, (size_t)tv.tv_sec);
 		fixnum_local(local, &low, (fixnum)tv.tv_usec);
-		fixnum_local(local, &value, 1000000);
+		fixnum_local(local, &value, LISP_SLEEP_INTERVAL);
 		multi_ii_real_common(local, high, value, &high);
 		plus_fi_real_common(local, low, high, ret);
 	}
@@ -601,5 +618,506 @@ _g void get_internal_run_time_common(addr *ret)
 	size_t value;
 	value = ControlCounter;
 	make_index_integer_heap(ret, value);
+}
+
+
+/*
+ *  sleep
+ */
+#ifdef LISP_POSIX
+#include <unistd.h>
+
+#ifdef LISP_DEBUG
+#define LISP_SLEEP_FIXNUM		3
+#else
+#define LISP_SLEEP_FIXNUM		86400
+#endif
+
+struct sleep_object_struct {
+	volatile sig_atomic_t atomic;
+};
+#define SleepObjectStruct(x) ((struct sleep_object_struct *)PtrBodySS(x))
+
+static void get_sleep_object(Execute ptr, addr *ret)
+{
+	addr pos;
+
+	GetConst(COMMON_SLEEP, &pos);
+	getspecialcheck_local(ptr, pos, &pos);
+	CheckType(pos, LISPSYSTEM_SLEEP);
+	*ret = pos;
+}
+
+static sig_atomic_t getatomic_sleep_object(Execute ptr)
+{
+	addr pos;
+	get_sleep_object(ptr, &pos);
+	return SleepObjectStruct(pos)->atomic;
+}
+
+static void setatomic_sleep_object(Execute ptr)
+{
+	addr pos;
+	get_sleep_object(ptr, &pos);
+	SleepObjectStruct(pos)->atomic = 1;
+}
+
+static void push_sleep_object(Execute ptr)
+{
+	addr pos, symbol, value;
+	LocalRoot local;
+
+	/* object */
+	local = ptr->local;
+	local_smallsize(local, &pos, LISPSYSTEM_SLEEP,
+			1, sizeoft(struct sleep_object_struct));
+	SleepObjectStruct(pos)->atomic = 0;
+
+	/* push */
+	GetConst(COMMON_SLEEP, &symbol);
+	get_internal_real_time_common(local, &value);
+	SetArraySS(pos, 0, value);
+	pushspecial_control(ptr, symbol, pos);
+}
+
+static void close_sleep_object(Execute ptr)
+{
+	/* do nothing */
+}
+
+static void time_sleep_object(Execute ptr, addr *ret)
+{
+	addr pos;
+	get_sleep_object(ptr, &pos);
+	GetArraySS(pos, 0, ret);
+}
+
+static int sleep_second_common(Execute ptr, fixnum value)
+{
+	sleep((unsigned int)value);
+	return getatomic_sleep_object(ptr);
+}
+
+static int sleep_moment_common(Execute ptr, fixnum value)
+{
+	useconds_t usec;
+
+	/* argument */
+	usec = (useconds_t)value;
+	if (usec == 0)
+		return 0;
+	if (LISP_SLEEP_INTERVAL <= usec)
+		usec = LISP_SLEEP_INTERVAL - 1;
+
+	/* sleep */
+	if (usleep(usec) == -1) {
+		if (errno == EINVAL)
+			fmte("usleep error");
+	}
+
+	return getatomic_sleep_object(ptr);
+}
+#endif
+
+#ifdef LISP_WINDOWS
+#include <windows.h>
+
+#ifdef LISP_DEBUG
+#define LISP_SLEEP_FIXNUM		3
+#else
+#define LISP_SLEEP_FIXNUM		86400000
+#endif
+
+struct sleep_object_struct {
+	HANDLE hEvent;
+};
+#define SleepObjectStruct(x) ((struct sleep_object_struct *)PtrBodySS(x))
+
+static void get_sleep_object(Execute ptr, addr *ret)
+{
+	addr pos;
+
+	GetConst(COMMON_SLEEP, &pos);
+	getspecialcheck_local(ptr, pos, &pos);
+	CheckType(pos, LISPSYSTEM_SLEEP);
+	*ret = pos;
+}
+
+static void setatomic_sleep_object(Execute ptr)
+{
+	addr pos;
+	get_sleep_object(ptr, &pos);
+	SetEvent(SleepObjectStruct(pos)->hEvent);
+}
+
+static void push_sleep_object(Execute ptr)
+{
+	addr pos, symbol, value;
+	LocalRoot local;
+	HANDLE handle;
+
+	/* event */
+	handle = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (handle == NULL) {
+		fmte("CreateEvent error.", NULL);
+		return;
+	}
+
+	/* object */
+	local = ptr->local;
+	local_smallsize(local, &pos, LISPSYSTEM_SLEEP,
+			1, sizeoft(struct sleep_object_struct));
+	SleepObjectStruct(pos)->hEvent = handle;
+
+	/* push */
+	GetConst(COMMON_SLEEP, &symbol);
+	get_internal_real_time_common(local, &value);
+	SetArraySS(pos, 0, value);
+	pushspecial_control(ptr, symbol, pos);
+}
+
+static void close_sleep_object(Execute ptr)
+{
+	addr pos;
+	get_sleep_object(ptr, &pos);
+	CloseHandle(SleepObjectStruct(pos)->hEvent);
+}
+
+static void time_sleep_object(Execute ptr, addr *ret)
+{
+	addr pos;
+	get_sleep_object(ptr, &pos);
+	GetArraySS(pos, 0, ret);
+}
+
+static int sleep_moment_common(Execute ptr, fixnum value)
+{
+	DWORD check;
+	HANDLE handle;
+	addr pos;
+
+	if (value == 0)
+		return 0;
+	get_sleep_object(ptr, &pos);
+	handle = SleepObjectStruct(pos)->hEvent;
+	check = WaitForSingleObject(handle, (DWORD)value);
+	if (check == WAIT_TIMEOUT)
+		return 0;
+	if (check == WAIT_OBJECT_0)
+		return 1;
+
+	/* error */
+	fmte("WaitForSingleObject error.", NULL);
+	return 0;
+}
+
+static int sleep_second_common(Execute ptr, fixnum value)
+{
+	return sleep_moment_common(ptr, (fixnum)(value * LISP_SLEEP_INTERVAL));
+}
+#endif
+
+#if defined(LISP_POSIX) || defined(LISP_WINDOWS)
+static int sleep_integer_common(Execute ptr, addr var)
+{
+	LocalRoot local;
+	addr wait;
+	fixnum value;
+
+	local = ptr->local;
+	fixnum_heap(&wait, LISP_SLEEP_FIXNUM);
+	truncate2_common(local, &var, &wait, var, wait);
+	while (plusp_integer(var)) {
+		Return1(sleep_second_common(ptr, LISP_SLEEP_FIXNUM));
+		oneminus_integer_common(local, var, &var);
+	}
+	GetFixnum(wait, &value);
+	return sleep_second_common(ptr, value);
+}
+
+static int sleep_execute_common(Execute ptr, addr var)
+{
+	addr right;
+	LocalRoot local;
+	fixnum value;
+
+	fixnum_heap(&right, LISP_SLEEP_INTERVAL);
+	local = ptr->local;
+	truncate2_common(local, &var, &right, var, right);
+	Return1(sleep_integer_common(ptr, var));
+	GetFixnum(right, &value);
+	return sleep_moment_common(ptr, value);
+}
+
+
+/*
+ *  restart
+ */
+static void sleep_continue(Execute ptr)
+{
+	/* do nothing */
+}
+
+static void sleep_execute_diff(Execute ptr, addr var, addr *ret)
+{
+	addr now, diff;
+	LocalRoot local;
+
+	local = ptr->local;
+	get_internal_real_time_common(local, &now);
+	time_sleep_object(ptr, &diff);
+
+	/* diff */
+	minus_ii_real_common(local, now, diff, &now);
+	minus_ii_real_common(local, var, now, &var);
+	*ret = var;
+}
+
+#ifdef LISP_POSIX
+static void sleep_signal_handler(int value)
+{
+	setatomic_sleep_object(Execute_Thread);
+}
+
+static int sleep_signal_restart(Execute ptr, addr var)
+{
+	int check;
+
+	if (signal(SIGINT, sleep_signal_handler) == SIG_ERR) {
+		fmte("signal set error.", NULL);
+		return 0;
+	}
+	check = sleep_execute_common(ptr, var);
+	if (signal(SIGINT, SIG_DFL) == SIG_ERR) {
+		fmte("signal set default error.", NULL);
+		return 0;
+	}
+
+	return check;
+}
+#endif
+
+#ifdef LISP_WINDOWS
+static int sleep_signal_restart(Execute ptr, addr var)
+{
+	return sleep_execute_common(ptr, var);
+}
+#endif
+
+static int sleep_execute_restart(Execute ptr, addr var, addr *ret)
+{
+	addr condition;
+	LocalHold hold;
+
+	if (! sleep_signal_restart(ptr, var))
+		return 0;
+
+	/* diff */
+	sleep_execute_diff(ptr, var, &var);
+	hold = LocalHold_local_push(ptr, var);
+	*ret = var;
+
+	/* invoke-debugger */
+	strvect_char_heap(&condition, "Break SIGINT");
+	instance_simple_condition(&condition, condition, Nil);
+	localhold_push(hold, condition);
+	Return1(invoke_debugger(ptr, condition));
+	localhold_end(hold);
+
+	return 0;
+}
+
+static void sleep_make_restart(addr *ret)
+{
+	static const char *message = "Return to sleep.";
+	addr inst, pos;
+
+	GetConst(COMMON_CONTINUE, &pos);
+	restart_heap(&inst, pos);
+	compiled_heap(&pos, Nil);
+	setcompiled_empty(pos, p_sleep_continue);
+	setfunction_restart(inst, pos);
+	setinteractive_restart(inst, Nil);
+	strvect_char_heap(&pos, message);
+	setreport_restart(inst, pos);
+	settest_restart(inst, Nil);
+	setescape_restart(inst, 1);
+	*ret = inst;
+}
+
+static int sleep_break_restart(Execute ptr, addr restart, addr var, addr *ret)
+{
+	int check;
+	addr control;
+	codejump jump;
+
+	/* execute */
+	*ret = Nil;
+	check = 0;
+	push_restart_initialize_control(ptr, &control);
+
+	/* push */
+	push_sleep_object(ptr);
+
+	/* sleep */
+	begin_switch(ptr, &jump);
+	if (codejump_run_p(&jump)) {
+		pushobject_restart_control(ptr, restart);
+		check = sleep_execute_restart(ptr, var, ret);
+	}
+	end_switch(&jump);
+	close_sleep_object(ptr);
+	if (check)
+		return 1;
+
+	/* restart abort */
+	if (jump.code == LISPCODE_CONTROL) {
+		if (! equal_control_restart(ptr, control))
+			throw_switch(&jump);
+		ptr->signal = ExecuteControl_Run;
+		return free_control(ptr, control);
+	}
+
+	/* free control */
+	throw_switch(&jump);
+	setresult_control(ptr, Nil);
+	return free_control(ptr, control);
+}
+
+static int sleep_wait_common(Execute ptr, addr var)
+{
+	addr restart;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 2);
+	localhold_set(hold, 0, var);
+	for (;;) {
+		sleep_make_restart(&restart);
+		localhold_set(hold, 1, restart);
+		if (sleep_break_restart(ptr, restart, var, &var))
+			return 1;
+		localhold_set(hold, 0, var);
+		if (var == Nil)
+			break;
+		if (minusp_integer(var))
+			break;
+	}
+	localhold_end(hold);
+
+	return 0;
+}
+#endif
+
+
+
+static void sleep_value_integer(LocalRoot local, addr var, addr *ret)
+{
+	addr right;
+	fixnum_heap(&right, LISP_SLEEP_INTERVAL);
+	multi_ii_real_common(local, var, right, ret);
+}
+
+static void sleep_value_ratio(LocalRoot local, addr var, addr *ret)
+{
+	addr right;
+
+	fixnum_heap(&right, LISP_SLEEP_INTERVAL);
+	multi_rf_real_common(local, var, right, &var);
+	truncate1_common(local, ret, &right, var);
+}
+
+static void sleep_value_single_float(LocalRoot local, addr var, addr *ret)
+{
+	single_float value, moment;
+	addr left, right;
+
+	GetSingleFloat(var, &value);
+	value = lisp_truncate1_s(value, &moment);
+	moment = (single_float)(moment * LISP_SLEEP_INTERVAL_F);
+	bignum_single_float_local(local, &left, value);
+	bignum_single_float_local(local, &right, moment);
+	fixnum_heap(&var, LISP_SLEEP_INTERVAL);
+	multi_ii_real_common(local, left, var, &left);
+	plus_ii_real_common(local, left, right, ret);
+}
+
+static void sleep_value_double_float(LocalRoot local, addr var, addr *ret)
+{
+	double_float value, moment;
+	addr left, right;
+
+	GetDoubleFloat(var, &value);
+	value = lisp_truncate1_d(value, &moment);
+	moment = (double_float)(moment * LISP_SLEEP_INTERVAL_F);
+	bignum_double_float_local(local, &left, value);
+	bignum_double_float_local(local, &right, moment);
+	fixnum_heap(&var, LISP_SLEEP_INTERVAL);
+	multi_ii_real_common(local, left, var, &left);
+	plus_ii_real_common(local, left, right, ret);
+}
+
+static void sleep_value_long_float(LocalRoot local, addr var, addr *ret)
+{
+	long_float value, moment;
+	addr left, right;
+
+	GetLongFloat(var, &value);
+	value = lisp_truncate1_l(value, &moment);
+	moment = (long_float)(moment * LISP_SLEEP_INTERVAL_F);
+	bignum_long_float_local(local, &left, value);
+	bignum_long_float_local(local, &right, moment);
+	fixnum_heap(&var, LISP_SLEEP_INTERVAL);
+	multi_ii_real_common(local, left, var, &left);
+	plus_ii_real_common(local, left, right, ret);
+}
+
+static void sleep_value_common(LocalRoot local, addr var, addr *ret)
+{
+	switch (GetType(var)) {
+		case LISPTYPE_FIXNUM:
+		case LISPTYPE_BIGNUM:
+			sleep_value_integer(local, var, ret);
+			return;
+
+		case LISPTYPE_RATIO:
+			sleep_value_ratio(local, var, ret);
+			return;
+
+		case LISPTYPE_SINGLE_FLOAT:
+			sleep_value_single_float(local, var, ret);
+			return;
+
+		case LISPTYPE_DOUBLE_FLOAT:
+			sleep_value_double_float(local, var, ret);
+			return;
+
+		case LISPTYPE_LONG_FLOAT:
+			sleep_value_long_float(local, var, ret);
+			return;
+
+		default:
+			fmte("Invalid value type ~S.", var, NULL);
+			return;
+	}
+}
+
+_g int sleep_common(Execute ptr, addr var)
+{
+#if defined(LISP_POSIX) || defined(LISP_WINDOWS)
+	sleep_value_common(ptr->local, var, &var);
+	return sleep_wait_common(ptr, var);
+#else
+	fmte("This implementation is not support SLEEP function.", NULL);
+	return 0;
+#endif
+}
+
+
+/*
+ *  initialize
+ */
+_g void init_environemnt_time(void)
+{
+	SetPointerType(empty, sleep_continue);
 }
 

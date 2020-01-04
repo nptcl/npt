@@ -2,6 +2,7 @@
 #define __EXECUTE_HEADER__
 
 #include <setjmp.h>
+#include <signal.h>
 #include "define.h"
 #include "typedef_thread.h"
 #include "local.h"

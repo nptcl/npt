@@ -201,6 +201,41 @@ static void defun_get_decoded_time(void)
 }
 
 
+/* (defun sleep (seconds) ...) -> null
+ *   seconds  (real 0 *)
+ */
+static void function_sleep(Execute ptr, addr var)
+{
+	Return0(sleep_common(ptr, var));
+	setresult_control(ptr, Nil);
+}
+
+static void type_sleep(addr *ret)
+{
+	addr args, values;
+
+	type2realf_ab_heap(Nil, 0, &args);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_sleep(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_SLEEP, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_sleep);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_sleep(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun apropos (string-designer) ...) -> (values) */
 static void function_apropos(Execute ptr, addr var, addr opt)
 {
@@ -768,6 +803,7 @@ _g void init_common_environment(void)
 	SetPointerCall(defun, dynamic, encode_universal_time);
 	SetPointerCall(defun, empty, get_universal_time);
 	SetPointerCall(defun, empty, get_decoded_time);
+	SetPointerCall(defun, var1, sleep);
 	SetPointerCall(defun, var1opt1, apropos);
 	SetPointerCall(defun, var1opt1, apropos_list);
 	SetPointerCall(defun, var1opt1, describe);
@@ -795,7 +831,7 @@ _g void build_common_environment(void)
 	defun_encode_universal_time();
 	defun_get_universal_time();
 	defun_get_decoded_time();
-	/*sleep*/
+	defun_sleep();
 	defun_apropos();
 	defun_apropos_list();
 	defun_describe();

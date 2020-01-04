@@ -15,6 +15,7 @@
 #include "pathname.h"
 #include "print.h"
 #include "print_write.h"
+#include "real_truncate.h"
 #include "sort.h"
 #include "stream.h"
 #include "strtype.h"

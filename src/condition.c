@@ -393,7 +393,7 @@ static int output_debugger(Execute ptr, addr stream, addr pos)
 static int output_restarts_debugger(Execute ptr, addr io, addr list)
 {
 	int check;
-	addr pos, symbol, name, str;
+	addr pos, symbol, name, str, id;
 	size_t index;
 
 	for (index = 0; list != Nil; index++) {
@@ -411,8 +411,8 @@ static int output_restarts_debugger(Execute ptr, addr io, addr list)
 				close_stream(str);
 			}
 		}
-		return format_stream(ptr, io, "~2@A. ~16A ~A~%",
-				intsizeh(index), symbol, name, NULL);
+		id = intsizeh(index);
+		Return1(format_stream(ptr, io, "~2@A. ~16A ~A~%", id, symbol, name, NULL));
 	}
 
 	return 0;
@@ -434,10 +434,12 @@ static int enter_debugger(Execute ptr, addr condition)
 	int check, result;
 	addr io, pos, list, exit;
 	size_t index, select, size;
+	LocalHold hold;
 
 	/* restarts */
 	debug_io_stream(ptr, &io);
 	compute_restarts_control(ptr, condition, &list);
+	hold = LocalHold_local_push(ptr, list);
 	if (list == Nil) {
 		Return1(format_stream(ptr, io, "There is no restarts, abort.~%", NULL));
 		abortthis();
@@ -486,6 +488,7 @@ loop:
 	}
 	/* execute */
 	getnth_unsafe(list, select, &pos);
+	localhold_end(hold);
 	Return1(invoke_restart_interactively_control(ptr, pos));
 	goto loop;
 

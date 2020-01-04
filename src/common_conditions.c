@@ -959,7 +959,7 @@ static int function_break_restart(Execute ptr, addr restart, addr format, addr a
 	return free_control(ptr, control);
 }
 
-static int function_break_make(addr *ret)
+static void function_break_make(addr *ret)
 {
 	static const char *message = "Return from BREAK.";
 	addr inst, pos;
@@ -975,8 +975,6 @@ static int function_break_make(addr *ret)
 	settest_restart(inst, Nil);
 	setescape_restart(inst, 1);
 	*ret = inst;
-
-	return 0;
 }
 
 static void function_break(Execute ptr, addr format, addr args)
@@ -998,8 +996,7 @@ static void function_break(Execute ptr, addr format, addr args)
 		localhold_push(hold, format);
 		args = Nil;
 	}
-	if (function_break_make(&restart))
-		return;
+	function_break_make(&restart);
 	localhold_push(hold, restart);
 	if (function_break_restart(ptr, restart, format, args))
 		return;

@@ -941,6 +941,8 @@ enum pointer_index {
 	p_defun_encode_universal_time,
 	p_defun_get_universal_time,
 	p_defun_get_decoded_time,
+	p_defun_sleep,
+	p_sleep_continue,
 	p_defun_apropos,
 	p_defun_apropos_list,
 	p_defun_describe,

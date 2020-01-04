@@ -132,3 +132,19 @@
     (values (integerp x) (<= 1 x)))
   t t)
 
+
+;;
+;;  sleep
+;;
+(deftest sleep.1
+  (sleep 0)
+  nil)
+
+(deftest sleep.2
+  (sleep 3/667)
+  nil)
+
+(deftest sleep.3
+  (sleep 1.0e-2)
+  nil)
+
