@@ -55,6 +55,7 @@ enum Clos_generic_Index {
 	Clos_generic_eqlcheck,
 	Clos_generic_cache,
 	Clos_generic_call,
+	Clos_generic_precedence_index,
 	Clos_generic_size
 };
 

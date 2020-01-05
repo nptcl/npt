@@ -964,6 +964,12 @@ static void defmethod_parse_specializers(addr pos, addr *ret)
 	*ret = root;
 }
 
+static void defmethod_parse_documentation(addr form, addr *ret)
+{
+	addr decl, body;
+	split_decl_body_doc(form, ret, &decl, &body);
+}
+
 static void defmethod_parse_function(Execute ptr,
 		addr env, addr form, addr ord, addr *ret)
 {
@@ -973,9 +979,10 @@ static void defmethod_parse_function(Execute ptr,
 	 *           (call-next-method (&rest ,rest)
 	 *             (clos::flet-next-method ,method ,next ,args ,rest)))
 	 *      (declare (ignorable #'next-method-p #'call-next-method))
+	 *      "Documentation"
 	 *      (apply (lambda ,lambda-list ,@form) ,args)))
 	 */
-	addr lambda, apply, next1, next2, call1, call2, a, b, c;
+	addr lambda, apply, next1, next2, call1, call2, a, b, c, doc;
 	addr method, next, args, rest, ignorable, declare, arest, flet;
 
 	/* gensym */
@@ -991,6 +998,7 @@ static void defmethod_parse_function(Execute ptr,
 	/* lambda */
 	GetConst(COMMON_LAMBDA, &lambda);
 	argument_method_lambda_heap(&ord, ord);
+	defmethod_parse_documentation(form, &doc);
 	lista_heap(&ord, lambda, ord, form, NULL);
 	/* apply */
 	GetConst(COMMON_APPLY, &apply);
@@ -1017,7 +1025,7 @@ static void defmethod_parse_function(Execute ptr,
 	list_heap(&flet, flet, next1, declare, apply, NULL);
 	/* lambda */
 	list_heap(&method, method, next, arest, args, NULL);
-	list_heap(ret, lambda, method, flet, NULL);
+	list_heap(ret, lambda, method, doc, flet, NULL);
 }
 
 _g int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
@@ -1075,7 +1083,7 @@ static void defcomb_short(addr *ret, addr list, addr name)
 		getcons(list, &key, &list);
 		getcons(list, &value, &list);
 		if (key == kdoc) {
-			if (! symbolp(value))
+			if (! stringp(value))
 				fmte(":DOCUMENTATION ~S must be a symbol.", value, NULL);
 			doc = value;
 			continue;

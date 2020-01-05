@@ -20,14 +20,12 @@
   (functionp #'defgeneric3)
   t)
 
-(defgeneric defgeneric4 (a b &optional c d)
-            (:argument-precedence-order :most-specific-first))
+(defgeneric defgeneric4 (a b &optional c d) (:argument-precedence-order b a))
 (deftest defgeneric.4
   (functionp #'defgeneric4)
   t)
 
-(defgeneric defgeneric5 (&optional c d &rest e)
-            (:argument-precedence-order :most-specific-last))
+(defgeneric defgeneric5 (c d &optional &rest e) (:argument-precedence-order c d))
 (deftest defgeneric.5
   (functionp #'defgeneric5)
   t)
@@ -452,4 +450,48 @@
   (let ((method (find-method-list #'add-method4 nil 't)))
     (remove-method #'add-method4 method)
     (add-method #'add-method5 method)))
+
+
+;;
+;;  error
+;;
+(deftest-error defgeneric-error.1
+  (eval '(defgeneric defgeneric-error1 (a b &optional c d)
+                     (:argument-precedence-order :most-specific-first))))
+
+(deftest-error defgeneric-error.2
+  (eval '(defgeneric defgeneric-error2 (&optional c d &rest e)
+                     (:argument-precedence-order :most-specific-last))))
+
+(deftest-error defgeneric-error.3
+  (eval '(defgeneric defgeneric-error2 (a b)
+                     (:argument-precedence-order c d))))
+
+(defgeneric defgeneric-error4 (x y z) (:argument-precedence-order z y x))
+
+(defmethod defgeneric-error4 ((x integer) y (z t))
+  (declare (ignore x y z))
+  "integer-t")
+
+(defmethod defgeneric-error4 ((x t) y (z string))
+  (declare (ignore x y z))
+  "t-string")
+
+(deftest defgeneric-error.4
+  (defgeneric-error4 10 20 "Hello")
+  "t-string")
+
+(defgeneric defgeneric-error5 (x y z) (:argument-precedence-order x y z))
+
+(defmethod defgeneric-error5 ((x integer) y (z t))
+  (declare (ignore x y z))
+  "integer-t")
+
+(defmethod defgeneric-error5 ((x t) y (z string))
+  (declare (ignore x y z))
+  "t-string")
+
+(deftest defgeneric-error.5
+  (defgeneric-error5 10 20 "Hello")
+  "integer-t")
 

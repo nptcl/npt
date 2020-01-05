@@ -54,12 +54,16 @@ static void stdget_generic_constant(addr pos, addr *ret,
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &check);
 	if (clos == check) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
-		clos_checkelt(pos, (size_t)index1, ret);
+		clos_getelt(pos, (size_t)index1, &check);
 	}
 	else {
 		GetConstant(index2, &check);
-		clos_check(pos, check, ret);
+		clos_get(pos, check, &check);
 	}
+	/* Unbound check */
+	if (check == Unbound)
+		fmte("There is no applicable methods in ~S.", pos, NULL);
+	*ret = check;
 }
 
 static void stdset_generic_constant(addr pos, addr value,
@@ -174,6 +178,15 @@ _g void stdget_generic_call(addr pos, addr *ret)
 _g void stdset_generic_call(addr pos, addr value)
 {
 	StdSetGeneric(pos, value, call, CALL);
+}
+
+_g void stdget_generic_precedence_index(addr pos, addr *ret)
+{
+	StdGetGeneric(pos, ret, precedence_index, PRECEDENCE_INDEX);
+}
+_g void stdset_generic_precedence_index(addr pos, addr value)
+{
+	StdSetGeneric(pos, value, precedence_index, PRECEDENCE_INDEX);
 }
 
 static int stdboundp_generic_constant(addr pos,
@@ -649,7 +662,7 @@ static void generic_specializers_sort(addr *ret, addr gen, addr list)
 {
 	addr order;
 
-	stdget_generic_argument_precedence_order(gen, &order);
+	stdget_generic_precedence_index(gen, &order);
 	if (order != Nil)
 		simplesort_info_cons_unsafe(ret, list, order, generic_sort_order_call);
 	else
@@ -852,10 +865,41 @@ _g void generic_common_instance(addr *ret, addr name, addr args)
 	stdset_generic_method_class(pos, method);
 	stdset_generic_method_combination(pos, Nil);
 	stdset_generic_cache(pos, cache);
+	stdset_generic_precedence_index(pos, Nil);
 
 	/* result */
 	setcallname_global(name, pos);
 	*ret = pos;
+}
+
+_g void generic_common_order(addr gen, addr order, addr list)
+{
+#ifdef LISP_DEBUG
+	addr var, x, y, root;
+	size_t size1, size2, size3, index, check;
+
+	stdget_generic_lambda_list(gen, &var);
+	GetArgument(var, ArgumentIndex_var, &var);
+
+	size1 = length_list_safe(var);
+	size2 = length_list_safe(order);
+	size3 = length_list_safe(list);
+	if (size1 != size2)
+		fmte("Length of :argument-precedence-order is not equal to lambda-list.", NULL);
+	if (size1 != size3)
+		fmte("Length of :precedence-index is not equal to lambda-list.", NULL);
+	for (root = list; order != Nil; ) {
+		GetCons(order, &x, &order);
+		getcons(root, &y, &root);
+		if (! position_list_eq_unsafe(x, var, &index))
+			fmte("The variable ~S is not exist in :argument-precedence-order", x, NULL);
+		GetIndex(y, &check);
+		if (index != check)
+			fmte("Invalid precedence-index list.", NULL);
+	}
+#endif
+	stdset_generic_argument_precedence_order(gen, order);
+	stdset_generic_precedence_index(gen, list);
 }
 
 
@@ -934,6 +978,7 @@ _g void generic_empty(addr name, addr lambda, addr *ret)
 	stdset_generic_argument_precedence_order(pos, Nil);
 	stdset_generic_method_combination(pos, Nil);
 	stdset_generic_cache(pos, cache);
+	stdset_generic_precedence_index(pos, Nil);
 
 	/* result */
 	generic_finalize(pos);
@@ -945,10 +990,36 @@ _g void generic_empty(addr name, addr lambda, addr *ret)
 /*
  *  generic-add
  */
+static void generic_precedence_order_index(addr lambda, addr order, addr *ret)
+{
+	addr var, x, list;
+	size_t size1, size2, index;
+
+	if (order == Nil) {
+		*ret = Nil;
+		return;
+	}
+	GetArgument(lambda, ArgumentIndex_var, &var);
+	size1 = length_list_safe(var);
+	size2 = length_list_safe(order);
+	if (size1 != size2)
+		fmte("Length of :argument-precedence-order is not equal to lambda-list.", NULL);
+	for (list = Nil; var != Nil; ) {
+		GetCons(var, &x, &var);
+		if (! position_list_eq_unsafe(x, order, &index))
+			fmte("The variable ~S is not exist in :argument-precedence-order", x, NULL);
+		index_heap(&x, index);
+		cons_heap(&list, x, list);
+	}
+	nreverse_list_unsafe(ret, list);
+}
+
 _g int generic_add(struct generic_argument *str, addr *ret)
 {
-	addr pos, comb, methods, cache;
+	addr pos, comb, methods, cache, order;
 
+	/* check */
+	generic_precedence_order_index(str->lambda, str->order, &order);
 	/* (make-instance generic-function-class) */
 	GetConst(COMMON_MAKE_INSTANCE, &pos);
 	if (callclang_funcall(str->ptr, &pos, pos, str->generic, NULL))
@@ -970,6 +1041,7 @@ _g int generic_add(struct generic_argument *str, addr *ret)
 	stdset_generic_declarations(pos, str->declare);
 	stdset_generic_method_combination(pos, comb);
 	stdset_generic_cache(pos, cache);
+	stdset_generic_precedence_index(pos, order);
 
 	/* result */
 	generic_finalize(pos);

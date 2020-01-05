@@ -2675,11 +2675,15 @@ static int defpackage_execute(Execute ptr, addr rest)
 
 	GetCons(rest, &name, &rest);
 	GetCons(rest, &size, &rest);
+
+	/* size */
 	sizep = (size != Nil);
 	if (sizep) {
 		if (GetIndex_integer(size, &value))
 			fmte(":size ~S is too large.", size, NULL);
 	}
+
+	/* package */
 	GetCons(rest, &doc, &rest);
 	find_package(name, &pos);
 	if (pos == Nil) {
@@ -2694,6 +2698,11 @@ static int defpackage_execute(Execute ptr, addr rest)
 			resize_pacakge(pos, value);
 		defpackage_update(ptr->local, pos, rest);
 	}
+
+	/* documentation */
+	setdocument_package(pos, doc);
+
+	/* result */
 	setresult_control(ptr, pos);
 
 	return 0;

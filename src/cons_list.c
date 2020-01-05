@@ -400,6 +400,22 @@ _g int find_list_equal_safe(addr key, addr cons)
 	return 0;
 }
 
+_g int position_list_eq_unsafe(addr key, addr cons, size_t *ret)
+{
+	addr check;
+	size_t i;
+
+	for (i = 0; cons != Nil; i++) {
+		GetCons(cons, &check, &cons);
+		if (check == key) {
+			*ret = i;
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 
 /*
  *  pushnew

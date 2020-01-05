@@ -30,6 +30,8 @@ _g void stdget_generic_cache(addr pos, addr *ret);
 _g void stdset_generic_cache(addr pos, addr value);
 _g void stdget_generic_call(addr pos, addr *ret);
 _g void stdset_generic_call(addr pos, addr value);
+_g void stdget_generic_precedence_index(addr pos, addr *ret);
+_g void stdset_generic_precedence_index(addr pos, addr value);
 _g int stdboundp_generic_argument_precedence_order(addr pos);
 _g int stdboundp_generic_eqlcheck(addr pos);
 
@@ -45,6 +47,7 @@ _g void generic_finalize(addr gen);
 _g void closrun_execute(Execute ptr, addr pos, addr args);
 
 _g void generic_common_instance(addr *ret, addr name, addr args);
+_g void generic_common_order(addr gen, addr order, addr list);
 _g int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *ret);
 _g void generic_empty(addr name, addr lambda, addr *ret);
 _g int generic_add(struct generic_argument *ptr, addr *ret);

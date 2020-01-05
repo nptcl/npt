@@ -1100,6 +1100,24 @@ static void typetable_structureobject(void)
 	SetTypeTable(StructureObject, pos);
 }
 
+static void typetable_standard_method(void)
+{
+	addr pos;
+
+	GetConst(CLOS_STANDARD_METHOD, &pos);
+	type_clos_heap(pos, &pos);
+	SetTypeTable(StandardMethod, pos);
+}
+
+static void typetable_methodcombination(void)
+{
+	addr pos;
+
+	GetConst(CLOS_METHOD_COMBINATION, &pos);
+	type_clos_heap(pos, &pos);
+	SetTypeTable(MethodCombination, pos);
+}
+
 
 /*
  *  Array
@@ -2950,6 +2968,8 @@ _g void build_type_constant(void)
 	typetable_standardobject();
 	typetable_structureclass();
 	typetable_structureobject();
+	typetable_standard_method();
+	typetable_methodcombination();
 
 	/* Array */
 	typetable_array_t();

@@ -14,6 +14,7 @@
 #include "constant.h"
 #include "control.h"
 #include "copy.h"
+#include "document.h"
 #include "eastasian_unicode.h"
 #include "encode.h"
 #include "environment.h"
@@ -82,6 +83,7 @@ _g void initlisp(void)
 	init_condition();
 	init_control();
 	init_copy();
+	init_documentation();
 	init_eastasian();
 	init_encode();
 	init_environment();
@@ -326,6 +328,7 @@ _g void buildlisp(Execute ptr)
 	build_common();
 	build_print(ptr);
 	build_environment(ptr);
+	build_documentation(ptr);
 	build_readtable();
 	build_pathname();
 	build_eval_declare();

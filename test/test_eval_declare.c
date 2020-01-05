@@ -1684,9 +1684,9 @@ static int test_declare_body_documentation(void)
 	readstring(&cons, "((declare (ignore hello)) \"Hello\")");
 	doc = decl = body = NULL;
 	declare_body_documentation(Execute_Thread, Nil, cons, &doc, &decl, &body);
-	test(doc != Nil, "declare_body_documentation16");
+	test(doc == Nil, "declare_body_documentation16");
 	test(decl != Nil, "declare_body_documentation17");
-	test(body == Nil, "declare_body_documentation18");
+	test(body != Nil, "declare_body_documentation18");
 
 	readstring(&cons, "((declare (ignore hello)) 10 20 30)");
 	doc = decl = body = NULL;

@@ -1045,6 +1045,7 @@ string-stream
 string-trim
 string-upcase
 stringp
+structure
 structure-class
 structure-object
 style-warning
@@ -1070,7 +1071,6 @@ symbol-value
 symbolp
 synonym-stream
 synonym-stream-symbol
-;;t
 tagbody
 tailp
 tan
@@ -1203,6 +1203,7 @@ lisp-clos::eqlcheck
 lisp-clos::cache
 lisp-clos::call
 lisp-clos::function
+lisp-clos::precedence-index
 (:lambda-list                :constant closkey)
 (:lambda-count               :constant closkey)
 (:methods                    :constant closkey)
@@ -1214,6 +1215,7 @@ lisp-clos::function
 (:cache                      :constant closkey)
 (:call                       :constant closkey)
 (:function                   :constant closkey)
+(:precedence-index           :constant closkey)
 
 lisp-clos::generic-function
 lisp-clos::qualifiers
@@ -1551,6 +1553,8 @@ lisp-system::dispatch-let
 (lisp-system::*ed-function* :constant system :name ed-function)
 (lisp-system::*ed-tempfile* :constant system :name ed-tempfile)
 (lisp-system::*ed-program* :constant system :name ed-program)
+lisp-system::doc-type
+lisp-system::object
 
 
 ;;

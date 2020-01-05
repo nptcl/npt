@@ -225,6 +225,8 @@ enum TypeTable {
 	TypeTable_StandardObject,
 	TypeTable_StructureClass,
 	TypeTable_StructureObject,
+	TypeTable_StandardMethod,
+	TypeTable_MethodCombination,
 
 	/* Array */
 	TypeTable_Array_T,

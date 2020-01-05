@@ -625,7 +625,7 @@ static int test_generic_specializers_sort(void)
 	index_heap(&value3, 2);
 	test_make_generic(&generic);
 	list_heap(&order, value2, value1, value3, NULL);
-	stdset_generic_argument_precedence_order(generic, order);
+	stdset_generic_precedence_index(generic, order);
 	list_heap(&cons1, method1, method2, method3, NULL);
 	generic_specializers_sort(&cons1, generic, cons1);
 
@@ -636,7 +636,7 @@ static int test_generic_specializers_sort(void)
 	GetCons(cons1, &cons2, &cons1);
 	test(cons2 == method1, "generic_specializers_sort3");
 
-	stdset_generic_argument_precedence_order(generic, Nil);
+	stdset_generic_precedence_index(generic, Nil);
 	list_heap(&cons1, method1, method2, method3, NULL);
 	generic_specializers_sort(&cons1, generic, cons1);
 	GetCons(cons1, &cons2, &cons1);
@@ -657,6 +657,7 @@ static int test_generic_make_type(void)
 
 	test_make_generic(&generic);
 	stdset_generic_argument_precedence_order(generic, Nil);
+	stdset_generic_precedence_index(generic, Nil);
 	/* method-combination */
 	stdset_generic_method_combination(generic, Nil);
 	/* method-class */

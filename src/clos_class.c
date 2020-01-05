@@ -1167,6 +1167,7 @@ static void clos_stdgeneric_slots(addr *ret)
 	SlotMakeName(slots, EQLCHECK, generic_eqlcheck);
 	SlotMakeName(slots, CACHE, generic_cache);
 	SlotMakeName(slots, CALL, generic_call);
+	SlotMakeName(slots, PRECEDENCE_INDEX, generic_precedence_index);
 	slotvector_set_location(slots);
 	*ret = slots;
 }

@@ -38,6 +38,7 @@ _g int find_list_eql_unsafe(addr key, addr cons);
 _g int find_list_eql_safe(addr key, addr cons);
 _g int find_list_equal_unsafe(addr key, addr cons);
 _g int find_list_equal_safe(addr key, addr cons);
+_g int position_list_eq_unsafe(addr key, addr cons, size_t *ret);
 
 /* pushnew */
 _g int pushnew_alloc(LocalRoot local, addr list, addr value, addr *ret);

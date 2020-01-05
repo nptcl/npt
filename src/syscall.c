@@ -698,7 +698,7 @@ static void defun_do_all_symbols(void)
 /* (defun getdoc-variable (symbol) ...) -> (or string null) */
 static void syscall_getdoc_variable(Execute ptr, addr var)
 {
-	get_variable_document(var, &var);
+	getdocument_variable_symbol(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -731,7 +731,7 @@ static void defun_getdoc_variable(void)
 /* (defun setdoc-variable (symbol string) ...) -> string */
 static void syscall_setdoc_variable(Execute ptr, addr var, addr value)
 {
-	set_variable_document(var, value);
+	setdocument_variable_symbol(var, value);
 	setresult_control(ptr, value);
 }
 

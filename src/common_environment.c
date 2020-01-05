@@ -843,8 +843,6 @@ _g void build_common_environment(void)
 	defun_get_internal_real_time();
 	defun_get_internal_run_time();
 	defun_disassemble();
-	/*documentation*/
-	/*(setf documentation)*/
 	defun_room();
 	defun_ed();
 	/*inspect*/

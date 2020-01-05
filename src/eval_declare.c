@@ -1036,8 +1036,14 @@ _g int declare_body_documentation(Execute ptr, addr env,
 	/* ([decl] doc . body) */
 	getcons(cdr, &car, &cons);
 	if (stringp(car)) {
-		*rdoc = car;
-		*rbody = cons;
+		if (cons == Nil) {
+			*rdoc = Nil;
+			*rbody = cdr;
+		}
+		else {
+			*rdoc = car;
+			*rbody = cons;
+		}
 		return 0;
 	}
 
@@ -1083,8 +1089,14 @@ _g void split_decl_body_doc(addr list, addr *rdoc, addr *rdecl, addr *rbody)
 	/* ([decl] doc . body) */
 	getcons(cdr, &car, &list);
 	if (stringp(car)) {
-		*rdoc = car;
-		*rbody = list;
+		if (list == Nil) {
+			*rdoc = Nil;
+			*rbody = cdr;
+		}
+		else {
+			*rdoc = car;
+			*rbody = list;
+		}
 		return;
 	}
 
