@@ -1315,6 +1315,7 @@ lisp-system::dynamic-function
 lisp-system::ignore-value
 lisp-system::ignore-function
 
+lisp-system::type
 lisp-system::type-scope
 lisp-system::type-value
 lisp-system::type-function
@@ -1555,6 +1556,10 @@ lisp-system::dispatch-let
 (lisp-system::*ed-program* :constant system :name ed-program)
 lisp-system::doc-type
 lisp-system::object
+(lisp-system::*trace-list* :constant system :name trace-list)
+(lisp-system::*trace-depth* :constant system :name trace-depth)
+lisp-system::trace-add
+lisp-system::trace-del
 
 
 ;;
@@ -1884,6 +1889,7 @@ lisp-system::short-float-p
 lisp-system::single-float-p
 lisp-system::double-float-p
 lisp-system::long-float-p
+lisp-system::callnamep
 lisp-system::large-number
 lisp-system::print-unreadable-call
 lisp-system::write-default
@@ -1907,6 +1913,7 @@ lisp-system::eastasian-get
 lisp-system::eastasian-width
 lisp-system::timeinfo
 lisp-system::run-program
+lisp-system::make-callname
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

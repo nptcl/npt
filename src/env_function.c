@@ -179,7 +179,7 @@ _g int apropos_common(Execute ptr, addr var, addr package)
 /*
  *  time
  */
-_g void time_common(Execute ptr, addr form, addr env, addr *ret)
+_g void time_common(addr form, addr env, addr *ret)
 {
 	/* (multiple-value-bind (real1 run1 space1 count1) (lisp-system::timeinfo)
 	 *   (let ((list (multiple-value-list expr)))

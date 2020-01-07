@@ -1821,18 +1821,9 @@ static int WriteCall_complex(Execute ptr, addr stream, addr object)
  */
 static int WriteBody_callname(Execute ptr, addr stream, addr pos)
 {
-	LocalRoot local;
-	LocalStack stack;
-
-	local = ptr->local;
-	push_local(local, &stack);
-	name_callname_local(local, pos, &pos);
+	name_callname_heap(pos, &pos);
 	print_ascii_stream(stream, "CALLNAME ");
-	if (write_print_call(ptr, stream, pos))
-		return 1;
-	rollback_local(local, stack);
-
-	return 0;
+	return write_print_call(ptr, stream, pos);
 }
 
 static int WriteCall_callname(Execute ptr, addr stream, addr pos)

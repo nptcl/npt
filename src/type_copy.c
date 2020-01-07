@@ -13,7 +13,8 @@ static call_type_copy TypeCopyTable[LISPDECL_SIZE];
 
 static addr type_copy_error(LocalRoot local, addr type)
 {
-	fmte("Invalid type ~S.", type, NULL);
+	infobit(type);
+	fmte("Invalid type.", NULL);
 	return NULL;
 }
 

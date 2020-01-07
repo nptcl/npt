@@ -671,7 +671,8 @@ _g void copy_list_heap_safe(addr *ret, addr cons)
 /*
  *  delete / remove
  */
-_g int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
+static int delete_list_call_unsafe(addr key, addr cons, addr *ret,
+		int (*call)(addr, addr))
 {
 	int update;
 	addr check, cons1, cons2;
@@ -681,7 +682,7 @@ _g int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
 	cons2 = Nil;
 	while (cons != Nil) {
 		GetCons(cons, &check, &cons1);
-		if (check == key) {
+		if (call(check, key)) {
 			if (cons2 == Nil)
 				*ret = cons1;
 			else
@@ -695,6 +696,16 @@ _g int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
 	}
 
 	return update;
+}
+
+_g int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
+{
+	return delete_list_call_unsafe(key, cons, ret, eq_function);
+}
+
+_g int delete_list_equal_unsafe(addr key, addr cons, addr *ret)
+{
+	return delete_list_call_unsafe(key, cons, ret, equal_function);
 }
 
 _g int delete1_list_eq_unsafe(addr key, addr cons, addr *ret)

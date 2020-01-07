@@ -440,7 +440,8 @@ static void type_value_argument(addr *ret, addr value)
 
 static void type_value_error(addr *ret, addr value)
 {
-	fmte("Invalid type-value ~S.", value, NULL);
+	infobit(value);
+	fmte("Invalid type-value.", NULL);
 }
 
 _g void type_value(addr *ret, addr value)

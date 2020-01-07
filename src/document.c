@@ -483,16 +483,30 @@ static void setf_documentation_symbol_compiled_function(
 static void method_documentation_symbol_setf(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	getsetfcheck_local(ptr, object, &object);
-	getdocumentation_function(object, &object);
-	setresult_control(ptr, object);
+	addr pos;
+
+	/* define-setf-expander, defsetf */
+	getsetfmacro_symbol(object, &pos);
+	/* setf-function */
+	if (pos == Unbound)
+		getsetfcheck_local(ptr, object, &pos);
+	/* get documentation */
+	getdocumentation_function(pos, &pos);
+	setresult_control(ptr, pos);
 }
 
 static void method_setf_documentation_symbol_setf(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	getsetfcheck_local(ptr, object, &object);
-	setdocumentation_function(object, value);
+	addr pos;
+
+	/* define-setf-expander, defsetf */
+	getsetfmacro_symbol(object, &pos);
+	/* setf-function */
+	if (pos == Unbound)
+		getsetfcheck_local(ptr, object, &pos);
+	/* set documentation */
+	setdocumentation_function(pos, value);
 	setresult_control(ptr, value);
 }
 

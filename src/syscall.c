@@ -12,6 +12,7 @@
 #include "core.h"
 #include "document.h"
 #include "eastasian.h"
+#include "env_code.h"
 #include "env_time.h"
 #include "equal.h"
 #include "eval.h"
@@ -1631,6 +1632,28 @@ static void defun_long_float_p(void)
 }
 
 
+/* (defun callnamep (object) ...) -> boolean */
+static void syscall_callnamep(Execute ptr, addr var)
+{
+	setbool_control(ptr, GetType(var) == LISPTYPE_CALLNAME);
+}
+
+static void defun_callnamep(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_CALLNAMEP, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_callnamep);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, Object_Boolean);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun large-number (value &optional (cardinal t)) ...) -> string
  *   value  (integer 0 fixnum-max)
  */
@@ -2576,8 +2599,107 @@ static void defun_run_program(void)
 	type_syscall_run_program(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
-	/* (defvar *ed-function* [function]) */
-	SetValueSymbol(symbol, pos);
+}
+
+
+/* (defun make-callname (var) ...) -> callname */
+static void syscall_make_callname(Execute ptr, addr var)
+{
+	parse_callname_error(&var, var);
+	setresult_control(ptr, var);
+}
+
+static void type_syscall_make_callname(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, FunctionName);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_make_callname(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_MAKE_CALLNAME, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_make_callname);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_make_callname(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun trace-add (list) ...) -> list */
+static void syscall_trace_add(Execute ptr, addr var)
+{
+	trace_add_common(ptr, var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_syscall_trace_add(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, List);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_trace_add(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_TRACE_ADD, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_trace_add);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_trace_add(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun trace-del (list-or-t) ...) -> list */
+static void syscall_trace_del(Execute ptr, addr var)
+{
+	trace_del_common(ptr, var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_syscall_trace_del(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, List);
+	GetTypeTable(&values, EqlT);
+	type2or_heap(args, values, &args);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, List);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_trace_del(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_TRACE_DEL, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_syscall_trace_del);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_trace_del(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
 }
 
 
@@ -2628,6 +2750,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, fixnump);
 	SetPointerSysCall(defun, var1, bignump);
 	SetPointerSysCall(defun, var1, ratiop);
+	SetPointerSysCall(defun, var1, callnamep);
 	SetPointerSysCall(defun, var1, short_float_p);
 	SetPointerSysCall(defun, var1, single_float_p);
 	SetPointerSysCall(defun, var1, double_float_p);
@@ -2657,6 +2780,9 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, empty, timeinfo);
 	SetPointerSysCall(defun, var1, ed_function);
 	SetPointerSysCall(defun, var2dynamic, run_program);
+	SetPointerSysCall(defun, var1, make_callname);
+	SetPointerSysCall(defun, var1, trace_add);
+	SetPointerSysCall(defun, var1, trace_del);
 }
 
 _g void build_syscall(void)
@@ -2717,6 +2843,7 @@ _g void build_syscall(void)
 	defun_single_float_p();
 	defun_double_float_p();
 	defun_long_float_p();
+	defun_callnamep();
 	/* printer */
 	defun_large_number();
 	defun_print_unreadable_call();
@@ -2750,5 +2877,8 @@ _g void build_syscall(void)
 	defun_timeinfo();
 	defun_ed_function();
 	defun_run_program();
+	defun_make_callname();
+	defun_trace_add();
+	defun_trace_del();
 }
 

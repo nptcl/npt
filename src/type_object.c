@@ -17,7 +17,8 @@ static type_object_call TypeObjectTable[LISPTYPE_SIZE];
 
 static void type_object_error(addr *ret, addr pos)
 {
-	fmte("Invalid type ~S.", pos, NULL);
+	infobit(pos);
+	fmte("Invalid type.", NULL);
 }
 
 static void type_object_name(addr *ret, addr pos)
@@ -36,6 +37,11 @@ static void type_object_subtypep(addr *ret, addr pos)
 {
 	get_type_subtypep(&pos, pos);
 	type_object(ret, pos);
+}
+
+static void type_object_type(addr *ret, addr pos)
+{
+	GetConst(SYSTEM_TYPE, ret);
 }
 
 static void type_object_clos(addr *ret, addr pos)
@@ -522,7 +528,7 @@ _g void init_type_object(void)
 	TypeObjectTable[LISPDECL_EMPTY] = type_object_error;
 	TypeObjectTable[LISPDECL_OPTIMIZED] = type_object_optimized;
 	TypeObjectTable[LISPDECL_SUBTYPEP] = type_object_subtypep;
-	TypeObjectTable[LISPDECL_TYPE] = type_object_error;
+	TypeObjectTable[LISPDECL_TYPE] = type_object_type;
 	TypeObjectTable[LISPDECL_CLOS] = type_object_clos;
 	TypeObjectTable[LISPDECL_ASTERISK] = type_object_name;
 	/* Compound-type */

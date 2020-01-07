@@ -79,6 +79,7 @@ _g void copy_list_alloc_safe(LocalRoot local, addr *ret, addr cons);
 
 /* delete / remove */
 _g int delete_list_eq_unsafe(addr key, addr cons, addr *ret);
+_g int delete_list_equal_unsafe(addr key, addr cons, addr *ret);
 _g int delete1_list_eq_unsafe(addr key, addr cons, addr *ret);
 _g void remove_list_eq_unsafe_heap(addr key, addr cons, addr *ret);
 _g void remove_list_eq_unsafe_local(LocalRoot local,

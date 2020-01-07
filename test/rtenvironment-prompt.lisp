@@ -97,3 +97,78 @@
          (< 0 (length x))))
   t)
 
+(defun trace-test1 ()
+  :hello)
+
+(deftest trace.1
+  (trace)
+  nil)
+
+(deftest trace.2
+  (trace trace-test1)
+  (trace-test1))
+
+(deftest trace.3
+  (with-open-stream (*trace-output* (make-broadcast-stream))
+    (trace-test1))
+  :hello)
+
+(deftest trace.4
+  (trace)
+  (trace-test1))
+
+(deftest untrace.1
+  (progn
+    (untrace)
+    (untrace))
+  nil)
+
+(deftest untrace.2
+  (trace)
+  nil)
+
+(deftest untrace.3
+  (progn
+    (trace trace-test1)
+    (untrace trace-test1))
+  (trace-test1))
+
+(deftest untrace.4
+  (trace)
+  nil)
+
+(defun disassemble-test ()
+  :hello)
+
+(deftest disassemble.1
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (disassemble #'car))
+  nil)
+
+(deftest disassemble.2
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (disassemble #'disassemble-test))
+  nil)
+
+(deftest disassemble.3
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (disassemble 'car))
+  nil)
+
+(deftest disassemble.4
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (disassemble 'disassemble-test))
+  nil)
+
+(deftest disassemble.5
+  (with-open-stream (*standard-output* (make-broadcast-stream))
+    (disassemble #'(setf car)))
+  nil)
+
+(deftest disassemble.6
+  (null (search
+          "LAMBDA"
+          (with-output-to-string (*standard-output*)
+            (disassemble 'disassemble-test))))
+  nil)
+

@@ -135,15 +135,35 @@
 (deftest-error documentation-symbol.4
   (documentation 'document-function1 'compiled-function))
 
-(deftest documentation-symbol.5
+(deftest documentation-setf.1
   (setf (documentation 'document-function3 'setf) "Symbol4")
   "Symbol4")
 
-(deftest documentation-symbol.6
+(deftest documentation-setf.2
   (progn
     (setf (documentation 'document-function3 'setf) "Symbol5")
     (documentation 'document-function3 'setf))
   "Symbol5")
+
+(define-setf-expander
+  document-setf1 (a)
+  (declare (ignore a))
+  "Setf1"
+  :hello)
+
+(deftest documentation-setf.3
+  (documentation 'document-setf1 'setf)
+  "Setf1")
+
+(deftest documentation-setf.4
+  (setf (documentation 'document-setf1 'setf) "Setf2")
+  "Setf2")
+
+(deftest documentation-setf.5
+  (progn
+    (setf (documentation 'document-setf1 'setf) "Setf3")
+    (documentation 'document-setf1 'setf))
+  "Setf3")
 
 
 ;;  method-combination

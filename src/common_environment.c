@@ -338,10 +338,51 @@ static void defun_describe(void)
 }
 
 
+/* (defmacro trace (&rest args) ...) -> list */
+static void function_trace(Execute ptr, addr form, addr env)
+{
+	trace_common(form, env, &form);
+	setresult_control(ptr, form);
+}
+
+static void defun_trace(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_TRACE, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_trace);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
+/* (defmacro untrace (&rest args) ...) -> list */
+static void function_untrace(Execute ptr, addr form, addr env)
+{
+	untrace_common(form, env, &form);
+	setresult_control(ptr, form);
+}
+
+static void defun_untrace(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_UNTRACE, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_untrace);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
 /* (defmacro time (form) ...) -> result) */
 static void function_time(Execute ptr, addr form, addr env)
 {
-	time_common(ptr, form, env, &form);
+	time_common(form, env, &form);
 	setresult_control(ptr, form);
 }
 
@@ -423,19 +464,7 @@ static void defun_get_internal_run_time(void)
 /* (defun disassemble (extended-function-designer) ...) -> nil */
 static void function_disassemble(Execute ptr, addr var)
 {
-	addr stream, check;
-
-	standard_output_stream(ptr, &stream);
-	if (symbolp(var)) {
-		getfunction_local(ptr, var, &check);
-		if (check == Unbound) {
-			getmacro_symbol(var, &check);
-			if (check == Unbound)
-				fmte("Invalid argument ~S.", var);
-		}
-		var = check;
-	}
-	Return0(disassemble_common(ptr, stream, var));
+	Return0(disassemble_common(ptr, var));
 	setresult_control(ptr, Nil);
 }
 
@@ -807,6 +836,8 @@ _g void init_common_environment(void)
 	SetPointerCall(defun, var1opt1, apropos);
 	SetPointerCall(defun, var1opt1, apropos_list);
 	SetPointerCall(defun, var1opt1, describe);
+	SetPointerCall(defmacro, macro, trace);
+	SetPointerCall(defmacro, macro, untrace);
 	SetPointerCall(defmacro, macro, time);
 	SetPointerCall(defun, empty, get_internal_real_time);
 	SetPointerCall(defun, empty, get_internal_run_time);
@@ -835,8 +866,8 @@ _g void build_common_environment(void)
 	defun_apropos();
 	defun_apropos_list();
 	defun_describe();
-	/*trace*/
-	/*untrace*/
+	defun_trace();
+	defun_untrace();
 	/*step*/
 	defmacro_time();
 	defconstant_internal_time_units_per_second();

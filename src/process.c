@@ -127,7 +127,7 @@ static void run_process_windows_pathname(LocalRoot local,
 		if (c == ' ')
 			space = 1;
 		if (c == '"') {
-			fmte("Don't include character #\\\" in Windows pathanme ~S.", pos, NULL);
+			fmte("Don't include character #\\\" in Windows pathname ~S.", pos, NULL);
 			return;
 		}
 	}

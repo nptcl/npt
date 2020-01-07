@@ -34,7 +34,8 @@ static call_type_typep TypeTypep[LISPDECL_SIZE];
 
 static int typep_invalid(Execute ptr, addr value, addr type, int *ret)
 {
-	fmte("Invalid type ~S.", type, NULL);
+	infobit(type);
+	fmte("Invalid type.", NULL);
 	return 0;
 }
 

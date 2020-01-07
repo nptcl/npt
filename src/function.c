@@ -112,6 +112,13 @@ _g int setf_callname_p(addr call)
 	return RefCallNameType(call) == CALLNAME_SETF;
 }
 
+_g int constantp_callname(addr pos)
+{
+	CheckType(pos, LISPTYPE_CALLNAME);
+	GetCallName(pos, &pos);
+	return GetStatusReadOnly(pos);
+}
+
 _g int parse_callname_alloc(LocalRoot local, addr *ret, addr name)
 {
 	enum CALLNAME_TYPE type;
@@ -1200,5 +1207,18 @@ _g int recursivep_function(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION &&
 		StructFunction_Low(pos)->recursive;
+}
+
+_g void settrace_function(addr pos)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(GetStatusReadOnly(pos), "readonly error");
+	StructFunction_Low(pos)->trace = 1;
+}
+
+_g int tracep_function(addr pos)
+{
+	return GetType(pos) == LISPTYPE_FUNCTION &&
+		StructFunction_Low(pos)->trace;
 }
 

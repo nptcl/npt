@@ -31,6 +31,7 @@ struct function_struct {
 	unsigned compiled : 1;
 	unsigned recursive : 1;
 	unsigned system : 1;
+	unsigned trace : 1;
 	pointer index;
 };
 
@@ -151,6 +152,7 @@ _g int function_name_p(addr name);
 _g int callnamep(addr pos);
 _g int symbol_callname_p(addr call);
 _g int setf_callname_p(addr call);
+_g int constantp_callname(addr call);
 _g addr refcallname(addr pos);
 _g void getcallname(addr pos, addr *value);
 _g void setcallname(addr pos, addr value);
@@ -296,6 +298,8 @@ _g int compiled_macro_function_p(addr pos);
 _g int system_function_p(addr pos);
 _g void setrecursive_function(addr pos);
 _g int recursivep_function(addr pos);
+_g void settrace_function(addr pos);
+_g int tracep_function(addr pos);
 
 #endif
 

@@ -950,6 +950,11 @@ enum pointer_index {
 	p_method_describe_object_class,
 	p_method_describe_object_standard_object,
 	p_method_describe_object_structure_object,
+	p_defmacro_trace,
+	p_defmacro_untrace,
+	p_defun_trace,
+	p_defun_trace_function,
+	p_defun_untrace,
 	p_defmacro_time,
 	p_defun_get_internal_real_time,
 	p_defun_get_internal_run_time,
@@ -1147,6 +1152,7 @@ enum pointer_index {
 	p_defun_syscall_single_float_p,
 	p_defun_syscall_double_float_p,
 	p_defun_syscall_long_float_p,
+	p_defun_syscall_callnamep,
 	p_defun_syscall_large_number,
 	p_defun_syscall_print_unreadable_call,
 	p_defun_syscall_write_default,
@@ -1172,6 +1178,9 @@ enum pointer_index {
 	p_defun_syscall_timeinfo,
 	p_defun_syscall_ed_function,
 	p_defun_syscall_run_program,
+	p_defun_syscall_make_callname,
+	p_defun_syscall_trace_add,
+	p_defun_syscall_trace_del,
 
 	/* size */
 	p_size
