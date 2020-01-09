@@ -20,13 +20,13 @@ _g void open_broadcast_stream(addr *stream, addr list)
 	force_open_stream(pos, stream);
 }
 
-_g void push_broadcast_stream(addr stream, addr input)
+_g void push_broadcast_stream(addr stream, addr output)
 {
 	addr list;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
-	cons_heap(&list, input, list);
+	cons_heap(&list, output, list);
 	SetInfoStream(stream, list);
 }
 

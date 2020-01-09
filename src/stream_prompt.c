@@ -1,8 +1,10 @@
+#include "constant.h"
 #include "file.h"
 #include "prompt.h"
 #include "stream_error.h"
 #include "stream_string.h"
 #include "stream.h"
+#include "symbol.h"
 
 #define CheckPromptStream(stream) { \
 	Check(! prompt_stream_p(stream), "type error"); \
@@ -38,19 +40,37 @@ static int close_Prompt(addr stream, int abort)
 	return 1;
 }
 
+static int input_prompt_stream(addr *ret)
+{
+	addr pos, prompt, dribble;
+
+	/* read */
+	Return1(input_prompt(&pos, &prompt));
+	/* dribble check */
+	GetConst(SYSTEM_DRIBBLE_FILE, &dribble);
+	GetValueSymbol(dribble, &dribble);
+	if (dribble != Unbound) {
+		if (prompt)
+			print_string_stream(dribble, prompt);
+		print_string_stream(dribble, pos);
+	}
+	/* result */
+	*ret = pos;
+
+	return 0;
+}
+
 static int read_char_prompt_line(addr stream, unicode *c)
 {
 	addr string, pos;
 
 	GetInfoStream(stream, &string);
 	if (! open_stream_p(string)) {
-		if (input_prompt(&pos))
-			return 1;
+		Return1(input_prompt_stream(&pos));
 		setvalue_input_string_stream(string, pos);
 	}
 	while (read_char_stream(string, c)) {
-		if (input_prompt(&pos))
-			return 1;
+		Return1(input_prompt_stream(&pos));
 		setvalue_input_string_stream(string, pos);
 	}
 

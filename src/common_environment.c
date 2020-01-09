@@ -566,6 +566,72 @@ static void defun_ed(void)
 }
 
 
+/* (defun inspect (object) ...) -> null */
+static void function_inspect(Execute ptr, addr var)
+{
+	Return0(inspect_common(ptr, var));
+	setresult_control(ptr, Nil);
+}
+
+static void type_inspect(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_inspect(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_INSPECT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_inspect);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_inspect(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun dribble (&optional pathname) ...) -> null */
+static void function_dribble(Execute ptr, addr var)
+{
+	dribble_common(ptr, (var == Unbound)? Nil: var);
+	setresult_control(ptr, Nil);
+}
+
+static void type_dribble(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, PathnameDesigner);
+	typeargs_opt1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_dribble(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_DRIBBLE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_opt1(pos, p_defun_dribble);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_dribble(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun lisp-implementation-type () ...) -> (or string null)  */
 static void function_lisp_implementation_type(Execute ptr)
 {
@@ -844,6 +910,8 @@ _g void init_common_environment(void)
 	SetPointerCall(defun, var1, disassemble);
 	SetPointerCall(defun, opt1, room);
 	SetPointerCall(defun, opt1, ed);
+	SetPointerCall(defun, var1, inspect);
+	SetPointerCall(defun, opt1, dribble);
 	SetPointerCall(defun, empty, lisp_implementation_type);
 	SetPointerCall(defun, empty, lisp_implementation_version);
 	SetPointerCall(defun, empty, short_site_name);
@@ -876,8 +944,8 @@ _g void build_common_environment(void)
 	defun_disassemble();
 	defun_room();
 	defun_ed();
-	/*inspect*/
-	/*dribble*/
+	defun_inspect();
+	defun_dribble();
 	defun_lisp_implementation_type();
 	defun_lisp_implementation_version();
 	defun_short_site_name();

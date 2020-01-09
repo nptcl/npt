@@ -3141,7 +3141,7 @@ static int callargs_restkey(Execute ptr,
 
 	/* error check */
 	if (key != Nil && keyvalue)
-		fmte("Invalid keyword argument.", NULL);
+		fmte("Invalid keyword argument ~S.", key, NULL);
 	*result = 0;
 
 	return 0;

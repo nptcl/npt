@@ -836,15 +836,6 @@ static void defvar_system_prompt(void)
 	SetValueSymbol(symbol, stream);
 }
 
-static void defvar_exteranal_format(void)
-{
-	addr symbol, value;
-
-	GetConst(SYSTEM_EXTERNAL_FORMAT, &symbol);
-	GetConst(SYSTEM_UTF_8, &value);
-	SetValueSymbol(symbol, value);
-}
-
 static void defvar_standard_input(void)
 {
 	addr symbol, stream;
@@ -887,9 +878,9 @@ static void defvar_terminal_io(void)
 
 	/* twoway */
 	GetConst(SYSTEM_PROMPT_VALUE, &input);
-	GetValueSymbol(input, &input);
-	GetConst(SYSTEM_STANDARD_OUTPUT, &output);
-	GetValueSymbol(output, &output);
+	open_synonym_stream(&input, input);
+	GetConst(SPECIAL_STANDARD_OUTPUT, &output);
+	open_synonym_stream(&output, output);
 	open_twoway_stream(&stream, input, output);
 	/* defvar */
 	GetConst(SPECIAL_TERMINAL_IO, &symbol);
@@ -948,7 +939,6 @@ _g void build_stream(void)
 	defvar_system_standard_input();
 	defvar_system_standard_output();
 	defvar_system_standard_error();
-	defvar_exteranal_format();
 	defvar_standard_input();
 	defvar_standard_output();
 	defvar_system_prompt();

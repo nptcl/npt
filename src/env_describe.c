@@ -3,6 +3,7 @@
 #include "clos_generic.h"
 #include "clos_method.h"
 #include "clos_type.h"
+#include "condition.h"
 #include "constant.h"
 #include "control.h"
 #include "env_describe.h"
@@ -14,23 +15,6 @@
 #include "stream.h"
 #include "symbol.h"
 #include "type_table.h"
-
-
-/*
- *  describe
- */
-_g int describe_common(Execute ptr, addr object, addr stream)
-{
-	addr call;
-
-	/* stream */
-	output_stream_designer(ptr, stream, &stream);
-	fresh_line_stream(stream);
-	/* call */
-	GetConst(COMMON_DESCRIBE_OBJECT, &call);
-	getfunctioncheck_local(ptr, call, &call);
-	return funcall_control(ptr, call, object, stream, NULL);
-}
 
 
 /*
@@ -108,6 +92,39 @@ static void defmethod_describe_object(Execute ptr, addr name, addr gen,
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+}
+
+
+/*
+ *  describe
+ */
+_g int describe_common(Execute ptr, addr object, addr stream)
+{
+	addr call;
+
+	/* stream */
+	output_stream_designer(ptr, stream, &stream);
+	fresh_line_stream(stream);
+	/* call */
+	GetConst(COMMON_DESCRIBE_OBJECT, &call);
+	getfunctioncheck_local(ptr, call, &call);
+	return funcall_control(ptr, call, object, stream, NULL);
+}
+
+
+/*
+ *  inspect
+ */
+_g int inspect_common(Execute ptr, addr object)
+{
+	addr stream;
+
+	terminal_io_stream(ptr, &stream);
+	Return1(describe_common(ptr, object, stream));
+	/* prompt */
+	fmte("TODO", NULL);
+
+	return 0;
 }
 
 

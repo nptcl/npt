@@ -12,6 +12,8 @@ _g int format_stream(Execute ptr, addr stream, const char *str, ...);
 _g int format_string(Execute ptr, addr *ret, const char *str, ...);
 _g int format_stdout(Execute ptr, const char *str, ...);
 
+_g void format(const char *str, ...);
+
 _g void init_format(void);
 
 #endif

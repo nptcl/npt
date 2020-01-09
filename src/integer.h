@@ -106,6 +106,7 @@ _g void multi_ii_real_common(LocalRoot local, addr left, addr right, addr *ret);
 
 _g void ash_bignum_common(LocalRoot local, addr pos, int sign2, size_t size, addr *ret);
 _g void ash_integer_common(LocalRoot local, addr pos, addr count, addr *ret);
+_g void integer_length_value(addr pos, size_t *ret);
 _g void integer_length_common(addr pos, addr *ret);
 _g void parse_integer_clang(LocalRoot local,
 		addr string, size_t start, size_t end, unsigned radix, int junk,

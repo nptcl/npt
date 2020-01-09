@@ -282,6 +282,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_number.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_isqrt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_random.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_package.c" />
@@ -492,6 +493,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\mop.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_isqrt.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_random.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\object.h" />

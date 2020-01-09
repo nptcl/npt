@@ -18,6 +18,8 @@
 #include "real_truncate.h"
 #include "sort.h"
 #include "stream.h"
+#include "stream_broadcast.h"
+#include "stream_echo.h"
 #include "strtype.h"
 #include "symbol.h"
 
@@ -272,7 +274,7 @@ static void room_output_common(Execute ptr, addr stream)
 	format_stream(ptr, stream, "Object count:~20T~A~40T[object]~%", pos, NULL);
 	pos = intsizeh(get_heap_gc_count());
 	format_stream(ptr, stream, "GC count:~20T~A~40T[times]~%", pos, NULL);
-	
+
 	/* free space */
 	space = size - object;
 	pos = intsizeh(space);
@@ -436,5 +438,141 @@ _g int ed_common(Execute ptr, addr var)
 		return ed_function_common(ptr, var);
 	else
 		return ed_file_common(ptr, var);
+}
+
+
+/*
+ *  dribble
+ */
+static void dribble_message_begin(Execute ptr, addr file)
+{
+	addr name;
+
+	pathname_designer_heap(ptr, file, &name);
+	Return0(format_stream(ptr, file, "~&;; DRIBBLE begin to write ~S.~%", name, NULL));
+}
+
+static void dribble_message_end(Execute ptr, addr file)
+{
+	addr name;
+
+	pathname_designer_heap(ptr, file, &name);
+	Return0(format_stream(ptr, file, "~&;; DRIBBLE end to write ~S.~%", name, NULL));
+}
+
+static void dribble_set_stream(addr file)
+{
+	addr dfile, dinput, doutput, decho, dbroadcast, sinput, soutput;
+	addr input, output, echo, broadcast;
+
+	/*  *dribble*          -> file-stream
+	 *  *standard-input*   -> echo-stream
+	 *  *standard-output*  -> broadcast-stream
+	 *  echo-stream
+	 *    echo-input       -> STDIN
+	 *    echo-output      -> file-stream
+	 *  broadcast-stream
+	 *    output1          -> STDOUT
+	 *    output2          -> file-stream
+	 */
+
+	/* symbol */
+	GetConst(SYSTEM_DRIBBLE_FILE, &dfile);
+	GetConst(SYSTEM_DRIBBLE_INPUT, &dinput);
+	GetConst(SYSTEM_DRIBBLE_OUTPUT, &doutput);
+	GetConst(SYSTEM_DRIBBLE_ECHO, &decho);
+	GetConst(SYSTEM_DRIBBLE_BROADCAST, &dbroadcast);
+	GetConst(SPECIAL_STANDARD_INPUT, &sinput);
+	GetConst(SPECIAL_STANDARD_OUTPUT, &soutput);
+
+	/* stream */
+	GetValueSymbol(sinput, &input);
+	GetValueSymbol(soutput, &output);
+	exitpoint_stream(output);
+	force_output_stream(output);
+	open_echo_stream(&echo, input, file);
+	list_heap(&broadcast, output, file, NULL);
+	open_broadcast_stream(&broadcast, broadcast);
+
+	/* variable */
+	SetValueSymbol(dfile, file);
+	SetValueSymbol(dinput, input);
+	SetValueSymbol(doutput, output);
+	SetValueSymbol(decho, echo);
+	SetValueSymbol(dbroadcast, broadcast);
+	SetValueSymbol(sinput, echo);
+	SetValueSymbol(soutput, broadcast);
+}
+
+static void dribble_open(Execute ptr, addr file)
+{
+	physical_pathname_heap(ptr, file, &file);
+	if (wild_pathname_boolean(file, Nil)) {
+		simple_file_error_stdarg(file,
+				"~DRIBBLE can't use wild card pathname ~S.", file, NULL);
+		return;
+	}
+	open_stream(ptr, &file, file,
+			Stream_Open_Direction_Output,
+			Stream_Open_Element_Character,
+			Stream_Open_IfExists_Supersede,
+			Stream_Open_IfDoesNot_Create,
+			Stream_Open_External_Default);
+	dribble_set_stream(file);
+	dribble_message_begin(ptr, file);
+}
+
+static void dribble_close_stream(Execute ptr)
+{
+	addr dfile, dinput, doutput, decho, dbroadcast, sinput, soutput;
+	addr file, input, output, echo, broadcast;
+
+	/* symbol */
+	GetConst(SYSTEM_DRIBBLE_FILE, &dfile);
+	GetConst(SYSTEM_DRIBBLE_INPUT, &dinput);
+	GetConst(SYSTEM_DRIBBLE_OUTPUT, &doutput);
+	GetConst(SYSTEM_DRIBBLE_ECHO, &decho);
+	GetConst(SYSTEM_DRIBBLE_BROADCAST, &dbroadcast);
+	GetConst(SPECIAL_STANDARD_INPUT, &sinput);
+	GetConst(SPECIAL_STANDARD_OUTPUT, &soutput);
+
+	/* variable */
+	GetValueSymbol(dfile, &file);
+	GetValueSymbol(dinput, &input);
+	GetValueSymbol(doutput, &output);
+	GetValueSymbol(decho, &echo);
+	GetValueSymbol(dbroadcast, &broadcast);
+
+	SetValueSymbol(dfile, Unbound);
+	SetValueSymbol(dinput, Unbound);
+	SetValueSymbol(doutput, Unbound);
+	SetValueSymbol(decho, Unbound);
+	SetValueSymbol(dbroadcast, Unbound);
+	SetValueSymbol(sinput, input);
+	SetValueSymbol(soutput, output);
+
+	/* close */
+	dribble_message_end(ptr, file);
+	close_stream(echo);
+	close_stream(broadcast);
+	close_stream(file);
+}
+
+static void dribble_close(Execute ptr)
+{
+	addr symbol, file;
+
+	GetConst(SYSTEM_DRIBBLE_FILE, &symbol);
+	GetValueSymbol(symbol, &file);
+	if (file != Unbound)
+		dribble_close_stream(ptr);
+}
+
+_g void dribble_common(Execute ptr, addr file)
+{
+	if (file != Nil)
+		dribble_open(ptr, file);
+	else
+		dribble_close(ptr);
 }
 

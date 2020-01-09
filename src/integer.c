@@ -1146,18 +1146,16 @@ static size_t inverse_length_bigtype(bigtype value)
 		return integer_length_bigtype(value - 1);
 }
 
-static void integer_length_fixnum(addr pos, addr *ret)
+static void integer_length_fixnum(addr pos, size_t *ret)
 {
 	int sign;
 	bigtype value;
-	size_t size;
 
 	castfixed_fixnum(pos, &sign, &value);
 	if (IsPlus(sign))
-		size = integer_length_bigtype(value);
+		*ret = integer_length_bigtype(value);
 	else
-		size = inverse_length_bigtype(value);
-	make_index_integer_alloc(NULL, ret, size);
+		*ret = inverse_length_bigtype(value);
 }
 
 static size_t integer_length_bigdata(addr pos)
@@ -1196,17 +1194,17 @@ static int check_length_bignum(addr pos)
 	return data[i] == 1;
 }
 
-static void integer_length_bignum(addr pos, addr *ret)
+static void integer_length_bignum(addr pos, size_t *ret)
 {
 	size_t size;
 
 	size = integer_length_bigdata(pos);
 	if (check_length_bignum(pos))
 		size--;
-	make_index_integer_alloc(NULL, ret, size);
+	*ret = size;
 }
 
-_g void integer_length_common(addr pos, addr *ret)
+_g void integer_length_value(addr pos, size_t *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
@@ -1222,6 +1220,13 @@ _g void integer_length_common(addr pos, addr *ret)
 			*ret = 0;
 			return;
 	}
+}
+
+_g void integer_length_common(addr pos, addr *ret)
+{
+	size_t size;
+	integer_length_value(pos, &size);
+	make_index_integer_alloc(NULL, ret, size);
 }
 
 

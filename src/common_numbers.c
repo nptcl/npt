@@ -15,6 +15,7 @@
 #include "number.h"
 #include "number_common.h"
 #include "number_gcd.h"
+#include "number_isqrt.h"
 #include "number_random.h"
 #include "package.h"
 #include "random_state.h"
@@ -1318,6 +1319,41 @@ static void defun_sqrt(void)
 	SetFunctionCommon(symbol, pos);
 	/* type */
 	GetTypeCompiled(&type, Sin);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun isqrt (natural) ...) -> natural
+ *   natural  (integer 0 *)
+ */
+static void function_isqrt(Execute ptr, addr var)
+{
+	isqrt_number_common(ptr->local, var, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_isqrt(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Intplus);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Intplus);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_isqrt(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_ISQRT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_isqrt);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_isqrt(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -3497,6 +3533,7 @@ _g void init_common_numbers(void)
 	SetPointerCall(defun, var2, rem);
 	SetPointerCall(defun, var1, signum);
 	SetPointerCall(defun, var1, sqrt);
+	SetPointerCall(defun, var1, isqrt);
 	SetPointerCall(defun, opt1, make_random_state);
 	SetPointerCall(defun, var1opt1, random);
 	SetPointerCall(defun, var1, random_state_p);
@@ -3610,7 +3647,7 @@ _g void build_common_numbers(void)
 	defun_rem();
 	defun_signum();
 	defun_sqrt();
-	/* defun_isqrt(); */
+	defun_isqrt();
 	defun_make_random_state();
 	defun_random();
 	defun_random_state_p();

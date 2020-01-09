@@ -291,7 +291,7 @@ _g void setplusvalue_bigdata(addr set, addr left, int sign, fixed right)
 		data1[i] = right;
 		size++;
 	}
-	Check(RefAllocBignum(set) <= size, "bignum size error");
+	Check(RefAllocBignum(set) < size, "bignum size error");
 	SetSizeBignum(set, size);
 	SetSignBignum(set, sign);
 }

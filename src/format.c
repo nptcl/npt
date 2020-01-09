@@ -165,6 +165,19 @@ _g int format_stdout(Execute ptr, const char *str, ...)
 	return check;
 }
 
+_g void format(const char *str, ...)
+{
+	int check;
+	va_list args;
+
+	va_start(args, str);
+	check = format_stdarg(Execute_Thread, T, str, args, NULL);
+	va_end(args);
+	if (check) {
+		Abort("format error.");
+	}
+}
+
 
 /*
  *  initialize

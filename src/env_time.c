@@ -357,7 +357,7 @@ static size_t encode_universal_year(size_t year)
 	y100 = (year1 / 100) + 1;
 	y400 = (year1 / 400) + 1;
 
-	return (year * 365) + y4 - y100 +y400;
+	return (year * 365) + y4 - y100 + y400;
 }
 
 static size_t encode_universal_day(size_t day, size_t month, size_t year)

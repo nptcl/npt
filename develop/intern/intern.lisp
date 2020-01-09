@@ -1560,6 +1560,11 @@ lisp-system::object
 (lisp-system::*trace-depth* :constant system :name trace-depth)
 lisp-system::trace-add
 lisp-system::trace-del
+(lisp-system::*dribble-file* :constant system :name dribble-file)
+(lisp-system::*dribble-input* :constant system :name dribble-input)
+(lisp-system::*dribble-output* :constant system :name dribble-output)
+(lisp-system::*dribble-echo* :constant system :name dribble-echo)
+(lisp-system::*dribble-broadcast* :constant system :name dribble-broadcast)
 
 
 ;;

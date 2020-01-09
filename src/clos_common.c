@@ -361,10 +361,11 @@ static void defclass_parse_initargs(addr args, addr *ret)
 	}
 }
 
-static void defclass_parse_options(addr list, addr *ret)
+static void defclass_parse_options(addr list, int defclass, addr *ret, addr *report)
 {
 	addr root, key, value;
 
+	*report = NULL;
 	for (root = Nil; list != Nil; ) {
 		if (! consp(list))
 			fmte("DEFCLASS options ~S don't allow dotted list.", list, NULL);
@@ -375,6 +376,8 @@ static void defclass_parse_options(addr list, addr *ret)
 
 		/* :metaclass */
 		if (DefClassEqConst(key, METACLASS)) {
+			if (! defclass)
+				fmte(":METACLASS is not supported in DEFINE-CONBINATION.", NULL);
 			if (! singlep(value))
 				fmte("Invalid :METACLASS ~S.", value, NULL);
 			GetCar(value, &value);
@@ -412,6 +415,17 @@ static void defclass_parse_options(addr list, addr *ret)
 			continue;
 		}
 
+		if (DefClassEqConst(key, REPORT)) {
+			if (defclass)
+				fmte(":REPORT is not supported in DEFCLASS.", NULL);
+			if (! singlep(value))
+				fmte("Invalid :REPORT ~S.", value, NULL);
+			GetCar(value, &value);
+			/* :report -> defmethod */
+			*report = value;
+			continue;
+		}
+
 		/* otherwise */
 		if (! singlep(value))
 			fmte("Invalid option ~S.", value, NULL);
@@ -425,14 +439,59 @@ static void defclass_parse_options(addr list, addr *ret)
 	nreverse_list_unsafe(ret, root);
 }
 
-static void define_condition_result(addr *ret, addr args)
+static void define_condition_result(addr *ret, addr args, addr name, addr report)
 {
+	addr defmethod, prog1, print, declare, ignore, write, funcall, fsymbol;
+	addr form, inst, stream, x;
+
 	/* (class-name
 	 *   (ensure-class ...))
 	 */
-	addr call;
-	GetConst(COMMON_CLASS_NAME, &call);
-	list_heap(ret, call, args, NULL);
+	GetConst(COMMON_CLASS_NAME, &form);
+	list_heap(&form, form, args, NULL);
+
+	/* (prog1
+	 *   [define-condition]
+	 *   (defmethod print-object ((inst name) stream)
+	 *     ...))
+	 */
+	if (report) {
+		GetConst(COMMON_PROG1, &prog1);
+		GetConst(COMMON_DEFMETHOD, &defmethod);
+		GetConst(COMMON_PRINT_OBJECT, &print);
+		make_symbolchar(&inst, "INST");
+		make_symbolchar(&stream, "STREAM");
+		list_heap(&x, inst, name, NULL);
+		list_heap(&x, x, stream, NULL);
+
+		if (stringp(report)) {
+			/* (defmethod print-object ((inst name) stream)
+			 *   (declare (ignore inst))
+			 *   (write-string report stream))
+			 */
+			GetConst(COMMON_DECLARE, &declare);
+			GetConst(COMMON_IGNORE, &ignore);
+			GetConst(COMMON_WRITE_STRING, &write);
+			list_heap(&write, write, report, stream, NULL);
+			list_heap(&ignore, ignore, inst, NULL);
+			list_heap(&declare, declare, ignore, NULL);
+			list_heap(&x, defmethod, print, x, declare, write, NULL);
+		}
+		else {
+			/* (defmethod print-object ((inst name) stream)
+			 *   (funcall (function report) inst stream))
+			 */
+			GetConst(COMMON_FUNCALL, &funcall);
+			GetConst(COMMON_FUNCTION, &fsymbol);
+			list_heap(&fsymbol, fsymbol, report, NULL);
+			list_heap(&funcall, funcall, fsymbol, inst, stream, NULL);
+			list_heap(&x, defmethod, print, x, funcall, NULL);
+		}
+		list_heap(&form, prog1, form, x, NULL);
+	}
+
+	/* result */
+	*ret = form;
 }
 
 static int defclass_define_condition(Execute ptr,
@@ -443,7 +502,8 @@ static int defclass_define_condition(Execute ptr,
 	 *     :direct-slots ,slots
 	 *     ,@class-options)
 	 */
-	addr first, args, name, supers, slots, options, ensure, key1, key2;
+	addr first, args, name, nameq, supers, slots, options, ensure;
+	addr key1, key2, report;
 	LocalHold hold;
 
 	/* destructuring-bind */
@@ -458,24 +518,24 @@ static int defclass_define_condition(Execute ptr,
 	hold = LocalHold_local(ptr);
 	/* name */
 	GetConst(COMMON_QUOTE, &key1);
-	list_heap(&name, key1, name, NULL);
-	localhold_push(hold, name);
+	list_heap(&nameq, key1, name, NULL);
+	localhold_push(hold, nameq);
 
 	/* parse */
 	defclass_parse_superclasses(supers, defclass, &supers);
 	localhold_push(hold, supers);
 	if (defclass_parse_slots(ptr, env, slots, &slots)) return 1;
-	defclass_parse_options(options, &options);
+	defclass_parse_options(options, defclass, &options, &report);
 
 	/* make */
 	GetConst(CLOSNAME_ENSURE_CLASS, &ensure);
 	GetConst(CLOSKEY_DIRECT_SUPERCLASSES, &key1);
 	GetConst(CLOSKEY_DIRECT_SLOTS, &key2);
-	lista_heap(&args, ensure, name, key1, supers, key2, slots, options, NULL);
+	lista_heap(&args, ensure, nameq, key1, supers, key2, slots, options, NULL);
 	if (defclass)
 		*ret = args;
 	else
-		define_condition_result(ret, args);
+		define_condition_result(ret, args, name, report);
 	return 0;
 
 error:

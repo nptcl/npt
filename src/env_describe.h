@@ -6,6 +6,7 @@
 #include "typedef.h"
 
 _g int describe_common(Execute ptr, addr object, addr stream);
+_g int inspect_common(Execute ptr, addr object);
 _g void init_environment_describe(void);
 _g void build_environment_describe(Execute ptr);
 
