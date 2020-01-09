@@ -7,6 +7,7 @@
 #include "constant.h"
 #include "control.h"
 #include "copy.h"
+#include "eval_common.h"
 #include "eval_declare.h"
 #include "eval_table.h"
 #include "function.h"
@@ -933,6 +934,18 @@ static void deftype_code(Execute ptr, addr right)
 	setresult_control(ptr, symbol);
 }
 
+static void define_compiler_macro_code(Execute ptr, addr right)
+{
+	addr pos, name, doc;
+
+	List_bind(right, &name, &doc, NULL);
+	getresult_control(ptr, &pos);
+	setdocumentation_function(pos, doc);
+	set_define_compiler_macro(name, pos);
+	name_callname_heap(name, &name);
+	setresult_control(ptr, name);
+}
+
 static void define_symbol_macro_code(Execute ptr, addr right)
 {
 	addr symbol, eval, form;
@@ -1265,6 +1278,7 @@ _g void init_code(void)
 	initcode(macro_lambda);
 	initcode(defmacro);
 	initcode(deftype);
+	initcode(define_compiler_macro);
 	initcode(define_symbol_macro);
 	initcode(flet);
 	initcode(labels);
@@ -1406,6 +1420,7 @@ _g void build_code(void)
 	defcode(MACRO_LAMBDA, macro_lambda_code);
 	defcode(DEFMACRO, defmacro_code);
 	defcode(DEFTYPE, deftype_code);
+	defcode(DEFINE_COMPILER_MACRO, define_compiler_macro_code);
 	defcode(DEFINE_SYMBOL_MACRO, define_symbol_macro_code);
 	defcode(FLET, flet_code);
 	defcode(LABELS, labels_code);

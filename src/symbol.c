@@ -456,6 +456,31 @@ _g void remsymbol_macro_symbol(addr symbol)
 	reminfo_constant(symbol, CONSTANT_COMMON_DEFINE_SYMBOL_MACRO);
 }
 
+/* compiler-macro-function */
+_g void get_compiler_macro_symbol(addr symbol, addr *value)
+{
+	CheckSymbol(symbol);
+	getinfo_constant(symbol, CONSTANT_SYSTEM_COMPILER_MACRO_FUNCTION, value);
+}
+
+_g void set_compiler_macro_symbol(addr symbol, addr value)
+{
+	CheckSymbol(symbol);
+	setinfo_constant(symbol, CONSTANT_SYSTEM_COMPILER_MACRO_FUNCTION, value);
+}
+
+_g void get_setf_compiler_macro_symbol(addr symbol, addr *value)
+{
+	CheckSymbol(symbol);
+	getinfo_constant(symbol, CONSTANT_SYSTEM_SETF_COMPILER_MACRO_FUNCTION, value);
+}
+
+_g void set_setf_compiler_macro_symbol(addr symbol, addr value)
+{
+	CheckSymbol(symbol);
+	setinfo_constant(symbol, CONSTANT_SYSTEM_SETF_COMPILER_MACRO_FUNCTION, value);
+}
+
 /* scope */
 _g addr refscope_symbol(addr symbol)
 {

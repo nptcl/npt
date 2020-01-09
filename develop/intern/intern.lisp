@@ -1296,6 +1296,7 @@ lisp-system::declaim
 lisp-system::defun
 lisp-system::defmacro
 lisp-system::deftype
+lisp-system::define-compiler-macro
 lisp-system::macro-lambda
 lisp-system::destructuring-bind
 lisp-system::define-symbol-macro
@@ -1469,8 +1470,12 @@ lisp-system::type-documentation
 ;;
 ;;  eval
 ;;
-;(lisp-system::defvar :constant lisp-system)
 lisp-system::eval-lexical
+lisp-system::compiler-macro-function
+lisp-system::setf-compiler-macro-function
+(lisp-system::*compiler-macro* :constant system :name compiler-macro)
+lisp-system::compile-warning
+lisp-system::compile-style-warning
 
 
 ;;
@@ -1658,6 +1663,7 @@ lisp-code::defun
 lisp-code::macro-lambda
 lisp-code::defmacro
 lisp-code::deftype
+lisp-code::define-compiler-macro
 lisp-code::destructuring-bind
 lisp-code::define-symbol-macro
 lisp-code::flet

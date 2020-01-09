@@ -3,6 +3,7 @@
  */
 #include "common_header.h"
 #include "cons.h"
+#include "eval_common.h"
 #include "eval_declare.h"
 #include "eval_parse.h"
 #include "lambda.h"
@@ -32,6 +33,59 @@ static void defmacro_lambda(void)
 }
 
 
+/* (defun compile (name &optional definition) ...)
+ *     -> function, warnings-p, failure-p
+ *   name        (or function-name null)
+ *   definition  (or cons function)
+ *   function    (or function-name function)
+ *   warnings-p  boolean
+ *   failure-p   boolean
+ */
+static void function_compile(Execute ptr, addr var, addr opt)
+{
+	addr x, y, z;
+	Return0(compile_common(ptr, var, opt, &x, &y, &z));
+	setvalues_control(ptr, x, y, z, NULL);
+}
+
+static void type_compile(addr *ret)
+{
+	addr args, values, x, y, type1, type2;
+
+	/* args */
+	GetTypeTable(&type1, FunctionName);
+	GetTypeTable(&type2, Null);
+	type2or_heap(type1, type2, &x);
+	GetTypeTable(&type1, Cons);
+	GetTypeTable(&type2, Function);
+	type2or_heap(type1, type2, &y);
+	typeargs_var1opt1(&args, x, y);
+	/* values */
+	GetTypeTable(&type1, FunctionName);
+	GetTypeTable(&type2, Function);
+	type2or_heap(type1, type2, &x);
+	GetTypeTable(&y, Boolean);
+	typevalues_values3(&values, x, y, y);
+	/* result */
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_compile(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_COMPILE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, p_defun_compile);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_compile(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun eval (form) ...) -> result */
 static void function_eval(Execute ptr, addr var)
 {
@@ -50,12 +104,12 @@ static void function_eval(Execute ptr, addr var)
 
 static void type_eval(addr *ret)
 {
-	addr arg, values;
+	addr args, values;
 
-	GetTypeTable(&arg, T);
-	typeargs_var1(&arg, arg);
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
 	GetTypeValues(&values, T);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_eval(void)
@@ -92,6 +146,108 @@ static void defspecial_load_time_value(void)
 static void defspecial_quote(void)
 {
 	DefineSpecialOperator(COMMON_QUOTE);
+}
+
+
+/* (defun compiler-macro-function (name &optional env) ...)
+ *     -> function
+ *   name      function-name
+ *   env       environment
+ *   function  (or function null)
+ */
+static void function_compiler_macro_function(Execute ptr, addr var, addr env)
+{
+	compiler_macro_function_common(var, env, &var);
+	setresult_control(ptr, var);
+}
+
+static void type_compiler_macro_function(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, FunctionName);
+	GetTypeTable(&values, Environment);
+	typeargs_var1opt1(&args, args, values);
+	GetTypeValues(&values, FunctionNull);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_compiler_macro_function(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_COMPILER_MACRO_FUNCTION, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, p_defun_compiler_macro_function);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_compiler_macro_function(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun (setf compiler-macro-function) (value name &optional env) ...)
+ *     -> function
+ *   values    function
+ *   name      function-name
+ *   env       environment
+ *   function  (or function null)
+ */
+static void function_setf_compiler_macro_function(
+		Execute ptr, addr value, addr var, addr env)
+{
+	setf_compiler_macro_function_common(value, var, env);
+	setresult_control(ptr, value);
+}
+
+static void type_setf_compiler_macro_function(addr *ret)
+{
+	addr args, values, type;
+
+	GetTypeTable(&type, Function);
+	GetTypeTable(&args, FunctionName);
+	GetTypeTable(&values, Environment);
+	typeargs_var2opt1(&args, type, args, values);
+	GetTypeValues(&values, FunctionNull);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_setf_compiler_macro_function(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_COMPILER_MACRO_FUNCTION, &symbol);
+	compiled_setf_heap(&pos, symbol);
+	setcompiled_var2opt1(pos, p_defun_setf_compiler_macro_function);
+	setsetf_symbol(symbol, pos);
+	/* type */
+	type_setf_compiler_macro_function(&type);
+	settype_function(pos, type);
+	settype_setf_symbol(symbol, type);
+}
+
+
+/* (defmacro define-compiler-macro (name lambda &body form) ...) -> name */
+static void function_define_compiler_macro(Execute ptr, addr form, addr env)
+{
+	define_compiler_macro_common(ptr, form, env, &form);
+	setresult_control(ptr, form);
+}
+
+static void defmacro_define_compiler_macro(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_DEFINE_COMPILER_MACRO, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_define_compiler_macro);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
 }
 
 
@@ -158,13 +314,13 @@ static void function_macro_function(Execute ptr, addr symbol, addr env)
 
 static void type_macro_function(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, Symbol);
+	GetTypeTable(&args, Symbol);
 	GetTypeTable(&type, EnvironmentNull);
-	typeargs_var1opt1(&arg, arg, type);
+	typeargs_var1opt1(&args, args, type);
 	GetTypeValues(&values, Function);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_macro_function(void)
@@ -199,14 +355,14 @@ static void function_setf_macro_function(Execute ptr,
 
 static void type_setf_macro_function(addr *ret)
 {
-	addr arg, values, type, env;
+	addr args, values, type, env;
 
-	GetTypeTable(&arg, Function);
+	GetTypeTable(&args, Function);
 	GetTypeTable(&type, Symbol);
 	GetTypeTable(&env, Environment);
-	typeargs_var2opt1(&arg, arg, type, env);
+	typeargs_var2opt1(&args, args, type, env);
 	GetTypeValues(&values, Function);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_setf_macro_function(void)
@@ -409,13 +565,13 @@ static void function_constantp(Execute ptr, addr var, addr opt)
 
 static void type_constantp(addr *ret)
 {
-	addr arg, values, type;
+	addr args, values, type;
 
-	GetTypeTable(&arg, T);
+	GetTypeTable(&args, T);
 	GetTypeTable(&type, EnvironmentNull);
-	typeargs_var1opt1(&arg, arg, type);
+	typeargs_var1opt1(&args, args, type);
 	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_constantp(void)
@@ -440,10 +596,13 @@ static void defun_constantp(void)
 _g void init_common_eval(void)
 {
 	SetPointerCall(defmacro,  macro,     lambda);
+	SetPointerCall(defun,     var1opt1,  compile);
 	SetPointerCall(defun,     var1,      eval);
+	SetPointerCall(defun,     var1opt1,  compiler_macro_function);
+	SetPointerCall(defun,     var2opt1,  setf_compiler_macro_function);
+	SetPointerCall(defmacro,  macro,     define_compiler_macro);
 	SetPointerCall(defmacro,  macro,     defmacro);
 	SetPointerCall(defun,     var1opt1,  macro_function);
-	SetPointerCall(defun,     var2opt1,  setf_macro_function);
 	SetPointerCall(defun,     var2opt1,  setf_macro_function);
 	SetPointerCall(defun,     var1opt1,  macroexpand);
 	SetPointerCall(defun,     var1opt1,  macroexpand_1);
@@ -456,10 +615,14 @@ _g void init_common_eval(void)
 _g void build_common_eval(void)
 {
 	defmacro_lambda();
+	defun_compile();
 	defun_eval();
 	defspecial_eval_when();
 	defspecial_load_time_value();
 	defspecial_quote();
+	defun_compiler_macro_function();
+	defun_setf_compiler_macro_function();
+	defmacro_define_compiler_macro();
 	defmacro_defmacro();
 	defun_macro_function();
 	defun_setf_macro_function();
@@ -467,6 +630,8 @@ _g void build_common_eval(void)
 	defun_macroexpand_1();
 	defmacro_define_symbol_macro();
 	defspecial_symbol_macrolet();
+	/* macroexpand-hook */
+	/* proclaim */
 	defmacro_declaim();
 	defspecial_locally();
 	defspecial_the();

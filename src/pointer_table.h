@@ -91,6 +91,7 @@ enum pointer_index {
 	p_macro_lambda_code,
 	p_defmacro_code,
 	p_deftype_code,
+	p_define_compiler_macro_code,
 	p_define_symbol_macro_code,
 	p_flet_code,
 	p_labels_code,
@@ -116,7 +117,11 @@ enum pointer_index {
 	p_progv_code,
 	/* common-eval */
 	p_defmacro_lambda,
+	p_defun_compile,
 	p_defun_eval,
+	p_defun_compiler_macro_function,
+	p_defun_setf_compiler_macro_function,
+	p_defmacro_define_compiler_macro,
 	p_defmacro_defmacro,
 	p_defun_macro_function,
 	p_defun_setf_macro_function,
@@ -1053,10 +1058,11 @@ enum pointer_index {
 	p_defun_restart_warning,
 	p_defun_handler_warning,
 	p_defun_handler_savecore,
-	/* eval-main */
+	/* eval */
 	p_defun_eval_loop_abort_function,
 	p_defun_eval_loop_abort_report,
 	p_defun_eval_loop_abort_test,
+	p_defun_handler_compile,
 	/* rt */
 	p_defun_push_entries,
 	p_defun_rem_all_tests,

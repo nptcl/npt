@@ -83,6 +83,7 @@ env_version.c
 environment.c
 equal.c
 eval_code.c
+eval_common.c
 eval_copy.c
 eval_declare.c
 eval_main.c

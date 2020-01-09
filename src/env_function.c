@@ -446,18 +446,24 @@ _g int ed_common(Execute ptr, addr var)
  */
 static void dribble_message_begin(Execute ptr, addr file)
 {
-	addr name;
+	const char *str;
+	addr name, stream;
 
 	pathname_designer_heap(ptr, file, &name);
-	Return0(format_stream(ptr, file, "~&;; DRIBBLE begin to write ~S.~%", name, NULL));
+	standard_output_stream(ptr, &stream);
+	str = "~&;; DRIBBLE begin to write ~S.~%";
+	Return0(format_stream(ptr, stream, str, name, NULL));
 }
 
 static void dribble_message_end(Execute ptr, addr file)
 {
-	addr name;
+	const char *str;
+	addr name, stream;
 
 	pathname_designer_heap(ptr, file, &name);
-	Return0(format_stream(ptr, file, "~&;; DRIBBLE end to write ~S.~%", name, NULL));
+	standard_output_stream(ptr, &stream);
+	str = "~&;; DRIBBLE end to write ~S.~%";
+	Return0(format_stream(ptr, stream, str, name, NULL));
 }
 
 static void dribble_set_stream(addr file)
@@ -504,7 +510,7 @@ static void dribble_set_stream(addr file)
 	SetValueSymbol(soutput, broadcast);
 }
 
-static void dribble_open(Execute ptr, addr file)
+static void dribble_open_file(Execute ptr, addr file)
 {
 	physical_pathname_heap(ptr, file, &file);
 	if (wild_pathname_boolean(file, Nil)) {
@@ -520,6 +526,21 @@ static void dribble_open(Execute ptr, addr file)
 			Stream_Open_External_Default);
 	dribble_set_stream(file);
 	dribble_message_begin(ptr, file);
+}
+
+static void dribble_open(Execute ptr, addr file)
+{
+	addr check;
+
+	GetConst(SYSTEM_DRIBBLE_FILE, &check);
+	GetValueSymbol(check, &check);
+	if (check != Unbound) {
+		pathname_designer_heap(ptr, check, &check);
+		fmtw("DRIBBLE already open file ~S.", check, NULL);
+	}
+	else {
+		dribble_open_file(ptr, file);
+	}
 }
 
 static void dribble_close_stream(Execute ptr)
@@ -543,6 +564,8 @@ static void dribble_close_stream(Execute ptr)
 	GetValueSymbol(decho, &echo);
 	GetValueSymbol(dbroadcast, &broadcast);
 
+	/* close */
+	dribble_message_end(ptr, file);
 	SetValueSymbol(dfile, Unbound);
 	SetValueSymbol(dinput, Unbound);
 	SetValueSymbol(doutput, Unbound);
@@ -550,9 +573,6 @@ static void dribble_close_stream(Execute ptr)
 	SetValueSymbol(dbroadcast, Unbound);
 	SetValueSymbol(sinput, input);
 	SetValueSymbol(soutput, output);
-
-	/* close */
-	dribble_message_end(ptr, file);
 	close_stream(echo);
 	close_stream(broadcast);
 	close_stream(file);

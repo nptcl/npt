@@ -272,6 +272,7 @@ enum TypeTable {
 	TypeValues_StreamNull,
 	TypeValues_PrettyStream,
 	TypeValues_Function,
+	TypeValues_FunctionNull,
 	TypeValues_EqlT,
 	TypeValues_Package,
 	TypeValues_PackageNull,

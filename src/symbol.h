@@ -143,6 +143,12 @@ _g void evalsymbol_macro_symbol(addr symbol, addr *ret);
 _g void formsymbol_macro_symbol(addr symbol, addr *ret);
 _g void setsymbol_macro_symbol(addr symbol, addr eval, addr form);
 _g void remsymbol_macro_symbol(addr symbol);
+
+_g void get_compiler_macro_symbol(addr symbol, addr *value);
+_g void set_compiler_macro_symbol(addr symbol, addr form);
+_g void get_setf_compiler_macro_symbol(addr symbol, addr *value);
+_g void set_setf_compiler_macro_symbol(addr symbol, addr form);
+
 _g addr refscope_symbol(addr symbol);
 _g void getscope_symbol(addr symbol, addr *value);
 _g void setscope_symbol(addr symbol, addr value);

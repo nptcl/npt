@@ -1324,6 +1324,7 @@ DefTypeValues(Stream);
 DefTypeValues(StreamNull);
 DefTypeValues(PrettyStream);
 DefTypeValues(Function);
+DefTypeValues(FunctionNull);
 DefTypeValues(EqlT);
 DefTypeValues(Package);
 DefTypeValues(PackageNull);
@@ -3015,6 +3016,7 @@ _g void build_type_constant(void)
 	typevalues_StreamNull();
 	typevalues_PrettyStream();
 	typevalues_Function();
+	typevalues_FunctionNull();
 	typevalues_EqlT();
 	typevalues_Package();
 	typevalues_PackageNull();

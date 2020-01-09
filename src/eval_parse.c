@@ -903,6 +903,34 @@ static int parse_deftype(Execute ptr, addr *ret, addr cons)
 	return 0;
 }
 
+/* define-compiler-macro */
+static int parse_define_compiler_macro(Execute ptr, addr *ret, addr cons)
+{
+	addr eval, name, args, decl, doc, body;
+	LocalHold hold;
+
+	/* (eval::define-compiler-macro name args decl doc body) */
+	List_bind(cons, &name, &args, &decl, &doc, &body, NULL);
+	hold = LocalHold_local(ptr);
+	if (parse_macro_lambda_list(ptr, &args, args)) return 1;
+	localhold_push(hold, args);
+	implicit_block(&body, name, body);
+	localhold_push(hold, body);
+	if (localhold_parse_allcons(hold, ptr, &body, body)) return 1;
+	localhold_end(hold);
+
+	/* define-compiler-macro */
+	eval_parse_heap(&eval, EVAL_PARSE_DEFINE_COMPILER_MACRO, 5);
+	SetEvalParse(eval, 0, name);
+	SetEvalParse(eval, 1, args);
+	SetEvalParse(eval, 2, decl);
+	SetEvalParse(eval, 3, doc);
+	SetEvalParse(eval, 4, body);
+	*ret = eval;
+
+	return 0;
+}
+
 /* macro-lambda */
 static int parse_macro_lambda(Execute ptr, addr *ret, addr cons)
 {
@@ -2058,7 +2086,7 @@ static int parse_cons_check_constant(addr call, constindex index)
 	return check == call;
 }
 
-static int parse_cons(Execute ptr, addr *ret, addr cons)
+static int parse_cons_car(Execute ptr, addr *ret, addr cons)
 {
 	addr call, args;
 
@@ -2135,6 +2163,9 @@ static int parse_cons(Execute ptr, addr *ret, addr cons)
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DEFTYPE)) {
 		return parse_deftype(ptr, ret, args);
 	}
+	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DEFINE_COMPILER_MACRO)) {
+		return parse_define_compiler_macro(ptr, ret, args);
+	}
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_MACRO_LAMBDA)) {
 		return parse_macro_lambda(ptr, ret, args);
 	}
@@ -2170,6 +2201,62 @@ static int parse_cons(Execute ptr, addr *ret, addr cons)
 	}
 
 	return parse_call(ptr, ret, call, args);
+}
+
+static int compiler_macroexpand_p(Execute ptr)
+{
+	addr pos;
+
+	GetConst(SYSTEM_COMPILER_MACRO, &pos);
+	getspecial_local(ptr, pos, &pos);
+
+	return pos != Unbound && pos != Nil;
+}
+
+static int parse_cons_expander_p(Execute ptr, addr *ret, addr cons)
+{
+	addr check;
+
+	if (! compiler_macroexpand_p(ptr))
+		return 0;
+	GetCar(cons, &check);
+	if (! symbolp(check))
+		return 0;
+	get_compiler_macro_symbol(check, &check);
+	if (check == Nil)
+		return 0;
+	*ret = check;
+	return 1;
+}
+
+static int parse_cons_expander(Execute ptr, addr *ret, addr call, addr cons)
+{
+	int check;
+	addr env, pos;
+	LocalHold hold;
+
+	environment_heap(ptr, &env);
+	hold = LocalHold_local_push(ptr, env);
+	check = call_macroexpand_hook(ptr, &pos, call, cons, env);
+	close_environment(env);
+	localhold_end(hold);
+	if (check)
+		return 1;
+	/* equal */
+	if (equal_function(cons, pos))
+		return parse_cons_car(ptr, ret, cons);
+	else
+		return parse_execute(ptr, ret, pos);
+}
+
+static int parse_cons(Execute ptr, addr *ret, addr cons)
+{
+	addr call;
+
+	if (parse_cons_expander_p(ptr, &call, cons))
+		return parse_cons_expander(ptr, ret, call, cons);
+	else
+		return parse_cons_car(ptr, ret, cons);
 }
 
 static void parse_array(addr *ret, addr pos)

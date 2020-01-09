@@ -46,6 +46,9 @@
     (princ (make-condition 'define-condition7) stream))
   "DEF200")
 
+(deftest-error define-condition.9
+  (eval '(define-condition aaa () () (:metaclass standard-class))))
+
 
 ;;
 ;;  degrade

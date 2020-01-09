@@ -296,6 +296,34 @@ static void copy_deftype(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
+static void copy_define_compiler_macro(LocalRoot local, addr *ret, addr eval)
+{
+	enum EVAL_PARSE type;
+	addr name, args, decl, doc, cons;
+
+	GetEvalParseType(eval, &type);
+	Check(type != EVAL_PARSE_DEFINE_COMPILER_MACRO, "parse error");
+	GetEvalParse(eval, 0, &name);
+	GetEvalParse(eval, 1, &args);
+	GetEvalParse(eval, 2, &decl);
+	GetEvalParse(eval, 3, &doc);
+	GetEvalParse(eval, 4, &cons);
+
+	copylocal_object(local, &name, name);
+	copy_macro_lambda(local, &args, args);
+	copy_declaim_nil(local, &decl, decl);
+	copylocal_object(local, &doc, doc);
+	copy_allcons(local, &cons, cons);
+
+	eval_parse_alloc(local, &eval, type, 5);
+	SetEvalParse(eval, 0, name);
+	SetEvalParse(eval, 1, args);
+	SetEvalParse(eval, 2, decl);
+	SetEvalParse(eval, 3, doc);
+	SetEvalParse(eval, 4, cons);
+	*ret = eval;
+}
+
 static void copy_define_symbol_macro(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
@@ -857,6 +885,10 @@ static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 
 		case EVAL_PARSE_DEFTYPE:
 			copy_deftype(local, ret, pos);
+			break;
+
+		case EVAL_PARSE_DEFINE_COMPILER_MACRO:
+			copy_define_compiler_macro(local, ret, pos);
 			break;
 
 		case EVAL_PARSE_DEFINE_SYMBOL_MACRO:

@@ -1460,6 +1460,17 @@ static void code_deftype(LocalRoot local, addr code, addr scope)
 	if_push_result(local, code);
 }
 
+static void code_define_compiler_macro(LocalRoot local, addr code, addr scope)
+{
+	addr call, doc;
+
+	code_macro_function(local, code, scope);
+	GetEvalScopeIndex(scope, EvalLambda_Call, &call);
+	GetEvalScopeIndex(scope, EvalLambda_Doc, &doc);
+	Code_double(local, code, DEFINE_COMPILER_MACRO, call, doc);
+	if_push_result(local, code);
+}
+
 static void code_dbind_args(LocalRoot local, addr code, addr args)
 {
 	code_macro_bind_args(local, code, args, &args);
@@ -2068,6 +2079,10 @@ static void code_execute(LocalRoot local, addr code, addr scope)
 
 		case EVAL_PARSE_DEFTYPE:
 			code_deftype(local, code, scope);
+			break;
+
+		case EVAL_PARSE_DEFINE_COMPILER_MACRO:
+			code_define_compiler_macro(local, code, scope);
 			break;
 
 		case EVAL_PARSE_DESTRUCTURING_BIND:

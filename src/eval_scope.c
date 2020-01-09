@@ -2559,6 +2559,28 @@ static int scope_deftype(Execute ptr, addr *ret, addr eval)
 
 
 /*
+ *  define-compiler-macro
+ */
+static int scope_define_compiler_macro(Execute ptr, addr *ret, addr eval)
+{
+	struct lambda_struct str;
+
+	Check(! eval_parse_p(eval), "type error");
+	init_lambda_struct(&str, EVAL_PARSE_DEFINE_COMPILER_MACRO, 1);
+	GetEvalParse(eval, 0, &str.call);
+	GetEvalParse(eval, 1, &str.args);
+	GetEvalParse(eval, 2, &str.decl);
+	GetEvalParse(eval, 3, &str.doc);
+	GetEvalParse(eval, 4, &str.cons);
+	if (macro_lambda_object(ptr, &str, &eval)) return 1;
+	SetEvalScopeIndex(eval, EvalLambda_Call, str.call);
+	*ret = eval;
+
+	return 0;
+}
+
+
+/*
  *  destructuring-bind
  */
 static int scope_destructuring_bind(Execute ptr, addr *ret, addr eval)
@@ -4117,6 +4139,9 @@ static int scope_eval_downcase(Execute ptr, addr *ret, addr eval)
 
 		case EVAL_PARSE_DEFTYPE:
 			return scope_deftype(ptr, ret, eval);
+
+		case EVAL_PARSE_DEFINE_COMPILER_MACRO:
+			return scope_define_compiler_macro(ptr, ret, eval);
 
 		case EVAL_PARSE_DESTRUCTURING_BIND:
 			return scope_destructuring_bind(ptr, ret, eval);
