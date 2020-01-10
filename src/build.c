@@ -8,6 +8,7 @@
 #include "clos_type.h"
 #include "code.h"
 #include "common.h"
+#include "compile.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -80,6 +81,7 @@ _g void initlisp(void)
 	init_clos();
 	init_code();
 	init_common();
+	init_compile();
 	init_condition();
 	init_control();
 	init_copy();

@@ -4,6 +4,7 @@
 #include "cons_list.h"
 #include "control.h"
 #include "eval_common.h"
+#include "eval_declare.h"
 #include "eval_parse.h"
 #include "function.h"
 #include "gc.h"
@@ -16,7 +17,7 @@
 static void compiler_macro_function_symbol(addr var, addr env, addr *ret)
 {
 	if (env != Unbound && find_environment(var, env, &env)) {
-		/* compiler-macro-function is shaddowed */
+		/* compiler-macro-function is shadowed */
 		*ret = Nil;
 		return;
 	}
@@ -48,7 +49,7 @@ _g void compiler_macro_function_common(addr var, addr env, addr *ret)
 static void setf_compiler_macro_function_symbol(addr var, addr env, addr value)
 {
 	if (env != Unbound && find_environment(var, env, &env)) {
-		/* compiler-macro-function is shaddowed */
+		/* compiler-macro-function is shadowed */
 		fmte("COMPILER-MACRO-FUNCTION ~S is shadowed in the environment.", var, NULL);
 		return;
 	}

@@ -56,6 +56,7 @@ common_symbols.c
 common_system.c
 common_types.c
 common.c
+compile.c
 condition.c
 cons.c
 cons_common.c

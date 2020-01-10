@@ -185,3 +185,43 @@
       (compile nil '(lambda () (compiler-macro3 1 2 3)))))
   6)
 
+
+;;
+;;  macroexpand-hook
+;;
+(defmacro macroexpand-hook1 (x)
+  (format nil "<<<~A>>>" x))
+
+(deftest macroexpand-hook.1
+  (let ((*macroexpand-hook*
+          (lambda (call x e)
+            (if (and (consp x) (eq (car x) 'macroexpand-hook1))
+              :hello
+              (funcall call x e)))))
+    (macroexpand '(macroexpand-hook1 10)))
+  :hello t)
+
+(deftest macroexpand-hook.2
+  (macroexpand '(macroexpand-hook1 10))
+  "<<<10>>>" t)
+
+(define-compiler-macro macroexpand-hook3 (x)
+  (format nil "+++~A+++" x))
+
+(deftest macroexpand-hook.3
+  (let ((*macroexpand-hook*
+          (lambda (call x e)
+            (if (and (consp x) (eq (car x) 'macroexpand-hook3))
+              :hello
+              (funcall call x e)))))
+    (handler-bind ((warning #'muffle-warning))
+      (funcall
+        (compile nil '(lambda () (macroexpand-hook3 20))))))
+  :hello)
+
+(deftest macroexpand-hook.4
+  (handler-bind ((warning #'muffle-warning))
+    (funcall
+      (compile nil '(lambda () (macroexpand-hook3 20)))))
+  "+++20+++")
+

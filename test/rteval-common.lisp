@@ -462,3 +462,44 @@
   (constantp ''temp)
   t)
 
+(deftest proclaim.1
+  (proclaim nil)
+  nil)
+
+(deftest proclaim.2
+  (progn
+    (proclaim '(special proclaim-test2 proclaim-test2a proclaim-test2b))
+    (lisp-system::specialp 'proclaim-test2))
+  t)
+
+(deftest proclaim.3
+  (progn
+    (proclaim '(type integer proclaim-test3))
+    (eval '(setq proclaim-test3 100))
+    (eval 'proclaim-test3))
+  100)
+
+(deftest proclaim.4
+  (proclaim '(ftype function proclaim-test4))
+  nil)
+
+(deftest proclaim.5
+  (proclaim '(inline proclaim-test5 (setf proclaim-test5a)))
+  nil)
+
+(deftest proclaim.6
+  (proclaim '(notinline proclaim-test6 (setf proclaim-test6a)))
+  nil)
+
+(deftest proclaim.7
+  (proclaim '(optimize (compilation-speed 0)
+                       (debug 1)
+                       (space 2)
+                       (speed 3)
+                       safety))
+  nil)
+
+(deftest proclaim.8
+  (proclaim '(declaration hello-proclaim-test8))
+  nil)
+

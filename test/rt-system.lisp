@@ -1,6 +1,12 @@
 ;;
 ;;  ANSI COMMON LISP: 24. System Construction
 ;;
+(load #p"test/rtsystem-compile.lisp")
+
+
+;;
+;;  load
+;;
 #+lisp-degrade
 (deftest *load-pathname*.1
   #.*load-pathname*

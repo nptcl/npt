@@ -149,7 +149,5 @@ _g void build_common(void)
 	build_common_system();
 	/* 25. Environment */
 	build_common_environment();
-	/* After settings */
-	build_common_after_settings();
 }
 

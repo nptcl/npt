@@ -38,6 +38,7 @@ _g void runcode_rollback(Execute ptr, const struct runcode_value *value);
 _g int runcode_free_control(Execute ptr, addr control);
 _g int free_check_control(Execute ptr, addr control, int check);
 _g int free_control(Execute ptr, addr control);
+_g void return_values_control(Execute ptr, addr control);
 
 /* getcontrol */
 _g void getdata_control(Execute ptr, addr *ret);

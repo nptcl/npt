@@ -131,18 +131,3 @@ _g void keyword_start2_end2(size_t size, addr rest, size_t *pstart, size_t *pend
 			size, rest, pstart, pend);
 }
 
-
-/*
- *  build
- */
-_g void build_common_after_settings(void)
-{
-	addr symbol, value;
-
-	/* (defvar *macroexpand-hook* #'funcall) */
-	GetConst(COMMON_FUNCALL, &value);
-	GetFunctionSymbol(value, &value);
-	GetConst(SPECIAL_MACROEXPAND_HOOK, &symbol);
-	SetValueSymbol(symbol, value);
-}
-

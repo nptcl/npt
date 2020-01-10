@@ -171,7 +171,7 @@ static void set_type_declare_heap(addr pos, addr symbol, addr type)
 	addr list;
 
 	Check(! eval_declare_p(pos), "type error");
-	CheckType(symbol, LISPTYPE_SYMBOL);
+	CheckSymbol(symbol);
 	CheckType(type, LISPTYPE_TYPE);
 	GetEvalDeclare(pos, EVAL_DECLARE_TYPE_VALUE, &list);
 	if (setplist_heap(list, symbol, type, &list))
@@ -182,7 +182,7 @@ static void push_type_declare_heap(addr pos, addr symbol, addr type)
 	addr list, temp;
 
 	Check(! eval_declare_p(pos), "type error");
-	CheckType(symbol, LISPTYPE_SYMBOL);
+	CheckSymbol(symbol);
 	CheckType(type, LISPTYPE_TYPE);
 	GetEvalDeclare(pos, EVAL_DECLARE_TYPE_VALUE, &list);
 
@@ -234,7 +234,7 @@ static void plist_constant_declare_heap(addr pos, addr symbol,
 	addr list, value;
 
 	Check(! eval_declare_p(pos), "type error");
-	CheckType(symbol, LISPTYPE_SYMBOL);
+	CheckSymbol(symbol);
 	GetConstant(constant, &value);
 	GetEvalDeclare(pos, declare, &list);
 	if (setplist_heap(list, symbol, value, &list))
@@ -302,7 +302,7 @@ static void push_constant_declare_heap(addr pos, addr symbol,
 	addr list;
 
 	Check(! eval_declare_p(pos), "type error");
-	CheckType(symbol, LISPTYPE_SYMBOL);
+	CheckSymbol(symbol);
 	GetEvalDeclare(pos, declare, &list);
 	if (pushnew_heap(list, symbol, &list))
 		SetEvalDeclare(pos, declare, list);
@@ -340,7 +340,7 @@ _g void push_declaration_declare_heap(addr pos, addr symbol)
 static int check_constant_declare(addr pos, addr symbol, enum EVAL_DECLARE declare)
 {
 	Check(! eval_declare_p(pos), "type error");
-	CheckType(symbol, LISPTYPE_SYMBOL);
+	CheckSymbol(symbol);
 	GetEvalDeclare(pos, declare, &pos);
 	return find_list_eq_unsafe(symbol, pos);
 }
@@ -1270,5 +1270,145 @@ _g void set_optimize_space_declare(addr pos, OptimizeType value)
 _g void set_optimize_speed_declare(addr pos, OptimizeType value)
 {
 	set_index_optimize_declare(pos, value, EVAL_OPTIMIZE_SPEED);
+}
+
+
+/*
+ *  proclaim
+ */
+static int parse_proclaim_heap(Execute ptr, addr env, addr car, addr *ret)
+{
+	addr eval, tail;
+	LocalHold hold;
+
+	eval_declare_heap(&eval);
+	hold = LocalHold_local_push(ptr, eval);
+	getcons(car, &car, &tail);
+	if (! IsSymbol(car))
+		TypeError(car, SYMBOL);
+	if (push_declaim(ptr, env, eval, car, tail))
+		return 1;
+	localhold_end(hold);
+	*ret = eval;
+
+	return 0;
+}
+
+static void apply_type_value_proclaim(addr pos)
+{
+	addr key, value;
+
+	GetEvalDeclare(pos, EVAL_DECLARE_TYPE_VALUE, &pos);
+	while (pos != Nil) {
+		GetCons(pos, &key, &pos);
+		GetCons(pos, &value, &pos);
+		CheckSymbol(key);
+		CheckType(value, LISPTYPE_TYPE);
+		settype_value_symbol(key, value);
+	}
+}
+
+static void apply_type_function_proclaim(addr pos)
+{
+	addr key, value, symbol;
+
+	GetEvalDeclare(pos, EVAL_DECLARE_TYPE_FUNCTION, &pos);
+	while (pos != Nil) {
+		GetCons(pos, &key, &pos);
+		GetCons(pos, &value, &pos);
+		CheckType(key, LISPTYPE_CALLNAME);
+		CheckType(value, LISPTYPE_TYPE);
+
+		GetCallName(key, &symbol);
+		if (symbol_callname_p(key))
+			settype_function_symbol(symbol, value);
+		else
+			settype_setf_symbol(symbol, value);
+	}
+}
+
+static void apply_special_proclaim(addr pos)
+{
+	addr symbol;
+
+	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &pos);
+	while (pos != Nil) {
+		GetCons(pos, &symbol, &pos);
+		CheckSymbol(symbol);
+		setspecial_symbol(symbol);
+	}
+}
+
+static void apply_inline_value_proclaim(addr key, addr value)
+{
+	addr check, symbol;
+
+	GetCallName(key, &symbol);
+	/* inline */
+	GetConst(COMMON_INLINE, &check);
+	if (check == value) {
+		if (symbol_callname_p(key))
+			setinline_function_symbol(symbol);
+		else
+			setinline_setf_symbol(symbol);
+	}
+	/* notinline */
+	GetConst(COMMON_NOTINLINE, &check);
+	if (check == value) {
+		if (symbol_callname_p(key))
+			setnotinline_function_symbol(symbol);
+		else
+			setnotinline_setf_symbol(symbol);
+	}
+}
+
+static void apply_inline_proclaim(addr pos)
+{
+	addr key, value;
+
+	GetEvalDeclare(pos, EVAL_DECLARE_INLINE, &pos);
+	while (pos != Nil) {
+		GetCons(pos, &key, &pos);
+		GetCons(pos, &value, &pos);
+		CheckType(key, LISPTYPE_CALLNAME);
+		apply_inline_value_proclaim(key, value);
+	}
+}
+
+static void apply_optimize_proclaim(addr pos)
+{
+	int i;
+	OptimizeType value;
+
+	for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++) {
+		GetEvalDeclareOptimize(pos, i, &value);
+		if (0 <= value)
+			apply_optimize_declaim(i, value);
+	}
+}
+
+static void apply_declaration_proclaim(addr pos)
+{
+	addr symbol;
+
+	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &pos);
+	while (pos != Nil) {
+		GetCons(pos, &symbol, &pos);
+		CheckSymbol(symbol);
+		push_declaration_declaim(symbol);
+	}
+}
+
+_g int proclaim_common(Execute ptr, addr var)
+{
+	Return1(parse_proclaim_heap(ptr, Nil, var, &var));
+	apply_type_value_proclaim(var);
+	apply_type_function_proclaim(var);
+	apply_special_proclaim(var);
+	apply_inline_proclaim(var);
+	apply_optimize_proclaim(var);
+	apply_declaration_proclaim(var);
+
+	return 0;
 }
 

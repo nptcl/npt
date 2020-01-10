@@ -575,6 +575,15 @@ static void copy_values_control(addr src, addr dst)
 	str2->sizer = str1->sizer;
 }
 
+_g void return_values_control(Execute ptr, addr control)
+{
+	addr next;
+
+	GetControl(control, Control_Next, &next);
+	Check(next == Nil, "close_return error");
+	copy_values_control(control, next);
+}
+
 static void close_return(Execute ptr, addr root)
 {
 	addr next;
@@ -961,11 +970,9 @@ static int wake_handler(Execute ptr, addr control, addr instance, addr array, in
 
 	GetArrayA2(array, 0, &clos);
 	if (clos != Nil && clos_subtype_p(instance, clos)) {
-		SetArrayA2(array, 0, Nil);
 		GetArrayA2(array, 1, &value);
 		if (wake_call_handler(ptr, control, value, instance, GetUser(array)))
 			return 1;
-		SetArrayA2(array, 0, clos);
 		*ret = 1;
 		return 0;
 	}

@@ -128,6 +128,7 @@ enum pointer_index {
 	p_defun_macroexpand,
 	p_defun_macroexpand_1,
 	p_defmacro_define_symbol_macro,
+	p_defun_proclaim,
 	p_defmacro_declaim,
 	p_defun_special_operator_p,
 	p_defun_constantp,
@@ -941,7 +942,12 @@ enum pointer_index {
 	p_defun_set_syntax_from_char,
 	p_defmacro_with_standard_io_syntax,
 	/* common-system */
+	p_defun_compile_file,
+	p_defun_compile_file_pathname,
 	p_defun_load,
+	p_defmacro_with_compilation_unit,
+	p_defun_handler_delay_warning,
+	p_defun_finalize_delay_warning,
 	/* common-environment */
 	p_defun_decode_universal_time,
 	p_defun_encode_universal_time,
@@ -1190,6 +1196,7 @@ enum pointer_index {
 	p_defun_syscall_make_callname,
 	p_defun_syscall_trace_add,
 	p_defun_syscall_trace_del,
+	p_defun_syscall_with_compilation_unit,
 
 	/* size */
 	p_size

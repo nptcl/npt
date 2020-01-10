@@ -175,6 +175,8 @@
 :or
 :order
 :output
+:output-file
+:override
 :overwrite
 :package
 :pathname
@@ -1553,6 +1555,14 @@ lisp-system::dispatch-let
 
 
 ;;
+;;  system
+;;
+lisp-system::delay-warning
+(lisp-system::*delay-warning-list* :constant system :name delay-warning-list)
+(lisp-system::*delay-warning-switch* :constant system :name delay-warning-switch)
+
+
+;;
 ;;  environment
 ;;
 (lisp-system::*encode-universal-1970* :constant system :name encode-universal-1970)
@@ -1925,6 +1935,7 @@ lisp-system::eastasian-width
 lisp-system::timeinfo
 lisp-system::run-program
 lisp-system::make-callname
+lisp-system::with-compilation-unit
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

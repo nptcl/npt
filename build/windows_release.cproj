@@ -201,6 +201,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_system.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_types.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\condition.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cons.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cons_common.c" />
@@ -403,6 +404,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common_header.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\condition.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cons_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cons_list.h" />

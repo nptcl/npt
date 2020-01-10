@@ -68,5 +68,8 @@ _g void set_optimize_safety_declare(addr pos, OptimizeType value);
 _g void set_optimize_space_declare(addr pos, OptimizeType value);
 _g void set_optimize_speed_declare(addr pos, OptimizeType value);
 
+/* common */
+_g int proclaim_common(Execute ptr, addr var);
+
 #endif
 

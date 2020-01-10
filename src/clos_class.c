@@ -1587,6 +1587,11 @@ static void build_clos_class_condition(LocalRoot local)
 			CONDITION_SIMPLE_FILE_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_FILE_ERROR);
+	/* lisp-system::delay-warning (warning) */
+	ClosMakeClass1(local, metaclass,
+			SYSTEM_DELAY_WARNING,
+			CONDITION_DELAY_WARNING,
+			CONDITION_WARNING);
 }
 
 static void build_clos_class_system(LocalRoot local)

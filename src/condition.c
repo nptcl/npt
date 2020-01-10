@@ -593,10 +593,7 @@ _g int signal_function(Execute ptr, addr condition)
 	if (check)
 		return invoke_debugger(ptr, condition);
 	/* signal */
-	if (invoke_handler_control(ptr, condition, &check))
-		return 1;
-
-	return 0;
+	return invoke_handler_control(ptr, condition, &check);
 }
 
 _g int error_common(Execute ptr, addr condition)

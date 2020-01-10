@@ -486,6 +486,39 @@ static void defspecial_symbol_macrolet(void)
 }
 
 
+/* (defun proclaim (declaration) ...) -> null */
+static void function_proclaim(Execute ptr, addr var)
+{
+	Return0(proclaim_common(ptr, var));
+	setresult_control(ptr, Nil);
+}
+
+static void type_proclaim(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_proclaim(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_PROCLAIM, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_proclaim);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_proclaim(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defmacro declaim (&rest declarations)  ...) */
 static void function_declaim(Execute ptr, addr form, addr env)
 {
@@ -607,6 +640,7 @@ _g void init_common_eval(void)
 	SetPointerCall(defun,     var1opt1,  macroexpand);
 	SetPointerCall(defun,     var1opt1,  macroexpand_1);
 	SetPointerCall(defmacro,  macro,     define_symbol_macro);
+	SetPointerCall(defun,     var1,      proclaim);
 	SetPointerCall(defmacro,  macro,     declaim);
 	SetPointerCall(defun,     var1,      special_operator_p);
 	SetPointerCall(defun,     var1opt1,  constantp);
@@ -630,8 +664,7 @@ _g void build_common_eval(void)
 	defun_macroexpand_1();
 	defmacro_define_symbol_macro();
 	defspecial_symbol_macrolet();
-	/* macroexpand-hook */
-	/* proclaim */
+	defun_proclaim();
 	defmacro_declaim();
 	defspecial_locally();
 	defspecial_the();

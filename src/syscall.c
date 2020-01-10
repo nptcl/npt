@@ -3,6 +3,7 @@
 #include "bignum.h"
 #include "character.h"
 #include "cmpl.h"
+#include "compile.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -2712,6 +2713,36 @@ static void defvar_compiler_macro(void)
 }
 
 
+/* (defun with-compilation-unit (override args lambda) ...) -> any */
+static void type_syscall_with_compilation_unit(addr *ret)
+{
+	addr args, values, type1, type2, type3;
+
+	GetTypeTable(&type1, T);
+	GetTypeTable(&type2, List);
+	GetTypeTable(&type3, Function);
+	typeargs_var3(&args, type1, type2, type3);
+	GetTypeTable(&values, T);
+	typevalues_rest(&values, values);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_with_compilation_unit(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_WITH_COMPILATION_UNIT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var3(pos, p_defun_syscall_with_compilation_unit);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_with_compilation_unit(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -2792,6 +2823,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, make_callname);
 	SetPointerSysCall(defun, var1, trace_add);
 	SetPointerSysCall(defun, var1, trace_del);
+	SetPointerSysCall(defun, var3, with_compilation_unit);
 }
 
 _g void build_syscall(void)
@@ -2891,5 +2923,6 @@ _g void build_syscall(void)
 	defun_trace_del();
 	/* compile */
 	defvar_compiler_macro();
+	defun_with_compilation_unit();
 }
 

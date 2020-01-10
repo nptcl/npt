@@ -265,6 +265,13 @@ static void type_funcall(addr *ret)
 	type_compiled_heap(arg, values, ret);
 }
 
+static void defvar_macroexpand_hook(addr value)
+{
+	addr symbol;
+	GetConst(SPECIAL_MACROEXPAND_HOOK, &symbol);
+	SetValueSymbol(symbol, value);
+}
+
 static void defun_funcall(void)
 {
 	addr symbol, pos, type;
@@ -278,6 +285,9 @@ static void defun_funcall(void)
 	type_funcall(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
+
+	/* (defvar *macroexpand-hook* #'funcall) */
+	defvar_macroexpand_hook(pos);
 }
 
 

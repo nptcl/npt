@@ -32,8 +32,5 @@ _g void keyword_start_end(size_t size, addr rest, size_t *pstart, size_t *pend);
 _g void keyword_start1_end1(size_t size, addr rest, size_t *pstart, size_t *pend);
 _g void keyword_start2_end2(size_t size, addr rest, size_t *pstart, size_t *pend);
 
-/* after settings */
-_g void build_common_after_settings(void);
-
 #endif
 
