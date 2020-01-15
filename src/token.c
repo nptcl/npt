@@ -372,7 +372,7 @@ _g void maketoken_float(Execute ptr, addr queue, addr *ret)
 	size_t size;
 
 	make_charqueue_heap(queue, &queue);
-	string_posbodylen(queue, &body, &size);
+	strvect_posbodylen(queue, &body, &size);
 	if (floattable(ptr, body, size, ret))
 		fmte("parse-float error", NULL);
 }

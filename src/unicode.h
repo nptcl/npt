@@ -169,7 +169,6 @@ _g void strvect_fill(addr pos, addr item, addr start, addr end);
 _g void strvect_subseq_index(addr *ret, addr pos, size_t index1, size_t index2);
 _g void strvect_subseq(addr *ret, addr pos, addr start, addr end);
 _g void strvect_setget(addr pos1, size_t index1, addr pos2, size_t index2);
-_g void strvect_adjust(addr *ret, addr array, size_t size, addr value, addr check);
 _g void strvect_reverse(LocalRoot local, addr *ret, addr pos);
 _g void strvect_nreverse(addr *ret, addr pos);
 

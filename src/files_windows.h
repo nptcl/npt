@@ -826,7 +826,7 @@ _g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
 	name_pathname_heap(ptr, pos, &pos);
 
 	/* realpath */
-	string_posbodylen(pos, &u, &s32);
+	strvect_posbodylen(pos, &u, &s32);
 	if (UTF32_length_utf16(u, s32, &s16)) {
 		if (! errorp)
 			goto error_nil;

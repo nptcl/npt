@@ -23,7 +23,6 @@ _g void vector_signed(addr *ret, size_t size, enum ARRAY_TYPE type, int bs, addr
 _g void vector_float(addr *ret, size_t size, enum ARRAY_TYPE type, addr value);
 
 _g void vector_setelt(addr pos, size_t index, addr value);
-_g void vector_adjust(addr *ret, addr array, size_t size, addr value, addr check);
 _g void vector_reverse(LocalRoot local, addr *ret, addr pos);
 _g void vector_nreverse(addr *ret, addr pos);
 

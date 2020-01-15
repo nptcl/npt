@@ -1,6 +1,6 @@
 #include "eval_scope.c"
 #include "array.h"
-#include "array_object.h"
+#include "array_make.h"
 #include "bignum.h"
 #include "character.h"
 #include "clos.h"
@@ -231,7 +231,7 @@ static int test_scope_array(void)
 	addr eval, check;
 
 	GetTypeTable(&eval, T);
-	make_array_common(&eval, fixnumh(1), eval, Unbound, Unbound,
+	array_make_array(&eval, fixnumh(1), eval, Unbound, Unbound,
 			Nil, Nil, Nil, fixnumh(0));
 	eval_parse_execute(&eval, eval);
 	scope_array(&eval, eval);

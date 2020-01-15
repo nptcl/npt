@@ -1,5 +1,6 @@
 #include "array.h"
-#include "array_object.h"
+#include "array_access.h"
+#include "array_make.h"
 #include "bit.h"
 #include "build.h"
 #include "condition.h"
@@ -35,6 +36,12 @@ _g int bit_getint(addr pos, int *ret)
 	*ret = (int)value;
 
 	return 0;
+}
+
+_g void bit_getint_error(addr pos, int *ret)
+{
+	if (bit_getint(pos, ret))
+		fmte("Bit value ~S must be a 0 or 1.", pos, NULL);
 }
 
 
@@ -594,33 +601,6 @@ _g void bitmemory_setget(addr pos1, size_t index1, addr pos2, size_t index2)
 	bitmemory_setint(pos1, index1, value);
 }
 
-_g void bitmemory_adjust(addr *ret, addr array, size_t size, addr value, addr check)
-{
-	int temp, defvalue;
-	addr pos;
-	size_t i, arraysize;
-
-	defvalue = 0;
-	if (value != Unbound) {
-		if (bit_getint(value, &defvalue))
-			fmte("bit-vector :initial-value ~S must be a bit type.", value, NULL);
-	}
-	bitmemory_unsafe(NULL, &pos, size);
-	if (check == Unbound) {
-		bitmemory_length(array, &arraysize);
-		for (i = 0; i < size; i++) {
-			if (i < arraysize)
-				bitmemory_getint(array, i, &temp);
-			else {
-				if (value == Unbound) break;
-				temp = defvalue;
-			}
-			bitmemory_setint(pos, i, temp);
-		}
-	}
-	*ret = pos;
-}
-
 _g void bitmemory_reverse(LocalRoot local, addr *ret, addr pos)
 {
 	int temp;
@@ -712,14 +692,20 @@ _g int bvarray_refint(addr pos, size_t index)
 
 	if (ArrayInfoStruct(pos)->front <= index)
 		fmte("Index ~S is too large.", intsizeh(index), NULL);
-	if (array_get_bit(pos, index, &check))
-		fmte("Invalid array type.", NULL);
+	array_get_bit(pos, index, &check);
 	return check;
 }
 
 _g void bvarray_getint(addr pos, size_t index, int *ret)
 {
 	*ret = bvarray_refint(pos, index);
+}
+
+_g void bvarray_setint(addr pos, size_t index, int value)
+{
+	if (ArrayInfoStruct(pos)->front <= index)
+		fmte("Index ~S is too large.", intsizeh(index), NULL);
+	array_set_bit(pos, index, value);
 }
 
 
@@ -757,6 +743,19 @@ _g void bitvector_getint(addr pos, size_t index, int *ret)
 	}
 	if (bvarrayp(pos)) {
 		bvarray_getint(pos, index, ret);
+		return;
+	}
+	fmte("type error", NULL);
+}
+
+_g void bitvector_setint(addr pos, size_t index, int value)
+{
+	if (bitmemoryp(pos)) {
+		bitmemory_setint(pos, index, value);
+		return;
+	}
+	if (bvarrayp(pos)) {
+		bvarray_setint(pos, index, value);
 		return;
 	}
 	fmte("type error", NULL);

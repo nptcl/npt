@@ -1,6 +1,7 @@
 #include "array.h"
-#include "array_common.h"
+#include "array_access.h"
 #include "array_copy.h"
+#include "array_sequence.h"
 #include "array_vector.h"
 #include "bit.h"
 #include "condition.h"

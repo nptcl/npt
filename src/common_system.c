@@ -8,6 +8,7 @@
 #include "control.h"
 #include "eval.h"
 #include "file.h"
+#include "require.h"
 #include "type_parse.h"
 
 /* (defun compile-file
@@ -300,6 +301,36 @@ static void defvar_load_truename(void)
 }
 
 
+/* (defvar *compile-print* boolean) */
+static void defvar_compile_print(void)
+{
+	addr symbol, type;
+
+	/* symbol */
+	GetConst(SPECIAL_COMPILE_PRINT, &symbol);
+	SetValueSymbol(symbol, Nil);
+	setspecial_symbol(symbol);
+	/* type */
+	GetTypeTable(&type, T);
+	settype_value_symbol(symbol, type);
+}
+
+
+/* (defvar *compile-verbose* boolean) */
+static void defvar_compile_verbose(void)
+{
+	addr symbol, type;
+
+	/* symbol */
+	GetConst(SPECIAL_COMPILE_VERBOSE, &symbol);
+	SetValueSymbol(symbol, Nil);
+	setspecial_symbol(symbol);
+	/* type */
+	GetTypeTable(&type, T);
+	settype_value_symbol(symbol, type);
+}
+
+
 /* (defvar *load-print* boolean) */
 static void defvar_load_print(void)
 {
@@ -310,7 +341,7 @@ static void defvar_load_print(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetTypeTable(&type, Boolean);
+	GetTypeTable(&type, T);
 	settype_value_symbol(symbol, type);
 }
 
@@ -325,7 +356,7 @@ static void defvar_load_verbose(void)
 	SetValueSymbol(symbol, Nil);
 	setspecial_symbol(symbol);
 	/* type */
-	GetTypeTable(&type, Boolean);
+	GetTypeTable(&type, T);
 	settype_value_symbol(symbol, type);
 }
 
@@ -345,6 +376,73 @@ static void defvar_modules(void)
 }
 
 
+/* (defun provide (var) ...) -> null */
+static void function_provide(Execute ptr, addr var)
+{
+	provide_common(ptr, var);
+	setresult_control(ptr, Nil);
+}
+
+static void type_provide(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, StringDesigner);
+	typeargs_var1(&args, args);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_provide(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_PROVIDE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1(pos, p_defun_provide);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_provide(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun require (var) ...) -> null */
+static void function_require(Execute ptr, addr var, addr list)
+{
+	Return0(require_common(ptr, var, list));
+	setresult_control(ptr, Nil);
+}
+
+static void type_require(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&values, List);
+	typeargs_var1opt1(&args, args, values);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_require(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_REQUIRE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, p_defun_require);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_require(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -354,6 +452,8 @@ _g void init_common_system(void)
 	SetPointerCall(defun, var1dynamic, compile_file_pathname);
 	SetPointerCall(defmacro, macro, with_compilation_unit);
 	SetPointerCall(defun, var1dynamic, load);
+	SetPointerCall(defun, var1, provide);
+	SetPointerCall(defun, var1opt1, require);
 }
 
 _g void build_common_system(void)
@@ -367,10 +467,12 @@ _g void build_common_system(void)
 	defvar_compile_file_truename();
 	defvar_load_pathname();
 	defvar_load_truename();
+	defvar_compile_print();
+	defvar_compile_verbose();
 	defvar_load_print();
 	defvar_load_verbose();
 	defvar_modules();
-	/* provide */
-	/* require */
+	defun_provide();
+	defun_require();
 }
 

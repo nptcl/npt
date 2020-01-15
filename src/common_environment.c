@@ -379,6 +379,28 @@ static void defun_untrace(void)
 	settype_function(pos, type);
 }
 
+
+/* (defmacro step (form) ...) -> result */
+static void function_step(Execute ptr, addr form, addr env)
+{
+	step_common(ptr, form, env, &form);
+	setresult_control(ptr, form);
+}
+
+static void defmacro_step(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(COMMON_STEP, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_step);
+	SetMacroCommon(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
 /* (defmacro time (form) ...) -> result) */
 static void function_time(Execute ptr, addr form, addr env)
 {
@@ -904,6 +926,7 @@ _g void init_common_environment(void)
 	SetPointerCall(defun, var1opt1, describe);
 	SetPointerCall(defmacro, macro, trace);
 	SetPointerCall(defmacro, macro, untrace);
+	SetPointerCall(defmacro, macro, step);
 	SetPointerCall(defmacro, macro, time);
 	SetPointerCall(defun, empty, get_internal_real_time);
 	SetPointerCall(defun, empty, get_internal_run_time);
@@ -936,7 +959,7 @@ _g void build_common_environment(void)
 	defun_describe();
 	defun_trace();
 	defun_untrace();
-	/*step*/
+	defmacro_step();
 	defmacro_time();
 	defconstant_internal_time_units_per_second();
 	defun_get_internal_real_time();

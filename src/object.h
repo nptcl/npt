@@ -359,6 +359,7 @@ _g void incindex(addr pos, size_t value);
 _g void decindex(addr pos, size_t value);
 
 /* float */
+_g int single_float_p(addr value);
 _g addr single_float_heapr(single_float value);
 _g addr single_float_localr(LocalRoot local, single_float value);
 _g addr single_float_allocr(LocalRoot local, single_float value);
@@ -370,6 +371,7 @@ _g single_float refsinglefloat(addr pos);
 _g void getsinglefloat(addr pos, single_float *ret);
 _g void setsinglefloat(addr pos, single_float value);
 
+_g int double_float_p(addr value);
 _g addr double_float_heapr(double_float value);
 _g addr double_float_localr(LocalRoot local, double_float value);
 _g addr double_float_allocr(LocalRoot local, double_float value);
@@ -381,6 +383,7 @@ _g double_float refdoublefloat(addr pos);
 _g void getdoublefloat(addr pos, double_float *ret);
 _g void setdoublefloat(addr pos, double_float value);
 
+_g int long_float_p(addr value);
 _g addr long_float_heapr(long_float value);
 _g addr long_float_localr(LocalRoot local, long_float value);
 _g addr long_float_allocr(LocalRoot local, long_float value);

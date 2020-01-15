@@ -1,5 +1,6 @@
 #include "array.h"
-#include "array_object.h"
+#include "array_access.h"
+#include "array_make.h"
 #include "bignum.h"
 #include "bit.h"
 #include "build.h"
@@ -257,11 +258,11 @@ static int equalp_function_aa(addr a, addr b)
 	size_t size, i;
 
 	/* rank, dimension */
-	if (! array_dimension_equal(a, b))
+	if (! array_equal_dimension(a, b))
 		return 0;
 	/* fill-pointer */
-	array_rowlength(a, &size);
-	array_rowlength(b, &i);
+	array_get_rowlength(a, &size);
+	array_get_rowlength(b, &i);
 	if (size != i)
 		return 0;
 	/* body */
@@ -290,7 +291,7 @@ static int equalp_function_av(addr a, addr b)
 	/* size check */
 	if (! array_vector_p(a))
 		return 0;
-	array_rowlength(a, &size);
+	array_get_rowlength(a, &size);
 	lenarray(b, &i);
 	if (size != i)
 		return 0;
@@ -320,14 +321,15 @@ static int equalp_function_as(addr a, addr b)
 	/* size check */
 	if (! array_vector_p(a))
 		return 0;
-	array_rowlength(a, &size);
+	array_get_rowlength(a, &size);
 	strvect_length(b, &i);
 	if (size != i)
 		return 0;
 	/* body */
 	for (i = 0; i < size; i++) {
-		if (array_get_unicode(a, i, &c))
+		if (array_type(a) != ARRAY_TYPE_CHARACTER)
 			return 0;
+		array_get_unicode(a, i, &c);
 		strvect_getc(b, i, &d);
 		if (toUpperUnicode(c) != toUpperUnicode(d))
 			return 0;
@@ -347,14 +349,15 @@ static int equalp_function_ab(addr a, addr b)
 	/* size check */
 	if (! array_vector_p(a))
 		return 0;
-	array_rowlength(a, &size);
+	array_get_rowlength(a, &size);
 	bitmemory_length(b, &i);
 	if (size != i)
 		return 0;
 	/* body */
 	for (i = 0; i < size; i++) {
-		if (array_get_bit(a, i, &c))
+		if (array_type(a) != ARRAY_TYPE_BIT)
 			return 0;
+		array_get_bit(a, i, &c);
 		bitmemory_getint(b, i, &d);
 		if (c != d)
 			return 0;
@@ -596,11 +599,11 @@ static int equalrt_function_aa(addr a, addr b)
 	size_t size, i;
 
 	/* rank, dimension */
-	if (! array_dimension_equal(a, b))
+	if (! array_equal_dimension(a, b))
 		return 0;
 	/* fill-pointer */
-	array_rowlength(a, &size);
-	array_rowlength(b, &i);
+	array_get_rowlength(a, &size);
+	array_get_rowlength(b, &i);
 	if (size != i)
 		return 0;
 	/* body */
@@ -629,7 +632,7 @@ static int equalrt_function_av(addr a, addr b)
 	/* size check */
 	if (! array_vector_p(a))
 		return 0;
-	array_rowlength(a, &size);
+	array_get_rowlength(a, &size);
 	lenarray(b, &i);
 	if (size != i)
 		return 0;
@@ -659,14 +662,15 @@ static int equalrt_function_as(addr a, addr b)
 	/* size check */
 	if (! array_vector_p(a))
 		return 0;
-	array_rowlength(a, &size);
+	array_get_rowlength(a, &size);
 	strvect_length(b, &i);
 	if (size != i)
 		return 0;
 	/* body */
 	for (i = 0; i < size; i++) {
-		if (array_get_unicode(a, i, &c))
+		if (array_type(a) != ARRAY_TYPE_CHARACTER)
 			return 0;
+		array_get_unicode(a, i, &c);
 		strvect_getc(b, i, &d);
 		if (c != d)
 			return 0;

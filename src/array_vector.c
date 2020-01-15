@@ -1,5 +1,6 @@
 #include "array.h"
-#include "array_object.h"
+#include "array_access.h"
+#include "array_make.h"
 #include "array_vector.h"
 #include "bit.h"
 #include "condition.h"
@@ -155,6 +156,17 @@ static void vector_push_extend_resize(addr pos,
 	}
 }
 
+static int vector_push_extension(addr extension, size_t *ret)
+{
+	if (extension == Unbound) {
+		*ret = 0;
+		return 1;
+	}
+	if (GetIndex_integer(extension, ret))
+		fmte("Invalid extension value ~S.", extension, NULL);
+	return 0;
+}
+
 static void vector_push_extend_displaced(addr pos, addr extension)
 {
 	struct array_struct *str;
@@ -164,13 +176,8 @@ static void vector_push_extend_displaced(addr pos, addr extension)
 	str = ArrayInfoStruct(pos);
 	Check(str->size < str->refer, "reference size error");
 	diff = str->size - str->refer;
-	if (extension == Unbound) {
+	if (vector_push_extension(extension, &size))
 		size = diff;
-	}
-	else {
-		if (GetIndex_integer(extension, &size))
-			fmte("Invalid extension value ~S.", extension, NULL);
-	}
 	size += diff;
 	if (size < 16) size = 16;
 	resize = str->refer + size;
@@ -187,13 +194,8 @@ static void vector_push_extend_normal(addr pos, addr extension)
 
 	/* argument */
 	str = ArrayInfoStruct(pos);
-	if (extension == Unbound) {
+	if (vector_push_extension(extension, &size))
 		size = str->size;
-	}
-	else {
-		if (GetIndex_integer(extension, &size))
-			fmte("Invalid extension value ~S.", extension, NULL);
-	}
 	size += str->size;
 	if (size < 16) size = 16;
 	/* allocate */
@@ -202,7 +204,7 @@ static void vector_push_extend_normal(addr pos, addr extension)
 	str->size = size;
 }
 
-static void vector_push_extend_array(addr pos, addr value, addr extension, addr *ret)
+static void vector_push_extend1(addr pos, addr value, addr extension, addr *ret)
 {
 	struct array_struct *str;
 
@@ -219,6 +221,17 @@ static void vector_push_extend_array(addr pos, addr value, addr extension, addr 
 	array_set(pos, str->front, value);
 	make_index_integer_heap(ret, str->front);
 	str->front++;
+}
+
+static void vector_push_extend_array(addr pos, addr value, addr extension, addr *ret)
+{
+	struct array_struct *str;
+
+	str = ArrayInfoStruct(pos);
+	if (str->front < str->size)
+		vector_push_array(pos, value, ret);
+	else
+		vector_push_extend1(pos, value, extension, ret);
 }
 
 _g void vector_push_extend_common(addr value, addr pos, addr extension, addr *ret)
@@ -350,8 +363,8 @@ static void vector_settype(addr pos, enum ARRAY_TYPE type, int size)
 	str = ArrayInfoStruct(pos);
 	str->type = type;
 	str->bytesize = size;
-	array_settype(pos);
-	array_element_size(pos);
+	array_set_type(pos);
+	array_set_element_size(pos);
 }
 
 static void vector_dimension(addr pos, size_t size)
@@ -376,9 +389,9 @@ static void vector_type(addr *ret,
 	/* dimension */
 	vector_dimension(pos, size);
 	/* allocate */
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(pos, Nil, Nil, Nil, Nil);
 	/* initial value */
-	array_initial_make(NULL, pos, value, Unbound);
+	array_make_initial(pos, value, Unbound);
 	/* result */
 	*ret = pos;
 }
@@ -474,27 +487,6 @@ _g void vector_setelt(addr pos, size_t index, addr value)
 				intsizeh(index), intsizeh(size), NULL);
 	}
 	setarray(pos, index, value);
-}
-
-_g void vector_adjust(addr *ret, addr array, size_t size, addr value, addr check)
-{
-	addr pos, temp;
-	size_t i, arraysize;
-
-	vector_heap(&pos, size);
-	if (check == Unbound) {
-		lenarray(array, &arraysize);
-		for (i = 0; i < size; i++) {
-			if (i < arraysize)
-				getarray(array, i, &temp);
-			else {
-				if (value == Unbound) break;
-				temp = value;
-			}
-			setarray(pos, i, temp);
-		}
-	}
-	*ret = pos;
 }
 
 _g void vector_reverse(LocalRoot local, addr *ret, addr pos)

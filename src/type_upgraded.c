@@ -404,9 +404,13 @@ _g int upgraded_array_common(Execute ptr, addr env, addr pos, addr *ret)
 	int size;
 	enum ARRAY_TYPE type;
 
-	if (parse_type(ptr, &pos, pos, env)) return 1;
+	if (env == Unbound)
+		env = Nil;
+	if (parse_type(ptr, &pos, pos, env))
+		return 1;
 	upgraded_array_optimize(ptr->local, pos, &type, &size);
 	upgraded_array_const(type, size, ret);
+
 	return 0;
 }
 

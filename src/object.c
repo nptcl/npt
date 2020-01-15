@@ -998,6 +998,11 @@ _g void decindex(addr pos, size_t value)
 }
 
 /* float */
+_g int single_float_p(addr value)
+{
+	return GetType(value) == LISPTYPE_SINGLE_FLOAT;
+}
+
 _g addr single_float_heapr(single_float value)
 {
 	addr pos;
@@ -1065,6 +1070,11 @@ _g void setsinglefloat(addr pos, single_float value)
 	SetSingleFloat_Low(pos, value);
 }
 
+_g int double_float_p(addr value)
+{
+	return GetType(value) == LISPTYPE_DOUBLE_FLOAT;
+}
+
 _g addr double_float_heapr(double_float value)
 {
 	addr pos;
@@ -1130,6 +1140,11 @@ _g void setdoublefloat(addr pos, double_float value)
 	Check(GetType(pos) != LISPTYPE_DOUBLE_FLOAT, "type error");
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetDoubleFloat_Low(pos, value);
+}
+
+_g int long_float_p(addr value)
+{
+	return GetType(value) == LISPTYPE_LONG_FLOAT;
 }
 
 _g addr long_float_heapr(long_float value)

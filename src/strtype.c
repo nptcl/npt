@@ -1,5 +1,6 @@
 #include "array.h"
-#include "array_object.h"
+#include "array_access.h"
+#include "array_make.h"
 #include "character.h"
 #include "condition.h"
 #include "type_table.h"
@@ -86,13 +87,14 @@ _g int strarray_simple_p(addr pos)
 _g void strarray_update_character_type(addr pos)
 {
 	enum CHARACTER_TYPE type;
-	const unicode *body;
+	unicode c;
 	size_t i, size;
 
-	strarray_posbodylen(pos, &body, &size);
+	strarray_length(pos, &size);
 	type = CHARACTER_TYPE_EMPTY;
 	for (i = 0; i < size; i++) {
-		type = unicode_character_type(type, body[i]);
+		strarray_getc(pos, i, &c);
+		type = unicode_character_type(type, c);
 		if (type == CHARACTER_TYPE_INVALID)
 			fmte("Invalid character code.", NULL);
 	}
@@ -258,17 +260,13 @@ _g void strarray_length_buffer(addr pos, size_t *ret)
 	*ret = ArrayInfoStruct(pos)->size;
 }
 
-_g void strarray_posbodylen(addr pos, const unicode **body, size_t *len)
-{
-	Check(! array_stringp(pos), "string type error");
-	*body = (const unicode *)array_ptrread(pos, 0);
-	*len = ArrayInfoStruct(pos)->front;
-}
-
 _g unicode strarray_refc(addr pos, size_t index)
 {
+	unicode u;
+
 	Check(! array_stringp(pos), "string type error");
-	return *(const unicode *)array_ptrread(pos, index);
+	array_get_unicode(pos, index, &u);
+	return u;
 }
 
 _g void strarray_getc(addr pos, size_t index, unicode *u)
@@ -288,194 +286,353 @@ _g void strarray_setc(addr pos, size_t index, unicode u)
 	*(unicode *)array_ptrwrite(pos, index) = u;
 }
 
-_g int strarray_equal_binary(addr left, const unicode *right, size_t size2)
+_g int strarray_equal_binary(addr left, const unicode *right, size_t size)
 {
-	const unicode *body;
-	size_t size1;
+	unicode a, b;
+	size_t check, i;
 
 	Check(! strarrayp(left), "type error");
-	strarray_posbodylen(left, &body, &size1);
+	strarray_length(left, &check);
+	if (size != check)
+		return 0;
+	for (i = 0; i < size; i++) {
+		strarray_getc(left, i, &a);
+		b = right[i];
+		if (a != b)
+			return 0;
+	}
 
-	return memu_equal(body, right, size1, size2);
+	return 1;
 }
 
-_g int strarray_equalp_binary(addr left, const unicode *right, size_t size2)
+_g int strarray_equalp_binary(addr left, const unicode *right, size_t size)
 {
-	const unicode *body;
-	size_t size1;
+	unicode a, b;
+	size_t check, i;
 
 	Check(! strarrayp(left), "type error");
-	strarray_posbodylen(left, &body, &size1);
+	strarray_length(left, &check);
+	if (size != check)
+		return 0;
+	for (i = 0; i < size; i++) {
+		strarray_getc(left, i, &a);
+		b = right[i];
+		a = toUpperUnicode(a);
+		b = toUpperUnicode(b);
+		if (a != b)
+			return 0;
+	}
 
-	return memu_equalp(body, right, size1, size2);
+	return 1;
 }
 
 _g int strarray_equal_char(addr left, const char *right)
 {
-	const unicode *body1;
-	size_t size1, size2;
+	const byte *body;
+	unicode a, b;
+	size_t size, i;
 
 	Check(! strarrayp(left), "type error");
-	strarray_posbodylen(left, &body1, &size1);
-	size2 = strlen(right);
+	strarray_length(left, &size);
+	if (size != strlen(right))
+		return 0;
+	body = (const byte *)right;
+	for (i = 0; i < size; i++) {
+		strarray_getc(left, i, &a);
+		b = (unicode)body[i];
+		if (a != b)
+			return 0;
+	}
 
-	return memu1_equal(body1, (const byte *)right, size1, size2);
+	return 1;
 }
 
 _g int strarray_equalp_char(addr left, const char *right)
 {
-	const unicode *body1;
-	size_t size1, size2;
+	const byte *body;
+	unicode a, b;
+	size_t size, i;
 
 	Check(! strarrayp(left), "type error");
-	strarray_posbodylen(left, &body1, &size1);
-	size2 = strlen(right);
+	strarray_length(left, &size);
+	if (size != strlen(right))
+		return 0;
+	body = (const byte *)right;
+	for (i = 0; i < size; i++) {
+		strarray_getc(left, i, &a);
+		b = (unicode)body[i];
+		a = toUpperUnicode(a);
+		b = toUpperUnicode(b);
+		if (a != b)
+			return 0;
+	}
 
-	return memu1_equalp(body1, (const byte *)right, size1, size2);
+	return 1;
 }
 
 _g int strarray_equal(addr left, addr right)
 {
-	const unicode *body;
-	size_t size;
+	unicode a, b;
+	size_t size, check, i;
 
-	Check(! strarrayp(left), "type left error");
-	Check(! strarrayp(right), "type right error");
-	strarray_posbodylen(right, &body, &size);
+	Check(! strarrayp(left), "type error");
+	strarray_length(left, &size);
+	strarray_length(right, &check);
+	if (size != check)
+		return 0;
+	for (i = 0; i < size; i++) {
+		strarray_getc(left, i, &a);
+		strarray_getc(right, i, &b);
+		if (a != b)
+			return 0;
+	}
 
-	return strarray_equal_binary(left, body, size);
+	return 1;
 }
 
 _g int strarray_equalp(addr left, addr right)
 {
-	const unicode *body;
-	size_t size;
+	unicode a, b;
+	size_t size, check, i;
 
-	Check(! strarrayp(left), "type left error");
-	Check(! strarrayp(right), "type right error");
-	strarray_posbodylen(right, &body, &size);
+	Check(! strarrayp(left), "type error");
+	strarray_length(left, &size);
+	strarray_length(right, &check);
+	if (size != check)
+		return 0;
+	for (i = 0; i < size; i++) {
+		strarray_getc(left, i, &a);
+		strarray_getc(right, i, &b);
+		a = toUpperUnicode(a);
+		b = toUpperUnicode(b);
+		if (a != b)
+			return 0;
+	}
 
-	return strarray_equalp_binary(left, body, size);
+	return 1;
 }
 
 _g int strarray_character_equal(addr left, addr right)
 {
-	const unicode *body;
-	size_t size;
-
-	Check(! strarrayp(left), "type left error");
-	Check(! characterp(right), "type right error");
-	strarray_posbodylen(right, &body, &size);
-
-	return size == 1 && body[0] == RefCharacter(right);
-}
-
-_g int strarray_character_equalp(addr left, addr right)
-{
-	const unicode *body;
 	unicode a, b;
 	size_t size;
 
 	Check(! strarrayp(left), "type left error");
 	Check(! characterp(right), "type right error");
-	strarray_posbodylen(right, &body, &size);
-	if (size != 1) return 0;
-	a = body[0];
+	strarray_length(left, &size);
+	if (size != 1)
+		return 0;
+	strarray_getc(left, 0, &a);
 	GetCharacter(right, &b);
+	return a == b;
+}
 
-	return toUpperUnicode(a) == toUpperUnicode(b);
+_g int strarray_character_equalp(addr left, addr right)
+{
+	unicode a, b;
+	size_t size;
+
+	Check(! strarrayp(left), "type left error");
+	Check(! characterp(right), "type right error");
+	strarray_length(left, &size);
+	if (size != 1)
+		return 0;
+	strarray_getc(left, 0, &a);
+	GetCharacter(right, &b);
+	a = toUpperUnicode(a);
+	b = toUpperUnicode(b);
+	return a == b;
 }
 
 _g int strarray_compare_binary(addr left, const unicode *right, size_t size2)
 {
-	const unicode *body;
-	size_t size1;
+	unicode a, b;
+	size_t size1, i;
 
 	Check(! strarrayp(left), "type error");
-	strarray_posbodylen(left, &body, &size1);
+	strarray_length(left, &size1);
+	if (size1 < size2)
+		return -1;
+	if (size1 > size2)
+		return 1;
+	for (i = 0; i < size1; i++) {
+		strarray_getc(left, i, &a);
+		b = right[i];
+		if (a < b)
+			return -1;
+		if (a > b)
+			return 1;
+	}
 
-	return memu_compare(body, right, size1, size2);
+	return 0;
 }
 
 _g int strarray_comparep_binary(addr left, const unicode *right, size_t size2)
 {
-	const unicode *body;
-	size_t size1;
+	unicode a, b;
+	size_t size1, i;
 
 	Check(! strarrayp(left), "type error");
-	strarray_posbodylen(left, &body, &size1);
+	strarray_length(left, &size1);
+	if (size1 < size2)
+		return -1;
+	if (size1 > size2)
+		return 1;
+	for (i = 0; i < size1; i++) {
+		strarray_getc(left, i, &a);
+		b = right[i];
+		a = toUpperUnicode(a);
+		b = toUpperUnicode(b);
+		if (a < b)
+			return -1;
+		if (a > b)
+			return 1;
+	}
 
-	return memu_comparep(body, right, size1, size2);
+	return 0;
 }
 
 _g int strarray_compare_char(addr left, const char *right)
 {
-	const unicode *body1;
-	size_t size1, size2;
+	const byte *body; 
+	unicode a, b;
+	size_t size1, size2, i;
 
 	Check(! strarrayp(left), "type error");
-	strarray_posbodylen(left, &body1, &size1);
+	strarray_length(left, &size1);
 	size2 = strlen(right);
+	if (size1 < size2)
+		return -1;
+	if (size1 > size2)
+		return 1;
+	body = (const byte *)right;
+	for (i = 0; i < size1; i++) {
+		strarray_getc(left, i, &a);
+		b = (unicode)body[i];
+		if (a < b)
+			return -1;
+		if (a > b)
+			return 1;
+	}
 
-	return memu1_compare(body1, (const byte *)right, size1, size2);
+	return 0;
 }
 
 _g int strarray_comparep_char(addr left, const char *right)
 {
-	const unicode *body1;
-	size_t size1, size2;
+	const byte *body; 
+	unicode a, b;
+	size_t size1, size2, i;
 
 	Check(! strarrayp(left), "type error");
-	strarray_posbodylen(left, &body1, &size1);
+	strarray_length(left, &size1);
 	size2 = strlen(right);
+	if (size1 < size2)
+		return -1;
+	if (size1 > size2)
+		return 1;
+	body = (const byte *)right;
+	for (i = 0; i < size1; i++) {
+		strarray_getc(left, i, &a);
+		b = (unicode)body[i];
+		a = toUpperUnicode(a);
+		b = toUpperUnicode(b);
+		if (a < b)
+			return -1;
+		if (a > b)
+			return 1;
+	}
 
-	return memu1_comparep(body1, (const byte *)right, size1, size2);
+	return 0;
 }
 
 _g int strarray_compare(addr left, addr right)
 {
-	const unicode *body;
-	size_t size;
+	unicode a, b;
+	size_t size1, size2, i;
 
-	Check(! strarrayp(left), "type left error");
-	Check(! strarrayp(right), "type rigth error");
-	strarray_posbodylen(right, &body, &size);
+	Check(! strarrayp(left), "type error");
+	strarray_length(left, &size1);
+	strarray_length(right, &size2);
+	if (size1 < size2)
+		return -1;
+	if (size1 > size2)
+		return 1;
+	for (i = 0; i < size1; i++) {
+		strarray_getc(left, i, &a);
+		strarray_getc(right, i, &b);
+		if (a < b)
+			return -1;
+		if (a > b)
+			return 1;
+	}
 
-	return strarray_compare_binary(left, body, size);
+	return 0;
 }
 
 _g int strarray_comparep(addr left, addr right)
 {
-	const unicode *body;
-	size_t size;
+	unicode a, b;
+	size_t size1, size2, i;
 
-	Check(! strarrayp(left), "type left error");
-	Check(! strarrayp(right), "type rigth error");
-	strarray_posbodylen(right, &body, &size);
+	Check(! strarrayp(left), "type error");
+	strarray_length(left, &size1);
+	strarray_length(right, &size2);
+	if (size1 < size2)
+		return -1;
+	if (size1 > size2)
+		return 1;
+	for (i = 0; i < size1; i++) {
+		strarray_getc(left, i, &a);
+		strarray_getc(right, i, &b);
+		a = toUpperUnicode(a);
+		b = toUpperUnicode(b);
+		if (a < b)
+			return -1;
+		if (a > b)
+			return 1;
+	}
 
-	return strarray_comparep_binary(left, body, size);
+	return 0;
 }
 
 
 /*
  *  string
  */
+static void copy_strvect_strarray(addr vector, addr array, size_t size)
+{
+	unicode c;
+	size_t i;
+
+	Check(! strvectp(vector), "type error");
+	Check(! strarrayp(array), "type error");
+	for (i = 0; i < size; i++) {
+		strarray_getc(array, i, &c);
+		strvect_setc(vector, i, c);
+	}
+}
+
 _g addr string_allocr(LocalRoot local, addr pos)
 {
 	const unicode *body;
+	addr vector;
 	size_t size;
 
 	if (strarrayp(pos)) {
-		strarray_posbodylen(pos, &body, &size);
+		strarray_length(pos, &size);
+		strvect_alloc(local, &vector, size);
+		copy_strvect_strarray(vector, pos, size);
+		return vector;
 	}
-	else if (GetType(pos) == LISPTYPE_STRING) {
+	if (strvectp(pos)) {
 		strvect_posbodylen(pos, &body, &size);
+		return strvect_sizeu_allocr(local, body, size);
 	}
-	else {
-		Abort("type error.");
-		return NULL;
-	}
-	return strvect_sizeu_allocr(local, body, size);
+
+	/* error */
+	Abort("type error.");
+	return NULL;
 }
 
 _g addr string_localr(LocalRoot local, addr pos)
@@ -513,19 +670,6 @@ _g void string_length(addr pos, size_t *ret)
 	}
 	if (strarrayp(pos)) {
 		strarray_length(pos, ret);
-		return;
-	}
-	fmte("Argument ~S must be a string type.", pos, NULL);
-}
-
-_g void string_posbodylen(addr pos, const unicode **body, size_t *len)
-{
-	if (strvect_string_p(pos)) {
-		strvect_posbodylen(pos, body, len);
-		return;
-	}
-	if (strarrayp(pos)) {
-		strarray_posbodylen(pos, body, len);
 		return;
 	}
 	fmte("Argument ~S must be a string type.", pos, NULL);
@@ -599,16 +743,16 @@ _g int string_equalp_char(addr left, const char *right)
 	return 0;
 }
 
-static int strvect_strarray_equal(addr left, addr right)
+static int strarray_strvect_equal(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
 
-	Check(! strvect_string_p(left), "type left error");
-	Check(! strarrayp(right), "type right error");
-	strarray_posbodylen(right, &body, &size);
+	Check(! strarrayp(left), "type right error");
+	Check(! strvect_string_p(right), "type left error");
+	strvect_posbodylen(right, &body, &size);
 
-	return strvect_equal_binary(left, body, size);
+	return strarray_equal_binary(left, body, size);
 }
 
 _g int string_equal(addr left, addr right)
@@ -617,13 +761,13 @@ _g int string_equal(addr left, addr right)
 		if (strvect_string_p(right))
 			return strvect_equal(left, right);
 		if (strarrayp(right))
-			return strvect_strarray_equal(left, right);
+			return strarray_strvect_equal(right, left);
 		fmte("Argument ~S must be a string type.", right, NULL);
 		return 0;
 	}
 	else if (strarrayp(left)) {
 		if (strvect_string_p(right))
-			return strvect_strarray_equal(right, left);
+			return strarray_strvect_equal(left, right);
 		if (strarrayp(right))
 			return strarray_equal(left, right);
 		fmte("Argument ~S must be a string type.", right, NULL);
@@ -633,16 +777,16 @@ _g int string_equal(addr left, addr right)
 	return 0;
 }
 
-static int strvect_strarray_equalp(addr left, addr right)
+static int strarray_strvect_equalp(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
 
-	Check(! strvect_string_p(left), "type left error");
-	Check(! strarrayp(right), "type right error");
-	strarray_posbodylen(right, &body, &size);
+	Check(! strarrayp(left), "type right error");
+	Check(! strvect_string_p(right), "type left error");
+	strvect_posbodylen(right, &body, &size);
 
-	return strvect_equalp_binary(left, body, size);
+	return strarray_equalp_binary(left, body, size);
 }
 
 _g int string_equalp(addr left, addr right)
@@ -651,13 +795,13 @@ _g int string_equalp(addr left, addr right)
 		if (strvect_string_p(right))
 			return strvect_equalp(left, right);
 		if (strarrayp(right))
-			return strvect_strarray_equalp(left, right);
+			return strarray_strvect_equalp(right, left);
 		fmte("Argument ~S must be a string type.", right, NULL);
 		return 0;
 	}
 	else if (strarrayp(left)) {
 		if (strvect_string_p(right))
-			return strvect_strarray_equalp(right, left);
+			return strarray_strvect_equalp(left, right);
 		if (strarrayp(right))
 			return strarray_equalp(left, right);
 		fmte("Argument ~S must be a string type.", right, NULL);
@@ -727,19 +871,7 @@ _g int string_comparep_char(addr left, const char *right)
 	return 0;
 }
 
-_g int strvect_strarray_compare(addr left, addr right)
-{
-	const unicode *body;
-	size_t size;
-
-	Check(! strvect_string_p(left), "type left error");
-	Check(! strarrayp(right), "type right error");
-	strarray_posbodylen(right, &body, &size);
-
-	return strvect_compare_binary(left, body, size);
-}
-
-_g int strarray_strvect_compare(addr left, addr right)
+static int strarray_strvect_compare(addr left, addr right)
 {
 	const unicode *body;
 	size_t size;
@@ -749,6 +881,28 @@ _g int strarray_strvect_compare(addr left, addr right)
 	strvect_posbodylen(right, &body, &size);
 
 	return strarray_compare_binary(left, body, size);
+}
+
+static int strvect_strarray_compare(addr left, addr right)
+{
+	return -strarray_strvect_compare(right, left);
+}
+
+static int strarray_strvect_comparep(addr left, addr right)
+{
+	const unicode *body;
+	size_t size;
+
+	Check(! strarrayp(left), "type left error");
+	Check(! strvect_string_p(right), "type right error");
+	strvect_posbodylen(right, &body, &size);
+
+	return strarray_comparep_binary(left, body, size);
+}
+
+static int strvect_strarray_comparep(addr left, addr right)
+{
+	return -strarray_strvect_comparep(right, left);
 }
 
 _g int string_compare(addr left, addr right)
@@ -771,30 +925,6 @@ _g int string_compare(addr left, addr right)
 	}
 	fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
-}
-
-_g int strvect_strarray_comparep(addr left, addr right)
-{
-	const unicode *body;
-	size_t size;
-
-	Check(! strvect_string_p(left), "type left error");
-	Check(! strarrayp(right), "type right error");
-	strarray_posbodylen(right, &body, &size);
-
-	return strvect_comparep_binary(left, body, size);
-}
-
-_g int strarray_strvect_comparep(addr left, addr right)
-{
-	const unicode *body;
-	size_t size;
-
-	Check(! strarrayp(left), "type left error");
-	Check(! strvect_string_p(right), "type right error");
-	strvect_posbodylen(right, &body, &size);
-
-	return strarray_comparep_binary(left, body, size);
 }
 
 _g int string_comparep(addr left, addr right)

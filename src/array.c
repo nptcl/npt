@@ -1,6 +1,7 @@
 #include "arch.h"
 #include "array.h"
 #include "condition.h"
+#include "integer.h"
 #include "type_table.h"
 #include "type_upgraded.h"
 
@@ -291,6 +292,23 @@ _g void array_va_heap(addr *ret, ...)
 /*
  *  type check
  */
+_g int array_system_general_p(addr pos)
+{
+	return GetType(pos) == LISPSYSTEM_ARRAY_GENERAL;
+}
+
+_g int array_system_specialized_p(addr pos)
+{
+	return GetType(pos) == LISPSYSTEM_ARRAY_SPECIALIZED;
+}
+
+_g int array_system_p(addr pos)
+{
+	enum LISPTYPE type = GetType(pos);
+	return type == LISPSYSTEM_ARRAY_GENERAL
+		|| type == LISPSYSTEM_ARRAY_SPECIALIZED;
+}
+
 _g int arrayp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_ARRAY;
@@ -298,7 +316,12 @@ _g int arrayp(addr pos)
 
 _g int array_simple_p(addr pos)
 {
-	return arrayp(pos) && ArrayInfoStruct(pos)->simple;
+	struct array_struct *str;
+
+	if (! arrayp(pos))
+		return 0;
+	str = ArrayInfoStruct(pos);
+	return str->simple;
 }
 
 _g int array_vector_p(addr pos)
@@ -348,7 +371,49 @@ _g int array_simple_vector_p(addr pos)
 	if (! arrayp(pos))
 		return 0;
 	str = ArrayInfoStruct(pos);
-	return str->simple && str->dimension == 1;
+	return str->simple && str->dimension == 1 && str->type == ARRAY_TYPE_T;
+}
+
+_g int array_adjustable_p(addr pos)
+{
+	Check(! arrayp(pos), "type error");
+	return ArrayInfoStruct(pos)->adjustable;
+}
+
+_g int array_fillpointer_p(addr pos)
+{
+	Check(! arrayp(pos), "type error");
+	return ArrayInfoStruct(pos)->fillpointer;
+}
+
+_g size_t array_dimension_size(addr pos)
+{
+	Check(! arrayp(pos), "type error");
+	return ArrayInfoStruct(pos)->dimension;
+}
+
+_g size_t array_total_size(addr pos)
+{
+	Check(! arrayp(pos), "type error");
+	return ArrayInfoStruct(pos)->size;
+}
+
+_g size_t array_fill_size(addr pos)
+{
+	Check(! arrayp(pos), "type error");
+	return ArrayInfoStruct(pos)->front;
+}
+
+_g enum ARRAY_TYPE array_type(addr pos)
+{
+	Check(! arrayp(pos), "type error");
+	return ArrayInfoStruct(pos)->type;
+}
+
+_g unsigned array_type_size(addr pos)
+{
+	Check(! arrayp(pos), "type error");
+	return ArrayInfoStruct(pos)->bytesize;
 }
 
 
@@ -397,5 +462,77 @@ _g void *array_ptrwrite(addr pos, size_t index)
 _g const void *array_ptrread(addr pos, size_t index)
 {
 	return (const void *)array_ptrwrite(pos, index);
+}
+
+
+/*
+ *  fill-pointer
+ */
+_g int array_fill_pointer(addr array, addr *ret)
+{
+	struct array_struct *str;
+
+	str = ArrayInfoStruct(array);
+	if (! str->fillpointer) return 1;
+	*ret = intsizeh(str->front);
+
+	return 0;
+}
+
+_g int array_setf_fill_pointer(addr array, addr value)
+{
+	struct array_struct *str;
+	size_t size;
+
+	str = ArrayInfoStruct(array);
+	if (! str->fillpointer) return 1;
+	if (GetIndex_integer(value, &size))
+		fmte("Invalid fill-pointer value ~S.", value, NULL);
+	if (str->size <= size) {
+		fmte("Fill-pointer value ~A must be less than array size ~A.",
+				value, intsizeh(str->size), NULL);
+	}
+	str->front = size;
+
+	return 0;
+}
+
+_g int array_fill_pointer_start(addr array)
+{
+	struct array_struct *str;
+
+	str = ArrayInfoStruct(array);
+	if (! str->fillpointer) {
+		return 1;
+	}
+	else {
+		str->front = 0;
+		return 0;
+	}
+}
+
+_g int array_fill_pointer_end(addr array)
+{
+	struct array_struct *str;
+
+	str = ArrayInfoStruct(array);
+	if (! str->fillpointer)
+		return 1;
+	else
+		return 0;
+}
+
+_g int array_fill_pointer_set(addr array, size_t size)
+{
+	struct array_struct *str;
+
+	str = ArrayInfoStruct(array);
+	if (! str->fillpointer)
+		return 1;
+	if (str->size <= size)
+		return 1;
+	str->front = size;
+
+	return 0;
 }
 

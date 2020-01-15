@@ -358,22 +358,6 @@ static int test_strarray_length(void)
 	RETURN;
 }
 
-static int test_strarray_posbodylen(void)
-{
-	addr pos;
-	const unicode *body;
-	size_t size;
-
-	strarray_char_alloc(NULL, &pos, "Hello");
-	strarray_posbodylen(pos, &body, &size);
-	test(size == 5, "strarray_posbodylen1");
-	test(body[0] == 'H', "strarray_posbodylen2");
-	test(body[1] == 'e', "strarray_posbodylen3");
-	test(body[4] == 'o', "strarray_posbodylen4");
-
-	RETURN;
-}
-
 static int test_strarray_refc(void)
 {
 	addr pos;
@@ -578,25 +562,6 @@ static int test_string_length(void)
 	RETURN;
 }
 
-static int test_string_posbodylen(void)
-{
-	addr pos;
-	const unicode *body;
-	size_t size;
-
-	strvect_char_heap(&pos, "Hello");
-	string_posbodylen(pos, &body, &size);
-	test(size == 5, "string_posbodylen1");
-	test(body[0] == 'H', "string_posbodylen2");
-
-	strarray_char_heap(&pos, "abcdef");
-	string_posbodylen(pos, &body, &size);
-	test(size == 6, "string_posbodylen3");
-	test(body[0] == 'a', "string_posbodylen4");
-
-	RETURN;
-}
-
 static int test_string_refc(void)
 {
 	addr pos;
@@ -681,16 +646,16 @@ static int test_string_equalp_char(void)
 	RETURN;
 }
 
-static int test_strvect_strarray_equal(void)
+static int test_strarray_strvect_equal(void)
 {
 	addr left, right;
 
-	strvect_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Hello");
-	test(strvect_strarray_equal(left, right), "strvect_strarray_equal1");
+	strarray_char_heap(&left, "Hello");
+	strvect_char_heap(&right, "Hello");
+	test(strarray_strvect_equal(left, right), "strarray_strvect_equal1");
 
-	strarray_char_heap(&right, "HELLO");
-	test(! strvect_strarray_equal(left, right), "strvect_strarray_equal2");
+	strarray_char_heap(&left, "HELLO");
+	test(! strarray_strvect_equal(left, right), "strarray_strvect_equal2");
 
 	RETURN;
 }
@@ -722,19 +687,19 @@ static int test_string_equal(void)
 	RETURN;
 }
 
-static int test_strvect_strarray_equalp(void)
+static int test_strarray_strvect_equalp(void)
 {
 	addr left, right;
 
-	strvect_char_heap(&left, "Hello");
-	strarray_char_heap(&right, "Hello");
-	test(strvect_strarray_equalp(left, right), "strvect_strarray_equalp1");
+	strarray_char_heap(&left, "Hello");
+	strvect_char_heap(&right, "Hello");
+	test(strarray_strvect_equalp(left, right), "strarray_strvect_equalp1");
 
-	strarray_char_heap(&right, "HELLO");
-	test(strvect_strarray_equalp(left, right), "strvect_strarray_equalp2");
+	strarray_char_heap(&left, "HELLO");
+	test(strarray_strvect_equalp(left, right), "strarray_strvect_equalp2");
 
-	strarray_char_heap(&right, "HELLOO");
-	test(! strvect_strarray_equalp(left, right), "strvect_strarray_equalp3");
+	strarray_char_heap(&left, "HELLOO");
+	test(! strarray_strvect_equalp(left, right), "strarray_strvect_equalp3");
 
 	RETURN;
 }
@@ -960,7 +925,6 @@ static int testbreak_strtype(void)
 	TestBreak(test_strarray_sizeu_allocr);
 	TestBreak(test_strarray_sizeu_alloc);
 	TestBreak(test_strarray_length);
-	TestBreak(test_strarray_posbodylen);
 	TestBreak(test_strarray_refc);
 	TestBreak(test_strarray_equal_binary);
 	TestBreak(test_strarray_equalp_binary);
@@ -976,15 +940,14 @@ static int testbreak_strtype(void)
 	TestBreak(test_strarray_comparep);
 	/* string */
 	TestBreak(test_string_length);
-	TestBreak(test_string_posbodylen);
 	TestBreak(test_string_refc);
 	TestBreak(test_string_equal_binary);
 	TestBreak(test_string_equalp_binary);
 	TestBreak(test_string_equal_char);
 	TestBreak(test_string_equalp_char);
-	TestBreak(test_strvect_strarray_equal);
+	TestBreak(test_strarray_strvect_equal);
 	TestBreak(test_string_equal);
-	TestBreak(test_strvect_strarray_equalp);
+	TestBreak(test_strarray_strvect_equalp);
 	TestBreak(test_string_equalp);
 	TestBreak(test_string_compare_binary);
 	TestBreak(test_string_comparep_binary);

@@ -46,7 +46,6 @@ _g void strarray_sizeu_heap(addr *, const unicode *, size_t);
 
 _g void strarray_length(addr pos, size_t *ret);
 _g void strarray_length_buffer(addr pos, size_t *ret);
-_g void strarray_posbodylen(addr pos, const unicode **body, size_t *len);
 _g unicode strarray_refc(addr pos, size_t index);
 _g void strarray_getc(addr pos, size_t index, unicode *u);
 _g void strarray_setc(addr pos, size_t index, unicode u);
@@ -76,7 +75,6 @@ _g void string_local(LocalRoot local, addr *ret, addr pos);
 _g void string_heap(addr *ret, addr pos);
 
 _g void string_length(addr pos, size_t *ret);
-_g void string_posbodylen(addr pos, const unicode **body, size_t *len);
 _g unicode string_refc(addr pos, size_t index);
 _g void string_getc(addr pos, size_t index, unicode *c);
 _g void string_setc(addr pos, size_t index, unicode c);

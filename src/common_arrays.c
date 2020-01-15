@@ -2,9 +2,9 @@
  *  ANSI COMMON LISP: 15. Arrays
  */
 #include "array.h"
-#include "array_adjust.h"
 #include "array_common.h"
-#include "array_object.h"
+#include "array_make.h"
+#include "array_sequence.h"
 #include "array_vector.h"
 #include "bit.h"
 #include "common_header.h"
@@ -31,17 +31,7 @@
  */
 static void function_make_array(Execute ptr, addr var, addr rest)
 {
-	addr type, ielem, icont, adj, fill, dto, off;
-
-	if (getkeyargs(rest, KEYWORD_ELEMENT_TYPE, &type)) type = T;
-	if (getkeyargs(rest, KEYWORD_INITIAL_ELEMENT, &ielem)) ielem = Unbound;
-	if (getkeyargs(rest, KEYWORD_INITIAL_CONTENTS, &icont)) icont = Unbound;
-	if (getkeyargs(rest, KEYWORD_ADJUSTABLE, &adj)) adj = Nil;
-	if (getkeyargs(rest, KEYWORD_FILL_POINTER, &fill)) fill = Nil;
-	if (getkeyargs(rest, KEYWORD_DISPLACED_TO, &dto)) dto = Nil;
-	if (getkeyargs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off)) off = fixnumh(0);
-	if (parse_type(ptr, &type, type, Nil)) return;
-	make_array_common(&var, var, type, ielem, icont, adj, fill, dto, off);
+	make_array_common(ptr, var, rest, &var);
 	setresult_control(ptr, var);
 }
 
@@ -137,18 +127,7 @@ static void defun_make_array(void)
  */
 static void function_adjust_array(Execute ptr, addr pos, addr dim, addr rest)
 {
-	addr type, ielem, icont, fill, dto, off;
-
-	if (getkeyargs(rest, KEYWORD_ELEMENT_TYPE, &type)) type = Unbound;
-	if (getkeyargs(rest, KEYWORD_INITIAL_ELEMENT, &ielem)) ielem = Unbound;
-	if (getkeyargs(rest, KEYWORD_INITIAL_CONTENTS, &icont)) icont = Unbound;
-	if (getkeyargs(rest, KEYWORD_FILL_POINTER, &fill)) fill = Nil;
-	if (getkeyargs(rest, KEYWORD_DISPLACED_TO, &dto)) dto = Nil;
-	if (getkeyargs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off)) off = fixnumh(0);
-	if (type != Unbound) {
-		if (parse_type(ptr, &type, type, Nil)) return;
-	}
-	array_adjust_array(&pos, pos, dim, type, ielem, icont, fill, dto, off);
+	adjust_array_common(ptr, pos, dim, rest, &pos);
 	setresult_control(ptr, pos);
 }
 
@@ -185,7 +164,7 @@ static void defun_adjust_array(void)
 /* (defun adjustable-array-p (array) ...) -> boolean */
 static void function_adjustable_array_p(Execute ptr, addr array)
 {
-	setbool_control(ptr, ArrayInfoStruct(array)->adjustable);
+	setbool_control(ptr, adjustable_array_p_common(array));
 }
 
 static void defun_adjustable_array_p(void)
@@ -205,30 +184,10 @@ static void defun_adjustable_array_p(void)
 
 
 /* (defun aref (array &rest args) ...) -> t */
-static void function_aref(Execute ptr, addr array, addr rest)
+static void function_aref(Execute ptr, addr var, addr rest)
 {
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			array_aref(NULL, array, rest, &rest);
-			break;
-
-		case LISPTYPE_STRING:
-			strvect_aref(NULL, array, rest, &rest);
-			break;
-
-		case LISPTYPE_VECTOR:
-			vector_aref(array, rest, &rest);
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			bitmemory_aref(NULL, array, rest, &rest);
-			break;
-
-		default:
-			TypeError(array, ARRAY);
-			break;
-	}
-	setresult_control(ptr, rest);
+	aref_common(var, rest, &var);
+	setresult_control(ptr, var);
 }
 
 static void type_aref(addr *ret)
@@ -259,29 +218,9 @@ static void defun_aref(void)
 
 
 /* (defun (setf aref) (value array &rest args) ...) -> value */
-static void function_setf_aref(Execute ptr, addr value, addr array, addr rest)
+static void function_setf_aref(Execute ptr, addr value, addr var, addr rest)
 {
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			array_setf_aref(array, rest, value);
-			break;
-
-		case LISPTYPE_STRING:
-			strvect_setf_aref(array, rest, value);
-			break;
-
-		case LISPTYPE_VECTOR:
-			vector_setf_aref(array, rest, value);
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			bitmemory_setf_aref(array, rest, value);
-			break;
-
-		default:
-			TypeError(array, ARRAY);
-			break;
-	}
+	setf_aref_common(value, var, rest);
 	setresult_control(ptr, value);
 }
 
@@ -317,35 +256,10 @@ static void defun_setf_aref(void)
  *   axis       index
  *   dimension  index
  */
-static void function_array_dimension(Execute ptr, addr array, addr axis)
+static void function_array_dimension(Execute ptr, addr var, addr axis)
 {
-	size_t size;
-
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			array_array_dimension(array, axis, &axis);
-			break;
-
-		case LISPTYPE_VECTOR:
-			lenarray(array, &size);
-			vector_array_dimension(array, axis, size, &axis);
-			break;
-
-		case LISPTYPE_STRING:
-			strvect_length(array, &size);
-			vector_array_dimension(array, axis, size, &axis);
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			bitmemory_length(array, &size);
-			vector_array_dimension(array, axis, size, &axis);
-			break;
-
-		default:
-			TypeError(array, ARRAY);
-			break;
-	}
-	setresult_control(ptr, axis);
+	array_dimension_common(var, axis, &var);
+	setresult_control(ptr, var);
 }
 
 static void type_array_dimension(addr *ret)
@@ -376,35 +290,10 @@ static void defun_array_dimension(void)
 
 
 /* (defun array-dimensions (array) ...) -> (integer 0 *) */
-static void function_array_dimensions(Execute ptr, addr array)
+static void function_array_dimensions(Execute ptr, addr var)
 {
-	size_t size;
-
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			array_array_dimensions(array, &array);
-			break;
-
-		case LISPTYPE_VECTOR:
-			lenarray(array, &size);
-			vector_array_dimensions(size, &array);
-			break;
-
-		case LISPTYPE_STRING:
-			strvect_length(array, &size);
-			vector_array_dimensions(size, &array);
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			bitmemory_length(array, &size);
-			vector_array_dimensions(size, &array);
-			break;
-
-		default:
-			TypeError(array, ARRAY);
-			break;
-	}
-	setresult_control(ptr, array);
+	array_dimensions_common(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_array_dimensions(void)
@@ -426,27 +315,7 @@ static void defun_array_dimensions(void)
 /* (defun array-element-type (array) ...) -> typespec */
 static void function_array_element_type(Execute ptr, addr var)
 {
-	switch (GetType(var)) {
-		case LISPTYPE_ARRAY:
-			array_element_type(var, &var);
-			break;
-
-		case LISPTYPE_VECTOR:
-			var = T;
-			break;
-
-		case LISPTYPE_STRING:
-			GetConst(COMMON_CHARACTER, &var);
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			GetConst(COMMON_BIT, &var);
-			break;
-
-		default:
-			TypeError(var, ARRAY);
-			break;
-	}
+	array_element_type_common(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -478,23 +347,9 @@ static void defun_array_element_type(void)
 
 
 /* (defun array-has-fill-pointer-p (array) ...) -> boolean */
-static void function_array_has_fill_pointer_p(Execute ptr, addr array)
+static void function_array_has_fill_pointer_p(Execute ptr, addr var)
 {
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			setbool_control(ptr, ArrayInfoStruct(array)->fillpointer);
-			break;
-
-		case LISPTYPE_VECTOR:
-		case LISPTYPE_STRING:
-		case LISPTYPE_BITVECTOR:
-			setresult_control(ptr, Nil);
-			break;
-
-		default:
-			TypeError(array, ARRAY);
-			break;
-	}
+	setbool_control(ptr, array_has_fill_pointer_p_common(var));
 }
 
 static void defun_array_has_fill_pointer_p(void)
@@ -516,24 +371,9 @@ static void defun_array_has_fill_pointer_p(void)
 /* (defun array-displacement (array) ...) -> (or nil array), index */
 static void function_array_displacement(Execute ptr, addr pos)
 {
-	addr result;
-
-	switch (GetType(pos)) {
-		case LISPTYPE_ARRAY:
-			array_array_displacement(pos, &pos, &result);
-			setvalues_control(ptr, pos, result, NULL);
-			break;
-
-		case LISPTYPE_VECTOR:
-		case LISPTYPE_STRING:
-		case LISPTYPE_BITVECTOR:
-			setvalues_control(ptr, Nil, fixnumh(0), NULL);
-			break;
-
-		default:
-			TypeError(pos, ARRAY);
-			break;
-	}
+	addr value, offset;
+	array_displacement_common(pos, &value, &offset);
+	setvalues_control(ptr, value, offset, NULL);
 }
 
 static void type_array_displacement(addr *ret)
@@ -569,35 +409,7 @@ static void defun_array_displacement(void)
 /* (defun array-in-bounds-p (array &rest args) ...) -> boolean */
 static void function_array_in_bounds_p(Execute ptr, addr array, addr rest)
 {
-	int check;
-	size_t size;
-
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			check = array_array_in_bounds_p(array, rest);
-			break;
-
-		case LISPTYPE_VECTOR:
-			lenarray(array, &size);
-			check = vector_array_in_bounds_p(rest, size);
-			break;
-
-		case LISPTYPE_STRING:
-			strvect_length(array, &size);
-			check = vector_array_in_bounds_p(rest, size);
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			bitmemory_length(array, &size);
-			check = vector_array_in_bounds_p(rest, size);
-			break;
-
-		default:
-			TypeError(array, ARRAY);
-			check = 0;
-			break;
-	}
-	setbool_control(ptr, check);
+	setbool_control(ptr, array_in_bounds_p_common(array, rest));
 }
 
 static void type_array_in_bounds_p(addr *ret)
@@ -630,22 +442,8 @@ static void defun_array_in_bounds_p(void)
 /* (defun array-rank (array) ...) -> (intege 0 *) */
 static void function_array_rank(Execute ptr, addr pos)
 {
-	switch (GetType(pos)) {
-		case LISPTYPE_ARRAY:
-			make_index_integer_alloc(NULL, &pos, ArrayInfoStruct(pos)->dimension);
-			setresult_control(ptr, pos);
-			break;
-
-		case LISPTYPE_VECTOR:
-		case LISPTYPE_STRING:
-		case LISPTYPE_BITVECTOR:
-			setresult_control(ptr, fixnumh(1));
-			break;
-
-		default:
-			TypeError(pos, ARRAY);
-			break;
-	}
+	array_rank_common(pos, &pos);
+	setresult_control(ptr, pos);
 }
 
 static void defun_array_rank(void)
@@ -667,33 +465,8 @@ static void defun_array_rank(void)
 /* (defun array-row-major-index (array &rest args) ...) -> index */
 static void function_array_row_major_index(Execute ptr, addr array, addr rest)
 {
-	size_t size;
-
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			array_array_row_major_index(array, rest, &rest);
-			break;
-
-		case LISPTYPE_VECTOR:
-			lenarray(array, &size);
-			vector_array_row_major_index(rest, size, &rest);
-			break;
-
-		case LISPTYPE_STRING:
-			strvect_length(array, &size);
-			vector_array_row_major_index(rest, size, &rest);
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			bitmemory_length(array, &size);
-			vector_array_row_major_index(rest, size, &rest);
-			break;
-
-		default:
-			TypeError(array, ARRAY);
-			break;
-	}
-	setresult_control(ptr, rest);
+	array_row_major_index_common(array, rest, &array);
+	setresult_control(ptr, array);
 }
 
 static void type_array_row_major_index(addr *ret)
@@ -726,33 +499,8 @@ static void defun_array_row_major_index(void)
 /* (defun array-total-size (array) ...) -> (integer 0 *) */
 static void function_array_total_size(Execute ptr, addr array)
 {
-	size_t size;
-
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			size = ArrayInfoStruct(array)->size;
-			setresult_control(ptr, intsizeh(size));
-			break;
-
-		case LISPTYPE_VECTOR:
-			lenarray(array, &size);
-			setresult_control(ptr, intsizeh(size));
-			break;
-
-		case LISPTYPE_STRING:
-			strvect_length(array, &size);
-			setresult_control(ptr, intsizeh(size));
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			bitmemory_length(array, &size);
-			setresult_control(ptr, intsizeh(size));
-			break;
-
-		default:
-			TypeError(array, ARRAY);
-			break;
-	}
+	array_total_size_common(array, &array);
+	setresult_control(ptr, array);
 }
 
 static void defun_array_total_size(void)
@@ -774,18 +522,7 @@ static void defun_array_total_size(void)
 /* (defun arrayp (object) ...) -> boolean */
 static void function_arrayp(Execute ptr, addr var)
 {
-	switch (GetType(var)) {
-		case LISPTYPE_ARRAY:
-		case LISPTYPE_VECTOR:
-		case LISPTYPE_STRING:
-		case LISPTYPE_BITVECTOR:
-			setresult_control(ptr, T);
-			break;
-
-		default:
-			setresult_control(ptr, Nil);
-			break;
-	}
+	setbool_control(ptr, arrayp_common(var));
 }
 
 static void defun_arrayp(void)
@@ -807,23 +544,8 @@ static void defun_arrayp(void)
 /* (defun fill-pointer (vector) ...) -> index */
 static void function_fill_pointer(Execute ptr, addr array)
 {
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			if (array_fill_pointer(array, &array))
-				type_error_fill_pointer(array);
-			setresult_control(ptr, array);
-			break;
-
-		case LISPTYPE_STRING:
-		case LISPTYPE_VECTOR:
-		case LISPTYPE_BITVECTOR:
-			type_error_fill_pointer(array);
-			break;
-
-		default:
-			TypeError(array, VECTOR);
-			break;
-	}
+	fill_pointer_common(array, &array);
+	setresult_control(ptr, array);
 }
 
 static void type_fill_pointer(addr *ret)
@@ -857,22 +579,7 @@ static void defun_fill_pointer(void)
  */
 static void function_setf_fill_pointer(Execute ptr, addr value, addr array)
 {
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			if (array_setf_fill_pointer(array, value))
-				type_error_fill_pointer(array);
-			break;
-
-		case LISPTYPE_STRING:
-		case LISPTYPE_VECTOR:
-		case LISPTYPE_BITVECTOR:
-			type_error_fill_pointer(array);
-			break;
-
-		default:
-			TypeError(array, VECTOR);
-			break;
-	}
+	setf_fill_pointer_common(value, array);
 	setresult_control(ptr, value);
 }
 
@@ -906,32 +613,8 @@ static void defun_setf_fill_pointer(void)
 /* (defun row-major-aref (array index) ...) -> t */
 static void function_row_major_aref(Execute ptr, addr array, addr index)
 {
-	size_t size;
-
-	if (GetIndex_integer(index, &size))
-		fmte("Index ~A is too large.", index, NULL);
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			array_get(NULL, array, size, &index);
-			break;
-
-		case LISPTYPE_VECTOR:
-			vector_get(array, size, &index);
-			break;
-
-		case LISPTYPE_STRING:
-			strvect_get(NULL, array, size, &index);
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			bitmemory_get(NULL, array, size, &index);
-			break;
-
-		default:
-			TypeError(array, ARRAY);
-			break;
-	}
-	setresult_control(ptr, index);
+	row_major_aref_common(array, index, &array);
+	setresult_control(ptr, array);
 }
 
 static void type_row_major_aref(addr *ret)
@@ -965,31 +648,7 @@ static void defun_row_major_aref(void)
 static void function_setf_row_major_aref(Execute ptr,
 		addr value, addr array, addr index)
 {
-	size_t size;
-
-	if (GetIndex_integer(index, &size))
-		fmte("Index ~A is too large.", index, NULL);
-	switch (GetType(array)) {
-		case LISPTYPE_ARRAY:
-			array_set(array, size, value);
-			break;
-
-		case LISPTYPE_VECTOR:
-			vector_set(array, size, value);
-			break;
-
-		case LISPTYPE_STRING:
-			strvect_set(array, size, value);
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			bitmemory_set(array, size, value);
-			break;
-
-		default:
-			TypeError(array, ARRAY);
-			break;
-	}
+	setf_row_major_aref_common(value, array, index);
 	setresult_control(ptr, value);
 }
 
@@ -1026,10 +685,7 @@ static void defun_setf_row_major_aref(void)
  */
 static void function_upgraded_array_element_type(Execute ptr, addr pos, addr env)
 {
-	if (env == Unbound)
-		env = Nil;
-	if (upgraded_array_common(ptr, env, pos, &pos))
-		return;
+	Return0(upgraded_array_common(ptr, env, pos, &pos));
 	setresult_control(ptr, pos);
 }
 
@@ -1049,7 +705,7 @@ static void defun_upgraded_array_element_type(void)
 }
 
 
-/* (defconstnat array-dimension-limit #xFFFFFFFF) */
+/* (defconstnat array-dimension-limit FIXNUM_MAX) */
 static void defconstant_array_dimension_limit(void)
 {
 	addr symbol, value;
@@ -1060,7 +716,7 @@ static void defconstant_array_dimension_limit(void)
 }
 
 
-/* (defconstnat array-rank-limit #xFFFFFFFF) */
+/* (defconstnat array-rank-limit FIXNUM_MAX) */
 static void defconstant_array_rank_limit(void)
 {
 	addr symbol, value;
@@ -1071,7 +727,7 @@ static void defconstant_array_rank_limit(void)
 }
 
 
-/* (defconstnat array-total-size-limit #xFFFFFFFF) */
+/* (defconstnat array-total-size-limit FIXNUM_MAX) */
 static void defconstant_array_total_size_limit(void)
 {
 	addr symbol, value;
@@ -1085,19 +741,7 @@ static void defconstant_array_total_size_limit(void)
 /* (defun simple-vector-p (object) ...) -> boolean */
 static void function_simple_vector_p(Execute ptr, addr var)
 {
-	switch (GetType(var)) {
-		case LISPTYPE_ARRAY:
-			setbool_control(ptr, array_simple_vector_p(var));
-			break;
-
-		case LISPTYPE_VECTOR:
-			setresult_control(ptr, T);
-			break;
-
-		default:
-			setresult_control(ptr, Nil);
-			break;
-	}
+	setbool_control(ptr, simple_vector_p_common(var));
 }
 
 static void defun_simple_vector_p(void)
@@ -1119,23 +763,7 @@ static void defun_simple_vector_p(void)
 /* (defun svref (vector index) ...) -> t */
 static void function_svref(Execute ptr, addr pos, addr index)
 {
-	size_t size;
-
-	if (GetIndex_integer(index, &size))
-		fmte("Index ~A is too large.", index, NULL);
-	switch (GetType(pos)) {
-		case LISPTYPE_ARRAY:
-			array_get(NULL, pos, size, &pos);
-			break;
-
-		case LISPTYPE_VECTOR:
-			vector_get(pos, size, &pos);
-			break;
-
-		default:
-			TypeError(pos, SIMPLE_VECTOR);
-			break;
-	}
+	svref_common(pos, index, &pos);
 	setresult_control(ptr, pos);
 }
 
@@ -1169,23 +797,7 @@ static void defun_svref(void)
 /* (defun (setf svref) (value vector index) ...) -> t */
 static void function_setf_svref(Execute ptr, addr value, addr pos, addr index)
 {
-	size_t size;
-
-	if (GetIndex_integer(index, &size))
-		fmte("Index ~A is too large.", index, NULL);
-	switch (GetType(pos)) {
-		case LISPTYPE_ARRAY:
-			array_set(pos, size, value);
-			break;
-
-		case LISPTYPE_VECTOR:
-			vector_set(pos, size, value);
-			break;
-
-		default:
-			TypeError(pos, SIMPLE_VECTOR);
-			break;
-	}
+	setf_svref_common(value, pos, index);
 	setresult_control(ptr, value);
 }
 
@@ -1359,21 +971,7 @@ static void defun_vector_push_extend(void)
 /* (defun vectorp (object) ...) -> boolean */
 static void function_vectorp(Execute ptr, addr var)
 {
-	switch (GetType(var)) {
-		case LISPTYPE_ARRAY:
-			setbool_control(ptr, array_vector_p(var));
-			break;
-
-		case LISPTYPE_VECTOR:
-		case LISPTYPE_STRING:
-		case LISPTYPE_BITVECTOR:
-			setresult_control(ptr, T);
-			break;
-
-		default:
-			setresult_control(ptr, Nil);
-			break;
-	}
+	setbool_control(ptr, vectorp_common(var));
 }
 
 static void defun_vectorp(void)
@@ -1395,20 +993,8 @@ static void defun_vectorp(void)
 /* (defun bit (bit-array &rest args) ...) -> bit */
 static void function_bit(Execute ptr, addr pos, addr rest)
 {
-	switch (GetType(pos)) {
-		case LISPTYPE_BITVECTOR:
-			bitmemory_aref(NULL, pos, rest, &rest);
-			break;
-
-		case LISPTYPE_ARRAY:
-			array_aref_bit(NULL, pos, rest, &rest);
-			break;
-
-		default:
-			TypeError(pos, ARRAY);
-			break;
-	}
-	setresult_control(ptr, rest);
+	bit_common(pos, rest, &pos);
+	setresult_control(ptr, pos);
 }
 
 static void type_bit_common(addr *ret)
@@ -1469,19 +1055,7 @@ static void defun_sbit(void)
 /* (defun (setf bit) (bit bit-array &rest args) ...) -> bit */
 static void function_setf_bit(Execute ptr, addr value, addr pos, addr rest)
 {
-	switch (GetType(pos)) {
-		case LISPTYPE_BITVECTOR:
-			bitmemory_setf_aref(pos, rest, value);
-			break;
-
-		case LISPTYPE_ARRAY:
-			array_setf_aref_bit(pos, rest, value);
-			break;
-
-		default:
-			TypeError(pos, ARRAY);
-			break;
-	}
+	setf_bit_common(value, pos, rest);
 	setresult_control(ptr, value);
 }
 
@@ -1545,19 +1119,7 @@ static void defun_setf_sbit(void)
 /* (defun bit-vector-p (t) ...) -> boolean */
 static void function_bit_vector_p(Execute ptr, addr var)
 {
-	switch (GetType(var)) {
-		case LISPTYPE_ARRAY:
-			setbool_control(ptr, array_bvarrayp(var));
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			setresult_control(ptr, T);
-			break;
-
-		default:
-			setresult_control(ptr, Nil);
-			break;
-	}
+	setbool_control(ptr, bit_vector_p_common(var));
 }
 
 static void defun_bit_vector_p(void)
@@ -1579,19 +1141,7 @@ static void defun_bit_vector_p(void)
 /* (defun simple-bit-vector-p (t) ...) -> boolean */
 static void function_simple_bit_vector_p(Execute ptr, addr var)
 {
-	switch (GetType(var)) {
-		case LISPTYPE_ARRAY:
-			setbool_control(ptr, simple_array_bvarrayp(var));
-			break;
-
-		case LISPTYPE_BITVECTOR:
-			setresult_control(ptr, T);
-			break;
-
-		default:
-			setresult_control(ptr, Nil);
-			break;
-	}
+	setbool_control(ptr, simple_bit_vector_p_common(var));
 }
 
 static void defun_simple_bit_vector_p(void)

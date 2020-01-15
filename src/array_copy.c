@@ -1,6 +1,6 @@
 #include "array.h"
 #include "array_copy.h"
-#include "array_object.h"
+#include "array_make.h"
 #include "bit.h"
 
 /*

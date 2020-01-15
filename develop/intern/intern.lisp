@@ -1560,6 +1560,8 @@ lisp-system::dispatch-let
 lisp-system::delay-warning
 (lisp-system::*delay-warning-list* :constant system :name delay-warning-list)
 (lisp-system::*delay-warning-switch* :constant system :name delay-warning-switch)
+(lisp-system::*module-provider-functions*
+  :constant system :name module-provider-functions)
 
 
 ;;
@@ -1580,6 +1582,7 @@ lisp-system::trace-del
 (lisp-system::*dribble-output* :constant system :name dribble-output)
 (lisp-system::*dribble-echo* :constant system :name dribble-echo)
 (lisp-system::*dribble-broadcast* :constant system :name dribble-broadcast)
+(lisp-system::*inspected* :constant system :name inspected)
 
 
 ;;
@@ -1825,6 +1828,10 @@ lisp-rt::equalrt
 (("LISP-SYSTEM" "*READINFO*") :constant system :name readinfo-special)
 (lisp-system::*prompt-value* :constant system :name prompt-value)
 (lisp-system::*prompt-info* :constant system :name prompt-info)
+(lisp-system::*prompt-mode* :constant system :name prompt-mode)
+lisp-system::prompt-normal
+lisp-system::prompt-inspect
+lisp-system::prompt-step
 
 
 ;;

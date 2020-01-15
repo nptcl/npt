@@ -1,6 +1,8 @@
 #include "array.h"
+#include "array_access.h"
 #include "array_copy.h"
-#include "array_object.h"
+#include "array_inplace.h"
+#include "array_make.h"
 #include "bigdata.h"
 #include "bignum.h"
 #include "ratio.h"
@@ -34,7 +36,7 @@ static void array_coerce_type_struct(addr pos, addr array,
 	str1->bytesize = size;
 	upgraded_array_object(str1->type, str1->bytesize, &value);
 	SetArrayInfo(pos, ARRAY_INDEX_TYPE, value);
-	array_element_size(pos);
+	array_set_element_size(pos);
 }
 
 static void array_coerce_type_heap(addr *ret, addr array,
@@ -140,7 +142,7 @@ static void vector_coerce_type_heap(addr *ret,
 	str = ArrayInfoStruct(pos);
 	str->type = type1;
 	str->bytesize = type2;
-	array_build_heap(pos);
+	array_build(pos);
 	*ret = pos;
 }
 
@@ -351,7 +353,7 @@ _g int array_coerce_bit(addr pos, size_t i, int *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_bit_t(value.value.object, ret);
@@ -401,7 +403,7 @@ _g int array_coerce_character(addr pos, size_t i, unicode *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_character_t(value.value.object, ret);
@@ -548,7 +550,7 @@ _g int array_coerce_signed8(addr pos, size_t i, int8_t *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_signed8_t(value.value.object, ret);
@@ -693,7 +695,7 @@ _g int array_coerce_signed16(addr pos, size_t i, int16_t *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_signed16_t(value.value.object, ret);
@@ -828,7 +830,7 @@ _g int array_coerce_signed32(addr pos, size_t i, int32_t *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_signed32_t(value.value.object, ret);
@@ -940,7 +942,7 @@ _g int array_coerce_signed64(addr pos, size_t i, int64_t *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_signed64_t(value.value.object, ret);
@@ -1096,7 +1098,7 @@ _g int array_coerce_unsigned8(addr pos, size_t i, uint8_t *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_unsigned8_t(value.value.object, ret);
@@ -1246,7 +1248,7 @@ _g int array_coerce_unsigned16(addr pos, size_t i, uint16_t *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_unsigned16_t(value.value.object, ret);
@@ -1425,7 +1427,7 @@ _g int array_coerce_unsigned32(addr pos, size_t i, uint32_t *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_unsigned32_t(value.value.object, ret);
@@ -1559,7 +1561,7 @@ _g int array_coerce_unsigned64(addr pos, size_t i, uint64_t *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_unsigned64_t(value.value.object, ret);
@@ -1676,7 +1678,7 @@ _g int array_coerce_single(addr pos, size_t i, single_float *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_single_t(value.value.object, ret);
@@ -1804,7 +1806,7 @@ _g int array_coerce_double(addr pos, size_t i, double_float *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_double_t(value.value.object, ret);
@@ -1932,7 +1934,7 @@ _g int array_coerce_long(addr pos, size_t i, long_float *ret)
 {
 	struct array_value value;
 
-	array_get_inplace(pos, i, &value);
+	arrayinplace_get(pos, i, &value);
 	switch (value.type) {
 		case ARRAY_TYPE_T:
 			return array_coerce_long_t(value.value.object, ret);

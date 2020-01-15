@@ -248,14 +248,16 @@ _g int position_charqueue(addr pos, size_t size)
 
 _g void pushstring_charqueue_alloc(LocalRoot local, addr pos, addr push)
 {
-	const unicode *body;
+	unicode c;
 	size_t i, size;
 
 	Check(GetType(pos) != LISPSYSTEM_CHARQUEUE, "type charqueue error");
 	Check(! stringp(push), "type string error");
-	string_posbodylen(push, &body, &size);
-	for (i = 0; i < size; i++)
-		push_charqueue_alloc(local, pos, body[i]);
+	string_length(push, &size);
+	for (i = 0; i < size; i++) {
+		string_getc(push, i, &c);
+		push_charqueue_alloc(local, pos, c);
+	}
 }
 _g void pushstring_charqueue_heap(addr pos, addr push)
 {

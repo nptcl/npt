@@ -421,7 +421,7 @@
       (array-specialized-p result)
       (typep result 'string)
       result))
-  t t "Hello"
+  t t #(#\H #\e #\l #\l #\o)
   character nil t "Hello")
 
 (deftest coerce-aa-character.2

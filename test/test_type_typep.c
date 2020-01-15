@@ -1,6 +1,6 @@
 #include "type_typep.c"
 #include "array.h"
-#include "array_object.h"
+#include "array_make.h"
 #include "clos.h"
 #include "common.h"
 #include "eval_declare.h"
@@ -495,35 +495,35 @@ static int test_typep_type_vector_array(void)
 	addr x, y;
 
 	array_va_heap(&x, 10, 0);
-	array_build_heap(x);
+	array_build(x);
 	test_parse_char(&y, "simple-vector");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array1");
 	test(check, "typep_type_vector_array2");
 
 	array_va_heap(&x, 10, 20, 0);
-	array_build_heap(x);
+	array_build(x);
 	test_parse_char(&y, "simple-vector");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array3");
 	test(! check, "typep_type_vector_array4");
 
 	array_va_heap(&x, 10, 0);
-	array_build_heap(x);
+	array_build(x);
 	test_parse_char(&y, "(simple-vector 10)");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array5");
 	test(check, "typep_type_vector_array6");
 
 	array_va_heap(&x, 10, 0);
-	array_build_heap(x);
+	array_build(x);
 	test_parse_char(&y, "(simple-vector *)");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array7");
 	test(check, "typep_type_vector_array8");
 
 	array_va_heap(&x, 10, 0);
-	array_build_heap(x);
+	array_build(x);
 	test_parse_char(&y, "(simple-vector 9)");
 	test(! typep_type_vector_array(x, y, LISPDECL_T, &check),
 			"typep_type_vector_array9");
@@ -555,13 +555,13 @@ static int test_typep_simple_vector(void)
 
 	/* array */
 	array_va_heap(&v, 10, 0);
-	array_build_heap(v);
+	array_build(v);
 	test(typep_char(v, "(simple-vector 10)"), "typep_simple_vector2");
 
 	/* not simple */
 	array_va_heap(&v, 10, 0);
 	ArrayInfoStruct(v)->adjustable = 1;
-	array_build_heap(v);
+	array_build(v);
 	test(! typep_char(v, "(simple-vector 10)"), "typep_simple_vector3");
 
 	RETURN;
@@ -573,7 +573,7 @@ static int test_typep_bit_vector(void)
 
 	array_va_heap(&v, 10, 0);
 	ArrayInfoStruct(v)->type = ARRAY_TYPE_BIT;
-	array_build_heap(v);
+	array_build(v);
 	test(typep_char(v, "(bit-vector 10)"), "typep_bit_vector1");
 	test(typep_char(v, "(bit-vector *)"), "typep_bit_vector2");
 	test(! typep_char(v, "(bit-vector 9)"), "typep_bit_vector3");
@@ -590,7 +590,7 @@ static int test_typep_simple_bit_vector(void)
 
 	array_va_heap(&v, 10, 0);
 	ArrayInfoStruct(v)->type = ARRAY_TYPE_BIT;
-	array_build_heap(v);
+	array_build(v);
 	test(typep_char(v, "(simple-bit-vector 10)"), "typep_simple_bit_vector1");
 	test(typep_char(v, "(simple-bit-vector *)"), "typep_simple_bit_vector2");
 	test(! typep_char(v, "(simple-bit-vector 9)"), "typep_simple_bit_vector3");
@@ -601,7 +601,7 @@ static int test_typep_simple_bit_vector(void)
 	array_va_heap(&v, 10, 0);
 	ArrayInfoStruct(v)->type = ARRAY_TYPE_BIT;
 	ArrayInfoStruct(v)->adjustable = 1; /* not simple */
-	array_build_heap(v);
+	array_build(v);
 	test(! typep_char(v, "(simple-bit-vector *)"), "typep_simple_bit_vector5");
 
 	RETURN;
@@ -709,7 +709,7 @@ static int test_typep_simple_string(void)
 
 	strarray_char_heap(&v, "Hello");
 	ArrayInfoStruct(v)->adjustable = 1; /* not simple */
-	array_build_heap(v);
+	array_build(v);
 	test(! typep_char(v, "simple-string"), "typep_simple_string9");
 
 	RETURN;
@@ -743,7 +743,7 @@ static int test_typep_simple_base_string(void)
 
 	strarray_char_heap(&v, "Hello");
 	ArrayInfoStruct(v)->adjustable = 1; /* not simple */
-	array_build_heap(v);
+	array_build(v);
 	test(! typep_char(v, "simple-base-string"), "typep_simple_base_string9");
 
 	RETURN;
@@ -1425,7 +1425,7 @@ static int test_typep_simple_array(void)
 	addr v;
 
 	array_va_heap(&v, 3, 4, 5, 0);
-	array_build_heap(v); /* simple */
+	array_build(v); /* simple */
 	test(typep_char(v, "(simple-array t 3)"), "typep_simple_array1");
 
 	vector_heap(&v, 10);
@@ -1439,7 +1439,7 @@ static int test_typep_simple_array(void)
 
 	array_va_heap(&v, 5, 0);
 	ArrayInfoStruct(v)->adjustable = 1; /* not simple */
-	array_build_heap(v);
+	array_build(v);
 	test(! typep_char(v, "simple-array"), "typep_simple_array5");
 
 	RETURN;

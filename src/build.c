@@ -39,6 +39,7 @@
 #include "random_state.h"
 #include "readtable.h"
 #include "real_common.h"
+#include "require.h"
 #include "rt.h"
 #include "stream.h"
 #include "structure.h"
@@ -336,6 +337,7 @@ _g void buildlisp(Execute ptr)
 	build_eval_declare();
 	build_fasl();
 	build_code();
+	build_require();
 	build_user();
 	build_rt();
 	set_features();

@@ -113,6 +113,9 @@ _g void array_va_local(LocalRoot local, addr *ret, ...);
 _g void array_va_heap(addr *ret, ...);
 
 /* type check */
+_g int array_system_general_p(addr pos);
+_g int array_system_specialized_p(addr pos);
+_g int array_system_p(addr pos);
 _g int arrayp(addr pos);
 _g int array_simple_p(addr pos);
 _g int array_vector_p(addr pos);
@@ -120,11 +123,25 @@ _g int array_size_vector_p(addr pos, size_t size);
 _g int array_general_p(addr pos);
 _g int array_specialized_p(addr pos);
 _g int array_simple_vector_p(addr pos);
+_g int array_adjustable_p(addr pos);
+_g int array_fillpointer_p(addr pos);
+_g size_t array_dimension_size(addr pos);
+_g size_t array_total_size(addr pos);
+_g size_t array_fill_size(addr pos);
+_g enum ARRAY_TYPE array_type(addr pos);
+_g unsigned array_type_size(addr pos);
 
 /* memory access */
 _g const size_t *array_ptrsize(addr pos);
 _g void *array_ptrwrite(addr pos, size_t index);
 _g const void *array_ptrread(addr pos, size_t index);
+
+/* fill-pointer */
+_g int array_fill_pointer(addr array, addr *ret);
+_g int array_setf_fill_pointer(addr array, addr value);
+_g int array_fill_pointer_start(addr array);
+_g int array_fill_pointer_end(addr array);
+_g int array_fill_pointer_set(addr array, size_t size);
 
 #endif
 

@@ -117,7 +117,7 @@ _g void show_prompt(Execute ptr, addr io)
 	finish_output_stream(io);
 }
 
-_g int input_prompt(addr *ret, addr *prompt)
+_g int input_prompt(addr *ret, addr *prompt, const char *message)
 {
 	fmte("input-prompt is not supported.", NULL);
 	return 1;
@@ -165,16 +165,16 @@ _g void show_prompt(Execute ptr, addr io)
 		str->show_p = 1;
 }
 
-static char *make_prompt(addr *prompt)
+static char *make_prompt(addr *prompt, const char *message)
 {
 	char buffer[64];
-	addr info;
+	addr pos;
 	char *ret;
 	struct prompt_info *str;
 
 	/* prompt-info */
-	get_prompt_info(Execute_Thread, &info);
-	str = PtrPromptInfo(info);
+	get_prompt_info(Execute_Thread, &pos);
+	str = PtrPromptInfo(pos);
 	if (prompt)
 		*prompt = NULL;
 	if (str->break_p) {
@@ -183,13 +183,16 @@ static char *make_prompt(addr *prompt)
 
 	/* readline */
 	if (str->show_p) {
-		if (str->index == 0)
-			snprintf(buffer, 64, "* ");
-		else
-			snprintf(buffer, 64, "[%zu]* ", str->index);
+		if (message == NULL) {
+			if (str->index == 0)
+				snprintf(buffer, 64, "* ");
+			else
+				snprintf(buffer, 64, "[%zu]* ", str->index);
+			message = buffer;
+		}
 		if (prompt)
-			strvect_char_heap(prompt, buffer);
-		ret = readline(buffer);
+			strvect_char_heap(prompt, message);
+		ret = readline(message);
 		str->show_p = 0;
 	}
 	else {
@@ -204,13 +207,13 @@ static char *make_prompt(addr *prompt)
 	return ret;
 }
 
-_g int input_prompt(addr *ret, addr *prompt)
+_g int input_prompt(addr *ret, addr *prompt, const char *message)
 {
 	addr pos;
 	char *str;
 	size_t size;
 
-	str = make_prompt(prompt);
+	str = make_prompt(prompt, message);
 	if (str == NULL) {
 		return 1; /* eof */
 	}

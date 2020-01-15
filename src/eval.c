@@ -485,7 +485,6 @@ _g int eval_load(Execute ptr, int *result,
 _g void init_eval(void)
 {
 	SetPointerType(empty, eval_load_finalize);
-	init_eval_common();
 	init_eval_main();
 }
 

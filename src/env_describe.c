@@ -6,16 +6,18 @@
 #include "condition.h"
 #include "constant.h"
 #include "control.h"
+#include "eval_main.h"
 #include "env_describe.h"
 #include "format.h"
 #include "function.h"
 #include "mop.h"
 #include "print.h"
 #include "print_write.h"
+#include "stream_prompt.h"
 #include "stream.h"
+#include "strtype.h"
 #include "symbol.h"
 #include "type_table.h"
-
 
 /*
  *  t
@@ -115,14 +117,80 @@ _g int describe_common(Execute ptr, addr object, addr stream)
 /*
  *  inspect
  */
+static int exit_inspect_p(addr pos)
+{
+	if (! symbolp(pos))
+		return 0;
+	GetNameSymbol(pos, &pos);
+	return string_equalp_char(pos, "Q")
+		|| string_equalp_char(pos, "QUIT")
+		|| string_equalp_char(pos, "E")
+		|| string_equalp_char(pos, "EXIT");
+}
+
+static int help_inspect_p(addr pos)
+{
+	if (! symbolp(pos))
+		return 0;
+	GetNameSymbol(pos, &pos);
+	return string_equalp_char(pos, "?")
+		|| string_equalp_char(pos, "H")
+		|| string_equalp_char(pos, "HELP");
+}
+
+static void help_inspect(Execute ptr, addr io)
+{
+	static const char *const message[] = {
+		"Inspect help.",
+		"---",
+		"quit  Quit inspect.",
+		"help  Output this message.",
+		"---",
+		NULL
+	};
+	int i;
+	const char *str;
+
+	for (i = 0; ; i++) {
+		str = message[i];
+		if (str == NULL)
+			break;
+		print_ascii_stream(io, str);
+		terpri_stream(io);
+		force_output_stream(io);
+	}
+}
+
+static int eval_loop_inspect(Execute ptr, addr io, addr pos, int *exit, int *exec)
+{
+	if (exit_inspect_p(pos)) {
+		*exit = 1;
+		*exec = 0;
+		return 0;
+	}
+	if (help_inspect_p(pos)) {
+		*exit = 0;
+		*exec = 0;
+		help_inspect(ptr, io);
+		return 0;
+	}
+	*exit = 0;
+	*exec = 1;
+	return 0;
+}
+
 _g int inspect_common(Execute ptr, addr object)
 {
-	addr stream;
+	addr io, symbol;
 
-	terminal_io_stream(ptr, &stream);
-	Return1(describe_common(ptr, object, stream));
+	terminal_io_stream(ptr, &io);
+	Return1(describe_common(ptr, object, io));
+	/* *inspected */
+	GetConst(SYSTEM_INSPECTED, &symbol);
+	pushspecial_control(ptr, symbol, object);
 	/* prompt */
-	fmte("TODO", NULL);
+	mode_prompt_stream(ptr, PromptStreamMode_Inspect);
+	Return1(eval_custom_loop(ptr, eval_loop_inspect));
 
 	return 0;
 }

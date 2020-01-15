@@ -1,5 +1,6 @@
 #include "array.h"
-#include "array_object.h"
+#include "array_access.h"
+#include "array_make.h"
 #include "array_vector.h"
 #include "charqueue.h"
 #include "condition.h"
@@ -505,7 +506,7 @@ static int file_position_StringOutput(addr stream, size_t *ret)
 	CheckOutputStringStream(stream);
 	GetInfoStream(stream, &queue);
 	if (extend_string_p(stream))
-		*ret = array_vector_length(queue, 1); /* fill-pointer */
+		*ret = array_get_vector_length(queue, 1); /* fill-pointer */
 	else
 		getsize_charqueue(queue, ret);
 

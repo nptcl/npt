@@ -1,28 +1,190 @@
 #include "build.h"
+#include "clos_class.h"
 #include "code.h"
 #include "compile.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "cons_plist.h"
+#include "constant.h"
 #include "control.h"
+#include "file.h"
+#include "files.h"
 #include "function.h"
+#include "gc.h"
 #include "pathname.h"
+#include "stream.h"
 #include "strtype.h"
 #include "symbol.h"
 
 /*
  *  compile-file
  */
+static int compile_file_output(Execute ptr, addr input, addr output)
+{
+	Check(! streamp(input), "type error");
+	Check(! streamp(output), "type error");
+	fmte("TODO", NULL);
+	return 0;
+}
+
+static void compile_file_close_stream(addr stream, addr file)
+{
+	if (! streamp(file))
+		close_stream(stream);
+}
+
+static int compile_file_open_input(Execute ptr, addr file, addr *ret)
+{
+	if (streamp(file)) {
+		*ret = file;
+		return 0;
+	}
+	return open_input_stream(ptr, ret, file);
+}
+
+static int compile_file_open_output(Execute ptr, addr file, addr *ret)
+{
+	if (streamp(file)) {
+		*ret = file;
+		return 0;
+	}
+	return open_output_binary_stream(ptr, ret, file, FileOutput_supersede);
+}
+
+static int compile_file_execute(Execute ptr, addr input, addr output, addr *ret)
+{
+	int check;
+	addr in, out, name, symbol;
+
+	/* input stream */
+	if (compile_file_open_input(ptr, input, &in)) {
+		fmte("Cannot open the input file ~S.", input, NULL);
+		return 0;
+	}
+
+	/* output stream */
+	if (compile_file_open_output(ptr, output, &out)) {
+		compile_file_close_stream(in, input);
+		fmte("Cannot open the output file ~S.", output, NULL);
+		return 0;
+	}
+
+	/* truename */
+#ifdef LISP_ANSI
+	name = output;
+#else
+	truename_files(ptr, output, &name, 1);
+#endif
+
+	/* special variable */
+	GetConst(SPECIAL_COMPILE_FILE_PATHNAME, &symbol);
+	pushspecial_control(ptr, symbol, output);
+	GetConst(SPECIAL_COMPILE_FILE_TRUENAME, &symbol);
+	pushspecial_control(ptr, symbol, name);
+
+	/* compile */
+	check = compile_file_output(ptr, in, out);
+	compile_file_close_stream(in, input);
+	compile_file_close_stream(out, output);
+	return check;
+}
+
+static void function_handler_compile(Execute ptr, addr condition)
+{
+	addr check;
+
+	/* warning */
+	GetConst(CONDITION_WARNING, &check);
+	if (clos_subtype_p(condition, check)) {
+		GetConst(SYSTEM_COMPILE_WARNING, &check);
+		setlexical_local(ptr, check, T);
+	}
+
+	/* stype-warning */
+	GetConst(CONDITION_STYLE_WARNING, &check);
+	if (clos_subtype_p(condition, check)) {
+		GetConst(SYSTEM_COMPILE_STYLE_WARNING, &check);
+		setlexical_local(ptr, check, T);
+	}
+}
+
+_g void handler_compile(Execute ptr)
+{
+	addr pos, call;
+
+	/* *compiler-macro* */
+	GetConst(SYSTEM_COMPILER_MACRO, &pos);
+	pushspecial_control(ptr, pos, T);
+
+	/* compile-warning */
+	GetConst(SYSTEM_COMPILE_WARNING, &pos);
+	pushlexical_control(ptr, pos, Nil);
+
+	/* compile-style-warning */
+	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
+	pushlexical_control(ptr, pos, Nil);
+
+	/* handler-bind */
+	GetConst(CONDITION_WARNING, &pos);
+	compiled_local(ptr->local, &call, Nil);
+	setcompiled_var1(call, p_defun_handler_compile);
+	pushhandler_control(ptr, pos, call, 0);
+}
+
+static int compile_file_handler(Execute ptr, addr input, addr output,
+		addr *ret1, addr *ret2, addr *ret3)
+{
+	addr control, pos;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
+	push_close_control(ptr, &control);
+	handler_compile(ptr);
+	if (compile_file_execute(ptr, input, output, ret1))
+		return free_check_control(ptr, control, 1);
+	localhold_set(hold, 0, *ret1);
+	/* warning */
+	GetConst(SYSTEM_COMPILE_WARNING, &pos);
+	getlexicalcheck_local(ptr, pos, ret2);
+	/* style-warning */
+	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
+	getlexicalcheck_local(ptr, pos, ret3);
+	/* free */
+	Return1(free_check_control(ptr, control, 0));
+	localhold_end(hold);
+
+	return 0;
+}
+
 _g int compile_file_common(Execute ptr, addr input, addr rest,
 		addr *ret1, addr *ret2, addr *ret3)
 {
-	addr output;
+	addr output, symbol, value;
 
+	/* pathname-designer */
 	compile_file_pathname_common(ptr, input, rest, &output);
-	*ret1 = *ret2 = *ret3 = Nil;
 
-	return 0;
+	/* verbose */
+	if (! getkeyargs(rest, KEYWORD_VERBOSE, &value)) {
+		GetConst(SPECIAL_COMPILE_VERBOSE, &symbol);
+		pushspecial_control(ptr, symbol, value);
+	}
+
+	/* print */
+	if (! getkeyargs(rest, KEYWORD_PRINT, &value)) {
+		GetConst(SPECIAL_COMPILE_PRINT, &symbol);
+		pushspecial_control(ptr, symbol, value);
+	}
+
+	/* external-format */
+	if (getkeyargs(rest, KEYWORD_EXTERNAL_FORMAT, &value)) {
+		GetConst(SYSTEM_EXTERNAL_FORMAT, &symbol);
+		pushspecial_control(ptr, symbol, value);
+	}
+
+	/* handler */
+	return compile_file_handler(ptr, input, output, ret1, ret2, ret3);
 }
 
 
@@ -54,6 +216,7 @@ _g void compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *r
 
 	if (getkeyargs(rest, KEYWORD_OUTPUT_FILE, &output)) {
 		/* input-file -> output-file */
+		pathname_designer_heap(ptr, input, &input);
 		compile_file_pathname_from_input(input, ret);
 	}
 	else {
@@ -199,6 +362,7 @@ _g void syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr ca
  */
 _g void init_compile(void)
 {
+	SetPointerCall(defun, var1, handler_compile);
 	SetPointerCall(defun, var1, handler_delay_warning);
 	SetPointerCall(defun, empty, finalize_delay_warning);
 }

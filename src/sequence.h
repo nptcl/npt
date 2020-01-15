@@ -25,8 +25,6 @@ _g void setelt_inplace_sequence(LocalRoot local,
 		addr pos, size_t index, const struct array_value *str);
 _g void getelt_sequence(LocalRoot local, addr pos, size_t index, addr *ret);
 _g void setelt_sequence(addr pos, size_t index, addr value);
-_g void reverse_sequence_alloc(LocalRoot local, addr *ret, addr pos);
-_g void reverse_sequence_local(LocalRoot local, addr *ret, addr pos);
 _g void reverse_sequence_heap(addr *ret, addr pos);
 _g void nreverse_sequence(addr *ret, addr pos);
 

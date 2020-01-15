@@ -146,11 +146,15 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_alloc.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_arch.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_array.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_access.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_adjust.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_coerce.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_copy.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_array_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_inplace.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_array_make.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_sequence.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_value.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\array_vector.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bigcons.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_bigdata.c" />
@@ -315,6 +319,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_round.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\require.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt_load.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_sequence.c" />
@@ -366,12 +371,16 @@
   <ItemGroup>
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\alloc.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\arch.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_access.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_adjust.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_coerce.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_copy.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_inplace.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_make.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_sequence.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_typedef.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_value.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array_vector.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\array.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bigcons.h" />
@@ -531,6 +540,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_round.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\require.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rt.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_iterator.h" />

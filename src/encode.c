@@ -636,20 +636,43 @@ static int length_char_ascii(struct filememory *fm, unicode c)
 	return (c < 0x80)? 1: -1;
 }
 
+static int length_unicode_utf8(unicode c, int *ret)
+{
+	if (c < 0x80)       { *ret = 1; return 0; }
+	if (c < 0x0800)     { *ret = 2; return 0; }
+	if (c < 0xD800)     { *ret = 3; return 0; }
+	if (c < 0xE000)     { *ret = 0; return 1; } /* error */
+	if (c < 0x010000)   { *ret = 3; return 0; }
+#ifdef LISP_UTF8_SEQ5CHECK
+	if (c < UnicodeCount) { *ret = 4; return 0; }
+#else
+	if (c < 0x200000)   { *ret = 4; return 0; }
+	if (c < 0x04000000) { *ret = 5; return 0; }
+	if (c < 0x80000000) { *ret = 6; return 0; }
+#endif
+	*ret = 0;
+	return 1;
+}
+
 static int length_char_utf8(struct filememory *fm, unicode c)
 {
-	if (c < 0x80) return 1;
-	if (c < 0x0800) return 2;
-	if (c < 0x010000) return 3;
-	if (c < 0x200000) return 4;
-	if (c < 0x04000000) return 5;
-	if (c < 0x80000000) return 6;
-	return -1;
+	int size;
+	return length_unicode_utf8(c, &size)? -1: size;
+}
+
+static int length_unicode_utf16(unicode c, int *ret)
+{
+	if (c < 0xD800) { *ret = 1; return 0; }
+	if (c < 0xE000) { *ret = 0; return 1; } /* surrogate pair */
+	if (c < 0x010000) { *ret = 1; return 0; }
+	if (c < UnicodeCount) { *ret = 2; return 0; }
+	return 1;
 }
 
 static int length_char_utf16(struct filememory *fm, unicode c)
 {
-	return (c < 0x010000)? 2: 4;
+	int size;
+	return length_unicode_utf16(c, &size)? -1: (size * 2);
 }
 
 static int length_char_utf32(struct filememory *fm, unicode c)
@@ -783,25 +806,16 @@ _g int length_string_encode(struct filememory *fm, addr pos, size_t *ret)
  */
 _g int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret)
 {
-	size_t i, w;
+	int check;
 	unicode c;
+	size_t i, w;
 
 	w = 0;
 	for (i = 0; i < size; i++) {
 		c = ptr[i];
-		if (c < 0x80) w += 1;
-		else if (c < 0x0800) w += 2;
-		else if (c < 0xD800) w += 3;
-		else if (c < 0xE000) return 1; /* surrogate pair */
-		else if (c < 0x010000) w += 3;
-#ifdef LISP_UTF8_SEQ5CHECK
-		else if (c < UnicodeCount) w += 4;
-#else
-		else if (c < 0x200000) w += 4;
-		else if (c < 0x04000000) w += 5;
-		else if (c < 0x80000000) w += 6;
-#endif
-		else return 1;
+		if (length_unicode_utf8(c, &check))
+			return 1;
+		w += (size_t)check;
 	}
 	*ret = w;
 
@@ -810,25 +824,35 @@ _g int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret)
 
 static int UTF8_length(addr pos, size_t *ret)
 {
-	const unicode *body;
-	size_t size;
-	string_posbodylen(pos, &body, &size);
-	return UTF32_length_utf8(body, size, ret);
+	int check;
+	unicode c;
+	size_t size, i, w;
+
+	string_length(pos, &size);
+	w = 0;
+	for (i = 0; i < size; i++) {
+		string_getc(pos, i, &c);
+		if (length_unicode_utf8(c, &check))
+			return 1;
+		w += (size_t)check;
+	}
+	*ret = w;
+
+	return 0;
 }
 
 _g int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret)
 {
-	size_t i, w;
+	int check;
 	unicode c;
+	size_t i, w;
 
 	w = 0;
 	for (i = 0; i < size; i++) {
 		c = ptr[i];
-		if (c < 0xD800) w += 1;
-		else if (c < 0xE000) return 1; /* surrogate pair */
-		else if (c < 0x010000) w += 1;
-		else if (c < UnicodeCount) w += 2;
-		else return 1;
+		if (length_unicode_utf16(c, &check))
+			return 1;
+		w += (size_t)check;
 	}
 	*ret = w;
 
@@ -837,10 +861,21 @@ _g int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret)
 
 static int UTF16_length(addr pos, size_t *ret)
 {
-	const unicode *body;
-	size_t size;
-	string_posbodylen(pos, &body, &size);
-	return UTF32_length_utf16(body, size, ret);
+	int check;
+	unicode c;
+	size_t size, i, w;
+
+	string_length(pos, &size);
+	w = 0;
+	for (i = 0; i < size; i++) {
+		string_getc(pos, i, &c);
+		if (length_unicode_utf16(c, &check))
+			return 1;
+		w += (size_t)check;
+	}
+	*ret = w;
+
+	return 0;
 }
 
 static int UTF8_make(byte *dst, addr pos)

@@ -156,9 +156,10 @@ static int eval_loop_stream(Execute ptr, addr stream, addr pos)
 	}
 }
 
-static int eval_loop_execute(Execute ptr, addr stream, int *ret)
+static int eval_loop_execute(Execute ptr, addr stream,
+		eval_loop_calltype call, int *ret)
 {
-	int result;
+	int result, exec;
 	addr pos;
 
 	/* read */
@@ -173,13 +174,17 @@ static int eval_loop_execute(Execute ptr, addr stream, int *ret)
 		return 0;
 	}
 
+	/* calltype */
+	if ((*call)(ptr, stream, pos, ret, &exec)) {
+		return 1;
+	}
+
 	/* execute */
-	if (eval_loop_stream(ptr, stream, pos)) {
+	if (exec && eval_loop_stream(ptr, stream, pos)) {
 		return 1;
 	}
 
 	/* normal */
-	*ret = 0;
 	return 0;
 }
 
@@ -214,7 +219,8 @@ static void eval_loop_variable(Execute ptr)
 	pushlexical_control(ptr, symbol, Nil);
 }
 
-static int eval_loop_restart(Execute ptr, addr stream, int *ret)
+static int eval_loop_restart(Execute ptr, addr stream,
+		eval_loop_calltype call, int *ret)
 {
 	int check;
 	addr control, restart;
@@ -226,7 +232,7 @@ static int eval_loop_restart(Execute ptr, addr stream, int *ret)
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
 		push_eval_main_restart_abort(ptr, &restart);
-		check = eval_loop_execute(ptr, stream, ret);
+		check = eval_loop_execute(ptr, stream, call, ret);
 	}
 	end_switch(&jump);
 	if (check)
@@ -247,7 +253,7 @@ static int eval_loop_restart(Execute ptr, addr stream, int *ret)
 	return free_control(ptr, control);
 }
 
-_g int eval_main_loop(Execute ptr)
+_g int eval_custom_loop(Execute ptr, eval_loop_calltype call)
 {
 	int exit;
 	addr stream;
@@ -260,7 +266,7 @@ _g int eval_main_loop(Execute ptr)
 		setindex_prompt(ptr, index);
 		setshow_prompt(ptr, 1);
 
-		if (eval_loop_restart(ptr, stream, &exit)) {
+		if (eval_loop_restart(ptr, stream, call, &exit)) {
 			terpri_stream(stream);
 			return 1;
 		}
@@ -272,6 +278,18 @@ _g int eval_main_loop(Execute ptr)
 	terpri_stream(stream);
 
 	return 1;
+}
+
+static int eval_main_execute(Execute ptr, addr stream, addr pos, int *exit, int *exec)
+{
+	*exit = 0;
+	*exec = 1;
+	return 0;
+}
+
+_g int eval_main_loop(Execute ptr)
+{
+	return eval_custom_loop(ptr, eval_main_execute);
 }
 
 

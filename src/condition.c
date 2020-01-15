@@ -24,6 +24,7 @@
 #include "prompt.h"
 #include "readtable.h"
 #include "stream.h"
+#include "stream_prompt.h"
 #include "stream_string.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -437,6 +438,7 @@ static int enter_debugger(Execute ptr, addr condition)
 	LocalHold hold;
 
 	/* restarts */
+	mode_prompt_stream(ptr, PromptStreamMode_Normal);
 	debug_io_stream(ptr, &io);
 	compute_restarts_control(ptr, condition, &list);
 	hold = LocalHold_local_push(ptr, list);
@@ -507,7 +509,7 @@ static int enable_debugger_p(Execute ptr)
 
 static int invoke_standard_debugger(Execute ptr, addr condition)
 {
-	addr io, pos;
+	addr io, pos, control;
 
 	/* output condition */
 	debug_io_stream(ptr, &io);
@@ -524,6 +526,7 @@ static int invoke_standard_debugger(Execute ptr, addr condition)
 	}
 
 	/* debugger */
+	push_close_control(ptr, &control);
 	return enter_debugger(ptr, condition);
 }
 
@@ -678,6 +681,15 @@ _g int signal_warning(Execute ptr, const char *str, ...)
 	/* instance */
 	instance_simple_warning(&instance, format, args);
 	return warning_restart_case(ptr, instance);
+}
+
+_g void format_error_va(const char *str, va_list va)
+{
+	addr format, args;
+
+	strvect_char_heap(&format, str);
+	copylocal_list_stdarg(NULL, &args, va);
+	simple_error(format, args);
 }
 
 _g void format_error(const char *str, ...)

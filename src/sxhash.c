@@ -153,13 +153,14 @@ static fixed sxfixed_string(addr pos, int depth)
 	int m;
 	size_t i, len;
 	fixed p[FixedSize], value;
-	const unicode *u;
+	unicode u;
 
 	cleartype(p);
-	string_posbodylen(pos, &u, &len);
+	string_length(pos, &len);
 	for (i = 0; i < len; i++) {
+		string_getc(pos, i, &u);
 		m = i % FixedSize;
-		p[m] += u[i];
+		p[m] += u;
 	}
 	value = (fixed)len;
 	for (i = 0; i < FixedSize; i++)
@@ -173,13 +174,14 @@ static fixed sxfixed_string_p(addr pos, int depth)
 	int m;
 	size_t i, len;
 	fixed p[FixedSize], value;
-	const unicode *u;
+	unicode u;
 
 	cleartype(p);
-	string_posbodylen(pos, &u, &len);
+	string_length(pos, &len);
 	for (i = 0; i < len; i++) {
+		string_getc(pos, i, &u);
 		m = i % FixedSize;
-		p[m] += toupperunicode(u[i]);
+		p[m] += toupperunicode(u);
 	}
 	value = (fixed)len;
 	for (i = 0; i < FixedSize; i++)

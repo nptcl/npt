@@ -1,4 +1,4 @@
-#include "array_object.c"
+#include "array_make.c"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -498,16 +498,16 @@ static int test_array_memory_make(void)
 	str->dimension = 1;
 	str->type = ARRAY_TYPE_T;
 	str->size = 10;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &check);
-	test(GetType(check) == LISPSYSTEM_ARRAY_GENERAL, "array_memory_make1");
-	test(lenarrayr(check) == 10, "array_memory_make2");
-	test(str->simple, "array_memory_make3");
+	test(GetType(check) == LISPSYSTEM_ARRAY_GENERAL, "array_make_memory1");
+	test(lenarrayr(check) == 10, "array_make_memory2");
+	test(str->simple, "array_make_memory3");
 
 	str->fillpointer = 1;
-	array_memory_make(NULL, pos, Nil, fixnumh(5), Nil, fixnumh(0));
-	test(str->front == 5, "array_memory_make4");
-	test(! str->simple, "array_memory_make5");
+	array_make_memory(NULL, pos, Nil, fixnumh(5), Nil, fixnumh(0));
+	test(str->front == 5, "array_make_memory4");
+	test(! str->simple, "array_make_memory5");
 
 	RETURN;
 }
@@ -522,7 +522,7 @@ static int test_array_initial_t(void)
 	str->dimension = 1;
 	str->type = ARRAY_TYPE_T;
 	str->size = 10;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_t(pos, T, 3);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	arraygen_get(pos, 0, &check);
@@ -546,7 +546,7 @@ static int test_array_initial_bit(void)
 	str->dimension = 1;
 	str->type = ARRAY_TYPE_BIT;
 	str->size = 100;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_bit(pos, fixnumh(0), 100);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	bitmemory_getint(mem, 0, &value);
@@ -576,7 +576,7 @@ static int test_array_memset(void)
 	str->size = 100;
 	str->element = sizeoft(unicode);
 	u = 66666;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_memset(pos, (const void *)&u);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (unicode *)arrayspec_ptr(mem);
@@ -599,7 +599,7 @@ static int test_array_initial_character(void)
 	str->size = 100;
 	str->element = sizeoft(unicode);
 	character_heap(&value, 66666);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_character(pos, value);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (unicode *)arrayspec_ptr(mem);
@@ -622,7 +622,7 @@ static int test_array_initial_signed8(void)
 	str->bytesize = 8;
 	str->size = 10;
 	str->element = 1;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int8_t *)arrayspec_ptr(mem);
 
@@ -650,7 +650,7 @@ static int test_array_initial_signed16(void)
 	str->bytesize = 16;
 	str->size = 10;
 	str->element = 2;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int16_t *)arrayspec_ptr(mem);
 
@@ -678,7 +678,7 @@ static int test_array_initial_signed32(void)
 	str->bytesize = 32;
 	str->size = 10;
 	str->element = 4;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int32_t *)arrayspec_ptr(mem);
 
@@ -703,7 +703,7 @@ static int test_array_initial_signed64(void)
 	str->bytesize = 64;
 	str->size = 10;
 	str->element = 8;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int64_t *)arrayspec_ptr(mem);
 
@@ -734,7 +734,7 @@ static int test_array_initial_signed(void)
 
 	str->bytesize = 8;
 	str->element = 1;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data1 = (int8_t *)arrayspec_ptr(mem);
 	array_initial_signed(pos, fixnumh(0x55));
@@ -742,7 +742,7 @@ static int test_array_initial_signed(void)
 
 	str->bytesize = 16;
 	str->element = 2;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data2 = (int16_t *)arrayspec_ptr(mem);
 	array_initial_signed(pos, fixnumh(0x55));
@@ -750,7 +750,7 @@ static int test_array_initial_signed(void)
 
 	str->bytesize = 32;
 	str->element = 4;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data3 = (int32_t *)arrayspec_ptr(mem);
 	array_initial_signed(pos, fixnumh(0x55));
@@ -759,7 +759,7 @@ static int test_array_initial_signed(void)
 #ifdef LISP_64BIT
 	str->bytesize = 64;
 	str->element = 8;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data4 = (int64_t *)arrayspec_ptr(mem);
 	array_initial_signed(pos, fixnumh(0x55));
@@ -782,7 +782,7 @@ static int test_array_initial_unsigned8(void)
 	str->bytesize = 8;
 	str->size = 10;
 	str->element = 1;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint8_t *)arrayspec_ptr(mem);
 
@@ -814,7 +814,7 @@ static int test_array_initial_unsigned16(void)
 	str->bytesize = 16;
 	str->size = 10;
 	str->element = 2;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint16_t *)arrayspec_ptr(mem);
 
@@ -846,7 +846,7 @@ static int test_array_initial_unsigned32(void)
 	str->bytesize = 32;
 	str->size = 10;
 	str->element = 4;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint32_t *)arrayspec_ptr(mem);
 
@@ -871,7 +871,7 @@ static int test_array_initial_unsigned64(void)
 	str->bytesize = 64;
 	str->size = 10;
 	str->element = 8;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint64_t *)arrayspec_ptr(mem);
 
@@ -902,7 +902,7 @@ static int test_array_initial_unsigned(void)
 
 	str->bytesize = 8;
 	str->element = 1;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data1 = (uint8_t *)arrayspec_ptr(mem);
 	array_initial_unsigned(pos, fixnumh(0x55));
@@ -910,7 +910,7 @@ static int test_array_initial_unsigned(void)
 
 	str->bytesize = 16;
 	str->element = 2;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data2 = (uint16_t *)arrayspec_ptr(mem);
 	array_initial_unsigned(pos, fixnumh(0x55));
@@ -918,7 +918,7 @@ static int test_array_initial_unsigned(void)
 
 	str->bytesize = 32;
 	str->element = 4;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data3 = (uint32_t *)arrayspec_ptr(mem);
 	array_initial_unsigned(pos, fixnumh(0x55));
@@ -927,7 +927,7 @@ static int test_array_initial_unsigned(void)
 #ifdef LISP_64BIT
 	str->bytesize = 64;
 	str->element = 8;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data4 = (uint64_t *)arrayspec_ptr(mem);
 	array_initial_unsigned(pos, fixnumh(0x55));
@@ -950,7 +950,7 @@ static int test_array_initial_single(void)
 	str->size = 100;
 	str->element = sizeoft(single_float);
 	single_float_heap(&value, 10.23f);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_single(pos, value);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (single_float *)arrayspec_ptr(mem);
@@ -973,7 +973,7 @@ static int test_array_initial_double(void)
 	str->size = 100;
 	str->element = sizeoft(double_float);
 	double_float_heap(&value, 10.23);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_double(pos, value);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (double_float *)arrayspec_ptr(mem);
@@ -996,7 +996,7 @@ static int test_array_initial_long(void)
 	str->size = 100;
 	str->element = sizeoft(long_float);
 	long_float_heap(&value, 10.23L);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_long(pos, value);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (long_float *)arrayspec_ptr(mem);
@@ -1019,7 +1019,7 @@ static int test_array_initial(void)
 	str->size = 10;
 	str->element = 0;
 	index_heap(&value, 10);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, value);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
@@ -1029,7 +1029,7 @@ static int test_array_initial(void)
 
 	str->type = ARRAY_TYPE_CHARACTER;
 	str->element = sizeoft(unicode);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, character_heapr(100));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (long_float *)arrayspec_ptr(mem);
@@ -1049,7 +1049,7 @@ static int test_setf_t_index_array(void)
 	str->dimension = 1;
 	str->type = ARRAY_TYPE_T;
 	str->size = 10;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 3, T);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	arraygen_get(pos, 3, &check);
@@ -1071,7 +1071,7 @@ static int test_setf_bit_index_array(void)
 	str->dimension = 1;
 	str->type = ARRAY_TYPE_BIT;
 	str->size = 100;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_bit(pos, fixnumh(0), 100);
 	for (i = 10; i < 20; i++)
 		array_setindex(pos, i, fixnumh(1));
@@ -1099,7 +1099,7 @@ static int test_setf_character_index_array(void)
 	str->size = 100;
 	str->element = sizeoft(unicode);
 	character_heap(&value, 66666);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 10, value);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (unicode *)arrayspec_ptr(mem);
@@ -1122,7 +1122,7 @@ static int test_setf_signed8_index_array(void)
 	str->bytesize = 8;
 	str->size = 10;
 	str->element = 1;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int8_t *)arrayspec_ptr(mem);
 
@@ -1150,7 +1150,7 @@ static int test_setf_signed16_index_array(void)
 	str->bytesize = 16;
 	str->size = 10;
 	str->element = 2;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int16_t *)arrayspec_ptr(mem);
 
@@ -1178,7 +1178,7 @@ static int test_setf_signed32_index_array(void)
 	str->bytesize = 32;
 	str->size = 10;
 	str->element = 4;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int32_t *)arrayspec_ptr(mem);
 
@@ -1203,7 +1203,7 @@ static int test_setf_signed64_index_array(void)
 	str->bytesize = 64;
 	str->size = 10;
 	str->element = 8;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (int64_t *)arrayspec_ptr(mem);
 
@@ -1234,7 +1234,7 @@ static int test_setf_signed_index_array(void)
 
 	str->bytesize = 8;
 	str->element = 1;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data1 = (int8_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 0, fixnumh(0x55));
@@ -1242,7 +1242,7 @@ static int test_setf_signed_index_array(void)
 
 	str->bytesize = 16;
 	str->element = 2;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data2 = (int16_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 4, fixnumh(0x55));
@@ -1250,7 +1250,7 @@ static int test_setf_signed_index_array(void)
 
 	str->bytesize = 32;
 	str->element = 4;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data3 = (int32_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 9, fixnumh(0x55));
@@ -1259,7 +1259,7 @@ static int test_setf_signed_index_array(void)
 #ifdef LISP_64BIT
 	str->bytesize = 64;
 	str->element = 8;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data4 = (int64_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 7, fixnumh(0x55));
@@ -1282,7 +1282,7 @@ static int test_setf_unsigned8_index_array(void)
 	str->bytesize = 8;
 	str->size = 10;
 	str->element = 1;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint8_t *)arrayspec_ptr(mem);
 
@@ -1313,7 +1313,7 @@ static int test_setf_unsigned16_index_array(void)
 	str->bytesize = 16;
 	str->size = 10;
 	str->element = 2;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint16_t *)arrayspec_ptr(mem);
 
@@ -1342,7 +1342,7 @@ static int test_setf_unsigned32_index_array(void)
 	str->bytesize = 32;
 	str->size = 10;
 	str->element = 4;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint32_t *)arrayspec_ptr(mem);
 
@@ -1366,7 +1366,7 @@ static int test_setf_unsigned64_index_array(void)
 	str->bytesize = 64;
 	str->size = 10;
 	str->element = 8;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (uint64_t *)arrayspec_ptr(mem);
 
@@ -1396,7 +1396,7 @@ static int test_setf_unsigned_index_array(void)
 
 	str->bytesize = 8;
 	str->element = 1;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data1 = (uint8_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 0, fixnumh(0x55));
@@ -1404,7 +1404,7 @@ static int test_setf_unsigned_index_array(void)
 
 	str->bytesize = 16;
 	str->element = 2;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data2 = (uint16_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 4, fixnumh(0x55));
@@ -1412,7 +1412,7 @@ static int test_setf_unsigned_index_array(void)
 
 	str->bytesize = 32;
 	str->element = 4;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data3 = (uint32_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 9, fixnumh(0x55));
@@ -1421,7 +1421,7 @@ static int test_setf_unsigned_index_array(void)
 #ifdef LISP_64BIT
 	str->bytesize = 64;
 	str->element = 8;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data4 = (uint64_t *)arrayspec_ptr(mem);
 	array_setindex(pos, 7, fixnumh(0x55));
@@ -1444,7 +1444,7 @@ static int test_setf_single_float_index_array(void)
 	str->size = 100;
 	str->element = sizeoft(single_float);
 	single_float_heap(&value, 10.23f);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 0, value);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (single_float *)arrayspec_ptr(mem);
@@ -1466,7 +1466,7 @@ static int test_setf_double_float_index_array(void)
 	str->size = 100;
 	str->element = sizeoft(double_float);
 	double_float_heap(&value, 10.23);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 99, value);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (double_float *)arrayspec_ptr(mem);
@@ -1488,7 +1488,7 @@ static int test_setf_long_float_index_array(void)
 	str->size = 100;
 	str->element = sizeoft(long_float);
 	long_float_heap(&value, 10.23L);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 0, value);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (long_float *)arrayspec_ptr(mem);
@@ -1510,7 +1510,7 @@ static int test_array_setindex(void)
 	str->size = 10;
 	str->element = 0;
 	index_heap(&value, 10);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 0, value);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
@@ -1520,7 +1520,7 @@ static int test_array_setindex(void)
 
 	str->type = ARRAY_TYPE_CHARACTER;
 	str->element = sizeoft(unicode);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 9, character_heapr(100));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	data = (long_float *)arrayspec_ptr(mem);
@@ -1541,7 +1541,7 @@ static int test_array_contents_setf(void)
 	array_upgraded(pos, check);
 	array_element_size(pos);
 	array_setsize(NULL, pos, readr("6"));
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	/* test */
 	array_contents_setf(local, pos, readr("(1 2 a b 5 6)"));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
@@ -1559,7 +1559,7 @@ static int test_array_contents_setf(void)
 	test(RefFixnum(check) == 6, "array_contents_setf6");
 
 	array_setsize(NULL, pos, readr("(2 3)"));
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_contents_setf(local, pos, readr("((1 2 3) (4 5 6))"));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
@@ -1576,7 +1576,7 @@ static int test_array_contents_setf(void)
 	test(RefFixnum(check) == 6, "array_contents_setf12");
 
 	array_setsize(NULL, pos, readr("(4 2 3)"));
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_contents_setf(local, pos,
 			readr("(((a b c) (1 2 3))"
 				"((d e f) (3 1 2))"
@@ -1605,7 +1605,7 @@ static int test_array_initial_contents(void)
 	array_upgraded(pos, check);
 	array_element_size(pos);
 	array_setsize(NULL, pos, readr("6"));
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	/* test */
 	array_initial_contents(local, pos, readr("(1 2 a b 5 6)"));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
@@ -1615,7 +1615,7 @@ static int test_array_initial_contents(void)
 	test(RefFixnum(check) == 2, "array_initial_contents2");
 
 	array_setsize(NULL, pos, Nil);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial_contents(local, pos, readr("9"));
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &mem);
 	arraygen_get(mem, 0, &check);
@@ -1629,7 +1629,7 @@ static int test_array_make_array(void)
 	addr pos;
 
 	GetTypeTable(&pos, T);
-	make_array_common(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(arrayp(pos), "array_make_array1");
 
 	RETURN;
@@ -1844,12 +1844,12 @@ static int test_array_element_type(void)
 	addr pos, check;
 
 	GetTypeTable(&pos, T);
-	make_array_common(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_element_type(pos, &pos);
 	test(pos == T, "array_element_type1");
 
 	GetTypeTable(&pos, LongFloat);
-	make_array_common(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_element_type(pos, &pos);
 	GetConst(COMMON_LONG_FLOAT, &check);
 	test(pos == check, "array_element_type2");
@@ -1862,7 +1862,7 @@ static int test_array_vector_length(void)
 	addr pos;
 
 	GetTypeTable(&pos, T);
-	make_array_common(&pos, fixnumh(22), pos,
+	array_make_array(&pos, fixnumh(22), pos,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(array_vector_length(pos, 0) == 22, "array_vector_length1");
 
@@ -1875,17 +1875,17 @@ static int test_array_row_length(void)
 	size_t size;
 
 	GetTypeTable(&type, T);
-	make_array_common(&pos, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_rowlength(pos, &size);
 	test(size == 1, "array_rowlength1");
 
-	make_array_common(&pos, fixnumh(22), type,
+	array_make_array(&pos, fixnumh(22), type,
 			Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_rowlength(pos, &size);
 	test(size == 22, "array_rowlength2");
 
 	list_heap(&pos, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	make_array_common(&pos, pos, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos, pos, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	array_rowlength(pos, &size);
 	test(size == 54, "array_rowlength3");
 
@@ -1897,38 +1897,38 @@ static int test_array_dimension_equal(void)
 	addr pos1, pos2, type;
 
 	GetTypeTable(&type, T);
-	make_array_common(&pos1, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
-	make_array_common(&pos2, Nil, type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(&pos1, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos2, Nil, type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(array_dimension_equal(pos1, pos2), "array_dimension_equal1");
 
-	make_array_common(&pos1, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
-	make_array_common(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(&pos1, Nil, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! array_dimension_equal(pos1, pos2), "array_dimension_equal2");
 
-	make_array_common(&pos1, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
-	make_array_common(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(&pos1, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(array_dimension_equal(pos1, pos2), "array_dimension_equal3");
 
-	make_array_common(&pos1, fixnumh(20), type, Unbound, Unbound, T, Nil, Nil, Nil);
-	make_array_common(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(&pos1, fixnumh(20), type, Unbound, Unbound, T, Nil, Nil, Nil);
+	array_make_array(&pos2, fixnumh(10), type, Unbound, Unbound, T, Nil, Nil, Nil);
 	test(! array_dimension_equal(pos1, pos2), "array_dimension_equal4");
 
 	list_heap(&pos1, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	make_array_common(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	list_heap(&pos2, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	make_array_common(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(array_dimension_equal(pos1, pos2), "array_dimension_equal5");
 
 	list_heap(&pos1, fixnumh(2), fixnumh(10), fixnumh(9), NULL);
-	make_array_common(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	list_heap(&pos2, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	make_array_common(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! array_dimension_equal(pos1, pos2), "array_dimension_equal6");
 
 	list_heap(&pos1, fixnumh(2), fixnumh(3), NULL);
-	make_array_common(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos1, pos1, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	list_heap(&pos2, fixnumh(2), fixnumh(3), fixnumh(9), NULL);
-	make_array_common(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
+	array_make_array(&pos2, pos2, type, Unbound, Unbound, Nil, Nil, Nil, Nil);
 	test(! array_dimension_equal(pos1, pos2), "array_dimension_equal7");
 
 	RETURN;
@@ -1952,7 +1952,7 @@ static int test_aref_t_index_array(void)
 	str->type = ARRAY_TYPE_T;
 	str->size = 20;
 	str->element = 0;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_setindex(pos, 10, T);
 
 	test_aref_array_memory(pos, 9, &value);
@@ -1974,7 +1974,7 @@ static int test_aref_bit_index_array(void)
 	str->type = ARRAY_TYPE_BIT;
 	str->size = 100;
 	str->element = 0;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(0));
 	array_setindex(pos, 10, fixnumh(1));
 	array_setindex(pos, 12, fixnumh(1));
@@ -2008,7 +2008,7 @@ static int test_aref_character_index_array(void)
 	str->type = ARRAY_TYPE_CHARACTER;
 	str->size = 20;
 	str->element = sizeoft(unicode);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, character_heapr(0));
 	array_setindex(pos, 10, character_heapr(10));
 	array_setindex(pos, 12, character_heapr(20));
@@ -2037,7 +2037,7 @@ static int test_aref_signed8_index_array(void)
 	str->bytesize = 8;
 	str->element = 1;
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(11));
 	array_setindex(pos, 10, fixnumh(10));
 	array_setindex(pos, 12, fixnumh(20));
@@ -2063,7 +2063,7 @@ static int test_aref_signed16_index_array(void)
 	str->bytesize = 16;
 	str->element = 2;
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(11));
 	array_setindex(pos, 10, fixnumh(10));
 	array_setindex(pos, 12, fixnumh(20));
@@ -2089,7 +2089,7 @@ static int test_aref_signed32_index_array(void)
 	str->bytesize = 32;
 	str->element = 4;
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(11));
 	array_setindex(pos, 10, fixnumh(10));
 	array_setindex(pos, 12, fixnumh(20));
@@ -2116,7 +2116,7 @@ static int test_aref_signed64_index_array(void)
 	str->bytesize = 64;
 	str->element = 8;
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(11));
 	array_setindex(pos, 10, fixnumh(10));
 	array_setindex(pos, 12, fixnumh(20));
@@ -2143,7 +2143,7 @@ static int test_aref_signed_index_array(void)
 	str->bytesize = 32;
 	str->element = 4;
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(11));
 	array_setindex(pos, 10, fixnumh(10));
 	array_setindex(pos, 12, fixnumh(20));
@@ -2169,7 +2169,7 @@ static int test_aref_unsigned8_index_array(void)
 	str->bytesize = 8;
 	str->element = 1;
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(11));
 	array_setindex(pos, 10, fixnumh(10));
 	array_setindex(pos, 12, fixnumh(20));
@@ -2195,7 +2195,7 @@ static int test_aref_unsigned16_index_array(void)
 	str->bytesize = 16;
 	str->element = 2;
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(11));
 	array_setindex(pos, 10, fixnumh(10));
 	array_setindex(pos, 12, fixnumh(20));
@@ -2221,7 +2221,7 @@ static int test_aref_unsigned32_index_array(void)
 	str->bytesize = 32;
 	str->element = 4;
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(11));
 	array_setindex(pos, 10, fixnumh(10));
 	array_setindex(pos, 12, fixnumh(20));
@@ -2248,7 +2248,7 @@ static int test_aref_unsigned64_index_array(void)
 	str->bytesize = 64;
 	str->element = 8;
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(11));
 	array_setindex(pos, 10, fixnumh(10));
 	array_setindex(pos, 12, fixnumh(20));
@@ -2275,7 +2275,7 @@ static int test_aref_unsigned_index_array(void)
 	str->bytesize = 32;
 	str->element = 4;
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, fixnumh(11));
 	array_setindex(pos, 10, fixnumh(10));
 	array_setindex(pos, 12, fixnumh(20));
@@ -2300,7 +2300,7 @@ static int test_aref_single_float_index_array(void)
 	str->type = ARRAY_TYPE_SINGLE_FLOAT;
 	str->element = sizeoft(single_float);
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, single_float_heapr(11.0f));
 	array_setindex(pos, 10, single_float_heapr(10.0f));
 	array_setindex(pos, 12, single_float_heapr(20.0f));
@@ -2325,7 +2325,7 @@ static int test_aref_double_float_index_array(void)
 	str->type = ARRAY_TYPE_DOUBLE_FLOAT;
 	str->element = sizeoft(double_float);
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, double_float_heapr(11.0));
 	array_setindex(pos, 10, double_float_heapr(10.0));
 	array_setindex(pos, 12, double_float_heapr(20.0));
@@ -2350,7 +2350,7 @@ static int test_aref_long_float_index_array(void)
 	str->type = ARRAY_TYPE_LONG_FLOAT;
 	str->element = sizeoft(long_float);
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, long_float_heapr(11.0L));
 	array_setindex(pos, 10, long_float_heapr(10.0L));
 	array_setindex(pos, 12, long_float_heapr(20.0L));
@@ -2375,7 +2375,7 @@ static int test_array_getindex(void)
 	str->type = ARRAY_TYPE_LONG_FLOAT;
 	str->element = sizeoft(long_float);
 	str->size = 20;
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 	array_initial(pos, long_float_heapr(11.0L));
 	array_setindex(pos, 10, long_float_heapr(10.0L));
 	array_setindex(pos, 12, long_float_heapr(20.0L));
@@ -2399,13 +2399,13 @@ static int test_array_arefindex(void)
 	array_upgraded(pos, type);
 	array_element_size(pos);
 	array_setsize(NULL, pos, Nil);
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 
 	size = array_arefindex(pos, Nil);
 	test(size == 0, "array_arefindex1");
 
 	array_setsize(NULL, pos, readr("10"));
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 
 	size = array_arefindex(pos, readr("(0)"));
 	test(size == 0, "array_arefindex2");
@@ -2414,7 +2414,7 @@ static int test_array_arefindex(void)
 	test(size == 7, "array_arefindex3");
 
 	array_setsize(NULL, pos, readr("(3 4)"));
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 
 	size = array_arefindex(pos, readr("(0 2)"));
 	test(size == 2, "array_arefindex4");
@@ -2432,7 +2432,7 @@ static int test_array_arefindex(void)
 	test(size == 4+4+3, "array_arefindex9");
 
 	array_setsize(NULL, pos, readr("(3 4 5)"));
-	array_memory_make(NULL, pos, Nil, Nil, Nil, Nil);
+	array_make_memory(NULL, pos, Nil, Nil, Nil, Nil);
 
 	size = array_arefindex(pos, readr("(0 2 3)"));
 	test(size == 5+5+3, "array_arefindex10");
@@ -2481,7 +2481,7 @@ static int test_array_index_dimension(void)
 /*
  *  main
  */
-static int testbreak_array_object(void)
+static int testbreak_array_make(void)
 {
 #if 0
 	TestBreak(test_array_macro);
@@ -2586,7 +2586,7 @@ static int testbreak_array_object(void)
 	return 0;
 }
 
-int test_array_object(void)
+int test_array_make(void)
 {
 	int result;
 	lispcode code;
@@ -2613,7 +2613,7 @@ int test_array_object(void)
 		build_common();
 		build_readtable();
 		lisp_initialize = 1;
-		result = testbreak_array_object();
+		result = testbreak_array_make();
 	}
 	end_code(ptr);
 	freelisp();

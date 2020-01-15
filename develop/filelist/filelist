@@ -1,11 +1,15 @@
 alloc.c
 arch.c
 array.c
+array_access.c
 array_adjust.c
 array_coerce.c
 array_common.c
 array_copy.c
-array_object.c
+array_inplace.c
+array_make.c
+array_sequence.c
+array_value.c
 array_vector.c
 bigcons.c
 bigdata.c
@@ -170,6 +174,7 @@ real_floor.c
 real_round.c
 real_truncate.c
 real.c
+require.c
 rt.c
 rt_load.c
 sequence.c

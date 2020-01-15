@@ -1,5 +1,6 @@
 #include "array.h"
-#include "array_object.h"
+#include "array_access.h"
+#include "array_make.h"
 #include "bignum.h"
 #include "bit.h"
 #include "bytespec.h"
@@ -700,7 +701,7 @@ static int WriteArray_bit(Execute ptr, addr stream, addr pos)
 	int value;
 	size_t size, i;
 
-	array_rowlength(pos, &size);
+	array_get_rowlength(pos, &size);
 	print_ascii_stream(stream, "#*");
 	for (i = 0; i < size; i++) {
 		(void)array_get_bit(pos, i, &value);
@@ -1536,12 +1537,14 @@ static void WriteCall_character_name(addr stream, unicode u)
 
 static void WriteCall_character_string(addr stream, addr string)
 {
-	const unicode *body;
+	unicode c;
 	size_t i, size;
 
-	string_posbodylen(string, &body, &size);
-	for (i = 0; i < size; i++)
-		write_char_stream(stream, body[i]);
+	string_length(string, &size);
+	for (i = 0; i < size; i++) {
+		string_getc(string, i, &c);
+		write_char_stream(stream, c);
+	}
 }
 
 static int WriteCall_character(Execute ptr, addr stream, addr object)
@@ -1577,14 +1580,13 @@ static int WriteCall_character(Execute ptr, addr stream, addr object)
 static int WriteCall_string(Execute ptr, addr stream, addr object)
 {
 	unicode c;
-	const unicode *body;
 	size_t size, i;
 
-	string_posbodylen(object, &body, &size);
+	string_length(object, &size);
 	if (escape_print(ptr)) {
 		write_char_stream(stream, '\"');
 		for (i = 0; i < size; i++) {
-			c = body[i];
+			string_getc(object, i, &c);
 			if (c == '\"' || c == '\\')
 				write_char_stream(stream, '\\');
 			write_char_stream(stream, c);
@@ -1592,8 +1594,10 @@ static int WriteCall_string(Execute ptr, addr stream, addr object)
 		write_char_stream(stream, '\"');
 	}
 	else {
-		for (i = 0; i < size; i++)
-			write_char_stream(stream, body[i]);
+		for (i = 0; i < size; i++) {
+			string_getc(object, i, &c);
+			write_char_stream(stream, c);
+		}
 	}
 
 	return 0;

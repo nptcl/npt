@@ -70,6 +70,7 @@ _g void error_function(addr condition);
 _g int warning_restart_case(Execute ptr, addr instance);
 _g int signal_warning(Execute ptr, const char *str, ...);
 
+_g void format_error_va(const char *str, va_list va);
 _g void format_error(const char *str, ...);
 _g void format_warning(const char *str, ...);
 #define fmte format_error

@@ -1,3 +1,5 @@
+#include "array_access.h"
+#include "array_value.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -282,7 +284,7 @@ _g void setinplace_sequence_range(LocalRoot local,
 
 	Check(endp_sequence_range(ptr), "endp error");
 	if (ptr->listp) {
-		array_value_alloc(local, &value, str);
+		arrayvalue_alloc(local, &value, str);
 		SetCar(ptr->list, value);
 	}
 	else {

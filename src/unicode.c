@@ -1017,33 +1017,6 @@ _g void strvect_setget(addr pos1, size_t index1, addr pos2, size_t index2)
 	strvect_setc(pos1, index1, value);
 }
 
-_g void strvect_adjust(addr *ret, addr array, size_t size, addr value, addr check)
-{
-	unicode temp, defvalue;
-	addr pos;
-	size_t i, arraysize;
-
-	if (value != Unbound) {
-		if (! characterp(value))
-			fmte("string :initial-value ~S must be a character type.", value, NULL);
-		GetCharacter(value, &defvalue);
-	}
-	strvect_heap(&pos, size);
-	if (check == Unbound) {
-		strvect_length(array, &arraysize);
-		for (i = 0; i < size; i++) {
-			if (i < arraysize)
-				strvect_getc(array, i, &temp);
-			else {
-				if (value == Unbound) break;
-				temp = defvalue;
-			}
-			strvect_setc(pos, i, temp);
-		}
-	}
-	*ret = pos;
-}
-
 _g void strvect_reverse(LocalRoot local, addr *ret, addr pos)
 {
 	unicode c;

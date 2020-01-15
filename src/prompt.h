@@ -13,7 +13,7 @@ _g int getshow_prompt(Execute ptr);
 _g void setshow_prompt(Execute ptr, int value);
 
 _g void show_prompt(Execute ptr, addr io);
-_g int input_prompt(addr *ret, addr *prompt);
+_g int input_prompt(addr *ret, addr *prompt, const char *message);
 
 #endif
 

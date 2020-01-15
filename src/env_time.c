@@ -17,8 +17,8 @@
 #include "real_truncate.h"
 #include "symbol.h"
 
-#define ENCODE_UNIVERSAL_1900  693961
-#define ENCODE_UNIVERSAL_1970  719528
+#define ENCODE_UNIVERSAL_1900	693961
+#define ENCODE_UNIVERSAL_1970	719528
 
 #ifdef LISP_POSIX
 #define LISP_SLEEP_INTERVAL		1000000
@@ -430,7 +430,7 @@ static int encode_universal_time_standard(LocalRoot local, addr *ret,
 		return 1;  /* error gmtime */
 	a = mktime(&str);
 	if (localtime_arch(&str, &now))
-		return 1;  /* error gmtime */
+		return 1;  /* error localtime */
 	b = mktime(&str);
 	now += (a - b);
 	if (now < 0)

@@ -2,7 +2,7 @@
 #define __SEQUENCE_RANGE_HEADER__
 
 #include  <stddef.h>
-#include "array_object.h"
+#include "array_make.h"
 #include "local.h"
 #include "typedef.h"
 

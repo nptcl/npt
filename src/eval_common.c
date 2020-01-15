@@ -1,4 +1,4 @@
-#include "clos_class.h"
+#include "compile.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -125,48 +125,6 @@ _g void set_define_compiler_macro(addr callname, addr value)
 /*
  *  compile
  */
-static void function_handler_compile(Execute ptr, addr condition)
-{
-	addr check;
-
-	/* warning */
-	GetConst(CONDITION_WARNING, &check);
-	if (clos_subtype_p(condition, check)) {
-		GetConst(SYSTEM_COMPILE_WARNING, &check);
-		setlexical_local(ptr, check, T);
-	}
-
-	/* stype-warning */
-	GetConst(CONDITION_STYLE_WARNING, &check);
-	if (clos_subtype_p(condition, check)) {
-		GetConst(SYSTEM_COMPILE_STYLE_WARNING, &check);
-		setlexical_local(ptr, check, T);
-	}
-}
-
-static void handler_compile(Execute ptr)
-{
-	addr pos, call;
-
-	/* *compiler-macro* */
-	GetConst(SYSTEM_COMPILER_MACRO, &pos);
-	pushspecial_control(ptr, pos, T);
-
-	/* compile-warning */
-	GetConst(SYSTEM_COMPILE_WARNING, &pos);
-	pushlexical_control(ptr, pos, Nil);
-
-	/* compile-style-warning */
-	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
-	pushlexical_control(ptr, pos, Nil);
-
-	/* handler-bind */
-	GetConst(CONDITION_WARNING, &pos);
-	compiled_local(ptr->local, &call, Nil);
-	setcompiled_var1(call, p_defun_handler_compile);
-	pushhandler_control(ptr, pos, call, 0);
-}
-
 static void compile_variable(Execute ptr, addr var, addr opt, addr *ret)
 {
 	addr call, check;
@@ -291,14 +249,5 @@ _g int compile_common(Execute ptr, addr var, addr opt,
 	localhold_end(hold);
 
 	return 0;
-}
-
-
-/*
- *  initialize
- */
-_g void init_eval_common(void)
-{
-	SetPointerCall(defun, var1, handler_compile);
 }
 

@@ -948,6 +948,8 @@ enum pointer_index {
 	p_defmacro_with_compilation_unit,
 	p_defun_handler_delay_warning,
 	p_defun_finalize_delay_warning,
+	p_defun_provide,
+	p_defun_require,
 	/* common-environment */
 	p_defun_decode_universal_time,
 	p_defun_encode_universal_time,
@@ -967,6 +969,7 @@ enum pointer_index {
 	p_defun_trace,
 	p_defun_trace_function,
 	p_defun_untrace,
+	p_defmacro_step,
 	p_defmacro_time,
 	p_defun_get_internal_real_time,
 	p_defun_get_internal_run_time,

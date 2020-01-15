@@ -1,6 +1,9 @@
 #include "array.h"
-#include "array_common.h"
-#include "array_object.h"
+#include "array_access.h"
+#include "array_make.h"
+#include "array_inplace.h"
+#include "array_sequence.h"
+#include "array_value.h"
 #include "array_vector.h"
 #include "bit.h"
 #include "condition.h"
@@ -281,7 +284,7 @@ _g size_t length_sequence(addr pos, int fill)
 			return size;
 
 		case LISPTYPE_ARRAY:
-			return array_vector_length(pos, fill);
+			return array_get_vector_length(pos, fill);
 
 		case LISPTYPE_BITVECTOR:
 			bitvector_length(pos, &size);
@@ -363,7 +366,7 @@ _g void getelt_inplace_sequence(addr pos, size_t index, struct array_value *str)
 			break;
 
 		case LISPTYPE_ARRAY:
-			array_get_inplace(pos, index, str);
+			arrayinplace_get(pos, index, str);
 			break;
 
 		case LISPTYPE_BITVECTOR:
@@ -448,7 +451,7 @@ static void setelt_bit_signed_sequence(addr pos,
 	else if (check == 1)
 		bitmemory_setint(pos, index, 1);
 	else {
-		array_value_alloc(NULL, &pos, str);
+		arrayvalue_heap(&pos, str);
 		fmte("The bit-vector cannot set an integer ~A.", pos, NULL);
 	}
 }
@@ -507,7 +510,7 @@ static void setelt_bit_unsigned_sequence(addr pos,
 	else if (check == 1)
 		bitmemory_setint(pos, index, 1);
 	else {
-		array_value_alloc(NULL, &pos, str);
+		arrayvalue_heap(&pos, str);
 		fmte("The bit-vector cannot set an integer ~A.", pos, NULL);
 	}
 }
@@ -570,12 +573,12 @@ _g void setelt_inplace_sequence(LocalRoot local,
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_CONS:
-			array_value_alloc(local, &value, str);
+			arrayvalue_alloc(local, &value, str);
 			setnth(pos, index, value);
 			break;
 
 		case LISPTYPE_VECTOR:
-			array_value_alloc(local, &value, str);
+			arrayvalue_alloc(local, &value, str);
 			vector_setelt(pos, index, value);
 			break;
 
@@ -584,7 +587,7 @@ _g void setelt_inplace_sequence(LocalRoot local,
 			break;
 
 		case LISPTYPE_ARRAY:
-			array_set_inplace(pos, index, str);
+			arrayinplace_set(pos, index, str);
 			break;
 
 		case LISPTYPE_BITVECTOR:
@@ -610,7 +613,7 @@ static void getelt_array(LocalRoot local, addr pos, size_t index, addr *ret)
 
 	if (! array_vector_p(pos))
 		TypeError(pos, SEQUENCE);
-	size = array_vector_length(pos, 1);
+	size = array_get_vector_length(pos, 1);
 	if (size <= index)
 		fmte("Index ~S is too large.", intsizeh(index), NULL);
 	array_get(local, pos, index, ret);
@@ -662,7 +665,7 @@ static void setelt_array(addr pos, size_t index, addr value)
 
 	if (! array_vector_p(pos))
 		TypeError(pos, SEQUENCE);
-	size = array_vector_length(pos, 1);
+	size = array_get_vector_length(pos, 1);
 	if (size <= index)
 		fmte("Index ~S is too large.", intsizeh(index), NULL);
 	array_set(pos, index, value);
@@ -702,7 +705,7 @@ _g void setelt_sequence(addr pos, size_t index, addr value)
 /*
  *  reverse / nreverse
  */
-_g void reverse_sequence_alloc(LocalRoot local, addr *ret, addr pos)
+_g void reverse_sequence_heap(addr *ret, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
@@ -710,40 +713,29 @@ _g void reverse_sequence_alloc(LocalRoot local, addr *ret, addr pos)
 			break;
 
 		case LISPTYPE_CONS:
-			reverse_list_alloc_safe(local, ret, pos);
+			reverse_list_heap_safe(ret, pos);
 			break;
 
 		case LISPTYPE_VECTOR:
-			vector_reverse(local, ret, pos);
+			vector_reverse(NULL, ret, pos);
 			break;
 
 		case LISPTYPE_STRING:
-			strvect_reverse(local, ret, pos);
+			strvect_reverse(NULL, ret, pos);
 			break;
 
 		case LISPTYPE_ARRAY:
-			array_reverse(local, ret, pos);
+			array_reverse(ret, pos);
 			break;
 
 		case LISPTYPE_BITVECTOR:
-			bitmemory_reverse(local, ret, pos);
+			bitmemory_reverse(NULL, ret, pos);
 			break;
 
 		default:
 			TypeError(pos, SEQUENCE);
 			break;
 	}
-}
-
-_g void reverse_sequence_local(LocalRoot local, addr *ret, addr pos)
-{
-	Check(local == NULL, "local error");
-	reverse_sequence_alloc(local, ret, pos);
-}
-
-_g void reverse_sequence_heap(addr *ret, addr pos)
-{
-	reverse_sequence_alloc(NULL, ret, pos);
 }
 
 _g void nreverse_sequence(addr *ret, addr pos)

@@ -1,5 +1,6 @@
 #include "array.h"
-#include "array_object.h"
+#include "array_access.h"
+#include "array_make.h"
 #include "bigcons.h"
 #include "bignum.h"
 #include "bit.h"
@@ -3853,7 +3854,7 @@ static int find_array_eq_unsafe(addr key, addr array)
 	addr check;
 	size_t size, i;
 
-	array_rowlength(array, &size);
+	array_get_rowlength(array, &size);
 	for (i = 0; i < size; i++) {
 		(void)array_get_t(array, i, &check);
 		if (key == check)

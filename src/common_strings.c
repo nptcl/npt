@@ -2,7 +2,8 @@
  *  ANSI COMMON LISP: 16. Strings
  */
 #include "array.h"
-#include "array_object.h"
+#include "array_access.h"
+#include "array_make.h"
 #include "character.h"
 #include "common_header.h"
 #include "cons.h"
@@ -204,8 +205,7 @@ static void function_setf_char(Execute ptr, addr value, addr pos, addr index)
 		case LISPTYPE_ARRAY:
 			if (! array_stringp(pos))
 				TypeError(pos, STRING);
-			if (array_set_character(NULL, pos, size, c))
-				TypeError(pos, STRING);
+			array_set_character(pos, size, c);
 			break;
 
 		default:
@@ -622,13 +622,11 @@ static int trim_array_check(addr pos, unicode u)
 		return trim_string_check(pos, u);
 	if (! array_vector_p(pos))
 		TypeError(pos, SEQUENCE);
-	size = array_vector_length(pos, 1);
+	size = array_get_vector_length(pos, 1);
 	for (i = 0; i < size; i++) {
-		if (array_get_unicode(pos, i, &c)) {
-			array_get(NULL, pos, i, &pos);
-			TypeError(pos, CHARACTER);
-		}
-		if (c == u) return 1;
+		array_get_unicode(pos, i, &c);
+		if (c == u)
+			return 1;
 	}
 
 	return 0;

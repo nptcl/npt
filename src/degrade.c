@@ -17,7 +17,7 @@ int test_character(void);
 int test_charqueue(void);
 int test_unicode(void);
 int test_array(void);
-int test_array_object(void);
+int test_array_make(void);
 int test_strtype(void);
 int test_object(void);
 int test_symbol(void);
@@ -114,7 +114,7 @@ void degrade_execute(void)
 	DegradeCheck(test_charqueue);
 	DegradeCheck(test_unicode);
 	DegradeCheck(test_array);
-	DegradeCheck(test_array_object);
+	DegradeCheck(test_array_make);
 	DegradeCheck(test_strtype);
 	DegradeCheck(test_gc);
 	DegradeCheck(test_sxhash);
