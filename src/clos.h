@@ -257,9 +257,13 @@ _g void slot_vector_copy_heap(addr *ret, addr pos);
 _g void slot_vector_copyheap_alloc(LocalRoot local, addr *ret, addr pos);
 _g void slot_vector_clear(addr pos);
 
+_g void clos_value_heap(addr *ret, size_t size);
 _g void clos_alloc(LocalRoot local, addr *ret, addr slots);
 _g void clos_local(LocalRoot local, addr *ret, addr slots);
 _g void clos_heap(addr *ret, addr slots);
+
+_g void clos_destroy(addr pos);
+_g void clos_swap(addr a, addr b);
 
 /* control */
 _g int closp(addr pos);

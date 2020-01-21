@@ -2,6 +2,7 @@
 #include "bigdata.h"
 #include "bignum.h"
 #include "character.h"
+#include "clos_common.h"
 #include "cmpl.h"
 #include "compile.h"
 #include "condition.h"
@@ -2743,6 +2744,40 @@ static void defun_with_compilation_unit(void)
 }
 
 
+/* (defun set-slots (instance slots values) ...) -> t */
+static void syscall_set_slots(Execute ptr, addr var, addr slots, addr values)
+{
+	set_slots_syscall(var, slots, values);
+	setresult_control(ptr, var);
+}
+
+static void type_syscall_set_slots(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	GetTypeTable(&values, List);
+	typeargs_var3(&args, args, values, values);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_set_slots(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_SET_SLOTS, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var3(pos, p_defun_syscall_set_slots);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_set_slots(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -2824,6 +2859,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, trace_add);
 	SetPointerSysCall(defun, var1, trace_del);
 	SetPointerSysCall(defun, var3, with_compilation_unit);
+	SetPointerSysCall(defun, var3, set_slots);
 }
 
 _g void build_syscall(void)
@@ -2924,5 +2960,6 @@ _g void build_syscall(void)
 	/* compile */
 	defvar_compiler_macro();
 	defun_with_compilation_unit();
+	defun_set_slots();
 }
 

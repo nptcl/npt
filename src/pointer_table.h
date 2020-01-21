@@ -236,8 +236,15 @@ enum pointer_index {
 	p_method_make_instance_symbol,
 	p_method_make_instance_stdclass,
 	p_method_make_instance_structure,
+	p_method_make_instances_obsolete_symbol,
+	p_method_make_instances_obsolete_stdclass,
+	p_method_make_load_form_object,
+	p_method_make_load_form_class,
+	p_defun_make_load_form_saving_slots,
 	p_method_slot_missing,
 	p_method_slot_unbound,
+	p_method_update_instance_for_different_class,
+	p_method_update_instance_for_redefined_class,
 	p_method_slot_boundp_using_class,
 	p_method_slot_exists_p_using_class,
 	p_method_slot_makunbound_using_class,
@@ -1200,6 +1207,7 @@ enum pointer_index {
 	p_defun_syscall_trace_add,
 	p_defun_syscall_trace_del,
 	p_defun_syscall_with_compilation_unit,
+	p_defun_syscall_set_slots,
 
 	/* size */
 	p_size

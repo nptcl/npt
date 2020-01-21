@@ -3,6 +3,7 @@
 #include "clos_class.h"
 #include "clos_combination.h"
 #include "clos_generic.h"
+#include "clos_make.h"
 #include "clos_type.h"
 #include "constant.h"
 #include "function.h"
@@ -470,21 +471,31 @@ _g void slot_vector_clear(addr pos)
 
 
 /* clos */
+static inline void clos_value_unsafe(LocalRoot local, addr *ret, size_t size)
+{
+	size_t i;
+
+	alloc_array4(local, ret, LISPSYSTEM_CLOS_VALUE, size);
+	for (i = 0; i < size; i++) {
+		SetClosValue_Low(*ret, i, Unbound);
+	}
+}
+
+_g void clos_value_heap(addr *ret, size_t size)
+{
+	clos_value_unsafe(NULL, ret, size);
+}
+
 static inline void clos_unsafe(LocalRoot local, addr *ret)
 {
 	alloc_smallsize(local, ret,
 			LISPTYPE_CLOS, CLOS_INDEX_SIZE, sizeoft(struct clos_struct));
 }
 
-static inline void clos_value_unsafe(LocalRoot local, addr *ret, size_t size)
-{
-	alloc_array4(local, ret, LISPSYSTEM_CLOS_VALUE, size);
-}
-
 _g void clos_alloc(LocalRoot local, addr *ret, addr slots)
 {
 	addr pos, value;
-	size_t size, i;
+	size_t size;
 
 	CheckType(slots, LISPSYSTEM_SLOT_VECTOR);
 	clos_unsafe(local, &pos);
@@ -492,9 +503,6 @@ _g void clos_alloc(LocalRoot local, addr *ret, addr slots)
 	/* value */
 	LenSlotVector_Low(slots, &size);
 	clos_value_unsafe(local, &value, size);
-	for (i = 0; i < size; i++) {
-		SetClosValue_Low(value, i, Unbound);
-	}
 
 	/* clos */
 	SetClassOfClos_Low(pos, Unbound);
@@ -514,6 +522,51 @@ _g void clos_local(LocalRoot local, addr *ret, addr slots)
 _g void clos_heap(addr *ret, addr slots)
 {
 	clos_alloc(NULL, ret, slots);
+}
+
+_g void clos_destroy(addr pos)
+{
+	CheckType(pos, LISPTYPE_CLOS);
+	SetClassOfClos_Low(pos, Nil);
+	SetSlotClos_Low(pos, Nil);
+	SetValueClos_Low(pos, Nil);
+	SetFuncallClos_Low(pos, 0);
+	SetVersionClos_Low(pos, 0);
+}
+
+_g void clos_swap(addr a, addr b)
+{
+	int i1, i2;
+	fixnum f1, f2;
+	addr v1, v2;
+
+	CheckType(a, LISPTYPE_CLOS);
+	CheckType(b, LISPTYPE_CLOS);
+	/* class-of */
+	GetClassOfClos_Low(a, &v1);
+	GetClassOfClos_Low(b, &v2);
+	SetClassOfClos_Low(a, v2);
+	SetClassOfClos_Low(b, v1);
+	/* slot */
+	GetSlotClos_Low(a, &v1);
+	GetSlotClos_Low(b, &v2);
+	SetSlotClos_Low(a, v2);
+	SetSlotClos_Low(b, v1);
+	/* value */
+	GetValueClos_Low(a, &v1);
+	GetValueClos_Low(b, &v2);
+	SetValueClos_Low(a, v2);
+	SetValueClos_Low(b, v1);
+	/* funcall */
+	GetFuncallClos_Low(a, &i1);
+	GetFuncallClos_Low(b, &i2);
+	SetFuncallClos_Low(a, i2);
+	SetFuncallClos_Low(b, i1);
+	/* version */
+	GetVersionClos_Low(a, &f1);
+	GetVersionClos_Low(b, &f2);
+	SetVersionClos_Low(a, f2);
+	SetVersionClos_Low(b, f1);
 }
 
 
@@ -981,8 +1034,8 @@ _g void clos_forget_all_specializer_unsafe(void)
  */
 _g void init_clos(void)
 {
-	init_clos_class();
 	init_clos_generic();
+	init_clos_make();
 	init_clos_type();
 }
 

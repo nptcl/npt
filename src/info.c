@@ -837,6 +837,12 @@ static void infoprint_clos(addr pos)
 		info_stdarg("CLOS>");
 		return;
 	}
+	else if (check == Unbound) {
+		info_stdarg("UNBOUND");
+	}
+	else if (! closp(check)) {
+		info_stdarg("INVALID");
+	}
 	else if (! clos_getp(check, key, &name)) {
 		info_stdarg("UNBOUND");
 	}

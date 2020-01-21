@@ -313,18 +313,9 @@ static void clos_generic_call_heap(addr *ret, enum ClosGenericIndex call, int si
  */
 static int comb_standard_method(Execute ptr, addr car, addr cdr, addr rest)
 {
-	addr call, args;
-	LocalRoot local;
-	LocalStack stack;
-
+	addr call;
 	stdget_method_function(car, &call);
-	local = ptr->local;
-	push_local(local, &stack);
-	lista_local(local, &args, car, cdr, rest, NULL);
-	if (apply_control(ptr, call, args)) return 1;
-	rollback_local(local, stack);
-
-	return 0;
+	return applya_control(ptr, call, car, cdr, rest, NULL);
 }
 
 static int comb_standard_funcall(Execute ptr, addr rest, addr around, addr primary)
@@ -390,19 +381,11 @@ static void comb_standard_qualifiers(LocalRoot local,
 static int generic_no_applicable_method(Execute ptr, addr gen, addr args)
 {
 	addr call;
-	LocalRoot local;
-	LocalStack stack;
 
 	/* call (no-applicable-method generic-function . args) */
-	local = ptr->local;
-	push_local(local, &stack);
 	GetConst(COMMON_NO_APPLICABLE_METHOD, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	lista_local(local, &args, gen, args, NULL);
-	if (apply_control(ptr, call, args)) return 1;
-	rollback_local(local, stack);
-
-	return 0;
+	return applya_control(ptr, call, gen, args, NULL);
 }
 
 static int comb_standard_execute(Execute ptr, addr inst, addr gen, addr rest)
@@ -909,8 +892,6 @@ _g void generic_common_order(addr gen, addr order, addr list)
 _g int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *ret)
 {
 	addr call, check, clos, ensure;
-	LocalRoot local;
-	LocalStack stack;
 
 	/* symbol or (setf name) */
 	parse_callname_error(&call, name);
@@ -941,15 +922,9 @@ _g int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *r
 	}
 
 	/* (apply #'ensure-generic-function-using-class ...) */
-	local = ptr->local;
-	push_local(local, &stack);
 	GetConst(CLOSNAME_ENSURE_GENERIC_FUNCTION_USING_CLASS, &ensure);
 	getfunctioncheck_local(ptr, ensure, &ensure);
-	lista_local(local, &rest, clos, name, rest, NULL);
-	if (apply_control(ptr, ensure, rest)) return 1;
-	rollback_local(local, stack);
-
-	return 0;
+	return applya_control(ptr, ensure, clos, name, rest, NULL);
 }
 
 

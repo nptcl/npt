@@ -171,7 +171,9 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_combination.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_generic.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_make.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_method.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_redefine.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_type.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cmpl.c" />
@@ -399,7 +401,9 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_define.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_generic.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_make.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_method.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_redefine.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_type.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_arch.h" />

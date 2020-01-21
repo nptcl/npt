@@ -17,13 +17,13 @@ static uint32_t xorshift128_32bit(uint32_t *x, uint32_t *y, uint32_t *z, uint32_
 	 *  Journal of Statistical Software, 2003.
 	 *  http://www.jstatsoft.org/v08/i14/paper
 	 */
-	uint32_t t;
+	uint32_t v;
 
-	t = (*x ^ (*x << 11/*a*/));
+	v = (*x ^ (*x << 11/*a*/));
 	*x = *y;
 	*y = *z;
 	*z = *w;
-	*w = (*w ^ (*w >> 19/*c*/)) ^ (t ^ (t >> 8/*b*/));
+	*w = (v ^ (v >> 8/*b*/)) ^ (*w ^ (*w >> 19/*c*/));
 
 	return *w;
 }

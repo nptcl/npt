@@ -871,7 +871,7 @@ static int test_clos_precedence_super(void)
 	push_local(local, &stack);
 
 	clos_supers_local(local, &clos, NULL);
-	clos_precedence_super(local, clos, &right);
+	clos_precedence_super(local, clos, &right, Nil, Nil);
 	test(right != Nil, "clos_precedence_super1");
 	GetCons(right, &left, &right);
 	test(left == clos, "clos_precedence_super2");
@@ -883,7 +883,7 @@ static int test_clos_precedence_super(void)
 	clos_supers_local(local, &d, NULL);
 	clos_supers_local(local, &e, d, NULL);
 	clos_supers_local(local, &clos, c, d, e, NULL);
-	clos_precedence_super(local, clos, &right);
+	clos_precedence_super(local, clos, &right, Nil, Nil);
 	test(length_list_unsafe(right) == 6, "clos_precedence_super4");
 	test(find_list_eq_unsafe(a, right) &&
 			find_list_eq_unsafe(b, right) &&
@@ -947,7 +947,8 @@ static int test_clos_precedence_chain(void)
 
 	/* (t . Unbound) */
 	clos_supers_local(local, &t, NULL);
-	clos_precedence_chain(local, t, &cons);
+	list_local(local, &cons, t, NULL);
+	clos_precedence_chain(local, cons, &cons);
 	test(length_list_unsafe(cons) == 1, "clos_precedence_chain1");
 	test(test_find_cons_chain_check(t, Unbound, cons), "clos_precedence_chain2");
 
@@ -958,7 +959,8 @@ static int test_clos_precedence_chain(void)
 	clos_supers_local(local, &d, t, NULL);
 	clos_supers_local(local, &e, t, NULL);
 	clos_supers_local(local, &clos, d, c, e, t, NULL);
-	clos_precedence_chain(local, clos, &cons);
+	clos_precedence_super(local, clos, &cons, Nil, Nil);
+	clos_precedence_chain(local, cons, &cons);
 	/* (t . Unbound) (a . t) (b . t) (c . a) (a . b)
 	   (d . t) (e . t) (clos . d) (d . c) (c . e) */
 	test(length_list_unsafe(cons) == 10, "clos_precedence_chain3");
@@ -1085,7 +1087,7 @@ static int test_clos_precedence_result(void)
 	push_local(local, &stack);
 
 	clos_supers_heap(&clos, NULL);
-	clos_precedence_result(local, clos, &right);
+	clos_precedence_result(local, clos, &right, Unbound, Nil);
 	test(right != Nil, "clos_precedence_result1");
 	test(no_dynamic_check(right), "clos_precedence_result2");
 	GetCons(right, &left, &right);

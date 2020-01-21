@@ -2963,6 +2963,17 @@ _g int apply_control(Execute ptr, addr call, addr args)
 	}
 }
 
+_g int applya_control(Execute ptr, addr call, ...)
+{
+	addr args;
+	va_list va;
+
+	va_start(va, call);
+	lista_stdarg_alloc(ptr->local, &args, va);
+	va_end(va);
+	return apply_control(ptr, call, args);
+}
+
 _g int stdarg_control(Execute ptr, addr call, va_list args)
 {
 	addr list;
@@ -3348,6 +3359,24 @@ _g int callclang_apply(Execute ptr, addr *ret, addr call, addr cons)
 		Return1(free_control(ptr, control));
 	}
 	localhold_end(hold);
+
+	return 0;
+}
+
+_g int callclang_applya(Execute ptr, addr *ret, addr call, ...)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr args;
+	va_list va;
+
+	local = ptr->local;
+	push_local(local, &stack);
+	va_start(va, call);
+	lista_stdarg_alloc(ptr->local, &args, va);
+	va_end(va);
+	Return1(callclang_apply(ptr, ret, call, args));
+	rollback_local(local, stack);
 
 	return 0;
 }

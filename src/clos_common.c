@@ -1,8 +1,10 @@
 #include "clos.h"
 #include "clos_combination.h"
+#include "clos_type.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
+#include "control.h"
 #include "eval_declare.h"
 #include "function.h"
 #include "gc.h"
@@ -1350,7 +1352,8 @@ error:
 	fmte("Invalid DEFINE-METHOD-COMBINATION form ~S.", form, NULL);
 }
 
-_g void define_method_combination_common(LocalRoot local, addr form, addr env, addr *ret)
+_g void define_method_combination_common(
+		LocalRoot local, addr form, addr env, addr *ret)
 {
 	addr list, name, check;
 
@@ -1377,5 +1380,88 @@ _g void define_method_combination_common(LocalRoot local, addr form, addr env, a
 
 error:
 	fmte("Invalid DEFINE-METHOD-COMBINATION form ~S.", form, NULL);
+}
+
+
+/*
+ *  make-load-form-saving-slots
+ */
+static void make_load_form_saving_slots_list(addr var, addr *ret)
+{
+	addr vector, list, x;
+	size_t size, i;
+
+	GetSlotClos(var, &vector);
+	LenSlotVector(vector, &size);
+	list = Nil;
+	for (i = 0; i < size; i++) {
+		GetSlotVector(vector, i, &x);
+		GetNameSlot(x, &x);
+		cons_heap(&list, x, list);
+	}
+	nreverse_list_unsafe(ret, list);
+}
+
+_g int make_load_form_saving_slots_common(Execute ptr,
+		addr var, addr list, addr env, addr *ret1, addr *ret2)
+{
+	/* (allocate-instance
+	 *   (find-class
+	 *     (quote class-name)))
+	 * (lisp-system::set-slots var
+	 *   (quote (slot1  slot2  ...))
+	 *   (quote (value1 value2 ...)))
+	 */
+	addr alloc, find, call, name;
+	addr set, root, values, x, y;
+
+	/* first */
+	GetConst(COMMON_ALLOCATE_INSTANCE, &alloc);
+	GetConst(COMMON_FIND_CLASS, &find);
+	GetConst(COMMON_CLASS_NAME, &call);
+	clos_class_of(var, &name);
+	getfunctioncheck_local(ptr, call, &call);
+	Return1(callclang_funcall(ptr, &name, call, name, NULL));
+	quotelist_heap(&name, name);
+	list_heap(&find, find, name, NULL);
+	list_heap(&alloc, alloc, find, NULL);
+
+	/* second */
+	GetConst(SYSTEM_SET_SLOTS, &set);
+	if (list == Unbound)
+		make_load_form_saving_slots_list(var, &list);
+	values = Nil;
+	root = list;
+	while (root != Nil) {
+		getcons(root, &x, &root);
+		clos_get(var, x, &y);
+		if (y == Unbound)
+			GetConst(SYSTEM_UNBOUND_VALUE, &y);
+		cons_heap(&values, y, values);
+	}
+	nreverse_list_unsafe(&values, values);
+	quotelist_heap(&list, list);
+	quotelist_heap(&values, values);
+	list_heap(&set, set, var, list, values, NULL);
+
+	/* result */
+	*ret1 = alloc;
+	*ret2 = set;
+
+	return 0;
+}
+
+_g void set_slots_syscall(addr var, addr slots, addr values)
+{
+	addr x, y, unbound;
+
+	GetConst(SYSTEM_UNBOUND_VALUE, &unbound);
+	while (slots != Nil || values != Nil) {
+		getcons(slots, &x, &slots);
+		getcons(values, &y, &values);
+		if (y == unbound)
+			y = Unbound;
+		clos_set(var, x, y);
+	}
 }
 

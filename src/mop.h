@@ -13,6 +13,8 @@ _g void export_mop(addr symbol);
 	mop_argument_method_var((a), CONSTANT_CLOS_##b)
 #define ArgumentMethod_var1(a,b) \
 	mop_argument_method_var1((a), CONSTANT_CLOS_##b)
+#define ArgumentMethod_var1opt1(a,b,c) \
+	mop_argument_method_var1opt1((a), CONSTANT_CLOS_##b, CONSTANT_CLOS_##c)
 #define ArgumentMethod_var1rest(a,b) \
 	mop_argument_method_var1rest((a), CONSTANT_CLOS_##b)
 
@@ -21,6 +23,7 @@ _g void mop_argument_generic_var2(addr *ret);
 _g void mop_argument_generic_var3(addr *ret);
 _g void mop_argument_generic_var4(addr *ret);
 _g void mop_argument_generic_var5(addr *ret);
+_g void mop_argument_generic_var1opt1(addr *ret);
 _g void mop_argument_generic_var3opt1(addr *ret);
 _g void mop_argument_generic_var1rest(addr *ret);
 _g void mop_argument_generic_var2rest(addr *ret);
@@ -30,7 +33,10 @@ _g void mop_argument_generic_var4rest1key0(addr *ret);
 
 _g void mop_argument_method_var(addr *ret, constindex index);
 _g void mop_argument_method_var1(addr *ret, constindex var1);
+_g void mop_argument_method_var1opt1(addr *ret, constindex var1, constindex opt1);
 _g void mop_argument_method_var1rest(addr *ret, constindex var1);
+_g void mop_argument_method_var2(addr *ret, constindex var1, constindex var2);
+_g void mop_argument_method_var2rest(addr *ret, constindex var1, constindex var2);
 _g void mop_argument_method_print_object(addr *ret, addr pos);
 
 #endif

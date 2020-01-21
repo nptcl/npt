@@ -101,6 +101,7 @@ _g int signal_control(Execute ptr);
 _g int runcode_control(Execute ptr, addr code);
 _g int execute_control(Execute ptr, addr call);
 _g int apply_control(Execute ptr, addr call, addr args);
+_g int applya_control(Execute ptr, addr call, ...);
 _g int stdarg_control(Execute ptr, addr call, va_list args);
 _g int funcall_control(Execute ptr, addr call, ...);
 _g int call_control(Execute ptr, addr args);
@@ -127,6 +128,7 @@ _g int callclang_values_char_heap(Execute ptr, addr *ret,
 _g int callclang_values_char_local(Execute ptr, addr *ret,
 		const char *package, const char *name, ...);
 _g int callclang_apply(Execute ptr, addr *ret, addr call, addr cons);
+_g int callclang_applya(Execute ptr, addr *ret, addr call, ...);
 _g int callclang_stdarg(Execute ptr, addr *ret, addr call, va_list args);
 _g int callclang_funcall(Execute ptr, addr *ret, addr call, ...);
 _g int callclang_char(Execute ptr, addr *ret,

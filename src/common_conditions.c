@@ -307,9 +307,7 @@ static int function_error_datum(Execute ptr, addr datum, addr rest, addr *ret)
 		if (! conditionp(datum))
 			fmte("The class ~S is not a condition subclass.", datum, NULL);
 		GetConst(COMMON_MAKE_INSTANCE, &make);
-		lista_local(ptr->local, &rest, datum, rest, NULL);
-		if (callclang_apply(ptr, ret, make, rest)) return 1;
-		return 0;
+		return callclang_applya(ptr, ret, make, datum, rest, NULL);
 	}
 
 	/* condition -> (error condition) */

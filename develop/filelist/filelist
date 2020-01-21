@@ -26,7 +26,9 @@ clos_class.c
 clos_combination.c
 clos_common.c
 clos_generic.c
+clos_make.c
 clos_method.c
+clos_redefine.c
 clos_type.c
 clos.c
 cmpl.c

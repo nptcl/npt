@@ -61,33 +61,17 @@ _g void clos_instance_local(LocalRoot local, addr clos, addr *ret);
 _g void clos_instance_heap(addr clos, addr *ret);
 
 /* interface */
+_g int clos_find_slotname(addr slots, size_t size, addr name);
+_g void clos_precedence_list_redefine(
+		LocalRoot local, addr pos, addr *ret, addr x, addr list);
+_g void clos_precedence_list(LocalRoot local, addr clos, addr *ret);
+_g void clos_compute_slots(LocalRoot local, addr clos, addr *ret);
 _g void slotvector_set_location(addr slots);
-_g int clos_ensure_class(Execute ptr, addr name, addr args, addr *ret);
-_g int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest);
-_g void allocate_instance_stdclass(Execute ptr, addr clos, addr *ret);
-_g int initialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret);
-_g int reinitialize_instance_stdobject(Execute ptr, addr pos, addr rest, addr *ret);
-_g int shared_initialize_stdobject(Execute ptr, addr pos, addr name, addr rest);
-_g int make_instance_stdclass(Execute ptr, addr rest, addr *ret);
-_g int clos_version_diff_p(addr pos);
-_g int clos_version_check(Execute ptr, addr pos, addr clos);
-_g int clos_change_class(Execute ptr, addr pos, addr clos, addr rest, addr *ret);
-_g int clos_slot_missing(Execute ptr,
-		addr clos, addr pos, addr name, addr operation, addr value);
-_g int clos_slot_unbound(Execute ptr, addr clos, addr pos, addr name);
-_g int slot_boundp_using_class_common(Execute ptr,
-		addr clos, addr pos, addr name, int *ret);
-_g int slot_makunbound_using_class(Execute ptr, addr clos, addr pos, addr key);
-_g int slot_value_using_class_common(Execute ptr,
-		addr clos, addr pos, addr key, addr *ret);
-_g int setf_slot_value_using_class_common(Execute ptr,
-		addr clos, addr pos, addr key, addr value);
+_g void clos_stdclass_direct_slots(addr instance, addr slots);
+_g void clos_stdclass_prototype(addr clos);
 
 /* build */
 _g void build_clos_class(LocalRoot local);
-
-/* initialize */
-_g void init_clos_class(void);
 
 #endif
 

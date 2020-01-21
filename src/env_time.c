@@ -20,16 +20,18 @@
 #define ENCODE_UNIVERSAL_1900	693961
 #define ENCODE_UNIVERSAL_1970	719528
 
-#ifdef LISP_POSIX
+#if defined(LISP_POSIX)
 #define LISP_SLEEP_INTERVAL		1000000
 #define LISP_SLEEP_INTERVAL_F	1.0e6
-#endif
 
-#ifdef LISP_WINDOWS
+#elif defined(LISP_WINDOWS)
 #define LISP_SLEEP_INTERVAL		1000
 #define LISP_SLEEP_INTERVAL_F	1.0e3
-#endif
 
+#else
+#define LISP_SLEEP_INTERVAL		1
+#define LISP_SLEEP_INTERVAL_F	1.0e0
+#endif
 
 /*
  *  decode-universal-time
@@ -572,7 +574,6 @@ _g void get_internal_real_time_common(LocalRoot local, addr *ret)
 #endif
 }
 
-
 #elif defined(LISP_POSIX)
 #include <sys/time.h>
 
@@ -817,6 +818,11 @@ static int sleep_second_common(Execute ptr, fixnum value)
 }
 #endif
 
+static void sleep_continue(Execute ptr)
+{
+	/* do nothing */
+}
+
 #if defined(LISP_POSIX) || defined(LISP_WINDOWS)
 static int sleep_integer_common(Execute ptr, addr var)
 {
@@ -853,11 +859,6 @@ static int sleep_execute_common(Execute ptr, addr var)
 /*
  *  restart
  */
-static void sleep_continue(Execute ptr)
-{
-	/* do nothing */
-}
-
 static void sleep_execute_diff(Execute ptr, addr var, addr *ret)
 {
 	addr now, diff;
@@ -1007,8 +1008,6 @@ static int sleep_wait_common(Execute ptr, addr var)
 	return 0;
 }
 #endif
-
-
 
 static void sleep_value_integer(LocalRoot local, addr var, addr *ret)
 {

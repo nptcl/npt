@@ -56,6 +56,19 @@ _g void mop_argument_generic_var5(addr *ret)
 	mop_argument_generic_var(ret, 5);
 }
 
+_g void mop_argument_generic_var1opt1(addr *ret)
+{
+	addr pos;
+	struct argument_struct *str;
+
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_generic;
+	str->var = 1;
+	str->opt = 1;
+	*ret = pos;
+}
+
 _g void mop_argument_generic_var3opt1(addr *ret)
 {
 	addr pos;
@@ -150,10 +163,60 @@ _g void mop_argument_method_var1(addr *ret, constindex var1)
 	*ret = pos;
 }
 
+_g void mop_argument_method_var1opt1(addr *ret, constindex var1, constindex opt1)
+{
+	addr pos, list;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 1;
+	mop_argument_method_var(&list, var1);
+	list_heap(&list, list, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* opt */
+	str->opt = 1;
+	mop_argument_method_var(&list, opt1);
+	list_heap(&list, list, NULL);
+	SetArgument(pos, ArgumentIndex_opt, list);
+	/* result */
+	*ret = pos;
+}
+
 _g void mop_argument_method_var1rest(addr *ret, constindex var1)
 {
 	addr pos;
 	mop_argument_method_var1(&pos, var1);
+	ArgumentStruct(pos)->rest = 1;
+	*ret = pos;
+}
+
+_g void mop_argument_method_var2(addr *ret, constindex var1, constindex var2)
+{
+	addr pos, list, arg1, arg2;
+	struct argument_struct *str;
+
+	/* object */
+	argument_heap(&pos);
+	str = ArgumentStruct(pos);
+	str->type = ArgumentType_method;
+	/* var */
+	str->var = 2;
+	mop_argument_method_var(&arg1, var1);
+	mop_argument_method_var(&arg2, var2);
+	list_heap(&list, arg1, arg2, NULL);
+	SetArgument(pos, ArgumentIndex_var, list);
+	/* result */
+	*ret = pos;
+}
+
+_g void mop_argument_method_var2rest(addr *ret, constindex var1, constindex var2)
+{
+	addr pos;
+	mop_argument_method_var2(&pos, var1, var2);
 	ArgumentStruct(pos)->rest = 1;
 	*ret = pos;
 }

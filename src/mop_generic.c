@@ -321,24 +321,6 @@ static void method_type_function_keywords(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void method_argument_function_keywords(addr *ret)
-{
-	addr pos, list;
-	struct argument_struct *str;
-
-	/* object */
-	argument_heap(&pos);
-	str = ArgumentStruct(pos);
-	str->type = ArgumentType_method;
-	/* var */
-	str->var = 1;
-	ArgumentMethod_var(&list, STANDARD_METHOD);
-	list_heap(&list, list, NULL);
-	SetArgument(pos, ArgumentIndex_var, list);
-	/* result */
-	*ret = pos;
-}
-
 static void defmethod_function_keywords(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
@@ -349,7 +331,7 @@ static void defmethod_function_keywords(Execute ptr, addr name, addr gen)
 	method_type_function_keywords(&type);
 	settype_function(call, type);
 	/* method */
-	method_argument_function_keywords(&pos);
+	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);

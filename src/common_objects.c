@@ -6,9 +6,12 @@
 #include "clos_class.h"
 #include "clos_common.h"
 #include "clos_generic.h"
+#include "clos_make.h"
 #include "clos_method.h"
+#include "clos_redefine.h"
 #include "clos_type.h"
 #include "cons.h"
+#include "cons_plist.h"
 #include "mop.h"
 #include "mop_common.h"
 #include "package.h"
@@ -136,21 +139,16 @@ static void defgeneric_change_class(void)
 static void function_slot_boundp(Execute ptr, addr pos, addr name)
 {
 	addr call, clos;
-	LocalRoot local;
-	LocalStack stack;
 
 	/* redefined */
 	clos_class_of(pos, &clos);
-	if (clos_version_check(ptr, pos, clos)) return;
+	if (clos_version_check(ptr, pos, clos))
+		return;
 
 	/* call generic */
-	local = ptr->local;
-	push_local(local, &stack);
 	GetConst(CLOSNAME_SLOT_BOUNDP_USING_CLASS, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	list_local(local, &pos, clos, pos, name, NULL);
-	if (apply_control(ptr, call, pos)) return;
-	rollback_local(local, stack);
+	funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
 static void defun_slot_boundp(void)
@@ -173,21 +171,16 @@ static void defun_slot_boundp(void)
 static void function_slot_exists_p(Execute ptr, addr pos, addr name)
 {
 	addr call, clos;
-	LocalRoot local;
-	LocalStack stack;
 
 	/* redefined */
 	clos_class_of(pos, &clos);
-	if (clos_version_check(ptr, pos, clos)) return;
+	if (clos_version_check(ptr, pos, clos))
+		return;
 
 	/* call generic */
-	local = ptr->local;
 	GetConst(CLOSNAME_SLOT_EXISTS_P_USING_CLASS, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	push_local(local, &stack);
-	list_local(local, &pos, clos, pos, name, NULL);
-	if (apply_control(ptr, call, pos)) return;
-	rollback_local(local, stack);
+	funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
 static void defun_slot_exists_p(void)
@@ -210,21 +203,16 @@ static void defun_slot_exists_p(void)
 static void function_slot_makunbound(Execute ptr, addr pos, addr name)
 {
 	addr call, clos;
-	LocalRoot local;
-	LocalStack stack;
 
 	/* redefined */
 	clos_class_of(pos, &clos);
-	if (clos_version_check(ptr, pos, clos)) return;
+	if (clos_version_check(ptr, pos, clos))
+		return;
 
 	/* call generic */
-	local = ptr->local;
-	push_local(local, &stack);
 	GetConst(CLOSNAME_SLOT_MAKUNBOUND_USING_CLASS, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	list_local(local, &pos, clos, pos, name, NULL);
-	if (apply_control(ptr, call, pos)) return;
-	rollback_local(local, stack);
+	funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
 static void defun_slot_makunbound(void)
@@ -261,21 +249,16 @@ static void defgeneric_slot_unbound(void)
 static void function_slot_value(Execute ptr, addr pos, addr name)
 {
 	addr call, clos;
-	LocalRoot local;
-	LocalStack stack;
 
 	/* redefined */
 	clos_class_of(pos, &clos);
-	if (clos_version_check(ptr, pos, clos)) return;
+	if (clos_version_check(ptr, pos, clos))
+		return;
 
 	/* call generic */
-	local = ptr->local;
-	push_local(local, &stack);
 	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	list_local(local, &pos, clos, pos, name, NULL);
-	if (apply_control(ptr, call, pos)) return;
-	rollback_local(local, stack);
+	funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
 static void type_slot_value(addr *ret)
@@ -309,21 +292,16 @@ static void defun_slot_value(void)
 static void function_setf_slot_value(Execute ptr, addr value, addr pos, addr name)
 {
 	addr call, clos;
-	LocalRoot local;
-	LocalStack stack;
 
 	/* redefined */
 	clos_class_of(pos, &clos);
-	if (clos_version_check(ptr, pos, clos)) return;
+	if (clos_version_check(ptr, pos, clos))
+		return;
 
 	/* call generic */
-	local = ptr->local;
-	push_local(local, &stack);
 	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
 	getsetfcheck_local(ptr, call, &call);
-	list_local(local, &pos, value, clos, pos, name, NULL);
-	if (apply_control(ptr, call, pos)) return;
-	rollback_local(local, stack);
+	funcall_control(ptr, call, value, clos, pos, name, NULL);
 }
 
 static void type_setf_slot_value(addr *ret)
@@ -381,16 +359,77 @@ static void defgeneric_remove_method(void)
 }
 
 
-/* defgeneric_make_instance(); */
+/* (defgeneric make-instance ...) */
 static void defgeneric_make_instance(void)
 {
 	ImportMopPackage(MAKE_INSTANCE);
 }
 
 
-/* defgeneric_make_instances_obsolete(); */
-/* defgeneric_make_load_form(); */
-/* defun_make_load_form_saving_slots(); */
+/* (defgeneric make-instances-obsolete ...) */
+static void defgeneric_make_instances_obsolete(void)
+{
+	ImportMopPackage(MAKE_INSTANCES_OBSOLETE);
+}
+
+
+/* (defgeneric make-load-form ...) */
+static void defgeneric_make_load_form_common(void)
+{
+	ImportMopPackage(MAKE_INSTANCES_OBSOLETE);
+}
+
+
+/* (defun make-load-form-saving-slots
+ *     (object &key slot-names environment) ...)
+ *     -> creation-form, initialization-form
+ *   object               T
+ *   slot-names           list
+ *   environment          Environment
+ *   creation-form        T
+ *   initialization-form  T
+ */
+static void function_make_load_form_saving_slots(Execute ptr, addr var, addr rest)
+{
+	addr list, env;
+
+	if (getkeyargs(rest, KEYWORD_SLOT_NAMES, &list))
+		list = Unbound;
+	if (getkeyargs(rest, KEYWORD_ENVIRONMENT, &env))
+		env = Nil;
+	Return0(make_load_form_saving_slots_common(ptr, var, list, env, &var, &list));
+	setvalues_control(ptr, var, list, NULL);
+}
+
+static void type_make_load_form_saving_slots(addr *ret)
+{
+	addr args, values;
+	addr key, key1, key2;
+
+	KeyTypeTable(&key1, SLOT_NAMES, List);
+	KeyTypeTable(&key2, ENVIRONMENT, EnvironmentNull);
+	list_heap(&key, key1, key2, NULL);
+	/* type */
+	GetTypeTable(&values, T);
+	typeargs_var1key(&args, values, key);
+	typevalues_values2(&values, values, values);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_make_load_form_saving_slots(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(COMMON_MAKE_LOAD_FORM_SAVING_SLOTS, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_make_load_form_saving_slots);
+	SetFunctionCommon(symbol, pos);
+	/* type */
+	type_make_load_form_saving_slots(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
 
 
 /* (defmacro with-accessors ((entry*) instance declare* &body body) ...) -> t */
@@ -716,28 +755,6 @@ static void defun_unbound_slot_instance(void)
 }
 
 
-/* 22. Printer */
-static void defgeneric_print_object(void)
-{
-	/* build_print(); */
-}
-
-
-/* 25. Environment */
-static void defgeneric_describe_object(void)
-{
-}
-
-static void defgeneric_documentation(void)
-{
-}
-
-static void defgeneric_setf_documentation(void)
-{
-	/* do nothing */
-}
-
-
 /*
  *  function
  */
@@ -749,6 +766,7 @@ static void init_clos_objects(void)
 	SetPointerCall(defun, var2, slot_makunbound);
 	SetPointerCall(defun, var2, slot_value);
 	SetPointerCall(defun, var3, setf_slot_value);
+	SetPointerCall(defun, var1dynamic, make_load_form_saving_slots);
 	SetPointerCall(defmacro, macro, with_accessors);
 	SetPointerCall(defmacro, macro, with_slots);
 	SetPointerCall(defmacro, macro, defclass);
@@ -783,9 +801,9 @@ static void build_clos_objects(void)
 	defgeneric_no_next_method();
 	defgeneric_remove_method();
 	defgeneric_make_instance();
-	/* defgeneric_make_instances_obsolete(); */
-	/* defgeneric_make_load_form(); */
-	/* defun_make_load_form_saving_slots(); */
+	defgeneric_make_instances_obsolete();
+	defgeneric_make_load_form_common();
+	defun_make_load_form_saving_slots();
 	defmacro_with_accessors();
 	defmacro_with_slots();
 	defmacro_defclass();
@@ -804,16 +822,6 @@ static void build_clos_objects(void)
 	defun_unbound_slot_instance();
 }
 
-static void build_clos_others(void)
-{
-	/* 22. Printer */
-	defgeneric_print_object();
-	/* 25. Environment */
-	defgeneric_describe_object();
-	defgeneric_documentation();
-	defgeneric_setf_documentation();
-}
-
 _g void init_common_objects(void)
 {
 	/* metaobject protocol */
@@ -828,7 +836,5 @@ _g void build_common_objects(void)
 	build_metaobject_protocol();
 	/* common-lisp objects */
 	build_clos_objects();
-	/* common-lisp others */
-	build_clos_others();
 }
 
