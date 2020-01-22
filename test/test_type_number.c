@@ -259,21 +259,17 @@ static int test_real_filter_and(void)
 
 	parse_type_string(&pos, "(and real rational real)");
 	real_filter_and(local, &pos, pos, LISPDECL_REAL);
-	test(RefLispDecl(pos) == LISPDECL_AND, "real_filter_and1");
-	GetArrayType(pos, 0, &pos);
-	test(lenarrayr(pos) == 1, "real_filter_and2");
-	GetArrayA4(pos, 0, &pos);
-	test(RefLispDecl(pos) == LISPDECL_REAL, "real_filter_and3");
+	test(pos == Nil, "real_filter_and1");
 
 	parse_type_string(&pos, "(and real rational)");
 	real_filter_and(local, &pos, pos, LISPDECL_INTEGER);
-	test(RefLispDecl(pos) == LISPDECL_AND, "real_filter_and4");
+	test(RefLispDecl(pos) == LISPDECL_AND, "real_filter_and2");
 	GetArrayType(pos, 0, &pos);
-	test(lenarrayr(pos) == 2, "real_filter_and5");
+	test(lenarrayr(pos) == 2, "real_filter_and3");
 	GetArrayA4(pos, 0, &check);
-	test(RefLispDecl(check) == LISPDECL_INTEGER, "real_filter_and6");
+	test(RefLispDecl(check) == LISPDECL_INTEGER, "real_filter_and4");
 	GetArrayA4(pos, 1, &check);
-	test(RefLispDecl(check) == LISPDECL_INTEGER, "real_filter_and7");
+	test(RefLispDecl(check) == LISPDECL_INTEGER, "real_filter_and5");
 
 	RETURN;
 }

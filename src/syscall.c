@@ -50,6 +50,7 @@
 #include "syscall.h"
 #include "type_parse.h"
 #include "type_table.h"
+#include "type_subtypep.h"
 
 /*
  *  hello
@@ -2020,6 +2021,39 @@ static void defun_delete_deftype(void)
 }
 
 
+/* (defun subtypep-result (left right) ...) -> keyword */
+static void syscall_subtypep_result(Execute ptr, addr left, addr right)
+{
+	Return0(subtypep_result_syscall(ptr, left, right, &left));
+	setresult_control(ptr, left);
+}
+
+static void type_syscall_subtypep_result(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, TypeSpec);
+	typeargs_var2(&args, args, args);
+	GetTypeValues(&values, Symbol);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_subtypep_result(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_SUBTYPEP_RESULT, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var2(pos, p_defun_syscall_subtypep_result);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_subtypep_result(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /* (defun ensure-structure (symbol list &rest args &key &allow-other-keys) ...)
  *   -> symbol
  */
@@ -2839,6 +2873,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var2, equal_random_state);
 	SetPointerSysCall(defun, var1, symbol_deftype);
 	SetPointerSysCall(defun, var1, delete_deftype);
+	SetPointerSysCall(defun, var2, subtypep_result);
 	SetPointerSysCall(defun, var2dynamic, ensure_structure);
 	SetPointerSysCall(defun, var1dynamic, structure_constructor);
 	SetPointerSysCall(defun, var3, loop_bind);
@@ -2933,6 +2968,7 @@ _g void build_syscall(void)
 	/* type */
 	defun_symbol_deftype();
 	defun_delete_deftype();
+	defun_subtypep_result();
 	/* structure */
 	defun_ensure_structure();
 	defun_structure_constructor();

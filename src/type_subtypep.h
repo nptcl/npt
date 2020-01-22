@@ -18,6 +18,7 @@ _g SubtypepResult subtypep_result(addr left, addr right, int asterisk);
 _g int subtypep_asterisk_clang(addr left, addr right, int *validp);
 _g int subtypep_clang(addr left, addr right, int *validp);
 _g int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2);
+_g int subtypep_result_syscall(Execute ptr, addr left, addr right, addr *ret);
 
 #endif
 

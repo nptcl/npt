@@ -655,6 +655,12 @@ _g int copyheap(addr *ret, addr pos)
 	return copylocal_object(NULL, ret, pos);
 }
 
+_g addr copyheapr(addr pos)
+{
+	copyheap(&pos, pos);
+	return pos;
+}
+
 static void init_copylocal_call(void)
 {
 	int i;

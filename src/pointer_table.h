@@ -1187,6 +1187,7 @@ enum pointer_index {
 	p_defun_syscall_equal_random_state,
 	p_defun_syscall_symbol_deftype,
 	p_defun_syscall_delete_deftype,
+	p_defun_syscall_subtypep_result,
 	p_defun_syscall_ensure_structure,
 	p_defun_syscall_structure_constructor,
 	p_defun_syscall_loop_bind,

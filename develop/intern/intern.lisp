@@ -1928,6 +1928,11 @@ lisp-system::make-complex
 lisp-system::equal-random-state
 lisp-system::symbol-deftype
 lisp-system::delete-deftype
+lisp-system::subtypep-result
+lisp-system::include
+lisp-system::exclude
+lisp-system::invalid
+lisp-system::false
 lisp-system::ensure-class
 lisp-system::ensure-structure
 lisp-system::make-pprint-stream

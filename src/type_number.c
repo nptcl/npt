@@ -1,5 +1,7 @@
 #include "cons.h"
 #include "cons_list.h"
+#include "copy.h"
+#include "format.h"
 #include "sequence.h"
 #include "type.h"
 #include "type_copy.h"
@@ -148,7 +150,10 @@ static void real_filter_and(LocalRoot local, addr *ret, addr type, enum LISPDECL
 	for (count = i = 0; i < size; i++) {
 		GetArrayA4(type, i, &pos);
 		real_filter(local, &pos, pos, decl);
-		if (pos == Nil) break;
+		if (pos == Nil) {
+			*ret = Nil;
+			return;
+		}
 		SetArrayA4(temp, count++, pos);
 	}
 
@@ -871,13 +876,12 @@ static void make_real_filter(LocalRoot local, addr *ret, addr type)
 	size = real_filter_range_list(local, &pos, type);
 	if (size == 0) {
 		*ret = type;
+		return;
 	}
-	else {
-		real_reject(local, &type, type);
-		cons_local(local, &pos, type, pos);
-		copy_cons_to_vector4_local(local, &pos, pos, size + 1UL);
-		type1_local(local, LISPDECL_OR, pos, ret);
-	}
+	real_reject(local, &type, type);
+	cons_local(local, &pos, type, pos);
+	copy_cons_to_vector4_local(local, &pos, pos, size + 1UL);
+	type1_local(local, LISPDECL_OR, pos, ret);
 }
 
 static void real_extract(LocalRoot local, addr *ret, addr type)

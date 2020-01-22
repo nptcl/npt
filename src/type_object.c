@@ -47,8 +47,13 @@ static void type_object_type(addr *ret, addr pos)
 static void type_object_clos(addr *ret, addr pos)
 {
 	GetArrayType(pos, 0, &pos);
-	clos_class_of(pos, &pos);
-	stdget_class_name(pos, ret);
+	if (type_asterisk_p(pos)) {
+		GetConst(COMMON_ASTERISK, ret);
+	}
+	else {
+		clos_class_of(pos, &pos);
+		stdget_class_name(pos, ret);
+	}
 }
 
 static void type_object_vectortype(addr *ret, addr name, addr pos)

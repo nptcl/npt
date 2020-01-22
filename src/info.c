@@ -935,6 +935,9 @@ static void infoprint_symbol(addr pos)
 		if (string_equal_char(package, LISP_KEYWORD)) {
 			info_stdarg(":");
 		}
+		else if (string_equal_char(package, LISP_COMMON)) {
+			/* no output */
+		}
 		else {
 			infostringbody(package);
 			info_stdarg("::");

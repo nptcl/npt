@@ -32,6 +32,7 @@
 #include "strtype.h"
 #include "symbol.h"
 #include "type_name.h"
+#include "type_object.h"
 #include "unicode.h"
 
 static calltype_print WriteCircleTable[LISPTYPE_SIZE];
@@ -1493,6 +1494,21 @@ static int WriteCall_symbol(Execute ptr, addr stream, addr pos)
 
 
 /*
+ *  type
+ */
+static int WriteCall_type(Execute ptr, addr stream, addr pos)
+{
+	CheckType(pos, LISPTYPE_TYPE);
+	type_object(&pos, pos);
+	print_ascii_stream(stream, "#<TYPE ");
+	Return1(prin1_print(ptr, stream, pos));
+	print_ascii_stream(stream, ">");
+
+	return 0;
+}
+
+
+/*
  *  clos, structure
  */
 static int WriteCall_clos(Execute ptr, addr stream, addr pos)
@@ -2413,7 +2429,7 @@ _g void init_print_write(void)
 	/* object */
 	WriteCallTable[LISPTYPE_NIL] = WriteCall_symbol;
 	WriteCallTable[LISPTYPE_T] = WriteCall_symbol;
-	WriteCallTable[LISPTYPE_TYPE] = WriteCall_system;
+	WriteCallTable[LISPTYPE_TYPE] = WriteCall_type;
 	WriteCallTable[LISPTYPE_CLOS] = WriteCall_clos;
 	WriteCallTable[LISPTYPE_CHARACTER] = WriteCall_character;
 	WriteCallTable[LISPTYPE_STRING] = WriteCall_string;

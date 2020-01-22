@@ -2042,7 +2042,7 @@ static int test_subtypep_and_left(void)
 
 	parse_type_string(&left, "(and (satisfies hello) integer)");
 	parse_type_string(&right, "integer");
-	test(subtypep_and_left(left, right) == SUBTYPEP_INVALID, "subtypep_and_left4");
+	test(subtypep_and_left(left, right) == SUBTYPEP_INCLUDE, "subtypep_and_left4");
 
 	parse_type_string(&left, "(and real rational)");
 	parse_type_string(&right, "integer");
@@ -2050,7 +2050,7 @@ static int test_subtypep_and_left(void)
 
 	parse_type_string(&left, "(and real symbol)");
 	parse_type_string(&right, "integer");
-	test(subtypep_and_left(left, right) == SUBTYPEP_EXCLUDE, "subtypep_and_left6");
+	test(subtypep_and_left(left, right) == SUBTYPEP_INCLUDE, "subtypep_and_left6");
 
 	RETURN;
 }
@@ -2238,19 +2238,19 @@ static int test_subtypep_or_right(void)
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(or real symbol)");
-	test(subtypep_or_right(left, right) == SUBTYPEP_INCLUDE, "subtypep_or_right1");
+	test(subtypep_right(left, right) == SUBTYPEP_INCLUDE, "subtypep_or_right1");
 
 	parse_type_string(&left, "(or integer symbol)");
 	parse_type_string(&right, "(or real symbol)");
-	test(subtypep_or_right(left, right) == SUBTYPEP_INCLUDE, "subtypep_or_right2");
+	test(subtypep_right(left, right) == SUBTYPEP_INCLUDE, "subtypep_or_right2");
 
 	parse_type_string(&left, "(and integer real)");
 	parse_type_string(&right, "(or integer symbol)");
-	test(subtypep_or_right(left, right) == SUBTYPEP_INCLUDE, "subtypep_or_right3");
+	test(subtypep_right(left, right) == SUBTYPEP_INCLUDE, "subtypep_or_right3");
 
 	parse_type_string(&left, "(or integer cons)");
 	parse_type_string(&right, "(or real symbol)");
-	test(subtypep_or_right(left, right) == SUBTYPEP_FALSE, "subtypep_or_right4");
+	test(subtypep_right(left, right) == SUBTYPEP_FALSE, "subtypep_or_right4");
 
 	RETURN;
 }
