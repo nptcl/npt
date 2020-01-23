@@ -72,16 +72,20 @@ static int require_list_common(Execute ptr, addr var, addr list, int *ret)
 	return 0;
 }
 
-_g int require_common(Execute ptr, addr var, addr list)
+_g int require_common(Execute ptr, addr var, addr opt)
 {
 	int check, push;
 
 	string_designer_heap(&var, var);
 	push = 0;
-	if (list == Unbound || list == Nil)
+	if (opt == Unbound || opt == Nil) {
 		check = require_function_common(ptr, var, &push);
-	else
-		check = require_list_common(ptr, var, list, &push);
+	}
+	else {
+		if (! listp(opt))
+			conscar_heap(&opt, opt);
+		check = require_list_common(ptr, var, opt, &push);
+	}
 	if (check)
 		return 1;
 	if (push)

@@ -135,3 +135,29 @@
     *require-test1*)
   t)
 
+(deftest require.11
+  (let ((*modules* nil)
+        (*require-test1* nil))
+    (require "HELLO" "test/rtsystem-file1.lisp"))
+  nil)
+
+(deftest require.12
+  (let ((*modules* nil)
+        (*require-test1* nil))
+    (require "HELLO" "test/rtsystem-file1.lisp")
+    *modules*)
+  ("HELLO"))
+
+(deftest require.13
+  (let ((*modules* nil)
+        (*require-test1* nil))
+    (require "HELLO" #p"test/rtsystem-file1.lisp"))
+  nil)
+
+(deftest require.14
+  (let ((*modules* nil)
+        (*require-test1* nil))
+    (require "HELLO" #p"test/rtsystem-file1.lisp")
+    *modules*)
+  ("HELLO"))
+

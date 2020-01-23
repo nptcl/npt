@@ -410,18 +410,20 @@ static void defun_provide(void)
 
 
 /* (defun require (var) ...) -> null */
-static void function_require(Execute ptr, addr var, addr list)
+static void function_require(Execute ptr, addr var, addr opt)
 {
-	Return0(require_common(ptr, var, list));
+	Return0(require_common(ptr, var, opt));
 	setresult_control(ptr, Nil);
 }
 
 static void type_require(addr *ret)
 {
-	addr args, values;
+	addr args, values, type;
 
 	GetTypeTable(&args, StringDesigner);
 	GetTypeTable(&values, List);
+	GetTypeTable(&type, PathnameDesigner);
+	type2or_heap(values, type, &values);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
