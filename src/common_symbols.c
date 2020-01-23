@@ -109,6 +109,26 @@ static void defun_make_symbol(void)
 
 
 /* (defun copy-symbol (symbol &optional boolean) ...) -> symbol */
+static void copy_symbol_type(addr var, addr symbol)
+{
+	addr type;
+
+	/* value */
+	gettype_value_symbol(var, &type);
+	if (type != Nil)
+		settype_value_symbol(symbol, type);
+
+	/* function */
+	gettype_function_symbol(var, &type);
+	if (type != Nil)
+		settype_function_symbol(symbol, type);
+
+	/* setf */
+	gettype_setf_symbol(var, &type);
+	if (type != Nil)
+		settype_setf_symbol(symbol, type);
+}
+
 static void function_copy_symbol(Execute ptr, addr var, addr opt)
 {
 	addr symbol, pos;
@@ -134,6 +154,8 @@ static void function_copy_symbol(Execute ptr, addr var, addr opt)
 		GetPlistSymbol(var, &pos);
 		copy_list_heap_unsafe(&pos, pos);
 		SetPlistSymbol(symbol, pos);
+		/* copy-type */
+		copy_symbol_type(var, symbol);
 	}
 
 	setresult_control(ptr, symbol);
@@ -285,6 +307,7 @@ static void defun_symbol_function(void)
 /* (defun (setf symbol-function) (function symbol) ...) -> function */
 static void function_setf_symbol_function(Execute ptr, addr var1, addr var2)
 {
+	remtype_function_symbol(var2);
 	SetFunctionSymbol(var2, var1);
 	setresult_control(ptr, var1);
 }

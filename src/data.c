@@ -99,6 +99,7 @@ _g void fdefinition_common(addr name, addr *ret)
 _g void setf_fdefinition_common(addr value, addr name)
 {
 	parse_callname_error(&name, name);
+	remtype_funcion_callname_global(name);
 	setfunction_callname_global(name, value);
 }
 
@@ -120,6 +121,7 @@ _g int fboundp_common(addr name)
 _g void fmakunbound_common(addr name)
 {
 	parse_callname_error(&name, name);
+	remtype_funcion_callname_global(name);
 	setfunction_callname_global(name, Unbound);
 }
 

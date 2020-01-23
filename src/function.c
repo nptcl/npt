@@ -306,6 +306,28 @@ _g void setfunction_callname_global(addr pos, addr value)
 	}
 }
 
+_g void remtype_funcion_callname_global(addr pos)
+{
+	enum CALLNAME_TYPE type;
+
+	GetCallNameType(pos, &type);
+	GetCallName(pos, &pos);
+	switch (type) {
+		case CALLNAME_SYMBOL:
+			remtype_function_symbol(pos);
+			break;
+
+		case CALLNAME_SETF:
+			remtype_setf_symbol(pos);
+			break;
+
+		case CALLNAME_ERROR:
+		default:
+			fmte("Invalid function name.", NULL);
+			break;
+	}
+}
+
 _g void copy_callname_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");

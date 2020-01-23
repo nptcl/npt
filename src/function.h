@@ -165,6 +165,7 @@ _g enum CALLNAME_TYPE getfunction_callname_global(addr pos, addr *ret);
 _g enum CALLNAME_TYPE getfunction_callname_local(Execute ptr, addr pos, addr *ret);
 _g enum CALLNAME_TYPE getfunctioncheck_callname_local(Execute ptr, addr pos, addr *ret);
 _g void setfunction_callname_global(addr pos, addr value);
+_g void remtype_funcion_callname_global(addr pos);
 
 _g void copy_callname_alloc(LocalRoot local, addr *ret, addr pos);
 _g void copy_callname_local(LocalRoot local, addr *ret, addr pos);
