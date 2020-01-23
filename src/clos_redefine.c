@@ -290,7 +290,16 @@ static void clos_redefine_make(Execute ptr, addr clos, addr name, addr rest)
 		clos_redefine_reference(ptr, clos, name, rest);
 }
 
-static void clos_redefine_finalize(Execute ptr, addr clos, addr name, addr rest)
+static int clos_redefine_make_instances_obsolete(Execute ptr, addr clos)
+{
+	addr call;
+
+	GetConst(COMMON_MAKE_INSTANCES_OBSOLETE, &call);
+	getfunctioncheck_local(ptr, call, &call);
+	return callclang_funcall(ptr, &call, call, clos, NULL);
+}
+
+static int clos_redefine_finalize(Execute ptr, addr clos, addr name, addr rest)
 {
 	int final;
 
@@ -302,10 +311,13 @@ static void clos_redefine_finalize(Execute ptr, addr clos, addr name, addr rest)
 	if (final) {
 		if (clos_finalize(ptr, clos))
 			fmte("Cannot finalize class object ~S.", clos, NULL);
+		return clos_redefine_make_instances_obsolete(ptr, clos);
 	}
+
+	return 0;
 }
 
-_g void clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
+_g int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 {
 	addr metaclass, pos;
 
@@ -322,7 +334,7 @@ _g void clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 		fmte("This implementation can only redefine a STANDARD-CLASS.", NULL);
 
 	/* make-instance */
-	clos_redefine_finalize(ptr, clos, name, rest);
+	return clos_redefine_finalize(ptr, clos, name, rest);
 }
 
 

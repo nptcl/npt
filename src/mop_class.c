@@ -222,7 +222,7 @@ static void method_ensure_class_using_class_class(Execute ptr,
 		addr method, addr next, addr clos, addr name, addr rest)
 {
 	CheckType(clos, LISPTYPE_CLOS);
-	clos_ensure_class_redefine(ptr, clos, name, rest);
+	Return0(clos_ensure_class_redefine(ptr, clos, name, rest));
 	setresult_control(ptr, clos);
 }
 

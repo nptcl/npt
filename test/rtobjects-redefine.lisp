@@ -285,6 +285,33 @@
       'aaa))
   t)
 
+(defclass redefined-make-instances-obsolete1 () ())
+(defclass redefined-make-instances-obsolete1 () ())
+
+(deftest redefined-make-instances-obsolete.1
+  (progn
+    (make-instances-obsolete 'redefined-make-instances-obsolete1)
+    nil)
+  nil)
+
+(deftest redefined-make-instances-obsolete.2
+  (progn
+    (make-instances-obsolete
+      (find-class 'redefined-make-instances-obsolete1))
+    nil)
+  nil)
+
+(deftest redefined-make-instances-obsolete.3
+  (let (x y)
+    (defclass redefined-make-instances-obsolete3 () ())
+    (setq x (make-instance 'redefined-make-instances-obsolete3))
+    (defmethod make-instances-obsolete :before ((inst standard-class))
+      (declare (ignore inst))
+      (setq y 100))
+    (defclass redefined-make-instances-obsolete3 () (aaa))
+    y)
+  100)
+
 
 ;;
 ;;  change-class

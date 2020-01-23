@@ -5,7 +5,7 @@
 #include "execute.h"
 #include "typedef.h"
 
-_g void clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest);
+_g int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest);
 _g int clos_version_diff_p(addr pos);
 _g int clos_version_check(Execute ptr, addr pos, addr clos);
 _g void clos_redefine_method(Execute ptr,
