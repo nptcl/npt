@@ -711,6 +711,7 @@
 
 (defun header-cplusplus ()
   (echo
+    "#define LISP_AMALGAMATION"
     "#ifdef __cplusplus"
     "#ifndef __STDC_LIMIT_MACROS"
     "#define __STDC_LIMIT_MACROS"

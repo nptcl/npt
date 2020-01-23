@@ -196,6 +196,11 @@ int lisp_main_version_script(FILE *file)
 #else
 	fprintf(file, "%s\t%s\n", "force-gc", "disable");
 #endif
+#ifdef LISP_AMALGAMATION
+	fprintf(file, "%s\t%s\n", "amalgamation", "true");
+#else
+	fprintf(file, "%s\t%s\n", "amalgamation", "false");
+#endif
 	lisp_result = 0;
 
 	return 0;
