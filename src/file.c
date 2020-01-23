@@ -3,6 +3,7 @@
 #include "encode.h"
 #include "file.h"
 #include "file_memory.h"
+#include "files.h"
 #include "memory.h"
 #include "pathname.h"
 #include "stream.h"
@@ -1090,16 +1091,34 @@ _g int open_io_utf32bebom_stream(Execute ptr, addr *stream,
  */
 #define CheckFileStream(stream) Check(! file_stream_p(stream), "type error")
 
-_g int close_stream_file(addr stream, int abort)
+static void close_stream_abort(addr stream)
 {
+	addr check;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	GetConst(SYSTEM_CLOSE_ABORT, &check);
+	getspecial_local(ptr, check, &check);
+	if (check == Unbound || check == Nil)
+		return;
+	/* :abort t */
+	pathname_designer_heap(ptr, stream, &check);
+	delete_file_files(ptr, check);
+}
+
+_g int close_stream_file(addr stream)
+{
+	int outputp;
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	if (open_stream_p(stream)) {
 		fm = PtrFileMemory(stream);
+		outputp = (fm->direct == filememory_output);
 		if (close_filememory(fm))
 			fmte("close error", NULL);
-		/* TODO: abort */
+		if (outputp)
+			close_stream_abort(stream);
 	}
 
 	return 1;

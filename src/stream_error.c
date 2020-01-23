@@ -2,7 +2,7 @@
 #include "stream_error.h"
 #include "typedef.h"
 
-_g int close_stream_error(addr stream, int abort)
+_g int close_stream_error(addr stream)
 {
 	fmte("The stream ~S don't run close function.", stream, NULL);
 	return 1;

@@ -99,7 +99,7 @@ _g int open_io_utf32bebom_stream(Execute ptr, addr *stream,
 /*
  *  stream function
  */
-_g int close_stream_file(addr stream, int abort);
+_g int close_stream_file(addr stream);
 _g int read_binary_file(addr stream, void *pos, size_t size, size_t *ret);
 _g int readforce_binary_file(addr stream, void *pos, size_t size, size_t *ret);
 _g int read_byte_file(addr stream, byte *c);

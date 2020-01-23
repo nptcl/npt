@@ -451,7 +451,7 @@ _g void open_extend_output_stream(addr *stream, addr array)
 	force_open_stream(pos, stream);
 }
 
-static int close_StringOutput(addr stream, int abort)
+static int close_StringOutput(addr stream)
 {
 	CheckOutputStringStream(stream);
 	SetInfoStream(stream, Nil);

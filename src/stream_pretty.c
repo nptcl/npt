@@ -330,7 +330,7 @@ _g void close_pretty_stream(Execute ptr, addr stream)
 	nreverse_unsafe_pretty_stream(stream);
 	/* close */
 	setalive_pretty_stream(stream, 0);
-	close_abort_stream(stream, 0);
+	close_stream(stream);
 	/* output */
 	stream_pretty_stream(stream, &pos);
 	if (pretty_stream_p(pos))
@@ -448,7 +448,7 @@ _g int call_pretty_stream(Execute ptr, addr stream, addr call)
 /*
  *  stream function
  */
-static int close_Pretty(addr stream, int abort)
+static int close_Pretty(addr stream)
 {
 	stream_pretty_stream(stream, &stream);
 	return 1;

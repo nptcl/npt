@@ -127,7 +127,7 @@ _g int pretty_stream_p(addr stream);
 
 _g int open_stream_p(addr stream);
 _g void force_open_stream(addr stream, addr *ret);
-_g void close_stream(addr stream);
+_g int close_stream(addr stream);
 _g void terpri_stream(addr stream);
 _g size_t getleft_stream(addr stream);
 _g void setleft_stream(addr stream, size_t value);
@@ -157,7 +157,7 @@ _g void output_stream_designer(Execute ptr, addr stream, addr *ret);
 #define DefineStreamEql(x,y,z) Stream_##y[StreamType_##x] = z;
 #define DefineStreamChk(x,y,z) Stream_##y[StreamType_##x] = checkp_##z##_stream;
 
-__extern int (*Stream_close[StreamType_Size])(addr, int);
+__extern int (*Stream_close[StreamType_Size])(addr);
 __extern int (*Stream_read_binary[StreamType_Size])(addr, void *, size_t, size_t *);
 __extern int (*Stream_readforce_binary[StreamType_Size])(addr, void *, size_t, size_t *);
 __extern int (*Stream_read_byte[StreamType_Size])(addr, byte *);
@@ -193,7 +193,6 @@ __extern void (*Stream_clear_output[StreamType_Size])(addr);
 __extern void (*Stream_exitpoint[StreamType_Size])(addr);
 __extern int (*Stream_terminal_width[StreamType_Size])(addr, size_t *);
 
-_g int close_abort_stream(addr stream, int abort);
 _g int read_binary_stream(addr stream, void *pos, size_t size, size_t *ret);
 _g int readforce_binary_stream(addr stream, void *pos, size_t size, size_t *ret);
 _g int read_byte_stream(addr stream, byte *c);
@@ -226,7 +225,7 @@ _g void clear_output_stream(addr stream);
 _g void exitpoint_stream(addr stream);
 _g int terminal_width_stream(addr stream, size_t *ret);
 
-_g int close_default_stream(addr stream, int abort);
+_g int close_default_stream(addr stream);
 _g int read_char_default_stream(addr stream, unicode *c);
 _g int read_hang_default_stream(addr stream, unicode *c, int *hang);
 _g void unread_char_default_stream(addr stream, unicode c);

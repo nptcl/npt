@@ -365,6 +365,26 @@
       (streamp inst)))
   t)
 
+(deftest close.1
+  (let ((inst (open *file* :direction :output
+                    :if-exists :supersede
+                    :if-does-not-exist :create)))
+    (format inst "Hello")
+    (close inst :abort t)
+    (probe-file *file*))
+  nil)
+
+(deftest close.2
+  (let ((inst (open *file* :direction :output
+                    :if-exists :supersede
+                    :if-does-not-exist :create)))
+    (format inst "Hello")
+    (close inst)
+    (setq inst (open *file* :direction :input))
+    (close inst :abort t)
+    (probe-file *file*))
+  t)
+
 
 ;;
 ;;  input-stream-p

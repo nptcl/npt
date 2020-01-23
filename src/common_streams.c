@@ -1318,12 +1318,15 @@ static void defmacro_with_open_file(void)
 /* (defun close (stream &key abort) ...) -> result */
 static void function_close(Execute ptr, addr pos, addr rest)
 {
-	int check;
 	addr abort;
 
-	if (getkeyargs(rest, KEYWORD_DIRECTION, &abort)) abort = Nil;
-	check = close_abort_stream(pos, abort != Nil);
-	setbool_control(ptr, check);
+	if (getkeyargs(rest, KEYWORD_ABORT, &abort))
+		abort = Nil;
+	if (abort != Nil) {
+		GetConst(SYSTEM_CLOSE_ABORT, &abort);
+		pushspecial_control(ptr, abort, T);
+	}
+	setbool_control(ptr, close_stream(pos));
 }
 
 static void type_close(addr *ret)

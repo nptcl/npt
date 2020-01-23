@@ -95,10 +95,14 @@ int loadrt(void);
 /*
  *  degrade function
  */
+#define LISP_DEGRADE_RTONLY
+#undef LISP_DEGRADE_RTONLY
+
 void degrade_execute(void)
 {
-#if 0
-#endif
+#ifdef LISP_DEGRADE_RTONLY
+	DegradeCheck(loadrt);
+#else
 	DegradeCheck(test_c99);
 	DegradeCheck(test_arch);
 	DegradeCheck(test_alloc);
@@ -182,7 +186,6 @@ void degrade_execute(void)
 	DegradeCheck(test_condition);
 	DegradeCheck(test_extern_object);
 	DegradeCheck(loadrt);
-#if 0
 #endif
 }
 

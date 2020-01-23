@@ -26,7 +26,7 @@ static int test_open_input_binary_stream(void)
 	test(stream, "open_input_binary_stream1");
 	fm = (struct filememory *)PtrDataStream(stream);
 	test(fm->direct == filememory_input, "open_input_binary_stream2");
-	close_stream_file(stream, 0);
+	close_stream_file(stream);
 
 	RETURN;
 }
@@ -42,7 +42,7 @@ static int test_open_output_binary_stream(void)
 	test(stream, "open_output_binary_stream1");
 	fm = (struct filememory *)PtrDataStream(stream);
 	test(fm->direct == filememory_output, "open_output_binary_stream2");
-	close_stream_file(stream, 0);
+	close_stream_file(stream);
 
 	RETURN;
 }
@@ -58,7 +58,7 @@ static int test_open_input_stream(void)
 	test(stream, "open_input_stream1");
 	fm = (struct filememory *)PtrDataStream(stream);
 	test(fm->direct == filememory_input, "open_input_stream2");
-	close_stream_file(stream, 0);
+	close_stream_file(stream);
 
 	RETURN;
 }
@@ -74,7 +74,7 @@ static int test_open_output_stream(void)
 	test(stream, "open_output_stream1");
 	fm = (struct filememory *)PtrDataStream(stream);
 	test(fm->direct == filememory_output, "open_output_stream2");
-	close_stream_file(stream, 0);
+	close_stream_file(stream);
 
 	RETURN;
 }
@@ -124,7 +124,7 @@ static int test_close_stream_file(void)
 
 	strvect_char_heap(&name, TESTFILE);
 	open_input_binary_stream(Execute_Thread, &stream, name);
-	close_stream_file(stream, 0);
+	close_stream_file(stream);
 
 	return 0;
 }
@@ -155,7 +155,7 @@ static int test_read_binary_file(void)
 	read_binary_file(stream, buffer, 100, &size);
 	test(size == 5, "read_binary_file1");
 	test(memcmp(buffer, "hello", 5) == 0, "read_binary_file2");
-	close_stream_file(stream, 0);
+	close_stream_file(stream);
 
 	RETURN;
 }
@@ -173,7 +173,7 @@ static int test_readforce_binary_file(void)
 	readforce_binary_file(stream, buffer, 100, &size);
 	test(size == 5, "readforce_binary_file1");
 	test(memcmp(buffer, "hello", 5) == 0, "readforce_binary_file2");
-	close_stream_file(stream, 0);
+	close_stream_file(stream);
 
 	RETURN;
 }

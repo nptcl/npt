@@ -240,14 +240,15 @@ _g int pretty_stream_p(addr stream)
 /*****************************************************************************
  *  function
  *****************************************************************************/
-_g int close_abort_stream(addr stream, int abort)
+_g int close_stream(addr stream)
 {
 	int result;
 	struct StructStream *ptr;
 
 	CheckType(stream, LISPTYPE_STREAM);
 	ptr = PtrStructStream(stream);
-	result = (Stream_close[ptr->type])(stream, abort);
+	result = ptr->closed;
+	result = (Stream_close[ptr->type])(stream);
 	ptr->terpri = 0;
 	ptr->unread_check = 0;
 	ptr->closed = 1;
@@ -266,11 +267,6 @@ _g void force_open_stream(addr stream, addr *ret)
 	CheckType(stream, LISPTYPE_STREAM);
 	PtrStructStream(stream)->closed = 0;
 	*ret = stream;
-}
-
-_g void close_stream(addr stream)
-{
-	(void)close_abort_stream(stream, 0);
 }
 
 #define CheckStream(stream, ptr) { \
@@ -528,7 +524,7 @@ _g int terminal_width_stream(addr stream, size_t *ret)
 /*
  *  default
  */
-_g int close_default_stream(addr stream, int abort)
+_g int close_default_stream(addr stream)
 {
 	return 1;
 }

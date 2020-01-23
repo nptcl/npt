@@ -56,7 +56,7 @@ _g struct callbind_struct pointer_table[p_size];
 /*
  *  stream
  */
-_g int (*Stream_close[StreamType_Size])(addr, int);
+_g int (*Stream_close[StreamType_Size])(addr);
 _g int (*Stream_read_binary[StreamType_Size])(addr, void *, size_t, size_t *);
 _g int (*Stream_readforce_binary[StreamType_Size])(addr, void *, size_t, size_t *);
 _g int (*Stream_read_byte[StreamType_Size])(addr, byte *);

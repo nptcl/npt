@@ -34,7 +34,7 @@ _g void open_prompt_stream(addr *stream)
 }
 #endif
 
-static int close_Prompt(addr stream, int abort)
+static int close_Prompt(addr stream)
 {
 	CheckPromptStream(stream);
 	GetInfoStream(stream, &stream);

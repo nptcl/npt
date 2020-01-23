@@ -1532,6 +1532,7 @@ lisp-system::cr
 lisp-system::lf
 lisp-system::crlf
 lisp-system::auto
+lisp-system::close-abort
 
 
 ;;
