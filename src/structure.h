@@ -52,8 +52,6 @@ _g void stdget_structure_named(addr pos, addr *ret);
 _g void stdset_structure_named(addr pos, addr value);
 _g void stdget_structure_named_index(addr pos, addr *ret);
 _g void stdset_structure_named_index(addr pos, addr value);
-_g void stdget_structure_offset(addr pos, addr *ret);
-_g void stdset_structure_offset(addr pos, addr value);
 _g void stdget_structure_value(addr pos, addr *ret);
 _g void stdset_structure_value(addr pos, addr value);
 

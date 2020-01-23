@@ -14,6 +14,7 @@
 #include "format.h"
 #include "heap.h"
 #include "gc.h"
+#include "lambda.h"
 #include "info.h"
 #include "integer.h"
 #include "number.h"
@@ -718,8 +719,12 @@ static int lambda_bind_key(Execute ptr, addr cons, int allow, addr args)
 			fmte("&key argument after ~S must be a pair form.", left, NULL);
 		if (! symbolp(left))
 			fmte("&key name ~S must be a symbol.", left, NULL);
-		if (! allow && ! find_name_key(left, cons))
-			fmte("&key name ~S don't accept.", left, NULL);
+		if (! allow && ! find_name_key(left, cons)) {
+			if (find_keyword_allow_other_keys(args))
+				allow = 1;
+			else
+				fmte("&key name ~S don't accept.", left, NULL);
+		}
 		getcons(right, &left, &right);
 	}
 

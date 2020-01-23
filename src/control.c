@@ -16,6 +16,7 @@
 #include "format.h"
 #include "gc.h"
 #include "heap.h"
+#include "lambda.h"
 #include "object.h"
 #include "package.h"
 #include "sequence.h"
@@ -2874,6 +2875,8 @@ static int checkargs_restkey(Execute ptr, addr array, addr args)
 
 	GetArrayA2(array, 2, &rest);
 	GetArrayA2(array, 3, &key);
+	if (find_keyword_allow_other_keys(args))
+		key = T;
 	if (rest == Nil && key == Nil) {
 		if (args != Nil)
 			fmte("Too many argument.", NULL);

@@ -92,5 +92,8 @@ _g void argument_method_to_generic(addr pos, addr *ret);
 _g void argument_boa_lambda_heap(addr *ret, addr pos);
 _g void argument_boa_variables_heap(addr *ret, addr pos);
 
+/* :allow-other-keys */
+_g int find_keyword_allow_other_keys(addr list);
+
 #endif
 

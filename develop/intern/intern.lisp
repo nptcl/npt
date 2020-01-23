@@ -62,6 +62,7 @@
 :adjustable
 :after
 :allocation
+:allow-other-keys
 :and
 :append
 :array

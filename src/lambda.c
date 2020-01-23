@@ -1,6 +1,7 @@
 #include "build.h"
 #include "cons.h"
 #include "cons_list.h"
+#include "cons_plist.h"
 #include "constant.h"
 #include "condition.h"
 #include "lambda.h"
@@ -1616,5 +1617,16 @@ _g void argument_boa_variables_heap(addr *ret, addr pos)
 
 	/* result */
 	nreverse_list_unsafe(ret, root);
+}
+
+
+/*
+ *  :allow-other-keys
+ */
+_g int find_keyword_allow_other_keys(addr list)
+{
+	addr pos;
+	GetConst(KEYWORD_ALLOW_OTHER_KEYS, &pos);
+	return getplist_safe(list, pos, &pos) == 0 && pos != Nil;
 }
 
