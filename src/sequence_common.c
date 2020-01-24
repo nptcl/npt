@@ -1140,7 +1140,7 @@ struct count_struct {
 	Execute ptr;
 	LocalRoot local;
 	addr item, second, pos, from, start, end, key, test1, test2, count;
-	size_t limit;
+	size_t limit, start_value;
 	struct sequence_range range;
 };
 
@@ -1946,7 +1946,7 @@ _g int find_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr rest
 /*
  *  position
  */
-static int value_position_sequence(struct count_struct *str, addr *ret)
+static int value_position_sequence(struct count_struct *str, size_t *ret, int *nilp)
 {
 	int check;
 	int (*call)(struct sequence_range *, addr *);
@@ -1956,7 +1956,6 @@ static int value_position_sequence(struct count_struct *str, addr *ret)
 	LocalHold hold;
 
 	/* initialize */
-	count = 0;
 	range = &(str->range);
 	if (str->fromp) {
 		reverse_sequence_range(range);
@@ -1974,38 +1973,52 @@ static int value_position_sequence(struct count_struct *str, addr *ret)
 			return 1;
 		if (check) {
 			localhold_end(hold);
-			*ret = intsizeh(count);
+			*ret = count;
+			*nilp = 0;
 			return 0;
 		}
 	}
 	localhold_end(hold);
-	*ret = Nil;
-
+	*ret = 0;
+	*nilp = 1;
 	return 0;
 }
 
 static int reverse_position_sequence(struct count_struct *str, addr *ret)
 {
+	int check;
 	LocalRoot local;
 	LocalStack stack;
 	struct sequence_range *range;
+	size_t size;
 
 	range = &(str->range);
 	local = str->local;
 	push_local(local, &stack);
 	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
-	if (value_position_sequence(str, ret)) return 1;
+	if (value_position_sequence(str, &size, &check))
+		return 1;
 	rollback_local(local, stack);
+
+	/* result */
+	if (check) {
+		*ret = Nil;
+		return 0;
+	}
+	size = str->start_value + range->end - size - 1;
+	make_index_integer_heap(ret, size);
 
 	return 0;
 }
 
 _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 {
+	int check;
 	unsigned listp, fromp;
 	addr from, start, end, key, test1, test2;
 	struct count_struct str;
 	struct sequence_range *range;
+	size_t size;
 
 	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
 	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
@@ -2020,6 +2033,7 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	listp = listp_sequence(pos);
 	fromp = (from != Nil);
 	range = &(str.range);
+	getindex_integer(start, &(str.start_value));
 	str.ptr = ptr;
 	str.local = ptr->local;
 	str.fromp = fromp;
@@ -2048,16 +2062,32 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (listp && fromp)
 		return reverse_position_sequence(&str, ret);
 	build_sequence_range(range, pos, start, end);
-	return value_position_sequence(&str, ret);
+	if (value_position_sequence(&str, &size, &check))
+		return 1;
+
+	/* result */
+	if (check) {
+		*ret = Nil;
+		return 0;
+	}
+	if (fromp)
+		size = range->end - size - 1;
+	else
+		size += range->start;
+	make_index_integer_heap(ret, size);
+
+	return 0;
 }
 
 static int argument_position_sequence(Execute ptr, addr *ret,
 		addr test1, addr test2, addr pos, addr rest)
 {
+	int check;
 	unsigned listp, fromp;
 	addr from, start, end, key;
 	struct count_struct str;
 	struct sequence_range *range;
+	size_t size;
 
 	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
 	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
@@ -2068,6 +2098,7 @@ static int argument_position_sequence(Execute ptr, addr *ret,
 	listp = listp_sequence(pos);
 	fromp = (from != Nil);
 	range = &(str.range);
+	getindex_integer(start, &(str.start_value));
 	str.ptr = ptr;
 	str.local = ptr->local;
 	str.fromp = fromp;
@@ -2091,7 +2122,21 @@ static int argument_position_sequence(Execute ptr, addr *ret,
 	if (listp && fromp)
 		return reverse_position_sequence(&str, ret);
 	build_sequence_range(range, pos, start, end);
-	return value_position_sequence(&str, ret);
+	if (value_position_sequence(&str, &size, &check))
+		return 1;
+
+	/* result */
+	if (check) {
+		*ret = Nil;
+		return 0;
+	}
+	if (fromp)
+		size = range->end - size - 1;
+	else
+		size += range->start;
+	make_index_integer_heap(ret, size);
+
+	return 0;
 }
 
 _g int position_if_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
@@ -2117,6 +2162,7 @@ struct search_struct {
 	addr pos1, pos2, list1, list2, test1, test2, key;
 	addr start1, start2, end1, end2, from;
 	struct sequence_range *range1, *range2;
+	size_t start_value;
 };
 
 static int key_search_sequence(struct search_struct *str, addr *ret, addr value)
@@ -2207,7 +2253,8 @@ final:
 	return 0;
 }
 
-static int reverse_search_sequence(struct search_struct *str, addr *ret)
+static int reverse_size_search_sequence(
+		struct search_struct *str, size_t *ret, int *nilp)
 {
 	int check;
 	struct sequence_range *range1, *range2;
@@ -2218,11 +2265,13 @@ static int reverse_search_sequence(struct search_struct *str, addr *ret)
 	size1 = range1->size;
 	size2 = range2->size;
 	if (size2 < size1) {
-		*ret = Nil;
+		*ret = 0;
+		*nilp = 1;
 		return 0;
 	}
 	if (size1 == 0) {
-		*ret = fixnumh(0);
+		*ret = 0;
+		*nilp = 0;
 		return 0;
 	}
 
@@ -2233,11 +2282,30 @@ static int reverse_search_sequence(struct search_struct *str, addr *ret)
 		if (reverse_pattern_search_sequence(str, &check, range1, range2, i))
 			return 1;
 		if (check) {
-			*ret = intsizeh(i);
+			*ret = i;
+			*nilp = 0;
 			return 0;
 		}
 	}
-	*ret = Nil;
+	*ret = 0;
+	*nilp = 1;
+
+	return 0;
+}
+
+static int reverse_search_sequence(struct search_struct *str, addr *ret)
+{
+	int check;
+	size_t size;
+
+	if (reverse_size_search_sequence(str, &size, &check))
+		return 1;
+	if (check) {
+		*ret = Nil;
+		return 0;
+	}
+	size += str->start_value;
+	make_index_integer_heap(ret, size);
 
 	return 0;
 }
@@ -2282,7 +2350,8 @@ final:
 	return 0;
 }
 
-static int normal_search_sequence(struct search_struct *str, addr *ret)
+static int normalsize_search_sequence(
+		struct search_struct *str, size_t *ret, int *nilp)
 {
 	int check;
 	struct sequence_range *range1, *range2;
@@ -2291,7 +2360,8 @@ static int normal_search_sequence(struct search_struct *str, addr *ret)
 	range1 = str->range1;
 	range2 = str->range2;
 	if (range1->endp && range2->endp && range2->size < range1->size) {
-		*ret = Nil;
+		*ret = 0;
+		*nilp = 1;
 		return 0;
 	}
 
@@ -2300,14 +2370,33 @@ static int normal_search_sequence(struct search_struct *str, addr *ret)
 		if (normal_pattern_search_sequence(str, &check, range1, range2))
 			return 1;
 		if (check) {
-			*ret = intsizeh(i);
+			*ret = i;
+			*nilp = 0;
 			return 0;
 		}
 		load_sequence_range(range2);
 		if (next_sequence_range(range2))
 			break;
 	}
-	*ret = Nil;
+	*ret = 0;
+	*nilp = 1;
+
+	return 0;
+}
+
+static int normal_search_sequence(struct search_struct *str, addr *ret)
+{
+	int check;
+	size_t size;
+
+	if (normalsize_search_sequence(str, &size, &check))
+		return 1;
+	if (check) {
+		*ret = Nil;
+		return 0;
+	}
+	size += str->range2->start;
+	make_index_integer_heap(ret, size);
 
 	return 0;
 }
@@ -2359,6 +2448,7 @@ static int execute_search_sequence(Execute ptr, addr *ret,
 	str.end2 = end2;
 	str.pos1 = pos1;
 	str.pos2 = pos2;
+	getindex_integer(start2, &(str.start_value));
 	if (fromp) {
 		str.range1 = make_sequence_range_endp(local, pos1, start1, end1);
 		str.range2 = make_sequence_range_vector(local, pos2, start2, end2);
