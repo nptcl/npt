@@ -931,3 +931,17 @@
       (list-make-instance-structure-bbb inst)))
   100 nil)
 
+;; slot-value
+(defstruct (list-slot-value (:type list) :named) aaa bbb)
+(deftest-error list-slot-value.1
+  (slot-value (make-list-slot-value) 'aaa))
+
+(deftest-error list-slot-value.2
+  (slot-boundp (make-list-slot-value) 'aaa))
+
+(deftest-error list-slot-value.3
+  (slot-exists-p (make-list-slot-value) 'aaa))
+
+(deftest-error list-slot-value.4
+  (slot-makunbound (make-list-slot-value) 'aaa))
+

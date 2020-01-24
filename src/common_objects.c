@@ -265,7 +265,7 @@ static void type_slot_value(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, T);
+	GetTypeTable(&args, Clos);
 	GetTypeTable(&values, Symbol);
 	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, T);
@@ -306,11 +306,12 @@ static void function_setf_slot_value(Execute ptr, addr value, addr pos, addr nam
 
 static void type_setf_slot_value(addr *ret)
 {
-	addr args, values;
+	addr args, values, type;
 
 	GetTypeTable(&args, T);
-	GetTypeTable(&values, Symbol);
-	typeargs_var3(&args, args, args, values);
+	GetTypeTable(&values, Clos);
+	GetTypeTable(&type, Symbol);
+	typeargs_var3(&args, args, values, type);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, ret);
 }

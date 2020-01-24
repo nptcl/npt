@@ -957,3 +957,80 @@
   (let ((inst (make-vector-type-a)))
     (setf (vector-type-a-aaa inst) 100)))
 
+;; slot-value
+(defstruct (vector-slot-value (:type vector) :named) aaa bbb)
+(deftest-error vector-slot-value.1
+  (slot-value (make-vector-slot-value) 'aaa))
+
+(deftest-error vector-slot-value.2
+  (slot-boundp (make-vector-slot-value) 'aaa))
+
+(deftest-error vector-slot-value.3
+  (slot-exists-p (make-vector-slot-value) 'aaa))
+
+(deftest-error vector-slot-value.4
+  (slot-makunbound (make-vector-slot-value) 'aaa))
+
+;; array access
+(defstruct (vector-array-access1 (:type vector)) aaa bbb)
+(deftest vector-array-access.1
+  (let ((x (make-vector-array-access1 :aaa 10 :bbb 20)))
+    (values
+      (vector-array-access1-aaa x)
+      (vector-array-access1-bbb x)))
+  10 20)
+
+(deftest vector-array-access.2
+  (let ((x #(30 40)))
+    (values
+      (vector-array-access1-aaa x)
+      (vector-array-access1-bbb x)))
+  30 40)
+
+(deftest vector-array-access.3
+  (let ((x (make-array 2 :initial-contents '(50 60))))
+    (values
+      (vector-array-access1-aaa x)
+      (vector-array-access1-bbb x)))
+  50 60)
+
+(defstruct (vector-array-access2 (:type vector) :named) aaa bbb)
+(deftest vector-array-access.4
+  (let ((x (make-vector-array-access2 :aaa 10 :bbb 20)))
+    (values
+      (vector-array-access2-aaa x)
+      (vector-array-access2-bbb x)))
+  10 20)
+
+(deftest vector-array-access.5
+  (let ((x #(vector-array-access2 30 40)))
+    (values
+      (vector-array-access2-aaa x)
+      (vector-array-access2-bbb x)))
+  30 40)
+
+(deftest vector-array-access.6
+  (let ((x (make-array 3 :initial-contents '(vector-array-access2 50 60))))
+    (values
+      (vector-array-access2-aaa x)
+      (vector-array-access2-bbb x)))
+  50 60)
+
+(deftest vector-array-access.7
+  (let ((x (make-array 2 :initial-contents '(50 60))))
+    (setf (vector-array-access1-aaa x) 70)
+    (setf (vector-array-access1-bbb x) 80)
+    (values
+      (vector-array-access1-aaa x)
+      (vector-array-access1-bbb x)))
+  70 80)
+
+(deftest vector-array-access.8
+  (let ((x (make-array 3 :initial-contents '(vector-array-access2 50 60))))
+    (setf (vector-array-access2-aaa x) 70)
+    (setf (vector-array-access2-bbb x) 80)
+    (values
+      (vector-array-access2-aaa x)
+      (vector-array-access2-bbb x)))
+  70 80)
+

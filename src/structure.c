@@ -1,3 +1,4 @@
+#include "array_vector.h"
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_method.h"
@@ -370,7 +371,7 @@ static int structure_getarray_direct(Execute ptr,
 	int check;
 	addr value;
 
-	getarray(vector, i, &value);
+	getelt_sequence(NULL, vector, i, &value);
 	if (typep_clang(ptr, value, type, &check))
 		return 1;
 	if (! check) {
@@ -403,7 +404,7 @@ static int structure_setarray_direct(Execute ptr,
 		fmte("The value ~S don't match ~A type.", value, type, NULL);
 		return 0;
 	}
-	setarray(vector, i, value);
+	setelt_sequence(vector, i, value);
 
 	return 0;
 }
@@ -951,13 +952,13 @@ static int structure_type_vector_p(Execute ptr, addr type, addr var, int *ret)
 	size_t size;
 
 	/* vectorp */
-	str = PtrStructureType(type);
-	if (GetType(var) != LISPTYPE_VECTOR) {
+	if (! vector_type_p(var)) {
 		*ret = 0;
 		return 0;
 	}
-	lenarray(var, &size);
+	size = length_sequence(var, 1);
 	/* length */
+	str = PtrStructureType(type);
 	if (size < str->size_value) {
 		*ret = 0;
 		return 0;
@@ -1539,7 +1540,7 @@ static int make_structure_vector(Execute ptr, addr *ret, addr pos, addr args)
 
 	if (str->named) {
 		GetNameStructureType(pos, &name);
-		setarray(vector, str->named_index, name);
+		setelt_sequence(vector, str->named_index, name);
 	}
 	*ret = vector;
 

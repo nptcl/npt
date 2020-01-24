@@ -2674,10 +2674,10 @@ static void typecompiled_upgraded_type(void)
 
 static void typecompiled_slot_boundp(void)
 {
-	/* (function (t symbol) (values boolean &rest nil)) */
+	/* (function (clos symbol) (values boolean &rest nil)) */
 	addr args, values;
 
-	GetTypeTable(&args, T);
+	GetTypeTable(&args, Clos);
 	GetTypeTable(&values, Symbol);
 	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, Boolean);

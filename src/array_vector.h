@@ -4,6 +4,7 @@
 #include "local.h"
 #include "typedef.h"
 
+_g int vector_type_p(addr pos);
 _g void vector_pop_common(addr pos, addr *ret);
 _g void vector_push_common(addr value, addr pos, addr *ret);
 _g void vector_push_extend_common(addr value, addr pos, addr extension, addr *ret);

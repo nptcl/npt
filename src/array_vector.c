@@ -5,6 +5,15 @@
 #include "bit.h"
 #include "condition.h"
 #include "integer.h"
+#include "strtype.h"
+
+_g int vector_type_p(addr pos)
+{
+	return (GetType(pos) == LISPTYPE_VECTOR)
+		|| stringp(pos)
+		|| array_vector_p(pos);
+}
+
 
 /*
  *  vector

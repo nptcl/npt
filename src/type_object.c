@@ -48,7 +48,7 @@ static void type_object_clos(addr *ret, addr pos)
 {
 	GetArrayType(pos, 0, &pos);
 	if (type_asterisk_p(pos)) {
-		GetConst(COMMON_ASTERISK, ret);
+		GetConst(COMMON_CLASS, ret);
 	}
 	else {
 		clos_class_of(pos, &pos);

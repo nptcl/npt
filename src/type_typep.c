@@ -52,6 +52,10 @@ static int typep_clos(Execute ptr, addr value, addr type, int *ret)
 		return 0;
 	}
 	GetArrayType(type, 0, &type);
+	if (type_asterisk_p(type)) {
+		*ret = 1;
+		return 0;
+	}
 	*ret = clos_subtype_p(value, type);
 	return 0;
 }

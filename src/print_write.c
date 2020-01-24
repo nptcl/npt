@@ -31,6 +31,7 @@
 #include "stream_string.h"
 #include "strtype.h"
 #include "symbol.h"
+#include "type.h"
 #include "type_name.h"
 #include "type_object.h"
 #include "unicode.h"
