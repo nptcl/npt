@@ -146,3 +146,15 @@ _g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
 	simple_file_error_stdarg(file, "TRUENAME is not support in ANSI-C mode.", NULL);
 }
 
+_g int remove_file_common(Execute ptr, addr pos, int errorp)
+{
+	fmte("REMOVE-FILE function is not supported in ANSI-C mode.", NULL);
+	return 0;
+}
+
+_g int remove_directory_common(Execute ptr, addr pos, int errorp)
+{
+	fmte("REMOVE-DIRECTORY function is not supported in ANSI-C mode.", NULL);
+	return 0;
+}
+

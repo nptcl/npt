@@ -1953,6 +1953,8 @@ lisp-system::make-callname
 lisp-system::with-compilation-unit
 lisp-system::set-slots
 lisp-system::unbound-value
+lisp-system::remove-file
+lisp-system::remove-directory
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

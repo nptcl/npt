@@ -114,18 +114,57 @@ static void merge_directory_files(LocalRoot local, addr path, addr defaults)
 	copylocal_pathname_array(local, defaults, PATHNAME_INDEX_DIRECTORY, path);
 }
 
+static int directoryp_directory_files(Execute ptr, addr file)
+{
+	int check;
+	LocalRoot local;
+	LocalStack stack;
+	const WCHAR *body;
+	addr pos;
+
+	local = ptr->local;
+	push_local(local, &stack);
+	name_pathname_local(ptr, file, &pos);
+	if (UTF16_buffer_clang(local, &pos, pos))
+		fmte("Cannot convert ~S to UTF-16 string.", file, NULL);
+	body = (const WCHAR *)posbodyr(pos);
+	check = PathIsDirectory(body);
+	rollback_local(local, stack);
+
+	return check;
+}
+
+static void files_path_directory_files(struct directory_struct *str,
+		addr path, addr name, addr base, addr *ret)
+{
+	addr list;
+	LocalRoot local;
+
+	if (directoryp_directory_files(str->ptr, path)) {
+		local = str->local;
+		copy_list_local_unsafe(local, &list, str->list);
+		cons_local(local, &list, name, list);
+		make_list_directory_pathname(str, &path, list);
+		SetPathname(path, PATHNAME_INDEX_NAME, Nil);
+		SetPathname(path, PATHNAME_INDEX_TYPE, Nil);
+	}
+	*ret = path;
+}
+
 static void files_name_directory_files(struct directory_struct *str,
 		addr base, addr name)
 {
 	Execute ptr;
+	addr path;
 
 	ptr = str->ptr;
-	pathname_designer_local(ptr, name, &name);
-	merge_directory_files(str->local, name, base);
-	if (wildcard_pathname(name, str->pos, 0)) {
+	pathname_designer_local(ptr, name, &path);
+	merge_directory_files(str->local, path, base);
+	if (wildcard_pathname(path, str->pos, 1)) {
 		/* push heap */
-		pathname_designer_heap(ptr, name, &name);
-		cons_heap(&str->root, name, str->root);
+		files_path_directory_files(str, path, name, base, &path);
+		pathname_designer_heap(ptr, path, &path);
+		cons_heap(&str->root, path, str->root);
 	}
 }
 
@@ -199,12 +238,11 @@ static void wild_push_directory_files(struct directory_struct *str, const WCHAR 
 {
 	LocalRoot local;
 	LocalStack stack;
-	addr pos, path, root, list, front;
+	addr path, root, list, front;
 
 	if (wcscmp(name, L".") == 0) return;
 	if (wcscmp(name, L"..") == 0) return;
 	local = str->local;
-	pos = str->pos;
 	push_local(local, &stack);
 	string16_null_local(local, &path, (const byte16 *)name);
 	/* directory check */
@@ -269,14 +307,14 @@ static void inferiors_push_directory_files(struct directory_struct *str,
 {
 	LocalRoot local;
 	LocalStack stack;
-	addr pos, path, root, list, front;
+	addr path, root, list, front;
 
 	if (wcscmp(name, L".") == 0) return;
 	if (wcscmp(name, L"..") == 0) return;
 	local = str->local;
-	pos = str->pos;
 	push_local(local, &stack);
 	string16_null_local(local, &path, (const byte16 *)name);
+	inferiors_file_directory_files(str, path);
 	/* directory check */
 	if (wild_check_directory_files(str, path)) {
 		/* backup list */
@@ -291,9 +329,6 @@ static void inferiors_push_directory_files(struct directory_struct *str,
 		/* rollback list */
 		str->list = list;
 		str->front = front;
-	}
-	else {
-		inferiors_file_directory_files(str, path);
 	}
 	/* rollback local */
 	rollback_local(local, stack);
@@ -764,7 +799,7 @@ static BOOL DeleteFileAsyncW(LPCWSTR name)
 	return 1;
 }
 
-static void delete_file_run_files(Execute ptr, addr pos)
+static int delete_file_run_files(Execute ptr, addr pos, int errorp)
 {
 	LocalRoot local;
 	addr file, value;
@@ -773,6 +808,11 @@ static void delete_file_run_files(Execute ptr, addr pos)
 	physical_pathname_heap(ptr, pos, &file);
 	if (wild_pathname_boolean(file, Nil))
 		fmte("Cannot delete wildcard pathname ~S", pos, NULL);
+	if (! pathname_file_p(file)) {
+		if (errorp)
+			fmte("The argument ~S is not a file.", pos, NULL);
+		return 0;
+	}
 	/* filename */
 	local = ptr->local;
 	name_pathname_local(ptr, file, &value);
@@ -781,24 +821,41 @@ static void delete_file_run_files(Execute ptr, addr pos)
 	str = (const WCHAR *)posbodyr(value);
 	/* delete */
 	if (DeleteFileAsyncW(str) == 0) {
-		simple_file_error_stdarg(pos, "Cannot delete ~S.", file, NULL);
-		return;
+		if (errorp)
+			simple_file_error_stdarg(pos, "Cannot delete ~S.", file, NULL);
+		return 0;
 	}
 	/* stream */
 	if (streamp(pos))
 		close_stream(pos);
+
+	return 1;
 }
 
-_g void delete_file_files(Execute ptr, addr pos)
+static int delete_file_errorp(Execute ptr, addr pos, int errorp)
 {
+	int check;
 	LocalRoot local;
 	LocalStack stack;
 
 	local = ptr->local;
 	push_local(local, &stack);
-	delete_file_run_files(ptr, pos);
+	check = delete_file_run_files(ptr, pos, errorp);
 	rollback_local(local, stack);
+
+	return check;
 }
+
+_g void delete_file_files(Execute ptr, addr pos)
+{
+	delete_file_errorp(ptr, pos, 1);
+}
+
+_g int remove_file_common(Execute ptr, addr pos, int errorp)
+{
+	return delete_file_errorp(ptr, pos, errorp);
+}
+
 
 
 /*
@@ -866,5 +923,42 @@ error_nil_rollback:
 	rollback_local(local, stack);
 error_nil:
 	*ret = Nil;
+}
+
+
+/*
+ *  remove-directory
+ */
+_g int remove_directory_common(Execute ptr, addr pos, int errorp)
+{
+	LocalRoot local;
+	addr file, value;
+	const WCHAR *str;
+
+	physical_pathname_heap(ptr, pos, &file);
+	if (wild_pathname_boolean(file, Nil))
+		fmte("Cannot delete wildcard pathname ~S", pos, NULL);
+	if (! pathname_directory_p(file)) {
+		if (errorp)
+			fmte("The argument ~S is not a file.", pos, NULL);
+		return 0;
+	}
+	/* filename */
+	local = ptr->local;
+	name_pathname_local(ptr, file, &value);
+	if (UTF16_buffer_clang(local, &value, value))
+		fmte("Cannot decode UTF-16 string ~S.", file, NULL);
+	str = (const WCHAR *)posbodyr(value);
+	/* delete */
+	if (RemoveDirectoryW(str) == 0) {
+		if (errorp)
+			simple_file_error_stdarg(pos, "Cannot delete ~S.", file, NULL);
+		return 0;
+	}
+	/* stream */
+	if (streamp(pos))
+		close_stream(pos);
+
+	return 1;
 }
 

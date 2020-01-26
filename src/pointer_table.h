@@ -1209,6 +1209,8 @@ enum pointer_index {
 	p_defun_syscall_trace_del,
 	p_defun_syscall_with_compilation_unit,
 	p_defun_syscall_set_slots,
+	p_defun_syscall_remove_file,
+	p_defun_syscall_remove_directory,
 
 	/* size */
 	p_size

@@ -19,6 +19,7 @@
 #include "equal.h"
 #include "eval.h"
 #include "file.h"
+#include "files.h"
 #include "format.h"
 #include "format_function.h"
 #include "function.h"
@@ -2812,6 +2813,52 @@ static void defun_set_slots(void)
 }
 
 
+/* (defun remove-file (pathname &optional (error t)) ...) -> boolean */
+static void syscall_remove_file(Execute ptr, addr var, addr opt)
+{
+	int check = remove_file_common(ptr, var, (opt != Nil));
+	setbool_control(ptr, check);
+}
+
+static void defun_remove_file(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_REMOVE_FILE, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, p_defun_syscall_remove_file);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, RemoveFile);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun remove-directory (pathname &optional (error t)) ...) -> boolean */
+static void syscall_remove_directory(Execute ptr, addr var, addr opt)
+{
+	int check = remove_directory_common(ptr, var, (opt != Nil));
+	setbool_control(ptr, check);
+}
+
+static void defun_remove_directory(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_REMOVE_DIRECTORY, &symbol);
+	compiled_heap(&pos, symbol);
+	setcompiled_var1opt1(pos, p_defun_syscall_remove_directory);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, RemoveFile);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -2895,6 +2942,8 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var1, trace_del);
 	SetPointerSysCall(defun, var3, with_compilation_unit);
 	SetPointerSysCall(defun, var3, set_slots);
+	SetPointerSysCall(defun, var1opt1, remove_file);
+	SetPointerSysCall(defun, var1opt1, remove_directory);
 }
 
 _g void build_syscall(void)
@@ -2997,5 +3046,8 @@ _g void build_syscall(void)
 	defvar_compiler_macro();
 	defun_with_compilation_unit();
 	defun_set_slots();
+	/* pathname */
+	defun_remove_file();
+	defun_remove_directory();
 }
 

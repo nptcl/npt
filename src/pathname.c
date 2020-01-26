@@ -173,6 +173,28 @@ _g int pathname_logical_p(addr pos)
 	return pathnamep(pos) && RefLogicalPathname(pos) != 0;
 }
 
+_g int pathname_file_p(addr pos)
+{
+	addr check;
+
+	if (! pathnamep(pos))
+		return 0;
+	GetPathname(pos, PATHNAME_INDEX_NAME, &check);
+	return check != Nil;
+}
+
+_g int pathname_directory_p(addr pos)
+{
+	addr name, type;
+
+	if (! pathnamep(pos))
+		return 0;
+	GetPathname(pos, PATHNAME_INDEX_NAME, &name);
+	GetPathname(pos, PATHNAME_INDEX_TYPE, &type);
+
+	return name == Nil && type == Nil;
+}
+
 _g void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b)
 {
 	addr value;

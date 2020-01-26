@@ -44,6 +44,8 @@ _g void logical_pathname_heap(addr *ret, addr host,
 _g int pathnamep(addr pos);
 _g int pathname_pathname_p(addr pos);
 _g int pathname_logical_p(addr pos);
+_g int pathname_file_p(addr pos);
+_g int pathname_directory_p(addr pos);
 _g void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b);
 _g void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos);
 #define copy_pathname_heap(x,y) copy_pathname_alloc(NULL, (x), (y))

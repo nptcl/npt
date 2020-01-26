@@ -2799,6 +2799,18 @@ static void typecompiled_get_internal_real_time(void)
 	SetTypeCompiled(GetInternalRealTime, args);
 }
 
+static void typecompiled_remove_file(void)
+{
+	addr args, values;
+
+	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&values, T);
+	typeargs_var1opt1(&args, args, values);
+	GetTypeValues(&values, Boolean);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(RemoveFile, args);
+}
+
 
 /*
  *  Interface
@@ -3142,5 +3154,6 @@ _g void build_type_constant(void)
 	typecompiled_dispatch_function();
 	typecompiled_formatter_function();
 	typecompiled_get_internal_real_time();
+	typecompiled_remove_file();
 }
 
