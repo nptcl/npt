@@ -101,10 +101,14 @@ eval_stack.c
 eval_table.c
 eval.c
 execute.c
+extern.c
 extern_argv.c
+extern_control.c
 extern_init.c
 extern_object.c
 extern_string.c
+extern_stream.c
+extern_unicode.c
 fasl.c
 file_memory.c
 file.c

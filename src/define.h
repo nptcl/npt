@@ -1,5 +1,5 @@
-#ifndef __DEFINE_HEADER__
-#define __DEFINE_HEADER__
+#ifndef __LISP_DEFINE_HEADER__
+#define __LISP_DEFINE_HEADER__
 
 /*
  *  autoconf
@@ -369,6 +369,16 @@
 #endif
 #endif
 /* #define LISP_DEBUG_FORCE_GC 1 */
+
+/* stream */
+#ifndef LISP_STREAM_EXTEND
+#define LISP_STREAM_EXTEND	3
+#endif
+
+/* pointer_table */
+#ifndef LISP_POINTER_EXTEND
+#define LISP_POINTER_EXTEND	32
+#endif
 
 /* long float */
 #if defined(LISP_FLOAT_LONG_64)

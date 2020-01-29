@@ -136,9 +136,9 @@ static int load_root(struct filememory *fm)
 	}
 
 	/* nil, t */
-	lisp_nil = lisp_root[LISPINDEX_NIL];
-	lisp_t = lisp_root[LISPINDEX_T];
-	Execute_Thread->control = lisp_nil;
+	lisp_nil_object = lisp_root[LISPINDEX_NIL];
+	lisp_t_object = lisp_root[LISPINDEX_T];
+	Execute_Thread->control = lisp_nil_object;
 
 	return 0;
 }

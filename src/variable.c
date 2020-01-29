@@ -1,17 +1,19 @@
-#include "typedef.h"
-#include "typedef_enum.h"
-#include "typedef_thread.h"
+#include "pointer.h"
 #include "pointer_table.h"
 #include "pointer_type.h"
 #include "stream.h"
+#include "typedef.h"
+#include "typedef_enum.h"
+#include "typedef_stream.h"
+#include "typedef_thread.h"
 
 /*
  *  build
  */
 _g int      lisp_initialize    = 0;
 _g addr     lisp_root[LISPINDEX_SIZE];
-_g addr     lisp_nil           = 0;
-_g addr     lisp_t             = 0;
+_g addr     lisp_nil_object    = 0;
+_g addr     lisp_t_object      = 0;
 _g byte32   lisp_property      = 0;
 /* for debug */
 _g int      lisp_info_enable   = 1;
@@ -50,45 +52,45 @@ _g threadlocal ThreadLocal_Local;
 /*
  *  pointer
  */
-_g struct callbind_struct pointer_table[p_size];
+_g struct callbind_struct pointer_table[SizePointer];
 
 
 /*
  *  stream
  */
-_g int (*Stream_close[StreamType_Size])(addr);
-_g int (*Stream_read_binary[StreamType_Size])(addr, void *, size_t, size_t *);
-_g int (*Stream_readforce_binary[StreamType_Size])(addr, void *, size_t, size_t *);
-_g int (*Stream_read_byte[StreamType_Size])(addr, byte *);
-_g int (*Stream_unread_byte[StreamType_Size])(addr, byte);
-_g int (*Stream_write_binary[StreamType_Size])(addr, const void *, size_t, size_t *);
-_g int (*Stream_write_byte[StreamType_Size])(addr, byte);
-_g int (*Stream_read_char[StreamType_Size])(addr, unicode *);
-_g int (*Stream_read_hang[StreamType_Size])(addr, unicode *, int *);
-_g void (*Stream_unread_char[StreamType_Size])(addr, unicode);
-_g void (*Stream_write_char[StreamType_Size])(addr, unicode);
-_g void (*Stream_terpri[StreamType_Size])(addr);
-_g size_t (*Stream_getleft[StreamType_Size])(addr);
-_g void (*Stream_setleft[StreamType_Size])(addr, size_t);
-_g int (*Stream_fresh_line[StreamType_Size])(addr);
-_g void (*Stream_clear_input[StreamType_Size])(addr);
-_g int (*Stream_inputp[StreamType_Size])(addr);
-_g int (*Stream_outputp[StreamType_Size])(addr);
-_g int (*Stream_interactivep[StreamType_Size])(addr);
-_g int (*Stream_characterp[StreamType_Size])(addr);
-_g int (*Stream_binaryp[StreamType_Size])(addr);
-_g void (*Stream_element_type[StreamType_Size])(addr, addr *);
-_g void (*Stream_file_length[StreamType_Size])(addr, addr *);
-_g int (*Stream_file_position[StreamType_Size])(addr, size_t *);
-_g int (*Stream_file_position_start[StreamType_Size])(addr);
-_g int (*Stream_file_position_end[StreamType_Size])(addr);
-_g int (*Stream_file_position_set[StreamType_Size])(addr, size_t);
-_g int (*Stream_file_character_length[StreamType_Size])(addr, unicode, size_t *);
-_g int (*Stream_file_string_length[StreamType_Size])(addr, addr, size_t *);
-_g int (*Stream_listen[StreamType_Size])(addr);
-_g void (*Stream_finish_output[StreamType_Size])(addr);
-_g void (*Stream_force_output[StreamType_Size])(addr);
-_g void (*Stream_clear_output[StreamType_Size])(addr);
-_g void (*Stream_exitpoint[StreamType_Size])(addr);
-_g int (*Stream_terminal_width[StreamType_Size])(addr, size_t *);
+_g LispStreamTypeArray(close);
+_g LispStreamTypeArray(read_binary);
+_g LispStreamTypeArray(readforce_binary);
+_g LispStreamTypeArray(read_byte);
+_g LispStreamTypeArray(unread_byte);
+_g LispStreamTypeArray(write_binary);
+_g LispStreamTypeArray(write_byte);
+_g LispStreamTypeArray(read_char);
+_g LispStreamTypeArray(read_hang);
+_g LispStreamTypeArray(unread_char);
+_g LispStreamTypeArray(write_char);
+_g LispStreamTypeArray(terpri);
+_g LispStreamTypeArray(getleft);
+_g LispStreamTypeArray(setleft);
+_g LispStreamTypeArray(fresh_line);
+_g LispStreamTypeArray(clear_input);
+_g LispStreamTypeArray(inputp);
+_g LispStreamTypeArray(outputp);
+_g LispStreamTypeArray(interactivep);
+_g LispStreamTypeArray(characterp);
+_g LispStreamTypeArray(binaryp);
+_g LispStreamTypeArray(element_type);
+_g LispStreamTypeArray(file_length);
+_g LispStreamTypeArray(file_position);
+_g LispStreamTypeArray(file_position_start);
+_g LispStreamTypeArray(file_position_end);
+_g LispStreamTypeArray(file_position_set);
+_g LispStreamTypeArray(file_character_length);
+_g LispStreamTypeArray(file_string_length);
+_g LispStreamTypeArray(listen);
+_g LispStreamTypeArray(finish_output);
+_g LispStreamTypeArray(force_output);
+_g LispStreamTypeArray(clear_output);
+_g LispStreamTypeArray(exitpoint);
+_g LispStreamTypeArray(terminal_width);
 

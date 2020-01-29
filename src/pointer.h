@@ -5,7 +5,9 @@
 #include "pointer_type.h"
 #include "typedef.h"
 
-__extern struct callbind_struct pointer_table[p_size];
+#define SizePointer (p_size + LISP_POINTER_EXTEND)
+
+__extern struct callbind_struct pointer_table[SizePointer];
 
 #define ExecPointer(x, y) (pointer_table[x].call.y)
 
@@ -93,6 +95,10 @@ __extern struct callbind_struct pointer_table[p_size];
 #define GetPointer_var4dynamic(p, x)  GetPointer(p, var4dynamic, x)
 #define SetPointer_opt1dynamic(p, x)  SetPointer(p, opt1dynamic, x)
 #define GetPointer_opt1dynamic(p, x)  GetPointer(p, opt1dynamic, x)
+#define SetPointer_extend_dynamic(p, x)  SetPointer(p, extend_dynamic, x)
+#define GetPointer_extend_dynamic(p, x)  GetPointer(p, extend_dynamic, x)
+#define SetPointer_extend_rest(p, x)  SetPointer(p, extend_rest, x)
+#define GetPointer_extend_rest(p, x)  GetPointer(p, extend_rest, x)
 
 _g void clear_pointer(void);
 

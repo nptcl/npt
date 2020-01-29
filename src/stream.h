@@ -5,6 +5,7 @@
 #include "file_type.h"
 #include "file_memory.h"
 #include "memory.h"
+#include "typedef_stream.h"
 
 enum STREAM_INDEX {
 	STREAM_INDEX_PATHNAME = 0,
@@ -124,6 +125,8 @@ _g int output_string_stream_p(addr stream);
 _g int string_stream_p(addr stream);
 _g int prompt_stream_p(addr stream);
 _g int pretty_stream_p(addr stream);
+_g int extend_stream_p(addr stream);
+_g int extend_type_stream_p(addr stream, int type);
 
 _g int open_stream_p(addr stream);
 _g void force_open_stream(addr stream, addr *ret);
@@ -157,41 +160,43 @@ _g void output_stream_designer(Execute ptr, addr stream, addr *ret);
 #define DefineStreamEql(x,y,z) Stream_##y[StreamType_##x] = z;
 #define DefineStreamChk(x,y,z) Stream_##y[StreamType_##x] = checkp_##z##_stream;
 
-__extern int (*Stream_close[StreamType_Size])(addr);
-__extern int (*Stream_read_binary[StreamType_Size])(addr, void *, size_t, size_t *);
-__extern int (*Stream_readforce_binary[StreamType_Size])(addr, void *, size_t, size_t *);
-__extern int (*Stream_read_byte[StreamType_Size])(addr, byte *);
-__extern int (*Stream_unread_byte[StreamType_Size])(addr, byte);
-__extern int (*Stream_write_binary[StreamType_Size])(addr, const void *, size_t, size_t *);
-__extern int (*Stream_write_byte[StreamType_Size])(addr, byte);
-__extern int (*Stream_read_char[StreamType_Size])(addr, unicode *);
-__extern int (*Stream_read_hang[StreamType_Size])(addr, unicode *, int *);
-__extern void (*Stream_unread_char[StreamType_Size])(addr, unicode);
-__extern void (*Stream_write_char[StreamType_Size])(addr, unicode);
-__extern void (*Stream_terpri[StreamType_Size])(addr);
-__extern size_t (*Stream_getleft[StreamType_Size])(addr);
-__extern void (*Stream_setleft[StreamType_Size])(addr, size_t);
-__extern int (*Stream_fresh_line[StreamType_Size])(addr);
-__extern void (*Stream_clear_input[StreamType_Size])(addr);
-__extern int (*Stream_inputp[StreamType_Size])(addr);
-__extern int (*Stream_outputp[StreamType_Size])(addr);
-__extern int (*Stream_interactivep[StreamType_Size])(addr);
-__extern int (*Stream_characterp[StreamType_Size])(addr);
-__extern int (*Stream_binaryp[StreamType_Size])(addr);
-__extern void (*Stream_element_type[StreamType_Size])(addr, addr *);
-__extern void (*Stream_file_length[StreamType_Size])(addr, addr *);
-__extern int (*Stream_file_position[StreamType_Size])(addr, size_t *);
-__extern int (*Stream_file_position_start[StreamType_Size])(addr);
-__extern int (*Stream_file_position_end[StreamType_Size])(addr);
-__extern int (*Stream_file_position_set[StreamType_Size])(addr, size_t);
-__extern int (*Stream_file_character_length[StreamType_Size])(addr, unicode, size_t *);
-__extern int (*Stream_file_string_length[StreamType_Size])(addr, addr, size_t *);
-__extern int (*Stream_listen[StreamType_Size])(addr);
-__extern void (*Stream_finish_output[StreamType_Size])(addr);
-__extern void (*Stream_force_output[StreamType_Size])(addr);
-__extern void (*Stream_clear_output[StreamType_Size])(addr);
-__extern void (*Stream_exitpoint[StreamType_Size])(addr);
-__extern int (*Stream_terminal_width[StreamType_Size])(addr, size_t *);
+#define StreamType_Array	(StreamType_Size + LISP_STREAM_EXTEND)
+#define LispStreamTypeArray(x) lisp_streamtype_##x Stream_##x[StreamType_Array]
+__extern LispStreamTypeArray(close);
+__extern LispStreamTypeArray(read_binary);
+__extern LispStreamTypeArray(readforce_binary);
+__extern LispStreamTypeArray(read_byte);
+__extern LispStreamTypeArray(unread_byte);
+__extern LispStreamTypeArray(write_binary);
+__extern LispStreamTypeArray(write_byte);
+__extern LispStreamTypeArray(read_char);
+__extern LispStreamTypeArray(read_hang);
+__extern LispStreamTypeArray(unread_char);
+__extern LispStreamTypeArray(write_char);
+__extern LispStreamTypeArray(terpri);
+__extern LispStreamTypeArray(getleft);
+__extern LispStreamTypeArray(setleft);
+__extern LispStreamTypeArray(fresh_line);
+__extern LispStreamTypeArray(clear_input);
+__extern LispStreamTypeArray(inputp);
+__extern LispStreamTypeArray(outputp);
+__extern LispStreamTypeArray(interactivep);
+__extern LispStreamTypeArray(characterp);
+__extern LispStreamTypeArray(binaryp);
+__extern LispStreamTypeArray(element_type);
+__extern LispStreamTypeArray(file_length);
+__extern LispStreamTypeArray(file_position);
+__extern LispStreamTypeArray(file_position_start);
+__extern LispStreamTypeArray(file_position_end);
+__extern LispStreamTypeArray(file_position_set);
+__extern LispStreamTypeArray(file_character_length);
+__extern LispStreamTypeArray(file_string_length);
+__extern LispStreamTypeArray(listen);
+__extern LispStreamTypeArray(finish_output);
+__extern LispStreamTypeArray(force_output);
+__extern LispStreamTypeArray(clear_output);
+__extern LispStreamTypeArray(exitpoint);
+__extern LispStreamTypeArray(terminal_width);
 
 _g int read_binary_stream(addr stream, void *pos, size_t size, size_t *ret);
 _g int readforce_binary_stream(addr stream, void *pos, size_t size, size_t *ret);

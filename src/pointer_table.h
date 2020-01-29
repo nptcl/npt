@@ -1107,6 +1107,8 @@ enum pointer_index {
 	p_method_defstruct_function,
 	/* input */
 	p_readlist_finalize,
+	/* extern */
+	p_extern_unwind_protect,
 	/* pprint */
 	p_pprint_logical_block_close,
 	p_pprint_logical_block_fill_form,

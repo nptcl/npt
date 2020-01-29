@@ -260,9 +260,9 @@
   (format t "};~%"))
 
 (defun write-header-table ()
-  (format t "_g unsigned EastAsianSymbol[EastAsian_Size];~%")
-  (format t "_g const enum EastAsianType EastAsianAscii[0x80];~%")
-  (format t "_g const struct eastasian_struct ")
+  (format t "__extern unsigned EastAsianSymbol[EastAsian_Size];~%")
+  (format t "__extern const enum EastAsianType EastAsianAscii[0x80];~%")
+  (format t "__extern const struct eastasian_struct ")
   (format t "EastAsianTable[EastAsianTable_Size];~%"))
 
 (defun write-source-list ()

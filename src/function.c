@@ -920,6 +920,20 @@ _g void setcompiled_opt1dynamic(addr pos, pointer p)
 	StructFunction(pos)->index = p;
 }
 
+_g void setcompiled_extend_dynamic(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_dynamic, "type error");
+	StructFunction(pos)->index = p;
+}
+
+_g void setcompiled_extend_rest(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_rest, "type error");
+	StructFunction(pos)->index = p;
+}
+
 _g void function_heap_for_develop(addr *ret, addr name)
 {
 	*ret = alloc_function(NULL, name, Nil, 0, 0);

@@ -187,22 +187,28 @@ _g void push_toplevel_eval(Execute ptr, addr value)
 	pushspecial_control(ptr, symbol, value);
 }
 
-_g void push_evalwhen_eval(Execute ptr)
+static void push_evalwhen_index(Execute ptr, constindex index)
 {
 	addr symbol, value;
 
 	symbol_evalwhen_eval(&symbol);
-	GetConst(COMMON_EVAL, &value);
+	GetConstant(index, &value);
 	pushspecial_control(ptr, symbol, value);
+}
+
+_g void push_evalwhen_eval(Execute ptr)
+{
+	push_evalwhen_index(ptr, CONSTANT_COMMON_EVAL);
 }
 
 _g void push_evalwhen_load(Execute ptr)
 {
-	addr symbol, value;
+	push_evalwhen_index(ptr, CONSTANT_COMMON_LOAD);
+}
 
-	symbol_evalwhen_eval(&symbol);
-	GetConst(COMMON_LOAD, &value);
-	pushspecial_control(ptr, symbol, value);
+_g void push_evalwhen_compile(Execute ptr)
+{
+	push_evalwhen_index(ptr, CONSTANT_COMMON_COMPILE);
 }
 
 _g int toplevelp_eval(Execute ptr)
@@ -255,6 +261,19 @@ _g int eval_constantp(Execute ptr, addr var, addr env, int *result)
 /*
  *  eval
  */
+static void eval_compile(Execute ptr, addr pos)
+{
+	addr symbol, list;
+
+	GetConst(SYSTEM_COMPILE_CODE, &symbol);
+	getspecial_local(ptr, symbol, &list);
+	if (list == Unbound)
+		return;
+
+	cons_heap(&list, pos, list);
+	setspecial_local(ptr, symbol, list);
+}
+
 _g int eval_execute(Execute ptr, addr pos)
 {
 	LocalHold hold;
@@ -273,6 +292,7 @@ _g int eval_execute(Execute ptr, addr pos)
 	eval_code(ptr->local, &pos, pos);
 	localhold_set(hold, 0, pos);
 	/* execute */
+	eval_compile(ptr, pos);
 	localhold_end(hold);
 	return runcode_control(ptr, pos);
 }
@@ -364,7 +384,7 @@ static int eval_load_fasl(Execute ptr, int *result, addr file, int exist)
 	eval_load_close(ptr, stream);
 
 	/* fasl */
-	if (fasl_stream(ptr, stream)) {
+	if (faslread_stream(ptr, stream)) {
 		close_stream(stream);
 		localhold_end(hold);
 		return 1;
@@ -405,9 +425,13 @@ static int eval_load_lisp(Execute ptr, int *result, addr file, int exist)
 	}
 }
 
-static int eval_load_file(Execute ptr, int *result,
-		addr file, addr verbose, addr print, int exist,
-		addr external)
+static void eval_load_check(
+		Execute ptr, addr file, addr verbose, addr print, addr external,
+		constindex file_pathname,
+		constindex file_truename,
+		constindex file_verbose,
+		constindex file_print,
+		addr *ret)
 {
 	addr symbol, pos, truename, value;
 
@@ -418,7 +442,7 @@ static int eval_load_file(Execute ptr, int *result,
 			file_error(file);
 	}
 	/* load-pathname */
-	GetConst(SPECIAL_LOAD_PATHNAME, &symbol);
+	GetConstant(file_pathname, &symbol);
 	if (streamp(file)) {
 		physical_pathname_heap(ptr, file, &value);
 		pushspecial_control(ptr, symbol, value);
@@ -429,7 +453,7 @@ static int eval_load_file(Execute ptr, int *result,
 		value = file;
 	}
 	/* load-truename */
-	GetConst(SPECIAL_LOAD_TRUENAME, &symbol);
+	GetConstant(file_truename, &symbol);
 	truename_files(ptr, value, &truename, 0);
 	pushspecial_control(ptr, symbol, truename);
 	/* package */
@@ -443,12 +467,12 @@ static int eval_load_file(Execute ptr, int *result,
 	pushspecial_control(ptr, symbol, pos);
 	/* verbose */
 	if (verbose != Unbound) {
-		GetConst(SPECIAL_LOAD_VERBOSE, &symbol);
+		GetConstant(file_verbose, &symbol);
 		pushspecial_control(ptr, symbol, verbose);
 	}
 	/* print */
 	if (print != Unbound) {
-		GetConst(SPECIAL_LOAD_PRINT, &symbol);
+		GetConstant(file_print, &symbol);
 		pushspecial_control(ptr, symbol, print);
 	}
 	/* external-format */
@@ -456,10 +480,22 @@ static int eval_load_file(Execute ptr, int *result,
 		GetConst(SYSTEM_EXTERNAL_FORMAT, &symbol);
 		pushspecial_control(ptr, symbol, external);
 	}
-	/* evalwhen */
-	push_evalwhen_load(ptr);
+	/* result */
 	push_toplevel_eval(ptr, T);
-	/* type check */
+	*ret = file;
+}
+
+static int eval_load_file(Execute ptr, int *result,
+		addr file, addr verbose, addr print, int exist,
+		addr external)
+{
+	eval_load_check(ptr, file, verbose, print, external,
+			CONSTANT_SPECIAL_LOAD_PATHNAME,
+			CONSTANT_SPECIAL_LOAD_TRUENAME,
+			CONSTANT_SPECIAL_LOAD_VERBOSE,
+			CONSTANT_SPECIAL_LOAD_PRINT,
+			&file);
+	push_evalwhen_load(ptr);
 	if (eval_load_fasl_p(file))
 		return eval_load_fasl(ptr, result, file, exist);
 	else
@@ -475,6 +511,36 @@ _g int eval_load(Execute ptr, int *result,
 	push_close_control(ptr, &control);
 	push_prompt_info(ptr);
 	check = eval_load_file(ptr, result, file, verbose, print, exist, external);
+	return free_check_control(ptr, control, check);
+}
+
+
+/*
+ *  compile-file
+ */
+static int compile_load_file(
+		Execute ptr, addr file, addr verbose, addr print, addr external)
+{
+	int result;
+
+	eval_load_check(ptr, file, verbose, print, external,
+			CONSTANT_SPECIAL_COMPILE_FILE_PATHNAME,
+			CONSTANT_SPECIAL_COMPILE_FILE_TRUENAME,
+			CONSTANT_SPECIAL_COMPILE_VERBOSE,
+			CONSTANT_SPECIAL_COMPILE_PRINT,
+			&file);
+	push_evalwhen_compile(ptr);
+	return eval_load_lisp(ptr, &result, file, 1);
+}
+
+_g int compile_load(Execute ptr, addr file, addr verbose, addr print, addr external)
+{
+	int check;
+	addr control;
+
+	push_close_control(ptr, &control);
+	push_prompt_info(ptr);
+	check = compile_load_file(ptr, file, verbose, print, external);
 	return free_check_control(ptr, control, check);
 }
 

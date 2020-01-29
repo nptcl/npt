@@ -1517,7 +1517,6 @@ int test_fasl(void)
 		build_constant();
 		build_object();
 		build_package();
-		build_fasl();
 		build_code();
 		build_pathname();
 		build_common();

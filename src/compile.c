@@ -8,6 +8,8 @@
 #include "cons_plist.h"
 #include "constant.h"
 #include "control.h"
+#include "eval.h"
+#include "fasl.h"
 #include "file.h"
 #include "files.h"
 #include "function.h"
@@ -20,12 +22,26 @@
 /*
  *  compile-file
  */
-static int compile_file_output(Execute ptr, addr input, addr output)
+static int compile_file_output(Execute ptr, addr input, addr output, addr rest)
 {
+	addr verbose, print, external;
+
 	Check(! streamp(input), "type error");
 	Check(! streamp(output), "type error");
-	fmte("TODO", NULL);
-	return 0;
+
+	/* argument */
+	if (getkeyargs(rest, KEYWORD_VERBOSE, &verbose))
+		verbose = Unbound;
+	if (getkeyargs(rest, KEYWORD_PRINT, &print))
+		print = Unbound;
+	if (getkeyargs(rest, KEYWORD_EXTERNAL_FORMAT, &external))
+		external = Unbound;
+
+	/* header */
+	faslwrite_header(output);
+
+	/* load */
+	return compile_load(ptr, input, verbose, print, external);
 }
 
 static void compile_file_close_stream(addr stream, addr file)
@@ -52,10 +68,11 @@ static int compile_file_open_output(Execute ptr, addr file, addr *ret)
 	return open_output_binary_stream(ptr, ret, file, FileOutput_supersede);
 }
 
-static int compile_file_execute(Execute ptr, addr input, addr output, addr *ret)
+static int compile_file_execute(
+		Execute ptr, addr input, addr output, addr rest, addr *ret)
 {
 	int check;
-	addr in, out, name, symbol;
+	addr in, out, symbol;
 
 	/* input stream */
 	if (compile_file_open_input(ptr, input, &in)) {
@@ -70,24 +87,20 @@ static int compile_file_execute(Execute ptr, addr input, addr output, addr *ret)
 		return 0;
 	}
 
-	/* truename */
-#ifdef LISP_ANSI
-	name = output;
-#else
-	truename_files(ptr, output, &name, 1);
-#endif
-
-	/* special variable */
-	GetConst(SPECIAL_COMPILE_FILE_PATHNAME, &symbol);
-	pushspecial_control(ptr, symbol, output);
-	GetConst(SPECIAL_COMPILE_FILE_TRUENAME, &symbol);
-	pushspecial_control(ptr, symbol, name);
+	/* variable */
+	GetConst(SYSTEM_COMPILE_OUTPUT, &symbol);
+	pushspecial_control(ptr, symbol, out);
+	GetConst(SYSTEM_COMPILE_CODE, &symbol);
+	pushspecial_control(ptr, symbol, Nil);
 
 	/* compile */
-	check = compile_file_output(ptr, in, out);
+	check = compile_file_output(ptr, in, out, rest);
 	compile_file_close_stream(in, input);
 	compile_file_close_stream(out, output);
-	return check;
+	if (check)
+		return 1;
+	truename_files(ptr, input, ret, 0);
+	return 0;
 }
 
 static void function_handler_compile(Execute ptr, addr condition)
@@ -132,16 +145,19 @@ _g void handler_compile(Execute ptr)
 	pushhandler_control(ptr, pos, call, 0);
 }
 
-static int compile_file_handler(Execute ptr, addr input, addr output,
+_g int compile_file_common(Execute ptr, addr input, addr rest,
 		addr *ret1, addr *ret2, addr *ret3)
 {
-	addr control, pos;
+	addr output, control, pos;
 	LocalHold hold;
 
+	/* pathname-designer */
+	compile_file_pathname_common(ptr, input, rest, &output);
+	/* push control */
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	handler_compile(ptr);
-	if (compile_file_execute(ptr, input, output, ret1))
+	if (compile_file_execute(ptr, input, output, rest, ret1))
 		return free_check_control(ptr, control, 1);
 	localhold_set(hold, 0, *ret1);
 	/* warning */
@@ -155,36 +171,6 @@ static int compile_file_handler(Execute ptr, addr input, addr output,
 	localhold_end(hold);
 
 	return 0;
-}
-
-_g int compile_file_common(Execute ptr, addr input, addr rest,
-		addr *ret1, addr *ret2, addr *ret3)
-{
-	addr output, symbol, value;
-
-	/* pathname-designer */
-	compile_file_pathname_common(ptr, input, rest, &output);
-
-	/* verbose */
-	if (! getkeyargs(rest, KEYWORD_VERBOSE, &value)) {
-		GetConst(SPECIAL_COMPILE_VERBOSE, &symbol);
-		pushspecial_control(ptr, symbol, value);
-	}
-
-	/* print */
-	if (! getkeyargs(rest, KEYWORD_PRINT, &value)) {
-		GetConst(SPECIAL_COMPILE_PRINT, &symbol);
-		pushspecial_control(ptr, symbol, value);
-	}
-
-	/* external-format */
-	if (getkeyargs(rest, KEYWORD_EXTERNAL_FORMAT, &value)) {
-		GetConst(SYSTEM_EXTERNAL_FORMAT, &symbol);
-		pushspecial_control(ptr, symbol, value);
-	}
-
-	/* handler */
-	return compile_file_handler(ptr, input, output, ret1, ret2, ret3);
 }
 
 

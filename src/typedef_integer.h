@@ -1,5 +1,5 @@
-#ifndef __TYPEDEF_INTEGER_HEADER__
-#define __TYPEDEF_INTEGER_HEADER__
+#ifndef __LISP_TYPEDEF_INTEGER_HEADER__
+#define __LISP_TYPEDEF_INTEGER_HEADER__
 
 #include "define.h"
 #include <stdint.h>

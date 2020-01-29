@@ -1,5 +1,5 @@
-#ifndef __MAIN_INIT_HEADER__
-#define __MAIN_INIT_HEADER__
+#ifndef __LISP_MAIN_INIT_HEADER__
+#define __LISP_MAIN_INIT_HEADER__
 
 #include <stdio.h>
 #include "main_argv.h"

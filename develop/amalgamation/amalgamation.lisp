@@ -223,12 +223,12 @@
 
 (defun header-load (list)
   (dolist (x (file-include-list list))
-    (format *error-output* "Include-file: ~A.~%" x)
+    (format *error-output* "Include-file: ~A~%" x)
     (header-include-file x)))
 
 (defun header-output (list)
   (dobind (x . y) (header-all-list list)
-    (format *error-output* "Output-file: ~A.~%" x)
+    (format *error-output* "Output-file: ~A~%" x)
     (let ((*header-print* (getf y :header))
           (*header-include* (getf y :include)))
       (header-read x))))
@@ -266,6 +266,7 @@
     "define.h"
     "typedef_basic.h"
     "typedef_integer.h"
+    "typedef_stream.h"
     "typedef_enum.h"
     ("typedef_thread.h" :header t)
     "typedef.h"
@@ -467,9 +468,13 @@
     "main_string.h"
     "main_argv.h"
     "main_init.h"
-    "main_object.h"
+    "extern.h"
     "extern_init.h"
+    "extern_control.h"
+    "extern_object.h"
     "extern_string.h"
+    "extern_stream.h"
+    "extern_unicode.h"
     ))
 
 (defparameter *lispc-source*
@@ -552,8 +557,8 @@
     "degrade.c"
     "develop.c"
     "document.c"
-    "eastasian.c"
     "eastasian_table.c"
+    "eastasian.c"
     "eastasian_unicode.c"
     "encode.c"
     "encode_unicode.c"
@@ -696,10 +701,14 @@
     "loop_symbol.c"
     "loop_variables.c"
     "user.c"
+    "extern.c"
     ("extern_argv.c" :header t)
     "extern_init.c"
+    "extern_control.c"
     "extern_object.c"
     "extern_string.c"
+    "extern_stream.c"
+    "extern_unicode.c"
     ))
 
 (defun header-common ()
@@ -754,10 +763,16 @@
 (defparameter *lisph-header*
   '("define.h"
     "typedef_basic.h"
+    "typedef_integer.h"
+    "typedef_stream.h"
     "main_string.h"
     "main_argv.h"
     "main_init.h"
-    "main_object.h"))
+    "extern_control.h"
+    "extern_object.h"
+    "extern_stream.h"
+    "extern_unicode.h"
+    ))
 
 (defun output-lisp-h (&optional (file "lisp.h"))
   (with-output-file

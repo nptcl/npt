@@ -250,6 +250,8 @@ _g void setcompiled_var2dynamic(addr pos, pointer p);
 _g void setcompiled_var3dynamic(addr pos, pointer p);
 _g void setcompiled_var4dynamic(addr pos, pointer p);
 _g void setcompiled_opt1dynamic(addr pos, pointer p);
+_g void setcompiled_extend_dynamic(addr pos, pointer p);
+_g void setcompiled_extend_rest(addr pos, pointer p);
 
 _g void function_heap_for_develop(addr *ret, addr name);
 

@@ -20,44 +20,81 @@
 typedef int (*faslcode)(Execute, addr, addr *);
 static faslcode faslcall[0x0100];
 
-#define FaslHeader (LISPNAME "FASL\0")
-#define FaslHeaderSize (LISPNAMESIZE + 5)
-
-static inline int readcheck(addr stream, void *pos, size_t size)
+static inline int faslread_check(addr stream, void *ptr, size_t size)
 {
 	int check;
 	size_t result;
 
-	check = readforce_binary_stream(stream, pos, size, &result);
+	check = readforce_binary_stream(stream, ptr, size, &result);
 	if (check) return 1;
 	if (size != result) return 1;
 
 	return 0;
 }
 
-#define readsize(stream, value) readcheck(stream, &(value), sizeoft(value))
+#define faslread_type(stream, value) faslread_check(stream, &(value), sizeoft(value))
 
-static int headercheck(addr input)
+static int faslread_magic(addr stream)
+{
+	char a[8], b[8];
+
+	/* LISPNAME */
+	faslread_check(stream, a, 8);
+	memset(b, 0, 8);
+	strncpy(b, LISPNAME, 8);
+	if (memcpy(a, b, 8) != 0)
+		return 1;
+
+	/* FASL0000 */
+	faslread_check(stream, a, 8);
+	memcpy(b, "FASL\0\0\0\0", 8);
+	if (memcpy(a, b, 8) != 0)
+		return 1;
+
+	/* OK */
+	return 0;
+}
+
+static inline void faslwrite_buffer(addr stream, const void *ptr, size_t size)
+{
+	const byte *data;
+	size_t i;
+
+	data = (const byte *)ptr;
+	for (i = 0; i < size; i++)
+		write_byte_stream(stream, data[i]);
+}
+
+static void faslwrite_magic(addr stream)
+{
+	char a[8];
+
+	memset(a, 0, 8);
+	strncpy(a, LISPNAME, 8);
+	faslwrite_buffer(stream, a, 8);
+	faslwrite_buffer(stream, "FASL\0\0\0\0", 8);
+}
+
+static int faslread_header(addr input)
 {
 	byte buffer[64];
 	uint16_t v, a, b, c;
 
-	/* magic number */
-	if (readcheck(input, buffer, FaslHeaderSize)) return 1;
-	if (memcmp(buffer, FaslHeader, FaslHeaderSize) != 0) return 1;
-	/* endian check */
-	if (readsize(input, v)) return 1;
+	/* 0: magic number */
+	if (faslread_magic(input)) return 1;
+	/* 16: endian */
+	if (faslread_type(input, v)) return 1;
 	if (v != 1) {
 		Debug("endian error.");
 		return 1;
 	}
-	/* version */
-	if (readsize(input, a)) return 1;
-	if (readsize(input, b)) return 1;
-	if (readsize(input, c)) return 1;
+	/* 18: version */
+	if (faslread_type(input, a)) return 1;
+	if (faslread_type(input, b)) return 1;
+	if (faslread_type(input, c)) return 1;
 	if (a != LISP_VERSION_A || b != LISP_VERSION_B || c != LISP_VERSION_C) return 1;
-	/* arch */
-	if (readsize(input, v)) return 1;
+	/* 20: arch */
+	if (faslread_type(input, v)) return 1;
 #ifdef LISP_64BIT
 	if (v != 1) {
 		Debug("This fasl file is not 64bit arch.");
@@ -69,22 +106,52 @@ static int headercheck(addr input)
 		return 1;
 	}
 #endif
-	/* padding */
-	if (readcheck(input, buffer, 14)) return 1;
+	/* 22: padding */
+	if (faslread_check(input, buffer, 2)) return 1;
+	/* 24: end */
 
 	return 0;
 }
 
-#define readnodecl(value, input, msg) { \
-	if (readsize(input, value)) { \
+static void faslwrite_byte16(addr stream, uint16_t v)
+{
+	faslwrite_buffer(stream, (const void *)&v, sizeoft(v));
+}
+
+_g void faslwrite_header(addr stream)
+{
+	char buffer[64];
+
+	/* 0: magic number */
+	faslwrite_magic(stream);
+	/* 16: endian */
+	faslwrite_byte16(stream, 1);
+	/* 18: version */
+	faslwrite_byte16(stream, LISP_VERSION_A);
+	faslwrite_byte16(stream, LISP_VERSION_B);
+	faslwrite_byte16(stream, LISP_VERSION_C);
+	/* 20: arch */
+#ifdef LISP_64BIT
+	faslwrite_byte16(stream, 1);
+#else
+	faslwrite_byte16(stream, 0);
+#endif
+	/* 22: padding */
+	memset(buffer, 0xFF, 64);
+	faslwrite_buffer(stream, (const void *)buffer, 2);
+	/* 24: end */
+}
+
+#define faslread_nodecl(value, input, msg) { \
+	if (faslread_type(input, value)) { \
 		Debug("fasl input error: %s" msg); \
 		return 1; \
 	} \
 }
-#define readvalue(type, value, input, msg) type value; \
-	readnodecl(value, input, msg)
+#define faslread_value(type, value, input, msg) type value; \
+	faslread_nodecl(value, input, msg)
 
-static int fasloperator(Execute ptr, addr input, addr *ret)
+static int faslread_operator(Execute ptr, addr input, addr *ret)
 {
 	int check;
 	byte c;
@@ -116,7 +183,7 @@ static int fasloperator(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-static void output_result(Execute ptr)
+static void faslread_result(Execute ptr)
 {
 	addr pos;
 
@@ -134,7 +201,7 @@ static void output_result(Execute ptr)
 	infoprint(pos);
 }
 
-static int faslread(Execute ptr, addr input)
+static int faslread_control(Execute ptr, addr input)
 {
 	int result;
 	addr pos, control;
@@ -142,21 +209,21 @@ static int faslread(Execute ptr, addr input)
 	/* push */
 	push_close_control(ptr, &control);
 	/* code */
-	result = fasloperator(ptr, input, &pos);
+	result = faslread_operator(ptr, input, &pos);
 	if (result) {
-		Debug("fasloperator error.");
+		Debug("faslread_operator error.");
 		exit_code(ptr, LISPCODE_ERROR);
 	}
 	Check(GetType(pos) != LISPTYPE_CODE, "type code error");
 	runcode_control(ptr, pos);
 	/* free */
-	output_result(ptr);
+	faslread_result(ptr);
 	free_control(ptr, control);
 
 	return 0;
 }
 
-static int faslexecute(Execute ptr, addr input)
+static int faslread_execute(Execute ptr, addr input)
 {
 	byte c;
 	int result;
@@ -177,9 +244,9 @@ static int faslexecute(Execute ptr, addr input)
 			Debug("unread_byte_stream error");
 			return 1;
 		}
-		result = faslread(ptr, input);
+		result = faslread_control(ptr, input);
 		if (result) {
-			Debug("faslread error.");
+			Debug("faslread_control error.");
 			return 1;
 		}
 	}
@@ -187,16 +254,16 @@ static int faslexecute(Execute ptr, addr input)
 	return 0;
 }
 
-_g int fasl_stream(Execute ptr, addr input)
+_g int faslread_stream(Execute ptr, addr input)
 {
 	int result;
 
-	result = headercheck(input);
+	result = faslread_header(input);
 	if (result) {
 		Debug("fasl header error");
 		return 1;
 	}
-	result = faslexecute(ptr, input);
+	result = faslread_execute(ptr, input);
 	if (result) {
 		Debug("fasl error");
 		return 1;
@@ -237,13 +304,13 @@ static int cons_make(Execute ptr,
 	addr car, cdr;
 
 	/* car */
-	result = fasloperator(ptr, input, &car);
+	result = faslread_operator(ptr, input, &car);
 	if (result) {
 		Debug("cons car error");
 		return 1;
 	}
 	/* cdr */
-	result = fasloperator(ptr, input, &cdr);
+	result = faslread_operator(ptr, input, &cdr);
 	if (result) {
 		Debug("cons cdr error");
 		return 1;
@@ -280,7 +347,7 @@ static int consnil_local_fasl(Execute ptr, addr input, addr *ret)
 /* ARGSUSED0 */
 static int fixnum_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(fixnum, value, input, "fixnum");
+	faslread_value(fixnum, value, input, "fixnum");
 	fixnum_heap(ret, value);
 	return 0;
 }
@@ -289,7 +356,7 @@ static int fixnum_fasl(Execute ptr, addr input, addr *ret)
 /* ARGSUSED0 */
 static int char_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "character");
+	faslread_value(byte, value, input, "character");
 	character_heap(ret, value);
 	return 0;
 }
@@ -297,7 +364,7 @@ static int char_fasl(Execute ptr, addr input, addr *ret)
 /* ARGSUSED0 */
 static int wchar_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(unicode, value, input, "character unicode");
+	faslread_value(unicode, value, input, "character unicode");
 	character_heap(ret, value);
 	return 0;
 }
@@ -319,7 +386,7 @@ static int list_fasl(Execute ptr, addr input, addr *ret, size_t len)
 	root = 0;
 	cdr = 0;
 	for (i = 0; i < len; i++) {
-		result = fasloperator(ptr, input, &car);
+		result = faslread_operator(ptr, input, &car);
 		if (result) {
 			Debug("list car error");
 			return 1;
@@ -342,26 +409,26 @@ static int list_fasl(Execute ptr, addr input, addr *ret, size_t len)
 
 static int list1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "list1");
+	faslread_value(byte, value, input, "list1");
 	return list_fasl(ptr, input, ret, (size_t)value);
 }
 
 static int list2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "list2");
+	faslread_value(byte16, value, input, "list2");
 	return list_fasl(ptr, input, ret, (size_t)value);
 }
 
 static int list4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "list4");
+	faslread_value(byte32, value, input, "list4");
 	return list_fasl(ptr, input, ret, (size_t)value);
 }
 
 static int list8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "list8");
+	faslread_value(byte64, value, input, "list8");
 	return list_fasl(ptr, input, ret, (size_t)value);
 #else
 	Debug("64bit value can not read in 32bit implementation.");
@@ -385,7 +452,7 @@ static int lista_fasl(Execute ptr, addr input, addr *ret, size_t len)
 	/* list */
 	cdr = root = NULL;
 	for (i = 1; i <= len; i++) {
-		result = fasloperator(ptr, input, &car);
+		result = faslread_operator(ptr, input, &car);
 		if (result) {
 			Debug("list car error");
 			return 1;
@@ -418,26 +485,26 @@ static int lista_fasl(Execute ptr, addr input, addr *ret, size_t len)
 
 static int lista1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "lista1");
+	faslread_value(byte, value, input, "lista1");
 	return lista_fasl(ptr, input, ret, (size_t)value);
 }
 
 static int lista2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "lista2");
+	faslread_value(byte16, value, input, "lista2");
 	return lista_fasl(ptr, input, ret, (size_t)value);
 }
 
 static int lista4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "lista4");
+	faslread_value(byte32, value, input, "lista4");
 	return lista_fasl(ptr, input, ret, (size_t)value);
 }
 
 static int lista8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "lista8");
+	faslread_value(byte64, value, input, "lista8");
 	return lista_fasl(ptr, input, ret, (size_t)value);
 #else
 	Debug("64bit value can not read in 32bit implementation.");
@@ -466,7 +533,7 @@ static void string1_stream(addr *ret, addr stream, size_t size)
 /* ARGSUSED0 */
 static int string1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "string1");
+	faslread_value(byte, value, input, "string1");
 	string1_stream(ret, input, (size_t)value);
 	return 0;
 }
@@ -474,7 +541,7 @@ static int string1_fasl(Execute ptr, addr input, addr *ret)
 /* ARGSUSED0 */
 static int string2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "string2");
+	faslread_value(byte16, value, input, "string2");
 	string1_stream(ret, input, (size_t)value);
 	return 0;
 }
@@ -482,7 +549,7 @@ static int string2_fasl(Execute ptr, addr input, addr *ret)
 /* ARGSUSED0 */
 static int string4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "strint4");
+	faslread_value(byte32, value, input, "strint4");
 	string1_stream(ret, input, (size_t)value);
 	return 0;
 }
@@ -491,7 +558,7 @@ static int string4_fasl(Execute ptr, addr input, addr *ret)
 static int string8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "string8");
+	faslread_value(byte64, value, input, "string8");
 	string1_stream(ret, input, (size_t)value);
 	return 0;
 #else
@@ -520,7 +587,7 @@ static void stringu_stream(addr *ret, addr stream, size_t size)
 /* ARGSUSED0 */
 static int wstring1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "wstring1");
+	faslread_value(byte, value, input, "wstring1");
 	stringu_stream(ret, input, (size_t)value);
 	return 0;
 }
@@ -528,7 +595,7 @@ static int wstring1_fasl(Execute ptr, addr input, addr *ret)
 /* ARGSUSED0 */
 static int wstring2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "wstring2");
+	faslread_value(byte16, value, input, "wstring2");
 	stringu_stream(ret, input, (size_t)value);
 	return 0;
 }
@@ -536,7 +603,7 @@ static int wstring2_fasl(Execute ptr, addr input, addr *ret)
 /* ARGSUSED0 */
 static int wstring4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "wstring4");
+	faslread_value(byte32, value, input, "wstring4");
 	stringu_stream(ret, input, (size_t)value);
 	return 0;
 }
@@ -545,7 +612,7 @@ static int wstring4_fasl(Execute ptr, addr input, addr *ret)
 static int wstring8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "wstring8");
+	faslread_value(byte64, value, input, "wstring8");
 	stringu_stream(ret, input, (size_t)value);
 	return 0;
 #else
@@ -568,21 +635,21 @@ static void makenamesymbol(Execute ptr,
 
 static int call1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "call1");
+	faslread_value(byte, value, input, "call1");
 	makenamesymbol(ptr, CONSTANT_PACKAGE_CODE, input, (size_t)value, ret);
 	return 0;
 }
 
 static int call2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "call2");
+	faslread_value(byte16, value, input, "call2");
 	makenamesymbol(ptr, CONSTANT_PACKAGE_CODE, input, (size_t)value, ret);
 	return 0;
 }
 
 static int call4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "call4");
+	faslread_value(byte32, value, input, "call4");
 	makenamesymbol(ptr, CONSTANT_PACKAGE_CODE, input, (size_t)value, ret);
 	return 0;
 }
@@ -590,7 +657,7 @@ static int call4_fasl(Execute ptr, addr input, addr *ret)
 static int call8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "call8");
+	faslread_value(byte64, value, input, "call8");
 	makenamesymbol(ptr, CONSTANT_PACKAGE_CODE, input, (size_t)value, ret);
 	return 0;
 #else
@@ -613,21 +680,21 @@ static void makenamesymbolu(Execute ptr,
 
 static int wcall1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "wcall1");
+	faslread_value(byte, value, input, "wcall1");
 	makenamesymbolu(ptr, CONSTANT_PACKAGE_CODE, input, (size_t)value, ret);
 	return 0;
 }
 
 static int wcall2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "wcall2");
+	faslread_value(byte16, value, input, "wcall2");
 	makenamesymbolu(ptr, CONSTANT_PACKAGE_CODE, input, (size_t)value, ret);
 	return 0;
 }
 
 static int wcall4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "wcall4");
+	faslread_value(byte32, value, input, "wcall4");
 	makenamesymbolu(ptr, CONSTANT_PACKAGE_CODE, input, (size_t)value, ret);
 	return 0;
 }
@@ -635,7 +702,7 @@ static int wcall4_fasl(Execute ptr, addr input, addr *ret)
 static int wcall8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "wcall8");
+	faslread_value(byte64, value, input, "wcall8");
 	makenamesymbolu(ptr, CONSTANT_PACKAGE_CODE, input, (size_t)value, ret);
 	return 0;
 #else
@@ -647,21 +714,21 @@ static int wcall8_fasl(Execute ptr, addr input, addr *ret)
 /* keyword */
 static int keyword1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "keyword1");
+	faslread_value(byte, value, input, "keyword1");
 	makenamesymbol(ptr, CONSTANT_PACKAGE_KEYWORD, input, (size_t)value, ret);
 	return 0;
 }
 
 static int keyword2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "keyword2");
+	faslread_value(byte16, value, input, "keyword2");
 	makenamesymbol(ptr, CONSTANT_PACKAGE_KEYWORD, input, (size_t)value, ret);
 	return 0;
 }
 
 static int keyword4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "keyword4");
+	faslread_value(byte32, value, input, "keyword4");
 	makenamesymbol(ptr, CONSTANT_PACKAGE_KEYWORD, input, (size_t)value, ret);
 	return 0;
 }
@@ -669,7 +736,7 @@ static int keyword4_fasl(Execute ptr, addr input, addr *ret)
 static int keyword8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "keyword8");
+	faslread_value(byte64, value, input, "keyword8");
 	makenamesymbol(ptr, CONSTANT_PACKAGE_KEYWORD, input, (size_t)value, ret);
 	return 0;
 #else
@@ -681,21 +748,21 @@ static int keyword8_fasl(Execute ptr, addr input, addr *ret)
 /* wkeyword */
 static int wkeyword1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "wkeyword1");
+	faslread_value(byte, value, input, "wkeyword1");
 	makenamesymbolu(ptr, CONSTANT_PACKAGE_KEYWORD, input, (size_t)value, ret);
 	return 0;
 }
 
 static int wkeyword2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "wkeyword2");
+	faslread_value(byte16, value, input, "wkeyword2");
 	makenamesymbolu(ptr, CONSTANT_PACKAGE_KEYWORD, input, (size_t)value, ret);
 	return 0;
 }
 
 static int wkeyword4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "wkeyword4");
+	faslread_value(byte32, value, input, "wkeyword4");
 	makenamesymbolu(ptr, CONSTANT_PACKAGE_KEYWORD, input, (size_t)value, ret);
 	return 0;
 }
@@ -703,7 +770,7 @@ static int wkeyword4_fasl(Execute ptr, addr input, addr *ret)
 static int wkeyword8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "wkeyword8");
+	faslread_value(byte64, value, input, "wkeyword8");
 	makenamesymbolu(ptr, CONSTANT_PACKAGE_KEYWORD, input, (size_t)value, ret);
 	return 0;
 #else
@@ -724,21 +791,21 @@ static void makegensym(Execute ptr, addr input, size_t size, addr *ret)
 
 static int gensym1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "gensym1");
+	faslread_value(byte, value, input, "gensym1");
 	makegensym(ptr, input, (size_t)value, ret);
 	return 0;
 }
 
 static int gensym2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "gensym2");
+	faslread_value(byte16, value, input, "gensym2");
 	makegensym(ptr, input, (size_t)value, ret);
 	return 0;
 }
 
 static int gensym4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "gensym4");
+	faslread_value(byte32, value, input, "gensym4");
 	makegensym(ptr, input, (size_t)value, ret);
 	return 0;
 }
@@ -746,7 +813,7 @@ static int gensym4_fasl(Execute ptr, addr input, addr *ret)
 static int gensym8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "gensym8");
+	faslread_value(byte64, value, input, "gensym8");
 	makegensym(ptr, input, (size_t)value, ret);
 	return 0;
 #else
@@ -766,21 +833,21 @@ static void makegensymu(Execute ptr, addr input, size_t size, addr *ret)
 
 static int wgensym1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "wgensym1");
+	faslread_value(byte, value, input, "wgensym1");
 	makegensymu(ptr, input, (size_t)value, ret);
 	return 0;
 }
 
 static int wgensym2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "wgensym2");
+	faslread_value(byte16, value, input, "wgensym2");
 	makegensymu(ptr, input, (size_t)value, ret);
 	return 0;
 }
 
 static int wgensym4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "wgensym4");
+	faslread_value(byte32, value, input, "wgensym4");
 	makegensymu(ptr, input, (size_t)value, ret);
 	return 0;
 }
@@ -788,7 +855,7 @@ static int wgensym4_fasl(Execute ptr, addr input, addr *ret)
 static int wgensym8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "wgensym8");
+	faslread_value(byte64, value, input, "wgensym8");
 	makegensymu(ptr, input, (size_t)value, ret);
 	return 0;
 #else
@@ -808,21 +875,21 @@ static void makedefaultsymbol(Execute ptr,
 
 static int default1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "default1");
+	faslread_value(byte, value, input, "default1");
 	makedefaultsymbol(ptr, input, (size_t)value, ret);
 	return 0;
 }
 
 static int default2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "default2");
+	faslread_value(byte16, value, input, "default2");
 	makedefaultsymbol(ptr, input, (size_t)value, ret);
 	return 0;
 }
 
 static int default4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "default4");
+	faslread_value(byte32, value, input, "default4");
 	makedefaultsymbol(ptr, input, (size_t)value, ret);
 	return 0;
 }
@@ -830,7 +897,7 @@ static int default4_fasl(Execute ptr, addr input, addr *ret)
 static int default8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "default8");
+	faslread_value(byte64, value, input, "default8");
 	makedefaultsymbol(ptr, input, (size_t)value, ret);
 	return 0;
 #else
@@ -850,21 +917,21 @@ static void makedefaultsymbolu(Execute ptr,
 
 static int wdefault1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "wdefault1");
+	faslread_value(byte, value, input, "wdefault1");
 	makedefaultsymbolu(ptr, input, (size_t)value, ret);
 	return 0;
 }
 
 static int wdefault2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "wdefault2");
+	faslread_value(byte16, value, input, "wdefault2");
 	makedefaultsymbolu(ptr, input, (size_t)value, ret);
 	return 0;
 }
 
 static int wdefault4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "wdefault4");
+	faslread_value(byte32, value, input, "wdefault4");
 	makedefaultsymbolu(ptr, input, (size_t)value, ret);
 	return 0;
 }
@@ -872,7 +939,7 @@ static int wdefault4_fasl(Execute ptr, addr input, addr *ret)
 static int wdefault8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "wdefault8");
+	faslread_value(byte64, value, input, "wdefault8");
 	makedefaultsymbolu(ptr, input, (size_t)value, ret);
 	return 0;
 #else
@@ -927,7 +994,7 @@ static void symbolread_byte(Execute ptr, size_t *value, addr input)
 {
 	byte temp;
 
-	if (readsize(input, temp)) {
+	if (faslread_type(input, temp)) {
 		Debug("symbolread_byte error");
 		exit_code(ptr, LISPCODE_ERROR);
 	}
@@ -938,7 +1005,7 @@ static void symbolread_byte16(Execute ptr, size_t *value, addr input)
 {
 	byte16 temp;
 
-	if (readsize(input, temp)) {
+	if (faslread_type(input, temp)) {
 		Debug("symbolread_byte16 error");
 		exit_code(ptr, LISPCODE_ERROR);
 	}
@@ -949,7 +1016,7 @@ static void symbolread_byte32(Execute ptr, size_t *value, addr input)
 {
 	byte32 temp;
 
-	if (readsize(input, temp)) {
+	if (faslread_type(input, temp)) {
 		Debug("symbolread_byte32 error");
 		exit_code(ptr, LISPCODE_ERROR);
 	}
@@ -961,7 +1028,7 @@ static void symbolread_byte64(Execute ptr, size_t *value, addr input)
 {
 	byte64 temp;
 
-	if (readsize(input, temp)) {
+	if (faslread_type(input, temp)) {
 		Debug("symbolread_byte64 error");
 		exit_code(ptr, LISPCODE_ERROR);
 	}
@@ -1039,7 +1106,7 @@ static int bignum_fasl(Execute ptr,
 
 	bignum_heap(&pos, sign, size);
 	for (i = 0; i < size; i++) {
-		if (readsize(input, value)) {
+		if (faslread_type(input, value)) {
 			Debug("bignum_fasl error");
 			return 1;
 		}
@@ -1053,8 +1120,8 @@ static int bignum_fasl(Execute ptr,
 static int bignum1_fasl(Execute ptr, addr input, addr *ret)
 {
 	byte sign, size;
-	readnodecl(sign, input, "bignum1 sign");
-	readnodecl(size, input, "bignum1 size");
+	faslread_nodecl(sign, input, "bignum1 sign");
+	faslread_nodecl(size, input, "bignum1 size");
 	return bignum_fasl(ptr, input, ret, (int)sign, (size_t)size);
 }
 
@@ -1062,8 +1129,8 @@ static int bignum2_fasl(Execute ptr, addr input, addr *ret)
 {
 	byte sign;
 	byte16 size;
-	readnodecl(sign, input, "bignum2 sign");
-	readnodecl(size, input, "bignum2 size");
+	faslread_nodecl(sign, input, "bignum2 sign");
+	faslread_nodecl(size, input, "bignum2 size");
 	return bignum_fasl(ptr, input, ret, (int)sign, (size_t)size);
 }
 
@@ -1071,8 +1138,8 @@ static int bignum4_fasl(Execute ptr, addr input, addr *ret)
 {
 	byte sign;
 	byte32 size;
-	readnodecl(sign, input, "bignum4 sign");
-	readnodecl(size, input, "bignum4 size");
+	faslread_nodecl(sign, input, "bignum4 sign");
+	faslread_nodecl(size, input, "bignum4 size");
 	return bignum_fasl(ptr, input, ret, (int)sign, (size_t)size);
 }
 
@@ -1081,8 +1148,8 @@ static int bignum8_fasl(Execute ptr, addr input, addr *ret)
 #ifdef LISP_ARCH_64BIT
 	byte sign;
 	byte64 size;
-	readnodecl(sign, input, "bignum8 sign");
-	readnodecl(size, input, "bignum8 size");
+	faslread_nodecl(sign, input, "bignum8 sign");
+	faslread_nodecl(size, input, "bignum8 size");
 	return bignum_fasl(ptr, input, ret, (int)sign, (size_t)size);
 #else
 	Debug("64bit value can not read in 32bit implementation.");
@@ -1101,7 +1168,7 @@ static int float16_error(Execute ptr, addr input, addr *ret)
 /* ARGSUSED0 */
 static int float32_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(float, value, input, "float");
+	faslread_value(float, value, input, "float");
 	single_float_heap(ret, value);
 	return 0;
 }
@@ -1109,7 +1176,7 @@ static int float32_fasl(Execute ptr, addr input, addr *ret)
 /* ARGSUSED0 */
 static int float64_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(double, value, input, "double");
+	faslread_value(double, value, input, "double");
 	double_float_heap(ret, value);
 	return 0;
 }
@@ -1132,7 +1199,7 @@ static int vector_make(Execute ptr,
 
 	makearray(&pos, type, len);
 	for (i = 0; i < len; i++) {
-		result = fasloperator(ptr, input, &child);
+		result = faslread_operator(ptr, input, &child);
 		if (result) {
 			Debug("vector child error");
 			return 1;
@@ -1163,26 +1230,26 @@ static void makearray8(addr *pos, enum LISPTYPE type, size_t size)
 
 static int vector1_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte, value, input, "vector1");
+	faslread_value(byte, value, input, "vector1");
 	return vector_make(ptr, makearray2, input, ret, LISPTYPE_VECTOR, (size_t)value);
 }
 
 static int vector2_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte16, value, input, "vector2");
+	faslread_value(byte16, value, input, "vector2");
 	return vector_make(ptr, makearray2, input, ret, LISPTYPE_VECTOR, (size_t)value);
 }
 
 static int vector4_fasl(Execute ptr, addr input, addr *ret)
 {
-	readvalue(byte32, value, input, "vector4");
+	faslread_value(byte32, value, input, "vector4");
 	return vector_make(ptr, makearray4, input, ret, LISPTYPE_VECTOR, (size_t)value);
 }
 
 static int vector8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	readvalue(byte64, value, input, "vector8");
+	faslread_value(byte64, value, input, "vector8");
 	return vector_make(ptr, makearray8, input, ret, LISPTYPE_VECTOR, value);
 #else
 	Debug("64bit value can not read in 32bit implementation.");
@@ -1212,7 +1279,7 @@ static int code_fasl(Execute ptr, addr input, addr *ret, size_t len)
 
 #define readcode(type, msg) { \
 	type __value; \
-	if (readsize(input, __value)) { \
+	if (faslread_type(input, __value)) { \
 		Debug("fasl input value error: " msg); \
 		return 1; \
 	} \
@@ -1248,8 +1315,8 @@ static int code8_fasl(Execute ptr, addr input, addr *ret)
 static int vectortype1_fasl(Execute ptr, addr input, addr *ret)
 {
 	byte type, value;
-	readnodecl(type, input, "vectortype1 type");
-	readnodecl(value, input, "vectortype1 length");
+	faslread_nodecl(type, input, "vectortype1 type");
+	faslread_nodecl(value, input, "vectortype1 length");
 	return vector_make(ptr,
 			makearray2, input, ret, (enum LISPTYPE)type, (size_t)value);
 }
@@ -1258,8 +1325,8 @@ static int vectortype2_fasl(Execute ptr, addr input, addr *ret)
 {
 	byte type;
 	byte16 value;
-	readnodecl(type, input, "vectortype2 type");
-	readnodecl(value, input, "vectortype2 length");
+	faslread_nodecl(type, input, "vectortype2 type");
+	faslread_nodecl(value, input, "vectortype2 length");
 	return vector_make(ptr,
 			makearray2, input, ret, (enum LISPTYPE)type, (size_t)value);
 }
@@ -1268,8 +1335,8 @@ static int vectortype4_fasl(Execute ptr, addr input, addr *ret)
 {
 	byte type;
 	byte32 value;
-	readnodecl(type, input, "vectortype4 type");
-	readnodecl(value, input, "vectortype4 length");
+	faslread_nodecl(type, input, "vectortype4 type");
+	faslread_nodecl(value, input, "vectortype4 length");
 	return vector_make(ptr,
 			makearray4, input, ret, (enum LISPTYPE)type, (size_t)value);
 }
@@ -1279,8 +1346,8 @@ static int vectortype8_fasl(Execute ptr, addr input, addr *ret)
 #ifdef LISP_ARCH_64BIT
 	byte type;
 	byte64 value;
-	readnodecl(type, input, "vectortype8 type");
-	readnodecl(value, input, "vectortype8 length");
+	faslread_nodecl(type, input, "vectortype8 type");
+	faslread_nodecl(value, input, "vectortype8 length");
 	return vector_make(ptr,
 			makearray8, input, ret, (enum LISPTYPE)type, (size_t)value);
 #else
@@ -1399,13 +1466,5 @@ _g void init_fasl(void)
 	faslcall[0xFD] = hello_fasl;
 	faslcall[0xFE] = nop_fasl;
 	faslcall[0xFF] = nop_fasl;
-}
-
-_g void build_fasl(void)
-{
-	addr pos;
-
-	internchar(LISP_CODE, "CODE", &pos);
-	SetConstant(CONSTANT_FASL_CODE, pos);
 }
 

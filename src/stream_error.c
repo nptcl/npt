@@ -88,6 +88,11 @@ _g int fresh_line_stream_error(addr stream)
 	return 0;
 }
 
+_g void clear_input_stream_error(addr stream)
+{
+	fmte("The stream ~S don't run clear-input function.", stream, NULL);
+}
+
 _g int inputp_stream_error(addr stream)
 {
 	fmte("The stream ~S don't run input-stream-p function.", stream, NULL);
@@ -118,14 +123,43 @@ _g int binaryp_stream_error(addr stream)
 	return 0;
 }
 
+_g void element_type_stream_error(addr stream, addr *ret)
+{
+	fmte("The stream ~S don't run element-type function.", stream, NULL);
+}
+
 _g void file_length_stream_error(addr stream, addr *ret)
 {
 	fmte("The stream ~S don't run file-length function.", stream, NULL);
 }
 
+_g int file_position_stream_error(addr stream, size_t *ret)
+{
+	fmte("The stream ~S don't run file-position function.", stream, NULL);
+	return 1;
+}
+
+_g int file_position_start_stream_error(addr stream)
+{
+	fmte("The stream ~S don't run file-position-start function.", stream, NULL);
+	return 1;
+}
+
+_g int file_position_end_stream_error(addr stream)
+{
+	fmte("The stream ~S don't run file-position-end function.", stream, NULL);
+	return 1;
+}
+
+_g int file_position_set_stream_error(addr stream, size_t size)
+{
+	fmte("The stream ~S don't run file-position-set function.", stream, NULL);
+	return 1;
+}
+
 _g int file_character_length_stream_error(addr stream, unicode u, size_t *ret)
 {
-	fmte("The stream ~S don't run file-string-length function.", stream, NULL);
+	fmte("The stream ~S don't run file-character-length function.", stream, NULL);
 	return 1;
 }
 
@@ -139,11 +173,6 @@ _g int listen_stream_error(addr stream)
 {
 	fmte("The stream ~S don't run listen function.", stream, NULL);
 	return 1;
-}
-
-_g void clear_input_stream_error(addr stream)
-{
-	fmte("The stream ~S don't run clear-input function.", stream, NULL);
 }
 
 _g void finish_output_stream_error(addr stream)

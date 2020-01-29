@@ -2291,6 +2291,20 @@ static void call_callbind_opt1dynamic(Execute ptr, addr pos, callstr call)
 	(call->call.opt1dynamic)(ptr, opt1, rest);
 }
 
+static void call_callbind_extend_dynamic(Execute ptr, addr pos, callstr call)
+{
+	addr cons;
+	GetControl(ptr->control, Control_Cons, &cons);
+	(call->call.extend_dynamic)(cons);
+}
+
+static void call_callbind_extend_rest(Execute ptr, addr pos, callstr call)
+{
+	addr cons;
+	getargs_list_control_heap(ptr, 0, &cons);
+	(call->call.extend_rest)(cons);
+}
+
 _g void init_control(void)
 {
 	int i;
@@ -2331,6 +2345,8 @@ _g void init_control(void)
 	CallBindTable[CallBind_var3dynamic] = call_callbind_var3dynamic;
 	CallBindTable[CallBind_var4dynamic] = call_callbind_var4dynamic;
 	CallBindTable[CallBind_opt1dynamic] = call_callbind_opt1dynamic;
+	CallBindTable[CallBind_extend_dynamic] = call_callbind_extend_dynamic;
+	CallBindTable[CallBind_extend_rest] = call_callbind_extend_rest;
 
 #ifdef LISP_DEBUG_FORCE_GC
 	GcCounterForce = LISP_DEBUG_FORCE_GC;

@@ -165,7 +165,7 @@ int lisp_main_version_text(FILE *file)
 	fprintf(file, "%-20s %d\n", "Force GC", LISP_DEBUG_FORCE_GC);
 #endif
 	fprintf(file, "-----\n");
-	
+
 	lisp_result = 0;
 
 	return 0;
@@ -559,7 +559,7 @@ static void lisp_argv_debugger(Execute ptr, struct lispargv *argv)
 	int v;
 
 	/* debugger */
-	v = argv->debugger_p? argv->debugger: consolep_file();
+	v = argv->debuggerp? argv->debugger: consolep_file();
 	set_enable_debugger(ptr, v);
 	/* eval-loop */
 	eval_main_loop(ptr);
@@ -577,8 +577,16 @@ static void lisp_argv_execute(Execute ptr, struct lispargv *argv)
 	}
 
 	/* load / eval */
-	if (abort == 0)
+	if (abort == 0 && argv->input)
 		lisp_argv_inputs(ptr, argv);
+
+	/* call */
+	if (argv->call) {
+		if ((argv->call)(argv->call_ptr)) {
+			lisp_result = 1;
+			return;
+		}
+	}
 
 	/* debugger */
 	setindex_prompt(ptr, 0);

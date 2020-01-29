@@ -1565,6 +1565,8 @@ lisp-system::delay-warning
 (lisp-system::*delay-warning-switch* :constant system :name delay-warning-switch)
 (lisp-system::*module-provider-functions*
   :constant system :name module-provider-functions)
+(lisp-system::*compile-output* :constant system :name compile-output)
+(lisp-system::*compile-code* :constant system :name compile-code)
 
 
 ;;

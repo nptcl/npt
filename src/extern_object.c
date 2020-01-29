@@ -1,9 +1,19 @@
 #include <stdarg.h>
+#include "array.h"
+#include "array_vector.h"
 #include "build.h"
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
+#include "control.h"
+#include "function.h"
 #include "memory.h"
+#include "number.h"
 #include "object.h"
+#include "package.h"
+#include "pathname.h"
+#include "readtable.h"
+#include "sequence.h"
 #include "strtype.h"
 #include "symbol.h"
 #include "type_constant.h"
@@ -12,22 +22,12 @@
 /*
  *  nil, t
  */
-void lisp_get_nil(addr *ret)
-{
-	*ret = Nil;
-}
-
-void lisp_get_t(addr *ret)
-{
-	*ret = T;
-}
-
-addr lisp_ref_nil(void)
+addr lisp_nil(void)
 {
 	return Nil;
 }
 
-addr lisp_ref_t(void)
+addr lisp_t(void)
 {
 	return T;
 }
@@ -38,12 +38,12 @@ addr lisp_ref_t(void)
  */
 int lisp_nil_p(addr x)
 {
-	return GetType(x) == LISPTYPE_NIL;
+	return x == Nil;
 }
 
 int lisp_t_p(addr x)
 {
-	return GetType(x) == LISPTYPE_T;
+	return x == T;
 }
 
 int lisp_character_p(addr x)
@@ -71,56 +71,55 @@ int lisp_symbol_p(addr x)
 	return symbolp(x);
 }
 
-int lisp0_symbol_p(addr x)
+int lisp_array_p(addr x)
 {
-	return symbolp(x);
+	return arrayp(x);
 }
 
-int lisp0_array_p(addr x)
+int lisp_vector_p(addr x)
 {
-	return GetType(x) == LISPTYPE_ARRAY;
-}
-
-int lisp0_vector_p(addr x)
-{
-	return GetType(x) == LISPTYPE_VECTOR;
-}
-
-int lisp0_strvect_p(addr x)
-{
-	return GetType(x) == LISPTYPE_STRING;
+	return vector_type_p(x);
 }
 
 
 /*
  *  cons
  */
-void lisp_cons(addr *ret, addr car, addr cdr)
+addr lisp_cons(addr car, addr cdr)
 {
-	cons_heap(ret, car, cdr);
+	cons_heap(&car, car, cdr);
+	return car;
 }
 
-void lisp_list(addr *ret, ...)
+addr lisp_list(addr car, ...)
 {
 	va_list args;
 
-	va_start(args, ret);
-	list_alloc_stdarg(NULL, ret, args);
+	va_start(args, car);
+	list_alloc_stdarg(NULL, &car, args);
 	va_end(args);
+
+	return car;
 }
 
-void lisp_lista(addr *ret, ...)
+addr lisp_lista(addr car, ...)
 {
 	va_list args;
+	addr cdr;
 
-	va_start(args, ret);
-	lista_stdarg_safe(NULL, ret, args);
+	va_start(args, car);
+	lista_stdarg_noerror(NULL, &cdr, args);
 	va_end(args);
+	cons_heap(&cdr, car, cdr);
+
+	return cdr;
 }
 
-void lisp_vector(addr *ret, size_t size)
+addr lisp_vector(size_t size)
 {
-	vector_heap(ret, size);
+	addr x;
+	vector_heap(&x, size);
+	return x;
 }
 
 static void lisp_typecheck_list(addr pos)
@@ -135,31 +134,38 @@ static void lisp_typecheck_cons(addr pos)
 		TypeError(pos, CONS);
 }
 
-void lisp0_car(addr list, addr *ret)
+addr lisp0_car(addr list)
 {
-	GetCar(list, ret);
+	Check(! listp(list), "type error");
+	GetCar(list, &list);
+	return list;
 }
 
-void lisp0_cdr(addr list, addr *ret)
+addr lisp0_cdr(addr list)
 {
-	GetCdr(list, ret);
+	Check(! listp(list), "type error");
+	GetCdr(list, &list);
+	return list;
 }
 
 void lisp0_carcdr(addr list, addr *car, addr *cdr)
 {
+	Check(! listp(list), "type error");
 	GetCons(list, car, cdr);
 }
 
-void lisp_car(addr list, addr *ret)
+addr lisp_car(addr list)
 {
 	lisp_typecheck_list(list);
-	GetCar(list, ret);
+	GetCar(list, &list);
+	return list;
 }
 
-void lisp_cdr(addr list, addr *ret)
+addr lisp_cdr(addr list)
 {
 	lisp_typecheck_list(list);
-	GetCdr(list, ret);
+	GetCdr(list, &list);
+	return list;
 }
 
 void lisp_carcdr(addr list, addr *car, addr *cdr)
@@ -203,33 +209,563 @@ void lisp_setf_carcdr(addr cons, addr car, addr cdr)
 
 
 /*
- *  vector
+ *  list
  */
-static void lisp_typecheck_vector(addr pos)
+addr lisp_reverse(addr list)
+{
+	lisp_typecheck_list(list);
+	reverse_list_heap_safe(&list, list);
+	return list;
+}
+
+addr lisp_nreverse(addr list)
+{
+	lisp_typecheck_list(list);
+	return nreverse_list_safe_inplace(list);
+}
+
+
+/*
+ *  sequence
+ */
+static void lisp_typecheck_sequence(addr pos)
 {
 	if (GetType(pos) != LISPTYPE_VECTOR)
 		TypeError(pos, VECTOR);
 }
 
-void lisp0_getvector(addr vector, size_t index, addr *ret)
+addr lisp_getelt(addr pos, size_t index)
 {
-	getarray(vector, index, ret);
+	lisp_typecheck_sequence(pos);
+	getelt_sequence(NULL, pos, index, &pos);
+	return pos;
 }
 
-void lisp0_setvector(addr vector, size_t index, addr value)
+void lisp_setelt(addr pos, size_t index, addr value)
 {
-	setarray(vector, index, value);
+	lisp_typecheck_sequence(pos);
+	setelt_sequence(pos, index, value);
 }
 
-void lisp_getvector(addr vector, size_t index, addr *ret)
+
+/*
+ *  string
+ */
+addr lisp_string8(const void *str)
 {
-	lisp_typecheck_vector(vector);
-	getarray(vector, index, ret);
+	addr x;
+	string8_null_heap(&x, (const char *)str);
+	return x;
 }
 
-void lisp_setvector(addr vector, size_t index, addr value)
+addr lisp_string16(const void *str)
 {
-	lisp_typecheck_vector(vector);
-	setarray(vector, index, value);
+	addr x;
+	string16_null_heap(&x, (const byte16 *)str);
+	return x;
+}
+
+
+/*
+ *  package
+ */
+addr lisp_package(addr pos)
+{
+	if (! stringp(pos))
+		TypeError(pos, STRING);
+	find_package(pos, &pos);
+	return pos;
+}
+
+addr lisp_package8(const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	string8_null_local(local, &x, (const char *)str);
+	find_package(x, &x);
+	rollback_local(local, stack);
+
+	return x;
+}
+
+addr lisp_package16(const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	string16_null_local(local, &x, (const byte16 *)str);
+	find_package(x, &x);
+	rollback_local(local, stack);
+
+	return x;
+}
+
+
+/*
+ *  intern
+ */
+addr lisp_intern(addr package, addr name)
+{
+	if (package == Nil || package == NULL)
+		getpackage(Execute_Thread, &package);
+	else if (! packagep(package))
+		package = lisp_package(package);
+	intern_package(package, name, &name);
+
+	return name;
+}
+
+addr lisp_intern8(const void *package, const void *name)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, y;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	if (package == NULL)
+		x = Nil;
+	else
+		string8_null_local(local, &x, (const char *)package);
+	string8_null_heap(&y, (const char *)name);
+	x = lisp_intern(x, y);
+	rollback_local(local, stack);
+
+	return x;
+}
+
+addr lisp_intern16(const void *package, const void *name)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, y;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	if (package == NULL)
+		x = Nil;
+	else
+		string16_null_local(local, &x, (const byte16 *)package);
+	string16_null_heap(&y, (const byte16 *)name);
+	x = lisp_intern(x, y);
+	rollback_local(local, stack);
+
+	return x;
+}
+
+
+/* reader */
+int lisp_reader(addr *ret, addr str)
+{
+	int check;
+	addr value;
+
+	Return1(read_from_string(Execute_Thread, &check, &value, str));
+	*ret = check? NULL: value;
+
+	return 0;
+}
+
+int lisp_reader8(addr *ret, const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	string8_null_local(local, &x, (const char *)str);
+	Return1(lisp_reader(ret, x));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp_reader16(addr *ret, const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	string16_null_local(local, &x, (const byte16 *)str);
+	Return1(lisp_reader(ret, x));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+
+/*
+ *  let
+ */
+void lisp_push_lexical(addr symbol, addr value)
+{
+	if (! symbolp(symbol))
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+	if (value == NULL)
+		value = Nil;
+	pushlexical_control(Execute_Thread, symbol, value);
+}
+
+void lisp_push_lexical8(const void *name, addr value)
+{
+	addr symbol;
+	symbol = lisp_intern8(NULL, name);
+	lisp_push_lexical(symbol, value);
+}
+
+void lisp_push_lexical16(const void *name, addr value)
+{
+	addr symbol;
+	symbol = lisp_intern16(NULL, name);
+	lisp_push_lexical(symbol, value);
+}
+
+void lisp_push_special(addr symbol, addr value)
+{
+	if (! symbolp(symbol))
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+	if (value == NULL)
+		value = Unbound;
+	pushspecial_control(Execute_Thread, symbol, value);
+}
+
+void lisp_push_special8(const void *name, addr value)
+{
+	addr symbol;
+	symbol = lisp_intern8(NULL, name);
+	lisp_push_special(symbol, value);
+}
+
+void lisp_push_special16(const void *name, addr value)
+{
+	addr symbol;
+	symbol = lisp_intern16(NULL, name);
+	lisp_push_special(symbol, value);
+}
+
+addr lisp_get_lexical(addr symbol)
+{
+	if (! symbolp(symbol))
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+	getlexical_local(Execute_Thread, symbol, &symbol);
+	return (symbol == Unbound)? NULL: symbol;
+}
+
+addr lisp_get_lexical8(const void *name)
+{
+	addr symbol;
+	symbol = lisp_intern8(NULL, name);
+	return lisp_get_lexical(symbol);
+}
+
+addr lisp_get_lexical16(const void *name)
+{
+	addr symbol;
+	symbol = lisp_intern16(NULL, name);
+	return lisp_get_lexical(symbol);
+}
+
+addr lisp_get_special(addr symbol)
+{
+	if (! symbolp(symbol))
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+	getspecial_local(Execute_Thread, symbol, &symbol);
+	return (symbol == Unbound)? NULL: symbol;
+}
+
+addr lisp_get_special8(const void *name)
+{
+	addr symbol;
+	symbol = lisp_intern8(NULL, name);
+	return lisp_get_special(symbol);
+}
+
+addr lisp_get_special16(const void *name)
+{
+	addr symbol;
+	symbol = lisp_intern16(NULL, name);
+	return lisp_get_special(symbol);
+}
+
+void lisp_set_lexical(addr symbol, addr value)
+{
+	if (! symbolp(symbol))
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+	if (value == NULL)
+		fmte("The lexical symbol ~S don't set Unbound.", symbol, NULL);
+	setlexical_local(Execute_Thread, symbol, value);
+}
+
+void lisp_set_lexical8(const void *name, addr value)
+{
+	addr symbol;
+	symbol = lisp_intern8(NULL, name);
+	lisp_set_lexical(symbol, value);
+}
+
+void lisp_set_lexical16(const void *name, addr value)
+{
+	addr symbol;
+	symbol = lisp_intern16(NULL, name);
+	lisp_set_lexical(symbol, value);
+}
+
+void lisp_set_special(addr symbol, addr value)
+{
+	if (! symbolp(symbol))
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+	if (value == NULL)
+		value = Unbound;
+	setspecial_local(Execute_Thread, symbol, value);
+}
+
+void lisp_set_special8(const void *name, addr value)
+{
+	addr symbol;
+	symbol = lisp_intern8(NULL, name);
+	lisp_set_special(symbol, value);
+}
+
+void lisp_set_special16(const void *name, addr value)
+{
+	addr symbol;
+	symbol = lisp_intern16(NULL, name);
+	lisp_set_special(symbol, value);
+}
+
+
+/*
+ *  pathname
+ */
+addr lisp_pathname(addr name)
+{
+	pathname_designer_heap(Execute_Thread, name, &name);
+	return name;
+}
+
+addr lisp_namestring(addr path)
+{
+	namestring_pathname(Execute_Thread, &path, path);
+	return path;
+}
+
+
+/*
+ *  number
+ */
+addr lisp_character(unicode value)
+{
+	addr x;
+	character_heap(&x, value);
+	return x;
+}
+
+addr lisp_fixnum(fixnum value)
+{
+	addr x;
+	fixnum_heap(&x, value);
+	return x;
+}
+
+addr lisp_float(float value)
+{
+	addr x;
+	single_float_heap(&x, value);
+	return x;
+}
+
+addr lisp_double(double value)
+{
+	addr x;
+	double_float_heap(&x, value);
+	return x;
+}
+
+addr lisp_long_double(long double value)
+{
+	addr x;
+	long_float_heap(&x, value);
+	return x;
+}
+
+int lisp_zerop(addr value)
+{
+	return zerop_number(value);
+}
+
+int lisp_plusp(addr value)
+{
+	return plusp_number(value);
+}
+
+int lisp_minusp(addr value)
+{
+	return minusp_number(value);
+}
+
+
+/*
+ *  call
+ */
+addr lisp_function(addr value)
+{
+	if (functionp(value))
+		return value;
+	getfunctioncheck_local(Execute_Thread, value, &value);
+	return value;
+}
+
+addr lisp_function8(const void *str)
+{
+	addr value = lisp_intern8(NULL, str);
+	return lisp_function(value);
+}
+
+addr lisp_function16(const void *str)
+{
+	addr value = lisp_intern16(NULL, str);
+	return lisp_function(value);
+}
+
+int lisp_funcall(addr *ret, addr call, ...)
+{
+	Execute ptr;
+	LocalRoot local;
+	LocalStack stack;
+	addr args;
+	va_list va;
+
+	ptr = Execute_Thread;
+	local = ptr->local;
+	push_local(local, &stack);
+	va_start(va, call);
+	list_alloc_stdarg(local, &args, va);
+	va_end(va);
+
+	call = lisp_function(call);
+	Return1(callclang_apply(ptr, ret, call, args));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp_funcall8(addr *ret, const void *str, ...)
+{
+	Execute ptr;
+	LocalRoot local;
+	LocalStack stack;
+	addr call, args;
+	va_list va;
+
+	ptr = Execute_Thread;
+	local = ptr->local;
+	push_local(local, &stack);
+	va_start(va, str);
+	list_alloc_stdarg(local, &args, va);
+	va_end(va);
+
+	call = lisp_function8(str);
+	Return1(callclang_apply(ptr, ret, call, args));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp_funcall16(addr *ret, const void *str, ...)
+{
+	Execute ptr;
+	LocalRoot local;
+	LocalStack stack;
+	addr call, args;
+	va_list va;
+
+	ptr = Execute_Thread;
+	local = ptr->local;
+	push_local(local, &stack);
+	va_start(va, str);
+	list_alloc_stdarg(local, &args, va);
+	va_end(va);
+
+	call = lisp_function16(str);
+	Return1(callclang_apply(ptr, ret, call, args));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp_apply(addr *ret, addr call, ...)
+{
+	Execute ptr;
+	LocalRoot local;
+	LocalStack stack;
+	addr args;
+	va_list va;
+
+	ptr = Execute_Thread;
+	local = ptr->local;
+	push_local(local, &stack);
+	va_start(va, call);
+	lista_stdarg_safe(local, &args, va);
+	va_end(va);
+
+	call = lisp_function(call);
+	Return1(callclang_apply(ptr, ret, call, args));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp_apply8(addr *ret, const void *str, ...)
+{
+	Execute ptr;
+	LocalRoot local;
+	LocalStack stack;
+	addr call, args;
+	va_list va;
+
+	ptr = Execute_Thread;
+	local = ptr->local;
+	push_local(local, &stack);
+	va_start(va, str);
+	lista_stdarg_safe(local, &args, va);
+	va_end(va);
+
+	call = lisp_function8(str);
+	Return1(callclang_apply(ptr, ret, call, args));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp_apply16(addr *ret, const void *str, ...)
+{
+	Execute ptr;
+	LocalRoot local;
+	LocalStack stack;
+	addr call, args;
+	va_list va;
+
+	ptr = Execute_Thread;
+	local = ptr->local;
+	push_local(local, &stack);
+	va_start(va, str);
+	lista_stdarg_safe(local, &args, va);
+	va_end(va);
+
+	call = lisp_function16(str);
+	Return1(callclang_apply(ptr, ret, call, args));
+	rollback_local(local, stack);
+
+	return 0;
 }
 

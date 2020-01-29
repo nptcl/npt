@@ -92,6 +92,7 @@ _g void settoplevel_eval(Execute ptr, addr value);
 _g void push_toplevel_eval(Execute ptr, addr value);
 _g void push_evalwhen_eval(Execute ptr);
 _g void push_evalwhen_load(Execute ptr);
+_g void push_evalwhen_compile(Execute ptr);
 _g int toplevelp_eval(Execute ptr);
 
 _g int eval_constantp(Execute ptr, addr var, addr env, int *result);
@@ -102,6 +103,7 @@ _g int eval_stream(Execute ptr, addr stream);
 _g int eval_object(Execute ptr, addr eval, addr *ret);
 _g int eval_load(Execute ptr, int *result,
 		addr file, addr verbose, addr print, int exist, addr external);
+_g int compile_load(Execute ptr, addr file, addr verbose, addr print, addr external);
 
 /* initialize */
 _g void init_eval(void);

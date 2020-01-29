@@ -231,15 +231,13 @@ _g void lista_heap_safe(addr *ret, addr first, addr cons)
 	lista_alloc_safe(NULL, ret, first, cons);
 }
 
-_g void lista_stdarg_safe(LocalRoot local, addr *ret, va_list args)
+static void lista_stdarg(LocalRoot local, addr *ret, va_list args, addr pos1)
 {
-	addr pos1, pos2, pos3, cons;
+	addr pos2, pos3, cons;
 
-	pos1 = va_arg(args, addr);
 	/* nil */
 	if (pos1 == NULL) {
-		fmte("LIST* must be at least one argument.", NULL);
-		*ret = Nil; /* error */
+		*ret = Nil;
 		return;
 	}
 
@@ -269,6 +267,26 @@ _g void lista_stdarg_safe(LocalRoot local, addr *ret, va_list args)
 		cons = pos1;
 		pos2 = pos3;
 	}
+}
+
+_g void lista_stdarg_noerror(LocalRoot local, addr *ret, va_list args)
+{
+	addr pos1 = va_arg(args, addr);
+	lista_stdarg(local, ret, args, pos1);
+}
+
+_g void lista_stdarg_safe(LocalRoot local, addr *ret, va_list args)
+{
+	addr pos1;
+
+	pos1 = va_arg(args, addr);
+	/* nil */
+	if (pos1 == NULL) {
+		fmte("LIST* must be at least one argument.", NULL);
+		*ret = Nil;
+		return;
+	}
+	lista_stdarg(local, ret, args, pos1);
 }
 
 _g void lista_stdarg_alloc(LocalRoot local, addr *ret, va_list args)

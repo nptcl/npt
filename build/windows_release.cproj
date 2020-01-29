@@ -246,10 +246,14 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\execute.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_argv.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_control.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_string.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_stream.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_unicode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\fasl.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\file_memory.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\file.c" />
@@ -458,8 +462,13 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_control.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_stream.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_string.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_unicode.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\fasl.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_ansi.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_memory.h" />
@@ -499,7 +508,6 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_argv.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_init.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_object.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_string.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_exp.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_power.h" />
@@ -595,6 +603,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_basic.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_enum.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_integer.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_stream.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_thread.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\unicode.h" />

@@ -33,9 +33,9 @@ struct eastasian_struct {
     enum EastAsianType c;
 };
 
-_g unsigned EastAsianSymbol[EastAsian_Size];
-_g const enum EastAsianType EastAsianAscii[0x80];
-_g const struct eastasian_struct EastAsianTable[EastAsianTable_Size];
+__extern unsigned EastAsianSymbol[EastAsian_Size];
+__extern const enum EastAsianType EastAsianAscii[0x80];
+__extern const struct eastasian_struct EastAsianTable[EastAsianTable_Size];
 _g enum EastAsianType eastasian_symbol(unicode c);
 _g unsigned eastasian_width(unicode c);
 _g void init_eastasian(void);

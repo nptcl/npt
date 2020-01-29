@@ -8,7 +8,7 @@ _g void clear_pointer(void)
 	int p;
 
 	memset(pointer_table, 0, sizeoft(pointer_table));
-	for (p = 0; p < p_size; p++) {
+	for (p = 0; p < SizePointer; p++) {
 		SetPointer(p, error, NULL);
 	}
 #endif

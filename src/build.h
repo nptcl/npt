@@ -12,8 +12,8 @@
 
 __extern int      lisp_initialize;
 __extern addr     lisp_root[LISPINDEX_SIZE];
-__extern addr     lisp_nil;
-__extern addr     lisp_t;
+__extern addr     lisp_nil_object;
+__extern addr     lisp_t_object;
 __extern byte32   lisp_property;
 /* for debug */
 __extern int      lisp_info_enable;
@@ -27,8 +27,8 @@ __extern int      lisp_info_enable;
 #define LISP_KEYWORD			"KEYWORD"
 #define LISP_COMMON				"COMMON-LISP"
 #define LISP_COMMON_USER		"COMMON-LISP-USER"
-#define Nil                     (lisp_nil)
-#define T                       (lisp_t)
+#define Nil                     (lisp_nil_object)
+#define T                       (lisp_t_object)
 #define Root(i)                 (lisp_root[i])
 #define Unbound                 ((addr)~(uintptr_t)0)
 

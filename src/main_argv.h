@@ -1,5 +1,5 @@
-#ifndef __LISP_ARGV_HEADER__
-#define __LISP_ARGV_HEADER__
+#ifndef __LISP_MAIN_ARGV_HEADER__
+#define __LISP_MAIN_ARGV_HEADER__
 
 #include <stddef.h>
 #include "define.h"
@@ -34,7 +34,7 @@ struct lispargv {
 	unsigned nocore : 1;
 	unsigned noinit : 1;
 	unsigned debugger : 1;
-	unsigned debugger_p : 1;
+	unsigned debuggerp : 1;
 	unsigned quit : 1;
 	size_t heap, local, index, start;
 	lispstringu core;
@@ -42,6 +42,8 @@ struct lispargv {
 	lisparrayu argv;
 	lisptableu env;
 	struct lispargv_input *input;
+	int (*call)(void *);
+	void *call_ptr;
 };
 
 void free_lispargv(struct lispargv *ptr);

@@ -297,7 +297,7 @@ static void mainparse_mode(struct lispargv *ptr, enum LispMode mode)
 			ptr->nocore = 0;
 			ptr->noinit = 0;
 			ptr->debugger = 1;
-			ptr->debugger_p = 0;
+			ptr->debuggerp = 0;
 			ptr->quit = 0;
 			break;
 
@@ -306,7 +306,7 @@ static void mainparse_mode(struct lispargv *ptr, enum LispMode mode)
 			ptr->nocore = 0;
 			ptr->noinit = 0;
 			ptr->debugger = 1;
-			ptr->debugger_p = 0;
+			ptr->debuggerp = 0;
 			ptr->quit = 0;
 			break;
 
@@ -316,7 +316,7 @@ static void mainparse_mode(struct lispargv *ptr, enum LispMode mode)
 			ptr->nocore = 1;
 			ptr->noinit = 1;
 			ptr->debugger = 1;
-			ptr->debugger_p = 0;
+			ptr->debuggerp = 0;
 			ptr->quit = 0;
 			break;
 	}
@@ -409,12 +409,12 @@ static int mainparse_loop(struct lispargv *ptr)
 		}
 		if (LispArgv_equal(s, Debugger)) {
 			ptr->debugger = 1;
-			ptr->debugger_p = 1;
+			ptr->debuggerp = 1;
 			continue;
 		}
 		if (LispArgv_equal(s, Nodebugger)) {
 			ptr->debugger = 0;
-			ptr->debugger_p = 1;
+			ptr->debuggerp = 1;
 			continue;
 		}
 		if (LispArgv_equal(s, Quit)) {
@@ -422,7 +422,7 @@ static int mainparse_loop(struct lispargv *ptr)
 			continue;
 		}
 		if (LispArgv_equal(s, Script)) {
-			if (ptr->debugger_p == 0)
+			if (ptr->debuggerp == 0)
 				ptr->debugger = 0;
 			ptr->quit = 1;
 			goto inputs;
@@ -642,7 +642,7 @@ struct lispargv *lispargv_main_force(int argc, char *argv[], char *env[])
 	ptr->env = e;
 
 	/* parse */
-	if (mainparse(ptr))
+	if (argc && mainparse(ptr))
 		goto error;
 	return ptr;
 

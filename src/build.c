@@ -22,6 +22,7 @@
 #include "eval.h"
 #include "eval_declare.h"
 #include "execute.h"
+#include "extern.h"
 #include "fasl.h"
 #include "file.h"
 #include "file_memory.h"
@@ -91,6 +92,7 @@ _g void initlisp(void)
 	init_encode();
 	init_environment();
 	init_eval();
+	init_extern();
 	init_fasl();
 	init_format();
 	init_heap();
@@ -115,9 +117,9 @@ static void clearlisp_force(void)
 
 	for (i = 0; i < LISPINDEX_SIZE; i++)
 		lisp_root[i] = 0;
-	lisp_nil           = 0;
-	lisp_t             = 0;
-	lisp_property      = 0;
+	lisp_nil_object  = 0;
+	lisp_t_object    = 0;
+	lisp_property    = 0;
 }
 
 _g int alloclisp(size_t heap, size_t stack)
@@ -335,7 +337,6 @@ _g void buildlisp(Execute ptr)
 	build_readtable();
 	build_pathname();
 	build_eval_declare();
-	build_fasl();
 	build_code();
 	build_require();
 	build_user();
@@ -395,8 +396,8 @@ _g int load_lisp(struct filememory *fm)
 			return 1;
 		}
 	}
-	lisp_nil = lisp_root[LISPINDEX_NIL];
-	lisp_t = lisp_root[LISPINDEX_T];
+	lisp_nil_object = lisp_root[LISPINDEX_NIL];
+	lisp_t_object = lisp_root[LISPINDEX_T];
 
 	return 0;
 }

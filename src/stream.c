@@ -26,6 +26,7 @@
 #include "stream_broadcast.h"
 #include "stream_concat.h"
 #include "stream_echo.h"
+#include "stream_error.h"
 #include "stream_file.h"
 #include "stream_pretty.h"
 #include "stream_prompt.h"
@@ -234,6 +235,18 @@ _g int pretty_stream_p(addr stream)
 {
 	return streamp(stream)
 		&& getstreamtype(stream) == StreamType_Pretty;
+}
+
+_g int extend_stream_p(addr stream)
+{
+	return streamp(stream)
+		&& ((int)StreamType_Size) <= ((int)getstreamtype(stream));
+}
+
+_g int extend_type_stream_p(addr stream, int type)
+{
+	return streamp(stream)
+		&& ((int)getstreamtype(stream)) == type;
 }
 
 
@@ -752,6 +765,55 @@ _g void print_string_stream(addr stream, addr pos)
 /*
  *  initialize
  */
+#define LispStreamTypeError(x, type) Stream_##x[type] = x##_stream_error
+
+static void init_stream_extend_type(int type)
+{
+	LispStreamTypeError(close, type);
+	LispStreamTypeError(read_binary, type);
+	LispStreamTypeError(readforce_binary, type);
+	LispStreamTypeError(read_byte, type);
+	LispStreamTypeError(unread_byte, type);
+	LispStreamTypeError(write_binary, type);
+	LispStreamTypeError(write_byte, type);
+	LispStreamTypeError(read_char, type);
+	LispStreamTypeError(read_hang, type);
+	LispStreamTypeError(unread_char, type);
+	LispStreamTypeError(write_char, type);
+	LispStreamTypeError(terpri, type);
+	LispStreamTypeError(getleft, type);
+	LispStreamTypeError(setleft, type);
+	LispStreamTypeError(fresh_line, type);
+	LispStreamTypeError(clear_input, type);
+	LispStreamTypeError(inputp, type);
+	LispStreamTypeError(outputp, type);
+	LispStreamTypeError(interactivep, type);
+	LispStreamTypeError(characterp, type);
+	LispStreamTypeError(binaryp, type);
+	LispStreamTypeError(element_type, type);
+	LispStreamTypeError(file_length, type);
+	LispStreamTypeError(file_position, type);
+	LispStreamTypeError(file_position_start, type);
+	LispStreamTypeError(file_position_end, type);
+	LispStreamTypeError(file_position_set, type);
+	LispStreamTypeError(file_character_length, type);
+	LispStreamTypeError(file_string_length, type);
+	LispStreamTypeError(listen, type);
+	LispStreamTypeError(finish_output, type);
+	LispStreamTypeError(force_output, type);
+	LispStreamTypeError(clear_output, type);
+	LispStreamTypeError(exitpoint, type);
+	LispStreamTypeError(terminal_width, type);
+}
+
+static void init_stream_extend(void)
+{
+	int i;
+
+	for (i = 0; i < LISP_STREAM_EXTEND; i++)
+		init_stream_extend_type(((int)StreamType_Size) + i);
+}
+
 _g void init_stream(void)
 {
 	init_stream_binary_input();
@@ -772,6 +834,7 @@ _g void init_stream(void)
 	init_stream_echo();
 	init_stream_prompt();
 	init_stream_pretty();
+	init_stream_extend();
 }
 
 static void defvar_stream_binary_type(void)
