@@ -103,6 +103,8 @@ void degrade_execute(void)
 #ifdef LISP_DEGRADE_RTONLY
 	DegradeCheck(loadrt);
 #else
+#if 0
+#endif
 	DegradeCheck(test_c99);
 	DegradeCheck(test_arch);
 	DegradeCheck(test_alloc);
@@ -186,6 +188,8 @@ void degrade_execute(void)
 	DegradeCheck(test_condition);
 	DegradeCheck(test_extern_object);
 	DegradeCheck(loadrt);
+#if 0
+#endif
 #endif
 }
 

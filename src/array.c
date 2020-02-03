@@ -214,7 +214,7 @@ _g void array_alloc(LocalRoot local, addr *ret, size_t index, size_t size)
 		SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, temp);
 	}
 	str->dimension = index;
-	str->size = str->front = str->refer = size;
+	str->size = str->front = size;
 
 	/* type */
 	str->type = ARRAY_TYPE_T;

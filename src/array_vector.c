@@ -1,5 +1,6 @@
 #include "array.h"
 #include "array_access.h"
+#include "array_adjust.h"
 #include "array_make.h"
 #include "array_vector.h"
 #include "bit.h"
@@ -84,85 +85,11 @@ _g void vector_push_common(addr value, addr pos, addr *ret)
 	}
 }
 
-static void vector_push_extend_t(addr pos, size_t prev, size_t next)
+static void vector_push_extend_resize(addr pos, size_t fill, size_t size)
 {
-	addr dst, src, temp;
-	size_t i;
-
-	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &src);
-	arraygen_heap(&dst, next);
-	if (src != Nil) {
-		Check(lenarrayr(src) != prev, "size error");
-		next = (next < prev)? next: prev;
-		for (i = 0; i < next; i++) {
-			arraygen_get(src, i, &temp);
-			arraygen_set(dst, i, temp);
-		}
-	}
-	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, dst);
-}
-
-static void vector_push_extend_bit(addr pos, size_t prev, size_t next)
-{
-	addr src, dst;
-
-	bitmemory_unsafe(NULL, &dst, next);
-#ifdef LISP_DEBUG
-	bitmemory_memset(dst, 1);
-#endif
-	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &src);
-	bitmemory_copy_unsafe(dst, src, (prev < next)? prev: next);
-	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, dst);
-}
-
-static void vector_push_extend_size(addr pos,
-		size_t prev, size_t next, unsigned element)
-{
-	addr src, dst;
-	size_t size;
-	byte *data1, *data2;
-
-	prev *= element;
-	next *= element;
-	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &src);
-	arrayspec_heap(&dst, next);
-	if (src != Nil) {
-		Check(lenbodyr(src) != prev, "size error");
-		data1 = (byte *)arrayspec_ptr(dst);
-		data2 = (byte *)arrayspec_ptr(src);
-		size = (next < prev)? next: prev;
-#ifdef LISP_DEBUG
-		next = (next > prev)? next: prev;
-		memcpy(data1, data2, size);
-		memset(data1 + size, 0xAA, next - size);
-#else
-		memcpy(data1, data2, size);
-#endif
-		memcpy(data1, data2, next);
-	}
-	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, dst);
-}
-
-static void vector_push_extend_resize(addr pos,
-		size_t prev, size_t next, struct array_struct *str)
-{
-	switch (str->type) {
-		case ARRAY_TYPE_EMPTY:
-			fmte("The array has no element size.", NULL);
-			break;
-
-		case ARRAY_TYPE_T:
-			vector_push_extend_t(pos, prev, next);
-			break;
-
-		case ARRAY_TYPE_BIT:
-			vector_push_extend_bit(pos, prev, next);
-			break;
-
-		default:
-			vector_push_extend_size(pos, prev, next, str->element);
-			break;
-	}
+	array_adjust_array(&pos, pos, intsizeh(size),
+			Unbound, Unbound, Unbound,
+			intsizeh(fill), Nil, fixnumh(0));
 }
 
 static int vector_push_extension(addr extension, size_t *ret)
@@ -176,26 +103,6 @@ static int vector_push_extension(addr extension, size_t *ret)
 	return 0;
 }
 
-static void vector_push_extend_displaced(addr pos, addr extension)
-{
-	struct array_struct *str;
-	size_t diff, size, resize;
-
-	/* argument */
-	str = ArrayInfoStruct(pos);
-	Check(str->size < str->refer, "reference size error");
-	diff = str->size - str->refer;
-	if (vector_push_extension(extension, &size))
-		size = diff;
-	size += diff;
-	if (size < 16) size = 16;
-	resize = str->refer + size;
-	/* allocate */
-	vector_push_extend_resize(pos, diff, size, str);
-	/* size */
-	str->size = resize;
-}
-
 static void vector_push_extend_normal(addr pos, addr extension)
 {
 	struct array_struct *str;
@@ -204,11 +111,12 @@ static void vector_push_extend_normal(addr pos, addr extension)
 	/* argument */
 	str = ArrayInfoStruct(pos);
 	if (vector_push_extension(extension, &size))
-		size = str->size;
+		size = 16;
+	if (size < 16)
+		size = 16;
 	size += str->size;
-	if (size < 16) size = 16;
 	/* allocate */
-	vector_push_extend_resize(pos, str->size, size, str);
+	vector_push_extend_resize(pos, str->size, size);
 	/* size */
 	str->size = size;
 }
@@ -223,10 +131,7 @@ static void vector_push_extend1(addr pos, addr value, addr extension, addr *ret)
 		type_error_fill_pointer(pos);
 	if (! str->adjustable)
 		type_error_adjustable(pos);
-	if (str->displaced)
-		vector_push_extend_displaced(pos, extension);
-	else
-		vector_push_extend_normal(pos, extension);
+	vector_push_extend_normal(pos, extension);
 	array_set(pos, str->front, value);
 	make_index_integer_heap(ret, str->front);
 	str->front++;
@@ -382,7 +287,7 @@ static void vector_dimension(addr pos, size_t size)
 
 	str = ArrayInfoStruct(pos);
 	str->dimension = 1;
-	str->size = str->front = str->refer = size;
+	str->size = str->front = size;
 	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, Nil);
 }
 

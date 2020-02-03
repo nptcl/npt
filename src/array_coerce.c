@@ -29,7 +29,7 @@ static void array_coerce_type_struct(addr pos, addr array,
 	str1->displaced = 0;
 	str1->dimension = str2->dimension;
 	str1->offset = 0;
-	str1->size = str1->front = str1->refer = str2->front; /* fill-pointer */
+	str1->size = str1->front = str2->front; /* fill-pointer */
 	SetArrayInfo(pos, ARRAY_INDEX_DISPLACED, Nil);
 	/* type */
 	str1->type = type;

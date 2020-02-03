@@ -679,7 +679,6 @@ static void infobit_array(addr pos)
 	info("front       : %zu", str->front);
 	info("dimension   : %zu", str->dimension);
 	info("offset      : %zu", str->offset);
-	info("refer       : %zu", str->refer);
 }
 
 static void infoprint_array(addr pos, int depth)

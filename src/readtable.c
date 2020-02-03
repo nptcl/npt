@@ -137,6 +137,7 @@ struct readinfo_struct {
 	unsigned escape : 1;
 	unsigned dot : 1;
 	unsigned replace : 1;
+	unsigned unexport : 1;
 	enum ReadInfo_State state : 4;
 	size_t backquote;
 };
@@ -178,6 +179,13 @@ static void getreadinfo(Execute ptr, addr *ret)
 	readinfo_symbol(&symbol);
 	getspecialcheck_local(ptr, symbol, ret);
 	CheckType(*ret, LISPSYSTEM_READINFO);
+}
+
+static struct readinfo_struct *getreadinfo_struct(Execute ptr)
+{
+	addr pos;
+	getreadinfo(ptr, &pos);
+	return ReadInfoStruct(pos);
 }
 
 static void pushreadinfo(Execute ptr, addr *ret)
@@ -1536,21 +1544,60 @@ static unsigned getreadbase(Execute ptr)
 	return (unsigned)value;
 }
 
+static void maketoken_intern(Execute ptr,
+		addr package, addr name, int unexport, addr *ret)
+{
+	addr check;
+
+	/* keyword */
+	if (package == T) {
+		GetConst(PACKAGE_KEYWORD, &package);
+		intern_package(package, name, ret);
+		return;
+	}
+
+	/* package::name */
+	if (unexport) {
+		intern_package(package, name, ret);
+		return;
+	}
+
+	/* package:name, unexport */
+	if (exportp_name_package(package, name, &check)) {
+		*ret = check;
+		return;
+	}
+
+	/* package:name, export, OK */
+	if (check != Unbound) {
+		fmte("The symbol ~S is not exported in ~S.", name, package, NULL);
+		return;
+	}
+
+	/* package:name, unbound */
+	getpackage(ptr, &check);
+	if (package == check) {
+		intern_package(package, name, ret);
+		return;
+	}
+
+	/* package:name, error */
+	fmte("Cannot intern the symbol ~S in ~S.", name, package, NULL);
+}
+
 static void maketoken_package(Execute ptr, addr *ret, addr queue, addr package)
 {
 	enum TokenType token;
+	struct readinfo_struct *str;
 	unsigned base;
 	addr name;
 
-	/* keyword */
-	if (package == T)
-		GetConst(PACKAGE_KEYWORD, &package);
-
-	if (getescape_readinfo(ptr)) {
+	str = getreadinfo_struct(ptr);
+	if (str->escape) {
 		/* escapemonde, make force symbol */
 		make_charqueue_heap(queue, &name);
 		/* intern package - name */
-		intern_package(package, name, ret);
+		maketoken_intern(ptr, package, name, str->unexport, ret);
 		return;
 	}
 
@@ -1559,7 +1606,7 @@ static void maketoken_package(Execute ptr, addr *ret, addr queue, addr package)
 	if (token == TokenType_symbol || token == TokenType_potential) {
 		make_charqueue_heap(queue, &name);
 		/* intern package - symbol */
-		intern_package(package, name, ret);
+		maketoken_intern(ptr, package, name, str->unexport, ret);
 	}
 	else {
 		fmte("Token-type error", NULL);
@@ -1758,14 +1805,16 @@ static void pushchar_readtable(Execute ptr, addr pos, unicode c, int escape)
 {
 	unsigned bitescape;
 	enum ReadInfo_State bitstate;
+	struct readinfo_struct *str;
 	addr queue;
 
 	getqueue_readinfo(ptr, &queue);
-	bitescape = getescape_readinfo(ptr);
-	bitstate = getstate_readinfo(ptr);
+	str = getreadinfo_struct(ptr);
+	bitescape = str->escape;
+	bitstate = str->state;
 	/* mode0 : readsymbol
-	 * modd1 : read comma
-	 * mode2 : read comma second
+	 * modd1 : read colon
+	 * mode2 : read colon second
 	 * mode3 : readsymol next
 	 *
 	 * mode0 - aaa
@@ -1789,6 +1838,7 @@ static void pushchar_readtable(Execute ptr, addr pos, unicode c, int escape)
 
 	switch (bitstate) {
 		case ReadInfo_State_First:
+			str->unexport = 0;
 			if (c == ':') {
 				setstate_readinfo(ptr, ReadInfo_State_Colon1);
 				setpackage_readtable(ptr);
@@ -1799,12 +1849,13 @@ static void pushchar_readtable(Execute ptr, addr pos, unicode c, int escape)
 		case ReadInfo_State_Colon1:
 			setstate_readinfo(ptr, ReadInfo_State_Colon2);
 			if (c != ':') break;
+			str->unexport = 1;
 			return;
 
 		case ReadInfo_State_Colon2:
 		case ReadInfo_State_Gensym:
 			if (c == ':') {
-				fmte("comma error", NULL);
+				fmte("colon error", NULL);
 				return;
 			}
 			break;

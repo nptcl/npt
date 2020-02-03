@@ -36,8 +36,6 @@ _g int arraymemory_get(addr pos, size_t index, addr *retp, size_t *rets)
 	}
 	if (! str->displaced)
 		return arraymemory_get_memory(pos, index, retp, rets);
-	if (str->refer <= index)
-		return arraymemory_get_memory(pos, index - str->refer, retp, rets);
 
 	/* displaced */
 	GetArrayInfo(pos, ARRAY_INDEX_DISPLACED, &pos);

@@ -1,6 +1,7 @@
 #include "condition.h"
 #include "eastasian.h"
 #include "eastasian_unicode.h"
+#include "encode_unicode.h"
 #include "extern_unicode.h"
 #include "strtype.h"
 
@@ -110,5 +111,24 @@ int lisp_eastasian_string(addr value, size_t *ret)
 	return eastasian_length(value, ret);
 }
 
-int lisp_eastasian_width(addr value, size_t *ret);
+int lisp_eastasian_width(addr value, size_t *ret)
+{
+	unicode c;
+
+	if (characterp(value)) {
+		GetCharacter(value, &c);
+		return eastasian_width(c);
+	}
+	if (stringp(value))
+		return eastasian_length(value, ret);
+	fmte("Invalid string type ~S.", value, NULL);
+	return 0;
+}
+
+
+/* UTF-8 */
+int lisp_utf8_encode(unicode c, void *ptr, size_t *ret)
+{
+	return encode_utf8(c, ptr, ret);
+}
 

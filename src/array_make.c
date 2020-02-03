@@ -166,7 +166,7 @@ _g void array_set_dimension(addr pos, addr value)
 	}
 
 	str = ArrayInfoStruct(pos);
-	str->size = str->front = str->refer = size;
+	str->size = str->front = size;
 }
 
 
@@ -1067,7 +1067,7 @@ static void array_contents_size(addr pos, addr rankarg, addr contents)
 	}
 
 	str = ArrayInfoStruct(pos);
-	str->size = str->front = str->refer = size;
+	str->size = str->front = size;
 }
 
 _g void array_contents_heap(addr *ret, addr rank, addr contents)

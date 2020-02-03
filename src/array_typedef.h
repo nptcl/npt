@@ -44,7 +44,7 @@ struct array_struct {
 	enum ARRAY_TYPE type : 5;  /* max 16 (signed) */
 	unsigned element : 8;
 	unsigned bytesize : 8; /* 8, 16, 32, 64 */
-	size_t size, front, dimension, offset, refer;
+	size_t size, front, dimension, offset;
 };
 
 typedef fixed (*bitcalc_call)(fixed, fixed);

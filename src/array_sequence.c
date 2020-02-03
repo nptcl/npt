@@ -32,7 +32,6 @@ static void array_bitcalc_struct(addr pos, addr src)
 	str1->front = str2->front;
 	str1->dimension = str2->dimension;
 	str1->offset = 0;
-	str1->refer = str2->front;
 	GetArrayInfo(src, ARRAY_INDEX_TYPE, &type);
 	SetArrayInfo(pos, ARRAY_INDEX_TYPE, type);
 }
@@ -378,7 +377,7 @@ static void array_subseq_specialized_make(addr *ret, addr array, size_t size)
 	/* element-type */
 	array_bitcalc_struct(pos, array);
 	str = ArrayInfoStruct(pos);
-	str->size = str->front = str->refer = size;
+	str->size = str->front = size;
 	/* allocate */
 	Check(str->dimension != 1, "dimension error");
 	array_allocate_size(NULL, pos, str);
@@ -524,7 +523,7 @@ static void array_make_simple_vector(addr *ret,
 	/* dimension */
 	str = ArrayInfoStruct(pos);
 	str->dimension = 1;
-	str->size = str->front = str->refer = size;
+	str->size = str->front = size;
 	/* allocate */
 	array_make_memory(pos, Nil, Nil, Nil, Nil);
 	/* initial value */

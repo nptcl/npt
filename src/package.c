@@ -2144,8 +2144,10 @@ _g addr internchar_checkr(Execute ptr, const char *pname, const char *sname)
 
 _g void setkeyword_package(addr pos)
 {
-	addr check;
+	addr check, package;
 
+	GetConst(PACKAGE_KEYWORD, &package);
+	export_package(package, pos);
 	GetValueSymbol(pos, &check);
 	if (check == Unbound) {
 		SetValueSymbol(pos, pos);
@@ -2222,6 +2224,26 @@ _g int exportp_package(addr symbol, addr package)
 	/* table */
 	GetBitTypeSymbol(right, &left);
 	return (left == symbol) && (int)StructBitType(right)->expt;
+}
+
+_g int exportp_name_package(addr package, addr name, addr *ret)
+{
+	addr right;
+
+	Check(! stringp(name), "type error");
+	package_designer(package, &package);
+
+	/* export check */
+	GetPackage(package, PACKAGE_INDEX_TABLE, &right);
+	findvalue_hashtable(right, name, &right);
+	if (right == Nil) {
+		*ret = Unbound;
+		return 0;
+	}
+
+	/* table */
+	GetBitTypeSymbol(right, ret);
+	return (int)StructBitType(right)->expt;
 }
 
 _g int checksymbol_package(addr symbol, addr package)

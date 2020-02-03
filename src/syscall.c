@@ -60,7 +60,7 @@ static void syscall_hello(Execute ptr)
 {
 	addr stream;
 
-	standard_input_stream(ptr, &stream);
+	standard_output_stream(ptr, &stream);
 	fresh_line_stream(stream);
 	print_ascii_stream(stream, "Hello");
 	terpri_stream(stream);

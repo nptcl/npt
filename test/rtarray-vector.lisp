@@ -242,6 +242,16 @@
   #(nil nil nil w)
   #(nil nil nil x y z))
 
+(deftest vector-push-extend.6
+  (let* ((a (make-array 10 :initial-contents '(a b c d e f g h i j)))
+         (b (make-array 7 :displaced-to a :fill-pointer t :adjustable t)))
+    (setf (aref a 1) :xx)
+    (vector-push-extend :yy b)
+    (setf (aref a 2) :zz)
+    (values a b))
+  #(A :XX :ZZ D E F G H I J)
+  #(A :XX C D E F G :YY))
+
 
 ;;
 ;;  vectorp

@@ -308,6 +308,42 @@
 
 
 ;;
+;;  colon
+;;
+(defpackage read-intern-colon (:use cl)
+  (:export aaa bbb ccc ddd))
+
+(deftest read-intern-colon.1
+  (eq (intern "BBB" "KEYWORD")
+      (read-from-string ":bbb"))
+  t)
+
+(deftest read-intern-colon.2
+  (eq (intern "BBB" "READ-INTERN-COLON")
+      (read-from-string "read-intern-colon::bbb"))
+  t)
+
+(deftest read-intern-colon.3
+  (eq (intern "BBB" "READ-INTERN-COLON")
+      (read-from-string "read-intern-colon:bbb"))
+  t)
+
+(deftest read-intern-colon.4
+  (eq (intern "EEE" "READ-INTERN-COLON")
+      (read-from-string "read-intern-colon::eee"))
+  t)
+
+(deftest-error read-intern-colon.5
+  (read-from-string "read-intern-colon:eee"))
+
+(deftest read-intern-colon.6
+  (let ((*package* (find-package 'read-intern-colon)))
+    (eq (intern "EEE" "READ-INTERN-COLON")
+        (read-from-string "read-intern-colon::eee")))
+  t)
+
+
+;;
 ;;  do-tests
 ;;
 (do-tests :test t)

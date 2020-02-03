@@ -24,5 +24,8 @@ unsigned lisp_eastasian_character(addr value);
 int lisp_eastasian_string(addr value, size_t *ret);
 int lisp_eastasian_width(addr value, size_t *ret);
 
+/* UTF-8 */
+int lisp_utf8_encode(unicode c, void *ptr, size_t *ret);
+
 #endif
 

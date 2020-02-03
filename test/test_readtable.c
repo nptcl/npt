@@ -1919,6 +1919,7 @@ static int test_maketoken_package(void)
 
 	setescape_readinfo(ptr, 1);
 	clear_charqueue(queue);
+	getreadinfo_struct(ptr)->unexport = 1;
 	pushchar_charqueue_local(local, queue, "0011");
 	GetConst(PACKAGE_COMMON_LISP, &package);
 	maketoken_package(ptr, &pos, queue, package);
@@ -1963,6 +1964,7 @@ static int test_maketoken_normal(void)
 	pushreadinfo(ptr, &pos);
 
 	/* package - symbol */
+	getreadinfo_struct(ptr)->unexport = 1;
 	testreadinfo(ptr, LISP_COMMON_USER, "HELLO");
 	maketoken_normal(ptr, &pos);
 	test(symbolp(pos), "maketoken_normal1");
