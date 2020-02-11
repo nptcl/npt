@@ -45,6 +45,7 @@ addr lisp_nreverse(addr list);
 /* sequence */
 addr lisp_getelt(addr vector, size_t index);
 void lisp_setelt(addr vector, size_t index, addr value);
+size_t lisp_length(addr vector);
 
 /* string */
 addr lisp_string8(const void *str);
@@ -98,6 +99,10 @@ addr lisp_long_double(long double value);
 int lisp_zerop(addr value);
 int lisp_plusp(addr value);
 int lisp_minusp(addr value);
+unicode lisp_get_character(addr pos);
+float lisp_get_float(addr pos);
+double lisp_get_double(addr pos);
+long double lisp_get_long_double(addr pos);
 
 /* function */
 addr lisp_function(addr value);

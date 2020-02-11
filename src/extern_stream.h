@@ -7,6 +7,8 @@
 
 addr lisp_stream_define(int type, size_t size);
 void *lisp_stream_memory(addr stream);
+addr lisp_getinfo_stream(addr stream);
+void lisp_setinfo_stream(addr stream, addr value);
 
 #define LispStreamExtendDeclare(name) \
 	void lisp_stream_calltype_##name(int, lisp_streamtype_##name)

@@ -19,6 +19,7 @@ addr lisp_stream_define(int type, size_t size)
 	if (0xFFFF <= size)
 		fmte("Too large stream size ~S.", intsizeh(size), NULL);
 	stream_heap(&x, (enum StreamType)(StreamType_Size + type), size);
+	PtrStructStream(x)->closed = 0;
 
 	return x;
 }
@@ -28,6 +29,21 @@ void *lisp_stream_memory(addr stream)
 	if (! extend_stream_p(stream))
 		fmte("Invalid stream type ~S.", stream, NULL);
 	return PtrDataStream(stream);
+}
+
+addr lisp_getinfo_stream(addr stream)
+{
+	if (! extend_stream_p(stream))
+		fmte("Invalid stream type ~S.", stream, NULL);
+	GetInfoStream(stream, &stream);
+	return stream;
+}
+
+void lisp_setinfo_stream(addr stream, addr value)
+{
+	if (! extend_stream_p(stream))
+		fmte("Invalid stream type ~S.", stream, NULL);
+	SetInfoStream(stream, value);
 }
 
 

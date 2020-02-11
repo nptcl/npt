@@ -1,6 +1,8 @@
+#include "character.h"
 #include "condition.h"
 #include "eastasian.h"
 #include "eastasian_unicode.h"
+#include "encode.h"
 #include "encode_unicode.h"
 #include "extern_unicode.h"
 #include "strtype.h"
@@ -126,9 +128,38 @@ int lisp_eastasian_width(addr value, size_t *ret)
 }
 
 
+/* unicode */
+int lisp_unicode_count(void)
+{
+	return UnicodeCount;
+}
+
+
 /* UTF-8 */
 int lisp_utf8_encode(unicode c, void *ptr, size_t *ret)
 {
 	return encode_utf8(c, ptr, ret);
+}
+
+
+/* UTF-16 */
+int lisp_utf16_range(unicode c)
+{
+	return UTF16range(c);
+}
+
+int lisp_utf16_high(unicode c)
+{
+	return UTF16high(c);
+}
+
+int lisp_utf16_low(unicode c)
+{
+	return UTF16low(c);
+}
+
+unicode lisp_utf16_merge(byte16 high, byte16 low)
+{
+	return UTF16unicode(high, low);
 }
 

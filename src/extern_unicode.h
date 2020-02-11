@@ -27,5 +27,12 @@ int lisp_eastasian_width(addr value, size_t *ret);
 /* UTF-8 */
 int lisp_utf8_encode(unicode c, void *ptr, size_t *ret);
 
+/* encode */
+int lisp_unicode_count(void);
+int lisp_utf16_range(unicode c);
+int lisp_utf16_high(unicode c);
+int lisp_utf16_low(unicode c);
+unicode lisp_utf16_merge(byte16 first, byte16 second);
+
 #endif
 

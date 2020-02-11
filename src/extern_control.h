@@ -14,6 +14,7 @@ addr lisp_result_control(void);
 void lisp_result2_control(addr *ret1, addr *ret2);
 int lisp_eval8(addr *ret, const void *str);
 int lisp_eval16(addr *ret, const void *str);
+int lisp_eval_loop(void);
 
 /* format */
 int lisp_format8(addr stream, const void *str, ...);
@@ -29,6 +30,14 @@ addr lisp_syscall_getvalue(void);
 
 /* unwind-protect */
 int lisp_unwind_protect(addr code, addr clean);
+
+/* error */
+void lisp_error8(const void *str, ...);
+void lisp_error16(const void *str, ...);
+
+/* catch / throw */
+int lisp_catch(addr symbol, addr code, addr *ret);
+int lisp_throw(addr symbol);
 
 #endif
 

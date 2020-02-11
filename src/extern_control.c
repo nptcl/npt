@@ -2,6 +2,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "control.h"
+#include "copy.h"
 #include "extern_control.h"
 #include "extern_object.h"
 #include "eval.h"
@@ -12,6 +13,7 @@
 #include "local.h"
 #include "pointer.h"
 #include "strtype.h"
+#include "symbol.h"
 #include "unicode.h"
 
 /*
@@ -117,6 +119,11 @@ int lisp_eval16(addr *ret, const void *str)
 	rollback_local(local, stack);
 
 	return 0;
+}
+
+int lisp_eval_loop(void)
+{
+	return eval_main_loop(Execute_Thread);
 }
 
 
@@ -276,5 +283,76 @@ int lisp_unwind_protect(addr code, addr clean)
 _g void init_extern_control(void)
 {
 	SetPointerType(empty, extern_unwind_protect);
+}
+
+
+/*
+ *  error
+ */
+void lisp_error8(const void *str, ...)
+{
+	addr format, args;
+	va_list va;
+
+	format = lisp_string8(str);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+
+	simple_error(format, args);
+}
+
+void lisp_error16(const void *str, ...)
+{
+	addr format, args;
+	va_list va;
+
+	format = lisp_string16(str);
+	va_start(va, str);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+
+	simple_error(format, args);
+}
+
+
+/*
+ *  throw
+ */
+int lisp_catch(addr symbol, addr code, addr *ret)
+{
+	Execute ptr;
+	addr control, catch;
+	LocalHold hold;
+
+	if (! symbolp(symbol))
+		fmte("CATCH argument ~S must be a symbol.", symbol, NULL);
+	ptr = Execute_Thread;
+	hold = LocalHold_array(ptr, 1);
+	push_close_control(ptr, &control);
+	/* begin catch */
+	push_return_control(ptr, &catch);
+	catch_control(ptr, symbol);
+	if (apply_control(ptr, code, Nil))
+		return free_check_control(ptr, catch, 1);
+	if (free_check_control(ptr, catch, 0))
+		return 1;
+	/* end catch */
+	getresult_control(ptr, &catch);
+	localhold_set(hold, 0, catch);
+	if (free_check_control(ptr, control, 0))
+		return 1;
+	localhold_end(hold);
+	if (ret)
+		*ret = catch;
+	return 0;
+}
+
+int lisp_throw(addr symbol)
+{
+	if (! symbolp(symbol))
+		fmte("THROW argument ~S must be a symbol.", symbol, NULL);
+	throw_control(Execute_Thread, symbol);
+	return 1;
 }
 
