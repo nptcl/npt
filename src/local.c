@@ -19,251 +19,474 @@ static void memoryerror_local(void)
 }
 
 
-/*
- *  init / free
- */
-_g addr lowlevel_unsafe(struct localroot *ptr, size_t size)
+#ifdef LISP_MEMORY_MALLOC
+/***********************************************************************
+ *  Use malloc
+ ***********************************************************************/
+static void *lowlevel_unsafe(struct localroot *local, size_t size)
+{
+	struct localmemory *mem;
+	void *ptr;
+
+	/* localmemory */
+	mem = local->mem;
+	if (LocalCount <= mem->count) {
+		mem = malloctype(struct localmemory);
+		if (mem == NULL)
+			return NULL;
+#ifdef LISP_DEBUG
+		aamemory(mem, sizeoft(struct localmemory));
+#endif
+		mem->count = 0;
+		mem->next = local->mem;
+		local->mem = mem;
+	}
+
+	/* memory */
+	ptr = malloc(size);
+	if (ptr == NULL)
+		return NULL;
+#ifdef LISP_MEMORY_INIT
+	aamemory(ptr, size);
+#endif
+	mem->point[mem->count++] = ptr;
+	return ptr;
+}
+
+_g void *lowlevel_local(struct localroot *local, size_t size)
+{
+	void *ptr;
+
+	ptr = lowlevel_unsafe(local, size);
+	if (ptr == NULL)
+		memoryerror_local();
+
+	return ptr;
+}
+
+static struct localcell *pushcell_local(struct localroot *local)
+{
+	struct localcell *cell;
+
+	cell = (struct localcell *)lowlevel_local(local, sizeoft(struct localcell));
+#ifdef LISP_DEBUG
+	aamemory(cell, sizeoft(struct localcell));
+#endif
+	cell->count = 0;
+	cell->next = local->cell;
+	local->cell = cell;
+
+	return cell;
+}
+
+_g addr alloc_local(struct localroot *local, size_t size)
+{
+	struct localcell *cell;
+	addr pos;
+
+	cell = local->cell;
+	if (LocalCount <= cell->count)
+		cell = pushcell_local(local);
+	pos = (addr)lowlevel_local(local, size);
+	cell->point[cell->count++] = pos;
+
+	return pos;
+}
+
+static struct localmemory *make_local_memory(size_t size)
+{
+	struct localmemory *mem;
+
+	mem = malloctype(struct localmemory);
+	if (mem == NULL) {
+		Debug("malloctype error");
+		return NULL;
+	}
+#ifdef LISP_MEMORY_INIT
+	aamemory(mem, sizeoft(struct localmemory));
+#endif
+	mem->count = 0;
+	mem->next = NULL;
+
+	return mem;
+}
+
+static struct localroot *make_local_localroot(struct localmemory *mem, size_t size)
+{
+	struct localroot *local;
+
+	local = malloctype(struct localroot);
+	if (local == NULL) {
+		Debug("malloctype error");
+		return NULL;
+	}
+#ifdef LISP_DEBUG
+	aamemory(local, sizeoft(struct localroot));
+#endif
+	local->size = size;
+	local->mem = mem;
+	local->cell = NULL;
+	local->stack = NULL;
+
+	return local;
+}
+
+static struct localcell *make_local_localcell(struct localroot *local)
+{
+	struct localcell *cell;
+
+	cell = (struct localcell *)lowlevel_unsafe(local, sizeoft(struct localcell));
+	if (cell == NULL) {
+		Debug("lowlevel_unsafe error");
+		return NULL;
+	}
+#ifdef LISP_DEBUG
+	aamemory(cell, sizeoft(struct localcell));
+#endif
+	cell->count = 0;
+	cell->next = local->cell;
+	local->cell = cell;
+
+	return cell;
+}
+
+_g struct localroot *make_local(size_t size)
+{
+	struct localmemory *mem;
+	struct localcell *cell;
+	struct localroot *local;
+
+	mem = NULL;
+	cell = NULL;
+	local = NULL;
+	if (size < LocalLimit)
+		size = LocalLimit;
+
+	/* memory */
+	mem = make_local_memory(size);
+	if (mem == NULL)
+		goto error;
+
+	/* localroot */
+	local = make_local_localroot(mem, size);
+	if (local == NULL)
+		goto error;
+
+	/* localcell */
+	cell = make_local_localcell(local);
+	if (cell == NULL) {
+		free_local(local);
+		return NULL;
+	}
+
+	/* result */
+	return local;
+
+error:
+	free(mem);
+	free(local);
+	return NULL;
+}
+
+_g void free_local(struct localroot *local)
+{
+	void **mem_point;
+	struct localmemory *x, *next;
+	size_t i, count;
+
+	if (local == NULL)
+		return;
+
+	/* localmemory */
+	for (x = local->mem; x; x = next) {
+		next = x->next;
+		count = x->count;
+		mem_point = x->point;
+		for (i = 0; i < count; i++) {
+			free(mem_point[i]);
+			mem_point[i] = NULL;
+		}
+		free(x);
+	}
+
+	/* localroot */
+	free(local);
+}
+
+_g void push_local(struct localroot *local, struct localstack **ret)
+{
+	struct localstack *stack;
+
+	stack = (struct localstack *)lowlevel_local(local, sizeof(struct localstack));
+	stack->stack = local->stack;
+	stack->mem = local->mem;
+	stack->cell = local->cell;
+	stack->memcount = local->mem->count;
+	stack->cellcount = local->cell->count;
+	local->stack = stack;
+	*ret = stack;
+}
+
+static void rollback_memory_local(struct localroot *local, struct localstack *stack)
+{
+	void **mem_point;
+	struct localmemory *x, *y, *next;
+	size_t i, count;
+
+	y = stack->mem;
+	for (x = local->mem; x != y; x = next) {
+		next = x->next;
+		count = x->count;
+		mem_point = x->point;
+		for (i = 0; i < count; i++) {
+			free(mem_point[i]);
+			mem_point[i] = NULL;
+		}
+		free(x);
+	}
+}
+
+_g void rollback_local(struct localroot *local, struct localstack *stack)
+{
+	void **mem_point;
+	struct localmemory *local_mem;
+	struct localstack save;
+	size_t i, count;
+#ifdef LISP_DEBUG
+	struct localstack *root;
+
+	Check(stack == NULL, "stack error.");
+	for (root = local->stack; root == stack; root = root->stack) {
+		Check(root == NULL, "rollback_local check error");
+	}
+#endif
+	save = *stack;
+	rollback_memory_local(local, stack);
+	local->stack = save.stack;
+	local->mem = save.mem;
+	local->cell = save.cell;
+
+	local_mem = local->mem;
+	count = local_mem->count;
+	mem_point = local_mem->point;
+	for (i = save.memcount; i < count; i++)
+		free(mem_point[i]);
+	local_mem->count = save.memcount;
+	local->cell->count = save.cellcount;
+#ifdef LISP_DEBUG
+	for (i = local->cell->count; i < LocalCount; i++)
+		local->cell->point[i] = Unbound;
+	for (i = local->mem->count; i < LocalCount; i++)
+		local->mem->point[i] = Unbound;
+#endif
+}
+
+#else
+/***********************************************************************
+ *  Memory pool
+ ***********************************************************************/
+static void *lowlevel_unsafe(struct localroot *local, size_t size)
 {
 	addr front, check;
 
 	AlignSize8Front(size, &size);
-	front = ptr->front;
+	front = local->front;
 	check = front + size;
-	if (ptr->tail < check) {
+	if (local->tail < check) {
 		Debug("stack overflow");
 		return NULL;
 	}
-	ptr->front = check;
+	local->front = check;
 	CheckAlign8(front, "align8 error1");
 	CheckAlign8(check, "align8 error2");
 
 	return front;
 }
 
-_g addr lowlevel_local(struct localroot *ptr, size_t size)
+_g void *lowlevel_local(struct localroot *local, size_t size)
 {
-	addr point;
+	void *ptr;
 
-	point = lowlevel_unsafe(ptr, size);
-	if (point == NULL) {
+	ptr = lowlevel_unsafe(local, size);
+	if (ptr == NULL)
 		memoryerror_local();
-	}
 
-	return point;
+	return ptr;
 }
 
-static struct localcell *pushcell(struct localroot *ptr)
+static struct localcell *pushcell_local(struct localroot *local)
 {
 	struct localcell *cell;
 
-	cell = (struct localcell *)lowlevel_unsafe(ptr, sizeoft(struct localcell));
-	if (cell == NULL) {
-		Debug("pushcell error");
-		return NULL;
-	}
+	cell = (struct localcell *)lowlevel_local(local, sizeoft(struct localcell));
 #ifdef LISP_DEBUG
-	memset(cell, 0xAA, sizeoft(struct localcell));
+	aamemory(cell, sizeoft(struct localcell));
 #endif
 	cell->count = 0;
-	cell->next = ptr->cell;
-	ptr->cell = cell;
+	cell->next = local->cell;
+	local->cell = cell;
 
 	return cell;
 }
 
-_g addr alloc_local(struct localroot *ptr, size_t size)
+_g addr alloc_local(struct localroot *local, size_t size)
 {
 	struct localcell *cell;
 	addr pos;
 
-	/* cell */
-	cell = ptr->cell;
-	if (LocalCount <= cell->count) {
-		cell = pushcell(ptr);
-		if (cell == NULL) {
-			Debug("pushcell error");
-			goto error;
-		}
-	}
-
-	/* memory */
-	pos = lowlevel_unsafe(ptr, size);
-	if (pos == NULL) {
-		Debug("lowlevel_unsafe error");
-		goto error;
-	}
+	cell = local->cell;
+	if (LocalCount <= cell->count)
+		cell = pushcell_local(local);
+	pos = (addr)lowlevel_local(local, size);
 	cell->point[cell->count++] = pos;
-	return pos;
 
-error:
-	memoryerror_local();
-	return NULL;
+	return pos;
+}
+
+static void *make_local_memory(size_t size)
+{
+	void *ptr;
+
+	ptr = malloc(size + 8UL);
+	if (ptr == NULL) {
+		Debug("malloc error");
+		return NULL;
+	}
+#ifdef LISP_MEMORY_INIT
+	aamemory(ptr, size);
+#endif
+
+	return ptr;
+}
+
+static struct localroot *make_local_localroot(void *ptr, size_t size)
+{
+	struct localroot *local;
+
+	local = malloctype(struct localroot);
+	if (local == NULL) {
+		Debug("malloctype error");
+		return NULL;
+	}
+#ifdef LISP_DEBUG
+	aamemory(local, sizeoft(struct localroot));
+#endif
+	local->alloc = ptr;
+	Align8Front(ptr, &(local->front));
+	local->tail = size + ((addr)ptr);
+	local->size = size;
+	local->stack = NULL;
+	local->cell = NULL;
+	CheckAlign8(local->front, "align8 error1");
+
+	return local;
+}
+
+static struct localcell *make_local_localcell(struct localroot *local)
+{
+	struct localcell *cell;
+
+	cell = (struct localcell *)lowlevel_unsafe(local, sizeoft(struct localcell));
+	if (cell == NULL) {
+		Debug("lowlevel_unsafe error");
+		return NULL;
+	}
+#ifdef LISP_DEBUG
+	aamemory(cell, sizeoft(struct localcell));
+#endif
+	cell->count = 0;
+	cell->next = local->cell;
+	local->cell = cell;
+	CheckAlign8(local->front, "align8 error2");
+
+	return cell;
 }
 
 _g struct localroot *make_local(size_t size)
 {
-	struct localroot *ptr;
-	addr alloc;
+	struct localroot *local;
+	struct localcell *cell;
+	void *ptr;
 
 	if (size < LocalLimit)
 		size = LocalLimit;
 
-	ptr = malloctype(struct localroot);
-	if (ptr == NULL) {
-		Debug("malloctype error");
-		return NULL;
-	}
-
-	alloc = (addr)malloc(size);
-	if (alloc == NULL) {
-		Debug("malloc error");
+	/* memory */
+	local = NULL;
+	cell = NULL;
+	ptr = make_local_memory(size);
+	if (ptr == NULL)
 		goto error;
-	}
-#ifdef LISP_MEMORY_INIT
-	memset(alloc, 0xAA, size);
-#endif
 
-	ptr->alloc = (void *)alloc;
-	Align8Front(ptr->alloc, &(ptr->front));
-	ptr->tail = size + alloc;
-	ptr->size = size;
-	ptr->stack = NULL;
-	ptr->cell = NULL;
-	CheckAlign8(ptr->front, "align8 error1");
-	if (pushcell(ptr) == NULL) {
-		Debug("pushcell error");
+	/* localroot */
+	local = make_local_localroot(ptr, size);
+	if (local == NULL)
 		goto error;
-	}
-	CheckAlign8(ptr->front, "align8 error2");
-	return ptr;
+
+	/* localcell */
+	cell = make_local_localcell(local);
+	if (cell == NULL)
+		goto error;
+
+	/* result */
+	return local;
 
 error:
 	free(ptr);
+	free(local);
 	return NULL;
 }
 
-_g void free_local(struct localroot *ptr)
+_g void free_local(struct localroot *local)
 {
-	if (ptr) {
-		free(ptr->alloc);
-		free(ptr);
-	}
-}
-
-
-/*
- *  stack
- */
-_g void unsafe_push_local(struct localroot *ptr)
-{
-	struct localstack *stack;
-
-	/* Don't use alloc_local */
-	stack = (struct localstack *)lowlevel_unsafe(ptr, sizeof(struct localstack));
-	if (stack == NULL) {
-		Debug("lowlevel_unsafe error");
-		memoryerror_local();
+	if (local == NULL)
 		return;
-	}
-	stack->stack = ptr->stack;
-	stack->cell = ptr->cell;
-	stack->cellcount = ptr->cell->count;
-	ptr->stack = stack;
-	CheckAlign8(ptr->front, "align8 error2");
+	free(local->alloc);
+	local->alloc = NULL;
+	free(local);
 }
 
-_g void push_local(struct localroot *ptr, struct localstack **stack)
-{
-	unsafe_push_local(ptr);
-	*stack = ptr->stack;
-}
-
-_g void unsafe_pop_local(struct localroot *ptr)
+_g void push_local(struct localroot *local, struct localstack **ret)
 {
 	struct localstack *stack;
-#ifdef LISP_DEBUG
-	addr front;
-	size_t i;
 
-	front = ptr->front;
-#endif
-	stack = ptr->stack;
-	if (ptr->stack == NULL) {
-		Align8Front(ptr->alloc, &(ptr->front));
-		ptr->cell = NULL;
-		pushcell(ptr);
-	}
-	else {
-		ptr->front = (addr)stack;
-		ptr->stack = stack->stack;
-		ptr->cell = stack->cell;
-		ptr->cell->count = stack->cellcount;
-	}
-#ifdef LISP_DEBUG
-	memset(ptr->front, 0xAA, front - ptr->front);
-	for (i = ptr->cell->count; i < LocalCount; i++)
-		ptr->cell->point[i] = Unbound;
-#endif
+	stack = (struct localstack *)lowlevel_local(local, sizeof(struct localstack));
+	stack->stack = local->stack;
+	stack->cell = local->cell;
+	stack->cellcount = local->cell->count;
+	local->stack = stack;
+	*ret = stack;
 }
 
-_g void rollback_local(struct localroot *ptr, struct localstack *stack)
+_g void rollback_local(struct localroot *local, struct localstack *stack)
 {
 #ifdef LISP_DEBUG
 	struct localstack *root;
 	addr front;
 	size_t i;
 
-	front = ptr->front;
-#endif
-	if (stack == NULL) {
-		Align8Front(ptr->alloc, &(ptr->front));
-		ptr->stack = NULL;
-		ptr->cell = NULL;
-		pushcell(ptr);
-		Check(ptr->cell == NULL, "pushcell error");
+	front = local->front;
+	Check(stack == NULL, "stack error.");
+	for (root = local->stack; root == stack; root = root->stack) {
+		Check(root == NULL, "rollback_local check error");
 	}
-	else {
-#ifdef LISP_DEBUG
-		for (root = ptr->stack; root == stack; root = root->stack) {
-			Check(root == NULL, "rollback_local check error");
-		}
 #endif
-		ptr->front = (addr)stack;
-		ptr->stack = stack->stack;
-		ptr->cell = stack->cell;
-		ptr->cell->count = stack->cellcount;
-	}
+	local->front = (addr)stack;
+	local->stack = stack->stack;
+	local->cell = stack->cell;
+	local->cell->count = stack->cellcount;
 #ifdef LISP_DEBUG
-	memset(ptr->front, 0xAA, front - ptr->front);
-	for (i = ptr->cell->count; i < LocalCount; i++)
-		ptr->cell->point[i] = Unbound;
+	memset(local->front, 0xAA, front - local->front);
+	for (i = local->cell->count; i < LocalCount; i++)
+		local->cell->point[i] = Unbound;
 #endif
 }
-
-static int valid_range_local(struct localroot *ptr, const void *pos)
-{
-	return (ptr->alloc <= pos) && (pos <= (const void *)ptr->front);
-}
-
-_g int valid_local(struct localroot *ptr, const void *pos)
-{
-	return (! valid_heap(pos)) && valid_range_local(ptr, pos);
-}
-
-_g int valid_memory(struct localroot *ptr, const void *pos)
-{
-	return valid_heap(pos) || valid_range_local(ptr, pos);
-}
-
-_g int valid_object(struct localroot *ptr, addr pos)
-{
-	return valid_header(pos) && valid_memory(ptr, (const void *)pos);
-}
+#endif
 
 
-/*
- *  allocate
- */
+/***********************************************************************
+ *  Allocate
+ ***********************************************************************/
 static void allocobject(struct localroot *local,
 		size_t size, enum LISPTYPE type, addr *root, int size2)
 {

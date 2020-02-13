@@ -349,7 +349,7 @@
 #define LISP_DEGRADE_STRING "release"
 #endif
 
-/* memory clear */
+/* memory management */
 #if defined(LISP_MEMORY_INIT)
 #undef LISP_MEMORY_UNINIT
 #elif defined(LISP_MEMORY_UNINIT)

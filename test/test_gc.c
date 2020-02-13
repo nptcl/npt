@@ -92,12 +92,12 @@ static void localcell_test(struct localcell *cell, int count, struct localcell *
 	byte *mem;
 
 	memset(cell, 0, sizeoft(struct localcell));
-	mem = (byte *)&cell->point[HeapCount/2];
+	mem = (byte *)&cell->point[LocalCount/2];
 	cell->next = next;
 	cell->count = count;
 	for (i = 0; i < count + 1; i++) {
-		mem[i*8] = LISPTYPE_STRING;
-		cell->point[i] = mem + i*8;
+		mem[i*2] = LISPTYPE_STRING;
+		cell->point[i] = mem + i*2;
 	}
 }
 
@@ -209,8 +209,8 @@ static void test_setallobject_makelocal(void)
 	mem = (addr)&cell->point[30];
 	cell->point[0] = (addr)mem;
 	mem[0] = LISPTYPE_CONS;
-	cell->point[1] = (addr)(mem + 8);
-	mem[8] = LISPTYPE_STRING;
+	cell->point[1] = (addr)(mem + 2);
+	mem[2] = LISPTYPE_STRING;
 }
 
 static void test_setallobject_clear(void)
@@ -839,6 +839,8 @@ static int test_replacespace_heap(void)
 	SetStatus(cell.point[1], LISPSIZE_ARRAY4);
 	*PtrValueL(cell.point[0]) = 64;
 	*PtrValueL(cell.point[1]) = 64;
+	SetCheck2(cell.point[0], LISPCHECK_ARRAY, LISPCHECK_SIZE4);
+	SetCheck2(cell.point[1], LISPCHECK_ARRAY, LISPCHECK_SIZE4);
 	SetStatusValue(cell.point[0], LISPSTATUS_GC, 1);
 	replacespace_heap(&root);
 	test(cell.count == 1, "replacespace_heap1");
@@ -870,6 +872,9 @@ static int test_replacespace_heap(void)
 	*PtrValueL(cell.point[0]) = 10;
 	*PtrValueL(cell.point[1]) = 20;
 	*PtrValueL(cell.point[2]) = 30;
+	SetCheck2(cell.point[0], LISPCHECK_ARRAY, LISPCHECK_SIZE4);
+	SetCheck2(cell.point[1], LISPCHECK_ARRAY, LISPCHECK_SIZE4);
+	SetCheck2(cell.point[2], LISPCHECK_BODY, LISPCHECK_SIZE4);
 	SetStatusValue(cell.point[1], LISPSTATUS_GC, 1);
 	replacespace_heap(&root);
 

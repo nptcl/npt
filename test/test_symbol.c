@@ -1,9 +1,11 @@
 #include "symbol.c"
 #include "clos.h"
+#include "character.h"
 #include "common.h"
 #include "condition.h"
 #include "degrade.h"
 #include "package.h"
+#include "stream.h"
 #include "type_parse.h"
 #include "type_table.h"
 
@@ -598,12 +600,13 @@ static int test_symstack(void)
 static int test_pushsymlocal(void)
 {
 	addr pos, root, temp, check, right;
+	LocalStack stack;
 	Execute ptr;
 	size_t index;
 
 	ptr = Execute_Thread;
 	index = Index_Thread;
-	unsafe_push_local(ptr->local);
+	push_local(ptr->local, &stack);
 	symbol_heap(&pos);
 	GetStackSymbol_Low(pos, &root);
 	GetArrayA4(root, index, &root);
@@ -644,7 +647,7 @@ static int test_pushsymlocal(void)
 	GetCons(check, &check, &right);
 	test(check == temp, "pushsymlocal11");
 	test(right == Nil, "pushsymlocal12");
-	unsafe_pop_local(ptr->local);
+	rollback_local(ptr->local, stack);
 
 	RETURN;
 }
@@ -653,9 +656,10 @@ static int test_popsymlocal(void)
 {
 	addr pos, temp, root, left, right;
 	Execute ptr;
+	LocalStack stack;
 
 	ptr = Execute_Thread;
-	unsafe_push_local(ptr->local);
+	push_local(ptr->local, &stack);
 
 	symbol_heap(&pos);
 	strvect_char_heap(&temp, "Hello");
@@ -699,7 +703,7 @@ static int test_popsymlocal(void)
 	GetArrayA4(root, 0, &root);
 	GetArrayA2(root, SYMBOL_STACK_LEXICAL, &right);
 	test(right == Nil, "popsymlocal10");
-	unsafe_pop_local(ptr->local);
+	rollback_local(ptr->local, stack);
 
 	RETURN;
 }
@@ -708,9 +712,10 @@ static int test_clearsymlocal(void)
 {
 	addr pos, root, temp;
 	Execute ptr;
+	LocalStack stack;
 
 	ptr = Execute_Thread;
-	unsafe_push_local(ptr->local);
+	push_local(ptr->local, &stack);
 
 	symbol_heap(&pos);
 	strvect_char_heap(&temp, "hello");
@@ -731,7 +736,7 @@ static int test_clearsymlocal(void)
 	GetArrayA4(root, 0, &root);
 	GetArrayA2(root, SYMBOL_STACK_SPECIAL, &root);
 	test(root == Nil, "clearsymlocal2");
-	unsafe_pop_local(ptr->local);
+	rollback_local(ptr->local, stack);
 
 	RETURN;
 }
@@ -740,9 +745,10 @@ static int test_getsymlocal(void)
 {
 	addr pos, base, temp, check;
 	Execute ptr;
+	LocalStack stack;
 
 	ptr = Execute_Thread;
-	unsafe_push_local(ptr->local);
+	push_local(ptr->local, &stack);
 
 	symbol_heap(&pos);
 	getlexical_local(ptr, pos, &check);
@@ -805,7 +811,7 @@ static int test_getsymlocal(void)
 	test(check == base, "getsymlocal17");
 	getfunction_local(ptr, pos, &check);
 	test(check == Unbound, "getsymlocal18");
-	unsafe_pop_local(ptr->local);
+	rollback_local(ptr->local, stack);
 
 	RETURN;
 }
@@ -814,9 +820,10 @@ static int test_setsymlocal(void)
 {
 	addr pos, temp, check;
 	Execute ptr;
+	LocalStack stack;
 
 	ptr = Execute_Thread;
-	unsafe_push_local(ptr->local);
+	push_local(ptr->local, &stack);
 
 	symbol_heap(&pos);
 	strvect_char_heap(&temp, "Hello");
@@ -845,7 +852,7 @@ static int test_setsymlocal(void)
 	test(string_equal_char(check, "eee"), "setsymlocal4");
 	getspecial_local(ptr, pos, &check);
 	test(string_equal_char(check, "eee"), "setsymlocal5");
-	unsafe_push_local(ptr->local);
+	rollback_local(ptr->local, stack);
 
 	RETURN;
 }
@@ -903,7 +910,10 @@ int test_symbol(void)
 		build_lisproot(ptr);
 		build_constant();
 		build_object();
+		build_character();
 		build_package();
+		build_stream();
+		build_symbol();
 		build_clos(ptr);
 		build_condition(ptr);
 		build_type();

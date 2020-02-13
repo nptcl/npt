@@ -4,7 +4,40 @@
 #include <stddef.h>
 #include "typedef.h"
 
-#define LocalCount		128
+#ifdef LISP_DEBUG
+#define LocalCount		8
+#else
+#define LocalCount		32
+#endif
+
+#ifdef LISP_MEMORY_MALLOC
+struct localmemory {
+	struct localmemory *next;
+	size_t count;
+	void *point[LocalCount];
+};
+
+struct localcell {
+	struct localcell *next;
+	size_t count;
+	addr point[LocalCount];
+};
+
+struct localstack {
+	struct localstack *stack;
+	struct localmemory *mem;
+	struct localcell *cell;
+	size_t cellcount, memcount;
+};
+
+struct localroot {
+	size_t size;
+	struct localmemory *mem;
+	struct localcell *cell;
+	struct localstack *stack;
+};
+
+#else
 struct localcell {
 	struct localcell *next;
 	size_t count;
@@ -24,22 +57,17 @@ struct localroot {
 	struct localcell *cell;
 	struct localstack *stack;
 };
+#endif
 
 typedef struct localroot *LocalRoot;
 typedef struct localstack *LocalStack;
 
+_g void *lowlevel_local(struct localroot *, size_t);
+_g addr alloc_local(struct localroot *, size_t);
 _g struct localroot *make_local(size_t);
 _g void free_local(struct localroot *);
-_g addr lowlevel_unsafe(struct localroot *, size_t);
-_g addr lowlevel_local(struct localroot *, size_t);
-_g addr alloc_local(struct localroot *, size_t);
-_g void unsafe_push_local(struct localroot *);
 _g void push_local(struct localroot *, struct localstack **stack);
-_g void unsafe_pop_local(struct localroot *);
 _g void rollback_local(struct localroot *, struct localstack *);
-_g int valid_local(struct localroot *, const void *);
-_g int valid_memory(struct localroot *, const void *);
-_g int valid_object(struct localroot *, addr);
 
 _g addr localr_cons(struct localroot *);
 _g addr localr_symbol(struct localroot *);

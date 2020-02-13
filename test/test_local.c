@@ -2,6 +2,7 @@
 #include "degrade.h"
 #include "heap.h"
 
+#ifndef LISP_MEMORY_MALLOC
 static int test_lowlevel_unsafe(void)
 {
 	byte mem[100000];
@@ -63,90 +64,27 @@ static int test_make_local(void)
 	RETURN;
 }
 
-static int test_unsafe_push_local(void)
+static int test_push_local(void)
 {
 	struct localroot *local;
 	struct localstack *stack;
+	LocalStack temp;
 	addr front;
 
 	local = make_local(0x100000);
-	test(local->stack == NULL, "unsafe_push_local1");
+	test(local->stack == NULL, "push_local1");
 	front = local->front;
-	unsafe_push_local(local);
-	test(local->stack, "unsafe_push_local2");
-	test((addr)local->stack == front, "unsafe_push_local3");
-	test(local->stack->stack == NULL, "unsafe_push_local4");
+	push_local(local, &temp);
+	test(local->stack, "push_local2");
+	test((addr)local->stack == front, "push_local3");
+	test(local->stack->stack == NULL, "push_local4");
 
 	front = local->front;
 	stack = local->stack;
-	unsafe_push_local(local);
-	test((addr)local->stack == front, "unsafe_push_local5");
-	test(local->stack->stack == stack, "unsafe_push_local6");
+	push_local(local, &temp);
+	test((addr)local->stack == front, "push_local5");
+	test(local->stack->stack == stack, "push_local6");
 
-	free_local(local);
-
-	RETURN;
-}
-
-static int test_unsafe_pop_local(void)
-{
-	struct localroot *local;
-	struct localstack *stack;
-	addr front, first;
-
-	local = make_local(0x100000);
-	first = local->front;
-	test(local->stack == NULL, "unsafe_pop_local1");
-	front = local->front;
-	unsafe_pop_local(local);
-	test(local->front == front, "unsafe_pop_local2");
-	test(local->stack == NULL, "unsafe_pop_local3");
-
-	alloc_local(local, 100);
-	test(local->front != front, "unsafe_pop_local3");
-	unsafe_pop_local(local);
-	test(local->front == front, "unsafe_pop_local4");
-
-	front = local->front;
-	unsafe_push_local(local);
-	test(local->stack, "unsafe_pop_local5");
-	alloc_local(local, 100);
-	unsafe_pop_local(local);
-	test(local->stack == NULL, "unsafe_pop_local6");
-	test(local->front == front, "unsafe_pop_local7");
-
-	unsafe_push_local(local);
-	alloc_local(local, 200);
-	stack = local->stack;
-	front = local->front;
-	unsafe_push_local(local);
-	alloc_local(local, 300);
-	test(local->stack != stack, "unsafe_pop_local8");
-	unsafe_pop_local(local);
-	test(local->stack == stack, "unsafe_pop_local9");
-	test(local->front == front, "unsafe_pop_local10");
-	unsafe_pop_local(local);
-	unsafe_pop_local(local);
-	unsafe_pop_local(local);
-	unsafe_pop_local(local);
-	unsafe_pop_local(local);
-	test(local->front == first, "unsafe_pop_local11");
-
-	free_local(local);
-
-	RETURN;
-}
-
-static int test_unsafe_pop_local_error(void)
-{
-	struct localroot *local;
-	addr front;
-
-	local = make_local(0x100000);
-	front = local->front;
-	unsafe_push_local(local);
-	unsafe_pop_local(local);
-	test(local->front == front, "unsafe_pop_local_error1");
 	free_local(local);
 
 	RETURN;
@@ -155,7 +93,7 @@ static int test_unsafe_pop_local_error(void)
 static int test_rollback_local(void)
 {
 	struct localroot *local;
-	struct localstack *stack, *back;
+	struct localstack *stack, *back, *temp;
 	struct localcell *cell;
 	addr check, first;
 	size_t count, i;
@@ -163,87 +101,88 @@ static int test_rollback_local(void)
 	local = make_local(0x10000000);
 	/* NULL */
 	first = local->front;
-	rollback_local(local, NULL);
+	push_local(local, &stack);
+	rollback_local(local, stack);
 	test(local->stack == NULL, "rollback_local1");
 	test(local->front == first, "rollback_local2");
-	test(local->cell, "rollback_local2a");
-	test(local->cell->next == NULL, "rollback_local2b");
-	test(local->cell->count == 0, "rollback_local2c");
+	test(local->cell, "rollback_local3");
+	test(local->cell->next == NULL, "rollback_local4");
+	test(local->cell->count == 0, "rollback_local5");
 
 	/* NULL delete */
+	push_local(local, &stack);
 	alloc_local(local, 2000);
-	rollback_local(local, NULL);
-	test(local->stack == NULL, "rollback_local3");
-	test(local->front == first, "rollback_local4");
-	test(local->cell, "rollback_local4a");
-	test(local->cell->next == NULL, "rollback_local4b");
-	test(local->cell->count == 0, "rollback_local4c");
+	rollback_local(local, stack);
+	test(local->stack == NULL, "rollback_local6");
+	test(local->front == first, "rollback_local7");
+	test(local->cell, "rollback_local8");
+	test(local->cell->next == NULL, "rollback_local9");
+	test(local->cell->count == 0, "rollback_local10");
 
 	/* rollback, 1object */
 	alloc_local(local, 300);
 	check = local->front;
-	unsafe_push_local(local);
-	stack = local->stack;
+	push_local(local, &stack);
 	cell = local->cell;
 	count = local->cell->count;
 	alloc_local(local, 400);
-	test(local->front != check, "rollback_local5");
+	test(local->front != check, "rollback_local11");
 	rollback_local(local, stack);
-	test(local->front == check, "rollback_local6");
-	test(local->stack == NULL, "rollback_local7");
-	test(local->cell == cell, "rollback_local7a");
-	test(local->cell->next == NULL, "rollback_local7b");
-	test(local->cell->count == count, "rollback_local7c");
+	test(local->front == check, "rollback_local12");
+	test(local->stack == NULL, "rollback_local13");
+	test(local->cell == cell, "rollback_local14");
+	test(local->cell->next == NULL, "rollback_local15");
+	test(local->cell->count == count, "rollback_local16");
 
 	/* rollback, 2object */
 	check = local->front;
-	unsafe_push_local(local);
-	stack = local->stack;
+	push_local(local, &stack);
 	cell = local->cell;
 	count = cell->count;
 	alloc_local(local, 400);
 	alloc_local(local, 400);
-	unsafe_push_local(local);
-	unsafe_push_local(local);
-	unsafe_push_local(local);
+	push_local(local, &temp);
+	push_local(local, &temp);
+	push_local(local, &temp);
 	rollback_local(local, stack);
-	test(local->front == check, "rollback_local8");
-	test(local->stack == NULL, "rollback_local9");
-	test(local->cell == cell, "rollback_local9a");
-	test(local->cell->next == NULL, "rollback_local9b");
-	test(local->cell->count == count, "rollback_local9c");
+	test(local->front == check, "rollback_local17");
+	test(local->stack == NULL, "rollback_local18");
+	test(local->cell == cell, "rollback_local19");
+	test(local->cell->next == NULL, "rollback_local20");
+	test(local->cell->count == count, "rollback_local21");
 
 	/* all delete */
-	unsafe_push_local(local);
-	unsafe_push_local(local);
+	first = local->front;
+	push_local(local, &stack);
+	push_local(local, &temp);
+	push_local(local, &temp);
 	alloc_local(local, 400);
 	alloc_local(local, 400);
-	unsafe_push_local(local);
-	unsafe_push_local(local);
+	push_local(local, &temp);
+	push_local(local, &temp);
 	alloc_local(local, 400);
-	rollback_local(local, NULL);
-	test(local->front == first, "rollback_local10");
-	test(local->stack == NULL, "rollback_local11");
-	test(local->cell->next == NULL, "rollback_local11b");
-	test(local->cell->count == 0, "rollback_local11c");
+	rollback_local(local, stack);
+	test(local->front == first, "rollback_local22");
+	test(local->stack == NULL, "rollback_local23");
+	test(local->cell->next == NULL, "rollback_local24");
 
 	/* many object */
-	unsafe_push_local(local);
-	unsafe_push_local(local);
-	unsafe_push_local(local);
+	push_local(local, &temp);
+	push_local(local, &temp);
+	push_local(local, &temp);
 	alloc_local(local, 100);
 	alloc_local(local, 400);
 	alloc_local(local, 400);
 	alloc_local(local, 400);
 	check = local->front;
 	back = local->stack;
-	unsafe_push_local(local);
+	push_local(local, &temp);
 	stack = local->stack;
 	cell = local->cell;
 	count = local->cell->count;
 	for (i = 0; i < LocalCount * 20 + 10; i++)
 		alloc_local(local, 100);
-	unsafe_push_local(local);
+	push_local(local, &temp);
 	for (i = 0; i < LocalCount * 30 + 10; i++)
 		alloc_local(local, 200);
 	rollback_local(local, stack);
@@ -257,6 +196,7 @@ static int test_rollback_local(void)
 
 	RETURN;
 }
+#endif
 
 static int statustest(addr body)
 {
@@ -585,14 +525,14 @@ int test_local(void)
 {
 	TITLE;
 
-	/* allocate */
+#ifndef LISP_MEMORY_MALLOC
 	TestBreak(test_lowlevel_unsafe);
 	TestBreak(test_alloc_local);
 	TestBreak(test_make_local);
-	TestBreak(test_unsafe_push_local);
-	TestBreak(test_unsafe_pop_local);
-	TestBreak(test_unsafe_pop_local_error);
+	TestBreak(test_push_local);
 	TestBreak(test_rollback_local);
+#endif
+
 	TestBreak(test_local_cons);
 
 	TestBreak(test_local_smallsize);
