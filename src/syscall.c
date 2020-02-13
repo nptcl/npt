@@ -1,69 +1,19 @@
-#include "array.h"
-#include "bigdata.h"
-#include "bignum.h"
-#include "character.h"
-#include "clos_common.h"
-#include "cmpl.h"
 #include "compile.h"
-#include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "cons_plist.h"
 #include "constant.h"
 #include "control.h"
-#include "core.h"
-#include "document.h"
-#include "eastasian.h"
-#include "env_code.h"
-#include "env_time.h"
-#include "equal.h"
-#include "eval.h"
-#include "file.h"
-#include "files.h"
-#include "format.h"
-#include "format_function.h"
 #include "function.h"
-#include "gc.h"
-#include "hashtable.h"
-#include "integer.h"
-#include "lambda.h"
-#include "loop_bind.h"
-#include "object.h"
-#include "package.h"
-#include "pathname.h"
-#include "print.h"
-#include "print_pretty.h"
-#include "print_write.h"
-#include "process.h"
-#include "quote.h"
-#include "radix.h"
-#include "random_state.h"
-#include "ratio.h"
-#include "readtable.h"
-#include "sequence.h"
-#include "sort.h"
-#include "stream.h"
-#include "stream_pretty.h"
-#include "stream_string.h"
-#include "strtype.h"
-#include "structure.h"
-#include "symbol.h"
-#include "syscall.h"
-#include "type_parse.h"
+#include "type_constant.h"
 #include "type_table.h"
-#include "type_subtypep.h"
+#include "pointer.h"
+#include "syscall_code.h"
+#include "symbol.h"
 
-/*
- *  hello
- */
+/* (defun hello () ...) -> null */
 static void syscall_hello(Execute ptr)
 {
-	addr stream;
-
-	standard_output_stream(ptr, &stream);
-	fresh_line_stream(stream);
-	print_ascii_stream(stream, "Hello");
-	terpri_stream(stream);
+	hello_syscode(ptr);
 	setresult_control(ptr, Nil);
 }
 
@@ -83,28 +33,11 @@ static void defun_hello(void)
 }
 
 
-/*
- *  infobit
- */
-static void syscall_infobit(Execute ptr, addr list)
+/* (defun infobit (&rest args) ...) -> object */
+static void syscall_infobit(Execute ptr, addr rest)
 {
-	addr a, b;
-
-	for (b = Nil; list != Nil; b = a) {
-		GetCons(list, &a, &list);
-		infobit(a);
-	}
-	setresult_control(ptr, b);
-}
-
-static void type_infobit(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, T);
-	typeargs_rest(&args, args);
-	GetTypeValues(&values, T);
-	type_compiled_heap(args, values, ret);
+	infobit_syscode(rest, &rest);
+	setresult_control(ptr, rest);
 }
 
 static void defun_infobit(void)
@@ -117,34 +50,17 @@ static void defun_infobit(void)
 	setcompiled_dynamic(pos, p_defun_syscall_infobit);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_infobit(&type);
+	GetTypeCompiled(&type, InfoBit);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
 
 
-/*
- *  infoprint
- */
-static void syscall_infoprint(Execute ptr, addr list)
+/* (defun infoprint (&rest args) ...) -> object */
+static void syscall_infoprint(Execute ptr, addr rest)
 {
-	addr a, b;
-
-	for (b = Nil; list != Nil; b = a) {
-		GetCons(list, &a, &list);
-		infoprint(a);
-	}
-	setresult_control(ptr, b);
-}
-
-static void type_infoprint(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, T);
-	typeargs_rest(&args, args);
-	GetTypeValues(&values, T);
-	type_compiled_heap(args, values, ret);
+	infoprint_syscode(rest, &rest);
+	setresult_control(ptr, rest);
 }
 
 static void defun_infoprint(void)
@@ -157,23 +73,20 @@ static void defun_infoprint(void)
 	setcompiled_dynamic(pos, p_defun_syscall_infoprint);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_infoprint(&type);
+	GetTypeCompiled(&type, InfoBit);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
 
 
-/*
- *  gc
- */
+/* (defun gc (&key full) ...) -> null */
 static void syscall_gc(Execute ptr, addr rest)
 {
-	if (getkeyargs(rest, KEYWORD_FULL, &rest)) rest = Nil;
-	gcstate_execute();
+	gc_syscode(rest);
 	setresult_control(ptr, Nil);
 }
 
-static void type_gc(addr *ret)
+static void type_syscall_gc(addr *ret)
 {
 	addr args, values;
 
@@ -182,7 +95,7 @@ static void type_gc(addr *ret)
 	list_heap(&args, args, NULL);
 	/* type */
 	typeargs_key(&args, args);
-	GetTypeValues(&values, T);
+	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
 }
 
@@ -196,29 +109,26 @@ static void defun_gc(void)
 	setcompiled_dynamic(pos, p_defun_syscall_gc);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_gc(&type);
+	type_syscall_gc(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
 
 
-/*
- *  savecore
- */
+/* (defun savecore (pathname-designer) ...) -> null */
 static void syscall_savecore(Execute ptr, addr file)
 {
-	pathname_designer_local(ptr, file, &file);
-	savecore_execute(ptr, file);
+	savecore_syscode(ptr, file);
 	setresult_control(ptr, Nil);
 }
 
-static void type_savecore(addr *ret)
+static void type_syscall_savecore(addr *ret)
 {
 	addr args, values;
 
 	GetTypeTable(&args, PathnameDesigner);
 	typeargs_var1(&args, args);
-	GetTypeValues(&values, T);
+	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
 }
 
@@ -232,43 +142,47 @@ static void defun_savecore(void)
 	setcompiled_var1(pos, p_defun_syscall_savecore);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_savecore(&type);
+	type_syscall_savecore(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
 
 
-/*
- *  hander/restart
- */
-static void syscall_redirect_restart_call(Execute ptr, addr right)
+/* (defun redirect-restart (condition list) ...) -> null */
+static void syscall_redirect_restart(Execute ptr, addr condition, addr list)
 {
-	addr condition, value, pos;
+	redirect_restart_syscode(ptr, condition, list);
+	setresult_control(ptr, Nil);
+}
 
-	list_bind(right, &condition, &value, NULL);
-	if (! conditionp(condition))
-		fmte("The argument ~S must be a condition.", condition, NULL);
-	while (value != Nil) {
-		getcons(value, &pos, &value);
-		if (GetType(pos) != LISPTYPE_RESTART)
-			fmte("The argument ~S must be a restart.", pos, NULL);
-		pushbind_restart_control(ptr, pos, 0);
-	}
-	reverse_restart_control(ptr);
+static void type_syscall_redirect_restart(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Condition);
+	GetTypeTable(&values, List);
+	typeargs_var2(&args, args, values);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
 }
 
 static void defun_redirect_restart(void)
 {
-	addr symbol, pos;
+	addr symbol, pos, type;
 
+	/* function */
 	GetConst(SYSTEM_REDIRECT_RESTART, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, p_defun_syscall_redirect_restart_call);
+	setcompiled_var2(pos, p_defun_syscall_redirect_restart);
 	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_redirect_restart(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
 }
 
 
-/* symbol macro */
+/* (defun symbol-macro-expander (&rest form) form) */
 static void syscall_symbol_macro_expander(Execute ptr, addr form, addr env)
 {
 	setresult_control(ptr, form);
@@ -276,33 +190,28 @@ static void syscall_symbol_macro_expander(Execute ptr, addr form, addr env)
 
 static void defun_symbol_macro_expander(void)
 {
-	addr symbol, pos;
+	addr symbol, pos, type;
 
+	/* function */
 	GetConst(SYSTEM_SYMBOL_MACRO_EXPANDER, &symbol);
-	compiled_heap(&pos, symbol);
+	compiled_macro_heap(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_syscall_symbol_macro_expander);
 	SetFunctionSymbol(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
 }
+
 
 /* (defun defconstant (symbol value document) ...) -> symbol */
 static void syscall_defconstant(Execute ptr, addr symbol, addr value, addr doc)
 {
-	addr check;
-
-	Check(! symbolp(symbol), "type symbol error");
-	Check(doc != Nil && (! stringp(doc)), "type documentation error");
-	GetValueSymbol(symbol, &check);
-	if (check != Unbound && (! eql(check, value)))
-		fmte("The defconstant cannot setq ~S value.", symbol, NULL);
-	ResetStatusReadOnly(symbol);
-	SetValueSymbol(symbol, value);
-	setdocument_variable_symbol(symbol, doc);
-	setspecial_symbol(symbol);
-	SetStatusReadOnly(symbol);
+	defconstant_syscode(symbol, value, doc);
 	setresult_control(ptr, symbol);
 }
 
-static void type_defconstant(addr *ret)
+static void type_syscall_defconstant(addr *ret)
 {
 	addr args, values, type;
 
@@ -324,7 +233,7 @@ static void defun_defconstant(void)
 	setcompiled_var3(pos, p_defun_syscall_defconstant);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_defconstant(&type);
+	type_syscall_defconstant(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -333,11 +242,11 @@ static void defun_defconstant(void)
 /* (defun in-package (string-desinger) ...) -> package */
 static void syscall_in_package(Execute ptr, addr name)
 {
-	in_package(ptr, name, &name);
+	in_package_syscode(ptr, name, &name);
 	setresult_control(ptr, name);
 }
 
-static void type_in_package(addr *ret)
+static void type_syscall_in_package(addr *ret)
 {
 	addr args, values;
 
@@ -357,7 +266,7 @@ static void defun_in_package(void)
 	setcompiled_var1(pos, p_defun_syscall_in_package);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_in_package(&type);
+	type_syscall_in_package(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -366,7 +275,7 @@ static void defun_in_package(void)
 /* (defun setplist (key value list) ...) -> list */
 static void syscall_setplist(Execute ptr, addr key, addr value, addr list)
 {
-	(void)setplist_heap_safe(list, key, value, &list);
+	setplist_syscode(key, value, list, &list);
 	setresult_control(ptr, list);
 }
 
@@ -394,11 +303,11 @@ static void defun_setplist(void)
  */
 static void syscall_remplist(Execute ptr, addr key, addr list)
 {
-	int check = (remplist_check_safe(list, key, &list) != RemPlist_NotFound);
-	setvalues_control(ptr, list, (check? T: Nil), NULL);
+	remplist_syscode(key, list, &key, &list);
+	setvalues_control(ptr, key, list, NULL);
 }
 
-static void type_remplist(addr *ret)
+static void type_syscall_remplist(addr *ret)
 {
 	addr args, values, type;
 
@@ -420,7 +329,7 @@ static void defun_remplist(void)
 	setcompiled_var2(pos, p_defun_syscall_remplist);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
-	type_remplist(&type);
+	type_syscall_remplist(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -429,7 +338,7 @@ static void defun_remplist(void)
 /* (defun make-hash-iterator (table) ...) -> hash-iterator */
 static void syscall_make_hash_iterator(Execute ptr, addr pos)
 {
-	hash_iterator_heap(&pos, pos);
+	make_hash_iterator_syscode(pos, &pos);
 	setresult_control(ptr, pos);
 }
 
@@ -462,14 +371,9 @@ static void defun_make_hash_iterator(void)
 /* (defun next-hash-iterator (iterator) ...) -> (values boolean key value) */
 static void syscall_next_hash_iterator(Execute ptr, addr pos)
 {
-	int check;
 	addr key, value;
-
-	check = next_hash_iterator(pos, &key, &value);
-	if (check)
-		setvalues_control(ptr, T, key, value, NULL);
-	else
-		setvalues_control(ptr, Nil, Nil, Nil, NULL);
+	next_hash_iterator_syscode(pos, &pos, &key, &value);
+	setvalues_control(ptr, pos, key, value, NULL);
 }
 
 static void type_next_hash_iterator(addr *ret)
@@ -505,15 +409,9 @@ static void defun_next_hash_iterator(void)
  *   external   t
  *   inherited  t
  */
-static void syscall_make_package_iterator(Execute ptr, addr rest)
+static void syscall_make_package_iterator(Execute ptr, addr pos, addr a, addr b, addr c)
 {
-	addr pos, a, b, c;
-
-	GetCons(rest, &pos, &rest);
-	GetCons(rest, &a, &rest);
-	GetCons(rest, &b, &rest);
-	GetCar(rest, &c);
-	package_iterator_heap(&pos, pos, (a != Nil), (b != Nil), (c != Nil));
+	make_package_iterator_syscode(pos, a, b, c, &pos);
 	setresult_control(ptr, pos);
 }
 
@@ -537,7 +435,7 @@ static void defun_make_package_iterator(void)
 	/* function */
 	GetConst(SYSTEM_MAKE_PACKAGE_ITERATOR, &symbol);
 	compiled_heap(&pos, symbol);
-	setcompiled_dynamic(pos, p_defun_syscall_make_package_iterator);
+	setcompiled_var4(pos, p_defun_syscall_make_package_iterator);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_make_package_iterator(&type);
@@ -552,17 +450,9 @@ static void defun_make_package_iterator(void)
  */
 static void syscall_next_package_iterator(Execute ptr, addr pos)
 {
-	enum PACKAGE_TYPE check;
 	addr symbol, status, package;
-
-	check = next_package_iterator(pos, &symbol, &package);
-	if (check == PACKAGE_TYPE_NIL) {
-		setvalues_control(ptr, Nil, Nil, Nil, Nil, NULL);
-	}
-	else {
-		keyword_packagetype(check, &status);
-		setvalues_control(ptr, T, symbol, status, package, NULL);
-	}
+	next_package_iterator_syscode(ptr, pos, &pos, &symbol, &status, &package);
+	setvalues_control(ptr, pos, symbol, status, package, NULL);
 }
 
 static void type_next_package_iterator(addr *ret)
@@ -612,6 +502,12 @@ static void defun_next_package_iterator(void)
  *   export                 list
  *   intern                 list
  */
+static void syscall_defpackage(Execute ptr, addr rest)
+{
+	Return0(defpackage_syscode(ptr, rest, &rest));
+	setresult_control(ptr, rest);
+}
+
 static void type_defpackage(addr *ret)
 {
 	addr args, values;
@@ -639,6 +535,12 @@ static void defun_defpackage(void)
 
 
 /* (defun do-symbols (function package) ...) -> nil */
+static void syscall_do_symbols(Execute ptr, addr call, addr package)
+{
+	Return0(do_symbols_syscode(ptr, call, package));
+	setvalues_nil_control(ptr);
+}
+
 static void defun_do_symbols(void)
 {
 	addr symbol, pos, type;
@@ -656,6 +558,12 @@ static void defun_do_symbols(void)
 
 
 /* (defun do-external-symbols (function package) ...) -> nil */
+static void syscall_do_external_symbols(Execute ptr, addr call, addr package)
+{
+	Return0(do_external_symbols_syscode(ptr, call, package));
+	setvalues_nil_control(ptr);
+}
+
 static void defun_do_external_symbols(void)
 {
 	addr symbol, pos, type;
@@ -673,6 +581,12 @@ static void defun_do_external_symbols(void)
 
 
 /* (defun do-all-symbols (function) ...) -> nil */
+static void syscall_do_all_symbols(Execute ptr, addr call)
+{
+	Return0(do_all_symbols_syscode(ptr, call));
+	setvalues_nil_control(ptr);
+}
+
 static void type_do_all_symbols(addr *ret)
 {
 	/* (function (function) (values &rest nil)) */
@@ -703,7 +617,7 @@ static void defun_do_all_symbols(void)
 /* (defun getdoc-variable (symbol) ...) -> (or string null) */
 static void syscall_getdoc_variable(Execute ptr, addr var)
 {
-	getdocument_variable_symbol(var, &var);
+	getdoc_variable_syscode(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -736,7 +650,7 @@ static void defun_getdoc_variable(void)
 /* (defun setdoc-variable (symbol string) ...) -> string */
 static void syscall_setdoc_variable(Execute ptr, addr var, addr value)
 {
-	setdocument_variable_symbol(var, value);
+	setdoc_variable_syscode(var, value);
 	setresult_control(ptr, value);
 }
 
@@ -770,7 +684,8 @@ static void defun_setdoc_variable(void)
 /* (defun specialp (symbol) ...) -> boolean */
 static void syscall_specialp(Execute ptr, addr var)
 {
-	setbool_control(ptr, specialp_symbol(var));
+	specialp_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void type_specialp(addr *ret)
@@ -802,9 +717,7 @@ static void defun_specialp(void)
 /* (defun ecase-error (value list) ...) -> nil */
 static void syscall_ecase_error(Execute ptr, addr value, addr list)
 {
-	make_vector4_from_list(&list, list);
-	type1_heap(LISPDECL_MEMBER, list, &list);
-	type_error(value, list);
+	ecase_error_syscode(value, list);
 	setvalues_nil_control(ptr);
 }
 
@@ -827,9 +740,7 @@ static void defun_ecase_error(void)
 /* (defun etypecase-error (value list) ...) -> nil */
 static void syscall_etypecase_error(Execute ptr, addr value, addr list)
 {
-	make_vector4_from_list(&list, list);
-	type1_heap(LISPDECL_OR, list, &list);
-	type_error(value, list);
+	etypecase_error_syscode(value, list);
 	setvalues_nil_control(ptr);
 }
 
@@ -852,7 +763,7 @@ static void defun_etypecase_error(void)
 /* (defun define-setf-expander (name lambda) ...) -> name */
 static void syscall_define_setf_expander(Execute ptr, addr symbol, addr call)
 {
-	setsetfmacro_symbol(symbol, call);
+	define_setf_expander_syscode(symbol, call);
 	setresult_control(ptr, symbol);
 }
 
@@ -887,50 +798,8 @@ static void defun_define_setf_expander(void)
 static void syscall_defsetf_short(Execute ptr,
 		addr access, addr update, addr args, addr env)
 {
-	int check;
-	addr a, b, g, w, r, pos, v;
-	LocalHold hold;
-
-	if (env == Unbound) env = Nil;
-	make_gensym(ptr, &g);
-	conscar_heap(&w, update);
-	conscar_heap(&r, access);
-	a = b = Nil;
-
-	hold = LocalHold_array(ptr, 5);
-	localhold_set(hold, 2, g);
-	localhold_set(hold, 3, w);
-	localhold_set(hold, 4, r);
-	while (args != Nil) {
-		if (! consp(args))
-			fmte("Invalid call argument ~S.", args, NULL);
-		GetCons(args, &pos, &args);
-		if (eval_constantp(ptr, pos, env, &check))
-			return;
-		if (check) {
-			cons_heap(&w, pos, w);
-			cons_heap(&r, pos, r);
-		}
-		else {
-			make_gensym(ptr, &v);
-			cons_heap(&a, v, a);
-			cons_heap(&b, pos, b);
-			cons_heap(&w, v, w);
-			cons_heap(&r, v, r);
-			localhold_set(hold, 0, a);
-			localhold_set(hold, 1, b);
-		}
-		localhold_set(hold, 3, w);
-		localhold_set(hold, 4, r);
-	}
-	localhold_end(hold);
-
-	cons_heap(&w, g, w);
-	nreverse_list_unsafe(&a, a);
-	nreverse_list_unsafe(&b, b);
-	conscar_heap(&g, g);
-	nreverse_list_unsafe(&w, w);
-	nreverse_list_unsafe(&r, r);
+	addr a, b, g, w, r;
+	Return0(defsetf_short_syscode(ptr, access, update, args, env, &a, &b, &g, &w, &r));
 	setvalues_control(ptr, a, b, g, w, r, NULL);
 }
 
@@ -964,160 +833,10 @@ static void defun_defsetf_short(void)
 
 
 /* (defun defsetf-long (access lambda store body args env) ...) */
-static void defsetf_push(addr array, int index, addr pos)
-{
-	addr root;
-	GetArrayA2(array, index, &root);
-	cons_heap(&root, pos, root);
-	SetArrayA2(array, index, root);
-}
-
-static void defsetf_var_bind(Execute ptr, addr *args, addr list, addr array)
-{
-	addr pos, gensym, value;
-
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		if (! consp(*args))
-			fmte("The argument ~S must be list type.", *args, NULL);
-		GetCons(*args, &value, args);
-		make_gensym(ptr, &gensym);
-		defsetf_push(array, 0, gensym);
-		defsetf_push(array, 1, value);
-		defsetf_push(array, 2, pos);
-		defsetf_push(array, 3, gensym);
-	}
-}
-
-static void defsetf_opt_bind(Execute ptr, addr *args, addr list, addr array)
-{
-	int check;
-	addr pos, var, init, sup, gensym;
-
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		List_bind(pos, &var, &init, &sup, NULL);
-		check = (*args != Nil);
-		if (check) {
-			if (! consp(*args))
-				fmte("The argument ~S must be list type.", *args, NULL);
-			GetCons(*args, &init, args);
-		}
-		make_gensym(ptr, &gensym);
-		defsetf_push(array, 0, gensym);
-		defsetf_push(array, 1, init);
-		defsetf_push(array, 2, var);
-		defsetf_push(array, 3, gensym);
-		if (sup != Nil) {
-			make_gensym(ptr, &gensym);
-			defsetf_push(array, 0, gensym);
-			defsetf_push(array, 1, check? T: Nil);
-			defsetf_push(array, 2, sup);
-			defsetf_push(array, 3, gensym);
-		}
-	}
-}
-
-static void defsetf_store_bind(Execute ptr, addr list, addr array, addr *ret)
-{
-	addr root, symbol, gensym;
-
-	root = Nil;
-	while (list != Nil) {
-		if (! consp(list))
-			fmte("defsetf store ~S must be a list type.", list, NULL);
-		GetCons(list, &symbol, &list);
-		if (! symbolp(symbol))
-			fmte("defsetf store ~S must be a symbol type.", symbol, NULL);
-		make_gensym(ptr, &gensym);
-		defsetf_push(array, 2, symbol);
-		defsetf_push(array, 3, gensym);
-		cons_heap(&root, gensym, root);
-	}
-	nreverse_list_unsafe(ret, root);
-}
-
-static void defsetf_bind(Execute ptr, addr args,
-		addr lambda, addr store,
-		addr *a, addr *b, addr *c, addr *d, addr *g)
-{
-	addr var, opt, rest, key, allow, env, array;
-
-	List_bind(lambda, &var, &opt, &rest, &key, &allow, &env, NULL);
-	vector2_heap(&array, 4);
-	defsetf_var_bind(ptr, &args, var, array);
-	defsetf_opt_bind(ptr, &args, opt, array);
-	defsetf_store_bind(ptr, store, array, g);
-	/* args */
-	GetArrayA2(array, 0, a);
-	GetArrayA2(array, 1, b);
-	GetArrayA2(array, 2, c);
-	GetArrayA2(array, 3, d);
-	nreverse_list_unsafe(a, *a);
-	nreverse_list_unsafe(b, *b);
-	nreverse_list_unsafe(c, *c);
-	nreverse_list_unsafe(d, *d);
-}
-
-static void syscall_defsetf_write(Execute ptr, addr *ret, addr c, addr d, addr body)
-{
-	/*  (let ((c1 'd1)
-	 *        (c2 'd2))
-	 *    (declare (ignorable c...))
-	 *    body...)
-	 */
-	addr root, x, y;
-	addr quote, let, declare, ignorable;
-	LocalHold hold;
-
-	GetConst(COMMON_QUOTE, &quote);
-	GetConst(COMMON_LET, &let);
-	GetConst(COMMON_DECLARE, &declare);
-	GetConst(COMMON_IGNORABLE, &ignorable);
-
-	/* let-args */
-	for (root = Nil; c != Nil; ) {
-		getcons(c, &x, &c);
-		getcons(d, &y, &d);
-		list_heap(&y, quote, y, NULL);
-		list_heap(&y, x, y, NULL);
-		cons_heap(&root, y, root);
-	}
-	nreverse_list_unsafe(&root, root);
-	/* (declare ...) */
-	cons_heap(&ignorable, ignorable, c);
-	list_heap(&declare, declare, ignorable, NULL);
-	/* let */
-	lista_heap(&root, let, root, declare, body, NULL);
-	hold = LocalHold_local_push(ptr, root);
-	eval_object(ptr, root, ret);
-	localhold_end(hold);
-}
-
 static void syscall_defsetf_long(Execute ptr, addr rest)
 {
-	addr access, lambda, store, body, args, env;
-	addr quote, a, b, c, d, g, w, r;
-	LocalHold hold;
-
-	list_bind(rest, &access, &lambda, &store, &body, &args, &env, NULL);
-	lambda_defsetf(ptr->local, &lambda, lambda);
-	defsetf_bind(ptr, args, lambda, store, &a, &b, &c, &d, &g);
-	/* (values 'a 'b 'g
-	 *   `(let ((c1 'd1)
-	 *          (c2 'd2))
-	 *      (declare (ignorable c...))
-	 *      ,@body...)
-	 *   '(access d...))
-	 */
-	GetConst(COMMON_QUOTE, &quote);
-
-	hold = LocalHold_local(ptr);
-	localhold_pushva(hold, a, b, c, d, g, NULL);
-	syscall_defsetf_write(ptr, &w, c, d, body);
-	localhold_end(hold);
-
-	cons_heap(&r, access, d);
+	addr a, b, g, w, r;
+	Return0(defsetf_long_syscode(ptr, rest, &a, &b, &g, &w, &r));
 	setvalues_control(ptr, a, b, g, w, r, NULL);
 }
 
@@ -1140,7 +859,8 @@ static void defun_defsetf_long(void)
 /* (defun array-general-p (object) ...) -> boolean */
 static void syscall_array_general_p(Execute ptr, addr var)
 {
-	setbool_control(ptr, array_general_p(var));
+	array_general_p_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_array_general_p(void)
@@ -1162,7 +882,8 @@ static void defun_array_general_p(void)
 /* (defun array-specialized-p (object) ...) -> boolean */
 static void syscall_array_specialized_p(Execute ptr, addr var)
 {
-	setbool_control(ptr, array_specialized_p(var));
+	array_specialized_p_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_array_specialized_p(void)
@@ -1184,10 +905,7 @@ static void defun_array_specialized_p(void)
 /* (defun simple-sort (sequence call &key key) ...) -> sequence */
 static void syscall_simple_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	addr key;
-
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (simple_sort_sequence(ptr, pos, call, key)) return;
+	Return0(simple_sort_syscode(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
 }
 
@@ -1210,10 +928,7 @@ static void defun_simple_sort(void)
 /* (defun bubble-sort (sequence call &key key) ...) -> sequence */
 static void syscall_bubble_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	addr key;
-
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (bubble_sort_sequence(ptr, pos, call, key)) return;
+	Return0(bubble_sort_syscode(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
 }
 
@@ -1236,10 +951,7 @@ static void defun_bubble_sort(void)
 /* (defun quick-sort (sequence call &key key) ...) -> sequence */
 static void syscall_quick_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	addr key;
-
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (quick_sort_sequence(ptr, pos, call, key)) return;
+	Return0(quick_sort_syscode(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
 }
 
@@ -1262,10 +974,7 @@ static void defun_quick_sort(void)
 /* (defun merge-sort (sequence call &key key) ...) -> sequence */
 static void syscall_merge_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	addr key;
-
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (merge_sort_sequence(ptr, pos, call, key)) return;
+	Return0(merge_sort_syscode(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
 }
 
@@ -1288,21 +997,8 @@ static void defun_merge_sort(void)
 /* (defun exit/quit (&optional code) ...) -> (values &rest nil) */
 static void syscall_exit(Execute ptr, addr code)
 {
-	int result;
-	fixnum value;
-
-	if (code == Unbound) {
-		exit_execute(0);
-	}
-	else {
-		if (GetType(code) != LISPTYPE_FIXNUM)
-			fmte("Invalid code type ~S.", code, NULL);
-		GetFixnum(code, &value);
-		result = (int)value;
-		if (value != (fixnum)result)
-			fmte("The result code ~S must be a int type.", code, NULL);
-		exit_execute(result);
-	}
+	exit_syscode(code);
+	setvalues_nil_control(ptr);
 }
 
 static void defun_exit(void)
@@ -1339,9 +1035,8 @@ static void defun_quit(void)
 /* (defun end-input-stream (string-stream) -> index */
 static void syscall_end_input_stream(Execute ptr, addr var)
 {
-	size_t size;
-	getindex_input_stream(var, &size);
-	setresult_control(ptr, intsizeh(size));
+	end_input_stream_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void type_end_input_stream(addr *ret)
@@ -1375,8 +1070,7 @@ static void defun_end_input_stream(void)
  */
 static void syscall_make_extend_output_stream(Execute ptr, addr var, addr rest)
 {
-	/* ignore rest */
-	open_extend_output_stream(&var, var);
+	make_extend_output_stream_syscode(var, rest, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1414,23 +1108,8 @@ static void defun_make_extend_output_stream(void)
 /* (defun prompt-for (type &rest args) ...) -> t */
 static void syscall_prompt_for(Execute ptr, addr type, addr args)
 {
-	addr format;
-	LocalHold hold;
-
-	if (args == Nil) {
-		strvect_char_heap(&format, "Input> ");
-	}
-	else {
-		getcons(args, &format, &args);
-		if (format_string_lisp(ptr, format, args, &format))
-			return;
-	}
-
-	hold = LocalHold_local_push(ptr, format);
-	if (prompt_for_stream(ptr, type, format, &format))
-		return;
-	localhold_end(hold);
-	setresult_control(ptr, format);
+	Return0(prompt_for_syscode(ptr, type, args, &type));
+	setresult_control(ptr, type);
 }
 
 static void type_prompt_for(addr *ret)
@@ -1463,7 +1142,8 @@ static void defun_prompt_for(void)
 /* (defun closp (object) ...) -> boolean */
 static void syscall_closp(Execute ptr, addr var)
 {
-	setbool_control(ptr, GetType(var) == LISPTYPE_CLOS);
+	closp_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_closp(void)
@@ -1485,7 +1165,8 @@ static void defun_closp(void)
 /* (defun fixnump (object) ...) -> boolean */
 static void syscall_fixnump(Execute ptr, addr var)
 {
-	setbool_control(ptr, GetType(var) == LISPTYPE_FIXNUM);
+	fixnump_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_fixnump(void)
@@ -1507,7 +1188,8 @@ static void defun_fixnump(void)
 /* (defun bignump (object) ...) -> boolean */
 static void syscall_bignump(Execute ptr, addr var)
 {
-	setbool_control(ptr, GetType(var) == LISPTYPE_BIGNUM);
+	bignump_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_bignump(void)
@@ -1529,7 +1211,8 @@ static void defun_bignump(void)
 /* (defun ratiop (object) ...) -> boolean */
 static void syscall_ratiop(Execute ptr, addr var)
 {
-	setbool_control(ptr, GetType(var) == LISPTYPE_RATIO);
+	ratiop_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_ratiop(void)
@@ -1551,7 +1234,8 @@ static void defun_ratiop(void)
 /* (defun short-float-p (object) ...) -> boolean */
 static void syscall_short_float_p(Execute ptr, addr var)
 {
-	setbool_control(ptr, GetType(var) == LISPTYPE_SHORT_FLOAT);
+	short_float_p_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_short_float_p(void)
@@ -1573,7 +1257,8 @@ static void defun_short_float_p(void)
 /* (defun single-float-p (object) ...) -> boolean */
 static void syscall_single_float_p(Execute ptr, addr var)
 {
-	setbool_control(ptr, GetType(var) == LISPTYPE_SINGLE_FLOAT);
+	single_float_p_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_single_float_p(void)
@@ -1595,7 +1280,8 @@ static void defun_single_float_p(void)
 /* (defun double-float-p (object) ...) -> boolean */
 static void syscall_double_float_p(Execute ptr, addr var)
 {
-	setbool_control(ptr, GetType(var) == LISPTYPE_DOUBLE_FLOAT);
+	double_float_p_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_double_float_p(void)
@@ -1617,7 +1303,8 @@ static void defun_double_float_p(void)
 /* (defun long-float-p (object) ...) -> boolean */
 static void syscall_long_float_p(Execute ptr, addr var)
 {
-	setbool_control(ptr, GetType(var) == LISPTYPE_LONG_FLOAT);
+	long_float_p_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_long_float_p(void)
@@ -1639,7 +1326,8 @@ static void defun_long_float_p(void)
 /* (defun callnamep (object) ...) -> boolean */
 static void syscall_callnamep(Execute ptr, addr var)
 {
-	setbool_control(ptr, GetType(var) == LISPTYPE_CALLNAME);
+	callnamep_syscall(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_callnamep(void)
@@ -1663,8 +1351,7 @@ static void defun_callnamep(void)
  */
 static void syscall_large_number(Execute ptr, addr var, addr opt)
 {
-	if (opt == Unbound) opt = T;
-	english_unit_heap(ptr->local, &var, var, opt != Nil);
+	large_number_syscode(ptr->local, var, opt, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1699,12 +1386,7 @@ static void defun_large_number(void)
 static void syscall_print_unreadable_call(Execute ptr,
 		addr stream, addr pos, addr type, addr identity, addr body)
 {
-	int check1, check2;
-
-	check1 = (type != Nil);
-	check2 = (identity != Nil);
-	if (print_unreadable_common(ptr, stream, pos, check1, check2, body))
-		return;
+	Return0(print_unreadable_call_syscode(ptr, stream, pos, type, identity, body));
 	setresult_control(ptr, Nil);
 }
 
@@ -1738,15 +1420,7 @@ static void defun_print_unreadable_call(void)
 /* (defun write-default (stream object) ...) -> t */
 static void syscall_write_default(Execute ptr, addr stream, addr var)
 {
-	addr control;
-	LocalHold hold;
-
-	output_stream_designer(ptr, stream, &stream);
-	push_close_control(ptr, &control);
-	hold = LocalHold_local_push(ptr, stream);
-	if (write_default_print(ptr, stream, var))
-		return;
-	localhold_end(hold);
+	Return0(write_default_syscode(ptr, stream, var, &var));
 	setresult_control(ptr, var);
 }
 
@@ -1780,19 +1454,7 @@ static void defun_write_default(void)
 /* (defun make-bignum (integer) ...) -> bignum */
 static void syscall_make_bignum(Execute ptr, addr var)
 {
-	switch (GetType(var)) {
-		case LISPTYPE_FIXNUM:
-			bignum_fixnum_heap(&var, var);
-			break;
-
-		case LISPTYPE_BIGNUM:
-			bignum_throw_heap(var, &var);
-			break;
-
-		default:
-			TypeError(var, INTEGER);
-			return;
-	}
+	make_bignum_syscode(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1823,35 +1485,9 @@ static void defun_make_bignum(void)
 
 
 /* (defun make-ratio (numer denom) ...) -> ratio */
-static void force_make_bignum(addr *ret, addr var)
-{
-	switch (GetType(var)) {
-		case LISPTYPE_FIXNUM:
-			bignum_fixnum_heap(ret, var);
-			break;
-
-		case LISPTYPE_BIGNUM:
-			bignum_copy_heap(ret, var);
-			break;
-
-		default:
-			TypeError(var, INTEGER);
-			return;
-	}
-}
-
 static void syscall_make_ratio(Execute ptr, addr numer, addr denom)
 {
-	int sign1, sign2;
-
-	force_make_bignum(&numer, numer);
-	force_make_bignum(&denom, denom);
-	GetSignBignum(numer, &sign1);
-	GetSignBignum(denom, &sign2);
-	SetSignBignum(numer, SignPlus);
-	SetSignBignum(denom, SignPlus);
-	sign1 = SignMulti(sign1, sign2);
-	make_ratio_alloc_unsafe(NULL, &numer, sign1, numer, denom);
+	make_ratio_syscode(numer, denom, &numer);
 	setresult_control(ptr, numer);
 }
 
@@ -1884,7 +1520,7 @@ static void defun_make_ratio(void)
 /* (defun make-complex (real imag) ...) -> complex */
 static void syscall_make_complex(Execute ptr, addr real, addr imag)
 {
-	complex_force_heap(&real, real, imag, ComplexType_error);
+	make_complex_code(real, imag, &real);
 	setresult_control(ptr, real);
 }
 
@@ -1917,8 +1553,8 @@ static void defun_make_complex(void)
 /* (defun equal-random-state (a b) ...) -> boolean */
 static void syscall_equal_random_state(Execute ptr, addr left, addr right)
 {
-	int check = equal_random_state_addr(left, right);
-	setbool_control(ptr, check);
+	equal_random_state_syscode(left, right, &left);
+	setresult_control(ptr, left);
 }
 
 static void type_equal_random_state(addr *ret)
@@ -1950,7 +1586,7 @@ static void defun_equal_random_state(void)
 /* (defun symbol-deftype (symbol) ...) -> (or null function) */
 static void syscall_symbol_deftype(Execute ptr, addr var)
 {
-	getdeftype_symbol(var, &var);
+	symbol_deftype_syscode(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -1984,16 +1620,8 @@ static void defun_symbol_deftype(void)
 /* (defun delete-deftype (symbol) ...) -> boolean */
 static void syscall_delete_deftype(Execute ptr, addr var)
 {
-	addr check;
-
-	getdeftype_symbol(var, &check);
-	if (check == Nil) {
-		setresult_control(ptr, Nil);
-	}
-	else {
-		remdeftype_symbol(var);
-		setresult_control(ptr, T);
-	}
+	delete_deftype_syscode(var, &var);
+	setresult_control(ptr, var);
 }
 
 static void type_delete_deftype(addr *ret)
@@ -2025,7 +1653,7 @@ static void defun_delete_deftype(void)
 /* (defun subtypep-result (left right) ...) -> keyword */
 static void syscall_subtypep_result(Execute ptr, addr left, addr right)
 {
-	Return0(subtypep_result_syscall(ptr, left, right, &left));
+	Return0(subtypep_result_syscode(ptr, left, right, &left));
 	setresult_control(ptr, left);
 }
 
@@ -2060,7 +1688,7 @@ static void defun_subtypep_result(void)
  */
 static void syscall_ensure_structure(Execute ptr, addr name, addr slots, addr rest)
 {
-	ensure_structure_common(ptr, name, slots, rest);
+	ensure_structure_syscode(ptr, name, slots, rest);
 	setresult_control(ptr, name);
 }
 
@@ -2097,8 +1725,7 @@ static void defun_ensure_structure(void)
  */
 static void syscall_structure_constructor(Execute ptr, addr symbol, addr rest)
 {
-	if (structure_constructor_common(ptr, symbol, rest, &rest))
-		return;
+	Return0(structure_constructor_syscode(ptr, symbol, rest, &rest));
 	setresult_control(ptr, rest);
 }
 
@@ -2133,8 +1760,7 @@ static void defun_structure_constructor(void)
 /* (defun loop-bind (tree type value) ...) -> tree */
 static void syscall_loop_bind(Execute ptr, addr a, addr b, addr c)
 {
-	if (loop_bind_common(ptr, a, b, c, &a))
-		return;
+	Return0(loop_bind_syscode(ptr, a, b, c, &a));
 	setresult_control(ptr, a);
 }
 
@@ -2176,7 +1802,7 @@ static void defun_loop_bind(void)
 static void syscall_make_pprint_stream(Execute ptr,
 		addr stream, addr object, addr prefix, addr perline, addr suffix)
 {
-	open_pretty_stream(ptr, &stream, stream, object, prefix, perline, suffix);
+	make_pprint_stream_syscode(ptr, &stream, stream, object, prefix, perline, suffix);
 	setresult_control(ptr, stream);
 }
 
@@ -2211,8 +1837,7 @@ static void defun_make_pprint_stream(void)
 /* (defun pprint-gensym (stream-pretty) ...) -> symbol */
 static void syscall_pprint_gensym(Execute ptr, addr stream)
 {
-	Check(! pretty_stream_p(stream), "type error");
-	gensym_pretty_stream(stream, &stream);
+	pprint_gensym_syscode(stream, &stream);
 	setresult_control(ptr, stream);
 }
 
@@ -2245,9 +1870,7 @@ static void defun_pprint_gensym(void)
 /* (defun pprint-exit (stream-pretty) ...) -> null */
 static void syscall_pprint_exit(Execute ptr, addr stream)
 {
-	Check(! pretty_stream_p(stream), "type error");
-	if (pprint_exit_common(ptr, stream))
-		return;
+	Return0(pprint_exit_syscode(ptr, stream));
 	setresult_control(ptr, Nil);
 }
 
@@ -2280,8 +1903,7 @@ static void defun_pprint_exit(void)
 /* (defun pprint-pop (stream-pretty) ...) -> t */
 static void syscall_pprint_pop(Execute ptr, addr stream)
 {
-	Check(! pretty_stream_p(stream), "type error");
-	if (pprint_pop_common(ptr, stream, &stream)) return;
+	Return0(pprint_pop_syscode(ptr, stream, &stream));
 	setresult_control(ptr, stream);
 }
 
@@ -2314,9 +1936,7 @@ static void defun_pprint_pop(void)
 /* (defun pprint-check (stream-pretty) ...) -> nil */
 static void syscall_pprint_check(Execute ptr, addr stream)
 {
-	Check(! pretty_stream_p(stream), "type error");
-	if (check_pretty_stream(ptr, stream))
-		return;
+	Return0(pprint_check_syscode(ptr, stream));
 	setresult_control(ptr, Nil);
 }
 
@@ -2349,8 +1969,7 @@ static void defun_pprint_check(void)
 /* (defun pprint-close (stream-pretty) ...) -> nil */
 static void syscall_pprint_close(Execute ptr, addr stream)
 {
-	Check(! pretty_stream_p(stream), "type error");
-	close_pretty_stream(ptr, stream);
+	pprint_close_syscode(ptr, stream);
 	setresult_control(ptr, Nil);
 }
 
@@ -2383,9 +2002,7 @@ static void defun_pprint_close(void)
 /* (defun pprint-pretty (stream-pretty) ...) -> nil */
 static void syscall_pprint_pretty(Execute ptr, addr stream, addr call)
 {
-	Check(! pretty_stream_p(stream), "type error");
-	if (call_pretty_stream(ptr, stream, call))
-		return;
+	Return0(pprint_pretty_syscode(ptr, stream, call));
 	setresult_control(ptr, Nil);
 }
 
@@ -2419,7 +2036,7 @@ static void defun_pprint_pretty(void)
 /* (defun eastasian-set (string-designer intplus &optional error) ...) -> boolean) */
 static void syscall_eastasian_set(Execute ptr, addr var, addr value, addr errorp)
 {
-	eastasian_set_syscall(var, value, errorp, &var);
+	eastasian_set_syscode(var, value, errorp, &var);
 	setresult_control(ptr, var);
 }
 
@@ -2455,7 +2072,7 @@ static void defun_eastasian_set(void)
 static void syscall_eastasian_get(Execute ptr, addr var)
 {
 	addr symbol;
-	eastasian_get_syscall(var, &var, &symbol);
+	eastasian_get_syscode(var, &var, &symbol);
 	setvalues_control(ptr, var, symbol, NULL);
 }
 
@@ -2493,7 +2110,7 @@ static void defun_eastasian_get(void)
 static void syscall_eastasian_width(Execute ptr, addr pos)
 {
 	addr value;
-	eastasian_width_syscall(pos, &pos, &value);
+	eastasian_width_syscode(pos, &pos, &value);
 	setvalues_control(ptr, pos, value, NULL);
 }
 
@@ -2530,11 +2147,7 @@ static void defun_eastasian_width(void)
 static void syscall_timeinfo(Execute ptr)
 {
 	addr real, run, size, count;
-
-	get_internal_real_time_common(ptr->local, &real);
-	get_internal_run_time_common(&run);
-	make_index_integer_heap(&size, get_heap_object());
-	make_index_integer_heap(&count, get_heap_count());
+	timeinfo_syscode(ptr->local, &real, &run, &size, &count);
 	setvalues_control(ptr, real, run, size, count, NULL);
 }
 
@@ -2569,7 +2182,7 @@ static void defun_timeinfo(void)
  */
 static void syscall_ed_function(Execute ptr, addr file)
 {
-	ed_process(ptr, file);
+	ed_function_syscode(ptr, file);
 	setresult_control(ptr, Nil);
 }
 
@@ -2604,7 +2217,7 @@ static void defun_ed_function(void)
 /* (defun run-program (program args) ...) -> status */
 static void syscall_run_program(Execute ptr, addr var, addr args, addr rest)
 {
-	run_process(ptr->local, var, args, rest, &var);
+	run_program_syscode(ptr->local, var, args, rest, &var);
 	setresult_control(ptr, var);
 }
 
@@ -2642,7 +2255,7 @@ static void defun_run_program(void)
 /* (defun make-callname (var) ...) -> callname */
 static void syscall_make_callname(Execute ptr, addr var)
 {
-	parse_callname_error(&var, var);
+	make_callname_syscode(var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -2675,7 +2288,7 @@ static void defun_make_callname(void)
 /* (defun trace-add (list) ...) -> list */
 static void syscall_trace_add(Execute ptr, addr var)
 {
-	trace_add_common(ptr, var, &var);
+	trace_add_syscode(ptr, var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -2708,7 +2321,7 @@ static void defun_trace_add(void)
 /* (defun trace-del (list-or-t) ...) -> list */
 static void syscall_trace_del(Execute ptr, addr var)
 {
-	trace_del_common(ptr, var, &var);
+	trace_del_syscode(ptr, var, &var);
 	setresult_control(ptr, var);
 }
 
@@ -2782,7 +2395,7 @@ static void defun_with_compilation_unit(void)
 /* (defun set-slots (instance slots values) ...) -> t */
 static void syscall_set_slots(Execute ptr, addr var, addr slots, addr values)
 {
-	set_slots_syscall(var, slots, values);
+	set_slots_syscode(var, slots, values);
 	setresult_control(ptr, var);
 }
 
@@ -2816,8 +2429,8 @@ static void defun_set_slots(void)
 /* (defun remove-file (pathname &optional (error t)) ...) -> boolean */
 static void syscall_remove_file(Execute ptr, addr var, addr opt)
 {
-	int check = remove_file_common(ptr, var, (opt != Nil));
-	setbool_control(ptr, check);
+	remove_file_syscode(ptr, var, opt, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_remove_file(void)
@@ -2839,8 +2452,8 @@ static void defun_remove_file(void)
 /* (defun remove-directory (pathname &optional (error t)) ...) -> boolean */
 static void syscall_remove_directory(Execute ptr, addr var, addr opt)
 {
-	int check = remove_directory_common(ptr, var, (opt != Nil));
-	setbool_control(ptr, check);
+	remove_directory_syscode(ptr, var, opt, &var);
+	setresult_control(ptr, var);
 }
 
 static void defun_remove_directory(void)
@@ -2869,7 +2482,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, dynamic, infoprint);
 	SetPointerSysCall(defun, dynamic, gc);
 	SetPointerSysCall(defun, var1, savecore);
-	SetPointerSysCall(defun, dynamic, redirect_restart_call);
+	SetPointerSysCall(defun, var2, redirect_restart);
 	SetPointerSysCall(defmacro, macro, symbol_macro_expander);
 	SetPointerSysCall(defun, var3, defconstant);
 	SetPointerSysCall(defun, var1, in_package);
@@ -2877,7 +2490,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var2, remplist);
 	SetPointerSysCall(defun, var1, make_hash_iterator);
 	SetPointerSysCall(defun, var1, next_hash_iterator);
-	SetPointerSysCall(defun, dynamic, make_package_iterator);
+	SetPointerSysCall(defun, var4, make_package_iterator);
 	SetPointerSysCall(defun, var1, next_package_iterator);
 	SetPointerSysCall(defun, dynamic, defpackage);
 	SetPointerSysCall(defun, var2, do_symbols);
@@ -2948,33 +2561,25 @@ _g void init_syscall(void)
 
 _g void build_syscall(void)
 {
-	/* system call */
 	defun_hello();
 	defun_infobit();
 	defun_infoprint();
 	defun_gc();
 	defun_savecore();
-	/* hander/restart */
 	defun_redirect_restart();
-	/* symbol macro */
 	defun_symbol_macro_expander();
 	defun_defconstant();
-	/* package */
 	defun_in_package();
-	/* getf */
 	defun_setplist();
 	defun_remplist();
-	/* hash-table */
 	defun_make_hash_iterator();
 	defun_next_hash_iterator();
-	/* package */
 	defun_make_package_iterator();
 	defun_next_package_iterator();
 	defun_defpackage();
 	defun_do_symbols();
 	defun_do_external_symbols();
 	defun_do_all_symbols();
-	/* document */
 	defun_getdoc_variable();
 	defun_setdoc_variable();
 	defun_specialp();
@@ -2991,11 +2596,9 @@ _g void build_syscall(void)
 	defun_merge_sort();
 	defun_exit();
 	defun_quit();
-	/* streams */
 	defun_end_input_stream();
 	defun_make_extend_output_stream();
 	defun_prompt_for();
-	/* type */
 	defun_closp();
 	defun_fixnump();
 	defun_bignump();
@@ -3005,25 +2608,19 @@ _g void build_syscall(void)
 	defun_double_float_p();
 	defun_long_float_p();
 	defun_callnamep();
-	/* printer */
 	defun_large_number();
 	defun_print_unreadable_call();
 	defun_write_default();
-	/* number */
 	defun_make_bignum();
 	defun_make_ratio();
 	defun_make_complex();
 	defun_equal_random_state();
-	/* type */
 	defun_symbol_deftype();
 	defun_delete_deftype();
 	defun_subtypep_result();
-	/* structure */
 	defun_ensure_structure();
 	defun_structure_constructor();
-	/* loop */
 	defun_loop_bind();
-	/* print */
 	defun_make_pprint_stream();
 	defun_pprint_gensym();
 	defun_pprint_exit();
@@ -3031,22 +2628,18 @@ _g void build_syscall(void)
 	defun_pprint_check();
 	defun_pprint_close();
 	defun_pprint_pretty();
-	/* eastasian */
 	defun_eastasian_set();
 	defun_eastasian_get();
 	defun_eastasian_width();
-	/* environment */
 	defun_timeinfo();
 	defun_ed_function();
 	defun_run_program();
 	defun_make_callname();
 	defun_trace_add();
 	defun_trace_del();
-	/* compile */
 	defvar_compiler_macro();
 	defun_with_compilation_unit();
 	defun_set_slots();
-	/* pathname */
 	defun_remove_file();
 	defun_remove_directory();
 }

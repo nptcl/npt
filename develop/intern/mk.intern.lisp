@@ -135,6 +135,7 @@
 (defun intern-symbol (x &key (name nil name-p)
                         (constant nil constant-p)
                         (special nil special-p)
+                        (export nil export-p)
                         &aux package sym)
   ;; symbol
   (when (consp x)
@@ -154,13 +155,13 @@
                    (intern-constant-value name constant)
                    (intern-constant-symbol name x special)))
   ;; list
-  (list sym package (if special 1 0) constant))
+  (list sym package (if special 1 0) (if export 1 0) constant))
 
 (defun intern-special-p (x)
   (nth 2 x))
 
 (defun intern-const (x)
-  (nth 3 x))
+  (nth 4 x))
 
 (defun intern-sort (list)
   (stable-sort list #'< :key #'intern-special-p))
@@ -187,13 +188,13 @@
   (let ((key (cons package name)))
     (if (shiftf (gethash key *exist*) t) 1 0)))
 
-(defun output-list (name package special const)
+(defun output-list (name package special export const)
   (let* ((size (length name))
          (hash (sxhash-value name *bit*))
          (find (output-exist package name)))
     (count-package package)
-    (format t "{ ~A, ~A, ~S, ~A, ~A, ~A, ~A },~%"
-            const package name size hash special find)))
+    (format t "{ ~A, ~A, ~S, ~A, ~A, ~A, ~A, ~A },~%"
+            const package name size hash special export find)))
 
 
 (defun output-symbol (file bit)

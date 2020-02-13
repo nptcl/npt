@@ -23,6 +23,7 @@ struct symbol_header {
 	size_t length;
 	fixnum sxhash;
 	int specialp;
+	int exportp;
 	int findp;
 };
 
@@ -32,7 +33,7 @@ static struct symbol_header SymbolHeader[] = {
 #else
 #include "intern_symbol_32.h"
 #endif
-	{ CONSTANT_EMPTY, DEFAULT, NULL, 0, 0, 0, 0 }
+	{ CONSTANT_EMPTY, DEFAULT, NULL, 0, 0, 0, 0, 0 }
 };
 
 static void intern_symbol_package(addr package, struct symbol_header *str, addr *ret)
@@ -67,7 +68,7 @@ static void intern_symbol_package(addr package, struct symbol_header *str, addr 
 
 _g void intern_symbol_header(void)
 {
-	addr symbol, p_common, p_keyword, p_system, p_code, p_clos, p_rt;
+	addr symbol, p_common, p_keyword, p_system, p_code, p_clos, p_rt, package;
 	struct symbol_header *table;
 	size_t i;
 
@@ -83,37 +84,45 @@ _g void intern_symbol_header(void)
 		if (table->index == CONSTANT_EMPTY) break;
 		switch (table->package) {
 			case COMMON:
-				intern_symbol_package(p_common, table, &symbol);
-				export_package(p_common, symbol);
+				package = p_common;
+				intern_symbol_package(package, table, &symbol);
+				export_package(package, symbol);
 				break;
 
 			case KEYWORD:
-				intern_symbol_package(p_keyword, table, &symbol);
+				package = p_keyword;
+				intern_symbol_package(package, table, &symbol);
 				setkeyword_package(symbol);
 				break;
 
 			case SYSTEM:
-				intern_symbol_package(p_system, table, &symbol);
+				package = p_system;
+				intern_symbol_package(package, table, &symbol);
 				break;
 
 			case CODE:
-				intern_symbol_package(p_code, table, &symbol);
+				package = p_code;
+				intern_symbol_package(package, table, &symbol);
 				break;
 
 			case CLOS:
-				intern_symbol_package(p_clos, table, &symbol);
+				package = p_clos;
+				intern_symbol_package(package, table, &symbol);
 				break;
 
 			case RT:
-				intern_symbol_package(p_rt, table, &symbol);
+				package = p_rt;
+				intern_symbol_package(package, table, &symbol);
 				break;
 
 			default:
 				fmte("package error.", NULL);
-				break;
+				return;
 		}
 		if (table->specialp)
 			setspecial_symbol(symbol);
+		if (table->exportp)
+			export_package(package, symbol);
 		SetConstant(table->index, symbol);
 	}
 }

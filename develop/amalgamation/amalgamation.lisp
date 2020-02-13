@@ -437,6 +437,7 @@
     "sxhash.h"
     "symbol.h"
     "syscall.h"
+    "syscall_code.h"
     "token.h"
     "type.h"
     "type_coerce.h"
@@ -673,6 +674,7 @@
     "sxhash.c"
     "symbol.c"
     "syscall.c"
+    "syscall_code.c"
     ("thread.c" :include
      ("thread_single.h" "thread_disable.h" "thread_posix.h" "thread_windows.h"))
     "token.c"

@@ -206,6 +206,7 @@ structure.c
 sxhash.c
 symbol.c
 syscall.c
+syscall_code.c
 thread.c
 token.c
 type_coerce.c

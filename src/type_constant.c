@@ -2811,6 +2811,17 @@ static void typecompiled_remove_file(void)
 	SetTypeCompiled(RemoveFile, args);
 }
 
+static void typecompiled_infobit(void)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_rest(&args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(InfoBit, args);
+}
+
 
 /*
  *  Interface
@@ -3155,5 +3166,6 @@ _g void build_type_constant(void)
 	typecompiled_formatter_function();
 	typecompiled_get_internal_real_time();
 	typecompiled_remove_file();
+	typecompiled_infobit();
 }
 

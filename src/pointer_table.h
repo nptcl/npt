@@ -1139,7 +1139,7 @@ enum pointer_index {
 	p_defun_syscall_infoprint,
 	p_defun_syscall_gc,
 	p_defun_syscall_savecore,
-	p_defun_syscall_redirect_restart_call,
+	p_defun_syscall_redirect_restart,
 	p_defmacro_syscall_symbol_macro_expander,
 	p_defun_syscall_defconstant,
 	p_defun_syscall_in_package,

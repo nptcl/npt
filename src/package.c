@@ -2689,7 +2689,7 @@ static void resize_pacakge(addr pos, size_t size)
 	force_resize_hashtable(pos, size);
 }
 
-static int defpackage_execute(Execute ptr, addr rest)
+_g int defpackage_execute(Execute ptr, addr rest, addr *ret)
 {
 	int sizep;
 	addr name, pos, size, doc;
@@ -2713,7 +2713,8 @@ static int defpackage_execute(Execute ptr, addr rest)
 			package_size_heap(&pos, name, value);
 		else
 			package_heap(&pos, name);
-		if (defpackage_make(ptr, pos, rest)) return 1;
+		if (defpackage_make(ptr, pos, rest))
+			return 1;
 	}
 	else {
 		if (sizep)
@@ -2725,20 +2726,9 @@ static int defpackage_execute(Execute ptr, addr rest)
 	setdocument_package(pos, doc);
 
 	/* result */
-	setresult_control(ptr, pos);
+	*ret = pos;
 
 	return 0;
-}
-
-_g void syscall_defpackage(Execute ptr, addr rest)
-{
-	LocalRoot local;
-	LocalStack stack;
-
-	local = ptr->local;
-	push_local(local, &stack);
-	if (defpackage_execute(ptr, rest)) return;
-	rollback_local(local, stack);
 }
 
 static int syscall_do_symbols_check(Execute ptr, addr call, addr package)
@@ -2760,17 +2750,16 @@ static int syscall_do_symbols_check(Execute ptr, addr call, addr package)
 				return 1;
 		}
 	}
-	setvalues_nil_control(ptr);
 
 	return 0;
 }
 
-_g void syscall_do_symbols(Execute ptr, addr call, addr package)
+_g int do_symbols_package(Execute ptr, addr call, addr package)
 {
-	(void)syscall_do_symbols_check(ptr, call, package);
+	return syscall_do_symbols_check(ptr, call, package);
 }
 
-_g void syscall_do_external_symbols(Execute ptr, addr call, addr package)
+_g int do_external_symbols_package(Execute ptr, addr call, addr package)
 {
 	addr table, list, bit;
 	size_t size, i;
@@ -2787,14 +2776,15 @@ _g void syscall_do_external_symbols(Execute ptr, addr call, addr package)
 			if (StructBitType(bit)->intern == PACKAGE_TYPE_EXTERNAL) {
 				GetBitTypeSymbol(bit, &bit);
 				if (callclang_funcall(ptr, &bit, call, bit, NULL))
-					return;
+					return 1;
 			}
 		}
 	}
-	setvalues_nil_control(ptr);
+
+	return 0;
 }
 
-_g void syscall_do_all_symbols(Execute ptr, addr call)
+_g int do_all_symbols_package(Execute ptr, addr call)
 {
 	addr array, left, right, key, check;
 	size_t i, size;
@@ -2810,11 +2800,12 @@ _g void syscall_do_all_symbols(Execute ptr, addr call)
 			GetPackage(left, PACKAGE_INDEX_NAME, &check);
 			if (string_equal(key, check)) {
 				if (syscall_do_symbols_check(ptr, call, left))
-					return;
+					return 1;
 			}
 		}
 	}
-	setvalues_nil_control(ptr);
+
+	return 0;
 }
 
 _g void all_symbols_package(addr package, addr *ret)

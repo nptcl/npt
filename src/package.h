@@ -101,10 +101,10 @@ _g void package_iterator_heap(addr *ret,
 _g enum PACKAGE_TYPE next_package_iterator(addr pos, addr *rets, addr *retp);
 
 /* syscall */
-_g void syscall_defpackage(Execute ptr, addr rest);
-_g void syscall_do_symbols(Execute ptr, addr call, addr package);
-_g void syscall_do_external_symbols(Execute ptr, addr call, addr package);
-_g void syscall_do_all_symbols(Execute ptr, addr call);
+_g int defpackage_execute(Execute ptr, addr rest, addr *ret);
+_g int do_symbols_package(Execute ptr, addr call, addr package);
+_g int do_external_symbols_package(Execute ptr, addr call, addr package);
+_g int do_all_symbols_package(Execute ptr, addr call);
 _g void all_symbols_package(addr package, addr *ret);
 
 /* initialize */

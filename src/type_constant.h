@@ -399,6 +399,7 @@ enum TypeTable {
 	TypeCompiled_FormatterFunction,
 	TypeCompiled_GetInternalRealTime,
 	TypeCompiled_RemoveFile,
+	TypeCompiled_InfoBit,
 
 	/* Size */
 	TypeTable_Size

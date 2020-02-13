@@ -1346,7 +1346,6 @@ lisp-system::restart-bind
 lisp-system::restart-case
 lisp-system::restart-end
 lisp-system::push-return
-lisp-system::redirect-restart
 (lisp-system::*enable-debugger* :name enable-debugger :constant system)
 
 (lisp-system::*parse-environment* :name eval-parse-environment :constant system)
@@ -1395,10 +1394,6 @@ lisp-system::reserved
 lisp-system::end
 lisp-system::prompt-stream
 lisp-system::pretty-stream
-
-lisp-system::symbol-macro-expander
-lisp-system::defconstant
-
 (lisp-system::*gchold* :name gchold :constant system)
 
 
@@ -1480,6 +1475,7 @@ lisp-system::setf-compiler-macro-function
 (lisp-system::*compiler-macro* :constant system :name compiler-macro)
 lisp-system::compile-warning
 lisp-system::compile-style-warning
+lisp-system::nth-value
 
 
 ;;
@@ -1877,86 +1873,90 @@ lisp-system::structure-dispatch
 lisp-system::hexadecimal-dispatch
 
 lisp-system::backquote
-lisp-system::hello
-lisp-system::infobit
-lisp-system::infoprint
-lisp-system::gc
-lisp-system::savecore
-(lisp-system::*savecore* :constant system :name savecore-value)
-lisp-system::in-package
-lisp-system::setplist
-lisp-system::remplist
-lisp-system::make-hash-iterator
-lisp-system::next-hash-iterator
-lisp-system::make-package-iterator
-lisp-system::next-package-iterator
-lisp-system::defpackage
-lisp-system::do-symbols
-lisp-system::do-external-symbols
-lisp-system::do-all-symbols
-lisp-system::getdoc-variable
-lisp-system::setdoc-variable
-lisp-system::specialp
-lisp-system::ecase-error
-lisp-system::etypecase-error
-lisp-system::nth-value
-lisp-system::define-setf-expander
-lisp-system::defsetf-short
-lisp-system::defsetf-long
-lisp-system::array-general-p
-lisp-system::array-specialized-p
-lisp-system::simple-sort
-lisp-system::bubble-sort
-lisp-system::quick-sort
-lisp-system::merge-sort
-lisp-system::exit
-lisp-system::quit
-lisp-system::end-input-stream
-lisp-system::make-extend-output-stream
-lisp-system::prompt-for
-lisp-system::closp
-lisp-system::fixnump
-lisp-system::bignump
-lisp-system::ratiop
-lisp-system::short-float-p
-lisp-system::single-float-p
-lisp-system::double-float-p
-lisp-system::long-float-p
-lisp-system::callnamep
-lisp-system::large-number
-lisp-system::print-unreadable-call
-lisp-system::write-default
-lisp-system::make-bignum
-lisp-system::make-ratio
-lisp-system::make-complex
-lisp-system::equal-random-state
-lisp-system::symbol-deftype
-lisp-system::delete-deftype
-lisp-system::subtypep-result
-lisp-system::include
-lisp-system::exclude
-lisp-system::invalid
-lisp-system::false
-lisp-system::ensure-class
-lisp-system::ensure-structure
-lisp-system::make-pprint-stream
-lisp-system::pprint-gensym
-lisp-system::pprint-exit
-lisp-system::pprint-pop
-lisp-system::pprint-check
-lisp-system::pprint-close
-lisp-system::pprint-pretty
-lisp-system::eastasian-set
-lisp-system::eastasian-get
-lisp-system::eastasian-width
-lisp-system::timeinfo
-lisp-system::run-program
-lisp-system::make-callname
-lisp-system::with-compilation-unit
-lisp-system::set-slots
 lisp-system::unbound-value
-lisp-system::remove-file
-lisp-system::remove-directory
+
+;; syscall.c
+(lisp-system::hello :export t)
+(lisp-system::infobit :export t)
+(lisp-system::infoprint :export t)
+(lisp-system::gc :export t)
+(lisp-system::savecore :export t)
+(lisp-system::*savecore* :constant system :name savecore-value)
+ lisp-system::redirect-restart
+ lisp-system::symbol-macro-expander
+ lisp-system::defconstant
+ lisp-system::in-package
+(lisp-system::setplist :export t)
+(lisp-system::remplist :export t)
+(lisp-system::make-hash-iterator :export t)
+(lisp-system::next-hash-iterator :export t)
+(lisp-system::make-package-iterator :export t)
+(lisp-system::next-package-iterator :export t)
+ lisp-system::defpackage
+ lisp-system::do-symbols
+ lisp-system::do-external-symbols
+ lisp-system::do-all-symbols
+(lisp-system::getdoc-variable :export t)
+(lisp-system::setdoc-variable :export t)
+(lisp-system::specialp :export t)
+ lisp-system::ecase-error
+ lisp-system::etypecase-error
+ lisp-system::define-setf-expander
+ lisp-system::defsetf-short
+ lisp-system::defsetf-long
+(lisp-system::array-general-p :export t)
+(lisp-system::array-specialized-p :export t)
+(lisp-system::simple-sort :export t)
+(lisp-system::bubble-sort :export t)
+(lisp-system::quick-sort :export t)
+(lisp-system::merge-sort :export t)
+(lisp-system::exit :export t)
+(lisp-system::quit :export t)
+ lisp-system::end-input-stream
+ lisp-system::make-extend-output-stream
+(lisp-system::prompt-for :export t)
+(lisp-system::closp :export t)
+(lisp-system::fixnump :export t)
+(lisp-system::bignump :export t)
+(lisp-system::ratiop :export t)
+(lisp-system::short-float-p :export t)
+(lisp-system::single-float-p :export t)
+(lisp-system::double-float-p :export t)
+(lisp-system::long-float-p :export t)
+(lisp-system::callnamep :export t)
+(lisp-system::large-number :export t)
+ lisp-system::print-unreadable-call
+ lisp-system::write-default
+(lisp-system::make-bignum :export t)
+(lisp-system::make-ratio :export t)
+(lisp-system::make-complex :export t)
+(lisp-system::equal-random-state :export t)
+ lisp-system::symbol-deftype
+ lisp-system::delete-deftype
+(lisp-system::subtypep-result :export t)
+ lisp-system::include
+ lisp-system::exclude
+ lisp-system::invalid
+ lisp-system::false
+ lisp-system::ensure-class
+ lisp-system::ensure-structure
+ lisp-system::make-pprint-stream
+ lisp-system::pprint-gensym
+ lisp-system::pprint-exit
+ lisp-system::pprint-pop
+ lisp-system::pprint-check
+ lisp-system::pprint-close
+ lisp-system::pprint-pretty
+(lisp-system::eastasian-set :export t)
+(lisp-system::eastasian-get :export t)
+(lisp-system::eastasian-width :export t)
+ lisp-system::timeinfo
+(lisp-system::run-program :export t)
+(lisp-system::make-callname :export t)
+ lisp-system::with-compilation-unit
+ lisp-system::set-slots
+(lisp-system::remove-file :export t)
+(lisp-system::remove-directory :export t)
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

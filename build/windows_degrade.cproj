@@ -351,6 +351,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_sxhash.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_symbol.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\syscall.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\syscall_code.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\thread.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_token.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\type_coerce.c" />
@@ -576,6 +577,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\structure.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sxhash.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\symbol.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\syscall_code.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\syscall.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\thread_disable.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\thread_posix.h" />
