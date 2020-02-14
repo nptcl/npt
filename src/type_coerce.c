@@ -2573,11 +2573,13 @@ static int coerce_table(Execute ptr, addr pos, addr type, addr *ret)
 	coerce_call call;
 
 	CheckType(type, LISPTYPE_TYPE);
-	decl = LispDecl(type);
-	/* call table */
-	call = CoerceTable[(int)decl];
-	if (call)
-		return (*call)(ptr, pos, type, ret);
+	if (! RefNotDecl(type)) {
+		decl = LispDecl(type);
+		/* call table */
+		call = CoerceTable[(int)decl];
+		if (call)
+			return (*call)(ptr, pos, type, ret);
+	}
 	/* others */
 	*ret = Unbound;
 	return 0;

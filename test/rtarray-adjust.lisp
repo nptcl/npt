@@ -145,6 +145,16 @@
          (y (adjust-array x 3 :element-type 'single-float)))
     y))
 
+(deftest-error adjust-array-element-type.9
+  (let* ((x (make-array 5 :element-type 'character))
+         (y (adjust-array x 3 :element-type '(not character))))
+    y))
+
+(deftest-error adjust-array-element-type.10
+  (let* ((x (make-array 5 :element-type 'single-float))
+         (y (adjust-array x 3 :element-type '(not single-float))))
+    y))
+
 
 ;;
 ;;  initial-contents

@@ -379,6 +379,27 @@
   (make-sequence 'simple-bit-vector 5 :initial-element 1)
   #*11111)
 
+(deftest-error make-sequence-not.1
+  (make-sequence '(not list) 5))
+
+ (deftest-error make-sequence-not.2
+  (make-sequence '(not cons) 5 :initial-element 'a))
+
+(deftest-error make-sequence-not.3
+  (make-sequence '(not vector) 5 :initial-element 'a))
+
+(deftest-error make-sequence-not.4
+  (make-sequence '(not (simple-vector 3)) 3))
+
+(deftest-error make-sequence-not.5
+  (make-sequence '(not string) 5 :initial-element #\A))
+
+(deftest-error make-sequence-not.6
+  (make-sequence '(not array) 5))
+
+(deftest-error make-sequence-not.7
+  (make-sequence '(not bit-vector) 5 :initial-element 1))
+
 (deftest subseq-list.1
   (subseq nil 0)
   nil)

@@ -654,3 +654,19 @@
   (coerce #*11001 'vector)
   #(1 1 0 0 1))
 
+(deftest-error coerce-not.1
+  (coerce 12.3f0 '(not float)))
+
+(deftest coerce-not.2
+  (coerce 'car '(not function))
+  car)
+
+(deftest coerce-not.3
+  (let* ((array #(10 20 30 40 50))
+         (result (coerce array '(not (array (signed-byte 8))))))
+    (values
+      (array-element-type result)
+      (array-specialized-p result)
+      result))
+  t nil #(10 20 30 40 50))
+

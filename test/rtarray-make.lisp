@@ -807,3 +807,42 @@
          (y (make-array '(2 3) :element-type 'bit :displaced-to x)))
     y))
 
+
+;;
+;;  element-type not
+;;
+(deftest make-array-not.1
+  (array-element-type
+    (make-array 3 :element-type '(not character)))
+  t)
+
+(deftest make-array-not.2
+  (array-element-type
+    (make-array 3 :element-type '(not bit)))
+  t)
+
+(deftest make-array-not.3
+  (array-element-type
+    (make-array 3 :element-type '(not single-float)))
+  t)
+
+(deftest make-array-not.4
+  (array-element-type
+    (make-array 3 :element-type '(not double-float)))
+  t)
+
+(deftest make-array-not.5
+  (array-element-type
+    (make-array 3 :element-type '(not long-float)))
+  t)
+
+(deftest make-array-not.6
+  (array-element-type
+    (make-array 3 :element-type '(not (signed-byte 8))))
+  t)
+
+(deftest make-array-not.7
+  (array-element-type
+    (make-array 3 :element-type '(not (unsigned-byte 8))))
+  t)
+
