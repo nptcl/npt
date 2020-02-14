@@ -11,6 +11,25 @@
 #include "syscall.h"
 #include "type.h"
 
+static void test_forget_class(constindex index)
+{
+	addr symbol;
+	GetConstant(index, &symbol);
+	remclass_symbol(symbol);
+}
+
+static void test_forget_all_classes(void)
+{
+	test_forget_class(CONSTANT_COMMON_T);
+	test_forget_class(CONSTANT_COMMON_CLASS);
+	test_forget_class(CONSTANT_COMMON_STANDARD_CLASS);
+	test_forget_class(CONSTANT_COMMON_FUNCTION);
+	test_forget_class(CONSTANT_COMMON_GENERIC_FUNCTION);
+	test_forget_class(CONSTANT_COMMON_STANDARD_GENERIC_FUNCTION);
+	test_forget_class(CONSTANT_COMMON_METHOD);
+	test_forget_class(CONSTANT_COMMON_STANDARD_METHOD);
+}
+
 static void clos_supers_alloc(LocalRoot local, addr *ret, va_list args)
 {
 	addr super, cons, clos, slots;
@@ -1851,7 +1870,8 @@ static int test_clos_stdclass_va(void)
 	size_t size;
 
 	local = Local_Thread;
-	//clos_forget_all_classes_unsafe();
+	//test_forget_all_classes();
+
 	SetConst(DEBUG1, readr("debug1"));
 	clos_stdclass_metaclass(local, &metaclass);
 	clos_stdclass_va(local, metaclass,
@@ -2058,8 +2078,9 @@ static int test_build_clos_class_generic(void)
 {
 	addr pos, fclass, gclass, sgclass, left, check;
 
-	clos_forget_all_classes_unsafe();
+	test_forget_all_classes();
 	build_clos_class(Local_Thread);
+
 	/* function */
 	GetConst(COMMON_FUNCTION, &fclass);
 	clos_find_class(fclass, &fclass);
@@ -2165,7 +2186,7 @@ static int test_build_clos_class_method(void)
 {
 	addr pos, mclass, smclass, left, check;
 
-	clos_forget_all_classes_unsafe();
+	test_forget_all_classes();
 	build_clos_class(Local_Thread);
 
 	/* method */
@@ -2253,7 +2274,7 @@ static int test_build_clos_method_combination(void)
 {
 	addr pos, clos, left, check;
 
-	clos_forget_all_classes_unsafe();
+	test_forget_all_classes();
 	build_clos_class(Local_Thread);
 
 	/* method_combination */

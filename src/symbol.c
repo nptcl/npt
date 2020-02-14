@@ -596,6 +596,48 @@ _g void setlisttype_symbol(addr symbol, addr value)
 	setinfo_force(symbol, CONSTANT_SYSTEM_TYPE_LIST, value);
 }
 
+_g void getclass_symbol(addr symbol, addr *ret)
+{
+	CheckSymbol(symbol);
+	getinfo_constant(symbol, CONSTANT_COMMON_CLASS, ret);
+}
+
+_g void setclass_symbol(addr symbol, addr value)
+{
+	CheckSymbol(symbol);
+	Check(GetType(value) != LISPTYPE_CLOS, "type error");
+	setinfo_force(symbol, CONSTANT_COMMON_CLASS, value);
+}
+
+static void reminfo_force(addr symbol, constindex index)
+{
+	addr plist;
+
+	CheckSymbol(symbol);
+	GetInfoSymbol_Low(symbol, &plist);
+	if (remplist_constant(plist, index, &plist))
+		SetInfoSymbol_force(symbol, plist);
+}
+
+_g void remclass_symbol(addr symbol)
+{
+	CheckSymbol(symbol);
+	reminfo_force(symbol, CONSTANT_COMMON_CLASS);
+}
+
+_g void getcombination_symbol(addr symbol, addr *ret)
+{
+	CheckSymbol(symbol);
+	getinfo_constant(symbol, CONSTANT_COMMON_METHOD_COMBINATION, ret);
+}
+
+_g void setcombination_symbol(addr symbol, addr value)
+{
+	CheckSymbol(symbol);
+	Check(GetType(value) != LISPTYPE_CLOS, "type error");
+	setinfo_force(symbol, CONSTANT_COMMON_METHOD_COMBINATION, value);
+}
+
 
 /*
  *  symstack

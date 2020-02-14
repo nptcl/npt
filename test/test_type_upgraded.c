@@ -689,7 +689,6 @@ int test_type_upgraded(void)
 		build_readtable();
 		build_pathname();
 		build_eval_declare();
-		build_clos(ptr);
 		lisp_initialize = 1;
 		result = testbreak_type_upgraded();
 	}

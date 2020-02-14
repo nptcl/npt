@@ -1,8 +1,6 @@
 #ifndef __CLOS_DEFINE_HEADER__
 #define __CLOS_DEFINE_HEADER__
 
-#define CLOS_TABLE_CLASS_SIZE            256
-#define CLOS_TABLE_COMBINATION_SIZE      32
 #define CLOS_TABLE_SPECIALIZER_SIZE      32
 
 enum SLOT_INDEX {

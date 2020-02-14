@@ -307,7 +307,6 @@ _g void clos_slot_makunbound(addr pos, addr name);
 _g void clos_find_class_nil(addr name, addr *ret);
 _g void clos_find_class(addr name, addr *ret);
 _g void clos_define_class(addr name, addr value);
-_g void clos_forget_all_classes_unsafe(void);
 
 _g void clos_find_generic_nil(addr name, addr *ret);
 _g void clos_find_generic(addr name, addr *ret);
@@ -316,7 +315,6 @@ _g void clos_define_generic(addr name, addr value);
 _g void clos_find_combination_nil(addr name, addr *ret);
 _g void clos_find_combination(addr name, addr *ret);
 _g void clos_define_combination(addr name, addr value);
-_g void clos_forget_all_combination_unsafe(void);
 
 _g void clos_find_specializer_nil(addr name, addr *ret);
 _g void clos_find_specializer(addr name, addr *ret);

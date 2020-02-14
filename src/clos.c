@@ -888,18 +888,10 @@ _g void clos_slot_makunbound(addr pos, addr name)
  *  table
  */
 /* clos */
-static inline void clos_table_class(addr *ret)
-{
-	*ret = Root(LISPINDEX_CLOS);
-}
-
 _g void clos_find_class_nil(addr name, addr *ret)
 {
-	addr table;
-
 	Check(! symbolp(name), "type name error");
-	clos_table_class(&table);
-	findvalue_hashtable(table, name, ret);
+	getclass_symbol(name, ret);
 }
 
 _g void clos_find_class(addr name, addr *ret)
@@ -912,20 +904,9 @@ _g void clos_find_class(addr name, addr *ret)
 
 _g void clos_define_class(addr name, addr value)
 {
-	addr table;
-
 	Check(! symbolp(name), "type name error");
 	CheckType(value, LISPTYPE_CLOS);
-	clos_table_class(&table);
-	intern_hashheap(table, name, &name);
-	SetCdr(name, value);
-}
-
-_g void clos_forget_all_classes_unsafe(void)
-{
-	addr table;
-	clos_table_class(&table);
-	clear_hashtable_heap(table);
+	setclass_symbol(name, value);
 }
 
 /* generic */
@@ -954,18 +935,10 @@ _g void clos_define_generic(addr name, addr value)
 }
 
 /* method-combination */
-static void clos_table_combination(addr *ret)
-{
-	*ret = Root(LISPINDEX_COMBINATION);
-}
-
 _g void clos_find_combination_nil(addr name, addr *ret)
 {
-	addr table;
-
 	Check(! symbolp(name), "type name error");
-	clos_table_combination(&table);
-	findvalue_hashtable(table, name, ret);
+	getcombination_symbol(name, ret);
 }
 
 _g void clos_find_combination(addr name, addr *ret)
@@ -977,19 +950,8 @@ _g void clos_find_combination(addr name, addr *ret)
 
 _g void clos_define_combination(addr name, addr value)
 {
-	addr table;
-
 	Check(! symbolp(name), "type name error");
-	clos_table_combination(&table);
-	intern_hashheap(table, name, &name);
-	SetCdr(name, value);
-}
-
-_g void clos_forget_all_combination_unsafe(void)
-{
-	addr table;
-	clos_table_combination(&table);
-	clear_hashtable_heap(table);
+	setcombination_symbol(name, value);
 }
 
 /* eql-specializser */
@@ -1042,16 +1004,6 @@ _g void init_clos(void)
 static void build_clos_table(Execute ptr)
 {
 	addr pos;
-
-	/* class table */
-	hashtable_size_heap(&pos, CLOS_TABLE_CLASS_SIZE);
-	settest_hashtable(pos, HASHTABLE_TEST_EQ);
-	Root(LISPINDEX_CLOS) = pos;
-
-	/* method-combination */
-	hashtable_size_heap(&pos, CLOS_TABLE_COMBINATION_SIZE);
-	settest_hashtable(pos, HASHTABLE_TEST_EQ);
-	Root(LISPINDEX_COMBINATION) = pos;
 
 	/* eql-specializer */
 	hashtable_size_heap(&pos, CLOS_TABLE_SPECIALIZER_SIZE);

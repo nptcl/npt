@@ -169,6 +169,11 @@ _g void getsymboltype_symbol(addr symbol, addr *ret);
 _g void setsymboltype_symbol(addr symbol, addr value);
 _g void getlisttype_symbol(addr symbol, addr *ret);
 _g void setlisttype_symbol(addr symbol, addr value);
+_g void getclass_symbol(addr symbol, addr *ret);
+_g void setclass_symbol(addr symbol, addr value);
+_g void remclass_symbol(addr symbol);
+_g void getcombination_symbol(addr symbol, addr *ret);
+_g void setcombination_symbol(addr symbol, addr value);
 
 /* symstack */
 _g void pushlexical_closure_unsafe(Execute ptr, addr pos, addr cons);
