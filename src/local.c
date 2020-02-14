@@ -28,6 +28,12 @@ static void *lowlevel_unsafe(struct localroot *local, size_t size)
 	struct localmemory *mem;
 	void *ptr;
 
+	/* size check */
+	if (local->size < local->now + size) {
+		Debug("stack overflow.");
+		return NULL;
+	}
+
 	/* localmemory */
 	mem = local->mem;
 	if (LocalCount <= mem->count) {
@@ -49,7 +55,11 @@ static void *lowlevel_unsafe(struct localroot *local, size_t size)
 #ifdef LISP_MEMORY_INIT
 	aamemory(ptr, size);
 #endif
-	mem->point[mem->count++] = ptr;
+	mem->point[mem->count] = ptr;
+	mem->size[mem->count] = size;
+	mem->count++;
+	local->now += size;
+
 	return ptr;
 }
 
@@ -124,6 +134,7 @@ static struct localroot *make_local_localroot(struct localmemory *mem, size_t si
 	aamemory(local, sizeoft(struct localroot));
 #endif
 	local->size = size;
+	local->now = 0;
 	local->mem = mem;
 	local->cell = NULL;
 	local->stack = NULL;
@@ -231,16 +242,18 @@ static void rollback_memory_local(struct localroot *local, struct localstack *st
 {
 	void **mem_point;
 	struct localmemory *x, *y, *next;
-	size_t i, count;
+	size_t i, count, *mem_size;
 
 	y = stack->mem;
 	for (x = local->mem; x != y; x = next) {
 		next = x->next;
 		count = x->count;
 		mem_point = x->point;
+		mem_size = x->size;
 		for (i = 0; i < count; i++) {
 			free(mem_point[i]);
 			mem_point[i] = NULL;
+			local->now -= mem_size[i];
 		}
 		free(x);
 	}
@@ -251,7 +264,7 @@ _g void rollback_local(struct localroot *local, struct localstack *stack)
 	void **mem_point;
 	struct localmemory *local_mem;
 	struct localstack save;
-	size_t i, count;
+	size_t i, count, *mem_size;
 #ifdef LISP_DEBUG
 	struct localstack *root;
 
@@ -269,8 +282,11 @@ _g void rollback_local(struct localroot *local, struct localstack *stack)
 	local_mem = local->mem;
 	count = local_mem->count;
 	mem_point = local_mem->point;
-	for (i = save.memcount; i < count; i++)
+	mem_size = local_mem->size;
+	for (i = save.memcount; i < count; i++) {
 		free(mem_point[i]);
+		local->now -= mem_size[i];
+	}
 	local_mem->count = save.memcount;
 	local->cell->count = save.cellcount;
 #ifdef LISP_DEBUG
@@ -280,6 +296,7 @@ _g void rollback_local(struct localroot *local, struct localstack *stack)
 		local->mem->point[i] = Unbound;
 #endif
 }
+
 
 #else
 /***********************************************************************
@@ -293,7 +310,7 @@ static void *lowlevel_unsafe(struct localroot *local, size_t size)
 	front = local->front;
 	check = front + size;
 	if (local->tail < check) {
-		Debug("stack overflow");
+		Debug("stack overflow.");
 		return NULL;
 	}
 	local->front = check;

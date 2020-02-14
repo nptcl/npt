@@ -15,6 +15,7 @@ struct localmemory {
 	struct localmemory *next;
 	size_t count;
 	void *point[LocalCount];
+	size_t size[LocalCount];
 };
 
 struct localcell {
@@ -31,7 +32,7 @@ struct localstack {
 };
 
 struct localroot {
-	size_t size;
+	size_t size, now;
 	struct localmemory *mem;
 	struct localcell *cell;
 	struct localstack *stack;

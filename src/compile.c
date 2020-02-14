@@ -114,7 +114,7 @@ static void function_handler_compile(Execute ptr, addr condition)
 		setlexical_local(ptr, check, T);
 	}
 
-	/* stype-warning */
+	/* style-warning */
 	GetConst(CONDITION_STYLE_WARNING, &check);
 	if (clos_subtype_p(condition, check)) {
 		GetConst(SYSTEM_COMPILE_STYLE_WARNING, &check);

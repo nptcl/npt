@@ -164,6 +164,9 @@ int lisp_main_version_text(FILE *file)
 #ifdef LISP_DEBUG_FORCE_GC
 	fprintf(file, "%-20s %d\n", "Force GC", LISP_DEBUG_FORCE_GC);
 #endif
+#ifdef LISP_MEMORY_MALLOC
+	fprintf(file, "%-20s %s\n", "Memory Malloc", "true");
+#endif
 	fprintf(file, "-----\n");
 
 	lisp_result = 0;
@@ -200,6 +203,11 @@ int lisp_main_version_script(FILE *file)
 	fprintf(file, "%s\t%s\n", "amalgamation", "true");
 #else
 	fprintf(file, "%s\t%s\n", "amalgamation", "false");
+#endif
+#ifdef LISP_MEMORY_MALLOC
+	fprintf(file, "%s\t%s\n", "memory-malloc", "true");
+#else
+	fprintf(file, "%s\t%s\n", "memory-malloc", "false");
 #endif
 	lisp_result = 0;
 
