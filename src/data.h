@@ -6,7 +6,7 @@
 
 _g void apply_common(Execute ptr, addr call, addr arg, addr args);
 _g int defun_common(Execute ptr, addr right, addr env, addr *ret);
-_g void fdefinition_common(addr name, addr *ret);
+_g int fdefinition_common(Execute ptr, addr name, addr *ret);
 _g void setf_fdefinition_common(addr value, addr name);
 _g int fboundp_common(addr name);
 _g void fmakunbound_common(addr name);

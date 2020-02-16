@@ -13,6 +13,7 @@
 #include "local.h"
 #include "print.h"
 #include "print_write.h"
+#include "restart.h"
 #include "sequence.h"
 #include "setf.h"
 #include "stream.h"
@@ -81,15 +82,10 @@ _g int defun_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  fdefinition
  */
-_g void fdefinition_common(addr name, addr *ret)
+_g int fdefinition_common(Execute ptr, addr name, addr *ret)
 {
-	addr call;
-
-	parse_callname_error(&call, name);
-	getfunction_callname_global(call, &call);
-	if (call == Unbound)
-		undefined_function(name);
-	*ret = call;
+	parse_callname_error(&name, name);
+	return callname_global_restart(ptr, name, ret);
 }
 
 

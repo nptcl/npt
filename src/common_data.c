@@ -85,7 +85,7 @@ static void defmacro_defun(void)
  */
 static void function_fdefinition(Execute ptr, addr name)
 {
-	fdefinition_common(name, &name);
+	Return0(fdefinition_common(ptr, name, &name));
 	setresult_control(ptr, name);
 }
 

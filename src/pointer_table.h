@@ -1143,6 +1143,7 @@ enum pointer_index {
 	p_restart_symbol_store_special,
 	p_restart_symbol_store_interactive,
 	p_restart_symbol_store_report,
+	p_restart_function_use_function,
 	/* syscall */
 	p_defun_syscall_hello,
 	p_defun_syscall_infobit,

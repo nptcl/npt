@@ -457,22 +457,22 @@ static void setq_special_type_code(Execute ptr, addr right)
  */
 static void function_global_type_code(Execute ptr, addr right)
 {
-	addr call, type;
+	addr symbol, type;
 
-	List_bind(right, &call, &type, NULL);
-	function_global_restart(ptr, call, &right);
+	List_bind(right, &symbol, &type, NULL);
+	GetFunctionSymbol(symbol, &right);
 	(void)typep_unbound_error(ptr, right, type);
 }
 
 static void function_global_set_code(Execute ptr, addr right)
 {
-	function_global_restart(ptr, right, &right);
+	Return0(function_global_restart(ptr, right, &right));
 	setresult_control(ptr, right);
 }
 
 static void function_global_push_code(Execute ptr, addr right)
 {
-	function_global_restart(ptr, right, &right);
+	Return0(function_global_restart(ptr, right, &right));
 	pushargs_control(ptr, right);
 }
 
@@ -499,22 +499,22 @@ static void function_local_push_code(Execute ptr, addr right)
 
 static void setf_global_type_code(Execute ptr, addr right)
 {
-	addr call, type;
+	addr symbol, type;
 
-	List_bind(right, &call, &type, NULL);
-	getsetf_symbol(call, &right);
+	List_bind(right, &symbol, &type, NULL);
+	getsetf_symbol(symbol, &right);
 	(void)typep_unbound_error(ptr, right, type);
 }
 
 static void setf_global_set_code(Execute ptr, addr right)
 {
-	getsetfcheck_symbol(right, &right);
+	Return0(setf_global_restart(ptr, right, &right));
 	setresult_control(ptr, right);
 }
 
 static void setf_global_push_code(Execute ptr, addr right)
 {
-	getsetfcheck_symbol(right, &right);
+	Return0(setf_global_restart(ptr, right, &right));
 	pushargs_control(ptr, right);
 }
 

@@ -275,7 +275,7 @@ static void defun_gentemp(void)
 /* (defun symbol-function (symbol) ...) -> function */
 static void function_symbol_function(Execute ptr, addr var)
 {
-	function_global_restart(ptr, var, &var);
+	Return0(function_global_restart(ptr, var, &var));
 	setresult_control(ptr, var);
 }
 
