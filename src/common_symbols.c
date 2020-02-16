@@ -7,6 +7,7 @@
 #include "cons_plist.h"
 #include "integer.h"
 #include "package.h"
+#include "restart.h"
 #include "sequence.h"
 #include "strtype.h"
 #include "type_parse.h"
@@ -342,7 +343,7 @@ static void defun_setf_symbol_function(void)
 /* (defun symbol-value (symbol) ...) -> object */
 static void function_symbol_value(Execute ptr, addr var)
 {
-	value_special_restart(ptr, var, &var);
+	Return0(symbol_special_restart(ptr, var, &var));
 	setresult_control(ptr, var);
 }
 

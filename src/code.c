@@ -20,6 +20,7 @@
 #include "number.h"
 #include "object.h"
 #include "package.h"
+#include "restart.h"
 #include "sequence.h"
 #include "symbol.h"
 #include "type_typep.h"
@@ -323,7 +324,7 @@ static void lexical_type_code(Execute ptr, addr right)
 
 static void lexical_set_code(Execute ptr, addr right)
 {
-	getlexicalcheck_local(ptr, right, &right);
+	Return0(symbol_lexical_restart(ptr, right, &right));
 	setresult_control(ptr, right);
 }
 
@@ -332,13 +333,13 @@ static void lexical_set_type_code(Execute ptr, addr right)
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
-	getlexicalcheck_local(ptr, symbol, &right);
+	Return0(symbol_lexical_restart(ptr, symbol, &right));
 	setresult_control(ptr, right);
 }
 
 static void lexical_push_code(Execute ptr, addr right)
 {
-	getlexicalcheck_local(ptr, right, &right);
+	Return0(symbol_lexical_restart(ptr, right, &right));
 	pushargs_control(ptr, right);
 }
 
@@ -347,13 +348,13 @@ static void lexical_push_type_code(Execute ptr, addr right)
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
-	getlexicalcheck_local(ptr, symbol, &right);
+	Return0(symbol_lexical_restart(ptr, symbol, &right));
 	pushargs_control(ptr, right);
 }
 
 static void lexical_remove_code(Execute ptr, addr right)
 {
-	getlexicalcheck_local(ptr, right, &right);
+	Return0(symbol_lexical_restart(ptr, right, &right));
 }
 
 static void special_type_code(Execute ptr, addr right)
@@ -367,7 +368,7 @@ static void special_type_code(Execute ptr, addr right)
 
 static void special_set_code(Execute ptr, addr right)
 {
-	getspecialcheck_local(ptr, right, &right);
+	Return0(symbol_special_restart(ptr, right, &right));
 	setresult_control(ptr, right);
 }
 
@@ -376,13 +377,13 @@ static void special_set_type_code(Execute ptr, addr right)
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
-	getspecialcheck_local(ptr, symbol, &right);
+	Return0(symbol_special_restart(ptr, symbol, &right));
 	setresult_control(ptr, right);
 }
 
 static void special_push_code(Execute ptr, addr right)
 {
-	getspecialcheck_local(ptr, right, &right);
+	Return0(symbol_special_restart(ptr, right, &right));
 	pushargs_control(ptr, right);
 }
 
@@ -391,13 +392,13 @@ static void special_push_type_code(Execute ptr, addr right)
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
-	getspecialcheck_local(ptr, symbol, &right);
+	Return0(symbol_special_restart(ptr, symbol, &right));
 	pushargs_control(ptr, right);
 }
 
 static void special_remove_code(Execute ptr, addr right)
 {
-	getspecialcheck_local(ptr, right, &right);
+	Return0(symbol_special_restart(ptr, right, &right));
 }
 
 

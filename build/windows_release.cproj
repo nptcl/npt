@@ -326,6 +326,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\require.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\restart.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt_load.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence.c" />
@@ -554,6 +555,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\require.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\restart.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rt.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_iterator.h" />

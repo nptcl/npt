@@ -40,6 +40,7 @@
 #include "random_state.h"
 #include "readtable.h"
 #include "real_common.h"
+#include "restart.h"
 #include "require.h"
 #include "rt.h"
 #include "stream.h"
@@ -102,6 +103,7 @@ _g void initlisp(void)
 	init_pathname();
 	init_print();
 	init_readtable();
+	init_restart();
 	init_rt();
 	init_stream();
 	init_structure();

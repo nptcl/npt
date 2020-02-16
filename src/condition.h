@@ -34,18 +34,6 @@ _g int getredirect_restart(addr pos);
 
 
 /*
- *  restart code
- */
-_g void function_global_restart(Execute ptr, addr symbol, addr *ret);
-_g void function_local_restart(Execute ptr, addr symbol, addr *ret);
-_g void setf_global_restart(Execute ptr, addr symbol, addr *ret);
-_g void setf_local_restart(Execute ptr, addr symbol, addr *ret);
-_g void value_global_restart(Execute ptr, addr symbol, addr *ret);
-_g void value_lexical_restart(Execute ptr, addr symbol, addr *ret);
-_g void value_special_restart(Execute ptr, addr symbol, addr *ret);
-
-
-/*
  *  handler warning
  */
 _g void handler_warning(Execute ptr);

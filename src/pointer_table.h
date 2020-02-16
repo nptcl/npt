@@ -1133,6 +1133,16 @@ enum pointer_index {
 	p_pprint_dispatch_let2,
 	p_pprint_dispatch_let1,
 	p_pprint_dispatch_let,
+	/* restart */
+	p_restart_symbol_use_function,
+	p_restart_symbol_use_interactive,
+	p_restart_symbol_use_report,
+	p_restart_symbol_use_test,
+	p_restart_symbol_store_global,
+	p_restart_symbol_store_lexical,
+	p_restart_symbol_store_special,
+	p_restart_symbol_store_interactive,
+	p_restart_symbol_store_report,
 	/* syscall */
 	p_defun_syscall_hello,
 	p_defun_syscall_infobit,

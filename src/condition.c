@@ -211,60 +211,6 @@ _g int getredirect_restart(addr pos)
 
 
 /*
- *  restart code
- */
-_g void function_global_restart(Execute ptr, addr symbol, addr *ret)
-{
-	addr pos;
-
-	GetFunctionSymbol(symbol, &pos);
-	if (pos == Unbound)
-		undefined_function(symbol);
-	*ret = pos;
-}
-
-_g void function_local_restart(Execute ptr, addr symbol, addr *ret)
-{
-	getfunctioncheck_local(ptr, symbol, ret);
-}
-
-_g void setf_global_restart(Execute ptr, addr symbol, addr *ret)
-{
-	addr pos;
-
-	getsetf_symbol(symbol, &pos);
-	if (pos == Unbound)
-		undefined_function_setf(symbol);
-	*ret = pos;
-}
-
-_g void setf_local_restart(Execute ptr, addr symbol, addr *ret)
-{
-	getsetfcheck_local(ptr, symbol, ret);
-}
-
-_g void value_global_restart(Execute ptr, addr symbol, addr *ret)
-{
-	addr pos;
-
-	GetValueSymbol(symbol, &pos);
-	if (pos == Unbound)
-		unbound_variable(symbol);
-	*ret = pos;
-}
-
-_g void value_lexical_restart(Execute ptr, addr symbol, addr *ret)
-{
-	getlexicalcheck_local(ptr, symbol, ret);
-}
-
-_g void value_special_restart(Execute ptr, addr symbol, addr *ret)
-{
-	getspecialcheck_local(ptr, symbol, ret);
-}
-
-
-/*
  *  (handler-bind
  *    ((warning #'function-handler-warning))
  *    ...)

@@ -1946,10 +1946,9 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 		clear_input_stream(stream);
 		if (read_stream(ptr, stream, &result, &value))
 			return 1;
-		localhold_set(hold, 0, value);
-
 		if (result)
 			fmte("Can't read from *query-io* stream.", NULL);
+		localhold_set(hold, 0, value);
 		if (type == T)
 			break;
 		if (typep_clang(ptr, value, spec, &result))

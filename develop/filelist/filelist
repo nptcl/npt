@@ -181,6 +181,7 @@ real_round.c
 real_truncate.c
 real.c
 require.c
+restart.c
 rt.c
 rt_load.c
 sequence.c
