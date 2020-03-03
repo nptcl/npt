@@ -2472,6 +2472,27 @@ static void defun_remove_directory(void)
 }
 
 
+/* (defmacro declare-parse (symbol) ...) -> integer */
+static void syscall_declare_parse(Execute ptr, addr form, addr env)
+{
+	declare_parse_syscode(form, &form);
+	setresult_control(ptr, form);
+}
+
+static void defmacro_declare_parse(void)
+{
+	addr symbol, pos, type;
+
+	GetConst(SYSTEM_DECLARE_PARSE, &symbol);
+	compiled_macro_heap(&pos, symbol);
+	setcompiled_macro(pos, p_defmacro_syscall_declare_parse);
+	setmacro_symbol(symbol, pos);
+	/* type */
+	GetTypeCompiled(&type, MacroFunction);
+	settype_function(pos, type);
+}
+
+
 /*
  *  function
  */
@@ -2557,6 +2578,7 @@ _g void init_syscall(void)
 	SetPointerSysCall(defun, var3, set_slots);
 	SetPointerSysCall(defun, var1opt1, remove_file);
 	SetPointerSysCall(defun, var1opt1, remove_directory);
+	SetPointerSysCall(defmacro, macro, declare_parse);
 }
 
 _g void build_syscall(void)
@@ -2642,5 +2664,6 @@ _g void build_syscall(void)
 	defun_set_slots();
 	defun_remove_file();
 	defun_remove_directory();
+	defmacro_declare_parse();
 }
 

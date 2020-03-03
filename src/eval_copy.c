@@ -11,16 +11,17 @@
 
 static void copy_eval_parse(LocalRoot local, addr *ret, addr pos);
 
-static void copy_single(LocalRoot local, addr *ret, addr eval)
+/* single */
+static void copy_eval_single(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	GetEvalParseType(eval, &type);
 	GetEvalParse(eval, 0, &eval);
-	copylocal_object(local, &eval, eval);
 	eval_single_parse_alloc(local, ret, type, eval);
 }
 
-static void copy_declaim_nil(LocalRoot local, addr *ret, addr pos)
+/* declaim */
+static void copy_eval_declaim_nil(LocalRoot local, addr *ret, addr pos)
 {
 	if (pos == Nil)
 		*ret = Nil;
@@ -28,16 +29,18 @@ static void copy_declaim_nil(LocalRoot local, addr *ret, addr pos)
 		copy_eval_declare_alloc(local, ret, pos);
 }
 
-static void copy_declaim(LocalRoot local, addr *ret, addr eval)
+static void copy_eval_declaim(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
+
 	GetEvalParseType(eval, &type);
 	GetEvalParse(eval, 0, &eval);
-	copy_declaim_nil(local, &eval, eval);
+	copy_eval_declaim_nil(local, &eval, eval);
 	eval_single_parse_alloc(local, ret, type, eval);
 }
 
-static void copy_allcons(LocalRoot local, addr *ret, addr cons)
+/* progn */
+static void copy_eval_allcons(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, pos;
 
@@ -49,18 +52,19 @@ static void copy_allcons(LocalRoot local, addr *ret, addr cons)
 	nreverse_list_unsafe(ret, root);
 }
 
-static void copy_progn(LocalRoot local, addr *ret, addr eval)
+static void copy_eval_progn(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_PROGN, "parse error");
 	GetEvalParse(eval, 0, &eval);
-	copy_allcons(local, &eval, eval);
+	copy_eval_allcons(local, &eval, eval);
 	eval_single_parse_alloc(local, ret, type, eval);
 }
 
-static void copy_let_args(LocalRoot local, addr *ret, addr args)
+/* let */
+static void copy_eval_let_args(LocalRoot local, addr *ret, addr args)
 {
 	addr root, init, pos;
 
@@ -74,7 +78,7 @@ static void copy_let_args(LocalRoot local, addr *ret, addr args)
 	nreverse_list_unsafe(ret, root);
 }
 
-static void copy_let(LocalRoot local, addr *ret, addr eval)
+static void copy_eval_let(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr args, decl, cons;
@@ -84,9 +88,9 @@ static void copy_let(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &args);
 	GetEvalParse(eval, 1, &decl);
 	GetEvalParse(eval, 2, &cons);
-	copy_let_args(local, &args, args);
-	copy_declaim_nil(local, &decl, decl);
-	copy_allcons(local, &cons, cons);
+	copy_eval_let_args(local, &args, args);
+	copy_eval_declaim_nil(local, &decl, decl);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 3);
 	SetEvalParse(eval, 0, args);
@@ -95,7 +99,8 @@ static void copy_let(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_setq_args(LocalRoot local, addr *ret, addr cons)
+/* setq */
+static void copy_eval_setq_args(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, pos, value;
 
@@ -109,7 +114,7 @@ static void copy_setq_args(LocalRoot local, addr *ret, addr cons)
 	nreverse_list_unsafe(ret, root);
 }
 
-static void copy_setq(LocalRoot local, addr *ret, addr eval)
+static void copy_eval_setq(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr cons;
@@ -117,11 +122,12 @@ static void copy_setq(LocalRoot local, addr *ret, addr eval)
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_SETQ, "parse error");
 	GetEvalParse(eval, 0, &cons);
-	copy_setq_args(local, &cons, cons);
-	eval_single_parse_heap(ret, EVAL_PARSE_SETQ, cons);
+	copy_eval_setq_args(local, &cons, cons);
+	eval_single_parse_alloc(local, ret, EVAL_PARSE_SETQ, cons);
 }
 
-static void copy_ordinary_optional(LocalRoot local, addr *ret, addr cons)
+/* defun */
+static void copy_eval_ordinary_optional(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, var, init, svar;
 
@@ -138,7 +144,7 @@ static void copy_ordinary_optional(LocalRoot local, addr *ret, addr cons)
 	nreverse_list_unsafe(ret, root);
 }
 
-static void copy_ordinary_key(LocalRoot local, addr *ret, addr cons)
+static void copy_eval_ordinary_key(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, var, name, init, svar;
 
@@ -156,7 +162,7 @@ static void copy_ordinary_key(LocalRoot local, addr *ret, addr cons)
 	nreverse_list_unsafe(ret, root);
 }
 
-static void copy_ordinary_aux(LocalRoot local, addr *ret, addr cons)
+static void copy_eval_ordinary_aux(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, var, init;
 
@@ -172,22 +178,21 @@ static void copy_ordinary_aux(LocalRoot local, addr *ret, addr cons)
 	nreverse_list_unsafe(ret, root);
 }
 
-static void copy_ordinary(LocalRoot local, addr *ret, addr cons)
+static void copy_eval_ordinary(LocalRoot local, addr *ret, addr cons)
 {
 	addr var, opt, rest, key, allow, aux;
 
 	List_bind(cons, &var, &opt, &rest, &key, &allow, &aux, NULL);
-	copylocal_object(local, &var, var);
-	copy_ordinary_optional(local, &opt, opt);
-	copy_ordinary_key(local, &key, key);
-	copy_ordinary_aux(local, &aux, aux);
+	copy_eval_ordinary_optional(local, &opt, opt);
+	copy_eval_ordinary_key(local, &key, key);
+	copy_eval_ordinary_aux(local, &aux, aux);
 	list_alloc(local, ret, var, opt, rest, key, allow, aux, NULL);
 }
 
-static void copy_defun(LocalRoot local, addr *ret, addr eval)
+static void copy_eval_defun(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
-	addr name, args, decl, doc, cons;
+	addr name, args, decl, doc, body, form;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_DEFUN, "parse error");
@@ -195,24 +200,26 @@ static void copy_defun(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &args);
 	GetEvalParse(eval, 2, &decl);
 	GetEvalParse(eval, 3, &doc);
-	GetEvalParse(eval, 4, &cons);
+	GetEvalParse(eval, 4, &body);
+	GetEvalParse(eval, 5, &form);
 
-	copylocal_object(local, &name, name);
-	copy_ordinary(local, &args, args);
-	copy_declaim_nil(local, &decl, decl);
+	copy_eval_ordinary(local, &args, args);
+	copy_eval_declaim_nil(local, &decl, decl);
 	copylocal_object(local, &doc, doc);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &body, body);
 
-	eval_parse_alloc(local, &eval, type, 5);
+	eval_parse_alloc(local, &eval, type, 6);
 	SetEvalParse(eval, 0, name);
 	SetEvalParse(eval, 1, args);
 	SetEvalParse(eval, 2, decl);
 	SetEvalParse(eval, 3, doc);
-	SetEvalParse(eval, 4, cons);
+	SetEvalParse(eval, 4, body);
+	SetEvalParse(eval, 5, form);
 	*ret = eval;
 }
 
-static void copy_defmacro(LocalRoot local, addr *ret, addr eval)
+/* defmacro */
+static void copy_eval_defmacro(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr name, lambda;
@@ -222,30 +229,28 @@ static void copy_defmacro(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &name);
 	GetEvalParse(eval, 1, &lambda);
 
-	copylocal_object(local, &name, name);
-	copylocal_object(local, &lambda, lambda);
-
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, name);
 	SetEvalParse(eval, 1, lambda);
 	*ret = eval;
 }
 
-static void copy_macro_lambda(LocalRoot local, addr *ret, addr cons);
-static void copy_macro_var(LocalRoot local, addr *ret, addr list)
+/* macro-lambda */
+static void copy_eval_macro_arguments(LocalRoot local, addr *ret, addr cons);
+static void copy_eval_macro_var(LocalRoot local, addr *ret, addr list)
 {
 	addr root, var;
 
 	for (root = Nil; list != Nil; ) {
 		GetCons(list, &var, &list);
 		if (consp(var))
-			copy_macro_lambda(local, &var, var);
+			copy_eval_macro_arguments(local, &var, var);
 		cons_alloc(local, &root, var, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
 
-static void copy_macro_rest(LocalRoot local, addr *ret, addr list)
+static void copy_eval_macro_rest(LocalRoot local, addr *ret, addr list)
 {
 	addr car, cdr;
 
@@ -255,23 +260,50 @@ static void copy_macro_rest(LocalRoot local, addr *ret, addr list)
 	}
 }
 
-static void copy_macro_lambda(LocalRoot local, addr *ret, addr cons)
+static void copy_eval_macro_arguments(LocalRoot local, addr *ret, addr cons)
 {
 	addr var, opt, rest, key, allow, aux, whole, env;
 
 	List_bind(cons, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
-	copy_macro_var(local, &var, var);
-	copy_ordinary_optional(local, &opt, opt);
-	copy_macro_rest(local, &rest, rest);
-	copy_ordinary_key(local, &key, key);
-	copy_ordinary_aux(local, &aux, aux);
+	copy_eval_macro_var(local, &var, var);
+	copy_eval_ordinary_optional(local, &opt, opt);
+	copy_eval_macro_rest(local, &rest, rest);
+	copy_eval_ordinary_key(local, &key, key);
+	copy_eval_ordinary_aux(local, &aux, aux);
 	list_alloc(local, ret, var, opt, rest, key, allow, aux, whole, env, NULL);
 }
 
-static void copy_deftype(LocalRoot local, addr *ret, addr eval)
+/* macro-lambda */
+static void copy_eval_macro_lambda(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
-	addr name, args, decl, doc, cons;
+	addr args, decl, doc, body;
+
+	GetEvalParseType(eval, &type);
+	Check(type != EVAL_PARSE_MACRO_LAMBDA, "parse error");
+	GetEvalParse(eval, 0, &args);
+	GetEvalParse(eval, 1, &decl);
+	GetEvalParse(eval, 2, &doc);
+	GetEvalParse(eval, 3, &body);
+
+	copy_eval_macro_arguments(local, &args, args);
+	copy_eval_declaim_nil(local, &decl, decl);
+	copylocal_object(local, &doc, doc);
+	copy_eval_allcons(local, &body, body);
+
+	eval_parse_alloc(local, &eval, type, 4);
+	SetEvalParse(eval, 0, args);
+	SetEvalParse(eval, 1, decl);
+	SetEvalParse(eval, 2, doc);
+	SetEvalParse(eval, 3, body);
+	*ret = eval;
+}
+
+/* deftype */
+static void copy_eval_deftype(LocalRoot local, addr *ret, addr eval)
+{
+	enum EVAL_PARSE type;
+	addr name, args, decl, doc, body;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_DEFTYPE, "parse error");
@@ -279,27 +311,27 @@ static void copy_deftype(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &args);
 	GetEvalParse(eval, 2, &decl);
 	GetEvalParse(eval, 3, &doc);
-	GetEvalParse(eval, 4, &cons);
+	GetEvalParse(eval, 4, &body);
 
-	copylocal_object(local, &name, name);
-	copy_macro_lambda(local, &args, args);
-	copy_declaim_nil(local, &decl, decl);
+	copy_eval_macro_arguments(local, &args, args);
+	copy_eval_declaim_nil(local, &decl, decl);
 	copylocal_object(local, &doc, doc);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &body, body);
 
 	eval_parse_alloc(local, &eval, type, 5);
 	SetEvalParse(eval, 0, name);
 	SetEvalParse(eval, 1, args);
 	SetEvalParse(eval, 2, decl);
 	SetEvalParse(eval, 3, doc);
-	SetEvalParse(eval, 4, cons);
+	SetEvalParse(eval, 4, body);
 	*ret = eval;
 }
 
-static void copy_define_compiler_macro(LocalRoot local, addr *ret, addr eval)
+/* define-compiler-macro */
+static void copy_eval_define_compiler_macro(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
-	addr name, args, decl, doc, cons;
+	addr name, args, decl, doc, body;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_DEFINE_COMPILER_MACRO, "parse error");
@@ -307,42 +339,65 @@ static void copy_define_compiler_macro(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &args);
 	GetEvalParse(eval, 2, &decl);
 	GetEvalParse(eval, 3, &doc);
-	GetEvalParse(eval, 4, &cons);
+	GetEvalParse(eval, 4, &body);
 
-	copylocal_object(local, &name, name);
-	copy_macro_lambda(local, &args, args);
-	copy_declaim_nil(local, &decl, decl);
+	copy_eval_macro_arguments(local, &args, args);
+	copy_eval_declaim_nil(local, &decl, decl);
 	copylocal_object(local, &doc, doc);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &body, body);
 
 	eval_parse_alloc(local, &eval, type, 5);
 	SetEvalParse(eval, 0, name);
 	SetEvalParse(eval, 1, args);
 	SetEvalParse(eval, 2, decl);
 	SetEvalParse(eval, 3, doc);
-	SetEvalParse(eval, 4, cons);
+	SetEvalParse(eval, 4, body);
 	*ret = eval;
 }
 
-static void copy_define_symbol_macro(LocalRoot local, addr *ret, addr eval)
+/* destructuring-bind */
+static void copy_eval_destructuring_bind(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
-	addr symbol, form;
+	addr expr, lambda;
+
+	GetEvalParseType(eval, &type);
+	Check(type != EVAL_PARSE_DESTRUCTURING_BIND, "parse error");
+	GetEvalParse(eval, 0, &expr);
+	GetEvalParse(eval, 1, &lambda);
+
+	copy_eval_parse(local, &expr, expr);
+	copy_eval_macro_lambda(local, &lambda, lambda);
+
+	eval_parse_alloc(local, &eval, type, 2);
+	SetEvalParse(eval, 0, expr);
+	SetEvalParse(eval, 1, lambda);
+	*ret = eval;
+}
+
+/* define-symbol-macro */
+static void copy_eval_define_symbol_macro(LocalRoot local, addr *ret, addr eval)
+{
+	enum EVAL_PARSE type;
+	addr symbol, form, body;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_DEFINE_SYMBOL_MACRO, "parse error");
 	GetEvalParse(eval, 0, &symbol);
 	GetEvalParse(eval, 1, &form);
+	GetEvalParse(eval, 2, &body);
 
-	copy_eval_parse(local, &form, form);
+	copy_eval_parse(local, &body, body);
 
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, symbol);
 	SetEvalParse(eval, 1, form);
+	SetEvalParse(eval, 2, body);
 	*ret = eval;
 }
 
-static void copy_symbol_macrolet_args(LocalRoot local, addr *ret, addr args)
+/* symbol-macrolet */
+static void copy_eval_symbol_macrolet_args(LocalRoot local, addr *ret, addr args)
 {
 	addr root, list, symbol, form, env;
 
@@ -357,7 +412,7 @@ static void copy_symbol_macrolet_args(LocalRoot local, addr *ret, addr args)
 	nreverse_list_unsafe(ret, root);
 }
 
-static void copy_symbol_macrolet(LocalRoot local, addr *ret, addr eval)
+static void copy_eval_symbol_macrolet(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr args, decl, cons;
@@ -368,9 +423,9 @@ static void copy_symbol_macrolet(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &decl);
 	GetEvalParse(eval, 2, &cons);
 
-	copy_symbol_macrolet_args(local, &args, args);
-	copy_declaim_nil(local, &decl, decl);
-	copy_allcons(local, &cons, cons);
+	copy_eval_symbol_macrolet_args(local, &args, args);
+	copy_eval_declaim_nil(local, &decl, decl);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 3);
 	SetEvalParse(eval, 0, args);
@@ -379,7 +434,8 @@ static void copy_symbol_macrolet(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_lambda(LocalRoot local, addr *ret, addr eval)
+/* lambda */
+static void copy_eval_lambda(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr args, decl, doc, cons, form;
@@ -392,10 +448,10 @@ static void copy_lambda(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 3, &cons);
 	GetEvalParse(eval, 4, &form);
 
-	copy_ordinary(local, &args, args);
-	copy_declaim_nil(local, &decl, decl);
+	copy_eval_ordinary(local, &args, args);
+	copy_eval_declaim_nil(local, &decl, decl);
 	copylocal_object(local, &doc, doc);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 5);
 	SetEvalParse(eval, 0, args);
@@ -406,32 +462,8 @@ static void copy_lambda(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_destructuring_bind(LocalRoot local, addr *ret, addr eval)
-{
-	enum EVAL_PARSE type;
-	addr args, expr, decl, cons;
-
-	GetEvalParseType(eval, &type);
-	Check(type != EVAL_PARSE_DESTRUCTURING_BIND, "parse error");
-	GetEvalParse(eval, 0, &args);
-	GetEvalParse(eval, 1, &expr);
-	GetEvalParse(eval, 2, &decl);
-	GetEvalParse(eval, 3, &cons);
-
-	copy_macro_lambda(local, &args, args);
-	copy_eval_parse(local, &expr, expr);
-	copy_declaim_nil(local, &decl, decl);
-	copy_allcons(local, &cons, cons);
-
-	eval_parse_heap(&eval, type, 4);
-	SetEvalParse(eval, 0, args);
-	SetEvalParse(eval, 1, expr);
-	SetEvalParse(eval, 2, decl);
-	SetEvalParse(eval, 3, cons);
-	*ret = eval;
-}
-
-static void copy_if(LocalRoot local, addr *ret, addr eval)
+/* if */
+static void copy_eval_if(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr expr, then, last;
@@ -453,7 +485,8 @@ static void copy_if(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_unwind_protect(LocalRoot local, addr *ret, addr eval)
+/* unwind-protect */
+static void copy_eval_unwind_protect(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr form, cons;
@@ -464,7 +497,7 @@ static void copy_unwind_protect(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &cons);
 
 	copy_eval_parse(local, &form, form);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, form);
@@ -472,7 +505,8 @@ static void copy_unwind_protect(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_tagbody(LocalRoot local, addr *ret, addr eval)
+/* tagbody */
+static void copy_eval_tagbody(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr tag, cons;
@@ -482,8 +516,8 @@ static void copy_tagbody(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &tag);
 	GetEvalParse(eval, 1, &cons);
 
-	copy_allcons(local, &tag, tag);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &tag, tag);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, tag);
@@ -491,7 +525,8 @@ static void copy_tagbody(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_tag(LocalRoot local, addr *ret, addr eval)
+/* tag */
+static void copy_eval_tag(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr tag, value;
@@ -501,16 +536,14 @@ static void copy_tag(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &tag);
 	GetEvalParse(eval, 1, &value);
 
-	copylocal_object(local, &tag, tag);
-	copylocal_object(local, &value, value);
-
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, tag);
 	SetEvalParse(eval, 1, value);
 	*ret = eval;
 }
 
-static void copy_block(LocalRoot local, addr *ret, addr eval)
+/* block */
+static void copy_eval_block(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr name, cons;
@@ -520,8 +553,7 @@ static void copy_block(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &name);
 	GetEvalParse(eval, 1, &cons);
 
-	copylocal_object(local, &name, name);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, name);
@@ -529,7 +561,8 @@ static void copy_block(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_return_from(LocalRoot local, addr *ret, addr eval)
+/* return-from */
+static void copy_eval_return_from(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr name, value;
@@ -539,7 +572,6 @@ static void copy_return_from(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &name);
 	GetEvalParse(eval, 1, &value);
 
-	copylocal_object(local, &name, name);
 	copy_eval_parse(local, &value, value);
 
 	eval_parse_alloc(local, &eval, type, 2);
@@ -548,7 +580,8 @@ static void copy_return_from(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_catch(LocalRoot local, addr *ret, addr eval)
+/* catch */
+static void copy_eval_catch(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr tag, cons;
@@ -559,7 +592,7 @@ static void copy_catch(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &cons);
 
 	copy_eval_parse(local, &tag, tag);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, tag);
@@ -567,7 +600,8 @@ static void copy_catch(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_throw(LocalRoot local, addr *ret, addr eval)
+/* throw */
+static void copy_eval_throw(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr tag, result;
@@ -586,38 +620,34 @@ static void copy_throw(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_flet_one(LocalRoot local, addr *ret, addr cons)
+/* flet / labels */
+static void copy_eval_flet_one(LocalRoot local, addr *ret, addr cons)
 {
-	addr name, args, decl, doc;
+	addr name, args, decl, doc, body;
 
-	GetCons(cons, &name, &cons);
-	GetCons(cons, &args, &cons);
-	GetCons(cons, &decl, &cons);
-	GetCons(cons, &doc, &cons);
-	GetCar(cons, &cons);
+	list_bind(cons, &name, &args, &decl, &doc, &body, NULL);
 
-	copylocal_object(local, &name, name);
-	copy_ordinary(local, &args, args);
-	copy_declaim_nil(local, &decl, decl);
+	copy_eval_ordinary(local, &args, args);
+	copy_eval_declaim_nil(local, &decl, decl);
 	copylocal_object(local, &doc, doc);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &body, body);
 
-	list_alloc(local, ret, name, args, decl, doc, cons, NULL);
+	list_alloc(local, ret, name, args, decl, doc, body, NULL);
 }
 
-static void copy_flet_args(LocalRoot local, addr *ret, addr cons)
+static void copy_eval_flet_args(LocalRoot local, addr *ret, addr cons)
 {
 	addr root, pos;
 
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &pos, &cons);
-		copy_flet_one(local, &pos, pos);
+		copy_eval_flet_one(local, &pos, pos);
 		cons_alloc(local, &root, pos, root);
 	}
 	nreverse_list_unsafe(ret, root);
 }
 
-static void copy_flet(LocalRoot local, addr *ret, addr eval)
+static void copy_eval_flet(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr args, decl, cons;
@@ -628,9 +658,9 @@ static void copy_flet(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &decl);
 	GetEvalParse(eval, 2, &cons);
 
-	copy_flet_args(local, &args, args);
-	copy_declaim_nil(local, &decl, decl);
-	copy_allcons(local, &cons, cons);
+	copy_eval_flet_args(local, &args, args);
+	copy_eval_declaim_nil(local, &decl, decl);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 3);
 	SetEvalParse(eval, 0, args);
@@ -639,7 +669,8 @@ static void copy_flet(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_the(LocalRoot local, addr *ret, addr eval)
+/* the */
+static void copy_eval_the(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr ptype, expr;
@@ -658,7 +689,8 @@ static void copy_the(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_eval_when(LocalRoot local, addr *ret, addr eval)
+/* when */
+static void copy_eval_eval_when(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr cons, compilep, loadp, evalp;
@@ -670,7 +702,7 @@ static void copy_eval_when(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 2, &loadp);
 	GetEvalParse(eval, 3, &evalp);
 
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 4);
 	SetEvalParse(eval, 0, cons);
@@ -680,18 +712,20 @@ static void copy_eval_when(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_values(LocalRoot local, addr *ret, addr eval)
+/* values */
+static void copy_eval_values(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_VALUES, "parse error");
 	GetEvalParse(eval, 0, &eval);
-	copy_allcons(local, &eval, eval);
+	copy_eval_allcons(local, &eval, eval);
 	eval_single_parse_alloc(local, ret, type, eval);
 }
 
-static void copy_locally(LocalRoot local, addr *ret, addr eval)
+/* locally */
+static void copy_eval_locally(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr decl, cons;
@@ -701,8 +735,8 @@ static void copy_locally(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &decl);
 	GetEvalParse(eval, 1, &cons);
 
-	copy_declaim_nil(local, &decl, decl);
-	copy_allcons(local, &cons, cons);
+	copy_eval_declaim_nil(local, &decl, decl);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, decl);
@@ -710,7 +744,8 @@ static void copy_locally(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_call(LocalRoot local, addr *ret, addr eval)
+/* call */
+static void copy_eval_call(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr call, cons;
@@ -721,7 +756,7 @@ static void copy_call(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &cons);
 
 	copy_eval_parse(local, &call, call);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, call);
@@ -729,7 +764,8 @@ static void copy_call(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_multiple_value_bind(LocalRoot local, addr *ret, addr eval)
+/* multiple-value-bind */
+static void copy_eval_multiple_value_bind(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr vars, expr, decl, doc, form;
@@ -743,7 +779,7 @@ static void copy_multiple_value_bind(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 4, &form);
 
 	copy_eval_parse(local, &expr, expr);
-	copy_allcons(local, &form, form);
+	copy_eval_allcons(local, &form, form);
 
 	eval_parse_alloc(local, &eval, type, 5);
 	SetEvalParse(eval, 0, vars);
@@ -754,7 +790,8 @@ static void copy_multiple_value_bind(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_multiple_value_call(LocalRoot local, addr *ret, addr eval)
+/* multiple-value-call */
+static void copy_eval_multiple_value_call(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr call, cons;
@@ -765,7 +802,7 @@ static void copy_multiple_value_call(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &cons);
 
 	copy_eval_parse(local, &call, call);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, call);
@@ -773,7 +810,8 @@ static void copy_multiple_value_call(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_multiple_value_prog1(LocalRoot local, addr *ret, addr eval)
+/* multiple-value-prog1 */
+static void copy_eval_multiple_value_prog1(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr call, cons;
@@ -784,7 +822,7 @@ static void copy_multiple_value_prog1(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &cons);
 
 	copy_eval_parse(local, &call, call);
-	copy_allcons(local, &cons, cons);
+	copy_eval_allcons(local, &cons, cons);
 
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, call);
@@ -792,7 +830,8 @@ static void copy_multiple_value_prog1(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_nth_value(LocalRoot local, addr *ret, addr eval)
+/* nth-value */
+static void copy_eval_nth_value(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr nth, expr;
@@ -811,7 +850,8 @@ static void copy_nth_value(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_progv(LocalRoot local, addr *ret, addr eval)
+/* progv */
+static void copy_eval_progv(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
 	addr symbols, values, body;
@@ -824,7 +864,7 @@ static void copy_progv(LocalRoot local, addr *ret, addr eval)
 
 	copy_eval_parse(local, &symbols, symbols);
 	copy_eval_parse(local, &values, values);
-	copy_allcons(local, &body, body);
+	copy_eval_allcons(local, &body, body);
 
 	eval_parse_alloc(local, &eval, type, 3);
 	SetEvalParse(eval, 0, symbols);
@@ -833,167 +873,10 @@ static void copy_progv(LocalRoot local, addr *ret, addr eval)
 	*ret = eval;
 }
 
-static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
-{
-	Check(! eval_parse_p(pos), "type error");
-	switch (RefEvalParseType(pos)) {
-		case EVAL_PARSE_NIL:
-		case EVAL_PARSE_T:
-		case EVAL_PARSE_CLOS:
-		case EVAL_PARSE_INTEGER:
-		case EVAL_PARSE_RATIONAL:
-		case EVAL_PARSE_COMPLEX:
-		case EVAL_PARSE_CHARACTER:
-		case EVAL_PARSE_ARRAY:
-		case EVAL_PARSE_VECTOR:
-		case EVAL_PARSE_BITVECTOR:
-		case EVAL_PARSE_STRING:
-		case EVAL_PARSE_SYMBOL:
-		case EVAL_PARSE_FLOAT:
-		case EVAL_PARSE_FUNCTION:
-		case EVAL_PARSE_PATHNAME:
-		case EVAL_PARSE_ENVIRONMENT:
-		case EVAL_PARSE_QUOTE:
-		case EVAL_PARSE_GO:
-			copy_single(local, ret, pos);
-			break;
 
-		case EVAL_PARSE_DECLAIM:
-			copy_declaim(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_PROGN:
-			copy_progn(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_LET:
-		case EVAL_PARSE_LETA:
-			copy_let(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_SETQ:
-			copy_setq(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_DEFUN:
-			copy_defun(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_DEFMACRO:
-			copy_defmacro(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_DEFTYPE:
-			copy_deftype(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_DEFINE_COMPILER_MACRO:
-			copy_define_compiler_macro(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_DEFINE_SYMBOL_MACRO:
-			copy_define_symbol_macro(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_SYMBOL_MACROLET:
-			copy_symbol_macrolet(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_MACRO_LAMBDA:
-			copy_macro_lambda(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_LAMBDA:
-			copy_lambda(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_DESTRUCTURING_BIND:
-			copy_destructuring_bind(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_IF:
-			copy_if(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_UNWIND_PROTECT:
-			copy_unwind_protect(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_TAGBODY:
-			copy_tagbody(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_TAG:
-			copy_tag(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_BLOCK:
-			copy_block(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_RETURN_FROM:
-			copy_return_from(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_CATCH:
-			copy_catch(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_THROW:
-			copy_throw(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_FLET:
-		case EVAL_PARSE_LABELS:
-			copy_flet(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_THE:
-			copy_the(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_EVAL_WHEN:
-			copy_eval_when(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_VALUES:
-			copy_values(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_LOCALLY:
-			copy_locally(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_CALL:
-			copy_call(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_MULTIPLE_VALUE_BIND:
-			copy_multiple_value_bind(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_MULTIPLE_VALUE_CALL:
-			copy_multiple_value_call(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_MULTIPLE_VALUE_PROG1:
-			copy_multiple_value_prog1(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_NTH_VALUE:
-			copy_nth_value(local, ret, pos);
-			break;
-
-		case EVAL_PARSE_PROGV:
-			copy_progv(local, ret, pos);
-			break;
-
-		default:
-			fmte("parse-error: ~S.", pos, NULL);
-			break;
-	}
-}
-
+/*
+ *  interface
+ */
 _g void copy_eval_parse_alloc(LocalRoot local, addr *ret, addr eval)
 {
 	copy_eval_parse(local, ret, eval);
@@ -1008,5 +891,89 @@ _g void copy_eval_parse_local(LocalRoot local, addr *ret, addr eval)
 _g void copy_eval_parse_heap(addr *ret, addr eval)
 {
 	copy_eval_parse_alloc(NULL, ret, eval);
+}
+
+
+/*
+ *  initialize
+ */
+typedef void (*copy_eval_calltype)(LocalRoot, addr *, addr);
+static copy_eval_calltype EvalCopyTable[EVAL_PARSE_SIZE];
+
+static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
+{
+	enum EVAL_PARSE type;
+	copy_eval_calltype call;
+
+	Check(! eval_parse_p(pos), "type error");
+	GetEvalParseType(pos, &type);
+	if (EVAL_PARSE_SIZE <= type)
+		goto error;
+	call = EvalCopyTable[type];
+	if (call == NULL)
+		goto error;
+	(*call)(local, ret, pos);
+	return;
+
+error:
+	fmte("parse-error: ~S.", pos, NULL);
+	*ret = Nil;
+}
+
+_g void init_eval_copy(void)
+{
+	EvalCopyTable[EVAL_PARSE_NIL] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_T] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_CLOS] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_INTEGER] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_RATIONAL] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_COMPLEX] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_CHARACTER] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_ARRAY] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_VECTOR] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_BITVECTOR] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_STRING] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_SYMBOL] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_FLOAT] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_FUNCTION] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_PATHNAME] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_ENVIRONMENT] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_QUOTE] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_GO] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_DECLAIM] = copy_eval_declaim;
+	EvalCopyTable[EVAL_PARSE_PROGN] = copy_eval_progn;
+	EvalCopyTable[EVAL_PARSE_LET] = copy_eval_let;
+	EvalCopyTable[EVAL_PARSE_LETA] = copy_eval_let;
+	EvalCopyTable[EVAL_PARSE_SETQ] = copy_eval_setq;
+	EvalCopyTable[EVAL_PARSE_DEFUN] = copy_eval_defun;
+	EvalCopyTable[EVAL_PARSE_DEFMACRO] = copy_eval_defmacro;
+	EvalCopyTable[EVAL_PARSE_MACRO_LAMBDA] = copy_eval_macro_lambda;
+	EvalCopyTable[EVAL_PARSE_DEFTYPE] = copy_eval_deftype;
+	EvalCopyTable[EVAL_PARSE_DEFINE_COMPILER_MACRO] = copy_eval_define_compiler_macro;
+	EvalCopyTable[EVAL_PARSE_DESTRUCTURING_BIND] = copy_eval_destructuring_bind;
+	EvalCopyTable[EVAL_PARSE_DEFINE_SYMBOL_MACRO] = copy_eval_define_symbol_macro;
+	EvalCopyTable[EVAL_PARSE_SYMBOL_MACROLET] = copy_eval_symbol_macrolet;
+	EvalCopyTable[EVAL_PARSE_LAMBDA] = copy_eval_lambda;
+	EvalCopyTable[EVAL_PARSE_IF] = copy_eval_if;
+	EvalCopyTable[EVAL_PARSE_UNWIND_PROTECT] = copy_eval_unwind_protect;
+	EvalCopyTable[EVAL_PARSE_TAGBODY] = copy_eval_tagbody;
+	EvalCopyTable[EVAL_PARSE_TAG] = copy_eval_tag;
+	EvalCopyTable[EVAL_PARSE_BLOCK] = copy_eval_block;
+	EvalCopyTable[EVAL_PARSE_RETURN_FROM] = copy_eval_return_from;
+	EvalCopyTable[EVAL_PARSE_CATCH] = copy_eval_catch;
+	EvalCopyTable[EVAL_PARSE_THROW] = copy_eval_throw;
+	EvalCopyTable[EVAL_PARSE_FLET] = copy_eval_flet;
+	EvalCopyTable[EVAL_PARSE_LABELS] = copy_eval_flet;
+	EvalCopyTable[EVAL_PARSE_THE] = copy_eval_the;
+	EvalCopyTable[EVAL_PARSE_EVAL_WHEN] = copy_eval_eval_when;
+	EvalCopyTable[EVAL_PARSE_VALUES] = copy_eval_values;
+	EvalCopyTable[EVAL_PARSE_LOCALLY] = copy_eval_locally;
+	EvalCopyTable[EVAL_PARSE_CALL] = copy_eval_call;
+	EvalCopyTable[EVAL_PARSE_MULTIPLE_VALUE_BIND] = copy_eval_multiple_value_bind;
+	EvalCopyTable[EVAL_PARSE_MULTIPLE_VALUE_CALL] = copy_eval_multiple_value_call;
+	EvalCopyTable[EVAL_PARSE_MULTIPLE_VALUE_PROG1] = copy_eval_multiple_value_prog1;
+	EvalCopyTable[EVAL_PARSE_NTH_VALUE] = copy_eval_nth_value;
+	EvalCopyTable[EVAL_PARSE_PROGV] = copy_eval_progv;
+	EvalCopyTable[EVAL_PARSE_DECLARE_SCOPE] = copy_eval_single;
 }
 

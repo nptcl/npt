@@ -1111,7 +1111,7 @@ static void function_handler_bind(Execute ptr, addr right, addr env)
 	GetCons(right, &right, &body);
 	if (right == Nil) {
 		GetConst(COMMON_PROGN, &symbol);
-		cons_heap(&right, symbol, right);
+		cons_heap(&right, symbol, body);
 		setresult_control(ptr, right);
 		return;
 	}
@@ -1644,7 +1644,7 @@ static void function_restart_bind(Execute ptr, addr right, addr env)
 	GetCons(right, &right, &body);
 	if (right == Nil) {
 		GetConst(COMMON_PROGN, &symbol);
-		cons_heap(&right, symbol, right);
+		cons_heap(&right, symbol, body);
 		setresult_control(ptr, right);
 		return;
 	}

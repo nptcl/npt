@@ -486,59 +486,23 @@ static int parse_let(Execute ptr, addr *ret, enum EVAL_PARSE type, addr cons)
 }
 
 /* setq */
-static int parse_setq_symbol(Execute ptr, addr *ret, addr cons)
-{
-	addr root, one, symbol;
-	LocalHold hold;
-
-	/* parse */
-	hold = LocalHold_array(ptr, 1);
-	symbol = NULL;
-	for (root = Nil; cons != Nil; ) {
-		getcons(cons, &one, &cons);
-		if (symbol == NULL) {
-			check_variable(one);
-			symbol = one;
-		}
-		else {
-			if (parse_self(ptr, one)) return 1;
-			cons_heap(&one, symbol, one);
-			cons_heap(&root, one, root);
-			localhold_set(hold, 0, root);
-			symbol = NULL;
-		}
-	}
-	localhold_end(hold);
-	if (symbol != NULL)
-		fmte("setq symbol ~S don't have a value argument.", symbol, NULL);
-	nreverse_list_unsafe(&root, root);
-
-	/* eval */
-	eval_single_parse_heap(ret, EVAL_PARSE_SETQ, root);
-
-	return 0;
-}
-
 static int parse_setq_symbol_p(Execute ptr, addr list)
 {
 	addr symbol;
 
 	while (list != Nil) {
 		getcons(list, &symbol, &list);
-		if (symbol_macrolet_envstack_p(ptr, symbol, NULL)) return 1;
+		if (symbol_macrolet_envstack_p(ptr, symbol, NULL))
+			return 1;
 		getcons(list, &symbol, &list);
 	}
 
 	return 0;
 }
 
-static int parse_setq(Execute ptr, addr *ret, addr cons)
+static int parse_setq_macrolet(Execute ptr, addr *ret, addr cons)
 {
 	addr progn, root, setq, setf, var, value;
-
-	/* symbol only */
-	if (! parse_setq_symbol_p(ptr, cons))
-		return parse_setq_symbol(ptr, ret, cons);
 
 	/* symbol-macrolet
 	 *   `(progn
@@ -562,6 +526,48 @@ static int parse_setq(Execute ptr, addr *ret, addr cons)
 	cons_heap(&progn, progn, root);
 
 	return eval_parse(ptr, ret, progn);
+}
+
+static int parse_setq_symbol(Execute ptr, addr *ret, addr cons)
+{
+	addr root, one, symbol;
+	LocalHold hold;
+
+	/* parse */
+	hold = LocalHold_array(ptr, 1);
+	symbol = NULL;
+	for (root = Nil; cons != Nil; ) {
+		getcons(cons, &one, &cons);
+		if (symbol == NULL) {
+			check_variable(one);
+			symbol = one;
+		}
+		else {
+			if (parse_self(ptr, one))
+				return 1;
+			cons_heap(&one, symbol, one);
+			cons_heap(&root, one, root);
+			localhold_set(hold, 0, root);
+			symbol = NULL;
+		}
+	}
+	localhold_end(hold);
+	if (symbol != NULL)
+		fmte("setq symbol ~S don't have a value argument.", symbol, NULL);
+	nreverse_list_unsafe(&root, root);
+
+	/* eval */
+	eval_single_parse_heap(ret, EVAL_PARSE_SETQ, root);
+
+	return 0;
+}
+
+static int parse_setq(Execute ptr, addr *ret, addr cons)
+{
+	if (parse_setq_symbol_p(ptr, cons))
+		return parse_setq_macrolet(ptr, ret, cons);
+	else
+		return parse_setq_symbol(ptr, ret, cons);
 }
 
 /* defun */
@@ -807,14 +813,6 @@ _g int parse_macro_lambda_list(Execute ptr, addr *ret, addr args)
 	return 0;
 }
 
-static int execute_macro_lambda_eval(Execute ptr, addr eval)
-{
-	if (eval_scope(ptr, &eval, eval)) return 1;
-	eval_code(ptr->local, &eval, eval);
-	if (runcode_control(ptr, eval)) return 1;
-	return 0;
-}
-
 static int execute_macro_lambda(Execute ptr, addr *ret, addr eval)
 {
 	addr control;
@@ -824,7 +822,7 @@ static int execute_macro_lambda(Execute ptr, addr *ret, addr eval)
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* code */
-	if (execute_macro_lambda_eval(ptr, eval)) {
+	if (eval_execute_parse(ptr, eval)) {
 		Return1(runcode_free_control(ptr, control));
 	}
 	else {
@@ -870,6 +868,37 @@ static int parse_defmacro(Execute ptr, addr *ret, addr cons)
 	eval_parse_heap(&eval, EVAL_PARSE_DEFMACRO, 2);
 	SetEvalParse(eval, 0, name);
 	SetEvalParse(eval, 1, lambda);
+	*ret = eval;
+
+	return 0;
+}
+
+/* macro-lambda */
+static int parse_macro_lambda(Execute ptr, addr *ret, addr cons)
+{
+	addr eval, args, decl, doc;
+	LocalHold hold;
+
+	/* (macro-lambda args . body) */
+	if (! consp(cons))
+		fmte("MACRO-LAMBDA argument ~S must be (lambda-list . form).", cons, NULL);
+	hold = LocalHold_local(ptr);
+	GetCons(cons, &args, &cons);
+	lambda_macro(ptr->local, &args, args, Nil);
+	localhold_push(hold, args);
+	if (parse_macro_lambda_list(ptr, &args, args)) return 1;
+	localhold_push(hold, args);
+	if (parse_declare_body_documentation(ptr, cons, &doc, &decl, &cons)) return 1;
+	localhold_pushva(hold, doc, decl, cons, NULL);
+	if (localhold_parse_allcons(hold, ptr, &cons, cons)) return 1;
+	localhold_end(hold);
+
+	/* macro-lambda */
+	eval_parse_heap(&eval, EVAL_PARSE_MACRO_LAMBDA, 4);
+	SetEvalParse(eval, 0, args);
+	SetEvalParse(eval, 1, decl);
+	SetEvalParse(eval, 2, doc);
+	SetEvalParse(eval, 3, cons);
 	*ret = eval;
 
 	return 0;
@@ -931,37 +960,6 @@ static int parse_define_compiler_macro(Execute ptr, addr *ret, addr cons)
 	return 0;
 }
 
-/* macro-lambda */
-static int parse_macro_lambda(Execute ptr, addr *ret, addr cons)
-{
-	addr eval, args, decl, doc;
-	LocalHold hold;
-
-	/* (macro-lambda args . body) */
-	if (! consp(cons))
-		fmte("MACRO-LAMBDA argument ~S must be (lambda-list . form).", cons, NULL);
-	hold = LocalHold_local(ptr);
-	GetCons(cons, &args, &cons);
-	lambda_macro(ptr->local, &args, args, Nil);
-	localhold_push(hold, args);
-	if (parse_macro_lambda_list(ptr, &args, args)) return 1;
-	localhold_push(hold, args);
-	if (parse_declare_body_documentation(ptr, cons, &doc, &decl, &cons)) return 1;
-	localhold_pushva(hold, doc, decl, cons, NULL);
-	if (localhold_parse_allcons(hold, ptr, &cons, cons)) return 1;
-	localhold_end(hold);
-
-	/* macro-lambda */
-	eval_parse_heap(&eval, EVAL_PARSE_MACRO_LAMBDA, 4);
-	SetEvalParse(eval, 0, args);
-	SetEvalParse(eval, 1, decl);
-	SetEvalParse(eval, 2, doc);
-	SetEvalParse(eval, 3, cons);
-	*ret = eval;
-
-	return 0;
-}
-
 /* destructuring-bind */
 static int parse_destructuring_bind(Execute ptr, addr *ret, addr cons)
 {
@@ -992,79 +990,7 @@ static int parse_destructuring_bind(Execute ptr, addr *ret, addr cons)
 	return 0;
 }
 
-/* macrolet */
-static int parse_macrolet_one(Execute ptr, addr cons)
-{
-	addr name, args, doc, decl;
-	LocalHold hold;
-
-	/* parse */
-	if (! consp(cons)) goto error;
-	GetCons(cons, &name, &cons);
-	if (! symbolp(name))
-		fmte("The name ~S must be a symbol.", name, NULL);
-	check_function_variable(name);
-	if (! consp(cons)) goto error;
-	GetCons(cons, &args, &cons);
-	/* make macro-function */
-	hold = LocalHold_local(ptr);
-	lambda_macro(ptr->local, &args, args, Nil);
-	if (parse_macro_lambda_list(ptr, &args, args)) return 1;
-	localhold_push(hold, args);
-	if (parse_declare_body_documentation(ptr, cons, &doc, &decl, &cons)) return 1;
-	localhold_pushva(hold, doc, decl, cons, NULL);
-	implicit_block(&cons, name, cons);
-	localhold_push(hold, cons);
-	if (localhold_parse_allcons(hold, ptr, &cons, cons)) return 1;
-	if (make_macro_function(ptr, &cons, args, decl, doc, cons)) return 1;
-	localhold_push(hold, cons);
-	macrolet_envstack(ptr, name, cons);
-	localhold_end(hold);
-	return 0;
-
-error:
-	fmte("macrolet argument must be (name (...) . body) form.", NULL);
-	return 1;
-}
-
-static void parse_macrolet_args(Execute ptr, addr args)
-{
-	addr pos;
-
-	while (args != Nil) {
-		getcons(args, &pos, &args);
-		parse_macrolet_one(ptr, pos);
-	}
-}
-
-static int parse_macrolet(Execute ptr, addr *ret, addr cons)
-{
-	addr eval, args, decl, rollback;
-	LocalHold hold;
-
-	if (! consp(cons))
-		fmte("macrolet form must be (macrolet args . body).", NULL);
-	getcons(cons, &args, &cons);
-	/* local scope environment */
-	snapshot_envstack(ptr, &rollback);
-	parse_macrolet_args(ptr, args);
-	/* arguments */
-	hold = LocalHold_local(ptr);
-	if (parse_declare_body(ptr, cons, &decl, &cons)) return 1;
-	localhold_pushva(hold, decl, cons, NULL);
-	if (localhold_parse_allcons(hold, ptr, &cons, cons)) return 1;
-	localhold_end(hold);
-	rollback_envstack(ptr, rollback);
-
-	/* macrolet -> locally */
-	eval_parse_heap(&eval, EVAL_PARSE_LOCALLY, 2);
-	SetEvalParse(eval, 0, decl);
-	SetEvalParse(eval, 1, cons);
-	*ret = eval;
-
-	return 0;
-}
-
+/* define-symbol-macro */
 static void check_define_symbol_macro(addr symbol)
 {
 	addr value;
@@ -1113,6 +1039,7 @@ error:
 	return 1;
 }
 
+/* symbol-macrolet */
 static int parse_symbol_macrolet_args(Execute ptr, addr *ret, addr args)
 {
 	addr root, cons, symbol, expansion, env;
@@ -1190,6 +1117,79 @@ static int parse_symbol_macrolet(Execute ptr, addr *ret, addr cons)
 	SetEvalParse(eval, 0, args);
 	SetEvalParse(eval, 1, decl);
 	SetEvalParse(eval, 2, cons);
+	*ret = eval;
+
+	return 0;
+}
+
+/* macrolet */
+static int parse_macrolet_one(Execute ptr, addr cons)
+{
+	addr name, args, doc, decl;
+	LocalHold hold;
+
+	/* parse */
+	if (! consp(cons)) goto error;
+	GetCons(cons, &name, &cons);
+	if (! symbolp(name))
+		fmte("The name ~S must be a symbol.", name, NULL);
+	check_function_variable(name);
+	if (! consp(cons)) goto error;
+	GetCons(cons, &args, &cons);
+	/* make macro-function */
+	hold = LocalHold_local(ptr);
+	lambda_macro(ptr->local, &args, args, Nil);
+	if (parse_macro_lambda_list(ptr, &args, args)) return 1;
+	localhold_push(hold, args);
+	if (parse_declare_body_documentation(ptr, cons, &doc, &decl, &cons)) return 1;
+	localhold_pushva(hold, doc, decl, cons, NULL);
+	implicit_block(&cons, name, cons);
+	localhold_push(hold, cons);
+	if (localhold_parse_allcons(hold, ptr, &cons, cons)) return 1;
+	if (make_macro_function(ptr, &cons, args, decl, doc, cons)) return 1;
+	localhold_push(hold, cons);
+	macrolet_envstack(ptr, name, cons);
+	localhold_end(hold);
+	return 0;
+
+error:
+	fmte("macrolet argument must be (name (...) . body) form.", NULL);
+	return 1;
+}
+
+static void parse_macrolet_args(Execute ptr, addr args)
+{
+	addr pos;
+
+	while (args != Nil) {
+		getcons(args, &pos, &args);
+		parse_macrolet_one(ptr, pos);
+	}
+}
+
+static int parse_macrolet(Execute ptr, addr *ret, addr cons)
+{
+	addr eval, args, decl, rollback;
+	LocalHold hold;
+
+	if (! consp(cons))
+		fmte("macrolet form must be (macrolet args . body).", NULL);
+	getcons(cons, &args, &cons);
+	/* local scope environment */
+	snapshot_envstack(ptr, &rollback);
+	parse_macrolet_args(ptr, args);
+	/* arguments */
+	hold = LocalHold_local(ptr);
+	if (parse_declare_body(ptr, cons, &decl, &cons)) return 1;
+	localhold_pushva(hold, decl, cons, NULL);
+	if (localhold_parse_allcons(hold, ptr, &cons, cons)) return 1;
+	localhold_end(hold);
+	rollback_envstack(ptr, rollback);
+
+	/* macrolet -> locally */
+	eval_parse_heap(&eval, EVAL_PARSE_LOCALLY, 2);
+	SetEvalParse(eval, 0, decl);
+	SetEvalParse(eval, 1, cons);
 	*ret = eval;
 
 	return 0;
@@ -1903,6 +1903,25 @@ error:
 	return 1;
 }
 
+/* declare-scope */
+static int parse_declare_scope(Execute ptr, addr *ret, addr form)
+{
+	addr symbol, check;
+
+	/* (system::declare-scope symbol) -> integer */
+	if (! consp_getcons(form, &symbol, &check)) goto error;
+	if (! symbolp(symbol)) goto error;
+	if (check != Nil) goto error;
+
+	/* eval */
+	eval_single_parse_heap(ret, EVAL_PARSE_DECLARE_SCOPE, symbol);
+	return 0;
+
+error:
+	fmte("The form ~S must be (declare-scope symbol).", form, NULL);
+	return 1;
+}
+
 
 /*
  *  macro
@@ -2166,11 +2185,11 @@ static int parse_cons_car(Execute ptr, addr *ret, addr cons)
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DEFINE_COMPILER_MACRO)) {
 		return parse_define_compiler_macro(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_MACRO_LAMBDA)) {
-		return parse_macro_lambda(ptr, ret, args);
-	}
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DESTRUCTURING_BIND)) {
 		return parse_destructuring_bind(ptr, ret, args);
+	}
+	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_MACRO_LAMBDA)) {
+		return parse_macro_lambda(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_MACROLET)) {
 		return parse_macrolet(ptr, ret, args);
@@ -2195,6 +2214,9 @@ static int parse_cons_car(Execute ptr, addr *ret, addr cons)
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_PROGV)) {
 		return parse_progv(ptr, ret, args);
+	}
+	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DECLARE_SCOPE)) {
+		return parse_declare_scope(ptr, ret, args);
 	}
 	if (parse_cons_check_macro(ptr, call, &call)) {
 		return parse_macro(ptr, ret, call, cons);

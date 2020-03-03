@@ -1224,6 +1224,7 @@ enum pointer_index {
 	p_defun_syscall_set_slots,
 	p_defun_syscall_remove_file,
 	p_defun_syscall_remove_directory,
+	p_defmacro_syscall_declare_parse,
 
 	/* size */
 	p_size

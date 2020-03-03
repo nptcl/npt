@@ -7,6 +7,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "cons_plist.h"
+#include "constant.h"
 #include "control.h"
 #include "core.h"
 #include "eastasian.h"
@@ -14,6 +15,7 @@
 #include "env_time.h"
 #include "equal.h"
 #include "eval.h"
+#include "eval_declare.h"
 #include "files.h"
 #include "format.h"
 #include "function.h"
@@ -993,5 +995,56 @@ _g void remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret)
 _g void remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret)
 {
 	*ret = remove_directory_common(ptr, var, (opt != Nil))? T: Nil;
+}
+
+
+/* declare-parse */
+static OptimizeType declare_parse_value(addr symbol)
+{
+	addr root, check;
+
+	getroot_declare(&root);
+	/* safety */
+	GetConst(COMMON_SAFETY, &check);
+	if (symbol == check)
+		return get_optimize_safety_declare(root);
+	/* speed */
+	GetConst(COMMON_SPEED, &check);
+	if (symbol == check)
+		return get_optimize_speed_declare(root);
+	/* space */
+	GetConst(COMMON_SPACE, &check);
+	if (symbol == check)
+		return get_optimize_space_declare(root);
+	/* debug */
+	GetConst(COMMON_DEBUG, &check);
+	if (symbol == check)
+		return get_optimize_debug_declare(root);
+	/* compilation */
+	GetConst(COMMON_COMPILATION_SPEED, &check);
+	if (symbol == check)
+		return get_optimize_compilation_declare(root);
+
+	/* error */
+	fmte("Invalid declare-parse argument ~S.", symbol, NULL);
+	return 0;
+}
+
+_g void declare_parse_syscode(addr form, addr *ret)
+{
+	OptimizeType value;
+	addr symbol, check;
+
+	getcdr(form, &form);
+	if (! consp_getcons(form, &symbol, &check))
+		goto error;
+	if (check != Nil)
+		goto error;
+	value = declare_parse_value(symbol);
+	fixnum_heap(ret, (fixnum)value);
+	return;
+
+error:
+	fmte("The declare-parse form ~S must be a (symbol).", form, NULL);
 }
 

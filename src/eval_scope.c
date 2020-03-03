@@ -4037,6 +4037,23 @@ static int scope_progv(Execute ptr, addr *ret, addr eval)
 	return 0;
 }
 
+/* declare-optimize */
+static int scope_declare_scope(Execute ptr, addr *ret, addr eval)
+{
+	addr symbol, value, check;
+
+	/* declare-optimize */
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &symbol);
+	fixnum_heap(&value, 0);
+
+	/* integer */
+	type_value_integer(&check, value);
+	make_eval_scope(ret, EVAL_PARSE_INTEGER, check, value);
+
+	return 0;
+}
+
 
 /*
  *  eval-scope
@@ -4207,6 +4224,9 @@ static int scope_eval_downcase(Execute ptr, addr *ret, addr eval)
 
 		case EVAL_PARSE_PROGV:
 			return scope_progv(ptr, ret, eval);
+
+		case EVAL_PARSE_DECLARE_SCOPE:
+			return scope_declare_scope(ptr, ret, eval);
 
 		default:
 			fmte("Invalid eval-parse type.", NULL);

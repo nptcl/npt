@@ -7,6 +7,7 @@
 _g void copy_eval_parse_alloc(LocalRoot local, addr *ret, addr eval);
 _g void copy_eval_parse_local(LocalRoot local, addr *ret, addr eval);
 _g void copy_eval_parse_heap(addr *ret, addr eval);
+_g void init_eval_copy(void);
 
 #endif
 

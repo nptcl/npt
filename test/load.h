@@ -57,6 +57,8 @@ static int loadrt_files(void)
 	loadrt_file("rt-environment.lisp");
 	/* Error */
 	loadrt_file("rt-error.lisp");
+	/* Code */
+	loadrt_file("rt-code.lisp");
 #if 0
 #endif
 

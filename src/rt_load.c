@@ -77,6 +77,13 @@ static int loadrt_init(Execute ptr, const char *name)
 	return rtload_pathname(ptr, file);
 }
 
+static void loadrt_disable_debugger(Execute ptr)
+{
+	addr symbol;
+	GetConst(SYSTEM_ENABLE_DEBUGGER, &symbol);
+	pushspecial_control(ptr, symbol, Nil);
+}
+
 static int loadrt_execute(Execute ptr, const char *name)
 {
 	int result;
@@ -88,6 +95,7 @@ static int loadrt_execute(Execute ptr, const char *name)
 	push_close_control(ptr, &control);
 	if (codejump_run_p(&jump)) {
 		handler_warning(ptr);
+		loadrt_disable_debugger(ptr);
 		result = loadrt_init(ptr, name);
 	}
 	end_switch(&jump);

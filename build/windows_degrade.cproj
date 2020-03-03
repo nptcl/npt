@@ -239,7 +239,6 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_copy.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_declare.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_main.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_optparse.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_parse.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_scope.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_stack.c" />
@@ -297,6 +296,8 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_isqrt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_random.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_optimize.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_package.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_pathname.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pointer.c" />
@@ -457,7 +458,6 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_copy.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_declare.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_main.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_optparse.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_parse.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_scope.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_stack.h" />
@@ -524,6 +524,8 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_random.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_table.h" />

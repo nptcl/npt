@@ -1,4 +1,4 @@
-#include "eval_optparse.c"
+#include "optimize.c"
 #include "bignum.h"
 #include "character.h"
 #include "clos.h"
@@ -21,6 +21,7 @@
 #include "type.h"
 #include "type_table.h"
 
+#if 0
 /*
  *  optstruct
  */
@@ -3916,13 +3917,15 @@ static int test_optimize_call(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
  *  Main
  */
-static int testbreak_eval_optparse(void)
+static int testbreak_optimize(void)
 {
+#if 0
 	/* optstruct */
 	TestBreak(test_initialize_optstruct);
 	TestBreak(test_save_optstruct);
@@ -4074,11 +4077,12 @@ static int testbreak_eval_optparse(void)
 	TestBreak(test_optimize_locally_decl);
 	TestBreak(test_optimize_call);
 	TestBreak(test_optimize_multiple_value_call);
+#endif
 
 	return 0;
 }
 
-int test_eval_optparse(void)
+int test_optimize(void)
 {
 	int result;
 	lispcode code;
@@ -4109,7 +4113,7 @@ int test_eval_optparse(void)
 		build_eval_declare();
 		build_code();
 		lisp_initialize = 1;
-		result = testbreak_eval_optparse();
+		result = testbreak_optimize();
 	}
 	end_code(ptr);
 	freelisp();

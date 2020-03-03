@@ -4,7 +4,7 @@
 #include "eval.h"
 #include "eval_code.h"
 #include "eval_common.h"
-#include "eval_optparse.h"
+#include "eval_copy.h"
 #include "eval_parse.h"
 #include "eval_scope.h"
 #include "fasl.h"
@@ -14,6 +14,7 @@
 #include "function.h"
 #include "gc.h"
 #include "object.h"
+#include "optimize_parse.h"
 #include "pathname.h"
 #include "prompt.h"
 #include "readtable.h"
@@ -274,27 +275,28 @@ static void eval_compile(Execute ptr, addr pos)
 	setspecial_local(ptr, symbol, list);
 }
 
-_g int eval_execute(Execute ptr, addr pos)
+_g int eval_execute_parse(Execute ptr, addr pos)
 {
-	LocalHold hold;
-
-	hold = LocalHold_array(ptr, 1);
-	localhold_set(hold, 0, pos);
-	/* parse */
-	if (eval_parse(ptr, &pos, pos)) return 1;
-	localhold_set(hold, 0, pos);
 	/* optimize parse */
-	/*eval_optparse(ptr->local, &pos, pos);*/
+	optimize_parse(ptr->local, &pos, pos);
 	/* scope */
-	if (eval_scope(ptr, &pos, pos)) return 1;
-	localhold_set(hold, 0, pos);
+	if (eval_scope(ptr, &pos, pos))
+		return 1;
 	/* code generator */
 	eval_code(ptr->local, &pos, pos);
-	localhold_set(hold, 0, pos);
-	/* execute */
+	/* compile */
 	eval_compile(ptr, pos);
-	localhold_end(hold);
+	/* execute */
 	return runcode_control(ptr, pos);
+}
+
+_g int eval_execute(Execute ptr, addr pos)
+{
+	/* parse */
+	if (eval_parse(ptr, &pos, pos))
+		return 1;
+	/* execute */
+	return eval_execute_parse(ptr, pos);
 }
 
 _g int eval_stream(Execute ptr, addr stream)
@@ -551,6 +553,7 @@ _g int compile_load(Execute ptr, addr file, addr verbose, addr print, addr exter
 _g void init_eval(void)
 {
 	SetPointerType(empty, eval_load_finalize);
+	init_eval_copy();
 	init_eval_main();
 }
 

@@ -94,7 +94,6 @@ eval_common.c
 eval_copy.c
 eval_declare.c
 eval_main.c
-eval_optparse.c
 eval_parse.c
 eval_scope.c
 eval_stack.c
@@ -152,6 +151,8 @@ number_gcd.c
 number_isqrt.c
 number_random.c
 object.c
+optimize.c
+optimize_parse.c
 package.c
 pathname.c
 pointer.c

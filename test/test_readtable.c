@@ -2971,6 +2971,7 @@ int test_readtable(void)
 		build_syscall();
 		build_common();
 		build_readtable();
+		build_eval_declare();
 		build_code();
 		lisp_initialize = 1;
 		result = testbreak_readtable();

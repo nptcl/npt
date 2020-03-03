@@ -1806,7 +1806,7 @@ static void code_unwind_protect(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, 1, &cons);
 	/* protect */
 	pushstack_protect(local, code);
-	code_execute(local, code, form);
+	code_execute_set(local, code, form);
 	popstack(local, code, &protect);
 	/* cleanup */
 	pushstack_close(local, code);
@@ -1815,6 +1815,7 @@ static void code_unwind_protect(LocalRoot local, addr code, addr scope)
 	/* set code */
 	setinfo_code(protect, cleanup);
 	Code_leftright(local, code, EXECUTE, protect);
+	if_push_result(local, code);
 }
 
 static void code_tagbody_cons(LocalRoot local, addr code, addr cons)
@@ -1848,6 +1849,7 @@ static void code_tagbody(LocalRoot local, addr code, addr scope)
 	popstack_tagbody(local, code, tag, &cons);
 	/* execute */
 	Code_leftright(local, code, EXECUTE, cons);
+	if_push_result(local, code);
 }
 
 static void code_go(LocalRoot local, addr code, addr scope)
@@ -1866,9 +1868,10 @@ static void code_block(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, 0, &name);
 	GetEvalScopeIndex(scope, 1, &cons);
 	pushstack_block(local, code);
-	code_allcons(local, code, cons);
+	code_allcons_set(local, code, cons);
 	popstack_block(local, code, name, &cons);
 	Code_leftright(local, code, EXECUTE, cons);
+	if_push_result(local, code);
 }
 
 static void code_return_from(LocalRoot local, addr code, addr scope)
@@ -1890,9 +1893,10 @@ static void code_catch(LocalRoot local, addr code, addr scope)
 	pushstack_catch(local, code);
 	code_execute_set(local, code, name);
 	Code_single(local, code, CATCH);
-	code_allcons(local, code, cons);
+	code_allcons_set(local, code, cons);
 	popstack(local, code, &cons);
 	Code_leftright(local, code, EXECUTE, cons);
+	if_push_result(local, code);
 }
 
 static void code_throw(LocalRoot local, addr code, addr scope)
@@ -2261,6 +2265,7 @@ static int call_push_return(LocalRoot local, addr code, addr scope)
 	call_allcons(local, code, args);
 	popstack(local, code, &args);
 	Code_leftright(local, code, EXECUTE, args);
+	if_push_result(local, code);
 
 	return 1;
 }

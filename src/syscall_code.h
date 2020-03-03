@@ -89,6 +89,7 @@ _g void trace_del_syscode(Execute ptr, addr var, addr *ret);
 _g void set_slots_syscode(addr var, addr slots, addr values);
 _g void remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret);
 _g void remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret);
+_g void declare_parse_syscode(addr form, addr *ret);
 
 #endif
 

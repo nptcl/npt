@@ -98,6 +98,7 @@ _g int toplevelp_eval(Execute ptr);
 _g int eval_constantp(Execute ptr, addr var, addr env, int *result);
 _g int eval_constantp_stable(addr var);
 
+_g int eval_execute_parse(Execute ptr, addr pos);
 _g int eval_execute(Execute ptr, addr pos);
 _g int eval_stream(Execute ptr, addr stream);
 _g int eval_object(Execute ptr, addr eval, addr *ret);

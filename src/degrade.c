@@ -79,7 +79,6 @@ int test_eval(void);
 int test_eval_declare(void);
 int test_eval_parse(void);
 int test_eval_copy(void);
-int test_eval_optparse(void);
 int test_eval_table(void);
 int test_eval_stack(void);
 int test_eval_scope(void);
@@ -89,6 +88,7 @@ int test_condition(void);
 int test_bit(void);
 int test_main(void);
 int test_extern_object(void);
+int test_optimize(void);
 int loadrt(void);
 
 
@@ -170,7 +170,6 @@ void degrade_execute(void)
 	DegradeCheck(test_eval_declare);
 	DegradeCheck(test_eval_parse);
 	DegradeCheck(test_eval_copy);
-	//DegradeCheck(test_eval_optparse); /* error */
 	DegradeCheck(test_eval_table);
 	DegradeCheck(test_eval_stack);
 	DegradeCheck(test_eval_scope);
@@ -187,6 +186,9 @@ void degrade_execute(void)
 	DegradeCheck(test_main);
 	DegradeCheck(test_condition);
 	DegradeCheck(test_extern_object);
+
+	//DegradeCheck(test_eval_copy);
+	DegradeCheck(test_optimize);
 	DegradeCheck(loadrt);
 #if 0
 #endif

@@ -1476,6 +1476,8 @@ lisp-system::setf-compiler-macro-function
 lisp-system::compile-warning
 lisp-system::compile-style-warning
 lisp-system::nth-value
+lisp-system::declare-scope
+lisp-system::optimize-check
 
 
 ;;
@@ -1957,6 +1959,7 @@ lisp-system::unbound-value
  lisp-system::set-slots
 (lisp-system::remove-file :export t)
 (lisp-system::remove-directory :export t)
+(lisp-system::declare-parse :export t)
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)
