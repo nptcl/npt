@@ -186,8 +186,6 @@ void degrade_execute(void)
 	DegradeCheck(test_main);
 	DegradeCheck(test_condition);
 	DegradeCheck(test_extern_object);
-
-	//DegradeCheck(test_eval_copy);
 	DegradeCheck(test_optimize);
 	DegradeCheck(loadrt);
 #if 0

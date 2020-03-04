@@ -1,6 +1,18 @@
 ;;
 ;;  ANSI COMMON LISP: 3. Evaluation and Compilation
 ;;
+
+;;
+;;  optimizer off
+;;
+(deftest rteval-optimize-check
+  (lisp-system:optimize-check type)
+  0)
+
+
+;;
+;;  lambda
+;;
 (deftest lambda.1
   (functionp
     (function (lambda () :hello)))
@@ -374,6 +386,10 @@
            "Hello")
   type-error)
 
+
+;;
+;;  eval
+;;
 (deftest eval.1
   (eval '(+ 1 2))
   3)
@@ -390,6 +406,10 @@
   (eval (list 'cdr (car '((quote (a . b)) c))))
   b)
 
+
+;;
+;;  eval-when
+;;
 (deftest eval-when.1
   (eval-when (:execute)
     10)
@@ -405,6 +425,10 @@
     10)
   nil)
 
+
+;;
+;;  quote
+;;
 (deftest quote.1
   (quote aaa)
   aaa)
@@ -421,11 +445,33 @@
   '"Hello"
   "Hello")
 
+
+;;
+;;  define-symbol-macro
+;;
+(deftest define-symbol-macro.1
+  (define-symbol-macro define-symbol-macro1 (car '(a . b)))
+  define-symbol-macro1)
+
+(deftest define-symbol-macro.2
+  (progn
+    (define-symbol-macro define-symbol-macro2 (car '(a . b)))
+    define-symbol-macro2)
+  a)
+
+
+;;
+;;  macro-function
+;;
 (deftest macro-function.1
   (functionp
     (macro-function 'dolist))
   t)
 
+
+;;
+;;  special-operator-p
+;;
 (deftest special-operator-p.1
   (and (special-operator-p 'block)
        (special-operator-p 'catch)
@@ -454,6 +500,10 @@
        (special-operator-p 'unwind-protect))
   t)
 
+
+;;
+;;  constantp
+;;
 (deftest constantp.1
   (constantp 1)
   t)
@@ -462,6 +512,10 @@
   (constantp ''temp)
   t)
 
+
+;;
+;;  proclaim
+;;
 (deftest proclaim.1
   (proclaim nil)
   nil)

@@ -1004,7 +1004,7 @@ static void check_define_symbol_macro(addr symbol)
 
 static int parse_define_symbol_macro(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, symbol, body, form;
+	addr eval, symbol, form, body;
 	LocalHold hold;
 
 	hold = LocalHold_local(ptr);
@@ -1015,21 +1015,21 @@ static int parse_define_symbol_macro(Execute ptr, addr *ret, addr cons)
 	localhold_push(hold, symbol);
 	/* body */
 	if (! consp(cons)) goto error;
-	GetCons(cons, &body, &cons);
+	GetCons(cons, &form, &cons);
 	if (cons != Nil) goto error;
-	localhold_push(hold, body);
+	localhold_push(hold, form);
 	/* form */
 	check_define_symbol_macro(symbol);
-	define_symbol_macro_envstack(ptr, symbol, body); /* before parse */
-	if (eval_parse(ptr, &form, body)) return 1;
-	localhold_push(hold, form);
+	define_symbol_macro_envstack(ptr, symbol, form); /* before parse */
+	if (eval_parse(ptr, &body, form)) return 1;
+	localhold_push(hold, body);
 	localhold_end(hold);
 
 	/* eval */
 	eval_parse_heap(&eval, EVAL_PARSE_DEFINE_SYMBOL_MACRO, 3);
 	SetEvalParse(eval, 0, symbol);
-	SetEvalParse(eval, 1, form);
-	SetEvalParse(eval, 2, body);
+	SetEvalParse(eval, 1, body);
+	SetEvalParse(eval, 2, form);
 	*ret = eval;
 
 	return 0;

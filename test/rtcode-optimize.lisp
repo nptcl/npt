@@ -521,6 +521,182 @@
 
 
 ;;
+;;  deftype
+;;
+(deftest optimize-deftype-args.1
+  (optimize-speed
+    (deftype optimize-deftype-args1 (&optional (x (optimize-check type)))
+      x)
+    (funcall
+      (lisp-system:symbol-deftype 'optimize-deftype-args1)
+      nil nil))
+  1)
+
+(deftest optimize-deftype-args.2
+  (optimize-safety
+    (deftype optimize-deftype-args1 (&optional (x (optimize-check type)))
+      x)
+    (funcall
+      (lisp-system:symbol-deftype 'optimize-deftype-args1)
+      nil nil))
+  0)
+
+(deftest optimize-deftype-body.1
+  (optimize-speed
+    (deftype optimize-deftype-body1 ()
+      (optimize-check type))
+    (funcall
+      (lisp-system:symbol-deftype 'optimize-deftype-body1)
+      nil nil))
+  1)
+
+(deftest optimize-deftype-body.2
+  (optimize-safety
+    (deftype optimize-deftype-body2 ()
+      (optimize-check type))
+    (funcall
+      (lisp-system:symbol-deftype 'optimize-deftype-body2)
+      nil nil))
+  0)
+
+
+;;
+;;  define-compiler-macro
+;;
+(deftest optimize-define-compiler-macro-args.1
+  (optimize-speed
+    (define-compiler-macro optimize-define-compiler-macro-args1
+      (&optional (x (optimize-check type)))
+      x)
+    (funcall
+      (handler-bind
+        ((warning #'muffle-warning))
+        (compile nil '(lambda () (optimize-define-compiler-macro-args1))))))
+  1)
+
+(deftest optimize-define-compiler-macro-args.2
+  (optimize-safety
+    (define-compiler-macro optimize-define-compiler-macro-args2
+      (&optional (x (optimize-check type)))
+      x)
+    (funcall
+      (handler-bind
+        ((warning #'muffle-warning))
+        (compile nil '(lambda () (optimize-define-compiler-macro-args2))))))
+  0)
+
+(deftest optimize-define-compiler-macro-body.1
+  (optimize-speed
+    (define-compiler-macro optimize-define-compiler-macro-body1 ()
+      (optimize-check type))
+    (funcall
+      (handler-bind
+        ((warning #'muffle-warning))
+        (compile nil '(lambda () (optimize-define-compiler-macro-body1))))))
+  1)
+
+(deftest optimize-define-compiler-macro-body.2
+  (optimize-safety
+    (define-compiler-macro optimize-define-compiler-macro-body2 ()
+      (optimize-check type))
+    (funcall
+      (handler-bind
+        ((warning #'muffle-warning))
+        (compile nil '(lambda () (optimize-define-compiler-macro-body2))))))
+  0)
+
+
+;;
+;;  destructuring-bind
+;;
+(deftest optimize-destructuring-bind.1
+  (optimize-speed
+    (destructuring-bind (x) (list (optimize-check type))
+      x))
+  1)
+
+(deftest optimize-destructuring-bind.2
+  (optimize-safety
+    (destructuring-bind (x) (list (optimize-check type))
+      x))
+  0)
+
+(deftest optimize-destructuring-bind.3
+  (optimize-speed
+    (destructuring-bind (&optional (x (optimize-check type))) nil
+      x))
+  1)
+
+(deftest optimize-destructuring-bind.4
+  (optimize-safety
+    (destructuring-bind (&optional (x (optimize-check type))) nil
+      x))
+  0)
+
+(deftest optimize-destructuring-bind.5
+  (optimize-speed
+    (destructuring-bind () nil
+      (optimize-check type)))
+  1)
+
+(deftest optimize-destructuring-bind.6
+  (optimize-safety
+    (destructuring-bind () nil
+      (optimize-check type)))
+  0)
+
+
+;;
+;;  define-symbol-macro
+;;
+(deftest optimize-define-symbol-macro.1
+  (optimize-speed
+    (define-symbol-macro optimize-define-symbol-macro1 (optimize-check type))
+    optimize-define-symbol-macro1)
+  1)
+
+(deftest optimize-define-symbol-macro.2
+  (optimize-safety
+    (define-symbol-macro optimize-define-symbol-macro2 (optimize-check type))
+    optimize-define-symbol-macro2)
+  0)
+
+
+;;
+;;  symbol-macrolet
+;;
+(deftest optimize-symbol-macrolet-args.1
+  (optimize-speed
+    (symbol-macrolet
+      ((a (optimize-check type)))
+      a))
+  1)
+
+(deftest optimize-symbol-macrolet-args.2
+  (optimize-safety
+    (symbol-macrolet
+      ((a (optimize-check type)))
+      a))
+  0)
+
+(deftest optimize-symbol-macrolet-body.1
+  (optimize-speed
+    (symbol-macrolet
+      ((a 'hello))
+      a
+      (optimize-check type)))
+  1)
+
+(deftest optimize-symbol-macrolet-body.2
+  (optimize-safety
+    (symbol-macrolet
+      ((a 'hello))
+      a
+      (optimize-check type)))
+  0)
+
+
+;;
 ;;  lambda
 ;;
 (deftest optimize-lambda-optional.1
@@ -909,6 +1085,276 @@
         x)))
   40 hello)
 
+(deftest optimize-catch-all.1
+  (optimize-speed
+    (let (x y)
+      (values
+        (catch (setq x (optimize-check type)
+                     y 'hello)
+          10 20 30)
+        x)))
+  30 1)
+
+(deftest optimize-catch-all.2
+  (optimize-safety
+    (let (x y)
+      (values
+        (catch (setq x (optimize-check type)
+                     y 'hello)
+          10 20 30)
+        x)))
+  30 0)
+
+(deftest optimize-catch-all.3
+  (optimize-speed
+    (catch 'hello
+      10 20 30 (optimize-check type)))
+  1)
+
+(deftest optimize-catch-all.4
+  (optimize-safety
+    (catch 'hello
+      10 20 30 (optimize-check type)))
+  0)
+
+(deftest optimize-throw.1
+  (optimize-speed
+    (let (x y)
+      (values
+        (catch 'hello
+          10 20
+          (throw (setq x (optimize-check type) y 'hello) 30)
+          40)
+        x)))
+  30 1)
+
+(deftest optimize-throw.2
+  (optimize-safety
+    (let (x y)
+      (values
+        (catch 'hello
+          10 20
+          (throw (setq x (optimize-check type) y 'hello) 30)
+          40)
+        x)))
+  30 0)
+
+(deftest optimize-throw.3
+  (optimize-speed
+    (catch 'hello
+      10 20
+      (throw 'hello (optimize-check type))
+      30))
+  1)
+
+(deftest optimize-throw.4
+  (optimize-safety
+    (catch 'hello
+      10 20
+      (throw 'hello (optimize-check type))
+      30))
+  0)
+
+
+;;
+;;  flet / lables
+;;
+(deftest optimize-flet1.1
+  (optimize-speed
+    (flet ()))
+  nil)
+
+(deftest optimize-flet1.2
+  (optimize-safety
+    (flet ()))
+  nil)
+
+(deftest optimize-flet2.1
+  (optimize-speed
+    (flet () 10 20 30 40))
+  40)
+
+(deftest optimize-flet2.2
+  (optimize-safety
+    (flet () 10 20 30 40))
+  40)
+
+(deftest optimize-flet3.1
+  (optimize-speed
+    (flet () (car nil) (optimize-check type)))
+  1)
+
+(deftest optimize-flet3.2
+  (optimize-safety
+    (flet () (car nil) (optimize-check type)))
+  0)
+
+(deftest optimize-flet4.1
+  (optimize-speed
+    (flet ()
+      (declare (special *hello*))
+      (optimize-check type)))
+  1)
+
+(deftest optimize-flet4.2
+  (optimize-safety
+    (flet ()
+      (declare (special *hello*))
+      (optimize-check type)))
+  0)
+
+(deftest optimize-flet-args.1
+  (optimize-speed
+    (flet ((hello (&optional (x (optimize-check type))) x))
+      (hello)))
+  1)
+
+(deftest optimize-flet-args.2
+  (optimize-safety
+    (flet ((hello (&optional (x (optimize-check type))) x))
+      (hello)))
+  0)
+
+(deftest optimize-flet-args.3
+  (optimize-speed
+    (flet ((hello () (optimize-check type)))
+      (hello)))
+  1)
+
+(deftest optimize-flet-args.4
+  (optimize-safety
+    (flet ((hello () (optimize-check type)))
+      (hello)))
+  0)
+
+(deftest optimize-flet-body.1
+  (optimize-speed
+    (flet ((hello () 10))
+      (hello)
+      (optimize-check type)))
+  1)
+
+(deftest optimize-flet-body.2
+  (optimize-safety
+    (flet ((hello () 10))
+      (hello)
+      (optimize-check type)))
+  0)
+
+
+;;
+;;  the
+;;
+(deftest optimize-the1.1
+  (optimize-speed
+    (the integer 10))
+  10)
+
+(deftest optimize-the1.2
+  (optimize-safety
+    (the integer 10))
+  10)
+
+(deftest optimize-the2.1
+  (optimize-speed
+    (the integer (optimize-check type)))
+  1)
+
+(deftest optimize-the2.2
+  (optimize-safety
+    (the integer (optimize-check type)))
+  0)
+
+
+;;
+;;  eval-when
+;;
+(deftest optimize-eval-when1.1
+  (optimize-speed
+    (eval-when (compile load eval)))
+  nil)
+
+(deftest optimize-eval-when2.1
+  (optimize-safety
+    (eval-when (compile load eval)))
+  nil)
+
+(deftest optimize-eval-when-all.1
+  (optimize-speed
+    (eval-when (compile load eval)
+      (optimize-check type)))
+  1)
+
+(deftest optimize-eval-when-all.2
+  (optimize-safety
+    (eval-when (compile load eval)
+      (optimize-check type)))
+  0)
+
+
+;;
+;;  values
+;;
+(deftest optimize-values.1
+  (optimize-speed
+    (values)))
+
+(deftest optimize-values.2
+  (optimize-safety
+    (values)))
+
+(deftest optimize-values.3
+  (optimize-speed
+    (values (optimize-check type) 10 20))
+  1 10 20)
+
+(deftest optimize-values.4
+  (optimize-safety
+    (values (optimize-check type) 10 20))
+  0 10 20)
+
+
+;;
+;;  locally
+;;
+(deftest optimize-locally1.1
+  (optimize-speed
+    (locally
+      10 20 30))
+  30)
+
+(deftest optimize-locally1.2
+  (optimize-safety
+    (locally
+      10 20 30))
+  30)
+
+(deftest optimize-locally2.1
+  (optimize-speed
+    (locally
+      (declare (special *hello*))))
+  nil)
+
+(deftest optimize-locally2.2
+  (optimize-safety
+    (locally
+      (declare (special *hello*))))
+  nil)
+
+(deftest optimize-locally-all.1
+  (optimize-speed
+    (locally
+      (declare (special *hello*))
+      (optimize-check type)))
+  1)
+
+(deftest optimize-locally-all.2
+  (optimize-safety
+    (locally
+      (declare (special *hello*))
+      (optimize-check type)))
+  0)
+
 
 ;;
 ;;  call
@@ -932,4 +1378,70 @@
   (optimize-safety
     (+ (optimize-check type) 2000))
   2000)
+
+
+;;
+;;  multiple-value-bind
+;;
+(deftest optimize-multiple-value-bind1.1
+  (optimize-speed
+    (multiple-value-bind (a b c) (optimize-check type)
+      (values a b c)))
+  1 nil nil)
+
+(deftest optimize-multiple-value-bind1.2
+  (optimize-safety
+    (multiple-value-bind (a b c) (optimize-check type)
+      (values a b c)))
+  0 nil nil)
+
+(deftest optimize-multiple-value-bind2.1
+  (optimize-speed
+    (multiple-value-bind (a) 10
+      (values a (optimize-check type))))
+  10 1)
+
+(deftest optimize-multiple-value-bind2.2
+  (optimize-safety
+    (multiple-value-bind (a) 10
+      (values a (optimize-check type))))
+  10 0)
+
+
+;;
+;;  multiple-value-call
+;;
+(deftest optimize-multiple-value-call1.1
+  (optimize-speed
+    (let (x)
+      (values
+        (multiple-value-call
+          (progn
+            (setq x (optimize-check type))
+            #'+)
+          (values 10 20 30))
+        x)))
+  60 1)
+
+(deftest optimize-multiple-value-call1.2
+  (optimize-safety
+    (let (x)
+      (values
+        (multiple-value-call
+          (progn
+            (setq x (optimize-check type))
+            #'+)
+          (values 10 20 30))
+        x)))
+  60 0)
+
+(deftest optimize-multiple-value-call2.1
+  (optimize-speed
+    (multiple-value-call #'+ (values (optimize-check type) 1000)))
+  1001)
+
+(deftest optimize-multiple-value-call2.2
+  (optimize-safety
+    (multiple-value-call #'+ (values (optimize-check type) 1000)))
+  1000)
 

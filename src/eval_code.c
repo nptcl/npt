@@ -1422,7 +1422,6 @@ static void code_macro_function(LocalRoot local, addr code, addr scope)
 {
 	addr pos, clos, doc;
 
-	Check(evalcode_remp(code), "modeswitch error");
 	/* function */
 	code_macro_code(local, code, scope, &pos);
 	/* closure */

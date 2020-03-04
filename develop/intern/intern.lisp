@@ -1477,7 +1477,7 @@ lisp-system::compile-warning
 lisp-system::compile-style-warning
 lisp-system::nth-value
 lisp-system::declare-scope
-lisp-system::optimize-check
+(lisp-system::optimize-check :export t)
 
 
 ;;
@@ -1933,8 +1933,8 @@ lisp-system::unbound-value
 (lisp-system::make-ratio :export t)
 (lisp-system::make-complex :export t)
 (lisp-system::equal-random-state :export t)
- lisp-system::symbol-deftype
- lisp-system::delete-deftype
+(lisp-system::symbol-deftype :export t)
+(lisp-system::delete-deftype :export t)
 (lisp-system::subtypep-result :export t)
  lisp-system::include
  lisp-system::exclude

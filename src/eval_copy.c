@@ -387,9 +387,9 @@ static void copy_eval_define_symbol_macro(LocalRoot local, addr *ret, addr eval)
 	GetEvalParse(eval, 1, &form);
 	GetEvalParse(eval, 2, &body);
 
-	copy_eval_parse(local, &body, body);
+	copy_eval_parse(local, &form, form);
 
-	eval_parse_alloc(local, &eval, type, 2);
+	eval_parse_alloc(local, &eval, type, 3);
 	SetEvalParse(eval, 0, symbol);
 	SetEvalParse(eval, 1, form);
 	SetEvalParse(eval, 2, body);

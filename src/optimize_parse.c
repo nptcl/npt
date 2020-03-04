@@ -5,9 +5,10 @@
 #include "eval_copy.h"
 #include "function.h"
 #include "optimize.h"
+#include "type_optimize.h"
 
-static int checkparse(struct optimize_struct *str);
-static int optparse(struct optimize_struct *str);
+static int checkparse_all(struct optimize_struct *str);
+static int optparse_all(struct optimize_struct *str);
 
 static int checkparse_inplace(struct optimize_struct *str, addr pos)
 {
@@ -16,7 +17,7 @@ static int checkparse_inplace(struct optimize_struct *str, addr pos)
 
 	save = *str;
 	str->pos = pos;
-	check = checkparse(str);
+	check = checkparse_all(str);
 	*str = save;
 
 	return check;
@@ -29,7 +30,7 @@ static int optparse_inplace(struct optimize_struct *str, addr pos, addr *ret)
 
 	save = *str;
 	str->pos = pos;
-	check = optparse(str);
+	check = optparse_all(str);
 	*ret = check? str->pos: pos;
 	*str = save;
 
@@ -1452,6 +1453,400 @@ static int optparse_defmacro(struct optimize_struct *str)
 
 
 /*
+ *  deftype
+ */
+/* args */
+static int checkparse_deftype_args(struct optimize_struct *str)
+{
+	addr pos;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_DEFTYPE))
+		return 0;
+	GetEvalParse(pos, 1, &pos); /* args */
+	return checkparse_lambda_macro(str, pos);
+}
+
+static int optparse_deftype_args(struct optimize_struct *str)
+{
+	addr pos, name, args, decl, doc, body;
+
+	if (! checkparse_deftype_args(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &name);
+	GetEvalParse(pos, 1, &args);
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 3, &doc);
+	GetEvalParse(pos, 4, &body);
+
+	if (! optparse_lambda_macro(str, args, &args))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_DEFTYPE, 5);
+	SetEvalParse(pos, 0, name);
+	SetEvalParse(pos, 1, args);
+	SetEvalParse(pos, 2, decl);
+	SetEvalParse(pos, 3, doc);
+	SetEvalParse(pos, 4, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* body */
+static int checkparse_deftype_body(struct optimize_struct *str)
+{
+	addr pos, decl, body;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_DEFTYPE))
+		return 0;
+	GetEvalParse(pos, 2, &decl); /* decl */
+	GetEvalParse(pos, 4, &body); /* body */
+	if (body == Nil)
+		return 0;
+
+	return checkparse_implicit_declare(str, decl, body);
+}
+
+static int optparse_deftype_body(struct optimize_struct *str)
+{
+	addr pos, name, args, decl, doc, body;
+
+	if (! checkparse_deftype_body(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &name);
+	GetEvalParse(pos, 1, &args);
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 3, &doc);
+	GetEvalParse(pos, 4, &body);
+
+	if (! optparse_implicit_declare(str, decl, body, &body))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_DEFTYPE, 5);
+	SetEvalParse(pos, 0, name);
+	SetEvalParse(pos, 1, args);
+	SetEvalParse(pos, 2, decl);
+	SetEvalParse(pos, 3, doc);
+	SetEvalParse(pos, 4, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* optparse-deftype */
+static int checkparse_deftype(struct optimize_struct *str)
+{
+	return checkparse_deftype_args(str)
+		|| checkparse_deftype_body(str);
+}
+
+static void optparse_deftype_run(struct optimize_struct *str)
+{
+	optimize_extract(str, optparse_deftype_args);
+	optimize_extract(str, optparse_deftype_body);
+}
+static int optparse_deftype(struct optimize_struct *str)
+{
+	return optparse_run(str, optparse_deftype_run);
+}
+
+
+/*
+ *  define-compiler-macro
+ */
+/* args */
+static int checkparse_define_compiler_macro_args(struct optimize_struct *str)
+{
+	addr pos;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_DEFINE_COMPILER_MACRO))
+		return 0;
+	GetEvalParse(pos, 1, &pos); /* args */
+	return checkparse_lambda_macro(str, pos);
+}
+
+static int optparse_define_compiler_macro_args(struct optimize_struct *str)
+{
+	addr pos, name, args, decl, doc, body;
+
+	if (! checkparse_define_compiler_macro_args(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &name);
+	GetEvalParse(pos, 1, &args);
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 3, &doc);
+	GetEvalParse(pos, 4, &body);
+
+	if (! optparse_lambda_macro(str, args, &args))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_DEFINE_COMPILER_MACRO, 5);
+	SetEvalParse(pos, 0, name);
+	SetEvalParse(pos, 1, args);
+	SetEvalParse(pos, 2, decl);
+	SetEvalParse(pos, 3, doc);
+	SetEvalParse(pos, 4, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* body */
+static int checkparse_define_compiler_macro_body(struct optimize_struct *str)
+{
+	addr pos, decl, body;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_DEFINE_COMPILER_MACRO))
+		return 0;
+	GetEvalParse(pos, 2, &decl); /* decl */
+	GetEvalParse(pos, 4, &body); /* body */
+	if (body == Nil)
+		return 0;
+
+	return checkparse_implicit_declare(str, decl, body);
+}
+
+static int optparse_define_compiler_macro_body(struct optimize_struct *str)
+{
+	addr pos, name, args, decl, doc, body;
+
+	if (! checkparse_define_compiler_macro_body(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &name);
+	GetEvalParse(pos, 1, &args);
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 3, &doc);
+	GetEvalParse(pos, 4, &body);
+
+	if (! optparse_implicit_declare(str, decl, body, &body))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_DEFINE_COMPILER_MACRO, 5);
+	SetEvalParse(pos, 0, name);
+	SetEvalParse(pos, 1, args);
+	SetEvalParse(pos, 2, decl);
+	SetEvalParse(pos, 3, doc);
+	SetEvalParse(pos, 4, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* optparse-define-compiler-macro */
+static int checkparse_define_compiler_macro(struct optimize_struct *str)
+{
+	return checkparse_define_compiler_macro_args(str)
+		|| checkparse_define_compiler_macro_body(str);
+}
+
+static void optparse_define_compiler_macro_run(struct optimize_struct *str)
+{
+	optimize_extract(str, optparse_define_compiler_macro_args);
+	optimize_extract(str, optparse_define_compiler_macro_body);
+}
+static int optparse_define_compiler_macro(struct optimize_struct *str)
+{
+	return optparse_run(str, optparse_define_compiler_macro_run);
+}
+
+
+/*
+ *  destructuring-bind
+ */
+/* args */
+static int checkparse_destructuring_bind(struct optimize_struct *str)
+{
+	addr pos, expr, lambda;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_DESTRUCTURING_BIND))
+		return 0;
+	GetEvalParse(pos, 0, &expr);
+	GetEvalParse(pos, 1, &lambda);
+	return checkparse_inplace(str, expr)
+		|| checkparse_inplace(str, lambda);
+}
+
+static int optparse_destructuring_bind(struct optimize_struct *str)
+{
+	int check;
+	addr pos, expr, lambda;
+
+	if (! checkparse_destructuring_bind(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &expr);
+	GetEvalParse(pos, 1, &lambda);
+
+	check = optparse_inplace(str, expr, &expr)
+		|| optparse_inplace(str, lambda, &lambda);
+	if (! check)
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_DESTRUCTURING_BIND, 2);
+	SetEvalParse(pos, 0, expr);
+	SetEvalParse(pos, 1, lambda);
+	str->pos = pos;
+
+	return 1;
+}
+
+
+/*
+ *  define-symbol-macro
+ */
+static int checkparse_define_symbol_macro(struct optimize_struct *str)
+{
+	addr pos;
+
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_DEFINE_SYMBOL_MACRO))
+		return 0;
+	GetEvalParse(pos, 1, &pos); /* body */
+	return checkparse_inplace(str, pos);
+}
+
+static int optparse_define_symbol_macro(struct optimize_struct *str)
+{
+	addr pos, symbol, body, form;
+
+	if (! checkparse_define_symbol_macro(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &symbol);
+	GetEvalParse(pos, 1, &body);
+	GetEvalParse(pos, 2, &form);
+
+	if (! optparse_inplace(str, body, &body))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_DEFINE_SYMBOL_MACRO, 3);
+	SetEvalParse(pos, 0, symbol);
+	SetEvalParse(pos, 1, body);
+	SetEvalParse(pos, 2, form);
+	str->pos = pos;
+
+	return 1;
+}
+
+
+/*
+ *  symbol-macrolet
+ */
+/* args */
+static int checkparse_symbol_macrolet_args(struct optimize_struct *str)
+{
+	addr pos, x, symbol, expr, env;
+
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_SYMBOL_MACROLET))
+		return 0;
+	GetEvalParse(pos, 0, &pos); /* args */
+	while (pos != Nil) {
+		GetCons(pos, &x, &pos);
+		List_bind(x, &symbol, &expr, &env, NULL);
+		if (checkparse_inplace(str, expr))
+			return 1;
+	}
+
+	return 0;
+}
+
+static int optparse_symbol_macrolet_args(struct optimize_struct *str)
+{
+	int check;
+	addr pos, args, decl, body, root, symbol, expr, env;
+	LocalRoot local;
+
+	if (! checkparse_symbol_macrolet_args(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &args);
+	GetEvalParse(pos, 1, &decl);
+	GetEvalParse(pos, 2, &body);
+
+	local = str->local;
+	check = 0;
+	for (root = Nil; args != Nil; ) {
+		GetCons(args, &pos, &args);
+		List_bind(pos, &symbol, &expr, &env, NULL);
+		check |= optparse_inplace(str, expr, &expr);
+		list_local(local, &pos, symbol, expr, env, NULL);
+		cons_local(local, &root, pos, root);
+	}
+	if (! check)
+		return 0;
+	nreverse_list_unsafe(&args, root);
+
+	eval_parse_local(str->local, &pos, EVAL_PARSE_SYMBOL_MACROLET, 3);
+	SetEvalParse(pos, 0, args);
+	SetEvalParse(pos, 1, decl);
+	SetEvalParse(pos, 2, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+static int checkparse_symbol_macrolet_body(struct optimize_struct *str)
+{
+	addr pos, decl, body;
+
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_SYMBOL_MACROLET))
+		return 0;
+	GetEvalParse(pos, 1, &decl); /* decl */
+	GetEvalParse(pos, 2, &body); /* body */
+	return checkparse_implicit_declare(str, decl, body);
+}
+
+static int optparse_symbol_macrolet_body(struct optimize_struct *str)
+{
+	addr pos, args, decl, body;
+
+	if (! checkparse_symbol_macrolet_body(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &args);
+	GetEvalParse(pos, 1, &decl);
+	GetEvalParse(pos, 2, &body);
+
+	if (! optparse_implicit_declare(str, decl, body, &body))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_SYMBOL_MACROLET, 3);
+	SetEvalParse(pos, 0, args);
+	SetEvalParse(pos, 1, decl);
+	SetEvalParse(pos, 2, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* optparse-symbol-macrolet */
+static int checkparse_symbol_macrolet(struct optimize_struct *str)
+{
+	return checkparse_symbol_macrolet_args(str)
+		|| checkparse_symbol_macrolet_body(str);
+}
+
+static void optparse_symbol_macrolet_run(struct optimize_struct *str)
+{
+	optimize_extract(str, optparse_symbol_macrolet_args);
+	optimize_extract(str, optparse_symbol_macrolet_body);
+}
+static int optparse_symbol_macrolet(struct optimize_struct *str)
+{
+	return optparse_run(str, optparse_symbol_macrolet_run);
+}
+
+
+/*
  *  lambda
  */
 /* args */
@@ -2069,7 +2464,6 @@ static int optparse_block(struct optimize_struct *str)
 }
 
 
-#if 0
 /*
  *  catch / throw
  */
@@ -2246,7 +2640,605 @@ static int optparse_catch(struct optimize_struct *str)
 {
 	return optparse_run(str, optparse_catch_run);
 }
-#endif
+
+
+/*
+ *  flet / labels
+ */
+static int optimize_fletlabels(struct optimize_struct *str)
+{
+	addr pos;
+	enum EVAL_PARSE type;
+
+	pos = str->pos;
+	if (! eval_parse_p(pos))
+		return 0;
+	GetEvalParseType(pos, &type);
+
+	return type == EVAL_PARSE_FLET || type == EVAL_PARSE_LABELS;
+}
+
+static int optimize_fletlabels_on(struct optimize_struct *str)
+{
+	return optimize_speed_on(str) && optimize_fletlabels(str);
+}
+
+/* (flet ()) -> nil */
+static int checkparse_flet1(struct optimize_struct *str)
+{
+	addr pos;
+
+	if (! optimize_fletlabels_on(str))
+		return 0;
+	GetEvalParse(str->pos, 2, &pos);
+	return pos == Nil;
+}
+
+static int optparse_flet1(struct optimize_struct *str)
+{
+	addr pos;
+
+	if (! checkparse_flet1(str))
+		return 0;
+	eval_single_parse_local(str->local, &pos, EVAL_PARSE_NIL, Nil);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* (flet () values... x) -> x */
+static int checkparse_flet2(struct optimize_struct *str)
+{
+	addr pos, check;
+
+	if (! optimize_fletlabels_on(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 1, &check);
+	if (! empty_nil_declare(check))
+		return 0;
+	GetEvalParse(pos, 2, &pos);
+	if (pos == Nil)
+		return 0;
+	while (pos != Nil) {
+		GetCons(pos, &check, &pos);
+		if (! optimize_value(check))
+			return 0;
+	}
+
+	return 1;
+}
+
+static int optparse_flet2(struct optimize_struct *str)
+{
+	addr list, x;
+
+	if (! checkparse_flet2(str))
+		return 0;
+	GetEvalParse(str->pos, 2, &list);
+	if (list == Nil)
+		return 0;
+	for (x = Nil; list != Nil; ) {
+		GetCons(list, &x, &list);
+	}
+	str->pos = x;
+
+	return 1;
+}
+
+/* (flet () ...) -> (progn ...) */
+static int checkparse_flet3(struct optimize_struct *str)
+{
+	addr pos, check;
+
+	if (! optimize_fletlabels_on(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &check);
+	if (check != Nil)
+		return 0;
+	GetEvalParse(pos, 1, &check);
+	if (! empty_nil_declare(check))
+		return 0;
+	GetEvalParse(pos, 2, &check);
+	return check != Nil;
+}
+
+static int optparse_flet3(struct optimize_struct *str)
+{
+	addr pos;
+
+	if (! checkparse_flet3(str))
+		return 0;
+	GetEvalParse(str->pos, 2, &pos);
+	eval_single_parse_local(str->local, &pos, EVAL_PARSE_PROGN, pos);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* (flet () (declare ...) ...) -> (locally (declare ...) ...) */
+static int checkparse_flet4(struct optimize_struct *str)
+{
+	addr pos, check;
+
+	if (! optimize_fletlabels_on(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &check);
+	if (check != Nil)
+		return 0;
+	GetEvalParse(pos, 1, &check);
+	if (empty_nil_declare(check))
+		return 0;
+	GetEvalParse(pos, 2, &check);
+	return check != Nil;
+}
+
+static int optparse_flet4(struct optimize_struct *str)
+{
+	addr pos, decl, cons;
+
+	if (! checkparse_flet4(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 1, &decl);
+	GetEvalParse(pos, 2, &cons);
+
+	eval_parse_local(str->local, &pos, EVAL_PARSE_LOCALLY, 2);
+	SetEvalParse(pos, 0, decl);
+	SetEvalParse(pos, 1, cons);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* flet-args */
+static int checkparse_flet_args(struct optimize_struct *str)
+{
+	addr pos, check, call, args, decl, doc, body;
+
+	/* Don't check optimize. */
+	if (! optimize_fletlabels(str))
+		return 0;
+	GetEvalParse(str->pos, 0, &pos);
+	while (pos != Nil) {
+		GetCons(pos, &check, &pos);
+		List_bind(check, &call, &args, &decl, &doc, &body, NULL);
+		if (checkparse_lambda_ordinary(str, args))
+			return 1;
+		if (checkparse_implicit_declare(str, decl, body))
+			return 1;
+	}
+
+	return 0;
+}
+
+static int optparse_flet_one(struct optimize_struct *str, addr list, addr *ret)
+{
+	int check, check1, check2;
+	addr root, call, args, decl, doc, body, x;
+	LocalRoot local;
+
+	local = str->local;
+	check = 0;
+	for (root = Nil; list != Nil; ) {
+		GetCons(list, &x, &list);
+		List_bind(x, &call, &args, &decl, &doc, &body, NULL);
+
+		check1 = check2 = 0;
+		if (checkparse_lambda_ordinary(str, args))
+			check1 = optparse_lambda_ordinary(str, args, &args);
+		if (checkparse_implicit_declare(str, decl, body))
+			check2 = optparse_implicit_declare(str, decl, body, &body);
+		if (check1 || check2) {
+			list_local(local, &x, call, args, decl, doc, body, NULL);
+			check = 1;
+		}
+		cons_local(local, &root, x, root);
+	}
+	if (! check)
+		return 0;
+	nreverse_list_unsafe(ret, root);
+
+	return 1;
+}
+
+static int optparse_flet_args(struct optimize_struct *str)
+{
+	enum EVAL_PARSE type;
+	addr pos, args, decl, body;
+
+	if (! checkparse_flet_args(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParseType(pos, &type);
+	GetEvalParse(pos, 0, &args);
+	GetEvalParse(pos, 1, &decl);
+	GetEvalParse(pos, 2, &body);
+
+	if (! optparse_flet_one(str, args, &args))
+		return 0;
+	eval_parse_local(str->local, &pos, type, 3);
+	SetEvalParse(pos, 0, args);
+	SetEvalParse(pos, 1, decl);
+	SetEvalParse(pos, 2, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* flet-body */
+static int checkparse_flet_body(struct optimize_struct *str)
+{
+	addr pos, decl, body;
+
+	/* Don't check optimize. */
+	if (! optimize_fletlabels(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 1, &decl);
+	GetEvalParse(pos, 2, &body);
+	if (body == Nil)
+		return 0;
+
+	return checkparse_implicit_declare(str, decl, body);
+}
+
+static int optparse_flet_body(struct optimize_struct *str)
+{
+	enum EVAL_PARSE type;
+	addr pos, args, decl, body;
+
+	if (! checkparse_flet_body(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParseType(pos, &type);
+	GetEvalParse(pos, 0, &args);
+	GetEvalParse(pos, 1, &decl);
+	GetEvalParse(pos, 2, &body);
+
+	if (! optparse_implicit_declare(str, decl, body, &body))
+		return 0;
+	eval_parse_local(str->local, &pos, type, 3);
+	SetEvalParse(pos, 0, args);
+	SetEvalParse(pos, 1, decl);
+	SetEvalParse(pos, 2, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* optparse-flet */
+static int checkparse_flet(struct optimize_struct *str)
+{
+	return checkparse_flet1(str)
+		|| checkparse_flet2(str)
+		|| checkparse_flet3(str)
+		|| checkparse_flet4(str)
+		|| checkparse_flet_args(str)
+		|| checkparse_flet_body(str);
+}
+
+static void optparse_flet_run(struct optimize_struct *str)
+{
+	optimize_extract(str, optparse_flet1);
+	optimize_extract(str, optparse_flet2);
+	optimize_extract(str, optparse_flet3);
+	optimize_extract(str, optparse_flet4);
+	optimize_extract(str, optparse_flet_args);
+	optimize_extract(str, optparse_flet_body);
+}
+static int optparse_flet(struct optimize_struct *str)
+{
+	return optparse_run(str, optparse_flet_run);
+}
+
+
+/*
+ *  the
+ */
+/* (the type expr) -> (the [type] expr) */
+static int checkparse_the1(struct optimize_struct *str)
+{
+	addr pos;
+
+	if (! optimize_evaltype_on(str, EVAL_PARSE_THE))
+		return 0;
+	GetEvalParse(str->pos, 0, &pos); /* type */
+	/* return ! type_optimized_or_subtypep(pos); */
+	return ! type_optimized_p(pos);
+}
+
+static int optparse_the1(struct optimize_struct *str)
+{
+	addr pos, type, expr;
+	LocalRoot local;
+
+	if (! checkparse_the1(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &type);
+	GetEvalParse(pos, 1, &expr);
+
+	local = str->local;
+	type_optimize_local(local, &type, type);
+	eval_parse_local(local, &pos, EVAL_PARSE_THE, 2);
+	SetEvalParse(pos, 0, type);
+	SetEvalParse(pos, 1, expr);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* expr */
+static int checkparse_the2(struct optimize_struct *str)
+{
+	addr pos;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_THE))
+		return 0;
+	GetEvalParse(pos, 1, &pos); /* expr */
+	return checkparse_inplace(str, pos);
+}
+
+static int optparse_the2(struct optimize_struct *str)
+{
+	addr pos, type, expr;
+
+	if (! checkparse_the2(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &type);
+	GetEvalParse(pos, 1, &expr);
+
+	if (! optparse_inplace(str, expr, &expr))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_THE, 2);
+	SetEvalParse(pos, 0, type);
+	SetEvalParse(pos, 1, expr);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* optparse-the */
+static int checkparse_the(struct optimize_struct *str)
+{
+	return checkparse_the1(str)
+		|| checkparse_the2(str);
+}
+
+static void optparse_the_run(struct optimize_struct *str)
+{
+	optimize_extract(str, optparse_the1);
+	optimize_extract(str, optparse_the2);
+}
+static int optparse_the(struct optimize_struct *str)
+{
+	return optparse_run(str, optparse_the_run);
+}
+
+
+/*
+ *  eval-when
+ */
+/* (eval-when cons) -> nil */
+static int checkparse_eval_when1(struct optimize_struct *str)
+{
+	addr pos;
+
+	if (! optimize_evaltype_on(str, EVAL_PARSE_EVAL_WHEN))
+		return 0;
+	GetEvalParse(str->pos, 0, &pos); /* body */
+	return pos == Nil;
+}
+
+static int optparse_eval_when1(struct optimize_struct *str)
+{
+	addr pos;
+
+	if (! checkparse_eval_when1(str))
+		return 0;
+	eval_single_parse_local(str->local, &pos, EVAL_PARSE_NIL, Nil);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* all */
+static int checkparse_eval_when_all(struct optimize_struct *str)
+{
+	addr pos;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_EVAL_WHEN))
+		return 0;
+	GetEvalParse(pos, 0, &pos); /* body */
+	return checkparse_implicit_declare(str, Nil, pos);
+}
+
+static int optparse_eval_when_all(struct optimize_struct *str)
+{
+	addr pos, body, compilep, loadp, evalp;
+
+	if (! checkparse_eval_when_all(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &body);
+	GetEvalParse(pos, 1, &compilep);
+	GetEvalParse(pos, 2, &loadp);
+	GetEvalParse(pos, 3, &evalp);
+
+	if (! optparse_implicit_declare(str, Nil, body, &body))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_EVAL_WHEN, 4);
+	SetEvalParse(pos, 0, body);
+	SetEvalParse(pos, 1, compilep);
+	SetEvalParse(pos, 2, loadp);
+	SetEvalParse(pos, 3, evalp);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* optparse-eval-when */
+static int checkparse_eval_when(struct optimize_struct *str)
+{
+	return checkparse_eval_when1(str)
+		|| checkparse_eval_when_all(str);
+}
+
+static void optparse_eval_when_run(struct optimize_struct *str)
+{
+	optimize_extract(str, optparse_eval_when1);
+	optimize_extract(str, optparse_eval_when_all);
+}
+static int optparse_eval_when(struct optimize_struct *str)
+{
+	return optparse_run(str, optparse_eval_when_run);
+}
+
+
+/*
+ *  values
+ */
+static int checkparse_values(struct optimize_struct *str)
+{
+	addr pos;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_VALUES))
+		return 0;
+	GetEvalParse(pos, 0, &pos);
+	return checkparse_implicit_all(str, pos);
+}
+
+static int optparse_values(struct optimize_struct *str)
+{
+	addr pos;
+
+	if (! checkparse_values(str))
+		return 0;
+	GetEvalParse(str->pos, 0, &pos);
+	if (! optparse_implicit_all(str, pos, &pos))
+		return 0;
+	eval_single_parse_local(str->local, &pos, EVAL_PARSE_VALUES, pos);
+	str->pos = pos;
+
+	return 1;
+}
+
+
+/*
+ *  locally
+ */
+/* (locally ...) -> (progn ...) */
+static int checkparse_locally1(struct optimize_struct *str)
+{
+	addr pos, decl, body;
+
+	if (! optimize_evaltype_on(str, EVAL_PARSE_LOCALLY))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &decl); /* decl */
+	GetEvalParse(pos, 1, &body); /* body */
+	return empty_nil_declare(decl) && body != Nil;
+}
+
+static int optparse_locally1(struct optimize_struct *str)
+{
+	addr pos;
+
+	if (! checkparse_locally1(str))
+		return 0;
+	GetEvalParse(str->pos, 1, &pos); /* body */
+	eval_single_parse_local(str->local, &pos, EVAL_PARSE_PROGN, pos);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* (locally (declare ...)) -> nil */
+static int checkparse_locally2(struct optimize_struct *str)
+{
+	addr pos;
+
+	if (! optimize_evaltype_on(str, EVAL_PARSE_LOCALLY))
+		return 0;
+	GetEvalParse(str->pos, 1, &pos); /* body */
+	return pos == Nil;
+}
+
+static int optparse_locally2(struct optimize_struct *str)
+{
+	addr pos;
+
+	if (! checkparse_locally2(str))
+		return 0;
+	eval_single_parse_local(str->local, &pos, EVAL_PARSE_NIL, Nil);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* all */
+static int checkparse_locally_all(struct optimize_struct *str)
+{
+	addr pos, decl, body;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_LOCALLY))
+		return 0;
+	GetEvalParse(pos, 0, &decl);
+	GetEvalParse(pos, 1, &body);
+
+	return checkparse_implicit_declare(str, decl, body);
+}
+
+static int optparse_locally_all(struct optimize_struct *str)
+{
+	addr pos, decl, body;
+
+	if (! checkparse_locally_all(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &decl);
+	GetEvalParse(pos, 1, &body);
+
+	if (! optparse_implicit_declare(str, decl, body, &body))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_LOCALLY, 2);
+	SetEvalParse(pos, 0, decl);
+	SetEvalParse(pos, 1, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* optparse-locally */
+static int checkparse_locally(struct optimize_struct *str)
+{
+	return checkparse_locally1(str)
+		|| checkparse_locally2(str)
+		|| checkparse_locally_all(str);
+}
+
+static void optparse_locally_run(struct optimize_struct *str)
+{
+	optimize_extract(str, optparse_locally1);
+	optimize_extract(str, optparse_locally2);
+	optimize_extract(str, optparse_locally_all);
+}
+static int optparse_locally(struct optimize_struct *str)
+{
+	return optparse_run(str, optparse_locally_run);
+}
 
 
 /*
@@ -2353,9 +3345,196 @@ static int optparse_call(struct optimize_struct *str)
 
 
 /*
+ *  multiple-value-bind
+ */
+/* expr */
+static int checkparse_multiple_value_bind1(struct optimize_struct *str)
+{
+	addr pos;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_MULTIPLE_VALUE_BIND))
+		return 0;
+	GetEvalParse(str->pos, 1, &pos); /* expr */
+	return checkparse_inplace(str, pos);
+}
+
+static int optparse_multiple_value_bind1(struct optimize_struct *str)
+{
+	addr pos, vars, expr, decl, doc, body;
+
+	if (! checkparse_multiple_value_bind1(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &vars);
+	GetEvalParse(pos, 1, &expr);
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 3, &doc);
+	GetEvalParse(pos, 4, &body);
+
+	if (! optparse_inplace(str, expr, &expr))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_MULTIPLE_VALUE_BIND, 5);
+	SetEvalParse(pos, 0, vars);
+	SetEvalParse(pos, 1, expr);
+	SetEvalParse(pos, 2, decl);
+	SetEvalParse(pos, 3, doc);
+	SetEvalParse(pos, 4, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* body */
+static int checkparse_multiple_value_bind2(struct optimize_struct *str)
+{
+	addr pos, decl, body;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_MULTIPLE_VALUE_BIND))
+		return 0;
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 4, &body);
+	return checkparse_implicit_declare(str, decl, body);
+}
+
+static int optparse_multiple_value_bind2(struct optimize_struct *str)
+{
+	addr pos, vars, expr, decl, doc, body;
+
+	if (! checkparse_multiple_value_bind2(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &vars);
+	GetEvalParse(pos, 1, &expr);
+	GetEvalParse(pos, 2, &decl);
+	GetEvalParse(pos, 3, &doc);
+	GetEvalParse(pos, 4, &body);
+
+	if (! optparse_implicit_declare(str, decl, body, &body))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_MULTIPLE_VALUE_BIND, 5);
+	SetEvalParse(pos, 0, vars);
+	SetEvalParse(pos, 1, expr);
+	SetEvalParse(pos, 2, decl);
+	SetEvalParse(pos, 3, doc);
+	SetEvalParse(pos, 4, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* optparse-multiple-value-bind */
+static int checkparse_multiple_value_bind(struct optimize_struct *str)
+{
+	return checkparse_multiple_value_bind1(str)
+		|| checkparse_multiple_value_bind2(str);
+}
+
+static void optparse_multiple_value_bind_run(struct optimize_struct *str)
+{
+	optimize_extract(str, optparse_multiple_value_bind1);
+	optimize_extract(str, optparse_multiple_value_bind2);
+}
+static int optparse_multiple_value_bind(struct optimize_struct *str)
+{
+	return optparse_run(str, optparse_multiple_value_bind_run);
+}
+
+
+/*
+ *  multiple-value-call
+ */
+/* expr */
+static int checkparse_multiple_value_call1(struct optimize_struct *str)
+{
+	addr pos;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_MULTIPLE_VALUE_CALL))
+		return 0;
+	GetEvalParse(pos, 0, &pos); /* expr */
+	return checkparse_inplace(str, pos);
+}
+
+static int optparse_multiple_value_call1(struct optimize_struct *str)
+{
+	addr pos, call, body;
+
+	if (! checkparse_multiple_value_call1(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &call);
+	GetEvalParse(pos, 1, &body);
+
+	if (! optparse_inplace(str, call, &call))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_MULTIPLE_VALUE_CALL, 2);
+	SetEvalParse(pos, 0, call);
+	SetEvalParse(pos, 1, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* body */
+static int checkparse_multiple_value_call2(struct optimize_struct *str)
+{
+	addr pos;
+
+	/* Don't check optimize. */
+	pos = str->pos;
+	if (! optimize_evaltype(pos, EVAL_PARSE_MULTIPLE_VALUE_CALL))
+		return 0;
+	GetEvalParse(pos, 1, &pos); /* body */
+	return checkparse_implicit_all(str, pos);
+}
+
+static int optparse_multiple_value_call2(struct optimize_struct *str)
+{
+	addr pos, call, body;
+
+	if (! checkparse_multiple_value_call2(str))
+		return 0;
+	pos = str->pos;
+	GetEvalParse(pos, 0, &call);
+	GetEvalParse(pos, 1, &body);
+
+	if (! optparse_implicit_all(str, body, &body))
+		return 0;
+	eval_parse_local(str->local, &pos, EVAL_PARSE_MULTIPLE_VALUE_CALL, 2);
+	SetEvalParse(pos, 0, call);
+	SetEvalParse(pos, 1, body);
+	str->pos = pos;
+
+	return 1;
+}
+
+/* optparse-multiple-value-call */
+static int checkparse_multiple_value_call(struct optimize_struct *str)
+{
+	return checkparse_multiple_value_call1(str)
+		|| checkparse_multiple_value_call2(str);
+}
+
+static void optparse_multiple_value_call_run(struct optimize_struct *str)
+{
+	optimize_extract(str, optparse_multiple_value_call1);
+	optimize_extract(str, optparse_multiple_value_call2);
+}
+static int optparse_multiple_value_call(struct optimize_struct *str)
+{
+	return optparse_run(str, optparse_multiple_value_call_run);
+}
+
+
+/*
  *  optimize-parse
  */
-static int checkparse(struct optimize_struct *str)
+static int checkparse_all(struct optimize_struct *str)
 {
 	return checkparse_check(str)
 		|| checkparse_progn(str)
@@ -2363,16 +3542,28 @@ static int checkparse(struct optimize_struct *str)
 		|| checkparse_setq(str)
 		|| checkparse_defun(str)
 		|| checkparse_defmacro(str)
+		|| checkparse_deftype(str)
+		|| checkparse_define_compiler_macro(str)
+		|| checkparse_destructuring_bind(str)
+		|| checkparse_define_symbol_macro(str)
+		|| checkparse_symbol_macrolet(str)
 		|| checkparse_lambda(str)
 		|| checkparse_if(str)
 		|| checkparse_unwind_protect(str)
 		|| checkparse_tagbody(str)
 		|| checkparse_block(str)
-//		|| checkparse_catch(str)
-		|| checkparse_call(str);
+		|| checkparse_catch(str)
+		|| checkparse_flet(str)
+		|| checkparse_the(str)
+		|| checkparse_eval_when(str)
+		|| checkparse_values(str)
+		|| checkparse_locally(str)
+		|| checkparse_call(str)
+		|| checkparse_multiple_value_bind(str)
+		|| checkparse_multiple_value_call(str);
 }
 
-static void optparse_list(struct optimize_struct *str)
+static void optparse_all_run(struct optimize_struct *str)
 {
 	optimize_extract(str, optparse_check);
 	optimize_extract(str, optparse_progn);
@@ -2380,17 +3571,29 @@ static void optparse_list(struct optimize_struct *str)
 	optimize_extract(str, optparse_setq);
 	optimize_extract(str, optparse_defun);
 	optimize_extract(str, optparse_defmacro);
+	optimize_extract(str, optparse_deftype);
+	optimize_extract(str, optparse_define_compiler_macro);
+	optimize_extract(str, optparse_destructuring_bind);
+	optimize_extract(str, optparse_define_symbol_macro);
+	optimize_extract(str, optparse_symbol_macrolet);
 	optimize_extract(str, optparse_lambda);
 	optimize_extract(str, optparse_if);
 	optimize_extract(str, optparse_unwind_protect);
 	optimize_extract(str, optparse_tagbody);
 	optimize_extract(str, optparse_block);
-//	optimize_extract(str, optparse_catch);
+	optimize_extract(str, optparse_catch);
+	optimize_extract(str, optparse_flet);
+	optimize_extract(str, optparse_the);
+	optimize_extract(str, optparse_eval_when);
+	optimize_extract(str, optparse_values);
+	optimize_extract(str, optparse_locally);
 	optimize_extract(str, optparse_call);
+	optimize_extract(str, optparse_multiple_value_bind);
+	optimize_extract(str, optparse_multiple_value_call);
 }
-static int optparse(struct optimize_struct *str)
+static int optparse_all(struct optimize_struct *str)
 {
-	return optparse_run(str, optparse_list);
+	return optparse_run(str, optparse_all_run);
 }
 
 _g int optimize_parse(LocalRoot local, addr *ret, addr pos)
@@ -2402,7 +3605,7 @@ _g int optimize_parse(LocalRoot local, addr *ret, addr pos)
 	CheckLocal(local);
 	push_local(local, &stack);
 	optimize_initialize(&str, local, pos);
-	result = optparse(&str);
+	result = optparse_all(&str);
 	if (result)
 		copy_eval_parse_heap(ret, str.pos);
 	else

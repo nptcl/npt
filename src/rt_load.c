@@ -84,6 +84,12 @@ static void loadrt_disable_debugger(Execute ptr)
 	pushspecial_control(ptr, symbol, Nil);
 }
 
+static void loadrt_declare_optimize(void)
+{
+	apply_safety_declaim(3);
+	apply_speed_declaim(0);
+}
+
 static int loadrt_execute(Execute ptr, const char *name)
 {
 	int result;
@@ -96,6 +102,7 @@ static int loadrt_execute(Execute ptr, const char *name)
 	if (codejump_run_p(&jump)) {
 		handler_warning(ptr);
 		loadrt_disable_debugger(ptr);
+		loadrt_declare_optimize();
 		result = loadrt_init(ptr, name);
 	}
 	end_switch(&jump);

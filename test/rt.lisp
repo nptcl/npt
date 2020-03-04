@@ -69,6 +69,8 @@
 (loadrt #p"rt-system.lisp")
 ;; Error
 (loadrt #p"rt-error.lisp")
+;; Code
+(loadrt #p"rt-code.lisp");
 ;; finish
 (format t "~&OK.~%")
 
