@@ -87,6 +87,7 @@ enum TypeTable {
 	TypeTable_Quote,
 	TypeTable_ByteSpec,
 	TypeTable_PrintDispatch,
+	TypeTable_Eval,
 
 	/* Condition */
 	TypeTable_ArithmeticError,

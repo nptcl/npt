@@ -12,6 +12,9 @@ enum EvalCode_Mode {
 };
 
 _g enum EvalCode_Mode evalcode_mode(addr code);
+_g int evalcode_setp(addr code);
+_g int evalcode_pushp(addr code);
+_g int evalcode_remp(addr code);
 
 _g void evalcode_single(LocalRoot, addr, constindex);
 _g void evalcode_carcdr(LocalRoot, addr, constindex, addr);
@@ -21,6 +24,11 @@ _g void evalcode_push3(LocalRoot, addr, constindex, addr, addr, addr);
 #define EvalCode_carcdr(a,b,c,d) evalcode_carcdr(a,b,CONSTANT_CODE_##c,d)
 #define EvalCode_double(a,b,c,d,e) evalcode_double(a,b,CONSTANT_CODE_##c,d,e)
 #define EvalCode_push3(a,b,c,d,e,f) evalcode_push3(a,b,CONSTANT_CODE_##c,d,e,f)
+
+_g void evalcode_if_push(LocalRoot local, addr code);
+
+_g void evalcode_pushstack_return(LocalRoot local, addr code);
+_g void evalcode_popstack(LocalRoot local, addr code, addr *ret);
 
 _g void eval_code_execute_set(LocalRoot local, addr code, addr scope);
 _g void eval_code_execute_push(LocalRoot local, addr code, addr scope);

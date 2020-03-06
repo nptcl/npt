@@ -407,6 +407,11 @@ static void type_value_restart(addr *ret, addr value)
 	GetTypeTable(ret, Restart);
 }
 
+static void type_value_eval(addr *ret, addr value)
+{
+	GetTypeTable(ret, Eval);
+}
+
 _g void type_value_bitvector(addr *ret, addr value)
 {
 	addr arg;
@@ -487,7 +492,7 @@ _g void init_type_value(void)
 	TypeValueTable[LISPTYPE_PATHNAME] = type_value_pathname;
 	TypeValueTable[LISPTYPE_STREAM] = type_value_stream;
 	TypeValueTable[LISPTYPE_RESTART] = type_value_restart;
-	TypeValueTable[LISPTYPE_EVAL] = type_value_error;
+	TypeValueTable[LISPTYPE_EVAL] = type_value_eval;
 	TypeValueTable[LISPTYPE_ENVIRONMENT] = type_value_environment;
 	TypeValueTable[LISPTYPE_BITVECTOR] = type_value_bitvector;
 	TypeValueTable[LISPTYPE_QUOTE] = type_value_quote;

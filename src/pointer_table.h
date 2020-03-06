@@ -116,10 +116,16 @@ enum pointer_index {
 	p_nth_value_code,
 	p_progv_code,
 	/* optimize */
+	p_optcode_result_type,
 	p_optcode_car0_set,
 	p_optcode_car0_push,
 	p_optcode_car1_set,
 	p_optcode_car1_push,
+	p_optcode_cdr0_set,
+	p_optcode_cdr0_push,
+	p_optcode_cdr1_set,
+	p_optcode_cdr1_push,
+	p_optcode_cons,
 	/* common-eval */
 	p_defmacro_lambda,
 	p_defun_compile,

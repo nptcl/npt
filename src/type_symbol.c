@@ -90,6 +90,7 @@ _g void build_type_symbol(void)
 	DefSymbolType(SYSTEM_QUOTE,                Quote               );
 	DefSymbolType(SYSTEM_BYTESPEC,             ByteSpec            );
 	DefSymbolType(SYSTEM_PRINT_DISPATCH,       PrintDispatch       );
+	DefSymbolType(SYSTEM_EVAL,                 Eval                );
 }
 
 
@@ -188,6 +189,7 @@ _g void init_type_symbol(void)
 	DefTypeSymbol(QUOTE,                SYSTEM_QUOTE                );
 	DefTypeSymbol(BYTESPEC,             SYSTEM_BYTESPEC             );
 	DefTypeSymbol(PRINT_DISPATCH,       SYSTEM_PRINT_DISPATCH       );
+	DefTypeSymbol(EVAL,                 SYSTEM_EVAL                 );
 }
 
 

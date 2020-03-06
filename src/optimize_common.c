@@ -32,23 +32,38 @@ static int optimize_common_p(addr scope)
 
 
 /*
+ *  result-type
+ */
+static void optcode_result_type(Execute ptr, addr type)
+{
+	int check;
+	addr pos;
+
+	getresult_control(ptr, &pos);
+	Return0(typep_clang(ptr, pos, type, &check));
+	if (! check)
+		type_error(pos, type);
+}
+
+
+/*
  *  car
  */
-_g void optcode_car0_set(Execute ptr, addr pos)
+static void optcode_car0_set(Execute ptr, addr pos)
 {
 	getresult_control(ptr, &pos);
 	GetCar(pos, &pos);
 	setresult_control(ptr, pos);
 }
 
-_g void optcode_car0_push(Execute ptr, addr pos)
+static void optcode_car0_push(Execute ptr, addr pos)
 {
 	getresult_control(ptr, &pos);
 	GetCar(pos, &pos);
 	pushargs_control(ptr, pos);
 }
 
-_g void optcode_car1_set(Execute ptr, addr type)
+static void optcode_car1_set(Execute ptr, addr type)
 {
 	int check;
 	addr pos;
@@ -61,7 +76,7 @@ _g void optcode_car1_set(Execute ptr, addr type)
 	setresult_control(ptr, pos);
 }
 
-_g void optcode_car1_push(Execute ptr, addr type)
+static void optcode_car1_push(Execute ptr, addr type)
 {
 	int check;
 	addr pos;
@@ -78,8 +93,22 @@ static int optimize_common_car0(LocalRoot local, addr code, addr pos)
 {
 	/* no check */
 	getvalue_tablecall(pos, &pos);
-	eval_code_execute_set(local, code, pos);
-	EvalCode_single_sp(local, code, CAR0_SET, CAR0_PUSH);
+	switch (evalcode_mode(code)) {
+		case EvalCode_ModeSet:
+			eval_code_execute_set(local, code, pos);
+			EvalCode_single(local, code, CAR0_SET);
+			break;
+
+		case EvalCode_ModePush:
+			eval_code_execute_set(local, code, pos);
+			EvalCode_single(local, code, CAR0_PUSH);
+			break;
+
+		case EvalCode_ModeRemove:
+		default:
+			eval_code_execute_rem(local, code, pos);
+			break;
+	}
 
 	return 1;
 }
@@ -92,7 +121,20 @@ static int optimize_common_car1(LocalRoot local, addr code, addr pos)
 	gettype_tablecall(pos, &type);
 	getvalue_tablecall(pos, &pos);
 	eval_code_execute_set(local, code, pos);
-	EvalCode_carcdr_sp(local, code, CAR1_SET, CAR1_PUSH, type);
+	switch (evalcode_mode(code)) {
+		case EvalCode_ModeSet:
+			EvalCode_carcdr(local, code, CAR1_SET, type);
+			break;
+
+		case EvalCode_ModePush:
+			EvalCode_carcdr(local, code, CAR1_PUSH, type);
+			break;
+
+		case EvalCode_ModeRemove:
+		default:
+			EvalCode_carcdr(local, code, RESULT_TYPE, type);
+			break;
+	}
 
 	return 1;
 }
@@ -114,6 +156,188 @@ static int optimize_common_car(LocalRoot local, addr code, addr scope)
 		return optimize_common_car0(local, code, pos);
 	else
 		return optimize_common_car1(local, code, pos);
+}
+
+
+/*
+ *  cdr
+ */
+static void optcode_cdr0_set(Execute ptr, addr pos)
+{
+	getresult_control(ptr, &pos);
+	GetCdr(pos, &pos);
+	setresult_control(ptr, pos);
+}
+
+static void optcode_cdr0_push(Execute ptr, addr pos)
+{
+	getresult_control(ptr, &pos);
+	GetCdr(pos, &pos);
+	pushargs_control(ptr, pos);
+}
+
+static void optcode_cdr1_set(Execute ptr, addr type)
+{
+	int check;
+	addr pos;
+
+	getresult_control(ptr, &pos);
+	Return0(typep_clang(ptr, pos, type, &check));
+	if (! check)
+		type_error(pos, type);
+	GetCdr(pos, &pos);
+	setresult_control(ptr, pos);
+}
+
+static void optcode_cdr1_push(Execute ptr, addr type)
+{
+	int check;
+	addr pos;
+
+	getresult_control(ptr, &pos);
+	Return0(typep_clang(ptr, pos, type, &check));
+	if (! check)
+		type_error(pos, type);
+	GetCdr(pos, &pos);
+	pushargs_control(ptr, pos);
+}
+
+static int optimize_common_cdr0(LocalRoot local, addr code, addr pos)
+{
+	/* no check */
+	getvalue_tablecall(pos, &pos);
+	switch (evalcode_mode(code)) {
+		case EvalCode_ModeSet:
+			eval_code_execute_set(local, code, pos);
+			EvalCode_single(local, code, CDR0_SET);
+			break;
+
+		case EvalCode_ModePush:
+			eval_code_execute_set(local, code, pos);
+			EvalCode_single(local, code, CDR0_PUSH);
+			break;
+
+		case EvalCode_ModeRemove:
+		default:
+			eval_code_execute_rem(local, code, pos);
+			break;
+	}
+
+	return 1;
+}
+
+static int optimize_common_cdr1(LocalRoot local, addr code, addr pos)
+{
+	addr type;
+
+	/* type check */
+	gettype_tablecall(pos, &type);
+	getvalue_tablecall(pos, &pos);
+	eval_code_execute_set(local, code, pos);
+	switch (evalcode_mode(code)) {
+		case EvalCode_ModeSet:
+			EvalCode_carcdr(local, code, CDR1_SET, type);
+			break;
+
+		case EvalCode_ModePush:
+			EvalCode_carcdr(local, code, CDR1_PUSH, type);
+			break;
+
+		case EvalCode_ModeRemove:
+		default:
+			EvalCode_carcdr(local, code, RESULT_TYPE, type);
+			break;
+	}
+
+	return 1;
+}
+
+static int optimize_common_cdr(LocalRoot local, addr code, addr scope)
+{
+	addr args, pos;
+
+	if (! optimize_common_p(scope))
+		return 0;
+	/* first argument */
+	GetEvalScopeIndex(scope, 1, &args);
+	if (! consp_getcons(args, &pos, &args))
+		return 0;
+	if (args != Nil)
+		return 0;
+	Check(! eval_tablecall_p(pos), "type error");
+	if (! getcheck_tablecall(pos))
+		return optimize_common_cdr0(local, code, pos);
+	else
+		return optimize_common_cdr1(local, code, pos);
+}
+
+
+/*
+ *  cons
+ */
+static void optcode_cons(Execute ptr, addr list)
+{
+	addr car, cdr;
+
+	getargs_list_control_unsafe(ptr, 0, &list);
+	GetCons(list, &car, &list);
+	GetCar(list, &cdr);
+	cons_heap(&list, car, cdr);
+	setresult_control(ptr, list);
+}
+
+static int optimize_common_cons0(LocalRoot local, addr code, addr car, addr cdr)
+{
+	addr pos;
+
+	getvalue_tablecall(car, &car);
+	getvalue_tablecall(cdr, &cdr);
+	/* return begin */
+	evalcode_pushstack_return(local, code);
+	eval_code_execute_push(local, code, car);
+	eval_code_execute_push(local, code, cdr);
+	/* cons */
+	EvalCode_single(local, code, CONS);
+	/* return end */
+	evalcode_popstack(local, code, &pos);
+	EvalCode_carcdr(local, code, EXECUTE, pos);
+	evalcode_if_push(local, code);
+
+	return 1;
+}
+
+static int optimize_common_cons_rem(LocalRoot local, addr code, addr car, addr cdr)
+{
+	getvalue_tablecall(car, &car);
+	getvalue_tablecall(cdr, &cdr);
+	eval_code_execute(local, code, car);
+	eval_code_execute(local, code, cdr);
+
+	return 1;
+}
+
+static int optimize_common_cons(LocalRoot local, addr code, addr scope)
+{
+	addr args, car, cdr;
+
+	if (! optimize_common_p(scope))
+		return 0;
+	/* first argument */
+	GetEvalScopeIndex(scope, 1, &args);
+	if (! consp_getcons(args, &car, &args))
+		return 0;
+	if (args == Nil)
+		return 0;
+	if (! consp_getcons(args, &cdr, &args))
+		return 0;
+	if (args != Nil)
+		return 0;
+	Check(! eval_tablecall_p(car), "type error");
+	Check(! eval_tablecall_p(cdr), "type error");
+	if (! evalcode_remp(code))
+		return optimize_common_cons0(local, code, car, cdr);
+	else
+		return optimize_common_cons_rem(local, code, car, cdr);
 }
 
 
@@ -141,6 +365,14 @@ _g int optimize_common(LocalRoot local, addr code, addr scope)
 	GetConst(COMMON_CAR, &check);
 	if (symbol == check)
 		return optimize_common_car(local, code, scope);
+	/* cdr */
+	GetConst(COMMON_CDR, &check);
+	if (symbol == check)
+		return optimize_common_cdr(local, code, scope);
+	/* cons */
+	GetConst(COMMON_CONS, &check);
+	if (symbol == check)
+		return optimize_common_cons(local, code, scope);
 
 	return 0;
 }
@@ -233,17 +465,29 @@ _g int optimize_check_code(LocalRoot local, addr code, addr scope)
 #define SetPointer_common(x) SetPointer_code(p_##x, x)
 _g void init_optimize_common(void)
 {
+	SetPointer_common(optcode_result_type);
 	SetPointer_common(optcode_car0_set);
 	SetPointer_common(optcode_car0_push);
 	SetPointer_common(optcode_car1_set);
 	SetPointer_common(optcode_car1_push);
+	SetPointer_common(optcode_cdr0_set);
+	SetPointer_common(optcode_cdr0_push);
+	SetPointer_common(optcode_cdr1_set);
+	SetPointer_common(optcode_cdr1_push);
+	SetPointer_common(optcode_cons);
 }
 
 _g void build_optimize_common(void)
 {
+	defcode_constant(CONSTANT_CODE_RESULT_TYPE, p_optcode_result_type);
 	defcode_constant(CONSTANT_CODE_CAR0_SET, p_optcode_car0_set);
 	defcode_constant(CONSTANT_CODE_CAR0_PUSH, p_optcode_car0_push);
 	defcode_constant(CONSTANT_CODE_CAR1_SET, p_optcode_car1_set);
 	defcode_constant(CONSTANT_CODE_CAR1_PUSH, p_optcode_car1_push);
+	defcode_constant(CONSTANT_CODE_CDR0_SET, p_optcode_cdr0_set);
+	defcode_constant(CONSTANT_CODE_CDR0_PUSH, p_optcode_cdr0_push);
+	defcode_constant(CONSTANT_CODE_CDR1_SET, p_optcode_cdr1_set);
+	defcode_constant(CONSTANT_CODE_CDR1_PUSH, p_optcode_cdr1_push);
+	defcode_constant(CONSTANT_CODE_CONS, p_optcode_cons);
 }
 

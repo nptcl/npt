@@ -1718,10 +1718,16 @@ lisp-code::progv
 ;;
 ;;  optimize
 ;;
-lisp-code::car0set
-lisp-code::car0push
-lisp-code::car1set
-lisp-code::car1push
+lisp-code::result-type
+lisp-code::car0-set
+lisp-code::car0-push
+lisp-code::car1-set
+lisp-code::car1-push
+lisp-code::cdr0-set
+lisp-code::cdr0-push
+lisp-code::cdr1-set
+lisp-code::cdr1-push
+lisp-code::cons
 
 
 ;;

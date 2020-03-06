@@ -10,17 +10,17 @@
 ;;
 ;;  load
 ;;
-#+lisp-degrade
+#+rt-degrade
 (deftest *load-pathname*.1
   #.*load-pathname*
   nil)
 
-#+lisp-degrade
+#+rt-degrade
 (deftest *load-truename*.1
   #.*load-truename*
   nil)
 
-#-lisp-degrade
+#-rt-degrade
 (deftest *load-pathname*.1
   (let ((x #.*load-pathname*))
     (values
@@ -28,7 +28,7 @@
       (pathname-type x)))
   "rt-system" "lisp")
 
-#-lisp-degrade
+#-rt-degrade
 (deftest *load-truename*.1
   (let ((x #.*load-truename*))
     (values

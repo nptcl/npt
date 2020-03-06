@@ -1299,6 +1299,12 @@ static int typep_print_dispatch(Execute ptr, addr value, addr type, int *ret)
 	return 0;
 }
 
+static int typep_eval(Execute ptr, addr value, addr type, int *ret)
+{
+	*ret = (GetType(value) == LISPTYPE_EVAL);
+	return 0;
+}
+
 
 /*
  *  typep-clang
@@ -1398,6 +1404,7 @@ _g void init_type_typep(void)
 	TypeTypep[LISPDECL_PRETTY_STREAM] = typep_pretty_stream;
 	TypeTypep[LISPDECL_BYTESPEC] = typep_byte;
 	TypeTypep[LISPDECL_PRINT_DISPATCH] = typep_print_dispatch;
+	TypeTypep[LISPDECL_EVAL] = typep_eval;
 }
 
 static int typep_call(Execute ptr, addr value, addr type, int asterisk, int *ret)

@@ -401,7 +401,7 @@ static int test_code_list(void)
 	RETURN;
 }
 
-static int test_if_push_result(void)
+static int test_evalcode_if_push(void)
 {
 	addr pos, value, check;
 	LocalRoot local;
@@ -412,20 +412,20 @@ static int test_if_push_result(void)
 	evalcode_local(local, &pos);
 
 	StructEvalCode(pos)->mode = EvalCode_ModeSet;
-	if_push_result(local, pos);
+	evalcode_if_push(local, pos);
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(check == Nil, "if_push_result1");
+	test(check == Nil, "evalcode_if_push1");
 
 	StructEvalCode(pos)->mode = EvalCode_ModePush;
-	if_push_result(local, pos);
+	evalcode_if_push(local, pos);
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(singlep(check), "if_push_result2");
+	test(singlep(check), "evalcode_if_push2");
 	GetCar(check, &check);
 	GetCar(check, &check);
 	internchar(LISP_CODE, "PUSH-RESULT", &value);
-	test(check == value, "if_push_result3");
+	test(check == value, "evalcode_if_push3");
 
 	rollback_local(local, stack);
 
@@ -725,7 +725,7 @@ static int test_popstack_code(void)
 	RETURN;
 }
 
-static int test_popstack(void)
+static int test_evalcode_popstack(void)
 {
 	addr pos, code, check;
 	LocalRoot local;
@@ -743,13 +743,13 @@ static int test_popstack(void)
 	evalcode_single(local, pos, CONSTANT_CODE_END);
 	evalcode_single(local, pos, CONSTANT_CODE_END);
 
-	popstack(local, pos, &code);
-	test(GetType(code) == LISPTYPE_CODE, "popstack1");
+	evalcode_popstack(local, pos, &code);
+	test(GetType(code) == LISPTYPE_CODE, "evalcode_popstack1");
 	getargs_code(code, &code);
-	test(lenarrayr(code) == 4, "popstack2");
+	test(lenarrayr(code) == 4, "evalcode_popstack2");
 
 	GetEvalCode(pos, EvalCode_Code, &pos);
-	test(pos == check, "popstack3");
+	test(pos == check, "evalcode_popstack3");
 
 	rollback_local(local, stack);
 
@@ -926,7 +926,7 @@ static void codechar_call(addr *ret, const char *str,
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	call(local, code, pos);
-	popstack(local, code, ret);
+	evalcode_popstack(local, code, ret);
 
 	rollback_local(local, stack);
 }
@@ -2157,7 +2157,7 @@ static int testbreak_eval_code(void)
 	TestBreak(test_code_leftright);
 	TestBreak(test_code_double);
 	TestBreak(test_code_list);
-	TestBreak(test_if_push_result);
+	TestBreak(test_evalcode_if_push);
 	/* stack */
 	TestBreak(test_pushstack);
 	TestBreak(test_stack_goto_p);
@@ -2168,7 +2168,7 @@ static int testbreak_eval_code(void)
 	TestBreak(test_stack_replace_goto);
 	TestBreak(test_stack_makecode);
 	TestBreak(test_popstack_code);
-	TestBreak(test_popstack);
+	TestBreak(test_evalcode_popstack);
 	/* label */
 	TestBreak(test_make_label);
 	TestBreak(test_push_label);

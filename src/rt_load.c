@@ -132,9 +132,9 @@ static void loadrt_nicknames(void)
 	loadrt_nickname(LISP_CLOS, "LISP-CLOS");
 	loadrt_nickname(LISP_RT, "LISP-RT");
 
-	/* push :lisp-degrade */
+	/* push :rt-degrade */
 	GetConst(SPECIAL_FEATURES, &symbol);
-	internchar_keyword("LISP-DEGRADE", &keyword);
+	internchar_keyword("RT-DEGRADE", &keyword);
 	GetValueSymbol(symbol, &cons);
 	Check(find_list_eq_unsafe(keyword, cons), "push error");
 	cons_heap(&cons, keyword, cons);

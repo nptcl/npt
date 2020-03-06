@@ -116,6 +116,7 @@ DefTypeTable(0,  PRETTY_STREAM,        PrettyStream         );
 DefTypeTable(0,  QUOTE,                Quote                );
 DefTypeTable(0,  BYTESPEC,             ByteSpec             );
 DefTypeTable(0,  PRINT_DISPATCH,       PrintDispatch        );
+DefTypeTable(0,  EVAL,                 Eval                 );
 
 static void typetable_Nil(void)
 {
@@ -2895,6 +2896,7 @@ _g void build_type_constant(void)
 	typetable_Quote();
 	typetable_ByteSpec();
 	typetable_PrintDispatch();
+	typetable_Eval();
 
 	/* Condition */
 	typetable_ArithmeticError();
