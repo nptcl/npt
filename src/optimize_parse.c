@@ -5,6 +5,7 @@
 #include "eval_copy.h"
 #include "function.h"
 #include "optimize.h"
+#include "strtype.h"
 #include "type_optimize.h"
 
 static int checkparse_all(struct optimize_struct *str);
@@ -41,7 +42,7 @@ static int optparse_inplace(struct optimize_struct *str, addr pos, addr *ret)
 /*
  *  optimize-check
  */
-/* (lisp-system::optimize-check type) -> 0 / 1 */
+/* (lisp-system::optimize-check parse) -> 0 / 1 */
 static int checkparse_optimize_check(struct optimize_struct *str, addr *ret)
 {
 	addr call, left, right;
@@ -51,35 +52,37 @@ static int checkparse_optimize_check(struct optimize_struct *str, addr *ret)
 	if (! optimize_evaltype(call, EVAL_PARSE_CALL))
 		return 0;
 	GetEvalParse(call, 0, &left);
-	/* symbol */
+	/* function */
 	if (! optimize_evaltype(left, EVAL_PARSE_FUNCTION))
 		return 0;
+	/* function name */
 	GetEvalParse(left, 0, &left);
-	/* optimize-check */
 	GetCallName(left, &left);
 	GetConst(SYSTEM_OPTIMIZE_CHECK, &right);
 	if (left != right)
 		return 0;
+	/* argument */
+	GetEvalParse(call, 1, &right);
+	if (! consp_getcons(right, &left, &right))
+		return 0;
+	/* PARSE */
+	if (! optimize_evaltype(left, EVAL_PARSE_SYMBOL))
+		return 0;
+	GetEvalParse(left, 0, &left);
+	if (! string_designer_equal_char(left, "PARSE"))
+		return 0;
 	/* result */
-	GetEvalParse(call, 1, ret);
+	*ret = right;
 	return 1;
 }
 
 static int checkparse_check1(struct optimize_struct *str)
 {
-	addr list, pos, check;
+	addr list;
 
 	if (! checkparse_optimize_check(str, &list))
 		return 0;
-	if (! consp_getcons(list, &pos, &list))
-		return 0;
-	if (list != Nil)
-		return 0;
-	if (! optimize_evaltype(pos, EVAL_PARSE_SYMBOL))
-		return 0;
-	GetEvalParse(pos, 0, &pos);
-	GetConst(COMMON_TYPE, &check);
-	return pos == check;
+	return list == Nil;
 }
 
 static int optparse_check1(struct optimize_struct *str)
@@ -94,10 +97,70 @@ static int optparse_check1(struct optimize_struct *str)
 	return 1;
 }
 
+/* (lisp-system::optimize-check parse list) -> (...) */
+static int checkparse_check2(struct optimize_struct *str)
+{
+	addr list, pos;
+
+	if (! checkparse_optimize_check(str, &list))
+		return 0;
+	if (list == Nil)
+		return 0;
+	if (! consp_getcons(list, &pos, &list))
+		return 0;
+	if (list != Nil)
+		return 0;
+	if (! optimize_evaltype(pos, EVAL_PARSE_SYMBOL))
+		return 0;
+	GetEvalParse(pos, 0, &pos);
+	return string_designer_equal_char(pos, "LIST");
+}
+
+static int optparse_check2(struct optimize_struct *str)
+{
+	addr symbol, value, list;
+
+	if (! checkparse_check2(str))
+		return 0;
+
+	list = Nil;
+	/* compilation-speed */
+	GetConst(COMMON_COMPILATION_SPEED, &symbol);
+	fixnum_heap(&value, (fixnum)optimize_declare_value(str, EVAL_OPTIMIZE_COMPILATION));
+	cons_heap(&value, symbol, value);
+	cons_heap(&list, value, list);
+	/* debug */
+	GetConst(COMMON_DEBUG, &symbol);
+	fixnum_heap(&value, (fixnum)optimize_declare_value(str, EVAL_OPTIMIZE_DEBUG));
+	cons_heap(&value, symbol, value);
+	cons_heap(&list, value, list);
+	/* safety */
+	GetConst(COMMON_SAFETY, &symbol);
+	fixnum_heap(&value, (fixnum)optimize_declare_value(str, EVAL_OPTIMIZE_SAFETY));
+	cons_heap(&value, symbol, value);
+	cons_heap(&list, value, list);
+	/* space */
+	GetConst(COMMON_SPACE, &symbol);
+	fixnum_heap(&value, (fixnum)optimize_declare_value(str, EVAL_OPTIMIZE_SPACE));
+	cons_heap(&value, symbol, value);
+	cons_heap(&list, value, list);
+	/* speed */
+	GetConst(COMMON_SPEED, &symbol);
+	fixnum_heap(&value, (fixnum)optimize_declare_value(str, EVAL_OPTIMIZE_SPEED));
+	cons_heap(&value, symbol, value);
+	cons_heap(&list, value, list);
+	/* quote */
+	eval_single_parse_heap(&list, EVAL_PARSE_QUOTE, list);
+	str->pos = list;
+
+	return 1;
+}
+
 /* optparse-check */
 static int checkparse_check(struct optimize_struct *str)
 {
-	return checkparse_check1(str);
+	return checkparse_check1(str)
+		|| checkparse_check2(str);
 }
 
 static int optparse_run(struct optimize_struct *str,
@@ -130,6 +193,7 @@ static int optparse_run(struct optimize_struct *str,
 static void optparse_check_run(struct optimize_struct *str)
 {
 	optimize_extract(str, optparse_check1);
+	optimize_extract(str, optparse_check2);
 }
 static int optparse_check(struct optimize_struct *str)
 {

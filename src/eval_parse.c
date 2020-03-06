@@ -1903,25 +1903,6 @@ error:
 	return 1;
 }
 
-/* declare-scope */
-static int parse_declare_scope(Execute ptr, addr *ret, addr form)
-{
-	addr symbol, check;
-
-	/* (system::declare-scope symbol) -> integer */
-	if (! consp_getcons(form, &symbol, &check)) goto error;
-	if (! symbolp(symbol)) goto error;
-	if (check != Nil) goto error;
-
-	/* eval */
-	eval_single_parse_heap(ret, EVAL_PARSE_DECLARE_SCOPE, symbol);
-	return 0;
-
-error:
-	fmte("The form ~S must be (declare-scope symbol).", form, NULL);
-	return 1;
-}
-
 
 /*
  *  macro
@@ -2214,9 +2195,6 @@ static int parse_cons_car(Execute ptr, addr *ret, addr cons)
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_PROGV)) {
 		return parse_progv(ptr, ret, args);
-	}
-	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DECLARE_SCOPE)) {
-		return parse_declare_scope(ptr, ret, args);
 	}
 	if (parse_cons_check_macro(ptr, call, &call)) {
 		return parse_macro(ptr, ret, call, cons);

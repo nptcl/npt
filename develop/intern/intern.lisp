@@ -1476,7 +1476,6 @@ lisp-system::setf-compiler-macro-function
 lisp-system::compile-warning
 lisp-system::compile-style-warning
 lisp-system::nth-value
-lisp-system::declare-scope
 (lisp-system::optimize-check :export t)
 
 
@@ -1714,6 +1713,15 @@ lisp-code::multiple-value-bind
 lisp-code::funcall
 lisp-code::nth-value
 lisp-code::progv
+
+
+;;
+;;  optimize
+;;
+lisp-code::car0set
+lisp-code::car0push
+lisp-code::car1set
+lisp-code::car1push
 
 
 ;;

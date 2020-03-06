@@ -297,6 +297,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_random.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname.c" />
@@ -462,6 +463,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_scope.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_stack.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_control.h" />
@@ -524,6 +526,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_random.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package.h" />

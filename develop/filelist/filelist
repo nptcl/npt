@@ -152,6 +152,7 @@ number_isqrt.c
 number_random.c
 object.c
 optimize.c
+optimize_common.c
 optimize_parse.c
 package.c
 pathname.c

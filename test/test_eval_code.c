@@ -183,7 +183,7 @@ static int test_evalcode_mode(void)
 	RETURN;
 }
 
-static int test_save_modeswitch(void)
+static int test_evalcode_save(void)
 {
 	addr pos;
 	LocalRoot local;
@@ -196,21 +196,21 @@ static int test_save_modeswitch(void)
 	evalcode_local(local, &pos);
 	str = StructEvalCode(pos);
 	str->mode = EvalCode_ModeSet;
-	save_modeswitch(pos, &mode);
+	evalcode_save(pos, &mode);
 	str->mode = EvalCode_ModePush;
-	rollback_modeswitch(pos, &mode);
-	test(str->mode == EvalCode_ModeSet, "save_modeswitch1");
+	evalcode_rollback(pos, &mode);
+	test(str->mode == EvalCode_ModeSet, "evalcode_save1");
 
 	str->mode = EvalCode_ModeRemove;
-	set_modeswitch(pos, &mode);
-	test(str->mode == EvalCode_ModeSet, "set_modeswitch1");
-	rollback_modeswitch(pos, &mode);
-	test(str->mode == EvalCode_ModeRemove, "set_modeswitch2");
+	evalcode_setmode(pos, &mode);
+	test(str->mode == EvalCode_ModeSet, "evalcode_setmode1");
+	evalcode_rollback(pos, &mode);
+	test(str->mode == EvalCode_ModeRemove, "evalcode_setmode2");
 
 	str->mode = EvalCode_ModeSet;
-	rem_modeswitch(pos, &mode);
+	evalcode_remmode(pos, &mode);
 	test(str->mode == EvalCode_ModeRemove, "remove_modeswitch1");
-	rollback_modeswitch(pos, &mode);
+	evalcode_rollback(pos, &mode);
 	test(str->mode == EvalCode_ModeSet, "remove_modeswitch2");
 
 	rollback_local(local, stack);
@@ -296,7 +296,7 @@ static int test_pushlist_eval(void)
 	RETURN;
 }
 
-static int test_code_single(void)
+static int test_evalcode_single(void)
 {
 	addr pos, value;
 	LocalRoot local;
@@ -306,14 +306,14 @@ static int test_code_single(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	code_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
 	GetEvalCode(pos, EvalCode_Code, &pos);
 	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
 	GetCar(pos, &pos);
-	test(length_list_unsafe(pos) == 1, "code_single1");
+	test(length_list_unsafe(pos) == 1, "evalcode_single1");
 	GetCons(pos, &value, &pos);
 	GetConst(CODE_END, &pos);
-	test(value == pos, "code_single2");
+	test(value == pos, "evalcode_single2");
 
 	rollback_local(local, stack);
 
@@ -330,7 +330,7 @@ static int test_code_leftright(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	code_leftright(local, pos, CONSTANT_CODE_END, fixnum_heapr(10));
+	evalcode_carcdr(local, pos, CONSTANT_CODE_END, fixnum_heapr(10));
 	GetEvalCode(pos, EvalCode_Code, &pos);
 	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
 	GetCar(pos, &pos);
@@ -355,7 +355,7 @@ static int test_code_double(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	code_double(local, pos, CONSTANT_CODE_END, fixnum_heapr(10), fixnum_heapr(20));
+	evalcode_double(local, pos, CONSTANT_CODE_END, fixnum_heapr(10), fixnum_heapr(20));
 	GetEvalCode(pos, EvalCode_Code, &pos);
 	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
 	GetCar(pos, &pos);
@@ -448,9 +448,9 @@ static int test_pushstack(void)
 	evalcode_local(local, &pos);
 	str = StructEvalCode(pos);
 
-	code_single(local, pos, CONSTANT_CODE_END);
-	code_single(local, pos, CONSTANT_CODE_END);
-	code_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
 	test(str->size == 0, "pushstack1");
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
@@ -520,21 +520,21 @@ static int test_stack_label_p(void)
 static void testpushdata(LocalRoot local, addr pos)
 {
 	pushdata(local, pos, index_heapr(10));
-	code_leftright(local, pos, CONSTANT_CODE_GOTO, index_heapr(40));
-	code_single(local, pos, CONSTANT_CODE_END);
+	evalcode_carcdr(local, pos, CONSTANT_CODE_GOTO, index_heapr(40));
+	evalcode_single(local, pos, CONSTANT_CODE_END);
 	pushdata(local, pos, index_heapr(20));
 	pushdata(local, pos, index_heapr(30));
-	code_leftright(local, pos, CONSTANT_CODE_GOTO, index_heapr(10));
-	code_single(local, pos, CONSTANT_CODE_END);
-	code_single(local, pos, CONSTANT_CODE_END);
-	code_leftright(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(111));
-	code_single(local, pos, CONSTANT_CODE_END);
-	code_single(local, pos, CONSTANT_CODE_END);
-	code_leftright(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(222));
-	code_leftright(local, pos, CONSTANT_CODE_IF_NIL, index_heapr(50));
-	code_single(local, pos, CONSTANT_CODE_END);
+	evalcode_carcdr(local, pos, CONSTANT_CODE_GOTO, index_heapr(10));
+	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_carcdr(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(111));
+	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_carcdr(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(222));
+	evalcode_carcdr(local, pos, CONSTANT_CODE_IF_NIL, index_heapr(50));
+	evalcode_single(local, pos, CONSTANT_CODE_END);
 	pushdata(local, pos, index_heapr(40));
-	code_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
 	pushdata(local, pos, index_heapr(50));
 }
 
@@ -709,9 +709,9 @@ static int test_popstack_code(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	code_single(local, pos, CONSTANT_CODE_END);
-	code_single(local, pos, CONSTANT_CODE_END);
-	code_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
 
 	GetEvalCode(pos, EvalCode_Code, &check);
 	finish_evalcode_stack(local, check);
@@ -739,9 +739,9 @@ static int test_popstack(void)
 	pushstack(local, pos);
 	GetEvalCode(pos, EvalCode_Code, &check);
 	pushstack(local, pos);
-	code_single(local, pos, CONSTANT_CODE_END);
-	code_single(local, pos, CONSTANT_CODE_END);
-	code_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_END);
 
 	popstack(local, pos, &code);
 	test(GetType(code) == LISPTYPE_CODE, "popstack1");
@@ -932,15 +932,15 @@ static void codechar_call(addr *ret, const char *str,
 }
 static void codechar_set(addr *ret, const char *str)
 {
-	codechar_call(ret, str, code_execute_set);
+	codechar_call(ret, str, eval_code_execute_set);
 }
 static void codechar_push(addr *ret, const char *str)
 {
-	codechar_call(ret, str, code_execute_push);
+	codechar_call(ret, str, eval_code_execute_push);
 }
 static void codechar_rem(addr *ret, const char *str)
 {
-	codechar_call(ret, str, code_execute_rem);
+	codechar_call(ret, str, eval_code_execute_rem);
 }
 
 static int test_code_nil(void)
@@ -2052,7 +2052,7 @@ static int test_code_multiple_value_call(void)
 /*
  *  call
  */
-static int test_callconst_symbol_p(void)
+static int test_eval_code_specialize_symbol_p(void)
 {
 	addr control, pos;
 	Execute ptr;
@@ -2064,13 +2064,15 @@ static int test_callconst_symbol_p(void)
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	GetEvalScopeIndex(pos, 0, &pos);
-	test(! callconst_symbol_p(pos, CONSTANT_SYSTEM_HANDLER), "callconst_symbol_p1");
+	test(! eval_code_specialize_symbol_p(pos, CONSTANT_SYSTEM_HANDLER),
+			"eval_code_specialize_symbol_p1");
 
 	readstring(&pos, "(" LISP_SYSTEM "::handler 10 20 30)");
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	GetEvalScopeIndex(pos, 0, &pos);
-	test(callconst_symbol_p(pos, CONSTANT_SYSTEM_HANDLER), "callconst_symbol_p2");
+	test(eval_code_specialize_symbol_p(pos, CONSTANT_SYSTEM_HANDLER),
+			"eval_code_specialize_symbol_p2");
 
 	free_control(ptr, control);
 
@@ -2147,11 +2149,11 @@ static int testbreak_eval_code(void)
 	TestBreak(test_alloc_evalcode);
 	TestBreak(test_evalcode_local);
 	TestBreak(test_evalcode_mode);
-	TestBreak(test_save_modeswitch);
+	TestBreak(test_evalcode_save);
 	TestBreak(test_pushdata);
 	TestBreak(test_pushleftright);
 	TestBreak(test_pushlist_eval);
-	TestBreak(test_code_single);
+	TestBreak(test_evalcode_single);
 	TestBreak(test_code_leftright);
 	TestBreak(test_code_double);
 	TestBreak(test_code_list);
@@ -2204,7 +2206,7 @@ static int testbreak_eval_code(void)
 	TestBreak(test_code_catch);
 	TestBreak(test_code_multiple_value_call);
 	/* call */
-	TestBreak(test_callconst_symbol_p);
+	TestBreak(test_eval_code_specialize_symbol_p);
 	TestBreak(test_code_handler);
 	TestBreak(test_code_restart);
 	TestBreak(test_code_push_return);

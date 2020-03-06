@@ -19,6 +19,7 @@
 #include "integer.h"
 #include "number.h"
 #include "object.h"
+#include "optimize_common.h"
 #include "package.h"
 #include "restart.h"
 #include "sequence.h"
@@ -1187,7 +1188,7 @@ static void progv_code(Execute ptr, addr right)
 
 /* initcode */
 #define initcode(x) SetPointer_code(p_##x##_code, x##_code)
-_g void init_code(void)
+static void init_code_local(void)
 {
 	/* system */
 	initcode(hello);
@@ -1312,9 +1313,15 @@ _g void init_code(void)
 	initcode(progv);
 }
 
+_g void init_code(void)
+{
+	init_code_local();
+	init_optimize_common();
+}
+
 
 /* defcode */
-static void defcode_constant(constindex index, pointer p)
+_g void defcode_constant(constindex index, pointer p)
 {
 	addr symbol, pos;
 
@@ -1329,7 +1336,7 @@ static void defcode_constant(constindex index, pointer p)
 }
 
 #define defcode(x,y) defcode_constant(CONSTANT_CODE_##x, p_##y)
-_g void build_code(void)
+static void build_code_local(void)
 {
 	/* system */
 	defcode(HELLO, hello_code);
@@ -1452,6 +1459,12 @@ _g void build_code(void)
 	defcode(FUNCALL, funcall_code);
 	defcode(NTH_VALUE, nth_value_code);
 	defcode(PROGV, progv_code);
+}
+
+_g void build_code(void)
+{
+	build_code_local();
+	build_optimize_common();
 }
 
 

@@ -6,6 +6,7 @@
 #include "constant.h"
 #include "degrade.h"
 #include "eval.h"
+#include "eval_declare.h"
 #include "function.h"
 #include "object.h"
 #include "package.h"

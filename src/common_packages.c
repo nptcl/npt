@@ -6,6 +6,7 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "eval.h"
+#include "eval_declare.h"
 #include "integer.h"
 #include "number.h"
 #include "package.h"

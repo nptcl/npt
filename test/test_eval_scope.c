@@ -9,6 +9,7 @@
 #include "constant.h"
 #include "copy.h"
 #include "degrade.h"
+#include "eval_declare.h"
 #include "lambda.h"
 #include "ratio.h"
 #include "readtable.h"
@@ -29,11 +30,12 @@ static int test_eval_scope_heap(void)
 	addr pos;
 	size_t size;
 
-	eval_scope_heap(&pos, 0);
+	init_eval_stack(Execute_Thread);
+	eval_scope_heap(Execute_Thread, &pos, 0);
 	test(GetType(pos) == LISPTYPE_EVAL, "eval_scope_heap1");
 	test(RefEvalType(pos) == EVAL_TYPE_SCOPE, "eval_scope_heap2");
 
-	eval_scope_heap(&pos, 5);
+	eval_scope_heap(Execute_Thread, &pos, 5);
 	lenarray(pos, &size);
 	test(5 <= size, "eval_scope_heap3");
 
@@ -53,7 +55,7 @@ static int test_eval_scope_size(void)
 	readstring(&type, "integer");
 	test_parse_type(&type, type);
 	fixnum_heap(&value, 10);
-	eval_scope_size(&pos, 5, EVAL_PARSE_T, type, value);
+	eval_scope_size(Execute_Thread, &pos, 5, EVAL_PARSE_T, type, value);
 	test(RefEvalScopeType(pos) == EVAL_PARSE_T, "eval_scope_size1");
 	test(RefEvalScopeThe(pos) == type, "eval_scope_size2");
 	test(RefEvalScopeValue(pos) == value, "eval_scope_size3");
@@ -66,7 +68,7 @@ static int test_make_eval_scope(void)
 	addr pos, check;
 
 	GetTypeTable(&pos, T);
-	make_eval_scope(&pos, EVAL_PARSE_LET, pos, T);
+	make_eval_scope(Execute_Thread, &pos, EVAL_PARSE_LET, pos, T);
 	test(GetType(pos) == LISPTYPE_EVAL, "make_eval_scope1");
 	test(RefEvalType(pos) == EVAL_TYPE_SCOPE, "make_eval_scope2");
 	GetEvalScopeThe(pos, &check);
@@ -86,7 +88,7 @@ static int test_StructEvalScope(void)
 	readstring(&type, "integer");
 	test_parse_type(&type, type);
 	fixnum_heap(&value, 10);
-	eval_scope_size(&pos, 5, EVAL_PARSE_T, type, value);
+	eval_scope_size(Execute_Thread, &pos, 5, EVAL_PARSE_T, type, value);
 	str = StructEvalScope(pos);
 	test(str->type == EVAL_PARSE_T, "StructEvalScope1");
 
@@ -135,7 +137,7 @@ static int test_scope_nil(void)
 	addr eval, check;
 
 	parse_eval_string(&eval, "nil");
-	scope_nil(&eval, eval);
+	scope_nil(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_nil1");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_NIL, "scope_nil2");
 	GetEvalScopeThe(eval, &check);
@@ -151,7 +153,7 @@ static int test_scope_t(void)
 	addr eval, check;
 
 	parse_eval_string(&eval, "t");
-	scope_t(&eval, eval);
+	scope_t(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_t1");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_T, "scope_t2");
 	GetEvalScopeThe(eval, &check);
@@ -167,7 +169,7 @@ static int test_scope_integer(void)
 	addr eval, type, check;
 
 	parse_eval_string(&eval, "100");
-	scope_integer(&eval, eval);
+	scope_integer(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_integer1");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_INTEGER, "scope_integer2");
 	GetEvalScopeThe(eval, &type);
@@ -191,7 +193,7 @@ static int test_scope_rational(void)
 	addr eval, type, check;
 
 	parse_eval_string(&eval, "100");
-	scope_rational(&eval, eval);
+	scope_rational(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_rational1");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_RATIONAL, "scope_rational2");
 	GetEvalScopeThe(eval, &type);
@@ -215,7 +217,7 @@ static int test_scope_character(void)
 	addr eval, check;
 
 	parse_eval_string(&eval, "#\\a");
-	scope_character(&eval, eval);
+	scope_character(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_character1");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_CHARACTER, "scope_character2");
 	GetEvalScopeThe(eval, &check);
@@ -234,7 +236,7 @@ static int test_scope_array(void)
 	array_make_array(&eval, fixnumh(1), eval, Unbound, Unbound,
 			Nil, Nil, Nil, fixnumh(0));
 	eval_parse_execute(&eval, eval);
-	scope_array(&eval, eval);
+	scope_array(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_array1");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_ARRAY, "scope_array2");
 	GetEvalScopeThe(eval, &check);
@@ -250,7 +252,7 @@ static int test_scope_vector(void)
 	addr eval, check;
 
 	parse_eval_string(&eval, "#(10 20 30)");
-	scope_vector(&eval, eval);
+	scope_vector(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_vector1");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_VECTOR, "scope_vector2");
 	GetEvalScopeThe(eval, &check);
@@ -267,7 +269,7 @@ static int test_scope_string(void)
 
 	strvect_char_heap(&eval, "Hello");
 	eval_parse_execute(&eval, eval);
-	scope_string(&eval, eval);
+	scope_string(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_string1");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_STRING, "scope_string2");
 	GetEvalScopeThe(eval, &check);
@@ -278,7 +280,7 @@ static int test_scope_string(void)
 	strarray_char_heap(&eval, "Hello");
 	strarray_setc(eval, 3, 0xF0000000);
 	eval_parse_execute(&eval, eval);
-	scope_string(&eval, eval);
+	scope_string(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_string5");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_STRING, "scope_string6");
 	GetEvalScopeThe(eval, &check);
@@ -294,7 +296,7 @@ static int test_scope_float(void)
 	addr eval, check;
 
 	parse_eval_string(&eval, "10.2d0");
-	scope_float(&eval, eval);
+	scope_float(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_float1");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_FLOAT, "scope_float2");
 	GetEvalScopeThe(eval, &check);
@@ -311,7 +313,7 @@ static int test_scope_quote(void)
 
 	readstring(&symbol, "hello");
 	eval_parse_execute(&eval, symbol);
-	scope_quote(&eval, eval);
+	scope_quote(Execute_Thread, &eval, eval);
 	test(eval_scope_p(eval), "scope_quote1");
 	test(RefEvalScopeType(eval) == EVAL_PARSE_QUOTE, "scope_quote2");
 	GetEvalScopeThe(eval, &check);
@@ -1392,13 +1394,13 @@ static int test_checktype_value(void)
 
 	readstring(&type, "fixnum");
 	test_parse_type(&type, type);
-	make_eval_scope(&init, EVAL_PARSE_EMPTY, type, Nil);
+	make_eval_scope(Execute_Thread, &init, EVAL_PARSE_EMPTY, type, Nil);
 	checktype_value(value, init);
 	test(getcheck_tablevalue(value) == 0, "checktype_value1");
 
 	readstring(&type, "real");
 	test_parse_type(&type, type);
-	make_eval_scope(&init, EVAL_PARSE_EMPTY, type, Nil);
+	make_eval_scope(Execute_Thread, &init, EVAL_PARSE_EMPTY, type, Nil);
 	checktype_value(value, init);
 	test(getcheck_tablevalue(value), "checktype_value2");
 
@@ -2150,7 +2152,7 @@ static int test_scope_symbol(void)
 	RETURN;
 }
 
-static int test_setq_cons(void)
+static int test_scope_setq_cons(void)
 {
 	addr control, pos, value, cons, type, symbol, check, stack;
 	Execute ptr;
@@ -2161,35 +2163,35 @@ static int test_setq_cons(void)
 	push_close_control(ptr, &control);
 	init_eval_stack(ptr);
 
-	setq_cons(ptr, Nil, &cons, &type);
-	test(cons == Nil, "setq_cons1");
-	test(RefLispDecl(type) == LISPDECL_NULL, "setq_cons2");
+	scope_setq_cons(ptr, Nil, &cons, &type);
+	test(cons == Nil, "scope_setq_cons1");
+	test(RefLispDecl(type) == LISPDECL_NULL, "scope_setq_cons2");
 
 	readstring(&cons, "(setq aa 100 bb 200)");
 	eval_parse_execute(&cons, cons);
 	GetEvalParse(cons, 0, &cons);
-	setq_cons(ptr, cons, &cons, &type);
-	test(length_list_unsafe(cons) == 2, "setq_cons3");
-	test(RefLispDecl(type) == LISPDECL_INTEGER, "setq_cons4");
+	scope_setq_cons(ptr, cons, &cons, &type);
+	test(length_list_unsafe(cons) == 2, "scope_setq_cons3");
+	test(RefLispDecl(type) == LISPDECL_INTEGER, "scope_setq_cons4");
 	GetCons(cons, &pos, &cons);
 	GetCons(pos, &pos, &value);
-	test(eval_tablevalue_p(pos), "setq_cons5");
+	test(eval_tablevalue_p(pos), "scope_setq_cons5");
 	getname_tablevalue(pos, &symbol);
 	readstring(&check, "aa");
-	test(symbol == check, "setq_cons6");
-	test(! getcheck_tablevalue(pos), "setq_cons7");
+	test(symbol == check, "scope_setq_cons6");
+	test(! getcheck_tablevalue(pos), "scope_setq_cons7");
 	GetEvalScopeValue(value, &value);
-	test(RefFixnum(value) == 100, "setq_cons8");
+	test(RefFixnum(value) == 100, "scope_setq_cons8");
 
 	GetCons(cons, &pos, &cons);
 	GetCons(pos, &pos, &value);
-	test(eval_tablevalue_p(pos), "setq_cons9");
+	test(eval_tablevalue_p(pos), "scope_setq_cons9");
 	getname_tablevalue(pos, &symbol);
 	readstring(&check, "bb");
-	test(symbol == check, "setq_cons10");
-	test(! getcheck_tablevalue(pos), "setq_cons11");
+	test(symbol == check, "scope_setq_cons10");
+	test(! getcheck_tablevalue(pos), "scope_setq_cons11");
 	GetEvalScopeValue(value, &value);
-	test(RefFixnum(value) == 200, "setq_cons12");
+	test(RefFixnum(value) == 200, "scope_setq_cons12");
 
 	stack = newstack_nil(ptr);
 	readstring(&check, "cc");
@@ -2201,19 +2203,19 @@ static int test_setq_cons(void)
 	readstring(&cons, "(setq cc 300)");
 	eval_parse_execute(&cons, cons);
 	GetEvalParse(cons, 0, &cons);
-	setq_cons(ptr, cons, &cons, &type);
-	test(length_list_unsafe(cons) == 1, "setq_cons13");
-	test(RefLispDecl(type) == LISPDECL_INTEGER, "setq_cons14");
+	scope_setq_cons(ptr, cons, &cons, &type);
+	test(length_list_unsafe(cons) == 1, "scope_setq_cons13");
+	test(RefLispDecl(type) == LISPDECL_INTEGER, "scope_setq_cons14");
 
 	GetCons(cons, &pos, &cons);
 	GetCons(pos, &pos, &value);
-	test(eval_tablevalue_p(pos), "setq_cons15");
+	test(eval_tablevalue_p(pos), "scope_setq_cons15");
 	getname_tablevalue(pos, &symbol);
 	readstring(&check, "cc");
-	test(symbol == check, "setq_cons16");
-	test(getcheck_tablevalue(pos), "setq_cons17");
+	test(symbol == check, "scope_setq_cons16");
+	test(getcheck_tablevalue(pos), "scope_setq_cons17");
 	GetEvalScopeValue(value, &value);
-	test(RefFixnum(value) == 300, "setq_cons18");
+	test(RefFixnum(value) == 300, "scope_setq_cons18");
 
 	free_eval_stack(ptr);
 	free_control(ptr, control);
@@ -4116,11 +4118,12 @@ static int test_defun_the(void)
 	addr pos, eval, type, car, cdr, check;
 	struct lambda_struct str;
 
+	init_eval_stack(Execute_Thread);
 	init_lambda_struct(&str, EVAL_PARSE_DEFUN, 1);
 	readstring(&pos, "hello");
 	parse_callname_heap(&pos, pos);
 	str.call = pos;
-	eval_scope_size(&eval, EvalLambda_Size, EVAL_PARSE_EMPTY, Nil, Nil);
+	eval_scope_size(Execute_Thread, &eval, EvalLambda_Size, EVAL_PARSE_EMPTY, Nil, Nil);
 	defun_the(eval, &str);
 	GetEvalScopeThe(eval, &type);
 	test(RefLispDecl(type) == LISPDECL_SYMBOL, "defun_the1");
@@ -4129,7 +4132,7 @@ static int test_defun_the(void)
 	readstring(&pos, "(setf hello)");
 	parse_callname_heap(&pos, pos);
 	str.call = pos;
-	eval_scope_size(&eval, EvalLambda_Size, EVAL_PARSE_EMPTY, Nil, Nil);
+	eval_scope_size(Execute_Thread, &eval, EvalLambda_Size, EVAL_PARSE_EMPTY, Nil, Nil);
 	defun_the(eval, &str);
 	GetEvalScopeThe(eval, &type);
 	/* (cons (eql setf) (cons (eql hello) null)) */
@@ -4738,7 +4741,7 @@ static int test_checktype_function(void)
 
 	readstring(&type, "(function * *)");
 	test_parse_type(&type, type);
-	make_eval_scope(&init, EVAL_PARSE_EMPTY, type, Nil);
+	make_eval_scope(Execute_Thread, &init, EVAL_PARSE_EMPTY, type, Nil);
 	checktype_function(table, init);
 	test(1, "checktype_function1");
 
@@ -6632,7 +6635,7 @@ static int testbreak_eval_scope(void)
 	TestBreak(test_symbol_macrolet_p);
 	TestBreak(test_scope_symbol_replace);
 	TestBreak(test_scope_symbol);
-	TestBreak(test_setq_cons);
+	TestBreak(test_scope_setq_cons);
 	TestBreak(test_scope_setq);
 	/* function */
 	TestBreak(test_globalp_stack_tablefunction);

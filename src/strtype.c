@@ -973,6 +973,29 @@ _g int string_designer_equal(addr left, addr right)
 	return 0;
 }
 
+static int character_equal_char(addr left, const char *right)
+{
+	unicode a, b;
+
+	Check(! characterp(left), "type error");
+	b = right[0];
+	if (b == 0 || right[1] != 0)
+		return 0;
+	GetCharacter(left, &a);
+	return a == b;
+}
+
+_g int string_designer_equal_char(addr left, const char *right)
+{
+	if (symbolp(left))
+		GetNameSymbol(left, &left);
+	if (characterp(left))
+		return character_equal_char(left, right);
+	if (stringp(left))
+		return string_equal_char(left, right);
+	return 0;
+}
+
 _g int string_designer_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	if (stringp(pos)) {

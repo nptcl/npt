@@ -10,6 +10,7 @@
 #include "control.h"
 #include "degrade.h"
 #include "eval.h"
+#include "eval_declare.h"
 #include "file.h"
 #include "format.h"
 #include "gc.h"

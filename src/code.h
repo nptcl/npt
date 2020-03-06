@@ -2,6 +2,7 @@
 #define __CODE_HEADER__
 
 #include "build.h"
+#include "constant.h"
 #include "pointer.h"
 
 enum CodeType {
@@ -35,6 +36,8 @@ _g void getinfo_code(addr pos, addr *ret);
 _g void setinfo_code(addr pos, addr value);
 _g void syscall_code(LocalRoot local, addr *ret, pointer call, addr value);
 _g void catch_syscall_code(addr *ret, pointer call, addr tag, addr value);
+
+_g void defcode_constant(constindex index, pointer p);
 
 #endif
 

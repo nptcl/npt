@@ -96,6 +96,7 @@ _g int string_compare(addr left, addr right);
 _g int string_comparep(addr left, addr right);
 
 _g int string_designer_equal(addr left, addr right);
+_g int string_designer_equal_char(addr left, const char *right);
 _g int string_designer_alloc(LocalRoot local, addr *ret, addr pos);
 _g int string_designer_local(LocalRoot local, addr *ret, addr pos);
 _g int string_designer_heap(addr *ret, addr pos);

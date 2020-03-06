@@ -115,6 +115,11 @@ enum pointer_index {
 	p_funcall_code,
 	p_nth_value_code,
 	p_progv_code,
+	/* optimize */
+	p_optcode_car0_set,
+	p_optcode_car0_push,
+	p_optcode_car1_set,
+	p_optcode_car1_push,
 	/* common-eval */
 	p_defmacro_lambda,
 	p_defun_compile,

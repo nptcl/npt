@@ -6,6 +6,7 @@
 #include "common.h"
 #include "control.h"
 #include "degrade.h"
+#include "eval_declare.h"
 #include "function.h"
 #include "object.h"
 #include "print.h"

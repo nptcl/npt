@@ -3,6 +3,7 @@
 
 #include "eval.h"
 #include "eval_parse.h"
+#include "eval_declare.h"
 
 enum EVAL_SCOPE {
 	EVAL_SCOPE_THE,
@@ -35,6 +36,7 @@ enum EvalClosure_Index {
 
 struct eval_scope {
 	enum EVAL_PARSE type;
+	OptimizeType optimize[EVAL_OPTIMIZE_SIZE];
 };
 
 #define StructEvalScope_Low(x)			((struct eval_scope *)PtrEvalBodyAny(x))
@@ -96,6 +98,7 @@ _g void getevalscopeindex(addr pos, size_t size, addr *ret);
 _g void setevalscopeindex(addr pos, size_t size, addr value);
 
 _g int eval_scope(Execute ptr, addr *ret, addr eval);
+_g void init_eval_scope(void);
 
 #endif
 

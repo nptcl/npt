@@ -8,7 +8,8 @@ checkerr()
 	fi
 }
 
-npt="./release/npt"
+npt_pwd=$(cd ./release/; pwd);
+npt="${npt_pwd}/npt"
 
 [ -x ${npt} ]
 checkerr "npt error"
@@ -113,6 +114,13 @@ check="$(${npt} --script loadfile.lisp)"
 [ "${check}" = "HelloTest" ]
 checkerr "ERROR: npt --script"
 echo "OK: npt --script"
+
+
+## rt.lisp
+cd ../root/.
+checkerr "cd error"
+${npt} --script test/rt.lisp
+checkerr "npt error"
 
 
 ## result

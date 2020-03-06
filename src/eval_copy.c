@@ -974,6 +974,5 @@ _g void init_eval_copy(void)
 	EvalCopyTable[EVAL_PARSE_MULTIPLE_VALUE_PROG1] = copy_eval_multiple_value_prog1;
 	EvalCopyTable[EVAL_PARSE_NTH_VALUE] = copy_eval_nth_value;
 	EvalCopyTable[EVAL_PARSE_PROGV] = copy_eval_progv;
-	EvalCopyTable[EVAL_PARSE_DECLARE_SCOPE] = copy_eval_single;
 }
 

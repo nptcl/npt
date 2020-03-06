@@ -349,7 +349,7 @@ static int check_declaration_declare(addr pos, addr symbol)
 	return check_constant_declare(pos, symbol, EVAL_DECLARE_DECLARATION);
 }
 
-static OptimizeType get_index_optimize_declare(addr pos, enum EVAL_OPTIMIZE index)
+_g OptimizeType get_optimize_declare(addr pos, enum EVAL_OPTIMIZE index)
 {
 	Check(! eval_declare_p(pos), "type error");
 	return RefEvalDeclareOptimize(pos, index);
@@ -357,27 +357,27 @@ static OptimizeType get_index_optimize_declare(addr pos, enum EVAL_OPTIMIZE inde
 
 _g OptimizeType get_optimize_compilation_declare(addr pos)
 {
-	return get_index_optimize_declare(pos, EVAL_OPTIMIZE_COMPILATION);
+	return get_optimize_declare(pos, EVAL_OPTIMIZE_COMPILATION);
 }
 
 _g OptimizeType get_optimize_debug_declare(addr pos)
 {
-	return get_index_optimize_declare(pos, EVAL_OPTIMIZE_DEBUG);
+	return get_optimize_declare(pos, EVAL_OPTIMIZE_DEBUG);
 }
 
 _g OptimizeType get_optimize_safety_declare(addr pos)
 {
-	return get_index_optimize_declare(pos, EVAL_OPTIMIZE_SAFETY);
+	return get_optimize_declare(pos, EVAL_OPTIMIZE_SAFETY);
 }
 
 _g OptimizeType get_optimize_space_declare(addr pos)
 {
-	return get_index_optimize_declare(pos, EVAL_OPTIMIZE_SPACE);
+	return get_optimize_declare(pos, EVAL_OPTIMIZE_SPACE);
 }
 
 _g OptimizeType get_optimize_speed_declare(addr pos)
 {
-	return get_index_optimize_declare(pos, EVAL_OPTIMIZE_SPEED);
+	return get_optimize_declare(pos, EVAL_OPTIMIZE_SPEED);
 }
 
 

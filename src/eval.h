@@ -3,7 +3,7 @@
 
 #include "code.h"
 #include "memory.h"
-#include "eval_declare.h"
+#include "eval_typedef.h"
 #include "eval_main.h"
 
 enum EVAL_TYPE {
@@ -18,15 +18,6 @@ enum EVAL_TYPE {
 	EVAL_TYPE_TABLEBLOCK,
 	EVAL_TYPE_CODE,
 	EVAL_TYPE_SIZE
-};
-
-enum EVAL_OPTIMIZE {
-	EVAL_OPTIMIZE_COMPILATION = 0,
-	EVAL_OPTIMIZE_DEBUG,
-	EVAL_OPTIMIZE_SAFETY,
-	EVAL_OPTIMIZE_SPACE,
-	EVAL_OPTIMIZE_SPEED,
-	EVAL_OPTIMIZE_SIZE
 };
 
 #define RefEval_Low(p,i)		RefArraySS((p),(i))

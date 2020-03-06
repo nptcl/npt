@@ -5,11 +5,11 @@
 
 (deftest rtcode-control-default
   (progn
-    (proclaim '(optimize (speed 0) (safety 3)))
+    (declaim (optimize (speed 0) (safety 3)))
     (values)))
 
 (deftest code-optimize-check.1
-  (lisp-system::optimize-check type)
+  (lisp-system::optimize-check parse)
   0)
 
 (deftest let-set.1

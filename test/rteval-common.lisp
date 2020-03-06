@@ -6,7 +6,7 @@
 ;;  optimizer off
 ;;
 (deftest rteval-optimize-check
-  (lisp-system:optimize-check type)
+  (lisp-system:optimize-check parse)
   0)
 
 

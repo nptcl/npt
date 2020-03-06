@@ -1,6 +1,7 @@
 #ifndef __EVAL_DECLARE_HEADER__
 #define __EVAL_DECLARE_HEADER__
 
+#include "eval_typedef.h"
 #include "execute.h"
 #include "typedef.h"
 
@@ -20,6 +21,7 @@ _g int empty_declare(addr pos);
 _g int empty_nil_declare(addr pos);
 _g void apply_array_declare(OptimizeType *array, addr pos);
 
+_g OptimizeType get_optimize_declare(addr pos, enum EVAL_OPTIMIZE index);
 _g OptimizeType get_optimize_compilation_declare(addr pos);
 _g OptimizeType get_optimize_debug_declare(addr pos);
 _g OptimizeType get_optimize_safety_declare(addr pos);

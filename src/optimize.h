@@ -27,6 +27,7 @@ _g void save_optimize_value(const struct optimize_struct *str,
 _g void rollback_optimize_value(struct optimize_struct *str,
 		const struct optimize_value *save);
 
+_g int optimize_declare_value(struct optimize_struct *str, enum EVAL_OPTIMIZE index);
 _g int optimize_speed_on(struct optimize_struct *str);
 _g int optimize_evaltype(addr pos, enum EVAL_PARSE type);
 _g int optimize_evaltype_on(struct optimize_struct *str, enum EVAL_PARSE type);

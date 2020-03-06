@@ -12,8 +12,11 @@ _g void rollback_optimize_value(struct optimize_struct *str,
 	memcpy(str->value.local, save->local, sizeoft(OptimizeType) * EVAL_OPTIMIZE_SIZE);
 }
 
-static int optimize_declare_value(struct optimize_value *opt, int index)
+_g int optimize_declare_value(struct optimize_struct *str, enum EVAL_OPTIMIZE index)
 {
+	struct optimize_value *opt;
+
+	opt = &(str->value);
 	OptimizeType value;
 	value = opt->local[index];
 	return (value < 0)? opt->declaim[index]: value;
@@ -21,7 +24,7 @@ static int optimize_declare_value(struct optimize_value *opt, int index)
 _g int optimize_speed_on(struct optimize_struct *str)
 {
 	/* (on -1 1 2 3) (off 0) */
-	return optimize_declare_value(&str->value, EVAL_OPTIMIZE_SPEED) != 0;
+	return optimize_declare_value(str, EVAL_OPTIMIZE_SPEED) != 0;
 }
 _g int optimize_evaltype(addr pos, enum EVAL_PARSE type)
 {

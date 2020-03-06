@@ -5,6 +5,7 @@
 #include "common.h"
 #include "constant.h"
 #include "eval.h"
+#include "eval_declare.h"
 #include "degrade.h"
 #include "object.h"
 #include "package.h"
