@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include "build.h"
 #include "condition.h"
+#include "condition_debugger.h"
 #include "constant.h"
 #include "control.h"
 #include "core.h"
@@ -13,6 +14,7 @@
 #include "main_init.h"
 #include "pathname.h"
 #include "prompt.h"
+#include "strvect.h"
 #include "symbol.h"
 
 int lisp_code = 0;
@@ -409,11 +411,11 @@ static int lisp_argv_load(Execute ptr, lispstringu name, int *abort, int error)
 	addr file;
 
 	if (lispstringu_heap(&file, name))
-		fmte("Invalid filename.", NULL);
+		_fmte("Invalid filename.", NULL);
 	pathname_designer_heap(ptr, file, &file);
 	result = eval_main_load(ptr, file, 0, abort);
 	if (error && result == 0)
-		fmte("Cannot open file ~S.", file, NULL);
+		_fmte("Cannot open file ~S.", file, NULL);
 
 	return result;
 }
@@ -424,14 +426,14 @@ static void lisp_argv_script(Execute ptr, lispstringu name, int *abort)
 
 	/* open */
 	if (lispstringu_heap(&file, name))
-		fmte("Invalid filename.", NULL);
+		_fmte("Invalid filename.", NULL);
 	pathname_designer_heap(ptr, file, &file);
 	if (open_input_utf8_stream(ptr, &stream, file))
-		fmte("Cannot open file ~S.", file, NULL);
+		_fmte("Cannot open file ~S.", file, NULL);
 	script_header(stream);
 	/* load */
 	if (eval_main_load(ptr, stream, 0, abort) == 0)
-		fmte("Cannot load file ~S.", file, NULL);
+		_fmte("Cannot load file ~S.", file, NULL);
 }
 
 #ifndef LISP_WINDOWS_WIDE
@@ -442,7 +444,7 @@ static int lisp_argv_file_load(Execute ptr, int *abort, const char *name)
 
 	file = char_stringu(name);
 	if (file == NULL) {
-		fmte("char_stringu error.", NULL);
+		_fmte("char_stringu error.", NULL);
 		return 1;
 	}
 	check = lisp_argv_load(ptr, file, abort, 0);
@@ -468,7 +470,7 @@ static int lisp_argv_file_env(Execute ptr, lisptableu env, int *abort,
 	/* load */
 	file = concatchar_stringu(value, name);
 	if (file == NULL) {
-		fmte("concatchar_stringu error.", NULL);
+		_fmte("concatchar_stringu error.", NULL);
 		return 1;
 	}
 	check = lisp_argv_load(ptr, file, abort, 0);
@@ -526,7 +528,7 @@ static void lisp_argv_eval(Execute ptr, lispstringu str, int *abort)
 {
 	addr pos;
 	if (lispstringu_heap(&pos, str))
-		fmte("Invalid eval string.", NULL);
+		_fmte("Invalid eval string.", NULL);
 	eval_main_string(ptr, pos, abort);
 }
 
@@ -556,7 +558,7 @@ static void lisp_argv_inputs(Execute ptr, struct lispargv *argv)
 				continue;
 
 			default:
-				fmte("Invalid input type.", NULL);
+				_fmte("Invalid input type.", NULL);
 				return;
 		}
 	}
@@ -635,11 +637,11 @@ static void lisp_argv_environment(struct lispargv *argv)
 		k = kv[i].key;
 		v = kv[i].value;
 		if (k->size == 0 || v->size == 0)
-			fmte("lisp_argv_environment error.", NULL);
+			_fmte("lisp_argv_environment error.", NULL);
 		if (lispstringu_heap(&key, k))
-			fmte("Invalid key name.", NULL);
+			_fmte("Invalid key name.", NULL);
 		if (lispstringu_heap(&value, v))
-			fmte("Invalid value name.", NULL);
+			_fmte("Invalid value name.", NULL);
 		intern_hashheap(table, key, &cons);
 		SetCdr(cons, value);
 	}
@@ -650,7 +652,7 @@ static void lisp_argv_arguments_copy(addr array, size_t i, lispstringu str)
 {
 	addr pos;
 	if (lispstringu_heap(&pos, str))
-		fmte("Invalid string size.", NULL);
+		_fmte("Invalid string size.", NULL);
 	setarray(array, i, pos);
 }
 
@@ -666,7 +668,7 @@ static void lisp_argv_arguments(struct lispargv *argv)
 	size = array->size;
 	comm = argv->start;
 	if (size < comm) {
-		fmte("Invalid array size.", NULL);
+		_fmte("Invalid array size.", NULL);
 		return;
 	}
 	else if (size == 0) {

@@ -145,7 +145,7 @@ _g int type_name_p(addr *ret, addr value)
 _g void type_name(addr *ret, addr value)
 {
 	if (type_name_p(ret, value))
-		fmte("Invalid value, ~A.", value, NULL);
+		_fmte("Invalid value, ~A.", value, NULL);
 }
 
 _g void init_type_name(void)

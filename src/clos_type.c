@@ -12,8 +12,8 @@
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
-#include "unicode.h"
 
 /*
  *  class-of
@@ -24,7 +24,7 @@ static class_of_calltype class_of_call[LISPTYPE_SIZE];
 static void class_of_error(addr object, addr *ret)
 {
 	infobit(object);
-	fmte("TYPE ~S cannot convert class type.", object, NULL);
+	_fmte("TYPE ~S cannot convert class type.", object, NULL);
 }
 
 static void class_of_nil(addr object, addr *ret)

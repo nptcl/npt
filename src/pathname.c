@@ -27,6 +27,7 @@
 #include "sequence.h"
 #include "stream.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "thread.h"
 
@@ -378,7 +379,7 @@ static void check_asterisk_logical_pathname(addr pos)
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &b);
 		if (a == '*' && b == '*')
-			fmte("Invalid wildcard string ~S.", pos, NULL);
+			_fmte("Invalid wildcard string ~S.", pos, NULL);
 	}
 }
 
@@ -392,7 +393,7 @@ static void check_version_logical_pathname(addr pos)
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &c);
 		if (! isDigitCase(c))
-			fmte(":VERSION ~S must be a positive integer.", pos, NULL);
+			_fmte(":VERSION ~S must be a positive integer.", pos, NULL);
 	}
 }
 
@@ -405,7 +406,7 @@ static void check_parse_logical_pathname(struct fileparse *pa)
 	/* host */
 	string_length(pa->host, &size);
 	if (size == 0)
-		fmte("Invalid host name ~S.", pa->host, NULL);
+		_fmte("Invalid host name ~S.", pa->host, NULL);
 
 	/* directory */
 	for (list = pa->directory; list != Nil; ) {
@@ -421,11 +422,11 @@ static void check_parse_logical_pathname(struct fileparse *pa)
 	check_version_logical_pathname(pos);
 	if (stringp(pos)) {
 		if (read_from_string(pa->ptr, &check, &pos, pos))
-			fmte("Cannot read ~S object.", pa->version, NULL);
+			_fmte("Cannot read ~S object.", pa->version, NULL);
 		if (check)
-			fmte("Cannot read ~S object.", pa->version, NULL);
+			_fmte("Cannot read ~S object.", pa->version, NULL);
 		if (! integerp(pos))
-			fmte("Invalid version object ~S.", pos, NULL);
+			_fmte("Invalid version object ~S.", pos, NULL);
 		pa->version = pos;
 	}
 }
@@ -437,7 +438,7 @@ static void make_parse_logical_pathname(struct fileparse *pa)
 	wild_value_pathname(pa->type, &pa->type);
 	wild_newest_value_pathname(pa->version, &pa->version);
 	if (pa->host == Nil)
-		fmte("No logical-pathname host.", NULL);
+		_fmte("No logical-pathname host.", NULL);
 	check_parse_logical_pathname(pa);
 	pathname_fileparse_alloc(pa, 1);
 }
@@ -759,7 +760,7 @@ finish:
 	return;
 
 error:
-	fmte("Invalid logical-pathname ~S.", thing, NULL);
+	_fmte("Invalid logical-pathname ~S.", thing, NULL);
 }
 
 static void parser_unix_pathname(struct fileparse *pa)
@@ -1028,7 +1029,7 @@ static void parser_struct_pathname(struct fileparse *pa)
 	}
 
 	/* error */
-	fmte("Unknown pathname-host ~S.", host, NULL);
+	_fmte("Unknown pathname-host ~S.", host, NULL);
 }
 
 
@@ -1513,7 +1514,7 @@ static void wildcard_replace_pathname(LocalpRoot local,
 		clear_charqueue(queue);
 		push_charqueue_wildcard(local, queue, pos, child);
 		make_charqueue_alloc(localp_alloc(local), queue, &pos);
-		fmte("Cannot extract ~S pattern.", pos, NULL);
+		_fmte("Cannot extract ~S pattern.", pos, NULL);
 		return;
 	}
 
@@ -1537,7 +1538,7 @@ static void translate_string_pathname(LocalpRoot local,
 		strvect_char_local(local->local, &to, "*");
 	ptr = make_wildcard_struct(local);
 	if (! wildcard_push_string_pathname(local, ptr, &root, pos, from))
-		fmte("The string ~S doesn't match ~S.", pos, from, NULL);
+		_fmte("The string ~S doesn't match ~S.", pos, from, NULL);
 
 	/* replace */
 	wildcard_replace_pathname(local, ptr, ret, pos, to);
@@ -1613,7 +1614,7 @@ static void replace_wild_pathname(LocalpRoot local, addr *root, addr *list)
 	addr wild1, wild2, next, pos, a, b;
 
 	if (*list == Nil)
-		fmte("Don't match wildcard FROM and TO.", NULL);
+		_fmte("Don't match wildcard FROM and TO.", NULL);
 	GetConst(KEYWORD_WILD, &wild1);
 	GetConst(KEYWORD_WILD_INFERIORS, &wild2);
 	List_bind(*list, &next, &pos, &a, &b, NULL);
@@ -1650,7 +1651,7 @@ static void replace_string_pathname(LocalpRoot local, addr *root, addr *list, ad
 	addr wild1, wild2, next, pos, a, b;
 
 	if (*list == Nil)
-		fmte("Don't match wildcard FROM and TO.", NULL);
+		_fmte("Don't match wildcard FROM and TO.", NULL);
 	GetConst(KEYWORD_WILD, &wild1);
 	GetConst(KEYWORD_WILD_INFERIORS, &wild2);
 	List_bind(*list, &next, &pos, &a, &b, NULL);
@@ -1693,7 +1694,7 @@ static void translate_directory_pathname(LocalpRoot local,
 	push_localp(local, &stack);
 	list = Nil;
 	if (! translate_list_pathname(local, &list, pos, from))
-		fmte("Cannot translate ~S to ~S.", from, pos, NULL);
+		_fmte("Cannot translate ~S to ~S.", from, pos, NULL);
 	*ret = Nil;
 	translate_replace_pathname(local, ret, &list, to);
 	rollback_localp(local, stack);
@@ -1730,10 +1731,10 @@ static void translate_version_pathname(addr *ret, addr pos, addr from, addr to)
 			*ret = pos;
 			return;
 		}
-		fmte(":VERSION from-wildcard is *, but to-wildcard ~S is not *.", to, NULL);
+		_fmte(":VERSION from-wildcard is *, but to-wildcard ~S is not *.", to, NULL);
 	}
 	if (! eql_function(pos, to))
-		fmte(":VERSION source ~S don't match to-wildcard ~S.", pos, to, NULL);
+		_fmte(":VERSION source ~S don't match to-wildcard ~S.", pos, to, NULL);
 
 	/* :unspecific */
 	*ret = unspec;
@@ -1826,7 +1827,7 @@ _g void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp)
 	/* logical pathname */
 	GetPathname(pos, PATHNAME_INDEX_HOST, &host);
 	if (! gethost_pathname(host, &list))
-		fmte("The logical-hostname ~S is not exist.", host, NULL);
+		_fmte("The logical-hostname ~S is not exist.", host, NULL);
 	while (list != Nil) {
 		GetCons(list, &right, &list);
 		List_bind(right, &left, &value, NULL);
@@ -1835,7 +1836,7 @@ _g void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp)
 			return;
 		}
 	}
-	fmte("The logical-pathname ~S don't match translate table.", pos, NULL);
+	_fmte("The logical-pathname ~S don't match translate table.", pos, NULL);
 }
 
 _g void physical_pathname_heap(Execute ptr, addr pos, addr *ret)
@@ -1885,7 +1886,7 @@ static void file_pathname_namestring(LocalpRoot local, addr *ret, addr pos)
 
 	GetPathname(pos, PATHNAME_INDEX_HOST, &host);
 	if (! system_unix_p(host) && ! system_windows_p(host))
-		fmte("Unknown pathname-host ~S.", host, NULL);
+		_fmte("Unknown pathname-host ~S.", host, NULL);
 
 	charqueue_local(local->local, &queue, 0);
 	file_namestring_filename(local, pos, queue);
@@ -1908,7 +1909,7 @@ static void logical_namestring_version(LocalpRoot local, addr queue, addr right)
 	else if (integerp(right))
 		decimal_charqueue_integer_local(alloc, right, queue);
 	else
-		fmte("Invalid version value ~S.", right, NULL);
+		_fmte("Invalid version value ~S.", right, NULL);
 }
 
 static void file_logical_namestring(LocalpRoot local, addr *ret, addr pos)
@@ -1975,7 +1976,7 @@ static void directory_namestring_filename(LocalpRoot local,
 	/* directory */
 	GetPathname(pos, PATHNAME_INDEX_DIRECTORY, &right);
 	if (! consp(right))
-		fmte("Invalid directory ~S.", right, NULL);
+		_fmte("Invalid directory ~S.", right, NULL);
 	GetCons(right, &left, &right);
 	if (left == absolute) {
 		if (! logicalp)
@@ -1986,7 +1987,7 @@ static void directory_namestring_filename(LocalpRoot local,
 			push_charqueue_local(alloc, queue, split);
 	}
 	else {
-		fmte("Invalid directory type ~S.", left, NULL);
+		_fmte("Invalid directory type ~S.", left, NULL);
 	}
 	while (right != Nil) {
 		GetCons(right, &left, &right);
@@ -2013,7 +2014,7 @@ static void directory_pathname_namestring(LocalpRoot local, addr *ret, addr pos)
 	else if (system_windows_p(host))
 		directory_namestring_filename(local, pos, queue, '\\', 0);
 	else
-		fmte("Unknown pathname-host ~S.", host, NULL);
+		_fmte("Unknown pathname-host ~S.", host, NULL);
 	make_charqueue_alloc(localp_alloc(local), queue, ret);
 }
 
@@ -2122,7 +2123,7 @@ static void pathname_namestring(LocalpRoot local, addr *ret, addr pos)
 	else if (system_windows_p(host))
 		namestring_windows(local, ret, pos);
 	else
-		fmte("Unknown pathname-host ~S.", host, NULL);
+		_fmte("Unknown pathname-host ~S.", host, NULL);
 }
 
 static void logical_namestring(LocalpRoot local, addr *ret, addr pos)
@@ -2328,14 +2329,14 @@ static void make_pathname_directory(addr *ret, addr list)
 
 	/* check */
 	if (! consp(list))
-		fmte(":directory ~S must be a list or string type.", list, NULL);
+		_fmte(":directory ~S must be a list or string type.", list, NULL);
 	GetConst(KEYWORD_RELATIVE, &relative);
 	GetConst(KEYWORD_WILD, &wild);
 	GetConst(KEYWORD_WILD_INFERIORS, &wildi);
 	GetConst(KEYWORD_UP, &up);
 	getcons(list, &pos, &root);
 	if (pos != absolute && pos != relative) {
-		fmte("The firest argument of :directory ~S must be ~S or ~S.",
+		_fmte("The firest argument of :directory ~S must be ~S or ~S.",
 				pos, absolute, relative, NULL);
 	}
 	for (check = 1; root != Nil; ) {
@@ -2347,7 +2348,7 @@ static void make_pathname_directory(addr *ret, addr list)
 			check = 0;
 		}
 		if (! stringp(pos) && pos != wild && pos != wildi && pos != up) {
-			fmte("Invalid :directory argument ~S.", pos, NULL);
+			_fmte("Invalid :directory argument ~S.", pos, NULL);
 		}
 	}
 	if (check) {
@@ -2395,7 +2396,7 @@ static enum PathnameType pathname_environment(addr host)
 		return PathnameType_Logical;
 
 	/* error */
-	fmte("Invalid host value ~S.", host, NULL);
+	_fmte("Invalid host value ~S.", host, NULL);
 
 	return PathnameType_Unix;
 }
@@ -2651,23 +2652,23 @@ static void list_logical_pathname_translations(Execute ptr,
 		getcons(right, &left, &right);
 		getcons(right, &right, &value);
 		if (value != Nil)
-			fmte("Invalid logical-pathname-translations arguments ~S.", show, NULL);
+			_fmte("Invalid logical-pathname-translations arguments ~S.", show, NULL);
 
 		/* left */
 		if (stringp(left))
 			parse_pathname_host_heap(ptr, left, host, &value);
 		pathname_designer_heap(ptr, value, &value);
 		if (! pathname_logical_p(value))
-			fmte("The left argument ~S must be a logical-pathname.", left, NULL);
+			_fmte("The left argument ~S must be a logical-pathname.", left, NULL);
 		GetPathname(value, PATHNAME_INDEX_HOST, &check);
 		if (! string_equalp(host, check))
-			fmte("The logical-pathname :HOST ~S must be ~S.", check, host, NULL);
+			_fmte("The logical-pathname :HOST ~S must be ~S.", check, host, NULL);
 		left = value;
 
 		/* right */
 		pathname_designer_heap(ptr, right, &value);
 		if (! pathname_pathname_p(value))
-			fmte("The right argument ~S must be a no-logical-pathname.", right, NULL);
+			_fmte("The right argument ~S must be a no-logical-pathname.", right, NULL);
 		right = value;
 
 		/* result */
@@ -2677,7 +2678,7 @@ static void list_logical_pathname_translations(Execute ptr,
 	nreverse_list_unsafe(ret, root);
 }
 
-static void function_set_logical_pathname_translations(Execute ptr, addr condition)
+static int function_set_logical_pathname_translations(Execute ptr, addr condition)
 {
 	addr table, pos;
 
@@ -2687,6 +2688,8 @@ static void function_set_logical_pathname_translations(Execute ptr, addr conditi
 	delete_hashtable(table, pos);
 	/* throw */
 	error_function(condition);
+
+	return 0;
 }
 
 static void set_logical_pathname_translations_code(Execute ptr,
@@ -2716,15 +2719,19 @@ static int set_logical_pathname_translations_intern(Execute ptr,
 	return free_control(ptr, control);
 }
 
-_g void set_logical_pathname_translations(Execute ptr, addr host, addr list)
+_g int set_logical_pathname_translations(Execute ptr, addr host, addr list)
 {
 	addr table, cons;
 
 	table_logical_pathname(&table);
-	if (findvalue_hashtable(table, host, &cons))
+	if (findvalue_hashtable(table, host, &cons)) {
 		set_logical_pathname_translations_code(ptr, host, list, cons);
-	else
-		set_logical_pathname_translations_intern(ptr, host, list, table);
+	}
+	else {
+		Return(set_logical_pathname_translations_intern(ptr, host, list, table));
+	}
+
+	return 0;
 }
 
 
@@ -2939,11 +2946,11 @@ _g void parse_namestring(Execute ptr, addr *ret, addr *position,
 	/* string */
 	if (stringp(thing)) {
 		if (GetIndex_integer(start, &index1))
-			fmte("Invalid :start value ~S.", start, NULL);
+			_fmte("Invalid :start value ~S.", start, NULL);
 		if (end == Nil)
 			string_length(thing, &index2);
 		else if (GetIndex_integer(end, &index2))
-			fmte("Invalid :start value ~S.", end, NULL);
+			_fmte("Invalid :start value ~S.", end, NULL);
 		parse_pathname_full_heap(ptr, thing, host, defaults,
 				index1, index2, junk != Nil, &thing, &index1);
 		make_index_integer_alloc(NULL, position, index1);
@@ -2951,7 +2958,7 @@ _g void parse_namestring(Execute ptr, addr *ret, addr *position,
 		if (host != Nil) {
 			GetPathname(thing, PATHNAME_INDEX_HOST, &check);
 			if (! equalp_function(host, check))
-				fmte(":HOST ~S is not argument host ~S.", check, host, NULL);
+				_fmte(":HOST ~S is not argument host ~S.", check, host, NULL);
 		}
 		/* result */
 		*ret = thing;
@@ -3104,9 +3111,8 @@ _g int load_logical_pathname_translations_common(Execute ptr, addr host, int *re
 		return 0;
 	}
 	/* read file */
-	if (readlist_input(ptr, file, &x))
-		return 1;
-	set_logical_pathname_translations(ptr, host, x);
+	Return(readlist_input(ptr, file, &x));
+	Return(set_logical_pathname_translations(ptr, host, x));
 	*ret = 1;
 
 	return 0;

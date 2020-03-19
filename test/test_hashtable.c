@@ -4,7 +4,7 @@
 #include "execute.h"
 #include "object.h"
 #include "strtype.h"
-
+#include "strvect.h"
 
 /*
  *  hashtable testcase

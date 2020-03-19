@@ -55,25 +55,6 @@
 #define DEFAULT_MEMORY		(320UL * 1024UL * 1024UL)
 #define DEFAULT_STACK		(160UL * 1024UL * 1024UL)
 
-
-/*
- *  property
- */
-_g void setproperty(int index, int value)
-{
-	Check(lisp_initialize == 0, "lisp error");
-	Check(index < 0 || 32 <= index, "range error");
-	SetShiftValue(lisp_property, index, value, 1UL, byte32);
-}
-
-_g int getproperty(int index)
-{
-	Check(lisp_initialize == 0, "lisp error");
-	Check(index < 0 || 32 <= index, "range error");
-	return GetShiftValue(lisp_property, index, 1UL);
-}
-
-
 /*
  *  Initialize
  */
@@ -121,7 +102,6 @@ static void clearlisp_force(void)
 		lisp_root[i] = 0;
 	lisp_nil_object  = 0;
 	lisp_t_object    = 0;
-	lisp_property    = 0;
 }
 
 _g int alloclisp(size_t heap, size_t stack)
@@ -363,10 +343,12 @@ _g int save_lisp(struct filememory *fm)
 	}
 
 	/* build.c */
+#if 0
 	if (writecheck_filememory(fm, &lisp_property, sizeoft(lisp_property))) {
 		Debug("writecheck error: lisp_property.");
 		return 1;
 	}
+#endif
 	for (i = 0; i < LISPINDEX_SIZE; i++) {
 		if (writeaddr_filememory(fm, lisp_root[i])) {
 			Debug2("writeaddr error: lisp_root[%d].", i);
@@ -388,10 +370,12 @@ _g int load_lisp(struct filememory *fm)
 	}
 
 	/* build.c */
+#if 0
 	if (readcheck_filememory(fm, &lisp_property, sizeoft(lisp_property))) {
 		Debug("readcheck error: lisp_property.");
 		return 1;
 	}
+#endif
 	for (i = 0; i < LISPINDEX_SIZE; i++) {
 		if (readaddr_filememory(fm, &(lisp_root[i]))) {
 			Debug2("readaddr error: lisp_root[%d].", i);

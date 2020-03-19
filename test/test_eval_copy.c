@@ -15,6 +15,7 @@
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "syscall.h"
 #include "type_table.h"

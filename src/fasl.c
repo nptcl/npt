@@ -3,6 +3,7 @@
 #include <string.h>
 #include "bignum.h"
 #include "build.h"
+#include "character.h"
 #include "code.h"
 #include "condition.h"
 #include "constant.h"
@@ -15,6 +16,7 @@
 #include "package.h"
 #include "stream.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 
 typedef int (*faslcode)(Execute, addr, addr *);
@@ -378,7 +380,7 @@ static int list_fasl(Execute ptr, addr input, addr *ret, size_t len)
 
 	/* nil */
 	if (len == 0) {
-		*ret = Root(LISPINDEX_NIL);
+		*ret = LispRoot(NIL);
 		return 0;
 	}
 
@@ -524,7 +526,7 @@ static void string1_stream(addr *ret, addr stream, size_t size)
 	GetStringUnicode(pos, &body);
 	for (i = 0; i < size; i++) {
 		if (read_byte_stream(stream, &c))
-			fmte("stream error", NULL);
+			_fmte("stream error", NULL);
 		strvect_setc(pos, i, (unicode)c);
 	}
 	*ret = pos;
@@ -578,7 +580,7 @@ static void stringu_stream(addr *ret, addr stream, size_t size)
 	GetStringUnicode(pos, &body);
 	for (i = 0; i < size; i++) {
 		if (readforce_binary_stream(stream, &c, sizeoft(unicode), &temp))
-			fmte("stream error", NULL);
+			_fmte("stream error", NULL);
 		string_setc(pos, i, c);
 	}
 	*ret = pos;

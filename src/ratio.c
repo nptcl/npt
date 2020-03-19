@@ -847,7 +847,7 @@ static void rational_float_single_local(LocalRoot local, single_float value, add
 
 	split_single_float(value, &sign, &exponent, &value);
 	if (bignum_single_float_local(local, &numer, value))
-		fmte("Invalid floating value ~S.", value, NULL);
+		_fmte("Invalid floating value ~S.", value, NULL);
 	rational_return_local(local, sign, exponent, numer, ret);
 }
 
@@ -858,7 +858,7 @@ static void rational_float_double_local(LocalRoot local, double_float value, add
 
 	split_double_float(value, &sign, &exponent, &value);
 	if (bignum_double_float_local(local, &numer, value))
-		fmte("Invalid floating value ~S.", value, NULL);
+		_fmte("Invalid floating value ~S.", value, NULL);
 	rational_return_local(local, sign, exponent, numer, ret);
 }
 
@@ -869,7 +869,7 @@ static void rational_float_long_local(LocalRoot local, long_float value, addr *r
 
 	split_long_float(value, &sign, &exponent, &value);
 	if (bignum_long_float_local(local, &numer, value))
-		fmte("Invaild floating value ~S.", value, NULL);
+		_fmte("Invaild floating value ~S.", value, NULL);
 	rational_return_local(local, sign, exponent, numer, ret);
 }
 

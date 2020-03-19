@@ -5,7 +5,6 @@
 #include "execute.h"
 #include "local.h"
 #include "memory.h"
-#include "unicode.h"
 
 enum SYMBOL_INDEX {
 	SYMBOL_INDEX_STACK    = 0,

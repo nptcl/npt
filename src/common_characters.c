@@ -2,13 +2,8 @@
  *  ANSI COMMON LISP: 13. Characters
  */
 #include "character.h"
+#include "character_common.h"
 #include "common_header.h"
-#include "cons.h"
-#include "hashtable.h"
-#include "strtype.h"
-#include "type_parse.h"
-#include "unicode.h"
-
 
 /* (defconstnat char-code-limit UnicodeCount) */
 static void defconstant_char_code_limit(void)
@@ -21,35 +16,7 @@ static void defconstant_char_code_limit(void)
 }
 
 
-/* char-check */
-static void char_check(Execute ptr, addr var, addr list, int (*call)(unicode, unicode))
-{
-	addr pos;
-	unicode left, right;
-
-	GetCharacter(var, &left);
-	while (list != Nil) {
-		getcons(list, &pos, &list);
-		GetCharacter(pos, &right);
-		if (! (call(left, right))) {
-			setresult_control(ptr, Nil);
-			return;
-		}
-		left = right;
-	}
-	setresult_control(ptr, T);
-}
-
-static void type_char_eql(addr *ret)
-{
-	addr arg, values;
-
-	GetTypeTable(&arg, Character);
-	typeargs_var1rest(&arg, arg, arg);
-	GetTypeValues(&values, Boolean);
-	type_compiled_heap(arg, values, ret);
-}
-
+/* (defun char= (character &rest character) ...) -> boolean */
 static void defun_char_check(constindex index, pointer p)
 {
 	addr symbol, pos, type;
@@ -60,21 +27,18 @@ static void defun_char_check(constindex index, pointer p)
 	setcompiled_var1dynamic(pos, p);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	type_char_eql(&type);
+	GetTypeCompiled(&type, CharEql);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
 
+static int function_char_eql(Execute ptr, addr var, addr list)
+{
+	Return(char_eql_common(var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
+}
 
-/* (defun char= (character &rest character) ...) -> boolean */
-static int char_eql(unicode a, unicode b)
-{
-	return a == b;
-}
-static void function_char_eql(Execute ptr, addr var, addr list)
-{
-	char_check(ptr, var, list, char_eql);
-}
 static void defun_char_eql(void)
 {
 	defun_char_check(CONSTANT_COMMON_CHAR_EQL, p_defun_char_eql);
@@ -82,26 +46,13 @@ static void defun_char_eql(void)
 
 
 /* (defun char/= (character &rest character) ...) -> boolean */
-static void function_char_not_eql(Execute ptr, addr list)
+static int function_char_not_eql(Execute ptr, addr list)
 {
-	addr left, right, loop;
-	unicode a, b;
-
-	for (;;) {
-		getcons(list, &left, &list);
-		if (list == Nil) break;
-		GetCharacter(left, &a);
-		for (loop = list; loop != Nil; ) {
-			getcons(loop, &right, &loop);
-			GetCharacter(right, &b);
-			if (a == b) {
-				setresult_control(ptr, Nil);
-				return;
-			}
-		}
-	}
-	setresult_control(ptr, T);
+	Return(char_not_eql_common(list, &list));
+	setresult_control(ptr, list);
+	return 0;
 }
+
 static void defun_char_not_eql(void)
 {
 	addr symbol, pos, type;
@@ -112,21 +63,20 @@ static void defun_char_not_eql(void)
 	setcompiled_dynamic(pos, p_defun_char_not_eql);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	type_char_eql(&type);
+	GetTypeCompiled(&type, CharEql);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
 
 
 /* (defun char< (character &rest character) ...) -> boolean */
-static int char_less(unicode a, unicode b)
+static int function_char_less(Execute ptr, addr var, addr list)
 {
-	return a < b;
+	Return(char_less_common(var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
-static void function_char_less(Execute ptr, addr var, addr list)
-{
-	char_check(ptr, var, list, char_less);
-}
+
 static void defun_char_less(void)
 {
 	defun_char_check(CONSTANT_COMMON_CHAR_LESS, p_defun_char_less);
@@ -134,14 +84,13 @@ static void defun_char_less(void)
 
 
 /* (defun char> (character &rest character) ...) -> boolean */
-static int char_greater(unicode a, unicode b)
+static int function_char_greater(Execute ptr, addr var, addr list)
 {
-	return a > b;
+	Return(char_greater_common(var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
-static void function_char_greater(Execute ptr, addr var, addr list)
-{
-	char_check(ptr, var, list, char_greater);
-}
+
 static void defun_char_greater(void)
 {
 	defun_char_check(CONSTANT_COMMON_CHAR_GREATER, p_defun_char_greater);
@@ -149,14 +98,13 @@ static void defun_char_greater(void)
 
 
 /* (defun char<= (character &rest character) ...) -> boolean */
-static int char_less_equal(unicode a, unicode b)
+static int function_char_less_equal(Execute ptr, addr var, addr list)
 {
-	return a <= b;
+	Return(char_less_equal_common(var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
-static void function_char_less_equal(Execute ptr, addr var, addr list)
-{
-	char_check(ptr, var, list, char_less_equal);
-}
+
 static void defun_char_less_equal(void)
 {
 	defun_char_check(CONSTANT_COMMON_CHAR_LESS_EQUAL, p_defun_char_less_equal);
@@ -164,14 +112,13 @@ static void defun_char_less_equal(void)
 
 
 /* (defun char>= (character &rest character) ...) -> boolean */
-static int char_greater_equal(unicode a, unicode b)
+static int function_char_greater_equal(Execute ptr, addr var, addr list)
 {
-	return a >= b;
+	Return(char_greater_equal_common(var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
-static void function_char_greater_equal(Execute ptr, addr var, addr list)
-{
-	char_check(ptr, var, list, char_greater_equal);
-}
+
 static void defun_char_greater_equal(void)
 {
 	defun_char_check(CONSTANT_COMMON_CHAR_GREATER_EQUAL, p_defun_char_greater_equal);
@@ -179,31 +126,13 @@ static void defun_char_greater_equal(void)
 
 
 /* (defun char-equal (character &rest character) ...) -> boolean */
-static void char_equal_check(Execute ptr, addr var, addr list,
-		int (*call)(unicode, unicode))
+static int function_char_equal(Execute ptr, addr var, addr list)
 {
-	addr pos;
-	unicode left, right;
-
-	GetCharacter(var, &left);
-	left = toUpperUnicode(left);
-	while (list != Nil) {
-		getcons(list, &pos, &list);
-		GetCharacter(pos, &right);
-		right = toUpperUnicode(right);
-		if (! (call(left, right))) {
-			setresult_control(ptr, Nil);
-			return;
-		}
-		left = right;
-	}
-	setresult_control(ptr, T);
+	Return(char_equal_common(var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
 
-static void function_char_equal(Execute ptr, addr var, addr list)
-{
-	char_equal_check(ptr, var, list, char_eql);
-}
 static void defun_char_equal(void)
 {
 	defun_char_check(CONSTANT_COMMON_CHAR_EQUAL, p_defun_char_equal);
@@ -211,28 +140,13 @@ static void defun_char_equal(void)
 
 
 /* (defun char-not-equal (character &rest character) ...) -> boolean */
-static void function_char_not_equal(Execute ptr, addr list)
+static int function_char_not_equal(Execute ptr, addr list)
 {
-	addr left, right, loop;
-	unicode a, b;
-
-	for (;;) {
-		getcons(list, &left, &list);
-		if (list == Nil) break;
-		GetCharacter(left, &a);
-		a = toUpperUnicode(a);
-		for (loop = list; loop != Nil; ) {
-			getcons(loop, &right, &loop);
-			GetCharacter(right, &b);
-			b = toUpperUnicode(b);
-			if (a == b) {
-				setresult_control(ptr, Nil);
-				return;
-			}
-		}
-	}
-	setresult_control(ptr, T);
+	Return(char_not_equal_common(list, &list));
+	setresult_control(ptr, list);
+	return 0;
 }
+
 static void defun_char_not_equal(void)
 {
 	addr symbol, pos, type;
@@ -243,17 +157,20 @@ static void defun_char_not_equal(void)
 	setcompiled_dynamic(pos, p_defun_char_not_equal);
 	SetFunctionCommon(symbol, pos);
 	/* type */
-	type_char_eql(&type);
+	GetTypeCompiled(&type, CharEql);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
 
 
 /* (defun char-lessp (character &rest character) ...) -> boolean */
-static void function_char_lessp(Execute ptr, addr var, addr list)
+static int function_char_lessp(Execute ptr, addr var, addr list)
 {
-	char_equal_check(ptr, var, list, char_less);
+	Return(char_lessp_common(var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
+
 static void defun_char_lessp(void)
 {
 	defun_char_check(CONSTANT_COMMON_CHAR_LESSP, p_defun_char_lessp);
@@ -261,10 +178,13 @@ static void defun_char_lessp(void)
 
 
 /* (defun char-greaterp (character &rest character) ...) -> boolean */
-static void function_char_greaterp(Execute ptr, addr var, addr list)
+static int function_char_greaterp(Execute ptr, addr var, addr list)
 {
-	char_equal_check(ptr, var, list, char_greater);
+	Return(char_greaterp_common(var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
+
 static void defun_char_greaterp(void)
 {
 	defun_char_check(CONSTANT_COMMON_CHAR_GREATERP, p_defun_char_greaterp);
@@ -272,10 +192,13 @@ static void defun_char_greaterp(void)
 
 
 /* (defun char-not-lessp (character &rest character) ...) -> boolean */
-static void function_char_not_lessp(Execute ptr, addr var, addr list)
+static int function_char_not_lessp(Execute ptr, addr var, addr list)
 {
-	char_equal_check(ptr, var, list, char_greater_equal);
+	Return(char_not_lessp_common(var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
+
 static void defun_char_not_lessp(void)
 {
 	defun_char_check(CONSTANT_COMMON_CHAR_NOT_LESSP, p_defun_char_not_lessp);
@@ -283,10 +206,13 @@ static void defun_char_not_lessp(void)
 
 
 /* (defun char-not-greaterp (character &rest character) ...) -> boolean */
-static void function_char_not_greaterp(Execute ptr, addr var, addr list)
+static int function_char_not_greaterp(Execute ptr, addr var, addr list)
 {
-	char_equal_check(ptr, var, list, char_less_equal);
+	Return(char_not_greaterp_common(var, list, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
+
 static void defun_char_not_greaterp(void)
 {
 	defun_char_check(CONSTANT_COMMON_CHAR_NOT_GREATERP, p_defun_char_not_greaterp);
@@ -294,31 +220,11 @@ static void defun_char_not_greaterp(void)
 
 
 /* (defun character (character) ...) -> character */
-static void function_character(Execute ptr, addr var)
+static int function_character(Execute ptr, addr var)
 {
-	unicode u;
-	size_t size;
-
-	if (symbolp(var)) {
-		/* string check */
-		GetNameSymbol(var, &var);
-		string_length(var, &size);
-		if (size != 1)
-			fmte("The length of symbol ~S name must be 1.", NULL);
-		string_getc(var, 0, &u);
-		character_heap(&var, u);
-	}
-	else if (stringp(var)) {
-		string_length(var, &size);
-		if (size != 1)
-			fmte("The length of string ~S name must be 1.", NULL);
-		string_getc(var, 0, &u);
-		character_heap(&var, u);
-	}
-	else if (GetType(var) != LISPTYPE_CHARACTER) {
-		type_error_constant(var, CONSTANT_COMMON_CHARACTER);
-	}
+	Return(character_common(var, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_character_stringone(addr *ret)
@@ -369,9 +275,10 @@ static void defun_character(void)
 
 
 /* (defun characterp (object) ...) -> boolean */
-static void function_characterp(Execute ptr, addr var)
+static int function_characterp(Execute ptr, addr var)
 {
-	setbool_control(ptr, GetType(var) == LISPTYPE_CHARACTER);
+	setbool_control(ptr, characterp(var));
+	return 0;
 }
 
 static void defun_characterp(void)
@@ -391,11 +298,11 @@ static void defun_characterp(void)
 
 
 /* (defun alpha-char-p (character) ...) -> boolean */
-static void function_alpha_char_p(Execute ptr, addr pos)
+static int function_alpha_char_p(Execute ptr, addr var)
 {
-	unicode u;
-	GetCharacter(pos, &u);
-	setbool_control(ptr, isAlphabetic(u));
+	alpha_char_p_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_character_boolean(addr *ret)
@@ -426,11 +333,11 @@ static void defun_alpha_char_p(void)
 
 
 /* (defun alphanumericp (character) ...) -> boolean */
-static void function_alphanumericp(Execute ptr, addr pos)
+static int function_alphanumericp(Execute ptr, addr var)
 {
-	unicode u;
-	GetCharacter(pos, &u);
-	setbool_control(ptr, isAlphanumeric(u));
+	alphanumericp_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_alphanumericp(void)
@@ -454,25 +361,11 @@ static void defun_alphanumericp(void)
  *   radix   (integer 2 36), default 10
  *   result  (or null character)
  */
-static void function_digit_char(Execute ptr, addr var, addr opt)
+static int function_digit_char(Execute ptr, addr var, addr opt)
 {
-	fixnum w, r;
-
-	/* radix */
-	if (opt == Unbound)
-		r = 10;
-	else
-		GetFixnum(opt, &r);
-
-	/* digit */
-	GetFixnum(var, &w);
-	if (0 <= w && w < r) {
-		character_heap(&var, (unicode)(w < 10? ('0' + w): (w - 10 + 'A')));
-		setresult_control(ptr, var);
-	}
-	else {
-		setresult_control(ptr, Nil);
-	}
+	digit_char_common(var, opt, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_digit_char(addr *ret)
@@ -510,35 +403,11 @@ static void defun_digit_char(void)
  *   radix      (integer 2 36), default 10
  *   weight     (or (integer 0 *) null)
  */
-static void function_digit_char_p(Execute ptr, addr var, addr opt)
+static int function_digit_char_p(Execute ptr, addr var, addr opt)
 {
-	fixnum r, w;
-	unicode u;
-
-	/* radix */
-	if (opt == Unbound)
-		r = 10;
-	else
-		GetFixnum(opt, &r);
-	/* character */
-	GetCharacter(var, &u);
-	if (isDigitCase(u))
-		w = (fixnum)(u - '0');
-	else if (isLowerCase(u))
-		w = (fixnum)(u - 'a' + 10);
-	else if (isUpperCase(u))
-		w = (fixnum)(u - 'A' + 10);
-	else {
-		setresult_control(ptr, Nil);
-		return;
-	}
-	if (r <= w) {
-		setresult_control(ptr, Nil);
-	}
-	else {
-		fixnum_heap(&var, w);
-		setresult_control(ptr, var);
-	}
+	digit_char_p_common(var, opt, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_digit_char_p(addr *ret)
@@ -572,15 +441,11 @@ static void defun_digit_char_p(void)
 
 
 /* (defun graphic-char-p (character) ...) -> boolean */
-static void function_graphic_char_p(Execute ptr, addr var)
+static int function_graphic_char_p(Execute ptr, addr var)
 {
-	unicode u;
-
-	GetCharacter(var, &u);
-	if (u < 0x80)
-		setbool_control(ptr, (u == ' ' || isgraphunicode(u)));
-	else
-		setresult_control(ptr, T);
+	graphic_char_p_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_graphic_char_p(void)
@@ -600,11 +465,11 @@ static void defun_graphic_char_p(void)
 
 
 /* (defun standard-char-p (character) ...) -> boolean */
-static void function_standard_char_p(Execute ptr, addr var)
+static int function_standard_char_p(Execute ptr, addr var)
 {
-	unicode u;
-	GetCharacter(var, &u);
-	setbool_control(ptr, isStandardType(u));
+	standard_char_p_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_standard_char_p(void)
@@ -624,14 +489,11 @@ static void defun_standard_char_p(void)
 
 
 /* (defun char-upcase (character) ...) -> character */
-static void function_char_upcase(Execute ptr, addr var)
+static int function_char_upcase(Execute ptr, addr var)
 {
-	unicode u;
-
-	GetCharacter(var, &u);
-	if (isLowerCase(u))
-		character_heap(&var, (u - 'a' + 'A'));
+	char_upcase_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_character_character(addr *ret)
@@ -662,14 +524,11 @@ static void defun_char_upcase(void)
 
 
 /* (defun char-downcase (character) ...) -> character */
-static void function_char_downcase(Execute ptr, addr var)
+static int function_char_downcase(Execute ptr, addr var)
 {
-	unicode u;
-
-	GetCharacter(var, &u);
-	if (isUpperCase(u))
-		character_heap(&var, (u - 'A' + 'a'));
+	char_downcase_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_char_downcase(void)
@@ -689,11 +548,11 @@ static void defun_char_downcase(void)
 
 
 /* (defun upper-case-p (character) ...) -> boolean */
-static void function_upper_case_p(Execute ptr, addr var)
+static int function_upper_case_p(Execute ptr, addr var)
 {
-	unicode u;
-	GetCharacter(var, &u);
-	setbool_control(ptr, isUpperCase(u));
+	upper_case_p_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_upper_case_p(void)
@@ -713,11 +572,11 @@ static void defun_upper_case_p(void)
 
 
 /* (defun lower-case-p (character) ...) -> boolean */
-static void function_lower_case_p(Execute ptr, addr var)
+static int function_lower_case_p(Execute ptr, addr var)
 {
-	unicode u;
-	GetCharacter(var, &u);
-	setbool_control(ptr, isLowerCase(u));
+	lower_case_p_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_lower_case_p(void)
@@ -737,11 +596,11 @@ static void defun_lower_case_p(void)
 
 
 /* (defun both-case-p (character) ...) -> boolean */
-static void function_both_case_p(Execute ptr, addr var)
+static int function_both_case_p(Execute ptr, addr var)
 {
-	unicode u;
-	GetCharacter(var, &u);
-	setbool_control(ptr, (isUpperCase(u) || isLowerCase(u)));
+	both_case_p_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_both_case_p(void)
@@ -763,13 +622,11 @@ static void defun_both_case_p(void)
 /* (defun char-code (character) ...) -> code
  *   code  (integer 0 UnicodeCount)
  */
-static void function_char_code(Execute ptr, addr var)
+static int function_char_code(Execute ptr, addr var)
 {
-	unicode u;
-
-	GetCharacter(var, &u);
-	fixnum_heap(&var, (fixnum)u);
+	char_code_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_char_code(addr *ret)
@@ -820,18 +677,11 @@ static void defun_char_int(void)
  *   code    (integer 0 UnicodeCount)
  *   char-p  (or character boolean)
  */
-static void function_code_char(Execute ptr, addr var)
+static int function_code_char(Execute ptr, addr var)
 {
-	fixnum v;
-
-	GetFixnum(var, &v);
-	if (0 <= v && v < (fixnum)UnicodeCount) {
-		character_heap(&var, (unicode)v);
-		setresult_control(ptr, var);
-	}
-	else {
-		setresult_control(ptr, Nil);
-	}
+	code_char_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_code_char(addr *ret)
@@ -869,12 +719,11 @@ static void defun_code_char(void)
 /* (defun char-name (character) ...) -> name
  *   name  (or string null)
  */
-static void function_char_name(Execute ptr, addr var)
+static int function_char_name(Execute ptr, addr var)
 {
-	if (findtable_char_name(&var, var))
-		setresult_control(ptr, var);
-	else
-		setresult_control(ptr, Nil);
+	char_name_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_char_name(addr *ret)
@@ -907,34 +756,11 @@ static void defun_char_name(void)
  *   name    (or string symbol character)  ;; string-designer
  *   char-p  (or character null)
  */
-static void function_name_char(Execute ptr, addr var)
+static int function_name_char(Execute ptr, addr var)
 {
-	LocalRoot local;
-	LocalStack stack;
-	unicode u;
-
-	if (GetType(var) == LISPTYPE_CHARACTER) {
-		/* character */
-		local = ptr->local;
-		push_local(local, &stack);
-		GetCharacter(var, &u);
-		strvect_local(local, &var, 1);
-		strvect_setc(var, 0, u);
-		if (findtable_name_char(&var, var))
-			setresult_control(ptr, var);
-		else
-			setresult_control(ptr, Nil);
-		rollback_local(local, stack);
-	}
-	else {
-		/* symbol, string */
-		if (symbolp(var))
-			GetNameSymbol(var, &var);
-		if (findtable_name_char(&var, var))
-			setresult_control(ptr, var);
-		else
-			setresult_control(ptr, Nil);
-	}
+	name_char_common(ptr->local, var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_name_char(addr *ret)

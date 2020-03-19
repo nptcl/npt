@@ -17,6 +17,7 @@
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
@@ -45,7 +46,7 @@ static int test_eval_scope_heap(void)
 static void test_parse_type(addr *ret, addr type)
 {
 	if (parse_type(Execute_Thread, ret, type, Nil))
-		fmte("system error", NULL);
+		_fmte("system error", NULL);
 }
 
 static int test_eval_scope_size(void)
@@ -2081,7 +2082,7 @@ static int test_symbol_macrolet_p(void)
 	RETURN;
 }
 
-static void test_scope_symbol_replace_function(Execute ptr,
+static int test_scope_symbol_replace_function(Execute ptr,
 		addr call, addr args, addr env)
 {
 	addr pos, check;
@@ -2090,11 +2091,12 @@ static void test_scope_symbol_replace_function(Execute ptr,
 	GetFunctionSymbol(check, &check);
 	if (check != call) {
 		setresult_control(ptr, fixnumh(30));
-		return;
+		return 0;
 	}
 
 	eval_parse_execute(&pos, fixnumh(args == T? 10: 20));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static int test_scope_symbol_replace(void)

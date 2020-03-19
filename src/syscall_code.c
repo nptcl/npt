@@ -40,6 +40,7 @@
 #include "stream_pretty.h"
 #include "stream_string.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "structure.h"
 #include "symbol.h"
 #include "syscall_code.h"
@@ -110,7 +111,7 @@ _g void redirect_restart_syscode(Execute ptr, addr condition, addr list)
 	while (list != Nil) {
 		getcons(list, &pos, &list);
 		if (GetType(pos) != LISPTYPE_RESTART)
-			fmte("The argument ~S must be a restart.", pos, NULL);
+			_fmte("The argument ~S must be a restart.", pos, NULL);
 		pushbind_restart_control(ptr, pos, 0);
 	}
 	reverse_restart_control(ptr);
@@ -126,7 +127,7 @@ _g void defconstant_syscode(addr symbol, addr value, addr doc)
 	Check(doc != Nil && (! stringp(doc)), "type documentation error");
 	GetValueSymbol(symbol, &check);
 	if (check != Unbound && (! eql_function(check, value)))
-		fmte("The defconstant cannot setq ~S value.", symbol, NULL);
+		_fmte("The defconstant cannot setq ~S value.", symbol, NULL);
 	ResetStatusReadOnly(symbol);
 	SetValueSymbol(symbol, value);
 	setdocument_variable_symbol(symbol, doc);
@@ -221,7 +222,7 @@ _g int defpackage_syscode(Execute ptr, addr rest, addr *ret)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	Return1(defpackage_execute(ptr, rest, ret));
+	Return(defpackage_execute(ptr, rest, ret));
 	rollback_local(local, stack);
 
 	return 0;
@@ -317,7 +318,7 @@ _g int defsetf_short_syscode(Execute ptr,
 	localhold_set(hold, 4, r);
 	while (args != Nil) {
 		if (! consp(args))
-			fmte("Invalid call argument ~S.", args, NULL);
+			_fmte("Invalid call argument ~S.", args, NULL);
 		GetCons(args, &pos, &args);
 		if (eval_constantp(ptr, pos, env, &check))
 			return 1;
@@ -371,7 +372,7 @@ static void defsetf_var_bind(Execute ptr, addr *args, addr list, addr array)
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		if (! consp(*args))
-			fmte("The argument ~S must be list type.", *args, NULL);
+			_fmte("The argument ~S must be list type.", *args, NULL);
 		GetCons(*args, &value, args);
 		make_gensym(ptr, &gensym);
 		defsetf_push(array, 0, gensym);
@@ -392,7 +393,7 @@ static void defsetf_opt_bind(Execute ptr, addr *args, addr list, addr array)
 		check = (*args != Nil);
 		if (check) {
 			if (! consp(*args))
-				fmte("The argument ~S must be list type.", *args, NULL);
+				_fmte("The argument ~S must be list type.", *args, NULL);
 			GetCons(*args, &init, args);
 		}
 		make_gensym(ptr, &gensym);
@@ -417,10 +418,10 @@ static void defsetf_store_bind(Execute ptr, addr list, addr array, addr *ret)
 	root = Nil;
 	while (list != Nil) {
 		if (! consp(list))
-			fmte("defsetf store ~S must be a list type.", list, NULL);
+			_fmte("defsetf store ~S must be a list type.", list, NULL);
 		GetCons(list, &symbol, &list);
 		if (! symbolp(symbol))
-			fmte("defsetf store ~S must be a symbol type.", symbol, NULL);
+			_fmte("defsetf store ~S must be a symbol type.", symbol, NULL);
 		make_gensym(ptr, &gensym);
 		defsetf_push(array, 2, symbol);
 		defsetf_push(array, 3, gensym);
@@ -482,7 +483,7 @@ static int defsetf_write(Execute ptr, addr *ret, addr c, addr d, addr body)
 	/* let */
 	lista_heap(&root, let, root, declare, body, NULL);
 	hold = LocalHold_local_push(ptr, root);
-	Return1(eval_object(ptr, root, ret));
+	Return(eval_object(ptr, root, ret));
 	localhold_end(hold);
 
 	return 0;
@@ -509,7 +510,7 @@ _g int defsetf_long_syscode(Execute ptr, addr rest,
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, a, b, c, d, g, NULL);
-	Return1(defsetf_write(ptr, &w, c, d, body));
+	Return(defsetf_write(ptr, &w, c, d, body));
 	localhold_end(hold);
 
 	cons_heap(&r, access, d);
@@ -584,11 +585,11 @@ _g void exit_syscode(addr code)
 		return;
 	}
 	if (! fixnump(code))
-		fmte("Invalid code type ~S.", code, NULL);
+		_fmte("Invalid code type ~S.", code, NULL);
 	GetFixnum(code, &value);
 	result = (int)value;
 	if (value != (fixnum)result)
-		fmte("The result code ~S must be a int type.", code, NULL);
+		_fmte("The result code ~S must be a int type.", code, NULL);
 	exit_execute(result);
 }
 
@@ -621,11 +622,11 @@ _g int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret)
 	}
 	else {
 		getcons(args, &format, &args);
-		Return1(format_string_lisp(ptr, format, args, &format));
+		Return(format_string_lisp(ptr, format, args, &format));
 	}
 
 	hold = LocalHold_local_push(ptr, format);
-	Return1(prompt_for_stream(ptr, type, format, &format));
+	Return(prompt_for_stream(ptr, type, format, &format));
 	localhold_end(hold);
 	*ret = format;
 
@@ -725,7 +726,7 @@ _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
 	output_stream_designer(ptr, stream, &stream);
 	push_close_control(ptr, &control);
 	hold = LocalHold_local_push(ptr, stream);
-	Return1(write_default_print(ptr, stream, var));
+	Return(write_default_print(ptr, stream, var));
 	localhold_end(hold);
 	*ret = var;
 
@@ -1026,7 +1027,7 @@ static OptimizeType declare_parse_value(addr symbol)
 		return get_optimize_compilation_declare(root);
 
 	/* error */
-	fmte("Invalid declare-parse argument ~S.", symbol, NULL);
+	_fmte("Invalid declare-parse argument ~S.", symbol, NULL);
 	return 0;
 }
 
@@ -1045,6 +1046,6 @@ _g void declare_parse_syscode(addr form, addr *ret)
 	return;
 
 error:
-	fmte("The declare-parse form ~S must be a (symbol).", form, NULL);
+	_fmte("The declare-parse form ~S must be a (symbol).", form, NULL);
 }
 

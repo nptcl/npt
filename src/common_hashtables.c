@@ -1,15 +1,10 @@
 /*
  *  ANSI COMMON LISP: 18. Hash Tables
  */
-#include "bignum.h"
 #include "common_header.h"
 #include "cons.h"
-#include "cons_plist.h"
 #include "hashtable.h"
-#include "integer.h"
-#include "number.h"
-#include "sxhash.h"
-#include "type_parse.h"
+#include "hashtable_common.h"
 
 /* (defun make-hash-table
  *     (&key test size rehash-size rehash-threshold) ...) -> hashtable
@@ -19,139 +14,11 @@
  *   rehash-size       (or (integer 1 *) (float (1.0) *))
  *   rehash-threshold  (real 0 1)
  */
-static int make_hash_table_test_symbol(addr pos, enum HASHTABLE_TEST *ret)
+static int function_make_hash_table(Execute ptr, addr rest)
 {
-	addr check;
-
-	GetConst(COMMON_EQ, &check);
-	if (pos == check) {
-		*ret = HASHTABLE_TEST_EQ;
-		return 0;
-	}
-	GetConst(COMMON_EQL, &check);
-	if (pos == check) {
-		*ret = HASHTABLE_TEST_EQL;
-		return 0;
-	}
-	GetConst(COMMON_EQUAL, &check);
-	if (pos == check) {
-		*ret = HASHTABLE_TEST_EQUAL;
-		return 0;
-	}
-	GetConst(COMMON_EQUALP, &check);
-	if (pos == check) {
-		*ret = HASHTABLE_TEST_EQUALP;
-		return 0;
-	}
-
-	return 1;
-}
-
-static void make_hash_table_test(addr rest, enum HASHTABLE_TEST *ret)
-{
-	addr pos, check;
-
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_TEST, &pos)) {
-		*ret = HASHTABLE_TEST_EQL;
-		return;
-	}
-	if (symbolp(pos)) {
-		if (make_hash_table_test_symbol(pos, ret))
-			goto error;
-		return;
-	}
-	if (functionp(pos)) {
-		GetNameFunction(pos, &check);
-		GetCallName(check, &check);
-		if (make_hash_table_test_symbol(check, ret))
-			goto error;
-		return;
-	}
-error:
-	*ret = HASHTABLE_TEST_EQL;
-	fmte("Invalid hash-hable-test ~S.", pos, NULL);
-}
-
-static void make_hash_table_size(addr rest, size_t *ret)
-{
-	addr pos;
-
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_SIZE, &pos)) {
-		*ret = HASHTABLE_SIZE_DEFAULT;
-		return;
-	}
-	if (! integerp(pos)) {
-		TypeError(pos, INTEGER);
-	}
-	if (GetIndex_integer(pos, ret)) {
-		fmte("Invalid hash size ~S.", pos, NULL);
-	}
-}
-
-static void make_hash_table_rehash_size(addr rest,
-		int *floatp, double_float *rehashf, size_t *rehashi)
-{
-	addr pos;
-	double_float valuef;
-	size_t valuei;
-
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_REHASH_SIZE, &pos)) {
-		*floatp = 1;
-		*rehashf = HASHTABLE_REHASH_SIZE_DEFAULT;
-		return;
-	}
-	if (integerp(pos)) {
-		if (GetIndex_integer(pos, &valuei))
-			fmte("Invalid rehash-size ~S.", pos, NULL);
-		if (valuei < 1UL)
-			fmte("rehash-size ~S must be greater than 1.", pos, NULL);
-		*floatp = 0;
-		*rehashi = valuei;
-		return;
-	}
-	else {
-		valuef = cast_double_float_unsafe(pos);
-		if (valuef <= 1.0)
-			fmte("rehash-size ~S must be greater than equal to 1.0.", pos, NULL);
-		*floatp = 1;
-		*rehashf = valuef;
-		return;
-	}
-}
-
-static void make_hash_table_rehash_threshold(addr rest, double_float *ret)
-{
-	addr pos;
-	double_float value;
-
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_REHASH_THRESHOLD, &pos)) {
-		value = HASHTABLE_REHASH_THRESHOLD_DEFAULT;
-	}
-	else {
-		value = cast_double_float_unsafe(pos);
-		if (value < 0.0 || 1.0 < value)
-			fmte("rehash-threshold ~S must be a number between 0.0 and 1.0.", pos, NULL);
-	}
-	*ret = value;
-}
-
-static void function_make_hash_table(Execute ptr, addr rest)
-{
-	enum HASHTABLE_TEST test;
-	int floatp;
-	size_t size, rehashi;
-	double_float rehashf, threshold;
-
-	make_hash_table_test(rest, &test);
-	make_hash_table_size(rest, &size);
-	make_hash_table_rehash_size(rest, &floatp, &rehashf, &rehashi);
-	make_hash_table_rehash_threshold(rest, &threshold);
-
-	if (floatp)
-		hashtable_full_heap(&rest, test, size, rehashf, threshold);
-	else
-		hashtable_integer_heap(&rest, test, size, rehashi, threshold);
+	Return(make_hash_table_common(rest, &rest));
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void type_make_hash_table(addr *ret)
@@ -201,9 +68,10 @@ static void defun_make_hash_table(void)
 
 
 /* (defun hash-table-p (object) ...) -> boolean */
-static void function_hash_table_p(Execute ptr, addr var)
+static int function_hash_table_p(Execute ptr, addr var)
 {
 	setbool_control(ptr, hashtablep(var));
+	return 0;
 }
 
 static void defun_hash_table_p(void)
@@ -225,13 +93,11 @@ static void defun_hash_table_p(void)
 /* (defun hash-table-count (hash-table) ...) -> count
  *   count  (integer 0 *)
  */
-static void function_hash_table_count(Execute ptr, addr var)
+static int function_hash_table_count(Execute ptr, addr var)
 {
-	size_t size;
-
-	getcount_hashtable(var, &size);
-	make_index_integer_alloc(NULL, &var, size);
+	hash_table_count_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_hash_table_count(void)
@@ -253,23 +119,11 @@ static void defun_hash_table_count(void)
 /* (defun hash-table-rehash-size (hash-table) ...) -> rehash-size
  *    rehash-size  (or (integer 1 *) (float (1.0) *))
  */
-static void function_hash_table_rehash_size(Execute ptr, addr var)
+static int function_hash_table_rehash_size(Execute ptr, addr var)
 {
-	addr pos;
-	double_float valuef;
-	size_t valuei;
-
-	if (getrehash_float_hashtable(var, &valuef)) {
-		double_float_heap(&pos, valuef);
-		setresult_control(ptr, pos);
-		return;
-	}
-	if (getrehash_integer_hashtable(var, &valuei)) {
-		make_index_integer_alloc(NULL, &pos, valuei);
-		setresult_control(ptr, pos);
-		return;
-	}
-	fmte("Invalid hash-table structure ~S.", var, NULL);
+	Return(hash_table_rehash_size_common(var, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_hash_table_rehash_size(addr *ret)
@@ -302,13 +156,11 @@ static void defun_hash_table_rehash_size(void)
 /* (defun hash-table-rehash-threshold (hash-table) ...) -> threshold
  *   threshold  (real 0 1)
  */
-static void function_hash_table_rehash_threshold(Execute ptr, addr var)
+static int function_hash_table_rehash_threshold(Execute ptr, addr var)
 {
-	double_float value;
-
-	getrehash_threshold_hashtable(var, &value);
-	double_float_heap(&var, value);
+	hash_table_rehash_threshold_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_hash_table_rehash_threshold(addr *ret)
@@ -341,13 +193,11 @@ static void defun_hash_table_rehash_threshold(void)
 /* (defun hash-table-size (hash-table) ...) -> size
  *   size  (integer 0 *)
  */
-static void function_hash_table_size(Execute ptr, addr var)
+static int function_hash_table_size(Execute ptr, addr var)
 {
-	size_t size;
-
-	getsize_hashtable(var, &size);
-	make_index_integer_alloc(NULL, &var, size);
+	hash_table_size_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_hash_table_size(void)
@@ -367,33 +217,11 @@ static void defun_hash_table_size(void)
 
 
 /* (defun hash-table-test (hash-table) ...) -> symbol */
-static void function_hash_table_test(Execute ptr, addr var)
+static int function_hash_table_test(Execute ptr, addr var)
 {
-	enum HASHTABLE_TEST test;
-
-	gettest_hashtable(var, &test);
-	switch (test) {
-		case HASHTABLE_TEST_EQ:
-			GetConst(COMMON_EQ, &var);
-			break;
-
-		case HASHTABLE_TEST_EQL:
-			GetConst(COMMON_EQL, &var);
-			break;
-
-		case HASHTABLE_TEST_EQUAL:
-			GetConst(COMMON_EQUAL, &var);
-			break;
-
-		case HASHTABLE_TEST_EQUALP:
-			GetConst(COMMON_EQUALP, &var);
-			break;
-
-		default:
-			var = Nil;
-			break;
-	}
+	hash_table_test_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_hash_table_test(addr *ret)
@@ -423,15 +251,11 @@ static void defun_hash_table_test(void)
 
 
 /* (defun gethash (key hash-table &optional default) ...) -> value, boolean */
-static void function_gethash(Execute ptr, addr key, addr table, addr value)
+static int function_gethash(Execute ptr, addr key, addr table, addr value)
 {
-	addr result;
-
-	if (value == Unbound) value = Nil;
-	if (findvalue_hashtable(table, key, &result))
-		setvalues_control(ptr, result, T, NULL);
-	else
-		setvalues_control(ptr, value, Nil, NULL);
+	gethash_common(key, table, value, &key, &value);
+	setvalues_control(ptr, key, value, NULL);
+	return 0;
 }
 
 static void type_gethash(addr *ret)
@@ -463,15 +287,13 @@ static void defun_gethash(void)
 
 
 /* (defun (setf gethash) (value key hash-table) ...) -> value */
-static void function_setf_gethash(Execute ptr,
+static int function_setf_gethash(Execute ptr,
 		addr value, addr key, addr table, addr defvalue)
 {
-	addr cons;
-
 	/* defvalue is ignored. */
-	intern_hashtable(ptr->local, table, key, &cons);
-	SetCdr(cons, value);
+	setf_gethash_common(ptr->local, value, key, table);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_gethash(addr *ret)
@@ -502,9 +324,11 @@ static void defun_setf_gethash(void)
 
 
 /* (defun remhash (key hash-table) ...) -> boolean */
-static void function_remhash(Execute ptr, addr key, addr table)
+static int function_remhash(Execute ptr, addr key, addr table)
 {
-	setbool_control(ptr, delete_hashtable(table, key) == 0);
+	remhash_common(key, table, &table);
+	setresult_control(ptr, table);
+	return 0;
 }
 
 static void type_remhash(addr *ret)
@@ -535,32 +359,11 @@ static void defun_remhash(void)
 
 
 /* (defun maphash (function hash-table) ...) -> null */
-static void execute_maphash(Execute ptr, addr call, addr key, addr value)
+static int function_maphash(Execute ptr, addr call, addr table)
 {
-	int check;
-	addr control;
-
-	push_close_control(ptr, &control);
-	check = funcall_control(ptr, call, key, value, NULL);
-	(void)free_check_control(ptr, control, check);
-}
-
-static void function_maphash(Execute ptr, addr call, addr table)
-{
-	addr cons, key, value;
-	size_t i, size;
-
-	GetTableHash(table, &table);
-	LenArrayHash(table, &size);
-	for (i = 0; i < size; i++) {
-		GetArrayHash(table, i, &cons);
-		while (cons != Nil) {
-			GetCons(cons, &key, &cons);
-			GetCons(key, &key, &value);
-			execute_maphash(ptr, call, key, value);
-		}
-	}
+	Return(maphash_common(ptr, call, table));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_maphash(addr *ret)
@@ -591,65 +394,11 @@ static void defun_maphash(void)
 
 
 /* (defmacro with-hash-table-iterator ((name hash-table) &body body) ...) */
-static void expand_with_hash_table_iterator(Execute ptr,
-		addr name, addr table, addr body)
+static int function_with_hash_table_iterator(Execute ptr, addr form, addr env)
 {
-	/* (let ((inst (make-hash-iterator table)))
-	 *   (declare (ignorable inst))
-	 *   (macrolet ((name () (list (quote next-hash-iterator) (quote inst))))
-	 *     (declare (ignorable name))
-	 *     . body))
-	 */
-	addr let, declare, ignorable, macrolet, list, quote, make, next;
-	addr inst, let1, let2, let3;
-
-	GetConst(COMMON_LET, &let);
-	GetConst(COMMON_DECLARE, &declare);
-	GetConst(COMMON_IGNORABLE, &ignorable);
-	GetConst(COMMON_MACROLET, &macrolet);
-	GetConst(COMMON_LIST, &list);
-	GetConst(COMMON_QUOTE, &quote);
-	GetConst(SYSTEM_MAKE_HASH_ITERATOR, &make);
-	GetConst(SYSTEM_NEXT_HASH_ITERATOR, &next);
-	make_gensym(ptr, &inst);
-
-	list_heap(&let1, make, table, NULL);
-	list_heap(&let1, inst, let1, NULL);
-	conscar_heap(&let1, let1);
-	list_heap(&let2, ignorable, inst, NULL);
-	list_heap(&let2, declare, let2, NULL);
-	list_heap(&let3, quote, inst, NULL);
-	list_heap(&next, quote, next, NULL);
-	list_heap(&let3, list, next, let3, NULL);
-	list_heap(&let3, name, Nil, let3, NULL);
-	conscar_heap(&let3, let3);
-	list_heap(&name, ignorable, name, NULL);
-	list_heap(&name, declare, name, NULL);
-	lista_heap(&let3, macrolet, let3, name, body, NULL);
-	list_heap(&let, let, let1, let2, let3, NULL);
-	setresult_control(ptr, let);
-}
-
-static void function_with_hash_table_iterator(Execute ptr, addr form, addr env)
-{
-	addr args, name, table, check;
-
-	/* args */
-	getcdr(form, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &name, &args);
-	if (! consp(name)) goto error;
-	GetCons(name, &name, &table);
-	if (! consp(table)) goto error;
-	GetCons(table, &table, &check);
-	if (check != Nil) goto error;
-	/* ((name table) . args) */
-	expand_with_hash_table_iterator(ptr, name, table, args);
-	return;
-
-error:
-	fmte("with-hash-table-iterator form ~S must be "
-			"((name hash-table) &body body)" , form, NULL);
+	Return(with_hash_table_iterator_common(ptr, form, env, &form));
+	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_with_hash_table_iterator(void)
@@ -667,10 +416,11 @@ static void defmacro_with_hash_table_iterator(void)
 
 
 /* (defun clrhash (hash-table) ...) -> hash-table */
-static void function_clrhash(Execute ptr, addr var)
+static int function_clrhash(Execute ptr, addr var)
 {
 	clear_hashtable(var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_clrhash(addr *ret)
@@ -702,10 +452,11 @@ static void defun_clrhash(void)
 /* (defun sxhash (object) ...) -> hash-code
  *    hash-code  index  ;; fixnum
  */
-static void function_sxhash(Execute ptr, addr var)
+static int function_sxhash(Execute ptr, addr var)
 {
-	fixnum_heap(&var, sxhash_equal(var));
+	sxhash_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_sxhash(addr *ret)

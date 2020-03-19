@@ -3,6 +3,7 @@
 #include "define.h"
 #include "hashtable.h"
 #include "package.h"
+#include "strvect.h"
 #include "sxhash.h"
 #include "symbol.h"
 
@@ -116,7 +117,7 @@ _g void intern_symbol_header(void)
 				break;
 
 			default:
-				fmte("package error.", NULL);
+				_fmte("package error.", NULL);
 				return;
 		}
 		if (table->specialp)

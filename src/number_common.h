@@ -23,7 +23,7 @@ _g void random_common(Execute ptr, addr limit, addr state, addr *ret);
 _g void conjugate_common(addr var, addr *ret);
 _g void realpart_common(addr var, addr *ret);
 _g void imagpart_common(addr var, addr *ret);
-_g void parse_integer_common(LocalRoot local,
+_g int parse_integer_common(LocalRoot local,
 		addr var, addr rest, addr *ret1, addr *ret2);
 
 #endif

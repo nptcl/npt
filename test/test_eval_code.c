@@ -1963,7 +1963,7 @@ static int test_code_catch(void)
 	RETURN;
 }
 
-static void test_multiple_value_call1(Execute ptr, addr rest)
+static int test_multiple_value_call1(Execute ptr, addr rest)
 {
 	addr pos1, pos2, pos3;
 
@@ -1978,10 +1978,11 @@ static void test_multiple_value_call1(Execute ptr, addr rest)
 			&& RefFixnum(pos2) == 20
 			&& RefFixnum(pos3) == 30)? T: Nil;
 	setresult_control(ptr, rest);
-	return;
+	return 0;
 
 result_nil:
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static int test_code_multiple_value_call(void)

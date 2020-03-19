@@ -11,7 +11,6 @@
 #include "real_decode.h"
 #include "strtype.h"
 #include "typedef.h"
-#include "unicode.h"
 
 /*
  *  Declarations

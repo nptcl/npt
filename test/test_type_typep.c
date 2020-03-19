@@ -9,6 +9,7 @@
 #include "package.h"
 #include "random_state.h"
 #include "readtable.h"
+#include "restart.h"
 #include "stream.h"
 #include "stream_broadcast.h"
 #include "stream_concat.h"
@@ -17,6 +18,7 @@
 #include "stream_string.h"
 #include "stream_synonym.h"
 #include "stream_twoway.h"
+#include "strvect.h"
 #include "syscall.h"
 #include "type_copy.h"
 
@@ -26,7 +28,7 @@
 static void test_parse_type_error(addr *ret, addr pos)
 {
 	if (parse_type(Execute_Thread, ret, pos, Nil))
-		fmte("parse-type error.");
+		_fmte("parse-type error.");
 }
 
 static void test_parse_char(addr *ret, const char *str)
@@ -43,7 +45,7 @@ static int typep_object(addr x, addr y)
 {
 	int check = 0;
 	if (TypepClang(x, y, &check))
-		fmte("typep error");
+		_fmte("typep error");
 	return check;
 }
 
@@ -67,7 +69,7 @@ static int typep_asterisk_char(addr x, const char *str)
 	test_parse_char(&y, str);
 	check = 0;
 	if (TypepAsteriskClang(x, y, &check))
-		fmte("typep error");
+		_fmte("typep error");
 
 	return check;
 }

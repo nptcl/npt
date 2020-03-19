@@ -1,34 +1,18 @@
 /*
  *  ANSI COMMON LISP: 22. Printer
  */
-#include "bignum.h"
 #include "common_header.h"
 #include "cons.h"
-#include "cons_plist.h"
-#include "eval_declare.h"
 #include "format.h"
-#include "format_function.h"
-#include "format_parse.h"
-#include "gc.h"
-#include "integer.h"
-#include "print.h"
+#include "print_common.h"
 #include "print_dispatch.h"
-#include "print_function.h"
-#include "print_pretty.h"
-#include "print_write.h"
-#include "stream.h"
-#include "stream_string.h"
-#include "strtype.h"
-#include "type_parse.h"
-#include "type_table.h"
 
 /* (defun copy-pprint-dispatch (&optional table) ...) -> new-table */
-static void function_copy_pprint_dispatch(Execute ptr, addr var)
+static int function_copy_pprint_dispatch(Execute ptr, addr var)
 {
-	if (var == Unbound)
-		pprint_dispatch_print(ptr, &var);
 	copy_pprint_dispatch_common(ptr, var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_copy_pprint_dispatch(addr *ret)
@@ -59,41 +43,11 @@ static void defun_copy_pprint_dispatch(void)
 
 
 /* (defmacro formatter (string) ...) -> function */
-static void formatter_call(Execute ptr, addr stream, addr args)
+static int function_formatter(Execute ptr, addr var, addr env)
 {
-	addr format;
-
-	getdata_control(ptr, &format);
-	if (format_execute(ptr, stream, format, args, &args))
-		return;
-	setresult_control(ptr, args);
-}
-
-static void function_formatter(Execute ptr, addr var, addr env)
-{
-	addr pos, type;
-
-	/* macro */
-	getcdr(var, &var);
-	if (! singlep(var))
-		goto error;
-	GetCar(var, &var);
-	if (! stringp(var))
-		goto error;
-	/* function */
-	compiled_heap(&pos, Nil);
-	setcompiled_var1dynamic(pos, p_formatter_call);
-	GetTypeCompiled(&type, FormatterFunction);
-	settype_function(pos, type);
-	/* format */
-	format_parse_heap(ptr->local, &var, var);
-	SetDataFunction(pos, var);
-	/* result */
-	setresult_control(ptr, pos);
-	return;
-
-error:
-	fmte("FORMATTER argument must be a (FORMATTER string) form.", NULL);
+	Return(formatter_common(ptr->local, var, env, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmacro_formatter(void)
@@ -111,13 +65,11 @@ static void defmacro_formatter(void)
 
 
 /* (defun pprint-dispatch (object &optional table) ...) -> function, boolean */
-static void function_pprint_dispatch(Execute ptr, addr var, addr table)
+static int function_pprint_dispatch(Execute ptr, addr var, addr table)
 {
-	if (table == Unbound)
-		pprint_dispatch_print(ptr, &table);
-	if (pprint_dispatch_common(ptr, var, table, &var, &table))
-		return;
+	Return(pprint_dispatch_common(ptr, var, table, &var, &table));
 	setvalues_control(ptr, var, table, NULL);
+	return 0;
 }
 
 static void type_pprint_dispatch(addr *ret)
@@ -155,14 +107,12 @@ static void defun_pprint_dispatch(void)
  *   colon-p    t  ;; boolean
  *   at-sign-p  t  ;; boolean
  */
-static void function_pprint_fill(Execute ptr,
+static int function_pprint_fill(Execute ptr,
 		addr stream, addr pos, addr colon, addr atsign)
 {
-	if (colon == Unbound) colon = T;
-	output_stream_designer(ptr, stream, &stream);
-	if (pprint_fill_common(ptr, stream, pos, colon != Nil))
-		return;
+	Return(pprint_fill_common(ptr, stream, pos, colon));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void defun_pprint_fill(void)
@@ -187,14 +137,12 @@ static void defun_pprint_fill(void)
  *   colon-p    t  ;; boolean
  *   at-sign-p  t  ;; boolean
  */
-static void function_pprint_linear(Execute ptr,
+static int function_pprint_linear(Execute ptr,
 		addr stream, addr pos, addr colon, addr atsign)
 {
-	if (colon == Unbound) colon = T;
-	output_stream_designer(ptr, stream, &stream);
-	if (pprint_linear_common(ptr, stream, pos, colon != Nil))
-		return;
+	Return(pprint_linear_common(ptr, stream, pos, colon));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void defun_pprint_linear(void)
@@ -219,18 +167,12 @@ static void defun_pprint_linear(void)
  *   colon-p    t  ;; boolean
  *   at-sign-p  t  ;; boolean
  */
-static void function_pprint_tabular(Execute ptr,
+static int function_pprint_tabular(Execute ptr,
 		addr stream, addr pos, addr colon, addr atsign, addr tabsize)
 {
-	fixnum size;
-
-	if (colon == Unbound) colon = T;
-	if (tabsize == Unbound) fixnum_heap(&tabsize, 16);
-	output_stream_designer(ptr, stream, &stream);
-	getfixnum_unsigned(tabsize, &size);
-	if (pprint_tabular_common(ptr, stream, pos, colon != Nil, size))
-		return;
+	Return(pprint_tabular_common(ptr, stream, pos, colon, tabsize));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_pprint_tabular(addr *ret)
@@ -269,28 +211,11 @@ static void defun_pprint_tabular(void)
  *   n            real
  *   stream       output-stream-designer
  */
-static void function_pprint_indent(Execute ptr, addr rel, addr n, addr stream)
+static int function_pprint_indent(Execute ptr, addr rel, addr n, addr stream)
 {
-	int block_p;
-	addr block, current;
-	fixnum value;
-
-	output_stream_designer(ptr, stream, &stream);
-	GetConst(KEYWORD_BLOCK, &block);
-	GetConst(KEYWORD_CURRENT, &current);
-	if (rel == block)
-		block_p = 1;
-	else if (rel == current)
-		block_p = 0;
-	else {
-		fmte("The first argument ~S must be a (MEMBER :BLOCK :CURRENT).", rel, NULL);
-		return;
-	}
-	if (! fixnump(n))
-		fmte("Too large indent value ~S.", n, NULL);
-	GetFixnum(n, &value);
-	pprint_indent_common(ptr, block_p, value, stream);
+	Return(pprint_indent_common(ptr, rel, n, stream));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_pprint_indent(addr *ret)
@@ -327,56 +252,11 @@ static void defun_pprint_indent(void)
  *      (stream-symbol object &key prefix per-line-prefix suffix)
  *      declaration* form*) -> null
  */
-static void function_pprint_logical_block(Execute ptr, addr form, addr env)
+static int function_pprint_logical_block(Execute ptr, addr form, addr env)
 {
-	addr args, list, stream, pos, decl;
-	addr key, key1, key2, key3, value, value1, value2, value3;
-
-	getcdr(form, &form);
-	if (! consp_getcons(form, &list, &args))
-		goto error;
-	/* first argument */
-	if (! consp_getcons(list, &stream, &list))
-		goto error;
-	if (! consp_getcons(list, &pos, &list))
-		goto error;
-	GetConst(KEYWORD_PREFIX, &key1);
-	GetConst(KEYWORD_PER_LINE_PREFIX, &key2);
-	GetConst(KEYWORD_SUFFIX, &key3);
-	value1 = value2 = value3 = Unbound;
-	while (list != Nil) {
-		getcons(list, &key, &list);
-		getcons(list, &value, &list);
-		if (key == key1) {
-			if (value1 == Unbound)
-				value1 = value;
-		}
-		else if (key == key2) {
-			if (value2 == Unbound)
-				value2 = value;
-		}
-		else if (key == key3) {
-			if (value3 == Unbound)
-				value3 = value;
-		}
-		else {
-			goto error;
-		}
-	}
-	/* result */
-	declare_body_form(args, &decl, &args);
-	if (value1 == Unbound) value1 = Nil;
-	if (value2 == Unbound) value2 = Nil;
-	if (value3 == Unbound) value3 = Nil;
-	expand_pprint_logical_block_common(&pos,
-			stream, pos, value1, value2, value3, decl, args);
-	setresult_control(ptr, pos);
-	return;
-
-error:
-	fmte("PPRINT-LOGICAL-BLOCK form ~S must be "
-			"((stream object &key prefix per-line-prefix suffix) "
-			"declaration* form*)", form, NULL);
+	Return(pprint_logical_block_common(form, env, &form));
+	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_pprint_logical_block(void)
@@ -397,35 +277,11 @@ static void defmacro_pprint_logical_block(void)
  *   kind    (member :linear :fill :miser :mandatory)
  *   stream  output-steram-designer
  */
-static enum pprint_newline pprint_newline_symbol(addr kind)
+static int function_pprint_newline(Execute ptr, addr kind, addr stream)
 {
-	addr check;
-
-	GetConst(KEYWORD_LINEAR, &check);
-	if (check == kind)
-		return pprint_newline_linear;
-	GetConst(KEYWORD_FILL, &check);
-	if (check == kind)
-		return pprint_newline_fill;
-	GetConst(KEYWORD_MISER, &check);
-	if (check == kind)
-		return pprint_newline_miser;
-	GetConst(KEYWORD_MANDATORY, &check);
-	if (check == kind)
-		return pprint_newline_mandatory;
-	fmte("PPRINT-NEWLINE first argument ~S must be "
-			"(member :linear :fill :miser :mandatory)", kind, NULL);
-	return pprint_newline_linear;
-}
-
-static void function_pprint_newline(Execute ptr, addr kind, addr stream)
-{
-	enum pprint_newline value;
-
-	value = pprint_newline_symbol(kind);
-	output_stream_designer(ptr, stream, &stream);
-	pprint_newline_common(ptr, value, stream);
+	Return(pprint_newline_common(ptr, kind, stream));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_pprint_newline(addr *ret)
@@ -461,39 +317,12 @@ static void defun_pprint_newline(void)
  *   colinc  (integer 0 *)
  *   stream  output-steram-designer
  */
-static enum pprint_tabular pprint_tabular_symbol(addr kind)
-{
-	addr check;
-
-	GetConst(KEYWORD_LINE, &check);
-	if (check == kind)
-		return pprint_tabular_line;
-	GetConst(KEYWORD_SECTION, &check);
-	if (check == kind)
-		return pprint_tabular_section;
-	GetConst(KEYWORD_LINE_RELATIVE, &check);
-	if (check == kind)
-		return pprint_tabular_line_relative;
-	GetConst(KEYWORD_SECTION_RELATIVE, &check);
-	if (check == kind)
-		return pprint_tabular_section_relative;
-	fmte("PPRINT-TAB first argument ~S must be "
-			"(member :line :section :line-relative :section-relative)", kind, NULL);
-	return pprint_tabular_line;
-}
-
-static void function_pprint_tab(Execute ptr,
+static int function_pprint_tab(Execute ptr,
 		addr kind, addr column, addr colinc, addr stream)
 {
-	enum pprint_tabular value;
-	fixnum a, b;
-
-	value = pprint_tabular_symbol(kind);
-	getfixnum_unsigned(column, &a);
-	getfixnum_unsigned(colinc, &b);
-	output_stream_designer(ptr, stream, &stream);
-	pprint_tab_common(ptr, stream, value, a, b);
+	Return(pprint_tab_common(ptr, kind, column, colinc, stream));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_pprint_tab(addr *ret)
@@ -531,63 +360,11 @@ static void defun_pprint_tab(void)
  *   type      t  ;; boolean, evaluated
  *   identity  t  ;; boolean, evaluated
  */
-static void expand_print_unreadable_object(addr *ret,
-		addr pos, addr stream, addr type, addr identity, addr body)
+static int function_print_unreadable_object(Execute ptr, addr form, addr env)
 {
-	/* `(list-system::print-unreadable-call
-	 *     ,stream ,object ,type ,identity ,(when body `(lambda () ,@body)))
-	 */
-	addr call, lambda;
-
-	if (body != Nil) {
-		GetConst(COMMON_LAMBDA, &lambda);
-		lista_heap(&body, lambda, Nil, body, NULL);
-	}
-	GetConst(SYSTEM_PRINT_UNREADABLE_CALL, &call);
-	list_heap(ret, call, stream, pos, type, identity, body, NULL);
-}
-
-static void function_print_unreadable_object(Execute ptr, addr form, addr env)
-{
-	addr args, list, stream, pos;
-	addr key, key1, key2, value, value1, value2;
-
-	getcdr(form, &form);
-	if (! consp_getcons(form, &list, &args))
-		goto error;
-	/* first argument */
-	if (! consp_getcons(list, &pos, &list))
-		goto error;
-	if (! consp_getcons(list, &stream, &list))
-		goto error;
-	GetConst(KEYWORD_TYPE, &key1);
-	GetConst(KEYWORD_IDENTITY, &key2);
-	value1 = value2 = Unbound;
-	while (list != Nil) {
-		getcons(list, &key, &list);
-		getcons(list, &value, &list);
-		if (key == key1) {
-			if (value1 == Unbound)
-				value1 = value;
-		}
-		else if (key == key2) {
-			if (value2 == Unbound)
-				value2 = value;
-		}
-		else {
-			goto error;
-		}
-	}
-	/* result */
-	if (value1 == Unbound) value1 = Nil;
-	if (value2 == Unbound) value2 = Nil;
-	expand_print_unreadable_object(&pos, pos, stream, value1, value2, args);
-	setresult_control(ptr, pos);
-	return;
-
-error:
-	fmte("PRINT-UNREADABLE-OBJECT form ~S must be "
-			"((object stream &key type identity) &body form)", form, NULL);
+	Return(print_unreadable_object_common(form, env, &form));
+	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_print_unreadable_object(void)
@@ -610,19 +387,12 @@ static void defmacro_print_unreadable_object(void)
  *   priority  real  ;; default 0
  *   table     print-dispatch  ;; default *print-pprint-dispatch*
  */
-static void function_set_pprint_dispatch(Execute ptr,
+static int function_set_pprint_dispatch(Execute ptr,
 		addr spec, addr call, addr priority, addr table)
 {
-	addr type;
-
-	if (parse_type(ptr, &type, spec, Nil))
-		return;
-	if (call != Nil && (! functionp(call)))
-		getfunctioncheck_local(ptr, call, &call);
-	if (table == Unbound)
-		pprint_dispatch_print(ptr, &table);
-	set_pprint_dispatch_common(ptr->local, spec, type, call, priority, table);
+	Return(set_pprint_dispatch_common(ptr, spec, call, priority, table));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_set_pprint_dispatch(addr *ret)
@@ -674,94 +444,11 @@ static void defun_set_pprint_dispatch(void)
  *   right-margin     (or null (integer 0 *))
  *   stream           output-stream-designer
  */
-static void pushprint_control(Execute ptr, constindex index, addr pos)
+static int function_write(Execute ptr, addr var, addr args)
 {
-	addr symbol;
-	GetConstant(index, &symbol);
-	pushspecial_control(ptr, symbol, pos);
-}
-#define PushPrintControl(p, a, b) \
-	pushprint_control((p), CONSTANT_SPECIAL_PRINT_##a, (b))
-
-static void format_keyword_print(Execute ptr, addr args)
-{
-	addr pos;
-
-	/* print-array */
-	if (! getkeyargs(args, KEYWORD_ARRAY, &pos)) {
-		PushPrintControl(ptr, ARRAY, pos);
-	}
-	/* print-base */
-	if (! getkeyargs(args, KEYWORD_BASE, &pos)) {
-		PushPrintControl(ptr, BASE, pos);
-	}
-	/* print-radix */
-	if (! getkeyargs(args, KEYWORD_RADIX, &pos)) {
-		PushPrintControl(ptr, RADIX, pos);
-	}
-	/* print-case */
-	if (! getkeyargs(args, KEYWORD_CASE, &pos)) {
-		PushPrintControl(ptr, CASE, pos);
-	}
-	/* print-circle */
-	if (! getkeyargs(args, KEYWORD_CIRCLE, &pos)) {
-		PushPrintControl(ptr, CIRCLE, pos);
-	}
-	/* print-escape */
-	if (! getkeyargs(args, KEYWORD_ESCAPE, &pos)) {
-		PushPrintControl(ptr, ESCAPE, pos);
-	}
-	/* print-gensym */
-	if (! getkeyargs(args, KEYWORD_GENSYM, &pos)) {
-		PushPrintControl(ptr, GENSYM, pos);
-	}
-	/* print-readably */
-	if (! getkeyargs(args, KEYWORD_READABLY, &pos)) {
-		PushPrintControl(ptr, READABLY, pos);
-	}
-	/* print-pretty */
-	if (! getkeyargs(args, KEYWORD_PRETTY, &pos)) {
-		PushPrintControl(ptr, PRETTY, pos);
-	}
-	/* print-level */
-	if (! getkeyargs(args, KEYWORD_LEVEL, &pos)) {
-		PushPrintControl(ptr, LEVEL, pos);
-	}
-	/* print-length */
-	if (! getkeyargs(args, KEYWORD_LENGTH, &pos)) {
-		PushPrintControl(ptr, LENGTH, pos);
-	}
-	/* print-lines */
-	if (! getkeyargs(args, KEYWORD_LINES, &pos)) {
-		PushPrintControl(ptr, LINES, pos);
-	}
-	/* print-miser-width */
-	if (! getkeyargs(args, KEYWORD_MISER_WIDTH, &pos)) {
-		PushPrintControl(ptr, MISER_WIDTH, pos);
-	}
-	/* print-right-margin */
-	if (! getkeyargs(args, KEYWORD_RIGHT_MARGIN, &pos)) {
-		PushPrintControl(ptr, RIGHT_MARGIN, pos);
-	}
-	/* print-pprint-dispatch */
-	if (! getkeyargs(args, KEYWORD_PPRINT_DISPATCH, &pos)) {
-		PushPrintControl(ptr, PPRINT_DISPATCH, pos);
-	}
-}
-
-static void function_write(Execute ptr, addr var, addr args)
-{
-	addr stream, control;
-
-	if (getkeyargs(args, KEYWORD_STREAM, &stream))
-		stream = Unbound;
-	output_stream_designer(ptr, stream, &stream);
-
-	push_return_control(ptr, &control);
-	format_keyword_print(ptr, args);
-	if (write_print(ptr, stream, var)) return;
-	exitpoint_stream(stream);
+	Return(write_common(ptr, var, args));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_write(addr *ret, int stream_p)
@@ -821,12 +508,11 @@ static void defun_write(void)
 /* (defun prin1 (object &optional stream) ...) -> object
  *   stream  stream-designer  ;; default standard-output
  */
-static void function_prin1(Execute ptr, addr var, addr stream)
+static int function_prin1(Execute ptr, addr var, addr stream)
 {
-	output_stream_designer(ptr, stream, &stream);
-	if (prin1_print(ptr, stream, var)) return;
-	exitpoint_stream(stream);
+	Return(prin1_common(ptr, var, stream));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_prin1(void)
@@ -848,12 +534,11 @@ static void defun_prin1(void)
 /* (defun princ (object &optional stream) ...) -> object
  *   stream  stream-designer  ;; default standard-output
  */
-static void function_princ(Execute ptr, addr var, addr stream)
+static int function_princ(Execute ptr, addr var, addr stream)
 {
-	output_stream_designer(ptr, stream, &stream);
-	if (princ_print(ptr, stream, var)) return;
-	exitpoint_stream(stream);
+	Return(princ_common(ptr, var, stream));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_princ(void)
@@ -875,12 +560,11 @@ static void defun_princ(void)
 /* (defun print (object &optional stream) ...) -> object
  *   stream  stream-designer  ;; default standard-output
  */
-static void function_print(Execute ptr, addr var, addr stream)
+static int function_print(Execute ptr, addr var, addr stream)
 {
-	output_stream_designer(ptr, stream, &stream);
-	if (print_print(ptr, stream, var)) return;
-	exitpoint_stream(stream);
+	Return(print_common(ptr, var, stream));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_print(void)
@@ -902,12 +586,11 @@ static void defun_print(void)
 /* (defun pprint (object &optional stream) ...) -> (values)
  *   stream  stream-designer  ;; default standard-output
  */
-static void function_pprint(Execute ptr, addr var, addr stream)
+static int function_pprint(Execute ptr, addr var, addr stream)
 {
-	output_stream_designer(ptr, stream, &stream);
-	if (pprint_print(ptr, stream, var)) return;
-	exitpoint_stream(stream);
+	Return(pprint_common(ptr, var, stream));
 	setvalues_nil_control(ptr);
+	return 0;
 }
 
 static void type_pprint(addr *ret)
@@ -956,17 +639,11 @@ static void defun_pprint(void)
  *   readably         t  ;; boolean
  *   right-margin     (or null (integer 0 *))
  */
-static void function_write_to_string(Execute ptr, addr var, addr args)
+static int function_write_to_string(Execute ptr, addr var, addr args)
 {
-	addr stream, control;
-
-	open_output_string_stream(&stream, 0);
-	push_return_control(ptr, &control);
-	format_keyword_print(ptr, args);
-	if (write_print(ptr, stream, var)) return;
-	string_stream_heap(stream, &var);
-	close_stream(stream);
+	Return(write_to_string_common(ptr, var, args, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_write_to_string(void)
@@ -986,15 +663,11 @@ static void defun_write_to_string(void)
 
 
 /* (defun prin1-to-string (object) ...) -> string */
-static void function_prin1_to_string(Execute ptr, addr var)
+static int function_prin1_to_string(Execute ptr, addr var)
 {
-	addr stream;
-
-	open_output_string_stream(&stream, 0);
-	if (prin1_print(ptr, stream, var)) return;
-	string_stream_heap(stream, &var);
-	close_stream(stream);
+	Return(prin1_to_string_common(ptr, var, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_prin1_to_string(void)
@@ -1014,15 +687,11 @@ static void defun_prin1_to_string(void)
 
 
 /* (defun princ-to-string (object) ...) -> string */
-static void function_princ_to_string(Execute ptr, addr var)
+static int function_princ_to_string(Execute ptr, addr var)
 {
-	addr stream;
-
-	open_output_string_stream(&stream, 0);
-	if (princ_print(ptr, stream, var)) return;
-	string_stream_heap(stream, &var);
-	close_stream(stream);
+	Return(princ_to_string_common(ptr, var, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_princ_to_string(void)
@@ -1268,10 +937,11 @@ static void defvar_print_right_margin(void)
 
 
 /* (defun print-not-readable-object (print-not-readable) ...) -> t */
-static void function_print_not_readable_object(Execute ptr, addr var)
+static int function_print_not_readable_object(Execute ptr, addr var)
 {
 	print_not_readable_object(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_print_not_readable_object(addr *ret)
@@ -1306,10 +976,11 @@ static void defun_print_not_readable_object(void)
  *   args            (&rest t)
  *   result          (or null string)
  */
-static void function_format(Execute ptr, addr var, addr format, addr args)
+static int function_format(Execute ptr, addr var, addr format, addr args)
 {
-	format_lisp(ptr, var, format, args, &args);
+	Return(format_lisp(ptr, var, format, args, &args));
 	setresult_control(ptr, var == Nil? args: Nil);
+	return 0;
 }
 
 static void type_format(addr *ret)
@@ -1367,7 +1038,6 @@ _g void init_common_printer(void)
 	SetPointerCall(defun, var1, princ_to_string);
 	SetPointerCall(defun, var1, print_not_readable_object);
 	SetPointerCall(defun, var2dynamic, format);
-	SetPointerType(var1dynamic, formatter_call);
 }
 
 _g void build_common_printer(void)

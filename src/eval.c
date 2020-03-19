@@ -327,12 +327,12 @@ _g int eval_object(Execute ptr, addr eval, addr *ret)
 	push_evalwhen_eval(ptr);
 	gchold_push_local(ptr->local, eval);
 	if (eval_execute(ptr, eval)) {
-		Return1(runcode_free_control(ptr, control));
+		Return(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
 		localhold_set(hold, 0, *ret);
-		Return1(free_control(ptr, control));
+		Return(free_control(ptr, control));
 	}
 	localhold_end(hold);
 
@@ -352,12 +352,14 @@ static int eval_load_fasl_p(addr file)
 		(string_equalp_char(file, "fasl") || string_equalp_char(file, "fas"));
 }
 
-static void eval_load_finalize(Execute ptr)
+static int eval_load_finalize(Execute ptr)
 {
 	addr stream;
 	getdata_control(ptr, &stream);
 	CheckType(stream, LISPTYPE_STREAM);
 	close_stream(stream);
+
+	return 0;
 }
 
 static void eval_load_close(Execute ptr, addr stream)

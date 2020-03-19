@@ -165,6 +165,9 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\bytespec.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\c99.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\character.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\character_check.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\character_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\character_name.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\charqueue.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_cache.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\clos_class.c" />
@@ -209,6 +212,9 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\condition.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\condition_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\condition_debugger.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\condition_define.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cons.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cons_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cons_list.c" />
@@ -216,6 +222,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\console.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\constant.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\control.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\control_callbind.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\copy.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\core.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\data.c" />
@@ -265,6 +272,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\function.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\gc.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\hashtable.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\hashtable_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\heap.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\info.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\input.c" />
@@ -275,6 +283,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\localtime.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_bind.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_main.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_parse.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_symbol.c" />
@@ -300,9 +309,11 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pointer.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print_dispatch.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print_function.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print_object.c" />
@@ -318,6 +329,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\ratio.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rational.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\readtable.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\readtable_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_ceiling.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_decode.c" />
@@ -329,6 +341,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\require.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\restart.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\restart_value.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt_load.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence.c" />
@@ -339,6 +352,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\setf.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sort.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_broadcast.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_concat.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_echo.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_error.c" />
@@ -350,9 +364,13 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_twoway.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\strtype.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\strtype_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\strvect.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\structure.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\structure_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sxhash.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\symbol.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\symbol_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\syscall.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\syscall_code.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\thread.c" />
@@ -398,9 +416,13 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bignum.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bit.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\boole.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\build_define.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\build.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\bytespec.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\c99.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character_check.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character_common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character_name.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\charqueue.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\clos_cache.h" />
@@ -426,6 +448,9 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common_header.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\condition_common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\condition_debugger.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\condition_define.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\condition.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cons_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cons_list.h" />
@@ -434,7 +459,9 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\console_ansi.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\console_posix.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\console.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\constant_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\constant.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control_callbind.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\copy.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\core.h" />
@@ -492,6 +519,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\function.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\gc.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\hashtable_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\hashtable.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\heap.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\info.h" />
@@ -505,6 +533,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\local.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\localtime.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_bind.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_main.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_parse.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_symbol.h" />
@@ -529,11 +558,13 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_type.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print_dispatch.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print_function.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\print_object.h" />
@@ -549,6 +580,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\random.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\ratio.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rational.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\readtable_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\readtable.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_ceiling.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_common.h" />
@@ -560,6 +592,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\require.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\restart_value.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\restart.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rt.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_common.h" />
@@ -570,6 +603,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\setf.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sort.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_broadcast.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_concat.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_echo.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_error.h" />
@@ -580,9 +614,13 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_synonym.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_twoway.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\strtype_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\strtype.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\structure_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\structure.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\strvect.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sxhash.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\symbol_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\symbol.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\syscall_code.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\syscall.h" />
@@ -610,10 +648,10 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type_value.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\type.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_basic.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_enum.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_integer.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_stream.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_thread.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef_value.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\unicode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\user.h" />

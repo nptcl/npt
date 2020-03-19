@@ -5,6 +5,7 @@
 #include "bignum.h"
 #include "bit.h"
 #include "character.h"
+#include "character_name.h"
 #include "charqueue.h"
 #include "cmpl.h"
 #include "code.h"
@@ -209,7 +210,7 @@ static void pushreadinfo_recursive(Execute ptr, addr *ret)
 	readinfo_symbol(&symbol);
 	getspecial_local(ptr, symbol, &info);
 	if (info == Unbound)
-		fmte("Outside read don't accept recursive-p parameter.", NULL);
+		_fmte("Outside read don't accept recursive-p parameter.", NULL);
 	str = ReadInfoStruct(info);
 	preserving = str->preserving;
 	replace = str->replace;
@@ -800,7 +801,7 @@ _g void get_default_dispatch_macro(addr code1, addr code2, addr *ret)
 
 	GetCharacter(code1, &u);
 	if (u != '#')
-		fmte("The character ~S is not dispatch macro.", code1, NULL);
+		_fmte("The character ~S is not dispatch macro.", code1, NULL);
 	get_default_dispatch_sharp(code2, ret);
 }
 
@@ -839,7 +840,7 @@ static int macro_character_call(Execute ptr, int *result, addr *ret,
 		localhold_set(hold, 0, *ret);
 		*result = 1;
 	}
-	Return1(free_control(ptr, control));
+	Return(free_control(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -861,13 +862,13 @@ static int macro_character_execute(Execute ptr, int *result, addr *ret,
 	*result = 0;
 
 	hold = LocalHold_local_push(ptr, code);
-	Return1(macro_character_call(ptr, result, ret, call, stream, code));
+	Return(macro_character_call(ptr, result, ret, call, stream, code));
 	localhold_end(hold);
 	return 0;
 
 error:
 	*result = 0;
-	fmte("Character ~S don't have a macro code.", code, NULL);
+	_fmte("Character ~S don't have a macro code.", code, NULL);
 	return 0;
 }
 
@@ -890,7 +891,7 @@ _g void get_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr *ret
 
 error:
 	character_heap(&check, u1);
-	fmte("The character ~S is not dispatch macro.", check, NULL);
+	_fmte("The character ~S is not dispatch macro.", check, NULL);
 }
 
 _g void rem_dispatch_macro_character(addr pos, unicode u1, unicode u2)
@@ -916,7 +917,7 @@ _g void rem_dispatch_macro_character(addr pos, unicode u1, unicode u2)
 
 error:
 	character_heap(&check, u1);
-	fmte("The character ~S is not dispatch macro.", check, NULL);
+	_fmte("The character ~S is not dispatch macro.", check, NULL);
 }
 
 _g void set_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr call)
@@ -946,7 +947,7 @@ _g void set_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr call
 
 error:
 	character_heap(&check, u1);
-	fmte("The character ~S is not dispatch macro.", check, NULL);
+	_fmte("The character ~S is not dispatch macro.", check, NULL);
 }
 
 #define DefaultTermMacro(u,a,b) { \
@@ -1538,7 +1539,7 @@ static unsigned getreadbase(Execute ptr)
 	GetFixnum(one, &value);
 	if (! isBaseChar(value)) {
 		fixnum_heap(&one, (fixnum)value);
-		fmte("base ~a must be a number between 2 and 36.", one, NULL);
+		_fmte("base ~a must be a number between 2 and 36.", one, NULL);
 	}
 
 	return (unsigned)value;
@@ -1570,7 +1571,7 @@ static void maketoken_intern(Execute ptr,
 
 	/* package:name, export, OK */
 	if (check != Unbound) {
-		fmte("The symbol ~S is not exported in ~S.", name, package, NULL);
+		_fmte("The symbol ~S is not exported in ~S.", name, package, NULL);
 		return;
 	}
 
@@ -1582,7 +1583,7 @@ static void maketoken_intern(Execute ptr,
 	}
 
 	/* package:name, error */
-	fmte("Cannot intern the symbol ~S in ~S.", name, package, NULL);
+	_fmte("Cannot intern the symbol ~S in ~S.", name, package, NULL);
 }
 
 static void maketoken_package(Execute ptr, addr *ret, addr queue, addr package)
@@ -1609,7 +1610,7 @@ static void maketoken_package(Execute ptr, addr *ret, addr queue, addr package)
 		maketoken_intern(ptr, package, name, str->unexport, ret);
 	}
 	else {
-		fmte("Token-type error", NULL);
+		_fmte("Token-type error", NULL);
 		return;
 	}
 }
@@ -1659,13 +1660,13 @@ static void maketoken_normal(Execute ptr, addr *ret)
 
 		case TokenType_dot:
 			if (getdot_readinfo(ptr) == 0)
-				fmte("dot no allowed here.", NULL);
+				_fmte("dot no allowed here.", NULL);
 			GetConst(SYSTEM_READTABLE_DOT, ret);
 			break;
 
 		case TokenType_error:
 		default:
-			fmte("token error", NULL);
+			_fmte("token error", NULL);
 			return;
 	}
 }
@@ -1749,7 +1750,7 @@ static unicode charmode_readtable(addr pos, unicode c)
 			return c;
 
 		default:
-			fmte("Unknown readtable-case type.", NULL);
+			_fmte("Unknown readtable-case type.", NULL);
 			break;
 	}
 
@@ -1796,7 +1797,7 @@ static void setpackage_readtable(Execute ptr)
 			break;
 
 		default:
-			fmte("Package token type error.", NULL);
+			_fmte("Package token type error.", NULL);
 			return;
 	}
 }
@@ -1855,13 +1856,13 @@ static void pushchar_readtable(Execute ptr, addr pos, unicode c, int escape)
 		case ReadInfo_State_Colon2:
 		case ReadInfo_State_Gensym:
 			if (c == ':') {
-				fmte("colon error", NULL);
+				_fmte("colon error", NULL);
 				return;
 			}
 			break;
 
 		default:
-			fmte("mode error", NULL);
+			_fmte("mode error", NULL);
 			return;
 	}
 
@@ -2003,11 +2004,11 @@ step10:
 	goto final;
 
 illegal_error:
-	fmte("Illegal character error", NULL);
+	_fmte("Illegal character error", NULL);
 	goto error;
 
 error:
-	fmte("readtable error", NULL);
+	_fmte("readtable error", NULL);
 	goto eof;
 
 final:
@@ -2043,7 +2044,7 @@ static int readtable_novalue(Execute ptr, int *result, addr *ret,
 
 	/* macro execute */
 	if (read_char_stream(stream, &u)) {
-		fmte("eof error", NULL);
+		_fmte("eof error", NULL);
 		return 1;
 	}
 
@@ -2100,7 +2101,7 @@ enum ReadTable_float float_readtable(Execute ptr)
 	if (check == pos) return ReadTable_long;
 	GetConst(COMMON_SHORT_FLOAT, &check);
 	if (check == pos) return ReadTable_short;
-	fmte("Invalid *read-default-float-format* value ~S.", pos, NULL);
+	_fmte("Invalid *read-default-float-format* value ~S.", pos, NULL);
 
 	return ReadTable_single;
 }
@@ -2154,7 +2155,7 @@ _g int read_stream(Execute ptr, addr stream, int *result, addr *ret)
 	check = read_call(ptr, stream, result, ret);
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return1(free_check_control(ptr, control, check));
+	Return(free_check_control(ptr, control, check));
 	localhold_end(hold);
 
 	return 0;
@@ -2173,7 +2174,7 @@ _g int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
 	check = read_call(ptr, stream, result, ret);
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return1(free_check_control(ptr, control, check));
+	Return(free_check_control(ptr, control, check));
 	localhold_end(hold);
 
 	return 0;
@@ -2191,7 +2192,7 @@ _g int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 	check = read_call(ptr, stream, result, ret);
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return1(free_check_control(ptr, control, check));
+	Return(free_check_control(ptr, control, check));
 	localhold_end(hold);
 
 	return 0;
@@ -2218,7 +2219,7 @@ _g int readstring(addr *ret, const char *code)
 
 	open_input_char_stream(&stream, code);
 	if (read_stream(Execute_Thread, stream, &result, ret))
-		fmte("Cannot catch a system signal.", NULL);
+		_fmte("Cannot catch a system signal.", NULL);
 	close_stream(stream);
 
 	return result;
@@ -2238,7 +2239,7 @@ _g addr readr(const char *code)
  *  macro character
  *****************************************************************************/
 /* (defun double-quote-reader (stream character) ...) -> * */
-static void function_reader_double_quote(Execute ptr, addr stream, addr code)
+static int function_reader_double_quote(Execute ptr, addr stream, addr code)
 {
 	int escape;
 	unicode u;
@@ -2252,7 +2253,7 @@ static void function_reader_double_quote(Execute ptr, addr stream, addr code)
 	escape = 0;
 	for (;;) {
 		if (read_char_stream(stream, &u))
-			fmte("The string token must terminate by \".", NULL);
+			_fmte("The string token must terminate by \".", NULL);
 		if (escape) {
 			push_charqueue_local(local, queue, u);
 			escape = 0;
@@ -2270,6 +2271,8 @@ static void function_reader_double_quote(Execute ptr, addr stream, addr code)
 	}
 	make_charqueue_heap(queue, &queue);
 	setresult_control(ptr, queue);
+
+	return 0;
 }
 
 static void defun_double_quote_reader(void)
@@ -2310,14 +2313,15 @@ static int quote_macro(Execute ptr, int *result, constindex index, addr stream)
 	return 0;
 }
 
-static void function_reader_single_quote(Execute ptr, addr stream, addr code)
+static int function_reader_single_quote(Execute ptr, addr stream, addr code)
 {
 	int check;
 
-	if (quote_macro(ptr, &check, CONSTANT_COMMON_QUOTE, stream))
-		return;
+	Return(quote_macro(ptr, &check, CONSTANT_COMMON_QUOTE, stream));
 	if (check)
-		fmte("After character ' must be an object, but EOF.", NULL);
+		_fmte("After character ' must be an object, but EOF.", NULL);
+
+	return 0;
 }
 
 static void defun_single_quote_reader(void)
@@ -2427,7 +2431,7 @@ static int delimited_execute(Execute ptr, addr stream, unicode limit)
 	hold = LocalHold_local_push(ptr, queue);
 	for (;;) {
 		if (read_char_stream(stream, &u))
-			fmte("Don't allow end-of-file in the parensis.", NULL);
+			_fmte("Don't allow end-of-file in the parensis.", NULL);
 		if (readtable_typetable(table, u) == ReadTable_Type_whitespace) {
 			/* discard character */
 			continue;
@@ -2440,7 +2444,7 @@ static int delimited_execute(Execute ptr, addr stream, unicode limit)
 		if (readtable_novalue(ptr, &check, &pos, stream, table))
 			return 1;
 		if (0 < check) {
-			fmte("read error", NULL);
+			_fmte("read error", NULL);
 			return 1;
 		}
 		if (check < 0)
@@ -2449,7 +2453,7 @@ static int delimited_execute(Execute ptr, addr stream, unicode limit)
 		/* dot */
 		check = readdotcons(ptr, queue, dotsym, pos, &mode);
 		if (check == 1) {
-			fmte("dot no allowed here", NULL);
+			_fmte("dot no allowed here", NULL);
 			return 1;
 		}
 		if (check == 2)
@@ -2459,7 +2463,7 @@ static int delimited_execute(Execute ptr, addr stream, unicode limit)
 	localhold_end(hold);
 
 	if (mode == 1) { /* (a b . ) */
-		fmte("dot no allowed here", NULL);
+		_fmte("dot no allowed here", NULL);
 		return 1;
 	}
 
@@ -2488,9 +2492,9 @@ _g int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursiv
 	return free_check_control(ptr, control, check);
 }
 
-static void function_reader_parensis_open(Execute ptr, addr stream, addr code)
+static int function_reader_parensis_open(Execute ptr, addr stream, addr code)
 {
-	(void)read_delimited_list(ptr, stream, ')', 1);
+	return read_delimited_list(ptr, stream, ')', 1);
 }
 
 static void defun_parensis_open_reader(void)
@@ -2510,9 +2514,10 @@ static void defun_parensis_open_reader(void)
 
 
 /* (defun parensis-close-reader (stream character) ...) -> * */
-static void function_reader_parensis_close(Execute ptr, addr stream, addr code)
+static int function_reader_parensis_close(Execute ptr, addr stream, addr code)
 {
-	fmte("unmatch close parenthiesis ).", NULL);
+	_fmte("unmatch close parenthiesis ).", NULL);
+	return 0;
 }
 
 static void defun_parensis_close_reader(void)
@@ -2532,16 +2537,19 @@ static void defun_parensis_close_reader(void)
 
 
 /* (defun semicolon-reader (stream character) ...) -> * */
-static void function_reader_semicolon(Execute ptr, addr stream, addr code)
+static int function_reader_semicolon(Execute ptr, addr stream, addr code)
 {
 	int result;
 	unicode u;
 
 	for (;;) {
 		result = read_char_stream(stream, &u);
-		if (result || u == '\n') break;
+		if (result || u == '\n')
+			break;
 	}
 	setvalues_nil_control(ptr);
+
+	return 0;
 }
 
 static void defun_semicolon_reader(void)
@@ -2574,22 +2582,23 @@ static int read_backquote(Execute ptr, addr stream, int *result, addr *ret)
 	check = read_call(ptr, stream, result, ret);
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return1(free_check_control(ptr, control, check));
+	Return(free_check_control(ptr, control, check));
 	localhold_end(hold);
 
 	return 0;
 }
 
-static void function_reader_backquote(Execute ptr, addr stream, addr code)
+static int function_reader_backquote(Execute ptr, addr stream, addr code)
 {
 	int check;
 
-	if (read_backquote(ptr, stream, &check, &code))
-		return;
+	Return(read_backquote(ptr, stream, &check, &code));
 	if (check)
-		fmte("After backquote ` must be an object.", NULL);
+		_fmte("After backquote ` must be an object.", NULL);
 	quote_back_heap(&code, code);
 	setresult_control(ptr, code);
+
+	return 0;
 }
 
 static void defun_backquote_reader(void)
@@ -2621,13 +2630,13 @@ static int read_comma(Execute ptr, addr stream, int *result, addr *ret)
 	check = read_call(ptr, stream, result, ret);
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return1(free_check_control(ptr, control, check));
+	Return(free_check_control(ptr, control, check));
 	localhold_end(hold);
 
 	return 0;
 }
 
-static void function_reader_comma(Execute ptr, addr stream, addr code)
+static int function_reader_comma(Execute ptr, addr stream, addr code)
 {
 	int check;
 	unicode u;
@@ -2635,34 +2644,33 @@ static void function_reader_comma(Execute ptr, addr stream, addr code)
 	/* check */
 	getreadinfo(ptr, &code);
 	if (ReadInfoStruct(code)->backquote == 0)
-		fmte("The comma , is not inside backquote.", NULL);
+		_fmte("The comma , is not inside backquote.", NULL);
 
 	/* read */
 	if (read_char_stream(stream, &u))
-		fmte("After comma , must be a character or an object.", NULL);
+		_fmte("After comma , must be a character or an object.", NULL);
 	if (u == '@') {
-		if (read_comma(ptr, stream, &check, &code))
-			return;
+		Return(read_comma(ptr, stream, &check, &code));
 		if (check)
-			fmte("After ,@ must be an object.", NULL);
+			_fmte("After ,@ must be an object.", NULL);
 		quote_atsign_heap(&code, code);
 	}
 	else if (u == '.') {
-		if (read_comma(ptr, stream, &check, &code))
-			return;
+		Return(read_comma(ptr, stream, &check, &code));
 		if (check)
-			fmte("After ,. must be an object.", NULL);
+			_fmte("After ,. must be an object.", NULL);
 		quote_dot_heap(&code, code);
 	}
 	else {
 		unread_char_stream(stream, u);
-		if (read_comma(ptr, stream, &check, &code))
-			return;
+		Return(read_comma(ptr, stream, &check, &code));
 		if (check)
-			fmte("After comma , must be an object.", NULL);
+			_fmte("After comma , must be an object.", NULL);
 		quote_comma_heap(&code, code);
 	}
 	setresult_control(ptr, code);
+
+	return 0;
 }
 
 static void defun_comma_reader(void)
@@ -2715,15 +2723,15 @@ static int dispatch_parameter(LocalRoot local, addr stream, addr *ret, unicode *
 	return 0;
 }
 
-static void function_reader_sharp(Execute ptr, addr stream, addr code1)
+static int function_reader_sharp(Execute ptr, addr stream, addr code1)
 {
 	addr arg, pos, code2;
 	unicode c1, c2;
 
 	/* #[integer][code] */
 	if (dispatch_parameter(ptr->local, stream, &arg, &c2)) {
-		fmte("Invalid dispatch character form ~S.", code1, NULL);
-		return;
+		_fmte("Invalid dispatch character form ~S.", code1, NULL);
+		return 0;
 	}
 	character_heap(&code2, c2);
 	c2 = toUpperUnicode(c2);
@@ -2734,11 +2742,11 @@ static void function_reader_sharp(Execute ptr, addr stream, addr code1)
 	GetCharacter(code1, &c1);
 	findvalue_character2_hashtable(pos, c1, c2, &pos);
 	if (pos == Nil) {
-		fmte("There is no macro character ~S-~S.", code1, code2, NULL);
-		return;
+		_fmte("There is no macro character ~S-~S.", code1, code2, NULL);
+		return 0;
 	}
 
-	(void)funcall_control(ptr, pos, stream, code2, arg, NULL);
+	return funcall_control(ptr, pos, stream, code2, arg, NULL);
 }
 
 static void defun_sharp_reader(void)
@@ -2776,9 +2784,10 @@ static void make_macro_reader(void)
  *  dispatch character
  *****************************************************************************/
 /* (defun error-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_error(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_error(Execute ptr, addr stream, addr code, addr arg)
 {
-	fmte("don't allow ~S dispatch character.", code, NULL);
+	_fmte("don't allow ~S dispatch character.", code, NULL);
+	return 0;
 }
 
 static void defun_error_dispatch(void)
@@ -2798,13 +2807,15 @@ static void defun_error_dispatch(void)
 
 
 /* (defun equal-dispatch (stream code arg) ...) -> * */
-static void read_replace_finalize(Execute ptr)
+static int read_replace_finalize(Execute ptr)
 {
 	addr pos, value;
 
 	getdata_control(ptr, &pos);
 	GetCons(pos, &pos, &value);
 	ReadInfoStruct(pos)->replace = value != Nil? 1: 0;
+
+	return 0;
 }
 
 static int read_replace(Execute ptr, addr stream, int *result, addr *ret)
@@ -2829,7 +2840,7 @@ static int read_replace(Execute ptr, addr stream, int *result, addr *ret)
 	check = read_recursive(ptr, stream, result, ret);
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return1(free_check_control(ptr, control, check));
+	Return(free_check_control(ptr, control, check));
 	localhold_end(hold);
 
 	return 0;
@@ -2861,7 +2872,7 @@ static void pushlabel_readinfo(Execute ptr, addr value, addr *ret)
 	Check(! consp(cons), "type error");
 	GetCar(cons, &next);
 	if (find_readlabel(value, next, NULL))
-		fmte("The #n= label ~S already exists.", value, NULL);
+		_fmte("The #n= label ~S already exists.", value, NULL);
 	readlabel_heap(ptr, &label, value);
 	cons_heap(&next, label, next);
 	SetCar(cons, next);
@@ -2938,7 +2949,7 @@ static void closelabel_readlabel(Execute ptr, addr label, addr pos)
 	/* error #n= #n# */
 	GetReadLabel(label, ReadLabel_Value, &gensym);
 	if (pos == gensym)
-		fmte("The #n= value don't replace self value #n#.", NULL);
+		_fmte("The #n= value don't replace self value #n#.", NULL);
 	/* replace */
 	GetReadLabel(label, ReadLabel_List, &list);
 	while (list != Nil) {
@@ -2951,18 +2962,19 @@ static void closelabel_readlabel(Execute ptr, addr label, addr pos)
 	normal_readlabel(label);
 }
 
-static void function_dispatch_equal(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_equal(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr pos, label;
 
 	pushlabel_readinfo(ptr, arg, &label);
-	if (read_replace(ptr, stream, &check, &pos))
-		return;
+	Return(read_replace(ptr, stream, &check, &pos));
 	if (check)
-		fmte("After dispatch character ~S must be an object.", code, NULL);
+		_fmte("After dispatch character ~S must be an object.", code, NULL);
 	closelabel_readlabel(ptr, label, pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_equal_dispatch(void)
@@ -2982,7 +2994,7 @@ static void defun_equal_dispatch(void)
 
 
 /* (defun sharp-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_sharp(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_sharp(Execute ptr, addr stream, addr code, addr arg)
 {
 	addr pos;
 
@@ -2991,8 +3003,10 @@ static void function_dispatch_sharp(Execute ptr, addr stream, addr code, addr ar
 	Check(! consp(pos), "type error");
 	GetCar(pos, &pos);
 	if (! find_readlabel(arg, pos, &pos))
-		fmte("The #n# label ~S is not exist.", arg, NULL);
+		_fmte("The #n# label ~S is not exist.", arg, NULL);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_sharp_dispatch(void)
@@ -3012,15 +3026,16 @@ static void defun_sharp_dispatch(void)
 
 
 /* (defun single-quote-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_single_quote(Execute ptr,
+static int function_dispatch_single_quote(Execute ptr,
 		addr stream, addr code, addr arg)
 {
 	int check;
 
-	if (quote_macro(ptr, &check, CONSTANT_COMMON_FUNCTION, stream))
-		return;
+	Return(quote_macro(ptr, &check, CONSTANT_COMMON_FUNCTION, stream));
 	if (check)
-		fmte("After character #' must be a function-designer, but EOF.", NULL);
+		_fmte("After character #' must be a function-designer, but EOF.", NULL);
+
+	return 0;
 }
 
 static void defun_single_quote_dispatch(void)
@@ -3101,7 +3116,7 @@ static void vector_readlabel(Execute ptr, addr pos)
 	}
 }
 
-static void function_dispatch_parensis_open(Execute ptr,
+static int function_dispatch_parensis_open(Execute ptr,
 		addr stream, addr code, addr arg)
 {
 	int check;
@@ -3113,7 +3128,7 @@ static void function_dispatch_parensis_open(Execute ptr,
 
 	/* parameter */
 	if (arg != Nil && GetIndex_integer(arg, &limit))
-		fmte("Too large dispatch parameter ~S.", arg, NULL);
+		_fmte("Too large dispatch parameter ~S.", arg, NULL);
 
 	/* read list */
 	local = ptr->local;
@@ -3123,7 +3138,7 @@ static void function_dispatch_parensis_open(Execute ptr,
 	size = 0;
 	for (;;) {
 		if (read_char_stream(stream, &u)) {
-			fmte("Don't allow end-of-file in the parensis.", NULL);
+			_fmte("Don't allow end-of-file in the parensis.", NULL);
 		}
 		if (readtable_typetable(table, u) == ReadTable_Type_whitespace) {
 			continue;
@@ -3132,16 +3147,15 @@ static void function_dispatch_parensis_open(Execute ptr,
 			break;
 		}
 		unread_char_stream(stream, u);
-		if (read_recursive(ptr, stream, &check, &pos))
-			return;
+		Return(read_recursive(ptr, stream, &check, &pos));
 		if (check)
-			fmte("read error", NULL);
+			_fmte("read error", NULL);
 		cons_local(local, &root, pos, root);
 		size++;
 
 		/* size check */
 		if (arg != Nil && limit < size)
-			fmte("Too many vector parameter.", NULL);
+			_fmte("Too many vector parameter.", NULL);
 	}
 
 	/* make vector */
@@ -3153,7 +3167,7 @@ static void function_dispatch_parensis_open(Execute ptr,
 			if (limit == 0)
 				vector_heap(&root, 0);
 			else
-				fmte("The vector don't initialize because body is empty #n().", NULL);
+				_fmte("The vector don't initialize because body is empty #n().", NULL);
 		}
 		else {
 			make_vector_limit(root, limit, &root);
@@ -3162,6 +3176,8 @@ static void function_dispatch_parensis_open(Execute ptr,
 	vector_readlabel(ptr, root);
 	rollback_local(local, stack);
 	setresult_control(ptr, root);
+
+	return 0;
 }
 
 static void defun_parensis_open_dispatch(void)
@@ -3181,10 +3197,11 @@ static void defun_parensis_open_dispatch(void)
 
 
 /* (defun parensis-close-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_parensis_close(Execute ptr,
+static int function_dispatch_parensis_close(Execute ptr,
 		addr stream, addr code, addr arg)
 {
-	fmte("unmatch close parenthiesis ).", NULL);
+	_fmte("unmatch close parenthiesis ).", NULL);
+	return 0;
 }
 
 static void defun_parensis_close_dispatch(void)
@@ -3246,7 +3263,7 @@ static void asterisk_bitvector(Execute ptr, addr stream, size_t size)
 	last = 0;
 	for (i = 0; ; i++) {
 		if (size <= i)
-			fmte("Too large bit-vector.", NULL);
+			_fmte("Too large bit-vector.", NULL);
 		if (read_char_stream(stream, &c))
 			break;
 		if (c == '0') {
@@ -3271,7 +3288,7 @@ static void asterisk_bitvector(Execute ptr, addr stream, size_t size)
 	setresult_control(ptr, pos);
 }
 
-static void function_dispatch_asterisk(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_asterisk(Execute ptr, addr stream, addr code, addr arg)
 {
 	size_t size;
 
@@ -3280,9 +3297,11 @@ static void function_dispatch_asterisk(Execute ptr, addr stream, addr code, addr
 	}
 	else {
 		if (GetIndex_integer(arg, &size))
-			fmte("The index size ~S is too large.", arg, NULL);
+			_fmte("The index size ~S is too large.", arg, NULL);
 		asterisk_bitvector(ptr, stream, size);
 	}
+
+	return 0;
 }
 
 static void defun_asterisk_dispatch(void)
@@ -3313,20 +3332,20 @@ static void readtable_colon(Execute ptr, addr *ret, addr stream)
 			break;
 
 		case ReadTable_Result_eof:
-			fmte("After character #: must be an object, but EOF.", NULL);
+			_fmte("After character #: must be an object, but EOF.", NULL);
 			break;
 
 		case ReadTable_Result_macro:
-			fmte("After character #: don't allow a macro character.", NULL);
+			_fmte("After character #: don't allow a macro character.", NULL);
 			break;
 
 		default:
-			fmte("Invalid result.", NULL);
+			_fmte("Invalid result.", NULL);
 			break;
 	}
 }
 
-static void function_dispatch_colon(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_colon(Execute ptr, addr stream, addr code, addr arg)
 {
 	addr control, pos;
 
@@ -3336,9 +3355,11 @@ static void function_dispatch_colon(Execute ptr, addr stream, addr code, addr ar
 	pushreadinfo_recursive(ptr, &pos);
 	readtable_colon(ptr, &pos, stream);
 	/* free */
-	free_control(ptr, control);
+	Return(free_control(ptr, control));
 	/* result */
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_colon_dispatch(void)
@@ -3358,9 +3379,10 @@ static void defun_colon_dispatch(void)
 
 
 /* (defun less-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_less(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_less(Execute ptr, addr stream, addr code, addr arg)
 {
-	fmte("Cannot read #< dispatch character.", NULL);
+	_fmte("Cannot read #< dispatch character.", NULL);
+	return 0;
 }
 
 static void defun_less_dispatch(void)
@@ -3380,26 +3402,27 @@ static void defun_less_dispatch(void)
 
 
 /* (defun backslash-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_backslash(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_backslash(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr table, pos;
 
 	getreadtable(ptr, &table);
 	unread_char_stream(stream, '\\');
-	if (read_recursive(ptr, stream, &check, &pos))
-		return;
+	Return(read_recursive(ptr, stream, &check, &pos));
 	if (check)
-		fmte("Cannot read character name.", NULL);
+		_fmte("Cannot read character name.", NULL);
 	if (read_suppress_p(ptr)) {
 		setresult_control(ptr, Nil);
-		return;
+		return 0;
 	}
 	if (! symbolp(pos))
-		fmte("Invalid character type ~S.", pos, NULL);
+		_fmte("Invalid character type ~S.", pos, NULL);
 	if (! find_name_char(&pos, pos))
-		fmte("The character name ~S is not found.", pos, NULL);
+		_fmte("The character name ~S is not found.", pos, NULL);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_backslash_dispatch(void)
@@ -3419,7 +3442,7 @@ static void defun_backslash_dispatch(void)
 
 
 /* (defun or-dispatch (stream code arg) ...) -> (values) */
-static void function_dispatch_or(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_or(Execute ptr, addr stream, addr code, addr arg)
 {
 	unicode u;
 	size_t count;
@@ -3445,6 +3468,8 @@ static void function_dispatch_or(Execute ptr, addr stream, addr code, addr arg)
 		}
 	}
 	setvalues_nil_control(ptr);
+
+	return 0;
 }
 
 static void defun_or_dispatch(void)
@@ -3483,7 +3508,7 @@ static int read_feature(Execute ptr, addr stream, int *result, addr *ret)
 	check = read_recursive(ptr, stream, result, ret);
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return1(free_check_control(ptr, control, check));
+	Return(free_check_control(ptr, control, check));
 	localhold_end(hold);
 
 	return 0;
@@ -3520,7 +3545,7 @@ static int check_feature_cons(addr list, addr cons)
 	/* not */
 	if (feature_not(car)) {
 		if (! singlep(cdr))
-			fmte("The feature ~S must be a (not x) form.", cons, NULL);
+			_fmte("The feature ~S must be a (not x) form.", cons, NULL);
 		GetCar(cdr, &car);
 		return ! check_feature(list, car);
 	}
@@ -3541,7 +3566,7 @@ static int check_feature_cons(addr list, addr cons)
 		return 0;
 	}
 	/* error */
-	fmte("Invalid feature operator ~S.", car, NULL);
+	_fmte("Invalid feature operator ~S.", car, NULL);
 	return 0;
 }
 
@@ -3554,7 +3579,7 @@ static int check_feature(addr list, addr pos)
 		return check_feature_cons(list, pos);
 	}
 	else {
-		fmte("Invalid feature ~S.", pos, NULL);
+		_fmte("Invalid feature ~S.", pos, NULL);
 	}
 
 	return 0;
@@ -3573,38 +3598,37 @@ static int read_ignore(Execute ptr, addr stream, int *result)
 	return free_check_control(ptr, control, check);
 }
 
-static void function_dispatch_plus(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_plus(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr feature, form, list;
 	LocalHold hold;
 
 	/* read feature, read form */
-	if (read_feature(ptr, stream, &check, &feature))
-		return;
+	Return(read_feature(ptr, stream, &check, &feature));
 	if (check)
-		fmte("After dispatch #+ must be a feature form.", NULL);
+		_fmte("After dispatch #+ must be a feature form.", NULL);
 
 	/* check *features* */
 	GetConst(SPECIAL_FEATURES, &list);
 	getspecialcheck_local(ptr, list, &list);
 	hold = LocalHold_local_push(ptr, feature);
 	if (check_feature(list, feature)) {
-		if (read_recursive(ptr, stream, &check, &form))
-			return;
+		Return(read_recursive(ptr, stream, &check, &form));
 		localhold_end(hold);
 		if (check)
-			fmte("After dispatch #+feature must be a object.", NULL);
+			_fmte("After dispatch #+feature must be a object.", NULL);
 		setresult_control(ptr, form);
 	}
 	else {
-		if (read_ignore(ptr, stream, &check))
-			return;
+		Return(read_ignore(ptr, stream, &check));
 		localhold_end(hold);
 		if (check)
-			fmte("After dispatch #+feature must be a object.", NULL);
+			_fmte("After dispatch #+feature must be a object.", NULL);
 		setvalues_nil_control(ptr);
 	}
+
+	return 0;
 }
 
 static void defun_plus_dispatch(void)
@@ -3624,38 +3648,37 @@ static void defun_plus_dispatch(void)
 
 
 /* (defun minus-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_minus(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_minus(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr feature, form, list;
 	LocalHold hold;
 
 	/* read feature, read form */
-	if (read_feature(ptr, stream, &check, &feature))
-		return;
+	Return(read_feature(ptr, stream, &check, &feature));
 	if (check)
-		fmte("After dispatch #- must be a feature form.", NULL);
+		_fmte("After dispatch #- must be a feature form.", NULL);
 
 	/* check *features* */
 	GetConst(SPECIAL_FEATURES, &list);
 	getspecialcheck_local(ptr, list, &list);
 	hold = LocalHold_local_push(ptr, feature);
 	if (! check_feature(list, feature)) {
-		if (read_recursive(ptr, stream, &check, &form))
-			return;
+		Return(read_recursive(ptr, stream, &check, &form));
 		localhold_end(hold);
 		if (check)
-			fmte("After dispatch #-feature must be a object.", NULL);
+			_fmte("After dispatch #-feature must be a object.", NULL);
 		setresult_control(ptr, form);
 	}
 	else {
-		if (read_ignore(ptr, stream, &check))
-			return;
+		Return(read_ignore(ptr, stream, &check));
 		localhold_end(hold);
 		if (check)
-			fmte("After dispatch #-feature must be a object.", NULL);
+			_fmte("After dispatch #-feature must be a object.", NULL);
 		setvalues_nil_control(ptr);
 	}
+
+	return 0;
 }
 
 static void defun_minus_dispatch(void)
@@ -3675,7 +3698,7 @@ static void defun_minus_dispatch(void)
 
 
 /* (defun dot-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_dot(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_dot(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr eval;
@@ -3684,21 +3707,21 @@ static void function_dispatch_dot(Execute ptr, addr stream, addr code, addr arg)
 	GetConst(SPECIAL_READ_EVAL, &eval);
 	getspecialcheck_local(ptr, eval, &eval);
 	if (eval == Nil)
-		fmte("The dispatch #. don't read when *read-eval* is nil.", NULL);
-	if (read_recursive(ptr, stream, &check, &eval))
-		return;
+		_fmte("The dispatch #. don't read when *read-eval* is nil.", NULL);
+	Return(read_recursive(ptr, stream, &check, &eval));
 	if (check)
-		fmte("After dispatch #. must be a object.", NULL);
+		_fmte("After dispatch #. must be a object.", NULL);
 	if (read_suppress_p(ptr)) {
 		setresult_control(ptr, Nil);
-		return;
+		return 0;
 	}
 
 	hold = LocalHold_local_push(ptr, eval);
-	if (eval_object(ptr, eval, &eval))
-		return;
+	Return(eval_object(ptr, eval, &eval));
 	localhold_end(hold);
 	setresult_control(ptr, eval);
+
+	return 0;
 }
 
 static void defun_dot_dispatch(void)
@@ -3735,7 +3758,7 @@ static int dispatch_radix_execute(Execute ptr, addr stream, fixnum base,
 	check = read_recursive(ptr, stream, result, ret);
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
-	Return1(free_check_control(ptr, control, check));
+	Return(free_check_control(ptr, control, check));
 	localhold_end(hold);
 
 	return 0;
@@ -3749,26 +3772,28 @@ static void dispatch_radix_read(Execute ptr, addr stream, fixnum base)
 	if (dispatch_radix_execute(ptr, stream, base, &check, &pos))
 		return;
 	if (check)
-		fmte("After radix dispatch #<n>r must be an integer.", NULL);
+		_fmte("After radix dispatch #<n>r must be an integer.", NULL);
 	if (read_suppress_p(ptr)) {
 		setresult_control(ptr, Nil);
 		return;
 	}
 	if (! rationalp(pos))
-		fmte("The radix value ~S must be an integer.", pos, NULL);
+		_fmte("The radix value ~S must be an integer.", pos, NULL);
 	setresult_control(ptr, pos);
 }
 
-static void function_dispatch_radix(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_radix(Execute ptr, addr stream, addr code, addr arg)
 {
 	fixnum value;
 
 	GetFixnum_signed(arg, &value);
 	if (! isBaseChar(value)) {
 		if (! read_suppress_p(ptr))
-			fmte("The radix ~S must be a number between 2 and 36.", arg, NULL);
+			_fmte("The radix ~S must be a number between 2 and 36.", arg, NULL);
 	}
 	dispatch_radix_read(ptr, stream, value);
+
+	return 0;
 }
 
 static void defun_radix_dispatch(void)
@@ -3788,9 +3813,10 @@ static void defun_radix_dispatch(void)
 
 
 /* (defun binary-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_binary(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_binary(Execute ptr, addr stream, addr code, addr arg)
 {
 	dispatch_radix_read(ptr, stream, 2);
+	return 0;
 }
 
 static void defun_binary_dispatch(void)
@@ -3810,9 +3836,10 @@ static void defun_binary_dispatch(void)
 
 
 /* (defun octal-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_octal(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_octal(Execute ptr, addr stream, addr code, addr arg)
 {
 	dispatch_radix_read(ptr, stream, 8);
+	return 0;
 }
 
 static void defun_octal_dispatch(void)
@@ -3832,9 +3859,10 @@ static void defun_octal_dispatch(void)
 
 
 /* (defun hexadecimal-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_hexadecimal(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_hexadecimal(Execute ptr, addr stream, addr code, addr arg)
 {
 	dispatch_radix_read(ptr, stream, 16);
+	return 0;
 }
 
 static void defun_hexadecimal_dispatch(void)
@@ -3854,18 +3882,17 @@ static void defun_hexadecimal_dispatch(void)
 
 
 /* (defun complex-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_complex(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_complex(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr form, pos, real, imag;
 
-	if (read_recursive(ptr, stream, &check, &form))
-		return;
+	Return(read_recursive(ptr, stream, &check, &form));
 	if (check)
-		fmte("After complex dispatch must be a (real imag) form.", NULL);
+		_fmte("After complex dispatch must be a (real imag) form.", NULL);
 	if (read_suppress_p(ptr)) {
 		setresult_control(ptr, Nil);
-		return;
+		return 0;
 	}
 	pos = form;
 	if (! consp(pos)) goto error;
@@ -3877,10 +3904,11 @@ static void function_dispatch_complex(Execute ptr, addr stream, addr code, addr 
 	if (! realp(imag)) goto error;
 	complex_heap(&pos, real, imag);
 	setresult_control(ptr, pos);
-	return;
+	return 0;
 
 error:
-	fmte("The complex dispatch ~S must be a (real imag) form.", form, NULL);
+	_fmte("The complex dispatch ~S must be a (real imag) form.", form, NULL);
+	return 0;
 }
 
 static void defun_complex_dispatch(void)
@@ -3931,25 +3959,26 @@ static void array_readlabel(Execute ptr, addr pos)
 	}
 }
 
-static void function_dispatch_array(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_array(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check, ignore;
 	addr form;
 
 	ignore = read_suppress_p(ptr);
 	if (arg == Nil && (! ignore))
-		fmte("There is no rank parameter at the #<n>a dispatch.", NULL);
-	if (read_recursive(ptr, stream, &check, &form))
-		return;
+		_fmte("There is no rank parameter at the #<n>a dispatch.", NULL);
+	Return(read_recursive(ptr, stream, &check, &form));
 	if (ignore) {
 		setresult_control(ptr, Nil);
-		return;
+		return 0;
 	}
 	if (check)
-		fmte("After array dispatch must be an initial-contents form.", NULL);
+		_fmte("After array dispatch must be an initial-contents form.", NULL);
 	array_contents_heap(&form, arg, form);
 	array_readlabel(ptr, form);
 	setresult_control(ptr, form);
+
+	return 0;
 }
 
 static void defun_array_dispatch(void)
@@ -3969,21 +3998,22 @@ static void defun_array_dispatch(void)
 
 
 /* (defun pathname-dispatch (stream code arg) ...) -> * */
-static void function_dispatch_pathname(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_pathname(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr pos;
 
-	if (read_recursive(ptr, stream, &check, &pos))
-		return;
+	Return(read_recursive(ptr, stream, &check, &pos));
 	if (check)
-		fmte("After #P must be a pathname-designer.", NULL);
+		_fmte("After #P must be a pathname-designer.", NULL);
 	if (read_suppress_p(ptr)) {
 		setresult_control(ptr, Nil);
-		return;
+		return 0;
 	}
 	pathname_designer_heap(ptr, pos, &pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_pathname_dispatch(void)
@@ -4003,34 +4033,33 @@ static void defun_pathname_dispatch(void)
 
 
 /* (defun structure-dispatch (stream code arg) ...) -> structure-object */
-static void function_dispatch_structure(Execute ptr, addr stream, addr code, addr arg)
+static int function_dispatch_structure(Execute ptr, addr stream, addr code, addr arg)
 {
 	int check;
 	addr pos, rest;
 	LocalHold hold;
 
-	if (read_recursive(ptr, stream, &check, &pos))
-		return;
+	Return(read_recursive(ptr, stream, &check, &pos));
 	if (check)
 		goto error;
 	if (read_suppress_p(ptr)) {
 		setresult_control(ptr, Nil);
-		return;
+		return 0;
 	}
 	if (! consp(pos))
 		goto error;
 	GetCons(pos, &pos, &rest);
 
 	hold = LocalHold_local_push(ptr, pos);
-	if (structure_constructor_common(ptr, pos, rest, &pos))
-		return;
+	Return(structure_constructor_common(ptr, pos, rest, &pos));
 	localhold_end(hold);
 
 	setresult_control(ptr, pos);
-	return;
+	return 0;
 
 error:
-	fmte("After #s must be (name key value ...) form.", NULL);
+	_fmte("After #s must be (name key value ...) form.", NULL);
+	return 0;
 }
 
 static void defun_structure_dispatch(void)

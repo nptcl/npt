@@ -19,10 +19,10 @@ static void check_function_macro(addr symbol)
 
 	GetFunctionSymbol(symbol, &check);
 	if (check != Unbound)
-		fmte("The function ~S is already exist.", symbol, NULL);
+		Abort("COMMON-LISP function error.");
 	getmacro_symbol(symbol, &check);
 	if (check != Unbound)
-		fmte("The macro-function ~S is already exist.", symbol, NULL);
+		Abort("COMMON-LISP macro-function error.");
 }
 
 _g void setfunction_common(addr symbol, addr value)
@@ -43,7 +43,7 @@ _g void setsetfmacro_common(addr symbol, addr value)
 
 	getsetfmacro_symbol(symbol, &check);
 	if (check != Unbound)
-		fmte("The setf-macro-function ~S is already exist.", symbol, NULL);
+		Abort("COMMON-ILSP setf-macro-function error.");
 	setsetfmacro_symbol(symbol, value);
 }
 
@@ -87,7 +87,7 @@ static void getsize_keyword_end(addr key, addr rest, size_t size,
 	}
 }
 
-static void keyword_start_end_constant(constindex cstart, constindex cend,
+static int keyword_start_end_const_(constindex cstart, constindex cend,
 		size_t size, addr rest, size_t *pstart, size_t *pend)
 {
 	addr kstart, kend, astart, aend;
@@ -98,36 +98,37 @@ static void keyword_start_end_constant(constindex cstart, constindex cend,
 	getsize_keyword_start(kstart, rest, &astart, &start);
 	getsize_keyword_end(kend, rest, size, &aend, &end);
 	if (size < start) {
-		fmte("The ~S position ~S must be less than "
+		return fmte("The ~S position ~S must be less than "
 				"the sequence length.", kstart, astart, NULL);
 	}
 	if (size < end) {
-		fmte("The ~S position ~S must be less than "
+		return fmte("The ~S position ~S must be less than "
 				"equal to the sequence length.", kend, aend, NULL);
 	}
 	if (end < start) {
-		fmte("The ~S position ~S must be less than "
+		return fmte("The ~S position ~S must be less than "
 				"equal to the ~S position ~S.", kstart, astart, kend, aend, NULL);
 	}
 	*pstart = start;
 	*pend = end;
+	return 0;
 }
 
-_g void keyword_start_end(size_t size, addr rest, size_t *pstart, size_t *pend)
+_g int keyword_start_end_(size_t size, addr rest, size_t *pstart, size_t *pend)
 {
-	keyword_start_end_constant(CONSTANT_KEYWORD_START, CONSTANT_KEYWORD_END,
+	return keyword_start_end_const_(CONSTANT_KEYWORD_START, CONSTANT_KEYWORD_END,
 			size, rest, pstart, pend);
 }
 
-_g void keyword_start1_end1(size_t size, addr rest, size_t *pstart, size_t *pend)
+_g int keyword_start1_end1_(size_t size, addr rest, size_t *pstart, size_t *pend)
 {
-	keyword_start_end_constant(CONSTANT_KEYWORD_START1, CONSTANT_KEYWORD_END1,
+	return keyword_start_end_const_(CONSTANT_KEYWORD_START1, CONSTANT_KEYWORD_END1,
 			size, rest, pstart, pend);
 }
 
-_g void keyword_start2_end2(size_t size, addr rest, size_t *pstart, size_t *pend)
+_g int keyword_start2_end2_(size_t size, addr rest, size_t *pstart, size_t *pend)
 {
-	keyword_start_end_constant(CONSTANT_KEYWORD_START2, CONSTANT_KEYWORD_END2,
+	return keyword_start_end_const_(CONSTANT_KEYWORD_START2, CONSTANT_KEYWORD_END2,
 			size, rest, pstart, pend);
 }
 

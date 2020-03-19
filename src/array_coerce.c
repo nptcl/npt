@@ -5,6 +5,7 @@
 #include "array_make.h"
 #include "bigdata.h"
 #include "bignum.h"
+#include "character.h"
 #include "ratio.h"
 #include "real_float.h"
 #include "strtype.h"

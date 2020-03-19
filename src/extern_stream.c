@@ -8,7 +8,7 @@
 static void lisp_stream_exnted_check(int type)
 {
 	if (type < 0 || LISP_STREAM_EXTEND <= type)
-		fmte("Invalid stream type ~S.", intsizeh((size_t)type), NULL);
+		_fmte("Invalid stream type ~S.", intsizeh((size_t)type), NULL);
 }
 
 addr lisp_stream_define(int type, size_t size)
@@ -17,7 +17,7 @@ addr lisp_stream_define(int type, size_t size)
 
 	lisp_stream_exnted_check(type);
 	if (0xFFFF <= size)
-		fmte("Too large stream size ~S.", intsizeh(size), NULL);
+		_fmte("Too large stream size ~S.", intsizeh(size), NULL);
 	stream_heap(&x, (enum StreamType)(StreamType_Size + type), size);
 	PtrStructStream(x)->closed = 0;
 
@@ -27,14 +27,14 @@ addr lisp_stream_define(int type, size_t size)
 void *lisp_stream_memory(addr stream)
 {
 	if (! extend_stream_p(stream))
-		fmte("Invalid stream type ~S.", stream, NULL);
+		_fmte("Invalid stream type ~S.", stream, NULL);
 	return PtrDataStream(stream);
 }
 
 addr lisp_getinfo_stream(addr stream)
 {
 	if (! extend_stream_p(stream))
-		fmte("Invalid stream type ~S.", stream, NULL);
+		_fmte("Invalid stream type ~S.", stream, NULL);
 	GetInfoStream(stream, &stream);
 	return stream;
 }
@@ -42,7 +42,7 @@ addr lisp_getinfo_stream(addr stream)
 void lisp_setinfo_stream(addr stream, addr value)
 {
 	if (! extend_stream_p(stream))
-		fmte("Invalid stream type ~S.", stream, NULL);
+		_fmte("Invalid stream type ~S.", stream, NULL);
 	SetInfoStream(stream, value);
 }
 

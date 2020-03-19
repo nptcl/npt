@@ -111,7 +111,7 @@ static void rollback_envstack(Execute ptr, addr pos)
 		GetArrayA2(root, 1, &local); /* local */
 		if (local == pos) break;
 		if (local == Nil)
-			fmte("environment stack error.", NULL);
+			_fmte("environment stack error.", NULL);
 		GetArrayA2(local, 0, &next); /* next */
 		SetArrayA2(local, 0, Nil); /* next */
 		SetArrayA2(root, 1, next); /* local */
@@ -371,9 +371,9 @@ static int parse_progn(Execute ptr, addr *ret, addr cons)
 _g void check_variable(addr symbol)
 {
 	if (! IsSymbol(symbol))
-		fmte("The variable ~S must be a symbol.", symbol, NULL);
+		_fmte("The variable ~S must be a symbol.", symbol, NULL);
 	if (GetStatusReadOnly(symbol))
-		fmte("The variable ~S don't allow constant symbol.", symbol, NULL);
+		_fmte("The variable ~S don't allow constant symbol.", symbol, NULL);
 }
 
 _g void check_function_variable(addr symbol)
@@ -382,17 +382,17 @@ _g void check_function_variable(addr symbol)
 
 	if (IsSymbol(symbol)) {
 		if (GetStatusReadOnly(symbol))
-			fmte("The variable ~S don't allow constant symbol.", symbol, NULL);
+			_fmte("The variable ~S don't allow constant symbol.", symbol, NULL);
 	}
 	else if (callnamep(symbol)) {
 		GetCallName(symbol, &check);
 		if (! IsSymbol(check))
-			fmte("The variable ~S must be a symbol.", check, NULL);
+			_fmte("The variable ~S must be a symbol.", check, NULL);
 		if (callname_constant_p(symbol))
-			fmte("The variable ~S don't allow constant symbol.", check, NULL);
+			_fmte("The variable ~S don't allow constant symbol.", check, NULL);
 	}
 	else {
-		fmte("The ~S don't allow variable.", symbol, NULL);
+		_fmte("The ~S don't allow variable.", symbol, NULL);
 	}
 }
 
@@ -409,7 +409,7 @@ static void parse_letone(addr one, addr *rets, addr *retv)
 
 	/* not cons */
 	if (! consp(one))
-		fmte("Invalid let argument ~S.", one, NULL);
+		_fmte("Invalid let argument ~S.", one, NULL);
 
 	/* (symbol) */
 	GetCons(one, &symbol, &one);
@@ -421,12 +421,12 @@ static void parse_letone(addr one, addr *rets, addr *retv)
 
 	/* (symbol . value) */
 	if (! consp(one))
-		fmte("Invalid let argument ~S.", one, NULL);
+		_fmte("Invalid let argument ~S.", one, NULL);
 
 	/* (symbol value . tail) */
 	GetCons(one, &value, &one);
 	if (one != Nil)
-		fmte("Invalid let argument ~S.", one, NULL);
+		_fmte("Invalid let argument ~S.", one, NULL);
 
 	/* (symbol value) */
 	*rets = symbol;
@@ -462,9 +462,9 @@ static int parse_let(Execute ptr, addr *ret, enum EVAL_PARSE type, addr cons)
 	/* args, decl, body */
 	if (! consp(cons)) {
 		if (type == EVAL_PARSE_LET)
-			fmte("let form must be a (let args . body).", NULL);
+			_fmte("let form must be a (let args . body).", NULL);
 		else
-			fmte("let* form must be a (let* args . body).", NULL);
+			_fmte("let* form must be a (let* args . body).", NULL);
 	}
 	hold = LocalHold_local(ptr);
 	getcons(cons, &args, &cons);
@@ -553,7 +553,7 @@ static int parse_setq_symbol(Execute ptr, addr *ret, addr cons)
 	}
 	localhold_end(hold);
 	if (symbol != NULL)
-		fmte("setq symbol ~S don't have a value argument.", symbol, NULL);
+		_fmte("setq symbol ~S don't have a value argument.", symbol, NULL);
 	nreverse_list_unsafe(&root, root);
 
 	/* eval */
@@ -823,12 +823,12 @@ static int execute_macro_lambda(Execute ptr, addr *ret, addr eval)
 	push_close_control(ptr, &control);
 	/* code */
 	if (eval_execute_parse(ptr, eval)) {
-		Return1(runcode_free_control(ptr, control));
+		Return(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
 		localhold_set(hold, 0, *ret);
-		Return1(free_control(ptr, control));
+		Return(free_control(ptr, control));
 	}
 	localhold_end(hold);
 
@@ -881,7 +881,7 @@ static int parse_macro_lambda(Execute ptr, addr *ret, addr cons)
 
 	/* (macro-lambda args . body) */
 	if (! consp(cons))
-		fmte("MACRO-LAMBDA argument ~S must be (lambda-list . form).", cons, NULL);
+		_fmte("MACRO-LAMBDA argument ~S must be (lambda-list . form).", cons, NULL);
 	hold = LocalHold_local(ptr);
 	GetCons(cons, &args, &cons);
 	lambda_macro(ptr->local, &args, args, Nil);
@@ -996,10 +996,10 @@ static void check_define_symbol_macro(addr symbol)
 	addr value;
 
 	if (specialp_symbol(symbol))
-		fmte("define-symbol-macro cannot bind the special symbol ~S.", symbol, NULL);
+		_fmte("define-symbol-macro cannot bind the special symbol ~S.", symbol, NULL);
 	GetValueSymbol(symbol, &value);
 	if (value != Unbound)
-		fmte("define-symbol-macro cannot bind the bounded symbol ~S.", symbol, NULL);
+		_fmte("define-symbol-macro cannot bind the bounded symbol ~S.", symbol, NULL);
 }
 
 static int parse_define_symbol_macro(Execute ptr, addr *ret, addr cons)
@@ -1035,7 +1035,7 @@ static int parse_define_symbol_macro(Execute ptr, addr *ret, addr cons)
 	return 0;
 
 error:
-	fmte("define-symbol-macro arguments ~S must be (symbol form).", cons, NULL);
+	_fmte("define-symbol-macro arguments ~S must be (symbol form).", cons, NULL);
 	return 1;
 }
 
@@ -1069,7 +1069,7 @@ static int parse_symbol_macrolet_args(Execute ptr, addr *ret, addr args)
 
 error:
 	localhold_end(hold);
-	fmte("The symbol-macrolet arguemnt ~A "
+	_fmte("The symbol-macrolet arguemnt ~A "
 			"must be a (symbol expansion) form.", cons, NULL);
 	return 1;
 }
@@ -1084,7 +1084,7 @@ static void check_symbol_macrolet(addr args, addr decl)
 		while (args != Nil) {
 			GetCar(args, &symbol);
 			if (find_list_eq_unsafe(symbol, decl))
-				fmte("The symbol ~S cannot declare the special.", symbol, NULL);
+				_fmte("The symbol ~S cannot declare the special.", symbol, NULL);
 		}
 	}
 }
@@ -1095,7 +1095,7 @@ static int parse_symbol_macrolet(Execute ptr, addr *ret, addr cons)
 	LocalHold hold;
 
 	if (! consp(cons))
-		fmte("symbol-macrolet form must be (symbol-macrolet args . body).", NULL);
+		_fmte("symbol-macrolet form must be (symbol-macrolet args . body).", NULL);
 	getcons(cons, &args, &cons);
 	/* local scope environment */
 	snapshot_envstack(ptr, &rollback);
@@ -1132,7 +1132,7 @@ static int parse_macrolet_one(Execute ptr, addr cons)
 	if (! consp(cons)) goto error;
 	GetCons(cons, &name, &cons);
 	if (! symbolp(name))
-		fmte("The name ~S must be a symbol.", name, NULL);
+		_fmte("The name ~S must be a symbol.", name, NULL);
 	check_function_variable(name);
 	if (! consp(cons)) goto error;
 	GetCons(cons, &args, &cons);
@@ -1153,7 +1153,7 @@ static int parse_macrolet_one(Execute ptr, addr cons)
 	return 0;
 
 error:
-	fmte("macrolet argument must be (name (...) . body) form.", NULL);
+	_fmte("macrolet argument must be (name (...) . body) form.", NULL);
 	return 1;
 }
 
@@ -1173,7 +1173,7 @@ static int parse_macrolet(Execute ptr, addr *ret, addr cons)
 	LocalHold hold;
 
 	if (! consp(cons))
-		fmte("macrolet form must be (macrolet args . body).", NULL);
+		_fmte("macrolet form must be (macrolet args . body).", NULL);
 	getcons(cons, &args, &cons);
 	/* local scope environment */
 	snapshot_envstack(ptr, &rollback);
@@ -1201,10 +1201,10 @@ static int parse_quote(addr *ret, addr cons)
 	addr value;
 
 	if (! consp(cons))
-		fmte("quote form must have a one argument.", NULL);
+		_fmte("quote form must have a one argument.", NULL);
 	getcons(cons, &value, &cons);
 	if (cons != Nil)
-		fmte("quote form must have a one argument.", NULL);
+		_fmte("quote form must have a one argument.", NULL);
 
 	/* eval */
 	eval_single_parse_heap(ret, EVAL_PARSE_QUOTE, value);
@@ -1219,7 +1219,7 @@ static int parse_lambda(Execute ptr, addr *ret, addr form)
 
 	GetCdr(form, &cons);
 	if (! consp(cons))
-		fmte("function lambda must be (lambda (...) body) form.", NULL);
+		_fmte("function lambda must be (lambda (...) body) form.", NULL);
 	GetCons(cons, &args, &cons);
 	hold = LocalHold_local(ptr);
 	/* args */
@@ -1257,14 +1257,14 @@ static int parse_function_argument(Execute ptr, addr *ret, addr value)
 
 	/* lambda function */
 	if (! consp(value))
-		fmte("function ~S must be a fdefinition form.", value, NULL);
+		_fmte("function ~S must be a fdefinition form.", value, NULL);
 	GetConst(COMMON_LAMBDA, &symbol);
 	GetCar(value, &check);
 	if (check == symbol)
 		return parse_lambda(ptr, ret, value);
 
 	/* others */
-	fmte("function ~S must be a fdefinition form.", value, NULL);
+	_fmte("function ~S must be a fdefinition form.", value, NULL);
 
 	return 0;
 }
@@ -1274,10 +1274,10 @@ static int parse_function(Execute ptr, addr *ret, addr cons)
 	addr value;
 
 	if (! consp(cons))
-		fmte("function form must have a one argument.", NULL);
+		_fmte("function form must have a one argument.", NULL);
 	getcons(cons, &value, &cons);
 	if (cons != Nil)
-		fmte("function form must have a one argument.", NULL);
+		_fmte("function form must have a one argument.", NULL);
 
 	return parse_function_argument(ptr, ret, value);
 }
@@ -1316,7 +1316,7 @@ static int parse_if(Execute ptr, addr *ret, addr cons)
 	return 0;
 
 error:
-	fmte("if form must be (if expr then &optnioal else).", NULL);
+	_fmte("if form must be (if expr then &optnioal else).", NULL);
 	return 1;
 }
 
@@ -1327,7 +1327,7 @@ static int parse_unwind_protect(Execute ptr, addr *ret, addr cons)
 	LocalHold hold;
 
 	if (! consp(cons))
-		fmte("unwind-protect form must be a (unwind-protect form . body).", NULL);
+		_fmte("unwind-protect form must be a (unwind-protect form . body).", NULL);
 	GetCons(cons, &form, &cons);
 	hold = LocalHold_local(ptr);
 	if (localhold_parse_self(hold, ptr, form)) return 1;
@@ -1392,14 +1392,14 @@ static int parse_tagbody_check(Execute ptr, addr cons, addr *rtag, addr *rbody)
 		}
 		else if (tagbody_tag_p(pos)) {
 			if (parse_tagbody_findtag(pos, tag))
-				fmte("The tag ~S is already exists.", pos, NULL);
+				_fmte("The tag ~S is already exists.", pos, NULL);
 			parse_tagbody_maketag(&pos, pos);
 			cons_heap(&tag, pos, tag);
 			cons_heap(&body, pos, body);
 			localhold_set(hold, 1, tag);
 		}
 		else {
-			fmte("The tag ~S must be a symbol or integer.", pos, NULL);
+			_fmte("The tag ~S must be a symbol or integer.", pos, NULL);
 		}
 		localhold_set(hold, 0, body);
 	}
@@ -1430,12 +1430,12 @@ static int parse_go(addr *ret, addr cons)
 	addr tag;
 
 	if (! consp(cons))
-		fmte("go form must be (go tag).", NULL);
+		_fmte("go form must be (go tag).", NULL);
 	GetCons(cons, &tag, &cons);
 	if (cons != Nil)
-		fmte("go form must be (go tag).", NULL);
+		_fmte("go form must be (go tag).", NULL);
 	if (! tagbody_tag_p(tag))
-		fmte("The tag ~S must be a symbol or integer.", tag, NULL);
+		_fmte("The tag ~S must be a symbol or integer.", tag, NULL);
 	/* eval */
 	eval_single_parse_heap(ret, EVAL_PARSE_GO, tag);
 
@@ -1448,10 +1448,10 @@ static int parse_block(Execute ptr, addr *ret, addr cons)
 	addr eval, name;
 
 	if (! consp(cons))
-		fmte("block form must be (block name . body).", NULL);
+		_fmte("block form must be (block name . body).", NULL);
 	GetCons(cons, &name, &cons);
 	if (! IsSymbol(name))
-		fmte("block name ~S must be a symbol type.", name, NULL);
+		_fmte("block name ~S must be a symbol type.", name, NULL);
 	if (parse_allcons(ptr, &cons, cons)) return 1;
 
 	/* eval */
@@ -1488,7 +1488,7 @@ static int parse_return_from(Execute ptr, addr *ret, addr cons)
 	return 0;
 
 error:
-	fmte("return-from form must be (return-from name [value]).", NULL);
+	_fmte("return-from form must be (return-from name [value]).", NULL);
 	return 1;
 }
 
@@ -1499,7 +1499,7 @@ static int parse_catch(Execute ptr, addr *ret, addr cons)
 	LocalHold hold;
 
 	if (! consp(cons))
-		fmte("catch form must be (catch tag . body).", NULL);
+		_fmte("catch form must be (catch tag . body).", NULL);
 	GetCons(cons, &tag, &cons);
 	hold = LocalHold_local(ptr);
 	if (localhold_parse_self(hold, ptr, tag)) return 1;
@@ -1539,7 +1539,7 @@ static int parse_throw(Execute ptr, addr *ret, addr cons)
 	return 0;
 
 error:
-	fmte("throw form must be (throw tag result).", NULL);
+	_fmte("throw form must be (throw tag result).", NULL);
 	return 1;
 }
 
@@ -1570,7 +1570,7 @@ static int parse_flet_one(Execute ptr, addr *ret, addr cons)
 	return 0;
 
 error:
-	fmte("flet/labels argument must be (name (...) . body) form.", NULL);
+	_fmte("flet/labels argument must be (name (...) . body) form.", NULL);
 	return 1;
 }
 
@@ -1599,9 +1599,9 @@ static int parse_flet_labels(Execute ptr, addr *ret, enum EVAL_PARSE type, addr 
 
 	if (! consp(cons)) {
 		if (type == EVAL_PARSE_FLET)
-			fmte("flet form must be (flet args . body).", NULL);
+			_fmte("flet form must be (flet args . body).", NULL);
 		else
-			fmte("labels form must be (labels args . body).", NULL);
+			_fmte("labels form must be (labels args . body).", NULL);
 	}
 	getcons(cons, &args, &cons);
 
@@ -1649,7 +1649,7 @@ static int parse_the(Execute ptr, addr *ret, addr cons)
 	return 0;
 
 error:
-	fmte("the form must be (the type expr).", NULL);
+	_fmte("the form must be (the type expr).", NULL);
 	return 1;
 }
 
@@ -1661,7 +1661,7 @@ static int parse_eval_when(Execute ptr, addr *ret, addr cons)
 	addr compile1, compile2, load1, load2, eval1, eval2;
 
 	if (! consp(cons))
-		fmte("eval-when form must be (eval-when (...) . body).", NULL);
+		_fmte("eval-when form must be (eval-when (...) . body).", NULL);
 	GetCons(cons, &right, &cons);
 	if (parse_allcons(ptr, &cons, cons)) return 1;
 
@@ -1787,7 +1787,7 @@ static int parse_multiple_value_bind(Execute ptr, addr *ret, addr cons)
 	return 0;
 
 error:
-	fmte("The form ~S must be (system::multiple-value-bind "
+	_fmte("The form ~S must be (system::multiple-value-bind "
 			"(vars expr decl doc form).", cons, NULL);
 	return 1;
 }
@@ -1814,7 +1814,7 @@ static int parse_multiple_value_call(Execute ptr, addr *ret, addr cons)
 	return 0;
 
 error:
-	fmte("The form ~S must be (multiple-value-call function . body).", cons, NULL);
+	_fmte("The form ~S must be (multiple-value-call function . body).", cons, NULL);
 	return 1;
 }
 
@@ -1840,7 +1840,7 @@ static int parse_multiple_value_prog1(Execute ptr, addr *ret, addr cons)
 	return 0;
 
 error:
-	fmte("The form ~S must be (multiple-value-prog1 first-form . body).", cons, NULL);
+	_fmte("The form ~S must be (multiple-value-prog1 first-form . body).", cons, NULL);
 	return 1;
 }
 
@@ -1869,7 +1869,7 @@ static int parse_nth_value(Execute ptr, addr *ret, addr list)
 	return 0;
 
 error:
-	fmte("The form ~S must be (nth-value nth expr).", list, NULL);
+	_fmte("The form ~S must be (nth-value nth expr).", list, NULL);
 	return 1;
 }
 
@@ -1899,7 +1899,7 @@ static int parse_progv(Execute ptr, addr *ret, addr form)
 	return 0;
 
 error:
-	fmte("The form ~S must be (progv symbols values . body).", form, NULL);
+	_fmte("The form ~S must be (progv symbols values . body).", form, NULL);
 	return 1;
 }
 
@@ -1953,7 +1953,7 @@ static int macroexpand1_symbol_find(addr symbol, addr env, addr *ret)
 	if (env != Nil) {
 		Check(GetType(env) != LISPTYPE_ENVIRONMENT, "type error");
 		if (closep_environment(env))
-			fmte("The environment object ~S is already closed.", env, NULL);
+			_fmte("The environment object ~S is already closed.", env, NULL);
 		GetArrayA2(env, 1, &list); /* local */
 		if (findstack_environment(symbol, list, Nil, ret)) return 1;
 		GetArrayA2(env, 0, &list); /* global */
@@ -1972,7 +1972,7 @@ _g int find_environment(addr symbol, addr env, addr *ret)
 	if (env != Nil) {
 		Check(GetType(env) != LISPTYPE_ENVIRONMENT, "type error");
 		if (closep_environment(env))
-			fmte("The environment object ~S is already closed.", env, NULL);
+			_fmte("The environment object ~S is already closed.", env, NULL);
 		GetArrayA2(env, 1, &list); /* local */
 		if (findstack_environment(symbol, list, T, ret)) return 1;
 		GetArrayA2(env, 0, &list); /* global */
@@ -2073,7 +2073,7 @@ static int parse_macro(Execute ptr, addr *ret, addr call, addr cons)
 static int parse_backquote(Execute ptr, addr *ret, addr pos)
 {
 	if (! quote_back_p(pos))
-		fmte("Invalid quote type.", NULL);
+		_fmte("Invalid quote type.", NULL);
 	getvalue_quote(pos, &pos);
 	return parse_execute(ptr, ret, pos);
 }
@@ -2349,7 +2349,7 @@ static int parse_switch(Execute ptr, addr *ret, addr pos)
 			return parse_backquote(ptr, ret, pos);
 
 		default:
-			fmte("parse-error: ~S.", pos, NULL);
+			_fmte("parse-error: ~S.", pos, NULL);
 			break;
 	}
 
@@ -2361,7 +2361,7 @@ static int parse_execute(Execute ptr, addr *ret, addr pos)
 	LocalHold hold;
 
 	hold = LocalHold_local_push(ptr, pos);
-	Return1(parse_switch(ptr, ret, pos));
+	Return(parse_switch(ptr, ret, pos));
 	localhold_end(hold);
 
 	return 0;
@@ -2378,7 +2378,7 @@ _g int eval_parse(Execute ptr, addr *ret, addr pos)
 	init_parse_environment(ptr);
 	check = parse_execute(ptr, ret, pos);
 	localhold_set(hold, 0, *ret);
-	Return1(free_check_control(ptr, control, check));
+	Return(free_check_control(ptr, control, check));
 	localhold_end(hold);
 
 	return 0;

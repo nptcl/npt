@@ -11,7 +11,7 @@
 #include "stream.h"
 #include "stream_string.h"
 #include "strtype.h"
-#include "unicode.h"
+#include "strvect.h"
 
 /*****************************************************************************
  *  format

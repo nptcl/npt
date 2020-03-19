@@ -640,7 +640,7 @@ _g int intern_hashtable(LocalRoot local, addr pos, addr key, addr *ret)
 {
 	if (GetStatusDynamic(pos)) {
 		if (local == NULL)
-			fmte("The dynamic hashtable must use a localroot.", NULL);
+			_fmte("The dynamic hashtable must use a localroot.", NULL);
 		return static_intern_hashtable(local, pos, key, ret);
 	}
 	else {

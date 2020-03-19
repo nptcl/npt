@@ -71,7 +71,7 @@ _g void merge_pathnames_clang(Execute ptr,
 /* common-lisp */
 _g void make_pathname(Execute ptr, addr *ret, addr rest);
 _g void get_logical_pathname_translations(addr host, addr *ret);
-_g void set_logical_pathname_translations(Execute ptr, addr host, addr list);
+_g int set_logical_pathname_translations(Execute ptr, addr host, addr list);
 _g void pathname_host(addr pos, addr *ret, int localp);
 _g void pathname_device(addr pos, addr *ret, int localp);
 _g void pathname_directory(addr pos, addr *ret, int localp);

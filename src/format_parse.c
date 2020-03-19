@@ -13,7 +13,7 @@
 #include "stream.h"
 #include "stream_string.h"
 #include "strtype.h"
-#include "unicode.h"
+#include "strvect.h"
 
 /*
  *  fmtinput
@@ -631,7 +631,7 @@ static void fmtchar_group_type(addr format, struct fmtchar *list)
 			break;
 
 		case FormatType_Error:
-			fmte("format type error", NULL);
+			_fmte("format type error", NULL);
 			break;
 
 		default:

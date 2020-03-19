@@ -41,7 +41,7 @@ _g int bit_getint(addr pos, int *ret)
 _g void bit_getint_error(addr pos, int *ret)
 {
 	if (bit_getint(pos, ret))
-		fmte("Bit value ~S must be a 0 or 1.", pos, NULL);
+		_fmte("Bit value ~S must be a 0 or 1.", pos, NULL);
 }
 
 
@@ -431,7 +431,7 @@ _g void bitmemory_get(LocalRoot local, addr pos, size_t index, addr *ret)
 	CheckType(pos, LISPTYPE_BITVECTOR);
 	bitmemory_length(pos, &size);
 	if (size <= index)
-		fmte("Out of range ~S.", intsizeh(index), NULL);
+		_fmte("Out of range ~S.", intsizeh(index), NULL);
 	bitmemory_getint(pos, index, &check);
 	fixnum_alloc(local, ret, check? 1: 0);
 }
@@ -443,12 +443,12 @@ _g void bitmemory_aref(LocalRoot local, addr pos, addr args, addr *ret)
 
 	CheckType(pos, LISPTYPE_BITVECTOR);
 	if (! consp(args))
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	GetCons(args, &arg, &args);
 	if (args != Nil)
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	if (GetIndex_integer(arg, &index))
-		fmte("Invalid index arg ~S.", arg, NULL);
+		_fmte("Invalid index arg ~S.", arg, NULL);
 	bitmemory_get(local, pos, index, ret);
 }
 
@@ -458,12 +458,12 @@ _g void bitmemory_set(addr pos, size_t index, addr value)
 	size_t size;
 
 	if (bit_getint(value, &check)) {
-		fmte("The argument ~S must be bit type.", value, NULL);
+		_fmte("The argument ~S must be bit type.", value, NULL);
 		return;
 	}
 	bitmemory_length(pos, &size);
 	if (size <= index) {
-		fmte("Out of range ~S.", intsizeh(index), NULL);
+		_fmte("Out of range ~S.", intsizeh(index), NULL);
 		return;
 	}
 	bitmemory_setint(pos, index, check);
@@ -476,14 +476,14 @@ _g void bitmemory_setf_aref(addr pos, addr args, addr value)
 
 	CheckType(pos, LISPTYPE_BITVECTOR);
 	if (GetStatusReadOnly(pos))
-		fmte("The object ~S is constant.", pos, NULL);
+		_fmte("The object ~S is constant.", pos, NULL);
 	if (! consp(args))
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	GetCons(args, &arg, &args);
 	if (args != Nil)
-		fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	if (GetIndex_integer(arg, &index))
-		fmte("Invalid index arg ~S.", arg, NULL);
+		_fmte("Invalid index arg ~S.", arg, NULL);
 	bitmemory_set(pos, index, value);
 }
 
@@ -561,7 +561,7 @@ _g void bitmemory_fill(addr pos, addr item, addr start, addr end)
 	size_t index1, index2;
 
 	if (bit_getint(item, &value)) {
-		fmte("FILL item ~S must be a bit (0 or 1 integer).", item, NULL);
+		_fmte("FILL item ~S must be a bit (0 or 1 integer).", item, NULL);
 		return;
 	}
 	bitmemory_length(pos, &index1);
@@ -691,7 +691,7 @@ _g int bvarray_refint(addr pos, size_t index)
 	int check;
 
 	if (ArrayInfoStruct(pos)->front <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
+		_fmte("Index ~S is too large.", intsizeh(index), NULL);
 	array_get_bit(pos, index, &check);
 	return check;
 }
@@ -704,7 +704,7 @@ _g void bvarray_getint(addr pos, size_t index, int *ret)
 _g void bvarray_setint(addr pos, size_t index, int value)
 {
 	if (ArrayInfoStruct(pos)->front <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
+		_fmte("Index ~S is too large.", intsizeh(index), NULL);
 	array_set_bit(pos, index, value);
 }
 
@@ -722,7 +722,7 @@ _g void bitvector_length(addr pos, size_t *ret)
 		bvarray_length(pos, ret);
 		return;
 	}
-	fmte("type error", NULL);
+	_fmte("type error", NULL);
 }
 
 _g int bitvector_refint(addr pos, size_t index)
@@ -731,7 +731,7 @@ _g int bitvector_refint(addr pos, size_t index)
 		return bitmemory_refint(pos, index);
 	if (bvarrayp(pos))
 		return bvarray_refint(pos, index);
-	fmte("type error", NULL);
+	_fmte("type error", NULL);
 	return 0;
 }
 
@@ -745,7 +745,7 @@ _g void bitvector_getint(addr pos, size_t index, int *ret)
 		bvarray_getint(pos, index, ret);
 		return;
 	}
-	fmte("type error", NULL);
+	_fmte("type error", NULL);
 }
 
 _g void bitvector_setint(addr pos, size_t index, int value)
@@ -758,7 +758,7 @@ _g void bitvector_setint(addr pos, size_t index, int value)
 		bvarray_setint(pos, index, value);
 		return;
 	}
-	fmte("type error", NULL);
+	_fmte("type error", NULL);
 }
 
 static int bitmemory_array_equal(addr left, addr right)
@@ -819,7 +819,7 @@ _g int bitvector_equal(addr left, addr right)
 		if (bvarrayp(right))
 			return bvarray_array_equal(left, right);
 	}
-	fmte("type error", NULL);
+	_fmte("type error", NULL);
 	return 0;
 }
 

@@ -21,7 +21,7 @@ int lisp_format8(addr stream, const void *str, ...);
 int lisp_format16(addr stream, const void *str, ...);
 
 /* syscall */
-typedef void (*lisp_calltype_syscall)(addr args);
+typedef int (*lisp_calltype_syscall)(addr args);
 void lisp_syscall_rest(int index, lisp_calltype_syscall);
 void lisp_syscall_dynamic(int index, lisp_calltype_syscall);
 addr lisp_syscall_function(int index, addr name);

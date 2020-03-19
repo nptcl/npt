@@ -3,31 +3,22 @@
  */
 #include "common_header.h"
 #include "cons.h"
-#include "cons_list.h"
-#include "cons_plist.h"
-#include "eval_declare.h"
 #include "file.h"
-#include "integer.h"
-#include "package.h"
-#include "pathname.h"
-#include "sequence.h"
+#include "stream.h"
 #include "stream_broadcast.h"
+#include "stream_common.h"
 #include "stream_concat.h"
 #include "stream_echo.h"
 #include "stream_string.h"
 #include "stream_synonym.h"
 #include "stream_twoway.h"
-#include "stream.h"
-#include "strtype.h"
-#include "type_parse.h"
-#include "type_subtypep.h"
-#include "type_typep.h"
 
 /* (defun input-stream-p (stream) ...) -> boolean */
-static void function_input_stream_p(Execute ptr, addr pos)
+static int function_input_stream_p(Execute ptr, addr pos)
 {
 	int check = inputp_stream(pos);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void defun_input_stream_p(void)
@@ -47,10 +38,11 @@ static void defun_input_stream_p(void)
 
 
 /* (defun output-stream-p (stream) ...) -> boolean */
-static void function_output_stream_p(Execute ptr, addr pos)
+static int function_output_stream_p(Execute ptr, addr pos)
 {
 	int check = outputp_stream(pos);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void defun_output_stream_p(void)
@@ -70,10 +62,11 @@ static void defun_output_stream_p(void)
 
 
 /* (defun interactive-stream-p (stream) ...) -> boolean */
-static void function_interactive_stream_p(Execute ptr, addr pos)
+static int function_interactive_stream_p(Execute ptr, addr pos)
 {
 	int check = interactivep_stream(pos);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void defun_interactive_stream_p(void)
@@ -93,10 +86,11 @@ static void defun_interactive_stream_p(void)
 
 
 /* (defun open-stream-p (stream) ...) -> boolean */
-static void function_open_stream_p(Execute ptr, addr pos)
+static int function_open_stream_p(Execute ptr, addr pos)
 {
 	int check = open_stream_p(pos);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void defun_open_stream_p(void)
@@ -116,9 +110,10 @@ static void defun_open_stream_p(void)
 
 
 /* (defun streamp (object) ...) -> boolean */
-static void function_streamp(Execute ptr, addr var)
+static int function_streamp(Execute ptr, addr var)
 {
 	setbool_control(ptr, GetType(var) == LISPTYPE_STREAM);
+	return 0;
 }
 
 static void defun_streamp(void)
@@ -138,10 +133,11 @@ static void defun_streamp(void)
 
 
 /* (defun stream-element-type (stream) ...) -> typespec  */
-static void function_stream_element_type(Execute ptr, addr var)
+static int function_stream_element_type(Execute ptr, addr var)
 {
 	element_type_stream(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_stream_element_type(addr *ret)
@@ -177,14 +173,11 @@ static void defun_stream_element_type(void)
  *   value    t
  *   integer  integer
  */
-static void function_read_byte(Execute ptr, addr stream, addr errorp, addr value)
+static int function_read_byte(Execute ptr, addr stream, addr errorp, addr value)
 {
-	if (errorp == Unbound)
-		errorp = T;
-	if (value == Unbound)
-		value = Nil;
-	read_byte_common(&stream, stream, errorp != Nil, value);
+	Return(read_byte_common(ptr, stream, errorp, value, &stream));
 	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void type_read_byte(addr *ret)
@@ -218,11 +211,11 @@ static void defun_read_byte(void)
  *   byte    integer
  *   stream  output-stream
  */
-static void function_write_byte(Execute ptr, addr value, addr stream)
+static int function_write_byte(Execute ptr, addr value, addr stream)
 {
-	write_byte_common(stream, value);
-	exitpoint_stream(stream);
+	Return(write_byte_common(ptr, value, stream));
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_write_byte(addr *ret)
@@ -260,21 +253,12 @@ static void defun_write_byte(void)
  *   recp    t  ;; boolean
  *   result  t
  */
-static void function_peek_char(Execute ptr, addr type, addr stream,
+static int function_peek_char(Execute ptr, addr type, addr stream,
 		addr errorp, addr value, addr recp)
 {
-	if (type == Unbound)
-		type = Nil;
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
-	if (errorp == Unbound)
-		errorp = T;
-	if (value == Unbound)
-		value = Nil;
-	if (recp == Unbound)
-		recp = Nil;
-	peek_char_common(ptr, &type, type, stream, errorp != Nil, value, recp != Nil);
+	Return(peek_char_common(ptr, type, stream, errorp, value, recp, &type));
 	setresult_control(ptr, type);
+	return 0;
 }
 
 static void type_peek_char(addr *ret)
@@ -314,19 +298,12 @@ static void defun_peek_char(void)
  *   recp    t  ;; boolean
  *   result  t  ;; (or character t value)
  */
-static void function_read_char(Execute ptr,
+static int function_read_char(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp)
 {
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
-	if (errorp == Unbound)
-		errorp = T;
-	if (value == Unbound)
-		value = Nil;
-	if (recp == Unbound)
-		recp = Nil;
-	read_char_common(ptr, &stream, stream, errorp != Nil, value, recp != Nil);
+	Return(read_char_common(ptr, stream, errorp, value, recp, &stream));
 	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void defun_read_char(void)
@@ -352,19 +329,12 @@ static void defun_read_char(void)
  *   recp    t  ;; boolean
  *   result  t  ;; (or character t value)
  */
-static void function_read_char_no_hang(Execute ptr,
+static int function_read_char_no_hang(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp)
 {
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
-	if (errorp == Unbound)
-		errorp = T;
-	if (value == Unbound)
-		value = Nil;
-	if (recp == Unbound)
-		recp = Nil;
-	read_char_no_hang_common(ptr, &stream, stream, errorp != Nil, value, recp != Nil);
+	Return(read_char_no_hang_common(ptr, stream, errorp, value, recp, &stream));
 	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void defun_read_char_no_hang(void)
@@ -384,13 +354,11 @@ static void defun_read_char_no_hang(void)
 
 
 /* (defun terpri (&optional stream) ...) -> null */
-static void function_terpri(Execute ptr, addr stream)
+static int function_terpri(Execute ptr, addr stream)
 {
-	if (stream == Unbound)
-		standard_output_stream(ptr, &stream);
-	terpri_stream(stream);
-	exitpoint_stream(stream);
+	Return(terpri_common(ptr, stream));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_terpri(addr *ret)
@@ -420,15 +388,11 @@ static void defun_terpri(void)
 
 
 /* (defun fresh-line (&optional stream) ...) -> boolean */
-static void function_fresh_line(Execute ptr, addr stream)
+static int function_fresh_line(Execute ptr, addr stream)
 {
-	int check;
-
-	if (stream == Unbound)
-		standard_output_stream(ptr, &stream);
-	check = fresh_line_stream(stream);
-	exitpoint_stream(stream);
-	setbool_control(ptr, check);
+	Return(fresh_line_common(ptr, stream, &stream));
+	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void type_fresh_line(addr *ret)
@@ -458,15 +422,11 @@ static void defun_fresh_line(void)
 
 
 /* (defun unread-char (character &optional stream) ...) -> null */
-static void function_unread_char(Execute ptr, addr pos, addr stream)
+static int function_unread_char(Execute ptr, addr pos, addr stream)
 {
-	unicode c;
-
-	if (stream == Unbound)
-		standard_output_stream(ptr, &stream);
-	GetCharacter(pos, &c);
-	unread_char_stream(stream, c);
+	unread_char_common(ptr, pos, stream);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_unread_char(addr *ret)
@@ -497,15 +457,11 @@ static void defun_unread_char(void)
 
 
 /* (defun write-char (character &optional stream) ...) -> character */
-static void function_write_char(Execute ptr, addr pos, addr stream)
+static int function_write_char(Execute ptr, addr pos, addr stream)
 {
-	unicode c;
-
-	stream_designer(ptr, stream, &stream, 0);
-	GetCharacter(pos, &c);
-	write_char_stream(stream, c);
-	exitpoint_stream(stream);
+	write_char_common(ptr, pos, stream);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_write_char(addr *ret)
@@ -544,21 +500,12 @@ static void defun_write_char(void)
  *  line       t  ;; (or string t)
  *  miss-p     boolean
  */
-static void function_read_line(Execute ptr,
+static int function_read_line(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp)
 {
-	int miss;
-
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
-	if (errorp == Unbound)
-		errorp = T;
-	if (value == Unbound)
-		value = Nil;
-	if (recp == Unbound)
-		recp = Nil;
-	read_line_common(ptr, &stream, &miss, stream, errorp != Nil, value, recp != Nil);
-	setvalues_control(ptr, stream, miss? T: Nil, NULL);
+	Return(read_line_common(ptr, stream, errorp, value, recp, &stream, &errorp));
+	setvalues_control(ptr, stream, errorp, NULL);
+	return 0;
 }
 
 static void type_read_line(addr *ret)
@@ -590,10 +537,11 @@ static void defun_read_line(void)
 
 
 /* (defun write-string (string &optional stream &key start end) ...) -> string */
-static void function_write_string(Execute ptr, addr string, addr rest)
+static int function_write_string(Execute ptr, addr string, addr rest)
 {
-	write_string_common(ptr, string, rest);
+	Return(write_string_common(ptr, string, rest));
 	setresult_control(ptr, string);
+	return 0;
 }
 
 static void defun_write_string(void)
@@ -613,10 +561,11 @@ static void defun_write_string(void)
 
 
 /* (defun write-line (string &optional stream &key start end) ...) -> string */
-static void function_write_line(Execute ptr, addr string, addr rest)
+static int function_write_line(Execute ptr, addr string, addr rest)
 {
-	write_line_common(ptr, string, rest);
+	Return(write_line_common(ptr, string, rest));
 	setresult_control(ptr, string);
+	return 0;
 }
 
 static void defun_write_line(void)
@@ -642,14 +591,11 @@ static void defun_write_line(void)
  *   end       keyword-end
  *   position  index
  */
-static void function_read_sequence(Execute ptr, addr var, addr stream, addr rest)
+static int function_read_sequence(Execute ptr, addr var, addr stream, addr rest)
 {
-	size_t start, end;
-
-	start = length_sequence(var, 0);
-	keyword_start_end(start, rest, &start, &end);
-	read_sequence_common(&var, var, stream, start, end);
+	Return(read_sequence_common(var, stream, rest, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_read_sequence(addr *ret)
@@ -685,15 +631,11 @@ static void defun_read_sequence(void)
 
 
 /* (defun write-sequence (sequence stream &key start end) ...) -> sequence */
-static void function_write_sequence(Execute ptr, addr var, addr stream, addr rest)
+static int function_write_sequence(Execute ptr, addr var, addr stream, addr rest)
 {
-	size_t start, end;
-
-	start = length_sequence(var, 0);
-	keyword_start_end(start, rest, &start, &end);
-	write_sequence_common(ptr->local, var, stream, start, end);
-	exitpoint_stream(stream);
+	Return(write_sequence_common(ptr->local, var, stream, rest));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_write_sequence(addr *ret)
@@ -732,10 +674,11 @@ static void defun_write_sequence(void)
  *   stream  stream (associated with a file)
  *   length  (or Intplus null)
  */
-static void function_file_length(Execute ptr, addr stream)
+static int function_file_length(Execute ptr, addr stream)
 {
 	file_length_stream(stream, &stream);
 	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void type_file_length(addr *ret)
@@ -769,41 +712,11 @@ static void defun_file_length(void)
  *   position  (or index (eql :start) (eql :end))
  *   result    index-null
  */
-static void function_file_position(Execute ptr, addr stream, addr pos)
+static int function_file_position(Execute ptr, addr stream, addr pos)
 {
-	int result;
-	addr check;
-	size_t size;
-
-	/* get file-position */
-	if (pos == Unbound) {
-		if (file_position_stream(stream, &size))
-			setresult_control(ptr, Nil);
-		else
-			setresult_control(ptr, intsizeh(size));
-		return;
-	}
-
-	/* set start */
-	GetConst(KEYWORD_START, &check);
-	if (pos == check) {
-		result = file_position_start_stream(stream);
-		setbool_control(ptr, ! result);
-		return;
-	}
-
-	/* set end */
-	GetConst(KEYWORD_END, &check);
-	if (pos == check) {
-		result = file_position_end_stream(stream);
-		setbool_control(ptr, ! result);
-		return;
-	}
-
-	/* set index */
-	getindex_integer(pos, &size);
-	result = file_position_set_stream(stream, size);
-	setbool_control(ptr, ! result);
+	Return(file_position_common(ptr, stream, pos, &stream));
+	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void type_file_position(addr *ret)
@@ -845,20 +758,11 @@ static void defun_file_position(void)
  *   object  (or string character)
  *   length  index-null
  */
-static void function_file_string_length(Execute ptr, addr stream, addr pos)
+static int function_file_string_length(Execute ptr, addr stream, addr pos)
 {
-	int check;
-	unicode u;
-	size_t size;
-
-	if (characterp(pos)) {
-		GetCharacter(pos, &u);
-		check = file_character_length_stream(stream, u, &size);
-	}
-	else {
-		check = file_string_length_stream(stream, pos, &size);
-	}
-	setresult_control(ptr, check? Nil: intsizeh(size));
+	Return(file_string_length_common(stream, pos, &stream));
+	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void type_file_string_length(addr *ret)
@@ -894,290 +798,11 @@ static void defun_file_string_length(void)
  *     &key direction element-type if-exists if-does-not-exist external-format)
  *     ...) -> (or stream null)
  */
-static enum Stream_Open_Direction function_open_direction(addr value)
+static int function_open(Execute ptr, addr pos, addr rest)
 {
-	addr check;
-
-	/* default */
-	if (value == Unbound)
-		return Stream_Open_Direction_Input;
-
-	/* :input */
-	GetConst(KEYWORD_INPUT, &check);
-	if (value == check)
-		return Stream_Open_Direction_Input;
-
-	/* :output */
-	GetConst(KEYWORD_OUTPUT, &check);
-	if (value == check)
-		return Stream_Open_Direction_Output;
-
-	/* :io */
-	GetConst(KEYWORD_IO, &check);
-	if (value == check)
-		return Stream_Open_Direction_Io;
-
-	/* :probe */
-	GetConst(KEYWORD_PROBE, &check);
-	if (value == check)
-		return Stream_Open_Direction_Probe;
-
-	/* error */
-	fmte("Invalid :direction value ~S.", value, NULL);
-	return Stream_Open_Direction_Input;
-}
-
-static enum Stream_Open_Element function_open_element(Execute ptr, addr value)
-{
-	int validp;
-	addr check, type;
-
-	/* default */
-	if (value == Unbound)
-		return Stream_Open_Element_Character;
-
-	/* :default */
-	GetConst(KEYWORD_DEFAULT, &check);
-	if (value == check)
-		return Stream_Open_Element_Character;
-
-	/* unsigned-byte */
-	GetConst(COMMON_UNSIGNED_BYTE, &check);
-	if (value == check)
-		return Stream_Open_Element_Binary;
-
-	/* character */
-	if (! parse_type(ptr, &check, value, Nil)) {
-		GetTypeTable(&type, Character);
-		if (subtypep_clang(check, type, &validp))
-			return Stream_Open_Element_Character;
-
-		/* Binary */
-		GetTypeTable(&type, Unsigned8);
-		if (subtypep_clang(check, type, &validp))
-			return Stream_Open_Element_Binary;
-	}
-
-	/* error */
-	fmte("Invalid :element-type value ~S.", value, NULL);
-	return Stream_Open_Element_Character;
-}
-
-static enum Stream_Open_IfExists function_open_ifexists(addr value, addr pos)
-{
-	addr check;
-
-	/* default */
-	if (value == Unbound) {
-		GetPathname(pos, PATHNAME_INDEX_VERSION, &value);
-		GetConst(KEYWORD_NEWEST, &check);
-		return value == check?
-			Stream_Open_IfExists_NewVersion:
-			Stream_Open_IfExists_Error;
-	}
-
-	/* :error */
-	GetConst(KEYWORD_APPEND, &check);
-	if (value == check)
-		return Stream_Open_IfExists_Error;
-
-	/* :supersede */
-	GetConst(KEYWORD_SUPERSEDE, &check);
-	if (value == check)
-		return Stream_Open_IfExists_Supersede;
-
-	/* :append */
-	GetConst(KEYWORD_APPEND, &check);
-	if (value == check)
-		return Stream_Open_IfExists_Append;
-
-	/* :overwrite */
-	GetConst(KEYWORD_OVERWRITE, &check);
-	if (value == check)
-		return Stream_Open_IfExists_Overwrite;
-
-	/* :rename */
-	GetConst(KEYWORD_RENAME, &check);
-	if (value == check)
-		return Stream_Open_IfExists_Rename;
-
-	/* :rename-and-delete */
-	GetConst(KEYWORD_RENAME_AND_DELETE, &check);
-	if (value == check)
-		return Stream_Open_IfExists_RenameAndDelete;
-
-	/* :new-version */
-	GetConst(KEYWORD_NEW_VERSION, &check);
-	if (value == check)
-		return Stream_Open_IfExists_NewVersion;
-
-	/* nil */
-	if (value == Nil)
-		return Stream_Open_IfExists_Nil;
-
-	/* others */
-	fmte("Invalid :if-exists value ~S.", value, NULL);
-	return Stream_Open_IfExists_Error;
-}
-
-static enum Stream_Open_IfDoesNot function_open_ifdoesnot(addr value,
-		enum Stream_Open_Direction direction,
-		enum Stream_Open_IfExists exists)
-{
-	addr check;
-
-	/* default */
-	if (value == Unbound) {
-		/* :input     -> :error
-		 * :overwrite -> :error
-		 * :append    -> :error
-		 * :output    -> :create
-		 * :io        -> :create
-		 * :probe     -> nil
-		 */
-		if (direction == Stream_Open_Direction_Input)
-			return Stream_Open_IfDoesNot_Error;
-		if (exists == Stream_Open_IfExists_Overwrite)
-			return Stream_Open_IfDoesNot_Error;
-		if (exists == Stream_Open_IfExists_Append)
-			return Stream_Open_IfDoesNot_Error;
-		if (direction == Stream_Open_Direction_Output)
-			return Stream_Open_IfDoesNot_Create;
-		if (direction == Stream_Open_Direction_Io)
-			return Stream_Open_IfDoesNot_Create;
-		if (direction == Stream_Open_Direction_Probe)
-			return Stream_Open_IfDoesNot_Nil;
-		fmte("Invalid :if-does-not-exist default value.", NULL);
-		return Stream_Open_IfDoesNot_Error;
-	}
-
-	/* :error */
-	GetConst(KEYWORD_ERROR, &check);
-	if (value == check)
-		return Stream_Open_IfDoesNot_Error;
-
-	/* :create */
-	GetConst(KEYWORD_CREATE, &check);
-	if (value == check)
-		return Stream_Open_IfDoesNot_Create;
-
-	/* nil */
-	if (value == Nil)
-		return Stream_Open_IfDoesNot_Nil;
-
-	/* others */
-	fmte("Invalid :if-does-not-exist value ~S.", value, NULL);
-	return Stream_Open_IfDoesNot_Error;
-}
-
-static int function_open_string(addr value, const char *str1, const char *str2)
-{
-	if (symbolp(value))
-		GetNameSymbol(value, &value);
-	if (! stringp(value))
-		return 0;
-	if (string_equalp_char(value, str1))
-		return 1;
-	if (str2 == NULL)
-		return 0;
-	return string_equalp_char(value, str2);
-}
-
-static enum Stream_Open_External function_open_external(addr value)
-{
-	addr check;
-
-	/* default */
-	if (value == Unbound)
-		return Stream_Open_External_Utf8;
-
-	/* :default */
-	GetConst(KEYWORD_DEFAULT, &check);
-	if (value == check)
-		return Stream_Open_External_Default;
-
-	/* ascii */
-	if (function_open_string(value, "ASC", "ASCII"))
-		return Stream_Open_External_Ascii;
-
-	/* utf8 */
-	if (function_open_string(value, "UTF8", "UTF-8"))
-		return Stream_Open_External_Utf8;
-
-	/* utf8-bom */
-	if (function_open_string(value, "UTF8BOM", "UTF-8-BOM"))
-		return Stream_Open_External_Utf8Bom;
-
-	/* utf16 */
-	if (function_open_string(value, "UTF16", "UTF-16"))
-		return Stream_Open_External_Utf16;
-
-	/* utf16le */
-	if (function_open_string(value, "UTF16LE", "UTF-16LE"))
-		return Stream_Open_External_Utf16Le;
-
-	/* utf16be */
-	if (function_open_string(value, "UTF16BE", "UTF-16BE"))
-		return Stream_Open_External_Utf16Be;
-
-	/* utf16le-bom */
-	if (function_open_string(value, "UTF16LEBOM", "UTF-16LE-BOM"))
-		return Stream_Open_External_Utf16LeBom;
-
-	/* utf16be-bom */
-	if (function_open_string(value, "UTF16BEBOM", "UTF-16BE-BOM"))
-		return Stream_Open_External_Utf16BeBom;
-
-	/* utf32 */
-	if (function_open_string(value, "UTF32", "UTF-32"))
-		return Stream_Open_External_Utf32;
-
-	/* utf32le */
-	if (function_open_string(value, "UTF32LE", "UTF-32LE"))
-		return Stream_Open_External_Utf32Le;
-
-	/* utf32be */
-	if (function_open_string(value, "UTF32BE", "UTF-32BE"))
-		return Stream_Open_External_Utf32Be;
-
-	/* utf32le-bom */
-	if (function_open_string(value, "UTF32LEBOM", "UTF-32LE-BOM"))
-		return Stream_Open_External_Utf32LeBom;
-
-	/* utf32be-bom */
-	if (function_open_string(value, "UTF32BEBOM", "UTF-32BE-BOM"))
-		return Stream_Open_External_Utf32BeBom;
-
-	/* others */
-	fmte("Invalid external-format ~S.", value, NULL);
-	return Stream_Open_External_Utf8;
-}
-
-static void function_open(Execute ptr, addr pos, addr rest)
-{
-	addr value;
-	enum Stream_Open_Direction direction;
-	enum Stream_Open_Element element;
-	enum Stream_Open_IfExists exists;
-	enum Stream_Open_IfDoesNot doesnot;
-	enum Stream_Open_External external;
-
-	/* argument */
-	physical_pathname_heap(ptr, pos, &pos);
-	if (getkeyargs(rest, KEYWORD_DIRECTION, &value)) value = Unbound;
-	direction = function_open_direction(value);
-	if (getkeyargs(rest, KEYWORD_ELEMENT_TYPE, &value)) value = Unbound;
-	element = function_open_element(ptr, value);
-	if (getkeyargs(rest, KEYWORD_IF_EXISTS, &value)) value = Unbound;
-	exists = function_open_ifexists(value, pos);
-	if (getkeyargs(rest, KEYWORD_IF_DOES_NOT_EXIST, &value)) value = Unbound;
-	doesnot = function_open_ifdoesnot(value, direction, exists);
-	if (getkeyargs(rest, KEYWORD_EXTERNAL_FORMAT, &value)) value = Unbound;
-	external = function_open_external(value);
-
-	/* result */
-	open_stream(ptr, &pos, pos, direction, element, exists, doesnot, external);
+	Return(open_common(ptr, pos, rest, &pos));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_open(addr *ret)
@@ -1218,10 +843,11 @@ static void defun_open(void)
  *   stream  file-stream
  *   format  external-format-designer
  */
-static void function_stream_external_format(Execute ptr, addr stream)
+static int function_stream_external_format(Execute ptr, addr stream)
 {
 	external_format_file(stream, &stream);
 	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void type_stream_external_format(addr *ret)
@@ -1252,53 +878,11 @@ static void defun_stream_external_format(void)
 
 
 /* (defmacro with-open-file ((stream filespec &rest options) ...) -> result */
-static void function_with_open_file(Execute ptr, addr form, addr env)
+static int function_with_open_file(Execute ptr, addr form, addr env)
 {
-	/* (let ((var (open file . args)))
-	 *   ,@decl
-	 *   (unwind-protect
-	 *     (progn . body)
-	 *     (close var)))
-	 */
-	addr args, var, file, body, decl, root;
-	addr let, open, protect, progn, close;
-
-	/* argument */
-	getcdr(form, &form);
-	if (! consp(form)) goto error;
-	GetCons(form, &args, &body);
-	if (! consp(args)) goto error;
-	GetCons(args, &var, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &file, &args);
-	declare_body_form(body, &decl, &body);
-
-	/* expand */
-	GetConst(COMMON_LET, &let);
-	GetConst(COMMON_OPEN, &open);
-	GetConst(COMMON_UNWIND_PROTECT, &protect);
-	GetConst(COMMON_PROGN, &progn);
-	GetConst(COMMON_CLOSE, &close);
-	list_heap(&close, close, var, NULL);
-	cons_heap(&progn, progn, body);
-	list_heap(&protect, protect, progn, close, NULL);
-	lista_heap(&args, open, file, args, NULL);
-	list_heap(&args, var, args, NULL);
-	conscar_heap(&args, args);
-	conscar_heap(&root, let);
-	cons_heap(&root, args, root);
-	while (decl != Nil) {
-		GetCons(decl, &var, &decl);
-		cons_heap(&root, var, root);
-	}
-	cons_heap(&root, protect, root);
-	nreverse_list_unsafe(&root, root);
-	setresult_control(ptr, root);
-	return;
-
-error:
-	fmte("WITH-OPEN-FILE argument must be "
-			"a ((var file options*) ...) form.", form, NULL);
+	Return(with_open_file_common(form, &form));
+	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_with_open_file(void)
@@ -1316,17 +900,11 @@ static void defmacro_with_open_file(void)
 
 
 /* (defun close (stream &key abort) ...) -> result */
-static void function_close(Execute ptr, addr pos, addr rest)
+static int function_close(Execute ptr, addr pos, addr rest)
 {
-	addr abort;
-
-	if (getkeyargs(rest, KEYWORD_ABORT, &abort))
-		abort = Nil;
-	if (abort != Nil) {
-		GetConst(SYSTEM_CLOSE_ABORT, &abort);
-		pushspecial_control(ptr, abort, T);
-	}
-	setbool_control(ptr, close_stream(pos));
+	Return(close_common(ptr, pos, rest, &pos));
+	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_close(addr *ret)
@@ -1360,52 +938,11 @@ static void defun_close(void)
 
 
 /* (defmacro with-open-stream ((var stream) decl* form*) ...) -> result */
-static void function_with_open_stream(Execute ptr, addr form, addr env)
+static int function_with_open_stream(Execute ptr, addr form, addr env)
 {
-	/* `(let ((,var ,stream))
-	 *   ,@decl
-	 *   (unwind-protect
-	 *     (progn ,@body)
-	 *     (close ,var)))
-	 */
-	addr args, var, stream, body, decl, root;
-	addr let, protect, progn, close;
-
-	/* argument */
-	getcdr(form, &form);
-	if (! consp(form)) goto error;
-	GetCons(form, &args, &body);
-	if (! consp(args)) goto error;
-	GetCons(args, &var, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &stream, &args);
-	if (args != Nil) goto error;
-	declare_body_form(body, &decl, &body);
-
-	/* expand */
-	GetConst(COMMON_LET, &let);
-	GetConst(COMMON_UNWIND_PROTECT, &protect);
-	GetConst(COMMON_PROGN, &progn);
-	GetConst(COMMON_CLOSE, &close);
-	list_heap(&close, close, var, NULL);
-	cons_heap(&progn, progn, body);
-	list_heap(&protect, protect, progn, close, NULL);
-	list_heap(&args, var, stream, NULL);
-	conscar_heap(&args, args);
-	conscar_heap(&root, let);
-	cons_heap(&root, args, root);
-	while (decl != Nil) {
-		GetCons(decl, &var, &decl);
-		cons_heap(&root, var, root);
-	}
-	cons_heap(&root, protect, root);
-	nreverse_list_unsafe(&root, root);
-	setresult_control(ptr, root);
-	return;
-
-error:
-	fmte("WITH-OPEN-STREAM argument must be "
-			"a ((var stream) ...) form.", form, NULL);
+	Return(with_open_stream_common(form, &form));
+	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defun_with_open_stream(void)
@@ -1423,14 +960,11 @@ static void defun_with_open_stream(void)
 
 
 /* (defun listen (input-stream) ...) -> boolean */
-static void function_listen(Execute ptr, addr stream)
+static int function_listen(Execute ptr, addr stream)
 {
-	int check;
-
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
-	check = listen_stream(stream);
-	setbool_control(ptr, check);
+	listen_common(ptr, stream, &stream);
+	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void type_listen(addr *ret)
@@ -1460,12 +994,11 @@ static void defun_listen(void)
 
 
 /* (defun clear-input (&optional input-stream) ...) -> null */
-static void function_clear_input(Execute ptr, addr stream)
+static int function_clear_input(Execute ptr, addr stream)
 {
-	if (stream == Unbound)
-		standard_input_stream(ptr, &stream);
-	clear_input_stream(stream);
+	clear_input_common(ptr, stream);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_clear_input(addr *ret)
@@ -1495,10 +1028,11 @@ static void defun_clear_input(void)
 
 
 /* (defun finish-output (&optional output-stream) ...) -> null */
-static void function_finish_output(Execute ptr, addr stream)
+static int function_finish_output(Execute ptr, addr stream)
 {
 	finish_output_stream(stream);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void defun_finish_output(void)
@@ -1517,10 +1051,11 @@ static void defun_finish_output(void)
 }
 
 /* (defun force-output (&optional output-stream) ...) -> null */
-static void function_force_output(Execute ptr, addr stream)
+static int function_force_output(Execute ptr, addr stream)
 {
 	force_output_stream(stream);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void defun_force_output(void)
@@ -1540,10 +1075,11 @@ static void defun_force_output(void)
 
 
 /* (defun clear-output (&optional output-stream) ...) -> null */
-static void function_clear_output(Execute ptr, addr stream)
+static int function_clear_output(Execute ptr, addr stream)
 {
 	clear_output_stream(stream);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void defun_clear_output(void)
@@ -1567,11 +1103,14 @@ static void defun_clear_output(void)
  *   args     &rest t
  *   boolean  boolean
  */
-static void function_y_or_n_p(Execute ptr, addr args)
+static int function_y_or_n_p(Execute ptr, addr args)
 {
 	int check;
-	if (yes_or_no_p_common(ptr, args, 0, &check)) return;
+
+	Return(yes_or_no_p_common(ptr, args, 0, &check));
 	setbool_control(ptr, check);
+
+	return 0;
 }
 
 static void defun_y_or_n_p(void)
@@ -1595,11 +1134,14 @@ static void defun_y_or_n_p(void)
  *   args     &rest t
  *   boolean  boolean
  */
-static void function_yes_or_no_p(Execute ptr, addr args)
+static int function_yes_or_no_p(Execute ptr, addr args)
 {
 	int check;
-	if (yes_or_no_p_common(ptr, args, 1, &check)) return;
+
+	Return(yes_or_no_p_common(ptr, args, 1, &check));
 	setbool_control(ptr, check);
+
+	return 0;
 }
 
 static void defun_yes_or_no_p(void)
@@ -1619,10 +1161,11 @@ static void defun_yes_or_no_p(void)
 
 
 /* (defun make-synonym-stream (symbol) ...) -> synonym-stream */
-static void function_make_synonym_stream(Execute ptr, addr var)
+static int function_make_synonym_stream(Execute ptr, addr var)
 {
 	open_synonym_stream(&var, var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_make_synonym_stream(addr *ret)
@@ -1653,10 +1196,11 @@ static void defun_make_synonym_stream(void)
 
 
 /* (defun synonym-stream-symbol (synonym-stream) ...) -> symbol */
-static void function_synonym_stream_symbol(Execute ptr, addr var)
+static int function_synonym_stream_symbol(Execute ptr, addr var)
 {
 	get_synonym_stream(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_synonym_stream_symbol(addr *ret)
@@ -1688,10 +1232,11 @@ static void defun_synonym_stream_symbol(void)
 /* (defun make-broadcast-stream (&rest streams) ...) -> broadcast-stream
  *   streams  (&rest (satisfies output-steram-p))
  */
-static void function_make_broadcast_stream(Execute ptr, addr var)
+static int function_make_broadcast_stream(Execute ptr, addr var)
 {
 	open_broadcast_stream(&var, var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_make_broadcast_stream(addr *ret)
@@ -1722,10 +1267,11 @@ static void defun_make_broadcast_stream(void)
 
 
 /* (defun broadcast-stream-streams (broadcast-stream) ...) -> list */
-static void function_broadcast_stream_streams(Execute ptr, addr var)
+static int function_broadcast_stream_streams(Execute ptr, addr var)
 {
 	get_broadcast_stream(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_broadcast_stream_streams(addr *ret)
@@ -1755,10 +1301,11 @@ static void defun_broadcast_stream_streams(void)
 
 
 /* (defun make-two-way-stream (input output) ...) -> two-way-stream */
-static void function_make_two_way_stream(Execute ptr, addr input, addr output)
+static int function_make_two_way_stream(Execute ptr, addr input, addr output)
 {
 	open_twoway_stream(&input, input, output);
 	setresult_control(ptr, input);
+	return 0;
 }
 
 static void type_make_two_way_stream(addr *ret)
@@ -1790,10 +1337,11 @@ static void defun_make_two_way_stream(void)
 
 
 /* (defun two-way-stream-input-stream (two-way-stream) ...) -> input-stream */
-static void function_two_way_stream_input_stream(Execute ptr, addr var)
+static int function_two_way_stream_input_stream(Execute ptr, addr var)
 {
 	get_twoway_input_stream(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_two_way_stream_input_stream(addr *ret)
@@ -1824,10 +1372,11 @@ static void defun_two_way_stream_input_stream(void)
 
 
 /* (defun two-way-stream-output-stream (two-way-stream) ...) -> output-stream */
-static void function_two_way_stream_output_stream(Execute ptr, addr var)
+static int function_two_way_stream_output_stream(Execute ptr, addr var)
 {
 	get_twoway_output_stream(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_two_way_stream_output_stream(addr *ret)
@@ -1858,10 +1407,11 @@ static void defun_two_way_stream_output_stream(void)
 
 
 /* (defun make-echo-stream (input output) ...) -> echo-stream */
-static void function_make_echo_stream(Execute ptr, addr input, addr output)
+static int function_make_echo_stream(Execute ptr, addr input, addr output)
 {
 	open_echo_stream(&input, input, output);
 	setresult_control(ptr, input);
+	return 0;
 }
 
 static void type_make_echo_stream(addr *ret)
@@ -1893,10 +1443,11 @@ static void defun_make_echo_stream(void)
 
 
 /* (defun echo-stream-input-stream (echo-stream) ...) -> input-stream */
-static void function_echo_stream_input_stream(Execute ptr, addr var)
+static int function_echo_stream_input_stream(Execute ptr, addr var)
 {
 	get_echo_input_stream(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_echo_stream_input_stream(addr *ret)
@@ -1927,10 +1478,11 @@ static void defun_echo_stream_input_stream(void)
 
 
 /* (defun echo-stream-output-stream (echo-stream) ...) -> output-stream */
-static void function_echo_stream_output_stream(Execute ptr, addr var)
+static int function_echo_stream_output_stream(Execute ptr, addr var)
 {
 	get_echo_output_stream(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_echo_stream_output_stream(addr *ret)
@@ -1963,10 +1515,11 @@ static void defun_echo_stream_output_stream(void)
 /* (defun make-concatenated-stream (&rest streams) ...) -> concatenated-stream
  *   streams  (&rest (satisfies output-steram-p))
  */
-static void function_make_concatenated_stream(Execute ptr, addr var)
+static int function_make_concatenated_stream(Execute ptr, addr var)
 {
 	open_concatenated_stream(&var, var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_make_concatenated_stream(addr *ret)
@@ -1997,10 +1550,11 @@ static void defun_make_concatenated_stream(void)
 
 
 /* (defun concatenated-stream-streams (concatenated-stream) ...) -> list */
-static void function_concatenated_stream_streams(Execute ptr, addr var)
+static int function_concatenated_stream_streams(Execute ptr, addr var)
 {
 	get_concatenated_stream(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_concatenated_stream_streams(addr *ret)
@@ -2035,14 +1589,11 @@ static void defun_concatenated_stream_streams(void)
  *   end     keyword-end
  *   stream  string-stream
  */
-static void function_make_string_input_stream(Execute ptr, addr var, addr rest)
+static int function_make_string_input_stream(Execute ptr, addr var, addr rest)
 {
-	size_t start, end;
-
-	string_length(var, &start);
-	keyword_start_end(start, rest, &start, &end);
-	open_input_string_stream2(&var, var, start, end);
+	Return(make_string_input_stream_common(var, rest, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_make_string_input_stream(addr *ret)
@@ -2078,20 +1629,11 @@ static void defun_make_string_input_stream(void)
 
 
 /* (defun make-string-output-stream (&key element-type) ...) -> string-stream */
-static void function_make_string_output_stream(Execute ptr, addr rest)
+static int function_make_string_output_stream(Execute ptr, addr rest)
 {
-	int validp;
-	addr type, pos;
-
-	if (! getkeyargs(rest, KEYWORD_ELEMENT_TYPE, &pos)) {
-		GetTypeTable(&type, Character);
-		if (parse_type(ptr, &pos, pos, Nil))
-			return;
-		if (! subtypep_clang(pos, type, &validp))
-			fmte(":ELEMENT-TYPE ~S must be a character type.", pos, NULL);
-	}
-	open_output_string_stream(&pos, 0);
-	setresult_control(ptr, pos);
+	Return(make_string_output_stream_common(ptr, rest, &rest));
+	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void type_make_string_output_stream(addr *ret)
@@ -2125,17 +1667,11 @@ static void defun_make_string_output_stream(void)
 
 
 /* (defun get-output-stream-string (string-stream) ...) -> simple-string */
-static void function_get_output_stream_string(Execute ptr, addr var)
+static int function_get_output_stream_string(Execute ptr, addr var)
 {
-	addr type;
-
-	if (getstreamtype(var) != StreamType_StringOutput) {
-		GetTypeTable(&type, StringStream);
-		type_error_stdarg(var, type,
-				"The stream must be a output-string-stream.", NULL);
-	}
-	string_stream_heap(var, &var);
+	Return(get_output_stream_string_common(ptr, var, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_get_output_stream_string(addr *ret)
@@ -2171,104 +1707,11 @@ static void defun_get_output_stream_string(void)
  *   start   keyword-start
  *   end     keyword-end
  */
-static void with_input_from_string_noindex(addr *ret,
-		addr var, addr string, addr args, addr body)
+static int function_with_input_from_string(Execute ptr, addr form, addr env)
 {
-	/* `(let ((,var (make-string-input-stream ,string :start ,start :end ,end)))
-	 *    ,@decl
-	 *    (unwind-protect
-	 *      (progn ,@form)
-	 *      (close ,var)))
-	 */
-	addr let, make, unwind, progn, close, decl, pos;
-
-	GetConst(COMMON_LET, &let);
-	GetConst(COMMON_MAKE_STRING_INPUT_STREAM, &make);
-	GetConst(COMMON_UNWIND_PROTECT, &unwind);
-	GetConst(COMMON_PROGN, &progn);
-	GetConst(COMMON_CLOSE, &close);
-	declare_body_form(body, &decl, &body);
-	list_heap(&close, close, var, NULL);
-	cons_heap(&progn, progn, body);
-	list_heap(&unwind, unwind, progn, close, NULL);
-	lista_heap(&make, make, string, args, NULL);
-	list_heap(&make, var, make, NULL);
-	conscar_heap(&make, make);
-	conscar_heap(&let, let);
-	cons_heap(&let, make, let);
-	while (decl != Nil) {
-		GetCons(decl, &pos, &decl);
-		cons_heap(&let, pos, let);
-	}
-	cons_heap(&let, unwind, let);
-	nreverse_list_unsafe(ret, let);
-}
-
-static void with_input_from_string_index(addr *ret,
-		addr var, addr string, addr index, addr args, addr body)
-{
-	/* `(let ((,var (make-string-input-stream ,string :start ,start :end ,end)))
-	 *    ,@decl
-	 *    (unwind-protect
-	 *      (progn ,@form)
-	 *      (setf ,index (lisp-system::end-input-stream ,var))
-	 *      (close ,var)))
-	 */
-	addr let, make, unwind, progn, setf, end, close, decl, pos;
-
-	GetConst(COMMON_LET, &let);
-	GetConst(COMMON_MAKE_STRING_INPUT_STREAM, &make);
-	GetConst(COMMON_UNWIND_PROTECT, &unwind);
-	GetConst(COMMON_PROGN, &progn);
-	GetConst(COMMON_SETF, &setf);
-	GetConst(SYSTEM_END_INPUT_STREAM, &end);
-	GetConst(COMMON_CLOSE, &close);
-	declare_body_form(body, &decl, &body);
-	list_heap(&close, close, var, NULL);
-	list_heap(&end, end, var, NULL);
-	list_heap(&setf, setf, index, end, NULL);
-	cons_heap(&progn, progn, body);
-	list_heap(&unwind, unwind, progn, setf, close, NULL);
-	lista_heap(&make, make, string, args, NULL);
-	list_heap(&make, var, make, NULL);
-	conscar_heap(&make, make);
-	conscar_heap(&let, let);
-	cons_heap(&let, make, let);
-	while (decl != Nil) {
-		GetCons(decl, &pos, &decl);
-		cons_heap(&let, pos, let);
-	}
-	cons_heap(&let, unwind, let);
-	nreverse_list_unsafe(ret, let);
-}
-
-static void function_with_input_from_string(Execute ptr, addr form, addr env)
-{
-	addr args, body, key, index, var, string;
-
-	/* argument */
-	getcdr(form, &form);
-	if (! consp(form)) goto error;
-	GetCons(form, &args, &body);
-	if (! consp(args)) goto error;
-	GetCons(args, &var, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &string, &args);
-	/* make form */
-	GetConst(KEYWORD_INDEX, &key);
-	if (getplist(args, key, &index)) {
-		with_input_from_string_noindex(&var, var, string, args, body);
-	}
-	else {
-		remplist_heap(args, key, &args);
-		with_input_from_string_index(&var, var, string, index, args, body);
-	}
-	setresult_control(ptr, var);
-	return;
-
-error:
-	fmte("WITH-INPUT-FROM-STRING form ~S must be a "
-			"((var string ...) &body body).", form, NULL);
+	Return(with_input_from_string_common(form, &form));
+	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_with_input_from_string(void)
@@ -2288,109 +1731,11 @@ static void defmacro_with_input_from_string(void)
 /* (defmacro with-output-to-string
  *     (var &optional string-form &key element-type) decl* form*)
  */
-static void with_output_to_string_normal(addr *ret,
-		addr var, addr args, addr body)
+static int function_with_output_to_string(Execute ptr, addr form, addr env)
 {
-	/* `(let ((,var (make-string-output-stream ,@args)))
-	 *    ,@decl
-	 *    (unwind-protect
-	 *      (progn ,@body
-	 *             (get-output-stream-string ,var))
-	 *      (close ,var)))
-	 */
-	addr let, make, unwind, progn, get, close, decl, pos;
-
-	GetConst(COMMON_LET, &let);
-	GetConst(COMMON_MAKE_STRING_OUTPUT_STREAM, &make);
-	GetConst(COMMON_UNWIND_PROTECT, &unwind);
-	GetConst(COMMON_PROGN, &progn);
-	GetConst(COMMON_GET_OUTPUT_STREAM_STRING, &get);
-	GetConst(COMMON_CLOSE, &close);
-	declare_body_form(body, &decl, &body);
-	list_heap(&close, close, var, NULL);
-	list_heap(&get, get, var, NULL);
-	conscar_heap(&progn, progn);
-	while (body != Nil) {
-		GetCons(body, &pos, &body);
-		cons_heap(&progn, pos, progn);
-	}
-	cons_heap(&progn, get, progn);
-	nreverse_list_unsafe(&progn, progn);
-	list_heap(&unwind, unwind, progn, close, NULL);
-	lista_heap(&make, make, args, NULL);
-	list_heap(&make, var, make, NULL);
-	conscar_heap(&make, make);
-	conscar_heap(&let, let);
-	cons_heap(&let, make, let);
-	while (decl != Nil) {
-		GetCons(decl, &pos, &decl);
-		cons_heap(&let, pos, let);
-	}
-	cons_heap(&let, unwind, let);
-	nreverse_list_unsafe(ret, let);
-}
-
-static void with_output_to_string_extend(addr *ret,
-		addr var, addr string, addr args, addr body)
-{
-	/* `(let ((,var (lisp-system::make-extend-output-stream string ,@args)))
-	 *    ,@decl
-	 *    (unwind-protect
-	 *      (progn ,@body)
-	 *      (close ,var)))
-	 */
-	addr let, make, unwind, progn, close, decl, pos;
-
-	GetConst(COMMON_LET, &let);
-	GetConst(SYSTEM_MAKE_EXTEND_OUTPUT_STREAM, &make);
-	GetConst(COMMON_UNWIND_PROTECT, &unwind);
-	GetConst(COMMON_PROGN, &progn);
-	GetConst(COMMON_CLOSE, &close);
-	declare_body_form(body, &decl, &body);
-	list_heap(&close, close, var, NULL);
-	cons_heap(&progn, progn, body);
-	list_heap(&unwind, unwind, progn, close, NULL);
-	lista_heap(&make, make, string, args, NULL);
-	list_heap(&make, var, make, NULL);
-	conscar_heap(&make, make);
-	conscar_heap(&let, let);
-	cons_heap(&let, make, let);
-	while (decl != Nil) {
-		GetCons(decl, &pos, &decl);
-		cons_heap(&let, pos, let);
-	}
-	cons_heap(&let, unwind, let);
-	nreverse_list_unsafe(ret, let);
-}
-
-static void function_with_output_to_string(Execute ptr, addr form, addr env)
-{
-	addr args, var, string, body;
-
-	/* argument */
-	getcdr(form, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &args, &body);
-	if (! consp(args)) goto error;
-	GetCons(args, &var, &args);
-	if (! consp(args)) {
-		string = Nil;
-	}
-	else {
-		GetCons(args, &string, &args);
-	}
-	if (string == Nil) {
-		with_output_to_string_normal(&var, var, args, body);
-	}
-	else {
-		with_output_to_string_extend(&var, var, string, args, body);
-	}
-	setresult_control(ptr, var);
-	return;
-
-error:
-	fmte("WITH-OUTPUT-TO-STRING form ~S must be a "
-			"((var &optional string &key element-type) &body body).", form, NULL);
+	Return(with_output_to_string_common(form, &form));
+	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_with_output_to_string(void)
@@ -2408,10 +1753,11 @@ static void defmacro_with_output_to_string(void)
 
 
 /* (defun stream-error-stream (condition) -> stream */
-static void function_stream_error_stream(Execute ptr, addr var)
+static int function_stream_error_stream(Execute ptr, addr var)
 {
 	stream_error_stream(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_stream_error_stream(addr *ret)

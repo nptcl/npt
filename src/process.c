@@ -5,8 +5,8 @@
 #include "hashtable.h"
 #include "process.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
-#include "unicode.h"
 
 static int find_environment_char(Execute ptr, const char *key, addr *ret)
 {
@@ -32,7 +32,7 @@ static char *run_process_utf8(LocalRoot local, addr pos)
 	char *str;
 
 	if (UTF8_buffer_clang(local, &data, pos)) {
-		fmte("Invalid UTF8 format ~S.", pos, NULL);
+		_fmte("Invalid UTF8 format ~S.", pos, NULL);
 		return NULL;
 	}
 	posbody(data, (addr *)&str);
@@ -71,13 +71,13 @@ static void run_process_posix(LocalRoot local, addr var, addr args, addr *ret)
 	list = run_process_list_utf8(local, var, args);
 	pid = fork();
 	if (pid == -1) {
-		fmte("fork error", NULL);
+		_fmte("fork error", NULL);
 		return;
 	}
 	if (pid == 0) {
 		/* child process */
 		(void)execvp(name, list);
-		fmte("execvp error", NULL);
+		_fmte("execvp error", NULL);
 		return;
 	}
 
@@ -127,7 +127,7 @@ static void run_process_windows_pathname(LocalRoot local,
 		if (c == ' ')
 			space = 1;
 		if (c == '"') {
-			fmte("Don't include character #\\\" in Windows pathname ~S.", pos, NULL);
+			_fmte("Don't include character #\\\" in Windows pathname ~S.", pos, NULL);
 			return;
 		}
 	}
@@ -149,7 +149,7 @@ static wchar_t *run_process_utf16(LocalRoot local, addr pos)
 	wchar_t *str;
 
 	if (UTF16_buffer_clang(local, &data, pos)) {
-		fmte("Invalid UTF16 format ~S.", pos, NULL);
+		_fmte("Invalid UTF16 format ~S.", pos, NULL);
 		return NULL;
 	}
 	posbody(data, (addr *)&str);
@@ -205,19 +205,19 @@ static void run_process_windows(LocalRoot local, addr var, addr args, addr *ret)
 	cleartype(pinfo);
 	if (! CreateProcess(NULL, list, NULL, NULL,
 				FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
-		fmte("Cannot run process ~S.", var, NULL);
+		_fmte("Cannot run process ~S.", var, NULL);
 		return;
 	}
 	child = pinfo.hProcess;
 	if (! CloseHandle(pinfo.hThread)) {
-		fmte("CloseHandle error.", NULL);
+		_fmte("CloseHandle error.", NULL);
 		return;
 	}
 
 	/* wait */
 	WaitForSingleObject(child, INFINITE);
 	if (! GetExitCodeProcess(child, &status)) {
-		fmte("GetExitCodeProcess error.", NULL);
+		_fmte("GetExitCodeProcess error.", NULL);
 		return;
 	}
 	fixnum_heap(ret, (fixnum)status); /* heap */
@@ -232,7 +232,7 @@ _g void run_process(LocalRoot local, addr var, addr args, addr rest, addr *ret)
 #else
 _g void run_process(LocalRoot local, addr var, addr args, addr rest, addr *ret)
 {
-	fmte("This implementation does not support RUN-PROGRAM.", NULL);
+	_fmte("This implementation does not support RUN-PROGRAM.", NULL);
 }
 #endif
 

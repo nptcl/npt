@@ -28,9 +28,9 @@ _g void defconstant_symbol(addr symbol, addr value);
 _g void define_special_operator(constindex index);
 #define DefineSpecialOperator(x) define_special_operator(CONSTANT_##x)
 
-_g void keyword_start_end(size_t size, addr rest, size_t *pstart, size_t *pend);
-_g void keyword_start1_end1(size_t size, addr rest, size_t *pstart, size_t *pend);
-_g void keyword_start2_end2(size_t size, addr rest, size_t *pstart, size_t *pend);
+_g int keyword_start_end_(size_t size, addr rest, size_t *pstart, size_t *pend);
+_g int keyword_start1_end1_(size_t size, addr rest, size_t *pstart, size_t *pend);
+_g int keyword_start2_end2_(size_t size, addr rest, size_t *pstart, size_t *pend);
 
 #endif
 

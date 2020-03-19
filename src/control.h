@@ -3,12 +3,62 @@
 
 #include <stdarg.h>
 #include "execute.h"
+#include "pointer.h"
 #include "typedef.h"
 
 #ifdef LISP_DEBUG_FORCE_GC
 __extern size_t GcCounterForce;
 #endif
 __extern size_t ControlCounter;
+
+enum Control_Index {
+	Control_Next,
+	Control_Cons,
+	Control_ConsTail,
+	Control_Result,
+	Control_Lexical,
+	Control_Special,
+	Control_Table,
+	Control_Data,
+	Control_Args,
+	Control_Size
+};
+
+enum ControlType_Index {
+	ControlType_Return,
+	ControlType_Push,
+	ControlType_Close,
+	ControlType_Local,
+	ControlType_Protect,
+	ControlType_Finalize,
+	ControlType_TagBody,
+	ControlType_Block,
+	ControlType_Restart,
+	ControlType_Size
+};
+
+struct control_struct {
+	unsigned dynamic_result : 1;
+	enum ControlType_Index type;
+	LocalStack stack;
+	const pointer *call;
+	size_t sizer, point;
+};
+
+#ifdef LISP_DEBUG
+#define ControlSize_Result			2
+#else
+#define ControlSize_Result			8
+#endif
+#define ControlSize_Arary			(Control_Size + ControlSize_Result)
+#define PtrBodyControl(p)			PtrBodySSa(p, ControlSize_Arary)
+#define StructControl(p)			((struct control_struct *)PtrBodyControl(p))
+#define GetControl					GetArraySS
+#define SetControl					SetArraySS
+
+#define GetResultControl(p,i,v)		GetControl((p),(i) + Control_Size,(v))
+#define SetResultControl(p,i,v)		SetControl((p),(i) + Control_Size,(v))
+#define exit_control(ptr)			exit_code(ptr, LISPCODE_CONTROL);
 
 struct runcode_value {
 	enum ExecuteControl signal;
@@ -54,7 +104,8 @@ _g void pushbind_restart_control(Execute ptr, addr list, int escape);
 _g void reverse_restart_control(Execute ptr);
 
 _g int find_condition_control(Execute ptr, addr instance);
-_g int invoke_handler_control(Execute ptr, addr pos, int *ret);
+_g int invoke_handler_control(Execute ptr, addr pos);
+_g int invoke_handler_control_(Execute ptr, addr pos);
 _g int invoke_restart_control(Execute ptr, addr restart, addr args);
 _g int invoke_restart_interactively_control(Execute ptr, addr restart);
 _g int find_restart_control(Execute ptr, addr name, addr condition, addr *ret);
@@ -106,11 +157,11 @@ _g int stdarg_control(Execute ptr, addr call, va_list args);
 _g int funcall_control(Execute ptr, addr call, ...);
 _g int call_control(Execute ptr, addr args);
 
-_g void goto_control(Execute ptr, size_t point);
-_g void go_control(Execute ptr, addr tag);
-_g void return_from_control(Execute ptr, addr name);
+_g int goto_control_(Execute ptr, size_t point);
+_g int go_control_(Execute ptr, addr tag);
+_g int return_from_control_(Execute ptr, addr name);
 _g void catch_control(Execute ptr, addr name);
-_g void throw_control(Execute ptr, addr name);
+_g int throw_control_(Execute ptr, addr name);
 _g void gettagbody_execute(Execute ptr, addr *ret, addr pos);
 _g void getblock_execute(Execute ptr, addr *ret, addr pos);
 _g void hide_lexical_control(Execute ptr);

@@ -5,70 +5,118 @@
 /*
  *  cons
  */
-_g void getcons(addr cons, addr *left, addr *right)
+_g int consp_getcons(addr list, addr *car, addr *cdr)
 {
-	if (cons != Nil && GetType(cons) != LISPTYPE_CONS)
-		TypeError(cons, CONS);
-	GetCons(cons, left, right);
-}
-
-_g void getcar(addr cons, addr *left)
-{
-	if (cons != Nil && GetType(cons) != LISPTYPE_CONS)
-		TypeError(cons, CONS);
-	GetCar(cons, left);
-}
-
-_g void getcdr(addr cons, addr *right)
-{
-	if (cons != Nil && GetType(cons) != LISPTYPE_CONS)
-		TypeError(cons, CONS);
-	GetCdr(cons, right);
-}
-
-_g int consp_getcons(addr cons, addr *left, addr *right)
-{
-	if (! consp(cons))
+	if (GetType(list) != LISPTYPE_CONS)
 		return 0;
-	GetCons(cons, left, right);
+	GetCons(list, car, cdr);
 	return 1;
 }
 
-_g int consp_getcar(addr cons, addr *left)
+_g int consp_getcar(addr list, addr *car)
 {
-	if (! consp(cons))
+	if (GetType(list) != LISPTYPE_CONS)
 		return 0;
-	GetCar(cons, left);
+	GetCar(list, car);
 	return 1;
 }
 
-_g int consp_getcdr(addr cons, addr *right)
+_g int consp_getcdr(addr list, addr *cdr)
 {
-	if (! consp(cons))
+	if (GetType(list) != LISPTYPE_CONS)
 		return 0;
-	GetCdr(cons, right);
+	GetCdr(list, cdr);
 	return 1;
 }
 
-_g void setcons(addr cons, addr left, addr right)
+_g void getcons(addr list, addr *car, addr *cdr)
 {
-	if (GetType(cons) != LISPTYPE_CONS)
-		TypeError(cons, CONS);
-	SetCons(cons, left, right);
+	if (! listp(list))
+		TypeError(list, LIST);
+	GetCons(list, car, cdr);
 }
 
-_g void setcar(addr cons, addr left)
+_g void getcar(addr list, addr *car)
 {
-	if (GetType(cons) != LISPTYPE_CONS)
-		TypeError(cons, CONS);
-	SetCar(cons, left);
+	if (! listp(list))
+		TypeError(list, LIST);
+	GetCar(list, car);
 }
 
-_g void setcdr(addr cons, addr right)
+_g void getcdr(addr list, addr *cdr)
 {
-	if (GetType(cons) != LISPTYPE_CONS)
+	if (! listp(list))
+		TypeError(list, LIST);
+	GetCdr(list, cdr);
+}
+
+_g void setcons(addr cons, addr car, addr cdr)
+{
+	if (! consp(cons))
 		TypeError(cons, CONS);
-	SetCdr(cons, right);
+	SetCons(cons, car, cdr);
+}
+
+_g void setcar(addr cons, addr car)
+{
+	if (! consp(cons))
+		TypeError(cons, CONS);
+	SetCar(cons, car);
+}
+
+_g void setcdr(addr cons, addr cdr)
+{
+	if (! consp(cons))
+		TypeError(cons, CONS);
+	SetCdr(cons, cdr);
+}
+
+_g int getcons_(addr list, addr *car, addr *cdr)
+{
+	if (! listp(list))
+		return TypeError_(list, LIST);
+	GetCons(list, car, cdr);
+	return 0;
+}
+
+_g int getcar_(addr list, addr *car)
+{
+	if (! listp(list))
+		return TypeError_(list, LIST);
+	GetCar(list, car);
+	return 0;
+}
+
+_g int getcdr_(addr list, addr *cdr)
+{
+	if (! listp(list))
+		return TypeError_(list, LIST);
+	GetCdr(list, cdr);
+	return 0;
+}
+
+_g int setcons_(addr cons, addr car, addr cdr)
+{
+	if (! consp(cons))
+		return TypeError_(cons, CONS);
+	SetCons(cons, car, cdr);
+	return 0;
+}
+
+_g int setcar_(addr cons, addr car)
+{
+	if (! consp(cons))
+		return TypeError_(cons, CONS);
+	SetCar(cons, car);
+	return 0;
+}
+
+_g int setcdr_(addr cons, addr cdr)
+{
+	if (! consp(cons))
+		return TypeError_(cons, CONS);
+	SetCdr(cons, cdr);
+	return 0;
 }
 
 
@@ -200,7 +248,7 @@ _g void lista_alloc_safe(LocalRoot local, addr *ret, addr first, addr cons)
 
 	for (root = Nil; cons != Nil; first = pos) {
 		if (GetType(cons) != LISPTYPE_CONS)
-			fmte("The argument ~S must be a list.", cons, NULL);
+			_fmte("The argument ~S must be a list.", cons, NULL);
 		GetCons(cons, &pos, &cons);
 		cons_alloc(local, &root, first, root);
 	}
@@ -282,7 +330,7 @@ _g void lista_stdarg_safe(LocalRoot local, addr *ret, va_list args)
 	pos1 = va_arg(args, addr);
 	/* nil */
 	if (pos1 == NULL) {
-		fmte("LIST* must be at least one argument.", NULL);
+		_fmte("LIST* must be at least one argument.", NULL);
 		*ret = Nil;
 		return;
 	}
@@ -459,11 +507,11 @@ _g void list_bind(addr list, ...)
 		ret = va_arg(args, addr *);
 		if (ret == NULL) {
 			if (list != Nil)
-				fmte("Too many list argument.", NULL);
+				_fmte("Too many list argument.", NULL);
 			break;
 		}
 		if (list == Nil)
-			fmte("Too few list argument.", NULL);
+			_fmte("Too few list argument.", NULL);
 		getcons(list, &pos, &list);
 		*ret = pos;
 	}
@@ -505,7 +553,7 @@ _g void lista_bind(addr list, ...)
 	ret1 = va_arg(args, addr *);
 	if (ret1 == NULL) {
 		if (list != Nil)
-			fmte("Too few argument.", NULL);
+			_fmte("Too few argument.", NULL);
 		goto finish;
 	}
 	for (;;) {
@@ -515,7 +563,7 @@ _g void lista_bind(addr list, ...)
 			break;
 		}
 		if (! consp(list))
-			fmte("Too few argument.", NULL);
+			_fmte("Too few argument.", NULL);
 		getcons(list, &pos, &list);
 		*ret1 = pos;
 		ret1 = ret2;

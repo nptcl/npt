@@ -18,7 +18,7 @@ static type_object_call TypeObjectTable[LISPTYPE_SIZE];
 static void type_object_error(addr *ret, addr pos)
 {
 	infobit(pos);
-	fmte("Invalid type.", NULL);
+	_fmte("Invalid type.", NULL);
 }
 
 static void type_object_name(addr *ret, addr pos)

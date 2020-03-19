@@ -286,7 +286,7 @@ _g void force_open_stream(addr stream, addr *ret)
 	CheckType(stream, LISPTYPE_STREAM); \
 	ptr = PtrStructStream(stream); \
 	if (ptr->closed) { \
-		fmte("The stream ~S is already closed.", stream, NULL); \
+		_fmte("The stream ~S is already closed.", stream, NULL); \
 	} \
 }
 
@@ -579,7 +579,7 @@ _g void unread_char_default_stream(addr stream, unicode c)
 
 	ptr = PtrStructStream(stream);
 	if (ptr->unread_check) {
-		fmte("unread already exists.", NULL);
+		_fmte("unread already exists.", NULL);
 		return;
 	}
 	ptr->unread = c;
@@ -1106,7 +1106,7 @@ static int open_if_does_not_exist_stream(Execute ptr, addr *ret, addr pos,
 			return 1;
 
 		default:
-			fmte("Invalid :if-does-not-exist value.", NULL);
+			_fmte("Invalid :if-does-not-exist value.", NULL);
 			return 0;
 	}
 
@@ -1185,7 +1185,7 @@ static int open_if_exists_stream(Execute ptr, addr *ret, addr pos,
 			return 1;
 
 		default:
-			fmte("Invalid :if-exist value.", NULL);
+			_fmte("Invalid :if-exist value.", NULL);
 			return 0;
 	}
 
@@ -1240,7 +1240,7 @@ static int open_external_input_stream(Execute ptr, addr *ret, addr pos,
 			return open_input_utf32bebom_stream(ptr, ret, pos);
 
 		default:
-			fmte("Invalid :external-format value.", NULL);
+			_fmte("Invalid :external-format value.", NULL);
 			return 1;
 	}
 }
@@ -1267,7 +1267,7 @@ static void open_direct_input_stream(Execute ptr, addr *ret, addr pos,
 			break;
 
 		default:
-			fmte("Invalid :element-type value.", NULL);
+			_fmte("Invalid :element-type value.", NULL);
 			return;
 	}
 
@@ -1324,7 +1324,7 @@ static int open_external_output_stream(Execute ptr, addr *ret, addr pos,
 			return open_output_utf32be_stream(ptr, ret, pos, mode, 1);
 
 		default:
-			fmte("Invalid :external-format value.", NULL);
+			_fmte("Invalid :external-format value.", NULL);
 			return 1;
 	}
 }
@@ -1357,7 +1357,7 @@ static void open_direct_output_stream(Execute ptr, addr *ret, addr pos,
 			break;
 
 		default:
-			fmte("Invalid :element-type value.", NULL);
+			_fmte("Invalid :element-type value.", NULL);
 			return;
 	}
 
@@ -1414,7 +1414,7 @@ static int open_external_io_stream(Execute ptr, addr *ret, addr pos,
 			return open_io_utf32bebom_stream(ptr, ret, pos, mode);
 
 		default:
-			fmte("Invalid :external-format value.", NULL);
+			_fmte("Invalid :external-format value.", NULL);
 			return 1;
 	}
 }
@@ -1447,7 +1447,7 @@ static void open_direct_io_stream(Execute ptr, addr *ret, addr pos,
 			break;
 
 		default:
-			fmte("Invalid :element-type value.", NULL);
+			_fmte("Invalid :element-type value.", NULL);
 			return;
 	}
 
@@ -1493,7 +1493,7 @@ _g void open_stream(Execute ptr, addr *ret, addr pos,
 			break;
 
 		default:
-			fmte("Invalid direction.", NULL);
+			_fmte("Invalid direction.", NULL);
 			return;
 	}
 }
@@ -1530,37 +1530,10 @@ _g void stream_designer(Execute ptr, addr pos, addr *ret, int inputp)
 	type_error(pos, type);
 }
 
-_g void read_byte_common(addr *ret, addr stream, int errorp, addr value)
-{
-	byte c;
-
-	if (read_byte_stream(stream, &c)) {
-		if (errorp)
-			end_of_file(stream);
-		else {
-			*ret = value;
-			return;
-		}
-	}
-	fixnum_heap(ret, (fixnum)c);
-}
-
-_g void write_byte_common(addr stream, addr value)
-{
-	addr pos;
-	fixnum c;
-
-	if (GetFixnum_signed(value, &c) || c < 0 || 0xFF < c) {
-		GetConst(STREAM_BINARY_TYPE, &pos);
-		type_error(value, pos);
-	}
-	write_byte_stream(stream, (byte)c);
-}
-
 static void end_of_file_recursive(addr pos, int recp)
 {
 	if (recp)
-		fmte("The stream ~S reach end-of-file, but recursive-p is true.", pos, NULL);
+		_fmte("The stream ~S reach end-of-file, but recursive-p is true.", pos, NULL);
 	else
 		end_of_file(pos);
 }
@@ -1619,7 +1592,7 @@ static void peek_char_character(addr *ret,
 	}
 }
 
-_g void peek_char_common(Execute ptr, addr *ret,
+_g void peek_char_stream(Execute ptr, addr *ret,
 		addr type, addr stream, int errorp, addr value, int recp)
 {
 	stream_designer(ptr, stream, &stream, 1);
@@ -1629,45 +1602,6 @@ _g void peek_char_common(Execute ptr, addr *ret,
 		peek_char_t(ret, stream, errorp, value, recp);
 	else
 		peek_char_character(ret, type, stream, errorp, value, recp);
-}
-
-_g void read_char_no_hang_common(Execute ptr, addr *ret,
-		addr pos, int errorp, addr value, int recp)
-{
-	int hang;
-	unicode u;
-
-	stream_designer(ptr, pos, &pos, 1);
-	if (read_hang_stream(pos, &u, &hang)) {
-		/* eof */
-		if (errorp)
-			end_of_file_recursive(pos, recp);
-		*ret = value;
-		return;
-	}
-	if (hang) {
-		*ret = Nil;
-		return;
-	}
-	/* read character */
-	character_heap(ret, u);
-}
-
-_g void read_char_common(Execute ptr, addr *ret,
-		addr pos, int errorp, addr value, int recp)
-{
-	unicode u;
-
-	stream_designer(ptr, pos, &pos, 1);
-	if (read_char_stream(pos, &u)) {
-		/* eof */
-		if (errorp)
-			end_of_file_recursive(pos, recp);
-		*ret = value;
-		return;
-	}
-	/* read character */
-	character_heap(ret, u);
 }
 
 enum EndOfLine_Mode {
@@ -1700,11 +1634,11 @@ _g enum EndOfLine_Mode get_end_of_line_mode(Execute ptr)
 	if (check == pos)
 		return EndOfLine_CRLF;
 	/* error */
-	fmte("Invalid *end-of-line* value ~S.", pos, NULL);
+	_fmte("Invalid *end-of-line* value ~S.", pos, NULL);
 	return EndOfLine_Auto;
 }
 
-_g void read_line_common(Execute ptr, addr *ret, int *miss,
+_g void read_line_stream(Execute ptr, addr *ret, int *miss,
 		addr pos, int errorp, addr value, int recp)
 {
 	int check;
@@ -1736,7 +1670,7 @@ _g void read_line_common(Execute ptr, addr *ret, int *miss,
 			case EndOfLine_CRLF:
 				if (u == 0x0D) {
 					if (read_char_stream(pos, &u) || u != 0x0A)
-						fmte("Invalid CR-LF code.", NULL);
+						_fmte("Invalid CR-LF code.", NULL);
 					goto finish_value;
 				}
 				break;
@@ -1777,7 +1711,7 @@ finish_error:
 	return;
 }
 
-static void write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
+_g int write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
 {
 	unicode c;
 	addr stream;
@@ -1793,7 +1727,7 @@ static void write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
 	else {
 		getcons(rest, &stream, &rest);
 		stream_designer(ptr, stream, &stream, 0);
-		keyword_start_end(size, rest, &start, &end);
+		Return(keyword_start_end_(size, rest, &start, &end));
 	}
 
 	for (i = start; i < end; i++) {
@@ -1801,19 +1735,8 @@ static void write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
 		write_char_stream(stream, c);
 	}
 	*ret = stream;
-}
 
-_g void write_string_common(Execute ptr, addr string, addr rest)
-{
-	write_string_stream(ptr, string, rest, &string);
-	exitpoint_stream(string);
-}
-
-_g void write_line_common(Execute ptr, addr string, addr rest)
-{
-	write_string_stream(ptr, string, rest, &string);
-	terpri_stream(string);
-	exitpoint_stream(string);
+	return 0;
 }
 
 static void read_sequence_character(addr *ret,
@@ -1846,22 +1769,22 @@ static void read_sequence_binary(addr *ret,
 	*ret = intsizeh(start);
 }
 
-_g void read_sequence_common(addr *ret, addr seq, addr stream, size_t start, size_t end)
+_g int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size_t end)
 {
 	/* character stream */
 	if (characterp_stream(stream)) {
 		read_sequence_character(ret, seq, stream, start, end);
-		return;
+		return 0;
 	}
 
 	/* binary stream */
 	if (binaryp_stream(stream)) {
 		read_sequence_binary(ret, seq, stream, start, end);
-		return;
+		return 0;
 	}
 
 	/* error */
-	fmte("Invalid stream ~S.", stream, NULL);
+	return fmte("Invalid stream ~S.", stream, NULL);
 }
 
 static void write_sequence_character(LocalRoot local,
@@ -1897,28 +1820,28 @@ static void write_sequence_binary(LocalRoot local,
 		GetFixnum(value, &c);
 		rollback_local(local, stack);
 		if (c < 0 || 0xFF < c)
-			fmte("Invalid binary value ~S.", fixnumh(c), NULL);
+			_fmte("Invalid binary value ~S.", fixnumh(c), NULL);
 		write_byte_stream(stream, (byte)c);
 	}
 }
 
-_g void write_sequence_common(LocalRoot local,
+_g int write_sequence_stream(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {
 	/* character stream */
 	if (characterp_stream(stream)) {
 		write_sequence_character(local, seq, stream, start, end);
-		return;
+		return 0;
 	}
 
 	/* binary stream */
 	if (binaryp_stream(stream)) {
 		write_sequence_binary(local, seq, stream, start, end);
-		return;
+		return 0;
 	}
 
 	/* error */
-	fmte("Invalid stream ~S.", stream, NULL);
+	return fmte("Invalid stream ~S.", stream, NULL);
 }
 
 _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
@@ -1947,7 +1870,7 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 		if (read_stream(ptr, stream, &result, &value))
 			return 1;
 		if (result)
-			fmte("Can't read from *query-io* stream.", NULL);
+			_fmte("Can't read from *query-io* stream.", NULL);
 		localhold_set(hold, 0, value);
 		if (type == T)
 			break;
@@ -1998,9 +1921,9 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 	/* query */
 	for (;;) {
 		clear_input_stream(stream);
-		read_line_common(ptr, &pos, &miss, stream, 1, Unbound, 0);
+		read_line_stream(ptr, &pos, &miss, stream, 1, Unbound, 0);
 		if (pos == Unbound)
-			fmte("*query-io* don't read yes/or question.", NULL);
+			_fmte("*query-io* don't read yes/or question.", NULL);
 		if (exactp) {
 			if (string_equalp_char(pos, "yes")) { *ret = 1; break; }
 			if (string_equalp_char(pos, "no")) { *ret = 0; break; }

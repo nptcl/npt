@@ -6,6 +6,7 @@
 #include "function.h"
 #include "heap.h"
 #include "integer.h"
+#include "print.h"
 #include "print_dispatch.h"
 #include "real.h"
 #include "symbol.h"
@@ -231,19 +232,17 @@ static void set_print_dispatch(addr spec, addr type,
  */
 _g void copy_pprint_dispatch_common(Execute ptr, addr var, addr *ret)
 {
-	if (var == Nil) {
-		GetConst(SYSTEM_DEFAULT_PRINT_DISPATCH, &var);
-		getspecialcheck_local(ptr, var, &var);
-		CheckType(var, LISPTYPE_PRINT_DISPATCH);
-	}
+	if (var == Unbound || var == Nil)
+		pprint_dispatch_print(ptr, &var);
 	copy_pprint_dispatch(var, ret);
 }
 
 _g int pprint_dispatch_common(Execute ptr, addr var, addr table, addr *x, addr *y)
 {
+	if (table == Unbound)
+		pprint_dispatch_print(ptr, &table);
 	CheckType(table, LISPTYPE_PRINT_DISPATCH);
-	if (find_print_dispatch(ptr, var, table, &var))
-		return 1;
+	Return(find_print_dispatch(ptr, var, table, &var));
 	if (var != Nil) {
 		GetFunctionPrintTable(var, x);
 		*y = T;
@@ -257,7 +256,7 @@ _g int pprint_dispatch_common(Execute ptr, addr var, addr table, addr *x, addr *
 	return 0;
 }
 
-_g void set_pprint_dispatch_common(LocalRoot local,
+_g void set_pprint_dispatch_print(LocalRoot local,
 		addr spec, addr type, addr call, addr priority, addr table)
 {
 	CheckType(type, LISPTYPE_TYPE);
@@ -313,7 +312,7 @@ static void build_print_dispatch_cons(LocalRoot local, addr dispatch)
 	GetConst(COMMON_PPRINT_FILL, &call);
 	GetFunctionSymbol(call, &call);
 	fixnum_heap(&priority, -10);
-	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
+	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
 }
 
 static void make_print_dispatch_function(addr *ret, constindex name, pointer id)
@@ -363,7 +362,7 @@ static void build_print_dispatch_vector(LocalRoot local, addr dispatch)
 			p_pprint_dispatch_vector);
 	/* set */
 	fixnum_heap(&priority, 0);
-	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
+	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
 }
 
 static void build_print_dispatch_call(LocalRoot local, addr dispatch)
@@ -396,7 +395,7 @@ static void build_print_dispatch_call(LocalRoot local, addr dispatch)
 			p_pprint_dispatch_call);
 	/* set */
 	fixnum_heap(&priority, -5);
-	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
+	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
 }
 
 static void build_print_dispatch_defun(LocalRoot local, addr dispatch)
@@ -424,7 +423,7 @@ static void build_print_dispatch_defun(LocalRoot local, addr dispatch)
 			p_pprint_dispatch_defun);
 	/* set */
 	fixnum_heap(&priority, 0);
-	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
+	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
 }
 
 static void build_print_dispatch_let(LocalRoot local, addr dispatch)
@@ -452,7 +451,7 @@ static void build_print_dispatch_let(LocalRoot local, addr dispatch)
 			p_pprint_dispatch_let);
 	/* set */
 	fixnum_heap(&priority, 0);
-	set_pprint_dispatch_common(local, spec, type, call, priority, dispatch);
+	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
 }
 
 _g void build_print_dispatch(void)

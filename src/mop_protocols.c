@@ -20,11 +20,12 @@
 /***********************************************************************
  *  make-method-lambda
  ***********************************************************************/
-static void method_make_method_lambda_std(Execute ptr,
+static int method_make_method_lambda_std(Execute ptr,
 		addr method, addr next, addr gen, addr mclass, addr list, addr env)
 {
 	method_make_method_lambda(list, env, &list);
 	setresult_control(ptr, list);
+	return 0;
 }
 
 static void method_type_make_method_lambda_std(addr *ret)

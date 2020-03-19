@@ -2,15 +2,8 @@
  *  ANSI COMMON LISP: 10. Symbols
  */
 #include "common_header.h"
-#include "cons.h"
-#include "cons_list.h"
-#include "cons_plist.h"
-#include "integer.h"
-#include "package.h"
-#include "restart.h"
-#include "sequence.h"
-#include "strtype.h"
-#include "type_parse.h"
+#include "restart_value.h"
+#include "symbol_common.h"
 
 /* (defvar *gensym-counter* 1) */
 static void defvar_gensym_counter(void)
@@ -30,9 +23,10 @@ static void defvar_gensym_counter(void)
 
 
 /* (defun symbolp (object) ...) -> boolean */
-static void function_symbolp(Execute ptr, addr var)
+static int function_symbolp(Execute ptr, addr var)
 {
 	setbool_control(ptr, symbolp(var));
+	return 0;
 }
 
 static void defun_symbolp(void)
@@ -52,9 +46,10 @@ static void defun_symbolp(void)
 
 
 /* (defun keywordp (object) ...) -> boolean */
-static void function_keywordp(Execute ptr, addr var)
+static int function_keywordp(Execute ptr, addr var)
 {
 	setbool_control(ptr, keywordp(var));
+	return 0;
 }
 
 static void defun_keywordp(void)
@@ -74,13 +69,11 @@ static void defun_keywordp(void)
 
 
 /* (defun make-symbol (string) ...) -> symbol */
-static void function_make_symbol(Execute ptr, addr var)
+static int function_make_symbol(Execute ptr, addr var)
 {
-	addr pos;
-
-	symbol_heap(&pos);
-	SetNameSymbol(pos, var);
-	setresult_control(ptr, pos);
+	make_symbol_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_make_symbol(addr *ret)
@@ -110,56 +103,11 @@ static void defun_make_symbol(void)
 
 
 /* (defun copy-symbol (symbol &optional boolean) ...) -> symbol */
-static void copy_symbol_type(addr var, addr symbol)
+static int function_copy_symbol(Execute ptr, addr var, addr opt)
 {
-	addr type;
-
-	/* value */
-	gettype_value_symbol(var, &type);
-	if (type != Nil)
-		settype_value_symbol(symbol, type);
-
-	/* function */
-	gettype_function_symbol(var, &type);
-	if (type != Nil)
-		settype_function_symbol(symbol, type);
-
-	/* setf */
-	gettype_setf_symbol(var, &type);
-	if (type != Nil)
-		settype_setf_symbol(symbol, type);
-}
-
-static void function_copy_symbol(Execute ptr, addr var, addr opt)
-{
-	addr symbol, pos;
-
-	if (opt == Unbound) opt = Nil;
-	GetNameSymbol(var, &pos);
-	string_heap(&pos, pos);
-	symbol_heap(&symbol);
-	SetNameSymbol(symbol, pos);
-
-	if (opt != Nil) {
-		/* symbol-value */
-		GetValueSymbol(var, &pos);
-		SetValueSymbol(symbol, pos);
-		/* symbol-function */
-		GetFunctionSymbol(var, &pos);
-		SetFunctionSymbol(symbol, pos);
-		/* symbol-setf */
-		getsetf_symbol(var, &pos);
-		if (pos != Unbound)
-			setsetf_symbol(symbol, pos);
-		/* property-list */
-		GetPlistSymbol(var, &pos);
-		copy_list_heap_unsafe(&pos, pos);
-		SetPlistSymbol(symbol, pos);
-		/* copy-type */
-		copy_symbol_type(var, symbol);
-	}
-
-	setresult_control(ptr, symbol);
+	copy_symbol_common(var, opt, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_copy_symbol(addr *ret)
@@ -192,17 +140,11 @@ static void defun_copy_symbol(void)
 /* (defun gensym (&optional x) ...) -> symbol
  *   x  (or string Intplus)
  */
-static void function_gensym(Execute ptr, addr opt)
+static int function_gensym(Execute ptr, addr opt)
 {
-	if (opt == Unbound)
-		make_gensym(ptr, &opt);
-	else if (stringp(opt))
-		make_gensym_prefix(ptr, opt, &opt);
-	else if (integerp(opt))
-		make_gensym_integer(ptr, opt, &opt);
-	else
-		fmte("type-error.", NULL);
+	Return(gensym_common(ptr, opt, &opt));
 	setresult_control(ptr, opt);
+	return 0;
 }
 
 static void type_gensym(addr *ret)
@@ -237,12 +179,11 @@ static void defun_gensym(void)
  *   prefix   string
  *   package  (or package string symbol character)  ;; package-designer
  */
-static void function_gentemp(Execute ptr, addr opt1, addr opt2)
+static int function_gentemp(Execute ptr, addr opt1, addr opt2)
 {
-	if (opt1 == Unbound) opt1 = NULL;
-	if (opt2 == Unbound) opt2 = NULL;
-	make_gentemp(ptr, opt1, opt2, &opt1);
+	gentemp_common(ptr, opt1, opt2, &opt1);
 	setresult_control(ptr, opt1);
+	return 0;
 }
 
 static void type_gentemp(addr *ret)
@@ -273,10 +214,11 @@ static void defun_gentemp(void)
 
 
 /* (defun symbol-function (symbol) ...) -> function */
-static void function_symbol_function(Execute ptr, addr var)
+static int function_symbol_function(Execute ptr, addr var)
 {
-	Return0(function_global_restart(ptr, var, &var));
+	Return(function_global_restart(ptr, var, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_symbol_function(addr *ret)
@@ -306,11 +248,11 @@ static void defun_symbol_function(void)
 
 
 /* (defun (setf symbol-function) (function symbol) ...) -> function */
-static void function_setf_symbol_function(Execute ptr, addr var1, addr var2)
+static int function_setf_symbol_function(Execute ptr, addr value, addr symbol)
 {
-	remtype_function_symbol(var2);
-	SetFunctionSymbol(var2, var1);
-	setresult_control(ptr, var1);
+	Return(setf_symbol_function_common(value, symbol));
+	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_symbol_function(addr *ret)
@@ -341,10 +283,11 @@ static void defun_setf_symbol_function(void)
 
 
 /* (defun symbol-value (symbol) ...) -> object */
-static void function_symbol_value(Execute ptr, addr var)
+static int function_symbol_value(Execute ptr, addr var)
 {
-	Return0(symbol_special_restart(ptr, var, &var));
+	Return(symbol_special_restart(ptr, var, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_symbol_value(addr *ret)
@@ -374,10 +317,11 @@ static void defun_symbol_value(void)
 
 
 /* (defun (setf symbol-value) (object symbol) ...) -> object */
-static void function_setf_symbol_value(Execute ptr, addr var1, addr var2)
+static int function_setf_symbol_value(Execute ptr, addr value, addr symbol)
 {
-	setspecial_local(ptr, var2, var1);
-	setresult_control(ptr, var1);
+	Return(setf_symbol_value_common(ptr, value, symbol));
+	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_symbol_value(addr *ret)
@@ -408,10 +352,11 @@ static void defun_setf_symbol_value(void)
 
 
 /* (defun symbol-plist (symbol) ...) -> list */
-static void function_symbol_plist(Execute ptr, addr var)
+static int function_symbol_plist(Execute ptr, addr var)
 {
 	GetPlistSymbol(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_symbol_plist(addr *ret)
@@ -441,10 +386,11 @@ static void defun_symbol_plist(void)
 
 
 /* (defun (setf symbol-plist) (list symbol) ...) -> list */
-static void function_setf_symbol_plist(Execute ptr, addr var1, addr var2)
+static int function_setf_symbol_plist(Execute ptr, addr value, addr symbol)
 {
-	SetPlistSymbol(var2, var1);
-	setresult_control(ptr, var1);
+	Return(setf_symbol_plist_common(value, symbol));
+	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_symbol_plist(addr *ret)
@@ -475,10 +421,11 @@ static void defun_setf_symbol_plist(void)
 
 
 /* (defun symbol-name (symbol) ...) -> string */
-static void function_symbol_name(Execute ptr, addr var)
+static int function_symbol_name(Execute ptr, addr var)
 {
 	GetNameSymbol(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_symbol_name(addr *ret)
@@ -510,10 +457,11 @@ static void defun_symbol_name(void)
 /* (defun symbol-package (symbol) ...) -> contents
  *   contents  (or package null)
  */
-static void function_symbol_package(Execute ptr, addr var)
+static int function_symbol_package(Execute ptr, addr var)
 {
 	GetPackageSymbol(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_symbol_package(addr *ret)
@@ -547,14 +495,11 @@ static void defun_symbol_package(void)
  *   indicator  object
  *   default    object  ;; default nil
  */
-static void function_get(Execute ptr, addr var1, addr var2, addr opt)
+static int function_get(Execute ptr, addr var1, addr var2, addr opt)
 {
-	int check;
-
-	if (opt == Unbound) opt = Nil;
-	GetPlistSymbol(var1, &var1);
-	check = getplist_safe(var1, var2, &var1);
-	setresult_control(ptr, check == 0? var1: opt);
+	Return(get_common(var1, var2, opt, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void type_get(addr *ret)
@@ -590,15 +535,12 @@ static void defun_get(void)
  *   indicator  object
  *   default    object  ;; default nil
  */
-static void function_setf_get(Execute ptr,
+static int function_setf_get(Execute ptr,
 		addr value, addr symbol, addr key, addr ignored)
 {
-	addr list;
-
-	GetPlistSymbol(symbol, &list);
-	if (setplist_heap_safe(list, key, value, &list))
-		SetPlistSymbol(symbol, list);
+	Return(setf_get_common(value, symbol, key));
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_get(addr *ret)
@@ -632,29 +574,11 @@ static void defun_setf_get(void)
  *   symbol     symbol
  *   indicator  object
  */
-static void function_remprop(Execute ptr, addr var1, addr var2)
+static int function_remprop(Execute ptr, addr symbol, addr key)
 {
-	int check;
-	addr list;
-
-	GetPlistSymbol(var1, &list);
-	switch (remplist_check_safe(list, var2, &list)) {
-		case RemPlist_Delete:
-			check = 1;
-			break;
-
-		case RemPlist_Update:
-			check = 1;
-			SetPlistSymbol(var1, list);
-			break;
-
-		case RemPlist_NotFound:
-		default:
-			check = 0;
-			break;
-
-	}
-	setbool_control(ptr, check);
+	Return(remprop_common(symbol, key, &symbol));
+	setresult_control(ptr, symbol);
+	return 0;
 }
 
 static void type_remprop(addr *ret)
@@ -685,10 +609,11 @@ static void defun_remprop(void)
 
 
 /* (defun boundp (symbol) ...) -> boolean */
-static void function_boundp(Execute ptr, addr var)
+static int function_boundp(Execute ptr, addr var)
 {
 	getspecial_local(ptr, var, &var);
 	setbool_control(ptr, var != Unbound);
+	return 0;
 }
 
 static void defun_boundp(void)
@@ -708,10 +633,11 @@ static void defun_boundp(void)
 
 
 /* (defun makunbound (symbol) ...) -> symbol */
-static void function_makunbound(Execute ptr, addr var)
+static int function_makunbound(Execute ptr, addr symbol)
 {
-	setspecial_local(ptr, var, Unbound);
-	setresult_control(ptr, var);
+	Return(makunbound_common(ptr, symbol));
+	setresult_control(ptr, symbol);
+	return 0;
 }
 
 static void type_makunbound(addr *ret)
@@ -741,10 +667,11 @@ static void defun_makunbound(void)
 
 
 /* (defun set (symbol value) ...) -> value */
-static void function_set(Execute ptr, addr var1, addr var2)
+static int function_set(Execute ptr, addr symbol, addr value)
 {
-	setspecial_local(ptr, var1, var2);
-	setresult_control(ptr, var2);
+	Return(set_common(ptr, symbol, value));
+	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_set(addr *ret)

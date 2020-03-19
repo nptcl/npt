@@ -17,6 +17,7 @@
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 
 /*
@@ -76,14 +77,14 @@ static int compile_file_execute(
 
 	/* input stream */
 	if (compile_file_open_input(ptr, input, &in)) {
-		fmte("Cannot open the input file ~S.", input, NULL);
+		_fmte("Cannot open the input file ~S.", input, NULL);
 		return 0;
 	}
 
 	/* output stream */
 	if (compile_file_open_output(ptr, output, &out)) {
 		compile_file_close_stream(in, input);
-		fmte("Cannot open the output file ~S.", output, NULL);
+		_fmte("Cannot open the output file ~S.", output, NULL);
 		return 0;
 	}
 
@@ -103,7 +104,7 @@ static int compile_file_execute(
 	return 0;
 }
 
-static void function_handler_compile(Execute ptr, addr condition)
+static int function_handler_compile(Execute ptr, addr condition)
 {
 	addr check;
 
@@ -120,6 +121,8 @@ static void function_handler_compile(Execute ptr, addr condition)
 		GetConst(SYSTEM_COMPILE_STYLE_WARNING, &check);
 		setlexical_local(ptr, check, T);
 	}
+
+	return 0;
 }
 
 _g void handler_compile(Execute ptr)
@@ -167,7 +170,7 @@ _g int compile_file_common(Execute ptr, addr input, addr rest,
 	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
 	getlexicalcheck_local(ptr, pos, ret3);
 	/* free */
-	Return1(free_check_control(ptr, control, 0));
+	Return(free_check_control(ptr, control, 0));
 	localhold_end(hold);
 
 	return 0;
@@ -244,12 +247,12 @@ _g void with_compilation_unit_common(addr form, addr *ret)
 	return;
 
 error:
-	fmte("WITH-COMPILATION-UNIT form ~S "
+	_fmte("WITH-COMPILATION-UNIT form ~S "
 			"must be a ((&key ...) &body ...) form.", form, NULL);
 	*ret = Nil;
 }
 
-static void function_handler_delay_warning(Execute ptr, addr condition)
+static int function_handler_delay_warning(Execute ptr, addr condition)
 {
 	addr pos, list;
 
@@ -263,13 +266,13 @@ static void function_handler_delay_warning(Execute ptr, addr condition)
 	GetConst(SYSTEM_DELAY_WARNING_SWITCH, &pos);
 	getspecialcheck_local(ptr, pos, &pos);
 	if (pos == Nil)
-		return;
+		return 0;
 
 	/* muffle-warning */
 	GetConst(COMMON_MUFFLE_WARNING, &pos);
 	if (! find_restart_control(ptr, pos, condition, &condition))
 		control_error();
-	(void)invoke_restart_control(ptr, condition, Nil);
+	return invoke_restart_control(ptr, condition, Nil);
 }
 
 static void handler_delay_warning(Execute ptr)
@@ -294,7 +297,7 @@ static int with_compilation_unit_override(Execute ptr, addr pos)
 	return pos == Unbound;
 }
 
-static void function_finalize_delay_warning(Execute ptr)
+static int function_finalize_delay_warning(Execute ptr)
 {
 	addr list, x;
 
@@ -307,18 +310,18 @@ static void function_finalize_delay_warning(Execute ptr)
 
 	while (list != Nil) {
 		GetCons(list, &x, &list);
-		Return0(warning_restart_case(ptr, x));
+		Return(warning_restart_case(ptr, x));
 	}
+
+	return 0;
 }
 
-_g void syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call)
+_g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call)
 {
 	addr finalize, restart, pos;
 
-	if (! with_compilation_unit_override(ptr, over)) {
-		funcall_control(ptr, call, NULL);
-		return;
-	}
+	if (! with_compilation_unit_override(ptr, over))
+		return funcall_control(ptr, call, NULL);
 
 	/* unwind-protect */
 	push_finalize_control(ptr, &finalize);
@@ -334,12 +337,12 @@ _g void syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr ca
 	handler_delay_warning(ptr);
 
 	/* funcall */
-	if (funcall_control(ptr, call, NULL)) {
-		free_check_control(ptr, restart, 1);
-		return;
-	}
-	Return0(free_check_control(ptr, restart, 0));
+	if (funcall_control(ptr, call, NULL))
+		return free_check_control(ptr, restart, 1);
+	Return(free_check_control(ptr, restart, 0));
 	return_values_control(ptr, finalize);
+
+	return 0;
 }
 
 

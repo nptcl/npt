@@ -7,8 +7,6 @@
 #include "cmpl.h"
 #include "common_header.h"
 #include "cons.h"
-#include "cons_list.h"
-#include "cons_plist.h"
 #include "integer.h"
 #include "math_exp.h"
 #include "math_power.h"
@@ -17,7 +15,6 @@
 #include "number_gcd.h"
 #include "number_isqrt.h"
 #include "number_random.h"
-#include "package.h"
 #include "random_state.h"
 #include "rational.h"
 #include "real_ceiling.h"
@@ -28,16 +25,14 @@
 #include "real_floor.h"
 #include "real_round.h"
 #include "real_truncate.h"
-#include "setf.h"
-#include "strtype.h"
-#include "type.h"
 #include "type_upgraded.h"
 
 /* (defun = (first &rest numbers) ...) -> boolean */
-static void function_number_equal(Execute ptr, addr left, addr rest)
+static int function_number_equal(Execute ptr, addr left, addr rest)
 {
 	int check = number_equal_common(ptr->local, left, rest);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void defun_number_equal(void)
@@ -57,10 +52,11 @@ static void defun_number_equal(void)
 
 
 /* (defun /= (first &rest numbers) ...) -> boolean */
-static void function_number_not_equal(Execute ptr, addr left, addr rest)
+static int function_number_not_equal(Execute ptr, addr left, addr rest)
 {
 	int check = number_not_equal_common(ptr->local, left, rest);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void defun_number_not_equal(void)
@@ -80,10 +76,11 @@ static void defun_number_not_equal(void)
 
 
 /* (defun < (first &rest numbers) ...) -> boolean */
-static void function_number_less(Execute ptr, addr left, addr rest)
+static int function_number_less(Execute ptr, addr left, addr rest)
 {
 	int check = number_less_common(ptr->local, left, rest);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void defun_number_less(void)
@@ -103,10 +100,11 @@ static void defun_number_less(void)
 
 
 /* (defun > (first &rest numbers) ...) -> boolean */
-static void function_number_greater(Execute ptr, addr left, addr rest)
+static int function_number_greater(Execute ptr, addr left, addr rest)
 {
 	int check = number_greater_common(ptr->local, left, rest);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void defun_number_greater(void)
@@ -126,10 +124,11 @@ static void defun_number_greater(void)
 
 
 /* (defun <= (first &rest numbers) ...) -> boolean */
-static void function_number_less_equal(Execute ptr, addr left, addr rest)
+static int function_number_less_equal(Execute ptr, addr left, addr rest)
 {
 	int check = number_less_equal_common(ptr->local, left, rest);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void defun_number_less_equal(void)
@@ -149,10 +148,11 @@ static void defun_number_less_equal(void)
 
 
 /* (defun >= (first &rest numbers) ...) -> boolean */
-static void function_number_greater_equal(Execute ptr, addr left, addr rest)
+static int function_number_greater_equal(Execute ptr, addr left, addr rest)
 {
 	int check = number_greater_equal_common(ptr->local, left, rest);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void defun_number_greater_equal(void)
@@ -172,10 +172,11 @@ static void defun_number_greater_equal(void)
 
 
 /* (defun max (real &rest real) ...) -> real */
-static void function_max(Execute ptr, addr left, addr rest)
+static int function_max(Execute ptr, addr left, addr rest)
 {
 	max_common(ptr->local, left, rest, &left);
 	setresult_control(ptr, left);
+	return 0;
 }
 
 static void defun_max(void)
@@ -195,10 +196,11 @@ static void defun_max(void)
 
 
 /* (defun min (real &rest real) ...) -> real */
-static void function_min(Execute ptr, addr left, addr rest)
+static int function_min(Execute ptr, addr left, addr rest)
 {
 	min_common(ptr->local, left, rest, &left);
 	setresult_control(ptr, left);
+	return 0;
 }
 
 static void defun_min(void)
@@ -218,9 +220,10 @@ static void defun_min(void)
 
 
 /* (defun minusp (real) ...) -> boolean */
-static void function_minusp(Execute ptr, addr var)
+static int function_minusp(Execute ptr, addr var)
 {
 	setbool_control(ptr, minusp_real(var));
+	return 0;
 }
 
 static void defun_minusp(void)
@@ -240,9 +243,10 @@ static void defun_minusp(void)
 
 
 /* (defun plusp (real) ...) -> boolean */
-static void function_plusp(Execute ptr, addr var)
+static int function_plusp(Execute ptr, addr var)
 {
 	setbool_control(ptr, plusp_real(var));
+	return 0;
 }
 
 static void defun_plusp(void)
@@ -262,9 +266,10 @@ static void defun_plusp(void)
 
 
 /* (defun zerop (real) ...) -> boolean */
-static void function_zerop(Execute ptr, addr var)
+static int function_zerop(Execute ptr, addr var)
 {
 	setbool_control(ptr, zerop_number(var));
+	return 0;
 }
 
 static void defun_zerop(void)
@@ -289,10 +294,11 @@ static void defun_zerop(void)
  *   quotient   integer
  *   remainder  real
  */
-static void function_floor(Execute ptr, addr var, addr div)
+static int function_floor(Execute ptr, addr var, addr div)
 {
 	floor_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
+	return 0;
 }
 
 static void defun_floor(void)
@@ -317,10 +323,11 @@ static void defun_floor(void)
  *   quotient   real
  *   remainder  real
  */
-static void function_ffloor(Execute ptr, addr var, addr div)
+static int function_ffloor(Execute ptr, addr var, addr div)
 {
 	ffloor_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
+	return 0;
 }
 
 static void defun_ffloor(void)
@@ -345,10 +352,11 @@ static void defun_ffloor(void)
  *   quotient   integer
  *   remainder  real
  */
-static void function_ceiling(Execute ptr, addr var, addr div)
+static int function_ceiling(Execute ptr, addr var, addr div)
 {
 	ceiling_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
+	return 0;
 }
 
 static void defun_ceiling(void)
@@ -373,10 +381,11 @@ static void defun_ceiling(void)
  *   quotient   real
  *   remainder  real
  */
-static void function_fceiling(Execute ptr, addr var, addr div)
+static int function_fceiling(Execute ptr, addr var, addr div)
 {
 	fceiling_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
+	return 0;
 }
 
 static void defun_fceiling(void)
@@ -401,10 +410,11 @@ static void defun_fceiling(void)
  *   quotient   integer
  *   remainder  real
  */
-static void function_truncate(Execute ptr, addr var, addr div)
+static int function_truncate(Execute ptr, addr var, addr div)
 {
 	truncate_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
+	return 0;
 }
 
 static void defun_truncate(void)
@@ -429,10 +439,11 @@ static void defun_truncate(void)
  *   quotient   real
  *   remainder  real
  */
-static void function_ftruncate(Execute ptr, addr var, addr div)
+static int function_ftruncate(Execute ptr, addr var, addr div)
 {
 	ftruncate_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
+	return 0;
 }
 
 static void defun_ftruncate(void)
@@ -457,10 +468,11 @@ static void defun_ftruncate(void)
  *   quotient   integer
  *   remainder  real
  */
-static void function_round(Execute ptr, addr var, addr div)
+static int function_round(Execute ptr, addr var, addr div)
 {
 	round_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
+	return 0;
 }
 
 static void defun_round(void)
@@ -485,10 +497,11 @@ static void defun_round(void)
  *   quotient   real
  *   remainder  real
  */
-static void function_fround(Execute ptr, addr var, addr div)
+static int function_fround(Execute ptr, addr var, addr div)
 {
 	fround_common(ptr->local, var, div, &var, &div);
 	setvalues_control(ptr, var, div, NULL);
+	return 0;
 }
 
 static void defun_fround(void)
@@ -508,10 +521,11 @@ static void defun_fround(void)
 
 
 /* (defun cis (real) ...) -> number */
-static void function_cis(Execute ptr, addr var)
+static int function_cis(Execute ptr, addr var)
 {
 	cis_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_cis(addr *ret)
@@ -541,10 +555,11 @@ static void defun_cis(void)
 
 
 /* (defun sin (number) ...) -> number */
-static void function_sin(Execute ptr, addr var)
+static int function_sin(Execute ptr, addr var)
 {
 	sin_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_sin(void)
@@ -564,10 +579,11 @@ static void defun_sin(void)
 
 
 /* (defun cos (number) ...) -> number */
-static void function_cos(Execute ptr, addr var)
+static int function_cos(Execute ptr, addr var)
 {
 	cos_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_cos(void)
@@ -587,10 +603,11 @@ static void defun_cos(void)
 
 
 /* (defun tan (number) ...) -> number */
-static void function_tan(Execute ptr, addr var)
+static int function_tan(Execute ptr, addr var)
 {
 	tan_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_tan(void)
@@ -610,10 +627,11 @@ static void defun_tan(void)
 
 
 /* (defun sinh (number) ...) -> number */
-static void function_sinh(Execute ptr, addr var)
+static int function_sinh(Execute ptr, addr var)
 {
 	sinh_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_sinh(void)
@@ -633,10 +651,11 @@ static void defun_sinh(void)
 
 
 /* (defun cosh (number) ...) -> number */
-static void function_cosh(Execute ptr, addr var)
+static int function_cosh(Execute ptr, addr var)
 {
 	cosh_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_cosh(void)
@@ -656,10 +675,11 @@ static void defun_cosh(void)
 
 
 /* (defun tanh (number) ...) -> number */
-static void function_tanh(Execute ptr, addr var)
+static int function_tanh(Execute ptr, addr var)
 {
 	tanh_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_tanh(void)
@@ -679,10 +699,11 @@ static void defun_tanh(void)
 
 
 /* (defun asin (number) ...) -> number */
-static void function_asin(Execute ptr, addr var)
+static int function_asin(Execute ptr, addr var)
 {
 	asin_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_asin(void)
@@ -702,10 +723,11 @@ static void defun_asin(void)
 
 
 /* (defun acos (number) ...) -> number */
-static void function_acos(Execute ptr, addr var)
+static int function_acos(Execute ptr, addr var)
 {
 	acos_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_acos(void)
@@ -725,10 +747,11 @@ static void defun_acos(void)
 
 
 /* (defun atan (number &optional real) ...) -> number */
-static void function_atan(Execute ptr, addr var, addr opt)
+static int function_atan(Execute ptr, addr var, addr opt)
 {
 	atan_optional_common(var, opt, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_atan(addr *ret)
@@ -759,10 +782,11 @@ static void defun_atan(void)
 
 
 /* (defun asinh (number) ...) -> number */
-static void function_asinh(Execute ptr, addr var)
+static int function_asinh(Execute ptr, addr var)
 {
 	asinh_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_asinh(void)
@@ -782,10 +806,11 @@ static void defun_asinh(void)
 
 
 /* (defun acosh (number) ...) -> number */
-static void function_acosh(Execute ptr, addr var)
+static int function_acosh(Execute ptr, addr var)
 {
 	acosh_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_acosh(void)
@@ -805,10 +830,11 @@ static void defun_acosh(void)
 
 
 /* (defun atanh (number) ...) -> number */
-static void function_atanh(Execute ptr, addr var)
+static int function_atanh(Execute ptr, addr var)
 {
 	atanh_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_atanh(void)
@@ -828,10 +854,11 @@ static void defun_atanh(void)
 
 
 /* (defun exp (number) ...) -> number */
-static void function_exp(Execute ptr, addr var)
+static int function_exp(Execute ptr, addr var)
 {
 	exp_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_exp(void)
@@ -851,10 +878,11 @@ static void defun_exp(void)
 
 
 /* (defun expt (number number) ...) -> number */
-static void function_expt(Execute ptr, addr base, addr power)
+static int function_expt(Execute ptr, addr base, addr power)
 {
 	expt_common(ptr->local, &base, base, power);
 	setresult_control(ptr, base);
+	return 0;
 }
 
 static void type_expt(addr *ret)
@@ -884,10 +912,11 @@ static void defun_expt(void)
 
 
 /* (defun + (&rest number) ...) -> number */
-static void function_plus(Execute ptr, addr rest)
+static int function_plus(Execute ptr, addr rest)
 {
 	plus_common(ptr->local, rest, &rest);
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void defun_plus(void)
@@ -907,10 +936,11 @@ static void defun_plus(void)
 
 
 /* (defun - (&rest number) ...) -> number */
-static void function_minus(Execute ptr, addr left, addr rest)
+static int function_minus(Execute ptr, addr left, addr rest)
 {
 	minus_common(ptr->local, left, rest, &rest);
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void defun_minus(void)
@@ -930,10 +960,11 @@ static void defun_minus(void)
 
 
 /* (defun * (&rest number) ...) -> number */
-static void function_asterisk(Execute ptr, addr rest)
+static int function_asterisk(Execute ptr, addr rest)
 {
 	asterisk_common(ptr->local, rest, &rest);
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void defun_asterisk(void)
@@ -953,10 +984,11 @@ static void defun_asterisk(void)
 
 
 /* (defun / (number &rest number) ...) -> number */
-static void function_slash(Execute ptr, addr left, addr rest)
+static int function_slash(Execute ptr, addr left, addr rest)
 {
 	slash_common(ptr->local, left, rest, &rest);
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void defun_slash(void)
@@ -976,10 +1008,11 @@ static void defun_slash(void)
 
 
 /* (defun 1+ (number) ...) -> number */
-static void function_oneplus(Execute ptr, addr var)
+static int function_oneplus(Execute ptr, addr var)
 {
 	oneplus_number_common(ptr->local, var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_oneplus(void)
@@ -999,10 +1032,11 @@ static void defun_oneplus(void)
 
 
 /* (defun 1- (number) ...) -> number */
-static void function_oneminus(Execute ptr, addr var)
+static int function_oneminus(Execute ptr, addr var)
 {
 	oneminus_number_common(ptr->local, var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_oneminus(void)
@@ -1024,10 +1058,11 @@ static void defun_oneminus(void)
 /* (defun abs (number) ...) value
  *    value  (real 0 *)
  */
-static void function_abs(Execute ptr, addr var)
+static int function_abs(Execute ptr, addr var)
 {
 	abs_number_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_abs(addr *ret)
@@ -1060,9 +1095,10 @@ static void defun_abs(void)
 
 
 /* (defun evenp (integer) ...) -> boolean */
-static void function_evenp(Execute ptr, addr var)
+static int function_evenp(Execute ptr, addr var)
 {
 	setbool_control(ptr, evenp_integer(var));
+	return 0;
 }
 
 static void defun_evenp(void)
@@ -1082,9 +1118,10 @@ static void defun_evenp(void)
 
 
 /* (defun oddp (integer) ...) -> boolean */
-static void function_oddp(Execute ptr, addr var)
+static int function_oddp(Execute ptr, addr var)
 {
 	setbool_control(ptr, ! evenp_integer(var));
+	return 0;
 }
 
 static void defun_oddp(void)
@@ -1104,10 +1141,11 @@ static void defun_oddp(void)
 
 
 /* (defun gcd (&rest integer) ...) -> (integer 0 *) */
-static void function_gcd(Execute ptr, addr args)
+static int function_gcd(Execute ptr, addr args)
 {
 	gcd_number(ptr->local, args, &args);
 	setresult_control(ptr, args);
+	return 0;
 }
 
 static void defun_gcd(void)
@@ -1127,10 +1165,11 @@ static void defun_gcd(void)
 
 
 /* (defun lcm (&rest integer) ...) -> (integer 0 *) */
-static void function_lcm(Execute ptr, addr args)
+static int function_lcm(Execute ptr, addr args)
 {
 	lcm_number(ptr->local, args, &args);
 	setresult_control(ptr, args);
+	return 0;
 }
 
 static void defun_lcm(void)
@@ -1150,10 +1189,11 @@ static void defun_lcm(void)
 
 
 /* (defmacro incf (place &optional number) ...) -> number) */
-static void function_incf(Execute ptr, addr form, addr env)
+static int function_incf(Execute ptr, addr form, addr env)
 {
 	incf_common(ptr, form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_incf(void)
@@ -1171,10 +1211,11 @@ static void defmacro_incf(void)
 
 
 /* (defmacro decf (place &optional number) ...) -> number) */
-static void function_decf(Execute ptr, addr form, addr env)
+static int function_decf(Execute ptr, addr form, addr env)
 {
 	decf_common(ptr, form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_decf(void)
@@ -1192,10 +1233,11 @@ static void defmacro_decf(void)
 
 
 /* (defun log (number &optional number) ...) -> number */
-static void function_log(Execute ptr, addr value, addr base)
+static int function_log(Execute ptr, addr value, addr base)
 {
 	log_common(value, base, &value);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_log(addr *ret)
@@ -1229,10 +1271,11 @@ static void defun_log(void)
  *   divisor  real
  *   modules  real
  */
-static void function_mod(Execute ptr, addr num, addr div)
+static int function_mod(Execute ptr, addr num, addr div)
 {
 	mod_number_common(ptr->local, num, div, &num);
 	setresult_control(ptr, num);
+	return 0;
 }
 
 static void defun_mod(void)
@@ -1256,10 +1299,11 @@ static void defun_mod(void)
  *   divisor  real
  *   modules  real
  */
-static void function_rem(Execute ptr, addr num, addr div)
+static int function_rem(Execute ptr, addr num, addr div)
 {
 	rem_number_common(ptr->local, num, div, &num);
 	setresult_control(ptr, num);
+	return 0;
 }
 
 static void defun_rem(void)
@@ -1279,10 +1323,11 @@ static void defun_rem(void)
 
 
 /* (defun signum (number) ...) -> number */
-static void function_signum(Execute ptr, addr var)
+static int function_signum(Execute ptr, addr var)
 {
 	signum_number_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_signum(void)
@@ -1302,10 +1347,11 @@ static void defun_signum(void)
 
 
 /* (defun sqrt (number) ...) -> number */
-static void function_sqrt(Execute ptr, addr var)
+static int function_sqrt(Execute ptr, addr var)
 {
 	sqrt_number_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_sqrt(void)
@@ -1327,10 +1373,11 @@ static void defun_sqrt(void)
 /* (defun isqrt (natural) ...) -> natural
  *   natural  (integer 0 *)
  */
-static void function_isqrt(Execute ptr, addr var)
+static int function_isqrt(Execute ptr, addr var)
 {
 	isqrt_number_common(ptr->local, var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_isqrt(addr *ret)
@@ -1362,10 +1409,11 @@ static void defun_isqrt(void)
 /* (defun make-random-state (&optional state) ...) -> random-state
  *   state  (or random-state null (eql t))
  */
-static void function_make_random_state(Execute ptr, addr opt)
+static int function_make_random_state(Execute ptr, addr opt)
 {
 	make_random_state_heap(ptr, &opt, (opt == Unbound)? Nil: opt);
 	setresult_control(ptr, opt);
+	return 0;
 }
 
 static void type_make_random_state(addr *ret)
@@ -1402,10 +1450,11 @@ static void defun_make_random_state(void)
  *   limit  (or (integer (0) *) (float (0) *))
  *   value  (or (integer 0 *) (float 0 *))
  */
-static void function_random(Execute ptr, addr limit, addr state)
+static int function_random(Execute ptr, addr limit, addr state)
 {
 	random_common(ptr, limit, state, &limit);
 	setresult_control(ptr, limit);
+	return 0;
 }
 
 static void type_random(addr *ret)
@@ -1441,9 +1490,10 @@ static void defun_random(void)
 
 
 /* (defun random-state-p (object) ...) -> boolean */
-static void function_random_state_p(Execute ptr, addr pos)
+static int function_random_state_p(Execute ptr, addr pos)
 {
 	setbool_control(ptr, GetType(pos) == LISPTYPE_RANDOM_STATE);
+	return 0;
 }
 
 static void defun_random_state_p(void)
@@ -1480,9 +1530,10 @@ static void defvar_random_state(void)
 
 
 /* (defun numberp (object) ...) -> boolean */
-static void function_numberp(Execute ptr, addr pos)
+static int function_numberp(Execute ptr, addr pos)
 {
 	setbool_control(ptr, numberp(pos));
+	return 0;
 }
 
 static void defun_numberp(void)
@@ -1506,10 +1557,11 @@ static void defun_numberp(void)
  *   imag    real
  *   result  (or rational complex)
  */
-static void function_complex(Execute ptr, addr real, addr imag)
+static int function_complex(Execute ptr, addr real, addr imag)
 {
 	complex_heap(&real, real, imag);
 	setresult_control(ptr, real);
+	return 0;
 }
 
 static void type_complex_common(addr *ret)
@@ -1541,9 +1593,10 @@ static void defun_complex(void)
 
 
 /* (defun complexp (object) ...) -> boolean */
-static void function_complexp(Execute ptr, addr pos)
+static int function_complexp(Execute ptr, addr pos)
 {
 	setbool_control(ptr, GetType(pos) == LISPTYPE_COMPLEX);
+	return 0;
 }
 
 static void defun_complexp(void)
@@ -1563,10 +1616,11 @@ static void defun_complexp(void)
 
 
 /* (defun conjugate (number) ...) -> number */
-static void function_conjugate(Execute ptr, addr var)
+static int function_conjugate(Execute ptr, addr var)
 {
 	conjugate_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_conjugate(void)
@@ -1586,10 +1640,11 @@ static void defun_conjugate(void)
 
 
 /* (defun phase (number) ...) -> number */
-static void function_phase(Execute ptr, addr var)
+static int function_phase(Execute ptr, addr var)
 {
 	phase_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_phase(void)
@@ -1609,10 +1664,11 @@ static void defun_phase(void)
 
 
 /* (defun realpart (number) ...) -> real */
-static void function_realpart(Execute ptr, addr var)
+static int function_realpart(Execute ptr, addr var)
 {
 	realpart_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_realpart(void)
@@ -1632,10 +1688,11 @@ static void defun_realpart(void)
 
 
 /* (defun imagpart (number) ...) -> real */
-static void function_imagpart(Execute ptr, addr var)
+static int function_imagpart(Execute ptr, addr var)
 {
 	imagpart_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_imagpart(void)
@@ -1657,11 +1714,14 @@ static void defun_imagpart(void)
 /* (defun upgraded-complex-part-type (typespec &optional environment) ...)
  *   -> typespec
  */
-static void function_upgraded_complex_part_type(Execute ptr, addr pos, addr env)
+static int function_upgraded_complex_part_type(Execute ptr, addr pos, addr env)
 {
-	if (upgraded_complex_common(ptr, (env == Unbound)? Nil: env, pos, &pos))
-		return;
+	if (env == Unbound)
+		env = Nil;
+	Return(upgraded_complex_common(ptr, env, pos, &pos));
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_upgraded_complex_part_type(void)
@@ -1681,9 +1741,10 @@ static void defun_upgraded_complex_part_type(void)
 
 
 /* (defun realp (object) ...) -> boolean */
-static void function_realp(Execute ptr, addr pos)
+static int function_realp(Execute ptr, addr pos)
 {
 	setbool_control(ptr, realp(pos));
+	return 0;
 }
 
 static void defun_realp(void)
@@ -1703,10 +1764,11 @@ static void defun_realp(void)
 
 
 /* (defun numerator (rational) ...) -> integer */
-static void function_numerator(Execute ptr, addr var)
+static int function_numerator(Execute ptr, addr var)
 {
 	numerator_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_numerator(addr *ret)
@@ -1736,10 +1798,11 @@ static void defun_numerator(void)
 
 
 /* (defun denominator (rational) ...) -> positive-integer */
-static void function_denominator(Execute ptr, addr var)
+static int function_denominator(Execute ptr, addr var)
 {
 	denominator_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_denominator(addr *ret)
@@ -1773,10 +1836,11 @@ static void defun_denominator(void)
  *   number    real
  *   rational  rational
  */
-static void function_rational(Execute ptr, addr var)
+static int function_rational(Execute ptr, addr var)
 {
 	rational_common(ptr->local, var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_rational(void)
@@ -1799,10 +1863,11 @@ static void defun_rational(void)
  *   number    real
  *   rational  rational
  */
-static void function_rationalize(Execute ptr, addr var)
+static int function_rationalize(Execute ptr, addr var)
 {
 	rationalize_common(ptr->local, var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_rationalize(void)
@@ -1822,9 +1887,10 @@ static void defun_rationalize(void)
 
 
 /* (defun rationalp (object) ...) -> boolean */
-static void function_rationalp(Execute ptr, addr pos)
+static int function_rationalp(Execute ptr, addr pos)
 {
 	setbool_control(ptr, rationalp(pos));
+	return 0;
 }
 
 static void defun_rationalp(void)
@@ -1848,10 +1914,11 @@ static void defun_rationalp(void)
  *   count    integer
  *   shifted  integer
  */
-static void function_ash(Execute ptr, addr pos, addr count)
+static int function_ash(Execute ptr, addr pos, addr count)
 {
 	ash_integer_common(ptr->local, pos, count, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_ash(addr *ret)
@@ -1884,10 +1951,11 @@ static void defun_ash(void)
  *   integer  integer
  *   bits     a non-negative integer
  */
-static void function_integer_length(Execute ptr, addr var)
+static int function_integer_length(Execute ptr, addr var)
 {
 	integer_length_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_integer_length(addr *ret)
@@ -1917,9 +1985,10 @@ static void defun_integer_length(void)
 
 
 /* (defun integerp (object) ...) -> boolean */
-static void function_integerp(Execute ptr, addr pos)
+static int function_integerp(Execute ptr, addr pos)
 {
 	setbool_control(ptr, integerp(pos));
+	return 0;
 }
 
 static void defun_integerp(void)
@@ -1948,10 +2017,11 @@ static void defun_integerp(void)
  *   integer       (or null integer)
  *   pos           index
  */
-static void function_parse_integer(Execute ptr, addr var, addr rest)
+static int function_parse_integer(Execute ptr, addr var, addr rest)
 {
-	parse_integer_common(ptr->local, var, rest, &var, &rest);
+	Return(parse_integer_common(ptr->local, var, rest, &var, &rest));
 	setvalues_control(ptr, var, rest, NULL);
+	return 0;
 }
 
 static void type_parse_integer(addr *ret)
@@ -1998,10 +2068,11 @@ static void defun_parse_integer(void)
 
 
 /* (defun boole (op integer1 integer2) ...) -> integer */
-static void function_boole(Execute ptr, addr op, addr a, addr b)
+static int function_boole(Execute ptr, addr op, addr a, addr b)
 {
 	boole_common(ptr->local, op, a, b, &a);
 	setresult_control(ptr, a);
+	return 0;
 }
 
 static void type_boole(addr *ret)
@@ -2033,10 +2104,11 @@ static void defun_boole(void)
 
 
 /* (defun logand (&rest integer) ...) -> integer */
-static void function_logand(Execute ptr, addr args)
+static int function_logand(Execute ptr, addr args)
 {
 	logand_common(ptr->local, args, &args);
 	setresult_control(ptr, args);
+	return 0;
 }
 
 static void defun_logand(void)
@@ -2056,10 +2128,11 @@ static void defun_logand(void)
 
 
 /* (defun logandc1 (integer integer) ...) -> integer */
-static void function_logandc1(Execute ptr, addr a, addr b)
+static int function_logandc1(Execute ptr, addr a, addr b)
 {
 	logandc1_common(ptr->local, a, b, &a);
 	setresult_control(ptr, a);
+	return 0;
 }
 
 static void defun_logandc1(void)
@@ -2079,10 +2152,11 @@ static void defun_logandc1(void)
 
 
 /* (defun logandc2 (integer integer) ...) -> integer */
-static void function_logandc2(Execute ptr, addr a, addr b)
+static int function_logandc2(Execute ptr, addr a, addr b)
 {
 	logandc2_common(ptr->local, a, b, &a);
 	setresult_control(ptr, a);
+	return 0;
 }
 
 static void defun_logandc2(void)
@@ -2102,10 +2176,11 @@ static void defun_logandc2(void)
 
 
 /* (defun logeqv (&rest integer) ...) -> integer */
-static void function_logeqv(Execute ptr, addr args)
+static int function_logeqv(Execute ptr, addr args)
 {
 	logeqv_common(ptr->local, args, &args);
 	setresult_control(ptr, args);
+	return 0;
 }
 
 static void defun_logeqv(void)
@@ -2125,10 +2200,11 @@ static void defun_logeqv(void)
 
 
 /* (defun logior (&rest integer) ...) -> integer */
-static void function_logior(Execute ptr, addr args)
+static int function_logior(Execute ptr, addr args)
 {
 	logior_common(ptr->local, args, &args);
 	setresult_control(ptr, args);
+	return 0;
 }
 
 static void defun_logior(void)
@@ -2148,10 +2224,11 @@ static void defun_logior(void)
 
 
 /* (defun lognand (integer integer) ...) -> integer */
-static void function_lognand(Execute ptr, addr a, addr b)
+static int function_lognand(Execute ptr, addr a, addr b)
 {
 	lognand_common(ptr->local, a, b, &a);
 	setresult_control(ptr, a);
+	return 0;
 }
 
 static void defun_lognand(void)
@@ -2171,10 +2248,11 @@ static void defun_lognand(void)
 
 
 /* (defun lognor (integer integer) ...) -> integer */
-static void function_lognor(Execute ptr, addr a, addr b)
+static int function_lognor(Execute ptr, addr a, addr b)
 {
 	lognor_common(ptr->local, a, b, &a);
 	setresult_control(ptr, a);
+	return 0;
 }
 
 static void defun_lognor(void)
@@ -2194,10 +2272,11 @@ static void defun_lognor(void)
 
 
 /* (defun lognot (integer) ...) -> integer */
-static void function_lognot(Execute ptr, addr a)
+static int function_lognot(Execute ptr, addr a)
 {
 	lognot_common(ptr->local, a, &a);
 	setresult_control(ptr, a);
+	return 0;
 }
 
 static void type_lognot(addr *ret)
@@ -2227,10 +2306,11 @@ static void defun_lognot(void)
 
 
 /* (defun logorc1 (integer integer) ...) -> integer */
-static void function_logorc1(Execute ptr, addr a, addr b)
+static int function_logorc1(Execute ptr, addr a, addr b)
 {
 	logorc1_common(ptr->local, a, b, &a);
 	setresult_control(ptr, a);
+	return 0;
 }
 
 static void defun_logorc1(void)
@@ -2250,10 +2330,11 @@ static void defun_logorc1(void)
 
 
 /* (defun logorc2 (integer integer) ...) -> integer */
-static void function_logorc2(Execute ptr, addr a, addr b)
+static int function_logorc2(Execute ptr, addr a, addr b)
 {
 	logorc2_common(ptr->local, a, b, &a);
 	setresult_control(ptr, a);
+	return 0;
 }
 
 static void defun_logorc2(void)
@@ -2273,10 +2354,11 @@ static void defun_logorc2(void)
 
 
 /* (defun logxor (&rest integer) ...) -> integer */
-static void function_logxor(Execute ptr, addr args)
+static int function_logxor(Execute ptr, addr args)
 {
 	logxor_common(ptr->local, args, &args);
 	setresult_control(ptr, args);
+	return 0;
 }
 
 static void defun_logxor(void)
@@ -2300,10 +2382,11 @@ static void defun_logxor(void)
  *   integer  integer
  *   boolean  boolean
  */
-static void function_logbitp(Execute ptr, addr index, addr pos)
+static int function_logbitp(Execute ptr, addr index, addr pos)
 {
 	int check = logbitp_common(index, pos);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void type_logbitp(addr *ret)
@@ -2334,10 +2417,11 @@ static void defun_logbitp(void)
 
 
 /* (defun logcount (integer) ...) -> (integer 0 *) */
-static void function_logcount(Execute ptr, addr pos)
+static int function_logcount(Execute ptr, addr pos)
 {
 	size_t size = logcount_common(pos);
 	setresult_control(ptr, intsizeh(size));
+	return 0;
 }
 
 static void type_logcount(addr *ret)
@@ -2367,10 +2451,11 @@ static void defun_logcount(void)
 
 
 /* (defun logtest (integer integer) ...) -> boolean */
-static void function_logtest(Execute ptr, addr left, addr right)
+static int function_logtest(Execute ptr, addr left, addr right)
 {
 	int check = logtest_common(ptr->local, left, right);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void type_logtest(addr *ret)
@@ -2404,10 +2489,11 @@ static void defun_logtest(void)
  *   position  (integer 0 *)
  *   byte      byte-specifier
  */
-static void function_byte(Execute ptr, addr size, addr posi)
+static int function_byte(Execute ptr, addr size, addr posi)
 {
 	byte_common(size, posi, &size);
 	setresult_control(ptr, size);
+	return 0;
 }
 
 static void type_byte_call(addr *ret)
@@ -2438,10 +2524,11 @@ static void defun_byte(void)
 
 
 /* (defun byte-size (byte) ...) -> (integer 0 *) */
-static void function_byte_size(Execute ptr, addr var)
+static int function_byte_size(Execute ptr, addr var)
 {
 	byte_size_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_byte_size(void)
@@ -2461,10 +2548,11 @@ static void defun_byte_size(void)
 
 
 /* (defun byte-position (byte) ...) -> (integer 0 *) */
-static void function_byte_position(Execute ptr, addr var)
+static int function_byte_position(Execute ptr, addr var)
 {
 	byte_position_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_byte_position(void)
@@ -2489,10 +2577,11 @@ static void defun_byte_position(void)
  *   integer   integer
  *   result    integer
  */
-static void function_deposit_field(Execute ptr, addr left, addr spec, addr right)
+static int function_deposit_field(Execute ptr, addr left, addr spec, addr right)
 {
 	deposit_field_common(ptr->local, &left, left, spec, right);
 	setresult_control(ptr, left);
+	return 0;
 }
 
 static void defun_deposit_field(void)
@@ -2512,10 +2601,11 @@ static void defun_deposit_field(void)
 
 
 /* (defun dpb (integer bytespec integer) ...) -> integer */
-static void function_dpb(Execute ptr, addr left, addr spec, addr right)
+static int function_dpb(Execute ptr, addr left, addr spec, addr right)
 {
 	dpb_common(ptr->local, &left, left, spec, right);
 	setresult_control(ptr, left);
+	return 0;
 }
 
 static void defun_dpb(void)
@@ -2535,10 +2625,11 @@ static void defun_dpb(void)
 
 
 /* (defun ldb (bytespec integer) ...) -> (integer 0 *) */
-static void function_ldb(Execute ptr, addr spec, addr var)
+static int function_ldb(Execute ptr, addr spec, addr var)
 {
 	ldb_common(ptr->local, &var, spec, var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_ldb(void)
@@ -2576,10 +2667,11 @@ static void define_setf_expander_ldb(void)
 
 
 /* (defun ldb-test (bytespec integer) ...) -> boolean */
-static void function_ldb_test(Execute ptr, addr spec, addr var)
+static int function_ldb_test(Execute ptr, addr spec, addr var)
 {
 	int check = ldb_test_common(spec, var);
 	setbool_control(ptr, check);
+	return 0;
 }
 
 static void type_ldb_test(addr *ret)
@@ -2610,10 +2702,11 @@ static void defun_ldb_test(void)
 
 
 /* (defun mask-field (bytespec integer) ...) -> (integer 0 *) */
-static void function_mask_field(Execute ptr, addr spec, addr var)
+static int function_mask_field(Execute ptr, addr spec, addr var)
 {
 	mask_field_common(ptr->local, &var, spec, var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_mask_field(void)
@@ -2656,12 +2749,13 @@ static void define_setf_expander_mask_field(void)
  *   exopnent     integer
  *   sign         float
  */
-static void function_decode_float(Execute ptr, addr var)
+static int function_decode_float(Execute ptr, addr var)
 {
 	addr sig, exp, sign;
 
 	decode_float_common(var, &sig, &exp, &sign);
 	setvalues_control(ptr, sig, exp, sign, NULL);
+	return 0;
 }
 
 static void type_decode_float(addr *ret)
@@ -2696,10 +2790,11 @@ static void defun_decode_float(void)
  *   integer  integer  (not a non-negative integer)
  *   scaled   float
  */
-static void function_scale_float(Execute ptr, addr var, addr scale)
+static int function_scale_float(Execute ptr, addr var, addr scale)
 {
 	scale_float_common(var, scale, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_scale_float(addr *ret)
@@ -2729,10 +2824,11 @@ static void defun_scale_float(void)
 
 
 /* (defun float-radix (float) ...) -> integer */
-static void function_float_radix(Execute ptr, addr var)
+static int function_float_radix(Execute ptr, addr var)
 {
 	float_radix_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_float_radix(addr *ret)
@@ -2762,10 +2858,11 @@ static void defun_float_radix(void)
 
 
 /* (defun float-sign (float &optional float) -> float */
-static void function_float_sign(Execute ptr, addr var1, addr var2)
+static int function_float_sign(Execute ptr, addr var1, addr var2)
 {
 	float_sign_common(var1, var2, &var1);
 	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void type_float_sign(addr *ret)
@@ -2798,10 +2895,11 @@ static void defun_float_sign(void)
  *   float   float
  *   digits  a non-negative integer
  */
-static void function_float_digits(Execute ptr, addr var)
+static int function_float_digits(Execute ptr, addr var)
 {
 	float_digits_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_float_digits(void)
@@ -2824,10 +2922,11 @@ static void defun_float_digits(void)
  *   float   float
  *   digits  a non-negative integer
  */
-static void function_float_precision(Execute ptr, addr var)
+static int function_float_precision(Execute ptr, addr var)
 {
 	float_precision_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_float_precision(void)
@@ -2852,12 +2951,13 @@ static void defun_float_precision(void)
  *   exopnent     integer
  *   intsign      (member -1 1)
  */
-static void function_integer_decode_float(Execute ptr, addr var)
+static int function_integer_decode_float(Execute ptr, addr var)
 {
 	addr sig, exp, sign;
 
 	integer_decode_float_common(ptr->local, var, &sig, &exp, &sign);
 	setvalues_control(ptr, sig, exp, sign, NULL);
+	return 0;
 }
 
 static void type_integer_decode_float(addr *ret)
@@ -2893,10 +2993,11 @@ static void defun_integer_decode_float(void)
 
 
 /* (defun float (real &optional prototype) ...) -> float */
-static void function_float(Execute ptr, addr var, addr type)
+static int function_float(Execute ptr, addr var, addr type)
 {
 	float_common(&var, var, type);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_float_function(addr *ret)
@@ -2927,9 +3028,10 @@ static void defun_float(void)
 
 
 /* (defun floatp (object) ...) -> boolean */
-static void function_floatp(Execute ptr, addr pos)
+static int function_floatp(Execute ptr, addr pos)
 {
 	setbool_control(ptr, floatp(pos));
+	return 0;
 }
 
 static void defun_floatp(void)
@@ -2949,10 +3051,11 @@ static void defun_floatp(void)
 
 
 /* (defun arithmetic-error-operands (arithmetic-error) ...) -> list */
-static void function_arithmetic_error_operands(Execute ptr, addr var)
+static int function_arithmetic_error_operands(Execute ptr, addr var)
 {
 	arithmetic_error_operands(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_arithmetic_error_operands(addr *ret)
@@ -2982,10 +3085,11 @@ static void defun_arithmetic_error_operands(void)
 
 
 /* (defun arithmetic-error-operation (arithmetic-error) ...) -> list */
-static void function_arithmetic_error_operation(Execute ptr, addr var)
+static int function_arithmetic_error_operation(Execute ptr, addr var)
 {
 	arithmetic_error_operation(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_arithmetic_error_operation(addr *ret)

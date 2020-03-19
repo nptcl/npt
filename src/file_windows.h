@@ -400,7 +400,7 @@ static void large_integer_value(PLARGE_INTEGER ptr, size_t *ret)
 	*ret = (size_t)ptr->QuadPart;
 #else
 	if (ptr->HighPart != 0)
-		fmte("Too large file size.", NULL);
+		_fmte("Too large file size.", NULL);
 	*ret = (fixed)ptr->LowPart;
 #endif
 }

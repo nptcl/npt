@@ -63,7 +63,7 @@ static void alive_pretty_stream(addr stream)
 {
 	CheckPrettyStream(stream);
 	if (! PtrPrettyStream(stream)->alive)
-		fmte("The stream ~S is already closed.", stream, NULL);
+		_fmte("The stream ~S is already closed.", stream, NULL);
 }
 
 _g void setlistp_pretty_stream(addr stream, int value)
@@ -276,7 +276,7 @@ _g void open_pretty_stream(Execute ptr, addr *ret,
 	if (suffix != Nil && (! stringp(suffix)))
 		TypeError(suffix, STRING);
 	if (prefix != Nil && perline != Nil)
-		fmte("Cannot supply both :PREFIX and :PER-LINE-PREFIX.", NULL);
+		_fmte("Cannot supply both :PREFIX and :PER-LINE-PREFIX.", NULL);
 
 	/* make */
 	stream_heap(&pos, StreamType_Pretty, sizeoft(struct stream_Pretty));

@@ -44,10 +44,10 @@ _g void init_boole(void);
 _g void deposit_field_common(LocalRoot local, addr *ret, addr a, addr spec, addr b);
 _g void dpb_common(LocalRoot local, addr *ret, addr a, addr spec, addr b);
 _g void ldb_common(LocalRoot local, addr *ret, addr spec, addr pos);
-_g void function_setf_ldb(Execute ptr, addr args, addr env);
+_g int function_setf_ldb(Execute ptr, addr args, addr env);
 _g int ldb_test_common(addr spec, addr pos);
 _g void mask_field_common(LocalRoot local, addr *ret, addr spec, addr pos);
-_g void function_setf_mask_field(Execute ptr, addr args, addr env);
+_g int function_setf_mask_field(Execute ptr, addr args, addr env);
 
 #endif
 

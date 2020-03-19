@@ -12,10 +12,11 @@
 #include "type_parse.h"
 
 /* (defun pathname (pathspec) ...) -> pathname */
-static void function_pathname(Execute ptr, addr pos)
+static int function_pathname(Execute ptr, addr pos)
 {
 	pathname_designer_heap(ptr, pos, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_pathname(void)
@@ -45,10 +46,11 @@ static void defun_pathname(void)
  *   defaults   (or pathname null)  ;; default *default-pathname-defaults*
  *   case       (member :common :local)
  */
-static void function_make_pathname(Execute ptr, addr rest)
+static int function_make_pathname(Execute ptr, addr rest)
 {
 	make_pathname(ptr, &rest, rest);
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void type_make_pathname(addr *ret)
@@ -98,9 +100,10 @@ static void defun_make_pathname(void)
 
 
 /* (defun pathnamep (object) ...) -> boolean */
-static void function_pathnamep(Execute ptr, addr var)
+static int function_pathnamep(Execute ptr, addr var)
 {
 	setbool_control(ptr, pathnamep(var));
+	return 0;
 }
 
 static void defun_pathnamep(void)
@@ -120,28 +123,33 @@ static void defun_pathnamep(void)
 
 
 /* (defun pathname-host (pathname &key case) ...) -> (or string symbol) */
-static int pathname_case_local_p(addr rest)
+static int pathname_case_local_p(addr rest, int *ret)
 {
 	addr check;
 
 	if (getkeyargs(rest, KEYWORD_CASE, &rest))
-		return 1; /* default :local */
+		return Result(ret, 1); /* default :local */
 	GetConst(KEYWORD_LOCAL, &check);
 	if (check == rest)
-		return 1;
+		return Result(ret, 1);
 	GetConst(KEYWORD_COMMON, &check);
 	if (check == rest)
-		return 0;
+		return Result(ret, 0);
 
-	fmte("Invalid :case value ~S.", rest, NULL);
-	return 1;
+	*ret = 0;
+	return fmte("Invalid :case value ~S.", rest, NULL);
 }
 
-static void function_pathname_host(Execute ptr, addr pos, addr rest)
+static int function_pathname_host(Execute ptr, addr pos, addr rest)
 {
+	int localp;
+
 	pathname_designer_heap(ptr, pos, &pos);
-	pathname_host(pos, &pos, pathname_case_local_p(rest));
+	Return(pathname_case_local_p(rest, &localp));
+	pathname_host(pos, &pos, localp);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void type_pathname_host(addr *ret)
@@ -171,11 +179,16 @@ static void defun_pathname_host(void)
 
 
 /* (defun pathname-device (pathname &key case) ...) -> (or string symbol) */
-static void function_pathname_device(Execute ptr, addr pos, addr rest)
+static int function_pathname_device(Execute ptr, addr pos, addr rest)
 {
+	int localp;
+
 	pathname_designer_heap(ptr, pos, &pos);
-	pathname_device(pos, &pos, pathname_case_local_p(rest));
+	Return(pathname_case_local_p(rest, &localp));
+	pathname_device(pos, &pos, localp);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void type_pathname_device(addr *ret)
@@ -205,11 +218,16 @@ static void defun_pathname_device(void)
 
 
 /* (defun pathname-directory (pathname &key case) ...) -> (or string symbol) */
-static void function_pathname_directory(Execute ptr, addr pos, addr rest)
+static int function_pathname_directory(Execute ptr, addr pos, addr rest)
 {
+	int localp;
+
 	pathname_designer_heap(ptr, pos, &pos);
-	pathname_directory(pos, &pos, pathname_case_local_p(rest));
+	Return(pathname_case_local_p(rest, &localp));
+	pathname_directory(pos, &pos, localp);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void type_pathname_directory(addr *ret)
@@ -239,11 +257,16 @@ static void defun_pathname_directory(void)
 
 
 /* (defun pathname-name (pathname &key case) ...) -> (or string symbol) */
-static void function_pathname_name(Execute ptr, addr pos, addr rest)
+static int function_pathname_name(Execute ptr, addr pos, addr rest)
 {
+	int localp;
+
 	pathname_designer_heap(ptr, pos, &pos);
-	pathname_name(pos, &pos, pathname_case_local_p(rest));
+	Return(pathname_case_local_p(rest, &localp));
+	pathname_name(pos, &pos, localp);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void type_pathname_name(addr *ret)
@@ -273,11 +296,16 @@ static void defun_pathname_name(void)
 
 
 /* (defun pathname-type (pathname &key case) ...) -> (or string symbol) */
-static void function_pathname_type(Execute ptr, addr pos, addr rest)
+static int function_pathname_type(Execute ptr, addr pos, addr rest)
 {
+	int localp;
+
 	pathname_designer_heap(ptr, pos, &pos);
-	pathname_type(pos, &pos, pathname_case_local_p(rest));
+	Return(pathname_case_local_p(rest, &localp));
+	pathname_type(pos, &pos, localp);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void type_pathname_type(addr *ret)
@@ -307,11 +335,12 @@ static void defun_pathname_type(void)
 
 
 /* (defun pathname-version (pathname) ...) -> (or string symbol) */
-static void function_pathname_version(Execute ptr, addr pos)
+static int function_pathname_version(Execute ptr, addr pos)
 {
 	pathname_designer_heap(ptr, pos, &pos);
 	pathname_version(pos, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_pathname_version(addr *ret)
@@ -351,12 +380,14 @@ static void defun_pathname_version(void)
  *     (logical-path2 physical-path2)
  *     ...
  */
-static void function_load_logical_pathname_translations(Execute ptr, addr pos)
+static int function_load_logical_pathname_translations(Execute ptr, addr pos)
 {
 	int check;
-	if (load_logical_pathname_translations_common(ptr, pos, &check))
-		return;
+
+	Return(load_logical_pathname_translations_common(ptr, pos, &check));
 	setbool_control(ptr, check);
+
+	return 0;
 }
 
 static void type_load_logical_pathname_translations(addr *ret)
@@ -386,10 +417,11 @@ static void defun_load_logical_pathname_translations(void)
 
 
 /* (defun logical-pathname-translations (host) ...) -> list */
-static void function_logical_pathname_translations(Execute ptr, addr host)
+static int function_logical_pathname_translations(Execute ptr, addr host)
 {
 	get_logical_pathname_translations(host, &host);
 	setresult_control(ptr, host);
+	return 0;
 }
 
 static void type_logical_pathname_translations(addr *ret)
@@ -419,11 +451,12 @@ static void defun_logical_pathname_translations(void)
 
 
 /* (defun (setf logical-pathname-translations) (value host) ...) -> list */
-static void function_setf_logical_pathname_translations(Execute ptr,
+static int function_setf_logical_pathname_translations(Execute ptr,
 		addr value, addr host)
 {
-	set_logical_pathname_translations(ptr, host, value);
+	Return(set_logical_pathname_translations(ptr, host, value));
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_logical_pathname_translations(addr *ret)
@@ -456,10 +489,11 @@ static void defun_setf_logical_pathname_translations(void)
 /* (defun logical-pathname (pathspec) ...) -> logical-pathname
  *   pathspec  (or logical-pathname string stream
  */
-static void function_logical_pathname(Execute ptr, addr pos)
+static int function_logical_pathname(Execute ptr, addr pos)
 {
 	logical_pathname(ptr, &pos, pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_logical_pathname(addr *ret)
@@ -519,10 +553,11 @@ static void defvar_default_pathname_defaults(void)
 
 
 /* (defun namestring (pathname) ...) -> namestring */
-static void function_namestring(Execute ptr, addr pos)
+static int function_namestring(Execute ptr, addr pos)
 {
 	namestring_pathname(ptr, &pos, pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_namestring(void)
@@ -542,10 +577,11 @@ static void defun_namestring(void)
 
 
 /* (defun file-namestring (pathname) ...) -> namestring */
-static void function_file_namestring(Execute ptr, addr pos)
+static int function_file_namestring(Execute ptr, addr pos)
 {
 	file_namestring_pathname(ptr, &pos, pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_file_namestring(void)
@@ -565,10 +601,11 @@ static void defun_file_namestring(void)
 
 
 /* (defun directory-namestring (pathname) ...) -> namestring */
-static void function_directory_namestring(Execute ptr, addr pos)
+static int function_directory_namestring(Execute ptr, addr pos)
 {
 	directory_namestring_pathname(ptr, &pos, pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_directory_namestring(void)
@@ -588,10 +625,11 @@ static void defun_directory_namestring(void)
 
 
 /* (defun host-namestring (pathname) ...) -> namestring */
-static void function_host_namestring(Execute ptr, addr pos)
+static int function_host_namestring(Execute ptr, addr pos)
 {
 	host_namestring_pathname(ptr, &pos, pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_host_namestring(void)
@@ -611,10 +649,11 @@ static void defun_host_namestring(void)
 
 
 /* (defun enough-namestring (pathname &optional defaults) ...) -> string */
-static void function_enough_namestring(Execute ptr, addr pos, addr defaults)
+static int function_enough_namestring(Execute ptr, addr pos, addr defaults)
 {
 	enough_namestring_pathname(ptr, &pos, pos, defaults);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_enough_namestring(addr *ret)
@@ -653,7 +692,7 @@ static void defun_enough_namestring(void)
  *   end           keyword-end
  *   junk-allowed  t  ;; boolean
  */
-static void function_parse_namestring(Execute ptr, addr thing, addr rest)
+static int function_parse_namestring(Execute ptr, addr thing, addr rest)
 {
 	addr host, defaults, start, end, junk;
 
@@ -675,6 +714,8 @@ keyargs:
 	parse_namestring(ptr, &thing, &start,
 			thing, host, defaults, start, end, junk);
 	setvalues_control(ptr, thing, start, NULL);
+
+	return 0;
 }
 
 static void type_parse_namestring(addr *ret)
@@ -716,10 +757,11 @@ static void defun_parse_namestring(void)
  *   path   pathname-designer
  *   field  (member :host :device :directory :name :type :version nil)
  */
-static void function_wild_pathname_p(Execute ptr, addr pos, addr field)
+static int function_wild_pathname_p(Execute ptr, addr pos, addr field)
 {
 	wild_pathname_p(ptr, &pos, pos, field);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_wild_pathname_p(addr *ret)
@@ -761,10 +803,11 @@ static void defun_wild_pathname_p(void)
  *   path      pathname-desinger
  *   wildcard  pathname-designer
  */
-static void function_pathname_match_p(Execute ptr, addr pos, addr wild)
+static int function_pathname_match_p(Execute ptr, addr pos, addr wild)
 {
 	pathname_match_p(ptr, &pos, pos, wild);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_pathname_match_p(addr *ret)
@@ -798,10 +841,11 @@ static void defun_pathname_match_p(void)
  *   to      pathname-designer
  *   from    pathname-designer
  */
-static void function_translate_pathname(Execute ptr, addr pos, addr from, addr to)
+static int function_translate_pathname(Execute ptr, addr pos, addr from, addr to)
 {
 	translate_pathname(ptr, &pos, pos, from, to);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_translate_pathname(addr *ret)
@@ -831,10 +875,11 @@ static void defun_translate_pathname(void)
 
 
 /* (defun translate-logical-pathname (pathname &key) ...) -> physical-pathname) */
-static void function_translate_logical_pathname(Execute ptr, addr pos)
+static int function_translate_logical_pathname(Execute ptr, addr pos)
 {
 	translate_logical_pathname(ptr, &pos, pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_translate_logical_pathname(addr *ret)
@@ -864,11 +909,12 @@ static void defun_translate_logical_pathname(void)
 
 
 /* (defun merge-pathnames (pathname &optional defaults version) ...) -> pathname */
-static void function_merge_pathnames(Execute ptr,
+static int function_merge_pathnames(Execute ptr,
 		addr pos, addr defaults, addr version)
 {
 	merge_pathnames(ptr, &pos, pos, defaults, version);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_merge_pathnames(addr *ret)

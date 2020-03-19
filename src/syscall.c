@@ -11,10 +11,11 @@
 #include "symbol.h"
 
 /* (defun hello () ...) -> null */
-static void syscall_hello(Execute ptr)
+static int syscall_hello(Execute ptr)
 {
 	hello_syscode(ptr);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void defun_hello(void)
@@ -34,10 +35,11 @@ static void defun_hello(void)
 
 
 /* (defun infobit (&rest args) ...) -> object */
-static void syscall_infobit(Execute ptr, addr rest)
+static int syscall_infobit(Execute ptr, addr rest)
 {
 	infobit_syscode(rest, &rest);
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void defun_infobit(void)
@@ -57,10 +59,11 @@ static void defun_infobit(void)
 
 
 /* (defun infoprint (&rest args) ...) -> object */
-static void syscall_infoprint(Execute ptr, addr rest)
+static int syscall_infoprint(Execute ptr, addr rest)
 {
 	infoprint_syscode(rest, &rest);
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void defun_infoprint(void)
@@ -80,10 +83,11 @@ static void defun_infoprint(void)
 
 
 /* (defun gc (&key full) ...) -> null */
-static void syscall_gc(Execute ptr, addr rest)
+static int syscall_gc(Execute ptr, addr rest)
 {
 	gc_syscode(rest);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_syscall_gc(addr *ret)
@@ -116,10 +120,11 @@ static void defun_gc(void)
 
 
 /* (defun savecore (pathname-designer) ...) -> null */
-static void syscall_savecore(Execute ptr, addr file)
+static int syscall_savecore(Execute ptr, addr file)
 {
 	savecore_syscode(ptr, file);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_syscall_savecore(addr *ret)
@@ -149,10 +154,11 @@ static void defun_savecore(void)
 
 
 /* (defun redirect-restart (condition list) ...) -> null */
-static void syscall_redirect_restart(Execute ptr, addr condition, addr list)
+static int syscall_redirect_restart(Execute ptr, addr condition, addr list)
 {
 	redirect_restart_syscode(ptr, condition, list);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_syscall_redirect_restart(addr *ret)
@@ -183,9 +189,10 @@ static void defun_redirect_restart(void)
 
 
 /* (defun symbol-macro-expander (&rest form) form) */
-static void syscall_symbol_macro_expander(Execute ptr, addr form, addr env)
+static int syscall_symbol_macro_expander(Execute ptr, addr form, addr env)
 {
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defun_symbol_macro_expander(void)
@@ -205,10 +212,11 @@ static void defun_symbol_macro_expander(void)
 
 
 /* (defun defconstant (symbol value document) ...) -> symbol */
-static void syscall_defconstant(Execute ptr, addr symbol, addr value, addr doc)
+static int syscall_defconstant(Execute ptr, addr symbol, addr value, addr doc)
 {
 	defconstant_syscode(symbol, value, doc);
 	setresult_control(ptr, symbol);
+	return 0;
 }
 
 static void type_syscall_defconstant(addr *ret)
@@ -240,10 +248,11 @@ static void defun_defconstant(void)
 
 
 /* (defun in-package (string-desinger) ...) -> package */
-static void syscall_in_package(Execute ptr, addr name)
+static int syscall_in_package(Execute ptr, addr name)
 {
 	in_package_syscode(ptr, name, &name);
 	setresult_control(ptr, name);
+	return 0;
 }
 
 static void type_syscall_in_package(addr *ret)
@@ -273,10 +282,11 @@ static void defun_in_package(void)
 
 
 /* (defun setplist (key value list) ...) -> list */
-static void syscall_setplist(Execute ptr, addr key, addr value, addr list)
+static int syscall_setplist(Execute ptr, addr key, addr value, addr list)
 {
 	setplist_syscode(key, value, list, &list);
 	setresult_control(ptr, list);
+	return 0;
 }
 
 static void defun_setplist(void)
@@ -301,10 +311,11 @@ static void defun_setplist(void)
  *   value  list
  *   check  boolean
  */
-static void syscall_remplist(Execute ptr, addr key, addr list)
+static int syscall_remplist(Execute ptr, addr key, addr list)
 {
 	remplist_syscode(key, list, &key, &list);
 	setvalues_control(ptr, key, list, NULL);
+	return 0;
 }
 
 static void type_syscall_remplist(addr *ret)
@@ -336,10 +347,11 @@ static void defun_remplist(void)
 
 
 /* (defun make-hash-iterator (table) ...) -> hash-iterator */
-static void syscall_make_hash_iterator(Execute ptr, addr pos)
+static int syscall_make_hash_iterator(Execute ptr, addr pos)
 {
 	make_hash_iterator_syscode(pos, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_make_hash_iterator(addr *ret)
@@ -369,11 +381,14 @@ static void defun_make_hash_iterator(void)
 
 
 /* (defun next-hash-iterator (iterator) ...) -> (values boolean key value) */
-static void syscall_next_hash_iterator(Execute ptr, addr pos)
+static int syscall_next_hash_iterator(Execute ptr, addr pos)
 {
 	addr key, value;
+
 	next_hash_iterator_syscode(pos, &pos, &key, &value);
 	setvalues_control(ptr, pos, key, value, NULL);
+
+	return 0;
 }
 
 static void type_next_hash_iterator(addr *ret)
@@ -409,10 +424,11 @@ static void defun_next_hash_iterator(void)
  *   external   t
  *   inherited  t
  */
-static void syscall_make_package_iterator(Execute ptr, addr pos, addr a, addr b, addr c)
+static int syscall_make_package_iterator(Execute ptr, addr pos, addr a, addr b, addr c)
 {
 	make_package_iterator_syscode(pos, a, b, c, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_make_package_iterator(addr *ret)
@@ -448,11 +464,14 @@ static void defun_make_package_iterator(void)
  *     -> (values boolean symbol status package)
  *   status  (member :internal :external :inherited)
  */
-static void syscall_next_package_iterator(Execute ptr, addr pos)
+static int syscall_next_package_iterator(Execute ptr, addr pos)
 {
 	addr symbol, status, package;
+
 	next_package_iterator_syscode(ptr, pos, &pos, &symbol, &status, &package);
 	setvalues_control(ptr, pos, symbol, status, package, NULL);
+
+	return 0;
 }
 
 static void type_next_package_iterator(addr *ret)
@@ -502,10 +521,11 @@ static void defun_next_package_iterator(void)
  *   export                 list
  *   intern                 list
  */
-static void syscall_defpackage(Execute ptr, addr rest)
+static int syscall_defpackage(Execute ptr, addr rest)
 {
-	Return0(defpackage_syscode(ptr, rest, &rest));
+	Return(defpackage_syscode(ptr, rest, &rest));
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void type_defpackage(addr *ret)
@@ -535,10 +555,11 @@ static void defun_defpackage(void)
 
 
 /* (defun do-symbols (function package) ...) -> nil */
-static void syscall_do_symbols(Execute ptr, addr call, addr package)
+static int syscall_do_symbols(Execute ptr, addr call, addr package)
 {
-	Return0(do_symbols_syscode(ptr, call, package));
+	Return(do_symbols_syscode(ptr, call, package));
 	setvalues_nil_control(ptr);
+	return 0;
 }
 
 static void defun_do_symbols(void)
@@ -558,10 +579,11 @@ static void defun_do_symbols(void)
 
 
 /* (defun do-external-symbols (function package) ...) -> nil */
-static void syscall_do_external_symbols(Execute ptr, addr call, addr package)
+static int syscall_do_external_symbols(Execute ptr, addr call, addr package)
 {
-	Return0(do_external_symbols_syscode(ptr, call, package));
+	Return(do_external_symbols_syscode(ptr, call, package));
 	setvalues_nil_control(ptr);
+	return 0;
 }
 
 static void defun_do_external_symbols(void)
@@ -581,10 +603,11 @@ static void defun_do_external_symbols(void)
 
 
 /* (defun do-all-symbols (function) ...) -> nil */
-static void syscall_do_all_symbols(Execute ptr, addr call)
+static int syscall_do_all_symbols(Execute ptr, addr call)
 {
-	Return0(do_all_symbols_syscode(ptr, call));
+	Return(do_all_symbols_syscode(ptr, call));
 	setvalues_nil_control(ptr);
+	return 0;
 }
 
 static void type_do_all_symbols(addr *ret)
@@ -615,10 +638,11 @@ static void defun_do_all_symbols(void)
 
 
 /* (defun getdoc-variable (symbol) ...) -> (or string null) */
-static void syscall_getdoc_variable(Execute ptr, addr var)
+static int syscall_getdoc_variable(Execute ptr, addr var)
 {
 	getdoc_variable_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_getdoc_variable(addr *ret)
@@ -648,10 +672,11 @@ static void defun_getdoc_variable(void)
 
 
 /* (defun setdoc-variable (symbol string) ...) -> string */
-static void syscall_setdoc_variable(Execute ptr, addr var, addr value)
+static int syscall_setdoc_variable(Execute ptr, addr var, addr value)
 {
 	setdoc_variable_syscode(var, value);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setdoc_variable(addr *ret)
@@ -682,10 +707,11 @@ static void defun_setdoc_variable(void)
 
 
 /* (defun specialp (symbol) ...) -> boolean */
-static void syscall_specialp(Execute ptr, addr var)
+static int syscall_specialp(Execute ptr, addr var)
 {
 	specialp_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_specialp(addr *ret)
@@ -715,10 +741,11 @@ static void defun_specialp(void)
 
 
 /* (defun ecase-error (value list) ...) -> nil */
-static void syscall_ecase_error(Execute ptr, addr value, addr list)
+static int syscall_ecase_error(Execute ptr, addr value, addr list)
 {
 	ecase_error_syscode(value, list);
 	setvalues_nil_control(ptr);
+	return 0;
 }
 
 static void defun_ecase_error(void)
@@ -738,10 +765,11 @@ static void defun_ecase_error(void)
 
 
 /* (defun etypecase-error (value list) ...) -> nil */
-static void syscall_etypecase_error(Execute ptr, addr value, addr list)
+static int syscall_etypecase_error(Execute ptr, addr value, addr list)
 {
 	etypecase_error_syscode(value, list);
 	setvalues_nil_control(ptr);
+	return 0;
 }
 
 static void defun_etypecase_error(void)
@@ -761,10 +789,11 @@ static void defun_etypecase_error(void)
 
 
 /* (defun define-setf-expander (name lambda) ...) -> name */
-static void syscall_define_setf_expander(Execute ptr, addr symbol, addr call)
+static int syscall_define_setf_expander(Execute ptr, addr symbol, addr call)
 {
 	define_setf_expander_syscode(symbol, call);
 	setresult_control(ptr, symbol);
+	return 0;
 }
 
 static void type_syscall_define_setf_expander(addr *ret)
@@ -795,12 +824,15 @@ static void defun_define_setf_expander(void)
 
 
 /* (defun defsetf-short (access update args) ...) -> (values ...) */
-static void syscall_defsetf_short(Execute ptr,
+static int syscall_defsetf_short(Execute ptr,
 		addr access, addr update, addr args, addr env)
 {
 	addr a, b, g, w, r;
-	Return0(defsetf_short_syscode(ptr, access, update, args, env, &a, &b, &g, &w, &r));
+
+	Return(defsetf_short_syscode(ptr, access, update, args, env, &a, &b, &g, &w, &r));
 	setvalues_control(ptr, a, b, g, w, r, NULL);
+
+	return 0;
 }
 
 static void type_defsetf_short(addr *ret)
@@ -833,11 +865,14 @@ static void defun_defsetf_short(void)
 
 
 /* (defun defsetf-long (access lambda store body args env) ...) */
-static void syscall_defsetf_long(Execute ptr, addr rest)
+static int syscall_defsetf_long(Execute ptr, addr rest)
 {
 	addr a, b, g, w, r;
-	Return0(defsetf_long_syscode(ptr, rest, &a, &b, &g, &w, &r));
+
+	Return(defsetf_long_syscode(ptr, rest, &a, &b, &g, &w, &r));
 	setvalues_control(ptr, a, b, g, w, r, NULL);
+
+	return 0;
 }
 
 static void defun_defsetf_long(void)
@@ -857,10 +892,11 @@ static void defun_defsetf_long(void)
 
 
 /* (defun array-general-p (object) ...) -> boolean */
-static void syscall_array_general_p(Execute ptr, addr var)
+static int syscall_array_general_p(Execute ptr, addr var)
 {
 	array_general_p_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_array_general_p(void)
@@ -880,10 +916,11 @@ static void defun_array_general_p(void)
 
 
 /* (defun array-specialized-p (object) ...) -> boolean */
-static void syscall_array_specialized_p(Execute ptr, addr var)
+static int syscall_array_specialized_p(Execute ptr, addr var)
 {
 	array_specialized_p_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_array_specialized_p(void)
@@ -903,10 +940,11 @@ static void defun_array_specialized_p(void)
 
 
 /* (defun simple-sort (sequence call &key key) ...) -> sequence */
-static void syscall_simple_sort(Execute ptr, addr pos, addr call, addr rest)
+static int syscall_simple_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	Return0(simple_sort_syscode(ptr, pos, call, rest));
+	Return(simple_sort_syscode(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_simple_sort(void)
@@ -926,10 +964,11 @@ static void defun_simple_sort(void)
 
 
 /* (defun bubble-sort (sequence call &key key) ...) -> sequence */
-static void syscall_bubble_sort(Execute ptr, addr pos, addr call, addr rest)
+static int syscall_bubble_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	Return0(bubble_sort_syscode(ptr, pos, call, rest));
+	Return(bubble_sort_syscode(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_bubble_sort(void)
@@ -949,10 +988,11 @@ static void defun_bubble_sort(void)
 
 
 /* (defun quick-sort (sequence call &key key) ...) -> sequence */
-static void syscall_quick_sort(Execute ptr, addr pos, addr call, addr rest)
+static int syscall_quick_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	Return0(quick_sort_syscode(ptr, pos, call, rest));
+	Return(quick_sort_syscode(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_quick_sort(void)
@@ -972,10 +1012,11 @@ static void defun_quick_sort(void)
 
 
 /* (defun merge-sort (sequence call &key key) ...) -> sequence */
-static void syscall_merge_sort(Execute ptr, addr pos, addr call, addr rest)
+static int syscall_merge_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	Return0(merge_sort_syscode(ptr, pos, call, rest));
+	Return(merge_sort_syscode(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_merge_sort(void)
@@ -995,10 +1036,11 @@ static void defun_merge_sort(void)
 
 
 /* (defun exit/quit (&optional code) ...) -> (values &rest nil) */
-static void syscall_exit(Execute ptr, addr code)
+static int syscall_exit(Execute ptr, addr code)
 {
 	exit_syscode(code);
 	setvalues_nil_control(ptr);
+	return 0;
 }
 
 static void defun_exit(void)
@@ -1033,10 +1075,11 @@ static void defun_quit(void)
 
 
 /* (defun end-input-stream (string-stream) -> index */
-static void syscall_end_input_stream(Execute ptr, addr var)
+static int syscall_end_input_stream(Execute ptr, addr var)
 {
 	end_input_stream_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_end_input_stream(addr *ret)
@@ -1068,10 +1111,11 @@ static void defun_end_input_stream(void)
 /* (defun make-extend-output-stream (string &key element-type) ...)
  *     -> string-stream
  */
-static void syscall_make_extend_output_stream(Execute ptr, addr var, addr rest)
+static int syscall_make_extend_output_stream(Execute ptr, addr var, addr rest)
 {
 	make_extend_output_stream_syscode(var, rest, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_make_extend_output_stream(addr *ret)
@@ -1106,10 +1150,11 @@ static void defun_make_extend_output_stream(void)
 
 
 /* (defun prompt-for (type &rest args) ...) -> t */
-static void syscall_prompt_for(Execute ptr, addr type, addr args)
+static int syscall_prompt_for(Execute ptr, addr type, addr args)
 {
-	Return0(prompt_for_syscode(ptr, type, args, &type));
+	Return(prompt_for_syscode(ptr, type, args, &type));
 	setresult_control(ptr, type);
+	return 0;
 }
 
 static void type_prompt_for(addr *ret)
@@ -1140,10 +1185,11 @@ static void defun_prompt_for(void)
 
 
 /* (defun closp (object) ...) -> boolean */
-static void syscall_closp(Execute ptr, addr var)
+static int syscall_closp(Execute ptr, addr var)
 {
 	closp_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_closp(void)
@@ -1163,10 +1209,11 @@ static void defun_closp(void)
 
 
 /* (defun fixnump (object) ...) -> boolean */
-static void syscall_fixnump(Execute ptr, addr var)
+static int syscall_fixnump(Execute ptr, addr var)
 {
 	fixnump_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_fixnump(void)
@@ -1186,10 +1233,11 @@ static void defun_fixnump(void)
 
 
 /* (defun bignump (object) ...) -> boolean */
-static void syscall_bignump(Execute ptr, addr var)
+static int syscall_bignump(Execute ptr, addr var)
 {
 	bignump_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_bignump(void)
@@ -1209,10 +1257,11 @@ static void defun_bignump(void)
 
 
 /* (defun ratiop (object) ...) -> boolean */
-static void syscall_ratiop(Execute ptr, addr var)
+static int syscall_ratiop(Execute ptr, addr var)
 {
 	ratiop_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_ratiop(void)
@@ -1232,10 +1281,11 @@ static void defun_ratiop(void)
 
 
 /* (defun short-float-p (object) ...) -> boolean */
-static void syscall_short_float_p(Execute ptr, addr var)
+static int syscall_short_float_p(Execute ptr, addr var)
 {
 	short_float_p_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_short_float_p(void)
@@ -1255,10 +1305,11 @@ static void defun_short_float_p(void)
 
 
 /* (defun single-float-p (object) ...) -> boolean */
-static void syscall_single_float_p(Execute ptr, addr var)
+static int syscall_single_float_p(Execute ptr, addr var)
 {
 	single_float_p_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_single_float_p(void)
@@ -1278,10 +1329,11 @@ static void defun_single_float_p(void)
 
 
 /* (defun double-float-p (object) ...) -> boolean */
-static void syscall_double_float_p(Execute ptr, addr var)
+static int syscall_double_float_p(Execute ptr, addr var)
 {
 	double_float_p_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_double_float_p(void)
@@ -1301,10 +1353,11 @@ static void defun_double_float_p(void)
 
 
 /* (defun long-float-p (object) ...) -> boolean */
-static void syscall_long_float_p(Execute ptr, addr var)
+static int syscall_long_float_p(Execute ptr, addr var)
 {
 	long_float_p_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_long_float_p(void)
@@ -1324,10 +1377,11 @@ static void defun_long_float_p(void)
 
 
 /* (defun callnamep (object) ...) -> boolean */
-static void syscall_callnamep(Execute ptr, addr var)
+static int syscall_callnamep(Execute ptr, addr var)
 {
 	callnamep_syscall(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_callnamep(void)
@@ -1349,10 +1403,11 @@ static void defun_callnamep(void)
 /* (defun large-number (value &optional (cardinal t)) ...) -> string
  *   value  (integer 0 fixnum-max)
  */
-static void syscall_large_number(Execute ptr, addr var, addr opt)
+static int syscall_large_number(Execute ptr, addr var, addr opt)
 {
 	large_number_syscode(ptr->local, var, opt, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_large_number(addr *ret)
@@ -1383,11 +1438,12 @@ static void defun_large_number(void)
 
 
 /* (defun print-unreadable-call (stream pos type identity body) ...) -> null */
-static void syscall_print_unreadable_call(Execute ptr,
+static int syscall_print_unreadable_call(Execute ptr,
 		addr stream, addr pos, addr type, addr identity, addr body)
 {
-	Return0(print_unreadable_call_syscode(ptr, stream, pos, type, identity, body));
+	Return(print_unreadable_call_syscode(ptr, stream, pos, type, identity, body));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_print_unreadable_call(addr *ret)
@@ -1418,10 +1474,11 @@ static void defun_print_unreadable_call(void)
 
 
 /* (defun write-default (stream object) ...) -> t */
-static void syscall_write_default(Execute ptr, addr stream, addr var)
+static int syscall_write_default(Execute ptr, addr stream, addr var)
 {
-	Return0(write_default_syscode(ptr, stream, var, &var));
+	Return(write_default_syscode(ptr, stream, var, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_write_default(addr *ret)
@@ -1452,10 +1509,11 @@ static void defun_write_default(void)
 
 
 /* (defun make-bignum (integer) ...) -> bignum */
-static void syscall_make_bignum(Execute ptr, addr var)
+static int syscall_make_bignum(Execute ptr, addr var)
 {
 	make_bignum_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_make_bignum(addr *ret)
@@ -1485,10 +1543,11 @@ static void defun_make_bignum(void)
 
 
 /* (defun make-ratio (numer denom) ...) -> ratio */
-static void syscall_make_ratio(Execute ptr, addr numer, addr denom)
+static int syscall_make_ratio(Execute ptr, addr numer, addr denom)
 {
 	make_ratio_syscode(numer, denom, &numer);
 	setresult_control(ptr, numer);
+	return 0;
 }
 
 static void type_make_ratio(addr *ret)
@@ -1518,10 +1577,11 @@ static void defun_make_ratio(void)
 
 
 /* (defun make-complex (real imag) ...) -> complex */
-static void syscall_make_complex(Execute ptr, addr real, addr imag)
+static int syscall_make_complex(Execute ptr, addr real, addr imag)
 {
 	make_complex_code(real, imag, &real);
 	setresult_control(ptr, real);
+	return 0;
 }
 
 static void type_make_complex(addr *ret)
@@ -1551,10 +1611,11 @@ static void defun_make_complex(void)
 
 
 /* (defun equal-random-state (a b) ...) -> boolean */
-static void syscall_equal_random_state(Execute ptr, addr left, addr right)
+static int syscall_equal_random_state(Execute ptr, addr left, addr right)
 {
 	equal_random_state_syscode(left, right, &left);
 	setresult_control(ptr, left);
+	return 0;
 }
 
 static void type_equal_random_state(addr *ret)
@@ -1584,10 +1645,11 @@ static void defun_equal_random_state(void)
 
 
 /* (defun symbol-deftype (symbol) ...) -> (or null function) */
-static void syscall_symbol_deftype(Execute ptr, addr var)
+static int syscall_symbol_deftype(Execute ptr, addr var)
 {
 	symbol_deftype_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_symbol_deftype(addr *ret)
@@ -1618,10 +1680,11 @@ static void defun_symbol_deftype(void)
 
 
 /* (defun delete-deftype (symbol) ...) -> boolean */
-static void syscall_delete_deftype(Execute ptr, addr var)
+static int syscall_delete_deftype(Execute ptr, addr var)
 {
 	delete_deftype_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_delete_deftype(addr *ret)
@@ -1651,10 +1714,11 @@ static void defun_delete_deftype(void)
 
 
 /* (defun subtypep-result (left right) ...) -> keyword */
-static void syscall_subtypep_result(Execute ptr, addr left, addr right)
+static int syscall_subtypep_result(Execute ptr, addr left, addr right)
 {
-	Return0(subtypep_result_syscode(ptr, left, right, &left));
+	Return(subtypep_result_syscode(ptr, left, right, &left));
 	setresult_control(ptr, left);
+	return 0;
 }
 
 static void type_syscall_subtypep_result(addr *ret)
@@ -1686,10 +1750,11 @@ static void defun_subtypep_result(void)
 /* (defun ensure-structure (symbol list &rest args &key &allow-other-keys) ...)
  *   -> symbol
  */
-static void syscall_ensure_structure(Execute ptr, addr name, addr slots, addr rest)
+static int syscall_ensure_structure(Execute ptr, addr name, addr slots, addr rest)
 {
 	ensure_structure_syscode(ptr, name, slots, rest);
 	setresult_control(ptr, name);
+	return 0;
 }
 
 static void type_ensure_structure(addr *ret)
@@ -1723,10 +1788,11 @@ static void defun_ensure_structure(void)
 /* (defun structure-constructor (symbol &rest t &key &other-allow-keys) ...)
  *   -> structure-object
  */
-static void syscall_structure_constructor(Execute ptr, addr symbol, addr rest)
+static int syscall_structure_constructor(Execute ptr, addr symbol, addr rest)
 {
-	Return0(structure_constructor_syscode(ptr, symbol, rest, &rest));
+	Return(structure_constructor_syscode(ptr, symbol, rest, &rest));
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void type_structure_constructor(addr *ret)
@@ -1758,10 +1824,11 @@ static void defun_structure_constructor(void)
 
 
 /* (defun loop-bind (tree type value) ...) -> tree */
-static void syscall_loop_bind(Execute ptr, addr a, addr b, addr c)
+static int syscall_loop_bind(Execute ptr, addr a, addr b, addr c)
 {
-	Return0(loop_bind_syscode(ptr, a, b, c, &a));
+	Return(loop_bind_syscode(ptr, a, b, c, &a));
 	setresult_control(ptr, a);
+	return 0;
 }
 
 static void type_loop_bind(addr *ret)
@@ -1799,11 +1866,12 @@ static void defun_loop_bind(void)
  *   suffix           string
  *   result           stream-pretty
  */
-static void syscall_make_pprint_stream(Execute ptr,
+static int syscall_make_pprint_stream(Execute ptr,
 		addr stream, addr object, addr prefix, addr perline, addr suffix)
 {
 	make_pprint_stream_syscode(ptr, &stream, stream, object, prefix, perline, suffix);
 	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void type_syscall_make_pprint_stream(addr *ret)
@@ -1835,10 +1903,11 @@ static void defun_make_pprint_stream(void)
 
 
 /* (defun pprint-gensym (stream-pretty) ...) -> symbol */
-static void syscall_pprint_gensym(Execute ptr, addr stream)
+static int syscall_pprint_gensym(Execute ptr, addr stream)
 {
 	pprint_gensym_syscode(stream, &stream);
 	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void type_syscall_pprint_gensym(addr *ret)
@@ -1868,10 +1937,11 @@ static void defun_pprint_gensym(void)
 
 
 /* (defun pprint-exit (stream-pretty) ...) -> null */
-static void syscall_pprint_exit(Execute ptr, addr stream)
+static int syscall_pprint_exit(Execute ptr, addr stream)
 {
-	Return0(pprint_exit_syscode(ptr, stream));
+	Return(pprint_exit_syscode(ptr, stream));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_syscall_pprint_exit(addr *ret)
@@ -1901,10 +1971,11 @@ static void defun_pprint_exit(void)
 
 
 /* (defun pprint-pop (stream-pretty) ...) -> t */
-static void syscall_pprint_pop(Execute ptr, addr stream)
+static int syscall_pprint_pop(Execute ptr, addr stream)
 {
-	Return0(pprint_pop_syscode(ptr, stream, &stream));
+	Return(pprint_pop_syscode(ptr, stream, &stream));
 	setresult_control(ptr, stream);
+	return 0;
 }
 
 static void type_syscall_pprint_pop(addr *ret)
@@ -1934,10 +2005,11 @@ static void defun_pprint_pop(void)
 
 
 /* (defun pprint-check (stream-pretty) ...) -> nil */
-static void syscall_pprint_check(Execute ptr, addr stream)
+static int syscall_pprint_check(Execute ptr, addr stream)
 {
-	Return0(pprint_check_syscode(ptr, stream));
+	Return(pprint_check_syscode(ptr, stream));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_syscall_pprint_check(addr *ret)
@@ -1967,10 +2039,11 @@ static void defun_pprint_check(void)
 
 
 /* (defun pprint-close (stream-pretty) ...) -> nil */
-static void syscall_pprint_close(Execute ptr, addr stream)
+static int syscall_pprint_close(Execute ptr, addr stream)
 {
 	pprint_close_syscode(ptr, stream);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_syscall_pprint_close(addr *ret)
@@ -2000,10 +2073,11 @@ static void defun_pprint_close(void)
 
 
 /* (defun pprint-pretty (stream-pretty) ...) -> nil */
-static void syscall_pprint_pretty(Execute ptr, addr stream, addr call)
+static int syscall_pprint_pretty(Execute ptr, addr stream, addr call)
 {
-	Return0(pprint_pretty_syscode(ptr, stream, call));
+	Return(pprint_pretty_syscode(ptr, stream, call));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_syscall_pprint_pretty(addr *ret)
@@ -2034,10 +2108,11 @@ static void defun_pprint_pretty(void)
 
 
 /* (defun eastasian-set (string-designer intplus &optional error) ...) -> boolean) */
-static void syscall_eastasian_set(Execute ptr, addr var, addr value, addr errorp)
+static int syscall_eastasian_set(Execute ptr, addr var, addr value, addr errorp)
 {
 	eastasian_set_syscode(var, value, errorp, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_syscall_eastasian_set(addr *ret)
@@ -2069,11 +2144,14 @@ static void defun_eastasian_set(void)
 
 
 /* (defun eastasian-get (string-designer) ...) -> (values IntplusNull symbol) */
-static void syscall_eastasian_get(Execute ptr, addr var)
+static int syscall_eastasian_get(Execute ptr, addr var)
 {
 	addr symbol;
+
 	eastasian_get_syscode(var, &var, &symbol);
 	setvalues_control(ptr, var, symbol, NULL);
+
+	return 0;
 }
 
 static void type_syscall_eastasian_get(addr *ret)
@@ -2107,11 +2185,14 @@ static void defun_eastasian_get(void)
 /* (defun eastasian-width (var) ...) -> (values IntplusNull boolean)
  *   var  (or integer character string)
  */
-static void syscall_eastasian_width(Execute ptr, addr pos)
+static int syscall_eastasian_width(Execute ptr, addr pos)
 {
 	addr value;
+
 	eastasian_width_syscode(pos, &pos, &value);
 	setvalues_control(ptr, pos, value, NULL);
+
+	return 0;
 }
 
 static void type_syscall_eastasian_width(addr *ret)
@@ -2144,11 +2225,14 @@ static void defun_eastasian_width(void)
 
 
 /* (defun timeinfo () ...) -> (values intplus intplus intplus intplus) */
-static void syscall_timeinfo(Execute ptr)
+static int syscall_timeinfo(Execute ptr)
 {
 	addr real, run, size, count;
+
 	timeinfo_syscode(ptr->local, &real, &run, &size, &count);
 	setvalues_control(ptr, real, run, size, count, NULL);
+
+	return 0;
 }
 
 static void type_syscall_timeinfo(addr *ret)
@@ -2180,10 +2264,11 @@ static void defun_timeinfo(void)
 /* (defun ed-function (file) ...) -> null
  *    file  (or null string)
  */
-static void syscall_ed_function(Execute ptr, addr file)
+static int syscall_ed_function(Execute ptr, addr file)
 {
 	ed_function_syscode(ptr, file);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_syscall_ed_function(addr *ret)
@@ -2215,10 +2300,11 @@ static void defun_ed_function(void)
 
 
 /* (defun run-program (program args) ...) -> status */
-static void syscall_run_program(Execute ptr, addr var, addr args, addr rest)
+static int syscall_run_program(Execute ptr, addr var, addr args, addr rest)
 {
 	run_program_syscode(ptr->local, var, args, rest, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_syscall_run_program(addr *ret)
@@ -2253,10 +2339,11 @@ static void defun_run_program(void)
 
 
 /* (defun make-callname (var) ...) -> callname */
-static void syscall_make_callname(Execute ptr, addr var)
+static int syscall_make_callname(Execute ptr, addr var)
 {
 	make_callname_syscode(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_syscall_make_callname(addr *ret)
@@ -2286,10 +2373,11 @@ static void defun_make_callname(void)
 
 
 /* (defun trace-add (list) ...) -> list */
-static void syscall_trace_add(Execute ptr, addr var)
+static int syscall_trace_add(Execute ptr, addr var)
 {
 	trace_add_syscode(ptr, var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_syscall_trace_add(addr *ret)
@@ -2319,10 +2407,11 @@ static void defun_trace_add(void)
 
 
 /* (defun trace-del (list-or-t) ...) -> list */
-static void syscall_trace_del(Execute ptr, addr var)
+static int syscall_trace_del(Execute ptr, addr var)
 {
 	trace_del_syscode(ptr, var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_syscall_trace_del(addr *ret)
@@ -2393,10 +2482,11 @@ static void defun_with_compilation_unit(void)
 
 
 /* (defun set-slots (instance slots values) ...) -> t */
-static void syscall_set_slots(Execute ptr, addr var, addr slots, addr values)
+static int syscall_set_slots(Execute ptr, addr var, addr slots, addr values)
 {
 	set_slots_syscode(var, slots, values);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_syscall_set_slots(addr *ret)
@@ -2427,10 +2517,11 @@ static void defun_set_slots(void)
 
 
 /* (defun remove-file (pathname &optional (error t)) ...) -> boolean */
-static void syscall_remove_file(Execute ptr, addr var, addr opt)
+static int syscall_remove_file(Execute ptr, addr var, addr opt)
 {
 	remove_file_syscode(ptr, var, opt, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_remove_file(void)
@@ -2450,10 +2541,11 @@ static void defun_remove_file(void)
 
 
 /* (defun remove-directory (pathname &optional (error t)) ...) -> boolean */
-static void syscall_remove_directory(Execute ptr, addr var, addr opt)
+static int syscall_remove_directory(Execute ptr, addr var, addr opt)
 {
 	remove_directory_syscode(ptr, var, opt, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_remove_directory(void)
@@ -2473,10 +2565,11 @@ static void defun_remove_directory(void)
 
 
 /* (defmacro declare-parse (symbol) ...) -> integer */
-static void syscall_declare_parse(Execute ptr, addr form, addr env)
+static int syscall_declare_parse(Execute ptr, addr form, addr env)
 {
 	declare_parse_syscode(form, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_declare_parse(void)

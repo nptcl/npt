@@ -5,6 +5,7 @@
 #include "bit.h"
 #include "copy.h"
 #include "define.h"
+#include "character.h"
 #include "condition.h"
 #include "integer.h"
 #include "strtype.h"
@@ -15,7 +16,7 @@
 _g void arrayvalue_get_character(struct array_value *str, addr x)
 {
 	if (! characterp(x))
-		fmte("~S must be character type.", x, NULL);
+		_fmte("~S must be character type.", x, NULL);
 	GetCharacter(x, &(str->value.character));
 	str->type = ARRAY_TYPE_CHARACTER;
 }
@@ -25,9 +26,9 @@ _g void arrayvalue_get_bit(struct array_value *str, addr x)
 	int check;
 
 	if (! fixnump(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (bit_getint(x, &check))
-		fmte("The integer ~S must be a bit value.", x, NULL);
+		_fmte("The integer ~S must be a bit value.", x, NULL);
 	str->value.bit = (check != 0);
 	str->type = ARRAY_TYPE_BIT;
 }
@@ -37,7 +38,7 @@ _g void arrayvalue_get_signed8(struct array_value *str, addr x)
 	fixnum init;
 
 	if (! integerp(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (! fixnump(x))
 		goto error;
 	GetFixnum(x, &init);
@@ -49,7 +50,7 @@ _g void arrayvalue_get_signed8(struct array_value *str, addr x)
 	return;
 
 error:
-	fmte("Overflow ~S in (signed-byte 8).", x, NULL);
+	_fmte("Overflow ~S in (signed-byte 8).", x, NULL);
 }
 
 _g void arrayvalue_get_signed16(struct array_value *str, addr x)
@@ -57,7 +58,7 @@ _g void arrayvalue_get_signed16(struct array_value *str, addr x)
 	fixnum init;
 
 	if (! integerp(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (! fixnump(x))
 		goto error;
 	GetFixnum(x, &init);
@@ -69,7 +70,7 @@ _g void arrayvalue_get_signed16(struct array_value *str, addr x)
 	return;
 
 error:
-	fmte("Overflow ~S in (signed-byte 16).", x, NULL);
+	_fmte("Overflow ~S in (signed-byte 16).", x, NULL);
 }
 
 #ifdef LISP_64BIT
@@ -78,7 +79,7 @@ _g void arrayvalue_get_signed32(struct array_value *str, addr x)
 	fixnum init;
 
 	if (! integerp(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (! fixnump(x))
 		goto error;
 	GetFixnum(x, &init);
@@ -90,7 +91,7 @@ _g void arrayvalue_get_signed32(struct array_value *str, addr x)
 	return;
 
 error:
-	fmte("Overflow ~S in (signed-byte 32).", x, NULL);
+	_fmte("Overflow ~S in (signed-byte 32).", x, NULL);
 }
 
 _g void arrayvalue_get_signed64(struct array_value *str, addr x)
@@ -98,9 +99,9 @@ _g void arrayvalue_get_signed64(struct array_value *str, addr x)
 	fixnum init;
 
 	if (! integerp(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (! fixnump(x))
-		fmte("Overflow ~S in (signed-byte 64).", x, NULL);
+		_fmte("Overflow ~S in (signed-byte 64).", x, NULL);
 	GetFixnum(x, &init);
 	str->value.signed64 = (int64_t)init;
 	str->type = ARRAY_TYPE_SIGNED;
@@ -112,9 +113,9 @@ _g void arrayvalue_get_signed32(struct array_value *str, addr x)
 	fixnum init;
 
 	if (! integerp(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (! fixnump(x))
-		fmte("Overflow ~S in (signed-byte 32).", x, NULL);
+		_fmte("Overflow ~S in (signed-byte 32).", x, NULL);
 	GetFixnum(x, &init);
 	str->value.signed32 = (int32_t)init;
 	str->type = ARRAY_TYPE_SIGNED;
@@ -143,7 +144,7 @@ _g void arrayvalue_get_signed(struct array_value *str, addr x, unsigned size)
 			break;
 #endif
 		default:
-			fmte("Invalid array size.", NULL);
+			_fmte("Invalid array size.", NULL);
 			break;
 	}
 }
@@ -153,9 +154,9 @@ _g void arrayvalue_get_unsigned8(struct array_value *str, addr x)
 	fixnum init;
 
 	if (! integerp(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (minusp_integer(x))
-		fmte("~S must be a non-negative integer.", x, NULL);
+		_fmte("~S must be a non-negative integer.", x, NULL);
 	if (! fixnump(x))
 		goto error;
 	GetFixnum(x, &init);
@@ -167,7 +168,7 @@ _g void arrayvalue_get_unsigned8(struct array_value *str, addr x)
 	return;
 
 error:
-	fmte("Overflow ~S in (unsigned-byte 8).", x, NULL);
+	_fmte("Overflow ~S in (unsigned-byte 8).", x, NULL);
 }
 
 _g void arrayvalue_get_unsigned16(struct array_value *str, addr x)
@@ -175,9 +176,9 @@ _g void arrayvalue_get_unsigned16(struct array_value *str, addr x)
 	fixnum init;
 
 	if (! integerp(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (minusp_integer(x))
-		fmte("~S must be a non-negative integer.", x, NULL);
+		_fmte("~S must be a non-negative integer.", x, NULL);
 	if (! fixnump(x))
 		goto error;
 	GetFixnum(x, &init);
@@ -189,7 +190,7 @@ _g void arrayvalue_get_unsigned16(struct array_value *str, addr x)
 	return;
 
 error:
-	fmte("Overflow ~S in (unsigned-byte 16).", x, NULL);
+	_fmte("Overflow ~S in (unsigned-byte 16).", x, NULL);
 }
 
 #ifdef LISP_64BIT
@@ -198,9 +199,9 @@ _g void arrayvalue_get_unsigned32(struct array_value *str, addr x)
 	fixnum init;
 
 	if (! integerp(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (minusp_integer(x))
-		fmte("~S must be a non-negative integer.", x, NULL);
+		_fmte("~S must be a non-negative integer.", x, NULL);
 	if (! fixnump(x))
 		goto error;
 	GetFixnum(x, &init);
@@ -212,7 +213,7 @@ _g void arrayvalue_get_unsigned32(struct array_value *str, addr x)
 	return;
 
 error:
-	fmte("Overflow ~S in (unsigned-byte 32).", x, NULL);
+	_fmte("Overflow ~S in (unsigned-byte 32).", x, NULL);
 }
 
 _g void arrayvalue_get_unsigned64(struct array_value *str, addr x)
@@ -222,9 +223,9 @@ _g void arrayvalue_get_unsigned64(struct array_value *str, addr x)
 	size_t size;
 
 	if (! integerp(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (minusp_integer(x))
-		fmte("~S must be a non-negative integer.", x, NULL);
+		_fmte("~S must be a non-negative integer.", x, NULL);
 	if (fixnump(x)) {
 		GetFixnum(x, &init);
 		str->value.unsigned64 = (uint64_t)init;
@@ -235,7 +236,7 @@ _g void arrayvalue_get_unsigned64(struct array_value *str, addr x)
 	if (bignump(x)) {
 		GetSizeBignum(x, &size);
 		if (size != 1)
-			fmte("Overflow ~S in (unsigned-byte 64).", x, NULL);
+			_fmte("Overflow ~S in (unsigned-byte 64).", x, NULL);
 		getfixed_bignum(x, 0, &bigv);
 		str->value.unsigned64 = (uint64_t)bigv;
 		str->type = ARRAY_TYPE_UNSIGNED;
@@ -252,9 +253,9 @@ _g void arrayvalue_get_unsigned32(struct array_value *str, addr x)
 	size_t size;
 
 	if (! integerp(x))
-		fmte("~S must be an integer type.", x, NULL);
+		_fmte("~S must be an integer type.", x, NULL);
 	if (minusp_integer(x))
-		fmte("~S must be a non-negative integer.", x, NULL);
+		_fmte("~S must be a non-negative integer.", x, NULL);
 	if (fixnump(x)) {
 		GetFixnum(x, &init);
 		str->value.unsigned32 = (uint32_t)init;
@@ -265,7 +266,7 @@ _g void arrayvalue_get_unsigned32(struct array_value *str, addr x)
 	if (bignump(x)) {
 		GetSizeBignum(x, &size);
 		if (size != 1)
-			fmte("Overflow ~S in (unsigned-byte 32).", x, NULL);
+			_fmte("Overflow ~S in (unsigned-byte 32).", x, NULL);
 		getfixed_bignum(x, 0, &bigv);
 		str->value.unsigned32 = (uint32_t)bigv;
 		str->type = ARRAY_TYPE_UNSIGNED;
@@ -297,7 +298,7 @@ _g void arrayvalue_get_unsigned(struct array_value *str, addr x, unsigned size)
 			break;
 #endif
 		default:
-			fmte("Invalid array size.", NULL);
+			_fmte("Invalid array size.", NULL);
 			break;
 	}
 }
@@ -305,7 +306,7 @@ _g void arrayvalue_get_unsigned(struct array_value *str, addr x, unsigned size)
 _g void arrayvalue_get_single(struct array_value *str, addr x)
 {
 	if (! single_float_p(x))
-		fmte("~S must be single-float type.", x, NULL);
+		_fmte("~S must be single-float type.", x, NULL);
 	GetSingleFloat(x, &(str->value.single_value));
 	str->type = ARRAY_TYPE_SINGLE_FLOAT;
 }
@@ -313,7 +314,7 @@ _g void arrayvalue_get_single(struct array_value *str, addr x)
 _g void arrayvalue_get_double(struct array_value *str, addr x)
 {
 	if (! double_float_p(x))
-		fmte("~S must be double-float type.", x, NULL);
+		_fmte("~S must be double-float type.", x, NULL);
 	GetDoubleFloat(x, &(str->value.double_value));
 	str->type = ARRAY_TYPE_DOUBLE_FLOAT;
 }
@@ -321,7 +322,7 @@ _g void arrayvalue_get_double(struct array_value *str, addr x)
 _g void arrayvalue_get_long(struct array_value *str, addr x)
 {
 	if (! long_float_p(x))
-		fmte("~S must be long-float type.", x, NULL);
+		_fmte("~S must be long-float type.", x, NULL);
 	GetLongFloat(x, &(str->value.long_value));
 	str->type = ARRAY_TYPE_LONG_FLOAT;
 }
@@ -353,7 +354,7 @@ static void arrayvalue_make_signed(LocalRoot local,
 #endif
 
 		default:
-			fmte("size error", NULL);
+			_fmte("size error", NULL);
 			return;
 	}
 }
@@ -381,7 +382,7 @@ static void arrayvalue_make_unsigned(LocalRoot local,
 #endif
 
 		default:
-			fmte("size error", NULL);
+			_fmte("size error", NULL);
 			return;
 	}
 }
@@ -422,7 +423,7 @@ _g void arrayvalue_alloc(LocalRoot local, addr *ret, const struct array_value *s
 			break;
 
 		default:
-			fmte("Invalid array value.", NULL);
+			_fmte("Invalid array value.", NULL);
 			return;
 	}
 }

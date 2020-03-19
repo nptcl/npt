@@ -6,11 +6,13 @@
 #include "array_value.h"
 #include "array_vector.h"
 #include "bit.h"
+#include "character.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "integer.h"
 #include "sequence.h"
+#include "strvect.h"
 #include "type.h"
 
 _g int sequencep(addr pos)
@@ -81,7 +83,7 @@ static void vector_error_sequence(addr type, addr arg, size_t size)
 	if (! integerp(arg))
 		type_error_stdarg(Nil, Nil, "Invalid type-specifier ~S.", type, NULL);
 	if (GetIndex_integer(arg, &check))
-		fmte("Index size ~S is too large.", arg, NULL);
+		_fmte("Index size ~S is too large.", arg, NULL);
 	if (check != size) {
 		type_error_stdarg(Nil, Nil,
 				"The argument size ~S don't match type-spec ~S.",
@@ -120,7 +122,7 @@ _g void array_check_sequence(addr type, size_t size)
 	/* integer */
 	if (integerp(arg)) {
 		if (GetIndex_integer(arg, &check))
-			fmte("Index size ~S is too large.", arg, NULL);
+			_fmte("Index size ~S is too large.", arg, NULL);
 		if (check != 1)
 			type_error_stdarg(Nil, Nil, "Array ~S dimension must be 1.", type, NULL);
 		return;
@@ -133,7 +135,7 @@ _g void array_check_sequence(addr type, size_t size)
 			type_error_stdarg(Nil, Nil, "Array ~S dimension must be 1.", type, NULL);
 		GetArrayA4(arg, 0, &arg);
 		if (GetIndex_integer(arg, &check))
-			fmte("Index size ~S is too large.", arg, NULL);
+			_fmte("Index size ~S is too large.", arg, NULL);
 		if (check != size) {
 			type_error_stdarg(Nil, Nil,
 					"The argument size ~S don't match type-spec ~S.",
@@ -143,7 +145,7 @@ _g void array_check_sequence(addr type, size_t size)
 	}
 
 	/* error */
-	fmte("Invalid array-type ~S.", type, NULL);
+	_fmte("Invalid array-type ~S.", type, NULL);
 }
 
 
@@ -159,7 +161,7 @@ _g void make_vector_from_list(addr *ret, addr cons)
 	pos = cons;
 	for (size = 0; pos != Nil; size++) {
 		if (GetType(pos) != LISPTYPE_CONS)
-			fmte("The tail of list must be a Nil.", NULL);
+			_fmte("The tail of list must be a Nil.", NULL);
 		GetCdr(pos, &pos);
 	}
 
@@ -181,7 +183,7 @@ _g void make_vector4_from_list(addr *ret, addr cons)
 	pos = cons;
 	for (size = 0; pos != Nil; size++) {
 		if (GetType(pos) != LISPTYPE_CONS)
-			fmte("The tail of list must be a Nil.", NULL);
+			_fmte("The tail of list must be a Nil.", NULL);
 		GetCdr(pos, &pos);
 	}
 
@@ -206,12 +208,12 @@ _g void list_start_end_sequence(addr *list, addr *prev,
 
 	/* argument */
 	if (GetIndex_integer(start, &index1))
-		fmte(":START ~A is too large.", start, NULL);
+		_fmte(":START ~A is too large.", start, NULL);
 	if (end != Nil && end != Unbound) {
 		if (GetIndex_integer(end, &index2))
-			fmte(":END ~A is too large.", end, NULL);
+			_fmte(":END ~A is too large.", end, NULL);
 		if (index2 < index1)
-			fmte(":START ~A must be less than equal to :END ~A.", start, end, NULL);
+			_fmte(":START ~A must be less than equal to :END ~A.", start, end, NULL);
 	}
 	else {
 		index2 = 0;
@@ -221,7 +223,7 @@ _g void list_start_end_sequence(addr *list, addr *prev,
 	temp = Nil;
 	for (i = 0; i < index1; i++) {
 		if (*list == Nil)
-			fmte(":START ~A must be less than equal to list length.", start, NULL);
+			_fmte(":START ~A must be less than equal to list length.", start, NULL);
 		temp = *list;
 		getcdr(*list, list);
 	}
@@ -241,20 +243,20 @@ _g int size_start_end_sequence(addr start, addr end,
 		return 1;
 	}
 	if (GetIndex_integer(start, &index1))
-		fmte(":START ~A is too large.", start, NULL);
+		_fmte(":START ~A is too large.", start, NULL);
 	if (end != Nil && end != Unbound) {
 		if (GetIndex_integer(end, &index2))
-			fmte(":END ~A is too large.", end, NULL);
+			_fmte(":END ~A is too large.", end, NULL);
 		if (size < index2)
-			fmte(":END ~A must be less than sequence length.", end, NULL);
+			_fmte(":END ~A must be less than sequence length.", end, NULL);
 	}
 	else {
 		index2 = size;
 	}
 	if (size < index1)
-		fmte(":START ~A must be less than sequence length.", start, NULL);
+		_fmte(":START ~A must be less than sequence length.", start, NULL);
 	if (index2 < index1)
-		fmte(":START ~A must be less than equal to :END ~A.", start, end, NULL);
+		_fmte(":START ~A must be less than equal to :END ~A.", start, end, NULL);
 	*ret1 = index1;
 	*ret2 = index2;
 
@@ -306,9 +308,9 @@ static void getelt_list(addr pos, size_t index, addr *ret)
 {
 	for (;;) {
 		if (pos == Nil)
-			fmte("Index ~S is too large.", intsizeh(index), NULL);
+			_fmte("Index ~S is too large.", intsizeh(index), NULL);
 		if (! consp(pos))
-			fmte("The list ~S must be a list type.", pos, NULL);
+			_fmte("The list ~S must be a list type.", pos, NULL);
 		if (index == 0)
 			break;
 		GetCdr(pos, &pos);
@@ -320,7 +322,7 @@ static void getelt_list(addr pos, size_t index, addr *ret)
 static void getelt_vector(addr pos, size_t index, addr *ret)
 {
 	if (lenarrayr(pos) <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
+		_fmte("Index ~S is too large.", intsizeh(index), NULL);
 	getarray(pos, index, ret);
 }
 
@@ -330,7 +332,7 @@ static void getelt_string(addr pos, size_t index, unicode *ret)
 
 	strvect_length(pos, &size);
 	if (size <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
+		_fmte("Index ~S is too large.", intsizeh(index), NULL);
 	strvect_getc(pos, index, ret);
 }
 
@@ -340,7 +342,7 @@ static void getelt_bitvector(addr pos, size_t index, int *ret)
 
 	bitvector_length(pos, &size);
 	if (size <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
+		_fmte("Index ~S is too large.", intsizeh(index), NULL);
 	bitmemory_getint(pos, index, ret);
 }
 
@@ -394,7 +396,7 @@ static void setelt_bit_t_sequence(addr pos,
 	else if (check == 1)
 		bitmemory_setint(pos, index, 1);
 	else
-		fmte("The bit-vector cannot set an integer ~A.", value, NULL);
+		_fmte("The bit-vector cannot set an integer ~A.", value, NULL);
 }
 
 static void setelt_bit_signed_sequence(addr pos,
@@ -441,7 +443,7 @@ static void setelt_bit_signed_sequence(addr pos,
 #endif
 
 		default:
-			fmte("Invalid array value.", NULL);
+			_fmte("Invalid array value.", NULL);
 			return;
 	}
 
@@ -452,7 +454,7 @@ static void setelt_bit_signed_sequence(addr pos,
 		bitmemory_setint(pos, index, 1);
 	else {
 		arrayvalue_heap(&pos, str);
-		fmte("The bit-vector cannot set an integer ~A.", pos, NULL);
+		_fmte("The bit-vector cannot set an integer ~A.", pos, NULL);
 	}
 }
 
@@ -500,7 +502,7 @@ static void setelt_bit_unsigned_sequence(addr pos,
 #endif
 
 		default:
-			fmte("Invalid array value.", NULL);
+			_fmte("Invalid array value.", NULL);
 			return;
 	}
 
@@ -511,7 +513,7 @@ static void setelt_bit_unsigned_sequence(addr pos,
 		bitmemory_setint(pos, index, 1);
 	else {
 		arrayvalue_heap(&pos, str);
-		fmte("The bit-vector cannot set an integer ~A.", pos, NULL);
+		_fmte("The bit-vector cannot set an integer ~A.", pos, NULL);
 	}
 }
 
@@ -535,7 +537,7 @@ static void setelt_bit_sequence(addr pos, size_t index, const struct array_value
 			break;
 
 		default:
-			fmte("Invalid array type.", NULL);
+			_fmte("Invalid array type.", NULL);
 	}
 }
 
@@ -549,7 +551,7 @@ static void setelt_string_sequence(addr pos,
 	if (str->type == ARRAY_TYPE_T) {
 		value = str->value.object;
 		if (! characterp(value))
-			fmte("The object ~S must be a character type,", value, NULL);
+			_fmte("The object ~S must be a character type,", value, NULL);
 		GetCharacter(value, &c);
 		strvect_setc(pos, index, c);
 		return;
@@ -562,7 +564,7 @@ static void setelt_string_sequence(addr pos,
 	}
 
 	/* others */
-	fmte("The element of sequence  ~S must be a character type.", pos, NULL);
+	_fmte("The element of sequence  ~S must be a character type.", pos, NULL);
 }
 
 _g void setelt_inplace_sequence(LocalRoot local,
@@ -615,7 +617,7 @@ static void getelt_array(LocalRoot local, addr pos, size_t index, addr *ret)
 		TypeError(pos, SEQUENCE);
 	size = array_get_vector_length(pos, 1);
 	if (size <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
+		_fmte("Index ~S is too large.", intsizeh(index), NULL);
 	array_get(local, pos, index, ret);
 }
 
@@ -625,7 +627,7 @@ static void getelt_bitvector_alloc(LocalRoot local, addr pos, size_t index, addr
 
 	bitvector_length(pos, &size);
 	if (size <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
+		_fmte("Index ~S is too large.", intsizeh(index), NULL);
 	bitmemory_get(local, pos, index, ret);
 }
 
@@ -667,7 +669,7 @@ static void setelt_array(addr pos, size_t index, addr value)
 		TypeError(pos, SEQUENCE);
 	size = array_get_vector_length(pos, 1);
 	if (size <= index)
-		fmte("Index ~S is too large.", intsizeh(index), NULL);
+		_fmte("Index ~S is too large.", intsizeh(index), NULL);
 	array_set(pos, index, value);
 }
 

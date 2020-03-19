@@ -310,7 +310,7 @@ static int clos_redefine_finalize(Execute ptr, addr clos, addr name, addr rest)
 	/* finalize */
 	if (final) {
 		if (clos_finalize(ptr, clos))
-			fmte("Cannot finalize class object ~S.", clos, NULL);
+			_fmte("Cannot finalize class object ~S.", clos, NULL);
 		return clos_redefine_make_instances_obsolete(ptr, clos);
 	}
 
@@ -326,12 +326,12 @@ _g int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 	if (! getkeyargs(rest, KEYWORD_METACLASS, &pos)) {
 		clos_find_class(pos, &pos);
 		if (metaclass != pos)
-			fmte("Cannot change the metaclass in class ~S.", clos, NULL);
+			_fmte("Cannot change the metaclass in class ~S.", clos, NULL);
 	}
 
 	/* standard-class only */
 	if (! clos_standard_class_p(metaclass))
-		fmte("This implementation can only redefine a STANDARD-CLASS.", NULL);
+		_fmte("This implementation can only redefine a STANDARD-CLASS.", NULL);
 
 	/* make-instance */
 	return clos_redefine_finalize(ptr, clos, name, rest);
@@ -493,7 +493,7 @@ _g int clos_change_class(Execute ptr, addr pos, addr clos, addr rest)
 	/* call update-instance-for-different-class */
 	GetConst(COMMON_UPDATE_INSTANCE_FOR_DIFFERENT_CLASS, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	Return1(callclang_applya(ptr, &call, call, copy, pos, rest, NULL));
+	Return(callclang_applya(ptr, &call, call, copy, pos, rest, NULL));
 
 	/* destroy copy instance */
 	clos_destroy(copy);

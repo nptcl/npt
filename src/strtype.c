@@ -5,8 +5,8 @@
 #include "condition.h"
 #include "type_table.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
-#include "unicode.h"
 
 #define strvect_string_p(x) (GetType(x) == LISPTYPE_STRING)
 #define GetArrayUnicode(x,v) (*(v) = (unicode *)array_ptrwrite((x), 0))
@@ -96,7 +96,7 @@ _g void strarray_update_character_type(addr pos)
 		strarray_getc(pos, i, &c);
 		type = unicode_character_type(type, c);
 		if (type == CHARACTER_TYPE_INVALID)
-			fmte("Invalid character code.", NULL);
+			_fmte("Invalid character code.", NULL);
 	}
 	SetCharacterType(pos, type);
 }
@@ -281,7 +281,7 @@ _g void strarray_setc(addr pos, size_t index, unicode u)
 	Check(! array_stringp(pos), "string type error");
 	type = unicode_character_type(RefCharacterType(pos), u);
 	if (type == CHARACTER_TYPE_INVALID)
-		fmte("Invalid character code.", NULL);
+		_fmte("Invalid character code.", NULL);
 	SetCharacterType(pos, type);
 	*(unicode *)array_ptrwrite(pos, index) = u;
 }
@@ -672,7 +672,7 @@ _g void string_length(addr pos, size_t *ret)
 		strarray_length(pos, ret);
 		return;
 	}
-	fmte("Argument ~S must be a string type.", pos, NULL);
+	_fmte("Argument ~S must be a string type.", pos, NULL);
 }
 
 _g unicode string_refc(addr pos, size_t index)
@@ -681,7 +681,7 @@ _g unicode string_refc(addr pos, size_t index)
 		return strvect_refc(pos, index);
 	if (strarrayp(pos))
 		return strarray_refc(pos, index);
-	fmte("Argument ~S must be a string type.", pos, NULL);
+	_fmte("Argument ~S must be a string type.", pos, NULL);
 	return 0;
 }
 
@@ -700,7 +700,7 @@ _g void string_setc(addr pos, size_t index, unicode u)
 		strarray_setc(pos, index, u);
 		return;
 	}
-	fmte("Argument ~S must be a string type.", pos, NULL);
+	_fmte("Argument ~S must be a string type.", pos, NULL);
 }
 
 _g int string_equal_binary(addr left, const unicode *right, size_t len)
@@ -709,7 +709,7 @@ _g int string_equal_binary(addr left, const unicode *right, size_t len)
 		return strvect_equal_binary(left, right, len);
 	if (strarrayp(left))
 		return strarray_equal_binary(left, right, len);
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -719,7 +719,7 @@ _g int string_equalp_binary(addr left, const unicode *right, size_t len)
 		return strvect_equalp_binary(left, right, len);
 	if (strarrayp(left))
 		return strarray_equalp_binary(left, right, len);
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -729,7 +729,7 @@ _g int string_equal_char(addr left, const char *right)
 		return strvect_equal_char(left, right);
 	if (strarrayp(left))
 		return strarray_equal_char(left, right);
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -739,7 +739,7 @@ _g int string_equalp_char(addr left, const char *right)
 		return strvect_equalp_char(left, right);
 	if (strarrayp(left))
 		return strarray_equalp_char(left, right);
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -762,7 +762,7 @@ _g int string_equal(addr left, addr right)
 			return strvect_equal(left, right);
 		if (strarrayp(right))
 			return strarray_strvect_equal(right, left);
-		fmte("Argument ~S must be a string type.", right, NULL);
+		_fmte("Argument ~S must be a string type.", right, NULL);
 		return 0;
 	}
 	else if (strarrayp(left)) {
@@ -770,10 +770,10 @@ _g int string_equal(addr left, addr right)
 			return strarray_strvect_equal(left, right);
 		if (strarrayp(right))
 			return strarray_equal(left, right);
-		fmte("Argument ~S must be a string type.", right, NULL);
+		_fmte("Argument ~S must be a string type.", right, NULL);
 		return 0;
 	}
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -796,7 +796,7 @@ _g int string_equalp(addr left, addr right)
 			return strvect_equalp(left, right);
 		if (strarrayp(right))
 			return strarray_strvect_equalp(right, left);
-		fmte("Argument ~S must be a string type.", right, NULL);
+		_fmte("Argument ~S must be a string type.", right, NULL);
 		return 0;
 	}
 	else if (strarrayp(left)) {
@@ -804,10 +804,10 @@ _g int string_equalp(addr left, addr right)
 			return strarray_strvect_equalp(left, right);
 		if (strarrayp(right))
 			return strarray_equalp(left, right);
-		fmte("Argument ~S must be a string type.", right, NULL);
+		_fmte("Argument ~S must be a string type.", right, NULL);
 		return 0;
 	}
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -817,7 +817,7 @@ _g int string_character_equal(addr left, addr right)
 		return strvect_character_equal(left, right);
 	else if (strarrayp(left))
 		return strarray_character_equal(left, right);
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -827,7 +827,7 @@ _g int string_character_equalp(addr left, addr right)
 		return strvect_character_equalp(left, right);
 	else if (strarrayp(left))
 		return strarray_character_equalp(left, right);
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -837,7 +837,7 @@ _g int string_compare_binary(addr left, const unicode *right, size_t size2)
 		return strvect_compare_binary(left, right, size2);
 	if (strarrayp(left))
 		return strarray_compare_binary(left, right, size2);
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -847,7 +847,7 @@ _g int string_comparep_binary(addr left, const unicode *right, size_t size2)
 		return strvect_comparep_binary(left, right, size2);
 	if (strarrayp(left))
 		return strarray_comparep_binary(left, right, size2);
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -857,7 +857,7 @@ _g int string_compare_char(addr left, const char *right)
 		return strvect_compare_char(left, right);
 	if (strarrayp(left))
 		return strarray_compare_char(left, right);
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -867,7 +867,7 @@ _g int string_comparep_char(addr left, const char *right)
 		return strvect_comparep_char(left, right);
 	if (strarrayp(left))
 		return strarray_comparep_char(left, right);
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -912,7 +912,7 @@ _g int string_compare(addr left, addr right)
 			return strvect_compare(left, right);
 		if (strarrayp(right))
 			return strvect_strarray_compare(left, right);
-		fmte("Argument ~S must be a string type.", right, NULL);
+		_fmte("Argument ~S must be a string type.", right, NULL);
 		return 0;
 	}
 	else if (strarrayp(left)) {
@@ -920,10 +920,10 @@ _g int string_compare(addr left, addr right)
 			return strarray_strvect_compare(left, right);
 		if (strarrayp(right))
 			return strarray_compare(left, right);
-		fmte("Argument ~S must be a string type.", right, NULL);
+		_fmte("Argument ~S must be a string type.", right, NULL);
 		return 0;
 	}
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 
@@ -934,7 +934,7 @@ _g int string_comparep(addr left, addr right)
 			return strvect_comparep(left, right);
 		if (strarrayp(right))
 			return strvect_strarray_comparep(left, right);
-		fmte("Argument ~S must be a string type.", right, NULL);
+		_fmte("Argument ~S must be a string type.", right, NULL);
 		return 0;
 	}
 	else if (strarrayp(left)) {
@@ -942,10 +942,10 @@ _g int string_comparep(addr left, addr right)
 			return strarray_strvect_comparep(left, right);
 		if (strarrayp(right))
 			return strarray_comparep(left, right);
-		fmte("Argument ~S must be a string type.", right, NULL);
+		_fmte("Argument ~S must be a string type.", right, NULL);
 		return 0;
 	}
-	fmte("Argument ~S must be a string type.", left, NULL);
+	_fmte("Argument ~S must be a string type.", left, NULL);
 	return 0;
 }
 

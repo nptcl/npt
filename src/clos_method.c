@@ -184,7 +184,7 @@ static void method_check_generic_function(addr gen, addr method)
 
 	stdget_method_generic_function(method, &check);
 	if (check != Nil && method != gen) {
-		fmte("The method ~S is already exists "
+		_fmte("The method ~S is already exists "
 				"in the generic-function ~S.", method, gen, NULL);
 	}
 }
@@ -193,7 +193,7 @@ static void method_check_method_class(addr gen, addr method)
 {
 	stdget_generic_method_class(gen, &gen);
 	if (! clos_subtype_p(method, gen))
-		fmte("The method don't push in the generic-function.", NULL);
+		_fmte("The method don't push in the generic-function.", NULL);
 }
 
 static void method_check_method_qualifiers(Execute ptr, addr gen, addr method)
@@ -203,7 +203,7 @@ static void method_check_method_qualifiers(Execute ptr, addr gen, addr method)
 	stdget_method_qualifiers(method, &qua);
 	stdget_generic_method_combination(gen, &comb);
 	if (! check_qualifiers_equal(ptr, comb, qua))
-		fmte("The qualifiers ~S is not found in the method-combination.", qua, NULL);
+		_fmte("The qualifiers ~S is not found in the method-combination.", qua, NULL);
 }
 
 static int method_null_set_difference(addr key1, addr key2)
@@ -243,7 +243,7 @@ static void method_arguments_check1(
 		const struct argument_struct *str2)
 {
 	if (str1->var != str2->var)
-		fmte("The count of variable is not equal to the generic function.", NULL);
+		_fmte("The count of variable is not equal to the generic function.", NULL);
 }
 
 static void method_arguments_check2(
@@ -251,7 +251,7 @@ static void method_arguments_check2(
 		const struct argument_struct *str2)
 {
 	if (str1->opt != str2->opt)
-		fmte("The count of &optional is not equal to the generic function.", NULL);
+		_fmte("The count of &optional is not equal to the generic function.", NULL);
 }
 
 static void method_arguments_check3(
@@ -264,7 +264,7 @@ static void method_arguments_check3(
 	check2 = str2->rest || str2->keyp;
 	checka = ((! check1) && (! check2));
 	if (! (checka || check2))
-		fmte("The method must have &rest or &key arguments.", NULL);
+		_fmte("The method must have &rest or &key arguments.", NULL);
 }
 
 static void method_arguments_check4(
@@ -291,7 +291,7 @@ static void method_arguments_check4(
 	return;
 
 error:
-	fmte("The &key arguments in the method must have "
+	_fmte("The &key arguments in the method must have "
 			"all &key arguments in generic function.", NULL);
 }
 
@@ -451,7 +451,7 @@ _g void method_find_method(Execute ptr, addr gen, addr qua, addr spec, addr *ret
 {
 	method_find_method_nil(ptr, gen, qua, spec, ret);
 	if (*ret == Nil)
-		fmte("No method found.", NULL);
+		_fmte("No method found.", NULL);
 }
 
 static int method_remove_method_execute(Execute ptr, addr gen, addr method)
@@ -533,7 +533,7 @@ static void method_add(Execute ptr, addr gen, addr method)
 	method_add_check(ptr, gen, method);
 	method_replace_check(ptr, gen, method, &check_method);
 	if (check_method != Nil) {
-		fmte("The method is already exists.", NULL);
+		_fmte("The method is already exists.", NULL);
 		return;
 	}
 	else {
@@ -579,7 +579,7 @@ _g void ensure_method_common(Execute ptr, addr *ret,
 	if (gen == Unbound)
 		defmethod_make_generic_function(name, lambda, &gen);
 	if (! clos_generic_p(gen))
-		fmte("The function ~S is not generic-function.", gen, NULL);
+		_fmte("The function ~S is not generic-function.", gen, NULL);
 	stdget_generic_method_class(gen, &clos);
 	method_instance_heap(&method, clos, lambda, qua, spec, call);
 	method_add(ptr, gen, method);

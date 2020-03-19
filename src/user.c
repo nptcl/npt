@@ -42,7 +42,7 @@ static void defuser(const char *str, callbind_dynamic call)
 	SetFunctionSymbol(symbol, pos);
 }
 
-static void init_user_call(Execute ptr, addr rest)
+static int init_user_call(Execute ptr, addr rest)
 {
 	addr user;
 	callbind_dynamic call;
@@ -50,7 +50,7 @@ static void init_user_call(Execute ptr, addr rest)
 	getdata_control(ptr, &user);
 	CheckType(user, LISPSYSTEM_USER);
 	GetUserObject(user, &call);
-	(*call)(ptr, rest);
+	return (*call)(ptr, rest);
 }
 
 _g void init_user(void)
@@ -62,10 +62,11 @@ _g void init_user(void)
 /*****************************************************************************
  *  User Function
  *****************************************************************************/
-static void hello_user(Execute ptr, addr right)
+static int hello_user(Execute ptr, addr right)
 {
-	format_stdout(ptr, "~&Hello user.~%", NULL);
+	Return(format_stdout(ptr, "~&Hello user.~%", NULL));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 

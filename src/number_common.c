@@ -251,7 +251,7 @@ static void incf_expand_common(Execute ptr, addr *ret, addr place, addr value, a
 	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
 		return;
 	if (! singlep(g)) {
-		fmte("INCF place ~S don't allow a multiple store value.", place, NULL);
+		_fmte("INCF place ~S don't allow a multiple store value.", place, NULL);
 		return;
 	}
 
@@ -311,7 +311,7 @@ _g void incf_common(Execute ptr, addr form, addr env, addr *ret)
 	return;
 
 error:
-	fmte("INCF ~S must be (place &optional value) form.", form, NULL);
+	_fmte("INCF ~S must be (place &optional value) form.", form, NULL);
 }
 
 
@@ -326,7 +326,7 @@ static void decf_expand_common(Execute ptr, addr *ret, addr place, addr value, a
 	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
 		return;
 	if (! singlep(g)) {
-		fmte("DECF place ~S don't allow a multiple store value.", place, NULL);
+		_fmte("DECF place ~S don't allow a multiple store value.", place, NULL);
 		return;
 	}
 
@@ -386,7 +386,7 @@ _g void decf_common(Execute ptr, addr form, addr env, addr *ret)
 	return;
 
 error:
-	fmte("DECF ~S must be (place &optional value) form.", form, NULL);
+	_fmte("DECF ~S must be (place &optional value) form.", form, NULL);
 }
 
 
@@ -457,17 +457,17 @@ _g void imagpart_common(addr var, addr *ret)
 /*
  *  parse-integer
  */
-_g void parse_integer_common(LocalRoot local,
+_g int parse_integer_common(LocalRoot local,
 		addr var, addr rest, addr *ret1, addr *ret2)
 {
 	addr radix, junk;
 	size_t size, start, end;
 
 	string_length(var, &size);
-	keyword_start_end(size, rest, &start, &end);
+	Return(keyword_start_end_(size, rest, &start, &end));
 	if (getkeyargs(rest, KEYWORD_RADIX, &radix)) fixnum_heap(&radix, 10);
 	if (getkeyargs(rest, KEYWORD_JUNK_ALLOWED, &junk)) junk = Nil;
-	parse_integer_clang(local, var, start, end,
+	return parse_integer_clang(local, var, start, end,
 			(unsigned)RefFixnum(radix), junk != Nil, ret1, ret2);
 }
 

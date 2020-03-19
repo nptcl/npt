@@ -25,19 +25,19 @@ static int method_print_object_t_body(Execute ptr, addr stream, addr pos)
 	return princ_print(ptr, stream, pos);
 }
 
-static void method_print_object_t(Execute ptr,
+static int method_print_object_t(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	if (print_unreadable_object(ptr, stream, pos, 0, 1, method_print_object_t_body))
-		return;
+	Return(print_unreadable_object(ptr, stream, pos, 0, 1, method_print_object_t_body));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 
 /*
  *  class
  */
-static void method_print_object_class(Execute ptr,
+static int method_print_object_class(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
 	addr class_of, name;
@@ -47,12 +47,14 @@ static void method_print_object_class(Execute ptr,
 	stdget_class_name(pos, &name);
 	/* #<CLASS-OF CLASS-NAME> */
 	print_ascii_stream(stream, "#<");
-	if (princ_print(ptr, stream, class_of)) return;
+	Return(princ_print(ptr, stream, class_of));
 	write_char_stream(stream, ' ');
-	if (princ_print(ptr, stream, name)) return;
+	Return(princ_print(ptr, stream, name));
 	write_char_stream(stream, '>');
 	/* result */
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 
@@ -96,12 +98,12 @@ static int write_structure(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-static void method_print_object_structure_object(Execute ptr,
+static int method_print_object_structure_object(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	if (print_structure(ptr, stream, pos))
-		return;
+	Return(print_structure(ptr, stream, pos));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 _g int print_structure(Execute ptr, addr stream, addr pos)

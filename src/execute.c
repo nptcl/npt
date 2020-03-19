@@ -74,7 +74,6 @@ static struct execute *allocmembit(size_t index)
 	clearpoint(bit);
 	bit->state = ThreadState_Empty;
 	bit->index = index;
-	bit->property = 0;
 	bit->signal = ExecuteControl_Run;
 	bit->taginfo = NULL;
 	bit->result = 0;
@@ -431,7 +430,7 @@ _g struct execute *getexecute(size_t index)
 
 _g void exitexecute(struct execute *ptr, lispcode code)
 {
-	if (ptr == NULL || (! GetPropertyExecute(ptr, LISPPROP_JUMP))) {
+	if (ptr == NULL || (! ptr->jump)) {
 		Debug("exitexecute error");
 		exitindex(0, LISPCODE_ABORT);
 	}
@@ -453,7 +452,7 @@ _g void exitindex(size_t index, lispcode code)
 
 _g void abortexecute(struct execute *ptr)
 {
-	if (ptr == NULL || (! GetPropertyExecute(ptr, LISPPROP_JUMP))) {
+	if (ptr == NULL || (! ptr->jump)) {
 		if (ptr == NULL || ptr->index == 0) {
 			Debug("abort.");
 			exit(1);
@@ -462,7 +461,7 @@ _g void abortexecute(struct execute *ptr)
 			abortindex(0);
 		}
 	}
-	SetPropertyExecute(ptr, LISPPROP_ABORT, 1);
+	ptr->abort = 1;
 	exitexecute(ptr, LISPCODE_ABORT);
 }
 
@@ -491,19 +490,19 @@ _g void abortindex(size_t index)
  */
 _g int begin_code_check(Execute ptr, lispcode *code)
 {
-	if (GetPropertyExecute(ptr, LISPPROP_JUMP)) {
+	if (ptr->jump) {
 		*code = LISPCODE_CONFLICT;
 		return 0;
 	}
 	else {
-		SetPropertyExecute(ptr, LISPPROP_JUMP, 1);
+		ptr->jump = 1;
 		return 1;
 	}
 }
 
 _g void end_code(Execute ptr)
 {
-	SetPropertyExecute((ptr), LISPPROP_JUMP, 0);
+	ptr->jump = 0;
 	ClearJmpBuf(ptr->exec);
 }
 _g void end_code_thread(void)
@@ -526,7 +525,7 @@ _g int code_error_p(lispcode code)
 
 _g void begin_switch_check(Execute ptr, codejump *code)
 {
-	Check(! GetPropertyExecute(ptr, LISPPROP_JUMP), "begin_switch error");
+	Check(! ptr->jump, "begin_switch error");
 	code->ptr = ptr;
 	CopyJmpBuf(&(code->jump), ptr->exec);
 }

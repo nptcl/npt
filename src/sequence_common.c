@@ -4,6 +4,7 @@
 #include "array_sequence.h"
 #include "array_vector.h"
 #include "bit.h"
+#include "character.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -18,10 +19,10 @@
 #include "sequence_range.h"
 #include "sequence_write.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "type.h"
 #include "type_parse.h"
 #include "type_upgraded.h"
-#include "unicode.h"
 
 /*
  *  copy-seq
@@ -76,13 +77,13 @@ static void list_fill_sequence(addr list, addr item, addr start, addr end)
 			if (index2 <= index1)
 				break;
 			if (list == Nil)
-				fmte(":END ~A must be less than equal to list length.", end, NULL);
+				_fmte(":END ~A must be less than equal to list length.", end, NULL);
 		}
 		else if (list == Nil) {
 			break;
 		}
 		if (! consp(list))
-			fmte("Don't accept the dotted list ~S.", list, NULL);
+			_fmte("Don't accept the dotted list ~S.", list, NULL);
 		SetCar(list, item);
 		GetCdr(list, &list);
 		index1++;
@@ -338,15 +339,15 @@ _g int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr r
 	if (getkeyargs(rest, KEYWORD_INITIAL_ELEMENT, &element))
 		element = Unbound;
 	if (GetIndex_integer(size, &index))
-		fmte("Too large index ~S.", size, NULL);
+		_fmte("Too large index ~S.", size, NULL);
 
-	Return1(parse_type(ptr, &check, type, Nil));
+	Return(parse_type(ptr, &check, type, Nil));
 	hold = LocalHold_local_push(ptr, check);
 
 	sequence_make_sequence(&rest, check, index, element);
 	localhold_push(hold, rest);
 
-	Return1(typep_asterisk_error(ptr, rest, check));
+	Return(typep_asterisk_error(ptr, rest, check));
 	localhold_end(hold);
 
 	*ret = rest;
@@ -855,15 +856,15 @@ _g int map_common(Execute ptr, addr *ret, addr type, addr call, addr rest)
 	LocalHold hold;
 
 	hold = LocalHold_local(ptr);
-	Return1(parse_type(ptr, &check, type, Nil));
+	Return(parse_type(ptr, &check, type, Nil));
 	localhold_push(hold, check);
 
-	Return1(execute_map_sequence(ptr, &rest, check, call, rest));
+	Return(execute_map_sequence(ptr, &rest, check, call, rest));
 	localhold_push(hold, rest);
 	if (type == Nil)
 		return 0;
 
-	Return1(typep_asterisk_error(ptr, rest, check));
+	Return(typep_asterisk_error(ptr, rest, check));
 	localhold_end(hold);
 	*ret = rest;
 
@@ -1252,7 +1253,7 @@ _g int count_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		fmte("COUNT don't accept both :test and :test-not parameter.", NULL);
+		_fmte("COUNT don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -1525,7 +1526,7 @@ static void make_specialized_sequence(addr *ret,
 			break;
 
 		default:
-			fmte("Invalid array type.", NULL);
+			_fmte("Invalid array type.", NULL);
 			return;
 	}
 }
@@ -1772,11 +1773,11 @@ _g int merge_common(Execute ptr, addr *ret,
 	LocalHold hold;
 
 	hold = LocalHold_local(ptr);
-	Return1(parse_type(ptr, &check, type, Nil));
+	Return(parse_type(ptr, &check, type, Nil));
 	localhold_push(hold, check);
-	Return1(execute_merge_sequence(ptr, &call, check, pos1, pos2, call, key));
+	Return(execute_merge_sequence(ptr, &call, check, pos1, pos2, call, key));
 	localhold_push(hold, call);
-	Return1(typep_asterisk_error(ptr, call, check));
+	Return(typep_asterisk_error(ptr, call, check));
 	*ret = call;
 
 	return 0;
@@ -1852,7 +1853,7 @@ _g int find_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		fmte("FIND don't accept both :test and :test-not parameter.", NULL);
+		_fmte("FIND don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -2027,7 +2028,7 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		fmte("POSITION don't accept both :test and :test-not parameter.", NULL);
+		_fmte("POSITION don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -2227,7 +2228,7 @@ static int reverse_pattern_search_sequence(struct search_struct *str,
 	while (! getnext_sequence_range(range1, &a)) {
 		localhold_set(hold, 0, a);
 
-		Return1(key_search_sequence(str, &a, a));
+		Return(key_search_sequence(str, &a, a));
 		localhold_set(hold, 0, a);
 
 		if (getnext_sequence_range(range2, &b)) {
@@ -2236,10 +2237,10 @@ static int reverse_pattern_search_sequence(struct search_struct *str,
 		}
 		localhold_set(hold, 1, b);
 
-		Return1(key_search_sequence(str, &b, b));
+		Return(key_search_sequence(str, &b, b));
 		localhold_set(hold, 1, b);
 
-		Return1(call_search_sequence(str, &check, a, b));
+		Return(call_search_sequence(str, &check, a, b));
 		if (! check) {
 			*result = 0;
 			goto final;
@@ -2324,7 +2325,7 @@ static int normal_pattern_search_sequence(struct search_struct *str,
 	while (! getnext_sequence_range(range1, &a)) {
 		localhold_set(hold, 0, a);
 
-		Return1(key_search_sequence(str, &a, a));
+		Return(key_search_sequence(str, &a, a));
 		localhold_set(hold, 0, a);
 
 		if (getnext_sequence_range(range2, &b)) {
@@ -2333,10 +2334,10 @@ static int normal_pattern_search_sequence(struct search_struct *str,
 		}
 		localhold_set(hold, 1, b);
 
-		Return1(key_search_sequence(str, &b, b));
+		Return(key_search_sequence(str, &b, b));
 		localhold_set(hold, 1, b);
 
-		Return1(call_search_sequence(str, &check, a, b));
+		Return(call_search_sequence(str, &check, a, b));
 		if (! check) {
 			*result = 0;
 			goto final;
@@ -2418,7 +2419,7 @@ static int execute_search_sequence(Execute ptr, addr *ret,
 	if (getkeyargs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
 	if (getkeyargs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
 	if (test1 != Nil && test2 != Nil)
-		fmte("SEARCH don't accept both :test and :test-not parameter.", NULL);
+		_fmte("SEARCH don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	local = ptr->local;
@@ -2508,12 +2509,12 @@ static int reverse_mismatch_sequence(struct search_struct *str, addr *ret)
 		localhold_set(hold, 0, a);
 		localhold_set(hold, 1, b);
 
-		Return1(key_search_sequence(str, &a, a));
+		Return(key_search_sequence(str, &a, a));
 		localhold_set(hold, 0, a);
-		Return1(key_search_sequence(str, &b, b));
+		Return(key_search_sequence(str, &b, b));
 		localhold_set(hold, 1, b);
 
-		Return1(call_search_sequence(str, &check, a, b));
+		Return(call_search_sequence(str, &check, a, b));
 		if (! check)
 			goto result_t;
 	}
@@ -2552,12 +2553,12 @@ static int normal_mismatch_sequence(struct search_struct *str, addr *ret)
 		localhold_set(hold, 0, a);
 		localhold_set(hold, 1, b);
 
-		Return1(key_search_sequence(str, &a, a));
+		Return(key_search_sequence(str, &a, a));
 		localhold_set(hold, 0, a);
-		Return1(key_search_sequence(str, &b, b));
+		Return(key_search_sequence(str, &b, b));
 		localhold_set(hold, 1, b);
 
-		Return1(call_search_sequence(str, &check, a, b));
+		Return(call_search_sequence(str, &check, a, b));
 		if (! check)
 			goto result_t;
 	}
@@ -2590,7 +2591,7 @@ static int execute_mismatch_sequence(Execute ptr, addr *ret,
 	if (getkeyargs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
 	if (getkeyargs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
 	if (test1 != Nil && test2 != Nil)
-		fmte("MISMATCH don't accept both :test and :test-not parameter.", NULL);
+		_fmte("MISMATCH don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	local = ptr->local;
@@ -2950,14 +2951,14 @@ static void setcount_sequence(struct count_struct *str, addr count)
 		return;
 	}
 	if (! integerp(count)) {
-		fmte(":COUNT argument ~S must be an integer type.", count, NULL);
+		_fmte(":COUNT argument ~S must be an integer type.", count, NULL);
 	}
 	if (minusp_integer(count)) {
 		count = fixnumh(0);
 		limit = 0;
 	}
 	else if (GetIndex_integer(count, &limit)) {
-		fmte(":COUNT argument ~S is too large.", count, NULL);
+		_fmte(":COUNT argument ~S is too large.", count, NULL);
 	}
 	str->count = count;
 	str->limit = limit;
@@ -2980,7 +2981,7 @@ _g int substitute_common(Execute ptr,
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
+		_fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3209,7 +3210,7 @@ _g int nsubstitute_common(Execute ptr,
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		fmte("NSUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
+		_fmte("NSUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3810,7 +3811,7 @@ static int argument_remove_sequence(Execute ptr,
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
+		_fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -4227,7 +4228,7 @@ static int argument_remove_duplicates(Execute ptr,
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		fmte("Arguments don't accept both :test and :test-not parameter.", NULL);
+		_fmte("Arguments don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	local = ptr->local;

@@ -81,7 +81,7 @@ static int input_prompt_stream(addr stream, addr *ret)
 
 	/* read */
 	str = message_prompt_stream(stream);
-	Return1(input_prompt(&pos, &prompt, str));
+	Return(input_prompt(&pos, &prompt, str));
 	/* dribble check */
 	GetConst(SYSTEM_DRIBBLE_FILE, &dribble);
 	GetValueSymbol(dribble, &dribble);
@@ -102,11 +102,11 @@ static int read_char_prompt_line(addr stream, unicode *c)
 
 	GetInfoStream(stream, &string);
 	if (! open_stream_p(string)) {
-		Return1(input_prompt_stream(stream, &pos));
+		Return(input_prompt_stream(stream, &pos));
 		setvalue_input_string_stream(string, pos);
 	}
 	while (read_char_stream(string, c)) {
-		Return1(input_prompt_stream(stream, &pos));
+		Return(input_prompt_stream(stream, &pos));
 		setvalue_input_string_stream(string, pos);
 	}
 

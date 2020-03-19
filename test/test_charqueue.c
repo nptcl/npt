@@ -455,7 +455,7 @@ static int test_charqueue_heap(void)
 	addr pos, str, check;
 	size_t size;
 	unicode *u;
-	char buffer[CHARQUEUESIZE * 2];
+	char buffer[LISP_CHARQUEUESIZE * 2];
 
 	charqueue_heap(&pos, 0);
 	push_charqueue_heap(pos, 'a');
@@ -473,12 +473,12 @@ static int test_charqueue_heap(void)
 	test(string_equal(str, check), "charqueue6");
 
 	clear_charqueue(pos);
-	for (i = 0; i < CHARQUEUESIZE * 2 - 1; i++) {
+	for (i = 0; i < LISP_CHARQUEUESIZE * 2 - 1; i++) {
 		c = 'A' + (i % 20);
 		buffer[i] = c;
 		push_charqueue_heap(pos, c);
 	}
-	buffer[CHARQUEUESIZE * 2 - 1] = 0;
+	buffer[LISP_CHARQUEUESIZE * 2 - 1] = 0;
 	make_charqueue_heap(pos, &str);
 	test(GetType(str) == LISPTYPE_STRING, "charqueue7");
 	test(string_equal_char(str, buffer), "charqueue8");

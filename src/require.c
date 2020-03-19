@@ -45,7 +45,7 @@ static int require_function_common(Execute ptr, addr var, int *ret)
 			return free_check_control(ptr, control, 1);
 		getresult_control(ptr, &call);
 		check = (call == Nil)? 0: 1;
-		Return1(free_check_control(ptr, control, 0));
+		Return(free_check_control(ptr, control, 0));
 		/* check */
 		if (check) {
 			*ret = 1;
@@ -54,7 +54,7 @@ static int require_function_common(Execute ptr, addr var, int *ret)
 	}
 
 	/* error */
-	fmte("Cannot require ~S.", var, NULL);
+	_fmte("Cannot require ~S.", var, NULL);
 	return 0;
 }
 
@@ -65,7 +65,7 @@ static int require_list_common(Execute ptr, addr var, addr list, int *ret)
 
 	while (list != Nil) {
 		getcons(list, &x, &list);
-		Return1(eval_load(ptr, &check, x, Unbound, Unbound, 1, Unbound));
+		Return(eval_load(ptr, &check, x, Unbound, Unbound, 1, Unbound));
 	}
 
 	*ret = 1;

@@ -36,13 +36,15 @@ static int readlist_loop(Execute ptr, addr stream, addr *ret)
 	return 0;
 }
 
-static void readlist_finalize(Execute ptr)
+static int readlist_finalize(Execute ptr)
 {
 	addr stream;
 
 	getdata_control(ptr, &stream);
 	Check(! streamp(stream), "type error");
 	close_stream(stream);
+
+	return 0;
 }
 
 static int readlist_unwind_protect(Execute ptr, addr file, addr *ret)
@@ -61,7 +63,7 @@ static int readlist_unwind_protect(Execute ptr, addr file, addr *ret)
 	/* code */
 	check = readlist_loop(ptr, stream, ret);
 	localhold_set(hold, 0, *ret);
-	Return1(free_check_control(ptr, control, check));
+	Return(free_check_control(ptr, control, check));
 	localhold_end(hold);
 
 	return 0;
@@ -76,7 +78,7 @@ _g int readlist_input(Execute ptr, addr file, addr *ret)
 	if (check)
 		return 1;
 	if (list == Unbound)
-		fmte("Invalid file ~S.", file, NULL);
+		_fmte("Invalid file ~S.", file, NULL);
 	*ret = list;
 
 	return check;

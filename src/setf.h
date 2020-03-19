@@ -4,8 +4,8 @@
 #include "typedef.h"
 
 /* common-lisp setf-expansion */
-_g void function_setf_values(Execute ptr, addr args, addr env);
-_g void function_setf_getf(Execute ptr, addr args, addr env);
+_g int function_setf_values(Execute ptr, addr args, addr env);
+_g int function_setf_getf(Execute ptr, addr args, addr env);
 
 /* get-setf-expander */
 _g int get_setf_expansion(Execute ptr, addr form, addr env,

@@ -20,6 +20,9 @@ build.c
 bytespec.c
 c99.c
 character.c
+character_check.c
+character_common.c
+character_name.c
 charqueue.c
 clos_cache.c
 clos_class.c
@@ -64,6 +67,9 @@ common_types.c
 common.c
 compile.c
 condition.c
+condition_common.c
+condition_debugger.c
+condition_define.c
 cons.c
 cons_common.c
 cons_list.c
@@ -71,6 +77,7 @@ cons_plist.c
 console.c
 constant.c
 control.c
+control_callbind.c
 copy.c
 core.c
 data.c
@@ -120,6 +127,7 @@ format_print.c
 function.c
 gc.c
 hashtable.c
+hashtable_common.c
 heap.c
 info.c
 input.c
@@ -130,6 +138,7 @@ local.c
 localtime.c
 loop.c
 loop_bind.c
+loop_common.c
 loop_main.c
 loop_parse.c
 loop_symbol.c
@@ -155,9 +164,11 @@ optimize.c
 optimize_common.c
 optimize_parse.c
 package.c
+package_common.c
 pathname.c
 pointer.c
 print.c
+print_common.c
 print_dispatch.c
 print_function.c
 print_object.c
@@ -173,6 +184,7 @@ random_state.c
 ratio.c
 rational.c
 readtable.c
+readtable_common.c
 real_ceiling.c
 real_common.c
 real_decode.c
@@ -184,6 +196,7 @@ real_truncate.c
 real.c
 require.c
 restart.c
+restart_value.c
 rt.c
 rt_load.c
 sequence.c
@@ -194,6 +207,7 @@ sequence_write.c
 setf.c
 sort.c
 stream_broadcast.c
+stream_common.c
 stream_concat.c
 stream_echo.c
 stream_error.c
@@ -205,9 +219,13 @@ stream_synonym.c
 stream_twoway.c
 stream.c
 strtype.c
+strtype_common.c
+strvect.c
 structure.c
+structure_common.c
 sxhash.c
 symbol.c
+symbol_common.c
 syscall.c
 syscall_code.c
 thread.c

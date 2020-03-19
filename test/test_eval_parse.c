@@ -13,6 +13,7 @@
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "syscall.h"
 #include "type_table.h"
@@ -2183,11 +2184,12 @@ static int test_check_macro_function(void)
 	RETURN;
 }
 
-static void test_call_macroexpand_hook_function(Execute ptr,
+static int test_call_macroexpand_hook_function(Execute ptr,
 		addr call, addr form, addr env)
 {
 	fixnum_heap(&form, RefFixnum(form) + 1);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static int test_call_macroexpand_hook(void)

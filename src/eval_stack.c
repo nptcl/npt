@@ -196,7 +196,7 @@ static void closestack_unsafe(Execute ptr)
 	getstack_symbol(&symbol);
 	getspecialcheck_local(ptr, symbol, &eval);
 	if (eval == Nil)
-		fmte("scope-stack is nil.", NULL);
+		_fmte("scope-stack is nil.", NULL);
 	closestack_closure(eval);
 	stack = StructEvalStack(eval)->stack;
 	GetEvalStackNext(eval, &eval);

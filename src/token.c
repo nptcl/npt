@@ -12,6 +12,7 @@
 #include "ratio.h"
 #include "real_float.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "token.h"
 #include <errno.h>
@@ -374,7 +375,7 @@ _g void maketoken_float(Execute ptr, addr queue, addr *ret)
 	make_charqueue_heap(queue, &queue);
 	strvect_posbodylen(queue, &body, &size);
 	if (floattable(ptr, body, size, ret))
-		fmte("parse-float error", NULL);
+		_fmte("parse-float error", NULL);
 }
 
 

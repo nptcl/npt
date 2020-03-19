@@ -22,44 +22,48 @@
 /*
  *  t
  */
-static void method_describe_object_t(Execute ptr,
+static int method_describe_object_t(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
 	format_stream(ptr, stream, "Lisp Object: ~S~%", pos, NULL);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 
 /*
  *  class
  */
-static void method_describe_object_class(Execute ptr,
+static int method_describe_object_class(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
 	format_stream(ptr, stream, "Class: ~S~%", pos, NULL);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 
 /*
  *  standard-object
  */
-static void method_describe_object_standard_object(Execute ptr,
+static int method_describe_object_standard_object(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
 	format_stream(ptr, stream, "Instance: ~S~%", pos, NULL);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 
 /*
  *  structure-object
  */
-static void method_describe_object_structure_object(Execute ptr,
+static int method_describe_object_structure_object(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
 	format_stream(ptr, stream, "Structure: ~S~%", pos, NULL);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 
@@ -184,13 +188,13 @@ _g int inspect_common(Execute ptr, addr object)
 	addr io, symbol;
 
 	terminal_io_stream(ptr, &io);
-	Return1(describe_common(ptr, object, io));
+	Return(describe_common(ptr, object, io));
 	/* *inspected */
 	GetConst(SYSTEM_INSPECTED, &symbol);
 	pushspecial_control(ptr, symbol, object);
 	/* prompt */
 	mode_prompt_stream(ptr, PromptStreamMode_Inspect);
-	Return1(eval_custom_loop(ptr, eval_loop_inspect));
+	Return(eval_custom_loop(ptr, eval_loop_inspect));
 
 	return 0;
 }

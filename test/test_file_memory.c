@@ -9,6 +9,7 @@
 #include "pathname.h"
 #include "readtable.h"
 #include "stream.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"

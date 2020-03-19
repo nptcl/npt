@@ -433,7 +433,7 @@ static void import_test(void)
 static void lambda_readtest(addr *ret, const char *str)
 {
 	if (readstring(ret, str))
-		fmte("error");
+		_fmte("error");
 }
 
 static int eqtree(addr left, addr right)

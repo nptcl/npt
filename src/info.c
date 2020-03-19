@@ -16,6 +16,7 @@
 #include "memory.h"
 #include "object.h"
 #include "package.h"
+#include "restart.h"
 #include "quote.h"
 #include "strtype.h"
 #include "stream.h"

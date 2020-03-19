@@ -10,6 +10,7 @@
 #include "number.h"
 #include "object.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 
 #ifdef LISP_THREAD_ENABLE
@@ -122,7 +123,7 @@ _g int keywordp(addr pos)
 static void setcheck_symbol(addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
-		fmte("Cannot set the constant variable ~S.", symbol, NULL);
+		_fmte("Cannot set the constant variable ~S.", symbol, NULL);
 }
 
 #define SetSymbol(s,i,v) { \

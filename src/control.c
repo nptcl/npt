@@ -9,6 +9,7 @@
 #include "condition.h"
 #include "constant.h"
 #include "control.h"
+#include "control_callbind.h"
 #include "copy.h"
 #include "equal.h"
 #include "execute.h"
@@ -19,6 +20,7 @@
 #include "lambda.h"
 #include "object.h"
 #include "package.h"
+#include "restart.h"
 #include "sequence.h"
 #include "symbol.h"
 #include "syscall.h"
@@ -39,55 +41,6 @@ _g size_t ControlCounter = 0;
 /*
  *  control
  */
-enum Control_Index {
-	Control_Next,
-	Control_Cons,
-	Control_ConsTail,
-	Control_Result,
-	Control_Lexical,
-	Control_Special,
-	Control_Table,
-	Control_Data,
-	Control_Args,
-	Control_Size
-};
-
-enum ControlType_Index {
-	ControlType_Return,
-	ControlType_Push,
-	ControlType_Close,
-	ControlType_Local,
-	ControlType_Protect,
-	ControlType_Finalize,
-	ControlType_TagBody,
-	ControlType_Block,
-	ControlType_Restart,
-	ControlType_Size
-};
-
-struct control_struct {
-	unsigned dynamic_result : 1;
-	enum ControlType_Index type;
-	LocalStack stack;
-	const pointer *call;
-	size_t sizer, point;
-};
-
-#ifdef LISP_DEBUG
-#define ControlSize_Result			2
-#else
-#define ControlSize_Result			8
-#endif
-#define ControlSize_Arary			(Control_Size + ControlSize_Result)
-#define PtrBodyControl(p)			PtrBodySSa(p, ControlSize_Arary)
-#define StructControl(p)			((struct control_struct *)PtrBodyControl(p))
-#define GetControl					GetArraySS
-#define SetControl					SetArraySS
-
-#define GetResultControl(p,i,v)		GetControl((p),(i) + Control_Size,(v))
-#define SetResultControl(p,i,v)		SetControl((p),(i) + Control_Size,(v))
-#define exit_control(ptr)			exit_code(ptr, LISPCODE_CONTROL);
-
 #ifdef LISP_DEBUG
 _g void output_result_execute(void)
 {
@@ -517,7 +470,7 @@ _g int free_check_control(Execute ptr, addr control, int check)
 		return free_control(ptr, control);
 }
 
-static void close_result(addr pos)
+static void close_result_control(addr pos)
 {
 	addr cons, next, check;
 	struct control_struct *str;
@@ -563,11 +516,11 @@ static void copy_values_control(addr src, addr dst)
 	str2 = StructControl(dst);
 	if (check) {
 		SetControl(dst, Control_Result, Nil);
-		close_result(dst);
+		close_result_control(dst);
 	}
 	else {
 		GetControl(src, Control_Result, &pos);
-		close_result(dst);
+		close_result_control(dst);
 		SetControl(dst, Control_Result, pos);
 		str2->dynamic_result = str1->dynamic_result;
 	}
@@ -581,18 +534,21 @@ _g void return_values_control(Execute ptr, addr control)
 	addr next;
 
 	GetControl(control, Control_Next, &next);
-	Check(next == Nil, "close_return error");
+	Check(next == Nil, "return_values_control error");
 	copy_values_control(control, next);
 }
 
-static void close_return(Execute ptr, addr root)
+static int close_return(Execute ptr, addr root)
 {
 	addr next;
 
-	if (ptr->signal == ExecuteControl_Throw) return;
+	if (ptr->signal == ExecuteControl_Throw)
+		return 1;
 	GetControl(root, Control_Next, &next);
 	Check(next == Nil, "close_return error");
 	copy_values_control(root, next);
+
+	return 0;
 }
 
 static int close_protect(Execute ptr, addr pos)
@@ -603,10 +559,8 @@ static int close_protect(Execute ptr, addr pos)
 
 	/* no protect */
 	gettable_control(pos, CONSTANT_COMMON_UNWIND_PROTECT, &code);
-	if (code == Nil) {
-		close_return(ptr, pos);
-		return 0;
-	}
+	if (code == Nil)
+		return close_return(ptr, pos);
 
 	/* execute */
 	runcode_push(ptr, &value);
@@ -615,7 +569,7 @@ static int close_protect(Execute ptr, addr pos)
 	check = runcode_control(ptr, code);
 	if (! check) {
 		runcode_rollback(ptr, &value);
-		close_return(ptr, pos);
+		return close_return(ptr, pos);
 	}
 	return check;
 }
@@ -627,9 +581,8 @@ static int close_finalize(Execute ptr, addr pos)
 
 	/* no protect */
 	gettable_control(pos, CONSTANT_COMMON_UNWIND_PROTECT, &code);
-	if (code == Nil) {
+	if (code == Nil)
 		return 0;
-	}
 
 	/* runcode */
 	push_close_control(ptr, &control);
@@ -643,7 +596,7 @@ static int close_finalize(Execute ptr, addr pos)
 	}
 }
 
-static void close_tagbody(Execute ptr, addr pos)
+static int close_tagbody(Execute ptr, addr pos)
 {
 	addr cons, value;
 
@@ -655,15 +608,18 @@ static void close_tagbody(Execute ptr, addr pos)
 	}
 
 	/* result nil */
-	if (ptr->signal == ExecuteControl_Throw) return;
+	if (ptr->signal == ExecuteControl_Throw)
+		return 1;
 	GetControl(pos, Control_Next, &pos);
 	Check(pos == Nil, "control error");
 	StructControl(pos)->sizer = 1;
-	close_result(pos);
+	close_result_control(pos);
 	SetResultControl(pos, 0, Nil);
+
+	return 0;
 }
 
-static void close_block(Execute ptr, addr pos)
+static int close_block(Execute ptr, addr pos)
 {
 	addr cons, value;
 
@@ -672,10 +628,10 @@ static void close_block(Execute ptr, addr pos)
 		GetCons(cons, &value, &cons);
 		close_blockinfo(value);
 	}
-	close_return(ptr, pos);
+	return close_return(ptr, pos);
 }
 
-static void close_restart(Execute ptr, addr pos)
+static int close_restart(Execute ptr, addr pos)
 {
 	addr cons, value;
 
@@ -684,47 +640,39 @@ static void close_restart(Execute ptr, addr pos)
 		GetCons(cons, &value, &cons);
 		setenable_restart(value, 0);
 	}
-	close_return(ptr, pos);
+	return close_return(ptr, pos);
 }
 
-static void close_type(Execute ptr, addr pos, struct control_struct *str)
+static int close_control_empty(Execute ptr, addr pos)
 {
-	switch (str->type) {
-		case ControlType_Return:
-			close_return(ptr, pos);
-			break;
-
-		case ControlType_Push:
-		case ControlType_Close:
-			break;
-
-		case ControlType_Protect:
-			close_protect(ptr, pos);
-			break;
-
-		case ControlType_Finalize:
-			close_finalize(ptr, pos);
-			break;
-
-		case ControlType_TagBody:
-			close_tagbody(ptr, pos);
-			break;
-
-		case ControlType_Block:
-			close_block(ptr, pos);
-			break;
-
-		case ControlType_Restart:
-			close_restart(ptr, pos);
-			break;
-
-		default:
-			Abort("control type error");
-			break;
-	}
+	/* do nothing */
+	return 0;
 }
 
-static void close_lexical(Execute ptr, addr root)
+typedef int (*close_control_calltype)(Execute ptr, addr pos);
+static close_control_calltype CloseControlTable[ControlType_Size];
+
+static int close_type_control(Execute ptr, addr pos, struct control_struct *str)
+{
+	close_control_calltype call = CloseControlTable[str->type];
+	Check(call == NULL, "control type error");
+	return (*call)(ptr, pos);
+}
+
+static void init_close_control(void)
+{
+	CloseControlTable[ControlType_Return] = close_return;
+	CloseControlTable[ControlType_Push] = close_control_empty;
+	CloseControlTable[ControlType_Close] = close_control_empty;
+	CloseControlTable[ControlType_Local] = NULL;
+	CloseControlTable[ControlType_Protect] = close_protect;
+	CloseControlTable[ControlType_Finalize] = close_finalize;
+	CloseControlTable[ControlType_TagBody] = close_tagbody;
+	CloseControlTable[ControlType_Block] = close_block;
+	CloseControlTable[ControlType_Restart] = close_restart;
+}
+
+static void close_lexical_control(Execute ptr, addr root)
 {
 	addr symbol, snapshot;
 
@@ -736,7 +684,7 @@ static void close_lexical(Execute ptr, addr root)
 	}
 }
 
-static void close_special(Execute ptr, addr root)
+static void close_special_control(Execute ptr, addr root)
 {
 	addr symbol, snapshot;
 
@@ -748,7 +696,7 @@ static void close_special(Execute ptr, addr root)
 	}
 }
 
-static void close_function(Execute ptr, addr root)
+static void close_function_control(Execute ptr, addr root)
 {
 	addr symbol, snapshot;
 
@@ -760,7 +708,7 @@ static void close_function(Execute ptr, addr root)
 	}
 }
 
-static void close_setf(Execute ptr, addr root)
+static void close_setf_control(Execute ptr, addr root)
 {
 	addr symbol, snapshot;
 
@@ -785,12 +733,12 @@ static void pop_control_common(Execute ptr)
 
 	/* close */
 	if (str->type != ControlType_Local) {
-		close_type(ptr, pos, str);
-		close_result(pos);
-		close_lexical(ptr, pos);
-		close_special(ptr, pos);
-		close_function(ptr, pos);
-		close_setf(ptr, pos);
+		close_type_control(ptr, pos, str);
+		close_result_control(pos);
+		close_lexical_control(ptr, pos);
+		close_special_control(ptr, pos);
+		close_function_control(ptr, pos);
+		close_setf_control(ptr, pos);
 	}
 
 	/* pop */
@@ -888,7 +836,7 @@ _g void pushhandler_control(Execute ptr, addr name, addr call, int escape)
 	if (symbolp(name))
 		clos_find_class(name, &name);
 	if (! conditionp(name))
-		fmte("The value ~S must be a condition instance.", name, NULL);
+		_fmte("The value ~S must be a condition instance.", name, NULL);
 
 	/* A2 [name call] escape=SetUser */
 	vector2_local(ptr->local, &pos, 2);
@@ -965,19 +913,18 @@ static int wake_call_handler(Execute ptr, addr control, addr call, addr pos, int
 	return 0;
 }
 
-static int wake_handler(Execute ptr, addr control, addr instance, addr array, int *ret)
+static int wake_handler(Execute ptr, addr control, addr instance, addr array)
 {
+	int escape;
 	addr clos, value;
 
 	GetArrayA2(array, 0, &clos);
+	escape = GetUser(array);
 	if (clos != Nil && clos_subtype_p(instance, clos)) {
 		GetArrayA2(array, 1, &value);
-		if (wake_call_handler(ptr, control, value, instance, GetUser(array)))
-			return 1;
-		*ret = 1;
-		return 0;
+		Return(wake_call_handler(ptr, control, value, instance, escape));
 	}
-	*ret = 0;
+
 	return 0;
 }
 
@@ -999,23 +946,69 @@ _g int find_condition_control(Execute ptr, addr instance)
 	return 0;
 }
 
-_g int invoke_handler_control(Execute ptr, addr instance, int *ret)
+_g int invoke_handler_control(Execute ptr, addr instance)
 {
-	int result, check;
 	addr control, cons, array;
 
 	control = ptr->control;
-	for (result = 0; control != Nil; ) {
+	while (control != Nil) {
 		gethandler_control(control, &cons);
 		while (cons != Nil) {
 			GetCons(cons, &array, &cons);
-			if (wake_handler(ptr, control, instance, array, &check))
+			if (wake_handler(ptr, control, instance, array))
 				return 1;
-			result |= check;
 		}
 		GetControl(control, Control_Next, &control);
 	}
-	*ret = result;
+
+	return 0;
+}
+
+static int wake_call_handler_(Execute ptr, addr control, addr call, addr pos, int escape)
+{
+	addr tag;
+
+	Return(funcall_control(ptr, call, pos, NULL));
+	if (escape) {
+		copy_values_control(ptr->control, control);
+		getcondition_control(control, &tag);
+		ptr->signal = ExecuteControl_Throw;
+		ptr->taginfo = StructTagInfo(tag);
+		return 1;
+	}
+
+	return 0;
+}
+
+static int wake_handler_(Execute ptr, addr control, addr instance, addr array)
+{
+	int escape;
+	addr clos, value;
+
+	GetArrayA2(array, 0, &clos);
+	escape = GetUser(array);
+	if (clos != Nil && clos_subtype_p(instance, clos)) {
+		GetArrayA2(array, 1, &value);
+		Return(wake_call_handler_(ptr, control, value, instance, escape));
+	}
+
+	return 0;
+}
+
+_g int invoke_handler_control_(Execute ptr, addr instance)
+{
+	addr control, cons, array;
+
+	control = ptr->control;
+	while (control != Nil) {
+		gethandler_control(control, &cons);
+		while (cons != Nil) {
+			GetCons(cons, &array, &cons);
+			Return(wake_handler_(ptr, control, instance, array));
+		}
+		GetControl(control, Control_Next, &control);
+	}
+
 	return 0;
 }
 
@@ -1023,7 +1016,7 @@ static void redirect_restart(addr restart, addr *ret)
 {
 	for (;;) {
 		if (! getenable_restart(restart))
-			fmte("The restart ~S is already closed.", restart, NULL);
+			_fmte("The restart ~S is already closed.", restart, NULL);
 		if (! getredirect_restart(restart))
 			break;
 		getreference_restart(restart, &restart);
@@ -1047,7 +1040,7 @@ static void rollback_restart_control(addr control, addr restart, addr *ret)
 		GetControl(control, Control_Next, &control);
 	}
 	*ret = 0;
-	fmte("The restart ~S is invalid.", restart, NULL);
+	_fmte("The restart ~S is invalid.", restart, NULL);
 }
 
 _g int invoke_restart_control(Execute ptr, addr restart, addr args)
@@ -1057,7 +1050,7 @@ _g int invoke_restart_control(Execute ptr, addr restart, addr args)
 
 	if (symbolp(restart)) {
 		if (! find_restart_control(ptr, restart, Nil, &call))
-			fmte("The restart name ~S is not found.", restart, NULL);
+			_fmte("The restart name ~S is not found.", restart, NULL);
 		restart = call;
 	}
 
@@ -1087,7 +1080,7 @@ _g int invoke_restart_interactively_control(Execute ptr, addr restart)
 
 	if (symbolp(restart)) {
 		if (! find_restart_control(ptr, restart, Nil, &value))
-			fmte("The restart name ~S is not found.", restart, NULL);
+			_fmte("The restart name ~S is not found.", restart, NULL);
 		restart = value;
 	}
 
@@ -1164,11 +1157,11 @@ _g int find_restart_control(Execute ptr, addr name, addr condition, addr *ret)
 
 	/* name = symbol */
 	if (name == Nil)
-		fmte("The restart name ~S must not be a NIL.", name, NULL);
+		_fmte("The restart name ~S must not be a NIL.", name, NULL);
 	if (! symbolp(name))
-		fmte("The argument ~S must be a symbol.", name, NULL);
+		_fmte("The argument ~S must be a symbol.", name, NULL);
 	if (condition != Nil && (! condition_instance_p(condition)))
-		fmte("The argument ~S must be a NIL or condition.", condition, NULL);
+		_fmte("The argument ~S must be a NIL or condition.", condition, NULL);
 	return find_restart_stack(ptr, name, condition, ret);
 }
 
@@ -1178,7 +1171,7 @@ _g void compute_restarts_control(Execute ptr, addr condition, addr *ret)
 	LocalHold hold;
 
 	if (condition != Nil && (! condition_instance_p(condition)))
-		fmte("The argument ~S must be a NIL or condition.", condition, NULL);
+		_fmte("The argument ~S must be a NIL or condition.", condition, NULL);
 	hold = LocalHold_array(ptr, 1);
 	control = ptr->control;
 	for (root = Nil; control != Nil; ) {
@@ -1387,7 +1380,7 @@ _g void setvalues_nil_control(Execute ptr)
 	root = ptr->control;
 	Check(root == Nil, "control error");
 	StructControl(root)->sizer = 0;
-	close_result(root);
+	close_result_control(root);
 }
 
 _g void setvalues_list_control(Execute ptr, addr list)
@@ -1530,844 +1523,6 @@ _g void pushargs_allvalues(Execute ptr)
 			pushargs_control(ptr, pos);
 		}
 	}
-}
-
-
-/*
- *  call_compiled_function
- */
-typedef const struct callbind_struct *callstr;
-typedef void (*callbind_control)(Execute, addr, callstr);
-static callbind_control CallBindTable[CallBind_size];
-
-static void call_callbind_code(Execute ptr, addr pos, callstr call)
-{
-	Abort("Cannot call callbind_code in control.");
-}
-
-static void call_callbind_macro(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-	(call->call.macro)(ptr, var1, var2);
-	return;
-toofew:
-	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-}
-
-static void call_callbind_none(Execute ptr, addr pos, callstr call)
-{
-	(call->call.none)();
-}
-
-static void call_callbind_any(Execute ptr, addr pos, callstr call)
-{
-	(call->call.any)(ptr);
-}
-
-static void call_callbind_empty(Execute ptr, addr pos, callstr call)
-{
-	addr check;
-
-	GetControl(ptr->control, Control_Cons, &check);
-	if (check != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-	(call->call.any)(ptr);
-}
-
-static void call_callbind_dynamic(Execute ptr, addr pos, callstr call)
-{
-	addr cons;
-	GetControl(ptr->control, Control_Cons, &cons);
-	(call->call.dynamic)(ptr, cons);
-}
-
-static void call_callbind_rest(Execute ptr, addr pos, callstr call)
-{
-	addr cons;
-	getargs_list_control_heap(ptr, 0, &cons);
-	(call->call.rest)(ptr, cons);
-}
-
-static void call_callbind_var1(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-	(call->call.var1)(ptr, var1);
-}
-
-static void call_callbind_var2(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-	(call->call.var2)(ptr, var1, var2);
-	return;
-toofew:
-	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-}
-
-static void call_callbind_var3(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, var3;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var3, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	(call->call.var3)(ptr, var1, var2, var3);
-	return;
-toofew:
-	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-}
-
-static void call_callbind_var4(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, var3, var4;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var3, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var4, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	(call->call.var4)(ptr, var1, var2, var3, var4);
-	return;
-toofew:
-	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-}
-
-static void call_callbind_var5(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, var3, var4, var5;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var3, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var4, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var5, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	(call->call.var5)(ptr, var1, var2, var3, var4, var5);
-	return;
-toofew:
-	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-}
-
-static void call_callbind_var6(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, var3, var4, var5, var6;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var3, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var4, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var5, &cons);
-	if (cons == Nil) goto toofew;
-	getcons(cons, &var6, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	(call->call.var6)(ptr, var1, var2, var3, var4, var5, var6);
-	return;
-toofew:
-	GetNameFunction(pos, &check);
-	fmte("Too few call argument ~S.", check, NULL);
-}
-
-static void call_callbind_opt1(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, opt1;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil)
-		opt1 = Unbound;
-	else
-		getcons(cons, &opt1, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-	(call->call.opt1)(ptr, opt1);
-}
-
-static void call_callbind_opt2(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, opt1, opt2;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		opt1 = opt2 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons == Nil) {
-		opt2 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt2, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.opt2)(ptr, opt1, opt2);
-}
-
-static void call_callbind_opt3(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, opt1, opt2, opt3;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		opt1 = opt2 = opt3 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons == Nil) {
-		opt2 = opt3 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt2, &cons);
-	if (cons == Nil) {
-		opt3 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt3, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.opt3)(ptr, opt1, opt2, opt3);
-}
-
-static void call_callbind_opt4(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, opt1, opt2, opt3, opt4;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		opt1 = opt2 = opt3 = opt4 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons == Nil) {
-		opt2 = opt3 = opt4 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt2, &cons);
-	if (cons == Nil) {
-		opt3 = opt4 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt3, &cons);
-	if (cons == Nil) {
-		opt4 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt4, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.opt4)(ptr, opt1, opt2, opt3, opt4);
-}
-
-static void call_callbind_opt5(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, opt1, opt2, opt3, opt4, opt5;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		opt1 = opt2 = opt3 = opt4 = opt5 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons == Nil) {
-		opt2 = opt3 = opt4 = opt5 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt2, &cons);
-	if (cons == Nil) {
-		opt3 = opt4 = opt5 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt3, &cons);
-	if (cons == Nil) {
-		opt4 = opt5 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt4, &cons);
-	if (cons == Nil) {
-		opt5 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt5, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.opt5)(ptr, opt1, opt2, opt3, opt4, opt5);
-}
-
-static void call_callbind_var1opt1(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, opt1;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		opt1 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.var1opt1)(ptr, var1, opt1);
-}
-
-static void call_callbind_var2opt1(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, opt1;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) {
-		opt1 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.var2opt1)(ptr, var1, var2, opt1);
-}
-
-static void call_callbind_var3opt1(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, var3, opt1;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var3, &cons);
-	if (cons == Nil) {
-		opt1 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.var3opt1)(ptr, var1, var2, var3, opt1);
-}
-
-static void call_callbind_var4opt1(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, var3, var4, opt1;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var3, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var4, &cons);
-	if (cons == Nil) {
-		opt1 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.var4opt1)(ptr, var1, var2, var3, var4, opt1);
-}
-
-static void call_callbind_var5opt1(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, var3, var4, var5, opt1;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var3, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var4, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var5, &cons);
-	if (cons == Nil) {
-		opt1 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.var5opt1)(ptr, var1, var2, var3, var4, var5, opt1);
-}
-
-static void call_callbind_var1opt2(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, opt1, opt2;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		opt1 = opt2 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons == Nil) {
-		opt2 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt2, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.var1opt2)(ptr, var1, opt1, opt2);
-}
-
-static void call_callbind_var2opt2(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, opt1, opt2;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) {
-		opt1 = opt2 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons == Nil) {
-		opt2 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt2, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.var2opt2)(ptr, var1, var2, opt1, opt2);
-}
-
-static void call_callbind_var2opt3(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, opt1, opt2, opt3;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) {
-		opt1 = opt2 = opt3 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt1, &cons);
-	if (cons == Nil) {
-		opt2 = opt3 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt2, &cons);
-	if (cons == Nil) {
-		opt3 = Unbound;
-		goto finish;
-	}
-	getcons(cons, &opt3, &cons);
-	if (cons != Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too many call argument ~S.", check, NULL);
-	}
-finish:
-	(call->call.var2opt3)(ptr, var1, var2, opt1, opt2, opt3);
-}
-
-static void call_callbind_var1rest(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, rest;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcar(cons, &var1);
-	getargs_list_control_heap(ptr, 1, &rest);
-	(call->call.var1rest)(ptr, var1, rest);
-}
-
-static void call_callbind_var2rest(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, rest;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcar(cons, &var2);
-	getargs_list_control_heap(ptr, 2, &rest);
-	(call->call.var2rest)(ptr, var1, var2, rest);
-}
-
-static void call_callbind_opt1rest(Execute ptr, addr pos, callstr call)
-{
-	addr cons, opt1, rest;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		opt1 = Unbound;
-		rest = Nil;
-	}
-	else {
-		getcar(cons, &opt1);
-		getargs_list_control_heap(ptr, 1, &rest);
-	}
-	(call->call.opt1rest)(ptr, opt1, rest);
-}
-
-static void call_callbind_var1dynamic(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, rest;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcar(cons, &var1);
-	getargs_list_control_unsafe(ptr, 1, &rest);
-	(call->call.var1dynamic)(ptr, var1, rest);
-}
-
-static void call_callbind_var2dynamic(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, rest;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcar(cons, &var2);
-	getargs_list_control_unsafe(ptr, 2, &rest);
-	(call->call.var2dynamic)(ptr, var1, var2, rest);
-}
-
-static void call_callbind_var3dynamic(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, var3, rest;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcar(cons, &var3);
-	getargs_list_control_unsafe(ptr, 3, &rest);
-	(call->call.var3dynamic)(ptr, var1, var2, var3, rest);
-}
-
-static void call_callbind_var4dynamic(Execute ptr, addr pos, callstr call)
-{
-	addr check, cons, var1, var2, var3, var4, rest;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var1, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var2, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcons(cons, &var3, &cons);
-	if (cons == Nil) {
-		GetNameFunction(pos, &check);
-		fmte("Too few call argument ~S.", check, NULL);
-	}
-	getcar(cons, &var4);
-	getargs_list_control_unsafe(ptr, 4, &rest);
-	(call->call.var4dynamic)(ptr, var1, var2, var3, var4, rest);
-}
-
-static void call_callbind_opt1dynamic(Execute ptr, addr pos, callstr call)
-{
-	addr cons, opt1, rest;
-
-	GetControl(ptr->control, Control_Cons, &cons);
-	if (cons == Nil) {
-		opt1 = Unbound;
-		rest = Nil;
-	}
-	else {
-		getcar(cons, &opt1);
-		getargs_list_control_unsafe(ptr, 1, &rest);
-	}
-	(call->call.opt1dynamic)(ptr, opt1, rest);
-}
-
-static void call_callbind_extend_dynamic(Execute ptr, addr pos, callstr call)
-{
-	addr cons;
-	GetControl(ptr->control, Control_Cons, &cons);
-	(call->call.extend_dynamic)(cons);
-}
-
-static void call_callbind_extend_rest(Execute ptr, addr pos, callstr call)
-{
-	addr cons;
-	getargs_list_control_heap(ptr, 0, &cons);
-	(call->call.extend_rest)(cons);
-}
-
-_g void init_control(void)
-{
-	int i;
-
-	for (i = 0; i < CallBind_size; i++)
-		CallBindTable[i] = NULL;
-	CallBindTable[CallBind_code] = call_callbind_code;
-	CallBindTable[CallBind_macro] = call_callbind_macro;
-	CallBindTable[CallBind_none] = call_callbind_none;
-	CallBindTable[CallBind_any] = call_callbind_any;
-	CallBindTable[CallBind_empty] = call_callbind_empty;
-	CallBindTable[CallBind_dynamic] = call_callbind_dynamic;
-	CallBindTable[CallBind_rest] = call_callbind_rest;
-	CallBindTable[CallBind_var1] = call_callbind_var1;
-	CallBindTable[CallBind_var2] = call_callbind_var2;
-	CallBindTable[CallBind_var3] = call_callbind_var3;
-	CallBindTable[CallBind_var4] = call_callbind_var4;
-	CallBindTable[CallBind_var5] = call_callbind_var5;
-	CallBindTable[CallBind_var6] = call_callbind_var6;
-	CallBindTable[CallBind_opt1] = call_callbind_opt1;
-	CallBindTable[CallBind_opt2] = call_callbind_opt2;
-	CallBindTable[CallBind_opt3] = call_callbind_opt3;
-	CallBindTable[CallBind_opt4] = call_callbind_opt4;
-	CallBindTable[CallBind_opt5] = call_callbind_opt5;
-	CallBindTable[CallBind_var1opt1] = call_callbind_var1opt1;
-	CallBindTable[CallBind_var2opt1] = call_callbind_var2opt1;
-	CallBindTable[CallBind_var3opt1] = call_callbind_var3opt1;
-	CallBindTable[CallBind_var4opt1] = call_callbind_var4opt1;
-	CallBindTable[CallBind_var5opt1] = call_callbind_var5opt1;
-	CallBindTable[CallBind_var1opt2] = call_callbind_var1opt2;
-	CallBindTable[CallBind_var2opt2] = call_callbind_var2opt2;
-	CallBindTable[CallBind_var2opt3] = call_callbind_var2opt3;
-	CallBindTable[CallBind_var1rest] = call_callbind_var1rest;
-	CallBindTable[CallBind_var2rest] = call_callbind_var2rest;
-	CallBindTable[CallBind_opt1rest] = call_callbind_opt1rest;
-	CallBindTable[CallBind_var1dynamic] = call_callbind_var1dynamic;
-	CallBindTable[CallBind_var2dynamic] = call_callbind_var2dynamic;
-	CallBindTable[CallBind_var3dynamic] = call_callbind_var3dynamic;
-	CallBindTable[CallBind_var4dynamic] = call_callbind_var4dynamic;
-	CallBindTable[CallBind_opt1dynamic] = call_callbind_opt1dynamic;
-	CallBindTable[CallBind_extend_dynamic] = call_callbind_extend_dynamic;
-	CallBindTable[CallBind_extend_rest] = call_callbind_extend_rest;
-
-#ifdef LISP_DEBUG_FORCE_GC
-	GcCounterForce = LISP_DEBUG_FORCE_GC;
-#endif
-	ControlCounter = 0;
-}
-
-static int call_compiled_function(Execute ptr, addr compiled)
-{
-	struct callbind_struct *str;
-	callbind_control call;
-	pointer p;
-
-	p = StructFunction(compiled)->index;
-	str = &(pointer_table[p]);
-	Check(CallBind_size <= str->type, "index error");
-	call = CallBindTable[str->type];
-	Check(call == NULL, "call error. (build_control?)");
-	(*call)(ptr, compiled, str);
-
-	return ptr->signal != ExecuteControl_Run;
 }
 
 
@@ -2568,6 +1723,25 @@ point:
 	return ptr->signal != ExecuteControl_Run;
 }
 
+static int runcode_no_switch(Execute ptr, addr code)
+{
+	addr control;
+
+	control = ptr->control;
+point:
+	(void)runcode_normal(ptr, code);
+	if (ptr->state == ThreadState_Signal)
+		gcsync(ptr);
+	if (ptr->signal == ExecuteControl_Run)
+		return 0;
+	if (ptr->signal == ExecuteControl_Throw)
+		rollback_control(ptr, control);
+	if (runcode_signal(ptr, NULL))
+		goto point;
+
+	return ptr->signal != ExecuteControl_Run;
+}
+
 static int runcode_free(Execute ptr,
 		addr control, addr code, int (*call)(Execute, addr))
 {
@@ -2575,34 +1749,70 @@ static int runcode_free(Execute ptr,
 	return free_check_control(ptr, control, check);
 }
 
-static int runcode_tagbody(Execute ptr, addr code)
+static int runcode_control_return(Execute ptr, addr code)
+{
+	addr control;
+	push_return_control(ptr, &control);
+	return runcode_free(ptr, control, code, runcode_no_switch);
+}
+
+static int runcode_control_argument(Execute ptr, addr code)
+{
+	addr control;
+	push_argument_control(ptr, &control);
+	return runcode_free(ptr, control, code, runcode_no_switch);
+}
+
+static int runcode_control_push(Execute ptr, addr code)
+{
+	addr control;
+	push_push_control(ptr, &control);
+	return runcode_free(ptr, control, code, runcode_no_switch);
+}
+
+static int runcode_control_close(Execute ptr, addr code)
+{
+	addr control;
+	push_close_control(ptr, &control);
+	return runcode_free(ptr, control, code, runcode_no_switch);
+}
+
+static int runcode_control_protect(Execute ptr, addr code)
+{
+	addr control;
+	push_protect_control(ptr, &control);
+	setprotect_control(ptr->local, control, code);
+	return runcode_free(ptr, control, code, runcode_switch);
+}
+
+static int runcode_control_tagbody(Execute ptr, addr code)
 {
 	addr control;
 
 	push_tagbody_control(ptr, &control);
 	push_taginfo(ptr->local, control, code);
-	return runcode_free(ptr, control, code, runcode_switch);
+	return runcode_free(ptr, control, code, runcode_no_switch);
 }
 
-static int runcode_block(Execute ptr, addr code)
+static int runcode_control_block(Execute ptr, addr code)
 {
 	addr control;
 
 	push_block_control(ptr, &control);
 	push_blockinfo(ptr->local, control, code);
-	return runcode_free(ptr, control, code, runcode_switch);
+	return runcode_free(ptr, control, code, runcode_no_switch);
 }
 
-static int runcode_catch(Execute ptr, addr code)
+static int runcode_control_catch(Execute ptr, addr code)
 {
 	addr control;
 
 	push_return_control(ptr, &control);
 	push_catchinfo(ptr->local, control, code);
-	return runcode_free(ptr, control, code, runcode_switch);
+	return runcode_free(ptr, control, code, runcode_no_switch);
 }
 
-static int runcode_condition(Execute ptr, addr code)
+static int runcode_control_condition(Execute ptr, addr code)
 {
 	addr control, pos;
 
@@ -2623,68 +1833,48 @@ _g void push_restart_initialize_control(Execute ptr, addr *ret)
 	*ret = control;
 }
 
-static int runcode_restart(Execute ptr, addr code)
+static int runcode_control_restart(Execute ptr, addr code)
 {
 	addr control;
 	push_restart_initialize_control(ptr, &control);
 	return runcode_free(ptr, control, code, runcode_switch);
 }
 
+typedef int (*runcode_control_calltype)(Execute ptr, addr code);
+static runcode_control_calltype RunCodeControlTable[CodeType_Size];
+
+_g int runcode_control(Execute ptr, addr code)
+{
+	enum CodeType type;
+	runcode_control_calltype call;
+
+	CheckType(code, LISPTYPE_CODE);
+	type = gettype_code(code);
+	call = RunCodeControlTable[type];
+	Check(call == NULL, "CodeType error");
+	return (*call)(ptr, code);
+}
+
+static void init_runcode_control(void)
+{
+	RunCodeControlTable[CodeType_Default] = runcode_no_switch;
+	RunCodeControlTable[CodeType_Return] = runcode_control_return;
+	RunCodeControlTable[CodeType_Argument] = runcode_control_argument;
+	RunCodeControlTable[CodeType_Push] = runcode_control_push;
+	RunCodeControlTable[CodeType_Remove] = runcode_control_return;
+	RunCodeControlTable[CodeType_Close] = runcode_control_close;
+	RunCodeControlTable[CodeType_Protect] = runcode_control_protect;
+	RunCodeControlTable[CodeType_TagBody] = runcode_control_tagbody;
+	RunCodeControlTable[CodeType_Block] = runcode_control_block;
+	RunCodeControlTable[CodeType_Catch] = runcode_control_catch;
+	RunCodeControlTable[CodeType_Condition] = runcode_control_condition;
+	RunCodeControlTable[CodeType_Restart] = runcode_control_restart;
+}
+
 _g int signal_control(Execute ptr)
 {
 	Check(ptr->signal == ExecuteControl_Point, "signal error");
 	return ptr->signal != ExecuteControl_Run;
-}
-
-_g int runcode_control(Execute ptr, addr code)
-{
-	addr control;
-
-	CheckType(code, LISPTYPE_CODE);
-	switch (gettype_code(code)) {
-		case CodeType_Return:
-		case CodeType_Remove:
-			push_return_control(ptr, &control);
-			break;
-
-		case CodeType_Argument:
-			push_argument_control(ptr, &control);
-			break;
-
-		case CodeType_Push:
-			push_push_control(ptr, &control);
-			break;
-
-		case CodeType_Close:
-			push_close_control(ptr, &control);
-			break;
-
-		case CodeType_TagBody:
-			return runcode_tagbody(ptr, code);
-
-		case CodeType_Block:
-			return runcode_block(ptr, code);
-
-		case CodeType_Catch:
-			return runcode_catch(ptr, code);
-
-		case CodeType_Condition:
-			return runcode_condition(ptr, code);
-
-		case CodeType_Restart:
-			return runcode_restart(ptr, code);
-
-		case CodeType_Protect:
-			push_protect_control(ptr, &control);
-			setprotect_control(ptr->local, control, code);
-			break;
-
-		case CodeType_Default:
-		default:
-			return runcode_switch(ptr, code);
-	}
-
-	return runcode_free(ptr, control, code, runcode_switch);
 }
 
 static int execute_normal(Execute ptr, addr pos)
@@ -2705,14 +1895,6 @@ static int execute_normal(Execute ptr, addr pos)
 	}
 }
 
-static void execute_recursive(Execute ptr, addr pos)
-{
-	addr name;
-
-	GetNameFunction(pos, &name);
-	pushcallname_control(ptr, name, pos);
-}
-
 static void pushlexical_closure(Execute ptr, addr pos, addr value)
 {
 	addr control, list, snapshot;
@@ -2728,59 +1910,58 @@ static void pushlexical_closure(Execute ptr, addr pos, addr value)
 	pushlexical_closure_unsafe(ptr, pos, value);
 }
 
-static void execute_closure(Execute ptr,
-		addr cons1, addr cons2, addr cons3, addr cons4)
+static void execute_function_closure(Execute ptr, addr pos)
 {
-	addr key, pos;
+	addr key, value, list;
 
 	/* value */
-	while (cons1 != Nil) {
-		GetCons(cons1, &key, &cons1);
-		GetCons(key, &key, &pos);
-		pushlexical_closure(ptr, key, pos);
+	GetClosureValueFunction(pos, &list);
+	while (list != Nil) {
+		GetCons(list, &key, &list);
+		GetCons(key, &key, &value);
+		pushlexical_closure(ptr, key, value);
 	}
 
 	/* function / setf */
-	while (cons2 != Nil) {
-		GetCons(cons2, &key, &cons2);
-		GetCons(key, &key, &pos);
-		pushcallname_control(ptr, key, pos);
+	GetClosureFunctionFunction(pos, &list);
+	while (list != Nil) {
+		GetCons(list, &key, &list);
+		GetCons(key, &key, &value);
+		pushcallname_control(ptr, key, value);
 	}
 
 	/* tagbody */
-	while (cons3 != Nil) {
-		GetCons(cons3, &key, &cons3);
-		GetCons(key, &key, &pos);
-		pushtagbody_control(ptr, key, pos);
+	GetClosureTagbodyFunction(pos, &list);
+	while (list != Nil) {
+		GetCons(list, &key, &list);
+		GetCons(key, &key, &value);
+		pushtagbody_control(ptr, key, value);
 	}
 
 	/* block */
-	while (cons4 != Nil) {
-		GetCons(cons4, &pos, &cons4);
-		pushblock_control(ptr, pos);
+	GetClosureBlockFunction(pos, &list);
+	while (list != Nil) {
+		GetCons(list, &value, &list);
+		pushblock_control(ptr, value);
 	}
 }
 
 static int execute_function(Execute ptr, addr pos)
 {
-	int recp, check;
-	addr cons1, cons2, cons3, cons4, control;
+	addr control, name;
+	struct function_struct *str;
 
-	recp = recursivep_function(pos);
-	GetClosureValueFunction(pos, &cons1);
-	GetClosureFunctionFunction(pos, &cons2);
-	GetClosureTagbodyFunction(pos, &cons3);
-	GetClosureBlockFunction(pos, &cons4);
-	check = recp || cons1 != Nil || cons2 != Nil || cons3 != Nil || cons4 != Nil;
-	if (! check)
+	str = StructFunction(pos);
+	if (str->recursive == 0 && str->closure == 0)
 		return execute_normal(ptr, pos);
 
-	/* push */
+	/* closure or recursive */
 	push_argument_control(ptr, &control);
-	/* code */
-	if (recp)
-		execute_recursive(ptr, pos);
-	execute_closure(ptr, cons1, cons2, cons3, cons4);
+	if (str->recursive) {
+		GetNameFunction(pos, &name);
+		pushcallname_control(ptr, name, pos);
+	}
+	execute_function_closure(ptr, pos);
 	return runcode_free(ptr, control, pos, execute_normal);
 }
 
@@ -2812,7 +1993,7 @@ static int checkargs_var(Execute ptr, addr array, addr *args)
 	GetArrayA2(array, 0, &array); /* var */
 	while (array != Nil) {
 		if (*args == Nil)
-			fmte("Too few argument.", NULL);
+			_fmte("Too few argument.", NULL);
 		getcons(*args, &value, args);
 		GetCons(array, &type, &array);
 		if (typep_asterisk_error(ptr, value, type))
@@ -2895,7 +2076,7 @@ static int checkargs_restkey(Execute ptr, addr array, addr args)
 		key = T;
 	if (rest == Nil && key == Nil) {
 		if (args != Nil)
-			fmte("Too many argument.", NULL);
+			_fmte("Too many argument.", NULL);
 	}
 	for (keyvalue = 0; args != Nil; keyvalue = (! keyvalue)) {
 		getcons(args, &value, &args);
@@ -2914,7 +2095,7 @@ static int checkargs_restkey(Execute ptr, addr array, addr args)
 
 	/* error check */
 	if (key != Nil && keyvalue)
-		fmte("Invalid keyword argument.", NULL);
+		_fmte("Invalid keyword argument.", NULL);
 
 	return 0;
 }
@@ -3021,13 +2202,15 @@ _g int call_control(Execute ptr, addr args)
 	return apply_control(ptr, call, args);
 }
 
-_g void goto_control(Execute ptr, size_t point)
+_g int goto_control_(Execute ptr, size_t point)
 {
 	struct control_struct *str;
 
 	str = StructControl(ptr->control);
 	str->point = point;
 	ptr->signal = ExecuteControl_Point;
+
+	return 1;
 }
 
 static int go_find_control(Execute ptr, addr *ret, addr tag)
@@ -3052,21 +2235,22 @@ static int go_find_control(Execute ptr, addr *ret, addr tag)
 	return 0;
 }
 
-_g void go_control(Execute ptr, addr tag)
+_g int go_control_(Execute ptr, addr tag)
 {
 	addr pos;
 	struct taginfo_struct *str;
 
 	/* find tag */
 	if (! go_find_control(ptr, &pos, tag))
-		fmte("Cannot find tag ~S.", tag, NULL);
+		_fmte("Cannot find tag ~S.", tag, NULL);
 	str = StructTagInfo(pos);
 	if (str->open == 0)
-		fmte("Tag ~S already closed.", tag, NULL);
+		_fmte("Tag ~S already closed.", tag, NULL);
 
 	/* rollback */
 	ptr->signal = ExecuteControl_Throw;
 	ptr->taginfo = str;
+	return 1;
 }
 
 static int return_from_find_control(Execute ptr, addr *next, addr *ret, addr name)
@@ -3091,23 +2275,24 @@ static int return_from_find_control(Execute ptr, addr *next, addr *ret, addr nam
 	return 0;
 }
 
-_g void return_from_control(Execute ptr, addr name)
+_g int return_from_control_(Execute ptr, addr name)
 {
 	addr pos, next;
 	struct taginfo_struct *str;
 
 	/* find name */
 	if (! return_from_find_control(ptr, &next, &pos, name))
-		fmte("Cannot find block name ~S.", name, NULL);
+		_fmte("Cannot find block name ~S.", name, NULL);
 	str = StructTagInfo(pos);
 	if (str->open == 0)
-		fmte("Block ~S already closed.", name, NULL);
+		_fmte("Block ~S already closed.", name, NULL);
 
 	/* copy values */
 	copy_values_control(ptr->control, next);
 	/* rollback */
 	ptr->signal = ExecuteControl_Throw;
 	ptr->taginfo = str;
+	return 1;
 }
 
 _g void catch_control(Execute ptr, addr name)
@@ -3138,31 +2323,32 @@ static int throw_find_control(Execute ptr, addr *next, addr *ret, addr name)
 	return 0;
 }
 
-_g void throw_control(Execute ptr, addr name)
+_g int throw_control_(Execute ptr, addr name)
 {
 	addr pos, next;
 
 	/* find name */
 	if (! throw_find_control(ptr, &next, &pos, name))
-		fmte("Cannot find catch name ~S.", name, NULL);
+		_fmte("Cannot find catch name ~S.", name, NULL);
 	/* copy values */
 	copy_values_control(ptr->control, next);
 	/* rollback */
 	ptr->signal = ExecuteControl_Throw;
 	ptr->taginfo = StructTagInfo(pos);
+	return 1;
 }
 
 _g void gettagbody_execute(Execute ptr, addr *ret, addr name)
 {
 	if (! go_find_control(ptr, ret, name))
-		fmte("Cannot find tag name ~S", name, NULL);
+		_fmte("Cannot find tag name ~S", name, NULL);
 }
 
 _g void getblock_execute(Execute ptr, addr *ret, addr name)
 {
 	addr temp;
 	if (! return_from_find_control(ptr, &temp, ret, name))
-		fmte("Cannot find block name ~S", name, NULL);
+		_fmte("Cannot find block name ~S", name, NULL);
 }
 
 static int eval_control_p(addr control)
@@ -3232,7 +2418,7 @@ static void callclang_function(Execute ptr, addr *ret, addr call)
 			break;
 
 		default:
-			fmte("The object ~S cannot execute.", call, NULL);
+			_fmte("The object ~S cannot execute.", call, NULL);
 			break;
 	}
 }
@@ -3249,12 +2435,12 @@ static int values_apply(Execute ptr, LocalRoot local,
 	push_close_control(ptr, &control);
 	/* code */
 	if (apply_control(ptr, call, cons)) {
-		Return1(runcode_free_control(ptr, control));
+		Return(runcode_free_control(ptr, control));
 	}
 	else {
 		getvalues_list_control(ptr, local, ret);
 		localhold_set(hold, 0, *ret);
-		Return1(free_control(ptr, control));
+		Return(free_control(ptr, control));
 	}
 	localhold_end(hold);
 
@@ -3283,12 +2469,12 @@ static int values_stdarg(Execute ptr, LocalRoot local,
 	push_close_control(ptr, &control);
 	/* code */
 	if (stdarg_control(ptr, call, args)) {
-		Return1(runcode_free_control(ptr, control));
+		Return(runcode_free_control(ptr, control));
 	}
 	else {
 		getvalues_list_control(ptr, local, ret);
 		localhold_set(hold, 0, *ret);
-		Return1(free_control(ptr, control));
+		Return(free_control(ptr, control));
 	}
 	localhold_end(hold);
 
@@ -3370,12 +2556,12 @@ _g int callclang_apply(Execute ptr, addr *ret, addr call, addr cons)
 	push_close_control(ptr, &control);
 	/* code */
 	if (apply_control(ptr, call, cons)) {
-		Return1(runcode_free_control(ptr, control));
+		Return(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
 		localhold_set(hold, 0, *ret);
-		Return1(free_control(ptr, control));
+		Return(free_control(ptr, control));
 	}
 	localhold_end(hold);
 
@@ -3394,7 +2580,7 @@ _g int callclang_applya(Execute ptr, addr *ret, addr call, ...)
 	va_start(va, call);
 	lista_stdarg_alloc(ptr->local, &args, va);
 	va_end(va);
-	Return1(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, ret, call, args));
 	rollback_local(local, stack);
 
 	return 0;
@@ -3411,12 +2597,12 @@ _g int callclang_stdarg(Execute ptr, addr *ret, addr call, va_list args)
 	push_close_control(ptr, &control);
 	/* code */
 	if (stdarg_control(ptr, call, args)) {
-		Return1(runcode_free_control(ptr, control));
+		Return(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
 		localhold_set(hold, 0, *ret);
-		Return1(free_control(ptr, control));
+		Return(free_control(ptr, control));
 	}
 	localhold_end(hold);
 
@@ -3439,12 +2625,12 @@ _g int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 	check = stdarg_control(ptr, call, args);
 	va_end(args);
 	if (check) {
-		Return1(runcode_free_control(ptr, control));
+		Return(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
 		localhold_set(hold, 0, *ret);
-		Return1(free_control(ptr, control));
+		Return(free_control(ptr, control));
 	}
 	localhold_end(hold);
 
@@ -3469,12 +2655,12 @@ _g int callclang_char(Execute ptr, addr *ret,
 	check = stdarg_control(ptr, call, args);
 	va_end(args);
 	if (check) {
-		Return1(runcode_free_control(ptr, control));
+		Return(runcode_free_control(ptr, control));
 	}
 	else {
 		getresult_control(ptr, ret);
 		localhold_set(hold, 0, *ret);
-		Return1(free_control(ptr, control));
+		Return(free_control(ptr, control));
 	}
 	localhold_end(hold);
 
@@ -3517,5 +2703,21 @@ _g void info_control(addr control)
 	info_stack_control(control, 0);
 	info("**** STACK-FRAME END   ***");
 	info("**************************");
+}
+
+
+/*
+ *  initialize
+ */
+_g void init_control(void)
+{
+	init_close_control();
+	init_callbind_control();
+	init_runcode_control();
+
+#ifdef LISP_DEBUG_FORCE_GC
+	GcCounterForce = LISP_DEBUG_FORCE_GC;
+#endif
+	ControlCounter = 0;
 }
 

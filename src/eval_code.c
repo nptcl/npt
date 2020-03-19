@@ -2186,7 +2186,7 @@ _g void eval_code_execute(LocalRoot local, addr code, addr scope)
 	GetEvalScopeType(scope, &type);
 	call = EvalCodeTable[type];
 	if (call == NULL) {
-		fmte("Invalid scope type.", NULL);
+		_fmte("Invalid scope type.", NULL);
 		return;
 	}
 	(*call)(local, code, scope);

@@ -401,6 +401,7 @@ enum TypeTable {
 	TypeCompiled_GetInternalRealTime,
 	TypeCompiled_RemoveFile,
 	TypeCompiled_InfoBit,
+	TypeCompiled_CharEql,
 
 	/* Size */
 	TypeTable_Size

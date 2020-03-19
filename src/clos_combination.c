@@ -467,7 +467,7 @@ static int qualifiers_equal_symbol(Execute ptr, addr left, addr right)
 	return result;
 
 error:
-	fmte("The predicate ~S don't execute jump operation.", right, NULL);
+	_fmte("The predicate ~S don't execute jump operation.", right, NULL);
 	return 0;
 }
 
@@ -484,7 +484,7 @@ static int qualifiers_equal(Execute ptr, addr left, addr right)
 		return qualifiers_equal_symbol(ptr, left, right);
 
 	/* error */
-	fmte("Invalid method-combination-eualifiers ~S.", right, NULL);
+	_fmte("Invalid method-combination-eualifiers ~S.", right, NULL);
 	return 0;
 }
 
@@ -549,7 +549,7 @@ _g int check_qualifiers_equal(Execute ptr, addr comb, addr qua)
 	if (clos_short_combination_p(comb))
 		return check_qualifiers_equal_short(comb, qua);
 	/* error */
-	fmte("Invalid method-combination instance ~S.", comb, NULL);
+	_fmte("Invalid method-combination instance ~S.", comb, NULL);
 	return 0;
 }
 
@@ -573,7 +573,7 @@ _g void method_combination_qualifiers_count(addr comb, size_t *ret)
 		return;
 	}
 	/* error */
-	fmte("Invalid method-combination instance ~S.", comb, NULL);
+	_fmte("Invalid method-combination instance ~S.", comb, NULL);
 }
 
 static int qualifiers_position_standard_nil(addr qua, size_t *ret)
@@ -664,14 +664,14 @@ _g int qualifiers_position_nil(Execute ptr, addr qua, addr comb, size_t *ret)
 	if (clos_short_combination_p(comb))
 		return qualifiers_position_short_nil(qua, comb, ret);
 	/* error */
-	fmte("Invalid method-combination type ~S.", comb, NULL);
+	_fmte("Invalid method-combination type ~S.", comb, NULL);
 	return 0;
 }
 
 _g void qualifiers_position(Execute ptr, addr qua, addr comb, size_t *ret)
 {
 	if (qualifiers_position_nil(ptr, qua, comb, ret))
-		fmte("The qualifiers ~S is not found.", qua, NULL);
+		_fmte("The qualifiers ~S is not found.", qua, NULL);
 }
 
 
@@ -731,7 +731,7 @@ static int clos_method_combination_standard_p(addr pos)
 static void clos_method_combination_standard(addr comb, addr list, addr *ret)
 {
 	if (list != Nil)
-		fmte("Invalid STANDARD method-combination arguments ~S.", list, NULL);
+		_fmte("Invalid STANDARD method-combination arguments ~S.", list, NULL);
 	*ret = Nil;
 }
 
@@ -781,7 +781,7 @@ static void clos_method_combination_short_arguments(addr list, addr *ret)
 	}
 	/* error */
 error:
-	fmte("METHOD-COMBINATION ~S argument must be a "
+	_fmte("METHOD-COMBINATION ~S argument must be a "
 			":most-specific-first or :most-specific-last.", list, NULL);
 	*ret = 0;
 }
@@ -837,7 +837,7 @@ _g void clos_find_method_combination(addr gen, addr list, addr *ret)
 	}
 
 	/* error */
-	fmte("Invalid method-combination instance ~S.", list, NULL);
+	_fmte("Invalid method-combination instance ~S.", list, NULL);
 }
 
 
@@ -1313,7 +1313,7 @@ static void comb_shortform_make(addr *ret, addr comb, addr data)
 	/* required */
 	if (primary == Nil) {
 		stdget_shortcomb_name(comb, &primary);
-		fmte("The qualifier ~S must be at least one method.", primary, NULL);
+		_fmte("The qualifier ~S must be at least one method.", primary, NULL);
 		return;
 	}
 	/* order */

@@ -43,11 +43,12 @@ static int test_qualifiers_equal_list(void)
 	RETURN;
 }
 
-static void test_symbolcall(Execute ptr, addr right)
+static int test_symbolcall(Execute ptr, addr right)
 {
 	GetCar(right, &right);
 	right = (GetType(right) == LISPTYPE_CONS)? T: Nil;
 	setresult_control(ptr, right);
+	return 0;
 }
 
 static int test_qualifiers_equal_symbol(void)

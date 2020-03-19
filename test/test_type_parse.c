@@ -47,7 +47,7 @@ static int test_typecheck(addr pos, enum LISPDECL type, size_t size)
 static void test_parse_type_error(addr *ret, addr pos)
 {
 	if (parse_type(Execute_Thread, ret, pos, Nil))
-		fmte("parse-type error.");
+		_fmte("parse-type error.");
 }
 
 static void test_parse_char(addr *ret, const char *str)
@@ -371,7 +371,7 @@ static int test_type_function_list(void)
 static void test_parse_values(addr *ret, const char *str)
 {
 	if (type_function_values(Execute_Thread, ret, readr(str), Nil))
-		fmte("type_function_values error.");
+		_fmte("type_function_values error.");
 }
 
 static int test_type_values_var(void)
@@ -1023,10 +1023,11 @@ static int test_parse_type_default(void)
 	RETURN;
 }
 
-static void test_parse_type_list_call(Execute ptr, addr args)
+static int test_parse_type_list_call(Execute ptr, addr args)
 {
 	GetConst(COMMON_KEYWORD, &args);
 	setresult_control(ptr, args);
+	return 0;
 }
 
 static int test_parse_type_list(void)

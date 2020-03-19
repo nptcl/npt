@@ -6,6 +6,7 @@
 #include "degrade.h"
 #include "package.h"
 #include "sequence.h"
+#include "strvect.h"
 #include "type.h"
 #include "type_table.h"
 

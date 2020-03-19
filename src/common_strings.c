@@ -1,22 +1,16 @@
 /*
  *  ANSI COMMON LISP: 16. Strings
  */
-#include "array.h"
-#include "array_access.h"
-#include "array_make.h"
-#include "character.h"
 #include "common_header.h"
 #include "cons.h"
-#include "cons_plist.h"
-#include "integer.h"
 #include "strtype.h"
-#include "type_parse.h"
-#include "type_subtypep.h"
+#include "strtype_common.h"
 
 /* (defun stringp (object) ...) -> boolean */
-static void function_stringp(Execute ptr, addr var)
+static int function_stringp(Execute ptr, addr var)
 {
 	setbool_control(ptr, stringp(var));
+	return 0;
 }
 
 static void defun_stringp(void)
@@ -36,24 +30,11 @@ static void defun_stringp(void)
 
 
 /* (defun simple-string-p (object) ...) -> boolean */
-static void function_simple_string_p(Execute ptr, addr var)
+static int function_simple_string_p(Execute ptr, addr var)
 {
-	int check;
-
-	switch (GetType(var)) {
-		case LISPTYPE_STRING:
-			check = 1;
-			break;
-
-		case LISPTYPE_ARRAY:
-			check = array_simple_p(var) && array_stringp(var);
-			break;
-
-		default:
-			check = 0;
-			break;
-	}
-	setbool_control(ptr, check);
+	simple_string_p_common(var, &var);
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_simple_string_p(void)
@@ -76,31 +57,11 @@ static void defun_simple_string_p(void)
  *   string   string
  *   index    index
  */
-static void function_char(Execute ptr, addr var1, addr var2)
+static int function_char(Execute ptr, addr str, addr pos)
 {
-	unicode u;
-	size_t index, size;
-
-	if (GetIndex_integer(var2, &index))
-		fmte("Too large index value ~S.", var2, NULL);
-	if (GetType(var1) == LISPTYPE_STRING) {
-		strvect_length(var1, &size);
-		if (size <= index)
-			fmte("Out of valid string index, ~S.", var2, NULL);
-		strvect_getc(var1, index, &u);
-	}
-	else if (strarrayp(var1)) {
-		strarray_length_buffer(var1, &size); /* Don't use strarray_length */
-		if (size <= index)
-			fmte("Out of valid string index, ~S.", var2, NULL);
-		strarray_getc(var1, index, &u);
-	}
-	else {
-		fmte("The object ~S must be a string type.", var1, NULL);
-		return;
-	}
-	character_heap(&var1, u);
-	setresult_control(ptr, var1);
+	Return(char_common(str, pos, &str));
+	setresult_control(ptr, str);
+	return 0;
 }
 
 static void type_char(addr *ret)
@@ -134,31 +95,11 @@ static void defun_char(void)
  *   string   string
  *   index    index
  */
-static void function_schar(Execute ptr, addr var1, addr var2)
+static int function_schar(Execute ptr, addr str, addr pos)
 {
-	unicode u;
-	size_t index, size;
-
-	if (GetIndex_integer(var2, &index))
-		fmte("Too large index value ~S.", var2, NULL);
-	if (GetType(var1) == LISPTYPE_STRING) {
-		strvect_length(var1, &size);
-		if (size <= index)
-			fmte("Out of valid string index, ~S.", var2, NULL);
-		strvect_getc(var1, index, &u);
-	}
-	else if (strarrayp(var1)) {
-		strarray_length(var1, &size); /* Don't use strarray_length_buffer */
-		if (size <= index)
-			fmte("Out of valid string index, ~S.", var2, NULL);
-		strarray_getc(var1, index, &u);
-	}
-	else {
-		fmte("The object ~S must be a string type.", var1, NULL);
-		return;
-	}
-	character_heap(&var1, u);
-	setresult_control(ptr, var1);
+	Return(schar_common(str, pos, &str));
+	setresult_control(ptr, str);
+	return 0;
 }
 
 static void type_schar(addr *ret)
@@ -189,30 +130,11 @@ static void defun_schar(void)
 
 
 /* (defun (setf char) (character string index) ...) -> character */
-static void function_setf_char(Execute ptr, addr value, addr pos, addr index)
+static int function_setf_char(Execute ptr, addr value, addr pos, addr index)
 {
-	size_t size;
-	unicode c;
-
-	if (GetIndex_integer(index, &size))
-		fmte("Too large index value ~S.", index, NULL);
-	GetCharacter(value, &c);
-	switch (GetType(pos)) {
-		case LISPTYPE_STRING:
-			strvect_setc(pos, size, c);
-			break;
-
-		case LISPTYPE_ARRAY:
-			if (! array_stringp(pos))
-				TypeError(pos, STRING);
-			array_set_character(pos, size, c);
-			break;
-
-		default:
-			TypeError(pos, STRING);
-			break;
-	}
+	Return(setf_char_common(value, pos, index));
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_char(addr *ret)
@@ -275,11 +197,11 @@ static void defun_setf_schar(void)
 /* (defun string (x) ...) -> string
  *   x  (or string symbol character)  ;; string-designer
  */
-static void function_string(Execute ptr, addr var)
+static int function_string(Execute ptr, addr var)
 {
-	if (! string_designer_heap(&var, var))
-		TypeError(var, STRING);
+	Return(string_common(var, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_string(addr *ret)
@@ -312,51 +234,11 @@ static void defun_string(void)
  *   start  keyword-start
  *   end    keyword-end
  */
-static void function_string_case(Execute ptr, addr var, addr rest,
-		size_t (*call)(size_t, size_t, addr, addr))
+static int function_string_upcase(Execute ptr, addr var, addr rest)
 {
-	addr pos;
-	unicode u;
-	size_t start, end, size, i;
-
-	if (! string_designer_heap(&var, var))
-		TypeError(var, STRING);
-	string_length(var, &size);
-	keyword_start_end(size, rest, &start, &end);
-	strvect_heap(&pos, size);
-
-	/* start */
-	for (i = 0; i < start; i++) {
-		string_getc(var, i, &u);
-		strvect_setc(pos, i, u);
-	}
-	/* case */
-	i = call(i, end, var, pos);
-	/* end */
-	for (; i < size; i++) {
-		string_getc(var, i, &u);
-		strvect_setc(pos, i, u);
-	}
-
-	/* result */
-	setresult_control(ptr, pos);
-}
-
-static size_t string_upcase_call(size_t i, size_t end, addr var, addr pos)
-{
-	unicode u;
-
-	for (; i < end; i++) {
-		string_getc(var, i, &u);
-		strvect_setc(pos, i, toUpperUnicode(u));
-	}
-
-	return i;
-}
-
-static void function_string_upcase(Execute ptr, addr var, addr rest)
-{
-	function_string_case(ptr, var, rest, string_upcase_call);
+	Return(string_upcase_common(var, rest, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_string_upcase(void)
@@ -379,21 +261,11 @@ static void defun_string_upcase(void)
  *   start  keyword-start
  *   end    keyword-end
  */
-static size_t string_downcase_call(size_t i, size_t end, addr var, addr pos)
+static int function_string_downcase(Execute ptr, addr var, addr rest)
 {
-	unicode u;
-
-	for (; i < end; i++) {
-		string_getc(var, i, &u);
-		strvect_setc(pos, i, toLowerUnicode(u));
-	}
-
-	return i;
-}
-
-static void function_string_downcase(Execute ptr, addr var, addr rest)
-{
-	function_string_case(ptr, var, rest, string_downcase_call);
+	Return(string_downcase_common(var, rest, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_string_downcase(void)
@@ -416,48 +288,11 @@ static void defun_string_downcase(void)
  *   start  keyword-start
  *   end    keyword-end
  */
-static size_t string_capitalize_call(size_t i, size_t end, addr var, addr pos)
+static int function_string_capitalize(Execute ptr, addr var, addr rest)
 {
-	int alphabet, mode;
-	unicode c;
-
-	mode = alphabet = 0;
-	for (; i < end; i++) {
-		string_getc(var, i, &c);
-		if (mode == 0) {
-			/* not alphabet */
-			if (isAlphanumeric(c)) {
-				alphabet = 1; /* upper */
-				mode = 1;
-			}
-			else {
-				alphabet = 0; /* not alphabet */
-			}
-		}
-		else {
-			/* alphabet */
-			if (isAlphanumeric(c)) {
-				alphabet = 2; /* lower */
-			}
-			else {
-				alphabet = 0; /* not alphabet */
-				mode = 0;
-			}
-		}
-		switch (alphabet) {
-			case 1: c = toUpperUnicode(c); break;
-			case 2: c = toLowerUnicode(c); break;
-			default: break;
-		}
-		strvect_setc(pos, i, c);
-	}
-
-	return i;
-}
-
-static void function_string_capitalize(Execute ptr, addr var, addr rest)
-{
-	function_string_case(ptr, var, rest, string_capitalize_call);
+	Return(string_capitalize_common(var, rest, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_string_capitalize(void)
@@ -480,22 +315,11 @@ static void defun_string_capitalize(void)
  *   start  keyword-start
  *   end    keyword-end
  */
-static void function_nstring_case(Execute ptr, addr var, addr rest,
-		size_t (*call)(size_t, size_t, addr, addr))
+static int function_nstring_upcase(Execute ptr, addr var, addr rest)
 {
-	size_t start, end, size;
-
-	if (GetStatusReadOnly(var))
-		fmte("Cannot update the constant object ~S.", var, NULL);
-	string_length(var, &size);
-	keyword_start_end(size, rest, &start, &end);
-	call(start, end, var, var);
+	Return(nstring_upcase_common(var, rest));
 	setresult_control(ptr, var);
-}
-
-static void function_nstring_upcase(Execute ptr, addr var, addr rest)
-{
-	function_nstring_case(ptr, var, rest, string_upcase_call);
+	return 0;
 }
 
 static void defun_nstring_upcase(void)
@@ -518,9 +342,11 @@ static void defun_nstring_upcase(void)
  *   start  keyword-start
  *   end    keyword-end
  */
-static void function_nstring_downcase(Execute ptr, addr var, addr rest)
+static int function_nstring_downcase(Execute ptr, addr var, addr rest)
 {
-	function_nstring_case(ptr, var, rest, string_downcase_call);
+	Return(nstring_downcase_common(var, rest));
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_nstring_downcase(void)
@@ -543,9 +369,11 @@ static void defun_nstring_downcase(void)
  *   start  keyword-start
  *   end    keyword-end
  */
-static void function_nstring_capitalize(Execute ptr, addr var, addr rest)
+static int function_nstring_capitalize(Execute ptr, addr var, addr rest)
 {
-	function_nstring_case(ptr, var, rest, string_capitalize_call);
+	Return(nstring_capitalize_common(var, rest));
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_nstring_capitalize(void)
@@ -565,149 +393,11 @@ static void defun_nstring_capitalize(void)
 
 
 /* (defun string-trim (sequence string) ...) -> string */
-static int trim_string_check(addr string, unicode u)
+static int function_string_trim(Execute ptr, addr trim, addr pos)
 {
-	unicode c;
-	size_t i, size;
-
-	string_length(string, &size);
-	for (i = 0; i < size; i++) {
-		string_getc(string, i, &c);
-		if (c == u) return 1;
-	}
-
+	Return(string_trim_common(trim, pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
-}
-
-static int trim_list_check(addr list, unicode u)
-{
-	unicode c;
-	addr pos;
-
-	while (list != Nil) {
-		getcons(list, &pos, &list);
-		if (GetType(pos) == LISPTYPE_CHARACTER) {
-			GetCharacter(pos, &c);
-			if (c == u) return 1;
-		}
-	}
-
-	return 0;
-}
-
-static int trim_vector_check(addr vector, unicode u)
-{
-	unicode c;
-	addr pos;
-	size_t size, i;
-
-	lenarray(vector, &size);
-	for (i = 0; i < size; i++) {
-		getarray(vector, i, &pos);
-		if (GetType(pos) == LISPTYPE_CHARACTER) {
-			GetCharacter(pos, &c);
-			if (c == u) return 1;
-		}
-	}
-
-	return 0;
-}
-
-static int trim_array_check(addr pos, unicode u)
-{
-	unicode c;
-	size_t size, i;
-
-	if (array_stringp(pos))
-		return trim_string_check(pos, u);
-	if (! array_vector_p(pos))
-		TypeError(pos, SEQUENCE);
-	size = array_get_vector_length(pos, 1);
-	for (i = 0; i < size; i++) {
-		array_get_unicode(pos, i, &c);
-		if (c == u)
-			return 1;
-	}
-
-	return 0;
-}
-
-static int trim_sequence_check(addr seq, unicode u)
-{
-	switch (GetType(seq)) {
-		case LISPTYPE_NIL:
-			return 0;
-
-		case LISPTYPE_CONS:
-			return trim_list_check(seq, u);
-
-		case LISPTYPE_STRING:
-			return trim_string_check(seq, u);
-
-		case LISPTYPE_VECTOR:
-			return trim_vector_check(seq, u);
-
-		case LISPTYPE_ARRAY:
-			return trim_array_check(seq, u);
-
-		default:
-			TypeError(seq, SEQUENCE);
-			return 0;
-	}
-}
-
-static void move_start_trim(addr seq, addr var, size_t *start, size_t end)
-{
-	unicode u;
-	size_t i;
-
-	for (i = *start; i < end; i++) {
-		string_getc(var, i, &u);
-		if (! trim_sequence_check(seq, u)) break;
-	}
-	*start = i;
-}
-
-static void move_end_trim(addr seq, addr var, size_t start, size_t *end)
-{
-	unicode u;
-	size_t i;
-
-	for (i = *end; start < i; i--) {
-		string_getc(var, i - 1, &u);
-		if (! trim_sequence_check(seq, u)) break;
-	}
-	*end = i;
-}
-
-static void function_string_trim(Execute ptr, addr var1, addr var2)
-{
-	unicode u;
-	size_t start, end, size, i;
-
-	if (! string_designer_heap(&var2, var2))
-		TypeError(var2, STRING);
-	start = 0;
-	string_length(var2, &end);
-	move_start_trim(var1, var2, &start, end);
-	if (end <= start)
-		goto null_string;
-	move_end_trim(var1, var2, start, &end);
-	if (end <= start)
-		goto null_string;
-	/* new string */
-	size = end - start;
-	strvect_heap(&var1, size);
-	for (i = 0; i < size; i++) {
-		string_getc(var2, i + start, &u);
-		strvect_setc(var1, i, u);
-	}
-	setresult_control(ptr, var1);
-	return;
-
-null_string:
-	strvect_heap(&var1, 0);
-	setresult_control(ptr, var1);
 }
 
 static void defun_string_trim(void)
@@ -725,31 +415,11 @@ static void defun_string_trim(void)
 	settype_function_symbol(symbol, type);
 }
 
-static void function_string_left_trim(Execute ptr, addr var1, addr var2)
+static int function_string_left_trim(Execute ptr, addr trim, addr pos)
 {
-	unicode u;
-	size_t start, end, size, i;
-
-	if (! string_designer_heap(&var2, var2))
-		TypeError(var2, STRING);
-	start = 0;
-	string_length(var2, &end);
-	move_start_trim(var1, var2, &start, end);
-	if (end <= start)
-		goto null_string;
-	/* new string */
-	size = end - start;
-	strvect_heap(&var1, size);
-	for (i = 0; i < size; i++) {
-		string_getc(var2, i + start, &u);
-		strvect_setc(var1, i, u);
-	}
-	setresult_control(ptr, var1);
-	return;
-
-null_string:
-	strvect_heap(&var1, 0);
-	setresult_control(ptr, var1);
+	Return(string_left_trim_common(trim, pos, &pos));
+	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_string_left_trim(void)
@@ -767,31 +437,11 @@ static void defun_string_left_trim(void)
 	settype_function_symbol(symbol, type);
 }
 
-static void function_string_right_trim(Execute ptr, addr var1, addr var2)
+static int function_string_right_trim(Execute ptr, addr trim, addr pos)
 {
-	unicode u;
-	size_t start, end, size, i;
-
-	if (! string_designer_heap(&var2, var2))
-		TypeError(var2, STRING);
-	start = 0;
-	string_length(var2, &end);
-	move_end_trim(var1, var2, start, &end);
-	if (end <= start)
-		goto null_string;
-	/* new string */
-	size = end - start;
-	strvect_heap(&var1, size);
-	for (i = 0; i < size; i++) {
-		string_getc(var2, i + start, &u);
-		strvect_setc(var1, i, u);
-	}
-	setresult_control(ptr, var1);
-	return;
-
-null_string:
-	strvect_heap(&var1, 0);
-	setresult_control(ptr, var1);
+	Return(string_right_trim_common(trim, pos, &pos));
+	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_string_right_trim(void)
@@ -820,35 +470,11 @@ static void defun_string_right_trim(void)
  *   boolean   boolean
  *   mismatch  indexnull
  */
-static void function_string_eql(Execute ptr, addr var1, addr var2, addr rest)
+static int function_string_eql(Execute ptr, addr var1, addr var2, addr rest)
 {
-	size_t size1, size2, start1, start2, end1, end2;
-	size_t diff1, diff2, i;
-	unicode a, b;
-
-	if (! string_designer_heap(&var1, var1))
-		TypeError(var1, STRING);
-	if (! string_designer_heap(&var2, var2))
-		TypeError(var2, STRING);
-	string_length(var1, &size1);
-	keyword_start1_end1(size1, rest, &start1, &end1);
-	string_length(var2, &size2);
-	keyword_start2_end2(size2, rest, &start2, &end2);
-	diff1 = end1 - start1;
-	diff2 = end2 - start2;
-	if (diff1 != diff2) {
-		setresult_control(ptr, Nil);
-		return;
-	}
-	for (i = 0; i < diff1; i++) {
-		string_getc(var1, start1 + i, &a);
-		string_getc(var2, start2 + i, &b);
-		if (a != b) {
-			setresult_control(ptr, Nil);
-			return;
-		}
-	}
-	setresult_control(ptr, T);
+	Return(string_eql_common(var1, var2, rest, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void defun_string_eql(void)
@@ -868,57 +494,11 @@ static void defun_string_eql(void)
 
 
 /* (defun string/= (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
-static void function_string_call(Execute ptr, addr var1, addr var2, addr rest,
-		int (*callu)(unicode, unicode),
-		int (*calli)(size_t, size_t))
+static int function_string_not_eql(Execute ptr, addr var1, addr var2, addr rest)
 {
-	size_t size1, size2, start1, start2, end1, end2;
-	size_t diff1, diff2, i;
-	unicode a, b;
-
-	if (! string_designer_heap(&var1, var1))
-		TypeError(var1, STRING);
-	if (! string_designer_heap(&var2, var2))
-		TypeError(var2, STRING);
-	string_length(var1, &size1);
-	keyword_start1_end1(size1, rest, &start1, &end1);
-	string_length(var2, &size2);
-	keyword_start2_end2(size2, rest, &start2, &end2);
-	diff1 = end1 - start1;
-	diff2 = end2 - start2;
-	for (i = 0; i < diff1 && i < diff2; i++) {
-		string_getc(var1, start1 + i, &a);
-		string_getc(var2, start2 + i, &b);
-		if (a != b) {
-			if (callu(a, b))
-				goto finish;
-			else
-				goto finish_nil;
-		}
-	}
-	if (calli(diff1, diff2))
-		goto finish;
-
-finish_nil:
-	setresult_control(ptr, Nil);
-	return;
-
-finish:
-	make_index_integer_alloc(NULL, &var1, start1 + i);
+	Return(string_not_eql_common(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
-}
-
-static int character_not_eql(unicode a, unicode b)
-{
-	return a != b;
-}
-static int index_not_eql(size_t a, size_t b)
-{
-	return a != b;
-}
-static void function_string_not_eql(Execute ptr, addr var1, addr var2, addr rest)
-{
-	function_string_call(ptr, var1, var2, rest, character_not_eql, index_not_eql);
+	return 0;
 }
 
 static void defun_string_not_eql(void)
@@ -938,17 +518,11 @@ static void defun_string_not_eql(void)
 
 
 /* (defun string< (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
-static int character_less(unicode a, unicode b)
+static int function_string_less(Execute ptr, addr var1, addr var2, addr rest)
 {
-	return a < b;
-}
-static int index_less(size_t a, size_t b)
-{
-	return a < b;
-}
-static void function_string_less(Execute ptr, addr var1, addr var2, addr rest)
-{
-	function_string_call(ptr, var1, var2, rest, character_less, index_less);
+	Return(string_less_common(var1, var2, rest, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void defun_string_less(void)
@@ -968,17 +542,11 @@ static void defun_string_less(void)
 
 
 /* (defun string> (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
-static int character_greater(unicode a, unicode b)
+static int function_string_greater(Execute ptr, addr var1, addr var2, addr rest)
 {
-	return a > b;
-}
-static int index_greater(size_t a, size_t b)
-{
-	return a > b;
-}
-static void function_string_greater(Execute ptr, addr var1, addr var2, addr rest)
-{
-	function_string_call(ptr, var1, var2, rest, character_greater, index_greater);
+	Return(string_greater_common(var1, var2, rest, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void defun_string_greater(void)
@@ -998,18 +566,11 @@ static void defun_string_greater(void)
 
 
 /* (defun string<= (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
-static int character_less_equal(unicode a, unicode b)
+static int function_string_less_equal(Execute ptr, addr var1, addr var2, addr rest)
 {
-	return a <= b;
-}
-static int index_less_equal(size_t a, size_t b)
-{
-	return a <= b;
-}
-static void function_string_less_equal(Execute ptr, addr var1, addr var2, addr rest)
-{
-	function_string_call(ptr, var1, var2, rest,
-			character_less_equal, index_less_equal);
+	Return(string_less_equal_common(var1, var2, rest, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void defun_string_less_equal(void)
@@ -1029,18 +590,11 @@ static void defun_string_less_equal(void)
 
 
 /* (defun string>= (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
-static int character_greater_equal(unicode a, unicode b)
+static int function_string_greater_equal(Execute ptr, addr var1, addr var2, addr rest)
 {
-	return a >= b;
-}
-static int index_greater_equal(size_t a, size_t b)
-{
-	return a >= b;
-}
-static void function_string_greater_equal(Execute ptr, addr var1, addr var2, addr rest)
-{
-	function_string_call(ptr, var1, var2, rest,
-			character_greater_equal, index_greater_equal);
+	Return(string_greater_equal_common(var1, var2, rest, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void defun_string_greater_equal(void)
@@ -1062,35 +616,11 @@ static void defun_string_greater_equal(void)
 /* (defun string-equal (string1 string2 &key start1 end1 start2 end2) ...)
  *   -> mismatch
  */
-static void function_string_equal(Execute ptr, addr var1, addr var2, addr rest)
+static int function_string_equal(Execute ptr, addr var1, addr var2, addr rest)
 {
-	size_t size1, size2, start1, start2, end1, end2;
-	size_t diff1, diff2, i;
-	unicode a, b;
-
-	if (! string_designer_heap(&var1, var1))
-		TypeError(var1, STRING);
-	if (! string_designer_heap(&var2, var2))
-		TypeError(var2, STRING);
-	string_length(var1, &size1);
-	keyword_start1_end1(size1, rest, &start1, &end1);
-	string_length(var2, &size2);
-	keyword_start2_end2(size2, rest, &start2, &end2);
-	diff1 = end1 - start1;
-	diff2 = end2 - start2;
-	if (diff1 != diff2) {
-		setresult_control(ptr, Nil);
-		return;
-	}
-	for (i = 0; i < diff1; i++) {
-		string_getc(var1, start1 + i, &a);
-		string_getc(var2, start2 + i, &b);
-		if (toUpperUnicode(a) != toUpperUnicode(b)) {
-			setresult_control(ptr, Nil);
-			return;
-		}
-	}
-	setresult_control(ptr, T);
+	Return(string_equal_common(var1, var2, rest, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void defun_string_equal(void)
@@ -1112,51 +642,11 @@ static void defun_string_equal(void)
 /* (defun string-not-equal (string1 string2 &key start1 end1 start2 end2) ...)
  *   -> mismatch
  */
-static void function_string_callp(Execute ptr, addr var1, addr var2, addr rest,
-		int (*callu)(unicode, unicode),
-		int (*calli)(size_t, size_t))
+static int function_string_not_equal(Execute ptr, addr var1, addr var2, addr rest)
 {
-	size_t size1, size2, start1, start2, end1, end2;
-	size_t diff1, diff2, i;
-	unicode a, b;
-
-	if (! string_designer_heap(&var1, var1))
-		TypeError(var1, STRING);
-	if (! string_designer_heap(&var2, var2))
-		TypeError(var2, STRING);
-	string_length(var1, &size1);
-	keyword_start1_end1(size1, rest, &start1, &end1);
-	string_length(var2, &size2);
-	keyword_start2_end2(size2, rest, &start2, &end2);
-	diff1 = end1 - start1;
-	diff2 = end2 - start2;
-	for (i = 0; i < diff1 && i < diff2; i++) {
-		string_getc(var1, start1 + i, &a);
-		string_getc(var2, start2 + i, &b);
-		a = toUpperUnicode(a);
-		b = toUpperUnicode(b);
-		if (a != b) {
-			if (callu(a, b))
-				goto finish;
-			else
-				goto finish_nil;
-		}
-	}
-	if (calli(diff1, diff2))
-		goto finish;
-
-finish_nil:
-	setresult_control(ptr, Nil);
-	return;
-
-finish:
-	make_index_integer_alloc(NULL, &var1, start1 + i);
+	Return(string_not_equal_common(var1, var2, rest, &var1));
 	setresult_control(ptr, var1);
-}
-
-static void function_string_not_equal(Execute ptr, addr var1, addr var2, addr rest)
-{
-	function_string_callp(ptr, var1, var2, rest, character_not_eql, index_not_eql);
+	return 0;
 }
 
 static void defun_string_not_equal(void)
@@ -1178,9 +668,11 @@ static void defun_string_not_equal(void)
 /* (defun string-lessp (string1 string2 &key start1 end1 start2 end2) ...)
  *   -> mismatch
  */
-static void function_string_lessp(Execute ptr, addr var1, addr var2, addr rest)
+static int function_string_lessp(Execute ptr, addr var1, addr var2, addr rest)
 {
-	function_string_callp(ptr, var1, var2, rest, character_less, index_less);
+	Return(string_lessp_common(var1, var2, rest, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void defun_string_lessp(void)
@@ -1202,9 +694,11 @@ static void defun_string_lessp(void)
 /* (defun string-greaterp (string1 string2 &key start1 end1 start2 end2) ...)
  *   -> mismatch
  */
-static void function_string_greaterp(Execute ptr, addr var1, addr var2, addr rest)
+static int function_string_greaterp(Execute ptr, addr var1, addr var2, addr rest)
 {
-	function_string_callp(ptr, var1, var2, rest, character_greater, index_greater);
+	Return(string_greaterp_common(var1, var2, rest, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void defun_string_greaterp(void)
@@ -1226,10 +720,11 @@ static void defun_string_greaterp(void)
 /* (defun string-not-graeter (string1 string2 &key start1 end1 start2 end2) ...)
  *   -> mismatch
  */
-static void function_string_not_greaterp(Execute ptr, addr var1, addr var2, addr rest)
+static int function_string_not_greaterp(Execute ptr, addr var1, addr var2, addr rest)
 {
-	function_string_callp(ptr, var1, var2, rest,
-			character_less_equal, index_less_equal);
+	Return(string_not_greaterp_common(var1, var2, rest, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void defun_string_not_greaterp(void)
@@ -1249,10 +744,11 @@ static void defun_string_not_greaterp(void)
 
 
 /* (defun string>= (string1 string2 &key start1 end1 start2 end2) ...) -> mismatch */
-static void function_string_not_lessp(Execute ptr, addr var1, addr var2, addr rest)
+static int function_string_not_lessp(Execute ptr, addr var1, addr var2, addr rest)
 {
-	function_string_callp(ptr, var1, var2, rest,
-			character_greater_equal, index_greater_equal);
+	Return(string_not_lessp_common(var1, var2, rest, &var1));
+	setresult_control(ptr, var1);
+	return 0;
 }
 
 static void defun_string_not_lessp(void)
@@ -1277,41 +773,11 @@ static void defun_string_not_lessp(void)
  *   element-type     t   ;; type-specifier
  *   string           simple-string
  */
-static void function_make_string(Execute ptr, addr var, addr rest)
+static int function_make_string(Execute ptr, addr var, addr rest)
 {
-	int invalid;
-	addr symbol, value;
-	unicode u;
-	size_t size;
-
-	/* size */
-	if (GetIndex_integer(var, &size))
-		fmte("Too large index value ~S.", var, NULL);
-
-	/* initial-elemnet */
-	u = 0;
-	GetConst(KEYWORD_INITIAL_ELEMENT, &symbol);
-	if (getplist(rest, symbol, &value) == 0) {
-		if (GetType(value) != LISPTYPE_CHARACTER)
-			fmte("Invalid :initial-element ~S.", value, NULL);
-		GetCharacter(value, &u);
-	}
-
-	/* element-type */
-	GetConst(KEYWORD_ELEMENT_TYPE, &symbol);
-	if (getplist(rest, symbol, &value) == 0) {
-		GetTypeTable(&symbol, Character);
-		if (parse_type(ptr, &value, value, Nil))
-			return;
-		if (! subtypep_clang(value, symbol, &invalid))
-			fmte(":element-type ~S must be a subtype of character.", value, NULL);
-		/* check only */
-	}
-
-	/* make-string */
-	strvect_heap(&var, size);
-	strvect_setall(var, u);
+	Return(make_string_common(ptr, var, rest, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_make_string(addr *ret)

@@ -10,6 +10,7 @@
 #include "print_write.h"
 #include "prompt.h"
 #include "readtable.h"
+#include "restart.h"
 #include "stream.h"
 #include "stream_string.h"
 #include "symbol.h"
@@ -17,20 +18,23 @@
 /*
  *  restart abort
  */
-static void function_eval_loop_abort_function(Execute ptr)
+static int function_eval_loop_abort_function(Execute ptr)
 {
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
-static void function_eval_loop_abort_report(Execute ptr, addr stream)
+static int function_eval_loop_abort_report(Execute ptr, addr stream)
 {
-	Return0(format_stream(ptr, stream, "Return to eval-loop.", NULL));
+	Return(format_stream(ptr, stream, "Return to eval-loop.", NULL));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
-static void function_eval_loop_abort_test(Execute ptr, addr condition)
+static int function_eval_loop_abort_test(Execute ptr, addr condition)
 {
 	setresult_control(ptr, T);
+	return 0;
 }
 
 static void eval_main_restart_abort(addr *ret)
@@ -151,7 +155,7 @@ static int eval_loop_stream(Execute ptr, addr stream, addr pos)
 		return runcode_free_control(ptr, control);
 	}
 	else {
-		Return1(eval_loop_output(ptr, stream, pos));
+		Return(eval_loop_output(ptr, stream, pos));
 		return free_control(ptr, control);
 	}
 }
@@ -352,7 +356,7 @@ static int evalrestart_string(Execute ptr, addr eval, int *abort)
 _g void eval_main_string(Execute ptr, addr eval, int *abort)
 {
 	if (evalrestart_string(ptr, eval, abort))
-		fmte("Cannot catch a system signal.", NULL);
+		_fmte("Cannot catch a system signal.", NULL);
 }
 
 
@@ -399,7 +403,7 @@ _g int eval_main_load(Execute ptr, addr file, int exists, int *abort)
 {
 	int result;
 	if (evalrestart_load(ptr, file, exists, &result, abort))
-		fmte("Cannot catch a system signal.", NULL);
+		_fmte("Cannot catch a system signal.", NULL);
 	return result;
 }
 

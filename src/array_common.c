@@ -9,6 +9,7 @@
 #include "cons_plist.h"
 #include "function.h"
 #include "integer.h"
+#include "strvect.h"
 #include "type_parse.h"
 
 /*
@@ -142,16 +143,16 @@ static void array_array_dimension_common(addr array, addr axis, addr *ret)
 	str = ArrayInfoStruct(array);
 	dimension = str->dimension;
 	if (dimension == 0) {
-		fmte("The array have no dimension.", NULL);
+		_fmte("The array have no dimension.", NULL);
 	}
 	if (GetIndex_integer(axis, &index)) {
 		if (minusp_integer(axis))
-			fmte("Index ~A must be a non-negative integer.", axis, NULL);
+			_fmte("Index ~A must be a non-negative integer.", axis, NULL);
 		else
-			fmte("Index ~A is too large.", axis, NULL);
+			_fmte("Index ~A is too large.", axis, NULL);
 	}
 	if (dimension <= index) {
-		fmte("The dimension index ~A must be less than "
+		_fmte("The dimension index ~A must be less than "
 				"the array-dimension limit ~A.", axis, intsizeh(dimension), NULL);
 	}
 	index = (array_ptrsize(array))[index];
@@ -355,12 +356,12 @@ static int array_array_in_bounds_p_common(addr array, addr rest)
 	list = rest;
 	for (i = 0; i < size; i++) {
 		if (list == Nil)
-			fmte("The subscripts ~S is too few arguments.", rest, NULL);
+			_fmte("The subscripts ~S is too few arguments.", rest, NULL);
 		if (! consp(list))
-			fmte("Invalid subscripts arguments ~S.", rest, NULL);
+			_fmte("Invalid subscripts arguments ~S.", rest, NULL);
 		GetCons(list, &pos, &list);
 		if (! integerp(pos))
-			fmte("The subscript ~S must be integer type.", pos, NULL);
+			_fmte("The subscript ~S must be integer type.", pos, NULL);
 		if (GetIndex_integer(pos, &check)) {
 			/* minus or large value */
 			result = 0;
@@ -373,7 +374,7 @@ static int array_array_in_bounds_p_common(addr array, addr rest)
 		}
 	}
 	if (list != Nil)
-		fmte("The subscripts ~S is too many arguments.", rest, NULL);
+		_fmte("The subscripts ~S is too many arguments.", rest, NULL);
 
 	return result;
 }
@@ -578,7 +579,7 @@ _g void row_major_aref_common(addr array, addr index, addr *ret)
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		fmte("Index ~A is too large.", index, NULL);
+		_fmte("Index ~A is too large.", index, NULL);
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
 			array_get(NULL, array, size, ret);
@@ -608,7 +609,7 @@ _g void setf_row_major_aref_common(addr value, addr array, addr index)
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		fmte("Index ~A is too large.", index, NULL);
+		_fmte("Index ~A is too large.", index, NULL);
 	switch (GetType(array)) {
 		case LISPTYPE_ARRAY:
 			array_set(array, size, value);
@@ -659,7 +660,7 @@ _g void svref_common(addr pos, addr index, addr *ret)
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		fmte("Index ~A is too large.", index, NULL);
+		_fmte("Index ~A is too large.", index, NULL);
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
 			array_get(NULL, pos, size, ret);
@@ -681,7 +682,7 @@ _g void setf_svref_common(addr value, addr pos, addr index)
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		fmte("Index ~A is too large.", index, NULL);
+		_fmte("Index ~A is too large.", index, NULL);
 	switch (GetType(pos)) {
 		case LISPTYPE_ARRAY:
 			array_set(pos, size, value);

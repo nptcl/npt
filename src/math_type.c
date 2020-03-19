@@ -345,7 +345,7 @@ _g enum MathType getmathreal2_float(struct mathreal2_struct *ptr, addr x, addr y
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			break;
 	}
 	ptr->type = type;
@@ -384,7 +384,7 @@ _g enum MathType getmathreal2_addr(struct mathreal2_struct *ptr, addr x, addr y)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			break;
 	}
 	ptr->type = type;
@@ -531,7 +531,7 @@ _g enum MathType getmathcomplex1_log(struct mathreal2_struct *ptr, addr pos)
 
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			break;
 	}
 	ptr->type = type;
@@ -570,7 +570,7 @@ _g enum MathType getmathcomplex1_inverse(struct mathreal2_struct *ptr, addr pos)
 
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			break;
 	}
 	ptr->type = type;
@@ -611,7 +611,7 @@ _g enum MathType getmathcomplex1_sqrt(struct mathreal2_struct *ptr, addr pos)
 
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			break;
 	}
 	ptr->type = type;
@@ -940,7 +940,7 @@ _g enum MathType getmathcomplex2_float(struct mathcomplex2_struct *ptr, addr x, 
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			break;
 	}
 	ptr->type = type;
@@ -983,7 +983,7 @@ _g enum MathType getmathcomplex2_addr(struct mathcomplex2_struct *ptr, addr x, a
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			break;
 	}
 	ptr->type = type;

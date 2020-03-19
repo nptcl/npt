@@ -10,9 +10,9 @@
 #include "stream.h"
 #include "symbol.h"
 
-#define Fmt1(x) Return1(format_stream(ptr, stream, x, NULL))
-#define Fmt2(x,y) Return1(format_stream(ptr, stream, x, y, NULL))
-#define Fmt3(x,y,z) Return1(format_stream(ptr, stream, x, y, z, NULL))
+#define Fmt1(x) Return(format_stream(ptr, stream, x, NULL))
+#define Fmt2(x,y) Return(format_stream(ptr, stream, x, y, NULL))
+#define Fmt3(x,y,z) Return(format_stream(ptr, stream, x, y, z, NULL))
 
 /*
  *  disassemble
@@ -104,7 +104,7 @@ static int disassemble_code_body(Execute ptr, addr stream, addr pos)
 		getarray(pos, i, &car);
 		getarray(args, i, &cdr);
 		GetCar(car, &car);
-		Return1(disassemble_code_operator(ptr, stream, car, cdr));
+		Return(disassemble_code_operator(ptr, stream, car, cdr));
 	}
 
 	return 0;
@@ -116,9 +116,9 @@ static int disassemble_code(Execute ptr, addr stream, addr code)
 		return 0;
 	/* code */
 	CheckType(code, LISPTYPE_CODE);
-	Return1(disassemble_code_type(ptr, stream, code));
-	Return1(disassemble_code_info(ptr, stream, code));
-	Return1(disassemble_code_body(ptr, stream, code));
+	Return(disassemble_code_type(ptr, stream, code));
+	Return(disassemble_code_info(ptr, stream, code));
+	Return(disassemble_code_body(ptr, stream, code));
 	Fmt1("CODE-END~%");
 
 	return 0;
@@ -142,7 +142,7 @@ static int disassemble_function(Execute ptr, addr stream, addr pos)
 	}
 	else {
 		Fmt2("INTERPRETED-FUNCTION ~S.~%", pos);
-		Return1(disassemble_interpreted(ptr, stream, pos));
+		Return(disassemble_interpreted(ptr, stream, pos));
 	}
 
 	return 0;
@@ -158,7 +158,7 @@ _g int disassemble_common(Execute ptr, addr var)
 		if (check == Unbound) {
 			getmacro_symbol(var, &check);
 			if (check == Unbound) {
-				fmte("Invalid argument ~S.", var);
+				_fmte("Invalid argument ~S.", var);
 				return 0;
 			}
 		}
@@ -187,12 +187,12 @@ _g void trace_common(addr form, addr env, addr *ret)
 	/* add trace */
 	for (list = Nil; form != Nil; ) {
 		if (! consp(form)) {
-			fmtw("TRACE arguemnt ~S don't set a dotted list.", form, NULL);
+			_fmtw("TRACE arguemnt ~S don't set a dotted list.", form, NULL);
 			break;
 		}
 		GetCons(form, &pos, &form);
 		if (parse_callname_heap(&value, pos)) {
-			fmtw("TRACE argument ~S should be a function-name.", pos, NULL);
+			_fmtw("TRACE argument ~S should be a function-name.", pos, NULL);
 			continue;
 		}
 		cons_heap(&list, pos, list);
@@ -225,12 +225,12 @@ _g void untrace_common(addr form, addr env, addr *ret)
 	/* del trace */
 	for (list = Nil; form != Nil; ) {
 		if (! consp(form)) {
-			fmtw("TRACE arguemnt ~S don't set a dotted list.", form, NULL);
+			_fmtw("TRACE arguemnt ~S don't set a dotted list.", form, NULL);
 			break;
 		}
 		GetCons(form, &pos, &form);
 		if (parse_callname_heap(&value, pos)) {
-			fmtw("TRACE argument ~S should be a function-name.", pos, NULL);
+			_fmtw("TRACE argument ~S should be a function-name.", pos, NULL);
 			continue;
 		}
 		cons_heap(&list, pos, list);
@@ -257,7 +257,7 @@ static void defun_trace_function_index(Execute ptr, addr *ret)
 	*ret = pos;
 }
 
-static void defun_trace_function(Execute ptr, addr rest)
+static int defun_trace_function(Execute ptr, addr rest)
 {
 	addr list, name, pos, index, stream;
 
@@ -268,12 +268,14 @@ static void defun_trace_function(Execute ptr, addr rest)
 	/* begin */
 	trace_output_stream(ptr, &stream);
 	cons_heap(&list, name, rest);
-	Return0(format_stream(ptr, stream, "~&~A: ~S~%", index, list, NULL));
+	Return(format_stream(ptr, stream, "~&~A: ~S~%", index, list, NULL));
 	/* call */
 	apply_control(ptr, pos, rest);
 	/* end */
 	getvalues_list_control_heap(ptr, &list);
-	Return0(format_stream(ptr, stream, "~&~A: Result => ~S~%", index, list, NULL));
+	Return(format_stream(ptr, stream, "~&~A: Result => ~S~%", index, list, NULL));
+
+	return 0;
 }
 
 static void trace_add_make(Execute ptr, addr name, addr call, addr pos, addr *ret)
@@ -296,18 +298,18 @@ static int trace_add_function(Execute ptr, addr name, addr call)
 
 	/* callname */
 	if (GetStatusReadOnly(call)) {
-		fmtw("The function ~S is constant.", call, NULL);
+		_fmtw("The function ~S is constant.", call, NULL);
 		return 1; /* error */
 	}
 
 	/* function */
 	getfunction_callname_global(call, &pos);
 	if (pos == Unbound) {
-		fmtw("The function ~S is unbound.", call, NULL);
+		_fmtw("The function ~S is unbound.", call, NULL);
 		return 1; /* error */
 	}
 	if (tracep_function(pos)) {
-		fmtw("The function ~S is already traced.", pos, NULL);
+		_fmtw("The function ~S is already traced.", pos, NULL);
 		return 0; /* normal */
 	}
 
@@ -355,18 +357,18 @@ static int trace_del_function(Execute ptr, addr name, addr call)
 
 	/* callname */
 	if (GetStatusReadOnly(call)) {
-		fmtw("The function ~S is constant.", call, NULL);
+		_fmtw("The function ~S is constant.", call, NULL);
 		return 1; /* error */
 	}
 
 	/* function */
 	getfunction_callname_global(call, &pos);
 	if (pos == Unbound) {
-		fmtw("The function ~S is unbound.", call, NULL);
+		_fmtw("The function ~S is unbound.", call, NULL);
 		return 1; /* error */
 	}
 	if (! tracep_function(pos)) {
-		fmtw("The function ~S is not traced.", pos, NULL);
+		_fmtw("The function ~S is not traced.", pos, NULL);
 		return 0; /* normal */
 	}
 
@@ -384,7 +386,7 @@ static void trace_del_remove(Execute ptr, addr name)
 	GetConst(SYSTEM_TRACE_LIST, &symbol);
 	getspecialcheck_local(ptr, symbol, &list);
 	if (! delete_list_equal_unsafe(name, list, &list)) {
-		fmtw("There is no function ~S in *trace-list*", name, NULL);
+		_fmtw("There is no function ~S in *trace-list*", name, NULL);
 		return;
 	}
 	setspecial_local(ptr, symbol, list);
@@ -426,12 +428,12 @@ _g void step_common(Execute ptr, addr form, addr env, addr *ret)
 	if (form != Nil)
 		goto error;
 
-	fmte("TODO", NULL);
+	_fmte("TODO", NULL);
 	*ret = eval;
 	return;
 
 error:
-	fmte("STEP argument ~S must be a (eval) form.", form, NULL);
+	_fmte("STEP argument ~S must be a (eval) form.", form, NULL);
 }
 
 

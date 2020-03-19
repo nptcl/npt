@@ -1,60 +1,85 @@
 #ifndef __CHARACTER_HEADER__
 #define __CHARACTER_HEADER__
 
+#include "character_check.h"
+#include "local.h"
 #include "typedef.h"
 
-#define IntegerBaseMax		36
-#define isBaseChar(x)       (2 <= (x) && (x) <= IntegerBaseMax)
-#define isUpperCase(x)      ('A' <= (x) && (x) <= 'Z')
-#define isLowerCase(x)      ('a' <= (x) && (x) <= 'z')
-#define isDigitCase(x)      ('0' <= (x) && (x) <= '9')
-#define isAlphabetic(x)     (isUpperCase(x) || isLowerCase(x))
-#define isAlphanumeric(x)   (isAlphabetic(x) || isDigitCase(x))
-#define _isGraphUnicode(x)	(0x21 <= (x) && (x) <= 0x7E)
-#define isSpaceUnicode(x) \
-	(((x) == ' ') || ((x) == '\t') || ((x) == '\n') || \
-	 ((x) == '\v') || ((x) == '\f') || ((x) == '\r'))
-#define toUpperUnicode(x)   (isLowerCase(x)? ((x)-'a'+'A'): (x))
-#define toLowerUnicode(x)   (isUpperCase(x)? ((x)-'A'+'a'): (x))
+#define LISP_CHARACTER_CACHE		0x80
 
-#define UnicodeCount		((1UL + 16UL) * 0x010000UL)
-#define isSurrogatePair(x)  (0xD800 <= (x) && (x) <= 0xDFFF)
-#define isBaseRange(x)		((x) < UnicodeCount)
-#define isStandardType(x)   (((x)==0x0A) || (0x20<=(x) && (x)<=0x7E))
-#define isBaseType(x)		(isBaseRange(x) && (! isSurrogatePair(x)))
-#define isExtendedType(x)	(0x80000000UL <= (x))
+enum CHARACTER_TYPE {
+	CHARACTER_TYPE_EMPTY,
+	CHARACTER_TYPE_STANDARD,
+	CHARACTER_TYPE_BASE,
+	CHARACTER_TYPE_EXTENDED,
+	CHARACTER_TYPE_INVALID,
+	CHARACTER_TYPE_SIZE
+};
 
-/* character check */
-_g int isbasechar(unicode x);
-_g int isuppercase(unicode x);
-_g int islowercase(unicode x);
-_g int isdigitcase(unicode x);
-_g int isalphabetic(unicode x);
-_g int isalphanumeric(unicode x);
-_g int isgraphunicode(unicode x);
-_g int isspaceunicode(unicode x);
-_g unicode toupperunicode(unicode x);
-_g unicode tolowerunicode(unicode x);
+#define PtrCharacter_Low(x)			((const unicode *)PtrBodyB2(x))
+#define RefCharacter_Low(x)			(*PtrCharacter_Low(x))
+#define GetCharacter_Low(x,v)		GetvBodyB2((x),unicode,(v))
+#define SetCharacter_Low(x,v)		SetvBodyB2((x),unicode,(v))
+#define RefCharacterType(x)			((enum CHARACTER_TYPE)GetUser(x))
+#define GetCharacterType(x,v)		(*(v) = RefCharacterType(x))
+#define SetCharacterType(x,v)		SetUser((x),(byte)(v))
 
-/* character type */
-_g int issurrogatepair(unicode x);
-_g int isbaserange(unicode x);
-_g int isstandardtype(unicode x);
-_g int isbasetype(unicode x);
-_g int isextendedtype(unicode x);
+#ifdef LISP_DEBUG
+#define RefCharacter(x)				(*ptrcharacter(x))
+#define GetCharacter(x,v)			getcharacter((x),(v))
+#define SetCharacter_unsafe(x,v)	setcharacter_unsafe((x),(v))
+#else
+#define RefCharacter(x)				RefCharacter_Low(x)
+#define GetCharacter(x,v)			GetCharacter_Low(x,v)
+#define SetCharacter_unsafe(x,v)	SetCharacter_Low(x,v)
+#endif
 
-/* equal */
+/* character */
+_g addr make_character_allocr(LocalRoot local, unicode value);
+_g addr character_allocr(LocalRoot root, unicode value);
+_g addr character_localr(LocalRoot root, unicode value);
+_g addr character_heapr(unicode value);
+_g void character_alloc(LocalRoot root, addr *ret, unicode value);
+_g void character_local(LocalRoot root, addr *ret, unicode value);
+_g void character_heap(addr *ret, unicode value);
+
+_g enum CHARACTER_TYPE character_type(unicode u);
+_g const unicode *ptrcharacter(addr pos);
+_g unicode refcharacter(addr pos);
+_g void getcharacter(addr pos, unicode *value);
+_g void setcharacter_unsafe(addr pos, unicode value);
+_g int standard_char_p(addr pos);
+_g int base_char_p(addr pos);
+_g int extended_char_p(addr pos);
+_g int characterp(addr pos);
+
+_g int unicode_equalp(unicode left, unicode right);
+_g int unicode_comparep(unicode left, unicode right);
+_g int character_equal(addr left, addr right);
+_g int character_equalp(addr left, addr right);
+_g int character_compare(addr left, addr right);
+_g int character_comparep(addr left, addr right);
+_g int character_unicode_equal(addr left, unicode right);
+_g int character_unicode_equalp(addr left, unicode right);
+_g int character_unicode_compare(addr left, unicode right);
+_g int character_unicode_comparep(addr left, unicode right);
+
 _g int character_equal_unicode(addr left, unicode right);
 _g int character_equalp_unicode(addr left, unicode right);
+
+/* character2 */
+_g void character2_heap(addr *ret, unicode a, unicode b);
+_g unicode refcharacter2a(addr pos);
+_g unicode refcharacter2b(addr pos);
+_g void getcharacter2a(addr pos, unicode *ret);
+_g void getcharacter2b(addr pos, unicode *ret);
+_g void setcharacter2a(addr pos, unicode value);
+_g void setcharacter2b(addr pos, unicode value);
+
 _g int character2_equal_unicode(addr left, unicode a, unicode b);
 _g int character2_equalp_unicode(addr left, unicode a, unicode b);
 
-/* character table */
 _g void build_character(void);
-_g int findtable_unicode_name(addr *ret, unicode u);
-_g int findtable_char_name(addr *ret, addr pos);
-_g int findtable_name_char(addr *ret, addr name);
-_g int find_name_char(addr *ret, addr name);
 
 #endif
 

@@ -3,6 +3,7 @@
 #include "array_vector.h"
 #include "bignum.h"
 #include "build.h"
+#include "character.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -18,9 +19,11 @@
 #include "real_float.h"
 #include "sequence.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "type_constant.h"
 #include "type_table.h"
+#include "unicode.h"
 
 /*
  *  nil, t
@@ -376,7 +379,7 @@ int lisp_reader(addr *ret, addr str)
 	int check;
 	addr value;
 
-	Return1(read_from_string(Execute_Thread, &check, &value, str));
+	Return(read_from_string(Execute_Thread, &check, &value, str));
 	*ret = check? NULL: value;
 
 	return 0;
@@ -391,7 +394,7 @@ int lisp_reader8(addr *ret, const void *str)
 	local = Local_Thread;
 	push_local(local, &stack);
 	string8_null_local(local, &x, (const char *)str);
-	Return1(lisp_reader(ret, x));
+	Return(lisp_reader(ret, x));
 	rollback_local(local, stack);
 
 	return 0;
@@ -406,7 +409,7 @@ int lisp_reader16(addr *ret, const void *str)
 	local = Local_Thread;
 	push_local(local, &stack);
 	string16_null_local(local, &x, (const byte16 *)str);
-	Return1(lisp_reader(ret, x));
+	Return(lisp_reader(ret, x));
 	rollback_local(local, stack);
 
 	return 0;
@@ -419,7 +422,7 @@ int lisp_reader16(addr *ret, const void *str)
 void lisp_push_lexical(addr symbol, addr value)
 {
 	if (! symbolp(symbol))
-		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	if (value == NULL)
 		value = Nil;
 	pushlexical_control(Execute_Thread, symbol, value);
@@ -442,7 +445,7 @@ void lisp_push_lexical16(const void *name, addr value)
 void lisp_push_special(addr symbol, addr value)
 {
 	if (! symbolp(symbol))
-		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	if (value == NULL)
 		value = Unbound;
 	pushspecial_control(Execute_Thread, symbol, value);
@@ -465,7 +468,7 @@ void lisp_push_special16(const void *name, addr value)
 addr lisp_get_lexical(addr symbol)
 {
 	if (! symbolp(symbol))
-		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	getlexical_local(Execute_Thread, symbol, &symbol);
 	return (symbol == Unbound)? NULL: symbol;
 }
@@ -487,7 +490,7 @@ addr lisp_get_lexical16(const void *name)
 addr lisp_get_special(addr symbol)
 {
 	if (! symbolp(symbol))
-		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	getspecial_local(Execute_Thread, symbol, &symbol);
 	return (symbol == Unbound)? NULL: symbol;
 }
@@ -509,9 +512,9 @@ addr lisp_get_special16(const void *name)
 void lisp_set_lexical(addr symbol, addr value)
 {
 	if (! symbolp(symbol))
-		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	if (value == NULL)
-		fmte("The lexical symbol ~S don't set Unbound.", symbol, NULL);
+		_fmte("The lexical symbol ~S don't set Unbound.", symbol, NULL);
 	setlexical_local(Execute_Thread, symbol, value);
 }
 
@@ -532,7 +535,7 @@ void lisp_set_lexical16(const void *name, addr value)
 void lisp_set_special(addr symbol, addr value)
 {
 	if (! symbolp(symbol))
-		fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	if (value == NULL)
 		value = Unbound;
 	setspecial_local(Execute_Thread, symbol, value);
@@ -625,7 +628,7 @@ int lisp_minusp(addr value)
 unicode lisp_get_character(addr pos)
 {
 	if (! characterp(pos))
-		fmte("The argument ~S must be a character type.", pos, NULL);
+		_fmte("The argument ~S must be a character type.", pos, NULL);
 	return RefCharacter(pos);
 }
 
@@ -651,7 +654,7 @@ float lisp_get_float(addr pos)
 			return single_float_ratio(pos);
 
 		default:
-			fmte("The argument ~S must be a real type.", pos, NULL);
+			_fmte("The argument ~S must be a real type.", pos, NULL);
 			return 0.0f;
 	}
 }
@@ -678,7 +681,7 @@ double lisp_get_double(addr pos)
 			return double_float_ratio(pos);
 
 		default:
-			fmte("The argument ~S must be a real type.", pos, NULL);
+			_fmte("The argument ~S must be a real type.", pos, NULL);
 			return 0.0;
 	}
 }
@@ -705,7 +708,7 @@ long double lisp_get_long_double(addr pos)
 			return long_float_ratio(pos);
 
 		default:
-			fmte("The argument ~S must be a real type.", pos, NULL);
+			_fmte("The argument ~S must be a real type.", pos, NULL);
 			return 0.0;
 	}
 }
@@ -750,7 +753,7 @@ int lisp_funcall(addr *ret, addr call, ...)
 	va_end(va);
 
 	call = lisp_function(call);
-	Return1(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, ret, call, args));
 	rollback_local(local, stack);
 
 	return 0;
@@ -772,7 +775,7 @@ int lisp_funcall8(addr *ret, const void *str, ...)
 	va_end(va);
 
 	call = lisp_function8(str);
-	Return1(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, ret, call, args));
 	rollback_local(local, stack);
 
 	return 0;
@@ -794,7 +797,7 @@ int lisp_funcall16(addr *ret, const void *str, ...)
 	va_end(va);
 
 	call = lisp_function16(str);
-	Return1(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, ret, call, args));
 	rollback_local(local, stack);
 
 	return 0;
@@ -816,7 +819,7 @@ int lisp_apply(addr *ret, addr call, ...)
 	va_end(va);
 
 	call = lisp_function(call);
-	Return1(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, ret, call, args));
 	rollback_local(local, stack);
 
 	return 0;
@@ -838,7 +841,7 @@ int lisp_apply8(addr *ret, const void *str, ...)
 	va_end(va);
 
 	call = lisp_function8(str);
-	Return1(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, ret, call, args));
 	rollback_local(local, stack);
 
 	return 0;
@@ -860,7 +863,7 @@ int lisp_apply16(addr *ret, const void *str, ...)
 	va_end(va);
 
 	call = lisp_function16(str);
-	Return1(callclang_apply(ptr, ret, call, args));
+	Return(callclang_apply(ptr, ret, call, args));
 	rollback_local(local, stack);
 
 	return 0;

@@ -6,7 +6,6 @@
 #include "object.h"
 #include "stream.h"
 #include "strtype.h"
-#include "unicode.h"
 
 typedef int (*read_char_calltype)(struct filememory *, unicode *);
 typedef int (*read_hang_calltype)(struct filememory *, unicode *, int *);
@@ -143,7 +142,7 @@ _g int writebom_encode(struct filememory *fm)
  */
 static int read_char_binary(struct filememory *fm, unicode *u)
 {
-	fmte("Cannot execute read-char in binary stream.", NULL);
+	_fmte("Cannot execute read-char in binary stream.", NULL);
 	return -1;
 }
 
@@ -154,7 +153,7 @@ static int read_char_ascii(struct filememory *fm, unicode *u)
 
 	check = getc_filememory(fm, &c);
 	if (check < 0)
-		fmte("getc error", NULL);
+		_fmte("getc error", NULL);
 	if (check)
 		return 1;
 	if (0x80 <= c) {
@@ -259,7 +258,7 @@ static int read_char_utf32be(struct filememory *fm, unicode *u)
 
 static int read_char_windows(struct filememory *fm, unicode *u)
 {
-	fmte("Invalid external-format :windows.", NULL);
+	_fmte("Invalid external-format :windows.", NULL);
 	return -1;
 }
 
@@ -286,7 +285,7 @@ _g int read_char_encode(struct filememory *fm, unicode *c)
  */
 static int read_hang_binary(struct filememory *fm, unicode *u, int *hang)
 {
-	fmte("Cannot execute read-char-no-hang in binary stream.", NULL);
+	_fmte("Cannot execute read-char-no-hang in binary stream.", NULL);
 	return -1;
 }
 
@@ -298,7 +297,7 @@ static int read_hang_ascii(struct filememory *fm, unicode *u, int *hang)
 
 	check = getc_nonblocking_filememory(fm, &c, &size);
 	if (check < 0)
-		fmte("getc_nonblocking error", NULL);
+		_fmte("getc_nonblocking error", NULL);
 	if (check)
 		return 1;
 	if (size == 0) {
@@ -414,7 +413,7 @@ static int read_hang_utf32be(struct filememory *fm, unicode *u, int *hang)
 
 static int read_hang_windows(struct filememory *fm, unicode *u, int *hang)
 {
-	fmte("Invalid external-format :windows.", NULL);
+	_fmte("Invalid external-format :windows.", NULL);
 	return -1;
 }
 
@@ -441,7 +440,7 @@ _g int read_hang_encode(struct filememory *fm, unicode *c, int *hang)
  */
 static int write_char_binary(struct filememory *fm, unicode u)
 {
-	fmte("Cannot execute write-char in binary stream.", NULL);
+	_fmte("Cannot execute write-char in binary stream.", NULL);
 	return -1;
 }
 
@@ -600,7 +599,7 @@ normal:
 #else
 static int write_char_windows(struct filememory *fm, unicode u)
 {
-	fmte("This implementation cannot write a windows encode.", NULL);
+	_fmte("This implementation cannot write a windows encode.", NULL);
 	return -1;
 }
 #endif
@@ -739,7 +738,7 @@ normal:
 #else
 static int length_char_windows(struct filememory *fm, unicode c)
 {
-	fmte("This implementation cannot use a windows encode.", NULL);
+	_fmte("This implementation cannot use a windows encode.", NULL);
 	return -1;
 }
 #endif

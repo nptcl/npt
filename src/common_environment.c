@@ -24,16 +24,19 @@
  *   week        (integer 0 6)  ;; 0 means Monday.
  *   daylight-p  boolean
  */
-static void function_decode_universal_time(Execute ptr, addr pos, addr zone)
+static int function_decode_universal_time(Execute ptr, addr pos, addr zone)
 {
 	struct universal_time_struct u;
 
-	if (zone == Unbound) zone = Nil;
+	if (zone == Unbound)
+		zone = Nil;
 	decode_universal_time_common(ptr->local, &u, pos, zone);
 	setvalues_control(ptr,
 			u.second, u.minute, u.hour,
 			u.date, u.month, u.year,
 			u.week, u.daylight_p, u.zone, NULL);
+
+	return 0;
 }
 
 static void type_decode_universal_time(addr *ret)
@@ -75,7 +78,7 @@ static void defun_decode_universal_time(void)
  *   zone            (rational -24 24)
  *   universal-time  (integer 0 *)
  */
-static void function_encode_universal_time(Execute ptr, addr rest)
+static int function_encode_universal_time(Execute ptr, addr rest)
 {
 	addr s, mi, h, d, m, y, z;
 
@@ -89,10 +92,10 @@ static void function_encode_universal_time(Execute ptr, addr rest)
 	if (consp(rest)) goto error;
 	encode_universal_time_common(ptr->local, &s, s, mi, h, d, m, y, z);
 	setresult_control(ptr, s);
-	return;
+	return 0;
 
 error:
-	fmte("Invalid argument ENCODE-UNIVERSAL-TIME.", NULL);
+	return fmte("Invalid argument ENCODE-UNIVERSAL-TIME.", NULL);
 }
 
 static void type_encode_universal_time(addr *ret)
@@ -129,11 +132,14 @@ static void defun_encode_universal_time(void)
 
 
 /* (defun get-universal-time () ...) -> universal-time */
-static void function_get_universal_time(Execute ptr)
+static int function_get_universal_time(Execute ptr)
 {
 	addr pos;
+
 	get_universal_time_common(ptr->local, &pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void type_get_universal_time(addr *ret)
@@ -165,7 +171,7 @@ static void defun_get_universal_time(void)
  *   -> second, minute, hour, date, month, year, week, daylight-p, zone
  * (get-decoded-time) == (decode-universal-time (get-universal-time))
  */
-static void function_get_decoded_time(Execute ptr)
+static int function_get_decoded_time(Execute ptr)
 {
 	struct universal_time_struct u;
 
@@ -174,6 +180,8 @@ static void function_get_decoded_time(Execute ptr)
 			u.second, u.minute, u.hour,
 			u.date, u.month, u.year,
 			u.week, u.daylight_p, u.zone, NULL);
+
+	return 0;
 }
 
 static void type_get_decoded_time(addr *ret)
@@ -204,10 +212,11 @@ static void defun_get_decoded_time(void)
 /* (defun sleep (seconds) ...) -> null
  *   seconds  (real 0 *)
  */
-static void function_sleep(Execute ptr, addr var)
+static int function_sleep(Execute ptr, addr var)
 {
-	Return0(sleep_common(ptr, var));
+	Return(sleep_common(ptr, var));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_sleep(addr *ret)
@@ -237,10 +246,11 @@ static void defun_sleep(void)
 
 
 /* (defun apropos (string-designer) ...) -> (values) */
-static void function_apropos(Execute ptr, addr var, addr opt)
+static int function_apropos(Execute ptr, addr var, addr opt)
 {
-	Return0(apropos_common(ptr, var, (opt == Unbound)? Nil: opt));
+	Return(apropos_common(ptr, var, (opt == Unbound)? Nil: opt));
 	setvalues_nil_control(ptr);
+	return 0;
 }
 
 static void type_apropos(addr *ret)
@@ -271,10 +281,11 @@ static void defun_apropos(void)
 
 
 /* (defun apropos-list (string-designer) ...) -> (values) */
-static void function_apropos_list(Execute ptr, addr var, addr opt)
+static int function_apropos_list(Execute ptr, addr var, addr opt)
 {
-	Return0(apropos_list_common(ptr, var, (opt == Unbound)? Nil: opt, &var));
+	Return(apropos_list_common(ptr, var, (opt == Unbound)? Nil: opt, &var));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_apropos_list(addr *ret)
@@ -305,10 +316,11 @@ static void defun_apropos_list(void)
 
 
 /* (defun describe (object &optional stream) ...) -> (values) */
-static void function_describe(Execute ptr, addr var, addr opt)
+static int function_describe(Execute ptr, addr var, addr opt)
 {
-	Return0(describe_common(ptr, var, opt));
+	Return(describe_common(ptr, var, opt));
 	setvalues_nil_control(ptr);
+	return 0;
 }
 
 static void type_describe(addr *ret)
@@ -339,10 +351,11 @@ static void defun_describe(void)
 
 
 /* (defmacro trace (&rest args) ...) -> list */
-static void function_trace(Execute ptr, addr form, addr env)
+static int function_trace(Execute ptr, addr form, addr env)
 {
 	trace_common(form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defun_trace(void)
@@ -360,10 +373,11 @@ static void defun_trace(void)
 
 
 /* (defmacro untrace (&rest args) ...) -> list */
-static void function_untrace(Execute ptr, addr form, addr env)
+static int function_untrace(Execute ptr, addr form, addr env)
 {
 	untrace_common(form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defun_untrace(void)
@@ -381,10 +395,11 @@ static void defun_untrace(void)
 
 
 /* (defmacro step (form) ...) -> result */
-static void function_step(Execute ptr, addr form, addr env)
+static int function_step(Execute ptr, addr form, addr env)
 {
 	step_common(ptr, form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_step(void)
@@ -402,10 +417,11 @@ static void defmacro_step(void)
 
 
 /* (defmacro time (form) ...) -> result) */
-static void function_time(Execute ptr, addr form, addr env)
+static int function_time(Execute ptr, addr form, addr env)
 {
 	time_common(form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_time(void)
@@ -436,11 +452,14 @@ static void defconstant_internal_time_units_per_second(void)
 
 
 /* (defun get-internal-real-time () ...) -> (integer 0 *) */
-static void function_get_internal_real_time(Execute ptr)
+static int function_get_internal_real_time(Execute ptr)
 {
 	addr pos;
+
 	get_internal_real_time_common(ptr->local, &pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_get_internal_real_time(void)
@@ -460,11 +479,14 @@ static void defun_get_internal_real_time(void)
 
 
 /* (defun get-internal-run-time () ...) -> (integer 0 *) */
-static void function_get_internal_run_time(Execute ptr)
+static int function_get_internal_run_time(Execute ptr)
 {
 	addr pos;
+
 	get_internal_run_time_common(&pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_get_internal_run_time(void)
@@ -484,10 +506,11 @@ static void defun_get_internal_run_time(void)
 
 
 /* (defun disassemble (extended-function-designer) ...) -> nil */
-static void function_disassemble(Execute ptr, addr var)
+static int function_disassemble(Execute ptr, addr var)
 {
-	Return0(disassemble_common(ptr, var));
+	Return(disassemble_common(ptr, var));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_disassemble(addr *ret)
@@ -519,10 +542,11 @@ static void defun_disassemble(void)
 /* (defun room (&optional x) ...) -> null
  *   x  (member t nil :default)
  */
-static void function_room(Execute ptr, addr var)
+static int function_room(Execute ptr, addr var)
 {
 	room_common(ptr, var);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_room(addr *ret)
@@ -553,10 +577,11 @@ static void defun_room(void)
 
 
 /* (defun ed (&optional x) ...) -> null */
-static void function_ed(Execute ptr, addr var)
+static int function_ed(Execute ptr, addr var)
 {
-	Return0(ed_common(ptr, var));
+	Return(ed_common(ptr, var));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_ed(addr *ret)
@@ -589,10 +614,11 @@ static void defun_ed(void)
 
 
 /* (defun inspect (object) ...) -> null */
-static void function_inspect(Execute ptr, addr var)
+static int function_inspect(Execute ptr, addr var)
 {
-	Return0(inspect_common(ptr, var));
+	Return(inspect_common(ptr, var));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_inspect(addr *ret)
@@ -622,10 +648,11 @@ static void defun_inspect(void)
 
 
 /* (defun dribble (&optional pathname) ...) -> null */
-static void function_dribble(Execute ptr, addr var)
+static int function_dribble(Execute ptr, addr var)
 {
 	dribble_common(ptr, (var == Unbound)? Nil: var);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_dribble(addr *ret)
@@ -655,11 +682,14 @@ static void defun_dribble(void)
 
 
 /* (defun lisp-implementation-type () ...) -> (or string null)  */
-static void function_lisp_implementation_type(Execute ptr)
+static int function_lisp_implementation_type(Execute ptr)
 {
 	addr pos;
+
 	implementation_type_common(&pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_lisp_implementation_type(void)
@@ -679,11 +709,14 @@ static void defun_lisp_implementation_type(void)
 
 
 /* (defun lisp-implementation-version () ...) -> (or string null)  */
-static void function_lisp_implementation_version(Execute ptr)
+static int function_lisp_implementation_version(Execute ptr)
 {
 	addr pos;
+
 	implementation_version_common(&pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_lisp_implementation_version(void)
@@ -703,11 +736,14 @@ static void defun_lisp_implementation_version(void)
 
 
 /* (defun short-site-name () ...) -> (or string null) */
-static void function_short_site_name(Execute ptr)
+static int function_short_site_name(Execute ptr)
 {
 	addr pos;
+
 	short_site_name_common(&pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_short_site_name(void)
@@ -727,11 +763,14 @@ static void defun_short_site_name(void)
 
 
 /* (defun long-site-name () ...) -> (or string null) */
-static void function_long_site_name(Execute ptr)
+static int function_long_site_name(Execute ptr)
 {
 	addr pos;
+
 	long_site_name_common(&pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_long_site_name(void)
@@ -751,11 +790,14 @@ static void defun_long_site_name(void)
 
 
 /* (defun machine-instance() ...) -> (or string null)  */
-static void function_machine_instance(Execute ptr)
+static int function_machine_instance(Execute ptr)
 {
 	addr pos;
+
 	machine_instance_common(&pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_machine_instance(void)
@@ -775,11 +817,14 @@ static void defun_machine_instance(void)
 
 
 /* (defun machine-type() ...) -> (or string null)  */
-static void function_machine_type(Execute ptr)
+static int function_machine_type(Execute ptr)
 {
 	addr pos;
+
 	machine_type_common(&pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_machine_type(void)
@@ -799,11 +844,14 @@ static void defun_machine_type(void)
 
 
 /* (defun machine-version() ...) -> (or string null)  */
-static void function_machine_version(Execute ptr)
+static int function_machine_version(Execute ptr)
 {
 	addr pos;
+
 	machine_version_common(&pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_machine_version(void)
@@ -823,11 +871,14 @@ static void defun_machine_version(void)
 
 
 /* (defun software-type() ...) -> (or string null)  */
-static void function_software_type(Execute ptr)
+static int function_software_type(Execute ptr)
 {
 	addr pos;
+
 	software_type_common(&pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_software_type(void)
@@ -847,11 +898,14 @@ static void defun_software_type(void)
 
 
 /* (defun software-version() ...) -> (or string null)  */
-static void function_software_version(Execute ptr)
+static int function_software_version(Execute ptr)
 {
 	addr pos;
+
 	software_version_common(&pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_software_version(void)
@@ -874,11 +928,12 @@ static void defun_software_version(void)
  *   host    (or string list (eql :unspecific)
  *   result  (or pathname null)
  */
-static void function_user_homedir_pathname(Execute ptr, addr host)
+static int function_user_homedir_pathname(Execute ptr, addr host)
 {
 	/* (declare (ignore host)) */
 	user_homedir_pathname_common(ptr, &host);
 	setresult_control(ptr, host);
+	return 0;
 }
 
 static void type_user_homedir_pathname(addr *ret)

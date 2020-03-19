@@ -446,7 +446,7 @@ _g void atan2_common(addr left, addr right, addr *ret)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			return;
 	}
 }
@@ -527,7 +527,7 @@ _g void log_natural_common(addr value, addr *ret)
 		case MathType_rational:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			return;
 	}
 }
@@ -559,7 +559,7 @@ _g void log_base_common(addr value, addr base, addr *ret)
 		case MathType_rational:
 		case MathType_error:
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			*ret = 0;
 			return;
 	}

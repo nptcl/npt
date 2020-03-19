@@ -18,8 +18,6 @@
 #include "syscall.h"
 #include "type.h"
 #include "type_table.h"
-#include "unicode.h"
-
 
 /*
  *  format execute

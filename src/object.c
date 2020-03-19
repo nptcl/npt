@@ -9,6 +9,7 @@
 #include "memory.h"
 #include "object.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 
 #define FIXNUM_CACHE		1024
@@ -784,7 +785,7 @@ _g void copy_vector_alloc(LocalRoot local, addr *ret, addr pos)
 			break;
 #endif
 		default:
-			fmte("size error", NULL);
+			_fmte("size error", NULL);
 			return;
 	}
 

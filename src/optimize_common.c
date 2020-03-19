@@ -34,59 +34,69 @@ static int optimize_common_p(addr scope)
 /*
  *  result-type
  */
-static void optcode_result_type(Execute ptr, addr type)
+static int optcode_result_type(Execute ptr, addr type)
 {
 	int check;
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	Return0(typep_clang(ptr, pos, type, &check));
+	Return(typep_clang(ptr, pos, type, &check));
 	if (! check)
 		type_error(pos, type);
+	
+	return 0;
 }
 
 
 /*
  *  car
  */
-static void optcode_car0_set(Execute ptr, addr pos)
+static int optcode_car0_set(Execute ptr, addr pos)
 {
 	getresult_control(ptr, &pos);
 	GetCar(pos, &pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
-static void optcode_car0_push(Execute ptr, addr pos)
+static int optcode_car0_push(Execute ptr, addr pos)
 {
 	getresult_control(ptr, &pos);
 	GetCar(pos, &pos);
 	pushargs_control(ptr, pos);
+
+	return 0;
 }
 
-static void optcode_car1_set(Execute ptr, addr type)
+static int optcode_car1_set(Execute ptr, addr type)
 {
 	int check;
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	Return0(typep_clang(ptr, pos, type, &check));
+	Return(typep_clang(ptr, pos, type, &check));
 	if (! check)
 		type_error(pos, type);
 	GetCar(pos, &pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
-static void optcode_car1_push(Execute ptr, addr type)
+static int optcode_car1_push(Execute ptr, addr type)
 {
 	int check;
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	Return0(typep_clang(ptr, pos, type, &check));
+	Return(typep_clang(ptr, pos, type, &check));
 	if (! check)
 		type_error(pos, type);
 	GetCar(pos, &pos);
 	pushargs_control(ptr, pos);
+
+	return 0;
 }
 
 static int optimize_common_car0(LocalRoot local, addr code, addr pos)
@@ -162,44 +172,52 @@ static int optimize_common_car(LocalRoot local, addr code, addr scope)
 /*
  *  cdr
  */
-static void optcode_cdr0_set(Execute ptr, addr pos)
+static int optcode_cdr0_set(Execute ptr, addr pos)
 {
 	getresult_control(ptr, &pos);
 	GetCdr(pos, &pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
-static void optcode_cdr0_push(Execute ptr, addr pos)
+static int optcode_cdr0_push(Execute ptr, addr pos)
 {
 	getresult_control(ptr, &pos);
 	GetCdr(pos, &pos);
 	pushargs_control(ptr, pos);
+
+	return 0;
 }
 
-static void optcode_cdr1_set(Execute ptr, addr type)
+static int optcode_cdr1_set(Execute ptr, addr type)
 {
 	int check;
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	Return0(typep_clang(ptr, pos, type, &check));
+	Return(typep_clang(ptr, pos, type, &check));
 	if (! check)
 		type_error(pos, type);
 	GetCdr(pos, &pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
-static void optcode_cdr1_push(Execute ptr, addr type)
+static int optcode_cdr1_push(Execute ptr, addr type)
 {
 	int check;
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	Return0(typep_clang(ptr, pos, type, &check));
+	Return(typep_clang(ptr, pos, type, &check));
 	if (! check)
 		type_error(pos, type);
 	GetCdr(pos, &pos);
 	pushargs_control(ptr, pos);
+
+	return 0;
 }
 
 static int optimize_common_cdr0(LocalRoot local, addr code, addr pos)
@@ -275,7 +293,7 @@ static int optimize_common_cdr(LocalRoot local, addr code, addr scope)
 /*
  *  cons
  */
-static void optcode_cons(Execute ptr, addr list)
+static int optcode_cons(Execute ptr, addr list)
 {
 	addr car, cdr;
 
@@ -284,6 +302,8 @@ static void optcode_cons(Execute ptr, addr list)
 	GetCar(list, &cdr);
 	cons_heap(&list, car, cdr);
 	setresult_control(ptr, list);
+
+	return 0;
 }
 
 static int optimize_common_cons0(LocalRoot local, addr code, addr car, addr cdr)

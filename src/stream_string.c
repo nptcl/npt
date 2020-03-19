@@ -2,6 +2,7 @@
 #include "array_access.h"
 #include "array_make.h"
 #include "array_vector.h"
+#include "character.h"
 #include "charqueue.h"
 #include "condition.h"
 #include "eastasian_unicode.h"
@@ -11,7 +12,7 @@
 #include "stream_string.h"
 #include "stream.h"
 #include "strtype.h"
-#include "unicode.h"
+#include "strvect.h"
 
 /*****************************************************************************
  *  StringInput
@@ -59,7 +60,7 @@ _g void open_input_string_stream1(addr *ret, addr string, size_t start)
 	if (size < start) {
 		make_index_integer_alloc(NULL, &pos1, start);
 		make_index_integer_alloc(NULL, &pos2, size);
-		fmte("The start index ~S must be less than equal to length of string ~S.",
+		_fmte("The start index ~S must be less than equal to length of string ~S.",
 				pos1, pos2, NULL);
 	}
 	make_input_string(ret, string, start, size);
@@ -76,19 +77,19 @@ _g void open_input_string_stream2(addr *ret, addr string, size_t start, size_t e
 	if (size < start) {
 		make_index_integer_alloc(NULL, &pos1, start);
 		make_index_integer_alloc(NULL, &pos2, size);
-		fmte("The start index ~S must be less than equal to length of string ~S.",
+		_fmte("The start index ~S must be less than equal to length of string ~S.",
 				pos1, pos2, NULL);
 	}
 	if (size < end) {
 		make_index_integer_alloc(NULL, &pos1, end);
 		make_index_integer_alloc(NULL, &pos2, size);
-		fmte("The end index ~S must be less than equal to length of string ~S.",
+		_fmte("The end index ~S must be less than equal to length of string ~S.",
 				pos1, pos2, NULL);
 	}
 	if (end < start) {
 		make_index_integer_alloc(NULL, &pos1, start);
 		make_index_integer_alloc(NULL, &pos2, end);
-		fmte("The start index ~S must be less than equal to the end index~S.",
+		_fmte("The start index ~S must be less than equal to the end index~S.",
 				pos1, pos2, NULL);
 	}
 	make_input_string(ret, string, start, end);
@@ -133,13 +134,13 @@ static void unread_char_StringInput(addr stream, unicode c)
 	/* unread check */
 	ptr = PtrStructStream(stream);
 	if (ptr->unread_check) {
-		fmte("unread already exists.", NULL);
+		_fmte("unread already exists.", NULL);
 		return;
 	}
 	/* index check */
 	input = PtrStringInputStream(stream);
 	if (input->index == 0) {
-		fmte("index underflow.", NULL);
+		_fmte("index underflow.", NULL);
 		return;
 	}
 	input->index--;
@@ -235,7 +236,7 @@ static int file_position_StringInput(addr stream, size_t *ret)
 	str = PtrStructStream(stream);
 	if (str->unread_check) {
 		if (size == 0)
-			fmte("The stream ~S position is minus value.", stream, NULL);
+			_fmte("The stream ~S position is minus value.", stream, NULL);
 		size--;
 	}
 	*ret = size;
@@ -278,7 +279,7 @@ static int file_position_set_StringInput(addr stream, size_t pos)
 	if (pos <= str->size)
 		str->index = pos;
 	else
-		fmte("The position ~A is too large.", intsizeh(pos), NULL);
+		_fmte("The position ~A is too large.", intsizeh(pos), NULL);
 	PtrStructStream(stream)->unread_check = 0;
 
 	return 0;
@@ -395,10 +396,10 @@ _g void string_stream_alloc(LocalRoot local, addr stream, addr *string)
 	addr queue;
 
 	if (extend_string_p(stream))
-		fmte("The extended-string-stream ~S don't make a string.", stream, NULL);
+		_fmte("The extended-string-stream ~S don't make a string.", stream, NULL);
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		fmte("stream is already closed.", NULL);
+		_fmte("stream is already closed.", NULL);
 	make_charqueue_alloc(local, queue, string);
 }
 
@@ -420,7 +421,7 @@ _g void clear_output_string_stream(addr stream)
 	CheckOutputStringStream(stream);
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		fmte("stream is already closed.", NULL);
+		_fmte("stream is already closed.", NULL);
 	clear_charqueue(queue);
 }
 
@@ -465,7 +466,7 @@ static void write_char_StringOutput_normal(addr stream, unicode c)
 	/* stream */
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		fmte("stream is already closed.", NULL);
+		_fmte("stream is already closed.", NULL);
 	if (GetStatusDynamic(stream))
 		push_charqueue_local(Local_Thread, queue, c);
 	else
@@ -482,7 +483,7 @@ static void write_char_StringOutput_extend(addr stream, unicode c)
 	/* stream */
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		fmte("stream is already closed.", NULL);
+		_fmte("stream is already closed.", NULL);
 	character_heap(&value, c);
 	vector_push_extend_common(value, queue, Unbound, &value);
 

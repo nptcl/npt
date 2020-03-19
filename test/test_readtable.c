@@ -13,6 +13,7 @@
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "syscall.h"
 #include "type.h"
 #include "type_table.h"
@@ -930,12 +931,14 @@ static int test_readtype_readtable(void)
 	RETURN;
 }
 
-static void test_macro_character_call1(Execute ptr, addr stream, addr code)
+static int test_macro_character_call1(Execute ptr, addr stream, addr code)
 {
 	if (code == T)
 		setresult_control(ptr, code);
 	else
 		setvalues_nil_control(ptr);
+	
+	return 0;
 }
 
 static int test_macro_character_call(void)
@@ -962,12 +965,14 @@ static int test_macro_character_call(void)
 }
 
 static int test_macro_character_execute_value = 0;
-static void test_macro_character_execute1(Execute ptr, addr stream, addr code)
+static int test_macro_character_execute1(Execute ptr, addr stream, addr code)
 {
 	if (test_macro_character_execute_value)
 		setresult_control(ptr, T);
 	else
 		setvalues_nil_control(ptr);
+	
+	return 0;
 }
 
 static int test_macro_character_execute(void)

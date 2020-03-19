@@ -118,7 +118,7 @@ static void fmtprint_char(fmtprint print, unicode u)
 		goto output;
 	}
 	if (print->fill_white && print->fill_ignore == 0)
-		pprint_newline_common(print->ptr, pprint_newline_fill, stream);
+		pprint_newline_print(print->ptr, pprint_newline_fill, stream);
 	print->fill_white = 0;
 	print->fill_ignore = 0;
 
@@ -230,7 +230,7 @@ _g int fmtprint_pop(fmtprint print, struct format_operator *str, addr *ret)
 		return fmtprint_pop1(print, str, ret);
 	}
 	else {
-		Return1(fmtprint_pop2(print, str, ret));
+		Return(fmtprint_pop2(print, str, ret));
 		return fmtprint_pop1(print, str, &pos);
 	}
 }

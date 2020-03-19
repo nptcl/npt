@@ -1,4 +1,4 @@
-#include "unicode.c"
+#include "strvect.c"
 #include "degrade.h"
 
 /*
@@ -1013,7 +1013,7 @@ static int test_strvect_refc(void)
 /*
  *  main
  */
-static int testbreak_unicode(void)
+static int testbreak_strvect(void)
 {
 	/* character */
 	TestBreak(test_unicode_macro);
@@ -1075,7 +1075,7 @@ static int testbreak_unicode(void)
 	return 0;
 }
 
-int test_unicode(void)
+int test_strvect(void)
 {
 	int result;
 	lispcode code;
@@ -1093,7 +1093,7 @@ int test_unicode(void)
 		build_object();
 		build_character();
 		lisp_initialize = 1;
-		result = testbreak_unicode();
+		result = testbreak_strvect();
 	}
 	end_code(ptr);
 	freelisp();

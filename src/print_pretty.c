@@ -15,8 +15,8 @@
 #include "stream.h"
 #include "stream_pretty.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
-#include "unicode.h"
 
 enum print_pretty {
 	print_pretty_newline_linear,
@@ -296,8 +296,7 @@ _g void expand_pprint_logical_block_common(addr *ret, addr symbol, addr pos,
 _g int pprint_throw(Execute ptr, addr stream)
 {
 	gensym_pretty_stream(stream, &stream);
-	throw_control(ptr, stream);
-	return 1;
+	return throw_control_(ptr, stream);
 }
 
 _g int pprint_exit_common(Execute ptr, addr stream)
@@ -318,7 +317,7 @@ static int pprint_pop_atom(Execute ptr, addr stream)
 	if (! first_pretty_stream(stream))
 		print_ascii_stream(stream, ". ");
 	pop_pretty_stream(stream, &pos);
-	Return1(write_print(ptr, stream, pos));
+	Return(write_print(ptr, stream, pos));
 
 	return pprint_throw(ptr, stream);
 }
@@ -405,7 +404,7 @@ static int pretty_common_p(Execute ptr, addr stream)
 	return pretty_print(ptr) && pretty_stream_p(stream);
 }
 
-_g void pprint_indent_common(Execute ptr, int block_p, fixnum n, addr stream)
+_g void pprint_indent_print(Execute ptr, int block_p, fixnum n, addr stream)
 {
 	enum print_pretty type;
 	addr pos;
@@ -416,7 +415,7 @@ _g void pprint_indent_common(Execute ptr, int block_p, fixnum n, addr stream)
 	push_pretty_stream(stream, pos);
 }
 
-_g void pprint_newline_common(Execute ptr, enum pprint_newline kind, addr stream)
+_g void pprint_newline_print(Execute ptr, enum pprint_newline kind, addr stream)
 {
 	addr pos;
 
@@ -443,7 +442,7 @@ _g void pprint_newline_common(Execute ptr, enum pprint_newline kind, addr stream
 			break;
 
 		default:
-			fmte("Invalid newline type.", NULL);
+			_fmte("Invalid newline type.", NULL);
 			break;
 	}
 }
@@ -456,7 +455,7 @@ _g void pprint_newline_terpri(addr stream)
 	push_pretty_stream(stream, pos);
 }
 
-_g void pprint_tab_common(Execute ptr,
+_g void pprint_tab_print(Execute ptr,
 		addr stream, enum pprint_tabular kind, fixnum a, fixnum b)
 {
 	addr pos;
@@ -484,20 +483,20 @@ _g void pprint_tab_common(Execute ptr,
 			break;
 
 		default:
-			fmte("Invalid newline type.", NULL);
+			_fmte("Invalid newline type.", NULL);
 			break;
 	}
 }
 
 _g void pprint_tab_section(Execute ptr, addr stream, fixnum column, fixnum colinc)
 {
-	pprint_tab_common(ptr, stream, pprint_tabular_section, column, colinc);
+	pprint_tab_print(ptr, stream, pprint_tabular_section, column, colinc);
 }
 
 _g void pprint_tab_section_relative(Execute ptr,
 		addr stream, fixnum column, fixnum colinc)
 {
-	pprint_tab_common(ptr, stream, pprint_tabular_section_relative, column, colinc);
+	pprint_tab_print(ptr, stream, pprint_tabular_section_relative, column, colinc);
 }
 
 static void pprint_tab_output(addr stream, fixnum size)
@@ -617,7 +616,7 @@ static void pretty_write(addr stream, addr list)
 			white = 0;
 			continue;
 		}
-		fmte("Invalid pretty-output object ~S.", pos, NULL);
+		_fmte("Invalid pretty-output object ~S.", pos, NULL);
 	}
 	write_char_white(stream, &white);
 }
@@ -762,7 +761,7 @@ static void pretty_tabular_plus(struct pretty_block *ptr, addr pos, size_t *size
 			break;
 
 		default:
-			fmte("Invalid tabular type ~S.", pos, NULL);
+			_fmte("Invalid tabular type ~S.", pos, NULL);
 			value = 0;
 			break;
 	}
@@ -815,7 +814,7 @@ static int pretty_front_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 			}
 		}
 		else {
-			fmte("Invalid print object ~S.", x, NULL);
+			_fmte("Invalid print object ~S.", x, NULL);
 			break;
 		}
 		size += value;
@@ -867,7 +866,7 @@ static int pretty_front_newline(struct pretty_block *ptr,
 				return 1;
 		}
 		else {
-			fmte("Invalid print object ~S.", x, NULL);
+			_fmte("Invalid print object ~S.", x, NULL);
 			break;
 		}
 		size += value;
@@ -926,7 +925,7 @@ static int pretty_tail_stream(struct pretty_block *ptr, addr pos, size_t *ret)
 			}
 		}
 		else {
-			fmte("Invalid print object ~S.", x, NULL);
+			_fmte("Invalid print object ~S.", x, NULL);
 			break;
 		}
 		size += value;
@@ -976,7 +975,7 @@ static int pretty_tail_section_loop(struct pretty_block *ptr, addr list, size_t 
 			}
 		}
 		else {
-			fmte("Invalid print object ~S.", x, NULL);
+			_fmte("Invalid print object ~S.", x, NULL);
 			break;
 		}
 		size += value;
@@ -1056,7 +1055,7 @@ static void pretty_output_perline(struct pretty_block *ptr)
 		else if (GetType(x) == LISPTYPE_INDEX)
 			pretty_push_index(ptr, x);
 		else
-			fmte("Invalid perline type ~S.", x, NULL);
+			_fmte("Invalid perline type ~S.", x, NULL);
 	}
 }
 
@@ -1275,7 +1274,7 @@ static void pretty_output(struct pretty_block *ptr)
 			pretty_struct(ptr, x);
 			continue;
 		}
-		fmte("Invalid pretty-object ~S.", x, NULL);
+		_fmte("Invalid pretty-object ~S.", x, NULL);
 	}
 }
 
@@ -1449,9 +1448,9 @@ _g void pprint_output(Execute ptr, addr stream, addr pretty)
 #endif
 	/* argument check */
 	if (pretty_stream_p(stream))
-		fmte("Invalid output-stream ~S.", stream, NULL);
+		_fmte("Invalid output-stream ~S.", stream, NULL);
 	if (! pretty_stream_p(pretty))
-		fmte("Invalid pretty-stream ~S.", pretty, NULL);
+		_fmte("Invalid pretty-stream ~S.", pretty, NULL);
 	/* pretty-start */
 	pprint_initialize(&str, ptr, stream);
 	pretty_struct(&str, pretty);

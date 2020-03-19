@@ -18,7 +18,6 @@
 #include "syscall.h"
 #include "type.h"
 #include "type_table.h"
-#include "unicode.h"
 
 static int test_fmtint_count(void)
 {
@@ -2057,7 +2056,7 @@ static int test_format_call_EscapeUpward(void)
 	RETURN;
 }
 
-static void test_format_call_CallFunction_test(Execute ptr, addr rest)
+static int test_format_call_CallFunction_test(Execute ptr, addr rest)
 {
 	char buffer[100];
 	addr stream, arg, colon, atsign;
@@ -2076,6 +2075,8 @@ static void test_format_call_CallFunction_test(Execute ptr, addr rest)
 	size = length_list_unsafe(rest);
 	snprintc(buffer, 100, "-%d", (int)size);
 	print_ascii_stream(stream, buffer);
+
+	return 0;
 }
 
 static int test_format_call_CallFunction(void)

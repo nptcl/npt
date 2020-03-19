@@ -916,7 +916,7 @@ static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 	return;
 
 error:
-	fmte("parse-error: ~S.", pos, NULL);
+	_fmte("parse-error: ~S.", pos, NULL);
 	*ret = Nil;
 }
 

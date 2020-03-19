@@ -26,7 +26,7 @@
  *  referenced-class
  ***********************************************************************/
 /* (defun system::referenced-class (symbol) ...) -> class */
-static void function_referenced_class(Execute ptr, addr symbol)
+static int function_referenced_class(Execute ptr, addr symbol)
 {
 	addr pos;
 
@@ -34,7 +34,7 @@ static void function_referenced_class(Execute ptr, addr symbol)
 	clos_find_class_nil(symbol, &pos);
 	if (pos != Nil) {
 		setresult_control(ptr, pos);
-		return;
+		return 0;
 	}
 
 	/* forward-referenced-class */
@@ -42,6 +42,8 @@ static void function_referenced_class(Execute ptr, addr symbol)
 	clos_instance_heap(pos, &pos);
 	stdset_class_name(pos, symbol);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void type_referenced_class(addr *ret)
@@ -80,7 +82,7 @@ static void defun_referenced_class_mop(void)
  *   args   t
  *   class  class
  */
-static void function_ensure_class(Execute ptr, addr name, addr rest)
+static int function_ensure_class(Execute ptr, addr name, addr rest)
 {
 	addr symbol, clos, check;
 
@@ -88,8 +90,7 @@ static void function_ensure_class(Execute ptr, addr name, addr rest)
 	clos_find_class_nil(name, &clos);
 	if (clos != Nil) {
 		GetConst(COMMON_CLASS_NAME, &symbol);
-		if (callclang_funcall(ptr, &check, symbol, clos, NULL))
-			return;
+		Return(callclang_funcall(ptr, &check, symbol, clos, NULL));
 		if (check != name)
 			clos = Nil;
 	}
@@ -97,7 +98,7 @@ static void function_ensure_class(Execute ptr, addr name, addr rest)
 	/* call */
 	GetConst(CLOSNAME_ENSURE_CLASS_USING_CLASS, &symbol);
 	getfunctioncheck_local(ptr, symbol, &symbol);
-	applya_control(ptr, symbol, clos, name, rest, NULL);
+	return applya_control(ptr, symbol, clos, name, rest, NULL);
 }
 
 static void type_ensure_class(addr *ret)
@@ -140,12 +141,14 @@ static void defun_ensure_class_mop(void)
  *   direct-superclasses  list
  *   class                class
  */
-static void method_ensure_class_using_class_null(Execute ptr,
+static int method_ensure_class_using_class_null(Execute ptr,
 		addr method, addr next, addr clos, addr name, addr rest)
 {
 	Check(clos != Nil, "type error");
-	if (clos_ensure_class(ptr, name, rest, &clos)) return;
+	Return(clos_ensure_class(ptr, name, rest, &clos));
 	setresult_control(ptr, clos);
+
+	return 0;
 }
 
 static void method_type_ensure_class_using_class(addr *ret)
@@ -218,12 +221,14 @@ static void defmethod_ensure_class_using_class_null(Execute ptr, addr name, addr
  *   direct-slots         list
  *   class                class
  */
-static void method_ensure_class_using_class_class(Execute ptr,
+static int method_ensure_class_using_class_class(Execute ptr,
 		addr method, addr next, addr clos, addr name, addr rest)
 {
 	CheckType(clos, LISPTYPE_CLOS);
-	Return0(clos_ensure_class_redefine(ptr, clos, name, rest));
+	Return(clos_ensure_class_redefine(ptr, clos, name, rest));
 	setresult_control(ptr, clos);
+
+	return 0;
 }
 
 static void defmethod_ensure_class_using_class_class(Execute ptr,
@@ -270,11 +275,12 @@ static void defgeneric_ensure_class_using_class_mop(Execute ptr)
 /* (defmethod allocate-instance
  *     ((class standard-class) &rest args &key)) -> instance
  */
-static void method_allocate_instance_stdclass(Execute ptr,
+static int method_allocate_instance_stdclass(Execute ptr,
 		addr method, addr next, addr clos, addr rest)
 {
 	allocate_instance_stdclass(ptr, clos, &clos);
 	setresult_control(ptr, clos);
+	return 0;
 }
 
 static void method_type_allocate_instance(addr *ret)
@@ -349,11 +355,12 @@ static void defgeneric_allocate_instance_mop(Execute ptr)
 /* (defmethod initialize-instance
  *     ((object standard-object) &rest args &key)) -> instance
  */
-static void method_initialize_instance_stdobject(Execute ptr,
+static int method_initialize_instance_stdobject(Execute ptr,
 		addr method, addr next, addr pos, addr rest)
 {
-	if (initialize_instance_stdobject(ptr, pos, rest, &pos)) return;
+	Return(initialize_instance_stdobject(ptr, pos, rest, &pos));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defmethod_initialize_instance_stdobject(Execute ptr, addr name, addr gen)
@@ -395,11 +402,12 @@ static void defgeneric_initialize_instance_mop(Execute ptr)
 /* (defmethod reinitialize-instance
  *     ((object standard-object) &rest args &key)) -> instance
  */
-static void method_reinitialize_instance_stdobject(Execute ptr,
+static int method_reinitialize_instance_stdobject(Execute ptr,
 		addr method, addr next, addr pos, addr rest)
 {
-	if (reinitialize_instance_stdobject(ptr, pos, rest, &pos)) return;
+	Return(reinitialize_instance_stdobject(ptr, pos, rest, &pos));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defmethod_reinitialize_instance_stdobject(Execute ptr, addr name, addr gen)
@@ -441,11 +449,12 @@ static void defgeneric_reinitialize_instance_mop(Execute ptr)
 /* (defmethod shared-initialize
  *     ((object standard-object) name &rest args &key)) -> instance
  */
-static void method_shared_initialize_stdobject(Execute ptr,
+static int method_shared_initialize_stdobject(Execute ptr,
 		addr method, addr next, addr pos, addr name, addr rest)
 {
-	if (shared_initialize_stdobject(ptr, pos, name, rest)) return;
+	Return(shared_initialize_stdobject(ptr, pos, name, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void method_type_shared_initialize(addr *ret)
@@ -521,7 +530,7 @@ static void defgeneric_shared_initialize_mop(Execute ptr)
  *     ((class symbol) &rest initargs &key) ...)
  *   -> instance
  */
-static void method_make_instance_symbol(Execute ptr,
+static int method_make_instance_symbol(Execute ptr,
 		addr method, addr next, addr var, addr rest)
 {
 	addr symbol;
@@ -531,7 +540,7 @@ static void method_make_instance_symbol(Execute ptr,
 	/* call generic-function */
 	GetConst(COMMON_MAKE_INSTANCE, &symbol);
 	getfunctioncheck_local(ptr, symbol, &symbol);
-	applya_control(ptr, symbol, var, rest, NULL);
+	return applya_control(ptr, symbol, var, rest, NULL);
 }
 
 static void type_make_instance_symbol(addr *ret)
@@ -567,12 +576,12 @@ static void defmethod_make_instance_symbol(Execute ptr, addr name, addr gen)
  *     ((class standard-class) &rest initargs &key) ...)
  *   -> instance
  */
-static void method_make_instance_stdclass(Execute ptr,
+static int method_make_instance_stdclass(Execute ptr,
 		addr method, addr next, addr rest)
 {
-	if (make_instance_stdclass(ptr, rest, &rest))
-		return;
+	Return(make_instance_stdclass(ptr, rest, &rest));
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void method_type_make_instance_stdclass(addr *ret)
@@ -608,12 +617,12 @@ static void defmethod_make_instance_stdclass(Execute ptr, addr name, addr gen)
  *     ((class structure-class) &rest initargs &key) ...)
  *   -> instance
  */
-static void method_make_instance_structure(Execute ptr,
+static int method_make_instance_structure(Execute ptr,
 		addr method, addr next, addr rest)
 {
-	if (make_instance_structure(ptr, rest, &rest))
-		return;
+	Return(make_instance_structure(ptr, rest, &rest));
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void method_type_make_instance_structure(addr *ret)
@@ -670,7 +679,7 @@ static void defgeneric_make_instance_mop(Execute ptr)
  *  make-instances-obsolete
  ***********************************************************************/
 /* (defmethod make-instances-obsolete ((var symbol)) ...) */
-static void method_make_instances_obsolete_symbol(Execute ptr,
+static int method_make_instances_obsolete_symbol(Execute ptr,
 		addr method, addr next, addr var)
 {
 	addr call;
@@ -678,7 +687,7 @@ static void method_make_instances_obsolete_symbol(Execute ptr,
 	GetConst(COMMON_MAKE_INSTANCES_OBSOLETE, &call);
 	getfunctioncheck_local(ptr, call, &call);
 	clos_find_class(var, &var);
-	(void)funcall_control(ptr, call, var, NULL);
+	return funcall_control(ptr, call, var, NULL);
 }
 
 static void method_type_make_instances_obsolete_symbol(addr *ret)
@@ -710,10 +719,11 @@ static void defmethod_make_instances_obsolete_symbol(
 }
 
 /* (defmethod make-instances-obsolete ((var standard-class)) ...) */
-static void method_make_instances_obsolete_stdclass(Execute ptr,
+static int method_make_instances_obsolete_stdclass(Execute ptr,
 		addr method, addr next, addr var)
 {
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void method_type_make_instances_obsolete_stdclass(addr *ret)
@@ -763,7 +773,7 @@ static void defgeneric_make_instances_obsolete_mop(Execute ptr)
 /***********************************************************************
  *  make-load-form
  ***********************************************************************/
-static void method_make_load_form_class(Execute ptr,
+static int method_make_load_form_class(Execute ptr,
 		addr method, addr next, addr var, addr env)
 {
 	addr call, find;
@@ -771,12 +781,14 @@ static void method_make_load_form_class(Execute ptr,
 	/* (class-name var) */
 	GetConst(COMMON_CLASS_NAME, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	Return0(callclang_funcall(ptr, &var, call, var, NULL));
+	Return(callclang_funcall(ptr, &var, call, var, NULL));
 	/* (find-class (quote var)) */
 	GetConst(COMMON_FIND_CLASS, &find);
 	quotelist_heap(&var, var);
 	list_heap(&var, find, var, NULL);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void method_type_make_load_form_class(addr *ret)
@@ -823,10 +835,11 @@ static void defmethod_make_load_form_condition(Execute ptr, addr name, addr gen)
 	common_method_add(ptr, gen, pos);
 }
 
-static void method_make_load_form_object(Execute ptr,
+static int method_make_load_form_object(Execute ptr,
 		addr method, addr next, addr var, addr env)
 {
-	fmte("There is no function to make form ~S.", var, NULL);
+	_fmte("There is no function to make form ~S.", var, NULL);
+	return 0;
 }
 
 static void defmethod_make_load_form_standard_object(Execute ptr, addr name, addr gen)
@@ -882,13 +895,14 @@ static void defgeneric_make_load_form(Execute ptr)
 /***********************************************************************
  *  slot-missing
  ***********************************************************************/
-static void method_slot_missing(Execute ptr,
+static int method_slot_missing(Execute ptr,
 		addr method, addr next, addr rest)
 {
 	addr c, obj, name, op, value;
 
 	lista_bind(rest, &c, &obj, &name, &op, &value, NULL);
-	fmte("The class ~S has no slot ~S name ~S operation.", c, name, op, NULL);
+	_fmte("The class ~S has no slot ~S name ~S operation.", c, name, op, NULL);
+	return 0;
 }
 
 static void method_type_slot_missing(addr *ret)
@@ -970,12 +984,13 @@ static void defgeneric_slot_missing_mop(Execute ptr)
 /***********************************************************************
  *  slot-unbound
  ***********************************************************************/
-static void method_slot_unbound(Execute ptr, addr method, addr next, addr rest)
+static int method_slot_unbound(Execute ptr, addr method, addr next, addr rest)
 {
 	addr clos, obj, name;
 
 	list_bind(rest, &clos, &obj, &name, NULL);
-	fmte("The slot ~S is unbound in the ~S.", name, obj, NULL);
+	_fmte("The slot ~S is unbound in the ~S.", name, obj, NULL);
+	return 0;
 }
 
 static void method_type_slot_unbound(addr *ret)
@@ -1043,12 +1058,13 @@ static void defgeneric_slot_unbound_mop(Execute ptr)
 /***********************************************************************
  *  update-instance-for-different-class
  ***********************************************************************/
-static void method_update_instance_for_different_class(
+static int method_update_instance_for_different_class(
 		Execute ptr, addr method, addr next,
 		addr previous, addr current, addr rest)
 {
 	clos_change_method(ptr, previous, current, rest);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void method_type_update_instance_for_different_class(addr *ret)
@@ -1104,7 +1120,7 @@ static void defgeneric_update_instance_for_different_class_mop(Execute ptr)
 /***********************************************************************
  *  update-instance-for-redefined-class
  ***********************************************************************/
-static void method_update_instance_for_redefined_class(
+static int method_update_instance_for_redefined_class(
 		Execute ptr, addr method, addr next, addr rest)
 {
 	addr pos, add, del, prop, args;
@@ -1112,6 +1128,8 @@ static void method_update_instance_for_redefined_class(
 	lista_bind(rest, &pos, &add, &del, &prop, &args, NULL);
 	clos_redefine_method(ptr, pos, add, del, prop, args);
 	setresult_control(ptr, Nil);
+
+	return 0;
 }
 
 static void method_type_update_instance_for_redefined_class(addr *ret)
@@ -1181,12 +1199,15 @@ static void defgeneric_update_instance_for_redefined_class_mop(Execute ptr)
 /***********************************************************************
  *  slot-boundp-using-class
  ***********************************************************************/
-static void method_slot_boundp_using_class(Execute ptr,
+static int method_slot_boundp_using_class(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
 	int check;
-	if (slot_boundp_using_class_common(ptr, clos, pos, name, &check)) return;
+
+	Return(slot_boundp_using_class_common(ptr, clos, pos, name, &check));
 	setbool_control(ptr, check);
+
+	return 0;
 }
 
 static void method_argument_slot_boundp_using_class(addr *ret, constindex index)
@@ -1245,10 +1266,11 @@ static void defgeneric_slot_boundp_using_class_mop(Execute ptr)
 /***********************************************************************
  *  slot-exists-p-using-class
  ***********************************************************************/
-static void method_slot_exists_p_using_class(Execute ptr,
+static int method_slot_exists_p_using_class(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
 	setbool_control(ptr, clos_slot_exists_p(pos, name));
+	return 0;
 }
 
 static void defmethod_slot_exists_p_using_class(Execute ptr,
@@ -1287,11 +1309,12 @@ static void defgeneric_slot_exists_p_using_class_mop(Execute ptr)
 /***********************************************************************
  *  slot-makunbound-using-class
  ***********************************************************************/
-static void method_slot_makunbound_using_class(Execute ptr,
+static int method_slot_makunbound_using_class(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
-	if (slot_makunbound_using_class(ptr, clos, pos, name)) return;
+	Return(slot_makunbound_using_class(ptr, clos, pos, name));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defmethod_slot_makunbound_using_class(Execute ptr,
@@ -1330,11 +1353,12 @@ static void defgeneric_slot_makunbound_using_class_mop(Execute ptr)
 /***********************************************************************
  *  slot-value-using-class
  ***********************************************************************/
-static void method_slot_value_using_class(Execute ptr,
+static int method_slot_value_using_class(Execute ptr,
 		addr method, addr next, addr clos, addr pos, addr name)
 {
-	if (slot_value_using_class_common(ptr, clos, pos, name, &pos)) return;
+	Return(slot_value_using_class_common(ptr, clos, pos, name, &pos));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defmethod_slot_value_using_class(Execute ptr,
@@ -1373,14 +1397,16 @@ static void defgeneric_slot_value_using_class_mop(Execute ptr)
 /***********************************************************************
  *  (setf slot-value-using-class)
  ***********************************************************************/
-static void method_setf_slot_value_using_class(Execute ptr,
+static int method_setf_slot_value_using_class(Execute ptr,
 		addr method, addr next, addr rest)
 {
 	addr value, clos, pos, name;
 
 	list_bind(rest, &value, &clos, &pos, &name, NULL);
-	if (setf_slot_value_using_class_common(ptr, clos, pos, name, value)) return;
+	Return(setf_slot_value_using_class_common(ptr, clos, pos, name, value));
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void method_type_setf_slot_value_using_class(addr *ret)
@@ -1448,11 +1474,12 @@ static void defgeneric_setf_slot_value_using_class_mop(Execute ptr)
 /***********************************************************************
  *  change-class
  ***********************************************************************/
-static void method_change_class_stdclass(Execute ptr,
+static int method_change_class_stdclass(Execute ptr,
 		addr method, addr next, addr pos, addr clos, addr rest)
 {
-	Return0(clos_change_class(ptr, pos, clos, rest));
+	Return(clos_change_class(ptr, pos, clos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void method_type_change_class_stdclass(addr *ret)
@@ -1504,7 +1531,7 @@ static void defmethod_change_class_stdclass(Execute ptr, addr name, addr gen)
 	common_method_add(ptr, gen, pos);
 }
 
-static void method_change_class_symbol(Execute ptr,
+static int method_change_class_symbol(Execute ptr,
 		addr method, addr next, addr pos, addr clos, addr rest)
 {
 	addr call;
@@ -1512,7 +1539,7 @@ static void method_change_class_symbol(Execute ptr,
 	GetConst(COMMON_CHANGE_CLASS, &call);
 	getfunctioncheck_local(ptr, call, &call);
 	clos_find_class(clos, &clos);
-	applya_control(ptr, call, pos, clos, rest, NULL);
+	return applya_control(ptr, call, pos, clos, rest, NULL);
 }
 
 static void method_type_change_class_symbol(addr *ret)

@@ -3,6 +3,7 @@
 #include "hashtable.h"
 #include "pathname.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "unicode.h"
 

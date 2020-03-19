@@ -62,7 +62,7 @@ static void stdget_generic_constant(addr pos, addr *ret,
 	}
 	/* Unbound check */
 	if (check == Unbound)
-		fmte("There is no applicable methods in ~S.", pos, NULL);
+		_fmte("There is no applicable methods in ~S.", pos, NULL);
 	*ret = check;
 }
 
@@ -311,7 +311,7 @@ static void clos_generic_call_heap(addr *ret, enum ClosGenericIndex call, int si
 /*
  *  standard
  */
-static int comb_standard_method(Execute ptr, addr car, addr cdr, addr rest)
+static int comb_standard_method_(Execute ptr, addr car, addr cdr, addr rest)
 {
 	addr call;
 	stdget_method_function(car, &call);
@@ -322,10 +322,10 @@ static int comb_standard_funcall(Execute ptr, addr rest, addr around, addr prima
 {
 	append2_local_unsafe(ptr->local, around, primary, &around);
 	GetCons(around, &around, &primary);
-	return comb_standard_method(ptr, around, primary, rest);
+	return comb_standard_method_(ptr, around, primary, rest);
 }
 
-static void function_standard_lambda(Execute ptr)
+static int function_standard_lambda(Execute ptr)
 {
 	addr args, data, before, primary, after, one, control, car, cdr;
 
@@ -345,23 +345,25 @@ static void function_standard_lambda(Execute ptr)
 	/* before */
 	while (before != Nil) {
 		GetCons(before, &one, &before);
-		comb_standard_method(ptr, one, Nil, args);
+		Return(comb_standard_method_(ptr, one, Nil, args));
 	}
 
 	/* primary */
 	setvalues_nil_control(ptr);
 	GetCons(primary, &car, &cdr);
-	comb_standard_method(ptr, car, cdr, args);
+	Return(comb_standard_method_(ptr, car, cdr, args));
 
 	/* after */
 	if (after != Nil) {
 		push_close_control(ptr, &control);
 		while (after != Nil) {
 			GetCons(after, &one, &after);
-			comb_standard_method(ptr, one, Nil, args);
+			Return(comb_standard_method_(ptr, one, Nil, args));
 		}
-		free_control(ptr, control);
+		Return(free_control(ptr, control));
 	}
+
+	return 0;
 }
 
 static void comb_standard_qualifiers(LocalRoot local,
@@ -496,7 +498,7 @@ static int comb_lambda(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 		return comb_short(ptr, ret, gen, comb, data);
 
 	/* error */
-	fmte("Invalid method-combination ~S.", comb, NULL);
+	_fmte("Invalid method-combination ~S.", comb, NULL);
 	return 0;
 }
 
@@ -553,7 +555,7 @@ static int generic_compare_eql(addr left, addr right)
 	if (left == right) return 0;
 	stdget_specializer_object(left, &left);
 	stdget_specializer_object(right, &right);
-	fmte("The eql-specializers have a difference value ~S /= ~S.", left, right, NULL);
+	_fmte("The eql-specializers have a difference value ~S /= ~S.", left, right, NULL);
 	return 1;
 }
 
@@ -683,7 +685,7 @@ static int generic_make_type(Execute ptr, addr *ret, addr gen, addr type)
 	stdget_generic_method_combination(gen, &comb);
 	generic_make_array(&data, gen, type);
 	hold = LocalHold_local_push(ptr, data);
-	Return1(comb_lambda(ptr, ret, gen, comb, data));
+	Return(comb_lambda(ptr, ret, gen, comb, data));
 	localhold_end(hold);
 
 	return 0;
@@ -697,7 +699,7 @@ static void generic_make_mapcar_class_of(LocalRoot local,
 	for (result = Nil; list != Nil; ) {
 		GetCons(list, &eqlcheck, &list);
 		if (args == Nil)
-			fmte("Too few arguments.", NULL);
+			_fmte("Too few arguments.", NULL);
 		GetCons(args, &arg, &args);
 		if (eqlcheck == Nil)
 			check = Nil;
@@ -725,7 +727,7 @@ static int generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
 		/* not found, tranlate to heap-list from dynamic list */
 		copy_list_heap_unsafe(&key, key);
 		hold = LocalHold_local_push(ptr, key);
-		Return1(generic_make_type(ptr, &value, gen, key));
+		Return(generic_make_type(ptr, &value, gen, key));
 		localhold_end(hold);
 		intern_hashheap(cache, key, &cons);
 		SetCdr(cons, value);
@@ -797,7 +799,7 @@ _g void closrun_execute(Execute ptr, addr clos, addr args)
 	clos_generic_call call;
 
 	if (! funcallable_p(clos))
-		fmte("Cannot exexute a funcallable instance ~S.", clos, NULL);
+		_fmte("Cannot exexute a funcallable instance ~S.", clos, NULL);
 	stdget_generic_call(clos, &pos);
 	CheckType(pos, LISPSYSTEM_GENERIC);
 	CallClosGenericCall(pos, &call);
@@ -868,17 +870,17 @@ _g void generic_common_order(addr gen, addr order, addr list)
 	size2 = length_list_safe(order);
 	size3 = length_list_safe(list);
 	if (size1 != size2)
-		fmte("Length of :argument-precedence-order is not equal to lambda-list.", NULL);
+		_fmte("Length of :argument-precedence-order is not equal to lambda-list.", NULL);
 	if (size1 != size3)
-		fmte("Length of :precedence-index is not equal to lambda-list.", NULL);
+		_fmte("Length of :precedence-index is not equal to lambda-list.", NULL);
 	for (root = list; order != Nil; ) {
 		GetCons(order, &x, &order);
 		getcons(root, &y, &root);
 		if (! position_list_eq_unsafe(x, var, &index))
-			fmte("The variable ~S is not exist in :argument-precedence-order", x, NULL);
+			_fmte("The variable ~S is not exist in :argument-precedence-order", x, NULL);
 		GetIndex(y, &check);
 		if (index != check)
-			fmte("Invalid precedence-index list.", NULL);
+			_fmte("Invalid precedence-index list.", NULL);
 	}
 #endif
 	stdset_generic_argument_precedence_order(gen, order);
@@ -899,12 +901,12 @@ _g int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *r
 	if (symbol_callname_p(call)) {
 		/* special-operator */
 		if (get_special_operator(name))
-			fmte("ENSURE-GENERIC-FUNCTION don't accept "
+			_fmte("ENSURE-GENERIC-FUNCTION don't accept "
 					"a special symbol ~S.", name, NULL);
 		/* macro */
 		getmacro_symbol(name, &check);
 		if (check != Unbound)
-			fmte("ENSURE-GENERIC-FUNCTION don't accept "
+			_fmte("ENSURE-GENERIC-FUNCTION don't accept "
 					"a macro symbol ~S.", check, NULL);
 	}
 	/* class-of */
@@ -917,7 +919,7 @@ _g int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *r
 	}
 	else {
 		/* error */
-		fmte("Invalid generic-function argument ~S.", name, NULL);
+		_fmte("Invalid generic-function argument ~S.", name, NULL);
 		return 0;
 	}
 
@@ -978,11 +980,11 @@ static void generic_precedence_order_index(addr lambda, addr order, addr *ret)
 	size1 = length_list_safe(var);
 	size2 = length_list_safe(order);
 	if (size1 != size2)
-		fmte("Length of :argument-precedence-order is not equal to lambda-list.", NULL);
+		_fmte("Length of :argument-precedence-order is not equal to lambda-list.", NULL);
 	for (list = Nil; var != Nil; ) {
 		GetCons(var, &x, &var);
 		if (! position_list_eq_unsafe(x, order, &index))
-			fmte("The variable ~S is not exist in :argument-precedence-order", x, NULL);
+			_fmte("The variable ~S is not exist in :argument-precedence-order", x, NULL);
 		index_heap(&x, index);
 		cons_heap(&list, x, list);
 	}
@@ -1031,7 +1033,7 @@ _g int generic_add(struct generic_argument *str, addr *ret)
  */
 _g int generic_change(struct generic_argument *str, addr *ret)
 {
-	fmte("TODO", NULL);
+	_fmte("TODO", NULL);
 	return 0;
 }
 
@@ -1074,7 +1076,7 @@ static int generic_find_method_equal(addr method, addr spec)
 	x = length_list_safe(left);
 	y = length_list_safe(right);
 	if (x != y) {
-		fmte("The length of specializers ~S "
+		_fmte("The length of specializers ~S "
 				"does not match in the method ~S.", spec, method, NULL);
 		return 0;
 	}
@@ -1098,7 +1100,7 @@ _g void generic_find_method(Execute ptr,
 	stdget_generic_method_combination(gen, &comb);
 	if (qualifiers_position_nil(ptr, qua, comb, &index)) {
 		if (errorp != Nil) {
-			fmte("The qualifiers ~S is not found in generic-function ~S.",
+			_fmte("The qualifiers ~S is not found in generic-function ~S.",
 					qua, gen, NULL);
 		}
 		*ret = Nil;
@@ -1116,7 +1118,7 @@ _g void generic_find_method(Execute ptr,
 	}
 	/* not found */
 	if (errorp != Nil) {
-		fmte("The specializes ~S is not found in generic-function ~S ~S.",
+		_fmte("The specializes ~S is not found in generic-function ~S ~S.",
 				spec, gen, qua, NULL);
 	}
 	*ret = Nil;

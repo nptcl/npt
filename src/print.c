@@ -7,6 +7,7 @@
 #include "heap.h"
 #include "integer.h"
 #include "print.h"
+#include "print_common.h"
 #include "print_dispatch.h"
 #include "print_function.h"
 #include "print_object.h"
@@ -59,7 +60,7 @@ _g unsigned base_print(Execute ptr)
 		TypeError(pos, FIXNUM);
 	GetFixnum(pos, &value);
 	if (! isBaseChar(value))
-		fmte("The value ~S must be a number between 2 and 36.", pos, NULL);
+		_fmte("The value ~S must be a number between 2 and 36.", pos, NULL);
 
 	return (unsigned)value;
 }
@@ -106,7 +107,7 @@ _g enum PrintCase case_print(Execute ptr)
 	if (pos == value)
 		return PrintCase_capitalize;
 	/* error */
-	fmte("type error", NULL);
+	_fmte("type error", NULL);
 	return PrintCase_unread;
 }
 
@@ -128,7 +129,7 @@ _g void push_case_print(Execute ptr, enum PrintCase pcase)
 			break;
 
 		default:
-			fmte("type error", NULL);
+			_fmte("type error", NULL);
 			return;
 	}
 	GetConst(SPECIAL_PRINT_CASE, &pos);
@@ -405,6 +406,7 @@ _g void build_print(Execute ptr)
 
 _g void init_print(void)
 {
+	init_print_common();
 	init_print_function();
 	init_print_object();
 	init_print_write();

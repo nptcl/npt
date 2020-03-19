@@ -77,7 +77,7 @@ static int check_not_asterisk(addr right)
 static int optimize_not_asterisk(LocalRoot local, addr *ret, addr right)
 {
 	if (! check_not_asterisk(right)) return 0;
-	fmte("Don't allow to use (not *).", NULL);
+	_fmte("Don't allow to use (not *).", NULL);
 	return 1;
 }
 
@@ -420,7 +420,7 @@ static int optimize_signed_byte(LocalRoot local, addr *ret, addr right)
 	else {
 		Check(GetType(right) != LISPTYPE_BIGNUM, "type error");
 		if (1 < RefSizeBignum(right))
-			fmte("Too large signed-byte value.", NULL);
+			_fmte("Too large signed-byte value.", NULL);
 		getfixed_bignum(right, 0, &fixedvalue);
 		size = (size_t)fixedvalue;
 	}
@@ -483,7 +483,7 @@ static int optimize_unsigned_byte(LocalRoot local, addr *ret, addr right)
 	else {
 		Check(GetType(right) != LISPTYPE_BIGNUM, "type error");
 		if (1 < RefSizeBignum(right))
-			fmte("Too large signed-byte value.", NULL);
+			_fmte("Too large signed-byte value.", NULL);
 		getfixed_bignum(right, 0, &fixedvalue);
 		size = (size_t)fixedvalue;
 	}

@@ -1,20 +1,12 @@
 /*
  *  ANSI COMMON LISP: 15. Arrays
  */
-#include "array.h"
 #include "array_common.h"
-#include "array_make.h"
 #include "array_sequence.h"
 #include "array_vector.h"
-#include "bit.h"
 #include "common_header.h"
-#include "cons.h"
 #include "cons_list.h"
-#include "cons_plist.h"
-#include "integer.h"
 #include "sequence.h"
-#include "type.h"
-#include "type_parse.h"
 #include "type_upgraded.h"
 
 /* (defun make-array (dimensions &key element-type initial-element
@@ -29,10 +21,11 @@
  *   displaced-to            (or array null)  ;; default nil
  *   displaced-index-offset  index  ;; default 0
  */
-static void function_make_array(Execute ptr, addr var, addr rest)
+static int function_make_array(Execute ptr, addr var, addr rest)
 {
 	make_array_common(ptr, var, rest, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_make_array_key(addr *ret, int adjustable)
@@ -125,10 +118,11 @@ static void defun_make_array(void)
  *   displaced-to            (or array null)  ;; default nil
  *   displaced-index-offset  index  ;; default 0
  */
-static void function_adjust_array(Execute ptr, addr pos, addr dim, addr rest)
+static int function_adjust_array(Execute ptr, addr pos, addr dim, addr rest)
 {
 	adjust_array_common(ptr, pos, dim, rest, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_adjust_array(addr *ret)
@@ -162,9 +156,10 @@ static void defun_adjust_array(void)
 
 
 /* (defun adjustable-array-p (array) ...) -> boolean */
-static void function_adjustable_array_p(Execute ptr, addr array)
+static int function_adjustable_array_p(Execute ptr, addr array)
 {
 	setbool_control(ptr, adjustable_array_p_common(array));
+	return 0;
 }
 
 static void defun_adjustable_array_p(void)
@@ -184,10 +179,11 @@ static void defun_adjustable_array_p(void)
 
 
 /* (defun aref (array &rest args) ...) -> t */
-static void function_aref(Execute ptr, addr var, addr rest)
+static int function_aref(Execute ptr, addr var, addr rest)
 {
 	aref_common(var, rest, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_aref(addr *ret)
@@ -218,10 +214,11 @@ static void defun_aref(void)
 
 
 /* (defun (setf aref) (value array &rest args) ...) -> value */
-static void function_setf_aref(Execute ptr, addr value, addr var, addr rest)
+static int function_setf_aref(Execute ptr, addr value, addr var, addr rest)
 {
 	setf_aref_common(value, var, rest);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_aref(addr *ret)
@@ -256,10 +253,11 @@ static void defun_setf_aref(void)
  *   axis       index
  *   dimension  index
  */
-static void function_array_dimension(Execute ptr, addr var, addr axis)
+static int function_array_dimension(Execute ptr, addr var, addr axis)
 {
 	array_dimension_common(var, axis, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_array_dimension(addr *ret)
@@ -290,10 +288,11 @@ static void defun_array_dimension(void)
 
 
 /* (defun array-dimensions (array) ...) -> (integer 0 *) */
-static void function_array_dimensions(Execute ptr, addr var)
+static int function_array_dimensions(Execute ptr, addr var)
 {
 	array_dimensions_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_array_dimensions(void)
@@ -313,10 +312,11 @@ static void defun_array_dimensions(void)
 
 
 /* (defun array-element-type (array) ...) -> typespec */
-static void function_array_element_type(Execute ptr, addr var)
+static int function_array_element_type(Execute ptr, addr var)
 {
 	array_element_type_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_array_element_type(addr *ret)
@@ -347,9 +347,10 @@ static void defun_array_element_type(void)
 
 
 /* (defun array-has-fill-pointer-p (array) ...) -> boolean */
-static void function_array_has_fill_pointer_p(Execute ptr, addr var)
+static int function_array_has_fill_pointer_p(Execute ptr, addr var)
 {
 	setbool_control(ptr, array_has_fill_pointer_p_common(var));
+	return 0;
 }
 
 static void defun_array_has_fill_pointer_p(void)
@@ -369,11 +370,14 @@ static void defun_array_has_fill_pointer_p(void)
 
 
 /* (defun array-displacement (array) ...) -> (or nil array), index */
-static void function_array_displacement(Execute ptr, addr pos)
+static int function_array_displacement(Execute ptr, addr pos)
 {
 	addr value, offset;
+
 	array_displacement_common(pos, &value, &offset);
 	setvalues_control(ptr, value, offset, NULL);
+
+	return 0;
 }
 
 static void type_array_displacement(addr *ret)
@@ -407,9 +411,10 @@ static void defun_array_displacement(void)
 
 
 /* (defun array-in-bounds-p (array &rest args) ...) -> boolean */
-static void function_array_in_bounds_p(Execute ptr, addr array, addr rest)
+static int function_array_in_bounds_p(Execute ptr, addr array, addr rest)
 {
 	setbool_control(ptr, array_in_bounds_p_common(array, rest));
+	return 0;
 }
 
 static void type_array_in_bounds_p(addr *ret)
@@ -440,10 +445,11 @@ static void defun_array_in_bounds_p(void)
 
 
 /* (defun array-rank (array) ...) -> (intege 0 *) */
-static void function_array_rank(Execute ptr, addr pos)
+static int function_array_rank(Execute ptr, addr pos)
 {
 	array_rank_common(pos, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_array_rank(void)
@@ -463,10 +469,11 @@ static void defun_array_rank(void)
 
 
 /* (defun array-row-major-index (array &rest args) ...) -> index */
-static void function_array_row_major_index(Execute ptr, addr array, addr rest)
+static int function_array_row_major_index(Execute ptr, addr array, addr rest)
 {
 	array_row_major_index_common(array, rest, &array);
 	setresult_control(ptr, array);
+	return 0;
 }
 
 static void type_array_row_major_index(addr *ret)
@@ -497,10 +504,11 @@ static void defun_array_row_major_index(void)
 
 
 /* (defun array-total-size (array) ...) -> (integer 0 *) */
-static void function_array_total_size(Execute ptr, addr array)
+static int function_array_total_size(Execute ptr, addr array)
 {
 	array_total_size_common(array, &array);
 	setresult_control(ptr, array);
+	return 0;
 }
 
 static void defun_array_total_size(void)
@@ -520,9 +528,10 @@ static void defun_array_total_size(void)
 
 
 /* (defun arrayp (object) ...) -> boolean */
-static void function_arrayp(Execute ptr, addr var)
+static int function_arrayp(Execute ptr, addr var)
 {
 	setbool_control(ptr, arrayp_common(var));
+	return 0;
 }
 
 static void defun_arrayp(void)
@@ -542,10 +551,11 @@ static void defun_arrayp(void)
 
 
 /* (defun fill-pointer (vector) ...) -> index */
-static void function_fill_pointer(Execute ptr, addr array)
+static int function_fill_pointer(Execute ptr, addr array)
 {
 	fill_pointer_common(array, &array);
 	setresult_control(ptr, array);
+	return 0;
 }
 
 static void type_fill_pointer(addr *ret)
@@ -577,10 +587,11 @@ static void defun_fill_pointer(void)
 /* (defun (setf fill-pointer) (value array) ...) -> value
  *   value  index
  */
-static void function_setf_fill_pointer(Execute ptr, addr value, addr array)
+static int function_setf_fill_pointer(Execute ptr, addr value, addr array)
 {
 	setf_fill_pointer_common(value, array);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_fill_pointer(addr *ret)
@@ -611,10 +622,11 @@ static void defun_setf_fill_pointer(void)
 
 
 /* (defun row-major-aref (array index) ...) -> t */
-static void function_row_major_aref(Execute ptr, addr array, addr index)
+static int function_row_major_aref(Execute ptr, addr array, addr index)
 {
 	row_major_aref_common(array, index, &array);
 	setresult_control(ptr, array);
+	return 0;
 }
 
 static void type_row_major_aref(addr *ret)
@@ -645,11 +657,12 @@ static void defun_row_major_aref(void)
 
 
 /* (defun (setf row-major-aref) (value array index) ...) -> value */
-static void function_setf_row_major_aref(Execute ptr,
+static int function_setf_row_major_aref(Execute ptr,
 		addr value, addr array, addr index)
 {
 	setf_row_major_aref_common(value, array, index);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_row_major_aref(addr *ret)
@@ -683,10 +696,11 @@ static void defun_setf_row_major_aref(void)
 /* (defun upgraded-array-element-type (typespec &optional environment) ...)
  *     -> typespec
  */
-static void function_upgraded_array_element_type(Execute ptr, addr pos, addr env)
+static int function_upgraded_array_element_type(Execute ptr, addr pos, addr env)
 {
-	Return0(upgraded_array_common(ptr, env, pos, &pos));
+	Return(upgraded_array_common(ptr, env, pos, &pos));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_upgraded_array_element_type(void)
@@ -739,9 +753,10 @@ static void defconstant_array_total_size_limit(void)
 
 
 /* (defun simple-vector-p (object) ...) -> boolean */
-static void function_simple_vector_p(Execute ptr, addr var)
+static int function_simple_vector_p(Execute ptr, addr var)
 {
 	setbool_control(ptr, simple_vector_p_common(var));
+	return 0;
 }
 
 static void defun_simple_vector_p(void)
@@ -761,10 +776,11 @@ static void defun_simple_vector_p(void)
 
 
 /* (defun svref (vector index) ...) -> t */
-static void function_svref(Execute ptr, addr pos, addr index)
+static int function_svref(Execute ptr, addr pos, addr index)
 {
 	svref_common(pos, index, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_svref(addr *ret)
@@ -795,10 +811,11 @@ static void defun_svref(void)
 
 
 /* (defun (setf svref) (value vector index) ...) -> t */
-static void function_setf_svref(Execute ptr, addr value, addr pos, addr index)
+static int function_setf_svref(Execute ptr, addr value, addr pos, addr index)
 {
 	setf_svref_common(value, pos, index);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_svref(addr *ret)
@@ -830,10 +847,11 @@ static void defun_setf_svref(void)
 
 
 /* (defun vector (&rest args) ...) -> simple-vector */
-static void function_vector(Execute ptr, addr rest)
+static int function_vector(Execute ptr, addr rest)
 {
 	make_vector_from_list(&rest, rest);
 	setresult_control(ptr, rest);
+	return 0;
 }
 
 static void type_common_vector(addr *ret)
@@ -863,10 +881,11 @@ static void defun_vector(void)
 
 
 /* (defun vector-pop (vector) ...) -> t */
-static void function_vector_pop(Execute ptr, addr pos)
+static int function_vector_pop(Execute ptr, addr pos)
 {
 	vector_pop_common(pos, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_vector_pop(addr *ret)
@@ -896,10 +915,11 @@ static void defun_vector_pop(void)
 
 
 /* (defun vector-push (value vector) ...) -> index-null */
-static void function_vector_push(Execute ptr, addr value, addr pos)
+static int function_vector_push(Execute ptr, addr value, addr pos)
 {
 	vector_push_common(value, pos, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_vector_push(addr *ret)
@@ -933,11 +953,12 @@ static void defun_vector_push(void)
  *    -> index
  *   extension  (integer 1 *)
  */
-static void function_vector_push_extend(Execute ptr,
+static int function_vector_push_extend(Execute ptr,
 		addr value, addr pos, addr extension)
 {
 	vector_push_extend_common(value, pos, extension, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_vector_push_extend(addr *ret)
@@ -969,9 +990,10 @@ static void defun_vector_push_extend(void)
 
 
 /* (defun vectorp (object) ...) -> boolean */
-static void function_vectorp(Execute ptr, addr var)
+static int function_vectorp(Execute ptr, addr var)
 {
 	setbool_control(ptr, vectorp_common(var));
+	return 0;
 }
 
 static void defun_vectorp(void)
@@ -991,10 +1013,11 @@ static void defun_vectorp(void)
 
 
 /* (defun bit (bit-array &rest args) ...) -> bit */
-static void function_bit(Execute ptr, addr pos, addr rest)
+static int function_bit(Execute ptr, addr pos, addr rest)
 {
 	bit_common(pos, rest, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_bit_common(addr *ret)
@@ -1053,10 +1076,11 @@ static void defun_sbit(void)
 
 
 /* (defun (setf bit) (bit bit-array &rest args) ...) -> bit */
-static void function_setf_bit(Execute ptr, addr value, addr pos, addr rest)
+static int function_setf_bit(Execute ptr, addr value, addr pos, addr rest)
 {
 	setf_bit_common(value, pos, rest);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_bit(addr *ret)
@@ -1117,9 +1141,10 @@ static void defun_setf_sbit(void)
 
 
 /* (defun bit-vector-p (t) ...) -> boolean */
-static void function_bit_vector_p(Execute ptr, addr var)
+static int function_bit_vector_p(Execute ptr, addr var)
 {
 	setbool_control(ptr, bit_vector_p_common(var));
+	return 0;
 }
 
 static void defun_bit_vector_p(void)
@@ -1139,9 +1164,10 @@ static void defun_bit_vector_p(void)
 
 
 /* (defun simple-bit-vector-p (t) ...) -> boolean */
-static void function_simple_bit_vector_p(Execute ptr, addr var)
+static int function_simple_bit_vector_p(Execute ptr, addr var)
 {
 	setbool_control(ptr, simple_bit_vector_p_common(var));
+	return 0;
 }
 
 static void defun_simple_bit_vector_p(void)
@@ -1169,11 +1195,14 @@ static fixed bitcalc_and(fixed a, fixed b)
 	return a & b;
 }
 
-static void function_bit_and(Execute ptr, addr array1, addr array2, addr opt)
+static int function_bit_and(Execute ptr, addr array1, addr array2, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
+	if (opt == Unbound)
+		opt = Nil;
 	array_bitcalc(&array1, array1, array2, opt, bitcalc_and);
 	setresult_control(ptr, array1);
+
+	return 0;
 }
 
 static void defun_bit_and(void)
@@ -1198,11 +1227,14 @@ static fixed bitcalc_andc1(fixed a, fixed b)
 	return (~a) & b;
 }
 
-static void function_bit_andc1(Execute ptr, addr array1, addr array2, addr opt)
+static int function_bit_andc1(Execute ptr, addr array1, addr array2, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
+	if (opt == Unbound)
+		opt = Nil;
 	array_bitcalc(&array1, array1, array2, opt, bitcalc_andc1);
 	setresult_control(ptr, array1);
+
+	return 0;
 }
 
 static void defun_bit_andc1(void)
@@ -1227,11 +1259,14 @@ static fixed bitcalc_andc2(fixed a, fixed b)
 	return a & (~b);
 }
 
-static void function_bit_andc2(Execute ptr, addr array1, addr array2, addr opt)
+static int function_bit_andc2(Execute ptr, addr array1, addr array2, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
+	if (opt == Unbound)
+		opt = Nil;
 	array_bitcalc(&array1, array1, array2, opt, bitcalc_andc2);
 	setresult_control(ptr, array1);
+
+	return 0;
 }
 
 static void defun_bit_andc2(void)
@@ -1256,11 +1291,14 @@ static fixed bitcalc_eqv(fixed a, fixed b)
 	return a ^ b;
 }
 
-static void function_bit_eqv(Execute ptr, addr array1, addr array2, addr opt)
+static int function_bit_eqv(Execute ptr, addr array1, addr array2, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
+	if (opt == Unbound)
+		opt = Nil;
 	array_bitcalc(&array1, array1, array2, opt, bitcalc_eqv);
 	setresult_control(ptr, array1);
+
+	return 0;
 }
 
 static void defun_bit_eqv(void)
@@ -1285,11 +1323,14 @@ static fixed bitcalc_ior(fixed a, fixed b)
 	return a | b;
 }
 
-static void function_bit_ior(Execute ptr, addr array1, addr array2, addr opt)
+static int function_bit_ior(Execute ptr, addr array1, addr array2, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
+	if (opt == Unbound)
+		opt = Nil;
 	array_bitcalc(&array1, array1, array2, opt, bitcalc_ior);
 	setresult_control(ptr, array1);
+
+	return 0;
 }
 
 static void defun_bit_ior(void)
@@ -1314,11 +1355,14 @@ static fixed bitcalc_nand(fixed a, fixed b)
 	return ~(a & b);
 }
 
-static void function_bit_nand(Execute ptr, addr array1, addr array2, addr opt)
+static int function_bit_nand(Execute ptr, addr array1, addr array2, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
+	if (opt == Unbound)
+		opt = Nil;
 	array_bitcalc(&array1, array1, array2, opt, bitcalc_nand);
 	setresult_control(ptr, array1);
+
+	return 0;
 }
 
 static void defun_bit_nand(void)
@@ -1343,11 +1387,14 @@ static fixed bitcalc_nor(fixed a, fixed b)
 	return ~(a | b);
 }
 
-static void function_bit_nor(Execute ptr, addr array1, addr array2, addr opt)
+static int function_bit_nor(Execute ptr, addr array1, addr array2, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
+	if (opt == Unbound)
+		opt = Nil;
 	array_bitcalc(&array1, array1, array2, opt, bitcalc_nor);
 	setresult_control(ptr, array1);
+
+	return 0;
 }
 
 static void defun_bit_nor(void)
@@ -1372,11 +1419,14 @@ static fixed bitcalc_orc1(fixed a, fixed b)
 	return (~a) | b;
 }
 
-static void function_bit_orc1(Execute ptr, addr array1, addr array2, addr opt)
+static int function_bit_orc1(Execute ptr, addr array1, addr array2, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
+	if (opt == Unbound)
+		opt = Nil;
 	array_bitcalc(&array1, array1, array2, opt, bitcalc_orc1);
 	setresult_control(ptr, array1);
+
+	return 0;
 }
 
 static void defun_bit_orc1(void)
@@ -1401,11 +1451,14 @@ static fixed bitcalc_orc2(fixed a, fixed b)
 	return a | (~b);
 }
 
-static void function_bit_orc2(Execute ptr, addr array1, addr array2, addr opt)
+static int function_bit_orc2(Execute ptr, addr array1, addr array2, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
+	if (opt == Unbound)
+		opt = Nil;
 	array_bitcalc(&array1, array1, array2, opt, bitcalc_orc2);
 	setresult_control(ptr, array1);
+
+	return 0;
 }
 
 static void defun_bit_orc2(void)
@@ -1442,11 +1495,14 @@ static void defun_bit_xor(void)
 
 
 /* (defun bit-not (bit-array1 bit-array2 &optional opt-arg) ...) */
-static void function_bit_not(Execute ptr, addr array, addr opt)
+static int function_bit_not(Execute ptr, addr array, addr opt)
 {
-	if (opt == Unbound) opt = Nil;
+	if (opt == Unbound)
+		opt = Nil;
 	array_bitnot(&array, array, opt);
 	setresult_control(ptr, array);
+
+	return 0;
 }
 
 static void type_bit_not(addr *ret)

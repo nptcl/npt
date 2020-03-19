@@ -7,6 +7,9 @@
 #include "object.h"
 #include "package.h"
 #include "strtype.h"
+#include "strvect.h"
+
+#define LISP_CHARQUEUESIZE           64
 
 /*
  *  charqueue
@@ -33,7 +36,7 @@ _g addr charqueue_allocr(LocalRoot local, size_t max)
 	addr pos, root;
 	struct charqueue_struct *str;
 
-	if (max == 0) max = CHARQUEUESIZE;
+	if (max == 0) max = LISP_CHARQUEUESIZE;
 	Check(0xFFFF < max, "size error");
 	alloc_smallsize(local, &pos, LISPSYSTEM_CHARQUEUE,
 			2, sizeoft(struct charqueue_struct));

@@ -2823,6 +2823,17 @@ static void typecompiled_infobit(void)
 	SetTypeCompiled(InfoBit, args);
 }
 
+static void typecompiled_chareql(void)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Character);
+	typeargs_var1rest(&args, args, args);
+	GetTypeValues(&values, Boolean);
+	type_compiled_heap(args, values, &args);
+	SetTypeCompiled(CharEql, args);
+}
+
 
 /*
  *  Interface
@@ -3169,5 +3180,6 @@ _g void build_type_constant(void)
 	typecompiled_get_internal_real_time();
 	typecompiled_remove_file();
 	typecompiled_infobit();
+	typecompiled_chareql();
 }
 

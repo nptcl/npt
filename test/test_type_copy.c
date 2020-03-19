@@ -37,7 +37,7 @@ static void parse_type_string(addr *ret, const char *code)
 {
 	readstring(ret, code);
 	if (parse_type(Execute_Thread, ret, *ret, Nil))
-		fmte("parse-type error.", NULL);
+		_fmte("parse-type error.", NULL);
 }
 
 static int test_getset_arraytype(void)

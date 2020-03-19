@@ -29,7 +29,7 @@ _g int arraymemory_get(addr pos, size_t index, addr *retp, size_t *rets)
 	Check(! arrayp(pos), "type error");
 	str = ArrayInfoStruct(pos);
 	if (str->size <= index) {
-		fmte("Index ~S must be less than array size.", intsizeh(index), NULL);
+		_fmte("Index ~S must be less than array size.", intsizeh(index), NULL);
 		*retp = Nil;
 		*rets = 0;
 		return 0;
@@ -133,7 +133,7 @@ static void arraymemory_setsigned(addr pos, unsigned size, size_t index, addr va
 			break;
 #endif
 		default:
-			fmte("Invalid array size.", NULL);
+			_fmte("Invalid array size.", NULL);
 			break;
 	}
 }
@@ -206,7 +206,7 @@ static void arraymemory_setunsigned(addr pos, unsigned size, size_t index, addr 
 			break;
 #endif
 		default:
-			fmte("Invalid array size.", NULL);
+			_fmte("Invalid array size.", NULL);
 			break;
 	}
 }
@@ -263,7 +263,7 @@ static void arraymemory_set(addr pos, addr mem, size_t index, addr value)
 			break;
 
 		case ARRAY_TYPE_BIT:
-			fmte("Invalid array object, ~S.", pos, NULL);
+			_fmte("Invalid array object, ~S.", pos, NULL);
 			break;
 
 		case ARRAY_TYPE_CHARACTER:
@@ -291,7 +291,7 @@ static void arraymemory_set(addr pos, addr mem, size_t index, addr value)
 			break;
 
 		default:
-			fmte("(SETF AREF) Invalid array type.", NULL);
+			_fmte("(SETF AREF) Invalid array type.", NULL);
 			break;
 	}
 }
@@ -303,7 +303,7 @@ static void arraymemory_set(addr pos, addr mem, size_t index, addr value)
 _g void array_get_t(addr pos, size_t index, addr *ret)
 {
 	if (array_type(pos) != ARRAY_TYPE_T)
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	if (arraymemory_get(pos, index, &pos, &index))
 		arraygen_get(pos, index, ret);
 	else
@@ -313,7 +313,7 @@ _g void array_get_t(addr pos, size_t index, addr *ret)
 _g void array_get_bit(addr pos, size_t index, int *ret)
 {
 	if (array_type(pos) != ARRAY_TYPE_BIT)
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	bitmemory_getint(pos, index, ret);
 }
@@ -326,7 +326,7 @@ static void arraymemory_getunicode(addr pos, size_t index, unicode *ret)
 _g void array_get_unicode(addr pos, size_t index, unicode *ret)
 {
 	if (array_type(pos) != ARRAY_TYPE_CHARACTER)
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	if (arraymemory_get(pos, index, &pos, &index))
 		arraymemory_getunicode(pos, index, ret);
 	else
@@ -343,11 +343,11 @@ _g void array_get(LocalRoot local, addr pos, size_t index, addr *ret)
 _g void array_set_bit(addr pos, size_t index, int value)
 {
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	if (array_type(pos) != ARRAY_TYPE_BIT)
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	if (value != 0 && value != 1)
-		fmte("Value ~A must be a bit type (0 or 1).", fixnumh(value), NULL);
+		_fmte("Value ~A must be a bit type (0 or 1).", fixnumh(value), NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	bitmemory_setint(pos, index, value);
 }
@@ -355,9 +355,9 @@ _g void array_set_bit(addr pos, size_t index, int value)
 _g void array_set_character(addr pos, size_t index, unicode value)
 {
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	if (array_type(pos) != ARRAY_TYPE_CHARACTER)
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	if (arraymemory_get(pos, index, &pos, &index))
 		arraymemory_setvalue_character(pos, index, value);
 	else
@@ -369,10 +369,10 @@ _g void array_set_signed8(addr pos, size_t index, int8_t value)
 	struct array_struct *str;
 
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	str = ArrayInfoStruct(pos);
 	if (! array_equal_type(str, ARRAY_TYPE_SIGNED, 8))
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_signed8(pos, index, value);
 }
@@ -382,10 +382,10 @@ _g void array_set_signed16(addr pos, size_t index, int16_t value)
 	struct array_struct *str;
 
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	str = ArrayInfoStruct(pos);
 	if (! array_equal_type(str, ARRAY_TYPE_SIGNED, 16))
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_signed16(pos, index, value);
 }
@@ -395,10 +395,10 @@ _g void array_set_signed32(addr pos, size_t index, int32_t value)
 	struct array_struct *str;
 
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	str = ArrayInfoStruct(pos);
 	if (! array_equal_type(str, ARRAY_TYPE_SIGNED, 32))
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_signed32(pos, index, value);
 }
@@ -408,10 +408,10 @@ _g void array_set_unsigned8(addr pos, size_t index, uint8_t value)
 	struct array_struct *str;
 
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	str = ArrayInfoStruct(pos);
 	if (! array_equal_type(str, ARRAY_TYPE_UNSIGNED, 8))
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_unsigned8(pos, index, value);
 }
@@ -421,10 +421,10 @@ _g void array_set_unsigned16(addr pos, size_t index, uint16_t value)
 	struct array_struct *str;
 
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	str = ArrayInfoStruct(pos);
 	if (! array_equal_type(str, ARRAY_TYPE_UNSIGNED, 16))
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_unsigned16(pos, index, value);
 }
@@ -434,10 +434,10 @@ _g void array_set_unsigned32(addr pos, size_t index, uint32_t value)
 	struct array_struct *str;
 
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	str = ArrayInfoStruct(pos);
 	if (! array_equal_type(str, ARRAY_TYPE_UNSIGNED, 32))
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_unsigned32(pos, index, value);
 }
@@ -448,10 +448,10 @@ _g void array_set_signed64(addr pos, size_t index, int64_t value)
 	struct array_struct *str;
 
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	str = ArrayInfoStruct(pos);
 	if (! array_equal_type(str, ARRAY_TYPE_SIGNED, 64))
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_signed64(pos, index, value);
 }
@@ -461,10 +461,10 @@ _g void array_set_unsigned64(addr pos, size_t index, uint64_t value)
 	struct array_struct *str;
 
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	str = ArrayInfoStruct(pos);
 	if (! array_equal_type(str, ARRAY_TYPE_UNSIGNED, 64))
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_unsigned64(pos, index, value);
 }
@@ -473,9 +473,9 @@ _g void array_set_unsigned64(addr pos, size_t index, uint64_t value)
 _g void array_set_single(addr pos, size_t index, single_float value)
 {
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	if (array_type(pos) != ARRAY_TYPE_SINGLE_FLOAT)
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_single(pos, index, value);
 }
@@ -483,9 +483,9 @@ _g void array_set_single(addr pos, size_t index, single_float value)
 _g void array_set_double(addr pos, size_t index, double_float value)
 {
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	if (array_type(pos) != ARRAY_TYPE_DOUBLE_FLOAT)
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_double(pos, index, value);
 }
@@ -493,9 +493,9 @@ _g void array_set_double(addr pos, size_t index, double_float value)
 _g void array_set_long(addr pos, size_t index, long_float value)
 {
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	if (array_type(pos) != ARRAY_TYPE_LONG_FLOAT)
-		fmte("Invalid array type, ~S.", pos, NULL);
+		_fmte("Invalid array type, ~S.", pos, NULL);
 	arraymemory_get(pos, index, &pos, &index);
 	arraymemory_setvalue_long(pos, index, value);
 }
@@ -505,7 +505,7 @@ _g void array_set(addr pos, size_t index, addr value)
 	addr mem;
 
 	if (GetStatusReadOnly(pos))
-		fmte("Object ~S is constant.", pos, NULL);
+		_fmte("Object ~S is constant.", pos, NULL);
 	if (arraymemory_get(pos, index, &mem, &index))
 		arraymemory_set(pos, mem, index, value);
 	else
@@ -522,11 +522,11 @@ _g void array_setget(addr p1, size_t s1, addr p2, size_t s2)
 	struct array_struct *str1, *str2;
 
 	if (GetStatusReadOnly(p1))
-		fmte("Object ~S is constant.", p1, NULL);
+		_fmte("Object ~S is constant.", p1, NULL);
 	str1 = ArrayInfoStruct(p1);
 	str2 = ArrayInfoStruct(p2);
 	if (! array_equal_type(str1, str2->type, str2->bytesize))
-		fmte("Array ~S type must be equal to base array ~S.", p1, p2, NULL);
+		_fmte("Array ~S type must be equal to base array ~S.", p1, p2, NULL);
 	arrayinplace_get(p2, s2, &value);
 	arrayinplace_set(p1, s1, &value);
 }
@@ -541,14 +541,14 @@ static size_t array1arefindex(addr pos, addr args, struct array_struct *str)
 	size_t index;
 
 	if (! consp(args))
-		fmte("Subscripts ~S must be list form.", args, NULL);
+		_fmte("Subscripts ~S must be list form.", args, NULL);
 	GetCons(args, &arg, &args);
 	if (args != Nil)
-		fmte("Subscripts ~S too many arguments.", args, NULL);
+		_fmte("Subscripts ~S too many arguments.", args, NULL);
 	if (GetIndex_integer(arg, &index))
-		fmte("Invalid subscript argument ~S.", arg, NULL);
+		_fmte("Invalid subscript argument ~S.", arg, NULL);
 	if (str->front <= index)
-		fmte("Subscript ~S is too large.", arg, NULL);
+		_fmte("Subscript ~S is too large.", arg, NULL);
 	return index;
 }
 
@@ -569,20 +569,20 @@ _g size_t array_arefindex(addr pos, addr args)
 	list = args;
 	for (depth = 0; list != Nil; depth++) {
 		if (! consp(list))
-			fmte("Subscripts ~S must be a list type.", list, NULL);
+			_fmte("Subscripts ~S must be a list type.", list, NULL);
 		if (dimension <= depth)
-			fmte("Subscripts ~A is too large.", args, NULL);
+			_fmte("Subscripts ~A is too large.", args, NULL);
 		GetCons(list, &check, &list);
 		if (GetIndex_integer(check, &value))
-			fmte("Invalid index value ~S.", check, NULL);
+			_fmte("Invalid index value ~S.", check, NULL);
 		range = data[depth];
 		if (range <= value)
-			fmte("Out of range ~S subscripts in ~S array.", list, pos, NULL);
+			_fmte("Out of range ~S subscripts in ~S array.", list, pos, NULL);
 		index = depth? (index * range): 0;
 		index += value;
 	}
 	if (depth != str->dimension)
-		fmte("Subscript ~S is too few.", args, NULL);
+		_fmte("Subscript ~S is too few.", args, NULL);
 
 	return index;
 }

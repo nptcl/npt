@@ -18,6 +18,7 @@
 #include "stream_string.h"
 #include "stream_synonym.h"
 #include "stream_twoway.h"
+#include "strvect.h"
 #include "syscall.h"
 #include "type.h"
 

@@ -9,10 +9,11 @@
 #include "type_parse.h"
 
 /* (defun directory (pathname &key) ...) -> list */
-static void function_directory(Execute ptr, addr pos)
+static int function_directory(Execute ptr, addr pos)
 {
 	directory_files(ptr, &pos, pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_directory(addr *ret)
@@ -42,10 +43,11 @@ static void defun_directory(void)
 
 
 /* (defun probe-file (pathspec) ...) -> truename */
-static void function_probe_file(Execute ptr, addr pos)
+static int function_probe_file(Execute ptr, addr pos)
 {
 	probe_file_files(ptr, &pos, pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_probe_file(void)
@@ -70,11 +72,14 @@ static void defun_probe_file(void)
  *   verbose   t  ;; boolean
  *   created   boolean
  */
-static void function_ensure_directories_exist(Execute ptr, addr pos, addr rest)
+static int function_ensure_directories_exist(Execute ptr, addr pos, addr rest)
 {
-	if (getkeyargs(rest, KEYWORD_VERBOSE, &rest)) rest = Nil;
+	if (getkeyargs(rest, KEYWORD_VERBOSE, &rest))
+		rest = Nil;
 	ensure_directories_exist_files(ptr, &pos, &rest, pos, rest != Nil);
 	setvalues_control(ptr, pos, rest, NULL);
+
+	return 0;
 }
 
 static void type_ensure_directories_exist(addr *ret)
@@ -110,10 +115,11 @@ static void defun_ensure_directories_exist(void)
 
 
 /* (defun truename (pathspec) ...) -> pathname */
-static void function_truename(Execute ptr, addr pos)
+static int function_truename(Execute ptr, addr pos)
 {
 	truename_files(ptr, pos, &pos, 1);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_truename(void)
@@ -133,10 +139,11 @@ static void defun_truename(void)
 
 
 /* (defun file-author (pathspec) ...) -> (or string null) */
-static void function_file_author(Execute ptr, addr pos)
+static int function_file_author(Execute ptr, addr pos)
 {
 	file_author_files(ptr, &pos, pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_file_author(addr *ret)
@@ -166,10 +173,11 @@ static void defun_file_author(void)
 
 
 /* (defun file-write-date (pathspec) ...) -> (or integer null) */
-static void function_file_write_date(Execute ptr, addr pos)
+static int function_file_write_date(Execute ptr, addr pos)
 {
 	file_write_date_files(ptr, &pos, pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_file_write_date(addr *ret)
@@ -200,11 +208,14 @@ static void defun_file_write_date(void)
 
 
 /* (defun rename-file (file rename) ...) -> new from to */
-static void function_rename_file(Execute ptr, addr file1, addr file2)
+static int function_rename_file(Execute ptr, addr file1, addr file2)
 {
 	addr file3;
+
 	rename_file_files(ptr, &file1, &file2, &file3, file1, file2);
 	setvalues_control(ptr, file1, file2, file3, NULL);
+
+	return 0;
 }
 
 static void type_rename_file(addr *ret)
@@ -234,10 +245,11 @@ static void defun_rename_file(void)
 
 
 /* (defun delete-file (file) ...) -> (eql t) */
-static void function_delete_file(Execute ptr, addr pos)
+static int function_delete_file(Execute ptr, addr pos)
 {
 	delete_file_files(ptr, pos);
 	setresult_control(ptr, T);
+	return 0;
 }
 
 static void type_delete_file(addr *ret)
@@ -267,10 +279,11 @@ static void defun_delete_file(void)
 
 
 /* (defun file-error-pathname (condition) ...) -> pathname-designer */
-static void function_file_error_pathname(Execute ptr, addr var)
+static int function_file_error_pathname(Execute ptr, addr var)
 {
 	file_error_pathname(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_file_error_pathname(addr *ret)

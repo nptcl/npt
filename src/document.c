@@ -184,18 +184,20 @@ static void mop_argument_method_setf_documentation(addr *ret,
 /*
  *  (function (eql 't))
  */
-static void method_documentation_function_t(Execute ptr,
+static int method_documentation_function_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	getdocumentation_function(object, &object);
 	setresult_control(ptr, object);
+	return 0;
 }
 
-static void method_setf_documentation_function_t(Execute ptr,
+static int method_setf_documentation_function_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	setdocumentation_function(object, value);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void documentation_function_t(Execute ptr, addr name, addr gen)
@@ -266,22 +268,26 @@ static void setf_documentation_function_function(Execute ptr, addr name, addr ge
 /*
  *  (list (eql 'function))
  */
-static void method_documentation_list_function(Execute ptr,
+static int method_documentation_list_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	parse_callname_error(&object, object);
 	getfunctioncheck_callname_local(ptr, object, &object);
 	getdocumentation_function(object, &object);
 	setresult_control(ptr, object);
+
+	return 0;
 }
 
-static void method_setf_documentation_list_function(Execute ptr,
+static int method_setf_documentation_list_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	parse_callname_error(&object, object);
 	getfunctioncheck_callname_local(ptr, object, &object);
 	setdocumentation_function(object, value);
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void documentation_list_function(Execute ptr, addr name, addr gen)
@@ -318,7 +324,7 @@ static void setf_documentation_list_function(Execute ptr, addr name, addr gen)
 /*
  *  (list (eql 'compiled-function))
  */
-static void method_documentation_list_compiled_function(Execute ptr,
+static int method_documentation_list_compiled_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	parse_callname_error(&object, object);
@@ -327,9 +333,11 @@ static void method_documentation_list_compiled_function(Execute ptr,
 		TypeError(object, COMPILED_FUNCTION);
 	getdocumentation_function(object, &object);
 	setresult_control(ptr, object);
+
+	return 0;
 }
 
-static void method_setf_documentation_list_compiled_function(Execute ptr,
+static int method_setf_documentation_list_compiled_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	parse_callname_error(&object, object);
@@ -338,6 +346,8 @@ static void method_setf_documentation_list_compiled_function(Execute ptr,
 		TypeError(object, COMPILED_FUNCTION);
 	setdocumentation_function(object, value);
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void documentation_list_compiled_function(Execute ptr, addr name, addr gen)
@@ -374,20 +384,24 @@ static void setf_documentation_list_compiled_function(Execute ptr, addr name, ad
 /*
  *  (symbol (eql 'function))
  */
-static void method_documentation_symbol_function(Execute ptr,
+static int method_documentation_symbol_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	getfunctioncheck_local(ptr, object, &object);
 	getdocumentation_function(object, &object);
 	setresult_control(ptr, object);
+
+	return 0;
 }
 
-static void method_setf_documentation_symbol_function(Execute ptr,
+static int method_setf_documentation_symbol_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	getfunctioncheck_local(ptr, object, &object);
 	setdocumentation_function(object, value);
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void documentation_symbol_function(Execute ptr, addr name, addr gen)
@@ -424,7 +438,7 @@ static void setf_documentation_symbol_function(Execute ptr, addr name, addr gen)
 /*
  *  (symbol (eql 'compiler-function))
  */
-static void method_documentation_symbol_compiled_function(Execute ptr,
+static int method_documentation_symbol_compiled_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	getfunctioncheck_local(ptr, object, &object);
@@ -432,9 +446,11 @@ static void method_documentation_symbol_compiled_function(Execute ptr,
 		TypeError(object, COMPILED_FUNCTION);
 	getdocumentation_function(object, &object);
 	setresult_control(ptr, object);
+
+	return 0;
 }
 
-static void method_setf_documentation_symbol_compiled_function(Execute ptr,
+static int method_setf_documentation_symbol_compiled_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	getfunctioncheck_local(ptr, object, &object);
@@ -442,6 +458,8 @@ static void method_setf_documentation_symbol_compiled_function(Execute ptr,
 		TypeError(object, COMPILED_FUNCTION);
 	setdocumentation_function(object, value);
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void documentation_symbol_compiled_function(
@@ -480,7 +498,7 @@ static void setf_documentation_symbol_compiled_function(
 /*
  *  (symbol (eql 'setf))
  */
-static void method_documentation_symbol_setf(Execute ptr,
+static int method_documentation_symbol_setf(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	addr pos;
@@ -493,9 +511,11 @@ static void method_documentation_symbol_setf(Execute ptr,
 	/* get documentation */
 	getdocumentation_function(pos, &pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
-static void method_setf_documentation_symbol_setf(Execute ptr,
+static int method_setf_documentation_symbol_setf(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	addr pos;
@@ -508,6 +528,8 @@ static void method_setf_documentation_symbol_setf(Execute ptr,
 	/* set documentation */
 	setdocumentation_function(pos, value);
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void documentation_symbol_setf(Execute ptr, addr name, addr gen)
@@ -544,18 +566,20 @@ static void setf_documentation_symbol_setf(Execute ptr, addr name, addr gen)
 /*
  *  (method-combination (eql 't))
  */
-static void method_documentation_method_combination_t(Execute ptr,
+static int method_documentation_method_combination_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	stdget_longcomb_document(object, &object);
 	setresult_control(ptr, object);
+	return 0;
 }
 
-static void method_setf_documentation_method_combination_t(Execute ptr,
+static int method_setf_documentation_method_combination_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	stdset_longcomb_document(object, value);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void documentation_method_combination_t(
@@ -630,20 +654,24 @@ static void setf_documentation_method_combination_method_combination(
 /*
  *  (symbol (eql 'method-combination))
  */
-static void method_documentation_symbol_method_combination(Execute ptr,
+static int method_documentation_symbol_method_combination(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	clos_find_combination(object, &object);
 	stdget_longcomb_document(object, &object);
 	setresult_control(ptr, object);
+
+	return 0;
 }
 
-static void method_setf_documentation_symbol_method_combination(Execute ptr,
+static int method_setf_documentation_symbol_method_combination(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	clos_find_combination(object, &object);
 	stdset_longcomb_document(object, value);
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void documentation_symbol_method_combination(
@@ -682,18 +710,20 @@ static void setf_documentation_symbol_method_combination(
 /*
  *  (standard-method (eql 't))
  */
-static void method_documentation_standard_method_t(Execute ptr,
+static int method_documentation_standard_method_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	methodget_document(object, &object);
 	setresult_control(ptr, object);
+	return 0;
 }
 
-static void method_setf_documentation_standard_method_t(Execute ptr,
+static int method_setf_documentation_standard_method_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	methodset_document(object, value);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void documentation_standard_method_t(Execute ptr, addr name, addr gen)
@@ -730,18 +760,20 @@ static void setf_documentation_standard_method_t(Execute ptr, addr name, addr ge
 /*
  *  (package (eql 't))
  */
-static void method_documentation_package_t(Execute ptr,
+static int method_documentation_package_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	getdocument_package(object, &object);
 	setresult_control(ptr, object);
+	return 0;
 }
 
-static void method_setf_documentation_package_t(Execute ptr,
+static int method_setf_documentation_package_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	setdocument_package(object, value);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void documentation_package_t(Execute ptr, addr name, addr gen)
@@ -778,18 +810,20 @@ static void setf_documentation_package_t(Execute ptr, addr name, addr gen)
 /*
  *  (standard-class (eql 't))
  */
-static void method_documentation_standard_class_t(Execute ptr,
+static int method_documentation_standard_class_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	stdget_class_document(object, &object);
 	setresult_control(ptr, object);
+	return 0;
 }
 
-static void method_setf_documentation_standard_class_t(Execute ptr,
+static int method_setf_documentation_standard_class_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	stdset_class_document(object, value);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void documentation_standard_class_t(Execute ptr, addr name, addr gen)
@@ -860,18 +894,20 @@ static void setf_documentation_standard_class_type(Execute ptr, addr name, addr 
 /*
  *  (structure-class (eql 't))
  */
-static void method_documentation_structure_class_t(Execute ptr,
+static int method_documentation_structure_class_t(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	stdget_structure_documentation(object, &object);
 	setresult_control(ptr, object);
+	return 0;
 }
 
-static void method_setf_documentation_structure_class_t(Execute ptr,
+static int method_setf_documentation_structure_class_t(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	stdset_structure_documentation(object, value);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void documentation_structure_class_t(Execute ptr, addr name, addr gen)
@@ -942,7 +978,7 @@ static void setf_documentation_structure_class_type(Execute ptr, addr name, addr
 /*
  *  (symbol (eql 'type))
  */
-static void method_documentation_symbol_type(Execute ptr,
+static int method_documentation_symbol_type(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	addr clos, pos;
@@ -952,21 +988,22 @@ static void method_documentation_symbol_type(Execute ptr,
 	if (clos != Nil) {
 		GetConst(COMMON_DOCUMENTATION, &pos);
 		getfunctioncheck_local(ptr, pos, &pos);
-		(void)funcall_control(ptr, pos, clos, doc_type, NULL);
-		return;
+		return funcall_control(ptr, pos, clos, doc_type, NULL);
 	}
 
 	/* deftype */
 	getdeftype(object, &pos);
 	if (object == Nil) {
-		fmte("The symbol ~S don't have a deftype function.", object, NULL);
-		return;
+		_fmte("The symbol ~S don't have a deftype function.", object, NULL);
+		return 0;
 	}
 	getdocumentation_function(pos, &pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
-static void method_setf_documentation_symbol_type(Execute ptr,
+static int method_setf_documentation_symbol_type(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	addr clos, pos;
@@ -976,18 +1013,19 @@ static void method_setf_documentation_symbol_type(Execute ptr,
 	if (clos != Nil) {
 		GetConst(COMMON_DOCUMENTATION, &pos);
 		getsetfcheck_local(ptr, pos, &pos);
-		(void)funcall_control(ptr, pos, value, clos, doc_type, NULL);
-		return;
+		return funcall_control(ptr, pos, value, clos, doc_type, NULL);
 	}
 
 	/* deftype */
 	getdeftype(object, &pos);
 	if (pos == Nil) {
-		fmte("The symbol ~S don't have a deftype function.", object, NULL);
-		return;
+		_fmte("The symbol ~S don't have a deftype function.", object, NULL);
+		return 0;
 	}
 	setdocumentation_function(pos, value);
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void documentation_symbol_type(Execute ptr, addr name, addr gen)
@@ -1024,7 +1062,7 @@ static void setf_documentation_symbol_type(Execute ptr, addr name, addr gen)
 /*
  *  (symbol (eql 'structure))
  */
-static void method_documentation_symbol_structure(Execute ptr,
+static int method_documentation_symbol_structure(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	clos_find_class(object, &object);
@@ -1032,9 +1070,11 @@ static void method_documentation_symbol_structure(Execute ptr,
 		TypeError(object, STRUCTURE_CLASS);
 	stdget_structure_documentation(object, &object);
 	setresult_control(ptr, object);
+
+	return 0;
 }
 
-static void method_setf_documentation_symbol_structure(Execute ptr,
+static int method_setf_documentation_symbol_structure(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	clos_find_class(object, &object);
@@ -1042,6 +1082,8 @@ static void method_setf_documentation_symbol_structure(Execute ptr,
 		TypeError(object, STRUCTURE_CLASS);
 	stdset_structure_documentation(object, value);
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void documentation_symbol_structure(Execute ptr, addr name, addr gen)
@@ -1078,18 +1120,20 @@ static void setf_documentation_symbol_structure(Execute ptr, addr name, addr gen
 /*
  *  (symbol (eql 'variable))
  */
-static void method_documentation_symbol_variable(Execute ptr,
+static int method_documentation_symbol_variable(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	getdocument_variable_symbol(object, &object);
 	setresult_control(ptr, object);
+	return 0;
 }
 
-static void method_setf_documentation_symbol_variable(Execute ptr,
+static int method_setf_documentation_symbol_variable(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	setdocument_variable_symbol(object, value);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void documentation_symbol_variable(Execute ptr, addr name, addr gen)

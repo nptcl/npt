@@ -16,6 +16,7 @@
 #include "pathname.h"
 #include "ratio.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "structure.h"
 
 _g int atom_function(addr pos)

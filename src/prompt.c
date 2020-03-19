@@ -7,6 +7,7 @@
 #include "prompt.h"
 #include "readtable.h"
 #include "stream.h"
+#include "strvect.h"
 #include "symbol.h"
 
 struct prompt_info {
@@ -119,7 +120,7 @@ _g void show_prompt(Execute ptr, addr io)
 
 _g int input_prompt(addr *ret, addr *prompt, const char *message)
 {
-	fmte("input-prompt is not supported.", NULL);
+	_fmte("input-prompt is not supported.", NULL);
 	return 1;
 }
 #endif

@@ -854,7 +854,7 @@ static void loop_push_for_as_list(Execute ptr, addr *expr1, addr *expr2, addr li
 		return;
 	}
 	/* error */
-	fmte("Invalid variables-clause ~S.", a, NULL);
+	_fmte("Invalid variables-clause ~S.", a, NULL);
 }
 
 static void loop_variables_for_as_list(addr *form, addr list)
@@ -932,7 +932,7 @@ static void loop_variables_for_as_list(addr *form, addr list)
 		return;
 	}
 	/* error */
-	fmte("Invalid variables-clause ~S.", a, NULL);
+	_fmte("Invalid variables-clause ~S.", a, NULL);
 }
 
 _g void loop_push_for_as(Execute ptr, addr *expr1, addr *expr2, addr list)
@@ -955,7 +955,7 @@ _g void loop_push_for_as(Execute ptr, addr *expr1, addr *expr2, addr list)
 
 	/* error */
 error:
-	fmte("Invalid loop for-as form ~S.", next, NULL);
+	_fmte("Invalid loop for-as form ~S.", next, NULL);
 }
 
 _g void loop_variables_for_as(addr *form, addr list)
@@ -978,6 +978,6 @@ _g void loop_variables_for_as(addr *form, addr list)
 
 	/* error */
 error:
-	fmte("Invalid loop for-as form ~S.", next, NULL);
+	_fmte("Invalid loop for-as form ~S.", next, NULL);
 }
 

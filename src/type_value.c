@@ -1,3 +1,4 @@
+#include "character.h"
 #include "clos_type.h"
 #include "bit.h"
 #include "cmpl.h"
@@ -8,6 +9,7 @@
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 #include "type.h"
 #include "type_table.h"
@@ -182,7 +184,7 @@ _g void type_value_character(addr *ret, addr value)
 			break;
 
 		default:
-			fmte("Invalid character type.", NULL);
+			_fmte("Invalid character type.", NULL);
 			return;
 	}
 	*ret = pos;
@@ -221,12 +223,12 @@ _g void type_value_string(addr *ret, addr value)
 
 		case LISPTYPE_ARRAY:
 			if (! strarrayp(value))
-				fmte("The array is not string type.", NULL);
+				_fmte("The array is not string type.", NULL);
 			type_value_strarray(ret, value);
 			break;
 
 		default:
-			fmte("The value is not string type.", NULL);
+			_fmte("The value is not string type.", NULL);
 			break;
 	}
 }
@@ -446,7 +448,7 @@ static void type_value_argument(addr *ret, addr value)
 static void type_value_error(addr *ret, addr value)
 {
 	infobit(value);
-	fmte("Invalid type-value.", NULL);
+	_fmte("Invalid type-value.", NULL);
 }
 
 _g void type_value(addr *ret, addr value)

@@ -17,7 +17,6 @@
 #include "syscall.h"
 #include "type.h"
 #include "type_table.h"
-#include "unicode.h"
 
 #if 0
 static int test_format_stream_lisp(void)

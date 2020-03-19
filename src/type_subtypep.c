@@ -87,7 +87,7 @@ static SubtypepResult subtypep_error(addr left, addr right)
 {
 	infoprint(left);
 	infoprint(right);
-	fmte("Invalid subtypep argument.", NULL);
+	_fmte("Invalid subtypep argument.", NULL);
 	ReturnInvalid;
 }
 
@@ -1698,11 +1698,11 @@ static SubtypepResult subtypep_left(addr left, addr right)
 			return subtypep_eql(left, right);
 
 		case LISPDECL_MEMBER:
-			fmte("The member type illegal in this context.", NULL);
+			_fmte("The member type illegal in this context.", NULL);
 			break;
 
 		case LISPDECL_NOT:
-			fmte("The not type illegal in this context.", NULL);
+			_fmte("The not type illegal in this context.", NULL);
 			break;
 
 		case LISPDECL_VALUES:
@@ -1754,11 +1754,11 @@ static SubtypepResult subtypep_right(addr left, addr right)
 			return subtypep_eql(left, right);
 
 		case LISPDECL_MEMBER:
-			fmte("The member type illegal in this context.", NULL);
+			_fmte("The member type illegal in this context.", NULL);
 			break;
 
 		case LISPDECL_NOT:
-			fmte("The not type illegal in this context.", NULL);
+			_fmte("The not type illegal in this context.", NULL);
 			break;
 
 		case LISPDECL_VALUES:
@@ -1846,12 +1846,12 @@ static SubtypepResult subtypep_call_asterisk(addr left, addr right)
 {
 	if (type_asterisk_p(right)) {
 		if (RefNotDecl(right))
-			fmte("Don't allow to use (not *).", NULL);
+			_fmte("Don't allow to use (not *).", NULL);
 		return SUBTYPEP_INCLUDE;
 	}
 	if (type_asterisk_p(left)) {
 		if (RefNotDecl(left))
-			fmte("Don't allow to use (not *).", NULL);
+			_fmte("Don't allow to use (not *).", NULL);
 		return SUBTYPEP_FALSE;
 	}
 	return subtypep_right(left, right);
@@ -1860,7 +1860,7 @@ static SubtypepResult subtypep_call_asterisk(addr left, addr right)
 static SubtypepResult subtypep_call_normal(addr left, addr right)
 {
 	if (type_asterisk_p(left) || type_asterisk_p(right))
-		fmte("Don't allow to use asterisk.", NULL);
+		_fmte("Don't allow to use asterisk.", NULL);
 	return subtypep_right(left, right);
 }
 
@@ -2000,8 +2000,8 @@ _g int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2
 
 _g int subtypep_result_syscall(Execute ptr, addr left, addr right, addr *ret)
 {
-	Return1(parse_type(ptr, &left, left, Nil));
-	Return1(parse_type(ptr, &right, right, Nil));
+	Return(parse_type(ptr, &left, left, Nil));
+	Return(parse_type(ptr, &right, right, Nil));
 	switch (subtypep_result(left, right, 1)) {
 		case SUBTYPEP_INCLUDE:
 			GetConst(SYSTEM_INCLUDE, ret);

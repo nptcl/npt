@@ -11,14 +11,14 @@
 #include "print_write.h"
 #include "sequence.h"
 #include "stream.h"
+#include "strvect.h"
 #include "stream_pretty.h"
 #include "symbol.h"
-#include "unicode.h"
 
 /*
  *  unwind-protect
  */
-static void pprint_logical_block_close(Execute ptr)
+static int pprint_logical_block_close(Execute ptr)
 {
 	addr stream;
 
@@ -26,31 +26,35 @@ static void pprint_logical_block_close(Execute ptr)
 	Check(! pretty_stream_p(stream), "type error");
 	close_pretty_stream(ptr, stream);
 	setresult_control(ptr, Nil);
+
+	return 0;
 }
 
 
 /*
  *  pprint-fill
  */
-static void pprint_logical_block_type_form(Execute ptr, enum pprint_newline type)
+static int pprint_logical_block_type_form(Execute ptr, enum pprint_newline type)
 {
 	addr stream, pos;
 
 	getdata_control(ptr, &stream);
 	Check(! pretty_stream_p(stream), "type error");
-	Return0(check_pretty_stream(ptr, stream));
+	Return(check_pretty_stream(ptr, stream));
 	/* body */
-	Return0(pprint_exit_common(ptr, stream));
+	Return(pprint_exit_common(ptr, stream));
 	for (;;) {
-		Return0(pprint_pop_common(ptr, stream, &pos));
-		Return0(write_print(ptr, stream, pos));
-		Return0(pprint_exit_common(ptr, stream));
+		Return(pprint_pop_common(ptr, stream, &pos));
+		Return(write_print(ptr, stream, pos));
+		Return(pprint_exit_common(ptr, stream));
 		write_char_stream(stream, ' ');
-		pprint_newline_common(ptr, type, stream);
+		pprint_newline_print(ptr, type, stream);
 	}
+
+	return 0;
 }
 
-static void pprint_logical_block_type(Execute ptr, pointer type)
+static int pprint_logical_block_type(Execute ptr, pointer type)
 {
 	int check;
 	addr stream, control, code, gensym;
@@ -66,10 +70,12 @@ static void pprint_logical_block_type(Execute ptr, pointer type)
 	gensym_pretty_stream(stream, &gensym);
 	catch_syscall_code(&code, type, gensym, stream);
 	check = callclang_funcall(ptr, &code, code, NULL);
-	free_check_control(ptr, control, check);
+	Return(free_check_control(ptr, control, check));
+
+	return check;
 }
 
-static int pprint_type_common(Execute ptr,
+static int pprint_type_print(Execute ptr,
 		addr stream, addr list, int colon, pointer type)
 {
 	addr prefix, suffix, lambda;
@@ -94,20 +100,20 @@ static int pprint_type_common(Execute ptr,
 
 static int pprint_list_common(Execute ptr, addr stream, addr list, pointer type)
 {
-	return pprint_type_common(ptr, stream, list, 1, type);
+	return pprint_type_print(ptr, stream, list, 1, type);
 }
 
-static void pprint_logical_block_fill_form(Execute ptr)
+static int pprint_logical_block_fill_form(Execute ptr)
 {
-	pprint_logical_block_type_form(ptr, pprint_newline_fill);
+	return pprint_logical_block_type_form(ptr, pprint_newline_fill);
 }
 
-static void pprint_logical_block_fill(Execute ptr)
+static int pprint_logical_block_fill(Execute ptr)
 {
-	pprint_logical_block_type(ptr, p_pprint_logical_block_fill_form);
+	return pprint_logical_block_type(ptr, p_pprint_logical_block_fill_form);
 }
 
-_g int pprint_fill_common(Execute ptr, addr stream, addr list, int colon)
+_g int pprint_fill_print(Execute ptr, addr stream, addr list, int colon)
 {
 	/* (defun pprint-fill (*standard-output* list &optional (colon t) atsign)
 	 *   (declare (ignore atsign))
@@ -119,24 +125,24 @@ _g int pprint_fill_common(Execute ptr, addr stream, addr list, int colon)
 	 *           (write-char #\Space)
 	 *           (pprint-newline :fill))))
 	 */
-	return pprint_type_common(ptr, stream, list, colon, p_pprint_logical_block_fill);
+	return pprint_type_print(ptr, stream, list, colon, p_pprint_logical_block_fill);
 }
 
 
 /*
  *  pprint-linaer
  */
-static void pprint_logical_block_linear_form(Execute ptr)
+static int pprint_logical_block_linear_form(Execute ptr)
 {
-	pprint_logical_block_type_form(ptr, pprint_newline_linear);
+	return pprint_logical_block_type_form(ptr, pprint_newline_linear);
 }
 
-static void pprint_logical_block_linear(Execute ptr)
+static int pprint_logical_block_linear(Execute ptr)
 {
-	pprint_logical_block_type(ptr, p_pprint_logical_block_linear_form);
+	return pprint_logical_block_type(ptr, p_pprint_logical_block_linear_form);
 }
 
-_g int pprint_linear_common(Execute ptr, addr stream, addr list, int colon)
+_g int pprint_linear_print(Execute ptr, addr stream, addr list, int colon)
 {
 	/* (defun pprint-linear (*standard-output* list &optional (colon t) atsign)
 	 *   (declare (ignore atsign))
@@ -148,14 +154,14 @@ _g int pprint_linear_common(Execute ptr, addr stream, addr list, int colon)
 	 *           (write-char #\Space)
 	 *           (pprint-newline :linear))))
 	 */
-	return pprint_type_common(ptr, stream, list, colon, p_pprint_logical_block_linear);
+	return pprint_type_print(ptr, stream, list, colon, p_pprint_logical_block_linear);
 }
 
 
 /*
  *  pprint-tabular
  */
-static void pprint_logical_block_tabular_form(Execute ptr)
+static int pprint_logical_block_tabular_form(Execute ptr)
 {
 	addr cons, stream, pos;
 	fixnum colinc;
@@ -164,20 +170,22 @@ static void pprint_logical_block_tabular_form(Execute ptr)
 	GetCons(cons, &stream, &pos);
 	Check(! pretty_stream_p(stream), "type error");
 	GetFixnum(pos, &colinc);
-	Return0(check_pretty_stream(ptr, stream));
+	Return(check_pretty_stream(ptr, stream));
 	/* body */
-	Return0(pprint_exit_common(ptr, stream));
+	Return(pprint_exit_common(ptr, stream));
 	for (;;) {
-		Return0(pprint_pop_common(ptr, stream, &pos));
-		Return0(write_print(ptr, stream, pos));
-		Return0(pprint_exit_common(ptr, stream));
+		Return(pprint_pop_common(ptr, stream, &pos));
+		Return(write_print(ptr, stream, pos));
+		Return(pprint_exit_common(ptr, stream));
 		write_char_stream(stream, ' ');
 		pprint_tab_section_relative(ptr, stream, 0, colinc);
-		pprint_newline_common(ptr, pprint_newline_fill, stream);
+		pprint_newline_print(ptr, pprint_newline_fill, stream);
 	}
+
+	return 0;
 }
 
-static void pprint_logical_block_tabular(Execute ptr)
+static int pprint_logical_block_tabular(Execute ptr)
 {
 	int check;
 	addr cons, stream, control, code, gensym;
@@ -194,11 +202,13 @@ static void pprint_logical_block_tabular(Execute ptr)
 	gensym_pretty_stream(stream, &gensym);
 	catch_syscall_code(&code, p_pprint_logical_block_tabular_form, gensym, cons);
 	check = callclang_funcall(ptr, &code, code, NULL);
-	free_check_control(ptr, control, check);
+	Return(free_check_control(ptr, control, check));
+
+	return check;
 }
 
-_g int pprint_tabular_common(Execute ptr,
-		addr stream, addr list, int colon, fixnum size)
+_g int pprint_tabular_print(Execute ptr,
+		addr stream, addr list, int colon, fixnum tabsize)
 {
 	/* (defun pprint-tabular
 	 *   (*standard-output* list &optional (colon t) atsign (tabsize 16))
@@ -223,7 +233,7 @@ _g int pprint_tabular_common(Execute ptr,
 	open_pretty_stream(ptr, &stream, stream, list, prefix, Nil, suffix);
 
 	/* closure */
-	fixnum_heap(&cons, size);
+	fixnum_heap(&cons, tabsize);
 	cons_heap(&cons, stream, cons);
 
 	/* function */
@@ -240,7 +250,7 @@ _g int pprint_tabular_common(Execute ptr,
 /*
  *  dispatch-vector
  */
-static void pprint_dispatch_vector2(Execute ptr)
+static int pprint_dispatch_vector2(Execute ptr)
 {
 	addr cons, stream, pos, vector;
 	size_t size, i;
@@ -249,23 +259,25 @@ static void pprint_dispatch_vector2(Execute ptr)
 	GetCons(cons, &stream, &vector);
 	Check(! pretty_stream_p(stream), "type error");
 	Check(! vectorp_sequence(vector), "type error");
-	Return0(check_pretty_stream(ptr, stream));
+	Return(check_pretty_stream(ptr, stream));
 	/* body */
 	size = length_sequence(vector, 1);
-	Return0(size == 0);
+	Return(size == 0);
 	i = 0;
 	for (;;) {
-		Return0(pprint_pop_common(ptr, stream, &pos));
+		Return(pprint_pop_common(ptr, stream, &pos));
 		getelt_sequence(NULL, vector, i, &pos);
-		Return0(write_print(ptr, stream, pos));
+		Return(write_print(ptr, stream, pos));
 		i++;
-		Return0(size <= i);
+		Return(size <= i);
 		write_char_stream(stream, ' ');
-		pprint_newline_common(ptr, pprint_newline_fill, stream);
+		pprint_newline_print(ptr, pprint_newline_fill, stream);
 	}
+
+	return 0;
 }
 
-static void pprint_dispatch_vector1(Execute ptr)
+static int pprint_dispatch_vector1(Execute ptr)
 {
 	int check;
 	addr cons, stream, control, code, gensym;
@@ -282,10 +294,12 @@ static void pprint_dispatch_vector1(Execute ptr)
 	gensym_pretty_stream(stream, &gensym);
 	catch_syscall_code(&code, p_pprint_dispatch_vector2, gensym, cons);
 	check = callclang_funcall(ptr, &code, code, NULL);
-	free_check_control(ptr, control, check);
+	Return(free_check_control(ptr, control, check));
+
+	return check;
 }
 
-static void pprint_dispatch_vector(Execute ptr, addr stream, addr pos)
+static int pprint_dispatch_vector(Execute ptr, addr stream, addr pos)
 {
 	/* (defun dispatch-vector (*standard-output* v)
 	 *   (pprint-logical-block (nil nil :prefix "#(" :suffix ")")
@@ -314,42 +328,44 @@ static void pprint_dispatch_vector(Execute ptr, addr stream, addr pos)
 
 	/* call */
 	gchold_pushva_local(ptr->local, stream, lambda, NULL);
-	(void)call_pretty_stream(ptr, stream, lambda);
+	return call_pretty_stream(ptr, stream, lambda);
 }
 
 
 /*
  *  dispatch-call
  */
-static void pprint_dispatch_call2(Execute ptr)
+static int pprint_dispatch_call2(Execute ptr)
 {
 	addr stream, pos;
 
 	getdata_control(ptr, &stream);
 	Check(! pretty_stream_p(stream), "type error");
-	Return0(check_pretty_stream(ptr, stream));
+	Return(check_pretty_stream(ptr, stream));
 	/* body */
-	Return0(pprint_pop_common(ptr, stream, &pos));
-	Return0(write_print(ptr, stream, pos));
-	Return0(pprint_exit_common(ptr, stream));
+	Return(pprint_pop_common(ptr, stream, &pos));
+	Return(write_print(ptr, stream, pos));
+	Return(pprint_exit_common(ptr, stream));
 	write_char_stream(stream, ' ');
-	pprint_newline_common(ptr, pprint_newline_miser, stream);
-	pprint_indent_common(ptr, 0, 0, stream);
+	pprint_newline_print(ptr, pprint_newline_miser, stream);
+	pprint_indent_print(ptr, 0, 0, stream);
 	for (;;) {
-		Return0(pprint_pop_common(ptr, stream, &pos));
-		Return0(write_print(ptr, stream, pos));
-		Return0(pprint_exit_common(ptr, stream));
+		Return(pprint_pop_common(ptr, stream, &pos));
+		Return(write_print(ptr, stream, pos));
+		Return(pprint_exit_common(ptr, stream));
 		write_char_stream(stream, ' ');
-		pprint_newline_common(ptr, pprint_newline_linear, stream);
+		pprint_newline_print(ptr, pprint_newline_linear, stream);
 	}
+
+	return 0;
 }
 
-static void pprint_dispatch_call1(Execute ptr)
+static int pprint_dispatch_call1(Execute ptr)
 {
-	pprint_logical_block_type(ptr, p_pprint_dispatch_call2);
+	return pprint_logical_block_type(ptr, p_pprint_dispatch_call2);
 }
 
-static void pprint_dispatch_call(Execute ptr, addr stream, addr list)
+static int pprint_dispatch_call(Execute ptr, addr stream, addr list)
 {
 	/* (defun dispatch-call (*standard-outupt* list)
 	 *   (pprint-logical-block (nil list :prefix "(" :suffix ")")
@@ -365,98 +381,104 @@ static void pprint_dispatch_call(Execute ptr, addr stream, addr list)
 	 *           (write-char #\Space)
 	 *           (pprint-newline :linear))))
 	 */
-	pprint_list_common(ptr, stream, list, p_pprint_dispatch_call1);
+	return pprint_list_common(ptr, stream, list, p_pprint_dispatch_call1);
 }
 
 
 /*
  *  dispatch-defun
  */
-static void pprint_dispatch_defun6(Execute ptr)
+static int pprint_dispatch_defun6(Execute ptr)
 {
 	addr stream, pos;
 
 	getdata_control(ptr, &stream);
 	Check(! pretty_stream_p(stream), "type error");
-	Return0(check_pretty_stream(ptr, stream));
+	Return(check_pretty_stream(ptr, stream));
 	/* body */
-	Return0(pprint_exit_common(ptr, stream));
+	Return(pprint_exit_common(ptr, stream));
 	for (;;) {
-		Return0(pprint_pop_common(ptr, stream, &pos));
-		Return0(write_print(ptr, stream, pos));
-		Return0(pprint_exit_common(ptr, stream));
+		Return(pprint_pop_common(ptr, stream, &pos));
+		Return(write_print(ptr, stream, pos));
+		Return(pprint_exit_common(ptr, stream));
 		write_char_stream(stream, ' ');
-		pprint_newline_common(ptr, pprint_newline_linear, stream);
+		pprint_newline_print(ptr, pprint_newline_linear, stream);
 	}
+
+	return 0;
 }
 
-static void pprint_dispatch_defun5(Execute ptr)
+static int pprint_dispatch_defun5(Execute ptr)
 {
-	pprint_logical_block_type(ptr, p_pprint_dispatch_defun6);
+	return pprint_logical_block_type(ptr, p_pprint_dispatch_defun6);
 }
 
-static void pprint_dispatch_defun4(Execute ptr)
+static int pprint_dispatch_defun4(Execute ptr)
 {
 	addr stream, pos;
 
 	getdata_control(ptr, &stream);
 	Check(! pretty_stream_p(stream), "type error");
-	Return0(check_pretty_stream(ptr, stream));
+	Return(check_pretty_stream(ptr, stream));
 	/* body */
-	Return0(pprint_exit_common(ptr, stream));
+	Return(pprint_exit_common(ptr, stream));
 	for (;;) {
-		Return0(pprint_pop_common(ptr, stream, &pos));
-		Return0(pprint_list_common(ptr, stream, pos, p_pprint_dispatch_defun5));
-		Return0(pprint_exit_common(ptr, stream));
+		Return(pprint_pop_common(ptr, stream, &pos));
+		Return(pprint_list_common(ptr, stream, pos, p_pprint_dispatch_defun5));
+		Return(pprint_exit_common(ptr, stream));
 		write_char_stream(stream, ' ');
-		pprint_newline_common(ptr, pprint_newline_fill, stream);
+		pprint_newline_print(ptr, pprint_newline_fill, stream);
 	}
+
+	return 0;
 }
 
-static void pprint_dispatch_defun3(Execute ptr)
+static int pprint_dispatch_defun3(Execute ptr)
 {
-	pprint_logical_block_type(ptr, p_pprint_dispatch_defun4);
+	return pprint_logical_block_type(ptr, p_pprint_dispatch_defun4);
 }
 
-static void pprint_dispatch_defun2(Execute ptr)
+static int pprint_dispatch_defun2(Execute ptr)
 {
 	addr stream, pos;
 
 	getdata_control(ptr, &stream);
 	Check(! pretty_stream_p(stream), "type error");
-	Return0(check_pretty_stream(ptr, stream));
+	Return(check_pretty_stream(ptr, stream));
 	/* defun */
-	Return0(pprint_pop_common(ptr, stream, &pos));
-	Return0(write_print(ptr, stream, pos));
-	Return0(pprint_exit_common(ptr, stream));
+	Return(pprint_pop_common(ptr, stream, &pos));
+	Return(write_print(ptr, stream, pos));
+	Return(pprint_exit_common(ptr, stream));
 	write_char_stream(stream, ' ');
-	pprint_newline_common(ptr, pprint_newline_miser, stream);
+	pprint_newline_print(ptr, pprint_newline_miser, stream);
 	/* name */
-	Return0(pprint_pop_common(ptr, stream, &pos));
-	Return0(write_print(ptr, stream, pos));
-	Return0(pprint_exit_common(ptr, stream));
+	Return(pprint_pop_common(ptr, stream, &pos));
+	Return(write_print(ptr, stream, pos));
+	Return(pprint_exit_common(ptr, stream));
 	write_char_stream(stream, ' ');
-	pprint_newline_common(ptr, pprint_newline_miser, stream);
+	pprint_newline_print(ptr, pprint_newline_miser, stream);
 	/* args */
-	Return0(pprint_pop_common(ptr, stream, &pos));
-	Return0(pprint_list_common(ptr, stream, pos, p_pprint_dispatch_defun3));
+	Return(pprint_pop_common(ptr, stream, &pos));
+	Return(pprint_list_common(ptr, stream, pos, p_pprint_dispatch_defun3));
 	/* body */
-	pprint_indent_common(ptr, 1, 1, stream);
+	pprint_indent_print(ptr, 1, 1, stream);
 	for (;;) {
-		Return0(pprint_exit_common(ptr, stream));
+		Return(pprint_exit_common(ptr, stream));
 		write_char_stream(stream, ' ');
-		pprint_newline_common(ptr, pprint_newline_linear, stream);
-		Return0(pprint_pop_common(ptr, stream, &pos));
-		Return0(write_print(ptr, stream, pos));
+		pprint_newline_print(ptr, pprint_newline_linear, stream);
+		Return(pprint_pop_common(ptr, stream, &pos));
+		Return(write_print(ptr, stream, pos));
 	}
+
+	return 0;
 }
 
-static void pprint_dispatch_defun1(Execute ptr)
+static int pprint_dispatch_defun1(Execute ptr)
 {
-	pprint_logical_block_type(ptr, p_pprint_dispatch_defun2);
+	return pprint_logical_block_type(ptr, p_pprint_dispatch_defun2);
 }
 
-static void pprint_dispatch_defun(Execute ptr, addr stream, addr list)
+static int pprint_dispatch_defun(Execute ptr, addr stream, addr list)
 {
 	/* (defun dispatch-defun (*standard-output* list)
 	 *   (pprint-logical-block (nil list :prefix "(" :suffix ")")
@@ -489,46 +511,48 @@ static void pprint_dispatch_defun(Execute ptr, addr stream, addr list)
 	 *           (pprint-newline :linear)
 	 *           (write (pprint-pop)))))
 	 */
-	pprint_list_common(ptr, stream, list, p_pprint_dispatch_defun1);
+	return pprint_list_common(ptr, stream, list, p_pprint_dispatch_defun1);
 }
 
 
 /*
  *  dispatch-let
  */
-static void pprint_dispatch_let2(Execute ptr)
+static int pprint_dispatch_let2(Execute ptr)
 {
 	addr stream, pos;
 
 	getdata_control(ptr, &stream);
 	Check(! pretty_stream_p(stream), "type error");
-	Return0(check_pretty_stream(ptr, stream));
+	Return(check_pretty_stream(ptr, stream));
 	/* let */
-	Return0(pprint_pop_common(ptr, stream, &pos));
-	Return0(write_print(ptr, stream, pos));
-	Return0(pprint_exit_common(ptr, stream));
+	Return(pprint_pop_common(ptr, stream, &pos));
+	Return(write_print(ptr, stream, pos));
+	Return(pprint_exit_common(ptr, stream));
 	write_char_stream(stream, ' ');
-	pprint_newline_common(ptr, pprint_newline_miser, stream);
+	pprint_newline_print(ptr, pprint_newline_miser, stream);
 	/* args */
-	Return0(pprint_pop_common(ptr, stream, &pos));
-	Return0(pprint_list_common(ptr, stream, pos, p_pprint_dispatch_defun3));
+	Return(pprint_pop_common(ptr, stream, &pos));
+	Return(pprint_list_common(ptr, stream, pos, p_pprint_dispatch_defun3));
 	/* body */
-	pprint_indent_common(ptr, 1, 1, stream);
+	pprint_indent_print(ptr, 1, 1, stream);
 	for (;;) {
-		Return0(pprint_exit_common(ptr, stream));
+		Return(pprint_exit_common(ptr, stream));
 		write_char_stream(stream, ' ');
-		pprint_newline_common(ptr, pprint_newline_linear, stream);
-		Return0(pprint_pop_common(ptr, stream, &pos));
-		Return0(write_print(ptr, stream, pos));
+		pprint_newline_print(ptr, pprint_newline_linear, stream);
+		Return(pprint_pop_common(ptr, stream, &pos));
+		Return(write_print(ptr, stream, pos));
 	}
+
+	return 0;
 }
 
-static void pprint_dispatch_let1(Execute ptr)
+static int pprint_dispatch_let1(Execute ptr)
 {
-	pprint_logical_block_type(ptr, p_pprint_dispatch_let2);
+	return pprint_logical_block_type(ptr, p_pprint_dispatch_let2);
 }
 
-static void pprint_dispatch_let(Execute ptr, addr stream, addr list)
+static int pprint_dispatch_let(Execute ptr, addr stream, addr list)
 {
 	/* (defun dispatch-let (*standard-output* list)
 	 *   (pprint-logical-block (nil list :prefix "(" :suffix ")")
@@ -556,7 +580,7 @@ static void pprint_dispatch_let(Execute ptr, addr stream, addr list)
 	 *           (pprint-newline :linear)
 	 *           (write (pprint-pop)))))
 	 */
-	pprint_list_common(ptr, stream, list, p_pprint_dispatch_let1);
+	return pprint_list_common(ptr, stream, list, p_pprint_dispatch_let1);
 }
 
 

@@ -23,11 +23,13 @@
  *   warnings-p       boolean
  *   failure-p        boolean
  */
-static void function_compile_file(Execute ptr, addr file, addr rest)
+static int function_compile_file(Execute ptr, addr file, addr rest)
 {
 	addr ret1, ret2, ret3;
-	Return0(compile_file_common(ptr, file, rest, &ret1, &ret2, &ret3));
+
+	Return(compile_file_common(ptr, file, rest, &ret1, &ret2, &ret3));
 	setvalues_control(ptr, ret1, ret2, ret3, NULL);
+	return 0;
 }
 
 static void type_compile_file(addr *ret)
@@ -74,10 +76,11 @@ static void defun_compile_file(void)
  *   output-file      pathname-designer
  *   pathname         pathname
  */
-static void function_compile_file_pathname(Execute ptr, addr var, addr rest)
+static int function_compile_file_pathname(Execute ptr, addr var, addr rest)
 {
 	compile_file_pathname_common(ptr, var, rest, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_compile_file_pathname(addr *ret)
@@ -149,7 +152,7 @@ static void function_load_external(Execute ptr, addr rest, addr *ret)
 	}
 }
 
-static void function_load(Execute ptr, addr filespec, addr rest)
+static int function_load(Execute ptr, addr filespec, addr rest)
 {
 	int exist, check;
 	addr verbose, print, external;
@@ -158,8 +161,10 @@ static void function_load(Execute ptr, addr filespec, addr rest)
 	function_load_print(ptr, rest, &print);
 	function_load_exist(ptr, rest, &exist);
 	function_load_external(ptr, rest, &external);
-	if (eval_load(ptr, &check, filespec, verbose, print, exist, external)) return;
+	Return(eval_load(ptr, &check, filespec, verbose, print, exist, external));
 	setbool_control(ptr, check);
+
+	return 0;
 }
 
 static void type_load(addr *ret)
@@ -207,10 +212,11 @@ static void defun_load(void)
  *     ((&key &allow-other-keys) &body body) ...)
  *     -> result
  */
-static void function_with_compilation_unit(Execute ptr, addr form, addr env)
+static int function_with_compilation_unit(Execute ptr, addr form, addr env)
 {
 	with_compilation_unit_common(form, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_with_compilation_unit(void)
@@ -377,10 +383,11 @@ static void defvar_modules(void)
 
 
 /* (defun provide (var) ...) -> null */
-static void function_provide(Execute ptr, addr var)
+static int function_provide(Execute ptr, addr var)
 {
 	provide_common(ptr, var);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_provide(addr *ret)
@@ -410,10 +417,11 @@ static void defun_provide(void)
 
 
 /* (defun require (var) ...) -> null */
-static void function_require(Execute ptr, addr var, addr opt)
+static int function_require(Execute ptr, addr var, addr opt)
 {
-	Return0(require_common(ptr, var, opt));
+	Return(require_common(ptr, var, opt));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_require(addr *ret)

@@ -4,6 +4,7 @@
 #include "bignum.h"
 #include "build.h"
 #include "condition.h"
+#include "condition_debugger.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
@@ -18,6 +19,7 @@
 #include "package.h"
 #include "pathname.h"
 #include "stream.h"
+#include "strvect.h"
 #include "symbol.h"
 
 /*
@@ -64,7 +66,7 @@ static int loadrt_init(Execute ptr, const char *name)
 
 	/* title */
 	strvect_char_heap(&file, name);
-	Return1(format_stdout(ptr, "~&[~A]~%", file, NULL));
+	Return(format_stdout(ptr, "~&[~A]~%", file, NULL));
 
 	/* (let ((*package* (find-package 'common-lisp-user))) ...) */
 	find_char_package(LISP_COMMON_USER, &package);
@@ -159,7 +161,7 @@ static void loadrt_setindex(Execute ptr)
 	getspecial_local(ptr, symbol, &value);
 	if (value != Unbound) {
 		if (! fixnump(value))
-			fmte("Invalid fixnum value ~S.", value, NULL);
+			_fmte("Invalid fixnum value ~S.", value, NULL);
 		GetFixnum(value, &index);
 		DegradeCount = (int)index;
 	}

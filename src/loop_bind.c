@@ -135,7 +135,7 @@ static int loop_typep(Execute ptr, addr pos, addr value, addr type)
 		return 1;
 	if (! check) {
 		type_object(&type, type);
-		fmte("LOOP let ~A form ~S must be a ~A type.", pos, value, type, NULL);
+		_fmte("LOOP let ~A form ~S must be a ~A type.", pos, value, type, NULL);
 	}
 
 	return 0;
@@ -196,7 +196,7 @@ static int loop_bind_recursive(Execute ptr, addr pos, addr type, addr value, add
 	}
 	/* error */
 	else {
-		fmte("LOOP let ~A form ~S must be a list type.", pos, value, NULL);
+		_fmte("LOOP let ~A form ~S must be a list type.", pos, value, NULL);
 		return 0;
 	}
 	/* type check */
@@ -223,7 +223,7 @@ _g int loop_bind_common(Execute ptr, addr pos, addr type, addr value, addr *ret)
 		return 0;
 	}
 	if (! listp(pos))
-		fmte("LIST-BIND argument ~S must be a list type.", pos, NULL);
+		_fmte("LIST-BIND argument ~S must be a list type.", pos, NULL);
 	if (type == Unbound)
 		GetTypeTable(&pos, T);
 

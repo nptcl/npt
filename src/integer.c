@@ -697,7 +697,7 @@ _g void getindex_fixnum(addr pos, size_t *ret)
 _g void fixnum_index_heap(addr *ret, size_t value)
 {
 	if ((size_t)FIXNUM_MAX <= value)
-		fmte("Too large value ~S.", intsizeh(value), NULL);
+		_fmte("Too large value ~S.", intsizeh(value), NULL);
 	fixnum_heap(ret, (fixnum)value);
 }
 
@@ -1102,7 +1102,7 @@ _g void ash_integer_common(LocalRoot local, addr pos, addr count, addr *ret)
 	LocalStack stack;
 
 	if (getindex_sign_integer(count, &sign2, &size)) {
-		fmte("Too large shift value ~S.", count, NULL);
+		_fmte("Too large shift value ~S.", count, NULL);
 		*ret = 0;
 		return;
 	}
@@ -1233,7 +1233,7 @@ _g void integer_length_common(addr pos, addr *ret)
 /*
  *  parse-integer
  */
-_g void parse_integer_clang(LocalRoot local,
+_g int parse_integer_clang(LocalRoot local,
 		addr string, size_t start, size_t end, unsigned radix, int junk,
 		addr *ret, addr *position)
 {
@@ -1288,7 +1288,7 @@ _g void parse_integer_clang(LocalRoot local,
 	integer_cons_heap(ret, sign, cons);
 	make_index_integer_heap(position, i);
 	rollback_local(local, stack);
-	return;
+	return 0;
 
 error:
 	if (junk) {
@@ -1298,11 +1298,12 @@ error:
 			integer_cons_heap(ret, sign, cons);
 		make_index_integer_heap(position, i);
 		rollback_local(local, stack);
+		return 0;
 	}
 	else {
 		rollback_local(local, stack);
-		fmte("Invalid string ~A.", character_heapr(c), NULL);
 		*ret = *position = 0;
+		return fmte("Invalid string ~A.", character_heapr(c), NULL);
 	}
 }
 

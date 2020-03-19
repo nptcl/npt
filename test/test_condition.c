@@ -10,6 +10,7 @@
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
+#include "readtable.h"
 #include "stream.h"
 #include "symbol.h"
 #include "syscall.h"

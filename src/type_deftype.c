@@ -1,5 +1,8 @@
 #include "condition.h"
 #include "control.h"
+#include "cons.h"
+#include "eval_declare.h"
+#include "lambda.h"
 #include "type_deftype.h"
 #include "symbol.h"
 
@@ -51,5 +54,45 @@ _g int execute_symbol_deftype(Execute ptr, addr *ret, addr symbol, addr env)
 	/* name -> (call `(name ,@args) env) */
 	cons_heap(&symbol, symbol, Nil);
 	return callclang_funcall(ptr, ret, call, symbol, env, NULL);
+}
+
+
+/*
+ *  deftype
+ */
+_g int deftype_common(Execute ptr, addr form, addr env, addr *ret)
+{
+	addr right, eval, name, args, decl, doc;
+
+	/* (deftype . form) */
+	getcdr(form, &right);
+	if (right == Nil)
+		return fmte("deftype form must have at least a name and body.", NULL);
+	if (! consp(right))
+		return fmte("Invalid deftype form.", NULL);
+
+	/* name */
+	getcons(right, &name, &right);
+	if (! symbolp(name))
+		return fmte("deftype name ~S must be a symbol.", name, NULL);
+	if (right == Nil)
+		return fmte("deftype form must have at least a name and body.", NULL);
+	if (! consp(right))
+		return fmte("Invalid deftype form.", NULL);
+
+	/* args */
+	getcons(right, &args, &right);
+	if (! IsList(right))
+		return fmte("Invalid deftype form.", NULL);
+
+	/* parse */
+	lambda_deftype(ptr->local, &args, args, Nil);
+	Return(declare_body_documentation(ptr, env, right, &doc, &decl, &right));
+
+	/* (eval::deftype name args decl doc body) */
+	GetConst(SYSTEM_DEFTYPE, &eval);
+	list_heap(ret, eval, name, args, decl, doc, right, NULL);
+
+	return 0;
 }
 

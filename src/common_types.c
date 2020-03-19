@@ -2,12 +2,8 @@
  *  ANSI COMMON LISP: 4. Types and Classes
  */
 #include "common_header.h"
-#include "condition.h"
-#include "cons.h"
-#include "eval_declare.h"
-#include "lambda.h"
-#include "symbol.h"
 #include "type_coerce.h"
+#include "type_deftype.h"
 #include "type_object.h"
 #include "type_parse.h"
 #include "type_subtypep.h"
@@ -19,10 +15,11 @@
  *   type    type-spec
  *   result  t
  */
-static void function_coerce(Execute ptr, addr pos, addr type)
+static int function_coerce(Execute ptr, addr pos, addr type)
 {
-	if (coerce_common(ptr, pos, type, &pos)) return;
+	Return(coerce_common(ptr, pos, type, &pos));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_coerce(addr *ret)
@@ -57,40 +54,11 @@ static void defun_coerce(void)
  *   lambda  deftype-lambda-list
  *   body    body
  */
-static void function_deftype(Execute ptr, addr form, addr env)
+static int function_deftype(Execute ptr, addr form, addr env)
 {
-	addr right, eval, name, args, decl, doc;
-
-	/* (deftype . form) */
-	getcdr(form, &right);
-	if (right == Nil)
-		fmte("deftype form must have at least a name and body.", NULL);
-	if (! consp(right))
-		fmte("Invalid deftype form.", NULL);
-
-	/* name */
-	getcons(right, &name, &right);
-	if (! symbolp(name))
-		fmte("deftype name ~S must be a symbol.", name, NULL);
-	if (right == Nil)
-		fmte("deftype form must have at least a name and body.", NULL);
-	if (! consp(right))
-		fmte("Invalid deftype form.", NULL);
-
-	/* args */
-	getcons(right, &args, &right);
-	if (! IsList(right))
-		fmte("Invalid deftype form.", NULL);
-
-	/* parse */
-	lambda_deftype(ptr->local, &args, args, Nil);
-	if (declare_body_documentation(ptr, env, right, &doc, &decl, &right))
-		return;
-
-	/* (eval::deftype name args decl doc body) */
-	GetConst(SYSTEM_DEFTYPE, &eval);
-	list_heap(&form, eval, name, args, decl, doc, right, NULL);
+	Return(deftype_common(ptr, form, env, &form));
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_deftype(void)
@@ -114,11 +82,14 @@ static void defmacro_deftype(void)
  *  value  boolean
  *  valid  boolean
  */
-static void function_subtypep(Execute ptr, addr x, addr y, addr env)
+static int function_subtypep(Execute ptr, addr x, addr y, addr env)
 {
-	if (env == Unbound) env = Nil;
-	if (subtypep_common(ptr, x, y, env, &x, &y)) return;
+	if (env == Unbound)
+		env = Nil;
+	Return(subtypep_common(ptr, x, y, env, &x, &y));
 	setvalues_control(ptr, x, y, NULL);
+
+	return 0;
 }
 
 static void type_subtypep(addr *ret)
@@ -150,11 +121,13 @@ static void defun_subtypep(void)
 
 
 /* (defun type-of (object) ...) -> type-spec */
-static void function_type_of(Execute ptr, addr pos)
+static int function_type_of(Execute ptr, addr pos)
 {
 	type_value(&pos, pos);
 	type_object(&pos, pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void type_type_of(addr *ret)
@@ -186,14 +159,17 @@ static void defun_type_of(void)
 /* (defun typep (object type &optional env) ...) -> boolean
  *   type  type-specifier
  */
-static void function_typep(Execute ptr, addr x, addr y, addr env)
+static int function_typep(Execute ptr, addr x, addr y, addr env)
 {
 	int check;
 
-	if (env == Unbound) env = Nil;
-	if (parse_type(ptr, &y, y, env)) return;
-	if (typep_clang(ptr, x, y, &check)) return;
+	if (env == Unbound)
+		env = Nil;
+	Return(parse_type(ptr, &y, y, env));
+	Return(typep_clang(ptr, x, y, &check));
 	setbool_control(ptr, check);
+
+	return 0;
 }
 
 static void type_typep(addr *ret)
@@ -225,10 +201,11 @@ static void defun_typep(void)
 
 
 /* (defun type-error-datum (condition) -> object */
-static void function_type_error_datum(Execute ptr, addr pos)
+static int function_type_error_datum(Execute ptr, addr pos)
 {
 	type_error_datum(pos, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_type_error_datum(addr *ret)
@@ -258,10 +235,11 @@ static void defun_type_error_datum(void)
 
 
 /* (defun type-error-expected-type (condition) -> type-spec */
-static void function_type_error_expected_type(Execute ptr, addr pos)
+static int function_type_error_expected_type(Execute ptr, addr pos)
 {
 	type_error_expected(pos, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_type_error_expected_type(addr *ret)

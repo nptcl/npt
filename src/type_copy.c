@@ -14,7 +14,7 @@ static call_type_copy TypeCopyTable[LISPDECL_SIZE];
 static addr type_copy_error(LocalRoot local, addr type)
 {
 	infobit(type);
-	fmte("Invalid type.", NULL);
+	_fmte("Invalid type.", NULL);
 	return NULL;
 }
 
@@ -121,7 +121,7 @@ static addr typecopy_clos(LocalRoot local, addr type)
 	if (local == NULL && GetStatusDynamic(type)) {
 		GetArrayType(type, 0, &check);
 		if (GetStatusDynamic(check))
-			fmte("dynamic scope error", NULL);
+			_fmte("dynamic scope error", NULL);
 	}
 	GetArrayType(type, 0, &type);
 	type1_alloc(local, LISPDECL_CLOS, type, &type);

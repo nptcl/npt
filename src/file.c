@@ -1,3 +1,4 @@
+#include "character.h"
 #include "condition.h"
 #include "console.h"
 #include "encode.h"
@@ -191,7 +192,7 @@ _g int open_input_stream_external(Execute ptr, addr *stream, addr file, addr for
 		return open_input_utf32bebom_stream(ptr, stream, file);
 
 	/* others */
-	fmte("Invalid *external-format* value ~S.", format, NULL);
+	_fmte("Invalid *external-format* value ~S.", format, NULL);
 	return 1;
 }
 
@@ -593,7 +594,7 @@ _g int open_output_stream(Execute ptr, addr *stream,
 		return open_output_utf32be_stream(ptr, stream, file, mode, 1);
 
 	/* others */
-	fmte("Invalid *external-format* value ~S.", value, NULL);
+	_fmte("Invalid *external-format* value ~S.", value, NULL);
 	return 1;
 }
 
@@ -822,7 +823,7 @@ _g int open_io_stream(Execute ptr, addr *stream, addr file, enum FileOutput mode
 		return open_io_utf32bebom_stream(ptr, stream, file, mode);
 
 	/* others */
-	fmte("Invalid *external-format* value ~S.", value, NULL);
+	_fmte("Invalid *external-format* value ~S.", value, NULL);
 	return 1;
 }
 
@@ -1116,7 +1117,7 @@ _g int close_stream_file(addr stream)
 		fm = PtrFileMemory(stream);
 		outputp = (fm->direct == filememory_output);
 		if (close_filememory(fm))
-			fmte("close error", NULL);
+			_fmte("close error", NULL);
 		if (outputp)
 			close_stream_abort(stream);
 	}
@@ -1133,7 +1134,7 @@ _g int read_binary_file(addr stream, void *pos, size_t size, size_t *ret)
 	fm = PtrFileMemory(stream);
 	check = read_filememory(fm, pos, size, ret);
 	if (check < 0)
-		fmte("read error", NULL);
+		_fmte("read error", NULL);
 
 	return check;
 }
@@ -1147,7 +1148,7 @@ _g int readforce_binary_file(addr stream, void *pos, size_t size, size_t *ret)
 	fm = PtrFileMemory(stream);
 	check = readforce_filememory(fm, pos, size, ret);
 	if (check < 0)
-		fmte("read error", NULL);
+		_fmte("read error", NULL);
 
 	return check;
 }
@@ -1161,7 +1162,7 @@ _g int read_byte_file(addr stream, byte *c)
 	fm = PtrFileMemory(stream);
 	check = getc_filememory(fm, c);
 	if (check < 0)
-		fmte("getc error", NULL);
+		_fmte("getc error", NULL);
 
 	return check;
 }
@@ -1175,7 +1176,7 @@ _g int unread_byte_file(addr stream, byte c)
 	fm = PtrFileMemory(stream);
 	check = ungetc_filememory(fm, c);
 	if (check < 0)
-		fmte("unread_byte error", NULL);
+		_fmte("unread_byte error", NULL);
 
 	return check;
 }
@@ -1189,7 +1190,7 @@ _g int write_binary_file(addr stream, const void *pos, size_t size, size_t *ret)
 	fm = PtrFileMemory(stream);
 	check = write_filememory(fm, pos, size, ret);
 	if (check < 0)
-		fmte("write error", NULL);
+		_fmte("write error", NULL);
 
 	return check;
 }
@@ -1203,7 +1204,7 @@ _g int write_byte_file(addr stream, byte c)
 	fm = PtrFileMemory(stream);
 	check = putc_filememory(fm, c);
 	if (check < 0)
-		fmte("write_byte error", NULL);
+		_fmte("write_byte error", NULL);
 
 	return check? -1: 0;
 }
@@ -1221,7 +1222,7 @@ _g int read_char_file(addr stream, unicode *c)
 	fm = PtrFileMemory(stream);
 	check = read_char_encode(fm, c);
 	if (check < 0)
-		fmte("read_char_encode error", NULL);
+		_fmte("read_char_encode error", NULL);
 
 	return check? 1: 0;
 }
@@ -1235,7 +1236,7 @@ _g int read_hang_file(addr stream, unicode *c, int *hang)
 	fm = PtrFileMemory(stream);
 	check = read_hang_encode(fm, c, hang);
 	if (check < 0)
-		fmte("read_hang_encode error", NULL);
+		_fmte("read_hang_encode error", NULL);
 
 	return check? 1: 0;
 }
@@ -1249,7 +1250,7 @@ _g void write_char_file(addr stream, unicode c)
 	fm = PtrFileMemory(stream);
 	check = write_char_encode(fm, c);
 	if (check < 0)
-		fmte("write_char_encode error", NULL);
+		_fmte("write_char_encode error", NULL);
 }
 
 _g int file_length_file(addr stream, size_t *ret)
@@ -1260,10 +1261,10 @@ _g int file_length_file(addr stream, size_t *ret)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	if (flush_filememory(fm))
-		fmte("flush error.", NULL);
+		_fmte("flush error.", NULL);
 	check = file_length_filememory(fm, ret);
 	if (check < 0)
-		fmte("file-length error.", NULL);
+		_fmte("file-length error.", NULL);
 
 	return check != 0;
 }
@@ -1280,7 +1281,7 @@ _g int file_position_file(addr stream, size_t *ret)
 	fm = PtrFileMemory(stream);
 	check = file_position_filememory(fm, &size);
 	if (check < 0)
-		fmte("file-position error.", NULL);
+		_fmte("file-position error.", NULL);
 	if (check)
 		return 1;
 
@@ -1289,10 +1290,10 @@ _g int file_position_file(addr stream, size_t *ret)
 	if (ptr->unread_check) {
 		check = length_char_encode(fm, ptr->unread);
 		if (check < 0)
-			fmte("Invalid unread character ~S.", character_heapr(ptr->unread), NULL);
+			_fmte("Invalid unread character ~S.", character_heapr(ptr->unread), NULL);
 		unread = (size_t)check;
 		if (size < unread)
-			fmte("The stream ~S position is a minus value.", stream, NULL);
+			_fmte("The stream ~S position is a minus value.", stream, NULL);
 		size -= unread;
 	}
 	*ret = size;
@@ -1308,10 +1309,10 @@ _g int file_position_start_file(addr stream)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	if (flush_filememory(fm))
-		fmte("flush error.", NULL);
+		_fmte("flush error.", NULL);
 	check = file_position_start_filememory(fm);
 	if (check < 0)
-		fmte("file-position-start error.", NULL);
+		_fmte("file-position-start error.", NULL);
 	if (check == 0)
 		PtrStructStream(stream)->unread_check = 0;
 
@@ -1326,10 +1327,10 @@ _g int file_position_end_file(addr stream)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	if (flush_filememory(fm))
-		fmte("flush error.", NULL);
+		_fmte("flush error.", NULL);
 	check = file_position_end_filememory(fm);
 	if (check < 0)
-		fmte("file-position-end error.", NULL);
+		_fmte("file-position-end error.", NULL);
 	if (check == 0)
 		PtrStructStream(stream)->unread_check = 0;
 
@@ -1344,10 +1345,10 @@ _g int file_position_set_file(addr stream, size_t pos)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	if (flush_filememory(fm))
-		fmte("flush error.", NULL);
+		_fmte("flush error.", NULL);
 	check = file_position_set_filememory(fm, pos);
 	if (check < 0)
-		fmte("file-position-end error.", NULL);
+		_fmte("file-position-end error.", NULL);
 	if (check == 0)
 		PtrStructStream(stream)->unread_check = 0;
 
@@ -1461,7 +1462,7 @@ _g void clear_input_file(addr stream)
 	PtrStructStream(stream)->unread_check = 0;
 	fm = PtrFileMemory(stream);
 	if (clear_input_filememory(fm))
-		fmte("clear-input error.", NULL);
+		_fmte("clear-input error.", NULL);
 }
 
 _g void finish_output_file(addr stream)
@@ -1471,7 +1472,7 @@ _g void finish_output_file(addr stream)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	if (flush_filememory(fm))
-		fmte("flush-filememory error.", NULL);
+		_fmte("flush-filememory error.", NULL);
 }
 
 _g void force_output_file(addr stream)
@@ -1486,7 +1487,7 @@ _g void clear_output_file(addr stream)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	if (clear_output_filememory(fm))
-		fmte("clear-output error.", NULL);
+		_fmte("clear-output error.", NULL);
 }
 
 _g void exitpoint_file(addr stream)

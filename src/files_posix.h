@@ -21,8 +21,9 @@
 #include "sequence.h"
 #include "stream.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
-
+#include "unicode.h"
 
 /*
  *  directory
@@ -81,7 +82,7 @@ static DIR *opendir_files(LocalRoot local, addr pos)
 	push_local(local, &stack);
 	directory_name_pathname_local(local, pos, &pos);
 	if (UTF8_buffer_clang(local, &name, pos))
-		fmte("Cannot convert ~S to UTF-8 string.", pos, NULL);
+		_fmte("Cannot convert ~S to UTF-8 string.", pos, NULL);
 	clang = (const char *)posbodyr(name);
 	dir = opendir(clang);
 	rollback_local(local, stack);
@@ -109,7 +110,7 @@ static int directoryp_directory_files(Execute ptr, addr file)
 	push_local(local, &stack);
 	name_pathname_local(ptr, file, &pos);
 	if (UTF8_buffer_clang(local, &pos, pos))
-		fmte("Cannot convert ~S to UTF-8 string.", file, NULL);
+		_fmte("Cannot convert ~S to UTF-8 string.", file, NULL);
 	body = (const char *)posbodyr(pos);
 	check = (! lstat(body, &st)) && S_ISDIR(st.st_mode);
 	rollback_local(local, stack);
@@ -185,7 +186,7 @@ static void files_directory_files(struct directory_struct *str, addr base)
 		files_push_directory_files(str, base, name);
 	}
 	if (closedir(dir))
-		fmte("closedir() error.", NULL);
+		_fmte("closedir() error.", NULL);
 }
 
 static void file_directory_files(struct directory_struct *str)
@@ -215,7 +216,7 @@ static int wild_check_directory_files(struct directory_struct *str, addr name)
 	make_list_directory_pathname(str, &pos, pos);
 	directory_name_pathname_local(local, pos, &pos);
 	if (UTF8_buffer_clang(local, &value, pos))
-		fmte("Cannot convert ~S to UTF-8 string.", pos, NULL);
+		_fmte("Cannot convert ~S to UTF-8 string.", pos, NULL);
 	ptr = (const char *)posbodyr(value);
 	check = (! lstat(ptr, &st)) && S_ISDIR(st.st_mode);
 	rollback_local(local, stack);
@@ -272,7 +273,7 @@ static void wild_file_directory_files(struct directory_struct *str, addr base)
 		wild_push_directory_files(str, name);
 	}
 	if (closedir(dir))
-		fmte("closedir() error.", NULL);
+		_fmte("closedir() error.", NULL);
 }
 
 static void wild_directory_files(struct directory_struct *str)
@@ -348,7 +349,7 @@ static void inferiors_find_directory_files(struct directory_struct *str, addr ba
 		inferiors_push_directory_files(str, name);
 	}
 	if (closedir(dir))
-		fmte("closedir() error.", NULL);
+		_fmte("closedir() error.", NULL);
 }
 
 static void inferiors_directory_files(struct directory_struct *str)
@@ -431,7 +432,7 @@ static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	/* check */
 	name_pathname_local(ptr, pos, &pos);
 	if (UTF8_buffer_clang(ptr->local, &pos, pos))
-		fmte("Cannot decode UTF-8 string ~S.", pos, NULL);
+		_fmte("Cannot decode UTF-8 string ~S.", pos, NULL);
 	str = (const char *)posbodyr(pos);
 	*ret = probe_file_boolean(str)? T: Nil;
 }
@@ -488,10 +489,10 @@ static void ensure_directories_exist_run_files(Execute ptr,
 
 	GetPathname(pos, PATHNAME_INDEX_DIRECTORY, &list);
 	if (! consp(list))
-		fmte("Invalid pathname directory ~S.", pos, NULL);
+		_fmte("Invalid pathname directory ~S.", pos, NULL);
 	GetCons(list, &value, &list);
 	if (! consp(list))
-		fmte("Invalid pathname directory ~S.", pos, NULL);
+		_fmte("Invalid pathname directory ~S.", pos, NULL);
 	result = Nil;
 	local = ptr->local;
 	conscar_local(local, &root, value);
@@ -504,12 +505,12 @@ static void ensure_directories_exist_run_files(Execute ptr,
 		/* directory check */
 		directory_name_pathname_local(local, temp, &temp);
 		if (UTF8_buffer_clang(local, &value, temp))
-			fmte("Cannot decode UTF-8 string ~S.", value, NULL);
+			_fmte("Cannot decode UTF-8 string ~S.", value, NULL);
 		str = (const char *)posbodyr(value);
 		/* already exist */
 		if (! lstat(str, &st)) {
 			if (! S_ISDIR(st.st_mode))
-				fmte("Cannot make directory ~S.", pos, NULL);
+				_fmte("Cannot make directory ~S.", pos, NULL);
 			rollback_local(local, stack);
 			continue;
 		}
@@ -518,7 +519,7 @@ static void ensure_directories_exist_run_files(Execute ptr,
 			S_IRGRP | S_IXGRP |
 			S_IROTH | S_IXOTH;
 		if (mkdir(str, mode))
-			fmte("Cannot make directory ~S.", pos, NULL);
+			_fmte("Cannot make directory ~S.", pos, NULL);
 		result = T;
 		/* verbose */
 		if (verbose)
@@ -582,10 +583,10 @@ static void file_author_run_files(Execute ptr, addr *ret, addr pos)
 	local = ptr->local;
 	name_pathname_local(ptr, pos, &value);
 	if (UTF8_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-8 string ~S.", pos, NULL);
+		_fmte("Cannot decode UTF-8 string ~S.", pos, NULL);
 	str = (char *)posbodyr(value);
 	if (lstat(str, &st))
-		fmte("The file ~S is not exist.", pos, NULL);
+		_fmte("The file ~S is not exist.", pos, NULL);
 	size = sysconf(_SC_GETPW_R_SIZE_MAX);
 	if (size < 0)
 		size = 0x010000;
@@ -633,10 +634,10 @@ static void file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 	local = ptr->local;
 	name_pathname_local(ptr, pos, &value);
 	if (UTF8_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-8 string ~S.", pos, NULL);
+		_fmte("Cannot decode UTF-8 string ~S.", pos, NULL);
 	str = (char *)posbodyr(value);
 	if (lstat(str, &st))
-		fmte("The file ~S is not exist.", pos, NULL);
+		_fmte("The file ~S is not exist.", pos, NULL);
 	value = intsizeh((size_t)st.st_mtime);
 	GetConst(SYSTEM_TIME1970, &symbol);
 	GetValueSymbol(symbol, &symbol);
@@ -671,18 +672,18 @@ static void rename_file_run_files(Execute ptr,
 	physical_pathname_heap(ptr, to, &to);
 	truename_files(ptr, from, &true1, 0);
 	if (wild_pathname_boolean(from, Nil))
-		fmte("Cannot rename wildcard pathname from ~S", from, NULL);
+		_fmte("Cannot rename wildcard pathname from ~S", from, NULL);
 	if (wild_pathname_boolean(to, Nil))
-		fmte("Cannot rename wildcard pathname to ~S", to, NULL);
+		_fmte("Cannot rename wildcard pathname to ~S", to, NULL);
 	/* filename */
 	local = ptr->local;
 	name_pathname_local(ptr, from, &value);
 	if (UTF8_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-8 string ~S.", from, NULL);
+		_fmte("Cannot decode UTF-8 string ~S.", from, NULL);
 	str1 = (const char *)posbodyr(value);
 	name_pathname_local(ptr, to, &value);
 	if (UTF8_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-8 string ~S.", to, NULL);
+		_fmte("Cannot decode UTF-8 string ~S.", to, NULL);
 	str2 = (const char *)posbodyr(value);
 	/* check */
 	if (probe_file_boolean(str2)) {
@@ -728,17 +729,17 @@ static int delete_file_run_files(Execute ptr, addr pos, int errorp)
 
 	physical_pathname_heap(ptr, pos, &file);
 	if (wild_pathname_boolean(file, Nil))
-		fmte("Cannot delete wildcard pathname ~S", pos, NULL);
+		_fmte("Cannot delete wildcard pathname ~S", pos, NULL);
 	if (! pathname_file_p(file)) {
 		if (errorp)
-			fmte("The argument ~S is not a file.", pos, NULL);
+			_fmte("The argument ~S is not a file.", pos, NULL);
 		return 0;
 	}
 	/* filename */
 	local = ptr->local;
 	name_pathname_local(ptr, file, &value);
 	if (UTF8_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-8 string ~S.", file, NULL);
+		_fmte("Cannot decode UTF-8 string ~S.", file, NULL);
 	str = (const char *)posbodyr(value);
 	/* delete */
 	if (unlink(str)) {
@@ -859,17 +860,17 @@ _g int remove_directory_common(Execute ptr, addr pos, int errorp)
 
 	physical_pathname_heap(ptr, pos, &file);
 	if (wild_pathname_boolean(file, Nil))
-		fmte("Cannot delete wildcard pathname ~S", pos, NULL);
+		_fmte("Cannot delete wildcard pathname ~S", pos, NULL);
 	if (! pathname_directory_p(file)) {
 		if (errorp)
-			fmte("The argument ~S is not a directory.", pos, NULL);
+			_fmte("The argument ~S is not a directory.", pos, NULL);
 		return 1;
 	}
 	/* filename */
 	local = ptr->local;
 	name_pathname_local(ptr, file, &value);
 	if (UTF8_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-8 string ~S.", file, NULL);
+		_fmte("Cannot decode UTF-8 string ~S.", file, NULL);
 	str = (const char *)posbodyr(value);
 	/* delete */
 	if (rmdir(str)) {

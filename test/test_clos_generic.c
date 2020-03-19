@@ -146,13 +146,14 @@ static void test_make_method(addr *ret)
 	clos_instance_heap(clos, ret);
 }
 
-static void test_comb_standard_method_call(Execute ptr, addr right)
+static int test_comb_standard_method_call(Execute ptr, addr right)
 {
 	/* method next . args */
 	GetCdr(right, &right); /* next */
 	GetCdr(right, &right); /* args */
 	GetCar(right, &right); /* t */
 	setresult_control(ptr, right);
+	return 0;
 }
 
 static int test_comb_standard_method(void)
@@ -170,7 +171,7 @@ static int test_comb_standard_method(void)
 	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function(method, call);
 	list_heap(&args, T, NULL);
-	comb_standard_method(ptr, method, Nil, args);
+	comb_standard_method_(ptr, method, Nil, args);
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard_method1");
 
@@ -179,7 +180,7 @@ static int test_comb_standard_method(void)
 	RETURN;
 }
 
-static void test_comb_standard_funcall_call(Execute ptr, addr right)
+static int test_comb_standard_funcall_call(Execute ptr, addr right)
 {
 	addr left, check;
 	fixnum value;
@@ -204,11 +205,11 @@ static void test_comb_standard_funcall_call(Execute ptr, addr right)
 	/* result */
 	GetCar(right, &right);
 	setresult_control(ptr, right);
-	return;
+	return 0;
 
 error:
 	setresult_control(ptr, Nil);
-	return;
+	return 0;
 }
 
 static int test_comb_standard_funcall(void)
@@ -296,7 +297,7 @@ static int test_comb_standard_qualifiers(void)
 	/* run method */
 	push_close_control(ptr, &control);
 	list_heap(&args, T, NULL);
-	comb_standard_method(ptr, method, Nil, args);
+	comb_standard_method_(ptr, method, Nil, args);
 
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard_qualifiers1");

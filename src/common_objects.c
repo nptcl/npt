@@ -50,10 +50,11 @@ static void defgeneric_function_keywords(void)
  *     method-class
  *     method-combination
  */
-static void function_ensure_generic_function(Execute ptr, addr name, addr rest)
+static int function_ensure_generic_function(Execute ptr, addr name, addr rest)
 {
-	if (ensure_generic_function_common(ptr, name, rest, &name)) return;
+	Return(ensure_generic_function_common(ptr, name, rest, &name));
 	setresult_control(ptr, name);
+	return 0;
 }
 
 static void type_ensure_generic_function(addr *ret)
@@ -136,19 +137,18 @@ static void defgeneric_change_class(void)
 
 
 /* (defun slot-boundp (object symbol) ...) -> boolean */
-static void function_slot_boundp(Execute ptr, addr pos, addr name)
+static int function_slot_boundp(Execute ptr, addr pos, addr name)
 {
 	addr call, clos;
 
 	/* redefined */
 	clos_class_of(pos, &clos);
-	if (clos_version_check(ptr, pos, clos))
-		return;
+	Return(clos_version_check(ptr, pos, clos));
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_BOUNDP_USING_CLASS, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	funcall_control(ptr, call, clos, pos, name, NULL);
+	return funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
 static void defun_slot_boundp(void)
@@ -168,19 +168,18 @@ static void defun_slot_boundp(void)
 
 
 /* (defun slot-exists-p (object symbol) ...) -> boolean */
-static void function_slot_exists_p(Execute ptr, addr pos, addr name)
+static int function_slot_exists_p(Execute ptr, addr pos, addr name)
 {
 	addr call, clos;
 
 	/* redefined */
 	clos_class_of(pos, &clos);
-	if (clos_version_check(ptr, pos, clos))
-		return;
+	Return(clos_version_check(ptr, pos, clos));
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_EXISTS_P_USING_CLASS, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	funcall_control(ptr, call, clos, pos, name, NULL);
+	return funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
 static void defun_slot_exists_p(void)
@@ -200,19 +199,18 @@ static void defun_slot_exists_p(void)
 
 
 /* (defun slot-makunbound (instance symbol) ...) -> instance */
-static void function_slot_makunbound(Execute ptr, addr pos, addr name)
+static int function_slot_makunbound(Execute ptr, addr pos, addr name)
 {
 	addr call, clos;
 
 	/* redefined */
 	clos_class_of(pos, &clos);
-	if (clos_version_check(ptr, pos, clos))
-		return;
+	Return(clos_version_check(ptr, pos, clos));
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_MAKUNBOUND_USING_CLASS, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	funcall_control(ptr, call, clos, pos, name, NULL);
+	return funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
 static void defun_slot_makunbound(void)
@@ -246,19 +244,18 @@ static void defgeneric_slot_unbound(void)
 
 
 /* (defun slot-value (object name) ...) -> t */
-static void function_slot_value(Execute ptr, addr pos, addr name)
+static int function_slot_value(Execute ptr, addr pos, addr name)
 {
 	addr call, clos;
 
 	/* redefined */
 	clos_class_of(pos, &clos);
-	if (clos_version_check(ptr, pos, clos))
-		return;
+	Return(clos_version_check(ptr, pos, clos));
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
 	getfunctioncheck_local(ptr, call, &call);
-	funcall_control(ptr, call, clos, pos, name, NULL);
+	return funcall_control(ptr, call, clos, pos, name, NULL);
 }
 
 static void type_slot_value(addr *ret)
@@ -289,19 +286,18 @@ static void defun_slot_value(void)
 
 
 /* (defun (setf slot-value) (value pos name) ...) -> value */
-static void function_setf_slot_value(Execute ptr, addr value, addr pos, addr name)
+static int function_setf_slot_value(Execute ptr, addr value, addr pos, addr name)
 {
 	addr call, clos;
 
 	/* redefined */
 	clos_class_of(pos, &clos);
-	if (clos_version_check(ptr, pos, clos))
-		return;
+	Return(clos_version_check(ptr, pos, clos));
 
 	/* call generic */
 	GetConst(CLOSNAME_SLOT_VALUE_USING_CLASS, &call);
 	getsetfcheck_local(ptr, call, &call);
-	funcall_control(ptr, call, value, clos, pos, name, NULL);
+	return funcall_control(ptr, call, value, clos, pos, name, NULL);
 }
 
 static void type_setf_slot_value(addr *ret)
@@ -390,7 +386,7 @@ static void defgeneric_make_load_form_common(void)
  *   creation-form        T
  *   initialization-form  T
  */
-static void function_make_load_form_saving_slots(Execute ptr, addr var, addr rest)
+static int function_make_load_form_saving_slots(Execute ptr, addr var, addr rest)
 {
 	addr list, env;
 
@@ -398,8 +394,10 @@ static void function_make_load_form_saving_slots(Execute ptr, addr var, addr res
 		list = Unbound;
 	if (getkeyargs(rest, KEYWORD_ENVIRONMENT, &env))
 		env = Nil;
-	Return0(make_load_form_saving_slots_common(ptr, var, list, env, &var, &list));
+	Return(make_load_form_saving_slots_common(ptr, var, list, env, &var, &list));
 	setvalues_control(ptr, var, list, NULL);
+
+	return 0;
 }
 
 static void type_make_load_form_saving_slots(addr *ret)
@@ -434,10 +432,11 @@ static void defun_make_load_form_saving_slots(void)
 
 
 /* (defmacro with-accessors ((entry*) instance declare* &body body) ...) -> t */
-static void function_with_accessors(Execute ptr, addr form, addr env)
+static int function_with_accessors(Execute ptr, addr form, addr env)
 {
 	with_accessors_common(ptr, form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_with_accessors(void)
@@ -455,10 +454,11 @@ static void defmacro_with_accessors(void)
 
 
 /* (defmacro with-slots ((entry*) instance declare* &body form) ...) -> t */
-static void function_with_slots(Execute ptr, addr form, addr env)
+static int function_with_slots(Execute ptr, addr form, addr env)
 {
 	with_slots_common(ptr, form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_with_slots(void)
@@ -482,10 +482,11 @@ static void defmacro_with_slots(void)
  *    option      &rest cons
  *    class       class
  */
-static void function_defclass(Execute ptr, addr form, addr env)
+static int function_defclass(Execute ptr, addr form, addr env)
 {
-	if (defclass_common(ptr, form, env, &form)) return;
+	Return(defclass_common(ptr, form, env, &form));
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_defclass(void)
@@ -503,10 +504,11 @@ static void defmacro_defclass(void)
 
 
 /* (defmacro defgeneric (name lambda &rest args) ...) -> generic-function */
-static void function_defgeneric(Execute ptr, addr form, addr env)
+static int function_defgeneric(Execute ptr, addr form, addr env)
 {
 	defgeneric_common(form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_defgeneric(void)
@@ -526,10 +528,11 @@ static void defmacro_defgeneric(void)
 /* (defmacro defmethod
  *     (name qualifier* lambda declare* document* form*) -> method
  */
-static void function_defmethod(Execute ptr, addr form, addr env)
+static int function_defmethod(Execute ptr, addr form, addr env)
 {
-	if (defmethod_common(ptr, form, env, &form)) return;
+	Return(defmethod_common(ptr, form, env, &form));
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_defmethod(void)
@@ -552,12 +555,16 @@ static void defmacro_defmethod(void)
  *   env     (or environment null)  ;; default nil
  *   class   (or class null)
  */
-static void function_find_class(Execute ptr, addr pos, addr errorp, addr env)
+static int function_find_class(Execute ptr, addr pos, addr errorp, addr env)
 {
-	if (errorp == Unbound) errorp = T;
-	if (env == Unbound) env = Nil;
+	if (errorp == Unbound)
+		errorp = T;
+	if (env == Unbound)
+		env = Nil;
 	find_class_common(pos, errorp != Nil, env, &pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void type_find_class(addr *ret)
@@ -589,13 +596,16 @@ static void defun_find_class(void)
 
 
 /* (defun (setf find-class) (class symbol &optional errorp env) ...) -> class */
-static void function_setf_find_class(Execute ptr,
+static int function_setf_find_class(Execute ptr,
 		addr clos, addr name, addr errorp, addr env)
 {
 	/* (declare (ignore errorp)) */
-	if (env == Unbound) env = Nil;
+	if (env == Unbound)
+		env = Nil;
 	setf_find_class_common(clos, name, env);
 	setresult_control(ptr, clos);
+
+	return 0;
 }
 
 static void type_setf_find_class(addr *ret)
@@ -635,10 +645,11 @@ static void defgeneric_compute_applicable_methods(void)
 
 
 /* defmacro_define_method_combination(); */
-static void function_define_method_combination(Execute ptr, addr form, addr env)
+static int function_define_method_combination(Execute ptr, addr form, addr env)
 {
 	define_method_combination_common(ptr->local, form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_define_method_combination(void)
@@ -691,10 +702,11 @@ static void defgeneric_setf_class_name_import(void)
 
 
 /* (defun class-of (object) ...) -> class */
-static void function_class_of(Execute ptr, addr pos)
+static int function_class_of(Execute ptr, addr pos)
 {
 	clos_class_of(pos, &pos);
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_class_of(addr *ret)
@@ -724,10 +736,11 @@ static void defun_class_of(void)
 
 
 /* (defun unbound-slot-instance ...) */
-static void function_unbound_slot_instance(Execute ptr, addr var)
+static int function_unbound_slot_instance(Execute ptr, addr var)
 {
 	unbound_slot_instance(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_unbound_slot_instance(addr *ret)

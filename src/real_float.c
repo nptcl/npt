@@ -10,6 +10,7 @@
 #include "ratio.h"
 #include "real_float.h"
 #include "stream.h"
+#include "strvect.h"
 
 _g void single_float_check_alloc(LocalRoot local, addr *ret, single_float value)
 {

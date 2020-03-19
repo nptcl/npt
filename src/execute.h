@@ -41,6 +41,8 @@ struct taginfo_struct {
 };
 
 struct execute {
+	unsigned abort : 1;
+	unsigned jump : 1;
 	/* lisp info */
 	jmp_buf *exec;
 	LocalRoot local;
@@ -52,7 +54,6 @@ struct execute {
 	/* thread info */
 	enum ThreadState state;
 	size_t index;
-	byte property;
 	mutexlite mutex;
 	execfunction routine;
 	threadhandle handle;
@@ -86,9 +87,6 @@ __extern threadlocal ThreadLocal_Local;
 #define Local_Thread ((LocalRoot)get_threadlocal(ThreadLocal_Local))
 #define Index_Thread (*(const size_t *)get_threadlocal(ThreadLocal_Index))
 #endif
-
-#define Return0(x) { if (x) return; }
-#define Return1(x) { if (x) return 1; }
 
 
 /*

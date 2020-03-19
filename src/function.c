@@ -141,7 +141,7 @@ _g int parse_callname_heap(addr *ret, addr name)
 _g void parse_callname_error(addr *ret, addr name)
 {
 	if (parse_callname_heap(ret, name))
-		fmte("Invalid function name ~S.", name, NULL);
+		_fmte("Invalid function name ~S.", name, NULL);
 }
 
 _g void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol)
@@ -240,7 +240,7 @@ _g enum CALLNAME_TYPE getfunction_callname_global(addr pos, addr *ret)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			_fmte("Invalid function name.", NULL);
 			break;
 	}
 
@@ -264,7 +264,7 @@ _g enum CALLNAME_TYPE getfunction_callname_local(Execute ptr, addr pos, addr *re
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			_fmte("Invalid function name.", NULL);
 			break;
 	}
 
@@ -301,7 +301,7 @@ _g void setfunction_callname_global(addr pos, addr value)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			_fmte("Invalid function name.", NULL);
 			break;
 	}
 }
@@ -323,7 +323,7 @@ _g void remtype_funcion_callname_global(addr pos)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			_fmte("Invalid function name.", NULL);
 			break;
 	}
 }
@@ -369,7 +369,7 @@ _g addr refcallname_local(Execute ptr, addr pos)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			_fmte("Invalid function name.", NULL);
 			break;
 	}
 
@@ -393,7 +393,7 @@ _g void setcallname_local(Execute ptr, addr pos, addr value)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			_fmte("Invalid function name.", NULL);
 			break;
 	}
 }
@@ -409,7 +409,7 @@ _g addr refcallnamecheck_local(Execute ptr, addr pos)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			_fmte("Invalid function name.", NULL);
 			break;
 	}
 
@@ -432,7 +432,7 @@ _g addr refcallname_global(addr pos)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			_fmte("Invalid function name.", NULL);
 			break;
 	}
 
@@ -456,7 +456,7 @@ _g void setcallname_global(addr pos, addr value)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			_fmte("Invalid function name.", NULL);
 	}
 }
 _g addr refcallnamecheck_global(addr pos)
@@ -498,7 +498,7 @@ _g void name_callname_alloc(LocalRoot local, addr pos, addr *ret)
 
 		case CALLNAME_ERROR:
 		default:
-			fmte("Invalid function name.", NULL);
+			_fmte("Invalid function name.", NULL);
 	}
 }
 
@@ -526,7 +526,7 @@ static addr alloc_function(LocalRoot local,
 	if (name != Nil) {
 		if (GetType(name) != LISPTYPE_CALLNAME &&
 				parse_callname_alloc(local, &name, name))
-			fmte("Invalid function name ~S.", name, NULL);
+			_fmte("Invalid function name ~S.", name, NULL);
 	}
 	alloc_smallsize(local, &pos,
 			LISPTYPE_FUNCTION,
@@ -1009,24 +1009,10 @@ _g void getclosure_value_function(addr pos, addr *ret)
 	GetClosureValueFunction_Low(pos, ret);
 }
 
-_g void setclosure_value_function(addr pos, addr value)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	Check(GetStatusReadOnly(pos), "readonly error");
-	SetClosureValueFunction_Low(pos, value);
-}
-
 _g void getclosure_function_function(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	GetClosureFunctionFunction_Low(pos, ret);
-}
-
-_g void setclosure_function_function(addr pos, addr value)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	Check(GetStatusReadOnly(pos), "readonly error");
-	SetClosureFunctionFunction_Low(pos, value);
 }
 
 _g void getclosure_tagbody_function(addr pos, addr *ret)
@@ -1035,24 +1021,10 @@ _g void getclosure_tagbody_function(addr pos, addr *ret)
 	GetClosureTagbodyFunction_Low(pos, ret);
 }
 
-_g void setclosure_tagbody_function(addr pos, addr value)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	Check(GetStatusReadOnly(pos), "readonly error");
-	SetClosureTagbodyFunction_Low(pos, value);
-}
-
 _g void getclosure_block_function(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	GetClosureBlockFunction_Low(pos, ret);
-}
-
-_g void setclosure_block_function(addr pos, addr value)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	Check(GetStatusReadOnly(pos), "readonly error");
-	SetClosureBlockFunction_Low(pos, value);
 }
 
 _g void pushclosure_value_function(addr pos, addr key, addr value)
@@ -1064,6 +1036,7 @@ _g void pushclosure_value_function(addr pos, addr key, addr value)
 	cons_heap(&value, key, value);
 	cons_heap(&cons, value, cons);
 	SetClosureValueFunction_Low(pos, cons);
+	setclosure_function(pos);
 }
 
 _g void pushclosure_function_function(addr pos, addr key, addr value)
@@ -1075,6 +1048,7 @@ _g void pushclosure_function_function(addr pos, addr key, addr value)
 	cons_heap(&value, key, value);
 	cons_heap(&cons, value, cons);
 	SetClosureFunctionFunction_Low(pos, cons);
+	setclosure_function(pos);
 }
 
 _g void pushclosure_tagbody_function(addr pos, addr key, addr value)
@@ -1086,6 +1060,7 @@ _g void pushclosure_tagbody_function(addr pos, addr key, addr value)
 	cons_heap(&value, key, value);
 	cons_heap(&cons, value, cons);
 	SetClosureTagbodyFunction_Low(pos, cons);
+	setclosure_function(pos);
 }
 
 _g void pushclosure_block_function(addr pos, addr value)
@@ -1096,6 +1071,7 @@ _g void pushclosure_block_function(addr pos, addr value)
 	GetClosureBlockFunction(pos, &cons);
 	cons_heap(&cons, value, cons);
 	SetClosureBlockFunction_Low(pos, cons);
+	setclosure_function(pos);
 }
 
 static void getplist_function(addr pos, constindex index, addr *ret)
@@ -1256,5 +1232,18 @@ _g int tracep_function(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION &&
 		StructFunction_Low(pos)->trace;
+}
+
+_g void setclosure_function(addr pos)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(GetStatusReadOnly(pos), "readonly error");
+	StructFunction_Low(pos)->closure = 1;
+}
+
+_g int closurep_function(addr pos)
+{
+	return GetType(pos) == LISPTYPE_FUNCTION &&
+		StructFunction_Low(pos)->closure;
 }
 

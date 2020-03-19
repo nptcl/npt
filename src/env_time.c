@@ -2,6 +2,7 @@
 #include "bignum.h"
 #include "control.h"
 #include "condition.h"
+#include "condition_debugger.h"
 #include "env_time.h"
 #include "function.h"
 #include "gc.h"
@@ -15,6 +16,8 @@
 #include "real_float.h"
 #include "real_floor.h"
 #include "real_truncate.h"
+#include "restart.h"
+#include "strvect.h"
 #include "symbol.h"
 
 #define ENCODE_UNIVERSAL_1900	693961
@@ -141,7 +144,7 @@ static void decode_universal_month(size_t year, size_t day, addr *rmonth, addr *
 	}
 
 	/* error */
-	fmte("decode-universal-month error.", NULL);
+	_fmte("decode-universal-month error.", NULL);
 	*rmonth = NULL;
 	*rday = NULL;
 }
@@ -336,7 +339,7 @@ static size_t encode_universal_month(size_t day, size_t month, size_t year)
 	leap = encode_universal_leap(year);
 	i = encode_universal_month_day(month, leap);
 	if (i < day) {
-		fmte("Invalid day ~A.", intsizeh(day), NULL);
+		_fmte("Invalid day ~A.", intsizeh(day), NULL);
 		return 0;
 	}
 
@@ -453,7 +456,7 @@ static void encode_universal_time_offset(LocalRoot local, addr *ret,
 	day -= ENCODE_UNIVERSAL_1900;
 	encode_universal_second_absolute(local, &sec, sec, min, hour, Unbound, day);
 	if (encode_universal_offset(&value)) {
-		fmte("encode-universal-offset error", NULL);
+		_fmte("encode-universal-offset error", NULL);
 		return;
 	}
 	fixnum_heap(&diff, value);
@@ -478,13 +481,13 @@ static size_t encode_universal_time_year(size_t year, addr year_error)
 	if (1900 <= year)
 		return year;
 	if (100 <= year) {
-		fmte("Invalid year ~A", year_error, NULL);
+		_fmte("Invalid year ~A", year_error, NULL);
 		return 0;
 	}
 	/* 0 - 99 */
 	now = time(NULL);
 	if (localtime_arch(&str, &now)) {
-		fmte("localtime error.", NULL);
+		_fmte("localtime error.", NULL);
 		return 0;
 	}
 	a = (1900 + str.tm_year) / 100;
@@ -492,7 +495,7 @@ static size_t encode_universal_time_year(size_t year, addr year_error)
 	if (b < 50) {
 		if (b + 50 <= year) {
 			if (a == 0) {
-				fmte("Too small year ~A", year_error, NULL);
+				_fmte("Too small year ~A", year_error, NULL);
 				return 0;
 			}
 			a--;
@@ -713,7 +716,7 @@ static int sleep_moment_common(Execute ptr, fixnum value)
 	/* sleep */
 	if (usleep(usec) == -1) {
 		if (errno == EINVAL)
-			fmte("usleep error");
+			_fmte("usleep error");
 	}
 
 	return getatomic_sleep_object(ptr);
@@ -760,7 +763,7 @@ static void push_sleep_object(Execute ptr)
 	/* event */
 	handle = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (handle == NULL) {
-		fmte("CreateEvent error.", NULL);
+		_fmte("CreateEvent error.", NULL);
 		return;
 	}
 
@@ -808,7 +811,7 @@ static int sleep_moment_common(Execute ptr, fixnum value)
 		return 1;
 
 	/* error */
-	fmte("WaitForSingleObject error.", NULL);
+	_fmte("WaitForSingleObject error.", NULL);
 	return 0;
 }
 
@@ -818,9 +821,10 @@ static int sleep_second_common(Execute ptr, fixnum value)
 }
 #endif
 
-static void sleep_continue(Execute ptr)
+static int sleep_continue(Execute ptr)
 {
 	/* do nothing */
+	return 0;
 }
 
 #if defined(LISP_POSIX) || defined(LISP_WINDOWS)
@@ -834,7 +838,7 @@ static int sleep_integer_common(Execute ptr, addr var)
 	fixnum_heap(&wait, LISP_SLEEP_FIXNUM);
 	truncate2_common(local, &var, &wait, var, wait);
 	while (plusp_integer(var)) {
-		Return1(sleep_second_common(ptr, LISP_SLEEP_FIXNUM));
+		Return(sleep_second_common(ptr, LISP_SLEEP_FIXNUM));
 		oneminus_integer_common(local, var, &var);
 	}
 	GetFixnum(wait, &value);
@@ -850,7 +854,7 @@ static int sleep_execute_common(Execute ptr, addr var)
 	fixnum_heap(&right, LISP_SLEEP_INTERVAL);
 	local = ptr->local;
 	truncate2_common(local, &var, &right, var, right);
-	Return1(sleep_integer_common(ptr, var));
+	Return(sleep_integer_common(ptr, var));
 	GetFixnum(right, &value);
 	return sleep_moment_common(ptr, value);
 }
@@ -885,12 +889,12 @@ static int sleep_signal_restart(Execute ptr, addr var)
 	int check;
 
 	if (signal(SIGINT, sleep_signal_handler) == SIG_ERR) {
-		fmte("signal set error.", NULL);
+		_fmte("signal set error.", NULL);
 		return 0;
 	}
 	check = sleep_execute_common(ptr, var);
 	if (signal(SIGINT, SIG_DFL) == SIG_ERR) {
-		fmte("signal set default error.", NULL);
+		_fmte("signal set default error.", NULL);
 		return 0;
 	}
 
@@ -922,7 +926,7 @@ static int sleep_execute_restart(Execute ptr, addr var, addr *ret)
 	strvect_char_heap(&condition, "Break SIGINT");
 	instance_simple_condition(&condition, condition, Nil);
 	localhold_push(hold, condition);
-	Return1(invoke_debugger(ptr, condition));
+	Return(invoke_debugger(ptr, condition));
 	localhold_end(hold);
 
 	return 0;
@@ -1095,7 +1099,7 @@ static void sleep_value_common(LocalRoot local, addr var, addr *ret)
 			return;
 
 		default:
-			fmte("Invalid value type ~S.", var, NULL);
+			_fmte("Invalid value type ~S.", var, NULL);
 			return;
 	}
 }
@@ -1106,7 +1110,7 @@ _g int sleep_common(Execute ptr, addr var)
 	sleep_value_common(ptr->local, var, &var);
 	return sleep_wait_common(ptr, var);
 #else
-	fmte("This implementation is not support SLEEP function.", NULL);
+	_fmte("This implementation is not support SLEEP function.", NULL);
 	return 0;
 #endif
 }

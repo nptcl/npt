@@ -2,21 +2,15 @@
  *  ANSI COMMON LISP: 3. Evaluation and Compilation
  */
 #include "common_header.h"
-#include "cons.h"
 #include "eval_common.h"
 #include "eval_declare.h"
-#include "eval_parse.h"
-#include "lambda.h"
-#include "type_parse.h"
 
 /* (defmacro lambda (&whole right &rest args)  ...) */
-static void function_lambda(Execute ptr, addr form, addr env)
+static int function_lambda(Execute ptr, addr form, addr env)
 {
-	addr symbol;
-
-	GetConst(COMMON_FUNCTION, &symbol);
-	list_heap(&form, symbol, form, NULL);
+	lambda_common(form, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_lambda(void)
@@ -41,11 +35,12 @@ static void defmacro_lambda(void)
  *   warnings-p  boolean
  *   failure-p   boolean
  */
-static void function_compile(Execute ptr, addr var, addr opt)
+static int function_compile(Execute ptr, addr var, addr opt)
 {
 	addr x, y, z;
-	Return0(compile_common(ptr, var, opt, &x, &y, &z));
+	Return(compile_common(ptr, var, opt, &x, &y, &z));
 	setvalues_control(ptr, x, y, z, NULL);
+	return 0;
 }
 
 static void type_compile(addr *ret)
@@ -87,19 +82,9 @@ static void defun_compile(void)
 
 
 /* (defun eval (form) ...) -> result */
-static void function_eval(Execute ptr, addr var)
+static int function_eval(Execute ptr, addr var)
 {
-	int check;
-	addr control;
-
-	/* push */
-	push_return_control(ptr, &control);
-	/* code */
-	push_toplevel_eval(ptr, Nil);
-	push_evalwhen_eval(ptr);
-	hide_lexical_control(ptr);
-	check = eval_execute(ptr, var);
-	(void)free_check_control(ptr, control, check);
+	return eval_common(ptr, var);
 }
 
 static void type_eval(addr *ret)
@@ -155,10 +140,11 @@ static void defspecial_quote(void)
  *   env       environment
  *   function  (or function null)
  */
-static void function_compiler_macro_function(Execute ptr, addr var, addr env)
+static int function_compiler_macro_function(Execute ptr, addr var, addr env)
 {
 	compiler_macro_function_common(var, env, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_compiler_macro_function(addr *ret)
@@ -195,11 +181,12 @@ static void defun_compiler_macro_function(void)
  *   env       environment
  *   function  (or function null)
  */
-static void function_setf_compiler_macro_function(
+static int function_setf_compiler_macro_function(
 		Execute ptr, addr value, addr var, addr env)
 {
 	setf_compiler_macro_function_common(value, var, env);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_compiler_macro_function(addr *ret)
@@ -231,10 +218,11 @@ static void defun_setf_compiler_macro_function(void)
 
 
 /* (defmacro define-compiler-macro (name lambda &body form) ...) -> name */
-static void function_define_compiler_macro(Execute ptr, addr form, addr env)
+static int function_define_compiler_macro(Execute ptr, addr form, addr env)
 {
 	define_compiler_macro_common(ptr, form, env, &form);
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_define_compiler_macro(void)
@@ -252,41 +240,11 @@ static void defmacro_define_compiler_macro(void)
 
 
 /* (defmacro defmacro (name args &body body) ...) */
-static void function_defmacro(Execute ptr, addr right, addr env)
+static int function_defmacro(Execute ptr, addr form, addr env)
 {
-	addr eval, name, args, decl, doc;
-
-	/* (defmacro . right) */
-	getcdr(right, &right);
-	if (right == Nil)
-		fmte("defmacro form must have at least a name and body.", NULL);
-	if (GetType(right) != LISPTYPE_CONS)
-		fmte("Invalid defmacro form.", NULL);
-
-	/* name */
-	getcons(right, &name, &right);
-	if (! symbolp(name))
-		fmte("defmacro name ~S must be a symbol.", name, NULL);
-	if (right == Nil)
-		fmte("defmacro form must have at least a name and body.", NULL);
-	if (! consp(right))
-		fmte("Invalid defmacro form.", NULL);
-
-	/* args */
-	getcons(right, &args, &right);
-	if (! IsList(right))
-		fmte("Invalid defmacro form.", NULL);
-
-	/* parse */
-	check_function_variable(name);
-	lambda_macro(ptr->local, &args, args, Nil);
-	if (declare_body_documentation(ptr, env, right, &doc, &decl, &right))
-		return;
-
-	/* (eval::defmacro name args decl doc body) */
-	GetConst(SYSTEM_DEFMACRO, &eval);
-	list_heap(&eval, eval, name, args, decl, doc, right, NULL);
-	setresult_control(ptr, eval);
+	Return(defmacro_common(ptr, form, env, &form));
+	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_defmacro(void)
@@ -304,12 +262,11 @@ static void defmacro_defmacro(void)
 
 
 /* (defun macro-function (symbol &optional environment) ...) -> function) */
-static void function_macro_function(Execute ptr, addr symbol, addr env)
+static int function_macro_function(Execute ptr, addr symbol, addr env)
 {
-	int check;
-	if (env == Unbound) env = Nil;
-	check = find_environment(symbol, env, &symbol);
-	setresult_control(ptr, check? symbol: Nil);
+	macro_function_common(symbol, env, &symbol);
+	setresult_control(ptr, symbol);
+	return 0;
 }
 
 static void type_macro_function(addr *ret)
@@ -346,11 +303,11 @@ static void defun_macro_function(void)
  *     clisp -> update global macro.
  *     ccl   -> update global macro.
  */
-static void function_setf_macro_function(Execute ptr,
-		addr value, addr symbol, addr env)
+static int function_setf_macro_function(Execute ptr, addr value, addr symbol, addr env)
 {
 	setmacro_symbol(symbol, value);
 	setresult_control(ptr, value);
+	return 0;
 }
 
 static void type_setf_macro_function(addr *ret)
@@ -382,17 +339,11 @@ static void defun_setf_macro_function(void)
 
 
 /* (defun macroexpand (form &optional env) ...) -> expansion, expansion-p */
-static void function_macroexpand(Execute ptr, addr form, addr env)
+static int function_macroexpand(Execute ptr, addr form, addr env)
 {
-	int check;
-
-	if (env == Unbound) env = Nil;
-	if (macroexpand(ptr, &form, form, env, &check))
-		return;
-	if (check)
-		setvalues_control(ptr, form, T, NULL);
-	else
-		setvalues_control(ptr, Nil, Nil, NULL);
+	Return(macroexpand_common(ptr, form, env, &form, &env));
+	setvalues_control(ptr, form, env, NULL);
+	return 0;
 }
 
 static void defun_macroexpand(void)
@@ -412,17 +363,11 @@ static void defun_macroexpand(void)
 
 
 /* (defun macroexpand-1 (form &optional env) ...) -> expansion, expansion-p */
-static void function_macroexpand_1(Execute ptr, addr form, addr env)
+static int function_macroexpand_1(Execute ptr, addr form, addr env)
 {
-	int check;
-
-	if (env == Unbound) env = Nil;
-	if (macroexpand1(ptr, &form, form, env, &check))
-		return;
-	if (check)
-		setvalues_control(ptr, form, T, NULL);
-	else
-		setvalues_control(ptr, Nil, Nil, NULL);
+	Return(macroexpand_1_common(ptr, form, env, &form, &env));
+	setvalues_control(ptr, form, env, NULL);
+	return 0;
 }
 
 static void defun_macroexpand_1(void)
@@ -442,27 +387,11 @@ static void defun_macroexpand_1(void)
 
 
 /* (defmacro define-symbol-macro (symbol expansion) ...) -> symbol */
-static void function_define_symbol_macro(Execute ptr, addr form, addr env)
+static int function_define_symbol_macro(Execute ptr, addr form, addr env)
 {
-	addr cons, symbol, expansion;
-
-	getcdr(form, &cons);
-	if (! consp(cons)) goto error;
-	GetCons(cons, &symbol, &cons);
-	if (! consp(cons)) goto error;
-	GetCons(cons, &expansion, &cons);
-	if (cons != Nil) goto error;
-	if (! symbolp(symbol))
-		fmte("The argument ~S must be a symbol.", NULL);
-	/* (lisp-system::define-symbol-macro symbol expansion) */
-	GetConst(SYSTEM_DEFINE_SYMBOL_MACRO, &form);
-	list_heap(&cons, form, symbol, expansion, NULL);
-	setresult_control(ptr, cons);
-	return;
-
-error:
-	fmte("define-symbol-macro argument ~S "
-			"must be a (symbol expansion) form.", form, NULL);
+	Return(define_symbol_macro_common(form, env, &form));
+	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_define_symbol_macro(void)
@@ -487,10 +416,11 @@ static void defspecial_symbol_macrolet(void)
 
 
 /* (defun proclaim (declaration) ...) -> null */
-static void function_proclaim(Execute ptr, addr var)
+static int function_proclaim(Execute ptr, addr var)
 {
-	Return0(proclaim_common(ptr, var));
+	Return(proclaim_common(ptr, var));
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_proclaim(addr *ret)
@@ -520,16 +450,11 @@ static void defun_proclaim(void)
 
 
 /* (defmacro declaim (&rest declarations)  ...) */
-static void function_declaim(Execute ptr, addr form, addr env)
+static int function_declaim(Execute ptr, addr form, addr env)
 {
-	addr symbol;
-
-	GetConst(SYSTEM_DECLAIM, &symbol);
-	getcdr(form, &form); /* (declaim . form) */
-	if (parse_declaim_heap(ptr, Nil, form, &form)) return;
-	conscar_heap(&form, form);
-	cons_heap(&form, symbol, form);
+	Return(declaim_common(ptr, form, env, &form));
 	setresult_control(ptr, form);
+	return 0;
 }
 
 static void defmacro_declaim(void)
@@ -561,9 +486,10 @@ static void defspecial_the(void)
 
 
 /* (defun special-operator-p (symbol) ...) -> boolean */
-static void function_special_operator_p(Execute ptr, addr var)
+static int function_special_operator_p(Execute ptr, addr var)
 {
 	setbool_control(ptr, get_special_operator(var));
+	return 0;
 }
 
 static void defun_special_operator_p(void)
@@ -586,14 +512,11 @@ static void defun_special_operator_p(void)
  *   form  object
  *   env   (or environment null)
  */
-static void function_constantp(Execute ptr, addr var, addr opt)
+static int function_constantp(Execute ptr, addr var, addr opt)
 {
-	int check;
-
-	if (opt == Unbound) opt = Nil;
-	if (eval_constantp(ptr, var, opt, &check))
-		return;
-	setbool_control(ptr, check);
+	Return(constantp_common(ptr, var, opt, &var));
+	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_constantp(addr *ret)

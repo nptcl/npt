@@ -42,13 +42,13 @@ static int typelist_array4(Execute ptr, addr *ret,
 	GetConst(COMMON_ASTERISK, &aster);
 	for (size = 0, list = right; list != Nil; size++) {
 		if (! consp(list))
-			fmte("Invalid ~A form ~S.", left, right, NULL);
+			_fmte("Invalid ~A form ~S.", left, right, NULL);
 		GetCons(list, &pos, &list);
 		if (pos == aster)
-			fmte("~A arguments don't use *.", left, NULL);
+			_fmte("~A arguments don't use *.", left, NULL);
 	}
 	if (0xFFFFFFFFUL < size)
-		fmte("~A arguments S~ too long.", left, right, NULL);
+		_fmte("~A arguments S~ too long.", left, right, NULL);
 
 	vector4_heap(&array, size);
 	hold = LocalHold_local_push(ptr, array);
@@ -74,10 +74,10 @@ static int typelist_eql(Execute ptr, addr *ret,
 	addr pos, list;
 
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &pos, &list);
 	if (list != Nil)
-		fmte("~A type must be a one argument ~S.", left, right, NULL);
+		_fmte("~A type must be a one argument ~S.", left, right, NULL);
 	copyheap(&pos, pos);
 	type_eql_heap(pos, ret);
 
@@ -96,11 +96,11 @@ static int typelist_member(Execute ptr, addr *ret,
 
 	for (size = 0, pos = right; pos != Nil; size++) {
 		if (! consp(pos))
-			fmte("Invalid ~A form ~S.", left, right, NULL);
+			_fmte("Invalid ~A form ~S.", left, right, NULL);
 		GetCdr(pos, &pos);
 	}
 	if (0xFFFFFFFFUL < size)
-		fmte("~A arguments ~S too long.", left, right, NULL);
+		_fmte("~A arguments ~S too long.", left, right, NULL);
 	vector4_heap(&array, size);
 	for (size = 0; right != Nil; size++) {
 		GetCons(right, &pos, &right);
@@ -122,14 +122,14 @@ static int typelist_mod(Execute ptr, addr *ret,
 	addr pos, list;
 
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &pos, &list);
 	if (list != Nil)
-		fmte("~A arguments ~S must be one integer.", right, NULL);
+		_fmte("~A arguments ~S must be one integer.", right, NULL);
 	if (! integerp(pos))
-		fmte("~A argument ~S must be an integer type.", left, pos, NULL);
+		_fmte("~A argument ~S must be an integer type.", left, pos, NULL);
 	if (! plusp_integer(pos))
-		fmte("~A argument ~S must be a plus integer.", left, pos, NULL);
+		_fmte("~A argument ~S must be a plus integer.", left, pos, NULL);
 	copyheap(&pos, pos);
 	type1_heap(type, pos, ret);
 
@@ -146,13 +146,13 @@ static int typelist_not(Execute ptr, addr *ret,
 	addr pos, list;
 
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &pos, &list);
 	if (list != Nil)
-		fmte("~A arguments ~S must be one argument.", left, right, NULL);
+		_fmte("~A arguments ~S must be one argument.", left, right, NULL);
 	GetConst(COMMON_ASTERISK, &list);
 	if (pos == list)
-		fmte("~A argument don't be *.", left, NULL);
+		_fmte("~A argument don't be *.", left, NULL);
 	if (parse_type(ptr, &pos, pos, env))
 		return 1;
 	type1_heap(type, pos, ret);
@@ -170,12 +170,12 @@ static int typelist_satisfies(Execute ptr, addr *ret,
 	addr pos, list;
 
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &pos, &list);
 	if (list != Nil)
-		fmte("~A arguments ~S must be one symbol.", left, right, NULL);
+		_fmte("~A arguments ~S must be one symbol.", left, right, NULL);
 	if (! symbolp(pos))
-		fmte("~A argument ~S must be a symbol.", left, pos, NULL);
+		_fmte("~A argument ~S must be a symbol.", left, pos, NULL);
 	copyheap(&pos, pos);
 	type_satisfies_heap(pos, ret);
 
@@ -197,7 +197,7 @@ static int typelist_cons(Execute ptr, addr *ret,
 		goto asterisk;
 
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &car, &list);
 	GetConst(COMMON_ASTERISK, &aster);
 	hold = LocalHold_local(ptr);
@@ -212,10 +212,10 @@ static int typelist_cons(Execute ptr, addr *ret,
 	else {
 		/* two arguments */
 		if (! consp(list))
-			fmte("Invalid ~A form ~S.", left, right, NULL);
+			_fmte("Invalid ~A form ~S.", left, right, NULL);
 		GetCons(list, &cdr, &list);
 		if (list != Nil)
-			fmte("~A arguments ~S must have 1 or 2 arguments.", left, right, NULL);
+			_fmte("~A arguments ~S must have 1 or 2 arguments.", left, right, NULL);
 		if (car == aster && cdr == aster)
 			goto asterisk;
 		if (localhold_parse_type(hold, ptr, &car, car, env))
@@ -262,7 +262,7 @@ opt_label:
 	if (list == Nil) goto final;
 	getcons(list, &one, &list);
 	if (one == const_opt)
-		fmte("&optional parameter don't allow this place.", NULL);
+		_fmte("&optional parameter don't allow this place.", NULL);
 	if (one == const_rest) goto rest_label;
 	if (one == const_key) goto key_label;
 	if (parse_type(ptr, &one, one, env)) return 1;
@@ -272,31 +272,31 @@ opt_label:
 
 rest_label:
 	if (list == Nil)
-		fmte("After &rest parameter must be have a typespec.", NULL);
+		_fmte("After &rest parameter must be have a typespec.", NULL);
 	getcons(list, &one, &list);
 	if (one == const_opt || one == const_rest || one == const_key)
-		fmte("After &rest parameter don't allow to be a &-symbol.", NULL);
+		_fmte("After &rest parameter don't allow to be a &-symbol.", NULL);
 	if (parse_type(ptr, &rest, one, env)) return 1;
 	localhold_set(hold, 2, rest);
 	if (list == Nil) goto final;
 	getcons(list, &one, &list);
 	if (one != const_key)
-		fmte("After &rest argument don't allow to be a type.", NULL);
+		_fmte("After &rest argument don't allow to be a type.", NULL);
 	goto key_label;
 
 key_label:
 	if (list == Nil) goto final;
 	getcons(list, &one, &list);
 	if (one == const_opt || one == const_rest || one == const_key)
-		fmte("After &key parameter don't allow to be a &-symbol.", NULL);
+		_fmte("After &key parameter don't allow to be a &-symbol.", NULL);
 	if (! consp(one))
-		fmte("After &key parameter must be a list.", NULL);
+		_fmte("After &key parameter must be a list.", NULL);
 	getcons(one, &name, &one);
 	copyheap(&name, name);
 	localhold_set(hold, 3, name);
 	getcons(one, &type, &one);
 	if (one != Nil)
-		fmte("&key parameter must be a (key type) list.", NULL);
+		_fmte("&key parameter must be a (key type) list.", NULL);
 	if (parse_type(ptr, &type, type, env)) return 1;
 	cons_heap(&one, name, type);
 	cons_heap(&key, one, key);
@@ -378,13 +378,13 @@ optional_label:
 
 rest_label:
 	if (list == Nil)
-		fmte("After &rest argument must be a type.", NULL);
+		_fmte("After &rest argument must be a type.", NULL);
 	getcons(list, &var, &list);
 	if (var == const_opt || var == const_rest)
-		fmte("After &rest argument must be a type.", NULL);
+		_fmte("After &rest argument must be a type.", NULL);
 #ifdef LISP_VALUES_ALLOW_ENABLE
 	if (var == const_allow)
-		fmte("After &rest argument must be a type.", NULL);
+		_fmte("After &rest argument must be a type.", NULL);
 #endif
 	if (parse_type(ptr, &rest, var, env)) return 1;
 	localhold_set(hold, 2, rest);
@@ -393,13 +393,13 @@ rest_label:
 #ifdef LISP_VALUES_ALLOW_ENABLE
 	if (var == const_allow) goto allow_label;
 #endif
-	fmte("Invalid values form.", NULL);
+	_fmte("Invalid values form.", NULL);
 
 #ifdef LISP_VALUES_ALLOW_ENABLE
 allow_label:
 	allow = T;
 	if (list != Nil)
-		fmte("After &allow-other-keys must be nil.", NULL);
+		_fmte("After &allow-other-keys must be nil.", NULL);
 	goto final;
 #endif
 
@@ -451,7 +451,7 @@ static int typelist_function(Execute ptr, addr *ret,
 		goto asterisk;
 
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &first, &list);
 	GetConst(COMMON_ASTERISK, &aster);
 	if (list == Nil) {
@@ -465,10 +465,10 @@ static int typelist_function(Execute ptr, addr *ret,
 	else {
 		/* two arguments */
 		if (! consp(list))
-			fmte("Invalid ~A form ~S.", left, right, NULL);
+			_fmte("Invalid ~A form ~S.", left, right, NULL);
 		GetCons(list, &second, &list);
 		if (list != Nil)
-			fmte("~A arguments ~S must have 1 or 2 arguments.", left, right, NULL);
+			_fmte("~A arguments ~S must have 1 or 2 arguments.", left, right, NULL);
 		if (first == aster && second == aster)
 			goto asterisk;
 		if (type_function_list(ptr, &first, first, env))
@@ -499,7 +499,7 @@ static int parse_array_length(addr right, size_t *ret)
 	GetConst(COMMON_ASTERISK, &aster);
 	for (size = 0; right != Nil; size++) {
 		if (! consp(right))
-			fmte("The dimension parameter ~S must be a list.", right, NULL);
+			_fmte("The dimension parameter ~S must be a list.", right, NULL);
 		GetCons(right, &left, &right);
 		if (left != aster)
 			return 0;
@@ -512,7 +512,7 @@ static int parse_array_length(addr right, size_t *ret)
 static void parse_array_fixnum_check(addr *ret, addr pos)
 {
 	if ((! fixnump(pos)) || RefFixnum(pos) < 0)
-		fmte("The dimension value ~S must be a non-negative fixnum.", pos, NULL);
+		_fmte("The dimension value ~S must be a non-negative fixnum.", pos, NULL);
 	copyheap(ret, pos);
 }
 
@@ -524,7 +524,7 @@ static void parse_array_dimension(addr *ret, addr right)
 	/* length */
 	for (size = 0, left = right; left != Nil; size++) {
 		if (! consp(left))
-			fmte("The dimension parameter ~S must be a list.", left, NULL);
+			_fmte("The dimension parameter ~S must be a list.", left, NULL);
 		GetCdr(left, &left);
 	}
 
@@ -556,7 +556,7 @@ static void parse_array_second(addr *ret, addr right)
 		/* dimension arguments */
 		if (parse_array_length(right, &size)) {
 			if (FIXNUM_MAX < size)
-				fmte("size overflow.", NULL);
+				_fmte("size overflow.", NULL);
 			fixnum_heap(ret, (fixnum)size);
 		}
 		else {
@@ -579,7 +579,7 @@ static int typelist_array(Execute ptr, addr *ret,
 		goto asterisk;
 
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &first, &list);
 	GetConst(COMMON_ASTERISK, &aster);
 	if (list == Nil) {
@@ -593,10 +593,10 @@ static int typelist_array(Execute ptr, addr *ret,
 	else {
 		/* two arguments */
 		if (! consp(list))
-			fmte("Invalid ~A form ~S.", left, right, NULL);
+			_fmte("Invalid ~A form ~S.", left, right, NULL);
 		GetCons(list, &second, &list);
 		if (list != Nil)
-			fmte("~A type arguments too long.", left, NULL);
+			_fmte("~A type arguments too long.", left, NULL);
 		if (first == aster && second == aster)
 			goto asterisk;
 		if (first == aster)
@@ -631,7 +631,7 @@ static int typelist_vector(Execute ptr, addr *ret,
 		goto asterisk;
 
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &first, &list);
 	GetConst(COMMON_ASTERISK, &aster);
 	if (list == Nil) {
@@ -645,10 +645,10 @@ static int typelist_vector(Execute ptr, addr *ret,
 	else {
 		/* two arguments */
 		if (! consp(list))
-			fmte("Invalid ~A form ~S.", left, right, NULL);
+			_fmte("Invalid ~A form ~S.", left, right, NULL);
 		GetCons(list, &second, &list);
 		if (list != Nil)
-			fmte("~A arguments ~S too long.", left, right, NULL);
+			_fmte("~A arguments ~S too long.", left, right, NULL);
 		if (first == aster && second == aster)
 			goto asterisk;
 		if (first == aster)
@@ -684,10 +684,10 @@ static int typelist_size(Execute ptr, addr *ret,
 
 	/* one argument */
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &first, &list);
 	if (list != Nil)
-		fmte("~A arguments ~S too long.", left, right, NULL);
+		_fmte("~A arguments ~S too long.", left, right, NULL);
 	GetConst(COMMON_ASTERISK, &aster);
 	if (first == aster)
 		goto asterisk;
@@ -711,7 +711,7 @@ static void type_range_element(addr left, addr right, void (*call)(addr),
 	if (consp(right)) {
 		GetCons(right, &pos, &list);
 		if (list != Nil)
-			fmte("~A argument ~S must be a real or (real) form.", left, right, NULL);
+			_fmte("~A argument ~S must be a real or (real) form.", left, right, NULL);
 		(*call)(pos);
 		*ret1 = T;
 		copyheap(ret2, pos);
@@ -735,7 +735,7 @@ static int typelist_range(Execute ptr, addr *ret,
 		goto asterisk;
 
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &first1, &list);
 	GetConst(COMMON_ASTERISK, &aster);
 	if (list == Nil) {
@@ -749,10 +749,10 @@ static int typelist_range(Execute ptr, addr *ret,
 	else {
 		/* two arguments */
 		if (! consp(list))
-			fmte("Invalid ~A form ~S.", left, right, NULL);
+			_fmte("Invalid ~A form ~S.", left, right, NULL);
 		GetCons(list, &second1, &list);
 		if (list != Nil)
-			fmte("~A arguments ~S too long.", left, right, NULL);
+			_fmte("~A arguments ~S too long.", left, right, NULL);
 		if (first1 == aster && second1 == aster)
 			goto asterisk;
 		if (first1 == aster) {
@@ -784,7 +784,7 @@ asterisk:
 static void typelist_real_p(addr pos)
 {
 	if (! realp(pos))
-		fmte("REAL argument ~S must be a real.", pos, NULL);
+		_fmte("REAL argument ~S must be a real.", pos, NULL);
 }
 static int typelist_real(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
@@ -799,7 +799,7 @@ static int typelist_real(Execute ptr, addr *ret,
 static void typelist_rational_p(addr pos)
 {
 	if (! rationalp(pos))
-		fmte("RATIONAL argument ~S must be a rational.", pos, NULL);
+		_fmte("RATIONAL argument ~S must be a rational.", pos, NULL);
 }
 static int typelist_rational(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
@@ -814,7 +814,7 @@ static int typelist_rational(Execute ptr, addr *ret,
 static void typelist_integer_p(addr pos)
 {
 	if (! integerp(pos))
-		fmte("INTEGER argument ~S must be an integer.", pos, NULL);
+		_fmte("INTEGER argument ~S must be an integer.", pos, NULL);
 }
 static int typelist_integer(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
@@ -829,7 +829,7 @@ static int typelist_integer(Execute ptr, addr *ret,
 static void typelist_float_p(addr pos)
 {
 	if (! floatp(pos))
-		fmte("FLOAT argument ~S must be a float.", pos, NULL);
+		_fmte("FLOAT argument ~S must be a float.", pos, NULL);
 }
 static int typelist_float(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
@@ -844,7 +844,7 @@ static int typelist_float(Execute ptr, addr *ret,
 static void typelist_short_float_p(addr pos)
 {
 	if (GetType(pos) != LISPTYPE_SHORT_FLOAT)
-		fmte("SHORT-FLOAT argument ~S must be a short-float.", pos, NULL);
+		_fmte("SHORT-FLOAT argument ~S must be a short-float.", pos, NULL);
 }
 static int typelist_short(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
@@ -859,7 +859,7 @@ static int typelist_short(Execute ptr, addr *ret,
 static void typelist_single_float_p(addr pos)
 {
 	if (GetType(pos) != LISPTYPE_SINGLE_FLOAT)
-		fmte("SINGLE-FLOAT argument ~S must be a single-float.", pos, NULL);
+		_fmte("SINGLE-FLOAT argument ~S must be a single-float.", pos, NULL);
 }
 static int typelist_single(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
@@ -874,7 +874,7 @@ static int typelist_single(Execute ptr, addr *ret,
 static void typelist_double_float_p(addr pos)
 {
 	if (GetType(pos) != LISPTYPE_DOUBLE_FLOAT)
-		fmte("DOUBLE-FLOAT argument ~S must be a double-float.", pos, NULL);
+		_fmte("DOUBLE-FLOAT argument ~S must be a double-float.", pos, NULL);
 }
 static int typelist_double(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
@@ -889,7 +889,7 @@ static int typelist_double(Execute ptr, addr *ret,
 static void typelist_long_float_p(addr pos)
 {
 	if (GetType(pos) != LISPTYPE_LONG_FLOAT)
-		fmte("LONG-FLOAT argument ~S must be a long-float.", pos, NULL);
+		_fmte("LONG-FLOAT argument ~S must be a long-float.", pos, NULL);
 }
 static int typelist_long(Execute ptr, addr *ret,
 		enum LISPDECL type, addr left, addr right, addr env)
@@ -904,7 +904,7 @@ static int typelist_long(Execute ptr, addr *ret,
 static void type_byte_integer_check(addr *ret, addr pos)
 {
 	if (GetType(pos) != LISPTYPE_FIXNUM || (! plusp_integer(pos)))
-		fmte("The imension value ~S must be a positive integer.", pos, NULL);
+		_fmte("The imension value ~S must be a positive integer.", pos, NULL);
 	copyheap(ret, pos);
 }
 
@@ -919,10 +919,10 @@ static int typelist_byte(Execute ptr, addr *ret,
 
 	/* one argument */
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &first, &list);
 	if (list != Nil)
-		fmte("~A arguments ~S too long.", left, right, NULL);
+		_fmte("~A arguments ~S too long.", left, right, NULL);
 	GetConst(COMMON_ASTERISK, &aster);
 	if (first == aster)
 		goto asterisk;
@@ -949,10 +949,10 @@ static int typelist_complex(Execute ptr, addr *ret,
 
 	/* one argument */
 	if (! consp(right))
-		fmte("Invalid ~A form ~S.", left, right, NULL);
+		_fmte("Invalid ~A form ~S.", left, right, NULL);
 	GetCons(right, &first, &list);
 	if (list != Nil)
-		fmte("~A arguments ~S too long.", left, right, NULL);
+		_fmte("~A arguments ~S too long.", left, right, NULL);
 	GetConst(COMMON_ASTERISK, &aster);
 	if (first == aster)
 		goto asterisk;
@@ -1170,7 +1170,7 @@ _g int parse_type(Execute ptr, addr *ret, addr pos, addr env)
 	localhold_end(hold);
 
 	if (*ret == NULL)
-		fmte("Invalid type-spec ~S.", pos, NULL);
+		_fmte("Invalid type-spec ~S.", pos, NULL);
 
 	return 0;
 }
@@ -1192,14 +1192,14 @@ _g int parse_type_noaster(Execute ptr, addr *ret, addr pos, addr env)
 
 	GetConst(COMMON_ASTERISK, &aster);
 	if (pos == aster)
-		fmte("Don't allow to use asterisk type.", NULL);
+		_fmte("Don't allow to use asterisk type.", NULL);
 	return parse_type(ptr, ret, pos, env);
 }
 
 _g void parse_type_unsafe(addr *ret, addr pos)
 {
 	if (parse_type(Execute_Thread, ret, pos, Nil))
-		fmte("parse-type error.", NULL);
+		_fmte("parse-type error.", NULL);
 }
 
 /* debug */

@@ -20,7 +20,6 @@
 #include "syscall.h"
 #include "type.h"
 #include "type_table.h"
-#include "unicode.h"
 
 #define FILE_CASE_LARGE     "test/case_large.txt"
 #define FILE_CASE_ROMA      "test/case_roma.txt"
@@ -1151,7 +1150,7 @@ static int test_english_unit(void)
 	local = Local_Thread;
 	file = fopen(FILE_CASE_LARGE, "r");
 	if (file == NULL)
-		fmte("file error", NULL);
+		_fmte("file error", NULL);
 	check = 0;
 	for (i = 0; ! feof(file); i++) {
 		result = fscanf(file, "%s %s\n", str1, str2);
@@ -1195,7 +1194,7 @@ static int test_roma_integer(void)
 
 	file = fopen(FILE_CASE_ROMA, "r");
 	if (file == NULL)
-		fmte("file error", NULL);
+		_fmte("file error", NULL);
 	for (i = 1; ! feof(file); i++) {
 		result = fscanf(file, "%s %s\n", str1, str2);
 		if (result != 2) {

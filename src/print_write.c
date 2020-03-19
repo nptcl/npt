@@ -5,6 +5,7 @@
 #include "bit.h"
 #include "bytespec.h"
 #include "character.h"
+#include "character_name.h"
 #include "clos.h"
 #include "cmpl.h"
 #include "condition.h"
@@ -26,6 +27,7 @@
 #include "random_state.h"
 #include "ratio.h"
 #include "readtable.h"
+#include "restart.h"
 #include "stream.h"
 #include "stream_pretty.h"
 #include "stream_string.h"
@@ -34,7 +36,6 @@
 #include "type.h"
 #include "type_name.h"
 #include "type_object.h"
-#include "unicode.h"
 
 static calltype_print WriteCircleTable[LISPTYPE_SIZE];
 static calltype_print WriteCallTable[LISPTYPE_SIZE];
@@ -302,7 +303,7 @@ _g int pprint_pop_circle(Execute ptr, addr stream, addr pos)
 		return 0;
 	/* found */
 	if (get_first_print_check(x) == 0)
-		fmte("Invalid loop object.", NULL);
+		_fmte("Invalid loop object.", NULL);
 
 	print_ascii_stream(stream, ". #");
 	index = get_index_print_check(x);
@@ -724,7 +725,7 @@ static int WriteArray_specialized(Execute ptr, addr stream, addr pos)
 			return WriteCall_string(ptr, stream, pos);
 
 		default:
-			fmte("Invalid array type.", NULL);
+			_fmte("Invalid array type.", NULL);
 			break;
 	}
 
@@ -1400,7 +1401,7 @@ static void WriteSymbol_upcase(Execute ptr, addr stream, addr pos)
 			break;
 
 		default:
-			fmte("printcase error", NULL);
+			_fmte("printcase error", NULL);
 			break;
 	}
 }
@@ -1445,7 +1446,7 @@ static void WriteSymbol_downcase(Execute ptr, addr stream, addr pos)
 			break;
 
 		default:
-			fmte("printcase error", NULL);
+			_fmte("printcase error", NULL);
 			break;
 	}
 }
@@ -1486,7 +1487,7 @@ static int WriteCall_symbol(Execute ptr, addr stream, addr pos)
 			break;
 
 		default:
-			fmte("*readtable* case error", NULL);
+			_fmte("*readtable* case error", NULL);
 			break;
 	}
 
@@ -1502,7 +1503,7 @@ static int WriteCall_type(Execute ptr, addr stream, addr pos)
 	CheckType(pos, LISPTYPE_TYPE);
 	type_object(&pos, pos);
 	print_ascii_stream(stream, "#<TYPE ");
-	Return1(prin1_print(ptr, stream, pos));
+	Return(prin1_print(ptr, stream, pos));
 	print_ascii_stream(stream, ">");
 
 	return 0;

@@ -8,6 +8,7 @@
 #include "package.h"
 #include "readtable.h"
 #include "stream.h"
+#include "strvect.h"
 #include "symbol.h"
 
 /*
@@ -21,7 +22,7 @@ _g void build_constant(void)
 	heap_array4(&array, LISPSYSTEM_CONSTANT, CONSTANT_SIZE);
 	for (i = 0; i < CONSTANT_SIZE; i++)
 		SetArrayA4(array, i, Unbound);
-	SetRoot(LISPINDEX_CONST, array);
+	LispRoot(CONST) = array;
 }
 
 

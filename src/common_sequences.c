@@ -16,13 +16,13 @@
 #include "sort.h"
 #include "strtype.h"
 #include "type_parse.h"
-#include "unicode.h"
 
 /* (defun copy-seq (sequence) ...) -> sequence */
-static void function_copy_seq(Execute ptr, addr var)
+static int function_copy_seq(Execute ptr, addr var)
 {
 	copy_seq_common(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_copy_seq(addr *ret)
@@ -52,14 +52,16 @@ static void defun_copy_seq(void)
 
 
 /* (defun elt (sequence index) ...) -> t */
-static void function_elt(Execute ptr, addr var, addr index)
+static int function_elt(Execute ptr, addr var, addr index)
 {
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		fmte("Too large index ~S.", index, NULL);
+		return fmte("Too large index ~S.", index, NULL);
 	getelt_sequence(NULL, var, size, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void type_elt(addr *ret)
@@ -90,14 +92,16 @@ static void defun_elt(void)
 
 
 /* (defun (setf elt) (value sequence index) ...) -> t */
-static void function_setf_elt(Execute ptr, addr value, addr pos, addr index)
+static int function_setf_elt(Execute ptr, addr value, addr pos, addr index)
 {
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		fmte("Too large index ~S.", index, NULL);
+		return fmte("Too large index ~S.", index, NULL);
 	setelt_sequence(pos, size, value);
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void type_setf_elt(addr *ret)
@@ -133,14 +137,18 @@ static void defun_setf_elt(void)
  *    start  keyword-start
  *    end    keyword-end
  */
-static void function_fill(Execute ptr, addr var, addr item, addr rest)
+static int function_fill(Execute ptr, addr var, addr item, addr rest)
 {
 	addr start, end;
 
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Nil;
+	if (getkeyargs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (getkeyargs(rest, KEYWORD_END, &end))
+		end = Nil;
 	fill_common(var, item, start, end);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void type_fill(addr *ret)
@@ -180,10 +188,11 @@ static void defun_fill(void)
 
 
 /* (defun make-sequence (type size &key initial-element) ...) -> sequence */
-static void function_make_sequence(Execute ptr, addr type, addr size, addr rest)
+static int function_make_sequence(Execute ptr, addr type, addr size, addr rest)
 {
-	if (make_sequence_common(ptr, &type, type, size, rest)) return;
+	Return(make_sequence_common(ptr, &type, type, size, rest));
 	setresult_control(ptr, type);
+	return 0;
 }
 
 static void type_make_sequence(addr *ret)
@@ -223,10 +232,11 @@ static void defun_make_sequence(void)
  *   start  keyword-start
  *   end    keyword-end
  */
-static void function_subseq(Execute ptr, addr var, addr start, addr end)
+static int function_subseq(Execute ptr, addr var, addr start, addr end)
 {
 	subseq_common(var, start, end, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_subseq(addr *ret)
@@ -258,11 +268,12 @@ static void defun_subseq(void)
 
 
 /* (defun subseq (sequence sequence start &optional end) ...) -> sequence */
-static void function_setf_subseq(Execute ptr,
+static int function_setf_subseq(Execute ptr,
 		addr pos, addr root, addr start, addr end)
 {
 	setf_subseq_common(root, pos, start, end);
 	setresult_control(ptr, root);
+	return 0;
 }
 
 static void type_setf_subseq(addr *ret)
@@ -298,10 +309,11 @@ static void defun_setf_subseq(void)
  *   function  function-designer
  *   result    sequence
  */
-static void function_map(Execute ptr, addr type, addr call, addr rest)
+static int function_map(Execute ptr, addr type, addr call, addr rest)
 {
-	if (map_common(ptr, &type, type, call, rest)) return;
+	Return(map_common(ptr, &type, type, call, rest));
 	setresult_control(ptr, type);
+	return 0;
 }
 
 static void type_map(addr *ret)
@@ -333,10 +345,11 @@ static void defun_map(void)
 
 
 /* (defun map-into (sequence funcion &rest sequence) ...) -> sequence */
-static void function_map_into(Execute ptr, addr var, addr call, addr rest)
+static int function_map_into(Execute ptr, addr var, addr call, addr rest)
 {
-	if (map_into_common(ptr, var, call, rest)) return;
+	Return(map_into_common(ptr, var, call, rest));
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_map_into(addr *ret)
@@ -373,10 +386,11 @@ static void defun_map_into(void)
  *   end            keyword-end
  *   initial-value  t
  */
-static void function_reduce(Execute ptr, addr call, addr pos, addr rest)
+static int function_reduce(Execute ptr, addr call, addr pos, addr rest)
 {
-	if (reduce_common(ptr, &call, call, pos, rest)) return;
+	Return(reduce_common(ptr, &call, call, pos, rest));
 	setresult_control(ptr, call);
+	return 0;
 }
 
 static void type_reduce(addr *ret)
@@ -433,10 +447,11 @@ static void defun_reduce(void)
  *   test      function-designer
  *   test-not  function-designer
  */
-static void function_count(Execute ptr, addr item, addr pos, addr rest)
+static int function_count(Execute ptr, addr item, addr pos, addr rest)
 {
-	if (count_common(ptr, &item, item, pos, rest)) return;
+	Return(count_common(ptr, &item, item, pos, rest));
 	setresult_control(ptr, item);
+	return 0;
 }
 
 static void type_count(addr *ret)
@@ -468,10 +483,11 @@ static void defun_count(void)
 
 
 /* (defun count-if (call sequence &key from-end start end key) ...) -> n */
-static void function_count_if(Execute ptr, addr call, addr var, addr rest)
+static int function_count_if(Execute ptr, addr call, addr var, addr rest)
 {
-	if (count_if_common(ptr, &call, call, var, rest)) return;
+	Return(count_if_common(ptr, &call, call, var, rest));
 	setresult_control(ptr, call);
+	return 0;
 }
 
 static void defun_count_if(void)
@@ -491,10 +507,11 @@ static void defun_count_if(void)
 
 
 /* (defun count-if (call sequence &key from-end start end key) ...) -> n */
-static void function_count_if_not(Execute ptr, addr call, addr var, addr rest)
+static int function_count_if_not(Execute ptr, addr call, addr var, addr rest)
 {
-	if (count_if_not_common(ptr, &call, call, var, rest)) return;
+	Return(count_if_not_common(ptr, &call, call, var, rest));
 	setresult_control(ptr, call);
+	return 0;
 }
 
 static void defun_count_if_not(void)
@@ -514,10 +531,11 @@ static void defun_count_if_not(void)
 
 
 /* (defun length (sequence) ...) -> index */
-static void function_length(Execute ptr, addr var)
+static int function_length(Execute ptr, addr var)
 {
 	size_t size = length_sequence(var, 1);
 	setresult_control(ptr, intsizeh(size));
+	return 0;
 }
 
 static void type_length(addr *ret)
@@ -547,10 +565,11 @@ static void defun_length(void)
 
 
 /* (defun reverse (sequence) ...) -> sequence */
-static void function_reverse(Execute ptr, addr var)
+static int function_reverse(Execute ptr, addr var)
 {
 	reverse_sequence_heap(&var, var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_reverse(void)
@@ -570,10 +589,11 @@ static void defun_reverse(void)
 
 
 /* (defun nreverse (sequence) ...) -> sequence */
-static void function_nreverse(Execute ptr, addr var)
+static int function_nreverse(Execute ptr, addr var)
 {
 	nreverse_sequence(&var, var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defun_nreverse(void)
@@ -593,14 +613,17 @@ static void defun_nreverse(void)
 
 
 /* (defun merge (type sequence1 sequence2 call &key key) ...) -> sequence */
-static void function_merge(Execute ptr,
+static int function_merge(Execute ptr,
 		addr type, addr pos1, addr pos2, addr call, addr rest)
 {
 	addr key;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (merge_common(ptr, &type, type, pos1, pos2, call, key)) return;
+	if (getkeyargs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	Return(merge_common(ptr, &type, type, pos1, pos2, call, key));
 	setresult_control(ptr, type);
+
+	return 0;
 }
 
 static void type_merge(addr *ret)
@@ -637,13 +660,16 @@ static void defun_merge(void)
 
 
 /* (defun sort (sequence call &key key) ...) -> sequence */
-static void function_sort(Execute ptr, addr pos, addr call, addr rest)
+static int function_sort(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (quick_sort_sequence(ptr, pos, call, key)) return;
+	if (getkeyargs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	Return(quick_sort_sequence(ptr, pos, call, key));
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_sort(void)
@@ -663,13 +689,16 @@ static void defun_sort(void)
 
 
 /* (defun stable-sort (sequence call &key key) ...) -> sequence */
-static void function_stable_sort(Execute ptr, addr pos, addr call, addr rest)
+static int function_stable_sort(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (merge_sort_sequence(ptr, pos, call, key)) return;
+	if (getkeyargs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	Return(merge_sort_sequence(ptr, pos, call, key));
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void defun_stable_sort(void)
@@ -691,10 +720,11 @@ static void defun_stable_sort(void)
 /* (defun find (item sequence
  *     &key from-end test test-not start end key) ...) -> t
  */
-static void function_find(Execute ptr, addr item, addr pos, addr rest)
+static int function_find(Execute ptr, addr item, addr pos, addr rest)
 {
-	if (find_common(ptr, &pos, item, pos, rest)) return;
+	Return(find_common(ptr, &pos, item, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_find(addr *ret)
@@ -726,10 +756,11 @@ static void defun_find(void)
 
 
 /* (defun find-if (call sequence &key from-end start end key) ...) -> t */
-static void function_find_if(Execute ptr, addr call, addr pos, addr rest)
+static int function_find_if(Execute ptr, addr call, addr pos, addr rest)
 {
-	if (find_if_common(ptr, &pos, call, pos, rest)) return;
+	Return(find_if_common(ptr, &pos, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_find_if(void)
@@ -749,10 +780,11 @@ static void defun_find_if(void)
 
 
 /* (defun find-if-not (call sequence &key from-end start end key) ...) -> t */
-static void function_find_if_not(Execute ptr, addr call, addr pos, addr rest)
+static int function_find_if_not(Execute ptr, addr call, addr pos, addr rest)
 {
-	if (find_if_not_common(ptr, &pos, call, pos, rest)) return;
+	Return(find_if_not_common(ptr, &pos, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_find_if_not(void)
@@ -774,10 +806,11 @@ static void defun_find_if_not(void)
 /* (defun position (item sequence
  *     &key from-end test test-not start end key) ...) -> t
  */
-static void function_position(Execute ptr, addr item, addr pos, addr rest)
+static int function_position(Execute ptr, addr item, addr pos, addr rest)
 {
-	if (position_common(ptr, &pos, item, pos, rest)) return;
+	Return(position_common(ptr, &pos, item, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void type_position(addr *ret)
@@ -809,10 +842,11 @@ static void defun_position(void)
 
 
 /* (defun position-if (call sequence &key from-end start end key) ...) -> t */
-static void function_position_if(Execute ptr, addr call, addr pos, addr rest)
+static int function_position_if(Execute ptr, addr call, addr pos, addr rest)
 {
-	if (position_if_common(ptr, &pos, call, pos, rest)) return;
+	Return(position_if_common(ptr, &pos, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_position_if(void)
@@ -832,10 +866,11 @@ static void defun_position_if(void)
 
 
 /* (defun position-if-not (call sequence &key from-end start end key) ...) -> t */
-static void function_position_if_not(Execute ptr, addr call, addr pos, addr rest)
+static int function_position_if_not(Execute ptr, addr call, addr pos, addr rest)
 {
-	if (position_if_not_common(ptr, &pos, call, pos, rest)) return;
+	Return(position_if_not_common(ptr, &pos, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_position_if_not(void)
@@ -857,10 +892,11 @@ static void defun_position_if_not(void)
 /* (defun search (sequence1 sequence2
  *     &key from-end test test-not key start1 start2 end1 end2) ...) -> position
  */
-static void function_search(Execute ptr, addr pos1, addr pos2, addr rest)
+static int function_search(Execute ptr, addr pos1, addr pos2, addr rest)
 {
-	if (search_common(ptr, &pos1, pos1, pos2, rest)) return;
+	Return(search_common(ptr, &pos1, pos1, pos2, rest));
 	setresult_control(ptr, pos1);
+	return 0;
 }
 
 static void defun_search(void)
@@ -882,10 +918,11 @@ static void defun_search(void)
 /* (defun mismatch (sequence1 sequence2
  *     &key from-end test test-not key start1 start2 end1 end2) ...) -> position
  */
-static void function_mismatch(Execute ptr, addr pos1, addr pos2, addr rest)
+static int function_mismatch(Execute ptr, addr pos1, addr pos2, addr rest)
 {
-	if (mismatch_common(ptr, &pos1, pos1, pos2, rest)) return;
+	Return(mismatch_common(ptr, &pos1, pos1, pos2, rest));
 	setresult_control(ptr, pos1);
+	return 0;
 }
 
 static void defun_mismatch(void)
@@ -907,10 +944,11 @@ static void defun_mismatch(void)
 /* (defun replace (sequence1 sequence2 &ekey start1 end1 start2 end2) ...)
  *     -> sequence1
  */
-static void function_replace(Execute ptr, addr pos1, addr pos2, addr rest)
+static int function_replace(Execute ptr, addr pos1, addr pos2, addr rest)
 {
 	replace_common(ptr, pos1, pos2, rest);
 	setresult_control(ptr, pos1);
+	return 0;
 }
 
 static void type_replace(addr *ret)
@@ -952,11 +990,12 @@ static void defun_replace(void)
  *   -> sequence
  *   count  (or (integer 0) null)
  */
-static void function_substitute(Execute ptr,
+static int function_substitute(Execute ptr,
 		addr item1, addr item2, addr pos, addr rest)
 {
-	if (substitute_common(ptr, &pos, item1, item2, pos, rest)) return;
+	Return(substitute_common(ptr, &pos, item1, item2, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_substitute(void)
@@ -980,11 +1019,12 @@ static void defun_substitute(void)
  *   -> sequence
  *   count  (or (integer 0) null)
  */
-static void function_substitute_if(Execute ptr,
+static int function_substitute_if(Execute ptr,
 		addr item, addr call, addr pos, addr rest)
 {
-	if (substitute_if_common(ptr, &pos, item, call, pos, rest)) return;
+	Return(substitute_if_common(ptr, &pos, item, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_substitute_if(void)
@@ -1008,11 +1048,12 @@ static void defun_substitute_if(void)
  *   -> sequence
  *   count  (or (integer 0) null)
  */
-static void function_substitute_if_not(Execute ptr,
+static int function_substitute_if_not(Execute ptr,
 		addr item, addr call, addr pos, addr rest)
 {
-	if (substitute_if_not_common(ptr, &pos, item, call, pos, rest)) return;
+	Return(substitute_if_not_common(ptr, &pos, item, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_substitute_if_not(void)
@@ -1036,11 +1077,12 @@ static void defun_substitute_if_not(void)
  *   -> sequence
  *   count  (or (integer 0) null)
  */
-static void function_nsubstitute(Execute ptr,
+static int function_nsubstitute(Execute ptr,
 		addr item1, addr item2, addr pos, addr rest)
 {
-	if (nsubstitute_common(ptr, item1, item2, pos, rest)) return;
+	Return(nsubstitute_common(ptr, item1, item2, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_nsubstitute(void)
@@ -1064,11 +1106,12 @@ static void defun_nsubstitute(void)
  *   -> sequence
  *   count  (or (integer 0) null)
  */
-static void function_nsubstitute_if(Execute ptr,
+static int function_nsubstitute_if(Execute ptr,
 		addr item, addr call, addr pos, addr rest)
 {
-	if (nsubstitute_if_common(ptr, item, call, pos, rest)) return;
+	Return(nsubstitute_if_common(ptr, item, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_nsubstitute_if(void)
@@ -1092,11 +1135,12 @@ static void defun_nsubstitute_if(void)
  *   -> sequence
  *   count  (or (integer 0) null)
  */
-static void function_nsubstitute_if_not(Execute ptr,
+static int function_nsubstitute_if_not(Execute ptr,
 		addr item, addr call, addr pos, addr rest)
 {
-	if (nsubstitute_if_not_common(ptr, item, call, pos, rest)) return;
+	Return(nsubstitute_if_not_common(ptr, item, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_nsubstitute_if_not(void)
@@ -1120,10 +1164,11 @@ static void defun_nsubstitute_if_not(void)
  *   sequences  &rest sequence
  *   result     sequence
  */
-static void function_concatenate(Execute ptr, addr type, addr rest)
+static int function_concatenate(Execute ptr, addr type, addr rest)
 {
-	if (concatenate_common(ptr, &type, type, rest)) return;
+	Return(concatenate_common(ptr, &type, type, rest));
 	setresult_control(ptr, type);
+	return 0;
 }
 
 static void type_concatenate(addr *ret)
@@ -1156,10 +1201,11 @@ static void defun_concatenate(void)
 /* (defun remove (item sequence
  *     &key from-end test test-not start end count key) ...) -> sequence
  */
-static void function_remove(Execute ptr, addr item, addr pos, addr rest)
+static int function_remove(Execute ptr, addr item, addr pos, addr rest)
 {
-	if (remove_common(ptr, &pos, item, pos, rest)) return;
+	Return(remove_common(ptr, &pos, item, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_remove(void)
@@ -1181,10 +1227,11 @@ static void defun_remove(void)
 /* (defun remove-if (test sequence
  *     &key from-end start end count key) ...) -> sequence
  */
-static void function_remove_if(Execute ptr, addr call, addr pos, addr rest)
+static int function_remove_if(Execute ptr, addr call, addr pos, addr rest)
 {
-	if (remove_if_common(ptr, &pos, call, pos, rest)) return;
+	Return(remove_if_common(ptr, &pos, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_remove_if(void)
@@ -1206,10 +1253,11 @@ static void defun_remove_if(void)
 /* (defun remove-if-not (test sequence
  *     &key from-end start end count key) ...) -> sequence
  */
-static void function_remove_if_not(Execute ptr, addr call, addr pos, addr rest)
+static int function_remove_if_not(Execute ptr, addr call, addr pos, addr rest)
 {
-	if (remove_if_not_common(ptr, &pos, call, pos, rest)) return;
+	Return(remove_if_not_common(ptr, &pos, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_remove_if_not(void)
@@ -1231,10 +1279,11 @@ static void defun_remove_if_not(void)
 /* (defun delete (item sequence
  *     &key from-end test test-not start end count key) ...) -> sequence
  */
-static void function_delete(Execute ptr, addr item, addr pos, addr rest)
+static int function_delete(Execute ptr, addr item, addr pos, addr rest)
 {
-	if (delete_common(ptr, &pos, item, pos, rest)) return;
+	Return(delete_common(ptr, &pos, item, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_delete(void)
@@ -1256,10 +1305,11 @@ static void defun_delete(void)
 /* (defun delete-if (test sequence
  *     &key from-end start end count key) ...) -> sequence
  */
-static void function_delete_if(Execute ptr, addr call, addr pos, addr rest)
+static int function_delete_if(Execute ptr, addr call, addr pos, addr rest)
 {
-	if (delete_if_common(ptr, &pos, call, pos, rest)) return;
+	Return(delete_if_common(ptr, &pos, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_delete_if(void)
@@ -1281,10 +1331,11 @@ static void defun_delete_if(void)
 /* (defun delete-if-not (test sequence
  *     &key from-end start end count key) ...) -> sequence
  */
-static void function_delete_if_not(Execute ptr, addr call, addr pos, addr rest)
+static int function_delete_if_not(Execute ptr, addr call, addr pos, addr rest)
 {
-	if (delete_if_not_common(ptr, &pos, call, pos, rest)) return;
+	Return(delete_if_not_common(ptr, &pos, call, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_delete_if_not(void)
@@ -1306,10 +1357,11 @@ static void defun_delete_if_not(void)
 /* (defun remove-duplicates (sequence
  *     &key from-end test test-not start end key) ...) -> sequence
  */
-static void function_remove_duplicates(Execute ptr, addr pos, addr rest)
+static int function_remove_duplicates(Execute ptr, addr pos, addr rest)
 {
-	if (remove_duplicates_common(ptr, &pos, pos, rest)) return;
+	Return(remove_duplicates_common(ptr, &pos, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_remove_duplicates(void)
@@ -1331,10 +1383,11 @@ static void defun_remove_duplicates(void)
 /* (defun delete-duplicates (sequence
  *     &key from-end test test-not start end key) ...) -> sequence
  */
-static void function_delete_duplicates(Execute ptr, addr pos, addr rest)
+static int function_delete_duplicates(Execute ptr, addr pos, addr rest)
 {
-	if (delete_duplicates_common(ptr, &pos, pos, rest)) return;
+	Return(delete_duplicates_common(ptr, &pos, pos, rest));
 	setresult_control(ptr, pos);
+	return 0;
 }
 
 static void defun_delete_duplicates(void)

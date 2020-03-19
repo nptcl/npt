@@ -7,7 +7,7 @@
 #include "bit.h"
 #include "condition.h"
 #include "sequence.h"
-#include "unicode.h"
+#include "strvect.h"
 #include "type_upgraded.h"
 
 /*
@@ -83,7 +83,7 @@ static int array_bitvector_type(addr pos)
 			return 1;
 
 		default:
-			fmte("Argument ~S must be a bit-array type.", pos, NULL);
+			_fmte("Argument ~S must be a bit-array type.", pos, NULL);
 			return -1;
 	}
 }
@@ -120,7 +120,7 @@ static void array_bitcalc_aa(addr *ret,
 	struct array_struct *str;
 
 	if (! array_bitvector_size_equal(pos1, pos2))
-		fmte("Dimension don't match ~S and ~S.", pos1, pos2, NULL);
+		_fmte("Dimension don't match ~S and ~S.", pos1, pos2, NULL);
 	if (opt == Nil) {
 		array_bitcalc_make(pos1, &opt);
 		*ret = opt;
@@ -132,19 +132,19 @@ static void array_bitcalc_aa(addr *ret,
 	}
 	else {
 		if (! array_bitvector_size_equal(pos1, opt))
-			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
+			_fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos1);
 	if (str->type != ARRAY_TYPE_BIT)
-		fmte("Array ~S must be a bit type.", pos1, NULL);
+		_fmte("Array ~S must be a bit type.", pos1, NULL);
 	str = ArrayInfoStruct(pos2);
 	if (str->type != ARRAY_TYPE_BIT)
-		fmte("Array ~S must be a bit type.", pos2, NULL);
+		_fmte("Array ~S must be a bit type.", pos2, NULL);
 	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+		_fmte("Array ~S must be a bit type.", *ret, NULL);
 	GetArrayInfo(pos1, ARRAY_INDEX_MEMORY, &pos1);
 	GetArrayInfo(pos2, ARRAY_INDEX_MEMORY, &pos2);
 	bitmemory_bitcalc(opt, pos1, pos2, call);
@@ -157,7 +157,7 @@ static void array_bitcalc_ab(addr *ret,
 	size_t size;
 
 	if (! array_bitvector_size_equal(pos1, pos2))
-		fmte("Length don't match ~S and ~S", pos1, pos2, NULL);
+		_fmte("Length don't match ~S and ~S", pos1, pos2, NULL);
 	if (opt == Nil) {
 		bitmemory_length(pos2, &size);
 		bitmemory_heap(&opt, size);
@@ -169,16 +169,16 @@ static void array_bitcalc_ab(addr *ret,
 	}
 	else {
 		if (! array_bitvector_size_equal(pos1, opt))
-			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
+			_fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos1);
 	if (str->type != ARRAY_TYPE_BIT)
-		fmte("Array ~S must be a bit type.", pos1, NULL);
+		_fmte("Array ~S must be a bit type.", pos1, NULL);
 	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+		_fmte("Array ~S must be a bit type.", *ret, NULL);
 	GetArrayInfo(pos1, ARRAY_INDEX_MEMORY, &pos1);
 	bitmemory_bitcalc(opt, pos1, pos2, call);
 }
@@ -190,7 +190,7 @@ static void array_bitcalc_ba(addr *ret,
 	size_t size;
 
 	if (! array_bitvector_size_equal(pos1, pos2))
-		fmte("Length don't match ~S and ~S", pos1, pos2, NULL);
+		_fmte("Length don't match ~S and ~S", pos1, pos2, NULL);
 	if (opt == Nil) {
 		bitmemory_length(pos1, &size);
 		bitmemory_heap(&opt, size);
@@ -201,16 +201,16 @@ static void array_bitcalc_ba(addr *ret,
 	}
 	else {
 		if (! array_bitvector_size_equal(pos1, opt))
-			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
+			_fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos2);
 	if (str->type != ARRAY_TYPE_BIT)
-		fmte("Array ~S must be a bit type.", pos2, NULL);
+		_fmte("Array ~S must be a bit type.", pos2, NULL);
 	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+		_fmte("Array ~S must be a bit type.", *ret, NULL);
 	GetArrayInfo(pos2, ARRAY_INDEX_MEMORY, &pos2);
 	bitmemory_bitcalc(opt, pos1, pos2, call);
 }
@@ -221,7 +221,7 @@ static void array_bitcalc_bb(addr *ret,
 	size_t size;
 
 	if (! bitmemory_equal_length(pos1, pos2))
-		fmte("Length don't match ~S and ~S", pos1, pos2, NULL);
+		_fmte("Length don't match ~S and ~S", pos1, pos2, NULL);
 	if (opt == Nil) {
 		bitmemory_length(pos1, &size);
 		bitmemory_heap(&opt, size);
@@ -232,13 +232,13 @@ static void array_bitcalc_bb(addr *ret,
 	}
 	else {
 		if (! array_bitvector_size_equal(pos1, opt))
-			fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
+			_fmte("Length don't match ~S and optional ~S", pos1, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+		_fmte("Array ~S must be a bit type.", *ret, NULL);
 	bitmemory_bitcalc(opt, pos1, pos2, call);
 }
 
@@ -285,16 +285,16 @@ _g void array_bitnot_array(addr *ret, addr pos, addr opt)
 	}
 	else {
 		if (! array_bitvector_size_equal(pos, opt))
-			fmte("Length don't match ~S and optional ~S", pos, opt, NULL);
+			_fmte("Length don't match ~S and optional ~S", pos, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	str = ArrayInfoStruct(pos);
 	if (str->type != ARRAY_TYPE_BIT)
-		fmte("Array ~S must be a bit type.", pos, NULL);
+		_fmte("Array ~S must be a bit type.", pos, NULL);
 	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+		_fmte("Array ~S must be a bit type.", *ret, NULL);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 	bitmemory_bitnot(opt, pos);
 }
@@ -313,13 +313,13 @@ _g void array_bitnot_bitmemory(addr *ret, addr pos, addr opt)
 	}
 	else {
 		if (! array_bitvector_size_equal(pos, opt))
-			fmte("Length don't match ~S and optional ~S", pos, opt, NULL);
+			_fmte("Length don't match ~S and optional ~S", pos, opt, NULL);
 		*ret = opt;
 		if (arrayp(opt))
 			GetArrayInfo(opt, ARRAY_INDEX_MEMORY, &opt);
 	}
 	if (! bitvectorp(*ret))
-		fmte("Array ~S must be a bit type.", *ret, NULL);
+		_fmte("Array ~S must be a bit type.", *ret, NULL);
 	bitmemory_bitnot(opt, pos);
 }
 

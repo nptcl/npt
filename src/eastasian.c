@@ -6,7 +6,6 @@
 #include "integer.h"
 #include "strtype.h"
 #include "symbol.h"
-#include "unicode.h"
 
 /*
  *  length
@@ -76,13 +75,13 @@ _g void eastasian_set_syscall(addr pos, addr value, addr errorp, addr *ret)
 	/* value */
 	if (GetIndex_fixnum(value, &size)) {
 		if (errorp)
-			fmte("Invalid integer value ~S.", value, NULL);
+			_fmte("Invalid integer value ~S.", value, NULL);
 		*ret = Nil;
 		return;
 	}
 	if (UINT_MAX <= size) {
 		if (errorp)
-			fmte("The value ~S is too large.", value, NULL);
+			_fmte("The value ~S is too large.", value, NULL);
 		*ret = Nil;
 		return;
 	}
@@ -101,7 +100,7 @@ _g void eastasian_set_syscall(addr pos, addr value, addr errorp, addr *ret)
 
 		default:
 			if (errorp)
-				fmte("Inavlid eastasian type ~S.", pos, NULL);
+				_fmte("Inavlid eastasian type ~S.", pos, NULL);
 			*ret = Nil;
 			return;
 	}

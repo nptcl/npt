@@ -98,14 +98,16 @@ static void method_ensure_generic_function_struct(struct generic_argument *str,
 	str->doc = doc;
 }
 
-static void method_ensure_generic_function_class(Execute ptr,
+static int method_ensure_generic_function_class(Execute ptr,
 		addr method, addr next, addr clos, addr name, addr rest)
 {
 	struct generic_argument str;
 
 	method_ensure_generic_function_struct(&str, ptr, clos, name, rest);
-	if (generic_change(&str, &name)) return;
+	Return(generic_change(&str, &name));
 	setresult_control(ptr, name);
+
+	return 0;
 }
 
 static void method_type_ensure_generic_function_class(addr *ret)
@@ -157,14 +159,16 @@ static void defmethod_ensure_generic_function_class(Execute ptr, addr name, addr
 	common_method_add(ptr, gen, pos);
 }
 
-static void method_ensure_generic_function_null(Execute ptr,
+static int method_ensure_generic_function_null(Execute ptr,
 		addr method, addr next, addr clos, addr name, addr rest)
 {
 	struct generic_argument str;
 
 	method_ensure_generic_function_struct(&str, ptr, clos, name, rest);
-	if (generic_add(&str, &name)) return;
+	Return(generic_add(&str, &name));
 	setresult_control(ptr, name);
+
+	return 0;
 }
 
 static void method_type_ensure_generic_function_null(addr *ret)
@@ -244,7 +248,7 @@ static void defgeneric_ensure_generic_function_using_class_mop(Execute ptr)
  *    specializers   list
  *    function       function
  */
-static void function_ensure_method(Execute ptr, addr name, addr rest)
+static int function_ensure_method(Execute ptr, addr name, addr rest)
 {
 	addr lambda, qua, spec, call;
 
@@ -256,11 +260,13 @@ static void function_ensure_method(Execute ptr, addr name, addr rest)
 	if (getkeyargs(rest, CLOSKEY_SPECIALIZERS, &spec))
 		spec = Nil;
 	if (getkeyargs(rest, CLOSKEY_FUNCTION, &call))
-		fmte("Invalid ensure-method argument :function ~S.", call, NULL);
+		_fmte("Invalid ensure-method argument :function ~S.", call, NULL);
 
 	/* add method */
 	ensure_method_common(ptr, &name, name, lambda, qua, spec, call);
 	setresult_control(ptr, name);
+
+	return 0;
 }
 
 static void type_ensure_method(addr *ret)
@@ -299,13 +305,15 @@ static void defun_ensure_method_mop(void)
 /***********************************************************************
  *  function-keywords
  ***********************************************************************/
-static void method_function_keywords(Execute ptr, addr method, addr next, addr var)
+static int method_function_keywords(Execute ptr, addr method, addr next, addr var)
 {
 	int allow;
 
 	stdget_method_lambda_list(var, &var);
 	argument_method_keywords_heap(var, &var, &allow);
 	setvalues_control(ptr, var, (allow? T: Nil), NULL);
+
+	return 0;
 }
 
 static void method_type_function_keywords(addr *ret)
@@ -356,9 +364,10 @@ static void defgeneric_function_keywords_mop(Execute ptr)
  *  flet-method-p
  ***********************************************************************/
 /* (defun clos::flet-method-p (var) ...) -> boolean */
-static void function_flet_method_p(Execute ptr, addr var)
+static int function_flet_method_p(Execute ptr, addr var)
 {
 	setbool_control(ptr, var != Nil);
+	return 0;
 }
 
 static void defun_flet_method_p_mop(void)
@@ -381,7 +390,7 @@ static void defun_flet_method_p_mop(void)
  *  flet-next-method
  ***********************************************************************/
 /* (defun clos::flet-next-method (method next args rest) ...) -> t */
-static void function_flet_next_method(Execute ptr,
+static int function_flet_next_method(Execute ptr,
 		addr method, addr next, addr args, addr rest)
 {
 	addr call;
@@ -389,8 +398,8 @@ static void function_flet_next_method(Execute ptr,
 
 	if (next == Nil) {
 		stdget_method_generic_function(method, &method);
-		fmte("There is no method in generic function ~S.", method, NULL);
-		return;
+		_fmte("There is no method in generic function ~S.", method, NULL);
+		return 0;
 	}
 	getcons(next, &method, &next);
 	stdget_method_function(method, &call);
@@ -399,7 +408,7 @@ static void function_flet_next_method(Execute ptr,
 	/* call method */
 	local = ptr->local;
 	lista_local(local, &rest, method, next, rest, NULL);
-	(void)apply_control(ptr, call, rest);
+	return apply_control(ptr, call, rest);
 }
 
 static void type_flet_next_method(addr *ret)
@@ -432,10 +441,11 @@ static void defun_flet_next_method_mop(void)
 /***********************************************************************
  *  method-combination-instance
  ***********************************************************************/
-static void function_method_combination_instance(Execute ptr, addr var)
+static int function_method_combination_instance(Execute ptr, addr var)
 {
 	clos_find_combination_nil(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_method_combination_instance(addr *ret)
@@ -467,7 +477,7 @@ static void define_method_combination_instance_mop(void)
 /***********************************************************************
  *  define-method-combination-short
  ***********************************************************************/
-static void function_ensure_method_combination_short(Execute ptr, addr var, addr rest)
+static int function_ensure_method_combination_short(Execute ptr, addr var, addr rest)
 {
 	addr doc, ident, oper;
 
@@ -479,6 +489,8 @@ static void function_ensure_method_combination_short(Execute ptr, addr var, addr
 		oper = var;
 	ensure_define_combination_short_common(var, doc, ident, oper);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void type_ensure_method_combination_short(addr *ret)
@@ -516,7 +528,7 @@ static void defun_ensure_define_combination_short_mop(void)
 /***********************************************************************
  *  define-method-combination-long
  ***********************************************************************/
-static void function_ensure_method_combination_long(Execute ptr,
+static int function_ensure_method_combination_long(Execute ptr,
 		addr name, addr lambda, addr spec, addr rest)
 {
 	addr args, gen, doc, form, decl;
@@ -534,6 +546,8 @@ static void function_ensure_method_combination_long(Execute ptr,
 	ensure_define_combination_long_common(name,
 			lambda, spec, args, gen, doc, form, decl);
 	setresult_control(ptr, name);
+
+	return 0;
 }
 
 static void type_ensure_method_combination_long(addr *ret)
@@ -592,11 +606,11 @@ static int qualifiers_elt_order(addr symbol, addr order)
 	if (check == order)
 		return 1;
 	/* error */
-	fmte("Invalid :order ~S in the qualifiers ~S.", order, symbol, NULL);
+	_fmte("Invalid :order ~S in the qualifiers ~S.", order, symbol, NULL);
 	return 0;
 }
 
-static void function_qualifiers_elt(Execute ptr,
+static int function_qualifiers_elt(Execute ptr,
 		addr symbol, addr pos, addr index, addr order, addr req)
 {
 	size_t value;
@@ -604,10 +618,12 @@ static void function_qualifiers_elt(Execute ptr,
 	getindex_integer(index, &value);
 	getarray(pos, value, &pos);
 	if (req != Nil && pos == Nil)
-		fmte("The qualifier ~S must be at least one method.", symbol, NULL);
+		_fmte("The qualifier ~S must be at least one method.", symbol, NULL);
 	if (qualifiers_elt_order(symbol, order))
 		reverse_list_heap_safe(&pos, pos);
 	setresult_control(ptr, pos);
+
+	return 0;
 }
 
 static void type_qualifiers_elt(addr *ret)
@@ -643,10 +659,11 @@ static void defun_qualifiers_elt_mop(void)
 /***********************************************************************
  *  combination-binding
  ***********************************************************************/
-static void function_combination_binding(Execute ptr, addr var)
+static int function_combination_binding(Execute ptr, addr var)
 {
 	stdget_longcomb_binding(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void type_combination_binding(addr *ret)
@@ -678,7 +695,7 @@ static void defun_combination_binding_mop(void)
 /***********************************************************************
  *  macro-make-method
  ***********************************************************************/
-static void function_macro_make_method(Execute ptr, addr gen, addr form)
+static int function_macro_make_method(Execute ptr, addr gen, addr form)
 {
 	/* `(macro-method-lambda
 	 *    ,gen
@@ -702,6 +719,8 @@ static void function_macro_make_method(Execute ptr, addr gen, addr form)
 	list_heap(&lambda, lambda, method, declare, form, NULL);
 	list_heap(&form, make, gen, lambda, NULL);
 	setresult_control(ptr, form);
+
+	return 0;
 }
 
 static void type_macro_make_method(addr *ret)
@@ -734,7 +753,7 @@ static void defun_macro_make_method(void)
 /***********************************************************************
  *  macro-call-method
  ***********************************************************************/
-static void function_macro_call_method(Execute ptr, addr car, addr cdr, addr symbol)
+static int function_macro_call_method(Execute ptr, addr car, addr cdr, addr symbol)
 {
 	/* `(let ((#:method ,car))
 	 *    (apply (method-function ,method) ,method (list ,@cdr) ,symbol))
@@ -763,6 +782,8 @@ static void function_macro_call_method(Execute ptr, addr car, addr cdr, addr sym
 	list_heap(&let, let, args, apply, NULL);
 	/* result */
 	setresult_control(ptr, let);
+
+	return 0;
 }
 
 static void type_macro_call_method(addr *ret)
@@ -796,7 +817,7 @@ static void defun_macro_call_method(void)
 /***********************************************************************
  *  macro-method-lambda
  ***********************************************************************/
-static void function_macro_method_lambda(Execute ptr, addr gen, addr call)
+static int function_macro_method_lambda(Execute ptr, addr gen, addr call)
 {
 	addr make, clos;
 
@@ -804,11 +825,12 @@ static void function_macro_method_lambda(Execute ptr, addr gen, addr call)
 	stdget_generic_method_class(gen, &clos);
 	GetConst(COMMON_MAKE_INSTANCE, &make);
 	getfunctioncheck_local(ptr, make, &make);
-	if (funcall_control(ptr, make, clos, NULL))
-		return;
+	Return(funcall_control(ptr, make, clos, NULL));
 	getresult_control(ptr, &clos);
 	stdset_method_function(clos, call);
 	setresult_control(ptr, clos);
+
+	return 0;
 }
 
 static void type_macro_method_lambda(addr *ret)
@@ -841,11 +863,12 @@ static void defun_macro_method_lambda(void)
 /***********************************************************************
  *  compute-applicable-methods
  ***********************************************************************/
-static void method_compute_applicable_methods_std(Execute ptr,
+static int method_compute_applicable_methods_std(Execute ptr,
 		addr method, addr next, addr clos, addr args)
 {
 	generic_compute_applicable_methods(ptr->local, clos, args, &args);
 	setresult_control(ptr, args);
+	return 0;
 }
 
 static void method_type_compute_applicable_methods_std(addr *ret)
@@ -913,13 +936,15 @@ static void defgeneric_compute_applicable_methods_mop(Execute ptr)
 /***********************************************************************
  *  find-method
  ***********************************************************************/
-static void method_find_method_std(Execute ptr,
+static int method_find_method_std(Execute ptr,
 		addr method, addr next, addr clos, addr qua, addr spec, addr errorp)
 {
 	if (errorp == Unbound)
 		errorp = T;
 	generic_find_method(ptr, clos, qua, spec, errorp, &qua);
 	setresult_control(ptr, qua);
+
+	return 0;
 }
 
 static void method_type_find_method_std(addr *ret)
@@ -988,11 +1013,12 @@ static void defgeneric_find_method_mop(Execute ptr)
 /***********************************************************************
  *  add-method
  ***********************************************************************/
-static void method_add_method_std(Execute ptr,
+static int method_add_method_std(Execute ptr,
 		addr method, addr next, addr gen, addr met)
 {
 	method_add_method(ptr, gen, met);
 	setresult_control(ptr, gen);
+	return 0;
 }
 
 static void method_type_add_method_std(addr *ret)
@@ -1059,11 +1085,12 @@ static void defgeneric_add_method_mop(Execute ptr)
 /***********************************************************************
  *  intern
  ***********************************************************************/
-static void method_remove_method_std(Execute ptr,
+static int method_remove_method_std(Execute ptr,
 		addr method, addr next, addr gen, addr met)
 {
 	method_remove_method(ptr, gen, met);
 	setresult_control(ptr, gen);
+	return 0;
 }
 
 static void defmethod_remove_method_std(Execute ptr, addr name, addr gen)

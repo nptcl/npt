@@ -22,7 +22,6 @@
 #include "symbol.h"
 #include "syscall.h"
 #include "type_table.h"
-#include "unicode.h"
 
 static int test_type_value_nil(void)
 {

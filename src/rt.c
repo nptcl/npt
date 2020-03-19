@@ -96,7 +96,7 @@ static void rt_push_entries(Execute ptr, constindex index, addr name)
 	pushqueue_heap(queue, name);
 }
 
-static void function_push_entries(Execute ptr, addr name, addr expr, addr values)
+static int function_push_entries(Execute ptr, addr name, addr expr, addr values)
 {
 	addr table, pos, list;
 
@@ -104,7 +104,7 @@ static void function_push_entries(Execute ptr, addr name, addr expr, addr values
 	GetConst(RT_ENTRIES_TABLE, &table);
 	getspecialcheck_local(ptr, table, &table);
 	if (findvalue_hashtable(table, name, &pos)) {
-		fmtw("The deftest ~S is already exist.", name, NULL);
+		_fmtw("The deftest ~S is already exist.", name, NULL);
 		rt_push_entries(ptr, CONSTANT_RT_ENTRIES_WARNING, name);
 	}
 	else  {
@@ -119,6 +119,7 @@ static void function_push_entries(Execute ptr, addr name, addr expr, addr values
 
 	/* result */
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_push_entries(addr *ret)
@@ -184,10 +185,11 @@ static void rem_all_tests(Execute ptr)
 	clear_hashtable(pos);
 }
 
-static void function_rem_all_tests(Execute ptr)
+static int function_rem_all_tests(Execute ptr)
 {
 	rem_all_tests(ptr);
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void type_rem_all_tests(addr *ret)
@@ -223,7 +225,7 @@ static void defun_rem_all_tests(void)
  *   values  &rest t
  *   (export 'deftest 'lisp-rt)
  */
-static void function_deftest(Execute ptr, addr form, addr env)
+static int function_deftest(Execute ptr, addr form, addr env)
 {
 	addr args, name, expr, quote, push;
 
@@ -232,7 +234,7 @@ static void function_deftest(Execute ptr, addr form, addr env)
 	if (! consp(args)) goto error;
 	GetCons(args, &name, &args);
 	if (! symbolp(name))
-		fmte("The deftest name ~S must be a symbol.", name, NULL);
+		_fmte("The deftest name ~S must be a symbol.", name, NULL);
 	if (! consp(args)) goto error;
 	GetCons(args, &expr, &args);
 	/* `(push-entries ',name ',expr ',value) */
@@ -243,10 +245,11 @@ static void function_deftest(Execute ptr, addr form, addr env)
 	GetConst(RT_PUSH_ENTRIES, &push);
 	list_heap(&push, push, name, expr, args, NULL);
 	setresult_control(ptr, push);
-	return;
+	return 0;
 
 error:
-	fmte("The deftest ~S must be a (deftest name expr . values) form.", form, NULL);
+	_fmte("The deftest ~S must be a (deftest name expr . values) form.", form, NULL);
+	return 0;
 }
 
 static void defmacro_deftest(void)
@@ -276,7 +279,7 @@ static void defmacro_deftest(void)
  *   (export 'deftest-error 'lisp-rt)
  *
  */
-static void function_deftest_error(Execute ptr, addr form, addr env)
+static int function_deftest_error(Execute ptr, addr form, addr env)
 {
 	addr args, name, expr, error, symbol, rterror, deftest, handler_case, quote;
 
@@ -306,10 +309,11 @@ make_deftest:
 	list_heap(&handler_case, handler_case, expr, error, NULL);
 	list_heap(&form, deftest, name, handler_case, rterror, NULL);
 	setresult_control(ptr, form);
-	return;
+	return 0;
 
 error:
-	fmte("Invalid deftest-error form ~S.", form, NULL);
+	_fmte("Invalid deftest-error form ~S.", form, NULL);
+	return 0;
 }
 
 static void defmacro_deftest_error(void)
@@ -416,7 +420,7 @@ static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
 	codejump jump;
 
 	if (! findvalue_hashtable(table, name, &expr))
-		fmte("The deftest ~S is not exist.", name, NULL);
+		_fmte("The deftest ~S is not exist.", name, NULL);
 	GetCons(expr, &expr, &values);
 
 	push_close_control(ptr, &control);
@@ -438,7 +442,7 @@ static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
 	return check;
 }
 
-static void function_do_tests_getindex(Execute ptr, fixnum *ret)
+static int function_do_tests_getindex(Execute ptr, fixnum *ret)
 {
 	addr symbol, value;
 
@@ -448,18 +452,22 @@ static void function_do_tests_getindex(Execute ptr, fixnum *ret)
 		*ret = 0;
 	else
 		GetFixnum(value, ret);
+
+	return 0;
 }
 
-static void function_do_tests_setindex(Execute ptr, fixnum index)
+static int function_do_tests_setindex(Execute ptr, fixnum index)
 {
 	addr symbol, value;
 
 	GetConst(RT_INDEX, &symbol);
 	fixnum_heap(&value, index);
 	setspecial_local(ptr, symbol, value);
+
+	return 0;
 }
 
-static void function_do_tests_execute(Execute ptr, fixnum *value)
+static int function_do_tests_execute(Execute ptr, fixnum *value)
 {
 	addr list, table, name, root1, root2, io;
 	fixnum index, count1, count2;
@@ -511,14 +519,16 @@ static void function_do_tests_execute(Execute ptr, fixnum *value)
 	*value = index;
 
 	setbool_control(ptr, count2 == 0);
+	return 0;
 }
 
-static void function_do_tests(Execute ptr, addr rest)
+static int function_do_tests(Execute ptr, addr rest)
 {
 	fixnum index;
 
 	/* argument */
-	if (getkeyargs(rest, KEYWORD_TEST, &rest)) rest = Nil;
+	if (getkeyargs(rest, KEYWORD_TEST, &rest))
+		rest = Nil;
 
 	/* do-tests */
 	function_do_tests_getindex(ptr, &index);
@@ -528,6 +538,8 @@ static void function_do_tests(Execute ptr, addr rest)
 	/* rem-all-tests */
 	if (rest != Nil)
 		rem_all_tests(ptr);
+
+	return 0;
 }
 
 static void type_do_tests(addr *ret)
@@ -559,9 +571,10 @@ static void defun_do_tests(void)
 
 
 /* (defun equalrt (a b) ...) -> boolean */
-static void function_equalrt(Execute ptr, addr a, addr b)
+static int function_equalrt(Execute ptr, addr a, addr b)
 {
 	setbool_control(ptr, equalrt_function(a, b));
+	return 0;
 }
 
 static void defun_equalrt(void)

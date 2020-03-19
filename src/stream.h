@@ -313,20 +313,13 @@ _g void open_stream(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_IfDoesNot doesnot,
 		enum Stream_Open_External external);
 _g void stream_designer(Execute ptr, addr pos, addr *ret, int inputp);
-_g void read_byte_common(addr *ret, addr stream, int errorp, addr value);
-_g void write_byte_common(addr stream, addr value);
-_g void peek_char_common(Execute ptr, addr *ret,
+_g void peek_char_stream(Execute ptr, addr *ret,
 		addr type, addr stream, int errorp, addr value, int recp);
-_g void read_char_no_hang_common(Execute ptr, addr *ret,
+_g void read_line_stream(Execute ptr, addr *ret, int *miss,
 		addr pos, int errorp, addr value, int recp);
-_g void read_char_common(Execute ptr, addr *ret,
-		addr pos, int errorp, addr value, int recp);
-_g void read_line_common(Execute ptr, addr *ret, int *miss,
-		addr pos, int errorp, addr value, int recp);
-_g void write_string_common(Execute ptr, addr string, addr rest);
-_g void write_line_common(Execute ptr, addr string, addr rest);
-_g void read_sequence_common(addr *ret, addr seq, addr stream, size_t start, size_t end);
-_g void write_sequence_common(LocalRoot local,
+_g int write_string_stream(Execute ptr, addr string, addr rest, addr *ret);
+_g int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size_t end);
+_g int write_sequence_stream(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end);
 _g int prompt_for_stream(Execute ptr, addr check, addr prompt, addr *ret);
 _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret);

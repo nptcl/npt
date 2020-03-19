@@ -13,7 +13,7 @@
  */
 static void getroot_typetable(addr *ret)
 {
-	*ret = Root(LISPINDEX_TYPETABLE);
+	*ret = LispRoot(TYPETABLE);
 	CheckType(*ret, LISPTYPE_VECTOR);
 }
 
@@ -55,7 +55,7 @@ _g void build_type_table(void)
 {
 	addr pos;
 	vector4_heap(&pos, TypeTable_Size);
-	Root(LISPINDEX_TYPETABLE) = pos;
+	LispRoot(TYPETABLE) = pos;
 }
 
 

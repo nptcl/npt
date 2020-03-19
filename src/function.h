@@ -32,6 +32,7 @@ struct function_struct {
 	unsigned recursive : 1;
 	unsigned system : 1;
 	unsigned trace : 1;
+	unsigned closure : 1;
 	pointer index;
 };
 
@@ -267,13 +268,9 @@ _g void getdatafunction(addr pos, addr *ret);
 _g void setdatafunction(addr pos, addr value);
 
 _g void getclosure_value_function(addr pos, addr *ret);
-_g void setclosure_value_function(addr pos, addr value);
 _g void getclosure_function_function(addr pos, addr *ret);
-_g void setclosure_function_function(addr pos, addr value);
 _g void getclosure_tagbody_function(addr pos, addr *ret);
-_g void setclosure_tagbody_function(addr pos, addr value);
 _g void getclosure_block_function(addr pos, addr *ret);
-_g void setclosure_block_function(addr pos, addr value);
 _g void pushclosure_value_function(addr pos, addr key, addr value);
 _g void pushclosure_function_function(addr pos, addr key, addr value);
 _g void pushclosure_tagbody_function(addr pos, addr key, addr value);
@@ -303,6 +300,8 @@ _g void setrecursive_function(addr pos);
 _g int recursivep_function(addr pos);
 _g void settrace_function(addr pos);
 _g int tracep_function(addr pos);
+_g void setclosure_function(addr pos);
+_g int closurep_function(addr pos);
 
 #endif
 

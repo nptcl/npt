@@ -11,6 +11,7 @@
 #include "random_state.h"
 #include "ratio.h"
 #include "real.h"
+#include "strvect.h"
 #include "type_copy.h"
 
 typedef void (*copyhard_calltype)(LocalRoot local, addr *ret, addr pos);
@@ -26,7 +27,7 @@ static copylocal_calltype TableCopySoft[LISPTYPE_SIZE];
  */
 static void copyhard_error(LocalRoot local, addr *ret, addr pos)
 {
-	fmte("copy error", NULL);
+	_fmte("copy error", NULL);
 }
 
 static void copyhard_moveonly(LocalRoot local, addr *ret, addr pos)
@@ -122,7 +123,7 @@ _g void copyhard_vector(LocalRoot local, addr *ret, addr pos)
 #endif
 
 		default:
-			fmte("size error", NULL);
+			_fmte("size error", NULL);
 			break;
 	}
 }
@@ -297,7 +298,7 @@ _g int copylocalp(LocalRoot local, addr pos)
 static int checklocal_error(LocalRoot local, addr pos)
 {
 	if (copylocalp(local, pos))
-		fmte("checklocal-copyerror", NULL);
+		_fmte("checklocal-copyerror", NULL);
 	return 0;
 }
 
@@ -436,7 +437,7 @@ static void init_checklocal_call(void)
  */
 static void copylocal_error(LocalRoot local, addr *ret, addr pos)
 {
-	fmte("copylocal error", NULL);
+	_fmte("copylocal error", NULL);
 }
 
 static void copylocal_type(LocalRoot local, addr *ret, addr pos)
@@ -520,7 +521,7 @@ static void copylocal_vector(LocalRoot local, addr *ret, addr pos)
 #endif
 
 		default:
-			fmte("size error", NULL);
+			_fmte("size error", NULL);
 			break;
 	}
 }

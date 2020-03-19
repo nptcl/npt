@@ -20,10 +20,11 @@
  *  class-name
  ***********************************************************************/
 /* (defmethod class-name (class) ...) -> symbol */
-static void method_class_name(Execute ptr, addr method, addr next, addr var)
+static int method_class_name(Execute ptr, addr method, addr next, addr var)
 {
 	stdget_class_name(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void method_type_class_name(addr *ret)
@@ -78,11 +79,12 @@ static void defgeneric_class_name(Execute ptr)
  *  (setf class-name)
  ***********************************************************************/
 /* (defmethod (setf class-name) (t class) ...) -> t */
-static void method_setf_class_name(Execute ptr,
+static int method_setf_class_name(Execute ptr,
 		addr method, addr next, addr symbol, addr pos)
 {
 	stdset_class_name(pos, symbol);
 	setresult_control(ptr, symbol);
+	return 0;
 }
 
 static void method_type_setf_class_name(addr *ret)
@@ -151,11 +153,14 @@ static void defgeneric_setf_class_name(Execute ptr)
 /***********************************************************************
  *  class-slots
  ***********************************************************************/
-static void make_slot_definition_call(Execute ptr)
+static int make_slot_definition_call(Execute ptr)
 {
 	addr value;
+
 	getdata_control(ptr, &value);
 	setresult_control(ptr, value);
+
+	return 0;
 }
 
 static void make_slot_definition_function(addr value, addr *ret)
@@ -230,11 +235,13 @@ static void list_from_slot_vector(addr pos, addr *ret)
 }
 
 /* (defmethod class-slots (class) ...) -> t */
-static void method_class_slots(Execute ptr, addr method, addr next, addr var)
+static int method_class_slots(Execute ptr, addr method, addr next, addr var)
 {
 	stdget_class_slots(var, &var);
 	list_from_slot_vector(var, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void defmethod_class_slots(Execute ptr, addr name, addr gen, constindex index)
@@ -277,11 +284,13 @@ static void defgeneric_class_slots(Execute ptr)
  *  class-direct-slots
  ***********************************************************************/
 /* (defmethod class-direct-slots (class) ...) -> t */
-static void method_class_direct_slots(Execute ptr, addr method, addr next, addr var)
+static int method_class_direct_slots(Execute ptr, addr method, addr next, addr var)
 {
 	stdget_class_direct_slots(var, &var);
 	list_from_slot_vector(var, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void defmethod_class_direct_slots(Execute ptr,
@@ -329,10 +338,11 @@ static void defgeneric_class_direct_slots(Execute ptr)
  *  class-default-initargs
  ***********************************************************************/
 /* (defmethod class-default-initargs (class) ...) -> t */
-static void method_class_default_initargs(Execute ptr, addr method, addr next, addr var)
+static int method_class_default_initargs(Execute ptr, addr method, addr next, addr var)
 {
 	stdget_class_default_initargs(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_class_default_initargs(Execute ptr,
@@ -380,11 +390,12 @@ static void defgeneric_class_default_initargs(Execute ptr)
  *  class-direct-default-initargs
  ***********************************************************************/
 /* (defmethod class-direct-default-initargs (class) ...) -> t */
-static void method_class_direct_default_initargs(Execute ptr,
+static int method_class_direct_default_initargs(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_class_direct_default_initargs(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_class_direct_default_initargs(Execute ptr,
@@ -432,11 +443,12 @@ static void defgeneric_class_direct_default_initargs(Execute ptr)
  *  class-precedence-list
  ***********************************************************************/
 /* (defmethod class-precedence-list (class) ...) -> t */
-static void method_class_precedence_list(Execute ptr,
+static int method_class_precedence_list(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_class_precedence_list(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_class_precedence_list(Execute ptr,
@@ -486,11 +498,12 @@ static void defgeneric_class_precedence_list(Execute ptr)
  *  class-direct-superclasses
  ***********************************************************************/
 /* (defmethod class-direct-superclasses (class) ...) -> t */
-static void method_class_direct_superclasses(Execute ptr,
+static int method_class_direct_superclasses(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_class_direct_superclasses(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_class_direct_superclasses(Execute ptr,
@@ -538,11 +551,12 @@ static void defgeneric_class_direct_superclasses(Execute ptr)
  *  class-direct-subclasses
  ***********************************************************************/
 /* (defmethod class-direct-subclasses (class) ...) -> t */
-static void method_class_direct_subclasses(Execute ptr,
+static int method_class_direct_subclasses(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_class_direct_subclasses(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_class_direct_subclasses(Execute ptr,
@@ -590,11 +604,12 @@ static void defgeneric_class_direct_subclasses(Execute ptr)
  *  class-finalized-p
  ***********************************************************************/
 /* (defmethod class-finalized-p (class) ...) -> t */
-static void method_class_finalized_p(Execute ptr,
+static int method_class_finalized_p(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_class_finalized_p(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_class_finalized_p(Execute ptr,
@@ -642,11 +657,12 @@ static void defgeneric_class_finalized_p(Execute ptr)
  *  class-prototype
  ***********************************************************************/
 /* (defmethod class-prototype (class) ...) -> t */
-static void method_class_prototype(Execute ptr,
+static int method_class_prototype(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_class_prototype(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_class_prototype(Execute ptr,
@@ -696,13 +712,15 @@ static void defgeneric_class_prototype(Execute ptr)
 /* (defmethod slot-definition-name
  *     ((inst standard-slot-definition)) ...) -> symbol
  */
-static void method_slot_definition_name(Execute ptr, addr method, addr next, addr var)
+static int method_slot_definition_name(Execute ptr, addr method, addr next, addr var)
 {
 	addr key;
 
 	GetConst(CLOSNAME_NAME, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void method_type_slot_definition_name(addr *ret)
@@ -756,13 +774,15 @@ static void defgeneric_slot_definition_name(Execute ptr)
 /* (defmethod slot-definition-type
  *     ((inst standard-slot-definition)) ...) -> type
  */
-static void method_slot_definition_type(Execute ptr, addr method, addr next, addr var)
+static int method_slot_definition_type(Execute ptr, addr method, addr next, addr var)
 {
 	addr key;
 
 	GetConst(CLOSNAME_TYPE, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void defmethod_slot_definition_type(Execute ptr, addr name, addr gen)
@@ -805,7 +825,7 @@ static void defgeneric_slot_definition_type(Execute ptr)
 /* (defmethod slot-definition-allocation
  *     ((inst standard-slot-definition)) ...) -> symbol
  */
-static void method_slot_definition_allocation(Execute ptr,
+static int method_slot_definition_allocation(Execute ptr,
 		addr method, addr next, addr var)
 {
 	addr key;
@@ -813,6 +833,8 @@ static void method_slot_definition_allocation(Execute ptr,
 	GetConst(CLOSNAME_ALLOCATION, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void method_type_slot_definition_allocation(addr *ret)
@@ -866,7 +888,7 @@ static void defgeneric_slot_definition_allocation(Execute ptr)
 /* (defmethod slot-definition-initargs
  *     ((inst standard-slot-definition)) ...) -> t
  */
-static void method_slot_definition_initargs(Execute ptr,
+static int method_slot_definition_initargs(Execute ptr,
 		addr method, addr next, addr var)
 {
 	addr key;
@@ -874,6 +896,8 @@ static void method_slot_definition_initargs(Execute ptr,
 	GetConst(CLOSNAME_INITARGS, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void defmethod_slot_definition_initargs(Execute ptr, addr name, addr gen)
@@ -916,7 +940,7 @@ static void defgeneric_slot_definition_initargs(Execute ptr)
 /* (defmethod slot-definition-initform
  *     ((inst standard-slot-definition)) ...) -> t
  */
-static void method_slot_definition_initform(Execute ptr,
+static int method_slot_definition_initform(Execute ptr,
 		addr method, addr next, addr var)
 {
 	addr key;
@@ -924,6 +948,8 @@ static void method_slot_definition_initform(Execute ptr,
 	GetConst(CLOSNAME_INITFORM, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void defmethod_slot_definition_initform(Execute ptr, addr name, addr gen)
@@ -966,7 +992,7 @@ static void defgeneric_slot_definition_initform(Execute ptr)
 /* (defmethod slot-definition-initfunction
  *     ((inst standard-slot-definition)) ...) -> t
  */
-static void method_slot_definition_initfunction(Execute ptr,
+static int method_slot_definition_initfunction(Execute ptr,
 		addr method, addr next, addr var)
 {
 	addr key;
@@ -974,6 +1000,8 @@ static void method_slot_definition_initfunction(Execute ptr,
 	GetConst(CLOSNAME_INITFUNCTION, &key);
 	clos_check(var, key, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void defmethod_slot_definition_initfunction(Execute ptr, addr name, addr gen)
@@ -1014,13 +1042,15 @@ static void defgeneric_slot_definition_initfunction(Execute ptr)
  *  generic-function-name
  ***********************************************************************/
 /* (defmethod generic-function-name (clos) ...) -> symbol */
-static void method_generic_function_name(Execute ptr,
+static int method_generic_function_name(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_generic_name(var, &var);
 	if (callnamep(var))
 		name_callname_heap(var, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void defmethod_generic_function_name(Execute ptr, addr name, addr gen)
@@ -1060,7 +1090,7 @@ static void defgeneric_generic_function_name(Execute ptr)
  *  (setf generic-function-name)
  ***********************************************************************/
 /* (defmethod (setf generic-function-name) (t class) ...) -> t */
-static void method_setf_generic_function_name(Execute ptr,
+static int method_setf_generic_function_name(Execute ptr,
 		addr method, addr next, addr var, addr clos)
 {
 	addr name;
@@ -1068,6 +1098,8 @@ static void method_setf_generic_function_name(Execute ptr,
 	parse_callname_error(&name, var);
 	stdset_generic_name(clos, name);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void method_type_setf_generic_function_name(addr *ret)
@@ -1137,7 +1169,7 @@ static void defgeneric_setf_generic_function_name(Execute ptr)
  *  generic-function-methods
  ***********************************************************************/
 /* (defmethod generic-function-methods (clos) ...) -> symbol */
-static void method_generic_function_methods(Execute ptr,
+static int method_generic_function_methods(Execute ptr,
 		addr method, addr next, addr var)
 {
 	addr root, list, pos;
@@ -1155,6 +1187,8 @@ static void method_generic_function_methods(Execute ptr,
 	}
 	nreverse_list_unsafe(&root, root);
 	setresult_control(ptr, root);
+
+	return 0;
 }
 
 static void defmethod_generic_function_methods(Execute ptr, addr name, addr gen)
@@ -1193,13 +1227,15 @@ static void defgeneric_generic_function_methods(Execute ptr)
 /***********************************************************************
  *  generic-function-lambda-list
  ***********************************************************************/
-static void method_generic_function_lambda_list(Execute ptr,
+static int method_generic_function_lambda_list(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_generic_lambda_list(var, &var);
 	if (argumentp(var))
 		argument_generic_lambda_heap(&var, var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void defmethod_generic_function_lambda_list(Execute ptr, addr name, addr gen)
@@ -1238,11 +1274,12 @@ static void defgeneric_generic_function_lambda_list(Execute ptr)
 /***********************************************************************
  *  generic-function-argument-precedence-order
  ***********************************************************************/
-static void method_generic_function_argument_precedence_order(Execute ptr,
+static int method_generic_function_argument_precedence_order(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_generic_argument_precedence_order(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_generic_function_argument_precedence_order(Execute ptr,
@@ -1282,11 +1319,12 @@ static void defgeneric_generic_function_argument_precedence_order(Execute ptr)
 /***********************************************************************
  *  generic-function-declarations
  ***********************************************************************/
-static void method_generic_function_declarations(Execute ptr,
+static int method_generic_function_declarations(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_generic_declarations(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_generic_function_declarations(Execute ptr, addr name, addr gen)
@@ -1325,11 +1363,12 @@ static void defgeneric_generic_function_declarations(Execute ptr)
 /***********************************************************************
  *  generic-function-method-class
  ***********************************************************************/
-static void method_generic_function_method_class(Execute ptr,
+static int method_generic_function_method_class(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_generic_method_class(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_generic_function_method_class(Execute ptr, addr name, addr gen)
@@ -1368,13 +1407,15 @@ static void defgeneric_generic_function_method_class(Execute ptr)
 /***********************************************************************
  *  generic-function-method-combination
  ***********************************************************************/
-static void method_generic_function_method_combination(Execute ptr,
+static int method_generic_function_method_combination(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_generic_method_combination(var, &var);
 	if (var == Nil)
 		GetConst(CLOS_COMBINATION_STANDARD, &var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void defmethod_generic_function_method_combination(Execute ptr,
@@ -1414,10 +1455,11 @@ static void defgeneric_generic_function_method_combination(Execute ptr)
 /***********************************************************************
  *  method-function
  ***********************************************************************/
-static void method_method_function(Execute ptr, addr method, addr next, addr var)
+static int method_method_function(Execute ptr, addr method, addr next, addr var)
 {
 	stdget_method_function(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_method_function(Execute ptr, addr name, addr gen)
@@ -1456,11 +1498,12 @@ static void defgeneric_method_function(Execute ptr)
 /***********************************************************************
  *  method-generic-function
  ***********************************************************************/
-static void method_method_generic_function(Execute ptr,
+static int method_method_generic_function(Execute ptr,
 		addr method, addr next, addr var)
 {
 	stdget_method_generic_function(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_method_generic_function(Execute ptr, addr name, addr gen)
@@ -1499,12 +1542,14 @@ static void defgeneric_method_generic_function(Execute ptr)
 /***********************************************************************
  *  method-lambda-list
  ***********************************************************************/
-static void method_method_lambda_list(Execute ptr, addr method, addr next, addr var)
+static int method_method_lambda_list(Execute ptr, addr method, addr next, addr var)
 {
 	stdget_method_lambda_list(var, &var);
 	if (argumentp(var))
 		argument_method_lambda_heap(&var, var);
 	setresult_control(ptr, var);
+
+	return 0;
 }
 
 static void defmethod_method_lambda_list(Execute ptr, addr name, addr gen)
@@ -1543,10 +1588,11 @@ static void defgeneric_method_lambda_list(Execute ptr)
 /***********************************************************************
  *  method-specializers
  ***********************************************************************/
-static void method_method_specializers(Execute ptr, addr method, addr next, addr var)
+static int method_method_specializers(Execute ptr, addr method, addr next, addr var)
 {
 	stdget_method_specializers(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_method_specializers(Execute ptr, addr name, addr gen)
@@ -1585,10 +1631,11 @@ static void defgeneric_method_specializers(Execute ptr)
 /***********************************************************************
  *  method-qualifiers
  ***********************************************************************/
-static void method_method_qualifiers(Execute ptr, addr method, addr next, addr var)
+static int method_method_qualifiers(Execute ptr, addr method, addr next, addr var)
 {
 	stdget_method_qualifiers(var, &var);
 	setresult_control(ptr, var);
+	return 0;
 }
 
 static void defmethod_method_qualifiers(Execute ptr, addr name, addr gen)
@@ -1627,10 +1674,11 @@ static void defgeneric_method_qualifiers(Execute ptr)
 /***********************************************************************
  *  accessor-method-slot-definition
  ***********************************************************************/
-static void method_accessor_method_slot_definition(Execute ptr,
+static int method_accessor_method_slot_definition(Execute ptr,
 		addr method, addr next, addr var)
 {
-	fmte("There is no accessor-method in ~S.", NULL);
+	_fmte("There is no accessor-method in ~S.", NULL);
+	return 0;
 }
 
 static void defmethod_accessor_method_slot_definition(Execute ptr, addr name, addr gen)

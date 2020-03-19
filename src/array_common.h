@@ -2,6 +2,7 @@
 #define __ARRAY_COMMON_HEADER__
 
 #include "local.h"
+#include "execute.h"
 #include "typedef.h"
 
 _g void make_array_common(Execute ptr, addr var, addr rest, addr *ret);

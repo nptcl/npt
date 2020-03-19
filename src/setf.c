@@ -20,7 +20,7 @@ static int setf_atom(addr pos)
  *  setf-values
  *  (define-setf-expander values (&rest form &environment env) ...)
  */
-_g void function_setf_values(Execute ptr, addr form, addr env)
+_g int function_setf_values(Execute ptr, addr form, addr env)
 {
 	addr args, a, b, g, w, r, v, car, cdr, values;
 	addr a1, b1, g1, w1, r1;
@@ -29,8 +29,7 @@ _g void function_setf_values(Execute ptr, addr form, addr env)
 	a = b = g = w = r = Nil;
 	while (args != Nil) {
 		getcons(args, &v, &args);
-		if (get_setf_expansion(ptr, v, env, &a1, &b1, &g1, &w1, &r1))
-			return;
+		Return(get_setf_expansion(ptr, v, env, &a1, &b1, &g1, &w1, &r1));
 		/* vars */
 		while (a1 != Nil) {
 			getcons(a1, &v, &a1);
@@ -67,6 +66,8 @@ _g void function_setf_values(Execute ptr, addr form, addr env)
 	cons_heap(&w, values, w);
 	cons_heap(&r, values, r);
 	setvalues_control(ptr, a, b, g, w, r, NULL);
+
+	return 0;
 }
 
 
@@ -82,7 +83,7 @@ _g void function_setf_values(Execute ptr, addr form, addr env)
  *      g1)
  *    (getf x g2)
  */
-_g void function_setf_getf(Execute ptr, addr form, addr env)
+_g int function_setf_getf(Execute ptr, addr form, addr env)
 {
 	addr args, place, indicator, value;
 	addr a, b, g, w, r, g1, g2, g3, g4;
@@ -104,8 +105,7 @@ _g void function_setf_getf(Execute ptr, addr form, addr env)
 	}
 
 	/* expander */
-	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
-		return;
+	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
 	make_gensym(ptr, &g1);  /* store */
 	make_gensym(ptr, &g2);  /* indicator */
 	getcar(g, &g3);			/* temporary */
@@ -132,11 +132,12 @@ _g void function_setf_getf(Execute ptr, addr form, addr env)
 	list_heap(&r, getf, place, g2, NULL);
 	/* result */
 	setvalues_control(ptr, a, b, g, w, r, NULL);
-	return;
+	return 0;
 
 error:
-	fmte("(setf getf) argument ~S must be "
+	_fmte("(setf getf) argument ~S must be "
 			"(place indicator &optional default) form.", form, NULL);
+	return 0;
 }
 
 
@@ -223,7 +224,7 @@ static int setf_expander(Execute ptr, addr call, addr form, addr env,
 	push_close_control(ptr, &control);
 	/* code */
 	if (funcall_control(ptr, call, form, env, NULL)) {
-		Return1(runcode_free_control(ptr, control));
+		Return(runcode_free_control(ptr, control));
 	}
 	else {
 		getvalues_nil_control(ptr, 0, vars);
@@ -236,7 +237,7 @@ static int setf_expander(Execute ptr, addr call, addr form, addr env,
 		localhold_set(hold, 2, *store);
 		localhold_set(hold, 3, *writer);
 		localhold_set(hold, 4, *reader);
-		Return1(free_control(ptr, control));
+		Return(free_control(ptr, control));
 	}
 	localhold_end(hold);
 
@@ -277,7 +278,7 @@ _g int get_setf_expansion(Execute ptr, addr form, addr env,
 	return 0;
 
 error:
-	fmte("The form ~S is not setf place.", form, NULL);
+	_fmte("The form ~S is not setf place.", form, NULL);
 	return 1;
 }
 

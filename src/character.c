@@ -1,93 +1,231 @@
-#include <errno.h>
+#include "build.h"
 #include "character.h"
+#include "character_name.h"
+#include "condition.h"
 #include "constant.h"
-#include "hashtable.h"
+#include "heap.h"
+#include "memory.h"
 #include "strtype.h"
-#include "symbol.h"
 
 /*
- *  character check
+ *  character
  */
-_g int isbasechar(unicode x)
+_g addr make_character_allocr(LocalRoot local, unicode value)
 {
-	return isBaseChar(x);
+	addr pos;
+	alloc_body2(local, &pos, LISPTYPE_CHARACTER, sizeoft(unicode));
+	setcharacter_unsafe(pos, value);
+	return pos;
 }
 
-_g int isuppercase(unicode x)
+_g addr character_localr(LocalRoot local, unicode value)
 {
-	return isUpperCase(x);
+	Check(local == NULL, "local error");
+	return make_character_allocr(local, value);
 }
-
-_g int islowercase(unicode x)
+_g addr character_heapr(unicode value)
 {
-	return isLowerCase(x);
+	addr cache, pos;
+
+	if (value < LISP_CHARACTER_CACHE) {
+		GetConst(CHARACTER_CACHE, &cache);
+		Check(cache == Unbound, "Unbound error, (build_character).");
+		GetArrayA4(cache, (size_t)value, &pos);
+		if (pos != Nil) return pos;
+		pos = make_character_allocr(NULL, value);
+		SetArrayA4(cache, (size_t)value, pos);
+		return pos;
+	}
+	return make_character_allocr(NULL, value);
 }
-
-_g int isdigitcase(unicode x)
+_g addr character_allocr(LocalRoot local, unicode value)
 {
-	return isDigitCase(x);
-}
-
-_g int isalphabetic(unicode x)
-{
-	return isAlphabetic(x);
-}
-
-_g int isalphanumeric(unicode x)
-{
-	return isAlphanumeric(x);
-}
-
-_g int isgraphunicode(unicode x)
-{
-	if (x < 0x80)
-		return _isGraphUnicode(x);
+	if (local)
+		return character_localr(local, value);
 	else
-		return isBaseType(x);
+		return character_heapr(value);
 }
 
-_g int isspaceunicode(unicode x)
+_g void character_alloc(LocalRoot local, addr *ret, unicode value)
 {
-	return isSpaceUnicode(x);
+	*ret = character_allocr(local, value);
+}
+_g void character_local(LocalRoot local, addr *ret, unicode value)
+{
+	*ret = character_localr(local, value);
+}
+_g void character_heap(addr *ret, unicode value)
+{
+	*ret = character_heapr(value);
 }
 
-_g unicode toupperunicode(unicode x)
+_g const unicode *ptrcharacter(addr pos)
 {
-	return toUpperUnicode(x);
+	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
+	return PtrCharacter_Low(pos);
 }
 
-_g unicode tolowerunicode(unicode x)
+_g unicode refcharacter(addr pos)
 {
-	return toLowerUnicode(x);
+	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
+	return RefCharacter_Low(pos);
 }
 
-
-/*
- *  character type
- */
-_g int issurrogatepair(unicode x)
+_g void getcharacter(addr pos, unicode *value)
 {
-	return isSurrogatePair(x);
+	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter_Low(pos, value);
 }
 
-_g int isbaserange(unicode x)
+_g enum CHARACTER_TYPE character_type(unicode u)
 {
-	return isBaseRange(x);
+	if (isStandardType(u))
+		return CHARACTER_TYPE_STANDARD;
+	if (isBaseType(u))
+		return CHARACTER_TYPE_BASE;
+	if (isExtendedType(u))
+		return CHARACTER_TYPE_EXTENDED;
+
+	return CHARACTER_TYPE_INVALID;
 }
 
-_g int isstandardtype(unicode x)
+_g void setcharacter_unsafe(addr pos, unicode value)
 {
-	return isStandardType(x);
+	enum CHARACTER_TYPE type;
+
+	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
+	Check(GetStatusReadOnly(pos), "readonly error");
+	type = character_type(value);
+	if (type == CHARACTER_TYPE_INVALID)
+		_fmte("Invaild character code.", NULL);
+	SetCharacterType(pos, type);
+	SetCharacter_Low(pos, value);
 }
 
-_g int isbasetype(unicode x)
+_g int standard_char_p(addr pos)
 {
-	return isBaseType(x);
+	return GetType(pos) == LISPTYPE_CHARACTER && isstandardtype(RefCharacter(pos));
 }
 
-_g int isextendedtype(unicode x)
+_g int base_char_p(addr pos)
 {
-	return isExtendedType(x);
+	return GetType(pos) == LISPTYPE_CHARACTER && isbasetype(RefCharacter(pos));
+}
+
+_g int extended_char_p(addr pos)
+{
+	return GetType(pos) == LISPTYPE_CHARACTER && isextendedtype(RefCharacter(pos));
+}
+
+_g int characterp(addr pos)
+{
+	return GetType(pos) == LISPTYPE_CHARACTER;
+}
+
+_g int unicode_equalp(unicode left, unicode right)
+{
+	return toUpperUnicode(left) == toUpperUnicode(right);
+}
+
+#define ReturnCompare(a, b) { \
+	if ((a) < (b)) return -1; \
+	if ((a) > (b)) return 1; \
+	return 0; \
+}
+
+_g int unicode_comparep(unicode left, unicode right)
+{
+	left = toUpperUnicode(left);
+	right = toUpperUnicode(right);
+	ReturnCompare(left, right);
+}
+
+_g int character_equal(addr left, addr right)
+{
+	unicode a, b;
+
+	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
+	Check(GetType(right) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter_Low(left, &a);
+	GetCharacter_Low(right, &b);
+
+	return a == b;
+}
+
+_g int character_equalp(addr left, addr right)
+{
+	unicode a, b;
+
+	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
+	Check(GetType(right) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter_Low(left, &a);
+	GetCharacter_Low(right, &b);
+
+	return toUpperUnicode(a) == toUpperUnicode(b);
+}
+
+_g int character_compare(addr left, addr right)
+{
+	unicode a, b;
+
+	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
+	Check(GetType(right) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter_Low(left, &a);
+	GetCharacter_Low(right, &b);
+	ReturnCompare(a, b);
+}
+
+_g int character_comparep(addr left, addr right)
+{
+	unicode a, b;
+
+	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
+	Check(GetType(right) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter_Low(left, &a);
+	GetCharacter_Low(right, &b);
+	a = toUpperUnicode(a);
+	b = toUpperUnicode(b);
+	ReturnCompare(a, b);
+}
+
+_g int character_unicode_equal(addr left, unicode right)
+{
+	unicode u;
+
+	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter_Low(left, &u);
+
+	return u == right;
+}
+
+_g int character_unicode_equalp(addr left, unicode right)
+{
+	unicode u;
+
+	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter_Low(left, &u);
+
+	return toUpperUnicode(u) == toUpperUnicode(right);
+}
+
+_g int character_unicode_compare(addr left, unicode right)
+{
+	unicode u;
+
+	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter_Low(left, &u);
+	ReturnCompare(u, right);
+}
+
+_g int character_unicode_comparep(addr left, unicode right)
+{
+	unicode u;
+
+	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
+	GetCharacter_Low(left, &u);
+	u = toUpperUnicode(u);
+	right = toUpperUnicode(right);
+	ReturnCompare(u, right);
 }
 
 
@@ -106,6 +244,52 @@ _g int character_equalp_unicode(addr left, unicode right)
 	GetCharacter(left, &u);
 	return toUpperUnicode(u) == toUpperUnicode(right);
 }
+
+
+/* character2 */
+#define PtrCharacter2(x) ((unicode *)PtrBodyB2(x))
+_g void character2_heap(addr *ret, unicode a, unicode b)
+{
+	addr pos;
+	unicode *ptr;
+
+	heap_body2(&pos, LISPSYSTEM_CHARACTER2, sizeoft(unicode) * 2);
+	ptr = PtrCharacter2(pos);
+	ptr[0] = a;
+	ptr[1] = b;
+	*ret = pos;
+}
+
+_g unicode refcharacter2a(addr pos)
+{
+	return PtrCharacter2(pos)[0];
+}
+
+_g unicode refcharacter2b(addr pos)
+{
+	return PtrCharacter2(pos)[1];
+}
+
+_g void getcharacter2a(addr pos, unicode *ret)
+{
+	*ret = PtrCharacter2(pos)[0];
+}
+
+_g void getcharacter2b(addr pos, unicode *ret)
+{
+	*ret = PtrCharacter2(pos)[1];
+}
+
+_g void setcharacter2a(addr pos, unicode value)
+{
+	PtrCharacter2(pos)[0] = value;
+}
+
+_g void setcharacter2b(addr pos, unicode value)
+{
+	PtrCharacter2(pos)[1] = value;
+}
+
 
 _g int character2_equal_unicode(addr left, unicode a, unicode b)
 {
@@ -136,132 +320,13 @@ static void build_character_cache(void)
 	addr pos;
 
 	/* character cache */
-	heap_array4(&pos, LISPSYSTEM_CHARACTER_CACHE, CHARACTER_CACHE);
+	heap_array4(&pos, LISPSYSTEM_CHARACTER_CACHE, LISP_CHARACTER_CACHE);
 	SetConst(CHARACTER_CACHE, pos);
-}
-
-static void defnametable(addr getname, addr getchar, unicode u, const char *name)
-{
-	addr pos, string, cons;
-
-	character_heap(&pos, u);
-	strvect_char_heap(&string, name);
-	if (intern_hashheap(getname, pos, &cons) == 0) {
-		/* not found */
-		SetCdr(cons, string);
-	}
-	if (intern_hashheap(getchar, string, &cons) == 0) {
-		/* not found */
-		SetCdr(cons, pos);
-	}
-}
-
-static void build_character_name(void)
-{
-	addr getname, getchar;
-
-	hashtable_heap(&getname);
-	hashtable_heap(&getchar);
-	settest_hashtable(getname, HASHTABLE_TEST_EQL);
-	settest_hashtable(getchar, HASHTABLE_TEST_EQUALP);
-	defnametable(getname, getchar, 0x07, "Bell");
-	defnametable(getname, getchar, 0x08, "Backspace");
-	defnametable(getname, getchar, 0x09, "Tab");
-	defnametable(getname, getchar, 0x0A, "Newline");
-	defnametable(getname, getchar, 0x0A, "Linefeed");
-	defnametable(getname, getchar, 0x0C, "Page");
-	defnametable(getname, getchar, 0x0D, "Return");
-	defnametable(getname, getchar, 0x20, "Space");
-	defnametable(getname, getchar, 0x7F, "Rubout");
-	Root(LISPINDEX_CHAR_NAME) = getname;
-	Root(LISPINDEX_NAME_CHAR) = getchar;
 }
 
 _g void build_character(void)
 {
 	build_character_cache();
 	build_character_name();
-}
-
-_g int findtable_unicode_name(addr *ret, unicode u)
-{
-	addr table;
-
-	table = Root(LISPINDEX_CHAR_NAME);
-	return findvalue_unicode_hashtable(table, u, ret);
-}
-
-_g int findtable_char_name(addr *ret, addr pos)
-{
-	Check(GetType(pos) != LISPTYPE_CHARACTER, "type error");
-	return findtable_unicode_name(ret, RefCharacter(pos));
-}
-
-_g int findtable_name_char(addr *ret, addr name)
-{
-	addr table;
-
-	Check(! stringp(name), "type error");
-	table = Root(LISPINDEX_NAME_CHAR);
-	return findvalue_hashtable(table, name, ret);
-}
-
-static int unicode_code_p(unicode c)
-{
-	return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F');
-}
-
-static int unicode_code(addr name, size_t size, unicode *ret)
-{
-	char buffer[16];
-	unsigned long ul;
-	unicode u;
-	size_t i, k;
-
-	if (size < 2) return 1;
-	string_getc(name, 0, &u);
-	if (toUpperUnicode(u) != 'U') return 1;
-	if (12 < size) return 1;
-	for (k = 0, i = 1; i < size; i++) {
-		string_getc(name, i, &u);
-		if (! unicode_code_p(u)) return 1;
-		buffer[k++] = (char)u;
-	}
-	buffer[k] = 0;
-	errno = 0;
-	ul = strtoul(buffer, NULL, 16);
-	if (errno == ERANGE) return 1;
-	if (0xFFFFFFFFUL < ul) return 1;
-	*ret = (unicode)(0xFFFFFFFFUL & ul);
-
-	return 0;
-}
-
-_g int find_name_char(addr *ret, addr name)
-{
-	unicode u;
-	size_t size;
-
-	if (symbolp(name)) {
-		GetNameSymbol(name, &name);
-	}
-	Check(! stringp(name), "type error");
-	string_length(name, &size);
-	if (size == 0) {
-		return 0;
-	}
-	if (size == 1) {
-		/* form #\a */
-		string_getc(name, 0, &u);
-		character_heap(ret, u);
-		return 1;
-	}
-	if (! unicode_code(name, size, &u)) {
-		/* for #\u123 */
-		character_heap(ret, u);
-		return 1;
-	}
-
-	return findtable_name_char(ret, name);
 }
 

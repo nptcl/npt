@@ -21,6 +21,7 @@
 #include "stream_broadcast.h"
 #include "stream_echo.h"
 #include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 
 /*
@@ -42,7 +43,7 @@ static int list_all_packages_sort(Execute ptr, addr *ret)
 	getfunctioncheck_local(ptr, call, &call);
 	localhold_push(hold, call);
 	/* sort */
-	Return1(quick_sort_sequence(ptr, list, call, key));
+	Return(quick_sort_sequence(ptr, list, call, key));
 	localhold_end(hold);
 	*ret = list;
 
@@ -101,7 +102,7 @@ static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
 	getfunctioncheck_local(ptr, call, &call);
 	localhold_push(hold, call);
 	/* sort */
-	Return1(quick_sort_sequence(ptr, list, call, key));
+	Return(quick_sort_sequence(ptr, list, call, key));
 	localhold_end(hold);
 	*ret = list;
 
@@ -119,12 +120,12 @@ _g int apropos_list_common(Execute ptr, addr var, addr package, addr *ret)
 
 	/* list-all-packages */
 	hold = LocalHold_array(ptr, 1);
-	Return1(list_all_packages_sort(ptr, &list));
+	Return(list_all_packages_sort(ptr, &list));
 	localhold_push(hold, list);
 	root = Nil;
 	while (list != Nil) {
 		GetCons(list, &package, &list);
-		Return1(apropos_symbol_common(ptr, var, package, &x));
+		Return(apropos_symbol_common(ptr, var, package, &x));
 		while (x != Nil) {
 			GetCons(x, &y, &x);
 			pushnew_heap(root, y, &root);
@@ -146,7 +147,7 @@ _g int apropos_common(Execute ptr, addr var, addr package)
 	addr stream, list, name;
 
 	standard_output_stream(ptr, &stream);
-	Return1(apropos_list_common(ptr, var, package, &list));
+	Return(apropos_list_common(ptr, var, package, &list));
 	fresh_line_stream(stream);
 	while (list != Nil) {
 		GetCons(list, &var, &list);
@@ -250,7 +251,7 @@ _g void time_common(addr form, addr env, addr *ret)
 	return;
 
 error:
-	fmte("Macro TIME ~S must be a (time form).", form, NULL);
+	_fmte("Macro TIME ~S must be a (time form).", form, NULL);
 	*ret = Nil;
 }
 
@@ -329,7 +330,7 @@ _g void room_common(Execute ptr, addr var)
 	}
 
 	/* error */
-	fmte("Invalid ROOM argument ~S.", var, NULL);
+	_fmte("Invalid ROOM argument ~S.", var, NULL);
 }
 
 
@@ -378,7 +379,7 @@ static void ed_function_lambda(addr symbol, addr *ret)
 	return;
 
 error:
-	fmte("Cannot edit ~S function.", symbol, NULL);
+	_fmte("Cannot edit ~S function.", symbol, NULL);
 	*ret = Nil;
 }
 
@@ -421,9 +422,9 @@ static int ed_function_common(Execute ptr, addr symbol)
 
 	ed_function_lambda(symbol, &lambda);
 	ed_function_name(ptr, &file);
-	Return1(ed_function_write(ptr, file, lambda));
-	Return1(ed_file_common(ptr, file));
-	Return1(eval_load(ptr, &result, file, Unbound, Unbound, 1, Unbound));
+	Return(ed_function_write(ptr, file, lambda));
+	Return(ed_file_common(ptr, file));
+	Return(eval_load(ptr, &result, file, Unbound, Unbound, 1, Unbound));
 
 	return 0;
 }
@@ -452,7 +453,7 @@ static void dribble_message_begin(Execute ptr, addr file)
 	pathname_designer_heap(ptr, file, &name);
 	standard_output_stream(ptr, &stream);
 	str = "~&;; DRIBBLE begin to write ~S.~%";
-	Return0(format_stream(ptr, stream, str, name, NULL));
+	Error(format_stream(ptr, stream, str, name, NULL));
 }
 
 static void dribble_message_end(Execute ptr, addr file)
@@ -463,7 +464,7 @@ static void dribble_message_end(Execute ptr, addr file)
 	pathname_designer_heap(ptr, file, &name);
 	standard_output_stream(ptr, &stream);
 	str = "~&;; DRIBBLE end to write ~S.~%";
-	Return0(format_stream(ptr, stream, str, name, NULL));
+	Error(format_stream(ptr, stream, str, name, NULL));
 }
 
 static void dribble_set_stream(addr file)
@@ -536,7 +537,7 @@ static void dribble_open(Execute ptr, addr file)
 	GetValueSymbol(check, &check);
 	if (check != Unbound) {
 		pathname_designer_heap(ptr, check, &check);
-		fmtw("DRIBBLE already open file ~S.", check, NULL);
+		_fmtw("DRIBBLE already open file ~S.", check, NULL);
 	}
 	else {
 		dribble_open_file(ptr, file);

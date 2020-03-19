@@ -18,6 +18,7 @@
 #include "object.h"
 #include "pathname.h"
 #include "typedef.h"
+#include "unicode.h"
 
 #define create_chmod_644 (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 

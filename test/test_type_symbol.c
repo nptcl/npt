@@ -14,10 +14,11 @@
 #include "syscall.h"
 #include "type.h"
 
-static void test_find_symbol_type_call(Execute ptr, addr args)
+static int test_find_symbol_type_call(Execute ptr, addr args)
 {
 	GetConst(COMMON_FIXNUM, &args);
 	setresult_control(ptr, args);
+	return 0;
 }
 
 static int test_find_symbol_type(void)

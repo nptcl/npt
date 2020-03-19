@@ -1036,7 +1036,7 @@ _g void ldb_common(LocalRoot local, addr *ret, addr spec, addr pos)
  *                        ,w)
  *                r))))
  */
-_g void function_setf_ldb(Execute ptr, addr form, addr env)
+_g int function_setf_ldb(Execute ptr, addr form, addr env)
 {
 	addr args, spec, place, ra, rb, rg, rw, rr, a, b, g, w, r, v;
 	addr prog1, setq, dpb;
@@ -1048,8 +1048,7 @@ _g void function_setf_ldb(Execute ptr, addr form, addr env)
 	GetCons(args, &place, &args);
 	if (args != Nil) goto error;
 
-	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
-		return;
+	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
 	GetConst(COMMON_PROG1, &prog1);
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(COMMON_DPB, &dpb);
@@ -1063,10 +1062,11 @@ _g void function_setf_ldb(Execute ptr, addr form, addr env)
 	list_heap(&rw, prog1, v, setq, w, NULL);
 	rr = r;
 	setvalues_control(ptr, ra, rb, rg, rw, rr, NULL);
-	return;
+	return 0;
 
 error:
-	fmte("SETF-LDB form ~S must be a (byte-space place) form.", form, NULL);
+	_fmte("SETF-LDB form ~S must be a (byte-space place) form.", form, NULL);
+	return 0;
 }
 
 
@@ -1181,7 +1181,7 @@ _g void mask_field_common(LocalRoot local, addr *ret, addr spec, addr pos)
  *                        ,w)
  *                r))))
  */
-_g void function_setf_mask_field(Execute ptr, addr form, addr env)
+_g int function_setf_mask_field(Execute ptr, addr form, addr env)
 {
 	addr args, spec, place, ra, rb, rg, rw, rr, a, b, g, w, r, v;
 	addr prog1, setq, deposit;
@@ -1193,8 +1193,7 @@ _g void function_setf_mask_field(Execute ptr, addr form, addr env)
 	GetCons(args, &place, &args);
 	if (args != Nil) goto error;
 
-	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
-		return;
+	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
 	GetConst(COMMON_PROG1, &prog1);
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(COMMON_DEPOSIT_FIELD, &deposit);
@@ -1208,9 +1207,10 @@ _g void function_setf_mask_field(Execute ptr, addr form, addr env)
 	list_heap(&rw, prog1, v, setq, w, NULL);
 	rr = r;
 	setvalues_control(ptr, ra, rb, rg, rw, rr, NULL);
-	return;
+	return 0;
 
 error:
-	fmte("SETF-DEPOSIT-FIELD form ~S must be a (byte-space place) form.", form, NULL);
+	_fmte("SETF-DEPOSIT-FIELD form ~S must be a (byte-space place) form.", form, NULL);
+	return 0;
 }
 

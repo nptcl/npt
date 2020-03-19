@@ -17,12 +17,12 @@ static int test_begin_code(void)
 	}
 	else {
 		test(result == LISPCODE_SUCCESS, "begin_code1");
-		test(GetPropertyExecute(ptr, LISPPROP_JUMP), "begin_code2");
+		test(ptr->jump, "begin_code2");
 		finish = 2;
 		end_code(ptr);
 	}
 	test(finish == 2, "begin_code3");
-	test(GetPropertyExecute(ptr, LISPPROP_JUMP) == 0, "begin_code4");
+	test(ptr->jump == 0, "begin_code4");
 	free_execute();
 
 	RETURN;

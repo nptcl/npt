@@ -21,7 +21,7 @@
 #include "object.h"
 #include "optimize_common.h"
 #include "package.h"
-#include "restart.h"
+#include "restart_value.h"
 #include "sequence.h"
 #include "symbol.h"
 #include "type_typep.h"
@@ -35,115 +35,133 @@
  *  system
  */
 /* ARGSUSED0 */
-static void hello_code(Execute ptr, addr right)
+static int hello_code(Execute ptr, addr right)
 {
 	info("Hello code.");
+	return 0;
 }
 
 /* ARGSUSED0 */
-static void nop_code(Execute ptr, addr right)
+static int nop_code(Execute ptr, addr right)
 {
 	/* do nothing */
+	return 0;
 }
 
 /* ARGSUSED0 */
-static void abort_code(Execute ptr, addr right)
+static int abort_code(Execute ptr, addr right)
 {
 	Abort("abort-code");
+	return 0;
 }
 
 /* ARGSUSED0 */
-static void error_code(Execute ptr, addr right)
+static int error_code(Execute ptr, addr right)
 {
-	fmte("error-code", NULL);
+	_fmte("error-code", NULL);
+	return 0;
 }
 
-static void info_code(Execute ptr, addr right)
+static int info_code(Execute ptr, addr right)
 {
 	GetCar(right, &right);
 	infobit(right);
+	return 0;
 }
 
-static void print_code(Execute ptr, addr right)
+static int print_code(Execute ptr, addr right)
 {
 	GetCar(right, &right);
 	infoprint(right);
+	return 0;
 }
 
 /* ARGSUSED0 */
-static void end_operator_code(Execute ptr, addr right)
+static int end_operator_code(Execute ptr, addr right)
 {
 	ptr->signal = ExecuteControl_End;
+	return 0;
 }
 
-static void execute_code(Execute ptr, addr right)
+static int execute_code(Execute ptr, addr right)
 {
 	runcode_control(ptr, right);
+	return 0;
 }
 
 
 /*
  *  object
  */
-static void set_code(Execute ptr, addr right)
+static int set_code(Execute ptr, addr right)
 {
 	setresult_control(ptr, right);
+	return 0;
 }
 
-static void push_code(Execute ptr, addr right)
+static int push_code(Execute ptr, addr right)
 {
 	pushargs_control(ptr, right);
+	return 0;
 }
 
-static void push_result_code(Execute ptr, addr right)
+static int push_result_code(Execute ptr, addr right)
 {
 	getresult_control(ptr, &right);
 	pushargs_control(ptr, right);
+	return 0;
 }
 
-static void push_values_code(Execute ptr, addr right)
+static int push_values_code(Execute ptr, addr right)
 {
 	pushargs_allvalues(ptr);
+	return 0;
 }
 
-static void nil_set_code(Execute ptr, addr right)
+static int nil_set_code(Execute ptr, addr right)
 {
 	setresult_control(ptr, Nil);
+	return 0;
 }
 
-static void nil_push_code(Execute ptr, addr right)
+static int nil_push_code(Execute ptr, addr right)
 {
 	pushargs_control(ptr, Nil);
+	return 0;
 }
 
-static void t_set_code(Execute ptr, addr right)
+static int t_set_code(Execute ptr, addr right)
 {
 	setresult_control(ptr, T);
+	return 0;
 }
 
-static void t_push_code(Execute ptr, addr right)
+static int t_push_code(Execute ptr, addr right)
 {
 	pushargs_control(ptr, T);
+	return 0;
 }
 
 
 /*
  *  declaim
  */
-static void declaim_special_code(Execute ptr, addr right)
+static int declaim_special_code(Execute ptr, addr right)
 {
 	setspecial_symbol(right);
+	return 0;
 }
 
-static void declaim_type_value_code(Execute ptr, addr right)
+static int declaim_type_value_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
 	settype_value_symbol(symbol, type);
+	return 0;
 }
 
-static void declaim_type_function_code(Execute ptr, addr right)
+static int declaim_type_function_code(Execute ptr, addr right)
 {
 	addr key, symbol, type;
 
@@ -153,9 +171,11 @@ static void declaim_type_function_code(Execute ptr, addr right)
 		settype_function_symbol(symbol, type);
 	else
 		settype_setf_symbol(symbol, type);
+
+	return 0;
 }
 
-static void declaim_inline_code(Execute ptr, addr right)
+static int declaim_inline_code(Execute ptr, addr right)
 {
 	addr symbol;
 
@@ -164,9 +184,11 @@ static void declaim_inline_code(Execute ptr, addr right)
 		setinline_function_symbol(symbol);
 	else
 		setinline_setf_symbol(symbol);
+
+	return 0;
 }
 
-static void declaim_notinline_code(Execute ptr, addr right)
+static int declaim_notinline_code(Execute ptr, addr right)
 {
 	addr symbol;
 
@@ -175,65 +197,79 @@ static void declaim_notinline_code(Execute ptr, addr right)
 		setnotinline_function_symbol(symbol);
 	else
 		setnotinline_setf_symbol(symbol);
+
+	return 0;
 }
 
-static void declaim_compilation_code(Execute ptr, addr right)
+static int declaim_compilation_code(Execute ptr, addr right)
 {
 	apply_compilation_speed_declaim((OptimizeType)RefFixnum(right));
+	return 0;
 }
 
-static void declaim_debug_code(Execute ptr, addr right)
+static int declaim_debug_code(Execute ptr, addr right)
 {
 	apply_debug_declaim((OptimizeType)RefFixnum(right));
+	return 0;
 }
 
-static void declaim_safety_code(Execute ptr, addr right)
+static int declaim_safety_code(Execute ptr, addr right)
 {
 	apply_safety_declaim((OptimizeType)RefFixnum(right));
+	return 0;
 }
 
-static void declaim_space_code(Execute ptr, addr right)
+static int declaim_space_code(Execute ptr, addr right)
 {
 	apply_space_declaim((OptimizeType)RefFixnum(right));
+	return 0;
 }
 
-static void declaim_speed_code(Execute ptr, addr right)
+static int declaim_speed_code(Execute ptr, addr right)
 {
 	apply_speed_declaim((OptimizeType)RefFixnum(right));
+	return 0;
 }
 
-static void declaim_declaration_code(Execute ptr, addr right)
+static int declaim_declaration_code(Execute ptr, addr right)
 {
 	push_declaration_declaim(right);
+	return 0;
 }
 
 
 /*
  *  local
  */
-static void local_alloc_code(Execute ptr, addr right)
+static int local_alloc_code(Execute ptr, addr right)
 {
 	array_data_control(ptr, RefIndex(right));
+	return 0;
 }
 
-static void local_result_code(Execute ptr, addr right)
+static int local_result_code(Execute ptr, addr right)
 {
 	addr value;
+
 	getresult_control(ptr, &value);
 	setdata_array_control(ptr, RefIndex(right), value);
+
+	return 0;
 }
 
 
 /*
  *  let
  */
-static void let_lexical_code(Execute ptr, addr right)
+static int let_lexical_code(Execute ptr, addr right)
 {
 	addr symbol, value;
 
 	List_bind(right, &symbol, &value, NULL);
 	getdata_array_control(ptr, RefIndex(value), &value);
 	pushlexical_control(ptr, symbol, value);
+
+	return 0;
 }
 
 static int typep_unbound_error(Execute ptr, addr value, addr type)
@@ -241,310 +277,349 @@ static int typep_unbound_error(Execute ptr, addr value, addr type)
 	return (value == Unbound)? 0: typep_error(ptr, value, type);
 }
 
-static void let_lexical_type_code(Execute ptr, addr right)
+static int let_lexical_type_code(Execute ptr, addr right)
 {
 	addr symbol, value, type;
 
 	List_bind(right, &symbol, &value, &type, NULL);
 	getdata_array_control(ptr, RefIndex(value), &value);
-	if (typep_error(ptr, value, type))
-		return;
+	Return(typep_error(ptr, value, type));
 	pushlexical_control(ptr, symbol, value);
+
+	return 0;
 }
 
-static void let_special_code(Execute ptr, addr right)
+static int let_special_code(Execute ptr, addr right)
 {
 	addr symbol, value;
 
 	List_bind(right, &symbol, &value, NULL);
 	getdata_array_control(ptr, RefIndex(value), &value);
 	pushspecial_control(ptr, symbol, value);
+
+	return 0;
 }
 
-static void let_special_type_code(Execute ptr, addr right)
+static int let_special_type_code(Execute ptr, addr right)
 {
 	addr symbol, value, type;
 
 	List_bind(right, &symbol, &value, &type, NULL);
 	getdata_array_control(ptr, RefIndex(value), &value);
-	if (typep_error(ptr, value, type))
-		return;
+	Return(typep_error(ptr, value, type));
 	pushspecial_control(ptr, symbol, value);
+
+	return 0;
 }
 
-static void leta_lexical_code(Execute ptr, addr right)
+static int leta_lexical_code(Execute ptr, addr right)
 {
 	addr value;
 
 	getresult_control(ptr, &value);
 	pushlexical_control(ptr, right, value);
+
+	return 0;
 }
 
-static void leta_lexical_type_code(Execute ptr, addr right)
+static int leta_lexical_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
 	getresult_control(ptr, &right);
-	if (typep_error(ptr, right, type))
-		return;
+	Return(typep_error(ptr, right, type));
 	pushlexical_control(ptr, symbol, right);
+
+	return 0;
 }
 
-static void leta_special_code(Execute ptr, addr right)
+static int leta_special_code(Execute ptr, addr right)
 {
 	addr value;
 
 	getresult_control(ptr, &value);
 	pushspecial_control(ptr, right, value);
+
+	return 0;
 }
 
-static void leta_special_type_code(Execute ptr, addr right)
+static int leta_special_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
 	getresult_control(ptr, &right);
-	if (typep_error(ptr, right, type))
-		return;
+	Return(typep_error(ptr, right, type));
 	pushspecial_control(ptr, symbol, right);
+
+	return 0;
 }
 
 
 /*
  *  symbol
  */
-static void lexical_type_code(Execute ptr, addr right)
+static int lexical_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
 	getlexical_local(ptr, symbol, &right);
-	(void)typep_unbound_error(ptr, right, type);
+	return typep_unbound_error(ptr, right, type);
 }
 
-static void lexical_set_code(Execute ptr, addr right)
+static int lexical_set_code(Execute ptr, addr right)
 {
-	Return0(symbol_lexical_restart(ptr, right, &right));
+	Return(symbol_lexical_restart(ptr, right, &right));
 	setresult_control(ptr, right);
+	return 0;
 }
 
-static void lexical_set_type_code(Execute ptr, addr right)
+static int lexical_set_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
-	Return0(symbol_lexical_restart(ptr, symbol, &right));
+	Return(symbol_lexical_restart(ptr, symbol, &right));
 	setresult_control(ptr, right);
+
+	return 0;
 }
 
-static void lexical_push_code(Execute ptr, addr right)
+static int lexical_push_code(Execute ptr, addr right)
 {
-	Return0(symbol_lexical_restart(ptr, right, &right));
+	Return(symbol_lexical_restart(ptr, right, &right));
 	pushargs_control(ptr, right);
+	return 0;
 }
 
-static void lexical_push_type_code(Execute ptr, addr right)
+static int lexical_push_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
-	Return0(symbol_lexical_restart(ptr, symbol, &right));
+	Return(symbol_lexical_restart(ptr, symbol, &right));
 	pushargs_control(ptr, right);
+
+	return 0;
 }
 
-static void lexical_remove_code(Execute ptr, addr right)
+static int lexical_remove_code(Execute ptr, addr right)
 {
-	Return0(symbol_lexical_restart(ptr, right, &right));
+	return symbol_lexical_restart(ptr, right, &right);
 }
 
-static void special_type_code(Execute ptr, addr right)
+static int special_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
 	getspecial_local(ptr, symbol, &right);
-	(void)typep_unbound_error(ptr, right, type);
+	return typep_unbound_error(ptr, right, type);
 }
 
-static void special_set_code(Execute ptr, addr right)
+static int special_set_code(Execute ptr, addr right)
 {
-	Return0(symbol_special_restart(ptr, right, &right));
+	Return(symbol_special_restart(ptr, right, &right));
 	setresult_control(ptr, right);
+	return 0;
 }
 
-static void special_set_type_code(Execute ptr, addr right)
+static int special_set_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
-	Return0(symbol_special_restart(ptr, symbol, &right));
+	Return(symbol_special_restart(ptr, symbol, &right));
 	setresult_control(ptr, right);
+
+	return 0;
 }
 
-static void special_push_code(Execute ptr, addr right)
+static int special_push_code(Execute ptr, addr right)
 {
-	Return0(symbol_special_restart(ptr, right, &right));
+	Return(symbol_special_restart(ptr, right, &right));
 	pushargs_control(ptr, right);
+	return 0;
 }
 
-static void special_push_type_code(Execute ptr, addr right)
+static int special_push_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
-	Return0(symbol_special_restart(ptr, symbol, &right));
+	Return(symbol_special_restart(ptr, symbol, &right));
 	pushargs_control(ptr, right);
+
+	return 0;
 }
 
-static void special_remove_code(Execute ptr, addr right)
+static int special_remove_code(Execute ptr, addr right)
 {
-	Return0(symbol_special_restart(ptr, right, &right));
+	return symbol_special_restart(ptr, right, &right);
 }
 
 
 /*
  *  setq
  */
-static void check_readonly_variable(addr symbol)
+static int check_readonly_variable(addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
-		fmte("Cannot set value to the constant variable ~S.", symbol, NULL);
+		_fmte("Cannot set value to the constant variable ~S.", symbol, NULL);
+	return 0;
 }
 
-static void setq_lexical_code(Execute ptr, addr right)
+static int setq_lexical_code(Execute ptr, addr right)
 {
 	addr value;
+
 	check_readonly_variable(right);
 	getresult_control(ptr, &value);
 	setlexical_local(ptr, right, value);
+
+	return 0;
 }
 
-static void setq_lexical_type_code(Execute ptr, addr right)
+static int setq_lexical_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
 	check_readonly_variable(symbol);
 	getresult_control(ptr, &right);
-	if (typep_error(ptr, right, type))
-		return;
+	Return(typep_error(ptr, right, type));
 	setlexical_local(ptr, symbol, right);
+
+	return 0;
 }
 
-static void setq_special_code(Execute ptr, addr right)
+static int setq_special_code(Execute ptr, addr right)
 {
 	addr value;
+
 	check_readonly_variable(right);
 	getresult_control(ptr, &value);
 	setspecial_local(ptr, right, value);
+
+	return 0;
 }
 
-static void setq_special_type_code(Execute ptr, addr right)
+static int setq_special_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
 	check_readonly_variable(symbol);
 	getresult_control(ptr, &right);
-	if (typep_error(ptr, right, type))
-		return;
+	Return(typep_error(ptr, right, type));
 	setspecial_local(ptr, symbol, right);
+
+	return 0;
 }
 
 
 /*
  *  function
  */
-static void function_global_type_code(Execute ptr, addr right)
+static int function_global_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
 	GetFunctionSymbol(symbol, &right);
-	(void)typep_unbound_error(ptr, right, type);
+	return typep_unbound_error(ptr, right, type);
 }
 
-static void function_global_set_code(Execute ptr, addr right)
+static int function_global_set_code(Execute ptr, addr right)
 {
-	Return0(function_global_restart(ptr, right, &right));
+	Return(function_global_restart(ptr, right, &right));
 	setresult_control(ptr, right);
+	return 0;
 }
 
-static void function_global_push_code(Execute ptr, addr right)
+static int function_global_push_code(Execute ptr, addr right)
 {
-	Return0(function_global_restart(ptr, right, &right));
+	Return(function_global_restart(ptr, right, &right));
 	pushargs_control(ptr, right);
+	return 0;
 }
 
-static void function_local_type_code(Execute ptr, addr right)
+static int function_local_type_code(Execute ptr, addr right)
 {
 	addr call, type;
 
 	List_bind(right, &call, &type, NULL);
 	getfunction_local(ptr, call, &right);
-	(void)typep_unbound_error(ptr, right, type);
+	return typep_unbound_error(ptr, right, type);
 }
 
-static void function_local_set_code(Execute ptr, addr right)
+static int function_local_set_code(Execute ptr, addr right)
 {
 	getfunctioncheck_local(ptr, right, &right);
 	setresult_control(ptr, right);
+	return 0;
 }
 
-static void function_local_push_code(Execute ptr, addr right)
+static int function_local_push_code(Execute ptr, addr right)
 {
 	getfunctioncheck_local(ptr, right, &right);
 	pushargs_control(ptr, right);
+	return 0;
 }
 
-static void setf_global_type_code(Execute ptr, addr right)
+static int setf_global_type_code(Execute ptr, addr right)
 {
 	addr symbol, type;
 
 	List_bind(right, &symbol, &type, NULL);
 	getsetf_symbol(symbol, &right);
-	(void)typep_unbound_error(ptr, right, type);
+	return typep_unbound_error(ptr, right, type);
 }
 
-static void setf_global_set_code(Execute ptr, addr right)
+static int setf_global_set_code(Execute ptr, addr right)
 {
-	Return0(setf_global_restart(ptr, right, &right));
+	Return(setf_global_restart(ptr, right, &right));
 	setresult_control(ptr, right);
+	return 0;
 }
 
-static void setf_global_push_code(Execute ptr, addr right)
+static int setf_global_push_code(Execute ptr, addr right)
 {
-	Return0(setf_global_restart(ptr, right, &right));
+	Return(setf_global_restart(ptr, right, &right));
 	pushargs_control(ptr, right);
+	return 0;
 }
 
-static void setf_local_type_code(Execute ptr, addr right)
+static int setf_local_type_code(Execute ptr, addr right)
 {
 	addr call, type;
 
 	List_bind(right, &call, &type, NULL);
 	getsetf_local(ptr, call, &right);
-	(void)typep_unbound_error(ptr, right, type);
+	return typep_unbound_error(ptr, right, type);
 }
 
-static void setf_local_set_code(Execute ptr, addr right)
+static int setf_local_set_code(Execute ptr, addr right)
 {
 	getsetfcheck_local(ptr, right, &right);
 	setresult_control(ptr, right);
+	return 0;
 }
 
-static void setf_local_push_code(Execute ptr, addr right)
+static int setf_local_push_code(Execute ptr, addr right)
 {
 	getsetfcheck_local(ptr, right, &right);
 	pushargs_control(ptr, right);
+	return 0;
 }
 
 
 /*
  *  lambda
  */
-static void lambda_code(Execute ptr, addr right)
+static int lambda_code(Execute ptr, addr right)
 {
 	addr name, code, type, doc, form, defun;
 
@@ -556,9 +631,11 @@ static void lambda_code(Execute ptr, addr right)
 	if (defun != Nil)
 		setdefunform_function(code, defun);
 	setresult_control(ptr, code);
+
+	return 0;
 }
 
-static void lambda_self_code(Execute ptr, addr right)
+static int lambda_self_code(Execute ptr, addr right)
 {
 	addr name, code, type, doc, form, defun;
 
@@ -571,45 +648,55 @@ static void lambda_self_code(Execute ptr, addr right)
 		setdefunform_function(code, defun);
 	setrecursive_function(code);
 	setresult_control(ptr, code);
+
+	return 0;
 }
 
-static void lambda_value_code(Execute ptr, addr right)
+static int lambda_value_code(Execute ptr, addr right)
 {
 	addr pos, value;
 
 	getresult_control(ptr, &pos);
 	conslexicalcheck_local(ptr, right, &value);
 	pushclosure_value_function(pos, right, value);
+
+	return 0;
 }
 
-static void lambda_function_code(Execute ptr, addr right)
+static int lambda_function_code(Execute ptr, addr right)
 {
 	addr pos, value;
 
 	getresult_control(ptr, &pos);
 	getcallnamecheck_local(ptr, right, &value);
 	pushclosure_function_function(pos, right, value);
+
+	return 0;
 }
 
-static void lambda_tagbody_code(Execute ptr, addr right)
+static int lambda_tagbody_code(Execute ptr, addr right)
 {
 	addr pos, value;
 
 	getresult_control(ptr, &pos);
 	gettagbody_execute(ptr, &value, right);
 	pushclosure_tagbody_function(pos, right, value);
+
+	return 0;
 }
 
-static void lambda_block_code(Execute ptr, addr right)
+static int lambda_block_code(Execute ptr, addr right)
 {
 	addr pos;
 
 	getresult_control(ptr, &pos);
 	getblock_execute(ptr, &right, right);
 	pushclosure_block_function(pos, right);
+
+	return 0;
 }
 
-static void bind_variable(Execute ptr, addr left, addr right, int ignore)
+static int bind_variable_(Execute ptr, addr left, addr right, int ignore)
 {
 	int specialp;
 	addr type;
@@ -617,8 +704,7 @@ static void bind_variable(Execute ptr, addr left, addr right, int ignore)
 	/* type check */
 	if (! ignore && getcheck_tablevalue(left)) {
 		gettype_tablevalue(left, &type);
-		if (typep_error(ptr, right, type))
-			return;
+		Return(typep_error(ptr, right, type));
 	}
 
 	/* push */
@@ -628,9 +714,11 @@ static void bind_variable(Execute ptr, addr left, addr right, int ignore)
 		pushspecial_control(ptr, left, right);
 	else
 		pushlexical_control(ptr, left, right);
+
+	return 0;
 }
 
-static int bind_initialize(Execute ptr, addr var, addr init)
+static int bind_initialize_(Execute ptr, addr var, addr init)
 {
 	addr control;
 	LocalHold hold;
@@ -643,27 +731,27 @@ static int bind_initialize(Execute ptr, addr var, addr init)
 		return runcode_free_control(ptr, control);
 	getresult_control(ptr, &init);
 	localhold_set(hold, 0, init);
-	if (free_control(ptr, control)) return 1;
+	Return(free_control(ptr, control));
 	localhold_end(hold);
-	bind_variable(ptr, var, init, 0);
-
-	return 0;
+	return bind_variable_(ptr, var, init, 0);
 }
 
-static void lambda_bind_var(Execute ptr, addr cons, addr *args)
+static int lambda_bind_var_(Execute ptr, addr cons, addr *args)
 {
 	addr left, right;
 
 	while (cons != Nil) {
 		if (*args == Nil)
-			fmte("Too few argument.", NULL);
+			_fmte("Too few argument.", NULL);
 		getcons(cons, &left, &cons);
 		getcons(*args, &right, args);
-		bind_variable(ptr, left, right, 0);
+		Return(bind_variable_(ptr, left, right, 0));
 	}
+
+	return 0;
 }
 
-static int lambda_bind_opt(Execute ptr, addr cons, addr *args)
+static int lambda_bind_opt_(Execute ptr, addr cons, addr *args)
 {
 	addr left, right, var, init, svar;
 
@@ -672,45 +760,47 @@ static int lambda_bind_opt(Execute ptr, addr cons, addr *args)
 		List_bind(left, &var, &init, &svar, NULL);
 		if (*args != Nil) {
 			getcons(*args, &right, args);
-			bind_variable(ptr, var, right, 0);
-			if (svar != Nil)
-				bind_variable(ptr, svar, T, 1);
+			Return(bind_variable_(ptr, var, right, 0));
+			if (svar != Nil) {
+				Return(bind_variable_(ptr, svar, T, 1));
+			}
 		}
 		else {
-			if (bind_initialize(ptr, var, init))
-				return 1;
-			if (svar != Nil)
-				bind_variable(ptr, svar, Nil, 1);
+			Return(bind_initialize_(ptr, var, init));
+			if (svar != Nil) {
+				Return(bind_variable_(ptr, svar, Nil, 1));
+			}
 		}
 	}
 
 	return 0;
 }
 
-static void lambda_bind_rest(Execute ptr, addr rest, addr args)
+static int lambda_bind_rest_(Execute ptr, addr rest, addr args)
 {
 	/*copylist_force_heap(args, &args);*/
 	/*copy_list_heap_safe(&args, args);*/
 	copyheap(&args, args);
-	bind_variable(ptr, rest, args, 1);
+	return bind_variable_(ptr, rest, args, 1);
 }
 
-static int find_name_key(addr key, addr cons)
+static int lambda_bind_key_find(addr key, addr list)
 {
 	addr name;
 
-	while (cons != Nil) {
-		getcons(cons, &name, &cons);
+	while (list != Nil) {
+		getcons(list, &name, &list);
 		/* (var name init svar) */
 		getcdr(name, &name);
 		getcar(name, &name);
-		if (key == name) return 1;
+		if (key == name)
+			return 1;
 	}
 
 	return 0;
 }
 
-static int lambda_bind_key(Execute ptr, addr cons, int allow, addr args)
+static int lambda_bind_key_(Execute ptr, addr cons, int allow, addr args)
 {
 	addr left, right, var, name, init, svar, value;
 
@@ -718,14 +808,14 @@ static int lambda_bind_key(Execute ptr, addr cons, int allow, addr args)
 	for (right = args; right != Nil; ) {
 		getcons(right, &left, &right);
 		if (right == Nil)
-			fmte("&key argument after ~S must be a pair form.", left, NULL);
+			_fmte("&key argument after ~S must be a pair form.", left, NULL);
 		if (! symbolp(left))
-			fmte("&key name ~S must be a symbol.", left, NULL);
-		if (! allow && ! find_name_key(left, cons)) {
+			_fmte("&key name ~S must be a symbol.", left, NULL);
+		if (! allow && ! lambda_bind_key_find(left, cons)) {
 			if (find_keyword_allow_other_keys(args))
 				allow = 1;
 			else
-				fmte("&key name ~S don't accept.", left, NULL);
+				_fmte("&key name ~S don't accept.", left, NULL);
 		}
 		getcons(right, &left, &right);
 	}
@@ -735,183 +825,189 @@ static int lambda_bind_key(Execute ptr, addr cons, int allow, addr args)
 		getcons(cons, &right, &cons);
 		List_bind(right, &var, &name, &init, &svar, NULL);
 		if (getplist(args, name, &value) == 0) {
-			bind_variable(ptr, var, value, 0);
-			if (svar != Nil)
-				bind_variable(ptr, svar, T, 1);
+			Return(bind_variable_(ptr, var, value, 0));
+			if (svar != Nil) {
+				Return(bind_variable_(ptr, svar, T, 1));
+			}
 		}
 		else {
-			if (bind_initialize(ptr, var, init))
-				return 1;
-			if (svar != Nil)
-				bind_variable(ptr, svar, Nil, 1);
+			Return(bind_initialize_(ptr, var, init));
+			if (svar != Nil) {
+				Return(bind_variable_(ptr, svar, Nil, 1));
+			}
 		}
 	}
 
 	return 0;
 }
 
-static void lambda_bind_allow(Execute ptr, addr args)
+static int lambda_bind_allow_(Execute ptr, addr args)
 {
 	addr left;
 
 	while (args != Nil) {
 		getcons(args, &left, &args);
 		if (args == Nil)
-			fmte("&key argument after ~S must be a pair form.", left, NULL);
+			_fmte("&key argument after ~S must be a pair form.", left, NULL);
 		if (! symbolp(left))
-			fmte("&key name ~S must be a symbol.", left, NULL);
+			_fmte("&key name ~S must be a symbol.", left, NULL);
 		getcons(args, &left, &args); /* ignore */
 	}
+
+	return 0;
 }
 
-static int lambda_bind_aux(Execute ptr, addr cons)
+static int lambda_bind_aux_(Execute ptr, addr cons)
 {
 	addr list, var, init;
 
 	while (cons != Nil) {
 		getcons(cons, &list, &cons);
 		List_bind(list, &var, &init, NULL);
-		if (bind_initialize(ptr, var, init)) return 1;
+		Return(bind_initialize_(ptr, var, init));
 	}
 
 	return 0;
 }
 
-static int lambda_bind_code_check(Execute ptr, addr right)
+static int lambda_bind_code(Execute ptr, addr right)
 {
 	addr var, opt, rest, key, allow, aux, args;
 
 	List_bind(right, &var, &opt, &rest, &key, &allow, &aux, NULL);
 	getargs_list_control_unsafe(ptr, 0, &args);
-	lambda_bind_var(ptr, var, &args);
-	if (lambda_bind_opt(ptr, opt, &args)) return 1;
-	if (rest != Nil)
-		lambda_bind_rest(ptr, rest, args);
-	else if (key == Nil && allow == Nil && args != Nil)
-		fmte("Too many argument.", NULL);
-	if (key != Nil) {
-		if (lambda_bind_key(ptr, key, allow != Nil, args)) return 1;
+	Return(lambda_bind_var_(ptr, var, &args));
+	Return(lambda_bind_opt_(ptr, opt, &args));
+	if (rest != Nil) {
+		Return(lambda_bind_rest_(ptr, rest, args));
 	}
-	else if (allow != Nil)
-		lambda_bind_allow(ptr, args);
-	if (lambda_bind_aux(ptr, aux)) return 1;
+	else if (key == Nil && allow == Nil && args != Nil) {
+		_fmte("Too many argument.", NULL);
+	}
+	if (key != Nil) {
+		Return(lambda_bind_key_(ptr, key, allow != Nil, args));
+	}
+	else if (allow != Nil) {
+		Return(lambda_bind_allow_(ptr, args));
+	}
+	return lambda_bind_aux_(ptr, aux);
+}
+
+static int macro_bind_whole_(Execute ptr, addr whole, addr form)
+{
+	if (whole != Nil) {
+		copy_list_heap_safe(&form, form);
+		Return(bind_variable_(ptr, whole, form, 1));
+	}
 
 	return 0;
 }
 
-static void lambda_bind_code(Execute ptr, addr right)
+static int macro_bind_env_(Execute ptr, addr env, addr argenv)
 {
-	(void)lambda_bind_code_check(ptr, right);
-}
-
-static void macro_bind_whole(Execute ptr, addr whole, addr form)
-{
-	if (whole != Nil) {
-		copy_list_heap_safe(&form, form);
-		bind_variable(ptr, whole, form, 1);
+	if (env != Nil) {
+		Return(bind_variable_(ptr, env, argenv, 1));
 	}
+	return 0;
 }
 
-static void macro_bind_env(Execute ptr, addr env, addr argenv)
-{
-	if (env != Nil)
-		bind_variable(ptr, env, argenv, 1);
-}
-
-static int macro_bind_list(Execute ptr, addr right, addr args);
-static int macro_bind_var(Execute ptr, addr var, addr *args)
+static int macro_bind_list_(Execute ptr, addr right, addr args);
+static int macro_bind_var_(Execute ptr, addr var, addr *args)
 {
 	addr left, right;
 
 	while (var != Nil) {
 		if (*args == Nil)
-			fmte("Too few argument.", NULL);
+			_fmte("Too few argument.", NULL);
 		getcons(var, &left, &var);
 		getcons(*args, &right, args);
 		if (consp(left)) {
-			if (macro_bind_list(ptr, left, right))
-				return 1;
+			Return(macro_bind_list_(ptr, left, right));
 		}
 		else {
-			bind_variable(ptr, left, right, 0);
+			Return(bind_variable_(ptr, left, right, 0));
 		}
 	}
 
 	return 0;
 }
 
-static void macro_bind_rest(Execute ptr, addr rest, addr args)
+static int macro_bind_rest_(Execute ptr, addr rest, addr args)
 {
 	addr var;
 
 	getcons(rest, &var, &rest);  /* (value . &rest) */
 	copy_list_heap_safe(&args, args);
-	bind_variable(ptr, var, args, 1);
+	return bind_variable_(ptr, var, args, 1);
 }
 
 static int macro_bind_args(Execute ptr, addr args,
 		addr var, addr opt, addr rest, addr key, addr allow, addr aux)
 {
-	if (macro_bind_var(ptr, var, &args)) return 1;
-	if (lambda_bind_opt(ptr, opt, &args)) return 1;
-	if (rest != Nil)
-		macro_bind_rest(ptr, rest, args);
-	else if (key == Nil && allow == Nil && args != Nil)
-		fmte("Too many argument.", NULL);
-	if (key != Nil) {
-		if (lambda_bind_key(ptr, key, allow != Nil, args)) return 1;
+	Return(macro_bind_var_(ptr, var, &args));
+	Return(lambda_bind_opt_(ptr, opt, &args));
+	if (rest != Nil) {
+		Return(macro_bind_rest_(ptr, rest, args));
 	}
-	else if (allow != Nil)
-		lambda_bind_allow(ptr, args);
-	if (lambda_bind_aux(ptr, aux)) return 1;
-
-	return 0;
+	else if (key == Nil && allow == Nil && args != Nil) {
+		_fmte("Too many argument.", NULL);
+	}
+	if (key != Nil) {
+		Return(lambda_bind_key_(ptr, key, allow != Nil, args));
+	}
+	else if (allow != Nil) {
+		Return(lambda_bind_allow_(ptr, args));
+	}
+	return lambda_bind_aux_(ptr, aux);
 }
 
-static int macro_bind_list(Execute ptr, addr right, addr args)
+static int macro_bind_list_(Execute ptr, addr right, addr args)
 {
 	addr var, opt, rest, key, allow, aux, whole, env;
+
 	List_bind(right, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
-	macro_bind_whole(ptr, whole, args);
+	Return(macro_bind_whole_(ptr, whole, args));
+
 	return macro_bind_args(ptr, args, var, opt, rest, key, allow, aux);
 }
 
-static int macro_bind_call(Execute ptr, addr right, addr args, addr argenv)
+static int macro_bind_call_(Execute ptr, addr right, addr args, addr argenv)
 {
 	addr var, opt, rest, key, allow, aux, whole, env;
 
 	List_bind(right, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
-	macro_bind_whole(ptr, whole, args);
+	Return(macro_bind_whole_(ptr, whole, args));
 	getcdr(args, &args);
-	macro_bind_env(ptr, env, argenv);
+	Return(macro_bind_env_(ptr, env, argenv));
+
 	return macro_bind_args(ptr, args, var, opt, rest, key, allow, aux);
 }
 
-static void macro_bind_code(Execute ptr, addr right)
+static int macro_bind_code(Execute ptr, addr right)
 {
 	addr args, form, env;
 
 	getargs_list_control_unsafe(ptr, 0, &args);
 	/* (lambda (form env) ...) */
 	if (! consp(args))
-		fmte("Too few argument in macro function.", NULL);
+		_fmte("Too few argument in macro function.", NULL);
 	getcons(args, &form, &args);
 	if (! consp(args))
-		fmte("Too few argument in macro function.", NULL);
+		_fmte("Too few argument in macro function.", NULL);
 	getcons(args, &env, &args);
 	if (args != Nil)
-		fmte("Too many argument in macro function.", NULL);
-	(void)macro_bind_call(ptr, right, form, env);
+		_fmte("Too many argument in macro function.", NULL);
+	return macro_bind_call_(ptr, right, form, env);
 }
 
-static void destructuring_bind_code(Execute ptr, addr right)
+static int destructuring_bind_code(Execute ptr, addr right)
 {
 	addr args;
 	getargs_control(ptr, 0, &args);
-	(void)macro_bind_list(ptr, right, args);
+	return macro_bind_list_(ptr, right, args);
 }
 
-static void macro_lambda_code(Execute ptr, addr right)
+static int macro_lambda_code(Execute ptr, addr right)
 {
 	addr form, value;
 
@@ -919,18 +1015,22 @@ static void macro_lambda_code(Execute ptr, addr right)
 	macro_heap(&form, Nil, form);
 	setdocumentation_function(form, value);
 	setresult_control(ptr, form);
+
+	return 0;
 }
 
-static void defmacro_code(Execute ptr, addr right)
+static int defmacro_code(Execute ptr, addr right)
 {
 	addr symbol, value;
 
 	List_bind(right, &symbol, &value, NULL);
 	setmacro_symbol(symbol, value);
 	setresult_control(ptr, symbol);
+
+	return 0;
 }
 
-static void deftype_code(Execute ptr, addr right)
+static int deftype_code(Execute ptr, addr right)
 {
 	addr pos, symbol, doc;
 
@@ -939,9 +1039,11 @@ static void deftype_code(Execute ptr, addr right)
 	setdocumentation_function(pos, doc);
 	setdeftype(symbol, pos);
 	setresult_control(ptr, symbol);
+
+	return 0;
 }
 
-static void define_compiler_macro_code(Execute ptr, addr right)
+static int define_compiler_macro_code(Execute ptr, addr right)
 {
 	addr pos, name, doc;
 
@@ -951,9 +1053,11 @@ static void define_compiler_macro_code(Execute ptr, addr right)
 	set_define_compiler_macro(name, pos);
 	name_callname_heap(name, &name);
 	setresult_control(ptr, name);
+
+	return 0;
 }
 
-static void define_symbol_macro_code(Execute ptr, addr right)
+static int define_symbol_macro_code(Execute ptr, addr right)
 {
 	addr symbol, eval, form;
 
@@ -961,9 +1065,11 @@ static void define_symbol_macro_code(Execute ptr, addr right)
 	Check(! symbolp(symbol), "type error");
 	setsymbol_macro_symbol(symbol, eval, form);
 	setresult_control(ptr, symbol);
+
+	return 0;
 }
 
-static void defun_code(Execute ptr, addr right)
+static int defun_code(Execute ptr, addr right)
 {
 	addr pos, call, symbol;
 
@@ -981,101 +1087,112 @@ static void defun_code(Execute ptr, addr right)
 		list_heap(&pos, pos, symbol, NULL);
 		setresult_control(ptr, pos);
 	}
+
+	return 0;
 }
 
-static void flet_code(Execute ptr, addr right)
+static int flet_code(Execute ptr, addr right)
 {
 	addr call, value;
 
 	List_bind(right, &call, &value, NULL);
 	getdata_array_control(ptr, RefIndex(value), &value);
 	pushcallname_control(ptr, call, value);
+
+	return 0;
 }
 
-static void labels_code(Execute ptr, addr right)
+static int labels_code(Execute ptr, addr right)
 {
 	addr value;
 
 	getresult_control(ptr, &value);
 	pushcallname_control(ptr, right, value);
+
+	return 0;
 }
 
-static void call_code(Execute ptr, addr right)
+static int call_code(Execute ptr, addr right)
 {
 	getresult_control(ptr, &right);
-	execute_control(ptr, right);
+	return execute_control(ptr, right);
 }
 
-static void call_type_code(Execute ptr, addr right)
+static int call_type_code(Execute ptr, addr right)
 {
 	addr value;
 
 	getargs_tail_control(ptr, &value);
-	(void)typep_error(ptr, value, right);
+	return typep_error(ptr, value, right);
 }
 
-static void values_nil_code(Execute ptr, addr right)
+static int values_nil_code(Execute ptr, addr right)
 {
 	setvalues_nil_control(ptr);
+	return 0;
 }
 
-static void values_set_code(Execute ptr, addr right)
+static int values_set_code(Execute ptr, addr right)
 {
 	getargs_list_control_unsafe(ptr, 0, &right);
 	setvalues_list_control(ptr, right);
+	return 0;
 }
 
-static void the_code(Execute ptr, addr right)
+static int the_code(Execute ptr, addr right)
 {
 	addr value;
 
 	getresult_control(ptr, &value);
-	(void)typep_error(ptr, value, right);
+	return typep_error(ptr, value, right);
 }
 
-static void if_nil_code(Execute ptr, addr right)
+static int if_nil_code(Execute ptr, addr right)
 {
 	addr check;
 
 	getresult_control(ptr, &check);
 	if (check == Nil)
-		goto_control(ptr, RefIndex(right));
+		return goto_control_(ptr, RefIndex(right));
+	return 0;
 }
 
-static void if_t_code(Execute ptr, addr right)
+static int if_t_code(Execute ptr, addr right)
 {
 	addr check;
 
 	getresult_control(ptr, &check);
 	if (check != Nil)
-		goto_control(ptr, RefIndex(right));
+		return goto_control_(ptr, RefIndex(right));
+	return 0;
 }
 
-static void goto_code(Execute ptr, addr right)
+static int goto_code(Execute ptr, addr right)
 {
-	goto_control(ptr, RefIndex(right));
+	return goto_control_(ptr, RefIndex(right));
 }
 
-static void go_code(Execute ptr, addr right)
+static int go_code(Execute ptr, addr right)
 {
-	go_control(ptr, right);
+	return go_control_(ptr, right);
 }
 
-static void return_from_code(Execute ptr, addr right)
+static int return_from_code(Execute ptr, addr right)
 {
-	return_from_control(ptr, right);
+	return return_from_control_(ptr, right);
 }
 
-static void catch_code(Execute ptr, addr right)
+static int catch_code(Execute ptr, addr right)
 {
 	getresult_control(ptr, &right);
 	catch_control(ptr, right);
+	return 0;
 }
 
-static void throw_operator_code(Execute ptr, addr right)
+static int throw_operator_code(Execute ptr, addr right)
 {
 	getargs_control(ptr, 0, &right);
-	throw_control(ptr, right);
+	return throw_control_(ptr, right);
 }
 
 static void push_handler_code(Execute ptr, int escape)
@@ -1091,14 +1208,16 @@ static void push_handler_code(Execute ptr, int escape)
 	reverse_handler_control(ptr);
 }
 
-static void handler_bind_code(Execute ptr, addr right)
+static int handler_bind_code(Execute ptr, addr right)
 {
 	push_handler_code(ptr, 0);
+	return 0;
 }
 
-static void handler_case_code(Execute ptr, addr right)
+static int handler_case_code(Execute ptr, addr right)
 {
 	push_handler_code(ptr, 1);
+	return 0;
 }
 
 static void push_restart_code(Execute ptr, int escape)
@@ -1113,17 +1232,19 @@ static void push_restart_code(Execute ptr, int escape)
 	reverse_restart_control(ptr);
 }
 
-static void restart_bind_code(Execute ptr, addr right)
+static int restart_bind_code(Execute ptr, addr right)
 {
 	push_restart_code(ptr, 0);
+	return 0;
 }
 
-static void restart_case_code(Execute ptr, addr right)
+static int restart_case_code(Execute ptr, addr right)
 {
 	push_restart_code(ptr, 1);
+	return 0;
 }
 
-static void multiple_value_bind_code(Execute ptr, addr right)
+static int multiple_value_bind_code(Execute ptr, addr right)
 {
 	addr list, var, value;
 
@@ -1131,26 +1252,28 @@ static void multiple_value_bind_code(Execute ptr, addr right)
 	while (right != Nil) {
 		GetCons(right, &var, &right);
 		GetCons(list, &value, &list);
-		bind_variable(ptr, var, value, 0);
+		Return(bind_variable_(ptr, var, value, 0));
 	}
+
+	return 0;
 }
 
-static void funcall_code(Execute ptr, addr right)
+static int funcall_code(Execute ptr, addr right)
 {
 	getargs_list_control_unsafe(ptr, 0, &right);
-	(void)call_control(ptr, right);
+	return call_control(ptr, right);
 }
 
-static void nth_value_code(Execute ptr, addr right)
+static int nth_value_code(Execute ptr, addr right)
 {
 	addr nth;
 	size_t index;
 
 	getargs_control(ptr, 0, &nth);
 	if (! integerp(nth))
-		fmte("NTH-VALUE argument ~S must be integer type.", nth, NULL);
+		_fmte("NTH-VALUE argument ~S must be integer type.", nth, NULL);
 	if (! zerop_or_plusp_integer(nth))
-		fmte("NTH-VALUE argument ~S must be greater than equal to 0.", nth, NULL);
+		_fmte("NTH-VALUE argument ~S must be greater than equal to 0.", nth, NULL);
 	if (GetIndex_integer(nth, &index)) {
 		setresult_control(ptr, Nil);
 	}
@@ -1158,9 +1281,11 @@ static void nth_value_code(Execute ptr, addr right)
 		getvalues_control(ptr, index, &right);
 		setresult_control(ptr, (right == Unbound)? Nil: right);
 	}
+
+	return 0;
 }
 
-static void progv_code(Execute ptr, addr right)
+static int progv_code(Execute ptr, addr right)
 {
 	addr symbols, values, symbol, value;
 
@@ -1168,10 +1293,10 @@ static void progv_code(Execute ptr, addr right)
 	getargs_control(ptr, 1, &values);
 	while (symbols != Nil) {
 		if (! consp(symbols))
-			fmte("PROGV form ~S must be a cons.", symbols, NULL);
+			_fmte("PROGV form ~S must be a cons.", symbols, NULL);
 		GetCons(symbols, &symbol, &symbols);
 		if (! symbolp(symbol))
-			fmte("PROGV argument ~S must be a symbol.", symbol, NULL);
+			_fmte("PROGV argument ~S must be a symbol.", symbol, NULL);
 		if (values == Nil) {
 			pushspecial_control(ptr, symbol, Unbound);
 		}
@@ -1180,9 +1305,11 @@ static void progv_code(Execute ptr, addr right)
 			pushspecial_control(ptr, symbol, value);
 		}
 		else {
-			fmte("PROGV form ~S must be a cons.", values, NULL);
+			_fmte("PROGV form ~S must be a cons.", values, NULL);
 		}
 	}
+
+	return 0;
 }
 
 

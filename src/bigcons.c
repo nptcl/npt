@@ -194,7 +194,7 @@ _g void setchar_bigcons(LocalRoot local, addr pos, unsigned base, const char *va
 		if (c == '\0') break;
 		if (getnumber(base, c, &ret)) {
 			character_heap(&error_character, (unicode)c);
-			fmte("Invalid digit character ~S.", error_character, NULL);
+			_fmte("Invalid digit character ~S.", error_character, NULL);
 			return;
 		}
 		push_bigcons(local, pos, base, ret);

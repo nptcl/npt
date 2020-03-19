@@ -2,6 +2,7 @@
 #include "constant.h"
 #include "degrade.h"
 #include "object.h"
+#include "strvect.h"
 #include "sxhash.c"
 
 static int test_sxfixed_eq(void)

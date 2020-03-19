@@ -3,7 +3,7 @@
 #include "pointer_type.h"
 #include "stream.h"
 #include "typedef.h"
-#include "typedef_enum.h"
+#include "typedef_value.h"
 #include "typedef_stream.h"
 #include "typedef_thread.h"
 
@@ -14,8 +14,6 @@ _g int      lisp_initialize    = 0;
 _g addr     lisp_root[LISPINDEX_SIZE];
 _g addr     lisp_nil_object    = 0;
 _g addr     lisp_t_object      = 0;
-_g byte32   lisp_property      = 0;
-/* for debug */
 _g int      lisp_info_enable   = 1;
 
 
