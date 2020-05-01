@@ -1,10 +1,10 @@
 /*
  *  ANSI COMMON LISP: 22. Printer
  */
+#include "call_printer.h"
 #include "common_header.h"
 #include "cons.h"
 #include "format.h"
-#include "print_common.h"
 #include "print_dispatch.h"
 
 /* (defun copy-pprint-dispatch (&optional table) ...) -> new-table */

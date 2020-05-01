@@ -1,10 +1,10 @@
 /*
  *  ANSI COMMON LISP: 18. Hash Tables
  */
+#include "call_hashtables.h"
 #include "common_header.h"
 #include "cons.h"
 #include "hashtable.h"
-#include "hashtable_common.h"
 
 /* (defun make-hash-table
  *     (&key test size rehash-size rehash-threshold) ...) -> hashtable

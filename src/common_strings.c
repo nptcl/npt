@@ -1,10 +1,10 @@
 /*
  *  ANSI COMMON LISP: 16. Strings
  */
+#include "call_strings.h"
 #include "common_header.h"
 #include "cons.h"
 #include "strtype.h"
-#include "strtype_common.h"
 
 /* (defun stringp (object) ...) -> boolean */
 static int function_stringp(Execute ptr, addr var)

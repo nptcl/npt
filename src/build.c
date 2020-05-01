@@ -3,6 +3,7 @@
 #include "array.h"
 #include "boole.h"
 #include "build.h"
+#include "call.h"
 #include "character.h"
 #include "clos.h"
 #include "clos_type.h"
@@ -61,6 +62,7 @@ _g void initlisp(void)
 {
 	clear_pointer();
 	init_boole();
+	init_call();
 	init_clos();
 	init_code();
 	init_common();

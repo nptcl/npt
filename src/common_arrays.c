@@ -1,9 +1,9 @@
 /*
  *  ANSI COMMON LISP: 15. Arrays
  */
-#include "array_common.h"
 #include "array_sequence.h"
 #include "array_vector.h"
+#include "call_arrays.h"
 #include "common_header.h"
 #include "cons_list.h"
 #include "sequence.h"

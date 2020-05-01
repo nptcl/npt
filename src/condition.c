@@ -1,7 +1,6 @@
 #include "clos.h"
 #include "clos_class.h"
 #include "condition.h"
-#include "condition_common.h"
 #include "condition_debugger.h"
 #include "control_object.h"
 #include "control_operator.h"
@@ -171,7 +170,6 @@ _g void build_condition(Execute ptr)
 _g void init_condition(void)
 {
 	SetPointerCall(defun, empty, restart_warning);
-	init_condition_common();
 	init_condition_debugger();
 }
 

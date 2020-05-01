@@ -2,8 +2,8 @@
  *  ANSI COMMON LISP: 13. Characters
  */
 #include "character.h"
-#include "character_common.h"
 #include "common_header.h"
+#include "call_characters.h"
 
 /* (defconstnat char-code-limit UnicodeCount) */
 static void defconstant_char_code_limit(void)

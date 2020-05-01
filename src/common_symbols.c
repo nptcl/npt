@@ -1,9 +1,9 @@
 /*
  *  ANSI COMMON LISP: 10. Symbols
  */
+#include "call_symbols.h"
 #include "common_header.h"
 #include "restart_value.h"
-#include "symbol_common.h"
 
 /* (defvar *gensym-counter* 1) */
 static void defvar_gensym_counter(void)

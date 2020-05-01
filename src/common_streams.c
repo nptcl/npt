@@ -1,12 +1,12 @@
 /*
  *  ANSI COMMON LISP: 21. Streams
  */
+#include "call_streams.h"
 #include "common_header.h"
 #include "cons.h"
 #include "file.h"
 #include "stream.h"
 #include "stream_broadcast.h"
-#include "stream_common.h"
 #include "stream_concat.h"
 #include "stream_echo.h"
 #include "stream_string.h"

@@ -1,10 +1,10 @@
 /*
  *  ANSI COMMON LISP: 9. Conditions
  */
+#include "call_conditions.h"
+#include "call_objects.h"
 #include "condition.h"
-#include "condition_common.h"
 #include "condition_debugger.h"
-#include "clos_common.h"
 #include "common_header.h"
 #include "restart.h"
 

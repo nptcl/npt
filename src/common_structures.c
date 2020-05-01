@@ -1,9 +1,9 @@
 /*
  *  ANSI COMMON LISP: 8. Structures
  */
+#include "call_structures.h"
 #include "common_header.h"
 #include "structure.h"
-#include "structure_common.h"
 
 /*
  *  (defmacro defstruct (name [doc] slots*) ...) -> symbol

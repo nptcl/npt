@@ -1,10 +1,10 @@
 /*
  *  ANSI COMMON LISP: 6. Iteration
  */
+#include "call_iteration.h"
 #include "common_header.h"
 #include "cons.h"
 #include "loop.h"
-#include "loop_common.h"
 
 /* (defmacro do/do* (var end [declaration] [tag-statement]) ...) -> result */
 static int function_do(Execute ptr, addr form, addr env)

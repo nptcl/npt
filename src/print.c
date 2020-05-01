@@ -8,7 +8,6 @@
 #include "heap.h"
 #include "integer.h"
 #include "print.h"
-#include "print_common.h"
 #include "print_dispatch.h"
 #include "print_function.h"
 #include "print_object.h"
@@ -407,7 +406,6 @@ _g void build_print(Execute ptr)
 
 _g void init_print(void)
 {
-	init_print_common();
 	init_print_function();
 	init_print_object();
 	init_print_write();

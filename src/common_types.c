@@ -1,6 +1,7 @@
 /*
  *  ANSI COMMON LISP: 4. Types and Classes
  */
+#include "call_types.h"
 #include "common_header.h"
 #include "type_coerce.h"
 #include "type_deftype.h"

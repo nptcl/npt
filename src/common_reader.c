@@ -1,10 +1,10 @@
 /*
  *  ANSI COMMON LISP: 23. Reader
  */
+#include "call_reader.h"
 #include "common_header.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "readtable_common.h"
 
 /* (defun copy-readtable (&optional from to) ...) -> readtable
  *   from  (or readtable null)  ;; readtable-designer

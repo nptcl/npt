@@ -1,10 +1,10 @@
 /*
  *  ANSI COMMON LISP: 7. Objects
  */
+#include "call_objects.h"
 #include "common_header.h"
 #include "clos.h"
 #include "clos_class.h"
-#include "clos_common.h"
 #include "clos_generic.h"
 #include "clos_make.h"
 #include "clos_method.h"

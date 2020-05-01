@@ -4,7 +4,6 @@
  */
 #include "clos.h"
 #include "clos_class.h"
-#include "clos_common.h"
 #include "clos_generic.h"
 #include "clos_make.h"
 #include "clos_method.h"

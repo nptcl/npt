@@ -4,6 +4,7 @@
 #include <float.h>
 #include "boole.h"
 #include "bytespec.h"
+#include "call_numbers.h"
 #include "cmpl.h"
 #include "common_header.h"
 #include "cons.h"
@@ -11,7 +12,6 @@
 #include "math_exp.h"
 #include "math_power.h"
 #include "number.h"
-#include "number_common.h"
 #include "number_gcd.h"
 #include "number_isqrt.h"
 #include "number_random.h"
