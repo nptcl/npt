@@ -1,6 +1,7 @@
 #include "cons.h"
 #include "condition.h"
-#include "control.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "eval.h"
 #include "eval_main.h"
 #include "execute.h"
@@ -64,15 +65,6 @@ static void eval_main_restart_abort(addr *ret)
 	*ret = pos;
 }
 
-static void push_eval_main_restart_abort(Execute ptr, addr *ret)
-{
-	addr pos;
-
-	eval_main_restart_abort(&pos);
-	pushobject_restart_control(ptr, pos);
-	*ret = pos;
-}
-
 
 /*
  *  eval-loop
@@ -133,8 +125,7 @@ _g int eval_loop_output(Execute ptr, addr stream, addr control)
 	fresh_line_stream(stream);
 	while (list != Nil) {
 		getcons(list, &pos, &list);
-		if (prin1_print(ptr, stream, pos))
-			return 1;
+		Return(prin1_print(ptr, stream, pos));
 		terpri_stream(stream);
 	}
 	fresh_line_stream(stream);
@@ -151,45 +142,10 @@ static int eval_loop_stream(Execute ptr, addr stream, addr pos)
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 	eval_loop_minus(ptr, pos);
-	if (eval_execute(ptr, pos)) {
-		return runcode_free_control(ptr, control);
-	}
-	else {
-		Return(eval_loop_output(ptr, stream, pos));
-		return free_control(ptr, control);
-	}
-}
+	Return(eval_execute(ptr, pos));
+	Return(eval_loop_output(ptr, stream, pos));
 
-static int eval_loop_execute(Execute ptr, addr stream,
-		eval_loop_calltype call, int *ret)
-{
-	int result, exec;
-	addr pos;
-
-	/* read */
-	if (read_stream(ptr, stream, &result, &pos)) {
-		return 1;
-	}
-
-	/* EOF */
-	if (result) {
-		fresh_line_stream(stream);
-		*ret = 1;
-		return 0;
-	}
-
-	/* calltype */
-	if ((*call)(ptr, stream, pos, ret, &exec)) {
-		return 1;
-	}
-
-	/* execute */
-	if (exec && eval_loop_stream(ptr, stream, pos)) {
-		return 1;
-	}
-
-	/* normal */
-	return 0;
+	return free_control_(ptr, control);
 }
 
 static void eval_loop_variable(Execute ptr)
@@ -223,38 +179,59 @@ static void eval_loop_variable(Execute ptr)
 	pushlexical_control(ptr, symbol, Nil);
 }
 
+struct eval_loop_struct {
+	eval_loop_calltype call;
+	addr stream;
+	int *ret;
+};
+
+static int eval_loop_execute(Execute ptr, void *voidp)
+{
+	int check, *ret;
+	addr pos, stream;
+	eval_loop_calltype call;
+	struct eval_loop_struct *str;
+
+	str = (struct eval_loop_struct *)voidp;
+	stream = str->stream;
+	call = str->call;
+	ret = str->ret;
+
+	/* read */
+	Return(read_stream(ptr, stream, &check, &pos));
+
+	/* EOF */
+	if (check) {
+		fresh_line_stream(stream);
+		return Result(ret, 1);
+	}
+
+	/* calltype */
+	Return((*call)(ptr, stream, pos, ret, &check));
+
+	/* execute */
+	if (check) {
+		Return(eval_loop_stream(ptr, stream, pos));
+	}
+
+	/* normal */
+	return 0;
+}
+
 static int eval_loop_restart(Execute ptr, addr stream,
 		eval_loop_calltype call, int *ret)
 {
-	int check;
 	addr control, restart;
-	codejump jump;
+	struct eval_loop_struct str;
 
-	/* execute */
-	push_restart_initialize_control(ptr, &control);
-	check = 0;
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		push_eval_main_restart_abort(ptr, &restart);
-		check = eval_loop_execute(ptr, stream, call, ret);
-	}
-	end_switch(&jump);
-	if (check)
-		return 1;
+	push_return_control(ptr, &control);
+	str.stream = stream;
+	str.call = call;
+	str.ret = ret;
+	eval_main_restart_abort(&restart);
+	Return(restart0_control(ptr, restart, eval_loop_execute, (void *)&str));
 
-	/* restart abort */
-	if (jump.code == LISPCODE_CONTROL) {
-		if (! equal_control_restart(ptr, control))
-			throw_switch(&jump);
-		/* abort */
-		*ret = 0;
-		ptr->signal = ExecuteControl_Run;
-		return free_control(ptr, control);
-	}
-
-	/* free control */
-	throw_switch(&jump);
-	return free_control(ptr, control);
+	return free_control_(ptr, control);
 }
 
 _g int eval_custom_loop(Execute ptr, eval_loop_calltype call)
@@ -291,7 +268,7 @@ static int eval_main_execute(Execute ptr, addr stream, addr pos, int *exit, int 
 	return 0;
 }
 
-_g int eval_main_loop(Execute ptr)
+_g int eval_main_loop_(Execute ptr)
 {
 	return eval_custom_loop(ptr, eval_main_execute);
 }
@@ -300,111 +277,63 @@ _g int eval_main_loop(Execute ptr)
 /*
  *  eval_main_string
  */
-static int evalcall_string_result(Execute ptr, addr eval)
+static int evalcall_string_result_(Execute ptr, addr eval)
 {
-	int check;
 	addr stream, control;
-	LocalHold hold;
 
 	push_close_control(ptr, &control);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
 	open_input_string_stream(&stream, eval);
-	hold = LocalHold_local_push(ptr, stream);
-	check = eval_stream(ptr, stream);
-	localhold_end(hold);
-	close_stream(stream);
+	setprotect_close_stream(ptr, stream);
+	Return(eval_stream(ptr, stream));
 
-	return free_check_control(ptr, control, check);
+	return free_control_(ptr, control);
 }
 
-static int evalrestart_string(Execute ptr, addr eval, int *abort)
+_g int eval_main_string_(Execute ptr, addr eval)
 {
-	int check;
 	addr control, restart;
-	codejump jump;
 
-	/* execute */
-	push_restart_initialize_control(ptr, &control);
-	check = 0;
-	*abort = 0;
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		push_eval_main_restart_abort(ptr, &restart);
-		check = evalcall_string_result(ptr, eval);
-	}
-	end_switch(&jump);
-	if (check)
-		return 1;
+	push_return_control(ptr, &control);
+	eval_main_restart_abort(&restart);
+	Return(restart1_control(ptr, restart, evalcall_string_result_, eval));
 
-	/* restart abort */
-	if (jump.code == LISPCODE_CONTROL) {
-		if (! equal_control_restart(ptr, control))
-			throw_switch(&jump);
-		/* abort */
-		*abort = 1;
-		ptr->signal = ExecuteControl_Run;
-		return free_control(ptr, control);
-	}
-
-	/* free control */
-	throw_switch(&jump);
-	return free_control(ptr, control);
-}
-
-_g void eval_main_string(Execute ptr, addr eval, int *abort)
-{
-	if (evalrestart_string(ptr, eval, abort))
-		_fmte("Cannot catch a system signal.", NULL);
+	return free_control_(ptr, control);
 }
 
 
 /*
  *  eval_main_load
  */
-static int evalrestart_load(Execute ptr,
-		addr file, int exists, int *result, int *abort)
+struct eval_main_load_struct {
+	addr file;
+	int exists;
+	int *ret;
+};
+
+static int eval_main_load_execute(Execute ptr, void *voidp)
+{
+	struct eval_main_load_struct *str;
+	str = (struct eval_main_load_struct *)voidp;
+	return eval_load(ptr, str->ret, str->file, Nil, Nil, str->exists, Unbound);
+}
+
+_g int eval_main_load_(Execute ptr, addr file, int exists, int *ret)
 {
 	int check;
 	addr control, restart;
-	codejump jump;
+	struct eval_main_load_struct str;
 
-	/* execute */
-	push_restart_initialize_control(ptr, &control);
-	check = 0;
-	*result = 0;
-	*abort = 0;
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		push_eval_main_restart_abort(ptr, &restart);
-		check = eval_load(ptr, result, file, Nil, Nil, exists, Unbound);
-	}
-	end_switch(&jump);
-	if (check)
-		return 1;
+	push_return_control(ptr, &control);
+	str.file = file;
+	str.exists = exists;
+	str.ret = ret? ret: &check;
+	eval_main_restart_abort(&restart);
+	Return(restart0_control(ptr, restart, eval_main_load_execute, (void *)&str));
 
-	/* restart abort */
-	if (jump.code == LISPCODE_CONTROL) {
-		if (! equal_control_restart(ptr, control))
-			throw_switch(&jump);
-		/* abort */
-		*abort = 1;
-		ptr->signal = ExecuteControl_Run;
-		return free_control(ptr, control);
-	}
-
-	/* free control */
-	throw_switch(&jump);
-	return free_control(ptr, control);
-}
-
-_g int eval_main_load(Execute ptr, addr file, int exists, int *abort)
-{
-	int result;
-	if (evalrestart_load(ptr, file, exists, &result, abort))
-		_fmte("Cannot catch a system signal.", NULL);
-	return result;
+	return free_control_(ptr, control);
 }
 
 

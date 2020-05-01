@@ -53,6 +53,7 @@ static int test_symbolcall(Execute ptr, addr right)
 
 static int test_qualifiers_equal_symbol(void)
 {
+	int check;
 	addr call, args, symbol;
 	const char *str = "TEST-SYMBOL-CALL";
 	Execute ptr;
@@ -63,15 +64,18 @@ static int test_qualifiers_equal_symbol(void)
 	SetPointer_rest(p_debug1, test_symbolcall);
 	setcompiled_rest(call, p_debug1);
 	SetFunctionSymbol(symbol, call);
-	test(! qualifiers_equal_symbol(ptr, Nil, symbol), "qualifiers_equal_symbol1");
+	qualifiers_equal_symbol_(ptr, Nil, symbol, &check);
+	test(! check, "qualifiers_equal_symbol1");
 	consnil_heap(&args);
-	test(qualifiers_equal_symbol(ptr, args, symbol), "qualifiers_equal_symbol2");
+	qualifiers_equal_symbol_(ptr, args, symbol, &check);
+	test(check, "qualifiers_equal_symbol2");
 
 	RETURN;
 }
 
 static int test_qualifiers_equal(void)
 {
+	int check;
 	addr left, right, call;
 	const char *str = "TEST-SYMBOL-CALL";
 	Execute ptr;
@@ -80,19 +84,23 @@ static int test_qualifiers_equal(void)
 	GetConstant(CONSTANT_KEYWORD_AROUND, &left);
 	list_heap(&left, left, NULL);
 	GetConstant(CONSTANT_COMMON_ASTERISK, &right);
-	test(qualifiers_equal(ptr, left, right), "qualifiers_equal1");
+	qualifiers_equal_(ptr, left, right, &check);
+	test(check, "qualifiers_equal1");
 
 	list_heap(&right, right, NULL);
-	test(qualifiers_equal(ptr, left, right), "qualifiers_equal2");
+	qualifiers_equal_(ptr, left, right, &check);
+	test(check, "qualifiers_equal2");
 
 	internchar(LISP_PACKAGE, str, &right);
 	compiled_heap(&call, right);
 	SetPointer_rest(p_debug1, test_symbolcall);
 	setcompiled_rest(call, p_debug1);
 	SetFunctionSymbol(right, call);
-	test(qualifiers_equal(ptr, left, right), "qualifiers_equal3");
+	qualifiers_equal_(ptr, left, right, &check);
+	test(check, "qualifiers_equal3");
 
-	test(! qualifiers_equal(ptr, left, Nil), "qualifiers_equal4");
+	qualifiers_equal_(ptr, left, Nil, &check);
+	test(! check, "qualifiers_equal4");
 
 	RETURN;
 }
@@ -178,23 +186,24 @@ static void test_make_instance_longcomb(addr *ret)
 
 static int test_check_qualifiers_equal_long(void)
 {
+	int check;
 	addr comb, pos;
 	Execute ptr;
 
 	ptr = Execute_Thread;
 	test_make_instance_longcomb(&comb);
-	test(check_qualifiers_equal_long(ptr, comb, Nil),
-			"check_qualifiers_equal_long1");
-	test(! check_qualifiers_equal_long(ptr, comb, T),
-			"check_qualifiers_equal_long2");
+	check_qualifiers_equal_long_(ptr, comb, Nil, &check);
+	test(check, "check_qualifiers_equal_long1");
+	check_qualifiers_equal_long_(ptr, comb, T, &check);
+	test(! check, "check_qualifiers_equal_long2");
 	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
 	list_heap(&pos, pos, NULL);
-	test(check_qualifiers_equal_long(ptr, comb, pos),
-			"check_qualifiers_equal_long3");
+	check_qualifiers_equal_long_(ptr, comb, pos, &check);
+	test(check, "check_qualifiers_equal_long3");
 	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
 	list_heap(&pos, pos, pos, NULL);
-	test(! check_qualifiers_equal_long(ptr, comb, pos),
-			"check_qualifiers_equal_long4");
+	check_qualifiers_equal_long_(ptr, comb, pos, &check);
+	test(! check, "check_qualifiers_equal_long4");
 
 	RETURN;
 }
@@ -240,6 +249,7 @@ static int test_check_qualifiers_equal_short(void)
 
 static int test_check_qualifiers_equal(void)
 {
+	int check;
 	addr comb, name, hello;
 	Execute ptr;
 
@@ -249,20 +259,26 @@ static int test_check_qualifiers_equal(void)
 
 	/* standard */
 	comb = Nil;
-	test(check_qualifiers_equal(ptr, comb, Nil), "check_qualifiers_equal1");
-	test(! check_qualifiers_equal(ptr, comb, name), "check_qualifiers_equal2");
+	check_qualifiers_equal_(ptr, comb, Nil, &check);
+	test(check, "check_qualifiers_equal1");
+	check_qualifiers_equal_(ptr, comb, name, &check);
+	test(! check, "check_qualifiers_equal2");
 
 	/* long */
 	test_make_instance_longcomb(&comb);
 	stdset_longcomb_name(comb, hello);
-	test(check_qualifiers_equal(ptr, comb, Nil), "check_qualifiers_equal3");
-	test(! check_qualifiers_equal(ptr, comb, name), "check_qualifiers_equal4");
+	check_qualifiers_equal_(ptr, comb, Nil, &check);
+	test(check, "check_qualifiers_equal3");
+	check_qualifiers_equal_(ptr, comb, name, &check);
+	test(! check, "check_qualifiers_equal4");
 
 	/* short */
 	test_make_instance_shortcomb(&comb);
 	stdset_shortcomb_name(comb, hello);
-	test(! check_qualifiers_equal(ptr, comb, Nil), "check_qualifiers_equal5");
-	test(check_qualifiers_equal(ptr, comb, name), "check_qualifiers_equal6");
+	check_qualifiers_equal_(ptr, comb, Nil, &check);
+	test(! check, "check_qualifiers_equal5");
+	check_qualifiers_equal_(ptr, comb, name, &check);
+	test(check, "check_qualifiers_equal6");
 
 	RETURN;
 }
@@ -328,6 +344,7 @@ static int test_qualifiers_position_standard_nil(void)
 
 static int test_qualifiers_position_long_nil(void)
 {
+	int check;
 	addr comb, pos;
 	Execute ptr;
 	size_t index;
@@ -337,16 +354,16 @@ static int test_qualifiers_position_long_nil(void)
 
 	GetConstant(CONSTANT_KEYWORD_AROUND, &pos);
 	list_heap(&pos, pos, NULL);
-	test(! qualifiers_position_long_nil(ptr, pos, comb, &index),
-			"qualifiers_position_long_nil1");
+	qualifiers_position_long_nil_(ptr, pos, comb, &index, &check);
+	test(! check, "qualifiers_position_long_nil1");
 	test(index == 2, "qualifiers_position_long_nil2");
 
-	test(! qualifiers_position_long_nil(ptr, Nil, comb, &index),
-			"qualifiers_position_long_nil3");
+	qualifiers_position_long_nil_(ptr, Nil, comb, &index, &check);
+	test(! check, "qualifiers_position_long_nil3");
 	test(index == 4, "qualifiers_position_long_nil4");
 
-	test(qualifiers_position_long_nil(ptr, T, comb, &index),
-			"qualifiers_position_long_nil5");
+	qualifiers_position_long_nil_(ptr, T, comb, &index, &check);
+	test(check, "qualifiers_position_long_nil5");
 
 	RETURN;
 }
@@ -382,6 +399,7 @@ static int test_qualifiers_position_short_nil(void)
 
 static int test_qualifiers_position_nil(void)
 {
+	int check;
 	addr comb;
 	Execute ptr;
 	size_t index;
@@ -389,14 +407,14 @@ static int test_qualifiers_position_nil(void)
 	ptr = Execute_Thread;
 
 	/* standard */
-	test(! qualifiers_position_nil(ptr, Nil, Nil, &index),
-			"qualifiers_position_nil1");
+	qualifiers_position_nil_(ptr, Nil, Nil, &index, &check);
+	test(! check, "qualifiers_position_nil1");
 	test(index == Clos_standard_primary, "qualifiers_position_nil2");
 
 	/* long */
 	test_make_instance_longcomb(&comb);
-	test(! qualifiers_position_nil(ptr, Nil, comb, &index),
-			"qualifiers_position_nil3");
+	qualifiers_position_nil_(ptr, Nil, comb, &index, &check);
+	test(! check, "qualifiers_position_nil3");
 	test(index == 4, "qualifiers_position_nil4");
 
 	RETURN;
@@ -404,6 +422,7 @@ static int test_qualifiers_position_nil(void)
 
 static int test_qualifiers_position(void)
 {
+	int check;
 	addr comb, pos;
 	Execute ptr;
 	size_t index;
@@ -413,7 +432,8 @@ static int test_qualifiers_position(void)
 	internchar(LISP_PACKAGE, "HELLO", &pos);
 	stdset_shortcomb_name(comb, pos);
 	list_heap(&pos, pos, NULL);
-	qualifiers_position(ptr, pos, comb, &index);
+	index = 0;
+	qualifiers_position_(ptr, pos, comb, &index, &check);
 	test(index == 1, "qualifiers_position1");
 
 	RETURN;

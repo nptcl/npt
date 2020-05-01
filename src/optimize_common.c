@@ -1,7 +1,7 @@
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
-#include "control.h"
+#include "control_operator.h"
 #include "eval_code.h"
 #include "eval_declare.h"
 #include "eval_scope.h"
@@ -313,15 +313,15 @@ static int optimize_common_cons0(LocalRoot local, addr code, addr car, addr cdr)
 	getvalue_tablecall(car, &car);
 	getvalue_tablecall(cdr, &cdr);
 	/* return begin */
-	evalcode_pushstack_return(local, code);
+	evalcode_push_return(local, code);
 	eval_code_execute_push(local, code, car);
 	eval_code_execute_push(local, code, cdr);
 	/* cons */
 	EvalCode_single(local, code, CONS);
 	/* return end */
-	evalcode_popstack(local, code, &pos);
+	evalcode_pop(local, code, &pos);
 	EvalCode_carcdr(local, code, EXECUTE, pos);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 
 	return 1;
 }

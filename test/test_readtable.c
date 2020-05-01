@@ -109,7 +109,7 @@ static int test_getreadinfo(void)
 	pushspecial_control(ptr, symbol, value);
 	getreadinfo(ptr, &pos);
 	test(pos == value, "getreadinfo1");
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -125,7 +125,7 @@ static int test_pushreadinfo(void)
 	test(GetType(pos) == LISPSYSTEM_READINFO, "pushreadinfo1");
 	getreadinfo(ptr, &check);
 	test(check == pos, "pushreadinfo2");
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1874,7 +1874,7 @@ static unsigned getreadbasecheck(fixnum value)
 		result = getreadbase(ptr);
 	}
 	end_switch(&jump);
-	free_control(ptr, control);
+	free_control_(ptr, control);
 	throw_switch(&jump);
 
 	return result;
@@ -2107,7 +2107,7 @@ static int test_maketoken(void)
 	GetPackageSymbol(pos, &left);
 	test(left == Nil, "maketoken3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2174,7 +2174,7 @@ static int test_tokenmode_readtable(void)
 	testcharqueue("HELLO");
 	test(tokenmode_readtable(ptr) == TokenType_symbol, "tokenmode_readtable3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2213,7 +2213,7 @@ static int test_setpackage_readtable(void)
 	getpackage_readinfo(ptr, &pos);
 	test(string_equal_char(pos, "AAA"), "setpackage_readtable4");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2706,7 +2706,7 @@ static int test_plus_dispatch(void)
 	test(! readstring(&pos, "#-(or xxx zzz) 100 200"), "plus_dispatch23");
 	test(RefFixnum(pos) == 100, "plus_dispatch24");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }

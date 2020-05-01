@@ -417,7 +417,6 @@ static void hashindex_equal(addr key, size_t size, size_t *ret)
 	}
 }
 
-/* ARGSUSED0 */
 static void hashindex_equalp(addr key, size_t size, size_t *ret)
 {
 	switch (GetType(key)) {
@@ -435,7 +434,6 @@ static void hashindex_equalp(addr key, size_t size, size_t *ret)
 	}
 }
 
-/* ARGSUSED0 */
 typedef void (*hashindextype)(addr, size_t, size_t *);
 static const hashindextype hashindex_switch[] = {
 	hashindex_eq,
@@ -462,7 +460,6 @@ static void hashindex(addr pos, addr key, size_t *ret)
 /*
  *  gethashequal
  */
-/* ARGSUSED0 */
 typedef int (*hashequaltype)(addr, addr);
 static const hashequaltype hashequal_switch[] = {
 	eq_function,
@@ -640,7 +637,7 @@ _g int intern_hashtable(LocalRoot local, addr pos, addr key, addr *ret)
 {
 	if (GetStatusDynamic(pos)) {
 		if (local == NULL)
-			_fmte("The dynamic hashtable must use a localroot.", NULL);
+			fmte("The dynamic hashtable must use a localroot.", NULL);
 		return static_intern_hashtable(local, pos, key, ret);
 	}
 	else {

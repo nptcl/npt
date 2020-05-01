@@ -68,7 +68,7 @@ void degrade_output_null(Execute ptr);
 		push_close_control(__ptr, &__control); \
 		degrade_output_null(__ptr); \
 		exec; \
-		if (free_control(__ptr, __control)) { \
+		if (free_control_(__ptr, __control)) { \
 			Abort("free-control error"); \
 		} \
 	} \

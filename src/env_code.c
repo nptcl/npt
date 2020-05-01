@@ -2,7 +2,9 @@
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "env_code.h"
 #include "format.h"
 #include "function.h"
@@ -62,33 +64,20 @@ static int disassemble_code_operator(Execute ptr, addr stream, addr car, addr cd
 
 static int disassemble_code_type(Execute ptr, addr stream, addr pos)
 {
-	const char *str;
+	struct code_struct *str;
 
-	switch (gettype_code(pos)) {
-		case CodeType_Default: str = "Default"; break;
-		case CodeType_Return: str = "Return"; break;
-		case CodeType_Argument: str = "Argument"; break;
-		case CodeType_Push: str = "Push"; break;
-		case CodeType_Remove: str = "Remove"; break;
-		case CodeType_Close: str = "Close"; break;
-		case CodeType_Protect: str = "Protect"; break;
-		case CodeType_TagBody: str = "TagBody"; break;
-		case CodeType_Block: str = "Block"; break;
-		case CodeType_Catch: str = "Catch"; break;
-		case CodeType_Condition: str = "Condition"; break;
-		case CodeType_Restart: str = "Restart"; break;
-		default: str = "[Invalid-Code]"; break;
-	}
 	Fmt1("CODE-BEGIN ~20T");
-	Fmt1(str);
+	str = StructCode(pos);
+	if (str->p_control)
+		Fmt1(" control");
+	if (str->p_return)
+		Fmt1(" return");
+	if (str->p_push)
+		Fmt1(" push");
+	if (str->p_argument)
+		Fmt1(" argument");
 	terpri_stream(stream);
 
-	return 0;
-}
-
-static int disassemble_code_info(Execute ptr, addr stream, addr pos)
-{
-	getinfo_code(pos, &pos);
 	return 0;
 }
 
@@ -117,7 +106,6 @@ static int disassemble_code(Execute ptr, addr stream, addr code)
 	/* code */
 	CheckType(code, LISPTYPE_CODE);
 	Return(disassemble_code_type(ptr, stream, code));
-	Return(disassemble_code_info(ptr, stream, code));
 	Return(disassemble_code_body(ptr, stream, code));
 	Fmt1("CODE-END~%");
 
@@ -158,7 +146,7 @@ _g int disassemble_common(Execute ptr, addr var)
 		if (check == Unbound) {
 			getmacro_symbol(var, &check);
 			if (check == Unbound) {
-				_fmte("Invalid argument ~S.", var);
+				fmte("Invalid argument ~S.", var);
 				return 0;
 			}
 		}
@@ -187,12 +175,12 @@ _g void trace_common(addr form, addr env, addr *ret)
 	/* add trace */
 	for (list = Nil; form != Nil; ) {
 		if (! consp(form)) {
-			_fmtw("TRACE arguemnt ~S don't set a dotted list.", form, NULL);
+			fmtw("TRACE arguemnt ~S don't set a dotted list.", form, NULL);
 			break;
 		}
 		GetCons(form, &pos, &form);
 		if (parse_callname_heap(&value, pos)) {
-			_fmtw("TRACE argument ~S should be a function-name.", pos, NULL);
+			fmtw("TRACE argument ~S should be a function-name.", pos, NULL);
 			continue;
 		}
 		cons_heap(&list, pos, list);
@@ -225,12 +213,12 @@ _g void untrace_common(addr form, addr env, addr *ret)
 	/* del trace */
 	for (list = Nil; form != Nil; ) {
 		if (! consp(form)) {
-			_fmtw("TRACE arguemnt ~S don't set a dotted list.", form, NULL);
+			fmtw("TRACE arguemnt ~S don't set a dotted list.", form, NULL);
 			break;
 		}
 		GetCons(form, &pos, &form);
 		if (parse_callname_heap(&value, pos)) {
-			_fmtw("TRACE argument ~S should be a function-name.", pos, NULL);
+			fmtw("TRACE argument ~S should be a function-name.", pos, NULL);
 			continue;
 		}
 		cons_heap(&list, pos, list);
@@ -298,18 +286,18 @@ static int trace_add_function(Execute ptr, addr name, addr call)
 
 	/* callname */
 	if (GetStatusReadOnly(call)) {
-		_fmtw("The function ~S is constant.", call, NULL);
+		fmtw("The function ~S is constant.", call, NULL);
 		return 1; /* error */
 	}
 
 	/* function */
 	getfunction_callname_global(call, &pos);
 	if (pos == Unbound) {
-		_fmtw("The function ~S is unbound.", call, NULL);
+		fmtw("The function ~S is unbound.", call, NULL);
 		return 1; /* error */
 	}
 	if (tracep_function(pos)) {
-		_fmtw("The function ~S is already traced.", pos, NULL);
+		fmtw("The function ~S is already traced.", pos, NULL);
 		return 0; /* normal */
 	}
 
@@ -357,18 +345,18 @@ static int trace_del_function(Execute ptr, addr name, addr call)
 
 	/* callname */
 	if (GetStatusReadOnly(call)) {
-		_fmtw("The function ~S is constant.", call, NULL);
+		fmtw("The function ~S is constant.", call, NULL);
 		return 1; /* error */
 	}
 
 	/* function */
 	getfunction_callname_global(call, &pos);
 	if (pos == Unbound) {
-		_fmtw("The function ~S is unbound.", call, NULL);
+		fmtw("The function ~S is unbound.", call, NULL);
 		return 1; /* error */
 	}
 	if (! tracep_function(pos)) {
-		_fmtw("The function ~S is not traced.", pos, NULL);
+		fmtw("The function ~S is not traced.", pos, NULL);
 		return 0; /* normal */
 	}
 
@@ -386,7 +374,7 @@ static void trace_del_remove(Execute ptr, addr name)
 	GetConst(SYSTEM_TRACE_LIST, &symbol);
 	getspecialcheck_local(ptr, symbol, &list);
 	if (! delete_list_equal_unsafe(name, list, &list)) {
-		_fmtw("There is no function ~S in *trace-list*", name, NULL);
+		fmtw("There is no function ~S in *trace-list*", name, NULL);
 		return;
 	}
 	setspecial_local(ptr, symbol, list);
@@ -428,12 +416,12 @@ _g void step_common(Execute ptr, addr form, addr env, addr *ret)
 	if (form != Nil)
 		goto error;
 
-	_fmte("TODO", NULL);
+	fmte("TODO", NULL);
 	*ret = eval;
 	return;
 
 error:
-	_fmte("STEP argument ~S must be a (eval) form.", form, NULL);
+	fmte("STEP argument ~S must be a (eval) form.", form, NULL);
 }
 
 

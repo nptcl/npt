@@ -104,8 +104,10 @@
   "-12.3")
 
 (deftest format-aethetic.23
-  (equal (format nil "~A" (copy-readtable))
-         (format nil "~A" (copy-readtable)))
+  (let ((x (copy-readtable))
+        (y (copy-readtable)))
+    (equal (format nil "~A" x)
+           (format nil "~A" y)))
   nil)
 
 (deftest format-aethetic.24
@@ -208,8 +210,10 @@
   "-12.3")
 
 (deftest format-standard.23
-  (equal (format nil "~S" (copy-readtable))
-         (format nil "~S" (copy-readtable)))
+  (let ((x (copy-readtable))
+        (y (copy-readtable)))
+    (equal (format nil "~S" x)
+           (format nil "~S" y)))
   nil)
 
 (deftest format-standard.24

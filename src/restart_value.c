@@ -1,6 +1,7 @@
 #include "condition.h"
 #include "cons.h"
-#include "control.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "eval.h"
 #include "function.h"
 #include "gc.h"
@@ -71,7 +72,7 @@ static void symbol_use_restart(Execute ptr)
 	/* escape */
 	setescape_restart(pos, 1);  /* restart-case */
 	/* result */
-	pushobject_restart_control(ptr, pos);
+	push_restart_control(ptr, pos);
 }
 
 static int restart_symbol_store_global(Execute ptr, addr value)
@@ -153,66 +154,53 @@ static void symbol_store_restart(Execute ptr, addr symbol, pointer call)
 	/* escape */
 	setescape_restart(pos, 1);  /* restart-case */
 	/* result */
-	pushobject_restart_control(ptr, pos);
+	push_restart_control(ptr, pos);
 }
 
-static int symbol_restart_code(Execute ptr, addr symbol)
+struct symbol_restart_struct {
+	addr symbol;
+	pointer call;
+};
+
+static int symbol_restart_code(Execute ptr, void *voidp)
 {
-	unbound_variable(symbol);
+	struct symbol_restart_struct *str;
+
+	str = (struct symbol_restart_struct *)voidp;
+	symbol_store_restart(ptr, str->symbol, str->call);
+	symbol_use_restart(ptr);
+	unbound_variable(str->symbol);
+
 	return 0;
 }
 
 static int symbol_restart_control(Execute ptr, addr symbol, pointer call)
 {
-	int check;
 	addr control;
-	codejump jump;
+	struct symbol_restart_struct str;
 
-	/* execute */
-	push_restart_initialize_control(ptr, &control);
-	check = 0;
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		symbol_store_restart(ptr, symbol, call);
-		symbol_use_restart(ptr);
-		check = symbol_restart_code(ptr, symbol);
-	}
-	end_switch(&jump);
-	if (check)
-		return 1;
+	push_return_control(ptr, &control);
+	str.symbol = symbol;
+	str.call = call;
+	Return(restart_control(ptr, symbol_restart_code, (void *)&str));
 
-	/* restart abort */
-	if (jump.code == LISPCODE_CONTROL) {
-		if (! equal_control_restart(ptr, control))
-			throw_switch(&jump);
-		/* restart */
-		ptr->signal = ExecuteControl_Run;
-		return free_control(ptr, control);
-	}
-
-	/* free control */
-	throw_switch(&jump);
-	return free_control(ptr, control);
+	return free_control_(ptr, control);
 }
 
 static int symbol_restart_call(Execute ptr, addr symbol, pointer call, addr *ret)
 {
-	int check;
 	addr control, value;
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
-	check = symbol_restart_control(ptr, symbol, call);
-	if (check)
-		return free_check_control(ptr, control, 1);
+	Return(symbol_restart_control(ptr, symbol, call));
 	getresult_control(ptr, &value);
 	localhold_set(hold, 0, value);
-	Return(free_check_control(ptr, control, 0));
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
-	*ret = value;
 
-	return 0;
+	return Result(ret, value);
 }
 
 _g int symbol_global_restart(Execute ptr, addr symbol, addr *ret)
@@ -275,7 +263,7 @@ static int restart_function_use_function(Execute ptr, addr value)
 	return 0;
 }
 
-static void function_use_restart(Execute ptr)
+static void function_use_restart(addr *ret)
 {
 	addr pos, value;
 
@@ -301,7 +289,7 @@ static void function_use_restart(Execute ptr)
 	/* escape */
 	setescape_restart(pos, 1);  /* restart-case */
 	/* result */
-	pushobject_restart_control(ptr, pos);
+	*ret = pos;
 }
 
 static int function_restart_code(Execute ptr, addr name)
@@ -313,54 +301,29 @@ static int function_restart_code(Execute ptr, addr name)
 
 static int function_restart_control(Execute ptr, addr name)
 {
-	int check;
-	addr control;
-	codejump jump;
+	addr restart, control;
 
-	/* execute */
-	push_restart_initialize_control(ptr, &control);
-	check = 0;
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		function_use_restart(ptr);
-		check = function_restart_code(ptr, name);
-	}
-	end_switch(&jump);
-	if (check)
-		return 1;
+	push_return_control(ptr, &control);
+	function_use_restart(&restart);
+	Return(restart1_control(ptr, restart, function_restart_code, name));
 
-	/* restart abort */
-	if (jump.code == LISPCODE_CONTROL) {
-		if (! equal_control_restart(ptr, control))
-			throw_switch(&jump);
-		/* restart */
-		ptr->signal = ExecuteControl_Run;
-		return free_control(ptr, control);
-	}
-
-	/* free control */
-	throw_switch(&jump);
-	return free_control(ptr, control);
+	return free_control_(ptr, control);
 }
 
 static int function_restart_call(Execute ptr, addr name, addr *ret)
 {
-	int check;
 	addr control, value;
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
-	check = function_restart_control(ptr, name);
-	if (check)
-		return free_check_control(ptr, control, 1);
+	Return(function_restart_control(ptr, name));
 	getresult_control(ptr, &value);
 	localhold_set(hold, 0, value);
-	Return(free_check_control(ptr, control, 0));
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
-	*ret = value;
 
-	return 0;
+	return Result(ret, value);
 }
 
 _g int callname_global_restart(Execute ptr, addr name, addr *ret)

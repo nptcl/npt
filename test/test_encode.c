@@ -27,7 +27,7 @@ static FILE *test_fopen_output(void)
 
 	file = fopen(TESTFILE, "wb");
 	if (file == NULL)
-		_fmte("File open error.", NULL);
+		fmte("File open error.", NULL);
 	return file;
 }
 
@@ -41,7 +41,7 @@ static void test_fopen_output_binary(const void *ptr, size_t size)
 	byte = (const unsigned char *)ptr;
 	for (i = 0; i < size; i++) {
 		if (fputc(byte[i], file) == EOF)
-			_fmte("Invalid file stream.", NULL);
+			fmte("Invalid file stream.", NULL);
 	}
 	fclose(file);
 }
@@ -54,7 +54,7 @@ static void test_open_input_filememory(struct filememory *fm)
 	strvect_char_heap(&name, TESTFILE);
 	result = open_input_filememory(Execute_Thread, fm, name);
 	if (result)
-		_fmte("File open error.", NULL);
+		fmte("File open error.", NULL);
 }
 
 static int test_readbom8_encode(void)
@@ -338,7 +338,7 @@ static void test_open_output_filememory(struct filememory *fm)
 	strvect_char_heap(&name, TESTFILE);
 	result = open_output_filememory(Execute_Thread, fm, name, FileOutput_supersede);
 	if (result)
-		_fmte("File open error.", NULL);
+		fmte("File open error.", NULL);
 }
 
 static void test_fopen_input_binary(void *ptr, size_t size, size_t *ret)
@@ -347,7 +347,7 @@ static void test_fopen_input_binary(void *ptr, size_t size, size_t *ret)
 
 	file = fopen(TESTFILE, "rb");
 	if (file == NULL)
-		_fmte("File open error.", NULL);
+		fmte("File open error.", NULL);
 	*ret = fread(ptr, 1, size, file);
 	fclose(file);
 }

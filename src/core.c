@@ -152,9 +152,9 @@ _g void savecore_execute(Execute ptr, addr file)
 	addr symbol;
 
 	if (Index_Thread != 0)
-		_fmte("Thread Index must be 0.", NULL);
+		fmte("Thread Index must be 0.", NULL);
 	if (count_execute() != 1)
-		_fmte("Any child thread must be destroyed.", NULL);
+		fmte("Any child thread must be destroyed.", NULL);
 	pathname_designer_heap(ptr, file, &file);
 	name_pathname_heap(ptr, file, &file);
 	GetConst(SYSTEM_SAVECORE_VALUE, &symbol);
@@ -170,7 +170,7 @@ static void save_core_stream(Execute ptr, struct filememory *fm)
 	GetConst(SYSTEM_SAVECORE_VALUE, &pos);
 	GetValueSymbol(pos, &pos);
 	if (open_output_filememory(ptr, fm, pos, FileOutput_supersede))
-		_fmte("file open error.", NULL);
+		fmte("file open error.", NULL);
 }
 
 static void save_core_result(Execute ptr)

@@ -5,7 +5,6 @@
 #include "typedef.h"
 
 _g int readlist_input(Execute ptr, addr file, addr *ret);
-_g void init_input(void);
 
 #endif
 

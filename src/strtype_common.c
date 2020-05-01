@@ -46,21 +46,21 @@ _g int char_common(addr str, addr pos, addr *ret)
 	size_t index, size;
 
 	if (GetIndex_integer(pos, &index))
-		return fmte("Too large index value ~S.", pos, NULL);
+		return fmte_("Too large index value ~S.", pos, NULL);
 	if (GetType(str) == LISPTYPE_STRING) {
 		strvect_length(str, &size);
 		if (size <= index)
-			return fmte("Out of valid string index, ~S.", pos, NULL);
+			return fmte_("Out of valid string index, ~S.", pos, NULL);
 		strvect_getc(str, index, &c);
 	}
 	else if (strarrayp(str)) {
 		strarray_length_buffer(str, &size); /* Don't use strarray_length */
 		if (size <= index)
-			return fmte("Out of valid string index, ~S.", pos, NULL);
+			return fmte_("Out of valid string index, ~S.", pos, NULL);
 		strarray_getc(str, index, &c);
 	}
 	else {
-		return fmte("The object ~S must be a string type.", str, NULL);
+		return fmte_("The object ~S must be a string type.", str, NULL);
 	}
 	character_heap(ret, c);
 	return 0;
@@ -76,21 +76,21 @@ _g int schar_common(addr str, addr pos, addr *ret)
 	size_t index, size;
 
 	if (GetIndex_integer(pos, &index))
-		return fmte("Too large index value ~S.", pos, NULL);
+		return fmte_("Too large index value ~S.", pos, NULL);
 	if (GetType(str) == LISPTYPE_STRING) {
 		strvect_length(str, &size);
 		if (size <= index)
-			return fmte("Out of valid string index, ~S.", pos, NULL);
+			return fmte_("Out of valid string index, ~S.", pos, NULL);
 		strvect_getc(str, index, &c);
 	}
 	else if (strarrayp(str)) {
 		strarray_length(str, &size); /* Don't use strarray_length_buffer */
 		if (size <= index)
-			return fmte("Out of valid string index, ~S.", pos, NULL);
+			return fmte_("Out of valid string index, ~S.", pos, NULL);
 		strarray_getc(str, index, &c);
 	}
 	else {
-		return fmte("The object ~S must be a string type.", str, NULL);
+		return fmte_("The object ~S must be a string type.", str, NULL);
 	}
 	character_heap(ret, c);
 	return 0;
@@ -106,7 +106,7 @@ _g int setf_char_common(addr value, addr pos, addr index)
 	unicode c;
 
 	if (GetIndex_integer(index, &size))
-		return fmte("Too large index value ~S.", index, NULL);
+		return fmte_("Too large index value ~S.", index, NULL);
 	GetCharacter(value, &c);
 	switch (GetType(pos)) {
 		case LISPTYPE_STRING:
@@ -270,7 +270,7 @@ static int nstring_case_common(addr var, addr rest,
 	size_t start, end, size;
 
 	if (GetStatusReadOnly(var))
-		return fmte("Cannot update the constant object ~S.", var, NULL);
+		return fmte_("Cannot update the constant object ~S.", var, NULL);
 	string_length(var, &size);
 	Return(keyword_start_end_(size, rest, &start, &end));
 	return (*call)(start, end, var, var, &size);
@@ -814,14 +814,14 @@ _g int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 
 	/* size */
 	if (GetIndex_integer(var, &size))
-		return fmte("Too large index value ~S.", var, NULL);
+		return fmte_("Too large index value ~S.", var, NULL);
 
 	/* initial-elemnet */
 	c = 0;
 	GetConst(KEYWORD_INITIAL_ELEMENT, &symbol);
 	if (getplist(rest, symbol, &value) == 0) {
 		if (GetType(value) != LISPTYPE_CHARACTER)
-			return fmte("Invalid :initial-element ~S.", value, NULL);
+			return fmte_("Invalid :initial-element ~S.", value, NULL);
 		GetCharacter(value, &c);
 	}
 
@@ -831,7 +831,7 @@ _g int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 		GetTypeTable(&symbol, Character);
 		Return(parse_type(ptr, &value, value, Nil));
 		if (! subtypep_clang(value, symbol, &invalid)) {
-			return fmte(":element-type ~S "
+			return fmte_(":element-type ~S "
 					"must be a subtype of character.", value, NULL);
 		}
 		/* check only */

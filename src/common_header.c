@@ -98,15 +98,15 @@ static int keyword_start_end_const_(constindex cstart, constindex cend,
 	getsize_keyword_start(kstart, rest, &astart, &start);
 	getsize_keyword_end(kend, rest, size, &aend, &end);
 	if (size < start) {
-		return fmte("The ~S position ~S must be less than "
+		return fmte_("The ~S position ~S must be less than "
 				"the sequence length.", kstart, astart, NULL);
 	}
 	if (size < end) {
-		return fmte("The ~S position ~S must be less than "
+		return fmte_("The ~S position ~S must be less than "
 				"equal to the sequence length.", kend, aend, NULL);
 	}
 	if (end < start) {
-		return fmte("The ~S position ~S must be less than "
+		return fmte_("The ~S position ~S must be less than "
 				"equal to the ~S position ~S.", kstart, astart, kend, aend, NULL);
 	}
 	*pstart = start;

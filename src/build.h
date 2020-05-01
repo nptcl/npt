@@ -17,6 +17,7 @@ __extern addr     lisp_root[LISPINDEX_SIZE];
 __extern addr     lisp_nil_object;
 __extern addr     lisp_t_object;
 __extern int      lisp_info_enable;
+__extern int      lisp_gcsync;
 
 /* function */
 _g void initlisp(void);

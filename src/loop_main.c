@@ -602,7 +602,7 @@ _g void loop_push_main(struct loop_main *str, addr list)
 			continue;
 		}
 		/* error */
-		_fmte("Invalid loop operator ~S.", car, NULL);
+		fmte("Invalid loop operator ~S.", car, NULL);
 	}
 }
 
@@ -672,7 +672,7 @@ _g void loop_let_main(addr *form, addr list)
 			continue;
 		}
 		/* error */
-		_fmte("Invalid loop operator ~S.", car, NULL);
+		fmte("Invalid loop operator ~S.", car, NULL);
 	}
 }
 

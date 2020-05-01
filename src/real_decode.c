@@ -92,12 +92,12 @@ _g void scale_float_common(addr pos, addr scale, addr *ret)
 		case LISPTYPE_FIXNUM:
 			GetFixnum(scale, &fixnum_value);
 			if (fixnum_value < LONG_MIN || LONG_MAX < fixnum_value)
-				_fmte("Scaling factor is too large ~A.", scale, NULL);
+				fmte("Scaling factor is too large ~A.", scale, NULL);
 			n = (long)fixnum_value;
 			break;
 
 		case LISPTYPE_BIGNUM:
-			_fmte("Scaling factor ~A must be a fixnum type.", scale, NULL);
+			fmte("Scaling factor ~A must be a fixnum type.", scale, NULL);
 			return;
 
 		default:

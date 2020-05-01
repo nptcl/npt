@@ -3,7 +3,7 @@
 #include "character.h"
 #include "clos.h"
 #include "common.h"
-#include "control.h"
+#include "control_object.h"
 #include "constant.h"
 #include "degrade.h"
 #include "object.h"
@@ -209,7 +209,7 @@ static int test_read_default_float_format(void)
 	setspecial_local(ptr, symbol, pos);
 	test(read_default_float_format(ptr) == 0, "read_default_float_format6");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	test(read_default_float_format(ptr) == 'f', "read_default_float_format7");
 

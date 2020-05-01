@@ -1,6 +1,6 @@
 #include "type_symbol.c"
 #include "character.h"
-#include "control.h"
+#include "control_operator.h"
 #include "clos.h"
 #include "code.h"
 #include "common.h"

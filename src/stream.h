@@ -5,6 +5,7 @@
 #include "file_type.h"
 #include "file_memory.h"
 #include "memory.h"
+#include "stream_init.h"
 #include "typedef_stream.h"
 
 enum STREAM_INDEX {
@@ -140,8 +141,6 @@ _g void print_ascii_stream(addr stream, const char *data);
 _g void print_unicode_stream(addr stream, const unicode *data);
 _g void print_string_stream(addr stream, addr pos);
 
-_g void init_stream(void);
-_g void build_stream(void);
 _g void standard_input_stream(Execute ptr, addr *ret);
 _g void standard_output_stream(Execute ptr, addr *ret);
 _g void error_output_stream(Execute ptr, addr *ret);

@@ -2,7 +2,7 @@
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "control.h"
+#include "control_object.h"
 #include "file.h"
 #include "gc.h"
 #include "input.h"
@@ -36,34 +36,21 @@ static int readlist_loop(Execute ptr, addr stream, addr *ret)
 	return 0;
 }
 
-static int readlist_finalize(Execute ptr)
+static int readlist_unwind_protect_(Execute ptr, addr file, addr *ret)
 {
-	addr stream;
-
-	getdata_control(ptr, &stream);
-	Check(! streamp(stream), "type error");
-	close_stream(stream);
-
-	return 0;
-}
-
-static int readlist_unwind_protect(Execute ptr, addr file, addr *ret)
-{
-	int check;
-	addr stream, control, code;
+	addr stream, control;
 	LocalHold hold;
 
 	open_input_stream_error(ptr, &stream, file);
 	hold = LocalHold_array(ptr, 1);
 	localhold_push(hold, stream);
 	/* finalize */
-	push_finalize_control(ptr, &control);
-	syscall_code(ptr->local, &code, p_readlist_finalize, stream);
-	setfinalize_control(ptr, control, code);
+	push_close_control(ptr, &control);
+	setprotect_close_stream(ptr, stream);
 	/* code */
-	check = readlist_loop(ptr, stream, ret);
+	Return(readlist_loop(ptr, stream, ret));
 	localhold_set(hold, 0, *ret);
-	Return(free_check_control(ptr, control, check));
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -71,25 +58,12 @@ static int readlist_unwind_protect(Execute ptr, addr file, addr *ret)
 
 _g int readlist_input(Execute ptr, addr file, addr *ret)
 {
-	int check;
 	addr list;
 
-	check = readlist_unwind_protect(ptr, file, &list);
-	if (check)
-		return 1;
+	Return(readlist_unwind_protect_(ptr, file, &list));
 	if (list == Unbound)
-		_fmte("Invalid file ~S.", file, NULL);
-	*ret = list;
+		fmte("Invalid file ~S.", file, NULL);
 
-	return check;
-}
-
-
-/*
- *  initialize
- */
-_g void init_input(void)
-{
-	SetPointerType(empty, readlist_finalize);
+	return Result(ret, list);
 }
 

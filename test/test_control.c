@@ -1,4 +1,5 @@
 #include "control.c"
+#include "code.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -11,10 +12,12 @@
 #include "readtable.h"
 #include "package.h"
 #include "pathname.h"
+#include "symbol.h"
 #include "syscall.h"
 #include "type.h"
 #include "type_table.h"
 
+#if 0
 /*
  *  taginfo
  */
@@ -2530,6 +2533,8 @@ static int test_callclang_char(void)
 
 	RETURN;
 }
+#endif
+
 
 
 /*
@@ -2537,6 +2542,7 @@ static int test_callclang_char(void)
  */
 static int testbreak_control(void)
 {
+#if 0
 	/* taginfo */
 	TestBreak(test_gettable_control);
 	TestBreak(test_taginfo_heap);
@@ -2619,6 +2625,7 @@ static int testbreak_control(void)
 	TestBreak(test_callclang_stdarg);
 	TestBreak(test_callclang_funcall);
 	TestBreak(test_callclang_char);
+#endif
 
 	return 0;
 }

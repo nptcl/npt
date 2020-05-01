@@ -1,5 +1,5 @@
 #include "constant.h"
-#include "control.h"
+#include "control_object.h"
 #include "file.h"
 #include "prompt.h"
 #include "stream_error.h"

@@ -36,11 +36,11 @@ _g void byte_common(addr size, addr posi, addr *ret)
 	size_t ssize, spos;
 
 	if (GetIndex_integer(size, &ssize)) {
-		_fmte("Byte spec SIZE ~S is too large.", size, NULL);
+		fmte("Byte spec SIZE ~S is too large.", size, NULL);
 		return;
 	}
 	if (GetIndex_integer(posi, &spos)) {
-		_fmte("Byte spec POSITION ~S is too large.", posi, NULL);
+		fmte("Byte spec POSITION ~S is too large.", posi, NULL);
 		return;
 	}
 	bytespec_heap(ret, ssize, spos);

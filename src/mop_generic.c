@@ -11,7 +11,8 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "cons_plist.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_operator.h"
 #include "function.h"
 #include "integer.h"
 #include "lambda.h"
@@ -260,10 +261,10 @@ static int function_ensure_method(Execute ptr, addr name, addr rest)
 	if (getkeyargs(rest, CLOSKEY_SPECIALIZERS, &spec))
 		spec = Nil;
 	if (getkeyargs(rest, CLOSKEY_FUNCTION, &call))
-		_fmte("Invalid ensure-method argument :function ~S.", call, NULL);
+		fmte("Invalid ensure-method argument :function ~S.", call, NULL);
 
 	/* add method */
-	ensure_method_common(ptr, &name, name, lambda, qua, spec, call);
+	Return(ensure_method_common_(ptr, &name, name, lambda, qua, spec, call));
 	setresult_control(ptr, name);
 
 	return 0;
@@ -398,7 +399,7 @@ static int function_flet_next_method(Execute ptr,
 
 	if (next == Nil) {
 		stdget_method_generic_function(method, &method);
-		_fmte("There is no method in generic function ~S.", method, NULL);
+		fmte("There is no method in generic function ~S.", method, NULL);
 		return 0;
 	}
 	getcons(next, &method, &next);
@@ -606,7 +607,7 @@ static int qualifiers_elt_order(addr symbol, addr order)
 	if (check == order)
 		return 1;
 	/* error */
-	_fmte("Invalid :order ~S in the qualifiers ~S.", order, symbol, NULL);
+	fmte("Invalid :order ~S in the qualifiers ~S.", order, symbol, NULL);
 	return 0;
 }
 
@@ -618,7 +619,7 @@ static int function_qualifiers_elt(Execute ptr,
 	getindex_integer(index, &value);
 	getarray(pos, value, &pos);
 	if (req != Nil && pos == Nil)
-		_fmte("The qualifier ~S must be at least one method.", symbol, NULL);
+		fmte("The qualifier ~S must be at least one method.", symbol, NULL);
 	if (qualifiers_elt_order(symbol, order))
 		reverse_list_heap_safe(&pos, pos);
 	setresult_control(ptr, pos);
@@ -941,7 +942,7 @@ static int method_find_method_std(Execute ptr,
 {
 	if (errorp == Unbound)
 		errorp = T;
-	generic_find_method(ptr, clos, qua, spec, errorp, &qua);
+	Return(generic_find_method_(ptr, clos, qua, spec, errorp, &qua));
 	setresult_control(ptr, qua);
 
 	return 0;
@@ -1016,7 +1017,7 @@ static void defgeneric_find_method_mop(Execute ptr)
 static int method_add_method_std(Execute ptr,
 		addr method, addr next, addr gen, addr met)
 {
-	method_add_method(ptr, gen, met);
+	Return(method_add_method_(ptr, gen, met));
 	setresult_control(ptr, gen);
 	return 0;
 }
@@ -1088,7 +1089,7 @@ static void defgeneric_add_method_mop(Execute ptr)
 static int method_remove_method_std(Execute ptr,
 		addr method, addr next, addr gen, addr met)
 {
-	method_remove_method(ptr, gen, met);
+	Return(method_remove_method_(ptr, gen, met));
 	setresult_control(ptr, gen);
 	return 0;
 }

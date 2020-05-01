@@ -74,8 +74,6 @@ static struct execute *allocmembit(size_t index)
 	clearpoint(bit);
 	bit->state = ThreadState_Empty;
 	bit->index = index;
-	bit->signal = ExecuteControl_Run;
-	bit->taginfo = NULL;
 	bit->result = 0;
 
 	return bit;
@@ -575,8 +573,10 @@ _g void throw_switch(codejump *code)
 }
 _g int equal_control_restart(Execute ptr, addr control)
 {
-	struct taginfo_struct *str = ptr->taginfo;
-	return str && str->control == control;
+	addr left;
+
+	left = ptr->throw_control;
+	return left && left == control;
 }
 
 
@@ -585,64 +585,28 @@ _g int equal_control_restart(Execute ptr, addr control)
  */
 _g void gcstate_execute(void)
 {
+	lisp_gcsync = 1;
+}
+
+static int gcstart_execute_check(struct execute *ptr)
+{
 	size_t i;
-	struct execute *ptr;
 
-	if (ExecuteArray == NULL)
-		return;
-
-	lock_mutexlite(&ExecuteMutex);
 	for (i = 0; i < ExecuteSize; i++) {
-		ptr = ExecuteArray[i];
-		switch (ptr->state) {
-			case ThreadState_Empty:
-			case ThreadState_Finish:
-			case ThreadState_Join:
-				continue;
-
-			case ThreadState_Run:
-				ptr->state = ThreadState_Signal;
-				break;
-
-			case ThreadState_Signal:
-				break;
-
-			case ThreadState_GcStart:
-				Debug("state error: GcStart");
-				exitthis(LISPCODE_ERROR);
-
-			default:
-				Debug("state error: [invalid]");
-				exitthis(LISPCODE_ERROR);
-				break;
-		}
+		if (ExecuteArray[i]->state == ThreadState_Run)
+			return 1;
 	}
-	broadcast_condlite(&ExecuteCond);
-	unlock_mutexlite(&ExecuteMutex);
+
+	return 0;
 }
 
 _g void gcstart_execute(struct execute *ptr)
 {
-	size_t i;
-
 	lock_mutexlite(&ExecuteMutex);
-	ptr->state = ThreadState_GcStart;
-loop:
-	for (i = 0; i < ExecuteSize; i++) {
-		switch (ExecuteArray[i]->state) {
-			case ThreadState_Signal:
-				wait_condlite(&ExecuteCond, &ExecuteMutex);
-				goto loop;
-
-			case ThreadState_Run:
-				Debug("state error");
-				exitthis(LISPCODE_ERROR);
-				break;
-
-			default:
-				break;
-		}
-	}
+	ptr->state = ThreadState_GcWait;
+	broadcast_condlite(&ExecuteCond);
+	while (gcstart_execute_check(ptr))
+		wait_condlite(&ExecuteCond, &ExecuteMutex);
 	unlock_mutexlite(&ExecuteMutex);
 }
 
@@ -662,7 +626,7 @@ _g void gcend_execute(void)
 	lock_mutexlite(&ExecuteMutex);
 	for (i = 0; i < ExecuteSize; i++) {
 		ptr = ExecuteArray[i];
-		if (ptr->state == ThreadState_GcStart)
+		if (ptr->state == ThreadState_GcWait)
 			ptr->state = ThreadState_Run;
 	}
 	broadcast_condlite(&ExecuteCond);

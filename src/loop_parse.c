@@ -23,9 +23,9 @@ static void loop_parse_named_clause(addr *ret, addr *list)
 
 	/* parse */
 	if (! consp_getcons(args, &pos, &args))
-		_fmte("NAMED clause must be a name argument in loop.", NULL);
+		fmte("NAMED clause must be a name argument in loop.", NULL);
 	if (! symbolp(pos))
-		_fmte("NAMED argument ~S must be a symbol type.", pos, NULL);
+		fmte("NAMED argument ~S must be a symbol type.", pos, NULL);
 
 	/* result */
 	*ret = pos;
@@ -39,7 +39,7 @@ static void loop_parse_with_variable(addr pos)
 	if (symbolp(pos))
 		return;
 	if (! consp_getcons(pos, &a, &b))
-		_fmte("The value ~S must be a symbol type.", pos, NULL);
+		fmte("The value ~S must be a symbol type.", pos, NULL);
 	loop_parse_with_variable(a);
 	loop_parse_with_variable(b);
 }
@@ -100,7 +100,7 @@ loop_result:
 	return;
 
 error:
-	_fmte("Invalid WITH form ~S in loop.", *list, NULL);
+	fmte("Invalid WITH form ~S in loop.", *list, NULL);
 	*list = *ret = Nil;
 }
 
@@ -138,7 +138,7 @@ static void loop_parse_with_clause(addr *root, addr *list)
 	return;
 
 error:
-	_fmte("Invalid WITH form ~S in loop.", *list);
+	fmte("Invalid WITH form ~S in loop.", *list);
 }
 
 static void loop_parse_form_variables(addr *list, addr *ret)
@@ -147,7 +147,7 @@ static void loop_parse_form_variables(addr *list, addr *ret)
 
 	for (root = Nil; *list != Nil; ) {
 		if (! consp_getcons(*list, &pos, &next))
-			_fmte("Invalid loop form ~S.", *list, NULL);
+			fmte("Invalid loop form ~S.", *list, NULL);
 		if (loop_symbol_form_p(pos))
 			break;
 		cons_heap(&root, pos, root);
@@ -167,7 +167,7 @@ static void loop_parse_initial_final_clause(addr *root, addr *list)
 	else if (loop_symbol_finally_p(pos))
 		GetConst(SYSTEM_LOOP_FINALLY, &key);
 	else {
-		_fmte("Invalid value ~S.", pos, NULL);
+		fmte("Invalid value ~S.", pos, NULL);
 		return;
 	}
 
@@ -192,21 +192,21 @@ static int loop_parse_for_as_arithmetic_struct(
 loop:
 	if (loop_symbol_arithmetic1_p(pos)) {
 		if (str->from1 != Unbound)
-			_fmte("FOR-AS FROM expr already exists.", NULL);
+			fmte("FOR-AS FROM expr already exists.", NULL);
 		str->from1 = pos;
 		if (! consp_getcons(*list, &(str->from2), list))
 			return 1;
 	}
 	else if (loop_symbol_arithmetic2_p(pos)) {
 		if (str->to1 != Unbound)
-			_fmte("FOR-AS TO expr already exists.", NULL);
+			fmte("FOR-AS TO expr already exists.", NULL);
 		str->to1 = pos;
 		if (! consp_getcons(*list, &(str->to2), list))
 			return 1;
 	}
 	else if (loop_symbol_by_p(pos)) {
 		if (str->by != Unbound)
-			_fmte("FOR-AS BY expr already exists.", NULL);
+			fmte("FOR-AS BY expr already exists.", NULL);
 		if (! consp_getcons(*list, &(str->by), list))
 			return 1;
 	}
@@ -631,7 +631,7 @@ static void loop_parse_for_as_clause(Execute ptr, addr *root, addr *list)
 	return;
 
 error:
-	_fmte("Invalid FOR-AS form ~S in loop.", *list, NULL);
+	fmte("Invalid FOR-AS form ~S in loop.", *list, NULL);
 }
 
 static void loop_parse_variable_clause_update(Execute ptr, addr *root, addr *list)
@@ -684,14 +684,14 @@ static void loop_parse_uncondition_result(addr *ret, addr *list)
 	}
 	else if (loop_symbol_return_p(pos)) {
 		if (! consp_getcons(*list, &pos, list))
-			_fmte("Invalid RETURN form ~S in loop.", *list, NULL);
+			fmte("Invalid RETURN form ~S in loop.", *list, NULL);
 		if (loop_symbol_it_p(pos))
 			GetConst(SYSTEM_IT_LOOP, &pos);
 		GetConst(SYSTEM_LOOP_RETURN, &key);
 		list_heap(ret, key, pos, NULL);
 	}
 	else {
-		_fmte("Invalid value ~S.", pos, NULL);
+		fmte("Invalid value ~S.", pos, NULL);
 	}
 }
 
@@ -747,7 +747,7 @@ result:
 	return;
 
 error:
-	_fmte("Invalid loop form ~S.", *list, NULL);
+	fmte("Invalid loop form ~S.", *list, NULL);
 }
 
 static void loop_parse_condition_clause(addr *root, addr *list)
@@ -793,7 +793,7 @@ result:
 	return;
 
 error:
-	_fmte("Invalid loop form ~S.", *list, NULL);
+	fmte("Invalid loop form ~S.", *list, NULL);
 }
 
 static void loop_parse_numeric_accumulation_result(addr *ret, addr *list)
@@ -840,7 +840,7 @@ result:
 	return;
 
 error:
-	_fmte("Invalid loop form ~S.", *list, NULL);
+	fmte("Invalid loop form ~S.", *list, NULL);
 }
 
 static void loop_parse_accumulation_result(addr *ret, addr *list)
@@ -853,7 +853,7 @@ static void loop_parse_accumulation_result(addr *ret, addr *list)
 	else if (loop_symbol_numeric_accumulation_p(pos))
 		loop_parse_numeric_accumulation_result(ret, list);
 	else
-		_fmte("Invalid accumulation symbol ~S.", pos, NULL);
+		fmte("Invalid accumulation symbol ~S.", pos, NULL);
 }
 
 static void loop_parse_accumulation_clause(addr *root, addr *list)
@@ -887,7 +887,7 @@ static void loop_condition_selectable_result(addr *ret, addr *list)
 		else if (loop_symbol_accumulation_p(pos))
 			loop_parse_accumulation_result(&pos, list);
 		else
-			_fmte("Invalid loop form ~S.", *list, NULL);
+			fmte("Invalid loop form ~S.", *list, NULL);
 		cons_heap(&root, pos, root);
 		/* and */
 		if (! consp_getcar(*list, &pos))
@@ -933,7 +933,7 @@ static void loop_parse_termination_clause(addr *root, addr *list)
 	return;
 
 error:
-	_fmte("Invalid loop form ~S.", *list, NULL);
+	fmte("Invalid loop form ~S.", *list, NULL);
 }
 
 static void loop_parse_main_clause_update(addr *root, addr *list)

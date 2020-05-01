@@ -78,8 +78,9 @@ _g void getstack_eval(Execute ptr, addr *ret);
 _g void getglobal_eval(Execute ptr, addr *ret);
 _g addr newstack_eval(Execute ptr, enum EVAL_STACK_MODE type);
 _g void freestack_eval(Execute ptr, addr scope);
-_g void init_eval_stack(Execute ptr);
+_g void begin_eval_stack(Execute ptr);
 _g void free_eval_stack(Execute ptr);
+_g void init_eval_stack(void);
 _g int globalp_stack_eval(addr pos);
 
 _g void apply_declaim_stack(Execute ptr, addr declare);

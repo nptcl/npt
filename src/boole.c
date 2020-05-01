@@ -4,7 +4,7 @@
 #include "bytespec.h"
 #include "condition.h"
 #include "cons.h"
-#include "control.h"
+#include "control_operator.h"
 #include "integer.h"
 #include "setf.h"
 #include "symbol.h"
@@ -1065,7 +1065,7 @@ _g int function_setf_ldb(Execute ptr, addr form, addr env)
 	return 0;
 
 error:
-	_fmte("SETF-LDB form ~S must be a (byte-space place) form.", form, NULL);
+	fmte("SETF-LDB form ~S must be a (byte-space place) form.", form, NULL);
 	return 0;
 }
 
@@ -1210,7 +1210,7 @@ _g int function_setf_mask_field(Execute ptr, addr form, addr env)
 	return 0;
 
 error:
-	_fmte("SETF-DEPOSIT-FIELD form ~S must be a (byte-space place) form.", form, NULL);
+	fmte("SETF-DEPOSIT-FIELD form ~S must be a (byte-space place) form.", form, NULL);
 	return 0;
 }
 

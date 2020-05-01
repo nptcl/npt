@@ -7,7 +7,9 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "eval.h"
 #include "fasl.h"
 #include "file.h"
@@ -77,14 +79,14 @@ static int compile_file_execute(
 
 	/* input stream */
 	if (compile_file_open_input(ptr, input, &in)) {
-		_fmte("Cannot open the input file ~S.", input, NULL);
+		fmte("Cannot open the input file ~S.", input, NULL);
 		return 0;
 	}
 
 	/* output stream */
 	if (compile_file_open_output(ptr, output, &out)) {
 		compile_file_close_stream(in, input);
-		_fmte("Cannot open the output file ~S.", output, NULL);
+		fmte("Cannot open the output file ~S.", output, NULL);
 		return 0;
 	}
 
@@ -160,8 +162,7 @@ _g int compile_file_common(Execute ptr, addr input, addr rest,
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	handler_compile(ptr);
-	if (compile_file_execute(ptr, input, output, rest, ret1))
-		return free_check_control(ptr, control, 1);
+	Return(compile_file_execute(ptr, input, output, rest, ret1));
 	localhold_set(hold, 0, *ret1);
 	/* warning */
 	GetConst(SYSTEM_COMPILE_WARNING, &pos);
@@ -170,7 +171,7 @@ _g int compile_file_common(Execute ptr, addr input, addr rest,
 	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
 	getlexicalcheck_local(ptr, pos, ret3);
 	/* free */
-	Return(free_check_control(ptr, control, 0));
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -247,13 +248,14 @@ _g void with_compilation_unit_common(addr form, addr *ret)
 	return;
 
 error:
-	_fmte("WITH-COMPILATION-UNIT form ~S "
+	fmte("WITH-COMPILATION-UNIT form ~S "
 			"must be a ((&key ...) &body ...) form.", form, NULL);
 	*ret = Nil;
 }
 
 static int function_handler_delay_warning(Execute ptr, addr condition)
 {
+	int check;
 	addr pos, list;
 
 	/* push *delay-warning-list* */
@@ -270,9 +272,10 @@ static int function_handler_delay_warning(Execute ptr, addr condition)
 
 	/* muffle-warning */
 	GetConst(COMMON_MUFFLE_WARNING, &pos);
-	if (! find_restart_control(ptr, pos, condition, &condition))
-		control_error();
-	return invoke_restart_control(ptr, condition, Nil);
+	Return(find_restart_control_(ptr, pos, condition, &condition, &check));
+	if (! check)
+		return call_control_error_(ptr);
+	return invoke_restart_control_(ptr, condition, Nil);
 }
 
 static void handler_delay_warning(Execute ptr)
@@ -318,31 +321,28 @@ static int function_finalize_delay_warning(Execute ptr)
 
 _g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call)
 {
-	addr finalize, restart, pos;
+	addr control, restart, pos;
 
 	if (! with_compilation_unit_override(ptr, over))
 		return funcall_control(ptr, call, NULL);
 
 	/* unwind-protect */
-	push_finalize_control(ptr, &finalize);
+	push_return_control(ptr, &control);
 	GetConst(SYSTEM_DELAY_WARNING_LIST, &pos);
 	pushspecial_control(ptr, pos, Nil);
 	GetConst(SYSTEM_DELAY_WARNING_SWITCH, &pos);
 	pushspecial_control(ptr, pos, T);
-	syscall_code(ptr->local, &pos, p_defun_finalize_delay_warning, Nil);
-	setfinalize_control(ptr, finalize, pos);
+	setprotect_control(ptr, p_defun_finalize_delay_warning, Nil);
 
 	/* push control */
 	push_return_control(ptr, &restart);
 	handler_delay_warning(ptr);
 
 	/* funcall */
-	if (funcall_control(ptr, call, NULL))
-		return free_check_control(ptr, restart, 1);
-	Return(free_check_control(ptr, restart, 0));
-	return_values_control(ptr, finalize);
-
-	return 0;
+	Return(funcall_control(ptr, call, NULL));
+	Return(free_control_(ptr, restart));
+	return_values_control(ptr, control);
+	return free_control_(ptr, control);
 }
 
 

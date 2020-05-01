@@ -8,7 +8,8 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_operator.h"
 #include "document.h"
 #include "function.h"
 #include "lambda.h"
@@ -994,7 +995,7 @@ static int method_documentation_symbol_type(Execute ptr,
 	/* deftype */
 	getdeftype(object, &pos);
 	if (object == Nil) {
-		_fmte("The symbol ~S don't have a deftype function.", object, NULL);
+		fmte("The symbol ~S don't have a deftype function.", object, NULL);
 		return 0;
 	}
 	getdocumentation_function(pos, &pos);
@@ -1019,7 +1020,7 @@ static int method_setf_documentation_symbol_type(Execute ptr,
 	/* deftype */
 	getdeftype(object, &pos);
 	if (pos == Nil) {
-		_fmte("The symbol ~S don't have a deftype function.", object, NULL);
+		fmte("The symbol ~S don't have a deftype function.", object, NULL);
 		return 0;
 	}
 	setdocumentation_function(pos, value);

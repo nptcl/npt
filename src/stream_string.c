@@ -60,7 +60,7 @@ _g void open_input_string_stream1(addr *ret, addr string, size_t start)
 	if (size < start) {
 		make_index_integer_alloc(NULL, &pos1, start);
 		make_index_integer_alloc(NULL, &pos2, size);
-		_fmte("The start index ~S must be less than equal to length of string ~S.",
+		fmte("The start index ~S must be less than equal to length of string ~S.",
 				pos1, pos2, NULL);
 	}
 	make_input_string(ret, string, start, size);
@@ -77,19 +77,19 @@ _g void open_input_string_stream2(addr *ret, addr string, size_t start, size_t e
 	if (size < start) {
 		make_index_integer_alloc(NULL, &pos1, start);
 		make_index_integer_alloc(NULL, &pos2, size);
-		_fmte("The start index ~S must be less than equal to length of string ~S.",
+		fmte("The start index ~S must be less than equal to length of string ~S.",
 				pos1, pos2, NULL);
 	}
 	if (size < end) {
 		make_index_integer_alloc(NULL, &pos1, end);
 		make_index_integer_alloc(NULL, &pos2, size);
-		_fmte("The end index ~S must be less than equal to length of string ~S.",
+		fmte("The end index ~S must be less than equal to length of string ~S.",
 				pos1, pos2, NULL);
 	}
 	if (end < start) {
 		make_index_integer_alloc(NULL, &pos1, start);
 		make_index_integer_alloc(NULL, &pos2, end);
-		_fmte("The start index ~S must be less than equal to the end index~S.",
+		fmte("The start index ~S must be less than equal to the end index~S.",
 				pos1, pos2, NULL);
 	}
 	make_input_string(ret, string, start, end);
@@ -134,13 +134,13 @@ static void unread_char_StringInput(addr stream, unicode c)
 	/* unread check */
 	ptr = PtrStructStream(stream);
 	if (ptr->unread_check) {
-		_fmte("unread already exists.", NULL);
+		fmte("unread already exists.", NULL);
 		return;
 	}
 	/* index check */
 	input = PtrStringInputStream(stream);
 	if (input->index == 0) {
-		_fmte("index underflow.", NULL);
+		fmte("index underflow.", NULL);
 		return;
 	}
 	input->index--;
@@ -236,7 +236,7 @@ static int file_position_StringInput(addr stream, size_t *ret)
 	str = PtrStructStream(stream);
 	if (str->unread_check) {
 		if (size == 0)
-			_fmte("The stream ~S position is minus value.", stream, NULL);
+			fmte("The stream ~S position is minus value.", stream, NULL);
 		size--;
 	}
 	*ret = size;
@@ -279,7 +279,7 @@ static int file_position_set_StringInput(addr stream, size_t pos)
 	if (pos <= str->size)
 		str->index = pos;
 	else
-		_fmte("The position ~A is too large.", intsizeh(pos), NULL);
+		fmte("The position ~A is too large.", intsizeh(pos), NULL);
 	PtrStructStream(stream)->unread_check = 0;
 
 	return 0;
@@ -396,10 +396,10 @@ _g void string_stream_alloc(LocalRoot local, addr stream, addr *string)
 	addr queue;
 
 	if (extend_string_p(stream))
-		_fmte("The extended-string-stream ~S don't make a string.", stream, NULL);
+		fmte("The extended-string-stream ~S don't make a string.", stream, NULL);
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		_fmte("stream is already closed.", NULL);
+		fmte("stream is already closed.", NULL);
 	make_charqueue_alloc(local, queue, string);
 }
 
@@ -421,7 +421,7 @@ _g void clear_output_string_stream(addr stream)
 	CheckOutputStringStream(stream);
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		_fmte("stream is already closed.", NULL);
+		fmte("stream is already closed.", NULL);
 	clear_charqueue(queue);
 }
 
@@ -466,7 +466,7 @@ static void write_char_StringOutput_normal(addr stream, unicode c)
 	/* stream */
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		_fmte("stream is already closed.", NULL);
+		fmte("stream is already closed.", NULL);
 	if (GetStatusDynamic(stream))
 		push_charqueue_local(Local_Thread, queue, c);
 	else
@@ -483,7 +483,7 @@ static void write_char_StringOutput_extend(addr stream, unicode c)
 	/* stream */
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		_fmte("stream is already closed.", NULL);
+		fmte("stream is already closed.", NULL);
 	character_heap(&value, c);
 	vector_push_extend_common(value, queue, Unbound, &value);
 

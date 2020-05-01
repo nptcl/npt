@@ -1,9 +1,10 @@
 #include "bignum.h"
 #include "condition.h"
-#include "control.h"
 #include "cons.h"
 #include "cons_plist.h"
 #include "constant.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "eval_declare.h"
 #include "function.h"
 #include "format_function.h"
@@ -58,7 +59,7 @@ _g int formatter_common(LocalRoot local, addr var, addr env, addr *ret)
 	return Result(ret, pos);;
 
 error:
-	return fmte("FORMATTER argument must be a (FORMATTER string) form.", NULL);
+	return fmte_("FORMATTER argument must be a (FORMATTER string) form.", NULL);
 }
 
 
@@ -125,11 +126,11 @@ _g int pprint_indent_common(Execute ptr, addr rel, addr n, addr stream)
 		block_p = 0;
 	}
 	else {
-		return fmte("The first argument ~S "
+		return fmte_("The first argument ~S "
 				"must be a (MEMBER :BLOCK :CURRENT).", rel, NULL);
 	}
 	if (! fixnump(n))
-		return fmte("Too large indent value ~S.", n, NULL);
+		return fmte_("Too large indent value ~S.", n, NULL);
 	GetFixnum(n, &value);
 	pprint_indent_print(ptr, block_p, value, stream);
 
@@ -186,7 +187,7 @@ _g int pprint_logical_block_common(addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	return fmte("PPRINT-LOGICAL-BLOCK form ~S must be "
+	return fmte_("PPRINT-LOGICAL-BLOCK form ~S must be "
 			"((stream object &key prefix per-line-prefix suffix) "
 			"declaration* form*)", form, NULL);
 }
@@ -214,7 +215,7 @@ static int pprint_newline_symbol_common(addr kind, enum pprint_newline *ret)
 
 	/* error */
 	*ret = pprint_newline_linear;
-	return fmte("PPRINT-NEWLINE first argument ~S must be "
+	return fmte_("PPRINT-NEWLINE first argument ~S must be "
 			"(member :linear :fill :miser :mandatory)", kind, NULL);
 }
 
@@ -252,7 +253,7 @@ static int pprint_tab_symbol_common(addr kind, enum pprint_tabular *ret)
 
 	/* error */
 	*ret = pprint_tabular_line;
-	return fmte("PPRINT-TAB first argument ~S must be "
+	return fmte_("PPRINT-TAB first argument ~S must be "
 			"(member :line :section :line-relative :section-relative)", kind, NULL);
 }
 
@@ -328,7 +329,7 @@ _g int print_unreadable_object_common(addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	return fmte("PRINT-UNREADABLE-OBJECT form ~S must be "
+	return fmte_("PRINT-UNREADABLE-OBJECT form ~S must be "
 			"((object stream &key type identity) &body form)", form, NULL);
 }
 

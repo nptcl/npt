@@ -53,7 +53,7 @@ _g int simple_condition(addr control, addr args)
 {
 	addr instance;
 	instance_simple_condition(&instance, control, args);
-	return signal_function(Execute_Thread, instance);
+	return signal_function_(Execute_Thread, instance);
 }
 _g void simple_condition_format(addr condition, addr *control, addr *arguments)
 {
@@ -125,7 +125,7 @@ _g int simple_warning(addr control, addr args)
 {
 	addr instance;
 	instance_simple_warning(&instance, control, args);
-	return signal_function(Execute_Thread, instance);
+	return signal_function_(Execute_Thread, instance);
 }
 
 /* storage_condition (serious_condition) */

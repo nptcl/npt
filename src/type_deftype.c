@@ -1,5 +1,5 @@
 #include "condition.h"
-#include "control.h"
+#include "control_execute.h"
 #include "cons.h"
 #include "eval_declare.h"
 #include "lambda.h"
@@ -67,23 +67,23 @@ _g int deftype_common(Execute ptr, addr form, addr env, addr *ret)
 	/* (deftype . form) */
 	getcdr(form, &right);
 	if (right == Nil)
-		return fmte("deftype form must have at least a name and body.", NULL);
+		return fmte_("deftype form must have at least a name and body.", NULL);
 	if (! consp(right))
-		return fmte("Invalid deftype form.", NULL);
+		return fmte_("Invalid deftype form.", NULL);
 
 	/* name */
 	getcons(right, &name, &right);
 	if (! symbolp(name))
-		return fmte("deftype name ~S must be a symbol.", name, NULL);
+		return fmte_("deftype name ~S must be a symbol.", name, NULL);
 	if (right == Nil)
-		return fmte("deftype form must have at least a name and body.", NULL);
+		return fmte_("deftype form must have at least a name and body.", NULL);
 	if (! consp(right))
-		return fmte("Invalid deftype form.", NULL);
+		return fmte_("Invalid deftype form.", NULL);
 
 	/* args */
 	getcons(right, &args, &right);
 	if (! IsList(right))
-		return fmte("Invalid deftype form.", NULL);
+		return fmte_("Invalid deftype form.", NULL);
 
 	/* parse */
 	lambda_deftype(ptr->local, &args, args, Nil);

@@ -103,13 +103,13 @@ static size_t start_end_sequence_range(
 			if (index2 <= index1)
 				break;
 			if (list == Nil)
-				_fmte(":END ~A must be less than equal to list length.", end, NULL);
+				fmte(":END ~A must be less than equal to list length.", end, NULL);
 		}
 		else if (list == Nil) {
 			break;
 		}
 		if (! consp(list))
-			_fmte("Don't accept the dotted list ~S.", list, NULL);
+			fmte("Don't accept the dotted list ~S.", list, NULL);
 		GetCdr(list, &list);
 	}
 
@@ -197,7 +197,7 @@ normal:
 	return 0;
 
 error:
-	_fmte(":END ~A must be less than equal to list length.",
+	fmte(":END ~A must be less than equal to list length.",
 			intsizeh(ptr->end), NULL);
 	return 1;
 }
@@ -354,7 +354,7 @@ _g void remove_sequence_range(struct sequence_range *ptr)
 
 	if (ptr->endp) {
 		if (ptr->end <= ptr->index)
-			_fmte(":end size error", NULL);
+			fmte(":end size error", NULL);
 		ptr->end--;
 		ptr->size--;
 	}

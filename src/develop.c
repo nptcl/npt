@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "constant.h"
-#include "control.h"
+#include "control_object.h"
 #include "degrade.h"
 #include "execute.h"
 #include "stream_broadcast.h"

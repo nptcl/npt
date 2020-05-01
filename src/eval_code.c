@@ -43,7 +43,10 @@ struct evalcode {
 
 struct evalcode_stack {
 	unsigned finish : 1;
-	enum CodeType type;
+	unsigned p_control : 1;
+	unsigned p_return : 1;
+	unsigned p_push : 1;
+	unsigned p_argument : 1;
 	LocalStack stack;
 	size_t size;
 };
@@ -75,11 +78,13 @@ typedef struct evalcode_switch modeswitch;
  */
 static void alloc_evalcode_stack(LocalRoot local, addr *ret)
 {
-	alloc_smallsize(local, ret, LISPSYSTEM_EVALSTACK,
-			EvalCodeStack_Size, sizeoft(struct evalcode_stack));
+	alloc_smallsize(local, ret,
+			LISPSYSTEM_EVALSTACK,
+			EvalCodeStack_Size,
+			sizeoft(struct evalcode_stack));
 }
 
-static void evalcode_stack_local(LocalRoot local, addr *ret, enum CodeType type)
+static void evalcode_stack_local(LocalRoot local, addr *ret)
 {
 	addr pos;
 	struct evalcode_stack *ptr;
@@ -89,8 +94,7 @@ static void evalcode_stack_local(LocalRoot local, addr *ret, enum CodeType type)
 	push_local(local, &stack);
 	alloc_evalcode_stack(local, &pos);
 	ptr = StructEvalCodeStack(pos);
-	memset(ptr, 0, sizeoft(struct evalcode_stack));
-	ptr->type = type;
+	clearpoint(ptr);
 	ptr->stack = stack;
 	*ret = pos;
 }
@@ -144,11 +148,11 @@ static void evalcode_local(LocalRoot local, addr *ret)
 	Check(local == NULL, "local error");
 	alloc_evalcode(local, &pos);
 	/* array */
-	evalcode_stack_local(local, &stack, CodeType_Default);
+	evalcode_stack_local(local, &stack);
 	SetEvalCode(pos, EvalCode_Code, stack);
 	/* body */
 	ptr = StructEvalCode(pos);
-	memset(ptr, 0, sizeoft(struct evalcode));
+	clearpoint(ptr);
 	ptr->mode = EvalCode_ModeSet;
 	/* result */
 	*ret = pos;
@@ -205,7 +209,7 @@ static void evalcode_remmode(addr code, modeswitch *mode)
 	evalcode_savevalue(code, mode, EvalCode_ModeRemove);
 }
 
-static void pushdata(LocalRoot local, addr code, addr value)
+static void evalcode_add(LocalRoot local, addr code, addr value)
 {
 	addr stack;
 
@@ -216,13 +220,13 @@ static void pushdata(LocalRoot local, addr code, addr value)
 	push_evalcode_stack(local, stack, value);
 }
 
-static void pushleftright(LocalRoot local, addr code, addr left, addr right)
+static void evalcode_addcarcdr(LocalRoot local, addr code, addr left, addr right)
 {
 	cons_heap(&right, left, right);
-	pushdata(local, code, right);
+	evalcode_add(local, code, right);
 }
 
-static void pushlist_eval(LocalRoot local, addr code, addr pos, ...)
+static void evalcode_addlist(LocalRoot local, addr code, addr pos, ...)
 {
 	addr cons;
 	va_list args;
@@ -231,7 +235,7 @@ static void pushlist_eval(LocalRoot local, addr code, addr pos, ...)
 	list_alloc_stdarg(NULL, &cons, args);
 	va_end(args);
 	cons_heap(&pos, pos, cons);
-	pushdata(local, code, pos);
+	evalcode_add(local, code, pos);
 }
 
 _g void evalcode_single(LocalRoot local, addr code, constindex index)
@@ -240,14 +244,14 @@ _g void evalcode_single(LocalRoot local, addr code, constindex index)
 
 	GetConstant(index, &pos);
 	conscar_heap(&pos, pos);
-	pushdata(local, code, pos);
+	evalcode_add(local, code, pos);
 }
 
 _g void evalcode_carcdr(LocalRoot local, addr code, constindex index, addr right)
 {
 	addr pos;
 	GetConstant(index, &pos);
-	pushleftright(local, code, pos, right);
+	evalcode_addcarcdr(local, code, pos, right);
 }
 
 _g void evalcode_double(LocalRoot local,
@@ -255,7 +259,7 @@ _g void evalcode_double(LocalRoot local,
 {
 	addr first;
 	GetConstant(index, &first);
-	pushlist_eval(local, code, first, left, right, NULL);
+	evalcode_addlist(local, code, first, left, right, NULL);
 }
 
 _g void evalcode_push3(LocalRoot local,
@@ -263,34 +267,19 @@ _g void evalcode_push3(LocalRoot local,
 {
 	addr first;
 	GetConstant(index, &first);
-	pushlist_eval(local, code, first, left, right, third, NULL);
+	evalcode_addlist(local, code, first, left, right, third, NULL);
 }
 
-static void code_push6(LocalRoot local,
+static void evalcode_push6(LocalRoot local,
 		addr code, constindex index,
 		addr a, addr b, addr c, addr d, addr e, addr f)
 {
 	addr first;
 	GetConstant(index, &first);
-	pushlist_eval(local, code, first, a, b, c, d, e, f, NULL);
+	evalcode_addlist(local, code, first, a, b, c, d, e, f, NULL);
 }
 
-#ifdef LISP_DEGRADE
-static void code_list(LocalRoot local, addr code, constindex index, ...)
-{
-	addr pos, cons;
-	va_list args;
-
-	GetConstant(index, &pos);
-	va_start(args, index);
-	list_alloc_stdarg(NULL, &cons, args);
-	va_end(args);
-	cons_heap(&pos, pos, cons);
-	pushdata(local, code, pos);
-}
-#endif
-
-_g void evalcode_if_push(LocalRoot local, addr code)
+_g void evalcode_ifpush(LocalRoot local, addr code)
 {
 	if (evalcode_pushp(code))
 		EvalCode_single(local, code, PUSH_RESULT);
@@ -300,14 +289,14 @@ _g void evalcode_if_push(LocalRoot local, addr code)
 /*
  *  stack
  */
-static void pushstack_type(LocalRoot local, addr code, enum CodeType type)
+static struct evalcode_stack *evalcode_push_struct(LocalRoot local, addr code)
 {
 	addr stack, one, pos;
 	struct evalcode *ptr;
 
 	CheckTypeEvalCode(code);
 	/* new stack */
-	evalcode_stack_local(local, &one, type);
+	evalcode_stack_local(local, &one);
 	/* push */
 	GetEvalCode(code, EvalCode_Code, &pos);
 	GetEvalCode(code, EvalCode_Stack, &stack);
@@ -316,141 +305,163 @@ static void pushstack_type(LocalRoot local, addr code, enum CodeType type)
 	SetEvalCode(code, EvalCode_Code, one);
 	ptr = StructEvalCode(code);
 	ptr->size++;
+	/* result */
+	return StructEvalCodeStack(one);
 }
 
-static void pushstack(LocalRoot local, addr code)
+static void evalcode_push_default(LocalRoot local, addr code)
 {
-	pushstack_type(local, code, CodeType_Default);
-}
-_g void evalcode_pushstack_return(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_Return);
-}
-static void pushstack_argument(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_Argument);
-}
-static void pushstack_push(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_Push);
-}
-static void pushstack_remove(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_Remove);
-}
-static void pushstack_close(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_Close);
-}
-static void pushstack_protect(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_Protect);
-}
-static void pushstack_tagbody(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_TagBody);
-}
-static void pushstack_block(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_Block);
-}
-static void pushstack_catch(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_Catch);
-}
-static void pushstack_condition(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_Condition);
-}
-static void pushstack_restart(LocalRoot local, addr code)
-{
-	pushstack_type(local, code, CodeType_Restart);
+	(void)evalcode_push_struct(local, code);
 }
 
-static void pushstack_mode(LocalRoot local, addr code)
+_g void evalcode_push_return(LocalRoot local, addr code)
+{
+	struct evalcode_stack *str;
+
+	str = evalcode_push_struct(local, code);
+	str->p_control = 1;
+	str->p_return = 1;
+}
+
+static void evalcode_push_argument(LocalRoot local, addr code)
+{
+	struct evalcode_stack *str;
+
+	str = evalcode_push_struct(local, code);
+	str->p_control = 1;
+	str->p_return = 1;
+	str->p_argument = 1;
+}
+
+static void evalcode_push_push(LocalRoot local, addr code)
+{
+	struct evalcode_stack *str;
+
+	str = evalcode_push_struct(local, code);
+	str->p_control = 1;
+	str->p_push = 1;
+}
+
+static void evalcode_push_close(LocalRoot local, addr code)
+{
+	struct evalcode_stack *str;
+
+	str = evalcode_push_struct(local, code);
+	str->p_control = 1;
+}
+
+static void evalcode_push_mode(LocalRoot local, addr code)
 {
 	switch (evalcode_mode(code)) {
 		case EvalCode_ModeSet:
-			evalcode_pushstack_return(local, code);
+			evalcode_push_return(local, code);
 			break;
 
 		case EvalCode_ModePush:
-			pushstack_push(local, code);
+			evalcode_push_push(local, code);
 			break;
 
 		case EvalCode_ModeRemove:
 		default:
-			pushstack_remove(local, code);
+			evalcode_push_close(local, code);
 			break;
 	}
 }
 
-static int stack_goto_p(addr pos)
+static int evalcode_pop_goto_p(addr pos)
 {
 	addr check;
 
-	if (GetType(pos) != LISPTYPE_CONS) return 0;
+	if (GetType(pos) != LISPTYPE_CONS)
+		return 0;
 	GetCar(pos, &pos);
 	GetConst(CODE_GOTO, &check);
-	if (pos == check) return 1;
+	if (pos == check)
+		return 1;
 	GetConst(CODE_IF_NIL, &check);
-	if (pos == check) return 1;
+	if (pos == check)
+		return 1;
 	GetConst(CODE_IF_T, &check);
-	if (pos == check) return 1;
+	if (pos == check)
+		return 1;
 
 	return 0;
 }
 
-static int stack_tag_p(addr pos, addr *ret)
+static int evalcode_pop_tag_p(addr pos, addr *ret)
 {
 	addr check, left;
 
-	if (GetType(pos) != LISPTYPE_CONS) return 0;
+	if (GetType(pos) != LISPTYPE_CONS)
+		return 0;
 	GetCar(pos, &left);
 	GetConst(CODE_TAG, &check);
-	if (left != check) return 0;
+	if (left != check)
+		return 0;
 	GetCdr(pos, ret);
 
 	return 1;
 }
 
-static int stack_label_p(addr pos)
+static int evalcode_pop_taginfo_p(addr pos)
+{
+	addr check;
+
+	if (GetType(pos) != LISPTYPE_CONS)
+		return 0;
+	GetCar(pos, &pos);
+	GetConst(CODE_TAGINFO, &check);
+	return pos == check;
+}
+
+static int evalcode_pop_label_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_INDEX;
 }
 
-static void stack_labelcons(LocalRoot local,
-		addr right, addr *retlabel, addr *rettag, size_t *retsize)
+static void evalcode_pop_labelcons(LocalRoot local,
+		addr body, addr *retlabel, addr *rettag, size_t *retsize)
 {
-	addr label, tag, left, index;
+	addr label, tag, x, index, taginfo, list;
 	size_t size;
 
-	label = tag = Nil;
+	label = tag = list = Nil;
+	taginfo = NULL;
 	size = 0;
-	while (right != Nil) {
-		GetCons(right, &left, &right);
-		if (stack_label_p(left)) {
-			/* local */
+	while (body != Nil) {
+		GetCons(body, &x, &body);
+		if (evalcode_pop_label_p(x)) {
+			/* label -> index (local) */
 			index_local(local, &index, size);
-			cons_local(local, &left, left, index);
-			cons_local(local, &label, left, label);
+			cons_local(local, &x, x, index);
+			cons_local(local, &label, x, label);
 		}
-		else if (stack_tag_p(left, &left)) {
-			/* heap */
+		else if (evalcode_pop_tag_p(x, &x)) {
+			/* tag -> index (heap) */
 			index_heap(&index, size);
-			cons_heap(&left, left, index);
-			cons_heap(&tag, left, tag);
+			/* taginfo */
+			cons_heap(&list, x, list);
+			cons_heap(&list, index, list);
+			/* tag */
+			cons_heap(&x, x, index);
+			cons_heap(&tag, x, tag);
 		}
 		else {
+			if (evalcode_pop_taginfo_p(x))
+				taginfo = x;
 			size++;
 		}
+	}
+	if (taginfo) {
+		nreverse_list_unsafe(&list, list);
+		SetCdr(taginfo, list);
 	}
 	*retlabel = label;
 	*rettag = tag;
 	*retsize = size;
 }
 
-static size_t stack_findlabel(addr label, addr right)
+static size_t evalcode_pop_findlabel(addr label, addr right)
 {
 	addr left;
 	size_t index;
@@ -462,73 +473,83 @@ static size_t stack_findlabel(addr label, addr right)
 		if (RefIndex(left) == index)
 			return RefIndex(right);
 	}
-	Abort("stack_findlabel error");
+	Abort("evalcode_pop_findlabel error");
 
 	return 0;
 }
 
-static void stack_replace_goto(addr label, addr pos, addr *ret)
+static void evalcode_pop_replace_goto(addr label, addr pos, addr *ret)
 {
 	addr cdr;
 	size_t value;
 
 	GetCons(pos, &pos, &cdr);
-	value = stack_findlabel(label, cdr);
+	value = evalcode_pop_findlabel(label, cdr);
 	index_heap(&cdr, value);
 	cons_heap(ret, pos, cdr);
 }
 
-static void stack_makecode(LocalRoot local, addr cons, addr *retvect, addr *rettag)
+static void evalcode_pop_gotocons(LocalRoot local, addr list,
+		addr label, addr tag, addr array, size_t size)
 {
-	addr pos, label, tag, array;
-	size_t size, i;
+	addr pos;
+	size_t i;
 
-	stack_labelcons(local, cons, &label, &tag, &size);
-	vector4_heap(&array, size);
-	for (i = 0; cons != Nil; ) {
-		GetCons(cons, &pos, &cons);
-		if (stack_label_p(pos) || stack_tag_p(pos, &pos)) {
+	/* code */
+	i = 0;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		if (evalcode_pop_label_p(pos) || evalcode_pop_tag_p(pos, &pos)) {
 			continue;
 		}
-		else if (stack_goto_p(pos)) {
-			stack_replace_goto(label, pos, &pos);
+		else if (evalcode_pop_goto_p(pos)) {
+			evalcode_pop_replace_goto(label, pos, &pos);
 		}
 		SetArrayA4(array, i++, pos);
 	}
-	*retvect = array;
-	*rettag = tag;
 }
 
-static void popstack_code(LocalRoot local, addr stack, addr tag, addr *ret)
+static void evalcode_pop_makecode(LocalRoot local, addr cons, addr *ret)
+{
+	addr label, tag, array;
+	size_t size;
+
+	evalcode_pop_labelcons(local, cons, &label, &tag, &size);
+	vector4_heap(&array, size);
+	evalcode_pop_gotocons(local, cons, label, tag, array, size);
+	*ret = array;
+}
+
+static void evalcode_pop_code(LocalRoot local, addr stack, addr *ret)
 {
 	addr pos;
-	enum CodeType type;
-	struct evalcode_stack *ptr;
+	struct evalcode_stack str;
+	struct code_struct *code;
 
 	/* free stack */
-	ptr = StructEvalCodeStack(stack);
-	Check(! ptr->finish, "finish error");
-	type = ptr->type;
+	str = *(StructEvalCodeStack(stack));
+	Check(! str.finish, "finish error");
 	GetEvalCodeStack(stack, EvalCodeStack_Result, &pos);
-	stack_makecode(local, pos, &pos, &tag);
+	evalcode_pop_makecode(local, pos, &pos);
 	free_evalcode_stack(local, stack);
 
 	/* make code */
 	code_heap(&pos, pos);
-	settype_code(pos, type);
-	if (tag != Nil)
-		setinfo_code(pos, tag);
+	code = StructCode(pos);
+	code->p_control = str.p_control;
+	code->p_return = str.p_return;
+	code->p_push = str.p_push;
+	code->p_argument = str.p_argument;
 	*ret = pos;
 }
 
-static void popstack_args(LocalRoot local, addr code, addr tag, addr *ret)
+_g void evalcode_pop(LocalRoot local, addr code, addr *ret)
 {
 	addr pos, left, right;
 	struct evalcode *ptr;
 
 	CheckTypeEvalCode(code);
 	/* close stack */
-	evalcode_single(local, code, CONSTANT_CODE_END);
 	GetEvalCode(code, EvalCode_Code, &pos);
 	finish_evalcode_stack(local, pos);
 	/* pop stack */
@@ -539,31 +560,14 @@ static void popstack_args(LocalRoot local, addr code, addr tag, addr *ret)
 	ptr = StructEvalCode(code);
 	ptr->size--;
 	/* push operator */
-	popstack_code(local, pos, tag, ret);
-}
-_g void evalcode_popstack(LocalRoot local, addr code, addr *ret)
-{
-	popstack_args(local, code, Nil, ret);
-}
-static void popstack_tagbody(LocalRoot local, addr code, addr tag, addr *ret)
-{
-	popstack_args(local, code, tag, ret);
-}
-
-static void popstack_block(LocalRoot local, addr code, addr name, addr *ret)
-{
-	addr pos;
-
-	evalcode_popstack(local, code, &pos);
-	setinfo_code(pos, name);
-	*ret = pos;
+	evalcode_pop_code(local, pos, ret);
 }
 
 
 /*
  *  label
  */
-static void make_label(LocalRoot local, addr code, addr *ret)
+static void code_make_label(LocalRoot local, addr code, addr *ret)
 {
 	struct evalcode *ptr;
 
@@ -571,10 +575,10 @@ static void make_label(LocalRoot local, addr code, addr *ret)
 	index_heap(ret, ptr->label++);
 }
 
-static void push_label(LocalRoot local, addr code, addr label)
+static void code_push_label(LocalRoot local, addr code, addr label)
 {
 	CheckType(label, LISPTYPE_INDEX);
-	pushdata(local, code, label);
+	evalcode_add(local, code, label);
 }
 
 static void code_if_nil(LocalRoot local, addr code, addr label)
@@ -819,11 +823,11 @@ static void code_symbol_set(LocalRoot local, addr code, addr symbol, addr table)
 	if (check) {
 		GetConstantCode(specialp, SPECIAL_SET_TYPE, LEXICAL_SET_TYPE, &first);
 		gettype_tablevalue(table, &type);
-		pushlist_eval(local, code, first, symbol, type, NULL);
+		evalcode_addlist(local, code, first, symbol, type, NULL);
 	}
 	else {
 		GetConstantCode(specialp, SPECIAL_SET, LEXICAL_SET, &first);
-		pushleftright(local, code, first, symbol);
+		evalcode_addcarcdr(local, code, first, symbol);
 	}
 }
 
@@ -837,11 +841,11 @@ static void code_symbol_push(LocalRoot local, addr code, addr symbol, addr table
 	if (check) {
 		GetConstantCode(specialp, SPECIAL_PUSH_TYPE, LEXICAL_PUSH_TYPE, &first);
 		gettype_tablevalue(table, &type);
-		pushlist_eval(local, code, first, symbol, type, NULL);
+		evalcode_addlist(local, code, first, symbol, type, NULL);
 	}
 	else {
 		GetConstantCode(specialp, SPECIAL_PUSH, LEXICAL_PUSH, &first);
-		pushleftright(local, code, first, symbol);
+		evalcode_addcarcdr(local, code, first, symbol);
 	}
 }
 
@@ -855,11 +859,11 @@ static void code_symbol_remove(LocalRoot local, addr code, addr symbol, addr tab
 	if (check) {
 		GetConstantCode(specialp, SPECIAL_TYPE, LEXICAL_TYPE, &first);
 		gettype_tablevalue(table, &type);
-		pushlist_eval(local, code, first, symbol, type, NULL);
+		evalcode_addlist(local, code, first, symbol, type, NULL);
 	}
 	else {
 		GetConstantCode(specialp, SPECIAL_REMOVE, LEXICAL_REMOVE, &first);
-		pushleftright(local, code, first, symbol);
+		evalcode_addcarcdr(local, code, first, symbol);
 	}
 }
 
@@ -949,7 +953,7 @@ static void code_check_value(LocalRoot local, addr code, addr pos, addr type)
 	specialp = getspecialp_tablevalue(pos);
 	getname_tablevalue(pos, &pos);
 	GetConstantCode(specialp, SPECIAL_TYPE, LEXICAL_TYPE, &first);
-	pushlist_eval(local, code, first, pos, type, NULL);
+	evalcode_addlist(local, code, first, pos, type, NULL);
 }
 
 static void code_check_function(LocalRoot local, addr code, addr pos, addr type)
@@ -965,7 +969,7 @@ static void code_check_function(LocalRoot local, addr code, addr pos, addr type)
 	else
 		GetConstantCode(symbolp, FUNCTION_LOCAL_TYPE, SETF_LOCAL_TYPE, &first);
 	GetCallName(pos, &pos);
-	pushlist_eval(local, code, first, pos, type, NULL);
+	evalcode_addlist(local, code, first, pos, type, NULL);
 }
 
 static void code_free_declare(LocalRoot local, addr code, addr cons)
@@ -1022,11 +1026,11 @@ static void code_let_args(LocalRoot local, addr code, addr args)
 		if (check) {
 			GetConstantCode(specialp, LET_SPECIAL_TYPE, LET_LEXICAL_TYPE, &first);
 			gettype_tablevalue(pos, &type);
-			pushlist_eval(local, code, first, name, index, type, NULL);
+			evalcode_addlist(local, code, first, name, index, type, NULL);
 		}
 		else {
 			GetConstantCode(specialp, LET_SPECIAL, LET_LEXICAL, &first);
-			pushlist_eval(local, code, first, name, index, NULL);
+			evalcode_addlist(local, code, first, name, index, NULL);
 		}
 	}
 }
@@ -1036,14 +1040,14 @@ static void eval_code_let(LocalRoot local, addr code, addr scope)
 	addr args, cons, free;
 
 	/* make code */
-	pushstack_mode(local, code);
+	evalcode_push_mode(local, code);
 	GetEvalScopeIndex(scope, 0, &args);
 	GetEvalScopeIndex(scope, 2, &cons);
 	GetEvalScopeIndex(scope, 3, &free);
 	code_free_declare(local, code, free);
 	code_let_args(local, code, args);
 	code_allcons_set(local, code, cons);
-	evalcode_popstack(local, code, &cons);
+	evalcode_pop(local, code, &cons);
 	/* execute */
 	EvalCode_carcdr(local, code, EXECUTE, cons);
 }
@@ -1064,11 +1068,11 @@ static void code_leta_args(LocalRoot local, addr code, addr args)
 		if (check) {
 			GetConstantCode(specialp, LETA_SPECIAL_TYPE, LETA_LEXICAL_TYPE, &first);
 			gettype_tablevalue(pos, &type);
-			pushlist_eval(local, code, first, name, type, NULL);
+			evalcode_addlist(local, code, first, name, type, NULL);
 		}
 		else {
 			GetConstantCode(specialp, LETA_SPECIAL, LETA_LEXICAL, &first);
-			pushleftright(local, code, first, name);
+			evalcode_addcarcdr(local, code, first, name);
 		}
 	}
 }
@@ -1078,14 +1082,14 @@ static void eval_code_leta(LocalRoot local, addr code, addr scope)
 	addr args, cons, free;
 
 	/* make code */
-	pushstack_mode(local, code);
+	evalcode_push_mode(local, code);
 	GetEvalScopeIndex(scope, 0, &args);
 	GetEvalScopeIndex(scope, 2, &cons);
 	GetEvalScopeIndex(scope, 3, &free);
 	code_free_declare(local, code, free);
 	code_leta_args(local, code, args);
 	code_allcons_set(local, code, cons);
-	evalcode_popstack(local, code, &cons);
+	evalcode_pop(local, code, &cons);
 	/* execute */
 	EvalCode_carcdr(local, code, EXECUTE, cons);
 }
@@ -1103,11 +1107,11 @@ static void code_setq_execute(LocalRoot local, addr code, addr pos, addr form)
 	if (check) {
 		GetConstantCode(specialp, SETQ_SPECIAL_TYPE, SETQ_LEXICAL_TYPE, &first);
 		gettype_tablevalue(pos, &type);
-		pushlist_eval(local, code, first, name, type, NULL);
+		evalcode_addlist(local, code, first, name, type, NULL);
 	}
 	else {
 		GetConstantCode(specialp, SETQ_SPECIAL, SETQ_LEXICAL, &first);
-		pushleftright(local, code, first, name);
+		evalcode_addcarcdr(local, code, first, name);
 	}
 }
 
@@ -1130,7 +1134,7 @@ static void eval_code_setq(LocalRoot local, addr code, addr scope)
 	}
 
 	/* result */
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void code_function_object(LocalRoot local, addr code, addr pos)
@@ -1197,9 +1201,9 @@ static void ordinary_bind_opt(LocalRoot local, addr code, addr args, addr *ret)
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &init, &svar, NULL);
-		pushstack(local, code);
+		evalcode_push_default(local, code);
 		eval_code_execute_set(local, code, init);
-		evalcode_popstack(local, code, &init);
+		evalcode_pop(local, code, &init);
 		list_heap(&var, var, init, svar, NULL);
 		cons_heap(&root, var, root);
 	}
@@ -1213,9 +1217,9 @@ static void ordinary_bind_key(LocalRoot local, addr code, addr args, addr *ret)
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &name, &init, &svar, NULL);
-		pushstack(local, code);
+		evalcode_push_default(local, code);
 		eval_code_execute_set(local, code, init);
-		evalcode_popstack(local, code, &init);
+		evalcode_pop(local, code, &init);
 		list_heap(&var, var, name, init, svar, NULL);
 		cons_heap(&root, var, root);
 	}
@@ -1229,9 +1233,9 @@ static void ordinary_bind_aux(LocalRoot local, addr code, addr args, addr *ret)
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &init, NULL);
-		pushstack(local, code);
+		evalcode_push_default(local, code);
 		eval_code_execute_set(local, code, init);
-		evalcode_popstack(local, code, &init);
+		evalcode_pop(local, code, &init);
 		list_heap(&var, var, init, NULL);
 		cons_heap(&root, var, root);
 	}
@@ -1261,11 +1265,11 @@ static void code_lambda_code(LocalRoot local, addr code, addr scope, addr *ret)
 	GetEvalScopeIndex(scope, EvalLambda_Args, &args);
 	GetEvalScopeIndex(scope, EvalLambda_Cons, &cons);
 	GetEvalScopeIndex(scope, EvalLambda_Free, &free);
-	pushstack_argument(local, code);
+	evalcode_push_argument(local, code);
 	code_free_declare(local, code, free);
 	ordinary_bind(local, code, args);
 	code_allcons_set(local, code, cons);
-	evalcode_popstack(local, code, ret);
+	evalcode_pop(local, code, ret);
 	/* rollback */
 	evalcode_rollback(code, &mode);
 }
@@ -1318,11 +1322,11 @@ static void code_lambda_operator(LocalRoot local,
 	GetEvalScopeIndex(scope, EvalLambda_Form, &form);
 	GetEvalScopeIndex(scope, EvalLambda_Defun, &defun);
 	if ((name != Nil) && getreference_tablefunction(table)) {
-		code_push6(local, code, CONSTANT_CODE_LAMBDA_SELF,
+		evalcode_push6(local, code, CONSTANT_CODE_LAMBDA_SELF,
 				name, pos, the, doc, form, defun);
 	}
 	else {
-		code_push6(local, code, CONSTANT_CODE_LAMBDA,
+		evalcode_push6(local, code, CONSTANT_CODE_LAMBDA,
 				name, pos, the, doc, form, defun);
 	}
 }
@@ -1338,7 +1342,7 @@ static void code_lambda_function(LocalRoot local, addr code, addr name, addr sco
 	/* closure */
 	GetEvalScopeIndex(scope, EvalLambda_Clos, &clos);
 	code_lambda_clos(local, code, clos);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_lambda(LocalRoot local, addr code, addr scope)
@@ -1362,7 +1366,7 @@ static void eval_code_defun(LocalRoot local, addr code, addr scope)
 {
 	code_lambda_set(local, code, scope);
 	EvalCode_single(local, code, DEFUN);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void code_macro_bind_args(LocalRoot, addr, addr, addr *);
@@ -1408,11 +1412,11 @@ static void code_macro_code(LocalRoot local, addr code, addr scope, addr *ret)
 	GetEvalScopeIndex(scope, EvalLambda_Args, &args);
 	GetEvalScopeIndex(scope, EvalLambda_Cons, &cons);
 	GetEvalScopeIndex(scope, EvalLambda_Free, &free);
-	pushstack_argument(local, code);
+	evalcode_push_argument(local, code);
 	code_free_declare(local, code, free);
 	code_macro_bind(local, code, args);
 	code_allcons_set(local, code, cons);
-	evalcode_popstack(local, code, ret);
+	evalcode_pop(local, code, ret);
 	/* rollback */
 	evalcode_rollback(code, &mode);
 }
@@ -1429,7 +1433,7 @@ static void code_macro_function(LocalRoot local, addr code, addr scope)
 	/* make code */
 	GetEvalScopeIndex(scope, EvalLambda_Doc, &doc);
 	evalcode_double(local, code, CONSTANT_CODE_MACRO_LAMBDA, pos, doc);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_macro_lambda(LocalRoot local, addr code, addr scope)
@@ -1444,7 +1448,7 @@ static void eval_code_defmacro(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, 0, &name);
 	GetEvalScopeIndex(scope, 1, &lambda);
 	EvalCode_double(local, code, DEFMACRO, name, lambda);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_deftype(LocalRoot local, addr code, addr scope)
@@ -1455,7 +1459,7 @@ static void eval_code_deftype(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, EvalLambda_Call, &call);
 	GetEvalScopeIndex(scope, EvalLambda_Doc, &doc);
 	EvalCode_double(local, code, DEFTYPE, call, doc);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_define_compiler_macro(LocalRoot local, addr code, addr scope)
@@ -1466,7 +1470,7 @@ static void eval_code_define_compiler_macro(LocalRoot local, addr code, addr sco
 	GetEvalScopeIndex(scope, EvalLambda_Call, &call);
 	GetEvalScopeIndex(scope, EvalLambda_Doc, &doc);
 	EvalCode_double(local, code, DEFINE_COMPILER_MACRO, call, doc);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void code_dbind_args(LocalRoot local, addr code, addr args)
@@ -1486,11 +1490,11 @@ static void code_dbind_code(LocalRoot local, addr code, addr scope, addr *ret)
 	GetEvalScopeIndex(scope, EvalLambda_Args, &args);
 	GetEvalScopeIndex(scope, EvalLambda_Cons, &cons);
 	GetEvalScopeIndex(scope, EvalLambda_Free, &free);
-	pushstack_argument(local, code);
+	evalcode_push_argument(local, code);
 	code_free_declare(local, code, free);
 	code_dbind_args(local, code, args);
 	code_allcons_set(local, code, cons);
-	evalcode_popstack(local, code, ret);
+	evalcode_pop(local, code, ret);
 	/* rollback */
 	evalcode_rollback(code, &mode);
 }
@@ -1503,7 +1507,7 @@ static void eval_code_destructuring_bind(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, 0, &expr);
 	GetEvalScopeIndex(scope, 1, &args);
 
-	evalcode_pushstack_return(local, code);
+	evalcode_push_return(local, code);
 
 	evalcode_setmode(code, &mode);
 	eval_code_execute(local, code, expr);
@@ -1511,11 +1515,11 @@ static void eval_code_destructuring_bind(LocalRoot local, addr code, addr scope)
 	code_dbind_code(local, code, args, &args);
 	EvalCode_carcdr(local, code, EXECUTE, args);
 	evalcode_rollback(code, &mode);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 
-	evalcode_popstack(local, code, &pos);
+	evalcode_pop(local, code, &pos);
 	EvalCode_carcdr(local, code, EXECUTE, pos);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_define_symbol_macro(LocalRoot local, addr code, addr scope)
@@ -1526,7 +1530,7 @@ static void eval_code_define_symbol_macro(LocalRoot local, addr code, addr scope
 	GetEvalScopeIndex(scope, 1, &lambda);
 	GetEvalScopeIndex(scope, 2, &body);
 	EvalCode_push3(local, code, DEFINE_SYMBOL_MACRO, symbol, lambda, body);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void code_flet_args(LocalRoot local, addr code, addr args)
@@ -1566,14 +1570,14 @@ static void eval_code_flet(LocalRoot local, addr code, addr scope)
 	addr args, cons, free;
 
 	/* make code */
-	pushstack_mode(local, code);
+	evalcode_push_mode(local, code);
 	GetEvalScopeIndex(scope, 0, &args);
 	GetEvalScopeIndex(scope, 2, &cons);
 	GetEvalScopeIndex(scope, 3, &free);
 	code_free_declare(local, code, free);
 	code_flet_args(local, code, args);
 	code_allcons_set(local, code, cons);
-	evalcode_popstack(local, code, &cons);
+	evalcode_pop(local, code, &cons);
 	/* execute */
 	EvalCode_carcdr(local, code, EXECUTE, cons);
 }
@@ -1597,14 +1601,14 @@ static void eval_code_labels(LocalRoot local, addr code, addr scope)
 	addr args, cons, free;
 
 	/* make code */
-	pushstack_mode(local, code);
+	evalcode_push_mode(local, code);
 	GetEvalScopeIndex(scope, 0, &args);
 	GetEvalScopeIndex(scope, 2, &cons);
 	GetEvalScopeIndex(scope, 3, &free);
 	code_free_declare(local, code, free);
 	code_lables_args(local, code, args);
 	code_allcons_set(local, code, cons);
-	evalcode_popstack(local, code, &cons);
+	evalcode_pop(local, code, &cons);
 	/* execute */
 	EvalCode_carcdr(local, code, EXECUTE, cons);
 }
@@ -1620,13 +1624,13 @@ static void code_values_set(LocalRoot local, addr code, addr cons)
 	}
 
 	/* list */
-	evalcode_pushstack_return(local, code);
+	evalcode_push_return(local, code);
 	while (cons != Nil) {
 		GetCons(cons, &pos, &cons);
 		eval_code_execute_push(local, code, pos);
 	}
 	EvalCode_single(local, code, VALUES_SET);
-	evalcode_popstack(local, code, &pos);
+	evalcode_pop(local, code, &pos);
 	EvalCode_carcdr(local, code, EXECUTE, pos);
 }
 
@@ -1678,7 +1682,7 @@ static void eval_code_the(LocalRoot local, addr code, addr scope)
 		eval_code_execute_set(local, code, form);
 		GetEvalScopeThe(scope, &form);
 		EvalCode_carcdr(local, code, THE, form);
-		evalcode_if_push(local, code);
+		evalcode_ifpush(local, code);
 	}
 }
 
@@ -1720,17 +1724,17 @@ static void code_if_true(LocalRoot local, addr code, addr then, addr last)
 
 	check = (RefEvalScopeType(last) == EVAL_PARSE_NIL);
 	/* (if expr then else) */
-	make_label(local, code, &label_else);
-	make_label(local, code, &label_end);
+	code_make_label(local, code, &label_else);
+	code_make_label(local, code, &label_end);
 	code_if_nil(local, code, label_else);
 	eval_code_execute(local, code, then);
 	code_goto(local, code, label_end);
-	push_label(local, code, label_else);
+	code_push_label(local, code, label_else);
 	if (check)
 		eval_code_nil(local, code, NULL);
 	else
 		eval_code_execute(local, code, last);
-	push_label(local, code, label_end);
+	code_push_label(local, code, label_end);
 }
 
 static void code_if_false(LocalRoot local, addr code, addr then, addr last)
@@ -1740,17 +1744,17 @@ static void code_if_false(LocalRoot local, addr code, addr then, addr last)
 
 	check = (RefEvalScopeType(last) == EVAL_PARSE_NIL);
 	/* (if (not expr) then else) */
-	make_label(local, code, &label_else);
-	make_label(local, code, &label_end);
+	code_make_label(local, code, &label_else);
+	code_make_label(local, code, &label_end);
 	code_if_t(local, code, label_else);
 	eval_code_execute(local, code, then);
 	code_goto(local, code, label_end);
-	push_label(local, code, label_else);
+	code_push_label(local, code, label_else);
 	if (check)
 		eval_code_nil(local, code, NULL);
 	else
 		eval_code_execute(local, code, last);
-	push_label(local, code, label_end);
+	code_push_label(local, code, label_end);
 }
 
 static void eval_code_if(LocalRoot local, addr code, addr scope)
@@ -1774,26 +1778,24 @@ static void eval_code_unwind_protect(LocalRoot local, addr code, addr scope)
 
 	GetEvalScopeIndex(scope, 0, &form);
 	GetEvalScopeIndex(scope, 1, &cons);
-	/* protect */
-	pushstack_protect(local, code);
-	eval_code_execute_set(local, code, form);
-	evalcode_popstack(local, code, &protect);
 	/* cleanup */
-	pushstack_close(local, code);
+	evalcode_push_close(local, code);
 	code_allcons_rem(local, code, cons);
-	evalcode_popstack(local, code, &cleanup);
+	evalcode_pop(local, code, &cleanup);
+	/* protect */
+	evalcode_push_return(local, code);
+	EvalCode_carcdr(local, code, UNWIND_PROTECT, cleanup);
+	eval_code_execute_set(local, code, form);
+	evalcode_pop(local, code, &protect);
 	/* set code */
-	setinfo_code(protect, cleanup);
 	EvalCode_carcdr(local, code, EXECUTE, protect);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void code_tagbody_cons(LocalRoot local, addr code, addr cons)
 {
 	addr pos;
-	modeswitch mode;
 
-	evalcode_remmode(code, &mode);
 	while (cons != Nil) {
 		GetCons(cons, &pos, &cons);
 		if (RefEvalScopeType(pos) == EVAL_PARSE_TAG) {
@@ -1804,22 +1806,41 @@ static void code_tagbody_cons(LocalRoot local, addr code, addr cons)
 			eval_code_execute(local, code, pos);
 		}
 	}
+}
+
+static void code_tagbody_body(LocalRoot local, addr code, addr cons)
+{
+	modeswitch mode;
+
+	/* taginfo */
+	EvalCode_carcdr(local, code, TAGINFO, Nil);
+	/* body */
+	evalcode_remmode(code, &mode);
+	code_tagbody_cons(local, code, cons);
+	evalcode_rollback(code, &mode);
+	/* return */
+	evalcode_setmode(code, &mode);
+	eval_code_nil(local, code, NULL);
 	evalcode_rollback(code, &mode);
 }
 
 static void eval_code_tagbody(LocalRoot local, addr code, addr scope)
 {
-	addr tag, cons;
+	addr cons;
 
-	GetEvalScopeIndex(scope, 0, &tag);
+	/*  code: tagbody
+	 *    (code::taginfo tag1 tag2 ...)
+	 *    ,@progn...
+	 *    nil
+	 */
 	GetEvalScopeIndex(scope, 1, &cons);
 	/* body */
-	pushstack_tagbody(local, code);
-	code_tagbody_cons(local, code, cons);
-	popstack_tagbody(local, code, tag, &cons);
+	evalcode_push_return(local, code);
+	code_tagbody_body(local, code, cons);
+	evalcode_pop(local, code, &cons);
 	/* execute */
 	EvalCode_carcdr(local, code, EXECUTE, cons);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_go(LocalRoot local, addr code, addr scope)
@@ -1837,11 +1858,12 @@ static void eval_code_block(LocalRoot local, addr code, addr scope)
 
 	GetEvalScopeIndex(scope, 0, &name);
 	GetEvalScopeIndex(scope, 1, &cons);
-	pushstack_block(local, code);
+	evalcode_push_return(local, code);
+	EvalCode_carcdr(local, code, BLOCKINFO, name);
 	code_allcons_set(local, code, cons);
-	popstack_block(local, code, name, &cons);
+	evalcode_pop(local, code, &cons);
 	EvalCode_carcdr(local, code, EXECUTE, cons);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_return_from(LocalRoot local, addr code, addr scope)
@@ -1860,13 +1882,13 @@ static void eval_code_catch(LocalRoot local, addr code, addr scope)
 
 	GetEvalScopeIndex(scope, 0, &name);
 	GetEvalScopeIndex(scope, 1, &cons);
-	pushstack_catch(local, code);
+	evalcode_push_return(local, code);
 	eval_code_execute_set(local, code, name);
 	EvalCode_single(local, code, CATCH);
 	code_allcons_set(local, code, cons);
-	evalcode_popstack(local, code, &cons);
+	evalcode_pop(local, code, &cons);
 	EvalCode_carcdr(local, code, EXECUTE, cons);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_throw(LocalRoot local, addr code, addr scope)
@@ -1875,11 +1897,11 @@ static void eval_code_throw(LocalRoot local, addr code, addr scope)
 
 	GetEvalScopeIndex(scope, 0, &name);
 	GetEvalScopeIndex(scope, 1, &form);
-	pushstack_close(local, code);
+	evalcode_push_close(local, code);
 	eval_code_execute_push(local, code, name);
 	eval_code_execute_set(local, code, form);
 	EvalCode_single(local, code, THROW);
-	evalcode_popstack(local, code, &form);
+	evalcode_pop(local, code, &form);
 	EvalCode_carcdr(local, code, EXECUTE, form);
 }
 
@@ -1892,12 +1914,12 @@ static void eval_code_multiple_value_bind(LocalRoot local, addr code, addr scope
 	GetEvalScopeIndex(scope, 4, &cons);
 	GetEvalScopeIndex(scope, 5, &free);
 
-	pushstack_mode(local, code);
+	evalcode_push_mode(local, code);
 	eval_code_execute_set(local, code, expr);
 	code_free_declare(local, code, free);
 	EvalCode_carcdr(local, code, MULTIPLE_VALUE_BIND, args);
 	code_allcons_set(local, code, cons);
-	evalcode_popstack(local, code, &cons);
+	evalcode_pop(local, code, &cons);
 	EvalCode_carcdr(local, code, EXECUTE, cons);
 }
 
@@ -1907,7 +1929,7 @@ static void eval_code_multiple_value_call(LocalRoot local, addr code, addr scope
 
 	GetEvalScopeIndex(scope, 0, &call);
 	GetEvalScopeIndex(scope, 1, &args);
-	evalcode_pushstack_return(local, code);
+	evalcode_push_return(local, code);
 	/* call */
 	eval_code_execute_push(local, code, call);
 	/* args */
@@ -1918,9 +1940,9 @@ static void eval_code_multiple_value_call(LocalRoot local, addr code, addr scope
 	}
 	/* call */
 	EvalCode_single(local, code, FUNCALL);
-	evalcode_popstack(local, code, &pos);
+	evalcode_pop(local, code, &pos);
 	EvalCode_carcdr(local, code, EXECUTE, pos);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_multiple_value_prog1(LocalRoot local, addr code, addr scope)
@@ -1929,18 +1951,18 @@ static void eval_code_multiple_value_prog1(LocalRoot local, addr code, addr scop
 
 	GetEvalScopeIndex(scope, 0, &first);
 	GetEvalScopeIndex(scope, 1, &cons);
-	evalcode_pushstack_return(local, code);
+	evalcode_push_return(local, code);
 	/* first */
 	eval_code_execute_set(local, code, first);
 	/* cons */
-	pushstack_close(local, code);
+	evalcode_push_close(local, code);
 	code_allcons_rem(local, code, cons);
-	evalcode_popstack(local, code, &pos);
+	evalcode_pop(local, code, &pos);
 	EvalCode_carcdr(local, code, EXECUTE, pos);
 	/* result */
-	evalcode_popstack(local, code, &pos);
+	evalcode_pop(local, code, &pos);
 	EvalCode_carcdr(local, code, EXECUTE, pos);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_nth_value(LocalRoot local, addr code, addr scope)
@@ -1949,13 +1971,13 @@ static void eval_code_nth_value(LocalRoot local, addr code, addr scope)
 
 	GetEvalScopeIndex(scope, 0, &nth);
 	GetEvalScopeIndex(scope, 1, &expr);
-	evalcode_pushstack_return(local, code);
+	evalcode_push_return(local, code);
 	eval_code_execute_push(local, code, nth);
 	eval_code_execute_set(local, code, expr);
 	EvalCode_single(local, code, NTH_VALUE);
-	evalcode_popstack(local, code, &pos);
+	evalcode_pop(local, code, &pos);
 	EvalCode_carcdr(local, code, EXECUTE, pos);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 static void eval_code_progv(LocalRoot local, addr code, addr scope)
@@ -1965,14 +1987,14 @@ static void eval_code_progv(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, 0, &symbols);
 	GetEvalScopeIndex(scope, 1, &values);
 	GetEvalScopeIndex(scope, 2, &body);
-	evalcode_pushstack_return(local, code);
+	evalcode_push_return(local, code);
 	eval_code_execute_push(local, code, symbols);
 	eval_code_execute_push(local, code, values);
 	EvalCode_single(local, code, PROGV);
 	code_allcons_set(local, code, body);
-	evalcode_popstack(local, code, &pos);
+	evalcode_pop(local, code, &pos);
 	EvalCode_carcdr(local, code, EXECUTE, pos);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 
@@ -2024,11 +2046,11 @@ static int eval_code_specialize_handler(LocalRoot local, addr code, addr scope)
 	addr args;
 
 	GetEvalScopeIndex(scope, 1, &args);
-	pushstack_condition(local, code);
+	evalcode_push_return(local, code);
 	eval_code_specialize_allcons(local, code, args);
-	evalcode_popstack(local, code, &args);
-	EvalCode_carcdr(local, code, EXECUTE, args);
-	evalcode_if_push(local, code);
+	evalcode_pop(local, code, &args);
+	EvalCode_carcdr(local, code, EXECUTE_SWITCH, args);
+	evalcode_ifpush(local, code);
 
 	return 1;
 }
@@ -2038,11 +2060,11 @@ static int eval_code_specialize_restart(LocalRoot local, addr code, addr scope)
 	addr args;
 
 	GetEvalScopeIndex(scope, 1, &args);
-	pushstack_restart(local, code);
+	evalcode_push_return(local, code);
 	eval_code_specialize_allcons(local, code, args);
-	evalcode_popstack(local, code, &args);
-	EvalCode_carcdr(local, code, EXECUTE, args);
-	evalcode_if_push(local, code);
+	evalcode_pop(local, code, &args);
+	EvalCode_carcdr(local, code, EXECUTE_SWITCH, args);
+	evalcode_ifpush(local, code);
 
 	return 1;
 }
@@ -2052,11 +2074,11 @@ static int eval_code_specialize_push_return(LocalRoot local, addr code, addr sco
 	addr args;
 
 	GetEvalScopeIndex(scope, 1, &args);
-	evalcode_pushstack_return(local, code);
+	evalcode_push_return(local, code);
 	eval_code_specialize_allcons(local, code, args);
-	evalcode_popstack(local, code, &args);
+	evalcode_pop(local, code, &args);
 	EvalCode_carcdr(local, code, EXECUTE, args);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 
 	return 1;
 }
@@ -2150,7 +2172,7 @@ static void eval_code_call(LocalRoot local, addr code, addr scope)
 		return;
 	GetEvalScopeIndex(scope, 0, &call);
 	GetEvalScopeIndex(scope, 1, &args);
-	evalcode_pushstack_return(local, code);
+	evalcode_push_return(local, code);
 	/* args */
 	while (args != Nil) {
 		GetCons(args, &pos, &args);
@@ -2165,9 +2187,9 @@ static void eval_code_call(LocalRoot local, addr code, addr scope)
 	eval_code_execute_set(local, code, call);
 	/* call */
 	EvalCode_single(local, code, CALL);
-	evalcode_popstack(local, code, &pos);
+	evalcode_pop(local, code, &pos);
 	EvalCode_carcdr(local, code, EXECUTE, pos);
-	evalcode_if_push(local, code);
+	evalcode_ifpush(local, code);
 }
 
 
@@ -2186,7 +2208,7 @@ _g void eval_code_execute(LocalRoot local, addr code, addr scope)
 	GetEvalScopeType(scope, &type);
 	call = EvalCodeTable[type];
 	if (call == NULL) {
-		_fmte("Invalid scope type.", NULL);
+		fmte("Invalid scope type.", NULL);
 		return;
 	}
 	(*call)(local, code, scope);
@@ -2200,7 +2222,7 @@ _g void eval_code(LocalRoot local, addr *ret, addr scope)
 	push_local(local, &stack);
 	evalcode_local(local, &code);
 	eval_code_execute_set(local, code, scope);
-	evalcode_popstack(local, code, ret);
+	evalcode_pop(local, code, ret);
 	rollback_local(local, stack);
 }
 

@@ -27,7 +27,7 @@ static void arrayinplace_get_specialized(
 
 	str = ArrayInfoStruct(pos);
 	if (str->type == ARRAY_TYPE_BIT)
-		_fmte("Invaild array object, ~S.", pos, NULL);
+		fmte("Invaild array object, ~S.", pos, NULL);
 
 	element = (unsigned)str->element;
 	data = (const byte *)arrayspec_ptr(mem);
@@ -94,7 +94,7 @@ static void arrayinplace_get_object(
 			break;
 
 		default:
-			_fmte("Invalid memory object ~S", pos, NULL);
+			fmte("Invalid memory object ~S", pos, NULL);
 			return;
 	}
 }
@@ -128,7 +128,7 @@ static void arrayinplace_set_specialized(
 
 	str = ArrayInfoStruct(pos);
 	if (str->type == ARRAY_TYPE_BIT)
-		_fmte("Invaild array object, ~S.", pos, NULL);
+		fmte("Invaild array object, ~S.", pos, NULL);
 
 	element = (unsigned)str->element;
 	data = (byte *)arrayspec_ptr(mem);
@@ -181,7 +181,7 @@ static void arrayinplace_set_object(
 			break;
 
 		default:
-			_fmte("Invalid memory object ~S", pos, NULL);
+			fmte("Invalid memory object ~S", pos, NULL);
 			return;
 	}
 }

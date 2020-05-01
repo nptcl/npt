@@ -27,8 +27,8 @@
  * vV		argument
  * #		count
  *
- * aA		Ascii
- * sS		S-expression
+ * aA		Aesthetic
+ * sS		Standard
  * dD		Decimal
  * bB		Binary
  * oO		Octal
@@ -39,24 +39,24 @@
  * fF		Fixed-format floating-point
  * eE		Exponential floating-point
  * gG		General floating-point
- * $		Dollars floating-point
- * %		terpri
- * &		fresh-line
- * |		Page out
+ * $		Monetary floating-point
+ * %		Newline
+ * &		Fresh-Line
+ * |		Page
  * ~		Tilde
- * \n		Line espace
+ * \n		Ignored Newline
  * tT		Tabulate
- * *		Ignore
- * ?		Indirection
- * _		Conditional newline
+ * *		Go-To
+ * ?		Recursive Processing
+ * _		Conditional Newline
  * wW		Write
  * iI		Indent
- * ()		Case conversion
- * []		Conditional expression
- * ;		sparate
+ * ()		Case Conversion
+ * []		Conditional Expression
+ * ;		Clause Separator
  * {}		Iteration
  * <>		Justification, Logical Block
- * ^		Up and out
+ * ^		Escape Upward
  */
 _g int format_stream_lisp(Execute ptr, addr stream, addr format, addr args)
 {

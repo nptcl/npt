@@ -9,7 +9,7 @@
 #include "clos_redefine.h"
 #include "clos_type.h"
 #include "condition.h"
-#include "control.h"
+#include "control_execute.h"
 #include "function.h"
 #include "heap.h"
 #include "integer.h"
@@ -140,17 +140,20 @@ static void clos_redefine_information(LocalRoot local, addr clos, addr slots)
 	stdset_class_finalized_p(clos, Nil);
 }
 
-static void clos_redefine_delete_reader(Execute ptr, addr clos, addr gen)
+static int clos_redefine_delete_reader_(Execute ptr, addr clos, addr gen)
 {
 	addr spec, method;
 
 	list_local(ptr->local, &spec, clos, NULL);
-	generic_find_method(ptr, gen, Nil, spec, Nil, &method);
-	if (method != Nil)
-		method_remove_method(ptr, gen, method);
+	Return(generic_find_method_(ptr, gen, Nil, spec, Nil, &method));
+	if (method != Nil) {
+		Return(method_remove_method_(ptr, gen, method));
+	}
+	
+	return 0;
 }
 
-static void clos_redefine_delete_readers(Execute ptr, addr clos, addr list)
+static int clos_redefine_delete_readers_(Execute ptr, addr clos, addr list)
 {
 	addr gen, name;
 
@@ -159,23 +162,29 @@ static void clos_redefine_delete_readers(Execute ptr, addr clos, addr list)
 		parse_callname_error(&name, name);
 		getcallname_global(name, &gen);
 		Check(gen == Unbound, "unbound error");
-		if (gen != Unbound)
-			clos_redefine_delete_reader(ptr, clos, gen);
+		if (gen != Unbound) {
+			Return(clos_redefine_delete_reader_(ptr, clos, gen));
+		}
 	}
+
+	return 0;
 }
 
-static void clos_redefine_delete_writer(Execute ptr, addr clos, addr gen)
+static int clos_redefine_delete_writer_(Execute ptr, addr clos, addr gen)
 {
 	addr spec, method;
 
 	GetConst(CLOS_T, &spec);
 	list_local(ptr->local, &spec, spec, clos, NULL);
-	generic_find_method(ptr, gen, Nil, spec, Nil, &method);
-	if (method != Nil)
-		method_remove_method(ptr, gen, method);
+	Return(generic_find_method_(ptr, gen, Nil, spec, Nil, &method));
+	if (method != Nil) {
+		Return(method_remove_method_(ptr, gen, method));
+	}
+
+	return 0;
 }
 
-static void clos_redefine_delete_writers(Execute ptr, addr clos, addr list)
+static int clos_redefine_delete_writers_(Execute ptr, addr clos, addr list)
 {
 	addr gen, name;
 
@@ -184,12 +193,15 @@ static void clos_redefine_delete_writers(Execute ptr, addr clos, addr list)
 		parse_callname_error(&name, name);
 		getcallname_global(name, &gen);
 		Check(gen == Unbound, "unbound error");
-		if (gen != Unbound)
-			clos_redefine_delete_writer(ptr, clos, gen);
+		if (gen != Unbound) {
+			Return(clos_redefine_delete_writer_(ptr, clos, gen));
+		}
 	}
+
+	return 0;
 }
 
-static void clos_redefine_delete_accessor(Execute ptr, addr clos, addr slots)
+static int clos_redefine_delete_accessor_(Execute ptr, addr clos, addr slots)
 {
 	addr list, pos;
 	size_t size, i;
@@ -198,10 +210,12 @@ static void clos_redefine_delete_accessor(Execute ptr, addr clos, addr slots)
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
 		GetReadersSlot(pos, &list);
-		clos_redefine_delete_readers(ptr, clos, list);
+		Return(clos_redefine_delete_readers_(ptr, clos, list));
 		GetWritersSlot(pos, &list);
-		clos_redefine_delete_writers(ptr, clos, list);
+		Return(clos_redefine_delete_writers_(ptr, clos, list));
 	}
+
+	return 0;
 }
 
 static void clos_redefine_superclasses(addr clos, addr supers)
@@ -245,7 +259,7 @@ static void clos_redefine_update_subclasses(
 	clos_redefine_information(local, clos, slots);
 }
 
-static void clos_redefine_finalized(Execute ptr, addr clos, addr name, addr rest)
+static int clos_redefine_finalized_(Execute ptr, addr clos, addr name, addr rest)
 {
 	addr supers, prev_slots, slots, value;
 	LocalRoot local;
@@ -259,10 +273,12 @@ static void clos_redefine_finalized(Execute ptr, addr clos, addr name, addr rest
 	clos_redefine_check_subclasses(local, clos, clos, supers);
 	/* update redefine */
 	clos_stdclass_direct_slots(clos, slots);
-	clos_redefine_delete_accessor(ptr, clos, prev_slots);
+	Return(clos_redefine_delete_accessor_(ptr, clos, prev_slots));
 	clos_redefine_superclasses(clos, supers);
 	stdset_class_direct_default_initargs(clos, value);
 	clos_redefine_update_subclasses(local, clos, clos, supers);
+
+	return 0;
 }
 
 static void clos_redefine_reference(Execute ptr, addr clos, addr name, addr rest)
@@ -282,12 +298,14 @@ static void clos_redefine_reference(Execute ptr, addr clos, addr name, addr rest
 	stdset_class_direct_default_initargs(clos, value);
 }
 
-static void clos_redefine_make(Execute ptr, addr clos, addr name, addr rest)
+static int clos_redefine_make_(Execute ptr, addr clos, addr name, addr rest)
 {
 	if (! clos_superclasses_referenced_p(clos))
-		clos_redefine_finalized(ptr, clos, name, rest);
-	else
+		return clos_redefine_finalized_(ptr, clos, name, rest);
+	else {
 		clos_redefine_reference(ptr, clos, name, rest);
+		return 0;
+	}
 }
 
 static int clos_redefine_make_instances_obsolete(Execute ptr, addr clos)
@@ -305,12 +323,12 @@ static int clos_redefine_finalize(Execute ptr, addr clos, addr name, addr rest)
 
 	/* finalize check */
 	final = clos_finalized_p(clos);
-	clos_redefine_make(ptr, clos, name, rest);
+	Return(clos_redefine_make_(ptr, clos, name, rest));
 
 	/* finalize */
 	if (final) {
 		if (clos_finalize(ptr, clos))
-			_fmte("Cannot finalize class object ~S.", clos, NULL);
+			fmte("Cannot finalize class object ~S.", clos, NULL);
 		return clos_redefine_make_instances_obsolete(ptr, clos);
 	}
 
@@ -326,12 +344,12 @@ _g int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 	if (! getkeyargs(rest, KEYWORD_METACLASS, &pos)) {
 		clos_find_class(pos, &pos);
 		if (metaclass != pos)
-			_fmte("Cannot change the metaclass in class ~S.", clos, NULL);
+			fmte("Cannot change the metaclass in class ~S.", clos, NULL);
 	}
 
 	/* standard-class only */
 	if (! clos_standard_class_p(metaclass))
-		_fmte("This implementation can only redefine a STANDARD-CLASS.", NULL);
+		fmte("This implementation can only redefine a STANDARD-CLASS.", NULL);
 
 	/* make-instance */
 	return clos_redefine_finalize(ptr, clos, name, rest);

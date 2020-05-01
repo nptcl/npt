@@ -142,7 +142,7 @@ static void arraysize1_alloc(LocalRoot local, addr *ret, size_t size)
 _g void arraysize_alloc(LocalRoot local, addr *ret, size_t index)
 {
 	if (multisafe_size(IdxSize, index, &index))
-		_fmte("Index overflow.", NULL);
+		fmte("Index overflow.", NULL);
 	arraysize1_alloc(local, ret, index);
 }
 _g void arraysize_local(LocalRoot local, addr *ret, size_t index)
@@ -247,7 +247,7 @@ static void array_va_stdarg(LocalRoot local, addr *ret, va_list args)
 		size = (size_t)va_arg(dest, unsigned);
 		if (size == 0) break;
 		if (multisafe_size(allcount, size, &allcount))
-			_fmte("size overflow.", NULL);
+			fmte("size overflow.", NULL);
 	}
 
 	/* make */
@@ -449,11 +449,11 @@ _g void *array_ptrwrite(addr pos, size_t index)
 	type = str->type;
 	size = str->size;
 	if (type == ARRAY_TYPE_EMPTY)
-		_fmte("The array has no memory yet.", NULL);
+		fmte("The array has no memory yet.", NULL);
 	if (type == ARRAY_TYPE_T || type == ARRAY_TYPE_BIT)
-		_fmte("The object is not specialized array.", NULL);
+		fmte("The object is not specialized array.", NULL);
 	if (size <= index)
-		_fmte("Index is too large.", NULL);
+		fmte("Index is too large.", NULL);
 	GetArrayInfo(pos, ARRAY_INDEX_MEMORY, &pos);
 
 	return (void *)(arrayspec_ptr(pos) + (index * str->element));
@@ -487,9 +487,9 @@ _g int array_setf_fill_pointer(addr array, addr value)
 	str = ArrayInfoStruct(array);
 	if (! str->fillpointer) return 1;
 	if (GetIndex_integer(value, &size))
-		_fmte("Invalid fill-pointer value ~S.", value, NULL);
+		fmte("Invalid fill-pointer value ~S.", value, NULL);
 	if (str->size <= size) {
-		_fmte("Fill-pointer value ~A must be less than array size ~A.",
+		fmte("Fill-pointer value ~A must be less than array size ~A.",
 				value, intsizeh(str->size), NULL);
 	}
 	str->front = size;

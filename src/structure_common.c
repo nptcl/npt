@@ -29,13 +29,13 @@ static int defstruct_parse_slot(struct defstruct *str, addr pos,
 	/* (name) */
 	GetCons(pos, &name, &list);
 	if (! symbolp(name))
-		return fmte("DEFSTRUCT slot-name ~S must be a symbol.", name, NULL);
+		return fmte_("DEFSTRUCT slot-name ~S must be a symbol.", name, NULL);
 	if (list == Nil)
 		goto finish;
 
 	/* (name init) */
 	if (! consp(list))
-		return fmte("Invalid DEFSTRUCT slot-option ~S.", pos, NULL);
+		return fmte_("Invalid DEFSTRUCT slot-option ~S.", pos, NULL);
 	GetCons(list, &init, &list);
 	if (list == Nil)
 		goto finish;
@@ -45,10 +45,10 @@ static int defstruct_parse_slot(struct defstruct *str, addr pos,
 	GetConst(KEYWORD_READ_ONLY, &key2);
 	while (list != Nil) {
 		if (! consp(list))
-			return fmte("Invalid DEFSTRUCT slot-option key ~S.", list, NULL);
+			return fmte_("Invalid DEFSTRUCT slot-option key ~S.", list, NULL);
 		GetCons(list, &key, &list);
 		if (! consp(list))
-			return fmte("Invalid DEFSTRUCT slot-option value ~S.", list, NULL);
+			return fmte_("Invalid DEFSTRUCT slot-option value ~S.", list, NULL);
 		GetCons(list, &value, &list);
 		/* :type */
 		if (key == key1) {
@@ -65,12 +65,12 @@ static int defstruct_parse_slot(struct defstruct *str, addr pos,
 			continue;
 		}
 		/* error */
-		return fmte("Invalid DEFSTRUCT slot-option ~S.", key, NULL);
+		return fmte_("Invalid DEFSTRUCT slot-option ~S.", key, NULL);
 	}
 
 finish:
 	if (! symbolp(name))
-		return fmte("DEFSTRUCT slot-name ~S must be a symbol.", name, NULL);
+		return fmte_("DEFSTRUCT slot-name ~S must be a symbol.", name, NULL);
 	*rname = name;
 	*rinit = init;
 	*rtype = type;
@@ -143,7 +143,7 @@ static int defstruct_parse_name_option1(constindex index, addr option, addr *ret
 
 error:
 	*ret = NULL;
-	return fmte("Invalid DEFSTRUCT option ~S.", option, NULL);
+	return fmte_("Invalid DEFSTRUCT option ~S.", option, NULL);
 }
 #define defstruct_option1(x,y,z) \
 	defstruct_parse_name_option1(CONSTANT_KEYWORD_##x,(y),(z))
@@ -154,7 +154,7 @@ static int defstruct_parse_conc_name(struct defstruct *str, addr pos, int *ret)
 	if (pos == NULL)
 		return Result(ret, 0);
 	if (str->conc_name_p)
-		return fmte("DEFSTRUCT :CONC-NAME is already exist.", NULL);
+		return fmte_("DEFSTRUCT :CONC-NAME is already exist.", NULL);
 	str->conc_name_p = 1;
 	if (pos == Unbound || pos == Nil) {
 		str->conc_name = Nil;
@@ -165,7 +165,7 @@ static int defstruct_parse_conc_name(struct defstruct *str, addr pos, int *ret)
 		return Result(ret, 1);
 	}
 
-	return fmte("DEFSTRUCT :CONC-NAME ~S must be a string-designer.", pos, NULL);
+	return fmte_("DEFSTRUCT :CONC-NAME ~S must be a string-designer.", pos, NULL);
 }
 
 static int defstruct_parse_copier(struct defstruct *str, addr pos, int *ret)
@@ -174,7 +174,7 @@ static int defstruct_parse_copier(struct defstruct *str, addr pos, int *ret)
 	if (pos == NULL)
 		return Result(ret, 0);
 	if (str->copier_p)
-		return fmte("DEFSTRUCT :COPIER is already exist.", NULL);
+		return fmte_("DEFSTRUCT :COPIER is already exist.", NULL);
 	if (pos == Unbound) {
 		pos = T;
 		goto store;
@@ -183,7 +183,7 @@ static int defstruct_parse_copier(struct defstruct *str, addr pos, int *ret)
 		goto store;
 	if (string_designer_heap(&pos, pos))
 		goto store;
-	return fmte("DEFSTRUCT :COPIER ~S must be a symbol.", pos, NULL);
+	return fmte_("DEFSTRUCT :COPIER ~S must be a symbol.", pos, NULL);
 
 store:
 	str->copier_p = 1;
@@ -197,7 +197,7 @@ static int defstruct_parse_predicate(struct defstruct *str, addr pos, int *ret)
 	if (pos == NULL)
 		return Result(ret, 0);
 	if (str->predicate_p)
-		return fmte("DEFSTRUCT :PREDICATE is already exist.", NULL);
+		return fmte_("DEFSTRUCT :PREDICATE is already exist.", NULL);
 	if (pos == Unbound) {
 		pos = T;
 		goto store;
@@ -206,7 +206,7 @@ static int defstruct_parse_predicate(struct defstruct *str, addr pos, int *ret)
 		goto store;
 	if (string_designer_heap(&pos, pos))
 		goto store;
-	return fmte("DEFSTRUCT :PREDICATE ~S must be a symbol.", pos, NULL);
+	return fmte_("DEFSTRUCT :PREDICATE ~S must be a symbol.", pos, NULL);
 
 store:
 	str->predicate_p = 1;
@@ -267,7 +267,7 @@ static int defstruct_parse_constructor2(addr option, addr *ret1, addr *ret2)
 
 error:
 	*ret1 = NULL;
-	return fmte("Invalid DEFSTRUCT option ~S.", option, NULL);
+	return fmte_("Invalid DEFSTRUCT option ~S.", option, NULL);
 }
 
 static int defstruct_parse_constructor(struct defstruct *str, addr pos, int *ret)
@@ -281,7 +281,7 @@ static int defstruct_parse_constructor(struct defstruct *str, addr pos, int *ret
 		GetConst(SYSTEM_STRUCTURE_GENSYM, &pos);
 	}
 	if (! symbolp(pos))
-		return fmte(":CONSTRUCTOR name ~S must be a symbol.", pos, NULL);
+		return fmte_(":CONSTRUCTOR name ~S must be a symbol.", pos, NULL);
 	str->constructor_p = 1;
 	if (pos == Nil) {
 		str->constructor = Nil;
@@ -321,7 +321,7 @@ static int defstruct_parse_include2(addr option, addr *ret1, addr *ret2)
 
 error:
 	*ret1 = *ret2 = NULL;
-	return fmte("DEFSTRUCT :INCLUDE option ~S "
+	return fmte_("DEFSTRUCT :INCLUDE option ~S "
 			"must be a (:include name . slots) form.", option, NULL);
 }
 
@@ -333,9 +333,9 @@ static int defstruct_parse_include(struct defstruct *str, addr pos, int *ret)
 	if (pos == NULL)
 		return Result(ret, 0);
 	if (! symbolp(pos))
-		return fmte(":INCLUDE name ~S must be a symbol.", pos, NULL);
+		return fmte_(":INCLUDE name ~S must be a symbol.", pos, NULL);
 	if (str->include_p)
-		return fmte("DEFSTRUCT :INCLUDE is already exist.", NULL);
+		return fmte_("DEFSTRUCT :INCLUDE is already exist.", NULL);
 	str->include_p = 1;
 	str->iname = pos;
 	str->iargs = args;
@@ -378,7 +378,7 @@ static int defstruct_parse_print_object1(constindex index, addr option, addr *re
 	return Result(ret, check);
 
 error:
-	return fmte("Invalid DEFSTRUCT option ~S.", option, NULL);
+	return fmte_("Invalid DEFSTRUCT option ~S.", option, NULL);
 }
 
 static int defstruct_parse_print_object(struct defstruct *str, addr pos, int *ret)
@@ -389,9 +389,9 @@ static int defstruct_parse_print_object(struct defstruct *str, addr pos, int *re
 	if (pos == Unbound)
 		GetConst(SYSTEM_STRUCTURE_GENSYM, &pos);
 	if (str->print_object_p)
-		return fmte("DEFSTRUCT :PRINT-OBJECT is already exist.", NULL);
+		return fmte_("DEFSTRUCT :PRINT-OBJECT is already exist.", NULL);
 	if (str->print_function_p)
-		return fmte("DEFSTRUCT :PRINT-FUNCTION is already exist.", NULL);
+		return fmte_("DEFSTRUCT :PRINT-FUNCTION is already exist.", NULL);
 	str->print_object_p = 1;
 	str->print_object = pos;
 
@@ -406,9 +406,9 @@ static int defstruct_parse_print_function(struct defstruct *str, addr pos, int *
 	if (pos == Unbound)
 		GetConst(SYSTEM_STRUCTURE_GENSYM, &pos);
 	if (str->print_object_p)
-		return fmte("DEFSTRUCT :PRINT-OBJECT is already exist.", NULL);
+		return fmte_("DEFSTRUCT :PRINT-OBJECT is already exist.", NULL);
 	if (str->print_function_p)
-		return fmte("DEFSTRUCT :PRINT-FUNCTION is already exist.", NULL);
+		return fmte_("DEFSTRUCT :PRINT-FUNCTION is already exist.", NULL);
 	str->print_function_p = 1;
 	str->print_function = pos;
 
@@ -432,7 +432,7 @@ static int defstruct_parse_type(struct defstruct *str, addr option, int *ret)
 	if (check != Nil)
 		goto error;
 	if (str->type_p)
-		return fmte("DEFSTRUCT :TYPE already exists.", NULL);
+		return fmte_("DEFSTRUCT :TYPE already exists.", NULL);
 	/* list */
 	GetConst(COMMON_LIST, &check);
 	if (pos == check) {
@@ -466,10 +466,10 @@ static int defstruct_parse_type(struct defstruct *str, addr option, int *ret)
 	return Result(ret, 1);
 
 error:
-	return fmte("DEFSTRUCT :TYPE must be a (:type type) form.", option, NULL);
+	return fmte_("DEFSTRUCT :TYPE must be a (:type type) form.", option, NULL);
 
 type_error:
-	return fmte("Invalid :TYPE argument ~S.", pos, NULL);
+	return fmte_("Invalid :TYPE argument ~S.", pos, NULL);
 }
 
 static int defstruct_parse_named(struct defstruct *str, addr option, int *ret)
@@ -480,7 +480,7 @@ static int defstruct_parse_named(struct defstruct *str, addr option, int *ret)
 	if (option != key)
 		return Result(ret, 0);
 	if (str->named_p)
-		return fmte("DEFSTRUCT :named already exists.", NULL);
+		return fmte_("DEFSTRUCT :named already exists.", NULL);
 	str->named_p = 1;
 
 	return Result(ret, 1);
@@ -504,7 +504,7 @@ static int defstruct_parse_initial_offset(struct defstruct *str, addr option, in
 	if (pos != Nil)
 		goto error;
 	if (str->initial_offset_p)
-		return fmte("DEFSTRUCT :INITIAL-OFFSET already exists.", NULL);
+		return fmte_("DEFSTRUCT :INITIAL-OFFSET already exists.", NULL);
 	getindex_integer(check, &size);
 	str->initial_offset_p = 1;
 	str->initial_offset = check;
@@ -512,7 +512,7 @@ static int defstruct_parse_initial_offset(struct defstruct *str, addr option, in
 	return Result(ret, 1);
 
 error:
-	return fmte("DEFSTRUCT :INITIAL-OFFSET must be a "
+	return fmte_("DEFSTRUCT :INITIAL-OFFSET must be a "
 			"(:initial-offset offset) form.", option, NULL);
 }
 
@@ -527,16 +527,16 @@ static int defstruct_parse_name(struct defstruct *str, addr name)
 		return 0;
 	}
 	if (! consp(name))
-		return fmte("DEFSTRUCT name ~S must be symbol or list.", name, NULL);
+		return fmte_("DEFSTRUCT name ~S must be symbol or list.", name, NULL);
 	GetCons(name, &name, &list);
 	if (! symbolp(name))
-		return fmte("DEFSTRUCT name ~S must be a symbol.", name, NULL);
+		return fmte_("DEFSTRUCT name ~S must be a symbol.", name, NULL);
 	str->name = name;
 	str->constructor = Nil;
 	/* loop */
 	while (list != Nil) {
 		if (! consp(list))
-			return fmte("DEFSTRUCT name option ~S must be a list.", list, NULL);
+			return fmte_("DEFSTRUCT name option ~S must be a list.", list, NULL);
 		GetCons(list, &pos, &list);
 		Return(defstruct_parse_conc_name(str, pos, &check));
 		if (check)
@@ -568,7 +568,7 @@ static int defstruct_parse_name(struct defstruct *str, addr name)
 		Return(defstruct_parse_initial_offset(str, pos, &check));
 		if (check)
 			continue;
-		return fmte("Invalid DEFSTRUCT option ~S.", pos, NULL);
+		return fmte_("Invalid DEFSTRUCT option ~S.", pos, NULL);
 	}
 
 	/* parse slots */
@@ -586,11 +586,11 @@ static int defstruct_parse_name(struct defstruct *str, addr name)
 
 	/* named check */
 	if (str->named_p && (! str->type_p))
-		return fmte("There is :NAMED option but no :TYPE option.", NULL);
+		return fmte_("There is :NAMED option but no :TYPE option.", NULL);
 
 	/* initial-offset check */
 	if (str->initial_offset_p && (! str->type_p))
-		return fmte("There is :INITIAL-OFFSET option but no :TYPE option.", NULL);
+		return fmte_("There is :INITIAL-OFFSET option but no :TYPE option.", NULL);
 
 	return 0;
 }
@@ -620,7 +620,7 @@ static int defstruct_parse(struct defstruct *str, addr form)
 
 	Return_getcdr(form, &args);
 	if (! consp(args)) {
-		return fmte("DEFSTRUCT form ~S "
+		return fmte_("DEFSTRUCT form ~S "
 				"must be a (defstruct name [doc] {slot}*", form, NULL);
 	}
 	GetCons(args, &name, &args);

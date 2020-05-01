@@ -2,7 +2,9 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "eval.h"
 #include "require.h"
 #include "strtype.h"
@@ -41,20 +43,17 @@ static int require_function_common(Execute ptr, addr var, int *ret)
 		getcons(list, &call, &list);
 		/* funcall */
 		push_close_control(ptr, &control);
-		if (funcall_control(ptr, call, var, NULL))
-			return free_check_control(ptr, control, 1);
+		Return(funcall_control(ptr, call, var, NULL));
 		getresult_control(ptr, &call);
 		check = (call == Nil)? 0: 1;
-		Return(free_check_control(ptr, control, 0));
+		Return(free_control_(ptr, control));
 		/* check */
-		if (check) {
-			*ret = 1;
-			return 0;
-		}
+		if (check)
+			return Result(ret, 1);
 	}
 
 	/* error */
-	_fmte("Cannot require ~S.", var, NULL);
+	fmte("Cannot require ~S.", var, NULL);
 	return 0;
 }
 

@@ -24,7 +24,7 @@
 #include "type.h"
 
 #define INFO_STREAM		stdout
-#define INFO_DEPTH		100
+#define INFO_DEPTH		20
 
 static void infobit_body(addr pos);
 static void infoprint_stream(addr pos, int depth);
@@ -947,7 +947,6 @@ static void infoprint_symbol(addr pos)
 	infostringbody(pos);
 }
 
-/* ARGSUSED0 */
 static void infoprint_callname(addr pos)
 {
 	info_stdarg("#<callname:");
@@ -991,22 +990,14 @@ static void infoprint_eval(addr pos)
 
 static void infoprint_code(addr pos)
 {
+	struct code_struct *str;
+
+	str = StructCode(pos);
 	info_stdarg("#<code.");
-	switch (gettype_code(pos)) {
-		case CodeType_Default: info_stdarg("default"); break;
-		case CodeType_Return: info_stdarg("return"); break;
-		case CodeType_Argument: info_stdarg("argument"); break;
-		case CodeType_Push: info_stdarg("push"); break;
-		case CodeType_Remove: info_stdarg("remove"); break;
-		case CodeType_Close: info_stdarg("close"); break;
-		case CodeType_Protect: info_stdarg("protect"); break;
-		case CodeType_TagBody: info_stdarg("tagbody"); break;
-		case CodeType_Block: info_stdarg("block"); break;
-		case CodeType_Catch: info_stdarg("catch"); break;
-		case CodeType_Condition: info_stdarg("condition"); break;
-		case CodeType_Restart: info_stdarg("restart"); break;
-		default: info_stdarg("invalid"); break;
-	}
+	info_stdarg(str->p_control?  "C": "c");
+	info_stdarg(str->p_return?   "R": "r");
+	info_stdarg(str->p_push?     "P": "p");
+	info_stdarg(str->p_argument? "A": "a");
 	info_stdarg(">");
 }
 

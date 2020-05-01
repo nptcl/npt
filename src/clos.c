@@ -662,7 +662,7 @@ _g void slot_set_allocation(addr pos, addr value)
 	}
 
 	/* error */
-	_fmte("Invalid :allocation value ~S.", value, NULL);
+	fmte("Invalid :allocation value ~S.", value, NULL);
 }
 
 _g int clos_errorp(addr pos, size_t index, constindex name)
@@ -754,21 +754,21 @@ _g void clos_get(addr pos, addr key, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (! clos_getp(pos, key, ret))
-		_fmte("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+		fmte("The slot name ~S don't exist in the ~S.", key, pos, NULL);
 }
 
 _g void clos_set(addr pos, addr key, addr value)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (! clos_setp(pos, key, value))
-		_fmte("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+		fmte("The slot name ~S don't exist in the ~S.", key, pos, NULL);
 }
 
 _g void clos_check(addr pos, addr key, addr *ret)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (! clos_checkp(pos, key, ret))
-		_fmte("The slot name ~S don't exist in the ~S.", key, pos, NULL);
+		fmte("The slot name ~S don't exist in the ~S.", key, pos, NULL);
 }
 
 _g void clos_getelt(addr pos, size_t index, addr *ret)
@@ -861,7 +861,7 @@ _g int clos_slot_boundp(addr pos, addr name)
 	CheckType(pos, LISPTYPE_CLOS);
 	check = clos_slot_boundp_nil(pos, name);
 	if (check < 0)
-		_fmte("The pos object ~S have no ~S slot.", pos, name, NULL);
+		fmte("The pos object ~S have no ~S slot.", pos, name, NULL);
 	return check;
 }
 
@@ -880,7 +880,7 @@ _g void clos_slot_makunbound(addr pos, addr name)
 {
 	CheckType(pos, LISPTYPE_CLOS);
 	if (clos_slot_makunbound_nil(pos, name))
-		_fmte("The slot have no ~S.", name, NULL);
+		fmte("The slot have no ~S.", name, NULL);
 }
 
 
@@ -899,7 +899,7 @@ _g void clos_find_class(addr name, addr *ret)
 	Check(! symbolp(name), "type name error");
 	clos_find_class_nil(name, ret);
 	if (*ret == Nil)
-		_fmte("No class named ~S.", name, NULL);
+		fmte("No class named ~S.", name, NULL);
 }
 
 _g void clos_define_class(addr name, addr value)
@@ -925,7 +925,7 @@ _g void clos_find_generic(addr name, addr *ret)
 {
 	clos_find_generic_nil(name, ret);
 	if (*ret == Nil)
-		_fmte("No generic function named ~S.", name, NULL);
+		fmte("No generic function named ~S.", name, NULL);
 }
 
 _g void clos_define_generic(addr name, addr value)
@@ -945,7 +945,7 @@ _g void clos_find_combination(addr name, addr *ret)
 {
 	clos_find_combination_nil(name, ret);
 	if (*ret == Nil)
-		_fmte("No method combination named ~S.", name, NULL);
+		fmte("No method combination named ~S.", name, NULL);
 }
 
 _g void clos_define_combination(addr name, addr value)
@@ -971,7 +971,7 @@ _g void clos_find_specializer(addr name, addr *ret)
 {
 	clos_find_specializer_nil(name, ret);
 	if (*ret == Nil)
-		_fmte("No method eql-specializer named ~S.", name, NULL);
+		fmte("No method eql-specializer named ~S.", name, NULL);
 }
 
 _g void clos_define_specializer(addr name, addr value)

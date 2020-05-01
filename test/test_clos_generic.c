@@ -175,7 +175,7 @@ static int test_comb_standard_method(void)
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard_method1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -238,7 +238,7 @@ static int test_comb_standard_funcall(void)
 	comb_standard_funcall(ptr, args, around, primary);
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard_funcall1");
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -266,7 +266,7 @@ static int test_function_standard_lambda(void)
 
 	getresult_control(ptr, &call);
 	test(call == T, "function_standard_lambda1");
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -301,7 +301,7 @@ static int test_comb_standard_qualifiers(void)
 
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard_qualifiers1");
-	free_control(ptr, control);
+	free_control_(ptr, control);
 	rollback_local(local, stack);
 
 	RETURN;
@@ -337,7 +337,7 @@ static int test_comb_standard(void)
 
 	getresult_control(ptr, &call);
 	test(call == T, "comb_standard1");
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -693,7 +693,7 @@ static int test_generic_make_type(void)
 	/* check */
 	getresult_control(ptr, &pos);
 	test(pos == T, "generic_make_type1");
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -765,7 +765,7 @@ static int test_generic_make_lambda_call(void)
 	generic_make_lambda_call(ptr, instance, Nil, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "generic_make_lambda_call1");
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -814,7 +814,7 @@ static int test_closrun_execute(void)
 
 	getresult_control(ptr, &pos);
 	test(pos == value, "closrun_execute1");
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }

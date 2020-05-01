@@ -184,7 +184,7 @@ static void method_check_generic_function(addr gen, addr method)
 
 	stdget_method_generic_function(method, &check);
 	if (check != Nil && method != gen) {
-		_fmte("The method ~S is already exists "
+		fmte("The method ~S is already exists "
 				"in the generic-function ~S.", method, gen, NULL);
 	}
 }
@@ -193,17 +193,21 @@ static void method_check_method_class(addr gen, addr method)
 {
 	stdget_generic_method_class(gen, &gen);
 	if (! clos_subtype_p(method, gen))
-		_fmte("The method don't push in the generic-function.", NULL);
+		fmte("The method don't push in the generic-function.", NULL);
 }
 
-static void method_check_method_qualifiers(Execute ptr, addr gen, addr method)
+static int method_check_method_qualifiers_(Execute ptr, addr gen, addr method)
 {
+	int check;
 	addr qua, comb;
 
 	stdget_method_qualifiers(method, &qua);
 	stdget_generic_method_combination(gen, &comb);
-	if (! check_qualifiers_equal(ptr, comb, qua))
-		_fmte("The qualifiers ~S is not found in the method-combination.", qua, NULL);
+	Return(check_qualifiers_equal_(ptr, comb, qua, &check));
+	if (! check)
+		fmte("The qualifiers ~S is not found in the method-combination.", qua, NULL);
+	
+	return 0;
 }
 
 static int method_null_set_difference(addr key1, addr key2)
@@ -243,7 +247,7 @@ static void method_arguments_check1(
 		const struct argument_struct *str2)
 {
 	if (str1->var != str2->var)
-		_fmte("The count of variable is not equal to the generic function.", NULL);
+		fmte("The count of variable is not equal to the generic function.", NULL);
 }
 
 static void method_arguments_check2(
@@ -251,7 +255,7 @@ static void method_arguments_check2(
 		const struct argument_struct *str2)
 {
 	if (str1->opt != str2->opt)
-		_fmte("The count of &optional is not equal to the generic function.", NULL);
+		fmte("The count of &optional is not equal to the generic function.", NULL);
 }
 
 static void method_arguments_check3(
@@ -264,7 +268,7 @@ static void method_arguments_check3(
 	check2 = str2->rest || str2->keyp;
 	checka = ((! check1) && (! check2));
 	if (! (checka || check2))
-		_fmte("The method must have &rest or &key arguments.", NULL);
+		fmte("The method must have &rest or &key arguments.", NULL);
 }
 
 static void method_arguments_check4(
@@ -291,7 +295,7 @@ static void method_arguments_check4(
 	return;
 
 error:
-	_fmte("The &key arguments in the method must have "
+	fmte("The &key arguments in the method must have "
 			"all &key arguments in generic function.", NULL);
 }
 
@@ -370,18 +374,21 @@ static void method_update_check(addr gen, addr method, int deletep)
 	}
 }
 
-static void method_push_generic(Execute ptr, addr gen, addr method)
+static int method_push_generic_(Execute ptr, addr gen, addr method)
 {
+	int check;
 	addr methods, comb, qua, cons;
 	size_t index;
 
 	stdget_generic_methods(gen, &methods);
 	stdget_generic_method_combination(gen, &comb);
 	stdget_method_qualifiers(method, &qua);
-	qualifiers_position(ptr, qua, comb, &index);
+	Return(qualifiers_position_(ptr, qua, comb, &index, &check));
 	GetArrayA4(methods, index, &cons);
 	cons_heap(&cons, method, cons);
 	SetArrayA4(methods, index, cons);
+
+	return 0;
 }
 
 static int method_cache_check(addr eqlcheck, addr args, addr keys)
@@ -425,139 +432,165 @@ static void method_cache_remove(LocalRoot local, addr gen, addr method)
 	rollback_local(local, stack);
 }
 
-static void method_find_method_nil(Execute ptr,
+static int method_find_method_nil_(Execute ptr,
 		addr gen, addr qua, addr spec, addr *ret)
 {
-	addr methods, comb, method, check;
+	int check;
+	addr methods, comb, method, value;
 	size_t index;
 
 	stdget_generic_methods(gen, &methods);
 	stdget_generic_method_combination(gen, &comb);
-	if (! qualifiers_position_nil(ptr, qua, comb, &index)) {
+	Return(qualifiers_position_nil_(ptr, qua, comb, &index, &check));
+	if (! check) {
 		GetArrayA4(methods, index, &methods);
 		while (methods != Nil) {
 			GetCons(methods, &method, &methods);
-			stdget_method_specializers(method, &check);
-			if (cache_equal_function(spec, check)) {
-				*ret = method;
-				return;
-			}
+			stdget_method_specializers(method, &value);
+			if (cache_equal_function(spec, value))
+				return Result(ret, method);
 		}
 	}
-	*ret = Nil;
+
+	return Result(ret, Nil);
 }
 
-_g void method_find_method(Execute ptr, addr gen, addr qua, addr spec, addr *ret)
+_g int method_find_method_(Execute ptr, addr gen, addr qua, addr spec, addr *ret)
 {
-	method_find_method_nil(ptr, gen, qua, spec, ret);
+	Return(method_find_method_nil_(ptr, gen, qua, spec, ret));
 	if (*ret == Nil)
-		_fmte("No method found.", NULL);
+		fmte("No method found.", NULL);
+
+	return 0;
 }
 
-static int method_remove_method_execute(Execute ptr, addr gen, addr method)
+static int method_remove_method_execute_(Execute ptr, addr gen, addr method, int *ret)
 {
+	int check;
 	addr methods, comb, qua, cons;
 	size_t index;
 
 	stdget_generic_methods(gen, &methods);
 	stdget_generic_method_combination(gen, &comb);
 	stdget_method_qualifiers(method, &qua);
-	if (qualifiers_position_nil(ptr, qua, comb, &index)) return 0;
+	Return(qualifiers_position_nil_(ptr, qua, comb, &index, &check));
+	if (check)
+		return Result(ret, 0);
 	GetArrayA4(methods, index, &cons);
-	if (! delete1_list_eq_unsafe(method, cons, &cons)) return 0;
+	if (! delete1_list_eq_unsafe(method, cons, &cons))
+		return Result(ret, 0);
 	SetArrayA4(methods, index, cons);
 	stdset_method_generic_function(method, Nil);
 
-	return 1;
+	return Result(ret, 1);
 }
 
-_g void method_remove_method(Execute ptr, addr gen, addr method)
+_g int method_remove_method_(Execute ptr, addr gen, addr method)
 {
-	if (! method_remove_method_execute(ptr, gen, method)) return;
+	int check;
+
+	Return(method_remove_method_execute_(ptr, gen, method, &check));
+	if (! check)
+		return 0;
 	method_cache_remove(ptr->local, gen, method);
 	generic_finalize(gen);
+
+	return 0;
 }
 
-static void method_replace_check(Execute ptr, addr gen, addr method, addr *ret)
+static int method_replace_check_(Execute ptr, addr gen, addr method, addr *ret)
 {
 	addr qualifiers, specializers;
 
 	stdget_method_qualifiers(method, &qualifiers);
 	stdget_method_specializers(method, &specializers);
-	method_find_method_nil(ptr, gen, qualifiers, specializers, ret);
+	return method_find_method_nil_(ptr, gen, qualifiers, specializers, ret);
 }
 
-static void method_add_replace(Execute ptr,
+static int method_add_replace_(Execute ptr,
 		addr gen, addr method, addr check_method)
 {
-	method_remove_method_execute(ptr, gen, check_method);
-	method_push_generic(ptr, gen, method);
+	int check;
+	Return(method_remove_method_execute_(ptr, gen, check_method, &check));
+	return method_push_generic_(ptr, gen, method);
 }
 
-static void method_add_check(Execute ptr, addr gen, addr method)
+static int method_add_check_(Execute ptr, addr gen, addr method)
 {
 	method_check_generic_function(gen, method);
 	method_check_method_class(gen, method);
-	method_check_method_qualifiers(ptr, gen, method);
+	Return(method_check_method_qualifiers_(ptr, gen, method));
 	method_check_method_arguments(gen, method);
+
+	return 0;
 }
 
-_g void method_add_method(Execute ptr, addr gen, addr method)
+_g int method_add_method_(Execute ptr, addr gen, addr method)
 {
 	addr check_method;
 
-	method_add_check(ptr, gen, method);
-	method_replace_check(ptr, gen, method, &check_method);
+	Return(method_add_check_(ptr, gen, method));
+	Return(method_replace_check_(ptr, gen, method, &check_method));
 	if (check_method != Nil) {
-		method_add_replace(ptr, gen, method, check_method);
+		Return(method_add_replace_(ptr, gen, method, check_method));
 	}
 	else {
 		method_update_check(gen, method, 1);
-		method_push_generic(ptr, gen, method);
+		Return(method_push_generic_(ptr, gen, method));
 		stdset_method_generic_function(method, gen);
 	}
 	method_cache_remove(ptr->local, gen, method);
 	generic_finalize(gen);
+
+	return 0;
 }
 
 
 /*
  *  common_objects
  */
-static void method_add(Execute ptr, addr gen, addr method)
+static int method_add_(Execute ptr, addr gen, addr method)
 {
 	addr check_method;
 
 	Check(! clos_generic_p(gen), "generic error");
 	Check(! clos_method_p(method), "method error");
-	method_add_check(ptr, gen, method);
-	method_replace_check(ptr, gen, method, &check_method);
+	Return(method_add_check_(ptr, gen, method));
+	Return(method_replace_check_(ptr, gen, method, &check_method));
 	if (check_method != Nil) {
-		_fmte("The method is already exists.", NULL);
-		return;
+		fmte("The method is already exists.", NULL);
+		return 0;
 	}
 	else {
 		method_update_check(gen, method, 1);
-		method_push_generic(ptr, gen, method);
+		Return(method_push_generic_(ptr, gen, method));
 		stdset_method_generic_function(method, gen);
 	}
 	method_cache_remove(ptr->local, gen, method);
 	generic_finalize(gen);
+
+	return 0;
 }
 #ifdef LISP_DEBUG
-_g void common_method_add(Execute ptr, addr gen, addr method)
+static int common_method_add_(Execute ptr, addr gen, addr method)
 {
-	method_add(ptr, gen, method);
+	return method_add_(ptr, gen, method);
 }
 #else
-_g void common_method_add(Execute ptr, addr gen, addr method)
+static int common_method_add_(Execute ptr, addr gen, addr method)
 {
 	Check(! clos_generic_p(gen), "generic error");
 	Check(! clos_method_p(method), "method error");
-	method_push_generic(ptr, gen, method);
+	Return(method_push_generic_(ptr, gen, method));
 	stdset_method_generic_function(method, gen);
+	return 0;
 }
 #endif
+
+_g void common_method_add(Execute ptr, addr gen, addr method)
+{
+	Error(common_method_add_(ptr, gen, method));
+}
 
 static void defmethod_make_generic_function(addr name, addr lambda, addr *ret)
 {
@@ -567,7 +600,7 @@ static void defmethod_make_generic_function(addr name, addr lambda, addr *ret)
 	generic_empty(name, lambda, ret);
 }
 
-_g void ensure_method_common(Execute ptr, addr *ret,
+_g int ensure_method_common_(Execute ptr, addr *ret,
 		addr name, addr lambda, addr qua, addr spec, addr call)
 {
 	addr gen, method, clos;
@@ -579,11 +612,12 @@ _g void ensure_method_common(Execute ptr, addr *ret,
 	if (gen == Unbound)
 		defmethod_make_generic_function(name, lambda, &gen);
 	if (! clos_generic_p(gen))
-		_fmte("The function ~S is not generic-function.", gen, NULL);
+		fmte("The function ~S is not generic-function.", gen, NULL);
 	stdget_generic_method_class(gen, &clos);
 	method_instance_heap(&method, clos, lambda, qua, spec, call);
-	method_add(ptr, gen, method);
-	*ret = method;
+	Return(method_add_(ptr, gen, method));
+
+	return Result(ret, method);
 }
 
 static void common_method_set_finalize(addr gen)

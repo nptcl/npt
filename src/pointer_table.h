@@ -20,6 +20,7 @@ enum pointer_index {
 	p_info_code,
 	p_print_code,
 	p_execute_code,
+	p_execute_switch_code,
 	p_end_operator_code,
 	p_set_code,
 	p_push_code,
@@ -115,6 +116,9 @@ enum pointer_index {
 	p_funcall_code,
 	p_nth_value_code,
 	p_progv_code,
+	p_taginfo_code,
+	p_blockinfo_code,
+	p_unwind_protect_code,
 	/* optimize */
 	p_optcode_result_type,
 	p_optcode_car0_set,
@@ -975,6 +979,7 @@ enum pointer_index {
 	p_defun_get_decoded_time,
 	p_defun_sleep,
 	p_sleep_continue,
+	p_sleep_close_object,
 	p_defun_apropos,
 	p_defun_apropos_list,
 	p_defun_describe,
@@ -1043,8 +1048,6 @@ enum pointer_index {
 	p_defun_standard_lambda,
 	p_defun_clos_ensure_reader,
 	p_defun_clos_ensure_writer_instance,
-	/* eval */
-	p_eval_load_finalize,
 	/* readtable */
 	p_defun_reader_double_quote,
 	p_defun_reader_single_quote,
@@ -1090,6 +1093,7 @@ enum pointer_index {
 	p_defun_eval_loop_abort_report,
 	p_defun_eval_loop_abort_test,
 	p_defun_handler_compile,
+	p_defun_free_eval_stack,
 	/* rt */
 	p_defun_push_entries,
 	p_defun_rem_all_tests,
@@ -1155,6 +1159,8 @@ enum pointer_index {
 	p_restart_symbol_store_interactive,
 	p_restart_symbol_store_report,
 	p_restart_function_use_function,
+	/* stream */
+	p_finalize_close_stream,
 	/* syscall */
 	p_defun_syscall_hello,
 	p_defun_syscall_infobit,

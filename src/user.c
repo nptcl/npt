@@ -1,5 +1,6 @@
 #include "build.h"
-#include "control.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "execute.h"
 #include "function.h"
 #include "format.h"

@@ -1,7 +1,9 @@
 #include "array_vector.h"
 #include "build.h"
 #include "code.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "constant.h"
 #include "function.h"
 #include "gc.h"
@@ -56,23 +58,18 @@ static int pprint_logical_block_type_form(Execute ptr, enum pprint_newline type)
 
 static int pprint_logical_block_type(Execute ptr, pointer type)
 {
-	int check;
-	addr stream, control, code, gensym;
+	addr stream, control, gensym;
 
 	/* stream */
 	getdata_control(ptr, &stream);
 	Check(! pretty_stream_p(stream), "type error");
 	/* unwind-protect */
-	push_finalize_control(ptr, &control);
-	syscall_code(ptr->local, &code, p_pprint_logical_block_close, stream);
-	setfinalize_control(ptr, control, code);
+	push_close_control(ptr, &control);
+	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
 	gensym_pretty_stream(stream, &gensym);
-	catch_syscall_code(&code, type, gensym, stream);
-	check = callclang_funcall(ptr, &code, code, NULL);
-	Return(free_check_control(ptr, control, check));
-
-	return check;
+	Return(catch_clang(ptr, type, gensym, stream));
+	return free_control_(ptr, control);
 }
 
 static int pprint_type_print(Execute ptr,
@@ -187,24 +184,19 @@ static int pprint_logical_block_tabular_form(Execute ptr)
 
 static int pprint_logical_block_tabular(Execute ptr)
 {
-	int check;
-	addr cons, stream, control, code, gensym;
+	addr cons, stream, control, gensym;
 
 	/* stream */
 	getdata_control(ptr, &cons);
 	GetCar(cons, &stream);
 	Check(! pretty_stream_p(stream), "type error");
 	/* unwind-protect */
-	push_finalize_control(ptr, &control);
-	syscall_code(ptr->local, &code, p_pprint_logical_block_close, stream);
-	setfinalize_control(ptr, control, code);
+	push_close_control(ptr, &control);
+	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
 	gensym_pretty_stream(stream, &gensym);
-	catch_syscall_code(&code, p_pprint_logical_block_tabular_form, gensym, cons);
-	check = callclang_funcall(ptr, &code, code, NULL);
-	Return(free_check_control(ptr, control, check));
-
-	return check;
+	Return(catch_clang(ptr, p_pprint_logical_block_tabular_form, gensym, cons));
+	return free_control_(ptr, control);
 }
 
 _g int pprint_tabular_print(Execute ptr,
@@ -269,7 +261,8 @@ static int pprint_dispatch_vector2(Execute ptr)
 		getelt_sequence(NULL, vector, i, &pos);
 		Return(write_print(ptr, stream, pos));
 		i++;
-		Return(size <= i);
+		if (size <= i)
+			break;
 		write_char_stream(stream, ' ');
 		pprint_newline_print(ptr, pprint_newline_fill, stream);
 	}
@@ -279,24 +272,19 @@ static int pprint_dispatch_vector2(Execute ptr)
 
 static int pprint_dispatch_vector1(Execute ptr)
 {
-	int check;
-	addr cons, stream, control, code, gensym;
+	addr cons, stream, control, gensym;
 
 	/* stream */
 	getdata_control(ptr, &cons);
 	GetCar(cons, &stream);
 	Check(! pretty_stream_p(stream), "type error");
 	/* unwind-protect */
-	push_finalize_control(ptr, &control);
-	syscall_code(ptr->local, &code, p_pprint_logical_block_close, stream);
-	setfinalize_control(ptr, control, code);
+	push_close_control(ptr, &control);
+	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
 	gensym_pretty_stream(stream, &gensym);
-	catch_syscall_code(&code, p_pprint_dispatch_vector2, gensym, cons);
-	check = callclang_funcall(ptr, &code, code, NULL);
-	Return(free_check_control(ptr, control, check));
-
-	return check;
+	Return(catch_clang(ptr, p_pprint_dispatch_vector2, gensym, cons));
+	return free_control_(ptr, control);
 }
 
 static int pprint_dispatch_vector(Execute ptr, addr stream, addr pos)

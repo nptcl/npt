@@ -137,7 +137,7 @@ static int pathname_case_local_p(addr rest, int *ret)
 		return Result(ret, 0);
 
 	*ret = 0;
-	return fmte("Invalid :case value ~S.", rest, NULL);
+	return fmte_("Invalid :case value ~S.", rest, NULL);
 }
 
 static int function_pathname_host(Execute ptr, addr pos, addr rest)

@@ -8,7 +8,9 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "equal.h"
 #include "function.h"
 #include "heap.h"
@@ -128,7 +130,7 @@ static void ensure_structure_struct(struct defstruct *str,
 	/* :include */
 	if (! getkeyargs(args, KEYWORD_INCLUDE, &pos)) {
 		if (! consp(pos))
-			_fmte("Invalid :include format ~S.", pos, NULL);
+			fmte("Invalid :include format ~S.", pos, NULL);
 		GetCons(pos, &pos, &check);
 		str->include_p = 1;
 		str->iname = pos;
@@ -376,7 +378,7 @@ static int structure_getarray_direct(Execute ptr,
 		return 1;
 	if (! check) {
 		type_object(&type, type);
-		_fmte("The value ~S don't match ~A type.", value, type, NULL);
+		fmte("The value ~S don't match ~A type.", value, type, NULL);
 		return 0;
 	}
 	*ret = value;
@@ -401,7 +403,7 @@ static int structure_setarray_direct(Execute ptr,
 		return 1;
 	if (! check) {
 		type_object(&type, type);
-		_fmte("The value ~S don't match ~A type.", value, type, NULL);
+		fmte("The value ~S don't match ~A type.", value, type, NULL);
 		return 0;
 	}
 	setelt_sequence(vector, i, value);
@@ -426,7 +428,7 @@ static void structure_check_name(struct defstruct *ptr)
 
 	clos_find_class_nil(ptr->name, &pos);
 	if (pos != Nil)
-		_fmtw("The structure name ~S already exists.", ptr->name, NULL);
+		fmtw("The structure name ~S already exists.", ptr->name, NULL);
 }
 
 static void structure_slots_heap(addr list, addr *ret)
@@ -461,7 +463,7 @@ static void structure_check_slots(addr list)
 			Check(! symbolp(b), "type error");
 			GetNameSymbol(b, &b);
 			if (string_equal(a, b))
-				_fmte("The slot name ~S is duplicated in the defstruct.", a, NULL);
+				fmte("The slot name ~S is duplicated in the defstruct.", a, NULL);
 		}
 	}
 }
@@ -477,7 +479,7 @@ static void structure_check_predicate(struct defstruct *str)
 		}
 		if (str->predicate == Nil)
 			return;
-		_fmte("DEFSTRUCT ~S is defined :PREDICATE, "
+		fmte("DEFSTRUCT ~S is defined :PREDICATE, "
 				"but the structure is not named.", str->name, NULL);
 		return;
 	}
@@ -497,36 +499,36 @@ static void structure_include(struct defstruct *str)
 	/* instance check */
 	clos_find_class_nil(str->iname, &instance);
 	if (instance == Nil)
-		_fmte(":INCLUDE ~S structure don't exist.", str->iname, NULL);
+		fmte(":INCLUDE ~S structure don't exist.", str->iname, NULL);
 	if (! structure_class_p(instance))
-		_fmte(":INCLUDE ~S must be structure type.", instance, NULL);
+		fmte(":INCLUDE ~S must be structure type.", instance, NULL);
 
 	/* class check */
 	stdget_structure_type(instance, &x);
 	GetConst(COMMON_CLASS, &y);
 	if (x == y) {
 		if (str->type_list_p || str->type_vector_p)
-			_fmte(":TYPE option is CLASS, but :INCLUDE type is not CLASS.", NULL);
+			fmte(":TYPE option is CLASS, but :INCLUDE type is not CLASS.", NULL);
 	}
 
 	/* list check */
 	GetConst(COMMON_LIST, &y);
 	if (x == y) {
 		if (! str->type_list_p)
-			_fmte(":TYPE option is LIST, but :INCLUDE type is not LIST.", NULL);
+			fmte(":TYPE option is LIST, but :INCLUDE type is not LIST.", NULL);
 	}
 
 	/* vector check */
 	GetConst(COMMON_VECTOR, &y);
 	if (x == y) {
 		if (! str->type_vector_p)
-			_fmte(":TYPE option is VECTOR, but :INCLUDE type is not VECTOR.", NULL);
+			fmte(":TYPE option is VECTOR, but :INCLUDE type is not VECTOR.", NULL);
 		x = str->type_vector;
 		stdget_structure_vector(instance, &y);
 		if (! subtypep_clang(x, y, &invalid)) {
 			type_object(&x, x);
 			type_object(&y, y);
-			_fmte(":TYPE ~A is not in the include ~A type.", x, y, NULL);
+			fmte(":TYPE ~A is not in the include ~A type.", x, y, NULL);
 		}
 	}
 
@@ -571,7 +573,7 @@ static void structure_include_slots(struct defstruct *str)
 		GetCons(list, &pos, &list);
 		GetNameSlot(pos, &name);
 		if (structure_find_slots(instance, name, &pos))
-			_fmte("The slot ~S already exist in :INCLUDE structure.", name, NULL);
+			fmte("The slot ~S already exist in :INCLUDE structure.", name, NULL);
 	}
 }
 
@@ -588,7 +590,7 @@ static void structure_include_arguments(struct defstruct *str)
 		GetCons(list, &a, &list);
 		GetNameSlot(a, &name);
 		if (! structure_find_slots(instance, name, &b)) {
-			_fmte("The :include argument ~S don't exist "
+			fmte("The :include argument ~S don't exist "
 					"in :INCLUDE structure.", name, NULL);
 			return;
 		}
@@ -607,7 +609,7 @@ static void structure_include_arguments(struct defstruct *str)
 		else if (! subtypep_clang(x, y, &invalid)) {
 			type_object(&x, x);
 			type_object(&y, y);
-			_fmte("The slot ~S type ~A is not "
+			fmte("The slot ~S type ~A is not "
 					"in the include ~A type.", name, x, y, NULL);
 			return;
 		}
@@ -618,7 +620,7 @@ static void structure_include_arguments(struct defstruct *str)
 			SetReadOnlySlot(a, y);
 		}
 		else if (x == Nil && y == T) {
-			_fmte("The slot ~S is readonly "
+			fmte("The slot ~S is readonly "
 					"but include slot is not readonly.", name, NULL);
 			return;
 		}
@@ -628,7 +630,7 @@ static void structure_include_arguments(struct defstruct *str)
 static void structure_print_check(struct defstruct *str)
 {
 	if (str->print_function_p && str->print_object_p) {
-		_fmte("The defstruct option must be have "
+		fmte("The defstruct option must be have "
 				"either :PRINT-OBJECT or :PRINT-FUNCTION, "
 				"but there are both options", NULL);
 	}
@@ -987,7 +989,7 @@ static int function_structure_reader_list(Execute ptr, addr var)
 	CheckType(type, LISPSYSTEM_STRUCTURE_TYPE);
 	/* type check */
 	if (! structure_type_list_p(type, var))
-		_fmte("The argument ~S must be a structure-list.", var, NULL);
+		fmte("The argument ~S must be a structure-list.", var, NULL);
 	/* access */
 	GetSlotStructureType(type, &type);
 	GetAccessSlot(type, &index);
@@ -1032,7 +1034,7 @@ static int function_structure_writer_list(Execute ptr, addr value, addr var)
 	CheckType(type, LISPSYSTEM_STRUCTURE_TYPE);
 	/* type check */
 	if (! structure_type_list_p(type, var))
-		_fmte("The argument ~S must be a structure-list.", var, NULL);
+		fmte("The argument ~S must be a structure-list.", var, NULL);
 	/* access */
 	GetSlotStructureType(type, &type);
 	GetAccessSlot(type, &index);
@@ -1105,7 +1107,7 @@ static int function_structure_reader_vector(Execute ptr, addr var)
 	/* type check */
 	Return(structure_type_vector_p(ptr, type, var, &check));
 	if (! check)
-		_fmte("The argument ~S must be a structure-vector.", var, NULL);
+		fmte("The argument ~S must be a structure-vector.", var, NULL);
 	/* access */
 	GetSlotStructureType(type, &slot);
 	GetVectorStructureType(type, &pos);
@@ -1151,7 +1153,7 @@ static int function_structure_writer_vector(Execute ptr, addr value, addr var)
 	/* type check */
 	Return(structure_type_vector_p(ptr, type, var, &check));
 	if (! check)
-		_fmte("The argument ~S must be a structure-vector.", var, NULL);
+		fmte("The argument ~S must be a structure-vector.", var, NULL);
 	/* access */
 	GetSlotStructureType(type, &slot);
 	GetVectorStructureType(type, &type);
@@ -1217,7 +1219,7 @@ static int function_structure_reader_clos(Execute ptr, addr var)
 	/* check-type */
 	GetClassSlot(slot, &pos);
 	if (! typep_structure(var, pos))
-		_fmte("The reader don't read ~S structure.", pos, NULL);
+		fmte("The reader don't read ~S structure.", pos, NULL);
 	/* result */
 	GetLocationSlot(slot, &index);
 	GetValueClos(var, &var);
@@ -1262,7 +1264,7 @@ static int function_structure_writer_clos(Execute ptr, addr value, addr var)
 	/* check-type */
 	GetClassSlot(slot, &pos);
 	if (! typep_structure(var, pos))
-		_fmte("The reader don't read ~S structure.", pos, NULL);
+		fmte("The reader don't read ~S structure.", pos, NULL);
 	/* result */
 	GetLocationSlot(slot, &index);
 	GetValueClos(var, &var);
@@ -1360,14 +1362,14 @@ static void structure_constructor_dynamic(addr instance,
 
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("Invalid keyword-argumets ~S.", list, NULL);
+			fmte("Invalid keyword-argumets ~S.", list, NULL);
 		GetCons(list, &key, &list);
 		if (! consp(list))
-			_fmte("There is no value in the key ~S arguemnts.", key, NULL);
+			fmte("There is no value in the key ~S arguemnts.", key, NULL);
 		if (! symbolp(key))
-			_fmte("The key ~S must be a symbol type.", key, NULL);
+			fmte("The key ~S must be a symbol type.", key, NULL);
 		if (errorp && (! structure_constructor_find_slots(key, slots)))
-			_fmte("There is no slot ~S in the structure ~S.", key, instance, NULL);
+			fmte("There is no slot ~S in the structure ~S.", key, instance, NULL);
 		GetCdr(list, &list);
 	}
 }
@@ -1741,7 +1743,7 @@ static void structure_constructor(struct defstruct *str)
 		else if (consp(pos))
 			structure_constructor_lambda(pos);
 		else
-			_fmte("Invalid constructor parameter ~S.", pos, NULL);
+			fmte("Invalid constructor parameter ~S.", pos, NULL);
 	}
 }
 
@@ -1759,7 +1761,7 @@ static int function_structure_copier_list(Execute ptr, addr var)
 	CheckType(type, LISPSYSTEM_STRUCTURE_TYPE);
 	/* type check */
 	if (! structure_type_list_p(type, var))
-		_fmte("The argument ~S must be a structure-list.", var, NULL);
+		fmte("The argument ~S must be a structure-list.", var, NULL);
 	/* copy */
 	copy_list_heap_unsafe(&var, var);
 	setresult_control(ptr, var);
@@ -1806,7 +1808,7 @@ static int function_structure_copier_vector(Execute ptr, addr var)
 	/* type check */
 	Return(structure_type_vector_p(ptr, type, var, &check));
 	if (! check)
-		_fmte("The argument ~S must be a structure-vector.", var, NULL);
+		fmte("The argument ~S must be a structure-vector.", var, NULL);
 	/* copy */
 	copy_vector_heap(&var, var);
 	setresult_control(ptr, var);
@@ -2058,7 +2060,7 @@ static int method_defstruct_default(Execute ptr,
 		addr method, addr next, addr var, addr stream)
 {
 	if (! structure_instance_p(var))
-		_fmte("Invalid structure type ~S.", var, NULL);
+		fmte("Invalid structure type ~S.", var, NULL);
 	Return(print_structure(ptr, stream, var));
 	setresult_control(ptr, var);
 
@@ -2081,7 +2083,7 @@ static void structure_print_default_method(struct defstruct *str, addr name, add
 	*ret = pos;
 }
 
-static void structure_print_add_method(struct defstruct *str, addr name, addr method)
+static int structure_print_add_method_(struct defstruct *str, addr name, addr method)
 {
 	addr generic;
 	Execute ptr;
@@ -2089,16 +2091,16 @@ static void structure_print_add_method(struct defstruct *str, addr name, addr me
 	ptr = str->ptr;
 	getfunctioncheck_local(ptr, name, &generic);
 	Check(! clos_generic_p(generic), "type error");
-	method_add_method(ptr, generic, method);
+	return method_add_method_(ptr, generic, method);
 }
 
-static void structure_print_default(struct defstruct *str)
+static int structure_print_default_(struct defstruct *str)
 {
 	addr name, method;
 
 	GetConst(COMMON_PRINT_OBJECT, &name);
 	structure_print_default_method(str, name, &method);
-	structure_print_add_method(str, name, method);
+	return structure_print_add_method_(str, name, method);
 }
 
 static int method_defstruct_object(Execute ptr,
@@ -2107,7 +2109,7 @@ static int method_defstruct_object(Execute ptr,
 	addr call;
 
 	if (! structure_instance_p(var))
-		_fmte("Invalid structure type ~S.", var, NULL);
+		fmte("Invalid structure type ~S.", var, NULL);
 	getdata_control(ptr, &call);
 	Return(callclang_apply(ptr, &call, call, Nil));
 	Return(callclang_funcall(ptr, &call, call, var, stream, NULL));
@@ -2133,13 +2135,13 @@ static void structure_print_object_method(struct defstruct *str, addr name, addr
 	*ret = pos;
 }
 
-static void structure_print_object(struct defstruct *str)
+static int structure_print_object_(struct defstruct *str)
 {
 	addr name, method;
 
 	GetConst(COMMON_PRINT_OBJECT, &name);
 	structure_print_object_method(str, name, &method);
-	structure_print_add_method(str, name, method);
+	return structure_print_add_method_(str, name, method);
 }
 
 static int method_defstruct_function(Execute ptr,
@@ -2148,7 +2150,7 @@ static int method_defstruct_function(Execute ptr,
 	addr call, pos;
 
 	if (! structure_instance_p(var))
-		_fmte("Invalid structure type ~S.", var, NULL);
+		fmte("Invalid structure type ~S.", var, NULL);
 	GetConst(SPECIAL_PRINT_LEVEL, &pos);
 	getspecialcheck_local(ptr, pos, &pos);
 	getdata_control(ptr, &call);
@@ -2176,34 +2178,36 @@ static void structure_print_function_method(struct defstruct *str, addr name, ad
 	*ret = pos;
 }
 
-static void structure_print_function(struct defstruct *str)
+static int structure_print_function_(struct defstruct *str)
 {
 	addr name, method;
 
 	GetConst(COMMON_PRINT_OBJECT, &name);
 	structure_print_function_method(str, name, &method);
-	structure_print_add_method(str, name, method);
+	return structure_print_add_method_(str, name, method);
 }
 
-static void structure_print(struct defstruct *str)
+static int structure_print_(struct defstruct *str)
 {
 	if (str->type_p && str->print_object_p)
-		_fmte("Can't make print-object on :TYPE structure.", NULL);
+		fmte("Can't make print-object on :TYPE structure.", NULL);
 	if (str->type_p && str->print_function_p)
-		_fmte("Can't make print-function on :TYPE structure.", NULL);
+		fmte("Can't make print-function on :TYPE structure.", NULL);
 	if (structure_print_default_p(str))
-		structure_print_default(str);
+		return structure_print_default_(str);
 	else if (str->print_object_p)
-		structure_print_object(str);
+		return structure_print_object_(str);
 	else if (str->print_function_p)
-		structure_print_function(str);
+		return structure_print_function_(str);
+
+	return 0;
 }
 
 
 /*
  *  ensure-structure
  */
-_g void ensure_structure_common(Execute ptr, addr name, addr slots, addr args)
+_g int ensure_structure_common_(Execute ptr, addr name, addr slots, addr args)
 {
 	struct defstruct str;
 	LocalHold hold;
@@ -2237,9 +2241,11 @@ _g void ensure_structure_common(Execute ptr, addr name, addr slots, addr args)
 	structure_copier(&str);
 	structure_predicate(&str);
 	structure_constructor(&str);
-	structure_print(&str);
+	Return(structure_print_(&str));
 	/* rollback */
 	localhold_end(hold);
+
+	return 0;
 }
 
 
@@ -2355,7 +2361,7 @@ static int make_structure_common(Execute ptr, addr *ret,
 		return make_structure_common_list(ptr, ret, instance, rest, errorp);
 
 	/* error */
-	_fmte("Invalid type value ~S.", type, NULL);
+	fmte("Invalid type value ~S.", type, NULL);
 	return 0;
 }
 
@@ -2364,10 +2370,10 @@ _g int structure_constructor_common(Execute ptr, addr symbol, addr rest, addr *r
 	addr instance;
 
 	if (! symbolp(symbol))
-		_fmte("The first argument ~S must be a symbol type.", symbol, NULL);
+		fmte("The first argument ~S must be a symbol type.", symbol, NULL);
 	clos_find_class(symbol, &instance);
 	if (! structure_class_p(instance))
-		_fmte("The class ~S don't be a structure-class.", symbol, NULL);
+		fmte("The class ~S don't be a structure-class.", symbol, NULL);
 
 	return make_structure_common(ptr, ret, instance, rest, 0);
 }

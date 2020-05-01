@@ -1,7 +1,8 @@
 #include "function.c"
 #include "clos.h"
 #include "code.h"
-#include "control.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "common.h"
 #include "degrade.h"
 #include "package.h"
@@ -357,7 +358,7 @@ static int test_refcallname_local(void)
 	getcallname_local(ptr, key, &pos);
 	test(pos == call1, "refcallname_local5");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -390,7 +391,7 @@ static int test_refcallnamecheck_local(void)
 	getcallname_local(ptr, key, &pos);
 	test(pos == call1, "refcallnamecheck_local4");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -429,7 +430,7 @@ static int test_refcallname_global(void)
 	getcallname_global(key, &pos);
 	test(pos == call1, "refcallname_global5");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -465,7 +466,7 @@ static int test_refcallnamecheck_global(void)
 	getcallnamecheck_global(key, &pos);
 	test(pos == call1, "refcallnamecheck_global4");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }

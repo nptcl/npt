@@ -10,8 +10,8 @@ _g void infobit_syscode(addr rest, addr *ret);
 _g void infoprint_syscode(addr rest, addr *ret);
 _g void gc_syscode(addr rest);
 _g void savecore_syscode(Execute ptr, addr file);
-_g void redirect_restart_syscode(Execute ptr, addr condition, addr list);
-_g void defconstant_syscode(addr symbol, addr value, addr doc);
+_g int redirect_restart_syscode(Execute ptr, addr condition, addr list);
+_g int defconstant_syscode(addr symbol, addr value, addr doc);
 _g void in_package_syscode(Execute ptr, addr name, addr *ret);
 _g void setplist_syscode(addr key, addr value, addr list, addr *ret);
 _g void remplist_syscode(addr key, addr list, addr *ret1, addr *ret2);
@@ -41,7 +41,7 @@ _g int simple_sort_syscode(Execute ptr, addr pos, addr call, addr rest);
 _g int bubble_sort_syscode(Execute ptr, addr pos, addr call, addr rest);
 _g int quick_sort_syscode(Execute ptr, addr pos, addr call, addr rest);
 _g int merge_sort_syscode(Execute ptr, addr pos, addr call, addr rest);
-_g void exit_syscode(addr code);
+_g int exit_syscode(addr code);
 _g void end_input_stream_syscode(addr var, addr *ret);
 _g void make_extend_output_stream_syscode(addr var, addr rest, addr *ret);
 _g int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret);
@@ -58,14 +58,14 @@ _g void large_number_syscode(LocalRoot local, addr var, addr opt, addr *ret);
 _g int print_unreadable_call_syscode(Execute ptr,
 		addr stream, addr pos, addr type, addr identity, addr body);
 _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret);
-_g void make_bignum_syscode(addr var, addr *ret);
-_g void make_ratio_syscode(addr numer, addr denom, addr *ret);
+_g int make_bignum_syscode(addr var, addr *ret);
+_g int make_ratio_syscode(addr numer, addr denom, addr *ret);
 _g void make_complex_code(addr real, addr imag, addr *ret);
 _g void equal_random_state_syscode(addr left, addr right, addr *ret);
 _g void symbol_deftype_syscode(addr var, addr *ret);
 _g void delete_deftype_syscode(addr var, addr *ret);
 _g int subtypep_result_syscode(Execute ptr, addr left, addr right, addr *ret);
-_g void ensure_structure_syscode(Execute ptr, addr name, addr slots, addr rest);
+_g int ensure_structure_syscode_(Execute ptr, addr name, addr slots, addr rest);
 _g int structure_constructor_syscode(Execute ptr, addr symbol, addr rest, addr *ret);
 _g int loop_bind_syscode(Execute ptr, addr a, addr b, addr c, addr *ret);
 _g void make_pprint_stream_syscode(Execute ptr, addr *ret,
@@ -89,7 +89,7 @@ _g void trace_del_syscode(Execute ptr, addr var, addr *ret);
 _g void set_slots_syscode(addr var, addr slots, addr values);
 _g void remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret);
 _g void remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret);
-_g void declare_parse_syscode(addr form, addr *ret);
+_g int declare_parse_syscode(addr form, addr *ret);
 
 #endif
 

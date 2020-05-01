@@ -2,7 +2,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "control.h"
+#include "control_operator.h"
 #include "function.h"
 #include "type_constant.h"
 #include "type_table.h"
@@ -156,7 +156,7 @@ static void defun_savecore(void)
 /* (defun redirect-restart (condition list) ...) -> null */
 static int syscall_redirect_restart(Execute ptr, addr condition, addr list)
 {
-	redirect_restart_syscode(ptr, condition, list);
+	Return(redirect_restart_syscode(ptr, condition, list));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -214,7 +214,7 @@ static void defun_symbol_macro_expander(void)
 /* (defun defconstant (symbol value document) ...) -> symbol */
 static int syscall_defconstant(Execute ptr, addr symbol, addr value, addr doc)
 {
-	defconstant_syscode(symbol, value, doc);
+	Return(defconstant_syscode(symbol, value, doc));
 	setresult_control(ptr, symbol);
 	return 0;
 }
@@ -1038,7 +1038,7 @@ static void defun_merge_sort(void)
 /* (defun exit/quit (&optional code) ...) -> (values &rest nil) */
 static int syscall_exit(Execute ptr, addr code)
 {
-	exit_syscode(code);
+	Return(exit_syscode(code));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -1511,7 +1511,7 @@ static void defun_write_default(void)
 /* (defun make-bignum (integer) ...) -> bignum */
 static int syscall_make_bignum(Execute ptr, addr var)
 {
-	make_bignum_syscode(var, &var);
+	Return(make_bignum_syscode(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1545,7 +1545,7 @@ static void defun_make_bignum(void)
 /* (defun make-ratio (numer denom) ...) -> ratio */
 static int syscall_make_ratio(Execute ptr, addr numer, addr denom)
 {
-	make_ratio_syscode(numer, denom, &numer);
+	Return(make_ratio_syscode(numer, denom, &numer));
 	setresult_control(ptr, numer);
 	return 0;
 }
@@ -1752,7 +1752,7 @@ static void defun_subtypep_result(void)
  */
 static int syscall_ensure_structure(Execute ptr, addr name, addr slots, addr rest)
 {
-	ensure_structure_syscode(ptr, name, slots, rest);
+	Return(ensure_structure_syscode_(ptr, name, slots, rest));
 	setresult_control(ptr, name);
 	return 0;
 }
@@ -2567,7 +2567,7 @@ static void defun_remove_directory(void)
 /* (defmacro declare-parse (symbol) ...) -> integer */
 static int syscall_declare_parse(Execute ptr, addr form, addr env)
 {
-	declare_parse_syscode(form, &form);
+	Return(declare_parse_syscode(form, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

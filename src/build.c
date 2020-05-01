@@ -30,7 +30,6 @@
 #include "gc.h"
 #include "heap.h"
 #include "hashtable.h"
-#include "input.h"
 #include "localtime.h"
 #include "object.h"
 #include "package.h"
@@ -43,7 +42,7 @@
 #include "restart.h"
 #include "require.h"
 #include "rt.h"
-#include "stream.h"
+#include "stream_init.h"
 #include "structure.h"
 #include "sxhash.h"
 #include "symbol.h"
@@ -78,7 +77,6 @@ _g void initlisp(void)
 	init_fasl();
 	init_format();
 	init_heap();
-	init_input();
 	init_localtime();
 	init_package();
 	init_pathname();
@@ -102,6 +100,7 @@ static void clearlisp_force(void)
 		lisp_root[i] = 0;
 	lisp_nil_object  = 0;
 	lisp_t_object    = 0;
+	lisp_gcsync      = 0;
 }
 
 _g int alloclisp(size_t heap, size_t stack)

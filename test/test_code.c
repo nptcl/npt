@@ -2,6 +2,8 @@
 #include "character.h"
 #include "clos.h"
 #include "common.h"
+#include "cons.h"
+#include "condition.h"
 #include "constant.h"
 #include "copy.h"
 #include "degrade.h"

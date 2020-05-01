@@ -286,7 +286,7 @@ _g void force_open_stream(addr stream, addr *ret)
 	CheckType(stream, LISPTYPE_STREAM); \
 	ptr = PtrStructStream(stream); \
 	if (ptr->closed) { \
-		_fmte("The stream ~S is already closed.", stream, NULL); \
+		fmte("The stream ~S is already closed.", stream, NULL); \
 	} \
 }
 
@@ -579,7 +579,7 @@ _g void unread_char_default_stream(addr stream, unicode c)
 
 	ptr = PtrStructStream(stream);
 	if (ptr->unread_check) {
-		_fmte("unread already exists.", NULL);
+		fmte("unread already exists.", NULL);
 		return;
 	}
 	ptr->unread = c;
@@ -765,250 +765,6 @@ _g void print_string_stream(addr stream, addr pos)
 /*
  *  initialize
  */
-#define LispStreamTypeError(x, type) Stream_##x[type] = x##_stream_error
-
-static void init_stream_extend_type(int type)
-{
-	LispStreamTypeError(close, type);
-	LispStreamTypeError(read_binary, type);
-	LispStreamTypeError(readforce_binary, type);
-	LispStreamTypeError(read_byte, type);
-	LispStreamTypeError(unread_byte, type);
-	LispStreamTypeError(write_binary, type);
-	LispStreamTypeError(write_byte, type);
-	LispStreamTypeError(read_char, type);
-	LispStreamTypeError(read_hang, type);
-	LispStreamTypeError(unread_char, type);
-	LispStreamTypeError(write_char, type);
-	LispStreamTypeError(terpri, type);
-	LispStreamTypeError(getleft, type);
-	LispStreamTypeError(setleft, type);
-	LispStreamTypeError(fresh_line, type);
-	LispStreamTypeError(clear_input, type);
-	LispStreamTypeError(inputp, type);
-	LispStreamTypeError(outputp, type);
-	LispStreamTypeError(interactivep, type);
-	LispStreamTypeError(characterp, type);
-	LispStreamTypeError(binaryp, type);
-	LispStreamTypeError(element_type, type);
-	LispStreamTypeError(file_length, type);
-	LispStreamTypeError(file_position, type);
-	LispStreamTypeError(file_position_start, type);
-	LispStreamTypeError(file_position_end, type);
-	LispStreamTypeError(file_position_set, type);
-	LispStreamTypeError(file_character_length, type);
-	LispStreamTypeError(file_string_length, type);
-	LispStreamTypeError(listen, type);
-	LispStreamTypeError(finish_output, type);
-	LispStreamTypeError(force_output, type);
-	LispStreamTypeError(clear_output, type);
-	LispStreamTypeError(exitpoint, type);
-	LispStreamTypeError(terminal_width, type);
-}
-
-static void init_stream_extend(void)
-{
-	int i;
-
-	for (i = 0; i < LISP_STREAM_EXTEND; i++)
-		init_stream_extend_type(((int)StreamType_Size) + i);
-}
-
-_g void init_stream(void)
-{
-	init_stream_binary_input();
-	init_stream_binary_output();
-	init_stream_binary_io();
-	init_stream_character_input();
-	init_stream_character_output();
-	init_stream_character_io();
-	init_stream_binchar_input();
-	init_stream_binchar_output();
-	init_stream_binchar_io();
-	init_stream_string_input();
-	init_stream_string_output();
-	init_stream_synonym();
-	init_stream_broadcast();
-	init_stream_concatenated();
-	init_stream_twoway();
-	init_stream_echo();
-	init_stream_prompt();
-	init_stream_pretty();
-	init_stream_extend();
-}
-
-static void defvar_stream_binary_type(void)
-{
-	addr symbol, value;
-
-	GetConst(COMMON_UNSIGNED_BYTE, &symbol);
-	fixnum_heap(&value, 8);
-	list_heap(&value, symbol, value, NULL);
-	SetConstant(CONSTANT_STREAM_BINARY_TYPE, value);
-}
-
-static void defvar_external_format(void)
-{
-	addr symbol, value;
-
-	GetConst(SYSTEM_EXTERNAL_FORMAT, &symbol);
-	GetConst(SYSTEM_UTF_8, &value);
-	SetValueSymbol(symbol, value);
-}
-
-static void defvar_system_standard_input(void)
-{
-	addr stream, symbol;
-
-	make_standard_input(&stream);
-	GetConst(SYSTEM_STANDARD_INPUT, &symbol);
-	SetValueSymbol(symbol, stream);
-	SetConst(STREAM_STDIN, stream);
-}
-
-static void defvar_system_standard_output(void)
-{
-	addr stream, symbol;
-
-	make_standard_output(&stream);
-	GetConst(SYSTEM_STANDARD_OUTPUT, &symbol);
-	SetValueSymbol(symbol, stream);
-	SetConst(STREAM_STDOUT, stream);
-}
-
-static void defvar_system_standard_error(void)
-{
-	addr stream, symbol;
-
-	make_standard_error(&stream);
-	GetConst(SYSTEM_STANDARD_ERROR, &symbol);
-	SetValueSymbol(symbol, stream);
-	SetConst(STREAM_STDERR, stream);
-}
-
-static void defvar_system_prompt(void)
-{
-	addr stream, symbol;
-
-	open_prompt_stream(&stream);
-	GetConst(SYSTEM_PROMPT_VALUE, &symbol);
-	SetValueSymbol(symbol, stream);
-}
-
-static void defvar_standard_input(void)
-{
-	addr symbol, stream;
-
-	/* synonym */
-	GetConst(SYSTEM_STANDARD_INPUT, &stream);
-	open_synonym_stream(&stream, stream);
-	/* defvar */
-	GetConst(SPECIAL_STANDARD_INPUT, &symbol);
-	SetValueSymbol(symbol, stream);
-}
-
-static void defvar_standard_output(void)
-{
-	addr symbol, stream;
-
-	/* synonym */
-	GetConst(SYSTEM_STANDARD_OUTPUT, &stream);
-	open_synonym_stream(&stream, stream);
-	/* defvar */
-	GetConst(SPECIAL_STANDARD_OUTPUT, &symbol);
-	SetValueSymbol(symbol, stream);
-}
-
-static void defvar_error_output(void)
-{
-	addr symbol, stream;
-
-	/* synonym */
-	GetConst(SYSTEM_STANDARD_ERROR, &stream);
-	open_synonym_stream(&stream, stream);
-	/* defvar */
-	GetConst(SPECIAL_ERROR_OUTPUT, &symbol);
-	SetValueSymbol(symbol, stream);
-}
-
-static void defvar_terminal_io(void)
-{
-	addr symbol, input, output, stream;
-
-	/* twoway */
-	GetConst(SYSTEM_PROMPT_VALUE, &input);
-	open_synonym_stream(&input, input);
-	GetConst(SPECIAL_STANDARD_OUTPUT, &output);
-	open_synonym_stream(&output, output);
-	open_twoway_stream(&stream, input, output);
-	/* defvar */
-	GetConst(SPECIAL_TERMINAL_IO, &symbol);
-	SetValueSymbol(symbol, stream);
-}
-
-static void defvar_trace_output(void)
-{
-	addr symbol, stream;
-
-	/* synonym */
-	GetConst(SPECIAL_TERMINAL_IO, &stream);
-	open_synonym_stream(&stream, stream);
-	/* defvar */
-	GetConst(SPECIAL_TRACE_OUTPUT, &symbol);
-	SetValueSymbol(symbol, stream);
-}
-
-static void defvar_debug_io(void)
-{
-	addr symbol, stream;
-
-	/* synonym */
-	GetConst(SPECIAL_TERMINAL_IO, &stream);
-	open_synonym_stream(&stream, stream);
-	/* defvar */
-	GetConst(SPECIAL_DEBUG_IO, &symbol);
-	SetValueSymbol(symbol, stream);
-}
-
-static void defvar_query_io(void)
-{
-	addr symbol, stream;
-
-	/* synonym */
-	GetConst(SPECIAL_TERMINAL_IO, &stream);
-	open_synonym_stream(&stream, stream);
-	/* defvar */
-	GetConst(SPECIAL_QUERY_IO, &symbol);
-	SetValueSymbol(symbol, stream);
-}
-
-static void defvar_end_of_line(void)
-{
-	addr symbol, value;
-
-	GetConst(SYSTEM_END_OF_LINE, &symbol);
-	GetConst(SYSTEM_AUTO, &value);
-	SetValueSymbol(symbol, value);
-}
-
-_g void build_stream(void)
-{
-	defvar_stream_binary_type();
-	defvar_external_format();
-	defvar_system_standard_input();
-	defvar_system_standard_output();
-	defvar_system_standard_error();
-	defvar_standard_input();
-	defvar_standard_output();
-	defvar_system_prompt();
-	defvar_error_output();
-	defvar_terminal_io();
-	defvar_trace_output();
-	defvar_debug_io();
-	defvar_query_io();
-	defvar_end_of_line();
-}
-
 static void specialvalue(Execute ptr, constindex index, addr *ret)
 {
 	addr symbol;
@@ -1106,7 +862,7 @@ static int open_if_does_not_exist_stream(Execute ptr, addr *ret, addr pos,
 			return 1;
 
 		default:
-			_fmte("Invalid :if-does-not-exist value.", NULL);
+			fmte("Invalid :if-does-not-exist value.", NULL);
 			return 0;
 	}
 
@@ -1185,7 +941,7 @@ static int open_if_exists_stream(Execute ptr, addr *ret, addr pos,
 			return 1;
 
 		default:
-			_fmte("Invalid :if-exist value.", NULL);
+			fmte("Invalid :if-exist value.", NULL);
 			return 0;
 	}
 
@@ -1240,7 +996,7 @@ static int open_external_input_stream(Execute ptr, addr *ret, addr pos,
 			return open_input_utf32bebom_stream(ptr, ret, pos);
 
 		default:
-			_fmte("Invalid :external-format value.", NULL);
+			fmte("Invalid :external-format value.", NULL);
 			return 1;
 	}
 }
@@ -1267,7 +1023,7 @@ static void open_direct_input_stream(Execute ptr, addr *ret, addr pos,
 			break;
 
 		default:
-			_fmte("Invalid :element-type value.", NULL);
+			fmte("Invalid :element-type value.", NULL);
 			return;
 	}
 
@@ -1324,7 +1080,7 @@ static int open_external_output_stream(Execute ptr, addr *ret, addr pos,
 			return open_output_utf32be_stream(ptr, ret, pos, mode, 1);
 
 		default:
-			_fmte("Invalid :external-format value.", NULL);
+			fmte("Invalid :external-format value.", NULL);
 			return 1;
 	}
 }
@@ -1357,7 +1113,7 @@ static void open_direct_output_stream(Execute ptr, addr *ret, addr pos,
 			break;
 
 		default:
-			_fmte("Invalid :element-type value.", NULL);
+			fmte("Invalid :element-type value.", NULL);
 			return;
 	}
 
@@ -1414,7 +1170,7 @@ static int open_external_io_stream(Execute ptr, addr *ret, addr pos,
 			return open_io_utf32bebom_stream(ptr, ret, pos, mode);
 
 		default:
-			_fmte("Invalid :external-format value.", NULL);
+			fmte("Invalid :external-format value.", NULL);
 			return 1;
 	}
 }
@@ -1447,7 +1203,7 @@ static void open_direct_io_stream(Execute ptr, addr *ret, addr pos,
 			break;
 
 		default:
-			_fmte("Invalid :element-type value.", NULL);
+			fmte("Invalid :element-type value.", NULL);
 			return;
 	}
 
@@ -1493,7 +1249,7 @@ _g void open_stream(Execute ptr, addr *ret, addr pos,
 			break;
 
 		default:
-			_fmte("Invalid direction.", NULL);
+			fmte("Invalid direction.", NULL);
 			return;
 	}
 }
@@ -1533,7 +1289,7 @@ _g void stream_designer(Execute ptr, addr pos, addr *ret, int inputp)
 static void end_of_file_recursive(addr pos, int recp)
 {
 	if (recp)
-		_fmte("The stream ~S reach end-of-file, but recursive-p is true.", pos, NULL);
+		fmte("The stream ~S reach end-of-file, but recursive-p is true.", pos, NULL);
 	else
 		end_of_file(pos);
 }
@@ -1634,7 +1390,7 @@ _g enum EndOfLine_Mode get_end_of_line_mode(Execute ptr)
 	if (check == pos)
 		return EndOfLine_CRLF;
 	/* error */
-	_fmte("Invalid *end-of-line* value ~S.", pos, NULL);
+	fmte("Invalid *end-of-line* value ~S.", pos, NULL);
 	return EndOfLine_Auto;
 }
 
@@ -1670,7 +1426,7 @@ _g void read_line_stream(Execute ptr, addr *ret, int *miss,
 			case EndOfLine_CRLF:
 				if (u == 0x0D) {
 					if (read_char_stream(pos, &u) || u != 0x0A)
-						_fmte("Invalid CR-LF code.", NULL);
+						fmte("Invalid CR-LF code.", NULL);
 					goto finish_value;
 				}
 				break;
@@ -1784,7 +1540,7 @@ _g int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size
 	}
 
 	/* error */
-	return fmte("Invalid stream ~S.", stream, NULL);
+	return fmte_("Invalid stream ~S.", stream, NULL);
 }
 
 static void write_sequence_character(LocalRoot local,
@@ -1820,7 +1576,7 @@ static void write_sequence_binary(LocalRoot local,
 		GetFixnum(value, &c);
 		rollback_local(local, stack);
 		if (c < 0 || 0xFF < c)
-			_fmte("Invalid binary value ~S.", fixnumh(c), NULL);
+			fmte("Invalid binary value ~S.", fixnumh(c), NULL);
 		write_byte_stream(stream, (byte)c);
 	}
 }
@@ -1841,7 +1597,7 @@ _g int write_sequence_stream(LocalRoot local,
 	}
 
 	/* error */
-	return fmte("Invalid stream ~S.", stream, NULL);
+	return fmte_("Invalid stream ~S.", stream, NULL);
 }
 
 _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
@@ -1870,7 +1626,7 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 		if (read_stream(ptr, stream, &result, &value))
 			return 1;
 		if (result)
-			_fmte("Can't read from *query-io* stream.", NULL);
+			fmte("Can't read from *query-io* stream.", NULL);
 		localhold_set(hold, 0, value);
 		if (type == T)
 			break;
@@ -1923,7 +1679,7 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 		clear_input_stream(stream);
 		read_line_stream(ptr, &pos, &miss, stream, 1, Unbound, 0);
 		if (pos == Unbound)
-			_fmte("*query-io* don't read yes/or question.", NULL);
+			fmte("*query-io* don't read yes/or question.", NULL);
 		if (exactp) {
 			if (string_equalp_char(pos, "yes")) { *ret = 1; break; }
 			if (string_equalp_char(pos, "no")) { *ret = 0; break; }

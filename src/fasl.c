@@ -7,7 +7,9 @@
 #include "code.h"
 #include "condition.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "execute.h"
 #include "fasl.h"
 #include "file.h"
@@ -217,10 +219,10 @@ static int faslread_control(Execute ptr, addr input)
 		exit_code(ptr, LISPCODE_ERROR);
 	}
 	Check(GetType(pos) != LISPTYPE_CODE, "type code error");
-	runcode_control(ptr, pos);
+	Return(runcode_control(ptr, pos));
 	/* free */
 	faslread_result(ptr);
-	free_control(ptr, control);
+	Return(free_control_(ptr, control));
 
 	return 0;
 }
@@ -278,21 +280,18 @@ _g int faslread_stream(Execute ptr, addr input)
 /*
  *  faslcode
  */
-/* ARGSUSED0 */
 static int nil_fasl(Execute ptr, addr input, addr *ret)
 {
 	*ret = Nil;
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int t_fasl(Execute ptr, addr input, addr *ret)
 {
 	*ret = T;
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int unbound_fasl(Execute ptr, addr input, addr *ret)
 {
 	*ret = Unbound;
@@ -325,7 +324,6 @@ static int cons_make(Execute ptr,
 	return 0;
 }
 
-/* ARGSUSED0 */
 static void consnil_heap_make(Execute ptr, addr *ret)
 {
 	consnil_heap(ret);
@@ -346,7 +344,6 @@ static int consnil_local_fasl(Execute ptr, addr input, addr *ret)
 	return cons_make(ptr, input, ret, consnil_local_make);
 }
 
-/* ARGSUSED0 */
 static int fixnum_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(fixnum, value, input, "fixnum");
@@ -355,7 +352,6 @@ static int fixnum_fasl(Execute ptr, addr input, addr *ret)
 }
 
 /* character */
-/* ARGSUSED0 */
 static int char_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(byte, value, input, "character");
@@ -363,7 +359,6 @@ static int char_fasl(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int wchar_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(unicode, value, input, "character unicode");
@@ -526,13 +521,12 @@ static void string1_stream(addr *ret, addr stream, size_t size)
 	GetStringUnicode(pos, &body);
 	for (i = 0; i < size; i++) {
 		if (read_byte_stream(stream, &c))
-			_fmte("stream error", NULL);
+			fmte("stream error", NULL);
 		strvect_setc(pos, i, (unicode)c);
 	}
 	*ret = pos;
 }
 
-/* ARGSUSED0 */
 static int string1_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(byte, value, input, "string1");
@@ -540,7 +534,6 @@ static int string1_fasl(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int string2_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(byte16, value, input, "string2");
@@ -548,7 +541,6 @@ static int string2_fasl(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int string4_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(byte32, value, input, "strint4");
@@ -556,7 +548,6 @@ static int string4_fasl(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int string8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
@@ -580,13 +571,12 @@ static void stringu_stream(addr *ret, addr stream, size_t size)
 	GetStringUnicode(pos, &body);
 	for (i = 0; i < size; i++) {
 		if (readforce_binary_stream(stream, &c, sizeoft(unicode), &temp))
-			_fmte("stream error", NULL);
+			fmte("stream error", NULL);
 		string_setc(pos, i, c);
 	}
 	*ret = pos;
 }
 
-/* ARGSUSED0 */
 static int wstring1_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(byte, value, input, "wstring1");
@@ -594,7 +584,6 @@ static int wstring1_fasl(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int wstring2_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(byte16, value, input, "wstring2");
@@ -602,7 +591,6 @@ static int wstring2_fasl(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int wstring4_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(byte32, value, input, "wstring4");
@@ -610,7 +598,6 @@ static int wstring4_fasl(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int wstring8_fasl(Execute ptr, addr input, addr *ret)
 {
 #ifdef LISP_ARCH_64BIT
@@ -624,7 +611,6 @@ static int wstring8_fasl(Execute ptr, addr input, addr *ret)
 }
 
 /* call */
-/* ARGSUSED0 */
 static void makenamesymbol(Execute ptr,
 		constindex index, addr input, size_t size, addr *ret)
 {
@@ -669,7 +655,6 @@ static int call8_fasl(Execute ptr, addr input, addr *ret)
 }
 
 /* wcall */
-/* ARGSUSED0 */
 static void makenamesymbolu(Execute ptr,
 		constindex index, addr input, size_t size, addr *ret)
 {
@@ -1098,7 +1083,6 @@ static int wsymbol8_fasl(Execute ptr, addr input, addr *ret)
 }
 
 /* bignum */
-/* ARGSUSED0 */
 static int bignum_fasl(Execute ptr,
 		addr input, addr *ret, int sign, size_t size)
 {
@@ -1160,14 +1144,12 @@ static int bignum8_fasl(Execute ptr, addr input, addr *ret)
 }
 
 /* float */
-/* ARGSUSED0 */
 static int float16_error(Execute ptr, addr input, addr *ret)
 {
 	Debug("float16 is not implemented.");
 	return 1;
 }
 
-/* ARGSUSED0 */
 static int float32_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(float, value, input, "float");
@@ -1175,7 +1157,6 @@ static int float32_fasl(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int float64_fasl(Execute ptr, addr input, addr *ret)
 {
 	faslread_value(double, value, input, "double");
@@ -1183,7 +1164,6 @@ static int float64_fasl(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int float128_error(Execute ptr, addr input, addr *ret)
 {
 	Debug("float128 is not implemented.");
@@ -1359,7 +1339,6 @@ static int vectortype8_fasl(Execute ptr, addr input, addr *ret)
 }
 
 /* nop (no operator) */
-/* ARGSUSED0 */
 static int hello_fasl(Execute ptr, addr input, addr *ret)
 {
 	Info("Hello fasl.");
@@ -1367,7 +1346,6 @@ static int hello_fasl(Execute ptr, addr input, addr *ret)
 	return 0;
 }
 
-/* ARGSUSED0 */
 static int nop_fasl(Execute ptr, addr input, addr *ret)
 {
 	*ret = Nil;

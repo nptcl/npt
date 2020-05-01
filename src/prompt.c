@@ -1,7 +1,7 @@
 #include "charqueue.h"
 #include "condition.h"
 #include "constant.h"
-#include "control.h"
+#include "control_object.h"
 #include "format.h"
 #include "local.h"
 #include "prompt.h"
@@ -120,7 +120,7 @@ _g void show_prompt(Execute ptr, addr io)
 
 _g int input_prompt(addr *ret, addr *prompt, const char *message)
 {
-	_fmte("input-prompt is not supported.", NULL);
+	fmte("input-prompt is not supported.", NULL);
 	return 1;
 }
 #endif

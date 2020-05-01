@@ -141,7 +141,7 @@ _g int parse_callname_heap(addr *ret, addr name)
 _g void parse_callname_error(addr *ret, addr name)
 {
 	if (parse_callname_heap(ret, name))
-		_fmte("Invalid function name ~S.", name, NULL);
+		fmte("Invalid function name ~S.", name, NULL);
 }
 
 _g void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol)
@@ -240,7 +240,7 @@ _g enum CALLNAME_TYPE getfunction_callname_global(addr pos, addr *ret)
 
 		case CALLNAME_ERROR:
 		default:
-			_fmte("Invalid function name.", NULL);
+			fmte("Invalid function name.", NULL);
 			break;
 	}
 
@@ -264,7 +264,7 @@ _g enum CALLNAME_TYPE getfunction_callname_local(Execute ptr, addr pos, addr *re
 
 		case CALLNAME_ERROR:
 		default:
-			_fmte("Invalid function name.", NULL);
+			fmte("Invalid function name.", NULL);
 			break;
 	}
 
@@ -301,7 +301,7 @@ _g void setfunction_callname_global(addr pos, addr value)
 
 		case CALLNAME_ERROR:
 		default:
-			_fmte("Invalid function name.", NULL);
+			fmte("Invalid function name.", NULL);
 			break;
 	}
 }
@@ -323,7 +323,7 @@ _g void remtype_funcion_callname_global(addr pos)
 
 		case CALLNAME_ERROR:
 		default:
-			_fmte("Invalid function name.", NULL);
+			fmte("Invalid function name.", NULL);
 			break;
 	}
 }
@@ -369,7 +369,7 @@ _g addr refcallname_local(Execute ptr, addr pos)
 
 		case CALLNAME_ERROR:
 		default:
-			_fmte("Invalid function name.", NULL);
+			fmte("Invalid function name.", NULL);
 			break;
 	}
 
@@ -393,7 +393,7 @@ _g void setcallname_local(Execute ptr, addr pos, addr value)
 
 		case CALLNAME_ERROR:
 		default:
-			_fmte("Invalid function name.", NULL);
+			fmte("Invalid function name.", NULL);
 			break;
 	}
 }
@@ -409,7 +409,7 @@ _g addr refcallnamecheck_local(Execute ptr, addr pos)
 
 		case CALLNAME_ERROR:
 		default:
-			_fmte("Invalid function name.", NULL);
+			fmte("Invalid function name.", NULL);
 			break;
 	}
 
@@ -432,7 +432,7 @@ _g addr refcallname_global(addr pos)
 
 		case CALLNAME_ERROR:
 		default:
-			_fmte("Invalid function name.", NULL);
+			fmte("Invalid function name.", NULL);
 			break;
 	}
 
@@ -456,7 +456,7 @@ _g void setcallname_global(addr pos, addr value)
 
 		case CALLNAME_ERROR:
 		default:
-			_fmte("Invalid function name.", NULL);
+			fmte("Invalid function name.", NULL);
 	}
 }
 _g addr refcallnamecheck_global(addr pos)
@@ -498,7 +498,7 @@ _g void name_callname_alloc(LocalRoot local, addr pos, addr *ret)
 
 		case CALLNAME_ERROR:
 		default:
-			_fmte("Invalid function name.", NULL);
+			fmte("Invalid function name.", NULL);
 	}
 }
 
@@ -526,7 +526,7 @@ static addr alloc_function(LocalRoot local,
 	if (name != Nil) {
 		if (GetType(name) != LISPTYPE_CALLNAME &&
 				parse_callname_alloc(local, &name, name))
-			_fmte("Invalid function name ~S.", name, NULL);
+			fmte("Invalid function name ~S.", name, NULL);
 	}
 	alloc_smallsize(local, &pos,
 			LISPTYPE_FUNCTION,

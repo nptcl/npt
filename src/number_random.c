@@ -213,7 +213,7 @@ _g void random_number_common(LocalRoot local, addr pos, addr state, addr *ret)
 			break;
 
 		default:
-			_fmte("The random number ~S must be an integer or float.", pos, NULL);
+			fmte("The random number ~S must be an integer or float.", pos, NULL);
 			*ret = 0;
 			break;
 	}

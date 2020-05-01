@@ -8,7 +8,9 @@
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "copy.h"
 #include "eastasian.h"
 #include "equal.h"
@@ -440,7 +442,6 @@ static int format_radix_parameter(fmtprint print, struct format_operator *str,
 static int format_radix_integer(fmtprint print,
 		struct format_operator *str, unsigned radix)
 {
-	int check;
 	Execute ptr;
 	addr control;
 	fixnum mincol, range;
@@ -473,8 +474,8 @@ static int format_radix_integer(fmtprint print,
 		return 0;
 	}
 
-	check = format_radix_parameter(print, str, radix, mincol, padchar, range, comma);
-	return free_check_control(ptr, control, check);
+	Return(format_radix_parameter(print, str, radix, mincol, padchar, range, comma));
+	return free_control_(ptr, control);
 }
 
 static int format_call_Binary(fmtprint print, struct format_operator *str)
@@ -543,7 +544,7 @@ static int format_call_Radix(fmtprint print, struct format_operator *str)
 	}
 	format_radix_parameter(print, str, radix, mincol, padchar, range, comma);
 
-	return free_control(ptr, control);
+	return free_control_(ptr, control);
 }
 
 
@@ -613,7 +614,7 @@ static int format_call_RadixText(fmtprint print, struct format_operator *str)
 	else
 		format_call_RadixText_english(print, str, pos);
 
-	return free_control(ptr, control);
+	return free_control_(ptr, control);
 }
 
 
@@ -791,7 +792,7 @@ static void format_fixed_single(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) {
-		_fmte("Invalid single-float.", NULL);
+		fmte("Invalid single-float.", NULL);
 		return;
 	}
 
@@ -811,7 +812,7 @@ static void format_fixed_double(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) {
-		_fmte("Invalid double-float.", NULL);
+		fmte("Invalid double-float.", NULL);
 		return;
 	}
 
@@ -831,7 +832,7 @@ static void format_fixed_long(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG)) {
-		_fmte("Invalid long-float.", pos, NULL);
+		fmte("Invalid long-float.", pos, NULL);
 		return;
 	}
 
@@ -930,7 +931,7 @@ static int format_call_Fixed(fmtprint print, struct format_operator *str)
 	Return(format_fixed_argument(print, str, &ff));
 	Return(format_fixed_float(print, str, &ff));
 
-	return free_control(ptr, control);
+	return free_control_(ptr, control);
 }
 
 
@@ -948,7 +949,7 @@ static void format_exponent_single(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) {
-		_fmte("Invalid single-float.", pos, NULL);
+		fmte("Invalid single-float.", pos, NULL);
 		return;
 	}
 
@@ -968,7 +969,7 @@ static void format_exponent_double(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) {
-		_fmte("Invalid double-float.", pos, NULL);
+		fmte("Invalid double-float.", pos, NULL);
 		return;
 	}
 
@@ -988,7 +989,7 @@ static void format_exponent_long(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG)) {
-		_fmte("Invalid long-float.", pos, NULL);
+		fmte("Invalid long-float.", pos, NULL);
 		return;
 	}
 
@@ -1035,7 +1036,7 @@ static unicode fmtfloat_default_marker(Execute ptr)
 	GetConst(COMMON_SHORT_FLOAT, &check);
 	if (check == pos) return 'S';
 	/* error */
-	_fmte("Invalid *read-default-float-format* value ~S.", pos, NULL);
+	fmte("Invalid *read-default-float-format* value ~S.", pos, NULL);
 
 	return 'E';
 }
@@ -1138,7 +1139,7 @@ static int format_call_Exponential(fmtprint print, struct format_operator *str)
 	fmtfloat_marker(print, str, &ff, pos);
 	format_exponent_float(print, str, &ff, pos);
 
-	return free_control(ptr, control);
+	return free_control_(ptr, control);
 }
 
 
@@ -1195,7 +1196,7 @@ static void format_general_single(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) {
-		_fmte("Invalid single-float.", pos, NULL);
+		fmte("Invalid single-float.", pos, NULL);
 		return;
 	}
 
@@ -1215,7 +1216,7 @@ static void format_general_double(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) {
-		_fmte("Invalid double-float.", pos, NULL);
+		fmte("Invalid double-float.", pos, NULL);
 		return;
 	}
 
@@ -1235,7 +1236,7 @@ static void format_general_long(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG)) {
-		_fmte("Invalid long-float.", pos, NULL);
+		fmte("Invalid long-float.", pos, NULL);
 		return;
 	}
 
@@ -1316,7 +1317,7 @@ static int format_call_General(fmtprint print, struct format_operator *str)
 	fmtfloat_marker(print, str, &ff, pos);
 	format_general_float(print, str, &ff, pos);
 
-	return free_control(ptr, control);
+	return free_control_(ptr, control);
 }
 
 
@@ -1334,7 +1335,7 @@ static void format_monetary_single(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) {
-		_fmte("Invalid single-float.", pos, NULL);
+		fmte("Invalid single-float.", pos, NULL);
 		return;
 	}
 
@@ -1354,7 +1355,7 @@ static void format_monetary_double(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) {
-		_fmte("Invalid double-float.", pos, NULL);
+		fmte("Invalid double-float.", pos, NULL);
 		return;
 	}
 
@@ -1374,7 +1375,7 @@ static void format_monetary_long(fmtprint print, fmtfloat ff, addr pos)
 	ff->signbit = signbit(value)? 1: 0;
 
 	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG)) {
-		_fmte("Invalid long-float.", pos, NULL);
+		fmte("Invalid long-float.", pos, NULL);
 		return;
 	}
 
@@ -1481,7 +1482,6 @@ static int format_monetary_argument(fmtprint print,
 
 static int format_call_Monetary(fmtprint print, struct format_operator *str)
 {
-	int check;
 	Execute ptr;
 	addr control;
 	struct fmtfloat_struct ff;
@@ -1492,9 +1492,8 @@ static int format_call_Monetary(fmtprint print, struct format_operator *str)
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
 	Return(format_monetary_argument(print, str, &ff));
-	check = format_monetary_float(print, str, &ff);
-
-	return free_check_control(ptr, control, check);
+	Return(format_monetary_float(print, str, &ff));
+	return free_control_(ptr, control);
 }
 
 
@@ -1856,10 +1855,9 @@ static int format_call_Write(fmtprint print, struct format_operator *str)
 	}
 	Return(fmtprint_pop(print, str, &pos));
 	fmtprint_stream(print, &stream);
-	if (write_print(ptr, stream, pos))
-		return free_check_control(ptr, control, 1);
+	Return(write_print(ptr, stream, pos));
 	fmtprint_stream_output(print);
-	return free_check_control(ptr, control, 0);
+	return free_control_(ptr, control);
 }
 
 
@@ -3019,24 +3017,19 @@ static int format_logicalblock2(Execute ptr)
 
 static int format_logicalblock1(Execute ptr)
 {
-	int check;
-	addr pretty, stream, control, code, gensym;
+	addr pretty, stream, control, gensym;
 
 	/* stream */
 	getdata_control(ptr, &pretty);
 	getstream_format_pretty(pretty, &stream);
 	Check(! pretty_stream_p(stream), "type error");
 	/* unwind-protect */
-	push_finalize_control(ptr, &control);
-	syscall_code(ptr->local, &code, p_pprint_logical_block_close, stream);
-	setfinalize_control(ptr, control, code);
+	push_close_control(ptr, &control);
+	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
 	gensym_pretty_stream(stream, &gensym);
-	catch_syscall_code(&code, p_format_logicalblock2, gensym, pretty);
-	check = callclang_funcall(ptr, &code, code, NULL);
-	Return(free_check_control(ptr, control, check));
-
-	return check;
+	Return(catch_clang(ptr, p_format_logicalblock2, gensym, pretty));
+	return free_control_(ptr, control);
 }
 
 static size_t format_make_strvect_alloc(LocalRoot local, addr *ret, byte *ptr)
@@ -3185,18 +3178,20 @@ static int format_call_LogicalBlock_call2(fmtprint print, struct format_operator
 
 static int format_call_LogicalBlock(fmtprint print, struct format_operator *str)
 {
-	int check;
 	Execute ptr;
 	addr control;
 
 	Check(0 < str->args_size, "size error");
 	ptr = print->ptr;
 	push_close_control(ptr, &control);
-	if (str->atsign == 0)
-		check = format_call_LogicalBlock_call1(print, str);
-	else
-		check = format_call_LogicalBlock_call2(print, str);
-	return free_check_control(ptr, control, check);
+	if (str->atsign == 0) {
+		Return(format_call_LogicalBlock_call1(print, str));
+	}
+	else {
+		Return(format_call_LogicalBlock_call2(print, str));
+	}
+
+	return free_control_(ptr, control);
 }
 
 
@@ -3446,7 +3441,7 @@ static int format_execute_type(Execute ptr,
 		format_parse_local(ptr->local, &format, format);
 		return format_execute_format(ptr, stream, format, args, ret);
 	}
-	_fmte("Invalid control-string ~S.", format, NULL);
+	fmte("Invalid control-string ~S.", format, NULL);
 	return 0;
 }
 

@@ -12,6 +12,7 @@
 #include "clos_type.h"
 #include "cons.h"
 #include "cons_plist.h"
+#include "control_execute.h"
 #include "mop.h"
 #include "mop_common.h"
 #include "package.h"

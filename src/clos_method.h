@@ -20,11 +20,11 @@ _g void method_instance_alloc(LocalRoot local, addr *ret, addr clos,
 		addr lambda_list, addr qualifiers, addr specializers, addr function);
 _g void method_instance_call(LocalRoot local, addr *ret, addr clos, addr call);
 _g void method_instance_lambda(LocalRoot local, addr *ret, addr clos, addr lambda);
-_g void method_remove_method(Execute ptr, addr gen, addr method);
-_g void method_add_method(Execute ptr, addr gen, addr method);
+_g int method_remove_method_(Execute ptr, addr gen, addr method);
+_g int method_add_method_(Execute ptr, addr gen, addr method);
 _g void common_method_add(Execute ptr, addr generic, addr method);
 _g void common_method_finalize(addr generic);
-_g void ensure_method_common(Execute ptr, addr *ret,
+_g int ensure_method_common_(Execute ptr, addr *ret,
 		addr name, addr lambda, addr qua, addr spec, addr call);
 
 /* document */

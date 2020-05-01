@@ -2,7 +2,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
 #include "data.h"
 #include "eval_declare.h"
 #include "eval_parse.h"
@@ -42,27 +42,27 @@ _g int defun_common(Execute ptr, addr form, addr env, addr *ret)
 	/* (defun . right) */
 	getcdr(form, &right);
 	if (right == Nil)
-		_fmte("defun form must have at least a name and body.", NULL);
+		fmte("defun form must have at least a name and body.", NULL);
 	if (GetType(right) != LISPTYPE_CONS)
-		_fmte("Invalid defun form.", NULL);
+		fmte("Invalid defun form.", NULL);
 
 	/* name */
 	hold = LocalHold_local(ptr);
 	getcons(right, &name, &right);
 	if (parse_callname_heap(&name, name))
-		_fmte("defun name ~S must be a symbol or (setf name) form.", name, NULL);
+		fmte("defun name ~S must be a symbol or (setf name) form.", name, NULL);
 	localhold_push(hold, name);
 	if (right == Nil)
-		_fmte("defun form must have at least a name and body.", NULL);
+		fmte("defun form must have at least a name and body.", NULL);
 	if (GetType(right) != LISPTYPE_CONS)
-		_fmte("Invalid defun form.", NULL);
+		fmte("Invalid defun form.", NULL);
 
 	/* args */
 	getcons(right, &args, &right);
 	if (! IsList(args))
-		_fmte("defun argument ~S don't allow dotted list.", args, NULL);
+		fmte("defun argument ~S don't allow dotted list.", args, NULL);
 	if (! IsList(right))
-		_fmte("Invalid defun form.", NULL);
+		fmte("Invalid defun form.", NULL);
 
 	/* parse */
 	check_function_variable(name);
@@ -204,7 +204,7 @@ _g void defconstant_common(addr form, addr env, addr *ret)
 		goto error;
 	GetCons(args, &symbol, &args);
 	if (! symbolp(symbol))
-		_fmte("The defconstant argument ~S must be a symbol.", symbol, NULL);
+		fmte("The defconstant argument ~S must be a symbol.", symbol, NULL);
 	if (! consp(args))
 		goto error;
 	GetCons(args, &value, &args);
@@ -216,7 +216,7 @@ _g void defconstant_common(addr form, addr env, addr *ret)
 			goto error;
 		GetCons(args, &doc, &args);
 		if (! stringp(doc))
-			_fmte("The defconstant argument ~S must be a string.", doc, NULL);
+			fmte("The defconstant argument ~S must be a string.", doc, NULL);
 		if (args != Nil)
 			goto error;
 	}
@@ -228,7 +228,7 @@ _g void defconstant_common(addr form, addr env, addr *ret)
 	return;
 
 error:
-	_fmte("The defconstant argument ~S must be a "
+	fmte("The defconstant argument ~S must be a "
 			"(symbol value &optional documentation) form.", form, NULL);
 }
 
@@ -278,7 +278,7 @@ _g void defparameter_common(addr form, addr env, addr *ret)
 	if (! consp(args)) goto error;
 	GetCons(args, &symbol, &args);
 	if (! symbolp(symbol))
-		_fmte("The defparameter argument ~S must be a symbol.", symbol, NULL);
+		fmte("The defparameter argument ~S must be a symbol.", symbol, NULL);
 	if (! consp(args)) goto error;
 	GetCons(args, &value, &args);
 	if (args == Nil) {
@@ -288,14 +288,14 @@ _g void defparameter_common(addr form, addr env, addr *ret)
 	if (! consp(args)) goto error;
 	GetCons(args, &doc, &args);
 	if (! stringp(doc))
-		_fmte("The defparameter argument ~S must be a string.", doc, NULL);
+		fmte("The defparameter argument ~S must be a string.", doc, NULL);
 	if (args != Nil) goto error;
 expand:
 	expand_defparameter(symbol, value, doc, ret);
 	return;
 
 error:
-	_fmte("The defparameter argument ~S must be a "
+	fmte("The defparameter argument ~S must be a "
 			"(symbol value &optional documentation) form.", form, NULL);
 }
 
@@ -388,7 +388,7 @@ expand:
 	return;
 
 error:
-	_fmte("The defvar argument ~S must be a "
+	fmte("The defvar argument ~S must be a "
 			"(symbol &optional value documentation) form.", form, NULL);
 }
 
@@ -400,7 +400,7 @@ static void check_destructuring_bind(addr pos)
 {
 	getenvironment_macro_lambda(pos, &pos);
 	if (pos != Nil)
-		_fmte("destructuring-bind don't accept &environment parameter ~S.", pos, NULL);
+		fmte("destructuring-bind don't accept &environment parameter ~S.", pos, NULL);
 }
 
 _g int destructuring_bind_common(Execute ptr, addr form, addr env, addr *ret)
@@ -415,7 +415,7 @@ _g int destructuring_bind_common(Execute ptr, addr form, addr env, addr *ret)
 	GetCons(args, &expr, &args);
 	/* parse */
 	if (! listp(lambda))
-		_fmte("destructuring-bind argument ~S must be a list type.", lambda, NULL);
+		fmte("destructuring-bind argument ~S must be a list type.", lambda, NULL);
 
 	lambda_macro(ptr->local, &lambda, lambda, Nil);
 	check_destructuring_bind(lambda);
@@ -429,7 +429,7 @@ _g int destructuring_bind_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	_fmte("destructuring-bind argument ~S must be a "
+	fmte("destructuring-bind argument ~S must be a "
 			"(lambda-list expr &body body) form.", form, NULL);
 	return 0;
 }
@@ -450,11 +450,11 @@ static void psetq_common_constant(Execute ptr, addr form, addr env, addr *ret,
 	while (form != Nil) {
 		if (! consp(form)) {
 			GetConstant(psetq_constant, &setq);
-			_fmte("~A argument ~S don't allow dotted list.", setq, form, NULL);
+			fmte("~A argument ~S don't allow dotted list.", setq, form, NULL);
 		}
 		GetCons(form, &var, &form);
 		if (! consp(form))
-			_fmte("After variable ~S must be a cons, but ~S.", var, form, NULL);
+			fmte("After variable ~S must be a cons, but ~S.", var, form, NULL);
 		GetCons(form, &value, &form);
 		make_gensym(ptr, &gensym);
 		/* let argument */
@@ -511,7 +511,7 @@ expand:
 	return;
 
 error:
-	_fmte("RETURN argument ~S must be a (&optional value) form.", form, NULL);
+	fmte("RETURN argument ~S must be a (&optional value) form.", form, NULL);
 }
 
 
@@ -767,10 +767,10 @@ _g void cond_common(addr form, addr env, addr *ret)
 	 *   `(if ,expr (progn ,@tail) (cond ,@form))
 	 */
 	if (! consp(form))
-		_fmte("The cond form ~S must be a cons.", form, NULL);
+		fmte("The cond form ~S must be a cons.", form, NULL);
 	GetCons(form, &expr, &form);
 	if (! consp(expr))
-		_fmte("The cond clause ~S must be a cons.", expr, NULL);
+		fmte("The cond clause ~S must be a cons.", expr, NULL);
 	GetCons(expr, &expr, &tail);
 	GetConst(COMMON_IF, &ifsym);
 	GetConst(COMMON_PROGN, &progn);
@@ -806,7 +806,7 @@ _g void or_common(Execute ptr, addr form, addr env, addr *ret)
 	 *   (let ((#:g expr))
 	 *     (if #:g #:g (or . form))) */
 	if (! consp(form))
-		_fmte("The or form ~S must be a cons.", NULL);
+		fmte("The or form ~S must be a cons.", NULL);
 	GetCons(form, &expr, &form);
 	make_gensym(ptr, &gensym);
 	GetConst(COMMON_LET, &let);
@@ -829,7 +829,7 @@ _g void when_common(addr form, addr env, addr *ret)
 
 	getcdr(form, &args);
 	if (! consp(args))
-		_fmte("The when ~S must be a (when test . body) form.", form, NULL);
+		fmte("The when ~S must be a (when test . body) form.", form, NULL);
 	GetCons(args, &expr, &args);
 	/* `(if ,expr (progn ,@body)) */
 	GetConst(COMMON_PROGN, &cons);
@@ -848,7 +848,7 @@ _g void unless_common(addr form, addr env, addr *ret)
 
 	getcdr(form, &args);
 	if (! consp(args))
-		_fmte("The unless ~S must be a (unless test . body) form.", form, NULL);
+		fmte("The unless ~S must be a (unless test . body) form.", form, NULL);
 	GetCons(args, &expr, &args);
 	/* `(if (not ,expr) (progn ,@body)) */
 	GetConst(COMMON_PROGN, &cons);
@@ -877,7 +877,7 @@ _g void case_common(Execute ptr, addr form, addr env, addr *ret)
 	 */
 	getcdr(form, &form);
 	if (! consp(form))
-		_fmte("CASE argument must be (key &rest clauses) form.", form, NULL);
+		fmte("CASE argument must be (key &rest clauses) form.", form, NULL);
 	GetCons(form, &key, &args);
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_DECLARE, &declare);
@@ -892,12 +892,12 @@ _g void case_common(Execute ptr, addr form, addr env, addr *ret)
 	lastp = 0;
 	for (root = Nil; args != Nil; ) {
 		if (! consp(args))
-			_fmte("CASE clauses ~S must be list type.", args, NULL);
+			fmte("CASE clauses ~S must be list type.", args, NULL);
 		if (lastp)
-			_fmte("CASE clauses ~S don't appear after otherwise clause.", args, NULL);
+			fmte("CASE clauses ~S don't appear after otherwise clause.", args, NULL);
 		GetCons(args, &test, &args);
 		if (! consp(test))
-			_fmte("CASE clauses ~S must be list type.", test, NULL);
+			fmte("CASE clauses ~S must be list type.", test, NULL);
 		GetCons(test, &test, &body);
 		if (test == T || test == otherwise) {
 			cons_heap(&list, T, body);
@@ -941,7 +941,7 @@ _g void ecase_common(Execute ptr, addr form, addr env, addr *ret)
 	 */
 	getcdr(form, &form);
 	if (! consp(form))
-		_fmte("ECASE argument must be (key &rest clauses) form.", form, NULL);
+		fmte("ECASE argument must be (key &rest clauses) form.", form, NULL);
 	GetCons(form, &key, &args);
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_COND, &cond);
@@ -954,10 +954,10 @@ _g void ecase_common(Execute ptr, addr form, addr env, addr *ret)
 	type = Nil;
 	for (root = Nil; args != Nil; ) {
 		if (! consp(args))
-			_fmte("ECASE clauses ~S must be list type.", args, NULL);
+			fmte("ECASE clauses ~S must be list type.", args, NULL);
 		GetCons(args, &test, &args);
 		if (! consp(test))
-			_fmte("ECASE clauses ~S must be list type.", test, NULL);
+			fmte("ECASE clauses ~S must be list type.", test, NULL);
 		GetCons(test, &test, &body);
 		list_heap(&list, quote, test, NULL);
 		if (consp(test)) {
@@ -1200,7 +1200,7 @@ _g int ccase_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	_fmte("CCASE arguments ~S must be (place &rest args) form.", form, NULL);
+	fmte("CCASE arguments ~S must be (place &rest args) form.", form, NULL);
 	return 0;
 }
 
@@ -1221,7 +1221,7 @@ _g void typecase_common(Execute ptr, addr form, addr env, addr *ret)
 	 */
 	getcdr(form, &form);
 	if (! consp(form))
-		_fmte("TYPECASE argument must be (key &rest clauses) form.", form, NULL);
+		fmte("TYPECASE argument must be (key &rest clauses) form.", form, NULL);
 	GetCons(form, &key, &args);
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_DECLARE, &declare);
@@ -1235,14 +1235,14 @@ _g void typecase_common(Execute ptr, addr form, addr env, addr *ret)
 	lastp = 0;
 	for (root = Nil; args != Nil; ) {
 		if (! consp(args))
-			_fmte("TYPECASE clauses ~S must be list type.", args, NULL);
+			fmte("TYPECASE clauses ~S must be list type.", args, NULL);
 		if (lastp) {
-			_fmte("TYPECASE clauses ~S don't "
+			fmte("TYPECASE clauses ~S don't "
 					"appear after otherwise clause.", args, NULL);
 		}
 		GetCons(args, &test, &args);
 		if (! consp(test))
-			_fmte("TYPECASE clauses ~S must be list type.", test, NULL);
+			fmte("TYPECASE clauses ~S must be list type.", test, NULL);
 		GetCons(test, &test, &body);
 		if (test == T || test == otherwise) {
 			cons_heap(&list, T, body);
@@ -1285,7 +1285,7 @@ _g void etypecase_common(Execute ptr, addr form, addr env, addr *ret)
 	 */
 	getcdr(form, &form);
 	if (! consp(form))
-		_fmte("ETYPECASE argument must be (key &rest clauses) form.", form, NULL);
+		fmte("ETYPECASE argument must be (key &rest clauses) form.", form, NULL);
 	GetCons(form, &key, &args);
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_COND, &cond);
@@ -1297,10 +1297,10 @@ _g void etypecase_common(Execute ptr, addr form, addr env, addr *ret)
 	type = Nil;
 	for (root = Nil; args != Nil; ) {
 		if (! consp(args))
-			_fmte("ETYPECASE clauses ~S must be list type.", args, NULL);
+			fmte("ETYPECASE clauses ~S must be list type.", args, NULL);
 		GetCons(args, &test, &args);
 		if (! consp(test))
-			_fmte("ETYPECASE clauses ~S must be list type.", test, NULL);
+			fmte("ETYPECASE clauses ~S must be list type.", test, NULL);
 		GetCons(test, &test, &body);
 		list_heap(&list, quote, test, NULL);
 		list_heap(&list, typep, g, list, NULL);
@@ -1483,7 +1483,7 @@ _g int ctypecase_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	_fmte("CTYPECASE arguments ~S must be (place &rest args) form.", form, NULL);
+	fmte("CTYPECASE arguments ~S must be (place &rest args) form.", form, NULL);
 	return 0;
 }
 
@@ -1517,7 +1517,7 @@ _g int multiple_value_bind_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	_fmte("The multiple-value-bind argument must be a "
+	fmte("The multiple-value-bind argument must be a "
 			"((vars*) expr &body body) form.", NULL);
 	return 0;
 }
@@ -1544,7 +1544,7 @@ _g void multiple_value_list_common(addr form, addr env, addr *ret)
 	return;
 
 error:
-	_fmte("The multiple-value-list argument ~S must be a single list.", form, NULL);
+	fmte("The multiple-value-list argument ~S must be a single list.", form, NULL);
 }
 
 
@@ -1571,7 +1571,7 @@ _g void multiple_value_setq_common(addr form, addr env, addr *ret)
 	return;
 
 error:
-	_fmte("The multiple-value-setq arguments ~S must be a (vars form).", form, NULL);
+	fmte("The multiple-value-setq arguments ~S must be a (vars form).", form, NULL);
 }
 
 
@@ -1593,7 +1593,7 @@ _g void nth_value_common(addr form, addr env, addr *ret)
 	return;
 
 error:
-	_fmte("NTH-VALUE argument ~S must be (nth expr) form.", form, NULL);
+	fmte("NTH-VALUE argument ~S must be (nth expr) form.", form, NULL);
 }
 
 
@@ -1616,7 +1616,7 @@ static void function_prog_constant(addr form, addr *ret,
 	getcdr(form, &form);
 	if (! consp(form)) {
 		GetConstant(prog_constant, &var);
-		_fmte("~A argument ~S must be ([var] &rest body) form.", var, form, NULL);
+		fmte("~A argument ~S must be ([var] &rest body) form.", var, form, NULL);
 	}
 	GetCons(form, &var, &form);
 	declare_body_form(form, &decl, &form);
@@ -1668,7 +1668,7 @@ _g void prog1_common(Execute ptr, addr form, addr env, addr *ret)
 
 	getcdr(form, &form);
 	if (! consp(form))
-		_fmte("PROG1 arguemnt ~S must be (form1 &body body) form.", form, NULL);
+		fmte("PROG1 arguemnt ~S must be (form1 &body body) form.", form, NULL);
 	GetCons(form, &expr, &form);
 	if (form == Nil) {
 		*ret = expr;
@@ -1683,7 +1683,7 @@ _g void prog1_common(Execute ptr, addr form, addr env, addr *ret)
 	cons_heap(&root, expr, root);
 	while (form != Nil) {
 		if (! consp(form))
-			_fmte("PROG1 argument ~S don't accept a dotted list.", form, NULL);
+			fmte("PROG1 argument ~S don't accept a dotted list.", form, NULL);
 		GetCons(form, &expr, &form);
 		cons_heap(&root, expr, root);
 	}
@@ -1711,7 +1711,7 @@ _g void prog2_common(addr form, addr env, addr *ret)
 	return;
 
 error:
-	_fmte("PROG2 arguemnt ~S must be (form1 form2 &body body) form.", form, NULL);
+	fmte("PROG2 arguemnt ~S must be (form1 form2 &body body) form.", form, NULL);
 }
 
 
@@ -1734,7 +1734,7 @@ static int define_modify_macro_find(addr key, addr lambda, addr *ret)
 	return 0;
 
 error:
-	_fmte("Invaild macro-lambda-list ~S.", lambda, NULL);
+	fmte("Invaild macro-lambda-list ~S.", lambda, NULL);
 	return 0;
 }
 
@@ -1837,7 +1837,7 @@ _g void define_modify_macro_common(LocalRoot local, addr form, addr env, addr *r
 	GetCons(args, &doc, &args);
 	if (args != Nil) goto error;
 	if (! stringp(doc)) {
-		_fmte("DEFINE-MODIFY-MACRO documentation ~S "
+		fmte("DEFINE-MODIFY-MACRO documentation ~S "
 				"must be a string type.", doc, NULL);
 	}
 expand:
@@ -1845,7 +1845,7 @@ expand:
 	return;
 
 error:
-	_fmte("DEFINE-MODIFY-MACRO argument ~S must be "
+	fmte("DEFINE-MODIFY-MACRO argument ~S must be "
 			"(name lambda-list functionn &optional documentation) "
 			"form.", form, NULL);
 }
@@ -1917,10 +1917,10 @@ _g void defsetf_common(addr form, addr env, addr *ret)
 	if (listp(arg2)) {
 		/* long form */
 		if (! consp(args))
-			_fmte("Invalid defsetf long form ~S.", form, NULL);
+			fmte("Invalid defsetf long form ~S.", form, NULL);
 		GetCons(args, &arg3, &args);
 		if (! listp(arg3))
-			_fmte("defsetf argument ~S must be a list type.", arg3, NULL);
+			fmte("defsetf argument ~S must be a list type.", arg3, NULL);
 		defsetf_long_common(arg1, arg2, arg3, args, ret);
 	}
 	else if (args == Nil) {
@@ -1930,18 +1930,18 @@ _g void defsetf_common(addr form, addr env, addr *ret)
 	else {
 		/* short form, documentation */
 		if (! consp(args))
-			_fmte("Invalid defsetf short form ~S.", form, NULL);
+			fmte("Invalid defsetf short form ~S.", form, NULL);
 		GetCons(args, &arg3, &args);
 		if (args != Nil)
-			_fmte("Invalid defsetf short form ~S.", form, NULL);
+			fmte("Invalid defsetf short form ~S.", form, NULL);
 		if (! stringp(arg3))
-			_fmte("defsetf documentation ~S must be a string type.", arg3, NULL);
+			fmte("defsetf documentation ~S must be a string type.", arg3, NULL);
 		defsetf_short_common(arg1, arg2, arg3, ret);
 	}
 	return;
 
 error:
-	_fmte("Invalid defsetf form ~S.", form, NULL);
+	fmte("Invalid defsetf form ~S.", form, NULL);
 }
 
 
@@ -1970,7 +1970,7 @@ _g void define_setf_expander_common(addr form, addr env, addr *ret)
 	return;
 
 error:
-	_fmte("DEFINE-SETF-EXPANDER argument ~S "
+	fmte("DEFINE-SETF-EXPANDER argument ~S "
 			"must be (access lambda-list &rest body) form.", form, NULL);
 }
 
@@ -2098,7 +2098,7 @@ _g int setf_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	_fmte("The setf form ~S must be a place value form.", form, NULL);
+	fmte("The setf form ~S must be a place value form.", form, NULL);
 	return 0;
 }
 
@@ -2220,7 +2220,7 @@ _g int shiftf_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	_fmte("SHIFT argument ~S must be (place ... value) form.", form, NULL);
+	fmte("SHIFT argument ~S must be (place ... value) form.", form, NULL);
 	return 0;
 }
 
@@ -2306,7 +2306,7 @@ _g int rotatef_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	_fmte("ROTATEF argument ~S don't accept a dotted list.", form, NULL);
+	fmte("ROTATEF argument ~S don't accept a dotted list.", form, NULL);
 	return 0;
 }
 

@@ -18,7 +18,7 @@
 static void test_parse_type(addr *ret, addr pos)
 {
 	if (parse_type(Execute_Thread, ret, pos, Nil))
-		_fmte("parse-type error.", NULL);
+		fmte("parse-type error.", NULL);
 }
 
 static void parse_type_string(addr *ret, const char *code)
@@ -1288,7 +1288,7 @@ static void parse_values_string(addr *ret, const char *code)
 {
 	readstring(ret, code);
 	if (parse_type_values(Execute_Thread, ret, *ret, Nil))
-		_fmte("parse-type-values error.", NULL);
+		fmte("parse-type-values error.", NULL);
 }
 
 static void extractchar(addr *ret, const char *str)

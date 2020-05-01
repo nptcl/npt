@@ -1,7 +1,8 @@
 #include "charqueue.h"
 #include "condition.h"
 #include "cons_list.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
 #include "function.h"
 #include "memory.h"
 #include "object.h"
@@ -63,7 +64,7 @@ static void alive_pretty_stream(addr stream)
 {
 	CheckPrettyStream(stream);
 	if (! PtrPrettyStream(stream)->alive)
-		_fmte("The stream ~S is already closed.", stream, NULL);
+		fmte("The stream ~S is already closed.", stream, NULL);
 }
 
 _g void setlistp_pretty_stream(addr stream, int value)
@@ -276,7 +277,7 @@ _g void open_pretty_stream(Execute ptr, addr *ret,
 	if (suffix != Nil && (! stringp(suffix)))
 		TypeError(suffix, STRING);
 	if (prefix != Nil && perline != Nil)
-		_fmte("Cannot supply both :PREFIX and :PER-LINE-PREFIX.", NULL);
+		fmte("Cannot supply both :PREFIX and :PER-LINE-PREFIX.", NULL);
 
 	/* make */
 	stream_heap(&pos, StreamType_Pretty, sizeoft(struct stream_Pretty));

@@ -83,9 +83,9 @@ static size_t array_index_dimension(const size_t *data,
 	value = data[0];
 	for (i = 1; i < depth; i++) {
 		if (multisafe_size(value, dimension[i], &value))
-			_fmte("Too large index value.", NULL);
+			fmte("Too large index value.", NULL);
 		if (plussafe_size(value, data[i], &value))
-			_fmte("Too large index value.", NULL);
+			fmte("Too large index value.", NULL);
 	}
 
 	return value;
@@ -220,7 +220,7 @@ static void array_adjust_element_type(addr pos, addr type, addr array)
 	else {
 		upgraded_array_value(type, &value, &size);
 		if (! array_equal_type(str2, value, size))
-			_fmte(":element-type ~S must be equal to base array.", type, NULL);
+			fmte(":element-type ~S must be equal to base array.", type, NULL);
 		str1->type = value;
 		str1->bytesize = size;
 	}
@@ -257,24 +257,24 @@ static void array_adjust_fillpointer(addr pos, addr array, addr fill)
 	/* integer */
 	if (integerp(fill)) {
 		if (minusp_integer(fill))
-			_fmte("fill-pointer ~A must be a non-negative integer.", fill, NULL);
+			fmte("fill-pointer ~A must be a non-negative integer.", fill, NULL);
 		if (GetIndex_integer(fill, &size))
-			_fmte("fill-pointer ~A is too large.", fill, NULL);
+			fmte("fill-pointer ~A is too large.", fill, NULL);
 		str1->fillpointer = 1;
 		str1->front = size;
 		goto fill_check;
 	}
 	/* type error */
-	_fmte("Invalid fill-pointer value ~S.", fill, NULL);
+	fmte("Invalid fill-pointer value ~S.", fill, NULL);
 	return;
 
 fill_check:
 	if (str2->fillpointer == 0)
-		_fmte("The argument ~S must be a fill-pointer array.", array, NULL);
+		fmte("The argument ~S must be a fill-pointer array.", array, NULL);
 	if (str1->dimension != 1)
-		_fmte("fill-pointer array must be a 1 dimensional.", NULL);
+		fmte("fill-pointer array must be a 1 dimensional.", NULL);
 	if (str1->size < str1->front) {
-		_fmte("fill-pointer ~A must be less than array size ~A.",
+		fmte("fill-pointer ~A must be less than array size ~A.",
 				intsizeh(str1->front), intsizeh(str1->size), NULL);
 	}
 }
@@ -287,7 +287,7 @@ static void array_adjust_dimension(addr pos, addr array)
 	str1 = ArrayInfoStruct(pos);
 	str2 = ArrayInfoStruct(array);
 	if (str1->dimension != str2->dimension) {
-		_fmte("Array rank ~S must be equal to base array ~S.",
+		fmte("Array rank ~S must be equal to base array ~S.",
 				intsizeh(str1->dimension),
 				intsizeh(str2->dimension), NULL);
 	}
@@ -369,7 +369,7 @@ static void array_adjust_simple_contents_sequence(addr pos, size_t size, addr x)
 static void array_adjust_simple_contents(addr pos, size_t size, addr contents)
 {
 	if (size != length_sequence(contents, 1))
-		_fmte("Mismatch :displaced-to ~S length.", pos, NULL);
+		fmte("Mismatch :displaced-to ~S length.", pos, NULL);
 	if (listp(contents))
 		array_adjust_simple_contents_list(pos, size, contents);
 	else
@@ -449,7 +449,7 @@ static void array_adjust_vector_type(addr pos, addr type, enum ARRAY_TYPE check)
 	else {
 		upgraded_array_value(type, &value, &size);
 		if (check != value)
-			_fmte(":element-type ~S must be equal to base array.", type, NULL);
+			fmte(":element-type ~S must be equal to base array.", type, NULL);
 		str->type = value;
 		str->bytesize = 0;
 	}
@@ -512,7 +512,7 @@ static void array_adjust_vector_adjustable(addr pos)
 static void array_adjust_vector_fillpointer(addr pos, addr array, addr fill)
 {
 	if (fill != Nil)
-		_fmte("The argument ~S must be a fill-pointer array.", array, NULL);
+		fmte("The argument ~S must be a fill-pointer array.", array, NULL);
 	ArrayInfoStruct(pos)->fillpointer = 0;
 }
 
@@ -541,18 +541,18 @@ static void array_adjust_sequence(addr *ret, addr array, addr dimension,
 static void array_adjust_vector_check(addr pos, size_t *ret)
 {
 	if (pos == Nil)
-		_fmte("Array rank must be a 1, but 0.", NULL);
+		fmte("Array rank must be a 1, but 0.", NULL);
 	if (singlep(pos))
 		GetCar(pos, &pos);
 	if (integerp(pos)) {
 		if (GetIndex_integer(pos, ret))
-			_fmte("Dimension ~A is too large.", pos, NULL);
+			fmte("Dimension ~A is too large.", pos, NULL);
 		return;
 	}
 	if (consp(pos))
-		_fmte("Array rank must be a 1.", NULL);
+		fmte("Array rank must be a 1.", NULL);
 	else
-		_fmte("Invalid pos type ~S.", pos, NULL);
+		fmte("Invalid pos type ~S.", pos, NULL);
 }
 
 static int array_adjust_simple_check(addr pos, addr fill, addr displaced)
@@ -592,7 +592,7 @@ static void array_adjust_string(addr *ret, addr array, addr dimension,
 
 	array_adjust_vector_check(dimension, &size);
 	if (initial != Unbound && characterp(initial) == 0)
-		_fmte(":initial-element ~S must be a character type.", initial, NULL);
+		fmte(":initial-element ~S must be a character type.", initial, NULL);
 	if (array_adjust_simple_check(array, fill, displaced)) {
 		strvect_heap(&pos, size);
 		array_adjust_simple(pos, array, size, initial, contents);
@@ -613,7 +613,7 @@ static void array_adjust_bitvector(addr *ret, addr array, addr dimension,
 
 	array_adjust_vector_check(dimension, &size);
 	if (initial != Unbound && bitp(initial) == 0)
-		_fmte(":initial-element ~S must be a bit type (0 or 1).", initial, NULL);
+		fmte(":initial-element ~S must be a bit type (0 or 1).", initial, NULL);
 	if (array_adjust_simple_check(array, fill, displaced)) {
 		bitmemory_heap(&pos, size);
 		array_adjust_simple(pos, array, size, initial, contents);

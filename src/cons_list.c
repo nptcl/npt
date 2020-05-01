@@ -117,7 +117,7 @@ _g void setnth(addr cons, size_t index, addr value)
 
 	getnthcdr(cons, index, &cdr);
 	if (! consp(cdr))
-		_fmte("Cannot (setf nth) ~S.", cons, NULL);
+		fmte("Cannot (setf nth) ~S.", cons, NULL);
 	SetCar(cdr, value);
 }
 
@@ -140,7 +140,7 @@ _g size_t length_list_safe(addr right)
 
 	for (size = 0; right != Nil; size++) {
 		if (GetType(right) != LISPTYPE_CONS)
-			_fmte("cdr position must be a list type.", NULL);
+			fmte("cdr position must be a list type.", NULL);
 		GetCdr(right, &right);
 	}
 

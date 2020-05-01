@@ -2,7 +2,8 @@
 #include "cons.h"
 #include "cons_plist.h"
 #include "constant.h"
-#include "control.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "equal.h"
 #include "eval.h"
 #include "format.h"
@@ -104,7 +105,7 @@ static int function_push_entries(Execute ptr, addr name, addr expr, addr values)
 	GetConst(RT_ENTRIES_TABLE, &table);
 	getspecialcheck_local(ptr, table, &table);
 	if (findvalue_hashtable(table, name, &pos)) {
-		_fmtw("The deftest ~S is already exist.", name, NULL);
+		fmtw("The deftest ~S is already exist.", name, NULL);
 		rt_push_entries(ptr, CONSTANT_RT_ENTRIES_WARNING, name);
 	}
 	else  {
@@ -234,7 +235,7 @@ static int function_deftest(Execute ptr, addr form, addr env)
 	if (! consp(args)) goto error;
 	GetCons(args, &name, &args);
 	if (! symbolp(name))
-		_fmte("The deftest name ~S must be a symbol.", name, NULL);
+		fmte("The deftest name ~S must be a symbol.", name, NULL);
 	if (! consp(args)) goto error;
 	GetCons(args, &expr, &args);
 	/* `(push-entries ',name ',expr ',value) */
@@ -248,7 +249,7 @@ static int function_deftest(Execute ptr, addr form, addr env)
 	return 0;
 
 error:
-	_fmte("The deftest ~S must be a (deftest name expr . values) form.", form, NULL);
+	fmte("The deftest ~S must be a (deftest name expr . values) form.", form, NULL);
 	return 0;
 }
 
@@ -312,7 +313,7 @@ make_deftest:
 	return 0;
 
 error:
-	_fmte("Invalid deftest-error form ~S.", form, NULL);
+	fmte("Invalid deftest-error form ~S.", form, NULL);
 	return 0;
 }
 
@@ -420,7 +421,7 @@ static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
 	codejump jump;
 
 	if (! findvalue_hashtable(table, name, &expr))
-		_fmte("The deftest ~S is not exist.", name, NULL);
+		fmte("The deftest ~S is not exist.", name, NULL);
 	GetCons(expr, &expr, &values);
 
 	push_close_control(ptr, &control);
@@ -434,7 +435,7 @@ static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
 		do_test_output_unhandling(ptr, io, name, values, index);
 		check = 0;
 	}
-	if (free_control(ptr, control)) {
+	if (free_control_(ptr, control)) {
 		do_test_output_unhandling(ptr, io, name, values, index);
 		check = 0;
 	}

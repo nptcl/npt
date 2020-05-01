@@ -87,7 +87,7 @@ static SubtypepResult subtypep_error(addr left, addr right)
 {
 	infoprint(left);
 	infoprint(right);
-	_fmte("Invalid subtypep argument.", NULL);
+	fmte("Invalid subtypep argument.", NULL);
 	ReturnInvalid;
 }
 
@@ -1698,11 +1698,11 @@ static SubtypepResult subtypep_left(addr left, addr right)
 			return subtypep_eql(left, right);
 
 		case LISPDECL_MEMBER:
-			_fmte("The member type illegal in this context.", NULL);
+			fmte("The member type illegal in this context.", NULL);
 			break;
 
 		case LISPDECL_NOT:
-			_fmte("The not type illegal in this context.", NULL);
+			fmte("The not type illegal in this context.", NULL);
 			break;
 
 		case LISPDECL_VALUES:
@@ -1754,11 +1754,11 @@ static SubtypepResult subtypep_right(addr left, addr right)
 			return subtypep_eql(left, right);
 
 		case LISPDECL_MEMBER:
-			_fmte("The member type illegal in this context.", NULL);
+			fmte("The member type illegal in this context.", NULL);
 			break;
 
 		case LISPDECL_NOT:
-			_fmte("The not type illegal in this context.", NULL);
+			fmte("The not type illegal in this context.", NULL);
 			break;
 
 		case LISPDECL_VALUES:
@@ -1846,12 +1846,12 @@ static SubtypepResult subtypep_call_asterisk(addr left, addr right)
 {
 	if (type_asterisk_p(right)) {
 		if (RefNotDecl(right))
-			_fmte("Don't allow to use (not *).", NULL);
+			fmte("Don't allow to use (not *).", NULL);
 		return SUBTYPEP_INCLUDE;
 	}
 	if (type_asterisk_p(left)) {
 		if (RefNotDecl(left))
-			_fmte("Don't allow to use (not *).", NULL);
+			fmte("Don't allow to use (not *).", NULL);
 		return SUBTYPEP_FALSE;
 	}
 	return subtypep_right(left, right);
@@ -1860,7 +1860,7 @@ static SubtypepResult subtypep_call_asterisk(addr left, addr right)
 static SubtypepResult subtypep_call_normal(addr left, addr right)
 {
 	if (type_asterisk_p(left) || type_asterisk_p(right))
-		_fmte("Don't allow to use asterisk.", NULL);
+		fmte("Don't allow to use asterisk.", NULL);
 	return subtypep_right(left, right);
 }
 

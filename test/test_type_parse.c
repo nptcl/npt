@@ -3,7 +3,7 @@
 #include "clos.h"
 #include "common.h"
 #include "condition.h"
-#include "control.h"
+#include "control_operator.h"
 #include "eval_declare.h"
 #include "degrade.h"
 #include "package.h"
@@ -47,7 +47,7 @@ static int test_typecheck(addr pos, enum LISPDECL type, size_t size)
 static void test_parse_type_error(addr *ret, addr pos)
 {
 	if (parse_type(Execute_Thread, ret, pos, Nil))
-		_fmte("parse-type error.");
+		fmte("parse-type error.");
 }
 
 static void test_parse_char(addr *ret, const char *str)
@@ -371,7 +371,7 @@ static int test_type_function_list(void)
 static void test_parse_values(addr *ret, const char *str)
 {
 	if (type_function_values(Execute_Thread, ret, readr(str), Nil))
-		_fmte("type_function_values error.");
+		fmte("type_function_values error.");
 }
 
 static int test_type_values_var(void)

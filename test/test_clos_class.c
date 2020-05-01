@@ -2,6 +2,8 @@
 #include "clos_type.h"
 #include "character.h"
 #include "common.h"
+#include "control_execute.h"
+#include "control_object.h"
 #include "real.h"
 #include "degrade.h"
 #include "package.h"
@@ -2534,7 +2536,7 @@ static addr readr_clos(const char *str)
 	GetConst(PACKAGE_CLOS, &value);
 	pushspecial_control(ptr, symbol, value);
 	ret = readr(str);
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	return ret;
 }

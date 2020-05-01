@@ -697,7 +697,7 @@ _g void getindex_fixnum(addr pos, size_t *ret)
 _g void fixnum_index_heap(addr *ret, size_t value)
 {
 	if ((size_t)FIXNUM_MAX <= value)
-		_fmte("Too large value ~S.", intsizeh(value), NULL);
+		fmte("Too large value ~S.", intsizeh(value), NULL);
 	fixnum_heap(ret, (fixnum)value);
 }
 
@@ -1102,7 +1102,7 @@ _g void ash_integer_common(LocalRoot local, addr pos, addr count, addr *ret)
 	LocalStack stack;
 
 	if (getindex_sign_integer(count, &sign2, &size)) {
-		_fmte("Too large shift value ~S.", count, NULL);
+		fmte("Too large shift value ~S.", count, NULL);
 		*ret = 0;
 		return;
 	}
@@ -1303,7 +1303,7 @@ error:
 	else {
 		rollback_local(local, stack);
 		*ret = *position = 0;
-		return fmte("Invalid string ~A.", character_heapr(c), NULL);
+		return fmte_("Invalid string ~A.", character_heapr(c), NULL);
 	}
 }
 

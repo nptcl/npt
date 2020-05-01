@@ -184,7 +184,7 @@ _g void type_value_character(addr *ret, addr value)
 			break;
 
 		default:
-			_fmte("Invalid character type.", NULL);
+			fmte("Invalid character type.", NULL);
 			return;
 	}
 	*ret = pos;
@@ -223,12 +223,12 @@ _g void type_value_string(addr *ret, addr value)
 
 		case LISPTYPE_ARRAY:
 			if (! strarrayp(value))
-				_fmte("The array is not string type.", NULL);
+				fmte("The array is not string type.", NULL);
 			type_value_strarray(ret, value);
 			break;
 
 		default:
-			_fmte("The value is not string type.", NULL);
+			fmte("The value is not string type.", NULL);
 			break;
 	}
 }
@@ -448,7 +448,7 @@ static void type_value_argument(addr *ret, addr value)
 static void type_value_error(addr *ret, addr value)
 {
 	infobit(value);
-	_fmte("Invalid type-value.", NULL);
+	fmte("Invalid type-value.", NULL);
 }
 
 _g void type_value(addr *ret, addr value)

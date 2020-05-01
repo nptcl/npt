@@ -218,7 +218,7 @@ _g void strvect_update_character_type(addr pos)
 	for (i = 0; i < size; i++) {
 		type = unicode_character_type(type, body[i]);
 		if (type == CHARACTER_TYPE_INVALID)
-			_fmte("Invalid character code.", NULL);
+			fmte("Invalid character code.", NULL);
 	}
 	SetCharacterType(pos, type);
 }
@@ -606,7 +606,7 @@ _g void strvect_setc(addr pos, size_t index, unicode c)
 
 	type = unicode_character_type(RefCharacterType(pos), c);
 	if (type == CHARACTER_TYPE_INVALID)
-		_fmte("Invalid character code.", NULL);
+		fmte("Invalid character code.", NULL);
 	SetCharacterType(pos, type);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	destroy[index] = c;
@@ -622,7 +622,7 @@ _g void strvect_setall(addr pos, unicode c)
 	if (size == 0) return;
 	type = character_type(c);
 	if (type == CHARACTER_TYPE_INVALID)
-		_fmte("Invalid character code.", NULL);
+		fmte("Invalid character code.", NULL);
 	SetCharacterType(pos, type);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	for (i = 0; i < size; i++)
@@ -637,7 +637,7 @@ _g void strvect_get(LocalRoot local, addr pos, size_t index, addr *ret)
 	CheckType(pos, LISPTYPE_STRING);
 	strvect_length(pos, &size);
 	if (size <= index)
-		_fmte("Out of range ~S.", intsizeh(index), NULL);
+		fmte("Out of range ~S.", intsizeh(index), NULL);
 	strvect_getc(pos, index, &c);
 	character_alloc(local, ret, c);
 }
@@ -649,12 +649,12 @@ _g void strvect_aref(LocalRoot local, addr pos, addr args, addr *ret)
 
 	CheckType(pos, LISPTYPE_STRING);
 	if (! consp(args))
-		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	GetCons(args, &arg, &args);
 	if (args != Nil)
-		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	if (GetIndex_integer(arg, &index))
-		_fmte("Invalid index arg ~S.", arg, NULL);
+		fmte("Invalid index arg ~S.", arg, NULL);
 	strvect_get(local, pos, index, ret);
 }
 
@@ -664,10 +664,10 @@ _g void strvect_set(addr pos, size_t index, addr value)
 
 	CheckType(pos, LISPTYPE_STRING);
 	if (! characterp(value))
-		_fmte("SETF arg ~S must be a character type.", value, NULL);
+		fmte("SETF arg ~S must be a character type.", value, NULL);
 	strvect_length(pos, &size);
 	if (size <= index)
-		_fmte("Out of range ~S.", intsizeh(index), NULL);
+		fmte("Out of range ~S.", intsizeh(index), NULL);
 	strvect_setc(pos, index, RefCharacter(value));
 }
 
@@ -678,14 +678,14 @@ _g void strvect_setf_aref(addr pos, addr args, addr value)
 
 	CheckType(pos, LISPTYPE_STRING);
 	if (GetStatusReadOnly(pos))
-		_fmte("The object ~S is constant.", pos, NULL);
+		fmte("The object ~S is constant.", pos, NULL);
 	if (! consp(args))
-		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	GetCons(args, &arg, &args);
 	if (args != Nil)
-		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	if (GetIndex_integer(arg, &index))
-		_fmte("Invalid index arg ~S.", arg, NULL);
+		fmte("Invalid index arg ~S.", arg, NULL);
 	strvect_set(pos, index, value);
 }
 
@@ -696,7 +696,7 @@ _g void strvect_fill(addr pos, addr item, addr start, addr end)
 
 	/* argument */
 	if (! characterp(item))
-		_fmte("FILL tem ~S must be a character type.", item, NULL);
+		fmte("FILL tem ~S must be a character type.", item, NULL);
 	GetCharacter(item, &c);
 	strvect_length(pos, &index1);
 	size_start_end_sequence(start, end, index1, &index1, &index2);

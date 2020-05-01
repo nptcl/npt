@@ -3,7 +3,7 @@
 #include "cons_common.h"
 #include "cons_list.h"
 #include "cons_plist.h"
-#include "control.h"
+#include "control_execute.h"
 #include "equal.h"
 #include "execute.h"
 #include "gc.h"
@@ -123,7 +123,7 @@ static int replace_sublis_cons(struct sublis_struct *str,
 					str->alist, str->test2, tree, result, ret);
 
 		default:
-			_fmte("Invalid test mode.", NULL);
+			fmte("Invalid test mode.", NULL);
 			return 1;
 	}
 }
@@ -204,7 +204,7 @@ _g int sublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret)
 	struct sublis_struct str;
 
 	if (argument_sublis_cons(ptr, &str, alist, rest))
-		_fmte("SUBLIS don't accept both :test and :test-not parameter.", NULL);
+		fmte("SUBLIS don't accept both :test and :test-not parameter.", NULL);
 	return recursive_sublis_cons(&str, tree, ret);
 }
 
@@ -253,7 +253,7 @@ _g int nsublis_common(Execute ptr, addr alist, addr tree, addr rest, addr *ret)
 	struct sublis_struct str;
 
 	if (argument_sublis_cons(ptr, &str, alist, rest))
-		_fmte("NSUBLIS don't accept both :test and :test-not parameter.", NULL);
+		fmte("NSUBLIS don't accept both :test and :test-not parameter.", NULL);
 	return recursive_nsublis_cons(&str, tree, ret);
 }
 
@@ -373,7 +373,7 @@ static int replace_subst_cons(struct subst_struct *str,
 			return test_not_subst_cons(str, tree, result, ret);
 
 		default:
-			_fmte("Invalid test mode.", NULL);
+			fmte("Invalid test mode.", NULL);
 			return 1;
 	}
 }
@@ -418,7 +418,7 @@ _g int subst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr *
 	struct subst_struct str;
 
 	if (argument_subst_cons(ptr, &str, one, old, key))
-		_fmte("SUBST don't accept both :test and :test-not parameter.", NULL);
+		fmte("SUBST don't accept both :test and :test-not parameter.", NULL);
 	return recursive_subst_cons(&str, tree, ret);
 }
 
@@ -467,7 +467,7 @@ _g int nsubst_common(Execute ptr, addr one, addr old, addr tree, addr key, addr 
 	struct subst_struct str;
 
 	if (argument_subst_cons(ptr, &str, one, old, key))
-		_fmte("NSUBST don't accept both :test and :test-not parameter.", NULL);
+		fmte("NSUBST don't accept both :test and :test-not parameter.", NULL);
 	return recursive_nsubst_cons(&str, tree, ret);
 }
 
@@ -552,7 +552,7 @@ static int replace_subst_if(struct subst_struct *str,
 			return call_subst_if_not_cons(str, tree, result, ret);
 
 		default:
-			_fmte("Invalid test mode.", NULL);
+			fmte("Invalid test mode.", NULL);
 			return 1;
 	}
 }
@@ -748,7 +748,7 @@ static int replace_tree_equal_cons(struct tree_equal_struct *str,
 			return test_not_tree_equal_cons(str->ptr, result, str->test2, tree1, tree2);
 
 		default:
-			_fmte("Invalid test mode.", NULL);
+			fmte("Invalid test mode.", NULL);
 			return 1;
 	}
 }
@@ -778,7 +778,7 @@ _g int tree_equal_common(Execute ptr, addr tree1, addr tree2, addr key, int *ret
 	struct tree_equal_struct str;
 
 	if (argument_tree_equal_cons(ptr, &str, key))
-		_fmte("TREE-EQUAL don't accept both :test and :test-not parameter.", NULL);
+		fmte("TREE-EQUAL don't accept both :test and :test-not parameter.", NULL);
 	return recursive_tree_equal_cons(&str, ret, tree1, tree2);
 }
 
@@ -839,7 +839,7 @@ _g void make_list_common(addr var, addr rest, addr *ret)
 
 	/* argument */
 	if (GetIndex_integer(var, &size))
-		_fmte("Too large index value ~S.", var, NULL);
+		fmte("Too large index value ~S.", var, NULL);
 	if (getplist_constant(rest, CONSTANT_KEYWORD_INITIAL_ELEMENT, &element))
 		element = Nil;
 	/* make-list */
@@ -985,7 +985,7 @@ _g int push_common(Execute ptr, addr form, addr env, addr *ret)
 	return expansion_push_cons(ptr, ret, item, place, env);
 
 error:
-	_fmte("PUSH argument ~S must be a (push item place) form.", form, NULL);
+	fmte("PUSH argument ~S must be a (push item place) form.", form, NULL);
 	*ret = Nil;
 	return 0;
 }
@@ -1144,7 +1144,7 @@ _g int pop_common(Execute ptr, addr form, addr env, addr *ret)
 	return expansion_pop_cons(ptr, ret, place, env);
 
 error:
-	_fmte("POP argument ~S must be a (pop place) form.", form, NULL);
+	fmte("POP argument ~S must be a (pop place) form.", form, NULL);
 	*ret = Nil;
 	return 0;
 }
@@ -1172,7 +1172,7 @@ _g void setf_nth_common(addr value, addr index, addr list)
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		_fmte("Too large index value ~S.", index, NULL);
+		fmte("Too large index value ~S.", index, NULL);
 	setnth(list, size, value);
 }
 
@@ -1202,7 +1202,7 @@ static int test_member_cons(Execute ptr, addr *ret,
 
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("The list ~S don't accept dotted list.", list, NULL);
+			fmte("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &value, &next);
 		if (function_call_cons(ptr, &check, item, key, call, value, notret))
 			return 1;
@@ -1228,7 +1228,7 @@ _g int member_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("MEMBER don't accept both :test and :test-not parameter.", NULL);
+		fmte("MEMBER don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_member_cons(ptr, ret, item, list, key, testnot, 1);
 	else if (check1)
@@ -1254,7 +1254,7 @@ _g int member_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("The list ~S don't accept dotted list.", list, NULL);
+			fmte("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &value, &next);
 		if (function_if_call_cons(ptr, &check, key, call, value))
 			return 1;
@@ -1281,7 +1281,7 @@ _g int member_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *
 	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("The list ~S don't accept dotted list.", list, NULL);
+			fmte("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &value, &next);
 		if (function_if_call_cons(ptr, &check, key, call, value))
 			return 1;
@@ -1692,7 +1692,7 @@ static void concat_nconc_cons(addr list, addr args)
 				setcdr(last, list);
 				break;
 			}
-			_fmte("nconc argument ~S must be a list.", list, NULL);
+			fmte("nconc argument ~S must be a list.", list, NULL);
 		}
 	}
 }
@@ -1720,7 +1720,7 @@ _g void nconc_common(addr args, addr *ret)
 		if (IsCons(pos)) {
 			break;
 		}
-		_fmte("nconc argument ~S must be a list.", pos, NULL);
+		fmte("nconc argument ~S must be a list.", pos, NULL);
 	}
 
 	/* (nconc x x ...) */
@@ -1737,7 +1737,7 @@ static addr push_append_cons(addr root, addr last)
 	addr pos;
 
 	if (! IsCons(last))
-		_fmte("The argument ~S must be a list.", last, NULL);
+		fmte("The argument ~S must be a list.", last, NULL);
 	while (last != Nil) {
 		getcons(last, &pos, &last);
 		cons_heap(&root, pos, root);
@@ -1790,7 +1790,7 @@ _g void append_common(addr args, addr *ret)
 		if (IsCons(pos)) {
 			break;
 		}
-		_fmte("append argument ~S must be a list.", pos, NULL);
+		fmte("append argument ~S must be a list.", pos, NULL);
 	}
 
 	/* (append x x ...) */
@@ -1868,7 +1868,7 @@ static void large_butlast_cons(addr list, addr index, addr *ret)
 	value = length_list_safe_dotted(list);
 	size = intsizeh(value);
 	if (! less_equal_integer(size, index))
-		_fmte("Too large butlast index ~S.", index);
+		fmte("Too large butlast index ~S.", index);
 	*ret = Nil;
 }
 
@@ -1913,7 +1913,7 @@ static void large_nbutlast_cons(addr list, addr index, addr *ret)
 	value = length_list_safe_dotted(list);
 	size = intsizeh(value);
 	if (! less_equal_integer(size, index))
-		_fmte("Too large nbutlast index ~S.", index);
+		fmte("Too large nbutlast index ~S.", index);
 	*ret = Nil;
 }
 
@@ -1958,7 +1958,7 @@ static void large_last_cons(addr list, addr index, addr *ret)
 	value = length_list_safe_dotted(list);
 	size = intsizeh(value);
 	if (! less_equal_integer(size, index))
-		_fmte("Too large nbutlast index ~S.", index);
+		fmte("Too large nbutlast index ~S.", index);
 	*ret = list;
 }
 
@@ -2033,7 +2033,7 @@ static int test_assoc_cons(Execute ptr, addr *ret,
 
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("The list ~S don't accept dotted list.", list, NULL);
+			fmte("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
 		getcar(cons, &value);
 		if (function_call_cons(ptr, &check, item, key, call, value, notret))
@@ -2059,7 +2059,7 @@ _g int assoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("ASSOC don't accept both :test and :test-not parameter.", NULL);
+		fmte("ASSOC don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_assoc_cons(ptr, ret, item, list, key, testnot, 1);
 	else if (check1)
@@ -2085,7 +2085,7 @@ _g int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("The list ~S don't accept dotted list.", list, NULL);
+			fmte("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
 		getcar(cons, &value);
 		if (function_if_call_cons(ptr, &check, key, call, value))
@@ -2112,7 +2112,7 @@ _g int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *r
 	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("The list ~S don't accept dotted list.", list, NULL);
+			fmte("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
 		getcar(cons, &value);
 		if (function_if_call_cons(ptr, &check, key, call, value))
@@ -2160,7 +2160,7 @@ _g void pairlis_common(addr keys, addr data, addr list, addr *ret)
 		if (check1 && check2)
 			break;
 		if (check1 || check2)
-			_fmte("The length of keys isn't equal to the data.", NULL);
+			fmte("The length of keys isn't equal to the data.", NULL);
 		getcons(keys, &car, &keys);
 		getcons(data, &cdr, &data);
 		cons_heap(&cdr, car, cdr);
@@ -2181,7 +2181,7 @@ static int test_rassoc_cons(Execute ptr, addr *ret,
 
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("The list ~S don't accept dotted list.", list, NULL);
+			fmte("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
 		getcdr(cons, &value);
 		if (function_call_cons(ptr, &check, item, key, call, value, notret))
@@ -2207,7 +2207,7 @@ _g int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("RASSOC don't accept both :test and :test-not parameter.", NULL);
+		fmte("RASSOC don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_rassoc_cons(ptr, ret, item, list, key, testnot, 1);
 	else if (check1)
@@ -2233,7 +2233,7 @@ _g int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("The list ~S don't accept dotted list.", list, NULL);
+			fmte("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
 		getcdr(cons, &value);
 		if (function_if_call_cons(ptr, &check, key, call, value))
@@ -2260,7 +2260,7 @@ _g int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *
 	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("The list ~S don't accept dotted list.", list, NULL);
+			fmte("The list ~S don't accept dotted list.", list, NULL);
 		GetCons(list, &cons, &list);
 		getcdr(cons, &value);
 		if (function_if_call_cons(ptr, &check, key, call, value))
@@ -2369,7 +2369,7 @@ _g int remf_common(Execute ptr, addr form, addr env, addr *ret)
 	return expansion_remf_cons(ptr, ret, place, indicator, env);
 
 error:
-	_fmte("REMF argument ~S must be a (place indicator) form.", form, NULL);
+	fmte("REMF argument ~S must be a (place indicator) form.", form, NULL);
 	*ret = Nil;
 	return 0;
 }
@@ -2435,7 +2435,7 @@ _g int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr 
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("INTERSECTION don't accept both :test and :test-not parameter.", NULL);
+		fmte("INTERSECTION don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_intersection_cons(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)
@@ -2505,7 +2505,7 @@ _g int nintersection_common(Execute ptr, addr list1, addr list2, addr rest, addr
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("NINTERSECTION don't accept both :test and :test-not parameter.", NULL);
+		fmte("NINTERSECTION don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_nintersection_cons(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)
@@ -2554,7 +2554,7 @@ _g int adjoin_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("ADJOIN don't accept both :test and :test-not parameter.", NULL);
+		fmte("ADJOIN don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_adjoin_cons(ptr, ret, item, list, key, testnot, 1);
 	else if (check1)
@@ -2704,7 +2704,7 @@ _g int pushnew_common(Execute ptr, addr form, addr env, addr *ret)
 	return expansion_pushnew_cons(ptr, ret, item, place, args, env);
 
 error:
-	_fmte("PUSH argument ~S must be a (item place &rest args) form.", form, NULL);
+	fmte("PUSH argument ~S must be a (item place &rest args) form.", form, NULL);
 	*ret = Nil;
 	return 0;
 }
@@ -2747,7 +2747,7 @@ _g int set_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("SET-DIFFERENCE don't accept both :test and :test-not parameter.", NULL);
+		fmte("SET-DIFFERENCE don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_set_difference_cons(ptr, ret, a, b, key, testnot, 1);
 	else if (check1)
@@ -2816,7 +2816,7 @@ _g int nset_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("NSET-DIFFERENCE don't accept both :test and :test-not parameter.", NULL);
+		fmte("NSET-DIFFERENCE don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_nset_difference_cons(ptr, ret, a, b, key, testnot, 1);
 	else if (check1)
@@ -2883,7 +2883,7 @@ _g int set_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2) {
-		_fmte("SET-EXCLUSIVE-OR "
+		fmte("SET-EXCLUSIVE-OR "
 				"don't accept both :test and :test-not parameter.", NULL);
 	}
 	else if (check2)
@@ -2945,7 +2945,7 @@ _g int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *re
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2) {
-		_fmte("NSET-EXCLUSIVE-OR "
+		fmte("NSET-EXCLUSIVE-OR "
 				"don't accept both :test and :test-not parameter.", NULL);
 	}
 	else if (check2)
@@ -2996,7 +2996,7 @@ _g int subsetp_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("SUBSETP don't accept both :test and :test-not parameter.", NULL);
+		fmte("SUBSETP don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_subsetp_cons(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)
@@ -3063,7 +3063,7 @@ _g int union_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("UNION don't accept both :test and :test-not parameter.", NULL);
+		fmte("UNION don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_union_cons(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)
@@ -3169,7 +3169,7 @@ _g int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
-		_fmte("NUNION don't accept both :test and :test-not parameter.", NULL);
+		fmte("NUNION don't accept both :test and :test-not parameter.", NULL);
 	else if (check2)
 		return test_nunion_cons(ptr, ret, list1, list2, key, testnot, 1);
 	else if (check1)

@@ -14,46 +14,32 @@ enum ThreadState {
 	ThreadState_Empty = 0,
 	ThreadState_Run,
 	ThreadState_Finish,
-	ThreadState_Signal,
-	ThreadState_GcStart,
+	ThreadState_GcWait,
 	ThreadState_Join,
 	ThreadState_Size
-};
-
-enum ExecuteControl {
-	ExecuteControl_Run,
-	ExecuteControl_End,
-	ExecuteControl_Point,
-	ExecuteControl_Throw,
-	ExecuteControl_Jump,
-	ExecuteControl_Size
 };
 
 struct execute;
 typedef void (*execfunction)(struct execute *);
 
-struct taginfo_struct {
-	unsigned open : 1;
-	unsigned thr : 1;
-	unsigned wake : 1;
-	size_t point;
-	addr control;
-};
-
 struct execute {
+	unsigned disable_copy_p : 1;
+	unsigned throw_point_p : 1;
 	unsigned abort : 1;
 	unsigned jump : 1;
 	/* lisp info */
 	jmp_buf *exec;
 	LocalRoot local;
 	addr control;
-	enum ExecuteControl signal;
-	struct taginfo_struct *taginfo;
 	int result;
 
+	/* runcode */
+	size_t throw_point;
+	addr throw_control;
+
 	/* thread info */
-	enum ThreadState state;
 	size_t index;
+	enum ThreadState state;
 	mutexlite mutex;
 	execfunction routine;
 	threadhandle handle;

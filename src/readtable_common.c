@@ -119,7 +119,7 @@ _g int read_common(Execute ptr, addr args, addr *ret)
 		Return(read_recursive(ptr, stream, &check, &args));
 		if (check) {
 			if (error != Nil)
-				return fmte("End-of-file occured by recursive-p read.", NULL);
+				return fmte_("End-of-file occured by recursive-p read.", NULL);
 			args = eof;
 		}
 	}
@@ -177,7 +177,7 @@ _g int read_preserving_whitespace_common(Execute ptr, addr args, addr *ret)
 		Return(read_recursive(ptr, stream, &check, &args));
 		if (check) {
 			if (error != Nil)
-				return fmte("End-of-file occured by recursive-p read.", NULL);
+				return fmte_("End-of-file occured by recursive-p read.", NULL);
 			args = eof;
 		}
 	}
@@ -252,7 +252,7 @@ _g int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
 		goto error;
 	GetCons(args, &str, &args);
 	if (! stringp(str))
-		return fmte("The read-from-string argument ~S must be a string.", str, NULL);
+		return fmte_("The read-from-string argument ~S must be a string.", str, NULL);
 	if (args == Nil)
 		goto default_string;
 	if (! consp(args))
@@ -277,7 +277,7 @@ _g int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
 	}
 	else {
 		if (GetIndex_integer(pos, &start))
-			return fmte("Too large start value ~S.", pos, NULL);
+			return fmte_("Too large start value ~S.", pos, NULL);
 	}
 	/* key end */
 	GetConst(KEYWORD_END, &key);
@@ -286,7 +286,7 @@ _g int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
 	}
 	else {
 		if (GetIndex_integer(pos, &end))
-			return fmte("Too large end value ~S.", pos, NULL);
+			return fmte_("Too large end value ~S.", pos, NULL);
 	}
 	/* key preserving-whitespace */
 	GetConst(KEYWORD_PRESERVING_WHITESPACE, &key);
@@ -310,7 +310,7 @@ execute:
 			str, eofp, eof, start, end, preserve, ret, sec);
 
 error:
-	return fmte("Invalid read-from-string argument.", NULL);
+	return fmte_("Invalid read-from-string argument.", NULL);
 }
 
 
@@ -339,7 +339,7 @@ _g int readtable_case_common(addr var, addr *ret)
 			break;
 
 		default:
-			return fmte("Invalid case type.", NULL);
+			return fmte_("Invalid case type.", NULL);
 	}
 	GetConstant(index, ret);
 
@@ -379,7 +379,7 @@ _g int setf_readtable_case_common(addr value, addr var)
 	}
 
 	/* error */
-	return fmte("Invalid case sensitivity mode ~S.", value, NULL);
+	return fmte_("Invalid case sensitivity mode ~S.", value, NULL);
 }
 
 
@@ -418,7 +418,7 @@ _g int set_dispatch_macro_character_common(Execute ptr,
 
 	if (readtable == Nil) {
 		/* standard readtable */
-		return fmte("set-dispatch-macro-character "
+		return fmte_("set-dispatch-macro-character "
 				"don't update a standard readtable.", NULL);
 	}
 	if (readtable == Unbound) {
@@ -481,7 +481,7 @@ _g int set_macro_character_common(Execute ptr,
 	}
 	if (readtable == Nil) {
 		/* standard readtable */
-		return fmte("set-macro-character don't update a standard readtable.", NULL);
+		return fmte_("set-macro-character don't update a standard readtable.", NULL);
 	}
 	if (readtable == Unbound) {
 		/* *readtable* */

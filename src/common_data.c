@@ -3,6 +3,8 @@
  */
 #include "clos_class.h"
 #include "common_header.h"
+#include "control_execute.h"
+#include "control_object.h"
 #include "data.h"
 #include "equal.h"
 #include "function.h"
@@ -19,10 +21,10 @@ static int check_data_function(Execute ptr, addr call, addr *ret)
 	if (GetType(call) == LISPTYPE_SYMBOL) {
 		getfunctioncheck_local(ptr, call, &call);
 		if (macro_function_p(call))
-			return fmte("Cannot call the macro-function ~S.", call, NULL);
+			return fmte_("Cannot call the macro-function ~S.", call, NULL);
 	}
 	if (! funcallp(call))
-		return fmte("The argument ~S is not executable.", call, NULL);
+		return fmte_("The argument ~S is not executable.", call, NULL);
 	*ret = call;
 
 	return 0;

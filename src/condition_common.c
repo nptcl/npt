@@ -6,7 +6,9 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "format.h"
 #include "function.h"
 #include "gc.h"
@@ -239,7 +241,7 @@ _g int assert_common(Execute ptr, addr form, addr env, addr *ret)
 		return assert_list_common(ptr, env, test, list, args, ret);
 
 error:
-	return fmte("ASSERT arguments ~S must be "
+	return fmte_("ASSERT arguments ~S must be "
 			"(test &optional places format args) form.", form, NULL);
 }
 
@@ -255,16 +257,16 @@ static int error_datum_common(Execute ptr, addr datum, addr rest, addr *ret)
 	if (symbolp(datum)) {
 		clos_find_class(datum, &datum);
 		if (! conditionp(datum))
-			return fmte("The class ~S is not a condition subclass.", datum, NULL);
+			return fmte_("The class ~S is not a condition subclass.", datum, NULL);
 		GetConst(COMMON_MAKE_INSTANCE, &make);
 		return callclang_applya(ptr, ret, make, datum, rest, NULL);
 	}
 
 	/* condition -> (error condition) */
 	if (! condition_instance_p(datum))
-		return fmte("Invalid datum argument ~S.", datum, NULL);
+		return fmte_("Invalid datum argument ~S.", datum, NULL);
 	if (rest != Nil) {
-		return fmte("The datum argument ~S must be a nil "
+		return fmte_("The datum argument ~S must be a nil "
 				"if first argument is condition type.", datum, NULL);
 	}
 	*ret = datum;
@@ -313,34 +315,10 @@ static int cerror_make_common(Execute ptr, addr *ret, addr format, addr args)
 
 static int cerror_restart_common(Execute ptr, addr restart, addr datum)
 {
-	int check;
 	addr control;
-	codejump jump;
-
-	/* execute */
-	push_restart_initialize_control(ptr, &control);
-	check = 0;
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		pushobject_restart_control(ptr, restart);
-		check = invoke_debugger(ptr, datum);
-	}
-	end_switch(&jump);
-	if (check)
-		return 1;
-
-	/* restart abort */
-	if (jump.code == LISPCODE_CONTROL) {
-		if (! equal_control_restart(ptr, control))
-			throw_switch(&jump);
-		ptr->signal = ExecuteControl_Run;
-		return free_control(ptr, control);
-	}
-
-	/* free control */
-	throw_switch(&jump);
-	setresult_control(ptr, Nil);
-	return free_control(ptr, control);
+	push_return_control(ptr, &control);
+	Return(restart1_control(ptr, restart, invoke_debugger, datum));
+	return free_control_(ptr, control);
 }
 
 _g int cerror_common(Execute ptr, addr restart, addr datum, addr rest)
@@ -527,7 +505,7 @@ _g int check_type_common(Execute ptr, addr form, addr env, addr *ret)
 	return check_type_expand_common(ptr, env, ret, place, type, string);
 
 error:
-	return fmte("CHECK-TYPE arguments ~S must be "
+	return fmte_("CHECK-TYPE arguments ~S must be "
 			"(place type &optional string) form.", form, NULL);
 }
 
@@ -619,34 +597,10 @@ static int break_invoke_common(Execute ptr, addr format, addr args)
 
 static int break_restart_common(Execute ptr, addr restart, addr format, addr args)
 {
-	int check;
 	addr control;
-	codejump jump;
-
-	/* execute */
-	push_restart_initialize_control(ptr, &control);
-	check = 0;
-	begin_switch(ptr, &jump);
-	if (codejump_run_p(&jump)) {
-		pushobject_restart_control(ptr, restart);
-		check = break_invoke_common(ptr, format, args);
-	}
-	end_switch(&jump);
-	if (check)
-		return 1;
-
-	/* restart abort */
-	if (jump.code == LISPCODE_CONTROL) {
-		if (! equal_control_restart(ptr, control))
-			throw_switch(&jump);
-		ptr->signal = ExecuteControl_Run;
-		return free_control(ptr, control);
-	}
-
-	/* free control */
-	throw_switch(&jump);
-	setresult_control(ptr, Nil);
-	return free_control(ptr, control);
+	push_return_control(ptr, &control);
+	Return(restart2_control(ptr, restart, break_invoke_common, format, args));
+	return free_control_(ptr, control);
 }
 
 static void break_make_common(addr *ret)
@@ -710,7 +664,7 @@ static int handler_bind_clauses_common(addr form, addr *ret)
 		/* (name lambda) */
 		lista_bind(cons, &name, &lambda, &temp, NULL);
 		if (temp != Nil) {
-			return fmte("handler-bind argument ~S"
+			return fmte_("handler-bind argument ~S"
 					" must be a (name lambda) form.", cons, NULL);
 		}
 		/* (push 'name root) */
@@ -731,7 +685,7 @@ _g int handler_bind_common(addr form, addr env, addr *ret)
 
 	Return_getcdr(form, &form);
 	if (! consp(form))
-		return fmte("Too few handler-bind argument.", NULL);
+		return fmte_("Too few handler-bind argument.", NULL);
 	GetCons(form, &form, &body);
 	if (form == Nil) {
 		GetConst(COMMON_PROGN, &symbol);
@@ -782,7 +736,7 @@ static void handler_case_lambda_common(addr args, addr form, addr *ret)
 static int handler_case_noerror_common(addr *noerror, addr cons)
 {
 	if (*noerror) {
-		return fmtw("There are multiple :no-error clauses ~S"
+		return fmtw_("There are multiple :no-error clauses ~S"
 				" in handler-case.", cons, NULL);
 	}
 	else {
@@ -817,7 +771,7 @@ static int handler_case_clauses_common(Execute ptr, addr right, addr *ret, addr 
 				handler_case_lambda_common(args, form, &cons);
 			else {
 				*ret = *rete = NULL;
-				return fmte("The argument ~S in handler-case clause "
+				return fmte_("The argument ~S in handler-case clause "
 						"must be a nil or (var) form.", args, NULL);
 			}
 			/* (push 'name root) */
@@ -859,7 +813,7 @@ _g int handler_case_common(Execute ptr, addr right, addr env, addr *ret)
 
 	Return_getcdr(right, &right);
 	if (! consp(right))
-		return fmte("Too few handler-case argument.", NULL);
+		return fmte_("Too few handler-case argument.", NULL);
 	GetCons(right, &expr, &right);
 	if (right == Nil)
 		return Result(ret, expr);
@@ -915,22 +869,26 @@ _g int make_condition_common(Execute ptr, addr args, addr *ret)
 /*
  *  compute-restarts
  */
-_g void compute_restarts_common(Execute ptr, addr pos, addr *ret)
+_g int compute_restarts_common_(Execute ptr, addr pos, addr *ret)
 {
 	if (pos == Unbound)
 		pos = Nil;
-	compute_restarts_control(ptr, pos, ret);
+	return compute_restarts_control_(ptr, pos, ret);
 }
 
 
 /*
  *  find-restart
  */
-_g void find_restart_common(Execute ptr, addr var, addr opt, addr *ret)
+_g int find_restart_common_(Execute ptr, addr var, addr opt, addr *ret)
 {
+	int check;
+
 	if (opt == Unbound)
 		opt = Nil;
-	*ret = find_restart_control(ptr, var, opt, &var)? var: Nil;
+	Return(find_restart_control_(ptr, var, opt, &var, &check));
+
+	return Result(ret, check? var: Nil);
 }
 
 
@@ -940,7 +898,7 @@ _g void find_restart_common(Execute ptr, addr var, addr opt, addr *ret)
 static int restart_bind_interactive_common(addr *args, addr *inter)
 {
 	if (*args == Nil) {
-		return fmte("The key :interactive-function must have a value.", NULL);
+		return fmte_("The key :interactive-function must have a value.", NULL);
 	}
 	if (*inter != Nil) {
 		Return_getcdr(*args, args);
@@ -948,7 +906,7 @@ static int restart_bind_interactive_common(addr *args, addr *inter)
 	else {
 		Return_getcons(*args, inter, args);
 		if (*inter == Nil)
-			return fmte(":interactive-function ~S must be a function.", *inter, NULL);
+			return fmte_(":interactive-function ~S must be a function.", *inter, NULL);
 	}
 
 	return 0;
@@ -957,7 +915,7 @@ static int restart_bind_interactive_common(addr *args, addr *inter)
 static int restart_bind_report_common(addr *args, addr *report)
 {
 	if (*args == Nil) {
-		return fmte("The key :report-function must have a value.", NULL);
+		return fmte_("The key :report-function must have a value.", NULL);
 	}
 	if (*report != Nil) {
 		Return_getcdr(*args, args);
@@ -965,7 +923,7 @@ static int restart_bind_report_common(addr *args, addr *report)
 	else {
 		Return_getcons(*args, report, args);
 		if (*report == Nil)
-			return fmte(":report-function ~S must be a function.", *report, NULL);
+			return fmte_(":report-function ~S must be a function.", *report, NULL);
 	}
 
 	return 0;
@@ -974,7 +932,7 @@ static int restart_bind_report_common(addr *args, addr *report)
 static int restart_bind_test_common(addr *args, addr *test)
 {
 	if (*args == Nil) {
-		return fmte("The key :test-function must have a value.", NULL);
+		return fmte_("The key :test-function must have a value.", NULL);
 	}
 	if (*test != Nil) {
 		Return_getcdr(*args, args);
@@ -982,7 +940,7 @@ static int restart_bind_test_common(addr *args, addr *test)
 	else {
 		Return_getcons(*args, test, args);
 		if (*test == Nil)
-			return fmte(":test-function ~S must be a function.", *test, NULL);
+			return fmte_(":test-function ~S must be a function.", *test, NULL);
 	}
 
 	return 0;
@@ -1032,7 +990,7 @@ static int restart_bind_binding_common(addr args, addr *ret)
 			Return(restart_bind_test_common(&args, &test));
 		}
 		else {
-			return fmte("Invalid key parameter ~S.", pos, NULL);
+			return fmte_("Invalid key parameter ~S.", pos, NULL);
 		}
 	}
 	restart_bind_symbol_common(inter, &inter);
@@ -1067,7 +1025,7 @@ _g int restart_bind_common(addr right, addr env, addr *ret)
 
 	Return_getcdr(right, &right);
 	if (! consp(right))
-		return fmte("Too few restart-bind argument.", NULL);
+		return fmte_("Too few restart-bind argument.", NULL);
 	GetCons(right, &right, &body);
 	if (right == Nil) {
 		GetConst(COMMON_PROGN, &symbol);
@@ -1091,7 +1049,7 @@ _g int restart_bind_common(addr right, addr env, addr *ret)
 static int restart_case_interactive(addr *args, addr *inter)
 {
 	if (*args == Nil) {
-		return fmte("The key :interactive must have a value.", NULL);
+		return fmte_("The key :interactive must have a value.", NULL);
 	}
 	if (*inter != Nil) {
 		Return_getcdr(*args, args);
@@ -1099,7 +1057,7 @@ static int restart_case_interactive(addr *args, addr *inter)
 	else {
 		Return_getcons(*args, inter, args);
 		if (*inter == Nil)
-			return fmte(":interactive ~S must be a function.", *inter, NULL);
+			return fmte_(":interactive ~S must be a function.", *inter, NULL);
 	}
 
 	return 0;
@@ -1108,7 +1066,7 @@ static int restart_case_interactive(addr *args, addr *inter)
 static int restart_case_report(addr *args, addr *report)
 {
 	if (*args == Nil) {
-		return fmte("The key :report must have a value.", NULL);
+		return fmte_("The key :report must have a value.", NULL);
 	}
 	if (*report != Nil) {
 		Return_getcdr(*args, args);
@@ -1116,7 +1074,7 @@ static int restart_case_report(addr *args, addr *report)
 	else {
 		Return_getcons(*args, report, args);
 		if (*report == Nil)
-			return fmte(":report ~S must be a function.", *report, NULL);
+			return fmte_(":report ~S must be a function.", *report, NULL);
 	}
 
 	return 0;
@@ -1125,7 +1083,7 @@ static int restart_case_report(addr *args, addr *report)
 static int restart_case_test(addr *args, addr *test)
 {
 	if (*args == Nil) {
-		return fmte("The key :test must have a value.", NULL);
+		return fmte_("The key :test must have a value.", NULL);
 	}
 	if (*test != Nil) {
 		Return_getcdr(*args, args);
@@ -1133,7 +1091,7 @@ static int restart_case_test(addr *args, addr *test)
 	else {
 		Return_getcons(*args, test, args);
 		if (*test == Nil)
-			return fmte(":test ~S must be a function.", *test, NULL);
+			return fmte_(":test ~S must be a function.", *test, NULL);
 	}
 
 	return 0;
@@ -1195,7 +1153,7 @@ _g int restart_case_common(addr right, addr env, addr *ret)
 
 	Return_getcdr(right, &right);
 	if (! consp(right))
-		return fmte("Too few restart-case argument.", NULL);
+		return fmte_("Too few restart-case argument.", NULL);
 	GetCons(right, &expr, &right);
 	if (right == Nil)
 		return Result(ret, expr);;
@@ -1217,10 +1175,10 @@ _g int with_condition_restarts_common(addr right, addr env, addr *ret)
 
 	Return_getcdr(right, &right);
 	if (! consp(right))
-		return fmte("Too few with-condition-restarts argument.", NULL);
+		return fmte_("Too few with-condition-restarts argument.", NULL);
 	GetCons(right, &condition, &right);
 	if (! consp(right))
-		return fmte("Too few with-condition-restarts argument.", NULL);
+		return fmte_("Too few with-condition-restarts argument.", NULL);
 	GetCons(right, &cons, &right);
 	if (right == Nil)
 		consnil_heap(&right);
@@ -1282,7 +1240,7 @@ _g int with_simple_restart_common(addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	return fmte("WITH-SIMPLE-RESTART arguments ~S must be "
+	return fmte_("WITH-SIMPLE-RESTART arguments ~S must be "
 			"((name format ...) &body body) form.", form, NULL);
 }
 
@@ -1297,9 +1255,9 @@ _g int abort_common(Execute ptr, addr opt)
 	if (opt == Unbound)
 		opt = Nil;
 	GetConst(COMMON_ABORT, &pos);
-	if (! find_restart_control(ptr, pos, opt, &opt))
-		_fmte("The restart name ~S is not found.", pos, NULL);
-	return invoke_restart_control(ptr, opt, Nil);
+	Return(find_restart_control_error_(ptr, pos, opt, &opt));
+
+	return invoke_restart_control_(ptr, opt, Nil);
 }
 
 
@@ -1308,13 +1266,15 @@ _g int abort_common(Execute ptr, addr opt)
  */
 _g int continue_common(Execute ptr, addr opt)
 {
+	int check;
 	addr pos;
 
 	if (opt == Unbound)
 		opt = Nil;
 	GetConst(COMMON_CONTINUE, &pos);
-	if (find_restart_control(ptr, pos, opt, &opt)) {
-		Return(invoke_restart_control(ptr, opt, Nil));
+	Return(find_restart_control_(ptr, pos, opt, &opt, &check));
+	if (check) {
+		Return(invoke_restart_control_(ptr, opt, Nil));
 	}
 
 	return 0;
@@ -1326,15 +1286,17 @@ _g int continue_common(Execute ptr, addr opt)
  */
 _g int muffle_warning_common(Execute ptr, addr opt)
 {
+	int check;
 	addr pos;
 
 	if (opt == Unbound)
 		opt = Nil;
 	GetConst(COMMON_MUFFLE_WARNING, &pos);
-	if (! find_restart_control(ptr, pos, opt, &opt))
-		return call_control_error_(ptr);
+	Return(find_restart_control_(ptr, pos, opt, &opt, &check));
+	if (check)
+		return invoke_restart_control_(ptr, opt, Nil);
 	else
-		return invoke_restart_control(ptr, opt, Nil);
+		return call_control_error_(ptr);
 }
 
 
@@ -1343,14 +1305,16 @@ _g int muffle_warning_common(Execute ptr, addr opt)
  */
 _g int store_value_common(Execute ptr, addr var, addr opt)
 {
+	int check;
 	addr pos;
 
 	if (opt == Unbound)
 		opt = Nil;
 	GetConst(COMMON_STORE_VALUE, &pos);
-	if (find_restart_control(ptr, pos, opt, &opt)) {
+	Return(find_restart_control_(ptr, pos, opt, &opt, &check));
+	if (check) {
 		list_local(ptr->local, &var, var, NULL);
-		Return(invoke_restart_control(ptr, opt, var));
+		Return(invoke_restart_control_(ptr, opt, var));
 	}
 
 	return 0;
@@ -1362,14 +1326,16 @@ _g int store_value_common(Execute ptr, addr var, addr opt)
  */
 _g int use_value_common(Execute ptr, addr var, addr opt)
 {
+	int check;
 	addr pos;
 
 	if (opt == Unbound)
 		opt = Nil;
 	GetConst(COMMON_USE_VALUE, &pos);
-	if (find_restart_control(ptr, pos, opt, &opt)) {
+	Return(find_restart_control_(ptr, pos, opt, &opt, &check));
+	if (check) {
 		list_local(ptr->local, &var, var, NULL);
-		Return(invoke_restart_control(ptr, opt, var));
+		Return(invoke_restart_control_(ptr, opt, var));
 	}
 
 	return 0;

@@ -3,7 +3,7 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "constant.h"
-#include "control.h"
+#include "control_object.h"
 #include "copy.h"
 #include "eval.h"
 #include "eval_declare.h"
@@ -196,7 +196,7 @@ static void closestack_unsafe(Execute ptr)
 	getstack_symbol(&symbol);
 	getspecialcheck_local(ptr, symbol, &eval);
 	if (eval == Nil)
-		_fmte("scope-stack is nil.", NULL);
+		fmte("scope-stack is nil.", NULL);
 	closestack_closure(eval);
 	stack = StructEvalStack(eval)->stack;
 	GetEvalStackNext(eval, &eval);
@@ -228,7 +228,7 @@ _g void freestack_eval(Execute ptr, addr scope)
 	}
 }
 
-_g void init_eval_stack(Execute ptr)
+_g void begin_eval_stack(Execute ptr)
 {
 	addr symbol, stack;
 
@@ -243,7 +243,7 @@ _g void init_eval_stack(Execute ptr)
 	newstack_nil(ptr);
 }
 
-_g void free_eval_stack(Execute ptr)
+static int function_free_eval_stack(Execute ptr)
 {
 	addr symbol;
 
@@ -251,12 +251,24 @@ _g void free_eval_stack(Execute ptr)
 	setspecial_local(ptr, symbol, Nil);
 	getstack_symbol(&symbol);
 	setspecial_local(ptr, symbol, Nil);
+
+	return 0;
+}
+
+_g void free_eval_stack(Execute ptr)
+{
+	setprotect_control(ptr, p_defun_free_eval_stack, Nil);
 }
 
 _g int globalp_stack_eval(addr pos)
 {
 	Check(! eval_stack_p(pos), "type error");
 	return StructEvalStack(pos)->globalp;
+}
+
+_g void init_eval_stack(void)
+{
+	SetPointerCall(defun, empty, free_eval_stack);
 }
 
 

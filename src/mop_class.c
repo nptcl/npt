@@ -13,7 +13,8 @@
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_operator.h"
 #include "execute.h"
 #include "function.h"
 #include "lambda.h"
@@ -838,7 +839,7 @@ static void defmethod_make_load_form_condition(Execute ptr, addr name, addr gen)
 static int method_make_load_form_object(Execute ptr,
 		addr method, addr next, addr var, addr env)
 {
-	_fmte("There is no function to make form ~S.", var, NULL);
+	fmte("There is no function to make form ~S.", var, NULL);
 	return 0;
 }
 
@@ -901,7 +902,7 @@ static int method_slot_missing(Execute ptr,
 	addr c, obj, name, op, value;
 
 	lista_bind(rest, &c, &obj, &name, &op, &value, NULL);
-	_fmte("The class ~S has no slot ~S name ~S operation.", c, name, op, NULL);
+	fmte("The class ~S has no slot ~S name ~S operation.", c, name, op, NULL);
 	return 0;
 }
 
@@ -989,7 +990,7 @@ static int method_slot_unbound(Execute ptr, addr method, addr next, addr rest)
 	addr clos, obj, name;
 
 	list_bind(rest, &clos, &obj, &name, NULL);
-	_fmte("The slot ~S is unbound in the ~S.", name, obj, NULL);
+	fmte("The slot ~S is unbound in the ~S.", name, obj, NULL);
 	return 0;
 }
 

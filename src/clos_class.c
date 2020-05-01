@@ -350,17 +350,17 @@ static void clos_instance_unsafe(LocalRoot local, addr clos, addr slots, addr *r
 		/* name check */
 		GetNameSlot(slot, &check);
 		if (! symbolp(check))
-			_fmte("The slot name ~S must be a symbol.", check, NULL);
+			fmte("The slot name ~S must be a symbol.", check, NULL);
 		/* already exist */
 		if (clos_find_slotname(slots, i, check))
-			_fmte("The slot name ~S already exists.", check, NULL);
+			fmte("The slot name ~S already exists.", check, NULL);
 		/* location */
 		GetLocationSlot(slot, &loc);
 		if (loc != i)
-			_fmte("The slot location ~A is invalid.", intsizeh(i), NULL);
+			fmte("The slot location ~A is invalid.", intsizeh(i), NULL);
 		/* allocation */
 		if (slot_class_p(slot))
-			_fmte("The allocation must be an :INSTANCE.", NULL);
+			fmte("The allocation must be an :INSTANCE.", NULL);
 		/* value */
 		GetFormSlot(slot, &check);
 		SetClosValue(value, i, check);
@@ -374,7 +374,7 @@ _g void clos_instance_alloc(LocalRoot local, addr clos, addr *ret)
 	/* finalized-p check */
 	stdget_class_finalized_p(clos, &pos);
 	if (pos == Nil)
-		_fmte("The class ~S is not finalized.", clos, NULL);
+		fmte("The class ~S is not finalized.", clos, NULL);
 
 	/* make-instance */
 	stdget_class_slots(clos, &pos);
@@ -453,7 +453,7 @@ static void clos_precedence_super(
 				while (supers != Nil) {
 					GetCons(supers, &super, &supers);
 					if (pos == super)
-						_fmte("Loop detection in the class-precedence-list.", NULL);
+						fmte("Loop detection in the class-precedence-list.", NULL);
 					pushnew_local(local, temp, super, &temp);
 				}
 			}
@@ -517,7 +517,7 @@ static void clos_precedence_top(addr cons, addr *ret)
 		}
 	}
 	*ret = 0;
-	_fmte("Cannot make class precedence list. Perhaps, class inherit is loop.", NULL);
+	fmte("Cannot make class precedence list. Perhaps, class inherit is loop.", NULL);
 }
 
 static void clos_precedence_remove(addr key, addr right2, addr *ret)
@@ -544,7 +544,7 @@ static void clos_precedence_remove(addr key, addr right2, addr *ret)
 		right2 = right3;
 	}
 	if (check == 0)
-		_fmte("Cannot make class precedence list. Class key is not found.", NULL);
+		fmte("Cannot make class precedence list. Class key is not found.", NULL);
 	*ret = result;
 }
 
@@ -681,7 +681,7 @@ static void build_clos_class_init(void)
 	GetConst(COMMON_STANDARD_CLASS, &pos);
 	clos_find_class_nil(pos, &pos);
 	if (pos != Nil)
-		_fmte("STANDARD-CLASS is already exist.", NULL);
+		fmte("STANDARD-CLASS is already exist.", NULL);
 #endif
 
 	/* symbol type */

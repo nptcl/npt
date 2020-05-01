@@ -10,7 +10,8 @@
 #include "cmpl.h"
 #include "condition.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
 #include "execute.h"
 #include "format_float.h"
 #include "function.h"
@@ -303,7 +304,7 @@ _g int pprint_pop_circle(Execute ptr, addr stream, addr pos)
 		return 0;
 	/* found */
 	if (get_first_print_check(x) == 0)
-		_fmte("Invalid loop object.", NULL);
+		fmte("Invalid loop object.", NULL);
 
 	print_ascii_stream(stream, ". #");
 	index = get_index_print_check(x);
@@ -725,7 +726,7 @@ static int WriteArray_specialized(Execute ptr, addr stream, addr pos)
 			return WriteCall_string(ptr, stream, pos);
 
 		default:
-			_fmte("Invalid array type.", NULL);
+			fmte("Invalid array type.", NULL);
 			break;
 	}
 
@@ -1401,7 +1402,7 @@ static void WriteSymbol_upcase(Execute ptr, addr stream, addr pos)
 			break;
 
 		default:
-			_fmte("printcase error", NULL);
+			fmte("printcase error", NULL);
 			break;
 	}
 }
@@ -1446,7 +1447,7 @@ static void WriteSymbol_downcase(Execute ptr, addr stream, addr pos)
 			break;
 
 		default:
-			_fmte("printcase error", NULL);
+			fmte("printcase error", NULL);
 			break;
 	}
 }
@@ -1487,7 +1488,7 @@ static int WriteCall_symbol(Execute ptr, addr stream, addr pos)
 			break;
 
 		default:
-			_fmte("*readtable* case error", NULL);
+			fmte("*readtable* case error", NULL);
 			break;
 	}
 
@@ -1953,7 +1954,6 @@ static int WriteCall_package(Execute ptr, addr stream, addr pos)
  */
 static int WriteBody_random_state(Execute ptr, addr stream, addr pos)
 {
-	int check;
 	addr control;
 	int WriteCall_bignum(Execute, addr, addr);
 
@@ -1964,9 +1964,9 @@ static int WriteBody_random_state(Execute ptr, addr stream, addr pos)
 	push_base_print(ptr, 16);
 	push_case_print(ptr, PrintCase_upcase);
 	make_bignum_random_state_local(ptr->local, pos, &pos);
-	check = WriteCall_bignum(ptr, stream, pos);
+	Return(WriteCall_bignum(ptr, stream, pos));
 
-	return free_check_control(ptr, control, check);
+	return free_control_(ptr, control);
 }
 
 static int WriteCall_random_state(Execute ptr, addr stream, addr pos)
@@ -2269,27 +2269,25 @@ _g int write_print(Execute ptr, addr stream, addr pos)
 
 _g int princ_print(Execute ptr, addr stream, addr pos)
 {
-	int check;
 	addr control;
 
 	push_close_control(ptr, &control);
 	push_escape_print(ptr, 0);
 	push_readably_print(ptr, 0);
-	check = write_print(ptr, stream, pos);
+	Return(write_print(ptr, stream, pos));
 
-	return free_check_control(ptr, control, check);
+	return free_control_(ptr, control);
 }
 
 _g int prin1_print(Execute ptr, addr stream, addr pos)
 {
-	int check;
 	addr control;
 
 	push_close_control(ptr, &control);
 	push_escape_print(ptr, 1);
-	check = write_print(ptr, stream, pos);
+	Return(write_print(ptr, stream, pos));
 
-	return free_check_control(ptr, control, check);
+	return free_control_(ptr, control);
 }
 
 _g int print_print(Execute ptr, addr stream, addr pos)
@@ -2303,54 +2301,41 @@ _g int print_print(Execute ptr, addr stream, addr pos)
 
 _g int pprint_print(Execute ptr, addr stream, addr pos)
 {
-	int check;
 	addr control;
 
 	push_close_control(ptr, &control);
 	push_escape_print(ptr, 1);
 	push_pretty_print(ptr, 1);
 	terpri_stream(stream);
-	check = write_print(ptr, stream, pos);
+	Return(write_print(ptr, stream, pos));
 
-	return free_check_control(ptr, control, check);
+	return free_control_(ptr, control);
 }
 
 _g int write_string_heap(Execute ptr, addr *ret, addr pos)
 {
-	int check;
 	addr control, stream;
 
 	push_close_control(ptr, &control);
 	open_output_string_stream(&stream, 0);
-	check = write_print(ptr, stream, pos);
-	if (check) {
-		*ret = NULL;
-		goto finish;
-	}
+	Return(write_print(ptr, stream, pos));
 	string_stream_heap(stream, ret);
 	close_stream(stream);
 
-finish:
-	return free_check_control(ptr, control, check);
+	return free_control_(ptr, control);
 }
 
 _g int write_string_local(Execute ptr, addr *ret, addr pos)
 {
-	int check;
 	addr control, stream;
 
 	push_close_control(ptr, &control);
 	open_output_string_stream(&stream, 0);
-	check = write_print(ptr, stream, pos);
-	if (check) {
-		*ret = NULL;
-		goto finish;
-	}
+	Return(write_print(ptr, stream, pos));
 	string_stream_local(ptr->local, stream, ret);
 	close_stream(stream);
 
-finish:
-	return free_check_control(ptr, control, check);
+	return free_control_(ptr, control);
 }
 
 _g int princ_string_heap(Execute ptr, addr *ret, addr pos)

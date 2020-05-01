@@ -3,7 +3,8 @@
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
 #include "heap.h"
 #include "integer.h"
 #include "print.h"
@@ -60,7 +61,7 @@ _g unsigned base_print(Execute ptr)
 		TypeError(pos, FIXNUM);
 	GetFixnum(pos, &value);
 	if (! isBaseChar(value))
-		_fmte("The value ~S must be a number between 2 and 36.", pos, NULL);
+		fmte("The value ~S must be a number between 2 and 36.", pos, NULL);
 
 	return (unsigned)value;
 }
@@ -107,7 +108,7 @@ _g enum PrintCase case_print(Execute ptr)
 	if (pos == value)
 		return PrintCase_capitalize;
 	/* error */
-	_fmte("type error", NULL);
+	fmte("type error", NULL);
 	return PrintCase_unread;
 }
 
@@ -129,7 +130,7 @@ _g void push_case_print(Execute ptr, enum PrintCase pcase)
 			break;
 
 		default:
-			_fmte("type error", NULL);
+			fmte("type error", NULL);
 			return;
 	}
 	GetConst(SPECIAL_PRINT_CASE, &pos);

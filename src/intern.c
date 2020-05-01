@@ -117,7 +117,7 @@ _g void intern_symbol_header(void)
 				break;
 
 			default:
-				_fmte("package error.", NULL);
+				fmte("package error.", NULL);
 				return;
 		}
 		if (table->specialp)

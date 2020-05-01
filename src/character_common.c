@@ -221,14 +221,14 @@ _g int character_common(addr var, addr *ret)
 		GetNameSymbol(var, &var);
 		string_length(var, &size);
 		if (size != 1)
-			return fmte("The length of symbol ~S name must be 1.", NULL);
+			return fmte_("The length of symbol ~S name must be 1.", NULL);
 		string_getc(var, 0, &c);
 		character_heap(&var, c);
 	}
 	else if (stringp(var)) {
 		string_length(var, &size);
 		if (size != 1)
-			return fmte("The length of string ~S name must be 1.", NULL);
+			return fmte_("The length of string ~S name must be 1.", NULL);
 		string_getc(var, 0, &c);
 		character_heap(&var, c);
 	}

@@ -5,6 +5,9 @@
 #include "clos.h"
 #include "common.h"
 #include "constant.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "copy.h"
 #include "degrade.h"
 #include "ratio.h"
@@ -39,7 +42,7 @@ static int test_evalcode_stack_local(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	evalcode_stack_local(local, &pos, CodeType_Default);
+	evalcode_stack_local(local, &pos);
 	test(GetType(pos) == LISPSYSTEM_EVALSTACK, "evalcode_stack_local1");
 	test(StructEvalCodeStack(pos)->stack != NULL, "evalcode_stack_local2");
 
@@ -56,7 +59,7 @@ static int test_free_evalcode_stack(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	evalcode_stack_local(local, &pos, CodeType_Default);
+	evalcode_stack_local(local, &pos);
 	free_evalcode_stack(local, pos);
 	test(stack == local->stack, "free_evalcode_stack1");
 
@@ -72,7 +75,7 @@ static int test_push_evalcode_stack(void)
 	struct evalcode_stack *str;
 
 	local = Local_Thread;
-	evalcode_stack_local(local, &pos, CodeType_Default);
+	evalcode_stack_local(local, &pos);
 	str = StructEvalCodeStack(pos);
 	push_evalcode_stack(local, pos, fixnum_heapr(10));
 	test(str->size == 1, "push_evalcode_stack1");
@@ -102,7 +105,7 @@ static int test_finish_evalcode_stack(void)
 	struct evalcode_stack *str;
 
 	local = Local_Thread;
-	evalcode_stack_local(local, &pos, CodeType_Default);
+	evalcode_stack_local(local, &pos);
 	str = StructEvalCodeStack(pos);
 	push_evalcode_stack(local, pos, fixnum_heapr(10));
 	push_evalcode_stack(local, pos, fixnum_heapr(20));
@@ -218,7 +221,7 @@ static int test_evalcode_save(void)
 	RETURN;
 }
 
-static int test_pushdata(void)
+static int test_evalcode_add(void)
 {
 	addr pos, value;
 	LocalRoot local;
@@ -229,19 +232,19 @@ static int test_pushdata(void)
 	evalcode_local(local, &pos);
 
 	fixnum_heap(&value, 10);
-	pushdata(local, pos, value);
+	evalcode_add(local, pos, value);
 	fixnum_heap(&value, 20);
-	pushdata(local, pos, value);
+	evalcode_add(local, pos, value);
 	GetEvalCode(pos, EvalCode_Code, &pos);
 	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	test(length_list_unsafe(pos) == 2, "pushdata1");
+	test(length_list_unsafe(pos) == 2, "evalcode_add1");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_pushleftright(void)
+static int test_evalcode_addcarcdr(void)
 {
 	addr pos, value;
 	LocalRoot local;
@@ -251,22 +254,22 @@ static int test_pushleftright(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	pushleftright(local, pos, fixnum_heapr(10), fixnum_heapr(20));
+	evalcode_addcarcdr(local, pos, fixnum_heapr(10), fixnum_heapr(20));
 	GetEvalCode(pos, EvalCode_Code, &pos);
 	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	test(length_list_unsafe(pos) == 1, "pushleftright1");
+	test(length_list_unsafe(pos) == 1, "evalcode_addcarcdr1");
 	GetCar(pos, &pos);
-	test(consp(pos), "pushleftright2");
+	test(consp(pos), "evalcode_addcarcdr2");
 	GetCons(pos, &pos, &value);
-	test(RefFixnum(pos) == 10, "pushleftright3");
-	test(RefFixnum(value) == 20, "pushleftright4");
+	test(RefFixnum(pos) == 10, "evalcode_addcarcdr3");
+	test(RefFixnum(value) == 20, "evalcode_addcarcdr4");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_pushlist_eval(void)
+static int test_evalcode_addlist(void)
 {
 	addr pos, value;
 	LocalRoot local;
@@ -276,20 +279,20 @@ static int test_pushlist_eval(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	pushlist_eval(local, pos,
+	evalcode_addlist(local, pos,
 			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
 	GetEvalCode(pos, EvalCode_Code, &pos);
 	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	test(length_list_unsafe(pos) == 1, "pushlist_eval1");
+	test(length_list_unsafe(pos) == 1, "evalcode_addlist1");
 	GetCar(pos, &pos);
-	test(length_list_unsafe(pos) == 3, "pushlist_eval2");
-	test(consp(pos), "pushlist_eval3");
+	test(length_list_unsafe(pos) == 3, "evalcode_addlist2");
+	test(consp(pos), "evalcode_addlist3");
 	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 10, "pushlist_eval4");
+	test(RefFixnum(value) == 10, "evalcode_addlist4");
 	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 20, "pushlist_eval5");
+	test(RefFixnum(value) == 20, "evalcode_addlist5");
 	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 30, "pushlist_eval6");
+	test(RefFixnum(value) == 30, "evalcode_addlist6");
 
 	rollback_local(local, stack);
 
@@ -306,13 +309,13 @@ static int test_evalcode_single(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
 	GetEvalCode(pos, EvalCode_Code, &pos);
 	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
 	GetCar(pos, &pos);
 	test(length_list_unsafe(pos) == 1, "evalcode_single1");
 	GetCons(pos, &value, &pos);
-	GetConst(CODE_END, &pos);
+	GetConst(CODE_NOP, &pos);
 	test(value == pos, "evalcode_single2");
 
 	rollback_local(local, stack);
@@ -320,7 +323,7 @@ static int test_evalcode_single(void)
 	RETURN;
 }
 
-static int test_code_leftright(void)
+static int test_evalcode_carcdr(void)
 {
 	addr pos, value, check;
 	LocalRoot local;
@@ -330,22 +333,22 @@ static int test_code_leftright(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	evalcode_carcdr(local, pos, CONSTANT_CODE_END, fixnum_heapr(10));
+	evalcode_carcdr(local, pos, CONSTANT_CODE_NOP, fixnum_heapr(10));
 	GetEvalCode(pos, EvalCode_Code, &pos);
 	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
 	GetCar(pos, &pos);
-	test(consp(pos), "code_leftright1");
+	test(consp(pos), "evalcode_carcdr1");
 	GetCons(pos, &value, &pos);
-	GetConst(CODE_END, &check);
-	test(value == check, "code_leftright2");
-	test(RefFixnum(pos) == 10, "code_leftright3");
+	GetConst(CODE_NOP, &check);
+	test(value == check, "evalcode_carcdr2");
+	test(RefFixnum(pos) == 10, "evalcode_carcdr3");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_code_double(void)
+static int test_evalcode_double(void)
 {
 	addr pos, value, check;
 	LocalRoot local;
@@ -355,53 +358,25 @@ static int test_code_double(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	evalcode_double(local, pos, CONSTANT_CODE_END, fixnum_heapr(10), fixnum_heapr(20));
+	evalcode_double(local, pos, CONSTANT_CODE_NOP, fixnum_heapr(10), fixnum_heapr(20));
 	GetEvalCode(pos, EvalCode_Code, &pos);
 	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
 	GetCar(pos, &pos);
-	test(length_list_unsafe(pos) == 3, "code_double1");
+	test(length_list_unsafe(pos) == 3, "evalcode_double1");
 	GetCons(pos, &value, &pos);
-	GetConst(CODE_END, &check);
-	test(value == check, "code_double2");
+	GetConst(CODE_NOP, &check);
+	test(value == check, "evalcode_double2");
 	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 10, "code_double3");
+	test(RefFixnum(value) == 10, "evalcode_double3");
 	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 20, "code_double4");
+	test(RefFixnum(value) == 20, "evalcode_double4");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_code_list(void)
-{
-	addr pos, value, check;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	code_list(local, pos, CONSTANT_CODE_END, fixnum_heapr(10), fixnum_heapr(20), NULL);
-	GetEvalCode(pos, EvalCode_Code, &pos);
-	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	GetCar(pos, &pos);
-	test(length_list_unsafe(pos) == 3, "code_list1");
-	GetCons(pos, &value, &pos);
-	GetConst(CODE_END, &check);
-	test(value == check, "code_list2");
-	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 10, "code_list3");
-	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 20, "code_list4");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_if_push(void)
+static int test_evalcode_ifpush(void)
 {
 	addr pos, value, check;
 	LocalRoot local;
@@ -412,20 +387,20 @@ static int test_evalcode_if_push(void)
 	evalcode_local(local, &pos);
 
 	StructEvalCode(pos)->mode = EvalCode_ModeSet;
-	evalcode_if_push(local, pos);
+	evalcode_ifpush(local, pos);
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(check == Nil, "evalcode_if_push1");
+	test(check == Nil, "evalcode_ifpush1");
 
 	StructEvalCode(pos)->mode = EvalCode_ModePush;
-	evalcode_if_push(local, pos);
+	evalcode_ifpush(local, pos);
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(singlep(check), "evalcode_if_push2");
+	test(singlep(check), "evalcode_ifpush2");
 	GetCar(check, &check);
 	GetCar(check, &check);
 	internchar(LISP_CODE, "PUSH-RESULT", &value);
-	test(check == value, "evalcode_if_push3");
+	test(check == value, "evalcode_ifpush3");
 
 	rollback_local(local, stack);
 
@@ -436,7 +411,7 @@ static int test_evalcode_if_push(void)
 /*
  *  stack
  */
-static int test_pushstack(void)
+static int test_evalcode_push_struct(void)
 {
 	addr pos, check;
 	LocalRoot local;
@@ -448,97 +423,97 @@ static int test_pushstack(void)
 	evalcode_local(local, &pos);
 	str = StructEvalCode(pos);
 
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	test(str->size == 0, "pushstack1");
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	test(str->size == 0, "evalcode_push_struct1");
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(length_list_unsafe(check) == 3, "pushstack2");
+	test(length_list_unsafe(check) == 3, "evalcode_push_struct2");
 
-	pushstack(local, pos);
-	test(str->size == 1, "pushstack3");
+	evalcode_push_struct(local, pos);
+	test(str->size == 1, "evalcode_push_struct3");
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(length_list_unsafe(check) == 0, "pushstack4");
+	test(length_list_unsafe(check) == 0, "evalcode_push_struct4");
 
 	GetEvalCode(pos, EvalCode_Stack, &check);
 	GetCar(check, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(length_list_unsafe(check) == 3, "pushstack5");
+	test(length_list_unsafe(check) == 3, "evalcode_push_struct5");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_stack_goto_p(void)
+static int test_evalcode_pop_goto_p(void)
 {
 	addr cons, key;
 
 	GetConst(CODE_GOTO, &key);
 	list_heap(&cons, key, T, NULL);
-	test(stack_goto_p(cons), "stack_goto_p1");
-	test(! stack_goto_p(T), "stack_goto_p2");
+	test(evalcode_pop_goto_p(cons), "evalcode_pop_goto_p1");
+	test(! evalcode_pop_goto_p(T), "evalcode_pop_goto_p2");
 	list_heap(&cons, T, T, NULL);
-	test(! stack_goto_p(cons), "stack_goto_p3");
+	test(! evalcode_pop_goto_p(cons), "evalcode_pop_goto_p3");
 
 	GetConst(CODE_IF_NIL, &key);
 	list_heap(&cons, key, T, NULL);
-	test(stack_goto_p(cons), "stack_goto_p4");
+	test(evalcode_pop_goto_p(cons), "evalcode_pop_goto_p4");
 
 	RETURN;
 }
 
-static int test_stack_tag_p(void)
+static int test_evalcode_pop_tag_p(void)
 {
 	addr key, cons;
 
 	GetConst(CODE_TAG, &key);
 	cons_heap(&cons, key, T);
-	test(stack_tag_p(cons, &cons), "stack_tag_p1");
-	test(cons == T, "stack_tag_p2");
-	test(! stack_tag_p(T, NULL), "stack_tag_p3");
+	test(evalcode_pop_tag_p(cons, &cons), "evalcode_pop_tag_p1");
+	test(cons == T, "evalcode_pop_tag_p2");
+	test(! evalcode_pop_tag_p(T, NULL), "evalcode_pop_tag_p3");
 	GetConst(CODE_GOTO, &key);
 	list_heap(&cons, key, T, NULL);
-	test(! stack_tag_p(cons, NULL), "stack_tag_p4");
+	test(! evalcode_pop_tag_p(cons, NULL), "evalcode_pop_tag_p4");
 
 	RETURN;
 }
 
-static int test_stack_label_p(void)
+static int test_evalcode_pop_label_p(void)
 {
 	addr pos;
 
 	index_heap(&pos, 10U);
-	test(stack_label_p(pos), "stack_label_p1");
-	test(! stack_label_p(T), "stack_label_p2");
+	test(evalcode_pop_label_p(pos), "evalcode_pop_label_p1");
+	test(! evalcode_pop_label_p(T), "evalcode_pop_label_p2");
 
 	RETURN;
 }
 
-static void testpushdata(LocalRoot local, addr pos)
+static void test_push_testdata(LocalRoot local, addr pos)
 {
-	pushdata(local, pos, index_heapr(10));
+	evalcode_add(local, pos, index_heapr(10));
 	evalcode_carcdr(local, pos, CONSTANT_CODE_GOTO, index_heapr(40));
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	pushdata(local, pos, index_heapr(20));
-	pushdata(local, pos, index_heapr(30));
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_add(local, pos, index_heapr(20));
+	evalcode_add(local, pos, index_heapr(30));
 	evalcode_carcdr(local, pos, CONSTANT_CODE_GOTO, index_heapr(10));
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
 	evalcode_carcdr(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(111));
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
 	evalcode_carcdr(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(222));
 	evalcode_carcdr(local, pos, CONSTANT_CODE_IF_NIL, index_heapr(50));
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	pushdata(local, pos, index_heapr(40));
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	pushdata(local, pos, index_heapr(50));
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_add(local, pos, index_heapr(40));
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_add(local, pos, index_heapr(50));
 }
 
-static int test_stack_labelcons(void)
+static int test_evalcode_pop_labelcons(void)
 {
 	addr pos, cons, label, tag, check;
 	LocalRoot local;
@@ -549,52 +524,52 @@ static int test_stack_labelcons(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	testpushdata(local, pos);
+	test_push_testdata(local, pos);
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &cons);
 	nreverse_list_unsafe(&cons, cons);
 
-	stack_labelcons(local, cons, &label, &tag, &size);
-	test(length_list_unsafe(label) == 5, "stack_labelcons1");
-	test(length_list_unsafe(tag) == 2, "stack_labelcons2");
-	test(size == 10, "stack_labelcons3");
+	evalcode_pop_labelcons(local, cons, &label, &tag, &size);
+	test(length_list_unsafe(label) == 5, "evalcode_pop_labelcons1");
+	test(length_list_unsafe(tag) == 2, "evalcode_pop_labelcons2");
+	test(size == 10, "evalcode_pop_labelcons3");
 
 	GetCons(label, &pos, &label);
 	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 50, "stack_labelcons4");
-	test(RefIndex(check) == 10, "stack_labelcons5");
+	test(RefIndex(pos) == 50, "evalcode_pop_labelcons4");
+	test(RefIndex(check) == 10, "evalcode_pop_labelcons5");
 	GetCons(label, &pos, &label);
 	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 40, "stack_labelcons6");
-	test(RefIndex(check) == 9, "stack_labelcons7");
+	test(RefIndex(pos) == 40, "evalcode_pop_labelcons6");
+	test(RefIndex(check) == 9, "evalcode_pop_labelcons7");
 	GetCons(label, &pos, &label);
 	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 30, "stack_labelcons8");
-	test(RefIndex(check) == 2, "stack_labelcons9");
+	test(RefIndex(pos) == 30, "evalcode_pop_labelcons8");
+	test(RefIndex(check) == 2, "evalcode_pop_labelcons9");
 	GetCons(label, &pos, &label);
 	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 20, "stack_labelcons10");
-	test(RefIndex(check) == 2, "stack_labelcons11");
+	test(RefIndex(pos) == 20, "evalcode_pop_labelcons10");
+	test(RefIndex(check) == 2, "evalcode_pop_labelcons11");
 	GetCons(label, &pos, &label);
 	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 10, "stack_labelcons12");
-	test(RefIndex(check) == 0, "stack_labelcons13");
+	test(RefIndex(pos) == 10, "evalcode_pop_labelcons12");
+	test(RefIndex(check) == 0, "evalcode_pop_labelcons13");
 
 	GetCons(tag, &pos, &tag);
 	GetCons(pos, &pos, &check);
-	test(RefFixnum(pos) == 222, "stack_labelcons14");
-	test(RefIndex(check) == 7, "stack_labelcons15");
+	test(RefFixnum(pos) == 222, "evalcode_pop_labelcons14");
+	test(RefIndex(check) == 7, "evalcode_pop_labelcons15");
 	GetCons(tag, &pos, &tag);
 	GetCons(pos, &pos, &check);
-	test(RefFixnum(pos) == 111, "stack_labelcons16");
-	test(RefIndex(check) == 5, "stack_labelcons17");
+	test(RefFixnum(pos) == 111, "evalcode_pop_labelcons16");
+	test(RefIndex(check) == 5, "evalcode_pop_labelcons17");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_stack_findlabel(void)
+static int test_evalcode_pop_findlabel(void)
 {
 	addr pos, label, tag, check;
 	LocalRoot local;
@@ -605,30 +580,30 @@ static int test_stack_findlabel(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	testpushdata(local, pos);
+	test_push_testdata(local, pos);
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
 	nreverse_list_unsafe(&check, check);
-	stack_labelcons(local, check, &label, &tag, &size);
+	evalcode_pop_labelcons(local, check, &label, &tag, &size);
 
 	index_heap(&check, 10);
-	size = stack_findlabel(label, check);
-	test(size == 0, "stack_findlabel1");
+	size = evalcode_pop_findlabel(label, check);
+	test(size == 0, "evalcode_pop_findlabel1");
 
 	index_heap(&check, 20);
-	size = stack_findlabel(label, check);
-	test(size == 2, "stack_findlabel2");
+	size = evalcode_pop_findlabel(label, check);
+	test(size == 2, "evalcode_pop_findlabel2");
 
 	index_heap(&check, 40);
-	size = stack_findlabel(label, check);
-	test(size == 9, "stack_findlabel3");
+	size = evalcode_pop_findlabel(label, check);
+	test(size == 9, "evalcode_pop_findlabel3");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_stack_replace_goto(void)
+static int test_evalcode_pop_replace_goto(void)
 {
 	addr pos, check, label, tag, left, right;
 	LocalRoot local;
@@ -639,27 +614,27 @@ static int test_stack_replace_goto(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	testpushdata(local, pos);
+	test_push_testdata(local, pos);
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
 	nreverse_list_unsafe(&check, check);
-	stack_labelcons(local, check, &label, &tag, &size);
+	evalcode_pop_labelcons(local, check, &label, &tag, &size);
 
 	GetConst(CODE_GOTO, &pos);
 	index_heap(&check, 40);
 	cons_heap(&check, pos, check);
 
-	stack_replace_goto(label, check, &right);
+	evalcode_pop_replace_goto(label, check, &right);
 	GetCons(right, &left, &right);
-	test(left == pos, "stack_replace_goto1");
-	test(RefIndex(right) == 9, "stack_replace_goto2");
+	test(left == pos, "evalcode_pop_replace_goto1");
+	test(RefIndex(right) == 9, "evalcode_pop_replace_goto2");
 
 	RETURN;
 }
 
-static int test_stack_makecode(void)
+static int test_evalcode_pop_makecode(void)
 {
-	addr pos, check, array, tag, left, right;
+	addr pos, check, array, left, right;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -667,39 +642,33 @@ static int test_stack_makecode(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	testpushdata(local, pos);
+	test_push_testdata(local, pos);
 
 	GetEvalCode(pos, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
 	nreverse_list_unsafe(&check, check);
 
-	stack_makecode(local, check, &array, &tag);
-	test(lenarrayr(array) == 10, "stack_makecode1");
+	evalcode_pop_makecode(local, check, &array);
+	test(lenarrayr(array) == 10, "evalcode_pop_makecode1");
 
 	GetArrayA4(array, 0, &right);
 	GetCons(right, &left, &right);
 	GetConst(CODE_GOTO, &check);
-	test(left == check, "stack_makecode2");
-	test(RefIndex(right) == 9 ,"stack_makecode3");
+	test(left == check, "evalcode_pop_makecode2");
+	test(RefIndex(right) == 9 ,"evalcode_pop_makecode3");
 
 	GetArrayA4(array, 2, &right);
 	GetCons(right, &left, &right);
 	GetConst(CODE_GOTO, &check);
-	test(left == check, "stack_makecode4");
-	test(RefIndex(right) == 0 ,"stack_makecode5");
-
-	test(length_list_unsafe(tag) == 2, "stack_makecode6");
-	GetCar(tag, &right);
-	GetCons(right, &left, &right);
-	test(RefFixnum(left) == 222, "stack_makecode7");
-	test(RefIndex(right) == 7, "stack_makecode8");
+	test(left == check, "evalcode_pop_makecode4");
+	test(RefIndex(right) == 0 ,"evalcode_pop_makecode5");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_popstack_code(void)
+static int test_evalcode_pop_code(void)
 {
 	addr pos, check;
 	LocalRoot local;
@@ -709,23 +678,23 @@ static int test_popstack_code(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
 
 	GetEvalCode(pos, EvalCode_Code, &check);
 	finish_evalcode_stack(local, check);
-	popstack_code(local, check, Nil, &check);
-	test(GetType(check) == LISPTYPE_CODE, "popstack_code1");
+	evalcode_pop_code(local, check, &check);
+	test(GetType(check) == LISPTYPE_CODE, "evalcode_pop_code1");
 	getargs_code(check, &check);
-	test(lenarrayr(check) == 3, "popstack_code2");
+	test(lenarrayr(check) == 4, "evalcode_pop_code2");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_evalcode_popstack(void)
+static int test_evalcode_pop(void)
 {
 	addr pos, code, check;
 	LocalRoot local;
@@ -735,21 +704,21 @@ static int test_evalcode_popstack(void)
 	push_local(local, &stack);
 	evalcode_local(local, &pos);
 
-	pushstack(local, pos);
-	pushstack(local, pos);
+	evalcode_push_struct(local, pos);
+	evalcode_push_struct(local, pos);
 	GetEvalCode(pos, EvalCode_Code, &check);
-	pushstack(local, pos);
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	evalcode_single(local, pos, CONSTANT_CODE_END);
-	evalcode_single(local, pos, CONSTANT_CODE_END);
+	evalcode_push_struct(local, pos);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
+	evalcode_single(local, pos, CONSTANT_CODE_NOP);
 
-	evalcode_popstack(local, pos, &code);
-	test(GetType(code) == LISPTYPE_CODE, "evalcode_popstack1");
+	evalcode_pop(local, pos, &code);
+	test(GetType(code) == LISPTYPE_CODE, "evalcode_pop1");
 	getargs_code(code, &code);
-	test(lenarrayr(code) == 4, "evalcode_popstack2");
+	test(lenarrayr(code) == 4, "evalcode_pop2");
 
 	GetEvalCode(pos, EvalCode_Code, &pos);
-	test(pos == check, "evalcode_popstack3");
+	test(pos == check, "evalcode_pop3");
 
 	rollback_local(local, stack);
 
@@ -760,7 +729,7 @@ static int test_evalcode_popstack(void)
 /*
  *  label
  */
-static int test_make_label(void)
+static int test_code_make_label(void)
 {
 	addr pos, code;
 	LocalRoot local;
@@ -770,19 +739,19 @@ static int test_make_label(void)
 	push_local(local, &stack);
 	evalcode_local(local, &code);
 
-	make_label(local, code, &pos);
-	test(RefIndex(pos) == 0, "make_label1");
-	make_label(local, code, &pos);
-	test(RefIndex(pos) == 1, "make_label2");
-	make_label(local, code, &pos);
-	test(RefIndex(pos) == 2, "make_label3");
+	code_make_label(local, code, &pos);
+	test(RefIndex(pos) == 0, "code_make_label1");
+	code_make_label(local, code, &pos);
+	test(RefIndex(pos) == 1, "code_make_label2");
+	code_make_label(local, code, &pos);
+	test(RefIndex(pos) == 2, "code_make_label3");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_push_label(void)
+static int test_code_push_label(void)
 {
 	addr pos, code, check;
 	LocalRoot local;
@@ -792,15 +761,15 @@ static int test_push_label(void)
 	push_local(local, &stack);
 	evalcode_local(local, &code);
 
-	make_label(local, code, &pos);
-	push_label(local, code, pos);
-	make_label(local, code, &pos);
-	push_label(local, code, pos);
-	make_label(local, code, &pos);
-	push_label(local, code, pos);
+	code_make_label(local, code, &pos);
+	code_push_label(local, code, pos);
+	code_make_label(local, code, &pos);
+	code_push_label(local, code, pos);
+	code_make_label(local, code, &pos);
+	code_push_label(local, code, pos);
 	GetEvalCode(code, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(length_list_unsafe(check) == 3, "push_label1");
+	test(length_list_unsafe(check) == 3, "code_push_label1");
 
 	rollback_local(local, stack);
 
@@ -817,9 +786,9 @@ static int test_code_if_nil(void)
 	push_local(local, &stack);
 	evalcode_local(local, &code);
 
-	make_label(local, code, &pos);
-	make_label(local, code, &pos);
-	make_label(local, code, &pos);
+	code_make_label(local, code, &pos);
+	code_make_label(local, code, &pos);
+	code_make_label(local, code, &pos);
 	code_if_nil(local, code, pos);
 	GetEvalCode(code, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
@@ -844,9 +813,9 @@ static int test_code_if_t(void)
 	push_local(local, &stack);
 	evalcode_local(local, &code);
 
-	make_label(local, code, &pos);
-	make_label(local, code, &pos);
-	make_label(local, code, &pos);
+	code_make_label(local, code, &pos);
+	code_make_label(local, code, &pos);
+	code_make_label(local, code, &pos);
 	code_if_t(local, code, pos);
 	GetEvalCode(code, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
@@ -871,9 +840,9 @@ static int test_code_goto(void)
 	push_local(local, &stack);
 	evalcode_local(local, &code);
 
-	make_label(local, code, &pos);
-	make_label(local, code, &pos);
-	make_label(local, code, &pos);
+	code_make_label(local, code, &pos);
+	code_make_label(local, code, &pos);
+	code_make_label(local, code, &pos);
 	code_goto(local, code, pos);
 	GetEvalCode(code, EvalCode_Code, &check);
 	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
@@ -904,7 +873,7 @@ static void eval_scope_eval(Execute ptr, addr *ret, addr pos)
 		eval_scope(ptr, ret, pos);
 	}
 	end_switch(&jump);
-	free_control(ptr, control);
+	free_control_(ptr, control);
 	throw_switch(&jump);
 }
 
@@ -926,7 +895,7 @@ static void codechar_call(addr *ret, const char *str,
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	call(local, code, pos);
-	evalcode_popstack(local, code, ret);
+	evalcode_pop(local, code, ret);
 
 	rollback_local(local, stack);
 }
@@ -968,7 +937,7 @@ static int test_code_nil(void)
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_nil3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -998,7 +967,7 @@ static int test_code_t(void)
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_t3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1028,7 +997,7 @@ static int test_code_value(void)
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_value3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1049,7 +1018,7 @@ static int test_code_declaim_special(void)
 	test(pos == Nil, "code_declaim_special1");
 	test(specialp_symbol(symbol), "code_declaim_special2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1067,7 +1036,7 @@ static int test_code_declaim_type_value(void)
 	gettype_value_symbol(symbol, &pos);
 	test(RefLispDecl(pos) == LISPDECL_INTEGER, "code_declaim_type_value1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1088,7 +1057,7 @@ static int test_code_declaim_type_function(void)
 	GetArrayType(pos, 1, &pos);
 	test(RefLispDecl(pos) == LISPDECL_INTEGER, "code_declaim_type_function2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1110,7 +1079,7 @@ static int test_code_declaim_inline(void)
 	readstring(&symbol, "code-declaim-notinline-test");
 	test(notinlinep_function_symbol(symbol), "code_declaim_inline2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1140,7 +1109,7 @@ static int test_code_declaim_optimize(void)
 	test(get_optimize_space_declare(pos) == 0, "code_declaim_optimize5");
 	test(get_optimize_debug_declare(pos) == 3, "code_declaim_optimize6");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1165,7 +1134,7 @@ static int test_code_declaim_declaration(void)
 	getall_declaration_declare(pos, &pos);
 	test(find_list_eq_unsafe(symbol, pos), "code_declaim_declaration2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1287,7 +1256,7 @@ static int test_code_symbol(void)
 	getargs_list_control_unsafe(ptr, 0, &pos);
 	test(pos == Nil, "code_symbol17");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1332,7 +1301,7 @@ static int test_code_progn(void)
 	getargs_control(ptr, 0, &check);
 	test(RefFixnum(check) == 40, "code_progn6");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1381,7 +1350,7 @@ static int test_code_let(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_let6");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1430,7 +1399,7 @@ static int test_code_leta(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_leta6");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1486,7 +1455,7 @@ static int test_code_setq(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 40, "code_setq9");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1505,7 +1474,7 @@ static int test_code_function(void)
 	getresult_control(ptr, &pos);
 	test(functionp(pos), "code_function1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1534,7 +1503,7 @@ static int test_code_call(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 150, "code_call3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1557,7 +1526,7 @@ static int test_code_lambda(void)
 	getresult_control(ptr, &pos);
 	test(functionp(pos), "code_lambda2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1580,7 +1549,7 @@ static int test_code_defun(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 150, "code_defun2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1609,7 +1578,7 @@ static int test_code_flet(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_flet3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1638,7 +1607,7 @@ static int test_code_labels(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_labels3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1661,25 +1630,25 @@ static int test_code_values(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_values3");
 
-	codechar_set(&pos, "(values 10 20)");
+	codechar_set(&pos, "(values 20 30)");
 	runcode_control(ptr, pos);
 	test(lengthvalues_control(ptr) == 2, "code_values4");
 	getvalues_control(ptr, 0, &pos);
-	test(RefFixnum(pos) == 10, "code_values5");
+	test(RefFixnum(pos) == 20, "code_values5");
 	getvalues_control(ptr, 1, &pos);
-	test(RefFixnum(pos) == 20, "code_values6");
+	test(RefFixnum(pos) == 30, "code_values6");
 
-	codechar_set(&pos, "(values 10 20 30 40)");
+	codechar_set(&pos, "(values 40 50 60 70)");
 	runcode_control(ptr, pos);
 	test(lengthvalues_control(ptr) == 4, "code_values7");
 	getvalues_control(ptr, 0, &pos);
-	test(RefFixnum(pos) == 10, "code_values8");
+	test(RefFixnum(pos) == 40, "code_values8");
 	getvalues_control(ptr, 1, &pos);
-	test(RefFixnum(pos) == 20, "code_values9");
+	test(RefFixnum(pos) == 50, "code_values9");
 	getvalues_control(ptr, 2, &pos);
-	test(RefFixnum(pos) == 30, "code_values10");
+	test(RefFixnum(pos) == 60, "code_values10");
 	getvalues_control(ptr, 3, &pos);
-	test(RefFixnum(pos) == 40, "code_values11");
+	test(RefFixnum(pos) == 70, "code_values11");
 
 	setargs_nil_control(ptr);
 	codechar_push(&pos, "(values)");
@@ -1808,7 +1777,7 @@ static int test_code_if(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_if12");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1836,7 +1805,7 @@ static int test_code_unwind_protect(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_unwind_protect3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1882,7 +1851,7 @@ static int test_code_tagbody(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 100, "code_tagbody5");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1920,7 +1889,7 @@ static int test_code_block(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_block4");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1958,7 +1927,7 @@ static int test_code_catch(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_catch4");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2044,7 +2013,7 @@ static int test_code_multiple_value_call(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "code_multiple_value_call7");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2075,7 +2044,7 @@ static int test_eval_code_specialize_symbol_p(void)
 	test(eval_code_specialize_symbol_p(pos, CONSTANT_SYSTEM_HANDLER),
 			"eval_code_specialize_symbol_p2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2093,7 +2062,7 @@ static int test_code_handler(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "call_handler1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2111,7 +2080,7 @@ static int test_code_restart(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "call_restart1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2129,7 +2098,7 @@ static int test_code_push_return(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "call_push_return1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2151,28 +2120,27 @@ static int testbreak_eval_code(void)
 	TestBreak(test_evalcode_local);
 	TestBreak(test_evalcode_mode);
 	TestBreak(test_evalcode_save);
-	TestBreak(test_pushdata);
-	TestBreak(test_pushleftright);
-	TestBreak(test_pushlist_eval);
+	TestBreak(test_evalcode_add);
+	TestBreak(test_evalcode_addcarcdr);
+	TestBreak(test_evalcode_addlist);
 	TestBreak(test_evalcode_single);
-	TestBreak(test_code_leftright);
-	TestBreak(test_code_double);
-	TestBreak(test_code_list);
-	TestBreak(test_evalcode_if_push);
+	TestBreak(test_evalcode_carcdr);
+	TestBreak(test_evalcode_double);
+	TestBreak(test_evalcode_ifpush);
 	/* stack */
-	TestBreak(test_pushstack);
-	TestBreak(test_stack_goto_p);
-	TestBreak(test_stack_tag_p);
-	TestBreak(test_stack_label_p);
-	TestBreak(test_stack_labelcons);
-	TestBreak(test_stack_findlabel);
-	TestBreak(test_stack_replace_goto);
-	TestBreak(test_stack_makecode);
-	TestBreak(test_popstack_code);
-	TestBreak(test_evalcode_popstack);
+	TestBreak(test_evalcode_push_struct);
+	TestBreak(test_evalcode_pop_goto_p);
+	TestBreak(test_evalcode_pop_tag_p);
+	TestBreak(test_evalcode_pop_label_p);
+	TestBreak(test_evalcode_pop_labelcons);
+	TestBreak(test_evalcode_pop_findlabel);
+	TestBreak(test_evalcode_pop_replace_goto);
+	TestBreak(test_evalcode_pop_makecode);
+	TestBreak(test_evalcode_pop_code);
+	TestBreak(test_evalcode_pop);
 	/* label */
-	TestBreak(test_make_label);
-	TestBreak(test_push_label);
+	TestBreak(test_code_make_label);
+	TestBreak(test_code_push_label);
 	TestBreak(test_code_if_nil);
 	TestBreak(test_code_if_t);
 	TestBreak(test_code_goto);

@@ -2,7 +2,7 @@
  *  Garbage Collection
  */
 #include "constant.h"
-#include "control.h"
+#include "control_object.h"
 #include "heap.h"
 #include "info.h"
 #include "gc.h"
@@ -61,6 +61,7 @@ static void resetrecursive(addr pos)
 	addr array;
 
 	if (pos == Unbound) return;
+	Check(pos[0] == 0xAA, "memory 0xAA error");
 	Check(! IsObject(pos), "type error");
 	if (! GetStatusGc(pos)) return;
 
@@ -427,6 +428,7 @@ _g void gcsync(Execute ptr)
 	else {
 		gcwait_execute(ptr);
 	}
+	lisp_gcsync = 0;
 }
 
 

@@ -658,9 +658,6 @@ static int test_copy_tag(void)
 	GetEvalParse(pos, 0, &var);
 	readstring(&check, "aa");
 	test(var == check, "copy_tag4");
-	/* value */
-	GetEvalParse(pos, 1, &var);
-	test(GetType(var) == LISPTYPE_FIXNUM, "copy_tag5");
 
 	RETURN
 }

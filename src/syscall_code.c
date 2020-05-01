@@ -8,7 +8,8 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "constant.h"
-#include "control.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "core.h"
 #include "eastasian.h"
 #include "env_code.h"
@@ -103,23 +104,25 @@ _g void savecore_syscode(Execute ptr, addr file)
 
 
 /* redirect-restart */
-_g void redirect_restart_syscode(Execute ptr, addr condition, addr list)
+_g int redirect_restart_syscode(Execute ptr, addr condition, addr list)
 {
 	addr pos;
 
 	Check(! conditionp(condition), "type error");
 	while (list != Nil) {
-		getcons(list, &pos, &list);
+		Return_getcons(list, &pos, &list);
 		if (GetType(pos) != LISPTYPE_RESTART)
-			_fmte("The argument ~S must be a restart.", pos, NULL);
+			return fmte_("The argument ~S must be a restart.", pos, NULL);
 		pushbind_restart_control(ptr, pos, 0);
 	}
 	reverse_restart_control(ptr);
+
+	return 0;
 }
 
 
 /* defconstant */
-_g void defconstant_syscode(addr symbol, addr value, addr doc)
+_g int defconstant_syscode(addr symbol, addr value, addr doc)
 {
 	addr check;
 
@@ -127,12 +130,14 @@ _g void defconstant_syscode(addr symbol, addr value, addr doc)
 	Check(doc != Nil && (! stringp(doc)), "type documentation error");
 	GetValueSymbol(symbol, &check);
 	if (check != Unbound && (! eql_function(check, value)))
-		_fmte("The defconstant cannot setq ~S value.", symbol, NULL);
+		return fmte_("The defconstant cannot setq ~S value.", symbol, NULL);
 	ResetStatusReadOnly(symbol);
 	SetValueSymbol(symbol, value);
 	setdocument_variable_symbol(symbol, doc);
 	setspecial_symbol(symbol);
 	SetStatusReadOnly(symbol);
+
+	return 0;
 }
 
 
@@ -318,7 +323,7 @@ _g int defsetf_short_syscode(Execute ptr,
 	localhold_set(hold, 4, r);
 	while (args != Nil) {
 		if (! consp(args))
-			_fmte("Invalid call argument ~S.", args, NULL);
+			return fmte_("Invalid call argument ~S.", args, NULL);
 		GetCons(args, &pos, &args);
 		if (eval_constantp(ptr, pos, env, &check))
 			return 1;
@@ -365,14 +370,14 @@ static void defsetf_push(addr array, int index, addr pos)
 	SetArrayA2(array, index, root);
 }
 
-static void defsetf_var_bind(Execute ptr, addr *args, addr list, addr array)
+static int defsetf_var_bind_(Execute ptr, addr *args, addr list, addr array)
 {
 	addr pos, gensym, value;
 
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		if (! consp(*args))
-			_fmte("The argument ~S must be list type.", *args, NULL);
+			return fmte_("The argument ~S must be list type.", *args, NULL);
 		GetCons(*args, &value, args);
 		make_gensym(ptr, &gensym);
 		defsetf_push(array, 0, gensym);
@@ -380,9 +385,11 @@ static void defsetf_var_bind(Execute ptr, addr *args, addr list, addr array)
 		defsetf_push(array, 2, pos);
 		defsetf_push(array, 3, gensym);
 	}
+
+	return 0;
 }
 
-static void defsetf_opt_bind(Execute ptr, addr *args, addr list, addr array)
+static int defsetf_opt_bind_(Execute ptr, addr *args, addr list, addr array)
 {
 	int check;
 	addr pos, var, init, sup, gensym;
@@ -393,7 +400,7 @@ static void defsetf_opt_bind(Execute ptr, addr *args, addr list, addr array)
 		check = (*args != Nil);
 		if (check) {
 			if (! consp(*args))
-				_fmte("The argument ~S must be list type.", *args, NULL);
+				return fmte_("The argument ~S must be list type.", *args, NULL);
 			GetCons(*args, &init, args);
 		}
 		make_gensym(ptr, &gensym);
@@ -409,28 +416,32 @@ static void defsetf_opt_bind(Execute ptr, addr *args, addr list, addr array)
 			defsetf_push(array, 3, gensym);
 		}
 	}
+
+	return 0;
 }
 
-static void defsetf_store_bind(Execute ptr, addr list, addr array, addr *ret)
+static int defsetf_store_bind_(Execute ptr, addr list, addr array, addr *ret)
 {
 	addr root, symbol, gensym;
 
 	root = Nil;
 	while (list != Nil) {
 		if (! consp(list))
-			_fmte("defsetf store ~S must be a list type.", list, NULL);
+			return fmte_("defsetf store ~S must be a list type.", list, NULL);
 		GetCons(list, &symbol, &list);
 		if (! symbolp(symbol))
-			_fmte("defsetf store ~S must be a symbol type.", symbol, NULL);
+			return fmte_("defsetf store ~S must be a symbol type.", symbol, NULL);
 		make_gensym(ptr, &gensym);
 		defsetf_push(array, 2, symbol);
 		defsetf_push(array, 3, gensym);
 		cons_heap(&root, gensym, root);
 	}
 	nreverse_list_unsafe(ret, root);
+
+	return 0;
 }
 
-static void defsetf_bind(Execute ptr, addr args,
+static int defsetf_bind_(Execute ptr, addr args,
 		addr lambda, addr store,
 		addr *a, addr *b, addr *c, addr *d, addr *g)
 {
@@ -438,9 +449,9 @@ static void defsetf_bind(Execute ptr, addr args,
 
 	List_bind(lambda, &var, &opt, &rest, &key, &allow, &env, NULL);
 	vector2_heap(&array, 4);
-	defsetf_var_bind(ptr, &args, var, array);
-	defsetf_opt_bind(ptr, &args, opt, array);
-	defsetf_store_bind(ptr, store, array, g);
+	Return(defsetf_var_bind_(ptr, &args, var, array));
+	Return(defsetf_opt_bind_(ptr, &args, opt, array));
+	Return(defsetf_store_bind_(ptr, store, array, g));
 	/* args */
 	GetArrayA2(array, 0, a);
 	GetArrayA2(array, 1, b);
@@ -450,9 +461,11 @@ static void defsetf_bind(Execute ptr, addr args,
 	nreverse_list_unsafe(b, *b);
 	nreverse_list_unsafe(c, *c);
 	nreverse_list_unsafe(d, *d);
+
+	return 0;
 }
 
-static int defsetf_write(Execute ptr, addr *ret, addr c, addr d, addr body)
+static int defsetf_write_(Execute ptr, addr *ret, addr c, addr d, addr body)
 {
 	/*  (let ((c1 'd1)
 	 *        (c2 'd2))
@@ -470,8 +483,8 @@ static int defsetf_write(Execute ptr, addr *ret, addr c, addr d, addr body)
 
 	/* let-args */
 	for (root = Nil; c != Nil; ) {
-		getcons(c, &x, &c);
-		getcons(d, &y, &d);
+		Return_getcons(c, &x, &c);
+		Return_getcons(d, &y, &d);
 		list_heap(&y, quote, y, NULL);
 		list_heap(&y, x, y, NULL);
 		cons_heap(&root, y, root);
@@ -498,7 +511,7 @@ _g int defsetf_long_syscode(Execute ptr, addr rest,
 
 	list_bind(rest, &access, &lambda, &store, &body, &args, &env, NULL);
 	lambda_defsetf(ptr->local, &lambda, lambda);
-	defsetf_bind(ptr, args, lambda, store, &a, &b, &c, &d, &g);
+	Return(defsetf_bind_(ptr, args, lambda, store, &a, &b, &c, &d, &g));
 	/* (values 'a 'b 'g
 	 *   `(let ((c1 'd1)
 	 *          (c2 'd2))
@@ -510,7 +523,7 @@ _g int defsetf_long_syscode(Execute ptr, addr rest,
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, a, b, c, d, g, NULL);
-	Return(defsetf_write(ptr, &w, c, d, body));
+	Return(defsetf_write_(ptr, &w, c, d, body));
 	localhold_end(hold);
 
 	cons_heap(&r, access, d);
@@ -575,22 +588,24 @@ _g int merge_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 
 
 /* exit */
-_g void exit_syscode(addr code)
+_g int exit_syscode(addr code)
 {
 	int result;
 	fixnum value;
 
 	if (code == Unbound) {
 		exit_execute(0);
-		return;
+		return 0;
 	}
 	if (! fixnump(code))
-		_fmte("Invalid code type ~S.", code, NULL);
+		return fmte_("Invalid code type ~S.", code, NULL);
 	GetFixnum(code, &value);
 	result = (int)value;
 	if (value != (fixnum)result)
-		_fmte("The result code ~S must be a int type.", code, NULL);
+		return fmte_("The result code ~S must be a int type.", code, NULL);
 	exit_execute(result);
+
+	return 0;
 }
 
 
@@ -621,7 +636,7 @@ _g int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret)
 		strvect_char_heap(&format, "Input> ");
 	}
 	else {
-		getcons(args, &format, &args);
+		Return_getcons(args, &format, &args);
 		Return(format_string_lisp(ptr, format, args, &format));
 	}
 
@@ -735,7 +750,7 @@ _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
 
 
 /* make-bignum */
-_g void make_bignum_syscode(addr var, addr *ret)
+_g int make_bignum_syscode(addr var, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_FIXNUM:
@@ -747,15 +762,16 @@ _g void make_bignum_syscode(addr var, addr *ret)
 			break;
 
 		default:
-			TypeError(var, INTEGER);
 			*ret = Nil;
-			return;
+			return TypeError_(var, INTEGER);
 	}
+
+	return 0;
 }
 
 
 /* make-ratio */
-static void make_ratio_force(addr *ret, addr var)
+static int make_ratio_force_(addr *ret, addr var)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_FIXNUM:
@@ -767,18 +783,19 @@ static void make_ratio_force(addr *ret, addr var)
 			break;
 
 		default:
-			TypeError(var, INTEGER);
 			*ret = Nil;
-			return;
+			return TypeError_(var, INTEGER);
 	}
+
+	return 0;
 }
 
-_g void make_ratio_syscode(addr numer, addr denom, addr *ret)
+_g int make_ratio_syscode(addr numer, addr denom, addr *ret)
 {
 	int sign1, sign2;
 
-	make_ratio_force(&numer, numer);
-	make_ratio_force(&denom, denom);
+	Return(make_ratio_force_(&numer, numer));
+	Return(make_ratio_force_(&denom, denom));
 	GetSignBignum(numer, &sign1);
 	GetSignBignum(denom, &sign2);
 	SetSignBignum(numer, SignPlus);
@@ -786,6 +803,8 @@ _g void make_ratio_syscode(addr numer, addr denom, addr *ret)
 	sign1 = SignMulti(sign1, sign2);
 	make_ratio_alloc_unsafe(NULL, &numer, sign1, numer, denom);
 	*ret = numer;
+
+	return 0;
 }
 
 
@@ -834,9 +853,9 @@ _g int subtypep_result_syscode(Execute ptr, addr left, addr right, addr *ret)
 
 
 /* ensure-structure */
-_g void ensure_structure_syscode(Execute ptr, addr name, addr slots, addr rest)
+_g int ensure_structure_syscode_(Execute ptr, addr name, addr slots, addr rest)
 {
-	ensure_structure_common(ptr, name, slots, rest);
+	return ensure_structure_common_(ptr, name, slots, rest);
 }
 
 
@@ -1000,7 +1019,7 @@ _g void remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret)
 
 
 /* declare-parse */
-static OptimizeType declare_parse_value(addr symbol)
+static int declare_parse_value_(addr symbol, OptimizeType *ret)
 {
 	addr root, check;
 
@@ -1008,44 +1027,44 @@ static OptimizeType declare_parse_value(addr symbol)
 	/* safety */
 	GetConst(COMMON_SAFETY, &check);
 	if (symbol == check)
-		return get_optimize_safety_declare(root);
+		return Result(ret, get_optimize_safety_declare(root));
 	/* speed */
 	GetConst(COMMON_SPEED, &check);
 	if (symbol == check)
-		return get_optimize_speed_declare(root);
+		return Result(ret, get_optimize_speed_declare(root));
 	/* space */
 	GetConst(COMMON_SPACE, &check);
 	if (symbol == check)
-		return get_optimize_space_declare(root);
+		return Result(ret, get_optimize_space_declare(root));
 	/* debug */
 	GetConst(COMMON_DEBUG, &check);
 	if (symbol == check)
-		return get_optimize_debug_declare(root);
+		return Result(ret, get_optimize_debug_declare(root));
 	/* compilation */
 	GetConst(COMMON_COMPILATION_SPEED, &check);
 	if (symbol == check)
-		return get_optimize_compilation_declare(root);
+		return Result(ret, get_optimize_compilation_declare(root));
 
 	/* error */
-	_fmte("Invalid declare-parse argument ~S.", symbol, NULL);
-	return 0;
+	*ret = 0;
+	return fmte_("Invalid declare-parse argument ~S.", symbol, NULL);
 }
 
-_g void declare_parse_syscode(addr form, addr *ret)
+_g int declare_parse_syscode(addr form, addr *ret)
 {
 	OptimizeType value;
 	addr symbol, check;
 
-	getcdr(form, &form);
+	Return_getcdr(form, &form);
 	if (! consp_getcons(form, &symbol, &check))
 		goto error;
 	if (check != Nil)
 		goto error;
-	value = declare_parse_value(symbol);
+	Return(declare_parse_value_(symbol, &value));
 	fixnum_heap(ret, (fixnum)value);
-	return;
+	return 0;
 
 error:
-	_fmte("The declare-parse form ~S must be a (symbol).", form, NULL);
+	return fmte_("The declare-parse form ~S must be a (symbol).", form, NULL);
 }
 

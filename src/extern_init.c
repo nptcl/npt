@@ -3,7 +3,7 @@
 #include "condition.h"
 #include "condition_debugger.h"
 #include "constant.h"
-#include "control.h"
+#include "control_object.h"
 #include "core.h"
 #include "define.h"
 #include "eval_main.h"
@@ -400,64 +400,58 @@ int lisp_argv_init(struct lispargv *ptr)
  */
 static int lispstringu_heap(addr *ret, lispstringu str)
 {
-	if (str->size == 0) return 1;
+	if (str->size == 0)
+		return 1;
 	strvect_sizeu_heap(ret, str->ptr, str->size - 1UL);
 	return 0;
 }
 
-static int lisp_argv_load(Execute ptr, lispstringu name, int *abort, int error)
+static int lisp_argv_load_(Execute ptr, lispstringu name, int error, int *ret)
 {
-	int result;
 	addr file;
 
 	if (lispstringu_heap(&file, name))
-		_fmte("Invalid filename.", NULL);
+		fmte("Invalid filename.", NULL);
 	pathname_designer_heap(ptr, file, &file);
-	result = eval_main_load(ptr, file, 0, abort);
-	if (error && result == 0)
-		_fmte("Cannot open file ~S.", file, NULL);
-
-	return result;
+	return eval_main_load_(ptr, file, error, ret);
 }
 
-static void lisp_argv_script(Execute ptr, lispstringu name, int *abort)
+static int lisp_argv_script_(Execute ptr, lispstringu name)
 {
 	addr file, stream;
 
 	/* open */
 	if (lispstringu_heap(&file, name))
-		_fmte("Invalid filename.", NULL);
+		fmte("Invalid filename.", NULL);
 	pathname_designer_heap(ptr, file, &file);
 	if (open_input_utf8_stream(ptr, &stream, file))
-		_fmte("Cannot open file ~S.", file, NULL);
+		fmte("Cannot open file ~S.", file, NULL);
 	script_header(stream);
 	/* load */
-	if (eval_main_load(ptr, stream, 0, abort) == 0)
-		_fmte("Cannot load file ~S.", file, NULL);
+	return eval_main_load_(ptr, stream, 1, NULL);
 }
 
 #ifndef LISP_WINDOWS_WIDE
-static int lisp_argv_file_load(Execute ptr, int *abort, const char *name)
+static int lisp_argv_file_load_(Execute ptr, int *ret, const char *name)
 {
 	int check;
 	lispstringu file;
 
 	file = char_stringu(name);
-	if (file == NULL) {
-		_fmte("char_stringu error.", NULL);
-		return 1;
-	}
-	check = lisp_argv_load(ptr, file, abort, 0);
+	if (file == NULL)
+		fmte("char_stringu error.", NULL);
+	check = lisp_argv_load_(ptr, file, 0, ret);
 	free_stringu(file);
 
 	return check;
 }
 #define InitFileLoad(p,a,x) { \
-	if (lisp_argv_file_load((p),(a),(x))) return; \
+	Return(lisp_argv_file_load_((p),(a),(x))); \
+	if (*(a) == 0) return 0; \
 }
 #endif
 
-static int lisp_argv_file_env(Execute ptr, lisptableu env, int *abort,
+static int lisp_argv_file_env_(Execute ptr, lisptableu env, int *ret,
 		const char *key, const char *name)
 {
 	int check;
@@ -466,23 +460,22 @@ static int lisp_argv_file_env(Execute ptr, lisptableu env, int *abort,
 	/* environment */
 	value = findchar_tableu(env, key);
 	if (value == NULL)
-		return 0; /* next */
+		return Result(ret, 0); /* next */
 	/* load */
 	file = concatchar_stringu(value, name);
-	if (file == NULL) {
-		_fmte("concatchar_stringu error.", NULL);
-		return 1;
-	}
-	check = lisp_argv_load(ptr, file, abort, 0);
+	if (file == NULL)
+		fmte("concatchar_stringu error.", NULL);
+	check = lisp_argv_load_(ptr, file, 0, ret);
 	free_stringu(file);
 
 	return check;
 }
 #define InitFileEnv(p,e,a,x,y) { \
-	if (lisp_argv_file_env((p),(e),(a),(x),(y))) return; \
+	Return(lisp_argv_file_env_((p),(e),(a),(x),(y))); \
+	if (*(a) == 0) return 0; \
 }
 
-static void lisp_argv_load_default(Execute ptr, struct lispargv *argv, int *a)
+static int lisp_argv_load_default_(Execute ptr, struct lispargv *argv, int *a)
 {
 	lisptableu env;
 
@@ -503,68 +496,68 @@ static void lisp_argv_load_default(Execute ptr, struct lispargv *argv, int *a)
 	InitFileLoad(ptr,a, "/opt/" Lispname "/" Lispname ".lisp");
 	InitFileLoad(ptr,a, "/opt/lib/" Lispname "/" Lispname ".lisp");
 #endif
+
+	return 0;
 }
 
-static int lisp_argv_loadinit(Execute ptr, struct lispargv *argv, int *abort)
+static int lisp_argv_loadinit_(Execute ptr, struct lispargv *argv, int *ret)
 {
 	lispstringu file;
 
 	/* --noinit */
 	if (argv->noinit)
-		return 0;  /* success */
+		return Result(ret, 0);  /* success */
 
 	/* --initfile */
 	file = argv->init;
 	if (file)
-		return lisp_argv_load(ptr, file, abort, 1);
-
-	/* default initfile */
-	lisp_argv_load_default(ptr, argv, abort);
-	/* All init file is not found. */
-	return 0;
+		return lisp_argv_load_(ptr, file, 1, ret);
+	else
+		return lisp_argv_load_default_(ptr, argv, ret);
 }
 
-static void lisp_argv_eval(Execute ptr, lispstringu str, int *abort)
+static int lisp_argv_eval_(Execute ptr, lispstringu str)
 {
 	addr pos;
+
 	if (lispstringu_heap(&pos, str))
-		_fmte("Invalid eval string.", NULL);
-	eval_main_string(ptr, pos, abort);
+		fmte("Invalid eval string.", NULL);
+	return eval_main_string_(ptr, pos);
 }
 
-static void lisp_argv_inputs(Execute ptr, struct lispargv *argv)
+static int lisp_argv_inputs_(Execute ptr, struct lispargv *argv)
 {
-	int abort;
+	lispstringu name;
 	struct lispargv_string *data;
 	size_t i, size;
 
 	data = argv->input->data;
 	size = argv->input->size;
-	abort = 0;
 	for (i = 0; i < size; i++) {
-		if (abort)
-			break;
+		name = data[i].value;
 		switch (data[i].type) {
 			case lispargv_load:
-				lisp_argv_load(ptr, data[i].value, &abort, 1);
+				Return(lisp_argv_load_(ptr, name, 1, NULL));
 				continue;
 
 			case lispargv_eval:
-				lisp_argv_eval(ptr, data[i].value, &abort);
+				Return(lisp_argv_eval_(ptr, name));
 				continue;
 
 			case lispargv_script:
-				lisp_argv_script(ptr, data[i].value, &abort);
+				Return(lisp_argv_script_(ptr, name));
 				continue;
 
 			default:
-				_fmte("Invalid input type.", NULL);
-				return;
+				fmte("Invalid input type.", NULL);
+				return 0;
 		}
 	}
+
+	return 0;
 }
 
-static void lisp_argv_debugger(Execute ptr, struct lispargv *argv)
+static int lisp_argv_debugger_(Execute ptr, struct lispargv *argv)
 {
 	int v;
 
@@ -572,36 +565,40 @@ static void lisp_argv_debugger(Execute ptr, struct lispargv *argv)
 	v = argv->debuggerp? argv->debugger: consolep_file();
 	set_enable_debugger(ptr, v);
 	/* eval-loop */
-	eval_main_loop(ptr);
+	return eval_main_loop_(ptr);
 }
 
-static void lisp_argv_execute(Execute ptr, struct lispargv *argv)
+static int lisp_argv_execute_(Execute ptr, struct lispargv *argv)
 {
-	int abort;
+	int check;
 
 	/* load initialize */
-	abort = 0;
-	if (lisp_argv_loadinit(ptr, argv, &abort)) {
+	check = 0;
+	Return(lisp_argv_loadinit_(ptr, argv, &check));
+	if (check) {
 		lisp_result = 1;
-		return;
+		return 0;
 	}
 
 	/* load / eval */
-	if (abort == 0 && argv->input)
-		lisp_argv_inputs(ptr, argv);
+	if (argv->input) {
+		Return(lisp_argv_inputs_(ptr, argv));
+	}
 
 	/* call */
 	if (argv->call) {
 		if ((argv->call)(argv->call_ptr)) {
 			lisp_result = 1;
-			return;
+			return 0;
 		}
 	}
 
 	/* debugger */
 	setindex_prompt(ptr, 0);
 	if (argv->quit == 0)
-		lisp_argv_debugger(ptr, argv);
+		return lisp_argv_debugger_(ptr, argv);
+
+	return 0;
 }
 
 
@@ -637,11 +634,11 @@ static void lisp_argv_environment(struct lispargv *argv)
 		k = kv[i].key;
 		v = kv[i].value;
 		if (k->size == 0 || v->size == 0)
-			_fmte("lisp_argv_environment error.", NULL);
+			fmte("lisp_argv_environment error.", NULL);
 		if (lispstringu_heap(&key, k))
-			_fmte("Invalid key name.", NULL);
+			fmte("Invalid key name.", NULL);
 		if (lispstringu_heap(&value, v))
-			_fmte("Invalid value name.", NULL);
+			fmte("Invalid value name.", NULL);
 		intern_hashheap(table, key, &cons);
 		SetCdr(cons, value);
 	}
@@ -652,7 +649,7 @@ static void lisp_argv_arguments_copy(addr array, size_t i, lispstringu str)
 {
 	addr pos;
 	if (lispstringu_heap(&pos, str))
-		_fmte("Invalid string size.", NULL);
+		fmte("Invalid string size.", NULL);
 	setarray(array, i, pos);
 }
 
@@ -668,7 +665,7 @@ static void lisp_argv_arguments(struct lispargv *argv)
 	size = array->size;
 	comm = argv->start;
 	if (size < comm) {
-		_fmte("Invalid array size.", NULL);
+		fmte("Invalid array size.", NULL);
 		return;
 	}
 	else if (size == 0) {
@@ -684,7 +681,17 @@ static void lisp_argv_arguments(struct lispargv *argv)
 	lisp_argv_intern(pos, CONSTANT_SYSTEM_SPECIAL_ARGUMENTS);
 }
 
-static void lisp_argv_root(Execute ptr, struct lispargv *argv)
+static int lisp_argv_switch_execute_(Execute ptr, struct lispargv *argv)
+{
+	push_prompt_info(ptr);
+	handler_warning(ptr);
+	handler_savecore(ptr);
+	lisp_argv_environment(argv);
+	lisp_argv_arguments(argv);
+	return lisp_argv_execute_(ptr, argv);
+}
+
+static int lisp_argv_switch_(Execute ptr, struct lispargv *argv)
 {
 	addr control;
 	codejump jump;
@@ -692,19 +699,13 @@ static void lisp_argv_root(Execute ptr, struct lispargv *argv)
 	push_close_control(ptr, &control);
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
-		push_prompt_info(ptr);
-		handler_warning(ptr);
-		handler_savecore(ptr);
-		lisp_argv_environment(argv);
-		lisp_argv_arguments(argv);
-		lisp_argv_execute(ptr, argv);
+		Return(lisp_argv_switch_execute_(ptr, argv));
 	}
 	end_switch(&jump);
-	if (free_control(ptr, control)) {
-		lisperror("free_control error.");
-		exitexecute(ptr, LISPCODE_ABORT);
-	}
+	Return(free_control_(ptr, control));
 	throw_switch(&jump);
+
+	return 0;
 }
 
 /* result */
@@ -735,11 +736,6 @@ static int lisp_argv_result(Execute ptr, lispcode code)
 		case LISPCODE_SAVECORE:
 			return lisp_argv_core(ptr);
 
-		case LISPCODE_ABORT:
-		case LISPCODE_MEMORY:
-		case LISPCODE_CONFLICT:
-		case LISPCODE_CONTROL:
-		case LISPCODE_ERROR:
 		default:
 			lisperror("ABORT: lisp error, interrupt.");
 			return 1;
@@ -747,28 +743,29 @@ static int lisp_argv_result(Execute ptr, lispcode code)
 }
 
 /* runcode */
-static int lisp_argv_runcode(struct lispargv *argv)
+static void lisp_argv_code_execute(Execute ptr, struct lispargv *argv)
+{
+	if (argv->nocore)
+		buildlisp(ptr);
+	if (lisp_argv_switch_(ptr, argv))
+		exitexecute(ptr, LISPCODE_ABORT);
+}
+
+static int lisp_argv_code(struct lispargv *argv)
 {
 	lispcode code;
 	Execute ptr;
 	LocalRoot local;
 	LocalStack stack;
 
-	/* begin_code */
 	ptr = getexecute(0);
-	if (ptr == NULL) {
-		lisperror("getexecute error.");
-		return 1;
-	}
+	Check(ptr == NULL, "getexecute error.");
 	ptr->result = 0;
 	local = ptr->local;
 	push_local(local, &stack);
 	begin_code(ptr, &code);
-	if (code_run_p(code)) {
-		if (argv->nocore)
-			buildlisp(ptr);
-		lisp_argv_root(ptr, argv);
-	}
+	if (code_run_p(code))
+		lisp_argv_code_execute(ptr, argv);
 	end_code(ptr);
 	rollback_local(local, stack);
 
@@ -784,7 +781,7 @@ int lisp_argv_run(struct lispargv *ptr)
 	}
 
 	/* runcode */
-	if (lisp_argv_runcode(ptr)) {
+	if (lisp_argv_code(ptr)) {
 		lisp_code = lisp_result = 1;
 		return 1;
 	}

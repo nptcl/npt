@@ -27,7 +27,7 @@ static copylocal_calltype TableCopySoft[LISPTYPE_SIZE];
  */
 static void copyhard_error(LocalRoot local, addr *ret, addr pos)
 {
-	_fmte("copy error", NULL);
+	fmte("copy error", NULL);
 }
 
 static void copyhard_moveonly(LocalRoot local, addr *ret, addr pos)
@@ -123,7 +123,7 @@ _g void copyhard_vector(LocalRoot local, addr *ret, addr pos)
 #endif
 
 		default:
-			_fmte("size error", NULL);
+			fmte("size error", NULL);
 			break;
 	}
 }
@@ -298,7 +298,7 @@ _g int copylocalp(LocalRoot local, addr pos)
 static int checklocal_error(LocalRoot local, addr pos)
 {
 	if (copylocalp(local, pos))
-		_fmte("checklocal-copyerror", NULL);
+		fmte("checklocal-copyerror", NULL);
 	return 0;
 }
 
@@ -437,7 +437,7 @@ static void init_checklocal_call(void)
  */
 static void copylocal_error(LocalRoot local, addr *ret, addr pos)
 {
-	_fmte("copylocal error", NULL);
+	fmte("copylocal error", NULL);
 }
 
 static void copylocal_type(LocalRoot local, addr *ret, addr pos)
@@ -521,7 +521,7 @@ static void copylocal_vector(LocalRoot local, addr *ret, addr pos)
 #endif
 
 		default:
-			_fmte("size error", NULL);
+			fmte("size error", NULL);
 			break;
 	}
 }

@@ -10,11 +10,11 @@ _g addr string8_size_allocr(LocalRoot local, const char *name, size_t size)
 	size_t allsize;
 
 	if (UTF8_size_strlen((const byte *)name, size, &allsize))
-		_fmte("UTF8 encoding error (length).", NULL);
+		fmte("UTF8 encoding error (length).", NULL);
 	strvect_alloc(local, &pos, allsize);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	if (UTF8_size_makeunicode(destroy, (const byte *)name, size))
-		_fmte("UTF8 encoding error (make).", NULL);
+		fmte("UTF8 encoding error (make).", NULL);
 	strvect_update_character_type(pos);
 
 	return pos;
@@ -49,11 +49,11 @@ _g addr string8_null_allocr(LocalRoot local, const char *name)
 	size_t size;
 
 	if (UTF8_null_strlen((const byte *)name, &size))
-		_fmte("UTF8 encoding error (length).", NULL);
+		fmte("UTF8 encoding error (length).", NULL);
 	strvect_alloc(local, &pos, size);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	if (UTF8_null_makeunicode(destroy, (const byte *)name))
-		_fmte("UTF8 encoding error (make).", NULL);
+		fmte("UTF8 encoding error (make).", NULL);
 	strvect_update_character_type(pos);
 
 	return pos;
@@ -88,11 +88,11 @@ _g addr string16_size_allocr(LocalRoot local, const byte16 *name, size_t size)
 	size_t allsize;
 
 	if (UTF16_size_strlen(name, size, &allsize))
-		_fmte("UTF16 encoding error (length).", NULL);
+		fmte("UTF16 encoding error (length).", NULL);
 	strvect_alloc(local, &pos, allsize);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	if (UTF16_size_makeunicode(destroy, name, size))
-		_fmte("UTF16 encoding error (make).", NULL);
+		fmte("UTF16 encoding error (make).", NULL);
 	strvect_update_character_type(pos);
 
 	return pos;
@@ -127,11 +127,11 @@ _g addr string16_null_allocr(LocalRoot local, const byte16 *name)
 	size_t size;
 
 	if (UTF16_null_strlen(name, &size))
-		_fmte("UTF16 encoding error (length).", NULL);
+		fmte("UTF16 encoding error (length).", NULL);
 	strvect_alloc(local, &pos, size);
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	if (UTF16_null_makeunicode(destroy, name))
-		_fmte("UTF16 encoding error (make).", NULL);
+		fmte("UTF16 encoding error (make).", NULL);
 	strvect_update_character_type(pos);
 
 	return pos;

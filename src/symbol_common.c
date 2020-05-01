@@ -90,7 +90,7 @@ _g int gensym_common(Execute ptr, addr opt, addr *ret)
 	else if (integerp(opt))
 		make_gensym_integer(ptr, opt, ret);
 	else
-		return fmte("type-error.", NULL);
+		return fmte_("type-error.", NULL);
 
 	return 0;
 }
@@ -115,7 +115,7 @@ _g void gentemp_common(Execute ptr, addr opt1, addr opt2, addr *ret)
 _g int setf_symbol_function_common(addr value, addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
-		return fmte("The symbol ~S is readonly.", symbol, NULL);
+		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	remtype_function_symbol(symbol);
 	SetFunctionSymbol(symbol, value);
 
@@ -129,7 +129,7 @@ _g int setf_symbol_function_common(addr value, addr symbol)
 _g int setf_symbol_value_common(Execute ptr, addr value, addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
-		return fmte("The symbol ~S is readonly.", symbol, NULL);
+		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	setspecial_local(ptr, symbol, value);
 
 	return 0;
@@ -142,7 +142,7 @@ _g int setf_symbol_value_common(Execute ptr, addr value, addr symbol)
 _g int setf_symbol_plist_common(addr value, addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
-		return fmte("The symbol ~S is readonly.", symbol, NULL);
+		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	SetPlistSymbol(symbol, value);
 	return 0;
 }
@@ -172,7 +172,7 @@ _g int setf_get_common(addr value, addr symbol, addr key)
 	addr list;
 
 	if (GetStatusReadOnly(symbol))
-		return fmte("The symbol ~S is readonly.", symbol, NULL);
+		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	GetPlistSymbol(symbol, &list);
 	if (setplist_heap_safe(list, key, value, &list))
 		SetPlistSymbol(symbol, list);
@@ -189,7 +189,7 @@ _g int remprop_common(addr symbol, addr key, addr *ret)
 	addr list;
 
 	if (GetStatusReadOnly(symbol))
-		return fmte("The symbol ~S is readonly.", symbol, NULL);
+		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	GetPlistSymbol(symbol, &list);
 	switch (remplist_check_safe(list, key, &list)) {
 		case RemPlist_Delete:
@@ -213,7 +213,7 @@ _g int remprop_common(addr symbol, addr key, addr *ret)
 _g int makunbound_common(Execute ptr, addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
-		return fmte("The symbol ~S is readonly.", symbol, NULL);
+		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	setspecial_local(ptr, symbol, Unbound);
 	return 0;
 }
@@ -225,7 +225,7 @@ _g int makunbound_common(Execute ptr, addr symbol)
 _g int set_common(Execute ptr, addr symbol, addr value)
 {
 	if (GetStatusReadOnly(symbol))
-		return fmte("The symbol ~S is readonly.", symbol, NULL);
+		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	setspecial_local(ptr, symbol, value);
 	return 0;
 }

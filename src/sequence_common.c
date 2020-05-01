@@ -9,7 +9,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "cons_plist.h"
-#include "control.h"
+#include "control_execute.h"
 #include "equal.h"
 #include "gc.h"
 #include "integer.h"
@@ -77,13 +77,13 @@ static void list_fill_sequence(addr list, addr item, addr start, addr end)
 			if (index2 <= index1)
 				break;
 			if (list == Nil)
-				_fmte(":END ~A must be less than equal to list length.", end, NULL);
+				fmte(":END ~A must be less than equal to list length.", end, NULL);
 		}
 		else if (list == Nil) {
 			break;
 		}
 		if (! consp(list))
-			_fmte("Don't accept the dotted list ~S.", list, NULL);
+			fmte("Don't accept the dotted list ~S.", list, NULL);
 		SetCar(list, item);
 		GetCdr(list, &list);
 		index1++;
@@ -339,7 +339,7 @@ _g int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr r
 	if (getkeyargs(rest, KEYWORD_INITIAL_ELEMENT, &element))
 		element = Unbound;
 	if (GetIndex_integer(size, &index))
-		_fmte("Too large index ~S.", size, NULL);
+		fmte("Too large index ~S.", size, NULL);
 
 	Return(parse_type(ptr, &check, type, Nil));
 	hold = LocalHold_local_push(ptr, check);
@@ -1253,7 +1253,7 @@ _g int count_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		_fmte("COUNT don't accept both :test and :test-not parameter.", NULL);
+		fmte("COUNT don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -1526,7 +1526,7 @@ static void make_specialized_sequence(addr *ret,
 			break;
 
 		default:
-			_fmte("Invalid array type.", NULL);
+			fmte("Invalid array type.", NULL);
 			return;
 	}
 }
@@ -1853,7 +1853,7 @@ _g int find_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		_fmte("FIND don't accept both :test and :test-not parameter.", NULL);
+		fmte("FIND don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -2028,7 +2028,7 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		_fmte("POSITION don't accept both :test and :test-not parameter.", NULL);
+		fmte("POSITION don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -2419,7 +2419,7 @@ static int execute_search_sequence(Execute ptr, addr *ret,
 	if (getkeyargs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
 	if (getkeyargs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
 	if (test1 != Nil && test2 != Nil)
-		_fmte("SEARCH don't accept both :test and :test-not parameter.", NULL);
+		fmte("SEARCH don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	local = ptr->local;
@@ -2591,7 +2591,7 @@ static int execute_mismatch_sequence(Execute ptr, addr *ret,
 	if (getkeyargs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
 	if (getkeyargs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
 	if (test1 != Nil && test2 != Nil)
-		_fmte("MISMATCH don't accept both :test and :test-not parameter.", NULL);
+		fmte("MISMATCH don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	local = ptr->local;
@@ -2951,14 +2951,14 @@ static void setcount_sequence(struct count_struct *str, addr count)
 		return;
 	}
 	if (! integerp(count)) {
-		_fmte(":COUNT argument ~S must be an integer type.", count, NULL);
+		fmte(":COUNT argument ~S must be an integer type.", count, NULL);
 	}
 	if (minusp_integer(count)) {
 		count = fixnumh(0);
 		limit = 0;
 	}
 	else if (GetIndex_integer(count, &limit)) {
-		_fmte(":COUNT argument ~S is too large.", count, NULL);
+		fmte(":COUNT argument ~S is too large.", count, NULL);
 	}
 	str->count = count;
 	str->limit = limit;
@@ -2981,7 +2981,7 @@ _g int substitute_common(Execute ptr,
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		_fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
+		fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3210,7 +3210,7 @@ _g int nsubstitute_common(Execute ptr,
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		_fmte("NSUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
+		fmte("NSUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3811,7 +3811,7 @@ static int argument_remove_sequence(Execute ptr,
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		_fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
+		fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -4228,7 +4228,7 @@ static int argument_remove_duplicates(Execute ptr,
 	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
 	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		_fmte("Arguments don't accept both :test and :test-not parameter.", NULL);
+		fmte("Arguments don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	local = ptr->local;

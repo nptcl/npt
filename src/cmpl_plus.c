@@ -99,7 +99,7 @@ static int plus_real_complex(addr left, addr right, addr *ret)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			_fmte("type error", NULL);
+			fmte("type error", NULL);
 			return 0;
 	}
 }
@@ -142,7 +142,7 @@ _g void plus_sc_number_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
 	if (plus_real_complex(left, right, ret))
-		_fmte("Type error", NULL);
+		fmte("Type error", NULL);
 }
 
 _g void plus_dc_number_common(addr left, addr right, addr *ret)
@@ -150,7 +150,7 @@ _g void plus_dc_number_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
 	if (plus_real_complex(left, right, ret))
-		_fmte("Type error", NULL);
+		fmte("Type error", NULL);
 }
 
 _g void plus_lc_number_common(addr left, addr right, addr *ret)
@@ -158,7 +158,7 @@ _g void plus_lc_number_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
 	if (plus_real_complex(left, right, ret))
-		_fmte("Type error", NULL);
+		fmte("Type error", NULL);
 }
 
 static void plus_cc_rational_common(LocalRoot local, addr left, addr right, addr *ret)
@@ -208,7 +208,7 @@ _g void plus_cc_number_common(LocalRoot local, addr left, addr right, addr *ret)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			_fmte("type error", NULL);
+			fmte("type error", NULL);
 			return;
 	}
 }
@@ -241,7 +241,7 @@ static int minus_real_complex(addr left, addr right, addr *ret)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			_fmte("type error", NULL);
+			fmte("type error", NULL);
 			return 0;
 	}
 }
@@ -270,7 +270,7 @@ static int minus_complex_real(addr left, addr right, addr *ret)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			_fmte("type error", NULL);
+			fmte("type error", NULL);
 			return 0;
 	}
 }
@@ -355,7 +355,7 @@ _g void minus_sc_number_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_SINGLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
 	if (minus_real_complex(left, right, ret))
-		_fmte("Type error", NULL);
+		fmte("Type error", NULL);
 }
 
 _g void minus_cs_number_common(addr left, addr right, addr *ret)
@@ -363,7 +363,7 @@ _g void minus_cs_number_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_SINGLE_FLOAT);
 	if (minus_complex_real(left, right, ret))
-		_fmte("Type error", NULL);
+		fmte("Type error", NULL);
 }
 
 _g void minus_dc_number_common(addr left, addr right, addr *ret)
@@ -371,7 +371,7 @@ _g void minus_dc_number_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_DOUBLE_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
 	if (minus_real_complex(left, right, ret))
-		_fmte("Type error", NULL);
+		fmte("Type error", NULL);
 }
 
 _g void minus_cd_number_common(addr left, addr right, addr *ret)
@@ -379,7 +379,7 @@ _g void minus_cd_number_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_DOUBLE_FLOAT);
 	if (minus_complex_real(left, right, ret))
-		_fmte("Type error", NULL);
+		fmte("Type error", NULL);
 }
 
 _g void minus_lc_number_common(addr left, addr right, addr *ret)
@@ -387,7 +387,7 @@ _g void minus_lc_number_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_LONG_FLOAT);
 	CheckType(right, LISPTYPE_COMPLEX);
 	if (minus_real_complex(left, right, ret))
-		_fmte("Type error", NULL);
+		fmte("Type error", NULL);
 }
 
 _g void minus_cl_number_common(addr left, addr right, addr *ret)
@@ -395,7 +395,7 @@ _g void minus_cl_number_common(addr left, addr right, addr *ret)
 	CheckType(left, LISPTYPE_COMPLEX);
 	CheckType(right, LISPTYPE_LONG_FLOAT);
 	if (minus_complex_real(left, right, ret))
-		_fmte("Type error", NULL);
+		fmte("Type error", NULL);
 }
 
 static void minus_cc_rational_common(LocalRoot local, addr left, addr right, addr *ret)
@@ -446,7 +446,7 @@ _g void minus_cc_number_common(LocalRoot local, addr left, addr right, addr *ret
 		case MathType_complex:
 		case MathType_error:
 		default:
-			_fmte("type error", NULL);
+			fmte("type error", NULL);
 			return;
 	}
 }

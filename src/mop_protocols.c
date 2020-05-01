@@ -9,7 +9,7 @@
 #include "clos_method.h"
 #include "condition.h"
 #include "cons.h"
-#include "control.h"
+#include "control_operator.h"
 #include "function.h"
 #include "integer.h"
 #include "lambda.h"

@@ -44,7 +44,7 @@ _g void stdset_specializer_type(addr pos, addr value);
 /* generic-function */
 _g int generic_eql_specializer(addr left, addr right, int check);
 _g void generic_finalize(addr gen);
-_g void closrun_execute(Execute ptr, addr pos, addr args);
+_g int closrun_execute(Execute ptr, addr pos, addr args);
 
 _g void generic_common_instance(addr *ret, addr name, addr args);
 _g void generic_common_order(addr gen, addr order, addr list);
@@ -56,7 +56,7 @@ _g int generic_change(struct generic_argument *ptr, addr *ret);
 /* common */
 _g void generic_compute_applicable_methods(LocalRoot local,
 		addr gen, addr args, addr *ret);
-_g void generic_find_method(Execute ptr,
+_g int generic_find_method_(Execute ptr,
 		addr gen, addr qua, addr spec, addr errorp, addr *ret);
 
 /* initialize */

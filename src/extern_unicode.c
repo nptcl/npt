@@ -32,7 +32,7 @@ static enum EastAsianType lisp_eastasian_todevelop(enum LispEastAsianType type)
 			return EastAsian_NA;
 
 		default:
-			_fmte("Invalid EastAsianType.", NULL);
+			fmte("Invalid EastAsianType.", NULL);
 			return EastAsian_error;
 	}
 }
@@ -86,7 +86,7 @@ enum LispEastAsianType lisp_eastasian_type_character(addr value)
 	unicode c;
 
 	if (! characterp(value))
-		_fmte("Invalid character type ~S.", value, NULL);
+		fmte("Invalid character type ~S.", value, NULL);
 	GetCharacter(value, &c);
 	return lisp_eastasian_type_unicode(c);
 }
@@ -101,7 +101,7 @@ unsigned lisp_eastasian_character(addr value)
 	unicode c;
 
 	if (! characterp(value))
-		_fmte("Invalid character type ~S.", value, NULL);
+		fmte("Invalid character type ~S.", value, NULL);
 	GetCharacter(value, &c);
 	return eastasian_width(c);
 }
@@ -109,7 +109,7 @@ unsigned lisp_eastasian_character(addr value)
 int lisp_eastasian_string(addr value, size_t *ret)
 {
 	if (! stringp(value))
-		_fmte("Invalid string type ~S.", value, NULL);
+		fmte("Invalid string type ~S.", value, NULL);
 	return eastasian_length(value, ret);
 }
 
@@ -123,7 +123,7 @@ int lisp_eastasian_width(addr value, size_t *ret)
 	}
 	if (stringp(value))
 		return eastasian_length(value, ret);
-	_fmte("Invalid string type ~S.", value, NULL);
+	fmte("Invalid string type ~S.", value, NULL);
 	return 0;
 }
 

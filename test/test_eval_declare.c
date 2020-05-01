@@ -1625,6 +1625,7 @@ static int test_declare_body(void)
 			" (declare (inline aaa))"
 			" hello"
 			" (cons 10 20))");
+	decl = NULL;
 	result = declare_body(Execute_Thread, Nil, cons, &decl, &body);
 	test(result == 0, "declare_body1");
 	readstring(&check, "((ignore hello) (special a) (inline aaa))");

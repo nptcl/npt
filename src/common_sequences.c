@@ -57,7 +57,7 @@ static int function_elt(Execute ptr, addr var, addr index)
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		return fmte("Too large index ~S.", index, NULL);
+		return fmte_("Too large index ~S.", index, NULL);
 	getelt_sequence(NULL, var, size, &var);
 	setresult_control(ptr, var);
 
@@ -97,7 +97,7 @@ static int function_setf_elt(Execute ptr, addr value, addr pos, addr index)
 	size_t size;
 
 	if (GetIndex_integer(index, &size))
-		return fmte("Too large index ~S.", index, NULL);
+		return fmte_("Too large index ~S.", index, NULL);
 	setelt_sequence(pos, size, value);
 	setresult_control(ptr, value);
 

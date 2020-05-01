@@ -99,7 +99,7 @@ static int vector_push_extension(addr extension, size_t *ret)
 		return 1;
 	}
 	if (GetIndex_integer(extension, ret))
-		_fmte("Invalid extension value ~S.", extension, NULL);
+		fmte("Invalid extension value ~S.", extension, NULL);
 	return 0;
 }
 
@@ -172,7 +172,7 @@ _g void vector_get(addr pos, size_t index, addr *ret)
 	CheckType(pos, LISPTYPE_VECTOR);
 	lenarray(pos, &size);
 	if (size <= index)
-		_fmte("Out of range ~S.", intsizeh(size), NULL);
+		fmte("Out of range ~S.", intsizeh(size), NULL);
 	getarray(pos, index, ret);
 }
 
@@ -183,14 +183,14 @@ _g void vector_aref(addr pos, addr args, addr *ret)
 
 	CheckType(pos, LISPTYPE_VECTOR);
 	if (! consp(args))
-		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	GetCons(args, &arg, &args);
 	if (args != Nil)
-		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	if (! integerp(arg))
-		_fmte("AREF argument ~S must be a non-negative integer.", arg, NULL);
+		fmte("AREF argument ~S must be a non-negative integer.", arg, NULL);
 	if (GetIndex_integer(arg, &index))
-		_fmte("Invalid index arg ~S.", arg, NULL);
+		fmte("Invalid index arg ~S.", arg, NULL);
 	vector_get(pos, index, ret);
 }
 
@@ -201,7 +201,7 @@ _g void vector_set(addr pos, size_t index, addr value)
 	CheckType(pos, LISPTYPE_VECTOR);
 	lenarray(pos, &size);
 	if (size <= index)
-		_fmte("Out of range ~S.", intsizeh(size), NULL);
+		fmte("Out of range ~S.", intsizeh(size), NULL);
 	setarray(pos, index, value);
 }
 
@@ -212,16 +212,16 @@ _g void vector_setf_aref(addr pos, addr args, addr value)
 
 	CheckType(pos, LISPTYPE_VECTOR);
 	if (GetStatusReadOnly(pos))
-		_fmte("The object ~S is constant.", pos, NULL);
+		fmte("The object ~S is constant.", pos, NULL);
 	if (! consp(args))
-		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	GetCons(args, &arg, &args);
 	if (args != Nil)
-		_fmte("AREF argument ~S must be (integer) form.", args, NULL);
+		fmte("AREF argument ~S must be (integer) form.", args, NULL);
 	if (! integerp(arg))
-		_fmte("AREF argument ~S must be a non-negative integer.", arg, NULL);
+		fmte("AREF argument ~S must be a non-negative integer.", arg, NULL);
 	if (GetIndex_integer(arg, &index))
-		_fmte("Invalid index arg ~S.", arg, NULL);
+		fmte("Invalid index arg ~S.", arg, NULL);
 	vector_set(pos, index, value);
 }
 
@@ -230,11 +230,11 @@ _g void vector_array_dimension(addr pos, addr arg, size_t size, addr *ret)
 	size_t check;
 
 	if (! integerp(arg))
-		_fmte("ARRAY-DIMENSION argument ~S must be integer type.", arg, NULL);
+		fmte("ARRAY-DIMENSION argument ~S must be integer type.", arg, NULL);
 	if (GetIndex_integer(arg, &check))
-		_fmte("Invalid index arg ~S.", arg, NULL);
+		fmte("Invalid index arg ~S.", arg, NULL);
 	if (check != 0)
-		_fmte("Array rank ~A must be less than equal to 1.", arg, NULL);
+		fmte("Array rank ~A must be less than equal to 1.", arg, NULL);
 	make_index_integer_alloc(NULL, ret, size);
 }
 
@@ -251,12 +251,12 @@ _g int vector_array_in_bounds_p(addr rest, size_t size)
 	size_t check;
 
 	if (! consp(rest))
-		_fmte("The subscripts ~S is too few argumens.", rest, NULL);
+		fmte("The subscripts ~S is too few argumens.", rest, NULL);
 	GetCons(rest, &pos, &rest);
 	if (rest != Nil)
-		_fmte("The subscripts ~S is too many argumens.", rest, NULL);
+		fmte("The subscripts ~S is too many argumens.", rest, NULL);
 	if (! integerp(pos))
-		_fmte("The subscript ~S must be integer type.", pos, NULL);
+		fmte("The subscript ~S must be integer type.", pos, NULL);
 	if (GetIndex_integer(pos, &check))
 		return 0;
 
@@ -266,7 +266,7 @@ _g int vector_array_in_bounds_p(addr rest, size_t size)
 _g void vector_array_row_major_index(addr rest, size_t size, addr *ret)
 {
 	if (! vector_array_in_bounds_p(rest, size))
-		_fmte("Out of range ~S.", intsizeh(size), NULL);
+		fmte("Out of range ~S.", intsizeh(size), NULL);
 	GetCar(rest, ret);
 }
 
@@ -318,7 +318,7 @@ static void vector_signed_check(enum ARRAY_TYPE type, int bytesize)
 			break;
 
 		default:
-			_fmte("Invalid vector type.", NULL);
+			fmte("Invalid vector type.", NULL);
 			break;
 	}
 
@@ -332,7 +332,7 @@ static void vector_signed_check(enum ARRAY_TYPE type, int bytesize)
 			break;
 
 		default:
-			_fmte("Invalide vector type (size).", NULL);
+			fmte("Invalide vector type (size).", NULL);
 			break;
 	}
 }
@@ -360,7 +360,7 @@ _g void vector_float_uninit(addr *ret, size_t size, enum ARRAY_TYPE type)
 			break;
 
 		default:
-			_fmte("Invalid vector type.", NULL);
+			fmte("Invalid vector type.", NULL);
 			break;
 	}
 	vector_type(ret, size, type, 0, Unbound);
@@ -385,7 +385,7 @@ _g void vector_float(addr *ret, size_t size, enum ARRAY_TYPE type, addr value)
 			break;
 
 		default:
-			_fmte("Invalid vector type.", NULL);
+			fmte("Invalid vector type.", NULL);
 			break;
 	}
 	vector_type(ret, size, type, 0, value);
@@ -397,7 +397,7 @@ _g void vector_setelt(addr pos, size_t index, addr value)
 
 	lenarray(pos, &size);
 	if (size <= index) {
-		_fmte("Index ~A must be less than vector size ~A.",
+		fmte("Index ~A must be less than vector size ~A.",
 				intsizeh(index), intsizeh(size), NULL);
 	}
 	setarray(pos, index, value);

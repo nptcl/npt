@@ -631,7 +631,7 @@ static void fmtchar_group_type(addr format, struct fmtchar *list)
 			break;
 
 		case FormatType_Error:
-			_fmte("format type error", NULL);
+			fmte("format type error", NULL);
 			break;
 
 		default:

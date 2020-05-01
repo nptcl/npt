@@ -1,9 +1,10 @@
 #include "bignum.h"
 #include "character.h"
+#include "common_header.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "cons_plist.h"
-#include "common_header.h"
+#include "control_object.h"
 #include "condition.h"
 #include "eval_declare.h"
 #include "integer.h"
@@ -86,7 +87,7 @@ _g int peek_char_common(Execute ptr, addr type, addr stream,
 static int call_end_of_file_recursive_(Execute ptr, addr pos, int recp)
 {
 	if (recp) {
-		return fmte("The stream ~S "
+		return fmte_("The stream ~S "
 				"reach end-of-file, but recursive-p is true.", pos, NULL);
 	}
 	else {
@@ -387,7 +388,7 @@ static int open_common_direction(addr value, enum Stream_Open_Direction *ret)
 
 	/* error */
 	*ret = Stream_Open_Direction_Input;
-	return fmte("Invalid :direction value ~S.", value, NULL);
+	return fmte_("Invalid :direction value ~S.", value, NULL);
 }
 
 static int open_common_element(Execute ptr, addr value, enum Stream_Open_Element *ret)
@@ -423,7 +424,7 @@ static int open_common_element(Execute ptr, addr value, enum Stream_Open_Element
 
 	/* error */
 	*ret = Stream_Open_Element_Character;
-	return fmte("Invalid :element-type value ~S.", value, NULL);
+	return fmte_("Invalid :element-type value ~S.", value, NULL);
 }
 
 static int open_common_ifexists(addr value, addr pos, enum Stream_Open_IfExists *ret)
@@ -480,7 +481,7 @@ static int open_common_ifexists(addr value, addr pos, enum Stream_Open_IfExists 
 
 	/* others */
 	*ret = Stream_Open_IfExists_Error;
-	return fmte("Invalid :if-exists value ~S.", value, NULL);
+	return fmte_("Invalid :if-exists value ~S.", value, NULL);
 }
 
 static int open_common_ifdoesnot(addr value,
@@ -512,7 +513,7 @@ static int open_common_ifdoesnot(addr value,
 		if (direction == Stream_Open_Direction_Probe)
 			return Result(ret, Stream_Open_IfDoesNot_Nil);
 		*ret = Stream_Open_IfDoesNot_Error;
-		return fmte("Invalid :if-does-not-exist default value.", NULL);
+		return fmte_("Invalid :if-does-not-exist default value.", NULL);
 	}
 
 	/* :error */
@@ -531,7 +532,7 @@ static int open_common_ifdoesnot(addr value,
 
 	/* others */
 	*ret = Stream_Open_IfDoesNot_Error;
-	return fmte("Invalid :if-does-not-exist value ~S.", value, NULL);
+	return fmte_("Invalid :if-does-not-exist value ~S.", value, NULL);
 }
 
 static int open_common_string(addr value, const char *str1, const char *str2)
@@ -614,7 +615,7 @@ static int open_common_external(addr value, enum Stream_Open_External *ret)
 
 	/* others */
 	*ret = Stream_Open_External_Utf8;
-	return fmte("Invalid external-format ~S.", value, NULL);
+	return fmte_("Invalid external-format ~S.", value, NULL);
 }
 
 _g int open_common(Execute ptr, addr pos, addr rest, addr *ret)
@@ -700,7 +701,7 @@ _g int with_open_file_common(addr form, addr *ret)
 	return 0;
 
 error:
-	return fmte("WITH-OPEN-FILE argument must be "
+	return fmte_("WITH-OPEN-FILE argument must be "
 			"a ((var file options*) ...) form.", form, NULL);
 }
 
@@ -774,7 +775,7 @@ _g int with_open_stream_common(addr form, addr *ret)
 	return 0;
 
 error:
-	return fmte("WITH-OPEN-STREAM argument must be "
+	return fmte_("WITH-OPEN-STREAM argument must be "
 			"a ((var stream) ...) form.", form, NULL);
 }
 
@@ -831,7 +832,7 @@ _g int make_string_output_stream_common(Execute ptr, addr rest, addr *ret)
 		GetTypeTable(&type, Character);
 		Return(parse_type(ptr, &pos, pos, Nil));
 		if (! subtypep_clang(pos, type, &validp))
-			return fmte(":ELEMENT-TYPE ~S must be a character type.", pos, NULL);
+			return fmte_(":ELEMENT-TYPE ~S must be a character type.", pos, NULL);
 	}
 	open_output_string_stream(ret, 0);
 
@@ -958,7 +959,7 @@ _g int with_input_from_string_common(addr form, addr *ret)
 	return 0;
 
 error:
-	return fmte("WITH-INPUT-FROM-STRING form ~S must be a "
+	return fmte_("WITH-INPUT-FROM-STRING form ~S must be a "
 			"((var string ...) &body body).", form, NULL);
 }
 
@@ -1068,7 +1069,7 @@ _g int with_output_to_string_common(addr form, addr *ret)
 	return 0;
 
 error:
-	return fmte("WITH-OUTPUT-TO-STRING form ~S must be a "
+	return fmte_("WITH-OUTPUT-TO-STRING form ~S must be a "
 			"((var &optional string &key element-type) &body body).", form, NULL);
 }
 

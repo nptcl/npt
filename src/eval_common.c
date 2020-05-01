@@ -2,7 +2,8 @@
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "control.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "eval_common.h"
 #include "eval_declare.h"
 #include "eval_parse.h"
@@ -27,15 +28,14 @@ _g void lambda_common(addr form, addr *ret)
  */
 _g int eval_common(Execute ptr, addr var)
 {
-	int check;
 	addr control;
 
 	push_return_control(ptr, &control);
 	push_toplevel_eval(ptr, Nil);
 	push_evalwhen_eval(ptr);
 	hide_lexical_control(ptr);
-	check = eval_execute(ptr, var);
-	return free_check_control(ptr, control, check);
+	Return(eval_execute(ptr, var));
+	return free_control_(ptr, control);
 }
 
 
@@ -56,7 +56,7 @@ static void compiler_macro_function_symbol(addr var, addr env, addr *ret)
 static void compiler_macro_function_setf(addr var, addr env, addr *ret)
 {
 	if (env != Unbound) {
-		_fmte("Don't use environment argument ~S "
+		fmte("Don't use environment argument ~S "
 				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
 		*ret = Nil;
 		return;
@@ -78,7 +78,7 @@ static void setf_compiler_macro_function_symbol(addr var, addr env, addr value)
 {
 	if (env != Unbound && find_environment(var, env, &env)) {
 		/* compiler-macro-function is shadowed */
-		_fmte("COMPILER-MACRO-FUNCTION ~S is shadowed in the environment.", var, NULL);
+		fmte("COMPILER-MACRO-FUNCTION ~S is shadowed in the environment.", var, NULL);
 		return;
 	}
 	GetCallName(var, &var);
@@ -88,7 +88,7 @@ static void setf_compiler_macro_function_symbol(addr var, addr env, addr value)
 static void setf_compiler_macro_function_setf(addr var, addr env, addr value)
 {
 	if (env != Unbound) {
-		_fmte("Don't use environment argument ~S "
+		fmte("Don't use environment argument ~S "
 				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
 		return;
 	}
@@ -117,22 +117,22 @@ _g void define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret
 	/* (define-compiler-macro . form) */
 	getcdr(form, &right);
 	if (right == Nil)
-		_fmte("define-compiler-macro form must have at least a name and body.", NULL);
+		fmte("define-compiler-macro form must have at least a name and body.", NULL);
 	if (! consp(right))
-		_fmte("Invalid define-compiler-macro form.", NULL);
+		fmte("Invalid define-compiler-macro form.", NULL);
 
 	/* name */
 	getcons(right, &name, &right);
 	parse_callname_error(&name, name);
 	if (right == Nil)
-		_fmte("define-compiler-macro form must have at least a name and body.", NULL);
+		fmte("define-compiler-macro form must have at least a name and body.", NULL);
 	if (! consp(right))
-		_fmte("Invalid define-compiler-macro form.", NULL);
+		fmte("Invalid define-compiler-macro form.", NULL);
 
 	/* args */
 	getcons(right, &args, &right);
 	if (! IsList(right))
-		_fmte("Invalid define-compiler-macro form.", NULL);
+		fmte("Invalid define-compiler-macro form.", NULL);
 
 	/* parse */
 	lambda_macro(ptr->local, &args, args, Nil);
@@ -166,12 +166,12 @@ static void compile_variable(Execute ptr, addr var, addr opt, addr *ret)
 		if (check == Unbound)
 			goto unbound;
 	}
-	_fmtw("This implementation cannot compile a function.", NULL);
+	fmtw("This implementation cannot compile a function.", NULL);
 	*ret = var;
 	return;
 
 unbound:
-	_fmte("The function ~S is unbound.", var, NULL);
+	fmte("The function ~S is unbound.", var, NULL);
 	*ret = Nil;
 }
 
@@ -189,18 +189,18 @@ static int compile_lambda_p(addr opt)
 static int compile_lambda(Execute ptr, addr opt, addr *ret)
 {
 	if (functionp(opt)) {
-		_fmtw("This implementation cannot compile a function.", NULL);
+		fmtw("This implementation cannot compile a function.", NULL);
 		*ret = opt;
 		return 0;
 	}
 	if (compile_lambda_p(opt)) {
-		_fmtw("This implementation cannot compile a function.", NULL);
+		fmtw("This implementation cannot compile a function.", NULL);
 		Return(eval_object(ptr, opt, &opt));
 		*ret = opt;
 		return 0;
 	}
 
-	_fmte("The second argument ~S must be a lambda expression.", opt, NULL);
+	fmte("The second argument ~S must be a lambda expression.", opt, NULL);
 	*ret = Nil;
 	return 0;
 }
@@ -212,13 +212,13 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 
 	parse_callname_error(&call, var);
 	if (functionp(opt)) {
-		_fmtw("This implementation cannot compile a function.", NULL);
+		fmtw("This implementation cannot compile a function.", NULL);
 		setfunction_callname_global(call, opt);
 		*ret = var;
 		return 0;
 	}
 	if (compile_lambda_p(opt)) {
-		_fmtw("This implementation cannot compile a function.", NULL);
+		fmtw("This implementation cannot compile a function.", NULL);
 		hold = LocalHold_local(ptr);
 		localhold_pushva_force(hold, call, opt, NULL);
 		Return(eval_object(ptr, opt, &opt));
@@ -228,7 +228,7 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 		return 0;
 	}
 
-	_fmte("The second argument ~S must be a lambda expression.", opt, NULL);
+	fmte("The second argument ~S must be a lambda expression.", opt, NULL);
 	*ret = Nil;
 	return 0;
 }
@@ -249,7 +249,7 @@ static int compile_execute(Execute ptr, addr var, addr opt, addr *ret)
 	}
 
 	/* error */
-	_fmte("The first argument ~S in COMPILE must be a function-name.", var, NULL);
+	fmte("The first argument ~S in COMPILE must be a function-name.", var, NULL);
 	*ret = Nil;
 	return 0;
 }
@@ -263,8 +263,7 @@ _g int compile_common(Execute ptr, addr var, addr opt,
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	handler_compile(ptr);
-	if (compile_execute(ptr, var, opt, ret1))
-		return free_check_control(ptr, control, 1);
+	Return(compile_execute(ptr, var, opt, ret1));
 	localhold_set(hold, 0, *ret1);
 	/* warning */
 	GetConst(SYSTEM_COMPILE_WARNING, &var);
@@ -273,7 +272,7 @@ _g int compile_common(Execute ptr, addr var, addr opt,
 	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &var);
 	getlexicalcheck_local(ptr, var, ret3);
 	/* free */
-	Return(free_check_control(ptr, control, 0));
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -290,23 +289,23 @@ _g int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
 	/* (defmacro . form) */
 	Return_getcdr(form, &form);
 	if (form == Nil)
-		return fmte("defmacro form must have at least a name and body.", NULL);
+		return fmte_("defmacro form must have at least a name and body.", NULL);
 	if (GetType(form) != LISPTYPE_CONS)
-		return fmte("Invalid defmacro form.", NULL);
+		return fmte_("Invalid defmacro form.", NULL);
 
 	/* name */
 	Return_getcons(form, &name, &form);
 	if (! symbolp(name))
-		return fmte("defmacro name ~S must be a symbol.", name, NULL);
+		return fmte_("defmacro name ~S must be a symbol.", name, NULL);
 	if (form == Nil)
-		return fmte("defmacro form must have at least a name and body.", NULL);
+		return fmte_("defmacro form must have at least a name and body.", NULL);
 	if (! consp(form))
-		return fmte("Invalid defmacro form.", NULL);
+		return fmte_("Invalid defmacro form.", NULL);
 
 	/* args */
 	Return_getcons(form, &args, &form);
 	if (! IsList(form))
-		return fmte("Invalid defmacro form.", NULL);
+		return fmte_("Invalid defmacro form.", NULL);
 
 	/* parse */
 	check_function_variable(name);
@@ -398,14 +397,14 @@ _g int define_symbol_macro_common(addr form, addr env, addr *ret)
 	if (cons != Nil)
 		goto error;
 	if (! symbolp(symbol))
-		return fmte("The argument ~S must be a symbol.", NULL);
+		return fmte_("The argument ~S must be a symbol.", NULL);
 	/* (lisp-system::define-symbol-macro symbol expansion) */
 	GetConst(SYSTEM_DEFINE_SYMBOL_MACRO, &form);
 	list_heap(ret, form, symbol, expansion, NULL);
 	return 0;
 
 error:
-	return fmte("define-symbol-macro argument ~S "
+	return fmte_("define-symbol-macro argument ~S "
 			"must be a (symbol expansion) form.", form, NULL);
 }
 

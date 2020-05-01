@@ -3,7 +3,8 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
 #include "copy.h"
 #include "eval.h"
 #include "eval_declare.h"
@@ -604,9 +605,9 @@ static void check_scope_variable(addr symbol)
 {
 	Check(! symbolp(symbol), "type error");
 	if (keywordp(symbol))
-		_fmte("Keyword ~S can't be use a variable.", symbol, NULL);
+		fmte("Keyword ~S can't be use a variable.", symbol, NULL);
 	if (GetStatusReadOnly(symbol))
-		_fmte("The constant of symbol ~S can't use a variable.", symbol, NULL);
+		fmte("The constant of symbol ~S can't use a variable.", symbol, NULL);
 }
 
 static int let_init(Execute ptr, struct let_struct *str)
@@ -953,10 +954,10 @@ static void ignore_checkvalue(addr stack)
 		special = getspecialp_tablevalue(value);
 
 		if (ignore == IgnoreType_None && (! reference) && (! special)) {
-			_fmtw("Unused variable ~S.", symbol, NULL);
+			fmtw("Unused variable ~S.", symbol, NULL);
 		}
 		if (ignore == IgnoreType_Ignore && reference) {
-			_fmtw("Ignore variable ~S used.", symbol, NULL);
+			fmtw("Ignore variable ~S used.", symbol, NULL);
 		}
 	}
 }
@@ -964,7 +965,7 @@ static void ignore_checkvalue(addr stack)
 static void tablevalue_update(addr table, addr *ret, addr var)
 {
 	if (getplist(table, var, &var))
-		_fmte("tablevalue_update error.", NULL);
+		fmte("tablevalue_update error.", NULL);
 	copy_tablevalue(NULL, ret, var);
 }
 
@@ -1081,7 +1082,7 @@ static int leta_init(Execute ptr, struct let_struct *str)
 static void find_tablevalue_error(addr stack, addr symbol, addr *ret)
 {
 	if (! find_tablevalue(stack, symbol, ret))
-		_fmte("Cannot find table value ~S.", symbol, NULL);
+		fmte("Cannot find table value ~S.", symbol, NULL);
 }
 
 static void leta_checktype(Execute ptr, struct let_struct *str)
@@ -1150,7 +1151,7 @@ static int scope_leta(Execute ptr, addr *ret, addr eval)
  */
 static void warning_global_lexical(addr symbol)
 {
-	/* _fmtw("Undefined variable ~S.", symbol, NULL); */
+	/* fmtw("Undefined variable ~S.", symbol, NULL); */
 }
 
 static int symbol_global_tablevalue(Execute ptr, addr symbol, addr *ret)
@@ -1328,9 +1329,7 @@ static int scope_symbol_replace(Execute ptr, addr *ret, addr form)
 	else {
 		env = Nil;
 	}
-	if (callclang_funcall(ptr, &form, hook, call, form, env, NULL)) {
-		return 1;
-	}
+	Return(callclang_funcall(ptr, &form, hook, call, form, env, NULL));
 
 	return scope_eval(ptr, ret, form);
 }
@@ -1755,7 +1754,7 @@ static int scope_function(Execute ptr, addr *ret, addr eval)
 		return scope_function_object(ptr, ret, eval);
 	if (callnamep(eval))
 		return scope_function_callname(ptr, ret, eval);
-	_fmte("Invalid object type ~S", eval, NULL);
+	fmte("Invalid object type ~S", eval, NULL);
 
 	return 0;
 }
@@ -2303,7 +2302,7 @@ static void defun_the(addr eval, struct lambda_struct *str)
 			break;
 
 		default:
-			_fmte("callname error.", NULL);
+			fmte("callname error.", NULL);
 			return;
 	}
 	SetEvalScopeThe(eval, type);
@@ -2794,7 +2793,7 @@ static void checktype_function(addr table, addr eval)
 	GetEvalScopeThe(eval, &eval);
 	(void)checktype_p(eval, table, &check);
 	if (check)
-		_fmte("Invalid function type.", NULL);
+		fmte("Invalid function type.", NULL);
 }
 
 static void flet_applytable(Execute ptr, struct let_struct *str)
@@ -2830,10 +2829,10 @@ static void ignore_checkfunction(addr stack)
 		GetCallName(call, &symbol);
 
 		if (ignore == IgnoreType_None && (! reference)) {
-			_fmtw("Unused variable ~S.", symbol, NULL);
+			fmtw("Unused variable ~S.", symbol, NULL);
 		}
 		if (ignore == IgnoreType_Ignore && reference) {
-			_fmtw("Ignore variable ~S used.", symbol, NULL);
+			fmtw("Ignore variable ~S used.", symbol, NULL);
 		}
 	}
 }
@@ -2841,7 +2840,7 @@ static void ignore_checkfunction(addr stack)
 static void tablefunction_update(addr table, addr *ret, addr call)
 {
 	if (getplist_callname(table, call, &call))
-		_fmte("tablefunction_update error.", NULL);
+		fmte("tablefunction_update error.", NULL);
 	copy_tablefunction(NULL, ret, call);
 }
 
@@ -2951,7 +2950,7 @@ static int labels_init(Execute ptr, struct let_struct *str)
 static void find_tablefunction_error(addr stack, addr call, addr *ret)
 {
 	if (! find_tablefunction(stack, call, ret))
-		_fmte("Cannot find table function ~S.", call, NULL);
+		fmte("Cannot find table function ~S.", call, NULL);
 }
 
 static void labels_checktype(struct let_struct *str)
@@ -3028,7 +3027,7 @@ static int call_first(Execute ptr, addr *ret, addr first)
 			return scope_lambda(ptr, ret, first);
 
 		default:
-			_fmte("Invalid parse object.", NULL);
+			fmte("Invalid parse object.", NULL);
 			break;
 	}
 
@@ -3211,7 +3210,7 @@ static int callargs_restkey(Execute ptr,
 
 	/* error check */
 	if (key != Nil && keyvalue)
-		_fmte("Invalid keyword argument ~S.", key, NULL);
+		fmte("Invalid keyword argument ~S.", key, NULL);
 	*result = 0;
 
 	return 0;
@@ -3240,10 +3239,10 @@ static int callargs_check(Execute ptr, addr array, addr args, addr *ret)
 	goto final;
 
 toofew:
-	_fmtw("Too few arguments.", NULL);
+	fmtw("Too few arguments.", NULL);
 	goto final;
 toomany:
-	_fmtw("Too many arguments.", NULL);
+	fmtw("Too many arguments.", NULL);
 	goto final;
 final:
 	localhold_end(hold);
@@ -3565,7 +3564,7 @@ static void tagbody_check(addr stack)
 		GetCons(cons, &key, &cons);
 		GetCons(cons, &value, &cons);
 		if (getreference_tabletagbody(value) == 0) {
-			/* _fmtw("Unused tag ~S.", key, NULL); */
+			/* fmtw("Unused tag ~S.", key, NULL); */
 		}
 	}
 }
@@ -3657,7 +3656,7 @@ static void go_execute(Execute ptr, addr *ret, addr tag)
 
 	getstack_eval(ptr, &stack);
 	if (! go_tabletagbody(stack, tag, &table))
-		_fmte("Tag ~S is not found.", tag, NULL);
+		fmte("Tag ~S is not found.", tag, NULL);
 	setreference_tabletagbody(table, 1);
 	*ret = table;
 }
@@ -3773,7 +3772,7 @@ static int return_from_execute(Execute ptr, addr name, addr form, addr *ret)
 
 	getstack_eval(ptr, &stack);
 	if (! name_tableblock(stack, name))
-		_fmte("Cannot find block name ~S.", name, NULL);
+		fmte("Cannot find block name ~S.", name, NULL);
 	return scope_eval(ptr, ret, form);
 }
 
@@ -4102,7 +4101,7 @@ static int scope_eval_table(Execute ptr, addr *ret, addr eval)
 	GetEvalParseType(eval, &type);
 	call = EvalScopeTable[type];
 	if (call == NULL) {
-		_fmte("Invalid eval-parse type.", NULL);
+		fmte("Invalid eval-parse type.", NULL);
 		return 0;
 	}
 	return (*call)(ptr, ret, eval);
@@ -4209,24 +4208,16 @@ static int scope_eval(Execute ptr, addr *ret, addr eval)
 
 _g int eval_scope(Execute ptr, addr *ret, addr eval)
 {
-	int check;
 	addr control;
 	LocalHold hold;
 
-	/* push */
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
-	/* code */
-	init_eval_stack(ptr);
-	check = scope_eval(ptr, ret, eval);
+	begin_eval_stack(ptr);
+	free_eval_stack(ptr);
+	Return(scope_eval(ptr, ret, eval));
 	localhold_set(hold, 0, *ret);
-	if (check) {
-		Return(runcode_free_control(ptr, control));
-	}
-	else {
-		free_eval_stack(ptr);
-		Return(free_control(ptr, control));
-	}
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;

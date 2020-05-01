@@ -40,6 +40,7 @@ cmpl_math.c
 cmpl_multi.c
 cmpl_plus.c
 code.c
+code_function.c
 common_arrays.c
 common_characters.c
 common_conditions.c
@@ -78,6 +79,9 @@ console.c
 constant.c
 control.c
 control_callbind.c
+control_execute.c
+control_object.c
+control_operator.c
 copy.c
 core.c
 data.c
@@ -212,6 +216,7 @@ stream_concat.c
 stream_echo.c
 stream_error.c
 stream_file.c
+stream_init.c
 stream_pretty.c
 stream_prompt.c
 stream_string.c

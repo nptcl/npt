@@ -1594,7 +1594,6 @@ lisp-code::hello
 lisp-code::nop
 lisp-code::abort
 lisp-code::error
-lisp-code::end
 lisp-code::info
 lisp-code::print
 
@@ -1666,6 +1665,7 @@ lisp-code::setf-local-push
 
 lisp-code::goto
 lisp-code::execute
+lisp-code::execute-switch
 lisp-code::lambda
 lisp-code::lambda-self
 lisp-code::lambda-value
@@ -1713,6 +1713,10 @@ lisp-code::multiple-value-bind
 lisp-code::funcall
 lisp-code::nth-value
 lisp-code::progv
+
+lisp-code::taginfo
+lisp-code::blockinfo
+lisp-code::unwind-protect
 
 
 ;;

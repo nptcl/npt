@@ -1180,7 +1180,7 @@ static int test_format_call_Exponent(void)
 	format_string_lisp(ptr, pos, args, &pos);
 	test(string_equal_char(pos, "1.23D+1"), "format_call_Exponent23");
 
-	free_control(ptr, value);
+	free_control_(ptr, value);
 
 	strvect_char_heap(&pos, "~@E");
 	list_heap(&args, double_float_heapr(12.3), NULL);
@@ -1343,7 +1343,7 @@ static int test_format_call_General(void)
 	format_string_lisp(ptr, pos, args, &pos);
 	test(string_equal_char(pos, "1.23D-4"), "format_call_General27");
 
-	free_control(ptr, value);
+	free_control_(ptr, value);
 
 	strvect_char_heap(&pos, "~@G");
 	list_heap(&args, double_float_heapr(12.3), NULL);

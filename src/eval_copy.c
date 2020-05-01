@@ -529,16 +529,14 @@ static void copy_eval_tagbody(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_tag(LocalRoot local, addr *ret, addr eval)
 {
 	enum EVAL_PARSE type;
-	addr tag, value;
+	addr tag;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_TAG, "parse error");
 	GetEvalParse(eval, 0, &tag);
-	GetEvalParse(eval, 1, &value);
 
 	eval_parse_alloc(local, &eval, type, 2);
 	SetEvalParse(eval, 0, tag);
-	SetEvalParse(eval, 1, value);
 	*ret = eval;
 }
 
@@ -916,7 +914,7 @@ static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 	return;
 
 error:
-	_fmte("parse-error: ~S.", pos, NULL);
+	fmte("parse-error: ~S.", pos, NULL);
 	*ret = Nil;
 }
 

@@ -10,7 +10,7 @@
 
 _g void directory_files(Execute ptr, addr *ret, addr pos)
 {
-	_fmte("DIRECTORY function is not supported in ANSI-C mode.", NULL);
+	fmte("DIRECTORY function is not supported in ANSI-C mode.", NULL);
 }
 
 static int probe_file_boolean(const char *file)
@@ -43,7 +43,7 @@ static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	/* check */
 	name_pathname_local(ptr, pos, &pos);
 	if (UTF8_buffer_clang(ptr->local, &pos, pos))
-		_fmte("Cannot decode UTF-8 string ~S.", pos, NULL);
+		fmte("Cannot decode UTF-8 string ~S.", pos, NULL);
 	str = (const char *)posbodyr(pos);
 	*ret = probe_file_boolean(str)? T: Nil;
 }
@@ -62,17 +62,17 @@ _g void probe_file_files(Execute ptr, addr *ret, addr pos)
 _g void ensure_directories_exist_files(Execute ptr,
 		addr *ret1, addr *ret2, addr pos, int verbose)
 {
-	_fmte("ENSUER-DIRECTORIES-EXIST function is not supported in ANSI-C mode.", NULL);
+	fmte("ENSUER-DIRECTORIES-EXIST function is not supported in ANSI-C mode.", NULL);
 }
 
 _g void file_author_files(Execute ptr, addr *ret, addr pos)
 {
-	_fmte("FILE-AUTHOR function is not supported in ANSI-C mode.", NULL);
+	fmte("FILE-AUTHOR function is not supported in ANSI-C mode.", NULL);
 }
 
 _g void file_write_date_files(Execute ptr, addr *ret, addr pos)
 {
-	_fmte("FILE-WRITE-DATE function is not supported in ANSI-C mode.", NULL);
+	fmte("FILE-WRITE-DATE function is not supported in ANSI-C mode.", NULL);
 }
 
 static void rename_file_run_files(Execute ptr,
@@ -87,18 +87,18 @@ static void rename_file_run_files(Execute ptr,
 	physical_pathname_heap(ptr, to, &to);
 	truename_files(ptr, from, &true1, 0);
 	if (wild_pathname_boolean(from, Nil))
-		_fmte("Cannot rename wildcard pathname from ~S", from, NULL);
+		fmte("Cannot rename wildcard pathname from ~S", from, NULL);
 	if (wild_pathname_boolean(to, Nil))
-		_fmte("Cannot rename wildcard pathname to ~S", to, NULL);
+		fmte("Cannot rename wildcard pathname to ~S", to, NULL);
 	/* filename */
 	local = ptr->local;
 	name_pathname_local(ptr, from, &value);
 	if (UTF8_buffer_clang(local, &value, value))
-		_fmte("Cannot decode UTF-8 string ~S.", from, NULL);
+		fmte("Cannot decode UTF-8 string ~S.", from, NULL);
 	str1 = (const char *)posbodyr(value);
 	name_pathname_local(ptr, to, &value);
 	if (UTF8_buffer_clang(local, &value, value))
-		_fmte("Cannot decode UTF-8 string ~S.", to, NULL);
+		fmte("Cannot decode UTF-8 string ~S.", to, NULL);
 	str2 = (const char *)posbodyr(value);
 	/* check */
 	if (probe_file_boolean(str2)) {
@@ -134,7 +134,7 @@ _g void rename_file_files(Execute ptr,
 
 _g void delete_file_files(Execute ptr, addr pos)
 {
-	_fmte("DELETE-FILE function is not supported in ANSI-C mode.", NULL);
+	fmte("DELETE-FILE function is not supported in ANSI-C mode.", NULL);
 }
 
 _g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
@@ -148,13 +148,13 @@ _g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
 
 _g int remove_file_common(Execute ptr, addr pos, int errorp)
 {
-	_fmte("REMOVE-FILE function is not supported in ANSI-C mode.", NULL);
+	fmte("REMOVE-FILE function is not supported in ANSI-C mode.", NULL);
 	return 0;
 }
 
 _g int remove_directory_common(Execute ptr, addr pos, int errorp)
 {
-	_fmte("REMOVE-DIRECTORY function is not supported in ANSI-C mode.", NULL);
+	fmte("REMOVE-DIRECTORY function is not supported in ANSI-C mode.", NULL);
 	return 0;
 }
 

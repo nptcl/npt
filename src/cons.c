@@ -248,7 +248,7 @@ _g void lista_alloc_safe(LocalRoot local, addr *ret, addr first, addr cons)
 
 	for (root = Nil; cons != Nil; first = pos) {
 		if (GetType(cons) != LISPTYPE_CONS)
-			_fmte("The argument ~S must be a list.", cons, NULL);
+			fmte("The argument ~S must be a list.", cons, NULL);
 		GetCons(cons, &pos, &cons);
 		cons_alloc(local, &root, first, root);
 	}
@@ -330,7 +330,7 @@ _g void lista_stdarg_safe(LocalRoot local, addr *ret, va_list args)
 	pos1 = va_arg(args, addr);
 	/* nil */
 	if (pos1 == NULL) {
-		_fmte("LIST* must be at least one argument.", NULL);
+		fmte("LIST* must be at least one argument.", NULL);
 		*ret = Nil;
 		return;
 	}
@@ -507,11 +507,11 @@ _g void list_bind(addr list, ...)
 		ret = va_arg(args, addr *);
 		if (ret == NULL) {
 			if (list != Nil)
-				_fmte("Too many list argument.", NULL);
+				fmte("Too many list argument.", NULL);
 			break;
 		}
 		if (list == Nil)
-			_fmte("Too few list argument.", NULL);
+			fmte("Too few list argument.", NULL);
 		getcons(list, &pos, &list);
 		*ret = pos;
 	}
@@ -553,7 +553,7 @@ _g void lista_bind(addr list, ...)
 	ret1 = va_arg(args, addr *);
 	if (ret1 == NULL) {
 		if (list != Nil)
-			_fmte("Too few argument.", NULL);
+			fmte("Too few argument.", NULL);
 		goto finish;
 	}
 	for (;;) {
@@ -563,7 +563,7 @@ _g void lista_bind(addr list, ...)
 			break;
 		}
 		if (! consp(list))
-			_fmte("Too few argument.", NULL);
+			fmte("Too few argument.", NULL);
 		getcons(list, &pos, &list);
 		*ret1 = pos;
 		ret1 = ret2;

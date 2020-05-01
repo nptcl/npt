@@ -8,7 +8,8 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "control.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "degrade.h"
 #include "eval.h"
 #include "eval_declare.h"
@@ -95,24 +96,22 @@ static void loadrt_declare_optimize(void)
 
 static int loadrt_execute(Execute ptr, const char *name)
 {
-	int result;
 	addr control;
 	codejump jump;
 
-	result = 1;
 	begin_switch(ptr, &jump);
 	push_close_control(ptr, &control);
 	if (codejump_run_p(&jump)) {
 		handler_warning(ptr);
 		loadrt_disable_debugger(ptr);
 		loadrt_declare_optimize();
-		result = loadrt_init(ptr, name);
+		Return(loadrt_init(ptr, name));
 	}
 	end_switch(&jump);
-	free_control(ptr, control);
+	Return(free_control_(ptr, control));
 	throw_switch(&jump);
 
-	return result;
+	return 0;
 }
 
 static void loadrt_nickname(const char *str1, const char *str2)
@@ -161,7 +160,7 @@ static void loadrt_setindex(Execute ptr)
 	getspecial_local(ptr, symbol, &value);
 	if (value != Unbound) {
 		if (! fixnump(value))
-			_fmte("Invalid fixnum value ~S.", value, NULL);
+			fmte("Invalid fixnum value ~S.", value, NULL);
 		GetFixnum(value, &index);
 		DegradeCount = (int)index;
 	}

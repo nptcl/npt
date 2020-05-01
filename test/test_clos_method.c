@@ -169,7 +169,7 @@ static int test_method_check_method_qualifiers(void)
 	conscar_heap(&cons, cons);
 	stdset_method_qualifiers(method, cons);
 	/* check */
-	method_check_method_qualifiers(Execute_Thread, gen, method);
+	method_check_method_qualifiers_(Execute_Thread, gen, method);
 	test(1, "method_check_method_qualifiers1");
 
 	RETURN;
@@ -446,7 +446,7 @@ static int test_method_push_generic(void)
 
 	method_instance_call(NULL, &method, Nil, Nil);
 	stdset_method_qualifiers(method, Nil);
-	method_push_generic(ptr, generic, method);
+	method_push_generic_(ptr, generic, method);
 	stdget_generic_methods(generic, &array);
 	GetArrayA4(array, 2, &array);
 	test(array != Nil, "method_push_generic1");
@@ -580,17 +580,17 @@ static int test_method_find_method_nil(void)
 	/* check */
 	ptr = Execute_Thread;
 	list_heap(&pos, T, T, NULL);
-	method_find_method_nil(ptr, generic, pos, T, &pos);
+	method_find_method_nil_(ptr, generic, pos, T, &pos);
 	test(pos == Nil, "method_find_method_nil1");
-	method_find_method_nil(ptr, generic, Nil, T, &pos);
+	method_find_method_nil_(ptr, generic, Nil, T, &pos);
 	test(pos == Nil, "method_find_method_nil2");
 	GetConst(KEYWORD_BEFORE, &qua);
 	list_heap(&qua, qua, NULL);
 	list_heap(&cons, fixnum, fixnum, NULL);
-	method_find_method_nil(ptr, generic, qua, cons, &pos);
+	method_find_method_nil_(ptr, generic, qua, cons, &pos);
 	test(pos == Nil, "method_find_method_nil3");
 	list_heap(&cons, fixnum, integer, NULL);
-	method_find_method_nil(ptr, generic, qua, cons, &pos);
+	method_find_method_nil_(ptr, generic, qua, cons, &pos);
 	test(pos == method, "method_find_method_nil4");
 
 	RETURN;
@@ -619,7 +619,7 @@ static int test_method_find_method(void)
 	GetConst(KEYWORD_BEFORE, &qua);
 	list_heap(&qua, qua, NULL);
 	list_heap(&cons, fixnum, integer, NULL);
-	method_find_method(ptr, generic, qua, cons, &pos);
+	method_find_method_(ptr, generic, qua, cons, &pos);
 	test(pos == method, "method_find_method1");
 
 	RETURN;
@@ -627,6 +627,7 @@ static int test_method_find_method(void)
 
 static int test_method_remove_method_execute(void)
 {
+	int check;
 	addr generic, method, pos, fixnum, integer, array, qua;
 	addr temp;
 	Execute ptr;
@@ -651,17 +652,17 @@ static int test_method_remove_method_execute(void)
 	GetConst(KEYWORD_AFTER, &qua);
 	list_heap(&qua, qua, NULL);
 	stdset_method_qualifiers(temp, qua);
-	test(! method_remove_method_execute(ptr, generic, temp),
-			"method_remove_method_execute1");
+	method_remove_method_execute_(ptr, generic, temp, &check);
+	test(! check, "method_remove_method_execute1");
 
 	GetConst(KEYWORD_BEFORE, &qua);
 	list_heap(&qua, qua, NULL);
 	stdset_method_qualifiers(temp, qua);
-	test(! method_remove_method_execute(ptr, generic, temp),
-			"method_remove_method_execute2");
+	method_remove_method_execute_(ptr, generic, temp, &check);
+	test(! check, "method_remove_method_execute2");
 
-	test(method_remove_method_execute(ptr, generic, method),
-			"method_remove_method_execute3");
+	method_remove_method_execute_(ptr, generic, method, &check);
+	test(check, "method_remove_method_execute3");
 	GetArrayA4(array, 1, &pos);
 	test(pos == Nil, "method_remove_method_execute4");
 

@@ -7,6 +7,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
+#include "control_operator.h"
 #include "copy.h"
 #include "degrade.h"
 #include "execute.h"
@@ -55,7 +56,7 @@ static int test_call_callbind_any(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value, "call_callbind_any2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -75,7 +76,7 @@ static int test_call_callbind_empty(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value, "call_callbind_empty1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -106,7 +107,7 @@ static int test_call_callbind_dynamic(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 2, "call_callbind_dynamic2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -141,7 +142,7 @@ static int test_call_callbind_rest(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 2, "call_callbind_rest2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -167,7 +168,7 @@ static int test_call_callbind_var1(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 10, "call_callbind_var1-1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -193,7 +194,7 @@ static int test_call_callbind_var2(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 30, "call_callbind_var2-1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -220,7 +221,7 @@ static int test_call_callbind_var3(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 60, "call_callbind_var3-1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -252,7 +253,7 @@ static int test_call_callbind_opt1(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 10, "call_callbind_opt1-2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -294,7 +295,7 @@ static int test_call_callbind_opt2(void)
 	call_compiled_function(ptr, pos);
 	test(test_function_value == 30, "call_callbind_opt2-3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -358,7 +359,7 @@ static int test_call_callbind_opt3(void)
 	test(test_function_mode == 3, "call_callbind_opt3-7");
 	test(test_function_value == 60, "call_callbind_opt3-8");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -400,7 +401,7 @@ static int test_call_callbind_var1opt1(void)
 	test(test_function_mode == 2, "call_callbind_var1opt1-3");
 	test(test_function_value == 30, "call_callbind_var1opt1-4");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -443,7 +444,7 @@ static int test_call_callbind_var2opt1(void)
 	test(test_function_mode == 3, "call_callbind_var2opt1-3");
 	test(test_function_value == 60, "call_callbind_var2opt1-4");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -496,7 +497,7 @@ static int test_call_callbind_var1opt2(void)
 	test(test_function_mode == 3, "call_callbind_var1opt2-5");
 	test(test_function_value == 60, "call_callbind_var1opt2-6");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -540,7 +541,7 @@ static int test_call_callbind_var1rest(void)
 	test(test_function_mode == 2, "call_callbind_var1rest3");
 	test(test_function_value == 60, "call_callbind_var1rest4");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -584,7 +585,7 @@ static int test_call_callbind_var2rest(void)
 	test(test_function_mode == 1, "call_callbind_var2rest3");
 	test(test_function_value == 60, "call_callbind_var2rest4");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }

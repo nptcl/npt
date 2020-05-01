@@ -97,7 +97,7 @@ _g void setcharacter_unsafe(addr pos, unicode value)
 	Check(GetStatusReadOnly(pos), "readonly error");
 	type = character_type(value);
 	if (type == CHARACTER_TYPE_INVALID)
-		_fmte("Invaild character code.", NULL);
+		fmte("Invaild character code.", NULL);
 	SetCharacterType(pos, type);
 	SetCharacter_Low(pos, value);
 }

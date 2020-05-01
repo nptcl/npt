@@ -209,7 +209,7 @@ _g int loop_common(Execute ptr, addr *ret, addr list)
 
 	/* error */
 	if (list != Nil) {
-		_fmte("Invalid loop form ~S.", list, NULL);
+		fmte("Invalid loop form ~S.", list, NULL);
 		return 0;
 	}
 

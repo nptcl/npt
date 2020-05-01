@@ -9,7 +9,8 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "condition.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
 #include "function.h"
 #include "integer.h"
 #include "lambda.h"
@@ -45,7 +46,7 @@ _g void clos_ensure_class_supers(addr args, addr *ret, int *referp)
 				*referp = 1;
 			}
 			else {
-				_fmte("Cannot have a forward-referenced-class ~S "
+				fmte("Cannot have a forward-referenced-class ~S "
 						"in the finalized class.", pos, NULL);
 			}
 			return;
@@ -61,7 +62,7 @@ static void clos_ensure_class_parse_slots(addr list, addr *ret)
 
 	/* arguments */
 	if (getkeyargs(list, CLOSKEY_NAME, &name))
-		_fmte("Invalid slot :name ~S.", name, NULL);
+		fmte("Invalid slot :name ~S.", name, NULL);
 	if (getkeyargs(list, CLOSKEY_TYPE, &type))
 		GetTypeTable(&type, T);
 	if (getkeyargs(list, CLOSKEY_INITARGS, &args))
@@ -135,7 +136,7 @@ _g void clos_ensure_class_direct_default_initargs(LocalRoot local,
 		list_bind(list, &key, &a, &b, NULL);
 		/* check duplicate */
 		if (find_list_eq_unsafe(key, check))
-			_fmte(":INITARG ~S is already exist.", key, NULL);
+			fmte(":INITARG ~S is already exist.", key, NULL);
 		cons_local(local, &check, key, check);
 	}
 	rollback_local(local, stack);
@@ -166,55 +167,63 @@ static void clos_ensure_class_default_initargs(LocalRoot local, addr pos, addr *
 }
 
 /* reader/writer check */
-static void clos_ensure_reader_check(Execute ptr, addr gen)
+static int clos_ensure_reader_check_(Execute ptr, addr gen)
 {
+	int check;
 	addr pos;
 	size_t index;
 
 	/* generic-function */
 	if (gen == Unbound)
-		return;
+		return 0;
 	if (functionp(gen))
-		_fmte("The function ~S must be a generic-function.", gen, NULL);
+		fmte("The function ~S must be a generic-function.", gen, NULL);
 
 	/* qualifiers */
 	stdget_generic_method_combination(gen, &pos);
-	if (qualifiers_position_nil(ptr, Nil, pos, &index))
-		_fmte("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
+	Return(qualifiers_position_nil_(ptr, Nil, pos, &index, &check));
+	if (check)
+		fmte("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
 
 	/* specializer */
 	stdget_generic_lambda_list(gen, &pos);
 	if (! argumentp(pos))
 		argument_generic_heap(ptr->local, &pos, pos);
 	if (ArgumentStruct(pos)->var != 1)
-		_fmte("The generic-function ~S must be a 1 specializer.", gen, NULL);
+		fmte("The generic-function ~S must be a 1 specializer.", gen, NULL);
+	
+	return 0;
 }
 
-static void clos_ensure_writer_method_check(Execute ptr, addr gen)
+static int clos_ensure_writer_method_check_(Execute ptr, addr gen)
 {
+	int check;
 	addr pos;
 	size_t index;
 
 	/* generic-function */
 	if (gen == Unbound)
-		return;
+		return 0;
 	if (functionp(gen))
-		_fmte("The function ~S must be a generic-function.", gen, NULL);
+		fmte("The function ~S must be a generic-function.", gen, NULL);
 
 	/* qualifiers */
 	stdget_generic_method_combination(gen, &pos);
-	if (qualifiers_position_nil(ptr, Nil, pos, &index))
-		_fmte("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
+	Return(qualifiers_position_nil_(ptr, Nil, pos, &index, &check));
+	if (check)
+		fmte("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
 
 	/* specializer */
 	stdget_generic_lambda_list(gen, &pos);
 	if (! argumentp(pos))
 		argument_generic_heap(ptr->local, &pos, pos);
 	if (ArgumentStruct(pos)->var != 2)
-		_fmte("The generic-function ~S must be a 2 specializers.", gen, NULL);
+		fmte("The generic-function ~S must be a 2 specializers.", gen, NULL);
+	
+	return 0;
 }
 
-static void clos_ensure_readers_check(Execute ptr, addr list)
+static int clos_ensure_readers_check_(Execute ptr, addr list)
 {
 	addr name, gen;
 
@@ -222,11 +231,13 @@ static void clos_ensure_readers_check(Execute ptr, addr list)
 		getcons(list, &name, &list);
 		parse_callname_error(&name, name);
 		getcallname_global(name, &gen);
-		clos_ensure_reader_check(ptr, gen);
+		Return(clos_ensure_reader_check_(ptr, gen));
 	}
+
+	return 0;
 }
 
-static void clos_ensure_writers_check(Execute ptr, addr list)
+static int clos_ensure_writers_check_(Execute ptr, addr list)
 {
 	addr name, gen;
 
@@ -234,11 +245,13 @@ static void clos_ensure_writers_check(Execute ptr, addr list)
 		getcons(list, &name, &list);
 		parse_callname_error(&name, name);
 		getcallname_global(name, &gen);
-		clos_ensure_writer_method_check(ptr, gen);
+		Return(clos_ensure_writer_method_check_(ptr, gen));
 	}
+
+	return 0;
 }
 
-static void clos_ensure_class_function_check(Execute ptr, addr pos)
+static int clos_ensure_class_function_check_(Execute ptr, addr pos)
 {
 	addr slots, slot, list;
 	size_t size, i;
@@ -249,11 +262,13 @@ static void clos_ensure_class_function_check(Execute ptr, addr pos)
 		GetSlotVector(slots, i, &slot);
 		/* reader */
 		GetReadersSlot(slot, &list);
-		clos_ensure_readers_check(ptr, list);
+		Return(clos_ensure_readers_check_(ptr, list));
 		/* writer */
 		GetWritersSlot(slot, &list);
-		clos_ensure_writers_check(ptr, list);
+		Return(clos_ensure_writers_check_(ptr, list));
 	}
+
+	return 0;
 }
 
 /* reader/writer generic */
@@ -347,7 +362,7 @@ static int function_clos_ensure_reader(Execute ptr, addr method, addr next, addr
 	return funcall_control(ptr, call, inst, symbol, NULL);
 }
 
-static void clos_ensure_reader_method(Execute ptr,
+static int clos_ensure_reader_method_(Execute ptr,
 		addr clos, addr name, addr gen, addr symbol)
 {
 	addr pos, call, type;
@@ -362,7 +377,7 @@ static void clos_ensure_reader_method(Execute ptr,
 	method_argument_clos_ensure_reader(clos, &pos);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
-	method_add_method(ptr, gen, pos);
+	return method_add_method_(ptr, gen, pos);
 }
 
 static void method_argument_clos_ensure_writer(addr clos, addr *ret)
@@ -396,7 +411,7 @@ static int function_clos_ensure_writer_instance(Execute ptr,
 	return funcall_control(ptr, call, value, inst, symbol, NULL);
 }
 
-static void clos_ensure_writer_method(Execute ptr,
+static int clos_ensure_writer_method_(Execute ptr,
 		addr clos, addr name, addr gen, addr symbol)
 {
 	addr pos, call, type;
@@ -411,10 +426,10 @@ static void clos_ensure_writer_method(Execute ptr,
 	method_argument_clos_ensure_writer(clos, &pos);
 	method_instance_lambda(ptr->local, &pos, Nil, pos);
 	stdset_method_function(pos, call);
-	method_add_method(ptr, gen, pos);
+	return method_add_method_(ptr, gen, pos);
 }
 
-static void clos_ensure_readers_method(Execute ptr, addr pos, addr symbol, addr list)
+static int clos_ensure_readers_method_(Execute ptr, addr pos, addr symbol, addr list)
 {
 	addr name, gen;
 
@@ -423,11 +438,13 @@ static void clos_ensure_readers_method(Execute ptr, addr pos, addr symbol, addr 
 		parse_callname_error(&name, name);
 		getcallname_global(name, &gen);
 		Check(gen == Unbound, "generic-function error");
-		clos_ensure_reader_method(ptr, pos, name, gen, symbol);
+		Return(clos_ensure_reader_method_(ptr, pos, name, gen, symbol));
 	}
+
+	return 0;
 }
 
-static void clos_ensure_writers_method(Execute ptr, addr pos, addr symbol, addr list)
+static int clos_ensure_writers_method_(Execute ptr, addr pos, addr symbol, addr list)
 {
 	addr name, gen;
 
@@ -436,11 +453,13 @@ static void clos_ensure_writers_method(Execute ptr, addr pos, addr symbol, addr 
 		parse_callname_error(&name, name);
 		getcallname_global(name, &gen);
 		Check(gen == Unbound, "generic-function error");
-		clos_ensure_writer_method(ptr, pos, name, gen, symbol);
+		Return(clos_ensure_writer_method_(ptr, pos, name, gen, symbol));
 	}
+
+	return 0;
 }
 
-static void clos_ensure_class_method(Execute ptr, addr pos)
+static int clos_ensure_class_method_(Execute ptr, addr pos)
 {
 	addr slots, slot, symbol, list;
 	size_t size, i;
@@ -452,21 +471,23 @@ static void clos_ensure_class_method(Execute ptr, addr pos)
 		GetNameSlot(slot, &symbol);
 		/* reader */
 		GetReadersSlot(slot, &list);
-		clos_ensure_readers_method(ptr, pos, symbol, list);
+		Return(clos_ensure_readers_method_(ptr, pos, symbol, list));
 		/* writer */
 		GetWritersSlot(slot, &list);
-		clos_ensure_writers_method(ptr, pos, symbol, list);
+		Return(clos_ensure_writers_method_(ptr, pos, symbol, list));
 	}
+
+	return 0;
 }
 
-static void clos_ensure_class_function(Execute ptr, addr pos)
+static int clos_ensure_class_function_(Execute ptr, addr pos)
 {
 	/* check */
-	clos_ensure_class_function_check(ptr, pos);
+	Return(clos_ensure_class_function_check_(ptr, pos));
 	/* make generic-function */
 	clos_ensure_class_function_generic(pos);
 	/* make method */
-	clos_ensure_class_method(ptr, pos);
+	return clos_ensure_class_method_(ptr, pos);
 }
 
 static void clos_ensure_class_subclasses(addr pos)
@@ -598,7 +619,7 @@ _g int clos_finalize(Execute ptr, addr pos)
 
 	/* prototype */
 	clos_stdclass_prototype(pos);
-	clos_ensure_class_function(ptr, pos);
+	Return(clos_ensure_class_function_(ptr, pos));
 	stdset_class_finalized_p(pos, T);
 
 	return 0;
@@ -650,7 +671,7 @@ _g void allocate_instance_stdclass(Execute ptr, addr clos, addr *ret)
 	CheckType(clos, LISPTYPE_CLOS);
 	/* finalized */
 	if (clos_finalize(ptr, clos))
-		_fmte("Cannot finalize class object ~S.", clos, NULL);
+		fmte("Cannot finalize class object ~S.", clos, NULL);
 
 	/* allocate */
 	stdget_class_slots(clos, &slots);
@@ -667,14 +688,14 @@ _g void allocate_instance_stdclass(Execute ptr, addr clos, addr *ret)
 		/* name check */
 		GetNameSlot(slot, &name);
 		if (! symbolp(name))
-			_fmte("The slot name ~S must be a symbol.", name, NULL);
+			fmte("The slot name ~S must be a symbol.", name, NULL);
 		/* already exist */
 		if (clos_find_slotname(slots, i, name))
-			_fmte("The slot name ~S already exists.", name, NULL);
+			fmte("The slot name ~S already exists.", name, NULL);
 		/* location */
 		GetLocationSlot(slot, &loc);
 		if (loc != i)
-			_fmte("The slot location ~A is invalid.", intsizeh(i), NULL);
+			fmte("The slot location ~A is invalid.", intsizeh(i), NULL);
 	}
 	*ret = instance;
 }
@@ -860,7 +881,7 @@ static void make_instance_check(Execute ptr, addr clos, addr rest)
 			check |= find_list_eq_safe(key, value);
 		}
 		if (! check) {
-			_fmte("The initialize argument ~S don't exist in ~S slots.",
+			fmte("The initialize argument ~S don't exist in ~S slots.",
 					key, clos, NULL);
 		}
 	}
@@ -873,7 +894,7 @@ _g int make_instance_stdclass(Execute ptr, addr rest, addr *ret)
 	/* finalize */
 	GetCons(rest, &clos, &rest);
 	if (clos_finalize(ptr, clos))
-		_fmte("Cannot finalize class object ~S.", clos, NULL);
+		fmte("Cannot finalize class object ~S.", clos, NULL);
 
 	/* initargs */
 	if (make_instance_initargs(ptr, clos, rest, &rest))

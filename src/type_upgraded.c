@@ -484,7 +484,7 @@ _g void upgraded_complex_type(addr type, addr *ret)
 
 	/* error */
 	type_object(&type, type);
-	_fmte("COMPLEX type ~S must be a subtype of a real.", type, NULL);
+	fmte("COMPLEX type ~S must be a subtype of a real.", type, NULL);
 	*ret = 0;
 }
 
@@ -538,7 +538,7 @@ static void upgraded_complex_const(addr pos, addr *ret)
 
 	/* error */
 	type_object(&pos, pos);
-	_fmte("COMPLEX type ~S must be a subtype of a real.", pos, NULL);
+	fmte("COMPLEX type ~S must be a subtype of a real.", pos, NULL);
 	*ret = 0;
 }
 

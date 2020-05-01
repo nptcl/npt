@@ -82,7 +82,7 @@ static void expt_integer_common(LocalRoot local, addr *ret, addr base, addr powe
 	CheckLocal(local);
 	bignum_if_fixnum_local(local, &base, base);
 	if (getindex_sign_integer(power, &inverse, &size))
-		_fmte("Too large expt power ~A.", power, NULL);
+		fmte("Too large expt power ~A.", power, NULL);
 
 	/* sign, inverse */
 	GetSignBignum(base, &sign);
@@ -109,7 +109,7 @@ static void expt_ratio_common(LocalRoot local, addr *ret, addr base, addr power)
 
 	CheckLocalType(local, base, LISPTYPE_RATIO);
 	if (getindex_sign_integer(power, &inverse, &size))
-		_fmte("Too large expt power ~A.", power, NULL);
+		fmte("Too large expt power ~A.", power, NULL);
 
 	/* sign, inverse */
 	GetSignRatio(base, &sign);
@@ -196,7 +196,7 @@ static void expt_force_single(LocalRoot local, addr *ret, addr base, addr power)
 			break;
 
 		default:
-			_fmte("Type error", NULL);
+			fmte("Type error", NULL);
 			*ret = 0;
 			break;
 	}
@@ -244,7 +244,7 @@ static void expt_complex_integer(LocalRoot local, addr *ret, addr base, addr pow
 	CheckType(base, LISPTYPE_COMPLEX);
 	Check(! integerp(power), "type error");
 	if (getindex_sign_integer(power, &inverse, &size))
-		_fmte("Too large expt power ~A.", power, NULL);
+		fmte("Too large expt power ~A.", power, NULL);
 
 	expt_complex_heap(local, ret, base, size);
 	if (inverse)
@@ -291,7 +291,7 @@ _g void expt_common(LocalRoot local, addr *ret, addr base, addr power)
 		case MathType_complex:
 		case MathType_error:
 		default:
-			_fmte("type error", NULL);
+			fmte("type error", NULL);
 			*ret = 0;
 			return;
 	}

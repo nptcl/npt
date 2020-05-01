@@ -166,7 +166,6 @@ _g void make_binsem(binsem *x)
 	*x = 0;
 }
 
-/* ARGSUSED0 */
 _g void destroy_binsem(binsem *x)
 {
 }
@@ -208,22 +207,18 @@ _g void make_condlite(condlite *x)
 	*x = 0;
 }
 
-/* ARGSUSED0 */
 _g void destroy_condlite(condlite *x)
 {
 }
 
-/* ARGSUSED0 */
 _g void wait_condlite(condlite *x, mutexlite *m)
 {
 }
 
-/* ARGSUSED0 */
 _g void signal_condlite(condlite *x)
 {
 }
 
-/* ARGSUSED0 */
 _g void broadcast_condlite(condlite *x)
 {
 }

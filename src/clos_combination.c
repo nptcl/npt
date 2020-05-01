@@ -4,7 +4,9 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "eval.h"
 #include "gc.h"
 #include "lambda.h"
@@ -438,58 +440,57 @@ static int qualifiers_equal_list(addr left, addr right)
 {
 	addr left2, right2, asterisk;
 
-	if (left == Nil && right == Nil) return 1;
-	if (! consp(left)) return 0;
-	if (! consp(right)) return 0;
+	if (left == Nil && right == Nil)
+		return 1;
+	if (! consp(left))
+		return 0;
+	if (! consp(right))
+		return 0;
 	GetCons(left, &left, &left2);
 	GetCons(right, &right, &right2);
 	GetConst(COMMON_ASTERISK, &asterisk);
-	if ((right != asterisk) && (left != right)) return 0;
-	if (right2 == asterisk) return 1;
+	if ((right != asterisk) && (left != right))
+		return 0;
+	if (right2 == asterisk)
+		return 1;
+
 	return qualifiers_equal_list(left2, right2);
 }
 
-static int qualifiers_equal_symbol(Execute ptr, addr left, addr right)
+static int qualifiers_equal_symbol_(Execute ptr, addr left, addr right, int *ret)
 {
-	int result;
 	addr control, call;
 
 	push_close_control(ptr, &control);
 	conscar_local(ptr->local, &left, left);
 	getfunctioncheck_local(ptr, right, &call);
-	if (apply_control(ptr, call, left))
-		goto error;
+	Return(apply_control(ptr, call, left));
 	getresult_control(ptr, &left);
-	result = left != Nil;
-	if (free_control(ptr, control))
-		goto error;
-
-	return result;
-
-error:
-	_fmte("The predicate ~S don't execute jump operation.", right, NULL);
-	return 0;
+	*ret = left != Nil;
+	return free_control_(ptr, control);
 }
 
-static int qualifiers_equal(Execute ptr, addr left, addr right)
+static int qualifiers_equal_(Execute ptr, addr left, addr right, int *ret)
 {
 	addr aster;
 
 	GetConst(COMMON_ASTERISK, &aster);
 	if (right == aster)
-		return 1;
+		return Result(ret, 1);
 	if (listp(right))
-		return qualifiers_equal_list(left, right);
+		return Result(ret, qualifiers_equal_list(left, right));
 	if (symbolp(right))
-		return qualifiers_equal_symbol(ptr, left, right);
+		return qualifiers_equal_symbol_(ptr, left, right, ret);
 
 	/* error */
-	_fmte("Invalid method-combination-eualifiers ~S.", right, NULL);
+	*ret = 0;
+	fmte("Invalid method-combination-eualifiers ~S.", right, NULL);
 	return 0;
 }
 
-static int check_qualifiers_equal_long(Execute ptr, addr comb, addr qua)
+static int check_qualifiers_equal_long_(Execute ptr, addr comb, addr qua, int *ret)
 {
+	int check;
 	addr cons, list;
 
 	stdget_longcomb_qualifiers(comb, &cons);
@@ -499,23 +500,29 @@ static int check_qualifiers_equal_long(Execute ptr, addr comb, addr qua)
 		GetCdr(list, &list);
 		GetCar(list, &list);
 		/* check */
-		if (qualifiers_equal(ptr, qua, list)) return 1;
+		Return(qualifiers_equal_(ptr, qua, list, &check));
+		if (check)
+			return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 static int check_qualifiers_equal_short(addr comb, addr qua)
 {
 	addr name, check;
 
-	if (! consp(qua)) return 0;
+	if (! consp(qua))
+		return 0;
 	GetCons(qua, &qua, &check);
-	if (check != Nil) return 0;
+	if (check != Nil)
+		return 0;
 	stdget_shortcomb_name(comb, &name);
-	if (qua == name) return 1;
+	if (qua == name)
+		return 1;
 	GetConst(KEYWORD_AROUND, &check);
-	if (qua == check) return 1;
+	if (qua == check)
+		return 1;
 
 	return 0;
 }
@@ -525,31 +532,38 @@ static int check_qualifiers_equal_standard(addr qua)
 	addr check;
 
 	/* primary */
-	if (qua == Nil) return 1;
-	if (! consp(qua)) return 0;
+	if (qua == Nil)
+		return 1;
+	if (! consp(qua))
+		return 0;
 	GetCons(qua, &qua, &check);
-	if (check != Nil) return 0;
+	if (check != Nil)
+		return 0;
 	/* around, before, after */
 	GetConst(KEYWORD_AROUND, &check);
-	if (qua == check) return 1;
+	if (qua == check)
+		return 1;
 	GetConst(KEYWORD_BEFORE, &check);
-	if (qua == check) return 1;
+	if (qua == check)
+		return 1;
 	GetConst(KEYWORD_AFTER, &check);
-	if (qua == check) return 1;
+	if (qua == check)
+		return 1;
 
 	return 0;
 }
 
-_g int check_qualifiers_equal(Execute ptr, addr comb, addr qua)
+_g int check_qualifiers_equal_(Execute ptr, addr comb, addr qua, int *ret)
 {
 	if (comb == Nil)
-		return check_qualifiers_equal_standard(qua);
+		return Result(ret, check_qualifiers_equal_standard(qua));
 	if (clos_long_combination_p(comb))
-		return check_qualifiers_equal_long(ptr, comb, qua);
+		return check_qualifiers_equal_long_(ptr, comb, qua, ret);
 	if (clos_short_combination_p(comb))
-		return check_qualifiers_equal_short(comb, qua);
+		return Result(ret, check_qualifiers_equal_short(comb, qua));
 	/* error */
-	_fmte("Invalid method-combination instance ~S.", comb, NULL);
+	*ret = 0;
+	fmte("Invalid method-combination instance ~S.", comb, NULL);
 	return 0;
 }
 
@@ -573,7 +587,7 @@ _g void method_combination_qualifiers_count(addr comb, size_t *ret)
 		return;
 	}
 	/* error */
-	_fmte("Invalid method-combination instance ~S.", comb, NULL);
+	fmte("Invalid method-combination instance ~S.", comb, NULL);
 }
 
 static int qualifiers_position_standard_nil(addr qua, size_t *ret)
@@ -610,8 +624,10 @@ static int qualifiers_position_standard_nil(addr qua, size_t *ret)
 	return 1;
 }
 
-static int qualifiers_position_long_nil(Execute ptr, addr qua, addr comb, size_t *ret)
+static int qualifiers_position_long_nil_(Execute ptr, addr qua, addr comb,
+		size_t *rsize, int *ret)
 {
+	int check;
 	addr cons, list;
 	size_t index;
 
@@ -622,13 +638,14 @@ static int qualifiers_position_long_nil(Execute ptr, addr qua, addr comb, size_t
 		GetCdr(list, &list);
 		GetCar(list, &list);
 		/* check */
-		if (qualifiers_equal(ptr, qua, list)) {
-			*ret = index;
-			return 0;
+		Return(qualifiers_equal_(ptr, qua, list, &check));
+		if (check) {
+			*rsize = index;
+			return Result(ret, 0);
 		}
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 static int qualifiers_position_short_nil(addr qua, addr comb, size_t *ret)
@@ -654,24 +671,32 @@ static int qualifiers_position_short_nil(addr qua, addr comb, size_t *ret)
 	return 1;
 }
 
-_g int qualifiers_position_nil(Execute ptr, addr qua, addr comb, size_t *ret)
+_g int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
+		size_t *rsize, int *ret)
 {
 	Check(clos_define_combination_p(comb), "type error");
 	if (comb == Nil)
-		return qualifiers_position_standard_nil(qua, ret);
+		return Result(ret, qualifiers_position_standard_nil(qua, rsize));
 	if (clos_long_combination_p(comb))
-		return qualifiers_position_long_nil(ptr, qua, comb, ret);
+		return qualifiers_position_long_nil_(ptr, qua, comb, rsize, ret);
 	if (clos_short_combination_p(comb))
-		return qualifiers_position_short_nil(qua, comb, ret);
+		return Result(ret, qualifiers_position_short_nil(qua, comb, rsize));
 	/* error */
-	_fmte("Invalid method-combination type ~S.", comb, NULL);
+	*rsize = 0;
+	*ret = 0;
+	fmte("Invalid method-combination type ~S.", comb, NULL);
 	return 0;
 }
 
-_g void qualifiers_position(Execute ptr, addr qua, addr comb, size_t *ret)
+_g int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize, int *ret)
 {
-	if (qualifiers_position_nil(ptr, qua, comb, ret))
-		_fmte("The qualifiers ~S is not found.", qua, NULL);
+	int check;
+
+	Return(qualifiers_position_nil_(ptr, qua, comb, rsize, &check));
+	if (check)
+		fmte("The qualifiers ~S is not found.", qua, NULL);
+
+	return 0;
 }
 
 
@@ -731,7 +756,7 @@ static int clos_method_combination_standard_p(addr pos)
 static void clos_method_combination_standard(addr comb, addr list, addr *ret)
 {
 	if (list != Nil)
-		_fmte("Invalid STANDARD method-combination arguments ~S.", list, NULL);
+		fmte("Invalid STANDARD method-combination arguments ~S.", list, NULL);
 	*ret = Nil;
 }
 
@@ -781,7 +806,7 @@ static void clos_method_combination_short_arguments(addr list, addr *ret)
 	}
 	/* error */
 error:
-	_fmte("METHOD-COMBINATION ~S argument must be a "
+	fmte("METHOD-COMBINATION ~S argument must be a "
 			":most-specific-first or :most-specific-last.", list, NULL);
 	*ret = 0;
 }
@@ -837,7 +862,7 @@ _g void clos_find_method_combination(addr gen, addr list, addr *ret)
 	}
 
 	/* error */
-	_fmte("Invalid method-combination instance ~S.", list, NULL);
+	fmte("Invalid method-combination instance ~S.", list, NULL);
 }
 
 
@@ -1230,12 +1255,10 @@ _g int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 	stdget_longcomb_form(comb, &pos);
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
-	if (funcall_control(ptr, pos, gen, comb, data, NULL))
-		return runcode_free_control(ptr, control);
+	Return(funcall_control(ptr, pos, gen, comb, data, NULL));
 	getresult_control(ptr, &pos);
 	localhold_set(hold, 0, pos);
-	if (free_control(ptr, control))
-		return 1;
+	Return(free_control_(ptr, control));
 
 	/* make-form */
 	make_symbolchar(&args, "ARGS");
@@ -1244,12 +1267,10 @@ _g int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 
 	/* eval */
 	push_close_control(ptr, &control);
-	if (eval_execute(ptr, pos))
-		return runcode_free_control(ptr, control);
+	Return(eval_execute(ptr, pos));
 	getresult_control(ptr, ret);
 	localhold_set(hold, 0, pos);
-	if (free_control(ptr, control))
-		return 1;
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -1313,7 +1334,7 @@ static void comb_shortform_make(addr *ret, addr comb, addr data)
 	/* required */
 	if (primary == Nil) {
 		stdget_shortcomb_name(comb, &primary);
-		_fmte("The qualifier ~S must be at least one method.", primary, NULL);
+		fmte("The qualifier ~S must be at least one method.", primary, NULL);
 		return;
 	}
 	/* order */
@@ -1339,12 +1360,10 @@ _g int comb_shortform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 	/* eval */
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
-	if (eval_execute(ptr, pos))
-		return runcode_free_control(ptr, control);
+	Return(eval_execute(ptr, pos));
 	getresult_control(ptr, ret);
 	localhold_set(hold, 0, *ret);
-	if (free_control(ptr, control))
-		return 1;
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;

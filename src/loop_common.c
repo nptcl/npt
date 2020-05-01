@@ -128,7 +128,7 @@ static int do_constant_common(addr form, addr *ret,
 	GetCons(args, &var, &args);
 	for (cdr = var; cdr != Nil; ) { /* check only */
 		if (! consp(cdr))
-			return fmte("~S variable argument ~S must be a list.", name, cdr, NULL);
+			return fmte_("~S variable argument ~S must be a list.", name, cdr, NULL);
 		GetCons(cdr, &car, &cdr);
 		if (symbolp(car))
 			continue;
@@ -158,10 +158,10 @@ static int do_constant_common(addr form, addr *ret,
 	return do_expand_common(ret, let, setq, var, end, result, decl, args);
 
 error:
-	return fmte("~S arguemnt ~S must be ((var ...) "
+	return fmte_("~S arguemnt ~S must be ((var ...) "
 			"(test &body result) &body code).", name, form, NULL);
 error_var:
-	return fmte("~S variable argument ~S must be "
+	return fmte_("~S variable argument ~S must be "
 			"(symbol &optional initial udpate).", name, cdr, NULL);
 }
 
@@ -231,7 +231,7 @@ _g int dotimes_common(addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	return fmte("DOTIMES arguemnt ~S must be "
+	return fmte_("DOTIMES arguemnt ~S must be "
 			"((var count &optional result) &body body) form.", form, NULL);
 }
 
@@ -311,7 +311,7 @@ _g int dolist_common(Execute ptr, addr form, addr env, addr *ret)
 	return dolist_expand_common(ptr, ret, var, list, result, decl, args);
 
 error:
-	return fmte("DOLIST arguemnt ~S must be "
+	return fmte_("DOLIST arguemnt ~S must be "
 			"((var list &optional result) &body body) form.", form, NULL);
 }
 

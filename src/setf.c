@@ -2,7 +2,9 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "eval_parse.h"
 #include "gc.h"
 #include "setf.h"
@@ -135,7 +137,7 @@ _g int function_setf_getf(Execute ptr, addr form, addr env)
 	return 0;
 
 error:
-	_fmte("(setf getf) argument ~S must be "
+	fmte("(setf getf) argument ~S must be "
 			"(place indicator &optional default) form.", form, NULL);
 	return 0;
 }
@@ -213,6 +215,13 @@ static void setf_function(Execute ptr, addr symbol, addr args,
 /*
  *  get-setf-expansion
  */
+static void getvalues_nil_control(Execute ptr, size_t index, addr *ret)
+{
+	getvalues_control(ptr, index, ret);
+	if (*ret == Unbound)
+		*ret = Nil;
+}
+
 static int setf_expander(Execute ptr, addr call, addr form, addr env,
 		addr *vars, addr *vals, addr *store, addr *writer, addr *reader)
 {
@@ -223,22 +232,18 @@ static int setf_expander(Execute ptr, addr call, addr form, addr env,
 	hold = LocalHold_array(ptr, 5);
 	push_close_control(ptr, &control);
 	/* code */
-	if (funcall_control(ptr, call, form, env, NULL)) {
-		Return(runcode_free_control(ptr, control));
-	}
-	else {
-		getvalues_nil_control(ptr, 0, vars);
-		getvalues_nil_control(ptr, 1, vals);
-		getvalues_nil_control(ptr, 2, store);
-		getvalues_nil_control(ptr, 3, writer);
-		getvalues_nil_control(ptr, 4, reader);
-		localhold_set(hold, 0, *vars);
-		localhold_set(hold, 1, *vals);
-		localhold_set(hold, 2, *store);
-		localhold_set(hold, 3, *writer);
-		localhold_set(hold, 4, *reader);
-		Return(free_control(ptr, control));
-	}
+	Return(funcall_control(ptr, call, form, env, NULL));
+	getvalues_nil_control(ptr, 0, vars);
+	getvalues_nil_control(ptr, 1, vals);
+	getvalues_nil_control(ptr, 2, store);
+	getvalues_nil_control(ptr, 3, writer);
+	getvalues_nil_control(ptr, 4, reader);
+	localhold_set(hold, 0, *vars);
+	localhold_set(hold, 1, *vals);
+	localhold_set(hold, 2, *store);
+	localhold_set(hold, 3, *writer);
+	localhold_set(hold, 4, *reader);
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -278,7 +283,7 @@ _g int get_setf_expansion(Execute ptr, addr form, addr env,
 	return 0;
 
 error:
-	_fmte("The form ~S is not setf place.", form, NULL);
+	fmte("The form ~S is not setf place.", form, NULL);
 	return 1;
 }
 

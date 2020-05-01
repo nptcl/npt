@@ -4,7 +4,7 @@
 #include "clos_method.h"
 #include "clos_type.h"
 #include "constant.h"
-#include "control.h"
+#include "control_operator.h"
 #include "function.h"
 #include "mop.h"
 #include "print.h"

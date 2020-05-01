@@ -326,7 +326,9 @@ static void defun_simple_condition_format_arguments(void)
 /* (defun warn (datum &rest args) ...) -> nil */
 static int function_warn(Execute ptr, addr datum, addr rest)
 {
-	return warn_common(ptr, datum, rest);
+	Return(warn_common(ptr, datum, rest));
+	setresult_control(ptr, Nil);
+	return 0;
 }
 
 static void defun_warn(void)
@@ -601,7 +603,7 @@ static void defun_make_condition(void)
  */
 static int function_compute_restarts(Execute ptr, addr pos)
 {
-	compute_restarts_common(ptr, pos, &pos);
+	Return(compute_restarts_common_(ptr, pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -640,7 +642,7 @@ static void defun_compute_restarts(void)
  */
 static int function_find_restart(Execute ptr, addr var, addr opt)
 {
-	find_restart_common(ptr, var, opt, &var);
+	Return(find_restart_common_(ptr, var, opt, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -681,7 +683,7 @@ static void defun_find_restart(void)
  */
 static int function_invoke_restart(Execute ptr, addr var, addr rest)
 {
-	return invoke_restart_control(ptr, var, rest);
+	return invoke_restart_control_(ptr, var, rest);
 }
 
 static void type_invoke_restart(addr *ret)
@@ -717,7 +719,7 @@ static void defun_invoke_restart(void)
  */
 static int function_invoke_restart_interactively(Execute ptr, addr var)
 {
-	return invoke_restart_interactively_control(ptr, var);
+	return invoke_restart_interactively_control_(ptr, var);
 }
 
 static void type_invoke_restart_interactively(addr *ret)

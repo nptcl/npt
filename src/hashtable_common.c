@@ -2,7 +2,8 @@
 #include "cons.h"
 #include "cons_plist.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
 #include "function.h"
 #include "hashtable.h"
 #include "integer.h"
@@ -63,7 +64,7 @@ static int make_hash_table_test_common(addr rest, enum HASHTABLE_TEST *ret)
 	}
 error:
 	*ret = HASHTABLE_TEST_EQL;
-	return fmte("Invalid hash-hable-test ~S.", pos, NULL);
+	return fmte_("Invalid hash-hable-test ~S.", pos, NULL);
 }
 
 static int make_hash_table_size_common(addr rest, size_t *ret)
@@ -80,7 +81,7 @@ static int make_hash_table_size_common(addr rest, size_t *ret)
 	}
 	if (GetIndex_integer(pos, ret)) {
 		*ret = 0;
-		return fmte("Invalid hash size ~S.", pos, NULL);
+		return fmte_("Invalid hash size ~S.", pos, NULL);
 	}
 
 	return 0;
@@ -103,13 +104,13 @@ static int make_hash_table_rehash_size_common(addr rest,
 			*floatp = 0;
 			*rehashf = 0;
 			*rehashi = 0;
-			return fmte("Invalid rehash-size ~S.", pos, NULL);
+			return fmte_("Invalid rehash-size ~S.", pos, NULL);
 		}
 		if (valuei < 1UL) {
 			*floatp = 0;
 			*rehashf = 0;
 			*rehashi = 0;
-			return fmte("rehash-size ~S must be greater than 1.", pos, NULL);
+			return fmte_("rehash-size ~S must be greater than 1.", pos, NULL);
 		}
 		*floatp = 0;
 		*rehashi = valuei;
@@ -121,7 +122,7 @@ static int make_hash_table_rehash_size_common(addr rest,
 			*floatp = 0;
 			*rehashf = 0;
 			*rehashi = 0;
-			return fmte("rehash-size ~S "
+			return fmte_("rehash-size ~S "
 					"must be greater than equal to 1.0.", pos, NULL);
 		}
 		*floatp = 1;
@@ -144,7 +145,7 @@ static int make_hash_table_rehash_threshold_common(addr rest, double_float *ret)
 		value = cast_double_float_unsafe(pos);
 		if (value < 0.0 || 1.0 < value) {
 			*ret = 0.0;
-			return fmte("rehash-threshold ~S "
+			return fmte_("rehash-threshold ~S "
 					"must be a number between 0.0 and 1.0.", pos, NULL);
 		}
 	}
@@ -202,7 +203,7 @@ _g int hash_table_rehash_size_common(addr var, addr *ret)
 		return 0;
 	}
 
-	return fmte("Invalid hash-table structure ~S.", var, NULL);
+	return fmte_("Invalid hash-table structure ~S.", var, NULL);
 }
 
 
@@ -299,14 +300,11 @@ _g void remhash_common(addr key, addr table, addr *ret)
  */
 static int maphash_execute_common(Execute ptr, addr call, addr key, addr value)
 {
-	int check;
 	addr control;
 
 	push_close_control(ptr, &control);
-	check = funcall_control(ptr, call, key, value, NULL);
-	Return(free_check_control(ptr, control, check));
-
-	return check;
+	Return(funcall_control(ptr, call, key, value, NULL));
+	return free_control_(ptr, control);
 }
 
 _g int maphash_common(Execute ptr, addr call, addr table)
@@ -392,7 +390,7 @@ _g int with_hash_table_iterator_common(Execute ptr, addr form, addr env, addr *r
 	return 0;
 
 error:
-	return fmte("with-hash-table-iterator form ~S must be "
+	return fmte_("with-hash-table-iterator form ~S must be "
 			"((name hash-table) &body body)" , form, NULL);
 }
 

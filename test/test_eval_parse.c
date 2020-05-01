@@ -72,7 +72,7 @@ static int test_init_parse_environment(void)
 	getspecialcheck_local(ptr, pos, &pos);
 	test(GetType(pos) == LISPSYSTEM_ENVROOT, "init_parse_environment1");
 	test(lenarrayr(pos) == 2, "init_parse_environment2");
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -96,7 +96,7 @@ static int test_snapshot_envstack(void)
 	snapshot_envstack(ptr, &pos);
 	test(pos == value, "snapshot_envstack2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -138,7 +138,7 @@ static int test_push_envstack(void)
 	GetArrayA2(pos, 1, &temp);
 	test(temp != Nil, "push_envstack9");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -166,7 +166,7 @@ static int test_rollback_envstack(void)
 	GetArrayA2(pos, 1, &right);
 	test(left == right, "rollback_envstack1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -222,7 +222,7 @@ static int test_defmacro_envstack(void)
 	GetArrayA2(left, 3, &right);
 	test(right == Nil, "symbol_macrolet_envstack3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -258,7 +258,7 @@ static int test_environment_heap(void)
 	test(left == Nil, "close_environment2");
 	test(! GetUser(pos), "close_environment3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1266,7 +1266,7 @@ static int test_make_macro_function(void)
 	callclang_funcall(ptr, &cons, call, args, Nil, NULL);
 	test(cons == readr(":hello"),"make_macro_function3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1299,7 +1299,7 @@ static int test_parse_defmacro(void)
 	GetArrayA2(stack, 1, &stack); /* call */
 	test(stack == name, "parse_defmacro3");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1333,7 +1333,7 @@ static int test_parse_macrolet_args(void)
 	GetArrayA2(stack, 1, &stack); /* call */
 	test(stack == readr("ccc"), "parse_macrolet_args2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1358,7 +1358,7 @@ static int test_parse_macrolet(void)
 	GetArrayA2(stack, 1, &stack); /* local */
 	test(stack == Nil, "parse_macrolet2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1381,7 +1381,7 @@ static int test_parse_define_symbol_macro(void)
 	GetEvalParse(one, 0, &one);
 	test(one == readr("aaa"), "parse_define_symbol_macro2");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1407,7 +1407,7 @@ static int test_parse_symbol_macrolet_args(void)
 	test(eval_parse_p(form), "parse_symbol_macrolet_args4");
 	test(GetType(env) == LISPTYPE_ENVIRONMENT, "parse_symbol_macrolet_args5");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1428,7 +1428,7 @@ static int test_parse_symbol_macrolet(void)
 	test(RefEvalParseType(one) == EVAL_PARSE_SYMBOL_MACROLET,
 			"parse_symbol_macrolet1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1483,7 +1483,7 @@ static int test_parse_lambda(void)
 	GetEvalParse(cons, 3, &right);
 	test(right == Nil, "parse_lambda11");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1556,7 +1556,7 @@ static int test_parse_function_argument(void)
 	test(test_evalkeyword(left, "BODY2"), "parse_function_argument24");
 	test(right == Nil, "parse_function_argument25");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1893,7 +1893,7 @@ static int test_parse_flet_one(void)
 	test(check != Nil, "parse_flet_one6");
 	test(cons == Nil, "parse_flet_one7");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -1922,7 +1922,7 @@ static int test_parse_flet_args(void)
 	GetCallName(check, &check);
 	test(test_eqsymbol(check, "BBB"), "parse_flet_args4");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2141,7 +2141,7 @@ static int test_findstack_environment(void)
 	check = NULL;
 	test(! findstack_environment(readr("ccc"), stack, T, &check), "findstack_environment5");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2179,7 +2179,7 @@ static int test_check_macro_function(void)
 
 	remmacro_symbol(sym3);
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2207,7 +2207,7 @@ static int test_call_macroexpand_hook(void)
 	call_macroexpand_hook(ptr, &call, T, fixnumh(10), Nil);
 	test(RefFixnum(call) == 11, "call_macroexpand_hook1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }
@@ -2231,7 +2231,7 @@ static int test_parse_macro(void)
 	eval_parse(ptr, &cons, cons);
 	test(test_checktype(cons, EVAL_PARSE_LAMBDA), "parse_macro1");
 
-	free_control(ptr, control);
+	free_control_(ptr, control);
 
 	RETURN;
 }

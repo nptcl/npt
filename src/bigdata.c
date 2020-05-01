@@ -722,7 +722,7 @@ static int getshiftvalue(bigtype *value)
 
 #ifdef LISP_BIGNUM_DEBUG
 	if (*value == 0)
-		_fmte("getshiftvalue error", NULL);
+		fmte("getshiftvalue error", NULL);
 #endif
 	for (count = 0; *value < GETSHIFTVALUECHECK; count++)
 		*value <<= 1;
@@ -740,7 +740,7 @@ static void divfull(bigtype *high, bigtype *low, bigtype denom, bigtype *carry)
 	shift = getshiftvalue(&denom);
 #ifdef LISP_BIGNUM_DEBUG
 	if (BIGNUM_HALFBIT <= shift)
-		_fmte("getshiftvalue error", NULL);
+		fmte("getshiftvalue error", NULL);
 #endif
 
 	m1 = HIGHVALUE(denom);
@@ -794,7 +794,7 @@ static void divdouble(bigtype *high, bigtype *low, bigtype denom, bigtype *carry
 #ifdef LISP_BIGNUM_DEBUG
 	/* denom is zero */
 	if (denom == 0)
-		_fmte("divdouble error, denom is zero.", NULL);
+		fmte("divdouble error, denom is zero.", NULL);
 #endif
 
 	/* single division */
@@ -831,9 +831,9 @@ static void divcarry4_half(bigtype *ptr, bigtype left, bigtype denom, bigtype *c
 
 #ifdef LISP_BIGNUM_DEBUG
 	if (denom <= *carry)
-		_fmte("divcarry4_half error. (carry)", NULL);
+		fmte("divcarry4_half error. (carry)", NULL);
 	if (HIGHVALUE(denom))
-		_fmte("divcarry4_half error. (denom)", NULL);
+		fmte("divcarry4_half error. (denom)", NULL);
 #endif
 
 	if (*carry == 0) {
@@ -846,7 +846,7 @@ static void divcarry4_half(bigtype *ptr, bigtype left, bigtype denom, bigtype *c
 	n1 = *carry;
 	divhalf(&n1, &left, denom, carry);
 	if (n1)
-		_fmte("divcarry4_half error", NULL);
+		fmte("divcarry4_half error", NULL);
 	*ptr = left;
 #else
 	n1 = HIGHLOW(*carry, HIGHVALUE(left));
@@ -872,7 +872,7 @@ static void divcarry4_full(bigtype *ptr, bigtype left, bigtype denom, bigtype *c
 	divfull(&high, &left, denom, carry);
 #ifdef LISP_BIGNUM_DEBUG
 	if (high)
-		_fmte("divcarry4_full error", NULL);
+		fmte("divcarry4_full error", NULL);
 #endif
 	*ptr = left;
 }

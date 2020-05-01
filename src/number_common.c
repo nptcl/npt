@@ -251,7 +251,7 @@ static void incf_expand_common(Execute ptr, addr *ret, addr place, addr value, a
 	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
 		return;
 	if (! singlep(g)) {
-		_fmte("INCF place ~S don't allow a multiple store value.", place, NULL);
+		fmte("INCF place ~S don't allow a multiple store value.", place, NULL);
 		return;
 	}
 
@@ -311,7 +311,7 @@ _g void incf_common(Execute ptr, addr form, addr env, addr *ret)
 	return;
 
 error:
-	_fmte("INCF ~S must be (place &optional value) form.", form, NULL);
+	fmte("INCF ~S must be (place &optional value) form.", form, NULL);
 }
 
 
@@ -326,7 +326,7 @@ static void decf_expand_common(Execute ptr, addr *ret, addr place, addr value, a
 	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
 		return;
 	if (! singlep(g)) {
-		_fmte("DECF place ~S don't allow a multiple store value.", place, NULL);
+		fmte("DECF place ~S don't allow a multiple store value.", place, NULL);
 		return;
 	}
 
@@ -386,7 +386,7 @@ _g void decf_common(Execute ptr, addr form, addr env, addr *ret)
 	return;
 
 error:
-	_fmte("DECF ~S must be (place &optional value) form.", form, NULL);
+	fmte("DECF ~S must be (place &optional value) form.", form, NULL);
 }
 
 

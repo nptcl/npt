@@ -162,7 +162,7 @@ static int with_package_iterator_check_common(addr rest,
 	GetConst(KEYWORD_INHERITED, &key3);
 	for (list = rest; list != Nil; ) {
 		if (! consp(list)) {
-			return fmte("with-package-iterator symbol-types ~S must be "
+			return fmte_("with-package-iterator symbol-types ~S must be "
 					":internal, :external, :inherit list.", rest, NULL);
 		}
 		GetCons(list, &type, &list);
@@ -173,12 +173,12 @@ static int with_package_iterator_check_common(addr rest,
 		else if (type == key3)
 			c = 1;
 		else {
-			return fmte("with-package-iterator symbol-type ~S must be a "
+			return fmte_("with-package-iterator symbol-type ~S must be a "
 					":internal, :external or :inherit value.", type, NULL);
 		}
 	}
 	if (a == 0 && b == 0 && c == 0) {
-		return fmte("with-package-iterator symbol-types ~S must be at least "
+		return fmte_("with-package-iterator symbol-types ~S must be at least "
 				":internal, :external :inherit value.", rest, NULL);
 	}
 	*inter = a;
@@ -212,7 +212,7 @@ _g int with_package_iterator_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	return fmte("with-package-iterator form ~S must be "
+	return fmte_("with-package-iterator form ~S must be "
 			"((name package &rest type) &body body)" , form, NULL);
 }
 
@@ -268,7 +268,7 @@ _g int in_package_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	return fmte("in-package ~S must be (string-designer) form.", form, NULL);
+	return fmte_("in-package ~S must be (string-designer) form.", form, NULL);
 }
 
 
@@ -308,10 +308,10 @@ static int defpackage_nicknames_common(addr *ret, addr info, addr root)
 	/* push */
 	for (list = root; list != Nil; ) {
 		if (! consp(list))
-			return fmte(":nickname option ~S don't allow a dotted list.", root, NULL);
+			return fmte_(":nickname option ~S don't allow a dotted list.", root, NULL);
 		GetCons(list, &pos, &list);
 		if (! string_designer_p(pos))
-			return fmte(":nickname ~S must be a string-designer.", pos, NULL);
+			return fmte_(":nickname ~S must be a string-designer.", pos, NULL);
 	}
 	cons_heap(ret, root, info);
 
@@ -323,14 +323,14 @@ static int defpackage_documentation_common(addr *ret, addr info, addr list)
 	addr doc, check;
 
 	if (! consp(list))
-		return fmte(":documentation option ~S don't allow a dotted list.", list, NULL);
+		return fmte_(":documentation option ~S don't allow a dotted list.", list, NULL);
 	GetCons(list, &doc, &check);
 	if (! stringp(doc))
-		return fmte(":documentation ~S must be a string.", doc, NULL);
+		return fmte_(":documentation ~S must be a string.", doc, NULL);
 	if (check != Nil)
-		return fmte(":documentation argument ~S must be a single list.", list, NULL);
+		return fmte_(":documentation argument ~S must be a single list.", list, NULL);
 	if (info != Nil) {
-		return fmte(":documentation option don't accept "
+		return fmte_(":documentation option don't accept "
 				"multiple defines ~S and ~S.", info, doc, NULL);
 	}
 
@@ -343,10 +343,10 @@ static int defpackage_use_common(addr *ret, addr info, addr root)
 
 	for (list = root; list != Nil; ) {
 		if (! consp(list))
-			return fmte(":use option ~S don't allow a dotted list.", root, NULL);
+			return fmte_(":use option ~S don't allow a dotted list.", root, NULL);
 		GetCons(list, &pos, &list);
 		if (! package_designer_p(pos))
-			return fmte(":use ~S must be a package-designer.", pos, NULL);
+			return fmte_(":use ~S must be a package-designer.", pos, NULL);
 	}
 	cons_heap(ret, root, info);
 
@@ -376,18 +376,18 @@ static int defpackage_shadow_common(addr *ret,
 
 	for (list = root; list != Nil; ) {
 		if (! consp(list))
-			return fmte(":shadow option ~S don't allow a dotted list.", root, NULL);
+			return fmte_(":shadow option ~S don't allow a dotted list.", root, NULL);
 		GetCons(list, &pos, &list);
 		if (! string_designer_p(pos))
-			return fmte(":shadow ~S must be a string-designer.", pos, NULL);
+			return fmte_(":shadow ~S must be a string-designer.", pos, NULL);
 		if (defpackage_find_common(pos, shadowing)) {
-			return fmte(":shadow ~S "
+			return fmte_(":shadow ~S "
 					"already exists in :shadowing-import-from.", pos, NULL);
 		}
 		if (defpackage_find_common(pos, import))
-			return fmte(":shadow ~S already exists in :import-from.", pos, NULL);
+			return fmte_(":shadow ~S already exists in :import-from.", pos, NULL);
 		if (defpackage_find_common(pos, intern))
-			return fmte(":shadow ~S already exists in :intern.", pos, NULL);
+			return fmte_(":shadow ~S already exists in :intern.", pos, NULL);
 	}
 	cons_heap(ret, root, shadow);
 
@@ -401,36 +401,36 @@ static int defpackage_shadowing_common(addr *ret,
 
 	/* package */
 	if (! consp(root)) {
-		return fmte(":shadowing-import-from option ~S "
+		return fmte_(":shadowing-import-from option ~S "
 				"must be a (packgage &rest symbol) form.", root, NULL);
 	}
 	GetCons(root, &package, &list);
 	if (! package_designer_p(package)) {
-		return fmte(":shadowing-import-from first argument ~S "
+		return fmte_(":shadowing-import-from first argument ~S "
 				"must be a package-designer.", package, NULL);
 	}
 
 	/* symbols */
 	while (list != Nil) {
 		if (! consp(list)) {
-			return fmte(":shadowing-import-from option ~S "
+			return fmte_(":shadowing-import-from option ~S "
 					"don't allow a dotted list.", root, NULL);
 		}
 		GetCons(list, &pos, &list);
 		if (! string_designer_p(pos)) {
-			return fmte(":shadowing-import-from ~S "
+			return fmte_(":shadowing-import-from ~S "
 					"must be a string-designer.", pos, NULL);
 		}
 		if (defpackage_find_common(pos, shadow)) {
-			return fmte(":shadowing-import-from ~S "
+			return fmte_(":shadowing-import-from ~S "
 					"already exists in :shadow.", pos, NULL);
 		}
 		if (defpackage_find_common(pos, import)) {
-			return fmte(":shadowing-import-from ~S "
+			return fmte_(":shadowing-import-from ~S "
 					"already exists in :import-from.", pos, NULL);
 		}
 		if (defpackage_find_common(pos, intern)) {
-			return fmte(":shadowing-import-from ~S "
+			return fmte_(":shadowing-import-from ~S "
 					"already exists in :intern.", pos, NULL);
 		}
 	}
@@ -446,32 +446,32 @@ static int defpackage_import_common(addr *ret,
 
 	/* package */
 	if (! consp(root)) {
-		return fmte(":import-from option ~S "
+		return fmte_(":import-from option ~S "
 				"must be a (packgage &rest symbol) form.", root, NULL);
 	}
 	GetCons(root, &package, &list);
 	if (! package_designer_p(package)) {
-		return fmte(":import-from first argument ~S "
+		return fmte_(":import-from first argument ~S "
 				"must be a package-designer.", package, NULL);
 	}
 
 	/* symbols */
 	while (list != Nil) {
 		if (! consp(list)) {
-			return fmte(":import-from option ~S "
+			return fmte_(":import-from option ~S "
 					"don't allow a dotted list.", root, NULL);
 		}
 		GetCons(list, &pos, &list);
 		if (! string_designer_p(pos))
-			return fmte(":import-from ~S must be a string-designer.", pos, NULL);
+			return fmte_(":import-from ~S must be a string-designer.", pos, NULL);
 		if (defpackage_find_common(pos, shadow))
-			return fmte(":import-from ~S already exists in :shadow.", pos, NULL);
+			return fmte_(":import-from ~S already exists in :shadow.", pos, NULL);
 		if (defpackage_find_common(pos, shadowing)) {
-			return fmte(":import-from ~S "
+			return fmte_(":import-from ~S "
 					"already exists in :shadowing-import-from.", pos, NULL);
 		}
 		if (defpackage_find_common(pos, intern))
-			return fmte(":import-from ~S already exists in :intern.", pos, NULL);
+			return fmte_(":import-from ~S already exists in :intern.", pos, NULL);
 	}
 	cons_heap(ret, root, import);
 
@@ -484,12 +484,12 @@ static int defpackage_export_common(addr *ret, addr expt, addr intern, addr root
 
 	for (list = root; list != Nil; ) {
 		if (! consp(list))
-			return fmte(":export option ~S don't allow a dotted list.", root, NULL);
+			return fmte_(":export option ~S don't allow a dotted list.", root, NULL);
 		GetCons(list, &pos, &list);
 		if (! string_designer_p(pos))
-			return fmte(":export ~S must be a string-designer.", pos, NULL);
+			return fmte_(":export ~S must be a string-designer.", pos, NULL);
 		if (defpackage_find_common(pos, intern))
-			return fmte(":export ~S already exists in :intern.", pos, NULL);
+			return fmte_(":export ~S already exists in :intern.", pos, NULL);
 	}
 	cons_heap(ret, root, expt);
 
@@ -502,12 +502,12 @@ static int defpackage_intern_common(addr *ret, addr expt, addr intern, addr root
 
 	for (list = root; list != Nil; ) {
 		if (! consp(list))
-			return fmte(":intern option ~S don't allow a dotted list.", root, NULL);
+			return fmte_(":intern option ~S don't allow a dotted list.", root, NULL);
 		GetCons(list, &pos, &list);
 		if (! string_designer_p(pos))
-			return fmte(":intern ~S must be a string-designer.", pos, NULL);
+			return fmte_(":intern ~S must be a string-designer.", pos, NULL);
 		if (defpackage_find_common(pos, expt))
-			return fmte(":intern ~S already exists in :export.", pos, NULL);
+			return fmte_(":intern ~S already exists in :export.", pos, NULL);
 	}
 	cons_heap(ret, root, intern);
 
@@ -519,16 +519,16 @@ static int defpackage_size_common(addr *ret, addr info, addr list)
 	addr size, check;
 
 	if (! consp(list))
-		return fmte(":size option ~S don't allow a dotted list.", list, NULL);
+		return fmte_(":size option ~S don't allow a dotted list.", list, NULL);
 	GetCons(list, &size, &check);
 	if (! integerp(size))
-		return fmte(":size ~S must be a string.", size, NULL);
+		return fmte_(":size ~S must be a string.", size, NULL);
 	if (minusp_integer(size))
-		return fmte(":size ~S must be a positive integer.", size, NULL);
+		return fmte_(":size ~S must be a positive integer.", size, NULL);
 	if (check != Nil)
-		return fmte(":size argument ~S must be a single list.", list, NULL);
+		return fmte_(":size argument ~S must be a single list.", list, NULL);
 	if (info != Nil) {
-		return fmte(":size option don't accept "
+		return fmte_(":size option don't accept "
 				"multiple defines ~S and ~S.", info, size, NULL);
 	}
 
@@ -554,12 +554,12 @@ static int defpackage_expand_common(addr name, addr form, addr *ret)
 	nicknames = doc = use = shadow = shadowing = import = expt = intern = size = Nil;
 	for (args = form; args != Nil; ) {
 		if (! consp(args)) {
-			return fmte("The defpackage option ~S "
+			return fmte_("The defpackage option ~S "
 					"don't allow a dotted list.", form, NULL);
 		}
 		GetCons(args, &list, &args);
 		if (! consp(list))
-			return fmte("The defpackage option ~S must be a cons.", list, NULL);
+			return fmte_("The defpackage option ~S must be a cons.", list, NULL);
 		GetCons(list, &key, &list);
 		if (key == knick) {
 			Return(defpackage_nicknames_common(&nicknames, nicknames, list));
@@ -592,7 +592,7 @@ static int defpackage_expand_common(addr name, addr form, addr *ret)
 			Return(defpackage_size_common(&size, size, list));
 		}
 		else {
-			return fmte("Invalid defpackage option ~S.", key, NULL);
+			return fmte_("Invalid defpackage option ~S.", key, NULL);
 		}
 	}
 
@@ -632,10 +632,10 @@ _g int defpackage_common(addr form, addr env, addr *ret)
 
 	Return_getcdr(form, &form);
 	if (! consp(form))
-		return fmte("DEFPACKAGE argument ~S must be (name &rest options).", form, NULL);
+		return fmte_("DEFPACKAGE argument ~S must be (name &rest options).", form, NULL);
 	GetCons(form, &name, &form);
 	if (! string_designer_p(name))
-		return fmte("DEFPACKAGE name ~S must be a string-designer.", name, NULL);
+		return fmte_("DEFPACKAGE name ~S must be a string-designer.", name, NULL);
 	else
 		return defpackage_expand_common(name, form, ret);
 }
@@ -697,7 +697,7 @@ expand:
 
 error:
 	GetConstant(index, &check);
-	return fmte("The ~A ~S must be "
+	return fmte_("The ~A ~S must be "
 			"((var &optional package result) &rest body) form.", check, form, NULL);
 }
 
@@ -766,7 +766,7 @@ expand:
 
 error:
 	GetConst(SYSTEM_DO_ALL_SYMBOLS, &check);
-	return fmte("The ~A ~S must be "
+	return fmte_("The ~A ~S must be "
 			"((var &optional package result) &rest body) form.", check, form, NULL);
 }
 

@@ -24,7 +24,7 @@ static class_of_calltype class_of_call[LISPTYPE_SIZE];
 static void class_of_error(addr object, addr *ret)
 {
 	infobit(object);
-	_fmte("TYPE ~S cannot convert class type.", object, NULL);
+	fmte("TYPE ~S cannot convert class type.", object, NULL);
 }
 
 static void class_of_nil(addr object, addr *ret)

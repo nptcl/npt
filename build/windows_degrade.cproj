@@ -185,6 +185,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_multi.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_plus.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_code.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_function.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_arrays.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_characters.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_conditions.c" />
@@ -223,6 +224,9 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\constant.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_control.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_control_callbind.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\control_execute.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\control_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\control_operator.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\copy.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\core.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\data.c" />
@@ -357,6 +361,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_echo.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_error.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_file.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_init.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_pretty.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_prompt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_string.c" />
@@ -444,6 +449,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_plus.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_windows.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_function.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common_header.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common.h" />
@@ -462,6 +468,9 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\constant_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\constant.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control_callbind.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control_execute.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control_operator.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\copy.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\core.h" />
@@ -608,6 +617,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_echo.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_error.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_file.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_init.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_pretty.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_prompt.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_string.h" />

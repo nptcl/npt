@@ -183,7 +183,7 @@ static void bq_bracket(addr pos, addr *ret)
 	/* `(... [quote]) */
 	if (quotep(pos)) {
 		getvalue_quote(pos, &pos);
-		_fmte("quote error, ~S", pos, NULL);
+		fmte("quote error, ~S", pos, NULL);
 		return;
 	}
 
@@ -223,20 +223,20 @@ static void bq_process_list(addr pos, addr *ret)
 		/* `(x . ,@pos) error */
 		if (quote_atsign_p(pos)) {
 			getvalue_quote(pos, &pos);
-			_fmte("Dotted ,@~S", pos, NULL);
+			fmte("Dotted ,@~S", pos, NULL);
 			return;
 		}
 
 		/* `(x . ,.pos) error */
 		if (quote_dot_p(pos)) {
 			getvalue_quote(pos, &pos);
-			_fmte("Dotted ,.~S", pos, NULL);
+			fmte("Dotted ,.~S", pos, NULL);
 			return;
 		}
 
 		/* `(x . [quote]) */
 		if (quotep(pos)) {
-			_fmte("quote error ~S.", pos, NULL);
+			fmte("quote error ~S.", pos, NULL);
 			return;
 		}
 	}
@@ -272,20 +272,20 @@ static void bq_process(addr pos, addr *ret)
 	/* ,@expr error */
 	if (quote_atsign_p(pos)) {
 		getvalue_quote(pos, &pos);
-		_fmte(",@~S after `", pos, NULL);
+		fmte(",@~S after `", pos, NULL);
 		return;
 	}
 
 	/* ,.expr error */
 	if (quote_dot_p(pos)) {
 		getvalue_quote(pos, &pos);
-		_fmte(",.~S after `", pos, NULL);
+		fmte(",.~S after `", pos, NULL);
 		return;
 	}
 
 	/* [quote] */
 	if (quotep(pos)) {
-		_fmte("quote error, ~S", pos, NULL);
+		fmte("quote error, ~S", pos, NULL);
 		return;
 	}
 

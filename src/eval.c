@@ -1,12 +1,15 @@
 #include "code.h"
 #include "condition.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "eval.h"
 #include "eval_code.h"
 #include "eval_common.h"
 #include "eval_copy.h"
 #include "eval_parse.h"
 #include "eval_scope.h"
+#include "eval_stack.h"
 #include "fasl.h"
 #include "file.h"
 #include "files.h"
@@ -244,16 +247,15 @@ _g int eval_constantp_stable(addr var)
 	}
 }
 
-_g int eval_constantp(Execute ptr, addr var, addr env, int *result)
+_g int eval_constantp(Execute ptr, addr var, addr env, int *ret)
 {
 	int check;
 	addr pos;
 
-	if (macroexpand(ptr, &pos, var, env, &check))
-		return 1;
+	Return(macroexpand(ptr, &pos, var, env, &check));
 	if (check)
 		var = pos;
-	*result = eval_constantp_stable(var);
+	*ret = eval_constantp_stable(var);
 
 	return 0;
 }
@@ -277,24 +279,33 @@ static void eval_compile(Execute ptr, addr pos)
 
 _g int eval_execute_parse(Execute ptr, addr pos)
 {
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 1);
 	/* optimize parse */
+	localhold_set(hold, 0, pos);
 	optimize_parse(ptr->local, &pos, pos);
 	/* scope */
-	if (eval_scope(ptr, &pos, pos))
-		return 1;
+	localhold_set(hold, 0, pos);
+	Return(eval_scope(ptr, &pos, pos));
 	/* code generator */
+	localhold_set(hold, 0, pos);
 	eval_code(ptr->local, &pos, pos);
 	/* compile */
+	localhold_set(hold, 0, pos);
 	eval_compile(ptr, pos);
 	/* execute */
-	return runcode_control(ptr, pos);
+	localhold_set(hold, 0, pos);
+	Return(runcode_control(ptr, pos));
+	/* end */
+	localhold_end(hold);
+	return 0;
 }
 
 _g int eval_execute(Execute ptr, addr pos)
 {
 	/* parse */
-	if (eval_parse(ptr, &pos, pos))
-		return 1;
+	Return(eval_parse(ptr, &pos, pos));
 	/* execute */
 	return eval_execute_parse(ptr, pos);
 }
@@ -305,12 +316,10 @@ _g int eval_stream(Execute ptr, addr stream)
 	addr pos;
 
 	for (;;) {
-		if (read_stream(ptr, stream, &check, &pos))
-			return 1;
+		Return(read_stream(ptr, stream, &check, &pos));
 		if (check)
 			break;
-		if (eval_execute(ptr, pos))
-			return 1;
+		Return(eval_execute(ptr, pos));
 	}
 
 	return 0;
@@ -326,14 +335,10 @@ _g int eval_object(Execute ptr, addr eval, addr *ret)
 	push_toplevel_eval(ptr, Nil);
 	push_evalwhen_eval(ptr);
 	gchold_push_local(ptr->local, eval);
-	if (eval_execute(ptr, eval)) {
-		Return(runcode_free_control(ptr, control));
-	}
-	else {
-		getresult_control(ptr, ret);
-		localhold_set(hold, 0, *ret);
-		Return(free_control(ptr, control));
-	}
+	Return(eval_execute(ptr, eval));
+	getresult_control(ptr, ret);
+	localhold_set(hold, 0, *ret);
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -352,58 +357,28 @@ static int eval_load_fasl_p(addr file)
 		(string_equalp_char(file, "fasl") || string_equalp_char(file, "fas"));
 }
 
-static int eval_load_finalize(Execute ptr)
+static int eval_load_fasl(Execute ptr, int *ret, addr file, int exist)
 {
-	addr stream;
-	getdata_control(ptr, &stream);
-	CheckType(stream, LISPTYPE_STREAM);
-	close_stream(stream);
+	addr stream, control;
 
-	return 0;
-}
-
-static void eval_load_close(Execute ptr, addr stream)
-{
-	addr control, code;
-
-	push_finalize_control(ptr, &control);
-	syscall_code(ptr->local, &code, p_eval_load_finalize, stream);
-	setfinalize_control(ptr, control, code);
-}
-
-static int eval_load_fasl(Execute ptr, int *result, addr file, int exist)
-{
-	addr stream;
-	LocalHold hold;
-
-	hold = LocalHold_array(ptr, 1);
 	/* stream */
 	if (open_input_binary_stream(ptr, &stream, file)) {
 		if (exist)
 			simple_file_error_stdarg(file, "Cannot open file ~S.", file, NULL);
-		*result = 0;
-		return 0;
+		return Result(ret, 0);
 	}
-	localhold_set(hold, 0, stream);
-	eval_load_close(ptr, stream);
 
 	/* fasl */
-	if (faslread_stream(ptr, stream)) {
-		close_stream(stream);
-		localhold_end(hold);
-		return 1;
-	}
-	else {
-		close_stream(stream);
-		localhold_end(hold);
-		*result = 1;
-		return 0;
-	}
+	push_close_control(ptr, &control);
+	setprotect_close_stream(ptr, stream);
+	Return(faslread_stream(ptr, stream));
+	Return(free_control_(ptr, control));
+	return Result(ret, 1);
 }
 
-static int eval_load_lisp(Execute ptr, int *result, addr file, int exist)
+static int eval_load_lisp(Execute ptr, int *ret, addr file, int exist)
 {
-	addr stream;
+	addr stream, control;
 
 	/* stream */
 	if (streamp(file)) {
@@ -412,21 +387,14 @@ static int eval_load_lisp(Execute ptr, int *result, addr file, int exist)
 	else if (open_input_stream(ptr, &stream, file)) {
 		if (exist)
 			simple_file_error_stdarg(file, "Cannot open file ~S.", file, NULL);
-		*result = 0;
-		return 0;
+		return Result(ret, 0);
 	}
-	eval_load_close(ptr, stream);
 
 	/* eval */
-	if (eval_stream(ptr, stream)) {
-		close_stream(stream);
-		return 1;
-	}
-	else {
-		close_stream(stream);
-		*result = 1;
-		return 0;
-	}
+	push_close_control(ptr, &control);
+	setprotect_close_stream(ptr, stream);
+	Return(eval_stream(ptr, stream));
+	return Result(ret, 1);
 }
 
 static void eval_load_check(
@@ -489,7 +457,7 @@ static void eval_load_check(
 	*ret = file;
 }
 
-static int eval_load_file(Execute ptr, int *result,
+static int eval_load_file(Execute ptr, int *ret,
 		addr file, addr verbose, addr print, int exist,
 		addr external)
 {
@@ -501,21 +469,20 @@ static int eval_load_file(Execute ptr, int *result,
 			&file);
 	push_evalwhen_load(ptr);
 	if (eval_load_fasl_p(file))
-		return eval_load_fasl(ptr, result, file, exist);
+		return eval_load_fasl(ptr, ret, file, exist);
 	else
-		return eval_load_lisp(ptr, result, file, exist);
+		return eval_load_lisp(ptr, ret, file, exist);
 }
 
-_g int eval_load(Execute ptr, int *result,
+_g int eval_load(Execute ptr, int *ret,
 		addr file, addr verbose, addr print, int exist, addr external)
 {
-	int check;
 	addr control;
 
 	push_close_control(ptr, &control);
 	push_prompt_info(ptr);
-	check = eval_load_file(ptr, result, file, verbose, print, exist, external);
-	return free_check_control(ptr, control, check);
+	Return(eval_load_file(ptr, ret, file, verbose, print, exist, external));
+	return free_control_(ptr, control);
 }
 
 
@@ -525,7 +492,7 @@ _g int eval_load(Execute ptr, int *result,
 static int compile_load_file(
 		Execute ptr, addr file, addr verbose, addr print, addr external)
 {
-	int result;
+	int check;
 
 	eval_load_check(ptr, file, verbose, print, external,
 			CONSTANT_SPECIAL_COMPILE_FILE_PATHNAME,
@@ -534,18 +501,17 @@ static int compile_load_file(
 			CONSTANT_SPECIAL_COMPILE_PRINT,
 			&file);
 	push_evalwhen_compile(ptr);
-	return eval_load_lisp(ptr, &result, file, 1);
+	return eval_load_lisp(ptr, &check, file, 1);
 }
 
 _g int compile_load(Execute ptr, addr file, addr verbose, addr print, addr external)
 {
-	int check;
 	addr control;
 
 	push_close_control(ptr, &control);
 	push_prompt_info(ptr);
-	check = compile_load_file(ptr, file, verbose, print, external);
-	return free_check_control(ptr, control, check);
+	Return(compile_load_file(ptr, file, verbose, print, external));
+	return free_control_(ptr, control);
 }
 
 
@@ -554,10 +520,10 @@ _g int compile_load(Execute ptr, addr file, addr verbose, addr print, addr exter
  */
 _g void init_eval(void)
 {
-	SetPointerType(empty, eval_load_finalize);
 	init_eval_code();
 	init_eval_copy();
 	init_eval_main();
 	init_eval_scope();
+	init_eval_stack();
 }
 

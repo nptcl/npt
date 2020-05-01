@@ -6,7 +6,7 @@
 #include "clos_class.h"
 #include "condition.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
 #include "equal.h"
 #include "function.h"
 #include "gc.h"
@@ -34,7 +34,7 @@ static call_type_typep TypeTypep[LISPDECL_SIZE];
 static int typep_invalid(Execute ptr, addr value, addr type, int *ret)
 {
 	infobit(type);
-	_fmte("Invalid type.", NULL);
+	fmte("Invalid type.", NULL);
 	return 0;
 }
 
@@ -181,7 +181,7 @@ static int typep_satisfies(Execute ptr, addr value, addr type, int *ret)
 
 static int typep_values(Execute ptr, addr value, addr type, int *ret)
 {
-	_fmte("The values type don't use in typep context.", NULL);
+	fmte("The values type don't use in typep context.", NULL);
 	*ret = 0;
 	return 0;
 }
@@ -295,7 +295,7 @@ static int typep_vector_dimension(addr value, addr type, int *ret)
 	}
 
 	/* error */
-	_fmte("type error", NULL);
+	fmte("type error", NULL);
 	*ret = 0;
 	return 0;
 }
@@ -723,7 +723,7 @@ static int typep_function(Execute ptr, addr value, addr type, int *ret)
 
 	GetArrayType(type, 2, &check);
 	if (type == Nil)
-		_fmte("The cons type (FUNCTION ? ?) don't accept.", NULL);
+		fmte("The cons type (FUNCTION ? ?) don't accept.", NULL);
 	if (! functionp(value)) {
 		*ret = 0;
 		return 0;
@@ -737,7 +737,7 @@ static int typep_compiled_function(Execute ptr, addr value, addr type, int *ret)
 
 	GetArrayType(type, 2, &check);
 	if (type == Nil)
-		_fmte("The cons type (COMPILED-FUNCTION ? ?) don't accept.", NULL);
+		fmte("The cons type (COMPILED-FUNCTION ? ?) don't accept.", NULL);
 	if (! compiled_function_p(value)) {
 		*ret = 0;
 		return 0;
@@ -1412,7 +1412,7 @@ static int typep_call(Execute ptr, addr value, addr type, int asterisk, int *ret
 	LocalHold hold;
 
 	if ((! asterisk) && type_asterisk_p(type))
-		_fmte("typep don't allow to be asterisk *.", NULL);
+		fmte("typep don't allow to be asterisk *.", NULL);
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, value, type, NULL);
 	if (typep_table(ptr, value, type, &result))

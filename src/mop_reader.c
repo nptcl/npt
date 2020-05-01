@@ -7,7 +7,8 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "control.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "execute.h"
 #include "function.h"
 #include "lambda.h"
@@ -1677,7 +1678,7 @@ static void defgeneric_method_qualifiers(Execute ptr)
 static int method_accessor_method_slot_definition(Execute ptr,
 		addr method, addr next, addr var)
 {
-	_fmte("There is no accessor-method in ~S.", NULL);
+	fmte("There is no accessor-method in ~S.", NULL);
 	return 0;
 }
 

@@ -1,7 +1,6 @@
 ;;
 ;;  ANSI COMMON LISP: 22. Printer
 ;;
-
 (deftest pprint-fill.1
   (let ((*print-pretty* t)
         (*print-right-margin* 15)

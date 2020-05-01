@@ -118,7 +118,7 @@ _g void alloc_plus_bignum(LocalRoot local, addr *ret, size_t a, size_t b)
 		if (local == NULL)
 			local = Local_Thread;
 		plus_ii_real_common(local, intsizeh(a), intsizeh(b), &pos);
-		_fmte("Too large bignum size ~A.", pos, NULL);
+		fmte("Too large bignum size ~A.", pos, NULL);
 		return;
 	}
 	alloc_bignum(local, ret, a);
@@ -278,7 +278,7 @@ _g void bignum_counter_alloc(LocalRoot local, addr *ret, addr index)
 	if ((! integerp(index))
 			|| minusp_integer(index)
 			|| zerop_integer(index)) {
-		_fmte("The value ~S must be a positive integer.", index, NULL);
+		fmte("The value ~S must be a positive integer.", index, NULL);
 	}
 	if (GetType(index) == LISPTYPE_FIXNUM)
 		bignum_fixnum_value_alloc(local, ret, RefFixnum(index));
@@ -3610,7 +3610,7 @@ _g void output_nosign_bignum(LocalRoot local,
 		rem = letdiv_half_bigdata(pos, (bigtype)base);
 		if (getchar_digit((unsigned)rem, upperp, &u)) {
 			character_heap(&error_character, u);
-			_fmte("Invalid digit character ~S.", error_character, NULL);
+			fmte("Invalid digit character ~S.", error_character, NULL);
 			return;
 		}
 		push_charqueue_local(local, queue, u);
@@ -3690,7 +3690,7 @@ _g void output_nosign_comma_bignum(LocalRoot local,
 		rem = letdiv_half_bigdata(pos, (bigtype)base);
 		if (getchar_digit((unsigned)rem, upperp, &u)) {
 			character_heap(&error_character, u);
-			_fmte("Invalid digit character ~S.", error_character, NULL);
+			fmte("Invalid digit character ~S.", error_character, NULL);
 			return;
 		}
 		if (index && (index % range) == 0)

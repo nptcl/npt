@@ -1,7 +1,9 @@
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "copy.h"
 #include "extern_control.h"
 #include "extern_object.h"
@@ -30,8 +32,8 @@ addr lisp_push_control(void)
 int lisp_free_control(addr control)
 {
 	if (GetType(control) != LISPTYPE_CONTROL)
-		_fmte("Invalid argument ~S.", control, NULL);
-	return free_control(Execute_Thread, control);
+		fmte("Invalid argument ~S.", control, NULL);
+	return free_control_(Execute_Thread, control);
 }
 
 int lisp_eval_control(addr eval)
@@ -49,7 +51,7 @@ int lisp_eval_string_control(addr eval)
 	push_local(local, &stack);
 	Return(lisp_reader(&x, eval));
 	if (x == NULL)
-		_fmte("Invalid eval string ~S.", eval, NULL);
+		fmte("Invalid eval string ~S.", eval, NULL);
 	Return(lisp_eval_control(x));
 	rollback_local(local, stack);
 
@@ -95,7 +97,7 @@ int lisp_eval8(addr *ret, const void *str)
 	string8_null_heap(&x, (const char *)str);
 	Return(lisp_reader(&y, x));
 	if (x == NULL)
-		_fmte("Invalid eval string ~S.", x, NULL);
+		fmte("Invalid eval string ~S.", x, NULL);
 	Return(lisp_eval_control(y));
 	getresult_control(Execute_Thread, ret);
 	rollback_local(local, stack);
@@ -114,7 +116,7 @@ int lisp_eval16(addr *ret, const void *str)
 	string16_null_heap(&x, (const byte16 *)str);
 	Return(lisp_reader(&y, x));
 	if (x == NULL)
-		_fmte("Invalid eval string ~S.", x, NULL);
+		fmte("Invalid eval string ~S.", x, NULL);
 	Return(lisp_eval_control(y));
 	getresult_control(Execute_Thread, ret);
 	rollback_local(local, stack);
@@ -124,7 +126,7 @@ int lisp_eval16(addr *ret, const void *str)
 
 int lisp_eval_loop(void)
 {
-	return eval_main_loop(Execute_Thread);
+	return eval_main_loop_(Execute_Thread);
 }
 
 
@@ -180,7 +182,7 @@ int lisp_format16(addr stream, const void *str, ...)
 void lisp_syscall_rest(int index, lisp_calltype_syscall call)
 {
 	if (index < 0 && LISP_POINTER_EXTEND <= index)
-		_fmte("Invalid index value ~S.", fixnumh((fixnum)index), NULL);
+		fmte("Invalid index value ~S.", fixnumh((fixnum)index), NULL);
 	index += (int)p_size;
 	SetPointer_extend_dynamic(index, call);
 }
@@ -188,7 +190,7 @@ void lisp_syscall_rest(int index, lisp_calltype_syscall call)
 void lisp_syscall_dynamic(int index, lisp_calltype_syscall call)
 {
 	if (index < 0 && LISP_POINTER_EXTEND <= index)
-		_fmte("Invalid index value ~S.", fixnumh((fixnum)index), NULL);
+		fmte("Invalid index value ~S.", fixnumh((fixnum)index), NULL);
 	index += (int)p_size;
 	SetPointer_extend_rest(index, call);
 }
@@ -198,7 +200,7 @@ addr lisp_syscall_function(int index, addr name)
 	addr pos;
 
 	if (index < 0 && LISP_POINTER_EXTEND <= index)
-		_fmte("Invalid index value ~S.", fixnumh((fixnum)index), NULL);
+		fmte("Invalid index value ~S.", fixnumh((fixnum)index), NULL);
 	index += (int)p_size;
 	if (name == NULL)
 		name = Nil;
@@ -215,7 +217,7 @@ addr lisp_syscall_function(int index, addr name)
 			break;
 
 		default:
-			_fmte("Invalid callbind type, index = ~A", fixnumh((fixnum)index), NULL);
+			fmte("Invalid callbind type, index = ~A", fixnumh((fixnum)index), NULL);
 			return Nil;
 	}
 
@@ -225,7 +227,7 @@ addr lisp_syscall_function(int index, addr name)
 void lisp_syscall_setvalue(addr pos, addr value)
 {
 	if (! functionp(pos))
-		_fmte("Invalid function object ~S.", pos, NULL);
+		fmte("Invalid function object ~S.", pos, NULL);
 	if (value == NULL)
 		value = Nil;
 	SetDataFunction(pos, value);
@@ -254,8 +256,7 @@ static int extern_unwind_protect(Execute ptr)
 
 int lisp_unwind_protect(addr code, addr clean)
 {
-	int check;
-	addr control, pos;
+	addr control;
 	Execute ptr;
 	LocalHold hold;
 
@@ -263,15 +264,14 @@ int lisp_unwind_protect(addr code, addr clean)
 	hold = LocalHold_array(ptr, 2);
 
 	/* finalize */
-	push_finalize_control(ptr, &control);
+	push_close_control(ptr, &control);
 	localhold_set(hold, 0, code);
 	localhold_set(hold, 1, clean);
 	/* cleanup form */
-	syscall_code(ptr->local, &pos, p_extern_unwind_protect, clean);
-	setfinalize_control(ptr, control, pos);
+	setprotect_control(ptr, p_extern_unwind_protect, clean);
 	/* code */
-	check = lisp_funcall(&code, code, NULL);
-	Return(free_check_control(ptr, control, check));
+	Return(lisp_funcall(&code, code, NULL));
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
 
 	return 0;
@@ -327,32 +327,30 @@ int lisp_catch(addr symbol, addr code, addr *ret)
 	LocalHold hold;
 
 	if (! symbolp(symbol))
-		_fmte("CATCH argument ~S must be a symbol.", symbol, NULL);
+		fmte("CATCH argument ~S must be a symbol.", symbol, NULL);
 	ptr = Execute_Thread;
 	hold = LocalHold_array(ptr, 1);
 	push_close_control(ptr, &control);
 	/* begin catch */
 	push_return_control(ptr, &catch);
 	catch_control(ptr, symbol);
-	if (apply_control(ptr, code, Nil))
-		return free_check_control(ptr, catch, 1);
-	if (free_check_control(ptr, catch, 0))
-		return 1;
+	Return(apply_control(ptr, code, Nil));
+	Return(free_control_(ptr, catch));
 	/* end catch */
 	getresult_control(ptr, &catch);
 	localhold_set(hold, 0, catch);
-	if (free_check_control(ptr, control, 0))
-		return 1;
+	Return(free_control_(ptr, control));
 	localhold_end(hold);
 	if (ret)
 		*ret = catch;
+
 	return 0;
 }
 
 int lisp_throw(addr symbol)
 {
 	if (! symbolp(symbol))
-		_fmte("THROW argument ~S must be a symbol.", symbol, NULL);
+		fmte("THROW argument ~S must be a symbol.", symbol, NULL);
 	return throw_control_(Execute_Thread, symbol);
 }
 

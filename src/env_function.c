@@ -3,7 +3,9 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "env_function.h"
 #include "eval.h"
 #include "format.h"
@@ -251,7 +253,7 @@ _g void time_common(addr form, addr env, addr *ret)
 	return;
 
 error:
-	_fmte("Macro TIME ~S must be a (time form).", form, NULL);
+	fmte("Macro TIME ~S must be a (time form).", form, NULL);
 	*ret = Nil;
 }
 
@@ -330,7 +332,7 @@ _g void room_common(Execute ptr, addr var)
 	}
 
 	/* error */
-	_fmte("Invalid ROOM argument ~S.", var, NULL);
+	fmte("Invalid ROOM argument ~S.", var, NULL);
 }
 
 
@@ -379,7 +381,7 @@ static void ed_function_lambda(addr symbol, addr *ret)
 	return;
 
 error:
-	_fmte("Cannot edit ~S function.", symbol, NULL);
+	fmte("Cannot edit ~S function.", symbol, NULL);
 	*ret = Nil;
 }
 
@@ -396,7 +398,6 @@ static void ed_function_name(Execute ptr, addr *ret)
 
 static int ed_function_write(Execute ptr, addr file, addr lambda)
 {
-	int check;
 	addr control;
 	size_t width;
 
@@ -409,10 +410,10 @@ static int ed_function_write(Execute ptr, addr file, addr lambda)
 			Stream_Open_External_Default);
 	right_margin_print(ptr, file, &width);
 	push_right_margin_print(ptr, width);
-	check = prin1_print(ptr, file, lambda);
+	Return(prin1_print(ptr, file, lambda));
 	close_stream(file);
 
-	return free_check_control(ptr, control, check);
+	return free_control_(ptr, control);
 }
 
 static int ed_function_common(Execute ptr, addr symbol)
@@ -537,7 +538,7 @@ static void dribble_open(Execute ptr, addr file)
 	GetValueSymbol(check, &check);
 	if (check != Unbound) {
 		pathname_designer_heap(ptr, check, &check);
-		_fmtw("DRIBBLE already open file ~S.", check, NULL);
+		fmtw("DRIBBLE already open file ~S.", check, NULL);
 	}
 	else {
 		dribble_open_file(ptr, file);

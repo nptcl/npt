@@ -75,13 +75,13 @@ _g void eastasian_set_syscall(addr pos, addr value, addr errorp, addr *ret)
 	/* value */
 	if (GetIndex_fixnum(value, &size)) {
 		if (errorp)
-			_fmte("Invalid integer value ~S.", value, NULL);
+			fmte("Invalid integer value ~S.", value, NULL);
 		*ret = Nil;
 		return;
 	}
 	if (UINT_MAX <= size) {
 		if (errorp)
-			_fmte("The value ~S is too large.", value, NULL);
+			fmte("The value ~S is too large.", value, NULL);
 		*ret = Nil;
 		return;
 	}
@@ -100,7 +100,7 @@ _g void eastasian_set_syscall(addr pos, addr value, addr errorp, addr *ret)
 
 		default:
 			if (errorp)
-				_fmte("Inavlid eastasian type ~S.", pos, NULL);
+				fmte("Inavlid eastasian type ~S.", pos, NULL);
 			*ret = Nil;
 			return;
 	}

@@ -7,7 +7,8 @@
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
 #include "function.h"
 #include "memory.h"
 #include "number.h"
@@ -422,7 +423,7 @@ int lisp_reader16(addr *ret, const void *str)
 void lisp_push_lexical(addr symbol, addr value)
 {
 	if (! symbolp(symbol))
-		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	if (value == NULL)
 		value = Nil;
 	pushlexical_control(Execute_Thread, symbol, value);
@@ -445,7 +446,7 @@ void lisp_push_lexical16(const void *name, addr value)
 void lisp_push_special(addr symbol, addr value)
 {
 	if (! symbolp(symbol))
-		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	if (value == NULL)
 		value = Unbound;
 	pushspecial_control(Execute_Thread, symbol, value);
@@ -468,7 +469,7 @@ void lisp_push_special16(const void *name, addr value)
 addr lisp_get_lexical(addr symbol)
 {
 	if (! symbolp(symbol))
-		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	getlexical_local(Execute_Thread, symbol, &symbol);
 	return (symbol == Unbound)? NULL: symbol;
 }
@@ -490,7 +491,7 @@ addr lisp_get_lexical16(const void *name)
 addr lisp_get_special(addr symbol)
 {
 	if (! symbolp(symbol))
-		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	getspecial_local(Execute_Thread, symbol, &symbol);
 	return (symbol == Unbound)? NULL: symbol;
 }
@@ -512,9 +513,9 @@ addr lisp_get_special16(const void *name)
 void lisp_set_lexical(addr symbol, addr value)
 {
 	if (! symbolp(symbol))
-		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	if (value == NULL)
-		_fmte("The lexical symbol ~S don't set Unbound.", symbol, NULL);
+		fmte("The lexical symbol ~S don't set Unbound.", symbol, NULL);
 	setlexical_local(Execute_Thread, symbol, value);
 }
 
@@ -535,7 +536,7 @@ void lisp_set_lexical16(const void *name, addr value)
 void lisp_set_special(addr symbol, addr value)
 {
 	if (! symbolp(symbol))
-		_fmte("The argument ~S must be a symbol type.", symbol, NULL);
+		fmte("The argument ~S must be a symbol type.", symbol, NULL);
 	if (value == NULL)
 		value = Unbound;
 	setspecial_local(Execute_Thread, symbol, value);
@@ -628,7 +629,7 @@ int lisp_minusp(addr value)
 unicode lisp_get_character(addr pos)
 {
 	if (! characterp(pos))
-		_fmte("The argument ~S must be a character type.", pos, NULL);
+		fmte("The argument ~S must be a character type.", pos, NULL);
 	return RefCharacter(pos);
 }
 
@@ -654,7 +655,7 @@ float lisp_get_float(addr pos)
 			return single_float_ratio(pos);
 
 		default:
-			_fmte("The argument ~S must be a real type.", pos, NULL);
+			fmte("The argument ~S must be a real type.", pos, NULL);
 			return 0.0f;
 	}
 }
@@ -681,7 +682,7 @@ double lisp_get_double(addr pos)
 			return double_float_ratio(pos);
 
 		default:
-			_fmte("The argument ~S must be a real type.", pos, NULL);
+			fmte("The argument ~S must be a real type.", pos, NULL);
 			return 0.0;
 	}
 }
@@ -708,7 +709,7 @@ long double lisp_get_long_double(addr pos)
 			return long_float_ratio(pos);
 
 		default:
-			_fmte("The argument ~S must be a real type.", pos, NULL);
+			fmte("The argument ~S must be a real type.", pos, NULL);
 			return 0.0;
 	}
 }

@@ -4,7 +4,9 @@
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "control.h"
+#include "control_execute.h"
+#include "control_object.h"
+#include "control_operator.h"
 #include "eval.h"
 #include "eval_main.h"
 #include "format.h"
@@ -168,7 +170,7 @@ static int output_restarts_debugger(Execute ptr, addr io, addr list)
 				open_output_string_stream(&str, 0);
 				check = callclang_funcall(ptr, &name, name, str, NULL);
 				if (check)
-					_fmte("Invalid restart report.", NULL);
+					fmte("Invalid restart report.", NULL);
 				string_stream_heap(str, &name);
 				close_stream(str);
 			}
@@ -185,10 +187,9 @@ static int eval_debugger(Execute ptr, addr io, addr eval)
 	addr control;
 
 	push_close_control(ptr, &control);
-	if (eval_execute(ptr, eval))
-		return runcode_free_control(ptr, control);
+	Return(eval_execute(ptr, eval));
 	Return(eval_loop_output(ptr, io, control));
-	return free_control(ptr, control);
+	return free_control_(ptr, control);
 }
 
 static int enter_debugger(Execute ptr, addr condition)
@@ -201,7 +202,7 @@ static int enter_debugger(Execute ptr, addr condition)
 	/* restarts */
 	mode_prompt_stream(ptr, PromptStreamMode_Normal);
 	debug_io_stream(ptr, &io);
-	compute_restarts_control(ptr, condition, &list);
+	Return(compute_restarts_control_(ptr, condition, &list));
 	hold = LocalHold_local_push(ptr, list);
 	if (list == Nil) {
 		Return(format_stream(ptr, io, "There is no restarts, abort.~%", NULL));
@@ -222,7 +223,7 @@ loop:
 	check = read_stream(ptr, io, &result, &pos);
 	/* Interupt */
 	if (check) {
-		_fmte("Invalid operation.", NULL);
+		fmte("Invalid operation.", NULL);
 		goto exit;
 	}
 	/* EOF */
@@ -252,7 +253,7 @@ loop:
 	/* execute */
 	getnth_unsafe(list, select, &pos);
 	localhold_end(hold);
-	Return(invoke_restart_interactively_control(ptr, pos));
+	Return(invoke_restart_interactively_control_(ptr, pos));
 	goto loop;
 
 exit:
@@ -293,7 +294,6 @@ static int invoke_standard_debugger(Execute ptr, addr condition)
 
 _g int invoke_debugger(Execute ptr, addr condition)
 {
-	int check;
 	addr symbol, prior, call, control;
 
 	GetConst(SPECIAL_DEBUGGER_HOOK, &symbol);
@@ -306,9 +306,8 @@ _g int invoke_debugger(Execute ptr, addr condition)
 		getfunctioncheck_local(ptr, call, &call);
 	push_close_control(ptr, &control);
 	pushspecial_control(ptr, symbol, Nil);
-	check = funcall_control(ptr, call, condition, prior, NULL);
-	if (free_check_control(ptr, control, check))
-		return 1;
+	Return(funcall_control(ptr, call, condition, prior, NULL));
+	Return(free_control_(ptr, control));
 	/* invoke-debugger is not returned. */
 	return invoke_standard_debugger(ptr, condition);
 }

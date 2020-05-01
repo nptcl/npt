@@ -95,7 +95,7 @@ static int function_encode_universal_time(Execute ptr, addr rest)
 	return 0;
 
 error:
-	return fmte("Invalid argument ENCODE-UNIVERSAL-TIME.", NULL);
+	return fmte_("Invalid argument ENCODE-UNIVERSAL-TIME.", NULL);
 }
 
 static void type_encode_universal_time(addr *ret)

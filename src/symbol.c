@@ -123,7 +123,7 @@ _g int keywordp(addr pos)
 static void setcheck_symbol(addr symbol)
 {
 	if (GetStatusReadOnly(symbol))
-		_fmte("Cannot set the constant variable ~S.", symbol, NULL);
+		fmte("Cannot set the constant variable ~S.", symbol, NULL);
 }
 
 #define SetSymbol(s,i,v) { \

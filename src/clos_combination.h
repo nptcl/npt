@@ -59,12 +59,11 @@ _g void stdget_shortdef_operator(addr pos, addr *ret);
 _g void stdset_shortdef_operator(addr pos, addr value);
 
 /* control */
-_g int check_qualifiers_equal(Execute ptr, addr combination, addr qualifiers);
+_g int check_qualifiers_equal_(Execute ptr, addr comb, addr qua, int *ret);
 _g void method_combination_qualifiers_count(addr combination, size_t *ret);
-_g int qualifiers_position_nil(Execute ptr,
-		addr qualifiers, addr combination, size_t *ret);
-_g void qualifiers_position(Execute ptr,
-		addr qualifiers, addr combination, size_t *ret);
+_g int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
+		size_t *rsize, int *ret);
+_g int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize, int *ret);
 _g void build_clos_combination(void);
 
 /* generic-function */

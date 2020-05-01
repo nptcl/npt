@@ -692,7 +692,7 @@ static enum EVAL_OPTIMIZE check_optimize_symbol(addr symbol)
 	if (check == symbol)
 		return EVAL_OPTIMIZE_DEBUG;
 
-	_fmte("Invalid optimize symbol ~S.", symbol, NULL);
+	fmte("Invalid optimize symbol ~S.", symbol, NULL);
 	return EVAL_OPTIMIZE_SIZE;
 }
 
@@ -711,7 +711,7 @@ static void decl_optimize_cons(addr eval, addr cons)
 
 	getcons(cons, &symbol, &cons);
 	if (GetType(symbol) != LISPTYPE_SYMBOL)
-		_fmte("The optimize type ~S must be a symbol.", symbol, NULL);
+		fmte("The optimize type ~S must be a symbol.", symbol, NULL);
 	index = (int)check_optimize_symbol(symbol);
 
 	/* (speed) -> (speed 3) */
@@ -723,12 +723,12 @@ static void decl_optimize_cons(addr eval, addr cons)
 	/* (speed x) */
 	getcons(cons, &value, &cons);
 	if (cons != Nil)
-		_fmte("Invalid optimize argument ~S.", cons, NULL);
+		fmte("Invalid optimize argument ~S.", cons, NULL);
 	if (GetType(value) != LISPTYPE_FIXNUM)
-		_fmte("The optimize value ~S must be a fixnum.", value, NULL);
+		fmte("The optimize value ~S must be a fixnum.", value, NULL);
 	GetFixnum(value, &check);
 	if (check < 0 || 3 < check)
-		_fmte("The optimize value ~S must be between 0 and 3.", value, NULL);
+		fmte("The optimize value ~S must be between 0 and 3.", value, NULL);
 	SetEvalDeclareOptimize(eval, index, (int)check);
 }
 
@@ -748,7 +748,7 @@ static void decl_optimize(addr eval, addr cons)
 				break;
 
 			default:
-				_fmte("Invalid optimize argument ~S.", one, NULL);
+				fmte("Invalid optimize argument ~S.", one, NULL);
 				break;
 		}
 	}
@@ -773,7 +773,7 @@ static int decl_otherwise(Execute ptr, addr env, addr eval, addr type, addr cons
 
 	if (! type_symbol_p(type)) {
 		/* Not implementation */
-		_fmtw("Declaration ~S is not implemented.", type, NULL);
+		fmtw("Declaration ~S is not implemented.", type, NULL);
 		return 0;
 	}
 
@@ -827,17 +827,17 @@ static int push_declaim(Execute ptr, addr env, addr eval, addr symbol, addr cons
 	/* error/otherwise */
 	GetConst(COMMON_DYNAMIC_EXTENT, &check);
 	if (check == symbol) {
-		_fmte("dynamic-extent don't allow in the declaim/proclaim form.", NULL);
+		fmte("dynamic-extent don't allow in the declaim/proclaim form.", NULL);
 		return 0;
 	}
 	GetConst(COMMON_IGNORE, &check);
 	if (check == symbol) {
-		_fmte("ignore don't allow in the declaim/proclaim form.", NULL);
+		fmte("ignore don't allow in the declaim/proclaim form.", NULL);
 		return 0;
 	}
 	GetConst(COMMON_IGNORABLE, &check);
 	if (check == symbol) {
-		_fmte("ignorable don't allow in the declaim/proclaim form.", NULL);
+		fmte("ignorable don't allow in the declaim/proclaim form.", NULL);
 		return 0;
 	}
 
@@ -893,7 +893,7 @@ static int push_declare(Execute ptr, addr env, addr eval, addr symbol, addr cons
 	/* error/otherwise */
 	GetConst(COMMON_DECLARATION, &check);
 	if (check == symbol) {
-		_fmte("declaration don't allow in the declare form.", NULL);
+		fmte("declaration don't allow in the declare form.", NULL);
 		return 0;
 	}
 	return decl_otherwise(ptr, env, eval, symbol, cons);
