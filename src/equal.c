@@ -15,6 +15,7 @@
 #include "object.h"
 #include "pathname.h"
 #include "ratio.h"
+#include "ratio_equal.h"
 #include "strtype.h"
 #include "strvect.h"
 #include "structure.h"

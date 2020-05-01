@@ -4,6 +4,9 @@
 #include "heap.h"
 #include "integer.h"
 #include "ratio.h"
+#include "ratio_equal.h"
+#include "ratio_plus.h"
+#include "ratio_multi.h"
 #include "rational.h"
 #include "real_float.h"
 

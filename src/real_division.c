@@ -5,6 +5,8 @@
 #include "math_type.h"
 #include "object.h"
 #include "ratio.h"
+#include "ratio_plus.h"
+#include "ratio_multi.h"
 #include "real_division.h"
 #include "real_float.h"
 #include "real_floor.h"

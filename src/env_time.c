@@ -12,6 +12,7 @@
 #include "object.h"
 #include "pointer.h"
 #include "ratio.h"
+#include "ratio_multi.h"
 #include "rational.h"
 #include "real_division.h"
 #include "real_float.h"

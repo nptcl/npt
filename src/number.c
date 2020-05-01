@@ -10,6 +10,9 @@
 #include "number.h"
 #include "object.h"
 #include "ratio.h"
+#include "ratio_equal.h"
+#include "ratio_plus.h"
+#include "ratio_multi.h"
 #include "rational.h"
 #include "real_float.h"
 

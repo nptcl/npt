@@ -1,11 +1,14 @@
 #include "condition.h"
 #include "bignum.h"
-#include "ratio.h"
-#include "rational.h"
 #include "integer.h"
-#include "object.h"
+#include "ratio.h"
+#include "ratio_equal.h"
+#include "ratio_plus.h"
+#include "ratio_multi.h"
+#include "rational.h"
 #include "real.h"
 #include "real_float.h"
+#include "object.h"
 
 _g int floatp(addr pos)
 {

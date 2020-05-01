@@ -197,6 +197,9 @@ random.c
 random_float.c
 random_state.c
 ratio.c
+ratio_equal.c
+ratio_multi.c
+ratio_plus.c
 rational.c
 readtable.c
 real_ceiling.c

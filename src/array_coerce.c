@@ -7,6 +7,7 @@
 #include "bignum.h"
 #include "character.h"
 #include "ratio.h"
+#include "ratio_equal.h"
 #include "real_float.h"
 #include "strtype.h"
 #include "symbol.h"
