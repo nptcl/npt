@@ -1,4 +1,4 @@
-#include "readtable.c"
+#include "reader.c"
 #include "clos.h"
 #include "character.h"
 #include "code.h"
@@ -11,6 +11,7 @@
 #include "object.h"
 #include "print.h"
 #include "pathname.h"
+#include "package.h"
 #include "stream.h"
 #include "strtype.h"
 #include "strvect.h"
@@ -18,15 +19,16 @@
 #include "type.h"
 #include "type_table.h"
 
+#if 0
 /*
  *  chartable
  */
-static int test_init_readtable(void)
+static int test_init_reader(void)
 {
 	memset(CharTable, 0, sizeoft(CharTable));
-	init_readtable();
-	test(CharTable[(size_t)'a'].chartype, "init_readtable1");
-	test(CharTable[(size_t)'f'].exponent, "init_readtable2");
+	init_reader();
+	test(CharTable[(size_t)'a'].chartype, "init_reader1");
+	test(CharTable[(size_t)'f'].exponent, "init_reader2");
 
 	RETURN;
 }
@@ -2830,16 +2832,18 @@ static int test_basic_token(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
  *  main
  */
-static int testbreak_readtable(void)
+static int testbreak_reader(void)
 {
 	in_package_lisp_package();
+#if 0
 	/* chartable */
-	TestBreak(test_init_readtable);
+	TestBreak(test_init_reader);
 	/* readlabel */
 	TestBreak(test_readlabel_heap);
 	/* readinfo */
@@ -2946,11 +2950,12 @@ static int testbreak_readtable(void)
 	//TestBreak(test_structure_dispatch); /* TODO */
 	/* basic object */
 	TestBreak(test_basic_token);
+#endif
 
 	return 0;
 }
 
-int test_readtable(void)
+int test_reader(void)
 {
 	int result;
 	lispcode code;
@@ -2976,11 +2981,11 @@ int test_readtable(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		build_eval_declare();
 		build_code();
 		lisp_initialize = 1;
-		result = testbreak_readtable();
+		result = testbreak_reader();
 	}
 	end_code(ptr);
 	freelisp();

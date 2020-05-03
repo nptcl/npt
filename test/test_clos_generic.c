@@ -4,7 +4,7 @@
 #include "degrade.h"
 #include "execute.h"
 #include "package.h"
-#include "readtable.h"
+#include "reader.h"
 #include "real.h"
 #include "stream.h"
 #include "symbol.h"
@@ -887,7 +887,7 @@ int test_clos_generic(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		lisp_initialize = 1;
 		result = testbreak_clos_generic();
 	}

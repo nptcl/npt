@@ -12,7 +12,7 @@
 #include "print_function.h"
 #include "print_object.h"
 #include "print_write.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "stream_string.h"
 #include "symbol.h"

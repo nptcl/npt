@@ -4,7 +4,7 @@
 #include "degrade.h"
 #include "package.c"
 #include "print.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "syscall.h"
 #include "type.h"
@@ -3205,7 +3205,7 @@ int test_package(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		lisp_initialize = 1;
 		result = testbreak_package();
 	}

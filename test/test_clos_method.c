@@ -5,7 +5,7 @@
 #include "execute.h"
 #include "real.h"
 #include "package.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "syscall.h"
 #include "symbol.h"
@@ -732,7 +732,7 @@ int test_clos_method(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		lisp_initialize = 1;
 		result = testbreak_clos_method();
 	}

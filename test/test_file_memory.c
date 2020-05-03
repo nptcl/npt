@@ -7,7 +7,7 @@
 #include "degrade.h"
 #include "package.h"
 #include "pathname.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "strvect.h"
 #include "symbol.h"
@@ -1308,7 +1308,7 @@ int test_file_memory(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		build_pathname();
 		lisp_initialize = 1;
 		result = testbreak_file_memory();

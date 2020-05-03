@@ -1079,7 +1079,7 @@ enum pointer_index {
 	p_defun_dispatch_array,
 	p_defun_dispatch_pathname,
 	p_defun_dispatch_structure,
-	p_read_replace_finalize,
+	p_equal_finalize_dispatch,
 	/* package */
 	p_defun_defpackage_make,
 	/* pathname */

@@ -201,7 +201,14 @@ ratio_equal.c
 ratio_multi.c
 ratio_plus.c
 rational.c
-readtable.c
+reader_dispatch.c
+reader_function.c
+reader_info.c
+reader_label.c
+reader_table.c
+reader_token.c
+reader_type.c
+reader.c
 real_ceiling.c
 real_common.c
 real_decode.c

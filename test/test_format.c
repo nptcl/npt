@@ -11,7 +11,7 @@
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
-#include "readtable.h"
+#include "reader.h"
 #include "strtype.h"
 #include "symbol.h"
 #include "syscall.h"
@@ -137,7 +137,7 @@ int test_format(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		build_pathname();
 		build_eval_declare();
 		build_code();

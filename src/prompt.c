@@ -5,7 +5,7 @@
 #include "format.h"
 #include "local.h"
 #include "prompt.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "strvect.h"
 #include "symbol.h"

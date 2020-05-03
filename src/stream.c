@@ -20,7 +20,7 @@
 #include "pathname.h"
 #include "print.h"
 #include "print_write.h"
-#include "readtable.h"
+#include "reader.h"
 #include "sequence.h"
 #include "stream.h"
 #include "stream_broadcast.h"

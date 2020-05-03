@@ -56,7 +56,7 @@ int test_ratio_plus(void);
 int test_ratio_multi(void);
 int test_number(void);
 int test_token(void);
-int test_readtable(void);
+int test_reader(void);
 int test_quote(void);
 int test_package(void);
 int test_lambda(void);
@@ -152,7 +152,7 @@ void degrade_execute(void)
 	DegradeCheck(test_ratio_multi);
 	DegradeCheck(test_number);
 	DegradeCheck(test_token);
-	DegradeCheck(test_readtable);
+	DegradeCheck(test_reader);
 	DegradeCheck(test_quote);
 	DegradeCheck(test_package);
 	DegradeCheck(test_lambda);

@@ -27,7 +27,7 @@
 #include "quote.h"
 #include "random_state.h"
 #include "ratio.h"
-#include "readtable.h"
+#include "reader_table.h"
 #include "restart.h"
 #include "stream.h"
 #include "stream_pretty.h"

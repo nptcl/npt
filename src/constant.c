@@ -6,7 +6,7 @@
 #include "memory.h"
 #include "object.h"
 #include "package.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "strvect.h"
 #include "symbol.h"

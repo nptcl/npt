@@ -17,7 +17,7 @@
 #include "heap.h"
 #include "object.h"
 #include "quote.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 
 enum QuoteType {

@@ -3,7 +3,7 @@
 #include "common.h"
 #include "constant.h"
 #include "degrade.h"
-#include "readtable.h"
+#include "reader.h"
 #include "package.h"
 #include "symbol.h"
 #include "syscall.h"

@@ -4,7 +4,7 @@
 #include "common.h"
 #include "constant.h"
 #include "degrade.h"
-#include "readtable.h"
+#include "reader.h"
 #include "package.h"
 #include "pathname.h"
 #include "stream.h"
@@ -314,7 +314,7 @@ int test_equal(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		lisp_initialize = 1;
 		result = testbreak_equal();
 	}

@@ -11,7 +11,7 @@
 #include "package.h"
 #include "pathname.h"
 #include "ratio.h"
-#include "readtable.h"
+#include "reader.h"
 #include "strtype.h"
 #include "symbol.h"
 #include "syscall.h"

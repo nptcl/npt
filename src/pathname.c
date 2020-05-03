@@ -24,7 +24,7 @@
 #include "package.h"
 #include "pathname.h"
 #include "pointer.h"
-#include "readtable.h"
+#include "reader.h"
 #include "sequence.h"
 #include "stream.h"
 #include "strtype.h"

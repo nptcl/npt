@@ -7,7 +7,7 @@
 #include "degrade.h"
 #include "object.h"
 #include "package.h"
-#include "readtable.h"
+#include "reader.h"
 #include "symbol.h"
 #include "syscall.h"
 #include "type.h"
@@ -223,7 +223,7 @@ int test_stream(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		build_pathname();
 		lisp_initialize = 1;
 		result = testbreak_stream();

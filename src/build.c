@@ -38,7 +38,7 @@
 #include "pointer.h"
 #include "print.h"
 #include "random_state.h"
-#include "readtable.h"
+#include "reader.h"
 #include "real_common.h"
 #include "restart.h"
 #include "require.h"
@@ -83,7 +83,7 @@ _g void initlisp(void)
 	init_package();
 	init_pathname();
 	init_print();
-	init_readtable();
+	init_reader();
 	init_restart();
 	init_rt();
 	init_stream();
@@ -317,7 +317,7 @@ _g void buildlisp(Execute ptr)
 	build_print(ptr);
 	build_environment(ptr);
 	build_documentation(ptr);
-	build_readtable();
+	build_reader();
 	build_pathname();
 	build_eval_declare();
 	build_code();

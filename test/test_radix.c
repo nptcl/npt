@@ -12,7 +12,7 @@
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
-#include "readtable.h"
+#include "reader.h"
 #include "strtype.h"
 #include "stream.h"
 #include "stream_string.h"
@@ -1293,7 +1293,7 @@ int test_radix(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		build_pathname();
 		build_eval_declare();
 		build_code();

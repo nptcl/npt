@@ -10,7 +10,7 @@
 #include "gc.h"
 #include "print_write.h"
 #include "prompt.h"
-#include "readtable.h"
+#include "reader.h"
 #include "restart.h"
 #include "stream.h"
 #include "stream_string.h"

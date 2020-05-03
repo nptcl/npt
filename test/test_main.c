@@ -11,7 +11,7 @@
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "syscall.h"
 #include "type.h"

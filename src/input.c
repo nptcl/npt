@@ -7,7 +7,7 @@
 #include "gc.h"
 #include "input.h"
 #include "pointer.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 
 static int readlist_loop(Execute ptr, addr stream, addr *ret)

@@ -12,7 +12,7 @@
 #include "pathname.h"
 #include "random_state.h"
 #include "ratio.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "symbol.h"
 #include "syscall.h"
@@ -1787,7 +1787,7 @@ int test_type_optimize(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		lisp_initialize = 1;
 		result = testbreak_type_optimize();
 	}

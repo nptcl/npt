@@ -8,7 +8,7 @@
 #include "degrade.h"
 #include "function.h"
 #include "package.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "symbol.h"
 #include "syscall.h"
@@ -424,7 +424,7 @@ int test_type_symbol(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		build_code();
 		lisp_initialize = 1;
 		result = testbreak_type_symbol();

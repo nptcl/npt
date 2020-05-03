@@ -8,7 +8,7 @@
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "symbol.h"
 #include "syscall.h"
@@ -57,7 +57,7 @@ int test_extern_object(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		build_pathname();
 		lisp_initialize = 1;
 		result = testbreak_extern_object();

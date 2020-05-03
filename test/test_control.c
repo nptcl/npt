@@ -9,7 +9,7 @@
 #include "copy.h"
 #include "degrade.h"
 #include "execute.h"
-#include "readtable.h"
+#include "reader.h"
 #include "package.h"
 #include "pathname.h"
 #include "symbol.h"
@@ -2655,7 +2655,7 @@ int test_control(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		build_pathname();
 		build_code();
 		lisp_initialize = 1;

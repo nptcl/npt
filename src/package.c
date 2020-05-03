@@ -2089,6 +2089,17 @@ _g void in_package(Execute ptr, addr package, addr *ret)
 	if (ret) *ret = package;
 }
 
+_g void in_package_lisp_package(void)
+{
+	addr package, symbol;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	find_char_package(LISP_PACKAGE, &package);
+	GetConst(SPECIAL_PACKAGE, &symbol);
+	setspecial_local(ptr, symbol, package);
+}
+
 
 /*
  *  for C language

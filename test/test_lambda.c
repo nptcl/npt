@@ -10,7 +10,7 @@
 #include "object.h"
 #include "print.h"
 #include "pathname.h"
-#include "readtable.h"
+#include "reader.h"
 #include "stream.h"
 #include "strtype.h"
 #include "syscall.h"
@@ -981,7 +981,7 @@ int test_lambda(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		build_code();
 		lisp_initialize = 1;
 		result = testgroup_lambda();

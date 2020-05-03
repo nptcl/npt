@@ -69,6 +69,7 @@ _g void use_package(addr package, addr symbol);
 _g void unuse_package(addr package, addr symbol);
 
 _g void in_package(Execute ptr, addr package, addr *ret);
+_g void in_package_lisp_package(void);
 
 /* develop function */
 _g enum PACKAGE_TYPE intern_default_package(Execute ptr, addr name, addr *ret);

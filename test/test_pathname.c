@@ -5,7 +5,7 @@
 #include "degrade.h"
 #include "object.h"
 #include "package.h"
-#include "readtable.h"
+#include "reader.h"
 #include "syscall.h"
 #include "type.h"
 #include "type_table.h"
@@ -1048,7 +1048,7 @@ int test_pathname(void)
 		build_type();
 		build_syscall();
 		build_common();
-		build_readtable();
+		build_reader();
 		build_pathname();
 		lisp_initialize = 1;
 		result = testbreak_pathname();

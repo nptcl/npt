@@ -16,7 +16,7 @@
 #include "package.h"
 #include "pathname.h"
 #include "ratio.h"
-#include "readtable.h"
+#include "reader.h"
 #include "real_float.h"
 #include "sequence.h"
 #include "strtype.h"
