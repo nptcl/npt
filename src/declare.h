@@ -1,7 +1,6 @@
-#ifndef __EVAL_DECLARE_HEADER__
-#define __EVAL_DECLARE_HEADER__
+#ifndef __DECLARE_HEADER__
+#define __DECLARE_HEADER__
 
-#include "eval_typedef.h"
 #include "execute.h"
 #include "typedef.h"
 
@@ -41,7 +40,7 @@ _g void getall_ignore_function_declare(addr pos, addr *ret);
 
 _g void getroot_declare(addr *ret);
 _g void setroot_declare(addr pos);
-_g void build_eval_declare(void);
+_g void build_declare(void);
 _g void push_declaration_declaim(addr symbol);
 _g void copy_optimize_declare(OptimizeType *array);
 _g void apply_compilation_speed_declaim(OptimizeType value);

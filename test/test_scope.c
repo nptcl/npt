@@ -1,4 +1,4 @@
-#include "eval_scope.c"
+#include "scope.c"
 #include "array.h"
 #include "array_make.h"
 #include "bignum.h"
@@ -6,11 +6,12 @@
 #include "clos.h"
 #include "code.h"
 #include "common.h"
+#include "condition.h"
 #include "constant.h"
 #include "control_operator.h"
 #include "copy.h"
+#include "declare.h"
 #include "degrade.h"
-#include "eval_declare.h"
 #include "lambda.h"
 #include "ratio.h"
 #include "reader.h"
@@ -24,6 +25,7 @@
 #include "type.h"
 #include "type_table.h"
 
+#if 0
 /*
  *  memory
  */
@@ -6568,13 +6570,15 @@ static int test_scope_multiple_value_call(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
  *  Main
  */
-static int testbreak_eval_scope(void)
+static int testbreak_scope(void)
 {
+#if 0
 	/* memory */
 	TestBreak(test_eval_scope_heap);
 	TestBreak(test_eval_scope_size);
@@ -6774,11 +6778,12 @@ static int testbreak_eval_scope(void)
 	/* multiple-value-call */
 	TestBreak(test_function_result_type);
 	TestBreak(test_scope_multiple_value_call);
+#endif
 
 	return 0;
 }
 
-static void test_build_eval_scope(void)
+static void test_build_scope(void)
 {
 	addr pos, when;
 	Execute ptr;
@@ -6790,7 +6795,7 @@ static void test_build_eval_scope(void)
 	push_evalwhen_eval(ptr);
 }
 
-int test_eval_scope(void)
+int test_scope(void)
 {
 	int result;
 	lispcode code;
@@ -6818,11 +6823,11 @@ int test_eval_scope(void)
 		build_common();
 		build_reader();
 		build_pathname();
-		build_eval_declare();
+		build_declare();
 		build_code();
-		test_build_eval_scope();
+		test_build_scope();
 		lisp_initialize = 1;
-		result = testbreak_eval_scope();
+		result = testbreak_scope();
 	}
 	end_code(ptr);
 	freelisp();

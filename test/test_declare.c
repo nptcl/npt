@@ -1,4 +1,4 @@
-#include "eval_declare.c"
+#include "declare.c"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -1064,7 +1064,7 @@ static int test_getall_ignore_function_declare(void)
 
 
 /*
- *  build_eval_declare
+ *  build_declare
  */
 static int test_getroot_declare(void)
 {
@@ -1079,19 +1079,19 @@ static int test_getroot_declare(void)
 	getroot_declare(&check);
 	test(pos == check, "getroot_declare3");
 
-	build_eval_declare();
+	build_declare();
 
 	RETURN;
 }
 
-static int test_build_eval_declare(void)
+static int test_build_declare(void)
 {
 	addr pos;
 
-	build_eval_declare();
+	build_declare();
 	getroot_declare(&pos);
-	test(get_optimize_space_declare(pos) == 1, "build_eval_declare1");
-	test(get_optimize_space_declare(pos) == 1, "build_eval_declare2");
+	test(get_optimize_space_declare(pos) == 1, "build_declare1");
+	test(get_optimize_space_declare(pos) == 1, "build_declare2");
 
 	RETURN;
 }
@@ -1101,7 +1101,7 @@ static int test_copy_optimize_declare(void)
 	addr pos;
 	OptimizeType optimize[EVAL_OPTIMIZE_SIZE];
 
-	build_eval_declare();
+	build_declare();
 	getroot_declare(&pos);
 	set_optimize_space_declare(pos, 3);
 	copy_optimize_declare(optimize);
@@ -1940,7 +1940,7 @@ static int test_copy_eval_declare_heap(void)
 /*
  *  main
  */
-static int testbreak_eval_declare(void)
+static int testbreak_declare(void)
 {
 	/* declarations */
 	TestBreak(test_make_eval_declare);
@@ -1980,9 +1980,9 @@ static int testbreak_eval_declare(void)
 	TestBreak(test_getall_dynamic_function_declare);
 	TestBreak(test_getall_ignore_value_declare);
 	TestBreak(test_getall_ignore_function_declare);
-	/* build_eval_declare */
+	/* build_declare */
 	TestBreak(test_getroot_declare);
-	TestBreak(test_build_eval_declare);
+	TestBreak(test_build_declare);
 	TestBreak(test_copy_optimize_declare);
 	/* parse-declaration */
 	TestBreak(test_check_variable);
@@ -2025,7 +2025,7 @@ static int testbreak_eval_declare(void)
 	return 0;
 }
 
-int test_eval_declare(void)
+int test_declare(void)
 {
 	int result;
 	lispcode code;
@@ -2053,10 +2053,10 @@ int test_eval_declare(void)
 		build_common();
 		build_reader();
 		build_pathname();
-		build_eval_declare();
+		build_declare();
 		build_code();
 		lisp_initialize = 1;
-		result = testbreak_eval_declare();
+		result = testbreak_declare();
 	}
 	end_code(ptr);
 	freelisp();

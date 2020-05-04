@@ -1,13 +1,11 @@
-#include "code.h"
+#include "code_object.h"
+#include "code_make.h"
 #include "condition.h"
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
 #include "eval.h"
-#include "eval_code.h"
 #include "eval_copy.h"
-#include "eval_parse.h"
-#include "eval_scope.h"
 #include "eval_stack.h"
 #include "fasl.h"
 #include "file.h"
@@ -17,10 +15,12 @@
 #include "gc.h"
 #include "object.h"
 #include "optimize_parse.h"
+#include "parse.h"
 #include "pathname.h"
 #include "prompt.h"
 #include "reader.h"
 #include "reader_table.h"
+#include "scope.h"
 #include "sequence.h"
 #include "stream.h"
 #include "stream_string.h"
@@ -523,7 +523,6 @@ _g void init_eval(void)
 	init_eval_code();
 	init_eval_copy();
 	init_eval_main();
-	init_eval_scope();
 	init_eval_stack();
 }
 

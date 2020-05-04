@@ -1,7 +1,7 @@
 #include "condition.h"
 #include "control_execute.h"
 #include "cons.h"
-#include "eval_declare.h"
+#include "declare.h"
 #include "lambda.h"
 #include "type_deftype.h"
 #include "symbol.h"

@@ -1,14 +1,12 @@
-#include "code.h"
+#include "code_object.h"
+#include "code_make.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "control.h"
+#include "declare.h"
 #include "define.h"
 #include "eval.h"
-#include "eval_code.h"
-#include "eval_declare.h"
-#include "eval_scope.h"
-#include "eval_parse.h"
 #include "eval_table.h"
 #include "execute.h"
 #include "function.h"
@@ -17,6 +15,8 @@
 #include "object.h"
 #include "optimize_common.h"
 #include "package.h"
+#include "parse.h"
+#include "scope_object.h"
 #include "sequence.h"
 #include "symbol.h"
 #include "type_value.h"
@@ -2164,16 +2164,10 @@ static int eval_code_specialize(LocalRoot local, addr code, addr scope)
 	return 0;
 }
 
-static void eval_code_call(LocalRoot local, addr code, addr scope)
+static void eval_code_call_args(LocalRoot local, addr code, addr args)
 {
-	addr call, args, pos, value;
+	addr pos, value;
 
-	if (eval_code_specialize(local, code, scope))
-		return;
-	GetEvalScopeIndex(scope, 0, &call);
-	GetEvalScopeIndex(scope, 1, &args);
-	evalcode_push_return(local, code);
-	/* args */
 	while (args != Nil) {
 		GetCons(args, &pos, &args);
 		getvalue_tablecall(pos, &value);
@@ -2183,10 +2177,61 @@ static void eval_code_call(LocalRoot local, addr code, addr scope)
 			EvalCode_carcdr(local, code, CALL_TYPE, value);
 		}
 	}
-	/* function */
-	eval_code_execute_set(local, code, call);
-	/* call */
-	EvalCode_single(local, code, CALL);
+}
+
+static void eval_code_call_function(LocalRoot local, addr code, addr table)
+{
+	int symbolp, globalp;
+	addr name;
+	constindex index;
+
+	/* name */
+	getname_tablefunction(table, &name);
+	symbolp = symbol_callname_p(name);
+	GetCallName(name, &name);
+
+	/* code */
+	globalp = getglobalp_tablefunction(table);
+	if (symbolp) {
+		index = globalp?
+			CONSTANT_CODE_CALL_FUNCTION_GLOBAL:
+			CONSTANT_CODE_CALL_FUNCTION_LOCAL;
+	}
+	else {
+		index = globalp?
+			CONSTANT_CODE_CALL_SETF_GLOBAL:
+			CONSTANT_CODE_CALL_SETF_LOCAL;
+	}
+	evalcode_carcdr(local, code, index, name);
+}
+
+static void eval_code_call_first(LocalRoot local, addr code, addr pos)
+{
+	addr table;
+
+	if (RefEvalScopeType(pos) == EVAL_PARSE_FUNCTION) {
+		GetEvalScopeValue(pos, &table);
+		eval_code_call_function(local, code, table);
+	}
+	else {
+		eval_code_execute_set(local, code, pos);
+		EvalCode_single(local, code, CALL);
+	}
+}
+
+static void eval_code_call(LocalRoot local, addr code, addr scope)
+{
+	addr first, args, pos;
+
+	if (eval_code_specialize(local, code, scope))
+		return;
+	GetEvalScopeIndex(scope, 0, &first);
+	GetEvalScopeIndex(scope, 1, &args);
+	evalcode_push_return(local, code);
+	/* args -> first*/
+	eval_code_call_args(local, code, args);
+	eval_code_call_first(local, code, first);
+	/* execute */
 	evalcode_pop(local, code, &pos);
 	EvalCode_carcdr(local, code, EXECUTE, pos);
 	evalcode_ifpush(local, code);

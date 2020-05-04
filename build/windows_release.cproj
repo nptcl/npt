@@ -207,6 +207,8 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_plus.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_function.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_make.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_arrays.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_characters.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_conditions.c" />
@@ -248,6 +250,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\control_operator.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\copy.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\core.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\declare.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\degrade.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\develop.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\document.c" />
@@ -262,12 +265,8 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\env_version.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\environment.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\equal.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_code.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_copy.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_declare.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_main.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_parse.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_scope.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_stack.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval.c" />
@@ -326,6 +325,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\parse.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pointer.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\print.c" />
@@ -368,6 +368,13 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\restart_value.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rt_load.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\scope.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\scope_call.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\scope_declare.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\scope_lambda.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\scope_let.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\scope_function.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\scope_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence_iterator.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence_range.c" />
@@ -486,6 +493,8 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_windows.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_function.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_make.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_object.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common_header.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common.h" />
@@ -508,6 +517,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\copy.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\core.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\declare.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\define_compile.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\define.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\degrade.h" />
@@ -522,15 +532,10 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\env_version.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\environment.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\equal.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_code.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_copy.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_declare.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_main.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_parse.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_scope.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_stack.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_control.h" />
@@ -596,6 +601,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_type.h" />
@@ -639,6 +645,13 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\restart_value.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\restart.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rt.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\scope_call.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\scope_declare.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\scope_function.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\scope_lambda.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\scope_let.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\scope_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\scope.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_iterator.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_range.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence_write.h" />

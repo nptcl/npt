@@ -1,4 +1,4 @@
-#include "eval_parse.c"
+#include "parse.c"
 #include "bignum.h"
 #include "character.h"
 #include "clos.h"
@@ -2240,7 +2240,7 @@ static int test_parse_macro(void)
 /*
  *  Main
  */
-static int testbreak_eval_parse(void)
+static int testbreak_parse(void)
 {
 	in_package_lisp_package();
 	/* environment */
@@ -2329,7 +2329,7 @@ static int testbreak_eval_parse(void)
 	return 0;
 }
 
-int test_eval_parse(void)
+int test_parse(void)
 {
 	int result;
 	lispcode code;
@@ -2357,10 +2357,10 @@ int test_eval_parse(void)
 		build_common();
 		build_reader();
 		build_pathname();
-		build_eval_declare();
+		build_declare();
 		build_code();
 		lisp_initialize = 1;
-		result = testbreak_eval_parse();
+		result = testbreak_parse();
 	}
 	end_code(ptr);
 	freelisp();

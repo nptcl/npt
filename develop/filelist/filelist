@@ -62,6 +62,8 @@ cmpl_multi.c
 cmpl_plus.c
 code.c
 code_function.c
+code_make.c
+code_object.c
 common_arrays.c
 common_characters.c
 common_conditions.c
@@ -103,6 +105,7 @@ control_object.c
 control_operator.c
 copy.c
 core.c
+declare.c
 degrade.c
 develop.c
 document.c
@@ -117,12 +120,8 @@ env_time.c
 env_version.c
 environment.c
 equal.c
-eval_code.c
 eval_copy.c
-eval_declare.c
 eval_main.c
-eval_parse.c
-eval_scope.c
 eval_stack.c
 eval_table.c
 eval.c
@@ -181,6 +180,7 @@ optimize.c
 optimize_common.c
 optimize_parse.c
 package.c
+parse.c
 pathname.c
 pointer.c
 print.c
@@ -223,6 +223,13 @@ restart.c
 restart_value.c
 rt.c
 rt_load.c
+scope.c
+scope_call.c
+scope_declare.c
+scope_lambda.c
+scope_let.c
+scope_function.c
+scope_object.c
 sequence.c
 sequence_iterator.c
 sequence_range.c

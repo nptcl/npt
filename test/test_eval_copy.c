@@ -6,12 +6,12 @@
 #include "common.h"
 #include "condition.h"
 #include "constant.h"
-#include "eval_parse.h"
 #include "function.h"
 #include "degrade.h"
 #include "ratio.h"
 #include "reader.h"
 #include "package.h"
+#include "parse.h"
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"
@@ -1121,7 +1121,7 @@ int test_eval_copy(void)
 		build_common();
 		build_reader();
 		build_pathname();
-		build_eval_declare();
+		build_declare();
 		build_code();
 		lisp_initialize = 1;
 		result = testbreak_eval_copy();

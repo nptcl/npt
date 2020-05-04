@@ -7,8 +7,8 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "copy.h"
+#include "declare.h"
 #include "execute.h"
-#include "eval_declare.h"
 #include "eval_table.h"
 #include "function.h"
 #include "gc.h"
@@ -1107,9 +1107,56 @@ static int call_code(Execute ptr, addr right)
 static int call_type_code(Execute ptr, addr right)
 {
 	addr value;
-
 	getargs_tail_control(ptr, &value);
 	return typep_error(ptr, value, right);
+}
+
+static int call_function_global_code(Execute ptr, addr pos)
+{
+	addr value;
+
+	GetFunctionSymbol(pos, &value);
+	if (value == Unbound) {
+		Return(function_global_restart(ptr, pos, &value));
+	}
+
+	return execute_control(ptr, value);
+}
+
+static int call_function_local_code(Execute ptr, addr pos)
+{
+	addr value;
+
+	getfunction_local(ptr, pos, &value);
+	if (value == Unbound) {
+		Return(function_local_restart(ptr, pos, &value));
+	}
+
+	return execute_control(ptr, value);
+}
+
+static int call_setf_global_code(Execute ptr, addr pos)
+{
+	addr value;
+
+	getsetf_symbol(pos, &value);
+	if (value == Unbound) {
+		Return(setf_global_restart(ptr, pos, &value));
+	}
+
+	return execute_control(ptr, value);
+}
+
+static int call_setf_local_code(Execute ptr, addr pos)
+{
+	addr value;
+
+	getsetf_local(ptr, pos, &value);
+	if (value == Unbound) {
+		Return(setf_local_restart(ptr, pos, &value));
+	}
+
+	return execute_control(ptr, value);
 }
 
 static int values_nil_code(Execute ptr, addr right)
@@ -1439,6 +1486,10 @@ _g void init_code_function(void)
 	initcode(labels);
 	initcode(call);
 	initcode(call_type);
+	initcode(call_function_global);
+	initcode(call_function_local);
+	initcode(call_setf_global);
+	initcode(call_setf_local);
 
 	initcode(values_nil);
 	initcode(values_set);
@@ -1568,6 +1619,10 @@ _g void build_code_function(void)
 	defcode(LABELS, labels_code);
 	defcode(CALL, call_code);
 	defcode(CALL_TYPE, call_type_code);
+	defcode(CALL_FUNCTION_GLOBAL, call_function_global_code);
+	defcode(CALL_FUNCTION_LOCAL, call_function_local_code);
+	defcode(CALL_SETF_GLOBAL, call_setf_global_code);
+	defcode(CALL_SETF_LOCAL, call_setf_local_code);
 
 	defcode(VALUES_NIL, values_nil_code);
 	defcode(VALUES_SET, values_set_code);

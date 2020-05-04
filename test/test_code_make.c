@@ -1,4 +1,4 @@
-#include "eval_code.c"
+#include "code_make.c"
 #include "array.h"
 #include "bignum.h"
 #include "character.h"
@@ -14,6 +14,7 @@
 #include "reader.h"
 #include "package.h"
 #include "pathname.h"
+#include "scope.h"
 #include "stream.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -2107,7 +2108,7 @@ static int test_code_push_return(void)
 /*
  *  Main
  */
-static int testbreak_eval_code(void)
+static int testbreak_code_make(void)
 {
 	/* evalcode-stack */
 	TestBreak(test_alloc_evalcode_stack);
@@ -2195,7 +2196,7 @@ static void test_build_eval_scope(void)
 	push_evalwhen_eval(ptr);
 }
 
-int test_eval_code(void)
+int test_code_make(void)
 {
 	int result;
 	lispcode code;
@@ -2223,11 +2224,11 @@ int test_eval_code(void)
 		build_common();
 		build_reader();
 		build_pathname();
-		build_eval_declare();
+		build_declare();
 		build_code();
 		test_build_eval_scope();
 		lisp_initialize = 1;
-		result = testbreak_eval_code();
+		result = testbreak_code_make();
 	}
 	end_code(ptr);
 	freelisp();

@@ -1,6 +1,7 @@
 #include "function.c"
 #include "clos.h"
 #include "code.h"
+#include "code_object.h"
 #include "control_object.h"
 #include "control_operator.h"
 #include "common.h"

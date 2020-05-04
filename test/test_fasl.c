@@ -1,3 +1,4 @@
+#include "code.h"
 #include "fasl.c"
 #include "common.h"
 #include "constant.h"

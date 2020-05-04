@@ -4,7 +4,7 @@
 #include "bignum.h"
 #include "build.h"
 #include "character.h"
-#include "code.h"
+#include "code_object.h"
 #include "condition.h"
 #include "constant.h"
 #include "control_execute.h"

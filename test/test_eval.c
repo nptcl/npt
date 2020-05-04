@@ -65,7 +65,7 @@ int test_eval(void)
 		build_common();
 		build_reader();
 		build_pathname();
-		build_eval_declare();
+		build_declare();
 		build_code();
 		lisp_initialize = 1;
 		result = testbreak_eval();

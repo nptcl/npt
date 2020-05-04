@@ -2,10 +2,10 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "copy.h"
-#include "eval_declare.h"
-#include "eval_parse.h"
+#include "declare.h"
 #include "heap.h"
 #include "local.h"
+#include "parse.h"
 #include "type.h"
 #include "type_copy.h"
 

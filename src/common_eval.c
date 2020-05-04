@@ -3,7 +3,7 @@
  */
 #include "call_eval.h"
 #include "common_header.h"
-#include "eval_declare.h"
+#include "declare.h"
 
 /* (defmacro lambda (&whole right &rest args)  ...) */
 static int function_lambda(Execute ptr, addr form, addr env)

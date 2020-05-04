@@ -2,10 +2,10 @@
 #include "equal.h"
 #include "eval.h"
 #include "eval_table.h"
-#include "eval_parse.h"
 #include "heap.h"
 #include "local.h"
 #include "object.h"
+#include "parse.h"
 
 enum TABLEVALUE_INDEX {
 	TABLEVALUE_INDEX_NAME,

@@ -6,7 +6,7 @@
 #include "cons_plist.h"
 #include "control_object.h"
 #include "condition.h"
-#include "eval_declare.h"
+#include "declare.h"
 #include "integer.h"
 #include "object.h"
 #include "pathname.h"

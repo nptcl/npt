@@ -5,7 +5,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "control_execute.h"
-#include "eval_declare.h"
+#include "declare.h"
 #include "function.h"
 #include "gc.h"
 #include "lambda.h"

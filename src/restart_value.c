@@ -209,10 +209,8 @@ _g int symbol_global_restart(Execute ptr, addr symbol, addr *ret)
 	addr value;
 
 	GetValueSymbol(symbol, &value);
-	if (value != Unbound) {
-		*ret = value;
-		return 0;
-	}
+	if (value != Unbound)
+		return Result(ret, value);
 
 	/* restart */
 	return symbol_restart_call(ptr, symbol, call, ret);
@@ -224,10 +222,8 @@ _g int symbol_lexical_restart(Execute ptr, addr symbol, addr *ret)
 	addr value;
 
 	getlexical_local(ptr, symbol, &value);
-	if (value != Unbound) {
-		*ret = value;
-		return 0;
-	}
+	if (value != Unbound)
+		return Result(ret, value);
 
 	/* restart */
 	return symbol_restart_call(ptr, symbol, call, ret);
@@ -239,10 +235,8 @@ _g int symbol_special_restart(Execute ptr, addr symbol, addr *ret)
 	addr value;
 
 	getspecial_local(ptr, symbol, &value);
-	if (value != Unbound) {
-		*ret = value;
-		return 0;
-	}
+	if (value != Unbound)
+		return Result(ret, value);
 
 	/* restart */
 	return symbol_restart_call(ptr, symbol, call, ret);
@@ -332,10 +326,8 @@ _g int callname_global_restart(Execute ptr, addr name, addr *ret)
 
 	Check(! callnamep(name), "type error");
 	getfunction_callname_global(name, &value);
-	if (value != Unbound) {
-		*ret = value;
-		return 0;
-	}
+	if (value != Unbound)
+		return Result(ret, value);
 
 	/* restart */
 	return function_restart_call(ptr, name, ret);
@@ -347,10 +339,22 @@ _g int function_global_restart(Execute ptr, addr name, addr *ret)
 
 	Check(! symbolp(name), "type error");
 	GetFunctionSymbol(name, &value);
-	if (value != Unbound) {
-		*ret = value;
-		return 0;
-	}
+	if (value != Unbound)
+		return Result(ret, value);
+
+	/* restart */
+	callname_heap(&name, name, CALLNAME_SYMBOL);
+	return function_restart_call(ptr, name, ret);
+}
+
+_g int function_local_restart(Execute ptr, addr name, addr *ret)
+{
+	addr value;
+
+	Check(! symbolp(name), "type error");
+	getfunction_local(ptr, name, &value);
+	if (value != Unbound)
+		return Result(ret, value);
 
 	/* restart */
 	callname_heap(&name, name, CALLNAME_SYMBOL);
@@ -363,10 +367,22 @@ _g int setf_global_restart(Execute ptr, addr name, addr *ret)
 
 	Check(! symbolp(name), "type error");
 	getsetf_symbol(name, &value);
-	if (value != Unbound) {
-		*ret = value;
-		return 0;
-	}
+	if (value != Unbound)
+		return Result(ret, value);
+
+	/* restart */
+	callname_heap(&name, name, CALLNAME_SETF);
+	return function_restart_call(ptr, name, ret);
+}
+
+_g int setf_local_restart(Execute ptr, addr name, addr *ret)
+{
+	addr value;
+
+	Check(! symbolp(name), "type error");
+	getsetf_local(ptr, name, &value);
+	if (value != Unbound)
+		return Result(ret, value);
 
 	/* restart */
 	callname_heap(&name, name, CALLNAME_SETF);

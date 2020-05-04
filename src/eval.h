@@ -3,7 +3,6 @@
 
 #include "code.h"
 #include "memory.h"
-#include "eval_typedef.h"
 #include "eval_main.h"
 
 enum EVAL_TYPE {

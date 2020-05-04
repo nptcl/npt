@@ -4,7 +4,7 @@
 #include "common.h"
 #include "condition.h"
 #include "control.h"
-#include "eval_declare.h"
+#include "declare.h"
 #include "equal.h"
 #include "degrade.h"
 #include "package.h"
@@ -688,7 +688,7 @@ int test_type_upgraded(void)
 		build_common();
 		build_reader();
 		build_pathname();
-		build_eval_declare();
+		build_declare();
 		lisp_initialize = 1;
 		result = testbreak_type_upgraded();
 	}

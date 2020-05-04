@@ -1,6 +1,7 @@
-#ifndef __EVAL_CODE_HEADER__
-#define __EVAL_CODE_HEADER__
+#ifndef __CODE_MAKE_HEADER__
+#define __CODE_MAKE_HEADER__
 
+#include "constant.h"
 #include "local.h"
 #include "typedef.h"
 

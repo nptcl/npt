@@ -1,11 +1,11 @@
 #ifndef __OPTIMIZE_HEADER__
 #define __OPTIMIZE_HEADER__
 
+#include "declare.h"
 #include "define.h"
 #include "eval.h"
-#include "eval_declare.h"
-#include "eval_parse.h"
 #include "local.h"
+#include "parse.h"
 #include "typedef.h"
 
 struct optimize_value {

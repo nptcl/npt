@@ -1,6 +1,5 @@
 #include "build.h"
 #include "clos_class.h"
-#include "code.h"
 #include "compile.h"
 #include "condition.h"
 #include "cons.h"

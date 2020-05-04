@@ -4,12 +4,13 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "constant.h"
+#include "declare.h"
 #include "eval.h"
-#include "eval_declare.h"
-#include "eval_scope.h"
 #include "function.h"
 #include "gc.h"
 #include "object.h"
+#include "parse.h"
+#include "scope.h"
 #include "sequence.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -446,7 +447,7 @@ _g void getall_ignore_function_declare(addr pos, addr *ret)
 
 
 /*
- *  build_eval_declare
+ *  build_declare
  */
 _g void getroot_declare(addr *ret)
 {
@@ -460,7 +461,7 @@ _g void setroot_declare(addr pos)
 	LispRoot(DECLARE) = pos;
 }
 
-_g void build_eval_declare(void)
+_g void build_declare(void)
 {
 	addr pos;
 	eval_declare_alloc_optimize(NULL, &pos, 1);

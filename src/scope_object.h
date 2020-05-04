@@ -1,9 +1,11 @@
-#ifndef __EVAL_SCOPE_HEADER__
-#define __EVAL_SCOPE_HEADER__
+#ifndef __SCOPE_OBJECT_HEADER__
+#define __SCOPE_OBJECT_HEADER__
 
-#include "eval.h"
-#include "eval_parse.h"
-#include "eval_declare.h"
+#include "declare.h"
+#include "execute.h"
+#include "gc.h"
+#include "parse.h"
+#include "typedef.h"
 
 enum EVAL_SCOPE {
 	EVAL_SCOPE_THE,
@@ -83,6 +85,12 @@ struct eval_scope {
 #define SetEvalScopeIndex(p,i,v)	SetEvalScopeIndex_Low(p,i,v)
 #endif
 
+_g void eval_scope_heap(Execute ptr, addr *ret, size_t size);
+_g void eval_scope_size(Execute ptr, addr *ret, size_t size,
+		enum EVAL_PARSE parse, addr type, addr value);
+_g void make_eval_scope(Execute ptr,
+		addr *ret, enum EVAL_PARSE parse, addr type, addr value);
+
 _g struct eval_scope *structevalscope(addr pos);
 _g enum EVAL_PARSE refevalscopetype(addr pos);
 _g void getevalscopetype(addr pos, enum EVAL_PARSE *ret);
@@ -97,8 +105,15 @@ _g addr refevalscopeindex(addr pos, size_t size);
 _g void getevalscopeindex(addr pos, size_t size, addr *ret);
 _g void setevalscopeindex(addr pos, size_t size, addr value);
 
-_g int eval_scope(Execute ptr, addr *ret, addr eval);
-_g void init_eval_scope(void);
+/* table */
+typedef int (*eval_scope_calltype)(Execute, addr *, addr);
+__extern eval_scope_calltype EvalScopeTable[EVAL_PARSE_SIZE];
+
+_g int scope_eval(Execute ptr, addr *ret, addr eval);
+_g int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons);
+_g int localhold_scope_eval(LocalHold hold, Execute ptr, addr *ret, addr eval);
+_g int localhold_scope_allcons(LocalHold hold,
+		Execute ptr, addr *retcons, addr *rettype, addr cons);
 
 #endif
 

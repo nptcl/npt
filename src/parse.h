@@ -1,5 +1,5 @@
-#ifndef __EVAL_PARSE_HEADER__
-#define __EVAL_PARSE_HEADER__
+#ifndef __PARSE_HEADER__
+#define __PARSE_HEADER__
 
 #include "eval.h"
 #include "execute.h"

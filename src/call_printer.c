@@ -6,7 +6,7 @@
 #include "constant.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "eval_declare.h"
+#include "declare.h"
 #include "function.h"
 #include "format_function.h"
 #include "format_parse.h"

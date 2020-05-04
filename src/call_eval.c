@@ -4,11 +4,11 @@
 #include "cons_list.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "eval_declare.h"
-#include "eval_parse.h"
+#include "declare.h"
 #include "function.h"
 #include "gc.h"
 #include "lambda.h"
+#include "parse.h"
 #include "symbol.h"
 
 /*

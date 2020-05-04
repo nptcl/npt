@@ -5,8 +5,8 @@
 #include "condition.h"
 #include "common.h"
 #include "control.h"
+#include "declare.h"
 #include "degrade.h"
-#include "eval_declare.h"
 #include "function.h"
 #include "object.h"
 #include "print.h"
@@ -2982,7 +2982,7 @@ int test_reader(void)
 		build_syscall();
 		build_common();
 		build_reader();
-		build_eval_declare();
+		build_declare();
 		build_code();
 		lisp_initialize = 1;
 		result = testbreak_reader();

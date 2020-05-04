@@ -1,6 +1,7 @@
 #include "type.c"
 #include "clos.h"
 #include "code.h"
+#include "code_object.h"
 #include "common.h"
 #include "cons.h"
 #include "condition.h"

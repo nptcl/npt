@@ -1685,6 +1685,10 @@ lisp-code::flet
 lisp-code::labels
 lisp-code::call
 lisp-code::call-type
+lisp-code::call-function-global
+lisp-code::call-function-local
+lisp-code::call-setf-global
+lisp-code::call-setf-local
 
 lisp-code::values-nil
 lisp-code::values-set

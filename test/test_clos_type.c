@@ -3,7 +3,7 @@
 #include "bignum.h"
 #include "character.h"
 #include "clos.h"
-#include "code.h"
+#include "code_object.h"
 #include "common.h"
 #include "degrade.h"
 #include "execute.h"

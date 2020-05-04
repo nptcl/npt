@@ -4,9 +4,9 @@
 #include "code.h"
 #include "common.h"
 #include "constant.h"
+#include "declare.h"
 #include "degrade.h"
 #include "eval.h"
-#include "eval_declare.h"
 #include "function.h"
 #include "object.h"
 #include "package.h"
@@ -300,7 +300,7 @@ int test_format_print(void)
 		build_common();
 		build_reader();
 		build_pathname();
-		build_eval_declare();
+		build_declare();
 		build_code();
 		lisp_initialize = 1;
 		result = testbreak_format_print();

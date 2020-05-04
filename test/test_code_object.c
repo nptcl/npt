@@ -1,7 +1,8 @@
-#include "code.c"
+#include "code_object.c"
 #include "character.h"
 #include "clos.h"
 #include "common.h"
+#include "code.h"
 #include "cons.h"
 #include "condition.h"
 #include "constant.h"
@@ -120,7 +121,7 @@ static int test_code_alloc(void)
 /*
  *  Main
  */
-static int testbreak_code(void)
+static int testbreak_code_object(void)
 {
 	TestBreak(test_build_code);
 	TestBreak(test_make_code_call);
@@ -129,7 +130,7 @@ static int testbreak_code(void)
 	return 0;
 }
 
-int test_code(void)
+int test_code_object(void)
 {
 	int result;
 	lispcode code;
@@ -157,7 +158,7 @@ int test_code(void)
 		build_reader();
 		build_pathname();
 		lisp_initialize = 1;
-		result = testbreak_code();
+		result = testbreak_code_object();
 	}
 	end_code(ptr);
 	freelisp();

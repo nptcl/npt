@@ -16,12 +16,12 @@
 #include "constant.h"
 #include "control.h"
 #include "copy.h"
+#include "declare.h"
 #include "document.h"
 #include "eastasian_unicode.h"
 #include "encode.h"
 #include "environment.h"
 #include "eval.h"
-#include "eval_declare.h"
 #include "execute.h"
 #include "extern.h"
 #include "fasl.h"
@@ -43,6 +43,7 @@
 #include "restart.h"
 #include "require.h"
 #include "rt.h"
+#include "scope.h"
 #include "stream_init.h"
 #include "structure.h"
 #include "sxhash.h"
@@ -86,6 +87,7 @@ _g void initlisp(void)
 	init_reader();
 	init_restart();
 	init_rt();
+	init_scope();
 	init_stream();
 	init_structure();
 	init_sxhash();
@@ -319,7 +321,7 @@ _g void buildlisp(Execute ptr)
 	build_documentation(ptr);
 	build_reader();
 	build_pathname();
-	build_eval_declare();
+	build_declare();
 	build_code();
 	build_require();
 	build_user();

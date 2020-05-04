@@ -7,8 +7,8 @@
 #include "constant.h"
 #include "control.h"
 #include "copy.h"
+#include "declare.h"
 #include "degrade.h"
-#include "eval_declare.h"
 #include "function.h"
 #include "ratio.h"
 #include "reader.h"
@@ -39,7 +39,7 @@ static int test_initialize_optstruct(void)
 	initialize_optstruct(&opt);
 	test(opt.declaim[EVAL_OPTIMIZE_DEBUG] == 3, "initialize_optstruct2");
 	test(opt.local[EVAL_OPTIMIZE_DEBUG] < 0, "initialize_optstruct3");
-	build_eval_declare();
+	build_declare();
 
 	RETURN;
 }
@@ -4110,7 +4110,7 @@ int test_optimize(void)
 		build_common();
 		build_reader();
 		build_pathname();
-		build_eval_declare();
+		build_declare();
 		build_code();
 		lisp_initialize = 1;
 		result = testbreak_optimize();

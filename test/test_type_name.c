@@ -2,7 +2,7 @@
 #include "character.h"
 #include "clos.h"
 #include "common.h"
-#include "eval_declare.h"
+#include "declare.h"
 #include "file.h"
 #include "degrade.h"
 #include "hashtable.h"
@@ -182,7 +182,7 @@ int test_type_name(void)
 		build_common();
 		build_reader();
 		build_pathname();
-		build_eval_declare();
+		build_declare();
 		lisp_initialize = 1;
 		result = testbreak_type_name();
 	}

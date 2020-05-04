@@ -2,7 +2,7 @@
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "eval_declare.h"
+#include "declare.h"
 #include "symbol.h"
 
 /*
