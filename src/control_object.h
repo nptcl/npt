@@ -190,9 +190,6 @@ _g void set_close_control(addr control);
 _g void set_push_control(addr control);
 _g void getdata_control(Execute ptr, addr *ret);
 _g void setdata_control(Execute ptr, addr value);
-_g void array_data_control(Execute ptr, size_t size);
-_g void getdata_array_control(Execute ptr, size_t index, addr *ret);
-_g void setdata_array_control(Execute ptr, size_t index, addr value);
 
 _g int gettable_control(addr pos, constindex index, addr *ret);
 _g int gettagbody_control(addr pos, addr *ret);

@@ -639,9 +639,10 @@ static int scope_block(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &name);
 	GetEvalParse(eval, 1, &cons);
 
-	Return(scope_block_call(ptr, name, cons, &cons, &type));
+	Return(scope_block_call(ptr, name, cons, &name, &cons, &type));
 	/* type -> (or block return-from1 return-from2 ...) */
 	GetTypeTable(&type, Asterisk);
+
 	eval_scope_size(ptr, &eval, 2, EVAL_PARSE_BLOCK, type, Nil);
 	SetEvalScopeIndex(eval, 0, name);
 	SetEvalScopeIndex(eval, 1, cons);
@@ -660,6 +661,7 @@ static int scope_return_from(Execute ptr, addr *ret, addr eval)
 
 	Return(scope_return_from_call(ptr, name, form, &form));
 	GetTypeTable(&type, Nil);
+
 	eval_scope_size(ptr, &eval, 2, EVAL_PARSE_RETURN_FROM, type, Nil);
 	SetEvalScopeIndex(eval, 0, name);
 	SetEvalScopeIndex(eval, 1, form);

@@ -4,6 +4,11 @@
 #include "execute.h"
 #include "typedef.h"
 
+_g int runcode_simple(Execute ptr, addr code);
+_g int runcode_normal(Execute ptr, addr code);
+_g int runcode_tagbody(Execute ptr, addr code);
+_g int runcode_block(Execute ptr, addr code);
+
 _g int runcode_control(Execute ptr, addr code);
 _g int runcode_switch(Execute ptr, addr code);
 _g int execute_control(Execute ptr, addr call);

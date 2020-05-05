@@ -459,10 +459,6 @@ static int test_evalcode_pop_goto_p(void)
 	list_heap(&cons, T, T, NULL);
 	test(! evalcode_pop_goto_p(cons), "evalcode_pop_goto_p3");
 
-	GetConst(CODE_IF_NIL, &key);
-	list_heap(&cons, key, T, NULL);
-	test(evalcode_pop_goto_p(cons), "evalcode_pop_goto_p4");
-
 	RETURN;
 }
 
@@ -507,7 +503,7 @@ static void test_push_testdata(LocalRoot local, addr pos)
 	evalcode_single(local, pos, CONSTANT_CODE_NOP);
 	evalcode_single(local, pos, CONSTANT_CODE_NOP);
 	evalcode_carcdr(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(222));
-	evalcode_carcdr(local, pos, CONSTANT_CODE_IF_NIL, index_heapr(50));
+	evalcode_carcdr(local, pos, CONSTANT_CODE_GOTO, index_heapr(50));
 	evalcode_single(local, pos, CONSTANT_CODE_NOP);
 	evalcode_add(local, pos, index_heapr(40));
 	evalcode_single(local, pos, CONSTANT_CODE_NOP);
@@ -728,138 +724,6 @@ static int test_evalcode_pop(void)
 
 
 /*
- *  label
- */
-static int test_code_make_label(void)
-{
-	addr pos, code;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &code);
-
-	code_make_label(local, code, &pos);
-	test(RefIndex(pos) == 0, "code_make_label1");
-	code_make_label(local, code, &pos);
-	test(RefIndex(pos) == 1, "code_make_label2");
-	code_make_label(local, code, &pos);
-	test(RefIndex(pos) == 2, "code_make_label3");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_code_push_label(void)
-{
-	addr pos, code, check;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &code);
-
-	code_make_label(local, code, &pos);
-	code_push_label(local, code, pos);
-	code_make_label(local, code, &pos);
-	code_push_label(local, code, pos);
-	code_make_label(local, code, &pos);
-	code_push_label(local, code, pos);
-	GetEvalCode(code, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(length_list_unsafe(check) == 3, "code_push_label1");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_code_if_nil(void)
-{
-	addr pos, code, check, index, value;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &code);
-
-	code_make_label(local, code, &pos);
-	code_make_label(local, code, &pos);
-	code_make_label(local, code, &pos);
-	code_if_nil(local, code, pos);
-	GetEvalCode(code, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	GetCar(check, &check);
-	GetCons(check, &check, &index);
-	internchar(LISP_CODE, "IF-NIL", &value);
-	test(check == value, "code_if_nil1");
-	test(RefIndex(index) == 2, "code_if_nil2");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_code_if_t(void)
-{
-	addr pos, code, check, index, value;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &code);
-
-	code_make_label(local, code, &pos);
-	code_make_label(local, code, &pos);
-	code_make_label(local, code, &pos);
-	code_if_t(local, code, pos);
-	GetEvalCode(code, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	GetCar(check, &check);
-	GetCons(check, &check, &index);
-	internchar(LISP_CODE, "IF-T", &value);
-	test(check == value, "code_if_t1");
-	test(RefIndex(index) == 2, "code_if_t2");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_code_goto(void)
-{
-	addr pos, code, check, index, value;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &code);
-
-	code_make_label(local, code, &pos);
-	code_make_label(local, code, &pos);
-	code_make_label(local, code, &pos);
-	code_goto(local, code, pos);
-	GetEvalCode(code, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	GetCar(check, &check);
-	GetCons(check, &check, &index);
-	internchar(LISP_CODE, "GOTO", &value);
-	test(check == value, "code_goto1");
-	test(RefIndex(index) == 2, "code_goto2");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-
-/*
  *  code
  */
 static void eval_scope_eval(Execute ptr, addr *ret, addr pos)
@@ -892,6 +756,7 @@ static void codechar_call(addr *ret, const char *str,
 	push_local(local, &stack);
 
 	evalcode_local(local, &code);
+	evalcode_push_simple(local, code);
 	readstring(&pos, str);
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
@@ -2139,12 +2004,6 @@ static int testbreak_code_make(void)
 	TestBreak(test_evalcode_pop_makecode);
 	TestBreak(test_evalcode_pop_code);
 	TestBreak(test_evalcode_pop);
-	/* label */
-	TestBreak(test_code_make_label);
-	TestBreak(test_code_push_label);
-	TestBreak(test_code_if_nil);
-	TestBreak(test_code_if_t);
-	TestBreak(test_code_goto);
 	/* code */
 	TestBreak(test_code_nil);
 	TestBreak(test_code_t);

@@ -753,31 +753,6 @@ _g void setdata_control(Execute ptr, addr value)
 	SetControl(ptr->control, Control_Data, value);
 }
 
-_g void array_data_control(Execute ptr, size_t size)
-{
-	addr pos;
-	vector4_local(ptr->local, &pos, size);
-	SetControl(ptr->control, Control_Data, pos);
-}
-
-_g void getdata_array_control(Execute ptr, size_t index, addr *ret)
-{
-	addr array;
-
-	GetControl(ptr->control, Control_Data, &array);
-	CheckType(array, LISPTYPE_VECTOR);
-	GetArrayA4(array, index, ret);
-}
-
-_g void setdata_array_control(Execute ptr, size_t index, addr value)
-{
-	addr array;
-
-	GetControl(ptr->control, Control_Data, &array);
-	CheckType(array, LISPTYPE_VECTOR);
-	SetArrayA4(array, index, value);
-}
-
 _g int gettable_control(addr pos, constindex index, addr *ret)
 {
 	addr key;

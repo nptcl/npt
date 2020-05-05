@@ -20,7 +20,8 @@ _g int scope_the_call(Execute ptr, addr type, addr form, addr *ret);
 _g int scope_locally_call(Execute ptr, addr decl, addr cons, addr *ret);
 _g int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *ret);
 _g void scope_go_call(Execute ptr, addr *ret, addr tag);
-_g int scope_block_call(Execute ptr, addr name, addr cons, addr *rcons, addr *rtype);
+_g int scope_block_call(Execute ptr, addr name, addr cons,
+		addr *rname, addr *rcons, addr *rtype);
 _g int scope_return_from_call(Execute ptr, addr name, addr form, addr *ret);
 _g int scope_eval_when_call(Execute ptr,
 		addr cons, addr compilep, addr loadp, addr evalp, addr *ret);

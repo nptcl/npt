@@ -1606,9 +1606,6 @@ lisp-code::nil-push
 lisp-code::t-set
 lisp-code::t-push
 
-lisp-code::local-alloc
-lisp-code::local-result
-
 lisp-code::declaim-special
 lisp-code::declaim-type-value
 lisp-code::declaim-type-function
@@ -1621,6 +1618,7 @@ lisp-code::declaim-safety
 lisp-code::declaim-space
 lisp-code::declaim-speed
 
+lisp-code::let-bind
 lisp-code::let-lexical
 lisp-code::let-lexical-type
 lisp-code::let-special
@@ -1665,6 +1663,7 @@ lisp-code::setf-local-push
 
 lisp-code::goto
 lisp-code::execute
+lisp-code::execute-normal
 lisp-code::execute-switch
 lisp-code::lambda
 lisp-code::lambda-self
@@ -1693,8 +1692,7 @@ lisp-code::call-setf-local
 lisp-code::values-nil
 lisp-code::values-set
 lisp-code::the
-lisp-code::if-nil
-lisp-code::if-t
+lisp-code::if
 
 lisp-code::tag
 lisp-code::go

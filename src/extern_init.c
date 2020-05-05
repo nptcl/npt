@@ -164,7 +164,7 @@ int lisp_main_version_text(FILE *file)
 	fprintf(file, "%-20s %s\n", "Debug Memory", "true");
 #endif
 #ifdef LISP_DEBUG_FORCE_GC
-	fprintf(file, "%-20s %d\n", "Force GC", LISP_DEBUG_FORCE_GC);
+	fprintf(file, "%-20s %s\n", "Force GC", "true");
 #endif
 #ifdef LISP_MEMORY_MALLOC
 	fprintf(file, "%-20s %s\n", "Memory Malloc", "true");
@@ -197,7 +197,7 @@ int lisp_main_version_script(FILE *file)
 	fprintf(file, "%s\t%s\n", "debug-memory", "false");
 #endif
 #ifdef LISP_DEBUG_FORCE_GC
-	fprintf(file, "%s\t%d\n", "force-gc", LISP_DEBUG_FORCE_GC);
+	fprintf(file, "%s\t%s\n", "force-gc", "enable");
 #else
 	fprintf(file, "%s\t%s\n", "force-gc", "disable");
 #endif

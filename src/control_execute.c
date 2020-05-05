@@ -51,30 +51,10 @@ static void output_trace(addr control, size_t point)
 #define OutputTrace(a,b)
 #endif
 
-static void runcode_execute_info(Execute ptr,
-		addr *retcontrol,
-		const pointer **retcall,
-		addr **retargs,
-		size_t **retpoint)
-{
-	addr control, pos, *args;
-	struct control_struct *str;
-	const pointer *call;
 
-	control = ptr->control;
-	str = StructControl(control);
-	call = str->call;
-	GetControl(control, Control_Args, &pos);
-	Check(pos == Nil, "run_interpret error");
-	args = (addr *)PtrArrayA4(pos);
-
-	/* result */
-	*retcontrol = control;
-	*retcall = call;
-	*retargs = args;
-	*retpoint = &(str->point);
-}
-
+/*
+ *  runcode-control
+ */
 #ifdef LISP_DEBUG
 static int runcode_control_check(Execute ptr)
 {
@@ -92,14 +72,70 @@ static int runcode_control_check(Execute ptr)
 }
 #endif
 
-static int runcode_execute_throw(Execute ptr)
+#ifdef LISP_DEBUG_FORCE_GC
+#define LispForceGc(x)			gcsync(x)
+#else
+#define LispForceGc(x)			;
+#endif
+
+#ifdef LISP_GC_SYNC
+#define LispGcCheck(x)			{ \
+	if (lisp_gcsync || ((LISP_GC_SYNC % ControlCounter) == 0)) { \
+		gcsync(x); \
+	} \
+}
+#else
+#define LispGcCheck(x)			{ \
+	if (lisp_gcsync) { \
+		gcsync(x); \
+	} \
+}
+#endif
+
+static int runcode_execute(Execute ptr, addr code)
 {
-	addr control;
+	addr control, pos, throw;
+	addr *args;
+	pointer id;
+	callbind_code bind;
 	struct control_struct *str;
+	const pointer *call;
+	size_t point, *index;
+
+	CheckType(code, LISPTYPE_CODE);
+	control = ptr->control;
+	call = getcalltype_code(code);
+	str = StructControl(control);
+	str->point = 0;
+	str->call = call;
+#ifdef LISP_DEBUG_TRACE
+	str->trace = code;
+#endif
+	SetControl(control, Control_Args, code);
+	getargs_code(code, &pos);
+	args = (addr *)PtrArrayA4(pos);
+	index = &(str->point);
+
+loop:
+	/* counter */
+	ControlCounter++;
+	LispForceGc(ptr);
+
+	/* execute */
+	point = (*index)++;
+	id = call[point];
+	if (id == 0) {
+		LispGcCheck(ptr);
+		return 0;
+	}
+	OutputTrace(control, point);
+	GetPointer_code(id, &bind);
+	if ((*bind)(ptr, args[point]) == 0)
+		goto loop;
 
 	/* throw */
-	control = ptr->throw_control;
-	if (control && (ptr->control != control)) {
+	throw = ptr->throw_control;
+	if (throw && (control != throw)) {
 		Check(runcode_control_check(ptr), "throw_control error");
 		return 1;
 	}
@@ -111,70 +147,14 @@ static int runcode_execute_throw(Execute ptr)
 	ptr->throw_point_p = 0;
 
 	/* tagbody / goto */
-	str = StructControl(ptr->control);
 	str->point = ptr->throw_point;
 	ptr->throw_point = 0;
-	return -1;
+	goto loop;
 }
 
-#ifdef LISP_DEBUG_FORCE_GC
-#define LispForceGc(x,y) (lisp_gcsync || ((x) && ((y) % (x)) == 0))
-#else
-#define LispForceGc(x,y) (lisp_gcsync)
-#endif
-
-static int runcode_execute(Execute ptr)
+static int runcode_free(Execute ptr, addr control)
 {
-	int check;
-	addr control, *args;
-	const pointer *call;
-	callbind_code code;
-	size_t point, *index;
-	pointer id;
-
-	runcode_execute_info(ptr, &control, &call, &args, &index);
-loop:
-	/* counter */
-	ControlCounter++;
-	if (LispForceGc(GcCounterForce, ControlCounter))
-		gcsync(ptr);
-	/* execute */
-	point = (*index)++;
-	id = call[point];
-	if (id == 0)
-		return 0;
-	OutputTrace(control, point);
-	GetPointer_code(id, &code);
-	if ((*code)(ptr, args[point]) == 0)
-		goto loop;
-	check = runcode_execute_throw(ptr);
-	if (check < 0)
-		goto loop;
-
-	return check;
-}
-
-static int runcode_structure(Execute ptr, addr code)
-{
-	addr control, args;
-	struct control_struct *str;
-
-	CheckType(code, LISPTYPE_CODE);
-	control = ptr->control;
-	str = StructControl(control);
-#ifdef LISP_DEBUG_TRACE
-	str->trace = code;
-#endif
-	str->point = 0;
-	str->call = getcalltype_code(code);
-	getargs_code(code, &args);
-	SetControl(control, Control_Args, args);
-	return runcode_execute(ptr);
-}
-
-static int runcode_free_throw(Execute ptr, addr control)
-{
-	int throw_point_p;
+	int check, throw_point_p;
 	addr throw_control;
 	size_t throw_point;
 
@@ -184,23 +164,18 @@ static int runcode_free_throw(Execute ptr, addr control)
 	ptr->throw_control = NULL;
 	ptr->throw_point = 0;
 	ptr->throw_point_p = 0;
-	if (free_control_(ptr, control))
-		return 1; /* new event */
+	/* disable copy */
+	ptr->disable_copy_p = 1;
+	check = free_control_(ptr, control);
+	ptr->disable_copy_p = 0;
+	/* new event */
+	if (check)
+		return 1;
 	/* success */
 	ptr->throw_control = throw_control;
 	ptr->throw_point = throw_point;
 	ptr->throw_point_p = throw_point_p;
 	return 1;
-}
-
-static int runcode_free(Execute ptr, addr control)
-{
-	int check;
-
-	ptr->disable_copy_p = 1;
-	check = runcode_free_throw(ptr, control);
-	ptr->disable_copy_p = 0;
-	return check;
 }
 
 _g int runcode_control(Execute ptr, addr code)
@@ -213,7 +188,7 @@ _g int runcode_control(Execute ptr, addr code)
 	str1 = StructCode(code);
 	/* no-control */
 	if (str1->p_control == 0)
-		return runcode_structure(ptr, code);
+		return runcode_execute(ptr, code);
 
 	/* push-control */
 	str2 = str1->p_argument?
@@ -224,11 +199,98 @@ _g int runcode_control(Execute ptr, addr code)
 	str2->p_push = str1->p_push;
 
 	/* execute */
-	if (runcode_structure(ptr, code))
+	if (runcode_execute(ptr, code))
 		return runcode_free(ptr, control);
 	else
 		return free_control_(ptr, control);
 }
+
+
+/*
+ *  runcode-simple
+ */
+_g int runcode_simple(Execute ptr, addr code)
+{
+	addr control, pos;
+	addr *args;
+	pointer id;
+	callbind_code bind;
+	const pointer *call;
+	size_t point;
+#ifdef LISP_DEBUG_TRACE
+	struct control_struct *str;
+#endif
+
+	CheckType(code, LISPTYPE_CODE);
+	control = ptr->control;
+	call = getcalltype_code(code);
+#ifdef LISP_DEBUG_TRACE
+	str = StructControl(control);
+	str->trace = code;
+#endif
+	SetControl(control, Control_Args, code);
+	getargs_code(code, &pos);
+	args = (addr *)PtrArrayA4(pos);
+	point = 0;
+
+loop:
+	/* counter */
+	ControlCounter++;
+	LispForceGc(ptr);
+
+	/* execute */
+	id = call[point];
+	if (id == 0) {
+		LispGcCheck(ptr);
+		return 0;
+	}
+	OutputTrace(control, point);
+	GetPointer_code(id, &bind);
+	Return((*bind)(ptr, args[point]));
+	point++;
+	goto loop;
+}
+
+
+/*
+ *  runcode-normal
+ */
+_g int runcode_normal(Execute ptr, addr code)
+{
+	addr control;
+	struct code_struct *str1;
+	struct control_struct *str2;
+
+	CheckType(code, LISPTYPE_CODE);
+	str1 = StructCode(code);
+	Check(str1->p_control == 0, "p_control error.");
+
+	/* push-control */
+	str2 = str1->p_argument?
+		copy_argument_control(ptr):
+		push_control(ptr);
+	control = ptr->control;
+	str2->p_return = str1->p_return;
+	str2->p_push = str1->p_push;
+
+	/* execute */
+	if (runcode_simple(ptr, code))
+		return runcode_free(ptr, control);
+	else
+		return free_control_(ptr, control);
+}
+
+
+/*
+ *  runcode-tagbody
+ */
+_g int runcode_tagbody(Execute ptr, addr code);
+
+
+/*
+ *  runcode-throw
+ */
+_g int runcode_throw(Execute ptr, addr code);
 
 
 /*
@@ -256,7 +318,7 @@ static int runcode_begin(Execute ptr, addr code)
 	control = ptr->control;
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
-		check = runcode_structure(ptr, code);
+		check = runcode_execute(ptr, code);
 	}
 	end_switch(&jump);
 	if (check)

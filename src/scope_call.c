@@ -521,9 +521,12 @@ _g int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *ret)
 static int find_tabletagbody(addr stack, addr tag, addr *ret)
 {
 	addr key;
+
 	GetEvalStackTable(stack, &stack);
 	GetConst(SYSTEM_TABLE_TAGBODY, &key);
-	if (ret == NULL) ret = &key;
+	if (ret == NULL)
+		ret = &key; /* ignore */
+
 	return getplistplist_eql(stack, key, tag, ret) == 0;
 }
 
@@ -583,22 +586,25 @@ _g void scope_go_call(Execute ptr, addr *ret, addr tag)
 /*
  *  block
  */
-static void push_tableblock(addr stack, addr name)
+static void push_tableblock(addr stack, addr name, addr *ret)
 {
 	addr key, table;
 
+	make_tabletagbody(NULL, &name, name);
 	GetConst(SYSTEM_TABLE_BLOCK, &key);
 	GetEvalStackTable(stack, &table);
 	if (setplist_heap(table, key, name, &table))
 		SetEvalStackTable(stack, table);
+	*ret = name;
 }
 
-_g int scope_block_call(Execute ptr, addr name, addr cons, addr *rcons, addr *rtype)
+_g int scope_block_call(Execute ptr, addr name, addr cons,
+		addr *rname, addr *rcons, addr *rtype)
 {
 	addr stack;
 
 	stack = newstack_block(ptr);
-	push_tableblock(stack, name);
+	push_tableblock(stack, name, rname);
 	Return(scope_allcons(ptr, rcons, rtype, cons));
 	freestack_eval(ptr, stack);
 
@@ -609,6 +615,22 @@ _g int scope_block_call(Execute ptr, addr name, addr cons, addr *rcons, addr *rt
 /*
  *  return-from
  */
+static int find_tableblock(addr stack, addr name, addr *ret)
+{
+	addr key, check;
+
+	GetEvalStackTable(stack, &stack);
+	GetConst(SYSTEM_TABLE_BLOCK, &key);
+	if (getplist(stack, key, &key))
+		return 0;
+	gettag_tabletagbody(key, &check);
+	if (check != name)
+		return 0;
+	*ret = key;
+
+	return 1;
+}
+
 static void push_closure_block(addr stack, addr name)
 {
 	addr key, table;
@@ -619,15 +641,7 @@ static void push_closure_block(addr stack, addr name)
 		SetEvalStackTable(stack, table);
 }
 
-static int find_tableblock(addr stack, addr name)
-{
-	addr key;
-	GetEvalStackTable(stack, &stack);
-	GetConst(SYSTEM_TABLE_BLOCK, &key);
-	return getplist(stack, key, &key) == 0 && key == name;
-}
-
-static int name_tableblock(addr stack, addr name)
+static int name_tableblock(addr stack, addr name, addr *ret)
 {
 	addr next;
 
@@ -637,13 +651,13 @@ static int name_tableblock(addr stack, addr name)
 	}
 
 	/* local */
-	if (find_tableblock(stack, name)) {
+	if (find_tableblock(stack, name, ret)) {
 		return 1;
 	}
 
 	/* next */
 	GetEvalStackNext(stack, &next);
-	if (! name_tableblock(next, name)) {
+	if (! name_tableblock(next, name, ret)) {
 		return 0;
 	}
 
@@ -657,11 +671,12 @@ static int name_tableblock(addr stack, addr name)
 
 _g int scope_return_from_call(Execute ptr, addr name, addr form, addr *ret)
 {
-	addr stack;
+	addr stack, table;
 
 	getstack_eval(ptr, &stack);
-	if (! name_tableblock(stack, name))
+	if (! name_tableblock(stack, name, &table))
 		fmte("Cannot find block name ~S.", name, NULL);
+	setreference_tabletagbody(table, 1);
 	return scope_eval(ptr, ret, form);
 }
 

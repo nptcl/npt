@@ -67,6 +67,11 @@ static int execute_code(Execute ptr, addr right)
 	return runcode_control(ptr, right);
 }
 
+static int execute_normal_code(Execute ptr, addr right)
+{
+	return runcode_normal(ptr, right);
+}
+
 static int execute_switch_code(Execute ptr, addr right)
 {
 	return runcode_switch(ptr, right);
@@ -222,35 +227,28 @@ static int declaim_declaration_code(Execute ptr, addr right)
 
 
 /*
- *  local
- */
-static int local_alloc_code(Execute ptr, addr right)
-{
-	array_data_control(ptr, RefIndex(right));
-	return 0;
-}
-
-static int local_result_code(Execute ptr, addr right)
-{
-	addr value;
-
-	getresult_control(ptr, &value);
-	setdata_array_control(ptr, RefIndex(right), value);
-
-	return 0;
-}
-
-
-/*
  *  let
  */
-static int let_lexical_code(Execute ptr, addr right)
+static int let_bind_code(Execute ptr, addr list)
 {
-	addr symbol, value;
+	addr args, pos, value, symbol, type;
 
-	List_bind(right, &symbol, &value, NULL);
-	getdata_array_control(ptr, RefIndex(value), &value);
-	pushlexical_control(ptr, symbol, value);
+	getargs_list_control_unsafe(ptr, 0, &args);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCons(args, &value, &args);
+		getname_tablevalue(pos, &symbol);
+		/* type check */
+		if (getcheck_tablevalue(pos)) {
+			gettype_tablevalue(pos, &type);
+			Return(typep_error(ptr, value, type));
+		}
+		/* bind */
+		if (getspecialp_tablevalue(pos))
+			pushspecial_control(ptr, symbol, value);
+		else
+			pushlexical_control(ptr, symbol, value);
+	}
 
 	return 0;
 }
@@ -258,41 +256,6 @@ static int let_lexical_code(Execute ptr, addr right)
 static int typep_unbound_error(Execute ptr, addr value, addr type)
 {
 	return (value == Unbound)? 0: typep_error(ptr, value, type);
-}
-
-static int let_lexical_type_code(Execute ptr, addr right)
-{
-	addr symbol, value, type;
-
-	List_bind(right, &symbol, &value, &type, NULL);
-	getdata_array_control(ptr, RefIndex(value), &value);
-	Return(typep_error(ptr, value, type));
-	pushlexical_control(ptr, symbol, value);
-
-	return 0;
-}
-
-static int let_special_code(Execute ptr, addr right)
-{
-	addr symbol, value;
-
-	List_bind(right, &symbol, &value, NULL);
-	getdata_array_control(ptr, RefIndex(value), &value);
-	pushspecial_control(ptr, symbol, value);
-
-	return 0;
-}
-
-static int let_special_type_code(Execute ptr, addr right)
-{
-	addr symbol, value, type;
-
-	List_bind(right, &symbol, &value, &type, NULL);
-	getdata_array_control(ptr, RefIndex(value), &value);
-	Return(typep_error(ptr, value, type));
-	pushspecial_control(ptr, symbol, value);
-
-	return 0;
 }
 
 static int leta_lexical_code(Execute ptr, addr right)
@@ -1077,13 +1040,16 @@ static int defun_code(Execute ptr, addr right)
 	return 0;
 }
 
-static int flet_code(Execute ptr, addr right)
+static int flet_code(Execute ptr, addr list)
 {
-	addr call, value;
+	addr args, pos, value;
 
-	List_bind(right, &call, &value, NULL);
-	getdata_array_control(ptr, RefIndex(value), &value);
-	pushcallname_control(ptr, call, value);
+	getargs_list_control_unsafe(ptr, 0, &args);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCons(args, &value, &args);
+		pushcallname_control(ptr, pos, value);
+	}
 
 	return 0;
 }
@@ -1180,24 +1146,16 @@ static int the_code(Execute ptr, addr right)
 	return typep_error(ptr, value, right);
 }
 
-static int if_nil_code(Execute ptr, addr right)
+static int if_code(Execute ptr, addr list)
 {
-	addr check;
+	addr pos;
 
-	getresult_control(ptr, &check);
-	if (check == Nil)
-		return goto_control_(ptr, RefIndex(right));
-	return 0;
-}
-
-static int if_t_code(Execute ptr, addr right)
-{
-	addr check;
-
-	getresult_control(ptr, &check);
-	if (check != Nil)
-		return goto_control_(ptr, RefIndex(right));
-	return 0;
+	getresult_control(ptr, &pos);
+	if (pos == Nil) {
+		GetCdr(list, &list);
+	}
+	GetCar(list, &pos);
+	return runcode_simple(ptr, pos);
 }
 
 static int goto_code(Execute ptr, addr right)
@@ -1393,6 +1351,7 @@ _g void init_code_function(void)
 	initcode(info);
 	initcode(print);
 	initcode(execute);
+	initcode(execute_normal);
 	initcode(execute_switch);
 
 	/* object */
@@ -1418,15 +1377,8 @@ _g void init_code_function(void)
 	initcode(declaim_speed);
 	initcode(declaim_declaration);
 
-	/* local */
-	initcode(local_alloc);
-	initcode(local_result);
-
 	/* let */
-	initcode(let_lexical);
-	initcode(let_lexical_type);
-	initcode(let_special);
-	initcode(let_special_type);
+	initcode(let_bind);
 	initcode(leta_lexical);
 	initcode(leta_lexical_type);
 	initcode(leta_special);
@@ -1494,8 +1446,7 @@ _g void init_code_function(void)
 	initcode(values_nil);
 	initcode(values_set);
 	initcode(the);
-	initcode(if_nil);
-	initcode(if_t);
+	initcode(if);
 	initcode(goto);
 	initcode(go);
 	initcode(return_from);
@@ -1526,6 +1477,7 @@ _g void build_code_function(void)
 	defcode(INFO, info_code);
 	defcode(PRINT, print_code);
 	defcode(EXECUTE, execute_code);
+	defcode(EXECUTE_NORMAL, execute_normal_code);
 	defcode(EXECUTE_SWITCH, execute_switch_code);
 
 	/* object */
@@ -1551,15 +1503,8 @@ _g void build_code_function(void)
 	defcode(DECLAIM_SPEED, declaim_speed_code);
 	defcode(DECLAIM_DECLARATION, declaim_declaration_code);
 
-	/* local */
-	defcode(LOCAL_ALLOC, local_alloc_code);
-	defcode(LOCAL_RESULT, local_result_code);
-
 	/* let */
-	defcode(LET_LEXICAL, let_lexical_code);
-	defcode(LET_LEXICAL_TYPE, let_lexical_type_code);
-	defcode(LET_SPECIAL, let_special_code);
-	defcode(LET_SPECIAL_TYPE, let_special_type_code);
+	defcode(LET_BIND, let_bind_code);
 	defcode(LETA_LEXICAL, leta_lexical_code);
 	defcode(LETA_LEXICAL_TYPE, leta_lexical_type_code);
 	defcode(LETA_SPECIAL, leta_special_code);
@@ -1627,8 +1572,7 @@ _g void build_code_function(void)
 	defcode(VALUES_NIL, values_nil_code);
 	defcode(VALUES_SET, values_set_code);
 	defcode(THE, the_code);
-	defcode(IF_NIL, if_nil_code);
-	defcode(IF_T, if_t_code);
+	defcode(IF, if_code);
 	defcode(GOTO, goto_code);
 	defcode(GO, go_code);
 	defcode(RETURN_FROM, return_from_code);
