@@ -29,7 +29,7 @@ _g int eval_common(Execute ptr, addr var)
 {
 	addr control;
 
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_toplevel_eval(ptr, Nil);
 	push_evalwhen_eval(ptr);
 	hide_lexical_control(ptr);
@@ -260,7 +260,7 @@ _g int compile_common(Execute ptr, addr var, addr opt,
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	handler_compile(ptr);
 	Return(compile_execute(ptr, var, opt, ret1));
 	localhold_set(hold, 0, *ret1);

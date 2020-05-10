@@ -400,7 +400,7 @@ static int ed_function_write(Execute ptr, addr file, addr lambda)
 	addr control;
 	size_t width;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	open_stream(ptr, &file, file,
 			Stream_Open_Direction_Output,
 			Stream_Open_Element_Character,

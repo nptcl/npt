@@ -36,18 +36,6 @@ _g void setcontrol_debug(addr pos, size_t index, addr value)
 	SetControl_Low(pos, index, value);
 }
 
-_g void getresultcontrol_debug(addr pos, size_t index, addr *ret)
-{
-	CheckType(pos, LISPTYPE_CONTROL);
-	GetResultControl_Low(pos, index, ret);
-}
-
-_g void setresultcontrol_debug(addr pos, size_t index, addr value)
-{
-	CheckType(pos, LISPTYPE_CONTROL);
-	SetResultControl_Low(pos, index, value);
-}
-
 
 /*
  *  taginfo
@@ -176,7 +164,7 @@ _g struct control_struct *push_control(Execute ptr)
 	/* object */
 	local_smallsize(local, &pos,
 			LISPTYPE_CONTROL,
-			ControlSize_Array,
+			Control_Size,
 			sizeoft(struct control_struct));
 	str = StructControl(pos);
 	clearpoint(str);
@@ -189,143 +177,27 @@ _g struct control_struct *push_control(Execute ptr)
 	return str;
 }
 
-_g void push_return_control(Execute ptr, addr *ret)
+_g void push_new_control(Execute ptr, addr *ret)
 {
-	struct control_struct *str;
-	str = push_control(ptr);
-	str->p_return = 1;
+	push_control(ptr);
 	*ret = ptr->control;
 }
 
-_g void push_push_control(Execute ptr, addr *ret)
-{
-	struct control_struct *str;
-	str = push_control(ptr);
-	str->p_push = 1;
-	*ret = ptr->control;
-}
-
-_g void push_close_control(Execute ptr, addr *ret)
-{
-	(void)push_control(ptr);
-	*ret = ptr->control;
-}
-
-_g void push_argument_control(Execute ptr, addr *ret)
+_g void push_args_control(Execute ptr, addr *ret)
 {
 	addr prev, next, pos;
 
 	prev = ptr->control;
-	push_return_control(ptr, &next);
+	push_new_control(ptr, &next);
 	GetControl(prev, Control_Cons, &pos);
 	SetControl(next, Control_Cons, pos);
 	*ret = next;
-}
-
-_g struct control_struct *copy_argument_control(Execute ptr)
-{
-	addr prev, next, pos;
-	struct control_struct *str;
-
-	/* push-return */
-	prev = ptr->control;
-	str = push_control(ptr);
-	str->p_return = 1;
-	next = ptr->control;
-
-	/* copy */
-	GetControl(prev, Control_Cons, &pos);
-	SetControl(next, Control_Cons, pos);
-
-	/* result */
-	return str;
 }
 
 
 /*
  *  free_control
  */
-static void unbound_result_control(addr pos, struct control_struct *str)
-{
-	addr list, check;
-
-	if (str->p_dynamic) {
-		GetControl(pos, Control_Result, &list);
-		while (list != Nil) {
-			GetCons(list, &check, &list);
-			if (GetStatusDynamic(check))
-				SetCar(list, Unbound);
-		}
-		str->p_dynamic = 0;
-	}
-}
-
-_g void close_result_control(addr pos, struct control_struct *str)
-{
-	unbound_result_control(pos, str);
-	SetControl(pos, Control_Result, Nil);
-}
-
-static void close_return_control(Execute ptr, addr control)
-{
-	addr next;
-
-	GetControl(control, Control_Next, &next);
-	Check(next == Nil, "close_return error");
-	copy_values_control(ptr, control, next);
-}
-
-_g void copy_values_control(Execute ptr, addr src, addr dst)
-{
-	int check;
-	addr pos;
-	size_t size, i, last;
-	struct control_struct *str1, *str2;
-
-	if (ptr->disable_copy_p)
-		return;
-	str1 = StructControl(src);
-	size = str1->sizer;
-	if (size <= ControlSize_Result) {
-		check = 1;
-	}
-	else {
-		size = ControlSize_Result;
-		check = 0;
-	}
-
-	/* copy array */
-	last = Control_Size + size;
-	for (i = Control_Size; i < last; i++) {
-		GetControl(src, i, &pos);
-		SetControl(dst, i, pos);
-	}
-
-	/* copy cons */
-	str2 = StructControl(dst);
-	if (check) {
-		SetControl(dst, Control_Result, Nil);
-	}
-	else {
-		GetControl(src, Control_Result, &pos);
-		unbound_result_control(dst, str2);
-		SetControl(dst, Control_Result, pos);
-		str2->p_dynamic = str1->p_dynamic;
-	}
-
-	/* size */
-	str2->sizer = str1->sizer;
-}
-
-_g void return_values_control(Execute ptr, addr control)
-{
-	addr next;
-
-	GetControl(control, Control_Next, &next);
-	Check(next == Nil, "return_values_control error");
-	copy_values_control(ptr, control, next);
-}
-
 static void close_function_control(Execute ptr, addr list)
 {
 	addr symbol, snapshot;
@@ -350,16 +222,6 @@ static void close_setf_control(Execute ptr, addr list)
 
 static void close_tagbody_control(Execute ptr, addr control, addr list)
 {
-	addr pos;
-
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		close_taginfo(pos);
-	}
-}
-
-static void close_block_control(Execute ptr, addr control, addr list)
-{
 	addr value;
 
 	while (list != Nil) {
@@ -380,17 +242,20 @@ static void close_restart_control(Execute ptr, addr control, addr list)
 
 static int close_protect_control_(Execute ptr, addr call)
 {
-	addr control;
+	addr control, values;
+	size_t size;
 
 	if (call == Unbound)
 		return 0;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
+	save_values_control(ptr, &values, &size);
 	if (functionp(call)) {
 		Return(apply_control(ptr, call, Nil));
 	}
 	else {
 		Return(runcode_control(ptr, call));
 	}
+	restore_values_control(ptr, values, size);
 	return free_control_(ptr, control);
 }
 
@@ -432,7 +297,7 @@ static int close_plist_control_(Execute ptr, addr control)
 		}
 		/* block */
 		if (key == key4) {
-			close_block_control(ptr, control, value);
+			close_tagbody_control(ptr, control, value);
 			continue;
 		}
 		/* restart */
@@ -495,7 +360,7 @@ static void close_special_control(Execute ptr, addr control)
 	}
 }
 
-static int pop_control_close_(Execute ptr)
+static int pop_control_(Execute ptr)
 {
 	addr control;
 	LocalStack stack;
@@ -507,11 +372,7 @@ static int pop_control_close_(Execute ptr)
 	stack = str->stack;
 
 	/* close */
-	if (close_table_control_(ptr, control, str))
-		return 1;
-	if (str->p_return)
-		close_return_control(ptr, control);
-	close_result_control(control, str);
+	Return(close_table_control_(ptr, control, str));
 	close_lexical_control(ptr, control);
 	close_special_control(ptr, control);
 
@@ -519,27 +380,6 @@ static int pop_control_close_(Execute ptr)
 	GetControl(control, Control_Next, &control);
 	ptr->control = control;
 	rollback_local(ptr->local, stack);
-
-	return 0;
-}
-
-static int pop_control_(Execute ptr)
-{
-	int p_push;
-	addr value;
-	struct control_struct *str;
-
-	/* push */
-	str = StructControl(ptr->control);
-	p_push = str->p_push;
-	if (p_push)
-		getresult_control(ptr, &value);
-	/* pop */
-	if (pop_control_close_(ptr))
-		return 1;
-	/* push */
-	if (p_push)
-		pushargs_control(ptr, value);
 
 	return 0;
 }
@@ -560,8 +400,7 @@ _g int free_control_(Execute ptr, addr control)
 	do {
 		root = ptr->control;
 		Check(root == Nil, "free_control error");
-		if (pop_control_(ptr))
-			return 1;
+		Return(pop_control_(ptr));
 	} while (root != control);
 
 	return 0;
@@ -585,8 +424,7 @@ _g int rollback_control_(Execute ptr, addr control)
 		Check(root == Nil, "free_control error");
 		if (root == control)
 			break;
-		if (pop_control_(ptr))
-			return 1;
+		Return(pop_control_(ptr));
 	}
 
 	return 0;
@@ -713,36 +551,6 @@ _g int existspecial_control(Execute ptr, addr pos)
 /*
  *  access
  */
-_g void set_return_control(addr control)
-{
-	struct control_struct *str;
-
-	CheckType(control, LISPTYPE_CONTROL);
-	str = StructControl(control);
-	str->p_return = 1;
-	str->p_push = 0;
-}
-
-_g void set_close_control(addr control)
-{
-	struct control_struct *str;
-
-	CheckType(control, LISPTYPE_CONTROL);
-	str = StructControl(control);
-	str->p_return = 0;
-	str->p_push = 0;
-}
-
-_g void set_push_control(addr control)
-{
-	struct control_struct *str;
-
-	CheckType(control, LISPTYPE_CONTROL);
-	str = StructControl(control);
-	str->p_return = 0;
-	str->p_push = 1;
-}
-
 _g void getdata_control(Execute ptr, addr *ret)
 {
 	GetControl(ptr->control, Control_Data, ret);

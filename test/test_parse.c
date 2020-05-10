@@ -66,7 +66,7 @@ static int test_init_parse_environment(void)
 	addr control, pos;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	environment_symbol(&pos);
 	getspecialcheck_local(ptr, pos, &pos);
@@ -83,7 +83,7 @@ static int test_snapshot_envstack(void)
 	addr control, pos, value;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	snapshot_envstack(ptr, &pos);
 	test(pos == Nil, "snapshot_envstack1");
@@ -107,7 +107,7 @@ static int test_push_envstack(void)
 	addr control, pos, check, temp, v1, v2, v3;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	fixnum_heap(&v1, 10);
 	fixnum_heap(&v2, 20);
@@ -149,7 +149,7 @@ static int test_rollback_envstack(void)
 	addr control, pos, left, right;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	push_envstack(ptr, 1, T, Nil, T);
@@ -177,7 +177,7 @@ static int test_defmacro_envstack(void)
 	addr control, pos, left, right, v1, v2, v3;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	fixnum_heap(&v1, 10);
 	fixnum_heap(&v2, 20);
@@ -233,7 +233,7 @@ static int test_environment_heap(void)
 	addr control, pos, left, pos1, pos2;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	environment_symbol(&pos);
@@ -1249,7 +1249,7 @@ static int test_make_macro_function(void)
 	addr control, args, cons, call;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
@@ -1277,7 +1277,7 @@ static int test_parse_defmacro(void)
 	addr control, eval, name, lambda, stack;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
@@ -1308,15 +1308,18 @@ static int test_parse_macrolet_args(void)
 {
 	Execute ptr;
 	addr control, one, stack;
+	LocalHold hold;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
 	one = readr("(aaa (a) a ''a)");
+	hold = LocalHold_local_push(ptr, one);
 	parse_macrolet_one(ptr, one);
+	localhold_end(hold);
 
 	environment_symbol(&stack);
 	getspecialcheck_local(ptr, stack, &stack);
@@ -1325,7 +1328,9 @@ static int test_parse_macrolet_args(void)
 	test(stack == readr("aaa"), "parse_macrolet_args1");
 
 	one = readr("((bbb (a) a ''b) (ccc (a) a ''c))");
+	hold = LocalHold_local_push(ptr, one);
 	parse_macrolet_args(ptr, one);
+	localhold_end(hold);
 
 	environment_symbol(&stack);
 	getspecialcheck_local(ptr, stack, &stack);
@@ -1342,15 +1347,18 @@ static int test_parse_macrolet(void)
 {
 	Execute ptr;
 	addr control, one, stack;
+	LocalHold hold;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
 	one = readr("(((aaa () :hello)) :bbb)");
+	hold = LocalHold_local_push(ptr, one);
 	parse_macrolet(ptr, &one, one);
+	localhold_end(hold);
 	test(RefEvalParseType(one) == EVAL_PARSE_LOCALLY, "parse_macrolet1");
 
 	environment_symbol(&stack);
@@ -1369,7 +1377,7 @@ static int test_parse_define_symbol_macro(void)
 	addr control, one;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
@@ -1392,7 +1400,7 @@ static int test_parse_symbol_macrolet_args(void)
 	addr control, one, name, form, env;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
@@ -1418,7 +1426,7 @@ static int test_parse_symbol_macrolet(void)
 	addr control, one;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
@@ -1452,7 +1460,7 @@ static int test_parse_lambda(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	readstring(&cons, "(lambda ())");
@@ -1494,7 +1502,7 @@ static int test_parse_function_argument(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	internchar(LISP_PACKAGE, "HELLO", &cons);
@@ -1873,7 +1881,7 @@ static int test_parse_flet_one(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	readstring(&cons, "(hello ())");
@@ -1904,7 +1912,7 @@ static int test_parse_flet_args(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	readstring(&cons, "((aaa (a) :aaa) (bbb (b) :bbb))");
@@ -2119,7 +2127,7 @@ static int test_findstack_environment(void)
 	addr control, name, v1, v2, stack, check;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	fixnum_heap(&v1, 10);
@@ -2152,7 +2160,7 @@ static int test_check_macro_function(void)
 	addr control, v1, v2, v3, sym1, sym2, sym3, sym4, check;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	sym1 = readr("aaa");
@@ -2198,7 +2206,7 @@ static int test_call_macroexpand_hook(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	compiled_heap(&call, Nil);
 	SetPointer(p_debug1, var3, test_call_macroexpand_hook_function);
 	setcompiled_var3(call, p_debug1);
@@ -2218,7 +2226,7 @@ static int test_parse_macro(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 
 	/*

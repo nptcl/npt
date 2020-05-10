@@ -25,7 +25,7 @@
 addr lisp_push_control(void)
 {
 	addr x;
-	push_close_control(Execute_Thread, &x);
+	push_new_control(Execute_Thread, &x);
 	return x;
 }
 
@@ -264,7 +264,7 @@ int lisp_unwind_protect(addr code, addr clean)
 	hold = LocalHold_array(ptr, 2);
 
 	/* finalize */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	localhold_set(hold, 0, code);
 	localhold_set(hold, 1, clean);
 	/* cleanup form */
@@ -330,9 +330,9 @@ int lisp_catch(addr symbol, addr code, addr *ret)
 		fmte("CATCH argument ~S must be a symbol.", symbol, NULL);
 	ptr = Execute_Thread;
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* begin catch */
-	push_return_control(ptr, &catch);
+	push_new_control(ptr, &catch);
 	catch_control(ptr, symbol);
 	Return(apply_control(ptr, code, Nil));
 	Return(free_control_(ptr, catch));

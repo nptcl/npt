@@ -2,6 +2,7 @@
 #define __CONTROL_OPERATOR_HEADER__
 
 #include "execute.h"
+#include "execute_values.h"
 #include "pointer.h"
 
 /* arguments */
@@ -13,18 +14,6 @@ _g void getargs_control(Execute ptr, size_t index, addr *ret);
 _g void getargs_tail_control(Execute ptr, addr *ret);
 _g void getargs_list_control_unsafe(Execute ptr, size_t index, addr *ret);
 _g void getargs_list_control_heap(Execute ptr, size_t index, addr *ret);
-
-/* values */
-_g void setresult_control(Execute ptr, addr value);
-_g void setbool_control(Execute ptr, int value);
-_g void setvalues_control(Execute ptr, ...);
-_g void setvalues_nil_control(Execute ptr);
-_g void setvalues_list_control(Execute ptr, addr list);
-_g void getresult_control(Execute ptr, addr *ret);
-_g void getvalues_control(Execute ptr, size_t index, addr *ret);
-_g void getvalues_list_control_local(Execute ptr, addr *ret);
-_g void getvalues_list_control_heap(Execute ptr, addr *ret);
-_g size_t lengthvalues_control(Execute ptr);
 _g void pushargs_allvalues(Execute ptr);
 
 /* flow control */

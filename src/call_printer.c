@@ -439,12 +439,12 @@ _g int write_common(Execute ptr, addr var, addr args)
 		stream = Unbound;
 	output_stream_designer(ptr, stream, &stream);
 
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	write_keyword_common(ptr, args);
 	Return(write_print(ptr, stream, var));
 	exitpoint_stream(stream);
 
-	return 0;
+	return free_control_(ptr, control);
 }
 
 
@@ -508,13 +508,13 @@ _g int write_to_string_common(Execute ptr, addr var, addr args, addr *ret)
 	addr stream, control;
 
 	open_output_string_stream(&stream, 0);
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	write_keyword_common(ptr, args);
 	Return(write_print(ptr, stream, var));
 	string_stream_heap(stream, ret);
 	close_stream(stream);
 
-	return 0;
+	return free_control_(ptr, control);
 }
 
 

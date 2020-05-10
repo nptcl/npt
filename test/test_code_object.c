@@ -16,6 +16,7 @@
 #include "type.h"
 #include "type_table.h"
 
+#if 0
 /*
  *  code object
  */
@@ -116,6 +117,7 @@ static int test_code_alloc(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
@@ -123,9 +125,11 @@ static int test_code_alloc(void)
  */
 static int testbreak_code_object(void)
 {
+#if 0
 	TestBreak(test_build_code);
 	TestBreak(test_make_code_call);
 	TestBreak(test_code_alloc);
+#endif
 
 	return 0;
 }

@@ -330,6 +330,8 @@ static int comb_standard_funcall(Execute ptr, addr rest, addr around, addr prima
 static int function_standard_lambda(Execute ptr)
 {
 	addr args, data, before, primary, after, one, control, car, cdr;
+	addr values;
+	size_t size;
 
 	/*
 	 *  (lambda (method next &rest args)
@@ -357,11 +359,13 @@ static int function_standard_lambda(Execute ptr)
 
 	/* after */
 	if (after != Nil) {
-		push_close_control(ptr, &control);
+		push_new_control(ptr, &control);
+		save_values_control(ptr, &values, &size);
 		while (after != Nil) {
 			GetCons(after, &one, &after);
 			Return(comb_standard_method_(ptr, one, Nil, args));
 		}
+		restore_values_control(ptr, values, size);
 		Return(free_control_(ptr, control));
 	}
 
@@ -418,7 +422,7 @@ static int comb_standard_call(Execute ptr, addr inst, addr gen, addr rest)
 {
 	addr control;
 
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	Return(comb_standard_execute(ptr, inst, gen, rest));
 	return free_control_(ptr, control);
 }
@@ -442,7 +446,7 @@ static int comb_define_call(Execute ptr, addr inst, addr gen, addr rest)
 {
 	addr control, call;
 
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	GetClosGenericCallArray(inst, 0, &call);
 	Return(apply_control(ptr, call, rest));
 	return free_control_(ptr, control);

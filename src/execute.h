@@ -1,69 +1,11 @@
 #ifndef __EXECUTE_HEADER__
 #define __EXECUTE_HEADER__
 
-#include <setjmp.h>
 #include <signal.h>
-#include "define.h"
-#include "typedef_thread.h"
-#include "local.h"
+#include "execute_typedef.h"
+#include "thread.h"
 
-/*
- *  execute
- */
-enum ThreadState {
-	ThreadState_Empty = 0,
-	ThreadState_Run,
-	ThreadState_Finish,
-	ThreadState_GcWait,
-	ThreadState_Join,
-	ThreadState_Size
-};
-
-struct execute;
-typedef void (*execfunction)(struct execute *);
-
-struct execute {
-	unsigned disable_copy_p : 1;
-	unsigned throw_point_p : 1;
-	unsigned abort : 1;
-	unsigned jump : 1;
-	/* lisp info */
-	jmp_buf *exec;
-	LocalRoot local;
-	addr control;
-	int result;
-
-	/* runcode */
-	size_t throw_point;
-	addr throw_control;
-
-	/* thread info */
-	size_t index;
-	enum ThreadState state;
-	mutexlite mutex;
-	execfunction routine;
-	threadhandle handle;
-#ifdef LISP_THREAD_WINDOWS
-	threadid handleid;
-#endif
-};
-typedef struct execute *Execute;
-
-struct CodeJump {
-	Execute ptr;
-	lispcode code;
-	jmp_buf jump;
-};
-typedef struct CodeJump codejump;
-
-
-/*
- *  threadlocal
- */
-__extern threadlocal ThreadLocal_Execute;
-__extern threadlocal ThreadLocal_Index;
-__extern threadlocal ThreadLocal_Local;
-
+/* threadlocal */
 #ifdef LISP_THREAD_DISABLE
 #define Execute_Thread (getexecute(0))
 #define Local_Thread (getexecute(0)->local)
@@ -75,12 +17,12 @@ __extern threadlocal ThreadLocal_Local;
 #endif
 
 
-/*
- *  function
- */
+/* function */
 _g int init_execute(size_t);
 _g void free_execute(void);
 _g void set_execute_local(struct execute *ptr);
+_g void save_values_control(struct execute *ptr, addr *ret, size_t *rsize);
+_g void restore_values_control(struct execute *ptr, addr pos, size_t size);
 _g int make_execute(execfunction, struct execute **, size_t);
 _g void setstate_execute(struct execute *, enum ThreadState);
 _g int join_execute(struct execute *);
@@ -99,9 +41,7 @@ _g void abortindex(size_t index);
 #define abortthis() abortexecute(Execute_Thread)
 
 
-/*
- *  codejump
- */
+/* codejump */
 #define setjmp_execute(ptr, code) { \
 	*(int *)(code) = setjmp(*(ptr)->exec); \
 }
@@ -138,8 +78,7 @@ _g void throw_switch(codejump *code);
 _g int equal_control_restart(Execute ptr, addr control);
 
 
-/*
- *  gc sync
+/* gc sync
  */
 _g void gcstate_execute(void);
 _g void gcstart_execute(struct execute *ptr);
@@ -148,9 +87,7 @@ _g void gcend_execute(void);
 _g void foreach_execute(void (*call)(struct execute *));
 _g int foreach_check_execute(int (*call)(struct execute *));
 
-/*
- *  exit
- */
+/* exit */
 _g void exit_execute(int value);
 
 #endif

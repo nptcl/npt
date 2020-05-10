@@ -190,7 +190,7 @@ _g int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursiv
 	struct readinfo_struct *str;
 
 	/* push */
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* code */
 	if (recursive)
 		pushreadinfo_recursive(ptr, &info);
@@ -243,7 +243,7 @@ static int backquote_read_reader(Execute ptr, addr stream, int *result, addr *re
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo_recursive(ptr, &info);
 	ReadInfoStruct(info)->backquote++;
 	Return(read_call(ptr, stream, result, ret));
@@ -278,7 +278,7 @@ static int comma_read_reader(Execute ptr, addr stream, int *result, addr *ret)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo_recursive(ptr, &info);
 	ReadInfoStruct(info)->backquote--;
 	Return(read_call(ptr, stream, result, ret));
@@ -432,7 +432,7 @@ static int equal_read_dispatch(Execute ptr, addr stream, int *result, addr *ret)
 	str->replace = 1;
 	hold = LocalHold_array(ptr, 1);
 	/* finalize */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	cons_local(ptr->local, &pos, pos, value);
 	setprotect_control_local(ptr, p_equal_finalize_dispatch, pos);
 	/* code */
@@ -713,7 +713,7 @@ _g int colon_dispatch(Execute ptr, addr stream, addr *ret)
 	addr control, pos;
 
 	/* push */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* code */
 	pushreadinfo_recursive(ptr, &pos);
 	colon_object_dispatch(ptr, stream, &pos);
@@ -804,7 +804,7 @@ static int feature_read_dispatch(Execute ptr, addr stream, int *result, addr *re
 	 */
 	/* push */
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* code */
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	GetConst(PACKAGE_KEYWORD, &keyword);
@@ -894,7 +894,7 @@ static int feature_ignore_dispatch(Execute ptr, addr stream, int *result)
 	/* (let ((*read-suppress* t)) ...) */
 	addr control, symbol;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	GetConst(SPECIAL_READ_SUPPRESS, &symbol);
 	pushspecial_control(ptr, symbol, T);
 	Return(read_recursive(ptr, stream, result, &stream));
@@ -1010,7 +1010,7 @@ static int radix_execute_dispatch(Execute ptr, addr stream, fixnum base,
 
 	/* push */
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* code */
 	GetConst(SPECIAL_READ_BASE, &symbol);
 	fixnum_heap(&value, base);

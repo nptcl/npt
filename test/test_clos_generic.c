@@ -162,7 +162,7 @@ static int test_comb_standard_method(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	test_make_method(&method);
 	internchar(LISP_PACKAGE, "TEST-GENERIC1", &call);
@@ -220,7 +220,7 @@ static int test_comb_standard_funcall(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	test_make_method(&method);
 	internchar(LISP_PACKAGE, "TEST-GENERIC2", &call);
@@ -249,7 +249,7 @@ static int test_function_standard_lambda(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	test_make_method(&method);
 	internchar(LISP_PACKAGE, "TEST-GENERIC3", &call);
@@ -295,7 +295,7 @@ static int test_comb_standard_qualifiers(void)
 	list_heap(&primary, method, NULL);
 	comb_standard_qualifiers(local, &method, generic, Nil, primary, Nil);
 	/* run method */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	list_heap(&args, T, NULL);
 	comb_standard_method_(ptr, method, Nil, args);
 
@@ -327,7 +327,7 @@ static int test_comb_standard(void)
 	/* call */
 	comb_standard(&call, data);
 	/* clos_generic_call */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	CallClosGenericCall(call, &callproc);
 	test_make_generic(&generic);
 	GetConst(CLOS_STANDARD_METHOD, &args);
@@ -688,7 +688,7 @@ static int test_generic_make_type(void)
 	ptr = Execute_Thread;
 	/* others */
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	call(ptr, pos, generic, args);
 	/* check */
 	getresult_control(ptr, &pos);
@@ -759,7 +759,7 @@ static int test_generic_make_lambda_call(void)
 
 	/* call */
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	fixnum_heap(&pos, 100);
 	list_heap(&pos, pos, NULL);
 	generic_make_lambda_call(ptr, instance, Nil, pos);
@@ -806,7 +806,7 @@ static int test_closrun_execute(void)
 	/* finalize */
 	generic_finalize(generic);
 	/* execute */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	fixnum_heap(&value, 100);
 	list_heap(&args, value, NULL);
 	getcallname_global(name, &name);

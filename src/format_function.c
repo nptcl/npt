@@ -449,7 +449,7 @@ static int format_radix_integer(fmtprint print,
 
 	Check(4 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/*
 	 *  (let ((*print-escape* nil)
 	 *        (*print-radix* nil)
@@ -509,7 +509,7 @@ static int format_call_Radix(fmtprint print, struct format_operator *str)
 
 	Check(5 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/*
 	 *  (let ((*print-escape* nil)
 	 *        (*print-radix* nil)
@@ -597,7 +597,7 @@ static int format_call_RadixText(fmtprint print, struct format_operator *str)
 
 	Check(0 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/*
 	 *  (let ((*print-escape* nil)
 	 *        (*print-radix* nil)
@@ -925,7 +925,7 @@ static int format_call_Fixed(fmtprint print, struct format_operator *str)
 
 	Check(5 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
 	Return(format_fixed_argument(print, str, &ff));
@@ -1131,7 +1131,7 @@ static int format_call_Exponential(fmtprint print, struct format_operator *str)
 
 	Check(7 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
 	Return(format_exponent_argument(print, str, &ff));
@@ -1309,7 +1309,7 @@ static int format_call_General(fmtprint print, struct format_operator *str)
 
 	Check(7 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
 	Return(format_general_argument(print, str, &ff));
@@ -1488,7 +1488,7 @@ static int format_call_Monetary(fmtprint print, struct format_operator *str)
 
 	Check(4 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* (let ((*print-escape* nil)) ...) */
 	push_escape_print(ptr, 0);
 	Return(format_monetary_argument(print, str, &ff));
@@ -1845,7 +1845,7 @@ static int format_call_Write(fmtprint print, struct format_operator *str)
 
 	Check(0 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	if (str->colon) {
 		push_pretty_print(ptr, 1);
 	}
@@ -3024,7 +3024,7 @@ static int format_logicalblock1(Execute ptr)
 	getstream_format_pretty(pretty, &stream);
 	Check(! pretty_stream_p(stream), "type error");
 	/* unwind-protect */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
 	gensym_pretty_stream(stream, &gensym);
@@ -3183,7 +3183,7 @@ static int format_call_LogicalBlock(fmtprint print, struct format_operator *str)
 
 	Check(0 < str->args_size, "size error");
 	ptr = print->ptr;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	if (str->atsign == 0) {
 		Return(format_call_LogicalBlock_call1(print, str));
 	}

@@ -27,7 +27,7 @@ _g void evalcode_push3(LocalRoot, addr, constindex, addr, addr, addr);
 #define EvalCode_push3(a,b,c,d,e,f) evalcode_push3(a,b,CONSTANT_CODE_##c,d,e,f)
 _g void evalcode_ifpush(LocalRoot local, addr code);
 
-_g void evalcode_push_return(LocalRoot local, addr code);
+_g void evalcode_push_new(LocalRoot local, addr code);
 _g void evalcode_pop(LocalRoot local, addr code, addr *ret);
 
 _g void eval_code_execute_set(LocalRoot local, addr code, addr scope);
@@ -35,11 +35,13 @@ _g void eval_code_execute_push(LocalRoot local, addr code, addr scope);
 _g void eval_code_execute_rem(LocalRoot local, addr code, addr scope);
 
 _g void evalcode_single_sp(LocalRoot, addr, constindex, constindex);
-_g void evalcode_carcdr_sp(LocalRoot, addr, constindex, constindex, addr);
 #define EvalCode_single_sp(a,b,c,d) \
 	evalcode_single_sp(a,b,CONSTANT_CODE_##c,CONSTANT_CODE_##d)
-#define EvalCode_carcdr_sp(a,b,c,d,e) \
-	evalcode_carcdr_sp(a,b,CONSTANT_CODE_##c,CONSTANT_CODE_##d,e)
+
+_g void eval_code_execute_simple(LocalRoot local, addr code, addr pos);
+_g void eval_code_execute_normal(LocalRoot local, addr code, addr pos);
+_g void eval_code_execute_control(LocalRoot local, addr code, addr pos);
+_g void eval_code_execute_switch(LocalRoot local, addr code, addr pos);
 
 _g void eval_code_object(LocalRoot local, addr code, addr value);
 _g void eval_code_execute(LocalRoot local, addr code, addr scope);

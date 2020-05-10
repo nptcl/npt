@@ -731,7 +731,7 @@ static void eval_scope_eval(Execute ptr, addr *ret, addr pos)
 	addr control;
 	codejump jump;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
 		push_evalwhen_eval(ptr);
@@ -778,28 +778,34 @@ static void codechar_rem(addr *ret, const char *str)
 	codechar_call(ret, str, eval_code_execute_rem);
 }
 
+static int localhold_runcode_control(Execute ptr, addr pos)
+{
+	gchold_push_special(ptr, pos);
+	return runcode_control(ptr, pos);
+}
+
 static int test_code_nil(void)
 {
 	addr control, pos;
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	codechar_set(&pos, "nil");
 	setvalues_control(ptr, T, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_nil1");
 
 	codechar_push(&pos, "nil");
 	setargs_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getargs_control(ptr, 0, &pos);
 	test(pos == Nil, "code_nil2");
 
 	codechar_rem(&pos, "nil");
 	setvalues_control(ptr, T, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_nil3");
 
@@ -814,22 +820,22 @@ static int test_code_t(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	codechar_set(&pos, "t");
 	setvalues_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_t1");
 
 	codechar_push(&pos, "t");
 	setargs_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getargs_control(ptr, 0, &pos);
 	test(pos == T, "code_t2");
 
 	codechar_rem(&pos, "t");
 	setvalues_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_t3");
 
@@ -844,22 +850,22 @@ static int test_code_value(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	codechar_set(&pos, "100");
 	setvalues_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 100, "code_value1");
 
 	codechar_push(&pos, "200");
 	setargs_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getargs_control(ptr, 0, &pos);
 	test(RefFixnum(pos) == 200, "code_value2");
 
 	codechar_rem(&pos, "300");
 	setvalues_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_value3");
 
@@ -874,12 +880,12 @@ static int test_code_declaim_special(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	codechar_set(&pos, "(declaim (special code-declaim-special-test))");
 	readstring(&symbol, "code-declaim-special-test");
 	setvalues_control(ptr, T, T, T, NULL);
 	setlexical_symbol(symbol);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_declaim_special1");
 	test(specialp_symbol(symbol), "code_declaim_special2");
@@ -895,10 +901,10 @@ static int test_code_declaim_type_value(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	codechar_set(&pos, "(declaim (type integer code-declaim-type-value-test))");
 	readstring(&symbol, "code-declaim-type-value-test");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	gettype_value_symbol(symbol, &pos);
 	test(RefLispDecl(pos) == LISPDECL_INTEGER, "code_declaim_type_value1");
 
@@ -913,11 +919,11 @@ static int test_code_declaim_type_function(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	codechar_set(&pos, "(declaim (ftype (function * integer) "
 			"code-declaim-type-function-test))");
 	readstring(&symbol, "code-declaim-type-function-test");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	gettype_function_symbol(symbol, &pos);
 	test(RefLispDecl(pos) == LISPDECL_FUNCTION, "code_declaim_type_function1");
 	GetArrayType(pos, 1, &pos);
@@ -934,11 +940,11 @@ static int test_code_declaim_inline(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	codechar_set(&pos, "(declaim "
 			"(inline code-declaim-inline-test) "
 			"(notinline code-declaim-notinline-test))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 
 	readstring(&symbol, "code-declaim-inline-test");
 	test(inlinep_function_symbol(symbol), "code_declaim_inline1");
@@ -956,9 +962,9 @@ static int test_code_declaim_optimize(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	codechar_set(&pos, "(declaim (optimize debug))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 
 	getroot_declare(&pos);
 	test(get_optimize_debug_declare(pos) == 3, "code_declaim_optimize1");
@@ -966,7 +972,7 @@ static int test_code_declaim_optimize(void)
 	codechar_set(&pos,
 			"(declaim (optimize (compilation-speed 0) "
 			"(safety 2) (speed 3) (space 0)))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 
 	getroot_declare(&pos);
 	test(get_optimize_compilation_declare(pos) == 0, "code_declaim_optimize2");
@@ -986,7 +992,7 @@ static int test_code_declaim_declaration(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	readstring(&symbol, "code-declaim-declaration-test");
 	getroot_declare(&pos);
@@ -994,7 +1000,7 @@ static int test_code_declaim_declaration(void)
 	test(! find_list_eq_unsafe(symbol, pos), "code_declaim_declaration1");
 
 	codechar_set(&pos, "(declaim (declaration code-declaim-declaration-test))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 
 	getroot_declare(&pos);
 	getall_declaration_declare(pos, &pos);
@@ -1011,10 +1017,10 @@ static int test_code_symbol(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	codechar_set(&pos, ":hello");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	readstring(&check, ":hello");
 	test(pos == check, "code_symbol1");
@@ -1027,14 +1033,14 @@ static int test_code_symbol(void)
 	setlexical_symbol(symbol);
 	codechar_set(&pos, "code-symbol-test");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_symbol2");
 
 	setspecial_symbol(symbol);
 	codechar_set(&pos, "code-symbol-test");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_symbol3");
 
@@ -1043,7 +1049,7 @@ static int test_code_symbol(void)
 			"(locally (declare (integer code-symbol-test)) "
 			"  code-symbol-test)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_symbol4");
 
@@ -1052,7 +1058,7 @@ static int test_code_symbol(void)
 			"(locally (declare (integer code-symbol-test)) "
 			"  code-symbol-test)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_symbol5");
 
@@ -1061,7 +1067,7 @@ static int test_code_symbol(void)
 	codechar_push(&pos, "code-symbol-test");
 	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_symbol6");
 	getargs_control(ptr, 0, &pos);
@@ -1071,7 +1077,7 @@ static int test_code_symbol(void)
 	codechar_push(&pos, "code-symbol-test");
 	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_symbol8");
 	getargs_control(ptr, 0, &pos);
@@ -1083,7 +1089,7 @@ static int test_code_symbol(void)
 			"  code-symbol-test)");
 	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_symbol10");
 	getargs_control(ptr, 0, &pos);
@@ -1095,7 +1101,7 @@ static int test_code_symbol(void)
 			"  code-symbol-test)");
 	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_symbol12");
 	getargs_control(ptr, 0, &pos);
@@ -1106,7 +1112,7 @@ static int test_code_symbol(void)
 	codechar_rem(&pos, "code-symbol-test");
 	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_symbol14");
 	getargs_list_control_unsafe(ptr, 0, &pos);
@@ -1116,7 +1122,7 @@ static int test_code_symbol(void)
 	codechar_rem(&pos, "code-symbol-test");
 	setvalues_control(ptr, T, T, T, NULL);
 	setargs_nil_control(ptr);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_symbol16");
 	getargs_list_control_unsafe(ptr, 0, &pos);
@@ -1134,17 +1140,17 @@ static int test_code_progn(void)
 	size_t count;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(progn)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_progn1");
 
 	codechar_set(&pos, "(progn 10 20 30 40)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &check);
 	test(RefFixnum(check) == 40, "code_progn2");
 	getargs_code(pos, &check);
@@ -1152,7 +1158,7 @@ static int test_code_progn(void)
 
 	codechar_set(&pos, "(progn 10 20 'hello 'aaa :hello 30 40)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &check);
 	test(RefFixnum(check) == 40, "code_progn3");
 	getargs_code(pos, &check);
@@ -1161,7 +1167,7 @@ static int test_code_progn(void)
 	codechar_push(&pos, "(progn 10 20 30 40)");
 	setargs_nil_control(ptr);
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &check);
 	test(check == T, "code_progn5");
 	getargs_control(ptr, 0, &check);
@@ -1178,41 +1184,41 @@ static int test_code_let(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(let nil)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_let1");
 
 	codechar_set(&pos, "(let nil 10 20 30)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_let2");
 
 	codechar_set(&pos, "(let (a) a)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_let3");
 
 	codechar_set(&pos, "(let ((a 10) (b 20)) b a)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_let4");
 
 	codechar_set(&pos, "(let ((a 10) (b 20)) a b)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_let5");
 
 	codechar_set(&pos, "(let ((a 10)) (let ((a 20) (b a)) a b))");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_let6");
 
@@ -1227,41 +1233,41 @@ static int test_code_leta(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(let* nil)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_leta1");
 
 	codechar_set(&pos, "(let* nil 10 20 30)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_leta2");
 
 	codechar_set(&pos, "(let* (a) a)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_leta3");
 
 	codechar_set(&pos, "(let* ((a 10) (b 20)) b a)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_leta4");
 
 	codechar_set(&pos, "(let* ((a 10) (b 20)) a b)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_leta5");
 
 	codechar_set(&pos, "(let* ((a 10)) a (let* ((a 20) (b a)) b))");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_leta6");
 
@@ -1276,14 +1282,14 @@ static int test_code_setq(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	readstring(&symbol, "code-setq-test");
 
 	setlexical_symbol(symbol);
 	codechar_set(&pos, "(setq code-setq-test 10)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_setq1");
 	getlexical_local(ptr, symbol, &pos);
@@ -1292,7 +1298,7 @@ static int test_code_setq(void)
 	setspecial_symbol(symbol);
 	codechar_set(&pos, "(setq code-setq-test 20)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_setq3");
 	getspecial_local(ptr, symbol, &pos);
@@ -1308,7 +1314,7 @@ static int test_code_setq(void)
 	setlexical_symbol(symbol);
 	codechar_set(&pos, "(let (a code-setq-test) (setq a 30 code-setq-test 40))");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 40, "code_setq8");
 
@@ -1317,7 +1323,7 @@ static int test_code_setq(void)
 			"(let (a code-setq-test)"
 			"  (setq a 30 code-setq-test 40) code-setq-test)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 40, "code_setq9");
 
@@ -1332,11 +1338,11 @@ static int test_code_function(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(function car)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(functionp(pos), "code_function1");
 
@@ -1351,21 +1357,21 @@ static int test_code_call(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(+)");
 	setvalues_control(ptr, T, T, T, NULL);
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "code_call1");
 
 	codechar_set(&pos, "(+ 10 20 30 40 50)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 150, "code_call2");
 
 	codechar_set(&pos, "((lambda () (+ 10 20 30 40 50)))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 150, "code_call3");
 
@@ -1380,15 +1386,15 @@ static int test_code_lambda(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(lambda () (+ 10 20 30 40 50))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(functionp(pos), "code_lambda1");
 
 	codechar_set(&pos, "(lambda ())");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(functionp(pos), "code_lambda2");
 
@@ -1403,15 +1409,15 @@ static int test_code_defun(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(defun aaa () (+ 10 20 30 40 50))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(symbolp(pos), "code_defun1");
 
 	codechar_set(&pos, "(aaa)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 150, "code_defun2");
 
@@ -1426,21 +1432,21 @@ static int test_code_flet(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(flet () 10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_flet1");
 
 	codechar_set(&pos, "(flet ((aaa () 10)) (aaa))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_flet2");
 
 	codechar_set(&pos,
 			"(flet ((aa () 10)) (flet ((aa () 20) (bb () (aa))) (aa) (bb)))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_flet3");
 
@@ -1455,21 +1461,21 @@ static int test_code_labels(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(labels () 10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_labels1");
 
 	codechar_set(&pos, "(labels ((aaa () 10)) (aaa))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_labels2");
 
 	codechar_set(&pos,
 			"(labels ((aa () 10)) (aa) (labels ((aa () 20) (bb () (aa))) (bb)))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_labels3");
 
@@ -1484,20 +1490,20 @@ static int test_code_values(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(values)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	test(lengthvalues_control(ptr) == 0, "code_values1");
 
 	codechar_set(&pos, "(values 10)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	test(lengthvalues_control(ptr) == 1, "code_values2");
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_values3");
 
 	codechar_set(&pos, "(values 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	test(lengthvalues_control(ptr) == 2, "code_values4");
 	getvalues_control(ptr, 0, &pos);
 	test(RefFixnum(pos) == 20, "code_values5");
@@ -1505,7 +1511,7 @@ static int test_code_values(void)
 	test(RefFixnum(pos) == 30, "code_values6");
 
 	codechar_set(&pos, "(values 40 50 60 70)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	test(lengthvalues_control(ptr) == 4, "code_values7");
 	getvalues_control(ptr, 0, &pos);
 	test(RefFixnum(pos) == 40, "code_values8");
@@ -1518,7 +1524,7 @@ static int test_code_values(void)
 
 	setargs_nil_control(ptr);
 	codechar_push(&pos, "(values)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getargs_list_control_unsafe(ptr, 0, &pos);
 	test(singlep(pos), "code_values12");
 	GetCar(pos, &pos);
@@ -1526,7 +1532,7 @@ static int test_code_values(void)
 
 	setargs_nil_control(ptr);
 	codechar_push(&pos, "(values 10)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getargs_list_control_unsafe(ptr, 0, &pos);
 	test(singlep(pos), "code_values14");
 	GetCar(pos, &pos);
@@ -1534,7 +1540,7 @@ static int test_code_values(void)
 
 	setargs_nil_control(ptr);
 	codechar_push(&pos, "(values 10 20 30 40 50)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getargs_list_control_unsafe(ptr, 0, &pos);
 	test(singlep(pos), "code_values16");
 	GetCar(pos, &pos);
@@ -1549,10 +1555,10 @@ static int test_code_the(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(the integer 10)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_the1");
 
@@ -1565,10 +1571,10 @@ static int test_code_locally(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(locally (declare (special aaa)) 10 20)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_locally1");
 
@@ -1581,65 +1587,65 @@ static int test_code_if(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(if 10 20)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_if1");
 
 	codechar_set(&pos, "(if nil 20)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_if2");
 
 	codechar_set(&pos, "(if 10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_if3");
 
 	codechar_set(&pos, "(if nil 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_if4");
 
 	codechar_set(&pos, "(if (not 10) 20)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_if5");
 
 	codechar_set(&pos, "(if (not nil) 20)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_if6");
 
 	codechar_set(&pos, "(if (not 10) 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_if7");
 
 	codechar_set(&pos, "(if (not nil) 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_if8");
 
 	codechar_set(&pos, "(if (null 10) 20)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_if9");
 
 	codechar_set(&pos, "(if (null nil) 20)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_if10");
 
 	codechar_set(&pos, "(if (null 10) 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_if11");
 
 	codechar_set(&pos, "(if (null nil) 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_if12");
 
@@ -1654,20 +1660,20 @@ static int test_code_unwind_protect(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(unwind-protect 10)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_unwind_protect1");
 
 	codechar_set(&pos, "(unwind-protect 10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_unwind_protect2");
 
 	codechar_set(&pos, "(let (a) (unwind-protect 10 (setq a 20) 30) a)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 20, "code_unwind_protect3");
 
@@ -1682,25 +1688,25 @@ static int test_code_tagbody(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(tagbody)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_tagbody1");
 
 	codechar_set(&pos, "(tagbody 10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_tagbody2");
 
 	codechar_set(&pos, "(let (a) (tagbody 10 20 (setq a 100)))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_tagbody3");
 
 	codechar_set(&pos, "(let (a) (tagbody (go hello) (setq a 100) hello) a)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_tagbody4");
 
@@ -1713,7 +1719,7 @@ static int test_code_tagbody(void)
 			"    (setq a 100)"
 			"    20)"
 			"  a)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 100, "code_tagbody5");
 
@@ -1728,20 +1734,20 @@ static int test_code_block(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(block hello)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_block1");
 
 	codechar_set(&pos, "(block hello 10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_block2");
 
 	codechar_set(&pos, "(block hello 10 (return-from hello 40) 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 40, "code_block3");
 
@@ -1751,7 +1757,7 @@ static int test_code_block(void)
 			"    (return-from hello 10)"
 			"    20)"
 			"  30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_block4");
 
@@ -1766,20 +1772,20 @@ static int test_code_catch(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(catch 'hello)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_catch1");
 
 	codechar_set(&pos, "(catch 'hello 10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "code_catch2");
 
 	codechar_set(&pos, "(catch 'hello 10 (throw 'hello 40) 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 40, "code_catch3");
 
@@ -1789,7 +1795,7 @@ static int test_code_catch(void)
 			"    (throw 'hello 10)"
 			"    20)"
 			"  30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 10, "code_catch4");
 
@@ -1826,7 +1832,7 @@ static int test_code_multiple_value_call(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	readstring(&pos, LISP_PACKAGE "::test-multiple-value-call1");
 	compiled_heap(&call, pos);
@@ -1837,45 +1843,45 @@ static int test_code_multiple_value_call(void)
 	codechar_set(&pos, "(multiple-value-call #'"
 			LISP_PACKAGE "::test-multiple-value-call1 "
 			"10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_multiple_value_call1");
 
 	codechar_set(&pos, "(multiple-value-call #'"
 			LISP_PACKAGE "::test-multiple-value-call1 "
 			"(values 10 20) 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_multiple_value_call2");
 
 	codechar_set(&pos, "(multiple-value-call #'"
 			LISP_PACKAGE "::test-multiple-value-call1 "
 			"10 (values 20 30))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_multiple_value_call3");
 
 	codechar_set(&pos, "(multiple-value-call #'"
 			LISP_PACKAGE "::test-multiple-value-call1 "
 			"(values 10 20 30))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == T, "code_multiple_value_call4");
 
 	codechar_set(&pos, "(multiple-value-call #'"
 			LISP_PACKAGE "::test-multiple-value-call1 "
 			"10 20 30 40)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(pos == Nil, "code_multiple_value_call5");
 
 	codechar_set(&pos, "(multiple-value-call #'+)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "code_multiple_value_call6");
 
 	codechar_set(&pos, "(multiple-value-call #'+ (values))");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "code_multiple_value_call7");
 
@@ -1894,7 +1900,7 @@ static int test_eval_code_specialize_symbol_p(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	readstring(&pos, "(hello 10 20 30)");
 	eval_parse(ptr, &pos, pos);
@@ -1921,10 +1927,10 @@ static int test_code_handler(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(" LISP_SYSTEM "::handler 10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "call_handler1");
 
@@ -1939,10 +1945,10 @@ static int test_code_restart(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(" LISP_SYSTEM "::restart 10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "call_restart1");
 
@@ -1957,10 +1963,10 @@ static int test_code_push_return(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	codechar_set(&pos, "(" LISP_SYSTEM "::push-return 10 20 30)");
-	runcode_control(ptr, pos);
+	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 30, "call_push_return1");
 
@@ -2049,7 +2055,7 @@ static void test_build_eval_scope(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	GetConstant(CONSTANT_COMMON_EVAL, &when);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);

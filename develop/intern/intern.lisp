@@ -1662,9 +1662,16 @@ lisp-code::setf-local-set
 lisp-code::setf-local-push
 
 lisp-code::goto
-lisp-code::execute
-lisp-code::execute-normal
-lisp-code::execute-switch
+
+lisp-code::execute-simple-set
+lisp-code::execute-normal-set
+lisp-code::execute-control-set
+lisp-code::execute-switch-set
+lisp-code::execute-simple-push
+lisp-code::execute-normal-push
+lisp-code::execute-control-push
+lisp-code::execute-switch-push
+
 lisp-code::lambda
 lisp-code::lambda-self
 lisp-code::lambda-value
@@ -1712,6 +1719,8 @@ lisp-code::eval-local-push
 lisp-code::eval-local-remove
 
 lisp-code::multiple-value-bind
+lisp-code::prog1-set
+lisp-code::prog1-push
 lisp-code::funcall
 lisp-code::nth-value
 lisp-code::progv

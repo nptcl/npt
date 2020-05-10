@@ -89,7 +89,7 @@ static int test_getstack_eval(void)
 	addr control, symbol, check;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	fixnum_heap(&check, 100);
 	getstack_symbol(&symbol);
 	pushspecial_control(ptr, symbol, check);
@@ -107,7 +107,7 @@ static int test_getglobal_eval(void)
 	addr control, symbol, check;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	fixnum_heap(&check, 100);
 	getglobal_symbol(&symbol);
 	pushspecial_control(ptr, symbol, check);
@@ -132,7 +132,7 @@ static int test_newstack_eval(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	temp_eval_stack(ptr);
 	pos1 = newstack_eval(ptr, EVAL_STACK_MODE_LAMBDA);
 	getstack_eval(ptr, &check);
@@ -156,7 +156,7 @@ static int test_closestack_unsafe(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	temp_eval_stack(ptr);
 	pos0 = newstack_nil(ptr);
@@ -189,7 +189,7 @@ static int test_freestack_eval(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	temp_eval_stack(ptr);
 	pos0 = newstack_lambda(ptr);
@@ -222,7 +222,7 @@ static int test_begin_eval_stack(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	getglobal_symbol(&symbol1);
 	getstack_symbol(&symbol2);
@@ -252,8 +252,8 @@ static int test_free_eval_stack(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
-	push_close_control(ptr, &control2);
+	push_new_control(ptr, &control);
+	push_new_control(ptr, &control2);
 
 	getglobal_symbol(&symbol1);
 	getstack_symbol(&symbol2);
@@ -451,7 +451,7 @@ static int test_apply_declaim_stack(void)
 	const OptimizeType *optimize;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
 	readstring(&pos,
@@ -539,7 +539,7 @@ static int test_apply_declare_stack(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
 	readstring(&pos, "((special aa bb cc) "
@@ -621,7 +621,7 @@ static int test_apply_pushsymbol_stack(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
@@ -659,7 +659,7 @@ static int test_apply_plistsymbol_stack(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
 	stack = newstack_nil(ptr);
@@ -699,7 +699,7 @@ static int test_apply_declare_value_stack(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 
 	readstring(&decl, "((special aa bb cc) (integer aa bb) "

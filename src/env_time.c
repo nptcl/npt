@@ -962,7 +962,7 @@ static int sleep_break_restart(Execute ptr, addr restart, addr var, addr *ret)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_sleep_object(ptr);
 	setprotect_control(ptr, p_sleep_close_object, Nil);
 	*ret = Nil;

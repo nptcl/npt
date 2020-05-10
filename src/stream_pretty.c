@@ -423,7 +423,7 @@ _g int call_pretty_stream(Execute ptr, addr stream, addr call)
 
 	check = Push_pretty_stream_p(stream);
 	if (! check) {
-		push_return_control(ptr, &pos);
+		push_new_control(ptr, &pos);
 		push_write_object(ptr);
 	}
 	/* normal */

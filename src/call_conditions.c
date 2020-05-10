@@ -315,7 +315,8 @@ static int cerror_make_common(Execute ptr, addr *ret, addr format, addr args)
 static int cerror_restart_common(Execute ptr, addr restart, addr datum)
 {
 	addr control;
-	push_return_control(ptr, &control);
+
+	push_new_control(ptr, &control);
 	Return(restart1_control(ptr, restart, invoke_debugger, datum));
 	return free_control_(ptr, control);
 }
@@ -597,7 +598,8 @@ static int break_invoke_common(Execute ptr, addr format, addr args)
 static int break_restart_common(Execute ptr, addr restart, addr format, addr args)
 {
 	addr control;
-	push_return_control(ptr, &control);
+
+	push_new_control(ptr, &control);
 	Return(restart2_control(ptr, restart, break_invoke_common, format, args));
 	return free_control_(ptr, control);
 }

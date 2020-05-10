@@ -18,62 +18,42 @@ enum Control_Index {
 	Control_Next,
 	Control_Cons,
 	Control_ConsTail,
-	Control_Result,
 	Control_Lexical,
 	Control_Special,
 	Control_Table,
 	Control_Data,
-	Control_Args,
 	Control_Size
 };
 
 struct control_struct {
-	unsigned p_dynamic   : 1;
-	unsigned p_return    : 1;
-	unsigned p_push      : 1;
-	unsigned p_protect   : 1;
+	unsigned p_protect : 1;
 	LocalStack stack;
-	const pointer *call;
-	size_t sizer, point;
 	addr trace;
+	size_t point;
 };
 
-#ifdef LISP_DEBUG
-#define ControlSize_Result				2
-#else
-#define ControlSize_Result				8
-#endif
-#define ControlSize_Array				(Control_Size + ControlSize_Result)
 #define exit_control(ptr)				exit_code(ptr, LISPCODE_CONTROL);
-#define PtrBodyControl_Low(p)			PtrBodySSa(p, ControlSize_Array)
+#define PtrBodyControl_Low(p)			PtrBodySSa(p, Control_Size)
 #define StructControl_Low(p)			((struct control_struct *)PtrBodyControl(p))
 #define GetControl_Low					GetArraySS
 #define SetControl_Low					SetArraySS
-#define GetResultControl_Low(p,i,v)		GetControl((p),(i) + Control_Size,(v))
-#define SetResultControl_Low(p,i,v)		SetControl((p),(i) + Control_Size,(v))
 
 #ifdef LISP_DEBUG
 #define PtrBodyControl					ptrbodycontrol_debug
 #define StructControl					structcontrol_debug
 #define GetControl						getcontrol_debug
 #define SetControl						setcontrol_debug
-#define GetResultControl				getresultcontrol_debug
-#define SetResultControl				setresultcontrol_debug
 #else
 #define PtrBodyControl					PtrBodyControl_Low
 #define StructControl					StructControl_Low
 #define GetControl						GetControl_Low
 #define SetControl						SetControl_Low
-#define GetResultControl				GetResultControl_Low
-#define SetResultControl				SetResultControl_Low
 #endif
 
 _g void *ptrbodycontrol_debug(addr pos);
 _g struct control_struct *structcontrol_debug(addr pos);
 _g void getcontrol_debug(addr pos, size_t index, addr *ret);
 _g void setcontrol_debug(addr pos, size_t index, addr value);
-_g void getresultcontrol_debug(addr pos, size_t index, addr *ret);
-_g void setresultcontrol_debug(addr pos, size_t index, addr value);
 
 
 /*
@@ -161,16 +141,10 @@ _g int checkhandler_control(addr pos, addr instance);
  */
 /* push control */
 _g struct control_struct *push_control(Execute ptr);
-_g void push_return_control(Execute ptr, addr *ret);
-_g void push_push_control(Execute ptr, addr *ret);
-_g void push_close_control(Execute ptr, addr *ret);
-_g void push_argument_control(Execute ptr, addr *ret);
-_g struct control_struct *copy_argument_control(Execute ptr);
+_g void push_new_control(Execute ptr, addr *ret);
+_g void push_args_control(Execute ptr, addr *ret);
 _g int free_control_(Execute ptr, addr control);
 _g int rollback_control_(Execute ptr, addr control);
-_g void close_result_control(addr pos, struct control_struct *str);
-_g void copy_values_control(Execute ptr, addr src, addr dst);
-_g void return_values_control(Execute ptr, addr control);
 
 /* data */
 _g int stack_check_control(Execute ptr);
@@ -185,9 +159,6 @@ _g void pushblock_control(Execute ptr, addr pos);
 _g int existspecial_control(Execute ptr, addr pos);
 
 /* access */
-_g void set_return_control(addr control);
-_g void set_close_control(addr control);
-_g void set_push_control(addr control);
 _g void getdata_control(Execute ptr, addr *ret);
 _g void setdata_control(Execute ptr, addr value);
 

@@ -185,7 +185,7 @@ static int test_read_default_float_format(void)
 	ptr = Execute_Thread;
 	test(read_default_float_format(ptr) == 'f', "read_default_float_format1");
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	GetConstant(CONSTANT_SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
 	pushspecial_control(ptr, symbol, Nil);
 

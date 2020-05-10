@@ -271,6 +271,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\execute.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\execute_values.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_argv.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_control.c" />
@@ -537,6 +538,8 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_stack.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute_typedef.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute_values.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_control.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.h" />

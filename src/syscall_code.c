@@ -739,7 +739,7 @@ _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
 	LocalHold hold;
 
 	output_stream_designer(ptr, stream, &stream);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	hold = LocalHold_local_push(ptr, stream);
 	Return(write_default_print(ptr, stream, var));
 	localhold_end(hold);

@@ -798,7 +798,7 @@ static int test_getboolean(void)
 
 	ptr = Execute_Thread;
 	GetConst(SPECIAL_PRINT_ARRAY, &symbol);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushspecial_control(ptr, symbol, Nil);
 	test(! getboolean(ptr, CONSTANT_SPECIAL_PRINT_ARRAY), "getboolean1");
 	free_control(ptr, control);

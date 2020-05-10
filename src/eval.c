@@ -331,7 +331,7 @@ _g int eval_object(Execute ptr, addr eval, addr *ret)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_toplevel_eval(ptr, Nil);
 	push_evalwhen_eval(ptr);
 	gchold_push_local(ptr->local, eval);
@@ -369,7 +369,7 @@ static int eval_load_fasl(Execute ptr, int *ret, addr file, int exist)
 	}
 
 	/* fasl */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	setprotect_close_stream(ptr, stream);
 	Return(faslread_stream(ptr, stream));
 	Return(free_control_(ptr, control));
@@ -391,7 +391,7 @@ static int eval_load_lisp(Execute ptr, int *ret, addr file, int exist)
 	}
 
 	/* eval */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	setprotect_close_stream(ptr, stream);
 	Return(eval_stream(ptr, stream));
 	return Result(ret, 1);
@@ -479,7 +479,7 @@ _g int eval_load(Execute ptr, int *ret,
 {
 	addr control;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_prompt_info(ptr);
 	Return(eval_load_file(ptr, ret, file, verbose, print, exist, external));
 	return free_control_(ptr, control);
@@ -508,7 +508,7 @@ _g int compile_load(Execute ptr, addr file, addr verbose, addr print, addr exter
 {
 	addr control;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_prompt_info(ptr);
 	Return(compile_load_file(ptr, file, verbose, print, external));
 	return free_control_(ptr, control);

@@ -186,7 +186,7 @@ static int eval_debugger(Execute ptr, addr io, addr eval)
 {
 	addr control;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	Return(eval_execute(ptr, eval));
 	Return(eval_loop_output(ptr, io, control));
 	return free_control_(ptr, control);
@@ -288,7 +288,7 @@ static int invoke_standard_debugger(Execute ptr, addr condition)
 	}
 
 	/* debugger */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	return enter_debugger(ptr, condition);
 }
 
@@ -304,7 +304,7 @@ _g int invoke_debugger(Execute ptr, addr condition)
 	call = prior;
 	if (symbolp(call))
 		getfunctioncheck_local(ptr, call, &call);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushspecial_control(ptr, symbol, Nil);
 	Return(funcall_control(ptr, call, condition, prior, NULL));
 	Return(free_control_(ptr, control));

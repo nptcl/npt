@@ -3,6 +3,7 @@
 #include <string.h>
 #include "alloc.h"
 #include "build.h"
+#include "code_object.h"
 #include "define.h"
 #include "file_memory.h"
 #include "heap.h"
@@ -1480,6 +1481,16 @@ static int load_dump(struct filememory *fm)
 
 			case LISPSYSTEM_RESERVED:
 				IfDebug(load_reserved(fm, pos, &size), "load_reserved error.");
+				break;
+
+			case LISPTYPE_CODE:
+				IfDebug(load_object(fm, pos, &size), "load_object error.");
+				setpointer_code(pos);
+				break;
+
+			case LISPSYSTEM_CODE:
+				IfDebug(load_object(fm, pos, &size), "load_object error.");
+				setpointer_code_call(pos);
 				break;
 
 			default:

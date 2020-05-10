@@ -32,7 +32,7 @@ static int test_gettable_control(void)
 	rollback = ptr->control;
 	local = ptr->local;
 	push_local(local, &stack);
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 
 	setplist_constant_heap(Nil, CONSTANT_COMMON_FUNCTION, fixnum_heapr(10), &table);
 	SetControl(pos, Control_Table, table);
@@ -99,7 +99,7 @@ static int test_push_taginfo(void)
 	rollback = ptr->control;
 	local = ptr->local;
 	push_local(local, &stack);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	vector4_heap(&pos, 0);
 	code_heap(&pos, pos);
@@ -148,7 +148,7 @@ static int test_push_blockinfo(void)
 	rollback = ptr->control;
 	local = ptr->local;
 	push_local(local, &stack);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	vector4_heap(&pos, 0);
 	code_heap(&pos, pos);
@@ -194,7 +194,7 @@ static int test_pushlexical_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	internchar(LISP_PACKAGE, "HELLO", &pos);
 	fixnum_heap(&check, 10);
 	pushlexical_control(ptr, pos, check);
@@ -212,7 +212,7 @@ static int test_pushspecial_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	internchar(LISP_PACKAGE, "HELLO", &pos);
 	fixnum_heap(&check, 10);
 	pushspecial_control(ptr, pos, check);
@@ -230,7 +230,7 @@ static int test_pushtable_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	internchar(LISP_PACKAGE, "HELLO", &pos);
 	pushtable_control(ptr, CONSTANT_COMMON_KEYWORD, pos);
 	gettable_control(control, CONSTANT_COMMON_KEYWORD, &cons);
@@ -256,7 +256,7 @@ static int test_pushfunction_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	internchar(LISP_PACKAGE, "HELLO", &pos);
 	fixnum_heap(&check, 10);
 	pushfunction_control(ptr, pos, check);
@@ -274,7 +274,7 @@ static int test_pushsetf_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	internchar(LISP_PACKAGE, "HELLO", &pos);
 	fixnum_heap(&check, 10);
 	pushsetf_control(ptr, pos, check);
@@ -392,7 +392,7 @@ static int test_push_close_control(void)
 
 	ptr = Execute_Thread;
 	prev = ptr->control;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	test(GetType(pos) == LISPTYPE_CONTROL, "push_close_control1");
 	test(prev != pos, "push_close_control2");
 	str = StructControl(pos);
@@ -473,7 +473,7 @@ static int test_close_result_control(void)
 
 	ptr = Execute_Thread;
 	prev = ptr->control;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	local = ptr->local;
 
 	str = StructControl(pos);
@@ -515,8 +515,8 @@ static int test_copy_values_control(void)
 
 	ptr = Execute_Thread;
 	prev = ptr->control;
-	push_close_control(ptr, &next);
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &next);
+	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
 	fixnum_heap(&value1, 10);
@@ -602,8 +602,8 @@ static int test_close_return(void)
 
 	ptr = Execute_Thread;
 	prev = ptr->control;
-	push_close_control(ptr, &next);
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &next);
+	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
 	fixnum_heap(&value1, 10);
@@ -637,7 +637,7 @@ static int test_close_protect(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_protect_control(ptr, &value);
 
 	internchar(LISP_CODE, "SET", &set);
@@ -681,7 +681,7 @@ static int test_close_tagbody(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	setvalues_control(ptr, T, T, T, NULL);
 	push_tagbody_control(ptr, &pos);
 
@@ -720,7 +720,7 @@ static int test_close_block(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	setvalues_control(ptr, T, T, T, NULL);
 	push_block_control(ptr, &pos);
 	setvalues_control(ptr, fixnum_heapr(11), T, NULL);
@@ -761,7 +761,7 @@ static int test_close_type_control(void)
 	ptr = Execute_Thread;
 	prev = ptr->control;
 	push_return_control(ptr, &next);
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
 	fixnum_heap(&value1, 10);
@@ -801,14 +801,14 @@ static int test_close_lexical_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 
 	symbol_heap(&sym1);
 	symbol_heap(&sym2);
 	pushlexical_control(ptr, sym1, fixnumh(111));
 	pushlexical_control(ptr, sym2, fixnumh(222));
 
-	push_close_control(ptr, &next);
+	push_new_control(ptr, &next);
 	pushlexical_control(ptr, sym1, fixnumh(10));
 	pushlexical_control(ptr, sym1, fixnumh(20));
 	pushlexical_control(ptr, sym2, fixnumh(30));
@@ -836,14 +836,14 @@ static int test_close_special_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 
 	symbol_heap(&sym1);
 	symbol_heap(&sym2);
 	pushspecial_control(ptr, sym1, fixnumh(111));
 	pushspecial_control(ptr, sym2, fixnumh(222));
 
-	push_close_control(ptr, &next);
+	push_new_control(ptr, &next);
 	pushspecial_control(ptr, sym1, fixnumh(10));
 	pushspecial_control(ptr, sym1, fixnumh(20));
 	pushspecial_control(ptr, sym2, fixnumh(30));
@@ -871,14 +871,14 @@ static int test_close_function_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 
 	symbol_heap(&sym1);
 	symbol_heap(&sym2);
 	pushfunction_control(ptr, sym1, fixnumh(111));
 	pushfunction_control(ptr, sym2, fixnumh(222));
 
-	push_close_control(ptr, &next);
+	push_new_control(ptr, &next);
 	pushfunction_control(ptr, sym1, fixnumh(10));
 	pushfunction_control(ptr, sym1, fixnumh(20));
 	pushfunction_control(ptr, sym2, fixnumh(30));
@@ -906,14 +906,14 @@ static int test_close_setf_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 
 	symbol_heap(&sym1);
 	symbol_heap(&sym2);
 	pushsetf_control(ptr, sym1, fixnumh(111));
 	pushsetf_control(ptr, sym2, fixnumh(222));
 
-	push_close_control(ptr, &next);
+	push_new_control(ptr, &next);
 	pushsetf_control(ptr, sym1, fixnumh(10));
 	pushsetf_control(ptr, sym1, fixnumh(20));
 	pushsetf_control(ptr, sym2, fixnumh(30));
@@ -942,7 +942,7 @@ static int test_pop_control_common(void)
 
 	ptr = Execute_Thread;
 	prev = ptr->control;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	pop_control_common(ptr);
 	test(prev == ptr->control, "pop_control_common1");
 
@@ -955,10 +955,10 @@ static int test_pop_control_unsafe(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &base);
+	push_new_control(ptr, &base);
 
 	setargs_nil_control(ptr);
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	setresult_control(ptr, T);
 	pop_control_unsafe(ptr);
 	getargs_list_control_unsafe(ptr, 0, &pos);
@@ -1001,11 +1001,11 @@ static int test_free_control(void)
 
 	ptr = Execute_Thread;
 	prev = ptr->control;
-	push_close_control(ptr, &pos);
-	push_close_control(ptr, &check);
-	push_close_control(ptr, &check);
-	push_close_control(ptr, &check);
-	push_close_control(ptr, &check);
+	push_new_control(ptr, &pos);
+	push_new_control(ptr, &check);
+	push_new_control(ptr, &check);
+	push_new_control(ptr, &check);
+	push_new_control(ptr, &check);
 	push_return_control(ptr, &check);
 	push_return_control(ptr, &check);
 	push_return_control(ptr, &check);
@@ -1027,7 +1027,7 @@ static int test_getdata_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	SetControl(pos, Control_Data, T);
 	getdata_control(ptr, &check);
 	test(check == T, "getdata_control1");
@@ -1045,7 +1045,7 @@ static int test_array_data_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	array_data_control(ptr, 10);
 	getdata_control(ptr, &array);
 	test(GetType(array) == LISPTYPE_VECTOR, "array_data_control1");
@@ -1068,7 +1068,7 @@ static int test_setargs_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	setargs_control(ptr, fixnum_heapr(10));
 	GetControl(pos, Control_Cons, &check);
 	test(length_list_unsafe(check) == 1, "setargs_control1");
@@ -1092,7 +1092,7 @@ static int test_setargs_va_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	setargs_control(ptr, fixnum_heapr(10));
 	setargs_va_control(ptr, fixnum_heapr(10), fixnum_heapr(20), NULL);
 	GetControl(pos, Control_Cons, &cons);
@@ -1113,7 +1113,7 @@ static int test_setargs_nil_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	SetControl(pos, Control_Cons, Unbound);
 	SetControl(pos, Control_ConsTail, Unbound);
 
@@ -1134,7 +1134,7 @@ static int test_setargs_list_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	setargs_control(ptr, fixnum_heapr(10));
 	list_heap(&cons, fixnum_heapr(20), fixnum_heapr(30), NULL);
 	setargs_list_control(ptr, cons);
@@ -1157,7 +1157,7 @@ static int test_setargs_list_control_unsafe(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	setargs_control(ptr, fixnum_heapr(10));
 	list_heap(&check, fixnum_heapr(20), fixnum_heapr(30), NULL);
 	setargs_list_control_unsafe(ptr, check);
@@ -1183,7 +1183,7 @@ static int test_pushargs_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	setargs_nil_control(ptr);
 	pushargs_control(ptr, fixnum_heapr(10));
 	GetControl(pos, Control_Cons, &check);
@@ -1222,7 +1222,7 @@ static int test_pushargs_list_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	setargs_control(ptr, fixnum_heapr(10));
 	list_heap(&cons, fixnum_heapr(20), fixnum_heapr(30), NULL);
 	pushargs_list_control(ptr, cons);
@@ -1247,7 +1247,7 @@ static int test_getargs_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	getargs_control(ptr, 0, &check);
 	test(check == Unbound, "getargs_control1");
 	setargs_va_control(ptr, fixnum_heapr(10), fixnum_heapr(20), NULL);
@@ -1271,7 +1271,7 @@ static int test_getargs_list_control_unsafe(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	setargs_va_control(ptr,
 			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
 	getargs_list_control_unsafe(ptr, 0, &check);
@@ -1302,7 +1302,7 @@ static int test_getargs_list_control_heap(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	setargs_va_control(ptr,
 			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
 	getargs_list_control_heap(ptr, 0, &check);
@@ -1336,7 +1336,7 @@ static int test_pushvalues_dynamic(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
 	SetControl(pos, Control_Result, Nil);
@@ -1365,7 +1365,7 @@ static int test_pushvalues_unsafe(void)
 	struct control_struct *str;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
 	SetControl(pos, Control_Result, Unbound);
@@ -1458,7 +1458,7 @@ static int test_setresult_control(void)
 	struct control_struct *str;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
 	setresult_control(ptr, fixnum_heapr(10));
@@ -1479,7 +1479,7 @@ static int test_setvalues_control(void)
 	struct control_struct *str;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
 	setresult_control(ptr, fixnum_heapr(10));
@@ -1502,7 +1502,7 @@ static int test_setvalues_nil_control(void)
 	struct control_struct *str;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
 	setresult_control(ptr, fixnum_heapr(10));
@@ -1524,7 +1524,7 @@ static int test_setvalues_list_control(void)
 	struct control_struct *str;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
 	setresult_control(ptr, fixnum_heapr(10));
@@ -1547,7 +1547,7 @@ static int test_getresult_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 
 	setvalues_nil_control(ptr);
 	getresult_control(ptr, &check);
@@ -1573,7 +1573,7 @@ static int test_getvalues_control(void)
 	size_t i, size;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 
 	setvalues_nil_control(ptr);
 	getvalues_control(ptr, 0, &check);
@@ -1625,7 +1625,7 @@ static int test_list_from_vector(void)
 	size_t i;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 
 	setvalues_nil_control(ptr);
 	for (i = 0; i < ControlSize_Result; i++)
@@ -1695,7 +1695,7 @@ static int test_getvalues_list_control(void)
 	size_t size;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 
 	setvalues_nil_control(ptr);
 	getvalues_list_control(ptr, NULL, &cons);
@@ -1733,7 +1733,7 @@ static int test_lengthvalues_control(void)
 	size_t size;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &pos);
+	push_new_control(ptr, &pos);
 
 	size = ControlSize_Result * 2;
 	init_getvalues_list_control(ptr, size);
@@ -1781,7 +1781,7 @@ static int test_runcode_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	test_make_code(&pos);
 	setargs_nil_control(ptr);
@@ -1809,7 +1809,7 @@ static int test_execute_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	/* compiled */
 	compiled_heap(&call, Nil);
@@ -1841,7 +1841,7 @@ static int test_apply_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	test_make_code(&call);
 	function_heap(&call, Nil, call);
@@ -1880,7 +1880,7 @@ static int test_stdarg_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	test_make_code(&call);
 	function_heap(&call, Nil, call);
@@ -1903,7 +1903,7 @@ static int test_funcall_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	test_make_code(&call);
 	function_heap(&call, Nil, call);
@@ -1929,7 +1929,7 @@ static int test_call_control(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	test_make_code(&call);
 	function_heap(&call, Nil, call);
@@ -1961,7 +1961,7 @@ static int test_execute_goto(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	/*
 	 *    0: goto 3
@@ -2005,7 +2005,7 @@ static int test_execute_if(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	/*
 	 *  (if nil 11 22) -> 22
@@ -2097,7 +2097,7 @@ static int test_execute_go(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	/*
 	 *  tag: (hello . 3)
@@ -2280,7 +2280,7 @@ static int test_execute_return_from(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 
 	/*
 	 *  block hello

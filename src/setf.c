@@ -230,7 +230,7 @@ static int setf_expander(Execute ptr, addr call, addr form, addr env,
 
 	/* push */
 	hold = LocalHold_array(ptr, 5);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* code */
 	Return(funcall_control(ptr, call, form, env, NULL));
 	getvalues_nil_control(ptr, 0, vars);

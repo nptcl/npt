@@ -461,7 +461,7 @@ static int qualifiers_equal_symbol_(Execute ptr, addr left, addr right, int *ret
 {
 	addr control, call;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	conscar_local(ptr->local, &left, left);
 	getfunctioncheck_local(ptr, right, &call);
 	Return(apply_control(ptr, call, left));
@@ -1254,7 +1254,7 @@ _g int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 	/* execute */
 	stdget_longcomb_form(comb, &pos);
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	Return(funcall_control(ptr, pos, gen, comb, data, NULL));
 	getresult_control(ptr, &pos);
 	localhold_set(hold, 0, pos);
@@ -1266,7 +1266,7 @@ _g int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 	comb_longform_macrolet(&pos, args, gen, pos);
 
 	/* eval */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	Return(eval_execute(ptr, pos));
 	getresult_control(ptr, ret);
 	localhold_set(hold, 0, pos);
@@ -1359,7 +1359,7 @@ _g int comb_shortform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 
 	/* eval */
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	Return(eval_execute(ptr, pos));
 	getresult_control(ptr, ret);
 	localhold_set(hold, 0, *ret);

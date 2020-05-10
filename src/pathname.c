@@ -2706,7 +2706,7 @@ static int set_logical_pathname_translations_intern(Execute ptr,
 	addr control, symbol, call, cons;
 
 	/* push */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* handler-case */
 	GetConst(COMMON_ERROR, &symbol);
 	compiled_local(ptr->local, &call, Nil);

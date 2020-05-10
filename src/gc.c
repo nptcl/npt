@@ -3,6 +3,8 @@
  */
 #include "constant.h"
 #include "control_object.h"
+#include "execute.h"
+#include "execute_values.h"
 #include "heap.h"
 #include "info.h"
 #include "gc.h"
@@ -61,6 +63,7 @@ static void resetrecursive(addr pos)
 	addr array;
 
 	if (pos == Unbound) return;
+	Check(pos == NULL, "null error");
 	Check(pos[0] == 0xAA, "memory 0xAA error");
 	Check(! IsObject(pos), "type error");
 	if (! GetStatusGc(pos)) return;
@@ -420,6 +423,7 @@ _g void gcexec(void)
 
 _g void gcsync(Execute ptr)
 {
+	clear_values_execute(ptr);
 	gcstart_execute(ptr);
 	if (ptr->index == 0) {
 		gcexec();

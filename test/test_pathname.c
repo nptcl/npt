@@ -209,7 +209,7 @@ static int test_pushrange_local(void)
 	const unicode *body;
 	Execute ptr = Execute_Thread;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	strvect_char_heap(&thing, "abcHello1234567890");
 	charqueue_heap(&queue, 0);
 	GetStringUnicode(thing, &body);
@@ -306,7 +306,7 @@ static int test_check_logical(void)
 	LocalRoot local;
 
 	local = ptr->local;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	strvect_char_heap(&name, "hello");
 	sethost_pathname(name, T);
 	charqueue_local(local, &queue, 0);
@@ -437,7 +437,7 @@ static void parser_replace(struct fileparse *pa,
 	LocalRoot local;
 
 	local = pa->local;
-	push_close_control(pa->ptr, &control);
+	push_new_control(pa->ptr, &control);
 	string_length(pa->thing, &size);
 	charqueue_local(local, &queue, 0);
 	for (i = 0; i < size; i++) {

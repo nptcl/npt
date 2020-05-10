@@ -378,7 +378,7 @@ _g int read_stream(Execute ptr, addr stream, int *result, addr *ret)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo(ptr, &info);
 	Return(read_call(ptr, stream, result, ret));
 	if (*result == 0)
@@ -395,7 +395,7 @@ _g int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo(ptr, &info);
 	ReadInfoStruct(info)->preserving = 1;
 	Return(read_call(ptr, stream, result, ret));
@@ -413,7 +413,7 @@ _g int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo_recursive(ptr, &info);
 	Return(read_call(ptr, stream, result, ret));
 	if (*result == 0)

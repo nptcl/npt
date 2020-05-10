@@ -275,6 +275,8 @@
     "c99.h"
     "local.h"
     "localtime.h"
+    "execute_typedef.h"
+    "execute_values.h"
     "execute.h"
     ("file_type.h" :header t)
     "info.h"
@@ -668,6 +670,7 @@
     "optimize_common.c"
     "optimize_parse.c"
     "execute.c"
+    "execute_values.c"
     "fasl.c"
     ("file_memory.c" :include
      ("file_ansi.h" "file_posix.h" "file_windows.h"))

@@ -314,15 +314,14 @@ static int optimize_common_cons0(LocalRoot local, addr code, addr car, addr cdr)
 	getvalue_tablecall(car, &car);
 	getvalue_tablecall(cdr, &cdr);
 	/* return begin */
-	evalcode_push_return(local, code);
+	evalcode_push_new(local, code);
 	eval_code_execute_push(local, code, car);
 	eval_code_execute_push(local, code, cdr);
 	/* cons */
 	EvalCode_single(local, code, CONS);
 	/* return end */
 	evalcode_pop(local, code, &pos);
-	EvalCode_carcdr(local, code, EXECUTE, pos);
-	evalcode_ifpush(local, code);
+	eval_code_execute_normal(local, code, pos);
 
 	return 1;
 }

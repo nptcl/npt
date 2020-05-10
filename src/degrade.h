@@ -65,7 +65,7 @@ void degrade_output_null(Execute ptr);
 	addr __control; \
 	begin_switch(__ptr, &__jump); \
 	if (codejump_run_p(&__jump)) { \
-		push_close_control(__ptr, &__control); \
+		push_new_control(__ptr, &__control); \
 		degrade_output_null(__ptr); \
 		exec; \
 		if (free_control_(__ptr, __control)) { \

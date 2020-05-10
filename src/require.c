@@ -42,7 +42,7 @@ static int require_function_common(Execute ptr, addr var, int *ret)
 	while (list != Nil) {
 		getcons(list, &call, &list);
 		/* funcall */
-		push_close_control(ptr, &control);
+		push_new_control(ptr, &control);
 		Return(funcall_control(ptr, call, var, NULL));
 		getresult_control(ptr, &call);
 		check = (call == Nil)? 0: 1;

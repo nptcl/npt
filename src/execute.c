@@ -5,6 +5,7 @@
 #include "define.h"
 #include "execute.h"
 #include "local.h"
+#include "memory.h"
 #include "thread.h"
 
 #ifdef LISP_DEBUG
@@ -121,6 +122,48 @@ static void freebuffer(struct execute **ptr)
 	}
 }
 
+static void execute_values_alloc(LocalRoot local, addr *ret, size_t size)
+{
+	local_array2(local, ret, LISPSYSTEM_VALUES, size);
+}
+#define PtrExecuteValues(x)		((addr *)PtrArrayA2(x))
+
+static void init_execute_values(struct execute *bit)
+{
+	int i;
+	addr pos, *values;
+
+	execute_values_alloc(bit->local, &pos, EXECUTE_VALUES + 1);
+	values = PtrExecuteValues(pos);
+	for (i = 0; i < EXECUTE_VALUES + 1; i++)
+		values[i] = Unbound;
+	bit->values = values;
+	bit->values_list = values + EXECUTE_VALUES;
+	bit->sizer = 0;
+}
+
+_g void save_values_control(struct execute *ptr, addr *ret, size_t *rsize)
+{
+	addr pos;
+	size_t size;
+
+	size = ptr->sizer;
+	if (EXECUTE_VALUES + 1 < size)
+		size = EXECUTE_VALUES + 1;
+	execute_values_alloc(ptr->local, &pos, size);
+	memcpy(PtrExecuteValues(pos), ptr->values, sizeoft(addr) * size);
+	*ret = pos;
+	*rsize = size;
+}
+
+_g void restore_values_control(struct execute *ptr, addr pos, size_t size)
+{
+	if (EXECUTE_VALUES + 1 < size)
+		size = EXECUTE_VALUES + 1;
+	memcpy(ptr->values, PtrExecuteValues(pos), sizeoft(addr) * size);
+	ptr->sizer = size;
+}
+
 static int init_mainthread(struct execute **ptr, size_t size)
 {
 	struct execute *bit;
@@ -153,6 +196,9 @@ static int init_mainthread(struct execute **ptr, size_t size)
 	bit->exec = exec;
 	bit->local = local;
 	bit->control = Unbound;
+
+	/* values */
+	init_execute_values(bit);
 
 	/* threadlocal */
 	set_execute_local(bit);

@@ -159,7 +159,7 @@ _g int compile_file_common(Execute ptr, addr input, addr rest,
 	compile_file_pathname_common(ptr, input, rest, &output);
 	/* push control */
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	handler_compile(ptr);
 	Return(compile_file_execute(ptr, input, output, rest, ret1));
 	localhold_set(hold, 0, *ret1);
@@ -326,7 +326,7 @@ _g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr cal
 		return funcall_control(ptr, call, NULL);
 
 	/* unwind-protect */
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	GetConst(SYSTEM_DELAY_WARNING_LIST, &pos);
 	pushspecial_control(ptr, pos, Nil);
 	GetConst(SYSTEM_DELAY_WARNING_SWITCH, &pos);
@@ -334,13 +334,12 @@ _g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr cal
 	setprotect_control(ptr, p_defun_finalize_delay_warning, Nil);
 
 	/* push control */
-	push_return_control(ptr, &restart);
+	push_new_control(ptr, &restart);
 	handler_delay_warning(ptr);
 
 	/* funcall */
 	Return(funcall_control(ptr, call, NULL));
 	Return(free_control_(ptr, restart));
-	return_values_control(ptr, control);
 	return free_control_(ptr, control);
 }
 

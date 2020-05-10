@@ -64,7 +64,7 @@ static int pprint_logical_block_type(Execute ptr, pointer type)
 	getdata_control(ptr, &stream);
 	Check(! pretty_stream_p(stream), "type error");
 	/* unwind-protect */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
 	gensym_pretty_stream(stream, &gensym);
@@ -191,7 +191,7 @@ static int pprint_logical_block_tabular(Execute ptr)
 	GetCar(cons, &stream);
 	Check(! pretty_stream_p(stream), "type error");
 	/* unwind-protect */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
 	gensym_pretty_stream(stream, &gensym);
@@ -279,7 +279,7 @@ static int pprint_dispatch_vector1(Execute ptr)
 	GetCar(cons, &stream);
 	Check(! pretty_stream_p(stream), "type error");
 	/* unwind-protect */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
 	gensym_pretty_stream(stream, &gensym);

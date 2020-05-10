@@ -124,7 +124,7 @@ _g int warning_restart_case(Execute ptr, addr instance)
 {
 	addr control, restart;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	warning_restart_make(&restart);
 	Return(restart1_control(ptr, restart, signal_function_, instance));
 	return free_control_(ptr, control);

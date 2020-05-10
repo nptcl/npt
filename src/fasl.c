@@ -211,7 +211,7 @@ static int faslread_control(Execute ptr, addr input)
 	addr pos, control;
 
 	/* push */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* code */
 	result = faslread_operator(ptr, input, &pos);
 	if (result) {

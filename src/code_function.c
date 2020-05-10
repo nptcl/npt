@@ -62,19 +62,56 @@ static int print_code(Execute ptr, addr right)
 	return 0;
 }
 
-static int execute_code(Execute ptr, addr right)
+static int execute_simple_set_code(Execute ptr, addr pos)
 {
-	return runcode_control(ptr, right);
+	return runcode_simple(ptr, pos);
 }
 
-static int execute_normal_code(Execute ptr, addr right)
+static int execute_normal_set_code(Execute ptr, addr pos)
 {
-	return runcode_normal(ptr, right);
+	return runcode_normal(ptr, pos);
 }
 
-static int execute_switch_code(Execute ptr, addr right)
+static int execute_control_set_code(Execute ptr, addr pos)
 {
-	return runcode_switch(ptr, right);
+	return runcode_control(ptr, pos);
+}
+
+static int execute_switch_set_code(Execute ptr, addr pos)
+{
+	return runcode_switch(ptr, pos);
+}
+
+static int execute_simple_push_code(Execute ptr, addr pos)
+{
+	Return(runcode_simple(ptr, pos));
+	getresult_control(ptr, &pos);
+	pushargs_control(ptr, pos);
+	return 0;
+}
+
+static int execute_normal_push_code(Execute ptr, addr pos)
+{
+	Return(runcode_normal(ptr, pos));
+	getresult_control(ptr, &pos);
+	pushargs_control(ptr, pos);
+	return 0;
+}
+
+static int execute_control_push_code(Execute ptr, addr pos)
+{
+	Return(runcode_control(ptr, pos));
+	getresult_control(ptr, &pos);
+	pushargs_control(ptr, pos);
+	return 0;
+}
+
+static int execute_switch_push_code(Execute ptr, addr pos)
+{
+	Return(runcode_switch(ptr, pos));
+	getresult_control(ptr, &pos);
+	pushargs_control(ptr, pos);
+	return 0;
 }
 
 
@@ -671,7 +708,7 @@ static int bind_initialize_(Execute ptr, addr var, addr init)
 
 	/* push */
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* code */
 	Return(runcode_control(ptr, init));
 	getresult_control(ptr, &init);
@@ -1249,6 +1286,31 @@ static int multiple_value_bind_code(Execute ptr, addr right)
 	return 0;
 }
 
+static int prog1_set_code(Execute ptr, addr list)
+{
+	addr protect, cleanup, control, values;
+	size_t size;
+
+	GetCons(list, &protect, &list);
+	GetCar(list, &cleanup);
+	push_new_control(ptr, &control);
+	Return(runcode_simple(ptr, protect));
+	save_values_control(ptr, &values, &size);
+	Return(runcode_simple(ptr, cleanup));
+	restore_values_control(ptr, values, size);
+
+	return free_control_(ptr, control);
+}
+
+static int prog1_push_code(Execute ptr, addr list)
+{
+	Return(prog1_set_code(ptr, list));
+	getresult_control(ptr, &list);
+	pushargs_control(ptr, list);
+
+	return 0;
+}
+
 static int funcall_code(Execute ptr, addr right)
 {
 	getargs_list_control_unsafe(ptr, 0, &right);
@@ -1350,9 +1412,14 @@ _g void init_code_function(void)
 	initcode(error);
 	initcode(info);
 	initcode(print);
-	initcode(execute);
-	initcode(execute_normal);
-	initcode(execute_switch);
+	initcode(execute_simple_set);
+	initcode(execute_normal_set);
+	initcode(execute_control_set);
+	initcode(execute_switch_set);
+	initcode(execute_simple_push);
+	initcode(execute_normal_push);
+	initcode(execute_control_push);
+	initcode(execute_switch_push);
 
 	/* object */
 	initcode(set);
@@ -1458,6 +1525,8 @@ _g void init_code_function(void)
 	initcode(restart_case);
 
 	initcode(multiple_value_bind);
+	initcode(prog1_set);
+	initcode(prog1_push);
 	initcode(funcall);
 	initcode(nth_value);
 	initcode(progv);
@@ -1476,9 +1545,14 @@ _g void build_code_function(void)
 	defcode(ERROR, error_code);
 	defcode(INFO, info_code);
 	defcode(PRINT, print_code);
-	defcode(EXECUTE, execute_code);
-	defcode(EXECUTE_NORMAL, execute_normal_code);
-	defcode(EXECUTE_SWITCH, execute_switch_code);
+	defcode(EXECUTE_SIMPLE_SET, execute_simple_set_code);
+	defcode(EXECUTE_NORMAL_SET, execute_normal_set_code);
+	defcode(EXECUTE_CONTROL_SET, execute_control_set_code);
+	defcode(EXECUTE_SWITCH_SET, execute_switch_set_code);
+	defcode(EXECUTE_SIMPLE_PUSH, execute_simple_push_code);
+	defcode(EXECUTE_NORMAL_PUSH, execute_normal_push_code);
+	defcode(EXECUTE_CONTROL_PUSH, execute_control_push_code);
+	defcode(EXECUTE_SWITCH_PUSH, execute_switch_push_code);
 
 	/* object */
 	defcode(SET, set_code);
@@ -1584,6 +1658,8 @@ _g void build_code_function(void)
 	defcode(RESTART_CASE, restart_case_code);
 
 	defcode(MULTIPLE_VALUE_BIND, multiple_value_bind_code);
+	defcode(PROG1_SET, prog1_set_code);
+	defcode(PROG1_PUSH, prog1_push_code);
 	defcode(FUNCALL, funcall_code);
 	defcode(NTH_VALUE, nth_value_code);
 	defcode(PROGV, progv_code);

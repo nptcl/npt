@@ -138,7 +138,7 @@ static int eval_loop_stream(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 	eval_loop_minus(ptr, pos);
@@ -224,7 +224,7 @@ static int eval_loop_restart(Execute ptr, addr stream,
 	addr control, restart;
 	struct eval_loop_struct str;
 
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	str.stream = stream;
 	str.call = call;
 	str.ret = ret;
@@ -281,7 +281,7 @@ static int evalcall_string_result_(Execute ptr, addr eval)
 {
 	addr stream, control;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 
@@ -296,7 +296,7 @@ _g int eval_main_string_(Execute ptr, addr eval)
 {
 	addr control, restart;
 
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	eval_main_restart_abort(&restart);
 	Return(restart1_control(ptr, restart, evalcall_string_result_, eval));
 
@@ -326,7 +326,7 @@ _g int eval_main_load_(Execute ptr, addr file, int exists, int *ret)
 	addr control, restart;
 	struct eval_main_load_struct str;
 
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	str.file = file;
 	str.exists = exists;
 	str.ret = ret? ret: &check;

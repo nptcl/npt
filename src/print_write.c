@@ -1957,7 +1957,7 @@ static int WriteBody_random_state(Execute ptr, addr stream, addr pos)
 	addr control;
 	int WriteCall_bignum(Execute, addr, addr);
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_escape_print(ptr, 0);
 	push_readably_print(ptr, 0);
 	push_radix_print(ptr, 1);
@@ -2271,7 +2271,7 @@ _g int princ_print(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_escape_print(ptr, 0);
 	push_readably_print(ptr, 0);
 	Return(write_print(ptr, stream, pos));
@@ -2283,7 +2283,7 @@ _g int prin1_print(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_escape_print(ptr, 1);
 	Return(write_print(ptr, stream, pos));
 
@@ -2303,7 +2303,7 @@ _g int pprint_print(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	push_escape_print(ptr, 1);
 	push_pretty_print(ptr, 1);
 	terpri_stream(stream);
@@ -2316,7 +2316,7 @@ _g int write_string_heap(Execute ptr, addr *ret, addr pos)
 {
 	addr control, stream;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	open_output_string_stream(&stream, 0);
 	Return(write_print(ptr, stream, pos));
 	string_stream_heap(stream, ret);
@@ -2329,7 +2329,7 @@ _g int write_string_local(Execute ptr, addr *ret, addr pos)
 {
 	addr control, stream;
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	open_output_string_stream(&stream, 0);
 	Return(write_print(ptr, stream, pos));
 	string_stream_local(ptr->local, stream, ret);

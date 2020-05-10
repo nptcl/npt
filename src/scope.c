@@ -10,7 +10,7 @@ _g int eval_scope(Execute ptr, addr *ret, addr eval)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 	free_eval_stack(ptr);
 	Return(scope_eval(ptr, ret, eval));

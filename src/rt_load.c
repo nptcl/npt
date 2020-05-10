@@ -100,7 +100,7 @@ static int loadrt_execute(Execute ptr, const char *name)
 	codejump jump;
 
 	begin_switch(ptr, &jump);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	if (codejump_run_p(&jump)) {
 		handler_warning(ptr);
 		loadrt_disable_debugger(ptr);

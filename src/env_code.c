@@ -42,7 +42,7 @@ static int disassemble_code_operator(Execute ptr, addr stream, addr car, addr cd
 	addr symbol;
 
 	/* execute */
-	GetConst(CODE_EXECUTE, &symbol);
+	GetConst(CODE_EXECUTE_CONTROL_SET, &symbol);
 	if (car == symbol)
 		return disassemble_symbol_execute(ptr, stream, car, cdr);
 
@@ -70,11 +70,7 @@ static int disassemble_code_type(Execute ptr, addr stream, addr pos)
 	str = StructCode(pos);
 	if (str->p_control)
 		Fmt1(" control");
-	if (str->p_return)
-		Fmt1(" return");
-	if (str->p_push)
-		Fmt1(" push");
-	if (str->p_argument)
+	if (str->p_args)
 		Fmt1(" argument");
 	terpri_stream(stream);
 
@@ -231,6 +227,10 @@ _g void untrace_common(addr form, addr env, addr *ret)
 	list_heap(ret, del, list, NULL);
 }
 
+
+/*
+ *  trace-add
+ */
 static void defun_trace_function_index(Execute ptr, addr *ret)
 {
 	addr symbol, pos;
@@ -247,7 +247,8 @@ static void defun_trace_function_index(Execute ptr, addr *ret)
 
 static int defun_trace_function(Execute ptr, addr rest)
 {
-	addr list, name, pos, index, stream;
+	addr list, name, pos, index, stream, values;
+	size_t size;
 
 	/* index */
 	getdata_control(ptr, &list);
@@ -259,9 +260,11 @@ static int defun_trace_function(Execute ptr, addr rest)
 	Return(format_stream(ptr, stream, "~&~A: ~S~%", index, list, NULL));
 	/* call */
 	apply_control(ptr, pos, rest);
+	save_values_control(ptr, &values, &size);
 	/* end */
 	getvalues_list_control_heap(ptr, &list);
 	Return(format_stream(ptr, stream, "~&~A: Result => ~S~%", index, list, NULL));
+	restore_values_control(ptr, values, size);
 
 	return 0;
 }
@@ -333,6 +336,10 @@ _g void trace_add_common(Execute ptr, addr list, addr *ret)
 	nreverse_list_unsafe(ret, root);
 }
 
+
+/*
+ *  trace-del
+ */
 static void trace_del_object(Execute ptr, addr trace, addr *ret)
 {
 	GetDataFunction(trace, &trace);

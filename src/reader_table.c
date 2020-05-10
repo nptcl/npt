@@ -344,7 +344,7 @@ static int macro_character_call(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	Return(funcall_control(ptr, call, stream, code, NULL));
 	if (lengthvalues_control(ptr) == 0) {
 		*result = 0;

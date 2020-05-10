@@ -424,7 +424,7 @@ static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
 		fmte("The deftest ~S is not exist.", name, NULL);
 	GetCons(expr, &expr, &values);
 
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
 		check = do_test_equal(ptr, expr, values, &result);

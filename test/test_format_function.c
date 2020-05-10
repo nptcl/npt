@@ -1145,7 +1145,7 @@ static int test_format_call_Exponent(void)
 	test(string_equal_char(pos, "-2.5E-1"), "format_call_Exponent17");
 
 	/* marker */
-	push_close_control(ptr, &value);
+	push_new_control(ptr, &value);
 	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
 	GetConst(COMMON_DOUBLE_FLOAT, &pos);
 	pushspecial_control(ptr, symbol, pos);
@@ -1308,7 +1308,7 @@ static int test_format_call_General(void)
 	test(string_equal_char(pos, "9.0E-02"), "format_call_General21");
 
 	/* marker */
-	push_close_control(ptr, &value);
+	push_new_control(ptr, &value);
 	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
 	GetConst(COMMON_DOUBLE_FLOAT, &pos);
 	pushspecial_control(ptr, symbol, pos);

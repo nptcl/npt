@@ -179,7 +179,7 @@ static int symbol_restart_control(Execute ptr, addr symbol, pointer call)
 	addr control;
 	struct symbol_restart_struct str;
 
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	str.symbol = symbol;
 	str.call = call;
 	Return(restart_control(ptr, symbol_restart_code, (void *)&str));
@@ -193,7 +193,7 @@ static int symbol_restart_call(Execute ptr, addr symbol, pointer call, addr *ret
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	Return(symbol_restart_control(ptr, symbol, call));
 	getresult_control(ptr, &value);
 	localhold_set(hold, 0, value);
@@ -297,7 +297,7 @@ static int function_restart_control(Execute ptr, addr name)
 {
 	addr restart, control;
 
-	push_return_control(ptr, &control);
+	push_new_control(ptr, &control);
 	function_use_restart(&restart);
 	Return(restart1_control(ptr, restart, function_restart_code, name));
 
@@ -310,7 +310,7 @@ static int function_restart_call(Execute ptr, addr name, addr *ret)
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	Return(function_restart_control(ptr, name));
 	getresult_control(ptr, &value);
 	localhold_set(hold, 0, value);

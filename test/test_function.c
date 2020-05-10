@@ -334,7 +334,7 @@ static int test_refcallname_local(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	reinternchar("HELLO", &symbol);
 
 	pos = refcallname_local(ptr, symbol);
@@ -370,7 +370,7 @@ static int test_refcallnamecheck_local(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	reinternchar("HELLO", &symbol);
 
 	fixnum_heap(&call1, 10);
@@ -403,7 +403,7 @@ static int test_refcallname_global(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	reinternchar("HELLO", &symbol);
 
 	pos = refcallname_global(symbol);
@@ -442,7 +442,7 @@ static int test_refcallnamecheck_global(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	reinternchar("HELLO", &symbol);
 
 	fixnum_heap(&call1, 10);

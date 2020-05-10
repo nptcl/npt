@@ -2531,7 +2531,7 @@ static addr readr_clos(const char *str)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	GetConst(PACKAGE_CLOS, &value);
 	pushspecial_control(ptr, symbol, value);

@@ -996,9 +996,7 @@ static void infoprint_code(addr pos)
 	str = StructCode(pos);
 	info_stdarg("#<code.");
 	info_stdarg(str->p_control?  "C": "c");
-	info_stdarg(str->p_return?   "R": "r");
-	info_stdarg(str->p_push?     "P": "p");
-	info_stdarg(str->p_argument? "A": "a");
+	info_stdarg(str->p_args? "A": "a");
 	info_stdarg(">");
 }
 

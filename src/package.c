@@ -2688,7 +2688,7 @@ static int defpackage_make(Execute ptr, addr pos, addr rest)
 	addr control, symbol, call;
 
 	/* push */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	/* handler-case */
 	GetConst(COMMON_ERROR, &symbol);
 	compiled_local(ptr->local, &call, Nil);

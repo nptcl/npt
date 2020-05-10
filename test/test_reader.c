@@ -105,7 +105,7 @@ static int test_getreadinfo(void)
 
 	ptr = Execute_Thread;
 	local = ptr->local;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	readinfo_symbol(&symbol);
 	readinfo_local(local, &value);
 	pushspecial_control(ptr, symbol, value);
@@ -122,7 +122,7 @@ static int test_pushreadinfo(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 	test(GetType(pos) == LISPSYSTEM_READINFO, "pushreadinfo1");
 	getreadinfo(ptr, &check);
@@ -139,7 +139,7 @@ static int test_pushreadinfo_recursive(void)
 	struct readinfo_struct *str;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 	str = ReadInfoStruct(pos);
 	str->preserving = 1;
@@ -166,7 +166,7 @@ static int test_getpackage_readinfo(void)
 	struct readinfo_struct *str;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 	fixnum_heap(&value, 10);
 	SetReadInfo(pos, ReadInfo_Package, value);
@@ -209,7 +209,7 @@ static int test_clear_readinfo(void)
 	struct readinfo_struct *str;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 	setpackage_readinfo(ptr, T);
 	getqueue_readinfo(ptr, &check);
@@ -1866,7 +1866,7 @@ static unsigned getreadbasecheck(fixnum value)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	result = 999;
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
@@ -2092,7 +2092,7 @@ static int test_maketoken(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 
 	/* symbol */
@@ -2162,7 +2162,7 @@ static int test_tokenmode_readtable(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 
 	setescape_readinfo(ptr, 1);
@@ -2187,7 +2187,7 @@ static int test_setpackage_readtable(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	pushreadinfo(ptr, &pos);
 
 	setescape_readinfo(ptr, 1);
@@ -2676,7 +2676,7 @@ static int test_plus_dispatch(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	list_heap(&list, readr(":aaa"), readr(":bbb"), readr(":ccc"), NULL);
 	GetConst(SPECIAL_FEATURES, &symbol);
 	pushspecial_control(ptr, symbol, list);

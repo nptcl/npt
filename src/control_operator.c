@@ -113,213 +113,27 @@ _g void getargs_list_control_heap(Execute ptr, size_t index, addr *ret)
 	copy_list_heap_unsafe(ret, cons);
 }
 
-
-/*
- *  values
- */
-static void pushvalues_dynamic(addr root, struct control_struct *str, addr value)
-{
-	addr cons;
-
-	GetControl(root, Control_Result, &cons);
-	if (GetStatusDynamic(value)) {
-		str->p_dynamic = 1;
-		conscdr_heap(&cons, cons);
-		SetCar_force(cons, value);
-	}
-	else {
-		cons_heap(&cons, value, cons);
-	}
-	SetControl(root, Control_Result, cons);
-}
-
-static void pushvalues_unsafe(Execute ptr, addr value)
-{
-	addr root;
-	struct control_struct *str;
-	size_t size;
-
-	root = ptr->control;
-	Check(root == Nil, "control error");
-	str = StructControl(root);
-	size = str->sizer;
-	if (size < ControlSize_Result)
-		SetResultControl(root, size, value);
-	else
-		pushvalues_dynamic(root, str, value);
-	str->sizer++;
-}
-
-static void nreverse_values_unsafe(Execute ptr)
-{
-	addr list;
-
-	GetControl(ptr->control, Control_Result, &list);
-	nreverse_list_unsafe(&list, list);
-	SetControl(ptr->control, Control_Result, list);
-}
-
-_g void setresult_control(Execute ptr, addr value)
-{
-	setvalues_nil_control(ptr);
-	pushvalues_unsafe(ptr, value);
-}
-
-_g void setbool_control(Execute ptr, int value)
-{
-	setresult_control(ptr, value? T: Nil);
-}
-
-_g void setvalues_control(Execute ptr, ...)
-{
-	addr pos;
-	va_list args;
-
-	setvalues_nil_control(ptr);
-	va_start(args, ptr);
-	for (;;) {
-		pos = va_arg(args, addr);
-		if (pos == NULL) break;
-		pushvalues_unsafe(ptr, pos);
-	}
-	va_end(args);
-	nreverse_values_unsafe(ptr);
-}
-
-_g void setvalues_nil_control(Execute ptr)
-{
-	addr root;
-	struct control_struct *str;
-
-	root = ptr->control;
-	Check(root == Nil, "control error");
-	str = StructControl(root);
-	str->sizer = 0;
-	close_result_control(root, str);
-}
-
-_g void setvalues_list_control(Execute ptr, addr list)
-{
-	addr pos;
-
-	setvalues_nil_control(ptr);
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		pushvalues_unsafe(ptr, pos);
-	}
-	nreverse_values_unsafe(ptr);
-}
-
-_g void getresult_control(Execute ptr, addr *ret)
-{
-	addr root;
-
-	root = ptr->control;
-	if (StructControl(root)->sizer)
-		GetResultControl(root, 0, ret);
-	else
-		*ret = Nil;
-}
-
-_g void getvalues_control(Execute ptr, size_t index, addr *ret)
-{
-	addr root;
-	struct control_struct *str;
-
-	root = ptr->control;
-	str = StructControl(root);
-	if (str->sizer <= index) {
-		*ret = Unbound;
-		return;
-	}
-	if (index < ControlSize_Result) {
-		GetResultControl(root, index, ret);
-	}
-	else {
-		index -= ControlSize_Result;
-		GetControl(root, Control_Result, &root);
-		getnth_unsafe(root, index, ret);
-	}
-}
-
-static void list_from_vector_control(LocalRoot local,
-		addr root, size_t size, addr cons, addr *ret)
-{
-	addr pos;
-	size_t i;
-
-	Check(size == 0, "size error");
-	Check(ControlSize_Result < size, "size error");
-	for (i = Control_Size + size - 1; ; i--) {
-		GetControl(root, i, &pos);
-		cons_alloc(local, &cons, pos, cons);
-		if (i <= Control_Size)
-			break;
-	}
-	*ret = cons;
-}
-
-static void getvalues_list_control(Execute ptr, LocalRoot local, addr *ret)
-{
-	addr root, cons;
-	struct control_struct *str;
-	size_t size;
-
-	root = ptr->control;
-	str = StructControl(root);
-	size = str->sizer;
-	if (size == 0) {
-		*ret = Nil;
-		return;
-	}
-	if (size < ControlSize_Result) {
-		list_from_vector_control(local, root, size, Nil, ret);
-	}
-	else {
-		GetControl(root, Control_Result, &cons);
-		copy_list_alloc_unsafe(local, &cons, cons);
-		list_from_vector_control(local, root, ControlSize_Result, cons, ret);
-	}
-}
-
-_g void getvalues_list_control_local(Execute ptr, addr *ret)
-{
-	getvalues_list_control(ptr, ptr->local, ret);
-}
-
-_g void getvalues_list_control_heap(Execute ptr, addr *ret)
-{
-	getvalues_list_control(ptr, NULL, ret);
-}
-
-_g size_t lengthvalues_control(Execute ptr)
-{
-	return StructControl(ptr->control)->sizer;
-}
-
 _g void pushargs_allvalues(Execute ptr)
 {
 	int check;
-	addr root, pos, cons;
-	struct control_struct *str;
+	addr *values, pos, list;
 	size_t size, sizer, i;
 
-	root = ptr->control;
-	str = StructControl(root);
-	sizer = str->sizer;
-	check = ControlSize_Result < sizer;
-	size = check? ControlSize_Result: sizer;
+	sizer = ptr->sizer;
+	check = EXECUTE_VALUES < sizer;
+	size = check? EXECUTE_VALUES: sizer;
 
+	values = ptr->values;
 	for (i = 0; i < size; i++) {
-		GetResultControl(root, i, &pos);
+		pos = values[i];
 		pushargs_control(ptr, pos);
 	}
-	if (check) {
-		GetControl(root, Control_Result, &cons);
-		while (cons != Nil) {
-			GetCons(cons, &pos, &cons);
-			pushargs_control(ptr, pos);
-		}
+	if (! check)
+		return;
+	list = *(ptr->values_list);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		pushargs_control(ptr, pos);
 	}
 }
 
@@ -401,7 +215,7 @@ static int return_from_find_control(Execute ptr, addr *ret, addr name)
 
 _g int return_from_control_(Execute ptr, addr name)
 {
-	addr pos, control;
+	addr pos;
 	struct taginfo_struct *str;
 
 	/* find name */
@@ -411,11 +225,8 @@ _g int return_from_control_(Execute ptr, addr name)
 	if (str->open == 0)
 		fmte("Block ~S already closed.", name, NULL);
 
-	/* copy values */
-	control = str->control;
-	copy_values_control(ptr, ptr->control, control);
 	/* rollback */
-	ptr->throw_control = control;
+	ptr->throw_control = str->control;
 	ptr->throw_point_p = 0;
 	return 1;
 }
@@ -450,8 +261,6 @@ _g int throw_control_(Execute ptr, addr name)
 	/* find name */
 	if (! throw_find_control(ptr, &next, name))
 		fmte("Cannot find catch name ~S.", name, NULL);
-	/* copy values */
-	copy_values_control(ptr, ptr->control, next);
 	/* rollback */
 	ptr->throw_control = next;
 	ptr->throw_point_p = 0;
@@ -591,7 +400,6 @@ static int wake_handler_(Execute ptr, addr next, addr instance, addr pos)
 	/* escape */
 	GetEscapeHandler(pos, &escape);
 	if (escape) {
-		copy_values_control(ptr, ptr->control, next);
 		ptr->throw_control = next;
 		ptr->throw_point_p = 0;
 		exit_control(ptr);
@@ -673,7 +481,6 @@ _g int invoke_restart_control_(Execute ptr, addr restart, addr args)
 	escape = getescape_restart(restart);
 	if (escape) {
 		rollback_restart_control(ptr->control, restart, &next);
-		copy_values_control(ptr, ptr->control, next);
 		ptr->throw_control = next;
 		ptr->throw_point_p = 0;
 		exit_control(ptr);
@@ -1011,7 +818,7 @@ _g int catch_clang(Execute ptr, pointer call, addr tag, addr value)
 	setcompiled_empty(pos, call);
 	SetDataFunction(pos, value);
 	/* execute */
-	push_close_control(ptr, &control);
+	push_new_control(ptr, &control);
 	catch_control(ptr, tag);
 	if (callclang_apply(ptr, &pos, pos, Nil)) {
 		if (! equal_control_restart(ptr, control))
