@@ -597,6 +597,11 @@ _g int typep_typetable(Execute ptr, addr value, enum TypeTable type)
 	return typep_asterisk_error(ptr, value, pos);
 }
 
+_g int typep_unbound_error(Execute ptr, addr value, addr type)
+{
+	return (value == Unbound)? 0: typep_error(ptr, value, type);
+}
+
 _g int call_type_error_(Execute ptr, addr datum, addr expected)
 {
 	addr instance;

@@ -62,8 +62,10 @@ cmpl_multi.c
 cmpl_plus.c
 code.c
 code_function.c
+code_lambda.c
 code_make.c
 code_object.c
+code_queue.c
 common_arrays.c
 common_characters.c
 common_conditions.c

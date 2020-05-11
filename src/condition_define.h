@@ -140,6 +140,7 @@ _g int typep_error(Execute ptr, addr value, addr type);
 _g int typep_asterisk_error(Execute ptr, addr value, addr type);
 _g int typep_typetable(Execute ptr, addr value, enum TypeTable type);
 #define TypepTypeTable(p,a,b) typep_typetable((p),(a),TypeTable_##b)
+_g int typep_unbound_error(Execute ptr, addr value, addr type);
 
 _g int call_type_error_(Execute ptr, addr datum, addr expected);
 _g int call_type_error_const_(Execute ptr, addr datum, constindex expected);

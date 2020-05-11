@@ -27,16 +27,6 @@ static int disassemble_symbol_execute(Execute ptr, addr stream, addr car, addr c
 	return disassemble_code(ptr, stream, cdr);
 }
 
-static int disassemble_symbol_lambda(Execute ptr, addr stream, addr car, addr cdr)
-{
-	addr name, code, type, doc, form, defun;
-
-	List_bind(cdr, &name, &code, &type, &doc, &form, &defun, NULL);
-	list_heap(&cdr, name, type, doc, form, defun, NULL);
-	Fmt3("~2T~A ~20T~S~%", car, cdr);
-	return disassemble_code(ptr, stream, code);
-}
-
 static int disassemble_code_operator(Execute ptr, addr stream, addr car, addr cdr)
 {
 	addr symbol;
@@ -45,16 +35,6 @@ static int disassemble_code_operator(Execute ptr, addr stream, addr car, addr cd
 	GetConst(CODE_EXECUTE_CONTROL_SET, &symbol);
 	if (car == symbol)
 		return disassemble_symbol_execute(ptr, stream, car, cdr);
-
-	/* lambda */
-	GetConst(CODE_LAMBDA, &symbol);
-	if (car == symbol)
-		return disassemble_symbol_lambda(ptr, stream, car, cdr);
-
-	/* lambda-self */
-	GetConst(CODE_LAMBDA_SELF, &symbol);
-	if (car == symbol)
-		return disassemble_symbol_lambda(ptr, stream, car, cdr);
 
 	/* otherwise */
 	Fmt3("~2T~A ~20T~S~%", car, cdr);

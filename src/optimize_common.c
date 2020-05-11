@@ -1,5 +1,6 @@
 #include "code_function.h"
 #include "code_make.h"
+#include "code_queue.h"
 #include "condition.h"
 #include "cons.h"
 #include "constant.h"
@@ -44,7 +45,7 @@ static int optcode_result_type(Execute ptr, addr type)
 	Return(typep_clang(ptr, pos, type, &check));
 	if (! check)
 		type_error(pos, type);
-	
+
 	return 0;
 }
 
@@ -104,20 +105,20 @@ static int optimize_common_car0(LocalRoot local, addr code, addr pos)
 {
 	/* no check */
 	getvalue_tablecall(pos, &pos);
-	switch (evalcode_mode(code)) {
-		case EvalCode_ModeSet:
-			eval_code_execute_set(local, code, pos);
-			EvalCode_single(local, code, CAR0_SET);
+	switch (code_queue_mode(code)) {
+		case CodeQueue_ModeSet:
+			code_make_execute_set(local, code, pos);
+			CodeQueue_single(local, code, CAR0_SET);
 			break;
 
-		case EvalCode_ModePush:
-			eval_code_execute_set(local, code, pos);
-			EvalCode_single(local, code, CAR0_PUSH);
+		case CodeQueue_ModePush:
+			code_make_execute_set(local, code, pos);
+			CodeQueue_single(local, code, CAR0_PUSH);
 			break;
 
-		case EvalCode_ModeRemove:
+		case CodeQueue_ModeRemove:
 		default:
-			eval_code_execute_rem(local, code, pos);
+			code_make_execute_rem(local, code, pos);
 			break;
 	}
 
@@ -131,19 +132,19 @@ static int optimize_common_car1(LocalRoot local, addr code, addr pos)
 	/* type check */
 	gettype_tablecall(pos, &type);
 	getvalue_tablecall(pos, &pos);
-	eval_code_execute_set(local, code, pos);
-	switch (evalcode_mode(code)) {
-		case EvalCode_ModeSet:
-			EvalCode_carcdr(local, code, CAR1_SET, type);
+	code_make_execute_set(local, code, pos);
+	switch (code_queue_mode(code)) {
+		case CodeQueue_ModeSet:
+			CodeQueue_cons(local, code, CAR1_SET, type);
 			break;
 
-		case EvalCode_ModePush:
-			EvalCode_carcdr(local, code, CAR1_PUSH, type);
+		case CodeQueue_ModePush:
+			CodeQueue_cons(local, code, CAR1_PUSH, type);
 			break;
 
-		case EvalCode_ModeRemove:
+		case CodeQueue_ModeRemove:
 		default:
-			EvalCode_carcdr(local, code, RESULT_TYPE, type);
+			CodeQueue_cons(local, code, RESULT_TYPE, type);
 			break;
 	}
 
@@ -225,20 +226,20 @@ static int optimize_common_cdr0(LocalRoot local, addr code, addr pos)
 {
 	/* no check */
 	getvalue_tablecall(pos, &pos);
-	switch (evalcode_mode(code)) {
-		case EvalCode_ModeSet:
-			eval_code_execute_set(local, code, pos);
-			EvalCode_single(local, code, CDR0_SET);
+	switch (code_queue_mode(code)) {
+		case CodeQueue_ModeSet:
+			code_make_execute_set(local, code, pos);
+			CodeQueue_single(local, code, CDR0_SET);
 			break;
 
-		case EvalCode_ModePush:
-			eval_code_execute_set(local, code, pos);
-			EvalCode_single(local, code, CDR0_PUSH);
+		case CodeQueue_ModePush:
+			code_make_execute_set(local, code, pos);
+			CodeQueue_single(local, code, CDR0_PUSH);
 			break;
 
-		case EvalCode_ModeRemove:
+		case CodeQueue_ModeRemove:
 		default:
-			eval_code_execute_rem(local, code, pos);
+			code_make_execute_rem(local, code, pos);
 			break;
 	}
 
@@ -252,19 +253,19 @@ static int optimize_common_cdr1(LocalRoot local, addr code, addr pos)
 	/* type check */
 	gettype_tablecall(pos, &type);
 	getvalue_tablecall(pos, &pos);
-	eval_code_execute_set(local, code, pos);
-	switch (evalcode_mode(code)) {
-		case EvalCode_ModeSet:
-			EvalCode_carcdr(local, code, CDR1_SET, type);
+	code_make_execute_set(local, code, pos);
+	switch (code_queue_mode(code)) {
+		case CodeQueue_ModeSet:
+			CodeQueue_cons(local, code, CDR1_SET, type);
 			break;
 
-		case EvalCode_ModePush:
-			EvalCode_carcdr(local, code, CDR1_PUSH, type);
+		case CodeQueue_ModePush:
+			CodeQueue_cons(local, code, CDR1_PUSH, type);
 			break;
 
-		case EvalCode_ModeRemove:
+		case CodeQueue_ModeRemove:
 		default:
-			EvalCode_carcdr(local, code, RESULT_TYPE, type);
+			CodeQueue_cons(local, code, RESULT_TYPE, type);
 			break;
 	}
 
@@ -314,14 +315,14 @@ static int optimize_common_cons0(LocalRoot local, addr code, addr car, addr cdr)
 	getvalue_tablecall(car, &car);
 	getvalue_tablecall(cdr, &cdr);
 	/* return begin */
-	evalcode_push_new(local, code);
-	eval_code_execute_push(local, code, car);
-	eval_code_execute_push(local, code, cdr);
+	code_queue_push_new(local, code);
+	code_make_execute_push(local, code, car);
+	code_make_execute_push(local, code, cdr);
 	/* cons */
-	EvalCode_single(local, code, CONS);
+	CodeQueue_single(local, code, CONS);
 	/* return end */
-	evalcode_pop(local, code, &pos);
-	eval_code_execute_normal(local, code, pos);
+	code_queue_pop(local, code, &pos);
+	code_make_execute_normal(local, code, pos);
 
 	return 1;
 }
@@ -330,8 +331,8 @@ static int optimize_common_cons_rem(LocalRoot local, addr code, addr car, addr c
 {
 	getvalue_tablecall(car, &car);
 	getvalue_tablecall(cdr, &cdr);
-	eval_code_execute(local, code, car);
-	eval_code_execute(local, code, cdr);
+	code_make_execute(local, code, car);
+	code_make_execute(local, code, cdr);
 
 	return 1;
 }
@@ -354,7 +355,7 @@ static int optimize_common_cons(LocalRoot local, addr code, addr scope)
 		return 0;
 	Check(! eval_tablecall_p(car), "type error");
 	Check(! eval_tablecall_p(cdr), "type error");
-	if (! evalcode_remp(code))
+	if (! code_queue_remp(code))
 		return optimize_common_cons0(local, code, car, cdr);
 	else
 		return optimize_common_cons_rem(local, code, car, cdr);
@@ -412,7 +413,7 @@ static int optimize_check_code1(LocalRoot local, addr code, addr scope, addr pos
 
 	/* fixnum */
 	fixnum_heap(&pos, (fixnum)optimize_common_p(scope));
-	eval_code_object(local, code, pos);
+	code_make_object(local, code, pos);
 	return 1;
 }
 
@@ -459,7 +460,7 @@ static int optimize_check_code2(
 	cons_heap(&value, symbol, value);
 	cons_heap(&list, value, list);
 	/* object */
-	eval_code_object(local, code, list);
+	code_make_object(local, code, list);
 
 	return 1;
 }

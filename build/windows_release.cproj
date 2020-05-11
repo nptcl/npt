@@ -207,8 +207,10 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_plus.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_function.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_lambda.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_make.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_queue.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_arrays.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_characters.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common_conditions.c" />
@@ -494,8 +496,10 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_windows.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_function.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_lambda.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_make.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_queue.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common_header.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common.h" />

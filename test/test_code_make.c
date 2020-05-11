@@ -1,727 +1,19 @@
 #include "code_make.c"
-#include "array.h"
-#include "bignum.h"
 #include "character.h"
 #include "clos.h"
+#include "code_object.h"
 #include "common.h"
-#include "constant.h"
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "copy.h"
 #include "degrade.h"
-#include "ratio.h"
-#include "reader.h"
 #include "package.h"
 #include "pathname.h"
+#include "reader.h"
 #include "scope.h"
 #include "stream.h"
-#include "strtype.h"
-#include "symbol.h"
 #include "syscall.h"
 #include "type.h"
-#include "type_table.h"
-
-/*
- *  evalcode-stack
- */
-static int test_alloc_evalcode_stack(void)
-{
-	addr pos;
-
-	alloc_evalcode_stack(NULL, &pos);
-	test(GetType(pos) == LISPSYSTEM_EVALSTACK, "alloc_evalcode_stack1");
-
-	RETURN;
-}
-
-static int test_evalcode_stack_local(void)
-{
-	addr pos;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_stack_local(local, &pos);
-	test(GetType(pos) == LISPSYSTEM_EVALSTACK, "evalcode_stack_local1");
-	test(StructEvalCodeStack(pos)->stack != NULL, "evalcode_stack_local2");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_free_evalcode_stack(void)
-{
-	addr pos;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_stack_local(local, &pos);
-	free_evalcode_stack(local, pos);
-	test(stack == local->stack, "free_evalcode_stack1");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_push_evalcode_stack(void)
-{
-	addr pos, cons, check;
-	LocalRoot local;
-	struct evalcode_stack *str;
-
-	local = Local_Thread;
-	evalcode_stack_local(local, &pos);
-	str = StructEvalCodeStack(pos);
-	push_evalcode_stack(local, pos, fixnum_heapr(10));
-	test(str->size == 1, "push_evalcode_stack1");
-	GetEvalCodeStack(pos, EvalCodeStack_Root, &cons);
-	test(length_list_unsafe(cons) == 1, "push_evalcode_stack2");
-	GetCar(cons, &check);
-	test(RefFixnum(check) == 10, "push_evalcode_stack3");
-
-	push_evalcode_stack(local, pos, fixnum_heapr(20));
-	test(str->size == 2, "push_evalcode_stack4");
-	GetEvalCodeStack(pos, EvalCodeStack_Root, &cons);
-	test(length_list_unsafe(cons) == 2, "push_evalcode_stack5");
-	GetCons(cons, &check, &cons);
-	test(RefFixnum(check) == 20, "push_evalcode_stack6");
-	GetCons(cons, &check, &cons);
-	test(RefFixnum(check) == 10, "push_evalcode_stack7");
-
-	free_evalcode_stack(local, pos);
-
-	RETURN;
-}
-
-static int test_finish_evalcode_stack(void)
-{
-	addr pos, cons, check;
-	LocalRoot local;
-	struct evalcode_stack *str;
-
-	local = Local_Thread;
-	evalcode_stack_local(local, &pos);
-	str = StructEvalCodeStack(pos);
-	push_evalcode_stack(local, pos, fixnum_heapr(10));
-	push_evalcode_stack(local, pos, fixnum_heapr(20));
-	finish_evalcode_stack(local, pos);
-	test(str->size == 2, "finish_evalcode_stack1");
-	test(str->finish, "finish_evalcode_stack2");
-	GetEvalCodeStack(pos, EvalCodeStack_Result, &cons);
-	test(length_list_unsafe(cons) == 2, "finish_evalcode_stack3");
-	GetCons(cons, &check, &cons);
-	test(RefFixnum(check) == 10, "finish_evalcode_stack4");
-	GetCons(cons, &check, &cons);
-	test(RefFixnum(check) == 20, "finish_evalcode_stack5");
-	GetEvalCodeStack(pos, EvalCodeStack_Root, &cons);
-	test(cons == Nil, "finish_evalcode_stack6");
-
-	free_evalcode_stack(local, pos);
-
-	RETURN;
-}
-
-
-/*
- *  evalcode
- */
-static int test_alloc_evalcode(void)
-{
-	addr pos;
-
-	alloc_evalcode(NULL, &pos);
-	test(eval_code_p(pos), "alloc_evalcode1");
-
-	RETURN;
-}
-
-static int test_evalcode_local(void)
-{
-	addr pos;
-	LocalRoot local;
-	LocalStack stack;
-	struct evalcode *str;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-	test(eval_code_p(pos), "evalcode_local1");
-	str = StructEvalCode(pos);
-	test(str->mode == EvalCode_ModeSet, "evalcode_local2");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_mode(void)
-{
-	addr pos;
-	LocalRoot local;
-	LocalStack stack;
-	struct evalcode *str;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-	str = StructEvalCode(pos);
-	test(evalcode_mode(pos) == EvalCode_ModeSet, "evalcode_mode1");
-	str->mode = EvalCode_ModePush;
-	test(evalcode_mode(pos) == EvalCode_ModePush, "evalcode_mode2");
-
-	str->mode = EvalCode_ModeSet;
-	test(evalcode_setp(pos), "evalcode_setp1");
-	str->mode = EvalCode_ModePush;
-	test(evalcode_pushp(pos), "evalcode_pushp1");
-	str->mode = EvalCode_ModeRemove;
-	test(evalcode_remp(pos), "evalcode_remp1");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_save(void)
-{
-	addr pos;
-	LocalRoot local;
-	LocalStack stack;
-	struct evalcode *str;
-	modeswitch mode;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-	str = StructEvalCode(pos);
-	str->mode = EvalCode_ModeSet;
-	evalcode_save(pos, &mode);
-	str->mode = EvalCode_ModePush;
-	evalcode_rollback(pos, &mode);
-	test(str->mode == EvalCode_ModeSet, "evalcode_save1");
-
-	str->mode = EvalCode_ModeRemove;
-	evalcode_setmode(pos, &mode);
-	test(str->mode == EvalCode_ModeSet, "evalcode_setmode1");
-	evalcode_rollback(pos, &mode);
-	test(str->mode == EvalCode_ModeRemove, "evalcode_setmode2");
-
-	str->mode = EvalCode_ModeSet;
-	evalcode_remmode(pos, &mode);
-	test(str->mode == EvalCode_ModeRemove, "remove_modeswitch1");
-	evalcode_rollback(pos, &mode);
-	test(str->mode == EvalCode_ModeSet, "remove_modeswitch2");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_add(void)
-{
-	addr pos, value;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	fixnum_heap(&value, 10);
-	evalcode_add(local, pos, value);
-	fixnum_heap(&value, 20);
-	evalcode_add(local, pos, value);
-	GetEvalCode(pos, EvalCode_Code, &pos);
-	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	test(length_list_unsafe(pos) == 2, "evalcode_add1");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_addcarcdr(void)
-{
-	addr pos, value;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	evalcode_addcarcdr(local, pos, fixnum_heapr(10), fixnum_heapr(20));
-	GetEvalCode(pos, EvalCode_Code, &pos);
-	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	test(length_list_unsafe(pos) == 1, "evalcode_addcarcdr1");
-	GetCar(pos, &pos);
-	test(consp(pos), "evalcode_addcarcdr2");
-	GetCons(pos, &pos, &value);
-	test(RefFixnum(pos) == 10, "evalcode_addcarcdr3");
-	test(RefFixnum(value) == 20, "evalcode_addcarcdr4");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_addlist(void)
-{
-	addr pos, value;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	evalcode_addlist(local, pos,
-			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
-	GetEvalCode(pos, EvalCode_Code, &pos);
-	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	test(length_list_unsafe(pos) == 1, "evalcode_addlist1");
-	GetCar(pos, &pos);
-	test(length_list_unsafe(pos) == 3, "evalcode_addlist2");
-	test(consp(pos), "evalcode_addlist3");
-	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 10, "evalcode_addlist4");
-	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 20, "evalcode_addlist5");
-	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 30, "evalcode_addlist6");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_single(void)
-{
-	addr pos, value;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	GetEvalCode(pos, EvalCode_Code, &pos);
-	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	GetCar(pos, &pos);
-	test(length_list_unsafe(pos) == 1, "evalcode_single1");
-	GetCons(pos, &value, &pos);
-	GetConst(CODE_NOP, &pos);
-	test(value == pos, "evalcode_single2");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_carcdr(void)
-{
-	addr pos, value, check;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	evalcode_carcdr(local, pos, CONSTANT_CODE_NOP, fixnum_heapr(10));
-	GetEvalCode(pos, EvalCode_Code, &pos);
-	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	GetCar(pos, &pos);
-	test(consp(pos), "evalcode_carcdr1");
-	GetCons(pos, &value, &pos);
-	GetConst(CODE_NOP, &check);
-	test(value == check, "evalcode_carcdr2");
-	test(RefFixnum(pos) == 10, "evalcode_carcdr3");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_double(void)
-{
-	addr pos, value, check;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	evalcode_double(local, pos, CONSTANT_CODE_NOP, fixnum_heapr(10), fixnum_heapr(20));
-	GetEvalCode(pos, EvalCode_Code, &pos);
-	GetEvalCodeStack(pos, EvalCodeStack_Root, &pos);
-	GetCar(pos, &pos);
-	test(length_list_unsafe(pos) == 3, "evalcode_double1");
-	GetCons(pos, &value, &pos);
-	GetConst(CODE_NOP, &check);
-	test(value == check, "evalcode_double2");
-	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 10, "evalcode_double3");
-	GetCons(pos, &value, &pos);
-	test(RefFixnum(value) == 20, "evalcode_double4");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_ifpush(void)
-{
-	addr pos, value, check;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	StructEvalCode(pos)->mode = EvalCode_ModeSet;
-	evalcode_ifpush(local, pos);
-	GetEvalCode(pos, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(check == Nil, "evalcode_ifpush1");
-
-	StructEvalCode(pos)->mode = EvalCode_ModePush;
-	evalcode_ifpush(local, pos);
-	GetEvalCode(pos, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(singlep(check), "evalcode_ifpush2");
-	GetCar(check, &check);
-	GetCar(check, &check);
-	internchar(LISP_CODE, "PUSH-RESULT", &value);
-	test(check == value, "evalcode_ifpush3");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-
-/*
- *  stack
- */
-static int test_evalcode_push_struct(void)
-{
-	addr pos, check;
-	LocalRoot local;
-	LocalStack stack;
-	struct evalcode *str;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-	str = StructEvalCode(pos);
-
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	test(str->size == 0, "evalcode_push_struct1");
-	GetEvalCode(pos, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(length_list_unsafe(check) == 3, "evalcode_push_struct2");
-
-	evalcode_push_struct(local, pos);
-	test(str->size == 1, "evalcode_push_struct3");
-	GetEvalCode(pos, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(length_list_unsafe(check) == 0, "evalcode_push_struct4");
-
-	GetEvalCode(pos, EvalCode_Stack, &check);
-	GetCar(check, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	test(length_list_unsafe(check) == 3, "evalcode_push_struct5");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_pop_goto_p(void)
-{
-	addr cons, key;
-
-	GetConst(CODE_GOTO, &key);
-	list_heap(&cons, key, T, NULL);
-	test(evalcode_pop_goto_p(cons), "evalcode_pop_goto_p1");
-	test(! evalcode_pop_goto_p(T), "evalcode_pop_goto_p2");
-	list_heap(&cons, T, T, NULL);
-	test(! evalcode_pop_goto_p(cons), "evalcode_pop_goto_p3");
-
-	RETURN;
-}
-
-static int test_evalcode_pop_tag_p(void)
-{
-	addr key, cons;
-
-	GetConst(CODE_TAG, &key);
-	cons_heap(&cons, key, T);
-	test(evalcode_pop_tag_p(cons, &cons), "evalcode_pop_tag_p1");
-	test(cons == T, "evalcode_pop_tag_p2");
-	test(! evalcode_pop_tag_p(T, NULL), "evalcode_pop_tag_p3");
-	GetConst(CODE_GOTO, &key);
-	list_heap(&cons, key, T, NULL);
-	test(! evalcode_pop_tag_p(cons, NULL), "evalcode_pop_tag_p4");
-
-	RETURN;
-}
-
-static int test_evalcode_pop_label_p(void)
-{
-	addr pos;
-
-	index_heap(&pos, 10U);
-	test(evalcode_pop_label_p(pos), "evalcode_pop_label_p1");
-	test(! evalcode_pop_label_p(T), "evalcode_pop_label_p2");
-
-	RETURN;
-}
-
-static void test_push_testdata(LocalRoot local, addr pos)
-{
-	evalcode_add(local, pos, index_heapr(10));
-	evalcode_carcdr(local, pos, CONSTANT_CODE_GOTO, index_heapr(40));
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_add(local, pos, index_heapr(20));
-	evalcode_add(local, pos, index_heapr(30));
-	evalcode_carcdr(local, pos, CONSTANT_CODE_GOTO, index_heapr(10));
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_carcdr(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(111));
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_carcdr(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(222));
-	evalcode_carcdr(local, pos, CONSTANT_CODE_GOTO, index_heapr(50));
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_add(local, pos, index_heapr(40));
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_add(local, pos, index_heapr(50));
-}
-
-static int test_evalcode_pop_labelcons(void)
-{
-	addr pos, cons, label, tag, check;
-	LocalRoot local;
-	LocalStack stack;
-	size_t size;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	test_push_testdata(local, pos);
-	GetEvalCode(pos, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &cons);
-	nreverse_list_unsafe(&cons, cons);
-
-	evalcode_pop_labelcons(local, cons, &label, &tag, &size);
-	test(length_list_unsafe(label) == 5, "evalcode_pop_labelcons1");
-	test(length_list_unsafe(tag) == 2, "evalcode_pop_labelcons2");
-	test(size == 10, "evalcode_pop_labelcons3");
-
-	GetCons(label, &pos, &label);
-	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 50, "evalcode_pop_labelcons4");
-	test(RefIndex(check) == 10, "evalcode_pop_labelcons5");
-	GetCons(label, &pos, &label);
-	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 40, "evalcode_pop_labelcons6");
-	test(RefIndex(check) == 9, "evalcode_pop_labelcons7");
-	GetCons(label, &pos, &label);
-	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 30, "evalcode_pop_labelcons8");
-	test(RefIndex(check) == 2, "evalcode_pop_labelcons9");
-	GetCons(label, &pos, &label);
-	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 20, "evalcode_pop_labelcons10");
-	test(RefIndex(check) == 2, "evalcode_pop_labelcons11");
-	GetCons(label, &pos, &label);
-	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 10, "evalcode_pop_labelcons12");
-	test(RefIndex(check) == 0, "evalcode_pop_labelcons13");
-
-	GetCons(tag, &pos, &tag);
-	GetCons(pos, &pos, &check);
-	test(RefFixnum(pos) == 222, "evalcode_pop_labelcons14");
-	test(RefIndex(check) == 7, "evalcode_pop_labelcons15");
-	GetCons(tag, &pos, &tag);
-	GetCons(pos, &pos, &check);
-	test(RefFixnum(pos) == 111, "evalcode_pop_labelcons16");
-	test(RefIndex(check) == 5, "evalcode_pop_labelcons17");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_pop_findlabel(void)
-{
-	addr pos, label, tag, check;
-	LocalRoot local;
-	LocalStack stack;
-	size_t size;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	test_push_testdata(local, pos);
-	GetEvalCode(pos, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	nreverse_list_unsafe(&check, check);
-	evalcode_pop_labelcons(local, check, &label, &tag, &size);
-
-	index_heap(&check, 10);
-	size = evalcode_pop_findlabel(label, check);
-	test(size == 0, "evalcode_pop_findlabel1");
-
-	index_heap(&check, 20);
-	size = evalcode_pop_findlabel(label, check);
-	test(size == 2, "evalcode_pop_findlabel2");
-
-	index_heap(&check, 40);
-	size = evalcode_pop_findlabel(label, check);
-	test(size == 9, "evalcode_pop_findlabel3");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_pop_replace_goto(void)
-{
-	addr pos, check, label, tag, left, right;
-	LocalRoot local;
-	LocalStack stack;
-	size_t size;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	test_push_testdata(local, pos);
-	GetEvalCode(pos, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	nreverse_list_unsafe(&check, check);
-	evalcode_pop_labelcons(local, check, &label, &tag, &size);
-
-	GetConst(CODE_GOTO, &pos);
-	index_heap(&check, 40);
-	cons_heap(&check, pos, check);
-
-	evalcode_pop_replace_goto(label, check, &right);
-	GetCons(right, &left, &right);
-	test(left == pos, "evalcode_pop_replace_goto1");
-	test(RefIndex(right) == 9, "evalcode_pop_replace_goto2");
-
-	RETURN;
-}
-
-static int test_evalcode_pop_makecode(void)
-{
-	addr pos, check, array, left, right;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	test_push_testdata(local, pos);
-
-	GetEvalCode(pos, EvalCode_Code, &check);
-	GetEvalCodeStack(check, EvalCodeStack_Root, &check);
-	nreverse_list_unsafe(&check, check);
-
-	evalcode_pop_makecode(local, check, &array);
-	test(lenarrayr(array) == 10, "evalcode_pop_makecode1");
-
-	GetArrayA4(array, 0, &right);
-	GetCons(right, &left, &right);
-	GetConst(CODE_GOTO, &check);
-	test(left == check, "evalcode_pop_makecode2");
-	test(RefIndex(right) == 9 ,"evalcode_pop_makecode3");
-
-	GetArrayA4(array, 2, &right);
-	GetCons(right, &left, &right);
-	GetConst(CODE_GOTO, &check);
-	test(left == check, "evalcode_pop_makecode4");
-	test(RefIndex(right) == 0 ,"evalcode_pop_makecode5");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_pop_code(void)
-{
-	addr pos, check;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-
-	GetEvalCode(pos, EvalCode_Code, &check);
-	finish_evalcode_stack(local, check);
-	evalcode_pop_code(local, check, &check);
-	test(GetType(check) == LISPTYPE_CODE, "evalcode_pop_code1");
-	getargs_code(check, &check);
-	test(lenarrayr(check) == 4, "evalcode_pop_code2");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_evalcode_pop(void)
-{
-	addr pos, code, check;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	evalcode_local(local, &pos);
-
-	evalcode_push_struct(local, pos);
-	evalcode_push_struct(local, pos);
-	GetEvalCode(pos, EvalCode_Code, &check);
-	evalcode_push_struct(local, pos);
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-	evalcode_single(local, pos, CONSTANT_CODE_NOP);
-
-	evalcode_pop(local, pos, &code);
-	test(GetType(code) == LISPTYPE_CODE, "evalcode_pop1");
-	getargs_code(code, &code);
-	test(lenarrayr(code) == 4, "evalcode_pop2");
-
-	GetEvalCode(pos, EvalCode_Code, &pos);
-	test(pos == check, "evalcode_pop3");
-
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
 
 /*
  *  code
@@ -742,7 +34,6 @@ static void eval_scope_eval(Execute ptr, addr *ret, addr pos)
 	throw_switch(&jump);
 }
 
-
 static void codechar_call(addr *ret, const char *str,
 		void (*call)(LocalRoot, addr, addr))
 {
@@ -755,27 +46,27 @@ static void codechar_call(addr *ret, const char *str,
 	local = ptr->local;
 	push_local(local, &stack);
 
-	evalcode_local(local, &code);
-	evalcode_push_simple(local, code);
+	code_queue_local(local, &code);
+	code_queue_push_simple(local, code);
 	readstring(&pos, str);
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	call(local, code, pos);
-	evalcode_pop(local, code, ret);
+	code_queue_pop(local, code, ret);
 
 	rollback_local(local, stack);
 }
 static void codechar_set(addr *ret, const char *str)
 {
-	codechar_call(ret, str, eval_code_execute_set);
+	codechar_call(ret, str, code_make_execute_set);
 }
 static void codechar_push(addr *ret, const char *str)
 {
-	codechar_call(ret, str, eval_code_execute_push);
+	codechar_call(ret, str, code_make_execute_push);
 }
 static void codechar_rem(addr *ret, const char *str)
 {
-	codechar_call(ret, str, eval_code_execute_rem);
+	codechar_call(ret, str, code_make_execute_rem);
 }
 
 static int localhold_runcode_control(Execute ptr, addr pos)
@@ -1894,7 +1185,7 @@ static int test_code_multiple_value_call(void)
 /*
  *  call
  */
-static int test_eval_code_specialize_symbol_p(void)
+static int test_code_make_specialize_symbol_p(void)
 {
 	addr control, pos;
 	Execute ptr;
@@ -1906,15 +1197,15 @@ static int test_eval_code_specialize_symbol_p(void)
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	GetEvalScopeIndex(pos, 0, &pos);
-	test(! eval_code_specialize_symbol_p(pos, CONSTANT_SYSTEM_HANDLER),
-			"eval_code_specialize_symbol_p1");
+	test(! code_make_specialize_symbol_p(pos, CONSTANT_SYSTEM_HANDLER),
+			"code_make_specialize_symbol_p1");
 
 	readstring(&pos, "(" LISP_SYSTEM "::handler 10 20 30)");
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
 	GetEvalScopeIndex(pos, 0, &pos);
-	test(eval_code_specialize_symbol_p(pos, CONSTANT_SYSTEM_HANDLER),
-			"eval_code_specialize_symbol_p2");
+	test(code_make_specialize_symbol_p(pos, CONSTANT_SYSTEM_HANDLER),
+			"code_make_specialize_symbol_p2");
 
 	free_control_(ptr, control);
 
@@ -1981,36 +1272,6 @@ static int test_code_push_return(void)
  */
 static int testbreak_code_make(void)
 {
-	/* evalcode-stack */
-	TestBreak(test_alloc_evalcode_stack);
-	TestBreak(test_evalcode_stack_local);
-	TestBreak(test_free_evalcode_stack);
-	TestBreak(test_push_evalcode_stack);
-	TestBreak(test_finish_evalcode_stack);
-	/* evalcode */
-	TestBreak(test_alloc_evalcode);
-	TestBreak(test_evalcode_local);
-	TestBreak(test_evalcode_mode);
-	TestBreak(test_evalcode_save);
-	TestBreak(test_evalcode_add);
-	TestBreak(test_evalcode_addcarcdr);
-	TestBreak(test_evalcode_addlist);
-	TestBreak(test_evalcode_single);
-	TestBreak(test_evalcode_carcdr);
-	TestBreak(test_evalcode_double);
-	TestBreak(test_evalcode_ifpush);
-	/* stack */
-	TestBreak(test_evalcode_push_struct);
-	TestBreak(test_evalcode_pop_goto_p);
-	TestBreak(test_evalcode_pop_tag_p);
-	TestBreak(test_evalcode_pop_label_p);
-	TestBreak(test_evalcode_pop_labelcons);
-	TestBreak(test_evalcode_pop_findlabel);
-	TestBreak(test_evalcode_pop_replace_goto);
-	TestBreak(test_evalcode_pop_makecode);
-	TestBreak(test_evalcode_pop_code);
-	TestBreak(test_evalcode_pop);
-	/* code */
 	TestBreak(test_code_nil);
 	TestBreak(test_code_t);
 	TestBreak(test_code_value);
@@ -2041,7 +1302,7 @@ static int testbreak_code_make(void)
 	TestBreak(test_code_catch);
 	TestBreak(test_code_multiple_value_call);
 	/* call */
-	TestBreak(test_eval_code_specialize_symbol_p);
+	TestBreak(test_code_make_specialize_symbol_p);
 	TestBreak(test_code_handler);
 	TestBreak(test_code_restart);
 	TestBreak(test_code_push_return);

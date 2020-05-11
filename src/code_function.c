@@ -1,4 +1,5 @@
 #include "call_eval.h"
+#include "code_lambda.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -9,6 +10,7 @@
 #include "copy.h"
 #include "declare.h"
 #include "execute.h"
+#include "eval.h"
 #include "eval_table.h"
 #include "function.h"
 #include "gc.h"
@@ -22,46 +24,15 @@
 /*****************************************************************************
  *  code function
  *****************************************************************************/
+static int nop_code(Execute ptr, addr pos)
+{
+	return 0;
+}
+
+
 /*
  *  system
  */
-static int hello_code(Execute ptr, addr right)
-{
-	info("Hello code.");
-	return 0;
-}
-
-static int nop_code(Execute ptr, addr right)
-{
-	/* do nothing */
-	return 0;
-}
-
-static int abort_code(Execute ptr, addr right)
-{
-	Abort("abort-code");
-	return 0;
-}
-
-static int error_code(Execute ptr, addr right)
-{
-	return fmte_("error-code", NULL);
-}
-
-static int info_code(Execute ptr, addr right)
-{
-	GetCar(right, &right);
-	infobit(right);
-	return 0;
-}
-
-static int print_code(Execute ptr, addr right)
-{
-	GetCar(right, &right);
-	infoprint(right);
-	return 0;
-}
-
 static int execute_simple_set_code(Execute ptr, addr pos)
 {
 	return runcode_simple(ptr, pos);
@@ -118,53 +89,95 @@ static int execute_switch_push_code(Execute ptr, addr pos)
 /*
  *  object
  */
-static int set_code(Execute ptr, addr right)
+static int set_code(Execute ptr, addr pos)
 {
-	setresult_control(ptr, right);
+	setresult_control(ptr, pos);
 	return 0;
 }
 
-static int push_code(Execute ptr, addr right)
+static int push_code(Execute ptr, addr pos)
 {
-	pushargs_control(ptr, right);
+	pushargs_control(ptr, pos);
 	return 0;
 }
 
-static int push_result_code(Execute ptr, addr right)
+static int push_result_code(Execute ptr, addr pos)
 {
-	getresult_control(ptr, &right);
-	pushargs_control(ptr, right);
+	getresult_control(ptr, &pos);
+	pushargs_control(ptr, pos);
 	return 0;
 }
 
-static int push_values_code(Execute ptr, addr right)
+static int push_values_code(Execute ptr, addr pos)
 {
 	pushargs_allvalues(ptr);
 	return 0;
 }
 
-static int nil_set_code(Execute ptr, addr right)
+static int nil_set_code(Execute ptr, addr pos)
 {
 	setresult_control(ptr, Nil);
 	return 0;
 }
 
-static int nil_push_code(Execute ptr, addr right)
+static int nil_push_code(Execute ptr, addr pos)
 {
 	pushargs_control(ptr, Nil);
 	return 0;
 }
 
-static int t_set_code(Execute ptr, addr right)
+static int t_set_code(Execute ptr, addr pos)
 {
 	setresult_control(ptr, T);
 	return 0;
 }
 
-static int t_push_code(Execute ptr, addr right)
+static int t_push_code(Execute ptr, addr pos)
 {
 	pushargs_control(ptr, T);
 	return 0;
+}
+
+
+/*
+ *  symbol
+ */
+static int lexical_set_code(Execute ptr, addr pos)
+{
+	Return(symbol_lexical_restart(ptr, pos, &pos));
+	setresult_control(ptr, pos);
+	return 0;
+}
+
+static int lexical_push_code(Execute ptr, addr pos)
+{
+	Return(symbol_lexical_restart(ptr, pos, &pos));
+	pushargs_control(ptr, pos);
+	return 0;
+}
+
+static int lexical_rem_code(Execute ptr, addr pos)
+{
+	return symbol_lexical_restart(ptr, pos, &pos);
+}
+
+static int special_set_code(Execute ptr, addr pos)
+{
+	Return(symbol_special_restart(ptr, pos, &pos));
+	setresult_control(ptr, pos);
+	return 0;
+}
+
+static int special_push_code(Execute ptr, addr pos)
+{
+	Return(symbol_special_restart(ptr, pos, &pos));
+	pushargs_control(ptr, pos);
+	return 0;
+}
+
+static int special_rem_code(Execute ptr, addr pos)
+{
+	return symbol_special_restart(ptr, pos, &pos);
 }
 
 
@@ -266,15 +279,72 @@ static int declaim_declaration_code(Execute ptr, addr right)
 /*
  *  let
  */
-static int let_bind_code(Execute ptr, addr list)
+static int let_args_code(Execute ptr, addr list)
 {
 	addr args, pos, value, symbol, type;
 
+	/* value */
+	args = list;
+	while (args != Nil) {
+		GetCdr(args, &args);
+		GetCons(args, &value, &args);
+		Return(runcode_simple(ptr, value));
+	}
+
+	/* bind */
 	getargs_list_control_unsafe(ptr, 0, &args);
 	while (list != Nil) {
-		GetCons(list, &pos, &list);
 		GetCons(args, &value, &args);
+		GetCons(list, &pos, &list);
+		GetCdr(list, &list);
 		getname_tablevalue(pos, &symbol);
+		/* type check */
+		if (getcheck_tablevalue(pos)) {
+			gettype_tablevalue(pos, &type);
+			Return(typep_error(ptr, value, type));
+		}
+		/* bind */
+		if (getspecialp_tablevalue(pos))
+			pushspecial_control(ptr, symbol, value);
+		else
+			pushlexical_control(ptr, symbol, value);
+	}
+	setargs_nil_control(ptr);
+
+	return 0;
+}
+
+static int let_set_code(Execute ptr, addr list)
+{
+	addr control, args, body, free;
+
+	List_bind(list, &args, &body, &free, NULL);
+	push_new_control(ptr, &control);
+	Return(let_free_code(ptr, free));
+	Return(let_args_code(ptr, args));
+	Return(runcode_simple(ptr, body));
+	return free_control_(ptr, control);
+}
+
+static int let_push_code(Execute ptr, addr list)
+{
+	Return(let_set_code(ptr, list));
+	getresult_control(ptr, &list);
+	pushargs_control(ptr, list);
+
+	return 0;
+}
+
+static int leta_args_code(Execute ptr, addr list)
+{
+	addr pos, value, symbol, type;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCons(list, &value, &list);
+		getname_tablevalue(pos, &symbol);
+		Return(runcode_simple(ptr, value));
+		getresult_control(ptr, &value);
 		/* type check */
 		if (getcheck_tablevalue(pos)) {
 			gettype_tablevalue(pos, &type);
@@ -290,157 +360,25 @@ static int let_bind_code(Execute ptr, addr list)
 	return 0;
 }
 
-static int typep_unbound_error(Execute ptr, addr value, addr type)
+static int leta_set_code(Execute ptr, addr list)
 {
-	return (value == Unbound)? 0: typep_error(ptr, value, type);
+	addr control, args, body, free;
+
+	List_bind(list, &args, &body, &free, NULL);
+	push_new_control(ptr, &control);
+	Return(let_free_code(ptr, free));
+	Return(leta_args_code(ptr, args));
+	Return(runcode_simple(ptr, body));
+	return free_control_(ptr, control);
 }
 
-static int leta_lexical_code(Execute ptr, addr right)
+static int leta_push_code(Execute ptr, addr list)
 {
-	addr value;
-
-	getresult_control(ptr, &value);
-	pushlexical_control(ptr, right, value);
+	Return(leta_set_code(ptr, list));
+	getresult_control(ptr, &list);
+	pushargs_control(ptr, list);
 
 	return 0;
-}
-
-static int leta_lexical_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	getresult_control(ptr, &right);
-	Return(typep_error(ptr, right, type));
-	pushlexical_control(ptr, symbol, right);
-
-	return 0;
-}
-
-static int leta_special_code(Execute ptr, addr right)
-{
-	addr value;
-
-	getresult_control(ptr, &value);
-	pushspecial_control(ptr, right, value);
-
-	return 0;
-}
-
-static int leta_special_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	getresult_control(ptr, &right);
-	Return(typep_error(ptr, right, type));
-	pushspecial_control(ptr, symbol, right);
-
-	return 0;
-}
-
-
-/*
- *  symbol
- */
-static int lexical_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	getlexical_local(ptr, symbol, &right);
-	return typep_unbound_error(ptr, right, type);
-}
-
-static int lexical_set_code(Execute ptr, addr right)
-{
-	Return(symbol_lexical_restart(ptr, right, &right));
-	setresult_control(ptr, right);
-	return 0;
-}
-
-static int lexical_set_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	Return(symbol_lexical_restart(ptr, symbol, &right));
-	setresult_control(ptr, right);
-
-	return 0;
-}
-
-static int lexical_push_code(Execute ptr, addr right)
-{
-	Return(symbol_lexical_restart(ptr, right, &right));
-	pushargs_control(ptr, right);
-	return 0;
-}
-
-static int lexical_push_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	Return(symbol_lexical_restart(ptr, symbol, &right));
-	pushargs_control(ptr, right);
-
-	return 0;
-}
-
-static int lexical_remove_code(Execute ptr, addr right)
-{
-	return symbol_lexical_restart(ptr, right, &right);
-}
-
-static int special_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	getspecial_local(ptr, symbol, &right);
-	return typep_unbound_error(ptr, right, type);
-}
-
-static int special_set_code(Execute ptr, addr right)
-{
-	Return(symbol_special_restart(ptr, right, &right));
-	setresult_control(ptr, right);
-	return 0;
-}
-
-static int special_set_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	Return(symbol_special_restart(ptr, symbol, &right));
-	setresult_control(ptr, right);
-
-	return 0;
-}
-
-static int special_push_code(Execute ptr, addr right)
-{
-	Return(symbol_special_restart(ptr, right, &right));
-	pushargs_control(ptr, right);
-	return 0;
-}
-
-static int special_push_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	Return(symbol_special_restart(ptr, symbol, &right));
-	pushargs_control(ptr, right);
-
-	return 0;
-}
-
-static int special_remove_code(Execute ptr, addr right)
-{
-	return symbol_special_restart(ptr, right, &right);
 }
 
 
@@ -454,50 +392,41 @@ static int check_readonly_variable_(addr symbol)
 	return 0;
 }
 
-static int setq_lexical_code(Execute ptr, addr right)
+static int setq_set_code(Execute ptr, addr list)
 {
-	addr value;
+	int specialp, check;
+	addr pos, value, symbol, type;
 
-	Return(check_readonly_variable_(right));
-	getresult_control(ptr, &value);
-	setlexical_local(ptr, right, value);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCons(list, &value, &list);
+		/* readonly */
+		getname_tablevalue(pos, &symbol);
+		Return(check_readonly_variable_(symbol));
+		/* value */
+		Return(runcode_simple(ptr, value));
+		getresult_control(ptr, &value);
+		/* bind */
+		specialp = getspecialp_tablevalue(pos);
+		check = getcheck_tablevalue(pos);
+		if (check) {
+			gettype_tablevalue(pos, &type);
+			Return(typep_error(ptr, value, type));
+		}
+		if (specialp)
+			setspecial_local(ptr, symbol, value);
+		else
+			setlexical_local(ptr, symbol, value);
+	}
 
 	return 0;
 }
 
-static int setq_lexical_type_code(Execute ptr, addr right)
+static int setq_push_code(Execute ptr, addr list)
 {
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	Return(check_readonly_variable_(symbol));
-	getresult_control(ptr, &right);
-	Return(typep_error(ptr, right, type));
-	setlexical_local(ptr, symbol, right);
-
-	return 0;
-}
-
-static int setq_special_code(Execute ptr, addr right)
-{
-	addr value;
-
-	Return(check_readonly_variable_(right));
-	getresult_control(ptr, &value);
-	setspecial_local(ptr, right, value);
-
-	return 0;
-}
-
-static int setq_special_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	Return(check_readonly_variable_(symbol));
-	getresult_control(ptr, &right);
-	Return(typep_error(ptr, right, type));
-	setspecial_local(ptr, symbol, right);
+	Return(setq_set_code(ptr, list));
+	getresult_control(ptr, &list);
+	pushargs_control(ptr, list);
 
 	return 0;
 }
@@ -506,15 +435,6 @@ static int setq_special_type_code(Execute ptr, addr right)
 /*
  *  function
  */
-static int function_global_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	GetFunctionSymbol(symbol, &right);
-	return typep_unbound_error(ptr, right, type);
-}
-
 static int function_global_set_code(Execute ptr, addr right)
 {
 	Return(function_global_restart(ptr, right, &right));
@@ -527,15 +447,6 @@ static int function_global_push_code(Execute ptr, addr right)
 	Return(function_global_restart(ptr, right, &right));
 	pushargs_control(ptr, right);
 	return 0;
-}
-
-static int function_local_type_code(Execute ptr, addr right)
-{
-	addr call, type;
-
-	List_bind(right, &call, &type, NULL);
-	getfunction_local(ptr, call, &right);
-	return typep_unbound_error(ptr, right, type);
 }
 
 static int function_local_set_code(Execute ptr, addr right)
@@ -552,15 +463,6 @@ static int function_local_push_code(Execute ptr, addr right)
 	return 0;
 }
 
-static int setf_global_type_code(Execute ptr, addr right)
-{
-	addr symbol, type;
-
-	List_bind(right, &symbol, &type, NULL);
-	getsetf_symbol(symbol, &right);
-	return typep_unbound_error(ptr, right, type);
-}
-
 static int setf_global_set_code(Execute ptr, addr right)
 {
 	Return(setf_global_restart(ptr, right, &right));
@@ -575,15 +477,6 @@ static int setf_global_push_code(Execute ptr, addr right)
 	return 0;
 }
 
-static int setf_local_type_code(Execute ptr, addr right)
-{
-	addr call, type;
-
-	List_bind(right, &call, &type, NULL);
-	getsetf_local(ptr, call, &right);
-	return typep_unbound_error(ptr, right, type);
-}
-
 static int setf_local_set_code(Execute ptr, addr right)
 {
 	getsetfcheck_local(ptr, right, &right);
@@ -595,413 +488,6 @@ static int setf_local_push_code(Execute ptr, addr right)
 {
 	getsetfcheck_local(ptr, right, &right);
 	pushargs_control(ptr, right);
-	return 0;
-}
-
-
-/*
- *  lambda
- */
-static int lambda_code(Execute ptr, addr right)
-{
-	addr name, code, type, doc, form, defun;
-
-	List_bind(right, &name, &code, &type, &doc, &form, &defun, NULL);
-	function_heap(&code, name, code);
-	settype_function(code, type);
-	setdocumentation_function(code, doc);
-	setlambda_expression_function(code, form);
-	if (defun != Nil)
-		setdefunform_function(code, defun);
-	setresult_control(ptr, code);
-
-	return 0;
-}
-
-static int lambda_self_code(Execute ptr, addr right)
-{
-	addr name, code, type, doc, form, defun;
-
-	List_bind(right, &name, &code, &type, &doc, &form, &defun, NULL);
-	function_heap(&code, name, code);
-	settype_function(code, type);
-	setdocumentation_function(code, doc);
-	setlambda_expression_function(code, form);
-	if (defun != Nil)
-		setdefunform_function(code, defun);
-	setrecursive_function(code);
-	setresult_control(ptr, code);
-
-	return 0;
-}
-
-static int lambda_value_code(Execute ptr, addr right)
-{
-	addr pos, value;
-
-	getresult_control(ptr, &pos);
-	conslexicalcheck_local(ptr, right, &value);
-	pushclosure_value_function(pos, right, value);
-
-	return 0;
-}
-
-static int lambda_function_code(Execute ptr, addr right)
-{
-	addr pos, value;
-
-	getresult_control(ptr, &pos);
-	getcallnamecheck_local(ptr, right, &value);
-	pushclosure_function_function(pos, right, value);
-
-	return 0;
-}
-
-static int lambda_tagbody_code(Execute ptr, addr right)
-{
-	addr pos, value;
-
-	getresult_control(ptr, &pos);
-	gettagbody_execute(ptr, &value, right);
-	pushclosure_tagbody_function(pos, right, value);
-
-	return 0;
-}
-
-static int lambda_block_code(Execute ptr, addr right)
-{
-	addr pos;
-
-	getresult_control(ptr, &pos);
-	getblock_execute(ptr, &right, right);
-	pushclosure_block_function(pos, right);
-
-	return 0;
-}
-
-static int bind_variable_(Execute ptr, addr left, addr right, int ignore)
-{
-	int specialp;
-	addr type;
-
-	/* type check */
-	if (! ignore && getcheck_tablevalue(left)) {
-		gettype_tablevalue(left, &type);
-		Return(typep_error(ptr, right, type));
-	}
-
-	/* push */
-	specialp = getspecialp_tablevalue(left);
-	getname_tablevalue(left, &left);
-	if (specialp)
-		pushspecial_control(ptr, left, right);
-	else
-		pushlexical_control(ptr, left, right);
-
-	return 0;
-}
-
-static int bind_initialize_(Execute ptr, addr var, addr init)
-{
-	addr control;
-	LocalHold hold;
-
-	/* push */
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	/* code */
-	Return(runcode_control(ptr, init));
-	getresult_control(ptr, &init);
-	localhold_set(hold, 0, init);
-	Return(free_control_(ptr, control));
-	localhold_end(hold);
-	return bind_variable_(ptr, var, init, 0);
-}
-
-static int lambda_bind_var_(Execute ptr, addr cons, addr *args)
-{
-	addr left, right;
-
-	while (cons != Nil) {
-		if (*args == Nil)
-			return fmte_("Too few argument.", NULL);
-		Return_getcons(cons, &left, &cons);
-		Return_getcons(*args, &right, args);
-		Return(bind_variable_(ptr, left, right, 0));
-	}
-
-	return 0;
-}
-
-static int lambda_bind_opt_(Execute ptr, addr cons, addr *args)
-{
-	addr left, right, var, init, svar;
-
-	while (cons != Nil) {
-		Return_getcons(cons, &left, &cons);
-		List_bind(left, &var, &init, &svar, NULL);
-		if (*args != Nil) {
-			Return_getcons(*args, &right, args);
-			Return(bind_variable_(ptr, var, right, 0));
-			if (svar != Nil) {
-				Return(bind_variable_(ptr, svar, T, 1));
-			}
-		}
-		else {
-			Return(bind_initialize_(ptr, var, init));
-			if (svar != Nil) {
-				Return(bind_variable_(ptr, svar, Nil, 1));
-			}
-		}
-	}
-
-	return 0;
-}
-
-static int lambda_bind_rest_(Execute ptr, addr rest, addr args)
-{
-	/*copylist_force_heap(args, &args);*/
-	/*copy_list_heap_safe(&args, args);*/
-	copyheap(&args, args);
-	return bind_variable_(ptr, rest, args, 1);
-}
-
-static int lambda_bind_key_find_(addr key, addr list, int *ret)
-{
-	addr name;
-
-	while (list != Nil) {
-		Return_getcons(list, &name, &list);
-		/* (var name init svar) */
-		Return_getcdr(name, &name);
-		Return_getcar(name, &name);
-		if (key == name)
-			return Result(ret, 1);
-	}
-
-	return Result(ret, 0);
-}
-
-static int lambda_bind_key_(Execute ptr, addr cons, int allow, addr args)
-{
-	int check;
-	addr left, right, var, name, init, svar, value;
-
-	/* format check */
-	for (right = args; right != Nil; ) {
-		Return_getcons(right, &left, &right);
-		if (right == Nil)
-			return fmte_("&key argument after ~S must be a pair form.", left, NULL);
-		if (! symbolp(left))
-			return fmte_("&key name ~S must be a symbol.", left, NULL);
-		if (! allow) {
-			Return(lambda_bind_key_find_(left, cons, &check));
-			if (! check) {
-				if (find_keyword_allow_other_keys(args))
-					allow = 1;
-				else
-					return fmte_("&key name ~S don't accept.", left, NULL);
-			}
-		}
-		Return_getcons(right, &left, &right);
-	}
-
-	/* bind */
-	while (cons != Nil) {
-		Return_getcons(cons, &right, &cons);
-		List_bind(right, &var, &name, &init, &svar, NULL);
-		if (getplist(args, name, &value) == 0) {
-			Return(bind_variable_(ptr, var, value, 0));
-			if (svar != Nil) {
-				Return(bind_variable_(ptr, svar, T, 1));
-			}
-		}
-		else {
-			Return(bind_initialize_(ptr, var, init));
-			if (svar != Nil) {
-				Return(bind_variable_(ptr, svar, Nil, 1));
-			}
-		}
-	}
-
-	return 0;
-}
-
-static int lambda_bind_allow_(Execute ptr, addr args)
-{
-	addr left;
-
-	while (args != Nil) {
-		Return_getcons(args, &left, &args);
-		if (args == Nil)
-			return fmte_("&key argument after ~S must be a pair form.", left, NULL);
-		if (! symbolp(left))
-			return fmte_("&key name ~S must be a symbol.", left, NULL);
-		Return_getcons(args, &left, &args); /* ignore */
-	}
-
-	return 0;
-}
-
-static int lambda_bind_aux_(Execute ptr, addr cons)
-{
-	addr list, var, init;
-
-	while (cons != Nil) {
-		Return_getcons(cons, &list, &cons);
-		List_bind(list, &var, &init, NULL);
-		Return(bind_initialize_(ptr, var, init));
-	}
-
-	return 0;
-}
-
-static int lambda_bind_code(Execute ptr, addr right)
-{
-	addr var, opt, rest, key, allow, aux, args;
-
-	List_bind(right, &var, &opt, &rest, &key, &allow, &aux, NULL);
-	getargs_list_control_unsafe(ptr, 0, &args);
-	Return(lambda_bind_var_(ptr, var, &args));
-	Return(lambda_bind_opt_(ptr, opt, &args));
-	if (rest != Nil) {
-		Return(lambda_bind_rest_(ptr, rest, args));
-	}
-	else if (key == Nil && allow == Nil && args != Nil) {
-		return fmte_("Too many argument.", NULL);
-	}
-	if (key != Nil) {
-		Return(lambda_bind_key_(ptr, key, allow != Nil, args));
-	}
-	else if (allow != Nil) {
-		Return(lambda_bind_allow_(ptr, args));
-	}
-	return lambda_bind_aux_(ptr, aux);
-}
-
-static int macro_bind_whole_(Execute ptr, addr whole, addr form)
-{
-	if (whole != Nil) {
-		copy_list_heap_safe(&form, form);
-		Return(bind_variable_(ptr, whole, form, 1));
-	}
-
-	return 0;
-}
-
-static int macro_bind_env_(Execute ptr, addr env, addr argenv)
-{
-	if (env != Nil) {
-		Return(bind_variable_(ptr, env, argenv, 1));
-	}
-	return 0;
-}
-
-static int macro_bind_list_(Execute ptr, addr right, addr args);
-static int macro_bind_var_(Execute ptr, addr var, addr *args)
-{
-	addr left, right;
-
-	while (var != Nil) {
-		if (*args == Nil)
-			return fmte_("Too few argument.", NULL);
-		Return_getcons(var, &left, &var);
-		Return_getcons(*args, &right, args);
-		if (consp(left)) {
-			Return(macro_bind_list_(ptr, left, right));
-		}
-		else {
-			Return(bind_variable_(ptr, left, right, 0));
-		}
-	}
-
-	return 0;
-}
-
-static int macro_bind_rest_(Execute ptr, addr rest, addr args)
-{
-	addr var;
-
-	Return_getcons(rest, &var, &rest);  /* (value . &rest) */
-	copy_list_heap_safe(&args, args);
-	return bind_variable_(ptr, var, args, 1);
-}
-
-static int macro_bind_args(Execute ptr, addr args,
-		addr var, addr opt, addr rest, addr key, addr allow, addr aux)
-{
-	Return(macro_bind_var_(ptr, var, &args));
-	Return(lambda_bind_opt_(ptr, opt, &args));
-	if (rest != Nil) {
-		Return(macro_bind_rest_(ptr, rest, args));
-	}
-	else if (key == Nil && allow == Nil && args != Nil) {
-		return fmte_("Too many argument.", NULL);
-	}
-	if (key != Nil) {
-		Return(lambda_bind_key_(ptr, key, allow != Nil, args));
-	}
-	else if (allow != Nil) {
-		Return(lambda_bind_allow_(ptr, args));
-	}
-	return lambda_bind_aux_(ptr, aux);
-}
-
-static int macro_bind_list_(Execute ptr, addr right, addr args)
-{
-	addr var, opt, rest, key, allow, aux, whole, env;
-
-	List_bind(right, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
-	Return(macro_bind_whole_(ptr, whole, args));
-
-	return macro_bind_args(ptr, args, var, opt, rest, key, allow, aux);
-}
-
-static int macro_bind_call_(Execute ptr, addr right, addr args, addr argenv)
-{
-	addr var, opt, rest, key, allow, aux, whole, env;
-
-	List_bind(right, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
-	Return(macro_bind_whole_(ptr, whole, args));
-	Return_getcdr(args, &args);
-	Return(macro_bind_env_(ptr, env, argenv));
-
-	return macro_bind_args(ptr, args, var, opt, rest, key, allow, aux);
-}
-
-static int macro_bind_code(Execute ptr, addr right)
-{
-	addr args, form, env;
-
-	getargs_list_control_unsafe(ptr, 0, &args);
-	/* (lambda (form env) ...) */
-	if (! consp(args))
-		return fmte_("Too few argument in macro function.", NULL);
-	Return_getcons(args, &form, &args);
-	if (! consp(args))
-		return fmte_("Too few argument in macro function.", NULL);
-	Return_getcons(args, &env, &args);
-	if (args != Nil)
-		return fmte_("Too many argument in macro function.", NULL);
-	return macro_bind_call_(ptr, right, form, env);
-}
-
-static int destructuring_bind_code(Execute ptr, addr right)
-{
-	addr args;
-	getargs_control(ptr, 0, &args);
-	return macro_bind_list_(ptr, right, args);
-}
-
-static int macro_lambda_code(Execute ptr, addr right)
-{
-	addr form, value;
-
-	List_bind(right, &form, &value, NULL);
-	macro_heap(&form, Nil, form);
-	setdocumentation_function(form, value);
-	setresult_control(ptr, form);
-
 	return 0;
 }
 
@@ -1073,30 +559,6 @@ static int defun_code(Execute ptr, addr right)
 		list_heap(&pos, pos, symbol, NULL);
 		setresult_control(ptr, pos);
 	}
-
-	return 0;
-}
-
-static int flet_code(Execute ptr, addr list)
-{
-	addr args, pos, value;
-
-	getargs_list_control_unsafe(ptr, 0, &args);
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		GetCons(args, &value, &args);
-		pushcallname_control(ptr, pos, value);
-	}
-
-	return 0;
-}
-
-static int labels_code(Execute ptr, addr right)
-{
-	addr value;
-
-	getresult_control(ptr, &value);
-	pushcallname_control(ptr, right, value);
 
 	return 0;
 }
@@ -1175,12 +637,18 @@ static int values_set_code(Execute ptr, addr right)
 	return 0;
 }
 
-static int the_code(Execute ptr, addr right)
+static int the_code(Execute ptr, addr type)
 {
 	addr value;
-
 	getresult_control(ptr, &value);
-	return typep_error(ptr, value, right);
+	return typep_error(ptr, value, type);
+}
+
+static int the_push_code(Execute ptr, addr type)
+{
+	addr value;
+	getargs_control(ptr, 0, &value);
+	return typep_error(ptr, value, type);
 }
 
 static int if_code(Execute ptr, addr list)
@@ -1269,20 +737,6 @@ static int restart_bind_code(Execute ptr, addr right)
 static int restart_case_code(Execute ptr, addr right)
 {
 	push_restart_code(ptr, 1);
-	return 0;
-}
-
-static int multiple_value_bind_code(Execute ptr, addr right)
-{
-	addr list, var, value;
-
-	getvalues_list_control_local(ptr, &list);
-	while (right != Nil) {
-		GetCons(right, &var, &right);
-		GetCons(list, &value, &list);
-		Return(bind_variable_(ptr, var, value, 0));
-	}
-
 	return 0;
 }
 
@@ -1401,150 +855,133 @@ _g void defcode_constant(constindex index, pointer p)
 	SetFunctionSymbol(symbol, pos);
 }
 #define defcode(x,y) defcode_constant(CONSTANT_CODE_##x, p_##y)
-#define initcode(x) SetPointer_code(p_##x##_code, x##_code)
+#define initcode(x) SetPointer_code(p_##x, x)
 
 _g void init_code_function(void)
 {
 	/* system */
-	initcode(hello);
-	initcode(nop);
-	initcode(abort);
-	initcode(error);
-	initcode(info);
-	initcode(print);
-	initcode(execute_simple_set);
-	initcode(execute_normal_set);
-	initcode(execute_control_set);
-	initcode(execute_switch_set);
-	initcode(execute_simple_push);
-	initcode(execute_normal_push);
-	initcode(execute_control_push);
-	initcode(execute_switch_push);
+	initcode(nop_code);
+	initcode(execute_simple_set_code);
+	initcode(execute_normal_set_code);
+	initcode(execute_control_set_code);
+	initcode(execute_switch_set_code);
+	initcode(execute_simple_push_code);
+	initcode(execute_normal_push_code);
+	initcode(execute_control_push_code);
+	initcode(execute_switch_push_code);
 
 	/* object */
-	initcode(set);
-	initcode(push);
-	initcode(push_result);
-	initcode(push_values);
-	initcode(nil_set);
-	initcode(nil_push);
-	initcode(t_set);
-	initcode(t_push);
-
-	/* declaim */
-	initcode(declaim_special);
-	initcode(declaim_type_value);
-	initcode(declaim_type_function);
-	initcode(declaim_inline);
-	initcode(declaim_notinline);
-	initcode(declaim_compilation);
-	initcode(declaim_debug);
-	initcode(declaim_safety);
-	initcode(declaim_space);
-	initcode(declaim_speed);
-	initcode(declaim_declaration);
-
-	/* let */
-	initcode(let_bind);
-	initcode(leta_lexical);
-	initcode(leta_lexical_type);
-	initcode(leta_special);
-	initcode(leta_special_type);
+	initcode(set_code);
+	initcode(push_code);
+	initcode(push_result_code);
+	initcode(push_values_code);
+	initcode(nil_set_code);
+	initcode(nil_push_code);
+	initcode(t_set_code);
+	initcode(t_push_code);
 
 	/* symbol */
-	initcode(lexical_type);
-	initcode(lexical_set);
-	initcode(lexical_set_type);
-	initcode(lexical_push);
-	initcode(lexical_push_type);
-	initcode(lexical_remove);
-	initcode(special_type);
-	initcode(special_set);
-	initcode(special_push);
-	initcode(special_set_type);
-	initcode(special_push_type);
-	initcode(special_remove);
+	initcode(lexical_set_code);
+	initcode(lexical_push_code);
+	initcode(lexical_rem_code);
+	initcode(special_set_code);
+	initcode(special_push_code);
+	initcode(special_rem_code);
+
+	/* declaim */
+	initcode(declaim_special_code);
+	initcode(declaim_type_value_code);
+	initcode(declaim_type_function_code);
+	initcode(declaim_inline_code);
+	initcode(declaim_notinline_code);
+	initcode(declaim_compilation_code);
+	initcode(declaim_debug_code);
+	initcode(declaim_safety_code);
+	initcode(declaim_space_code);
+	initcode(declaim_speed_code);
+	initcode(declaim_declaration_code);
+
+	/* let */
+	initcode(let_set_code);
+	initcode(let_push_code);
+	initcode(leta_set_code);
+	initcode(leta_push_code);
 
 	/* setq */
-	initcode(setq_lexical);
-	initcode(setq_lexical_type);
-	initcode(setq_special);
-	initcode(setq_special_type);
+	initcode(setq_set_code);
+	initcode(setq_push_code);
 
 	/* function */
-	initcode(function_global_type);
-	initcode(function_global_set);
-	initcode(function_global_push);
-	initcode(function_local_type);
-	initcode(function_local_set);
-	initcode(function_local_push);
-	initcode(setf_global_type);
-	initcode(setf_global_set);
-	initcode(setf_global_push);
-	initcode(setf_local_type);
-	initcode(setf_local_set);
-	initcode(setf_local_push);
+	initcode(function_global_set_code);
+	initcode(function_global_push_code);
+	initcode(function_local_set_code);
+	initcode(function_local_push_code);
+	initcode(setf_global_set_code);
+	initcode(setf_global_push_code);
+	initcode(setf_local_set_code);
+	initcode(setf_local_push_code);
 
 	/* lambda */
-	initcode(lambda);
-	initcode(lambda_self);
-	initcode(lambda_value);
-	initcode(lambda_function);
-	initcode(lambda_tagbody);
-	initcode(lambda_block);
-	initcode(lambda_bind);
-	initcode(macro_bind);
-	initcode(destructuring_bind);
-	initcode(defun);
-	initcode(macro_lambda);
-	initcode(defmacro);
-	initcode(deftype);
-	initcode(define_compiler_macro);
-	initcode(define_symbol_macro);
-	initcode(flet);
-	initcode(labels);
-	initcode(call);
-	initcode(call_type);
-	initcode(call_function_global);
-	initcode(call_function_local);
-	initcode(call_setf_global);
-	initcode(call_setf_local);
+	initcode(lambda_set_code);
+	initcode(lambda_push_code);
+	initcode(lambda_execute_code);
 
-	initcode(values_nil);
-	initcode(values_set);
-	initcode(the);
-	initcode(if);
-	initcode(goto);
-	initcode(go);
-	initcode(return_from);
-	initcode(catch);
-	initcode(throw_operator);
-	initcode(handler_bind);
-	initcode(handler_case);
-	initcode(restart_bind);
-	initcode(restart_case);
+	initcode(macro_set_code);
+	initcode(macro_push_code);
+	initcode(macro_execute_code);
 
-	initcode(multiple_value_bind);
-	initcode(prog1_set);
-	initcode(prog1_push);
-	initcode(funcall);
-	initcode(nth_value);
-	initcode(progv);
+	initcode(bind_set_code);
+	initcode(bind_push_code);
 
-	initcode(taginfo);
-	initcode(blockinfo);
-	initcode(unwind_protect);
+	initcode(defun_code);
+	initcode(defmacro_code);
+	initcode(deftype_code);
+	initcode(define_compiler_macro_code);
+	initcode(define_symbol_macro_code);
+	initcode(flet_set_code);
+	initcode(flet_push_code);
+	initcode(labels_set_code);
+	initcode(labels_push_code);
+	initcode(call_code);
+	initcode(call_type_code);
+	initcode(call_function_global_code);
+	initcode(call_function_local_code);
+	initcode(call_setf_global_code);
+	initcode(call_setf_local_code);
+
+	initcode(values_nil_code);
+	initcode(values_set_code);
+	initcode(the_code);
+	initcode(the_push_code);
+	initcode(locally_declare_code);
+	initcode(if_code);
+	initcode(goto_code);
+	initcode(go_code);
+	initcode(return_from_code);
+	initcode(catch_code);
+	initcode(throw_operator_code);
+	initcode(handler_bind_code);
+	initcode(handler_case_code);
+	initcode(restart_bind_code);
+	initcode(restart_case_code);
+
+	initcode(bind_values_set_code);
+	initcode(bind_values_push_code);
+	initcode(prog1_set_code);
+	initcode(prog1_push_code);
+	initcode(funcall_code);
+	initcode(nth_value_code);
+	initcode(progv_code);
+
+	initcode(taginfo_code);
+	initcode(blockinfo_code);
+	initcode(unwind_protect_code);
 }
 
 _g void build_code_function(void)
 {
 	/* system */
-	defcode(HELLO, hello_code);
 	defcode(NOP, nop_code);
-	defcode(ABORT, abort_code);
-	defcode(ERROR, error_code);
-	defcode(INFO, info_code);
-	defcode(PRINT, print_code);
 	defcode(EXECUTE_SIMPLE_SET, execute_simple_set_code);
 	defcode(EXECUTE_NORMAL_SET, execute_normal_set_code);
 	defcode(EXECUTE_CONTROL_SET, execute_control_set_code);
@@ -1564,6 +1001,14 @@ _g void build_code_function(void)
 	defcode(T_SET, t_set_code);
 	defcode(T_PUSH, t_push_code);
 
+	/* symbol */
+	defcode(LEXICAL_SET, lexical_set_code);
+	defcode(LEXICAL_PUSH, lexical_push_code);
+	defcode(LEXICAL_REM, lexical_rem_code);
+	defcode(SPECIAL_SET, special_set_code);
+	defcode(SPECIAL_PUSH, special_push_code);
+	defcode(SPECIAL_REM, special_rem_code);
+
 	/* declaim */
 	defcode(DECLAIM_SPECIAL, declaim_special_code);
 	defcode(DECLAIM_TYPE_VALUE, declaim_type_value_code);
@@ -1578,64 +1023,46 @@ _g void build_code_function(void)
 	defcode(DECLAIM_DECLARATION, declaim_declaration_code);
 
 	/* let */
-	defcode(LET_BIND, let_bind_code);
-	defcode(LETA_LEXICAL, leta_lexical_code);
-	defcode(LETA_LEXICAL_TYPE, leta_lexical_type_code);
-	defcode(LETA_SPECIAL, leta_special_code);
-	defcode(LETA_SPECIAL_TYPE, leta_special_type_code);
-
-	/* symbol */
-	defcode(LEXICAL_TYPE, lexical_type_code);
-	defcode(LEXICAL_SET, lexical_set_code);
-	defcode(LEXICAL_SET_TYPE, lexical_set_type_code);
-	defcode(LEXICAL_PUSH, lexical_push_code);
-	defcode(LEXICAL_PUSH_TYPE, lexical_push_type_code);
-	defcode(LEXICAL_REMOVE, lexical_remove_code);
-	defcode(SPECIAL_TYPE, special_type_code);
-	defcode(SPECIAL_SET, special_set_code);
-	defcode(SPECIAL_PUSH, special_push_code);
-	defcode(SPECIAL_SET_TYPE, special_set_type_code);
-	defcode(SPECIAL_PUSH_TYPE, special_push_type_code);
-	defcode(SPECIAL_REMOVE, lexical_remove_code);
+	defcode(LET_SET, let_set_code);
+	defcode(LET_PUSH, let_push_code);
+	defcode(LETA_SET, leta_set_code);
+	defcode(LETA_PUSH, leta_push_code);
 
 	/* setq */
-	defcode(SETQ_LEXICAL, setq_lexical_code);
-	defcode(SETQ_LEXICAL_TYPE, setq_lexical_type_code);
-	defcode(SETQ_SPECIAL, setq_special_code);
-	defcode(SETQ_SPECIAL_TYPE, setq_special_type_code);
+	defcode(SETQ_SET, setq_set_code);
+	defcode(SETQ_PUSH, setq_push_code);
 
 	/* function */
-	defcode(FUNCTION_GLOBAL_TYPE, function_global_type_code);
 	defcode(FUNCTION_GLOBAL_SET, function_global_set_code);
 	defcode(FUNCTION_GLOBAL_PUSH, function_global_push_code);
-	defcode(FUNCTION_LOCAL_TYPE, function_local_type_code);
 	defcode(FUNCTION_LOCAL_SET, function_local_set_code);
 	defcode(FUNCTION_LOCAL_PUSH, function_local_push_code);
-	defcode(SETF_GLOBAL_TYPE, setf_global_type_code);
 	defcode(SETF_GLOBAL_SET, setf_global_set_code);
 	defcode(SETF_GLOBAL_PUSH, setf_global_push_code);
-	defcode(SETF_LOCAL_TYPE, setf_local_type_code);
 	defcode(SETF_LOCAL_SET, setf_local_set_code);
 	defcode(SETF_LOCAL_PUSH, setf_local_push_code);
 
 	/* lambda */
-	defcode(LAMBDA, lambda_code);
-	defcode(LAMBDA_SELF, lambda_self_code);
-	defcode(LAMBDA_VALUE, lambda_value_code);
-	defcode(LAMBDA_FUNCTION, lambda_function_code);
-	defcode(LAMBDA_TAGBODY, lambda_tagbody_code);
-	defcode(LAMBDA_BLOCK, lambda_block_code);
-	defcode(LAMBDA_BIND, lambda_bind_code);
-	defcode(MACRO_BIND, macro_bind_code);
-	defcode(DESTRUCTURING_BIND, destructuring_bind_code);
+	defcode(LAMBDA_SET, lambda_set_code);
+	defcode(LAMBDA_PUSH, lambda_push_code);
+	defcode(LAMBDA_EXECUTE, lambda_execute_code);
+
+	defcode(MACRO_SET, macro_set_code);
+	defcode(MACRO_PUSH, macro_push_code);
+	defcode(MACRO_EXECUTE, macro_execute_code);
+
+	defcode(BIND_SET, bind_set_code);
+	defcode(BIND_PUSH, bind_push_code);
+
 	defcode(DEFUN, defun_code);
-	defcode(MACRO_LAMBDA, macro_lambda_code);
 	defcode(DEFMACRO, defmacro_code);
 	defcode(DEFTYPE, deftype_code);
 	defcode(DEFINE_COMPILER_MACRO, define_compiler_macro_code);
 	defcode(DEFINE_SYMBOL_MACRO, define_symbol_macro_code);
-	defcode(FLET, flet_code);
-	defcode(LABELS, labels_code);
+	defcode(FLET_SET, flet_set_code);
+	defcode(FLET_PUSH, flet_push_code);
+	defcode(LABELS_SET, labels_set_code);
+	defcode(LABELS_PUSH, labels_push_code);
 	defcode(CALL, call_code);
 	defcode(CALL_TYPE, call_type_code);
 	defcode(CALL_FUNCTION_GLOBAL, call_function_global_code);
@@ -1646,6 +1073,8 @@ _g void build_code_function(void)
 	defcode(VALUES_NIL, values_nil_code);
 	defcode(VALUES_SET, values_set_code);
 	defcode(THE, the_code);
+	defcode(THE_PUSH, the_push_code);
+	defcode(LOCALLY_DECLARE, locally_declare_code);
 	defcode(IF, if_code);
 	defcode(GOTO, goto_code);
 	defcode(GO, go_code);
@@ -1657,7 +1086,8 @@ _g void build_code_function(void)
 	defcode(RESTART_BIND, restart_bind_code);
 	defcode(RESTART_CASE, restart_case_code);
 
-	defcode(MULTIPLE_VALUE_BIND, multiple_value_bind_code);
+	defcode(BIND_VALUES_SET, bind_values_set_code);
+	defcode(BIND_VALUES_PUSH, bind_values_push_code);
 	defcode(PROG1_SET, prog1_set_code);
 	defcode(PROG1_PUSH, prog1_push_code);
 	defcode(FUNCALL, funcall_code);
@@ -1668,4 +1098,7 @@ _g void build_code_function(void)
 	defcode(BLOCKINFO, blockinfo_code);
 	defcode(UNWIND_PROTECT, unwind_protect_code);
 }
+
+#undef defcode
+#undef initcode
 

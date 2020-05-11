@@ -1,4 +1,3 @@
-#include "code_object.h"
 #include "code_make.h"
 #include "condition.h"
 #include "control_execute.h"
@@ -290,7 +289,7 @@ _g int eval_execute_parse(Execute ptr, addr pos)
 	Return(eval_scope(ptr, &pos, pos));
 	/* code generator */
 	localhold_set(hold, 0, pos);
-	eval_code(ptr->local, &pos, pos);
+	code_make(ptr->local, &pos, pos);
 	/* compile */
 	localhold_set(hold, 0, pos);
 	eval_compile(ptr, pos);
@@ -520,7 +519,6 @@ _g int compile_load(Execute ptr, addr file, addr verbose, addr print, addr exter
  */
 _g void init_eval(void)
 {
-	init_eval_code();
 	init_eval_copy();
 	init_eval_main();
 	init_eval_stack();

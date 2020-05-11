@@ -84,6 +84,7 @@ int test_type_value(void);
 int test_declare(void);
 int test_parse(void);
 int test_scope(void);
+int test_code_queue(void);
 int test_code_make(void);
 int test_eval(void);
 int test_eval_copy(void);
@@ -181,6 +182,7 @@ void degrade_execute(void)
 	DegradeCheck(test_declare);
 	DegradeCheck(test_parse);
 	DegradeCheck(test_scope);
+	DegradeCheck(test_code_queue);
 	DegradeCheck(test_code_make);
 	DegradeCheck(test_eval);
 	DegradeCheck(test_eval_copy);

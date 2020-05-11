@@ -1590,21 +1590,23 @@ lisp-system::trace-del
 ;;
 ;;  code
 ;;
-lisp-code::hello
 lisp-code::nop
-lisp-code::abort
-lisp-code::error
-lisp-code::info
-lisp-code::print
-
 lisp-code::set
 lisp-code::push
 lisp-code::push-result
 lisp-code::push-values
+
 lisp-code::nil-set
 lisp-code::nil-push
 lisp-code::t-set
 lisp-code::t-push
+
+lisp-code::lexical-set
+lisp-code::lexical-push
+lisp-code::lexical-rem
+lisp-code::special-set
+lisp-code::special-push
+lisp-code::special-rem
 
 lisp-code::declaim-special
 lisp-code::declaim-type-value
@@ -1618,48 +1620,38 @@ lisp-code::declaim-safety
 lisp-code::declaim-space
 lisp-code::declaim-speed
 
-lisp-code::let-bind
-lisp-code::let-lexical
-lisp-code::let-lexical-type
-lisp-code::let-special
-lisp-code::let-special-type
-(lisp-code::let*-lexical      :constant code :name leta-lexical)
-(lisp-code::let*-lexical-type :constant code :name leta-lexical-type)
-(lisp-code::let*-special      :constant code :name leta-special)
-(lisp-code::let*-special-type :constant code :name leta-special-type)
+lisp-code::let-set
+lisp-code::let-push
+(lisp-code::let*-set  :constant code :name leta-set)
+(lisp-code::let*-push :constant code :name leta-push)
 
-lisp-code::lexical-type
-lisp-code::lexical-set
-lisp-code::lexical-set-type
-lisp-code::lexical-push
-lisp-code::lexical-push-type
-lisp-code::lexical-remove
+lisp-code::setq-set
+lisp-code::setq-push
 
-lisp-code::special-type
-lisp-code::special-set
-lisp-code::special-set-type
-lisp-code::special-push
-lisp-code::special-push-type
-lisp-code::special-remove
-
-lisp-code::setq-lexical
-lisp-code::setq-lexical-type
-lisp-code::setq-special
-lisp-code::setq-special-type
-
-lisp-code::function-global-type
 lisp-code::function-global-set
 lisp-code::function-global-push
-lisp-code::function-local-type
 lisp-code::function-local-set
 lisp-code::function-local-push
-
-lisp-code::setf-global-type
 lisp-code::setf-global-set
 lisp-code::setf-global-push
-lisp-code::setf-local-type
 lisp-code::setf-local-set
 lisp-code::setf-local-push
+
+lisp-code::lambda-set
+lisp-code::lambda-push
+lisp-code::lambda-execute
+
+lisp-code::macro-set
+lisp-code::macro-push
+lisp-code::macro-execute
+
+lisp-code::bind-set
+lisp-code::bind-push
+
+lisp-code::flet-set
+lisp-code::flet-push
+lisp-code::labels-set
+lisp-code::labels-push
 
 lisp-code::goto
 
@@ -1672,23 +1664,12 @@ lisp-code::execute-normal-push
 lisp-code::execute-control-push
 lisp-code::execute-switch-push
 
-lisp-code::lambda
-lisp-code::lambda-self
-lisp-code::lambda-value
-lisp-code::lambda-function
-lisp-code::lambda-tagbody
-lisp-code::lambda-block
-lisp-code::lambda-bind
-lisp-code::macro-bind
 lisp-code::defun
-lisp-code::macro-lambda
 lisp-code::defmacro
 lisp-code::deftype
 lisp-code::define-compiler-macro
-lisp-code::destructuring-bind
+
 lisp-code::define-symbol-macro
-lisp-code::flet
-lisp-code::labels
 lisp-code::call
 lisp-code::call-type
 lisp-code::call-function-global
@@ -1699,6 +1680,8 @@ lisp-code::call-setf-local
 lisp-code::values-nil
 lisp-code::values-set
 lisp-code::the
+lisp-code::the-push
+lisp-code::locally-declare
 lisp-code::if
 
 lisp-code::tag
@@ -1718,7 +1701,8 @@ lisp-code::eval-local-set
 lisp-code::eval-local-push
 lisp-code::eval-local-remove
 
-lisp-code::multiple-value-bind
+lisp-code::bind-values-set
+lisp-code::bind-values-push
 lisp-code::prog1-set
 lisp-code::prog1-push
 lisp-code::funcall
