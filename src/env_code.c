@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "code_object.h"
 #include "condition.h"
 #include "cons.h"
@@ -6,6 +7,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "env_code.h"
+#include "execute_object.h"
 #include "format.h"
 #include "function.h"
 #include "integer.h"
@@ -93,7 +95,7 @@ static int disassemble_interpreted(Execute ptr, addr stream, addr pos)
 	addr code;
 
 	CheckType(pos, LISPTYPE_FUNCTION);
-	GetFunction(pos, &code);
+	GetCodeFunction(pos, &code);
 	return disassemble_code(ptr, stream, code);
 }
 
@@ -118,7 +120,7 @@ _g int disassemble_common(Execute ptr, addr var)
 
 	standard_output_stream(ptr, &stream);
 	if (symbolp(var)) {
-		getfunction_local(ptr, var, &check);
+		GetFunctionSymbol(var, &check);
 		if (check == Unbound) {
 			getmacro_symbol(var, &check);
 			if (check == Unbound) {
@@ -274,7 +276,7 @@ static int trace_add_function(Execute ptr, addr name, addr call)
 	}
 
 	/* function */
-	getfunction_callname_global(call, &pos);
+	getglobal_callname(call, &pos);
 	if (pos == Unbound) {
 		fmtw("The function ~S is unbound.", call, NULL);
 		return 1; /* error */
@@ -286,7 +288,7 @@ static int trace_add_function(Execute ptr, addr name, addr call)
 
 	/* trade-add */
 	trace_add_make(ptr, name, call, pos, &pos);
-	setfunction_callname_global(call, pos);
+	setglobal_callname(call, pos);
 
 	return 0; /* normal */
 }
@@ -337,7 +339,7 @@ static int trace_del_function(Execute ptr, addr name, addr call)
 	}
 
 	/* function */
-	getfunction_callname_global(call, &pos);
+	getglobal_callname(call, &pos);
 	if (pos == Unbound) {
 		fmtw("The function ~S is unbound.", call, NULL);
 		return 1; /* error */
@@ -349,7 +351,7 @@ static int trace_del_function(Execute ptr, addr name, addr call)
 
 	/* trade-del */
 	trace_del_object(ptr, pos, &pos);
-	setfunction_callname_global(call, pos);
+	setglobal_callname(call, pos);
 
 	return 0; /* normal */
 }

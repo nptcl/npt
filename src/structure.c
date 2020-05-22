@@ -1,4 +1,5 @@
 #include "array_vector.h"
+#include "callname.h"
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_method.h"
@@ -2089,7 +2090,7 @@ static int structure_print_add_method_(struct defstruct *str, addr name, addr me
 	Execute ptr;
 
 	ptr = str->ptr;
-	getfunctioncheck_local(ptr, name, &generic);
+	getfunction_global(name, &generic);
 	Check(! clos_generic_p(generic), "type error");
 	return method_add_method_(ptr, generic, method);
 }

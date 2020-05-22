@@ -4,10 +4,12 @@
 #include "cons_plist.h"
 #include "copy.h"
 #include "control_execute.h"
+#include "equal.h"
 #include "eval_stack.h"
 #include "eval_table.h"
 #include "function.h"
 #include "parse.h"
+#include "parse_object.h"
 #include "scope_call.h"
 #include "scope_declare.h"
 #include "scope_object.h"
@@ -32,7 +34,7 @@ static int symbol_global_tablevalue(Execute ptr, addr symbol, addr *ret)
 	getglobal_eval(ptr, &stack);
 	if (! find_tablevalue(stack, symbol, ret)) {
 		/* heap object */
-		push_tablevalue_heap(ptr, stack, symbol, ret);
+		push_tablevalue_global(ptr, stack, symbol, ret);
 		specialp = getspecialp_tablevalue(*ret);
 		if (! specialp)
 			warning_global_lexical(symbol);
@@ -41,22 +43,28 @@ static int symbol_global_tablevalue(Execute ptr, addr symbol, addr *ret)
 	return getspecialp_tablevalue(*ret);
 }
 
-static void push_closure_value(addr stack, addr symbol, addr value)
+static void push_closure_value(addr stack, addr symbol, addr value, addr *ret)
 {
-	addr key, table, temp;
+	addr pos;
+	size_t lexical;
 
-	GetConst(SYSTEM_CLOSURE_VALUE, &key);
-	GetEvalStackTable(stack, &table);
-	if (getplistplist(table, key, symbol, &temp)) {
-		/* not found */
-		if (setplistplist_heap_force(table, key, symbol, value, &table))
-			SetEvalStackTable(stack, table);
-	}
+	/* source table */
+	lexical = getlexical_tablevalue(value);
+	/* destination table */
+	copy_tablevalue(&pos, value);
+	setclosurep_tablevalue(pos, 1);
+	setclosure_tablevalue(pos, lexical);
+	setlexical_tablevalue(pos, increment_stack_eval(stack));
+	setvalue_lexical_evalstack(stack, pos);
+	setvalue_scope_evalstack(stack, pos);
+	/* result */
+	*ret = pos;
 }
 
-static int symbol_tablevalue(Execute ptr, addr stack, addr symbol, addr *ret)
+static int symbol_tablevalue(Execute ptr,
+		addr stack, addr symbol, int basep, addr *ret)
 {
-	addr table, key, next;
+	addr next;
 
 	/* global */
 	if (stack == Nil) {
@@ -64,21 +72,32 @@ static int symbol_tablevalue(Execute ptr, addr stack, addr symbol, addr *ret)
 	}
 
 	/* local */
-	GetConst(SYSTEM_TABLE_VALUE, &key);
-	GetEvalStackTable(stack, &table);
-	if (getplistplist(table, key, symbol, ret) == 0) {
+	if (getvalue_scope_evalstack(stack, symbol, ret)) {
+		if (basep)
+			setbasep_tablevalue(*ret, 1);
+		setreference_tablevalue(*ret, 1);
 		return getspecialp_tablevalue(*ret);
+	}
+
+	/* basep */
+	if (RefEvalStackType(stack) == EVAL_STACK_MODE_LAMBDA) {
+		basep = 1;
 	}
 
 	/* next */
 	GetEvalStackNext(stack, &next);
-	if (symbol_tablevalue(ptr, next, symbol, ret)) {
+	if (symbol_tablevalue(ptr, next, symbol, basep, ret)) {
 		return 1; /* special */
+	}
+
+	/* global */
+	if (getglobalp_tablevalue(*ret)) {
+		return 0; /* lexical */
 	}
 
 	/* closure */
 	if (RefEvalStackType(stack) == EVAL_STACK_MODE_LAMBDA) {
-		push_closure_value(stack, symbol, *ret);
+		push_closure_value(stack, symbol, *ret, ret);
 	}
 
 	return 0; /* lexical */
@@ -90,9 +109,8 @@ static int find_symbol_scope(Execute ptr, addr symbol, addr *ret)
 	addr stack, value;
 
 	getstack_eval(ptr, &stack);
-	specialp = symbol_tablevalue(ptr, stack, symbol, &value);
-	setreference_tablevalue(value, 1);
-	copy_tablevalue(NULL, ret, value);
+	specialp = symbol_tablevalue(ptr, stack, symbol, 0, &value);
+	copy_tablevalue(ret, value);
 
 	return specialp;
 }
@@ -123,8 +141,7 @@ static int symbol_macrolet_global_p(Execute ptr, addr symbol, addr *ret)
 	GetEvalStackTable(stack, &table);
 
 	/* global special */
-	GetConst(SYSTEM_TABLE_VALUE, &key);
-	if (getplistplist(table, key, symbol, &key) == 0) {
+	if (getvalue_scope_evalstack(stack, symbol, &key)) {
 		if (getspecialp_tablevalue(key)) {
 			return 0; /* special variable */
 		}
@@ -161,9 +178,7 @@ static int symbol_macrolet_p(Execute ptr, addr symbol, addr *ret)
 	getstack_eval(ptr, &stack);
 	while (stack != Nil) {
 		/* local variable */
-		GetConst(SYSTEM_TABLE_VALUE, &key);
-		GetEvalStackTable(stack, &table);
-		if (getplistplist(table, key, symbol, &key) == 0) {
+		if (getvalue_scope_evalstack(stack, symbol, &key)) {
 			return 0; /* shadow */
 		}
 
@@ -438,30 +453,70 @@ _g int scope_locally_call(Execute ptr, addr decl, addr cons, addr *ret)
 /*
  *  tagbody
  */
-static void push_tabletagbody(addr stack, addr tag)
+static void push_tabletagbody_lexical(addr stack, addr pos)
 {
-	addr value, key, table;
+	addr name;
 
-	make_tabletagbody(NULL, &value, tag);
-	GetConst(SYSTEM_TABLE_TAGBODY, &key);
-	GetEvalStackTable(stack, &table);
-	if (setplistplist_eql_heap(table, key, tag, value, &table))
-		SetEvalStackTable(stack, table);
-}
-
-static void tagbody_push(addr stack, addr cons)
-{
-	addr pos;
-
-	while (cons != Nil) {
-		GetCons(cons, &pos, &cons);
-		Check(RefEvalParseType(pos) != EVAL_PARSE_TAG, "type error");
-		GetEvalParse(pos, 0, &pos);
-		push_tabletagbody(stack, pos);
+	Check(stack == Nil, "stack error");
+	if (eval_stack_lambda_lexical_p(stack)) {
+		/* lexical or lambda */
+		getname_tabletagbody(pos, &name);
+		setlexical_tabletagbody(pos, increment_stack_eval(stack));
+		settagbody_lexical_evalstack(stack, pos);
+	}
+	else {
+		GetEvalStackNext(stack, &stack);
+		push_tabletagbody_lexical(stack, pos);
 	}
 }
 
-static int tagbody_allcons(Execute ptr, addr body, addr *ret)
+static void push_tabletagbody(addr stack, addr tag, addr *ret)
+{
+	addr pos;
+
+	if (gettagbody_scope_evalstack(stack, tag, ret))
+		return;
+	make_tabletagbody(&pos, tag);
+	settagbody_scope_evalstack(stack, pos);
+	push_tabletagbody_lexical(stack, pos);
+	*ret = pos;
+}
+
+static void tagbody_call_push(addr stack, addr list, addr *ret)
+{
+	addr root, pos;
+
+	root = Nil;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		Check(RefEvalParseType(pos) != EVAL_PARSE_TAG, "type error");
+		GetEvalParse(pos, 0, &pos);
+		push_tabletagbody(stack, pos, &pos);
+		cons_heap(&root, pos, root);
+	}
+	nreverse_list_unsafe(ret, root);
+}
+
+static void tagbody_call_find(addr list, addr pos, addr *ret)
+{
+	addr value, check;
+
+	GetEvalParse(pos, 0, &pos);
+	while (list != Nil) {
+		GetCons(list, &value, &list);
+		getname_tabletagbody(value, &check);
+		if (eql_function(pos, check)) {
+			*ret = value;
+			return;
+		}
+	}
+
+	/* error */
+	*ret = 0;
+	fmte("Invalid tag name.", NULL);
+}
+
+static int tagbody_allcons(Execute ptr, addr tag, addr body, addr *ret)
 {
 	addr root, pos;
 	LocalHold hold;
@@ -470,7 +525,7 @@ static int tagbody_allcons(Execute ptr, addr body, addr *ret)
 	for (root = Nil; body != Nil; ) {
 		GetCons(body, &pos, &body);
 		if (RefEvalParseType(pos) == EVAL_PARSE_TAG) {
-			GetEvalParse(pos, 0, &pos);
+			tagbody_call_find(tag, pos, &pos);
 			make_eval_scope(ptr, &pos, EVAL_PARSE_TAG, Nil, pos);
 		}
 		else {
@@ -485,30 +540,27 @@ static int tagbody_allcons(Execute ptr, addr body, addr *ret)
 	return 0;
 }
 
-static void tagbody_check(addr stack)
+static void tagbody_call_remove(addr stack, addr list, addr *ret)
 {
-	addr cons, key, value;
+	addr root, pos;
 
-	GetConst(SYSTEM_TABLE_TAGBODY, &cons);
-	GetEvalStackTable(stack, &stack);
-	getplist(stack, cons, &cons);
-	while (cons != Nil) {
-		GetCons(cons, &key, &cons);
-		GetCons(cons, &value, &cons);
-		if (getreference_tabletagbody(value) == 0) {
-			/* fmtw("Unused tag ~S.", key, NULL); */
-		}
+	root = Nil;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		if (getreference_tabletagbody(pos))
+			cons_heap(&root, pos, root);
 	}
+	nreverse_list_unsafe(ret, root);
 }
 
-_g int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *ret)
+_g int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *rtag, addr *rbody)
 {
 	addr stack;
 
-	stack = newstack_tagbody(ptr);
-	tagbody_push(stack, tag);
-	Return(tagbody_allcons(ptr, body, ret));
-	tagbody_check(stack);
+	stack = newstack_nil(ptr);
+	tagbody_call_push(stack, tag, &tag);
+	Return(tagbody_allcons(ptr, tag, body, rbody));
+	tagbody_call_remove(stack, tag, rtag);
 	freestack_eval(ptr, stack);
 
 	return 0;
@@ -518,29 +570,22 @@ _g int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *ret)
 /*
  *  go
  */
-static int find_tabletagbody(addr stack, addr tag, addr *ret)
+static void push_closure_tagbody(addr stack, addr tag, addr value, addr *ret)
 {
-	addr key;
+	addr pos;
+	size_t lexical;
 
-	GetEvalStackTable(stack, &stack);
-	GetConst(SYSTEM_TABLE_TAGBODY, &key);
-	if (ret == NULL)
-		ret = &key; /* ignore */
-
-	return getplistplist_eql(stack, key, tag, ret) == 0;
-}
-
-static void push_closure_tagbody(addr stack, addr tag, addr value)
-{
-	addr key, table, temp;
-
-	GetConst(SYSTEM_CLOSURE_TAGBODY, &key);
-	GetEvalStackTable(stack, &table);
-	if (getplistplist_eql(table, key, tag, &temp)) {
-		/* not found */
-		if (setplistplist_eql_heap(table, key, tag, value, &table))
-			SetEvalStackTable(stack, table);
-	}
+	/* source table */
+	lexical = getlexical_tabletagbody(value);
+	/* destination table */
+	copy_tabletagbody(&pos, value);
+	setclosurep_tabletagbody(pos, 1);
+	setclosure_tabletagbody(pos, lexical);
+	setlexical_tabletagbody(pos, increment_stack_eval(stack));
+	settagbody_lexical_evalstack(stack, pos);
+	settagbody_scope_evalstack(stack, pos);
+	/* result */
+	*ret = pos;
 }
 
 static int go_tabletagbody(addr stack, addr tag, addr *ret)
@@ -553,7 +598,8 @@ static int go_tabletagbody(addr stack, addr tag, addr *ret)
 	}
 
 	/* local */
-	if (find_tabletagbody(stack, tag, ret)) {
+	if (gettagbody_scope_evalstack(stack, tag, ret)) {
+		setreference_tabletagbody(*ret, 1);
 		return 1;
 	}
 
@@ -565,7 +611,7 @@ static int go_tabletagbody(addr stack, addr tag, addr *ret)
 
 	/* closure */
 	if (RefEvalStackType(stack) == EVAL_STACK_MODE_LAMBDA) {
-		push_closure_tagbody(stack, tag, *ret);
+		push_closure_tagbody(stack, tag, *ret, ret);
 	}
 
 	return 1;
@@ -578,7 +624,6 @@ _g void scope_go_call(Execute ptr, addr *ret, addr tag)
 	getstack_eval(ptr, &stack);
 	if (! go_tabletagbody(stack, tag, &table))
 		fmte("Tag ~S is not found.", tag, NULL);
-	setreference_tabletagbody(table, 1);
 	*ret = table;
 }
 
@@ -586,16 +631,41 @@ _g void scope_go_call(Execute ptr, addr *ret, addr tag)
 /*
  *  block
  */
+static void push_tableblock_lexical(addr stack, addr pos)
+{
+	addr name;
+
+	Check(stack == Nil, "stack error");
+	if (eval_stack_lambda_lexical_p(stack)) {
+		/* lexical or lambda */
+		getname_tableblock(pos, &name);
+		setlexical_tableblock(pos, increment_stack_eval(stack));
+		setblock_lexical_evalstack(stack, pos);
+	}
+	else {
+		GetEvalStackNext(stack, &stack);
+		push_tableblock_lexical(stack, pos);
+	}
+}
+
 static void push_tableblock(addr stack, addr name, addr *ret)
 {
-	addr key, table;
+	addr pos;
 
-	make_tabletagbody(NULL, &name, name);
-	GetConst(SYSTEM_TABLE_BLOCK, &key);
-	GetEvalStackTable(stack, &table);
-	if (setplist_heap(table, key, name, &table))
-		SetEvalStackTable(stack, table);
-	*ret = name;
+	if (getblock_scope_evalstack(stack, name, ret))
+		return;
+	make_tableblock(&pos, name);
+	setblock_scope_evalstack(stack, pos);
+	push_tableblock_lexical(stack, pos);
+	*ret = pos;
+}
+
+static void block_call_remove(addr stack, addr pos, addr *ret)
+{
+	if (getreference_tableblock(pos))
+		*ret = pos;
+	else
+		*ret = Nil;
 }
 
 _g int scope_block_call(Execute ptr, addr name, addr cons,
@@ -603,9 +673,10 @@ _g int scope_block_call(Execute ptr, addr name, addr cons,
 {
 	addr stack;
 
-	stack = newstack_block(ptr);
-	push_tableblock(stack, name, rname);
+	stack = newstack_nil(ptr);
+	push_tableblock(stack, name, &name);
 	Return(scope_allcons(ptr, rcons, rtype, cons));
+	block_call_remove(stack, name, rname);
 	freestack_eval(ptr, stack);
 
 	return 0;
@@ -615,33 +686,25 @@ _g int scope_block_call(Execute ptr, addr name, addr cons,
 /*
  *  return-from
  */
-static int find_tableblock(addr stack, addr name, addr *ret)
+static void push_closure_block(addr stack, addr tag, addr value, addr *ret)
 {
-	addr key, check;
+	addr pos;
+	size_t lexical;
 
-	GetEvalStackTable(stack, &stack);
-	GetConst(SYSTEM_TABLE_BLOCK, &key);
-	if (getplist(stack, key, &key))
-		return 0;
-	gettag_tabletagbody(key, &check);
-	if (check != name)
-		return 0;
-	*ret = key;
-
-	return 1;
+	/* source table */
+	lexical = getlexical_tableblock(value);
+	/* destination table */
+	copy_tableblock(&pos, value);
+	setclosurep_tableblock(pos, 1);
+	setclosure_tableblock(pos, lexical);
+	setlexical_tableblock(pos, increment_stack_eval(stack));
+	setblock_lexical_evalstack(stack, pos);
+	setblock_scope_evalstack(stack, pos);
+	/* result */
+	*ret = pos;
 }
 
-static void push_closure_block(addr stack, addr name)
-{
-	addr key, table;
-
-	GetConst(SYSTEM_CLOSURE_BLOCK, &key);
-	GetEvalStackTable(stack, &table);
-	if (pushnewplist_heap(table, key, name, &table))
-		SetEvalStackTable(stack, table);
-}
-
-static int name_tableblock(addr stack, addr name, addr *ret)
+static int name_tableblock(addr stack, addr tag, addr *ret)
 {
 	addr next;
 
@@ -651,33 +714,34 @@ static int name_tableblock(addr stack, addr name, addr *ret)
 	}
 
 	/* local */
-	if (find_tableblock(stack, name, ret)) {
+	if (getblock_scope_evalstack(stack, tag, ret)) {
+		setreference_tableblock(*ret, 1);
 		return 1;
 	}
 
 	/* next */
 	GetEvalStackNext(stack, &next);
-	if (! name_tableblock(next, name, ret)) {
+	if (! name_tableblock(next, tag, ret)) {
 		return 0;
 	}
 
 	/* closure */
 	if (RefEvalStackType(stack) == EVAL_STACK_MODE_LAMBDA) {
-		push_closure_block(stack, name);
+		push_closure_block(stack, tag, *ret, ret);
 	}
 
 	return 1;
 }
 
-_g int scope_return_from_call(Execute ptr, addr name, addr form, addr *ret)
+_g int scope_return_from_call(Execute ptr,
+		addr name, addr form, addr *rname, addr *rexpr)
 {
-	addr stack, table;
+	addr stack;
 
 	getstack_eval(ptr, &stack);
-	if (! name_tableblock(stack, name, &table))
+	if (! name_tableblock(stack, name, rname))
 		fmte("Cannot find block name ~S.", name, NULL);
-	setreference_tabletagbody(table, 1);
-	return scope_eval(ptr, ret, form);
+	return scope_eval(ptr, rexpr, form);
 }
 
 
@@ -740,31 +804,15 @@ _g void scope_init_mvbind(struct mvbind_struct *str)
 
 static void mvbind_maketable(Execute ptr, struct mvbind_struct *str)
 {
-	addr stack, decl, args, var;
+	addr stack, decl, args, root, var;
 
 	stack = str->stack;
 	decl = str->decl;
 	args = str->args;
-	while (args != Nil) {
-		GetCons(args, &var, &args);
-		check_scope_variable(var);
-		ifdeclvalue(ptr, stack, var, decl, NULL);
-	}
-}
-
-static void mvbind_update(struct mvbind_struct *str)
-{
-	addr stack, args, key, root, var;
-
-	stack = str->stack;
-	args = str->args;
-	GetEvalStackTable(stack, &stack);
-	GetConst(SYSTEM_TABLE_VALUE, &key);
-	getplist(stack, key, &stack);
-
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &var, &args);
-		tablevalue_update(stack, &var, var);
+		check_scope_variable(var);
+		ifdeclvalue(ptr, stack, var, decl, &var);
 		cons_heap(&root, var, root);
 	}
 	nreverse_list_unsafe(&str->args, root);
@@ -779,7 +827,6 @@ static int mvbind_execute(Execute ptr, struct mvbind_struct *str)
 	apply_declare(ptr, stack, str->decl, &str->free);
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	ignore_checkvalue(stack);
-	mvbind_update(str);
 
 	return 0;
 }

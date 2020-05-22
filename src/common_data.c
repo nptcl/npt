@@ -16,10 +16,10 @@
  *   args   t
  *   value  (values &rest t)
  */
-static int check_data_function(Execute ptr, addr call, addr *ret)
+static int check_data_function(addr call, addr *ret)
 {
 	if (GetType(call) == LISPTYPE_SYMBOL) {
-		getfunctioncheck_local(ptr, call, &call);
+		getfunction_global(call, &call);
 		if (macro_function_p(call))
 			return fmte_("Cannot call the macro-function ~S.", call, NULL);
 	}
@@ -32,7 +32,7 @@ static int check_data_function(Execute ptr, addr call, addr *ret)
 
 static int function_apply(Execute ptr, addr call, addr arg, addr args)
 {
-	Return(check_data_function(ptr, call, &call));
+	Return(check_data_function(call, &call));
 	return apply_common(ptr, call, arg, args);
 }
 
@@ -259,7 +259,7 @@ static void defspecial_macrolet(void)
  */
 static int function_funcall(Execute ptr, addr call, addr args)
 {
-	Return(check_data_function(ptr, call, &call));
+	Return(check_data_function(call, &call));
 	return apply_control(ptr, call, args);
 }
 

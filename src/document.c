@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_combination.h"
@@ -273,7 +274,7 @@ static int method_documentation_list_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	parse_callname_error(&object, object);
-	getfunctioncheck_callname_local(ptr, object, &object);
+	getglobalcheck_callname(object, &object);
 	getdocumentation_function(object, &object);
 	setresult_control(ptr, object);
 
@@ -284,7 +285,7 @@ static int method_setf_documentation_list_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	parse_callname_error(&object, object);
-	getfunctioncheck_callname_local(ptr, object, &object);
+	getglobalcheck_callname(object, &object);
 	setdocumentation_function(object, value);
 	setresult_control(ptr, value);
 
@@ -329,7 +330,7 @@ static int method_documentation_list_compiled_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
 	parse_callname_error(&object, object);
-	getfunctioncheck_callname_local(ptr, object, &object);
+	getglobalcheck_callname(object, &object);
 	if (! compiled_function_p(object))
 		TypeError(object, COMPILED_FUNCTION);
 	getdocumentation_function(object, &object);
@@ -342,7 +343,7 @@ static int method_setf_documentation_list_compiled_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
 	parse_callname_error(&object, object);
-	getfunctioncheck_callname_local(ptr, object, &object);
+	getglobalcheck_callname(object, &object);
 	if (! compiled_function_p(object))
 		TypeError(object, COMPILED_FUNCTION);
 	setdocumentation_function(object, value);
@@ -388,7 +389,7 @@ static void setf_documentation_list_compiled_function(Execute ptr, addr name, ad
 static int method_documentation_symbol_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	getfunctioncheck_local(ptr, object, &object);
+	getfunction_global(object, &object);
 	getdocumentation_function(object, &object);
 	setresult_control(ptr, object);
 
@@ -398,7 +399,7 @@ static int method_documentation_symbol_function(Execute ptr,
 static int method_setf_documentation_symbol_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	getfunctioncheck_local(ptr, object, &object);
+	getfunction_global(object, &object);
 	setdocumentation_function(object, value);
 	setresult_control(ptr, value);
 
@@ -442,7 +443,7 @@ static void setf_documentation_symbol_function(Execute ptr, addr name, addr gen)
 static int method_documentation_symbol_compiled_function(Execute ptr,
 		addr method, addr next, addr object, addr doc_type)
 {
-	getfunctioncheck_local(ptr, object, &object);
+	getfunction_global(object, &object);
 	if (! compiled_function_p(object))
 		TypeError(object, COMPILED_FUNCTION);
 	getdocumentation_function(object, &object);
@@ -454,7 +455,7 @@ static int method_documentation_symbol_compiled_function(Execute ptr,
 static int method_setf_documentation_symbol_compiled_function(Execute ptr,
 		addr method, addr next, addr value, addr object, addr doc_type)
 {
-	getfunctioncheck_local(ptr, object, &object);
+	getfunction_global(object, &object);
 	if (! compiled_function_p(object))
 		TypeError(object, COMPILED_FUNCTION);
 	setdocumentation_function(object, value);
@@ -508,7 +509,7 @@ static int method_documentation_symbol_setf(Execute ptr,
 	getsetfmacro_symbol(object, &pos);
 	/* setf-function */
 	if (pos == Unbound)
-		getsetfcheck_local(ptr, object, &pos);
+		getsetf_global(object, &pos);
 	/* get documentation */
 	getdocumentation_function(pos, &pos);
 	setresult_control(ptr, pos);
@@ -525,7 +526,7 @@ static int method_setf_documentation_symbol_setf(Execute ptr,
 	getsetfmacro_symbol(object, &pos);
 	/* setf-function */
 	if (pos == Unbound)
-		getsetfcheck_local(ptr, object, &pos);
+		getsetf_global(object, &pos);
 	/* set documentation */
 	setdocumentation_function(pos, value);
 	setresult_control(ptr, value);
@@ -988,7 +989,7 @@ static int method_documentation_symbol_type(Execute ptr,
 	clos_find_class_nil(object, &clos);
 	if (clos != Nil) {
 		GetConst(COMMON_DOCUMENTATION, &pos);
-		getfunctioncheck_local(ptr, pos, &pos);
+		getfunction_global(pos, &pos);
 		return funcall_control(ptr, pos, clos, doc_type, NULL);
 	}
 
@@ -1013,7 +1014,7 @@ static int method_setf_documentation_symbol_type(Execute ptr,
 	clos_find_class_nil(object, &clos);
 	if (clos != Nil) {
 		GetConst(COMMON_DOCUMENTATION, &pos);
-		getsetfcheck_local(ptr, pos, &pos);
+		getsetf_global(pos, &pos);
 		return funcall_control(ptr, pos, value, clos, doc_type, NULL);
 	}
 

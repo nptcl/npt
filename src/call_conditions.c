@@ -862,7 +862,7 @@ _g int make_condition_common(Execute ptr, addr args, addr *ret)
 	addr call;
 
 	GetConst(COMMON_MAKE_INSTANCE, &call);
-	getfunctioncheck_local(ptr, call, &call);
+	getfunction_global(call, &call);
 	return callclang_apply(ptr, ret, call, args);
 }
 

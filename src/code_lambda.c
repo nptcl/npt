@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -6,8 +7,10 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "copy.h"
+#include "eval.h"
 #include "eval_table.h"
 #include "execute.h"
+#include "execute_object.h"
 #include "function.h"
 #include "lambda.h"
 #include "scope_object.h"
@@ -25,32 +28,29 @@ static int let_free_value(Execute ptr, addr pos, addr type)
 	if (specialp)
 		getspecial_local(ptr, pos, &pos);
 	else
-		getlexical_local(ptr, pos, &pos);
+		getvalue_tablevalue(ptr, pos, &pos);
 
 	return typep_unbound_error(ptr, pos, type);
 }
 
 static int let_free_function(Execute ptr, addr pos, addr type)
 {
-	int globalp, symbolp;
+	addr name, value;
 
-	globalp = getglobalp_tablefunction(pos);
-	symbolp = (RefCallNameType(pos) == CALLNAME_SYMBOL);
-	getname_tablefunction(pos, &pos);
-	if (globalp) {
-		if (symbolp)
-			GetFunctionSymbol(pos, &pos);
-		else
-			getsetf_symbol(pos, &pos);
+	if (getglobalp_tablefunction(pos)) {
+		getname_tablefunction(pos, &name);
+		if (symbolp_callname(name)) {
+			GetFunctionSymbol(pos, &value);
+		}
+		else {
+			getsetf_symbol(pos, &value);
+		}
 	}
 	else {
-		if (symbolp)
-			getfunction_local(ptr, pos, &pos);
-		else
-			getsetf_local(ptr, pos, &pos);
+		getvalue_tablefunction(ptr, pos, &value);
 	}
 
-	return typep_unbound_error(ptr, pos, type);
+	return typep_unbound_error(ptr, value, type);
 }
 
 _g int let_free_code(Execute ptr, addr list)
@@ -78,41 +78,74 @@ _g int let_free_code(Execute ptr, addr list)
 /*
  *  lambda object
  */
-static void lambda_closure_code(Execute ptr, addr pos, addr vector)
+static void getclosure_type_code(Execute ptr, addr table, addr *ret)
 {
-	addr x, list, value;
+	addr pos;
+	size_t dst, src;
 
-	/* value */
-	GetArrayA2(vector, EvalClosure_Value, &list);
+	CheckTableTable(table);
+	get_evaltable(table, &pos);
+	switch (gettype_evaltable(table)) {
+		case EvalTable_Value:
+			src = getclosure_tablevalue(pos); /* from */
+			dst = getlexical_tablevalue(pos); /* to */
+			getlow_lexical_control(ptr, src, &pos);
+			closure_heap(ret, pos, dst);
+			break;
+
+		case EvalTable_Function:
+			src = getclosure_tablefunction(pos); /* from */
+			dst = getlexical_tablefunction(pos); /* to */
+			getlow_lexical_control(ptr, src, &pos);
+			closure_heap(ret, pos, dst);
+			break;
+
+		case EvalTable_TagBody:
+			src = getclosure_tabletagbody(pos); /* from */
+			dst = getlexical_tabletagbody(pos); /* to */
+			getlow_lexical_control(ptr, src, &pos);
+			closure_heap(ret, pos, dst);
+			break;
+
+		case EvalTable_Block:
+			src = getclosure_tableblock(pos); /* from */
+			dst = getlexical_tableblock(pos); /* to */
+			getlow_lexical_control(ptr, src, &pos);
+			closure_heap(ret, pos, dst);
+			break;
+
+		default:
+			Abort("Invalid eval-table type.");
+			break;
+	}
+}
+
+static void lambda_closure_code(Execute ptr, addr pos, addr list)
+{
+	addr root, x;
+
+	root = Nil;
 	while (list != Nil) {
 		GetCons(list, &x, &list);
-		conslexicalcheck_local(ptr, x, &value);
-		pushclosure_value_function(pos, x, value);
+		getclosure_type_code(ptr, x, &x);
+		cons_heap(&root, x, root);
 	}
+	SetDataFunction(pos, root);
+}
 
-	/* function */
-	GetArrayA2(vector, EvalClosure_Function, &list);
-	while (list != Nil) {
-		GetCons(list, &x, &list);
-		getcallnamecheck_local(ptr, x, &value);
-		pushclosure_function_function(pos, x, value);
-	}
+static void lambda_recursive_code(Execute ptr, addr pos, addr value)
+{
+	addr x, list;
+	size_t index;
 
-	/* tagbody */
-	GetArrayA2(vector, EvalClosure_TagBody, &list);
-	while (list != Nil) {
-		GetCons(list, &x, &list);
-		gettagbody_execute(ptr, &value, x);
-		pushclosure_tagbody_function(pos, x, value);
-	}
+	/* closure */
+	GetIndex(value, &index);
+	closure_heap(&x, pos, index);
 
-	/* block */
-	GetArrayA2(vector, EvalClosure_Block, &list);
-	while (list != Nil) {
-		GetCons(list, &x, &list);
-		getblock_execute(ptr, &x, x);
-		pushclosure_block_function(pos, x);
-	}
+	/* append */
+	GetDataFunction(pos, &list);
+	cons_heap(&list, x, list);
+	SetDataFunction(pos, list);
 }
 
 static void lambda_info_code(Execute ptr, addr scope, addr pos)
@@ -132,14 +165,14 @@ static void lambda_info_code(Execute ptr, addr scope, addr pos)
 	GetEvalScopeIndex(scope, EvalLambda_Defun, &value);
 	if (value != Nil)
 		setdefunform_function(pos, value);
-	/* self */
-	GetEvalScopeIndex(scope, EvalLambda_Self, &value);
-	if (value != Nil)
-		setrecursive_function(pos);
 	/* closure */
 	GetEvalScopeIndex(scope, EvalLambda_Clos, &value);
 	if (value != Nil)
 		lambda_closure_code(ptr, pos, value);
+	/* self */
+	GetEvalScopeIndex(scope, EvalLambda_Self, &value);
+	if (value != Nil)
+		lambda_recursive_code(ptr, pos, value);
 }
 
 static void lambda_object_code(Execute ptr, addr scope, addr *ret)
@@ -171,24 +204,22 @@ _g int lambda_push_code(Execute ptr, addr pos)
 /*
  *  execute
  */
-static int lambda_args_value_(Execute ptr, addr left, addr right, int ignore)
+static int lambda_args_value_(Execute ptr, addr pos, addr value, int ignore)
 {
-	int specialp;
-	addr type;
+	addr type, name;
 
 	/* type check */
-	if (! ignore && getcheck_tablevalue(left)) {
-		gettype_tablevalue(left, &type);
-		Return(typep_error(ptr, right, type));
+	if (! ignore && getcheck_tablevalue(pos)) {
+		gettype_tablevalue(pos, &type);
+		Return(typep_error(ptr, value, type));
 	}
 
 	/* push */
-	specialp = getspecialp_tablevalue(left);
-	getname_tablevalue(left, &left);
-	if (specialp)
-		pushspecial_control(ptr, left, right);
+	getname_tablevalue(pos, &name);
+	if (getspecialp_tablevalue(pos))
+		pushspecial_control(ptr, name, value);
 	else
-		pushlexical_control(ptr, left, right);
+		setvalue_tablevalue(ptr, pos, value);
 
 	return 0;
 }
@@ -348,34 +379,118 @@ static int lambda_args_aux_(Execute ptr, addr cons)
 	return 0;
 }
 
+static int lambda_args_empty(addr args)
+{
+	return (args == Nil)? 0: fmte_("Too many argument.", NULL);
+}
+
 static int lambda_args_code(Execute ptr, addr list)
 {
-	addr var, opt, rest, key, allow, aux, args;
+	addr args, pos, rest, key, allow, aux;
 
-	List_bind(list, &var, &opt, &rest, &key, &allow, &aux, NULL);
 	getargs_list_control_unsafe(ptr, 0, &args);
-	Return(lambda_args_var_(ptr, var, &args));
-	Return(lambda_args_opt_(ptr, opt, &args));
+	/* empty */
+	if (list == Nil)
+		return lambda_args_empty(args);
+	/* var */
+	GetCons(list, &pos, &list);
+	Return(lambda_args_var_(ptr, pos, &args));
+	if (list == Nil)
+		return lambda_args_empty(args);
+	/* opt */
+	GetCons(list, &pos, &list);
+	Return(lambda_args_opt_(ptr, pos, &args));
+	if (list == Nil)
+		return lambda_args_empty(args);
+	/* argument */
+	GetCons(list, &rest, &list);
+	key = allow = aux = Nil;
+	if (list != Nil) {
+		GetCons(list, &key, &list);
+		if (list != Nil) {
+			GetCons(list, &allow, &list);
+			if (list != Nil) {
+				GetCar(list, &aux);
+			}
+		}
+	}
+	/* rest */
 	if (rest != Nil) {
 		Return(lambda_args_rest_(ptr, rest, args));
 	}
 	else if (key == Nil && allow == Nil && args != Nil) {
 		return fmte_("Too many argument.", NULL);
 	}
+	/* key */
 	if (key != Nil) {
 		Return(lambda_args_key_(ptr, key, allow != Nil, args));
 	}
 	else if (allow != Nil) {
 		Return(lambda_args_allow_(ptr, args));
 	}
-	return lambda_args_aux_(ptr, aux);
+	/* aux */
+	if (aux != Nil) {
+		Return(lambda_args_aux_(ptr, aux));
+	}
+
+	return 0;
+}
+
+static void lambda_lexical_restore(Execute ptr, addr list)
+{
+	addr pos;
+	size_t index;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		CheckType(pos, LISPSYSTEM_CLOSURE);
+		index = lexical_closure(pos);
+		get_closure(pos, &pos);
+		setlow_lexical_control(ptr, index, pos);
+	}
+}
+
+static void lambda_lexical_closure(Execute ptr, addr list)
+{
+	addr pos;
+	size_t index;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		CheckType(pos, LISPTYPE_INDEX);
+		GetIndex(pos, &index);
+		reference_lexical_control(ptr, index);
+	}
+}
+
+static void lambda_lexical_code(Execute ptr, addr data, addr list)
+{
+	addr pos;
+	size_t size;
+
+	if (list == Nil)
+		return;
+	/* allocate */
+	GetCons(list, &pos, &list);
+	GetIndex(pos, &size);
+	lexical_control(ptr, size);
+	/* restore */
+	if (data != Nil)
+		lambda_lexical_restore(ptr, data);
+	/* closure */
+	if (list != Nil)
+		lambda_lexical_closure(ptr, list);
 }
 
 _g int lambda_execute_code(Execute ptr, addr scope)
 {
-	addr control, list;
+	addr control, data, list;
 
+	getdata_control(ptr, &data);
 	push_args_control(ptr, &control);
+	/* lexical */
+	GetEvalScopeIndex(scope, EvalLambda_Lexical, &list);
+	lambda_lexical_code(ptr, data, list);
 	/* declare */
 	GetEvalScopeIndex(scope, EvalLambda_Free, &list);
 	Return(let_free_code(ptr, list));
@@ -470,49 +585,82 @@ static int macro_args_rest_(Execute ptr, addr rest, addr args)
 	return lambda_args_value_(ptr, var, args, 1);
 }
 
-static int macro_args_args(Execute ptr, addr args,
-		addr var, addr opt, addr rest, addr key, addr allow, addr aux)
+static int macro_args_args(Execute ptr, addr args, addr list)
 {
-	Return(macro_args_var_(ptr, var, &args));
-	Return(lambda_args_opt_(ptr, opt, &args));
+	addr pos, rest, key, allow, aux;
+
+	/* empty */
+	if (list == Nil)
+		return lambda_args_empty(args);
+	/* var */
+	GetCons(list, &pos, &list);
+	Return(macro_args_var_(ptr, pos, &args));
+	if (list == Nil)
+		return lambda_args_empty(args);
+	/* opt */
+	GetCons(list, &pos, &list);
+	Return(lambda_args_opt_(ptr, pos, &args));
+	if (list == Nil)
+		return lambda_args_empty(args);
+	/* argument */
+	GetCons(list, &rest, &list);
+	key = allow = aux = Nil;
+	if (list != Nil) {
+		GetCons(list, &key, &list);
+		if (list != Nil) {
+			GetCons(list, &allow, &list);
+			if (list != Nil) {
+				GetCar(list, &aux);
+			}
+		}
+	}
+	/* rest */
 	if (rest != Nil) {
 		Return(macro_args_rest_(ptr, rest, args));
 	}
 	else if (key == Nil && allow == Nil && args != Nil) {
 		return fmte_("Too many argument.", NULL);
 	}
+	/* key */
 	if (key != Nil) {
 		Return(lambda_args_key_(ptr, key, allow != Nil, args));
 	}
 	else if (allow != Nil) {
 		Return(lambda_args_allow_(ptr, args));
 	}
-	return lambda_args_aux_(ptr, aux);
+	/* aux */
+	if (aux != Nil) {
+		Return(lambda_args_aux_(ptr, aux));
+	}
+
+	return 0;
 }
 
-static int macro_args_list_(Execute ptr, addr right, addr args)
+static int macro_args_list_(Execute ptr, addr list, addr args)
 {
-	addr var, opt, rest, key, allow, aux, whole, env;
+	addr whole;
 
-	List_bind(right, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
+	GetCons(list, &whole, &list);
+	GetCdr(list, &list);
 	Return(macro_args_whole_(ptr, whole, args));
 
-	return macro_args_args(ptr, args, var, opt, rest, key, allow, aux);
+	return macro_args_args(ptr, args, list);
 }
 
-static int macro_args_call_(Execute ptr, addr right, addr args, addr argenv)
+static int macro_args_call_(Execute ptr, addr list, addr args, addr aenv)
 {
-	addr var, opt, rest, key, allow, aux, whole, env;
+	addr whole, env;
 
-	List_bind(right, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
+	GetCons(list, &whole, &list);
+	GetCons(list, &env, &list);
 	Return(macro_args_whole_(ptr, whole, args));
 	Return_getcdr(args, &args);
-	Return(macro_args_env_(ptr, env, argenv));
+	Return(macro_args_env_(ptr, env, aenv));
 
-	return macro_args_args(ptr, args, var, opt, rest, key, allow, aux);
+	return macro_args_args(ptr, args, list);
 }
 
-static int macro_args_code(Execute ptr, addr right)
+static int macro_args_code(Execute ptr, addr list)
 {
 	addr args, form, env;
 
@@ -526,14 +674,18 @@ static int macro_args_code(Execute ptr, addr right)
 	Return_getcons(args, &env, &args);
 	if (args != Nil)
 		return fmte_("Too many argument in macro function.", NULL);
-	return macro_args_call_(ptr, right, form, env);
+	return macro_args_call_(ptr, list, form, env);
 }
 
 _g int macro_execute_code(Execute ptr, addr scope)
 {
-	addr control, list;
+	addr control, data ,list;
 
+	getdata_control(ptr, &data);
 	push_args_control(ptr, &control);
+	/* lexical */
+	GetEvalScopeIndex(scope, EvalLambda_Lexical, &list);
+	lambda_lexical_code(ptr, data, list);
 	/* declare */
 	GetEvalScopeIndex(scope, EvalLambda_Free, &list);
 	Return(let_free_code(ptr, list));
@@ -607,7 +759,7 @@ static int flet_args_code(Execute ptr, addr list)
 		GetCons(args, &value, &args);
 		GetCons(list, &pos, &list);
 		GetCdr(list, &list);
-		pushcallname_control(ptr, pos, value);
+		setvalue_tablefunction(ptr, pos, value);
 	}
 	setargs_nil_control(ptr);
 
@@ -648,7 +800,7 @@ static int labels_args_code(Execute ptr, addr list)
 		GetCons(list, &value, &list);
 		Return(runcode_simple(ptr, value));
 		getresult_control(ptr, &value);
-		pushcallname_control(ptr, pos, value);
+		setvalue_tablefunction(ptr, pos, value);
 	}
 
 	return 0;

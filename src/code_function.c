@@ -1,4 +1,5 @@
 #include "call_eval.h"
+#include "callname.h"
 #include "code_lambda.h"
 #include "condition.h"
 #include "cons.h"
@@ -10,6 +11,7 @@
 #include "copy.h"
 #include "declare.h"
 #include "execute.h"
+#include "execute_object.h"
 #include "eval.h"
 #include "eval_table.h"
 #include "function.h"
@@ -29,10 +31,6 @@ static int nop_code(Execute ptr, addr pos)
 	return 0;
 }
 
-
-/*
- *  system
- */
 static int execute_simple_set_code(Execute ptr, addr pos)
 {
 	return runcode_simple(ptr, pos);
@@ -142,23 +140,59 @@ static int t_push_code(Execute ptr, addr pos)
 /*
  *  symbol
  */
+static int lexical_code(Execute ptr, addr list)
+{
+	addr pos;
+	size_t index;
+
+	/* allocate */
+	GetCons(list, &pos, &list);
+	GetIndex(pos, &index);
+	lexical_control(ptr, index);
+
+	/* closure */
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		CheckType(pos, LISPTYPE_INDEX);
+		GetIndex(pos, &index);
+		reference_lexical_control(ptr, index);
+	}
+
+	return 0;
+}
+
 static int lexical_set_code(Execute ptr, addr pos)
 {
-	Return(symbol_lexical_restart(ptr, pos, &pos));
+	size_t index;
+
+	GetIndex(pos, &index);
+	get_lexical_control(ptr, index, &pos);
 	setresult_control(ptr, pos);
+
 	return 0;
 }
 
 static int lexical_push_code(Execute ptr, addr pos)
 {
-	Return(symbol_lexical_restart(ptr, pos, &pos));
+	size_t index;
+
+	GetIndex(pos, &index);
+	get_lexical_control(ptr, index, &pos);
 	pushargs_control(ptr, pos);
+
 	return 0;
 }
 
 static int lexical_rem_code(Execute ptr, addr pos)
 {
-	return symbol_lexical_restart(ptr, pos, &pos);
+#ifdef LISP_DEBUG
+	size_t index;
+
+	GetIndex(pos, &index);
+	get_lexical_control(ptr, index, &pos);
+#endif
+
+	return 0;
 }
 
 static int special_set_code(Execute ptr, addr pos)
@@ -205,7 +239,7 @@ static int declaim_type_function_code(Execute ptr, addr right)
 
 	List_bind(right, &key, &type, NULL);
 	GetCallName(key, &symbol);
-	if (symbol_callname_p(key))
+	if (symbolp_callname(key))
 		settype_function_symbol(symbol, type);
 	else
 		settype_setf_symbol(symbol, type);
@@ -218,7 +252,7 @@ static int declaim_inline_code(Execute ptr, addr right)
 	addr symbol;
 
 	GetCallName(right, &symbol);
-	if (symbol_callname_p(right))
+	if (symbolp_callname(right))
 		setinline_function_symbol(symbol);
 	else
 		setinline_setf_symbol(symbol);
@@ -231,7 +265,7 @@ static int declaim_notinline_code(Execute ptr, addr right)
 	addr symbol;
 
 	GetCallName(right, &symbol);
-	if (symbol_callname_p(right))
+	if (symbolp_callname(right))
 		setnotinline_function_symbol(symbol);
 	else
 		setnotinline_setf_symbol(symbol);
@@ -282,48 +316,60 @@ static int declaim_declaration_code(Execute ptr, addr right)
 static int let_args_code(Execute ptr, addr list)
 {
 	addr args, pos, value, symbol, type;
+	size_t index;
 
 	/* value */
 	args = list;
 	while (args != Nil) {
-		GetCdr(args, &args);
+		GetCons(args, &pos, &args);
 		GetCons(args, &value, &args);
 		Return(runcode_simple(ptr, value));
-	}
-
-	/* bind */
-	getargs_list_control_unsafe(ptr, 0, &args);
-	while (list != Nil) {
-		GetCons(args, &value, &args);
-		GetCons(list, &pos, &list);
-		GetCdr(list, &list);
-		getname_tablevalue(pos, &symbol);
+		getresult_control(ptr, &value);
 		/* type check */
 		if (getcheck_tablevalue(pos)) {
 			gettype_tablevalue(pos, &type);
 			Return(typep_error(ptr, value, type));
 		}
-		/* bind */
-		if (getspecialp_tablevalue(pos))
-			pushspecial_control(ptr, symbol, value);
-		else
-			pushlexical_control(ptr, symbol, value);
+		/* setlet */
+		index = getlet_tablevalue(pos);
+		set_lexical_control(ptr, index, value);
 	}
-	setargs_nil_control(ptr);
+
+	/* bind */
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCdr(list, &list);
+		/* getlet */
+		index = getlet_tablevalue(pos);
+		get_lexical_control(ptr, index, &value);
+		/* bind */
+		if (getspecialp_tablevalue(pos)) {
+			getname_tablevalue(pos, &symbol);
+			pushspecial_control(ptr, symbol, value);
+		}
+		else {
+			index = getlexical_tablevalue(pos);
+			set_lexical_control(ptr, index, value);
+		}
+	}
 
 	return 0;
 }
 
 static int let_set_code(Execute ptr, addr list)
 {
-	addr control, args, body, free;
+	addr control, args, body, free, allocate;
 
-	List_bind(list, &args, &body, &free, NULL);
-	push_new_control(ptr, &control);
+	List_bind(list, &args, &body, &free, &allocate, NULL);
+	if (allocate != Nil)
+		push_new_control(ptr, &control);
 	Return(let_free_code(ptr, free));
 	Return(let_args_code(ptr, args));
 	Return(runcode_simple(ptr, body));
-	return free_control_(ptr, control);
+	if (allocate != Nil)
+		return free_control_(ptr, control);
+
+	return 0;
 }
 
 static int let_push_code(Execute ptr, addr list)
@@ -354,7 +400,7 @@ static int leta_args_code(Execute ptr, addr list)
 		if (getspecialp_tablevalue(pos))
 			pushspecial_control(ptr, symbol, value);
 		else
-			pushlexical_control(ptr, symbol, value);
+			setvalue_tablevalue(ptr, pos, value);
 	}
 
 	return 0;
@@ -362,14 +408,18 @@ static int leta_args_code(Execute ptr, addr list)
 
 static int leta_set_code(Execute ptr, addr list)
 {
-	addr control, args, body, free;
+	addr control, args, body, free, allocate;
 
-	List_bind(list, &args, &body, &free, NULL);
-	push_new_control(ptr, &control);
+	List_bind(list, &args, &body, &free, &allocate, NULL);
+	if (allocate != Nil)
+		push_new_control(ptr, &control);
 	Return(let_free_code(ptr, free));
 	Return(leta_args_code(ptr, args));
 	Return(runcode_simple(ptr, body));
-	return free_control_(ptr, control);
+	if (allocate != Nil)
+		return free_control_(ptr, control);
+
+	return 0;
 }
 
 static int leta_push_code(Execute ptr, addr list)
@@ -394,7 +444,6 @@ static int check_readonly_variable_(addr symbol)
 
 static int setq_set_code(Execute ptr, addr list)
 {
-	int specialp, check;
 	addr pos, value, symbol, type;
 
 	while (list != Nil) {
@@ -407,16 +456,19 @@ static int setq_set_code(Execute ptr, addr list)
 		Return(runcode_simple(ptr, value));
 		getresult_control(ptr, &value);
 		/* bind */
-		specialp = getspecialp_tablevalue(pos);
-		check = getcheck_tablevalue(pos);
-		if (check) {
+		if (getcheck_tablevalue(pos)) {
 			gettype_tablevalue(pos, &type);
 			Return(typep_error(ptr, value, type));
 		}
-		if (specialp)
+		if (getspecialp_tablevalue(pos)) {
 			setspecial_local(ptr, symbol, value);
-		else
-			setlexical_local(ptr, symbol, value);
+		}
+		else if (getglobalp_tablevalue(pos)) {
+			SetValueSymbol(symbol, value);
+		}
+		else {
+			setvalue_tablevalue(ptr, pos, value);
+		}
 	}
 
 	return 0;
@@ -435,58 +487,30 @@ static int setq_push_code(Execute ptr, addr list)
 /*
  *  function
  */
-static int function_global_set_code(Execute ptr, addr right)
+static int function_set_code(Execute ptr, addr right)
 {
 	Return(function_global_restart(ptr, right, &right));
 	setresult_control(ptr, right);
 	return 0;
 }
 
-static int function_global_push_code(Execute ptr, addr right)
+static int function_push_code(Execute ptr, addr right)
 {
 	Return(function_global_restart(ptr, right, &right));
 	pushargs_control(ptr, right);
 	return 0;
 }
 
-static int function_local_set_code(Execute ptr, addr right)
-{
-	getfunctioncheck_local(ptr, right, &right);
-	setresult_control(ptr, right);
-	return 0;
-}
-
-static int function_local_push_code(Execute ptr, addr right)
-{
-	getfunctioncheck_local(ptr, right, &right);
-	pushargs_control(ptr, right);
-	return 0;
-}
-
-static int setf_global_set_code(Execute ptr, addr right)
+static int setf_set_code(Execute ptr, addr right)
 {
 	Return(setf_global_restart(ptr, right, &right));
 	setresult_control(ptr, right);
 	return 0;
 }
 
-static int setf_global_push_code(Execute ptr, addr right)
+static int setf_push_code(Execute ptr, addr right)
 {
 	Return(setf_global_restart(ptr, right, &right));
-	pushargs_control(ptr, right);
-	return 0;
-}
-
-static int setf_local_set_code(Execute ptr, addr right)
-{
-	getsetfcheck_local(ptr, right, &right);
-	setresult_control(ptr, right);
-	return 0;
-}
-
-static int setf_local_push_code(Execute ptr, addr right)
-{
-	getsetfcheck_local(ptr, right, &right);
 	pushargs_control(ptr, right);
 	return 0;
 }
@@ -549,7 +573,7 @@ static int defun_code(Execute ptr, addr right)
 	GetNameFunction(pos, &call);
 	GetCallName(call, &symbol);
 
-	if (symbol_callname_p(call)) {
+	if (symbolp_callname(call)) {
 		SetFunctionSymbol(symbol, pos);
 		setresult_control(ptr, symbol);
 	}
@@ -563,20 +587,25 @@ static int defun_code(Execute ptr, addr right)
 	return 0;
 }
 
-static int call_code(Execute ptr, addr right)
+static int call_code(Execute ptr, addr pos)
 {
-	getresult_control(ptr, &right);
-	return execute_control(ptr, right);
+	return execute_control(ptr, pos);
 }
 
-static int call_type_code(Execute ptr, addr right)
+static int call_result_code(Execute ptr, addr pos)
+{
+	getresult_control(ptr, &pos);
+	return execute_control(ptr, pos);
+}
+
+static int call_type_code(Execute ptr, addr pos)
 {
 	addr value;
 	getargs_tail_control(ptr, &value);
-	return typep_error(ptr, value, right);
+	return typep_error(ptr, value, pos);
 }
 
-static int call_function_global_code(Execute ptr, addr pos)
+static int call_function_code(Execute ptr, addr pos)
 {
 	addr value;
 
@@ -588,19 +617,7 @@ static int call_function_global_code(Execute ptr, addr pos)
 	return execute_control(ptr, value);
 }
 
-static int call_function_local_code(Execute ptr, addr pos)
-{
-	addr value;
-
-	getfunction_local(ptr, pos, &value);
-	if (value == Unbound) {
-		Return(function_local_restart(ptr, pos, &value));
-	}
-
-	return execute_control(ptr, value);
-}
-
-static int call_setf_global_code(Execute ptr, addr pos)
+static int call_setf_code(Execute ptr, addr pos)
 {
 	addr value;
 
@@ -612,14 +629,13 @@ static int call_setf_global_code(Execute ptr, addr pos)
 	return execute_control(ptr, value);
 }
 
-static int call_setf_local_code(Execute ptr, addr pos)
+static int call_lexical_code(Execute ptr, addr pos)
 {
 	addr value;
+	size_t index;
 
-	getsetf_local(ptr, pos, &value);
-	if (value == Unbound) {
-		Return(setf_local_restart(ptr, pos, &value));
-	}
+	GetIndex(pos, &index);
+	getlow_lexical_control(ptr, index, &value);
 
 	return execute_control(ptr, value);
 }
@@ -637,7 +653,7 @@ static int values_set_code(Execute ptr, addr right)
 	return 0;
 }
 
-static int the_code(Execute ptr, addr type)
+static int the_set_code(Execute ptr, addr type)
 {
 	addr value;
 	getresult_control(ptr, &value);
@@ -668,14 +684,22 @@ static int goto_code(Execute ptr, addr right)
 	return goto_control_(ptr, RefIndex(right));
 }
 
-static int go_code(Execute ptr, addr right)
+static int go_code(Execute ptr, addr pos)
 {
-	return go_control_(ptr, right);
+	size_t index;
+
+	GetIndex(pos, &index);
+	get_lexical_control(ptr, index, &pos);
+	return go_control_(ptr, pos);
 }
 
-static int return_from_code(Execute ptr, addr right)
+static int return_from_code(Execute ptr, addr pos)
 {
-	return return_from_control_(ptr, right);
+	size_t index;
+
+	GetIndex(pos, &index);
+	get_lexical_control(ptr, index, &pos);
+	return return_from_control_(ptr, pos);
 }
 
 static int catch_code(Execute ptr, addr right)
@@ -699,7 +723,7 @@ static void push_handler_code(Execute ptr, int escape)
 	while (args != Nil) {
 		GetCons(args, &symbol, &args);
 		GetCons(args, &lambda, &args);
-		pushhandler_control(ptr, symbol, lambda, escape);
+		pushhandler_common(ptr, symbol, lambda, escape);
 	}
 	reverse_handler_control(ptr);
 }
@@ -881,6 +905,7 @@ _g void init_code_function(void)
 	initcode(t_push_code);
 
 	/* symbol */
+	initcode(lexical_code);
 	initcode(lexical_set_code);
 	initcode(lexical_push_code);
 	initcode(lexical_rem_code);
@@ -912,14 +937,10 @@ _g void init_code_function(void)
 	initcode(setq_push_code);
 
 	/* function */
-	initcode(function_global_set_code);
-	initcode(function_global_push_code);
-	initcode(function_local_set_code);
-	initcode(function_local_push_code);
-	initcode(setf_global_set_code);
-	initcode(setf_global_push_code);
-	initcode(setf_local_set_code);
-	initcode(setf_local_push_code);
+	initcode(function_set_code);
+	initcode(function_push_code);
+	initcode(setf_set_code);
+	initcode(setf_push_code);
 
 	/* lambda */
 	initcode(lambda_set_code);
@@ -942,16 +963,17 @@ _g void init_code_function(void)
 	initcode(flet_push_code);
 	initcode(labels_set_code);
 	initcode(labels_push_code);
+
 	initcode(call_code);
+	initcode(call_result_code);
 	initcode(call_type_code);
-	initcode(call_function_global_code);
-	initcode(call_function_local_code);
-	initcode(call_setf_global_code);
-	initcode(call_setf_local_code);
+	initcode(call_function_code);
+	initcode(call_setf_code);
+	initcode(call_lexical_code);
 
 	initcode(values_nil_code);
 	initcode(values_set_code);
-	initcode(the_code);
+	initcode(the_set_code);
 	initcode(the_push_code);
 	initcode(locally_declare_code);
 	initcode(if_code);
@@ -1002,6 +1024,7 @@ _g void build_code_function(void)
 	defcode(T_PUSH, t_push_code);
 
 	/* symbol */
+	defcode(LEXICAL, lexical_code);
 	defcode(LEXICAL_SET, lexical_set_code);
 	defcode(LEXICAL_PUSH, lexical_push_code);
 	defcode(LEXICAL_REM, lexical_rem_code);
@@ -1033,14 +1056,10 @@ _g void build_code_function(void)
 	defcode(SETQ_PUSH, setq_push_code);
 
 	/* function */
-	defcode(FUNCTION_GLOBAL_SET, function_global_set_code);
-	defcode(FUNCTION_GLOBAL_PUSH, function_global_push_code);
-	defcode(FUNCTION_LOCAL_SET, function_local_set_code);
-	defcode(FUNCTION_LOCAL_PUSH, function_local_push_code);
-	defcode(SETF_GLOBAL_SET, setf_global_set_code);
-	defcode(SETF_GLOBAL_PUSH, setf_global_push_code);
-	defcode(SETF_LOCAL_SET, setf_local_set_code);
-	defcode(SETF_LOCAL_PUSH, setf_local_push_code);
+	defcode(FUNCTION_SET, function_set_code);
+	defcode(FUNCTION_PUSH, function_push_code);
+	defcode(SETF_SET, setf_set_code);
+	defcode(SETF_PUSH, setf_push_code);
 
 	/* lambda */
 	defcode(LAMBDA_SET, lambda_set_code);
@@ -1064,15 +1083,15 @@ _g void build_code_function(void)
 	defcode(LABELS_SET, labels_set_code);
 	defcode(LABELS_PUSH, labels_push_code);
 	defcode(CALL, call_code);
+	defcode(CALL_RESULT, call_result_code);
 	defcode(CALL_TYPE, call_type_code);
-	defcode(CALL_FUNCTION_GLOBAL, call_function_global_code);
-	defcode(CALL_FUNCTION_LOCAL, call_function_local_code);
-	defcode(CALL_SETF_GLOBAL, call_setf_global_code);
-	defcode(CALL_SETF_LOCAL, call_setf_local_code);
+	defcode(CALL_FUNCTION, call_function_code);
+	defcode(CALL_SETF, call_setf_code);
+	defcode(CALL_LEXICAL, call_lexical_code);
 
 	defcode(VALUES_NIL, values_nil_code);
 	defcode(VALUES_SET, values_set_code);
-	defcode(THE, the_code);
+	defcode(THE_SET, the_set_code);
 	defcode(THE_PUSH, the_push_code);
 	defcode(LOCALLY_DECLARE, locally_declare_code);
 	defcode(IF, if_code);

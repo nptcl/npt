@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "constant.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -25,8 +26,7 @@ static int specialp_stack_tablevalue(addr stack, addr symbol, int *ret)
 		return 1;
 	}
 	/* table value */
-	GetConst(SYSTEM_TABLE_VALUE, &key);
-	if (getplistplist(table, key, symbol, &value) == 0) {
+	if (getvalue_scope_evalstack(stack, symbol, &value)) {
 		*ret = getspecialp_tablevalue(value);
 		return 1;
 	}
@@ -66,22 +66,20 @@ _g int specialp_tablevalue(Execute ptr, addr stack, addr symbol)
 
 _g int find_tablevalue(addr stack, addr symbol, addr *ret)
 {
-	addr key;
-	GetEvalStackTable(stack, &stack);
-	GetConst(SYSTEM_TABLE_VALUE, &key);
+	addr value;
+
 	if (ret == NULL)
-		ret = &key;
-	return getplistplist(stack, key, symbol, ret) == 0;
+		ret = &value;
+	return getvalue_scope_evalstack(stack, symbol, ret);
 }
 
 _g int find_tablefunction(addr stack, addr call, addr *ret)
 {
-	addr key;
-	GetEvalStackTable(stack, &stack);
-	GetConst(SYSTEM_TABLE_FUNCTION, &key);
+	addr value;
+
 	if (ret == NULL)
-		ret = &key;
-	return getplistplist_callname(stack, key, call, ret) == 0;
+		ret = &value;
+	return getfunction_scope_evalstack(stack, call, ret);
 }
 
 static void check_value_scope(Execute ptr, addr stack, addr symbol, addr *ret)
@@ -90,7 +88,7 @@ static void check_value_scope(Execute ptr, addr stack, addr symbol, addr *ret)
 	addr pos;
 
 	specialp = specialp_tablevalue(ptr, stack, symbol);
-	make_tablevalue(NULL, symbol, &pos);
+	make_tablevalue(&pos, symbol);
 	setspecialp_tablevalue(pos, specialp);
 	*ret = pos;
 }
@@ -122,8 +120,7 @@ static int globalp_stack_tablefunction(addr stack, addr call)
 		return 1;
 	}
 	/* table value */
-	GetConst(SYSTEM_TABLE_FUNCTION, &key);
-	if (getplistplist_callname(table, key, call, &value) == 0) {
+	if (getfunction_scope_evalstack(stack, call, &value)) {
 		return 1;
 	}
 
@@ -149,7 +146,7 @@ _g int globalp_tablefunction(Execute ptr, addr stack, addr call)
 	}
 
 	/* symbol */
-	getfunction_callname_global(call, &value);
+	getglobal_callname(call, &value);
 	if (value != Unbound) {
 		return 1;
 	}
@@ -165,7 +162,7 @@ static void check_function_scope(Execute ptr, addr stack, addr call, addr *ret)
 
 	copylocal_object(NULL, &call, call);
 	globalp = globalp_tablefunction(ptr, stack, call);
-	make_tablefunction(NULL, call, &pos);
+	make_tablefunction(&pos, call);
 	setglobalp_tablefunction(pos, globalp);
 	*ret = pos;
 }

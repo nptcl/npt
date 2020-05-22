@@ -57,7 +57,7 @@ _g void handler_warning(Execute ptr)
 	GetConst(CONDITION_WARNING, &pos);
 	compiled_local(ptr->local, &call, Nil);
 	setcompiled_var1(call, p_defun_handler_warning);
-	pushhandler_control(ptr, pos, call, 0);
+	pushhandler_common(ptr, pos, call, 0);
 }
 
 
@@ -79,7 +79,7 @@ _g void handler_savecore(Execute ptr)
 	GetConst(CONDITION_SAVECORE, &pos);
 	compiled_local(ptr->local, &call, Nil);
 	setcompiled_var1(call, p_defun_handler_savecore);
-	pushhandler_control(ptr, pos, call, 1);
+	pushhandler_common(ptr, pos, call, 1);
 }
 
 
@@ -303,7 +303,7 @@ _g int invoke_debugger(Execute ptr, addr condition)
 	/* call function */
 	call = prior;
 	if (symbolp(call))
-		getfunctioncheck_local(ptr, call, &call);
+		getfunction_global(call, &call);
 	push_new_control(ptr, &control);
 	pushspecial_control(ptr, symbol, Nil);
 	Return(funcall_control(ptr, call, condition, prior, NULL));

@@ -1,522 +1,13 @@
-#include <string.h>
+#include "callname.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_plist.h"
-#include "constant.h"
 #include "function.h"
 #include "heap.h"
 #include "local.h"
 #include "memory.h"
-#include "object.h"
-#include "strtype.h"
 #include "symbol.h"
 
-/*
- *  callname
- */
-_g void make_callname_alloc(LocalRoot local, addr *ret)
-{
-	alloc_array2(local, ret, LISPTYPE_CALLNAME, 1);
-}
-
-_g addr callname_allocr(LocalRoot local, addr name, enum CALLNAME_TYPE type)
-{
-	addr pos;
-
-	Check(! symbolp(name), "name error.");
-	make_callname_alloc(local, &pos);
-	SetCallName_Low(pos, name);
-	SetCallNameType_Low(pos, type);
-
-	return pos;
-}
-_g addr callname_localr(LocalRoot local, addr name, enum CALLNAME_TYPE type)
-{
-	Check(local == NULL, "local error");
-	return callname_allocr(local, name, type);
-}
-_g addr callname_heapr(addr name, enum CALLNAME_TYPE type)
-{
-	return callname_allocr(NULL, name, type);
-}
-
-_g void callname_alloc(LocalRoot local, addr *ret, addr name, enum CALLNAME_TYPE type)
-{
-	*ret = callname_allocr(local, name, type);
-}
-_g void callname_local(LocalRoot local, addr *ret, addr name, enum CALLNAME_TYPE type)
-{
-	Check(local == NULL, "local error");
-	*ret = callname_allocr(local, name, type);
-}
-_g void callname_heap(addr *ret, addr name, enum CALLNAME_TYPE type)
-{
-	*ret = callname_allocr(NULL, name, type);
-}
-
-_g enum CALLNAME_TYPE parse_callname(addr name, addr *ret)
-{
-	enum CALLNAME_TYPE type;
-	addr setf, cons;
-
-	Check(name == Unbound, "unbound error.");
-	switch (GetType(name)) {
-		case LISPTYPE_NIL:
-		case LISPTYPE_T:
-		case LISPTYPE_SYMBOL:
-			type = CALLNAME_SYMBOL;
-			break;
-
-		case LISPTYPE_CONS: /* (setf name) */
-			GetConst(COMMON_SETF, &setf);
-			GetCons(name, &name, &cons);
-			if (name != setf) goto error;
-			Check(cons == Unbound, "unbound cons error.");
-			if (GetType(cons) != LISPTYPE_CONS) goto error;
-			GetCons(cons, &name, &cons);
-			if (! symbolp(name)) goto error;
-			if (cons != Nil) goto error;
-			type = CALLNAME_SETF;
-			break;
-
-		default:
-			goto error;
-	}
-	*ret = name;
-	return type;
-
-error:
-	return CALLNAME_ERROR;
-}
-
-_g int function_name_p(addr name)
-{
-	if (GetType(name) == LISPTYPE_CALLNAME) return 1;
-	return parse_callname(name, &name) != CALLNAME_ERROR;
-}
-
-_g int callnamep(addr pos)
-{
-	return GetType(pos) == LISPTYPE_CALLNAME;
-}
-
-_g int symbol_callname_p(addr call)
-{
-	CheckType(call, LISPTYPE_CALLNAME);
-	return RefCallNameType(call) == CALLNAME_SYMBOL;
-}
-
-_g int setf_callname_p(addr call)
-{
-	CheckType(call, LISPTYPE_CALLNAME);
-	return RefCallNameType(call) == CALLNAME_SETF;
-}
-
-_g int constantp_callname(addr pos)
-{
-	CheckType(pos, LISPTYPE_CALLNAME);
-	GetCallName(pos, &pos);
-	return GetStatusReadOnly(pos);
-}
-
-_g int parse_callname_alloc(LocalRoot local, addr *ret, addr name)
-{
-	enum CALLNAME_TYPE type;
-
-	type = parse_callname(name, &name);
-	if (type == CALLNAME_ERROR) return 1;
-	callname_alloc(local, ret, name, type);
-
-	return 0;
-}
-_g int parse_callname_local(LocalRoot local, addr *ret, addr name)
-{
-	Check(local == NULL, "local error");
-	return parse_callname_alloc(local, ret, name);
-}
-_g int parse_callname_heap(addr *ret, addr name)
-{
-	return parse_callname_alloc(NULL, ret, name);
-}
-_g void parse_callname_error(addr *ret, addr name)
-{
-	if (parse_callname_heap(ret, name))
-		fmte("Invalid function name ~S.", name, NULL);
-}
-
-_g void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol)
-{
-	Check(! symbolp(symbol), "type error");
-	callname_alloc(local, ret, symbol, CALLNAME_SETF);
-}
-_g void setf_callname_local(LocalRoot local, addr *ret, addr symbol)
-{
-	Check(! symbolp(symbol), "type error");
-	callname_local(local, ret, symbol, CALLNAME_SETF);
-}
-_g void setf_callname_heap(addr *ret, addr symbol)
-{
-	Check(! symbolp(symbol), "type error");
-	callname_heap(ret, symbol, CALLNAME_SETF);
-}
-
-_g int parse_setcallname(addr pos, addr name)
-{
-	enum CALLNAME_TYPE type;
-
-	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
-	Check(GetStatusReadOnly(pos), "readonly error");
-	type = parse_callname(name, &name);
-	if (type == CALLNAME_ERROR) return 1;
-	SetCallName_Low(pos, name);
-	SetCallNameType_Low(pos, type);
-
-	return 0;
-}
-
-_g addr refcallname(addr pos)
-{
-	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
-	return RefCallName_Low(pos);
-}
-_g void getcallname(addr pos, addr *value)
-{
-	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
-	GetCallName_Low(pos, value);
-}
-_g void setcallname(addr pos, addr value)
-{
-	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
-	Check(GetStatusReadOnly(pos), "readonly error");
-	SetCallName_Low(pos, value);
-}
-
-_g enum CALLNAME_TYPE refcallnametype(addr pos)
-{
-	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
-	return RefCallNameType_Low(pos);
-}
-_g void getcallnametype(addr pos, enum CALLNAME_TYPE *value)
-{
-	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
-	GetCallNameType_Low(pos, value);
-}
-_g void setcallnametype(addr pos, enum CALLNAME_TYPE value)
-{
-	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
-	Check(GetStatusReadOnly(pos), "readonly error");
-	SetCallNameType_Low(pos, value);
-}
-
-_g int callname_constant_p(addr pos)
-{
-	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
-	GetCallName(pos, &pos);
-	return GetStatusReadOnly(pos);
-}
-
-_g int equal_callname(addr left, addr right)
-{
-	Check(GetType(left) != LISPTYPE_CALLNAME, "type left error");
-	Check(GetType(right) != LISPTYPE_CALLNAME, "type right error");
-	return (RefCallNameType_Low(left) == RefCallNameType_Low(right))
-		&& (RefCallName_Low(left) == RefCallName_Low(right));
-}
-
-_g enum CALLNAME_TYPE getfunction_callname_global(addr pos, addr *ret)
-{
-	enum CALLNAME_TYPE type;
-
-	GetCallNameType(pos, &type);
-	GetCallName(pos, &pos);
-	switch (type) {
-		case CALLNAME_SYMBOL:
-			GetFunctionSymbol(pos, ret);
-			break;
-
-		case CALLNAME_SETF:
-			getsetf_symbol(pos, ret);
-			break;
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-			break;
-	}
-
-	return type;
-}
-
-_g enum CALLNAME_TYPE getfunction_callname_local(Execute ptr, addr pos, addr *ret)
-{
-	enum CALLNAME_TYPE type;
-
-	GetCallNameType(pos, &type);
-	GetCallName(pos, &pos);
-	switch (type) {
-		case CALLNAME_SYMBOL:
-			getfunction_local(ptr, pos, ret);
-			break;
-
-		case CALLNAME_SETF:
-			getsetf_local(ptr, pos, ret);
-			break;
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-			break;
-	}
-
-	return type;
-}
-
-_g enum CALLNAME_TYPE getfunctioncheck_callname_local(Execute ptr, addr pos, addr *ret)
-{
-	enum CALLNAME_TYPE type;
-
-	type = getfunction_callname_local(ptr, pos, ret);
-	if (*ret == Unbound) {
-		name_callname_heap(pos, &pos);
-		undefined_function(pos);
-	}
-
-	return type;
-}
-
-_g void setfunction_callname_global(addr pos, addr value)
-{
-	enum CALLNAME_TYPE type;
-
-	GetCallNameType(pos, &type);
-	GetCallName(pos, &pos);
-	switch (type) {
-		case CALLNAME_SYMBOL:
-			SetFunctionSymbol(pos, value);
-			break;
-
-		case CALLNAME_SETF:
-			setsetf_symbol(pos, value);
-			break;
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-			break;
-	}
-}
-
-_g void remtype_funcion_callname_global(addr pos)
-{
-	enum CALLNAME_TYPE type;
-
-	GetCallNameType(pos, &type);
-	GetCallName(pos, &pos);
-	switch (type) {
-		case CALLNAME_SYMBOL:
-			remtype_function_symbol(pos);
-			break;
-
-		case CALLNAME_SETF:
-			remtype_setf_symbol(pos);
-			break;
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-			break;
-	}
-}
-
-_g void copy_callname_alloc(LocalRoot local, addr *ret, addr pos)
-{
-	Check(GetType(pos) != LISPTYPE_CALLNAME, "type error");
-	callname_alloc(local, ret, RefCallName_Low(pos), RefCallNameType_Low(pos));
-}
-_g void copy_callname_local(LocalRoot local, addr *ret, addr pos)
-{
-	Check(local == NULL, "local error");
-	copy_callname_alloc(local, ret, pos);
-}
-_g void copy_callname_heap(addr *ret, addr pos)
-{
-	copy_callname_alloc(NULL, ret, pos);
-}
-
-static enum CALLNAME_TYPE callnametype(addr pos, addr *value)
-{
-	enum CALLNAME_TYPE type;
-
-	if (GetType(pos) == LISPTYPE_CALLNAME) {
-		GetCallName_Low(pos, value);
-		GetCallNameType_Low(pos, &type);
-		return type;
-	}
-	else {
-		return parse_callname(pos, value);
-	}
-}
-
-_g addr refcallname_local(Execute ptr, addr pos)
-{
-	Check(pos == Unbound, "unbound error");
-	switch (callnametype(pos, &pos)) {
-		case CALLNAME_SYMBOL:
-			return reffunction_local(ptr, pos);
-
-		case CALLNAME_SETF:
-			return refsetf_local(ptr, pos);
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-			break;
-	}
-
-	return NULL;
-}
-_g void getcallname_local(Execute ptr, addr pos, addr *value)
-{
-	*value = refcallname_local(ptr, pos);
-}
-_g void setcallname_local(Execute ptr, addr pos, addr value)
-{
-	Check(pos == Unbound, "unbound error");
-	switch (callnametype(pos, &pos)) {
-		case CALLNAME_SYMBOL:
-			setfunction_local(ptr, pos, value);
-			break;
-
-		case CALLNAME_SETF:
-			setsetf_local(ptr, pos, value);
-			break;
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-			break;
-	}
-}
-_g addr refcallnamecheck_local(Execute ptr, addr pos)
-{
-	Check(pos == Unbound, "unbound error");
-	switch (callnametype(pos, &pos)) {
-		case CALLNAME_SYMBOL:
-			return reffunctioncheck_local(ptr, pos);
-
-		case CALLNAME_SETF:
-			return refsetfcheck_local(ptr, pos);
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-			break;
-	}
-
-	return NULL;
-}
-_g void getcallnamecheck_local(Execute ptr, addr pos, addr *value)
-{
-	*value = refcallnamecheck_local(ptr, pos);
-}
-
-_g addr refcallname_global(addr pos)
-{
-	Check(pos == Unbound, "unbound error");
-	switch (callnametype(pos, &pos)) {
-		case CALLNAME_SYMBOL:
-			return RefFunctionSymbol_Low(pos);
-
-		case CALLNAME_SETF:
-			return refsetf_symbol(pos);
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-			break;
-	}
-
-	return NULL;
-}
-_g void getcallname_global(addr pos, addr *value)
-{
-	*value = refcallname_global(pos);
-}
-_g void setcallname_global(addr pos, addr value)
-{
-	Check(pos == Unbound, "unbound error");
-	switch (callnametype(pos, &pos)) {
-		case CALLNAME_SYMBOL:
-			SetFunctionSymbol_Low(pos, value);
-			break;
-
-		case CALLNAME_SETF:
-			setsetf_symbol(pos, value);
-			break;
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-	}
-}
-_g addr refcallnamecheck_global(addr pos)
-{
-	addr value;
-	getcallname_global(pos, &value);
-	if (value == Unbound) {
-		name_callname_heap(pos, &pos);
-		undefined_function(pos);
-	}
-	return value;
-}
-_g void getcallnamecheck_global(addr pos, addr *ret)
-{
-	getcallname_global(pos, ret);
-	if (*ret == Unbound) {
-		name_callname_heap(pos, &pos);
-		undefined_function(pos);
-	}
-}
-
-_g void name_callname_alloc(LocalRoot local, addr pos, addr *ret)
-{
-	enum CALLNAME_TYPE type;
-	addr setf;
-
-	CheckType(pos, LISPTYPE_CALLNAME);
-	GetCallNameType_Low(pos, &type);
-	switch (type) {
-		case CALLNAME_SYMBOL:
-			GetCallName_Low(pos, ret);
-			break;
-
-		case CALLNAME_SETF:
-			GetConst(COMMON_SETF, &setf);
-			GetCallName_Low(pos, &pos);
-			list_alloc(local, ret, setf, pos, NULL);
-			break;
-
-		case CALLNAME_ERROR:
-		default:
-			fmte("Invalid function name.", NULL);
-	}
-}
-
-_g void name_callname_local(LocalRoot local, addr pos, addr *ret)
-{
-	Check(local == NULL, "local error");
-	name_callname_alloc(local, pos, ret);
-}
-
-_g void name_callname_heap(addr pos, addr *ret)
-{
-	name_callname_alloc(NULL, pos, ret);
-}
-
-
-/*
- *  function
- */
 static addr alloc_function(LocalRoot local,
 		addr name, addr code, int macro, int compiled)
 {
@@ -532,10 +23,10 @@ static addr alloc_function(LocalRoot local,
 			LISPTYPE_FUNCTION,
 			FUNCTION_INDEX_SIZE,
 			sizeoft(struct function_struct));
-	SetFunction_Low(pos, code);
+	SetCodeFunction_Low(pos, code);
 	SetNameFunction_Low(pos, name);
 	ptr = StructFunction_Low(pos);
-	memset(ptr, 0, sizeoft(struct function_struct));
+	clearpoint(ptr);
 	ptr->macro = macro;
 	ptr->compiled = compiled;
 	ptr->system = 0;
@@ -945,23 +436,23 @@ _g struct function_struct *structfunction(addr pos)
 	return StructFunction_Low(pos);
 }
 
-_g addr reffunction(addr pos)
+_g addr refcodefunction(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
-	return RefFunction_Low(pos);
+	return RefCodeFunction_Low(pos);
 }
 
-_g void getfunction(addr pos, addr *ret)
+_g void getcodefunction(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
-	GetFunction_Low(pos, ret);
+	GetCodeFunction_Low(pos, ret);
 }
 
-_g void setfunction(addr pos, addr value)
+_g void setcodefunction(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
-	SetFunction_Low(pos, value);
+	SetCodeFunction_Low(pos, value);
 }
 
 _g addr refnamefunction(addr pos)
@@ -1001,77 +492,6 @@ _g void setdatafunction(addr pos, addr value)
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetDataFunction_Low(pos, value);
-}
-
-_g void getclosure_value_function(addr pos, addr *ret)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	GetClosureValueFunction_Low(pos, ret);
-}
-
-_g void getclosure_function_function(addr pos, addr *ret)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	GetClosureFunctionFunction_Low(pos, ret);
-}
-
-_g void getclosure_tagbody_function(addr pos, addr *ret)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	GetClosureTagbodyFunction_Low(pos, ret);
-}
-
-_g void getclosure_block_function(addr pos, addr *ret)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	GetClosureBlockFunction_Low(pos, ret);
-}
-
-_g void pushclosure_value_function(addr pos, addr key, addr value)
-{
-	addr cons;
-
-	CheckType(pos, LISPTYPE_FUNCTION);
-	GetClosureValueFunction(pos, &cons);
-	cons_heap(&value, key, value);
-	cons_heap(&cons, value, cons);
-	SetClosureValueFunction_Low(pos, cons);
-	setclosure_function(pos);
-}
-
-_g void pushclosure_function_function(addr pos, addr key, addr value)
-{
-	addr cons;
-
-	CheckType(pos, LISPTYPE_FUNCTION);
-	GetClosureFunctionFunction(pos, &cons);
-	cons_heap(&value, key, value);
-	cons_heap(&cons, value, cons);
-	SetClosureFunctionFunction_Low(pos, cons);
-	setclosure_function(pos);
-}
-
-_g void pushclosure_tagbody_function(addr pos, addr key, addr value)
-{
-	addr cons;
-
-	CheckType(pos, LISPTYPE_FUNCTION);
-	GetClosureTagbodyFunction(pos, &cons);
-	cons_heap(&value, key, value);
-	cons_heap(&cons, value, cons);
-	SetClosureTagbodyFunction_Low(pos, cons);
-	setclosure_function(pos);
-}
-
-_g void pushclosure_block_function(addr pos, addr value)
-{
-	addr cons;
-
-	CheckType(pos, LISPTYPE_FUNCTION);
-	GetClosureBlockFunction(pos, &cons);
-	cons_heap(&cons, value, cons);
-	SetClosureBlockFunction_Low(pos, cons);
-	setclosure_function(pos);
 }
 
 static void getplist_function(addr pos, constindex index, addr *ret)
@@ -1208,19 +628,6 @@ _g int system_function_p(addr pos)
 		StructFunction_Low(pos)->system;
 }
 
-_g void setrecursive_function(addr pos)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	Check(GetStatusReadOnly(pos), "readonly error");
-	StructFunction_Low(pos)->recursive = 1;
-}
-
-_g int recursivep_function(addr pos)
-{
-	return GetType(pos) == LISPTYPE_FUNCTION &&
-		StructFunction_Low(pos)->recursive;
-}
-
 _g void settrace_function(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
@@ -1232,18 +639,5 @@ _g int tracep_function(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION &&
 		StructFunction_Low(pos)->trace;
-}
-
-_g void setclosure_function(addr pos)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	Check(GetStatusReadOnly(pos), "readonly error");
-	StructFunction_Low(pos)->closure = 1;
-}
-
-_g int closurep_function(addr pos)
-{
-	return GetType(pos) == LISPTYPE_FUNCTION &&
-		StructFunction_Low(pos)->closure;
 }
 

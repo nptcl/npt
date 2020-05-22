@@ -6,6 +6,8 @@
 #include "heap.h"
 #include "local.h"
 #include "parse.h"
+#include "parse_object.h"
+#include "parse_macro.h"
 #include "type.h"
 #include "type_copy.h"
 
@@ -14,7 +16,7 @@ static void copy_eval_parse(LocalRoot local, addr *ret, addr pos);
 /* single */
 static void copy_eval_single(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	GetEvalParseType(eval, &type);
 	GetEvalParse(eval, 0, &eval);
 	eval_single_parse_alloc(local, ret, type, eval);
@@ -31,7 +33,7 @@ static void copy_eval_declaim_nil(LocalRoot local, addr *ret, addr pos)
 
 static void copy_eval_declaim(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 
 	GetEvalParseType(eval, &type);
 	GetEvalParse(eval, 0, &eval);
@@ -54,7 +56,7 @@ static void copy_eval_allcons(LocalRoot local, addr *ret, addr cons)
 
 static void copy_eval_progn(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_PROGN, "parse error");
@@ -80,7 +82,7 @@ static void copy_eval_let_args(LocalRoot local, addr *ret, addr args)
 
 static void copy_eval_let(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr args, decl, cons;
 
 	GetEvalParseType(eval, &type);
@@ -116,7 +118,7 @@ static void copy_eval_setq_args(LocalRoot local, addr *ret, addr cons)
 
 static void copy_eval_setq(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr cons;
 
 	GetEvalParseType(eval, &type);
@@ -191,7 +193,7 @@ static void copy_eval_ordinary(LocalRoot local, addr *ret, addr cons)
 
 static void copy_eval_defun(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr name, args, decl, doc, body, form;
 
 	GetEvalParseType(eval, &type);
@@ -221,7 +223,7 @@ static void copy_eval_defun(LocalRoot local, addr *ret, addr eval)
 /* defmacro */
 static void copy_eval_defmacro(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr name, lambda;
 
 	GetEvalParseType(eval, &type);
@@ -276,7 +278,7 @@ static void copy_eval_macro_arguments(LocalRoot local, addr *ret, addr cons)
 /* macro-lambda */
 static void copy_eval_macro_lambda(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr args, decl, doc, body;
 
 	GetEvalParseType(eval, &type);
@@ -302,7 +304,7 @@ static void copy_eval_macro_lambda(LocalRoot local, addr *ret, addr eval)
 /* deftype */
 static void copy_eval_deftype(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr name, args, decl, doc, body;
 
 	GetEvalParseType(eval, &type);
@@ -330,7 +332,7 @@ static void copy_eval_deftype(LocalRoot local, addr *ret, addr eval)
 /* define-compiler-macro */
 static void copy_eval_define_compiler_macro(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr name, args, decl, doc, body;
 
 	GetEvalParseType(eval, &type);
@@ -358,7 +360,7 @@ static void copy_eval_define_compiler_macro(LocalRoot local, addr *ret, addr eva
 /* destructuring-bind */
 static void copy_eval_destructuring_bind(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr expr, lambda;
 
 	GetEvalParseType(eval, &type);
@@ -378,7 +380,7 @@ static void copy_eval_destructuring_bind(LocalRoot local, addr *ret, addr eval)
 /* define-symbol-macro */
 static void copy_eval_define_symbol_macro(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr symbol, form, body;
 
 	GetEvalParseType(eval, &type);
@@ -414,7 +416,7 @@ static void copy_eval_symbol_macrolet_args(LocalRoot local, addr *ret, addr args
 
 static void copy_eval_symbol_macrolet(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr args, decl, cons;
 
 	GetEvalParseType(eval, &type);
@@ -437,7 +439,7 @@ static void copy_eval_symbol_macrolet(LocalRoot local, addr *ret, addr eval)
 /* lambda */
 static void copy_eval_lambda(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr args, decl, doc, cons, form;
 
 	GetEvalParseType(eval, &type);
@@ -465,7 +467,7 @@ static void copy_eval_lambda(LocalRoot local, addr *ret, addr eval)
 /* if */
 static void copy_eval_if(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr expr, then, last;
 
 	GetEvalParseType(eval, &type);
@@ -488,7 +490,7 @@ static void copy_eval_if(LocalRoot local, addr *ret, addr eval)
 /* unwind-protect */
 static void copy_eval_unwind_protect(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr form, cons;
 
 	GetEvalParseType(eval, &type);
@@ -508,7 +510,7 @@ static void copy_eval_unwind_protect(LocalRoot local, addr *ret, addr eval)
 /* tagbody */
 static void copy_eval_tagbody(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr tag, cons;
 
 	GetEvalParseType(eval, &type);
@@ -528,7 +530,7 @@ static void copy_eval_tagbody(LocalRoot local, addr *ret, addr eval)
 /* tag */
 static void copy_eval_tag(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr tag;
 
 	GetEvalParseType(eval, &type);
@@ -543,7 +545,7 @@ static void copy_eval_tag(LocalRoot local, addr *ret, addr eval)
 /* block */
 static void copy_eval_block(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr name, cons;
 
 	GetEvalParseType(eval, &type);
@@ -562,7 +564,7 @@ static void copy_eval_block(LocalRoot local, addr *ret, addr eval)
 /* return-from */
 static void copy_eval_return_from(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr name, value;
 
 	GetEvalParseType(eval, &type);
@@ -581,7 +583,7 @@ static void copy_eval_return_from(LocalRoot local, addr *ret, addr eval)
 /* catch */
 static void copy_eval_catch(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr tag, cons;
 
 	GetEvalParseType(eval, &type);
@@ -601,7 +603,7 @@ static void copy_eval_catch(LocalRoot local, addr *ret, addr eval)
 /* throw */
 static void copy_eval_throw(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr tag, result;
 
 	GetEvalParseType(eval, &type);
@@ -647,7 +649,7 @@ static void copy_eval_flet_args(LocalRoot local, addr *ret, addr cons)
 
 static void copy_eval_flet(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr args, decl, cons;
 
 	GetEvalParseType(eval, &type);
@@ -670,7 +672,7 @@ static void copy_eval_flet(LocalRoot local, addr *ret, addr eval)
 /* the */
 static void copy_eval_the(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr ptype, expr;
 
 	GetEvalParseType(eval, &type);
@@ -690,7 +692,7 @@ static void copy_eval_the(LocalRoot local, addr *ret, addr eval)
 /* when */
 static void copy_eval_eval_when(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr cons, compilep, loadp, evalp;
 
 	GetEvalParseType(eval, &type);
@@ -713,7 +715,7 @@ static void copy_eval_eval_when(LocalRoot local, addr *ret, addr eval)
 /* values */
 static void copy_eval_values(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_VALUES, "parse error");
@@ -725,7 +727,7 @@ static void copy_eval_values(LocalRoot local, addr *ret, addr eval)
 /* locally */
 static void copy_eval_locally(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr decl, cons;
 
 	GetEvalParseType(eval, &type);
@@ -745,7 +747,7 @@ static void copy_eval_locally(LocalRoot local, addr *ret, addr eval)
 /* call */
 static void copy_eval_call(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr call, cons;
 
 	GetEvalParseType(eval, &type);
@@ -765,7 +767,7 @@ static void copy_eval_call(LocalRoot local, addr *ret, addr eval)
 /* multiple-value-bind */
 static void copy_eval_multiple_value_bind(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr vars, expr, decl, doc, form;
 
 	GetEvalParseType(eval, &type);
@@ -791,7 +793,7 @@ static void copy_eval_multiple_value_bind(LocalRoot local, addr *ret, addr eval)
 /* multiple-value-call */
 static void copy_eval_multiple_value_call(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr call, cons;
 
 	GetEvalParseType(eval, &type);
@@ -811,7 +813,7 @@ static void copy_eval_multiple_value_call(LocalRoot local, addr *ret, addr eval)
 /* multiple-value-prog1 */
 static void copy_eval_multiple_value_prog1(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr call, cons;
 
 	GetEvalParseType(eval, &type);
@@ -831,7 +833,7 @@ static void copy_eval_multiple_value_prog1(LocalRoot local, addr *ret, addr eval
 /* nth-value */
 static void copy_eval_nth_value(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr nth, expr;
 
 	GetEvalParseType(eval, &type);
@@ -851,7 +853,7 @@ static void copy_eval_nth_value(LocalRoot local, addr *ret, addr eval)
 /* progv */
 static void copy_eval_progv(LocalRoot local, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr symbols, values, body;
 
 	GetEvalParseType(eval, &type);
@@ -900,7 +902,7 @@ static copy_eval_calltype EvalCopyTable[EVAL_PARSE_SIZE];
 
 static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	copy_eval_calltype call;
 
 	Check(! eval_parse_p(pos), "type error");

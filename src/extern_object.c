@@ -420,29 +420,6 @@ int lisp_reader16(addr *ret, const void *str)
 /*
  *  let
  */
-void lisp_push_lexical(addr symbol, addr value)
-{
-	if (! symbolp(symbol))
-		fmte("The argument ~S must be a symbol type.", symbol, NULL);
-	if (value == NULL)
-		value = Nil;
-	pushlexical_control(Execute_Thread, symbol, value);
-}
-
-void lisp_push_lexical8(const void *name, addr value)
-{
-	addr symbol;
-	symbol = lisp_intern8(NULL, name);
-	lisp_push_lexical(symbol, value);
-}
-
-void lisp_push_lexical16(const void *name, addr value)
-{
-	addr symbol;
-	symbol = lisp_intern16(NULL, name);
-	lisp_push_lexical(symbol, value);
-}
-
 void lisp_push_special(addr symbol, addr value)
 {
 	if (! symbolp(symbol))
@@ -466,28 +443,6 @@ void lisp_push_special16(const void *name, addr value)
 	lisp_push_special(symbol, value);
 }
 
-addr lisp_get_lexical(addr symbol)
-{
-	if (! symbolp(symbol))
-		fmte("The argument ~S must be a symbol type.", symbol, NULL);
-	getlexical_local(Execute_Thread, symbol, &symbol);
-	return (symbol == Unbound)? NULL: symbol;
-}
-
-addr lisp_get_lexical8(const void *name)
-{
-	addr symbol;
-	symbol = lisp_intern8(NULL, name);
-	return lisp_get_lexical(symbol);
-}
-
-addr lisp_get_lexical16(const void *name)
-{
-	addr symbol;
-	symbol = lisp_intern16(NULL, name);
-	return lisp_get_lexical(symbol);
-}
-
 addr lisp_get_special(addr symbol)
 {
 	if (! symbolp(symbol))
@@ -508,29 +463,6 @@ addr lisp_get_special16(const void *name)
 	addr symbol;
 	symbol = lisp_intern16(NULL, name);
 	return lisp_get_special(symbol);
-}
-
-void lisp_set_lexical(addr symbol, addr value)
-{
-	if (! symbolp(symbol))
-		fmte("The argument ~S must be a symbol type.", symbol, NULL);
-	if (value == NULL)
-		fmte("The lexical symbol ~S don't set Unbound.", symbol, NULL);
-	setlexical_local(Execute_Thread, symbol, value);
-}
-
-void lisp_set_lexical8(const void *name, addr value)
-{
-	addr symbol;
-	symbol = lisp_intern8(NULL, name);
-	lisp_set_lexical(symbol, value);
-}
-
-void lisp_set_lexical16(const void *name, addr value)
-{
-	addr symbol;
-	symbol = lisp_intern16(NULL, name);
-	lisp_set_lexical(symbol, value);
 }
 
 void lisp_set_special(addr symbol, addr value)
@@ -722,7 +654,7 @@ addr lisp_function(addr value)
 {
 	if (functionp(value))
 		return value;
-	getfunctioncheck_local(Execute_Thread, value, &value);
+	getfunction_global(value, &value);
 	return value;
 }
 

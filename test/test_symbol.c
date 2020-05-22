@@ -9,6 +9,7 @@
 #include "type_parse.h"
 #include "type_table.h"
 
+#if 0
 static int test_symbol_allocr(void)
 {
 	addr pos, check;
@@ -755,7 +756,7 @@ static int test_getsymlocal(void)
 	test(check == Unbound, "getsymlocal1");
 	getspecial_local(ptr, pos, &check);
 	test(check == Unbound, "getsymlocal2");
-	getfunction_local(ptr, pos, &check);
+	GetFunctionSymbol(pos, &check);
 	test(check == Unbound, "getsymlocal3");
 
 	strvect_char_heap(&temp, "aaa");
@@ -764,7 +765,7 @@ static int test_getsymlocal(void)
 	test(check == temp, "getsymlocal4");
 	getspecial_local(ptr, pos, &check);
 	test(check == Unbound, "getsymlocal5");
-	getfunction_local(ptr, pos, &check);
+	GetFunctionSymbol(pos, &check);
 	test(check == Unbound, "getsymlocal6");
 
 	strvect_char_heap(&base, "base");
@@ -773,7 +774,7 @@ static int test_getsymlocal(void)
 	test(check == temp, "getsymlocal7");
 	getspecial_local(ptr, pos, &check);
 	test(check == base, "getsymlocal8");
-	getfunction_local(ptr, pos, &check);
+	GetFunctionSymbol(pos, &check);
 	test(check == Unbound, "getsymlocal9");
 
 	strvect_char_heap(&temp, "bbb");
@@ -789,7 +790,7 @@ static int test_getsymlocal(void)
 	test(string_equal_char(check, "bbb"), "getsymlocal10");
 	getspecial_local(ptr, pos, &check);
 	test(string_equal_char(check, "eee"), "getsymlocal11");
-	getfunction_local(ptr, pos, &check);
+	GetFunctionSymbol(pos, &check);
 	test(check == Unbound, "getsymlocal12");
 	GetValueSymbol(pos, &check);
 	test(string_equal_char(check, "base"), "getsymlocal13");
@@ -799,7 +800,7 @@ static int test_getsymlocal(void)
 
 	strvect_char_heap(&temp, "function");
 	pushfunction_unsafe(ptr, pos, temp);
-	getfunction_local(ptr, pos, &check);
+	GetFunctionSymbol(pos, &check);
 	test(string_equal_char(check, "function"), "getsymlocal15");
 	clearlexical_local(ptr, pos);
 	clearspecial_local(ptr, pos);
@@ -809,7 +810,7 @@ static int test_getsymlocal(void)
 	test(check == base, "getsymlocal16");
 	getspecial_local(ptr, pos, &check);
 	test(check == base, "getsymlocal17");
-	getfunction_local(ptr, pos, &check);
+	GetFunctionSymbol(pos, &check);
 	test(check == Unbound, "getsymlocal18");
 	rollback_local(ptr->local, stack);
 
@@ -856,10 +857,12 @@ static int test_setsymlocal(void)
 
 	RETURN;
 }
+#endif
 
 
 static int testbreak_symbol(void)
 {
+#if 0
 	TestBreak(test_symbol_allocr);
 	TestBreak(test_symbol_alloc);
 	TestBreak(test_symbolp);
@@ -889,6 +892,7 @@ static int testbreak_symbol(void)
 	TestBreak(test_clearsymlocal);
 	TestBreak(test_getsymlocal);
 	TestBreak(test_setsymlocal);
+#endif
 
 	return 0;
 }

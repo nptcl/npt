@@ -2711,7 +2711,7 @@ static int set_logical_pathname_translations_intern(Execute ptr,
 	GetConst(COMMON_ERROR, &symbol);
 	compiled_local(ptr->local, &call, Nil);
 	setcompiled_var1(call, p_defun_set_logical_pathname_translations);
-	pushhandler_control(ptr, symbol, call, 0);
+	pushhandler_common(ptr, symbol, call, 0);
 	/* code */
 	intern_hashheap(table, host, &cons);
 	SetDataFunction(call, host);

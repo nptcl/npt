@@ -4,14 +4,6 @@
 #include "execute.h"
 #include "typedef.h"
 
-enum SYMBOL_STACK {
-	SYMBOL_STACK_LEXICAL = 0,
-	SYMBOL_STACK_SPECIAL,
-	SYMBOL_STACK_FUNCTION,
-	SYMBOL_STACK_SETF,
-	SYMBOL_STACK_SIZE
-};
-
 #define RefNameSymbol_Low(s)        RefArrayA2((s), SYMBOL_INDEX_NAME)
 #define GetNameSymbol_Low(s,v)      GetArrayA2((s), SYMBOL_INDEX_NAME, (v))
 #define SetNameSymbol_Low(s,v)      SetArrayA2((s), SYMBOL_INDEX_NAME, (v))
@@ -176,52 +168,19 @@ _g void getcombination_symbol(addr symbol, addr *ret);
 _g void setcombination_symbol(addr symbol, addr value);
 
 /* symstack */
-_g void pushlexical_closure_unsafe(Execute ptr, addr pos, addr cons);
-_g void pushlexical_unsafe(Execute ptr, addr pos, addr value);
 _g void pushspecial_unsafe(Execute ptr, addr pos, addr value);
-_g void pushfunction_unsafe(Execute ptr, addr pos, addr value);
-_g void pushsetf_unsafe(Execute ptr, addr pos, addr value);
-_g void poplexical_unsafe(Execute ptr, addr pos);
 _g void popspecial_unsafe(Execute ptr, addr pos);
-_g void popfunction_unsafe(Execute ptr, addr pos);
-_g void popsetf_unsafe(Execute ptr, addr pos);
-_g void snapshot_lexical_local(Execute ptr, addr pos, addr *ret);
 _g void snapshot_special_local(Execute ptr, addr pos, addr *ret);
-_g void snapshot_function_local(Execute ptr, addr pos, addr *ret);
-_g void snapshot_setf_local(Execute ptr, addr pos, addr *ret);
-_g void rollback_lexical_local(Execute ptr, addr pos, addr cons);
 _g void rollback_special_local(Execute ptr, addr pos, addr cons);
-_g void rollback_function_local(Execute ptr, addr pos, addr cons);
-_g void rollback_setf_local(Execute ptr, addr pos, addr cons);
-_g void clearlexical_local(Execute ptr, addr pos);
 _g void clearspecial_local(Execute ptr, addr pos);
-_g void clearfunction_local(Execute ptr, addr pos);
-_g void clearsetf_local(Execute ptr, addr pos);
-
-_g void conslexical_local(Execute ptr, addr pos, addr *ret);
-_g void getlexical_local(Execute ptr, addr pos, addr *ret);
 _g void getspecial_local(Execute ptr, addr pos, addr *ret);
-_g void getfunction_local(Execute ptr, addr pos, addr *ret);
-_g void getsetf_local(Execute ptr, addr pos, addr *ret);
-_g addr reflexical_local(Execute ptr, addr pos);
 _g addr refspecial_local(Execute ptr, addr pos);
-_g addr reffunction_local(Execute ptr, addr pos);
-_g addr refsetf_local(Execute ptr, addr pos);
-
-_g void conslexicalcheck_local(Execute ptr, addr pos, addr *ret);
-_g void getlexicalcheck_local(Execute ptr, addr pos, addr *ret);
 _g void getspecialcheck_local(Execute ptr, addr pos, addr *ret);
-_g void getfunctioncheck_local(Execute ptr, addr pos, addr *ret);
-_g void getsetfcheck_local(Execute ptr, addr pos, addr *ret);
-_g addr reflexicalcheck_local(Execute ptr, addr pos);
 _g addr refspecialcheck_local(Execute ptr, addr pos);
-_g addr reffunctioncheck_local(Execute ptr, addr pos);
-_g addr refsetfcheck_local(Execute ptr, addr pos);
-
-_g void setlexical_local(Execute ptr, addr pos, addr value);
 _g void setspecial_local(Execute ptr, addr pos, addr value);
-_g void setfunction_local(Execute ptr, addr pos, addr value);
-_g void setsetf_local(Execute ptr, addr pos, addr value);
+
+_g void getfunction_global(addr pos, addr *ret);
+_g void getsetf_global(addr pos, addr *ret);
 
 /* gensym */
 _g int gensymp(addr pos);

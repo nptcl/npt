@@ -74,7 +74,7 @@ static void eval_loop_minus(Execute ptr, addr value)
 	addr symbol;
 
 	GetConst(COMMON_MINUS, &symbol);
-	setlexical_local(ptr, symbol, value);
+	setspecial_local(ptr, symbol, value);
 }
 
 static void eval_loop_shift(Execute ptr, addr list)
@@ -86,33 +86,33 @@ static void eval_loop_shift(Execute ptr, addr list)
 	GetConst(COMMON_PLUS,  &sym1);
 	GetConst(COMMON_PLUS2, &sym2);
 	GetConst(COMMON_PLUS3, &sym3);
-	getlexical_local(ptr, sym0, &pos1);
-	getlexical_local(ptr, sym1, &pos2);
-	getlexical_local(ptr, sym2, &pos3);
-	setlexical_local(ptr, sym1, pos1);
-	setlexical_local(ptr, sym2, pos2);
-	setlexical_local(ptr, sym3, pos3);
+	getspecial_local(ptr, sym0, &pos1);
+	getspecial_local(ptr, sym1, &pos2);
+	getspecial_local(ptr, sym2, &pos3);
+	setspecial_local(ptr, sym1, pos1);
+	setspecial_local(ptr, sym2, pos2);
+	setspecial_local(ptr, sym3, pos3);
 
 	/* *, **, *** */
 	GetConst(COMMON_ASTERISK,  &sym1);
 	GetConst(COMMON_ASTERISK2, &sym2);
 	GetConst(COMMON_ASTERISK3, &sym3);
 	GetCar(list, &pos1);
-	getlexical_local(ptr, sym1, &pos2);
-	getlexical_local(ptr, sym2, &pos3);
-	setlexical_local(ptr, sym1, pos1);
-	setlexical_local(ptr, sym2, pos2);
-	setlexical_local(ptr, sym3, pos3);
+	getspecial_local(ptr, sym1, &pos2);
+	getspecial_local(ptr, sym2, &pos3);
+	setspecial_local(ptr, sym1, pos1);
+	setspecial_local(ptr, sym2, pos2);
+	setspecial_local(ptr, sym3, pos3);
 
 	/* /, //, /// */
 	GetConst(COMMON_SLASH,  &sym1);
 	GetConst(COMMON_SLASH2, &sym2);
 	GetConst(COMMON_SLASH3, &sym3);
-	getlexical_local(ptr, sym1, &pos2);
-	getlexical_local(ptr, sym2, &pos3);
-	setlexical_local(ptr, sym1, list);
-	setlexical_local(ptr, sym2, pos2);
-	setlexical_local(ptr, sym3, pos3);
+	getspecial_local(ptr, sym1, &pos2);
+	getspecial_local(ptr, sym2, &pos3);
+	setspecial_local(ptr, sym1, list);
+	setspecial_local(ptr, sym2, pos2);
+	setspecial_local(ptr, sym3, pos3);
 }
 
 _g int eval_loop_output(Execute ptr, addr stream, addr control)
@@ -158,25 +158,25 @@ static void eval_loop_variable(Execute ptr)
 	addr symbol;
 
 	GetConst(COMMON_MINUS, &symbol);
-	pushlexical_control(ptr, symbol, Nil);
+	pushspecial_control(ptr, symbol, Nil);
 	GetConst(COMMON_PLUS, &symbol);
-	pushlexical_control(ptr, symbol, Nil);
+	pushspecial_control(ptr, symbol, Nil);
 	GetConst(COMMON_PLUS2, &symbol);
-	pushlexical_control(ptr, symbol, Nil);
+	pushspecial_control(ptr, symbol, Nil);
 	GetConst(COMMON_PLUS3, &symbol);
-	pushlexical_control(ptr, symbol, Nil);
+	pushspecial_control(ptr, symbol, Nil);
 	GetConst(COMMON_ASTERISK, &symbol);
-	pushlexical_control(ptr, symbol, Nil);
+	pushspecial_control(ptr, symbol, Nil);
 	GetConst(COMMON_ASTERISK2, &symbol);
-	pushlexical_control(ptr, symbol, Nil);
+	pushspecial_control(ptr, symbol, Nil);
 	GetConst(COMMON_ASTERISK3, &symbol);
-	pushlexical_control(ptr, symbol, Nil);
+	pushspecial_control(ptr, symbol, Nil);
 	GetConst(COMMON_SLASH, &symbol);
-	pushlexical_control(ptr, symbol, Nil);
+	pushspecial_control(ptr, symbol, Nil);
 	GetConst(COMMON_SLASH2, &symbol);
-	pushlexical_control(ptr, symbol, Nil);
+	pushspecial_control(ptr, symbol, Nil);
 	GetConst(COMMON_SLASH3, &symbol);
-	pushlexical_control(ptr, symbol, Nil);
+	pushspecial_control(ptr, symbol, Nil);
 }
 
 struct eval_loop_struct {

@@ -27,19 +27,12 @@ enum EvalLambda_Index {
 	EvalLambda_Defun,
 	EvalLambda_Code,
 	EvalLambda_Self,
+	EvalLambda_Lexical,
 	EvalLambda_Size
 };
 
-enum EvalClosure_Index {
-	EvalClosure_Value,
-	EvalClosure_Function,
-	EvalClosure_TagBody,
-	EvalClosure_Block,
-	EvalClosure_Size
-};
-
 struct eval_scope {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	OptimizeType optimize[EVAL_OPTIMIZE_SIZE];
 };
 
@@ -89,14 +82,14 @@ struct eval_scope {
 
 _g void eval_scope_heap(Execute ptr, addr *ret, size_t size);
 _g void eval_scope_size(Execute ptr, addr *ret, size_t size,
-		enum EVAL_PARSE parse, addr type, addr value);
+		EvalParse parse, addr type, addr value);
 _g void make_eval_scope(Execute ptr,
-		addr *ret, enum EVAL_PARSE parse, addr type, addr value);
+		addr *ret, EvalParse parse, addr type, addr value);
 
 _g struct eval_scope *structevalscope(addr pos);
-_g enum EVAL_PARSE refevalscopetype(addr pos);
-_g void getevalscopetype(addr pos, enum EVAL_PARSE *ret);
-_g void setevalscopetype(addr pos, enum EVAL_PARSE value);
+_g EvalParse refevalscopetype(addr pos);
+_g void getevalscopetype(addr pos, EvalParse *ret);
+_g void setevalscopetype(addr pos, EvalParse value);
 _g addr refevalscopethe(addr pos);
 _g void getevalscopethe(addr pos, addr *ret);
 _g void setevalscopethe(addr pos, addr value);
@@ -116,6 +109,7 @@ _g int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons);
 _g int localhold_scope_eval(LocalHold hold, Execute ptr, addr *ret, addr eval);
 _g int localhold_scope_allcons(LocalHold hold,
 		Execute ptr, addr *retcons, addr *rettype, addr cons);
+_g int scope_eval_lexical(Execute ptr, addr *ret, addr eval);
 
 #endif
 

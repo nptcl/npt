@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
@@ -5,6 +6,7 @@
 #include "function.h"
 #include "optimize.h"
 #include "parse.h"
+#include "parse_object.h"
 #include "strtype.h"
 #include "type_optimize.h"
 
@@ -715,7 +717,7 @@ static int optparse_progn(struct optimize_struct *str)
  */
 static int optimize_lettype(addr pos)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 
 	if (! eval_parse_p(pos))
 		return 0;
@@ -874,7 +876,7 @@ static int checkparse_let_args(struct optimize_struct *str)
 static int optparse_let_args(struct optimize_struct *str)
 {
 	int result;
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr pos, args, decl, body, var, init, root;
 	LocalRoot local;
 
@@ -957,7 +959,7 @@ static int checkparse_let_body(struct optimize_struct *str)
 
 static int optparse_let_body(struct optimize_struct *str)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr pos, args, decl, body;
 
 	if (! checkparse_let_body(str))
@@ -2712,7 +2714,7 @@ static int optparse_catch(struct optimize_struct *str)
 static int optimize_fletlabels(struct optimize_struct *str)
 {
 	addr pos;
-	enum EVAL_PARSE type;
+	EvalParse type;
 
 	pos = str->pos;
 	if (! eval_parse_p(pos))
@@ -2910,7 +2912,7 @@ static int optparse_flet_one(struct optimize_struct *str, addr list, addr *ret)
 
 static int optparse_flet_args(struct optimize_struct *str)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr pos, args, decl, body;
 
 	if (! checkparse_flet_args(str))
@@ -2951,7 +2953,7 @@ static int checkparse_flet_body(struct optimize_struct *str)
 
 static int optparse_flet_body(struct optimize_struct *str)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	addr pos, args, decl, body;
 
 	if (! checkparse_flet_body(str))

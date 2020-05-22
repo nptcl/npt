@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "condition.h"
 #include "cons.h"
 #include "control_object.h"
@@ -72,7 +73,7 @@ static void symbol_use_restart(Execute ptr)
 	/* escape */
 	setescape_restart(pos, 1);  /* restart-case */
 	/* result */
-	push_restart_control(ptr, pos);
+	pushrestart_control(ptr, pos);
 }
 
 static int restart_symbol_store_global(Execute ptr, addr value)
@@ -81,17 +82,6 @@ static int restart_symbol_store_global(Execute ptr, addr value)
 
 	getdata_control(ptr, &symbol);
 	SetValueSymbol(symbol, value);
-	setresult_control(ptr, value);
-
-	return 0;
-}
-
-static int restart_symbol_store_lexical(Execute ptr, addr value)
-{
-	addr symbol;
-
-	getdata_control(ptr, &symbol);
-	setlexical_local(ptr, symbol, value);
 	setresult_control(ptr, value);
 
 	return 0;
@@ -154,7 +144,7 @@ static void symbol_store_restart(Execute ptr, addr symbol, pointer call)
 	/* escape */
 	setescape_restart(pos, 1);  /* restart-case */
 	/* result */
-	push_restart_control(ptr, pos);
+	pushrestart_control(ptr, pos);
 }
 
 struct symbol_restart_struct {
@@ -201,32 +191,6 @@ static int symbol_restart_call(Execute ptr, addr symbol, pointer call, addr *ret
 	localhold_end(hold);
 
 	return Result(ret, value);
-}
-
-_g int symbol_global_restart(Execute ptr, addr symbol, addr *ret)
-{
-	static const pointer call = p_restart_symbol_store_global;
-	addr value;
-
-	GetValueSymbol(symbol, &value);
-	if (value != Unbound)
-		return Result(ret, value);
-
-	/* restart */
-	return symbol_restart_call(ptr, symbol, call, ret);
-}
-
-_g int symbol_lexical_restart(Execute ptr, addr symbol, addr *ret)
-{
-	static const pointer call = p_restart_symbol_store_lexical;
-	addr value;
-
-	getlexical_local(ptr, symbol, &value);
-	if (value != Unbound)
-		return Result(ret, value);
-
-	/* restart */
-	return symbol_restart_call(ptr, symbol, call, ret);
 }
 
 _g int symbol_special_restart(Execute ptr, addr symbol, addr *ret)
@@ -325,7 +289,7 @@ _g int callname_global_restart(Execute ptr, addr name, addr *ret)
 	addr value;
 
 	Check(! callnamep(name), "type error");
-	getfunction_callname_global(name, &value);
+	getglobal_callname(name, &value);
 	if (value != Unbound)
 		return Result(ret, value);
 
@@ -339,20 +303,6 @@ _g int function_global_restart(Execute ptr, addr name, addr *ret)
 
 	Check(! symbolp(name), "type error");
 	GetFunctionSymbol(name, &value);
-	if (value != Unbound)
-		return Result(ret, value);
-
-	/* restart */
-	callname_heap(&name, name, CALLNAME_SYMBOL);
-	return function_restart_call(ptr, name, ret);
-}
-
-_g int function_local_restart(Execute ptr, addr name, addr *ret)
-{
-	addr value;
-
-	Check(! symbolp(name), "type error");
-	getfunction_local(ptr, name, &value);
 	if (value != Unbound)
 		return Result(ret, value);
 
@@ -375,20 +325,6 @@ _g int setf_global_restart(Execute ptr, addr name, addr *ret)
 	return function_restart_call(ptr, name, ret);
 }
 
-_g int setf_local_restart(Execute ptr, addr name, addr *ret)
-{
-	addr value;
-
-	Check(! symbolp(name), "type error");
-	getsetf_local(ptr, name, &value);
-	if (value != Unbound)
-		return Result(ret, value);
-
-	/* restart */
-	callname_heap(&name, name, CALLNAME_SETF);
-	return function_restart_call(ptr, name, ret);
-}
-
 
 /*
  *  initialize
@@ -400,7 +336,6 @@ _g void init_restart_value(void)
 	SetPointerType(var1, restart_symbol_use_report);
 	SetPointerType(var1, restart_symbol_use_test);
 	SetPointerType(var1, restart_symbol_store_global);
-	SetPointerType(var1, restart_symbol_store_lexical);
 	SetPointerType(var1, restart_symbol_store_special);
 	SetPointerType(empty, restart_symbol_store_interactive);
 	SetPointerType(var1, restart_symbol_store_report);

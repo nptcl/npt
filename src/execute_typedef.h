@@ -40,8 +40,11 @@ struct execute {
 
 	/* control */
 	addr control;
-	addr *values, *values_list;
+	addr *values, *values_list, *lexical;
 	size_t sizer;
+#ifdef LISP_DEBUG
+	addr lexical_vector;
+#endif
 
 	/* runcode */
 	size_t throw_point;

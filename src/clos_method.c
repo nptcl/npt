@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "clos.h"
 #include "clos_cache.h"
 #include "clos_class.h"
@@ -606,7 +607,7 @@ _g int ensure_method_common_(Execute ptr, addr *ret,
 	addr gen, method, clos;
 
 	parse_callname_error(&name, name);
-	getfunction_callname_global(name, &gen);
+	getglobal_callname(name, &gen);
 	if (! argumentp(lambda))
 		argument_method_heap(ptr->local, &lambda, lambda);
 	if (gen == Unbound)

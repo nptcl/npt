@@ -2,6 +2,9 @@
 #include "define.h"
 #include "degrade.h"
 
+#define LISP_DEGRADE_RTONLY
+//#undef LISP_DEGRADE_RTONLY
+
 #ifdef LISP_DEGRADE
 /*
  *  prototype declaration
@@ -23,6 +26,7 @@ int test_array_make(void);
 int test_strtype(void);
 int test_object(void);
 int test_symbol(void);
+int test_callname(void);
 int test_function(void);
 int test_cons(void);
 int test_fasl(void);
@@ -83,6 +87,9 @@ int test_type_upgraded(void);
 int test_type_value(void);
 int test_declare(void);
 int test_parse(void);
+int test_parse_function(void);
+int test_parse_macro(void);
+int test_parse_object(void);
 int test_scope(void);
 int test_code_queue(void);
 int test_code_make(void);
@@ -102,9 +109,6 @@ int loadrt(void);
 /*
  *  degrade function
  */
-#define LISP_DEGRADE_RTONLY
-#undef LISP_DEGRADE_RTONLY
-
 void degrade_execute(void)
 {
 #ifdef LISP_DEGRADE_RTONLY
@@ -121,6 +125,7 @@ void degrade_execute(void)
 	DegradeCheck(test_execute);
 	DegradeCheck(test_object);
 	DegradeCheck(test_symbol);
+	DegradeCheck(test_callname);
 	DegradeCheck(test_function);
 	DegradeCheck(test_cons);
 	DegradeCheck(test_character);
@@ -181,6 +186,9 @@ void degrade_execute(void)
 	DegradeCheck(test_equal);
 	DegradeCheck(test_declare);
 	DegradeCheck(test_parse);
+	DegradeCheck(test_parse_function);
+	DegradeCheck(test_parse_macro);
+	DegradeCheck(test_parse_object);
 	DegradeCheck(test_scope);
 	DegradeCheck(test_code_queue);
 	DegradeCheck(test_code_make);

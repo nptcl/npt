@@ -1,5 +1,6 @@
 #include "eval_stack.h"
 #include "parse.h"
+#include "parse_object.h"
 #include "scope_call.h"
 #include "scope_lambda.h"
 #include "scope_object.h"
@@ -153,6 +154,7 @@ static int scope_string(Execute ptr, addr *ret, addr eval)
 	return 0;
 }
 
+
 /* symbol */
 static int scope_symbol(Execute ptr, addr *ret, addr eval)
 {
@@ -245,11 +247,12 @@ static int scope_let(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 2, &str.cons);
 
 	Return(scope_let_call(ptr, &str));
-	eval_scope_size(ptr, &eval, 4, EVAL_PARSE_LET, str.the, eval);
+	eval_scope_size(ptr, &eval, 5, EVAL_PARSE_LET, str.the, eval);
 	SetEvalScopeIndex(eval, 0, str.args);
 	SetEvalScopeIndex(eval, 1, str.decl);
 	SetEvalScopeIndex(eval, 2, str.cons);
 	SetEvalScopeIndex(eval, 3, str.free);
+	SetEvalScopeIndex(eval, 4, str.allocate);
 
 	return Result(ret, eval);
 }
@@ -267,11 +270,12 @@ static int scope_leta(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 2, &str.cons);
 
 	Return(scope_leta_call(ptr, &str));
-	eval_scope_size(ptr, &eval, 4, EVAL_PARSE_LETA, str.the, eval);
+	eval_scope_size(ptr, &eval, 5, EVAL_PARSE_LETA, str.the, eval);
 	SetEvalScopeIndex(eval, 0, str.args);
 	SetEvalScopeIndex(eval, 1, str.decl);
 	SetEvalScopeIndex(eval, 2, str.cons);
 	SetEvalScopeIndex(eval, 3, str.free);
+	SetEvalScopeIndex(eval, 4, str.allocate);
 
 	return Result(ret, eval);
 }
@@ -389,6 +393,19 @@ static int scope_define_compiler_macro(Execute ptr, addr *ret, addr eval)
 
 
 /* destructuring-bind */
+static int scope_destructuring_bind_lambda(Execute ptr, addr *ret, addr eval)
+{
+	struct lambda_struct str;
+
+	Check(! eval_parse_p(eval), "type error");
+	scope_init_lambda(&str, EVAL_PARSE_MACRO_LAMBDA, 1);
+	GetEvalParse(eval, 0, &str.args);
+	GetEvalParse(eval, 1, &str.decl);
+	GetEvalParse(eval, 2, &str.doc);
+	GetEvalParse(eval, 3, &str.cons);
+	return scope_destructuring_bind_call(ptr, &str, ret);
+}
+
 static int scope_destructuring_bind(Execute ptr, addr *ret, addr eval)
 {
 	addr args, expr, type;
@@ -400,7 +417,7 @@ static int scope_destructuring_bind(Execute ptr, addr *ret, addr eval)
 
 	hold = LocalHold_local(ptr);
 	Return(localhold_scope_eval(hold, ptr, &expr, expr));
-	Return(localhold_scope_eval(hold, ptr, &args, args));
+	Return(scope_destructuring_bind_lambda(ptr, &args, args));
 	localhold_end(hold);
 
 	GetEvalScopeThe(args, &type);
@@ -605,7 +622,7 @@ static int scope_tagbody(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &tag);
 	GetEvalParse(eval, 1, &body);
 
-	Return(scope_tagbody_call(ptr, tag, body, &body));
+	Return(scope_tagbody_call(ptr, tag, body, &tag, &body));
 	GetTypeTable(&type, Null);
 
 	eval_scope_size(ptr, &eval, 2, EVAL_PARSE_TAGBODY, type, Nil);
@@ -659,7 +676,7 @@ static int scope_return_from(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &name);
 	GetEvalParse(eval, 1, &form);
 
-	Return(scope_return_from_call(ptr, name, form, &form));
+	Return(scope_return_from_call(ptr, name, form, &name, &form));
 	GetTypeTable(&type, Nil);
 
 	eval_scope_size(ptr, &eval, 2, EVAL_PARSE_RETURN_FROM, type, Nil);

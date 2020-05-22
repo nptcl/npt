@@ -13,7 +13,7 @@ _g int eval_scope(Execute ptr, addr *ret, addr eval)
 	push_new_control(ptr, &control);
 	begin_eval_stack(ptr);
 	free_eval_stack(ptr);
-	Return(scope_eval(ptr, ret, eval));
+	Return(scope_eval_lexical(ptr, ret, eval));
 	localhold_set(hold, 0, *ret);
 	Return(free_control_(ptr, control));
 	localhold_end(hold);

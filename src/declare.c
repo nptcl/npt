@@ -1,4 +1,5 @@
 #include "build.h"
+#include "callname.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -1321,7 +1322,7 @@ static void apply_type_function_proclaim(addr pos)
 		CheckType(value, LISPTYPE_TYPE);
 
 		GetCallName(key, &symbol);
-		if (symbol_callname_p(key))
+		if (symbolp_callname(key))
 			settype_function_symbol(symbol, value);
 		else
 			settype_setf_symbol(symbol, value);
@@ -1348,7 +1349,7 @@ static void apply_inline_value_proclaim(addr key, addr value)
 	/* inline */
 	GetConst(COMMON_INLINE, &check);
 	if (check == value) {
-		if (symbol_callname_p(key))
+		if (symbolp_callname(key))
 			setinline_function_symbol(symbol);
 		else
 			setinline_setf_symbol(symbol);
@@ -1356,7 +1357,7 @@ static void apply_inline_value_proclaim(addr key, addr value)
 	/* notinline */
 	GetConst(COMMON_NOTINLINE, &check);
 	if (check == value) {
-		if (symbol_callname_p(key))
+		if (symbolp_callname(key))
 			setnotinline_function_symbol(symbol);
 		else
 			setnotinline_setf_symbol(symbol);

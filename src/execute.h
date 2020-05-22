@@ -21,8 +21,6 @@
 _g int init_execute(size_t);
 _g void free_execute(void);
 _g void set_execute_local(struct execute *ptr);
-_g void save_values_control(struct execute *ptr, addr *ret, size_t *rsize);
-_g void restore_values_control(struct execute *ptr, addr pos, size_t size);
 _g int make_execute(execfunction, struct execute **, size_t);
 _g void setstate_execute(struct execute *, enum ThreadState);
 _g int join_execute(struct execute *);

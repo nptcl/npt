@@ -2,6 +2,7 @@
 #include "array.h"
 #include "build.h"
 #include "bytespec.h"
+#include "callname.h"
 #include "character.h"
 #include "clos.h"
 #include "clos_class.h"
@@ -16,6 +17,7 @@
 #include "object.h"
 #include "package.h"
 #include "parse.h"
+#include "parse_object.h"
 #include "restart.h"
 #include "quote.h"
 #include "scope_object.h"
@@ -86,7 +88,6 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPSYSTEM_CHARQUEUE:			return "?charqueue";
 		case LISPSYSTEM_CHARBIT:			return "?charbit";
 		case LISPSYSTEM_SYMSTACK:			return "?symstack";
-		case LISPSYSTEM_SYMARRAY:			return "?symarray";
 		case LISPSYSTEM_BITTYPE:			return "?bittype";
 		case LISPSYSTEM_READLABEL:			return "?readlabel";
 		case LISPSYSTEM_READINFO:			return "?readinfo";
@@ -288,8 +289,6 @@ static const char *infochar_eval_stack(addr pos)
 	switch (RefEvalStackType(pos)) {
 		case EVAL_STACK_MODE_NIL:		return "nil";
 		case EVAL_STACK_MODE_LAMBDA:	return "lambda";
-		case EVAL_STACK_MODE_TAGBODY:	return "tagbody";
-		case EVAL_STACK_MODE_BLOCK:		return "block";
 		default:						return "invalid";
 	}
 }
@@ -301,11 +300,12 @@ static const char *infochar_eval(addr pos)
 		case EVAL_TYPE_PARSE:			return "parse";
 		case EVAL_TYPE_STACK:			return "stack";
 		case EVAL_TYPE_SCOPE:			return "scope";
+		case EVAL_TYPE_TABLE:			return "table";
 		case EVAL_TYPE_TABLEVALUE:		return "value";
 		case EVAL_TYPE_TABLEFUNCTION:	return "function";
-		case EVAL_TYPE_TABLECALL:		return "call";
 		case EVAL_TYPE_TABLETAGBODY:	return "tagblody";
 		case EVAL_TYPE_TABLEBLOCK:		return "block";
+		case EVAL_TYPE_TABLECALL:		return "call";
 		case EVAL_TYPE_CODE:			return "code";
 		default:						return "invalid";
 	}
@@ -938,6 +938,9 @@ static void infoprint_symbol(addr pos)
 		}
 		else if (string_equal_char(package, LISP_COMMON)) {
 			/* no output */
+		}
+		else if (string_equal_char(package, LISP_CODE)) {
+			info_stdarg("@:");
 		}
 		else {
 			infostringbody(package);

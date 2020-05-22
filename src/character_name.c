@@ -1,3 +1,4 @@
+#include <errno.h>
 #include "character.h"
 #include "character_check.h"
 #include "character_name.h"

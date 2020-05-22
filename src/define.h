@@ -36,6 +36,12 @@
 #include "version.h"
 
 /*
+ *  Force disable THREAD
+ */
+#undef LISP_THREAD
+
+
+/*
  *  Mode
  */
 #if defined(LISP_MODE_CORE)

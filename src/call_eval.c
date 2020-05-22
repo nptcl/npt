@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "compile.h"
 #include "condition.h"
 #include "cons.h"
@@ -5,10 +6,12 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "declare.h"
+#include "eval.h"
 #include "function.h"
 #include "gc.h"
 #include "lambda.h"
 #include "parse.h"
+#include "parse_macro.h"
 #include "symbol.h"
 
 /*
@@ -32,7 +35,6 @@ _g int eval_common(Execute ptr, addr var)
 	push_new_control(ptr, &control);
 	push_toplevel_eval(ptr, Nil);
 	push_evalwhen_eval(ptr);
-	hide_lexical_control(ptr);
 	Return(eval_execute(ptr, var));
 	return free_control_(ptr, control);
 }
@@ -67,7 +69,7 @@ static void compiler_macro_function_setf(addr var, addr env, addr *ret)
 _g void compiler_macro_function_common(addr var, addr env, addr *ret)
 {
 	parse_callname_error(&var, var);
-	if (symbol_callname_p(var))
+	if (symbolp_callname(var))
 		compiler_macro_function_symbol(var, env, ret);
 	else
 		compiler_macro_function_setf(var, env, ret);
@@ -99,7 +101,7 @@ _g void setf_compiler_macro_function_common(addr value, addr var, addr env)
 {
 	if (! callnamep(var))
 		parse_callname_error(&var, var);
-	if (symbol_callname_p(var))
+	if (symbolp_callname(var))
 		setf_compiler_macro_function_symbol(var, env, value);
 	else
 		setf_compiler_macro_function_setf(var, env, value);
@@ -157,9 +159,9 @@ static void compile_variable(Execute ptr, addr var, addr opt, addr *ret)
 	addr call, check;
 
 	parse_callname_error(&call, var);
-	getfunction_callname_local(ptr, call, &check);
+	getglobal_callname(call, &check);
 	if (check == Unbound) {
-		if (! symbol_callname_p(call))
+		if (! symbolp_callname(call))
 			goto unbound;
 		getmacro_symbol(var, &check);
 		if (check == Unbound)
@@ -212,7 +214,7 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 	parse_callname_error(&call, var);
 	if (functionp(opt)) {
 		fmtw("This implementation cannot compile a function.", NULL);
-		setfunction_callname_global(call, opt);
+		setglobal_callname(call, opt);
 		*ret = var;
 		return 0;
 	}
@@ -222,7 +224,7 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 		localhold_pushva_force(hold, call, opt, NULL);
 		Return(eval_object(ptr, opt, &opt));
 		localhold_end(hold);
-		setfunction_callname_global(call, opt);
+		setglobal_callname(call, opt);
 		*ret = var;
 		return 0;
 	}
@@ -266,10 +268,10 @@ _g int compile_common(Execute ptr, addr var, addr opt,
 	localhold_set(hold, 0, *ret1);
 	/* warning */
 	GetConst(SYSTEM_COMPILE_WARNING, &var);
-	getlexicalcheck_local(ptr, var, ret2);
+	getspecialcheck_local(ptr, var, ret2);
 	/* style-warning */
 	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &var);
-	getlexicalcheck_local(ptr, var, ret3);
+	getspecialcheck_local(ptr, var, ret3);
 	/* free */
 	Return(free_control_(ptr, control));
 	localhold_end(hold);

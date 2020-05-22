@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -45,6 +46,7 @@ _g void eval_stack_alloc(LocalRoot local, addr *ret, enum EVAL_STACK_MODE type)
 	str = StructEvalStack(pos);
 	str->stack = stack;
 	str->globalp = 0;
+	str->lexical = 0;
 	for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++)
 		str->optimize[i] = -1;
 	*ret = pos;
@@ -104,11 +106,38 @@ _g void setevalstacktable(addr pos, addr value)
 	Check(! eval_stack_p(pos), "type error");
 	SetEvalStackTable_Low(pos, value);
 }
+_g void getevalstackscope(addr pos, addr *ret)
+{
+	Check(! eval_stack_p(pos), "type error");
+	GetEvalStackScope_Low(pos, ret);
+}
+_g void setevalstackscope(addr pos, addr value)
+{
+	Check(! eval_stack_p(pos), "type error");
+	SetEvalStackScope_Low(pos, value);
+}
+_g void getevalstacklexical(addr pos, addr *ret)
+{
+	Check(! eval_stack_p(pos), "type error");
+	GetEvalStackLexical_Low(pos, ret);
+}
+_g void setevalstacklexical(addr pos, addr value)
+{
+	Check(! eval_stack_p(pos), "type error");
+	SetEvalStackLexical_Low(pos, value);
+}
 
 
 /*
  *  eval-stack
  */
+_g int eval_stack_lambda_lexical_p(addr stack)
+{
+	enum EVAL_STACK_MODE type;
+	GetEvalStackType(stack, &type);
+	return (type == EVAL_STACK_MODE_LAMBDA) || (type == EVAL_STACK_MODE_LEXICAL);
+}
+
 static void getstack_symbol(addr *ret)
 {
 	GetConst(SYSTEM_EVAL_SCOPE, ret);
@@ -131,24 +160,6 @@ _g void getglobal_eval(Execute ptr, addr *ret)
 	getspecialcheck_local(ptr, symbol, ret);
 }
 
-static void setplist_constant_nil(LocalRoot local, addr stack, constindex index)
-{
-	addr key, table;
-
-	GetConstant(index, &key);
-	GetEvalStackTable(stack, &table);
-	if (setplist_local(local, table, key, Nil, &table))
-		SetEvalStackTable(stack, table);
-}
-
-static void make_closure_plist(LocalRoot local, addr stack)
-{
-	setplist_constant_nil(local, stack, CONSTANT_SYSTEM_CLOSURE_VALUE);
-	setplist_constant_nil(local, stack, CONSTANT_SYSTEM_CLOSURE_FUNCTION);
-	setplist_constant_nil(local, stack, CONSTANT_SYSTEM_CLOSURE_TAGBODY);
-	setplist_constant_nil(local, stack, CONSTANT_SYSTEM_CLOSURE_BLOCK);
-}
-
 _g addr newstack_eval(Execute ptr, enum EVAL_STACK_MODE type)
 {
 	addr stack, symbol, next;
@@ -159,32 +170,7 @@ _g addr newstack_eval(Execute ptr, enum EVAL_STACK_MODE type)
 	SetEvalStackNext(stack, next);
 	setspecial_local(ptr, symbol, stack);
 
-	if (type == EVAL_STACK_MODE_LAMBDA)
-		make_closure_plist(ptr->local, stack);
-
 	return stack;
-}
-
-static void closestack_index(addr stack, constindex index)
-{
-	addr key, cons, next;
-
-	GetConstant(index, &key);
-	GetEvalStackTable(stack, &cons);
-	if (getplist(cons, key, &cons) == 0) {
-		while (cons != Nil) {
-			GetCdr(cons, &next);
-			/* free local object in heap cons */
-			SetCons(cons, Nil, Nil);
-			cons = next;
-		}
-	}
-}
-
-static void closestack_closure(addr stack)
-{
-	closestack_index(stack, CONSTANT_SYSTEM_TABLE_VALUE);
-	closestack_index(stack, CONSTANT_SYSTEM_TABLE_FUNCTION);
 }
 
 static void closestack_unsafe(Execute ptr)
@@ -197,7 +183,6 @@ static void closestack_unsafe(Execute ptr)
 	getspecialcheck_local(ptr, symbol, &eval);
 	if (eval == Nil)
 		fmte("scope-stack is nil.", NULL);
-	closestack_closure(eval);
 	stack = StructEvalStack(eval)->stack;
 	GetEvalStackNext(eval, &eval);
 	setspecial_local(ptr, symbol, eval);
@@ -264,6 +249,29 @@ _g int globalp_stack_eval(addr pos)
 {
 	Check(! eval_stack_p(pos), "type error");
 	return StructEvalStack(pos)->globalp;
+}
+
+_g size_t increment_stack_eval(addr pos)
+{
+	Check(! eval_stack_p(pos), "type error");
+	return (StructEvalStack(pos)->lexical)++;
+}
+
+_g size_t getlexical_stack_eval(addr pos)
+{
+	Check(! eval_stack_p(pos), "type error");
+	return StructEvalStack(pos)->lexical;
+}
+
+_g void getlexical_index_heap(addr stack, addr *ret)
+{
+	size_t size;
+
+	size = getlexical_stack_eval(stack);
+	if (size == 0)
+		*ret = Nil;
+	else
+		index_heap(ret, size);
 }
 
 _g void init_eval_stack(void)
@@ -524,5 +532,169 @@ _g void apply_declare_function_stack(LocalRoot local, addr stack, addr call, add
 	getall_ignore_function_declare(declare, &pos);
 	apply_plistcall_stack(local, stack, call, pos, CONSTANT_SYSTEM_IGNORE_FUNCTION);
 	/* declaration is proclamation only. */
+}
+
+
+/*
+ *  table scope
+ */
+_g int getvalue_scope_evalstack(addr stack, addr pos, addr *ret)
+{
+	Check(! eval_stack_p(stack), "type error");
+	Check(! symbolp(pos), "name error");
+	GetEvalStackScope(stack, &stack);
+	return getvalue_evaltable(stack, pos, ret);
+}
+
+_g void setvalue_scope_evalstack(addr stack, addr pos)
+{
+	addr list;
+#ifdef LISP_DEBUG
+	addr name;
+#endif
+
+	Check(! eval_stack_p(stack), "type error");
+	CheckTableValue(pos);
+#ifdef LISP_DEBUG
+	getname_tablevalue(pos, &name);
+	Check(getvalue_scope_evalstack(stack, name, NULL), "duplicate error");
+#endif
+	evaltable_value_heap(&pos, pos);
+	GetEvalStackScope(stack, &list);
+	cons_heap(&list, pos, list);
+	SetEvalStackScope(stack, list);
+}
+
+_g int getfunction_scope_evalstack(addr stack, addr pos, addr *ret)
+{
+	Check(! eval_stack_p(stack), "type error");
+	Check(! callnamep(pos), "name error");
+	GetEvalStackScope(stack, &stack);
+	return getfunction_evaltable(stack, pos, ret);
+}
+
+_g void setfunction_scope_evalstack(addr stack, addr pos)
+{
+	addr list;
+#ifdef LISP_DEBUG
+	addr name;
+#endif
+
+	Check(! eval_stack_p(stack), "type error");
+	CheckTableFunction(pos);
+#ifdef LISP_DEBUG
+	getname_tablefunction(pos, &name);
+	Check(getfunction_scope_evalstack(stack, name, NULL), "duplicate error");
+#endif
+	evaltable_function_heap(&pos, pos);
+	GetEvalStackScope(stack, &list);
+	cons_heap(&list, pos, list);
+	SetEvalStackScope(stack, list);
+}
+
+_g int gettagbody_scope_evalstack(addr stack, addr pos, addr *ret)
+{
+	Check(! eval_stack_p(stack), "type error");
+	Check(! tagbody_tag_p(pos), "name error");
+	GetEvalStackScope(stack, &stack);
+	return gettagbody_evaltable(stack, pos, ret);
+}
+
+_g void settagbody_scope_evalstack(addr stack, addr pos)
+{
+	addr list;
+#ifdef LISP_DEBUG
+	addr name;
+#endif
+
+	Check(! eval_stack_p(stack), "type error");
+	CheckTableTagBody(pos);
+#ifdef LISP_DEBUG
+	getname_tabletagbody(pos, &name);
+	Check(gettagbody_scope_evalstack(stack, name, NULL), "duplicate error");
+#endif
+	evaltable_tagbody_heap(&pos, pos);
+	GetEvalStackScope(stack, &list);
+	cons_heap(&list, pos, list);
+	SetEvalStackScope(stack, list);
+}
+
+_g int getblock_scope_evalstack(addr stack, addr pos, addr *ret)
+{
+	Check(! eval_stack_p(stack), "type error");
+	Check(! symbolp(pos), "name error");
+	GetEvalStackScope(stack, &stack);
+	return getblock_evaltable(stack, pos, ret);
+}
+
+_g void setblock_scope_evalstack(addr stack, addr pos)
+{
+	addr list;
+#ifdef LISP_DEBUG
+	addr name;
+#endif
+
+	Check(! eval_stack_p(stack), "type error");
+	CheckTableBlock(pos);
+#ifdef LISP_DEBUG
+	getname_tableblock(pos, &name);
+	Check(getblock_scope_evalstack(stack, name, NULL), "duplicate error");
+#endif
+	evaltable_block_heap(&pos, pos);
+	GetEvalStackScope(stack, &list);
+	cons_heap(&list, pos, list);
+	SetEvalStackScope(stack, list);
+}
+
+
+/*
+ *  table lexical
+ */
+_g void setvalue_lexical_evalstack(addr stack, addr pos)
+{
+	addr list;
+
+	Check(! eval_stack_p(stack), "type error");
+	CheckTableValue(pos);
+	evaltable_value_heap(&pos, pos);
+	GetEvalStackLexical(stack, &list);
+	cons_heap(&list, pos, list);
+	SetEvalStackLexical(stack, list);
+}
+
+_g void setfunction_lexical_evalstack(addr stack, addr pos)
+{
+	addr list;
+
+	Check(! eval_stack_p(stack), "type error");
+	CheckTableFunction(pos);
+	evaltable_function_heap(&pos, pos);
+	GetEvalStackLexical(stack, &list);
+	cons_heap(&list, pos, list);
+	SetEvalStackLexical(stack, list);
+}
+
+_g void settagbody_lexical_evalstack(addr stack, addr pos)
+{
+	addr list;
+
+	Check(! eval_stack_p(stack), "type error");
+	CheckTableTagBody(pos);
+	evaltable_tagbody_heap(&pos, pos);
+	GetEvalStackLexical(stack, &list);
+	cons_heap(&list, pos, list);
+	SetEvalStackLexical(stack, list);
+}
+
+_g void setblock_lexical_evalstack(addr stack, addr pos)
+{
+	addr list;
+
+	Check(! eval_stack_p(stack), "type error");
+	CheckTableBlock(pos);
+	evaltable_block_heap(&pos, pos);
+	GetEvalStackLexical(stack, &list);
+	cons_heap(&list, pos, list);
+	SetEvalStackLexical(stack, list);
 }
 

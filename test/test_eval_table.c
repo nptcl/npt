@@ -15,7 +15,7 @@ static int test_make_tablevalue(void)
 {
 	addr pos;
 
-	make_tablevalue(NULL, Nil, &pos);
+	make_tablevalue(&pos, Nil);
 	test(eval_tablevalue_p(pos), "make_tablevalue1");
 
 	RETURN;
@@ -25,7 +25,7 @@ static int test_gettype_tablevalue(void)
 {
 	addr pos, value;
 
-	make_tablevalue(NULL, Nil, &pos);
+	make_tablevalue(&pos, Nil);
 	gettype_tablevalue(pos, &value);
 	test(value == Nil, "gettype_tablevalue1");
 	settype_tablevalue(pos, T);
@@ -39,7 +39,7 @@ static int test_getspecialp_tablevalue(void)
 {
 	addr pos;
 
-	make_tablevalue(NULL, Nil, &pos);
+	make_tablevalue(&pos, Nil);
 	test(! getspecialp_tablevalue(pos), "getspecialp_tablevalue1");
 	setspecialp_tablevalue(pos, 1);
 	test(getspecialp_tablevalue(pos), "getspecialp_tablevalue2");
@@ -54,7 +54,7 @@ static int test_getdynamic_tablevalue(void)
 {
 	addr pos;
 
-	make_tablevalue(NULL, Nil, &pos);
+	make_tablevalue(&pos, Nil);
 	test(! getdynamic_tablevalue(pos), "getdynamic_tablevalue1");
 	setdynamic_tablevalue(pos, 1);
 	test(getdynamic_tablevalue(pos), "getdynamic_tablevalue2");
@@ -70,7 +70,7 @@ static int test_getignore_tablevalue(void)
 	enum IgnoreType type;
 	addr pos;
 
-	make_tablevalue(NULL, Nil, &pos);
+	make_tablevalue(&pos, Nil);
 	type = getignore_tablevalue(pos);
 	test(type == IgnoreType_None, "getignore_tablevalue1");
 	setignore_tablevalue(pos, IgnoreType_Ignore);
@@ -92,7 +92,7 @@ static int test_getreference_tablevalue(void)
 {
 	addr pos;
 
-	make_tablevalue(NULL, Nil, &pos);
+	make_tablevalue(&pos, Nil);
 	test(! getreference_tablevalue(pos), "getreference_tablevalue1");
 	setreference_tablevalue(pos, 1);
 	test(getreference_tablevalue(pos), "getreference_tablevalue2");

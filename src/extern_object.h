@@ -67,21 +67,12 @@ int lisp_reader8(addr *ret, const void *str);
 int lisp_reader16(addr *ret, const void *str);
 
 /* let */
-void lisp_push_lexical(addr symbol, addr value);
-void lisp_push_lexical8(const void *name, addr value);
-void lisp_push_lexical16(const void *name, addr value);
 void lisp_push_special(addr symbol, addr value);
 void lisp_push_special8(const void *name, addr value);
 void lisp_push_special16(const void *name, addr value);
-addr lisp_get_lexical(addr symbol);
-addr lisp_get_lexical8(const void *name);
-addr lisp_get_lexical16(const void *name);
 addr lisp_get_special(addr symbol);
 addr lisp_get_special8(const void *name);
 addr lisp_get_special16(const void *name);
-void lisp_set_lexical(addr symbol, addr value);
-void lisp_set_lexical8(const void *name, addr value);
-void lisp_set_lexical16(const void *name, addr value);
 void lisp_set_special(addr symbol, addr value);
 void lisp_set_special8(const void *name, addr value);
 void lisp_set_special16(const void *name, addr value);

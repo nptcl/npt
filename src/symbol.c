@@ -73,7 +73,7 @@ _g addr symbol_allocr(LocalRoot local)
 	/* stack */
 	alloc_array4(local, &make, LISPSYSTEM_SYMSTACK, SYMSTACK_SIZE);
 	for (i = 0; i < SYMSTACK_SIZE; i++) {
-		alloc_array2(local, &stack, LISPSYSTEM_SYMARRAY, SYMBOL_STACK_SIZE);
+		consnil_alloc(local, &stack);
 		SetArrayA4(make, i, stack);
 	}
 	SetStackSymbol_Low(pos, make);
@@ -369,12 +369,6 @@ _g void getsetf_symbol(addr symbol, addr *value)
 {
 	*value = refsetf_symbol(symbol);
 }
-_g void getsetfcheck_symbol(addr symbol, addr *value)
-{
-	*value = refsetf_symbol(symbol);
-	if (*value == Unbound)
-		undefined_function_setf(symbol);
-}
 _g void setsetf_symbol(addr symbol, addr value)
 {
 	setinfo_constant(symbol, CONSTANT_COMMON_SETF, value);
@@ -654,7 +648,7 @@ static void realloc_symbol(addr *stack, size_t size1, size_t size2)
 	if ((size_t)size32 <= size1)
 		Abort("size error");
 
-	heap_array4(&make, LISPSYSTEM_SYMARRAY, size32);
+	heap_array4(&make, LISPSYSTEM_SYMSTACK, size32);
 	for (i = 0; i < size1; i++) {
 		GetArrayA4(old, i, &temp);
 		SetArrayA4(make, i, temp);
@@ -677,374 +671,171 @@ static void symstack(size_t index, addr symbol, addr *ret)
 		unrdlock_rwlocklite(&MutexSymbol);
 		return;
 	}
-	else {
-		/* write lock */
-		unrdlock_rwlocklite(&MutexSymbol);
-		wrlock_rwlocklite(&MutexSymbol);
-		/* reload */
-		stack = PtrArrayA2(symbol)[SYMBOL_INDEX_STACK];
-		size = GetLenArrayA4(stack);
-		if (index < size) {
-			*ret = PtrArrayA4(stack)[index];
-			unwrlock_rwlocklite(&MutexSymbol);
-			return;
-		}
 
-		/* size extension */
-		for (size2 = size; size2 <= index; )
-			size2 <<= 1;
-		realloc_symbol(&stack, size, size2);
-		PtrArrayA2(symbol)[SYMBOL_INDEX_STACK] = stack;
-		for (i = size; i < size2; i++) {
-			heap_array2(&child, LISPSYSTEM_SYMSTACK, SYMBOL_STACK_SIZE);
-			SetArrayA4(stack, i, child);
-		}
+	/* write lock */
+	unrdlock_rwlocklite(&MutexSymbol);
+	wrlock_rwlocklite(&MutexSymbol);
+	/* reload */
+	stack = PtrArrayA2(symbol)[SYMBOL_INDEX_STACK];
+	size = GetLenArrayA4(stack);
+	if (index < size) {
 		*ret = PtrArrayA4(stack)[index];
 		unwrlock_rwlocklite(&MutexSymbol);
+		return;
 	}
+
+	/* size extension */
+	for (size2 = size; size2 <= index; )
+		size2 <<= 1;
+	realloc_symbol(&stack, size, size2);
+	PtrArrayA2(symbol)[SYMBOL_INDEX_STACK] = stack;
+	for (i = size; i < size2; i++) {
+		consnil_heap(&child);
+		SetArrayA4(stack, i, child);
+	}
+	*ret = PtrArrayA4(stack)[index];
+	unwrlock_rwlocklite(&MutexSymbol);
 }
 
-static void pushsymlocal(Execute ptr, addr pos, addr value, int index)
+_g void pushspecial_unsafe(Execute ptr, addr pos, addr value)
 {
 	addr cons, root, stack;
 
 	Check(! IsSymbol(pos), "type error");
 	setcheck_symbol(pos);
-	Check(SYMBOL_STACK_SIZE <= index, "index error");
 
 	symstack(ptr->index, pos, &root);
-	GetArrayA2(root, index, &stack);
+	GetCar(root, &stack);
 	cons_local(ptr->local, &cons, value, stack);
-	SetArrayA2_force(root, index, cons);
-}
-_g void pushlexical_closure_unsafe(Execute ptr, addr pos, addr cons)
-{
-	pushsymlocal(ptr, pos, cons, SYMBOL_STACK_LEXICAL);
-}
-_g void pushlexical_unsafe(Execute ptr, addr pos, addr value)
-{
-	conscar_heap(&value, value);
-	pushsymlocal(ptr, pos, value, SYMBOL_STACK_LEXICAL);
-}
-_g void pushspecial_unsafe(Execute ptr, addr pos, addr value)
-{
-	pushsymlocal(ptr, pos, value, SYMBOL_STACK_SPECIAL);
-}
-_g void pushfunction_unsafe(Execute ptr, addr pos, addr value)
-{
-	pushsymlocal(ptr, pos, value, SYMBOL_STACK_FUNCTION);
-}
-_g void pushsetf_unsafe(Execute ptr, addr pos, addr value)
-{
-	pushsymlocal(ptr, pos, value, SYMBOL_STACK_SETF);
+	SetCar_force(root, cons);
 }
 
-static void popsymlocal(Execute ptr, addr pos, int index)
+_g void popspecial_unsafe(Execute ptr, addr pos)
 {
 	addr root, stack;
 
 	Check(! IsSymbol(pos), "type error");
 	setcheck_symbol(pos);
-	Check(SYMBOL_STACK_SIZE <= index, "index error");
 
 	symstack(ptr->index, pos, &root);
-	GetArrayA2(root, index, &stack);
+	GetCar(root, &stack);
 	Check(stack == Nil, "symstack is already empty.");
 	GetCdr(stack, &stack);
-	SetArrayA2_force(root, index, stack);
-}
-_g void poplexical_unsafe(Execute ptr, addr pos)
-{
-	popsymlocal(ptr, pos, SYMBOL_STACK_LEXICAL);
-}
-_g void popspecial_unsafe(Execute ptr, addr pos)
-{
-	popsymlocal(ptr, pos, SYMBOL_STACK_SPECIAL);
-}
-_g void popfunction_unsafe(Execute ptr, addr pos)
-{
-	popsymlocal(ptr, pos, SYMBOL_STACK_FUNCTION);
-}
-_g void popsetf_unsafe(Execute ptr, addr pos)
-{
-	popsymlocal(ptr, pos, SYMBOL_STACK_SETF);
+	SetCar_force(root, stack);
 }
 
-static void snapshot_symlocal(Execute ptr, addr pos, int index, addr *ret)
-{
-	Check(! IsSymbol(pos), "type error");
-	Check(SYMBOL_STACK_SIZE <= index, "index error");
-	symstack(ptr->index, pos, &pos);
-	GetArrayA2(pos, index, ret);
-}
-_g void snapshot_lexical_local(Execute ptr, addr pos, addr *ret)
-{
-	snapshot_symlocal(ptr, pos, SYMBOL_STACK_LEXICAL, ret);
-}
 _g void snapshot_special_local(Execute ptr, addr pos, addr *ret)
 {
-	snapshot_symlocal(ptr, pos, SYMBOL_STACK_SPECIAL, ret);
-}
-_g void snapshot_function_local(Execute ptr, addr pos, addr *ret)
-{
-	snapshot_symlocal(ptr, pos, SYMBOL_STACK_FUNCTION, ret);
-}
-_g void snapshot_setf_local(Execute ptr, addr pos, addr *ret)
-{
-	snapshot_symlocal(ptr, pos, SYMBOL_STACK_SETF, ret);
+	Check(! IsSymbol(pos), "type error");
+	symstack(ptr->index, pos, &pos);
+	GetCar(pos, ret);
 }
 
-static void rollback_symlocal(Execute ptr, addr pos, int index, addr cons)
+_g void rollback_special_local(Execute ptr, addr pos, addr cons)
 {
 #ifdef LISP_DEBUG
 	addr root;
 #endif
 	Check(! IsSymbol(pos), "type error");
-	Check(SYMBOL_STACK_SIZE <= index, "index error");
 	symstack(ptr->index, pos, &pos);
 	if (cons == Nil) {
-		SetArrayA2(pos, index, Nil);
+		SetCar(pos, Nil);
 		return;
 	}
 
 #ifdef LISP_DEBUG
-	GetArrayA2(pos, index, &root);
+	GetCar(pos, &root);
 	while (root != cons) {
 		Check(root == Nil, "rollback_symlocal error");
 		GetCdr(root, &root);
 	}
 #endif
-	SetArrayA2_force(pos, index, cons);
-}
-_g void rollback_lexical_local(Execute ptr, addr pos, addr cons)
-{
-	rollback_symlocal(ptr, pos, SYMBOL_STACK_LEXICAL, cons);
-}
-_g void rollback_special_local(Execute ptr, addr pos, addr cons)
-{
-	rollback_symlocal(ptr, pos, SYMBOL_STACK_SPECIAL, cons);
-}
-_g void rollback_function_local(Execute ptr, addr pos, addr cons)
-{
-	rollback_symlocal(ptr, pos, SYMBOL_STACK_FUNCTION, cons);
-}
-_g void rollback_setf_local(Execute ptr, addr pos, addr cons)
-{
-	rollback_symlocal(ptr, pos, SYMBOL_STACK_SETF, cons);
+	SetCar_force(pos, cons);
 }
 
-static void clearsymlocal(Execute ptr, addr pos, int index)
+_g void clearspecial_local(Execute ptr, addr pos)
 {
 	addr root;
 
 	Check(! IsSymbol(pos), "type error");
 	setcheck_symbol(pos);
-	Check(SYMBOL_STACK_SIZE <= index, "index error");
 
 	symstack(ptr->index, pos, &root);
-	SetArrayA2(root, index, Nil);
-}
-_g void clearlexical_local(Execute ptr, addr pos)
-{
-	clearsymlocal(ptr, pos, SYMBOL_STACK_LEXICAL);
-}
-_g void clearspecial_local(Execute ptr, addr pos)
-{
-	clearsymlocal(ptr, pos, SYMBOL_STACK_SPECIAL);
-}
-_g void clearfunction_local(Execute ptr, addr pos)
-{
-	clearsymlocal(ptr, pos, SYMBOL_STACK_FUNCTION);
-}
-_g void clearsetf_local(Execute ptr, addr pos)
-{
-	clearsymlocal(ptr, pos, SYMBOL_STACK_SETF);
+	SetCar(root, Nil);
 }
 
-static int getsymlocal(Execute ptr, addr root, int index, addr *ret)
+static int getsymlocal(Execute ptr, addr root, addr *ret)
 {
 	Check(! IsSymbol(root), "type error");
-	Check(SYMBOL_STACK_SIZE <= index, "index error");
 
 	symstack(ptr->index, root, &root);
-	GetArrayA2(root, index, &root);
-	if (root == Nil) return 1;  /* not found */
+	GetCar(root, &root);
+	if (root == Nil)
+		return 1;  /* not found */
 	GetCar(root, ret);
 
 	return 0;  /* found */
 }
 
-static int getsymlexical(Execute ptr, addr root, addr *ret)
-{
-	addr check;
-
-	if (getsymlocal(ptr, root, SYMBOL_STACK_LEXICAL, &root))
-		return 1;
-	GetCar(root, &check);
-	if (check == Unbound)
-		return 1;
-	*ret = root;
-
-	return 0;
-}
-
-_g void conslexical_local(Execute ptr, addr pos, addr *ret)
-{
-	Check(! IsSymbol(pos), "type error");
-	if (getsymlexical(ptr, pos, ret)) {
-		GetSymbol(pos, SYMBOL_INDEX_VALUE, &pos);
-		*ret = (pos == Nil)? Unbound: pos;
-	}
-}
-_g void getlexical_local(Execute ptr, addr pos, addr *ret)
-{
-	addr cons;
-
-	Check(! IsSymbol(pos), "type error");
-	if (! getsymlexical(ptr, pos, &cons)) {
-		GetCar(cons, ret);
-		return;
-	}
-	if (getsymlocal(ptr, pos, SYMBOL_STACK_SPECIAL, ret))
-		GetValueSymbol(pos, ret);
-}
 _g void getspecial_local(Execute ptr, addr pos, addr *ret)
 {
 	Check(! IsSymbol(pos), "type error");
-	if (getsymlocal(ptr, pos, SYMBOL_STACK_SPECIAL, ret))
+	if (getsymlocal(ptr, pos, ret))
 		GetValueSymbol(pos, ret);
 }
-_g void getfunction_local(Execute ptr, addr pos, addr *ret)
-{
-	Check(! IsSymbol(pos), "type error");
-	if (getsymlocal(ptr, pos, SYMBOL_STACK_FUNCTION, ret))
-		GetFunctionSymbol(pos, ret);
-}
-_g void getsetf_local(Execute ptr, addr pos, addr *ret)
-{
-	Check(! IsSymbol(pos), "type error");
-	if (getsymlocal(ptr, pos, SYMBOL_STACK_SETF, ret))
-		getsetf_symbol(pos, ret);
-}
 
-_g addr reflexical_local(Execute ptr, addr pos)
-{
-	getlexical_local(ptr, pos, &pos);
-	return pos;
-}
 _g addr refspecial_local(Execute ptr, addr pos)
 {
 	getspecial_local(ptr, pos, &pos);
 	return pos;
 }
-_g addr reffunction_local(Execute ptr, addr pos)
-{
-	getfunction_local(ptr, pos, &pos);
-	return pos;
-}
-_g addr refsetf_local(Execute ptr, addr pos)
-{
-	getsetf_local(ptr, pos, &pos);
-	return pos;
-}
 
-_g void conslexicalcheck_local(Execute ptr, addr pos, addr *ret)
-{
-	conslexical_local(ptr, pos, ret);
-	if (*ret == Unbound) unbound_variable(pos);
-}
-_g void getlexicalcheck_local(Execute ptr, addr pos, addr *ret)
-{
-	getlexical_local(ptr, pos, ret);
-	if (*ret == Unbound) unbound_variable(pos);
-}
 _g void getspecialcheck_local(Execute ptr, addr pos, addr *ret)
 {
 	getspecial_local(ptr, pos, ret);
 	if (*ret == Unbound) unbound_variable(pos);
-}
-_g void getfunctioncheck_local(Execute ptr, addr pos, addr *ret)
-{
-	getfunction_local(ptr, pos, ret);
-	if (*ret == Unbound) undefined_function(pos);
-}
-_g void getsetfcheck_local(Execute ptr, addr pos, addr *ret)
-{
-	addr setf;
-
-	getsetf_local(ptr, pos, ret);
-	if (*ret == Unbound) {
-		GetConst(COMMON_SETF, &setf);
-		list_heap(&pos, setf, pos, NULL);
-		undefined_function(pos);
-	}
-}
-_g addr reflexicalcheck_local(Execute ptr, addr pos)
-{
-	getlexicalcheck_local(ptr, pos, &pos);
-	return pos;
 }
 _g addr refspecialcheck_local(Execute ptr, addr pos)
 {
 	getspecialcheck_local(ptr, pos, &pos);
 	return pos;
 }
-_g addr reffunctioncheck_local(Execute ptr, addr pos)
-{
-	getfunctioncheck_local(ptr, pos, &pos);
-	return pos;
-}
-_g addr refsetfcheck_local(Execute ptr, addr pos)
-{
-	getsetfcheck_local(ptr, pos, &pos);
-	return pos;
-}
 
-static int setsymlocal(Execute ptr, addr root, int index, addr value)
+static int setsymlocal(Execute ptr, addr root, addr value)
 {
 	Check(! IsSymbol(root), "type error");
 	setcheck_symbol(root);
-	Check(SYMBOL_STACK_SIZE <= index, "index error");
 
 	symstack(ptr->index, root, &root);
-	GetArrayA2(root, index, &root);
-	if (root == Nil) return 1;  /* not found */
+	GetCar(root, &root);
+	if (root == Nil)
+		return 1;  /* not found */
 	SetCar(root, value);
 
 	return 0;  /* found */
 }
-_g void setlexical_local(Execute ptr, addr pos, addr value)
-{
-	addr cons;
-
-	Check(! IsSymbol(pos), "type error");
-	if (! getsymlexical(ptr, pos, &cons)) {
-		SetCar(cons, value);
-		return;
-	}
-	if (setsymlocal(ptr, pos, SYMBOL_STACK_SPECIAL, value))
-		SetValueSymbol(pos, value);
-}
 _g void setspecial_local(Execute ptr, addr pos, addr value)
 {
 	Check(! IsSymbol(pos), "type error");
-	if (setsymlocal(ptr, pos, SYMBOL_STACK_SPECIAL, value))
+	if (setsymlocal(ptr, pos, value))
 		SetValueSymbol(pos, value);
 }
-_g void setfunction_local(Execute ptr, addr pos, addr value)
+
+_g void getfunction_global(addr pos, addr *ret)
 {
-	Check(! IsSymbol(pos), "type error");
-	if (setsymlocal(ptr, pos, SYMBOL_STACK_FUNCTION, value)) {
-		Abort("setfunction error");
-		return;
-	}
+	GetFunctionSymbol(pos, ret);
+	if (*ret == Unbound)
+		undefined_function(pos);
 }
-_g void setsetf_local(Execute ptr, addr pos, addr value)
+_g void getsetf_global(addr pos, addr *ret)
 {
-	Check(! IsSymbol(pos), "type error");
-	if (setsymlocal(ptr, pos, SYMBOL_STACK_SETF, value)) {
-		Abort("setsetf error");
-		return;
+	addr setf;
+
+	getsetf_symbol(pos, ret);
+	if (*ret == Unbound) {
+		GetConst(COMMON_SETF, &setf);
+		list_heap(&pos, setf, pos, NULL);
+		undefined_function(pos);
 	}
 }
 

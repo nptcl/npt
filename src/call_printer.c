@@ -344,7 +344,7 @@ _g int set_pprint_dispatch_common(Execute ptr,
 
 	Return(parse_type(ptr, &type, spec, Nil));
 	if (call != Nil && (! functionp(call)))
-		getfunctioncheck_local(ptr, call, &call);
+		getfunction_global(call, &call);
 	if (table == Unbound)
 		pprint_dispatch_print(ptr, &table);
 	set_pprint_dispatch_print(ptr->local, spec, type, call, priority, table);

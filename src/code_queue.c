@@ -4,6 +4,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "eval.h"
+#include "eval_table.h"
 #include "memory.h"
 
 /*
@@ -311,65 +312,42 @@ static int code_queue_pop_tag_p(addr pos, addr *ret)
 	return 1;
 }
 
-static int code_queue_pop_taginfo_p(addr pos)
-{
-	addr check;
-
-	if (GetType(pos) != LISPTYPE_CONS)
-		return 0;
-	GetCar(pos, &pos);
-	GetConst(CODE_TAGINFO, &check);
-	return pos == check;
-}
-
 static int code_queue_pop_label_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_INDEX;
 }
 
-static void code_queue_pop_labelcons(LocalRoot local,
-		addr body, addr *retlabel, addr *rettag, size_t *retsize)
+static void code_queue_pop_label(LocalRoot local,
+		addr body, addr *rlabel, size_t *rsize)
 {
-	addr label, tag, x, index, taginfo, list;
+	addr label, pos, index;
 	size_t size;
 
-	label = tag = list = Nil;
-	taginfo = NULL;
+	label = Nil;
 	size = 0;
 	while (body != Nil) {
-		GetCons(body, &x, &body);
-		if (code_queue_pop_label_p(x)) {
-			/* label -> index (local) */
+		GetCons(body, &pos, &body);
+		/* label */
+		if (code_queue_pop_label_p(pos)) {
 			index_local(local, &index, size);
-			cons_local(local, &x, x, index);
-			cons_local(local, &label, x, label);
+			cons_local(local, &pos, pos, index);
+			cons_local(local, &label, pos, label);
+			continue;
 		}
-		else if (code_queue_pop_tag_p(x, &x)) {
-			/* tag -> index (heap) */
-			index_heap(&index, size);
-			/* taginfo */
-			cons_heap(&list, x, list);
-			cons_heap(&list, index, list);
-			/* tag */
-			cons_heap(&x, x, index);
-			cons_heap(&tag, x, tag);
+		/* tag */
+		if (code_queue_pop_tag_p(pos, &pos)) {
+			setjump_tabletagbody(pos, size);
+			continue;
 		}
 		else {
-			if (code_queue_pop_taginfo_p(x))
-				taginfo = x;
 			size++;
 		}
 	}
-	if (taginfo) {
-		nreverse_list_unsafe(&list, list);
-		SetCdr(taginfo, list);
-	}
-	*retlabel = label;
-	*rettag = tag;
-	*retsize = size;
+	*rlabel = label;
+	*rsize = size;
 }
 
-static size_t code_queue_pop_findlabel(addr label, addr right)
+static size_t code_queue_pop_find(addr label, addr right)
 {
 	addr left;
 	size_t index;
@@ -381,50 +359,49 @@ static size_t code_queue_pop_findlabel(addr label, addr right)
 		if (RefIndex(left) == index)
 			return RefIndex(right);
 	}
-	Abort("code_queue_pop_findlabel error");
+	Abort("code_queue_pop_find error");
 
 	return 0;
 }
 
-static void code_queue_pop_replace_goto(addr label, addr pos, addr *ret)
+static void code_queue_pop_replace(addr label, addr pos, addr *ret)
 {
 	addr cdr;
 	size_t value;
 
 	GetCons(pos, &pos, &cdr);
-	value = code_queue_pop_findlabel(label, cdr);
+	value = code_queue_pop_find(label, cdr);
 	index_heap(&cdr, value);
 	cons_heap(ret, pos, cdr);
 }
 
-static void code_queue_pop_gotocons(LocalRoot local, addr list,
-		addr label, addr tag, addr array, size_t size)
+static void code_queue_pop_goto(LocalRoot local,
+		addr list, addr label, addr array, size_t size)
 {
 	addr pos;
 	size_t i;
 
 	/* code */
-	i = 0;
-	while (list != Nil) {
+	for (i = 0; list != Nil; ) {
 		GetCons(list, &pos, &list);
-		if (code_queue_pop_label_p(pos) || code_queue_pop_tag_p(pos, &pos)) {
+		if (code_queue_pop_label_p(pos))
 			continue;
-		}
-		else if (code_queue_pop_goto_p(pos)) {
-			code_queue_pop_replace_goto(label, pos, &pos);
-		}
+		if (code_queue_pop_tag_p(pos, &pos))
+			continue;
+		if (code_queue_pop_goto_p(pos))
+			code_queue_pop_replace(label, pos, &pos);
 		SetArrayA4(array, i++, pos);
 	}
 }
 
-static void code_queue_pop_makecode(LocalRoot local, addr cons, addr *ret)
+static void code_queue_pop_make(LocalRoot local, addr cons, addr *ret)
 {
-	addr label, tag, array;
+	addr label, array;
 	size_t size;
 
-	code_queue_pop_labelcons(local, cons, &label, &tag, &size);
+	code_queue_pop_label(local, cons, &label, &size);
 	vector4_heap(&array, size);
-	code_queue_pop_gotocons(local, cons, label, tag, array, size);
+	code_queue_pop_goto(local, cons, label, array, size);
 	*ret = array;
 }
 
@@ -438,7 +415,7 @@ static void code_queue_pop_code(LocalRoot local, addr stack, addr *ret)
 	str = *(StructCodeStack(stack));
 	Check(! str.finish, "finish error");
 	GetCodeStack(stack, CodeStack_Result, &pos);
-	code_queue_pop_makecode(local, pos, &pos);
+	code_queue_pop_make(local, pos, &pos);
 	free_code_stack(local, stack);
 
 	/* make code */

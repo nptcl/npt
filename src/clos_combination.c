@@ -463,7 +463,7 @@ static int qualifiers_equal_symbol_(Execute ptr, addr left, addr right, int *ret
 
 	push_new_control(ptr, &control);
 	conscar_local(ptr->local, &left, left);
-	getfunctioncheck_local(ptr, right, &call);
+	getfunction_global(right, &call);
 	Return(apply_control(ptr, call, left));
 	getresult_control(ptr, &left);
 	*ret = left != Nil;

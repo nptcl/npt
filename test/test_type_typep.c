@@ -1125,7 +1125,7 @@ static int test_typep_function(void)
 
 	GetConst(COMMON_CAR, &v);
 	test(! typep_char(v, "function"), "typep_function1");
-	getfunctioncheck_local(Execute_Thread, v, &v);
+	getfunction_global(v, &v);
 	test(typep_char(v, "function"), "typep_function2");
 
 	RETURN;
@@ -1137,7 +1137,7 @@ static int test_typep_compiled(void)
 
 	GetConst(COMMON_CAR, &v);
 	test(! typep_char(v, "compiled-function"), "typep_compiled1");
-	getfunctioncheck_local(Execute_Thread, v, &v);
+	getfunction_global(v, &v);
 	test(typep_char(v, "compiled-function"), "typep_compiled2");
 
 	RETURN;

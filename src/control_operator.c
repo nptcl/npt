@@ -8,6 +8,7 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
+#include "eval_table.h"
 #include "equal.h"
 #include "execute.h"
 #include "function.h"
@@ -151,39 +152,18 @@ _g int goto_control_(Execute ptr, size_t point)
 	return 0;
 }
 
-static int go_find_control(Execute ptr, addr *ret, addr tag)
+_g int go_control_(Execute ptr, addr pos)
 {
-	addr control, cons, pos, check;
-
-	control = ptr->control;
-	while (control != Nil) {
-		gettagbody_control(control, &cons);
-		while (cons != Nil) {
-			GetCons(cons, &pos, &cons);
-			GetNameTagInfo(pos, &check);
-			if (eql_function(check, tag)) {
-				*ret = pos;
-				return 1;
-			}
-		}
-		GetControl(control, Control_Next, &control);
-	}
-
-	*ret = Nil;
-	return 0;
-}
-
-_g int go_control_(Execute ptr, addr tag)
-{
-	addr pos;
 	struct taginfo_struct *str;
 
 	/* find tag */
-	if (! go_find_control(ptr, &pos, tag))
-		fmte("Cannot find tag ~S.", tag, NULL);
+	CheckType(pos, LISPSYSTEM_TAGINFO);
 	str = StructTagInfo(pos);
-	if (str->open == 0)
-		fmte("Tag ~S already closed.", tag, NULL);
+	if (str->open == 0) {
+		GetNameTagInfo(pos, &pos);
+		fmte("Tag ~S already closed.", pos, NULL);
+		return 0;
+	}
 
 	/* rollback */
 	ptr->throw_control = str->control;
@@ -192,38 +172,18 @@ _g int go_control_(Execute ptr, addr tag)
 	return 1;
 }
 
-static int return_from_find_control(Execute ptr, addr *ret, addr name)
+_g int return_from_control_(Execute ptr, addr pos)
 {
-	addr control, list, pos, check;
-
-	control = ptr->control;
-	while (control != Nil) {
-		getblock_control(control, &list);
-		while (list != Nil) {
-			GetCons(list, &pos, &list);
-			GetNameTagInfo(pos, &check);
-			if (eql_function(check, name)) {
-				*ret = pos;
-				return 1;
-			}
-		}
-		GetControl(control, Control_Next, &control);
-	}
-	*ret = 0;
-	return 0;
-}
-
-_g int return_from_control_(Execute ptr, addr name)
-{
-	addr pos;
 	struct taginfo_struct *str;
 
 	/* find name */
-	if (! return_from_find_control(ptr, &pos, name))
-		fmte("Cannot find block name ~S.", name, NULL);
+	CheckType(pos, LISPSYSTEM_TAGINFO);
 	str = StructTagInfo(pos);
-	if (str->open == 0)
-		fmte("Block ~S already closed.", name, NULL);
+	if (str->open == 0) {
+		GetNameTagInfo(pos, &pos);
+		fmte("Block ~S already closed.", pos, NULL);
+		return 0;
+	}
 
 	/* rollback */
 	ptr->throw_control = str->control;
@@ -267,46 +227,11 @@ _g int throw_control_(Execute ptr, addr name)
 	return 1;
 }
 
-_g void gettagbody_execute(Execute ptr, addr *ret, addr name)
-{
-	if (! go_find_control(ptr, ret, name))
-		fmte("Cannot find tag name ~S", name, NULL);
-}
-
-_g void getblock_execute(Execute ptr, addr *ret, addr name)
-{
-	if (! return_from_find_control(ptr, ret, name))
-		fmte("Cannot find block name ~S", name, NULL);
-}
-
-static int eval_control_p(addr control)
-{
-	gettable_control(control, CONSTANT_SYSTEM_EVAL_LEXICAL, &control);
-	return control != Nil;
-}
-
-_g void hide_lexical_control(Execute ptr)
-{
-	addr control, pos, list, symbol;
-
-	control = pos = ptr->control;
-	while (pos != Nil && ! eval_control_p(pos)) {
-		GetControl(pos, Control_Lexical, &list);
-		while (list != Nil) {
-			GetCons(list, &symbol, &list);
-			GetCdr(list, &list);
-			pushlexical_control(ptr, symbol, Unbound);
-		}
-		GetControl(pos, Control_Next, &pos);
-	}
-	seteval_control(ptr->local, control);
-}
-
 
 /*
  *  handler
  */
-_g void pushhandler_control(Execute ptr, addr name, addr call, int escape)
+_g void pushhandler_common(Execute ptr, addr name, addr call, int escape)
 {
 	addr pos;
 
@@ -318,22 +243,17 @@ _g void pushhandler_control(Execute ptr, addr name, addr call, int escape)
 
 	/* push handler */
 	handler_local(ptr->local, &pos, name, call, escape);
-	pushtable_control(ptr, CONSTANT_SYSTEM_HANDLER, pos);
+	pushhandler_control(ptr, pos);
 }
 
 _g void reverse_handler_control(Execute ptr)
 {
-	addr control, cons;
+	addr control, list;
 
 	control = ptr->control;
-	gettable_control(control, CONSTANT_SYSTEM_HANDLER, &cons);
-	nreverse_list_unsafe(&cons, cons);
-	settable_control(ptr->local, control, CONSTANT_SYSTEM_HANDLER, cons);
-}
-
-_g void push_restart_control(Execute ptr, addr object)
-{
-	pushtable_control(ptr, CONSTANT_SYSTEM_RESTART, object);
+	gethandler_control(control, &list);
+	nreverse_list_unsafe(&list, list);
+	sethandler_control(ptr->local, control, list);
 }
 
 _g void pushbind_restart_control(Execute ptr, addr list, int escape)
@@ -350,17 +270,17 @@ _g void pushbind_restart_control(Execute ptr, addr list, int escape)
 	setescape_restart(pos, escape);
 
 	/* push handler */
-	push_restart_control(ptr, pos);
+	pushrestart_control(ptr, pos);
 }
 
 _g void reverse_restart_control(Execute ptr)
 {
-	addr control, cons;
+	addr control, list;
 
 	control = ptr->control;
-	gettable_control(control, CONSTANT_SYSTEM_RESTART, &cons);
-	nreverse_list_unsafe(&cons, cons);
-	settable_control(ptr->local, control, CONSTANT_SYSTEM_RESTART, cons);
+	getrestart_control(control, &list);
+	nreverse_list_unsafe(&list, list);
+	setrestart_control(ptr->local, control, list);
 }
 
 
@@ -666,7 +586,7 @@ static int restart_call_control(struct restart_call *str,
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
 		if (str->restart)
-			push_restart_control(ptr, str->restart);
+			pushrestart_control(ptr, str->restart);
 		check = (*call)(str);
 	}
 	end_switch(&jump);
@@ -774,35 +694,35 @@ _g int restart2_control(Execute ptr, addr restart,
  */
 _g void set_taginfo_control(Execute ptr, addr list)
 {
-	addr control, root, key, value;
-	LocalRoot local;
+	addr control, pos, name, value;
+	size_t index;
 
-	local = ptr->local;
 	control = ptr->control;
-	for (root = Nil; list != Nil; ) {
-		GetCons(list, &key, &list);
-		GetCons(list, &value, &list);
-		taginfo_heap(&value, control, key, RefIndex(value));
-		cons_local(local, &root, value, root);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		CheckTableTagBody(pos);
+		getname_tabletagbody(pos, &name);
+		index = getjump_tabletagbody(pos);
+		taginfo_heap(&value, control, name, index);
+		setvalue_tabletagbody(ptr, pos, value);
+		pushtaginfo_control(ptr, value);
 	}
-	settagbody_control(local, control, root);
 }
 
 _g void set_blockinfo_control(Execute ptr, addr pos)
 {
-	addr control;
-	LocalRoot local;
+	addr name, value;
 
-	local = ptr->local;
-	control = ptr->control;
-	taginfo_heap(&pos, control, pos, 0);
-	conscar_local(local, &pos, pos);
-	setblock_control(local, control, pos);
+	CheckTableBlock(pos);
+	getname_tableblock(pos, &name);
+	taginfo_heap(&value, ptr->control, name, 0);
+	setvalue_tableblock(ptr, pos, value);
+	pushtaginfo_control(ptr, value);
 }
 
 _g void set_protect_control(Execute ptr, addr pos)
 {
-	setprotect_plist_control(ptr->local, ptr->control, pos);
+	setprotect_value_control(ptr->control, pos);
 }
 
 

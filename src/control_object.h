@@ -18,16 +18,20 @@ enum Control_Index {
 	Control_Next,
 	Control_Cons,
 	Control_ConsTail,
-	Control_Lexical,
 	Control_Special,
+	Control_Close,
+	Control_Protect,
 	Control_Table,
 	Control_Data,
 	Control_Size
 };
 
 struct control_struct {
-	unsigned p_protect : 1;
 	LocalStack stack;
+	addr *lexical;
+#ifdef LISP_DEBUG
+	addr lexical_vector;
+#endif
 	addr trace;
 	size_t point;
 };
@@ -54,6 +58,16 @@ _g void *ptrbodycontrol_debug(addr pos);
 _g struct control_struct *structcontrol_debug(addr pos);
 _g void getcontrol_debug(addr pos, size_t index, addr *ret);
 _g void setcontrol_debug(addr pos, size_t index, addr value);
+
+
+/*
+ *  special
+ */
+enum Special_Index {
+	Special_Symbol,
+	Special_Snapshot,
+	Special_Size
+};
 
 
 /*
@@ -148,34 +162,25 @@ _g int rollback_control_(Execute ptr, addr control);
 
 /* data */
 _g int stack_check_control(Execute ptr);
-_g void pushlexical_control(Execute ptr, addr pos, addr value);
 _g void pushspecial_control(Execute ptr, addr pos, addr value);
-_g void pushcallname_control(Execute ptr, addr pos, addr value);
-_g void pushfunction_control(Execute ptr, addr pos, addr value);
-_g void pushsetf_control(Execute ptr, addr pos, addr value);
-_g void pushtable_control(Execute ptr, constindex index, addr pos);
-_g void pushtagbody_control(Execute ptr, addr pos, addr value);
-_g void pushblock_control(Execute ptr, addr pos);
+_g void pushtaginfo_control(Execute ptr, addr pos);
+_g void pushhandler_control(Execute ptr, addr pos);
+_g void pushrestart_control(Execute ptr, addr pos);
 _g int existspecial_control(Execute ptr, addr pos);
 
 /* access */
 _g void getdata_control(Execute ptr, addr *ret);
 _g void setdata_control(Execute ptr, addr value);
 
-_g int gettable_control(addr pos, constindex index, addr *ret);
-_g int gettagbody_control(addr pos, addr *ret);
-_g int getblock_control(addr pos, addr *ret);
 _g int getcatch_control(addr pos, addr *ret);
 _g int getcondition_control(addr pos, addr *ret);
 _g int gethandler_control(addr pos, addr *ret);
 _g int getrestart_control(addr pos, addr *ret);
 
-_g void settable_control(LocalRoot local, addr control, constindex index, addr value);
-_g void seteval_control(LocalRoot local, addr pos);
-_g void settagbody_control(LocalRoot local, addr pos, addr value);
-_g void setblock_control(LocalRoot local, addr pos, addr value);
 _g void setcatch_control(LocalRoot local, addr pos, addr value);
-_g void setprotect_plist_control(LocalRoot local, addr pos, addr value);
+_g void sethandler_control(LocalRoot local, addr pos, addr value);
+_g void setrestart_control(LocalRoot local, addr pos, addr value);
+_g void setprotect_value_control(addr pos, addr value);
 _g void setprotect_control(Execute ptr, pointer id, addr value);
 _g void setprotect_control_local(Execute ptr, pointer id, addr value);
 

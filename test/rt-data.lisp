@@ -138,6 +138,12 @@
     (aaa))
   10)
 
+(deftest flet.4
+  (flet ((aaa () 10))
+    (flet ((aaa () (1+ (aaa))))
+      (aaa)))
+  11)
+
 (deftest labels.1
   (labels ((aaa () :hello))
     (aaa))
@@ -155,6 +161,11 @@
   (labels ((aaa () (return-from aaa 10) 20))
     (aaa))
   10)
+
+(deftest labels.4
+  (labels ((aaa (x) (if (<= x 1) x (* x (aaa (1- x))))))
+    (aaa 10))
+  3628800)
 
 (deftest macrolet.1
   (macrolet ((aaa (x) `(list ,x)))
@@ -504,6 +515,14 @@
   (destructuring-bind (&whole w a (&whole z b) . c) '(10 (20) 30 40)
     (values a b c w z))
   10 20 (30 40) (10 (20) 30 40) (20))
+
+(deftest destructuring-bind.17
+  (let ((a 111) (b 222))
+    (declare (ignorable a b))
+    (destructuring-bind (a b) '(10 20)
+      (destructuring-bind (c d) '(30 40)
+        (values a b c d))))
+  10 20 30 40)
 
 (deftest let.1
   (let ())

@@ -56,7 +56,7 @@ static int test_type_name_function(void)
 	addr x, y;
 
 	GetConst(COMMON_CAR, &x);
-	getfunctioncheck_local(Execute_Thread, x, &x);
+	getfunction_global(x, &x);
 	type_name(&x, x);
 	GetConst(COMMON_COMPILED_FUNCTION, &y);
 	test(x == y, "type_name_function1");

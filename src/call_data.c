@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -94,8 +95,8 @@ _g int fdefinition_common(Execute ptr, addr name, addr *ret)
 _g void setf_fdefinition_common(addr value, addr name)
 {
 	parse_callname_error(&name, name);
-	remtype_funcion_callname_global(name);
-	setfunction_callname_global(name, value);
+	remtype_global_callname(name);
+	setglobal_callname(name, value);
 }
 
 
@@ -105,7 +106,7 @@ _g void setf_fdefinition_common(addr value, addr name)
 _g int fboundp_common(addr name)
 {
 	parse_callname_error(&name, name);
-	getfunction_callname_global(name, &name);
+	getglobal_callname(name, &name);
 	return name != Unbound;
 }
 
@@ -116,8 +117,8 @@ _g int fboundp_common(addr name)
 _g void fmakunbound_common(addr name)
 {
 	parse_callname_error(&name, name);
-	remtype_funcion_callname_global(name);
-	setfunction_callname_global(name, Unbound);
+	remtype_global_callname(name);
+	setglobal_callname(name, Unbound);
 }
 
 
@@ -126,18 +127,8 @@ _g void fmakunbound_common(addr name)
  */
 static int function_closure_p(addr var)
 {
-	addr check;
-
-	GetClosureValueFunction(var, &check);
-	if (check != Nil) return 1;
-	GetClosureFunctionFunction(var, &check);
-	if (check != Nil) return 1;
-	GetClosureTagbodyFunction(var, &check);
-	if (check != Nil) return 1;
-	GetClosureBlockFunction(var, &check);
-	if (check != Nil) return 1;
-
-	return 0;
+	GetDataFunction(var, &var);
+	return var != Nil;
 }
 
 _g void function_lambda_expression_common(addr var, addr *ret1, addr *ret2, addr *ret3)

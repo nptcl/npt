@@ -535,7 +535,7 @@ static int test_type_value_function(void)
 	addr x;
 
 	GetConst(COMMON_CAR, &x);
-	getfunctioncheck_local(Execute_Thread, x, &x);
+	getfunction_global(x, &x);
 	type_value(&x, x);
 	test(LispDecl(x) == LISPDECL_COMPILED_FUNCTION, "type_value_function1");
 

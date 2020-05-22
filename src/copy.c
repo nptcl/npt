@@ -1,4 +1,5 @@
 #include "bignum.h"
+#include "callname.h"
 #include "character.h"
 #include "cmpl.h"
 #include "condition.h"
@@ -200,7 +201,7 @@ _g void copyhard_complex(LocalRoot local, addr *ret, addr pos)
 
 _g void copyhard_callname(LocalRoot local, addr *ret, addr pos)
 {
-	enum CALLNAME_TYPE type;
+	CallNameType type;
 	addr name;
 
 	CheckType(pos, LISPTYPE_CALLNAME);
@@ -356,7 +357,7 @@ static int checklocal_function(LocalRoot local, addr pos)
 	addr check;
 
 	if (copylocalp(local, pos)) return 1;
-	GetFunction(pos, &check);
+	GetCodeFunction(pos, &check);
 	if (copylocalp(local, check)) return 1;
 	GetNameFunction(pos, &check);
 	if (copylocalp(local, check)) return 1;
@@ -583,7 +584,7 @@ static void copylocal_complex(LocalRoot local, addr *ret, addr pos)
 
 static void copylocal_callname(LocalRoot local, addr *ret, addr pos)
 {
-	enum CALLNAME_TYPE type;
+	CallNameType type;
 	addr name, one;
 
 	GetCallName(pos, &name);

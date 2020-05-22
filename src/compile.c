@@ -113,14 +113,14 @@ static int function_handler_compile(Execute ptr, addr condition)
 	GetConst(CONDITION_WARNING, &check);
 	if (clos_subtype_p(condition, check)) {
 		GetConst(SYSTEM_COMPILE_WARNING, &check);
-		setlexical_local(ptr, check, T);
+		setspecial_local(ptr, check, T);
 	}
 
 	/* style-warning */
 	GetConst(CONDITION_STYLE_WARNING, &check);
 	if (clos_subtype_p(condition, check)) {
 		GetConst(SYSTEM_COMPILE_STYLE_WARNING, &check);
-		setlexical_local(ptr, check, T);
+		setspecial_local(ptr, check, T);
 	}
 
 	return 0;
@@ -136,17 +136,17 @@ _g void handler_compile(Execute ptr)
 
 	/* compile-warning */
 	GetConst(SYSTEM_COMPILE_WARNING, &pos);
-	pushlexical_control(ptr, pos, Nil);
+	pushspecial_control(ptr, pos, Nil);
 
 	/* compile-style-warning */
 	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
-	pushlexical_control(ptr, pos, Nil);
+	pushspecial_control(ptr, pos, Nil);
 
 	/* handler-bind */
 	GetConst(CONDITION_WARNING, &pos);
 	compiled_local(ptr->local, &call, Nil);
 	setcompiled_var1(call, p_defun_handler_compile);
-	pushhandler_control(ptr, pos, call, 0);
+	pushhandler_common(ptr, pos, call, 0);
 }
 
 _g int compile_file_common(Execute ptr, addr input, addr rest,
@@ -165,10 +165,10 @@ _g int compile_file_common(Execute ptr, addr input, addr rest,
 	localhold_set(hold, 0, *ret1);
 	/* warning */
 	GetConst(SYSTEM_COMPILE_WARNING, &pos);
-	getlexicalcheck_local(ptr, pos, ret2);
+	getspecialcheck_local(ptr, pos, ret2);
 	/* style-warning */
 	GetConst(SYSTEM_COMPILE_STYLE_WARNING, &pos);
-	getlexicalcheck_local(ptr, pos, ret3);
+	getspecialcheck_local(ptr, pos, ret3);
 	/* free */
 	Return(free_control_(ptr, control));
 	localhold_end(hold);
@@ -284,7 +284,7 @@ static void handler_delay_warning(Execute ptr)
 	GetConst(CONDITION_DELAY_WARNING, &pos);
 	compiled_local(ptr->local, &call, Nil);
 	setcompiled_var1(call, p_defun_handler_delay_warning);
-	pushhandler_control(ptr, pos, call, 0);
+	pushhandler_common(ptr, pos, call, 0);
 }
 
 static int with_compilation_unit_override(Execute ptr, addr pos)

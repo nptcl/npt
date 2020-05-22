@@ -187,6 +187,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\call_symbols.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\call_system.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\call_types.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\callname.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\character.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\character_check.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\character_name.c" />
@@ -273,6 +274,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\execute.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\execute_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\execute_values.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_argv.c" />
@@ -328,6 +330,9 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\parse_function.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\parse_macro.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\parse_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\parse.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pointer.c" />
@@ -473,6 +478,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\call_system.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\call_types.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\call.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\callname.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character_check.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character_name.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\character.h" />
@@ -542,6 +548,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_stack.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute_object.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute_typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute_values.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute.h" />
@@ -608,6 +615,10 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse_function.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse_macro.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse_typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_table.h" />

@@ -2694,7 +2694,7 @@ static int defpackage_make(Execute ptr, addr pos, addr rest)
 	compiled_local(ptr->local, &call, Nil);
 	setcompiled_var1(call, p_defun_defpackage_make);
 	SetDataFunction(call, pos);
-	pushhandler_control(ptr, symbol, call, 0);
+	pushhandler_common(ptr, symbol, call, 0);
 	/* code */
 	defpackage_update(ptr->local, pos, rest);
 	/* free */

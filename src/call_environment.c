@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "character.h"
 #include "condition.h"
 #include "cons.h"
@@ -37,11 +38,11 @@ static int list_all_packages_sort(Execute ptr, addr *ret)
 	hold = LocalHold_local_push(ptr, list);
 	/* key */
 	GetConst(COMMON_PACKAGE_NAME, &key);
-	getfunctioncheck_local(ptr, key, &key);
+	getfunction_global(key, &key);
 	localhold_push(hold, key);
 	/* call */
 	GetConst(COMMON_STRING_LESS, &call);
-	getfunctioncheck_local(ptr, call, &call);
+	getfunction_global(call, &call);
 	localhold_push(hold, call);
 	/* sort */
 	Return(quick_sort_sequence(ptr, list, call, key));
@@ -96,11 +97,11 @@ static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
 	hold = LocalHold_local_push(ptr, list);
 	/* key */
 	GetConst(COMMON_SYMBOL_NAME, &key);
-	getfunctioncheck_local(ptr, key, &key);
+	getfunction_global(key, &key);
 	localhold_push(hold, key);
 	/* call */
 	GetConst(COMMON_STRING_LESS, &call);
-	getfunctioncheck_local(ptr, call, &call);
+	getfunction_global(call, &call);
 	localhold_push(hold, call);
 	/* sort */
 	Return(quick_sort_sequence(ptr, list, call, key));
@@ -370,7 +371,7 @@ static void ed_function_lambda(addr symbol, addr *ret)
 	addr pos;
 
 	parse_callname_error(&pos, symbol);
-	getcallname_global(pos, &pos);
+	getglobal_parse_callname(pos, &pos);
 	if (pos == Unbound)
 		goto error;
 	getdefunform_function(pos, &pos);

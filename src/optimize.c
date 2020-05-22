@@ -1,5 +1,6 @@
 #include "eval_copy.h"
 #include "optimize.h"
+#include "parse_object.h"
 
 _g void save_optimize_value(const struct optimize_struct *str,
 		struct optimize_value *save)
@@ -26,11 +27,11 @@ _g int optimize_speed_on(struct optimize_struct *str)
 	/* (on -1 1 2 3) (off 0) */
 	return optimize_declare_value(str, EVAL_OPTIMIZE_SPEED) != 0;
 }
-_g int optimize_evaltype(addr pos, enum EVAL_PARSE type)
+_g int optimize_evaltype(addr pos, EvalParse type)
 {
 	return eval_parse_p(pos) && RefEvalParseType(pos) == type;
 }
-_g int optimize_evaltype_on(struct optimize_struct *str, enum EVAL_PARSE type)
+_g int optimize_evaltype_on(struct optimize_struct *str, EvalParse type)
 {
 	return optimize_speed_on(str) && optimize_evaltype(str->pos, type);
 }

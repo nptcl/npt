@@ -249,7 +249,7 @@ _g int pprint_dispatch_common(Execute ptr, addr var, addr table, addr *x, addr *
 	}
 	else {
 		GetConst(SYSTEM_WRITE_DEFAULT, &var);
-		getfunctioncheck_local(ptr, var, x);
+		getfunction_global(var, x);
 		*y = Nil;
 	}
 

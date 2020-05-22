@@ -1,10 +1,11 @@
-#include "condition.h"
+#include "callname.h"
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_combination.h"
 #include "clos_generic.h"
 #include "clos_make.h"
 #include "clos_type.h"
+#include "condition.h"
 #include "constant.h"
 #include "function.h"
 #include "hashtable.h"
@@ -914,7 +915,7 @@ _g void clos_find_generic_nil(addr name, addr *ret)
 {
 	Check(! function_name_p(name), "type error");
 
-	getcallname_global(name, &name);
+	getglobal_parse_callname(name, &name);
 	if (name == Unbound || (! closp(name)))
 		*ret = Nil;
 	else
@@ -931,7 +932,7 @@ _g void clos_find_generic(addr name, addr *ret)
 _g void clos_define_generic(addr name, addr value)
 {
 	Check(! function_name_p(name), "type name error");
-	setcallname_global(name, value);
+	setglobal_parse_callname(name, value);
 }
 
 /* method-combination */

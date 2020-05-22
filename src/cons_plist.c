@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "cons_plist.h"
@@ -569,6 +570,15 @@ _g int setplistplist_eql_heap(addr plist, addr key, addr name, addr value, addr 
  *  callname
  */
 /* 0:find-value, 1:not-found(Nil) */
+static int equal_callname_plist(addr x, addr y)
+{
+	if (x == y)
+		return 1;
+	return callnamep(x)
+		&& callnamep(y)
+		&& equal_callname(x, y);
+}
+
 _g int getplist_callname(addr plist, addr callname, addr *ret)
 {
 	addr check;
@@ -577,7 +587,7 @@ _g int getplist_callname(addr plist, addr callname, addr *ret)
 		Check(GetType(plist) != LISPTYPE_CONS, "type left error");
 		GetCons(plist, &check, &plist);
 		Check(GetType(plist) != LISPTYPE_CONS, "type right error");
-		if (equal_callname(check, callname)) {
+		if (equal_callname_plist(check, callname)) {
 			GetCar(plist, ret);
 			return 0;
 		}
@@ -597,7 +607,7 @@ _g int setplist_callname_alloc(LocalRoot local,
 		Check(GetType(cons) != LISPTYPE_CONS, "type left error");
 		GetCons(cons, &check, &cons);
 		Check(GetType(cons) != LISPTYPE_CONS, "type right error");
-		if (equal_callname(check, callname)) {
+		if (equal_callname_plist(check, callname)) {
 			SetCar(cons, value);
 			return 0;
 		}
@@ -694,7 +704,7 @@ _g int setplistplist_callname_alloc(LocalRoot local,
 				Check(GetType(find) != LISPTYPE_CONS, "type find left error");
 				GetCons(find, &check, &find);
 				Check(GetType(find) != LISPTYPE_CONS, "type find right error");
-				if (equal_callname(check, callname)) {
+				if (equal_callname_plist(check, callname)) {
 					SetCar(find, value);
 					return 0;
 				}
@@ -739,7 +749,7 @@ _g int setplistplist_callname_heap_force(addr plist,
 				Check(GetType(find) != LISPTYPE_CONS, "type find left error");
 				GetCons(find, &check, &find);
 				Check(GetType(find) != LISPTYPE_CONS, "type find right error");
-				if (equal_callname(check, callname)) {
+				if (equal_callname_plist(check, callname)) {
 					SetCar_force(find, value);
 					return 0;
 				}

@@ -1,9 +1,11 @@
+#include "callname.h"
 #include "clos_class.h"
 #include "cons_plist.h"
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
 #include "execute.h"
+#include "execute_object.h"
 #include "function.h"
 #include "heap.h"
 #include "restart.h"
@@ -34,6 +36,34 @@ _g void setcontrol_debug(addr pos, size_t index, addr value)
 {
 	CheckType(pos, LISPTYPE_CONTROL);
 	SetControl_Low(pos, index, value);
+}
+
+
+/*
+ *  special
+ */
+static void special_local(Execute ptr, addr *ret, addr symbol)
+{
+	addr pos, value;
+
+	Check(! symbolp(symbol), "type error");
+	snapshot_special_local(ptr, symbol, &value);
+	local_array2(ptr->local, &pos, LISPSYSTEM_SPECIAL, Special_Size);
+	SetArrayA2(pos, Special_Symbol, symbol);
+	SetArrayA2(pos, Special_Snapshot, value);
+	*ret = pos;
+}
+
+static void getsymbol_special(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SPECIAL);
+	GetArrayA2(pos, Special_Symbol, ret);
+}
+
+static void getsnapshot_special(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SPECIAL);
+	GetArrayA2(pos, Special_Snapshot, ret);
 }
 
 
@@ -168,6 +198,10 @@ _g struct control_struct *push_control(Execute ptr)
 			sizeoft(struct control_struct));
 	str = StructControl(pos);
 	clearpoint(str);
+	str->lexical = ptr->lexical;
+#ifdef LISP_DEBUG
+	str->lexical_vector = ptr->lexical_vector;
+#endif
 	str->stack = stack;
 
 	/* push */
@@ -198,54 +232,13 @@ _g void push_args_control(Execute ptr, addr *ret)
 /*
  *  free_control
  */
-static void close_function_control(Execute ptr, addr list)
+static int close_protect_control_(Execute ptr, addr control)
 {
-	addr symbol, snapshot;
-
-	while (list != Nil) {
-		GetCons(list, &symbol, &list);
-		GetCons(list, &snapshot, &list);
-		rollback_function_local(ptr, symbol, snapshot);
-	}
-}
-
-static void close_setf_control(Execute ptr, addr list)
-{
-	addr symbol, snapshot;
-
-	while (list != Nil) {
-		GetCons(list, &symbol, &list);
-		GetCons(list, &snapshot, &list);
-		rollback_setf_local(ptr, symbol, snapshot);
-	}
-}
-
-static void close_tagbody_control(Execute ptr, addr control, addr list)
-{
-	addr value;
-
-	while (list != Nil) {
-		GetCons(list, &value, &list);
-		close_taginfo(value);
-	}
-}
-
-static void close_restart_control(Execute ptr, addr control, addr list)
-{
-	addr value;
-
-	while (list != Nil) {
-		GetCons(list, &value, &list);
-		setenable_restart(value, 0);
-	}
-}
-
-static int close_protect_control_(Execute ptr, addr call)
-{
-	addr control, values;
+	addr call, values;
 	size_t size;
 
-	if (call == Unbound)
+	GetControl(control, Control_Protect, &call);
+	if (call == Nil)
 		return 0;
 	push_new_control(ptr, &control);
 	save_values_control(ptr, &values, &size);
@@ -259,126 +252,71 @@ static int close_protect_control_(Execute ptr, addr call)
 	return free_control_(ptr, control);
 }
 
-static int close_plist_control_(Execute ptr, addr control)
+static void close_special_control(Execute ptr, addr pos)
 {
-	addr list, key, value;
-	addr key1, key2, key3, key4, key5, key6;
+	addr symbol, snapshot;
 
-	GetConst(COMMON_FUNCTION, &key1);
-	GetConst(COMMON_SETF, &key2);
-	GetConst(COMMON_TAGBODY, &key3);
-	GetConst(COMMON_BLOCK, &key4);
-	GetConst(SYSTEM_RESTART, &key5);
-	GetConst(COMMON_UNWIND_PROTECT, &key6);
-
-	GetControl(control, Control_Table, &list);
-	while (list != Nil) {
-		GetCons(list, &key, &list);
-		GetCar(list, &value);
-		SetCar(list, Unbound);
-		GetCdr(list, &list);
-		if (value == Unbound)
-			continue;
-
-		/* function */
-		if (key == key1) {
-			close_function_control(ptr, value);
-			continue;
-		}
-		/* setf */
-		if (key == key2) {
-			close_setf_control(ptr, value);
-			continue;
-		}
-		/* tagbody */
-		if (key == key3) {
-			close_tagbody_control(ptr, control, value);
-			continue;
-		}
-		/* block */
-		if (key == key4) {
-			close_tagbody_control(ptr, control, value);
-			continue;
-		}
-		/* restart */
-		if (key == key5) {
-			close_restart_control(ptr, control, value);
-			continue;
-		}
-		/* unwind-protect */
-		if (key == key6) {
-			Return(close_protect_control_(ptr, value));
-			continue;
-		}
-	}
-
-	return 0;
+	getsymbol_special(pos, &symbol);
+	getsnapshot_special(pos, &snapshot);
+	rollback_special_local(ptr, symbol, snapshot);
 }
 
-static int close_table_control_(Execute ptr, addr control, struct control_struct *str)
+static void close_close_control(Execute ptr, addr control)
 {
-	addr list, key, value, key1;
+	addr list, pos;
 
-	if (str->p_protect) {
-		GetConst(COMMON_UNWIND_PROTECT, &key1);
-		GetControl(control, Control_Table, &list);
-		while (list != Nil) {
-			GetCons(list, &key, &list);
-			if (key == key1) {
-				GetCar(list, &value);
-				SetCar(list, Unbound);
-				Return(close_protect_control_(ptr, value));
-			}
-			GetCdr(list, &list);
+	GetControl(control, Control_Close, &list);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		switch (GetType(pos)) {
+			case LISPSYSTEM_SPECIAL:
+				close_special_control(ptr, pos);
+				break;
+
+			case LISPSYSTEM_TAGINFO:
+				close_taginfo(pos);
+				break;
+
+			case LISPTYPE_RESTART:
+				setenable_restart(pos, 0);
+				break;
+
+			default:
+				Abort("Invalid control-close type.");
+				break;
 		}
-	}
-
-	return close_plist_control_(ptr, control);
-}
-
-static void close_lexical_control(Execute ptr, addr control)
-{
-	addr list, symbol, snapshot;
-
-	GetControl(control, Control_Lexical, &list);
-	while (list != Nil) {
-		GetCons(list, &symbol, &list);
-		GetCons(list, &snapshot, &list);
-		rollback_lexical_local(ptr, symbol, snapshot);
-	}
-}
-
-static void close_special_control(Execute ptr, addr control)
-{
-	addr list, symbol, snapshot;
-
-	GetControl(control, Control_Special, &list);
-	while (list != Nil) {
-		GetCons(list, &symbol, &list);
-		GetCons(list, &snapshot, &list);
-		rollback_special_local(ptr, symbol, snapshot);
 	}
 }
 
 static int pop_control_(Execute ptr)
 {
-	addr control;
+	addr control, *lexical;
 	LocalStack stack;
 	struct control_struct *str;
+#ifdef LISP_DEBUG
+	addr lexical_vector;
+#endif
 
 	control = ptr->control;
 	Check(control == Nil, "Execute error");
 	str = StructControl(control);
 	stack = str->stack;
+	lexical = str->lexical;
+#ifdef LISP_DEBUG
+	lexical_vector = str->lexical_vector;
+#endif
 
 	/* close */
-	Return(close_table_control_(ptr, control, str));
-	close_lexical_control(ptr, control);
-	close_special_control(ptr, control);
+	Return(close_protect_control_(ptr, control));
+	close_close_control(ptr, control);
 
 	/* pop */
 	GetControl(control, Control_Next, &control);
 	ptr->control = control;
+	ptr->lexical = lexical;
+#ifdef LISP_DEBUG
+	ptr->lexical_vector = lexical_vector;
+#endif
 	rollback_local(ptr->local, stack);
 
 	return 0;
@@ -442,80 +380,35 @@ _g int stack_check_control(Execute ptr)
 	return stack1 != stack2;
 }
 
-_g void pushlexical_control(Execute ptr, addr pos, addr value)
+static void pushclose_control(Execute ptr, addr pos)
 {
-	addr control, list, snapshot;
+	addr list;
 
-	control = ptr->control;
-	GetControl(control, Control_Lexical, &list);
-	if (getplist(list, pos, &snapshot)) {
-		Check(stack_check_control(ptr), "stack error");
-		snapshot_lexical_local(ptr, pos, &snapshot);
-		if (setplist_local(ptr->local, list, pos, snapshot, &list))
-			SetControl(control, Control_Lexical, list);
-	}
-	pushlexical_unsafe(ptr, pos, value);
+	GetControl(ptr->control, Control_Close, &list);
+	cons_local(ptr->local, &list, pos, list);
+	SetControl(ptr->control, Control_Close, list);
 }
 
 _g void pushspecial_control(Execute ptr, addr pos, addr value)
 {
-	addr control, list, snapshot;
+	addr x;
 
-	control = ptr->control;
-	GetControl(control, Control_Special, &list);
-	if (getplist(list, pos, &snapshot)) {
-		Check(stack_check_control(ptr), "stack error");
-		snapshot_special_local(ptr, pos, &snapshot);
-		if (setplist_local(ptr->local, list, pos, snapshot, &list))
-			SetControl(control, Control_Special, list);
-	}
+	Check(! symbolp(pos), "type error");
+	Check(stack_check_control(ptr), "stack error");
+	/* push close */
+	special_local(ptr, &x, pos);
+	pushclose_control(ptr, x);
+	/* push symbol */
 	pushspecial_unsafe(ptr, pos, value);
 }
 
-_g void pushcallname_control(Execute ptr, addr pos, addr value)
+_g void pushtaginfo_control(Execute ptr, addr pos)
 {
-	addr symbol;
-
-	GetCallName(pos, &symbol);
-	if (RefCallNameType(pos) == CALLNAME_SYMBOL)
-		pushfunction_control(ptr, symbol, value);
-	else
-		pushsetf_control(ptr, symbol, value);
+	CheckType(pos, LISPSYSTEM_TAGINFO);
+	pushclose_control(ptr, pos);
 }
 
-_g void pushfunction_control(Execute ptr, addr pos, addr value)
-{
-	addr control, table, key, snapshot;
-
-	control = ptr->control;
-	GetConst(COMMON_FUNCTION, &key);
-	GetControl(control, Control_Table, &table);
-	if (getplistplist(table, key, pos, &snapshot)) {
-		Check(stack_check_control(ptr), "stack error");
-		snapshot_function_local(ptr, pos, &snapshot);
-		if (setplistplist_local(ptr->local, table, key, pos, snapshot, &table))
-			SetControl(control, Control_Table, table);
-	}
-	pushfunction_unsafe(ptr, pos, value);
-}
-
-_g void pushsetf_control(Execute ptr, addr pos, addr value)
-{
-	addr control, table, key, snapshot;
-
-	control = ptr->control;
-	GetConst(COMMON_SETF, &key);
-	GetControl(control, Control_Table, &table);
-	if (getplistplist(table, key, pos, &snapshot)) {
-		Check(stack_check_control(ptr), "stack error");
-		snapshot_setf_local(ptr, pos, &snapshot);
-		if (setplistplist_local(ptr->local, table, key, pos, snapshot, &table))
-			SetControl(control, Control_Table, table);
-	}
-	pushsetf_unsafe(ptr, pos, value);
-}
-
-_g void pushtable_control(Execute ptr, constindex index, addr pos)
+static void pushtable_control(Execute ptr, constindex index, addr pos)
 {
 	addr control, key, table, cons;
 	LocalRoot local;
@@ -530,21 +423,34 @@ _g void pushtable_control(Execute ptr, constindex index, addr pos)
 		SetControl(control, Control_Table, table);
 }
 
-_g void pushtagbody_control(Execute ptr, addr pos, addr value)
+_g void pushhandler_control(Execute ptr, addr pos)
 {
-	pushtable_control(ptr, CONSTANT_COMMON_TAGBODY, value);
+	CheckType(pos, LISPSYSTEM_HANDLER);
+	pushtable_control(ptr, CONSTANT_SYSTEM_HANDLER, pos);
 }
 
-_g void pushblock_control(Execute ptr, addr pos)
+_g void pushrestart_control(Execute ptr, addr pos)
 {
-	pushtable_control(ptr, CONSTANT_COMMON_BLOCK, pos);
+	CheckType(pos, LISPTYPE_RESTART);
+	pushclose_control(ptr, pos);
+	pushtable_control(ptr, CONSTANT_SYSTEM_RESTART, pos);
 }
 
 _g int existspecial_control(Execute ptr, addr pos)
 {
-	addr list;
-	GetControl(ptr->control, Control_Special, &list);
-	return getplist(list, pos, &list) == 0;
+	addr list, check;
+
+	GetControl(ptr->control, Control_Close, &list);
+	while (list != Nil) {
+		GetCons(list, &check, &list);
+		if (GetType(check) != LISPSYSTEM_SPECIAL)
+			continue;
+		getsymbol_special(check, &check);
+		if (check == pos)
+			return 1;
+	}
+
+	return 0;
 }
 
 
@@ -561,7 +467,7 @@ _g void setdata_control(Execute ptr, addr value)
 	SetControl(ptr->control, Control_Data, value);
 }
 
-_g int gettable_control(addr pos, constindex index, addr *ret)
+static int gettable_control(addr pos, constindex index, addr *ret)
 {
 	addr key;
 
@@ -571,7 +477,7 @@ _g int gettable_control(addr pos, constindex index, addr *ret)
 	return getplist(pos, key, ret) == 0;
 }
 
-_g void settable_control(LocalRoot local, addr control, constindex index, addr value)
+static void settable_control(LocalRoot local, addr control, constindex index, addr value)
 {
 	addr key, table;
 
@@ -579,16 +485,6 @@ _g void settable_control(LocalRoot local, addr control, constindex index, addr v
 	GetControl(control, Control_Table, &table);
 	if (setplist_local(local, table, key, value, &table))
 		SetControl(control, Control_Table, table);
-}
-
-_g int gettagbody_control(addr pos, addr *ret)
-{
-	return gettable_control(pos, CONSTANT_COMMON_TAGBODY, ret);
-}
-
-_g int getblock_control(addr pos, addr *ret)
-{
-	return gettable_control(pos, CONSTANT_COMMON_BLOCK, ret);
 }
 
 _g int getcatch_control(addr pos, addr *ret)
@@ -611,30 +507,24 @@ _g int getrestart_control(addr pos, addr *ret)
 	return gettable_control(pos, CONSTANT_SYSTEM_RESTART, ret);
 }
 
-_g void seteval_control(LocalRoot local, addr pos)
-{
-	settable_control(local, pos, CONSTANT_SYSTEM_EVAL_LEXICAL, T);
-}
-
-_g void settagbody_control(LocalRoot local, addr pos, addr value)
-{
-	settable_control(local, pos, CONSTANT_COMMON_TAGBODY, value);
-}
-
-_g void setblock_control(LocalRoot local, addr pos, addr value)
-{
-	settable_control(local, pos, CONSTANT_COMMON_BLOCK, value);
-}
-
 _g void setcatch_control(LocalRoot local, addr pos, addr value)
 {
 	settable_control(local, pos, CONSTANT_COMMON_CATCH, value);
 }
 
-_g void setprotect_plist_control(LocalRoot local, addr pos, addr value)
+_g void sethandler_control(LocalRoot local, addr pos, addr value)
 {
-	StructControl(pos)->p_protect = 1;
-	settable_control(local, pos, CONSTANT_COMMON_UNWIND_PROTECT, value);
+	return settable_control(local, pos, CONSTANT_SYSTEM_HANDLER, value);
+}
+
+_g void setrestart_control(LocalRoot local, addr pos, addr value)
+{
+	return settable_control(local, pos, CONSTANT_SYSTEM_RESTART, value);
+}
+
+_g void setprotect_value_control(addr pos, addr value)
+{
+	SetControl(pos, Control_Protect, value);
 }
 
 _g void setprotect_control(Execute ptr, pointer id, addr value)
@@ -644,18 +534,16 @@ _g void setprotect_control(Execute ptr, pointer id, addr value)
 	compiled_heap(&pos, Nil);
 	setcompiled_empty(pos, id);
 	SetDataFunction(pos, value);
-	setprotect_plist_control(ptr->local, ptr->control, pos);
+	setprotect_value_control(ptr->control, pos);
 }
 
 _g void setprotect_control_local(Execute ptr, pointer id, addr value)
 {
 	addr pos;
-	LocalRoot local;
 
-	local = ptr->local;
-	compiled_local(local, &pos, Nil);
+	compiled_local(ptr->local, &pos, Nil);
 	setcompiled_empty(pos, id);
 	SetDataFunction(pos, value);
-	setprotect_plist_control(local, ptr->control, pos);
+	setprotect_value_control(ptr->control, pos);
 }
 

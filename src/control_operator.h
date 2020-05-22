@@ -22,13 +22,9 @@ _g int go_control_(Execute ptr, addr tag);
 _g int return_from_control_(Execute ptr, addr name);
 _g void catch_control(Execute ptr, addr name);
 _g int throw_control_(Execute ptr, addr name);
-_g void gettagbody_execute(Execute ptr, addr *ret, addr pos);
-_g void getblock_execute(Execute ptr, addr *ret, addr pos);
-_g void hide_lexical_control(Execute ptr);
 
-_g void pushhandler_control(Execute ptr, addr pos, addr call, int escape);
+_g void pushhandler_common(Execute ptr, addr pos, addr call, int escape);
 _g void reverse_handler_control(Execute ptr);
-_g void push_restart_control(Execute ptr, addr object);
 _g void pushbind_restart_control(Execute ptr, addr list, int escape);
 _g void reverse_restart_control(Execute ptr);
 

@@ -15,6 +15,7 @@
 #include "object.h"
 #include "optimize_parse.h"
 #include "parse.h"
+#include "parse_macro.h"
 #include "pathname.h"
 #include "prompt.h"
 #include "reader.h"
@@ -115,6 +116,10 @@ _g int eval_stack_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_STACK;
 }
+_g int eval_table_p(addr pos)
+{
+	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLE;
+}
 _g int eval_tablevalue_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLEVALUE;
@@ -123,10 +128,6 @@ _g int eval_tablefunction_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLEFUNCTION;
 }
-_g int eval_tablecall_p(addr pos)
-{
-	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLECALL;
-}
 _g int eval_tabletagbody_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLETAGBODY;
@@ -134,6 +135,10 @@ _g int eval_tabletagbody_p(addr pos)
 _g int eval_tableblock_p(addr pos)
 {
 	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLEBLOCK;
+}
+_g int eval_tablecall_p(addr pos)
+{
+	return GetType(pos) == LISPTYPE_EVAL && RefEvalType(pos) == EVAL_TYPE_TABLECALL;
 }
 _g int eval_code_p(addr pos)
 {

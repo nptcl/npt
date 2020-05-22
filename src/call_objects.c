@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "clos.h"
 #include "clos_combination.h"
 #include "clos_type.h"
@@ -1420,7 +1421,7 @@ _g int make_load_form_saving_slots_common(Execute ptr,
 	GetConst(COMMON_FIND_CLASS, &find);
 	GetConst(COMMON_CLASS_NAME, &call);
 	clos_class_of(var, &name);
-	getfunctioncheck_local(ptr, call, &call);
+	getfunction_global(call, &call);
 	Return(callclang_funcall(ptr, &name, call, name, NULL));
 	quotelist_heap(&name, name);
 	list_heap(&find, find, name, NULL);

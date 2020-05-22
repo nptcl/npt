@@ -4,9 +4,12 @@
 #include "cons_list.h"
 #include "eval.h"
 #include "eval_stack.h"
+#include "eval_table.h"
 #include "heap.h"
-#include "scope_object.h"
+#include "parse_object.h"
 #include "scope_function.h"
+#include "scope_lambda.h"
+#include "scope_object.h"
 #include "symbol.h"
 #include "type_value.h"
 
@@ -32,7 +35,7 @@ _g void eval_scope_heap(Execute ptr, addr *ret, size_t size)
 }
 
 _g void eval_scope_size(Execute ptr, addr *ret, size_t size,
-		enum EVAL_PARSE parse, addr type, addr value)
+		EvalParse parse, addr type, addr value)
 {
 	addr pos;
 
@@ -44,7 +47,7 @@ _g void eval_scope_size(Execute ptr, addr *ret, size_t size,
 }
 
 _g void make_eval_scope(Execute ptr,
-		addr *ret, enum EVAL_PARSE parse, addr type, addr value)
+		addr *ret, EvalParse parse, addr type, addr value)
 {
 	eval_scope_size(ptr, ret, 0, parse, type, value);
 }
@@ -59,17 +62,17 @@ _g struct eval_scope *structevalscope(addr pos)
 	return StructEvalScope_Low(pos);
 
 }
-_g enum EVAL_PARSE refevalscopetype(addr pos)
+_g EvalParse refevalscopetype(addr pos)
 {
 	Check(! eval_scope_p(pos), "type error");
 	return RefEvalScopeType_Low(pos);
 }
-_g void getevalscopetype(addr pos, enum EVAL_PARSE *ret)
+_g void getevalscopetype(addr pos, EvalParse *ret)
 {
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeType_Low(pos, ret);
 }
-_g void setevalscopetype(addr pos, enum EVAL_PARSE value)
+_g void setevalscopetype(addr pos, EvalParse value)
 {
 	Check(! eval_scope_p(pos), "type error");
 	SetEvalScopeType_Low(pos, value);
@@ -128,7 +131,7 @@ _g eval_scope_calltype EvalScopeTable[EVAL_PARSE_SIZE];
 
 static int scope_eval_table(Execute ptr, addr *ret, addr eval)
 {
-	enum EVAL_PARSE type;
+	EvalParse type;
 	eval_scope_calltype call;
 
 	GetEvalParseType(eval, &type);
@@ -226,6 +229,33 @@ _g int localhold_scope_allcons(LocalHold hold,
 		localhold_pushva(hold, *retcons, *rettype, NULL);
 	else
 		localhold_push(hold, *retcons);
+
+	return 0;
+}
+
+
+/*
+ *  lexical
+ */
+static void scope_eval_lexical_object(Execute ptr, addr stack, addr eval, addr *ret)
+{
+	addr type, pos;
+
+	lambda_lexical_heap(stack, &pos);
+	GetEvalScopeThe(eval, &type);
+	eval_scope_size(ptr, &eval, 1, EVAL_PARSE_LEXICAL, type, eval);
+	SetEvalScopeIndex(eval, 0, pos);
+	*ret = eval;
+}
+
+_g int scope_eval_lexical(Execute ptr, addr *ret, addr eval)
+{
+	addr stack;
+
+	stack = newstack_lexical(ptr);
+	Return(scope_eval(ptr, &eval, eval));
+	scope_eval_lexical_object(ptr, stack, eval, ret);
+	freestack_eval(ptr, stack);
 
 	return 0;
 }

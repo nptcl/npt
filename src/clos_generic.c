@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_combination.h"
@@ -12,6 +13,7 @@
 #include "control_operator.h"
 #include "define.h"
 #include "equal.h"
+#include "execute_object.h"
 #include "function.h"
 #include "gc.h"
 #include "hashtable.h"
@@ -392,7 +394,7 @@ static int generic_no_applicable_method(Execute ptr, addr gen, addr args)
 
 	/* call (no-applicable-method generic-function . args) */
 	GetConst(COMMON_NO_APPLICABLE_METHOD, &call);
-	getfunctioncheck_local(ptr, call, &call);
+	getfunction_global(call, &call);
 	return applya_control(ptr, call, gen, args, NULL);
 }
 
@@ -854,7 +856,7 @@ _g void generic_common_instance(addr *ret, addr name, addr args)
 	stdset_generic_precedence_index(pos, Nil);
 
 	/* result */
-	setcallname_global(name, pos);
+	setglobal_parse_callname(name, pos);
 	*ret = pos;
 }
 
@@ -899,7 +901,7 @@ _g int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *r
 	/* symbol or (setf name) */
 	parse_callname_error(&call, name);
 	/* symbol check */
-	if (symbol_callname_p(call)) {
+	if (symbolp_callname(call)) {
 		/* special-operator */
 		if (get_special_operator(name))
 			fmte("ENSURE-GENERIC-FUNCTION don't accept "
@@ -911,7 +913,7 @@ _g int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *r
 					"a macro symbol ~S.", check, NULL);
 	}
 	/* class-of */
-	getcallname_global(call, &check);
+	getglobal_parse_callname(call, &check);
 	if (check == Unbound) {
 		clos = Nil;
 	}
@@ -926,7 +928,7 @@ _g int ensure_generic_function_common(Execute ptr, addr name, addr rest, addr *r
 
 	/* (apply #'ensure-generic-function-using-class ...) */
 	GetConst(CLOSNAME_ENSURE_GENERIC_FUNCTION_USING_CLASS, &ensure);
-	getfunctioncheck_local(ptr, ensure, &ensure);
+	getfunction_global(ensure, &ensure);
 	return applya_control(ptr, ensure, clos, name, rest, NULL);
 }
 
@@ -960,7 +962,7 @@ _g void generic_empty(addr name, addr lambda, addr *ret)
 
 	/* result */
 	generic_finalize(pos);
-	setcallname_global(name, pos);
+	setglobal_parse_callname(name, pos);
 	*ret = pos;
 }
 
@@ -1023,7 +1025,7 @@ _g int generic_add(struct generic_argument *str, addr *ret)
 
 	/* result */
 	generic_finalize(pos);
-	setcallname_global(str->name, pos);
+	setglobal_parse_callname(str->name, pos);
 	*ret = pos;
 	return 0;
 }

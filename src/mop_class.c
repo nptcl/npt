@@ -2,6 +2,7 @@
  *  ANSI COMMON LISP: 7. Objects
  *    Common Lisp Object System - Metaobject Protocol
  */
+#include "callname.h"
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_generic.h"
@@ -97,7 +98,7 @@ static int function_ensure_class(Execute ptr, addr name, addr rest)
 
 	/* call */
 	GetConst(CLOSNAME_ENSURE_CLASS_USING_CLASS, &symbol);
-	getfunctioncheck_local(ptr, symbol, &symbol);
+	getfunction_global(symbol, &symbol);
 	return applya_control(ptr, symbol, clos, name, rest, NULL);
 }
 
@@ -539,7 +540,7 @@ static int method_make_instance_symbol(Execute ptr,
 	clos_find_class(var, &var);
 	/* call generic-function */
 	GetConst(COMMON_MAKE_INSTANCE, &symbol);
-	getfunctioncheck_local(ptr, symbol, &symbol);
+	getfunction_global(symbol, &symbol);
 	return applya_control(ptr, symbol, var, rest, NULL);
 }
 
@@ -685,7 +686,7 @@ static int method_make_instances_obsolete_symbol(Execute ptr,
 	addr call;
 
 	GetConst(COMMON_MAKE_INSTANCES_OBSOLETE, &call);
-	getfunctioncheck_local(ptr, call, &call);
+	getfunction_global(call, &call);
 	clos_find_class(var, &var);
 	return funcall_control(ptr, call, var, NULL);
 }
@@ -780,7 +781,7 @@ static int method_make_load_form_class(Execute ptr,
 
 	/* (class-name var) */
 	GetConst(COMMON_CLASS_NAME, &call);
-	getfunctioncheck_local(ptr, call, &call);
+	getfunction_global(call, &call);
 	Return(callclang_funcall(ptr, &var, call, var, NULL));
 	/* (find-class (quote var)) */
 	GetConst(COMMON_FIND_CLASS, &find);
@@ -1537,7 +1538,7 @@ static int method_change_class_symbol(Execute ptr,
 	addr call;
 
 	GetConst(COMMON_CHANGE_CLASS, &call);
-	getfunctioncheck_local(ptr, call, &call);
+	getfunction_global(call, &call);
 	clos_find_class(clos, &clos);
 	return applya_control(ptr, call, pos, clos, rest, NULL);
 }

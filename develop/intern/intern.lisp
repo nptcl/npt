@@ -1325,14 +1325,6 @@ lisp-system::type-scope
 lisp-system::type-value
 lisp-system::type-function
 lisp-system::type-setf
-lisp-system::table-value
-lisp-system::table-function
-lisp-system::table-tagbody
-lisp-system::table-block
-lisp-system::closure-value
-lisp-system::closure-function
-lisp-system::closure-tagbody
-lisp-system::closure-block
 
 lisp-system::function-argtype
 lisp-system::function-rettype
@@ -1374,7 +1366,6 @@ lisp-system::character2
 lisp-system::charqueue
 lisp-system::charbit
 lisp-system::symstack
-lisp-system::symarray
 lisp-system::bittype
 lisp-system::readlabel
 (("LISP-SYSTEM" "READINFO") :constant system :name readinfo-symbol)
@@ -1469,7 +1460,6 @@ lisp-system::type-documentation
 ;;
 ;;  eval
 ;;
-lisp-system::eval-lexical
 lisp-system::compiler-macro-function
 lisp-system::setf-compiler-macro-function
 (lisp-system::*compiler-macro* :constant system :name compiler-macro)
@@ -1591,16 +1581,25 @@ lisp-system::trace-del
 ;;  code
 ;;
 lisp-code::nop
+lisp-code::execute-simple-set
+lisp-code::execute-normal-set
+lisp-code::execute-control-set
+lisp-code::execute-switch-set
+lisp-code::execute-simple-push
+lisp-code::execute-normal-push
+lisp-code::execute-control-push
+lisp-code::execute-switch-push
+
 lisp-code::set
 lisp-code::push
 lisp-code::push-result
 lisp-code::push-values
-
 lisp-code::nil-set
 lisp-code::nil-push
 lisp-code::t-set
 lisp-code::t-push
 
+lisp-code::lexical
 lisp-code::lexical-set
 lisp-code::lexical-push
 lisp-code::lexical-rem
@@ -1628,14 +1627,10 @@ lisp-code::let-push
 lisp-code::setq-set
 lisp-code::setq-push
 
-lisp-code::function-global-set
-lisp-code::function-global-push
-lisp-code::function-local-set
-lisp-code::function-local-push
-lisp-code::setf-global-set
-lisp-code::setf-global-push
-lisp-code::setf-local-set
-lisp-code::setf-local-push
+lisp-code::function-set
+lisp-code::function-push
+lisp-code::setf-set
+lisp-code::setf-push
 
 lisp-code::lambda-set
 lisp-code::lambda-push
@@ -1652,38 +1647,26 @@ lisp-code::flet-set
 lisp-code::flet-push
 lisp-code::labels-set
 lisp-code::labels-push
-
-lisp-code::goto
-
-lisp-code::execute-simple-set
-lisp-code::execute-normal-set
-lisp-code::execute-control-set
-lisp-code::execute-switch-set
-lisp-code::execute-simple-push
-lisp-code::execute-normal-push
-lisp-code::execute-control-push
-lisp-code::execute-switch-push
-
 lisp-code::defun
 lisp-code::defmacro
 lisp-code::deftype
 lisp-code::define-compiler-macro
-
 lisp-code::define-symbol-macro
+
 lisp-code::call
+lisp-code::call-result
 lisp-code::call-type
-lisp-code::call-function-global
-lisp-code::call-function-local
-lisp-code::call-setf-global
-lisp-code::call-setf-local
+lisp-code::call-function
+lisp-code::call-setf
+lisp-code::call-lexical
 
 lisp-code::values-nil
 lisp-code::values-set
-lisp-code::the
+lisp-code::the-set
 lisp-code::the-push
 lisp-code::locally-declare
 lisp-code::if
-
+lisp-code::goto
 lisp-code::tag
 lisp-code::go
 lisp-code::return-from
@@ -1693,13 +1676,6 @@ lisp-code::handler-bind
 lisp-code::handler-case
 lisp-code::restart-bind
 lisp-code::restart-case
-
-lisp-code::eval-set
-lisp-code::eval-push
-lisp-code::eval-remove
-lisp-code::eval-local-set
-lisp-code::eval-local-push
-lisp-code::eval-local-remove
 
 lisp-code::bind-values-set
 lisp-code::bind-values-push

@@ -2,6 +2,7 @@
  *  ANSI COMMON LISP: 7. Objects
  *    Common Lisp Object System - Metaobject Protocol
  */
+#include "callname.h"
 #include "clos.h"
 #include "clos_combination.h"
 #include "clos_generic.h"

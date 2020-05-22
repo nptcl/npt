@@ -260,7 +260,7 @@ static int test_pushfunction_control(void)
 	internchar(LISP_PACKAGE, "HELLO", &pos);
 	fixnum_heap(&check, 10);
 	pushfunction_control(ptr, pos, check);
-	getfunction_local(ptr, pos, &check);
+	GetFunctionSymbol(pos, &check);
 	test(RefFixnum(check) == 10, "pushfunction_control1");
 
 	free_control(ptr, control);
@@ -884,15 +884,15 @@ static int test_close_function_control(void)
 	pushfunction_control(ptr, sym2, fixnumh(30));
 	pushfunction_control(ptr, sym2, fixnumh(40));
 
-	getfunction_local(ptr, sym1, &check);
+	GetFunctionSymbol(sym1, &check);
 	test(RefFixnum(check) == 20, "close_function_control1");
-	getfunction_local(ptr, sym2, &check);
+	GetFunctionSymbol(sym2, &check);
 	test(RefFixnum(check) == 40, "close_function_control2");
 
 	close_function_control(ptr, next);
-	getfunction_local(ptr, sym1, &check);
+	GetFunctionSymbol(sym1, &check);
 	test(RefFixnum(check) == 111, "close_function_control3");
-	getfunction_local(ptr, sym2, &check);
+	GetFunctionSymbol(sym2, &check);
 	test(RefFixnum(check) == 222, "close_function_control4");
 
 	free_control(ptr, pos);

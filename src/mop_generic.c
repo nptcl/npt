@@ -2,6 +2,7 @@
  *  ANSI COMMON LISP: 7. Objects
  *    Common Lisp Object System - Metaobject Protocol
  */
+#include "callname.h"
 #include "clos.h"
 #include "clos_combination.h"
 #include "clos_generic.h"
@@ -824,7 +825,7 @@ static int function_macro_method_lambda(Execute ptr, addr gen, addr call)
 	/* make-instance */
 	stdget_generic_method_class(gen, &clos);
 	GetConst(COMMON_MAKE_INSTANCE, &make);
-	getfunctioncheck_local(ptr, make, &make);
+	getfunction_global(make, &make);
 	Return(funcall_control(ptr, make, clos, NULL));
 	getresult_control(ptr, &clos);
 	stdset_method_function(clos, call);

@@ -42,6 +42,7 @@ call_structures.c
 call_symbols.c
 call_system.c
 call_types.c
+callname.c
 character.c
 character_check.c
 character_name.c
@@ -128,6 +129,7 @@ eval_stack.c
 eval_table.c
 eval.c
 execute.c
+execute_object.c
 execute_values.c
 extern.c
 extern_argv.c
@@ -183,6 +185,9 @@ optimize.c
 optimize_common.c
 optimize_parse.c
 package.c
+parse_function.c
+parse_macro.c
+parse_object.c
 parse.c
 pathname.c
 pointer.c

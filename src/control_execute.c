@@ -1,3 +1,6 @@
+#undef LISP_DEBUG_TRACE
+
+#include "callname.h"
 #include "clos_generic.h"
 #include "code_object.h"
 #include "condition.h"
@@ -15,23 +18,19 @@
 #include "type.h"
 #include "type_table.h"
 
-#undef LISP_DEBUG_TRACE
-
 /*
  *  runcode
  */
 #ifdef LISP_DEBUG_TRACE
 #include <sys/time.h>
-static unsigned prevtime = 0;
+struct timeval prevtime = {0, 0};
 _g void output_timestamp(void)
 {
-	struct timeval now;
+	struct timeval now, diff;
 	gettimeofday(&now, NULL);
-	printf("[TIME] %ld.%ld-%ld:  ",
-			(long)now.tv_sec,
-			(long)now.tv_usec,
-			(long)now.tv_usec - prevtime);
-	prevtime = now.tv_usec;
+	timersub(&now, &prevtime, &diff);
+	printf("[TRACE] %6ld: ", diff.tv_usec);
+	prevtime = now;
 }
 
 static void output_trace(addr control, size_t point)
@@ -78,15 +77,31 @@ static int runcode_control_check(Execute ptr)
 #define LispForceGc(x)			;
 #endif
 
+#ifdef LISP_DEBUG_TRACE
+#define LispGcTrace()			printf("[TRACE] GC-SYNC\n")
+#else
+#define LispGcTrace()			;
+#endif
+
+#ifdef LISP_DEBUG_TRACE
+#define LispBeginControl(x,y)	printf("[TRACE] BEGIN-%s: %p\n", (x), (void *)(y))
+#define LispEndControl(x,y)		printf("[TRACE] END-%s: %p\n", (x), (void *)(y))
+#else
+#define LispBeginControl(x,y)	;
+#define LispEndControl(x,y)		;
+#endif
+
 #ifdef LISP_GC_SYNC
 #define LispGcCheck(x)			{ \
 	if (lisp_gcsync || ((LISP_GC_SYNC % ControlCounter) == 0)) { \
+		LispGcTrace(); \
 		gcsync(x); \
 	} \
 }
 #else
 #define LispGcCheck(x)			{ \
 	if (lisp_gcsync) { \
+		LispGcTrace(); \
 		gcsync(x); \
 	} \
 }
@@ -119,6 +134,7 @@ static int runcode_execute(Execute ptr, addr code)
 	str->point = 0;
 	index = &(str->point);
 
+	LispBeginControl("EXECUTE", control);
 loop:
 	/* counter */
 	ControlCounter++;
@@ -130,6 +146,7 @@ loop:
 	bind = sys[point];
 	if (bind == NULL) {
 		LispGcCheck(ptr);
+		LispEndControl("EXECUTE", control);
 		return 0;
 	}
 	OutputTrace(control, point);
@@ -227,6 +244,7 @@ _g int runcode_simple(Execute ptr, addr code)
 #endif
 	point = 0;
 
+	LispBeginControl("SIMPLE", control);
 loop:
 	/* counter */
 	ControlCounter++;
@@ -237,6 +255,7 @@ loop:
 	bind = sys[point];
 	if (bind == 0) {
 		LispGcCheck(ptr);
+		LispEndControl("SIMPLE", control);
 		return 0;
 	}
 	OutputTrace(control, point);
@@ -332,7 +351,7 @@ _g int runcode_switch(Execute ptr, addr code)
 /*
  *  interface
  */
-static int execute_function_object(Execute ptr, addr pos)
+static int execute_function_control(Execute ptr, addr pos)
 {
 	addr value;
 
@@ -345,91 +364,9 @@ static int execute_function_object(Execute ptr, addr pos)
 		return call_compiled_function(ptr, pos);
 	}
 	else {
-		GetFunction(pos, &value);
+		GetCodeFunction(pos, &value);
 		return runcode_control(ptr, value);
 	}
-}
-
-static void function_recursive_control(Execute ptr, addr pos)
-{
-	addr name;
-	GetNameFunction(pos, &name);
-	pushcallname_control(ptr, name, pos);
-}
-
-static void pushlexical_closure_control(Execute ptr, addr pos, addr value)
-{
-	addr control, list, snapshot;
-
-	control = ptr->control;
-	GetControl(control, Control_Lexical, &list);
-	if (getplist(list, pos, &snapshot)) {
-		Check(stack_check_control(ptr), "stack error");
-		snapshot_lexical_local(ptr, pos, &snapshot);
-		if (setplist_local(ptr->local, list, pos, snapshot, &list))
-			SetControl(control, Control_Lexical, list);
-	}
-	pushlexical_closure_unsafe(ptr, pos, value);
-}
-
-static void function_closure_control(Execute ptr, addr pos)
-{
-	addr key, value, list;
-
-	/* value */
-	GetClosureValueFunction(pos, &list);
-	while (list != Nil) {
-		GetCons(list, &key, &list);
-		GetCons(key, &key, &value);
-		pushlexical_closure_control(ptr, key, value);
-	}
-
-	/* function / setf */
-	GetClosureFunctionFunction(pos, &list);
-	while (list != Nil) {
-		GetCons(list, &key, &list);
-		GetCons(key, &key, &value);
-		pushcallname_control(ptr, key, value);
-	}
-
-	/* tagbody */
-	GetClosureTagbodyFunction(pos, &list);
-	while (list != Nil) {
-		GetCons(list, &key, &list);
-		GetCons(key, &key, &value);
-		pushtagbody_control(ptr, key, value);
-	}
-
-	/* block */
-	GetClosureBlockFunction(pos, &list);
-	while (list != Nil) {
-		GetCons(list, &value, &list);
-		pushblock_control(ptr, value);
-	}
-}
-
-static int execute_function_control(Execute ptr, addr pos)
-{
-	int check1, check2;
-	addr control;
-	struct function_struct *str;
-
-	str = StructFunction(pos);
-	check1 = str->recursive;
-	check2 = str->closure;
-	if (check1 == 0 && check2 == 0)
-		return execute_function_object(ptr, pos);
-
-	/* closure or recursive */
-	push_args_control(ptr, &control);
-	if (check1)
-		function_recursive_control(ptr, pos);
-	if (check2)
-		function_closure_control(ptr, pos);
-	if (execute_function_object(ptr, pos))
-		return 1;
-
-	return free_control_(ptr, control);
 }
 
 _g int execute_control(Execute ptr, addr call)
@@ -674,11 +611,11 @@ static void callclang_function(Execute ptr, addr *ret, addr call)
 	Check(call == Unbound, "type error");
 	switch (GetType(call)) {
 		case LISPTYPE_SYMBOL:
-			getfunctioncheck_local(ptr, call, ret);
+			getfunction_global(call, ret);
 			break;
 
 		case LISPTYPE_CALLNAME:
-			getfunctioncheck_callname_local(ptr, call, ret);
+			getglobalcheck_callname(call, ret);
 			break;
 
 		case LISPTYPE_CLOS:

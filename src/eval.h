@@ -10,11 +10,12 @@ enum EVAL_TYPE {
 	EVAL_TYPE_PARSE,
 	EVAL_TYPE_STACK,
 	EVAL_TYPE_SCOPE,
+	EVAL_TYPE_TABLE,
 	EVAL_TYPE_TABLEVALUE,
 	EVAL_TYPE_TABLEFUNCTION,
-	EVAL_TYPE_TABLECALL,
 	EVAL_TYPE_TABLETAGBODY,
 	EVAL_TYPE_TABLEBLOCK,
+	EVAL_TYPE_TABLECALL,
 	EVAL_TYPE_CODE,
 	EVAL_TYPE_SIZE
 };
@@ -66,11 +67,12 @@ _g int eval_declare_nil_p(addr pos);
 _g int eval_parse_p(addr pos);
 _g int eval_scope_p(addr pos);
 _g int eval_stack_p(addr pos);
+_g int eval_table_p(addr pos);
 _g int eval_tablevalue_p(addr pos);
 _g int eval_tablefunction_p(addr pos);
-_g int eval_tablecall_p(addr pos);
 _g int eval_tabletagbody_p(addr pos);
 _g int eval_tableblock_p(addr pos);
+_g int eval_tablecall_p(addr pos);
 _g int eval_code_p(addr pos);
 
 _g void symbol_evalwhen_eval(addr *ret);

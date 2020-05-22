@@ -1,3 +1,4 @@
+#include <errno.h>
 #include "bigcons.h"
 #include "bignum.h"
 #include "control_object.h"

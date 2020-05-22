@@ -1,6 +1,9 @@
 ;;
 ;;  ANSI COMMON LISP: 24. System Construction
 ;;
+(defvar *load-print-test*)
+(defvar *load-verbose-test*)
+
 (deftest *load-print*.1
   (let ((*load-print-test* 'hello)
         (*load-verbose-test* 'hello))

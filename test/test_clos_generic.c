@@ -809,7 +809,7 @@ static int test_closrun_execute(void)
 	push_new_control(ptr, &control);
 	fixnum_heap(&value, 100);
 	list_heap(&args, value, NULL);
-	getcallname_global(name, &name);
+	getglobal_parse_callname(name, &name);
 	apply_control(ptr, name, args);
 
 	getresult_control(ptr, &pos);

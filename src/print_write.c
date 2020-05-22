@@ -4,6 +4,7 @@
 #include "bignum.h"
 #include "bit.h"
 #include "bytespec.h"
+#include "callname.h"
 #include "character.h"
 #include "character_name.h"
 #include "clos.h"
@@ -1520,7 +1521,7 @@ static int WriteCall_clos(Execute ptr, addr stream, addr pos)
 
 	Check(! closp(pos), "type error");
 	GetConst(COMMON_PRINT_OBJECT, &generic);
-	getfunctioncheck_local(ptr, generic, &generic);
+	getfunction_global(generic, &generic);
 
 	return callclang_funcall(ptr, &pos, generic, pos, stream, NULL);
 }
@@ -2452,7 +2453,6 @@ _g void init_print_write(void)
 	WriteCallTable[LISPSYSTEM_CHARQUEUE] = WriteCall_system;
 	WriteCallTable[LISPSYSTEM_CHARBIT] = WriteCall_system;
 	WriteCallTable[LISPSYSTEM_SYMSTACK] = WriteCall_system;
-	WriteCallTable[LISPSYSTEM_SYMARRAY] = WriteCall_system;
 	WriteCallTable[LISPSYSTEM_BITTYPE] = WriteCall_system;
 	WriteCallTable[LISPSYSTEM_READLABEL] = WriteCall_system;
 	WriteCallTable[LISPSYSTEM_READINFO] = WriteCall_system;

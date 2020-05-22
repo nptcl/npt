@@ -1,3 +1,4 @@
+#include "callname.h"
 #include "clos.h"
 #include "clos_class.h"
 #include "clos_generic.h"
@@ -115,7 +116,7 @@ _g int describe_common(Execute ptr, addr object, addr stream)
 	fresh_line_stream(stream);
 	/* call */
 	GetConst(COMMON_DESCRIBE_OBJECT, &call);
-	getfunctioncheck_local(ptr, call, &call);
+	getfunction_global(call, &call);
 	return funcall_control(ptr, call, object, stream, NULL);
 }
 

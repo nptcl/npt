@@ -14,6 +14,7 @@
 #include "syscall.h"
 #include "type.h"
 
+#if 0
 /*
  *  code_queue-stack
  */
@@ -502,7 +503,7 @@ static void test_push_testdata(LocalRoot local, addr pos)
 	code_queue_add(local, pos, index_heapr(50));
 }
 
-static int test_code_queue_pop_labelcons(void)
+static int test_code_queue_pop_label(void)
 {
 	addr pos, cons, label, tag, check;
 	LocalRoot local;
@@ -518,47 +519,47 @@ static int test_code_queue_pop_labelcons(void)
 	GetCodeStack(check, CodeStack_Root, &cons);
 	nreverse_list_unsafe(&cons, cons);
 
-	code_queue_pop_labelcons(local, cons, &label, &tag, &size);
-	test(length_list_unsafe(label) == 5, "code_queue_pop_labelcons1");
-	test(length_list_unsafe(tag) == 2, "code_queue_pop_labelcons2");
-	test(size == 10, "code_queue_pop_labelcons3");
+	code_queue_pop_label(local, cons, &label, &tag, &size);
+	test(length_list_unsafe(label) == 5, "code_queue_pop_label1");
+	test(length_list_unsafe(tag) == 2, "code_queue_pop_label2");
+	test(size == 10, "code_queue_pop_label3");
 
 	GetCons(label, &pos, &label);
 	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 50, "code_queue_pop_labelcons4");
-	test(RefIndex(check) == 10, "code_queue_pop_labelcons5");
+	test(RefIndex(pos) == 50, "code_queue_pop_label4");
+	test(RefIndex(check) == 10, "code_queue_pop_label5");
 	GetCons(label, &pos, &label);
 	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 40, "code_queue_pop_labelcons6");
-	test(RefIndex(check) == 9, "code_queue_pop_labelcons7");
+	test(RefIndex(pos) == 40, "code_queue_pop_label6");
+	test(RefIndex(check) == 9, "code_queue_pop_label7");
 	GetCons(label, &pos, &label);
 	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 30, "code_queue_pop_labelcons8");
-	test(RefIndex(check) == 2, "code_queue_pop_labelcons9");
+	test(RefIndex(pos) == 30, "code_queue_pop_label8");
+	test(RefIndex(check) == 2, "code_queue_pop_label9");
 	GetCons(label, &pos, &label);
 	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 20, "code_queue_pop_labelcons10");
-	test(RefIndex(check) == 2, "code_queue_pop_labelcons11");
+	test(RefIndex(pos) == 20, "code_queue_pop_label10");
+	test(RefIndex(check) == 2, "code_queue_pop_label11");
 	GetCons(label, &pos, &label);
 	GetCons(pos, &pos, &check);
-	test(RefIndex(pos) == 10, "code_queue_pop_labelcons12");
-	test(RefIndex(check) == 0, "code_queue_pop_labelcons13");
+	test(RefIndex(pos) == 10, "code_queue_pop_label12");
+	test(RefIndex(check) == 0, "code_queue_pop_label13");
 
 	GetCons(tag, &pos, &tag);
 	GetCons(pos, &pos, &check);
-	test(RefFixnum(pos) == 222, "code_queue_pop_labelcons14");
-	test(RefIndex(check) == 7, "code_queue_pop_labelcons15");
+	test(RefFixnum(pos) == 222, "code_queue_pop_label14");
+	test(RefIndex(check) == 7, "code_queue_pop_label15");
 	GetCons(tag, &pos, &tag);
 	GetCons(pos, &pos, &check);
-	test(RefFixnum(pos) == 111, "code_queue_pop_labelcons16");
-	test(RefIndex(check) == 5, "code_queue_pop_labelcons17");
+	test(RefFixnum(pos) == 111, "code_queue_pop_label16");
+	test(RefIndex(check) == 5, "code_queue_pop_label17");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_code_queue_pop_findlabel(void)
+static int test_code_queue_pop_find(void)
 {
 	addr pos, label, tag, check;
 	LocalRoot local;
@@ -573,26 +574,26 @@ static int test_code_queue_pop_findlabel(void)
 	GetCodeQueue(pos, CodeQueue_Code, &check);
 	GetCodeStack(check, CodeStack_Root, &check);
 	nreverse_list_unsafe(&check, check);
-	code_queue_pop_labelcons(local, check, &label, &tag, &size);
+	code_queue_pop_label(local, check, &label, &tag, &size);
 
 	index_heap(&check, 10);
-	size = code_queue_pop_findlabel(label, check);
-	test(size == 0, "code_queue_pop_findlabel1");
+	size = code_queue_pop_find(label, check);
+	test(size == 0, "code_queue_pop_find1");
 
 	index_heap(&check, 20);
-	size = code_queue_pop_findlabel(label, check);
-	test(size == 2, "code_queue_pop_findlabel2");
+	size = code_queue_pop_find(label, check);
+	test(size == 2, "code_queue_pop_find2");
 
 	index_heap(&check, 40);
-	size = code_queue_pop_findlabel(label, check);
-	test(size == 9, "code_queue_pop_findlabel3");
+	size = code_queue_pop_find(label, check);
+	test(size == 9, "code_queue_pop_find3");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_code_queue_pop_replace_goto(void)
+static int test_code_queue_pop_replace(void)
 {
 	addr pos, check, label, tag, left, right;
 	LocalRoot local;
@@ -607,21 +608,21 @@ static int test_code_queue_pop_replace_goto(void)
 	GetCodeQueue(pos, CodeQueue_Code, &check);
 	GetCodeStack(check, CodeStack_Root, &check);
 	nreverse_list_unsafe(&check, check);
-	code_queue_pop_labelcons(local, check, &label, &tag, &size);
+	code_queue_pop_label(local, check, &label, &tag, &size);
 
 	GetConst(CODE_GOTO, &pos);
 	index_heap(&check, 40);
 	cons_heap(&check, pos, check);
 
-	code_queue_pop_replace_goto(label, check, &right);
+	code_queue_pop_replace(label, check, &right);
 	GetCons(right, &left, &right);
-	test(left == pos, "code_queue_pop_replace_goto1");
-	test(RefIndex(right) == 9, "code_queue_pop_replace_goto2");
+	test(left == pos, "code_queue_pop_replace1");
+	test(RefIndex(right) == 9, "code_queue_pop_replace2");
 
 	RETURN;
 }
 
-static int test_code_queue_pop_makecode(void)
+static int test_code_queue_pop_make(void)
 {
 	addr pos, check, array, left, right;
 	LocalRoot local;
@@ -637,20 +638,20 @@ static int test_code_queue_pop_makecode(void)
 	GetCodeStack(check, CodeStack_Root, &check);
 	nreverse_list_unsafe(&check, check);
 
-	code_queue_pop_makecode(local, check, &array);
-	test(lenarrayr(array) == 10, "code_queue_pop_makecode1");
+	code_queue_pop_make(local, check, &array);
+	test(lenarrayr(array) == 10, "code_queue_pop_make1");
 
 	GetArrayA4(array, 0, &right);
 	GetCons(right, &left, &right);
 	GetConst(CODE_GOTO, &check);
-	test(left == check, "code_queue_pop_makecode2");
-	test(RefIndex(right) == 9 ,"code_queue_pop_makecode3");
+	test(left == check, "code_queue_pop_make2");
+	test(RefIndex(right) == 9 ,"code_queue_pop_make3");
 
 	GetArrayA4(array, 2, &right);
 	GetCons(right, &left, &right);
 	GetConst(CODE_GOTO, &check);
-	test(left == check, "code_queue_pop_makecode4");
-	test(RefIndex(right) == 0 ,"code_queue_pop_makecode5");
+	test(left == check, "code_queue_pop_make4");
+	test(RefIndex(right) == 0 ,"code_queue_pop_make5");
 
 	rollback_local(local, stack);
 
@@ -713,6 +714,7 @@ static int test_code_queue_pop(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
@@ -720,6 +722,7 @@ static int test_code_queue_pop(void)
  */
 static int testbreak_code_queue(void)
 {
+#if 0
 	/* code_queue-stack */
 	TestBreak(test_alloc_code_stack);
 	TestBreak(test_code_stack_local);
@@ -743,12 +746,13 @@ static int testbreak_code_queue(void)
 	TestBreak(test_code_queue_pop_goto_p);
 	TestBreak(test_code_queue_pop_tag_p);
 	TestBreak(test_code_queue_pop_label_p);
-	TestBreak(test_code_queue_pop_labelcons);
-	TestBreak(test_code_queue_pop_findlabel);
-	TestBreak(test_code_queue_pop_replace_goto);
-	TestBreak(test_code_queue_pop_makecode);
+	TestBreak(test_code_queue_pop_label);
+	TestBreak(test_code_queue_pop_find);
+	TestBreak(test_code_queue_pop_replace);
+	TestBreak(test_code_queue_pop_make);
 	TestBreak(test_code_queue_pop_code);
 	TestBreak(test_code_queue_pop);
+#endif
 
 	return 0;
 }
