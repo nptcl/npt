@@ -3,7 +3,7 @@
 #include "degrade.h"
 
 #define LISP_DEGRADE_RTONLY
-//#undef LISP_DEGRADE_RTONLY
+#undef LISP_DEGRADE_RTONLY
 
 #ifdef LISP_DEGRADE
 /*

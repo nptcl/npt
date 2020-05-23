@@ -1203,14 +1203,16 @@ static int test_code_make_specialize_symbol_p(void)
 	readstring(&pos, "(hello 10 20 30)");
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
-	GetEvalScopeIndex(pos, 0, &pos);
+	GetEvalScopeValue(pos, &pos); /* lexical */
+	GetEvalScopeIndex(pos, 0, &pos); /* call */
 	test(! code_make_specialize_symbol_p(pos, CONSTANT_SYSTEM_HANDLER),
 			"code_make_specialize_symbol_p1");
 
 	readstring(&pos, "(" LISP_SYSTEM "::handler 10 20 30)");
 	eval_parse(ptr, &pos, pos);
 	eval_scope_eval(ptr, &pos, pos);
-	GetEvalScopeIndex(pos, 0, &pos);
+	GetEvalScopeValue(pos, &pos); /* lexical */
+	GetEvalScopeIndex(pos, 0, &pos); /* call */
 	test(code_make_specialize_symbol_p(pos, CONSTANT_SYSTEM_HANDLER),
 			"code_make_specialize_symbol_p2");
 

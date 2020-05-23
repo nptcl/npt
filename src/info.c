@@ -228,12 +228,13 @@ static const char *infochar_decl(enum LISPDECL decl)
 	}
 }
 
-static const char *infochar_eval_parse(addr pos)
+static const char *infochar_eval_parse_type(enum EVAL_PARSE type)
 {
-	switch (RefEvalParseType(pos)) {
+	switch (type) {
 		case EVAL_PARSE_EMPTY:					return "empty";
 		case EVAL_PARSE_NIL:					return "nil";
 		case EVAL_PARSE_T:						return "t";
+		case EVAL_PARSE_CLOS:					return "clos";
 		case EVAL_PARSE_INTEGER:				return "integer";
 		case EVAL_PARSE_RATIONAL:				return "rational";
 		case EVAL_PARSE_COMPLEX:				return "complex";
@@ -245,17 +246,21 @@ static const char *infochar_eval_parse(addr pos)
 		case EVAL_PARSE_SYMBOL:					return "symbol";
 		case EVAL_PARSE_FLOAT:					return "float";
 		case EVAL_PARSE_DECLAIM:				return "declaim";
-
+		case EVAL_PARSE_PATHNAME:				return "pathname";
+		case EVAL_PARSE_ENVIRONMENT:			return "environment";
+		case EVAL_PARSE_LEXICAL:				return "lexical";
 		case EVAL_PARSE_PROGN:					return "progn";
 		case EVAL_PARSE_LET:					return "let";
 		case EVAL_PARSE_LETA:					return "let*";
 		case EVAL_PARSE_SETQ:					return "setq";
 		case EVAL_PARSE_DEFUN:					return "defun";
 		case EVAL_PARSE_DEFMACRO:				return "defmacro";
+		case EVAL_PARSE_MACRO_LAMBDA:			return "macro-lambda";
+		case EVAL_PARSE_DEFTYPE:				return "deftype";
+		case EVAL_PARSE_DEFINE_COMPILER_MACRO:	return "define-compiler-macro";
 		case EVAL_PARSE_DESTRUCTURING_BIND:		return "destructuring-bind";
 		case EVAL_PARSE_DEFINE_SYMBOL_MACRO:	return "define-symbol-macro";
 		case EVAL_PARSE_SYMBOL_MACROLET:		return "symbol-macrolet";
-		case EVAL_PARSE_MACRO_LAMBDA:			return "macro-lambda";
 		case EVAL_PARSE_QUOTE:					return "quote";
 		case EVAL_PARSE_FUNCTION:				return "function";
 		case EVAL_PARSE_LAMBDA:					return "lambda";
@@ -282,6 +287,16 @@ static const char *infochar_eval_parse(addr pos)
 		case EVAL_PARSE_PROGV:					return "progv";
 		default:								return "invalid";
 	}
+}
+
+static const char *infochar_eval_parse(addr pos)
+{
+	return infochar_eval_parse_type(RefEvalParseType(pos));
+}
+
+static const char *infochar_eval_scope(addr pos)
+{
+	return infochar_eval_parse_type(RefEvalScopeType(pos));
 }
 
 static const char *infochar_eval_stack(addr pos)
@@ -980,9 +995,7 @@ static void infoprint_eval(addr pos)
 			break;
 
 		case EVAL_TYPE_SCOPE:
-			GetEvalScopeValue(pos, &pos);
-			info_stdarg(".");
-			infoprint_noeol(pos);
+			info_stdarg(".%s", infochar_eval_scope(pos));
 			break;
 
 		default:

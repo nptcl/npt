@@ -514,12 +514,12 @@ _g void setcatch_control(LocalRoot local, addr pos, addr value)
 
 _g void sethandler_control(LocalRoot local, addr pos, addr value)
 {
-	return settable_control(local, pos, CONSTANT_SYSTEM_HANDLER, value);
+	settable_control(local, pos, CONSTANT_SYSTEM_HANDLER, value);
 }
 
 _g void setrestart_control(LocalRoot local, addr pos, addr value)
 {
-	return settable_control(local, pos, CONSTANT_SYSTEM_RESTART, value);
+	settable_control(local, pos, CONSTANT_SYSTEM_RESTART, value);
 }
 
 _g void setprotect_value_control(addr pos, addr value)
