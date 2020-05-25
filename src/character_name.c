@@ -130,7 +130,7 @@ _g void build_character_name(void)
 	defnametable(getname, getchar, 0x0D, "Return");
 	defnametable(getname, getchar, 0x20, "Space");
 	defnametable(getname, getchar, 0x7F, "Rubout");
-	LispRoot(CHAR_NAME) = getname;
-	LispRoot(NAME_CHAR) = getchar;
+	SetLispRoot(CHAR_NAME, getname);
+	SetLispRoot(NAME_CHAR, getchar);
 }
 

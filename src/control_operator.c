@@ -11,8 +11,9 @@
 #include "eval_table.h"
 #include "equal.h"
 #include "execute.h"
+#include "execute_object.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "restart.h"
 #include "symbol.h"
 
@@ -124,14 +125,14 @@ _g void pushargs_allvalues(Execute ptr)
 	check = EXECUTE_VALUES < sizer;
 	size = check? EXECUTE_VALUES: sizer;
 
-	values = ptr->values;
+	values = ptr->values_reader;
 	for (i = 0; i < size; i++) {
 		pos = values[i];
 		pushargs_control(ptr, pos);
 	}
 	if (! check)
 		return;
-	list = *(ptr->values_list);
+	GetExecuteValuesList(ptr->values_vector, &list);
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		pushargs_control(ptr, pos);

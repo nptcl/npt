@@ -90,12 +90,21 @@ static int test_push_local(void)
 	RETURN;
 }
 
+static void test_rollback_dummy(addr pos)
+{
+	pos[0] = LISPTYPE_VECTOR;
+	pos[1] = LISPSIZE_ARRAY2;
+	pos[2] = 0xFF;
+	pos[3] = 0x00;
+	*PtrLenArrayA2(pos) = 0;
+}
+
 static int test_rollback_local(void)
 {
 	struct localroot *local;
 	struct localstack *stack, *back, *temp;
 	struct localcell *cell;
-	addr check, first;
+	addr check, first, pos;
 	size_t count, i;
 
 	local = make_local(0x10000000);
@@ -111,7 +120,8 @@ static int test_rollback_local(void)
 
 	/* NULL delete */
 	push_local(local, &stack);
-	alloc_local(local, 2000);
+	pos = alloc_local(local, 2000);
+	test_rollback_dummy(pos);
 	rollback_local(local, stack);
 	test(local->stack == NULL, "rollback_local6");
 	test(local->front == first, "rollback_local7");
@@ -120,12 +130,14 @@ static int test_rollback_local(void)
 	test(local->cell->count == 0, "rollback_local10");
 
 	/* rollback, 1object */
-	alloc_local(local, 300);
+	pos = alloc_local(local, 300);
+	test_rollback_dummy(pos);
 	check = local->front;
 	push_local(local, &stack);
 	cell = local->cell;
 	count = local->cell->count;
-	alloc_local(local, 400);
+	pos = alloc_local(local, 400);
+	test_rollback_dummy(pos);
 	test(local->front != check, "rollback_local11");
 	rollback_local(local, stack);
 	test(local->front == check, "rollback_local12");
@@ -139,8 +151,10 @@ static int test_rollback_local(void)
 	push_local(local, &stack);
 	cell = local->cell;
 	count = cell->count;
-	alloc_local(local, 400);
-	alloc_local(local, 400);
+	pos = alloc_local(local, 400);
+	test_rollback_dummy(pos);
+	pos = alloc_local(local, 400);
+	test_rollback_dummy(pos);
 	push_local(local, &temp);
 	push_local(local, &temp);
 	push_local(local, &temp);
@@ -156,11 +170,14 @@ static int test_rollback_local(void)
 	push_local(local, &stack);
 	push_local(local, &temp);
 	push_local(local, &temp);
-	alloc_local(local, 400);
-	alloc_local(local, 400);
+	pos = alloc_local(local, 400);
+	test_rollback_dummy(pos);
+	pos = alloc_local(local, 400);
+	test_rollback_dummy(pos);
 	push_local(local, &temp);
 	push_local(local, &temp);
-	alloc_local(local, 400);
+	pos = alloc_local(local, 400);
+	test_rollback_dummy(pos);
 	rollback_local(local, stack);
 	test(local->front == first, "rollback_local22");
 	test(local->stack == NULL, "rollback_local23");
@@ -170,21 +187,29 @@ static int test_rollback_local(void)
 	push_local(local, &temp);
 	push_local(local, &temp);
 	push_local(local, &temp);
-	alloc_local(local, 100);
-	alloc_local(local, 400);
-	alloc_local(local, 400);
-	alloc_local(local, 400);
+	pos = alloc_local(local, 100);
+	test_rollback_dummy(pos);
+	pos = alloc_local(local, 400);
+	test_rollback_dummy(pos);
+	pos = alloc_local(local, 400);
+	test_rollback_dummy(pos);
+	pos = alloc_local(local, 400);
+	test_rollback_dummy(pos);
 	check = local->front;
 	back = local->stack;
 	push_local(local, &temp);
 	stack = local->stack;
 	cell = local->cell;
 	count = local->cell->count;
-	for (i = 0; i < LocalCount * 20 + 10; i++)
-		alloc_local(local, 100);
+	for (i = 0; i < LocalCount * 20 + 10; i++) {
+		pos = alloc_local(local, 100);
+		test_rollback_dummy(pos);
+	}
 	push_local(local, &temp);
-	for (i = 0; i < LocalCount * 30 + 10; i++)
-		alloc_local(local, 200);
+	for (i = 0; i < LocalCount * 30 + 10; i++) {
+		pos = alloc_local(local, 200);
+		test_rollback_dummy(pos);
+	}
 	rollback_local(local, stack);
 	test(local->stack == back, "rollback_local12");
 	test(local->front == check, "rollback_local13");
@@ -214,8 +239,6 @@ static int test_local_cons(void)
 	local_cons(local, &root);
 	test(GetType(root) == LISPTYPE_CONS, "local_cons1");
 	test(statustest(root) == LISPSIZE_ARRAY2, "local_cons2");
-	test(GetCheckSize2(root), "local_cons2a");
-	test(GetCheckArray(root), "local_cons2b");
 	size = MemoryLengthA2(2);
 	test(*PtrValue2L(root) == size_split(size), "local_cons2s");
 	cons = 0;
@@ -240,10 +263,6 @@ static int test_local_smallsize(void)
 	local_smallsize(local, &root, LISPTYPE_SYMBOL, 10, 20);
 	test(GetType(root) == LISPTYPE_SYMBOL, "local_smallsize1");
 	test(statustest(root) == LISPSIZE_SMALLSIZE, "local_smallsize2");
-	test(GetCheckSize2(root), "local_smallsize2a");
-	test(GetCheckArray(root), "local_smallsize2b");
-	test(GetCheckBody(root), "local_smallsize2c");
-	test(GetCheckArrayBody(root), "local_smallsize2d");
 	size = MemoryLengthSS(10, 20);
 	test(*PtrValue2L(root) == size_split(size), "local_smallsize2s");
 	cons = PtrBodySS(root);
@@ -279,8 +298,6 @@ static int test_local_array2(void)
 	local_array2(local, &root, LISPTYPE_SYMBOL, 10);
 	test(GetType(root) == LISPTYPE_SYMBOL, "local_array2-1");
 	test(statustest(root) == LISPSIZE_ARRAY2, "local_array2-2");
-	test(GetCheckSize2(root), "local_array2-2a");
-	test(GetCheckArray(root), "local_array2-2b");
 	size = MemoryLengthA2(10);
 	test(*PtrValue2L(root) == size_split(size), "local_array2-2s");
 	cons = 0;
@@ -313,8 +330,6 @@ static int test_local_body2(void)
 
 	test(GetType(root) == LISPTYPE_SYMBOL, "local_body2-1");
 	test(statustest(root) == LISPSIZE_BODY2, "local_body2-2");
-	test(GetCheckSize2(root), "local_body2-2a");
-	test(GetCheckBody(root), "local_body2-2b");
 	size = MemoryLengthB2(20);
 	test(*PtrValue2L(root) == size_split(size), "local_body2-2s");
 	size = GetLenBodyB2(root);
@@ -335,10 +350,6 @@ static int test_local_arraybody(void)
 	local_arraybody(local, &root, LISPTYPE_SYMBOL, 10, 20);
 	test(GetType(root) == LISPTYPE_SYMBOL, "local_arraybody1");
 	test(statustest(root) == LISPSIZE_ARRAYBODY, "local_arraybody2");
-	test(GetCheckSize4(root), "local_arraybody2a");
-	test(GetCheckArray(root), "local_arraybody2b");
-	test(GetCheckBody(root), "local_arraybody2c");
-	test(GetCheckArrayBody(root), "local_arraybody2d");
 	size = MemoryLengthAB(10, 20);
 	test(*PtrValueL(root) == size_split(size), "local_arraybody2-2s");
 	cons = PtrBodyAB(root);
@@ -374,8 +385,6 @@ static int test_local_array4(void)
 	local_array4(local, &root, LISPTYPE_SYMBOL, 10);
 	test(GetType(root) == LISPTYPE_SYMBOL, "local_array4-1");
 	test(statustest(root) == LISPSIZE_ARRAY4, "local_array4-2");
-	test(GetCheckSize4(root), "local_array4-2a");
-	test(GetCheckArray(root), "local_array4-2b");
 	size = MemoryLengthA4(10);
 	test(*PtrValueL(root) == size_split(size), "local_array4-2s");
 	cons = 0;
@@ -408,8 +417,6 @@ static int test_local_body4(void)
 
 	test(GetType(root) == LISPTYPE_SYMBOL, "local_body4-1");
 	test(statustest(root) == LISPSIZE_BODY4, "local_body4-2");
-	test(GetCheckSize4(root), "local_body4-2a");
-	test(GetCheckBody(root), "local_body4-2b");
 	size = MemoryLengthB4(20);
 	test(*PtrValueL(root) == size_split(size), "local_body4-2s");
 	size = GetLenBodyB4(root);
@@ -431,8 +438,6 @@ static int test_local_array8(void)
 	local_array8(local, &root, LISPTYPE_SYMBOL, 10);
 	test(GetType(root) == LISPTYPE_SYMBOL, "local_array8-1");
 	test(statustest(root) == LISPSIZE_ARRAY8, "local_array8-2");
-	test(GetCheckSize8(root), "local_array8-2a");
-	test(GetCheckArray(root), "local_array8-2b");
 	size = MemoryLengthA8(10);
 	test(*PtrValueL(root) == size_split(size), "local_array8-2s");
 	cons = 0;
@@ -465,8 +470,6 @@ static int test_local_body8(void)
 
 	test(GetType(root) == LISPTYPE_SYMBOL, "local_body8-1");
 	test(statustest(root) == LISPSIZE_BODY8, "local_body8-2");
-	test(GetCheckSize8(root), "local_body8-2a");
-	test(GetCheckBody(root), "local_body8-2b");
 	size = MemoryLengthB8(20);
 	test(*PtrValueL(root) == size_split(size), "local_body8-2s");
 	size = GetLenBodyB8(root);
@@ -488,8 +491,6 @@ static int test_local_array(void)
 	local_array(local, &root, LISPTYPE_SYMBOL, 10);
 	test(GetType(root) == LISPTYPE_SYMBOL, "local_array1");
 	test(statustest(root) == LISPSIZE_ARRAY2, "local_array2");
-	test(GetCheckSize2(root), "local_array2a");
-	test(GetCheckArray(root), "local_array2b");
 	size = GetLenArrayA2(root);
 	test(size == 10, "local_array3");
 	free_local(local);
@@ -508,8 +509,6 @@ static int test_local_body(void)
 	local_body(local, &root, LISPTYPE_SYMBOL, 20);
 	test(GetType(root) == LISPTYPE_SYMBOL, "local_body1");
 	test(statustest(root) == LISPSIZE_BODY2, "local_body2");
-	test(GetCheckSize2(root), "local_body2a");
-	test(GetCheckBody(root), "local_body2b");
 	size = GetLenBodyB2(root);
 	test(size == 20, "local_body2");
 	free_local(local);

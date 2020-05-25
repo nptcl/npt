@@ -272,9 +272,9 @@ static int test_typep_vector_vector(void)
 	addr x, y;
 
 	vector4_heap(&x, 3);
-	SetArrayA4(x, 0, fixnum_heapr(10));
-	SetArrayA4(x, 1, fixnum_heapr(20));
-	SetArrayA4(x, 2, fixnum_heapr(30));
+	SetArrayA4(x, 0, fixnumh(10));
+	SetArrayA4(x, 1, fixnumh(20));
+	SetArrayA4(x, 2, fixnumh(30));
 	test_parse_char(&y, "vector");
 	test(! typep_vector_vector(x, y, &check), "tytep_vector_vector1");
 	test(check, "tytep_vector_vector2");
@@ -292,9 +292,12 @@ static int test_typep_vector_vector(void)
 	test(! check, "typep_vector_vector8");
 
 	vector4_heap(&x, 3);
-	SetArrayA4(x, 0, character_heapr('A'));
-	SetArrayA4(x, 1, character_heapr('B'));
-	SetArrayA4(x, 2, character_heapr('C'));
+	character_heap(&y, 'A');
+	SetArrayA4(x, 0, y);
+	character_heap(&y, 'B');
+	SetArrayA4(x, 1, y);
+	character_heap(&y, 'C');
+	SetArrayA4(x, 2, y);
 	test_parse_char(&y, "(vector character)");
 	test(! typep_vector_vector(x, y, &check), "typep_vector_vector9");
 	test(! check, "typep_vector_vector10");
@@ -446,9 +449,9 @@ static int test_typep_vector(void)
 
 	/* vector */
 	vector4_heap(&v, 3);
-	SetArrayA4(v, 0, fixnum_heapr(10));
-	SetArrayA4(v, 1, fixnum_heapr(20));
-	SetArrayA4(v, 2, fixnum_heapr(30));
+	SetArrayA4(v, 0, fixnumh(10));
+	SetArrayA4(v, 1, fixnumh(20));
+	SetArrayA4(v, 2, fixnumh(30));
 	test(typep_char(v, "(vector t 3)"), "typep_vector1");
 
 	/* string */
@@ -472,9 +475,9 @@ static int test_typep_simple_vector_vector(void)
 	addr x, y;
 
 	vector4_heap(&x, 3);
-	SetArrayA4(x, 0, fixnum_heapr(10));
-	SetArrayA4(x, 1, fixnum_heapr(20));
-	SetArrayA4(x, 2, fixnum_heapr(30));
+	SetArrayA4(x, 0, fixnumh(10));
+	SetArrayA4(x, 1, fixnumh(20));
+	SetArrayA4(x, 2, fixnumh(30));
 
 	test_parse_char(&y, "simple-vector");
 	test(! typep_simple_vector_vector(x, y, &check), "typep_simple_vector_vector1");
@@ -550,9 +553,9 @@ static int test_typep_simple_vector(void)
 
 	/* vector */
 	vector4_heap(&v, 3);
-	SetArrayA4(v, 0, fixnum_heapr(10));
-	SetArrayA4(v, 1, fixnum_heapr(20));
-	SetArrayA4(v, 2, fixnum_heapr(30));
+	SetArrayA4(v, 0, fixnumh(10));
+	SetArrayA4(v, 1, fixnumh(20));
+	SetArrayA4(v, 2, fixnumh(30));
 	test(typep_char(v, "(simple-vector 3)"), "typep_simple_vector1");
 
 	/* array */
@@ -1635,8 +1638,8 @@ static int test_typep_stream(void)
 static int test_less_integer(addr mode, fixnum left, fixnum right)
 {
 	return less_mode_nolocal(mode,
-			fixnum_heapr(left),
-			fixnum_heapr(right),
+			fixnumh(left),
+			fixnumh(right),
 			less_integer_clang,
 			less_equal_integer_clang);
 }
@@ -1719,8 +1722,8 @@ static int test_typep_range_nolocal(void)
 static int test_less_real(addr mode, fixnum left, fixnum right)
 {
 	return less_mode_local(Local_Thread, mode,
-			fixnum_heapr(left),
-			fixnum_heapr(right),
+			fixnumh(left),
+			fixnumh(right),
 			less_real_clang,
 			less_equal_real_clang);
 }

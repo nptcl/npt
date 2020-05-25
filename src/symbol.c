@@ -127,16 +127,16 @@ static void setcheck_symbol(addr symbol)
 }
 
 #define SetSymbol(s,i,v) { \
-	Check(! IsSymbol(s), "type error"); \
+	Check(! symbolp(s), "type error"); \
 	setcheck_symbol(symbol); \
 	SetArrayA2(s, i, v); \
 }
 #define RefSymbol(s,i) { \
-	Check(! IsSymbol(s), "type error"); \
+	Check(! symbolp(s), "type error"); \
 	return RefArrayA2(s, i); \
 }
 #define GetSymbol(s,i,v) { \
-	Check(! IsSymbol(s), "type error"); \
+	Check(! symbolp(s), "type error"); \
 	GetArrayA2(s, i, v); \
 }
 
@@ -664,10 +664,10 @@ static void symstack(size_t index, addr symbol, addr *ret)
 
 	Check(GetStatusDynamic(symbol), "dynamic error.");
 	rdlock_rwlocklite(&MutexSymbol);
-	stack = PtrArrayA2(symbol)[SYMBOL_INDEX_STACK];
+	GetStackSymbol_Low(symbol, &stack);
 	size = GetLenArrayA4(stack);
 	if (index < size) {
-		*ret = PtrArrayA4(stack)[index];
+		GetArrayA4(stack, index, ret);
 		unrdlock_rwlocklite(&MutexSymbol);
 		return;
 	}
@@ -676,10 +676,10 @@ static void symstack(size_t index, addr symbol, addr *ret)
 	unrdlock_rwlocklite(&MutexSymbol);
 	wrlock_rwlocklite(&MutexSymbol);
 	/* reload */
-	stack = PtrArrayA2(symbol)[SYMBOL_INDEX_STACK];
+	GetStackSymbol_Low(symbol, &stack);
 	size = GetLenArrayA4(stack);
 	if (index < size) {
-		*ret = PtrArrayA4(stack)[index];
+		GetArrayA4(stack, index, ret);
 		unwrlock_rwlocklite(&MutexSymbol);
 		return;
 	}
@@ -688,12 +688,12 @@ static void symstack(size_t index, addr symbol, addr *ret)
 	for (size2 = size; size2 <= index; )
 		size2 <<= 1;
 	realloc_symbol(&stack, size, size2);
-	PtrArrayA2(symbol)[SYMBOL_INDEX_STACK] = stack;
+	SetStackSymbol_Low(symbol, stack);
 	for (i = size; i < size2; i++) {
 		consnil_heap(&child);
 		SetArrayA4(stack, i, child);
 	}
-	*ret = PtrArrayA4(stack)[index];
+	GetArrayA4(stack, index, ret);
 	unwrlock_rwlocklite(&MutexSymbol);
 }
 
@@ -701,7 +701,7 @@ _g void pushspecial_unsafe(Execute ptr, addr pos, addr value)
 {
 	addr cons, root, stack;
 
-	Check(! IsSymbol(pos), "type error");
+	Check(! symbolp(pos), "type error");
 	setcheck_symbol(pos);
 
 	symstack(ptr->index, pos, &root);
@@ -714,7 +714,7 @@ _g void popspecial_unsafe(Execute ptr, addr pos)
 {
 	addr root, stack;
 
-	Check(! IsSymbol(pos), "type error");
+	Check(! symbolp(pos), "type error");
 	setcheck_symbol(pos);
 
 	symstack(ptr->index, pos, &root);
@@ -726,7 +726,7 @@ _g void popspecial_unsafe(Execute ptr, addr pos)
 
 _g void snapshot_special_local(Execute ptr, addr pos, addr *ret)
 {
-	Check(! IsSymbol(pos), "type error");
+	Check(! symbolp(pos), "type error");
 	symstack(ptr->index, pos, &pos);
 	GetCar(pos, ret);
 }
@@ -736,7 +736,7 @@ _g void rollback_special_local(Execute ptr, addr pos, addr cons)
 #ifdef LISP_DEBUG
 	addr root;
 #endif
-	Check(! IsSymbol(pos), "type error");
+	Check(! symbolp(pos), "type error");
 	symstack(ptr->index, pos, &pos);
 	if (cons == Nil) {
 		SetCar(pos, Nil);
@@ -757,7 +757,7 @@ _g void clearspecial_local(Execute ptr, addr pos)
 {
 	addr root;
 
-	Check(! IsSymbol(pos), "type error");
+	Check(! symbolp(pos), "type error");
 	setcheck_symbol(pos);
 
 	symstack(ptr->index, pos, &root);
@@ -766,7 +766,7 @@ _g void clearspecial_local(Execute ptr, addr pos)
 
 static int getsymlocal(Execute ptr, addr root, addr *ret)
 {
-	Check(! IsSymbol(root), "type error");
+	Check(! symbolp(root), "type error");
 
 	symstack(ptr->index, root, &root);
 	GetCar(root, &root);
@@ -779,7 +779,11 @@ static int getsymlocal(Execute ptr, addr root, addr *ret)
 
 _g void getspecial_local(Execute ptr, addr pos, addr *ret)
 {
-	Check(! IsSymbol(pos), "type error");
+	Check(! symbolp(pos), "type error");
+	if (GetStatusReadOnly(pos)) {
+		GetValueSymbol(pos, ret);
+		return;
+	}
 	if (getsymlocal(ptr, pos, ret))
 		GetValueSymbol(pos, ret);
 }
@@ -803,7 +807,7 @@ _g addr refspecialcheck_local(Execute ptr, addr pos)
 
 static int setsymlocal(Execute ptr, addr root, addr value)
 {
-	Check(! IsSymbol(root), "type error");
+	Check(! symbolp(root), "type error");
 	setcheck_symbol(root);
 
 	symstack(ptr->index, root, &root);
@@ -816,7 +820,7 @@ static int setsymlocal(Execute ptr, addr root, addr value)
 }
 _g void setspecial_local(Execute ptr, addr pos, addr value)
 {
-	Check(! IsSymbol(pos), "type error");
+	Check(! symbolp(pos), "type error");
 	if (setsymlocal(ptr, pos, value))
 		SetValueSymbol(pos, value);
 }

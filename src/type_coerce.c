@@ -13,7 +13,7 @@
 #include "cons_list.h"
 #include "copy.h"
 #include "execute.h"
-#include "gc.h"
+#include "hold.h"
 #include "integer.h"
 #include "local.h"
 #include "ratio.h"

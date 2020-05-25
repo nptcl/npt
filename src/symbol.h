@@ -119,7 +119,6 @@ _g void reminline_setf_symbol(addr symbol);
 
 _g addr refsetf_symbol(addr symbol);
 _g void getsetf_symbol(addr symbol, addr *value);
-_g void getsetfcheck_symbol(addr symbol, addr *value);
 _g void setsetf_symbol(addr symbol, addr value);
 _g void remsetf_symbol(addr symbol);
 _g addr refsetfmacro_symbol(addr symbol);

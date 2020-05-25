@@ -57,27 +57,6 @@ static int test_PtrStatus(void)
 	RETURN;
 }
 
-static int test_PtrCheck(void)
-{
-	byte mem[2000];
-	addr pos;
-	static const int index = 2;
-
-	aatype(mem);
-	pos = (addr)mem;
-	test(PtrCheck(pos) == (pos + index), "PtrCheck");
-	pos[index] = 0xEE;
-	test(GetCheck(pos) == 0xEE, "GetCheck");
-	SetCheck(pos, 0xDD);
-	test(pos[index] == 0xDD, "SetCheck");
-	SetCheck(pos, 0xCC);
-	test(GetCheck(pos) == 0xCC, "GetCheck");
-	SetCheck(pos, 0xBB);
-	test(GetCheck(pos) == 0xBB, "SetCheck");
-
-	RETURN;
-}
-
 static int test_PtrUser(void)
 {
 	byte mem[2000];
@@ -230,31 +209,6 @@ static int test_GetStatus(void)
 	test(GetStatusValue(mem, 5) == 0, "GetStatusValue8");
 	test(GetStatusValue(mem, 6) != 0, "GetStatusValue8");
 	test(GetStatusValue(mem, 7) != 0, "GetStatusValue8");
-
-	RETURN;
-}
-
-static int test_GetCheck(void)
-{
-	byte mem[100];
-
-	aatype(mem);
-	SetCheck1(mem, LISPCHECK_ARRAY);
-	test(GetCheckArray(mem) != 0, "SetCheck1-1");
-	test(GetCheckBody(mem) == 0, "SetCheck1-2");
-
-	SetCheck2(mem, LISPCHECK_ARRAY, LISPCHECK_SIZE8);
-	test(GetCheckArray(mem) != 0, "SetCheck2-1");
-	test(GetCheckArrayBody(mem) == 0, "SetCheck2-2");
-	test(GetCheckSize8(mem) != 0, "SetCheck2-3");
-
-	SetCheck4(mem, LISPCHECK_SIZE2,
-			LISPCHECK_ARRAY, LISPCHECK_BODY, LISPCHECK_ARRAYBODY);
-	test(GetCheckArray(mem) != 0, "SetCheck4-1");
-	test(GetCheckBody(mem) != 0, "SetCheck4-2");
-	test(GetCheckArrayBody(mem) != 0, "SetCheck4-3");
-	test(GetCheckSize2(mem) != 0, "SetCheck4-4");
-	test(GetCheckSize4(mem) == 0, "SetCheck4-5");
 
 	RETURN;
 }
@@ -493,37 +447,27 @@ static int test_PtrArray(void)
 	ptrwrite(pos + 8 + PtrSize*0, 0x12345);
 	ptrwrite(pos + 8 + PtrSize*1, 0x234567);
 	ptrtest(*PtrArrayA2(pos), 0x12345,  "PtrArrayA21");
-	ptrtest(*PtrArrayA2i(pos, 0), 0x12345, "PtrArrayA2i2");
-	ptrtest(*PtrArrayA2i(pos, 1), 0x234567, "PtrArrayA2i3");
 
 	aatype(mem);
 	ptrwrite(pos + 8 + PtrSize*0, 0x12345);
 	ptrwrite(pos + 8 + PtrSize*1, 0x234567);
 	ptrtest(*PtrArraySS(pos), 0x12345,  "PtrArraySS1");
-	ptrtest(*PtrArraySSi(pos, 0), 0x12345,  "PtrArraySSi2");
-	ptrtest(*PtrArraySSi(pos, 1), 0x234567,  "PtrArraySSi3");
 
 	aatype(mem);
 	ptrwrite(pos + 16 + PtrSize*0, 0x12345);
 	ptrwrite(pos + 16 + PtrSize*1, 0x234567);
 	ptrtest(*PtrArrayA4(pos), 0x12345,  "PtrArrayA41");
-	ptrtest(*PtrArrayA4i(pos, 0), 0x12345, "PtrArrayA4i2");
-	ptrtest(*PtrArrayA4i(pos, 1), 0x234567, "PtrArrayA4i3");
 
 	aatype(mem);
 	ptrwrite(pos + 16 + PtrSize*0, 0x12345);
 	ptrwrite(pos + 16 + PtrSize*1, 0x234567);
 	ptrtest(*PtrArrayAB(pos), 0x12345,  "PtrArrayAB1");
-	ptrtest(*PtrArrayABi(pos, 0), 0x12345,  "PtrArrayABi2");
-	ptrtest(*PtrArrayABi(pos, 1), 0x234567,  "PtrArrayABi3");
 
 #ifdef LISP_ARCH_64BIT
 	aatype(mem);
 	ptrwrite(pos + 24 + PtrSize*0, 0x12345);
 	ptrwrite(pos + 24 + PtrSize*1, 0x234567);
 	ptrtest(*PtrArrayA8(pos), 0x12345, "PtrArrayA81");
-	ptrtest(*PtrArrayA8i(pos, 0), 0x12345,  "PtrArrayA8i2");
-	ptrtest(*PtrArrayA8i(pos, 1), 0x234567,  "PtrArrayA8i3");
 #endif
 
 	RETURN;
@@ -1020,12 +964,10 @@ static int testbreak_memory(void)
 	TestBreak(test_sizecheck);
 	TestBreak(test_GetType);
 	TestBreak(test_PtrStatus);
-	TestBreak(test_PtrCheck);
 	TestBreak(test_PtrUser);
 	TestBreak(test_IsClass);
 	TestBreak(test_BitStatus);
 	TestBreak(test_GetStatus);
-	TestBreak(test_GetCheck);
 	TestBreak(test_PtrValue);
 	TestBreak(test_PtrByte2);
 	TestBreak(test_PtrByte4);
@@ -1204,20 +1146,17 @@ static int test_getobjectlength(void)
 
 	aatype(mem);
 	SetStatus(mem, LISPSIZE_ARRAY2);
-	SetCheck1(mem, LISPCHECK_SIZE2);
 	*PtrValue2L(mem) = 100;
 	test(getobjectlength(mem) == 100, "getobjectlength1");
 
 	aatype(mem);
 	SetStatus(mem, LISPSIZE_ARRAYBODY);
-	SetCheck1(mem, LISPCHECK_SIZE4);
 	*PtrValueL(mem) = 200;
 	test(getobjectlength(mem) == 200, "getobjectlength2");
 
 #ifdef LISP_ARCH_64BIT
 	aatype(mem);
 	SetStatus(mem, LISPSIZE_BODY8);
-	SetCheck1(mem, LISPCHECK_SIZE8);
 	*PtrValueL(mem) = 300;
 	test(getobjectlength(mem) == 300, "getobjectlength3");
 #endif
@@ -1232,20 +1171,17 @@ static int test_getmemorylength(void)
 	/* getobjectlength */
 	aatype(mem);
 	SetStatus(mem, LISPSIZE_ARRAY2);
-	SetCheck1(mem, LISPCHECK_SIZE2);
 	*PtrValue2L(mem) = 100;
 	test(getmemorylength(mem) == 100, "getmemorylength1");
 
 	aatype(mem);
 	SetStatus(mem, LISPSIZE_ARRAYBODY);
-	SetCheck1(mem, LISPCHECK_SIZE4);
 	*PtrValueL(mem) = 200;
 	test(getmemorylength(mem) == 200, "getmemorylength2");
 
 #ifdef LISP_ARCH_64BIT
 	aatype(mem);
 	SetStatus(mem, LISPSIZE_BODY8);
-	SetCheck1(mem, LISPCHECK_SIZE8);
 	*PtrValueL(mem) = 300;
 	test(getmemorylength(mem) == 300, "getmemorylength3");
 #endif
@@ -1599,6 +1535,9 @@ static int test_GetArraySS(void)
 	SetStatusValue(mem2, LISPSTATUS_DYNAMIC, 0);
 	SetStatusValue(mem3, LISPSTATUS_DYNAMIC, 0);
 	*PtrLenArraySS(pos) = 3;
+	PtrArraySS(pos)[0] = Unbound;
+	PtrArraySS(pos)[1] = Unbound;
+	PtrArraySS(pos)[2] = Unbound;
 	SetArraySS(pos, 0, (addr)mem1);
 	SetArraySS(pos, 1, (addr)mem2);
 	setarray(pos, 2, (addr)mem3);
@@ -1634,6 +1573,9 @@ static int test_GetArrayA2(void)
 	SetStatusValue(mem2, LISPSTATUS_DYNAMIC, 0);
 	SetStatusValue(mem3, LISPSTATUS_DYNAMIC, 0);
 	*PtrLenArrayA2(pos) = 3;
+	PtrArrayA2(pos)[0] = Unbound;
+	PtrArrayA2(pos)[1] = Unbound;
+	PtrArrayA2(pos)[2] = Unbound;
 	SetArrayA2(pos, 0, (addr)mem1);
 	SetArrayA2(pos, 1, (addr)mem2);
 	setarray(pos, 2, (addr)mem3);
@@ -1669,6 +1611,9 @@ static int test_GetArrayAB(void)
 	SetStatusValue(mem2, LISPSTATUS_DYNAMIC, 0);
 	SetStatusValue(mem3, LISPSTATUS_DYNAMIC, 0);
 	*PtrLenArrayAB(pos) = 3;
+	PtrArrayAB(pos)[0] = Unbound;
+	PtrArrayAB(pos)[1] = Unbound;
+	PtrArrayAB(pos)[2] = Unbound;
 	SetArrayAB(pos, 0, (addr)mem1);
 	SetArrayAB(pos, 1, (addr)mem2);
 	setarray(pos, 2, (addr)mem3);
@@ -1704,6 +1649,9 @@ static int test_GetArrayA4(void)
 	SetStatusValue(mem2, LISPSTATUS_DYNAMIC, 0);
 	SetStatusValue(mem3, LISPSTATUS_DYNAMIC, 0);
 	*PtrLenArrayA4(pos) = 3;
+	PtrArrayA4(pos)[0] = Unbound;
+	PtrArrayA4(pos)[1] = Unbound;
+	PtrArrayA4(pos)[2] = Unbound;
 	SetArrayA4(pos, 0, (addr)mem1);
 	SetArrayA4(pos, 1, (addr)mem2);
 	setarray(pos, 2, (addr)mem3);
@@ -1740,6 +1688,9 @@ static int test_GetArrayA8(void)
 	SetStatusValue(mem2, LISPSTATUS_DYNAMIC, 0);
 	SetStatusValue(mem3, LISPSTATUS_DYNAMIC, 0);
 	*PtrLenArrayA8(pos) = 3;
+	PtrArrayA8(pos)[0] = Unbound;
+	PtrArrayA8(pos)[1] = Unbound;
+	PtrArrayA8(pos)[2] = Unbound;
 	SetArrayA8(pos, 0, (addr)mem1);
 	SetArrayA8(pos, 1, (addr)mem2);
 	setarray(pos, 2, (addr)mem3);

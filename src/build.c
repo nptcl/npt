@@ -30,6 +30,8 @@
 #include "format.h"
 #include "gc.h"
 #include "heap.h"
+#include "heap_core.h"
+#include "heap_memory.h"
 #include "hashtable.h"
 #include "localtime.h"
 #include "object.h"
@@ -104,7 +106,7 @@ static void clearlisp_force(void)
 		lisp_root[i] = 0;
 	lisp_nil_object  = 0;
 	lisp_t_object    = 0;
-	lisp_gcsync      = 0;
+	lisp_gcsync      = GcMode_Off;
 }
 
 _g int alloclisp(size_t heap, size_t stack)
@@ -191,6 +193,12 @@ _g void freelisp(void)
 /*
  *  buildlisp
  */
+_g void setlisproot(enum LISPINDEX index, addr value)
+{
+	SetChain(value, 0xFF);
+	lisp_root[index] = value;
+}
+
 _g void build_lisproot(Execute ptr)
 {
 	size_t i;
@@ -328,7 +336,7 @@ _g void buildlisp(Execute ptr)
 	build_rt();
 	set_features();
 	set_pretty_printing();
-	gcexec();
+	gcexec(GcMode_Full);
 }
 
 

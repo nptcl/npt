@@ -198,10 +198,8 @@ _g struct control_struct *push_control(Execute ptr)
 			sizeoft(struct control_struct));
 	str = StructControl(pos);
 	clearpoint(str);
-	str->lexical = ptr->lexical;
-#ifdef LISP_DEBUG
+	str->lexical_reader = ptr->lexical_reader;
 	str->lexical_vector = ptr->lexical_vector;
-#endif
 	str->stack = stack;
 
 	/* push */
@@ -290,21 +288,16 @@ static void close_close_control(Execute ptr, addr control)
 
 static int pop_control_(Execute ptr)
 {
-	addr control, *lexical;
+	addr control, *lexical_reader, lexical_vector;
 	LocalStack stack;
 	struct control_struct *str;
-#ifdef LISP_DEBUG
-	addr lexical_vector;
-#endif
 
 	control = ptr->control;
 	Check(control == Nil, "Execute error");
 	str = StructControl(control);
 	stack = str->stack;
-	lexical = str->lexical;
-#ifdef LISP_DEBUG
+	lexical_reader = str->lexical_reader;
 	lexical_vector = str->lexical_vector;
-#endif
 
 	/* close */
 	Return(close_protect_control_(ptr, control));
@@ -313,10 +306,8 @@ static int pop_control_(Execute ptr)
 	/* pop */
 	GetControl(control, Control_Next, &control);
 	ptr->control = control;
-	ptr->lexical = lexical;
-#ifdef LISP_DEBUG
+	ptr->lexical_reader = lexical_reader;
 	ptr->lexical_vector = lexical_vector;
-#endif
 	rollback_local(ptr->local, stack);
 
 	return 0;

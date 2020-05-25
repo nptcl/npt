@@ -105,40 +105,36 @@ _g void strarray_update_character_type(addr pos)
 /*
  *  strarray
  */
-_g addr strarray_allocr(LocalRoot local, size_t len)
+_g void strarray_alloc(LocalRoot local, addr *ret, size_t len)
 {
 	addr pos;
 
 	array_alloc(local, &pos, 1, len);
 	array_character_alloc(local, pos);
 	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
-
-	return pos;
-}
-_g addr strarray_localr(LocalRoot local, size_t len)
-{
-	Check(local == NULL, "local error");
-	return strarray_allocr(local, len);
-}
-_g addr strarray_heapr(size_t len)
-{
-	return strarray_allocr(NULL, len);
-}
-_g void strarray_alloc(LocalRoot local, addr *ret, size_t len)
-{
-	*ret = strarray_allocr(local, len);
+	*ret = pos;
 }
 _g void strarray_local(LocalRoot local, addr *ret, size_t len)
 {
+	addr pos;
+
 	Check(local == NULL, "local error");
-	*ret = strarray_allocr(local, len);
+	array_local(local, &pos, 1, len);
+	array_character_alloc(local, pos);
+	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
+	*ret = pos;
 }
 _g void strarray_heap(addr *ret, size_t len)
 {
-	*ret = strarray_allocr(NULL, len);
+	addr pos;
+
+	array_heap(&pos, 1, len);
+	array_character_alloc(NULL, pos);
+	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
+	*ret = pos;
 }
 
-_g addr strarray_char_allocr(LocalRoot local, const char *arg)
+_g void strarray_char_alloc(LocalRoot local, addr *ret, const char *arg)
 {
 	addr pos;
 	unicode *destroy;
@@ -150,33 +146,19 @@ _g addr strarray_char_allocr(LocalRoot local, const char *arg)
 	for (i = 0; i < size; i++)
 		destroy[i] = (unicode)arg[i];
 	strarray_update_character_type(pos);
-
-	return pos;
-}
-_g addr strarray_char_localr(LocalRoot local, const char *arg)
-{
-	Check(local == NULL, "local error");
-	return strarray_char_allocr(local, arg);
-}
-_g addr strarray_char_heapr(const char *arg)
-{
-	return strarray_char_allocr(NULL, arg);
-}
-_g void strarray_char_alloc(LocalRoot local, addr *ret, const char *arg)
-{
-	*ret = strarray_char_allocr(local, arg);
+	*ret = pos;
 }
 _g void strarray_char_local(LocalRoot local, addr *ret, const char *arg)
 {
 	Check(local == NULL, "local error");
-	*ret = strarray_char_allocr(local, arg);
+	strarray_char_alloc(local, ret, arg);
 }
 _g void strarray_char_heap(addr *ret, const char *arg)
 {
-	*ret = strarray_char_allocr(NULL, arg);
+	strarray_char_alloc(NULL, ret, arg);
 }
 
-_g addr strarray_size1_allocr(LocalRoot local, const char *arg, size_t size)
+_g void strarray_size1_alloc(LocalRoot local, addr *ret, const char *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -187,33 +169,19 @@ _g addr strarray_size1_allocr(LocalRoot local, const char *arg, size_t size)
 	for (i = 0; i < size; i++)
 		destroy[i] = (unicode)arg[i];
 	strarray_update_character_type(pos);
-
-	return pos;
-}
-_g addr strarray_size1_localr(LocalRoot local, const char *arg, size_t size)
-{
-	Check(local == NULL, "local error");
-	return strarray_size1_allocr(local, arg, size);
-}
-_g addr strarray_size1_heapr(const char *arg, size_t size)
-{
-	return strarray_size1_allocr(NULL, arg, size);
-}
-_g void strarray_size1_alloc(LocalRoot local, addr *ret, const char *arg, size_t size)
-{
-	*ret = strarray_size1_allocr(local, arg, size);
+	*ret = pos;
 }
 _g void strarray_size1_local(LocalRoot local, addr *ret, const char *arg, size_t size)
 {
 	Check(local == NULL, "local error");
-	*ret = strarray_size1_allocr(local, arg, size);
+	strarray_size1_alloc(local, ret, arg, size);
 }
 _g void strarray_size1_heap(addr *ret, const char *arg, size_t size)
 {
-	*ret = strarray_size1_allocr(NULL, arg, size);
+	strarray_size1_alloc(NULL, ret, arg, size);
 }
 
-_g addr strarray_sizeu_allocr(LocalRoot local, const unicode *arg, size_t size)
+_g void strarray_sizeu_alloc(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -222,30 +190,16 @@ _g addr strarray_sizeu_allocr(LocalRoot local, const unicode *arg, size_t size)
 	GetArrayUnicode(pos, (const unicode **)&destroy);
 	memcpy(destroy, arg, sizeof(unicode) * size);
 	strarray_update_character_type(pos);
-
-	return pos;
-}
-_g addr strarray_sizeu_localr(LocalRoot local, const unicode *arg, size_t size)
-{
-	Check(local == NULL, "local error");
-	return strarray_sizeu_allocr(local, arg, size);
-}
-_g addr strarray_sizeu_heapr(const unicode *arg, size_t size)
-{
-	return strarray_sizeu_allocr(NULL, arg, size);
-}
-_g void strarray_sizeu_alloc(LocalRoot local, addr *ret, const unicode *arg, size_t size)
-{
-	*ret = strarray_sizeu_allocr(local, arg, size);
+	*ret = pos;
 }
 _g void strarray_sizeu_local(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	Check(local == NULL, "local error");
-	*ret = strarray_sizeu_allocr(local, arg, size);
+	strarray_sizeu_alloc(local, ret, arg, size);
 }
 _g void strarray_sizeu_heap(addr *ret, const unicode *arg, size_t size)
 {
-	*ret = strarray_sizeu_allocr(NULL, arg, size);
+	strarray_sizeu_alloc(NULL, ret, arg, size);
 }
 
 _g void strarray_length(addr pos, size_t *ret)
@@ -613,7 +567,7 @@ static void copy_strvect_strarray(addr vector, addr array, size_t size)
 	}
 }
 
-_g addr string_allocr(LocalRoot local, addr pos)
+_g void string_alloc(LocalRoot local, addr *ret, addr pos)
 {
 	const unicode *body;
 	addr vector;
@@ -623,43 +577,28 @@ _g addr string_allocr(LocalRoot local, addr pos)
 		strarray_length(pos, &size);
 		strvect_alloc(local, &vector, size);
 		copy_strvect_strarray(vector, pos, size);
-		return vector;
+		*ret = vector;
+		return;
 	}
 	if (strvectp(pos)) {
 		strvect_posbodylen(pos, &body, &size);
-		return strvect_sizeu_allocr(local, body, size);
+		strvect_sizeu_alloc(local, ret, body, size);
+		return;
 	}
 
 	/* error */
+	*ret = 0;
 	Abort("type error.");
-	return NULL;
 }
-
-_g addr string_localr(LocalRoot local, addr pos)
-{
-	Check(local == NULL, "local error");
-	return string_allocr(local, pos);
-}
-
-_g addr string_heapr(addr pos)
-{
-	return string_allocr(NULL, pos);
-}
-
-_g void string_alloc(LocalRoot local, addr *ret, addr pos)
-{
-	*ret = string_allocr(local, pos);
-}
-
 _g void string_local(LocalRoot local, addr *ret, addr pos)
 {
 	Check(local == NULL, "local error");
-	*ret = string_allocr(local, pos);
+	string_alloc(local, ret, pos);
 }
 
 _g void string_heap(addr *ret, addr pos)
 {
-	*ret = string_allocr(NULL, pos);
+	string_alloc(NULL, ret, pos);
 }
 
 _g void string_length(addr pos, size_t *ret)

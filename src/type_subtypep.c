@@ -6,7 +6,7 @@
 #include "copy.h"
 #include "equal.h"
 #include "format.h"
-#include "gc.h"
+#include "hold.h"
 #include "integer.h"
 #include "object.h"
 #include "sequence.h"

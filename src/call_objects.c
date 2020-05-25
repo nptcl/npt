@@ -8,7 +8,7 @@
 #include "control_execute.h"
 #include "declare.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "lambda.h"
 #include "strtype.h"
 #include "symbol.h"

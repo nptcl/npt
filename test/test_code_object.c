@@ -46,10 +46,10 @@ static int test_make_code_call(void)
 	list_local(local, &cons, symbol, NULL);
 	SetArrayA4(array, 0, cons);
 	internchar(LISP_CODE, "NOP", &symbol);
-	list_local(local, &cons, symbol, fixnum_heapr(10), NULL);
+	list_local(local, &cons, symbol, fixnumh(10), NULL);
 	SetArrayA4(array, 1, cons);
 	internchar(LISP_CODE, "ABORT", &symbol);
-	cons_local(local, &cons, symbol, fixnum_heapr(20));
+	cons_local(local, &cons, symbol, fixnumh(20));
 	SetArrayA4(array, 2, cons);
 
 	make_code_call(local, array, 3, &call, &args, &ptr);
@@ -89,10 +89,10 @@ static int test_code_alloc(void)
 	list_local(local, &cons, symbol, NULL);
 	SetArrayA4(array, 0, cons);
 	internchar(LISP_CODE, "NOP", &symbol);
-	list_local(local, &cons, symbol, fixnum_heapr(10), NULL);
+	list_local(local, &cons, symbol, fixnumh(10), NULL);
 	SetArrayA4(array, 1, cons);
 	internchar(LISP_CODE, "ABORT", &symbol);
-	cons_local(local, &cons, symbol, fixnum_heapr(20));
+	cons_local(local, &cons, symbol, fixnumh(20));
 	SetArrayA4(array, 2, cons);
 
 	code_alloc(local, &pos, array);

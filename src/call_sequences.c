@@ -11,7 +11,7 @@
 #include "cons_plist.h"
 #include "control_execute.h"
 #include "equal.h"
-#include "gc.h"
+#include "hold.h"
 #include "integer.h"
 #include "sequence.h"
 #include "sequence_iterator.h"

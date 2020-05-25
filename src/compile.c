@@ -14,7 +14,7 @@
 #include "file.h"
 #include "files.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"

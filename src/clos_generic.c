@@ -15,7 +15,7 @@
 #include "equal.h"
 #include "execute_object.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "hashtable.h"
 #include "lambda.h"
 #include "pointer.h"

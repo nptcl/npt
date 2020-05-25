@@ -6,7 +6,7 @@
 #include "control_operator.h"
 #include "constant.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "pointer.h"
 #include "print_function.h"
 #include "print_pretty.h"

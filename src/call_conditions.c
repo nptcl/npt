@@ -10,7 +10,7 @@
 #include "control_operator.h"
 #include "format.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "pointer.h"
 #include "print_write.h"
 #include "restart.h"

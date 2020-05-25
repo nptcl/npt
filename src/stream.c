@@ -13,7 +13,7 @@
 #include "files.h"
 #include "format.h"
 #include "heap.h"
-#include "gc.h"
+#include "hold.h"
 #include "integer.h"
 #include "memory.h"
 #include "object.h"

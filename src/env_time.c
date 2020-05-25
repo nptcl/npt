@@ -7,7 +7,7 @@
 #include "condition_debugger.h"
 #include "env_time.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "integer.h"
 #include "localtime.h"
 #include "object.h"

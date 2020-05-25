@@ -15,7 +15,7 @@ _g addr     lisp_root[LISPINDEX_SIZE];
 _g addr     lisp_nil_object    = 0;
 _g addr     lisp_t_object      = 0;
 _g int      lisp_info_enable   = 1;
-_g int      lisp_gcsync        = 0;
+_g enum GcMode lisp_gcsync     = GcMode_Off;
 
 
 /*
@@ -28,6 +28,8 @@ _g addr    heap_pos = 0;
 _g size_t  heap_object = 0;
 _g size_t  heap_count = 0;
 _g size_t  heap_gc_count = 0;
+_g size_t  heap_gc_partial = 0;
+_g size_t  heap_gc_full = 0;
 
 
 /*

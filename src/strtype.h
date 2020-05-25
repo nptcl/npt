@@ -16,30 +16,18 @@ _g int strarray_simple_p(addr pos);
 _g void strarray_update_character_type(addr pos);
 
 /* strarray */
-_g addr strarray_allocr(LocalRoot local, size_t len);
-_g addr strarray_localr(LocalRoot local, size_t len);
-_g addr strarray_heapr(size_t len);
 _g void strarray_alloc(LocalRoot local, addr *ret, size_t len);
 _g void strarray_local(LocalRoot local, addr *ret, size_t len);
 _g void strarray_heap(addr *ret, size_t len);
 
-_g addr strarray_char_allocr(LocalRoot local, const char *arg);
-_g addr strarray_char_localr(LocalRoot local, const char *arg);
-_g addr strarray_char_heapr(const char *arg);
 _g void strarray_char_alloc(LocalRoot local, addr *ret, const char *arg);
 _g void strarray_char_local(LocalRoot local, addr *ret, const char *arg);
 _g void strarray_char_heap(addr *ret, const char *arg);
 
-_g addr strarray_size1_allocr(LocalRoot, const char *, size_t);
-_g addr strarray_size1_localr(LocalRoot, const char *, size_t);
-_g addr strarray_size1_heapr(const char *, size_t);
 _g void strarray_size1_alloc(LocalRoot, addr *, const char *, size_t);
 _g void strarray_size1_local(LocalRoot, addr *, const char *, size_t);
 _g void strarray_size1_heap(addr *, const char *, size_t);
 
-_g addr strarray_sizeu_allocr(LocalRoot, const unicode *, size_t);
-_g addr strarray_sizeu_localr(LocalRoot, const unicode *, size_t);
-_g addr strarray_sizeu_heapr(const unicode *, size_t);
 _g void strarray_sizeu_alloc(LocalRoot, addr *, const unicode *, size_t);
 _g void strarray_sizeu_local(LocalRoot, addr *, const unicode *, size_t);
 _g void strarray_sizeu_heap(addr *, const unicode *, size_t);
@@ -67,9 +55,6 @@ _g int strarray_compare(addr left, addr right);
 _g int strarray_comparep(addr left, addr right);
 
 /* string */
-_g addr string_allocr(LocalRoot local, addr pos);
-_g addr string_localr(LocalRoot local, addr pos);
-_g addr string_heapr(addr pos);
 _g void string_alloc(LocalRoot local, addr *ret, addr pos);
 _g void string_local(LocalRoot local, addr *ret, addr pos);
 _g void string_heap(addr *ret, addr pos);

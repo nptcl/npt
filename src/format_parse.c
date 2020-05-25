@@ -1087,7 +1087,7 @@ static void format_argument_less(addr format,
 		if (value < check) {
 			format_abort_va(format, ptr->position,
 					"The parameter must be greater than ~A.",
-					fixnum_heapr(check), NULL);
+					fixnumh(check), NULL);
 		}
 	}
 }
@@ -1116,7 +1116,7 @@ static void format_argument_less_nil(addr format,
 			if (ptr->u.value < check) {
 				format_abort_va(format, ptr->position,
 						"The parameter must be greater than ~A.",
-						fixnum_heapr(check), NULL);
+						fixnumh(check), NULL);
 			}
 			break;
 

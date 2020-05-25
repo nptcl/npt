@@ -237,5 +237,12 @@ enum EVAL_OPTIMIZE {
 	EVAL_OPTIMIZE_SIZE
 };
 
+enum GcMode {
+	GcMode_Off,
+	GcMode_Default,
+	GcMode_Partial,
+	GcMode_Full
+};
+
 #endif
 

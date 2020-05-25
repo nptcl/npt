@@ -11,7 +11,7 @@
 #include "files.h"
 #include "format.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "object.h"
 #include "optimize_parse.h"
 #include "parse.h"

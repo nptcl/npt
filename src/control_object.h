@@ -28,10 +28,8 @@ enum Control_Index {
 
 struct control_struct {
 	LocalStack stack;
-	addr *lexical;
-#ifdef LISP_DEBUG
+	addr *lexical_reader;
 	addr lexical_vector;
-#endif
 	addr trace;
 	size_t point;
 };

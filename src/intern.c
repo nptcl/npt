@@ -44,7 +44,7 @@ static void intern_symbol_package(addr package, struct symbol_header *str, addr 
 
 	/* bitpackage */
 	Check(! packagep(package), "type error");
-	name = strvect_size1_allocr(NULL, str->symbol, str->length);
+	strvect_size1_heap(&name, str->symbol, str->length);
 	if (str->findp) {
 		intern_package(package, name, ret);
 		return;

@@ -5,7 +5,7 @@
 #include "control_execute.h"
 #include "equal.h"
 #include "execute.h"
-#include "gc.h"
+#include "hold.h"
 #include "integer.h"
 #include "setf.h"
 #include "symbol.h"

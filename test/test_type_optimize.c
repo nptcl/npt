@@ -893,7 +893,7 @@ static int test_optimize_eql_range(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	list_heap(&pos, interncommonr("EQL"), fixnum_heapr(10), NULL);
+	list_heap(&pos, interncommonr("EQL"), fixnumh(10), NULL);
 	test_parse_type(&pos, pos);
 	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range1");
 	test(testlispdecl(pos, LISPDECL_INTEGER), "optimize_eql_range2");

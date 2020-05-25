@@ -17,7 +17,7 @@ __extern addr     lisp_root[LISPINDEX_SIZE];
 __extern addr     lisp_nil_object;
 __extern addr     lisp_t_object;
 __extern int      lisp_info_enable;
-__extern int      lisp_gcsync;
+__extern enum GcMode lisp_gcsync;
 
 /* function */
 _g void initlisp(void);
@@ -25,6 +25,7 @@ _g int alloclisp(size_t heap, size_t stack);
 _g void freelisp(void);
 _g int degradelisp(void);
 
+_g void setlisproot(enum LISPINDEX index, addr value);
 _g void build_lisproot(Execute ptr);
 _g void buildlisp(Execute ptr);
 

@@ -14,6 +14,7 @@
 #define T                       (lisp_t_object)
 #define Unbound                 ((addr)~(uintptr_t)0)
 #define LispRoot(x)             (lisp_root[LISPINDEX_##x])
+#define SetLispRoot(x,y)		setlisproot(LISPINDEX_##x, (y));
 
 #define Abort(x)                {Debug(x); abortthis();}
 #define Abort2(x,y)             {Debug2(x,y); abortthis();}

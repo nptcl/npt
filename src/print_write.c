@@ -18,7 +18,7 @@
 #include "function.h"
 #include "hashtable.h"
 #include "heap.h"
-#include "gc.h"
+#include "hold.h"
 #include "integer.h"
 #include "package.h"
 #include "pathname.h"

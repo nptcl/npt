@@ -8,7 +8,7 @@
 #include "declare.h"
 #include "eval.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "object.h"
 #include "parse.h"
 #include "scope.h"
@@ -459,7 +459,7 @@ _g void getroot_declare(addr *ret)
 _g void setroot_declare(addr pos)
 {
 	Check(! eval_declare_p(pos), "type error");
-	LispRoot(DECLARE) = pos;
+	SetLispRoot(DECLARE, pos);
 }
 
 _g void build_declare(void)
@@ -912,7 +912,7 @@ static int parse_declare_form(Execute ptr, addr env, addr decl, addr *ret,
 	while (decl != Nil) {
 		getcons(decl, &car, &decl);
 		getcons(car, &car, &tail);
-		if (! IsSymbol(car))
+		if (! symbolp(car))
 			TypeError(car, SYMBOL);
 		if (call(ptr, env, eval, car, tail))
 			return 1;
@@ -1286,7 +1286,7 @@ static int parse_proclaim_heap(Execute ptr, addr env, addr car, addr *ret)
 	eval_declare_heap(&eval);
 	hold = LocalHold_local_push(ptr, eval);
 	getcons(car, &car, &tail);
-	if (! IsSymbol(car))
+	if (! symbolp(car))
 		TypeError(car, SYMBOL);
 	if (push_declaim(ptr, env, eval, car, tail))
 		return 1;

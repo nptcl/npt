@@ -107,9 +107,9 @@ static int test_fmtprint_pop(void)
 	aatype(print);
 	aatype(args);
 	list_heap(&rest,
-			fixnum_heapr(10),
-			fixnum_heapr(20),
-			fixnum_heapr(30),
+			fixnumh(10),
+			fixnumh(20),
+			fixnumh(30),
 			NULL);
 	args.root = rest;
 	args.front = rest;
@@ -138,9 +138,9 @@ static int test_fmtprint_peek(void)
 	aatype(print);
 	aatype(args);
 	list_heap(&rest,
-			fixnum_heapr(10),
-			fixnum_heapr(20),
-			fixnum_heapr(30),
+			fixnumh(10),
+			fixnumh(20),
+			fixnumh(30),
 			NULL);
 	args.root = rest;
 	args.front = rest;
@@ -166,11 +166,11 @@ static int test_fmtprint_forward(void)
 	aatype(print);
 	aatype(args);
 	list_heap(&rest,
-			fixnum_heapr(10),
-			fixnum_heapr(20),
-			fixnum_heapr(30),
-			fixnum_heapr(40),
-			fixnum_heapr(50),
+			fixnumh(10),
+			fixnumh(20),
+			fixnumh(30),
+			fixnumh(40),
+			fixnumh(50),
 			NULL);
 	args.root = rest;
 	args.front = rest;
@@ -195,11 +195,11 @@ static int test_fmtprint_rollback(void)
 	aatype(print);
 	aatype(args);
 	list_heap(&rest,
-			fixnum_heapr(10),
-			fixnum_heapr(20),
-			fixnum_heapr(30),
-			fixnum_heapr(40),
-			fixnum_heapr(50),
+			fixnumh(10),
+			fixnumh(20),
+			fixnumh(30),
+			fixnumh(40),
+			fixnumh(50),
 			NULL);
 	args.root = rest;
 	args.front = rest;
@@ -230,11 +230,11 @@ static int test_fmtprint_absolute(void)
 	aatype(print);
 	aatype(args);
 	list_heap(&rest,
-			fixnum_heapr(10),
-			fixnum_heapr(20),
-			fixnum_heapr(30),
-			fixnum_heapr(40),
-			fixnum_heapr(50),
+			fixnumh(10),
+			fixnumh(20),
+			fixnumh(30),
+			fixnumh(40),
+			fixnumh(50),
 			NULL);
 	args.root = rest;
 	args.front = rest;

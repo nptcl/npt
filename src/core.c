@@ -214,7 +214,7 @@ _g int save_core(Execute ptr)
 	}
 
 	/* write file */
-	gcexec();
+	gcexec(GcMode_Full);
 	if (save_corefile(&fm)) {
 		Debug("save_corefile error.");
 		goto error;

@@ -8,45 +8,56 @@
 /*
  *  values
  */
+#define PtrExecuteValues(x)		((addr *)PtrArrayA4(x))
+
 static void execute_values_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	local_array4(local, ret, LISPSYSTEM_VALUES, size);
 }
-#define PtrExecuteValues(x)		((addr *)PtrArrayA4(x))
 
 _g void init_execute_values(struct execute *bit)
 {
 	int i;
-	addr pos, *values;
+	addr vector, *values;
 
-	execute_values_alloc(bit->local, &pos, EXECUTE_VALUES + 1);
-	values = PtrExecuteValues(pos);
+	execute_values_alloc(bit->local, &vector, EXECUTE_VALUES + 1);
+	values = PtrExecuteValues(vector);
 	for (i = 0; i < EXECUTE_VALUES + 1; i++)
 		values[i] = Unbound;
-	bit->values = values;
-	bit->values_list = values + EXECUTE_VALUES;
+	bit->values_vector = vector;
+	bit->values_reader = values;
 	bit->sizer = 0;
 }
 
 _g void save_values_control(struct execute *ptr, addr *ret, size_t *rsize)
 {
-	addr pos;
-	size_t size;
+	addr pos, *reader;
+	size_t i, size;
 
 	size = ptr->sizer;
 	if (EXECUTE_VALUES + 1 < size)
 		size = EXECUTE_VALUES + 1;
 	execute_values_alloc(ptr->local, &pos, size);
-	memcpy(PtrExecuteValues(pos), ptr->values, sizeoft(addr) * size);
+	reader = ptr->values_reader;
+	for (i = 0; i < size; i++) {
+		SetExecuteValues(pos, i, reader[i]);
+	}
 	*ret = pos;
 	*rsize = size;
 }
 
 _g void restore_values_control(struct execute *ptr, addr pos, size_t size)
 {
+	addr vector, *reader;
+	size_t i;
+
 	if (EXECUTE_VALUES + 1 < size)
 		size = EXECUTE_VALUES + 1;
-	memcpy(ptr->values, PtrExecuteValues(pos), sizeoft(addr) * size);
+	vector = ptr->values_vector;
+	reader = PtrExecuteValues(pos);
+	for (i = 0; i < size; i++) {
+		SetExecuteValues(vector, i, reader[i]);
+	}
 	ptr->sizer = size;
 }
 
@@ -54,98 +65,77 @@ _g void restore_values_control(struct execute *ptr, addr pos, size_t size)
 /*
  *  lexical
  */
+#define PtrExecuteLexical(x)	((addr *)PtrArrayA4(x))
+#define GetExecuteLexical		GetArrayA4
+
 static void execute_lexical_alloc(LocalRoot local, addr *ret, size_t size)
 {
 	local_array4(local, ret, LISPSYSTEM_LEXICAL, size);
 }
-#define PtrExecuteLexical(x)		((addr *)PtrArrayA4(x))
 
 _g void lexical_control(struct execute *ptr, size_t size)
 {
 	addr pos;
 
 	if (size == 0) {
-		ptr->lexical = NULL;
-#ifdef LISP_DEBUG
+		ptr->lexical_reader = NULL;
 		ptr->lexical_vector = Nil;
-#endif
-		return;
 	}
-	execute_lexical_alloc(ptr->local, &pos, size);
-	ptr->lexical = PtrExecuteLexical(pos);
-#ifdef LISP_DEBUG
-	ptr->lexical_vector = pos;
-#endif
+	else {
+		execute_lexical_alloc(ptr->local, &pos, size);
+		ptr->lexical_reader = PtrExecuteLexical(pos);
+		ptr->lexical_vector = pos;
+	}
 }
 
-_g void getlow_lexical_control(struct execute *ptr, size_t index, addr *ret)
+_g void getlow_lexical_debug(struct execute *ptr, size_t index, addr *ret)
 {
-#ifdef LISP_DEBUG
 	addr pos;
 
 	pos = ptr->lexical_vector;
 	Check(pos == NULL, "lexical_vector error.");
 	CheckType(pos, LISPSYSTEM_LEXICAL);
-	GetArrayA4(pos, index, &pos);
-	Check(ptr->lexical[index] != pos, "lexical check error.");
+	GetExecuteLexical(pos, index, &pos);
+	Check(ptr->lexical_reader[index] != pos, "lexical check error.");
 	*ret = pos;
-#else
-	*ret = ptr->lexical[index];
-#endif
 }
 
-_g void setlow_lexical_control(struct execute *ptr, size_t index, addr value)
+_g void setlow_lexical_debug(struct execute *ptr, size_t index, addr value)
 {
-#ifdef LISP_DEBUG
 	addr pos;
 
 	pos = ptr->lexical_vector;
 	Check(pos == NULL, "lexical_vector error.");
 	CheckType(pos, LISPSYSTEM_LEXICAL);
-	SetArrayA4(pos, index, value);
-#else
-	ptr->lexical[index] = value;
-#endif
+	SetExecuteLexical(pos, index, value);
 }
 
 _g void get_lexical_control(struct execute *ptr, size_t index, addr *ret)
 {
-#ifdef LISP_DEBUG
 	addr pos;
 	getlow_lexical_control(ptr, index, &pos);
 	getvalue_reference(pos, ret);
-#else
-	getvalue_reference(ptr->lexical[index], ret);
-#endif
 }
 
 _g void set_lexical_control(struct execute *ptr, size_t index, addr value)
 {
 	addr pos;
 
-#ifdef LISP_DEBUG
 	getlow_lexical_control(ptr, index, &pos);
-#else
-	pos = ptr->lexical[index];
-#endif
 	if (GetType(pos) == LISPSYSTEM_REFERENCE)
 		set_reference(pos, value);
 	else
-		ptr->lexical[index] = value;
+		setlow_lexical_control(ptr, index, value);
 }
 
 _g void reference_lexical_control(struct execute *ptr, size_t index)
 {
 	addr pos;
 
-#ifdef LISP_DEBUG
 	getlow_lexical_control(ptr, index, &pos);
-#else
-	pos = ptr->lexical[index];
-#endif
 	if (GetType(pos) != LISPSYSTEM_REFERENCE) {
 		reference_heap(&pos, pos);
-		ptr->lexical[index] = pos;
+		setlow_lexical_control(ptr, index, pos);
 	}
 }
 

@@ -1,6 +1,6 @@
 #include "condition.h"
 #include "execute.h"
-#include "gc.h"
+#include "hold.h"
 #include "loop_bind.h"
 #include "object.h"
 #include "symbol.h"

@@ -6,10 +6,11 @@
 #include "parse.h"
 #include "parse_function.h"
 #include "parse_macro.h"
+#include "symbol.h"
 
 _g void check_variable(addr symbol)
 {
-	if (! IsSymbol(symbol))
+	if (! symbolp(symbol))
 		fmte("The variable ~S must be a symbol.", symbol, NULL);
 	if (GetStatusReadOnly(symbol))
 		fmte("The variable ~S don't allow constant symbol.", symbol, NULL);
@@ -19,13 +20,13 @@ _g void check_function_variable(addr symbol)
 {
 	addr check;
 
-	if (IsSymbol(symbol)) {
+	if (symbolp(symbol)) {
 		if (GetStatusReadOnly(symbol))
 			fmte("The variable ~S don't allow constant symbol.", symbol, NULL);
 	}
 	else if (callnamep(symbol)) {
 		GetCallName(symbol, &check);
-		if (! IsSymbol(check))
+		if (! symbolp(check))
 			fmte("The variable ~S must be a symbol.", check, NULL);
 		if (constantp_callname(symbol))
 			fmte("The variable ~S don't allow constant symbol.", check, NULL);
@@ -42,7 +43,7 @@ _g int tagbody_tag_p(addr pos)
 	 * 7.8.5. The ``Program Feature''
 	 * a symbol or an integer, in which case it is called a tag, ...
 	 */
-	return IsSymbol(pos) || integerp(pos);
+	return symbolp(pos) || integerp(pos);
 }
 
 _g int eval_parse(Execute ptr, addr *ret, addr pos)

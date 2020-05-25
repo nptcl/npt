@@ -150,8 +150,13 @@ format_parse.c
 format_print.c
 function.c
 gc.c
+gc_check.c
+gc_execute.c
 hashtable.c
 heap.c
+heap_core.c
+heap_memory.c
+hold.c
 info.c
 input.c
 integer.c

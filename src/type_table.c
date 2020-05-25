@@ -55,7 +55,7 @@ _g void build_type_table(void)
 {
 	addr pos;
 	vector4_heap(&pos, TypeTable_Size);
-	LispRoot(TYPETABLE) = pos;
+	SetLispRoot(TYPETABLE, pos);
 }
 
 

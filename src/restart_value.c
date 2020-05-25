@@ -5,7 +5,7 @@
 #include "control_operator.h"
 #include "eval.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "pointer.h"
 #include "restart.h"
 #include "restart_value.h"

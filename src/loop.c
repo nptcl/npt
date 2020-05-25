@@ -2,7 +2,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
-#include "gc.h"
+#include "hold.h"
 #include "loop.h"
 #include "loop_bind.h"
 #include "loop_main.h"

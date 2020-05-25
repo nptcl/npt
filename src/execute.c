@@ -592,9 +592,9 @@ _g int equal_control_restart(Execute ptr, addr control)
 /*
  *  gc sync
  */
-_g void gcstate_execute(void)
+_g void gcstate_execute(enum GcMode mode)
 {
-	lisp_gcsync = 1;
+	lisp_gcsync = mode;
 }
 
 static int gcstart_execute_check(struct execute *ptr)

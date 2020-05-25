@@ -7,7 +7,7 @@
 #include "eval_stack.h"
 #include "eval_table.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "typedef.h"
 #include "symbol.h"
 

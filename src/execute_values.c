@@ -2,86 +2,92 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "execute.h"
+#include "execute_object.h"
 #include "execute_values.h"
 #include "object.h"
 #include "thread.h"
 
 _g void clear_values_execute(Execute ptr)
 {
-	addr *values;
+	addr values;
 	size_t size;
 
 	size = ptr->sizer;
 	if (EXECUTE_VALUES < size)
 		return;
-	values = ptr->values;
-	for (; size < EXECUTE_VALUES; size++)
-		values[size] = Unbound;
-	*(ptr->values_list) = Unbound;
+	values = ptr->values_vector;
+	for (; size < EXECUTE_VALUES; size++) {
+		SetExecuteValues(values, size, Unbound);
+	}
+	SetExecuteValuesList(values, Unbound);
 }
 
 _g void setresult_control(Execute ptr, addr value)
 {
-	ptr->values[0] = value;
+	SetExecuteValues(ptr->values_vector, 0, value);
 	ptr->sizer = 1;
 }
 
 _g void setbool_control(Execute ptr, int value)
 {
-	ptr->values[0] = value? T: Nil;
+	SetExecuteValues(ptr->values_vector, 0, value? T: Nil);
 	ptr->sizer = 1;
 }
 
-static void pushvalues_control(Execute ptr, size_t i, addr pos)
+static void pushvalues_control(addr values, size_t i, addr pos)
 {
-	addr *values;
+	addr list;
 
 	Check(i < EXECUTE_VALUES, "values error");
-	values = ptr->values_list;
-	if (i == EXECUTE_VALUES)
-		conscar_heap(values, pos);
-	else
-		cons_heap(values, pos, *values);
+	if (i == EXECUTE_VALUES) {
+		conscar_heap(&list, pos);
+	}
+	else {
+		GetExecuteValuesList(values, &list);
+		cons_heap(&list, pos, list);
+	}
+	SetExecuteValuesList(values, list);
 }
 
-static void nreverse_values_control(Execute ptr)
+static void nreverse_values_control(addr values, size_t sizer)
 {
-	addr *values;
+	addr list;
 
-	if (EXECUTE_VALUES < ptr->sizer) {
-		values = ptr->values_list;
-		nreverse_list_unsafe(values, *values);
+	if (EXECUTE_VALUES < sizer) {
+		GetExecuteValuesList(values, &list);
+		nreverse_list_unsafe(&list, list);
+		SetExecuteValuesList(values, list);
 	}
 }
 
 _g void setvalues_control(Execute ptr, ...)
 {
-	addr pos, *values;
+	addr values, pos;
 	va_list args;
 	size_t i;
 
 	setvalues_nil_control(ptr);
 	va_start(args, ptr);
-	values = ptr->values;
+	values = ptr->values_vector;
 	for (i = 0; ; i++) {
 		pos = va_arg(args, addr);
 		if (pos == NULL)
 			break;
 		Check(GetStatusDynamic(pos), "dynamic error");
 		if (i < EXECUTE_VALUES - 1) {
-			values[i] = pos;
+			SetExecuteValues(values, i, pos);
 		}
 		else if (i == EXECUTE_VALUES - 1) {
-			values[i] = pos;
-			*(ptr->values_list) = Nil;
+			SetExecuteValues(values, i, pos);
+			SetExecuteValuesList(values, Nil);
 		}
 		else {
-			pushvalues_control(ptr, i, pos);
+			pushvalues_control(values, i, pos);
 		}
 	}
 	va_end(args);
 	ptr->sizer = i;
-	nreverse_values_control(ptr);
+	nreverse_values_control(values, i);
 }
 
 _g void setvalues_nil_control(Execute ptr)
@@ -91,66 +97,69 @@ _g void setvalues_nil_control(Execute ptr)
 
 _g void setvalues_list_control(Execute ptr, addr list)
 {
-	addr pos, *values;
+	addr values, pos;
 	size_t i;
 
-	values = ptr->values;
+	values = ptr->values_vector;
 	for (i = 0; list != Nil; i++) {
 		GetCons(list, &pos, &list);
 		Check(GetStatusDynamic(pos), "dynamic error");
 		if (i < EXECUTE_VALUES - 1) {
-			values[i] = pos;
+			SetExecuteValues(values, i, pos);
 		}
 		else if (i == EXECUTE_VALUES - 1) {
-			values[i] = pos;
-			*(ptr->values_list) = Nil;
+			SetExecuteValues(values, i, pos);
+			SetExecuteValuesList(values, Nil);
 		}
 		else {
-			pushvalues_control(ptr, i, pos);
+			pushvalues_control(values, i, pos);
 		}
 	}
 	ptr->sizer = i;
-	nreverse_values_control(ptr);
+	nreverse_values_control(values, i);
 }
 
 _g void getresult_control(Execute ptr, addr *ret)
 {
-	*ret = ptr->sizer? ptr->values[0]: Nil;
+	*ret = ptr->sizer? ptr->values_reader[0]: Nil;
 }
 
 _g void getvalues_control(Execute ptr, size_t index, addr *ret)
 {
+	addr list;
+
 	if (ptr->sizer <= index) {
 		*ret = Unbound;
 		return;
 	}
 	if (index < EXECUTE_VALUES) {
-		*ret = ptr->values[index];
+		*ret = ptr->values_reader[index];
 	}
 	else {
 		index -= EXECUTE_VALUES;
-		getnth_unsafe(*(ptr->values_list), index, ret);
+		GetExecuteValuesList(ptr->values_vector, &list);
+		getnth_unsafe(list, index, ret);
 	}
 }
 
 static void list_from_vector_control(LocalRoot local,
-		addr *values, size_t size, addr cons, addr *ret)
+		addr *values, size_t size, addr list, addr *ret)
 {
 	size_t i;
 
 	Check(size == 0, "size error");
 	Check(EXECUTE_VALUES < size, "size error");
 	for (i = size - 1; ; i--) {
-		cons_alloc(local, &cons, values[i], cons);
+		cons_alloc(local, &list, values[i], list);
 		if (i <= 0)
 			break;
 	}
-	*ret = cons;
+	*ret = list;
 }
 
 static void getvalues_list_control(Execute ptr, LocalRoot local, addr *ret)
 {
-	addr cons;
+	addr list;
 	size_t size;
 
 	size = ptr->sizer;
@@ -159,12 +168,12 @@ static void getvalues_list_control(Execute ptr, LocalRoot local, addr *ret)
 		return;
 	}
 	if (size <= EXECUTE_VALUES) {
-		list_from_vector_control(local, ptr->values, size, Nil, ret);
+		list_from_vector_control(local, ptr->values_reader, size, Nil, ret);
 	}
 	else {
-		cons = *ptr->values_list;
-		copy_list_alloc_unsafe(local, &cons, cons);
-		list_from_vector_control(local, ptr->values, EXECUTE_VALUES, cons, ret);
+		GetExecuteValuesList(ptr->values_vector, &list);
+		copy_list_alloc_unsafe(local, &list, list);
+		list_from_vector_control(local, ptr->values_reader, EXECUTE_VALUES, list, ret);
 	}
 }
 

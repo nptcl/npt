@@ -10,7 +10,7 @@
 #include "function.h"
 #include "hashtable.h"
 #include "integer.h"
-#include "gc.h"
+#include "hold.h"
 #include "package.h"
 #include "print_write.h"
 #include "rt.h"

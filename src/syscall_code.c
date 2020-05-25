@@ -23,6 +23,7 @@
 #include "function.h"
 #include "gc.h"
 #include "hashtable.h"
+#include "heap_memory.h"
 #include "integer.h"
 #include "lambda.h"
 #include "local.h"
@@ -90,9 +91,12 @@ _g void infoprint_syscode(addr rest, addr *ret)
 /* gc */
 _g void gc_syscode(addr rest)
 {
+	enum GcMode mode;
+
 	if (getkeyargs(rest, KEYWORD_FULL, &rest))
 		rest = Nil;
-	gcstate_execute();
+	mode = (rest == Nil)? GcMode_Default: GcMode_Full;
+	gcstate_execute(mode);
 }
 
 

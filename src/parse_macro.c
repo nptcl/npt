@@ -198,7 +198,7 @@ _g int parse_cons_check_macro(Execute ptr, addr symbol, addr *ret)
 {
 	addr root, list, call;
 
-	if (! IsSymbol(symbol))
+	if (! symbolp(symbol))
 		return 0;
 	environment_symbol(&root);
 	getspecialcheck_local(ptr, root, &root);

@@ -1289,8 +1289,11 @@ _g int file_position_file(addr stream, size_t *ret)
 	ptr = PtrStructStream(stream);
 	if (ptr->unread_check) {
 		check = length_char_encode(fm, ptr->unread);
-		if (check < 0)
-			fmte("Invalid unread character ~S.", character_heapr(ptr->unread), NULL);
+		if (check < 0) {
+			character_heap(&stream, ptr->unread);
+			fmte("Invalid unread character ~S.", stream, NULL);
+			return 1;
+		}
 		unread = (size_t)check;
 		if (size < unread)
 			fmte("The stream ~S position is a minus value.", stream, NULL);

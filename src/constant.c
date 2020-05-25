@@ -22,7 +22,7 @@ _g void build_constant(void)
 	heap_array4(&array, LISPSYSTEM_CONSTANT, CONSTANT_SIZE);
 	for (i = 0; i < CONSTANT_SIZE; i++)
 		SetArrayA4(array, i, Unbound);
-	LispRoot(CONST) = array;
+	SetLispRoot(CONST, array);
 }
 
 

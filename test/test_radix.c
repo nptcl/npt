@@ -645,9 +645,9 @@ static int test_push_radix_list(void)
 	input.cardinal = 0;
 
 	list_local(local, &pos,
-			fixnum_localr(local, 10),
-			fixnum_localr(local, 20),
-			fixnum_localr(local, 30),
+			fixnuml(10),
+			fixnuml(20),
+			fixnuml(30),
 			NULL);
 	push_radix_list(&input, pos);
 	pos = input.root;
@@ -1003,22 +1003,21 @@ static int test_english_output(void)
 	LocalRoot local;
 	LocalStack stack;
 	struct english_struct input;
+	addr pos1, pos2, pos3;
 
 	local = Local_Thread;
 	push_local(local, &stack);
 	open_output_string_stream(&stream, 0);
 
-	list_local(local, &cons,
-			strvect_char_localr(local, "cc"),
-			strvect_char_localr(local, "dd"),
-			strvect_char_localr(local, "ee"),
-			NULL);
-	list_local(local, &cons,
-			strvect_char_localr(local, "aa"),
-			strvect_char_localr(local, "bb"),
-			cons,
-			strvect_char_localr(local, "ff"),
-			NULL);
+	strvect_char_local(local, &pos1, "cc"),
+	strvect_char_local(local, &pos2, "dd"),
+	strvect_char_local(local, &pos3, "ee"),
+	list_local(local, &cons, pos1, pos2, pos3, NULL);
+
+	strvect_char_local(local, &pos1, "aa"),
+	strvect_char_local(local, &pos2, "bb"),
+	strvect_char_local(local, &pos3, "ff"),
+	list_local(local, &cons, pos1, pos2, cons, pos3, NULL);
 	input.root = cons;
 	english_output(stream, &input, 0);
 	test(equalstream(stream, "aa bb ccddee ff"), "english_output1");
@@ -1053,21 +1052,21 @@ static int test_english_integer(void)
 	push_local(local, &stack);
 	open_output_string_stream(&stream, 0);
 
-	english_integer(local, stream, fixnum_localr(local, 0), 1);
+	english_integer(local, stream, fixnuml(0), 1);
 	test(equalstream(stream, "zero"), "english_integer1");
-	english_integer(local, stream, fixnum_localr(local, 0), 0);
+	english_integer(local, stream, fixnuml(0), 0);
 	test(equalstream(stream, "zeroth"), "english_integer2");
-	english_integer(local, stream, fixnum_localr(local, 4), 1);
+	english_integer(local, stream, fixnuml(4), 1);
 	test(equalstream(stream, "four"), "english_integer3");
-	english_integer(local, stream, fixnum_localr(local, 5), 0);
+	english_integer(local, stream, fixnuml(5), 0);
 	test(equalstream(stream, "fifth"), "english_integer4");
-	english_integer(local, stream, fixnum_localr(local, -9), 1);
+	english_integer(local, stream, fixnuml(-9), 1);
 	test(equalstream(stream, "minus nine"), "english_integer5");
-	english_integer(local, stream, fixnum_localr(local, 11), 1);
+	english_integer(local, stream, fixnuml(11), 1);
 	test(equalstream(stream, "eleven"), "english_integer6");
-	english_integer(local, stream, fixnum_localr(local, 21), 1);
+	english_integer(local, stream, fixnuml(21), 1);
 	test(equalstream(stream, "twenty-one"), "english_integer7");
-	english_integer(local, stream, fixnum_localr(local, 123), 1);
+	english_integer(local, stream, fixnuml(123), 1);
 	ptr = "one hundred" TEST_MODE2 " twenty-three";
 	test(equalstream(stream, ptr), "english_integer8");
 

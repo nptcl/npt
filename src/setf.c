@@ -5,7 +5,7 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "gc.h"
+#include "hold.h"
 #include "parse_macro.h"
 #include "setf.h"
 #include "symbol.h"

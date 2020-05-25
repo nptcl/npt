@@ -4,7 +4,7 @@
 #include "cons_list.h"
 #include "control_object.h"
 #include "file.h"
-#include "gc.h"
+#include "hold.h"
 #include "input.h"
 #include "pointer.h"
 #include "reader.h"

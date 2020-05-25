@@ -221,10 +221,10 @@ static int test_eql_function(void)
 	long_float_local(local, &right, -5.2L);
 	test(! eql_function(left, right), "eql_function17");
 
-	complex_local(local, &left, fixnum_localr(local, 10), fixnum_localr(local, -20));
-	complex_local(local, &right, fixnum_localr(local, 10), fixnum_localr(local, -20));
+	complex_local(local, &left, fixnuml(10), fixnuml(-20));
+	complex_local(local, &right, fixnuml(10), fixnuml(-20));
 	test(eql_function(left, right), "eql_function18");
-	complex_local(local, &right, fixnum_localr(local, 10), fixnum_localr(local, 20));
+	complex_local(local, &right, fixnuml(10), fixnuml(20));
 	test(! eql_function(left, right), "eql_function19");
 
 	character_local(local, &left, 'A');
@@ -251,12 +251,12 @@ static int test_equal_function(void)
 	consnil_heap(&left);
 	consnil_heap(&right);
 	test(equal_function(left, right), "equal_function1");
-	list_local(local, &left, fixnum_localr(local, 10), T, NULL);
-	list_local(local, &right, fixnum_localr(local, 10), T, NULL);
+	list_local(local, &left, fixnuml(10), T, NULL);
+	list_local(local, &right, fixnuml(10), T, NULL);
 	test(equal_function(left, right), "equal_function2");
-	list_local(local, &right, fixnum_localr(local, 10), Nil, NULL);
+	list_local(local, &right, fixnuml(10), Nil, NULL);
 	test(! equal_function(left, right), "equal_function3");
-	list_local(local, &right, fixnum_localr(local, 20), T, NULL);
+	list_local(local, &right, fixnuml(20), T, NULL);
 	test(! equal_function(left, right), "equal_function4");
 
 	strvect_char_local(local, &left, "Hello");

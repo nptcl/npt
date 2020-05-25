@@ -18,6 +18,39 @@ static void memoryerror_local(void)
 	exitthis(LISPCODE_MEMORY);
 }
 
+static void decrement_unbound_local(addr *point, size_t i, size_t count)
+{
+	byte *p;
+	addr pos, value;
+	size_t size, k;
+
+	for (; i < count; i++) {
+		pos = point[i];
+		if (IsArray(pos)) {
+			lenarray(pos, &size);
+			for (k = 0; k < size; k++) {
+				getarray(pos, k, &value);
+				if (value != Unbound) {
+					p = PtrChain(value);
+					if (*p != 0xFF)
+						(*p)--;
+				}
+			}
+		}
+	}
+}
+
+_g void decrement_local(struct localcell *cell, struct localstack *stack)
+{
+	if (cell == stack->cell) {
+		decrement_unbound_local(cell->point, stack->cellcount, cell->count);
+	}
+	else {
+		decrement_unbound_local(cell->point, 0, cell->count);
+		decrement_local(cell->next, stack);
+	}
+}
+
 
 #ifdef LISP_MEMORY_MALLOC
 /***********************************************************************
@@ -273,6 +306,8 @@ _g void rollback_local(struct localroot *local, struct localstack *stack)
 		Check(root == NULL, "rollback_local check error");
 	}
 #endif
+	/*decrement_local(local->cell, stack);*/
+
 	save = *stack;
 	rollback_memory_local(local, stack);
 	local->stack = save.stack;
@@ -488,6 +523,8 @@ _g void rollback_local(struct localroot *local, struct localstack *stack)
 		Check(root == NULL, "rollback_local check error");
 	}
 #endif
+	/*decrement_local(local->cell, stack);*/
+
 	local->front = (addr)stack;
 	local->stack = stack->stack;
 	local->cell = stack->cell;
@@ -505,7 +542,7 @@ _g void rollback_local(struct localroot *local, struct localstack *stack)
  *  Allocate
  ***********************************************************************/
 static void allocobject(struct localroot *local,
-		size_t size, enum LISPTYPE type, addr *root, int size2)
+		size_t size, enum LISPTYPE type, addr *ret, int size2)
 {
 	enum LISPCLASS index;
 	addr pos;
@@ -516,39 +553,30 @@ static void allocobject(struct localroot *local,
 
 	/* body */
 	SetType(pos, (byte)type);
+	SetChain(pos, 0);
 	if (size2)
 		*PtrValue2L(pos) = (byte16)size;
 	else
 		*PtrValueL(pos) = size;
-	*root = pos;
+	*ret = pos;
 }
 
-_g addr localr_cons(struct localroot *local)
+_g void local_cons(struct localroot *local, addr *ret)
 {
 	addr pos;
 	local_array2_memory(local, &pos, LISPTYPE_CONS, 2);
-	SetCheckValue(pos, LISPCHECK_LIST, 1);
-	return pos;
-}
-_g void local_cons(struct localroot *local, addr *root)
-{
-	*root = localr_cons(local);
+	*ret = pos;
 }
 
-_g addr localr_symbol(struct localroot *local)
+_g void local_symbol(struct localroot *local, addr *ret)
 {
 	addr pos;
 	local_array2_memory(local, &pos, LISPTYPE_SYMBOL, SYMBOL_INDEX_SIZE);
-	SetCheckValue(pos, LISPCHECK_SYMBOL, 1);
-	SetCheckValue(pos, LISPCHECK_LIST, 1);
-	return pos;
-}
-_g void local_symbol(struct localroot *local, addr *root)
-{
-	*root = localr_symbol(local);
+	*ret = pos;
 }
 
-_g addr localr_array2_memory(struct localroot *local, enum LISPTYPE type, byte16 array)
+_g void local_array2_memory(struct localroot *local,
+		addr *ret, enum LISPTYPE type, byte16 array)
 {
 	addr pos;
 	size_t size;
@@ -557,19 +585,13 @@ _g addr localr_array2_memory(struct localroot *local, enum LISPTYPE type, byte16
 	Check(0xFFFFUL < size, "size error");
 	allocobject(local, size, type, &pos, 1);
 	SetStatusSize(pos, LISPSIZE_ARRAY2, LISPSTATUS_DYNAMIC);
-	SetCheck2(pos, LISPCHECK_SIZE2, LISPCHECK_ARRAY);
 	*PtrLenArrayA2(pos) = array;
 	nilarray2(pos, array);
-
-	return pos;
-}
-_g void local_array2_memory(struct localroot *local,
-		addr *root, enum LISPTYPE type, byte16 array)
-{
-	*root = localr_array2_memory(local, type, array);
+	*ret = pos;
 }
 
-_g addr localr_array4_memory(struct localroot *local, enum LISPTYPE type, byte32 array)
+_g void local_array4_memory(struct localroot *local,
+		addr *ret, enum LISPTYPE type, byte32 array)
 {
 	addr pos;
 	size_t size;
@@ -578,20 +600,14 @@ _g addr localr_array4_memory(struct localroot *local, enum LISPTYPE type, byte32
 	Check(0xFFFFFFFFUL < size, "size error");
 	allocobject(local, size, type, &pos, 0);
 	SetStatusSize(pos, LISPSIZE_ARRAY4, LISPSTATUS_DYNAMIC);
-	SetCheck2(pos, LISPCHECK_SIZE4, LISPCHECK_ARRAY);
 	*PtrLenArrayA4(pos) = array;
 	nilarray4(pos, array);
-
-	return pos;
-}
-_g void local_array4_memory(struct localroot *local,
-		addr *root, enum LISPTYPE type, byte32 array)
-{
-	*root = localr_array4_memory(local, type, array);
+	*ret = pos;
 }
 
 #ifdef LISP_ARCH_64BIT
-_g addr localr_array8(struct localroot *local, enum LISPTYPE type, size_t array)
+_g void local_array8(struct localroot *local,
+		addr *ret, enum LISPTYPE type, size_t array)
 {
 	addr pos;
 	size_t size;
@@ -599,20 +615,14 @@ _g addr localr_array8(struct localroot *local, enum LISPTYPE type, size_t array)
 	size = MemoryLengthA8(array);
 	allocobject(local, size, type, &pos, 0);
 	SetStatusSize(pos, LISPSIZE_ARRAY8, LISPSTATUS_DYNAMIC);
-	SetCheck2(pos, LISPCHECK_SIZE8, LISPCHECK_ARRAY);
 	*PtrLenArrayA8(pos) = array;
 	nilarray8(pos, array);
-
-	return pos;
-}
-_g void local_array8(struct localroot *local,
-		addr *root, enum LISPTYPE type, size_t array)
-{
-	*root = localr_array8(local, type, array);
+	*ret = pos;
 }
 #endif
 
-_g addr localr_body2_memory(struct localroot *local, enum LISPTYPE type, byte16 body)
+_g void local_body2_memory(struct localroot *local,
+		addr *ret, enum LISPTYPE type, byte16 body)
 {
 	addr pos;
 	size_t size;
@@ -621,18 +631,12 @@ _g addr localr_body2_memory(struct localroot *local, enum LISPTYPE type, byte16 
 	Check(0xFFFFUL < size, "size error");
 	allocobject(local, size, type, &pos, 1);
 	SetStatusSize(pos, LISPSIZE_BODY2, LISPSTATUS_DYNAMIC);
-	SetCheck2(pos, LISPCHECK_SIZE2, LISPCHECK_BODY);
 	*PtrLenBodyB2(pos) = body;
-
-	return pos;
-}
-_g void local_body2_memory(struct localroot *local,
-		addr *root, enum LISPTYPE type, byte16 body)
-{
-	*root = localr_body2_memory(local, type, body);
+	*ret = pos;
 }
 
-_g addr localr_body4_memory(struct localroot *local, enum LISPTYPE type, byte32 body)
+_g void local_body4_memory(struct localroot *local,
+		addr *ret, enum LISPTYPE type, byte32 body)
 {
 	addr pos;
 	size_t size;
@@ -641,19 +645,13 @@ _g addr localr_body4_memory(struct localroot *local, enum LISPTYPE type, byte32 
 	Check(0xFFFFFFFFUL < size, "size error");
 	allocobject(local, size, type, &pos, 0);
 	SetStatusSize(pos, LISPSIZE_BODY4, LISPSTATUS_DYNAMIC);
-	SetCheck2(pos, LISPCHECK_SIZE4, LISPCHECK_BODY);
 	*PtrLenBodyB4(pos) = body;
-
-	return pos;
-}
-_g void local_body4_memory(struct localroot *local,
-		addr *root, enum LISPTYPE type, byte32 body)
-{
-	*root = localr_body4_memory(local, type, body);
+	*ret = pos;
 }
 
 #ifdef LISP_ARCH_64BIT
-_g addr localr_body8(struct localroot *local, enum LISPTYPE type, size_t body)
+_g void local_body8(struct localroot *local,
+		addr *ret, enum LISPTYPE type, size_t body)
 {
 	addr pos;
 	size_t size;
@@ -661,20 +659,13 @@ _g addr localr_body8(struct localroot *local, enum LISPTYPE type, size_t body)
 	size = MemoryLengthB8(body);
 	allocobject(local, size, type, &pos, 0);
 	SetStatusSize(pos, LISPSIZE_BODY8, LISPSTATUS_DYNAMIC);
-	SetCheck2(pos, LISPCHECK_SIZE8, LISPCHECK_BODY);
 	*PtrLenBodyB8(pos) = body;
-
-	return pos;
-}
-_g void local_body8(struct localroot *local,
-		addr *root, enum LISPTYPE type, size_t body)
-{
-	*root = localr_body8(local, type, body);
+	*ret = pos;
 }
 #endif
 
-_g addr localr_smallsize_memory(struct localroot *local,
-		enum LISPTYPE type, byte array, byte body)
+_g void local_smallsize_memory(struct localroot *local,
+		addr *ret, enum LISPTYPE type, byte array, byte body)
 {
 	addr pos;
 	size_t size;
@@ -683,22 +674,14 @@ _g addr localr_smallsize_memory(struct localroot *local,
 	Check(0xFFFFUL < size, "size error");
 	allocobject(local, size, type, &pos, 1);
 	SetStatusSize(pos, LISPSIZE_SMALLSIZE, LISPSTATUS_DYNAMIC);
-	SetCheck4(pos, LISPCHECK_SIZE2,
-			LISPCHECK_ARRAY, LISPCHECK_BODY, LISPCHECK_ARRAYBODY);
 	nilarray2(pos, array);
 	*PtrLenArraySS(pos) = array;
 	*PtrLenBodySS(pos) = body;
-
-	return pos;
-}
-_g void local_smallsize_memory(struct localroot *local,
-		addr *root, enum LISPTYPE type, byte array, byte body)
-{
-	*root = localr_smallsize_memory(local, type, array, body);
+	*ret = pos;
 }
 
-_g addr localr_arraybody_memory(struct localroot *local,
-		enum LISPTYPE type, byte16 array, byte16 body)
+_g void local_arraybody_memory(struct localroot *local,
+		addr *ret, enum LISPTYPE type, byte16 array, byte16 body)
 {
 	addr pos;
 	size_t size;
@@ -707,22 +690,14 @@ _g addr localr_arraybody_memory(struct localroot *local,
 	Check(0xFFFFFFFFUL < size, "size error");
 	allocobject(local, size, type, &pos, 0);
 	SetStatusSize(pos, LISPSIZE_ARRAYBODY, LISPSTATUS_DYNAMIC);
-	SetCheck4(pos, LISPCHECK_SIZE4,
-			LISPCHECK_ARRAY, LISPCHECK_BODY, LISPCHECK_ARRAYBODY);
 	nilarray4(pos, array);
 	*PtrLenArrayAB(pos) = array;
 	*PtrLenBodyAB(pos) = body;
-
-	return pos;
-}
-_g void local_arraybody_memory(struct localroot *local,
-		addr *root, enum LISPTYPE type, byte16 array, byte16 body)
-{
-	*root = localr_arraybody_memory(local, type, array, body);
+	*ret = pos;
 }
 
-_g addr localr_array4_unbound_memory(struct localroot *local,
-		enum LISPTYPE type, byte32 array)
+_g void local_array4_unbound_memory(struct localroot *local,
+		addr *ret, enum LISPTYPE type, byte32 array)
 {
 	addr pos;
 	size_t size;
@@ -733,101 +708,46 @@ _g addr localr_array4_unbound_memory(struct localroot *local,
 	SetStatusSize(pos, LISPSIZE_ARRAY4, LISPSTATUS_DYNAMIC);
 	*PtrLenArrayA4(pos) = array;
 	unboundarray4(pos, array);
-
-	return pos;
-}
-_g void local_array4_unbound_memory(struct localroot *local,
-		addr *root, enum LISPTYPE type, byte32 array)
-{
-	*root = localr_array4_unbound_memory(local, type, array);
+	*ret = pos;
 }
 
-_g addr localr_array(struct localroot *local, enum LISPTYPE type, size_t array)
-{
-#ifdef LISP_ARCH_64BIT
-	if (MemoryLengthA2(array) <= 0xFFFFUL)
-		return localr_array2_memory(local, type, (byte16)array);
-	else if (MemoryLengthA4(array) <= 0xFFFFFFFFUL)
-		return localr_array4_memory(local, type, (byte32)array);
-	else
-		return localr_array8(local, type, array);
-#else
-	if (MemoryLengthA2(array) <= 0xFFFFUL)
-		return localr_array2_memory(local, type, (byte16)array);
-	else
-		return localr_array4_memory(local, type, array);
-#endif
-}
 _g void local_array(struct localroot *local,
-		addr *root, enum LISPTYPE type, size_t array)
+		addr *ret, enum LISPTYPE type, size_t array)
 {
-	*root = localr_array(local, type, array);
+#ifdef LISP_ARCH_64BIT
+	if (MemoryLengthA2(array) <= 0xFFFFUL)
+		local_array2_memory(local, ret, type, (byte16)array);
+	else if (MemoryLengthA4(array) <= 0xFFFFFFFFUL)
+		local_array4_memory(local, ret, type, (byte32)array);
+	else
+		local_array8(local, ret, type, array);
+#else
+	if (MemoryLengthA2(array) <= 0xFFFFUL)
+		local_array2_memory(local, ret, type, (byte16)array);
+	else
+		local_array4_memory(local, ret, type, array);
+#endif
 }
 
-_g addr localr_body(struct localroot *local, enum LISPTYPE type, size_t body)
+_g void local_body(struct localroot *local,
+		addr *ret, enum LISPTYPE type, size_t body)
 {
 #ifdef LISP_ARCH_64BIT
 	if (MemoryLengthB2(body) <= 0xFFFFUL)
-		return localr_body2_memory(local, type, (byte16)body);
+		local_body2_memory(local, ret, type, (byte16)body);
 	else if (MemoryLengthB4(body) <= 0xFFFFFFFFUL)
-		return localr_body4_memory(local, type, (byte32)body);
+		local_body4_memory(local, ret, type, (byte32)body);
 	else
-		return localr_body8(local, type, body);
+		local_body8(local, ret, type, body);
 #else
 	if (MemoryLengthB2(body) <= 0xFFFFUL)
-		return localr_body2_memory(local, type, (byte16)body);
+		local_body2_memory(local, ret, type, (byte16)body);
 	else
-		return localr_body4_memory(local, type, body);
+		local_body4_memory(local, ret, type, body);
 #endif
-}
-_g void local_body(struct localroot *local,
-		addr *root, enum LISPTYPE type, size_t body)
-{
-	*root = localr_body(local, type, body);
 }
 
 #ifdef LISP_DEBUG
-_g addr localr_array2_debug(struct localroot *local, enum LISPTYPE type, size_t array)
-{
-	Check(0xFFFFUL < array, "size error");
-	return localr_array2_memory(local, type, (byte16)array);
-}
-_g addr localr_array4_debug(struct localroot *local, enum LISPTYPE type, size_t array)
-{
-	Check(0xFFFFFFFFUL < array, "size error");
-	return localr_array4_memory(local, type, (byte32)array);
-}
-_g addr localr_body2_debug(struct localroot *local, enum LISPTYPE type, size_t body)
-{
-	Check(0xFFFFUL < body, "size error");
-	return localr_body2_memory(local, type, (byte16)body);
-}
-_g addr localr_body4_debug(struct localroot *local, enum LISPTYPE type, size_t body)
-{
-	Check(0xFFFFFFFFUL < body, "size error");
-	return localr_body4_memory(local, type, (byte32)body);
-}
-_g addr localr_smallsize_debug(struct localroot *local,
-		enum LISPTYPE type, size_t array, size_t body)
-{
-	Check(0xFFUL < array, "array size error");
-	Check(0xFFUL < body, "body size error");
-	return localr_smallsize_memory(local, type, (byte)array, (byte)body);
-}
-_g addr localr_arraybody_debug(struct localroot *local,
-		enum LISPTYPE type, size_t array, size_t body)
-{
-	Check(0xFFFFUL < array, "array size error");
-	Check(0xFFFFUL < body, "body size error");
-	return localr_arraybody_memory(local, type, (byte16)array, (byte16)body);
-}
-_g addr localr_array4_unbound_debug(struct localroot *local,
-		enum LISPTYPE type, size_t array)
-{
-	Check(0xFFFFFFFFUL < array, "size error");
-	return localr_array4_unbound_memory(local, type, (byte32)array);
-}
-
 _g void local_array2_debug(struct localroot *local,
 		addr *ret, enum LISPTYPE type, size_t array)
 {

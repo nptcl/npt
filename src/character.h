@@ -35,13 +35,11 @@ enum CHARACTER_TYPE {
 #endif
 
 /* character */
-_g addr make_character_allocr(LocalRoot local, unicode value);
-_g addr character_allocr(LocalRoot root, unicode value);
-_g addr character_localr(LocalRoot root, unicode value);
-_g addr character_heapr(unicode value);
+_g void make_character_heap(addr *ret, unicode value);
 _g void character_alloc(LocalRoot root, addr *ret, unicode value);
 _g void character_local(LocalRoot root, addr *ret, unicode value);
 _g void character_heap(addr *ret, unicode value);
+_g addr characterh(unicode value); /* for debug */
 
 _g enum CHARACTER_TYPE character_type(unicode u);
 _g const unicode *ptrcharacter(addr pos);

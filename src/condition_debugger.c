@@ -11,7 +11,7 @@
 #include "eval_main.h"
 #include "format.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "integer.h"
 #include "pointer.h"
 #include "prompt.h"

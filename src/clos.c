@@ -1009,7 +1009,7 @@ static void build_clos_table(Execute ptr)
 	/* eql-specializer */
 	hashtable_size_heap(&pos, CLOS_TABLE_SPECIALIZER_SIZE);
 	settest_hashtable(pos, HASHTABLE_TEST_EQL);
-	LispRoot(SPECIALIZER) = pos;
+	SetLispRoot(SPECIALIZER, pos);
 }
 
 _g void build_clos(Execute ptr)

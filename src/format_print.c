@@ -6,7 +6,7 @@
 #include "format.h"
 #include "format_parse.h"
 #include "format_print.h"
-#include "gc.h"
+#include "hold.h"
 #include "print_pretty.h"
 #include "stream.h"
 #include "stream_string.h"

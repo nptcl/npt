@@ -11,7 +11,7 @@
 #include "execute.h"
 #include "format.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "local.h"
 #include "pointer.h"
 #include "strtype.h"

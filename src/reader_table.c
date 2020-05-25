@@ -7,7 +7,7 @@
 #include "control_operator.h"
 #include "hashtable.h"
 #include "heap.h"
-#include "gc.h"
+#include "hold.h"
 #include "package.h"
 #include "reader.h"
 #include "reader_dispatch.h"

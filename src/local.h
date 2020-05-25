@@ -70,50 +70,6 @@ _g void free_local(struct localroot *);
 _g void push_local(struct localroot *, struct localstack **stack);
 _g void rollback_local(struct localroot *, struct localstack *);
 
-_g addr localr_cons(struct localroot *);
-_g addr localr_symbol(struct localroot *);
-_g addr localr_array2_memory(struct localroot *, enum LISPTYPE, byte16);
-_g addr localr_array4_memory(struct localroot *, enum LISPTYPE, byte32);
-_g addr localr_body2_memory(struct localroot *, enum LISPTYPE, byte16);
-_g addr localr_body4_memory(struct localroot *, enum LISPTYPE, byte32);
-_g addr localr_smallsize_memory(struct localroot *, enum LISPTYPE, byte, byte);
-_g addr localr_arraybody_memory(struct localroot *, enum LISPTYPE, byte16, byte16);
-_g addr localr_array4_unbound_memory(struct localroot *, enum LISPTYPE, byte32);
-_g addr localr_array(struct localroot *, enum LISPTYPE, size_t);
-_g addr localr_body(struct localroot *, enum LISPTYPE, size_t);
-#ifdef LISP_ARCH_64BIT
-_g addr localr_array8(struct localroot *, enum LISPTYPE, size_t);
-_g addr localr_body8(struct localroot *, enum LISPTYPE, size_t);
-#endif
-
-#ifdef LISP_DEBUG
-_g addr localr_array2_debug(struct localroot *, enum LISPTYPE, size_t);
-_g addr localr_array4_debug(struct localroot *, enum LISPTYPE, size_t);
-_g addr localr_body2_debug(struct localroot *, enum LISPTYPE, size_t);
-_g addr localr_body4_debug(struct localroot *, enum LISPTYPE, size_t);
-_g addr localr_smallsize_debug(struct localroot *, enum LISPTYPE, size_t, size_t);
-_g addr localr_arraybody_debug(struct localroot *, enum LISPTYPE, size_t, size_t);
-_g addr localr_array4_unbound_debug(struct localroot *, enum LISPTYPE, size_t);
-#define localr_array2 localr_array2_debug
-#define localr_array4 localr_array4_debug
-#define localr_body2 localr_body2_debug
-#define localr_body4 localr_body4_debug
-#define localr_smallsize localr_smallsize_debug
-#define localr_arraybody localr_arraybody_debug
-#define localr_array4_unbound localr_array4_unbound_debug
-#else
-#define localr_array2(m,t,a) localr_array2_memory((m),(t),(byte16)(a))
-#define localr_array4(m,t,a) localr_array4_memory((m),(t),(byte32)(a))
-#define localr_body2(m,t,b) localr_body2_memory((m),(t),(byte16)(b))
-#define localr_body4(m,t,b) localr_body4_memory((m),(t),(byte32)(b))
-#define localr_smallsize(m,t,a,b) \
-	localr_smallsize_memory((m),(t),(byte)(a),(byte)(b))
-#define localr_arraybody(m,t,a,b) \
-	localr_arraybody_memory((m),(t),(byte16)(a),(byte16)(b))
-#define localr_array4_unbound(m,t,a) \
-	localr_array4_unbound_memory((m),(t),(byte32)(a))
-#endif
-
 _g void local_cons(struct localroot *, addr *);
 _g void local_symbol(struct localroot *, addr *);
 _g void local_array2_memory(struct localroot *, addr *, enum LISPTYPE, byte16);

@@ -21,8 +21,8 @@
 #include "format_print.h"
 #include "format_typedef.h"
 #include "function.h"
-#include "gc.h"
 #include "heap.h"
+#include "hold.h"
 #include "local.h"
 #include "integer.h"
 #include "object.h"
@@ -633,11 +633,11 @@ static int format_call_Plural(fmtprint print, struct format_operator *str)
 	/* plural */
 	Return(fmtprint_pop(print, str, &pos));
 	if (! str->atsign) {
-		if (! eql_function(pos, fixnum_heapr(1)))
+		if (! eql_function(pos, fixnumh(1)))
 			fmtprint_putc(print, 's');
 	}
 	else {
-		if (eql_function(pos, fixnum_heapr(1))) {
+		if (eql_function(pos, fixnumh(1))) {
 			fmtprint_putc(print, 'y');
 		}
 		else {

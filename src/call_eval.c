@@ -8,7 +8,7 @@
 #include "declare.h"
 #include "eval.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "lambda.h"
 #include "parse.h"
 #include "parse_macro.h"

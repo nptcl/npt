@@ -12,7 +12,7 @@ static int test_unicode_macro(void)
 	const unicode *ptr;
 	size_t size;
 
-	pos = make_character_allocr(NULL, 'A');
+	make_character_heap(&pos, 'A');
 	ptr = PtrCharacter_Low(pos);
 	test(*ptr == 'A', "PtrCharacter_Low1");
 	test(RefCharacter_Low(pos) == 'A', "RefCharacter_Low1");
@@ -27,7 +27,7 @@ static int test_unicode_macro(void)
 	test(u == 'z', "GetCharacter1");
 
 	test(StringBodyLength(5) == IdxSize + sizeoft(unicode) * 5, "StringBodyLength1");
-	pos = strvect_allocr(NULL, 10);
+	strvect_heap(&pos, 10);
 	test(PtrStringBase(pos) == posbodyr(pos), "PtrStringBase1");
 	test(*(size_t *)PtrStringBase(pos) == 10, "PtrStringBase2");
 	test(*PtrStringSize(pos) == 10, "PtrStringSize1");
@@ -55,35 +55,6 @@ static int test_unicode_macro(void)
 /*
  *  character
  */
-static int test_character_allocr(void)
-{
-	addr pos;
-	LocalRoot local;
-	LocalStack stack;
-
-	pos = character_allocr(NULL, 'a');
-	test(GetType(pos) == LISPTYPE_CHARACTER, "character_allocr1");
-	test(RefCharacter(pos) == 'a', "character_allocr2");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "character_allocr3");
-	test(lenbodyr(pos) == sizeoft(unicode), "character_allocr4");
-	test(! GetStatusDynamic(pos), "character_allocr5");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	pos = character_localr(local, 'b');
-	test(GetType(pos) == LISPTYPE_CHARACTER, "character_allocr6");
-	test(RefCharacter(pos) == 'b', "character_allocr7");
-	test(GetStatusDynamic(pos), "character_allocr8");
-	rollback_local(local, stack);
-
-	pos = character_heapr('c');
-	test(GetType(pos) == LISPTYPE_CHARACTER, "character_allocr9");
-	test(RefCharacter(pos) == 'c', "character_allocr10");
-	test(! GetStatusDynamic(pos), "character_allocr11");
-
-	RETURN;
-}
-
 static int test_character_alloc(void)
 {
 	addr pos;
@@ -152,7 +123,7 @@ static int test_setcharacter_unsafe(void)
 {
 	addr pos;
 
-	pos = make_character_allocr(NULL, 0xFF);
+	make_character_heap(&pos, 0xFF);
 	setcharacter_unsafe(pos, 'A');
 	test(RefCharacter(pos) == 'A', "setcharacter_unsafe1");
 	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "setcharacter_unsafe2");
@@ -167,7 +138,7 @@ static int test_standard_char_p(void)
 {
 	addr pos;
 
-	pos = make_character_allocr(NULL, 'A');
+	make_character_heap(&pos, 'A');
 	test(standard_char_p(pos), "standard_char_p1");
 	test(base_char_p(pos), "base_char_p1");
 	test(! extended_char_p(pos), "extended_char_p1");
@@ -218,8 +189,8 @@ static int test_character_equal(void)
 {
 	addr left, right;
 
-	left = make_character_allocr(NULL, 'A');
-	right = make_character_allocr(NULL, 'A');
+	make_character_heap(&left, 'A');
+	make_character_heap(&right, 'A');
 	test(character_equal(left, right), "character_equal1");
 
 	SetCharacter_unsafe(left, 'a');
@@ -237,8 +208,8 @@ static int test_character_equalp(void)
 {
 	addr left, right;
 
-	left = make_character_allocr(NULL, 'A');
-	right = make_character_allocr(NULL, 'A');
+	make_character_heap(&left, 'A');
+	make_character_heap(&right, 'A');
 	test(character_equalp(left, right), "character_equalp1");
 
 	SetCharacter_unsafe(left, 'a');
@@ -256,8 +227,8 @@ static int test_character_compare(void)
 {
 	addr left, right;
 
-	left = make_character_allocr(NULL, 'A');
-	right = make_character_allocr(NULL, 'A');
+	make_character_heap(&left, 'A');
+	make_character_heap(&right, 'A');
 	test(character_compare(left, right) == 0, "character_compare1");
 
 	SetCharacter_unsafe(left, 'a');
@@ -275,8 +246,8 @@ static int test_character_comparep(void)
 {
 	addr left, right;
 
-	left = make_character_allocr(NULL, 'A');
-	right = make_character_allocr(NULL, 'a');
+	make_character_heap(&left, 'A');
+	make_character_heap(&right, 'a');
 	test(character_comparep(left, right) == 0, "character_comparep1");
 
 	SetCharacter_unsafe(left, 'A');
@@ -482,31 +453,6 @@ static int test_memu1_comparep(void)
 /*
  *  strvect
  */
-static int test_strvect_allocr(void)
-{
-	addr pos;
-	LocalRoot local;
-	LocalStack stack;
-
-	pos = strvect_allocr(NULL, 10);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_allocr1");
-	test(RefStringSize(pos) == 10, "strvect_allocr2");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_EMPTY, "strvect_allocr3");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	pos = strvect_localr(local, 10);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_allocr4");
-	test(GetStatusDynamic(pos), "strvect_allocr5");
-	rollback_local(local, stack);
-
-	pos = strvect_heapr(10);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_allocr6");
-	test(! GetStatusDynamic(pos), "strvect_allocr7");
-
-	RETURN;
-}
-
 static int test_strvect_alloc(void)
 {
 	addr pos;
@@ -632,35 +578,6 @@ static int test_strvect_update_character_type(void)
 	RETURN;
 }
 
-static int test_strvect_char_allocr(void)
-{
-	addr pos;
-	unicode *body;
-	LocalRoot local;
-	LocalStack stack;
-
-	pos = strvect_char_allocr(NULL, "Hello");
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_char_allocr1");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "strvect_char_allocr2");
-	test(RefStringSize(pos) == 5, "strvect_char_allocr3");
-	GetStringUnicode(pos, &body);
-	test(body[0] == 'H', "strvect_char_allocr4");
-	test(body[4] == 'o', "strvect_char_allocr5");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	pos = strvect_char_localr(local, "Hello");
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_char_allocr6");
-	test(GetStatusDynamic(pos), "strvect_char_allocr7");
-	rollback_local(local, stack);
-
-	pos = strvect_char_heapr("Hello");
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_char_allocr8");
-	test(! GetStatusDynamic(pos), "strvect_char_allocr9");
-
-	RETURN;
-}
-
 static int test_strvect_char_alloc(void)
 {
 	addr pos;
@@ -690,35 +607,6 @@ static int test_strvect_char_alloc(void)
 	RETURN;
 }
 
-static int test_strvect_size1_allocr(void)
-{
-	addr pos;
-	unicode *body;
-	LocalRoot local;
-	LocalStack stack;
-
-	pos = strvect_size1_allocr(NULL, "Hello", 5);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_size1_allocr1");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "strvect_size1_allocr2");
-	test(RefStringSize(pos) == 5, "strvect_size1_allocr3");
-	GetStringUnicode(pos, &body);
-	test(body[0] == 'H', "strvect_size1_allocr4");
-	test(body[4] == 'o', "strvect_size1_allocr5");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	pos = strvect_size1_localr(local, "Hello", 5);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_size1_allocr6");
-	test(GetStatusDynamic(pos), "strvect_size1_allocr7");
-	rollback_local(local, stack);
-
-	pos = strvect_size1_heapr("Hello", 5);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_size1_allocr8");
-	test(! GetStatusDynamic(pos), "strvect_size1_allocr9");
-
-	RETURN;
-}
-
 static int test_strvect_size1_alloc(void)
 {
 	addr pos;
@@ -744,36 +632,6 @@ static int test_strvect_size1_alloc(void)
 	strvect_size1_heap(&pos, "Hello", 5);
 	test(GetType(pos) == LISPTYPE_STRING, "strvect_size1_alloc8");
 	test(! GetStatusDynamic(pos), "strvect_size1_alloc9");
-
-	RETURN;
-}
-
-static int test_strvect_sizeu_allocr(void)
-{
-	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
-	addr pos;
-	unicode *body;
-	LocalRoot local;
-	LocalStack stack;
-
-	pos = strvect_sizeu_allocr(NULL, Hello, 5);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_sizeu_allocr1");
-	test(RefCharacterType(pos) == CHARACTER_TYPE_STANDARD, "strvect_sizeu_allocr2");
-	test(RefStringSize(pos) == 5, "strvect_sizeu_allocr3");
-	GetStringUnicode(pos, &body);
-	test(body[0] == 'H', "strvect_sizeu_allocr4");
-	test(body[4] == 'o', "strvect_sizeu_allocr5");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	pos = strvect_sizeu_localr(local, Hello, 5);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_sizeu_allocr6");
-	test(GetStatusDynamic(pos), "strvect_sizeu_allocr7");
-	rollback_local(local, stack);
-
-	pos = strvect_sizeu_heapr(Hello, 5);
-	test(GetType(pos) == LISPTYPE_STRING, "strvect_sizeu_allocr8");
-	test(! GetStatusDynamic(pos), "strvect_sizeu_allocr9");
 
 	RETURN;
 }
@@ -1017,7 +875,6 @@ static int testbreak_strvect(void)
 {
 	/* character */
 	TestBreak(test_unicode_macro);
-	TestBreak(test_character_allocr);
 	TestBreak(test_character_alloc);
 	TestBreak(test_ptrcharacter);
 	TestBreak(test_character_type);
@@ -1043,17 +900,13 @@ static int testbreak_strvect(void)
 	TestBreak(test_memu1_equalp);
 	TestBreak(test_memu1_comparep);
 	/* strvect */
-	TestBreak(test_strvect_allocr);
 	TestBreak(test_strvect_alloc);
 	TestBreak(test_strvect_length);
 	TestBreak(test_strvect_posbodylen);
 	TestBreak(test_unicode_character_type);
 	TestBreak(test_strvect_update_character_type);
-	TestBreak(test_strvect_char_allocr);
 	TestBreak(test_strvect_char_alloc);
-	TestBreak(test_strvect_size1_allocr);
 	TestBreak(test_strvect_size1_alloc);
-	TestBreak(test_strvect_sizeu_allocr);
 	TestBreak(test_strvect_sizeu_alloc);
 	/* strvect_equal */
 	TestBreak(test_strvect_equal_binary);

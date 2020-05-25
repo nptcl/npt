@@ -642,26 +642,26 @@ static int test_plist(void)
 
 	test(getplist(Nil, T, &pos), "plist1");
 	test(getplist(Nil, Nil, &pos), "plist2");
-	list_heap(&list, T, fixnum_heapr(10), Nil, fixnum_heapr(20), NULL);
+	list_heap(&list, T, fixnumh(10), Nil, fixnumh(20), NULL);
 	test(getplist(list, T, &pos) == 0, "plist3");
 	test(RefFixnum(pos) == 10, "plist4");
 	test(getplist(list, Nil, &pos) == 0, "plist5");
 	test(RefFixnum(pos) == 20, "plist6");
 	test(getplist(list, list, &pos), "plist7");
 
-	test(setplist_heap(list, T, fixnum_heapr(30), &list) == 0, "plist8");
+	test(setplist_heap(list, T, fixnumh(30), &list) == 0, "plist8");
 	test(getplist(list, T, &pos) == 0, "plist9");
 	test(RefFixnum(pos) == 30, "plist10");
-	test(setplist_heap(list, Nil, fixnum_heapr(40), &list) == 0, "plist11");
+	test(setplist_heap(list, Nil, fixnumh(40), &list) == 0, "plist11");
 	test(getplist(list, Nil, &pos) == 0, "plist12");
 	test(RefFixnum(pos) == 40, "plist13");
 
 	fixnum_heap(&key, 999);
-	test(setplist_heap(list, key, fixnum_heapr(50), &list), "plist14");
+	test(setplist_heap(list, key, fixnumh(50), &list), "plist14");
 	test(getplist(list, key, &pos) == 0, "plist15");
 	test(RefFixnum(pos) == 50, "plist16");
 
-	test(pushplist_heap(list, key, fixnum_heapr(60), &list) == 0, "plist17");
+	test(pushplist_heap(list, key, fixnumh(60), &list) == 0, "plist17");
 	test(getplist(list, key, &pos) == 0, "plist18");
 	test(GetType(pos) == LISPTYPE_CONS, "plist19");
 	GetCar(pos, &key);
@@ -921,9 +921,9 @@ static int test_remplist_check(void)
 	interncommon("CDR", &key2);
 	interncommon("CONS", &key3);
 	list_heap(&list,
-			key1, fixnum_heapr(10),
-			key2, fixnum_heapr(20),
-			key3, fixnum_heapr(30), NULL);
+			key1, fixnumh(10),
+			key2, fixnumh(20),
+			key3, fixnumh(30), NULL);
 	test(remplist_check(list, T, &pos) == RemPlist_NotFound, "remplist_check7");
 	test(pos == list, "remplist_check8");
 	test(remplist_check(list, key1, &pos) == RemPlist_Update, "remplist_check9");
@@ -935,9 +935,9 @@ static int test_remplist_check(void)
 	test(RefFixnum(value) == 30, "remplist_check15");
 
 	list_heap(&list,
-			key1, fixnum_heapr(10),
-			key2, fixnum_heapr(20),
-			key3, fixnum_heapr(30), NULL);
+			key1, fixnumh(10),
+			key2, fixnumh(20),
+			key3, fixnumh(30), NULL);
 	test(remplist_check(list, key2, &pos) == RemPlist_Delete, "remplist_check16");
 	test(length_list_unsafe(pos) == 4, "remplist_check17");
 	test(getplist(pos, key1, &value) == 0, "remplist_check18");
@@ -947,9 +947,9 @@ static int test_remplist_check(void)
 	test(RefFixnum(value) == 30, "remplist_check22");
 
 	list_heap(&list,
-			key1, fixnum_heapr(10),
-			key2, fixnum_heapr(20),
-			key3, fixnum_heapr(30), NULL);
+			key1, fixnumh(10),
+			key2, fixnumh(20),
+			key3, fixnumh(30), NULL);
 	test(remplist_check(list, key3, &pos) == RemPlist_Delete, "remplist_check23");
 	test(length_list_unsafe(pos) == 4, "remplist_check24");
 	test(getplist(pos, key1, &value) == 0, "remplist_check25");
@@ -973,9 +973,9 @@ static int test_remplist(void)
 	interncommon("CDR", &key2);
 	interncommon("CONS", &key3);
 	list_heap(&list,
-			key1, fixnum_heapr(10),
-			key2, fixnum_heapr(20),
-			key3, fixnum_heapr(30), NULL);
+			key1, fixnumh(10),
+			key2, fixnumh(20),
+			key3, fixnumh(30), NULL);
 	test(remplist(list, key1, &pos), "remplist3");
 	test(! remplist(pos, key3, &pos), "remplist4");
 

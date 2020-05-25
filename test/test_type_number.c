@@ -32,7 +32,7 @@ static int test_type_range_left(void)
 	addr pos, check;
 	LocalRoot local = Local_Thread;
 
-	type_range_left(local, &pos, LISPDECL_INTEGER, T, fixnum_heapr(10));
+	type_range_left(local, &pos, LISPDECL_INTEGER, T, fixnumh(10));
 	test(range_left_p(pos), "type_range_left1");
 	range_left_value(pos, &check, &pos);
 	test(check == T, "type_range_left2");
@@ -46,7 +46,7 @@ static int test_type_range_right(void)
 	addr pos, check;
 	LocalRoot local = Local_Thread;
 
-	type_range_right(local, &pos, LISPDECL_INTEGER, T, fixnum_heapr(10));
+	type_range_right(local, &pos, LISPDECL_INTEGER, T, fixnumh(10));
 	test(range_right_p(pos), "type_range_right1");
 	range_right_value(pos, &check, &pos);
 	test(check == T, "type_range_right2");
@@ -61,8 +61,8 @@ static int test_type_range_not(void)
 	LocalRoot local = Local_Thread;
 
 	type_range_not(local, &pos, LISPDECL_INTEGER,
-			Nil, fixnum_heapr(10),
-			T, fixnum_heapr(20));
+			Nil, fixnumh(10),
+			T, fixnumh(20));
 	test(RefLispDecl(pos) == LISPDECL_OR, "type_range_not1");
 	GetArrayType(pos, 0, &pos);
 	test(lenarrayr(pos) == 2, "type_range_not2");
@@ -1055,13 +1055,13 @@ static int test_extpaircall_right(void)
 	addr pos;
 	LocalRoot local = Local_Thread;
 
-	list_heap(&pos, fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
-	check = extpaircall_right(local, extpaircall_right1, &pos, fixnum_heapr(15), pos);
+	list_heap(&pos, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
+	check = extpaircall_right(local, extpaircall_right1, &pos, fixnumh(15), pos);
 	test(check, "extpaircall_right1");
 	test(pos == Nil, "extpaircall_right2");
 
-	list_heap(&pos, fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
-	check = extpaircall_right(local, extpaircall_right1, &pos, fixnum_heapr(40), pos);
+	list_heap(&pos, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
+	check = extpaircall_right(local, extpaircall_right1, &pos, fixnumh(40), pos);
 	test(! check, "extpaircall_right3");
 
 	RETURN;
@@ -1077,7 +1077,7 @@ static int test_pushlist(void)
 	test(result == Nil, "pushlist1");
 
 	result = Nil;
-	list_heap(&cons, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	list_heap(&cons, fixnumh(10), fixnumh(20), NULL);
 	pushlist(local, &result, cons, result);
 	check = result;
 	test(GetType(check) == LISPTYPE_CONS, "pushlist2");
@@ -1087,7 +1087,7 @@ static int test_pushlist(void)
 	test(RefFixnum(cons) == 10, "pushlist4");
 	test(check == Nil, "pushlist5");
 
-	list_heap(&cons, fixnum_heapr(30), fixnum_heapr(40), NULL);
+	list_heap(&cons, fixnumh(30), fixnumh(40), NULL);
 	pushlist(local, &result, cons, result);
 	check = result;
 	GetCons(check, &cons, &check);
@@ -1109,7 +1109,7 @@ static int test_extpaircall_left(void)
 	addr pos, one;
 	LocalRoot local = Local_Thread;
 
-	list_heap(&pos, fixnum_heapr(10), fixnum_heapr(30), fixnum_heapr(20), NULL);
+	list_heap(&pos, fixnumh(10), fixnumh(30), fixnumh(20), NULL);
 	check = extpaircall_left(local, extpaircall_right1, &pos, pos);
 	test(check, "extpaircall_left1");
 	GetCons(pos, &one, &pos);
@@ -1120,7 +1120,7 @@ static int test_extpaircall_left(void)
 	test(RefFixnum(one) == 20, "extpaircall_left4");
 	test(pos == Nil, "extpaircall_left5");
 
-	list_heap(&pos, fixnum_heapr(30), fixnum_heapr(30), fixnum_heapr(30), NULL);
+	list_heap(&pos, fixnumh(30), fixnumh(30), fixnumh(30), NULL);
 	check = extpaircall_left(local, extpaircall_right1, &pos, pos);
 	test(! check, "extpaircall_left6");
 
@@ -1133,7 +1133,7 @@ static int test_extpaircall(void)
 	addr pos, one;
 	LocalRoot local = Local_Thread;
 
-	list_heap(&pos, fixnum_heapr(10), fixnum_heapr(30), fixnum_heapr(20), NULL);
+	list_heap(&pos, fixnumh(10), fixnumh(30), fixnumh(20), NULL);
 	check = 0;
 	extpaircall(local, extpaircall_right1, &pos, &check);
 	test(check, "extpaircall1");
@@ -1145,7 +1145,7 @@ static int test_extpaircall(void)
 	test(one == Nil, "extpaircall4");
 	test(pos == Nil, "extpaircall5");
 
-	list_heap(&pos, fixnum_heapr(30), fixnum_heapr(30), fixnum_heapr(30), NULL);
+	list_heap(&pos, fixnumh(30), fixnumh(30), fixnumh(30), NULL);
 	check = 0;
 	extpaircall(local, extpaircall_right1, &pos, &check);
 	test(! check, "extpaircall6");
@@ -1764,7 +1764,7 @@ static int test_copy_cons_to_vector4_local(void)
 	addr pos, check;
 	LocalRoot local = Local_Thread;
 
-	list_heap(&pos, T, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	list_heap(&pos, T, fixnumh(10), fixnumh(20), NULL);
 	copy_cons_to_vector4_local(local, &pos, pos, 2);
 	test(lenarrayr(pos) == 2, "copy_cons_to_vector4_local1");
 	GetArrayA4(pos, 0, &check);

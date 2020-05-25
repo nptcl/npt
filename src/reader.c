@@ -2,7 +2,7 @@
 #include "charqueue.h"
 #include "condition.h"
 #include "control_object.h"
-#include "gc.h"
+#include "hold.h"
 #include "reader.h"
 #include "reader_dispatch.h"
 #include "reader_function.h"

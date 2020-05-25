@@ -7,7 +7,7 @@
 #include "declare.h"
 #include "format.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "lambda.h"
 #include "local.h"
 #include "parse.h"

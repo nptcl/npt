@@ -6,7 +6,7 @@
 #include "control_operator.h"
 #include "copy.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "restart.h"
 #include "strvect.h"
 #include "symbol.h"

@@ -377,16 +377,18 @@ static void set_default_package(addr package)
 static void append_nicknames(addr pos, addr right);
 _g void build_package_settings(void)
 {
-	addr package, common, cons;
+	addr package, common, cons, name;
 
 	/* COMMON-LISP */
 	find_char_package(LISP_COMMON, &common);
-	list_heap(&cons, strvect_char_heapr("CL"), NULL);
+	strvect_char_heap(&name, "CL");
+	list_heap(&cons, name, NULL);
 	append_nicknames(common, cons);
 
 	/* COMMON-LISP-USER */
 	find_char_package(LISP_COMMON_USER, &package);
-	list_heap(&cons, strvect_char_heapr("CL-USER"), NULL);
+	strvect_char_heap(&name, "CL-USER");
+	list_heap(&cons, name, NULL);
 	append_nicknames(package, cons);
 	use_package(package, common);
 
@@ -441,7 +443,7 @@ _g void build_package(void)
 
 	/* package root */
 	packageroot_heap(&root);
-	LispRoot(PACKAGE) = root;
+	SetLispRoot(PACKAGE, root);
 
 	/* make package */
 	SystemPackage(COMMON, COMMON, COMMON_LISP);
@@ -1276,7 +1278,7 @@ static void uninternsymbol(addr package, addr symbol)
 
 _g int unintern_package(addr package, addr symbol)
 {
-	Check(! IsSymbol(symbol), "type error");
+	Check(! symbolp(symbol), "type error");
 	package_designer(package, &package);
 	if (uninterncheck(package, symbol)) return 1;
 	uninternsymbol(package, symbol);
@@ -1347,7 +1349,7 @@ static int import_bitpackage(addr package, addr symbol, addr *ret)
 
 static void importsymbol(addr package, addr pos)
 {
-	Check(! IsSymbol(pos), "type error");
+	Check(! symbolp(pos), "type error");
 	if (import_bitpackage(package, pos, &package))
 		fmte("Import symbol ~S occer conflict.", pos, NULL);
 }
@@ -1359,7 +1361,7 @@ static void importlist(addr package, addr pos)
 	/* type check */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		if (! IsSymbol(left))
+		if (! symbolp(left))
 			fmte("Import ~S must be a string-desinger.", left, NULL);
 	}
 
@@ -1511,7 +1513,7 @@ static void shadowimportlist(addr package, addr pos)
 	/* type check */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		if (! IsSymbol(left))
+		if (! symbolp(left))
 			fmte("shadowing-symbol ~S must be a symbol.", left, NULL);
 	}
 
@@ -1632,7 +1634,7 @@ static void exportsymbol_nocheck(addr package, addr symbol)
 
 static void exportsymbol(addr package, addr symbol)
 {
-	if (! IsSymbol(symbol))
+	if (! symbolp(symbol))
 		fmte("export ~S must be a symbol.", symbol, NULL);
 	check_exportsymbol(package, symbol);
 	exportsymbol_nocheck(package, symbol);
@@ -1645,7 +1647,7 @@ static void exportlist(addr package, addr pos)
 	/* type check */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		if (! IsSymbol(left))
+		if (! symbolp(left))
 			fmte("export ~S must be a string-desinger.", left, NULL);
 	}
 
@@ -1784,7 +1786,7 @@ static void unexportlist(addr package, addr pos)
 	/* type check */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		if (! IsSymbol(left))
+		if (! symbolp(left))
 			fmte("unexport ~S must be a string-desinger.", left, NULL);
 	}
 

@@ -3,7 +3,7 @@
 
 #include "declare.h"
 #include "execute.h"
-#include "gc.h"
+#include "hold.h"
 #include "parse.h"
 #include "typedef.h"
 

@@ -9,7 +9,7 @@
 #include "control_execute.h"
 #include "equal.h"
 #include "function.h"
-#include "gc.h"
+#include "hold.h"
 #include "integer.h"
 #include "number.h"
 #include "object.h"

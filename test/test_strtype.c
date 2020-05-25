@@ -67,33 +67,6 @@ static int test_stringp(void)
 /*
  *  strarray
  */
-static int test_strarray_allocr(void)
-{
-	addr pos;
-	struct array_struct *str;
-	LocalRoot local;
-	LocalStack stack;
-
-	pos = strarray_allocr(NULL, 10);
-	test(stringp(pos), "strarray_allocr1");
-	test(strarrayp(pos), "strarray_allocr2");
-	str = ArrayInfoStruct(pos);
-	test(str->front == 10, "strarray_allocr3");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	pos = strarray_localr(local, 10);
-	test(stringp(pos), "strarray_allocr4");
-	test(GetStatusDynamic(pos), "strarray_allocr5");
-	rollback_local(local, stack);
-
-	pos = strarray_heapr(10);
-	test(stringp(pos), "strarray_allocr6");
-	test(! GetStatusDynamic(pos), "strarray_allocr7");
-
-	RETURN;
-}
-
 static int test_strarray_alloc(void)
 {
 	addr pos;
@@ -146,39 +119,6 @@ static int test_strarray_update_character_type(void)
 	RETURN;
 }
 
-static int test_strarray_char_allocr(void)
-{
-	addr pos;
-	const unicode *body;
-	struct array_struct *str;
-	LocalRoot local;
-	LocalStack stack;
-
-	pos = strarray_char_allocr(NULL, "Hello");
-	test(strarrayp(pos), "strarray_char_allocr1");
-	str = ArrayInfoStruct(pos);
-	test(str->size == 5, "strarray_char_allocr2");
-	test(str->front == 5, "strarray_char_allocr3");
-	test(str->type == ARRAY_TYPE_CHARACTER, "strarray_char_allocr4");
-	GetArrayUnicode(pos, &body);
-	test(body[0] == 'H', "strarray_char_allocr5");
-	test(body[1] == 'e', "strarray_char_allocr6");
-	test(body[4] == 'o', "strarray_char_allocr7");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	pos = strarray_char_localr(local, "Hello");
-	test(strarrayp(pos), "strarray_char_allocr8");
-	test(GetStatusDynamic(pos), "strarray_char_allocr9");
-	rollback_local(local, stack);
-
-	pos = strarray_char_heapr("Hello");
-	test(strarrayp(pos), "strarray_char_allocr10");
-	test(! GetStatusDynamic(pos), "strarray_char_allocr11");
-
-	RETURN;
-}
-
 static int test_strarray_char_alloc(void)
 {
 	addr pos;
@@ -212,39 +152,6 @@ static int test_strarray_char_alloc(void)
 	RETURN;
 }
 
-static int test_strarray_size1_allocr(void)
-{
-	addr pos;
-	const unicode *body;
-	struct array_struct *str;
-	LocalRoot local;
-	LocalStack stack;
-
-	pos = strarray_size1_allocr(NULL, "Hello", 5);
-	test(strarrayp(pos), "strarray_size1_allocr1");
-	str = ArrayInfoStruct(pos);
-	test(str->size == 5, "strarray_size1_allocr2");
-	test(str->front == 5, "strarray_size1_allocr3");
-	test(str->type == ARRAY_TYPE_CHARACTER, "strarray_size1_allocr4");
-	GetArrayUnicode(pos, &body);
-	test(body[0] == 'H', "strarray_size1_allocr5");
-	test(body[1] == 'e', "strarray_size1_allocr6");
-	test(body[4] == 'o', "strarray_size1_allocr7");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	pos = strarray_size1_localr(local, "Hello", 5);
-	test(strarrayp(pos), "strarray_size1_allocr8");
-	test(GetStatusDynamic(pos), "strarray_size1_allocr9");
-	rollback_local(local, stack);
-
-	pos = strarray_size1_heapr("Hello", 5);
-	test(strarrayp(pos), "strarray_size1_allocr10");
-	test(! GetStatusDynamic(pos), "strarray_size1_allocr11");
-
-	RETURN;
-}
-
 static int test_strarray_size1_alloc(void)
 {
 	addr pos;
@@ -274,40 +181,6 @@ static int test_strarray_size1_alloc(void)
 	strarray_size1_heap(&pos, "Hello", 5);
 	test(strarrayp(pos), "strarray_size1_alloc10");
 	test(! GetStatusDynamic(pos), "strarray_size1_alloc11");
-
-	RETURN;
-}
-
-static int test_strarray_sizeu_allocr(void)
-{
-	const unicode Hello[] = {'H', 'e', 'l', 'l', 'o'};
-	addr pos;
-	const unicode *body;
-	struct array_struct *str;
-	LocalRoot local;
-	LocalStack stack;
-
-	pos = strarray_sizeu_allocr(NULL, Hello, 5);
-	test(strarrayp(pos), "strarray_sizeu_allocr1");
-	str = ArrayInfoStruct(pos);
-	test(str->size == 5, "strarray_sizeu_allocr2");
-	test(str->front == 5, "strarray_sizeu_allocr3");
-	test(str->type == ARRAY_TYPE_CHARACTER, "strarray_sizeu_allocr4");
-	GetArrayUnicode(pos, &body);
-	test(body[0] == 'H', "strarray_sizeu_allocr5");
-	test(body[1] == 'e', "strarray_sizeu_allocr6");
-	test(body[4] == 'o', "strarray_sizeu_allocr7");
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	pos = strarray_sizeu_localr(local, Hello, 5);
-	test(strarrayp(pos), "strarray_sizeu_allocr8");
-	test(GetStatusDynamic(pos), "strarray_sizeu_allocr9");
-	rollback_local(local, stack);
-
-	pos = strarray_sizeu_heapr(Hello, 5);
-	test(strarrayp(pos), "strarray_sizeu_allocr10");
-	test(! GetStatusDynamic(pos), "strarray_sizeu_allocr11");
 
 	RETURN;
 }
@@ -915,14 +788,10 @@ static int testbreak_strtype(void)
 	TestBreak(test_strarrayp);
 	TestBreak(test_stringp);
 	/* strarray */
-	TestBreak(test_strarray_allocr);
 	TestBreak(test_strarray_alloc);
 	TestBreak(test_strarray_update_character_type);
-	TestBreak(test_strarray_char_allocr);
 	TestBreak(test_strarray_char_alloc);
-	TestBreak(test_strarray_size1_allocr);
 	TestBreak(test_strarray_size1_alloc);
-	TestBreak(test_strarray_sizeu_allocr);
 	TestBreak(test_strarray_sizeu_alloc);
 	TestBreak(test_strarray_length);
 	TestBreak(test_strarray_refc);

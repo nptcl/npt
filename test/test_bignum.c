@@ -2089,7 +2089,7 @@ static int test_equal_bb_real(void)
 	test(equal_bb_real(left, right), "equal_bb_real5");
 
 	bignum_alloc(local, &left, SignPlus, 10);
-	bignum_alloc(local, &left, SignPlus, 10);
+	bignum_alloc(local, &right, SignPlus, 10);
 	GetRootDataBignum(left, &root, &data1);
 	GetRootDataBignum(right, &root, &data2);
 	bigset(data1, 0xAA, 10);
@@ -2707,13 +2707,13 @@ static int test_fixnum_unsigned_byte_p(void)
 {
 	addr value;
 
-	test(! fixnum_unsigned_byte_p(fixnum_heapr(-8), 3), "fixnum_unsigned_byte_p1");
-	test(! fixnum_unsigned_byte_p(fixnum_heapr(-7), 3), "fixnum_unsigned_byte_p2");
-	test(! fixnum_unsigned_byte_p(fixnum_heapr(-1), 3), "fixnum_unsigned_byte_p3");
-	test(fixnum_unsigned_byte_p(fixnum_heapr(0), 3), "fixnum_unsigned_byte_p4");
-	test(fixnum_unsigned_byte_p(fixnum_heapr(6), 3), "fixnum_unsigned_byte_p5");
-	test(fixnum_unsigned_byte_p(fixnum_heapr(7), 3), "fixnum_unsigned_byte_p6");
-	test(! fixnum_unsigned_byte_p(fixnum_heapr(8), 3), "fixnum_unsigned_byte_p7");
+	test(! fixnum_unsigned_byte_p(fixnumh(-8), 3), "fixnum_unsigned_byte_p1");
+	test(! fixnum_unsigned_byte_p(fixnumh(-7), 3), "fixnum_unsigned_byte_p2");
+	test(! fixnum_unsigned_byte_p(fixnumh(-1), 3), "fixnum_unsigned_byte_p3");
+	test(fixnum_unsigned_byte_p(fixnumh(0), 3), "fixnum_unsigned_byte_p4");
+	test(fixnum_unsigned_byte_p(fixnumh(6), 3), "fixnum_unsigned_byte_p5");
+	test(fixnum_unsigned_byte_p(fixnumh(7), 3), "fixnum_unsigned_byte_p6");
+	test(! fixnum_unsigned_byte_p(fixnumh(8), 3), "fixnum_unsigned_byte_p7");
 
 	fixnum_heap(&value, FIXNUM_MAX);
 	test(fixnum_unsigned_byte_p(value, BIGNUM_FULLBIT), "fixnum_unsigned_byte_p8");
@@ -2770,7 +2770,7 @@ static int test_bignum_unsigned_byte_p(void)
 
 	power2_bignum_alloc(local, &pos, SignPlus, 100);
 	test(! bignum_unsigned_byte_p(pos, 100), "bignum_unsigned_byte_p10");
-	minus_bf_real_local(local, pos, fixnum_localr(local, 1), &pos);
+	minus_bf_real_local(local, pos, fixnuml(1), &pos);
 	test(bignum_unsigned_byte_p(pos, 100), "bignum_unsigned_byte_p11");
 
 	check = 1;
@@ -2780,7 +2780,7 @@ static int test_bignum_unsigned_byte_p(void)
 		if (bignum_unsigned_byte_p(pos, v)) {
 			check = 1; break;
 		}
-		minus_bf_real_local(local, pos, fixnum_localr(local, 1), &pos);
+		minus_bf_real_local(local, pos, fixnuml(1), &pos);
 		if (! bignum_unsigned_byte_p(pos, v)) {
 			check = 1; break;
 		}
@@ -2796,13 +2796,13 @@ static int test_fixnum_signed_byte_p(void)
 {
 	addr value;
 
-	test(! fixnum_signed_byte_p(fixnum_heapr(-5), 3), "fixnum_signed_byte_p1");
-	test(fixnum_signed_byte_p(fixnum_heapr(-4), 3), "fixnum_signed_byte_p2");
-	test(fixnum_signed_byte_p(fixnum_heapr(-3), 3), "fixnum_signed_byte_p3");
-	test(fixnum_signed_byte_p(fixnum_heapr(0), 3), "fixnum_signed_byte_p4");
-	test(fixnum_signed_byte_p(fixnum_heapr(3), 3), "fixnum_signed_byte_p5");
-	test(! fixnum_signed_byte_p(fixnum_heapr(4), 3), "fixnum_signed_byte_p6");
-	test(! fixnum_signed_byte_p(fixnum_heapr(5), 3), "fixnum_signed_byte_p7");
+	test(! fixnum_signed_byte_p(fixnumh(-5), 3), "fixnum_signed_byte_p1");
+	test(fixnum_signed_byte_p(fixnumh(-4), 3), "fixnum_signed_byte_p2");
+	test(fixnum_signed_byte_p(fixnumh(-3), 3), "fixnum_signed_byte_p3");
+	test(fixnum_signed_byte_p(fixnumh(0), 3), "fixnum_signed_byte_p4");
+	test(fixnum_signed_byte_p(fixnumh(3), 3), "fixnum_signed_byte_p5");
+	test(! fixnum_signed_byte_p(fixnumh(4), 3), "fixnum_signed_byte_p6");
+	test(! fixnum_signed_byte_p(fixnumh(5), 3), "fixnum_signed_byte_p7");
 
 	fixnum_heap(&value, FIXNUM_MAX);
 	test(fixnum_signed_byte_p(value, BIGNUM_FULLBIT), "fixnum_signed_byte_p8");
@@ -2860,12 +2860,12 @@ static int test_bignum_signed_byte_p(void)
 
 	power2_bignum_alloc(local, &pos, SignMinus, 99);
 	test(bignum_signed_byte_p(pos, 100), "bignum_signed_byte_p13");
-	minus_bf_real_local(local, pos, fixnum_localr(local, 1), &pos);
+	minus_bf_real_local(local, pos, fixnuml(1), &pos);
 	test(! bignum_signed_byte_p(pos, 100), "bignum_signed_byte_p14");
 
 	power2_bignum_alloc(local, &pos, SignPlus, 99);
 	test(! bignum_signed_byte_p(pos, 100), "bignum_signed_byte_p15");
-	minus_bf_real_local(local, pos, fixnum_localr(local, 1), &pos);
+	minus_bf_real_local(local, pos, fixnuml(1), &pos);
 	test(bignum_signed_byte_p(pos, 100), "bignum_signed_byte_p16");
 
 	check = 1;
@@ -2875,7 +2875,7 @@ static int test_bignum_signed_byte_p(void)
 		if (! bignum_signed_byte_p(pos, v)) {
 			check = 1; break;
 		}
-		minus_bf_real_local(local, pos, fixnum_localr(local, 1), &pos);
+		minus_bf_real_local(local, pos, fixnuml(1), &pos);
 		if (bignum_signed_byte_p(pos, v)) {
 			check = 1; break;
 		}
@@ -2884,7 +2884,7 @@ static int test_bignum_signed_byte_p(void)
 		if (bignum_signed_byte_p(pos, v)) {
 			check = 1; break;
 		}
-		minus_bf_real_local(local, pos, fixnum_localr(local, 1), &pos);
+		minus_bf_real_local(local, pos, fixnuml(1), &pos);
 		if (! bignum_signed_byte_p(pos, v)) {
 			check = 1; break;
 		}

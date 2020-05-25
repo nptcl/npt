@@ -34,7 +34,7 @@ static int test_gettable_control(void)
 	push_local(local, &stack);
 	push_new_control(ptr, &pos);
 
-	setplist_constant_heap(Nil, CONSTANT_COMMON_FUNCTION, fixnum_heapr(10), &table);
+	setplist_constant_heap(Nil, CONSTANT_COMMON_FUNCTION, fixnumh(10), &table);
 	SetControl(pos, Control_Table, table);
 	test(gettable_control(pos, CONSTANT_COMMON_FUNCTION, &check), "gettable_control1");
 	test(RefFixnum(check) == 10, "gettable_control2");
@@ -43,7 +43,7 @@ static int test_gettable_control(void)
 #if 0
 	getfunction_control(pos, &check);
 	test(RefFixnum(check) == 10, "getfunction_control1");
-	setplist_constant_heap(table, CONSTANT_COMMON_SETF, fixnum_heapr(20), &table);
+	setplist_constant_heap(table, CONSTANT_COMMON_SETF, fixnumh(20), &table);
 	SetControl(pos, Control_Table, table);
 	getsetf_control(pos, &check);
 	test(RefFixnum(check) == 20, "getsetf_control1");
@@ -53,8 +53,8 @@ static int test_gettable_control(void)
 	gettable_control(pos, CONSTANT_COMMON_FUNCTION, &check);
 	test(check == T, "settable_control1");
 
-	settagbody_control(local, pos, fixnum_heapr(111));
-	setblock_control(local, pos, fixnum_heapr(222));
+	settagbody_control(local, pos, fixnumh(111));
+	setblock_control(local, pos, fixnumh(222));
 	gettagbody_control(pos, &check);
 	test(RefFixnum(check) == 111, "gettagbody_control1");
 	getblock_control(pos, &check);
@@ -103,8 +103,8 @@ static int test_push_taginfo(void)
 
 	vector4_heap(&pos, 0);
 	code_heap(&pos, pos);
-	cons_heap(&cons1, fixnum_heapr(10), index_heapr(20));
-	cons_heap(&cons2, fixnum_heapr(30), index_heapr(40));
+	cons_heap(&cons1, fixnumh(10), index_heapr(20));
+	cons_heap(&cons2, fixnumh(30), index_heapr(40));
 	list_heap(&list, cons1, cons2, NULL);
 	setinfo_code(pos, list);
 	push_taginfo(local, control, pos);
@@ -477,7 +477,7 @@ static int test_close_result_control(void)
 	local = ptr->local;
 
 	str = StructControl(pos);
-	list_heap(&list, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	list_heap(&list, fixnumh(10), fixnumh(20), NULL);
 	SetControl(pos, Control_Result, list);
 	str->dynamic_result = 0;
 	close_result_control(pos);
@@ -488,7 +488,7 @@ static int test_close_result_control(void)
 	test(cons == Nil, "close_result_control3");
 
 	list_local(local, &list,
-			fixnum_localr(local, 10), fixnum_localr(local, 20), NULL);
+			fixnuml(10), fixnuml(20), NULL);
 	SetControl(pos, Control_Result, list);
 	str->dynamic_result = 1;
 	close_result_control(pos);
@@ -521,7 +521,7 @@ static int test_copy_values_control(void)
 
 	fixnum_heap(&value1, 10);
 	fixnum_heap(&value2, 20);
-	list_heap(&cons, fixnum_heapr(30), NULL);
+	list_heap(&cons, fixnumh(30), NULL);
 
 	SetResultControl(pos, 0, value1);
 	SetResultControl(pos, 1, value2);
@@ -551,8 +551,8 @@ static int test_copy_values_control(void)
 	test(check == Nil, "copy_values_control6");
 
 	for (i = 0; i < ControlSize_Result; i++)
-		SetResultControl(pos, i, fixnum_heapr((fixnum)(i * 10)));
-	list_heap(&cons, fixnum_heapr(111), fixnum_heapr(222), NULL);
+		SetResultControl(pos, i, fixnumh((fixnum)(i * 10)));
+	list_heap(&cons, fixnumh(111), fixnumh(222), NULL);
 	SetControl(pos, Control_Result, cons);
 
 	str->sizer = ControlSize_Result;
@@ -608,7 +608,7 @@ static int test_close_return(void)
 
 	fixnum_heap(&value1, 10);
 	fixnum_heap(&value2, 20);
-	list_heap(&cons, fixnum_heapr(30), NULL);
+	list_heap(&cons, fixnumh(30), NULL);
 
 	SetResultControl(pos, 0, value1);
 	SetResultControl(pos, 1, value2);
@@ -644,14 +644,14 @@ static int test_close_protect(void)
 	internchar(LISP_CODE, "END", &end);
 
 	vector4_heap(&array, 2);
-	cons_heap(&list, set, fixnum_heapr(10));
+	cons_heap(&list, set, fixnumh(10));
 	setarray(array, 0, list);
 	conscar_heap(&list, end);
 	setarray(array, 1, list);
 	code_heap(&code1, array);
 
 	vector4_heap(&array, 2);
-	cons_heap(&list, set, fixnum_heapr(20));
+	cons_heap(&list, set, fixnumh(20));
 	setarray(array, 0, list);
 	conscar_heap(&list, end);
 	setarray(array, 1, list);
@@ -723,7 +723,7 @@ static int test_close_block(void)
 	push_new_control(ptr, &control);
 	setvalues_control(ptr, T, T, T, NULL);
 	push_block_control(ptr, &pos);
-	setvalues_control(ptr, fixnum_heapr(11), T, NULL);
+	setvalues_control(ptr, fixnumh(11), T, NULL);
 
 	right = Nil;
 	taginfo_heap(&left, pos, T, 0, 1);
@@ -766,7 +766,7 @@ static int test_close_type_control(void)
 
 	fixnum_heap(&value1, 10);
 	fixnum_heap(&value2, 20);
-	list_heap(&cons, fixnum_heapr(30), NULL);
+	list_heap(&cons, fixnumh(30), NULL);
 
 	SetResultControl(pos, 0, value1);
 	SetResultControl(pos, 1, value2);
@@ -984,7 +984,7 @@ static int test_pop_control_unsafe(void)
 
 	setargs_nil_control(ptr);
 	push_push_control(ptr, &pos);
-	setvalues_control(ptr, T, fixnum_heapr(10), NULL);
+	setvalues_control(ptr, T, fixnumh(10), NULL);
 	pop_control_unsafe(ptr);
 	getargs_list_control_unsafe(ptr, 0, &pos);
 	test(length_list_unsafe(pos) == 1, "pop_control_unsafe6");
@@ -1069,13 +1069,13 @@ static int test_setargs_control(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &pos);
-	setargs_control(ptr, fixnum_heapr(10));
+	setargs_control(ptr, fixnumh(10));
 	GetControl(pos, Control_Cons, &check);
 	test(length_list_unsafe(check) == 1, "setargs_control1");
 	GetCar(check, &check);
 	test(RefFixnum(check) == 10, "setargs_control2");
 
-	setargs_control(ptr, fixnum_heapr(20));
+	setargs_control(ptr, fixnumh(20));
 	GetControl(pos, Control_Cons, &check);
 	test(length_list_unsafe(check) == 1, "setargs_control3");
 	GetCar(check, &check);
@@ -1093,8 +1093,8 @@ static int test_setargs_va_control(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &pos);
-	setargs_control(ptr, fixnum_heapr(10));
-	setargs_va_control(ptr, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	setargs_control(ptr, fixnumh(10));
+	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	GetControl(pos, Control_Cons, &cons);
 	test(length_list_unsafe(cons) == 2, "setargs_va_control1");
 	GetCons(cons, &check, &cons);
@@ -1135,8 +1135,8 @@ static int test_setargs_list_control(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &pos);
-	setargs_control(ptr, fixnum_heapr(10));
-	list_heap(&cons, fixnum_heapr(20), fixnum_heapr(30), NULL);
+	setargs_control(ptr, fixnumh(10));
+	list_heap(&cons, fixnumh(20), fixnumh(30), NULL);
 	setargs_list_control(ptr, cons);
 
 	GetControl(pos, Control_Cons, &cons);
@@ -1158,8 +1158,8 @@ static int test_setargs_list_control_unsafe(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &pos);
-	setargs_control(ptr, fixnum_heapr(10));
-	list_heap(&check, fixnum_heapr(20), fixnum_heapr(30), NULL);
+	setargs_control(ptr, fixnumh(10));
+	list_heap(&check, fixnumh(20), fixnumh(30), NULL);
 	setargs_list_control_unsafe(ptr, check);
 
 	GetControl(pos, Control_Cons, &cons);
@@ -1185,7 +1185,7 @@ static int test_pushargs_control(void)
 	ptr = Execute_Thread;
 	push_new_control(ptr, &pos);
 	setargs_nil_control(ptr);
-	pushargs_control(ptr, fixnum_heapr(10));
+	pushargs_control(ptr, fixnumh(10));
 	GetControl(pos, Control_Cons, &check);
 	test(length_list_unsafe(check) == 1, "pushargs_control1");
 	GetCar(check, &check);
@@ -1193,7 +1193,7 @@ static int test_pushargs_control(void)
 	GetControl(pos, Control_ConsTail, &cons);
 	test(cons != Nil, "pushargs_control3");
 
-	pushargs_control(ptr, fixnum_heapr(20));
+	pushargs_control(ptr, fixnumh(20));
 	GetControl(pos, Control_Cons, &cons);
 	test(length_list_unsafe(cons) == 2, "pushargs_control4");
 	GetCons(cons, &check, &cons);
@@ -1201,7 +1201,7 @@ static int test_pushargs_control(void)
 	GetCons(cons, &check, &cons);
 	test(RefFixnum(check) == 20, "pushargs_control6");
 
-	pushargs_control(ptr, fixnum_heapr(30));
+	pushargs_control(ptr, fixnumh(30));
 	GetControl(pos, Control_Cons, &cons);
 	test(length_list_unsafe(cons) == 3, "pushargs_control7");
 	GetCons(cons, &check, &cons);
@@ -1223,8 +1223,8 @@ static int test_pushargs_list_control(void)
 
 	ptr = Execute_Thread;
 	push_new_control(ptr, &pos);
-	setargs_control(ptr, fixnum_heapr(10));
-	list_heap(&cons, fixnum_heapr(20), fixnum_heapr(30), NULL);
+	setargs_control(ptr, fixnumh(10));
+	list_heap(&cons, fixnumh(20), fixnumh(30), NULL);
 	pushargs_list_control(ptr, cons);
 
 	GetControl(pos, Control_Cons, &cons);
@@ -1250,7 +1250,7 @@ static int test_getargs_control(void)
 	push_new_control(ptr, &pos);
 	getargs_control(ptr, 0, &check);
 	test(check == Unbound, "getargs_control1");
-	setargs_va_control(ptr, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	getargs_control(ptr, 0, &check);
 	test(RefFixnum(check) == 10, "getargs_control2");
 	getargs_control(ptr, 1, &check);
@@ -1273,7 +1273,7 @@ static int test_getargs_list_control_unsafe(void)
 	ptr = Execute_Thread;
 	push_new_control(ptr, &pos);
 	setargs_va_control(ptr,
-			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
+			fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	getargs_list_control_unsafe(ptr, 0, &check);
 	test(length_list_unsafe(check) == 3, "getargs_list_control_unsafe1");
 	GetCar(check, &check);
@@ -1304,7 +1304,7 @@ static int test_getargs_list_control_heap(void)
 	ptr = Execute_Thread;
 	push_new_control(ptr, &pos);
 	setargs_va_control(ptr,
-			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
+			fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	getargs_list_control_heap(ptr, 0, &check);
 	test(length_list_unsafe(check) == 3, "getargs_list_control_heap1");
 	GetCar(check, &check);
@@ -1340,13 +1340,13 @@ static int test_pushvalues_dynamic(void)
 	str = StructControl(pos);
 
 	SetControl(pos, Control_Result, Nil);
-	pushvalues_dynamic(pos, str, fixnum_heapr(10));
-	pushvalues_dynamic(pos, str, fixnum_heapr(20));
-	pushvalues_dynamic(pos, str, fixnum_heapr(30));
+	pushvalues_dynamic(pos, str, fixnumh(10));
+	pushvalues_dynamic(pos, str, fixnumh(20));
+	pushvalues_dynamic(pos, str, fixnumh(30));
 	test(str->dynamic_result == 0, "pop_control_dynamic1");
-	pushvalues_dynamic(pos, str, fixnum_localr(local, 40));
-	pushvalues_dynamic(pos, str, fixnum_localr(local, 50));
-	pushvalues_dynamic(pos, str, fixnum_localr(local, 60));
+	pushvalues_dynamic(pos, str, fixnuml(40));
+	pushvalues_dynamic(pos, str, fixnuml(50));
+	pushvalues_dynamic(pos, str, fixnuml(60));
 	test(str->dynamic_result != 0, "pop_control_dynamic2");
 	GetControl(pos, Control_Result, &cons);
 	test(length_list_unsafe(cons) == 6, "pop_control_dynamic3");
@@ -1372,14 +1372,14 @@ static int test_pushvalues_unsafe(void)
 	for (i = 0; i < ControlSize_Result; i++)
 		SetResultControl(pos, i, Unbound);
 	str->sizer = 0;
-	pushvalues_unsafe(ptr, fixnum_heapr(10));
+	pushvalues_unsafe(ptr, fixnumh(10));
 	test(str->sizer == 1, "pushvalues_unsafe1");
 	GetResultControl(pos, 0, &check);
 	test(RefFixnum(check) == 10, "pushvalues_unsafe2");
 	GetControl(pos, Control_Result, &check);
 	test(check == Unbound, "pushvalues_unsafe3");
 
-	pushvalues_unsafe(ptr, fixnum_heapr(20));
+	pushvalues_unsafe(ptr, fixnumh(20));
 	test(str->sizer == 2, "pushvalues_unsafe4");
 	GetResultControl(pos, 1, &check);
 	test(RefFixnum(check) == 20, "pushvalues_unsafe5");
@@ -1390,7 +1390,7 @@ static int test_pushvalues_unsafe(void)
 		SetResultControl(pos, i, Unbound);
 	str->sizer = 0;
 	for (i = 0; i < ControlSize_Result - 1; i++)
-		pushvalues_unsafe(ptr, fixnum_heapr((fixnum)(i * 10)));
+		pushvalues_unsafe(ptr, fixnumh((fixnum)(i * 10)));
 	GetResultControl(pos, ControlSize_Result - 2, &check);
 	test(RefFixnum(check) == (fixnum)((ControlSize_Result - 2) * 10),
 			"pushvalues_unsafe6");
@@ -1403,7 +1403,7 @@ static int test_pushvalues_unsafe(void)
 		SetResultControl(pos, i, Unbound);
 	str->sizer = 0;
 	for (i = 0; i < ControlSize_Result; i++)
-		pushvalues_unsafe(ptr, fixnum_heapr((fixnum)(i * 10)));
+		pushvalues_unsafe(ptr, fixnumh((fixnum)(i * 10)));
 	GetResultControl(pos, ControlSize_Result - 1, &check);
 	test(RefFixnum(check) == (fixnum)((ControlSize_Result - 1) * 10),
 			"pushvalues_unsafe8");
@@ -1416,7 +1416,7 @@ static int test_pushvalues_unsafe(void)
 		SetResultControl(pos, i, Unbound);
 	str->sizer = 0;
 	for (i = 0; i < ControlSize_Result + 1; i++)
-		pushvalues_unsafe(ptr, fixnum_heapr((fixnum)(i * 10)));
+		pushvalues_unsafe(ptr, fixnumh((fixnum)(i * 10)));
 	GetResultControl(pos, ControlSize_Result - 1, &check);
 	test(RefFixnum(check) == (fixnum)((ControlSize_Result - 1) * 10),
 			"pushvalues_unsafe10");
@@ -1431,7 +1431,7 @@ static int test_pushvalues_unsafe(void)
 		SetResultControl(pos, i, Unbound);
 	str->sizer = 0;
 	for (i = 0; i < ControlSize_Result + 2; i++)
-		pushvalues_unsafe(ptr, fixnum_heapr((fixnum)(i * 10)));
+		pushvalues_unsafe(ptr, fixnumh((fixnum)(i * 10)));
 	GetResultControl(pos, ControlSize_Result - 1, &check);
 	test(RefFixnum(check) == (fixnum)((ControlSize_Result - 1) * 10),
 			"pushvalues_unsafe13");
@@ -1461,8 +1461,8 @@ static int test_setresult_control(void)
 	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
-	setresult_control(ptr, fixnum_heapr(10));
-	setresult_control(ptr, fixnum_heapr(20));
+	setresult_control(ptr, fixnumh(10));
+	setresult_control(ptr, fixnumh(20));
 	test(str->sizer == 1, "setresult_control1");
 	GetResultControl(pos, 0, &check);
 	test(RefFixnum(check) == 20, "setresult_control2");
@@ -1482,8 +1482,8 @@ static int test_setvalues_control(void)
 	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
-	setresult_control(ptr, fixnum_heapr(10));
-	setvalues_control(ptr, fixnum_heapr(20), fixnum_heapr(30), NULL);
+	setresult_control(ptr, fixnumh(10));
+	setvalues_control(ptr, fixnumh(20), fixnumh(30), NULL);
 	test(str->sizer == 2, "setvalues_control1");
 	GetResultControl(pos, 0, &check);
 	test(RefFixnum(check) == 20, "setvalues_control2");
@@ -1505,7 +1505,7 @@ static int test_setvalues_nil_control(void)
 	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
-	setresult_control(ptr, fixnum_heapr(10));
+	setresult_control(ptr, fixnumh(10));
 	SetControl(pos, Control_Result, Unbound);
 	setvalues_nil_control(ptr);
 	test(str->sizer == 0, "setvalues_nil_control1");
@@ -1527,8 +1527,8 @@ static int test_setvalues_list_control(void)
 	push_new_control(ptr, &pos);
 	str = StructControl(pos);
 
-	setresult_control(ptr, fixnum_heapr(10));
-	list_heap(&check, fixnum_heapr(20), fixnum_heapr(30), NULL);
+	setresult_control(ptr, fixnumh(10));
+	list_heap(&check, fixnumh(20), fixnumh(30), NULL);
 	setvalues_list_control(ptr, check);
 	test(str->sizer == 2, "setvalues_list_control1");
 	GetResultControl(pos, 0, &check);
@@ -1553,11 +1553,11 @@ static int test_getresult_control(void)
 	getresult_control(ptr, &check);
 	test(check == Nil, "getresult_control1");
 
-	setresult_control(ptr, fixnum_heapr(10));
+	setresult_control(ptr, fixnumh(10));
 	getresult_control(ptr, &check);
 	test(RefFixnum(check) == 10, "getresult_control2");
 
-	setvalues_control(ptr, fixnum_heapr(20), fixnum_heapr(30), NULL);
+	setvalues_control(ptr, fixnumh(20), fixnumh(30), NULL);
 	getresult_control(ptr, &check);
 	test(RefFixnum(check) == 20, "getresult_control3");
 
@@ -1582,7 +1582,7 @@ static int test_getvalues_control(void)
 	setvalues_nil_control(ptr);
 	size = ControlSize_Result * 2;
 	for (i = 0; i < size; i++)
-		pushvalues_unsafe(ptr, fixnum_heapr((fixnum)(i * 10)));
+		pushvalues_unsafe(ptr, fixnumh((fixnum)(i * 10)));
 	nreverse_values_unsafe(ptr);
 
 	i = 1;
@@ -1629,10 +1629,10 @@ static int test_list_from_vector(void)
 
 	setvalues_nil_control(ptr);
 	for (i = 0; i < ControlSize_Result; i++)
-		pushvalues_unsafe(ptr, fixnum_heapr((fixnum)(i * 10)));
+		pushvalues_unsafe(ptr, fixnumh((fixnum)(i * 10)));
 	nreverse_values_unsafe(ptr);
 
-	list_heap(&cons, fixnum_heapr(99), NULL);
+	list_heap(&cons, fixnumh(99), NULL);
 	list_from_vector(NULL, pos, 1, cons, &cons);
 	test(length_list_unsafe(cons) == 2, "list_from_vector1");
 	GetCons(cons, &check, &cons);
@@ -1640,7 +1640,7 @@ static int test_list_from_vector(void)
 	GetCons(cons, &check, &cons);
 	test(RefFixnum(check) == 99, "list_from_vector3");
 
-	list_heap(&cons, fixnum_heapr(20), fixnum_heapr(30), NULL);
+	list_heap(&cons, fixnumh(20), fixnumh(30), NULL);
 	list_from_vector(NULL, pos, 2, cons, &cons);
 	test(length_list_unsafe(cons) == 4, "list_from_vector4");
 	GetCons(cons, &check, &cons);
@@ -1663,7 +1663,7 @@ static void init_getvalues_list_control(Execute ptr, size_t size)
 
 	setvalues_nil_control(ptr);
 	for (i = 0; i < size; i++)
-		pushvalues_unsafe(ptr, fixnum_heapr((fixnum)(i * 10)));
+		pushvalues_unsafe(ptr, fixnumh((fixnum)(i * 10)));
 	nreverse_values_unsafe(ptr);
 }
 
@@ -1786,7 +1786,7 @@ static int test_runcode_control(void)
 	test_make_code(&pos);
 	setargs_nil_control(ptr);
 	setvalues_nil_control(ptr);
-	setargs_va_control(ptr, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	runcode_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 2, "runcode_control1");
@@ -1815,7 +1815,7 @@ static int test_execute_control(void)
 	compiled_heap(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_function_length);
 	setcompiled_dynamic(call, p_debug1);
-	setargs_va_control(ptr, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	execute_control(ptr, call);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 2, "execute_control1");
@@ -1825,7 +1825,7 @@ static int test_execute_control(void)
 	function_heap(&call, Nil, call);
 	setargs_nil_control(ptr);
 	setvalues_nil_control(ptr);
-	setargs_va_control(ptr, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	execute_control(ptr, call);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 2, "execute_control2");
@@ -1852,7 +1852,7 @@ static int test_apply_control(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "apply_control1");
 
-	list_heap(&pos, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	list_heap(&pos, fixnumh(10), fixnumh(20), NULL);
 	apply_control(ptr, call, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 2, "apply_control2");
@@ -1889,7 +1889,7 @@ static int test_stdarg_control(void)
 
 	test(call_funcall_control(ptr, 0, call, NULL), "stdarg_control1");
 	test(call_funcall_control(ptr, 2, call,
-				fixnum_heapr(10), fixnum_heapr(20), NULL),
+				fixnumh(10), fixnumh(20), NULL),
 			"stdarg_control2");
 
 	free_control(ptr, control);
@@ -1914,7 +1914,7 @@ static int test_funcall_control(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "funcall_control1");
 
-	funcall_control(ptr, call, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	funcall_control(ptr, call, fixnumh(10), fixnumh(20), NULL);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 2, "funcall_control2");
 
@@ -1941,7 +1941,7 @@ static int test_call_control(void)
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 0, "call_control1");
 
-	list_heap(&pos, call, fixnum_heapr(10), fixnum_heapr(20), NULL);
+	list_heap(&pos, call, fixnumh(10), fixnumh(20), NULL);
 	call_control(ptr, pos);
 	getresult_control(ptr, &pos);
 	test(RefFixnum(pos) == 2, "call_control2");
@@ -1975,13 +1975,13 @@ static int test_execute_goto(void)
 	cons_heap(&pos, pos, index_heapr(3));
 	setarray(array, 0, pos);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(11));
+	cons_heap(&pos, pos, fixnumh(11));
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
 	setarray(array, 2, pos);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(22));
+	cons_heap(&pos, pos, fixnumh(22));
 	setarray(array, 3, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
@@ -2024,13 +2024,13 @@ static int test_execute_if(void)
 	cons_heap(&pos, pos, index_heapr(4));
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(11));
+	cons_heap(&pos, pos, fixnumh(11));
 	setarray(array, 2, pos);
 	internchar(LISP_CODE, "GOTO", &pos);
 	cons_heap(&pos, pos, index_heapr(5));
 	setarray(array, 3, pos);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(22));
+	cons_heap(&pos, pos, fixnumh(22));
 	setarray(array, 4, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
@@ -2060,13 +2060,13 @@ static int test_execute_if(void)
 	cons_heap(&pos, pos, index_heapr(4));
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(11));
+	cons_heap(&pos, pos, fixnumh(11));
 	setarray(array, 2, pos);
 	internchar(LISP_CODE, "GOTO", &pos);
 	cons_heap(&pos, pos, index_heapr(5));
 	setarray(array, 3, pos);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(22));
+	cons_heap(&pos, pos, fixnumh(22));
 	setarray(array, 4, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
@@ -2119,15 +2119,15 @@ static int test_execute_go(void)
 	internchar(LISP_PACKAGE, "HELLO", &value);
 	cons_heap(&pos, pos, value);
 	setarray(array, 0, pos);
-	cons_heap(&pos, debug, fixnum_heapr(11));
+	cons_heap(&pos, debug, fixnumh(11));
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
 	setarray(array, 2, pos);
-	cons_heap(&pos, debug, fixnum_heapr(22));
+	cons_heap(&pos, debug, fixnumh(22));
 	setarray(array, 3, pos);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(33));
+	cons_heap(&pos, pos, fixnumh(33));
 	setarray(array, 4, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
@@ -2163,7 +2163,7 @@ static int test_execute_go(void)
 	internchar(LISP_PACKAGE, "HELLO", &value);
 	cons_heap(&pos, pos, value);
 	setarray(array, 0, pos);
-	cons_heap(&pos, debug, fixnum_heapr(11));
+	cons_heap(&pos, debug, fixnumh(11));
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
@@ -2175,12 +2175,12 @@ static int test_execute_go(void)
 	internchar(LISP_CODE, "EXECUTE", &pos);
 	cons_heap(&pos, pos, child);
 	setarray(array, 0, pos);
-	cons_heap(&pos, debug, fixnum_heapr(22));
+	cons_heap(&pos, debug, fixnumh(22));
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
 	setarray(array, 2, pos);
-	cons_heap(&pos, debug, fixnum_heapr(33));
+	cons_heap(&pos, debug, fixnumh(33));
 	setarray(array, 3, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
@@ -2227,12 +2227,12 @@ static int test_execute_go(void)
 	settype_code(child, CodeType_Return);
 
 	vector4_heap(&array, 4);
-	cons_heap(&pos, debug, fixnum_heapr(11));
+	cons_heap(&pos, debug, fixnumh(11));
 	setarray(array, 0, pos);
 	internchar(LISP_CODE, "EXECUTE", &pos);
 	cons_heap(&pos, pos, child);
 	setarray(array, 1, pos);
-	cons_heap(&pos, debug, fixnum_heapr(22));
+	cons_heap(&pos, debug, fixnumh(22));
 	setarray(array, 2, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
@@ -2244,12 +2244,12 @@ static int test_execute_go(void)
 	internchar(LISP_CODE, "EXECUTE", &pos);
 	cons_heap(&pos, pos, child);
 	setarray(array, 0, pos);
-	cons_heap(&pos, debug, fixnum_heapr(33));
+	cons_heap(&pos, debug, fixnumh(33));
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
 	setarray(array, 2, pos);
-	cons_heap(&pos, debug, fixnum_heapr(44));
+	cons_heap(&pos, debug, fixnumh(44));
 	setarray(array, 3, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
@@ -2291,14 +2291,14 @@ static int test_execute_return_from(void)
 	 */
 	vector4_heap(&array, 4);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(11));
+	cons_heap(&pos, pos, fixnumh(11));
 	setarray(array, 0, pos);
 	internchar(LISP_CODE, "RETURN-FROM", &pos);
 	internchar(LISP_PACKAGE, "HELLO", &value);
 	cons_heap(&pos, pos, value);
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(22));
+	cons_heap(&pos, pos, fixnumh(22));
 	setarray(array, 2, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
@@ -2326,14 +2326,14 @@ static int test_execute_return_from(void)
 	 */
 	vector4_heap(&array, 4);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(11));
+	cons_heap(&pos, pos, fixnumh(11));
 	setarray(array, 0, pos);
 	internchar(LISP_CODE, "RETURN-FROM", &pos);
 	internchar(LISP_PACKAGE, "HELLO", &value);
 	cons_heap(&pos, pos, value);
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(22));
+	cons_heap(&pos, pos, fixnumh(22));
 	setarray(array, 2, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);
@@ -2345,7 +2345,7 @@ static int test_execute_return_from(void)
 	cons_heap(&pos, pos, child);
 	setarray(array, 0, pos);
 	internchar(LISP_CODE, "SET", &pos);
-	cons_heap(&pos, pos, fixnum_heapr(33));
+	cons_heap(&pos, pos, fixnumh(33));
 	setarray(array, 1, pos);
 	internchar(LISP_CODE, "END", &pos);
 	conscar_heap(&pos, pos);

@@ -187,12 +187,12 @@ static int test_upgraded_array_integer(void)
 	test(result == ARRAY_TYPE_T, "upgraded_array_integer2");
 
 	/* left */
-	type4_heap(LISPDECL_INTEGER, Nil, Nil, Nil, fixnum_heapr(10), &pos);
+	type4_heap(LISPDECL_INTEGER, Nil, Nil, Nil, fixnumh(10), &pos);
 	result = upgraded_array_integer(pos, &size);
 	test(result == ARRAY_TYPE_T, "upgraded_array_integer3");
 
 	/* right */
-	type4_heap(LISPDECL_INTEGER, Nil, fixnum_heapr(10), Nil, Nil, &pos);
+	type4_heap(LISPDECL_INTEGER, Nil, fixnumh(10), Nil, Nil, &pos);
 	result = upgraded_array_integer(pos, &size);
 	test(result == ARRAY_TYPE_T, "upgraded_array_integer4");
 

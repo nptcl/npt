@@ -13,6 +13,7 @@
 #include "execute.h"
 #include "function.h"
 #include "gc.h"
+#include "hold.h"
 #include "lambda.h"
 #include "symbol.h"
 #include "type.h"
@@ -72,7 +73,7 @@ static int runcode_control_check(Execute ptr)
 #endif
 
 #ifdef LISP_DEBUG_FORCE_GC
-#define LispForceGc(x)			gcsync(x)
+#define LispForceGc(x)			gcsync((x), GcMode_Full)
 #else
 #define LispForceGc(x)			;
 #endif
@@ -93,16 +94,16 @@ static int runcode_control_check(Execute ptr)
 
 #ifdef LISP_GC_SYNC
 #define LispGcCheck(x)			{ \
-	if (lisp_gcsync || ((LISP_GC_SYNC % ControlCounter) == 0)) { \
+	if ((lisp_gcsync != GcMode_Off) || ((LISP_GC_SYNC % ControlCounter) == 0)) { \
 		LispGcTrace(); \
-		gcsync(x); \
+		gcsync((x), GcMode_Default); \
 	} \
 }
 #else
 #define LispGcCheck(x)			{ \
-	if (lisp_gcsync) { \
+	if (lisp_gcsync != GcMode_Off) { \
 		LispGcTrace(); \
-		gcsync(x); \
+		gcsync((x), GcMode_Default); \
 	} \
 }
 #endif

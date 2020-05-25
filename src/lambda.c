@@ -52,7 +52,7 @@ static void variable_check(addr var, enum AMPERSAND_ARGUMENT ampersand)
 {
 	if (var == Nil || var == T)
 		fmte("The symbol ~S must not be a constant symbol.", var, NULL);
-	if (! IsSymbol(var))
+	if (! symbolp(var))
 		fmte("The variable ~S is not a symbol.", var, NULL);
 	if (GetStatusReadOnly(var))
 		fmte("The symbol ~S must not be a constant symbol.", var, NULL);
@@ -97,7 +97,7 @@ static void make_keyword_from_symbol(addr symbol, addr *ret)
 {
 	addr keyword, package;
 
-	if (! IsSymbol(symbol))
+	if (! symbolp(symbol))
 		fmte("The variable ~S must be a symbol.", symbol, NULL);
 	GetConst(PACKAGE_KEYWORD, &keyword);
 	GetPackageSymbol(symbol, &package);
@@ -855,7 +855,7 @@ static void variable_check_defsetf(addr var)
 {
 	if (var == Nil || var == T)
 		fmte("The symbol ~S must not be a constant symbol.", var, NULL);
-	if (! IsSymbol(var))
+	if (! symbolp(var))
 		fmte("The variable ~S is not a symbol.", var, NULL);
 	if (GetStatusReadOnly(var))
 		fmte("The symbol ~S must not be a constant symbol.", var, NULL);

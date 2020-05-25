@@ -501,12 +501,11 @@ static int infobit_system(addr pos)
 static void infobit_info(addr pos)
 {
 	enum LISPTYPE type;
-	int status, check, user, array, body;
+	int status, user, array, body;
 	size_t length;
 
 	type = info_gettype(pos);
 	status = GetStatus(pos);
-	check = GetCheck(pos);
 	user = GetUser(pos);
 	array = IsArray(pos);
 	body = IsBody(pos);
@@ -520,14 +519,6 @@ static void infobit_info(addr pos)
 			ONOFF(GetStatusSystem(pos)),
 			ONOFF(GetStatusFixed(pos)),
 			ONOFF(GetStatusGc(pos)));
-	info("  %-10s = %02X [ABD248:%c%c%c%c%c%c]", "check",
-			check,
-			ONOFF(GetCheckArray(pos)),
-			ONOFF(GetCheckBody(pos)),
-			ONOFF(GetCheckArrayBody(pos)),
-			ONOFF(GetCheckSize2(pos)),
-			ONOFF(GetCheckSize4(pos)),
-			ONOFF(GetCheckSize8(pos)));
 	info("  %-10s = %02X", "user", user);
 	if (array) {
 		lenarray(pos, &length);

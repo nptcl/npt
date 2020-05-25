@@ -6,7 +6,7 @@
 #include "control_operator.h"
 #include "declare.h"
 #include "equal.h"
-#include "gc.h"
+#include "hold.h"
 #include "integer.h"
 #include "lambda.h"
 #include "parse.h"
@@ -85,7 +85,7 @@ static void parse_letone(addr one, addr *rets, addr *retv)
 	addr symbol, value;
 
 	/* symbol */
-	if (IsSymbol(one)) {
+	if (symbolp(one)) {
 		*rets = one;
 		*retv = Nil;
 		return;
@@ -1108,7 +1108,7 @@ static int parse_block(Execute ptr, addr *ret, addr cons)
 	if (! consp(cons))
 		fmte("block form must be (block name . body).", NULL);
 	GetCons(cons, &name, &cons);
-	if (! IsSymbol(name))
+	if (! symbolp(name))
 		fmte("block name ~S must be a symbol type.", name, NULL);
 	Return(parse_allcons(ptr, &cons, cons));
 

@@ -4,6 +4,7 @@
 #include "character.h"
 #include "condition.h"
 #include "heap.h"
+#include "heap_memory.h"
 #include "memory.h"
 #include "object.h"
 #include "pathname.h"

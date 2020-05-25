@@ -10,53 +10,65 @@
 /*
  *  character
  */
-_g addr make_character_allocr(LocalRoot local, unicode value)
+_g void make_character_heap(addr *ret, unicode value)
 {
 	addr pos;
-	alloc_body2(local, &pos, LISPTYPE_CHARACTER, sizeoft(unicode));
+	heap_body2(&pos, LISPTYPE_CHARACTER, sizeoft(unicode));
 	setcharacter_unsafe(pos, value);
-	return pos;
-}
-
-_g addr character_localr(LocalRoot local, unicode value)
-{
-	Check(local == NULL, "local error");
-	return make_character_allocr(local, value);
-}
-_g addr character_heapr(unicode value)
-{
-	addr cache, pos;
-
-	if (value < LISP_CHARACTER_CACHE) {
-		GetConst(CHARACTER_CACHE, &cache);
-		Check(cache == Unbound, "Unbound error, (build_character).");
-		GetArrayA4(cache, (size_t)value, &pos);
-		if (pos != Nil) return pos;
-		pos = make_character_allocr(NULL, value);
-		SetArrayA4(cache, (size_t)value, pos);
-		return pos;
-	}
-	return make_character_allocr(NULL, value);
-}
-_g addr character_allocr(LocalRoot local, unicode value)
-{
-	if (local)
-		return character_localr(local, value);
-	else
-		return character_heapr(value);
+	*ret = pos;
 }
 
 _g void character_alloc(LocalRoot local, addr *ret, unicode value)
 {
-	*ret = character_allocr(local, value);
+	if (local)
+		character_local(local, ret, value);
+	else
+		character_heap(ret, value);
 }
+
 _g void character_local(LocalRoot local, addr *ret, unicode value)
 {
-	*ret = character_localr(local, value);
+	addr pos;
+
+	Check(local == NULL, "local error");
+	local_body2(local, &pos, LISPTYPE_CHARACTER, sizeoft(unicode));
+	setcharacter_unsafe(pos, value);
+	*ret = pos;
 }
+
+#define character_cache_p(v) ((v) < LISP_CHARACTER_CACHE)
 _g void character_heap(addr *ret, unicode value)
 {
-	*ret = character_heapr(value);
+	addr cache, pos;
+
+	/* make object */
+	if (! character_cache_p(value)) {
+		make_character_heap(ret, value);
+		return;
+	}
+	
+	/* cache */
+	GetConst(CHARACTER_CACHE, &cache);
+	Check(cache == Unbound, "Unbound error, (build_character).");
+	GetArrayA4(cache, (size_t)value, &pos);
+
+	/* cache hit */
+	if (pos != Nil) {
+		*ret = pos;
+		return;
+	}
+
+	/* add cache */
+	make_character_heap(&pos, value);
+	SetArrayA4(cache, (size_t)value, pos);
+	*ret = pos;
+}
+
+_g addr characterh(unicode value) /* for debug */
+{
+	addr pos;
+	character_heap(&pos, value);
+	return pos;
 }
 
 _g const unicode *ptrcharacter(addr pos)

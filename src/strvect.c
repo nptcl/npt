@@ -1,6 +1,8 @@
 #include <string.h>
 #include "character.h"
 #include "condition.h"
+#include "local.h"
+#include "heap.h"
 #include "memory.h"
 #include "integer.h"
 #include "sequence.h"
@@ -111,66 +113,53 @@ static int memu1_comparep(const unicode *p1, const byte *p2, size_t s1, size_t s
 /*
  *  strvect
  */
-_g addr strvect_allocr(LocalRoot local, size_t len)
+_g void strvect_alloc(LocalRoot local, addr *ret, size_t len)
 {
 	addr pos;
 
-	pos = allocr_body(local, LISPTYPE_STRING, StringBodyLength(len));
+	alloc_body(local, &pos, LISPTYPE_STRING, StringBodyLength(len));
 	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
 	SetStringSize(pos, len);
-
-	return pos;
-}
-_g addr strvect_localr(LocalRoot local, size_t len)
-{
-	Check(local == NULL, "local error");
-	return strvect_allocr(local, len);
-}
-_g addr strvect_heapr(size_t len)
-{
-	return strvect_allocr(NULL, len);
-}
-_g void strvect_alloc(LocalRoot local, addr *ret, size_t len)
-{
-	*ret = strvect_allocr(local, len);
+	*ret = pos;
 }
 _g void strvect_local(LocalRoot local, addr *ret, size_t len)
 {
+	addr pos;
+
 	Check(local == NULL, "local error");
-	*ret = strvect_allocr(local, len);
+	local_body(local, &pos, LISPTYPE_STRING, StringBodyLength(len));
+	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
+	SetStringSize(pos, len);
+	*ret = pos;
 }
 _g void strvect_heap(addr *ret, size_t len)
 {
-	*ret = strvect_allocr(NULL, len);
+	addr pos;
+
+	heap_body(&pos, LISPTYPE_STRING, StringBodyLength(len));
+	SetCharacterType(pos, CHARACTER_TYPE_EMPTY);
+	SetStringSize(pos, len);
+	*ret = pos;
 }
 
-_g addr strvect_character_allocr(LocalRoot local, addr pos)
-{
-	unicode u;
-	GetCharacter(pos, &u);
-	return strvect_sizeu_allocr(local, &u, 1);
-}
-_g addr strvect_character_localr(LocalRoot local, addr pos)
-{
-	Check(local == NULL, "local error");
-	return strvect_character_allocr(local, pos);
-}
-_g addr strvect_character_heapr(addr pos)
-{
-	return strvect_character_allocr(NULL, pos);
-}
 _g void strvect_character_alloc(LocalRoot local, addr *ret, addr pos)
 {
-	*ret = strvect_character_allocr(local, pos);
+	unicode c;
+	GetCharacter(pos, &c);
+	strvect_sizeu_alloc(local, ret, &c, 1);
 }
 _g void strvect_character_local(LocalRoot local, addr *ret, addr pos)
 {
+	unicode c;
 	Check(local == NULL, "local error");
-	*ret = strvect_character_allocr(local, pos);
+	GetCharacter(pos, &c);
+	strvect_sizeu_local(local, ret, &c, 1);
 }
 _g void strvect_character_heap(addr *ret, addr pos)
 {
-	*ret = strvect_character_allocr(NULL, pos);
+	unicode c;
+	GetCharacter(pos, &c);
+	strvect_sizeu_heap(ret, &c, 1);
 }
 
 _g void strvect_length(addr pos, size_t *ret)
@@ -253,7 +242,7 @@ _g int strvect_simple_p(addr pos)
 	return 0;
 }
 
-_g addr strvect_char_allocr(LocalRoot local, const char *arg)
+_g void strvect_char_alloc(LocalRoot local, addr *ret, const char *arg)
 {
 	addr pos;
 	unicode *destroy;
@@ -265,30 +254,23 @@ _g addr strvect_char_allocr(LocalRoot local, const char *arg)
 	for (i = 0; i < size; i++)
 		destroy[i] = (unicode)arg[i];
 	strvect_update_character_type(pos);
-
-	return pos;
-}
-_g addr strvect_char_localr(LocalRoot local, const char *arg)
-{
-	Check(local == NULL, "local error");
-	return strvect_char_allocr(local, arg);
-}
-_g addr strvect_char_heapr(const char *arg)
-{
-	return strvect_char_allocr(NULL, arg);
-}
-_g void strvect_char_alloc(LocalRoot local, addr *ret, const char *arg)
-{
-	*ret = strvect_char_allocr(local, arg);
+	*ret = pos;
 }
 _g void strvect_char_local(LocalRoot local, addr *ret, const char *arg)
 {
 	Check(local == NULL, "local error");
-	*ret = strvect_char_allocr(local, arg);
+	strvect_char_alloc(local, ret, arg);
 }
 _g void strvect_char_heap(addr *ret, const char *arg)
 {
-	*ret = strvect_char_allocr(NULL, arg);
+	strvect_char_alloc(NULL, ret, arg);
+}
+
+_g addr stringh(const char *arg) /* for debug */
+{
+	addr pos;
+	strvect_char_heap(&pos, arg);
+	return pos;
 }
 
 _g void strvect_char1_alloc(LocalRoot local, addr *ret, const char *arg, unicode c)
@@ -316,7 +298,7 @@ _g void strvect_char1_heap(addr *ret, const char *arg, unicode c)
 	strvect_char1_alloc(NULL, ret, arg, c);
 }
 
-_g addr strvect_size1_allocr(LocalRoot local, const char *arg, size_t size)
+_g void strvect_size1_alloc(LocalRoot local, addr *ret, const char *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -327,33 +309,19 @@ _g addr strvect_size1_allocr(LocalRoot local, const char *arg, size_t size)
 	for (i = 0; i < size; i++)
 		destroy[i] = (unicode)arg[i];
 	strvect_update_character_type(pos);
-
-	return pos;
-}
-_g addr strvect_size1_localr(LocalRoot local, const char *arg, size_t size)
-{
-	Check(local == NULL, "local error");
-	return strvect_size1_allocr(local, arg, size);
-}
-_g addr strvect_size1_heapr(const char *arg, size_t size)
-{
-	return strvect_size1_allocr(NULL, arg, size);
-}
-_g void strvect_size1_alloc(LocalRoot local, addr *ret, const char *arg, size_t size)
-{
-	*ret = strvect_size1_allocr(local, arg, size);
+	*ret = pos;
 }
 _g void strvect_size1_local(LocalRoot local, addr *ret, const char *arg, size_t size)
 {
 	Check(local == NULL, "local error");
-	*ret = strvect_size1_allocr(local, arg, size);
+	strvect_size1_alloc(local, ret, arg, size);
 }
 _g void strvect_size1_heap(addr *ret, const char *arg, size_t size)
 {
-	*ret = strvect_size1_allocr(NULL, arg, size);
+	strvect_size1_alloc(NULL, ret, arg, size);
 }
 
-_g addr strvect_sizeu_allocr(LocalRoot local, const unicode *arg, size_t size)
+_g void strvect_sizeu_alloc(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	addr pos;
 	unicode *destroy;
@@ -362,30 +330,16 @@ _g addr strvect_sizeu_allocr(LocalRoot local, const unicode *arg, size_t size)
 	GetStringUnicode(pos, (const unicode **)&destroy);
 	memcpy(destroy, arg, sizeoft(unicode) * size);
 	strvect_update_character_type(pos);
-
-	return pos;
-}
-_g addr strvect_sizeu_localr(LocalRoot local, const unicode *arg, size_t size)
-{
-	Check(local == NULL, "local error");
-	return strvect_sizeu_allocr(local, arg, size);
-}
-_g addr strvect_sizeu_heapr(const unicode *arg, size_t size)
-{
-	return strvect_sizeu_allocr(NULL, arg, size);
-}
-_g void strvect_sizeu_alloc(LocalRoot local, addr *ret, const unicode *arg, size_t size)
-{
-	*ret = strvect_sizeu_allocr(local, arg, size);
+	*ret = pos;
 }
 _g void strvect_sizeu_local(LocalRoot local, addr *ret, const unicode *arg, size_t size)
 {
 	Check(local == NULL, "local error");
-	*ret = strvect_sizeu_allocr(local, arg, size);
+	strvect_sizeu_alloc(local, ret, arg, size);
 }
 _g void strvect_sizeu_heap(addr *ret, const unicode *arg, size_t size)
 {
-	*ret = strvect_sizeu_allocr(NULL, arg, size);
+	strvect_sizeu_alloc(NULL, ret, arg, size);
 }
 
 

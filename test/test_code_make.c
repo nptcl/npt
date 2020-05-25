@@ -319,8 +319,8 @@ static int test_code_symbol(void)
 	test(pos == check, "code_symbol1");
 
 	readstring(&symbol, "code-symbol-test");
-	pushlexical_control(ptr, symbol, fixnum_heapr(10));
-	pushspecial_control(ptr, symbol, fixnum_heapr(20));
+	pushlexical_control(ptr, symbol, fixnumh(10));
+	pushspecial_control(ptr, symbol, fixnumh(20));
 
 	/* set */
 	setlexical_symbol(symbol);

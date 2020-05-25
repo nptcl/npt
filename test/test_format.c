@@ -32,7 +32,7 @@ static int test_format_stream_lisp(void)
 	open_output_string_stream(&stream, 0);
 	strvect_char_local(local, &format, "Hello~A~A~%");
 	list_local(local, &list,
-			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
+			fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	format_stream_list(ptr, stream, format, list, &tail);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "Hello1020\n"), "format_stream_list1");
@@ -62,7 +62,7 @@ static int test_format_string_lisp(void)
 	push_local(local, &stack);
 	strvect_char_local(local, &format, "Hello~A~A~%");
 	list_local(local, &list,
-			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
+			fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 
 	format_string_lisp(ptr, format, list, &pos);
 	test(string_equal_char(pos, "Hello1020\n"), "format_string_lisp1");
@@ -85,7 +85,7 @@ static int test_format_lisp(void)
 	open_output_string_stream(&stream, 0);
 	strvect_char_local(local, &format, "Hello~A~A~%");
 	list_local(local, &list,
-			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
+			fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 
 	format_lisp(ptr, Nil, format, list, &pos);
 	test(string_equal_char(pos, "Hello1020\n"), "format_lisp1");

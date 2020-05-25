@@ -71,14 +71,14 @@ static int test_push_code_stack(void)
 	local = Local_Thread;
 	code_stack_local(local, &pos);
 	str = StructCodeStack(pos);
-	push_code_stack(local, pos, fixnum_heapr(10));
+	push_code_stack(local, pos, fixnumh(10));
 	test(str->size == 1, "push_code_stack1");
 	GetCodeStack(pos, CodeStack_Root, &cons);
 	test(length_list_unsafe(cons) == 1, "push_code_stack2");
 	GetCar(cons, &check);
 	test(RefFixnum(check) == 10, "push_code_stack3");
 
-	push_code_stack(local, pos, fixnum_heapr(20));
+	push_code_stack(local, pos, fixnumh(20));
 	test(str->size == 2, "push_code_stack4");
 	GetCodeStack(pos, CodeStack_Root, &cons);
 	test(length_list_unsafe(cons) == 2, "push_code_stack5");
@@ -101,8 +101,8 @@ static int test_finish_code_stack(void)
 	local = Local_Thread;
 	code_stack_local(local, &pos);
 	str = StructCodeStack(pos);
-	push_code_stack(local, pos, fixnum_heapr(10));
-	push_code_stack(local, pos, fixnum_heapr(20));
+	push_code_stack(local, pos, fixnumh(10));
+	push_code_stack(local, pos, fixnumh(20));
 	finish_code_stack(local, pos);
 	test(str->size == 2, "finish_code_stack1");
 	test(str->finish, "finish_code_stack2");
@@ -248,7 +248,7 @@ static int test_code_queue_add2(void)
 	push_local(local, &stack);
 	code_queue_local(local, &pos);
 
-	code_queue_add2(local, pos, fixnum_heapr(10), fixnum_heapr(20));
+	code_queue_add2(local, pos, fixnumh(10), fixnumh(20));
 	GetCodeQueue(pos, CodeQueue_Code, &pos);
 	GetCodeStack(pos, CodeStack_Root, &pos);
 	test(length_list_unsafe(pos) == 1, "code_queue_add2.1");
@@ -274,7 +274,7 @@ static int test_code_queue_push(void)
 	code_queue_local(local, &pos);
 
 	code_queue_push(local, pos,
-			fixnum_heapr(10), fixnum_heapr(20), fixnum_heapr(30), NULL);
+			fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	GetCodeQueue(pos, CodeQueue_Code, &pos);
 	GetCodeStack(pos, CodeStack_Root, &pos);
 	test(length_list_unsafe(pos) == 1, "code_queue_push1");
@@ -327,7 +327,7 @@ static int test_code_queue_cons(void)
 	push_local(local, &stack);
 	code_queue_local(local, &pos);
 
-	code_queue_cons(local, pos, CONSTANT_CODE_NOP, fixnum_heapr(10));
+	code_queue_cons(local, pos, CONSTANT_CODE_NOP, fixnumh(10));
 	GetCodeQueue(pos, CodeQueue_Code, &pos);
 	GetCodeStack(pos, CodeStack_Root, &pos);
 	GetCar(pos, &pos);
@@ -352,7 +352,7 @@ static int test_code_queue_double(void)
 	push_local(local, &stack);
 	code_queue_local(local, &pos);
 
-	code_queue_double(local, pos, CONSTANT_CODE_NOP, fixnum_heapr(10), fixnum_heapr(20));
+	code_queue_double(local, pos, CONSTANT_CODE_NOP, fixnumh(10), fixnumh(20));
 	GetCodeQueue(pos, CodeQueue_Code, &pos);
 	GetCodeStack(pos, CodeStack_Root, &pos);
 	GetCar(pos, &pos);
@@ -492,10 +492,10 @@ static void test_push_testdata(LocalRoot local, addr pos)
 	code_queue_cons(local, pos, CONSTANT_CODE_GOTO, index_heapr(10));
 	code_queue_single(local, pos, CONSTANT_CODE_NOP);
 	code_queue_single(local, pos, CONSTANT_CODE_NOP);
-	code_queue_cons(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(111));
+	code_queue_cons(local, pos, CONSTANT_CODE_TAG, fixnumh(111));
 	code_queue_single(local, pos, CONSTANT_CODE_NOP);
 	code_queue_single(local, pos, CONSTANT_CODE_NOP);
-	code_queue_cons(local, pos, CONSTANT_CODE_TAG, fixnum_heapr(222));
+	code_queue_cons(local, pos, CONSTANT_CODE_TAG, fixnumh(222));
 	code_queue_cons(local, pos, CONSTANT_CODE_GOTO, index_heapr(50));
 	code_queue_single(local, pos, CONSTANT_CODE_NOP);
 	code_queue_add(local, pos, index_heapr(40));

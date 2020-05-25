@@ -1303,7 +1303,8 @@ error:
 	else {
 		rollback_local(local, stack);
 		*ret = *position = 0;
-		return fmte_("Invalid string ~A.", character_heapr(c), NULL);
+		character_heap(&cons, c);
+		return fmte_("Invalid string ~A.", cons, NULL);
 	}
 }
 

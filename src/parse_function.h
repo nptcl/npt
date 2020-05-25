@@ -2,7 +2,7 @@
 #define __PARSE_FUNCTION_HEADER__
 
 #include "execute.h"
-#include "gc.h"
+#include "hold.h"
 #include "typedef.h"
 
 #define localhold_parse_self(h,p,x) localhold_parse_execute((h),(p),&(x),(x))

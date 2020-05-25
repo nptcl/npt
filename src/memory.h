@@ -78,18 +78,6 @@ enum LISPSTATUS {
 	LISPSTATUS_SIZE
 };
 
-enum LISPCHECK {
-	LISPCHECK_SYMBOL	= 0,
-	LISPCHECK_LIST		= 1,
-	LISPCHECK_ARRAY		= 2,
-	LISPCHECK_BODY		= 3,
-	LISPCHECK_ARRAYBODY	= 4,
-	LISPCHECK_SIZE2		= 5,
-	LISPCHECK_SIZE4		= 6,
-	LISPCHECK_SIZE8		= 7,
-	LISPCHECK_SIZE
-};
-
 enum LISPCLASS {
 	LISPCLASS_Cons1 = 0, /* cons */
 	LISPCLASS_Cons2,
@@ -152,9 +140,9 @@ enum LISPCLASS {
 #define PtrStatus(x)            (((addr)(x)) + 1UL)
 #define GetStatus(x)            (RdByte(PtrStatus(x)))
 #define SetStatus(x,y)          (WtByte(PtrStatus(x), (y)))
-#define PtrCheck(x)				(((addr)(x)) + 2UL)
-#define GetCheck(x)				(RdByte(PtrCheck(x)))
-#define SetCheck(x,y)			(WtByte(PtrCheck(x), (y)))
+#define PtrChain(x)				(((addr)(x)) + 2UL)
+#define GetChain(x)				(RdByte(PtrChain(x)))
+#define SetChain(x,y)			(WtByte(PtrChain(x), (y)))
 #define PtrUser(x)				(((addr)(x)) + 3UL)
 #define GetUser(x)				(RdByte(PtrUser(x)))
 #define SetUser(x,y)			(WtByte(PtrUser(x), (y)))
@@ -177,21 +165,6 @@ enum LISPCLASS {
 #define SetStatusSize(x,y,z)	SetStatus((x), ((y)|(1U<<(z))))
 #define SetStatusReadOnly(x)	SetStatusValue(x, LISPSTATUS_READONLY, 1)
 #define ResetStatusReadOnly(x)	SetStatusValue(x, LISPSTATUS_READONLY, 0)
-
-#define GetCheckSymbol(x)		GetBitByte(GetCheck(x), LISPCHECK_SYMBOL)
-#define GetCheckList(x)			GetBitByte(GetCheck(x), LISPCHECK_LIST)
-#define GetCheckArray(x)		GetBitByte(GetCheck(x), LISPCHECK_ARRAY)
-#define GetCheckBody(x)			GetBitByte(GetCheck(x), LISPCHECK_BODY)
-#define GetCheckArrayBody(x)	GetBitByte(GetCheck(x), LISPCHECK_ARRAYBODY)
-#define GetCheckSize2(x)		GetBitByte(GetCheck(x), LISPCHECK_SIZE2)
-#define GetCheckSize4(x)		GetBitByte(GetCheck(x), LISPCHECK_SIZE4)
-#define GetCheckSize8(x)		GetBitByte(GetCheck(x), LISPCHECK_SIZE8)
-#define GetCheckValue(x,i)		GetBitByte(*PtrCheck(x),(i))
-#define SetCheckValue(x,i,v)	SetBitByte(*PtrCheck(x),(i),(v))
-#define SetCheck1(x,y)			SetCheck((x), (1U<<(y)))
-#define SetCheck2(x,y,z)		SetCheck((x),((1U<<(y))|(1U<<(z))))
-#define SetCheck3(x,y,z,w)		SetCheck((x),((1U<<(y))|(1U<<(z))|(1U<<(w))))
-#define SetCheck4(x,y,z,w,a)	SetCheck((x),((1U<<(y))|(1U<<(z))|(1U<<(w))|(1U<<(a))))
 
 /* Object Header */
 #define PtrByte1A(x)            (((addr)(x)) + 4UL)
@@ -412,7 +385,6 @@ enum LISPCLASS {
 #define IsList(x)               ((x) == Nil || GetType(x) == LISPTYPE_CONS)
 #define IsArray(x)              (GetStatusSize(x) <= LISPSIZE_ARRAYBODY)
 #define IsBody(x)               (LISPSIZE_SMALLSIZE <= GetStatusSize(x))
-#define IsSymbol(x)             GetCheckSymbol(x)
 #define IsFloat(x)              IsValueFloat(GetType(x))
 
 #define MemoryLengthSS(a,b)		( 8UL + (a)*PtrSize + (b))
@@ -529,6 +501,7 @@ enum LISPCLASS {
 #endif
 #endif
 
+/* GetArray / RefArray */
 #ifdef LISP_DEBUG
 #define GetArrayA2(x,i,v)		getarrayA2(x,i,v)
 #define GetArraySS(x,i,v)		getarraySS(x,i,v)
@@ -540,21 +513,9 @@ enum LISPCLASS {
 #define RefArrayA4(x,i)			refarrayA4(x,i)
 #define RefArrayAB(x,i)			refarrayAB(x,i)
 
-#define SetArrayA2(x,i,v)		setarrayA2(x,i,v)
-#define SetArraySS(x,i,v)		setarraySS(x,i,v)
-#define SetArrayA4(x,i,v)		setarrayA4(x,i,v)
-#define SetArrayAB(x,i,v)		setarrayAB(x,i,v)
-
-#define SetArrayA2_force(x,i,v)	setarrayA2_force(x,i,v)
-#define SetArraySS_force(x,i,v)	setarraySS_force(x,i,v)
-#define SetArrayA4_force(x,i,v)	setarrayA4_force(x,i,v)
-#define SetArrayAB_force(x,i,v)	setarrayAB_force(x,i,v)
-
 #ifdef LISP_ARCH_64BIT
 #define GetArrayA8(x,i,v)		getarrayA8(x,i,v)
 #define RefArrayA8(x,i)			refarrayA8(x,i)
-#define SetArrayA8(x,i,v)       setarrayA8(x,i,v)
-#define SetArrayA8_force(x,i,v)	setarrayA8_force(x,i,v)
 #endif
 #else
 
@@ -568,21 +529,46 @@ enum LISPCLASS {
 #define RefArrayA4(r,i)			(PtrArrayA4(r)[i])
 #define RefArrayAB(r,i)			(PtrArrayAB(r)[i])
 
+#ifdef LISP_ARCH_64BIT
+#define GetArrayA8(r,i,n)		(*(n) = PtrArrayA8(r)[i])
+#define RefArrayA8(r,i)			(PtrArrayA8(r)[i])
+#endif
+#endif
+
+
+#ifdef LISP_DEBUG
+#define SetArrayA2(x,i,v)		setarrayA2(x,i,v)
+#define SetArraySS(x,i,v)		setarraySS(x,i,v)
+#define SetArrayA4(x,i,v)		setarrayA4(x,i,v)
+#define SetArrayAB(x,i,v)		setarrayAB(x,i,v)
+
+#define SetArrayA2_force(x,i,v)	setarrayA2_force(x,i,v)
+#define SetArraySS_force(x,i,v)	setarraySS_force(x,i,v)
+#define SetArrayA4_force(x,i,v)	setarrayA4_force(x,i,v)
+#define SetArrayAB_force(x,i,v)	setarrayAB_force(x,i,v)
+
+#ifdef LISP_ARCH_64BIT
+#define SetArrayA8(x,i,v)       setarrayA8(x,i,v)
+#define SetArrayA8_force(x,i,v)	setarrayA8_force(x,i,v)
+#endif
+
+#else
+
 #define SetArrayA2(x,i,v)       (PtrArrayA2(x)[i] = (v))
 #define SetArraySS(x,i,v)       (PtrArraySS(x)[i] = (v))
 #define SetArrayA4(x,i,v)       (PtrArrayA4(x)[i] = (v))
 #define SetArrayAB(x,i,v)       (PtrArrayAB(x)[i] = (v))
 
-#define SetArrayA2_force(x,i,v)	SetArrayA2(x,i,v)
-#define SetArraySS_force(x,i,v)	SetArraySS(x,i,v)
-#define SetArrayA4_force(x,i,v)	SetArrayA4(x,i,v)
-#define SetArrayAB_force(x,i,v)	SetArrayAB(x,i,v)
+#define SetArrayA2_force(x,i,v) SetArrayA2(x,i,v)
+#define SetArraySS_force(x,i,v) SetArraySS(x,i,v)
+#define SetArrayA4_force(x,i,v) SetArrayA4(x,i,v)
+#define SetArrayAB_force(x,i,v) SetArrayAB(x,i,v)
 
 #ifdef LISP_ARCH_64BIT
-#define GetArrayA8(r,i,n)		(*(n) = PtrArrayA8(r)[i])
-#define RefArrayA8(r,i)			(PtrArrayA8(r)[i])
+#define GetArrayA8(r,i,n)       (*(n) = PtrArrayA8(r)[i])
+#define RefArrayA8(r,i)         (PtrArrayA8(r)[i])
 #define SetArrayA8(x,i,v)       (PtrArrayA8(x)[i] = (v))
-#define SetArrayA8_force(x,i,v)	SetArrayA8(x,i,v)
+#define SetArrayA8_force(x,i,v) SetArrayA8(x,i,v)
 #endif
 #endif
 
@@ -706,6 +692,7 @@ _g int checkdynamic(addr pos, addr value);
 #define CheckDynamic(p,v) { \
 	Check(checkdynamic((p), (v)), "dynamic error"); \
 }
+_g void setarray_chain(addr *ptr, addr value);
 _g void setarrayA2(addr pos, size_t index, addr ret);
 _g void setarraySS(addr pos, size_t index, addr ret);
 _g void setarrayA4(addr pos, size_t index, addr ret);

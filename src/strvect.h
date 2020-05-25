@@ -14,16 +14,10 @@
 #define PtrStringUnicode(x)			((unicode *)(PtrStringBase(x) + IdxSize))
 #define GetStringUnicode(x,v)		(*(v) = PtrStringUnicode(x))
 
-_g addr strvect_allocr(LocalRoot root, size_t len);
-_g addr strvect_localr(LocalRoot root, size_t len);
-_g addr strvect_heapr(size_t len);
 _g void strvect_alloc(LocalRoot root, addr *ret, size_t len);
 _g void strvect_local(LocalRoot root, addr *ret, size_t len);
 _g void strvect_heap(addr *ret, size_t len);
 
-_g addr strvect_character_allocr(LocalRoot local, addr pos);
-_g addr strvect_character_localr(LocalRoot local, addr pos);
-_g addr strvect_character_heapr(addr pos);
 _g void strvect_character_alloc(LocalRoot local, addr *ret, addr pos);
 _g void strvect_character_local(LocalRoot local, addr *ret, addr pos);
 _g void strvect_character_heap(addr *ret, addr pos);
@@ -37,26 +31,19 @@ _g int strvectp(addr pos);
 _g int strvect_base_p(addr pos);
 _g int strvect_simple_p(addr pos);
 
-_g addr strvect_char_allocr(LocalRoot root, const char *arg);
-_g addr strvect_char_localr(LocalRoot root, const char *arg);
-_g addr strvect_char_heapr(const char *arg);
 _g void strvect_char_alloc(LocalRoot root, addr *ret, const char *arg);
 _g void strvect_char_local(LocalRoot root, addr *ret, const char *arg);
 _g void strvect_char_heap(addr *ret, const char *arg);
+_g addr stringh(const char *arg); /* for debug */
+
 _g void strvect_char1_alloc(LocalRoot local, addr *ret, const char *arg, unicode c);
 _g void strvect_char1_local(LocalRoot local, addr *ret, const char *arg, unicode c);
 _g void strvect_char1_heap(addr *ret, const char *arg, unicode c);
 
-_g addr strvect_size1_heapr(const char *, size_t);
-_g addr strvect_size1_allocr(LocalRoot, const char *, size_t);
-_g addr strvect_size1_localr(LocalRoot, const char *, size_t);
 _g void strvect_size1_heap(addr *, const char *, size_t);
 _g void strvect_size1_alloc(LocalRoot, addr *, const char *, size_t);
 _g void strvect_size1_local(LocalRoot, addr *, const char *, size_t);
 
-_g addr strvect_sizeu_heapr(const unicode *, size_t);
-_g addr strvect_sizeu_allocr(LocalRoot, const unicode *, size_t);
-_g addr strvect_sizeu_localr(LocalRoot, const unicode *, size_t);
 _g void strvect_sizeu_heap(addr *, const unicode *, size_t);
 _g void strvect_sizeu_alloc(LocalRoot, addr *, const unicode *, size_t);
 _g void strvect_sizeu_local(LocalRoot, addr *, const unicode *, size_t);

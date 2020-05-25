@@ -14,6 +14,7 @@ int test_arch(void);
 int test_alloc(void);
 int test_memory(void);
 int test_heap(void);
+int test_heap_memory(void);
 int test_local(void);
 int test_execute(void);
 int test_character(void);
@@ -122,6 +123,7 @@ void degrade_execute(void)
 	DegradeCheck(test_memory);
 	DegradeCheck(test_local);
 	DegradeCheck(test_heap);
+	DegradeCheck(test_heap_memory);
 	DegradeCheck(test_execute);
 	DegradeCheck(test_object);
 	DegradeCheck(test_symbol);

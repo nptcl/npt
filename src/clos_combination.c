@@ -8,7 +8,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "eval.h"
-#include "gc.h"
+#include "hold.h"
 #include "lambda.h"
 #include "object.h"
 #include "package.h"

@@ -175,7 +175,7 @@ static int test_evalsymlocal(addr symbol, const char *name)
 #if 0
 static int test_eqkeyword(addr symbol, const char *name)
 {
-	if (! IsSymbol(symbol)) {
+	if (! symbolp(symbol)) {
 		degrade_printf("symbol type error\n");
 		return 0;
 	}
@@ -190,7 +190,7 @@ static int test_eqkeyword(addr symbol, const char *name)
 
 static int test_eqsymbol(addr symbol, const char *name)
 {
-	if (! IsSymbol(symbol)) {
+	if (! symbolp(symbol)) {
 		degrade_printf("symbol type error\n");
 		return 0;
 	}
