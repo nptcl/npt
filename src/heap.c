@@ -8,51 +8,12 @@
  */
 _g void heap_cons(addr *ret)
 {
-	int index;
-	addr pos;
-	addr *array;
-
-	/* rotate index */
-	lock_mutexlite(&heap_cons_mutex);
-	index = heap_cons_count++;
-	if (LISPCLASS_ConsLength <= heap_cons_count)
-		heap_cons_count = 0;
-	unlock_mutexlite(&heap_cons_mutex);
-
-	/* alloc memory */
-	allocheap_small((size_t)ConsLength, index, &pos);
-	*PtrValue2L(pos) = ConsLength;
-	SetType(pos, LISPTYPE_CONS);
-	SetStatus(pos, LISPSIZE_ARRAY2);
-	SetChain(pos, 0);
-	*PtrLenArrayA2(pos) = 2; /* left, right */
-	array = (addr *)PtrByte2P(pos);
-	array[0] = array[1] = Nil;
-	*ret = pos;
+	heap_array2_memory(ret, LISPTYPE_CONS, 2);
 }
 
 _g void heap_symbol(addr *ret)
 {
-	int index;
-	addr pos;
-
-	/* rotate index */
-	lock_mutexlite(&heap_symbol_mutex);
-	index = heap_symbol_count++;
-	if (LISPCLASS_SymbolLength <= heap_symbol_count)
-		heap_symbol_count = 0;
-	unlock_mutexlite(&heap_symbol_mutex);
-	index += LISPCLASS_ConsLength;
-
-	/* alloc memory */
-	allocheap_small((size_t)SymbolLength, index, &pos);
-	*PtrValue2L(pos) = SymbolLength;
-	SetType(pos, LISPTYPE_SYMBOL);
-	SetStatus(pos, LISPSIZE_ARRAY2);
-	SetChain(pos, 0);
-	*PtrLenArrayA2(pos) = SYMBOL_INDEX_SIZE;
-	nilarray2(pos, SYMBOL_INDEX_SIZE);
-	*ret = pos;
+	heap_array2_memory(ret, LISPTYPE_SYMBOL, SYMBOL_INDEX_SIZE);
 }
 
 _g void heap_array2_memory(addr *ret, enum LISPTYPE type, byte16 array)

@@ -544,11 +544,10 @@ _g void rollback_local(struct localroot *local, struct localstack *stack)
 static void allocobject(struct localroot *local,
 		size_t size, enum LISPTYPE type, addr *ret, int size2)
 {
-	enum LISPCLASS index;
 	addr pos;
 
 	/* memory */
-	size_and_class(size, &index, &size);
+	AlignSize8Front(size, &size);
 	pos = alloc_local(local, size);
 
 	/* body */
@@ -563,16 +562,12 @@ static void allocobject(struct localroot *local,
 
 _g void local_cons(struct localroot *local, addr *ret)
 {
-	addr pos;
-	local_array2_memory(local, &pos, LISPTYPE_CONS, 2);
-	*ret = pos;
+	local_array2_memory(local, ret, LISPTYPE_CONS, 2);
 }
 
 _g void local_symbol(struct localroot *local, addr *ret)
 {
-	addr pos;
-	local_array2_memory(local, &pos, LISPTYPE_SYMBOL, SYMBOL_INDEX_SIZE);
-	*ret = pos;
+	local_array2_memory(local, ret, LISPTYPE_SYMBOL, SYMBOL_INDEX_SIZE);
 }
 
 _g void local_array2_memory(struct localroot *local,

@@ -465,102 +465,33 @@ static int load_dump(struct filememory *fm)
 
 
 /* save/load info */
-static size_t save_info_size(int index)
-{
-	size_t size;
-	struct heapcell *ptr;
-
-	size = 0;
-	for (ptr = heap_info[index].root; ptr; ptr = ptr->next) {
-		size ++;
-	}
-
-	return size;
-}
-
-static int save_info_child(struct filememory *fm, int index)
-{
-	addr *point, pos;
-	struct heapcell *ptr;
-	size_t i, size, count;
-
-	/* index */
-	IfWriteCheck(fm, &index, sizeoft(index), "writecheck error: index.");
-	/* size */
-	size = save_info_size(index);
-	IfWriteCheck(fm, &size, IdxSize, "writecheck error: size.");
-	/* info */
-	for (ptr = heap_info[index].root; ptr; ptr = ptr->next) {
-		count = ptr->count;
-		point = ptr->point;
-		IfWriteCheck(fm, &count, IdxSize, "writecheck error: count.");
-		for (i = 0; i < HeapCount; i++) {
-			IfWritePtr(fm, point[i], "writeaddr error: point.");
-		}
-	}
-
-	/* error check */
-	pos = NULL;
-	IfWriteCheck(fm, &pos, sizeoft(pos), "writecheck error: null");
-
-	return 0;
-}
-static int load_info_child(struct filememory *fm, int index)
-{
-	int check;
-	addr *point, pos;
-	struct heapinfo *info;
-	struct heapcell *cell;
-	size_t i, k, size, count;
-
-	/* index */
-	IfReadCheck(fm, &check, sizeoft(check), "readcheck error: index");
-	IfDebug(check != index, "index error.");
-	/* size */
-	IfReadCheck(fm, &size, IdxSize, "readcheck error: size");
-	/* info */
-	info = &heap_info[index];
-	cell = NULL;
-	for (k = 0; k < size; k++) {
-		IfReadCheck(fm, &count, IdxSize, "readcheck error: count");
-		cell = cellexpand(info, cell);
-		point = cell->point;
-		cell->count = count;
-		for (i = 0; i < HeapCount; i++) {
-			IfReadPtr(fm, (void **)(point + i), "readaddr error.");
-		}
-	}
-
-	/* error check */
-	IfReadCheck(fm, &pos, sizeoft(pos), "readaddr error: null");
-	IfDebug(pos != NULL, "readaddr error: check");
-
-	return 0;
-}
-
 static int save_info(struct filememory *fm)
 {
-	int index;
+	struct heap_addr *str;
 
-	for (index = 0; index < LISPCLASS_Length; index++) {
-		IfDebug(save_info_child(fm, index), "save_info_child error.");
+	str = (struct heap_addr *)heap_range;
+	str--;
+	while (LessEqualPointer(heap_tail, str)) {
+		IfWriteAddr(fm, str->pos, "writeaddr error: heap_addr.");
 	}
-	/* error check */
-	index = -1;
-	IfWriteCheck(fm, &index, sizeoft(index), "writecheck error: check.");
+	IfWriteCheck(fm, NULL, sizeoft(void *), "writecheck: null.");
 
 	return 0;
 }
+
 static int load_info(struct filememory *fm)
 {
-	int index;
+	addr pos;
+	struct heap_addr *str;
 
-	for (index = 0; index < LISPCLASS_Length; index++) {
-		IfDebug(load_info_child(fm, index), "load_info_child error.");
+	for (;;) {
+		IfReadAddr(fm, &pos, "readaddr error: heap_addr.");
+		if (pos == NULL)
+			break;
+		/* alloctail */
+		str = alloctail();
+		str->pos = pos;
 	}
-	/* error check */
-	IfReadCheck(fm, &index, sizeoft(index), "readcheck error: check.");
-	IfDebug(index != -1, "end check error.");
 
 	return 0;
 }
@@ -572,8 +503,12 @@ static int save_data(struct filememory *fm)
 	IfWriteSize(fm, heap_object, "writeptr error: heap_object");
 	IfWriteSize(fm, heap_count, "writeptr error: heap_count");
 	IfWriteSize(fm, heap_gc_count, "writeptr error: heap_gc_count");
+	IfWriteSize(fm, heap_gc_partial, "writeptr error: heap_gc_partial");
+	IfWriteSize(fm, heap_gc_full, "writeptr error: heap_gc_full");
 	IfWritePtr(fm, heap_front, "writeptr error: heap_front");
 	IfWritePtr(fm, heap_pos, "writeptr error: heap_pos");
+	IfWritePtr(fm, heap_tail, "writeptr error: heap_tail");
+	IfWritePtr(fm, heap_range, "writeptr error: heap_range");
 	if (save_dump(fm)) {
 		Debug("save_dump error");
 		return 1;
@@ -586,8 +521,12 @@ static int load_data(struct filememory *fm)
 	IfReadSize(fm, &heap_object, "readptr error: heap_object");
 	IfReadSize(fm, &heap_count, "readptr error: heap_count");
 	IfReadSize(fm, &heap_gc_count, "readptr error: heap_gc_count");
+	IfReadSize(fm, &heap_gc_partial, "readptr error: heap_gc_partial");
+	IfReadSize(fm, &heap_gc_full, "readptr error: heap_gc_full");
 	IfReadPtr(fm, (void **)&heap_front, "readptr error: heap_front");
 	IfReadPtr(fm, (void **)&heap_pos, "readptr error: heap_pos");
+	IfReadPtr(fm, (void **)&heap_tail, "readptr error: heap_tail");
+	IfReadPtr(fm, (void **)&heap_range, "readptr error: heap_range");
 	if (load_dump(fm)) {
 		Debug("load_dump error");
 		return 1;

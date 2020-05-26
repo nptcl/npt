@@ -14,68 +14,19 @@ static int heap_check_object(addr pos)
 	return 0;
 }
 
-static int heap_check_reference_direct(struct heapinfo *ptr)
+static int heap_check_reference_heap(void)
 {
-	addr *array;
-	struct heapcell *cell;
-	size_t i, count;
+	struct heap_addr *str;
 
-	for (cell = ptr->root; cell; cell = cell->next) {
-		array = cell->point;
-		count = cell->count;
-		for (i = 0; i < HeapCount; i++) {
-			if (i < count) {
-				if (heap_check_object(array[i])) {
-					info("HEAP-CHECK: heap object error");
-					return 1;
-				}
-			}
-			else {
-				if (array[i] != Unbound) {
-					info("HEAP-CHECK: heap unbound error");
-					return 1;
-				}
-			}
+	str = (struct heap_addr *)heap_tail;
+	for (; LessPointer(str, heap_range); str++) {
+		if (heap_check_object(str->pos)) {
+			info("HEAP-CHECK: heap object error");
+			return 1;
 		}
 	}
 
 	return 0;
-}
-
-static int heap_check_reference_table(struct heapinfo *ptr)
-{
-	addr *array;
-	struct heapcell *cell;
-	size_t i, count;
-
-	for (cell = ptr->root; cell; cell = cell->next) {
-		array = cell->point;
-		count = cell->count;
-		for (i = 0; i < HeapCount; i++) {
-			if (i < count) {
-				if (heap_check_object(array[i])) {
-					info("HEAP-CHECK: heap object error");
-					return 1;
-				}
-			}
-			else {
-				if (GetType(array[i]) != LISPSYSTEM_RESERVED) {
-					info("HEAP-CHECK: heap reserved error");
-					return 1;
-				}
-			}
-		}
-	}
-
-	return 0;
-}
-
-static int heap_check_reference_heap(struct heapinfo *ptr)
-{
-	if (ptr->direct)
-		return heap_check_reference_direct(ptr);
-	else
-		return heap_check_reference_table(ptr);
 }
 
 static int heap_check_reference_local(Execute ptr)
@@ -100,8 +51,11 @@ static int heap_check_reference_local(Execute ptr)
 
 static int heap_check_reference(void)
 {
-	if (foreach_check_heap(heap_check_reference_heap)) return 1;
-	if (foreach_check_execute(heap_check_reference_local)) return 1;
+	if (heap_check_reference_heap())
+		return 1;
+	if (foreach_check_execute(heap_check_reference_local))
+		return 1;
+
 	return 0;
 }
 

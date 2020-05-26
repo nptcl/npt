@@ -92,5 +92,15 @@
 #define GetBitByte(x,i)        GetShiftValue(x,i,1U)
 #define SetBitByte(x,i,v)      SetShiftValue(x,i,v,1U,byte)
 
+
+/*
+ *  compare
+ */
+#define LessPointer(x,y)			(((void *)(x)) < ((void *)(y)))
+#define GreaterPointer(x,y)			(((void *)(x)) > ((void *)(y)))
+#define LessEqualPointer(x,y)		(((void *)(x)) <= ((void *)(y)))
+#define GreaterEqualPointer(x,y)	(((void *)(x)) >= ((void *)(y)))
+#define ComparePointer(x,y)			(((intptr_t)(x)) - ((intptr_t)(y)))
+
 #endif
 

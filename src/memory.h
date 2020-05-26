@@ -8,15 +8,6 @@
 #include "typedef.h"
 #include "object.h"
 
-#define LISPCLASS_ConsLength      8
-#define LISPCLASS_SymbolLength    8
-#define LISPCLASS_Size1Length     8
-#define LISPCLASS_Size2Length     6
-#define LISPCLASS_Size3Length     13
-#define LISPCLASS_Length (1 + 1 + LISPCLASS_ConsLength + LISPCLASS_SymbolLength + \
-		LISPCLASS_Size1Length + LISPCLASS_Size2Length + LISPCLASS_Size3Length)
-
-
 /****************************************************************************
  *  Object
  *     [T S C U] [v v v v] ...
@@ -52,8 +43,6 @@
  *            B2: [T S C U][b b s s]
  ****************************************************************************/
 
-__extern int LISPCLASS_Array[0x0100];
-
 enum LISPSIZE {
 	LISPSIZE_ARRAY2      = 0,
 	LISPSIZE_ARRAY4      = 1,
@@ -78,62 +67,10 @@ enum LISPSTATUS {
 	LISPSTATUS_SIZE
 };
 
-enum LISPCLASS {
-	LISPCLASS_Cons1 = 0, /* cons */
-	LISPCLASS_Cons2,
-	LISPCLASS_Cons3,
-	LISPCLASS_Cons4,
-	LISPCLASS_Cons5,
-	LISPCLASS_Cons6,
-	LISPCLASS_Cons7,
-	LISPCLASS_Cons8,
-	LISPCLASS_Symbol1,	/* symbol */
-	LISPCLASS_Symbol2,
-	LISPCLASS_Symbol3,
-	LISPCLASS_Symbol4,
-	LISPCLASS_Symbol5,
-	LISPCLASS_Symbol6,
-	LISPCLASS_Symbol7,
-	LISPCLASS_Symbol8,
-	LISPCLASS_Size11,	/* 16 [size1] */
-	LISPCLASS_Size12,	/* 32 */
-	LISPCLASS_Size13,	/* 48 */
-	LISPCLASS_Size14,	/* 64 */
-	LISPCLASS_Size15,	/* 80 */
-	LISPCLASS_Size16,	/* 96 */
-	LISPCLASS_Size17,	/* 112 */
-	LISPCLASS_Size18,	/* 128 */
-	LISPCLASS_Size21,	/* 192 [size2] */
-	LISPCLASS_Size22,	/* 256 */
-	LISPCLASS_Size23,	/* 320 */
-	LISPCLASS_Size24,	/* 384 */
-	LISPCLASS_Size25,	/* 448 */
-	LISPCLASS_Size26,	/* 512 */
-	LISPCLASS_Size31,	/* 768 [size3] */
-	LISPCLASS_Size32,	/* 1024 */
-	LISPCLASS_Size33,	/* 1280 */
-	LISPCLASS_Size34,	/* 1536 */
-	LISPCLASS_Size35,	/* 1792 */
-	LISPCLASS_Size36,	/* 2048 */
-	LISPCLASS_Size37,	/* 2304 */
-	LISPCLASS_Size38,	/* 2560 */
-	LISPCLASS_Size39,	/* 2816 */
-	LISPCLASS_Size3A,	/* 3072 */
-	LISPCLASS_Size3B,	/* 3328 */
-	LISPCLASS_Size3C,	/* 3584 */
-	LISPCLASS_Size3D,	/* 3840 */
-	LISPCLASS_SizeK,	/* 4K, 8K, ... [Large] */
-	LISPCLASS_SizeM,	/* 4M, 8M, ... [Huge] */
-	LISPCLASS_SIZE
-};
-
 
 /****************************************************************************
  *  function
  ****************************************************************************/
-#define ConsLength              (8UL + PtrSize * 2UL)
-#define SymbolLength            (8UL + PtrSize * SYMBOL_INDEX_SIZE)
-
 /* Header */
 #define GetType(x)              ((enum LISPTYPE)(RdByte(x)))
 #define SetType(x,y)            (WtByte((x), (y)))
@@ -590,9 +527,6 @@ _g enum LISPTYPE gettype(addr pos);
 /*
  *  size class
  */
-_g enum LISPCLASS size_class(size_t);
-_g size_t size_split(size_t size);
-_g void size_and_class(size_t, enum LISPCLASS *, size_t *);
 _g size_t getobjectlength(addr pos);
 _g size_t getmemorylength(addr pos);
 _g int valid_header(addr pos);
@@ -724,6 +658,8 @@ _g void unboundarray4(addr pos, size_t size);
 #ifdef LISP_ARCH_64BIT
 _g void unboundarray8(addr pos, size_t size);
 #endif
+
+_g size_t size_split(size_t size);
 
 #endif
 

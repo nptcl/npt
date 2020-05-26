@@ -2,6 +2,7 @@
 #include "heap.h"
 #include "degrade.h"
 
+#if 0
 #define heap_debug_size  0x10000
 static void gccheck_debug()
 {
@@ -212,18 +213,18 @@ static int test_expandmemory(void)
 	gccheck_debug();
 	heap_front = mem;
 	FrontMax = mem;
-	Tail = mem + heap_debug_size;
+	heap_tail = mem + heap_debug_size;
 	test(expandmemory(80) == mem, "expandmemory1");
 	test(heap_pos == mem + 80, "expandmemory2");
 	test(heap_front == mem + 80, "expandmemory3");
 	test(FrontMax == mem + 80, "expandmemor4");
 
 	heap_front = mem;
-	Tail = mem + 80;
+	heap_tail = mem + 80;
 	test(expandmemory(80) == mem, "expandmemory5");
 
 	heap_front = mem;
-	Tail = mem + 79;
+	heap_tail = mem + 79;
 	lisp_info_enable = 0; /* infoerror */
 	test(expandmemory(80) == NULL, "expandmemory6");
 	lisp_info_enable = 1;
@@ -240,7 +241,7 @@ static int test_allocfront(void)
 	aatype(mem);
 	heap_pos = heap_front = mem;
 	gccheck_debug();
-	Tail = mem + heap_debug_size;
+	heap_tail = mem + heap_debug_size;
 	pos = allocfront_unlock(800);
 	test(pos == mem, "allocfront1");
 	test(heap_pos == mem + 800, "allocfront2");
@@ -250,7 +251,7 @@ static int test_allocfront(void)
 	heap_pos = mem;
 	gccheck_debug();
 	heap_front = mem + heap_debug_size;
-	Tail = mem + heap_debug_size;
+	heap_tail = mem + heap_debug_size;
 	SetType(mem, LISPTYPE_CONS);
 	SetStatus(mem, LISPSIZE_ARRAY2);
 	*PtrValue2L(mem) = ConsLength;
@@ -277,16 +278,16 @@ static int test_alloctail(void)
 
 	aatype(mem);
 	Align8Front(mem, &pos);
-	Tail = pos + 8000;
+	heap_tail = pos + 8000;
 	heap_front = pos;
 	ret = alloctail_unlock(80);
-	test(ret == Tail, "alloctail1");
+	test(ret == heap_tail, "alloctail1");
 	test(ret == pos + 8000 - 80, "alloctail2");
 
-	Tail = pos + 8000;
+	heap_tail = pos + 8000;
 	heap_front = pos;
 	ret = alloctail_unlock(8000);
-	test(ret == Tail, "alloctail3");
+	test(ret == heap_tail, "alloctail3");
 	test(ret == pos, "alloctail4");
 
 	RETURN;
@@ -304,7 +305,7 @@ static int test_fillheapmemory(void)
 	Align8Front(mem, &pos);
 	heap_pos = heap_front = pos;
 	gccheck_debug();
-	Tail = pos + heap_debug_size - 8;
+	heap_tail = pos + heap_debug_size - 8;
 	cell = (struct heapcell *)alloctail(sizeof(struct heapcell));
 	base = heap_pos;
 	fillheapmemory(cell, 32);
@@ -350,7 +351,7 @@ static int test_cellalloc(void)
 	Align8Front(mem, &pos);
 	heap_pos = heap_front = pos;
 	gccheck_debug();
-	Tail = pos + heap_debug_size - 8;
+	heap_tail = pos + heap_debug_size - 8;
 
 	CellRoot = NULL;
 	cell = cellalloc();
@@ -386,7 +387,7 @@ static int test_cellexpand(void)
 	Align8Front(mem, &pos);
 	heap_pos = heap_front = pos;
 	gccheck_debug();
-	Tail = pos + heap_debug_size - 8;
+	heap_tail = pos + heap_debug_size - 8;
 
 	CellRoot = NULL;
 	cleartype(root);
@@ -417,7 +418,7 @@ static int test_allocheap_small(void)
 	Align8Front(mem, &pos);
 	heap_pos = heap_front = pos;
 	gccheck_debug();
-	Tail = pos + heap_debug_size - 8;
+	heap_tail = pos + heap_debug_size - 8;
 
 	CellRoot = NULL;
 	cleartype(root);
@@ -474,7 +475,7 @@ static int test_allocheap_large(void)
 	Align8Front(mem, &pos);
 	heap_pos = heap_front = pos;
 	gccheck_debug();
-	Tail = pos + heap_debug_size - 8;
+	heap_tail = pos + heap_debug_size - 8;
 
 	CellRoot = NULL;
 	cleartype(root);
@@ -497,7 +498,7 @@ static int test_allocheap(void)
 	Align8Front(mem, &pos);
 	heap_pos = heap_front = pos;
 	gccheck_debug();
-	Tail = pos + heap_debug_size - 8;
+	heap_tail = pos + heap_debug_size - 8;
 
 	CellRoot = NULL;
 	cleartype(root);
@@ -638,6 +639,7 @@ static int test_cellupdate_heap(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
@@ -647,6 +649,7 @@ int test_heap_memory(void)
 {
 	TITLE;
 
+#if 0
 	TestBreak(test_length_space);
 	TestBreak(test_check_spacememory);
 	TestBreak(test_searchmemory);
@@ -667,6 +670,7 @@ int test_heap_memory(void)
 	TestBreak(test_alloc_heap);
 	TestBreak(test_foreach_heap);
 	TestBreak(test_cellupdate_heap);
+#endif
 
 	return 0;
 }

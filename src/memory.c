@@ -2,11 +2,6 @@
 #include "memory.h"
 #include "thread.h"
 
-#define SizeKvalue		(4UL * 1024UL)
-#define SizeMvalue		(4UL * 1024UL * 1024UL)
-#define SizeSplit(s,v)	((1UL + (((s) - 1UL) / (v))) * (v))
-
-
 /*
  *  type
  */
@@ -23,90 +18,6 @@ _g enum LISPTYPE gettype(addr pos)
 /*
  *  size class
  */
-_g int LISPCLASS_Array[0x0100] = {
-	/* cons */
-	ConsLength, ConsLength, ConsLength, ConsLength,
-	ConsLength, ConsLength, ConsLength, ConsLength,
-	/* symbol */
-	SymbolLength, SymbolLength, SymbolLength, SymbolLength,
-	SymbolLength, SymbolLength, SymbolLength, SymbolLength,
-	/* size1 */
-	16, 32, 48, 64, 80, 96, 112, 128,
-	/* size2 */
-	192, 256, 320, 384, 448, 512,
-	/* size3 */
-	768, 1024, 1280, 1536, 1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3840,
-	/* sizek, sizem */
-	0, 0
-};
-
-
-/*
- *  size class
- */
-_g enum LISPCLASS size_class(size_t size)
-{
-	/* Size1 */
-	if (size <= 16UL)
-		return LISPCLASS_Size11;
-	if (size <= 128UL)
-		return (enum LISPCLASS)((int)LISPCLASS_Size11 + (size - 1UL) / 16UL);
-
-	/* Size2 */
-	if (size <= 512UL)
-		return (enum LISPCLASS)((int)LISPCLASS_Size21 + (size - 128UL - 1UL) / 64UL);
-
-	/* Size3 */
-	if (size <= 3840UL)
-		return (enum LISPCLASS)((int)LISPCLASS_Size31 + (size - 512UL - 1UL) / 256UL);
-
-	/* Large, Huge */
-	if (size <= (4096UL * 1024UL - 4096UL))
-		return LISPCLASS_SizeK;
-	return LISPCLASS_SizeM;
-}
-
-_g size_t size_split(size_t size)
-{
-	enum LISPCLASS check;
-
-	check = size_class(size);
-	switch (check) {
-		case LISPCLASS_SizeK:
-			return SizeSplit(size, SizeKvalue);
-			break;
-
-		case LISPCLASS_SizeM:
-			return SizeSplit(size, SizeMvalue);
-			break;
-
-		default:
-			return LISPCLASS_Array[check];
-			break;
-	}
-}
-
-_g void size_and_class(size_t size, enum LISPCLASS *index, size_t *result)
-{
-	enum LISPCLASS check;
-
-	check = size_class(size);
-	switch (check) {
-		case LISPCLASS_SizeK:
-			*result = SizeSplit(size, SizeKvalue);
-			break;
-
-		case LISPCLASS_SizeM:
-			*result = SizeSplit(size, SizeMvalue);
-			break;
-
-		default:
-			*result = LISPCLASS_Array[check];
-			break;
-	}
-	*index = check;
-}
-
 static int size2_memory(addr pos)
 {
 	enum LISPSIZE x = GetStatusSize(pos);
@@ -972,4 +883,10 @@ _g void unboundarray8(addr pos, size_t size)
 		array[i] = Unbound;
 }
 #endif
+
+_g size_t size_split(size_t size)
+{
+	AlignSize8Front(size, &size);
+	return size;
+}
 

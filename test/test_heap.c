@@ -1,6 +1,7 @@
 #include "heap.c"
 #include "degrade.h"
 
+#if 0
 static int test_heap_cons(void)
 {
 	int i;
@@ -310,6 +311,7 @@ static int test_heap_body(void)
 
 	RETURN;
 }
+#endif
 
 
 /*
@@ -319,6 +321,7 @@ int test_heap(void)
 {
 	TITLE;
 
+#if 0
 	TestBreak(test_heap_cons);
 	TestBreak(test_heap_symbol);
 	TestBreak(test_heap_smallsize);
@@ -333,6 +336,7 @@ int test_heap(void)
 #endif
 	TestBreak(test_heap_array);
 	TestBreak(test_heap_body);
+#endif
 
 	return 0;
 }

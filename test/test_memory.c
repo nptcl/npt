@@ -2,6 +2,7 @@
 #include "degrade.h"
 #include "heap.h"
 
+#if 0
 
 /*
  *  testbreak_memory
@@ -1855,6 +1856,7 @@ static int testbreak_memory_function(void)
 
 	return 0;
 }
+#endif
 
 
 /*
@@ -1866,9 +1868,11 @@ int test_memory(void)
 
 	TITLE;
 	result = 0;
+#if 0
 	result |= testbreak_memory();
 	result |= testbreak_function();
 	result |= testbreak_memory_function();
+#endif
 
 	return result;
 }
