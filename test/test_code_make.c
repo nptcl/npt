@@ -448,7 +448,7 @@ static int test_code_progn(void)
 	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &check);
 	test(RefFixnum(check) == 40, "code_progn2");
-	getargs_code(pos, &check);
+	getarray_code(pos, &check);
 	count = lenarrayr(check);
 
 	codechar_set(&pos, "(progn 10 20 'hello 'aaa :hello 30 40)");
@@ -456,7 +456,7 @@ static int test_code_progn(void)
 	localhold_runcode_control(ptr, pos);
 	getresult_control(ptr, &check);
 	test(RefFixnum(check) == 40, "code_progn3");
-	getargs_code(pos, &check);
+	getarray_code(pos, &check);
 	test(count == lenarrayr(check), "code_progn4");
 
 	codechar_push(&pos, "(progn 10 20 30 40)");

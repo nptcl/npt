@@ -5,7 +5,7 @@
 #include "typedef.h"
 
 typedef void *callbind_error;
-typedef int (*callbind_code)(Execute, addr);
+typedef int (*callbind_code)(Execute, CodeValue);
 typedef int (*callbind_macro)(Execute, addr, addr);
 typedef int (*callbind_none)(void);
 typedef int (*callbind_any)(Execute);

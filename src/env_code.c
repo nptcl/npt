@@ -61,16 +61,14 @@ static int disassemble_code_type(Execute ptr, addr stream, addr pos)
 
 static int disassemble_code_body(Execute ptr, addr stream, addr pos)
 {
-	addr args, car, cdr;
+	addr car, cdr;
 	size_t size, i;
 
-	getargs_code(pos, &args);
 	getarray_code(pos, &pos);
 	lenarray(pos, &size);
 	for (i = 0; i < size; i++) {
 		getarray(pos, i, &car);
-		getarray(args, i, &cdr);
-		GetCar(car, &car);
+		GetCons(car, &car, &cdr);
 		Return(disassemble_code_operator(ptr, stream, car, cdr));
 	}
 

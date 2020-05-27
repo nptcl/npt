@@ -1,5 +1,5 @@
 #include "callname.h"
-#include "code_function.h"
+#include "code_init.h"
 #include "code_make.h"
 #include "code_queue.h"
 #include "condition.h"
@@ -37,15 +37,15 @@ static int optimize_common_p(addr scope)
 /*
  *  result-type
  */
-static int optcode_result_type(Execute ptr, addr type)
+static int optcode_result_type(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	Return(typep_clang(ptr, pos, type, &check));
+	Return(typep_clang(ptr, pos, x.pos, &check));
 	if (! check)
-		type_error(pos, type);
+		type_error(pos, x.pos);
 
 	return 0;
 }
@@ -54,8 +54,10 @@ static int optcode_result_type(Execute ptr, addr type)
 /*
  *  car
  */
-static int optcode_car0_set(Execute ptr, addr pos)
+static int optcode_car0_set(Execute ptr, CodeValue x)
 {
+	addr pos;
+
 	getresult_control(ptr, &pos);
 	GetCar(pos, &pos);
 	setresult_control(ptr, pos);
@@ -63,8 +65,10 @@ static int optcode_car0_set(Execute ptr, addr pos)
 	return 0;
 }
 
-static int optcode_car0_push(Execute ptr, addr pos)
+static int optcode_car0_push(Execute ptr, CodeValue x)
 {
+	addr pos;
+
 	getresult_control(ptr, &pos);
 	GetCar(pos, &pos);
 	pushargs_control(ptr, pos);
@@ -72,30 +76,30 @@ static int optcode_car0_push(Execute ptr, addr pos)
 	return 0;
 }
 
-static int optcode_car1_set(Execute ptr, addr type)
+static int optcode_car1_set(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	Return(typep_clang(ptr, pos, type, &check));
+	Return(typep_clang(ptr, pos, x.pos, &check));
 	if (! check)
-		type_error(pos, type);
+		type_error(pos, x.pos);
 	GetCar(pos, &pos);
 	setresult_control(ptr, pos);
 
 	return 0;
 }
 
-static int optcode_car1_push(Execute ptr, addr type)
+static int optcode_car1_push(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	Return(typep_clang(ptr, pos, type, &check));
+	Return(typep_clang(ptr, pos, x.pos, &check));
 	if (! check)
-		type_error(pos, type);
+		type_error(pos, x.pos);
 	GetCar(pos, &pos);
 	pushargs_control(ptr, pos);
 
@@ -109,12 +113,12 @@ static int optimize_common_car0(LocalRoot local, addr code, addr pos)
 	switch (code_queue_mode(code)) {
 		case CodeQueue_ModeSet:
 			code_make_execute_set(local, code, pos);
-			CodeQueue_single(local, code, CAR0_SET);
+			CodeQueue_single(local, code, OPTCODE_CAR0_SET);
 			break;
 
 		case CodeQueue_ModePush:
 			code_make_execute_set(local, code, pos);
-			CodeQueue_single(local, code, CAR0_PUSH);
+			CodeQueue_single(local, code, OPTCODE_CAR0_PUSH);
 			break;
 
 		case CodeQueue_ModeRemove:
@@ -136,16 +140,16 @@ static int optimize_common_car1(LocalRoot local, addr code, addr pos)
 	code_make_execute_set(local, code, pos);
 	switch (code_queue_mode(code)) {
 		case CodeQueue_ModeSet:
-			CodeQueue_cons(local, code, CAR1_SET, type);
+			CodeQueue_cons(local, code, OPTCODE_CAR1_SET, type);
 			break;
 
 		case CodeQueue_ModePush:
-			CodeQueue_cons(local, code, CAR1_PUSH, type);
+			CodeQueue_cons(local, code, OPTCODE_CAR1_PUSH, type);
 			break;
 
 		case CodeQueue_ModeRemove:
 		default:
-			CodeQueue_cons(local, code, RESULT_TYPE, type);
+			CodeQueue_cons(local, code, OPTCODE_RESULT_TYPE, type);
 			break;
 	}
 
@@ -175,8 +179,10 @@ static int optimize_common_car(LocalRoot local, addr code, addr scope)
 /*
  *  cdr
  */
-static int optcode_cdr0_set(Execute ptr, addr pos)
+static int optcode_cdr0_set(Execute ptr, CodeValue x)
 {
+	addr pos;
+
 	getresult_control(ptr, &pos);
 	GetCdr(pos, &pos);
 	setresult_control(ptr, pos);
@@ -184,8 +190,10 @@ static int optcode_cdr0_set(Execute ptr, addr pos)
 	return 0;
 }
 
-static int optcode_cdr0_push(Execute ptr, addr pos)
+static int optcode_cdr0_push(Execute ptr, CodeValue x)
 {
+	addr pos;
+
 	getresult_control(ptr, &pos);
 	GetCdr(pos, &pos);
 	pushargs_control(ptr, pos);
@@ -193,30 +201,30 @@ static int optcode_cdr0_push(Execute ptr, addr pos)
 	return 0;
 }
 
-static int optcode_cdr1_set(Execute ptr, addr type)
+static int optcode_cdr1_set(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	Return(typep_clang(ptr, pos, type, &check));
+	Return(typep_clang(ptr, pos, x.pos, &check));
 	if (! check)
-		type_error(pos, type);
+		type_error(pos, x.pos);
 	GetCdr(pos, &pos);
 	setresult_control(ptr, pos);
 
 	return 0;
 }
 
-static int optcode_cdr1_push(Execute ptr, addr type)
+static int optcode_cdr1_push(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	Return(typep_clang(ptr, pos, type, &check));
+	Return(typep_clang(ptr, pos, x.pos, &check));
 	if (! check)
-		type_error(pos, type);
+		type_error(pos, x.pos);
 	GetCdr(pos, &pos);
 	pushargs_control(ptr, pos);
 
@@ -230,12 +238,12 @@ static int optimize_common_cdr0(LocalRoot local, addr code, addr pos)
 	switch (code_queue_mode(code)) {
 		case CodeQueue_ModeSet:
 			code_make_execute_set(local, code, pos);
-			CodeQueue_single(local, code, CDR0_SET);
+			CodeQueue_single(local, code, OPTCODE_CDR0_SET);
 			break;
 
 		case CodeQueue_ModePush:
 			code_make_execute_set(local, code, pos);
-			CodeQueue_single(local, code, CDR0_PUSH);
+			CodeQueue_single(local, code, OPTCODE_CDR0_PUSH);
 			break;
 
 		case CodeQueue_ModeRemove:
@@ -257,16 +265,16 @@ static int optimize_common_cdr1(LocalRoot local, addr code, addr pos)
 	code_make_execute_set(local, code, pos);
 	switch (code_queue_mode(code)) {
 		case CodeQueue_ModeSet:
-			CodeQueue_cons(local, code, CDR1_SET, type);
+			CodeQueue_cons(local, code, OPTCODE_CDR1_SET, type);
 			break;
 
 		case CodeQueue_ModePush:
-			CodeQueue_cons(local, code, CDR1_PUSH, type);
+			CodeQueue_cons(local, code, OPTCODE_CDR1_PUSH, type);
 			break;
 
 		case CodeQueue_ModeRemove:
 		default:
-			CodeQueue_cons(local, code, RESULT_TYPE, type);
+			CodeQueue_cons(local, code, OPTCODE_RESULT_TYPE, type);
 			break;
 	}
 
@@ -296,9 +304,9 @@ static int optimize_common_cdr(LocalRoot local, addr code, addr scope)
 /*
  *  cons
  */
-static int optcode_cons(Execute ptr, addr list)
+static int optcode_cons(Execute ptr, CodeValue x)
 {
-	addr car, cdr;
+	addr list, car, cdr;
 
 	getargs_list_control_unsafe(ptr, 0, &list);
 	GetCons(list, &car, &list);
@@ -320,7 +328,7 @@ static int optimize_common_cons0(LocalRoot local, addr code, addr car, addr cdr)
 	code_make_execute_push(local, code, car);
 	code_make_execute_push(local, code, cdr);
 	/* cons */
-	CodeQueue_single(local, code, CONS);
+	CodeQueue_single(local, code, OPTCODE_CONS);
 	/* return end */
 	code_queue_pop(local, code, &pos);
 	code_make_execute_normal(local, code, pos);
@@ -484,32 +492,40 @@ _g int optimize_check_code(LocalRoot local, addr code, addr scope)
 /*
  *  initialize
  */
-#define SetPointer_common(x) SetPointer_code(p_##x, x)
+#define defcode(x,y) defcode_constant(CONSTANT_CODE_##x, p_##y)
+#define initcode(x,y) { \
+	SetPointer_code(p_##x, x); \
+	CodeValueArray[p_##x] = (byte)CodeValueType_##y; \
+}
+
 _g void init_optimize_common(void)
 {
-	SetPointer_common(optcode_result_type);
-	SetPointer_common(optcode_car0_set);
-	SetPointer_common(optcode_car0_push);
-	SetPointer_common(optcode_car1_set);
-	SetPointer_common(optcode_car1_push);
-	SetPointer_common(optcode_cdr0_set);
-	SetPointer_common(optcode_cdr0_push);
-	SetPointer_common(optcode_cdr1_set);
-	SetPointer_common(optcode_cdr1_push);
-	SetPointer_common(optcode_cons);
+	initcode(optcode_result_type,  Addr);
+	initcode(optcode_car0_set,     Null);
+	initcode(optcode_car0_push,    Null);
+	initcode(optcode_car1_set,     Addr);
+	initcode(optcode_car1_push,    Addr);
+	initcode(optcode_cdr0_set,     Null);
+	initcode(optcode_cdr0_push,    Null);
+	initcode(optcode_cdr1_set,     Addr);
+	initcode(optcode_cdr1_push,    Addr);
+	initcode(optcode_cons,         Null);
 }
 
 _g void build_optimize_common(void)
 {
-	defcode_constant(CONSTANT_CODE_RESULT_TYPE, p_optcode_result_type);
-	defcode_constant(CONSTANT_CODE_CAR0_SET, p_optcode_car0_set);
-	defcode_constant(CONSTANT_CODE_CAR0_PUSH, p_optcode_car0_push);
-	defcode_constant(CONSTANT_CODE_CAR1_SET, p_optcode_car1_set);
-	defcode_constant(CONSTANT_CODE_CAR1_PUSH, p_optcode_car1_push);
-	defcode_constant(CONSTANT_CODE_CDR0_SET, p_optcode_cdr0_set);
-	defcode_constant(CONSTANT_CODE_CDR0_PUSH, p_optcode_cdr0_push);
-	defcode_constant(CONSTANT_CODE_CDR1_SET, p_optcode_cdr1_set);
-	defcode_constant(CONSTANT_CODE_CDR1_PUSH, p_optcode_cdr1_push);
-	defcode_constant(CONSTANT_CODE_CONS, p_optcode_cons);
+	defcode(OPTCODE_RESULT_TYPE,  optcode_result_type);
+	defcode(OPTCODE_CAR0_SET,     optcode_car0_set);
+	defcode(OPTCODE_CAR0_PUSH,    optcode_car0_push);
+	defcode(OPTCODE_CAR1_SET,     optcode_car1_set);
+	defcode(OPTCODE_CAR1_PUSH,    optcode_car1_push);
+	defcode(OPTCODE_CDR0_SET,     optcode_cdr0_set);
+	defcode(OPTCODE_CDR0_PUSH,    optcode_cdr0_push);
+	defcode(OPTCODE_CDR1_SET,     optcode_cdr1_set);
+	defcode(OPTCODE_CDR1_PUSH,    optcode_cdr1_push);
+	defcode(OPTCODE_CONS,         optcode_cons);
 }
+
+#undef defcode
+#undef initcode
 

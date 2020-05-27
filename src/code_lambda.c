@@ -186,17 +186,17 @@ static void lambda_object_code(Execute ptr, addr scope, addr *ret)
 	*ret = pos;
 }
 
-_g int lambda_set_code(Execute ptr, addr pos)
+_g int lambda_set_code(Execute ptr, CodeValue x)
 {
-	lambda_object_code(ptr, pos, &pos);
-	setresult_control(ptr, pos);
+	lambda_object_code(ptr, x.pos, &x.pos);
+	setresult_control(ptr, x.pos);
 	return 0;
 }
 
-_g int lambda_push_code(Execute ptr, addr pos)
+_g int lambda_push_code(Execute ptr, CodeValue x)
 {
-	lambda_object_code(ptr, pos, &pos);
-	pushargs_control(ptr, pos);
+	lambda_object_code(ptr, x.pos, &x.pos);
+	pushargs_control(ptr, x.pos);
 	return 0;
 }
 
@@ -482,23 +482,23 @@ static void lambda_lexical_code(Execute ptr, addr data, addr list)
 		lambda_lexical_closure(ptr, list);
 }
 
-_g int lambda_execute_code(Execute ptr, addr scope)
+_g int lambda_execute_code(Execute ptr, CodeValue x)
 {
 	addr control, data, list;
 
 	getdata_control(ptr, &data);
 	push_args_control(ptr, &control);
 	/* lexical */
-	GetEvalScopeIndex(scope, EvalLambda_Lexical, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Lexical, &list);
 	lambda_lexical_code(ptr, data, list);
 	/* declare */
-	GetEvalScopeIndex(scope, EvalLambda_Free, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Free, &list);
 	Return(let_free_code(ptr, list));
 	/* args */
-	GetEvalScopeIndex(scope, EvalLambda_Args, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Args, &list);
 	Return(lambda_args_code(ptr, list));
 	/* body */
-	GetEvalScopeIndex(scope, EvalLambda_Cons, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Cons, &list);
 	Return(runcode_simple(ptr, list));
 	/* free */
 	return free_control_(ptr, control);
@@ -519,17 +519,17 @@ static void macro_object_code(Execute ptr, addr scope, addr *ret)
 	*ret = pos;
 }
 
-_g int macro_set_code(Execute ptr, addr pos)
+_g int macro_set_code(Execute ptr, CodeValue x)
 {
-	macro_object_code(ptr, pos, &pos);
-	setresult_control(ptr, pos);
+	macro_object_code(ptr, x.pos, &x.pos);
+	setresult_control(ptr, x.pos);
 	return 0;
 }
 
-_g int macro_push_code(Execute ptr, addr pos)
+_g int macro_push_code(Execute ptr, CodeValue x)
 {
-	macro_object_code(ptr, pos, &pos);
-	pushargs_control(ptr, pos);
+	macro_object_code(ptr, x.pos, &x.pos);
+	pushargs_control(ptr, x.pos);
 	return 0;
 }
 
@@ -677,23 +677,23 @@ static int macro_args_code(Execute ptr, addr list)
 	return macro_args_call_(ptr, list, form, env);
 }
 
-_g int macro_execute_code(Execute ptr, addr scope)
+_g int macro_execute_code(Execute ptr, CodeValue x)
 {
 	addr control, data ,list;
 
 	getdata_control(ptr, &data);
 	push_args_control(ptr, &control);
 	/* lexical */
-	GetEvalScopeIndex(scope, EvalLambda_Lexical, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Lexical, &list);
 	lambda_lexical_code(ptr, data, list);
 	/* declare */
-	GetEvalScopeIndex(scope, EvalLambda_Free, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Free, &list);
 	Return(let_free_code(ptr, list));
 	/* args */
-	GetEvalScopeIndex(scope, EvalLambda_Args, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Args, &list);
 	Return(macro_args_code(ptr, list));
 	/* body */
-	GetEvalScopeIndex(scope, EvalLambda_Cons, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Cons, &list);
 	Return(runcode_simple(ptr, list));
 	/* free */
 	return free_control_(ptr, control);
@@ -710,29 +710,29 @@ static int bind_args_code(Execute ptr, addr args)
 	return macro_args_list_(ptr, args, list);
 }
 
-_g int bind_set_code(Execute ptr, addr scope)
+_g int bind_set_code(Execute ptr, CodeValue x)
 {
 	addr control, list;
 
 	push_new_control(ptr, &control);
 	/* declare */
-	GetEvalScopeIndex(scope, EvalLambda_Free, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Free, &list);
 	Return(let_free_code(ptr, list));
 	/* args */
-	GetEvalScopeIndex(scope, EvalLambda_Args, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Args, &list);
 	Return(bind_args_code(ptr, list));
 	/* body */
-	GetEvalScopeIndex(scope, EvalLambda_Cons, &list);
+	GetEvalScopeIndex(x.pos, EvalLambda_Cons, &list);
 	Return(runcode_simple(ptr, list));
 	/* free */
 	return free_control_(ptr, control);
 }
 
-_g int bind_push_code(Execute ptr, addr pos)
+_g int bind_push_code(Execute ptr, CodeValue x)
 {
-	Return(bind_set_code(ptr, pos));
-	getresult_control(ptr, &pos);
-	pushargs_control(ptr, pos);
+	Return(bind_set_code(ptr, x));
+	getresult_control(ptr, &x.pos);
+	pushargs_control(ptr, x.pos);
 
 	return 0;
 }
@@ -766,11 +766,11 @@ static int flet_args_code(Execute ptr, addr list)
 	return 0;
 }
 
-_g int flet_set_code(Execute ptr, addr list)
+_g int flet_set_code(Execute ptr, CodeValue x)
 {
 	addr control, args, body, free;
 
-	List_bind(list, &args, &body, &free, NULL);
+	List_bind(x.pos, &args, &body, &free, NULL);
 	push_new_control(ptr, &control);
 	Return(let_free_code(ptr, free));
 	Return(flet_args_code(ptr, args));
@@ -778,11 +778,11 @@ _g int flet_set_code(Execute ptr, addr list)
 	return free_control_(ptr, control);
 }
 
-_g int flet_push_code(Execute ptr, addr list)
+_g int flet_push_code(Execute ptr, CodeValue x)
 {
-	Return(flet_set_code(ptr, list));
-	getresult_control(ptr, &list);
-	pushargs_control(ptr, list);
+	Return(flet_set_code(ptr, x));
+	getresult_control(ptr, &x.pos);
+	pushargs_control(ptr, x.pos);
 
 	return 0;
 }
@@ -806,11 +806,11 @@ static int labels_args_code(Execute ptr, addr list)
 	return 0;
 }
 
-_g int labels_set_code(Execute ptr, addr list)
+_g int labels_set_code(Execute ptr, CodeValue x)
 {
 	addr control, args, body, free;
 
-	List_bind(list, &args, &body, &free, NULL);
+	List_bind(x.pos, &args, &body, &free, NULL);
 	push_new_control(ptr, &control);
 	Return(let_free_code(ptr, free));
 	Return(labels_args_code(ptr, args));
@@ -818,11 +818,11 @@ _g int labels_set_code(Execute ptr, addr list)
 	return free_control_(ptr, control);
 }
 
-_g int labels_push_code(Execute ptr, addr list)
+_g int labels_push_code(Execute ptr, CodeValue x)
 {
-	Return(labels_set_code(ptr, list));
-	getresult_control(ptr, &list);
-	pushargs_control(ptr, list);
+	Return(labels_set_code(ptr, x));
+	getresult_control(ptr, &x.pos);
+	pushargs_control(ptr, x.pos);
 
 	return 0;
 }
@@ -831,9 +831,9 @@ _g int labels_push_code(Execute ptr, addr list)
 /*
  *  locally
  */
-_g int locally_declare_code(Execute ptr, addr pos)
+_g int locally_declare_code(Execute ptr, CodeValue x)
 {
-	return let_free_code(ptr, pos);
+	return let_free_code(ptr, x.pos);
 }
 
 
@@ -854,11 +854,11 @@ static int bind_values_args_code(Execute ptr, addr list)
 	return 0;
 }
 
-_g int bind_values_set_code(Execute ptr, addr list)
+_g int bind_values_set_code(Execute ptr, CodeValue x)
 {
 	addr control, args, body, free;
 
-	List_bind(list, &args, &body, &free, NULL);
+	List_bind(x.pos, &args, &body, &free, NULL);
 	push_new_control(ptr, &control);
 	Return(let_free_code(ptr, free));
 	Return(bind_values_args_code(ptr, args));
@@ -866,11 +866,11 @@ _g int bind_values_set_code(Execute ptr, addr list)
 	return free_control_(ptr, control);
 }
 
-_g int bind_values_push_code(Execute ptr, addr list)
+_g int bind_values_push_code(Execute ptr, CodeValue x)
 {
-	Return(bind_values_set_code(ptr, list));
-	getresult_control(ptr, &list);
-	pushargs_control(ptr, list);
+	Return(bind_values_set_code(ptr, x));
+	getresult_control(ptr, &x.pos);
+	pushargs_control(ptr, x.pos);
 
 	return 0;
 }

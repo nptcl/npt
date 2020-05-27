@@ -1612,12 +1612,12 @@ lisp-code::declaim-type-value
 lisp-code::declaim-type-function
 lisp-code::declaim-inline
 lisp-code::declaim-notinline
-lisp-code::declaim-declaration
 lisp-code::declaim-compilation
 lisp-code::declaim-debug
 lisp-code::declaim-safety
 lisp-code::declaim-space
 lisp-code::declaim-speed
+lisp-code::declaim-declaration
 
 lisp-code::let-set
 lisp-code::let-push
@@ -1632,26 +1632,11 @@ lisp-code::function-push
 lisp-code::setf-set
 lisp-code::setf-push
 
-lisp-code::lambda-set
-lisp-code::lambda-push
-lisp-code::lambda-execute
-
-lisp-code::macro-set
-lisp-code::macro-push
-lisp-code::macro-execute
-
-lisp-code::bind-set
-lisp-code::bind-push
-
-lisp-code::flet-set
-lisp-code::flet-push
-lisp-code::labels-set
-lisp-code::labels-push
-lisp-code::defun
 lisp-code::defmacro
 lisp-code::deftype
 lisp-code::define-compiler-macro
 lisp-code::define-symbol-macro
+lisp-code::defun
 
 lisp-code::call
 lisp-code::call-result
@@ -1664,45 +1649,59 @@ lisp-code::values-nil
 lisp-code::values-set
 lisp-code::the-set
 lisp-code::the-push
-lisp-code::locally-declare
+
 lisp-code::if
 lisp-code::goto
-lisp-code::tag
 lisp-code::go
 lisp-code::return-from
 lisp-code::catch
 lisp-code::throw
+lisp-code::tag
+lisp-code::taginfo
+lisp-code::blockinfo
+lisp-code::unwind-protect
+
 lisp-code::handler-bind
 lisp-code::handler-case
 lisp-code::restart-bind
 lisp-code::restart-case
 
-lisp-code::bind-values-set
-lisp-code::bind-values-push
 lisp-code::prog1-set
 lisp-code::prog1-push
 lisp-code::funcall
 lisp-code::nth-value
 lisp-code::progv
 
-lisp-code::taginfo
-lisp-code::blockinfo
-lisp-code::unwind-protect
+lisp-code::lambda-set
+lisp-code::lambda-push
+lisp-code::lambda-execute
+lisp-code::macro-set
+lisp-code::macro-push
+lisp-code::macro-execute
+lisp-code::bind-set
+lisp-code::bind-push
+lisp-code::flet-set
+lisp-code::flet-push
+lisp-code::labels-set
+lisp-code::labels-push
+lisp-code::locally-declare
+lisp-code::bind-values-set
+lisp-code::bind-values-push
 
 
 ;;
 ;;  optimize
 ;;
-lisp-code::result-type
-lisp-code::car0-set
-lisp-code::car0-push
-lisp-code::car1-set
-lisp-code::car1-push
-lisp-code::cdr0-set
-lisp-code::cdr0-push
-lisp-code::cdr1-set
-lisp-code::cdr1-push
-lisp-code::cons
+lisp-code::optcode-result-type
+lisp-code::optcode-car0-set
+lisp-code::optcode-car0-push
+lisp-code::optcode-car1-set
+lisp-code::optcode-car1-push
+lisp-code::optcode-cdr0-set
+lisp-code::optcode-cdr0-push
+lisp-code::optcode-cdr1-set
+lisp-code::optcode-cdr1-push
+lisp-code::optcode-cons
 
 
 ;;

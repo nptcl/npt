@@ -8,6 +8,9 @@ checkerr()
 	fi
 }
 
+cd $(dirname $0)
+checkerr "cd error"
+
 npt_pwd=$(cd ./release/; pwd);
 npt="${npt_pwd}/npt"
 
@@ -117,7 +120,7 @@ echo "OK: npt --script"
 
 
 ## rt.lisp
-cd ../root/.
+cd ../../root/.
 checkerr "cd error"
 ${npt} --script test/rt.lisp
 checkerr "npt error"

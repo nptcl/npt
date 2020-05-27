@@ -1,96 +1,55 @@
+#include "character.h"
+#include "code_init.h"
 #include "code_object.h"
 #include "copy.h"
 #include "function.h"
+#include "heap.h"
 #include "memory.h"
+#include "pointer.h"
 #include "symbol.h"
 
 /*
  *  code
  */
-static void alloc_code(LocalRoot local, addr *ret)
+static void alloc_code_heap(addr *ret)
 {
-	alloc_smallsize(local, ret, LISPTYPE_CODE,
-			Code_Size, sizeoft(struct code_struct));
+	heap_smallsize(ret, LISPTYPE_CODE, Code_Size, sizeoft(struct code_struct));
 }
 
-static void code_call_alloc(LocalRoot local, addr *ret, size_t size)
+static void alloc_code_system_heap(addr *ret, size_t size)
 {
 	addr pos;
-	size_t allsize, *ptr;
-
-	allsize = sizeoft(size_t)
-		+ (size + 1) * (sizeoft(pointer) + sizeoft(callbind_code));
-	alloc_body4(local, &pos, LISPSYSTEM_CODE, allsize);
-	ptr = (size_t *)PtrCallCode(pos);
+	size_t allsize;
 #ifdef LISP_DEBUG
+	struct code_value *ptr;
+#endif
+
+	allsize = (size + 1) * sizeoft(struct code_value);
+	heap_body4(&pos, LISPSYSTEM_CODE, allsize);
+#ifdef LISP_DEBUG
+	ptr = StructCallCode(pos);
 	aamemory(ptr, allsize);
 #endif
-	*ptr = size;
-	*ret = pos;
-}
-
-static pointer *pointer_code_call(addr pos)
-{
-	byte *ptr;
-	size_t size;
-
-	CheckType(pos, LISPSYSTEM_CODE);
-	ptr = (byte *)PtrCallCode(pos);
-	size = *(size_t *)ptr;
-	ptr += sizeoft(size_t);
-	return (pointer *)(ptr + (size + 1) * sizeoft(callbind_code));
-}
-
-static void make_code_call(LocalRoot local, addr codeA4, size_t size,
-		addr *rcall, addr *rargs)
-{
-	size_t i;
-	addr left, right, call, args;
-	pointer *ptr;
-
-	code_call_alloc(local, &call, size);
-	vector4_alloc(local, &args, size + 1);
-	ptr = pointer_code_call(call);
-	for (i = 0; i < size; i++) {
-		GetArrayA4(codeA4, i, &left);
-		copylocal_object(local, &left, left);
-		GetCons(left, &left, &right);
-		GetFunctionSymbol(left, &left);
-		/* call */
-		Check(left == NULL || left == Unbound, "unbound error");
-		Check(! compiled_funcall_function_p(left), "type error");
-		ptr[i] = StructFunction(left)->index;
-		/* args */
-		SetArgumentCall(args, i, right);
-	}
-	ptr[i] = 0; /* p_empty */
-	*rcall = call;
-	*rargs = args;
-}
-
-static void code_alloc(LocalRoot local, addr *ret, addr codeA4)
-{
-	addr pos, call, args;
-	struct code_struct *ptr;
-	size_t size;
-
-	alloc_code(local, &pos);
-	ptr = StructCode(pos);
-	clearpoint(ptr);
-	CheckType(codeA4, LISPTYPE_VECTOR);
-	LenArrayA4(codeA4, &size);
-	make_code_call(local, codeA4, size, &call, &args);
-	SetArrayCode(pos, Code_Array, codeA4);
-	SetArrayCode(pos, Code_Call, call);
-	SetArrayCode(pos, Code_Argument, args);
-	ptr->size = size;
-	allpointer_code(pos);
 	*ret = pos;
 }
 
 _g void code_heap(addr *ret, addr codeA4)
 {
-	code_alloc(NULL, ret, codeA4);
+	addr pos, call;
+	struct code_struct *ptr;
+	size_t size;
+
+	alloc_code_heap(&pos);
+	ptr = StructCode(pos);
+	clearpoint(ptr);
+	CheckType(codeA4, LISPTYPE_VECTOR);
+	LenArrayA4(codeA4, &size);
+	alloc_code_system_heap(&call, size);
+	SetArrayCode(pos, Code_Array, codeA4);
+	SetArrayCode(pos, Code_Call, call);
+	ptr->size = size;
+	update_code(pos);
+	*ret = pos;
 }
 
 _g void function_empty_heap(addr *ret, addr name)
@@ -108,68 +67,82 @@ _g void getarray_code(addr pos, addr *ret)
 	GetArrayCode(pos, Code_Array, ret);
 }
 
-_g void getargs_code(addr pos, addr *ret)
-{
-	CheckType(pos, LISPTYPE_CODE);
-	GetArrayCode(pos, Code_Argument, ret);
-}
-
 
 /*
- *  setpointer
+ *  update_code
  */
-static callbind_code *system_code_call(addr pos)
+static CodeValue make_code_value(pointer id, addr pos)
 {
-	byte *ptr;
+	CodeValue ret;
+	enum CodeValueType type;
 
-	CheckType(pos, LISPSYSTEM_CODE);
-	ptr = (byte *)PtrCallCode(pos);
-	return (callbind_code *)(ptr + sizeoft(size_t));
+	Check(p_size_code < id, "pointer error");
+	type = (enum CodeValueType)CodeValueArray[id];
+	switch (type) {
+		case CodeValueType_Addr:
+			ret.pos = pos;
+			break;
+
+		case CodeValueType_Index:
+			GetIndex(pos, &ret.index);
+			break;
+
+		case CodeValueType_Fixnum:
+			GetFixnum(pos, &ret.value);
+			break;
+
+		case CodeValueType_Character:
+			GetCharacter(pos, &ret.character);
+			break;
+
+		case CodeValueType_Null:
+			ret.voidp = NULL;
+			break;
+	}
+
+	return ret;
 }
 
-_g void setpointer_code(addr code)
+static void update_struct_code(struct code_value *ptr, addr list)
 {
 	addr pos;
-	struct code_struct *ptr;
+	callbind_code bind;
+	CodeValue value;
+	pointer id;
+
+	/* operator */
+	GetCons(list, &pos, &list);
+	GetFunctionSymbol(pos, &pos);
+	Check(pos == Unbound, "unbound error");
+	Check(! compiled_funcall_function_p(pos), "type error");
+	id = StructFunction(pos)->index;
+	GetPointer_code(id, &bind);
+	value = make_code_value(id, list);
+
+	/* result */
+	ptr->call= bind;
+	ptr->value = value;
+}
+
+_g void update_code(addr code)
+{
+	addr array, call, list;
+	struct code_struct *str;
+	struct code_value *ptr;
+	size_t size, i;
 
 	CheckType(code, LISPTYPE_CODE);
-	ptr = StructCode(code);
-	/* sys */
-	GetArrayCode(code, Code_Call, &pos);
-	ptr->sys = system_code_call(pos);
-	/* args */
-	GetArrayCode(code, Code_Argument, &pos);
-	ptr->args = (addr *)PtrArrayA4(pos);
-}
-
-_g void setpointer_code_call(addr code)
-{
-	byte *ptr;
-	callbind_code *sys, bind;
-	pointer *pp, id;
-	size_t i, size;
-
-	CheckType(code, LISPSYSTEM_CODE);
-	ptr = (byte *)PtrCallCode(code);
-	size = *(size_t *)ptr;
-	ptr += sizeoft(size_t);
-	sys = (callbind_code *)ptr;
-	ptr += (size + 1) * sizeoft(callbind_code);
-	pp = (pointer *)ptr;
+	GetArrayCode(code, Code_Array, &array);
+	GetArrayCode(code, Code_Call, &call);
+	str = StructCode(code);
+	ptr = StructCallCode(call);
+	size = str->size;
 
 	for (i = 0; i < size; i++) {
-		id = pp[i];
-		GetPointer_code(id, &bind);
-		sys[i] = bind;
+		GetArgumentCall(array, i, &list);
+		update_struct_code(ptr + i, list);
 	}
-	pp[i] = 0;
-	sys[i] = 0;
-}
-
-_g void allpointer_code(addr code)
-{
-	setpointer_code(code);
-	GetArrayCode(code, Code_Call, &code);
-	setpointer_code_call(code);
+	ptr[i].call = NULL;
+	str->sys = ptr;
 }
 

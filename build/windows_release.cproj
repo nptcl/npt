@@ -208,6 +208,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_plus.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_function.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_init.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_lambda.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_make.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\code_object.c" />
@@ -253,6 +254,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\control_operator.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\copy.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\core.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\core_store.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\declare.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\degrade.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\develop.c" />
@@ -507,6 +509,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl_windows.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\cmpl.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_function.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_init.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_lambda.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_make.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\code_object.h" />
@@ -532,6 +535,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control_operator.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\control.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\copy.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\core_store.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\core.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\declare.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\define_compile.h" />

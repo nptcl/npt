@@ -117,17 +117,15 @@ static int runcode_control_check(Execute ptr)
 static int runcode_execute(Execute ptr, addr code)
 {
 	addr control, throw;
-	addr *args;
-	callbind_code *sys, bind;
 	struct control_struct *str;
 	struct code_struct *body;
+	struct code_value *sys, *bind;
 	size_t point, *index;
 
 	/* code */
 	CheckType(code, LISPTYPE_CODE);
 	control = ptr->control;
 	body = StructCode(code);
-	args = body->args;
 	sys = body->sys;
 
 	/* control */
@@ -144,14 +142,14 @@ loop:
 
 	/* execute */
 	point = (*index)++;
-	bind = sys[point];
-	if (bind == NULL) {
+	bind = sys + point;
+	if (bind->call == NULL) {
 		LispGcCheck(ptr);
 		LispEndControl("EXECUTE", control);
 		return 0;
 	}
 	OutputTrace(control, point);
-	if ((*bind)(ptr, args[point]) == 0)
+	if ((bind->call)(ptr, bind->value) == 0)
 		goto loop;
 
 	/* throw */
@@ -223,9 +221,8 @@ _g int runcode_control(Execute ptr, addr code)
  */
 _g int runcode_simple(Execute ptr, addr code)
 {
-	addr *args;
-	callbind_code *sys, bind;
 	struct code_struct *body;
+	struct code_value *sys, *bind;
 	size_t point;
 #ifdef LISP_DEBUG_TRACE
 	addr control;
@@ -235,7 +232,6 @@ _g int runcode_simple(Execute ptr, addr code)
 	/* code */
 	CheckType(code, LISPTYPE_CODE);
 	body = StructCode(code);
-	args = body->args;
 	sys = body->sys;
 
 	/* control */
@@ -253,14 +249,14 @@ loop:
 	TraceControl(str, code);
 
 	/* execute */
-	bind = sys[point];
-	if (bind == 0) {
+	bind = sys + point;
+	if (bind->call == NULL) {
 		LispGcCheck(ptr);
 		LispEndControl("SIMPLE", control);
 		return 0;
 	}
 	OutputTrace(control, point);
-	Return((*bind)(ptr, args[point]));
+	Return((bind->call)(ptr, bind->value));
 	point++;
 	goto loop;
 }

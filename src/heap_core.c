@@ -1,4 +1,5 @@
 #include "code_object.h"
+#include "core_store.h"
 #include "file_memory.h"
 #include "heap_memory.h"
 #include "memory.h"
@@ -442,12 +443,7 @@ static int load_dump(struct filememory *fm)
 
 			case LISPTYPE_CODE:
 				IfDebug(load_object(fm, pos, &size), "load_object error.");
-				setpointer_code(pos);
-				break;
-
-			case LISPSYSTEM_CODE:
-				IfDebug(load_object(fm, pos, &size), "load_object error.");
-				setpointer_code_call(pos);
+				IfDebug(load_store_push(pos), "load_store_push error.");
 				break;
 
 			default:
@@ -467,14 +463,18 @@ static int load_dump(struct filememory *fm)
 /* save/load info */
 static int save_info(struct filememory *fm)
 {
+	addr pos;
 	struct heap_addr *str;
 
+	/* tail */
 	str = (struct heap_addr *)heap_range;
 	str--;
 	while (LessEqualPointer(heap_tail, str)) {
 		IfWriteAddr(fm, str->pos, "writeaddr error: heap_addr.");
+		str--;
 	}
-	IfWriteCheck(fm, NULL, sizeoft(void *), "writecheck: null.");
+	pos = NULL;
+	IfWriteCheck(fm, &pos, sizeoft(void *), "writecheck: null.");
 
 	return 0;
 }
@@ -483,14 +483,16 @@ static int load_info(struct filememory *fm)
 {
 	addr pos;
 	struct heap_addr *str;
+	size_t i;
 
-	for (;;) {
+	for (i = 0; i < heap_count; i++) {
 		IfReadAddr(fm, &pos, "readaddr error: heap_addr.");
-		if (pos == NULL)
-			break;
-		/* alloctail */
 		str = alloctail();
 		str->pos = pos;
+	}
+	IfReadCheck(fm, &pos, PtrSize, "readcheck error: null.");
+	if (pos != NULL) {
+		Abort("load_info null error.");
 	}
 
 	return 0;
@@ -507,8 +509,6 @@ static int save_data(struct filememory *fm)
 	IfWriteSize(fm, heap_gc_full, "writeptr error: heap_gc_full");
 	IfWritePtr(fm, heap_front, "writeptr error: heap_front");
 	IfWritePtr(fm, heap_pos, "writeptr error: heap_pos");
-	IfWritePtr(fm, heap_tail, "writeptr error: heap_tail");
-	IfWritePtr(fm, heap_range, "writeptr error: heap_range");
 	if (save_dump(fm)) {
 		Debug("save_dump error");
 		return 1;
@@ -525,8 +525,6 @@ static int load_data(struct filememory *fm)
 	IfReadSize(fm, &heap_gc_full, "readptr error: heap_gc_full");
 	IfReadPtr(fm, (void **)&heap_front, "readptr error: heap_front");
 	IfReadPtr(fm, (void **)&heap_pos, "readptr error: heap_pos");
-	IfReadPtr(fm, (void **)&heap_tail, "readptr error: heap_tail");
-	IfReadPtr(fm, (void **)&heap_range, "readptr error: heap_range");
 	if (load_dump(fm)) {
 		Debug("load_dump error");
 		return 1;
@@ -552,14 +550,21 @@ _g int save_heap(struct filememory *fm)
 }
 _g int load_heap(struct filememory *fm)
 {
+	if (load_store_init()) {
+		Debug("load_store_init error.");
+		return 1;
+	}
 	if (load_data(fm)) {
 		Debug("load_data error.");
+		load_store_error();
 		return 1;
 	}
 	if (load_info(fm)) {
 		Debug("load_info error.");
+		load_store_error();
 		return 1;
 	}
+	load_store_exec();
 
 	return 0;
 }
