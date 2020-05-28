@@ -307,7 +307,7 @@ static void reinternchar(const char *name, addr *ret)
 	internchar(LISP_PACKAGE, name, ret);
 }
 
-static int test_refcallname_global(void)
+static int test_getcallname_global(void)
 {
 	addr control, pos, call1, call2, symbol, key;
 	Execute ptr;
@@ -316,33 +316,33 @@ static int test_refcallname_global(void)
 	push_new_control(ptr, &control);
 	reinternchar("HELLO", &symbol);
 
-	pos = refglobal_parse_callname(symbol);
-	test(pos == Unbound, "refglobal_parse_callname");
+	getglobal_parse_callname(symbol, &pos);
+	test(pos == Unbound, "getglobal_parse_callname");
 
 	fixnum_heap(&call1, 10);
 	fixnum_heap(&call2, 20);
 	setfunction_symbol(symbol, call1);
 	setsetf_symbol(symbol, call2);
 
-	pos = refglobal_parse_callname(symbol);
-	test(pos == call1, "refglobal_parse_callname2");
+	getglobal_parse_callname(symbol, &pos);
+	test(pos == call1, "getglobal_parse_callname2");
 	setfcons(&key, symbol);
-	pos = refglobal_parse_callname(key);
-	test(pos == call2, "refglobal_parse_callname3");
+	getglobal_parse_callname(key, &pos);
+	test(pos == call2, "getglobal_parse_callname3");
 
 	setglobal_parse_callname(symbol, call2);
 	setglobal_parse_callname(key, call1);
 	getglobal_parse_callname(symbol, &pos);
-	test(pos == call2, "refglobal_parse_callname4");
+	test(pos == call2, "getglobal_parse_callname4");
 	getglobal_parse_callname(key, &pos);
-	test(pos == call1, "refglobal_parse_callname5");
+	test(pos == call1, "getglobal_parse_callname5");
 
 	free_control_(ptr, control);
 
 	RETURN;
 }
 
-static int test_refcallnamecheck_global(void)
+static int test_getcallnamecheck_global(void)
 {
 	addr control, pos, call1, call2, symbol, key;
 	Execute ptr;
@@ -356,18 +356,18 @@ static int test_refcallnamecheck_global(void)
 	setfunction_symbol(symbol, call1);
 	setsetf_symbol(symbol, call2);
 
-	pos = refglobalcheck_parse_callname(symbol);
-	test(pos == call1, "refglobalcheck_parse_callname1");
+	getglobalcheck_parse_callname(symbol, &pos);
+	test(pos == call1, "getglobalcheck_parse_callname1");
 	setfcons(&key, symbol);
-	pos = refglobalcheck_parse_callname(key);
-	test(pos == call2, "refglobalcheck_parse_callname2");
+	getglobalcheck_parse_callname(key, &pos);
+	test(pos == call2, "getglobalcheck_parse_callname2");
 
 	setglobal_parse_callname(symbol, call2);
 	setglobal_parse_callname(key, call1);
 	getglobalcheck_parse_callname(symbol, &pos);
-	test(pos == call2, "refglobalcheck_parse_callname3");
+	test(pos == call2, "getglobalcheck_parse_callname3");
 	getglobalcheck_parse_callname(key, &pos);
-	test(pos == call1, "refglobalcheck_parse_callname4");
+	test(pos == call1, "getglobalcheck_parse_callname4");
 
 	free_control_(ptr, control);
 
@@ -392,8 +392,8 @@ static int testbreak_callname(void)
 	TestBreak(test_getfunction_callname_global);
 	TestBreak(test_copy_callname_alloc);
 	TestBreak(test_callnametype);
-	TestBreak(test_refcallname_global);
-	TestBreak(test_refcallnamecheck_global);
+	TestBreak(test_getcallname_global);
+	TestBreak(test_getcallnamecheck_global);
 
 	return 0;
 }

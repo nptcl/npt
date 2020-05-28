@@ -8,6 +8,7 @@
 
 extern int DegradeCount;
 extern int DegradeError;
+int degrade_code(void (*init)(Execute), int (*call)(void));
 int degrade_printf(const char *fmt, ...);
 int degrade_test(int check, const char *name);
 void degrade_title(const char *name);

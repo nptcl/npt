@@ -58,10 +58,10 @@ _g void build_symbol(void)
 /*
  *  symbol
  */
-_g addr symbol_allocr(LocalRoot local)
+_g void symbol_alloc(LocalRoot local, addr *ret)
 {
 	int i;
-	addr pos, make, stack;
+	addr pos, make;
 
 	/* symbol object */
 	alloc_symbol(local, &pos);
@@ -73,34 +73,21 @@ _g addr symbol_allocr(LocalRoot local)
 	/* stack */
 	alloc_array4(local, &make, LISPSYSTEM_SYMSTACK, SYMSTACK_SIZE);
 	for (i = 0; i < SYMSTACK_SIZE; i++) {
-		consnil_alloc(local, &stack);
-		SetArrayA4(make, i, stack);
+		SetArrayA4(make, i, NULL);
 	}
-	SetStackSymbol_Low(pos, make);
+	SetSpecialSymbol_Low(pos, make);
+	*ret = pos;
+}
 
-	return pos;
-}
-_g void symbol_alloc(LocalRoot local, addr *ret)
-{
-	*ret = symbol_allocr(local);
-}
-_g addr symbol_heapr(void)
-{
-	return symbol_allocr(NULL);
-}
-_g void symbol_heap(addr *ret)
-{
-	*ret = symbol_allocr(NULL);
-}
-_g addr symbol_localr(LocalRoot local)
-{
-	Check(local == NULL, "local error");
-	return symbol_allocr(local);
-}
 _g void symbol_local(LocalRoot local, addr *ret)
 {
 	Check(local == NULL, "local error");
-	*ret = symbol_allocr(local);
+	symbol_alloc(local, ret);
+}
+
+_g void symbol_heap(addr *ret)
+{
+	symbol_alloc(NULL, ret);
 }
 
 _g int symbolp(addr pos)
@@ -131,19 +118,11 @@ static void setcheck_symbol(addr symbol)
 	setcheck_symbol(symbol); \
 	SetArrayA2(s, i, v); \
 }
-#define RefSymbol(s,i) { \
-	Check(! symbolp(s), "type error"); \
-	return RefArrayA2(s, i); \
-}
 #define GetSymbol(s,i,v) { \
 	Check(! symbolp(s), "type error"); \
 	GetArrayA2(s, i, v); \
 }
 
-_g addr refname_symbol(addr symbol)
-{
-	RefSymbol(symbol, SYMBOL_INDEX_NAME);
-}
 _g void getname_symbol(addr symbol, addr *value)
 {
 	GetSymbol(symbol, SYMBOL_INDEX_NAME, value);
@@ -154,14 +133,6 @@ _g void setname_symbol(addr symbol, addr value)
 	SetSymbol(symbol, SYMBOL_INDEX_NAME, value);
 }
 
-_g addr refvalue_symbol(addr symbol)
-{
-	GetSymbol(symbol, SYMBOL_INDEX_VALUE, &symbol);
-	if (symbol == Nil)
-		return Unbound;
-	else
-		return RefCar(symbol);
-}
 _g void getvalue_symbol(addr symbol, addr *value)
 {
 	GetSymbol(symbol, SYMBOL_INDEX_VALUE, &symbol);
@@ -184,10 +155,6 @@ _g void setvalue_symbol(addr symbol, addr value)
 	}
 }
 
-_g addr reffunction_symbol(addr symbol)
-{
-	RefSymbol(symbol, SYMBOL_INDEX_FUNCTION);
-}
 _g void getfunction_symbol(addr symbol, addr *value)
 {
 	GetSymbol(symbol, SYMBOL_INDEX_FUNCTION, value);
@@ -197,10 +164,6 @@ _g void setfunction_symbol(addr symbol, addr value)
 	SetSymbol(symbol, SYMBOL_INDEX_FUNCTION, value);
 }
 
-_g addr refpackage_symbol(addr symbol)
-{
-	RefSymbol(symbol, SYMBOL_INDEX_PACKAGE);
-}
 _g void getpackage_symbol(addr symbol, addr *value)
 {
 	GetSymbol(symbol, SYMBOL_INDEX_PACKAGE, value);
@@ -211,10 +174,6 @@ _g void setpackage_symbol(addr symbol, addr value)
 	SetSymbol(symbol, SYMBOL_INDEX_PACKAGE, value);
 }
 
-_g addr refplist_symbol(addr symbol)
-{
-	RefSymbol(symbol, SYMBOL_INDEX_PLIST);
-}
 _g void getplist_symbol(addr symbol, addr *value)
 {
 	GetSymbol(symbol, SYMBOL_INDEX_PLIST, value);
@@ -359,15 +318,11 @@ _g void reminline_setf_symbol(addr symbol)
 }
 
 /* setf */
-_g addr refsetf_symbol(addr symbol)
+_g void getsetf_symbol(addr symbol, addr *value)
 {
 	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
-	return getplist_constant(symbol, CONSTANT_COMMON_SETF, &symbol)? Unbound: symbol;
-}
-_g void getsetf_symbol(addr symbol, addr *value)
-{
-	*value = refsetf_symbol(symbol);
+	*value = getplist_constant(symbol, CONSTANT_COMMON_SETF, &symbol)? Unbound: symbol;
 }
 _g void setsetf_symbol(addr symbol, addr value)
 {
@@ -379,16 +334,12 @@ _g void remsetf_symbol(addr symbol)
 }
 
 /* setf-macro */
-_g addr refsetfmacro_symbol(addr symbol)
+_g void getsetfmacro_symbol(addr symbol, addr *value)
 {
 	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
-	return getplist_constant(symbol, CONSTANT_COMMON_DEFINE_SETF_EXPANDER,
+	*value = getplist_constant(symbol, CONSTANT_COMMON_DEFINE_SETF_EXPANDER,
 			&symbol)? Unbound: symbol;
-}
-_g void getsetfmacro_symbol(addr symbol, addr *value)
-{
-	*value = refsetfmacro_symbol(symbol);
 }
 _g void setsetfmacro_symbol(addr symbol, addr value)
 {
@@ -401,16 +352,12 @@ _g void remsetfmacro_symbol(addr symbol)
 
 
 /* macro */
-_g addr refmacro_symbol(addr symbol)
+_g void getmacro_symbol(addr symbol, addr *value)
 {
 	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
-	return getplist_constant(symbol, CONSTANT_COMMON_DEFMACRO, &symbol)?
+	*value = getplist_constant(symbol, CONSTANT_COMMON_DEFMACRO, &symbol)?
 		Unbound: symbol;
-}
-_g void getmacro_symbol(addr symbol, addr *value)
-{
-	*value = refmacro_symbol(symbol);
 }
 _g void setmacro_symbol(addr symbol, addr value)
 {
@@ -422,7 +369,7 @@ _g void remmacro_symbol(addr symbol)
 }
 
 /* symbol-macro */
-_g addr refsymbol_macro_symbol(addr symbol)
+static addr refsymbol_macro_symbol(addr symbol)
 {
 	CheckSymbol(symbol);
 	GetInfoSymbol_Low(symbol, &symbol);
@@ -477,11 +424,6 @@ _g void set_setf_compiler_macro_symbol(addr symbol, addr value)
 }
 
 /* scope */
-_g addr refscope_symbol(addr symbol)
-{
-	getinfo_constant(symbol, CONSTANT_COMMON_SPECIAL, &symbol);
-	return symbol;
-}
 _g void getscope_symbol(addr symbol, addr *value)
 {
 	getinfo_constant(symbol, CONSTANT_COMMON_SPECIAL, value);
@@ -503,12 +445,14 @@ _g void setlexical_symbol(addr symbol)
 _g int specialp_symbol(addr symbol)
 {
 	CheckSymbol(symbol);
-	return refscope_symbol(symbol) != Nil;
+	getscope_symbol(symbol, &symbol);
+	return symbol != Nil;
 }
 _g int lexicalp_symbol(addr symbol)
 {
 	CheckSymbol(symbol);
-	return refscope_symbol(symbol) == Nil;
+	getscope_symbol(symbol, &symbol);
+	return symbol == Nil;
 }
 
 _g void set_special_operator(addr symbol)
@@ -654,6 +598,9 @@ static void realloc_symbol(addr *stack, size_t size1, size_t size2)
 		SetArrayA4(make, i, temp);
 		SetArrayA4(old, i, Nil);
 	}
+	for (; i < size2; i++) {
+		SetArrayA4(make, i, NULL);
+	}
 	*stack = make;
 }
 
@@ -664,10 +611,10 @@ static void symstack(size_t index, addr symbol, addr *ret)
 
 	Check(GetStatusDynamic(symbol), "dynamic error.");
 	rdlock_rwlocklite(&MutexSymbol);
-	GetStackSymbol_Low(symbol, &stack);
+	GetSpecialSymbol_Low(symbol, &stack);
 	size = GetLenArrayA4(stack);
 	if (index < size) {
-		GetArrayA4(stack, index, ret);
+		*ret = stack;
 		unrdlock_rwlocklite(&MutexSymbol);
 		return;
 	}
@@ -676,10 +623,10 @@ static void symstack(size_t index, addr symbol, addr *ret)
 	unrdlock_rwlocklite(&MutexSymbol);
 	wrlock_rwlocklite(&MutexSymbol);
 	/* reload */
-	GetStackSymbol_Low(symbol, &stack);
+	GetSpecialSymbol_Low(symbol, &stack);
 	size = GetLenArrayA4(stack);
 	if (index < size) {
-		GetArrayA4(stack, index, ret);
+		*ret = stack;
 		unwrlock_rwlocklite(&MutexSymbol);
 		return;
 	}
@@ -688,93 +635,29 @@ static void symstack(size_t index, addr symbol, addr *ret)
 	for (size2 = size; size2 <= index; )
 		size2 <<= 1;
 	realloc_symbol(&stack, size, size2);
-	SetStackSymbol_Low(symbol, stack);
+	SetSpecialSymbol_Low(symbol, stack);
 	for (i = size; i < size2; i++) {
 		consnil_heap(&child);
 		SetArrayA4(stack, i, child);
 	}
-	GetArrayA4(stack, index, ret);
+	*ret = stack;
 	unwrlock_rwlocklite(&MutexSymbol);
 }
 
-_g void pushspecial_unsafe(Execute ptr, addr pos, addr value)
+_g void getspecial_unsafe(Execute ptr, addr pos, addr *ret)
 {
-	addr cons, root, stack;
-
 	Check(! symbolp(pos), "type error");
 	setcheck_symbol(pos);
-
-	symstack(ptr->index, pos, &root);
-	GetCar(root, &stack);
-	cons_local(ptr->local, &cons, value, stack);
-	SetCar_force(root, cons);
-}
-
-_g void popspecial_unsafe(Execute ptr, addr pos)
-{
-	addr root, stack;
-
-	Check(! symbolp(pos), "type error");
-	setcheck_symbol(pos);
-
-	symstack(ptr->index, pos, &root);
-	GetCar(root, &stack);
-	Check(stack == Nil, "symstack is already empty.");
-	GetCdr(stack, &stack);
-	SetCar_force(root, stack);
-}
-
-_g void snapshot_special_local(Execute ptr, addr pos, addr *ret)
-{
-	Check(! symbolp(pos), "type error");
 	symstack(ptr->index, pos, &pos);
-	GetCar(pos, ret);
+	GetArrayA4(pos, ptr->index, ret);
 }
 
-_g void rollback_special_local(Execute ptr, addr pos, addr cons)
+_g void setspecial_unsafe(Execute ptr, addr pos, addr value)
 {
-#ifdef LISP_DEBUG
-	addr root;
-#endif
-	Check(! symbolp(pos), "type error");
-	symstack(ptr->index, pos, &pos);
-	if (cons == Nil) {
-		SetCar(pos, Nil);
-		return;
-	}
-
-#ifdef LISP_DEBUG
-	GetCar(pos, &root);
-	while (root != cons) {
-		Check(root == Nil, "rollback_symlocal error");
-		GetCdr(root, &root);
-	}
-#endif
-	SetCar_force(pos, cons);
-}
-
-_g void clearspecial_local(Execute ptr, addr pos)
-{
-	addr root;
-
 	Check(! symbolp(pos), "type error");
 	setcheck_symbol(pos);
-
-	symstack(ptr->index, pos, &root);
-	SetCar(root, Nil);
-}
-
-static int getsymlocal(Execute ptr, addr root, addr *ret)
-{
-	Check(! symbolp(root), "type error");
-
-	symstack(ptr->index, root, &root);
-	GetCar(root, &root);
-	if (root == Nil)
-		return 1;  /* not found */
-	GetCar(root, ret);
-
-	return 0;  /* found */
+	symstack(ptr->index, pos, &pos);
+	SetArrayA4_force(pos, ptr->index, value);
 }
 
 _g void getspecial_local(Execute ptr, addr pos, addr *ret)
@@ -784,45 +667,31 @@ _g void getspecial_local(Execute ptr, addr pos, addr *ret)
 		GetValueSymbol(pos, ret);
 		return;
 	}
-	if (getsymlocal(ptr, pos, ret))
+	getspecial_unsafe(ptr, pos, ret);
+	if (*ret == NULL) {
 		GetValueSymbol(pos, ret);
-}
-
-_g addr refspecial_local(Execute ptr, addr pos)
-{
-	getspecial_local(ptr, pos, &pos);
-	return pos;
+	}
 }
 
 _g void getspecialcheck_local(Execute ptr, addr pos, addr *ret)
 {
 	getspecial_local(ptr, pos, ret);
-	if (*ret == Unbound) unbound_variable(pos);
-}
-_g addr refspecialcheck_local(Execute ptr, addr pos)
-{
-	getspecialcheck_local(ptr, pos, &pos);
-	return pos;
+	if (*ret == Unbound)
+		unbound_variable(pos);
 }
 
-static int setsymlocal(Execute ptr, addr root, addr value)
-{
-	Check(! symbolp(root), "type error");
-	setcheck_symbol(root);
-
-	symstack(ptr->index, root, &root);
-	GetCar(root, &root);
-	if (root == Nil)
-		return 1;  /* not found */
-	SetCar(root, value);
-
-	return 0;  /* found */
-}
 _g void setspecial_local(Execute ptr, addr pos, addr value)
 {
+	addr check;
+
 	Check(! symbolp(pos), "type error");
-	if (setsymlocal(ptr, pos, value))
+	getspecial_unsafe(ptr, pos, &check);
+	if (check == NULL) {
 		SetValueSymbol(pos, value);
+	}
+	else {
+		setspecial_unsafe(ptr, pos, value);
+	}
 }
 
 _g void getfunction_global(addr pos, addr *ret)
@@ -831,6 +700,7 @@ _g void getfunction_global(addr pos, addr *ret)
 	if (*ret == Unbound)
 		undefined_function(pos);
 }
+
 _g void getsetf_global(addr pos, addr *ret)
 {
 	addr setf;

@@ -63,7 +63,7 @@ _g void setcontrol_debug(addr pos, size_t index, addr value);
  */
 enum Special_Index {
 	Special_Symbol,
-	Special_Snapshot,
+	Special_Value,
 	Special_Size
 };
 

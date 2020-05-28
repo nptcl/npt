@@ -21,6 +21,8 @@ __extern size_t heap_count;
 __extern size_t heap_gc_count;
 __extern size_t heap_gc_partial;
 __extern size_t heap_gc_full;
+__extern size_t heap_cons_count;
+__extern size_t heap_symbol_count;
 
 _g struct heap_addr *alloctail(void);
 _g void allocheap(size_t size, enum LISPTYPE type, addr *root, int size2);

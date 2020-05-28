@@ -47,10 +47,10 @@ static void special_local(Execute ptr, addr *ret, addr symbol)
 	addr pos, value;
 
 	Check(! symbolp(symbol), "type error");
-	snapshot_special_local(ptr, symbol, &value);
+	getspecial_unsafe(ptr, symbol, &value);
 	local_array2(ptr->local, &pos, LISPSYSTEM_SPECIAL, Special_Size);
 	SetArrayA2(pos, Special_Symbol, symbol);
-	SetArrayA2(pos, Special_Snapshot, value);
+	SetArrayA2(pos, Special_Value, value);
 	*ret = pos;
 }
 
@@ -60,10 +60,10 @@ static void getsymbol_special(addr pos, addr *ret)
 	GetArrayA2(pos, Special_Symbol, ret);
 }
 
-static void getsnapshot_special(addr pos, addr *ret)
+static void getvalue_special(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SPECIAL);
-	GetArrayA2(pos, Special_Snapshot, ret);
+	GetArrayA2(pos, Special_Value, ret);
 }
 
 
@@ -252,11 +252,11 @@ static int close_protect_control_(Execute ptr, addr control)
 
 static void close_special_control(Execute ptr, addr pos)
 {
-	addr symbol, snapshot;
+	addr symbol, value;
 
 	getsymbol_special(pos, &symbol);
-	getsnapshot_special(pos, &snapshot);
-	rollback_special_local(ptr, symbol, snapshot);
+	getvalue_special(pos, &value);
+	setspecial_unsafe(ptr, symbol, value);
 }
 
 static void close_close_control(Execute ptr, addr control)
@@ -386,11 +386,9 @@ _g void pushspecial_control(Execute ptr, addr pos, addr value)
 
 	Check(! symbolp(pos), "type error");
 	Check(stack_check_control(ptr), "stack error");
-	/* push close */
 	special_local(ptr, &x, pos);
 	pushclose_control(ptr, x);
-	/* push symbol */
-	pushspecial_unsafe(ptr, pos, value);
+	setspecial_unsafe(ptr, pos, value);
 }
 
 _g void pushtaginfo_control(Execute ptr, addr pos)

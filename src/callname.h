@@ -84,10 +84,8 @@ _g CallNameType getglobalcheck_callname(addr pos, addr *ret);
 _g void setglobal_callname(addr pos, addr value);
 _g void remtype_global_callname(addr pos);
 
-_g addr refglobal_parse_callname(addr pos);
 _g void getglobal_parse_callname(addr pos, addr *value);
 _g void setglobal_parse_callname(addr pos, addr value);
-_g addr refglobalcheck_parse_callname(addr pos);
 _g void getglobalcheck_parse_callname(addr pos, addr *value);
 
 /* name */

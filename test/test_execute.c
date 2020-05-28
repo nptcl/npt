@@ -16,13 +16,13 @@ static int test_begin_code(void)
 		finish = 1;
 	}
 	else {
-		test(result == LISPCODE_SUCCESS, "begin_code1");
-		test(ptr->jump, "begin_code2");
+		test(result == LISPCODE_SUCCESS, "begin_code.1");
+		test(ptr->jump, "begin_code.2");
 		finish = 2;
 		end_code(ptr);
 	}
-	test(finish == 2, "begin_code3");
-	test(ptr->jump == 0, "begin_code4");
+	test(finish == 2, "begin_code.3");
+	test(ptr->jump == 0, "begin_code.4");
 	free_execute();
 
 	RETURN;
@@ -55,9 +55,9 @@ static int test_foreach_execute(void)
 	body[1].state = ThreadState_Empty;
 	foreach_execute(call_foreach_execute);
 
-	test(call_foreach_execute_check[0] == 0, "foreach_execute1");
-	test(call_foreach_execute_check[1] == 0xAA, "foreach_execute2");
-	test(call_foreach_execute_check[2] == 2, "foreach_execute3");
+	test(call_foreach_execute_check[0] == 0, "foreach_execute.1");
+	test(call_foreach_execute_check[1] == 0xAA, "foreach_execute.2");
+	test(call_foreach_execute_check[2] == 2, "foreach_execute.3");
 	ExecuteArray = NULL;
 
 	RETURN;

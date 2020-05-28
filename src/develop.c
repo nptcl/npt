@@ -20,6 +20,31 @@ int DegradeError = 0;
 static int DegradeSwitch = 1;
 static int DegradePosition;
 
+int degrade_code(void (*init)(Execute), int (*call)(void))
+{
+	int ret;
+	lispcode code;
+	Execute ptr;
+
+	freelisp();
+	alloclisp(0, 0);
+	lisp_info_enable = 1;
+	ptr = Execute_Thread;
+	begin_code(ptr, &code);
+	if (code_run_p(code)) {
+		lisp_initialize = 1;
+		if (init)
+			(*init)(ptr);
+		ret = (*call)();
+	}
+	end_code(ptr);
+	freelisp();
+	TestCheck(code_error_p(code));
+	lisp_info_enable = 1;
+
+	return ret;
+}
+
 int degrade_printf(const char *fmt, ...)
 {
 	int result;

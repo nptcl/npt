@@ -76,8 +76,7 @@ _g void throw_switch(codejump *code);
 _g int equal_control_restart(Execute ptr, addr control);
 
 
-/* gc sync
- */
+/* gc sync */
 _g void gcstate_execute(enum GcMode mode);
 _g void gcstart_execute(struct execute *ptr);
 _g void gcwait_execute(struct execute *ptr);

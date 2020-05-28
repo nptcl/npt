@@ -5,26 +5,6 @@
 
 #define TESTFILE "_debug.txt"
 
-#if 0
-static int test_nowtime_string(void)
-{
-	char mem[100];
-
-	memset(mem, 'A', 100);
-	nowtime_string(mem, 5);
-	test(mem[3] != 'A', "nowtime_string1");
-	test(mem[4] == 0, "nowtime_string2");
-	test(mem[5] == 'A', "nowtime_string3");
-
-	memset(mem, 'A', 100);
-	nowtime_string(mem, 100);
-	test(mem[4] == '/', "nowtime_string4");
-	test(strlen(mem) == 4+1+2+1+2 +1+ 2+1+2+1+2, "nowtime_string5");
-
-	RETURN;
-}
-#endif
-
 static int test_write_file(const char *str)
 {
 	FILE *file;
@@ -48,14 +28,14 @@ static int test_read_clang(void)
 	size_t size;
 
 	check = test_write_file("HelloHello");
-	test(check == 0, "read_clang1");
+	test(check == 0, "read_clang.1");
 	file = fopen(TESTFILE, "rb");
-	test(file, "read_clang2");
+	test(file, "read_clang.2");
 	check = read_clang(file, mem, 6, &size);
 	fclose(file);
-	test(check == 0, "read_clang3");
-	test(size == 6, "read_clang4");
-	test(memcmp(mem, "HelloH", 6) == 0, "read_clang5");
+	test(check == 0, "read_clang.3");
+	test(size == 6, "read_clang.4");
+	test(memcmp(mem, "HelloH", 6) == 0, "read_clang.5");
 
 	RETURN;
 }
@@ -68,14 +48,14 @@ static int test_readforce_clang(void)
 	size_t size;
 
 	check = test_write_file("HelloHello");
-	test(check == 0, "readforce_clang1");
+	test(check == 0, "readforce_clang.1");
 	file = fopen(TESTFILE, "rb");
-	test(file, "readforce_clang2");
+	test(file, "readforce_clang.2");
 	check = readforce_clang(file, mem, 6, &size);
 	fclose(file);
-	test(check == 0, "readforce_clang3");
-	test(size == 6, "readforce_clang4");
-	test(memcmp(mem, "HelloH", 6) == 0, "readforce_clang5");
+	test(check == 0, "readforce_clang.3");
+	test(size == 6, "readforce_clang.4");
+	test(memcmp(mem, "HelloH", 6) == 0, "readforce_clang.5");
 
 	RETURN;
 }
@@ -90,14 +70,14 @@ static int test_read_posix(void)
 	size_t size;
 
 	check = test_write_file("HelloHello");
-	test(check == 0, "read_posix1");
+	test(check == 0, "read_posix.1");
 	file = open(TESTFILE, O_RDONLY);
-	test(0 <= file, "read_posix2");
+	test(0 <= file, "read_posix.2");
 	check = read_posix(file, mem, 6, &size);
 	close(file);
-	test(check == 0, "read_posix3");
-	test(size == 6, "read_posix4");
-	test(memcmp(mem, "HelloH", 6) == 0, "read_posix5");
+	test(check == 0, "read_posix.3");
+	test(size == 6, "read_posix.4");
+	test(memcmp(mem, "HelloH", 6) == 0, "read_posix.5");
 
 	RETURN;
 }
@@ -109,14 +89,14 @@ static int test_readforce_posix(void)
 	size_t size;
 
 	check = test_write_file("HelloHello");
-	test(check == 0, "readforce_posix1");
+	test(check == 0, "readforce_posix.1");
 	file = open(TESTFILE, O_RDONLY);
-	test(0 <= file, "readforce_posix2");
+	test(0 <= file, "readforce_posix.2");
 	check = readforce_posix(file, mem, 6, &size);
 	close(file);
-	test(check == 0, "readforce_posix3");
-	test(size == 6, "readforce_posix4");
-	test(memcmp(mem, "HelloH", 6) == 0, "readforce_posix5");
+	test(check == 0, "readforce_posix.3");
+	test(size == 6, "readforce_posix.4");
+	test(memcmp(mem, "HelloH", 6) == 0, "readforce_posix.5");
 
 	RETURN;
 }
@@ -146,14 +126,14 @@ static int test_read_windows(void)
 	size_t size;
 
 	check = test_write_file("HelloHello");
-	test(check == 0, "read_windows1");
+	test(check == 0, "read_windows.1");
 	check = test_open_windows(TESTFILE, &file);
-	test(! check, "read_windows2");
+	test(! check, "read_windows.2");
 	check = read_windows(file, mem, 6, &size);
 	CloseHandle(file);
-	test(check == 0, "read_windows3");
-	test(size == 6, "read_windows4");
-	test(memcmp(mem, "HelloH", 6) == 0, "read_windows5");
+	test(check == 0, "read_windows.3");
+	test(size == 6, "read_windows.4");
+	test(memcmp(mem, "HelloH", 6) == 0, "read_windows.5");
 
 	RETURN;
 }
@@ -166,14 +146,14 @@ static int test_readforce_windows(void)
 	size_t size;
 
 	check = test_write_file("HelloHello");
-	test(check == 0, "readforce_windows1");
+	test(check == 0, "readforce_windows.1");
 	check = test_open_windows(TESTFILE, &file);
-	test(! check, "readforce_windows2");
+	test(! check, "readforce_windows.2");
 	check = readforce_windows(file, mem, 6, &size);
 	CloseHandle(file);
-	test(check == 0, "readforce_windows3");
-	test(size == 6, "readforce_windows4");
-	test(memcmp(mem, "HelloH", 6) == 0, "readforce_windows5");
+	test(check == 0, "readforce_windows.3");
+	test(size == 6, "readforce_windows.4");
+	test(memcmp(mem, "HelloH", 6) == 0, "readforce_windows.5");
 
 	RETURN;
 }
@@ -186,7 +166,6 @@ static int test_readforce_windows(void)
 int test_arch(void)
 {
 	TITLE;
-	/* TestBreak(test_nowtime_string); */
 	TestBreak(test_read_clang);
 	TestBreak(test_readforce_clang);
 #ifdef LISP_POSIX

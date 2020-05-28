@@ -185,7 +185,7 @@ _g void nil_heap(void)
 	heap_symbol(&pos); /* Don't use symbol_heap. */
 	Nil = pos;
 	strvect_char_heap(&name, "NIL");
-	SetArrayA2_force(pos, SYMBOL_INDEX_STACK, Nil);
+	SetArrayA2_force(pos, SYMBOL_INDEX_SPECIAL, Nil);
 	SetArrayA2_force(pos, SYMBOL_INDEX_CDR, Nil);
 	SetArrayA2_force(pos, SYMBOL_INDEX_VALUE, Nil);
 	SetValueSymbol(pos, Nil);

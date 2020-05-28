@@ -122,8 +122,8 @@ void degrade_execute(void)
 	DegradeCheck(test_alloc);
 	DegradeCheck(test_memory);
 	DegradeCheck(test_local);
-	DegradeCheck(test_heap);
 	DegradeCheck(test_heap_memory);
+	DegradeCheck(test_heap);
 	DegradeCheck(test_execute);
 	DegradeCheck(test_object);
 	DegradeCheck(test_symbol);

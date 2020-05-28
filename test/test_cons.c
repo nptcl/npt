@@ -388,6 +388,31 @@ static int test_reverse_list_local_unsafe(void)
 /*
  *  list
  */
+static int test_list_alloc(void)
+{
+	addr cons, left, value;
+
+	list_alloc(NULL, &cons, NULL);
+	test(cons == Nil, "list_alloc.1");
+	list_alloc(NULL, &cons, T, NULL);
+	test(cons != Nil, "list_alloc.2");
+	GetCons(cons, &left, &cons);
+	test(left == T, "list_alloc.3");
+	test(cons == Nil, "list_alloc.4");
+	consnil_heap(&value);
+
+	list_alloc(NULL, &cons, T, Nil, value, NULL);
+	GetCons(cons, &left, &cons);
+	test(left == T, "list_alloc.5");
+	GetCons(cons, &left, &cons);
+	test(left == Nil, "list_alloc.6");
+	GetCons(cons, &left, &cons);
+	test(left == value, "list_alloc.7");
+	test(cons == Nil, "list_alloc.8");
+
+	RETURN;
+}
+
 static int test_lista_alloc_safe(void)
 {
 	addr cons, pos, v1, v2, v3;
@@ -1283,6 +1308,7 @@ static int testbreak_cons(void)
 	TestBreak(test_reverse_list_heap_unsafe);
 	TestBreak(test_reverse_list_local_unsafe);
 	/* list */
+	TestBreak(test_list_alloc);
 	TestBreak(test_lista_alloc_safe);
 	TestBreak(test_lista_allocr);
 	TestBreak(test_lista_alloc);

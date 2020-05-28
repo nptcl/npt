@@ -32,6 +32,8 @@ _g size_t  heap_count = 0;
 _g size_t  heap_gc_count = 0;
 _g size_t  heap_gc_partial = 0;
 _g size_t  heap_gc_full = 0;
+_g size_t  heap_cons_count = 0;
+_g size_t  heap_symbol_count = 0;
 
 
 /*

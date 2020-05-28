@@ -66,15 +66,11 @@ static int allocfront_size(addr pos, size_t *ret)
 
 static addr allocfront_search(addr pos, size_t *ret)
 {
-	int check;
 	size_t size;
 
 	for (;;) {
-		if (heap_front <= pos)
-			return NULL; /* expand */
-		check = allocfront_size(pos, &size);
 		/* object */
-		if (check == 0) {
+		if (allocfront_size(pos, &size) == 0) {
 			pos += size;
 			continue;
 		}
@@ -187,26 +183,44 @@ static void gccheck_execute_heap(void)
 
 static void gccheck_heap(void)
 {
+	if (lisp_gcsync != GcMode_Off)
+		return;
 	GcCounter++;
-	if (GcCheck4 < heap_pos) {
-		if (GcCounter & (1UL << 5UL))
-			gccheck_execute_heap();
+
+	/* GcCheck1 */
+	if (heap_pos < GcCheck1)
 		return;
+	if (GcCounter & (1UL << 8UL)) {
+		gccheck_execute_heap();
+		if (lisp_gcsync != GcMode_Off)
+			return;
 	}
-	if (GcCheck3 < heap_pos) {
-		if (GcCounter & (1UL << 6UL))
-			gccheck_execute_heap();
+
+	/* GcCheck2 */
+	if (heap_pos < GcCheck2)
 		return;
+	if (GcCounter & (1UL << 7UL)) {
+		gccheck_execute_heap();
+		if (lisp_gcsync != GcMode_Off)
+			return;
 	}
-	if (GcCheck2 < heap_pos) {
-		if (GcCounter & (1UL << 7UL))
-			gccheck_execute_heap();
+
+	/* GcCheck3 */
+	if (heap_pos < GcCheck3)
 		return;
+	if (GcCounter & (1UL << 6UL)) {
+		gccheck_execute_heap();
+		if (lisp_gcsync != GcMode_Off)
+			return;
 	}
-	if (GcCheck1 < heap_pos) {
-		if (GcCounter & (1UL << 8UL))
-			gccheck_execute_heap();
+
+	/* GcCheck4 */
+	if (heap_pos < GcCheck4)
 		return;
+	if (GcCounter & (1UL << 5UL)) {
+		gccheck_execute_heap();
+		if (lisp_gcsync != GcMode_Off)
+			return;
 	}
 }
 
@@ -364,6 +378,8 @@ _g void free_heap(void)
 		heap_gc_count = 0;
 		heap_gc_partial = 0;
 		heap_gc_full = 0;
+		heap_cons_count = 0;
+		heap_symbol_count = 0;
 		Size = 0;
 		FrontMax = 0;
 		GcCounter = 0;

@@ -329,27 +329,24 @@ static CallNameType callnametype(addr pos, addr *value)
 	}
 }
 
-_g addr refglobal_parse_callname(addr pos)
+_g void getglobal_parse_callname(addr pos, addr *value)
 {
 	Check(pos == Unbound, "unbound error");
 	switch (callnametype(pos, &pos)) {
 		case CALLNAME_SYMBOL:
-			return RefFunctionSymbol_Low(pos);
+			GetFunctionSymbol_Low(pos, value);
+			break;
 
 		case CALLNAME_SETF:
-			return refsetf_symbol(pos);
+			getsetf_symbol(pos, value);
+			break;
 
 		case CALLNAME_ERROR:
 		default:
+			*value = NULL;
 			fmte("Invalid function name.", NULL);
 			break;
 	}
-
-	return NULL;
-}
-_g void getglobal_parse_callname(addr pos, addr *value)
-{
-	*value = refglobal_parse_callname(pos);
 }
 _g void setglobal_parse_callname(addr pos, addr value)
 {
@@ -367,16 +364,6 @@ _g void setglobal_parse_callname(addr pos, addr value)
 		default:
 			fmte("Invalid function name.", NULL);
 	}
-}
-_g addr refglobalcheck_parse_callname(addr pos)
-{
-	addr value;
-	getglobal_parse_callname(pos, &value);
-	if (value == Unbound) {
-		name_callname_heap(pos, &pos);
-		undefined_function(pos);
-	}
-	return value;
 }
 _g void getglobalcheck_parse_callname(addr pos, addr *ret)
 {

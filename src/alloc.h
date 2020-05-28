@@ -96,6 +96,8 @@
 /*
  *  compare
  */
+#define EqualPointer(x,y)			(((void *)(x)) == ((void *)(y)))
+#define NotEqualPointer(x,y)		(((void *)(x)) != ((void *)(y)))
 #define LessPointer(x,y)			(((void *)(x)) < ((void *)(y)))
 #define GreaterPointer(x,y)			(((void *)(x)) > ((void *)(y)))
 #define LessEqualPointer(x,y)		(((void *)(x)) <= ((void *)(y)))

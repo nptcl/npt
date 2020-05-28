@@ -18,6 +18,10 @@ static void memoryerror_local(void)
 	exitthis(LISPCODE_MEMORY);
 }
 
+
+/*
+ *  chain
+ */
 static void decrement_unbound_local(addr *point, size_t i, size_t count)
 {
 	byte *p;

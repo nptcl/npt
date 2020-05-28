@@ -459,6 +459,43 @@ static int test_GetBitByte(void)
 	RETURN;
 }
 
+static int test_ComparePointer(void)
+{
+	char *a;
+	const void *b;
+	unsigned *c;
+
+	a = (char *)0x500;
+	b = (const void *)0x1000;
+	c = (unsigned *)0x500;
+
+	test(! EqualPointer(a, b), "EqualPointer.1");
+	test(! EqualPointer(b, a), "EqualPointer.2");
+	test(  EqualPointer(a, c), "EqualPointer.3");
+
+	test(  NotEqualPointer(a, b), "NotEqualPointer.1");
+	test(  NotEqualPointer(b, a), "NotEqualPointer.2");
+	test(! NotEqualPointer(a, c), "NotEqualPointer.3");
+
+	test(  LessPointer(a, b), "LessPointer.1");
+	test(! LessPointer(b, a), "LessPointer.2");
+	test(! LessPointer(a, c), "LessPointer.3");
+
+	test(  LessEqualPointer(a, b), "LessEqualPointer.1");
+	test(! LessEqualPointer(b, a), "LessEqualPointer.2");
+	test(  LessEqualPointer(a, c), "LessEqualPointer.3");
+
+	test(! GreaterPointer(a, b), "GreaterPointer.1");
+	test(  GreaterPointer(b, a), "GreaterPointer.2");
+	test(! GreaterPointer(a, c), "GreaterPointer.3");
+
+	test(! GreaterEqualPointer(a, b), "GreaterEqualPointer.1");
+	test(  GreaterEqualPointer(b, a), "GreaterEqualPointer.2");
+	test(  GreaterEqualPointer(a, c), "GreaterEqualPointer.3");
+
+	RETURN;
+}
+
 
 /*
  *  main
@@ -490,6 +527,7 @@ int test_alloc(void)
 	TestBreak(test_aamemory);
 
 	TestBreak(test_GetBitByte);
+	TestBreak(test_ComparePointer);
 
 	return 0;
 }

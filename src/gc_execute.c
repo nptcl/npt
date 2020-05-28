@@ -76,7 +76,7 @@ static void resetrecursive(addr pos)
 	size_t i, size;
 	addr value;
 
-	if (pos == Unbound)
+	if (pos == Unbound || pos == NULL)
 		return;
 	Check(pos == NULL, "null error");
 	Check(pos[0] == 0xAA, "memory 0xAA error");

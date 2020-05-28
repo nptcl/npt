@@ -9,11 +9,13 @@
 _g void heap_cons(addr *ret)
 {
 	heap_array2_memory(ret, LISPTYPE_CONS, 2);
+	heap_cons_count++;
 }
 
 _g void heap_symbol(addr *ret)
 {
 	heap_array2_memory(ret, LISPTYPE_SYMBOL, SYMBOL_INDEX_SIZE);
+	heap_symbol_count++;
 }
 
 _g void heap_array2_memory(addr *ret, enum LISPTYPE type, byte16 array)

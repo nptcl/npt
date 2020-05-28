@@ -659,6 +659,7 @@ _g int checkdynamic(addr pos, addr value)
 	int check;
 
 	check = (value != Unbound) &&
+		(value != NULL) &&
 		(! GetStatusDynamic(pos)) &&
 		GetStatusDynamic(value);
 	if (check) {

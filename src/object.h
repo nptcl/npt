@@ -7,7 +7,7 @@
 #include "memory.h"
 
 enum SYMBOL_INDEX {
-	SYMBOL_INDEX_STACK    = 0,
+	SYMBOL_INDEX_SPECIAL  = 0,
 	SYMBOL_INDEX_CDR      = 1, /* (cdr nil) -> nil */
 	SYMBOL_INDEX_VALUE    = 2,
 	SYMBOL_INDEX_FUNCTION = 3,
@@ -195,11 +195,11 @@ _g void alloc_arraybody_debug(LocalRoot, addr *, enum LISPTYPE, size_t, size_t);
 /* init / free */
 _g void build_object(void);
 
-/* system t object */
+/* nil t */
 _g void nil_heap(void);
 _g void t_heap(void);
 
-/* cons object */
+/* cons */
 _g void consnil_heap(addr *ret);
 _g void conscar_heap(addr *ret, addr left);
 _g void conscdr_heap(addr *ret, addr right);
@@ -230,19 +230,21 @@ _g int listp(addr pos);
 _g int consp(addr pos);
 _g int singlep(addr pos);
 
-/* vector object */
+/* vector */
 _g void vector2_heap(addr *ret, size_t size);
 _g void vector2_local(LocalRoot local, addr *ret, size_t size);
 _g void vector2_alloc(LocalRoot local, addr *ret, size_t size);
-
 _g void vector4_heap(addr *ret, size_t size);
 _g void vector4_local(LocalRoot local, addr *ret, size_t size);
 _g void vector4_alloc(LocalRoot local, addr *ret, size_t size);
-
+#ifdef LISP_ARCH_64BIT
+_g void vector8_heap(addr *ret, size_t size);
+_g void vector8_local(LocalRoot local, addr *ret, size_t size);
+_g void vector8_alloc(LocalRoot local, addr *ret, size_t size);
+#endif
 _g void vector_heap(addr *ret, size_t size);
 _g void vector_local(LocalRoot local, addr *ret, size_t size);
 _g void vector_alloc(LocalRoot local, addr *ret, size_t size);
-
 _g void copy_vector4_alloc(LocalRoot local, addr *ret, addr pos);
 _g void copy_vector4_local(LocalRoot local, addr *ret, addr pos);
 _g void copy_vector4_heap(addr *ret, addr pos);
@@ -250,13 +252,7 @@ _g void copy_vector_alloc(LocalRoot local, addr *ret, addr pos);
 _g void copy_vector_local(LocalRoot local, addr *ret, addr pos);
 _g void copy_vector_heap(addr *ret, addr pos);
 
-#ifdef LISP_ARCH_64BIT
-_g void vector8_heap(addr *ret, size_t size);
-_g void vector8_local(LocalRoot local, addr *ret, size_t size);
-_g void vector8_alloc(LocalRoot local, addr *ret, size_t size);
-#endif
-
-/* fixnum object */
+/* fixnum */
 _g void make_fixnum_heap(addr *ret, fixnum value);
 _g void fixnum_heap(addr *ret, fixnum value);
 _g void fixnum_local(LocalRoot local, addr *ret, fixnum value);
@@ -264,7 +260,6 @@ _g void fixnum_alloc(LocalRoot local, addr *ret, fixnum value);
 _g addr fixnumh(fixnum value);
 _g addr fixnuml(fixnum value);
 _g addr fixnuma(LocalRoot local, fixnum value);
-
 _g const fixnum *ptrfixnum(addr pos);
 _g fixnum reffixnum(addr pos);
 _g void getfixnum(addr pos, fixnum *ret);
@@ -272,7 +267,7 @@ _g void setfixnum(addr pos, fixnum value);
 _g int fixnumequal(addr left, addr right);
 _g int fixnumcompare(addr left, addr right);
 
-/* index object */
+/* index */
 _g int indexp(addr pos);
 _g void index_heap(addr *ret, size_t value);
 _g void index_local(LocalRoot local, addr *ret, size_t value);
@@ -317,7 +312,7 @@ _g addr singleh(single_float value);
 _g addr doubleh(double_float value);
 _g addr longh(long_float value);
 
-/* queue object */
+/* queue */
 _g void queue_heap(addr *ret);
 _g void queue_local(LocalRoot local, addr *ret);
 _g void queue_alloc(LocalRoot local, addr *ret);
