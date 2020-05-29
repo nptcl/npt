@@ -47,7 +47,7 @@ static int make_hash_table_test_common(addr rest, enum HASHTABLE_TEST *ret)
 {
 	addr pos, check;
 
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_TEST, &pos)) {
+	if (GetKeyArgs(rest, KEYWORD_TEST, &pos)) {
 		*ret = HASHTABLE_TEST_EQL;
 		return 0;
 	}
@@ -72,7 +72,7 @@ static int make_hash_table_size_common(addr rest, size_t *ret)
 {
 	addr pos;
 
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_SIZE, &pos)) {
+	if (GetKeyArgs(rest, KEYWORD_SIZE, &pos)) {
 		*ret = HASHTABLE_SIZE_DEFAULT;
 		return 0;
 	}
@@ -95,7 +95,7 @@ static int make_hash_table_rehash_size_common(addr rest,
 	double_float valuef;
 	size_t valuei;
 
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_REHASH_SIZE, &pos)) {
+	if (GetKeyArgs(rest, KEYWORD_REHASH_SIZE, &pos)) {
 		*floatp = 1;
 		*rehashf = HASHTABLE_REHASH_SIZE_DEFAULT;
 		return 0;
@@ -139,7 +139,7 @@ static int make_hash_table_rehash_threshold_common(addr rest, double_float *ret)
 	addr pos;
 	double_float value;
 
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_REHASH_THRESHOLD, &pos)) {
+	if (GetKeyArgs(rest, KEYWORD_REHASH_THRESHOLD, &pos)) {
 		value = HASHTABLE_REHASH_THRESHOLD_DEFAULT;
 	}
 	else {

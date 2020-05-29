@@ -613,7 +613,7 @@ _g void float_fltclass(constindex index, fltclasstype type, ...)
 	addr list;
 
 	va_start(args, type);
-	list_alloc_stdarg(NULL, &list, args);
+	list_stdarg_alloc(NULL, &list, args);
 	va_end(args);
 
 	switch (type) {

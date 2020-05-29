@@ -1190,7 +1190,7 @@ static void extract_values_var(LocalRoot local, addr *ret, addr right)
 		optimize_result(local, &left, left);
 		cons_local(local, &root, left, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static int extract_values_rest(LocalRoot local, addr *ret, addr right)
@@ -1270,7 +1270,7 @@ static void extract_function_key(LocalRoot local, addr *ret, addr right)
 		cons_local(local, &left, key, type);
 		cons_local(local, &root, left, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void extract_function(LocalRoot local, addr *ret, addr right)

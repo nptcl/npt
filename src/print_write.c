@@ -1866,9 +1866,7 @@ static int WriteBody_function(Execute ptr, addr stream, addr pos)
 
 	/* type */
 	str = StructFunction(pos);
-	if (str->system)
-		name = "SYSTEM-FUNCTION ";
-	else if (str->compiled)
+	if (str->compiled)
 		name = "COMPILED-FUNCTION ";
 	else
 		name = "FUNCTION ";

@@ -1397,7 +1397,7 @@ static void defun_list(void)
 /* (defun list* (object &rest objects) ...) -> object */
 static int function_lista(Execute ptr, addr var, addr rest)
 {
-	lista_heap_safe(&var, var, rest);
+	lista_safe_heap(&var, var, rest);
 	setresult_control(ptr, var);
 	return 0;
 }

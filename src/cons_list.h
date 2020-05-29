@@ -16,9 +16,8 @@ _g void setnth(addr cons, size_t index, addr value);
 _g void setnth_unsafe(addr cons, size_t index, addr value);
 
 /* length */
-_g size_t length_list_safe(addr cons);
-_g size_t length_list_safe_dotted(addr cons);
-_g size_t length_list_unsafe(addr cons);
+_g size_t length_list_safe(addr list);
+_g size_t length_list_unsafe(addr list);
 _g int length_list_p(addr list, size_t *ret);
 
 /* list */
@@ -49,12 +48,11 @@ _g int pushnew_equal_local(LocalRoot local, addr list, addr value, addr *ret);
 _g int pushnew_equal_heap(addr list, addr value, addr *ret);
 
 /* nreverse */
+_g void nreconc_unsafe(addr *ret, addr cons, addr tail);
 _g void nreverse_list_unsafe(addr *ret, addr pos);
-_g addr nreverse_list_unsafe_inplace(addr pos);
-_g void nreverse_list_unsafe_dotted(addr *ret, addr cons, addr dot);
 _g void nreverse_list_safe(addr *ret, addr pos);
-_g addr nreverse_list_safe_inplace(addr pos);
-#define nreconc_unsafe nreverse_list_unsafe_dotted
+#define nreconc nreconc_unsafe
+#define nreverse nreverse_list_unsafe
 
 /* reverse */
 _g void reverse_list_heap_unsafe(addr *ret, addr cons);

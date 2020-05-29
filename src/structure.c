@@ -73,7 +73,7 @@ static int ensure_structure_constructor(addr args, addr *ret)
 			continue;
 		cons_heap(&root, value, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return root != Nil;
 }
@@ -88,15 +88,15 @@ static void ensure_structure_struct(struct defstruct *str,
 	str->slots = slots;
 	str->name = name;
 	/* :documentation */
-	if (getkeyargs(args, KEYWORD_DOCUMENTATION, &pos)) pos = Nil;
+	if (GetKeyArgs(args, KEYWORD_DOCUMENTATION, &pos)) pos = Nil;
 	str->doc = pos;
 	/* :conc-name */
-	if (! getkeyargs(args, KEYWORD_CONC_NAME, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_CONC_NAME, &pos)) {
 		str->conc_name_p = 1;
 		str->conc_name = pos;
 	}
 	/* :type */
-	if (! getkeyargs(args, KEYWORD_TYPE, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_TYPE, &pos)) {
 		GetConst(COMMON_LIST, &check);
 		if (pos == check) {
 			str->type_list_p = 1;
@@ -108,28 +108,28 @@ static void ensure_structure_struct(struct defstruct *str,
 		str->type_p = 1;
 	}
 	/* :initial-offset */
-	if (! getkeyargs(args, KEYWORD_INITIAL_OFFSET, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_INITIAL_OFFSET, &pos)) {
 		str->initial_offset_p = 1;
 		str->initial_offset = pos;
 		getindex_integer(pos, &(str->offset));
 	}
 	/* :named */
-	if (! getkeyargs(args, KEYWORD_NAMED, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_NAMED, &pos)) {
 		str->named_p = (pos != Nil);
 		str->offset++;
 	}
 	/* :copier */
-	if (! getkeyargs(args, KEYWORD_COPIER, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_COPIER, &pos)) {
 		str->copier_p = 1;
 		str->copier = pos;
 	}
 	/* :predicate */
-	if (! getkeyargs(args, KEYWORD_PREDICATE, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_PREDICATE, &pos)) {
 		str->predicate_p = 1;
 		str->predicate = pos;
 	}
 	/* :include */
-	if (! getkeyargs(args, KEYWORD_INCLUDE, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_INCLUDE, &pos)) {
 		if (! consp(pos))
 			fmte("Invalid :include format ~S.", pos, NULL);
 		GetCons(pos, &pos, &check);
@@ -138,12 +138,12 @@ static void ensure_structure_struct(struct defstruct *str,
 		str->iargs = check;
 	}
 	/* :print-object */
-	if (! getkeyargs(args, KEYWORD_PRINT_OBJECT, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_PRINT_OBJECT, &pos)) {
 		str->print_object_p = 1;
 		str->print_object = pos;
 	}
 	/* :print-function */
-	if (! getkeyargs(args, KEYWORD_PRINT_FUNCTION, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_PRINT_FUNCTION, &pos)) {
 		str->print_function_p = 1;
 		str->print_function = pos;
 	}
@@ -446,7 +446,7 @@ static void structure_slots_heap(addr list, addr *ret)
 		SetReadOnlySlot(pos, readonly);
 		cons_heap(&root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void structure_check_slots(addr list)
@@ -685,7 +685,7 @@ static void structure_instance_include(struct defstruct *str, addr instance)
 	cons_heap(&list, pos, list);
 	GetConst(CLOS_T, &pos);
 	cons_heap(&list, pos, list);
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 	stdset_structure_precedence_list(instance, list);
 }
 

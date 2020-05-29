@@ -528,7 +528,7 @@ static int function_do_tests(Execute ptr, addr rest)
 	fixnum index;
 
 	/* argument */
-	if (getkeyargs(rest, KEYWORD_TEST, &rest))
+	if (GetKeyArgs(rest, KEYWORD_TEST, &rest))
 		rest = Nil;
 
 	/* do-tests */

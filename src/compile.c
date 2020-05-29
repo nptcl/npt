@@ -32,11 +32,11 @@ static int compile_file_output(Execute ptr, addr input, addr output, addr rest)
 	Check(! streamp(output), "type error");
 
 	/* argument */
-	if (getkeyargs(rest, KEYWORD_VERBOSE, &verbose))
+	if (GetKeyArgs(rest, KEYWORD_VERBOSE, &verbose))
 		verbose = Unbound;
-	if (getkeyargs(rest, KEYWORD_PRINT, &print))
+	if (GetKeyArgs(rest, KEYWORD_PRINT, &print))
 		print = Unbound;
-	if (getkeyargs(rest, KEYWORD_EXTERNAL_FORMAT, &external))
+	if (GetKeyArgs(rest, KEYWORD_EXTERNAL_FORMAT, &external))
 		external = Unbound;
 
 	/* header */
@@ -203,7 +203,7 @@ _g void compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *r
 {
 	addr output;
 
-	if (getkeyargs(rest, KEYWORD_OUTPUT_FILE, &output)) {
+	if (GetKeyArgs(rest, KEYWORD_OUTPUT_FILE, &output)) {
 		/* input-file -> output-file */
 		pathname_designer_heap(ptr, input, &input);
 		compile_file_pathname_from_input(input, ret);
@@ -234,7 +234,7 @@ _g void with_compilation_unit_common(addr form, addr *ret)
 		goto error;
 	if (! listp(args))
 		goto error;
-	if (getkeyargs(args, KEYWORD_OVERRIDE, &over))
+	if (GetKeyArgs(args, KEYWORD_OVERRIDE, &over))
 		over = Nil;
 	else
 		over = (over == Nil)? Nil: T;
@@ -305,7 +305,7 @@ static int function_finalize_delay_warning(Execute ptr)
 
 	GetConst(SYSTEM_DELAY_WARNING_LIST, &list);
 	getspecialcheck_local(ptr, list, &list);
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 
 	GetConst(SYSTEM_DELAY_WARNING_SWITCH, &x);
 	setspecial_local(ptr, x, Nil);

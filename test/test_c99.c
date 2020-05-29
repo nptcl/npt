@@ -75,9 +75,14 @@ static int test_sscanc(void)
 	RETURN;
 }
 
+
+/*
+ *  c99
+ */
 int test_c99(void)
 {
 	TITLE;
+
 	TestBreak(test_setlocale_c);
 	TestBreak(test_vsnprintc);
 	TestBreak(test_snprintc);
@@ -85,3 +90,4 @@ int test_c99(void)
 
 	return 0;
 }
+

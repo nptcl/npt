@@ -581,7 +581,7 @@ static int test_symstack(void)
 
 
 /*
- *  main
+ *  symbol
  */
 static int testcase_symbol(void)
 {

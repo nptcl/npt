@@ -54,7 +54,7 @@ _g void make_callname_alloc(LocalRoot local, addr *ret)
 	alloc_array2(local, ret, LISPTYPE_CALLNAME, 1);
 }
 
-_g addr callname_allocr(LocalRoot local, addr name, CallNameType type)
+_g void callname_alloc(LocalRoot local, addr *ret, addr name, CallNameType type)
 {
 	addr pos;
 
@@ -62,31 +62,16 @@ _g addr callname_allocr(LocalRoot local, addr name, CallNameType type)
 	make_callname_alloc(local, &pos);
 	SetCallName_Low(pos, name);
 	SetCallNameType_Low(pos, type);
-
-	return pos;
-}
-_g addr callname_localr(LocalRoot local, addr name, CallNameType type)
-{
-	Check(local == NULL, "local error");
-	return callname_allocr(local, name, type);
-}
-_g addr callname_heapr(addr name, CallNameType type)
-{
-	return callname_allocr(NULL, name, type);
-}
-
-_g void callname_alloc(LocalRoot local, addr *ret, addr name, CallNameType type)
-{
-	*ret = callname_allocr(local, name, type);
+	*ret = pos;
 }
 _g void callname_local(LocalRoot local, addr *ret, addr name, CallNameType type)
 {
 	Check(local == NULL, "local error");
-	*ret = callname_allocr(local, name, type);
+	callname_alloc(local, ret, name, type);
 }
 _g void callname_heap(addr *ret, addr name, CallNameType type)
 {
-	*ret = callname_allocr(NULL, name, type);
+	callname_alloc(NULL, ret, name, type);
 }
 
 _g void setf_callname_alloc(LocalRoot local, addr *ret, addr symbol)

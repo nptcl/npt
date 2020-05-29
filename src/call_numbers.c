@@ -270,7 +270,7 @@ static void incf_expand_common(Execute ptr, addr *ret, addr place, addr value, a
 	}
 	getcar(g, &g);
 	cons_heap(&args, g, args);
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	/* declare */
 	GetConst(COMMON_IGNORABLE, &ignorable);
 	cons_heap(&ignorable, ignorable, ig);
@@ -345,7 +345,7 @@ static void decf_expand_common(Execute ptr, addr *ret, addr place, addr value, a
 	}
 	getcar(g, &g);
 	cons_heap(&args, g, args);
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	/* declare */
 	GetConst(COMMON_IGNORABLE, &ignorable);
 	cons_heap(&ignorable, ignorable, ig);
@@ -464,8 +464,8 @@ _g int parse_integer_common(LocalRoot local,
 
 	string_length(var, &size);
 	Return(keyword_start_end_(size, rest, &start, &end));
-	if (getkeyargs(rest, KEYWORD_RADIX, &radix)) fixnum_heap(&radix, 10);
-	if (getkeyargs(rest, KEYWORD_JUNK_ALLOWED, &junk)) junk = Nil;
+	if (GetKeyArgs(rest, KEYWORD_RADIX, &radix)) fixnum_heap(&radix, 10);
+	if (GetKeyArgs(rest, KEYWORD_JUNK_ALLOWED, &junk)) junk = Nil;
 	return parse_integer_clang(local, var, start, end,
 			(unsigned)RefFixnum(radix), junk != Nil, ret1, ret2);
 }

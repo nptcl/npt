@@ -232,7 +232,7 @@ static void list_from_slot_vector(addr pos, addr *ret)
 		make_slot_definition(slot, &slot);
 		cons_heap(&root, slot, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 /* (defmethod class-slots (class) ...) -> t */
@@ -1186,7 +1186,7 @@ static int method_generic_function_methods(Execute ptr,
 			cons_heap(&root, pos, root);
 		}
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	setresult_control(ptr, root);
 
 	return 0;

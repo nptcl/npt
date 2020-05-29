@@ -8,11 +8,11 @@
 #include "memory.h"
 #include "symbol.h"
 
-static addr alloc_function(LocalRoot local,
+static void alloc_function(LocalRoot local, addr *ret,
 		addr name, addr code, int macro, int compiled)
 {
 	addr pos;
-	struct function_struct *ptr;
+	struct function_struct *str;
 
 	if (name != Nil) {
 		if (GetType(name) != LISPTYPE_CALLNAME &&
@@ -25,145 +25,86 @@ static addr alloc_function(LocalRoot local,
 			sizeoft(struct function_struct));
 	SetCodeFunction_Low(pos, code);
 	SetNameFunction_Low(pos, name);
-	ptr = StructFunction_Low(pos);
-	clearpoint(ptr);
-	ptr->macro = macro;
-	ptr->compiled = compiled;
-	ptr->system = 0;
-	ptr->index = p_empty;
-
-	return pos;
-}
-
-_g addr function_allocr(LocalRoot local, addr name, addr code)
-{
-	CheckType(code, LISPTYPE_CODE);
-	return alloc_function(local, name, code, 0, 0);
-}
-_g addr function_localr(LocalRoot local, addr name, addr code)
-{
-	Check(local == NULL, "local error");
-	CheckType(code, LISPTYPE_CODE);
-	return alloc_function(local, name, code, 0, 0);
-}
-_g addr function_heapr(addr name, addr code)
-{
-	CheckType(code, LISPTYPE_CODE);
-	return alloc_function(NULL, name, code, 0, 0);
+	str = StructFunction_Low(pos);
+	str->macro = macro;
+	str->compiled = compiled;
+	str->trace = 0;
+	str->index = p_empty;
+	*ret = pos;
 }
 
 _g void function_alloc(LocalRoot local, addr *ret, addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
-	*ret = alloc_function(local, name, code, 0, 0);
+	alloc_function(local, ret, name, code, 0, 0);
 }
 _g void function_local(LocalRoot local, addr *ret, addr name, addr code)
 {
 	Check(local == NULL, "local error");
 	CheckType(code, LISPTYPE_CODE);
-	*ret = alloc_function(local, name, code, 0, 0);
+	alloc_function(local, ret, name, code, 0, 0);
 }
 _g void function_heap(addr *ret, addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
-	*ret = alloc_function(NULL, name, code, 0, 0);
+	alloc_function(NULL, ret, name, code, 0, 0);
 }
 
-_g addr macro_allocr(LocalRoot local, addr name, addr code)
+_g void function_heap_for_develop(addr *ret, addr name)
 {
-	CheckType(code, LISPTYPE_CODE);
-	return alloc_function(local, name, code, 1, 0);
-}
-_g addr macro_localr(LocalRoot local, addr name, addr code)
-{
-	Check(local == NULL, "local error");
-	CheckType(code, LISPTYPE_CODE);
-	return alloc_function(local, name, code, 1, 0);
-}
-_g addr macro_heapr(addr name, addr code)
-{
-	CheckType(code, LISPTYPE_CODE);
-	return alloc_function(NULL, name, code, 1, 0);
+	alloc_function(NULL, ret, name, Nil, 0, 0);
 }
 
 _g void macro_alloc(LocalRoot local, addr *ret, addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
-	*ret = alloc_function(local, name, code, 1, 0);
+	alloc_function(local, ret, name, code, 1, 0);
 }
 _g void macro_local(LocalRoot local, addr *ret, addr name, addr code)
 {
 	Check(local == NULL, "local error");
 	CheckType(code, LISPTYPE_CODE);
-	*ret = alloc_function(local, name, code, 1, 0);
+	alloc_function(local, ret, name, code, 1, 0);
 }
 _g void macro_heap(addr *ret, addr name, addr code)
 {
 	CheckType(code, LISPTYPE_CODE);
-	*ret = alloc_function(NULL, name, code, 1, 0);
-}
-
-_g addr compiled_allocr(LocalRoot local, addr name)
-{
-	return alloc_function(local, name, Nil, 0, 1);
-}
-_g addr compiled_localr(LocalRoot local, addr name)
-{
-	Check(local == NULL, "local error");
-	return alloc_function(local, name, Nil, 0, 1);
-}
-_g addr compiled_heapr(addr name)
-{
-	return alloc_function(NULL, name, Nil, 0, 1);
+	alloc_function(NULL, ret, name, code, 1, 0);
 }
 
 _g void compiled_alloc(LocalRoot local, addr *ret, addr name)
 {
-	*ret = alloc_function(local, name, Nil, 0, 1);
+	alloc_function(local, ret, name, Nil, 0, 1);
 }
 _g void compiled_local(LocalRoot local, addr *ret, addr name)
 {
 	Check(local == NULL, "local error");
-	*ret = alloc_function(local, name, Nil, 0, 1);
+	alloc_function(local, ret, name, Nil, 0, 1);
 }
 _g void compiled_heap(addr *ret, addr name)
 {
-	*ret = alloc_function(NULL, name, Nil, 0, 1);
+	alloc_function(NULL, ret, name, Nil, 0, 1);
 }
 
 _g void compiled_setf_heap(addr *ret, addr symbol)
 {
 	Check(! symbolp(symbol), "type error.");
 	setf_callname_heap(&symbol, symbol);
-	*ret = alloc_function(NULL, symbol, Nil, 0, 1);
-}
-
-_g addr compiled_macro_allocr(LocalRoot local, addr name)
-{
-	return alloc_function(local, name, Nil, 1, 1);
-}
-_g addr compiled_macro_localr(LocalRoot local, addr name)
-{
-	Check(local == NULL, "local error");
-	return alloc_function(local, name, Nil, 1, 1);
-}
-_g addr compiled_macro_heapr(addr name)
-{
-	return alloc_function(NULL, name, Nil, 1, 1);
+	alloc_function(NULL, ret, symbol, Nil, 0, 1);
 }
 
 _g void compiled_macro_alloc(LocalRoot local, addr *ret, addr name)
 {
-	*ret = alloc_function(local, name, Nil, 1, 1);
+	alloc_function(local, ret, name, Nil, 1, 1);
 }
 _g void compiled_macro_local(LocalRoot local, addr *ret, addr name)
 {
 	Check(local == NULL, "local error");
-	*ret = alloc_function(local, name, Nil, 1, 1);
+	alloc_function(local, ret, name, Nil, 1, 1);
 }
 _g void compiled_macro_heap(addr *ret, addr name)
 {
-	*ret = alloc_function(NULL, name, Nil, 1, 1);
+	alloc_function(NULL, ret, name, Nil, 1, 1);
 }
 
 _g void setcompiled_code(addr pos, pointer p)
@@ -425,21 +366,10 @@ _g void setcompiled_extend_rest(addr pos, pointer p)
 	StructFunction(pos)->index = p;
 }
 
-_g void function_heap_for_develop(addr *ret, addr name)
-{
-	*ret = alloc_function(NULL, name, Nil, 0, 0);
-}
-
 _g struct function_struct *structfunction(addr pos)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	return StructFunction_Low(pos);
-}
-
-_g addr refcodefunction(addr pos)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	return RefCodeFunction_Low(pos);
 }
 
 _g void getcodefunction(addr pos, addr *ret)
@@ -455,12 +385,6 @@ _g void setcodefunction(addr pos, addr value)
 	SetCodeFunction_Low(pos, value);
 }
 
-_g addr refnamefunction(addr pos)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	return RefNameFunction_Low(pos);
-}
-
 _g void getnamefunction(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
@@ -473,12 +397,6 @@ _g void setnamefunction(addr pos, addr value)
 	CheckType(value, LISPTYPE_CALLNAME);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetNameFunction_Low(pos, value);
-}
-
-_g addr refdatafunction(addr pos)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	return RefDataFunction_Low(pos);
 }
 
 _g void getdatafunction(addr pos, addr *ret)
@@ -554,13 +472,6 @@ _g void setdefunform_function(addr pos, addr value)
 	setplist_function(pos, CONSTANT_COMMON_DEFUN, value);
 }
 
-_g void setsystem_function(addr pos)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	Check(GetStatusReadOnly(pos), "readonly error");
-	StructFunction_Low(pos)->system = 1;
-}
-
 _g int functionp(addr pos)
 {
 	return GetType(pos) == LISPTYPE_FUNCTION;
@@ -586,18 +497,24 @@ _g int interpreted_function_p(addr pos)
 
 _g int interpreted_funcall_function_p(addr pos)
 {
-	struct function_struct *ptr;
-	if (GetType(pos) != LISPTYPE_FUNCTION) return 0;
-	ptr = StructFunction_Low(pos);
-	return ptr->compiled == 0 && ptr->macro == 0;
+	struct function_struct *str;
+
+	if (GetType(pos) != LISPTYPE_FUNCTION)
+		return 0;
+	str = StructFunction_Low(pos);
+
+	return str->compiled == 0 && str->macro == 0;
 }
 
 _g int interpreted_macro_function_p(addr pos)
 {
-	struct function_struct *ptr;
-	if (GetType(pos) != LISPTYPE_FUNCTION) return 0;
-	ptr = StructFunction_Low(pos);
-	return ptr->compiled == 0 && ptr->macro;
+	struct function_struct *str;
+
+	if (GetType(pos) != LISPTYPE_FUNCTION)
+		return 0;
+	str = StructFunction_Low(pos);
+
+	return str->compiled == 0 && str->macro;
 }
 
 _g int compiled_function_p(addr pos)
@@ -608,24 +525,24 @@ _g int compiled_function_p(addr pos)
 
 _g int compiled_funcall_function_p(addr pos)
 {
-	struct function_struct *ptr;
-	if (GetType(pos) != LISPTYPE_FUNCTION) return 0;
-	ptr = StructFunction_Low(pos);
-	return ptr->compiled && ptr->macro == 0;
+	struct function_struct *str;
+
+	if (GetType(pos) != LISPTYPE_FUNCTION)
+		return 0;
+	str = StructFunction_Low(pos);
+
+	return str->compiled && str->macro == 0;
 }
 
 _g int compiled_macro_function_p(addr pos)
 {
-	struct function_struct *ptr;
-	if (GetType(pos) != LISPTYPE_FUNCTION) return 0;
-	ptr = StructFunction_Low(pos);
-	return ptr->compiled && ptr->macro;
-}
+	struct function_struct *str;
 
-_g int system_function_p(addr pos)
-{
-	return GetType(pos) == LISPTYPE_FUNCTION &&
-		StructFunction_Low(pos)->system;
+	if (GetType(pos) != LISPTYPE_FUNCTION)
+		return 0;
+	str = StructFunction_Low(pos);
+
+	return str->compiled && str->macro;
 }
 
 _g void settrace_function(addr pos)

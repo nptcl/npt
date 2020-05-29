@@ -712,7 +712,7 @@ static void generic_make_mapcar_class_of(LocalRoot local,
 			clos_class_of(arg, &check);
 		cons_local(local, &result, check, result);
 	}
-	nreverse_list_unsafe(ret, result);
+	nreverse(ret, result);
 }
 
 static int generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
@@ -991,7 +991,7 @@ static void generic_precedence_order_index(addr lambda, addr order, addr *ret)
 		index_heap(&x, index);
 		cons_heap(&list, x, list);
 	}
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 _g int generic_add(struct generic_argument *str, addr *ret)
@@ -1065,7 +1065,7 @@ _g void generic_compute_applicable_methods(LocalRoot local,
 		}
 	}
 	rollback_local(local, stack);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static int generic_find_method_equal(addr method, addr spec)

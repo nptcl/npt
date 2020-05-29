@@ -131,7 +131,7 @@ static void loop_parse_with_clause(addr *root, addr *list)
 	if (vars == Nil)
 		goto error;
 	GetConst(SYSTEM_LOOP_WITH, &pos);
-	nreverse_list_unsafe(&vars, vars);
+	nreverse(&vars, vars);
 	cons_heap(&pos, pos, vars);
 	cons_heap(root, pos, *root);
 	*list = args;
@@ -153,7 +153,7 @@ static void loop_parse_form_variables(addr *list, addr *ret)
 		cons_heap(&root, pos, root);
 		*list = next;
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void loop_parse_initial_final_clause(addr *root, addr *list)
@@ -896,7 +896,7 @@ static void loop_condition_selectable_result(addr *ret, addr *list)
 			break;
 		GetCdr(*list, list);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void loop_parse_termination_clause(addr *root, addr *list)
@@ -995,7 +995,7 @@ _g void loop_parse_common(Execute ptr, addr *named, addr *vars, addr *main, addr
 	loop_parse_named_clause(named, list);
 	loop_parse_variable_clause(ptr, vars, list);
 	loop_parse_main_clause(main, list);
-	nreverse_list_unsafe(vars, *vars);
-	nreverse_list_unsafe(main, *main);
+	nreverse(vars, *vars);
+	nreverse(main, *main);
 }
 

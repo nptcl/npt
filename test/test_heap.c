@@ -304,7 +304,7 @@ static int test_heap_body(void)
 
 
 /*
- *  main
+ *  heap
  */
 int test_heap(void)
 {

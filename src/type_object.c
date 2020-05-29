@@ -182,7 +182,7 @@ static void type_object_values(addr *ret, addr pos)
 	}
 
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void type_object_vector(addr *ret, addr pos)
@@ -326,7 +326,7 @@ static void type_object_function_args(addr *ret, addr type)
 	}
 
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void type_object_functiontype(addr *ret, constindex index, addr pos)

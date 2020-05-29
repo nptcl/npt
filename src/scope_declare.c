@@ -116,7 +116,7 @@ static int globalp_stack_tablefunction(addr stack, addr call)
 	GetEvalStackTable(stack, &table);
 	/* free declaration */
 	GetConst(SYSTEM_TYPE_FUNCTION, &key);
-	if (getplistplist_callname(table, key, call, &value) == 0) {
+	if (getpplist_callname(table, key, call, &value) == 0) {
 		return 1;
 	}
 	/* table value */
@@ -194,7 +194,7 @@ static void check_declare_stack(Execute ptr, addr stack, addr decl, addr *ret)
 	getall_type_function_declare(decl, &cons);
 	check_function_declare(ptr, stack, cons, &root);
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 _g void apply_declare(Execute ptr, addr stack, addr decl, addr *ret)

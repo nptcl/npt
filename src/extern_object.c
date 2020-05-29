@@ -103,7 +103,7 @@ addr lisp_list(addr car, ...)
 	va_list args;
 
 	va_start(args, car);
-	list_alloc_stdarg(NULL, &car, args);
+	list_stdarg_alloc(NULL, &car, args);
 	va_end(args);
 
 	return car;
@@ -228,7 +228,8 @@ addr lisp_reverse(addr list)
 addr lisp_nreverse(addr list)
 {
 	lisp_typecheck_list(list);
-	return nreverse_list_safe_inplace(list);
+	nreverse_list_safe(&list, list);
+	return list;
 }
 
 
@@ -682,7 +683,7 @@ int lisp_funcall(addr *ret, addr call, ...)
 	local = ptr->local;
 	push_local(local, &stack);
 	va_start(va, call);
-	list_alloc_stdarg(local, &args, va);
+	list_stdarg_alloc(local, &args, va);
 	va_end(va);
 
 	call = lisp_function(call);
@@ -704,7 +705,7 @@ int lisp_funcall8(addr *ret, const void *str, ...)
 	local = ptr->local;
 	push_local(local, &stack);
 	va_start(va, str);
-	list_alloc_stdarg(local, &args, va);
+	list_stdarg_alloc(local, &args, va);
 	va_end(va);
 
 	call = lisp_function8(str);
@@ -726,7 +727,7 @@ int lisp_funcall16(addr *ret, const void *str, ...)
 	local = ptr->local;
 	push_local(local, &stack);
 	va_start(va, str);
-	list_alloc_stdarg(local, &args, va);
+	list_stdarg_alloc(local, &args, va);
 	va_end(va);
 
 	call = lisp_function16(str);

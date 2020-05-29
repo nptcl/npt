@@ -128,7 +128,7 @@ static void copy_pprint_dispatch(addr var, addr *ret)
 		copy_print_table(&x, x);
 		cons_heap(&root, x, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 
 	/* make result */
 	pprint_dispatch_heap(&x);
@@ -204,7 +204,7 @@ static void delete_print_dispatch(LocalRoot local, addr spec, addr priority, add
 		cons_heap(&root, pos, root);
 	}
 	if (delp) {
-		nreverse_list_unsafe(&root, root);
+		nreverse(&root, root);
 		SetListPrintDispatch(table, root);
 	}
 }

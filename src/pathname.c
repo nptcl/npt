@@ -755,7 +755,7 @@ finish_version:
 	goto finish;
 
 finish:
-	nreverse_list_unsafe(&pa->directory, queue);
+	nreverse(&pa->directory, queue);
 	pa->endpos = i;
 	make_parse_logical_pathname(pa);
 	return;
@@ -848,7 +848,7 @@ name_finish:
 	goto finish;
 
 finish:
-	nreverse_list_unsafe(&pa->directory, queue);
+	nreverse(&pa->directory, queue);
 	pa->endpos = i;
 	make_unix_pathname(pa);
 }
@@ -978,7 +978,7 @@ name_finish:
 	goto finish;
 
 finish:
-	nreverse_list_unsafe(&pa->directory, queue);
+	nreverse(&pa->directory, queue);
 	pa->endpos = i;
 	make_windows_pathname(pa);
 }
@@ -1683,7 +1683,7 @@ static void translate_replace_pathname(LocalpRoot local,
 		else
 			cons_alloc(alloc, root, pos, *root);
 	}
-	nreverse_list_unsafe(root, *root);
+	nreverse(root, *root);
 }
 
 static void translate_directory_pathname(LocalpRoot local,
@@ -2196,7 +2196,7 @@ static void merge_cons_directory(addr pos, addr defpath, addr *ret)
 		GetCons(pos, &left, &pos);
 		cons_heap(&cons, left, cons);
 	}
-	nreverse_list_unsafe(ret, cons);
+	nreverse(ret, cons);
 }
 
 static int check_merge_directory(addr pos, addr defpath)
@@ -2370,7 +2370,7 @@ static void make_pathname_directory(addr *ret, addr list)
 			pos = up;
 		cons_heap(&root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 enum PathnameType {
@@ -2501,7 +2501,7 @@ static void make_pathname_list(addr *ret, addr list)
 			make_pathname_string(&pos);
 		cons_heap(&root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void make_pathname_case(addr *directory, addr *name, addr *type)
@@ -2531,14 +2531,14 @@ _g void make_pathname(Execute ptr, addr *ret, addr rest)
 	enum PathnameType ptype;
 	addr host, device, directory, name, type, version, defaults, keycase, check;
 
-	if (getkeyargs(rest, KEYWORD_HOST, &host)) host = Unbound;
-	if (getkeyargs(rest, KEYWORD_DEVICE, &device)) device = Unbound;
-	if (getkeyargs(rest, KEYWORD_DIRECTORY, &directory)) directory = Unbound;
-	if (getkeyargs(rest, KEYWORD_NAME, &name)) name = Unbound;
-	if (getkeyargs(rest, KEYWORD_TYPE, &type)) type = Unbound;
-	if (getkeyargs(rest, KEYWORD_VERSION, &version)) version = Unbound;
-	if (getkeyargs(rest, KEYWORD_DEFAULTS, &defaults)) defaults = Unbound;
-	if (getkeyargs(rest, KEYWORD_CASE, &keycase)) keycase = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_HOST, &host)) host = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_DEVICE, &device)) device = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_DIRECTORY, &directory)) directory = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_NAME, &name)) name = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TYPE, &type)) type = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_VERSION, &version)) version = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_DEFAULTS, &defaults)) defaults = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_CASE, &keycase)) keycase = Unbound;
 
 	/* *default-pathname-defaults* */
 	defaults_pathname_heap(ptr, &defaults, defaults);
@@ -2676,7 +2676,7 @@ static void list_logical_pathname_translations(Execute ptr,
 		list_heap(&right, left, right, NULL);
 		cons_heap(&root, right, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static int function_set_logical_pathname_translations(Execute ptr, addr condition)

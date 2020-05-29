@@ -111,7 +111,7 @@ static void loop_block_tagbody(addr *form,
 	cons_heap(&list, ifsym, list);
 	/* return */
 	cons_heap(&list, retfrom, list);
-	nreverse_list_unsafe(&tagbody, list);
+	nreverse(&tagbody, list);
 	list_heap(&block, block, named, tagbody, NULL);
 	list_heap(&value, value, it, NULL);
 	list_heap(&ignorable, ignorable, it, NULL);
@@ -155,11 +155,11 @@ static int loop_extended_common(Execute ptr,
 	loop_push_main(&str, body);
 	form = str.form;
 	init = str.init;
-	nreverse_list_unsafe(&init, init);
-	nreverse_list_unsafe(&final, final);
-	nreverse_list_unsafe(&with, with);
-	nreverse_list_unsafe(&form, form);
-	nreverse_list_unsafe(&expr1, expr1);
+	nreverse(&init, init);
+	nreverse(&final, final);
+	nreverse(&with, with);
+	nreverse(&form, form);
+	nreverse(&expr1, expr1);
 	/* loop macro */
 	loop_block_tagbody(&form, named, init, final, expr1, expr2);
 	loop_function_loop(&form);

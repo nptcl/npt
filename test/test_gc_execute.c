@@ -1,4 +1,4 @@
-#include "gc.c"
+#include "gc_execute.c"
 #include "degrade.h"
 
 #if 0
@@ -1072,10 +1072,12 @@ static int test_mergespace(void)
 
 
 /*
- *  test gc
+ *  gc_execute
  */
-static int testbreak_gc(void)
+int test_gc_execute(void)
 {
+	TITLE;
+
 #if 0
 	heap_object = 0xFFFFFF;
 	heap_count = 0xFFFF;
@@ -1106,20 +1108,5 @@ static int testbreak_gc(void)
 #endif
 
 	return 0;
-}
-
-
-/*
- *  main
- */
-int test_gc(void)
-{
-	int result;
-
-	TITLE;
-	result = 0;
-	result |= testbreak_gc();
-
-	return result;
 }
 

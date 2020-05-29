@@ -63,21 +63,21 @@ static void method_ensure_generic_function_struct(struct generic_argument *str,
 	addr order, decl, doc, env, gen, lambda, method, comb;
 
 	/* arguments */
-	if (getkeyargs(rest, KEYWORD_ARGUMENT_PRECEDENCE_ORDER, &order))
+	if (GetKeyArgs(rest, KEYWORD_ARGUMENT_PRECEDENCE_ORDER, &order))
 		order = Nil;
-	if (getkeyargs(rest, KEYWORD_DECLARE, &decl))
+	if (GetKeyArgs(rest, KEYWORD_DECLARE, &decl))
 		decl = Nil;
-	if (getkeyargs(rest, KEYWORD_DOCUMENTATION, &doc))
+	if (GetKeyArgs(rest, KEYWORD_DOCUMENTATION, &doc))
 		doc = Nil;
-	if (getkeyargs(rest, KEYWORD_ENVIRONMENT, &env))
+	if (GetKeyArgs(rest, KEYWORD_ENVIRONMENT, &env))
 		env = Nil;
-	if (getkeyargs(rest, KEYWORD_LAMBDA_LIST, &lambda))
+	if (GetKeyArgs(rest, KEYWORD_LAMBDA_LIST, &lambda))
 		lambda = Nil;
-	if (getkeyargs(rest, KEYWORD_METHOD_COMBINATION, &comb))
+	if (GetKeyArgs(rest, KEYWORD_METHOD_COMBINATION, &comb))
 		comb = Nil;
-	if (getkeyargs(rest, KEYWORD_GENERIC_FUNCTION_CLASS, &gen))
+	if (GetKeyArgs(rest, KEYWORD_GENERIC_FUNCTION_CLASS, &gen))
 		GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &gen);
-	if (getkeyargs(rest, KEYWORD_METHOD_CLASS, &method))
+	if (GetKeyArgs(rest, KEYWORD_METHOD_CLASS, &method))
 		GetConst(CLOS_STANDARD_METHOD, &method);
 
 	/* parse */
@@ -254,13 +254,13 @@ static int function_ensure_method(Execute ptr, addr name, addr rest)
 	addr lambda, qua, spec, call;
 
 	/* arguments */
-	if (getkeyargs(rest, CLOSKEY_LAMBDA_LIST, &lambda))
+	if (GetKeyArgs(rest, CLOSKEY_LAMBDA_LIST, &lambda))
 		lambda = Nil;
-	if (getkeyargs(rest, CLOSKEY_QUALIFIERS, &qua))
+	if (GetKeyArgs(rest, CLOSKEY_QUALIFIERS, &qua))
 		qua = Nil;
-	if (getkeyargs(rest, CLOSKEY_SPECIALIZERS, &spec))
+	if (GetKeyArgs(rest, CLOSKEY_SPECIALIZERS, &spec))
 		spec = Nil;
-	if (getkeyargs(rest, CLOSKEY_FUNCTION, &call))
+	if (GetKeyArgs(rest, CLOSKEY_FUNCTION, &call))
 		fmte("Invalid ensure-method argument :function ~S.", call, NULL);
 
 	/* add method */
@@ -482,11 +482,11 @@ static int function_ensure_method_combination_short(Execute ptr, addr var, addr 
 {
 	addr doc, ident, oper;
 
-	if (getkeyargs(rest, KEYWORD_DOCUMENTATION, &doc))
+	if (GetKeyArgs(rest, KEYWORD_DOCUMENTATION, &doc))
 		doc = Nil;
-	if (getkeyargs(rest, KEYWORD_IDENTITY_WITH_ONE_ARGUMENT, &ident))
+	if (GetKeyArgs(rest, KEYWORD_IDENTITY_WITH_ONE_ARGUMENT, &ident))
 		ident = Nil;
-	if (getkeyargs(rest, KEYWORD_OPERATOR, &oper))
+	if (GetKeyArgs(rest, KEYWORD_OPERATOR, &oper))
 		oper = var;
 	ensure_define_combination_short_common(var, doc, ident, oper);
 	setresult_control(ptr, var);
@@ -534,15 +534,15 @@ static int function_ensure_method_combination_long(Execute ptr,
 {
 	addr args, gen, doc, form, decl;
 
-	if (getkeyargs(rest, KEYWORD_ARGUMENTS, &args))
+	if (GetKeyArgs(rest, KEYWORD_ARGUMENTS, &args))
 		args = Nil;
-	if (getkeyargs(rest, KEYWORD_GENERIC_FUNCTION, &gen))
+	if (GetKeyArgs(rest, KEYWORD_GENERIC_FUNCTION, &gen))
 		gen = Nil;
-	if (getkeyargs(rest, KEYWORD_DOCUMENTATION, &doc))
+	if (GetKeyArgs(rest, KEYWORD_DOCUMENTATION, &doc))
 		doc = Nil;
-	if (getkeyargs(rest, CLOSKEY_FORM, &form))
+	if (GetKeyArgs(rest, CLOSKEY_FORM, &form))
 		form = Nil;
-	if (getkeyargs(rest, CLOSKEY_DECLARE, &decl))
+	if (GetKeyArgs(rest, CLOSKEY_DECLARE, &decl))
 		decl = Nil;
 	ensure_define_combination_long_common(name,
 			lambda, spec, args, gen, doc, form, decl);
@@ -776,7 +776,7 @@ static int function_macro_call_method(Execute ptr, addr car, addr cdr, addr symb
 		getcons(cdr, &pos, &cdr);
 		cons_heap(&root, pos, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	/* apply */
 	list_heap(&methodf, methodf, method, NULL);
 	list_heap(&apply, apply, methodf, method, root, symbol, NULL);

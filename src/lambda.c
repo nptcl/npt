@@ -430,16 +430,13 @@ finish_rest:
 	goto finish;
 
 finish:
-	list_heap(ret,
-			nreverse_list_unsafe_inplace(var),
-			nreverse_list_unsafe_inplace(opt),
+	nreverse(&var, var);
+	nreverse(&opt, opt);
+	nreverse(&key, key);
+	nreverse(&aux, aux);
+	list_heap(ret, var, opt,
 			rest,  /* (var . &rest) (var . &body) (var . nil) */
-			key != Nil? nreverse_list_unsafe_inplace(key): key_p,
-			allow,
-			nreverse_list_unsafe_inplace(aux),
-			whole,
-			env,
-			NULL);
+			(key != Nil? key: key_p), allow, aux, whole, env, NULL);
 }
 
 _g void lambda_macro(LocalRoot local, addr *ret, addr cons, addr instance)
@@ -578,13 +575,10 @@ allow_argument:
 	fmte("After &allow-other-keys ~S must be a null.", cons, NULL);
 
 finish:
-	list_heap(ret,
-			nreverse_list_unsafe_inplace(var),
-			nreverse_list_unsafe_inplace(opt),
-			rest,
-			key != Nil? nreverse_list_unsafe_inplace(key): key_p,
-			allow,
-			NULL);
+	nreverse(&var, var);
+	nreverse(&opt, opt);
+	nreverse(&key, key);
+	list_heap(ret, var, opt, rest, (key != Nil? key: key_p), allow, NULL);
 }
 
 _g void atleast_argument_count(addr cons, size_t *ret)
@@ -735,14 +729,11 @@ aux_loop:
 	goto aux_loop;
 
 finish:
-	list_heap(ret,
-			nreverse_list_unsafe_inplace(var),
-			nreverse_list_unsafe_inplace(opt),
-			rest,
-			key != Nil? nreverse_list_unsafe_inplace(key): key_p,
-			allow,
-			nreverse_list_unsafe_inplace(aux),
-			NULL);
+	nreverse(&var, var);
+	nreverse(&opt, opt);
+	nreverse(&key, key);
+	nreverse(&aux, aux);
+	list_heap(ret, var, opt, rest, (key != Nil? key: key_p), allow, aux, NULL);
 }
 
 
@@ -832,14 +823,11 @@ aux_loop:
 	goto aux_loop;
 
 finish:
-	list_heap(ret,
-			nreverse_list_unsafe_inplace(var),
-			nreverse_list_unsafe_inplace(opt),
-			rest,
-			key != Nil? nreverse_list_unsafe_inplace(key): key_p,
-			allow,
-			nreverse_list_unsafe_inplace(aux),
-			NULL);
+	nreverse(&var, var);
+	nreverse(&opt, opt);
+	nreverse(&key, key);
+	nreverse(&aux, aux);
+	list_heap(ret, var, opt, rest, (key != Nil? key: key_p), allow, aux, NULL);
 }
 
 _g void lambda_ordinary(LocalRoot local, addr *ret, addr cons)
@@ -1005,14 +993,10 @@ finish_environment:
 	fmte("Invalid ~A argument.", one, NULL);
 
 finish:
-	list_heap(ret,
-			nreverse_list_unsafe_inplace(var),
-			nreverse_list_unsafe_inplace(opt),
-			rest,
-			key != Nil? nreverse_list_unsafe_inplace(key): key_p,
-			allow,
-			env,
-			NULL);
+	nreverse(&var, var);
+	nreverse(&opt, opt);
+	nreverse(&key, key);
+	list_heap(ret, var, opt, rest, (key != Nil? key: key_p), allow, env, NULL);
 }
 
 
@@ -1090,7 +1074,7 @@ _g void allsymbol_macro_lambda_heap(LocalRoot local, addr *ret, addr args)
 	lambda_macro(local, &args, args, Nil);
 	root = Nil;
 	varsymbol_macro_lambda_heap(&root, args);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 
@@ -1380,7 +1364,7 @@ _g void argument_generic_lambda_heap(addr *ret, addr pos)
 	}
 
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void argument_expand_heap(addr *ret, addr pos)
@@ -1463,7 +1447,7 @@ static void argument_expand_heap(addr *ret, addr pos)
 	}
 
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 _g void argument_ordinary_lambda_heap(addr *ret, addr pos)
@@ -1495,7 +1479,7 @@ _g void argument_method_keywords_heap(addr pos, addr *ret, int *allow)
 		cons_heap(&root, key, root);
 	}
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 	*allow = (int)str->allow;
 }
 
@@ -1616,7 +1600,7 @@ _g void argument_boa_variables_heap(addr *ret, addr pos)
 	}
 
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 

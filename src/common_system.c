@@ -122,19 +122,19 @@ static void defun_compile_file_pathname(void)
  */
 static void function_load_verbose(Execute ptr, addr rest, addr *ret)
 {
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_VERBOSE, ret))
+	if (GetKeyArgs(rest, KEYWORD_VERBOSE, ret))
 		*ret = Unbound;
 }
 
 static void function_load_print(Execute ptr, addr rest, addr *ret)
 {
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_PRINT, ret))
+	if (GetKeyArgs(rest, KEYWORD_PRINT, ret))
 		*ret = Unbound;
 }
 
 static void function_load_exist(Execute ptr, addr rest, int *ret)
 {
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_IF_DOES_NOT_EXIST, &rest))
+	if (GetKeyArgs(rest, KEYWORD_IF_DOES_NOT_EXIST, &rest))
 		*ret = 1;
 	else
 		*ret = (rest != Nil);
@@ -144,7 +144,7 @@ static void function_load_external(Execute ptr, addr rest, addr *ret)
 {
 	addr pos, check;
 
-	if (getplist_constant_safe(rest, CONSTANT_KEYWORD_EXTERNAL_FORMAT, &pos)) {
+	if (GetKeyArgs(rest, KEYWORD_EXTERNAL_FORMAT, &pos)) {
 		*ret = Unbound;
 	}
 	else {

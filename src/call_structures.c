@@ -93,7 +93,7 @@ static int defstruct_parse_slots_result(struct defstruct *str, addr list, addr *
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -657,7 +657,7 @@ static void defstruct_slots_list(addr *ret, addr slots, addr first)
 		*ret = Nil;
 	}
 	else {
-		nreverse_list_unsafe(&root, root);
+		nreverse(&root, root);
 		cons_heap(ret, list, root);
 	}
 }
@@ -676,7 +676,7 @@ static void defstruct_constructor_body(addr *ret, addr name, addr cons)
 		cons_heap(&root, keyword, root);
 		cons_heap(&root, symbol, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 
 	/* (lisp-system::structure-constructor 'name ...) */
 	GetConst(SYSTEM_STRUCTURE_CONSTRUCTOR, &call);
@@ -854,7 +854,7 @@ static void defstruct_make(struct defstruct *str, addr *ret)
 	/* :constructor */
 	defstruct_make_constructor(str, &root, root);
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 _g int defstruct_common(Execute ptr, addr form, addr env, addr *ret)

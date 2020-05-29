@@ -43,7 +43,7 @@ _g void build_sequence_write(struct sequence_write *ptr, addr pos)
 
 static addr nreverse_sequence_write(struct sequence_write *ptr)
 {
-	nreverse_list_unsafe(&ptr->pos, ptr->pos);
+	nreverse(&ptr->pos, ptr->pos);
 	return ptr->pos;
 }
 

@@ -498,7 +498,7 @@ static int test_ComparePointer(void)
 
 
 /*
- *  main
+ *  alloc
  */
 int test_alloc(void)
 {

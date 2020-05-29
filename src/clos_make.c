@@ -28,7 +28,7 @@ _g void clos_ensure_class_supers(addr args, addr *ret, int *referp)
 	addr list, pos;
 
 	/* arguments */
-	if (getkeyargs(args, CLOSKEY_DIRECT_SUPERCLASSES, &list)) {
+	if (GetKeyArgs(args, CLOSKEY_DIRECT_SUPERCLASSES, &list)) {
 		/* (list (find-class 'standard-object)) */
 		GetConst(CLOS_STANDARD_OBJECT, &args);
 		clos_find_class(args, &args);
@@ -62,23 +62,23 @@ static void clos_ensure_class_parse_slots(addr list, addr *ret)
 	addr slot, name, readers, writers, alloc, args, form, func, type, doc;
 
 	/* arguments */
-	if (getkeyargs(list, CLOSKEY_NAME, &name))
+	if (GetKeyArgs(list, CLOSKEY_NAME, &name))
 		fmte("Invalid slot :name ~S.", name, NULL);
-	if (getkeyargs(list, CLOSKEY_TYPE, &type))
+	if (GetKeyArgs(list, CLOSKEY_TYPE, &type))
 		GetTypeTable(&type, T);
-	if (getkeyargs(list, CLOSKEY_INITARGS, &args))
+	if (GetKeyArgs(list, CLOSKEY_INITARGS, &args))
 		args = Nil;
-	if (getkeyargs(list, CLOSKEY_INITFORM, &form))
+	if (GetKeyArgs(list, CLOSKEY_INITFORM, &form))
 		form = Unbound;
-	if (getkeyargs(list, CLOSKEY_INITFUNCTION, &func))
+	if (GetKeyArgs(list, CLOSKEY_INITFUNCTION, &func))
 		func = Nil;
-	if (getkeyargs(list, CLOSKEY_READERS, &readers))
+	if (GetKeyArgs(list, CLOSKEY_READERS, &readers))
 		readers = Nil;
-	if (getkeyargs(list, CLOSKEY_WRITERS, &writers))
+	if (GetKeyArgs(list, CLOSKEY_WRITERS, &writers))
 		writers = Nil;
-	if (getkeyargs(list, CLOSKEY_DOCUMENTATION, &doc))
+	if (GetKeyArgs(list, CLOSKEY_DOCUMENTATION, &doc))
 		doc = Nil;
-	if (getkeyargs(list, CLOSKEY_ALLOCATION, &alloc))
+	if (GetKeyArgs(list, CLOSKEY_ALLOCATION, &alloc))
 		GetConst(CLOSKEY_INSTANCE, &alloc);
 
 	/* make-slot */
@@ -103,7 +103,7 @@ _g void clos_ensure_class_slots(addr args, addr *ret)
 	size_t size, i;
 
 	/* :direct-slot list */
-	if (getkeyargs(args, CLOSKEY_DIRECT_SLOTS, &args))
+	if (GetKeyArgs(args, CLOSKEY_DIRECT_SLOTS, &args))
 		args = Nil;
 
 	/* slot-vector */
@@ -123,7 +123,7 @@ _g void clos_ensure_class_direct_default_initargs(LocalRoot local,
 	addr check, list, key, a, b;
 	LocalStack stack;
 
-	if (getkeyargs(args, CLOSKEY_DIRECT_DEFAULT_INITARGS, &args)) {
+	if (GetKeyArgs(args, CLOSKEY_DIRECT_DEFAULT_INITARGS, &args)) {
 		*ret = Nil;
 		return;
 	}
@@ -164,7 +164,7 @@ static void clos_ensure_class_default_initargs(LocalRoot local, addr pos, addr *
 		}
 	}
 	rollback_local(local, stack);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 /* reader/writer check */
@@ -632,7 +632,7 @@ static int clos_ensure_class_object(Execute ptr, addr name, addr args, addr *ret
 	LocalRoot local;
 
 	/* :metaclass ... */
-	if (getkeyargs(args, CLOSKEY_METACLASS, &metaclass))
+	if (GetKeyArgs(args, CLOSKEY_METACLASS, &metaclass))
 		GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	local = ptr->local;
 	GetConst(CLOSKEY_METACLASS, &pos);
@@ -857,7 +857,7 @@ static int make_instance_initargs(Execute ptr, addr clos, addr rest, addr *ret)
 	}
 
 	/* result */
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	cons_local(local, ret, clos, root);
 
 	return 0;

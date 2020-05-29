@@ -191,7 +191,7 @@ _g int remprop_common(addr symbol, addr key, addr *ret)
 	if (GetStatusReadOnly(symbol))
 		return fmte_("The symbol ~S is readonly.", symbol, NULL);
 	GetPlistSymbol(symbol, &list);
-	switch (remplist_check_safe(list, key, &list)) {
+	switch (remplist_safe(list, key, &list)) {
 		case RemPlist_Delete:
 			return Result(ret, T);
 

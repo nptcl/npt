@@ -125,7 +125,7 @@ static int assert_prompt_common(Execute ptr, addr env, addr *ret, addr place)
 		cons_heap(&root, x, root);
 	}
 	cons_heap(&root, g, root);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	list_heap(&leta, leta, root, declare, setq, w, NULL);
 	/* when */
 	list_heap(&yornp, yornp, str1, place, NULL);
@@ -211,7 +211,7 @@ static int assert_list_common(Execute ptr, addr env,
 	/* prompt */
 	list_heap(&go, go, loop, NULL);
 	cons_heap(&a, go, a);
-	nreverse_list_unsafe(&a, a);
+	nreverse(&a, a);
 	lista_heap(&lambda, lambda, Nil, a, NULL);
 	list_heap(&cont, cont, lambda, report, format, NULL);
 	list_heap(&cont, cont, NULL);
@@ -476,7 +476,7 @@ static int check_type_expand_common(Execute ptr, addr env, addr *ret,
 	list_heap(&value, value, r, NULL);
 	cons_heap(&root, value, root);
 	cons_heap(&root, g, root);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	list_heap(ret, leta, root, declare, tagbody, NULL);
 
 	return 0;
@@ -675,7 +675,7 @@ static int handler_bind_clauses_common(addr form, addr *ret)
 		cons_heap(&root, lambda, root);
 	}
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -783,7 +783,7 @@ static int handler_case_clauses_common(Execute ptr, addr right, addr *ret, addr 
 		}
 	}
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 	*rete = noerror;
 
 	return 0;
@@ -1015,7 +1015,7 @@ static int restart_bind_clauses_common(addr right, addr *ret)
 		Return(restart_bind_binding_common(cons, &cons));
 		cons_heap(&root, cons, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -1143,7 +1143,7 @@ static int restart_case_clauses(addr right, addr *ret)
 		cons_heap(&root, cons, root);
 	}
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }

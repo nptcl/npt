@@ -3335,7 +3335,7 @@ static int format_call_CallFunction(fmtprint print, struct format_operator *str)
 		Return(format_call_CallFunction_object(print, str, i, &pos));
 		cons_local(local, &root, pos, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	/* call */
 	format_call_CallFunction_call(print, str, &pos);
 	if (callclang_apply(print->ptr, &pos, pos, root))

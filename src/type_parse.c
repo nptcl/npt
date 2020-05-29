@@ -306,10 +306,13 @@ key_label:
 final:
 	localhold_end(hold);
 	vector2_heap(&one, 4);
-	SetArrayA2(one, 0, nreverse_list_unsafe_inplace(var));
-	SetArrayA2(one, 1, nreverse_list_unsafe_inplace(opt));
+	nreverse(&var, var);
+	nreverse(&opt, opt);
+	nreverse(&key, key);
+	SetArrayA2(one, 0, var);
+	SetArrayA2(one, 1, opt);
 	SetArrayA2(one, 2, rest);
-	SetArrayA2(one, 3, nreverse_list_unsafe_inplace(key));
+	SetArrayA2(one, 3, key);
 	*ret = one;
 
 	return 0;
@@ -405,8 +408,8 @@ allow_label:
 
 final:
 	localhold_end(hold);
-	nreverse_list_unsafe(retvar, vars);
-	nreverse_list_unsafe(retopt, opt);
+	nreverse(retvar, vars);
+	nreverse(retopt, opt);
 	*retrest = rest;
 	*retallow = allow;
 

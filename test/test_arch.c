@@ -161,11 +161,38 @@ static int test_readforce_windows(void)
 
 
 /*
- *  main
+ *  safe
+ */
+static int test_multisafe_size(void)
+{
+	size_t size;
+
+	test(multisafe_size(10, 20, &size) == 0, "multisafe_size.1");
+	test(size == 200, "multisafe_size.2");
+	test(multisafe_size(SIZE_MAX, 10, &size), "multisafe_size.3");
+
+	RETURN;
+}
+
+static int test_plussafe_size(void)
+{
+	size_t size;
+
+	test(plussafe_size(10, 20, &size) == 0, "plussafe_size.1");
+	test(size == 30, "plussafe_size.2");
+	test(plussafe_size(SIZE_MAX, 10, &size), "plussafe_size.3");
+
+	RETURN;
+}
+
+
+/*
+ *  arch
  */
 int test_arch(void)
 {
 	TITLE;
+
 	TestBreak(test_read_clang);
 	TestBreak(test_readforce_clang);
 #ifdef LISP_POSIX
@@ -176,6 +203,8 @@ int test_arch(void)
 	TestBreak(test_read_windows);
 	TestBreak(test_readforce_windows);
 #endif
+	TestBreak(test_multisafe_size);
+	TestBreak(test_plussafe_size);
 
 	return 0;
 }

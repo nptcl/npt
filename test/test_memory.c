@@ -1620,7 +1620,7 @@ static int test_unboundarray(void)
 
 
 /*
- *  main
+ *  memory
  */
 int test_memory(void)
 {

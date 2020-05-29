@@ -30,25 +30,19 @@ _g int setcdr_(addr cons, addr cdr);
 #define Return_setcdr(x,y) Return(setcdr_((x),(y)))
 
 /* list */
-_g void list_alloc_stdarg(LocalRoot local, addr *ret, va_list args);
-_g addr list_heapr(addr pos, ...);
-_g addr list_localr(LocalRoot local, ...);
-_g addr list_allocr(LocalRoot local, ...);
+_g void list_stdarg_alloc(LocalRoot local, addr *ret, va_list args);
 _g void list_heap(addr *ret, ...);
 _g void list_local(LocalRoot local, addr *ret, ...);
 _g void list_alloc(LocalRoot local, addr *ret, ...);
 _g void pushva_heap(addr *list, ...);
 
 /* list* */
-_g void lista_alloc_safe(LocalRoot local, addr *ret, addr first, addr cons);
-_g void lista_local_safe(LocalRoot local, addr *ret, addr first, addr cons);
-_g void lista_heap_safe(addr *ret, addr first, addr cons);
+_g void lista_safe_alloc(LocalRoot local, addr *ret, addr first, addr cons);
+_g void lista_safe_local(LocalRoot local, addr *ret, addr first, addr cons);
+_g void lista_safe_heap(addr *ret, addr first, addr cons);
 _g void lista_stdarg_noerror(LocalRoot local, addr *ret, va_list args);
 _g void lista_stdarg_safe(LocalRoot local, addr *ret, va_list args);
 _g void lista_stdarg_alloc(LocalRoot local, addr *ret, va_list args);
-_g addr lista_allocr(LocalRoot local, ...);
-_g addr lista_localr(LocalRoot local, ...);
-_g addr lista_heapr(addr pos, ...);
 _g void lista_alloc(LocalRoot local, addr *ret, ...);
 _g void lista_local(LocalRoot local, addr *ret, ...);
 _g void lista_heap(addr *ret, ...);

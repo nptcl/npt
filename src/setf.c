@@ -60,11 +60,11 @@ _g int function_setf_values(Execute ptr, addr form, addr env)
 
 	/* result */
 	GetConst(COMMON_VALUES, &values);
-	nreverse_list_unsafe(&a, a);
-	nreverse_list_unsafe(&b, b);
-	nreverse_list_unsafe(&g, g);
-	nreverse_list_unsafe(&w, w);
-	nreverse_list_unsafe(&r, r);
+	nreverse(&a, a);
+	nreverse(&b, b);
+	nreverse(&g, g);
+	nreverse(&w, w);
+	nreverse(&r, r);
 	cons_heap(&w, values, w);
 	cons_heap(&r, values, r);
 	setvalues_control(ptr, a, b, g, w, r, NULL);
@@ -205,10 +205,10 @@ static void setf_function(Execute ptr, addr symbol, addr args,
 		}
 	}
 	/* result */
-	nreverse_list_unsafe(vars, a);
-	nreverse_list_unsafe(vals, b);
-	nreverse_list_unsafe(writer, d);
-	nreverse_list_unsafe(reader, e);
+	nreverse(vars, a);
+	nreverse(vals, b);
+	nreverse(writer, d);
+	nreverse(reader, e);
 }
 
 

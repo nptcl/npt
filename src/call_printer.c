@@ -370,63 +370,63 @@ static void write_keyword_common(Execute ptr, addr args)
 	addr pos;
 
 	/* print-array */
-	if (! getkeyargs(args, KEYWORD_ARRAY, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_ARRAY, &pos)) {
 		WriteSpecialCommon(ptr, ARRAY, pos);
 	}
 	/* print-base */
-	if (! getkeyargs(args, KEYWORD_BASE, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_BASE, &pos)) {
 		WriteSpecialCommon(ptr, BASE, pos);
 	}
 	/* print-radix */
-	if (! getkeyargs(args, KEYWORD_RADIX, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_RADIX, &pos)) {
 		WriteSpecialCommon(ptr, RADIX, pos);
 	}
 	/* print-case */
-	if (! getkeyargs(args, KEYWORD_CASE, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_CASE, &pos)) {
 		WriteSpecialCommon(ptr, CASE, pos);
 	}
 	/* print-circle */
-	if (! getkeyargs(args, KEYWORD_CIRCLE, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_CIRCLE, &pos)) {
 		WriteSpecialCommon(ptr, CIRCLE, pos);
 	}
 	/* print-escape */
-	if (! getkeyargs(args, KEYWORD_ESCAPE, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_ESCAPE, &pos)) {
 		WriteSpecialCommon(ptr, ESCAPE, pos);
 	}
 	/* print-gensym */
-	if (! getkeyargs(args, KEYWORD_GENSYM, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_GENSYM, &pos)) {
 		WriteSpecialCommon(ptr, GENSYM, pos);
 	}
 	/* print-readably */
-	if (! getkeyargs(args, KEYWORD_READABLY, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_READABLY, &pos)) {
 		WriteSpecialCommon(ptr, READABLY, pos);
 	}
 	/* print-pretty */
-	if (! getkeyargs(args, KEYWORD_PRETTY, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_PRETTY, &pos)) {
 		WriteSpecialCommon(ptr, PRETTY, pos);
 	}
 	/* print-level */
-	if (! getkeyargs(args, KEYWORD_LEVEL, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_LEVEL, &pos)) {
 		WriteSpecialCommon(ptr, LEVEL, pos);
 	}
 	/* print-length */
-	if (! getkeyargs(args, KEYWORD_LENGTH, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_LENGTH, &pos)) {
 		WriteSpecialCommon(ptr, LENGTH, pos);
 	}
 	/* print-lines */
-	if (! getkeyargs(args, KEYWORD_LINES, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_LINES, &pos)) {
 		WriteSpecialCommon(ptr, LINES, pos);
 	}
 	/* print-miser-width */
-	if (! getkeyargs(args, KEYWORD_MISER_WIDTH, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_MISER_WIDTH, &pos)) {
 		WriteSpecialCommon(ptr, MISER_WIDTH, pos);
 	}
 	/* print-right-margin */
-	if (! getkeyargs(args, KEYWORD_RIGHT_MARGIN, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_RIGHT_MARGIN, &pos)) {
 		WriteSpecialCommon(ptr, RIGHT_MARGIN, pos);
 	}
 	/* print-pprint-dispatch */
-	if (! getkeyargs(args, KEYWORD_PPRINT_DISPATCH, &pos)) {
+	if (! GetKeyArgs(args, KEYWORD_PPRINT_DISPATCH, &pos)) {
 		WriteSpecialCommon(ptr, PPRINT_DISPATCH, pos);
 	}
 }
@@ -435,7 +435,7 @@ _g int write_common(Execute ptr, addr var, addr args)
 {
 	addr stream, control;
 
-	if (getkeyargs(args, KEYWORD_STREAM, &stream))
+	if (GetKeyArgs(args, KEYWORD_STREAM, &stream))
 		stream = Unbound;
 	output_stream_designer(ptr, stream, &stream);
 

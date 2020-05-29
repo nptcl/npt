@@ -305,7 +305,7 @@ static void nreverse_unsafe_pretty_stream(addr stream)
 
 	getinfo_pretty_stream(stream, &stream);
 	GetArrayA2(stream, StreamPretty_Stack, &stack);
-	nreverse_list_unsafe(&stack, stack);
+	nreverse(&stack, stack);
 	SetArrayA2(stream, StreamPretty_Stack, stack);
 }
 

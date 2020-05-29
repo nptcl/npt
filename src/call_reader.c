@@ -647,7 +647,7 @@ _g int with_standard_io_syntax_common(addr form, addr env, addr *ret)
 	cons_heap(&args, value, args);
 
 	/* `(let ,args ,@form) */
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	GetConst(COMMON_LET, &symbol);
 	Return_getcdr(form, &form);
 	lista_heap(ret, symbol, args, form, NULL);

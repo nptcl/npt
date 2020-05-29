@@ -75,7 +75,7 @@ static void defun_probe_file(void)
  */
 static int function_ensure_directories_exist(Execute ptr, addr pos, addr rest)
 {
-	if (getkeyargs(rest, KEYWORD_VERBOSE, &rest))
+	if (GetKeyArgs(rest, KEYWORD_VERBOSE, &rest))
 		rest = Nil;
 	ensure_directories_exist_files(ptr, &pos, &rest, pos, rest != Nil);
 	setvalues_control(ptr, pos, rest, NULL);

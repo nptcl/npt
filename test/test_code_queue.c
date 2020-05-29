@@ -517,7 +517,7 @@ static int test_code_queue_pop_label(void)
 	test_push_testdata(local, pos);
 	GetCodeQueue(pos, CodeQueue_Code, &check);
 	GetCodeStack(check, CodeStack_Root, &cons);
-	nreverse_list_unsafe(&cons, cons);
+	nreverse(&cons, cons);
 
 	code_queue_pop_label(local, cons, &label, &tag, &size);
 	test(length_list_unsafe(label) == 5, "code_queue_pop_label1");
@@ -573,7 +573,7 @@ static int test_code_queue_pop_find(void)
 	test_push_testdata(local, pos);
 	GetCodeQueue(pos, CodeQueue_Code, &check);
 	GetCodeStack(check, CodeStack_Root, &check);
-	nreverse_list_unsafe(&check, check);
+	nreverse(&check, check);
 	code_queue_pop_label(local, check, &label, &tag, &size);
 
 	index_heap(&check, 10);
@@ -607,7 +607,7 @@ static int test_code_queue_pop_replace(void)
 	test_push_testdata(local, pos);
 	GetCodeQueue(pos, CodeQueue_Code, &check);
 	GetCodeStack(check, CodeStack_Root, &check);
-	nreverse_list_unsafe(&check, check);
+	nreverse(&check, check);
 	code_queue_pop_label(local, check, &label, &tag, &size);
 
 	GetConst(CODE_GOTO, &pos);
@@ -636,7 +636,7 @@ static int test_code_queue_pop_make(void)
 
 	GetCodeQueue(pos, CodeQueue_Code, &check);
 	GetCodeStack(check, CodeStack_Root, &check);
-	nreverse_list_unsafe(&check, check);
+	nreverse(&check, check);
 
 	code_queue_pop_make(local, check, &array);
 	test(lenarrayr(array) == 10, "code_queue_pop_make1");

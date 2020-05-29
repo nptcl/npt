@@ -141,9 +141,9 @@ static int function_fill(Execute ptr, addr var, addr item, addr rest)
 {
 	addr start, end;
 
-	if (getkeyargs(rest, KEYWORD_START, &start))
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
 		start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end))
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
 		end = Nil;
 	fill_common(var, item, start, end);
 	setresult_control(ptr, var);
@@ -618,7 +618,7 @@ static int function_merge(Execute ptr,
 {
 	addr key;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key))
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	Return(merge_common(ptr, &type, type, pos1, pos2, call, key));
 	setresult_control(ptr, type);
@@ -664,7 +664,7 @@ static int function_sort(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key))
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	Return(quick_sort_sequence(ptr, pos, call, key));
 	setresult_control(ptr, pos);
@@ -693,7 +693,7 @@ static int function_stable_sort(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key))
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
 		key = Nil;
 	Return(merge_sort_sequence(ptr, pos, call, key));
 	setresult_control(ptr, pos);

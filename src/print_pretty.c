@@ -290,7 +290,7 @@ _g void expand_pprint_logical_block_common(addr *ret, addr symbol, addr pos,
 		cons_heap(&let, x, let);
 	}
 	cons_heap(&let, pretty, let);
-	nreverse_list_unsafe(ret, let);
+	nreverse(ret, let);
 }
 
 _g int pprint_throw(Execute ptr, addr stream)
@@ -593,7 +593,7 @@ static void pretty_write(addr stream, addr list)
 	addr pos;
 	size_t white;
 
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 	white = 0;
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
@@ -1343,7 +1343,7 @@ static void pretty_result(struct pretty_block *str, struct pretty_block *ptr)
 {
 	addr list, root, x;
 
-	nreverse_list_unsafe(&list, str->root);
+	nreverse(&list, str->root);
 	for (root = ptr->root; list != Nil; ) {
 		GetCons(list, &x, &list);
 		cons_heap(&root, x, root);

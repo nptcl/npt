@@ -164,7 +164,7 @@ static addr copylist_type(LocalRoot local, addr cons)
 		type_copy_alloc(local, &child, child);
 		cons_alloc(local, &root, child, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 
 	return root;
 }
@@ -247,7 +247,7 @@ static addr typecopy_function_key(LocalRoot local, addr list)
 		cons_alloc(local, &name, name, type);
 		cons_alloc(local, &root, name, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 
 	return root;
 }

@@ -46,7 +46,7 @@ _g void character_heap(addr *ret, unicode value)
 		make_character_heap(ret, value);
 		return;
 	}
-	
+
 	/* cache */
 	GetConst(CHARACTER_CACHE, &cache);
 	Check(cache == Unbound, "Unbound error, (build_character).");
@@ -89,13 +89,13 @@ _g void getcharacter(addr pos, unicode *value)
 	GetCharacter_Low(pos, value);
 }
 
-_g enum CHARACTER_TYPE character_type(unicode u)
+_g enum CHARACTER_TYPE character_type(unicode c)
 {
-	if (isStandardType(u))
+	if (isStandardType(c))
 		return CHARACTER_TYPE_STANDARD;
-	if (isBaseType(u))
+	if (isBaseType(c))
 		return CHARACTER_TYPE_BASE;
-	if (isExtendedType(u))
+	if (isExtendedType(c))
 		return CHARACTER_TYPE_EXTENDED;
 
 	return CHARACTER_TYPE_INVALID;
@@ -202,42 +202,42 @@ _g int character_comparep(addr left, addr right)
 
 _g int character_unicode_equal(addr left, unicode right)
 {
-	unicode u;
+	unicode c;
 
 	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
-	GetCharacter_Low(left, &u);
+	GetCharacter_Low(left, &c);
 
-	return u == right;
+	return c == right;
 }
 
 _g int character_unicode_equalp(addr left, unicode right)
 {
-	unicode u;
+	unicode c;
 
 	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
-	GetCharacter_Low(left, &u);
+	GetCharacter_Low(left, &c);
 
-	return toUpperUnicode(u) == toUpperUnicode(right);
+	return toUpperUnicode(c) == toUpperUnicode(right);
 }
 
 _g int character_unicode_compare(addr left, unicode right)
 {
-	unicode u;
+	unicode c;
 
 	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
-	GetCharacter_Low(left, &u);
-	ReturnCompare(u, right);
+	GetCharacter_Low(left, &c);
+	ReturnCompare(c, right);
 }
 
 _g int character_unicode_comparep(addr left, unicode right)
 {
-	unicode u;
+	unicode c;
 
 	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
-	GetCharacter_Low(left, &u);
-	u = toUpperUnicode(u);
+	GetCharacter_Low(left, &c);
+	c = toUpperUnicode(c);
 	right = toUpperUnicode(right);
-	ReturnCompare(u, right);
+	ReturnCompare(c, right);
 }
 
 
@@ -250,11 +250,11 @@ _g int character_equal_unicode(addr left, unicode right)
 
 _g int character_equalp_unicode(addr left, unicode right)
 {
-	unicode u;
+	unicode c;
 
 	Check(GetType(left) != LISPTYPE_CHARACTER, "type error");
-	GetCharacter(left, &u);
-	return toUpperUnicode(u) == toUpperUnicode(right);
+	GetCharacter(left, &c);
+	return toUpperUnicode(c) == toUpperUnicode(right);
 }
 
 

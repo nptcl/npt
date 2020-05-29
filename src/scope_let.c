@@ -46,7 +46,7 @@ static int let_init(Execute ptr, struct let_struct *str)
 		cons_heap(&var, var, init);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(&str->args, root);
+	nreverse(&str->args, root);
 
 	return 0;
 }
@@ -177,7 +177,7 @@ static int ignore_stack_tablevalue(addr stack, addr symbol, enum IgnoreType *ret
 	GetEvalStackTable(stack, &table);
 	/* ignore, ignorable declaration */
 	GetConst(SYSTEM_IGNORE_VALUE, &key);
-	if (getplistplist(table, key, symbol, &value) == 0) {
+	if (getpplist(table, key, symbol, &value) == 0) {
 		GetConst(COMMON_IGNORE, &check);
 		if (check == value) {
 			*ret = IgnoreType_Ignore;
@@ -220,7 +220,7 @@ static int type_free_tablevalue(addr stack, addr symbol, addr *ret)
 	addr key;
 	GetEvalStackTable(stack, &stack);
 	GetConst(SYSTEM_TYPE_VALUE, &key);
-	return getplistplist(stack, key, symbol, ret) == 0;
+	return getpplist(stack, key, symbol, ret) == 0;
 }
 
 static int type_boundary_tablevalue(addr stack, addr symbol, addr *ret)
@@ -272,7 +272,7 @@ static void type_tablevalue(Execute ptr, LocalRoot local,
 		cons_alloc(local, &root, type, root);
 	/* final */
 final:
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 _g int type_and_array(LocalRoot local, addr cons, addr *ret)
@@ -541,7 +541,7 @@ static int leta_init(Execute ptr, struct let_struct *str)
 		cons_heap(&var, var, init);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(&str->args, root);
+	nreverse(&str->args, root);
 
 	return 0;
 }

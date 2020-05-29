@@ -121,7 +121,7 @@ static int format_stdarg(Execute ptr,
 	local = ptr->local;
 	push_local(local, &stack);
 	strvect_char_local(local, &format, str);
-	list_alloc_stdarg(local, &list, args);
+	list_stdarg_alloc(local, &list, args);
 	if (format_lisp(ptr, stream, format, list, ret))
 		return 1;
 	rollback_local(local, stack);

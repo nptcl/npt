@@ -410,7 +410,7 @@ static void map_range_and(LocalRoot local, addr *ret, addr list, addr right)
 		if (left != Nil)
 			cons_local(local, &result, left, result);
 	}
-	nreverse_list_unsafe(ret, result);
+	nreverse(ret, result);
 }
 
 static void merge_range_andplus(LocalRoot local, addr *ret, addr left, addr right)
@@ -530,7 +530,7 @@ static int extpaircall_left(LocalRoot local, extpairtype call, addr *ret, addr r
 		}
 	}
 	if (update)
-		nreverse_list_unsafe(ret, result);
+		nreverse(ret, result);
 	return update;
 }
 
@@ -836,7 +836,7 @@ static size_t real_filter_range_list(LocalRoot local, addr *ret, addr type)
 			size++;
 		}
 	}
-	nreverse_list_unsafe(ret, cons);
+	nreverse(ret, cons);
 
 	return size;
 }

@@ -65,7 +65,7 @@ static int test_foreach_execute(void)
 
 
 /*
- *  main
+ *  execute
  */
 int test_execute(void)
 {
@@ -76,5 +76,4 @@ int test_execute(void)
 
 	return 0;
 }
-
 

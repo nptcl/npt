@@ -585,7 +585,7 @@ _g int funcall_control(Execute ptr, addr call, ...)
 	va_list args;
 
 	va_start(args, call);
-	list_alloc_stdarg(ptr->local, &list, args);
+	list_stdarg_alloc(ptr->local, &list, args);
 	va_end(args);
 	return apply_control(ptr, call, list);
 }
@@ -676,7 +676,7 @@ _g int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 	push_local(local, &stack);
 
 	va_start(args, call);
-	list_alloc_stdarg(ptr->local, &list, args);
+	list_stdarg_alloc(ptr->local, &list, args);
 	va_end(args);
 
 	Return(callclang_apply(ptr, ret, call, list));

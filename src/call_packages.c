@@ -94,10 +94,10 @@ _g void make_package_common(Execute ptr, addr name, addr rest, addr *ret)
 	addr nicknames, use;
 
 	/* &key */
-	if (getkeyargs(rest, KEYWORD_NICKNAMES, &nicknames)) {
+	if (GetKeyArgs(rest, KEYWORD_NICKNAMES, &nicknames)) {
 		nicknames = Nil;
 	}
-	if (getkeyargs(rest, KEYWORD_USE, &use)) {
+	if (GetKeyArgs(rest, KEYWORD_USE, &use)) {
 		GetConst(PACKAGE_DEFAULT_USE, &use);
 	}
 	/* make-package */
@@ -597,12 +597,12 @@ static int defpackage_expand_common(addr name, addr form, addr *ret)
 	}
 
 	/* lisp-system::defpackage */
-	nreverse_list_unsafe(&nicknames, nicknames);
-	nreverse_list_unsafe(&use, use);
-	nreverse_list_unsafe(&shadow, shadow);
-	nreverse_list_unsafe(&shadowing, shadowing);
-	nreverse_list_unsafe(&import, import);
-	nreverse_list_unsafe(&intern, intern);
+	nreverse(&nicknames, nicknames);
+	nreverse(&use, use);
+	nreverse(&shadow, shadow);
+	nreverse(&shadowing, shadowing);
+	nreverse(&import, import);
+	nreverse(&intern, intern);
 	GetConst(SYSTEM_DEFPACKAGE, &form);
 	GetConst(COMMON_QUOTE, &key);
 	list_heap(&name, key, name, NULL);

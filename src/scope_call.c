@@ -154,7 +154,7 @@ static int symbol_macrolet_global_p(Execute ptr, addr symbol, addr *ret)
 
 	/* define-symbol-macro */
 	GetConst(SYSTEM_SYMBOL_MACROLET, &key);
-	if (getplistplist(table, key, symbol, ret) == 0) {
+	if (getpplist(table, key, symbol, ret) == 0) {
 		return 1; /* define-symbol-macro */
 	}
 
@@ -185,7 +185,7 @@ static int symbol_macrolet_p(Execute ptr, addr symbol, addr *ret)
 		/* symbol-macrolet */
 		GetConst(SYSTEM_SYMBOL_MACROLET, &key);
 		GetEvalStackTable(stack, &table);
-		if (getplistplist(table, key, symbol, ret) == 0) {
+		if (getpplist(table, key, symbol, ret) == 0) {
 			return 1; /* symbol-macrolet */
 		}
 
@@ -270,7 +270,7 @@ _g int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -285,10 +285,10 @@ static void push_symbol_macrolet(addr stack, addr symbol, addr form, addr env)
 
 	GetConst(SYSTEM_SYMBOL_MACROLET, &key);
 	GetEvalStackTable(stack, &table);
-	if (getplistplist(table, key, symbol, &temp)) {
+	if (getpplist(table, key, symbol, &temp)) {
 		/* not found */
 		cons_heap(&form, form, env);
-		if (setplistplist_heap(table, key, symbol, form, &table))
+		if (setpplist_heap(table, key, symbol, form, &table))
 			SetEvalStackTable(stack, table);
 	}
 }
@@ -373,8 +373,8 @@ _g int scope_values_call(Execute ptr, addr args, addr *rargs, addr *rtype)
 		localhold_set(hold, 1, var);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(rargs, root);
-	nreverse_list_unsafe(&var, var);
+	nreverse(rargs, root);
+	nreverse(&var, var);
 
 	/* (values ... &rest nil) */
 	GetTypeTable(&rest, Nil);
@@ -494,7 +494,7 @@ static void tagbody_call_push(addr stack, addr list, addr *ret)
 		push_tabletagbody(stack, pos, &pos);
 		cons_heap(&root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void tagbody_call_find(addr list, addr pos, addr *ret)
@@ -535,7 +535,7 @@ static int tagbody_allcons(Execute ptr, addr tag, addr body, addr *ret)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -550,7 +550,7 @@ static void tagbody_call_remove(addr stack, addr list, addr *ret)
 		if (getreference_tabletagbody(pos))
 			cons_heap(&root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 _g int scope_tagbody_call(Execute ptr, addr tag, addr body, addr *rtag, addr *rbody)
@@ -815,7 +815,7 @@ static void mvbind_maketable(Execute ptr, struct mvbind_struct *str)
 		ifdeclvalue(ptr, stack, var, decl, &var);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(&str->args, root);
+	nreverse(&str->args, root);
 }
 
 static int mvbind_execute(Execute ptr, struct mvbind_struct *str)

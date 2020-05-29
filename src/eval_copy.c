@@ -51,7 +51,7 @@ static void copy_eval_allcons(LocalRoot local, addr *ret, addr cons)
 		copy_eval_parse(local, &pos, pos);
 		cons_alloc(local, &root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void copy_eval_progn(LocalRoot local, addr *ret, addr eval)
@@ -77,7 +77,7 @@ static void copy_eval_let_args(LocalRoot local, addr *ret, addr args)
 		cons_alloc(local, &pos, pos, init);
 		cons_alloc(local, &root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void copy_eval_let(LocalRoot local, addr *ret, addr eval)
@@ -113,7 +113,7 @@ static void copy_eval_setq_args(LocalRoot local, addr *ret, addr cons)
 		cons_alloc(local, &pos, pos, value);
 		cons_alloc(local, &root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void copy_eval_setq(LocalRoot local, addr *ret, addr eval)
@@ -143,7 +143,7 @@ static void copy_eval_ordinary_optional(LocalRoot local, addr *ret, addr cons)
 		list_alloc(local, &svar, var, init, svar, NULL);
 		cons_alloc(local, &root, svar, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void copy_eval_ordinary_key(LocalRoot local, addr *ret, addr cons)
@@ -161,7 +161,7 @@ static void copy_eval_ordinary_key(LocalRoot local, addr *ret, addr cons)
 		list_alloc(local, &svar, var, name, init, svar, NULL);
 		cons_alloc(local, &root, svar, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void copy_eval_ordinary_aux(LocalRoot local, addr *ret, addr cons)
@@ -177,7 +177,7 @@ static void copy_eval_ordinary_aux(LocalRoot local, addr *ret, addr cons)
 		list_alloc(local, &init, var, init, NULL);
 		cons_alloc(local, &root, init, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void copy_eval_ordinary(LocalRoot local, addr *ret, addr cons)
@@ -249,7 +249,7 @@ static void copy_eval_macro_var(LocalRoot local, addr *ret, addr list)
 			copy_eval_macro_arguments(local, &var, var);
 		cons_alloc(local, &root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void copy_eval_macro_rest(LocalRoot local, addr *ret, addr list)
@@ -411,7 +411,7 @@ static void copy_eval_symbol_macrolet_args(LocalRoot local, addr *ret, addr args
 		list_alloc(local, &symbol, symbol, form, env, NULL);
 		cons_alloc(local, &root, symbol, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void copy_eval_symbol_macrolet(LocalRoot local, addr *ret, addr eval)
@@ -644,7 +644,7 @@ static void copy_eval_flet_args(LocalRoot local, addr *ret, addr cons)
 		copy_eval_flet_one(local, &pos, pos);
 		cons_alloc(local, &root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void copy_eval_flet(LocalRoot local, addr *ret, addr eval)

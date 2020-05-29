@@ -48,7 +48,7 @@ static void clos_supers_alloc(LocalRoot local, addr *ret, va_list args)
 	clos_stdclass_slots(&slots);
 	clos_alloc(local, &clos, slots);
 	SetClassOfClos(clos, Nil);
-	nreverse_list_unsafe(&cons, cons);
+	nreverse(&cons, cons);
 	stdset_class_direct_superclasses(clos, cons);
 	*ret = clos;
 }
@@ -1301,7 +1301,7 @@ static void test_makeclos_heap(addr *ret, ...)
 		cons_heap(&cons, slot, cons);
 	}
 	va_end(args);
-	nreverse_list_unsafe(&cons, cons);
+	nreverse(&cons, cons);
 
 	/* make clos */
 	slot_vector_heap(&slots, i);

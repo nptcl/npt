@@ -35,7 +35,7 @@ static void loop_filter_index(addr *form, addr *list, constindex index)
 			}
 		}
 	}
-	nreverse_list_unsafe(form, root);
+	nreverse(form, root);
 }
 
 _g void loop_filter_initially(addr *form, addr *list)
@@ -66,7 +66,7 @@ static int loop_filter_with_default(Execute ptr, addr list, addr *ret)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -95,7 +95,7 @@ _g int loop_filter_with(Execute ptr, addr *form, addr *list)
 		}
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(form, root);
+	nreverse(form, root);
 
 	return 0;
 }
@@ -200,7 +200,7 @@ static void loop_with_let(addr *form, addr list)
 		}
 	}
 	cons_heap(&root, *form, root);
-	nreverse_list_unsafe(form, root);
+	nreverse(form, root);
 }
 
 static void loop_with_gensym_form(addr *form, addr list)
@@ -244,9 +244,9 @@ static void loop_with_gensym(Execute ptr, addr *form, addr list)
 		list_heap(&pos, var, type, g, NULL);
 		cons_heap(&glist, pos, glist);
 	}
-	nreverse_list_unsafe(&letlist, letlist);
-	nreverse_list_unsafe(&args, args);
-	nreverse_list_unsafe(&glist, glist);
+	nreverse(&letlist, letlist);
+	nreverse(&args, args);
+	nreverse(&glist, glist);
 	/* expand */
 	loop_with_gensym_form(form, glist);
 	GetConst(COMMON_LET, &let);
@@ -347,7 +347,7 @@ static void loop_variables_for_as_up(addr *form, addr list)
 	list_heap(&g2, g2, by, NULL);
 	cons_heap(&args, g2, args);
 	/* let */
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	GetConst(COMMON_LET, &let);
 	list_heap(form, let, args, *form, NULL);
 }
@@ -422,7 +422,7 @@ static void loop_destructuring_bind(Execute ptr,
 
 	gtree = glist = Nil;
 	loop_destructuring_bind_tree(ptr, var, &gtree, &glist);
-	nreverse_list_unsafe(&glist, glist);
+	nreverse(&glist, glist);
 	if (type == Unbound)
 		GetTypeTable(&type, T);
 	quotelist_heap(&var, var);
@@ -514,7 +514,7 @@ static void loop_let_variables(addr *form, addr var)
 	}
 	list = Nil;
 	loop_let_variables_recursive(var, &list);
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 	/* (let ,list ,form) */
 	GetConst(COMMON_LET, &let);
 	list_heap(form, let, list, *form, NULL);

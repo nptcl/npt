@@ -58,7 +58,7 @@ static int do_expand_common(addr *ret, constindex let_const, constindex setq_con
 	if (root == Nil)
 		setq = Nil;
 	else {
-		nreverse_list_unsafe(&root, root);
+		nreverse(&root, root);
 		cons_heap(&setq, setq, root);
 	}
 	/* (if ...) */
@@ -76,7 +76,7 @@ static int do_expand_common(addr *ret, constindex let_const, constindex setq_con
 	if (setq != Nil)
 		cons_heap(&root, setq, root);
 	cons_heap(&root, go, root);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	/* (block nil ...) */
 	list_heap(&block, block, Nil, root, NULL);
 	/* (let args ...) */
@@ -100,7 +100,7 @@ static int do_expand_common(addr *ret, constindex let_const, constindex setq_con
 		list_heap(&car, a, b, NULL);
 		cons_heap(&root, car, root);
 	}
-	nreverse_list_unsafe(&var, root);
+	nreverse(&var, root);
 	/* (let ...) */
 	conscar_heap(&root, let);
 	cons_heap(&root, var, root);
@@ -109,7 +109,7 @@ static int do_expand_common(addr *ret, constindex let_const, constindex setq_con
 		cons_heap(&root, car, root);
 	}
 	cons_heap(&root, block, root);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -281,7 +281,7 @@ static int dolist_expand_common(Execute ptr, addr *ret,
 		Return_getcons(body, &g, &body);
 		cons_heap(&root, g, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }

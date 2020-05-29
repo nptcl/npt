@@ -518,7 +518,7 @@ static int test_local_body(void)
 
 
 /*
- *  main
+ *  local
  */
 int test_local(void)
 {

@@ -324,7 +324,7 @@ static void apply_plist_stack(LocalRoot local,
 		Check(cons == Nil, "plist error");
 		GetCons(cons, &value, &cons);
 		copylocal_object(local, &value, value);
-		if (setplistplist_alloc(local, table, key, symbol, value, &table))
+		if (setpplist_alloc(local, table, key, symbol, value, &table))
 			SetEvalStackTable(stack, table);
 	}
 }
@@ -342,7 +342,7 @@ static void apply_plist_callname_stack(LocalRoot local,
 		GetCons(cons, &value, &cons);
 		copylocal_object(local, &callname, callname);
 		copylocal_object(local, &value, value);
-		if (setplistplist_callname_alloc(local, table, key, callname, value, &table))
+		if (setpplist_callname_alloc(local, table, key, callname, value, &table))
 			SetEvalStackTable(stack, table);
 	}
 }
@@ -448,7 +448,7 @@ static void apply_plistsymbol_stack(LocalRoot local,
 		copylocal_object(local, &cons, cons);
 		GetConstant(index, &key);
 		GetEvalStackTable(stack, &table);
-		if (setplistplist_alloc(local, table, key, symbol, cons, &table))
+		if (setpplist_alloc(local, table, key, symbol, cons, &table))
 			SetEvalStackTable(stack, table);
 	}
 }
@@ -504,7 +504,7 @@ static void apply_plistcall_stack(LocalRoot local,
 		copylocal_object(local, &cons, cons);
 		GetConstant(index, &key);
 		GetEvalStackTable(stack, &table);
-		if (setplistplist_callname_alloc(local, table, key, call, cons, &table))
+		if (setpplist_callname_alloc(local, table, key, call, cons, &table))
 			SetEvalStackTable(stack, table);
 	}
 }

@@ -1,5 +1,8 @@
 #include "character_check.h"
 
+/*
+ *  character check
+ */
 _g int isbasechar(unicode x)
 {
 	return isBaseChar(x);

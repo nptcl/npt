@@ -1351,8 +1351,6 @@ lisp-system::standard
 (lisp-system::*environment* :name special-environment :constant system)
 (lisp-system::*arguments* :name special-arguments :constant system)
 
-lisp-system::system-function
-lisp-system::system-macro-function
 lisp-system::compiled-macro-function
 lisp-system::control
 lisp-system::code

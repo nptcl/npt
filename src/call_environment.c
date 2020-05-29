@@ -136,7 +136,7 @@ _g int apropos_list_common(Execute ptr, addr var, addr package, addr *ret)
 		}
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }

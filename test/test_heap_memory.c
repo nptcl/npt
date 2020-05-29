@@ -302,7 +302,7 @@ static int test_alloc_heap(void)
 
 
 /*
- *  main
+ *  heap_memory
  */
 int test_heap_memory(void)
 {

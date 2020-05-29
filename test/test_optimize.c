@@ -258,7 +258,7 @@ static void implicit_string(addr *ret, const char *str)
 		eval_parse(Execute_Thread, &pos, pos);
 		cons_heap(&root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void zerospeed(struct optstruct *ptr)

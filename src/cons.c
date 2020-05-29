@@ -123,7 +123,7 @@ _g int setcdr_(addr cons, addr cdr)
 /*
  *  list
  */
-_g void list_alloc_stdarg(LocalRoot local, addr *ret, va_list args)
+_g void list_stdarg_alloc(LocalRoot local, addr *ret, va_list args)
 {
 	addr left, right, next;
 
@@ -144,60 +144,12 @@ _g void list_alloc_stdarg(LocalRoot local, addr *ret, va_list args)
 	}
 }
 
-_g addr list_heapr(addr pos, ...)
-{
-	addr left, right, next;
-	va_list args;
-
-	if (pos == NULL)
-		return Nil;
-	conscar_heap(&right, pos);
-	pos = right;
-
-	va_start(args, pos);
-	for (;;) {
-		left = va_arg(args, addr);
-		if (left == NULL) break;
-		conscar_heap(&next, left);
-		SetCdr(right, next);
-		right = next;
-	}
-	va_end(args);
-
-	return pos;
-}
-
-_g addr list_localr(LocalRoot local, ...)
-{
-	addr pos;
-	va_list args;
-
-	Check(local == NULL, "local error");
-	va_start(args, local);
-	list_alloc_stdarg(local, &pos, args);
-	va_end(args);
-
-	return pos;
-}
-
-_g addr list_allocr(LocalRoot local, ...)
-{
-	addr pos;
-	va_list args;
-
-	va_start(args, local);
-	list_alloc_stdarg(local, &pos, args);
-	va_end(args);
-
-	return pos;
-}
-
 _g void list_heap(addr *ret, ...)
 {
 	va_list args;
 
 	va_start(args, ret);
-	list_alloc_stdarg(NULL, ret, args);
+	list_stdarg_alloc(NULL, ret, args);
 	va_end(args);
 }
 
@@ -207,7 +159,7 @@ _g void list_local(LocalRoot local, addr *ret, ...)
 
 	Check(local == NULL, "local error");
 	va_start(args, ret);
-	list_alloc_stdarg(local, ret, args);
+	list_stdarg_alloc(local, ret, args);
 	va_end(args);
 }
 
@@ -216,7 +168,7 @@ _g void list_alloc(LocalRoot local, addr *ret, ...)
 	va_list args;
 
 	va_start(args, ret);
-	list_alloc_stdarg(local, ret, args);
+	list_stdarg_alloc(local, ret, args);
 	va_end(args);
 }
 
@@ -242,7 +194,7 @@ _g void pushva_heap(addr *list, ...)
  *  list*
  */
 /* `(list* ,first ,@cons) */
-_g void lista_alloc_safe(LocalRoot local, addr *ret, addr first, addr cons)
+_g void lista_safe_alloc(LocalRoot local, addr *ret, addr first, addr cons)
 {
 	addr pos, root;
 
@@ -269,14 +221,14 @@ _g void lista_alloc_safe(LocalRoot local, addr *ret, addr first, addr cons)
 	}
 	*ret = root;
 }
-_g void lista_local_safe(LocalRoot local, addr *ret, addr first, addr cons)
+_g void lista_safe_local(LocalRoot local, addr *ret, addr first, addr cons)
 {
 	Check(local == NULL, "local error");
-	lista_alloc_safe(local, ret, first, cons);
+	lista_safe_alloc(local, ret, first, cons);
 }
-_g void lista_heap_safe(addr *ret, addr first, addr cons)
+_g void lista_safe_heap(addr *ret, addr first, addr cons)
 {
-	lista_alloc_safe(NULL, ret, first, cons);
+	lista_safe_alloc(NULL, ret, first, cons);
 }
 
 static void lista_stdarg(LocalRoot local, addr *ret, va_list args, addr pos1)
@@ -375,75 +327,6 @@ _g void lista_stdarg_alloc(LocalRoot local, addr *ret, va_list args)
 		cons = pos1;
 		pos2 = pos3;
 	}
-}
-
-_g addr lista_allocr(LocalRoot local, ...)
-{
-	addr pos;
-	va_list args;
-
-	va_start(args, local);
-	lista_stdarg_alloc(local, &pos, args);
-	va_end(args);
-
-	return pos;
-}
-
-_g addr lista_localr(LocalRoot local, ...)
-{
-	addr pos;
-	va_list args;
-
-	Check(local == NULL, "local error");
-	va_start(args, local);
-	lista_stdarg_alloc(local, &pos, args);
-	va_end(args);
-
-	return pos;
-}
-
-_g addr lista_heapr(addr pos, ...)
-{
-	addr pos1, pos2, pos3, cons;
-	va_list args;
-
-	/* nil */
-	Check(pos == NULL, "lista at least one argument.");
-	if (pos == NULL) {
-		return Nil; /* error */
-	}
-	pos1 = pos;
-
-	/* dot list */
-	va_start(args, pos);
-	pos2 = va_arg(args, addr);
-	if (pos2 == NULL) {
-		va_end(args);
-		return pos1;
-	}
-
-	/* result */
-	conscar_heap(&cons, pos1);
-	pos = cons;
-
-	/* loop */
-	for (;;) {
-		pos3 = va_arg(args, addr);
-		if (pos3 == NULL) {
-			/* (pos1 . pos2) */
-			SetCdr(cons, pos2);
-			break;
-		}
-
-		/* (pos1 pos2 . ?) */
-		conscar_heap(&pos1, pos2);
-		SetCdr(cons, pos1);
-		cons = pos1;
-		pos2 = pos3;
-	}
-	va_end(args);
-
-	return pos;
 }
 
 _g void lista_alloc(LocalRoot local, addr *ret, ...)

@@ -128,7 +128,7 @@ static int pathname_case_local_p(addr rest, int *ret)
 {
 	addr check;
 
-	if (getkeyargs(rest, KEYWORD_CASE, &rest))
+	if (GetKeyArgs(rest, KEYWORD_CASE, &rest))
 		return Result(ret, 1); /* default :local */
 	GetConst(KEYWORD_LOCAL, &check);
 	if (check == rest)
@@ -708,9 +708,9 @@ static int function_parse_namestring(Execute ptr, addr thing, addr rest)
 	}
 	getcons(rest, &defaults, &rest);
 keyargs:
-	if (getkeyargs(rest, KEYWORD_START, &start)) fixnum_heap(&start, 0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Nil;
-	if (getkeyargs(rest, KEYWORD_JUNK_ALLOWED, &junk)) junk = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) fixnum_heap(&start, 0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Nil;
+	if (GetKeyArgs(rest, KEYWORD_JUNK_ALLOWED, &junk)) junk = Nil;
 
 	parse_namestring(ptr, &thing, &start,
 			thing, host, defaults, start, end, junk);

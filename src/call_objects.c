@@ -50,7 +50,7 @@ static void defclass_parse_superclasses(addr args, int defclass, addr *ret)
 		cons_heap(&root, pos, root);
 	}
 	/* result */
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	cons_heap(ret, list, root);
 }
 
@@ -212,7 +212,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 	if (readers != Nil) {
 		GetConst(CLOSKEY_READERS, &pos);
 		cons_heap(&root, pos, root);
-		nreverse_list_unsafe(&readers, readers);
+		nreverse(&readers, readers);
 		list_heap(&pos, quote, readers, NULL);
 		cons_heap(&root, pos, root);
 	}
@@ -220,7 +220,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 	if (writers != Nil) {
 		GetConst(CLOSKEY_WRITERS, &pos);
 		cons_heap(&root, pos, root);
-		nreverse_list_unsafe(&writers, writers);
+		nreverse(&writers, writers);
 		list_heap(&pos, quote, writers, NULL);
 		cons_heap(&root, pos, root);
 	}
@@ -234,7 +234,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 	if (initargs != Nil) {
 		GetConst(CLOSKEY_INITARGS, &pos);
 		cons_heap(&root, pos, root);
-		nreverse_list_unsafe(&initargs, initargs);
+		nreverse(&initargs, initargs);
 		list_heap(&pos, quote, initargs, NULL);
 		cons_heap(&root, pos, root);
 	}
@@ -264,14 +264,14 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 	}
 	/* others */
 	if (others != Nil) {
-		nreverse_list_unsafe(&others, others);
+		nreverse(&others, others);
 		while (others != Nil) {
 			GetCons(others, &pos, &others);
 			cons_heap(&root, pos, root);
 		}
 	}
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -328,7 +328,7 @@ static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
 	}
 	localhold_end(hold);
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -359,7 +359,7 @@ static void defclass_parse_initargs(addr args, addr *ret)
 	if (root == Nil)
 		*ret = Nil;
 	else {
-		nreverse_list_unsafe(&root, root);
+		nreverse(&root, root);
 		cons_heap(ret, list, root);
 	}
 }
@@ -439,7 +439,7 @@ static void defclass_parse_options(addr list, int defclass, addr *ret, addr *rep
 	}
 
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void define_condition_result(addr *ret, addr args, addr name, addr report)
@@ -613,7 +613,7 @@ static void with_accessors_arguments(addr args, addr g, addr *ret)
 		list_heap(&var, var, name, NULL);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 	return;
 
 error:
@@ -686,7 +686,7 @@ static void with_slots_arguments(addr args, addr g, addr *ret)
 		list_heap(&var, var, name, NULL);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 	return;
 
 error:
@@ -958,7 +958,7 @@ _g void defgeneric_common(addr form, addr env, addr *ret)
 		GetConst(KEYWORD_METHOD_CLASS, &key);
 		defgeneric_push_value(&args, key, method, args);
 	}
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	if (code != Nil) {
 		GetConst(COMMON_PROGN, &key);
 		lista_heap(&args, key, args, code, NULL);
@@ -988,7 +988,7 @@ static int defmethod_parse_qualifiers(addr list, addr *qua, addr *args, addr *bo
 			break;
 		cons_heap(&root, lambda, root);
 	}
-	nreverse_list_unsafe(qua, root);
+	nreverse(qua, root);
 	*args = lambda;
 	*body = list;
 
@@ -1018,7 +1018,7 @@ static void defmethod_parse_specializers(addr pos, addr *ret)
 		list_heap(&type, var, type, NULL);
 		cons_heap(&root, type, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	/* result */
 	if (root != Nil) {
 		GetConst(COMMON_LIST, &list);
@@ -1187,7 +1187,7 @@ static void defcomb_short(addr *ret, addr list, addr name)
 		pushva_heap(&list, koper, oper, NULL);
 	}
 	/* result */
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 static void defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
@@ -1284,7 +1284,7 @@ static void defcomb_long_specifiers(addr *ret, addr list)
 		list_heap(&name, name, spec, order, req, desc, NULL);
 		cons_heap(&root, name, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
@@ -1346,7 +1346,7 @@ static void defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 	comb_longmacro(&body, lambda, spec, args, gen, decl, body);
 	pushva_heap(&list, body, NULL);
 	/* result */
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 	return;
 
 error:
@@ -1400,7 +1400,7 @@ static void make_load_form_saving_slots_list(addr var, addr *ret)
 		GetNameSlot(x, &x);
 		cons_heap(&list, x, list);
 	}
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 _g int make_load_form_saving_slots_common(Execute ptr,
@@ -1440,7 +1440,7 @@ _g int make_load_form_saving_slots_common(Execute ptr,
 			GetConst(SYSTEM_UNBOUND_VALUE, &y);
 		cons_heap(&values, y, values);
 	}
-	nreverse_list_unsafe(&values, values);
+	nreverse(&values, values);
 	quotelist_heap(&list, list);
 	quotelist_heap(&values, values);
 	list_heap(&set, set, var, list, values, NULL);

@@ -161,7 +161,7 @@ _g void trace_common(addr form, addr env, addr *ret)
 		}
 		cons_heap(&list, pos, list);
 	}
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 	/* (lisp-system::trace-add 'list) */
 	GetConst(SYSTEM_TRACE_ADD, &add);
 	GetConst(COMMON_QUOTE, &quote);
@@ -199,7 +199,7 @@ _g void untrace_common(addr form, addr env, addr *ret)
 		}
 		cons_heap(&list, pos, list);
 	}
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 	/* (lisp-system::trace-del 'list) */
 	GetConst(SYSTEM_TRACE_DEL, &del);
 	GetConst(COMMON_QUOTE, &quote);
@@ -313,7 +313,7 @@ _g void trace_add_common(Execute ptr, addr list, addr *ret)
 		cons_heap(&root, name, root);
 		trace_add_push(ptr, name);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 
@@ -386,7 +386,7 @@ _g void trace_del_common(Execute ptr, addr list, addr *ret)
 		cons_heap(&root, name, root);
 		trace_del_remove(ptr, name);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 

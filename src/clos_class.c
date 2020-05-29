@@ -405,7 +405,7 @@ static void clos_precedence_classes(LocalRoot local, addr right, addr *ret)
 		cons_local(local, &list, left, list);
 	}
 	cons_local(local, &list, Unbound, list);
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 static void clos_precedence_pair(LocalRoot local, addr right, addr *ret)
@@ -458,9 +458,9 @@ static void clos_precedence_super(
 				}
 			}
 		}
-		nreverse_list_unsafe(&stack, temp);
+		nreverse(&stack, temp);
 	}
-	nreverse_list_unsafe(ret, result);
+	nreverse(ret, result);
 }
 
 static int clos_precedence_find(addr a1, addr cons)
@@ -560,7 +560,7 @@ static void clos_precedence_result(
 		cons_heap(&root, key, root);
 		clos_precedence_remove(key, pos, &pos);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 _g void clos_precedence_list_redefine(
@@ -637,7 +637,7 @@ static void clos_slots_loop(LocalRoot local, addr list, addr *ret, size_t *rsize
 			}
 		}
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 	*rsize = count;
 }
 
@@ -1059,7 +1059,7 @@ static void clos_stdclass_va_list(addr *ret, va_list args)
 		CheckType(pos, LISPTYPE_CLOS);
 		cons_heap(&list, pos, list);
 	}
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 static void clos_stdclass_va(LocalRoot local, addr m, constindex n, constindex c, ...)

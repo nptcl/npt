@@ -18,73 +18,51 @@ enum FUNCTION_INDEX {
 struct function_struct {
 	unsigned macro : 1;
 	unsigned compiled : 1;
-	unsigned system : 1;
 	unsigned trace : 1;
 	pointer index;
 };
 
 #define PtrFunction_Low(x)			PtrBodySSa(x, FUNCTION_INDEX_SIZE)
 #define StructFunction_Low(x)		((struct function_struct *)PtrFunction_Low(x))
-#define RefCodeFunction_Low(x)		RefArraySS((x),FUNCTION_INDEX_CODE)
 #define GetCodeFunction_Low(x,v)	GetArraySS((x),FUNCTION_INDEX_CODE,(v))
 #define SetCodeFunction_Low(x,v)	SetArraySS((x),FUNCTION_INDEX_CODE,(v))
-#define RefNameFunction_Low(x)		RefArraySS((x),FUNCTION_INDEX_NAME)
 #define GetNameFunction_Low(x,v)	GetArraySS((x),FUNCTION_INDEX_NAME,(v))
 #define SetNameFunction_Low(x,v)	SetArraySS((x),FUNCTION_INDEX_NAME,(v))
-#define RefDataFunction_Low(x)		RefArraySS((x),FUNCTION_INDEX_DATA)
 #define GetDataFunction_Low(x,v)	GetArraySS((x),FUNCTION_INDEX_DATA,(v))
 #define SetDataFunction_Low(x,v)	SetArraySS((x),FUNCTION_INDEX_DATA,(v))
-#define RefTableFunction_Low(x)		RefArraySS((x),FUNCTION_INDEX_TABLE)
 #define GetTableFunction_Low(x,v)	GetArraySS((x),FUNCTION_INDEX_TABLE,(v))
 #define SetTableFunction_Low(x,v)	SetArraySS((x),FUNCTION_INDEX_TABLE,(v))
 
 #ifdef LISP_DEBUG
 #define StructFunction(x)			structfunction(x)
-#define RefCodeFunction(x)			refcodefunction(x)
 #define GetCodeFunction(x,v)		getcodefunction(x,v)
 #define SetCodeFunction(x,v)		setcodefunction(x,v)
-#define RefNameFunction(x)			refnamefunction(x)
 #define GetNameFunction(x,v)		getnamefunction(x,v)
 #define SetNameFunction(x,v)		setnamefunction(x,v)
-#define RefDataFunction(x)			refdatafunction(x)
 #define GetDataFunction(x,v)		getdatafunction(x,v)
 #define SetDataFunction(x,v)		setdatafunction(x,v)
 #else
 #define StructFunction(x)			StructFunction_Low(x)
-#define RefCodeFunction(x)			RefCodeFunction_Low(x)
 #define GetCodeFunction(x,v)		GetCodeFunction_Low(x,v)
 #define SetCodeFunction(x,v)		SetCodeFunction_Low(x,v)
-#define RefNameFunction(x)			RefNameFunction_Low(x)
 #define GetNameFunction(x,v)		GetNameFunction_Low(x,v)
 #define SetNameFunction(x,v)		setnamefunction(x,v)
-#define RefDataFunction(x)			RefDataFunction_Low(x)
 #define GetDataFunction(x,v)		GetDataFunction_Low(x,v)
 #define SetDataFunction(x,v)		SetDataFunction_Low(x,v)
 #endif
 
-_g addr function_allocr(LocalRoot local, addr name, addr code);
-_g addr function_localr(LocalRoot local, addr name, addr code);
-_g addr function_heapr(addr name, addr code);
 _g void function_alloc(LocalRoot local, addr *ret, addr name, addr code);
 _g void function_local(LocalRoot local, addr *ret, addr name, addr code);
 _g void function_heap(addr *ret, addr name, addr code);
-_g addr macro_allocr(LocalRoot local, addr name, addr code);
-_g addr macro_localr(LocalRoot local, addr name, addr code);
-_g addr macro_heapr(addr name, addr code);
+_g void function_heap_for_develop(addr *ret, addr name);
 _g void macro_alloc(LocalRoot local, addr *ret, addr name, addr code);
 _g void macro_local(LocalRoot local, addr *ret, addr name, addr code);
 _g void macro_heap(addr *ret, addr name, addr code);
 
-_g addr compiled_allocr(LocalRoot local, addr name);
-_g addr compiled_localr(LocalRoot local, addr name);
-_g addr compiled_heapr(addr name);
 _g void compiled_alloc(LocalRoot local, addr *ret, addr name);
 _g void compiled_local(LocalRoot local, addr *ret, addr name);
 _g void compiled_heap(addr *ret, addr name);
 _g void compiled_setf_heap(addr *ret, addr symbol);
-_g addr compiled_macro_allocr(LocalRoot local, addr name);
-_g addr compiled_macro_localr(LocalRoot local, addr name);
-_g addr compiled_macro_heapr(addr name);
 _g void compiled_macro_alloc(LocalRoot local, addr *ret, addr name);
 _g void compiled_macro_local(LocalRoot local, addr *ret, addr name);
 _g void compiled_macro_heap(addr *ret, addr name);
@@ -127,16 +105,11 @@ _g void setcompiled_opt1dynamic(addr pos, pointer p);
 _g void setcompiled_extend_dynamic(addr pos, pointer p);
 _g void setcompiled_extend_rest(addr pos, pointer p);
 
-_g void function_heap_for_develop(addr *ret, addr name);
-
 _g struct function_struct *structfunction(addr pos);
-_g addr refcodefunction(addr pos);
 _g void getcodefunction(addr pos, addr *ret);
 _g void setcodefunction(addr pos, addr value);
-_g addr refnamefunction(addr pos);
 _g void getnamefunction(addr pos, addr *ret);
 _g void setnamefunction(addr pos, addr value);
-_g addr refdatafunction(addr pos);
 _g void getdatafunction(addr pos, addr *ret);
 _g void setdatafunction(addr pos, addr value);
 
@@ -149,7 +122,6 @@ _g void setlambda_expression_function(addr pos, addr value);
 _g void getdefunform_function(addr pos, addr *ret);
 _g void setdefunform_function(addr pos, addr value);
 
-_g void setsystem_function(addr pos);
 _g int functionp(addr pos);
 _g int funcall_function_p(addr pos);
 _g int macro_function_p(addr pos);
@@ -159,7 +131,6 @@ _g int interpreted_macro_function_p(addr pos);
 _g int compiled_function_p(addr pos);
 _g int compiled_funcall_function_p(addr pos);
 _g int compiled_macro_function_p(addr pos);
-_g int system_function_p(addr pos);
 _g void settrace_function(addr pos);
 _g int tracep_function(addr pos);
 

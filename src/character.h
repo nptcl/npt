@@ -41,11 +41,11 @@ _g void character_local(LocalRoot root, addr *ret, unicode value);
 _g void character_heap(addr *ret, unicode value);
 _g addr characterh(unicode value); /* for debug */
 
-_g enum CHARACTER_TYPE character_type(unicode u);
 _g const unicode *ptrcharacter(addr pos);
 _g unicode refcharacter(addr pos);
 _g void getcharacter(addr pos, unicode *value);
 _g void setcharacter_unsafe(addr pos, unicode value);
+_g enum CHARACTER_TYPE character_type(unicode c);
 _g int standard_char_p(addr pos);
 _g int base_char_p(addr pos);
 _g int extended_char_p(addr pos);

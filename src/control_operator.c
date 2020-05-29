@@ -253,7 +253,7 @@ _g void reverse_handler_control(Execute ptr)
 
 	control = ptr->control;
 	gethandler_control(control, &list);
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 	sethandler_control(ptr->local, control, list);
 }
 
@@ -280,7 +280,7 @@ _g void reverse_restart_control(Execute ptr)
 
 	control = ptr->control;
 	getrestart_control(control, &list);
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 	setrestart_control(ptr->local, control, list);
 }
 
@@ -549,7 +549,7 @@ _g int compute_restarts_control_(Execute ptr, addr condition, addr *ret)
 		GetControl(control, Control_Next, &control);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }

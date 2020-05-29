@@ -78,7 +78,7 @@ static void finish_code_stack(LocalRoot local, addr pos)
 	ptr = StructCodeStack(pos);
 	Check(ptr->finish, "finish error");
 	GetCodeStack(pos, CodeStack_Root, &root);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	SetCodeStack(pos, CodeStack_Root, Nil);
 	SetCodeStack(pos, CodeStack_Result, root);
 	ptr->finish = 1;
@@ -188,7 +188,7 @@ _g void code_queue_push(LocalRoot local, addr code, addr pos, ...)
 	va_list args;
 
 	va_start(args, pos);
-	list_alloc_stdarg(NULL, &list, args);
+	list_stdarg_alloc(NULL, &list, args);
 	va_end(args);
 	cons_heap(&list, pos, list);
 	code_queue_add(local, code, list);
@@ -201,7 +201,7 @@ _g void code_queue_list(LocalRoot local, addr code, constindex index, ...)
 
 	GetConstant(index, &pos);
 	va_start(args, index);
-	list_alloc_stdarg(NULL, &list, args);
+	list_stdarg_alloc(NULL, &list, args);
 	va_end(args);
 	cons_heap(&list, pos, list);
 	code_queue_add(local, code, list);

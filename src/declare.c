@@ -971,7 +971,7 @@ static void declare_split(addr cons, addr *retdecl, addr *retbody)
 		}
 		getcdr(cons, &cons);
 	}
-	nreverse_list_unsafe(retdecl, decl);
+	nreverse(retdecl, decl);
 	*retbody = cons;
 }
 
@@ -988,7 +988,7 @@ _g void declare_body_form(addr list, addr *retdecl, addr *retbody)
 		cons_heap(&decl, cdr, decl);
 		getcdr(list, &list);
 	}
-	nreverse_list_unsafe(retdecl, decl);
+	nreverse(retdecl, decl);
 	*retbody = list;
 }
 
@@ -1124,7 +1124,7 @@ static void copy_declare_type_v(LocalRoot local,
 		cons_alloc(local, &root, key, root);
 		cons_alloc(local, &root, value, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	SetEvalDeclare(eval, type, root);
 }
 
@@ -1142,7 +1142,7 @@ static void copy_declare_type_f(LocalRoot local,
 		cons_alloc(local, &root, key, root);
 		cons_alloc(local, &root, value, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	SetEvalDeclare(eval, type, root);
 }
 
@@ -1156,7 +1156,7 @@ static void copy_declare_push_v(LocalRoot local,
 		GetCons(list, &value, &list);
 		cons_alloc(local, &root, value, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	SetEvalDeclare(eval, type, root);
 }
 
@@ -1171,7 +1171,7 @@ static void copy_declare_push_f(LocalRoot local,
 		copy_callname_alloc(local, &value, value);
 		cons_alloc(local, &root, value, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	SetEvalDeclare(eval, type, root);
 }
 
@@ -1187,7 +1187,7 @@ static void copy_declare_plist_v(LocalRoot local,
 		cons_alloc(local, &root, key, root);
 		cons_alloc(local, &root, value, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	SetEvalDeclare(eval, type, root);
 }
 
@@ -1204,7 +1204,7 @@ static void copy_declare_plist_f(LocalRoot local,
 		cons_alloc(local, &root, key, root);
 		cons_alloc(local, &root, value, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	SetEvalDeclare(eval, type, root);
 }
 

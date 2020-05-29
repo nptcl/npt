@@ -55,7 +55,7 @@ static void nreverse_values_control(addr values, size_t sizer)
 
 	if (EXECUTE_VALUES < sizer) {
 		GetExecuteValuesList(values, &list);
-		nreverse_list_unsafe(&list, list);
+		nreverse(&list, list);
 		SetExecuteValuesList(values, list);
 	}
 }

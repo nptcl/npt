@@ -10,27 +10,20 @@ struct charqueue_struct {
 	size_t size, max;
 };
 
-#define RefCharBitNext(x)		RefArrayAB((x), 0)
 #define GetCharBitNext(x,y)		GetArrayAB((x), 0, (y))
 #define SetCharBitNext(x,y)		SetArrayAB((x), 0, (y))
 #define PtrCharBitBody(x)		PtrBodyABa((x), 1)
 #define PtrCharBitChar(x)		((unicode *)(PtrCharBitBody(x) + IdxSize))
-#define RefCharBitSize(x)		(*(size_t *)PtrCharBitBody(x))
 #define GetCharBitSize(x,y)		(*(y) = *(size_t *)PtrCharBitBody(x))
 #define SetCharBitSize(x,y)		(*(size_t *)PtrCharBitBody(x) = (y))
-#define RefCharBitChar(x,i)		(PtrCharBitChar(x)[i])
 #define GetCharBitChar(x,i,y)	(*(y) = PtrCharBitChar(x)[i])
 #define SetCharBitChar(x,i,y)	(PtrCharBitChar(x)[i] = (y))
 
 #define StructCharQueue(x)		((struct charqueue_struct *)PtrBodySSa((x), 2))
-#define RefCharQueueRoot(x)		RefArraySS((x), 0)
-#define RefCharQueueTail(x)		RefArraySS((x), 1)
 #define GetCharQueueRoot(x,y)	GetArraySS((x), 0, (y))
 #define GetCharQueueTail(x,y)	GetArraySS((x), 1, (y))
 #define SetCharQueueRoot(x,y)	SetArraySS((x), 0, (y))
 #define SetCharQueueTail(x,y)	SetArraySS((x), 1, (y))
-#define RefCharQueueSize(x)		(StructCharQueue(x)->size)
-#define RefCharQueueMax(x)		(StructCharQueue(x)->max)
 #define GetCharQueueSize(x,y)	(*(y) = StructCharQueue(x)->size)
 #define GetCharQueueMax(x,y)	(*(y) = StructCharQueue(x)->max)
 #define SetCharQueueSize(x,y)	(StructCharQueue(x)->size = (y))
@@ -44,9 +37,7 @@ _g void charqueue_heap(addr *ret, size_t size);
 _g void charqueue_local(LocalRoot local, addr *ret, size_t size);
 _g void charqueue_alloc(LocalRoot local, addr *ret, size_t size);
 
-_g size_t refsize_charqueue(addr pos);
 _g void getsize_charqueue(addr pos, size_t *ret);
-_g unicode refchar_charqueue(addr pos, size_t index);
 _g void getchar_charqueue(addr pos, size_t index, unicode *ret);
 
 _g void push_charqueue_heap(addr pos, unicode c);

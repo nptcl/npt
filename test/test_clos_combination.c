@@ -170,7 +170,7 @@ static void test_standard_qualifiers(addr *ret)
 	list_heap(&pos, Nil, Nil, NULL);
 	cons_heap(&list, pos, list);
 	/* result */
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 static void test_make_instance_longcomb(addr *ret)

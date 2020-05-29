@@ -57,12 +57,6 @@ _g struct array_struct *arrayinfo_struct_debug(addr pos)
 	return arrayinfo_struct_Low(pos);
 }
 
-_g addr refarrayinfo_debug(addr pos, size_t index)
-{
-	CheckType(pos, LISPTYPE_ARRAY);
-	return RefArrayInfo_Low(pos, index);
-}
-
 _g void getarrayinfo_debug(addr pos, size_t index, addr *ret)
 {
 	CheckType(pos, LISPTYPE_ARRAY);

@@ -514,7 +514,7 @@ static void parensis_open_limit_dispatch(addr cons, size_t size, addr *ret)
 	size_t i;
 
 	vector_heap(&vector, size);
-	nreverse_list_unsafe(&cons, cons);
+	nreverse(&cons, cons);
 	pos = Nil;
 	for (i = 0; i < size; i++) {
 		if (cons != Nil)

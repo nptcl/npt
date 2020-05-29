@@ -628,19 +628,19 @@ _g int open_common(Execute ptr, addr pos, addr rest, addr *ret)
 
 	/* argument */
 	physical_pathname_heap(ptr, pos, &pos);
-	if (getkeyargs(rest, KEYWORD_DIRECTION, &value))
+	if (GetKeyArgs(rest, KEYWORD_DIRECTION, &value))
 		value = Unbound;
 	Return(open_common_direction(value, &direction));
-	if (getkeyargs(rest, KEYWORD_ELEMENT_TYPE, &value))
+	if (GetKeyArgs(rest, KEYWORD_ELEMENT_TYPE, &value))
 		value = Unbound;
 	Return(open_common_element(ptr, value, &element));
-	if (getkeyargs(rest, KEYWORD_IF_EXISTS, &value))
+	if (GetKeyArgs(rest, KEYWORD_IF_EXISTS, &value))
 		value = Unbound;
 	Return(open_common_ifexists(value, pos, &exists));
-	if (getkeyargs(rest, KEYWORD_IF_DOES_NOT_EXIST, &value))
+	if (GetKeyArgs(rest, KEYWORD_IF_DOES_NOT_EXIST, &value))
 		value = Unbound;
 	Return(open_common_ifdoesnot(value, direction, exists, &doesnot));
-	if (getkeyargs(rest, KEYWORD_EXTERNAL_FORMAT, &value))
+	if (GetKeyArgs(rest, KEYWORD_EXTERNAL_FORMAT, &value))
 		value = Unbound;
 	Return(open_common_external(value, &external));
 
@@ -696,7 +696,7 @@ _g int with_open_file_common(addr form, addr *ret)
 		cons_heap(&root, var, root);
 	}
 	cons_heap(&root, protect, root);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 	return 0;
 
 error:
@@ -712,7 +712,7 @@ _g int close_common(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	addr abort;
 
-	if (getkeyargs(rest, KEYWORD_ABORT, &abort))
+	if (GetKeyArgs(rest, KEYWORD_ABORT, &abort))
 		abort = Nil;
 	if (abort != Nil) {
 		GetConst(SYSTEM_CLOSE_ABORT, &abort);
@@ -770,7 +770,7 @@ _g int with_open_stream_common(addr form, addr *ret)
 		cons_heap(&root, var, root);
 	}
 	cons_heap(&root, protect, root);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 	return 0;
 
 error:
@@ -827,7 +827,7 @@ _g int make_string_output_stream_common(Execute ptr, addr rest, addr *ret)
 	int validp;
 	addr type, pos;
 
-	if (! getkeyargs(rest, KEYWORD_ELEMENT_TYPE, &pos)) {
+	if (! GetKeyArgs(rest, KEYWORD_ELEMENT_TYPE, &pos)) {
 		GetTypeTable(&type, Character);
 		Return(parse_type(ptr, &pos, pos, Nil));
 		if (! subtypep_clang(pos, type, &validp))
@@ -890,7 +890,7 @@ static void with_input_from_string_noindex_common(addr *ret,
 		cons_heap(&let, pos, let);
 	}
 	cons_heap(&let, unwind, let);
-	nreverse_list_unsafe(ret, let);
+	nreverse(ret, let);
 }
 
 static void with_input_from_string_index_common(addr *ret,
@@ -928,7 +928,7 @@ static void with_input_from_string_index_common(addr *ret,
 		cons_heap(&let, pos, let);
 	}
 	cons_heap(&let, unwind, let);
-	nreverse_list_unsafe(ret, let);
+	nreverse(ret, let);
 }
 
 _g int with_input_from_string_common(addr form, addr *ret)
@@ -993,7 +993,7 @@ static void with_output_to_string_normal_common(addr *ret,
 		cons_heap(&progn, pos, progn);
 	}
 	cons_heap(&progn, get, progn);
-	nreverse_list_unsafe(&progn, progn);
+	nreverse(&progn, progn);
 	list_heap(&unwind, unwind, progn, close, NULL);
 	lista_heap(&make, make, args, NULL);
 	list_heap(&make, var, make, NULL);
@@ -1005,7 +1005,7 @@ static void with_output_to_string_normal_common(addr *ret,
 		cons_heap(&let, pos, let);
 	}
 	cons_heap(&let, unwind, let);
-	nreverse_list_unsafe(ret, let);
+	nreverse(ret, let);
 }
 
 static void with_output_to_string_extend_common(addr *ret,
@@ -1038,7 +1038,7 @@ static void with_output_to_string_extend_common(addr *ret,
 		cons_heap(&let, pos, let);
 	}
 	cons_heap(&let, unwind, let);
-	nreverse_list_unsafe(ret, let);
+	nreverse(ret, let);
 }
 
 _g int with_output_to_string_common(addr form, addr *ret)

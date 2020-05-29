@@ -172,7 +172,7 @@ static wchar_t *run_process_list_utf16(LocalRoot local, addr var, addr list)
 		size += value + 1;
 		cons_local(local, &root, x, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 
 	strvect_local(local, &y, size);
 	a = 0;

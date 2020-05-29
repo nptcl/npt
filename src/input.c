@@ -31,7 +31,7 @@ static int readlist_loop(Execute ptr, addr stream, addr *ret)
 		localhold_set(hold, 0, list);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 
 	return 0;
 }

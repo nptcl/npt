@@ -93,7 +93,7 @@ _g void gc_syscode(addr rest)
 {
 	enum GcMode mode;
 
-	if (getkeyargs(rest, KEYWORD_FULL, &rest))
+	if (GetKeyArgs(rest, KEYWORD_FULL, &rest))
 		rest = Nil;
 	mode = (rest == Nil)? GcMode_Default: GcMode_Full;
 	gcstate_execute(mode);
@@ -165,7 +165,7 @@ _g void remplist_syscode(addr key, addr list, addr *ret1, addr *ret2)
 {
 	enum RemPlist check;
 
-	check = remplist_check_safe(list, key, &list);
+	check = remplist_safe(list, key, &list);
 	*ret1 = list;
 	*ret2 = (check != RemPlist_NotFound)? T: Nil;
 }
@@ -351,11 +351,11 @@ _g int defsetf_short_syscode(Execute ptr,
 	localhold_end(hold);
 
 	cons_heap(&w, g, w);
-	nreverse_list_unsafe(&a, a);
-	nreverse_list_unsafe(&b, b);
+	nreverse(&a, a);
+	nreverse(&b, b);
 	conscar_heap(&g, g);
-	nreverse_list_unsafe(&w, w);
-	nreverse_list_unsafe(&r, r);
+	nreverse(&w, w);
+	nreverse(&r, r);
 	*r1 = a;
 	*r2 = b;
 	*r3 = g;
@@ -441,7 +441,7 @@ static int defsetf_store_bind_(Execute ptr, addr list, addr array, addr *ret)
 		defsetf_push(array, 3, gensym);
 		cons_heap(&root, gensym, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -462,10 +462,10 @@ static int defsetf_bind_(Execute ptr, addr args,
 	GetArrayA2(array, 1, b);
 	GetArrayA2(array, 2, c);
 	GetArrayA2(array, 3, d);
-	nreverse_list_unsafe(a, *a);
-	nreverse_list_unsafe(b, *b);
-	nreverse_list_unsafe(c, *c);
-	nreverse_list_unsafe(d, *d);
+	nreverse(a, *a);
+	nreverse(b, *b);
+	nreverse(c, *c);
+	nreverse(d, *d);
 
 	return 0;
 }
@@ -494,7 +494,7 @@ static int defsetf_write_(Execute ptr, addr *ret, addr c, addr d, addr body)
 		list_heap(&y, x, y, NULL);
 		cons_heap(&root, y, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	/* (declare ...) */
 	cons_heap(&ignorable, ignorable, c);
 	list_heap(&declare, declare, ignorable, NULL);
@@ -560,7 +560,7 @@ _g void array_specialized_p_syscode(addr var, addr *ret)
 _g int simple_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 	return simple_sort_sequence(ptr, pos, call, key);
 }
 
@@ -569,7 +569,7 @@ _g int simple_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 _g int bubble_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 	return bubble_sort_sequence(ptr, pos, call, key);
 }
 
@@ -578,7 +578,7 @@ _g int bubble_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 _g int quick_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 	return quick_sort_sequence(ptr, pos, call, key);
 }
 
@@ -587,7 +587,7 @@ _g int quick_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 _g int merge_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 	return merge_sort_sequence(ptr, pos, call, key);
 }
 

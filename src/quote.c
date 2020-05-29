@@ -244,7 +244,7 @@ static void bq_process_list(addr pos, addr *ret)
 	/* *bq-append* */
 	if (pos != Nil)
 		conscar_heap(&pos, pos);
-	nreconc_unsafe(&root, root, pos);
+	nreconc(&root, root, pos);
 	quote_heap(ret, QuoteExecute_Append, root);
 }
 
@@ -454,7 +454,7 @@ static void bq_attach_conses_mapcar(addr list, addr result, addr *ret)
 		cons_heap(&root, pos, root);
 	}
 	getvalue_null_or_quoted(result, &result);
-	nreconc_unsafe(&root, root, result);
+	nreconc(&root, root, result);
 	quote_heap(ret, QuoteExecute_Quote, root);
 }
 

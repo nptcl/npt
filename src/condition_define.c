@@ -187,7 +187,7 @@ _g void floating_point_inexact_stdarg(constindex index, ...)
 	va_list va;
 
 	va_start(va, index);
-	list_alloc_stdarg(NULL, &operands, va);
+	list_stdarg_alloc(NULL, &operands, va);
 	va_end(va);
 	floating_point_inexact_constant(index, operands);
 }
@@ -217,7 +217,7 @@ _g void floating_point_invalid_operation_stdarg(constindex index, ...)
 	va_list va;
 
 	va_start(va, index);
-	list_alloc_stdarg(NULL, &operands, va);
+	list_stdarg_alloc(NULL, &operands, va);
 	va_end(va);
 	floating_point_invalid_operation_constant(index, operands);
 }
@@ -247,7 +247,7 @@ _g void floating_point_overflow_stdarg(constindex index, ...)
 	va_list va;
 
 	va_start(va, index);
-	list_alloc_stdarg(NULL, &operands, va);
+	list_stdarg_alloc(NULL, &operands, va);
 	va_end(va);
 	floating_point_overflow_constant(index, operands);
 }
@@ -277,7 +277,7 @@ _g void floating_point_underflow_stdarg(constindex index, ...)
 	va_list va;
 
 	va_start(va, index);
-	list_alloc_stdarg(NULL, &operands, va);
+	list_stdarg_alloc(NULL, &operands, va);
 	va_end(va);
 	floating_point_underflow_constant(index, operands);
 }
@@ -307,7 +307,7 @@ _g void division_by_zero_stdarg(constindex index, ...)
 	va_list va;
 
 	va_start(va, index);
-	list_alloc_stdarg(NULL, &operands, va);
+	list_stdarg_alloc(NULL, &operands, va);
 	va_end(va);
 	division_by_zero_constant(index, operands);
 }

@@ -317,7 +317,7 @@ static void code_make_let_args(LocalRoot local, addr code, addr args, addr *ret)
 		cons_heap(&list, x, list);
 		cons_heap(&list, y, list);
 	}
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 static void code_make_let_body(LocalRoot local, addr code, addr list, addr *ret)
@@ -385,7 +385,7 @@ static void code_setq_execute(LocalRoot local, addr code, addr list, addr *ret)
 		cons_heap(&root, pos, root);
 		cons_heap(&root, form, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void code_make_setq(LocalRoot local, addr code, addr scope)
@@ -498,7 +498,7 @@ static void ordinary_bind_opt(LocalRoot local, addr code, addr args, addr *ret)
 		list_heap(&var, var, init, svar, NULL);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void ordinary_bind_key(LocalRoot local, addr code, addr args, addr *ret)
@@ -514,7 +514,7 @@ static void ordinary_bind_key(LocalRoot local, addr code, addr args, addr *ret)
 		list_heap(&var, var, name, init, svar, NULL);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void ordinary_bind_aux(LocalRoot local, addr code, addr args, addr *ret)
@@ -530,7 +530,7 @@ static void ordinary_bind_aux(LocalRoot local, addr code, addr args, addr *ret)
 		list_heap(&var, var, init, NULL);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 
@@ -558,7 +558,7 @@ static void list_nil_heap(addr *ret, ...)
 			break;
 		list = cdr;
 	}
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 static void code_lambda_args(LocalRoot local, addr code, addr scope)
@@ -664,7 +664,7 @@ static void code_macro_bind_var(LocalRoot local, addr code, addr args, addr *ret
 			code_macro_bind_args(local, code, var, &var);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void code_macro_bind_args(LocalRoot local, addr code, addr args, addr *ret)
@@ -811,7 +811,7 @@ static void code_make_flet_args(LocalRoot local, addr code, addr args, addr *ret
 		cons_heap(&list, x, list);
 		cons_heap(&list, y, list);
 	}
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 static void code_make_flet(LocalRoot local, addr code, addr scope)
@@ -848,7 +848,7 @@ static void code_make_labels_args(LocalRoot local, addr code, addr args, addr *r
 		cons_heap(&list, x, list);
 		cons_heap(&list, y, list);
 	}
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 static void code_make_labels(LocalRoot local, addr code, addr scope)

@@ -48,9 +48,6 @@ _g void setcallnametype(addr pos, CallNameType value);
 
 /* allocate */
 _g void make_callname_alloc(LocalRoot local, addr *ret);
-_g addr callname_allocr(LocalRoot local, addr name, CallNameType type);
-_g addr callname_localr(LocalRoot local, addr name, CallNameType type);
-_g addr callname_heapr(addr name, CallNameType type);
 _g void callname_alloc(LocalRoot local, addr *ret, addr name, CallNameType type);
 _g void callname_local(LocalRoot local, addr *ret, addr name, CallNameType type);
 _g void callname_heap(addr *ret, addr name, CallNameType type);

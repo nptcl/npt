@@ -340,7 +340,7 @@ static int optparse_implicit4(struct optimize_struct *str, addr list, addr *ret)
 		if (! optimize_value(check))
 			cons_local(local, &root, check, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 1;
 }
@@ -381,7 +381,7 @@ static int optparse_implicit5(struct optimize_struct *str, addr list, addr *ret)
 		if (list == Nil || ! optimize_value(check))
 			cons_local(local, &root, check, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 1;
 }
@@ -425,7 +425,7 @@ static int optparse_implicit6(struct optimize_struct *str, addr list, addr *ret)
 		return 0;
 	root = Nil;
 	optparse_implicit6_next(str->local, list, &root);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 1;
 }
@@ -464,7 +464,7 @@ static int optparse_implicit_all(struct optimize_struct *str, addr list, addr *r
 	}
 	if (! result)
 		return 0;
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 1;
 }
@@ -899,7 +899,7 @@ static int optparse_let_args(struct optimize_struct *str)
 	}
 	if (! result)
 		return 0;
-	nreverse_list_unsafe(&args, root);
+	nreverse(&args, root);
 
 	eval_parse_local(local, &pos, type, 3);
 	SetEvalParse(pos, 0, args);
@@ -1070,7 +1070,7 @@ static int optparse_setq_all(struct optimize_struct *str)
 	}
 	if (! check)
 		return 0;
-	nreverse_list_unsafe(&list, root);
+	nreverse(&list, root);
 	eval_single_parse_local(local, &list, EVAL_PARSE_SETQ, list);
 	str->pos = list;
 
@@ -1132,7 +1132,7 @@ static int optparse_opt(struct optimize_struct *str, addr list, addr *ret)
 	}
 	if (! check)
 		return 0;
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 1;
 }
@@ -1172,7 +1172,7 @@ static int optparse_key(struct optimize_struct *str, addr list, addr *ret)
 	}
 	if (! check)
 		return 0;
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 1;
 }
@@ -1201,7 +1201,7 @@ static int optparse_aux(struct optimize_struct *str, addr list, addr *ret)
 	}
 	if (! check)
 		return 0;
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 1;
 }
@@ -1380,7 +1380,7 @@ static int optparse_macro_var(struct optimize_struct *str, addr list, addr *ret)
 	}
 	if (! check)
 		return 0;
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 1;
 }
@@ -1849,7 +1849,7 @@ static int optparse_symbol_macrolet_args(struct optimize_struct *str)
 	}
 	if (! check)
 		return 0;
-	nreverse_list_unsafe(&args, root);
+	nreverse(&args, root);
 
 	eval_parse_local(str->local, &pos, EVAL_PARSE_SYMBOL_MACROLET, 3);
 	SetEvalParse(pos, 0, args);
@@ -2163,7 +2163,7 @@ static int optparse_unwind_protect1(struct optimize_struct *str)
 		cons_local(local, &root, pos, root);
 	}
 	cons_local(local, &root, form, root);
-	nreverse_list_unsafe(&list, root);
+	nreverse(&list, root);
 	/* progn */
 	eval_single_parse_local(local, &pos, EVAL_PARSE_PROGN, list);
 	str->pos = pos;
@@ -2318,7 +2318,7 @@ static int optparse_tagbody2(struct optimize_struct *str)
 	}
 	eval_single_parse_local(local, &pos, EVAL_PARSE_NIL, Nil);
 	cons_local(local, &root, pos, root);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	/* progn */
 	eval_single_parse_local(local, &pos, EVAL_PARSE_PROGN, root);
 	str->pos = pos;
@@ -2905,7 +2905,7 @@ static int optparse_flet_one(struct optimize_struct *str, addr list, addr *ret)
 	}
 	if (! check)
 		return 0;
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 1;
 }
@@ -3382,7 +3382,7 @@ static int optparse_call_all(struct optimize_struct *str)
 	}
 	if (! check)
 		return 0;
-	nreverse_list_unsafe(&list, root);
+	nreverse(&list, root);
 
 	eval_parse_local(str->local, &pos, EVAL_PARSE_CALL, 2);
 	SetEvalParse(pos, 0, call);

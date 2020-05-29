@@ -35,7 +35,6 @@
 #define arraysize_ptr_Low(p)		((size_t *)PtrBodyB4(p))
 #define arrayinfo_struct_Low(p)		\
 	((struct array_struct *)PtrBodySSa((p), ARRAY_INDEX_SIZE))
-#define RefArrayInfo_Low			RefArraySS
 #define GetArrayInfo_Low			GetArraySS
 #define SetArrayInfo_Low			SetArraySS
 #define LenArrayInfo_Low			LenArraySS
@@ -50,7 +49,6 @@
 #define arrayspec_ptr				arrayspec_ptr_debug
 #define arraysize_ptr				arraysize_ptr_debug
 #define ArrayInfoStruct				arrayinfo_struct_debug
-#define RefArrayInfo				refarrayinfo_debug
 #define GetArrayInfo				getarrayinfo_debug
 #define SetArrayInfo				setarrayinfo_debug
 #define LenArrayInfo				lenarrayinfo_debug
@@ -64,7 +62,6 @@
 #define arrayspec_ptr				arrayspec_ptr_Low
 #define arraysize_ptr				arraysize_ptr_Low
 #define ArrayInfoStruct				arrayinfo_struct_Low
-#define RefArrayInfo				RefArrayInfo_Low
 #define GetArrayInfo				GetArrayInfo_Low
 #define SetArrayInfo				SetArrayInfo_Low
 #define LenArrayInfo				LenArrayInfo_Low
@@ -80,7 +77,6 @@ _g void arrayspec_pos_debug(addr pos, addr *ret);
 _g addr arrayspec_ptr_debug(addr po);
 _g size_t *arraysize_ptr_debug(addr pos);
 _g struct array_struct *arrayinfo_struct_debug(addr pos);
-_g addr refarrayinfo_debug(addr pos, size_t index);
 _g void getarrayinfo_debug(addr pos, size_t index, addr *ret);
 _g void setarrayinfo_debug(addr pos, size_t index, addr value);
 _g void lenarrayinfo_debug(addr pos, size_t *ret);

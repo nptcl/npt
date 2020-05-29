@@ -348,7 +348,7 @@ _g void typevalues_values_va(addr *ret, ...)
 
 	/* args */
 	va_start(va, ret);
-	list_alloc_stdarg(NULL, &args, va);
+	list_stdarg_alloc(NULL, &args, va);
 	va_end(va);
 	/* type */
 	GetTypeTable(&type, Nil);

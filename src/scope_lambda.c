@@ -64,7 +64,7 @@ static int ignore_stack_tablefunction(addr stack, addr call, enum IgnoreType *re
 	GetEvalStackTable(stack, &table);
 	/* ignore, ignorable declaration */
 	GetConst(SYSTEM_IGNORE_FUNCTION, &key);
-	if (getplistplist_callname(table, key, call, &value) == 0) {
+	if (getpplist_callname(table, key, call, &value) == 0) {
 		GetConst(COMMON_IGNORE, &check);
 		if (check == value) {
 			*ret = IgnoreType_Ignore;
@@ -109,7 +109,7 @@ static int inline_stack_tablefunction(addr stack, addr call, enum InlineType *re
 	GetEvalStackTable(stack, &table);
 	/* inline, notinline declaration */
 	GetConst(SYSTEM_INLINE, &key);
-	if (getplistplist_callname(table, key, call, &value) == 0) {
+	if (getpplist_callname(table, key, call, &value) == 0) {
 		GetConst(COMMON_INLINE, &check);
 		if (check == value) {
 			*ret = InlineType_Inline;
@@ -169,7 +169,7 @@ static int type_free_tablefunction(addr stack, addr call, addr *ret)
 	addr key;
 	GetEvalStackTable(stack, &stack);
 	GetConst(SYSTEM_TYPE_FUNCTION, &key);
-	return getplistplist_callname(stack, key, call, ret) == 0;
+	return getpplist_callname(stack, key, call, ret) == 0;
 }
 
 static int type_boundary_tablefunction(addr stack, addr call, addr *ret)
@@ -220,7 +220,7 @@ static void type_tablefunction(Execute ptr, LocalRoot local,
 		cons_alloc(local, &root, type, root);
 	/* final */
 final:
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void push_tablefunction_lexical(Execute ptr, addr stack, addr pos)
@@ -437,7 +437,7 @@ static void lambda_init_var(Execute ptr, addr stack, addr args, addr decl, addr 
 		ifdeclvalue(ptr, stack, var, decl, &var);
 		cons_heap(&list, var, list);
 	}
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 static int lambda_init_opt(Execute ptr, addr stack, addr args, addr decl, addr *ret)
@@ -453,7 +453,7 @@ static int lambda_init_opt(Execute ptr, addr stack, addr args, addr decl, addr *
 		list_heap(&var, var, init, svar, NULL);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -471,7 +471,7 @@ static int lambda_init_key(Execute ptr, addr stack, addr args, addr decl, addr *
 		list_heap(&var, var, name, init, svar, NULL);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -488,7 +488,7 @@ static int lambda_init_aux(Execute ptr, addr stack, addr args, addr decl, addr *
 		list_heap(&var, var, init, NULL);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -567,7 +567,7 @@ static void type_ordinary_var(addr args, addr *ret)
 		copyheap(&var, var);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void type_ordinary_opt(addr args, addr *ret)
@@ -581,7 +581,7 @@ static void type_ordinary_opt(addr args, addr *ret)
 		copyheap(&var, var);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void type_ordinary_rest(addr rest, addr *ret)
@@ -608,7 +608,7 @@ static void type_ordinary_key(addr args, addr allow, addr *ret)
 		cons_heap(&var, name, var);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void make_type_ordinary(addr args, addr *ret)
@@ -874,7 +874,7 @@ static int macro_init_var(Execute ptr, addr stack, addr args, addr decl, addr *r
 		}
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -1074,7 +1074,7 @@ static int flet_init(Execute ptr, struct let_struct *str)
 		cons_heap(&call, call, eval);
 		cons_heap(&root, call, root);
 	}
-	nreverse_list_unsafe(&str->args, root);
+	nreverse(&str->args, root);
 
 	return 0;
 }
@@ -1207,7 +1207,7 @@ static int labels_init(Execute ptr, struct let_struct *str)
 		cons_heap(&call, call, eval);
 		cons_heap(&root, call, root);
 	}
-	nreverse_list_unsafe(&str->args, root);
+	nreverse(&str->args, root);
 
 	return 0;
 }
@@ -1484,7 +1484,7 @@ toomany:
 	goto final;
 final:
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -1520,7 +1520,7 @@ static int callargs_nocheck(Execute ptr, addr args, addr *ret)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }

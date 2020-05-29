@@ -335,7 +335,7 @@ _g int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr r
 	size_t index;
 	LocalHold hold;
 
-	if (getkeyargs(rest, KEYWORD_INITIAL_ELEMENT, &element))
+	if (GetKeyArgs(rest, KEYWORD_INITIAL_ELEMENT, &element))
 		element = Unbound;
 	if (GetIndex_integer(size, &index))
 		fmte("Too large index ~S.", size, NULL);
@@ -366,7 +366,7 @@ static void list_subseq_sequence(addr *ret, addr list, addr start, addr end)
 	root = Nil;
 	while (! getnext_sequence_range(&range, &pos))
 		cons_heap(&root, pos, root);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void vector_subseq_sequence(addr *ret, addr vector, addr start, addr end)
@@ -491,7 +491,7 @@ static int list_map_sequence(Execute ptr, int *result, addr *ret,
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	*result = 1;
 	return 0;
@@ -1097,11 +1097,11 @@ _g int reduce_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 	struct reduce_struct str;
 	struct sequence_range *range;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_INITIAL_VALUE, &value)) value = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_INITIAL_VALUE, &value)) value = Unbound;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -1245,12 +1245,12 @@ _g int count_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
 		fmte("COUNT don't accept both :test and :test-not parameter.", NULL);
 
@@ -1297,10 +1297,10 @@ static int argument_count_sequence(Execute ptr, addr *ret,
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -1433,7 +1433,7 @@ tail2:
 
 result:
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 	*result = 1;
 	return 0;
 }
@@ -1845,12 +1845,12 @@ _g int find_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
 		fmte("FIND don't accept both :test and :test-not parameter.", NULL);
 
@@ -1897,10 +1897,10 @@ static int argument_find_sequence(Execute ptr, addr *ret,
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -2020,12 +2020,12 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	struct sequence_range *range;
 	size_t size;
 
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
 		fmte("POSITION don't accept both :test and :test-not parameter.", NULL);
 
@@ -2089,10 +2089,10 @@ static int argument_position_sequence(Execute ptr, addr *ret,
 	struct sequence_range *range;
 	size_t size;
 
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -2409,14 +2409,14 @@ static int execute_search_sequence(Execute ptr, addr *ret,
 	addr from, key, test1, test2, start1, start2, end1, end2;
 	struct search_struct str;
 
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_START1, &start1)) start1 = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_START2, &start2)) start2 = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
-	if (getkeyargs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START1, &start1)) start1 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_START2, &start2)) start2 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
 	if (test1 != Nil && test2 != Nil)
 		fmte("SEARCH don't accept both :test and :test-not parameter.", NULL);
 
@@ -2581,14 +2581,14 @@ static int execute_mismatch_sequence(Execute ptr, addr *ret,
 	addr from, key, test1, test2, start1, start2, end1, end2;
 	struct search_struct str;
 
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_START1, &start1)) start1 = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_START2, &start2)) start2 = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
-	if (getkeyargs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START1, &start1)) start1 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_START2, &start2)) start2 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
 	if (test1 != Nil && test2 != Nil)
 		fmte("MISMATCH don't accept both :test and :test-not parameter.", NULL);
 
@@ -2707,10 +2707,10 @@ _g void replace_common(Execute ptr, addr pos1, addr pos2, addr rest)
 	addr start1, start2, end1, end2;
 	struct sequence_range range1, range2;
 
-	if (getkeyargs(rest, KEYWORD_START1, &start1)) start1 = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_START2, &start2)) start2 = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
-	if (getkeyargs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_START1, &start1)) start1 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_START2, &start2)) start2 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
 
 	build_sequence_range_endp(&range1, pos1, start1, end1);
 	build_sequence_range_endp(&range2, pos2, start2, end2);
@@ -2972,13 +2972,13 @@ _g int substitute_common(Execute ptr,
 	struct sequence_range *range;
 	struct sequence_write write;
 
-	if (getkeyargs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
 		fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
 
@@ -3036,11 +3036,11 @@ static int argument_substitute_sequence(Execute ptr, addr *ret,
 	struct sequence_range *range;
 	struct sequence_write write;
 
-	if (getkeyargs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3201,13 +3201,13 @@ _g int nsubstitute_common(Execute ptr,
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (getkeyargs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
 		fmte("NSUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
 
@@ -3256,11 +3256,11 @@ static int argument_nsubstitute_sequence(Execute ptr,
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (getkeyargs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3339,7 +3339,7 @@ static int list_concatenate_sequence(addr *ret, addr type, addr rest)
 			}
 		}
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 1;
 }
@@ -3802,13 +3802,13 @@ static int argument_remove_sequence(Execute ptr,
 	struct sequence_range *range;
 	struct sequence_write write;
 
-	if (getkeyargs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
 		fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
 
@@ -3866,11 +3866,11 @@ static int argument_remove_if_sequence(Execute ptr, addr *ret,
 	struct sequence_range *range;
 	struct sequence_write write;
 
-	if (getkeyargs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -4220,12 +4220,12 @@ static int argument_remove_duplicates(Execute ptr,
 	struct sequence_range *range;
 	struct sequence_write write;
 
-	if (getkeyargs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (getkeyargs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (getkeyargs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
 		fmte("Arguments don't accept both :test and :test-not parameter.", NULL);
 

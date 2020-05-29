@@ -412,17 +412,17 @@ static int test_scope_declaim(void)
 /*
  *  apply_declare
  */
-static void setplistplist_value(LocalRoot local, addr stack, addr pos, addr value)
+static void setpplist_value(LocalRoot local, addr stack, addr pos, addr value)
 {
 	addr key, table;
 
 	GetConstant(CONSTANT_SYSTEM_TABLE_VALUE, &key);
 	GetEvalStackTable(stack, &table);
-	if (setplistplist_local(local, table, key, pos, value, &table))
+	if (setpplist_local(local, table, key, pos, value, &table))
 		SetEvalStackTable(stack, table);
 }
 
-static void setplistplist_function(LocalRoot local, addr stack, addr pos, addr value)
+static void setpplist_function(LocalRoot local, addr stack, addr pos, addr value)
 {
 	addr key, table;
 
@@ -430,7 +430,7 @@ static void setplistplist_function(LocalRoot local, addr stack, addr pos, addr v
 	GetEvalStackTable(stack, &table);
 	if (GetType(pos) != LISPTYPE_CALLNAME)
 		parse_callname_local(local, &pos, pos);
-	if (setplistplist_callname_local(local, table, key, pos, value, &table))
+	if (setpplist_callname_local(local, table, key, pos, value, &table))
 		SetEvalStackTable(stack, table);
 }
 
@@ -448,11 +448,11 @@ static int test_find_tablevalue(void)
 	stack = newstack_nil(ptr);
 	readstring(&pos, "aa");
 	readstring(&value, "bb");
-	setplistplist_value(local, stack, pos, value);
+	setpplist_value(local, stack, pos, value);
 
 	readstring(&pos, "cc");
 	readstring(&value, "dd");
-	setplistplist_value(local, stack, pos, value);
+	setpplist_value(local, stack, pos, value);
 
 	readstring(&pos, "aa");
 	test(find_tablevalue(stack, pos, &check), "find_tablevalue1");
@@ -486,11 +486,11 @@ static int test_find_tablefunction(void)
 	stack = newstack_nil(ptr);
 	readstring(&pos, "aa");
 	readstring(&value, "bb");
-	setplistplist_function(local, stack, pos, value);
+	setpplist_function(local, stack, pos, value);
 
 	readstring(&pos, "cc");
 	readstring(&value, "dd");
-	setplistplist_function(local, stack, pos, value);
+	setpplist_function(local, stack, pos, value);
 
 	readstring(&pos, "aa");
 	parse_callname_local(local, &pos, pos);
@@ -532,12 +532,12 @@ static int test_check_value_declare(void)
 	readstring(&val2, "dd");
 	readstring(&key3, "ee");
 	readstring(&val3, "ff");
-	setplistplist_value(local, stack, key1, val1);
-	setplistplist_value(local, stack, key3, val3);
+	setpplist_value(local, stack, key1, val1);
+	setpplist_value(local, stack, key3, val3);
 	list_local(local, &list, key1, val1, key2, val2, key3, val3, NULL);
 	pos = Nil;
 	check_value_declare(ptr, stack, list, &pos);
-	nreverse_list_unsafe(&list, pos);
+	nreverse(&list, pos);
 
 	test(length_list_unsafe(list) == 1, "check_value_declare1");
 	GetCar(list, &key);
@@ -577,12 +577,12 @@ static int test_check_function_declare(void)
 	parse_callname_local(local, &key1, key1);
 	parse_callname_local(local, &key2, key2);
 	parse_callname_local(local, &key3, key3);
-	setplistplist_function(local, stack, key1, val1);
-	setplistplist_function(local, stack, key3, val3);
+	setpplist_function(local, stack, key1, val1);
+	setpplist_function(local, stack, key3, val3);
 	list_local(local, &list, key1, val1, key2, val2, key3, val3, NULL);
 	pos = Nil;
 	check_function_declare(ptr, stack, list, &pos);
-	nreverse_list_unsafe(&list, pos);
+	nreverse(&list, pos);
 
 	test(length_list_unsafe(list) == 1, "check_function_declare1");
 	GetCar(list, &key);
@@ -618,10 +618,10 @@ static int test_check_declare_stack(void)
 
 	readstring(&pos, "aa");
 	readstring(&value, "hello1");
-	setplistplist_value(local, stack, pos, value);
+	setpplist_value(local, stack, pos, value);
 	readstring(&pos, "dd");
 	readstring(&value, "hello2");
-	setplistplist_function(local, stack, pos, value);
+	setpplist_function(local, stack, pos, value);
 
 	check_declare_stack(ptr, stack, decl, &list);
 	test(length_list_unsafe(list) == 3, "check_declare_stack1");
@@ -667,10 +667,10 @@ static int test_apply_declare(void)
 
 	readstring(&pos, "aa");
 	readstring(&value, "hello1");
-	setplistplist_value(local, stack, pos, value);
+	setpplist_value(local, stack, pos, value);
 	readstring(&pos, "dd");
 	readstring(&value, "hello2");
-	setplistplist_function(local, stack, pos, value);
+	setpplist_function(local, stack, pos, value);
 
 	apply_declare(ptr, stack, decl, &list);
 	test(length_list_unsafe(list) == 3, "apply_declare1");
@@ -678,7 +678,7 @@ static int test_apply_declare(void)
 	GetConstant(CONSTANT_SYSTEM_TYPE_VALUE, &pos);
 	GetEvalStackTable(stack, &list);
 	readstring(&check, "aa");
-	test(getplistplist(list, pos, check, &check) == 0, "apply_declare2");
+	test(getpplist(list, pos, check, &check) == 0, "apply_declare2");
 
 	free_eval_stack(ptr);
 	free_control_(ptr, control);
@@ -1864,14 +1864,14 @@ static int test_push_closure_value(void)
 	push_closure_value(stack, symbol, value);
 	GetConstant(CONSTANT_SYSTEM_CLOSURE_VALUE, &key);
 	GetEvalStackTable(stack, &table);
-	result = getplistplist(table, key, symbol, &check);
+	result = getpplist(table, key, symbol, &check);
 	test(result == 0, "push_closure_value1");
 	test(check == value, "push_closure_value2");
 
 	readstring(&check, "cc");
 	push_closure_value(stack, symbol, check);
 	GetEvalStackTable(stack, &table);
-	result = getplistplist(table, key, symbol, &check);
+	result = getpplist(table, key, symbol, &check);
 	test(result == 0, "push_closure_value3");
 	test(check == value, "push_closure_value4");
 
@@ -1940,7 +1940,7 @@ static int test_symbol_tablevalue(void)
 #if 0
 	GetConstant(CONSTANT_SYSTEM_CLOSURE_VALUE, &key);
 	GetEvalStackTable(stack, &table);
-	specialp = getplistplist(table, key, symbol, &pos);
+	specialp = getpplist(table, key, symbol, &pos);
 	test(! specialp , "symbol_tablevalue6");
 
 	readstring(&symbol, "ee");
@@ -1949,7 +1949,7 @@ static int test_symbol_tablevalue(void)
 
 	GetConstant(CONSTANT_SYSTEM_CLOSURE_VALUE, &key);
 	GetEvalStackTable(stack, &table);
-	specialp = getplistplist(table, key, symbol, &pos);
+	specialp = getpplist(table, key, symbol, &pos);
 #endif
 
 	free_eval_stack(ptr);
@@ -2081,7 +2081,7 @@ static int test_symbol_macrolet_p(void)
 	symbol_tablevalue(ptr, stack, symbol, &value);
 	GetEvalStackTable(stack, &v1);
 	GetConst(SYSTEM_TABLE_VALUE, &v2);
-	if (setplistplist_heap(v1, v2, symbol, value, &v1))
+	if (setpplist_heap(v1, v2, symbol, value, &v1))
 		SetEvalStackTable(stack, v1);
 	test(! symbol_macrolet_p(ptr, symbol, &check), "symbol_macrolet_p3");
 
@@ -2988,7 +2988,7 @@ static int test_push_closure_function(void)
 	push_closure_function(stack, call, value);
 	GetConstant(CONSTANT_SYSTEM_CLOSURE_FUNCTION, &key);
 	GetEvalStackTable(stack, &table);
-	result = getplistplist_callname(table, key, call, &check);
+	result = getpplist_callname(table, key, call, &check);
 	test(result == 0, "push_closure_function1");
 	test(check == value, "push_closure_function2");
 
@@ -2996,7 +2996,7 @@ static int test_push_closure_function(void)
 	parse_callname_local(local, &call, call);
 	push_closure_function(stack, call, check);
 	GetEvalStackTable(stack, &table);
-	result = getplistplist_callname(table, key, call, &check);
+	result = getpplist_callname(table, key, call, &check);
 	test(result == 0, "push_closure_function3");
 	test(check == value, "push_closure_function4");
 
@@ -3046,7 +3046,7 @@ static int test_callname_tablefunction(void)
 
 	GetConstant(CONSTANT_SYSTEM_CLOSURE_FUNCTION, &key);
 	GetEvalStackTable(stack, &table);
-	check = getplistplist_callname(table, key, call, &pos);
+	check = getpplist_callname(table, key, call, &pos);
 	test(check == 0, "callname_tablefunction7");
 
 	readstring(&call, "ee");
@@ -3056,7 +3056,7 @@ static int test_callname_tablefunction(void)
 
 	GetConstant(CONSTANT_SYSTEM_CLOSURE_FUNCTION, &key);
 	GetEvalStackTable(stack, &table);
-	check = getplistplist_callname(table, key, call, &pos);
+	check = getpplist_callname(table, key, call, &pos);
 	test(check, "callname_tablefunction9");
 
 	free_eval_stack(ptr);
@@ -4544,7 +4544,7 @@ static int test_push_symbol_macrolet(void)
 
 	GetConst(SYSTEM_SYMBOL_MACROLET, &key);
 	GetEvalStackTable(stack, &table);
-	test(getplistplist(table, key, symbol, &right) == 0, "push_symbol_macrolet1");
+	test(getpplist(table, key, symbol, &right) == 0, "push_symbol_macrolet1");
 	test(consp(right), "push_symbol_macrolet2");
 	GetCons(right, &left, &right);
 	test(left == v1, "push_symbol_macrolet3");
@@ -4597,14 +4597,14 @@ static int test_apply_symbol_macrolet(void)
 	GetConst(SYSTEM_SYMBOL_MACROLET, &key);
 	GetEvalStackTable(stack, &table);
 	pos = readr("aaa");
-	test(getplistplist(table, key, pos, &right) == 0, "apply_symbol_macrolet1");
+	test(getpplist(table, key, pos, &right) == 0, "apply_symbol_macrolet1");
 	test(consp(right), "apply_symbol_macrolet2");
 	GetCons(right, &left, &right);
 	test(eval_parse_p(left), "apply_symbol_macrolet3");
 	test(GetType(right) == LISPTYPE_ENVIRONMENT, "apply_symbol_macrolet4");
 
 	pos = readr("bbb");
-	test(getplistplist(table, key, pos, &right) == 0, "apply_symbol_macrolet5");
+	test(getpplist(table, key, pos, &right) == 0, "apply_symbol_macrolet5");
 	test(consp(right), "apply_symbol_macrolet6");
 	GetCons(right, &left, &right);
 	test(eval_parse_p(left), "apply_symbol_macrolet7");

@@ -391,9 +391,9 @@ static int function_make_load_form_saving_slots(Execute ptr, addr var, addr rest
 {
 	addr list, env;
 
-	if (getkeyargs(rest, KEYWORD_SLOT_NAMES, &list))
+	if (GetKeyArgs(rest, KEYWORD_SLOT_NAMES, &list))
 		list = Unbound;
-	if (getkeyargs(rest, KEYWORD_ENVIRONMENT, &env))
+	if (GetKeyArgs(rest, KEYWORD_ENVIRONMENT, &env))
 		env = Nil;
 	Return(make_load_form_saving_slots_common(ptr, var, list, env, &var, &list));
 	setvalues_control(ptr, var, list, NULL);

@@ -156,7 +156,7 @@ int lisp_format8(addr stream, const void *str, ...)
 
 	format = lisp_string8(str);
 	va_start(va, str);
-	list_alloc_stdarg(NULL, &args, va);
+	list_stdarg_alloc(NULL, &args, va);
 	va_end(va);
 
 	return lisp_format_call(stream, format, args);
@@ -169,7 +169,7 @@ int lisp_format16(addr stream, const void *str, ...)
 
 	format = lisp_string16(str);
 	va_start(va, str);
-	list_alloc_stdarg(NULL, &args, va);
+	list_stdarg_alloc(NULL, &args, va);
 	va_end(va);
 
 	return lisp_format_call(stream, format, args);

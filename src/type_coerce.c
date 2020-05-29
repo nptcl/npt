@@ -435,7 +435,7 @@ static int coerce_vector_list(Execute ptr, addr pos, addr type, addr *ret)
 		getarray(pos, i, &x);
 		cons_heap(&list, x, list);
 	}
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 
 	return coerce_typep(ptr, pos, list, type, ret);
 }
@@ -453,7 +453,7 @@ static int coerce_string_list(Execute ptr, addr pos, addr type, addr *ret)
 		character_heap(&x, c);
 		cons_heap(&list, x, list);
 	}
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 
 	return coerce_typep(ptr, pos, list, type, ret);
 }
@@ -474,7 +474,7 @@ static int coerce_array_list(Execute ptr, addr pos, addr type, addr *ret)
 		array_get(NULL, pos, i, &x);
 		cons_heap(&list, x, list);
 	}
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 
 	return coerce_typep(ptr, pos, list, type, ret);
 }
@@ -492,7 +492,7 @@ static int coerce_bitvector_list(Execute ptr, addr pos, addr type, addr *ret)
 		fixnum_heap(&x, (fixnum)v);
 		cons_heap(&list, x, list);
 	}
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 
 	return coerce_typep(ptr, pos, list, type, ret);
 }

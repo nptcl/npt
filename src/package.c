@@ -2530,7 +2530,7 @@ static void defpackage_make_nicknames(LocalRoot local, addr *ret, addr list)
 			cons_local(local, &root, pos, root);
 		}
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void defpackage_check_nicknames(addr pos, addr names)
@@ -2612,7 +2612,7 @@ static void defpackage_update_import(LocalRoot local, addr pos, addr list)
 			intern_package(package, symbol, &symbol);
 			cons_local(local, &args, symbol, args);
 		}
-		nreverse_list_unsafe(&args, args);
+		nreverse(&args, args);
 		import_package(pos, args);
 		rollback_local(local, stack);
 	}
@@ -2646,7 +2646,7 @@ static void defpackage_update_export(LocalRoot local, addr pos, addr list)
 			cons_local(local, &root, name, root);
 		}
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	exportlist(pos, root);
 }
 

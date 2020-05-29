@@ -388,13 +388,12 @@ _g void array_set_simple(addr pos)
 	str->simple = ! (str->adjustable || str->fillpointer || str->displaced);
 }
 
-_g void array_make_memory(addr pos,
-		addr adjustable, addr fill, addr displaced, addr offset)
+_g void array_make_memory(addr pos, addr adjust, addr fill, addr displaced, addr offset)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
-	array_set_adjustable(str, adjustable);
+	array_set_adjustable(str, adjust);
 	array_set_fillpointer(str, fill);
 	array_set_displaced(pos, displaced, offset);
 	array_set_simple(pos);

@@ -163,7 +163,7 @@ static void method_specializer_list(addr *ret, addr list)
 		}
 		cons_heap(&root, spec, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 _g void method_instance_lambda(LocalRoot local, addr *ret, addr clos, addr lambda)
@@ -334,7 +334,7 @@ static void method_eqlcheck(addr method, addr *ret)
 		spec = clos_specializer_p(spec)? T: Nil;
 		cons_heap(&cons, spec, cons);
 	}
-	nreverse_list_unsafe(ret, cons);
+	nreverse(ret, cons);
 }
 
 static void method_update_eqlcheck(addr gen, addr method, int deletep)

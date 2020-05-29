@@ -26,7 +26,7 @@
  */
 _g int apply_common(Execute ptr, addr call, addr arg, addr args)
 {
-	lista_local_safe(ptr->local, &args, arg, args);
+	lista_safe_local(ptr->local, &args, arg, args);
 	return apply_control(ptr, call, args);
 }
 
@@ -454,8 +454,8 @@ static void psetq_common_constant(Execute ptr, addr form, addr env, addr *ret,
 		list_heap(&cons, setq, var, gensym, NULL);
 		cons_heap(&root, cons, root);
 	}
-	nreverse_list_unsafe(&args, args);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&args, args);
+	nreverse(&root, root);
 	/* let form */
 	GetConst(COMMON_LET, &let);
 	lista_heap(ret, let, args, root, NULL);
@@ -565,8 +565,8 @@ _g int every_common(Execute ptr, addr call, addr rest, addr *ret)
 			cons_local(local, &next, pos, next);
 		}
 	}
-	nreverse_list_unsafe(&args, args);
-	nreverse_list_unsafe(&rest, next);
+	nreverse(&args, args);
+	nreverse(&rest, next);
 	if (callclang_apply(ptr, &pos, call, args))
 		return 1;
 	if (pos == Nil) goto result_false;
@@ -652,8 +652,8 @@ _g int some_common(Execute ptr, addr call, addr rest, addr *ret)
 			cons_local(local, &next, pos, next);
 		}
 	}
-	nreverse_list_unsafe(&args, args);
-	nreverse_list_unsafe(&rest, next);
+	nreverse(&args, args);
+	nreverse(&rest, next);
 	if (callclang_apply(ptr, &pos, call, args))
 		return 1;
 	if (pos != Nil) goto result;
@@ -906,7 +906,7 @@ _g void case_common(Execute ptr, addr form, addr env, addr *ret)
 		cons_heap(&root, list, root);
 	}
 	/* cond form */
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	cons_heap(&root, cond, root);
 	list_heap(&list, g, key, NULL);
 	conscar_heap(&list, list);
@@ -965,13 +965,13 @@ _g void ecase_common(Execute ptr, addr form, addr env, addr *ret)
 		cons_heap(&root, list, root);
 	}
 	/* error */
-	nreverse_list_unsafe(&type, type);
+	nreverse(&type, type);
 	list_heap(&type, quote, type, NULL);
 	list_heap(&list, error, g, type, NULL);
 	list_heap(&list, T, list, NULL);
 	cons_heap(&root, list, root);
 	/* cond form */
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	cons_heap(&root, cond, root);
 	list_heap(&list, g, key, NULL);
 	conscar_heap(&list, list);
@@ -1033,7 +1033,7 @@ static int function_ccase_string(Execute ptr,
 	write_char_stream(stream, '.');
 	string_stream_heap(stream, ret);
 	close_stream(stream);
-	nreverse_list_unsafe(rtype, list);
+	nreverse(rtype, list);
 	return 0;
 
 throw:
@@ -1137,7 +1137,7 @@ static int function_ccase_expand(Execute ptr,
 		cons_heap(&case_, x, case_);
 	}
 	cons_heap(&case_, invoke, case_);
-	nreverse_list_unsafe(&case_, case_);
+	nreverse(&case_, case_);
 	list_heap(&case_, retfrom, result, case_, NULL);
 	list_heap(&prompt, prompt, T, str2, NULL);
 	list_heap(&eval, eval, prompt, NULL);
@@ -1167,7 +1167,7 @@ static int function_ccase_expand(Execute ptr,
 	list_heap(&value, value, r, NULL);
 	cons_heap(&root, value, root);
 	cons_heap(&root, g, root);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	list_heap(ret, leta, root, declare, tagbody, NULL);
 
 	return 0;
@@ -1251,7 +1251,7 @@ _g void typecase_common(Execute ptr, addr form, addr env, addr *ret)
 		cons_heap(&root, list, root);
 	}
 	/* cond form */
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	cons_heap(&root, cond, root);
 	list_heap(&list, g, key, NULL);
 	conscar_heap(&list, list);
@@ -1299,13 +1299,13 @@ _g void etypecase_common(Execute ptr, addr form, addr env, addr *ret)
 		cons_heap(&root, list, root);
 	}
 	/* error */
-	nreverse_list_unsafe(&type, type);
+	nreverse(&type, type);
 	list_heap(&type, quote, type, NULL);
 	list_heap(&list, error, g, type, NULL);
 	list_heap(&list, T, list, NULL);
 	cons_heap(&root, list, root);
 	/* cond form */
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	cons_heap(&root, cond, root);
 	list_heap(&list, g, key, NULL);
 	conscar_heap(&list, list);
@@ -1327,7 +1327,7 @@ static void function_ctypecase_string(Execute ptr, addr *ret, addr args)
 		getcar(pos, &pos);
 		cons_heap(&list, pos, list);
 	}
-	nreverse_list_unsafe(ret, list);
+	nreverse(ret, list);
 }
 
 static int function_ctypecase_expand(Execute ptr,
@@ -1420,7 +1420,7 @@ static int function_ctypecase_expand(Execute ptr,
 		cons_heap(&case_, x, case_);
 	}
 	cons_heap(&case_, invoke, case_);
-	nreverse_list_unsafe(&case_, case_);
+	nreverse(&case_, case_);
 	list_heap(&case_, retfrom, result, case_, NULL);
 	list_heap(&prompt, prompt, T, str2, NULL);
 	list_heap(&eval, eval, prompt, NULL);
@@ -1450,7 +1450,7 @@ static int function_ctypecase_expand(Execute ptr,
 	list_heap(&value, value, r, NULL);
 	cons_heap(&root, value, root);
 	cons_heap(&root, g, root);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	list_heap(ret, leta, root, declare, tagbody, NULL);
 
 	return 0;
@@ -1625,7 +1625,7 @@ static void function_prog_constant(addr form, addr *ret,
 		cons_heap(&root, pos, root);
 	}
 	cons_heap(&root, form, root);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	/* (block ...) */
 	list_heap(ret, block, Nil, root, NULL);
 }
@@ -1678,7 +1678,7 @@ _g void prog1_common(Execute ptr, addr form, addr env, addr *ret)
 		cons_heap(&root, expr, root);
 	}
 	cons_heap(&root, g, root);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 
@@ -1992,7 +1992,7 @@ static void setf_single_common(addr *ret, addr value,
 	GetCar(store, &store);
 	list_heap(&a, store, value, NULL);
 	cons_heap(&args, a, args);
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	/* declare */
 	GetConst(COMMON_IGNORABLE, &ignorable);
 	cons_heap(&ignorable, ignorable, var1);
@@ -2024,7 +2024,7 @@ static void setf_multiple_common(addr *ret, addr value,
 		list_heap(&a, a, b, NULL);
 		cons_heap(&args, a, args);
 	}
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	/* declare */
 	GetConst(COMMON_IGNORABLE, &ignorable);
 	cons_heap(&ignorable, ignorable, var1);
@@ -2080,7 +2080,7 @@ _g int setf_common(Execute ptr, addr form, addr env, addr *ret)
 		localhold_set(hold, 2, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 
 	/* (progn ...) */
 	GetConst(COMMON_PROGN, &progn);
@@ -2181,7 +2181,7 @@ _g int shiftf_common(Execute ptr, addr form, addr env, addr *ret)
 	localhold_end(hold);
 
 	/* last expand */
-	nreverse_list_unsafe(&wlist, wlist);
+	nreverse(&wlist, wlist);
 	GetCons(glist, &g, &glist);
 	shiftf_mvbind_common(&root, g, pos, wlist);
 
@@ -2199,7 +2199,7 @@ _g int shiftf_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* let expand */
 	if (alist != Nil) {
-		nreverse_list_unsafe(&alist, alist);
+		nreverse(&alist, alist);
 		GetConst(COMMON_LETA, &let);
 		shiftf_ignorable_common(&declare, a);
 		list_heap(&root, let, alist, declare, root, NULL);
@@ -2271,7 +2271,7 @@ _g int rotatef_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* last expand */
 	cons_heap(&wlist, Nil, wlist);
-	nreverse_list_unsafe(&wlist, wlist);
+	nreverse(&wlist, wlist);
 	GetCons(glist, &g, &glist);
 	shiftf_mvbind_common(&root, g, r0, wlist);
 
@@ -2285,7 +2285,7 @@ _g int rotatef_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* let expand */
 	if (alist != Nil) {
-		nreverse_list_unsafe(&alist, alist);
+		nreverse(&alist, alist);
 		GetConst(COMMON_LETA, &let);
 		shiftf_ignorable_common(&declare, a);
 		list_heap(&root, let, alist, declare, root, NULL);

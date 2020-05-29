@@ -14,29 +14,29 @@ static int test_charbit_macro(void)
 	PtrArrayAB(pos)[0] = T;
 	check = 0;
 	GetCharBitNext(pos, &check);
-	test(check == T, "charbit_macro1");
+	test(check == T, "charbit_macro.1");
 	SetCharBitNext(pos, Nil);
 	GetCharBitNext(pos, &check);
-	test(check == Nil, "charbit_macro2");
-	test(PtrCharBitBody(pos) == PtrByte4P(pos) + PtrSize, "charbit_macro3");
+	test(check == Nil, "charbit_macro.2");
+	test(PtrCharBitBody(pos) == PtrByte4P(pos) + PtrSize, "charbit_macro.3");
 	test((void *)PtrCharBitChar(pos) ==
-			(void *)(PtrCharBitBody(pos) + IdxSize), "charbit_macro4");
+			(void *)(PtrCharBitBody(pos) + IdxSize), "charbit_macro.4");
 	size = 999;
 	GetCharBitSize(pos, &size);
-	test(size == 0, "charbit_macro5");
+	test(size == 0, "charbit_macro.5");
 	SetCharBitSize(pos, 200);
 	GetCharBitSize(pos, &size);
-	test(size == 200, "charbit_macro6");
+	test(size == 200, "charbit_macro.6");
 	PtrCharBitChar(pos)[0] = 100;
 	PtrCharBitChar(pos)[1] = 200;
 	u = 0;
 	GetCharBitChar(pos, 0, &u);
-	test(u == 100, "charbit_macro7");
+	test(u == 100, "charbit_macro.7");
 	GetCharBitChar(pos, 1, &u);
-	test(u == 200, "charbit_macro8");
+	test(u == 200, "charbit_macro.8");
 	SetCharBitChar(pos, 1, 333);
 	GetCharBitChar(pos, 1, &u);
-	test(u == 333, "charbit_macro9");
+	test(u == 333, "charbit_macro.9");
 
 	RETURN;
 }
@@ -47,12 +47,12 @@ static int test_charbit_alloc(void)
 	size_t size;
 
 	charbit_alloc(NULL, &pos, 12);
-	test(GetType(pos) == LISPSYSTEM_CHARBIT, "charbit_alloc1");
-	test(GetStatusSize(pos) == LISPSIZE_ARRAYBODY, "charbit_alloc2");
-	test(GetLenArrayAB(pos) == 1, "charbit_alloc3");
+	test(GetType(pos) == LISPSYSTEM_CHARBIT, "charbit_alloc.1");
+	test(GetStatusSize(pos) == LISPSIZE_ARRAYBODY, "charbit_alloc.2");
+	test(GetLenArrayAB(pos) == 1, "charbit_alloc.3");
 	size = IdxSize + 12*sizeoft(unicode);
-	test(GetLenBodyAB(pos) == size, "charbit_alloc4");
-	test(RefBodyAB(pos, size_t) == 0, "charbit_alloc5");
+	test(GetLenBodyAB(pos) == size, "charbit_alloc.4");
+	test(RefBodyAB(pos, size_t) == 0, "charbit_alloc.5");
 
 	RETURN;
 }
@@ -67,15 +67,15 @@ static int test_charbit_push(void)
 
 	charbit_push(pos, 100);
 	GetCharBitSize(pos, &size);
-	test(size == 1, "charbit_push1");
+	test(size == 1, "charbit_push.1");
 	GetCharBitChar(pos, 0, &u);
-	test(u == 100, "charbit_push2");
+	test(u == 100, "charbit_push.2");
 
 	charbit_push(pos, 200);
 	GetCharBitSize(pos, &size);
-	test(size == 2, "charbit_push3");
+	test(size == 2, "charbit_push.3");
 	GetCharBitChar(pos, 1, &u);
-	test(u == 200, "charbit_push4");
+	test(u == 200, "charbit_push.4");
 
 	RETURN;
 }
@@ -86,50 +86,38 @@ static int test_charqueue_alloc(void)
 	size_t size;
 
 	charqueue_alloc(NULL, &pos, 14);
-	test(GetType(pos) == LISPSYSTEM_CHARQUEUE, "charqueue_alloc1");
-	test(GetStatusSize(pos) == LISPSIZE_SMALLSIZE, "charqueue_alloc2");
+	test(GetType(pos) == LISPSYSTEM_CHARQUEUE, "charqueue_alloc.1");
+	test(GetStatusSize(pos) == LISPSIZE_SMALLSIZE, "charqueue_alloc.2");
 	GetCharQueueRoot(pos, &root);
 	GetCharQueueTail(pos, &tail);
-	test(root == tail, "charqueue_alloc3");
+	test(root == tail, "charqueue_alloc.3");
 	GetCharBitSize(root, &size);
-	test(size == 0, "charqueue_alloc4");
+	test(size == 0, "charqueue_alloc.4");
 	size = GetLenBodyAB(root);
-	test(size == IdxSize + sizeoft(unicode) * 14, "charqueue_alloc5");
+	test(size == IdxSize + sizeoft(unicode) * 14, "charqueue_alloc.5");
 
 	size = 100;
 	GetCharQueueSize(pos, &size);
-	test(size == 0, "charqueue_alloc6");
+	test(size == 0, "charqueue_alloc.6");
 	GetCharQueueMax(pos, &size);
-	test(size == 14, "charqueue_alloc7");
+	test(size == 14, "charqueue_alloc.7");
 
 	SetCharQueueSize(pos, 100);
 	GetCharQueueSize(pos, &size);
-	test(size == 100, "charqueue_alloc8");
+	test(size == 100, "charqueue_alloc.8");
 	IncCharQueueSize(pos);
 	GetCharQueueSize(pos, &size);
-	test(size == 101, "charqueue_alloc9");
+	test(size == 101, "charqueue_alloc.9");
 	SetCharQueueMax(pos, 200);
 	GetCharQueueMax(pos, &size);
-	test(size == 200, "charqueue_alloc10");
+	test(size == 200, "charqueue_alloc.10");
 
 	SetCharQueueRoot(pos, T);
 	GetCharQueueRoot(pos, &root);
-	test(root == T, "charqueue_alloc11");
+	test(root == T, "charqueue_alloc.11");
 	SetCharQueueTail(pos, Nil);
 	GetCharQueueTail(pos, &root);
-	test(root == Nil, "charqueue_alloc12");
-
-	RETURN;
-}
-
-static int test_refsize_charqueue(void)
-{
-	addr pos;
-
-	charqueue_alloc(NULL, &pos, 0);
-	test(refsize_charqueue(pos) == 0, "refsize_charqueue1");
-	IncCharQueueSize(pos);
-	test(refsize_charqueue(pos) == 1, "refsize_charqueue2");
+	test(root == Nil, "charqueue_alloc.12");
 
 	RETURN;
 }
@@ -141,23 +129,10 @@ static int test_getsize_charqueue(void)
 
 	charqueue_alloc(NULL, &pos, 0);
 	getsize_charqueue(pos, &size);
-	test(size == 0, "getsize_charqueue1");
+	test(size == 0, "getsize_charqueue.1");
 	IncCharQueueSize(pos);
 	getsize_charqueue(pos, &size);
-	test(size == 1, "getsize_charqueue2");
-
-	RETURN;
-}
-
-static int test_refchar_charqueue(void)
-{
-	addr pos;
-
-	charqueue_alloc(NULL, &pos, 3);
-	test(refchar_charqueue(pos, 0) == 0, "refchar_charqueue1");
-	push_charqueue_heap(pos, 10);
-	push_charqueue_heap(pos, 20);
-	test(refchar_charqueue(pos, 0) == 10, "refchar_charqueue1");
+	test(size == 1, "getsize_charqueue.2");
 
 	RETURN;
 }
@@ -170,16 +145,16 @@ static int test_getchar_charqueue(void)
 
 	charqueue_alloc(NULL, &pos, 3);
 	getchar_charqueue(pos, 0, &u);
-	test(u == 0, "getchar_charqueue1");
+	test(u == 0, "getchar_charqueue.1");
 
 	push_charqueue_heap(pos, 10);
 	push_charqueue_heap(pos, 20);
 	getchar_charqueue(pos, 0, &u);
-	test(u == 10, "getchar_charqueue1");
+	test(u == 10, "getchar_charqueue.1");
 	getchar_charqueue(pos, 1, &u);
-	test(u == 20, "getchar_charqueue2");
+	test(u == 20, "getchar_charqueue.2");
 	getchar_charqueue(pos, 2, &u);
-	test(u == 0, "getchar_charqueue3");
+	test(u == 0, "getchar_charqueue.3");
 
 	for (i = 3; i <= 100; i++)
 		push_charqueue_heap(pos, i * 10);
@@ -191,7 +166,7 @@ static int test_getchar_charqueue(void)
 			break;
 		}
 	}
-	test(check, "getchar_charqueue4");
+	test(check, "getchar_charqueue.4");
 
 	RETURN;
 }
@@ -206,49 +181,49 @@ static int test_push_charqueue(void)
 
 	push_charqueue_heap(pos, 10);
 	GetCharQueueSize(pos, &size);
-	test(size == 1, "push_charqueue1");
+	test(size == 1, "push_charqueue.1");
 	GetCharQueueTail(pos, &tail);
 	GetCharBitSize(tail, &size);
-	test(size == 1, "push_charqueue2");
+	test(size == 1, "push_charqueue.2");
 	GetCharBitChar(tail, 0, &u);
-	test(u == 10, "push_charqueue3");
+	test(u == 10, "push_charqueue.3");
 
 	push_charqueue_heap(pos, 20);
 	GetCharQueueSize(pos, &size);
-	test(size == 2, "push_charqueue4");
+	test(size == 2, "push_charqueue.4");
 	GetCharQueueTail(pos, &tail);
 	GetCharBitSize(tail, &size);
-	test(size == 2, "push_charqueue5");
+	test(size == 2, "push_charqueue.5");
 	GetCharBitChar(tail, 0, &u);
-	test(u == 10, "push_charqueue6");
+	test(u == 10, "push_charqueue.6");
 	GetCharBitChar(tail, 1, &u);
-	test(u == 20, "push_charqueue7");
+	test(u == 20, "push_charqueue.7");
 
 	push_charqueue_heap(pos, 30);
 	push_charqueue_heap(pos, 40);
 	push_charqueue_heap(pos, 50);
 	GetCharQueueSize(pos, &size);
-	test(size == 5, "push_charqueue8");
+	test(size == 5, "push_charqueue.8");
 	GetCharQueueRoot(pos, &root);
 	GetCharQueueTail(pos, &tail);
-	test(root == tail, "push_charqueue9");
+	test(root == tail, "push_charqueue.9");
 	GetCharBitSize(tail, &size);
-	test(size == 5, "push_charqueue10");
+	test(size == 5, "push_charqueue.10");
 	GetCharBitChar(tail, 4, &u);
-	test(u == 50, "push_charqueue11");
+	test(u == 50, "push_charqueue.11");
 
 	push_charqueue_heap(pos, 60);
 	GetCharQueueSize(pos, &size);
-	test(size == 6, "push_charqueue12");
+	test(size == 6, "push_charqueue.12");
 	GetCharQueueRoot(pos, &root);
 	GetCharQueueTail(pos, &tail);
-	test(root != tail, "push_charqueue13");
+	test(root != tail, "push_charqueue.13");
 	GetCharBitSize(root, &size);
-	test(size == 5, "push_charqueue14");
+	test(size == 5, "push_charqueue.14");
 	GetCharBitSize(tail, &size);
-	test(size == 1, "push_charqueue15");
+	test(size == 1, "push_charqueue.15");
 	GetCharBitChar(tail, 0, &u);
-	test(u == 60, "push_charqueue16");
+	test(u == 60, "push_charqueue.16");
 
 	RETURN;
 }
@@ -266,7 +241,7 @@ static int test_make_charqueue(void)
 		push_charqueue_heap(pos, i * 10);
 	make_charqueue_heap(pos, &str);
 	string_length(str, &size);
-	test(size == 100, "make_charqueue1");
+	test(size == 100, "make_charqueue.1");
 	check = 1;
 	for (i = 0; i < 100; i++) {
 		string_getc(str, i, &u);
@@ -275,7 +250,7 @@ static int test_make_charqueue(void)
 			break;
 		}
 	}
-	test(check, "make_charqueue2");
+	test(check, "make_charqueue.2");
 
 	/* string1 */
 	charqueue_alloc(NULL, &pos, 22);
@@ -283,7 +258,7 @@ static int test_make_charqueue(void)
 		push_charqueue_heap(pos, i * 2);
 	make_charqueue_heap(pos, &str);
 	string_length(str, &size);
-	test(size == 100, "make_charqueue3");
+	test(size == 100, "make_charqueue.3");
 	check = 1;
 	for (i = 0; i < 100; i++) {
 		string_getc(str, i, &u);
@@ -292,13 +267,13 @@ static int test_make_charqueue(void)
 			break;
 		}
 	}
-	test(check, "make_charqueue4");
+	test(check, "make_charqueue.4");
 
 	/* empty */
 	charqueue_alloc(NULL, &pos, 11);
 	make_charqueue_heap(pos, &str);
 	string_length(str, &size);
-	test(size == 0, "make_charqueue5");
+	test(size == 0, "make_charqueue.5");
 
 	RETURN;
 }
@@ -314,17 +289,17 @@ static int test_clear_charqueue(void)
 		push_charqueue_heap(pos, i * 10);
 	clear_charqueue(pos);
 	GetCharQueueSize(pos, &size);
-	test(size == 0, "clear_charqueue1");
+	test(size == 0, "clear_charqueue.1");
 	GetCharQueueMax(pos, &size);
-	test(size == 5, "clear_charqueue2");
+	test(size == 5, "clear_charqueue.2");
 
 	GetCharQueueRoot(pos, &root);
 	GetCharQueueTail(pos, &tail);
-	test(root == tail, "clear_charqueue4");
+	test(root == tail, "clear_charqueue.4");
 	GetCharBitSize(root, &size);
-	test(size == 0, "clear_charqueue5");
+	test(size == 0, "clear_charqueue.5");
 	GetCharBitNext(root, &tail);
-	test(tail != Nil, "clear_charqueue6");
+	test(tail != Nil, "clear_charqueue.6");
 
 	RETURN;
 }
@@ -340,17 +315,17 @@ static int test_free_charqueue(void)
 		push_charqueue_heap(pos, i * 10);
 	free_charqueue(pos);
 	GetCharQueueSize(pos, &size);
-	test(size == 0, "free_charqueue1");
+	test(size == 0, "free_charqueue.1");
 	GetCharQueueMax(pos, &size);
-	test(size == 5, "free_charqueue2");
+	test(size == 5, "free_charqueue.2");
 
 	GetCharQueueRoot(pos, &root);
 	GetCharQueueTail(pos, &tail);
-	test(root == tail, "free_charqueue4");
+	test(root == tail, "free_charqueue.4");
 	GetCharBitSize(root, &size);
-	test(size == 0, "free_charqueue5");
+	test(size == 0, "free_charqueue.5");
 	GetCharBitNext(root, &tail);
-	test(tail == Nil, "free_charqueue6");
+	test(tail == Nil, "free_charqueue.6");
 
 	RETURN;
 }
@@ -368,49 +343,49 @@ static int test_reuse_charqueue(void)
 
 	push_charqueue_heap(pos, 10);
 	GetCharQueueSize(pos, &size);
-	test(size == 1, "reuse_charqueue1");
+	test(size == 1, "reuse_charqueue.1");
 	GetCharQueueTail(pos, &tail);
 	GetCharBitSize(tail, &size);
-	test(size == 1, "reuse_charqueue2");
+	test(size == 1, "reuse_charqueue.2");
 	GetCharBitChar(tail, 0, &u);
-	test(u == 10, "reuse_charqueue3");
+	test(u == 10, "reuse_charqueue.3");
 
 	push_charqueue_heap(pos, 20);
 	GetCharQueueSize(pos, &size);
-	test(size == 2, "reuse_charqueue4");
+	test(size == 2, "reuse_charqueue.4");
 	GetCharQueueTail(pos, &tail);
 	GetCharBitSize(tail, &size);
-	test(size == 2, "reuse_charqueue5");
+	test(size == 2, "reuse_charqueue.5");
 	GetCharBitChar(tail, 0, &u);
-	test(u == 10, "reuse_charqueue6");
+	test(u == 10, "reuse_charqueue.6");
 	GetCharBitChar(tail, 1, &u);
-	test(u == 20, "reuse_charqueue7");
+	test(u == 20, "reuse_charqueue.7");
 
 	push_charqueue_heap(pos, 30);
 	push_charqueue_heap(pos, 40);
 	push_charqueue_heap(pos, 50);
 	GetCharQueueSize(pos, &size);
-	test(size == 5, "reuse_charqueue8");
+	test(size == 5, "reuse_charqueue.8");
 	GetCharQueueRoot(pos, &root);
 	GetCharQueueTail(pos, &tail);
-	test(root == tail, "reuse_charqueue9");
+	test(root == tail, "reuse_charqueue.9");
 	GetCharBitSize(tail, &size);
-	test(size == 5, "reuse_charqueue10");
+	test(size == 5, "reuse_charqueue.10");
 	GetCharBitChar(tail, 4, &u);
-	test(u == 50, "reuse_charqueue11");
+	test(u == 50, "reuse_charqueue.11");
 
 	push_charqueue_heap(pos, 60);
 	GetCharQueueSize(pos, &size);
-	test(size == 6, "reuse_charqueue12");
+	test(size == 6, "reuse_charqueue.12");
 	GetCharQueueRoot(pos, &root);
 	GetCharQueueTail(pos, &tail);
-	test(root != tail, "reuse_charqueue13");
+	test(root != tail, "reuse_charqueue.13");
 	GetCharBitSize(root, &size);
-	test(size == 5, "reuse_charqueue14");
+	test(size == 5, "reuse_charqueue.14");
 	GetCharBitSize(tail, &size);
-	test(size == 1, "reuse_charqueue15");
+	test(size == 1, "reuse_charqueue.15");
 	GetCharBitChar(tail, 0, &u);
-	test(u == 60, "reuse_charqueue16");
+	test(u == 60, "reuse_charqueue.16");
 
 	RETURN;
 }
@@ -427,24 +402,24 @@ static int test_pushstring_charqueue(void)
 	pushstring_charqueue_heap(pos, str);
 	str = Nil;
 	make_charqueue_heap(pos, &str);
-	test(string_equal_char(str, "abc1234567"), "pushstring_charqueue1");
+	test(string_equal_char(str, "abc1234567"), "pushstring_charqueue.1");
 	clear_charqueue(pos);
 
 	pushchar_charqueue_heap(pos, "abc");
 	make_charqueue_heap(pos, &str);
-	test(string_equal_char(str, "abc"), "pushstring_charqueue2");
+	test(string_equal_char(str, "abc"), "pushstring_charqueue.2");
 
 	pushchar_charqueue_heap(pos, "de");
 	make_charqueue_heap(pos, &str);
-	test(string_equal_char(str, "abcde"), "pushstring_charqueue3");
+	test(string_equal_char(str, "abcde"), "pushstring_charqueue.3");
 
 	pushchar_charqueue_heap(pos, "f");
 	make_charqueue_heap(pos, &str);
-	test(string_equal_char(str, "abcdef"), "pushstring_charqueue4");
+	test(string_equal_char(str, "abcdef"), "pushstring_charqueue.4");
 
 	pushchar_charqueue_heap(pos, "gh");
 	make_charqueue_heap(pos, &str);
-	test(string_equal_char(str, "abcdefgh"), "pushstring_charqueue5");
+	test(string_equal_char(str, "abcdefgh"), "pushstring_charqueue.5");
 
 	RETURN;
 }
@@ -462,15 +437,15 @@ static int test_charqueue_heap(void)
 	push_charqueue_heap(pos, 'b');
 	push_charqueue_heap(pos, 'c');
 	make_charqueue_heap(pos, &str);
-	test(GetType(str) == LISPTYPE_STRING, "charqueue1");
-	test(string_equal_char(str, "abc"), "charqueue2");
+	test(GetType(str) == LISPTYPE_STRING, "charqueue.1");
+	test(string_equal_char(str, "abc"), "charqueue.2");
 	make_charqueue_heap(pos, &str);
-	test(GetType(str) == LISPTYPE_STRING, "charqueue3");
-	test(string_equal_char(str, "abc"), "charqueue4");
+	test(GetType(str) == LISPTYPE_STRING, "charqueue.3");
+	test(string_equal_char(str, "abc"), "charqueue.4");
 	make_charqueue_heap(pos, &str);
-	test(GetType(str) == LISPTYPE_STRING, "charqueue5");
+	test(GetType(str) == LISPTYPE_STRING, "charqueue.5");
 	strvect_char_heap(&check, "abc");
-	test(string_equal(str, check), "charqueue6");
+	test(string_equal(str, check), "charqueue.6");
 
 	clear_charqueue(pos);
 	for (i = 0; i < LISP_CHARQUEUESIZE * 2 - 1; i++) {
@@ -480,34 +455,36 @@ static int test_charqueue_heap(void)
 	}
 	buffer[LISP_CHARQUEUESIZE * 2 - 1] = 0;
 	make_charqueue_heap(pos, &str);
-	test(GetType(str) == LISPTYPE_STRING, "charqueue7");
-	test(string_equal_char(str, buffer), "charqueue8");
+	test(GetType(str) == LISPTYPE_STRING, "charqueue.7");
+	test(string_equal_char(str, buffer), "charqueue.8");
 
 	clear_charqueue(pos);
 	push_charqueue_heap(pos, 1000);
 	push_charqueue_heap(pos, 2000);
 	push_charqueue_heap(pos, 3000);
 	make_charqueue_heap(pos, &str);
-	test(GetType(str) == LISPTYPE_STRING, "charqueue9");
+	test(GetType(str) == LISPTYPE_STRING, "charqueue.9");
 	string_length(str, &size);
-	test(size == 3, "charqueue10");
+	test(size == 3, "charqueue.10");
 	GetStringUnicode(str, &u);
-	test(u[0] == 1000, "charqueue11");
-	test(u[1] == 2000, "charqueue12");
-	test(u[2] == 3000, "charqueue13");
+	test(u[0] == 1000, "charqueue.11");
+	test(u[1] == 2000, "charqueue.12");
+	test(u[2] == 3000, "charqueue.13");
 
 	RETURN;
 }
 
-static int testbreak_charqueue(void)
+
+/*
+ *  charqueue
+ */
+static int testcase_charqueue(void)
 {
 	TestBreak(test_charbit_macro);
 	TestBreak(test_charbit_alloc);
 	TestBreak(test_charbit_push);
 	TestBreak(test_charqueue_alloc);
-	TestBreak(test_refsize_charqueue);
 	TestBreak(test_getsize_charqueue);
-	TestBreak(test_refchar_charqueue);
 	TestBreak(test_getchar_charqueue);
 	TestBreak(test_push_charqueue);
 	TestBreak(test_make_charqueue);
@@ -520,32 +497,19 @@ static int testbreak_charqueue(void)
 	return 0;
 }
 
+static void testinit_charqueue(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+	build_package();
+}
+
 int test_charqueue(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
 	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_code(ptr, &code);
-	if (code_run_p(code)) {
-		lisp_initialize = 1;
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		build_package();
-		result = testbreak_charqueue();
-	}
-	end_code(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	return degrade_code(
+			testinit_charqueue,
+			testcase_charqueue);
 }
 

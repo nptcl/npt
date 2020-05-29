@@ -110,7 +110,7 @@ static void clos_redefine_slots(addr pos, addr clos, addr slots1)
 		if (! clos_find_slotname(slots1, size1, name))
 			cons_heap(&list, name, list);
 	}
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 	setadd_redefine(pos, list);
 
 	/* discarded-slots */
@@ -121,7 +121,7 @@ static void clos_redefine_slots(addr pos, addr clos, addr slots1)
 		if (! clos_find_slotname(slots2, size2, name))
 			cons_heap(&list, name, list);
 	}
-	nreverse_list_unsafe(&list, list);
+	nreverse(&list, list);
 	setdiscard_redefine(pos, list);
 }
 
@@ -342,7 +342,7 @@ _g int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 
 	/* metaclass check */
 	clos_class_of(clos, &metaclass);
-	if (! getkeyargs(rest, KEYWORD_METACLASS, &pos)) {
+	if (! GetKeyArgs(rest, KEYWORD_METACLASS, &pos)) {
 		clos_find_class(pos, &pos);
 		if (metaclass != pos)
 			fmte("Cannot change the metaclass in class ~S.", clos, NULL);
@@ -377,7 +377,7 @@ static void getproperty_redefine(LocalRoot local, addr pos, addr *ret)
 			cons_local(local, &root, check, root);
 		}
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void clos_redefined_set_value(addr slots, addr values, addr x, addr v)

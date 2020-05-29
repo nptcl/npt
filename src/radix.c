@@ -314,7 +314,7 @@ static void push_radix_char(english input, const char *ptr)
 
 static void push_radix_list(english input, addr pos)
 {
-	nreverse_list_unsafe(&pos, pos);
+	nreverse(&pos, pos);
 	push_radix(input, pos);
 }
 

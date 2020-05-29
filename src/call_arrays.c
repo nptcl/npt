@@ -19,13 +19,13 @@ _g void make_array_common(Execute ptr, addr var, addr rest, addr *ret)
 {
 	addr type, ielem, icont, adj, fill, dto, off;
 
-	if (getkeyargs(rest, KEYWORD_ELEMENT_TYPE, &type)) type = T;
-	if (getkeyargs(rest, KEYWORD_INITIAL_ELEMENT, &ielem)) ielem = Unbound;
-	if (getkeyargs(rest, KEYWORD_INITIAL_CONTENTS, &icont)) icont = Unbound;
-	if (getkeyargs(rest, KEYWORD_ADJUSTABLE, &adj)) adj = Nil;
-	if (getkeyargs(rest, KEYWORD_FILL_POINTER, &fill)) fill = Nil;
-	if (getkeyargs(rest, KEYWORD_DISPLACED_TO, &dto)) dto = Nil;
-	if (getkeyargs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off)) off = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_ELEMENT_TYPE, &type)) type = T;
+	if (GetKeyArgs(rest, KEYWORD_INITIAL_ELEMENT, &ielem)) ielem = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_INITIAL_CONTENTS, &icont)) icont = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_ADJUSTABLE, &adj)) adj = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FILL_POINTER, &fill)) fill = Nil;
+	if (GetKeyArgs(rest, KEYWORD_DISPLACED_TO, &dto)) dto = Nil;
+	if (GetKeyArgs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off)) off = fixnumh(0);
 	if (parse_type(ptr, &type, type, Nil)) return;
 	array_make_array(ret, var, type, ielem, icont, adj, fill, dto, off);
 }
@@ -38,12 +38,12 @@ _g void adjust_array_common(Execute ptr, addr pos, addr dim, addr rest, addr *re
 {
 	addr type, ielem, icont, fill, dto, off;
 
-	if (getkeyargs(rest, KEYWORD_ELEMENT_TYPE, &type)) type = Unbound;
-	if (getkeyargs(rest, KEYWORD_INITIAL_ELEMENT, &ielem)) ielem = Unbound;
-	if (getkeyargs(rest, KEYWORD_INITIAL_CONTENTS, &icont)) icont = Unbound;
-	if (getkeyargs(rest, KEYWORD_FILL_POINTER, &fill)) fill = Nil;
-	if (getkeyargs(rest, KEYWORD_DISPLACED_TO, &dto)) dto = Nil;
-	if (getkeyargs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off)) off = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_ELEMENT_TYPE, &type)) type = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_INITIAL_ELEMENT, &ielem)) ielem = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_INITIAL_CONTENTS, &icont)) icont = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_FILL_POINTER, &fill)) fill = Nil;
+	if (GetKeyArgs(rest, KEYWORD_DISPLACED_TO, &dto)) dto = Nil;
+	if (GetKeyArgs(rest, KEYWORD_DISPLACED_INDEX_OFFSET, &off)) off = fixnumh(0);
 	if (type != Unbound) {
 		if (parse_type(ptr, &type, type, Nil)) return;
 	}

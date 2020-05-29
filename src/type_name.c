@@ -26,13 +26,6 @@ static void type_name_symbol(addr *ret, addr value)
 
 static void type_name_function(addr *ret, addr value)
 {
-	if (system_function_p(value)) {
-		if (macro_function_p(value))
-			GetConst(SYSTEM_SYSTEM_MACRO_FUNCTION, ret);
-		else
-			GetConst(SYSTEM_SYSTEM_FUNCTION, ret);
-		return;
-	}
 	if (interpreted_funcall_function_p(value)) {
 		GetConst(COMMON_FUNCTION, ret);
 		return;

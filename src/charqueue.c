@@ -73,25 +73,23 @@ _g void charqueue_local(LocalRoot local, addr *ret, size_t max)
 	*ret = charqueue_allocr(local, max);
 }
 
-_g size_t refsize_charqueue(addr pos)
-{
-	Check(GetType(pos) != LISPSYSTEM_CHARQUEUE, "type error");
-	return RefCharQueueSize(pos);
-}
 _g void getsize_charqueue(addr pos, size_t *ret)
 {
 	Check(GetType(pos) != LISPSYSTEM_CHARQUEUE, "type error");
 	GetCharQueueSize(pos, ret);
 }
 
-_g unicode refchar_charqueue(addr pos, size_t index)
+_g void getchar_charqueue(addr pos, size_t index, unicode *ret)
 {
 	addr root;
 	size_t size, quot, rem;
 
 	Check(GetType(pos) != LISPSYSTEM_CHARQUEUE, "type error");
 	GetCharQueueSize(pos, &size);
-	if (size <= index) return 0;
+	if (size <= index) {
+		*ret =  0;
+		return;
+	}
 
 	GetCharQueueRoot(pos, &root);
 	GetCharQueueMax(pos, &size);
@@ -100,11 +98,7 @@ _g unicode refchar_charqueue(addr pos, size_t index)
 	for (; quot; quot--)
 		GetCharBitNext(root, &root);
 	Check(root == Nil, "next error");
-	return RefCharBitChar(root, rem);
-}
-_g void getchar_charqueue(addr pos, size_t index, unicode *ret)
-{
-	*ret = refchar_charqueue(pos, index);
+	GetCharBitChar(root, rem, ret);
 }
 
 _g void push_charqueue_alloc(LocalRoot local, addr pos, unicode c)

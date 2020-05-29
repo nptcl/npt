@@ -201,7 +201,7 @@ _g int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(retcons, root);
+	nreverse(retcons, root);
 
 	/* type */
 	if (rettype) {

@@ -539,6 +539,10 @@ static int test_queue_local(void)
 	RETURN;
 }
 
+
+/*
+ *  object
+ */
 static int testcase_object(void)
 {
 	TestBreak(test_symbol);

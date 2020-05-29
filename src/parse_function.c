@@ -133,7 +133,7 @@ static int parse_letarg(Execute ptr, addr *ret, addr args)
 		localhold_set(hold, 0, cons);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, cons);
+	nreverse(ret, cons);
 
 	return 0;
 }
@@ -202,7 +202,7 @@ static int parse_setq_macrolet(Execute ptr, addr *ret, addr cons)
 			list_heap(&var, setq, var, value, NULL);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	GetConst(COMMON_PROGN, &progn);
 	cons_heap(&progn, progn, root);
 
@@ -234,7 +234,7 @@ static int parse_setq_symbol(Execute ptr, addr *ret, addr cons)
 	localhold_end(hold);
 	if (symbol != NULL)
 		fmte("setq symbol ~S don't have a value argument.", symbol, NULL);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 
 	/* eval */
 	eval_single_parse_heap(ret, EVAL_PARSE_SETQ, root);
@@ -266,7 +266,7 @@ static void parse_var(addr *ret, addr cons)
 		check_variable(var);
 		cons_heap(&root, var, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static int parse_optional(Execute ptr, addr *ret, addr cons)
@@ -290,7 +290,7 @@ static int parse_optional(Execute ptr, addr *ret, addr cons)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -319,7 +319,7 @@ static int parse_key(Execute ptr, addr *ret, addr cons)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -342,7 +342,7 @@ static int parse_aux(Execute ptr, addr *ret, addr cons)
 		cons_heap(&root, pos, root);
 		localhold_set(hold, 0, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 	localhold_end(hold);
 
 	return 0;
@@ -442,7 +442,7 @@ static int parse_macro_var(Execute ptr, addr *ret, addr cons)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -736,7 +736,7 @@ static int parse_symbol_macrolet_args(Execute ptr, addr *ret, addr args)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 	return 0;
 
 error:
@@ -1063,8 +1063,8 @@ static int parse_tagbody_check(Execute ptr, addr cons, addr *rtag, addr *rbody)
 		localhold_set(hold, 0, body);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(rtag, tag);
-	nreverse_list_unsafe(rbody, body);
+	nreverse(rtag, tag);
+	nreverse(rbody, body);
 
 	return 0;
 }
@@ -1249,7 +1249,7 @@ static int parse_flet_args(Execute ptr, addr *ret, addr args)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -1903,7 +1903,7 @@ _g int parse_allcons(Execute ptr, addr *ret, addr cons)
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 
 	return 0;
 }

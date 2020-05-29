@@ -839,7 +839,7 @@ _g void make_list_common(addr var, addr rest, addr *ret)
 	/* argument */
 	if (GetIndex_integer(var, &size))
 		fmte("Too large index value ~S.", var, NULL);
-	if (getplist_constant(rest, CONSTANT_KEYWORD_INITIAL_ELEMENT, &element))
+	if (GetPlistConst(rest, KEYWORD_INITIAL_ELEMENT, &element))
 		element = Nil;
 	/* make-list */
 	for (list = Nil; size--; )
@@ -888,7 +888,7 @@ static void single_push_cons(addr *ret,
 	GetConst(COMMON_DECLARE, &declare);
 	list_heap(&declare, declare, ignorable, NULL);
 	/* let* */
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	list_heap(ret, leta, args, declare, w, g, NULL);
 }
 
@@ -931,7 +931,7 @@ static void multiple_push_cons(Execute ptr, addr *ret,
 		cons_heap(&args, x, args);
 	}
 	/* (g1 g2 ...) */
-	nreconc_unsafe(&args, args, g);
+	nreconc(&args, args, g);
 	conscar_heap(&pos, args);
 	/* (declare (ignorable a1 a2)) */
 	GetConst(COMMON_IGNORABLE, &ignorable);
@@ -954,7 +954,7 @@ static void multiple_push_cons(Execute ptr, addr *ret,
 	cons_heap(&values, values, g);
 	cons_heap(&pos, values, pos);
 	/* let* */
-	nreverse_list_unsafe(ret, pos);
+	nreverse(ret, pos);
 }
 
 static int expansion_push_cons(Execute ptr, addr *ret, addr item, addr place, addr env)
@@ -1036,7 +1036,7 @@ static void single_pop_cons(Execute ptr, addr *ret,
 	GetConst(COMMON_DECLARE, &declare);
 	list_heap(&declare, declare, ignorable, NULL);
 	/* let* */
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	list_heap(&x, car, c, NULL);
 	list_heap(ret, leta, args, declare, w, x, NULL);
 }
@@ -1077,7 +1077,7 @@ static void multiple_pop_cons(Execute ptr, addr *ret,
 		cons_heap(&args, x, args);
 	}
 	/* (g1 g2 ...) */
-	nreconc_unsafe(&args, args, g);
+	nreconc(&args, args, g);
 	conscar_heap(&pos, args);
 	/* (declare (ignorable a1 a2)) */
 	GetConst(COMMON_IGNORABLE, &ignorable);
@@ -1096,8 +1096,8 @@ static void multiple_pop_cons(Execute ptr, addr *ret,
 		list_heap(&x, setq, x, y, NULL);
 		cons_heap(&args, x, args);
 	}
-	nreverse_list_unsafe(&c, c);
-	nreverse_list_unsafe(&args, args);
+	nreverse(&c, c);
+	nreverse(&args, args);
 	conscar_heap(&args, mvbind);
 	cons_heap(&args, c, args);
 	cons_heap(&args, r, args);
@@ -1111,11 +1111,11 @@ static void multiple_pop_cons(Execute ptr, addr *ret,
 		list_heap(&x, car, x, NULL);
 		cons_heap(&args, x, args);
 	}
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	cons_heap(&values, values, args);
 	cons_heap(&pos, values, pos);
 	/* let* */
-	nreverse_list_unsafe(ret, pos);
+	nreverse(ret, pos);
 }
 
 static int expansion_pop_cons(Execute ptr, addr *ret, addr place, addr env)
@@ -1221,9 +1221,9 @@ _g int member_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
@@ -1250,7 +1250,7 @@ _g int member_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 	int check;
 	addr key, value, next;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
 			fmte("The list ~S don't accept dotted list.", list, NULL);
@@ -1277,7 +1277,7 @@ _g int member_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *
 	int check;
 	addr key, value, next;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
 			fmte("The list ~S don't accept dotted list.", list, NULL);
@@ -1319,8 +1319,8 @@ _g int mapc_common(Execute ptr, addr call, addr rest, addr *ret)
 		cons_local(local, &args, car, args);
 		cons_local(local, &next, cdr, next);
 	}
-	nreverse_list_unsafe(&args, args);
-	nreverse_list_unsafe(&rest, next);
+	nreverse(&args, args);
+	nreverse(&rest, next);
 	if (callclang_apply(ptr, &pos, call, args))
 		return 1;
 
@@ -1372,8 +1372,8 @@ _g int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
 		cons_local(local, &args, car, args);
 		cons_local(local, &next, cdr, next);
 	}
-	nreverse_list_unsafe(&args, args);
-	nreverse_list_unsafe(&rest, next);
+	nreverse(&args, args);
+	nreverse(&rest, next);
 	if (callclang_apply(ptr, &pos, call, args))
 		return 1;
 	cons_heap(&result, pos, result);
@@ -1401,7 +1401,7 @@ _g int mapcar_common(Execute ptr, addr call, addr rest, addr *ret)
 
 finish:
 	rollback_local(local, stack);
-	nreverse_list_unsafe(ret, result);
+	nreverse(ret, result);
 
 	return 0;
 }
@@ -1430,8 +1430,8 @@ _g int mapcan_common(Execute ptr, addr call, addr rest, addr *ret)
 		cons_local(local, &args, car, args);
 		cons_local(local, &next, cdr, next);
 	}
-	nreverse_list_unsafe(&args, args);
-	nreverse_list_unsafe(&rest, next);
+	nreverse(&args, args);
+	nreverse(&rest, next);
 	if (callclang_apply(ptr, &head, call, args))
 		return 1;
 	result = head;
@@ -1501,8 +1501,8 @@ _g int mapl_common(Execute ptr, addr call, addr rest, addr *ret)
 		cons_local(local, &next, cdr, next);
 		if (cdr == Nil) loop = 0;
 	}
-	nreverse_list_unsafe(&args, args);
-	nreverse_list_unsafe(&rest, next);
+	nreverse(&args, args);
+	nreverse(&rest, next);
 	if (callclang_apply(ptr, &pos, call, args))
 		return 1;
 
@@ -1557,8 +1557,8 @@ _g int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
 		cons_local(local, &next, cdr, next);
 		if (cdr == Nil) loop = 0;
 	}
-	nreverse_list_unsafe(&args, args);
-	nreverse_list_unsafe(&rest, next);
+	nreverse(&args, args);
+	nreverse(&rest, next);
 	if (callclang_apply(ptr, &pos, call, args))
 		return 1;
 	cons_heap(&result, pos, result);
@@ -1586,7 +1586,7 @@ _g int maplist_common(Execute ptr, addr call, addr rest, addr *ret)
 
 finish:
 	rollback_local(local, stack);
-	nreverse_list_unsafe(ret, result);
+	nreverse(ret, result);
 
 	return 0;
 }
@@ -1618,8 +1618,8 @@ _g int mapcon_common(Execute ptr, addr call, addr rest, addr *ret)
 		cons_local(local, &next, cdr, next);
 		if (cdr == Nil) loop = 0;
 	}
-	nreverse_list_unsafe(&args, args);
-	nreverse_list_unsafe(&rest, next);
+	nreverse(&args, args);
+	nreverse(&rest, next);
 	if (callclang_apply(ptr, &head, call, args))
 		return 1;
 	result = head;
@@ -1763,7 +1763,7 @@ static void concat_append_cons(addr last, addr args, addr *ret)
 		root = push_append_cons(root, last);
 		last = pos;
 	}
-	nreverse_list_unsafe_dotted(ret, root, last);
+	nreconc(ret, root, last);
 }
 
 _g void append_common(addr args, addr *ret)
@@ -1846,7 +1846,7 @@ static void index_butlast_cons(addr list, size_t index, addr *ret)
 	addr root, pos;
 	size_t size;
 
-	size = length_list_safe_dotted(list);
+	length_list_p(list, &size);
 	if (size <= index) {
 		*ret = Nil;
 		return;
@@ -1856,7 +1856,7 @@ static void index_butlast_cons(addr list, size_t index, addr *ret)
 		GetCons(list, &pos, &list);
 		cons_heap(&root, pos, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void large_butlast_cons(addr list, addr index, addr *ret)
@@ -1864,7 +1864,7 @@ static void large_butlast_cons(addr list, addr index, addr *ret)
 	addr size;
 	size_t value;
 
-	value = length_list_safe_dotted(list);
+	length_list_p(list, &value);
 	size = intsizeh(value);
 	if (! less_equal_integer(size, index))
 		fmte("Too large butlast index ~S.", index);
@@ -1893,7 +1893,7 @@ static void index_nbutlast_cons(addr list, size_t index, addr *ret)
 {
 	size_t size;
 
-	size = length_list_safe_dotted(list);
+	length_list_p(list, &size);
 	if (size <= index) {
 		*ret = Nil;
 		return;
@@ -1909,7 +1909,7 @@ static void large_nbutlast_cons(addr list, addr index, addr *ret)
 	addr size;
 	size_t value;
 
-	value = length_list_safe_dotted(list);
+	length_list_p(list, &value);
 	size = intsizeh(value);
 	if (! less_equal_integer(size, index))
 		fmte("Too large nbutlast index ~S.", index);
@@ -1938,7 +1938,7 @@ static void index_last_cons(addr list, size_t index, addr *ret)
 {
 	size_t size;
 
-	size = length_list_safe_dotted(list);
+	length_list_p(list, &size);
 	if (size < index) {
 		*ret = list;
 		return;
@@ -1954,7 +1954,7 @@ static void large_last_cons(addr list, addr index, addr *ret)
 	addr size;
 	size_t value;
 
-	value = length_list_safe_dotted(list);
+	length_list_p(list, &value);
 	size = intsizeh(value);
 	if (! less_equal_integer(size, index))
 		fmte("Too large nbutlast index ~S.", index);
@@ -1995,7 +1995,7 @@ _g void ldiff_common(addr list, addr object, addr *ret)
 		GetCons(list, &pos, &list);
 		cons_heap(&root, pos, root);
 	}
-	nreverse_list_unsafe_dotted(ret, root, list);
+	nreconc(ret, root, list);
 }
 
 
@@ -2052,9 +2052,9 @@ _g int assoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
@@ -2081,7 +2081,7 @@ _g int assoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 	int check;
 	addr key, value, cons;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
 			fmte("The list ~S don't accept dotted list.", list, NULL);
@@ -2108,7 +2108,7 @@ _g int assoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *r
 	int check;
 	addr key, value, cons;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
 			fmte("The list ~S don't accept dotted list.", list, NULL);
@@ -2140,7 +2140,7 @@ _g void copy_alist_common(addr list, addr *ret)
 		cons_heap(&cons, car, cdr);
 		cons_heap(&root, cons, root);
 	}
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 
@@ -2200,9 +2200,9 @@ _g int rassoc_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
@@ -2229,7 +2229,7 @@ _g int rassoc_if_common(Execute ptr, addr call, addr list, addr rest, addr *ret)
 	int check;
 	addr key, value, cons;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
 			fmte("The list ~S don't accept dotted list.", list, NULL);
@@ -2256,7 +2256,7 @@ _g int rassoc_if_not_common(Execute ptr, addr call, addr list, addr rest, addr *
 	int check;
 	addr key, value, cons;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
 	while (list != Nil) {
 		if (! consp(list))
 			fmte("The list ~S don't accept dotted list.", list, NULL);
@@ -2349,7 +2349,7 @@ static int expansion_remf_cons(Execute ptr, addr *ret,
 	list_heap(&remplist, remplist, indicator, r, NULL);
 	list_heap(&mvbind, mvbind, g, remplist, w, c, NULL);
 	/* let* */
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	list_heap(ret, leta, args, declare, mvbind, NULL);
 
 	return 0;
@@ -2428,9 +2428,9 @@ _g int intersection_common(Execute ptr, addr list1, addr list2, addr rest, addr 
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
@@ -2498,9 +2498,9 @@ _g int nintersection_common(Execute ptr, addr list1, addr list2, addr rest, addr
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
@@ -2547,9 +2547,9 @@ _g int adjoin_common(Execute ptr, addr item, addr list, addr rest, addr *ret)
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
@@ -2607,7 +2607,7 @@ static void single_pushnew_cons(addr *ret,
 	GetConst(COMMON_DECLARE, &declare);
 	list_heap(&declare, declare, ignorable, NULL);
 	/* let* */
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	list_heap(ret, leta, args, declare, w, g, NULL);
 }
 
@@ -2650,7 +2650,7 @@ static void multiple_pushnew_cons(Execute ptr, addr *ret,
 		cons_heap(&args, x, args);
 	}
 	/* (g1 g2 ...) */
-	nreconc_unsafe(&args, args, g);
+	nreconc(&args, args, g);
 	conscar_heap(&pos, args);
 	/* (declare (ignorable a1 a2)) */
 	GetConst(COMMON_IGNORABLE, &ignorable);
@@ -2673,7 +2673,7 @@ static void multiple_pushnew_cons(Execute ptr, addr *ret,
 	cons_heap(&values, values, g);
 	cons_heap(&pos, values, pos);
 	/* let* */
-	nreverse_list_unsafe(ret, pos);
+	nreverse(ret, pos);
 }
 
 static int expansion_pushnew_cons(Execute ptr, addr *ret,
@@ -2740,9 +2740,9 @@ _g int set_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
@@ -2809,9 +2809,9 @@ _g int nset_difference_common(Execute ptr, addr a, addr b, addr rest, addr *ret)
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
@@ -2876,9 +2876,9 @@ _g int set_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *ret
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2) {
@@ -2938,9 +2938,9 @@ _g int nset_exclusive_or_common(Execute ptr, addr a, addr b, addr rest, addr *re
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2) {
@@ -2989,9 +2989,9 @@ _g int subsetp_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
@@ -3056,9 +3056,9 @@ _g int union_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)
@@ -3162,9 +3162,9 @@ _g int nunion_common(Execute ptr, addr list1, addr list2, addr rest, addr *ret)
 	int check1, check2;
 	addr key, test, testnot;
 
-	if (getkeyargs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (getkeyargs(rest, KEYWORD_TEST, &test)) test = Unbound;
-	if (getkeyargs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test)) test = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &testnot)) testnot = Unbound;
 	check1 = (test != Unbound);
 	check2 = (testnot != Unbound);
 	if (check1 && check2)

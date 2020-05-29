@@ -930,7 +930,7 @@ static void comb_longmacro_lambda(addr *ret, addr args,
 		cons_heap(&root, pos, root);
 	}
 	cons_heap(&root, form, root);
-	nreverse_list_unsafe(&form, root);
+	nreverse(&form, root);
 
 	/* destructuring-bind */
 	if (args != Nil) {
@@ -995,7 +995,7 @@ static void comb_longmacro_variables(addr args, addr *ret)
 	if (pos != Nil)
 		cons_heap(&root, pos, root);
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void comb_longmacro_arguments(addr *ret, addr args, addr form)
@@ -1028,7 +1028,7 @@ static void comb_longmacro_arguments(addr *ret, addr args, addr form)
 		list_heap(&pos, pos, value, NULL);
 		cons_heap(&root, pos, root);
 	}
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	/* declare */
 	GetConst(COMMON_DECLARE, &declare);
 	GetConst(COMMON_IGNORABLE, &ignorable);
@@ -1075,13 +1075,13 @@ static void comb_longmacro_form(addr *ret,
 	}
 	/* ignorable */
 	GetConst(COMMON_IGNORABLE, &ignorable);
-	nreverse_list_unsafe(&vars, vars);
+	nreverse(&vars, vars);
 	cons_heap(&vars, ignorable, vars);
 	GetConst(COMMON_DECLARE, &declare);
 	list_heap(&declare, declare, vars, NULL);
 	/* let* */
 	GetConst(COMMON_LETA, &leta);
-	nreverse_list_unsafe(&args, args);
+	nreverse(&args, args);
 	lista_heap(ret, leta, args, declare, form, NULL);
 }
 
@@ -1215,7 +1215,7 @@ static void comb_longmacro_lambda_list(addr args, addr *ret)
 	}
 
 	/* result */
-	nreverse_list_unsafe(ret, root);
+	nreverse(ret, root);
 }
 
 static void comb_longform_arguments(addr *ret, addr args, addr comb, addr form)
@@ -1294,7 +1294,7 @@ static void comb_shortform_primary(addr *ret, addr comb, addr list)
 			list_heap(&check, call, check, NULL);
 			cons_heap(&root, check, root);
 		}
-		nreverse_list_unsafe(ret, root);
+		nreverse(ret, root);
 	}
 }
 
@@ -1317,7 +1317,7 @@ static void comb_shortform_around(addr *ret, addr comb, addr list, addr form)
 	GetConst(COMMON_MAKE_METHOD, &pos);
 	list_heap(&pos, pos, form, NULL);
 	cons_heap(&root, pos, root);
-	nreverse_list_unsafe(&root, root);
+	nreverse(&root, root);
 	/* call-methd */
 	GetConst(COMMON_CALL_METHOD, &pos);
 	list_heap(ret, pos, car, root, NULL);

@@ -75,7 +75,7 @@ static void type_make_array_key(addr *ret, int adjustable)
 	cons_heap(&pos, keyword, type);
 	cons_heap(&key, pos, key);
 	/* result */
-	nreverse_list_unsafe(ret, key);
+	nreverse(ret, key);
 }
 
 static void type_make_array(addr *ret)

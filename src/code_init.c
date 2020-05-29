@@ -26,7 +26,6 @@ _g void defcode_constant(constindex index, pointer p)
 	Check(pos != Unbound, "code-function already exists.");
 	compiled_heap(&pos, symbol);
 	setcompiled_code(pos, p);
-	setsystem_function(pos);
 	SetFunctionSymbol(symbol, pos);
 }
 
