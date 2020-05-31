@@ -15,6 +15,7 @@
 #include "execute_values.h"
 #include "function.h"
 #include "integer.h"
+#include "load_time_value.h"
 #include "restart_value.h"
 #include "symbol.h"
 #include "type_deftype.h"
@@ -869,6 +870,36 @@ _g int progv_code(Execute ptr, CodeValue x)
 		}
 	}
 
+	return 0;
+}
+
+
+/*
+ *  load-time-value
+ */
+_g int load_time_value_alloc_code(Execute ptr, CodeValue x)
+{
+	execute_load_time_value_alloc(ptr, x.index);
+	return 0;
+}
+
+_g int load_time_value_value_code(Execute ptr, CodeValue x)
+{
+	execute_load_time_value_value(ptr, x.pos);
+	return 0;
+}
+
+_g int load_time_value_set_code(Execute ptr, CodeValue x)
+{
+	execute_load_time_value_get(ptr, x.index, &x.pos);
+	setresult_control(ptr, x.pos);
+	return 0;
+}
+
+_g int load_time_value_push_code(Execute ptr, CodeValue x)
+{
+	execute_load_time_value_get(ptr, x.index, &x.pos);
+	pushargs_control(ptr, x.pos);
 	return 0;
 }
 

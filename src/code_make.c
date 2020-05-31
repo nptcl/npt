@@ -1262,6 +1262,71 @@ static void code_make_progv(LocalRoot local, addr code, addr scope)
 }
 
 
+/* load-time-value */
+static void code_make_load_time_value_body(LocalRoot local, addr code, addr scope)
+{
+	addr check, root, index, expr, value, list, readonly;
+	size_t size, i;
+
+	GetEvalScopeIndex(scope, 0, &check);
+	GetEvalScopeIndex(scope, 1, &root);
+	GetEvalScopeIndex(scope, 2, &index);
+	GetEvalScopeIndex(scope, 3, &value);
+	Check(check == Nil, "check error");
+
+	code_queue_push_new(local, code);
+	/* alloc */
+	CodeQueue_cons(local, code, LOAD_TIME_VALUE_ALLOC, index);
+	GetIndex(index, &size);
+	/* set */
+	for (i = 0; i < size; i++) {
+		GetCons(value, &list, &value);
+		List_bind(list, &index, &expr, &readonly, NULL);
+		code_make_execute_set(local, code, expr);
+		CodeQueue_double(local, code, LOAD_TIME_VALUE_VALUE, index, readonly);
+	}
+	code_make_execute(local, code, root);
+	code_queue_pop(local, code, &expr);
+	code_make_execute_normal(local, code, expr);
+}
+
+static void code_make_load_time_value_expr(LocalRoot local, addr code, addr scope)
+{
+	addr check, index, expr, readonly;
+
+	GetEvalScopeIndex(scope, 0, &check);
+	GetEvalScopeIndex(scope, 1, &index);
+	GetEvalScopeIndex(scope, 2, &expr);
+	GetEvalScopeIndex(scope, 3, &readonly);
+	Check(check != Nil, "check error");
+
+	switch (code_queue_mode(code)) {
+		case CodeQueue_ModeSet:
+			CodeQueue_cons(local, code, LOAD_TIME_VALUE_SET, index);
+			break;
+
+		case CodeQueue_ModePush:
+			CodeQueue_cons(local, code, LOAD_TIME_VALUE_PUSH, index);
+			break;
+
+		case CodeQueue_ModeRemove:
+		default:
+			break;
+	}
+}
+
+static void code_make_load_time_value(LocalRoot local, addr code, addr scope)
+{
+	addr check;
+
+	GetEvalScopeIndex(scope, 0, &check);
+	if (check != Nil)
+		code_make_load_time_value_body(local, code, scope);
+	else
+		code_make_load_time_value_expr(local, code, scope);
+}
+
+
 /*
  *  specialized call
  */
@@ -1632,5 +1697,6 @@ _g void init_code_make(void)
 	CodeMakeTable[EVAL_PARSE_MULTIPLE_VALUE_PROG1] = code_make_multiple_value_prog1;
 	CodeMakeTable[EVAL_PARSE_NTH_VALUE] = code_make_nth_value;
 	CodeMakeTable[EVAL_PARSE_PROGV] = code_make_progv;
+	CodeMakeTable[EVAL_PARSE_LOAD_TIME_VALUE] = code_make_load_time_value;
 }
 

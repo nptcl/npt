@@ -94,5 +94,10 @@ _g int funcall_code(Execute ptr, CodeValue x);
 _g int nth_value_code(Execute ptr, CodeValue x);
 _g int progv_code(Execute ptr, CodeValue x);
 
+_g int load_time_value_alloc_code(Execute ptr, CodeValue x);
+_g int load_time_value_value_code(Execute ptr, CodeValue x);
+_g int load_time_value_set_code(Execute ptr, CodeValue x);
+_g int load_time_value_push_code(Execute ptr, CodeValue x);
+
 #endif
 

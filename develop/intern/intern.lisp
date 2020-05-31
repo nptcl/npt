@@ -1345,11 +1345,13 @@ lisp-system::push-return
 (lisp-system::*scope-global* :name eval-scope-global :constant system)
 (lisp-system::*scope-eval-when* :name eval-scope-eval-when :constant system)
 (lisp-system::*scope-toplevel* :name eval-scope-toplevel :constant system)
+(lisp-system::*eval-load-time-value* :name eval-load-time-value :constant system)
 
 lisp-system::standard
 (lisp-system::*trace* :name trace :constant system)
 (lisp-system::*environment* :name special-environment :constant system)
 (lisp-system::*arguments* :name special-arguments :constant system)
+(lisp-system::*load-time-value* :name special-load-time-value :constant system)
 
 lisp-system::compiled-macro-function
 lisp-system::control
@@ -1685,6 +1687,11 @@ lisp-code::labels-push
 lisp-code::locally-declare
 lisp-code::bind-values-set
 lisp-code::bind-values-push
+
+lisp-code::load-time-value-alloc
+lisp-code::load-time-value-value
+lisp-code::load-time-value-set
+lisp-code::load-time-value-push
 
 
 ;;

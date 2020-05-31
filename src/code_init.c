@@ -153,6 +153,12 @@ _g void init_code_init(void)
 	initcode(locally_declare_code, Addr);
 	initcode(bind_values_set_code, Addr);
 	initcode(bind_values_push_code, Addr);
+
+	/* load-time-value */
+	initcode(load_time_value_alloc_code, Index);
+	initcode(load_time_value_value_code, Addr);
+	initcode(load_time_value_set_code, Index);
+	initcode(load_time_value_push_code, Index);
 }
 
 
@@ -281,6 +287,12 @@ _g void build_code_init(void)
 	defcode(LOCALLY_DECLARE, locally_declare_code);
 	defcode(BIND_VALUES_SET, bind_values_set_code);
 	defcode(BIND_VALUES_PUSH, bind_values_push_code);
+
+	/* load-time-value */
+	defcode(LOAD_TIME_VALUE_ALLOC, load_time_value_alloc_code);
+	defcode(LOAD_TIME_VALUE_VALUE, load_time_value_value_code);
+	defcode(LOAD_TIME_VALUE_SET, load_time_value_set_code);
+	defcode(LOAD_TIME_VALUE_PUSH, load_time_value_push_code);
 }
 
 #undef defcode

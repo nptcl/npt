@@ -1,4 +1,5 @@
 #include "eval_stack.h"
+#include "load_time_value.h"
 #include "parse.h"
 #include "parse_object.h"
 #include "scope_call.h"
@@ -911,5 +912,6 @@ _g void init_scope_function(void)
 	EvalScopeTable[EVAL_PARSE_MULTIPLE_VALUE_PROG1] = scope_multiple_value_prog1;
 	EvalScopeTable[EVAL_PARSE_NTH_VALUE] = scope_nth_value;
 	EvalScopeTable[EVAL_PARSE_PROGV] = scope_progv;
+	EvalScopeTable[EVAL_PARSE_LOAD_TIME_VALUE] = scope_load_time_value;
 }
 

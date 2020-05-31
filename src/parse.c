@@ -5,6 +5,7 @@
 #include "integer.h"
 #include "parse.h"
 #include "parse_function.h"
+#include "load_time_value.h"
 #include "parse_macro.h"
 #include "symbol.h"
 
@@ -46,6 +47,10 @@ _g int tagbody_tag_p(addr pos)
 	return symbolp(pos) || integerp(pos);
 }
 
+
+/*
+ *  eval-parse
+ */
 _g int eval_parse(Execute ptr, addr *ret, addr pos)
 {
 	addr control;
@@ -54,11 +59,13 @@ _g int eval_parse(Execute ptr, addr *ret, addr pos)
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
-	Return(parse_execute(ptr, ret, pos));
-	localhold_set(hold, 0, *ret);
+	init_parse_load_time_value(ptr);
+	Return(parse_execute(ptr, &pos, pos));
+	localhold_set(hold, 0, pos);
+	Return(eval_parse_load_time_value(ptr, &pos, pos));
+	localhold_set(hold, 0, pos);
 	Return(free_control_(ptr, control));
 	localhold_end(hold);
-
-	return 0;
+	return Result(ret, pos);
 }
 

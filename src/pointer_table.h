@@ -122,6 +122,11 @@ enum pointer_index {
 	p_bind_values_set_code,
 	p_bind_values_push_code,
 
+	p_load_time_value_alloc_code,
+	p_load_time_value_value_code,
+	p_load_time_value_set_code,
+	p_load_time_value_push_code,
+
 	/* optimize */
 	p_optcode_result_type,
 	p_optcode_car0_set,

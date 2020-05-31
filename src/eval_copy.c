@@ -3,15 +3,15 @@
 #include "cons_list.h"
 #include "copy.h"
 #include "declare.h"
+#include "eval_copy.h"
 #include "heap.h"
 #include "local.h"
+#include "load_time_value.h"
 #include "parse.h"
 #include "parse_object.h"
 #include "parse_macro.h"
 #include "type.h"
 #include "type_copy.h"
-
-static void copy_eval_parse(LocalRoot local, addr *ret, addr pos);
 
 /* single */
 static void copy_eval_single(LocalRoot local, addr *ret, addr eval)
@@ -900,7 +900,7 @@ _g void copy_eval_parse_heap(addr *ret, addr eval)
 typedef void (*copy_eval_calltype)(LocalRoot, addr *, addr);
 static copy_eval_calltype EvalCopyTable[EVAL_PARSE_SIZE];
 
-static void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
+_g void copy_eval_parse(LocalRoot local, addr *ret, addr pos)
 {
 	EvalParse type;
 	copy_eval_calltype call;
@@ -974,5 +974,6 @@ _g void init_eval_copy(void)
 	EvalCopyTable[EVAL_PARSE_MULTIPLE_VALUE_PROG1] = copy_eval_multiple_value_prog1;
 	EvalCopyTable[EVAL_PARSE_NTH_VALUE] = copy_eval_nth_value;
 	EvalCopyTable[EVAL_PARSE_PROGV] = copy_eval_progv;
+	EvalCopyTable[EVAL_PARSE_LOAD_TIME_VALUE] = copy_eval_load_time_value;
 }
 

@@ -9,6 +9,7 @@
 #include "hold.h"
 #include "integer.h"
 #include "lambda.h"
+#include "load_time_value.h"
 #include "parse.h"
 #include "parse_function.h"
 #include "parse_macro.h"
@@ -1711,6 +1712,9 @@ static int parse_cons_car(Execute ptr, addr *ret, addr cons)
 	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_PROGV)) {
 		return parse_progv(ptr, ret, args);
+	}
+	if (parse_cons_check_constant(call, CONSTANT_COMMON_LOAD_TIME_VALUE)) {
+		return parse_load_time_value(ptr, ret, args);
 	}
 	if (parse_cons_check_macro(ptr, call, &call)) {
 		return parse_macro(ptr, ret, call, cons);

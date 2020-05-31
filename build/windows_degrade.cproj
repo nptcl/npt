@@ -309,6 +309,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_integer.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\intern.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_lambda.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\load_time_value.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_local.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\localtime.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop.c" />
@@ -602,6 +603,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_symbol_32.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\intern_symbol_64.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\lambda.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\load_time_value.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\local.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\localtime.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\loop_bind.h" />

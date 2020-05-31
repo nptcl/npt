@@ -164,6 +164,7 @@ input.c
 integer.c
 intern.c
 lambda.c
+load_time_value.c
 local.c
 localtime.c
 loop.c

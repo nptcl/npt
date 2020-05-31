@@ -285,6 +285,7 @@ static const char *infochar_eval_parse_type(enum EVAL_PARSE type)
 		case EVAL_PARSE_MULTIPLE_VALUE_PROG1:	return "multiple-value-prog1";
 		case EVAL_PARSE_NTH_VALUE:				return "nth-value";
 		case EVAL_PARSE_PROGV:					return "progv";
+		case EVAL_PARSE_LOAD_TIME_VALUE:		return "load-time-value";
 		default:								return "invalid";
 	}
 }

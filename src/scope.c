@@ -1,6 +1,7 @@
 #include "control_object.h"
 #include "eval_stack.h"
 #include "gc.h"
+#include "load_time_value.h"
 #include "scope_object.h"
 #include "scope_function.h"
 
@@ -11,6 +12,7 @@ _g int eval_scope(Execute ptr, addr *ret, addr eval)
 
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
+	init_scope_load_time_value(ptr);
 	begin_eval_stack(ptr);
 	free_eval_stack(ptr);
 	Return(scope_eval_lexical(ptr, ret, eval));

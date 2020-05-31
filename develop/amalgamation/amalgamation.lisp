@@ -431,6 +431,7 @@
     "heap.h"
     "input.h"
     "integer.h"
+    "load_time_value.h"
     "lambda.h"
     "math_exp.h"
     "math_power.h"
@@ -719,6 +720,7 @@
     "input.c"
     "integer.c"
     ("intern.c" :include ("intern_symbol_64.h" "intern_symbol_32.h"))
+    "load_time_value.c"
     "lambda.c"
     "local.c"
     ("localtime.c" :header t)

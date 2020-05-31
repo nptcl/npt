@@ -577,3 +577,66 @@
   (proclaim '(declaration hello-proclaim-test8))
   nil)
 
+
+;;
+;;  load-time-value
+;;
+(deftest load-time-value.1
+  (load-time-value 10)
+  10)
+
+(deftest load-time-value.2
+  (load-time-value "Hello" t)
+  "Hello")
+
+(deftest load-time-value.3
+  (load-time-value #\A nil)
+  #\A)
+
+(deftest load-time-value.4
+  (load-time-value (+ 10 20 30) :hello)
+  60)
+
+(deftest load-time-value.5
+  (+ (load-time-value 10)
+     (load-time-value 20))
+  30)
+
+(deftest load-time-value.6
+  (values
+    (eql (load-time-value 10) 10)
+    (eql (load-time-value 20) 20)
+    (eql (load-time-value 30) 30)
+    (equal (load-time-value "Hello") "Hello")
+    (equal (load-time-value (concatenate 'string "AA" "BB" "CC")) "AABBCC"))
+  t t t t t)
+
+(deftest load-time-value.7
+  (+ (eval '(load-time-value (+ 10 20)))
+     (load-time-value 40))
+  70)
+
+(deftest-error load-time-value.8
+  (eval '(let ((x 10))
+           (declare (ignorable x))
+           (load-time-value (+ x 20)))))
+
+(defvar *load-time-value-test-1* nil)
+(deftest load-time-value.9
+  (eval '(progn
+           (push (load-time-value
+                   (progn
+                     (push 10 *load-time-value-test-1*)
+                     20))
+                 *load-time-value-test-1*)
+           *load-time-value-test-1*))
+  (20 10))
+
+(defvar *load-time-value-test-2* 10)
+(deftest load-time-value.10
+  (eval '(let (x)
+           (dotimes (i 20 x)
+             (setq x (load-time-value
+                       (incf *load-time-value-test-2* 1))))))
+  11)
+
