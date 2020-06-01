@@ -19,7 +19,7 @@ static int test_simplesort_cons_unsafe(void)
 	addr cons, value1, value2, value3, left, left2, left3;
 
 	simplesort_cons_unsafe(&cons, Nil, test_compare2);
-	test(cons == Nil, "simplesort_cons_unsafe1");
+	test(cons == Nil, "simplesort_cons_unsafe.1");
 
 	fixnum_heap(&value1, 100);
 	fixnum_heap(&value2, 200);
@@ -27,10 +27,10 @@ static int test_simplesort_cons_unsafe(void)
 	list_heap(&cons, value1, NULL);
 	conscar_heap(&cons, value1);
 	simplesort_cons_unsafe(&cons, cons, test_compare2);
-	test(cons != Nil, "simplesort_cons_unsafe2");
+	test(cons != Nil, "simplesort_cons_unsafe.2");
 	GetCons(cons, &left, &cons);
-	test(left == value1, "simplesort_cons_unsafe3");
-	test(cons == Nil, "simplesort_cons_unsafe4");
+	test(left == value1, "simplesort_cons_unsafe.3");
+	test(cons == Nil, "simplesort_cons_unsafe.4");
 
 	/* test */
 	list_heap(&cons, value1, value2, value3, NULL);
@@ -40,7 +40,7 @@ static int test_simplesort_cons_unsafe(void)
 	GetCons(cons, &left2, &cons);
 	GetCons(cons, &left3, &cons);
 	test(left == value1 && left2 == value2 && left3 == value3 && cons == Nil,
-			"simplesort_cons_unsafe5");
+			"simplesort_cons_unsafe.5");
 
 	/* test */
 	list_heap(&cons, value3, value2, value1, NULL);
@@ -53,7 +53,7 @@ static int test_simplesort_cons_unsafe(void)
 	GetCons(cons, &left2, &cons);
 	GetCons(cons, &left3, &cons);
 	test(left == value1 && left2 == value2 && left3 == value3 && cons == Nil,
-			"simplesort_cons_unsafe6");
+			"simplesort_cons_unsafe.6");
 
 	/* test */
 	list_heap(&cons, value2, value3, value1, NULL);
@@ -63,7 +63,7 @@ static int test_simplesort_cons_unsafe(void)
 	GetCons(cons, &left2, &cons);
 	GetCons(cons, &left3, &cons);
 	test(left == value1 && left2 == value2 && left3 == value3 && cons == Nil,
-			"simplesort_cons_unsafe7");
+			"simplesort_cons_unsafe.7");
 
 	RETURN;
 }
@@ -82,17 +82,17 @@ static int test_simplesort_info_cons_unsafe(void)
 	addr cons, value1, value2, value3, left, left2, left3;
 
 	simplesort_info_cons_unsafe(&cons, Nil, Nil, test_compare3);
-	test(cons == Nil, "simplesort_info_cons_unsafe1");
+	test(cons == Nil, "simplesort_info_cons_unsafe.1");
 
 	fixnum_heap(&value1, 100);
 	fixnum_heap(&value2, 200);
 	fixnum_heap(&value3, 300);
 	list_heap(&cons, value1, NULL);
 	simplesort_info_cons_unsafe(&cons, cons, Nil, test_compare3);
-	test(cons != Nil, "simplesort_info_cons_unsafe2");
+	test(cons != Nil, "simplesort_info_cons_unsafe.2");
 	GetCons(cons, &left, &cons);
-	test(left == value1, "simplesort_info_cons_unsafe3");
-	test(cons == Nil, "simplesort_info_cons_unsafe4");
+	test(left == value1, "simplesort_info_cons_unsafe.3");
+	test(cons == Nil, "simplesort_info_cons_unsafe.4");
 
 	/* test */
 	list_heap(&cons, value1, value2, value3, NULL);
@@ -102,7 +102,7 @@ static int test_simplesort_info_cons_unsafe(void)
 	GetCons(cons, &left2, &cons);
 	GetCons(cons, &left3, &cons);
 	test(left == value1 && left2 == value2 && left3 == value3 && cons == Nil,
-			"simplesort_info_cons_unsafe5");
+			"simplesort_info_cons_unsafe.5");
 
 	/* test */
 	list_heap(&cons, value3, value2, value1, NULL);
@@ -112,7 +112,7 @@ static int test_simplesort_info_cons_unsafe(void)
 	GetCons(cons, &left2, &cons);
 	GetCons(cons, &left3, &cons);
 	test(left == value1 && left2 == value2 && left3 == value3 && cons == Nil,
-			"simplesort_info_cons_unsafe6");
+			"simplesort_info_cons_unsafe.6");
 
 	/* test */
 	list_heap(&cons, value2, value3, value1, NULL);
@@ -122,7 +122,7 @@ static int test_simplesort_info_cons_unsafe(void)
 	GetCons(cons, &left2, &cons);
 	GetCons(cons, &left3, &cons);
 	test(left == value1 && left2 == value2 && left3 == value3 && cons == Nil,
-			"simplesort_info_cons_unsafe7");
+			"simplesort_info_cons_unsafe.7");
 
 	/* test */
 	list_heap(&cons, value2, value3, value1, NULL);
@@ -132,7 +132,7 @@ static int test_simplesort_info_cons_unsafe(void)
 	GetCons(cons, &left2, &cons);
 	GetCons(cons, &left3, &cons);
 	test(left == value2 && left2 == value3 && left3 == value1 && cons == Nil,
-			"simplesort_info_cons_unsafe8");
+			"simplesort_info_cons_unsafe.8");
 
 	RETURN;
 }
@@ -141,40 +141,26 @@ static int test_simplesort_info_cons_unsafe(void)
 /*
  *  main
  */
-static int testgroup_sort(void)
+static int testcase_sort(void)
 {
-	/* unsafe */
 	TestBreak(test_simplesort_cons_unsafe);
 	TestBreak(test_simplesort_info_cons_unsafe);
 
 	return 0;
 }
 
+static void testinit_sort(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+}
+
 int test_sort(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
 	TITLE;
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_code(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		//build_package();
-		lisp_initialize = 1;
-		result = testgroup_sort();
-	}
-	end_code(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	return degrade_code(
+			testinit_sort,
+			testcase_sort);
 }
 

@@ -2,159 +2,24 @@
 #include "cons.h"
 #include "degrade.h"
 
-/*
- *  unsafe
- */
-static int test_copy_list_alloc_unsafe(void)
-{
-	addr cons, root, left, value1, value2, value3, check;
-
-	copy_list_alloc_unsafe(NULL, &cons, Nil);
-	test(cons == Nil, "copy_list_alloc_unsafe1");
-
-	conscar_heap(&cons, T);
-	copy_list_alloc_unsafe(NULL, &root, cons);
-	test(cons != root, "copy_list_alloc_unsafe1");
-	test(root != Nil, "copy_list_alloc_unsafe2");
-	GetCons(root, &left, &root);
-	test(left == T, "copy_list_alloc_unsafe3");
-	test(root == Nil, "copy_list_alloc_unsafe4");
-
-	fixnum_heap(&value1, 100);
-	fixnum_heap(&value2, 200);
-	fixnum_heap(&value3, 300);
-	list_heap(&cons, value3, value2, value1, NULL);
-	copy_list_alloc_unsafe(NULL, &root, cons);
-	test(cons != root, "copy_list_alloc_unsafe5");
-	GetCons(cons, &left, &cons);
-	GetCons(root, &check, &root);
-	test(cons != root, "copy_list_alloc_unsafe6");
-	test(left == value3, "copy_list_alloc_unsafe7");
-	test(check == value3, "copy_list_alloc_unsafe8");
-
-	GetCons(cons, &left, &cons);
-	GetCons(root, &check, &root);
-	test(cons != root, "copy_list_alloc_unsafe9");
-	test(left == value2, "copy_list_alloc_unsafe10");
-	test(check == value2, "copy_list_alloc_unsafe11");
-
-	GetCons(cons, &left, &cons);
-	GetCons(root, &check, &root);
-	test(left == value1, "copy_list_alloc_unsafe12");
-	test(check == value1, "copy_list_alloc_unsafe13");
-	test(cons == Nil, "copy_list_alloc_unsafe14");
-	test(root == Nil, "copy_list_alloc_unsafe15");
-
-	RETURN;
-}
-
-static int test_copy_list_heap_unsafe(void)
-{
-	addr cons;
-
-	consnil_heap(&cons);
-	copy_list_heap_unsafe(&cons, cons);
-	test(GetType(cons) == LISPTYPE_CONS, "copy_list_heap_unsafe1");
-	test(! GetStatusDynamic(cons), "copy_list_heap_unsafe2");
-
-	RETURN;
-}
-
-static int test_copy_list_local_unsafe(void)
-{
-	addr cons;
-	LocalRoot local;
-	LocalStack stack;
-
-	local = Local_Thread;
-	push_local(local, &stack);
-	consnil_local(local, &cons);
-	copy_list_local_unsafe(local, &cons, cons);
-	test(GetType(cons) == LISPTYPE_CONS, "copy_list_local_unsafe1");
-	test(GetStatusDynamic(cons), "copy_list_local_unsafe2");
-	rollback_local(local, stack);
-
-	RETURN;
-}
-
-static int test_copy_list_alloc_safe(void)
-{
-	addr cons, root, left, value1, value2, value3, check;
-
-	copy_list_alloc_safe(NULL, &cons, Nil);
-	test(cons == Nil, "copy_list_alloc_safe1");
-
-	conscar_heap(&cons, T);
-	copy_list_alloc_safe(NULL, &root, cons);
-	test(cons != root, "copy_list_alloc_safe1");
-	test(root != Nil, "copy_list_alloc_safe2");
-	GetCons(root, &left, &root);
-	test(left == T, "copy_list_alloc_safe3");
-	test(root == Nil, "copy_list_alloc_safe4");
-
-	fixnum_heap(&value1, 100);
-	fixnum_heap(&value2, 200);
-	fixnum_heap(&value3, 300);
-	list_heap(&cons, value3, value2, value1, NULL);
-	copy_list_alloc_safe(NULL, &root, cons);
-	test(cons != root, "copy_list_alloc_safe5");
-	GetCons(cons, &left, &cons);
-	GetCons(root, &check, &root);
-	test(cons != root, "copy_list_alloc_safe6");
-	test(left == value3, "copy_list_alloc_safe7");
-	test(check == value3, "copy_list_alloc_safe8");
-
-	GetCons(cons, &left, &cons);
-	GetCons(root, &check, &root);
-	test(cons != root, "copy_list_alloc_safe9");
-	test(left == value2, "copy_list_alloc_safe10");
-	test(check == value2, "copy_list_alloc_safe11");
-
-	GetCons(cons, &left, &cons);
-	GetCons(root, &check, &root);
-	test(left == value1, "copy_list_alloc_safe12");
-	test(check == value1, "copy_list_alloc_safe13");
-	test(cons == Nil, "copy_list_alloc_safe14");
-	test(root == Nil, "copy_list_alloc_safe15");
-
-	copy_list_alloc_safe(NULL, &cons, T);
-	test(cons == T, "copy_list_alloc_safe16");
-
-	lista_heap(&cons, value1, value2, NULL);
-	copy_list_alloc_safe(NULL, &cons, cons);
-	GetCons(cons, &left, &cons);
-	test(left == value1, "copy_list_alloc_safe17");
-	test(cons == value2, "copy_list_alloc_safe18");
-
-	lista_heap(&cons, value1, value2, value3, NULL);
-	copy_list_alloc_safe(NULL, &cons, cons);
-	GetCons(cons, &left, &cons);
-	test(left == value1, "copy_list_alloc_safe19");
-	GetCons(cons, &left, &cons);
-	test(left == value2, "copy_list_alloc_safe20");
-	test(cons == value3, "copy_list_alloc_safe21");
-
-	RETURN;
-}
-
 static int test_make_vector_from_list(void)
 {
 	addr pos, check;
 
 	make_vector_from_list(&pos, Nil);
-	test(GetType(pos) == LISPTYPE_VECTOR, "make_vector_from_list1");
-	test(lenarrayr(pos) == 0, "make_vector_from_list2");
+	test(GetType(pos) == LISPTYPE_VECTOR, "make_vector_from_list.1");
+	test(lenarrayr(pos) == 0, "make_vector_from_list.2");
 
 	list_heap(&pos, Nil, T, fixnumh(10), NULL);
 	make_vector_from_list(&pos, pos);
-	test(GetType(pos) == LISPTYPE_VECTOR, "make_vector_from_list3");
-	test(lenarrayr(pos) == 3, "make_vector_from_list4");
+	test(GetType(pos) == LISPTYPE_VECTOR, "make_vector_from_list.3");
+	test(lenarrayr(pos) == 3, "make_vector_from_list.4");
 	getarray(pos, 0, &check);
-	test(check == Nil, "make_vector_from_list5");
+	test(check == Nil, "make_vector_from_list.5");
 	getarray(pos, 1, &check);
-	test(check == T, "make_vector_from_list6");
+	test(check == T, "make_vector_from_list.6");
 	getarray(pos, 2, &check);
-	test(RefFixnum(check) == 10, "make_vector_from_list7");
+	test(RefFixnum(check) == 10, "make_vector_from_list.7");
 
 	RETURN;
 }
@@ -168,42 +33,42 @@ static int test_delete_list_eq_unsafe(void)
 	fixnum_heap(&v3, 30);
 	fixnum_heap(&v4, 40);
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete_list_eq_unsafe(v4, cons, &cons) == 0, "delete_list_eq_unsafe1");
+	test(delete_list_eq_unsafe(v4, cons, &cons) == 0, "delete_list_eq_unsafe.1");
 	GetCons(cons, &check, &cons);
-	test(check == v1, "delete_list_eq_unsafe2");
+	test(check == v1, "delete_list_eq_unsafe.2");
 	GetCons(cons, &check, &cons);
-	test(check == v2, "delete_list_eq_unsafe3");
+	test(check == v2, "delete_list_eq_unsafe.3");
 	GetCons(cons, &check, &cons);
-	test(check == v3, "delete_list_eq_unsafe4");
-	test(cons == Nil, "delete_list_eq_unsafe5");
+	test(check == v3, "delete_list_eq_unsafe.4");
+	test(cons == Nil, "delete_list_eq_unsafe.5");
 
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete_list_eq_unsafe(v1, cons, &cons) == 1, "delete_list_eq_unsafe6");
+	test(delete_list_eq_unsafe(v1, cons, &cons) == 1, "delete_list_eq_unsafe.6");
 	GetCons(cons, &check, &cons);
-	test(check == v2, "delete_list_eq_unsafe7");
+	test(check == v2, "delete_list_eq_unsafe.7");
 	GetCons(cons, &check, &cons);
-	test(check == v3, "delete_list_eq_unsafe8");
-	test(cons == Nil, "delete_list_eq_unsafe9");
+	test(check == v3, "delete_list_eq_unsafe.8");
+	test(cons == Nil, "delete_list_eq_unsafe.9");
 
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete_list_eq_unsafe(v2, cons, &cons) == 1, "delete_list_eq_unsafe10");
+	test(delete_list_eq_unsafe(v2, cons, &cons) == 1, "delete_list_eq_unsafe.10");
 	GetCons(cons, &check, &cons);
-	test(check == v1, "delete_list_eq_unsafe11");
+	test(check == v1, "delete_list_eq_unsafe.11");
 	GetCons(cons, &check, &cons);
-	test(check == v3, "delete_list_eq_unsafe12");
-	test(cons == Nil, "delete_list_eq_unsafe13");
+	test(check == v3, "delete_list_eq_unsafe.12");
+	test(cons == Nil, "delete_list_eq_unsafe.13");
 
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete_list_eq_unsafe(v3, cons, &cons) == 1, "delete_list_eq_unsafe14");
+	test(delete_list_eq_unsafe(v3, cons, &cons) == 1, "delete_list_eq_unsafe.14");
 	GetCons(cons, &check, &cons);
-	test(check == v1, "delete_list_eq_unsafe15");
+	test(check == v1, "delete_list_eq_unsafe.15");
 	GetCons(cons, &check, &cons);
-	test(check == v2, "delete_list_eq_unsafe16");
-	test(cons == Nil, "delete_list_eq_unsafe17");
+	test(check == v2, "delete_list_eq_unsafe.16");
+	test(cons == Nil, "delete_list_eq_unsafe.17");
 
 	list_heap(&cons, v1, v1, v1, NULL);
-	test(delete_list_eq_unsafe(v1, cons, &cons) == 3, "delete_list_eq_unsafe18");
-	test(cons == Nil, "delete_list_eq_unsafe19");
+	test(delete_list_eq_unsafe(v1, cons, &cons) == 3, "delete_list_eq_unsafe.18");
+	test(cons == Nil, "delete_list_eq_unsafe.19");
 
 	RETURN;
 }
@@ -217,61 +82,56 @@ static int test_delete1_list_eq_unsafe(void)
 	fixnum_heap(&v3, 30);
 	fixnum_heap(&v4, 40);
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete1_list_eq_unsafe(v4, cons, &cons) == 0, "delete1_list_eq_unsafe1");
+	test(delete1_list_eq_unsafe(v4, cons, &cons) == 0, "delete1_list_eq_unsafe.1");
 	GetCons(cons, &check, &cons);
-	test(check == v1, "delete1_list_eq_unsafe2");
+	test(check == v1, "delete1_list_eq_unsafe.2");
 	GetCons(cons, &check, &cons);
-	test(check == v2, "delete1_list_eq_unsafe3");
+	test(check == v2, "delete1_list_eq_unsafe.3");
 	GetCons(cons, &check, &cons);
-	test(check == v3, "delete1_list_eq_unsafe4");
-	test(cons == Nil, "delete1_list_eq_unsafe5");
+	test(check == v3, "delete1_list_eq_unsafe.4");
+	test(cons == Nil, "delete1_list_eq_unsafe.5");
 
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete1_list_eq_unsafe(v1, cons, &cons) == 1, "delete1_list_eq_unsafe6");
+	test(delete1_list_eq_unsafe(v1, cons, &cons) == 1, "delete1_list_eq_unsafe.6");
 	GetCons(cons, &check, &cons);
-	test(check == v2, "delete1_list_eq_unsafe7");
+	test(check == v2, "delete1_list_eq_unsafe.7");
 	GetCons(cons, &check, &cons);
-	test(check == v3, "delete1_list_eq_unsafe8");
-	test(cons == Nil, "delete1_list_eq_unsafe9");
+	test(check == v3, "delete1_list_eq_unsafe.8");
+	test(cons == Nil, "delete1_list_eq_unsafe.9");
 
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete1_list_eq_unsafe(v2, cons, &cons) == 1, "delete1_list_eq_unsafe10");
+	test(delete1_list_eq_unsafe(v2, cons, &cons) == 1, "delete1_list_eq_unsafe.10");
 	GetCons(cons, &check, &cons);
-	test(check == v1, "delete1_list_eq_unsafe11");
+	test(check == v1, "delete1_list_eq_unsafe.11");
 	GetCons(cons, &check, &cons);
-	test(check == v3, "delete1_list_eq_unsafe12");
-	test(cons == Nil, "delete1_list_eq_unsafe13");
+	test(check == v3, "delete1_list_eq_unsafe.12");
+	test(cons == Nil, "delete1_list_eq_unsafe.13");
 
 	list_heap(&cons, v1, v2, v3, NULL);
-	test(delete1_list_eq_unsafe(v3, cons, &cons) == 1, "delete1_list_eq_unsafe14");
+	test(delete1_list_eq_unsafe(v3, cons, &cons) == 1, "delete1_list_eq_unsafe.14");
 	GetCons(cons, &check, &cons);
-	test(check == v1, "delete1_list_eq_unsafe15");
+	test(check == v1, "delete1_list_eq_unsafe.15");
 	GetCons(cons, &check, &cons);
-	test(check == v2, "delete1_list_eq_unsafe16");
-	test(cons == Nil, "delete1_list_eq_unsafe17");
+	test(check == v2, "delete1_list_eq_unsafe.16");
+	test(cons == Nil, "delete1_list_eq_unsafe.17");
 
 	list_heap(&cons, v1, v1, v1, NULL);
-	test(delete1_list_eq_unsafe(v1, cons, &cons) == 1, "delete1_list_eq_unsafe18");
+	test(delete1_list_eq_unsafe(v1, cons, &cons) == 1, "delete1_list_eq_unsafe.18");
 	GetCons(cons, &check, &cons);
-	test(check == v1, "delete1_list_eq_unsafe19");
+	test(check == v1, "delete1_list_eq_unsafe.19");
 	GetCons(cons, &check, &cons);
-	test(check == v1, "delete1_list_eq_unsafe20");
-	test(cons == Nil, "delete1_list_eq_unsafe21");
+	test(check == v1, "delete1_list_eq_unsafe.20");
+	test(cons == Nil, "delete1_list_eq_unsafe.21");
 
 	RETURN;
 }
 
 
 /*
- *  main
+ *  sequence
  */
-static int testgroup_sequence(void)
+static int testcase_sequence(void)
 {
-	/* unsafe */
-	TestBreak(test_copy_list_alloc_unsafe);
-	TestBreak(test_copy_list_heap_unsafe);
-	TestBreak(test_copy_list_local_unsafe);
-	TestBreak(test_copy_list_alloc_safe);
 	TestBreak(test_make_vector_from_list);
 	TestBreak(test_delete_list_eq_unsafe);
 	TestBreak(test_delete1_list_eq_unsafe);
@@ -279,31 +139,18 @@ static int testgroup_sequence(void)
 	return 0;
 }
 
+static void testinit_sequence(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+}
+
 int test_sequence(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
 	TITLE;
-	freelisp();
-	alloclisp(0, 0);
-	lisp_info_enable = 1;
-	ptr = Execute_Thread;
-	begin_code(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		//build_package();
-		lisp_initialize = 1;
-		result = testgroup_sequence();
-	}
-	end_code(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	return degrade_code(
+			testinit_sequence,
+			testcase_sequence);
 }
 

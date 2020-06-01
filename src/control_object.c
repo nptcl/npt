@@ -238,6 +238,7 @@ static int close_protect_control_(Execute ptr, addr control)
 	GetControl(control, Control_Protect, &call);
 	if (call == Nil)
 		return 0;
+	SetControl(control, Control_Protect, Nil);
 	push_new_control(ptr, &control);
 	save_values_control(ptr, &values, &size);
 	if (functionp(call)) {

@@ -13,6 +13,7 @@ static int test_consp_getcons(void)
 {
 	addr left, right, cons, check1, check2;
 
+	check1 = check2 = Nil;
 	fixnum_heap(&left, 100);
 	fixnum_heap(&right, 200);
 	cons_heap(&cons, left, right);

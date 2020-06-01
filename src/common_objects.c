@@ -374,7 +374,7 @@ static void defgeneric_make_instances_obsolete(void)
 /* (defgeneric make-load-form ...) */
 static void defgeneric_make_load_form_common(void)
 {
-	ImportMopPackage(MAKE_INSTANCES_OBSOLETE);
+	ImportMopPackage(MAKE_LOAD_FORM);
 }
 
 

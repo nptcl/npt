@@ -33,7 +33,6 @@ int test_function(void);
 int test_cons(void);
 int test_cons_list(void);
 int test_cons_plist(void);
-int test_fasl(void);
 int test_gc_execute(void);
 int test_sxhash(void);
 int test_hashtable(void);
@@ -156,7 +155,6 @@ void degrade_execute(void)
 	DegradeCheck(test_file_memory);
 	DegradeCheck(test_encode);
 	DegradeCheck(test_file);
-	//DegradeCheck(test_fasl); /* error */
 	DegradeCheck(test_bigcons);
 	DegradeCheck(test_bignum);
 	DegradeCheck(test_radix);

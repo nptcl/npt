@@ -24,7 +24,6 @@
 #include "eval.h"
 #include "execute.h"
 #include "extern.h"
-#include "fasl.h"
 #include "file.h"
 #include "file_memory.h"
 #include "format.h"
@@ -79,7 +78,6 @@ _g void initlisp(void)
 	init_environment();
 	init_eval();
 	init_extern();
-	init_fasl();
 	init_format();
 	init_heap();
 	init_localtime();

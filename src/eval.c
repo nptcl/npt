@@ -1,4 +1,6 @@
 #include "code_make.h"
+#include "compile_file.h"
+#include "compile_load.h"
 #include "condition.h"
 #include "control_execute.h"
 #include "control_object.h"
@@ -6,7 +8,6 @@
 #include "eval.h"
 #include "eval_copy.h"
 #include "eval_stack.h"
-#include "fasl.h"
 #include "file.h"
 #include "files.h"
 #include "format.h"
@@ -268,19 +269,6 @@ _g int eval_constantp(Execute ptr, addr var, addr env, int *ret)
 /*
  *  eval
  */
-static void eval_compile(Execute ptr, addr pos)
-{
-	addr symbol, list;
-
-	GetConst(SYSTEM_COMPILE_CODE, &symbol);
-	getspecial_local(ptr, symbol, &list);
-	if (list == Unbound)
-		return;
-
-	cons_heap(&list, pos, list);
-	setspecial_local(ptr, symbol, list);
-}
-
 _g int eval_execute_parse(Execute ptr, addr pos)
 {
 	LocalHold hold;
@@ -295,12 +283,16 @@ _g int eval_execute_parse(Execute ptr, addr pos)
 	/* code generator */
 	localhold_set(hold, 0, pos);
 	code_make(ptr->local, &pos, pos);
-	/* compile */
 	localhold_set(hold, 0, pos);
-	eval_compile(ptr, pos);
 	/* execute */
-	localhold_set(hold, 0, pos);
-	Return(runcode_control(ptr, pos));
+	if (eval_compile_p(ptr)) {
+		/* compile */
+		Return(eval_compile_file(ptr, pos));
+	}
+	else {
+		/* execute */
+		Return(runcode_control(ptr, pos));
+	}
 	/* end */
 	localhold_end(hold);
 	return 0;
@@ -375,7 +367,7 @@ static int eval_load_fasl(Execute ptr, int *ret, addr file, int exist)
 	/* fasl */
 	push_new_control(ptr, &control);
 	setprotect_close_stream(ptr, stream);
-	Return(faslread_stream(ptr, stream));
+	Return(eval_compile_load(ptr, stream));
 	Return(free_control_(ptr, control));
 	return Result(ret, 1);
 }

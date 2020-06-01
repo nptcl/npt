@@ -121,6 +121,7 @@ static void update_struct_code(struct code_value *ptr, addr list)
 
 	/* result */
 	ptr->call= bind;
+	ptr->id = id;
 	ptr->value = value;
 }
 

@@ -164,8 +164,10 @@ _g int length_list_p(addr list, size_t *ret)
 	size_t i;
 
 	for (i = 0; list != Nil; i++) {
-		if (GetType(list) != LISPTYPE_CONS)
+		if (GetType(list) != LISPTYPE_CONS) {
+			*ret = 0;
 			return 1;
+		}
 		GetCdr(list, &list);
 	}
 	*ret = i;

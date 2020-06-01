@@ -94,6 +94,12 @@ common_system.c
 common_types.c
 common.c
 compile.c
+compile_file.c
+compile_load.c
+compile_read.c
+compile_stream.c
+compile_value.c
+compile_write.c
 condition.c
 condition_debugger.c
 condition_define.c
@@ -141,7 +147,6 @@ extern_object.c
 extern_string.c
 extern_stream.c
 extern_unicode.c
-fasl.c
 file_memory.c
 file.c
 files.c

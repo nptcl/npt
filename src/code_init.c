@@ -34,7 +34,7 @@ _g void init_code_init(void)
 	cleartype(CodeValueArray);
 
 	/* system */
-	initcode(nop_code, Addr);
+	initcode(nop_code, Null);
 	initcode(execute_simple_set_code, Addr);
 	initcode(execute_normal_set_code, Addr);
 	initcode(execute_control_set_code, Addr);
@@ -47,7 +47,7 @@ _g void init_code_init(void)
 	/* object */
 	initcode(set_code, Addr);
 	initcode(push_code, Addr);
-	initcode(push_result_code, Addr);
+	initcode(push_result_code, Null);
 	initcode(push_values_code, Null);
 	initcode(nil_set_code, Null);
 	initcode(nil_push_code, Null);

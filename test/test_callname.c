@@ -17,6 +17,7 @@ static int test_getcallname(void)
 	addr pos, name, check;
 
 	internchar(LISP_PACKAGE, "HELLO", &name);
+	pos = Nil;
 	parse_callname_heap(&pos, name);
 	test(refcallname(pos) == name, "getcallname.1");
 	internchar(LISP_PACKAGE, "AAA", &name);

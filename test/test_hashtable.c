@@ -16,26 +16,26 @@ static int test_hashtable_heap(void)
 	struct StructHashtable *ptr;
 
 	hashtable_heap(&pos);
-	test(GetType(pos) == LISPTYPE_HASHTABLE, "hashtable_heap1");
-	test(GetStatusSize(pos) == LISPSIZE_SMALLSIZE, "hashtable_heap2");
+	test(GetType(pos) == LISPTYPE_HASHTABLE, "hashtable_heap.1");
+	test(GetStatusSize(pos) == LISPSIZE_SMALLSIZE, "hashtable_heap.2");
 	GetTableHash(pos, &table);
-	test(GetType(table) == LISPTYPE_VECTOR, "hashtable_heap3");
+	test(GetType(table) == LISPTYPE_VECTOR, "hashtable_heap.3");
 #ifdef LISP_ARCH_32BIT
-	test(GetStatusSize(table) == LISPSIZE_ARRAY4, "hashtable_heap4");
+	test(GetStatusSize(table) == LISPSIZE_ARRAY4, "hashtable_heap.4");
 #else
-	test(GetStatusSize(table) == LISPSIZE_ARRAY8, "hashtable_heap4");
+	test(GetStatusSize(table) == LISPSIZE_ARRAY8, "hashtable_heap.4");
 #endif
 	LenArrayHash(table, &size);
-	test(size == HASHTABLE_SIZE_DEFAULT, "hashtable_heap5");
+	test(size == HASHTABLE_SIZE_DEFAULT, "hashtable_heap.5");
 
 	ptr = PtrStructHashtable(pos);
-	test(ptr->test == HASHTABLE_TEST_DEFAULT, "hashtable_heap6");
-	test(ptr->count == 0, "hashtable_heap7");
-	test(ptr->size == HASHTABLE_SIZE_DEFAULT, "hashtable_heap8");
-	test(ptr->resize_float == HASHTABLE_REHASH_SIZE_DEFAULT, "hashtable_heap9");
-	test(ptr->threshold == HASHTABLE_REHASH_THRESHOLD_DEFAULT, "hashtable_heap10");
+	test(ptr->test == HASHTABLE_TEST_DEFAULT, "hashtable_heap.6");
+	test(ptr->count == 0, "hashtable_heap.7");
+	test(ptr->size == HASHTABLE_SIZE_DEFAULT, "hashtable_heap.8");
+	test(ptr->resize_float == HASHTABLE_REHASH_SIZE_DEFAULT, "hashtable_heap.9");
+	test(ptr->threshold == HASHTABLE_REHASH_THRESHOLD_DEFAULT, "hashtable_heap.10");
 	limit = (size_t)(ptr->size * ptr->threshold);
-	test(ptr->limit == limit, "hashtable_heap11");
+	test(ptr->limit == limit, "hashtable_heap.11");
 
 	RETURN;
 }
@@ -47,26 +47,26 @@ static int test_hashtable_size_heap(void)
 	size_t value, size;
 
 	hashtable_size_heap(&pos, 100);
-	test(GetType(pos) == LISPTYPE_HASHTABLE, "hashtable_size_heap1");
-	test(GetStatusSize(pos) == LISPSIZE_SMALLSIZE, "hashtable_size_heap2");
+	test(GetType(pos) == LISPTYPE_HASHTABLE, "hashtable_size_heap.1");
+	test(GetStatusSize(pos) == LISPSIZE_SMALLSIZE, "hashtable_size_heap.2");
 	GetTableHash(pos, &table);
 	LenArrayHash(table, &size);
-	test(size == 100, "hashtable_size_heap3");
+	test(size == 100, "hashtable_size_heap.3");
 
-	test(PtrStructHashtable(pos)->size == 100, "hashtable_size_heap4");
+	test(PtrStructHashtable(pos)->size == 100, "hashtable_size_heap.4");
 	testvalue = HASHTABLE_TEST_EQ;
 	gettest_hashtable(pos, &testvalue);
-	test(testvalue == HASHTABLE_TEST_DEFAULT, "hashtable_size_heap5");
+	test(testvalue == HASHTABLE_TEST_DEFAULT, "hashtable_size_heap.5");
 	settest_hashtable(pos, HASHTABLE_TEST_EQUAL);
 	testvalue = HASHTABLE_TEST_EQ;
 	gettest_hashtable(pos, &testvalue);
-	test(testvalue == HASHTABLE_TEST_EQUAL, "hashtable_size_heap6");
+	test(testvalue == HASHTABLE_TEST_EQUAL, "hashtable_size_heap.6");
 	value = 0;
 	getcount_hashtable(pos, &value);
-	test(value == 0, "hashtable_size_heap7");
+	test(value == 0, "hashtable_size_heap.7");
 	value = 0;
 	getsize_hashtable(pos, &value);
-	test(value == 100, "hashtable_size_heap8");
+	test(value == 100, "hashtable_size_heap.8");
 
 	RETURN;
 }
@@ -107,18 +107,18 @@ static int test_clear_hashtable(void)
 	hashtable_size_heap(&pos, 100);
 	make_dummy_table(pos);
 	clear_hashtable_heap(pos);
-	test(check_empty(pos), "clear_hashtable1");
+	test(check_empty(pos), "clear_hashtable.1");
 	make_dummy_table(pos);
 	clear_hashtable(pos);
-	test(check_empty(pos), "clear_hashtable2");
+	test(check_empty(pos), "clear_hashtable.2");
 
 	hashtable_size_local(Local_Thread, &pos, 10);
 	make_dummy_table(pos);
 	clear_hashtable_local(pos);
-	test(check_empty(pos), "clear_hashtable3");
+	test(check_empty(pos), "clear_hashtable.3");
 	make_dummy_table(pos);
 	clear_hashtable(pos);
-	test(check_empty(pos), "clear_hashtable4");
+	test(check_empty(pos), "clear_hashtable.4");
 
 	RETURN;
 }
@@ -137,17 +137,17 @@ static int test_hashindex(void)
 	settest_hashtable(pos, HASHTABLE_TEST_EQUAL);
 	hashindex(pos, pos1, &size1);
 	hashindex(pos, pos2, &size2);
-	test(size1 == size2, "hashindex1");
+	test(size1 == size2, "hashindex.1");
 
 	settest_hashtable(pos, HASHTABLE_TEST_EQL);
 	hashindex(pos, pos1, &size1);
 	hashindex(pos, pos2, &size2);
-	test(size1 != size2, "hashindex2");
+	test(size1 != size2, "hashindex.2");
 
 	settest_hashtable(pos, HASHTABLE_TEST_EQ);
 	hashindex(pos, pos1, &size1);
 	hashindex(pos, pos2, &size2);
-	test(size1 != size2, "hashindex3");
+	test(size1 != size2, "hashindex.3");
 
 	/* fixnum (eql test) */
 	fixnum_heap(&pos1, 112233);
@@ -156,19 +156,19 @@ static int test_hashindex(void)
 	settest_hashtable(pos, HASHTABLE_TEST_EQUAL);
 	hashindex(pos, pos1, &size1);
 	hashindex(pos, pos2, &size2);
-	test(size1 == size2, "hashindex4");
+	test(size1 == size2, "hashindex.4");
 
 	settest_hashtable(pos, HASHTABLE_TEST_EQL);
 	hashindex(pos, pos1, &size1);
 	hashindex(pos, pos2, &size2);
-	test(size1 == size2, "hashindex5");
+	test(size1 == size2, "hashindex.5");
 
 	fixnum_heap(&pos1, 10);
 	fixnum_heap(&pos2, 10);
 	settest_hashtable(pos, HASHTABLE_TEST_EQ);
 	hashindex(pos, pos1, &size1);
 	hashindex(pos, pos2, &size2);
-	test(size1 == size2, "hashindex6");
+	test(size1 == size2, "hashindex.6");
 
 	RETURN;
 }
@@ -199,29 +199,29 @@ static int test_gethashequal(void)
 	settest_hashtable(pos, HASHTABLE_TEST_EQUAL);
 	gethashequal(pos, &equal);
 	strvect_char_heap(&pos2, "Hello1");
-	test(equal(pos1, pos2), "gethashequal1");
+	test(equal(pos1, pos2), "gethashequal.1");
 	makeunicodechar(&pos2, "Hello1");
-	test(equal(pos1, pos2), "gethashequal2");
+	test(equal(pos1, pos2), "gethashequal.2");
 
 	settest_hashtable(pos, HASHTABLE_TEST_EQL);
 	gethashequal(pos, &equal);
 	strvect_char_heap(&pos2, "Hello1");
-	test(! equal(pos1, pos2), "gethashequal3");
+	test(! equal(pos1, pos2), "gethashequal.3");
 	makeunicodechar(&pos2, "Hello1");
-	test(! equal(pos1, pos2), "gethashequal4");
+	test(! equal(pos1, pos2), "gethashequal.4");
 
 	/* fixnum */
 	fixnum_heap(&pos1, 112233);
 	fixnum_heap(&pos2, 112233);
 	settest_hashtable(pos, HASHTABLE_TEST_EQUAL);
 	gethashequal(pos, &equal);
-	test(equal(pos1, pos2), "gethashequal5");
+	test(equal(pos1, pos2), "gethashequal.5");
 	settest_hashtable(pos, HASHTABLE_TEST_EQL);
 	gethashequal(pos, &equal);
-	test(equal(pos1, pos2), "gethashequal6");
+	test(equal(pos1, pos2), "gethashequal.6");
 	settest_hashtable(pos, HASHTABLE_TEST_EQ);
 	gethashequal(pos, &equal);
-	test(! equal(pos1, pos2), "gethashequal7");
+	test(! equal(pos1, pos2), "gethashequal.7");
 
 	RETURN;
 }
@@ -236,20 +236,20 @@ static int test_insert_rehash(void)
 	insert_rehash(NULL, array, 10, key, value);
 
 	getarray(array, 0, &key);
-	test(key == Nil, "insert_rehash1");
+	test(key == Nil, "insert_rehash.1");
 	getarray(array, 10, &key);
-	test(key != Nil, "insert_rehash2");
-	test(GetType(key) == LISPTYPE_CONS, "insert_rehash3");
+	test(key != Nil, "insert_rehash.2");
+	test(GetType(key) == LISPTYPE_CONS, "insert_rehash.3");
 	GetCons(key, &key, &value);
-	test(key != Nil, "insert_rehash4");
-	test(value == Nil, "insert_rehash5");
+	test(key != Nil, "insert_rehash.4");
+	test(value == Nil, "insert_rehash.5");
 	GetCons(key, &key, &value);
-	test(GetType(key) == LISPTYPE_STRING, "insert_rehash6");
-	test(GetType(value) == LISPTYPE_STRING, "insert_rehash7");
-	test(strvect_equal_char(key, "key100"), "insert_rehash8");
-	test(! strvect_equal_char(key, "key101"), "insert_rehash9");
-	test(strvect_equal_char(value, "value100"), "insert_rehash10");
-	test(! strvect_equal_char(value, "value101"), "insert_rehash11");
+	test(GetType(key) == LISPTYPE_STRING, "insert_rehash.6");
+	test(GetType(value) == LISPTYPE_STRING, "insert_rehash.7");
+	test(strvect_equal_char(key, "key100"), "insert_rehash.8");
+	test(! strvect_equal_char(key, "key101"), "insert_rehash.9");
+	test(strvect_equal_char(value, "value100"), "insert_rehash.10");
+	test(! strvect_equal_char(value, "value101"), "insert_rehash.11");
 
 	strvect_char_heap(&key, "key101");
 	strvect_char_heap(&value, "value101");
@@ -264,14 +264,14 @@ static int test_insert_rehash(void)
 	getarray(array, 10, &key);
 	GetCons(key, &key, &value);
 	GetCar(key, &key);
-	test(! strvect_equal_char(key, "key100"), "insert_rehash12");
-	test(strvect_equal_char(key, "key103"), "insert_rehash13");
+	test(! strvect_equal_char(key, "key100"), "insert_rehash.12");
+	test(strvect_equal_char(key, "key103"), "insert_rehash.13");
 	GetCons(value, &key, &value);
-	test(key != Nil, "insert_rehash14");
-	test(value == Nil, "insert_rehash15");
+	test(key != Nil, "insert_rehash.14");
+	test(value == Nil, "insert_rehash.15");
 	GetCons(key, &key, &value);
-	test(strvect_equal_char(key, "key100"), "insert_rehash16");
-	test(strvect_equal_char(value, "value100"), "insert_rehash17");
+	test(strvect_equal_char(key, "key100"), "insert_rehash.16");
+	test(strvect_equal_char(value, "value100"), "insert_rehash.17");
 
 	RETURN;
 }
@@ -297,7 +297,7 @@ static int test_resize_rehash(void)
 
 	GetTableHash(table, &array);
 	lenarray(array, &size);
-	test(size == 15, "resize_rehash1");
+	test(size == 15, "resize_rehash.1");
 	count = 0;
 	check = 1;
 	for (i = 0; i < size; i++) {
@@ -311,8 +311,8 @@ static int test_resize_rehash(void)
 			count++;
 		}
 	}
-	test(check, "resize_rehash2");
-	test(count == 1000, "resize_rehash3");
+	test(check, "resize_rehash.2");
+	test(count == 1000, "resize_rehash.3");
 
 	RETURN;
 }
@@ -331,8 +331,8 @@ static int test_rehash_execute(void)
 	rehash_execute(NULL, table);
 	limit2 = ptr->limit;
 	size2 = ptr->size;
-	test(limit1 < limit2, "rehash_execute1");
-	test(size1 < size2, "rehash_execute2");
+	test(limit1 < limit2, "rehash_execute.1");
+	test(size1 < size2, "rehash_execute.2");
 
 	limit1 = limit2;
 	size1 = size2;
@@ -340,8 +340,8 @@ static int test_rehash_execute(void)
 	rehash_execute(NULL, table);
 	limit2 = ptr->limit;
 	size2 = ptr->size;
-	test(limit1 == limit2, "rehash_execute3");
-	test(size1 == size2, "rehash_execute4");
+	test(limit1 == limit2, "rehash_execute.3");
+	test(size1 == size2, "rehash_execute.4");
 
 	limit1 = limit2;
 	size1 = size2;
@@ -349,8 +349,8 @@ static int test_rehash_execute(void)
 	rehash_execute(NULL, table);
 	limit2 = ptr->limit;
 	size2 = ptr->size;
-	test(limit1 < limit2, "rehash_execute5");
-	test(size1 < size2, "rehash_execute6");
+	test(limit1 < limit2, "rehash_execute.5");
+	test(size1 < size2, "rehash_execute.6");
 
 	RETURN;
 }
@@ -380,28 +380,28 @@ static int test_findroot(void)
 	getarray(array, 1, &root);
 
 	strvect_char_heap(&key, "aaa");
-	test(findroot(equal, root, key, &value), "findroot1");
+	test(findroot(equal, root, key, &value), "findroot.1");
 	strvect_char_heap(&key, "value100");
-	test(findroot(equal, root, key, &value), "findroot2");
+	test(findroot(equal, root, key, &value), "findroot.2");
 	strvect_char_heap(&key, "value103");
-	test(findroot(equal, root, key, &value), "findroot3");
+	test(findroot(equal, root, key, &value), "findroot.3");
 
 	settest_hashtable(table, HASHTABLE_TEST_EQUAL);
 	gethashequal(table, &equal);
 	strvect_char_heap(&key, "aaa");
-	test(findroot(equal, root, key, &value), "findroot4");
+	test(findroot(equal, root, key, &value), "findroot.4");
 	strvect_char_heap(&key, "key100");
-	test(findroot(equal, root, key, &value) == 0, "findroot5");
-	test(GetType(value) == LISPTYPE_CONS, "findroot6");
+	test(findroot(equal, root, key, &value) == 0, "findroot.5");
+	test(GetType(value) == LISPTYPE_CONS, "findroot.6");
 	GetCons(value, &key, &value);
-	test(strvect_equal_char(key, "key100"), "findroot7");
-	test(strvect_equal_char(value, "value100"), "findroot8");
+	test(strvect_equal_char(key, "key100"), "findroot.7");
+	test(strvect_equal_char(value, "value100"), "findroot.8");
 
 	strvect_char_heap(&key, "key104");
-	test(findroot(equal, root, key, &value) == 0, "findroot9");
+	test(findroot(equal, root, key, &value) == 0, "findroot.9");
 	GetCons(value, &key, &value);
-	test(strvect_equal_char(key, "key104"), "findroot10");
-	test(strvect_equal_char(value, "value104"), "findroot11");
+	test(strvect_equal_char(key, "key104"), "findroot.10");
+	test(strvect_equal_char(value, "value104"), "findroot.11");
 
 	RETURN;
 }
@@ -427,28 +427,28 @@ static int test_appendroot(void)
 	test(root == Nil, "appendroot1");
 	strvect_char_heap(&key, "key200");
 	appendroot(NULL, array, 10, root, key, &value);
-	test(GetType(value) == LISPTYPE_CONS, "appendroot2");
+	test(GetType(value) == LISPTYPE_CONS, "appendroot.2");
 	GetCdr(value, &key);
-	test(key == Nil, "appendroot3");
+	test(key == Nil, "appendroot.3");
 	GetCar(value, &key);
-	test(strvect_equal_char(key, "key200"), "appendroot4");
+	test(strvect_equal_char(key, "key200"), "appendroot.4");
 
 	GetArrayHash(array, 10, &root);
-	test(root != Nil, "appendroot5");
+	test(root != Nil, "appendroot.5");
 	strvect_char_heap(&key, "key300");
 	appendroot(NULL, array, 10, root, key, &value);
-	test(GetType(value) == LISPTYPE_CONS, "appendroot6");
+	test(GetType(value) == LISPTYPE_CONS, "appendroot.6");
 	GetCar(value, &key);
-	test(strvect_equal_char(key, "key300"), "appendroot7");
+	test(strvect_equal_char(key, "key300"), "appendroot.7");
 
 	GetArrayHash(array, 10, &root);
 	GetCons(root, &key, &value);
 	GetCar(key, &key);
-	test(strvect_equal_char(key, "key300"), "appendroot8");
+	test(strvect_equal_char(key, "key300"), "appendroot.8");
 	GetCons(value, &key, &value);
 	GetCar(key, &key);
-	test(strvect_equal_char(key, "key200"), "appendroot9");
-	test(value == Nil, "appendroot10");
+	test(strvect_equal_char(key, "key200"), "appendroot.9");
+	test(value == Nil, "appendroot.10");
 
 	RETURN;
 }
@@ -487,7 +487,7 @@ static int test_intern_hashtable(void)
 		intern_hashheap(table, key, &cons);
 		SetCdr(cons, value);
 	}
-	test(hashcount(table) == 1, "intern_hashtable1");
+	test(hashcount(table) == 1, "intern_hashtable.1");
 
 	hashtable_heap(&table);
 	settest_hashtable(table, HASHTABLE_TEST_EQ);
@@ -498,7 +498,7 @@ static int test_intern_hashtable(void)
 		intern_hashheap(table, key, &cons);
 		SetCdr(cons, value);
 	}
-	test(hashcount(table) == 1000, "intern_hashtable2");
+	test(hashcount(table) == 1000, "intern_hashtable.2");
 
 	hashtable_heap(&table);
 	settest_hashtable(table, HASHTABLE_TEST_EQUAL);
@@ -510,25 +510,25 @@ static int test_intern_hashtable(void)
 		intern_hashheap(table, key, &cons);
 		SetCdr(cons, value);
 	}
-	test(hashcount(table) == 1000, "intern_hashtable3");
+	test(hashcount(table) == 1000, "intern_hashtable.3");
 
 	/* findcons */
 	strvect_char_heap(&key, "key4444");
 	findcons_hashtable(table, key, &cons);
-	test(cons == Nil, "intern_hashtable4");
+	test(cons == Nil, "intern_hashtable.4");
 	strvect_char_heap(&key, "key444");
 	findcons_hashtable(table, key, &cons);
-	test(cons != Nil, "intern_hashtable5");
+	test(cons != Nil, "intern_hashtable.5");
 	GetCons(cons, &key, &value);
-	test(strvect_equal_char(key, "key444"), "intern_hashtable6");
-	test(strvect_equal_char(value, "value444"), "intern_hashtable7");
+	test(strvect_equal_char(key, "key444"), "intern_hashtable.6");
+	test(strvect_equal_char(value, "value444"), "intern_hashtable.7");
 
 	/* findvalue */
 	strvect_char_heap(&key, "key5555");
-	test(findvalue_hashtable(table, key, &value) == 0, "intern_hashtable8");
+	test(findvalue_hashtable(table, key, &value) == 0, "intern_hashtable.8");
 	strvect_char_heap(&key, "key555");
-	test(findvalue_hashtable(table, key, &value) == 1, "intern_hashtable9");
-	test(strvect_equal_char(value, "value555"), "intern_hashtable10");
+	test(findvalue_hashtable(table, key, &value) == 1, "intern_hashtable.9");
+	test(strvect_equal_char(value, "value555"), "intern_hashtable.10");
 
 	RETURN;
 }
@@ -550,7 +550,7 @@ static int test_delete_hashtable(void)
 		intern_hashheap(table, key, &cons);
 		SetCdr(cons, value);
 	}
-	test(hashcount(table) == 1000, "delete_hashtable1");
+	test(hashcount(table) == 1000, "delete_hashtable.1");
 
 	error = 1;
 	for (i = 0; i < 1000; i++) {
@@ -565,16 +565,16 @@ static int test_delete_hashtable(void)
 		strvect_char_heap(&key, buffer);
 		delete_hashtable(table, key);
 	}
-	test(error, "delete_hashtable2");
+	test(error, "delete_hashtable.2");
 
 	RETURN;
 }
 
 
 /*
- *  main
+ *  hashtable
  */
-static int testbreak_hashtable(void)
+static int testcase_hashtable(void)
 {
 	TestBreak(test_hashtable_heap);
 	TestBreak(test_hashtable_size_heap);
@@ -592,31 +592,18 @@ static int testbreak_hashtable(void)
 	return 0;
 }
 
+static void testinit_hashtable(Execute ptr)
+{
+	build_lisproot(ptr);
+	build_constant();
+	build_object();
+}
+
 int test_hashtable(void)
 {
-	int result;
-	lispcode code;
-	Execute ptr;
-
 	TITLE;
-
-	freelisp();
-	alloclisp(0, 0);
-	ptr = Execute_Thread;
-	lisp_info_enable = 1;
-	begin_code(ptr, &code);
-	if (code_run_p(code)) {
-		build_lisproot(ptr);
-		build_constant();
-		build_object();
-		lisp_initialize = 1;
-		result = testbreak_hashtable();
-	}
-	end_code(ptr);
-	freelisp();
-	TestCheck(code_error_p(code));
-	lisp_info_enable = 1;
-
-	return result;
+	return degrade_code(
+			testinit_hashtable,
+			testcase_hashtable);
 }
 

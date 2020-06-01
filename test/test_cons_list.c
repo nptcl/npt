@@ -359,6 +359,142 @@ static int test_reverse_list_local_unsafe(void)
 
 
 /*
+ *  unsafe
+ */
+static int test_copy_list_alloc_unsafe(void)
+{
+	addr cons, root, left, value1, value2, value3, check;
+
+	copy_list_alloc_unsafe(NULL, &cons, Nil);
+	test(cons == Nil, "copy_list_alloc_unsafe.1");
+
+	conscar_heap(&cons, T);
+	copy_list_alloc_unsafe(NULL, &root, cons);
+	test(cons != root, "copy_list_alloc_unsafe.2");
+	test(root != Nil, "copy_list_alloc_unsafe.3");
+	GetCons(root, &left, &root);
+	test(left == T, "copy_list_alloc_unsafe.4");
+	test(root == Nil, "copy_list_alloc_unsafe.5");
+
+	fixnum_heap(&value1, 100);
+	fixnum_heap(&value2, 200);
+	fixnum_heap(&value3, 300);
+	list_heap(&cons, value3, value2, value1, NULL);
+	copy_list_alloc_unsafe(NULL, &root, cons);
+	test(cons != root, "copy_list_alloc_unsafe.6");
+	GetCons(cons, &left, &cons);
+	GetCons(root, &check, &root);
+	test(cons != root, "copy_list_alloc_unsafe.7");
+	test(left == value3, "copy_list_alloc_unsafe.8");
+	test(check == value3, "copy_list_alloc_unsafe.9");
+
+	GetCons(cons, &left, &cons);
+	GetCons(root, &check, &root);
+	test(cons != root, "copy_list_alloc_unsafe.10");
+	test(left == value2, "copy_list_alloc_unsafe.11");
+	test(check == value2, "copy_list_alloc_unsafe.12");
+
+	GetCons(cons, &left, &cons);
+	GetCons(root, &check, &root);
+	test(left == value1, "copy_list_alloc_unsafe.13");
+	test(check == value1, "copy_list_alloc_unsafe.14");
+	test(cons == Nil, "copy_list_alloc_unsafe.15");
+	test(root == Nil, "copy_list_alloc_unsafe.16");
+
+	RETURN;
+}
+
+static int test_copy_list_heap_unsafe(void)
+{
+	addr cons;
+
+	consnil_heap(&cons);
+	copy_list_heap_unsafe(&cons, cons);
+	test(GetType(cons) == LISPTYPE_CONS, "copy_list_heap_unsafe.1");
+	test(! GetStatusDynamic(cons), "copy_list_heap_unsafe.2");
+
+	RETURN;
+}
+
+static int test_copy_list_local_unsafe(void)
+{
+	addr cons;
+	LocalRoot local;
+	LocalStack stack;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	consnil_local(local, &cons);
+	copy_list_local_unsafe(local, &cons, cons);
+	test(GetType(cons) == LISPTYPE_CONS, "copy_list_local_unsafe.1");
+	test(GetStatusDynamic(cons), "copy_list_local_unsafe.2");
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_copy_list_alloc_safe(void)
+{
+	addr cons, root, left, value1, value2, value3, check;
+
+	copy_list_alloc_safe(NULL, &cons, Nil);
+	test(cons == Nil, "copy_list_alloc_safe.1");
+
+	conscar_heap(&cons, T);
+	copy_list_alloc_safe(NULL, &root, cons);
+	test(cons != root, "copy_list_alloc_safe.2");
+	test(root != Nil, "copy_list_alloc_safe.3");
+	GetCons(root, &left, &root);
+	test(left == T, "copy_list_alloc_safe.4");
+	test(root == Nil, "copy_list_alloc_safe.5");
+
+	fixnum_heap(&value1, 100);
+	fixnum_heap(&value2, 200);
+	fixnum_heap(&value3, 300);
+	list_heap(&cons, value3, value2, value1, NULL);
+	copy_list_alloc_safe(NULL, &root, cons);
+	test(cons != root, "copy_list_alloc_safe.6");
+	GetCons(cons, &left, &cons);
+	GetCons(root, &check, &root);
+	test(cons != root, "copy_list_alloc_safe.7");
+	test(left == value3, "copy_list_alloc_safe.8");
+	test(check == value3, "copy_list_alloc_safe.9");
+
+	GetCons(cons, &left, &cons);
+	GetCons(root, &check, &root);
+	test(cons != root, "copy_list_alloc_safe.10");
+	test(left == value2, "copy_list_alloc_safe.11");
+	test(check == value2, "copy_list_alloc_safe.12");
+
+	GetCons(cons, &left, &cons);
+	GetCons(root, &check, &root);
+	test(left == value1, "copy_list_alloc_safe.13");
+	test(check == value1, "copy_list_alloc_safe.14");
+	test(cons == Nil, "copy_list_alloc_safe.15");
+	test(root == Nil, "copy_list_alloc_safe.16");
+
+	copy_list_alloc_safe(NULL, &cons, T);
+	test(cons == T, "copy_list_alloc_safe.17");
+
+	lista_heap(&cons, value1, value2, NULL);
+	copy_list_alloc_safe(NULL, &cons, cons);
+	GetCons(cons, &left, &cons);
+	test(left == value1, "copy_list_alloc_safe.18");
+	test(cons == value2, "copy_list_alloc_safe.19");
+
+	lista_heap(&cons, value1, value2, value3, NULL);
+	copy_list_alloc_safe(NULL, &cons, cons);
+	GetCons(cons, &left, &cons);
+	test(left == value1, "copy_list_alloc_safe.20");
+	GetCons(cons, &left, &cons);
+	test(left == value2, "copy_list_alloc_safe.21");
+	test(cons == value3, "copy_list_alloc_safe.22");
+
+	RETURN;
+}
+
+
+/*
  *  cons_list
  */
 static int testcase_cons_list(void)
@@ -372,6 +508,10 @@ static int testcase_cons_list(void)
 	TestBreak(test_nreverse_list_unsafe);
 	TestBreak(test_reverse_list_heap_unsafe);
 	TestBreak(test_reverse_list_local_unsafe);
+	TestBreak(test_copy_list_alloc_unsafe);
+	TestBreak(test_copy_list_heap_unsafe);
+	TestBreak(test_copy_list_local_unsafe);
+	TestBreak(test_copy_list_alloc_safe);
 
 	return 0;
 }
