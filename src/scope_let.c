@@ -469,7 +469,7 @@ static int let_allocate_decl(struct let_struct *str)
 
 static void let_allocate(struct let_struct *str)
 {
-	int check = let_allocate_args(str) || let_allocate_decl(str);
+	int check = let_allocate_decl(str) || let_allocate_args(str);
 	str->allocate = check? T: Nil;
 }
 

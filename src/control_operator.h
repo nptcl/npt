@@ -10,8 +10,10 @@ _g void setargs_va_control(Execute ptr, ...);
 _g void setargs_nil_control(Execute ptr);
 _g void setargs_list_control(Execute ptr, addr list);
 _g void pushargs_control(Execute ptr, addr value);
+_g void popargs_control(Execute ptr, addr *ret);
 _g void getargs_control(Execute ptr, size_t index, addr *ret);
 _g void getargs_tail_control(Execute ptr, addr *ret);
+#define GetArgsControl(ptr, ret) GetControl((ptr)->control, Control_Cons, (ret))
 _g void getargs_list_control_unsafe(Execute ptr, size_t index, addr *ret);
 _g void getargs_list_control_heap(Execute ptr, size_t index, addr *ret);
 _g void pushargs_allvalues(Execute ptr);

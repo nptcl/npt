@@ -240,7 +240,7 @@ static void code_make_lexical(LocalRoot local, addr code, addr scope)
 		CodeQueue_cons(local, code, LEXICAL, list);
 		code_make_execute(local, code, pos);
 		code_queue_pop(local, code, &pos);
-		code_make_execute_normal(local, code, pos);
+		code_make_execute_control(local, code, pos);
 	}
 }
 
@@ -303,89 +303,224 @@ static void code_make_progn(LocalRoot local, addr code, addr scope)
 
 
 /* let */
-static void code_make_let_args(LocalRoot local, addr code, addr args, addr *ret)
+static void code_make_free_value(LocalRoot local, addr code, addr pos, addr type)
 {
-	addr list, x, y;
-
-	list = Nil;
-	while (args != Nil) {
-		GetCons(args, &x, &args);
-		GetCons(x, &x, &y);
-		code_queue_push_simple(local, code);
-		code_make_execute_set(local, code, y);
-		code_queue_pop(local, code, &y);
-		cons_heap(&list, x, list);
-		cons_heap(&list, y, list);
+	if (type_astert_p(type))
+		return;
+	if (getspecialp_tablevalue(pos)) {
+		getname_tablevalue(pos, &pos);
+		CodeQueue_double(local, code, TYPE_SPECIAL, pos, type);
 	}
-	nreverse(ret, list);
+	else if (getglobalp_tablevalue(pos)) {
+		getname_tablevalue(pos, &pos);
+		CodeQueue_double(local, code, TYPE_GLOBAL, pos, type);
+	}
+	else {
+		/* lexical */
+		index_heap(&pos, getlexical_tablevalue(pos));
+		CodeQueue_double(local, code, TYPE_LEXICAL, pos, type);
+	}
 }
 
-static void code_make_let_body(LocalRoot local, addr code, addr list, addr *ret)
+static void code_make_free_function(LocalRoot local, addr code, addr pos, addr type)
 {
-	code_queue_push_simple(local, code);
-	code_allcons_set(local, code, list);
-	code_queue_pop(local, code, ret);
+	addr symbol;
+
+	if (type_astert_p(type) || type_function_aster_p(type))
+		return;
+	if (! getglobalp_tablevalue(pos)) {
+		/* lexical */
+		index_heap(&pos, getlexical_tablefunction(pos));
+		CodeQueue_double(local, code, TYPE_LEXICAL, pos, type);
+		return;
+	}
+
+	getname_tablefunction(pos, &pos);
+	GetCallName(pos, &symbol);
+	if (symbolp_callname(pos)) {
+		CodeQueue_double(local, code, TYPE_FUNCTION, symbol, type);
+	}
+	else {
+		CodeQueue_double(local, code, TYPE_SETF, symbol, type);
+	}
+}
+
+static void code_make_free(LocalRoot local, addr code, addr list)
+{
+	addr pos, type;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCons(pos, &pos, &type);
+		if (eval_tablevalue_p(pos)) {
+			code_make_free_value(local, code, pos, type);
+			continue;
+		}
+		if (eval_tablefunction_p(pos)) {
+			code_make_free_function(local, code, pos, type);
+			continue;
+		}
+		Abort("type error");
+	}
+}
+
+static void code_make_type_value(LocalRoot local, addr code, addr pos)
+{
+	addr type;
+
+	if (getcheck_tablevalue(pos)) {
+		gettype_tablevalue(pos, &type);
+		if (! type_astert_p(type)) {
+			CodeQueue_cons(local, code, TYPE_RESULT, type);
+		}
+	}
+}
+
+static void code_make_let_args(LocalRoot local, addr code, addr args)
+{
+	addr list, pos, value, index;
+
+	/* value */
+	list = args;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCons(pos, &pos, &value);
+
+		code_make_execute_set(local, code, value);
+		code_make_type_value(local, code, pos);
+		index_heap(&value, getlet_tablevalue(pos));
+		CodeQueue_cons(local, code, SETQ_LEXICAL, value);
+	}
+
+	/* bind */
+	list = args;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCar(pos, &pos);
+
+		index_heap(&index, getlet_tablevalue(pos));
+		if (getspecialp_tablevalue(pos)) {
+			getname_tablevalue(pos, &value);
+			CodeQueue_double(local, code, LET_SPECIAL, index, value);
+		}
+		else {
+			index_heap(&value, getlexical_tablevalue(pos));
+			CodeQueue_double(local, code, LET_LEXICAL, index, value);
+		}
+	}
+}
+
+static void code_make_let_execute(LocalRoot local, addr code, addr scope)
+{
+	addr args, body, free;
+
+	GetEvalScopeIndex(scope, 0, &args);
+	GetEvalScopeIndex(scope, 2, &body);
+	GetEvalScopeIndex(scope, 3, &free);
+
+	code_make_free(local, code, free);
+	code_make_let_args(local, code, args);
+	code_allcons(local, code, body);
 }
 
 static void code_make_let(LocalRoot local, addr code, addr scope)
 {
-	addr args, cons, free, allocate;
+	addr pos;
+	modeswitch mode;
 
-	/* make code */
-	GetEvalScopeIndex(scope, 0, &args);
-	GetEvalScopeIndex(scope, 2, &cons);
-	GetEvalScopeIndex(scope, 3, &free);
-	GetEvalScopeIndex(scope, 4, &allocate);
-	code_make_let_args(local, code, args, &args);
-	code_make_let_body(local, code, cons, &cons);
-	/* execute */
-	list_heap(&cons, args, cons, free, allocate, NULL);
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, LET_PUSH, cons);
-	else
-		CodeQueue_cons(local, code, LET_SET, cons);
+	GetEvalScopeIndex(scope, 4, &pos); /* allocate */
+	if (pos == Nil) {
+		code_make_let_execute(local, code, scope);
+		return;
+	}
+
+	code_queue_setmode(code, &mode);
+	code_queue_push_new(local, code);
+	code_make_let_execute(local, code, scope);
+	code_queue_pop(local, code, &pos);
+	code_queue_rollback(code, &mode);
+	code_make_execute_control(local, code, pos);
 }
 
 
 /* let* */
+static void code_make_leta_args(LocalRoot local, addr code, addr list)
+{
+	addr pos, value;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCons(pos, &pos, &value);
+
+		code_make_execute_set(local, code, value);
+		code_make_type_value(local, code, pos);
+		if (getspecialp_tablevalue(pos)) {
+			getname_tablevalue(pos, &value);
+			CodeQueue_cons(local, code, LETA_SPECIAL, value);
+		}
+		else {
+			index_heap(&value, getlexical_tablevalue(pos));
+			CodeQueue_cons(local, code, SETQ_LEXICAL, value);
+		}
+	}
+}
+
+static void code_make_leta_execute(LocalRoot local, addr code, addr scope)
+{
+	addr args, body, free;
+
+	GetEvalScopeIndex(scope, 0, &args);
+	GetEvalScopeIndex(scope, 2, &body);
+	GetEvalScopeIndex(scope, 3, &free);
+
+	code_make_free(local, code, free);
+	code_make_leta_args(local, code, args);
+	code_allcons(local, code, body);
+}
+
 static void code_make_leta(LocalRoot local, addr code, addr scope)
 {
-	addr args, cons, free, allocate;
+	addr pos;
+	modeswitch mode;
 
-	/* make code */
-	GetEvalScopeIndex(scope, 0, &args);
-	GetEvalScopeIndex(scope, 2, &cons);
-	GetEvalScopeIndex(scope, 3, &free);
-	GetEvalScopeIndex(scope, 4, &allocate);
-	code_make_let_args(local, code, args, &args);
-	code_make_let_body(local, code, cons, &cons);
-	/* execute */
-	list_heap(&cons, args, cons, free, allocate, NULL);
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, LETA_PUSH, cons);
-	else
-		CodeQueue_cons(local, code, LETA_SET, cons);
+	GetEvalScopeIndex(scope, 4, &pos); /* allocate */
+	if (pos == Nil) {
+		code_make_leta_execute(local, code, scope);
+		return;
+	}
+
+	code_queue_setmode(code, &mode);
+	code_queue_push_new(local, code);
+	code_make_leta_execute(local, code, scope);
+	code_queue_pop(local, code, &pos);
+	code_queue_rollback(code, &mode);
+	code_make_execute_control(local, code, pos);
 }
 
 
 /* setq */
-static void code_setq_execute(LocalRoot local, addr code, addr list, addr *ret)
+static void code_setq_loop(LocalRoot local, addr code, addr list)
 {
-	addr root, pos, form;
+	addr pos, value, symbol;
 
-	root = Nil;
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		GetCons(pos, &pos, &form);
+		GetCons(pos, &pos, &value);
+		code_make_execute_set(local, code, value);
 
-		code_queue_push_simple(local, code);
-		code_make_execute_set(local, code, form);
-		code_queue_pop(local, code, &form);
-
-		cons_heap(&root, pos, root);
-		cons_heap(&root, form, root);
+		getname_tablevalue(pos, &symbol);
+		code_make_type_value(local, code, pos);
+		if (getspecialp_tablevalue(pos)) {
+			CodeQueue_cons(local, code, SETQ_SPECIAL, symbol);
+		}
+		else if (getglobalp_tablevalue(pos)) {
+			CodeQueue_cons(local, code, SETQ_GLOBAL, symbol);
+		}
+		else {
+			index_heap(&value, getlexical_tablevalue(pos));
+			CodeQueue_cons(local, code, SETQ_LEXICAL, value);
+		}
 	}
-	nreverse(ret, root);
 }
 
 static void code_make_setq(LocalRoot local, addr code, addr scope)
@@ -400,11 +535,8 @@ static void code_make_setq(LocalRoot local, addr code, addr scope)
 	}
 
 	/* setq */
-	code_setq_execute(local, code, list, &list);
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, SETQ_PUSH, list);
-	else
-		CodeQueue_cons(local, code, SETQ_SET, list);
+	code_setq_loop(local, code, list);
+	code_queue_ifpush(local, code);
 }
 
 
@@ -485,80 +617,138 @@ static void code_make_function(LocalRoot local, addr code, addr scope)
 
 
 /* lambda */
-static void ordinary_bind_opt(LocalRoot local, addr code, addr args, addr *ret)
+static void ordinary_bind_value(LocalRoot local, addr code, addr pos)
 {
-	addr root, list, var, init, svar;
+	addr value;
 
-	for (root = Nil; args != Nil; ) {
-		GetCons(args, &list, &args);
-		List_bind(list, &var, &init, &svar, NULL);
-		code_queue_push_simple(local, code);
-		code_make_execute_set(local, code, init);
-		code_queue_pop(local, code, &init);
-		list_heap(&var, var, init, svar, NULL);
-		cons_heap(&root, var, root);
+	code_make_type_value(local, code, pos);
+	if (getspecialp_tablevalue(pos)) {
+		getname_tablevalue(pos, &value);
+		CodeQueue_cons(local, code, LETA_SPECIAL, value);
 	}
-	nreverse(ret, root);
+	else {
+		index_heap(&value, getlexical_tablevalue(pos));
+		CodeQueue_cons(local, code, SETQ_LEXICAL, value);
+	}
 }
 
-static void ordinary_bind_key(LocalRoot local, addr code, addr args, addr *ret)
+static void ordinary_bind_var(LocalRoot local, addr code, addr list)
 {
-	addr root, list, var, name, init, svar;
+	addr pos;
 
-	for (root = Nil; args != Nil; ) {
-		GetCons(args, &list, &args);
-		List_bind(list, &var, &name, &init, &svar, NULL);
-		code_queue_push_simple(local, code);
-		code_make_execute_set(local, code, init);
-		code_queue_pop(local, code, &init);
-		list_heap(&var, var, name, init, svar, NULL);
-		cons_heap(&root, var, root);
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		CodeQueue_single(local, code, POP);
+		ordinary_bind_value(local, code, pos);
 	}
-	nreverse(ret, root);
 }
 
-static void ordinary_bind_aux(LocalRoot local, addr code, addr args, addr *ret)
+static void ordinary_bind_init(LocalRoot local, addr code,
+		addr var, addr init, addr svar)
 {
-	addr root, list, var, init;
+	addr label, finish;
 
-	for (root = Nil; args != Nil; ) {
-		GetCons(args, &list, &args);
-		List_bind(list, &var, &init, NULL);
-		code_queue_push_simple(local, code);
-		code_make_execute_set(local, code, init);
-		code_queue_pop(local, code, &init);
-		list_heap(&var, var, init, NULL);
-		cons_heap(&root, var, root);
+	/* label */
+	code_queue_make_label(local, code, &label);
+	code_queue_make_label(local, code, &finish);
+
+	/* if-exists */
+	code_queue_if_unbound(local, code, label);
+	ordinary_bind_value(local, code, var);
+	if (svar != Nil) {
+		CodeQueue_single(local, code, T_SET);
+		ordinary_bind_value(local, code, svar);
 	}
-	nreverse(ret, root);
+	code_queue_goto(local, code, finish);
+
+	/* if-does-not-exist */
+	code_queue_push_label(local, code, label);
+	code_make_execute_set(local, code, init);
+	ordinary_bind_value(local, code, var);
+	if (svar != Nil) {
+		CodeQueue_single(local, code, NIL_SET);
+		ordinary_bind_value(local, code, svar);
+	}
+
+	/* finish */
+	code_queue_push_label(local, code, finish);
+}
+
+static void ordinary_bind_opt(LocalRoot local, addr code, addr list)
+{
+	addr pos, var, init, svar;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		List_bind(pos, &var, &init, &svar, NULL);
+		CodeQueue_single(local, code, POP_UNBOUND);
+		ordinary_bind_init(local, code, var, init, svar);
+	}
+}
+
+static void ordinary_bind_rest(LocalRoot local, addr code, addr pos)
+{
+	if (pos != Nil) {
+		CodeQueue_single(local, code, REST);
+		ordinary_bind_value(local, code, pos);
+	}
+}
+
+static void ordinary_bind_key(LocalRoot local, addr code, addr list)
+{
+	addr pos, var, name, init, svar;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		List_bind(pos, &var, &name, &init, &svar, NULL);
+		CodeQueue_cons(local, code, GETF, name);
+		ordinary_bind_init(local, code, var, init, svar);
+	}
+}
+
+static void ordinary_bind_allow(LocalRoot local, addr code,
+		addr rest, addr list, addr allow)
+{
+	addr name, keys;
+
+	if (rest != Nil || allow != Nil)
+		return;
+	/* check */
+	keys = Nil;
+	while (list != Nil) {
+		GetCons(list, &name, &list);
+		GetCdr(name, &name); /* var */
+		GetCar(name, &name); /* name */
+		cons_heap(&keys, name, keys);
+	}
+	if (keys != Nil)
+		CodeQueue_cons(local, code, ALLOW_OTHER_KEYS, keys);
+}
+
+static void ordinary_bind_aux(LocalRoot local, addr code, addr list)
+{
+	addr pos, var, init;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		List_bind(pos, &var, &init, NULL);
+		code_make_execute_set(local, code, init);
+		ordinary_bind_value(local, code, var);
+	}
 }
 
 
 /*
  *  lambda
  */
-static void list_nil_heap(addr *ret, ...)
+static void code_lambda_lexical(LocalRoot local, addr code, addr scope)
 {
-	addr list, x, cdr;
-	va_list va;
+	addr list;
 
-	va_start(va, ret);
-	list = Nil;
-	for (;;) {
-		x = va_arg(va, addr);
-		if (x == NULL)
-			break;
-		cons_heap(&list, x, list);
+	GetEvalScopeIndex(scope, EvalLambda_Lexical, &list);
+	if (list != Nil) {
+		CodeQueue_cons(local, code, LAMBDA_LEXICAL, list);
 	}
-	va_end(va);
-
-	while (list != Nil) {
-		GetCons(list, &x, &cdr);
-		if (x != Nil)
-			break;
-		list = cdr;
-	}
-	nreverse(ret, list);
 }
 
 static void code_lambda_args(LocalRoot local, addr code, addr scope)
@@ -567,55 +757,161 @@ static void code_lambda_args(LocalRoot local, addr code, addr scope)
 
 	GetEvalScopeIndex(scope, EvalLambda_Args, &list);
 	List_bind(list, &var, &opt, &rest, &key, &allow, &aux, NULL);
-	ordinary_bind_opt(local, code, opt, &opt);
-	ordinary_bind_key(local, code, key, &key);
-	ordinary_bind_aux(local, code, aux, &aux);
-	list_nil_heap(&list, var, opt, rest, key, allow, aux, NULL);
-	SetEvalScopeIndex(scope, EvalLambda_Args, list);
+	ordinary_bind_var(local, code, var);
+	ordinary_bind_opt(local, code, opt);
+	ordinary_bind_rest(local, code, rest);
+	if (rest == Nil && key == Nil)
+		CodeQueue_single(local, code, REST_NULL);
+	ordinary_bind_key(local, code, key);
+	ordinary_bind_allow(local, code, rest, key, allow);
+	ordinary_bind_aux(local, code, aux);
 }
 
 static void code_lambda_body(LocalRoot local, addr code, addr scope)
 {
 	addr list;
-
 	GetEvalScopeIndex(scope, EvalLambda_Cons, &list);
-	code_queue_push_simple(local, code);
 	code_allcons_set(local, code, list);
-	code_queue_pop(local, code, &list);
-	SetEvalScopeIndex(scope, EvalLambda_Cons, list);
 }
 
-static void code_lambda_value(addr scope)
+/* closure */
+static void code_lambda_closure_table(addr pos, addr *ret)
 {
-	addr call, pos, value;
+	enum EvalTable type;
+	addr x, y, z;
+	size_t src, dst;
+
+	CheckTableTable(pos);
+	type = gettype_evaltable(pos);
+	get_evaltable(pos, &pos);
+	switch (type) {
+		case EvalTable_Value:
+			src = getclosure_tablevalue(pos); /* from */
+			dst = getlexical_tablevalue(pos); /* to */
+			break;
+
+		case EvalTable_Function:
+			src = getclosure_tablefunction(pos); /* from */
+			dst = getlexical_tablefunction(pos); /* to */
+			break;
+
+		case EvalTable_TagBody:
+			src = getclosure_tabletagbody(pos); /* from */
+			dst = getlexical_tabletagbody(pos); /* to */
+			break;
+
+		case EvalTable_Block:
+			src = getclosure_tableblock(pos); /* from */
+			dst = getlexical_tableblock(pos); /* to */
+			break;
+
+		default:
+			Abort("Invalid eval-table type.");
+			*ret = 0;
+			return;
+	}
+
+	/* result */
+	fixnum_heap(&x, (fixnum)type);
+	index_heap(&y, src);
+	index_heap(&z, dst);
+	list_heap(ret, x, y, z, NULL);
+}
+
+static void code_lambda_closure_list(addr list, addr *ret)
+{
+	addr root, pos;
+
+	root = Nil;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		code_lambda_closure_table(pos, &pos);
+		cons_heap(&root, pos, root);
+	}
+	nreverse(ret, root);
+}
+
+static void code_lambda_self(addr scope, addr *ret)
+{
+	addr call, pos, x, y, z;
 
 	GetEvalScopeIndex(scope, EvalLambda_Call, &call);
 	GetEvalScopeIndex(scope, EvalLambda_Table, &pos);
-	value = Nil;
-	if ((call != Nil) && getreference_tablefunction(pos))
-		index_heap(&value, getlexical_tablefunction(pos));
-	SetEvalScopeIndex(scope, EvalLambda_Self, value);
+	if ((call != Nil) && (pos != Nil) && getreference_tablefunction(pos)) {
+		fixnum_heap(&x, EvalTable_Self);
+		index_heap(&y, 0);
+		index_heap(&z, getlexical_tablefunction(pos));
+		list_heap(ret, x, y, z, NULL);
+	}
+	else {
+		*ret = Nil;
+	}
+}
+
+static void code_lambda_closure(addr scope, addr *ret)
+{
+	addr list, pos;
+
+	/* closure */
+	GetEvalScopeIndex(scope, EvalLambda_Clos, &list);
+	code_lambda_closure_list(list, &list);
+
+	/* self */
+	code_lambda_self(scope, &pos);
+	if (pos != Nil)
+		cons_heap(&list, pos, list);
+
+	/* result */
+	*ret = list;
+}
+
+static void code_lambda_info(LocalRoot local, addr code, addr scope)
+{
+	addr pos;
+
+	/* name */
+	GetEvalScopeIndex(scope, EvalLambda_Call, &pos);
+	if (pos != Nil)
+		CodeQueue_cons(local, code, LAMBDA_NAME, pos);
+
+	/* type */
+	GetEvalScopeIndex(scope, EvalLambda_The, &pos);
+	if (pos != Nil)
+		CodeQueue_cons(local, code, LAMBDA_TYPE, pos);
+
+	/* documentation */
+	GetEvalScopeIndex(scope, EvalLambda_Doc, &pos);
+	if (pos != Nil)
+		CodeQueue_cons(local, code, LAMBDA_DOC, pos);
+
+	/* form */
+	GetEvalScopeIndex(scope, EvalLambda_Form, &pos);
+	if (pos != Nil)
+		CodeQueue_cons(local, code, LAMBDA_FORM, pos);
+
+	/* defun */
+	GetEvalScopeIndex(scope, EvalLambda_Defun, &pos);
+	if (pos != Nil)
+		CodeQueue_cons(local, code, LAMBDA_DEFUN, pos);
+
+	/* closure */
+	code_lambda_closure(scope, &pos);
+	if (pos != Nil)
+		CodeQueue_cons(local, code, LAMBDA_CLOSURE, pos);
 }
 
 static void code_lambda_function(LocalRoot local, addr code, addr scope)
 {
 	addr pos;
 
+	code_queue_push_simple(local, code);
+	code_lambda_lexical(local, code, scope);
 	code_lambda_args(local, code, scope);
 	code_lambda_body(local, code, scope);
-	code_lambda_value(scope);
-
-	/* execute */
-	code_queue_push_simple(local, code);
-	CodeQueue_cons(local, code, LAMBDA_EXECUTE, scope);
 	code_queue_pop(local, code, &pos);
-	SetEvalScopeIndex(scope, EvalLambda_Code, pos);
-
-	/* lambda */
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, LAMBDA_PUSH, scope);
-	else
-		CodeQueue_cons(local, code, LAMBDA_SET, scope);
+	CodeQueue_cons(local, code, LAMBDA, pos);
+	code_lambda_info(local, code, scope);
+	code_queue_ifpush(local, code);
 }
 
 static void code_make_lambda(LocalRoot local, addr code, addr scope)
@@ -635,15 +931,6 @@ static void code_lambda_set(LocalRoot local, addr code, addr scope)
 	code_queue_rollback(code, &mode);
 }
 
-static void code_lambda_push(LocalRoot local, addr code, addr scope)
-{
-	modeswitch mode;
-
-	code_queue_pushmode(code, &mode);
-	code_lambda_function(local, code, scope);
-	code_queue_rollback(code, &mode);
-}
-
 static void code_make_defun(LocalRoot local, addr code, addr scope)
 {
 	code_lambda_set(local, code, scope);
@@ -653,59 +940,250 @@ static void code_make_defun(LocalRoot local, addr code, addr scope)
 
 
 /* macro-lambda */
-static void code_macro_bind_args(LocalRoot, addr, addr, addr *);
-static void code_macro_bind_var(LocalRoot local, addr code, addr args, addr *ret)
+static void code_macro_special(LocalRoot, addr, addr);
+static void code_macro_special_value(LocalRoot local, addr code, addr pos)
 {
-	addr root, var;
-
-	for (root = Nil; args != Nil; ) {
-		GetCons(args, &var, &args);
-		if (consp(var))
-			code_macro_bind_args(local, code, var, &var);
-		cons_heap(&root, var, root);
+	if (pos == Nil)
+		return;
+	if (getspecialp_tablevalue(pos)) {
+		getname_tablevalue(pos, &pos);
+		CodeQueue_cons(local, code, MACRO_SPECIAL, pos);
 	}
-	nreverse(ret, root);
 }
 
-static void code_macro_bind_args(LocalRoot local, addr code, addr args, addr *ret)
+static void code_macro_special_var(LocalRoot local, addr code, addr list)
+{
+	addr pos;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		if (consp(pos)) {
+			code_macro_special(local, code, pos);
+			continue;
+		}
+		code_macro_special_value(local, code, pos);
+	}
+}
+
+static void code_macro_special_car(LocalRoot local, addr code, addr list)
+{
+	addr pos;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		GetCar(pos, &pos);
+		code_macro_special_value(local, code, pos);
+	}
+}
+
+static void code_macro_special_rest(LocalRoot local, addr code, addr pos)
+{
+	/* (var . &rest) */
+	if (pos != Nil) {
+		GetCar(pos, &pos);
+		code_macro_special_value(local, code, pos);
+	}
+}
+
+static void code_macro_special(LocalRoot local, addr code, addr args)
 {
 	addr var, opt, rest, key, allow, aux, whole, env;
 
 	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
-	code_macro_bind_var(local, code, var, &var);
-	ordinary_bind_opt(local, code, opt, &opt);
-	ordinary_bind_key(local, code, key, &key);
-	ordinary_bind_aux(local, code, aux, &aux);
-	list_nil_heap(ret, whole, env, var, opt, rest, key, allow, aux, NULL);
+	code_macro_special_value(local, code, env);
+	code_macro_special_value(local, code, whole);
+	code_macro_special_var(local, code, var);
+	code_macro_special_car(local, code, opt);
+	code_macro_special_rest(local, code, rest);
+	code_macro_special_car(local, code, key);
+	code_macro_special_car(local, code, aux);
+}
+
+static void code_macro_bind(LocalRoot, addr, addr);
+static void code_macro_bind_value(LocalRoot local, addr code, addr pos)
+{
+	addr value;
+
+	code_make_type_value(local, code, pos);
+	if (getspecialp_tablevalue(pos)) {
+		getname_tablevalue(pos, &value);
+		CodeQueue_cons(local, code, SETQ_SPECIAL, value);
+	}
+	else {
+		index_heap(&value, getlexical_tablevalue(pos));
+		CodeQueue_cons(local, code, SETQ_LEXICAL, value);
+	}
+}
+
+static void code_macro_bind_var(LocalRoot local, addr code, addr list)
+{
+	addr pos;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		CodeQueue_single(local, code, POP);
+		if (consp(pos)) {
+			code_queue_push_new(local, code);
+			code_macro_bind(local, code, pos);
+			code_queue_pop(local, code, &pos);
+			code_make_execute_control(local, code, pos);
+		}
+		else {
+			code_macro_bind_value(local, code, pos);
+		}
+	}
+}
+
+static void code_macro_bind_init(LocalRoot local, addr code,
+		addr var, addr init, addr svar)
+{
+	addr label, finish;
+
+	/* label */
+	code_queue_make_label(local, code, &label);
+	code_queue_make_label(local, code, &finish);
+
+	/* if-exists */
+	code_queue_if_unbound(local, code, label);
+	code_macro_bind_value(local, code, var);
+	if (svar != Nil) {
+		CodeQueue_single(local, code, T_SET);
+		code_macro_bind_value(local, code, svar);
+	}
+	code_queue_goto(local, code, finish);
+
+	/* if-does-not-exist */
+	code_queue_push_label(local, code, label);
+	code_make_execute_set(local, code, init);
+	code_macro_bind_value(local, code, var);
+	if (svar != Nil) {
+		CodeQueue_single(local, code, NIL_SET);
+		code_macro_bind_value(local, code, svar);
+	}
+
+	/* finish */
+	code_queue_push_label(local, code, finish);
+}
+
+static void code_macro_bind_opt(LocalRoot local, addr code, addr list)
+{
+	addr pos, var, init, svar;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		List_bind(pos, &var, &init, &svar, NULL);
+		CodeQueue_single(local, code, POP_UNBOUND);
+		code_macro_bind_init(local, code, var, init, svar);
+	}
+}
+
+static void code_macro_bind_rest(LocalRoot local, addr code, addr list)
+{
+	if (list != Nil) {
+		GetCar(list, &list);
+		CodeQueue_single(local, code, REST);
+		code_macro_bind_value(local, code, list);
+	}
+}
+
+static void code_macro_bind_key(LocalRoot local, addr code, addr list)
+{
+	addr pos, var, name, init, svar;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		List_bind(pos, &var, &name, &init, &svar, NULL);
+		CodeQueue_cons(local, code, GETF, name);
+		code_macro_bind_init(local, code, var, init, svar);
+	}
+}
+
+static void code_macro_bind_aux(LocalRoot local, addr code, addr list)
+{
+	addr pos, var, init;
+
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		List_bind(pos, &var, &init, NULL);
+		code_make_execute_set(local, code, init);
+		code_macro_bind_value(local, code, var);
+	}
+}
+
+static void code_macro_bind_list(LocalRoot local, addr code, addr args)
+{
+	addr var, opt, rest, key, allow, aux, whole, env;
+
+	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
+	code_macro_bind_var(local, code, var);
+	code_macro_bind_opt(local, code, opt);
+	if (rest == Nil && key == Nil)
+		CodeQueue_single(local, code, REST_NULL);
+	code_macro_bind_rest(local, code, rest);
+	code_macro_bind_key(local, code, key);
+	ordinary_bind_allow(local, code, rest, key, allow);
+	code_macro_bind_aux(local, code, aux);
+}
+
+static void code_macro_bind_whole(LocalRoot local, addr code, addr pos)
+{
+	if (pos != Nil) {
+		code_macro_bind_value(local, code, pos);
+	}
+	CodeQueue_single(local, code, WHOLE);
+}
+
+static void code_macro_bind(LocalRoot local, addr code, addr args)
+{
+	addr var, opt, rest, key, allow, aux, whole, env;
+
+	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
+	code_macro_bind_whole(local, code, whole);
+	code_macro_bind_list(local, code, args);
+}
+
+static void code_macro_env(LocalRoot local, addr code, addr env)
+{
+	if (env != Nil) {
+		CodeQueue_single(local, code, MACRO_ENV);
+		code_macro_bind_value(local, code, env);
+	}
+}
+
+static void code_macro_whole(LocalRoot local, addr code, addr whole)
+{
+	CodeQueue_single(local, code, POP);
+	if (whole != Nil) {
+		code_macro_bind_value(local, code, whole);
+	}
+	CodeQueue_single(local, code, MACRO_WHOLE);
 }
 
 static void code_macro_args(LocalRoot local, addr code, addr scope)
 {
-	addr list;
+	addr list, var, opt, rest, key, allow, aux, whole, env;
 
 	GetEvalScopeIndex(scope, EvalLambda_Args, &list);
-	code_macro_bind_args(local, code, list, &list);
-	SetEvalScopeIndex(scope, EvalLambda_Args, list);
+	code_macro_special(local, code, list);
+
+	List_bind(list, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
+	code_macro_env(local, code, env);
+	code_macro_whole(local, code, whole);
+	code_macro_bind_list(local, code, list);
 }
 
 static void code_macro_function(LocalRoot local, addr code, addr scope)
 {
 	addr pos;
 
+	code_queue_push_simple(local, code);
+	code_lambda_lexical(local, code, scope);
 	code_macro_args(local, code, scope);
 	code_lambda_body(local, code, scope);
-
-	/* execute */
-	code_queue_push_simple(local, code);
-	CodeQueue_cons(local, code, MACRO_EXECUTE, scope);
 	code_queue_pop(local, code, &pos);
-	SetEvalScopeIndex(scope, EvalLambda_Code, pos);
-
-	/* lambda */
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, MACRO_PUSH, scope);
-	else
-		CodeQueue_cons(local, code, MACRO_SET, scope);
+	CodeQueue_cons(local, code, MACRO, pos);
+	code_lambda_info(local, code, scope);
+	code_queue_ifpush(local, code);
 }
 
 static void code_make_macro_lambda(LocalRoot local, addr code, addr scope)
@@ -753,31 +1231,38 @@ static void code_make_define_compiler_macro(LocalRoot local, addr code, addr sco
 
 
 /* destructuring-bind */
-static void code_bind_body(LocalRoot local, addr code, addr scope)
+static void code_bind_args(LocalRoot local, addr code, addr list)
 {
-	addr list;
+	code_macro_special(local, code, list);
+	code_macro_bind(local, code, list);
+}
 
-	GetEvalScopeIndex(scope, EvalLambda_Cons, &list);
-	code_queue_push_simple(local, code);
-	code_allcons_set(local, code, list);
-	code_queue_pop(local, code, &list);
-	SetEvalScopeIndex(scope, EvalLambda_Cons, list);
+static void code_make_bind_execute(LocalRoot local, addr code, addr scope)
+{
+	addr expr, args, body, free;
+
+	GetEvalScopeIndex(scope, 0, &expr);
+	GetEvalScopeIndex(scope, 1, &args);
+	GetEvalScopeIndex(scope, 3, &body);
+	GetEvalScopeIndex(scope, 4, &free);
+
+	code_make_execute_set(local, code, expr);
+	code_make_free(local, code, free);
+	code_bind_args(local, code, args);
+	code_allcons(local, code, body);
 }
 
 static void code_make_destructuring_bind(LocalRoot local, addr code, addr scope)
 {
-	addr expr, macro;
+	addr pos;
+	modeswitch mode;
 
-	GetEvalScopeIndex(scope, 0, &expr);
-	GetEvalScopeIndex(scope, 1, &macro); /* macro-lambda */
-	code_macro_args(local, code, macro);
-	code_bind_body(local, code, macro);
-
-	code_make_execute_set(local, code, expr);
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, BIND_PUSH, macro);
-	else
-		CodeQueue_cons(local, code, BIND_SET, macro);
+	code_queue_setmode(code, &mode);
+	code_queue_push_new(local, code);
+	code_make_bind_execute(local, code, scope);
+	code_queue_pop(local, code, &pos);
+	code_queue_rollback(code, &mode);
+	code_make_execute_control(local, code, pos);
 }
 
 
@@ -797,77 +1282,51 @@ static void code_make_define_symbol_macro(LocalRoot local, addr code, addr scope
 
 
 /* flet */
-static void code_make_flet_args(LocalRoot local, addr code, addr args, addr *ret)
+static void code_make_type_function(LocalRoot local, addr code, addr pos)
 {
-	addr list, x, y;
+	addr type;
 
-	list = Nil;
-	while (args != Nil) {
-		GetCons(args, &x, &args);
-		GetCons(x, &x, &y);
-		code_queue_push_simple(local, code);
-		code_lambda_push(local, code, y);
-		code_queue_pop(local, code, &y);
-		cons_heap(&list, x, list);
-		cons_heap(&list, y, list);
+	if (getcheck_tablefunction(pos)) {
+		gettype_tablefunction(pos, &type);
+		if ((! type_astert_p(type)) && (! type_function_aster_p(type))) {
+			CodeQueue_cons(local, code, TYPE_RESULT, type);
+		}
 	}
-	nreverse(ret, list);
+}
+
+static void code_make_flet_args(LocalRoot local, addr code, addr args)
+{
+	addr pos, value;
+
+	while (args != Nil) {
+		GetCons(args, &pos, &args);
+		GetCons(pos, &pos, &value);
+
+		code_lambda_set(local, code, value);
+		code_make_type_function(local, code, pos);
+		index_heap(&value, getlexical_tablefunction(pos));
+		CodeQueue_cons(local, code, SETQ_LEXICAL, value);
+	}
 }
 
 static void code_make_flet(LocalRoot local, addr code, addr scope)
 {
-	addr args, cons, free;
+	addr args, body, free;
 
-	/* make code */
 	GetEvalScopeIndex(scope, 0, &args);
-	GetEvalScopeIndex(scope, 2, &cons);
+	GetEvalScopeIndex(scope, 2, &body);
 	GetEvalScopeIndex(scope, 3, &free);
-	code_make_flet_args(local, code, args, &args);
-	code_make_let_body(local, code, cons, &cons);
-	/* execute */
-	list_heap(&cons, args, cons, free, NULL);
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, FLET_PUSH, cons);
-	else
-		CodeQueue_cons(local, code, FLET_SET, cons);
+
+	code_make_free(local, code, free);
+	code_make_flet_args(local, code, args);
+	code_allcons(local, code, body);
 }
 
 
 /* labels */
-static void code_make_labels_args(LocalRoot local, addr code, addr args, addr *ret)
-{
-	addr list, x, y;
-
-	list = Nil;
-	while (args != Nil) {
-		GetCons(args, &x, &args);
-		GetCons(x, &x, &y);
-		code_queue_push_simple(local, code);
-		code_lambda_set(local, code, y);
-		code_queue_pop(local, code, &y);
-		cons_heap(&list, x, list);
-		cons_heap(&list, y, list);
-	}
-	nreverse(ret, list);
-}
-
 static void code_make_labels(LocalRoot local, addr code, addr scope)
-
 {
-	addr args, cons, free;
-
-	/* make code */
-	GetEvalScopeIndex(scope, 0, &args);
-	GetEvalScopeIndex(scope, 2, &cons);
-	GetEvalScopeIndex(scope, 3, &free);
-	code_make_labels_args(local, code, args, &args);
-	code_make_let_body(local, code, cons, &cons);
-	/* execute */
-	list_heap(&cons, args, cons, free, NULL);
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, LABELS_PUSH, cons);
-	else
-		CodeQueue_cons(local, code, LABELS_SET, cons);
+	code_make_flet(local, code, scope);
 }
 
 
@@ -890,7 +1349,7 @@ static void code_values_set(LocalRoot local, addr code, addr cons)
 	}
 	CodeQueue_single(local, code, VALUES_SET);
 	code_queue_pop(local, code, &pos);
-	CodeQueue_cons(local, code, EXECUTE_NORMAL_SET, pos);
+	CodeQueue_cons(local, code, EXECUTE_CONTROL_SET, pos);
 }
 
 static void code_values_push(LocalRoot local, addr code, addr cons)
@@ -967,6 +1426,71 @@ static void code_make_locally(LocalRoot local, addr code, addr scope)
 
 
 /* if */
+static int code_if_not_p(addr scope)
+{
+	addr call, check1, check2;
+
+	if (RefEvalScopeType(scope) != EVAL_PARSE_CALL)
+		return 0;
+	/* args */
+	GetEvalScopeIndex(scope, 1, &call);
+	if (! singlep(call))
+		return 0;
+	/* (not x) or (null x) */
+	GetEvalScopeIndex(scope, 0, &call);
+	if (RefEvalScopeType(scope) != EVAL_PARSE_FUNCTION)
+		return 0;
+	GetEvalScopeValue(call, &call);
+	getname_tablefunction(call, &call);
+	if (! symbolp_callname(call))
+		return 0;
+	GetCallName(call, &call);
+	GetConst(COMMON_NOT, &check1);
+	GetConst(COMMON_NULL, &check2);
+
+	return call == check1 || call == check2;
+}
+
+static void code_if_true(LocalRoot local, addr code, addr then, addr last)
+{
+	int check;
+	addr label_else, label_end;
+
+	check = (RefEvalScopeType(last) == EVAL_PARSE_NIL);
+	/* (if expr then else) */
+	code_queue_make_label(local, code, &label_else);
+	code_queue_make_label(local, code, &label_end);
+	code_queue_if_nil(local, code, label_else);
+	code_make_execute(local, code, then);
+	code_queue_goto(local, code, label_end);
+	code_queue_push_label(local, code, label_else);
+	if (check)
+		code_make_nil(local, code, NULL);
+	else
+		code_make_execute(local, code, last);
+	code_queue_push_label(local, code, label_end);
+}
+
+static void code_if_false(LocalRoot local, addr code, addr then, addr last)
+{
+	int check;
+	addr label_else, label_end;
+
+	check = (RefEvalScopeType(last) == EVAL_PARSE_NIL);
+	/* (if (not expr) then else) */
+	code_queue_make_label(local, code, &label_else);
+	code_queue_make_label(local, code, &label_end);
+	code_queue_if_t(local, code, label_else);
+	code_make_execute(local, code, then);
+	code_queue_goto(local, code, label_end);
+	code_queue_push_label(local, code, label_else);
+	if (check)
+		code_make_nil(local, code, NULL);
+	else
+		code_make_execute(local, code, last);
+	code_queue_push_label(local, code, label_end);
+}
+
 static void code_make_if(LocalRoot local, addr code, addr scope)
 {
 	addr expr, then, last;
@@ -976,16 +1500,10 @@ static void code_make_if(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, 2, &last);
 
 	code_make_execute_set(local, code, expr);
-	/* then */
-	code_queue_push_simple(local, code);
-	code_make_execute(local, code, then);
-	code_queue_pop(local, code, &then);
-	/* else */
-	code_queue_push_simple(local, code);
-	code_make_execute(local, code, last);
-	code_queue_pop(local, code, &last);
-	/* code */
-	CodeQueue_double(local, code, IF, then, last);
+	if (code_if_not_p(expr))
+		code_if_false(local, code, then, last);
+	else
+		code_if_true(local, code, then, last);
 }
 
 
@@ -997,7 +1515,7 @@ static void code_make_unwind_protect(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, 0, &form);
 	GetEvalScopeIndex(scope, 1, &cons);
 	/* cleanup */
-	code_queue_push_simple(local, code);
+	code_queue_push_new(local, code);
 	code_allcons_rem(local, code, cons);
 	code_queue_pop(local, code, &cons);
 	/* protect */
@@ -1006,7 +1524,7 @@ static void code_make_unwind_protect(LocalRoot local, addr code, addr scope)
 	code_make_execute_set(local, code, form);
 	code_queue_pop(local, code, &form);
 	/* set code */
-	code_make_execute_normal(local, code, form);
+	code_make_execute_control(local, code, form);
 }
 
 
@@ -1147,11 +1665,18 @@ static void code_make_throw(LocalRoot local, addr code, addr scope)
 	code_make_execute_set(local, code, form);
 	CodeQueue_single(local, code, THROW);
 	code_queue_pop(local, code, &form);
-	CodeQueue_cons(local, code, EXECUTE_NORMAL_SET, form);
+	CodeQueue_cons(local, code, EXECUTE_CONTROL_SET, form);
 }
 
 
 /* multiple-value-bind */
+static void code_make_let_body(LocalRoot local, addr code, addr list, addr *ret)
+{
+	code_queue_push_new(local, code);
+	code_allcons_set(local, code, list);
+	code_queue_pop(local, code, ret);
+}
+
 static void code_make_multiple_value_bind(LocalRoot local, addr code, addr scope)
 {
 	addr args, expr, cons, free;
@@ -1191,7 +1716,7 @@ static void code_make_multiple_value_call(LocalRoot local, addr code, addr scope
 	/* call */
 	CodeQueue_single(local, code, FUNCALL);
 	code_queue_pop(local, code, &pos);
-	code_make_execute_normal(local, code, pos);
+	code_make_execute_control(local, code, pos);
 }
 
 
@@ -1213,11 +1738,11 @@ static void code_make_multiple_value_prog1(LocalRoot local, addr code, addr scop
 	}
 
 	/* first */
-	code_queue_push_simple(local, code);
+	code_queue_push_new(local, code);
 	code_make_execute_set(local, code, first);
 	code_queue_pop(local, code, &first);
 	/* cons */
-	code_queue_push_simple(local, code);
+	code_queue_push_new(local, code);
 	code_allcons_rem(local, code, cons);
 	code_queue_pop(local, code, &cons);
 	/* execute */
@@ -1240,7 +1765,7 @@ static void code_make_nth_value(LocalRoot local, addr code, addr scope)
 	code_make_execute_set(local, code, expr);
 	CodeQueue_single(local, code, NTH_VALUE);
 	code_queue_pop(local, code, &pos);
-	code_make_execute_normal(local, code, pos);
+	code_make_execute_control(local, code, pos);
 }
 
 
@@ -1258,7 +1783,7 @@ static void code_make_progv(LocalRoot local, addr code, addr scope)
 	CodeQueue_single(local, code, PROGV);
 	code_allcons_set(local, code, body);
 	code_queue_pop(local, code, &pos);
-	code_make_execute_normal(local, code, pos);
+	code_make_execute_control(local, code, pos);
 }
 
 
@@ -1287,7 +1812,7 @@ static void code_make_load_time_value_body(LocalRoot local, addr code, addr scop
 	}
 	code_make_execute(local, code, root);
 	code_queue_pop(local, code, &expr);
-	code_make_execute_normal(local, code, expr);
+	code_make_execute_control(local, code, expr);
 }
 
 static void code_make_load_time_value_expr(LocalRoot local, addr code, addr scope)
@@ -1405,7 +1930,7 @@ static int code_make_specialize_push_return(LocalRoot local, addr code, addr sco
 	code_queue_push_new(local, code);
 	code_make_specialize_allcons(local, code, args);
 	code_queue_pop(local, code, &args);
-	code_make_execute_normal(local, code, args);
+	code_make_execute_control(local, code, args);
 
 	return 1;
 }
@@ -1608,7 +2133,7 @@ static void code_make_call(LocalRoot local, addr code, addr scope)
 	code_make_call_first(local, code, first);
 	/* execute */
 	code_queue_pop(local, code, &pos);
-	code_make_execute_normal(local, code, pos);
+	code_make_execute_control(local, code, pos);
 }
 
 

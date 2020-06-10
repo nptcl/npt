@@ -394,37 +394,21 @@ static int scope_define_compiler_macro(Execute ptr, addr *ret, addr eval)
 
 
 /* destructuring-bind */
-static int scope_destructuring_bind_lambda(Execute ptr, addr *ret, addr eval)
-{
-	struct lambda_struct str;
-
-	Check(! eval_parse_p(eval), "type error");
-	scope_init_lambda(&str, EVAL_PARSE_MACRO_LAMBDA, 1);
-	GetEvalParse(eval, 0, &str.args);
-	GetEvalParse(eval, 1, &str.decl);
-	GetEvalParse(eval, 2, &str.doc);
-	GetEvalParse(eval, 3, &str.cons);
-	return scope_destructuring_bind_call(ptr, &str, ret);
-}
-
 static int scope_destructuring_bind(Execute ptr, addr *ret, addr eval)
 {
-	addr args, expr, type;
+	addr args, expr;
 	LocalHold hold;
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &expr);
 	GetEvalParse(eval, 1, &args);
 
-	hold = LocalHold_local(ptr);
+	hold = LocalHold_array(ptr, 1);
 	Return(localhold_scope_eval(hold, ptr, &expr, expr));
-	Return(scope_destructuring_bind_lambda(ptr, &args, args));
+	localhold_set(hold, 0, expr);
+	Return(scope_bind_call(ptr, &eval, expr, args));
 	localhold_end(hold);
 
-	GetEvalScopeThe(args, &type);
-	eval_scope_size(ptr, &eval, 2, EVAL_PARSE_DESTRUCTURING_BIND, type, Nil);
-	SetEvalScopeIndex(eval, 0, expr);
-	SetEvalScopeIndex(eval, 1, args);
 	return Result(ret, eval);
 }
 

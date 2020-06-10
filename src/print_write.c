@@ -1927,7 +1927,7 @@ static int WriteBody_index(Execute ptr, addr stream, addr pos)
 
 static int WriteCall_index(Execute ptr, addr stream, addr pos)
 {
-	return print_unreadable_object(ptr, stream, pos, 1, 0, WriteBody_index);
+	return print_unreadable_object(ptr, stream, pos, 0, 0, WriteBody_index);
 }
 
 

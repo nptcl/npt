@@ -105,15 +105,19 @@ static CodeValue make_code_value(pointer id, addr pos)
 
 static void update_struct_code(struct code_value *ptr, addr list)
 {
-	addr pos;
+	addr symbol, pos;
 	callbind_code bind;
 	CodeValue value;
 	pointer id;
 
 	/* operator */
-	GetCons(list, &pos, &list);
-	GetFunctionSymbol(pos, &pos);
+	GetCons(list, &symbol, &list);
+	GetFunctionSymbol(symbol, &pos);
+#ifdef LISP_DEBUG
+	if (pos == Unbound)
+		infoprint(symbol);
 	Check(pos == Unbound, "unbound error");
+#endif
 	Check(! compiled_funcall_function_p(pos), "type error");
 	id = StructFunction(pos)->index;
 	GetPointer_code(id, &bind);

@@ -28,40 +28,9 @@ _g int nop_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
-_g int execute_simple_set_code(Execute ptr, CodeValue x)
-{
-	return runcode_simple(ptr, x.pos);
-}
-
-_g int execute_normal_set_code(Execute ptr, CodeValue x)
-{
-	return runcode_normal(ptr, x.pos);
-}
-
 _g int execute_control_set_code(Execute ptr, CodeValue x)
 {
 	return runcode_control(ptr, x.pos);
-}
-
-_g int execute_switch_set_code(Execute ptr, CodeValue x)
-{
-	return runcode_switch(ptr, x.pos);
-}
-
-_g int execute_simple_push_code(Execute ptr, CodeValue x)
-{
-	Return(runcode_simple(ptr, x.pos));
-	getresult_control(ptr, &x.pos);
-	pushargs_control(ptr, x.pos);
-	return 0;
-}
-
-_g int execute_normal_push_code(Execute ptr, CodeValue x)
-{
-	Return(runcode_normal(ptr, x.pos));
-	getresult_control(ptr, &x.pos);
-	pushargs_control(ptr, x.pos);
-	return 0;
 }
 
 _g int execute_control_push_code(Execute ptr, CodeValue x)
@@ -70,6 +39,11 @@ _g int execute_control_push_code(Execute ptr, CodeValue x)
 	getresult_control(ptr, &x.pos);
 	pushargs_control(ptr, x.pos);
 	return 0;
+}
+
+_g int execute_switch_set_code(Execute ptr, CodeValue x)
+{
+	return runcode_switch(ptr, x.pos);
 }
 
 _g int execute_switch_push_code(Execute ptr, CodeValue x)
@@ -304,122 +278,92 @@ _g int declaim_declaration_code(Execute ptr, CodeValue x)
 /*
  *  let
  */
-static int let_args_code(Execute ptr, addr x)
+_g int type_result_code(Execute ptr, CodeValue x)
 {
-	addr list, pos, value, symbol, type;
+	/* the-set-code */
+	addr value;
+	getresult_control(ptr, &value);
+	return typep_error(ptr, value, x.pos);
+}
+
+_g int type_lexical_code(Execute ptr, CodeValue x)
+{
+	addr pos, type;
 	size_t index;
 
-	/* value */
-	list = x;
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		GetCons(list, &value, &list);
-		Return(runcode_simple(ptr, value));
-		getresult_control(ptr, &value);
-		/* type check */
-		if (getcheck_tablevalue(pos)) {
-			gettype_tablevalue(pos, &type);
-			Return(typep_error(ptr, value, type));
-		}
-		/* setlet */
-		index = getlet_tablevalue(pos);
-		set_lexical_control(ptr, index, value);
-	}
+	List_bind(x.pos, &pos, &type, NULL);
+	GetIndex(pos, &index);
+	get_lexical_control(ptr, index, &pos);
 
-	/* bind */
-	list = x;
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		GetCdr(list, &list);
-		/* getlet */
-		index = getlet_tablevalue(pos);
-		get_lexical_control(ptr, index, &value);
-		/* bind */
-		if (getspecialp_tablevalue(pos)) {
-			getname_tablevalue(pos, &symbol);
-			pushspecial_control(ptr, symbol, value);
-		}
-		else {
-			index = getlexical_tablevalue(pos);
-			set_lexical_control(ptr, index, value);
-		}
-	}
+	return typep_error(ptr, pos, type);
+}
+
+_g int type_special_code(Execute ptr, CodeValue x)
+{
+	addr pos, type;
+	List_bind(x.pos, &pos, &type, NULL);
+	getspecial_local(ptr, pos, &pos);
+	return (pos == Unbound)? 0: typep_error(ptr, pos, type);
+}
+
+_g int type_global_code(Execute ptr, CodeValue x)
+{
+	addr pos, type;
+	List_bind(x.pos, &pos, &type, NULL);
+	GetValueSymbol(pos, &pos);
+	return (pos == Unbound)? 0: typep_error(ptr, pos, type);
+}
+
+_g int type_function_code(Execute ptr, CodeValue x)
+{
+	addr pos, type;
+	List_bind(x.pos, &pos, &type, NULL);
+	GetFunctionSymbol(pos, &pos);
+	return (pos == Unbound)? 0: typep_error(ptr, pos, type);
+}
+
+_g int type_setf_code(Execute ptr, CodeValue x)
+{
+	addr pos, type;
+	List_bind(x.pos, &pos, &type, NULL);
+	getsetf_symbol(pos, &pos);
+	return (pos == Unbound)? 0: typep_error(ptr, pos, type);
+}
+
+_g int let_lexical_code(Execute ptr, CodeValue x)
+{
+	addr src, dst, value;
+	size_t srci, dsti;
+
+	List_bind(x.pos, &src, &dst, NULL);
+	GetIndex(src, &srci);
+	GetIndex(dst, &dsti);
+	/* src -> dst */
+	get_lexical_control(ptr, srci, &value);
+	set_lexical_control(ptr, dsti, value);
 
 	return 0;
 }
 
-_g int let_set_code(Execute ptr, CodeValue x)
+_g int let_special_code(Execute ptr, CodeValue x)
 {
-	addr control, args, body, free, allocate;
+	addr src, dst, value;
+	size_t index;
 
-	List_bind(x.pos, &args, &body, &free, &allocate, NULL);
-	if (allocate != Nil)
-		push_new_control(ptr, &control);
-	Return(let_free_code(ptr, free));
-	Return(let_args_code(ptr, args));
-	Return(runcode_simple(ptr, body));
-	if (allocate != Nil)
-		return free_control_(ptr, control);
+	List_bind(x.pos, &src, &dst, NULL);
+	GetIndex(src, &index);
+	/* src -> dst */
+	get_lexical_control(ptr, index, &value);
+	pushspecial_control(ptr, dst, value);
 
 	return 0;
 }
 
-_g int let_push_code(Execute ptr, CodeValue x)
+_g int leta_special_code(Execute ptr, CodeValue x)
 {
-	Return(let_set_code(ptr, x));
-	getresult_control(ptr, &x.pos);
-	pushargs_control(ptr, x.pos);
-
-	return 0;
-}
-
-static int leta_args_code(Execute ptr, addr list)
-{
-	addr pos, value, symbol, type;
-
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		GetCons(list, &value, &list);
-		getname_tablevalue(pos, &symbol);
-		Return(runcode_simple(ptr, value));
-		getresult_control(ptr, &value);
-		/* type check */
-		if (getcheck_tablevalue(pos)) {
-			gettype_tablevalue(pos, &type);
-			Return(typep_error(ptr, value, type));
-		}
-		/* bind */
-		if (getspecialp_tablevalue(pos))
-			pushspecial_control(ptr, symbol, value);
-		else
-			setvalue_tablevalue(ptr, pos, value);
-	}
-
-	return 0;
-}
-
-_g int leta_set_code(Execute ptr, CodeValue x)
-{
-	addr control, args, body, free, allocate;
-
-	List_bind(x.pos, &args, &body, &free, &allocate, NULL);
-	if (allocate != Nil)
-		push_new_control(ptr, &control);
-	Return(let_free_code(ptr, free));
-	Return(leta_args_code(ptr, args));
-	Return(runcode_simple(ptr, body));
-	if (allocate != Nil)
-		return free_control_(ptr, control);
-
-	return 0;
-}
-
-_g int leta_push_code(Execute ptr, CodeValue x)
-{
-	Return(leta_set_code(ptr, x));
-	getresult_control(ptr, &x.pos);
-	pushargs_control(ptr, x.pos);
-
+	addr value;
+	getresult_control(ptr, &value);
+	pushspecial_control(ptr, x.pos, value);
 	return 0;
 }
 
@@ -427,51 +371,40 @@ _g int leta_push_code(Execute ptr, CodeValue x)
 /*
  *  setq
  */
-static int check_readonly_variable_(addr symbol)
-{
-	if (GetStatusReadOnly(symbol))
-		return fmte_("Cannot set value to the constant variable ~S.", symbol, NULL);
-	return 0;
+#define check_readonly_variable_(x) { \
+	if (GetStatusReadOnly(x)) { \
+		fmte("Cannot set value to the constant variable ~S.", x, NULL); \
+	} \
 }
 
-_g int setq_set_code(Execute ptr, CodeValue x)
+_g int setq_lexical_code(Execute ptr, CodeValue x)
 {
-	addr list, pos, value, symbol, type;
+	addr value;
 
-	list = x.pos;
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		GetCons(list, &value, &list);
-		/* readonly */
-		getname_tablevalue(pos, &symbol);
-		Return(check_readonly_variable_(symbol));
-		/* value */
-		Return(runcode_simple(ptr, value));
-		getresult_control(ptr, &value);
-		/* bind */
-		if (getcheck_tablevalue(pos)) {
-			gettype_tablevalue(pos, &type);
-			Return(typep_error(ptr, value, type));
-		}
-		if (getspecialp_tablevalue(pos)) {
-			setspecial_local(ptr, symbol, value);
-		}
-		else if (getglobalp_tablevalue(pos)) {
-			SetValueSymbol(symbol, value);
-		}
-		else {
-			setvalue_tablevalue(ptr, pos, value);
-		}
-	}
+	getresult_control(ptr, &value);
+	set_lexical_control(ptr, x.index, value);
 
 	return 0;
 }
 
-_g int setq_push_code(Execute ptr, CodeValue x)
+_g int setq_special_code(Execute ptr, CodeValue x)
 {
-	Return(setq_set_code(ptr, x));
-	getresult_control(ptr, &x.pos);
-	pushargs_control(ptr, x.pos);
+	addr value;
+
+	getresult_control(ptr, &value);
+	check_readonly_variable_(x.pos);
+	setspecial_local(ptr, x.pos, value);
+
+	return 0;
+}
+
+_g int setq_global_code(Execute ptr, CodeValue x)
+{
+	addr value;
+
+	getresult_control(ptr, &value);
+	check_readonly_variable_(x.pos);
+	SetValueSymbol(x.pos, value);
 
 	return 0;
 }
@@ -675,16 +608,37 @@ _g int the_push_code(Execute ptr, CodeValue x)
 /*
  *  control
  */
-_g int if_code(Execute ptr, CodeValue x)
+_g int if_unbound_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
 	getresult_control(ptr, &pos);
-	if (pos == Nil) {
-		GetCdr(x.pos, &x.pos);
-	}
-	GetCar(x.pos, &pos);
-	return runcode_simple(ptr, pos);
+	if (pos == Unbound)
+		return goto_control_(ptr, x.index);
+
+	return 0;
+}
+
+_g int if_nil_code(Execute ptr, CodeValue x)
+{
+	addr pos;
+
+	getresult_control(ptr, &pos);
+	if (pos == Nil)
+		return goto_control_(ptr, x.index);
+
+	return 0;
+}
+
+_g int if_t_code(Execute ptr, CodeValue x)
+{
+	addr pos;
+
+	getresult_control(ptr, &pos);
+	if (pos != Nil)
+		return goto_control_(ptr, x.index);
+
+	return 0;
 }
 
 _g int goto_code(Execute ptr, CodeValue x)
@@ -802,9 +756,9 @@ _g int prog1_set_code(Execute ptr, CodeValue x)
 	GetCons(x.pos, &protect, &list);
 	GetCar(list, &cleanup);
 	push_new_control(ptr, &control);
-	Return(runcode_simple(ptr, protect));
+	Return(runcode_control(ptr, protect));
 	save_values_control(ptr, &values, &size);
-	Return(runcode_simple(ptr, cleanup));
+	Return(runcode_control(ptr, cleanup));
 	restore_values_control(ptr, values, size);
 
 	return free_control_(ptr, control);

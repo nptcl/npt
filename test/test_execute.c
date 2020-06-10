@@ -10,19 +10,19 @@ static int test_begin_code(void)
 	init_execute(0);
 	finish = 0;
 	ptr = getexecute(0);
-	begin_code(ptr, &result);
+	begin_setjmp(ptr, &result);
 	if (result == LISPCODE_EXECUTE) {
 		exit_code(ptr, LISPCODE_SUCCESS);
 		finish = 1;
 	}
 	else {
-		test(result == LISPCODE_SUCCESS, "begin_code.1");
-		test(ptr->jump, "begin_code.2");
+		test(result == LISPCODE_SUCCESS, "begin_setjmp.1");
+		test(ptr->jump, "begin_setjmp.2");
 		finish = 2;
-		end_code(ptr);
+		end_setjmp(ptr);
 	}
-	test(finish == 2, "begin_code.3");
-	test(ptr->jump == 0, "begin_code.4");
+	test(finish == 2, "begin_setjmp.3");
+	test(ptr->jump == 0, "begin_setjmp.4");
 	free_execute();
 
 	RETURN;

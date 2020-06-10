@@ -5,13 +5,9 @@
 #include "typedef.h"
 
 _g int nop_code(Execute ptr, CodeValue x);
-_g int execute_simple_set_code(Execute ptr, CodeValue x);
-_g int execute_normal_set_code(Execute ptr, CodeValue x);
 _g int execute_control_set_code(Execute ptr, CodeValue x);
-_g int execute_switch_set_code(Execute ptr, CodeValue x);
-_g int execute_simple_push_code(Execute ptr, CodeValue x);
-_g int execute_normal_push_code(Execute ptr, CodeValue x);
 _g int execute_control_push_code(Execute ptr, CodeValue x);
+_g int execute_switch_set_code(Execute ptr, CodeValue x);
 _g int execute_switch_push_code(Execute ptr, CodeValue x);
 
 _g int set_code(Execute ptr, CodeValue x);
@@ -43,12 +39,19 @@ _g int declaim_space_code(Execute ptr, CodeValue x);
 _g int declaim_speed_code(Execute ptr, CodeValue x);
 _g int declaim_declaration_code(Execute ptr, CodeValue x);
 
-_g int let_set_code(Execute ptr, CodeValue x);
-_g int let_push_code(Execute ptr, CodeValue x);
-_g int leta_set_code(Execute ptr, CodeValue x);
-_g int leta_push_code(Execute ptr, CodeValue x);
-_g int setq_set_code(Execute ptr, CodeValue x);
-_g int setq_push_code(Execute ptr, CodeValue x);
+_g int type_result_code(Execute ptr, CodeValue x);
+_g int type_lexical_code(Execute ptr, CodeValue x);
+_g int type_special_code(Execute ptr, CodeValue x);
+_g int type_global_code(Execute ptr, CodeValue x);
+_g int type_function_code(Execute ptr, CodeValue x);
+_g int type_setf_code(Execute ptr, CodeValue x);
+_g int let_lexical_code(Execute ptr, CodeValue x);
+_g int let_special_code(Execute ptr, CodeValue x);
+_g int leta_special_code(Execute ptr, CodeValue x);
+
+_g int setq_lexical_code(Execute ptr, CodeValue x);
+_g int setq_special_code(Execute ptr, CodeValue x);
+_g int setq_global_code(Execute ptr, CodeValue x);
 
 _g int function_set_code(Execute ptr, CodeValue x);
 _g int function_push_code(Execute ptr, CodeValue x);
@@ -73,7 +76,9 @@ _g int values_set_code(Execute ptr, CodeValue x);
 _g int the_set_code(Execute ptr, CodeValue x);
 _g int the_push_code(Execute ptr, CodeValue x);
 
-_g int if_code(Execute ptr, CodeValue x);
+_g int if_unbound_code(Execute ptr, CodeValue x);
+_g int if_nil_code(Execute ptr, CodeValue x);
+_g int if_t_code(Execute ptr, CodeValue x);
 _g int goto_code(Execute ptr, CodeValue x);
 _g int go_code(Execute ptr, CodeValue x);
 _g int return_from_code(Execute ptr, CodeValue x);

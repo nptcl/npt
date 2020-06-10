@@ -1773,7 +1773,7 @@ int test_type_optimize(void)
 	alloclisp(0, 0);
 	lisp_info_enable = 1;
 	ptr = Execute_Thread;
-	begin_code(ptr, &code);
+	begin_setjmp(ptr, &code);
 	if (code_run_p(code)) {
 		build_lisproot(ptr);
 		build_constant();
@@ -1791,7 +1791,7 @@ int test_type_optimize(void)
 		lisp_initialize = 1;
 		result = testbreak_type_optimize();
 	}
-	end_code(ptr);
+	end_setjmp(ptr);
 	freelisp();
 	TestCheck(code_error_p(code));
 	lisp_info_enable = 1;

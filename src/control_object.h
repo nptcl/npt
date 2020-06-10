@@ -155,6 +155,7 @@ _g int checkhandler_control(addr pos, addr instance);
 _g struct control_struct *push_control(Execute ptr);
 _g void push_new_control(Execute ptr, addr *ret);
 _g void push_args_control(Execute ptr, addr *ret);
+_g int pop_control_(Execute ptr);
 _g int free_control_(Execute ptr, addr control);
 _g int rollback_control_(Execute ptr, addr control);
 

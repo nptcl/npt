@@ -1581,13 +1581,9 @@ lisp-system::trace-del
 ;;  code
 ;;
 lisp-code::nop
-lisp-code::execute-simple-set
-lisp-code::execute-normal-set
 lisp-code::execute-control-set
-lisp-code::execute-switch-set
-lisp-code::execute-simple-push
-lisp-code::execute-normal-push
 lisp-code::execute-control-push
+lisp-code::execute-switch-set
 lisp-code::execute-switch-push
 
 lisp-code::set
@@ -1619,13 +1615,19 @@ lisp-code::declaim-space
 lisp-code::declaim-speed
 lisp-code::declaim-declaration
 
-lisp-code::let-set
-lisp-code::let-push
-(lisp-code::let*-set  :constant code :name leta-set)
-(lisp-code::let*-push :constant code :name leta-push)
+lisp-code::type-result
+lisp-code::type-lexical
+lisp-code::type-special
+lisp-code::type-global
+lisp-code::type-function
+lisp-code::type-setf
+lisp-code::let-lexical
+lisp-code::let-special
+(lisp-code::let*-special :constant code :name leta-special)
 
-lisp-code::setq-set
-lisp-code::setq-push
+lisp-code::setq-lexical
+lisp-code::setq-special
+lisp-code::setq-global
 
 lisp-code::function-set
 lisp-code::function-push
@@ -1650,7 +1652,9 @@ lisp-code::values-set
 lisp-code::the-set
 lisp-code::the-push
 
-lisp-code::if
+lisp-code::if-unbound
+lisp-code::if-nil
+lisp-code::if-t
 lisp-code::goto
 lisp-code::go
 lisp-code::return-from
@@ -1672,18 +1676,26 @@ lisp-code::funcall
 lisp-code::nth-value
 lisp-code::progv
 
-lisp-code::lambda-set
-lisp-code::lambda-push
-lisp-code::lambda-execute
-lisp-code::macro-set
-lisp-code::macro-push
-lisp-code::macro-execute
-lisp-code::bind-set
-lisp-code::bind-push
-lisp-code::flet-set
-lisp-code::flet-push
-lisp-code::labels-set
-lisp-code::labels-push
+lisp-code::pop
+lisp-code::pop-unbound
+lisp-code::getf
+lisp-code::rest
+lisp-code::allow-other-keys
+lisp-code::rest-null
+lisp-code::whole
+
+lisp-code::lambda
+lisp-code::lambda-name
+lisp-code::lambda-type
+lisp-code::lambda-doc
+lisp-code::lambda-form
+lisp-code::lambda-defun
+lisp-code::lambda-closure
+lisp-code::lambda-lexical
+lisp-code::macro
+lisp-code::macro-special
+lisp-code::macro-env
+lisp-code::macro-whole
 lisp-code::locally-declare
 lisp-code::bind-values-set
 lisp-code::bind-values-push

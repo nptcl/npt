@@ -217,78 +217,6 @@ _g int runcode_control(Execute ptr, addr code)
 
 
 /*
- *  runcode-simple
- */
-_g int runcode_simple(Execute ptr, addr code)
-{
-	struct code_struct *body;
-	struct code_value *sys, *bind;
-	size_t point;
-#ifdef LISP_DEBUG_TRACE
-	addr control;
-	struct control_struct *str;
-#endif
-
-	/* code */
-	CheckType(code, LISPTYPE_CODE);
-	body = StructCode(code);
-	sys = body->sys;
-
-	/* control */
-#ifdef LISP_DEBUG_TRACE
-	control = ptr->control;
-	str = StructControl(control);
-#endif
-	point = 0;
-
-	LispBeginControl("SIMPLE", control);
-loop:
-	/* counter */
-	ControlCounter++;
-	LispForceGc(ptr);
-	TraceControl(str, code);
-
-	/* execute */
-	bind = sys + point;
-	if (bind->call == NULL) {
-		LispGcCheck(ptr);
-		LispEndControl("SIMPLE", control);
-		return 0;
-	}
-	OutputTrace(control, point);
-	Return((bind->call)(ptr, bind->value));
-	point++;
-	goto loop;
-}
-
-
-/*
- *  runcode-normal
- */
-_g int runcode_normal(Execute ptr, addr code)
-{
-	addr control;
-	struct code_struct *str;
-
-	CheckType(code, LISPTYPE_CODE);
-	str = StructCode(code);
-	Check(str->p_control == 0, "p_control error.");
-
-	/* push-control */
-	if (str->p_args)
-		push_args_control(ptr, &control);
-	else
-		push_new_control(ptr, &control);
-
-	/* execute */
-	if (runcode_simple(ptr, code))
-		return runcode_free(ptr, control);
-	else
-		return free_control_(ptr, control);
-}
-
-
-/*
  *  execute-switch  (handler-case, restart-case)
  */
 static int runcode_switch_execute(Execute ptr, addr code)
@@ -346,46 +274,48 @@ _g int runcode_switch(Execute ptr, addr code)
 
 
 /*
- *  interface
+ *  (call ...) execute
  */
-static int execute_function_control(Execute ptr, addr pos)
+static int execute_no_control(Execute ptr, addr call)
 {
 	addr value;
 
-	/* control data */
-	GetDataFunction(pos, &value);
+	Check(ptr->control == Nil, "root error");
+	Check(call == Unbound, "Function is Unbound.");
+
+	/* generic function */
+	if (GetType(call) != LISPTYPE_FUNCTION) {
+		GetControl(ptr->control, Control_Cons, &value);
+		return closrun_execute(ptr, call, value);
+	}
+
+	/* closure */
+	GetDataFunction(call, &value);
 	if (value != Unbound)
 		setdata_control(ptr, value);
-	/* execute */
-	if (StructFunction(pos)->compiled) {
-		return call_compiled_function(ptr, pos);
-	}
-	else {
-		GetCodeFunction(pos, &value);
-		return runcode_control(ptr, value);
-	}
+
+	/* compiled function */
+	if (StructFunction(call)->compiled)
+		return call_compiled_function(ptr, call);
+
+	/* interpreted function */
+	GetCodeFunction(call, &value);
+	return runcode_control(ptr, value);
 }
 
 _g int execute_control(Execute ptr, addr call)
 {
-	addr args;
+	addr control;
 
-	Check(ptr->control == Nil, "root error");
-	Check(call == Unbound, "Function is Unbound.");
-	switch (GetType(call)) {
-		case LISPTYPE_FUNCTION:
-			return execute_function_control(ptr, call);
-
-		case LISPTYPE_CLOS:
-			GetControl(ptr->control, Control_Cons, &args);
-			return closrun_execute(ptr, call, args);
-
-		default:
-			Abort("type error");
-			return 1;
-	}
+	push_args_control(ptr, &control);
+	Return(execute_no_control(ptr, call));
+	return free_control_(ptr, control);
 }
 
+
+/*
+ *  checkargs
+ */
 static int checkargs_var(Execute ptr, addr array, addr *args)
 {
 	addr value, type;
@@ -542,52 +472,76 @@ static int checkargs_control(Execute ptr, addr call, addr args)
 	return checkargs_execute(ptr, type, args);
 }
 
-static int apply_function_control(Execute ptr, addr call, addr args)
-{
-	if (checkargs_control(ptr, call, args))
-		return 1;
-	SetControl(ptr->control, Control_Cons, args);
-	SetControl(ptr->control, Control_ConsTail, Nil);
-	return execute_function_control(ptr, call);
-}
 
-_g int apply_control(Execute ptr, addr call, addr args)
+/*
+ *  apply
+ */
+static int apply_no_control(Execute ptr, addr call, addr list)
 {
+	addr value;
+
 	Check(ptr->control == Nil, "root error");
 	Check(call == Unbound, "Function is Unbound.");
-	switch (GetType(call)) {
-		case LISPTYPE_FUNCTION:
-			return apply_function_control(ptr, call, args);
 
-		case LISPTYPE_CLOS:
-			return closrun_execute(ptr, call, args);
+	/* generic function */
+	if (GetType(call) != LISPTYPE_FUNCTION)
+		return closrun_execute(ptr, call, list);
 
-		default:
-			Abort("type error");
-			return 1;
+	/* args */
+	SetControl(ptr->control, Control_Cons, list);
+	SetControl(ptr->control, Control_ConsTail, Nil);
+
+	/* closure */
+	GetDataFunction(call, &value);
+	if (value != Unbound)
+		setdata_control(ptr, value);
+
+	/* compiled function */
+	if (StructFunction(call)->compiled) {
+		Return(checkargs_control(ptr, call, list));
+		return call_compiled_function(ptr, call);
 	}
+
+	/* interpreted function */
+	GetCodeFunction(call, &value);
+	return runcode_control(ptr, value);
+}
+
+_g int apply_control(Execute ptr, addr call, addr list)
+{
+	addr control;
+
+	push_new_control(ptr, &control);
+	Return(apply_no_control(ptr, call, list));
+	return free_control_(ptr, control);
 }
 
 _g int applya_control(Execute ptr, addr call, ...)
 {
-	addr list;
-	va_list args;
+	addr control, list;
+	va_list va;
 
-	va_start(args, call);
-	lista_stdarg_alloc(ptr->local, &list, args);
-	va_end(args);
-	return apply_control(ptr, call, list);
+	push_new_control(ptr, &control);
+	va_start(va, call);
+	lista_stdarg_alloc(ptr->local, &list, va);
+	va_end(va);
+	Return(apply_control(ptr, call, list));
+
+	return free_control_(ptr, control);
 }
 
 _g int funcall_control(Execute ptr, addr call, ...)
 {
-	addr list;
-	va_list args;
+	addr control, list;
+	va_list va;
 
-	va_start(args, call);
-	list_stdarg_alloc(ptr->local, &list, args);
-	va_end(args);
-	return apply_control(ptr, call, list);
+	push_new_control(ptr, &control);
+	va_start(va, call);
+	list_stdarg_alloc(ptr->local, &list, va);
+	va_end(va);
+	Return(apply_no_control(ptr, call, list));
+
+	return free_control_(ptr, control);
 }
 
 _g int call_control(Execute ptr, addr args)
@@ -626,62 +580,47 @@ static void callclang_function(Execute ptr, addr *ret, addr call)
 	}
 }
 
-_g int callclang_apply(Execute ptr, addr *ret, addr call, addr cons)
+_g int callclang_apply(Execute ptr, addr *ret, addr call, addr list)
 {
 	addr control;
-	LocalHold hold;
 
-	callclang_function(ptr, &call, call);
-	/* push */
-	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
-	/* code */
-	Return(apply_control(ptr, call, cons));
+	callclang_function(ptr, &call, call);
+	Return(apply_no_control(ptr, call, list));
 	getresult_control(ptr, ret);
-	localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
-	localhold_end(hold);
 
-	return 0;
+	return free_control_(ptr, control);
 }
 
 _g int callclang_applya(Execute ptr, addr *ret, addr call, ...)
 {
-	LocalRoot local;
-	LocalStack stack;
-	addr list;
-	va_list args;
+	addr control, list;
+	va_list va;
 
-	local = ptr->local;
-	push_local(local, &stack);
+	push_new_control(ptr, &control);
+	va_start(va, call);
+	lista_stdarg_alloc(ptr->local, &list, va);
+	va_end(va);
+	callclang_function(ptr, &call, call);
+	Return(apply_no_control(ptr, call, list));
+	getresult_control(ptr, ret);
 
-	va_start(args, call);
-	lista_stdarg_alloc(ptr->local, &list, args);
-	va_end(args);
-
-	Return(callclang_apply(ptr, ret, call, list));
-	rollback_local(local, stack);
-
-	return 0;
+	return free_control_(ptr, control);
 }
 
 _g int callclang_funcall(Execute ptr, addr *ret, addr call, ...)
 {
-	addr list;
-	va_list args;
-	LocalRoot local;
-	LocalStack stack;
+	addr control, list;
+	va_list va;
 
-	local = ptr->local;
-	push_local(local, &stack);
+	push_new_control(ptr, &control);
+	va_start(va, call);
+	list_stdarg_alloc(ptr->local, &list, va);
+	va_end(va);
+	callclang_function(ptr, &call, call);
+	Return(apply_no_control(ptr, call, list));
+	getresult_control(ptr, ret);
 
-	va_start(args, call);
-	list_stdarg_alloc(ptr->local, &list, args);
-	va_end(args);
-
-	Return(callclang_apply(ptr, ret, call, list));
-	rollback_local(local, stack);
-
-	return 0;
+	return free_control_(ptr, control);
 }
 

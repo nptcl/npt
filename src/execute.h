@@ -43,15 +43,15 @@ _g void abortindex(size_t index);
 #define setjmp_execute(ptr, code) { \
 	*(int *)(code) = setjmp(*(ptr)->exec); \
 }
-#define begin_code(ptr, code) { \
-	if (begin_code_check((ptr), (code))) { \
-		int __begin_code; \
-		setjmp_execute((ptr), &__begin_code); \
-		*(code) = (lispcode)__begin_code; \
+#define begin_setjmp(ptr, code) { \
+	if (begin_setjmp_check((ptr), (code))) { \
+		int __begin_setjmp; \
+		setjmp_execute((ptr), &__begin_setjmp); \
+		*(code) = (lispcode)__begin_setjmp; \
 	} \
 }
-_g int begin_code_check(Execute ptr, lispcode *code);
-_g void end_code(Execute ptr);
+_g int begin_setjmp_check(Execute ptr, lispcode *code);
+_g void end_setjmp(Execute ptr);
 _g int code_run_p(lispcode code);
 _g int code_end_p(lispcode code);
 _g int code_error_p(lispcode code);

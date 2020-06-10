@@ -9,7 +9,7 @@
 struct lambda_struct {
 	addr stack, call, table, lexical;
 	addr args, decl, doc, cons, clos, free, the;
-	addr form, defun;
+	addr form, defun, body_the;
 	unsigned globalp;
 	EvalParse eval;
 };
@@ -24,7 +24,7 @@ _g int scope_macro_lambda_call(Execute ptr, struct lambda_struct *str, addr *ret
 _g int scope_deftype_call(Execute ptr, struct lambda_struct *str, addr *ret);
 _g int scope_define_compiler_macro_call(Execute ptr,
 		struct lambda_struct *str, addr *ret);
-_g int scope_destructuring_bind_call(Execute ptr, struct lambda_struct *str, addr *ret);
+_g int scope_bind_call(Execute ptr, addr *ret, addr expr, addr args);
 
 _g int scope_flet_call(Execute ptr, struct let_struct *str);
 _g int scope_labels_call(Execute ptr, struct let_struct *str);

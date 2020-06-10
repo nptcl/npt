@@ -243,6 +243,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_load.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_read.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_stream.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_type.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_value.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_write.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\condition.c" />
@@ -527,6 +528,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_load.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_read.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_stream.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_type.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_value.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_write.h" />

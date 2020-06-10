@@ -176,7 +176,7 @@ static int loadrt_lisp(const char *name)
 	alloclisp(0, 0);
 	ptr = Execute_Thread;
 	result = 1;
-	begin_code(ptr, &code);
+	begin_setjmp(ptr, &code);
 	if (code_run_p(code)) {
 		buildlisp(ptr);
 		loadrt_nicknames();
@@ -184,7 +184,7 @@ static int loadrt_lisp(const char *name)
 		result = loadrt_execute(ptr, name);
 		loadrt_setindex(ptr);
 	}
-	end_code(ptr);
+	end_setjmp(ptr);
 	freelisp();
 	TestCheck(code_error_p(code));
 

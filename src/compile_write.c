@@ -2,6 +2,7 @@
 #include <string.h>
 #include "code_object.h"
 #include "compile_stream.h"
+#include "compile_type.h"
 #include "compile_typedef.h"
 #include "compile_value.h"
 #include "compile_write.h"
@@ -71,20 +72,6 @@ static int faslwrite_nop_code(Execute ptr, addr stream, CodeValue x)
 	return 0;
 }
 
-static int faslwrite_execute_simple_set_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_execute_simple_set);
-	Return(faslwrite_code(ptr, stream, x.pos));
-	return 0;
-}
-
-static int faslwrite_execute_normal_set_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_execute_normal_set);
-	Return(faslwrite_code(ptr, stream, x.pos));
-	return 0;
-}
-
 static int faslwrite_execute_control_set_code(Execute ptr, addr stream, CodeValue x)
 {
 	faslwrite_type(stream, FaslCode_execute_control_set);
@@ -92,30 +79,16 @@ static int faslwrite_execute_control_set_code(Execute ptr, addr stream, CodeValu
 	return 0;
 }
 
-static int faslwrite_execute_switch_set_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_execute_switch_set);
-	Return(faslwrite_code(ptr, stream, x.pos));
-	return 0;
-}
-
-static int faslwrite_execute_simple_push_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_execute_simple_push);
-	Return(faslwrite_code(ptr, stream, x.pos));
-	return 0;
-}
-
-static int faslwrite_execute_normal_push_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_execute_normal_push);
-	Return(faslwrite_code(ptr, stream, x.pos));
-	return 0;
-}
-
 static int faslwrite_execute_control_push_code(Execute ptr, addr stream, CodeValue x)
 {
 	faslwrite_type(stream, FaslCode_execute_control_push);
+	Return(faslwrite_code(ptr, stream, x.pos));
+	return 0;
+}
+
+static int faslwrite_execute_switch_set_code(Execute ptr, addr stream, CodeValue x)
+{
+	faslwrite_type(stream, FaslCode_execute_switch_set);
 	Return(faslwrite_code(ptr, stream, x.pos));
 	return 0;
 }
@@ -153,6 +126,12 @@ static int faslwrite_push_values_code(Execute ptr, addr stream, CodeValue x)
 {
 	faslwrite_type(stream, FaslCode_push_values);
 	return 0;
+}
+
+static int faslwrite_type_result_code(Execute ptr, addr stream, CodeValue x)
+{
+	faslwrite_type(stream, FaslCode_type_result);
+	return faslwrite_value_type(ptr, stream, x.pos);
 }
 
 static int faslwrite_nil_set_code(Execute ptr, addr stream, CodeValue x)
@@ -221,13 +200,9 @@ _g void init_compile_write(void)
 {
 	/* system */
 	faslwrite_table[p_nop_code] = faslwrite_nop_code;
-	faslwrite_table[p_execute_simple_set_code] = faslwrite_execute_simple_set_code;
-	faslwrite_table[p_execute_normal_set_code] = faslwrite_execute_normal_set_code;
 	faslwrite_table[p_execute_control_set_code] = faslwrite_execute_control_set_code;
-	faslwrite_table[p_execute_switch_set_code] = faslwrite_execute_switch_set_code;
-	faslwrite_table[p_execute_simple_push_code] = faslwrite_execute_simple_push_code;
-	faslwrite_table[p_execute_normal_push_code] = faslwrite_execute_normal_push_code;
 	faslwrite_table[p_execute_control_push_code] = faslwrite_execute_control_push_code;
+	faslwrite_table[p_execute_switch_set_code] = faslwrite_execute_switch_set_code;
 	faslwrite_table[p_execute_switch_push_code] = faslwrite_execute_switch_push_code;
 
 	/* object */
@@ -239,5 +214,7 @@ _g void init_compile_write(void)
 	faslwrite_table[p_nil_push_code] = faslwrite_nil_push_code;
 	faslwrite_table[p_t_set_code] = faslwrite_t_set_code;
 	faslwrite_table[p_t_push_code] = faslwrite_t_push_code;
+
+	faslwrite_table[p_type_result_code] = faslwrite_type_result_code;
 }
 

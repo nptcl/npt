@@ -3333,6 +3333,7 @@ static int format_call_CallFunction(fmtprint print, struct format_operator *str)
 	size = str->args_size;
 	for (i = 0; i < size; i++) {
 		Return(format_call_CallFunction_object(print, str, i, &pos));
+		copyheap(&pos, pos);
 		cons_local(local, &root, pos, root);
 	}
 	nreverse(&root, root);

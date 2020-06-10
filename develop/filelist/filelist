@@ -98,6 +98,7 @@ compile_file.c
 compile_load.c
 compile_read.c
 compile_stream.c
+compile_type.c
 compile_value.c
 compile_write.c
 condition.c

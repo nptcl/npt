@@ -394,7 +394,6 @@ _g void getnamefunction(addr pos, addr *ret)
 _g void setnamefunction(addr pos, addr value)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
-	CheckType(value, LISPTYPE_CALLNAME);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetNameFunction_Low(pos, value);
 }

@@ -331,7 +331,7 @@ static int optimize_common_cons0(LocalRoot local, addr code, addr car, addr cdr)
 	CodeQueue_single(local, code, OPTCODE_CONS);
 	/* return end */
 	code_queue_pop(local, code, &pos);
-	code_make_execute_normal(local, code, pos);
+	code_make_execute_control(local, code, pos);
 
 	return 1;
 }

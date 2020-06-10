@@ -720,7 +720,7 @@ static int sleep_moment_common(Execute ptr, fixnum value)
 	/* sleep */
 	if (usleep(usec) == -1) {
 		if (errno == EINVAL)
-			fmte("usleep error");
+			fmte("usleep error", NULL);
 	}
 
 	return getatomic_sleep_object(ptr);

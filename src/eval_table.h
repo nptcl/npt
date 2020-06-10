@@ -10,7 +10,8 @@ enum EvalTable {
 	EvalTable_Value,
 	EvalTable_Function,
 	EvalTable_TagBody,
-	EvalTable_Block
+	EvalTable_Block,
+	EvalTable_Self
 };
 
 enum IgnoreType {

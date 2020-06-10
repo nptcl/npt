@@ -763,10 +763,10 @@ static int lisp_argv_code(struct lispargv *argv)
 	ptr->result = 0;
 	local = ptr->local;
 	push_local(local, &stack);
-	begin_code(ptr, &code);
+	begin_setjmp(ptr, &code);
 	if (code_run_p(code))
 		lisp_argv_code_execute(ptr, argv);
-	end_code(ptr);
+	end_setjmp(ptr);
 	rollback_local(local, stack);
 
 	return lisp_argv_result(ptr, code);

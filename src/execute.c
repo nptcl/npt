@@ -495,7 +495,7 @@ _g void abortindex(size_t index)
 /*
  *  codejump
  */
-_g int begin_code_check(Execute ptr, lispcode *code)
+_g int begin_setjmp_check(Execute ptr, lispcode *code)
 {
 	if (ptr->jump) {
 		*code = LISPCODE_CONFLICT;
@@ -507,14 +507,14 @@ _g int begin_code_check(Execute ptr, lispcode *code)
 	}
 }
 
-_g void end_code(Execute ptr)
+_g void end_setjmp(Execute ptr)
 {
 	ptr->jump = 0;
 	ClearJmpBuf(ptr->exec);
 }
 _g void end_code_thread(void)
 {
-	end_code(Execute_Thread);
+	end_setjmp(Execute_Thread);
 }
 
 _g int code_run_p(lispcode code)

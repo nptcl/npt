@@ -145,7 +145,7 @@ static int clos_redefine_delete_reader_(Execute ptr, addr clos, addr gen)
 {
 	addr spec, method;
 
-	list_local(ptr->local, &spec, clos, NULL);
+	list_heap(&spec, clos, NULL);
 	Return(generic_find_method_(ptr, gen, Nil, spec, Nil, &method));
 	if (method != Nil) {
 		Return(method_remove_method_(ptr, gen, method));
@@ -176,7 +176,7 @@ static int clos_redefine_delete_writer_(Execute ptr, addr clos, addr gen)
 	addr spec, method;
 
 	GetConst(CLOS_T, &spec);
-	list_local(ptr->local, &spec, spec, clos, NULL);
+	list_heap(&spec, spec, clos, NULL);
 	Return(generic_find_method_(ptr, gen, Nil, spec, Nil, &method));
 	if (method != Nil) {
 		Return(method_remove_method_(ptr, gen, method));
@@ -360,7 +360,7 @@ _g int clos_ensure_class_redefine(Execute ptr, addr clos, addr name, addr rest)
 /*
  *  version
  */
-static void getproperty_redefine(LocalRoot local, addr pos, addr *ret)
+static void getproperty_redefine(addr pos, addr *ret)
 {
 	addr slots, root, slot, name, check;
 	size_t size, i;
@@ -373,8 +373,8 @@ static void getproperty_redefine(LocalRoot local, addr pos, addr *ret)
 		GetNameSlot(slot, &name);
 		clos_get(pos, name, &check);
 		if (check != Unbound) {
-			cons_local(local, &root, name, root);
-			cons_local(local, &root, check, root);
+			cons_heap(&root, name, root);
+			cons_heap(&root, check, root);
 		}
 	}
 	nreverse(ret, root);
@@ -438,7 +438,7 @@ static int clos_redefined_class(Execute ptr, addr pos, addr clos)
 	addr call, add, del, prop;
 
 	/* update instance */
-	getproperty_redefine(ptr->local, pos, &prop);
+	getproperty_redefine(pos, &prop);
 	clos_redefined_instance(pos, clos);
 
 	/* argument */

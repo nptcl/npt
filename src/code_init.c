@@ -35,13 +35,9 @@ _g void init_code_init(void)
 
 	/* system */
 	initcode(nop_code, Null);
-	initcode(execute_simple_set_code, Addr);
-	initcode(execute_normal_set_code, Addr);
 	initcode(execute_control_set_code, Addr);
-	initcode(execute_switch_set_code, Addr);
-	initcode(execute_simple_push_code, Addr);
-	initcode(execute_normal_push_code, Addr);
 	initcode(execute_control_push_code, Addr);
+	initcode(execute_switch_set_code, Addr);
 	initcode(execute_switch_push_code, Addr);
 
 	/* object */
@@ -77,14 +73,20 @@ _g void init_code_init(void)
 	initcode(declaim_declaration_code, Addr);
 
 	/* let */
-	initcode(let_set_code, Addr);
-	initcode(let_push_code, Addr);
-	initcode(leta_set_code, Addr);
-	initcode(leta_push_code, Addr);
+	initcode(type_result_code, Addr);
+	initcode(type_lexical_code, Addr);
+	initcode(type_special_code, Addr);
+	initcode(type_global_code, Addr);
+	initcode(type_function_code, Addr);
+	initcode(type_setf_code, Addr);
+	initcode(let_lexical_code, Addr);
+	initcode(let_special_code, Addr);
+	initcode(leta_special_code, Addr);
 
 	/* setq */
-	initcode(setq_set_code, Addr);
-	initcode(setq_push_code, Addr);
+	initcode(setq_lexical_code, Index);
+	initcode(setq_special_code, Addr);
+	initcode(setq_global_code, Addr);
 
 	/* function */
 	initcode(function_set_code, Addr);
@@ -114,7 +116,9 @@ _g void init_code_init(void)
 	initcode(the_push_code, Addr);
 
 	/* control */
-	initcode(if_code, Addr);
+	initcode(if_unbound_code, Index);
+	initcode(if_nil_code, Index);
+	initcode(if_t_code, Index);
 	initcode(goto_code, Index);
 	initcode(go_code, Index);
 	initcode(return_from_code, Index);
@@ -138,18 +142,25 @@ _g void init_code_init(void)
 	initcode(progv_code, Null);
 
 	/* lambda */
-	initcode(lambda_set_code, Addr);
-	initcode(lambda_push_code, Addr);
-	initcode(lambda_execute_code, Addr);
-	initcode(macro_set_code, Addr);
-	initcode(macro_push_code, Addr);
-	initcode(macro_execute_code, Addr);
-	initcode(bind_set_code, Addr);
-	initcode(bind_push_code, Addr);
-	initcode(flet_set_code, Addr);
-	initcode(flet_push_code, Addr);
-	initcode(labels_set_code, Addr);
-	initcode(labels_push_code, Addr);
+	initcode(pop_code, Null);
+	initcode(pop_unbound_code, Null);
+	initcode(getf_code, Addr);
+	initcode(rest_code, Null);
+	initcode(allow_other_keys_code, Addr);
+	initcode(rest_null_code, Null);
+	initcode(whole_code, Null);
+	initcode(lambda_code, Addr);
+	initcode(lambda_name_code, Addr);
+	initcode(lambda_type_code, Addr);
+	initcode(lambda_doc_code, Addr);
+	initcode(lambda_form_code, Addr);
+	initcode(lambda_defun_code, Addr);
+	initcode(lambda_closure_code, Addr);
+	initcode(lambda_lexical_code, Addr);
+	initcode(macro_code, Addr);
+	initcode(macro_special_code, Addr);
+	initcode(macro_env_code, Null);
+	initcode(macro_whole_code, Null);
 	initcode(locally_declare_code, Addr);
 	initcode(bind_values_set_code, Addr);
 	initcode(bind_values_push_code, Addr);
@@ -169,13 +180,9 @@ _g void build_code_init(void)
 {
 	/* system */
 	defcode(NOP, nop_code);
-	defcode(EXECUTE_SIMPLE_SET, execute_simple_set_code);
-	defcode(EXECUTE_NORMAL_SET, execute_normal_set_code);
 	defcode(EXECUTE_CONTROL_SET, execute_control_set_code);
-	defcode(EXECUTE_SWITCH_SET, execute_switch_set_code);
-	defcode(EXECUTE_SIMPLE_PUSH, execute_simple_push_code);
-	defcode(EXECUTE_NORMAL_PUSH, execute_normal_push_code);
 	defcode(EXECUTE_CONTROL_PUSH, execute_control_push_code);
+	defcode(EXECUTE_SWITCH_SET, execute_switch_set_code);
 	defcode(EXECUTE_SWITCH_PUSH, execute_switch_push_code);
 
 	/* object */
@@ -211,14 +218,20 @@ _g void build_code_init(void)
 	defcode(DECLAIM_DECLARATION, declaim_declaration_code);
 
 	/* let */
-	defcode(LET_SET, let_set_code);
-	defcode(LET_PUSH, let_push_code);
-	defcode(LETA_SET, leta_set_code);
-	defcode(LETA_PUSH, leta_push_code);
+	defcode(TYPE_RESULT, type_result_code);
+	defcode(TYPE_LEXICAL, type_lexical_code);
+	defcode(TYPE_SPECIAL, type_special_code);
+	defcode(TYPE_GLOBAL, type_global_code);
+	defcode(TYPE_FUNCTION, type_function_code);
+	defcode(TYPE_SETF, type_setf_code);
+	defcode(LET_LEXICAL, let_lexical_code);
+	defcode(LET_SPECIAL, let_special_code);
+	defcode(LETA_SPECIAL, leta_special_code);
 
 	/* setq */
-	defcode(SETQ_SET, setq_set_code);
-	defcode(SETQ_PUSH, setq_push_code);
+	defcode(SETQ_LEXICAL, setq_lexical_code);
+	defcode(SETQ_SPECIAL, setq_special_code);
+	defcode(SETQ_GLOBAL, setq_global_code);
 
 	/* function */
 	defcode(FUNCTION_SET, function_set_code);
@@ -248,7 +261,9 @@ _g void build_code_init(void)
 	defcode(THE_PUSH, the_push_code);
 
 	/* control */
-	defcode(IF, if_code);
+	defcode(IF_UNBOUND, if_unbound_code);
+	defcode(IF_NIL, if_nil_code);
+	defcode(IF_T, if_t_code);
 	defcode(GOTO, goto_code);
 	defcode(GO, go_code);
 	defcode(RETURN_FROM, return_from_code);
@@ -272,18 +287,25 @@ _g void build_code_init(void)
 	defcode(PROGV, progv_code);
 
 	/* lambda */
-	defcode(LAMBDA_SET, lambda_set_code);
-	defcode(LAMBDA_PUSH, lambda_push_code);
-	defcode(LAMBDA_EXECUTE, lambda_execute_code);
-	defcode(MACRO_SET, macro_set_code);
-	defcode(MACRO_PUSH, macro_push_code);
-	defcode(MACRO_EXECUTE, macro_execute_code);
-	defcode(BIND_SET, bind_set_code);
-	defcode(BIND_PUSH, bind_push_code);
-	defcode(FLET_SET, flet_set_code);
-	defcode(FLET_PUSH, flet_push_code);
-	defcode(LABELS_SET, labels_set_code);
-	defcode(LABELS_PUSH, labels_push_code);
+	defcode(POP, pop_code);
+	defcode(POP_UNBOUND, pop_unbound_code);
+	defcode(GETF, getf_code);
+	defcode(REST, rest_code);
+	defcode(ALLOW_OTHER_KEYS, allow_other_keys_code);
+	defcode(REST_NULL, rest_null_code);
+	defcode(WHOLE, whole_code);
+	defcode(LAMBDA, lambda_code);
+	defcode(LAMBDA_NAME, lambda_name_code);
+	defcode(LAMBDA_TYPE, lambda_type_code);
+	defcode(LAMBDA_DOC, lambda_doc_code);
+	defcode(LAMBDA_FORM, lambda_form_code);
+	defcode(LAMBDA_DEFUN, lambda_defun_code);
+	defcode(LAMBDA_CLOSURE, lambda_closure_code);
+	defcode(LAMBDA_LEXICAL, lambda_lexical_code);
+	defcode(MACRO, macro_code);
+	defcode(MACRO_SPECIAL, macro_special_code);
+	defcode(MACRO_ENV, macro_env_code);
+	defcode(MACRO_WHOLE, macro_whole_code);
 	defcode(LOCALLY_DECLARE, locally_declare_code);
 	defcode(BIND_VALUES_SET, bind_values_set_code);
 	defcode(BIND_VALUES_PUSH, bind_values_push_code);

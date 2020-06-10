@@ -122,7 +122,7 @@ _g int disassemble_common(Execute ptr, addr var)
 		if (check == Unbound) {
 			getmacro_symbol(var, &check);
 			if (check == Unbound) {
-				fmte("Invalid argument ~S.", var);
+				fmte("Invalid argument ~S.", var, NULL);
 				return 0;
 			}
 		}

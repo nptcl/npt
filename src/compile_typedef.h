@@ -6,15 +6,14 @@ enum FaslCode {
 	FaslCode_error = 0,
 	FaslCode_code,
 	FaslCode_fixnum,
+	FaslCode_bignum,
+	FaslCode_ratio,
+	FaslCode_type,
 	/* system */
 	FaslCode_nop,
-	FaslCode_execute_simple_set,
-	FaslCode_execute_normal_set,
 	FaslCode_execute_control_set,
-	FaslCode_execute_switch_set,
-	FaslCode_execute_simple_push,
-	FaslCode_execute_normal_push,
 	FaslCode_execute_control_push,
+	FaslCode_execute_switch_set,
 	FaslCode_execute_switch_push,
 	/* object */
 	FaslCode_set,
@@ -25,6 +24,7 @@ enum FaslCode {
 	FaslCode_nil_push,
 	FaslCode_t_set,
 	FaslCode_t_push,
+	FaslCode_type_result,
 	/* size */
 	FaslCode_size
 };

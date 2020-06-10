@@ -138,7 +138,7 @@ static void loop_parse_with_clause(addr *root, addr *list)
 	return;
 
 error:
-	fmte("Invalid WITH form ~S in loop.", *list);
+	fmte("Invalid WITH form ~S in loop.", *list, NULL);
 }
 
 static void loop_parse_form_variables(addr *list, addr *ret)

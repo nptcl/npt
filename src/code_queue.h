@@ -67,12 +67,17 @@ _g void code_queue_pop(LocalRoot local, addr code, addr *ret);
 _g void code_make_execute_set(LocalRoot local, addr code, addr scope);
 _g void code_make_execute_push(LocalRoot local, addr code, addr scope);
 _g void code_make_execute_rem(LocalRoot local, addr code, addr scope);
-_g void code_make_execute_simple(LocalRoot local, addr code, addr pos);
-_g void code_make_execute_normal(LocalRoot local, addr code, addr pos);
 _g void code_make_execute_control(LocalRoot local, addr code, addr pos);
 _g void code_make_execute_switch(LocalRoot local, addr code, addr pos);
 _g void code_make_single(LocalRoot, addr, constindex, constindex);
 _g void code_make_object(LocalRoot local, addr code, addr value);
+
+_g void code_queue_make_label(LocalRoot local, addr code, addr *ret);
+_g void code_queue_push_label(LocalRoot local, addr code, addr label);
+_g void code_queue_if_unbound(LocalRoot local, addr code, addr label);
+_g void code_queue_if_nil(LocalRoot local, addr code, addr label);
+_g void code_queue_if_t(LocalRoot local, addr code, addr label);
+_g void code_queue_goto(LocalRoot local, addr code, addr label);
 
 #endif
 

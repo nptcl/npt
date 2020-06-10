@@ -287,7 +287,7 @@ static void close_close_control(Execute ptr, addr control)
 	}
 }
 
-static int pop_control_(Execute ptr)
+_g int pop_control_(Execute ptr)
 {
 	addr control, *lexical_reader, lexical_vector;
 	LocalStack stack;

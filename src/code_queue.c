@@ -283,16 +283,22 @@ _g void code_queue_push_args(LocalRoot local, addr code)
 	str->p_args = 1;
 }
 
+#define CodeQueueGoto(pos, x) { \
+	addr __check; \
+	GetConst(x, &__check); \
+	if (pos == __check) { \
+		return 1; \
+	} \
+}
 static int code_queue_pop_goto_p(addr pos)
 {
-	addr check;
-
 	if (GetType(pos) != LISPTYPE_CONS)
 		return 0;
 	GetCar(pos, &pos);
-	GetConst(CODE_GOTO, &check);
-	if (pos == check)
-		return 1;
+	CodeQueueGoto(pos, CODE_GOTO);
+	CodeQueueGoto(pos, CODE_IF_UNBOUND);
+	CodeQueueGoto(pos, CODE_IF_NIL);
+	CodeQueueGoto(pos, CODE_IF_T);
 
 	return 0;
 }
@@ -475,22 +481,6 @@ _g void code_make_execute_rem(LocalRoot local, addr code, addr scope)
 	code_queue_rollback(code, &mode);
 }
 
-_g void code_make_execute_simple(LocalRoot local, addr code, addr pos)
-{
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, EXECUTE_SIMPLE_PUSH, pos);
-	else
-		CodeQueue_cons(local, code, EXECUTE_SIMPLE_SET, pos);
-}
-
-_g void code_make_execute_normal(LocalRoot local, addr code, addr pos)
-{
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, EXECUTE_NORMAL_PUSH, pos);
-	else
-		CodeQueue_cons(local, code, EXECUTE_NORMAL_SET, pos);
-}
-
 _g void code_make_execute_control(LocalRoot local, addr code, addr pos)
 {
 	if (code_queue_pushp(code))
@@ -544,3 +534,42 @@ _g void code_make_object(LocalRoot local, addr code, addr value)
 	}
 }
 
+
+/*
+ *  label
+ */
+_g void code_queue_make_label(LocalRoot local, addr code, addr *ret)
+{
+	struct code_queue *str = StructCodeQueue(code);
+	index_heap(ret, str->label++);
+}
+
+_g void code_queue_push_label(LocalRoot local, addr code, addr label)
+{
+	CheckType(label, LISPTYPE_INDEX);
+	code_queue_add(local, code, label);
+}
+
+_g void code_queue_if_unbound(LocalRoot local, addr code, addr label)
+{
+	CheckType(label, LISPTYPE_INDEX);
+	CodeQueue_cons(local, code, IF_UNBOUND, label);
+}
+
+_g void code_queue_if_nil(LocalRoot local, addr code, addr label)
+{
+	CheckType(label, LISPTYPE_INDEX);
+	CodeQueue_cons(local, code, IF_NIL, label);
+}
+
+_g void code_queue_if_t(LocalRoot local, addr code, addr label)
+{
+	CheckType(label, LISPTYPE_INDEX);
+	CodeQueue_cons(local, code, IF_T, label);
+}
+
+_g void code_queue_goto(LocalRoot local, addr code, addr label)
+{
+	CheckType(label, LISPTYPE_INDEX);
+	CodeQueue_cons(local, code, GOTO, label);
+}

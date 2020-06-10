@@ -190,10 +190,10 @@ static int open_corefile(Execute ptr, struct filememory *fm)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	begin_code(ptr, &code);
+	begin_setjmp(ptr, &code);
 	if (code_run_p(code))
 		save_core_stream(ptr, fm);
-	end_code(ptr);
+	end_setjmp(ptr);
 	rollback_local(local, stack);
 	if (code_error_p(code)) {
 		Debug("save_core error, interrupt.");

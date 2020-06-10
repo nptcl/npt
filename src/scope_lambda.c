@@ -422,7 +422,7 @@ _g void scope_init_lambda(struct lambda_struct *str, EvalParse eval, int globalp
 	str->stack = str->call = str->table = str->lexical =
 		str->args = str->decl = str->doc = str->cons =
 		str->clos = str->free = str->the =
-		str->form = str->defun = Nil;
+		str->form = str->defun = str->body_the = Nil;
 	str->globalp = globalp;
 	str->eval = eval;
 }
@@ -514,6 +514,23 @@ static int lambda_init(Execute ptr, struct lambda_struct *str)
 	return 0;
 }
 
+static void lambda_tablevalue_force(addr args)
+{
+	addr pos;
+
+	while (args != Nil) {
+		GetCons(args, &pos, &args);
+		setcheck_tablevalue(pos, 1);
+	}
+}
+
+static void lambda_tablevalue_single(addr pos)
+{
+	if (pos != Nil) {
+		setcheck_tablevalue(pos, 1);
+	}
+}
+
 static void lambda_tablevalue_opt(addr args)
 {
 	addr list, var, init, svar;
@@ -552,7 +569,9 @@ static void lambda_tablevalue(addr args)
 	addr var, opt, rest, key, allow, aux;
 
 	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, NULL);
+	lambda_tablevalue_force(var);
 	lambda_tablevalue_opt(opt);
+	lambda_tablevalue_single(rest);
 	lambda_tablevalue_key(key);
 	lambda_tablevalue_aux(aux);
 }
@@ -777,7 +796,7 @@ static void localhold_lambda_struct(LocalRoot local, struct lambda_struct *str)
 			str->stack, str->call, str->table, str->lexical,
 			str->args, str->decl, str->doc, str->cons,
 			str->clos, str->free, str->the,
-			str->form, str->defun, NULL);
+			str->form, str->defun, str->body_the, NULL);
 }
 
 static int lambda_object(Execute ptr, struct lambda_struct *str, addr *ret)
@@ -924,6 +943,16 @@ static void macro_tablevalue_var(addr args)
 		GetCons(args, &var, &args);
 		if (consp(var))
 			macro_tablevalue(var);
+		else
+			lambda_tablevalue_single(var);
+	}
+}
+
+static void macro_tablevalue_rest(addr rest)
+{
+	if (rest != Nil) {
+		GetCar(rest, &rest);
+		setcheck_tablevalue(rest, 1);
 	}
 }
 
@@ -934,13 +963,16 @@ static void macro_tablevalue(addr args)
 	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
 	macro_tablevalue_var(var);
 	lambda_tablevalue_opt(opt);
+	macro_tablevalue_rest(rest);
 	lambda_tablevalue_key(key);
 	lambda_tablevalue_aux(aux);
+	lambda_tablevalue_single(whole);
+	lambda_tablevalue_single(env);
 }
 
 static int macro_progn(Execute ptr, struct lambda_struct *str)
 {
-	return scope_allcons(ptr, &str->cons, NULL, str->cons);
+	return scope_allcons(ptr, &str->cons, &str->body_the, str->cons);
 }
 
 static int macro_execute(Execute ptr, struct lambda_struct *str, addr *ret)
@@ -1028,7 +1060,7 @@ _g int scope_define_compiler_macro_call(Execute ptr,
 /*
  *  destructuring-bind
  */
-static int dbind_lambda_object(Execute ptr, struct lambda_struct *str, addr *ret)
+static int scope_bind_lambda(Execute ptr, struct lambda_struct *str, addr *ret)
 {
 	str->stack = newstack_nil(ptr);
 	localhold_lambda_struct(ptr->local, str);
@@ -1039,12 +1071,26 @@ static int dbind_lambda_object(Execute ptr, struct lambda_struct *str, addr *ret
 	return 0;
 }
 
-_g int scope_destructuring_bind_call(Execute ptr, struct lambda_struct *str, addr *ret)
+_g int scope_bind_call(Execute ptr, addr *ret, addr expr, addr args)
 {
-	addr eval;
+	addr lambda, eval;
+	struct lambda_struct str;
 
-	Return(dbind_lambda_object(ptr, str, &eval));
-	macro_lambda_the(eval);
+	/* macro-lambda */
+	scope_init_lambda(&str, EVAL_PARSE_MACRO_LAMBDA, 1);
+	GetEvalParse(args, 0, &str.args);
+	GetEvalParse(args, 1, &str.decl);
+	GetEvalParse(args, 2, &str.doc);
+	GetEvalParse(args, 3, &str.cons);
+	Return(scope_bind_lambda(ptr, &str, &lambda));
+
+	/* result */
+	eval_scope_size(ptr, &eval, 5, EVAL_PARSE_DESTRUCTURING_BIND, str.body_the, Nil);
+	SetEvalScopeIndex(eval, 0, expr);
+	SetEvalScopeIndex(eval, 1, str.args);
+	SetEvalScopeIndex(eval, 2, str.decl);
+	SetEvalScopeIndex(eval, 3, str.cons);
+	SetEvalScopeIndex(eval, 4, str.free);
 	return Result(ret, eval);
 }
 

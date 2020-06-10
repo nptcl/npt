@@ -4,6 +4,7 @@
 #include "compile_read.h"
 #include "compile_stream.h"
 #include "compile_value.h"
+#include "compile_type.h"
 #include "compile_typedef.h"
 #include "condition.h"
 #include "execute.h"
@@ -115,28 +116,6 @@ static int faslread_nop_code(Execute ptr, addr stream, addr *ret)
 	return 0;
 }
 
-static int faslread_execute_simple_set_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_code(ptr, stream, &cdr));
-	GetConst(CODE_EXECUTE_SIMPLE_SET, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-static int faslread_execute_normal_set_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_code(ptr, stream, &cdr));
-	GetConst(CODE_EXECUTE_NORMAL_SET, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
 static int faslread_execute_control_set_code(Execute ptr, addr stream, addr *ret)
 {
 	addr car, cdr;
@@ -148,45 +127,23 @@ static int faslread_execute_control_set_code(Execute ptr, addr stream, addr *ret
 	return 0;
 }
 
-static int faslread_execute_switch_set_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_code(ptr, stream, &cdr));
-	GetConst(CODE_EXECUTE_SWITCH_SET, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-static int faslread_execute_simple_push_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_code(ptr, stream, &cdr));
-	GetConst(CODE_EXECUTE_SIMPLE_PUSH, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-static int faslread_execute_normal_push_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_code(ptr, stream, &cdr));
-	GetConst(CODE_EXECUTE_NORMAL_PUSH, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
 static int faslread_execute_control_push_code(Execute ptr, addr stream, addr *ret)
 {
 	addr car, cdr;
 
 	Return(faslread_code(ptr, stream, &cdr));
 	GetConst(CODE_EXECUTE_CONTROL_PUSH, &car);
+	cons_heap(ret, car, cdr);
+
+	return 0;
+}
+
+static int faslread_execute_switch_set_code(Execute ptr, addr stream, addr *ret)
+{
+	addr car, cdr;
+
+	Return(faslread_code(ptr, stream, &cdr));
+	GetConst(CODE_EXECUTE_SWITCH_SET, &car);
 	cons_heap(ret, car, cdr);
 
 	return 0;
@@ -238,6 +195,18 @@ static int faslread_push_result_code(Execute ptr, addr stream, addr *ret)
 static int faslread_push_values_code(Execute ptr, addr stream, addr *ret)
 {
 	FaslRead_single(PUSH_VALUES, ret);
+	return 0;
+}
+
+static int faslread_type_result_code(Execute ptr, addr stream, addr *ret)
+{
+	addr car, cdr;
+
+	Return(faslread_object(ptr, stream, &cdr));
+	CheckType(cdr, LISPTYPE_TYPE);
+	GetConst(CODE_TYPE_RESULT, &car);
+	cons_heap(ret, car, cdr);
+
 	return 0;
 }
 
@@ -321,16 +290,15 @@ _g void init_compile_read(void)
 {
 	faslread_table[FaslCode_error] = faslread_error_code;
 	faslread_table[FaslCode_fixnum] = faslread_fixnum_code;
+	faslread_table[FaslCode_bignum] = faslread_bignum_code;
+	faslread_table[FaslCode_ratio] = faslread_ratio_code;
+	faslread_table[FaslCode_type] = faslread_type_code;
 
 	/* system */
 	faslread_table[FaslCode_nop] = faslread_nop_code;
-	faslread_table[FaslCode_execute_simple_set] = faslread_execute_simple_set_code;
-	faslread_table[FaslCode_execute_normal_set] = faslread_execute_normal_set_code;
 	faslread_table[FaslCode_execute_control_set] = faslread_execute_control_set_code;
-	faslread_table[FaslCode_execute_switch_set] = faslread_execute_switch_set_code;
-	faslread_table[FaslCode_execute_simple_push] = faslread_execute_simple_push_code;
-	faslread_table[FaslCode_execute_normal_push] = faslread_execute_normal_push_code;
 	faslread_table[FaslCode_execute_control_push] = faslread_execute_control_push_code;
+	faslread_table[FaslCode_execute_switch_set] = faslread_execute_switch_set_code;
 	faslread_table[FaslCode_execute_switch_push] = faslread_execute_switch_push_code;
 
 	/* object */
@@ -342,5 +310,7 @@ _g void init_compile_read(void)
 	faslread_table[FaslCode_nil_push] = faslread_nil_push_code;
 	faslread_table[FaslCode_t_set] = faslread_t_set_code;
 	faslread_table[FaslCode_t_push] = faslread_t_push_code;
+
+	faslread_table[FaslCode_type_result] = faslread_type_result_code;
 }
 

@@ -1867,7 +1867,7 @@ static void large_butlast_cons(addr list, addr index, addr *ret)
 	length_list_p(list, &value);
 	size = intsizeh(value);
 	if (! less_equal_integer(size, index))
-		fmte("Too large butlast index ~S.", index);
+		fmte("Too large butlast index ~S.", index, NULL);
 	*ret = Nil;
 }
 
@@ -1912,7 +1912,7 @@ static void large_nbutlast_cons(addr list, addr index, addr *ret)
 	length_list_p(list, &value);
 	size = intsizeh(value);
 	if (! less_equal_integer(size, index))
-		fmte("Too large nbutlast index ~S.", index);
+		fmte("Too large nbutlast index ~S.", index, NULL);
 	*ret = Nil;
 }
 
@@ -1957,7 +1957,7 @@ static void large_last_cons(addr list, addr index, addr *ret)
 	length_list_p(list, &value);
 	size = intsizeh(value);
 	if (! less_equal_integer(size, index))
-		fmte("Too large nbutlast index ~S.", index);
+		fmte("Too large nbutlast index ~S.", index, NULL);
 	*ret = list;
 }
 

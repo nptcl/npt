@@ -27,6 +27,12 @@ _g void faslwrite_type(addr stream, enum FaslCode code)
 		fmte("write-byte-stream error.", NULL);
 }
 
+_g void faslwrite_byte(addr stream, byte value)
+{
+	if (write_byte_stream(stream, value))
+		fmte("write-byte-stream error..", NULL);
+}
+
 
 /*
  *  read
@@ -58,5 +64,11 @@ _g void faslread_type(addr stream, enum FaslCode *ret)
 	if (read_byte_stream(stream, &c))
 		fmte("read-byte-stream error.", NULL);
 	*ret = (enum FaslCode)c;
+}
+
+_g void faslread_byte(addr stream, byte *ret)
+{
+	if (read_byte_stream(stream, ret))
+		fmte("read-byte-stream error.", NULL);
 }
 
