@@ -14,6 +14,7 @@ _g void faslwrite_byte(addr stream, byte value);
 _g int faslread_buffer_check(addr stream, void *ptr, size_t size);
 _g void faslread_buffer(addr stream, void *ptr, size_t size);
 _g void faslread_type(addr stream, enum FaslCode *ret);
+_g void faslread_type_check(addr stream, enum FaslCode value);
 _g void faslread_byte(addr stream, byte *ret);
 
 #endif

@@ -5,7 +5,7 @@
 #include "typedef.h"
 
 _g int faslwrite_value_type(Execute ptr, addr stream, addr pos);
-_g int faslread_type_code(Execute ptr, addr stream, addr *ret);
+_g int faslread_value_type(Execute ptr, addr stream, addr *ret);
 
 #endif
 

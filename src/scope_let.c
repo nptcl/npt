@@ -462,15 +462,9 @@ static int let_allocate_args(struct let_struct *str)
 	return 0;
 }
 
-static int let_allocate_decl(struct let_struct *str)
-{
-	return str->decl != Nil;
-}
-
 static void let_allocate(struct let_struct *str)
 {
-	int check = let_allocate_decl(str) || let_allocate_args(str);
-	str->allocate = check? T: Nil;
+	str->allocate = let_allocate_args(str)? T: Nil;
 }
 
 static int let_execute(Execute ptr, struct let_struct *str)

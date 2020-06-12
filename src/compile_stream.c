@@ -66,6 +66,14 @@ _g void faslread_type(addr stream, enum FaslCode *ret)
 	*ret = (enum FaslCode)c;
 }
 
+_g void faslread_type_check(addr stream, enum FaslCode value)
+{
+	enum FaslCode check;
+	faslread_type(stream, &check);
+	if (check != value)
+		fmte("Invalid fasl format.", NULL);
+}
+
 _g void faslread_byte(addr stream, byte *ret)
 {
 	if (read_byte_stream(stream, ret))

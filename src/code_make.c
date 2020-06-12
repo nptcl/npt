@@ -1419,8 +1419,7 @@ static void code_make_locally(LocalRoot local, addr code, addr scope)
 
 	GetEvalScopeIndex(scope, 1, &cons);
 	GetEvalScopeIndex(scope, 2, &free);
-	if (free != Nil)
-		CodeQueue_cons(local, code, LOCALLY_DECLARE, free);
+	code_make_free(local, code, free);
 	code_allcons(local, code, cons);
 }
 
@@ -1670,14 +1669,70 @@ static void code_make_throw(LocalRoot local, addr code, addr scope)
 
 
 /* multiple-value-bind */
-static void code_make_let_body(LocalRoot local, addr code, addr list, addr *ret)
+static void code_make_multiple_value_bind_index(
+		LocalRoot local, addr code, size_t i, addr pos)
 {
-	code_queue_push_new(local, code);
-	code_allcons_set(local, code, list);
-	code_queue_pop(local, code, ret);
+	addr index, value;
+
+	index_heap(&index, i);
+	/* type */
+	if (getcheck_tablevalue(pos)) {
+		gettype_tablevalue(pos, &value);
+		if (! type_astert_p(value)) {
+			CodeQueue_double(local, code, BIND1_TYPE, index, value);
+		}
+	}
+
+	/* bind */
+	if (getspecialp_tablevalue(pos)) {
+		getname_tablevalue(pos, &value);
+		CodeQueue_double(local, code, BIND1_SPECIAL, index, value);
+	}
+	else {
+		index_heap(&value, getlexical_tablevalue(pos));
+		CodeQueue_double(local, code, BIND1_LEXICAL, index, value);
+	}
 }
 
-static void code_make_multiple_value_bind(LocalRoot local, addr code, addr scope)
+static void code_make_multiple_value_bind_list(LocalRoot local, addr code, addr pos)
+{
+	addr value;
+
+	/* type */
+	if (getcheck_tablevalue(pos)) {
+		gettype_tablevalue(pos, &value);
+		if (! type_astert_p(value)) {
+			CodeQueue_cons(local, code, BIND2_TYPE, value);
+		}
+	}
+
+	/* bind */
+	if (getspecialp_tablevalue(pos)) {
+		getname_tablevalue(pos, &value);
+		CodeQueue_cons(local, code, BIND2_SPECIAL, value);
+	}
+	else {
+		index_heap(&value, getlexical_tablevalue(pos));
+		CodeQueue_cons(local, code, BIND2_LEXICAL, value);
+	}
+}
+
+static void code_make_multiple_value_bind_args(LocalRoot local, addr code, addr list)
+{
+	addr pos;
+	size_t i;
+
+	for (i = 0; list != Nil; i++) {
+		GetCons(list, &pos, &list);
+
+		if (i < EXECUTE_VALUES)
+			code_make_multiple_value_bind_index(local, code, i, pos);
+		else
+			code_make_multiple_value_bind_list(local, code, pos);
+	}
+}
+
+static void code_make_multiple_value_bind_execute(LocalRoot local, addr code, addr scope)
 {
 	addr args, expr, cons, free;
 
@@ -1686,14 +1741,29 @@ static void code_make_multiple_value_bind(LocalRoot local, addr code, addr scope
 	GetEvalScopeIndex(scope, 4, &cons);
 	GetEvalScopeIndex(scope, 5, &free);
 
-	/* execute */
 	code_make_execute_set(local, code, expr);
-	code_make_let_body(local, code, cons, &cons);
-	list_heap(&cons, args, cons, free, NULL);
-	if (code_queue_pushp(code))
-		CodeQueue_cons(local, code, BIND_VALUES_PUSH, cons);
-	else
-		CodeQueue_cons(local, code, BIND_VALUES_SET, cons);
+	code_make_free(local, code, free);
+	code_make_multiple_value_bind_args(local, code, args);
+	code_allcons(local, code, cons);
+}
+
+static void code_make_multiple_value_bind(LocalRoot local, addr code, addr scope)
+{
+	addr pos;
+	modeswitch mode;
+
+	GetEvalScopeIndex(scope, 6, &pos); /* allocate */
+	if (pos == Nil) {
+		code_make_multiple_value_bind_execute(local, code, scope);
+		return;
+	}
+
+	code_queue_setmode(code, &mode);
+	code_queue_push_new(local, code);
+	code_make_multiple_value_bind_execute(local, code, scope);
+	code_queue_pop(local, code, &pos);
+	code_queue_rollback(code, &mode);
+	code_make_execute_control(local, code, pos);
 }
 
 

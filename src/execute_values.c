@@ -192,3 +192,28 @@ _g size_t lengthvalues_control(Execute ptr)
 	return ptr->sizer;
 }
 
+_g void getvalues_root_control(Execute ptr, addr *ret)
+{
+	addr list;
+
+	if (ptr->sizer <= EXECUTE_VALUES) {
+		*ret = Unbound;
+		return;
+	}
+	GetExecuteValuesList(ptr->values_vector, &list);
+	GetCar(list, ret);
+}
+
+_g void getvalues_pop_control(Execute ptr, addr *ret)
+{
+	addr list;
+
+	if (ptr->sizer <= EXECUTE_VALUES) {
+		*ret = Unbound;
+		return;
+	}
+	GetExecuteValuesList(ptr->values_vector, &list);
+	GetCons(list, ret, &list);
+	SetExecuteValuesList(ptr->values_vector, list);
+	ptr->sizer--;
+}

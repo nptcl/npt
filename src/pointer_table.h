@@ -130,9 +130,13 @@ enum pointer_index {
 	p_macro_special_code,
 	p_macro_env_code,
 	p_macro_whole_code,
-	p_locally_declare_code,
-	p_bind_values_set_code,
-	p_bind_values_push_code,
+
+	p_bind1_type_code,
+	p_bind1_special_code,
+	p_bind1_lexical_code,
+	p_bind2_type_code,
+	p_bind2_special_code,
+	p_bind2_lexical_code,
 
 	p_load_time_value_alloc_code,
 	p_load_time_value_value_code,

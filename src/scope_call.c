@@ -799,23 +799,27 @@ _g void scope_init_mvbind(struct mvbind_struct *str)
 {
 	clearpoint(str);
 	str->stack = str->args = str->decl = str->doc
-		= str->cons = str->free = str->the = Nil;
+		= str->cons = str->free = str->the = str->allocate = Nil;
 }
 
 static void mvbind_maketable(Execute ptr, struct mvbind_struct *str)
 {
+	int allocate;
 	addr stack, decl, args, root, var;
 
 	stack = str->stack;
 	decl = str->decl;
 	args = str->args;
+	allocate = 0;
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &var, &args);
 		check_scope_variable(var);
 		ifdeclvalue(ptr, stack, var, decl, &var);
+		allocate |= getspecialp_tablevalue(var);
 		cons_heap(&root, var, root);
 	}
 	nreverse(&str->args, root);
+	str->allocate = allocate? T: Nil;
 }
 
 static int mvbind_execute(Execute ptr, struct mvbind_struct *str)

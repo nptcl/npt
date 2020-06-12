@@ -161,9 +161,14 @@ _g void init_code_init(void)
 	initcode(macro_special_code, Addr);
 	initcode(macro_env_code, Null);
 	initcode(macro_whole_code, Null);
-	initcode(locally_declare_code, Addr);
-	initcode(bind_values_set_code, Addr);
-	initcode(bind_values_push_code, Addr);
+
+	/* multiple-value-bind */
+	initcode(bind1_type_code, Addr);
+	initcode(bind1_special_code, Addr);
+	initcode(bind1_lexical_code, Addr);
+	initcode(bind2_type_code, Addr);
+	initcode(bind2_special_code, Addr);
+	initcode(bind2_lexical_code, Index);
 
 	/* load-time-value */
 	initcode(load_time_value_alloc_code, Index);
@@ -306,9 +311,14 @@ _g void build_code_init(void)
 	defcode(MACRO_SPECIAL, macro_special_code);
 	defcode(MACRO_ENV, macro_env_code);
 	defcode(MACRO_WHOLE, macro_whole_code);
-	defcode(LOCALLY_DECLARE, locally_declare_code);
-	defcode(BIND_VALUES_SET, bind_values_set_code);
-	defcode(BIND_VALUES_PUSH, bind_values_push_code);
+
+	/* multiple-value-bind */
+	defcode(BIND1_TYPE, bind1_type_code);
+	defcode(BIND1_SPECIAL, bind1_special_code);
+	defcode(BIND1_LEXICAL, bind1_lexical_code);
+	defcode(BIND2_TYPE, bind2_type_code);
+	defcode(BIND2_SPECIAL, bind2_special_code);
+	defcode(BIND2_LEXICAL, bind2_lexical_code);
 
 	/* load-time-value */
 	defcode(LOAD_TIME_VALUE_ALLOC, load_time_value_alloc_code);

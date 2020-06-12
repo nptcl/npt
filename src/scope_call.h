@@ -6,7 +6,7 @@
 #include "typedef.h"
 
 struct mvbind_struct {
-	addr stack, args, decl, doc, cons, free, the, expr;
+	addr stack, args, decl, doc, cons, free, the, expr, allocate;
 };
 
 _g int scope_symbol_call(Execute ptr, addr *ret, addr eval);

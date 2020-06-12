@@ -17,65 +17,6 @@
 #include "symbol.h"
 
 /*
- *  free-declare
- */
-static int let_free_value(Execute ptr, addr pos, addr type)
-{
-	int specialp;
-
-	specialp = getspecialp_tablevalue(pos);
-	getname_tablevalue(pos, &pos);
-	if (specialp)
-		getspecial_local(ptr, pos, &pos);
-	else
-		getvalue_tablevalue(ptr, pos, &pos);
-
-	return typep_unbound_error(ptr, pos, type);
-}
-
-static int let_free_function(Execute ptr, addr pos, addr type)
-{
-	addr name, value;
-
-	if (getglobalp_tablefunction(pos)) {
-		getname_tablefunction(pos, &name);
-		if (symbolp_callname(name)) {
-			GetFunctionSymbol(pos, &value);
-		}
-		else {
-			getsetf_symbol(pos, &value);
-		}
-	}
-	else {
-		getvalue_tablefunction(ptr, pos, &value);
-	}
-
-	return typep_unbound_error(ptr, value, type);
-}
-
-_g int let_free_code(Execute ptr, addr list)
-{
-	addr pos, type;
-
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		GetCons(pos, &pos, &type);
-		if (eval_tablevalue_p(pos)) {
-			Return(let_free_value(ptr, pos, type));
-			continue;
-		}
-		if (eval_tablefunction_p(pos)) {
-			Return(let_free_function(ptr, pos, type));
-			continue;
-		}
-		Abort("type error");
-	}
-
-	return 0;
-}
-
-
-/*
  *  lambda object
  */
 _g int pop_code(Execute ptr, CodeValue x)
@@ -365,68 +306,87 @@ _g int macro_whole_code(Execute ptr, CodeValue x)
 
 
 /*
- *  locally
- */
-_g int locally_declare_code(Execute ptr, CodeValue x)
-{
-	return let_free_code(ptr, x.pos);
-}
-
-
-/*
  *  multiple-value-bind
  */
-static int lambda_args_value_(Execute ptr, addr pos, addr value, int ignore)
+_g int bind1_type_code(Execute ptr, CodeValue x)
 {
-	addr type, name;
+	addr value, index, type;
+	size_t i;
 
-	/* type check */
-	if (! ignore && getcheck_tablevalue(pos)) {
-		gettype_tablevalue(pos, &type);
-		Return(typep_error(ptr, value, type));
-	}
+	GetCons(x.pos, &index, &value);
+	GetCar(value, &type);
+	GetIndex(index, &i);
+	getvalues_control(ptr, i, &value);
+	if (value == Unbound)
+		value = Nil;
 
-	/* push */
-	getname_tablevalue(pos, &name);
-	if (getspecialp_tablevalue(pos))
-		pushspecial_control(ptr, name, value);
-	else
-		setvalue_tablevalue(ptr, pos, value);
+	return typep_error(ptr, value, type);
+}
+
+_g int bind1_special_code(Execute ptr, CodeValue x)
+{
+	addr value, index, symbol;
+	size_t i;
+
+	GetCons(x.pos, &index, &value);
+	GetCar(value, &symbol);
+	GetIndex(index, &i);
+	getvalues_control(ptr, i, &value);
+	if (value == Unbound)
+		value = Nil;
+	pushspecial_control(ptr, symbol, value);
 
 	return 0;
 }
 
-static int bind_values_args_code(Execute ptr, addr list)
+_g int bind1_lexical_code(Execute ptr, CodeValue x)
 {
-	addr values, pos, value;
+	addr value, index, lexical;
+	size_t i;
 
-	getvalues_list_control_local(ptr, &values);
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		GetCons(values, &value, &values);
-		Return(lambda_args_value_(ptr, pos, value, 0));
-	}
+	GetCons(x.pos, &index, &value);
+	GetCar(value, &lexical);
+	GetIndex(index, &i);
+	getvalues_control(ptr, i, &value);
+	if (value == Unbound)
+		value = Nil;
+	GetIndex(lexical, &i);
+	set_lexical_control(ptr, i, value);
 
 	return 0;
 }
 
-_g int bind_values_set_code(Execute ptr, CodeValue x)
+_g int bind2_type_code(Execute ptr, CodeValue x)
 {
-	addr control, args, body, free;
+	addr value;
 
-	List_bind(x.pos, &args, &body, &free, NULL);
-	push_new_control(ptr, &control);
-	Return(let_free_code(ptr, free));
-	Return(bind_values_args_code(ptr, args));
-	Return(runcode_control(ptr, body));
-	return free_control_(ptr, control);
+	getvalues_root_control(ptr, &value);
+	if (value == Unbound)
+		value = Nil;
+
+	return typep_error(ptr, value, x.pos);
 }
 
-_g int bind_values_push_code(Execute ptr, CodeValue x)
+_g int bind2_special_code(Execute ptr, CodeValue x)
 {
-	Return(bind_values_set_code(ptr, x));
-	getresult_control(ptr, &x.pos);
-	pushargs_control(ptr, x.pos);
+	addr value;
+
+	getvalues_pop_control(ptr, &value);
+	if (value == Unbound)
+		value = Nil;
+	pushspecial_control(ptr, x.pos, value);
+
+	return 0;
+}
+
+_g int bind2_lexical_code(Execute ptr, CodeValue x)
+{
+	addr value;
+
+	getvalues_pop_control(ptr, &value);
+	if (value == Unbound)
+		value = Nil;
+	set_lexical_control(ptr, x.index, value);
 
 	return 0;
 }

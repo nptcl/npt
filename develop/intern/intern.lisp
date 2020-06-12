@@ -1696,9 +1696,13 @@ lisp-code::macro
 lisp-code::macro-special
 lisp-code::macro-env
 lisp-code::macro-whole
-lisp-code::locally-declare
-lisp-code::bind-values-set
-lisp-code::bind-values-push
+
+lisp-code::bind1-type
+lisp-code::bind1-special
+lisp-code::bind1-lexical
+lisp-code::bind2-type
+lisp-code::bind2-special
+lisp-code::bind2-lexical
 
 lisp-code::load-time-value-alloc
 lisp-code::load-time-value-value

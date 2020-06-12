@@ -10,7 +10,7 @@
 #ifdef LISP_DEBUG
 #define EXECUTE_VALUES		2
 #else
-#define EXECUTE_VALUES		8
+#define EXECUTE_VALUES		4
 #endif
 
 /*

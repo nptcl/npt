@@ -7,6 +7,7 @@
 #include "compile_type.h"
 #include "compile_typedef.h"
 #include "condition.h"
+#include "define.h"
 #include "execute.h"
 #include "stream.h"
 
@@ -198,18 +199,6 @@ static int faslread_push_values_code(Execute ptr, addr stream, addr *ret)
 	return 0;
 }
 
-static int faslread_type_result_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_object(ptr, stream, &cdr));
-	CheckType(cdr, LISPTYPE_TYPE);
-	GetConst(CODE_TYPE_RESULT, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
 static int faslread_nil_set_code(Execute ptr, addr stream, addr *ret)
 {
 	FaslRead_single(NIL_SET, ret);
@@ -236,6 +225,63 @@ static int faslread_t_push_code(Execute ptr, addr stream, addr *ret)
 
 
 /*
+ *  let
+ */
+static int faslread_type_result_code(Execute ptr, addr stream, addr *ret)
+{
+	addr car, cdr;
+
+	Return(faslread_object(ptr, stream, &cdr));
+	CheckType(cdr, LISPTYPE_TYPE);
+	GetConst(CODE_TYPE_RESULT, &car);
+	cons_heap(ret, car, cdr);
+
+	return 0;
+}
+
+
+/*
+ *  setq
+ */
+static int faslread_setq_lexical_code(Execute ptr, addr stream, addr *ret)
+{
+	addr car, cdr;
+	size_t value;
+
+	GetConst(CODE_SETQ_LEXICAL, &car);
+	faslread_buffer(stream, &value, IdxSize);
+	index_heap(&cdr, value);
+	cons_heap(ret, car, cdr);
+
+	return 0;
+}
+
+static int faslread_setq_special_code(Execute ptr, addr stream, addr *ret)
+{
+	addr car, cdr;
+
+	GetConst(CODE_SETQ_SPECIAL, &car);
+	faslread_type_check(stream, FaslCode_symbol);
+	Return(faslread_value_symbol(ptr, stream, &cdr));
+	cons_heap(ret, car, cdr);
+
+	return 0;
+}
+
+static int faslread_setq_global_code(Execute ptr, addr stream, addr *ret)
+{
+	addr car, cdr;
+
+	GetConst(CODE_SETQ_GLOBAL, &car);
+	faslread_type_check(stream, FaslCode_symbol);
+	Return(faslread_value_symbol(ptr, stream, &cdr));
+	cons_heap(ret, car, cdr);
+
+	return 0;
+}
+
+
+/*
  *  code input
  */
 typedef int (*faslread_calltype)(Execute, addr, addr *);
@@ -254,14 +300,12 @@ _g int faslread_object(Execute ptr, addr stream, addr *ret)
 
 _g int faslread_code(Execute ptr, addr stream, addr *ret)
 {
-	enum FaslCode type;
 	addr vector, pos;
 	size_t size, i;
 	struct code_struct head, *str;
 
 	/* type */
-	faslread_type(stream, &type);
-	Check(type != FaslCode_code, "type error.");
+	faslread_type_check(stream, FaslCode_code);
 	/* struct */
 	faslread_buffer(stream, &head, sizeoft(head));
 	/* code */
@@ -289,10 +333,26 @@ _g int faslread_code(Execute ptr, addr stream, addr *ret)
 _g void init_compile_read(void)
 {
 	faslread_table[FaslCode_error] = faslread_error_code;
-	faslread_table[FaslCode_fixnum] = faslread_fixnum_code;
-	faslread_table[FaslCode_bignum] = faslread_bignum_code;
-	faslread_table[FaslCode_ratio] = faslread_ratio_code;
-	faslread_table[FaslCode_type] = faslread_type_code;
+	faslread_table[FaslCode_nil] = faslread_value_nil;
+	faslread_table[FaslCode_t] = faslread_value_t;
+	faslread_table[FaslCode_type] = faslread_value_type;
+	faslread_table[FaslCode_cons] = faslread_value_cons;
+	faslread_table[FaslCode_vector2] = faslread_value_vector2;
+	faslread_table[FaslCode_vector4] = faslread_value_vector4;
+#ifdef LISP_ARCH_64BIT
+	faslread_table[FaslCode_vector8] = faslread_value_vector8;
+#endif
+	faslread_table[FaslCode_character] = faslread_value_character;
+	faslread_table[FaslCode_string] = faslread_value_string;
+	faslread_table[FaslCode_symbol] = faslread_value_symbol;
+	faslread_table[FaslCode_fixnum] = faslread_value_fixnum;
+	faslread_table[FaslCode_bignum] = faslread_value_bignum;
+	faslread_table[FaslCode_ratio] = faslread_value_ratio;
+	faslread_table[FaslCode_single_float] = faslread_value_single_float;
+	faslread_table[FaslCode_double_float] = faslread_value_double_float;
+	faslread_table[FaslCode_long_float] = faslread_value_long_float;
+	faslread_table[FaslCode_complex] = faslread_value_complex;
+	faslread_table[FaslCode_package] = faslread_value_package;
 
 	/* system */
 	faslread_table[FaslCode_nop] = faslread_nop_code;
@@ -311,6 +371,12 @@ _g void init_compile_read(void)
 	faslread_table[FaslCode_t_set] = faslread_t_set_code;
 	faslread_table[FaslCode_t_push] = faslread_t_push_code;
 
+	/* let */
 	faslread_table[FaslCode_type_result] = faslread_type_result_code;
+
+	/* setq */
+	faslread_table[FaslCode_setq_lexical] = faslread_setq_lexical_code;
+	faslread_table[FaslCode_setq_special] = faslread_setq_special_code;
+	faslread_table[FaslCode_setq_global] = faslread_setq_global_code;
 }
 

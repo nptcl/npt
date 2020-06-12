@@ -254,7 +254,8 @@ static int pprint_dispatch_vector2(Execute ptr)
 	Return(check_pretty_stream(ptr, stream));
 	/* body */
 	size = length_sequence(vector, 1);
-	Return(size == 0);
+	if (size == 0)
+		return 0;
 	i = 0;
 	for (;;) {
 		Return(pprint_pop_common(ptr, stream, &pos));

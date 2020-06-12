@@ -37,7 +37,7 @@ static int faslreadtype_type1(Execute ptr, addr stream, addr pos)
 
 	faslread_type(stream, &type);
 	Check(type != FaslCode_type, "type error.");
-	Return(faslread_type_code(ptr, stream, &value));
+	Return(faslread_value_type(ptr, stream, &value));
 	SetArrayType(pos, 0, value);
 	return 0;
 }
@@ -73,7 +73,7 @@ _g int faslwrite_value_type(Execute ptr, addr stream, addr pos)
 	return (*call)(ptr, stream, pos);
 }
 
-_g int faslread_type_code(Execute ptr, addr stream, addr *ret)
+_g int faslread_value_type(Execute ptr, addr stream, addr *ret)
 {
 	enum LISPDECL type;
 	byte decl;
@@ -89,7 +89,7 @@ _g int faslread_type_code(Execute ptr, addr stream, addr *ret)
 	type_heap(&pos, (enum LISPDECL)decl, size);
 	GetLispDecl(pos, &type);
 	call = faslreadtype_table[type];
-	Check(call == NULL, "faslread_type_code error.");
+	Check(call == NULL, "faslread_value_type error.");
 	Return((*call)(ptr, stream, pos));
 
 	return Result(ret, pos);

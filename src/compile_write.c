@@ -128,12 +128,6 @@ static int faslwrite_push_values_code(Execute ptr, addr stream, CodeValue x)
 	return 0;
 }
 
-static int faslwrite_type_result_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_type_result);
-	return faslwrite_value_type(ptr, stream, x.pos);
-}
-
 static int faslwrite_nil_set_code(Execute ptr, addr stream, CodeValue x)
 {
 	faslwrite_type(stream, FaslCode_nil_set);
@@ -156,6 +150,39 @@ static int faslwrite_t_push_code(Execute ptr, addr stream, CodeValue x)
 {
 	faslwrite_type(stream, FaslCode_t_push);
 	return 0;
+}
+
+
+/*
+ *  let
+ */
+static int faslwrite_type_result_code(Execute ptr, addr stream, CodeValue x)
+{
+	faslwrite_type(stream, FaslCode_type_result);
+	return faslwrite_value_type(ptr, stream, x.pos);
+}
+
+
+/*
+ *  setq
+ */
+static int faslwrite_setq_lexical_code(Execute ptr, addr stream, CodeValue x)
+{
+	faslwrite_type(stream, FaslCode_setq_lexical);
+	faslwrite_buffer(stream, &x.index, IdxSize);
+	return 0;
+}
+
+static int faslwrite_setq_special_code(Execute ptr, addr stream, CodeValue x)
+{
+	faslwrite_type(stream, FaslCode_setq_special);
+	return faslwrite_value_symbol(ptr, stream, x.pos);
+}
+
+static int faslwrite_setq_global_code(Execute ptr, addr stream, CodeValue x)
+{
+	faslwrite_type(stream, FaslCode_setq_global);
+	return faslwrite_value_symbol(ptr, stream, x.pos);
 }
 
 
@@ -215,6 +242,13 @@ _g void init_compile_write(void)
 	faslwrite_table[p_t_set_code] = faslwrite_t_set_code;
 	faslwrite_table[p_t_push_code] = faslwrite_t_push_code;
 
+	/* let */
 	faslwrite_table[p_type_result_code] = faslwrite_type_result_code;
+
+	/* setq */
+	faslwrite_table[p_setq_lexical_code] = faslwrite_setq_lexical_code;
+	faslwrite_table[p_setq_special_code] = faslwrite_setq_special_code;
+	faslwrite_table[p_setq_global_code] = faslwrite_setq_global_code;
+
 }
 

@@ -4,8 +4,6 @@
 #include "execute.h"
 #include "typedef.h"
 
-_g int let_free_code(Execute ptr, addr list);
-
 _g int pop_code(Execute ptr, CodeValue x);
 _g int pop_unbound_code(Execute ptr, CodeValue x);
 _g int getf_code(Execute ptr, CodeValue x);
@@ -25,9 +23,12 @@ _g int macro_code(Execute ptr, CodeValue x);
 _g int macro_special_code(Execute ptr, CodeValue x);
 _g int macro_env_code(Execute ptr, CodeValue x);
 _g int macro_whole_code(Execute ptr, CodeValue x);
-_g int locally_declare_code(Execute ptr, CodeValue x);
-_g int bind_values_set_code(Execute ptr, CodeValue x);
-_g int bind_values_push_code(Execute ptr, CodeValue x);
+_g int bind1_type_code(Execute ptr, CodeValue x);
+_g int bind1_special_code(Execute ptr, CodeValue x);
+_g int bind1_lexical_code(Execute ptr, CodeValue x);
+_g int bind2_type_code(Execute ptr, CodeValue x);
+_g int bind2_special_code(Execute ptr, CodeValue x);
+_g int bind2_lexical_code(Execute ptr, CodeValue x);
 
 #endif
 

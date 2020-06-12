@@ -16,5 +16,8 @@ _g void getvalues_list_control_local(Execute ptr, addr *ret);
 _g void getvalues_list_control_heap(Execute ptr, addr *ret);
 _g size_t lengthvalues_control(Execute ptr);
 
+_g void getvalues_root_control(Execute ptr, addr *ret);
+_g void getvalues_pop_control(Execute ptr, addr *ret);
+
 #endif
 

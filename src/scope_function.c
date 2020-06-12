@@ -746,13 +746,14 @@ static int scope_multiple_value_bind(Execute ptr, addr *ret, addr eval)
 
 	Return(scope_multiple_value_bind_call(ptr, &str));
 
-	eval_scope_size(ptr, &eval, 6, EVAL_PARSE_MULTIPLE_VALUE_BIND, str.the, Nil);
+	eval_scope_size(ptr, &eval, 7, EVAL_PARSE_MULTIPLE_VALUE_BIND, str.the, Nil);
 	SetEvalScopeIndex(eval, 0, str.args);
 	SetEvalScopeIndex(eval, 1, str.expr);
 	SetEvalScopeIndex(eval, 2, str.decl);
 	SetEvalScopeIndex(eval, 3, str.doc);
 	SetEvalScopeIndex(eval, 4, str.cons);
 	SetEvalScopeIndex(eval, 5, str.free);
+	SetEvalScopeIndex(eval, 6, str.allocate);
 	return Result(ret, eval);
 }
 

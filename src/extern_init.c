@@ -693,19 +693,21 @@ static int lisp_argv_switch_execute_(Execute ptr, struct lispargv *argv)
 
 static int lisp_argv_switch_(Execute ptr, struct lispargv *argv)
 {
+	int check;
 	addr control;
 	codejump jump;
 
 	push_new_control(ptr, &control);
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
-		Return(lisp_argv_switch_execute_(ptr, argv));
+		check = lisp_argv_switch_execute_(ptr, argv);
 	}
 	end_switch(&jump);
-	Return(free_control_(ptr, control));
+	if (check)
+		return 1;
 	throw_switch(&jump);
 
-	return 0;
+	return free_control_(ptr, control);
 }
 
 /* result */
