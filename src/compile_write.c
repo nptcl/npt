@@ -1,6 +1,9 @@
 #include <memory.h>
 #include <string.h>
+#include "character.h"
+#include "code_init.h"
 #include "code_object.h"
+#include "compile_array.h"
 #include "compile_stream.h"
 #include "compile_type.h"
 #include "compile_typedef.h"
@@ -40,16 +43,16 @@ _g void faslwrite_header(addr stream)
 	faslwrite_byte16(stream, LISP_VERSION_A);
 	faslwrite_byte16(stream, LISP_VERSION_B);
 	faslwrite_byte16(stream, LISP_VERSION_C);
-	/* 20: arch */
+	/* 24: arch */
 #ifdef LISP_64BIT
 	faslwrite_byte16(stream, 1);
 #else
 	faslwrite_byte16(stream, 0);
 #endif
-	/* 22: padding */
+	/* 26: padding */
 	memset(buffer, 0xFF, 32);
-	faslwrite_buffer(stream, buffer, 2);
-	/* 24: end */
+	faslwrite_buffer(stream, buffer, 6);
+	/* 32: end */
 }
 
 _g void faslwrite_footer(addr stream)
@@ -64,139 +67,63 @@ _g void faslwrite_footer(addr stream)
 
 
 /*
- *  system
+ *  unbound
  */
-static int faslwrite_nop_code(Execute ptr, addr stream, CodeValue x)
+static int faslwrite_unbound(Execute ptr, addr stream)
 {
-	faslwrite_type(stream, FaslCode_nop);
-	return 0;
-}
-
-static int faslwrite_execute_control_set_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_execute_control_set);
-	Return(faslwrite_code(ptr, stream, x.pos));
-	return 0;
-}
-
-static int faslwrite_execute_control_push_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_execute_control_push);
-	Return(faslwrite_code(ptr, stream, x.pos));
-	return 0;
-}
-
-static int faslwrite_execute_switch_set_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_execute_switch_set);
-	Return(faslwrite_code(ptr, stream, x.pos));
-	return 0;
-}
-
-static int faslwrite_execute_switch_push_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_execute_switch_push);
-	Return(faslwrite_code(ptr, stream, x.pos));
+	faslwrite_type(stream, FaslCode_unbound);
 	return 0;
 }
 
 
 /*
- *  object
+ *  table code
  */
-static int faslwrite_set_code(Execute ptr, addr stream, CodeValue x)
+static void code_value_heap(addr *ret, enum CodeValueType type, CodeValue x)
 {
-	faslwrite_type(stream, FaslCode_set);
-	return faslwrite_value(ptr, stream, x.pos);
+	switch (type) {
+		case CodeValueType_Addr:
+			*ret = x.pos;
+			break;
+
+		case CodeValueType_Index:
+			index_heap(ret, x.index);
+			break;
+
+		case CodeValueType_Fixnum:
+			fixnum_heap(ret, x.value);
+			break;
+
+		case CodeValueType_Character:
+			character_heap(ret, x.character);
+			break;
+
+		case CodeValueType_Null:
+		default:
+			*ret = Nil;
+			break;
+	}
 }
 
-static int faslwrite_push_code(Execute ptr, addr stream, CodeValue x)
+static int faslwrite_value_operator(Execute ptr, addr stream, pointer id, CodeValue x)
 {
-	faslwrite_type(stream, FaslCode_push);
-	return faslwrite_value(ptr, stream, x.pos);
+	enum CodeValueType type;
+	enum FaslCode code;
+	addr value;
+
+	Check(p_size_code < id, "pointer error");
+	GetCodeValueArray(id, &type);
+	code_value_heap(&value, type, x);
+	code = GetCompileWrite(id);
+	/* write */
+	faslwrite_type(stream, code);
+	return faslwrite_value(ptr, stream, value);
 }
 
-static int faslwrite_push_result_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_push_result);
-	return 0;
-}
-
-static int faslwrite_push_values_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_push_values);
-	return 0;
-}
-
-static int faslwrite_nil_set_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_nil_set);
-	return 0;
-}
-
-static int faslwrite_nil_push_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_nil_push);
-	return 0;
-}
-
-static int faslwrite_t_set_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_t_set);
-	return 0;
-}
-
-static int faslwrite_t_push_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_t_push);
-	return 0;
-}
-
-
-/*
- *  let
- */
-static int faslwrite_type_result_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_type_result);
-	return faslwrite_value_type(ptr, stream, x.pos);
-}
-
-
-/*
- *  setq
- */
-static int faslwrite_setq_lexical_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_setq_lexical);
-	faslwrite_buffer(stream, &x.index, IdxSize);
-	return 0;
-}
-
-static int faslwrite_setq_special_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_setq_special);
-	return faslwrite_value_symbol(ptr, stream, x.pos);
-}
-
-static int faslwrite_setq_global_code(Execute ptr, addr stream, CodeValue x)
-{
-	faslwrite_type(stream, FaslCode_setq_global);
-	return faslwrite_value_symbol(ptr, stream, x.pos);
-}
-
-
-/*
- *  code output
- */
-typedef int (*faslwrite_calltype)(Execute, addr, CodeValue);
-static faslwrite_calltype faslwrite_table[p_size_code];
-
-_g int faslwrite_code(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_code(Execute ptr, addr stream, addr pos)
 {
 	struct code_struct *str;
 	struct code_value *sys, *bind;
-	faslwrite_calltype call;
 	size_t size, i;
 
 	Check(GetType(pos) != LISPTYPE_CODE, "type error.");
@@ -211,12 +138,36 @@ _g int faslwrite_code(Execute ptr, addr stream, addr pos)
 	size = str->size;
 	for (i = 0; i < size; i++) {
 		bind = sys + i;
-		call = faslwrite_table[bind->id];
-		Check(call == NULL, "faslwrite call error.");
-		Return((*call)(ptr, stream, bind->value));
+		Return(faslwrite_value_operator(ptr, stream, bind->id, bind->value));
 	}
 
 	return 0;
+}
+
+
+/*
+ *  table value
+ */
+typedef int (*faslwrite_callvalue)(Execute, addr, addr);
+static faslwrite_callvalue FaslWrite_Value[LISPTYPE_COMPILE];
+
+_g int faslwrite_value(Execute ptr, addr stream, addr pos)
+{
+	enum LISPTYPE type;
+	faslwrite_callvalue call;
+
+	/* unbound */
+	if (pos == Unbound)
+		return faslwrite_unbound(ptr, stream);
+
+	/* object */
+	type = GetType(pos);
+	call = FaslWrite_Value[type];
+	if (call == NULL) {
+		fmte("Invalid value ~S.", pos, NULL);
+		return 0;
+	}
+	return (*call)(ptr, stream, pos);
 }
 
 
@@ -225,30 +176,27 @@ _g int faslwrite_code(Execute ptr, addr stream, addr pos)
  */
 _g void init_compile_write(void)
 {
-	/* system */
-	faslwrite_table[p_nop_code] = faslwrite_nop_code;
-	faslwrite_table[p_execute_control_set_code] = faslwrite_execute_control_set_code;
-	faslwrite_table[p_execute_control_push_code] = faslwrite_execute_control_push_code;
-	faslwrite_table[p_execute_switch_set_code] = faslwrite_execute_switch_set_code;
-	faslwrite_table[p_execute_switch_push_code] = faslwrite_execute_switch_push_code;
-
-	/* object */
-	faslwrite_table[p_set_code] = faslwrite_set_code;
-	faslwrite_table[p_push_code] = faslwrite_push_code;
-	faslwrite_table[p_push_result_code] = faslwrite_push_result_code;
-	faslwrite_table[p_push_values_code] = faslwrite_push_values_code;
-	faslwrite_table[p_nil_set_code] = faslwrite_nil_set_code;
-	faslwrite_table[p_nil_push_code] = faslwrite_nil_push_code;
-	faslwrite_table[p_t_set_code] = faslwrite_t_set_code;
-	faslwrite_table[p_t_push_code] = faslwrite_t_push_code;
-
-	/* let */
-	faslwrite_table[p_type_result_code] = faslwrite_type_result_code;
-
-	/* setq */
-	faslwrite_table[p_setq_lexical_code] = faslwrite_setq_lexical_code;
-	faslwrite_table[p_setq_special_code] = faslwrite_setq_special_code;
-	faslwrite_table[p_setq_global_code] = faslwrite_setq_global_code;
-
+	FaslWrite_Value[LISPTYPE_NIL] = faslwrite_value_nil;
+	FaslWrite_Value[LISPTYPE_T] = faslwrite_value_t;
+	FaslWrite_Value[LISPTYPE_TYPE] = faslwrite_value_type;
+	FaslWrite_Value[LISPTYPE_CONS] = faslwrite_value_cons;
+	FaslWrite_Value[LISPTYPE_ARRAY] = faslwrite_value_array;
+	FaslWrite_Value[LISPTYPE_VECTOR] = faslwrite_value_vector;
+	FaslWrite_Value[LISPTYPE_CHARACTER] = faslwrite_value_character;
+	FaslWrite_Value[LISPTYPE_STRING] = faslwrite_value_string;
+	FaslWrite_Value[LISPTYPE_SYMBOL] = faslwrite_value_symbol;
+	FaslWrite_Value[LISPTYPE_FIXNUM] = faslwrite_value_fixnum;
+	FaslWrite_Value[LISPTYPE_BIGNUM] = faslwrite_value_bignum;
+	FaslWrite_Value[LISPTYPE_RATIO] = faslwrite_value_ratio;
+	FaslWrite_Value[LISPTYPE_SINGLE_FLOAT] = faslwrite_value_single_float;
+	FaslWrite_Value[LISPTYPE_DOUBLE_FLOAT] = faslwrite_value_double_float;
+	FaslWrite_Value[LISPTYPE_LONG_FLOAT] = faslwrite_value_long_float;
+	FaslWrite_Value[LISPTYPE_COMPLEX] = faslwrite_value_complex;
+	FaslWrite_Value[LISPTYPE_CODE] = faslwrite_value_code;
+	FaslWrite_Value[LISPTYPE_INDEX] = faslwrite_value_index;
+	FaslWrite_Value[LISPTYPE_PACKAGE] = faslwrite_value_package;
+	FaslWrite_Value[LISPTYPE_RANDOM_STATE] = faslwrite_value_random_state;
+	FaslWrite_Value[LISPTYPE_PATHNAME] = faslwrite_value_pathname;
+	FaslWrite_Value[LISPTYPE_BITVECTOR] = faslwrite_value_bitvector;
 }
 

@@ -9,6 +9,7 @@
  */
 _g void type_value_nil(addr *ret);
 _g void type_value_t(addr *ret);
+_g void type_value_type(addr *ret);
 _g void type_value_clos(addr *ret, addr value);
 _g void type_value_integer(addr *ret, addr value);
 _g void type_value_rational(addr *ret, addr value);
@@ -19,6 +20,7 @@ _g void type_value_string(addr *ret, addr value);
 _g void type_value_array(addr *ret, addr value);
 _g void type_value_float(addr *ret, addr value);
 _g void type_value_complex(addr *ret, addr value);
+_g void type_value_random_state(addr *ret, addr value);
 _g void type_value_pathname(addr *ret, addr value);
 _g void type_value_environment(addr *ret, addr value);
 _g void type_value(addr *ret, addr value);

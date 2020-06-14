@@ -5,7 +5,7 @@
 
 _g void faslwrite_header(addr stream);
 _g void faslwrite_footer(addr stream);
-_g int faslwrite_code(Execute ptr, addr stream, addr pos);
+_g int faslwrite_value(Execute ptr, addr stream, addr pos);
 _g void init_compile_write(void);
 
 #endif

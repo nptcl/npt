@@ -16,12 +16,12 @@
 #include "stream_init.h"
 #include "symbol.h"
 
-static void set_eval_compile_mode(Execute ptr)
+_g void set_eval_compile_mode(Execute ptr, addr value)
 {
 	addr pos;
 
 	GetConst(SYSTEM_COMPILE_CODE, &pos);
-	pushspecial_control(ptr, pos, T);
+	pushspecial_control(ptr, pos, value);
 }
 
 _g int eval_compile_p(Execute ptr)
@@ -30,7 +30,7 @@ _g int eval_compile_p(Execute ptr)
 
 	GetConst(SYSTEM_COMPILE_CODE, &pos);
 	getspecial_local(ptr, pos, &pos);
-	return pos != Unbound;
+	return (pos != Nil) && (pos != Unbound);
 }
 
 _g int eval_compile_file(Execute ptr, addr pos)
@@ -41,7 +41,7 @@ _g int eval_compile_file(Execute ptr, addr pos)
 	GetConst(SYSTEM_COMPILE_OUTPUT, &stream);
 	getspecialcheck_local(ptr, stream, &stream);
 
-	return faslwrite_code(ptr, stream, pos);
+	return faslwrite_value(ptr, stream, pos);
 }
 
 
@@ -83,7 +83,7 @@ static int compile_file_execute(Execute ptr,
 	/* variable */
 	GetConst(SYSTEM_COMPILE_OUTPUT, &symbol);
 	pushspecial_control(ptr, symbol, output);
-	set_eval_compile_mode(ptr);
+	set_eval_compile_mode(ptr, T);
 
 	/* compile */
 	Return(compile_file_output(ptr, input, output, rest));

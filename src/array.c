@@ -239,7 +239,8 @@ static void array_va_stdarg(LocalRoot local, addr *ret, va_list args)
 	allcount = 1;
 	for (index = 0; ; index++) {
 		size = (size_t)va_arg(dest, unsigned);
-		if (size == 0) break;
+		if (size == 0)
+			break;
 		if (multisafe_size(allcount, size, &allcount))
 			fmte("size overflow.", NULL);
 	}
@@ -467,7 +468,8 @@ _g int array_fill_pointer(addr array, addr *ret)
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(array);
-	if (! str->fillpointer) return 1;
+	if (! str->fillpointer)
+		return 1;
 	*ret = intsizeh(str->front);
 
 	return 0;
@@ -479,7 +481,8 @@ _g int array_setf_fill_pointer(addr array, addr value)
 	size_t size;
 
 	str = ArrayInfoStruct(array);
-	if (! str->fillpointer) return 1;
+	if (! str->fillpointer)
+		return 1;
 	if (GetIndex_integer(value, &size))
 		fmte("Invalid fill-pointer value ~S.", value, NULL);
 	if (str->size <= size) {

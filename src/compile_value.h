@@ -19,7 +19,11 @@ _g int faslwrite_value_single_float(Execute ptr, addr stream, addr pos);
 _g int faslwrite_value_double_float(Execute ptr, addr stream, addr pos);
 _g int faslwrite_value_long_float(Execute ptr, addr stream, addr pos);
 _g int faslwrite_value_complex(Execute ptr, addr stream, addr pos);
+_g int faslwrite_value_index(Execute ptr, addr stream, addr pos);
 _g int faslwrite_value_package(Execute ptr, addr stream, addr pos);
+_g int faslwrite_value_random_state(Execute ptr, addr stream, addr pos);
+_g int faslwrite_value_pathname(Execute ptr, addr stream, addr pos);
+_g int faslwrite_value_bitvector(Execute ptr, addr stream, addr pos);
 
 _g int faslread_value_nil(Execute ptr, addr stream, addr *ret);
 _g int faslread_value_t(Execute ptr, addr stream, addr *ret);
@@ -39,9 +43,11 @@ _g int faslread_value_single_float(Execute ptr, addr stream, addr *ret);
 _g int faslread_value_double_float(Execute ptr, addr stream, addr *ret);
 _g int faslread_value_long_float(Execute ptr, addr stream, addr *ret);
 _g int faslread_value_complex(Execute ptr, addr stream, addr *ret);
+_g int faslread_value_index(Execute ptr, addr stream, addr *ret);
 _g int faslread_value_package(Execute ptr, addr stream, addr *ret);
-
-_g int faslwrite_value(Execute ptr, addr stream, addr pos);
+_g int faslread_value_random_state(Execute ptr, addr stream, addr *ret);
+_g int faslread_value_pathname(Execute ptr, addr stream, addr *ret);
+_g int faslread_value_bitvector(Execute ptr, addr stream, addr *ret);
 
 #endif
 

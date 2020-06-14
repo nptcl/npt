@@ -17,6 +17,7 @@ struct array_value {
 	enum ARRAY_TYPE type;
 	unsigned size;
 	union array_value_union {
+		void *voidp;
 		addr object;
 		int8_t signed8;
 		int16_t signed16;

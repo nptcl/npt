@@ -28,6 +28,11 @@ _g void type_value_t(addr *ret)
 	GetTypeTable(ret, Boolean);
 }
 
+_g void type_value_type(addr *ret)
+{
+	GetTypeTable(ret, Type);
+}
+
 static void type_value_nil_call(addr *ret, addr value)
 {
 	GetTypeTable(ret, Null);
@@ -38,7 +43,7 @@ static void type_value_t_call(addr *ret, addr value)
 	GetTypeTable(ret, Boolean);
 }
 
-static void type_value_type(addr *ret, addr value)
+static void type_value_type_call(addr *ret, addr value)
 {
 	GetTypeTable(ret, Type);
 }
@@ -337,7 +342,7 @@ static void type_value_package(addr *ret, addr value)
 	GetTypeTable(ret, Package);
 }
 
-static void type_value_random_state(addr *ret, addr value)
+_g void type_value_random_state(addr *ret, addr value)
 {
 	GetTypeTable(ret, RandomState);
 }
@@ -466,7 +471,7 @@ _g void init_type_value(void)
 {
 	TypeValueTable[LISPTYPE_NIL] = type_value_nil_call;
 	TypeValueTable[LISPTYPE_T] = type_value_t_call;
-	TypeValueTable[LISPTYPE_TYPE] = type_value_type;
+	TypeValueTable[LISPTYPE_TYPE] = type_value_type_call;
 	TypeValueTable[LISPTYPE_CLOS] = type_value_clos;
 	TypeValueTable[LISPTYPE_CONS] = type_value_cons;
 	TypeValueTable[LISPTYPE_ARRAY] = type_value_array;

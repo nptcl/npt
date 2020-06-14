@@ -124,7 +124,6 @@ enum pointer_index {
 	p_lambda_form_code,
 	p_lambda_defun_code,
 	p_lambda_closure_code,
-	p_lambda_allocate_code,
 	p_lambda_lexical_code,
 	p_macro_code,
 	p_macro_special_code,
@@ -144,16 +143,16 @@ enum pointer_index {
 	p_load_time_value_push_code,
 
 	/* optimize */
-	p_optcode_result_type,
-	p_optcode_car0_set,
-	p_optcode_car0_push,
-	p_optcode_car1_set,
-	p_optcode_car1_push,
-	p_optcode_cdr0_set,
-	p_optcode_cdr0_push,
-	p_optcode_cdr1_set,
-	p_optcode_cdr1_push,
-	p_optcode_cons,
+	p_optcode_result_type_code,
+	p_optcode_car0_set_code,
+	p_optcode_car0_push_code,
+	p_optcode_car1_set_code,
+	p_optcode_car1_push_code,
+	p_optcode_cdr0_set_code,
+	p_optcode_cdr0_push_code,
+	p_optcode_cdr1_set_code,
+	p_optcode_cdr1_push_code,
+	p_optcode_cons_code,
 
 	/* end of code */
 	p_size_code,
@@ -1269,6 +1268,8 @@ enum pointer_index {
 	p_defun_syscall_remove_file,
 	p_defun_syscall_remove_directory,
 	p_defmacro_syscall_declare_parse,
+	p_defun_syscall_parse_type,
+	p_defun_syscall_type_object,
 
 	/* size */
 	p_size

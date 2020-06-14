@@ -48,6 +48,8 @@
 #include "symbol.h"
 #include "syscall_code.h"
 #include "type.h"
+#include "type_object.h"
+#include "type_parse.h"
 #include "type_subtypep.h"
 
 /* hello */
@@ -1071,5 +1073,20 @@ _g int declare_parse_syscode(addr form, addr *ret)
 
 error:
 	return fmte_("The declare-parse form ~S must be a (symbol).", form, NULL);
+}
+
+
+/* parse-type */
+_g int parse_type_syscode(Execute ptr, addr var, addr *ret)
+{
+	return parse_type(ptr, ret, var, Nil);
+}
+
+
+/* type-object */
+_g int type_object_syscode(addr var, addr *ret)
+{
+	type_object(ret, var);
+	return 0;
 }
 

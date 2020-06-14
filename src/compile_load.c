@@ -8,7 +8,8 @@ _g int eval_compile_load_loop(Execute ptr, addr stream)
 {
 	addr code;
 
-	Return(faslread_code(ptr, stream, &code));
+	Return(faslread_value(ptr, stream, &code));
+	CheckType(code, LISPTYPE_CODE);
 	Return(runcode_control(ptr, code));
 
 	return 0;

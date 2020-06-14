@@ -90,6 +90,8 @@ _g void set_slots_syscode(addr var, addr slots, addr values);
 _g void remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret);
 _g void remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret);
 _g int declare_parse_syscode(addr form, addr *ret);
+_g int parse_type_syscode(Execute ptr, addr var, addr *ret);
+_g int type_object_syscode(addr var, addr *ret);
 
 #endif
 

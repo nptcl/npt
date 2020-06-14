@@ -5,6 +5,17 @@
 #include "local.h"
 #include "typedef.h"
 
+struct bitmemory_struct {
+	size_t bitsize, fixedsize;
+#ifdef __cplusplus
+	fixed data[1];
+#else
+	fixed data[];
+#endif
+};
+
+#define BitMemoryStruct(x) ((struct bitmemory_struct *)posbodyr(x))
+
 /* bit */
 _g int bitp(addr pos);
 _g int bit_getint(addr pos, int *ret);

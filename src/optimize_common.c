@@ -37,7 +37,7 @@ static int optimize_common_p(addr scope)
 /*
  *  result-type
  */
-static int optcode_result_type(Execute ptr, CodeValue x)
+static int optcode_result_type_code(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
@@ -54,7 +54,7 @@ static int optcode_result_type(Execute ptr, CodeValue x)
 /*
  *  car
  */
-static int optcode_car0_set(Execute ptr, CodeValue x)
+static int optcode_car0_set_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -65,7 +65,7 @@ static int optcode_car0_set(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optcode_car0_push(Execute ptr, CodeValue x)
+static int optcode_car0_push_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -76,7 +76,7 @@ static int optcode_car0_push(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optcode_car1_set(Execute ptr, CodeValue x)
+static int optcode_car1_set_code(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
@@ -91,7 +91,7 @@ static int optcode_car1_set(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optcode_car1_push(Execute ptr, CodeValue x)
+static int optcode_car1_push_code(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
@@ -179,7 +179,7 @@ static int optimize_common_car(LocalRoot local, addr code, addr scope)
 /*
  *  cdr
  */
-static int optcode_cdr0_set(Execute ptr, CodeValue x)
+static int optcode_cdr0_set_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -190,7 +190,7 @@ static int optcode_cdr0_set(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optcode_cdr0_push(Execute ptr, CodeValue x)
+static int optcode_cdr0_push_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 
@@ -201,7 +201,7 @@ static int optcode_cdr0_push(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optcode_cdr1_set(Execute ptr, CodeValue x)
+static int optcode_cdr1_set_code(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
@@ -216,7 +216,7 @@ static int optcode_cdr1_set(Execute ptr, CodeValue x)
 	return 0;
 }
 
-static int optcode_cdr1_push(Execute ptr, CodeValue x)
+static int optcode_cdr1_push_code(Execute ptr, CodeValue x)
 {
 	int check;
 	addr pos;
@@ -304,7 +304,7 @@ static int optimize_common_cdr(LocalRoot local, addr code, addr scope)
 /*
  *  cons
  */
-static int optcode_cons(Execute ptr, CodeValue x)
+static int optcode_cons_code(Execute ptr, CodeValue x)
 {
 	addr list, car, cdr;
 
@@ -500,30 +500,30 @@ _g int optimize_check_code(LocalRoot local, addr code, addr scope)
 
 _g void init_optimize_common(void)
 {
-	initcode(optcode_result_type,  Addr);
-	initcode(optcode_car0_set,     Null);
-	initcode(optcode_car0_push,    Null);
-	initcode(optcode_car1_set,     Addr);
-	initcode(optcode_car1_push,    Addr);
-	initcode(optcode_cdr0_set,     Null);
-	initcode(optcode_cdr0_push,    Null);
-	initcode(optcode_cdr1_set,     Addr);
-	initcode(optcode_cdr1_push,    Addr);
-	initcode(optcode_cons,         Null);
+	initcode(optcode_result_type_code,  Addr);
+	initcode(optcode_car0_set_code,     Null);
+	initcode(optcode_car0_push_code,    Null);
+	initcode(optcode_car1_set_code,     Addr);
+	initcode(optcode_car1_push_code,    Addr);
+	initcode(optcode_cdr0_set_code,     Null);
+	initcode(optcode_cdr0_push_code,    Null);
+	initcode(optcode_cdr1_set_code,     Addr);
+	initcode(optcode_cdr1_push_code,    Addr);
+	initcode(optcode_cons_code,         Null);
 }
 
 _g void build_optimize_common(void)
 {
-	defcode(OPTCODE_RESULT_TYPE,  optcode_result_type);
-	defcode(OPTCODE_CAR0_SET,     optcode_car0_set);
-	defcode(OPTCODE_CAR0_PUSH,    optcode_car0_push);
-	defcode(OPTCODE_CAR1_SET,     optcode_car1_set);
-	defcode(OPTCODE_CAR1_PUSH,    optcode_car1_push);
-	defcode(OPTCODE_CDR0_SET,     optcode_cdr0_set);
-	defcode(OPTCODE_CDR0_PUSH,    optcode_cdr0_push);
-	defcode(OPTCODE_CDR1_SET,     optcode_cdr1_set);
-	defcode(OPTCODE_CDR1_PUSH,    optcode_cdr1_push);
-	defcode(OPTCODE_CONS,         optcode_cons);
+	defcode(OPTCODE_RESULT_TYPE,  optcode_result_type_code);
+	defcode(OPTCODE_CAR0_SET,     optcode_car0_set_code);
+	defcode(OPTCODE_CAR0_PUSH,    optcode_car0_push_code);
+	defcode(OPTCODE_CAR1_SET,     optcode_car1_set_code);
+	defcode(OPTCODE_CAR1_PUSH,    optcode_car1_push_code);
+	defcode(OPTCODE_CDR0_SET,     optcode_cdr0_set_code);
+	defcode(OPTCODE_CDR0_PUSH,    optcode_cdr0_push_code);
+	defcode(OPTCODE_CDR1_SET,     optcode_cdr1_set_code);
+	defcode(OPTCODE_CDR1_PUSH,    optcode_cdr1_push_code);
+	defcode(OPTCODE_CONS,         optcode_cons_code);
 }
 
 #undef defcode

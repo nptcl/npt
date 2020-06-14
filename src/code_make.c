@@ -2244,6 +2244,7 @@ _g void init_code_make(void)
 {
 	CodeMakeTable[EVAL_PARSE_NIL] = code_make_nil;
 	CodeMakeTable[EVAL_PARSE_T] = code_make_t;
+	CodeMakeTable[EVAL_PARSE_TYPE] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_CLOS] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_INTEGER] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_RATIONAL] = code_make_value;
@@ -2256,6 +2257,7 @@ _g void init_code_make(void)
 	CodeMakeTable[EVAL_PARSE_SYMBOL] = code_make_symbol;
 	CodeMakeTable[EVAL_PARSE_FLOAT] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_DECLAIM] = code_make_declaim;
+	CodeMakeTable[EVAL_PARSE_RANDOM_STATE] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_PATHNAME] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_ENVIRONMENT] = code_make_value;
 	CodeMakeTable[EVAL_PARSE_LEXICAL] = code_make_lexical;

@@ -22,6 +22,7 @@ static void define_symbol_type(constindex name, enum TypeTable type)
 
 _g void build_type_symbol(void)
 {
+	DefSymbolType(SYSTEM_TYPE,                 Type                );
 	DefSymbolType(COMMON_ASTERISK,             Asterisk            );
 
 	/* Extract-type */
@@ -109,7 +110,7 @@ _g void init_type_symbol(void)
 	DefTypeSymbol(EMPTY,                EMPTY                       );
 	DefTypeSymbol(OPTIMIZED,            EMPTY                       );
 	DefTypeSymbol(SUBTYPEP,             EMPTY                       );
-	DefTypeSymbol(TYPE,                 EMPTY                       );
+	DefTypeSymbol(TYPE,                 SYSTEM_TYPE                 );
 	DefTypeSymbol(CLOS,                 EMPTY                       );
 	DefTypeSymbol(ASTERISK,             COMMON_ASTERISK             );
 

@@ -177,17 +177,6 @@ _g void push_bitcons(LocalRoot local, addr pos, int value)
 /*
  *  bitmemory
  */
-struct bitmemory_struct {
-	size_t bitsize, fixedsize;
-#ifdef __cplusplus
-	fixed data[1];
-#else
-	fixed data[];
-#endif
-};
-
-#define BitMemoryStruct(x) ((struct bitmemory_struct *)posbodyr(x))
-
 _g void bitmemory_unsafe(LocalRoot local, addr *ret, size_t bitsize)
 {
 	addr pos;

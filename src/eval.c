@@ -329,6 +329,8 @@ _g int eval_object(Execute ptr, addr eval, addr *ret)
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
 	push_toplevel_eval(ptr, Nil);
+	set_eval_compile_mode(ptr, Nil); /* Don't run compile mode. */
+
 	push_evalwhen_eval(ptr);
 	gchold_push_local(ptr->local, eval);
 	Return(eval_execute(ptr, eval));
@@ -477,6 +479,7 @@ _g int eval_load(Execute ptr, int *ret,
 
 	push_new_control(ptr, &control);
 	push_prompt_info(ptr);
+	set_eval_compile_mode(ptr, Nil);
 	Return(eval_load_file(ptr, ret, file, verbose, print, exist, external));
 	return free_control_(ptr, control);
 }

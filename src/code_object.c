@@ -77,7 +77,7 @@ static CodeValue make_code_value(pointer id, addr pos)
 	enum CodeValueType type;
 
 	Check(p_size_code < id, "pointer error");
-	type = (enum CodeValueType)CodeValueArray[id];
+	GetCodeValueArray(id, &type);
 	switch (type) {
 		case CodeValueType_Addr:
 			ret.pos = pos;

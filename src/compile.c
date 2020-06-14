@@ -1,6 +1,7 @@
 #include "compile_file.h"
 #include "compile_read.h"
 #include "compile_write.h"
+#include "compile_typedef.h"
 #include "condition.h"
 #include "constant.h"
 #include "cons.h"
@@ -189,7 +190,8 @@ _g void init_compile(void)
 	SetPointerCall(defun, var1, handler_delay_warning);
 	SetPointerCall(defun, empty, finalize_delay_warning);
 	init_compile_file();
-	init_compile_write();
 	init_compile_read();
+	init_compile_typedef();
+	init_compile_write();
 }
 

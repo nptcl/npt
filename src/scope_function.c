@@ -30,6 +30,20 @@ static int scope_t(Execute ptr, addr *ret, addr eval)
 }
 
 
+/* type */
+static int scope_type(Execute ptr, addr *ret, addr eval)
+{
+	addr type;
+
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &eval);
+	type_value_type(&type);
+	make_eval_scope(ptr, ret, EVAL_PARSE_TYPE, type, eval);
+
+	return 0;
+}
+
+
 /* clos */
 static int scope_clos(Execute ptr, addr *ret, addr eval)
 {
@@ -189,6 +203,20 @@ static int scope_declaim(Execute ptr, addr *ret, addr eval)
 	apply_declaim_stack(ptr, eval);
 	type_value_nil(&type);
 	make_eval_scope(ptr, ret, EVAL_PARSE_DECLAIM, type, eval);
+
+	return 0;
+}
+
+
+/* random-state */
+static int scope_random_state(Execute ptr, addr *ret, addr eval)
+{
+	addr type;
+
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &eval);
+	type_value_random_state(&type, eval);
+	make_eval_scope(ptr, ret, EVAL_PARSE_RANDOM_STATE, type, eval);
 
 	return 0;
 }
@@ -848,6 +876,7 @@ _g void init_scope_function(void)
 {
 	EvalScopeTable[EVAL_PARSE_NIL] = scope_nil;
 	EvalScopeTable[EVAL_PARSE_T] = scope_t;
+	EvalScopeTable[EVAL_PARSE_TYPE] = scope_type;
 	EvalScopeTable[EVAL_PARSE_CLOS] = scope_clos;
 	EvalScopeTable[EVAL_PARSE_INTEGER] = scope_integer;
 	EvalScopeTable[EVAL_PARSE_RATIONAL] = scope_rational;
@@ -860,6 +889,7 @@ _g void init_scope_function(void)
 	EvalScopeTable[EVAL_PARSE_SYMBOL] = scope_symbol;
 	EvalScopeTable[EVAL_PARSE_FLOAT] = scope_float;
 	EvalScopeTable[EVAL_PARSE_DECLAIM] = scope_declaim;
+	EvalScopeTable[EVAL_PARSE_RANDOM_STATE] = scope_random_state;
 	EvalScopeTable[EVAL_PARSE_PATHNAME] = scope_pathname;
 	EvalScopeTable[EVAL_PARSE_ENVIRONMENT] = scope_environment;
 	EvalScopeTable[EVAL_PARSE_PROGN] = scope_progn;

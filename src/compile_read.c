@@ -1,11 +1,12 @@
 #include <memory.h>
 #include <string.h>
 #include "code_object.h"
+#include "compile_array.h"
 #include "compile_read.h"
 #include "compile_stream.h"
-#include "compile_value.h"
 #include "compile_type.h"
 #include "compile_typedef.h"
+#include "compile_value.h"
 #include "condition.h"
 #include "define.h"
 #include "execute.h"
@@ -58,7 +59,7 @@ _g int faslread_header(addr input)
 		return 1;
 	if (a != LISP_VERSION_A || b != LISP_VERSION_B || c != LISP_VERSION_C)
 		return 1;
-	/* 20: arch */
+	/* 24: arch */
 	if (faslread_variable(input, v))
 		return 1;
 #ifdef LISP_64BIT
@@ -72,10 +73,10 @@ _g int faslread_header(addr input)
 		return 1;
 	}
 #endif
-	/* 22: padding */
-	if (faslread_buffer_check(input, buffer, 2))
+	/* 26: padding */
+	if (faslread_buffer_check(input, buffer, 6))
 		return 1;
-	/* 24: end */
+	/* 32: end */
 
 	return 0;
 }
@@ -100,219 +101,54 @@ _g int faslread_footer(addr input)
 /*
  *  system
  */
-static int faslread_error_code(Execute ptr, addr stream, addr *ret)
+static int faslread_error(Execute ptr, addr stream, addr *ret)
 {
 	fmte("fasl read error.", NULL);
 	return Result(ret, Nil);
 }
 
-#define FaslRead_single(x, r) { \
-	addr __pos; \
-	GetConst(CODE_##x, &__pos); \
-	conscar_heap((r), __pos); \
-}
-static int faslread_nop_code(Execute ptr, addr stream, addr *ret)
+static int faslread_unbound(Execute ptr, addr stream, addr *ret)
 {
-	FaslRead_single(NOP, ret);
-	return 0;
-}
-
-static int faslread_execute_control_set_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_code(ptr, stream, &cdr));
-	GetConst(CODE_EXECUTE_CONTROL_SET, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-static int faslread_execute_control_push_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_code(ptr, stream, &cdr));
-	GetConst(CODE_EXECUTE_CONTROL_PUSH, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-static int faslread_execute_switch_set_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_code(ptr, stream, &cdr));
-	GetConst(CODE_EXECUTE_SWITCH_SET, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-static int faslread_execute_switch_push_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_code(ptr, stream, &cdr));
-	GetConst(CODE_EXECUTE_SWITCH_PUSH, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
+	return Result(ret, Unbound);
 }
 
 
 /*
- *  object
+ *  code
  */
-static int faslread_set_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_object(ptr, stream, &cdr));
-	GetConst(CODE_SET, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-static int faslread_push_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_object(ptr, stream, &cdr));
-	GetConst(CODE_PUSH, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-static int faslread_push_result_code(Execute ptr, addr stream, addr *ret)
-{
-	FaslRead_single(PUSH_RESULT, ret);
-	return 0;
-}
-
-static int faslread_push_values_code(Execute ptr, addr stream, addr *ret)
-{
-	FaslRead_single(PUSH_VALUES, ret);
-	return 0;
-}
-
-static int faslread_nil_set_code(Execute ptr, addr stream, addr *ret)
-{
-	FaslRead_single(NIL_SET, ret);
-	return 0;
-}
-
-static int faslread_nil_push_code(Execute ptr, addr stream, addr *ret)
-{
-	FaslRead_single(NIL_PUSH, ret);
-	return 0;
-}
-
-static int faslread_t_set_code(Execute ptr, addr stream, addr *ret)
-{
-	FaslRead_single(T_SET, ret);
-	return 0;
-}
-
-static int faslread_t_push_code(Execute ptr, addr stream, addr *ret)
-{
-	FaslRead_single(T_PUSH, ret);
-	return 0;
-}
-
-
-/*
- *  let
- */
-static int faslread_type_result_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	Return(faslread_object(ptr, stream, &cdr));
-	CheckType(cdr, LISPTYPE_TYPE);
-	GetConst(CODE_TYPE_RESULT, &car);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-
-/*
- *  setq
- */
-static int faslread_setq_lexical_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-	size_t value;
-
-	GetConst(CODE_SETQ_LEXICAL, &car);
-	faslread_buffer(stream, &value, IdxSize);
-	index_heap(&cdr, value);
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-static int faslread_setq_special_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	GetConst(CODE_SETQ_SPECIAL, &car);
-	faslread_type_check(stream, FaslCode_symbol);
-	Return(faslread_value_symbol(ptr, stream, &cdr));
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-static int faslread_setq_global_code(Execute ptr, addr stream, addr *ret)
-{
-	addr car, cdr;
-
-	GetConst(CODE_SETQ_GLOBAL, &car);
-	faslread_type_check(stream, FaslCode_symbol);
-	Return(faslread_value_symbol(ptr, stream, &cdr));
-	cons_heap(ret, car, cdr);
-
-	return 0;
-}
-
-
-/*
- *  code input
- */
-typedef int (*faslread_calltype)(Execute, addr, addr *);
-static faslread_calltype faslread_table[FaslCode_size];
-
-_g int faslread_object(Execute ptr, addr stream, addr *ret)
+static int faslread_code_operator(Execute ptr, addr stream, addr *ret)
 {
 	enum FaslCode type;
-	faslread_calltype call;
+	constindex index;
+	addr car, cdr;
 
+	/* car */
 	faslread_type(stream, &type);
-	call = faslread_table[type];
-	Check(call == NULL, "faslread call error.");
-	return (*call)(ptr, stream, ret);
+	Check(type < FaslCode_value, "type error");
+	index = GetCompileRead(type);
+	GetConstant(index, &car);
+
+	/* cdr */
+	Return(faslread_value(ptr, stream, &cdr));
+
+	/* result */
+	cons_heap(ret, car, cdr);
+	return 0;
 }
 
-_g int faslread_code(Execute ptr, addr stream, addr *ret)
+static int faslread_value_code(Execute ptr, addr stream, addr *ret)
 {
 	addr vector, pos;
 	size_t size, i;
 	struct code_struct head, *str;
 
-	/* type */
-	faslread_type_check(stream, FaslCode_code);
 	/* struct */
 	faslread_buffer(stream, &head, sizeoft(head));
 	/* code */
 	size = head.size;
 	vector4_heap(&vector, size);
 	for (i = 0; i < size; i++) {
-		Return(faslread_object(ptr, stream, &pos));
+		Return(faslread_code_operator(ptr, stream, &pos));
 		SetArrayA4(vector, i, pos);
 	}
 
@@ -328,55 +164,56 @@ _g int faslread_code(Execute ptr, addr stream, addr *ret)
 
 
 /*
+ *  code input
+ */
+typedef int (*faslread_calltype)(Execute, addr, addr *);
+static faslread_calltype FaslRead_Table[FaslCode_value];
+
+_g int faslread_value(Execute ptr, addr stream, addr *ret)
+{
+	enum FaslCode type;
+	faslread_calltype call;
+
+	faslread_type(stream, &type);
+	Check(FaslCode_value <= type, "type error");
+	call = FaslRead_Table[type];
+	Check(call == NULL, "faslread call error.");
+	return (*call)(ptr, stream, ret);
+}
+
+
+/*
  *  initialize
  */
 _g void init_compile_read(void)
 {
-	faslread_table[FaslCode_error] = faslread_error_code;
-	faslread_table[FaslCode_nil] = faslread_value_nil;
-	faslread_table[FaslCode_t] = faslread_value_t;
-	faslread_table[FaslCode_type] = faslread_value_type;
-	faslread_table[FaslCode_cons] = faslread_value_cons;
-	faslread_table[FaslCode_vector2] = faslread_value_vector2;
-	faslread_table[FaslCode_vector4] = faslread_value_vector4;
+	FaslRead_Table[FaslCode_error] = faslread_error;
+	FaslRead_Table[FaslCode_unbound] = faslread_unbound;
+	FaslRead_Table[FaslCode_code] = faslread_value_code;
+	FaslRead_Table[FaslCode_nil] = faslread_value_nil;
+	FaslRead_Table[FaslCode_t] = faslread_value_t;
+	FaslRead_Table[FaslCode_type] = faslread_value_type;
+	FaslRead_Table[FaslCode_cons] = faslread_value_cons;
+	FaslRead_Table[FaslCode_array] = faslread_value_array;
+	FaslRead_Table[FaslCode_vector2] = faslread_value_vector2;
+	FaslRead_Table[FaslCode_vector4] = faslread_value_vector4;
 #ifdef LISP_ARCH_64BIT
-	faslread_table[FaslCode_vector8] = faslread_value_vector8;
+	FaslRead_Table[FaslCode_vector8] = faslread_value_vector8;
 #endif
-	faslread_table[FaslCode_character] = faslread_value_character;
-	faslread_table[FaslCode_string] = faslread_value_string;
-	faslread_table[FaslCode_symbol] = faslread_value_symbol;
-	faslread_table[FaslCode_fixnum] = faslread_value_fixnum;
-	faslread_table[FaslCode_bignum] = faslread_value_bignum;
-	faslread_table[FaslCode_ratio] = faslread_value_ratio;
-	faslread_table[FaslCode_single_float] = faslread_value_single_float;
-	faslread_table[FaslCode_double_float] = faslread_value_double_float;
-	faslread_table[FaslCode_long_float] = faslread_value_long_float;
-	faslread_table[FaslCode_complex] = faslread_value_complex;
-	faslread_table[FaslCode_package] = faslread_value_package;
-
-	/* system */
-	faslread_table[FaslCode_nop] = faslread_nop_code;
-	faslread_table[FaslCode_execute_control_set] = faslread_execute_control_set_code;
-	faslread_table[FaslCode_execute_control_push] = faslread_execute_control_push_code;
-	faslread_table[FaslCode_execute_switch_set] = faslread_execute_switch_set_code;
-	faslread_table[FaslCode_execute_switch_push] = faslread_execute_switch_push_code;
-
-	/* object */
-	faslread_table[FaslCode_set] = faslread_set_code;
-	faslread_table[FaslCode_push] = faslread_push_code;
-	faslread_table[FaslCode_push_result] = faslread_push_result_code;
-	faslread_table[FaslCode_push_values] = faslread_push_values_code;
-	faslread_table[FaslCode_nil_set] = faslread_nil_set_code;
-	faslread_table[FaslCode_nil_push] = faslread_nil_push_code;
-	faslread_table[FaslCode_t_set] = faslread_t_set_code;
-	faslread_table[FaslCode_t_push] = faslread_t_push_code;
-
-	/* let */
-	faslread_table[FaslCode_type_result] = faslread_type_result_code;
-
-	/* setq */
-	faslread_table[FaslCode_setq_lexical] = faslread_setq_lexical_code;
-	faslread_table[FaslCode_setq_special] = faslread_setq_special_code;
-	faslread_table[FaslCode_setq_global] = faslread_setq_global_code;
+	FaslRead_Table[FaslCode_character] = faslread_value_character;
+	FaslRead_Table[FaslCode_string] = faslread_value_string;
+	FaslRead_Table[FaslCode_symbol] = faslread_value_symbol;
+	FaslRead_Table[FaslCode_fixnum] = faslread_value_fixnum;
+	FaslRead_Table[FaslCode_bignum] = faslread_value_bignum;
+	FaslRead_Table[FaslCode_ratio] = faslread_value_ratio;
+	FaslRead_Table[FaslCode_single_float] = faslread_value_single_float;
+	FaslRead_Table[FaslCode_double_float] = faslread_value_double_float;
+	FaslRead_Table[FaslCode_long_float] = faslread_value_long_float;
+	FaslRead_Table[FaslCode_complex] = faslread_value_complex;
+	FaslRead_Table[FaslCode_index] = faslread_value_index;
+	FaslRead_Table[FaslCode_package] = faslread_value_package;
+	FaslRead_Table[FaslCode_random_state] = faslread_value_random_state;
+	FaslRead_Table[FaslCode_pathname] = faslread_value_pathname;
+	FaslRead_Table[FaslCode_bitvector] = faslread_value_bitvector;
 }
 

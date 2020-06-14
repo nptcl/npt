@@ -924,6 +924,7 @@ _g void init_eval_copy(void)
 {
 	EvalCopyTable[EVAL_PARSE_NIL] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_T] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_TYPE] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_CLOS] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_INTEGER] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_RATIONAL] = copy_eval_single;
@@ -936,6 +937,7 @@ _g void init_eval_copy(void)
 	EvalCopyTable[EVAL_PARSE_SYMBOL] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_FLOAT] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_FUNCTION] = copy_eval_single;
+	EvalCopyTable[EVAL_PARSE_RANDOM_STATE] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_PATHNAME] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_ENVIRONMENT] = copy_eval_single;
 	EvalCopyTable[EVAL_PARSE_QUOTE] = copy_eval_single;

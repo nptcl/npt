@@ -14,6 +14,8 @@ enum CodeValueType {
 };
 __extern byte CodeValueArray[p_size_code];
 
+#define GetCodeValueArray(x,y) (*(y) = (enum CodeValueType)CodeValueArray[x])
+
 _g void init_code_init(void);
 _g void build_code_init(void);
 _g void defcode_constant(constindex index, pointer p);
