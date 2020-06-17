@@ -133,8 +133,7 @@ static void init_compile_typedef_write(void)
 	defwrite(bind2_special);
 	defwrite(bind2_lexical);
 
-	defwrite(load_time_value_alloc);
-	defwrite(load_time_value_value);
+	defwrite(load_time_value_bind);
 	defwrite(load_time_value_set);
 	defwrite(load_time_value_push);
 
@@ -275,8 +274,7 @@ static void init_compile_typedef_read(void)
 	defread(bind2_special, BIND2_SPECIAL);
 	defread(bind2_lexical, BIND2_LEXICAL);
 
-	defread(load_time_value_alloc, LOAD_TIME_VALUE_ALLOC);
-	defread(load_time_value_value, LOAD_TIME_VALUE_VALUE);
+	defread(load_time_value_bind, LOAD_TIME_VALUE_BIND);
 	defread(load_time_value_set, LOAD_TIME_VALUE_SET);
 	defread(load_time_value_push, LOAD_TIME_VALUE_PUSH);
 
@@ -302,7 +300,6 @@ _g enum FaslCode get_compile_write(pointer id)
 
 _g constindex get_compile_read(enum FaslCode id)
 {
-	Check(p_size_code <= id, "p_size_code error");
 	return CompileRead[id];
 }
 

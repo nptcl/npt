@@ -245,6 +245,7 @@ _g void vector8_alloc(LocalRoot local, addr *ret, size_t size);
 _g void vector_heap(addr *ret, size_t size);
 _g void vector_local(LocalRoot local, addr *ret, size_t size);
 _g void vector_alloc(LocalRoot local, addr *ret, size_t size);
+_g void vector_type_heap(addr *ret, addr pos, size_t size);
 _g void copy_vector4_alloc(LocalRoot local, addr *ret, addr pos);
 _g void copy_vector4_local(LocalRoot local, addr *ret, addr pos);
 _g void copy_vector4_heap(addr *ret, addr pos);

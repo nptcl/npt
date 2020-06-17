@@ -25,6 +25,7 @@
 #include "sequence.h"
 #include "stream.h"
 #include "stream_string.h"
+#include "strvect.h"
 #include "strtype.h"
 #include "symbol.h"
 
@@ -368,6 +369,7 @@ static int eval_load_fasl(Execute ptr, int *ret, addr file, int exist)
 
 	/* fasl */
 	push_new_control(ptr, &control);
+	eval_compile_init(ptr);
 	setprotect_close_stream(ptr, stream);
 	Return(eval_compile_load(ptr, stream));
 	Return(free_control_(ptr, control));
@@ -395,6 +397,46 @@ static int eval_load_lisp(Execute ptr, int *ret, addr file, int exist)
 	return Result(ret, 1);
 }
 
+static void eval_load_check_type(Execute ptr, addr file, addr *ret)
+{
+	addr check;
+
+	GetPathname(file, PATHNAME_INDEX_TYPE, &check);
+	if (! stringp(check)) {
+		*ret = file;
+		return;
+	}
+
+	/* *. */
+	probe_file_files(ptr, &check, file);
+	if (check != Nil) {
+		*ret = file;
+		return;
+	}
+	copy_pathname_heap(&file, file);
+
+	/* *.lisp */
+	strvect_char_heap(&check, "lisp");
+	SetPathname(file, PATHNAME_INDEX_TYPE, check);
+	probe_file_files(ptr, &check, file);
+	if (check != Nil) {
+		*ret = file;
+		return;
+	}
+
+	/* *.fasl */
+	strvect_char_heap(&check, "fasl");
+	SetPathname(file, PATHNAME_INDEX_TYPE, check);
+	probe_file_files(ptr, &check, file);
+	if (check != Nil) {
+		*ret = file;
+		return;
+	}
+
+	/* do nothing */
+	*ret = file;
+}
+
 static void eval_load_check(
 		Execute ptr, addr file, addr verbose, addr print, addr external,
 		constindex file_pathname,
@@ -411,11 +453,17 @@ static void eval_load_check(
 		if (wild_pathname_boolean(file, Nil))
 			file_error(file);
 	}
+	/* type */
+	if (! streamp(file))
+		eval_load_check_type(ptr, file, &file);
 	/* load-pathname */
 	GetConstant(file_pathname, &symbol);
 	if (streamp(file)) {
-		physical_pathname_heap(ptr, file, &value);
-		pushspecial_control(ptr, symbol, value);
+		GetPathnameStream(file, &value);
+		if (value != Nil) {
+			physical_pathname_heap(ptr, file, &value);
+			pushspecial_control(ptr, symbol, value);
+		}
 	}
 	else {
 		physical_pathname_heap(ptr, file, &file);
@@ -423,9 +471,11 @@ static void eval_load_check(
 		value = file;
 	}
 	/* load-truename */
-	GetConstant(file_truename, &symbol);
-	truename_files(ptr, value, &truename, 0);
-	pushspecial_control(ptr, symbol, truename);
+	if (value != Nil) {
+		GetConstant(file_truename, &symbol);
+		truename_files(ptr, value, &truename, 0);
+		pushspecial_control(ptr, symbol, truename);
+	}
 	/* package */
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	getspecial_local(ptr, symbol, &pos);
@@ -433,7 +483,6 @@ static void eval_load_check(
 	/* readtable */
 	GetConst(SPECIAL_READTABLE, &symbol);
 	getspecial_local(ptr, symbol, &pos);
-	copy_readtable_heap(pos, &pos);
 	pushspecial_control(ptr, symbol, pos);
 	/* verbose */
 	if (verbose != Unbound) {

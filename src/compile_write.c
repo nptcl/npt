@@ -4,6 +4,7 @@
 #include "code_init.h"
 #include "code_object.h"
 #include "compile_array.h"
+#include "compile_clos.h"
 #include "compile_stream.h"
 #include "compile_type.h"
 #include "compile_typedef.h"
@@ -179,6 +180,7 @@ _g void init_compile_write(void)
 	FaslWrite_Value[LISPTYPE_NIL] = faslwrite_value_nil;
 	FaslWrite_Value[LISPTYPE_T] = faslwrite_value_t;
 	FaslWrite_Value[LISPTYPE_TYPE] = faslwrite_value_type;
+	FaslWrite_Value[LISPTYPE_CLOS] = faslwrite_value_clos;
 	FaslWrite_Value[LISPTYPE_CONS] = faslwrite_value_cons;
 	FaslWrite_Value[LISPTYPE_ARRAY] = faslwrite_value_array;
 	FaslWrite_Value[LISPTYPE_VECTOR] = faslwrite_value_vector;
@@ -198,5 +200,6 @@ _g void init_compile_write(void)
 	FaslWrite_Value[LISPTYPE_RANDOM_STATE] = faslwrite_value_random_state;
 	FaslWrite_Value[LISPTYPE_PATHNAME] = faslwrite_value_pathname;
 	FaslWrite_Value[LISPTYPE_BITVECTOR] = faslwrite_value_bitvector;
+	FaslWrite_Value[LISPTYPE_LOAD_TIME_VALUE] = faslwrite_value_load_time_value;
 }
 

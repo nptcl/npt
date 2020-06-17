@@ -1858,50 +1858,67 @@ static void code_make_progv(LocalRoot local, addr code, addr scope)
 
 
 /* load-time-value */
+static void code_make_load_time_value_bind(LocalRoot local, addr code, addr scope)
+{
+	addr expr, value;
+
+	GetEvalScopeIndex(scope, 1, &expr);
+	GetEvalScopeIndex(scope, 4, &value);
+	code_make_execute_set(local, code, expr);
+	CodeQueue_cons(local, code, LOAD_TIME_VALUE_BIND, value);
+}
+
+static void code_make_load_time_value_init(LocalRoot local, addr code, addr scope)
+{
+	addr init;
+
+	GetEvalScopeIndex(scope, 3, &init);
+	if (init != Nil)
+		code_make_execute_rem(local, code, init);
+}
+
 static void code_make_load_time_value_body(LocalRoot local, addr code, addr scope)
 {
-	addr check, root, index, expr, value, list, readonly;
-	size_t size, i;
+	addr check, expr, list, loop, pos;
 
 	GetEvalScopeIndex(scope, 0, &check);
-	GetEvalScopeIndex(scope, 1, &root);
-	GetEvalScopeIndex(scope, 2, &index);
-	GetEvalScopeIndex(scope, 3, &value);
+	GetEvalScopeIndex(scope, 1, &expr);
+	GetEvalScopeIndex(scope, 2, &list);
 	Check(check == Nil, "check error");
 
 	code_queue_push_new(local, code);
-	/* alloc */
-	CodeQueue_cons(local, code, LOAD_TIME_VALUE_ALLOC, index);
-	GetIndex(index, &size);
-	/* set */
-	for (i = 0; i < size; i++) {
-		GetCons(value, &list, &value);
-		List_bind(list, &index, &expr, &readonly, NULL);
-		code_make_execute_set(local, code, expr);
-		CodeQueue_double(local, code, LOAD_TIME_VALUE_VALUE, index, readonly);
+	/* bind */
+	for (loop = list; loop != Nil; ) {
+		GetCons(loop, &pos, &loop);
+		code_make_load_time_value_bind(local, code, pos);
 	}
-	code_make_execute(local, code, root);
-	code_queue_pop(local, code, &expr);
-	code_make_execute_control(local, code, expr);
+	/* init */
+	for (loop = list; loop != Nil; ) {
+		GetCons(loop, &pos, &loop);
+		code_make_load_time_value_init(local, code, pos);
+	}
+	/* body */
+	code_make_execute(local, code, expr);
+	/* result */
+	code_queue_pop(local, code, &pos);
+	code_make_execute_control(local, code, pos);
 }
 
 static void code_make_load_time_value_expr(LocalRoot local, addr code, addr scope)
 {
-	addr check, index, expr, readonly;
+	addr check, value;
 
 	GetEvalScopeIndex(scope, 0, &check);
-	GetEvalScopeIndex(scope, 1, &index);
-	GetEvalScopeIndex(scope, 2, &expr);
-	GetEvalScopeIndex(scope, 3, &readonly);
+	GetEvalScopeIndex(scope, 4, &value);
 	Check(check != Nil, "check error");
 
 	switch (code_queue_mode(code)) {
 		case CodeQueue_ModeSet:
-			CodeQueue_cons(local, code, LOAD_TIME_VALUE_SET, index);
+			CodeQueue_cons(local, code, LOAD_TIME_VALUE_SET, value);
 			break;
 
 		case CodeQueue_ModePush:
-			CodeQueue_cons(local, code, LOAD_TIME_VALUE_PUSH, index);
+			CodeQueue_cons(local, code, LOAD_TIME_VALUE_PUSH, value);
 			break;
 
 		case CodeQueue_ModeRemove:

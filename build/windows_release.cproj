@@ -240,6 +240,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_array.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_clos.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_file.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_load.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_read.c" />
@@ -327,6 +328,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_symbol.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\loop_variables.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\main.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\make_load_form.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\math_exp.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\math_power.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\math_type.c" />
@@ -527,6 +529,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common_header.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_array.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_clos.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_file.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_load.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_read.h" />
@@ -631,6 +634,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_argv.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_init.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\main_string.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\make_load_form.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_exp.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_power.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\math_type.h" />

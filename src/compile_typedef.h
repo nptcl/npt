@@ -13,6 +13,7 @@ enum FaslCode {
 	FaslCode_nil,
 	FaslCode_t,
 	FaslCode_type,
+	FaslCode_clos,
 	FaslCode_cons,
 	FaslCode_array,
 	FaslCode_vector2,
@@ -35,6 +36,7 @@ enum FaslCode {
 	FaslCode_random_state,
 	FaslCode_pathname,
 	FaslCode_bitvector,
+	FaslCode_load_time_value,
 
 	FaslCode_value, /* end of value */
 
@@ -161,8 +163,7 @@ enum FaslCode {
 	FaslCode_bind2_special,
 	FaslCode_bind2_lexical,
 
-	FaslCode_load_time_value_alloc,
-	FaslCode_load_time_value_value,
+	FaslCode_load_time_value_bind,
 	FaslCode_load_time_value_set,
 	FaslCode_load_time_value_push,
 

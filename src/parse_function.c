@@ -10,6 +10,7 @@
 #include "integer.h"
 #include "lambda.h"
 #include "load_time_value.h"
+#include "make_load_form.h"
 #include "parse.h"
 #include "parse_function.h"
 #include "parse_macro.h"
@@ -1806,8 +1807,7 @@ static int parse_switch(Execute ptr, addr *ret, addr pos)
 			break;
 
 		case LISPTYPE_CLOS:
-			eval_single_parse_heap(ret, EVAL_PARSE_CLOS, pos);
-			break;
+			return parse_clos(ptr, ret, pos);
 
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_BIGNUM:

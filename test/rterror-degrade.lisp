@@ -10,3 +10,24 @@
     (prin1-to-string #()))
   "#()")
 
+(defconstant +load-readtable+
+  (with-output-to-string (*standard-output*)
+    (format t "(set-dispatch-macro-character~%")
+    (format t "  #\\# #\\@~%")
+    (format t "  (lambda (stream char number)~%")
+    (format t "    (declare (ignore stream char number))~%")
+    (format t "    :hello))")))
+
+(deftest load-readtable.1
+  (with-input-from-string (input +load-readtable+)
+    (load input))
+  t)
+
+(deftest load-readtable.2
+  (progn
+    (with-input-from-string (input +load-readtable+)
+      (load input))
+    (values
+      (read-from-string "  #@ 10 20 30")))
+  :hello)
+

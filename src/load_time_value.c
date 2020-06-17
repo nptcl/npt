@@ -14,57 +14,46 @@
 #include "symbol.h"
 
 /*
- *  load_time_value_heap
+ *  load-time-value
  */
-struct load_time_value_struct {
-	size_t size;
-};
-
-#define StructLoadTimeValue(x)	((struct load_time_value_struct *)PtrBodySS(x))
-#define GetLoadTimeValue(x,y)	GetArraySS((x),0,(y))
-#define SetLoadTimeValue(x,y)	SetArraySS((x),0,(y))
-
-static void eval_load_time_value_heap(addr *ret)
+_g void load_time_value_heap(addr *ret)
 {
-	addr pos;
-	struct load_time_value_struct *str;
-
-	heap_smallsize(&pos, LISPSYSTEM_LOAD_TIME_VALUE,
-			1, sizeoft(struct load_time_value_struct));
-	str = StructLoadTimeValue(pos);
-	str->size = 0;
-	*ret = pos;
+	heap_array2(ret, LISPTYPE_LOAD_TIME_VALUE, 1);
 }
 
-static void copy_load_time_value_alloc(LocalRoot local, addr *ret, addr pos)
+_g void get_load_time_value_heap(addr pos, addr *ret)
 {
-	addr copy;
-	struct load_time_value_struct *str1, *str2;
+	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
+	GetArrayA2(pos, 0, ret);
+}
 
-	alloc_smallsize(local, &copy, LISPSYSTEM_LOAD_TIME_VALUE,
-			1, sizeoft(struct load_time_value_struct));
-	str1 = StructLoadTimeValue(copy);
-	str2 = StructLoadTimeValue(pos);
-	memcpy(str1, str2, sizeoft(struct load_time_value_struct));
-	GetLoadTimeValue(pos, &pos);
-	SetLoadTimeValue(copy, pos);
-	*ret = copy;
+_g void set_load_time_value_heap(addr pos, addr value)
+{
+	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
+	SetArrayA2(pos, 0, value);
 }
 
 
 /*
  *  *load-time-value*
  */
-static void eval_load_time_value_symbol(addr *ret)
+static void load_time_value_symbol(addr *ret)
 {
-	GetConst(SYSTEM_EVAL_LOAD_TIME_VALUE, ret);
+	GetConst(SYSTEM_SPECIAL_LOAD_TIME_VALUE, ret);
 }
 
-static void get_eval_load_time_value_symbol(Execute ptr, addr *ret)
+static void get_load_time_value_symbol(Execute ptr, addr *ret)
 {
 	addr symbol;
-	eval_load_time_value_symbol(&symbol);
+	load_time_value_symbol(&symbol);
 	getspecialcheck_local(ptr, symbol, ret);
+}
+
+_g void set_load_time_value_symbol(Execute ptr, addr value)
+{
+	addr symbol;
+	load_time_value_symbol(&symbol);
+	setspecial_local(ptr, symbol, value);
 }
 
 
@@ -73,82 +62,48 @@ static void get_eval_load_time_value_symbol(Execute ptr, addr *ret)
  */
 _g void init_parse_load_time_value(Execute ptr)
 {
-	addr symbol, pos;
-
-	eval_load_time_value_symbol(&symbol);
-	eval_load_time_value_heap(&pos);
-	pushspecial_control(ptr, symbol, pos);
+	addr symbol;
+	load_time_value_symbol(&symbol);
+	pushspecial_control(ptr, symbol, Nil);
 }
 
 _g int eval_parse_load_time_value(Execute ptr, addr *ret, addr pos)
 {
-	addr value, eval, list;
-	struct load_time_value_struct *str;
+	addr eval;
 
-	get_eval_load_time_value_symbol(ptr, &value);
-	str = StructLoadTimeValue(value);
-	if (str->size == 0)
+	get_load_time_value_symbol(ptr, &eval);
+	if (eval == Nil)
 		return Result(ret, pos);
 
-	/* nreverse */
-	GetLoadTimeValue(value, &list);
-	nreverse(&list, list);
-	SetLoadTimeValue(value, list);
-
-	/* load-time-value */
-	eval_parse_heap(&eval, EVAL_PARSE_LOAD_TIME_VALUE, 3);
+	/* eval */
+	eval_parse_heap(&eval, EVAL_PARSE_LOAD_TIME_VALUE, 2);
 	SetEvalParse(eval, 0, T);
 	SetEvalParse(eval, 1, pos);
-	SetEvalParse(eval, 2, value);
 	return Result(ret, eval);
-}
-
-static void eval_parse_load_time_value_index(Execute ptr, addr *ret)
-{
-	addr value;
-	struct load_time_value_struct *str;
-
-	get_eval_load_time_value_symbol(ptr, &value);
-	str = StructLoadTimeValue(value);
-	index_heap(ret, str->size++);
-}
-
-static void eval_parse_load_time_value_push(Execute ptr, addr pos)
-{
-	addr value, list;
-
-	get_eval_load_time_value_symbol(ptr, &value);
-	GetLoadTimeValue(value, &list);
-	cons_heap(&list, pos, list);
-	SetLoadTimeValue(value, list);
 }
 
 _g int parse_load_time_value(Execute ptr, addr *ret, addr form)
 {
-	addr eval, index, expr, readonly;
-	LocalHold hold;
+	addr args, eval, expr, readonly;
 
-	if (! consp_getcons(form, &expr, &form))
+	if (! consp_getcons(form, &expr, &args))
 		goto error;
-	if (form == Nil)
+	if (args == Nil)
 		readonly = Nil;
-	else if (! consp_getcons(form, &readonly, &form))
+	else if (! consp_getcons(args, &readonly, &args))
 		goto error;
-	if (form != Nil)
+	if (args != Nil)
 		goto error;
 
-	hold = LocalHold_local(ptr);
-	Return(localhold_parse_self(hold, ptr, expr));
-	localhold_end(hold);
-	eval_parse_load_time_value_index(ptr, &index);
+	set_load_time_value_symbol(ptr, T);
+	Return(parse_self(ptr, expr));
 
 	/* eval */
 	eval_parse_heap(&eval, EVAL_PARSE_LOAD_TIME_VALUE, 4);
 	SetEvalParse(eval, 0, Nil);
-	SetEvalParse(eval, 1, index);
-	SetEvalParse(eval, 2, expr);
-	SetEvalParse(eval, 3, (readonly != Nil)? T: Nil);
-	eval_parse_load_time_value_push(ptr, eval);
+	SetEvalParse(eval, 1, expr);
+	SetEvalParse(eval, 2, (readonly != Nil)? T: Nil);
+	SetEvalParse(eval, 3, Nil); /* init */
 	return Result(ret, eval);
 
 error:
@@ -161,65 +116,47 @@ error:
 /*
  *  copy
  */
-static void copy_eval_load_time_value_object(LocalRoot local, addr *ret, addr value)
-{
-	addr root, list, pos;
-
-	GetLoadTimeValue(value, &list);
-	copy_load_time_value_alloc(local, &value, value);
-	root = Nil;
-	while (list != Nil) {
-		GetCons(list, &pos, &list);
-		copy_eval_parse(local, &pos, pos);
-		cons_alloc(local, &root, pos, root);
-	}
-	nreverse(&root, root);
-	SetLoadTimeValue(value, root);
-	*ret = value;
-}
-
 static void copy_eval_load_time_value_body(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr check, expr, value;
+	addr check, expr;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_LOAD_TIME_VALUE, "parse error");
 	GetEvalParse(eval, 0, &check); /* T */
 	GetEvalParse(eval, 1, &expr);
-	GetEvalParse(eval, 2, &value);
 	Check(check == Nil, "check error");
 
 	copy_eval_parse(local, &expr, expr);
-	copy_eval_load_time_value_object(local, &value, value);
 
-	eval_parse_alloc(local, &eval, type, 3);
-	SetEvalParse(eval, 0, check);
+	eval_parse_alloc(local, &eval, type, 2);
+	SetEvalParse(eval, 0, check); /* T */
 	SetEvalParse(eval, 1, expr);
-	SetEvalParse(eval, 2, value);
 	*ret = eval;
 }
 
 static void copy_eval_load_time_value_expr(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr check, index, expr, readonly;
+	addr check, expr, readonly, init;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_LOAD_TIME_VALUE, "parse error");
 	GetEvalParse(eval, 0, &check); /* Nil */
-	GetEvalParse(eval, 1, &index);
-	GetEvalParse(eval, 2, &expr);
-	GetEvalParse(eval, 3, &readonly);
+	GetEvalParse(eval, 1, &expr);
+	GetEvalParse(eval, 2, &readonly);
+	GetEvalParse(eval, 3, &init);
 	Check(check != Nil, "check error");
 
 	copy_eval_parse(local, &expr, expr);
+	if (init != Nil)
+		copy_eval_parse(local, &init, init);
 
 	eval_parse_alloc(local, &eval, type, 4);
-	SetEvalParse(eval, 0, check);
-	SetEvalParse(eval, 1, index);
-	SetEvalParse(eval, 2, expr);
-	SetEvalParse(eval, 3, readonly);
+	SetEvalParse(eval, 0, check); /* Nil */
+	SetEvalParse(eval, 1, expr);
+	SetEvalParse(eval, 2, readonly);
+	SetEvalParse(eval, 3, init);
 	*ret = eval;
 }
 
@@ -243,124 +180,67 @@ _g void copy_eval_load_time_value(LocalRoot local, addr *ret, addr eval)
  */
 _g void init_scope_load_time_value(Execute ptr)
 {
-	addr symbol, pos;
-
-	eval_load_time_value_symbol(&symbol);
-	eval_load_time_value_heap(&pos);
+	addr symbol;
+	load_time_value_symbol(&symbol);
 	pushspecial_control(ptr, symbol, Nil);
 }
 
-static int scope_load_time_value_loop(Execute ptr, addr vector, addr eval, addr *ret)
+static void scope_load_time_value_list(Execute ptr, addr *ret)
 {
-	addr check, index, expr, readonly;
-	size_t i;
+	addr list;
 
-	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &check); /* Nil */
-	GetEvalParse(eval, 1, &index);
-	GetEvalParse(eval, 2, &expr);
-	GetEvalParse(eval, 3, &readonly);
-
-	Check(check != Nil, "load-time-value error");
-	Return(scope_eval(ptr, &expr, expr));
-	list_heap(&eval, index, expr, readonly, NULL);
-
-	GetIndex(index, &i);
-	SetArrayA4(vector, i, eval);
-
-	return Result(ret, eval);
-}
-
-static int scope_load_time_value_list(LocalHold hold,
-		Execute ptr, addr vector, addr list, addr *ret)
-{
-	addr root, eval;
-
-	root = Nil;
-	while (list != Nil) {
-		GetCons(list, &eval, &list);
-		Return(scope_load_time_value_loop(ptr, vector, eval, &eval));
-		cons_heap(&root, eval, root);
-		localhold_set(hold, 0, root);
-	}
-	nreverse(ret, root);
-
-	return 0;
-}
-
-static int scope_load_time_value_vector(LocalHold hold,
-		Execute ptr, addr value, addr *rindex, addr *ret)
-{
-	addr vector, symbol;
-	struct load_time_value_struct *str;
-
-	/* special variable */
-	str = StructLoadTimeValue(value);
-	vector4_heap(&vector, str->size);
-	eval_load_time_value_symbol(&symbol);
-	setspecial_local(ptr, symbol, vector);
-
-	/* scope */
-	GetLoadTimeValue(value, &value);
-	Return(scope_load_time_value_list(hold, ptr, vector, value, &value));
-
-	/* result */
-	index_heap(rindex, str->size);
-	return Result(ret, value);
+	get_load_time_value_symbol(ptr, &list);
+	set_load_time_value_symbol(ptr, Nil);
+	nreverse(ret, list);
 }
 
 static int scope_load_time_value_body(Execute ptr, addr *ret, addr eval)
 {
-	addr check, expr, value, index, type;
-	LocalHold hold;
+	addr check, expr, list, type;
 
 	GetEvalParse(eval, 0, &check); /* T */
 	GetEvalParse(eval, 1, &expr);
-	GetEvalParse(eval, 2, &value);
 
-	hold = LocalHold_array(ptr, 1);
-	Return(scope_load_time_value_vector(hold, ptr, value, &index, &value));
-	Return(localhold_scope_eval(hold, ptr, &expr, expr));
-	localhold_end(hold);
-
+	Return(scope_eval(ptr, &expr, expr));
+	scope_load_time_value_list(ptr, &list);
 	GetEvalScopeThe(expr, &type);
-	eval_scope_size(ptr, &eval, 4, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil);
+
+	/* eval */
+	eval_scope_size(ptr, &eval, 3, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil);
 	SetEvalScopeIndex(eval, 0, check); /* T */
 	SetEvalScopeIndex(eval, 1, expr);
-	SetEvalScopeIndex(eval, 2, index);
-	SetEvalScopeIndex(eval, 3, value);
+	SetEvalScopeIndex(eval, 2, list);
 	return Result(ret, eval);
-}
-
-static void scope_load_time_value_find(Execute ptr, addr index, addr *ret)
-{
-	addr pos, expr, readonly;
-	size_t i;
-
-	eval_load_time_value_symbol(&pos);
-	getspecialcheck_local(ptr, pos, &pos);
-	GetIndex(index, &i);
-	GetArrayA4(pos, i, &pos);
-	List_bind(pos, &index, &expr, &readonly, NULL);
-	GetEvalScopeThe(expr, ret);
 }
 
 static int scope_load_time_value_expr(Execute ptr, addr *ret, addr eval)
 {
-	addr check, index, expr, readonly, type;
+	addr check, expr, readonly, init, type, value;
 
 	GetEvalParse(eval, 0, &check); /* Nil */
-	GetEvalParse(eval, 1, &index);
-	GetEvalParse(eval, 2, &expr);
-	GetEvalParse(eval, 3, &readonly);
+	GetEvalParse(eval, 1, &expr);
+	GetEvalParse(eval, 2, &readonly);
+	GetEvalParse(eval, 3, &init);
 	Check(check != Nil, "check error");
 
-	scope_load_time_value_find(ptr, index, &type);
-	eval_scope_size(ptr, &eval, 4, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil);
+	Return(scope_eval(ptr, &expr, expr));
+	GetEvalScopeThe(expr, &type);
+	load_time_value_heap(&value);
+
+	/* eval */
+	eval_scope_size(ptr, &eval, 5, EVAL_PARSE_LOAD_TIME_VALUE, type, Nil);
 	SetEvalScopeIndex(eval, 0, check); /* Nil */
-	SetEvalScopeIndex(eval, 1, index);
-	SetEvalScopeIndex(eval, 2, Nil);
-	SetEvalScopeIndex(eval, 3, readonly);
+	SetEvalScopeIndex(eval, 1, expr);
+	SetEvalScopeIndex(eval, 2, readonly);
+	SetEvalScopeIndex(eval, 3, init);
+	SetEvalScopeIndex(eval, 4, value);
+
+	/* push */
+	get_load_time_value_symbol(ptr, &value);
+	cons_heap(&value, eval, value);
+	set_load_time_value_symbol(ptr, value);
+
+	/* result */
 	return Result(ret, eval);
 }
 
@@ -380,34 +260,18 @@ _g int scope_load_time_value(Execute ptr, addr *ret, addr eval)
 /*
  *  execute
  */
-_g void execute_load_time_value_alloc(Execute ptr, size_t size)
+_g void execute_load_time_value_bind(Execute ptr, addr pos)
 {
-	addr symbol, pos;
+	addr value;
 
-	GetConst(SYSTEM_SPECIAL_LOAD_TIME_VALUE, &symbol);
-	vector4_heap(&pos, size);
-	pushspecial_control(ptr, symbol, pos);
-}
-
-_g void execute_load_time_value_value(Execute ptr, addr list)
-{
-	addr pos, index, readonly, value;
-	size_t i;
-
+	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
 	getresult_control(ptr, &value);
-	GetConst(SYSTEM_SPECIAL_LOAD_TIME_VALUE, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
-	List_bind(list, &index, &readonly, NULL);
-	GetIndex(index, &i);
-	SetArrayA4(pos, i, value);
+	set_load_time_value_heap(pos, value);
 }
 
-_g void execute_load_time_value_get(Execute ptr, size_t index, addr *ret)
+_g void execute_load_time_value_get(Execute ptr, addr pos, addr *ret)
 {
-	addr pos;
-
-	GetConst(SYSTEM_SPECIAL_LOAD_TIME_VALUE, &pos);
-	getspecialcheck_local(ptr, pos, &pos);
-	GetArrayA4(pos, index, ret);
+	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
+	get_load_time_value_heap(pos, ret);
 }
 

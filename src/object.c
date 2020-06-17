@@ -450,6 +450,30 @@ _g void vector_alloc(LocalRoot local, addr *ret, size_t size)
 		vector_heap(ret, size);
 }
 
+_g void vector_type_heap(addr *ret, addr pos, size_t size)
+{
+	CheckType(pos, LISPTYPE_VECTOR);
+	switch (GetStatusSize(pos)) {
+		case LISPSIZE_ARRAY2:
+			vector2_heap(ret, size);
+			break;
+
+		case LISPSIZE_ARRAY4:
+			vector4_heap(ret, size);
+			break;
+
+#ifdef LISP_ARCH_64BIT
+		case LISPSIZE_ARRAY8:
+			vector8_heap(ret, size);
+			break;
+#endif
+
+		default:
+			Abort("Invalid vector type.");
+			return;
+	}
+}
+
 /* copy vector */
 _g void copy_vector4_alloc(LocalRoot local, addr *ret, addr pos)
 {

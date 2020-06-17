@@ -831,28 +831,22 @@ _g int progv_code(Execute ptr, CodeValue x)
 /*
  *  load-time-value
  */
-_g int load_time_value_alloc_code(Execute ptr, CodeValue x)
+_g int load_time_value_bind_code(Execute ptr, CodeValue x)
 {
-	execute_load_time_value_alloc(ptr, x.index);
-	return 0;
-}
-
-_g int load_time_value_value_code(Execute ptr, CodeValue x)
-{
-	execute_load_time_value_value(ptr, x.pos);
+	execute_load_time_value_bind(ptr, x.pos);
 	return 0;
 }
 
 _g int load_time_value_set_code(Execute ptr, CodeValue x)
 {
-	execute_load_time_value_get(ptr, x.index, &x.pos);
+	execute_load_time_value_get(ptr, x.pos, &x.pos);
 	setresult_control(ptr, x.pos);
 	return 0;
 }
 
 _g int load_time_value_push_code(Execute ptr, CodeValue x)
 {
-	execute_load_time_value_get(ptr, x.index, &x.pos);
+	execute_load_time_value_get(ptr, x.pos, &x.pos);
 	pushargs_control(ptr, x.pos);
 	return 0;
 }

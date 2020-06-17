@@ -70,7 +70,9 @@
 ;; Error
 (loadrt #p"rt-error.lisp")
 ;; Code
-(loadrt #p"rt-code.lisp");
+(loadrt #p"rt-code.lisp")
+;; Compile
+(loadrt #p"rt-compile.lisp")
 ;; finish
 (format t "~&OK.~%")
 
