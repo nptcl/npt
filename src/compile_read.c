@@ -202,6 +202,7 @@ _g void init_compile_read(void)
 #endif
 	FaslRead_Table[FaslCode_character] = faslread_value_character;
 	FaslRead_Table[FaslCode_string] = faslread_value_string;
+	FaslRead_Table[FaslCode_hashtable] = faslread_value_hashtable;
 	FaslRead_Table[FaslCode_symbol] = faslread_value_symbol;
 	FaslRead_Table[FaslCode_fixnum] = faslread_value_fixnum;
 	FaslRead_Table[FaslCode_bignum] = faslread_value_bignum;

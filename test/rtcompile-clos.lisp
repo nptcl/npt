@@ -89,3 +89,39 @@
       'value))
   121 242 252)
 
+
+;;
+;;  structure
+;;
+(defstruct compile-structure-1 value)
+
+(deftest compile-structure.1
+  (compile-structure-1-value
+    (expr-compile
+      (make-compile-structure-1 :value 10)))
+  10)
+
+(deftest compile-structure.2
+  (values
+    (compile-structure-1-value
+      (expr-compile (make-compile-structure-1 :value 10)))
+    (compile-structure-1-value
+      (expr-compile (make-compile-structure-1 :value 20)))
+    (compile-structure-1-value
+      (expr-compile (make-compile-structure-1 :value 30))))
+  10 20 30)
+
+(defstruct compile-structure-3 aaa bbb ccc)
+
+(deftest compile-structure.3
+  (let ((x (expr-compile
+             (make-compile-structure-3
+               :aaa 10
+               :bbb 20
+               :ccc 30))))
+    (values
+      (compile-structure-3-aaa x)
+      (compile-structure-3-bbb x)
+      (compile-structure-3-ccc x)))
+  10 20 30)
+

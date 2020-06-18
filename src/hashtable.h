@@ -6,6 +6,46 @@
 #include "local.h"
 #include "typedef.h"
 
+enum HASHTABLE_INDEX {
+	HASHTABLE_INDEX_ARRAY = 0,
+	HASHTABLE_INDEX_PADDING,
+	HASHTABLE_INDEX_SIZE
+};
+
+enum HASHTABLE_TEST {
+	HASHTABLE_TEST_EQ = 0,
+	HASHTABLE_TEST_EQL,
+	HASHTABLE_TEST_EQUAL,
+	HASHTABLE_TEST_EQUALP,
+	HASHTABLE_TEST_CACHE, /* for generic function */
+	HASHTABLE_TEST_SIZE
+};
+
+struct StructHashtable {
+	unsigned resize_float_p : 1;
+	unsigned expand_p : 1;
+	enum HASHTABLE_TEST test;
+	size_t count, size, limit;
+	size_t resize_integer;
+	double_float resize_float;
+	double_float threshold;
+};
+
+#ifdef LISP_ARCH_32BIT
+#define heap_hashtable      heap_array4
+#define local_hashtable     local_array4
+#define alloc_hashtable     alloc_array4
+#else
+#define heap_hashtable      heap_array8
+#define local_hashtable     local_array8
+#define alloc_hashtable     alloc_array8
+#endif
+#define SetTableHash(x,y)   SetArraySS((x), HASHTABLE_INDEX_ARRAY, (y))
+
+#define PtrHashtable(x) PtrBodySSa(x, HASHTABLE_INDEX_SIZE)
+#define PtrStructHashtable(x) ((struct StructHashtable *)PtrHashtable(x))
+#define GetTestHashtable(x) ((int)PtrStructHashtable(x)->test)
+
 #ifdef LISP_ARCH_32BIT
 #define GetArrayHash		GetArrayA4
 #define SetArrayHash		SetArrayA4
@@ -21,21 +61,6 @@
 #define HASHTABLE_SIZE_DEFAULT				4
 #define HASHTABLE_REHASH_SIZE_DEFAULT		1.5
 #define HASHTABLE_REHASH_THRESHOLD_DEFAULT	1.0
-
-enum HASHTABLE_INDEX {
-	HASHTABLE_INDEX_ARRAY = 0,
-	HASHTABLE_INDEX_PADDING,
-	HASHTABLE_INDEX_SIZE
-};
-
-enum HASHTABLE_TEST {
-	HASHTABLE_TEST_EQ = 0,
-	HASHTABLE_TEST_EQL,
-	HASHTABLE_TEST_EQUAL,
-	HASHTABLE_TEST_EQUALP,
-	HASHTABLE_TEST_CACHE, /* for generic function */
-	HASHTABLE_TEST_SIZE
-};
 
 _g void hashtable_full_heap(addr *ret,
 		enum HASHTABLE_TEST test, size_t size,

@@ -23,6 +23,7 @@ enum FaslCode {
 #endif
 	FaslCode_character,
 	FaslCode_string,
+	FaslCode_hashtable,
 	FaslCode_symbol,
 	FaslCode_fixnum,
 	FaslCode_bignum,

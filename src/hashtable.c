@@ -11,37 +11,6 @@
 #include "strtype.h"
 #include "sxhash.h"
 
-#ifdef LISP_ARCH_32BIT
-#define heap_hashtable      heap_array4
-#define local_hashtable     local_array4
-#define alloc_hashtable     alloc_array4
-#else
-#define heap_hashtable      heap_array8
-#define local_hashtable     local_array8
-#define alloc_hashtable     alloc_array8
-#endif
-#define SetTableHash(x,y)   SetArraySS((x), HASHTABLE_INDEX_ARRAY, (y))
-
-
-/*
- *  hashtable
- *    HASHTABLE_INDEX_ARRAY             : vector4 / vector8
- */
-struct StructHashtable {
-	unsigned resize_float_p : 1;
-	unsigned expand_p : 1;
-	enum HASHTABLE_TEST test;
-	size_t count, size, limit;
-	size_t resize_integer;
-	double_float resize_float;
-	double_float threshold;
-};
-
-#define PtrHashtable(x) PtrBodySSa(x, HASHTABLE_INDEX_SIZE)
-#define PtrStructHashtable(x) ((struct StructHashtable *)PtrHashtable(x))
-#define GetTestHashtable(x) ((int)PtrStructHashtable(x)->test)
-
-
 /*
  *  frontend
  */

@@ -11,6 +11,7 @@
 #include "condition.h"
 #include "define.h"
 #include "execute.h"
+#include "hashtable.h"
 #include "load_time_value.h"
 #include "make_load_form.h"
 #include "package.h"
@@ -282,6 +283,57 @@ _g int faslread_value_string(Execute ptr, addr stream, addr *ret)
 	GetStringUnicode(pos, &data);
 	SetCharacterType(pos, type);
 	faslread_buffer(stream, data, sizeoft(unicode) * size);
+
+	return Result(ret, pos);
+}
+
+
+/*
+ *  hashtable
+ */
+_g int faslwrite_value_hashtable(Execute ptr, addr stream, addr pos)
+{
+	addr loop, key, value;
+	struct StructHashtable *str;
+	size_t i;
+
+	CheckType(pos, LISPTYPE_HASHTABLE);
+	faslwrite_type(stream, FaslCode_hashtable);
+	/* struct */
+	str = PtrStructHashtable(pos);
+	faslwrite_buffer(stream, str, sizeoft(struct StructHashtable));
+	/* interator */
+	hash_iterator_heap(&loop, pos);
+	for (i = 0; next_hash_iterator(loop, &key, &value); i++) {
+		Return(faslwrite_value(ptr, stream, key));
+		Return(faslwrite_value(ptr, stream, value));
+	}
+	Check(str->count < i, "count error.");
+
+	return 0;
+}
+
+_g int faslread_value_hashtable(Execute ptr, addr stream, addr *ret)
+{
+	addr pos, key, value, cons;
+	struct StructHashtable data, *str;
+	size_t size, i;
+
+	/* hashtable */
+	faslread_buffer(stream, &data, sizeoft(struct StructHashtable));
+	data.count = 0;
+	hashtable_size_heap(&pos, data.size);
+	str = PtrStructHashtable(pos);
+	*str = data;
+
+	/* iterator */
+	size = data.count;
+	for (i = 0; i < size; i++) {
+		Return(faslread_value(ptr, stream, &key));
+		Return(faslread_value(ptr, stream, &value));
+		intern_hashheap(pos, key, &cons);
+		SetCdr(cons, value);
+	}
 
 	return Result(ret, pos);
 }

@@ -127,3 +127,61 @@
   (value-compile #*110101100010111011010000110100001001110001001000110101011011101101101010000011000110011110111110101010001111000101111111000110100101011101000000010101111101)
   #*110101100010111011010000110100001001110001001000110101011011101101101010000011000110011110111110101010001111000101111111000110100101011101000000010101111101)
 
+(deftest compile-value-hashtable.1
+  (hash-table-p
+    (expr-compile
+      (make-hash-table :test 'eq)))
+  t)
+
+(deftest compile-value-hashtable.2
+  (values
+    (hash-table-test
+      (expr-compile (make-hash-table :test 'eq)))
+    (hash-table-test
+      (expr-compile (make-hash-table :test 'eql)))
+    (hash-table-test
+      (expr-compile (make-hash-table :test 'equal)))
+    (hash-table-test
+      (expr-compile (make-hash-table :test 'equalp))))
+  eq eql equal equalp)
+
+(deftest compile-value-hashtable.3
+  (values
+    (hash-table-count
+      (expr-compile (make-hash-table :test 'eql)))
+    (hash-table-count
+      (expr-compile
+        (let ((x (make-hash-table :test 'eql)))
+          (setf (gethash 10 x) :aaa)
+          (setf (gethash 20 x) :bbb)
+          x))))
+  0 2)
+
+(deftest compile-value-hashtable.4
+  (let ((y (expr-compile
+             (let ((x (make-hash-table :test 'eql)))
+               (setf (gethash 10 x) :aaa)
+               (setf (gethash 20 x) :bbb)
+               (setf (gethash #\a x) :ccc)
+               x))))
+    (values
+      (hash-table-test y)
+      (hash-table-count y)
+      (gethash 10 y)
+      (gethash 20 y)
+      (gethash #\a y)
+      (gethash #\b y)))
+  eql 3 :aaa :bbb :ccc nil)
+
+(deftest compile-value-hashtable.5
+  (hash-table-rehash-size
+    (expr-compile
+      (make-hash-table :rehash-size 2.5d0)))
+  2.5d0)
+
+(deftest compile-value-hashtable.6
+  (hash-table-rehash-threshold
+    (expr-compile
+      (make-hash-table :rehash-threshold 0.5d0)))
+  0.5d0)
+

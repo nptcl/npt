@@ -184,6 +184,7 @@ _g void init_compile_write(void)
 	FaslWrite_Value[LISPTYPE_VECTOR] = faslwrite_value_vector;
 	FaslWrite_Value[LISPTYPE_CHARACTER] = faslwrite_value_character;
 	FaslWrite_Value[LISPTYPE_STRING] = faslwrite_value_string;
+	FaslWrite_Value[LISPTYPE_HASHTABLE] = faslwrite_value_hashtable;
 	FaslWrite_Value[LISPTYPE_SYMBOL] = faslwrite_value_symbol;
 	FaslWrite_Value[LISPTYPE_FIXNUM] = faslwrite_value_fixnum;
 	FaslWrite_Value[LISPTYPE_BIGNUM] = faslwrite_value_bignum;
