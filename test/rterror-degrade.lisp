@@ -31,3 +31,11 @@
       (read-from-string "  #@ 10 20 30")))
   :hello)
 
+(deftest flet-error.1
+  (functionp
+    (locally
+      (declare (optimize (speed 3) (safety 0)))
+      (flet ((bbb () 10))
+        #'bbb)))
+  t)
+

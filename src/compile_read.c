@@ -211,6 +211,7 @@ _g void init_compile_read(void)
 	FaslRead_Table[FaslCode_double_float] = faslread_value_double_float;
 	FaslRead_Table[FaslCode_long_float] = faslread_value_long_float;
 	FaslRead_Table[FaslCode_complex] = faslread_value_complex;
+	FaslRead_Table[FaslCode_callname] = faslread_value_callname;
 	FaslRead_Table[FaslCode_index] = faslread_value_index;
 	FaslRead_Table[FaslCode_package] = faslread_value_package;
 	FaslRead_Table[FaslCode_random_state] = faslread_value_random_state;

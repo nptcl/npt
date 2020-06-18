@@ -194,6 +194,7 @@ _g void init_compile_write(void)
 	FaslWrite_Value[LISPTYPE_LONG_FLOAT] = faslwrite_value_long_float;
 	FaslWrite_Value[LISPTYPE_COMPLEX] = faslwrite_value_complex;
 	FaslWrite_Value[LISPTYPE_CODE] = faslwrite_value_code;
+	FaslWrite_Value[LISPTYPE_CALLNAME] = faslwrite_value_callname;
 	FaslWrite_Value[LISPTYPE_INDEX] = faslwrite_value_index;
 	FaslWrite_Value[LISPTYPE_PACKAGE] = faslwrite_value_package;
 	FaslWrite_Value[LISPTYPE_RANDOM_STATE] = faslwrite_value_random_state;

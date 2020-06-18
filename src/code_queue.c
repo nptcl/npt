@@ -400,6 +400,58 @@ static void code_queue_pop_goto(LocalRoot local,
 	}
 }
 
+static void code_queue_pop_tag(addr list, addr *ret)
+{
+	addr root, pos, name, jump, lexical;
+
+	root = Nil;
+	while (list != Nil) {
+		GetCons(list, &pos, &list);
+		/* (name jump lexical) */
+		CheckTableTagBody(pos);
+		getname_tabletagbody(pos, &name);
+		index_heap(&jump, getjump_tabletagbody(pos));
+		index_heap(&lexical, getlexical_tabletagbody(pos));
+		list_heap(&pos, name, jump, lexical, NULL);
+		cons_heap(&root, pos, root);
+	}
+	nreverse(ret, root);
+}
+
+static void code_queue_pop_block(addr pos, addr *ret)
+{
+	addr name, lexical;
+
+	/* (name lexical) */
+	CheckTableBlock(pos);
+	getname_tableblock(pos, &name);
+	index_heap(&lexical, getlexical_tableblock(pos));
+	list_heap(ret, name, lexical, NULL);
+}
+
+static void code_queue_pop_info(addr array, size_t size)
+{
+	addr cons, car, cdr, key1, key2;
+	size_t i;
+
+	GetConst(CODE_TAGINFO, &key1);
+	GetConst(CODE_BLOCKINFO, &key2);
+	for (i = 0; i < size; i++) {
+		GetArrayA4(array, i, &cons);
+		GetCons(cons, &car, &cdr);
+		if (car == key1) {
+			code_queue_pop_tag(cdr, &cdr);
+			SetCdr(cons, cdr);
+			continue;
+		}
+		if (car == key2) {
+			code_queue_pop_block(cdr, &cdr);
+			SetCdr(cons, cdr);
+			continue;
+		}
+	}
+}
+
 static void code_queue_pop_make(LocalRoot local, addr cons, addr *ret)
 {
 	addr label, array;
@@ -408,6 +460,7 @@ static void code_queue_pop_make(LocalRoot local, addr cons, addr *ret)
 	code_queue_pop_label(local, cons, &label, &size);
 	vector4_heap(&array, size);
 	code_queue_pop_goto(local, cons, label, array, size);
+	code_queue_pop_info(array, size);
 	*ret = array;
 }
 

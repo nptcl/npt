@@ -710,30 +710,31 @@ _g int restart2_control(Execute ptr, addr restart,
  */
 _g void set_taginfo_control(Execute ptr, addr list)
 {
-	addr control, pos, name, value;
+	addr control, pos, name, jump, lexical;
 	size_t index;
 
 	control = ptr->control;
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		CheckTableTagBody(pos);
-		getname_tabletagbody(pos, &name);
-		index = getjump_tabletagbody(pos);
-		taginfo_heap(&value, control, name, index);
-		setvalue_tabletagbody(ptr, pos, value);
-		pushtaginfo_control(ptr, value);
+		List_bind(pos, &name, &jump, &lexical, NULL);
+		GetIndex(jump, &index);
+		taginfo_heap(&pos, control, name, index);
+		GetIndex(lexical, &index);
+		setlow_lexical_control(ptr, index, pos);
+		pushtaginfo_control(ptr, pos);
 	}
 }
 
 _g void set_blockinfo_control(Execute ptr, addr pos)
 {
-	addr name, value;
+	addr name, lexical;
+	size_t index;
 
-	CheckTableBlock(pos);
-	getname_tableblock(pos, &name);
-	taginfo_heap(&value, ptr->control, name, 0);
-	setvalue_tableblock(ptr, pos, value);
-	pushtaginfo_control(ptr, value);
+	List_bind(pos, &name, &lexical, NULL);
+	taginfo_heap(&pos, ptr->control, name, 0);
+	GetIndex(lexical, &index);
+	setlow_lexical_control(ptr, index, pos);
+	pushtaginfo_control(ptr, pos);
 }
 
 _g void set_protect_control(Execute ptr, addr pos)

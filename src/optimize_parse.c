@@ -206,28 +206,28 @@ static int optparse_check(struct optimize_struct *str)
 /*
  *  optimize_value
  */
-static int optimize_value(addr pos);
-static int optimize_value_values(addr list)
+static int optimize_value_function(addr pos, int functionp);
+static int optimize_value_values(addr list, int functionp)
 {
 	addr pos;
 
 	GetEvalParse(list, 0, &list);
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		if (! optimize_value(pos))
+		if (! optimize_value_function(pos, functionp))
 			return 0;
 	}
 
 	return 1;
 }
 
-static int optmize_value_the(addr pos)
+static int optmize_value_the(addr pos, int functionp)
 {
 	GetEvalParse(pos, 1, &pos); /* expr */
-	return optimize_value(pos);
+	return optimize_value_function(pos, functionp);
 }
 
-static int optimize_value(addr pos)
+static int optimize_value_function(addr pos, int functionp)
 {
 	if (! eval_parse_p(pos))
 		return 0;
@@ -246,19 +246,26 @@ static int optimize_value(addr pos)
 		case EVAL_PARSE_FLOAT:
 		case EVAL_PARSE_PATHNAME:
 		case EVAL_PARSE_QUOTE:
-		case EVAL_PARSE_FUNCTION:
 		case EVAL_PARSE_LAMBDA:
 			return 1;
 
+		case EVAL_PARSE_FUNCTION:
+			return functionp;
+
 		case EVAL_PARSE_THE:
-			return optmize_value_the(pos);
+			return optmize_value_the(pos, functionp);
 
 		case EVAL_PARSE_VALUES:
-			return optimize_value_values(pos);
+			return optimize_value_values(pos, functionp);
 
 		default:
 			return 0;
 	}
+}
+
+static int optimize_value(addr pos)
+{
+	return optimize_value_function(pos, 1);
 }
 
 
@@ -2753,6 +2760,11 @@ static int optparse_flet1(struct optimize_struct *str)
 }
 
 /* (flet () values... x) -> x */
+static int optimize_flet_value(addr pos)
+{
+	return optimize_value_function(pos, 0);
+}
+
 static int checkparse_flet2(struct optimize_struct *str)
 {
 	addr pos, check;
@@ -2768,7 +2780,7 @@ static int checkparse_flet2(struct optimize_struct *str)
 		return 0;
 	while (pos != Nil) {
 		GetCons(pos, &check, &pos);
-		if (! optimize_value(check))
+		if (! optimize_flet_value(check))
 			return 0;
 	}
 

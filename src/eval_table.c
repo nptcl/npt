@@ -507,18 +507,6 @@ _g void setjump_tabletagbody(addr pos, size_t value)
 	StructTableTagBody(pos)->jump = value;
 }
 
-_g void getvalue_tabletagbody(Execute ptr, addr pos, addr *ret)
-{
-	size_t index = getlexical_tabletagbody(pos);
-	getlow_lexical_control(ptr, index, ret);
-}
-
-_g void setvalue_tabletagbody(Execute ptr, addr pos, addr value)
-{
-	size_t index = getlexical_tabletagbody(pos);
-	setlow_lexical_control(ptr, index, value);
-}
-
 
 /*
  *  tableblock
@@ -628,18 +616,6 @@ _g void setclosure_tableblock(addr pos, size_t value)
 {
 	CheckTableBlock(pos);
 	StructTableBlock(pos)->closure = value;
-}
-
-_g void getvalue_tableblock(Execute ptr, addr pos, addr *ret)
-{
-	size_t index = getlexical_tableblock(pos);
-	getlow_lexical_control(ptr, index, ret);
-}
-
-_g void setvalue_tableblock(Execute ptr, addr pos, addr value)
-{
-	size_t index = getlexical_tableblock(pos);
-	setlow_lexical_control(ptr, index, value);
 }
 
 

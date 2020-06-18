@@ -1584,6 +1584,7 @@ lisp-system::trace-del
 lisp-code::nop
 lisp-code::execute-control-set
 lisp-code::execute-control-push
+lisp-code::execute-control-save
 lisp-code::execute-switch-set
 lisp-code::execute-switch-push
 
@@ -1641,7 +1642,6 @@ lisp-code::define-compiler-macro
 lisp-code::define-symbol-macro
 lisp-code::defun
 
-lisp-code::call
 lisp-code::call-result
 lisp-code::call-type
 lisp-code::call-function
@@ -1671,8 +1671,6 @@ lisp-code::handler-case
 lisp-code::restart-bind
 lisp-code::restart-case
 
-lisp-code::prog1-set
-lisp-code::prog1-push
 lisp-code::funcall
 lisp-code::nth-value
 lisp-code::progv

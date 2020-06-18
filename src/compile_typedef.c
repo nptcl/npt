@@ -13,6 +13,7 @@ static void init_compile_typedef_write(void)
 	defwrite(nop);
 	defwrite(execute_control_set);
 	defwrite(execute_control_push);
+	defwrite(execute_control_save);
 	defwrite(execute_switch_set);
 	defwrite(execute_switch_push);
 
@@ -70,7 +71,6 @@ static void init_compile_typedef_write(void)
 	defwrite(define_symbol_macro);
 	defwrite(defun);
 
-	defwrite(call);
 	defwrite(call_result);
 	defwrite(call_type);
 	defwrite(call_function);
@@ -99,8 +99,6 @@ static void init_compile_typedef_write(void)
 	defwrite(restart_bind);
 	defwrite(restart_case);
 
-	defwrite(prog1_set);
-	defwrite(prog1_push);
 	defwrite(funcall);
 	defwrite(nth_value);
 	defwrite(progv);
@@ -155,6 +153,7 @@ static void init_compile_typedef_read(void)
 	defread(nop, NOP);
 	defread(execute_control_set, EXECUTE_CONTROL_SET);
 	defread(execute_control_push, EXECUTE_CONTROL_PUSH);
+	defread(execute_control_save, EXECUTE_CONTROL_SAVE);
 	defread(execute_switch_set, EXECUTE_SWITCH_SET);
 	defread(execute_switch_push, EXECUTE_SWITCH_PUSH);
 
@@ -212,7 +211,6 @@ static void init_compile_typedef_read(void)
 	defread(define_symbol_macro, DEFINE_SYMBOL_MACRO);
 	defread(defun, DEFUN);
 
-	defread(call, CALL);
 	defread(call_result, CALL_RESULT);
 	defread(call_type, CALL_TYPE);
 	defread(call_function, CALL_FUNCTION);
@@ -241,8 +239,6 @@ static void init_compile_typedef_read(void)
 	defread(restart_bind, RESTART_BIND);
 	defread(restart_case, RESTART_CASE);
 
-	defread(prog1_set, PROG1_SET);
-	defread(prog1_push, PROG1_PUSH);
 	defread(funcall, FUNCALL);
 	defread(nth_value, NTH_VALUE);
 	defread(progv, PROGV);

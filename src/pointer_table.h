@@ -16,6 +16,7 @@ enum pointer_index {
 	p_nop_code,
 	p_execute_control_set_code,
 	p_execute_control_push_code,
+	p_execute_control_save_code,
 	p_execute_switch_set_code,
 	p_execute_switch_push_code,
 
@@ -102,8 +103,6 @@ enum pointer_index {
 	p_restart_bind_code,
 	p_restart_case_code,
 
-	p_prog1_set_code,
-	p_prog1_push_code,
 	p_funcall_code,
 	p_nth_value_code,
 	p_progv_code,

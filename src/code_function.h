@@ -7,6 +7,7 @@
 _g int nop_code(Execute ptr, CodeValue x);
 _g int execute_control_set_code(Execute ptr, CodeValue x);
 _g int execute_control_push_code(Execute ptr, CodeValue x);
+_g int execute_control_save_code(Execute ptr, CodeValue x);
 _g int execute_switch_set_code(Execute ptr, CodeValue x);
 _g int execute_switch_push_code(Execute ptr, CodeValue x);
 
@@ -64,7 +65,6 @@ _g int define_compiler_macro_code(Execute ptr, CodeValue x);
 _g int define_symbol_macro_code(Execute ptr, CodeValue x);
 _g int defun_code(Execute ptr, CodeValue x);
 
-_g int call_code(Execute ptr, CodeValue x);
 _g int call_result_code(Execute ptr, CodeValue x);
 _g int call_type_code(Execute ptr, CodeValue x);
 _g int call_function_code(Execute ptr, CodeValue x);
@@ -93,8 +93,6 @@ _g int handler_case_code(Execute ptr, CodeValue x);
 _g int restart_bind_code(Execute ptr, CodeValue x);
 _g int restart_case_code(Execute ptr, CodeValue x);
 
-_g int prog1_set_code(Execute ptr, CodeValue x);
-_g int prog1_push_code(Execute ptr, CodeValue x);
 _g int funcall_code(Execute ptr, CodeValue x);
 _g int nth_value_code(Execute ptr, CodeValue x);
 _g int progv_code(Execute ptr, CodeValue x);

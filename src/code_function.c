@@ -41,6 +41,18 @@ _g int execute_control_push_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
+_g int execute_control_save_code(Execute ptr, CodeValue x)
+{
+	addr control, values;
+	size_t size;
+
+	push_new_control(ptr, &control);
+	save_values_control(ptr, &values, &size);
+	Return(runcode_control(ptr, x.pos));
+	restore_values_control(ptr, values, size);
+	return free_control_(ptr, control);
+}
+
 _g int execute_switch_set_code(Execute ptr, CodeValue x)
 {
 	return runcode_switch(ptr, x.pos);
@@ -521,11 +533,6 @@ _g int defun_code(Execute ptr, CodeValue x)
 /*
  *  call
  */
-_g int call_code(Execute ptr, CodeValue x)
-{
-	return execute_control(ptr, x.pos);
-}
-
 _g int call_result_code(Execute ptr, CodeValue x)
 {
 	getresult_control(ptr, &x.pos);
@@ -748,31 +755,6 @@ _g int restart_case_code(Execute ptr, CodeValue x)
 /*
  *  eval
  */
-_g int prog1_set_code(Execute ptr, CodeValue x)
-{
-	addr list, protect, cleanup, control, values;
-	size_t size;
-
-	GetCons(x.pos, &protect, &list);
-	GetCar(list, &cleanup);
-	push_new_control(ptr, &control);
-	Return(runcode_control(ptr, protect));
-	save_values_control(ptr, &values, &size);
-	Return(runcode_control(ptr, cleanup));
-	restore_values_control(ptr, values, size);
-
-	return free_control_(ptr, control);
-}
-
-_g int prog1_push_code(Execute ptr, CodeValue x)
-{
-	Return(prog1_set_code(ptr, x));
-	getresult_control(ptr, &x.pos);
-	pushargs_control(ptr, x.pos);
-
-	return 0;
-}
-
 _g int funcall_code(Execute ptr, CodeValue x)
 {
 	getargs_list_control_unsafe(ptr, 0, &x.pos);

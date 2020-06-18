@@ -1794,32 +1794,19 @@ static void code_make_multiple_value_call(LocalRoot local, addr code, addr scope
 static void code_make_multiple_value_prog1(LocalRoot local, addr code, addr scope)
 {
 	enum CodeQueue_Mode mode;
-	addr first, cons;
+	addr expr, cons;
 
 	mode = code_queue_mode(code);
-	GetEvalScopeIndex(scope, 0, &first);
+	GetEvalScopeIndex(scope, 0, &expr);
 	GetEvalScopeIndex(scope, 1, &cons);
 
-	/* rem */
-	if (mode == CodeQueue_ModeRemove) {
-		cons_heap(&cons, first, cons);
-		code_allcons(local, code, cons);
-		return;
-	}
-
-	/* first */
-	code_queue_push_new(local, code);
-	code_make_execute_set(local, code, first);
-	code_queue_pop(local, code, &first);
+	/* expr */
+	code_make_execute(local, code, expr);
 	/* cons */
 	code_queue_push_new(local, code);
 	code_allcons_rem(local, code, cons);
 	code_queue_pop(local, code, &cons);
-	/* execute */
-	if (code_queue_pushp(code))
-		CodeQueue_double(local, code, PROG1_PUSH, first, cons);
-	else
-		CodeQueue_double(local, code, PROG1_SET, first, cons);
+	CodeQueue_cons(local, code, EXECUTE_CONTROL_SAVE, cons);
 }
 
 

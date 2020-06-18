@@ -198,8 +198,6 @@ _g size_t getclosure_tabletagbody(addr pos);
 _g void setclosure_tabletagbody(addr pos, size_t value);
 _g size_t getjump_tabletagbody(addr pos);
 _g void setjump_tabletagbody(addr pos, size_t value);
-_g void getvalue_tabletagbody(Execute ptr, addr pos, addr *ret);
-_g void setvalue_tabletagbody(Execute ptr, addr pos, addr value);
 
 
 /*
@@ -219,8 +217,6 @@ _g int getclosurep_tableblock(addr pos);
 _g void setclosurep_tableblock(addr pos, int value);
 _g size_t getclosure_tableblock(addr pos);
 _g void setclosure_tableblock(addr pos, size_t value);
-_g void getvalue_tableblock(Execute ptr, addr pos, addr *ret);
-_g void setvalue_tableblock(Execute ptr, addr pos, addr value);
 
 
 /*

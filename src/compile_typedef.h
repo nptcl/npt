@@ -32,6 +32,7 @@ enum FaslCode {
 	FaslCode_double_float,
 	FaslCode_long_float,
 	FaslCode_complex,
+	FaslCode_callname,
 	FaslCode_index,
 	FaslCode_package,
 	FaslCode_random_state,
@@ -44,6 +45,7 @@ enum FaslCode {
 	FaslCode_nop,
 	FaslCode_execute_control_set,
 	FaslCode_execute_control_push,
+	FaslCode_execute_control_save,
 	FaslCode_execute_switch_set,
 	FaslCode_execute_switch_push,
 
@@ -101,7 +103,6 @@ enum FaslCode {
 	FaslCode_define_symbol_macro,
 	FaslCode_defun,
 
-	FaslCode_call,
 	FaslCode_call_result,
 	FaslCode_call_type,
 	FaslCode_call_function,
@@ -130,8 +131,6 @@ enum FaslCode {
 	FaslCode_restart_bind,
 	FaslCode_restart_case,
 
-	FaslCode_prog1_set,
-	FaslCode_prog1_push,
 	FaslCode_funcall,
 	FaslCode_nth_value,
 	FaslCode_progv,

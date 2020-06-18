@@ -37,6 +37,7 @@ _g void init_code_init(void)
 	initcode(nop_code, Null);
 	initcode(execute_control_set_code, Addr);
 	initcode(execute_control_push_code, Addr);
+	initcode(execute_control_save_code, Addr);
 	initcode(execute_switch_set_code, Addr);
 	initcode(execute_switch_push_code, Addr);
 
@@ -102,7 +103,6 @@ _g void init_code_init(void)
 	initcode(defun_code, Null);
 
 	/* call */
-	initcode(call_code, Addr);
 	initcode(call_result_code, Addr);
 	initcode(call_type_code, Addr);
 	initcode(call_function_code, Addr);
@@ -135,8 +135,6 @@ _g void init_code_init(void)
 	initcode(restart_case_code, Null);
 
 	/* eval */
-	initcode(prog1_set_code, Addr);
-	initcode(prog1_push_code, Addr);
 	initcode(funcall_code, Addr);
 	initcode(nth_value_code, Null);
 	initcode(progv_code, Null);
@@ -187,6 +185,7 @@ _g void build_code_init(void)
 	defcode(NOP, nop_code);
 	defcode(EXECUTE_CONTROL_SET, execute_control_set_code);
 	defcode(EXECUTE_CONTROL_PUSH, execute_control_push_code);
+	defcode(EXECUTE_CONTROL_SAVE, execute_control_save_code);
 	defcode(EXECUTE_SWITCH_SET, execute_switch_set_code);
 	defcode(EXECUTE_SWITCH_PUSH, execute_switch_push_code);
 
@@ -252,7 +251,6 @@ _g void build_code_init(void)
 	defcode(DEFUN, defun_code);
 
 	/* call */
-	defcode(CALL, call_code);
 	defcode(CALL_RESULT, call_result_code);
 	defcode(CALL_TYPE, call_type_code);
 	defcode(CALL_FUNCTION, call_function_code);
@@ -285,8 +283,6 @@ _g void build_code_init(void)
 	defcode(RESTART_CASE, restart_case_code);
 
 	/* eval */
-	defcode(PROG1_SET, prog1_set_code);
-	defcode(PROG1_PUSH, prog1_push_code);
 	defcode(FUNCALL, funcall_code);
 	defcode(NTH_VALUE, nth_value_code);
 	defcode(PROGV, progv_code);

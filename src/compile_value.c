@@ -1,6 +1,7 @@
 #include "bigdata.h"
 #include "bignum.h"
 #include "bit.h"
+#include "callname.h"
 #include "character.h"
 #include "cmpl.h"
 #include "compile_read.h"
@@ -608,6 +609,35 @@ _g int faslread_value_complex(Execute ptr, addr stream, addr *ret)
 	SetImagComplex(pos, imag);
 
 	return Result(ret, pos);
+}
+
+
+/*
+ *  callname
+ */
+_g int faslwrite_value_callname(Execute ptr, addr stream, addr pos)
+{
+	CallNameType type;
+	addr value;
+
+	CheckType(pos, LISPTYPE_CALLNAME);
+	faslwrite_type(stream, FaslCode_callname);
+	GetCallNameType(pos, &type);
+	GetCallName(pos, &value);
+	faslwrite_byte(stream, (byte)type);
+	return faslwrite_value(ptr, stream, value);
+}
+
+_g int faslread_value_callname(Execute ptr, addr stream, addr *ret)
+{
+	byte type;
+	addr value;
+
+	faslread_byte(stream, &type);
+	Return(faslread_value(ptr, stream, &value));
+	callname_heap(ret, value, (CallNameType)type);
+
+	return 0;
 }
 
 
