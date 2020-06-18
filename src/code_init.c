@@ -172,6 +172,7 @@ _g void init_code_init(void)
 
 	/* load-time-value */
 	initcode(load_time_value_bind_code, Addr);
+	initcode(load_time_value_init_code, Addr);
 	initcode(load_time_value_set_code, Addr);
 	initcode(load_time_value_push_code, Addr);
 }
@@ -321,6 +322,7 @@ _g void build_code_init(void)
 
 	/* load-time-value */
 	defcode(LOAD_TIME_VALUE_BIND, load_time_value_bind_code);
+	defcode(LOAD_TIME_VALUE_INIT, load_time_value_init_code);
 	defcode(LOAD_TIME_VALUE_SET, load_time_value_set_code);
 	defcode(LOAD_TIME_VALUE_PUSH, load_time_value_push_code);
 }

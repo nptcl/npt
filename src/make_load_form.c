@@ -60,7 +60,6 @@ static int parse_make_load_form_object(Execute ptr, addr *ret, addr expr, addr i
 	set_load_time_value_symbol(ptr, T);
 	hold = LocalHold_local(ptr);
 	Return(localhold_parse_self(hold, ptr, expr));
-	localhold_push(hold, expr);
 	if (init != Nil) {
 		Return(localhold_parse_self(hold, ptr, init));
 	}
@@ -189,7 +188,7 @@ static void parse_make_load_lambda(Execute ptr, addr pos, addr init, addr *ret)
 	GetConst(COMMON_LAMBDA, &lambda);
 	parse_make_load_lambda_body(pos, g, init, &init);
 	list_heap(&g, g, NULL);
-	lista_heap(ret, lambda, g, init, NULL);
+	list_heap(ret, lambda, g, init, NULL);
 }
 
 static int parse_make_load_form_generic(Execute ptr, addr pos, addr *ret1, addr *ret2)

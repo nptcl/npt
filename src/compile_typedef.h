@@ -164,6 +164,7 @@ enum FaslCode {
 	FaslCode_bind2_lexical,
 
 	FaslCode_load_time_value_bind,
+	FaslCode_load_time_value_init,
 	FaslCode_load_time_value_set,
 	FaslCode_load_time_value_push,
 

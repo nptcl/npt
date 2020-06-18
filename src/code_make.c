@@ -1870,11 +1870,20 @@ static void code_make_load_time_value_bind(LocalRoot local, addr code, addr scop
 
 static void code_make_load_time_value_init(LocalRoot local, addr code, addr scope)
 {
-	addr init;
+	addr init, value, pos;
 
 	GetEvalScopeIndex(scope, 3, &init);
-	if (init != Nil)
-		code_make_execute_rem(local, code, init);
+	GetEvalScopeIndex(scope, 4, &value);
+	if (init == Nil)
+		return;
+
+	/* call (lambda . argument) */
+	code_queue_push_new(local, code);
+	code_make_execute_set(local, code, init);
+	CodeQueue_cons(local, code, LOAD_TIME_VALUE_INIT, value);
+	CodeQueue_single(local, code, CALL_RESULT);
+	code_queue_pop(local, code, &pos);
+	code_make_execute_control(local, code, pos);
 }
 
 static void code_make_load_time_value_body(LocalRoot local, addr code, addr scope)
@@ -2124,42 +2133,6 @@ static void code_make_call_args(LocalRoot local, addr code, addr args)
 	}
 }
 
-static int code_make_common_p(addr x)
-{
-	addr y;
-
-	getname_tablefunction(x, &x);
-	GetCallName(x, &x);
-	GetPackageSymbol(x, &x);
-	GetConst(PACKAGE_COMMON_LISP, &y);
-
-	return x == y;
-}
-
-static int code_make_call_common(LocalRoot local, addr code, addr table)
-{
-	int symbolp, globalp;
-	addr name, value;
-
-	getname_tablefunction(table, &name);
-	symbolp = symbolp_callname(name);
-	globalp = getglobalp_tablefunction(table);
-	GetCallName(name, &name);
-
-	if (! globalp)
-		return 0;
-	if (symbolp)
-		GetFunctionSymbol(name, &value);
-	else
-		getsetf_symbol(name, &value);
-	if (value == Unbound)
-		return 0;
-
-	/* common-lisp function */
-	CodeQueue_cons(local, code, CALL, value);
-	return 1;
-}
-
 static void code_make_call_global(LocalRoot local, addr code, addr pos)
 {
 	addr symbol;
@@ -2182,10 +2155,6 @@ static void code_make_call_lexical(LocalRoot local, addr code, addr pos)
 
 static void code_make_call_function(LocalRoot local, addr code, addr table)
 {
-	if (code_make_common_p(table)) {
-		if (code_make_call_common(local, code, table))
-			return;
-	}
 	if (getglobalp_tablefunction(table))
 		code_make_call_global(local, code, table);
 	else
@@ -2215,7 +2184,7 @@ static void code_make_call(LocalRoot local, addr code, addr scope)
 	GetEvalScopeIndex(scope, 0, &first);
 	GetEvalScopeIndex(scope, 1, &args);
 	code_queue_push_new(local, code);
-	/* args -> first*/
+	/* args -> first */
 	code_make_call_args(local, code, args);
 	code_make_call_first(local, code, first);
 	/* execute */

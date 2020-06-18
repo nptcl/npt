@@ -837,6 +837,12 @@ _g int load_time_value_bind_code(Execute ptr, CodeValue x)
 	return 0;
 }
 
+_g int load_time_value_init_code(Execute ptr, CodeValue x)
+{
+	execute_load_time_value_init(ptr, x.pos);
+	return 0;
+}
+
 _g int load_time_value_set_code(Execute ptr, CodeValue x)
 {
 	execute_load_time_value_get(ptr, x.pos, &x.pos);

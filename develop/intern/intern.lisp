@@ -1706,6 +1706,7 @@ lisp-code::bind2-special
 lisp-code::bind2-lexical
 
 lisp-code::load-time-value-bind
+lisp-code::load-time-value-init
 lisp-code::load-time-value-set
 lisp-code::load-time-value-push
 

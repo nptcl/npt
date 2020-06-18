@@ -216,6 +216,7 @@ static int scope_load_time_value_body(Execute ptr, addr *ret, addr eval)
 static int scope_load_time_value_expr(Execute ptr, addr *ret, addr eval)
 {
 	addr check, expr, readonly, init, type, value;
+	LocalHold hold;
 
 	GetEvalParse(eval, 0, &check); /* Nil */
 	GetEvalParse(eval, 1, &expr);
@@ -223,7 +224,13 @@ static int scope_load_time_value_expr(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 3, &init);
 	Check(check != Nil, "check error");
 
-	Return(scope_eval(ptr, &expr, expr));
+	hold = LocalHold_local(ptr);
+	Return(localhold_scope_eval(hold, ptr, &expr, expr));
+	if (init != Nil) {
+		Return(localhold_scope_eval(hold, ptr, &init, init));
+	}
+	localhold_end(hold);
+
 	GetEvalScopeThe(expr, &type);
 	load_time_value_heap(&value);
 
@@ -267,6 +274,13 @@ _g void execute_load_time_value_bind(Execute ptr, addr pos)
 	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
 	getresult_control(ptr, &value);
 	set_load_time_value_heap(pos, value);
+}
+
+_g void execute_load_time_value_init(Execute ptr, addr pos)
+{
+	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
+	get_load_time_value_heap(pos, &pos);
+	pushargs_control(ptr, pos);
 }
 
 _g void execute_load_time_value_get(Execute ptr, addr pos, addr *ret)

@@ -134,6 +134,7 @@ static void init_compile_typedef_write(void)
 	defwrite(bind2_lexical);
 
 	defwrite(load_time_value_bind);
+	defwrite(load_time_value_init);
 	defwrite(load_time_value_set);
 	defwrite(load_time_value_push);
 
@@ -275,6 +276,7 @@ static void init_compile_typedef_read(void)
 	defread(bind2_lexical, BIND2_LEXICAL);
 
 	defread(load_time_value_bind, LOAD_TIME_VALUE_BIND);
+	defread(load_time_value_init, LOAD_TIME_VALUE_INIT);
 	defread(load_time_value_set, LOAD_TIME_VALUE_SET);
 	defread(load_time_value_push, LOAD_TIME_VALUE_PUSH);
 

@@ -23,6 +23,7 @@ _g int scope_load_time_value(Execute ptr, addr *ret, addr eval);
 
 /* code */
 _g void execute_load_time_value_bind(Execute ptr, addr pos);
+_g void execute_load_time_value_init(Execute ptr, addr pos);
 _g void execute_load_time_value_get(Execute ptr, addr pos, addr *ret);
 
 #endif
