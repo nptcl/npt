@@ -3,7 +3,6 @@
 #include "bit.h"
 #include "character.h"
 #include "cmpl.h"
-#include "compile_load.h"
 #include "compile_read.h"
 #include "compile_stream.h"
 #include "compile_type.h"
@@ -13,6 +12,7 @@
 #include "define.h"
 #include "execute.h"
 #include "load_time_value.h"
+#include "make_load_form.h"
 #include "package.h"
 #include "pathname.h"
 #include "random_state.h"
@@ -732,12 +732,14 @@ _g int faslread_value_bitvector(Execute ptr, addr stream, addr *ret)
  */
 _g int faslwrite_value_load_time_value(Execute ptr, addr stream, addr pos)
 {
-	size_t pointer;
+	addr index;
 
 	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
 	faslwrite_type(stream, FaslCode_load_time_value);
-	pointer = (size_t)pos;
-	faslwrite_buffer(stream, &pointer, IdxSize);
+	/* index */
+	get_write_make_load_form(ptr, pos, &index);
+	Return(faslwrite_value(ptr, stream, index));
+	/* value */
 	get_load_time_value_heap(pos, &pos);
 	return faslwrite_value(ptr, stream, pos);
 }
@@ -745,10 +747,9 @@ _g int faslwrite_value_load_time_value(Execute ptr, addr stream, addr pos)
 _g int faslread_value_load_time_value(Execute ptr, addr stream, addr *ret)
 {
 	addr pos, value;
-	size_t pointer;
 
-	faslread_buffer(stream, &pointer, IdxSize);
-	eval_compile_value(ptr, pointer, &pos);
+	Return(faslread_value(ptr, stream, &pos));
+	get_read_make_load_form(ptr, pos, &pos);
 	Return(faslread_value(ptr, stream, &value));
 	set_load_time_value_heap(pos, value);
 

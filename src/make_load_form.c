@@ -9,6 +9,7 @@
 #include "execute_values.h"
 #include "hashtable.h"
 #include "hold.h"
+#include "integer.h"
 #include "load_time_value.h"
 #include "parse_function.h"
 #include "parse_object.h"
@@ -24,7 +25,7 @@ static void make_load_form_symbol(Execute ptr, addr *ret)
 	GetConst(SYSTEM_SPECIAL_MAKE_LOAD_FORM, ret);
 }
 
-_g void push_make_load_form(Execute ptr)
+_g void init_parse_make_load_form(Execute ptr)
 {
 	addr symbol, value;
 
@@ -241,5 +242,83 @@ _g int parse_clos(Execute ptr, addr *ret, addr pos)
 		return Result(ret, value);
 	else
 		return parse_make_load_form(ptr, ret, pos);
+}
+
+
+/*
+ *  init
+ */
+static void compile_make_load_form_symbol(Execute ptr, addr *ret)
+{
+	GetConst(SYSTEM_COMPILE_MAKE_LOAD_FORM, ret);
+}
+
+_g void init_write_make_load_form(Execute ptr)
+{
+	addr symbol, index, table, cons;
+
+	compile_make_load_form_symbol(ptr, &symbol);
+	/* (index . hash-table) */
+	fixnum_heap(&index, 0);
+	hashtable_heap(&table);
+	settest_hashtable(table, HASHTABLE_TEST_EQL);
+	cons_heap(&cons, index, table);
+	pushspecial_control(ptr, symbol, cons);
+}
+
+_g void init_read_make_load_form(Execute ptr)
+{
+	addr symbol, table;
+
+	compile_make_load_form_symbol(ptr, &symbol);
+	/* hash-table */
+	hashtable_heap(&table);
+	settest_hashtable(table, HASHTABLE_TEST_EQL);
+	pushspecial_control(ptr, symbol, table);
+}
+
+_g void get_write_make_load_form(Execute ptr, addr key, addr *ret)
+{
+	addr symbol, special, index, table, cons;
+
+	/* table */
+	compile_make_load_form_symbol(ptr, &symbol);
+	getspecialcheck_local(ptr, symbol, &special);
+	GetCons(special, &index, &table); 
+
+	/* object */
+	CheckType(key, LISPTYPE_LOAD_TIME_VALUE);
+	make_index_integer_heap(&key, (size_t)key);
+	if (intern_hashheap(table, key, &cons)) {
+		GetCdr(cons, ret);
+		return;
+	}
+
+	/* intern */
+	*ret = index;
+	SetCdr(cons, index);
+	oneplus_integer_common(ptr->local, index, &index);
+	SetCar(special, index);
+}
+
+_g void get_read_make_load_form(Execute ptr, addr key, addr *ret)
+{
+	addr table, cons, value;
+
+	/* table */
+	compile_make_load_form_symbol(ptr, &table);
+	getspecialcheck_local(ptr, table, &table);
+
+	/* intern */
+	Check(! integerp(key), "type error");
+	if (intern_hashheap(table, key, &cons)) {
+		GetCdr(cons, ret);
+		return;
+	}
+
+	/* add value */
+	load_time_value_heap(&value);
+	SetCdr(cons, value);
+	*ret = value;
 }
 

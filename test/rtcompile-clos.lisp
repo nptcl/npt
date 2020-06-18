@@ -21,3 +21,26 @@
     'value)
   123)
 
+(defclass compile-clos-3 ()
+  ((value :initarg :value)))
+
+(defmethod make-load-form ((x compile-clos-3) &optional env)
+  (declare (ignore x env))
+  `(make-instance 'compile-clos-3 :value 456))
+
+(deftest compile-clos.3
+  (values
+    (slot-value
+      (expr-compile #,(make-instance 'compile-clos-2))
+      'value)
+    (slot-value
+      (expr-compile #,(make-instance 'compile-clos-3))
+      'value)
+    (slot-value
+      (expr-compile #,(make-instance 'compile-clos-2))
+      'value)
+    (slot-value
+      (expr-compile #,(make-instance 'compile-clos-3))
+      'value))
+  123 456 123 456)
+

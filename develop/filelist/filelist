@@ -95,7 +95,6 @@ common_types.c
 common.c
 compile.c
 compile_array.c
-compile_clos.c
 compile_file.c
 compile_load.c
 compile_read.c

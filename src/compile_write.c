@@ -4,7 +4,6 @@
 #include "code_init.h"
 #include "code_object.h"
 #include "compile_array.h"
-#include "compile_clos.h"
 #include "compile_stream.h"
 #include "compile_type.h"
 #include "compile_typedef.h"
@@ -180,7 +179,6 @@ _g void init_compile_write(void)
 	FaslWrite_Value[LISPTYPE_NIL] = faslwrite_value_nil;
 	FaslWrite_Value[LISPTYPE_T] = faslwrite_value_t;
 	FaslWrite_Value[LISPTYPE_TYPE] = faslwrite_value_type;
-	FaslWrite_Value[LISPTYPE_CLOS] = faslwrite_value_clos;
 	FaslWrite_Value[LISPTYPE_CONS] = faslwrite_value_cons;
 	FaslWrite_Value[LISPTYPE_ARRAY] = faslwrite_value_array;
 	FaslWrite_Value[LISPTYPE_VECTOR] = faslwrite_value_vector;

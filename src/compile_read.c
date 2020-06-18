@@ -2,7 +2,6 @@
 #include <string.h>
 #include "code_object.h"
 #include "compile_array.h"
-#include "compile_clos.h"
 #include "compile_read.h"
 #include "compile_stream.h"
 #include "compile_type.h"
@@ -194,7 +193,6 @@ _g void init_compile_read(void)
 	FaslRead_Table[FaslCode_nil] = faslread_value_nil;
 	FaslRead_Table[FaslCode_t] = faslread_value_t;
 	FaslRead_Table[FaslCode_type] = faslread_value_type;
-	FaslRead_Table[FaslCode_clos] = faslread_value_clos;
 	FaslRead_Table[FaslCode_cons] = faslread_value_cons;
 	FaslRead_Table[FaslCode_array] = faslread_value_array;
 	FaslRead_Table[FaslCode_vector2] = faslread_value_vector2;

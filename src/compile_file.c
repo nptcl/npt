@@ -11,6 +11,7 @@
 #include "files.h"
 #include "function.h"
 #include "hold.h"
+#include "make_load_form.h"
 #include "pathname.h"
 #include "stream.h"
 #include "stream_init.h"
@@ -186,6 +187,7 @@ _g int compile_file_common(Execute ptr, addr input, addr rest,
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
 	handler_compile(ptr);
+	init_write_make_load_form(ptr);
 	Return(compile_file_input_stream(ptr, input, output, rest, ret1));
 	localhold_set(hold, 0, *ret1);
 	/* warning */

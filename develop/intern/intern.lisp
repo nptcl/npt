@@ -1352,6 +1352,7 @@ lisp-system::standard
 (lisp-system::*arguments* :name special-arguments :constant system)
 (lisp-system::*load-time-value* :name special-load-time-value :constant system)
 (lisp-system::*make-load-form* :name special-make-load-form :constant system)
+(lisp-system::*compile-make-load-form* :name compile-make-load-form :constant system)
 
 lisp-system::compiled-macro-function
 lisp-system::control
@@ -1554,7 +1555,6 @@ lisp-system::delay-warning
   :constant system :name module-provider-functions)
 (lisp-system::*compile-output* :constant system :name compile-output)
 (lisp-system::*compile-code* :constant system :name compile-code)
-(lisp-system::*compile-value* :constant system :name compile-value)
 
 
 ;;

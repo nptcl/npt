@@ -13,6 +13,7 @@
 #include "format.h"
 #include "function.h"
 #include "hold.h"
+#include "make_load_form.h"
 #include "object.h"
 #include "optimize_parse.h"
 #include "parse.h"
@@ -369,7 +370,7 @@ static int eval_load_fasl(Execute ptr, int *ret, addr file, int exist)
 
 	/* fasl */
 	push_new_control(ptr, &control);
-	eval_compile_init(ptr);
+	init_read_make_load_form(ptr);
 	setprotect_close_stream(ptr, stream);
 	Return(eval_compile_load(ptr, stream));
 	Return(free_control_(ptr, control));

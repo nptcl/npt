@@ -61,7 +61,7 @@ _g int eval_parse(Execute ptr, addr *ret, addr pos)
 	push_new_control(ptr, &control);
 	init_parse_environment(ptr);
 	init_parse_load_time_value(ptr);
-	push_make_load_form(ptr);
+	init_parse_make_load_form(ptr);
 	Return(parse_execute(ptr, &pos, pos));
 	localhold_set(hold, 0, pos);
 	Return(eval_parse_load_time_value(ptr, &pos, pos));

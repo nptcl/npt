@@ -12,8 +12,6 @@ _g void set_load_time_value_symbol(Execute ptr, addr value);
 /* parse */
 _g void init_parse_load_time_value(Execute ptr);
 _g int eval_parse_load_time_value(Execute ptr, addr *ret, addr pos);
-_g void eval_parse_load_time_value_index(Execute ptr, addr *ret);
-_g void eval_parse_load_time_value_push(Execute ptr, addr pos);
 _g int parse_load_time_value(Execute ptr, addr *ret, addr form);
 
 /* copy */
