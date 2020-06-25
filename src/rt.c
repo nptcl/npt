@@ -5,7 +5,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "equal.h"
-#include "eval.h"
+#include "eval_execute.h"
 #include "format.h"
 #include "function.h"
 #include "hashtable.h"
@@ -341,9 +341,7 @@ static int do_test_equal(Execute ptr, addr expr, addr values, addr *ret)
 	addr result, pos1, pos2;
 
 	/* (eval expr) */
-	push_toplevel_eval(ptr, Nil);
-	push_evalwhen_eval(ptr);
-	if (eval_execute(ptr, expr))
+	if (eval_execute_partial(ptr, expr))
 		Abort("Invalid signals.");
 	getvalues_list_control_local(ptr, &result);
 	*ret = result;

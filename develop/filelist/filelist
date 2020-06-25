@@ -135,7 +135,9 @@ env_version.c
 environment.c
 equal.c
 eval_copy.c
+eval_execute.c
 eval_main.c
+eval_object.c
 eval_stack.c
 eval_table.c
 eval.c

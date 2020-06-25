@@ -1,4 +1,5 @@
 #include "callname.h"
+#include "compile_file.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -6,6 +7,8 @@
 #include "control_operator.h"
 #include "declare.h"
 #include "equal.h"
+#include "eval_execute.h"
+#include "eval_object.h"
 #include "hold.h"
 #include "integer.h"
 #include "lambda.h"
@@ -208,7 +211,7 @@ static int parse_setq_macrolet(Execute ptr, addr *ret, addr cons)
 	GetConst(COMMON_PROGN, &progn);
 	cons_heap(&progn, progn, root);
 
-	return eval_parse(ptr, ret, progn);
+	return parse_execute(ptr, ret, progn);
 }
 
 static int parse_setq_symbol(Execute ptr, addr *ret, addr cons)
@@ -492,24 +495,6 @@ _g int parse_macro_lambda_list(Execute ptr, addr *ret, addr args)
 	return 0;
 }
 
-static int execute_macro_lambda(Execute ptr, addr *ret, addr eval)
-{
-	addr control;
-	LocalHold hold;
-
-	/* push */
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	/* code */
-	Return(eval_execute_parse(ptr, eval));
-	getresult_control(ptr, ret);
-	localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
-	localhold_end(hold);
-
-	return 0;
-}
-
 static int make_macro_function(Execute ptr,
 		addr *ret, addr args, addr decl, addr doc, addr cons)
 {
@@ -520,7 +505,7 @@ static int make_macro_function(Execute ptr,
 	SetEvalParse(eval, 1, decl);
 	SetEvalParse(eval, 2, doc);
 	SetEvalParse(eval, 3, cons);
-	return execute_macro_lambda(ptr, ret, eval);
+	return eval_result_macro(ptr, eval, ret);
 }
 
 static int parse_defmacro(Execute ptr, addr *ret, addr cons)
@@ -694,7 +679,7 @@ static int parse_define_symbol_macro(Execute ptr, addr *ret, addr cons)
 	/* form */
 	check_define_symbol_macro(symbol);
 	define_symbol_macro_envstack(ptr, symbol, form); /* before parse */
-	Return(eval_parse(ptr, &body, form));
+	Return(parse_execute(ptr, &body, form));
 	localhold_push(hold, body);
 	localhold_end(hold);
 
@@ -1319,42 +1304,109 @@ error:
 }
 
 /* eval-when */
+static void parse_eval_when_list(addr list, addr *rcompile, addr *rload, addr *rexec)
+{
+	addr compile1, compile2, load1, load2, exec1, exec2;
+	addr pos;
+
+	/* constant */
+	GetConst(KEYWORD_COMPILE_TOPLEVEL, &compile1);
+	GetConst(KEYWORD_LOAD_TOPLEVEL, &load1);
+	GetConst(KEYWORD_EXECUTE, &exec1);
+	GetConst(COMMON_COMPILE, &compile2);
+	GetConst(COMMON_LOAD, &load2);
+	GetConst(COMMON_EVAL, &exec2);
+
+	/* check */
+	*rcompile = *rload = *rexec = Nil;
+	while (list != Nil) {
+		getcons(list, &pos, &list);
+		if (pos == compile1 || pos == compile2) {
+			*rcompile = T;
+		}
+		else if (pos == load1 || pos == load2) {
+			*rload = T;
+		}
+		else if (pos == exec1 || pos == exec2) {
+			*rexec = T;
+		}
+		else {
+			fmte("Invalid situation ~S.", pos, NULL);
+			return;
+		}
+	}
+}
+
+static int parse_eval_when_process(Execute ptr,
+		addr compile, addr load, addr exec, addr toplevel, addr mode)
+{
+	/* not compile */
+	if (! eval_compile_p(ptr)) {
+		compile = Nil;
+	}
+
+	/* not toplevel */
+	if (toplevel == Nil) {
+		return exec != Nil;
+	}
+
+	/* Discard */
+	if (compile == Nil && load == Nil) {
+		return exec != Nil
+			&& mode != Nil; /* compile-time-too */
+	}
+
+	/* Process */
+	if (compile != Nil && load != Nil) {
+		set_compile_time_eval(ptr, T); /* compile-time-too */
+		return 1;
+	}
+	if (compile == Nil && load != Nil && exec != Nil) {
+		set_compile_time_eval(ptr, toplevel);
+		return toplevel != Nil;
+	}
+	if (compile == Nil && load != Nil && exec == Nil) {
+		set_compile_time_eval(ptr, Nil); /* not-compile-time */
+		return 0;
+	}
+
+	/* Evaluate */
+	return 1;
+}
+
 static int parse_eval_when(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, left, right;
-	addr compilep, loadp, evalp;
-	addr compile1, compile2, load1, load2, eval1, eval2;
+	addr eval, list;
+	addr compile, load, exec, toplevel, mode, value;
 
 	if (! consp(cons))
 		fmte("eval-when form must be (eval-when (...) . body).", NULL);
-	GetCons(cons, &right, &cons);
-	Return(parse_allcons(ptr, &cons, cons));
 
-	/* type */
-	GetConst(KEYWORD_COMPILE_TOPLEVEL, &compile1);
-	GetConst(KEYWORD_LOAD_TOPLEVEL, &load1);
-	GetConst(KEYWORD_EXECUTE, &eval1);
-	GetConst(COMMON_COMPILE, &compile2);
-	GetConst(COMMON_LOAD, &load2);
-	GetConst(COMMON_EVAL, &eval2);
-	compilep = loadp = evalp = Nil;
-	while (right != Nil) {
-		getcons(right, &left, &right);
-		if (left == compile1 || left == compile2)
-			compilep = T;
-		if (left == load1 || left == load2)
-			loadp = T;
-		if (left == eval1 || left == eval2)
-			evalp = T;
+	/* arguments */
+	GetCons(cons, &list, &cons);
+	parse_eval_when_list(list, &compile, &load, &exec);
+	gettoplevel_eval(ptr, &toplevel);
+	get_compile_time_eval(ptr, &value);
+
+	/* discard */
+	if (! parse_eval_when_process(ptr, compile, load, exec, toplevel, value)) {
+		eval_single_parse_heap(ret, EVAL_PARSE_NIL, Nil);
+		return 0;
 	}
 
-	/* eval */
-	eval_parse_heap(&eval, EVAL_PARSE_EVAL_WHEN, 4);
-	SetEvalParse(eval, 0, cons);
-	SetEvalParse(eval, 1, compilep);
-	SetEvalParse(eval, 2, loadp);
-	SetEvalParse(eval, 3, evalp);
+	/* body */
+	get_compile_time_eval(ptr, &mode);
+	Return(parse_allcons(ptr, &cons, cons));
+	set_compile_time_eval(ptr, value);
 
+	/* eval */
+	eval_parse_heap(&eval, EVAL_PARSE_EVAL_WHEN, 6);
+	SetEvalParse(eval, 0, cons);
+	SetEvalParse(eval, 1, compile);   /* :compile-toplevel */
+	SetEvalParse(eval, 2, load);      /* :load-toplevel */
+	SetEvalParse(eval, 3, exec);      /* :execute */
+	SetEvalParse(eval, 4, toplevel);  /* toplevel */
+	SetEvalParse(eval, 5, mode);      /* compile-time */
 	return Result(ret, eval);
 }
 
@@ -1604,14 +1656,11 @@ static int parse_cons_check_constant(addr call, constindex index)
 	return check == call;
 }
 
-static int parse_cons_car(Execute ptr, addr *ret, addr cons)
+static int parse_cons_general(Execute ptr, addr *ret, addr cons)
 {
 	addr call, args;
 
 	GetCons(cons, &call, &args);
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_PROGN)) {
-		return parse_progn(ptr, ret, args);
-	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_LET)) {
 		return parse_let(ptr, ret, EVAL_PARSE_LET, args);
 	}
@@ -1660,14 +1709,8 @@ static int parse_cons_car(Execute ptr, addr *ret, addr cons)
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_THE)) {
 		return parse_the(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_EVAL_WHEN)) {
-		return parse_eval_when(ptr, ret, args);
-	}
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_VALUES)) {
 		return parse_values(ptr, ret, args);
-	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_LOCALLY)) {
-		return parse_locally(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DECLAIM)) {
 		return parse_declaim(ret, args);
@@ -1690,14 +1733,8 @@ static int parse_cons_car(Execute ptr, addr *ret, addr cons)
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_MACRO_LAMBDA)) {
 		return parse_macro_lambda(ptr, ret, args);
 	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_MACROLET)) {
-		return parse_macrolet(ptr, ret, args);
-	}
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_DEFINE_SYMBOL_MACRO)) {
 		return parse_define_symbol_macro(ptr, ret, args);
-	}
-	if (parse_cons_check_constant(call, CONSTANT_COMMON_SYMBOL_MACROLET)) {
-		return parse_symbol_macrolet(ptr, ret, args);
 	}
 	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_MULTIPLE_VALUE_BIND)) {
 		return parse_multiple_value_bind(ptr, ret, args);
@@ -1722,6 +1759,38 @@ static int parse_cons_car(Execute ptr, addr *ret, addr cons)
 	}
 
 	return parse_call(ptr, ret, call, args);
+}
+
+static int parse_cons_car(Execute ptr, addr *ret, addr cons)
+{
+	addr call, args, value;
+
+	GetCons(cons, &call, &args);
+
+	/* toplevel */
+	if (parse_cons_check_constant(call, CONSTANT_COMMON_PROGN)) {
+		return parse_progn(ptr, ret, args);
+	}
+	if (parse_cons_check_constant(call, CONSTANT_COMMON_LOCALLY)) {
+		return parse_locally(ptr, ret, args);
+	}
+	if (parse_cons_check_constant(call, CONSTANT_COMMON_MACROLET)) {
+		return parse_macrolet(ptr, ret, args);
+	}
+	if (parse_cons_check_constant(call, CONSTANT_COMMON_SYMBOL_MACROLET)) {
+		return parse_symbol_macrolet(ptr, ret, args);
+	}
+	if (parse_cons_check_constant(call, CONSTANT_COMMON_EVAL_WHEN)) {
+		return parse_eval_when(ptr, ret, args);
+	}
+
+	/* general operator */
+	gettoplevel_eval(ptr, &value);
+	settoplevel_eval(ptr, Nil);
+	Return(parse_cons_general(ptr, ret, cons));
+	settoplevel_eval(ptr, value);
+
+	return 0;
 }
 
 static int compiler_macroexpand_p(Execute ptr)

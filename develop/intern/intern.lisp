@@ -1343,8 +1343,13 @@ lisp-system::push-return
 (lisp-system::*parse-environment* :name eval-parse-environment :constant system)
 (lisp-system::*scope* :name eval-scope :constant system)
 (lisp-system::*scope-global* :name eval-scope-global :constant system)
-(lisp-system::*scope-eval-when* :name eval-scope-eval-when :constant system)
-(lisp-system::*scope-toplevel* :name eval-scope-toplevel :constant system)
+
+;; eval-when
+(lisp-system::*eval-toplevel* :name eval-toplevel :constant system)
+(lisp-system::*eval-compile-time* :name eval-compile-time :constant system)
+(lisp-system::*eval-compile-toplevel* :name eval-compile-toplevel :constant system)
+(lisp-system::*eval-load-toplevel* :name eval-load-toplevel :constant system)
+(lisp-system::*eval-execute* :name eval-execute :constant system)
 
 lisp-system::standard
 (lisp-system::*trace* :name trace :constant system)
@@ -1540,6 +1545,7 @@ lisp-system::na
 (lisp-system::*empty-print-dispatch*
   :constant system :name empty-print-dispatch)
 lisp-system::dispatch-vector
+lisp-system::dispatch-quote
 lisp-system::dispatch-call
 lisp-system::dispatch-defun
 lisp-system::dispatch-let

@@ -1,4 +1,6 @@
 #include "code_queue.c"
+
+#if 0
 #include "clos.h"
 #include "character.h"
 #include "condition.h"
@@ -14,7 +16,6 @@
 #include "syscall.h"
 #include "type.h"
 
-#if 0
 /*
  *  code_queue-stack
  */
@@ -714,7 +715,6 @@ static int test_code_queue_pop(void)
 
 	RETURN;
 }
-#endif
 
 
 /*
@@ -722,7 +722,6 @@ static int test_code_queue_pop(void)
  */
 static int testbreak_code_queue(void)
 {
-#if 0
 	/* code_queue-stack */
 	TestBreak(test_alloc_code_stack);
 	TestBreak(test_code_stack_local);
@@ -752,25 +751,24 @@ static int testbreak_code_queue(void)
 	TestBreak(test_code_queue_pop_make);
 	TestBreak(test_code_queue_pop_code);
 	TestBreak(test_code_queue_pop);
-#endif
 
 	return 0;
 }
 
 static void test_build_eval_scope(void)
 {
-	addr pos, when;
+	addr control;
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	push_new_control(ptr, &pos);
-	GetConstant(CONSTANT_COMMON_EVAL, &when);
-	push_toplevel_eval(ptr, T);
-	push_evalwhen_eval(ptr);
+	push_new_control(ptr, &control);
+	init_eval_when(ptr);
 }
+#endif
 
 int test_code_queue(void)
 {
+#if 0
 	int result;
 	lispcode code;
 	Execute ptr;
@@ -809,5 +807,7 @@ int test_code_queue(void)
 	lisp_info_enable = 1;
 
 	return result;
+#endif
+	return 0;
 }
 

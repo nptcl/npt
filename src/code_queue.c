@@ -3,7 +3,7 @@
 #include "code_queue.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "eval.h"
+#include "eval_object.h"
 #include "eval_table.h"
 #include "memory.h"
 

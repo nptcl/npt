@@ -3,6 +3,7 @@
 #include "cons_list.h"
 #include "constant.h"
 #include "eval_copy.h"
+#include "eval_object.h"
 #include "function.h"
 #include "optimize.h"
 #include "parse.h"
@@ -3141,23 +3142,27 @@ static int checkparse_eval_when_all(struct optimize_struct *str)
 
 static int optparse_eval_when_all(struct optimize_struct *str)
 {
-	addr pos, body, compilep, loadp, evalp;
+	addr pos, cons, compile, load, exec, toplevel, mode;
 
 	if (! checkparse_eval_when_all(str))
 		return 0;
 	pos = str->pos;
-	GetEvalParse(pos, 0, &body);
-	GetEvalParse(pos, 1, &compilep);
-	GetEvalParse(pos, 2, &loadp);
-	GetEvalParse(pos, 3, &evalp);
+	GetEvalParse(pos, 0, &cons);
+	GetEvalParse(pos, 1, &compile);
+	GetEvalParse(pos, 2, &load);
+	GetEvalParse(pos, 3, &exec);
+	GetEvalParse(pos, 4, &toplevel);
+	GetEvalParse(pos, 5, &mode);
 
-	if (! optparse_implicit_declare(str, Nil, body, &body))
+	if (! optparse_implicit_declare(str, Nil, cons, &cons))
 		return 0;
-	eval_parse_local(str->local, &pos, EVAL_PARSE_EVAL_WHEN, 4);
-	SetEvalParse(pos, 0, body);
-	SetEvalParse(pos, 1, compilep);
-	SetEvalParse(pos, 2, loadp);
-	SetEvalParse(pos, 3, evalp);
+	eval_parse_local(str->local, &pos, EVAL_PARSE_EVAL_WHEN, 6);
+	SetEvalParse(pos, 0, cons);
+	SetEvalParse(pos, 1, compile);
+	SetEvalParse(pos, 2, load);
+	SetEvalParse(pos, 3, exec);
+	SetEvalParse(pos, 4, toplevel);
+	SetEvalParse(pos, 5, mode);
 	str->pos = pos;
 
 	return 1;

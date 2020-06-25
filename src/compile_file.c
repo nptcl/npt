@@ -6,7 +6,7 @@
 #include "constant.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "eval.h"
+#include "eval_execute.h"
 #include "file.h"
 #include "files.h"
 #include "function.h"
@@ -107,7 +107,7 @@ static int compile_file_output_stream(Execute ptr,
 		fmte("Cannot open the output file ~S.", output, NULL);
 		return Result(ret, Nil);
 	}
-	setprotect_close_stream(ptr, input);
+	push_close_stream(ptr, input);
 	Return(compile_file_execute(ptr, input, output, rest, ret));
 	return free_control_(ptr, control);
 }
@@ -126,7 +126,7 @@ static int compile_file_input_stream(Execute ptr,
 		fmte("Cannot open the input file ~S.", input, NULL);
 		return Result(ret, Nil);
 	}
-	setprotect_close_stream(ptr, input);
+	push_close_stream(ptr, input);
 	Return(compile_file_output_stream(ptr, input, output, rest, ret));
 	return free_control_(ptr, control);
 }

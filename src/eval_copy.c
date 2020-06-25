@@ -3,6 +3,7 @@
 #include "cons_list.h"
 #include "copy.h"
 #include "declare.h"
+#include "eval_object.h"
 #include "eval_copy.h"
 #include "heap.h"
 #include "local.h"
@@ -693,22 +694,26 @@ static void copy_eval_the(LocalRoot local, addr *ret, addr eval)
 static void copy_eval_eval_when(LocalRoot local, addr *ret, addr eval)
 {
 	EvalParse type;
-	addr cons, compilep, loadp, evalp;
+	addr cons, compile, load, exec, toplevel, mode;
 
 	GetEvalParseType(eval, &type);
 	Check(type != EVAL_PARSE_EVAL_WHEN, "parse error");
 	GetEvalParse(eval, 0, &cons);
-	GetEvalParse(eval, 1, &compilep);
-	GetEvalParse(eval, 2, &loadp);
-	GetEvalParse(eval, 3, &evalp);
+	GetEvalParse(eval, 1, &compile);
+	GetEvalParse(eval, 2, &load);
+	GetEvalParse(eval, 3, &exec);
+	GetEvalParse(eval, 4, &toplevel);
+	GetEvalParse(eval, 5, &mode);
 
 	copy_eval_allcons(local, &cons, cons);
 
-	eval_parse_alloc(local, &eval, type, 4);
+	eval_parse_alloc(local, &eval, type, 6);
 	SetEvalParse(eval, 0, cons);
-	SetEvalParse(eval, 1, compilep);
-	SetEvalParse(eval, 2, loadp);
-	SetEvalParse(eval, 3, evalp);
+	SetEvalParse(eval, 1, compile);
+	SetEvalParse(eval, 2, load);
+	SetEvalParse(eval, 3, exec);
+	SetEvalParse(eval, 4, toplevel);
+	SetEvalParse(eval, 5, mode);
 	*ret = eval;
 }
 

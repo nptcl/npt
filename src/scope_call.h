@@ -24,8 +24,6 @@ _g int scope_block_call(Execute ptr, addr name, addr cons,
 		addr *rname, addr *rcons, addr *rtype);
 _g int scope_return_from_call(Execute ptr,
 		addr name, addr form, addr *rname, addr *rexpr);
-_g int scope_eval_when_call(Execute ptr,
-		addr cons, addr compilep, addr loadp, addr evalp, addr *ret);
 _g void scope_init_mvbind(struct mvbind_struct *str);
 _g int scope_multiple_value_bind_call(Execute ptr, struct mvbind_struct *str);
 _g int scope_multiple_value_call_call(Execute ptr, addr expr, addr cons, addr *ret);

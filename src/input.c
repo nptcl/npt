@@ -46,7 +46,7 @@ static int readlist_unwind_protect_(Execute ptr, addr file, addr *ret)
 	localhold_push(hold, stream);
 	/* finalize */
 	push_new_control(ptr, &control);
-	setprotect_close_stream(ptr, stream);
+	push_close_stream(ptr, stream);
 	/* code */
 	Return(readlist_loop(ptr, stream, ret));
 	localhold_set(hold, 0, *ret);

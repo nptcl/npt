@@ -322,6 +322,43 @@ static int pprint_dispatch_vector(Execute ptr, addr stream, addr pos)
 
 
 /*
+ *  dispatch-quote
+ */
+static int pprint_dispatch_quote2(Execute ptr)
+{
+	addr stream, pos;
+
+	getdata_control(ptr, &stream);
+	Check(! pretty_stream_p(stream), "type error");
+	Return(check_pretty_stream(ptr, stream));
+	/* body */
+	write_char_stream(stream, '\'');
+	Return(pprint_pop_common(ptr, stream, &pos));  /* quote */
+	Return(pprint_pop_common(ptr, stream, &pos));
+	Return(write_print(ptr, stream, pos));
+
+	return 0;
+}
+
+static int pprint_dispatch_quote1(Execute ptr)
+{
+	return pprint_logical_block_type(ptr, p_pprint_dispatch_quote2);
+}
+
+static int pprint_dispatch_quote(Execute ptr, addr stream, addr list)
+{
+	/* (defun dispatch-quote (*standard-outupt* list)
+	 *   (pprint-logical-block (nil list)
+	 *     ;; name
+	 *     (write-char #\')
+	 *     (pprint-pop) ;; quote
+	 *     (write (pprint-pop))))
+	 */
+	return pprint_type_print(ptr, stream, list, 0, p_pprint_dispatch_quote1);
+}
+
+
+/*
  *  dispatch-call
  */
 static int pprint_dispatch_call2(Execute ptr)
@@ -592,6 +629,10 @@ _g void init_print_function(void)
 	SetPointerType(empty, pprint_dispatch_vector2);
 	SetPointerType(empty, pprint_dispatch_vector1);
 	SetPointerType(var2, pprint_dispatch_vector);
+	/* dispatch-quote */
+	SetPointerType(empty, pprint_dispatch_quote2);
+	SetPointerType(empty, pprint_dispatch_quote1);
+	SetPointerType(var2, pprint_dispatch_quote);
 	/* dispatch-call */
 	SetPointerType(empty, pprint_dispatch_call2);
 	SetPointerType(empty, pprint_dispatch_call1);

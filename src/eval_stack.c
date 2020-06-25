@@ -7,7 +7,7 @@
 #include "control_object.h"
 #include "copy.h"
 #include "declare.h"
-#include "eval.h"
+#include "eval_object.h"
 #include "eval_stack.h"
 #include "eval_table.h"
 #include "function.h"

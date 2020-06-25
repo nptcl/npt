@@ -365,6 +365,38 @@ static void build_print_dispatch_vector(LocalRoot local, addr dispatch)
 	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
 }
 
+static void build_print_dispatch_quote(LocalRoot local, addr dispatch)
+{
+	/* (system::set-pprint-dispatch
+	 *   '(cons (eql quote) (cons t null))
+	 *   type #<FUNCTION> -4 dispatch)
+	 */
+	addr spec, type, call, priority;
+	addr cons, car, eql, quote, null;
+
+	/* spec */
+	GetConst(COMMON_CONS, &cons);
+	GetConst(COMMON_EQL, &eql);
+	GetConst(COMMON_QUOTE, &quote);
+	GetConst(COMMON_NULL, &null);
+	list_heap(&spec, cons, T, null, NULL);
+	list_heap(&car, eql, quote, NULL);
+	list_heap(&spec, cons, car, spec, NULL);
+	/* type */
+	GetTypeTable(&type, T);
+	GetTypeTable(&null, Null);
+	type2_heap(LISPDECL_CONS, type, null, &type);
+	type_eql_heap(quote, &car);
+	type2_heap(LISPDECL_CONS, car, type, &type);
+	/* function */
+	make_print_dispatch_function(&call,
+			CONSTANT_SYSTEM_DISPATCH_QUOTE,
+			p_pprint_dispatch_quote);
+	/* set */
+	fixnum_heap(&priority, 0);
+	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
+}
+
 static void build_print_dispatch_call(LocalRoot local, addr dispatch)
 {
 	/* (system::set-pprint-dispatch
@@ -464,6 +496,7 @@ _g void build_print_dispatch(void)
 	/* build */
 	build_print_dispatch_cons(local, dispatch);
 	build_print_dispatch_vector(local, dispatch);
+	build_print_dispatch_quote(local, dispatch);
 	build_print_dispatch_call(local, dispatch);
 	build_print_dispatch_defun(local, dispatch);
 	build_print_dispatch_let(local, dispatch);

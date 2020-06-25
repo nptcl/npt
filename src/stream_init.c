@@ -80,7 +80,7 @@ static int finalize_close_stream(Execute ptr)
 	return 0;
 }
 
-_g void setprotect_close_stream(Execute ptr, addr stream)
+_g void push_close_stream(Execute ptr, addr stream)
 {
 	setprotect_control(ptr, p_finalize_close_stream, stream);
 }

@@ -1,4 +1,6 @@
 #include "optimize.c"
+
+#if 0
 #include "bignum.h"
 #include "character.h"
 #include "clos.h"
@@ -21,7 +23,6 @@
 #include "type.h"
 #include "type_table.h"
 
-#if 0
 /*
  *  optstruct
  */
@@ -3917,7 +3918,6 @@ static int test_optimize_call(void)
 
 	RETURN;
 }
-#endif
 
 
 /*
@@ -3925,7 +3925,6 @@ static int test_optimize_call(void)
  */
 static int testbreak_optimize(void)
 {
-#if 0
 	/* optstruct */
 	TestBreak(test_initialize_optstruct);
 	TestBreak(test_save_optstruct);
@@ -4077,13 +4076,14 @@ static int testbreak_optimize(void)
 	TestBreak(test_optimize_locally_decl);
 	TestBreak(test_optimize_call);
 	TestBreak(test_optimize_multiple_value_call);
-#endif
 
 	return 0;
 }
+#endif
 
 int test_optimize(void)
 {
+#if 0
 	int result;
 	lispcode code;
 	Execute ptr;
@@ -4121,5 +4121,7 @@ int test_optimize(void)
 	lisp_info_enable = 1;
 
 	return result;
+#endif
+	return 0;
 }
 

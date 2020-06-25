@@ -2,6 +2,7 @@
 #include "bignum.h"
 #include "callname.h"
 #include "call_objects.h"
+#include "call_eval.h"
 #include "clos.h"
 #include "cmpl.h"
 #include "condition.h"
@@ -17,7 +18,7 @@
 #include "env_code.h"
 #include "env_time.h"
 #include "equal.h"
-#include "eval.h"
+#include "eval_execute.h"
 #include "files.h"
 #include "format.h"
 #include "function.h"
@@ -313,8 +314,7 @@ _g int defsetf_short_syscode(Execute ptr,
 		addr access, addr update, addr args, addr env,
 		addr *r1, addr *r2, addr *r3, addr *r4, addr *r5)
 {
-	int check;
-	addr a, b, g, w, r, pos, v;
+	addr check, a, b, g, w, r, pos, v;
 	LocalHold hold;
 
 	if (env == Unbound)
@@ -332,9 +332,9 @@ _g int defsetf_short_syscode(Execute ptr,
 		if (! consp(args))
 			return fmte_("Invalid call argument ~S.", args, NULL);
 		GetCons(args, &pos, &args);
-		if (eval_constantp(ptr, pos, env, &check))
+		if (constantp_common(ptr, pos, env, &check))
 			return 1;
-		if (check) {
+		if (check != Nil) {
 			cons_heap(&w, pos, w);
 			cons_heap(&r, pos, r);
 		}

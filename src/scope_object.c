@@ -2,7 +2,7 @@
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
-#include "eval.h"
+#include "eval_object.h"
 #include "eval_stack.h"
 #include "eval_table.h"
 #include "heap.h"
@@ -129,7 +129,7 @@ _g void setevalscopeindex(addr pos, size_t index, addr value)
  */
 _g eval_scope_calltype EvalScopeTable[EVAL_PARSE_SIZE];
 
-static int scope_eval_table(Execute ptr, addr *ret, addr eval)
+_g int scope_eval(Execute ptr, addr *ret, addr eval)
 {
 	EvalParse type;
 	eval_scope_calltype call;
@@ -141,50 +141,6 @@ static int scope_eval_table(Execute ptr, addr *ret, addr eval)
 		return 0;
 	}
 	return (*call)(ptr, ret, eval);
-}
-
-static int scope_eval_downlevel(Execute ptr, addr *ret, addr eval)
-{
-	addr symbol, value;
-
-	symbol_toplevel_eval(&symbol);
-	getspecialcheck_local(ptr, symbol, &value);
-	setspecial_local(ptr, symbol, Nil);
-	Return(scope_eval_table(ptr, ret, eval));
-	setspecial_local(ptr, symbol, value);
-
-	return 0;
-}
-
-_g int scope_eval(Execute ptr, addr *ret, addr eval)
-{
-	LocalHold hold;
-
-	Check(GetType(eval) != LISPTYPE_EVAL, "type error");
-	Check(RefEvalType(eval) != EVAL_TYPE_PARSE, "eval type error");
-
-	/* toplevel form */
-	hold = LocalHold_local_push(ptr, eval);
-	switch (RefEvalParseType(eval)) {
-		case EVAL_PARSE_PROGN:
-			Return(scope_progn(ptr, ret, eval));
-			break;
-
-		case EVAL_PARSE_LOCALLY:
-			Return(scope_locally(ptr, ret, eval));
-			break;
-
-		case EVAL_PARSE_EVAL_WHEN:
-			Return(scope_eval_when(ptr, ret, eval));
-			break;
-
-		default:
-			Return(scope_eval_downlevel(ptr, ret, eval));
-			break;
-	}
-	localhold_end(hold);
-
-	return 0;
 }
 
 _g int scope_allcons(Execute ptr, addr *retcons, addr *rettype, addr cons)

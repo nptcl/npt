@@ -1,4 +1,6 @@
 #include "parse_function.c"
+
+#if 0
 #include "bignum.h"
 #include "character.h"
 #include "clos.h"
@@ -1808,9 +1810,11 @@ static int testbreak_parse_function(void)
 
 	return 0;
 }
+#endif
 
 int test_parse_function(void)
 {
+#if 0
 	int result;
 	lispcode code;
 	Execute ptr;
@@ -1848,5 +1852,7 @@ int test_parse_function(void)
 	lisp_info_enable = 1;
 
 	return result;
+#endif
+	return 0;
 }
 

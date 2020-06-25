@@ -1,6 +1,7 @@
 #include "callname.h"
 #include "condition.h"
 #include "control_object.h"
+#include "eval_execute.h"
 #include "gc.h"
 #include "integer.h"
 #include "parse.h"
@@ -52,7 +53,16 @@ _g int tagbody_tag_p(addr pos)
 /*
  *  eval-parse
  */
-_g int eval_parse(Execute ptr, addr *ret, addr pos)
+static void init_parse_eval_when(Execute ptr, addr toplevel)
+{
+	push_toplevel_eval(ptr, toplevel);
+	push_compile_time_eval(ptr, Nil);
+	push_compile_toplevel_eval(ptr, Nil);
+	push_load_toplevel_eval(ptr, T);
+	push_execute_eval(ptr, T);
+}
+
+_g int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel)
 {
 	addr control;
 	LocalHold hold;
@@ -62,6 +72,7 @@ _g int eval_parse(Execute ptr, addr *ret, addr pos)
 	init_parse_environment(ptr);
 	init_parse_load_time_value(ptr);
 	init_parse_make_load_form(ptr);
+	init_parse_eval_when(ptr, toplevel);
 	Return(parse_execute(ptr, &pos, pos));
 	localhold_set(hold, 0, pos);
 	Return(eval_parse_load_time_value(ptr, &pos, pos));

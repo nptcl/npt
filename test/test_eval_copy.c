@@ -22,6 +22,11 @@
 #include "syscall.h"
 #include "type_table.h"
 
+static void test_eval_copy_parse(addr *ret, addr pos)
+{
+	eval_parse(Execute_Thread, ret, pos, Nil);
+}
+
 /*
  *  copy eval-parse
  */
@@ -35,7 +40,7 @@ static int test_copy_eval_single(void)
 	push_local(local, &stack);
 
 	readstring(&pos, "t");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_single(NULL, &pos, pos);
 	test(! GetStatusDynamic(pos), "copy_eval_single1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_T, "copy_eval_single2");
@@ -63,7 +68,7 @@ static int test_copy_nil(void)
 	addr pos;
 
 	readstring(&pos, "nil");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_nil1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_NIL, "copy_nil2");
@@ -77,7 +82,7 @@ static int test_copy_t(void)
 	addr pos;
 
 	readstring(&pos, "t");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_t1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_T, "copy_t2");
@@ -91,7 +96,7 @@ static int test_copy_integer(void)
 	addr pos;
 
 	fixnum_heap(&pos, 100);
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_integer1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_INTEGER, "copy_integer2");
@@ -106,7 +111,7 @@ static int test_copy_string(void)
 	addr pos;
 
 	strvect_char_heap(&pos, "Hello");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_string1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_STRING, "copy_string2");
@@ -121,7 +126,7 @@ static int test_copy_symbol(void)
 	addr pos;
 
 	readstring(&pos, "hello");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_symbol1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_SYMBOL, "copy_symbol2");
@@ -138,7 +143,7 @@ static int test_copy_float(void)
 	addr pos;
 
 	readstring(&pos, "10.5s0");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_float1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_FLOAT, "copy_float2");
@@ -154,7 +159,7 @@ static int test_copy_function(void)
 	addr pos;
 
 	readstring(&pos, "#'hello");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_function1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_FUNCTION, "copy_function2");
@@ -172,7 +177,7 @@ static int test_copy_quote(void)
 	addr pos;
 
 	readstring(&pos, "'hello");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_quote1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_QUOTE, "copy_quote2");
@@ -189,7 +194,7 @@ static int test_copy_go(void)
 	addr pos;
 
 	readstring(&pos, "(go hello)");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_go1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_GO, "copy_go2");
@@ -206,7 +211,7 @@ static int test_copy_declaim(void)
 	addr pos;
 
 	readstring(&pos, "(declaim (special aaa))");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_declaim1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_DECLAIM, "copy_declaim2");
@@ -226,7 +231,7 @@ static int test_copy_allcons(void)
 	push_local(local, &stack);
 
 	readstring(&pos, "(progn 10 20 30)");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	GetEvalParse(pos, 0, &pos);
 
 	copy_eval_allcons(NULL, &pos, pos);
@@ -250,7 +255,7 @@ static int test_copy_allcons(void)
 	test(pos == Nil, "copy_allcons9");
 
 	readstring(&pos, "(progn 10 20 30)");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	GetEvalParse(pos, 0, &pos);
 
 	copy_eval_allcons(local, &pos, pos);
@@ -271,7 +276,7 @@ static int test_copy_progn(void)
 	addr pos;
 
 	readstring(&pos, "(progn 10 20 30)");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_progn1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_PROGN, "copy_progn2");
@@ -286,7 +291,7 @@ static int test_copy_let(void)
 	addr pos, check, var, init, sym;
 
 	readstring(&pos, "(let (a (b 100)) (declare (special a)) :hello)");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_let1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_LET, "copy_let2");
@@ -313,7 +318,7 @@ static int test_copy_let(void)
 	test(RefEvalParseType(check) == EVAL_PARSE_SYMBOL, "copy_let10");
 
 	readstring(&pos, "(let* (a (b 100)) (declare (special a)) :hello)");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(RefEvalParseType(pos) == EVAL_PARSE_LETA, "copy_let11");
 
@@ -325,7 +330,7 @@ static int test_copy_setq(void)
 	addr pos, symbol, value, check;
 
 	readstring(&pos, "(setq aaa 10 bbb 20)");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_setq1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_SETQ, "copy_setq2");
@@ -495,7 +500,7 @@ static int test_copy_defun(void)
 	addr pos, symbol, check;
 
 	readstring(&pos, "(defun aa (bb) (declare (special cc)) \"DOC\" 10 20)");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_defun1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_DEFUN, "copy_defun2");
@@ -530,7 +535,7 @@ static int test_copy_lambda(void)
 	addr pos, symbol, check;
 
 	readstring(&pos, "#'(lambda (bb) (declare (special cc)) \"DOC\" 10 20)");
-	eval_parse(Execute_Thread, &pos, pos);
+	test_eval_copy_parse(&pos, pos);
 	copy_eval_parse_heap(&pos, pos);
 	test(! GetStatusDynamic(pos), "copy_lambda1");
 	test(RefEvalParseType(pos) == EVAL_PARSE_LAMBDA, "copy_lambda2");
@@ -561,7 +566,7 @@ static int test_copy_if(void)
 	addr pos, var, check;
 
 	readstring(&check, "(if aa bb cc)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_if1");
 	test(! GetStatusDynamic(pos), "copy_if2");
@@ -593,7 +598,7 @@ static int test_copy_unwind_protect(void)
 	addr pos, var, check;
 
 	readstring(&check, "(unwind-protect aa bb cc)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_unwind_protect1");
 	test(! GetStatusDynamic(pos), "copy_unwind_protect2");
@@ -621,7 +626,7 @@ static int test_copy_tagbody(void)
 	addr pos, var, check;
 
 	readstring(&check, "(tagbody aa (progn) (hello) cc)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_tagbody1");
 	test(! GetStatusDynamic(pos), "copy_tagbody2");
@@ -649,7 +654,7 @@ static int test_copy_tag(void)
 	addr pos, var, check;
 
 	readstring(&check, "(tagbody aa bb cc)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	GetEvalParse(check, 0, &check);
 	GetCar(check, &check); /* tag aa */
 	copy_eval_parse_heap(&pos, check);
@@ -669,7 +674,7 @@ static int test_copy_block(void)
 	addr pos, var, check;
 
 	readstring(&check, "(block aa bb cc)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_block1");
 	test(! GetStatusDynamic(pos), "copy_block2");
@@ -695,7 +700,7 @@ static int test_copy_return_from(void)
 	addr pos, var, check;
 
 	readstring(&check, "(return-from aa bb)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_return_from1");
 	test(! GetStatusDynamic(pos), "copy_return_from2");
@@ -719,7 +724,7 @@ static int test_copy_catch(void)
 	addr pos, var, check;
 
 	readstring(&check, "(catch aa bb cc)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_catch1");
 	test(! GetStatusDynamic(pos), "copy_catch2");
@@ -747,7 +752,7 @@ static int test_copy_throw(void)
 	addr pos, var, check;
 
 	readstring(&check, "(throw aa bb)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_throw1");
 	test(! GetStatusDynamic(pos), "copy_throw2");
@@ -773,7 +778,7 @@ static int test_copy_eval_flet_one(void)
 	addr pos, var, check;
 
 	readstring(&check, "(flet ((aa (bb) (declare (special bb)) \"HELLO\" :hello)))");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	GetEvalParse(check, 0, &check); /* args */
 	GetCar(check, &check);
 	copy_eval_flet_one(NULL, &pos, check);
@@ -810,7 +815,7 @@ static int test_copy_eval_flet_args(void)
 	addr pos, var, check;
 
 	readstring(&check, "(flet ((aa () :aa) (bb (b) :bb)) :hello)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	GetEvalParse(check, 0, &check); /* args */
 	copy_eval_flet_args(NULL, &pos, check);
 	test(check != pos, "copy_eval_flet_args1");
@@ -839,7 +844,7 @@ static int test_copy_eval_flet(void)
 
 	/* flet */
 	readstring(&check, "(flet ((aa () :aa)) (declare (special bb)) :hello)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_eval_flet1");
 	test(! GetStatusDynamic(pos), "copy_eval_flet2");
@@ -861,7 +866,7 @@ static int test_copy_eval_flet(void)
 
 	/* labels */
 	readstring(&check, "(labels ((aa () :aa) (bb (cc) dd)) :hello)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_eval_flet9");
 	test(! GetStatusDynamic(pos), "copy_eval_flet10");
@@ -878,7 +883,7 @@ static int test_copy_the(void)
 	addr pos, var, check;
 
 	readstring(&check, "(the integer (progn aa bb cc))");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_the1");
 	test(! GetStatusDynamic(pos), "copy_the2");
@@ -899,7 +904,7 @@ static int test_copy_eval_when(void)
 	addr pos, var, check;
 
 	readstring(&check, "(eval-when (eval compile) :hello1 :hello2)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_eval_when1");
 	test(! GetStatusDynamic(pos), "copy_eval_when2");
@@ -930,7 +935,7 @@ static int test_copy_values(void)
 	addr pos, var, check;
 
 	readstring(&check, "(values 10 20 30)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_values1");
 	test(! GetStatusDynamic(pos), "copy_values2");
@@ -951,7 +956,7 @@ static int test_copy_locally(void)
 	addr pos, var, check;
 
 	readstring(&check, "(locally (declare (special a)) 10 20)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_locally1");
 	test(! GetStatusDynamic(pos), "copy_locally2");
@@ -975,7 +980,7 @@ static int test_copy_call(void)
 	addr pos, var, check;
 
 	readstring(&check, "(hello 10 20)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_call1");
 	test(! GetStatusDynamic(pos), "copy_call2");
@@ -1004,7 +1009,7 @@ static int test_copy_multiple_value_bind(void)
 	addr check, pos;
 
 	readstring(&check, "(multiple-value-bind (a b c) (call) 10 20 30)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_multiple_value_bind1");
 	test(! GetStatusDynamic(pos), "copy_multiple_value_bind2");
@@ -1019,7 +1024,7 @@ static int test_copy_multiple_value_call(void)
 	addr pos, var, check;
 
 	readstring(&check, "(multiple-value-call #'hello 10 20)");
-	eval_parse(Execute_Thread, &check, check);
+	test_eval_copy_parse(&check, check);
 	copy_eval_parse_heap(&pos, check);
 	test(check != pos, "copy_multiple_value_call1");
 	test(! GetStatusDynamic(pos), "copy_multiple_value_call2");

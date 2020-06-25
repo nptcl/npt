@@ -6,7 +6,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "declare.h"
-#include "eval.h"
+#include "eval_execute.h"
 #include "function.h"
 #include "hold.h"
 #include "lambda.h"
@@ -30,13 +30,7 @@ _g void lambda_common(addr form, addr *ret)
  */
 _g int eval_common(Execute ptr, addr var)
 {
-	addr control;
-
-	push_new_control(ptr, &control);
-	push_toplevel_eval(ptr, Nil);
-	push_evalwhen_eval(ptr);
-	Return(eval_execute(ptr, var));
-	return free_control_(ptr, control);
+	return eval_execute_partial(ptr, var);
 }
 
 
@@ -430,6 +424,39 @@ _g int declaim_common(Execute ptr, addr form, addr env, addr *ret)
 /*
  *  constantp
  */
+static int eval_constantp_stable(addr var)
+{
+	addr check;
+
+	switch (GetType(var)) {
+		case LISPTYPE_CONS:
+			GetCar(var, &var);
+			GetConst(COMMON_QUOTE, &check);
+			return check == var;
+
+		case LISPTYPE_SYMBOL:
+			if (keywordp(var))
+				return 1;
+			return GetStatusReadOnly(var);
+
+		default:
+			return 1;
+	}
+}
+
+static int eval_constantp(Execute ptr, addr var, addr env, int *ret)
+{
+	int check;
+	addr pos;
+
+	Return(macroexpand(ptr, &pos, var, env, &check));
+	if (check)
+		var = pos;
+	*ret = eval_constantp_stable(var);
+
+	return 0;
+}
+
 _g int constantp_common(Execute ptr, addr var, addr opt, addr *ret)
 {
 	int check;

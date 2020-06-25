@@ -6,7 +6,7 @@
 
 _g void init_stream(void);
 _g void build_stream(void);
-_g void setprotect_close_stream(Execute ptr, addr stream);
+_g void push_close_stream(Execute ptr, addr stream);
 
 #endif
 

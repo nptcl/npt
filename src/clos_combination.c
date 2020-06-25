@@ -7,7 +7,7 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "eval.h"
+#include "eval_execute.h"
 #include "hold.h"
 #include "lambda.h"
 #include "object.h"
@@ -1259,6 +1259,7 @@ _g int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 	getresult_control(ptr, &pos);
 	localhold_set(hold, 0, pos);
 	Return(free_control_(ptr, control));
+	localhold_end(hold);
 
 	/* make-form */
 	make_symbolchar(&args, "ARGS");
@@ -1266,14 +1267,7 @@ _g int comb_longform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 	comb_longform_macrolet(&pos, args, gen, pos);
 
 	/* eval */
-	push_new_control(ptr, &control);
-	Return(eval_execute(ptr, pos));
-	getresult_control(ptr, ret);
-	localhold_set(hold, 0, pos);
-	Return(free_control_(ptr, control));
-	localhold_end(hold);
-
-	return 0;
+	return eval_result_partial(ptr, pos, ret);
 }
 
 static void comb_shortform_primary(addr *ret, addr comb, addr list)
@@ -1349,8 +1343,7 @@ static void comb_shortform_make(addr *ret, addr comb, addr data)
 
 _g int comb_shortform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 {
-	addr control, pos, args;
-	LocalHold hold;
+	addr pos, args;
 
 	/* make-form */
 	make_symbolchar(&args, "ARGS");
@@ -1358,14 +1351,6 @@ _g int comb_shortform(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 	comb_longform_macrolet(&pos, args, gen, pos);
 
 	/* eval */
-	hold = LocalHold_array(ptr, 1);
-	push_new_control(ptr, &control);
-	Return(eval_execute(ptr, pos));
-	getresult_control(ptr, ret);
-	localhold_set(hold, 0, *ret);
-	Return(free_control_(ptr, control));
-	localhold_end(hold);
-
-	return 0;
+	return eval_result_partial(ptr, pos, ret);
 }
 

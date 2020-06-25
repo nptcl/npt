@@ -2,6 +2,7 @@
 #include "copy.h"
 #include "equal.h"
 #include "eval.h"
+#include "eval_object.h"
 #include "eval_table.h"
 #include "execute_object.h"
 #include "heap.h"

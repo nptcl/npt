@@ -7,7 +7,8 @@
 #include "copy.h"
 #include "extern_control.h"
 #include "extern_object.h"
-#include "eval.h"
+#include "eval_execute.h"
+#include "eval_main.h"
 #include "execute.h"
 #include "format.h"
 #include "function.h"
@@ -38,7 +39,7 @@ int lisp_free_control(addr control)
 
 int lisp_eval_control(addr eval)
 {
-	return eval_execute(Execute_Thread, eval);
+	return eval_execute_partial(Execute_Thread, eval);
 }
 
 int lisp_eval_string_control(addr eval)

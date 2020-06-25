@@ -1,7 +1,7 @@
 #ifndef __PARSE_OBJECT_HEADER__
 #define __PARSE_OBJECT_HEADER__
 
-#include "eval.h"
+#include "eval_object.h"
 #include "local.h"
 #include "parse_typedef.h"
 #include "typedef.h"

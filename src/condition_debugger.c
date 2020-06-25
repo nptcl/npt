@@ -7,7 +7,7 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "eval.h"
+#include "eval_execute.h"
 #include "eval_main.h"
 #include "format.h"
 #include "function.h"
@@ -187,7 +187,7 @@ static int eval_debugger(Execute ptr, addr io, addr eval)
 	addr control;
 
 	push_new_control(ptr, &control);
-	Return(eval_execute(ptr, eval));
+	Return(eval_execute_partial(ptr, eval));
 	Return(eval_loop_output(ptr, io, control));
 	return free_control_(ptr, control);
 }

@@ -745,55 +745,6 @@ _g int scope_return_from_call(Execute ptr,
 }
 
 
-/*
- *  eval-when
- */
-static int eval_when_check(Execute ptr, addr compilep, addr loadp, addr evalp)
-{
-	addr when, check;
-
-	/* eval :execute */
-	getevalwhen_eval(ptr, &when);
-	GetConst(COMMON_EVAL, &check);
-	if (when == check && evalp == T)
-		return 1;
-
-	/* toplevel */
-	gettoplevel_eval(ptr, &check);
-	if (check == Nil)
-		return 0;
-
-	/* load :load-toplevel */
-	GetConst(COMMON_LOAD, &check);
-	if (when == check && loadp == T)
-		return 1;
-
-	/* compile :compile-toplevel */
-	GetConst(COMMON_COMPILE, &check);
-	if (when == check && compilep == T)
-		return 1;
-
-	return 0;
-}
-
-_g int scope_eval_when_call(Execute ptr,
-		addr cons, addr compilep, addr loadp, addr evalp, addr *ret)
-{
-	addr type;
-
-	if (eval_when_check(ptr, compilep, loadp, evalp)) {
-		Return(scope_allcons(ptr, &cons, &type, cons));
-		make_eval_scope(ptr, ret, EVAL_PARSE_PROGN, type, cons);
-	}
-	else {
-		type0_heap(LISPDECL_EMPTY, &type);
-		make_eval_scope(ptr, ret, EVAL_PARSE_NIL, type, Nil);
-	}
-
-	return 0;
-}
-
-
 /* multiple-value-bind */
 _g void scope_init_mvbind(struct mvbind_struct *str)
 {

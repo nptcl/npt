@@ -2,7 +2,7 @@
 #define __EVAL_STACK_HEADER__
 
 #include "declare.h"
-#include "eval.h"
+#include "eval_object.h"
 #include "local.h"
 
 enum EVAL_STACK {

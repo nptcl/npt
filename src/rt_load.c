@@ -12,7 +12,7 @@
 #include "control_operator.h"
 #include "declare.h"
 #include "degrade.h"
-#include "eval.h"
+#include "eval_execute.h"
 #include "file.h"
 #include "format.h"
 #include "heap.h"
@@ -26,42 +26,34 @@
 /*
  *  Main
  */
-static int rtload_execute(Execute ptr, addr stream)
+static int rtload_execute(Execute ptr, addr stream, int *ret)
 {
 	addr pos;
 
-	gchold_push_local(ptr->local, stream);
-	/* test execute */
-	push_toplevel_eval(ptr, T);
-	push_evalwhen_load(ptr);
-	eval_stream(ptr, stream);
-	close_stream(stream);
-	/* result check */
+	push_close_stream(ptr, stream);
+	Return(eval_stream_toplevel(ptr, stream));
 	getresult_control(ptr, &pos);
 
-	return pos != T;
+	return Result(ret, pos != T);
 }
 
-static int rtload_pathname(Execute ptr, addr file)
+static int rtload_pathname(Execute ptr, addr file, int *ret)
 {
-	int check;
 	addr path, stream;
 
 	/* load name */
-	check = open_input_stream(ptr, &stream, file);
-	if (! check)
-		return rtload_execute(ptr, stream);
+	if (open_input_stream(ptr, &stream, file)) {
+		/* load "test/" name */
+		parse_pathname_char_heap(ptr, "test/", &path);
+		merge_pathnames_clang(ptr, file, path, Unbound, &file);
+		name_pathname_heap(ptr, file, &file);
+		open_input_stream_error(ptr, &stream, file); /* force */
+	}
 
-	/* load "test/" name */
-	parse_pathname_char_heap(ptr, "test/", &path);
-	merge_pathnames_clang(ptr, file, path, Unbound, &file);
-	name_pathname_heap(ptr, file, &file);
-	open_input_stream_error(ptr, &stream, file); /* force */
-
-	return rtload_execute(ptr, stream);
+	return rtload_execute(ptr, stream, ret);
 }
 
-static int loadrt_init(Execute ptr, const char *name)
+static int loadrt_init(Execute ptr, const char *name, int *ret)
 {
 	addr package, symbol, use, file;
 
@@ -78,7 +70,7 @@ static int loadrt_init(Execute ptr, const char *name)
 	use_package(package, use);
 	/* load-rt */
 	parse_pathname_char_heap(ptr, name, &file);
-	return rtload_pathname(ptr, file);
+	return rtload_pathname(ptr, file, ret);
 }
 
 static void loadrt_disable_debugger(Execute ptr)
@@ -96,6 +88,7 @@ static void loadrt_declare_optimize(void)
 
 static int loadrt_execute(Execute ptr, const char *name)
 {
+	int check;
 	addr control;
 	codejump jump;
 
@@ -105,7 +98,9 @@ static int loadrt_execute(Execute ptr, const char *name)
 		handler_warning(ptr);
 		loadrt_disable_debugger(ptr);
 		loadrt_declare_optimize();
-		Return(loadrt_init(ptr, name));
+		Return(loadrt_init(ptr, name, &check));
+		if (check)
+			fmte("result code error.", NULL);
 	}
 	end_switch(&jump);
 	Return(free_control_(ptr, control));

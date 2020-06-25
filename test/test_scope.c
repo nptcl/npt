@@ -1,4 +1,6 @@
 #include "scope.c"
+
+#if 0
 #include "array.h"
 #include "array_make.h"
 #include "bignum.h"
@@ -25,7 +27,6 @@
 #include "type.h"
 #include "type_table.h"
 
-#if 0
 /*
  *  memory
  */
@@ -6575,7 +6576,6 @@ static int test_scope_multiple_value_call(void)
 
 	RETURN;
 }
-#endif
 
 
 /*
@@ -6583,7 +6583,6 @@ static int test_scope_multiple_value_call(void)
  */
 static int testbreak_scope(void)
 {
-#if 0
 	/* memory */
 	TestBreak(test_eval_scope_heap);
 	TestBreak(test_eval_scope_size);
@@ -6783,7 +6782,6 @@ static int testbreak_scope(void)
 	/* multiple-value-call */
 	TestBreak(test_function_result_type);
 	TestBreak(test_scope_multiple_value_call);
-#endif
 
 	return 0;
 }
@@ -6799,9 +6797,11 @@ static void test_build_scope(void)
 	push_toplevel_eval(ptr, T);
 	push_evalwhen_eval(ptr);
 }
+#endif
 
 int test_scope(void)
 {
+#if 0
 	int result;
 	lispcode code;
 	Execute ptr;
@@ -6840,5 +6840,8 @@ int test_scope(void)
 	lisp_info_enable = 1;
 
 	return result;
+#endif
+
+	return 0;
 }
 

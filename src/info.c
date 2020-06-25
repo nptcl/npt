@@ -8,7 +8,7 @@
 #include "clos_class.h"
 #include "code_object.h"
 #include "condition.h"
-#include "eval.h"
+#include "eval_object.h"
 #include "eval_stack.h"
 #include "function.h"
 #include "info.h"

@@ -2,7 +2,7 @@
 #include "condition.h"
 #include "control_object.h"
 #include "control_operator.h"
-#include "eval.h"
+#include "eval_execute.h"
 #include "eval_main.h"
 #include "execute.h"
 #include "format.h"
@@ -139,12 +139,9 @@ static int eval_loop_stream(Execute ptr, addr stream, addr pos)
 	addr control;
 
 	push_new_control(ptr, &control);
-	push_toplevel_eval(ptr, T);
-	push_evalwhen_eval(ptr);
 	eval_loop_minus(ptr, pos);
-	Return(eval_execute(ptr, pos));
+	Return(eval_execute_partial(ptr, pos));
 	Return(eval_loop_output(ptr, stream, pos));
-
 	return free_control_(ptr, control);
 }
 
@@ -279,17 +276,11 @@ _g int eval_main_loop_(Execute ptr)
  */
 static int evalcall_string_result_(Execute ptr, addr eval)
 {
-	addr stream, control;
-
-	push_new_control(ptr, &control);
-	push_toplevel_eval(ptr, T);
-	push_evalwhen_eval(ptr);
+	addr stream;
 
 	open_input_string_stream(&stream, eval);
-	setprotect_close_stream(ptr, stream);
-	Return(eval_stream(ptr, stream));
-
-	return free_control_(ptr, control);
+	push_close_stream(ptr, stream);
+	return eval_stream_partial(ptr, stream);
 }
 
 _g int eval_main_string_(Execute ptr, addr eval)
@@ -299,7 +290,6 @@ _g int eval_main_string_(Execute ptr, addr eval)
 	push_new_control(ptr, &control);
 	eval_main_restart_abort(&restart);
 	Return(restart1_control(ptr, restart, evalcall_string_result_, eval));
-
 	return free_control_(ptr, control);
 }
 

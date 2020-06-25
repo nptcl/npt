@@ -4,6 +4,7 @@
 #include "constant.h"
 #include "control_object.h"
 #include "control_operator.h"
+#include "eval_object.h"
 #include "eval_copy.h"
 #include "heap.h"
 #include "hold.h"

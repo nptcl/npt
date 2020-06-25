@@ -1,3 +1,4 @@
+#include "eval_object.h"
 #include "eval_stack.h"
 #include "load_time_value.h"
 #include "parse.h"
@@ -748,14 +749,26 @@ static int scope_throw(Execute ptr, addr *ret, addr eval)
 /* eval-when */
 _g int scope_eval_when(Execute ptr, addr *ret, addr eval)
 {
-	addr cons, compilep, loadp, evalp;
+	addr progn, type, compile, load, exec, toplevel, mode;
 
 	Check(! eval_parse_p(eval), "type error");
-	GetEvalParse(eval, 0, &cons);
-	GetEvalParse(eval, 1, &compilep);
-	GetEvalParse(eval, 2, &loadp);
-	GetEvalParse(eval, 3, &evalp);
-	return scope_eval_when_call(ptr, cons, compilep, loadp, evalp, ret);
+	GetEvalParse(eval, 0, &progn);
+	GetEvalParse(eval, 1, &compile);
+	GetEvalParse(eval, 2, &load);
+	GetEvalParse(eval, 3, &exec);
+	GetEvalParse(eval, 4, &toplevel);
+	GetEvalParse(eval, 5, &mode);
+
+	Return(scope_allcons(ptr, &progn, &type, progn));
+
+	eval_scope_size(ptr, &eval, 6, EVAL_PARSE_EVAL_WHEN, type, Nil);
+	SetEvalScopeIndex(eval, 0, progn);
+	SetEvalScopeIndex(eval, 1, compile);
+	SetEvalScopeIndex(eval, 2, load);
+	SetEvalScopeIndex(eval, 3, exec);
+	SetEvalScopeIndex(eval, 4, toplevel);
+	SetEvalScopeIndex(eval, 5, mode);
+	return Result(ret, eval);
 }
 
 

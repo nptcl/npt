@@ -1,7 +1,7 @@
 #ifndef __EVAL_MAIN_HEADER__
 #define __EVAL_MAIN_HEADER__
 
-#include "local.h"
+#include "execute.h"
 #include "typedef.h"
 
 typedef int (*eval_loop_calltype)(Execute, addr, addr, int *exit, int *exec);

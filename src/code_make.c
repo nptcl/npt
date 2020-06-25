@@ -5,7 +5,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "declare.h"
-#include "eval.h"
+#include "eval_object.h"
 #include "eval_table.h"
 #include "function.h"
 #include "optimize_common.h"
@@ -1412,6 +1412,23 @@ static void code_make_the(LocalRoot local, addr code, addr scope)
 }
 
 
+/* eval-when */
+static void code_make_eval_when(LocalRoot local, addr code, addr scope)
+{
+	addr cons, compile, load, exec, toplevel, mode;
+
+	GetEvalScopeIndex(scope, 0, &cons);
+	GetEvalScopeIndex(scope, 1, &compile);
+	GetEvalScopeIndex(scope, 2, &load);
+	GetEvalScopeIndex(scope, 3, &exec);
+	GetEvalScopeIndex(scope, 4, &toplevel);
+	GetEvalScopeIndex(scope, 5, &mode);
+
+	/* cons */
+	code_allcons(local, code, cons);
+}
+
+
 /* locally */
 static void code_make_locally(LocalRoot local, addr code, addr scope)
 {
@@ -1793,10 +1810,8 @@ static void code_make_multiple_value_call(LocalRoot local, addr code, addr scope
 /* multiple-value-prog1 */
 static void code_make_multiple_value_prog1(LocalRoot local, addr code, addr scope)
 {
-	enum CodeQueue_Mode mode;
 	addr expr, cons;
 
-	mode = code_queue_mode(code);
 	GetEvalScopeIndex(scope, 0, &expr);
 	GetEvalScopeIndex(scope, 1, &cons);
 
@@ -2259,6 +2274,7 @@ _g void init_code_make(void)
 	CodeMakeTable[EVAL_PARSE_FLET] = code_make_flet;
 	CodeMakeTable[EVAL_PARSE_LABELS] = code_make_labels;
 	CodeMakeTable[EVAL_PARSE_THE] = code_make_the;
+	CodeMakeTable[EVAL_PARSE_EVAL_WHEN] = code_make_eval_when;
 	CodeMakeTable[EVAL_PARSE_VALUES] = code_make_values;
 	CodeMakeTable[EVAL_PARSE_LOCALLY] = code_make_locally;
 	CodeMakeTable[EVAL_PARSE_CALL] = code_make_call;

@@ -7,6 +7,7 @@
 #include "constant.h"
 #include "control_operator.h"
 #include "declare.h"
+#include "eval_object.h"
 #include "eval_table.h"
 #include "function.h"
 #include "optimize.h"

@@ -1,6 +1,7 @@
 #include "declare.c"
 #include "character.h"
 #include "clos.h"
+#include "code.h"
 #include "common.h"
 #include "control.h"
 #include "copy.h"

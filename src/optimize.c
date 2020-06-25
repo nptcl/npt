@@ -1,4 +1,5 @@
 #include "eval_copy.h"
+#include "eval_object.h"
 #include "optimize.h"
 #include "parse_object.h"
 

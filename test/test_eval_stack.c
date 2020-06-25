@@ -4,6 +4,7 @@
 #include "callname.h"
 #include "character.h"
 #include "clos.h"
+#include "code.h"
 #include "common.h"
 #include "condition.h"
 #include "constant.h"

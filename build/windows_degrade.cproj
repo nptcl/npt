@@ -280,7 +280,9 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\environment.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_equal.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_copy.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_execute.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_main.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\eval_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_stack.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval_table.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_eval.c" />
@@ -572,7 +574,9 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\environment.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\equal.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_copy.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_execute.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_main.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_object.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_stack.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\eval.h" />
