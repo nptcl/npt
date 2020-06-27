@@ -240,6 +240,7 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_array.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_eval.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_file.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_load.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\compile_read.c" />
@@ -530,6 +531,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common_header.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_array.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_eval.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_file.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_load.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\compile_read.h" />

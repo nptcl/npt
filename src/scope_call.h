@@ -13,6 +13,7 @@ _g int scope_symbol_call(Execute ptr, addr *ret, addr eval);
 _g int scope_setq_call(Execute ptr, addr cons, addr *ret, addr *type);
 _g void scope_define_symbol_macro_call(Execute ptr,
 		addr symbol, addr form, addr body, addr *ret);
+_g void apply_symbol_macrolet(addr stack, addr args);
 _g int scope_symbol_macrolet_call(Execute ptr,
 		addr args, addr decl, addr cons, addr *ret);
 _g int scope_values_call(Execute ptr, addr args, addr *rargs, addr *rtype);

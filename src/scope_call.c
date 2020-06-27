@@ -312,7 +312,7 @@ _g void scope_define_symbol_macro_call(Execute ptr,
 /*
  *  symbol-macrolet
  */
-static void apply_symbol_macrolet(addr stack, addr args)
+_g void apply_symbol_macrolet(addr stack, addr args)
 {
 	addr list, symbol, form, env;
 

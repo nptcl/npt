@@ -23,6 +23,16 @@
 
 
 ;;
+;;  delete-file
+;;
+(defun test-compile-delete ()
+  (flet ((del (x) (when (probe-file x)
+                    (delete-file x))))
+    (del +compile-input+)
+    (del +compile-output+)))
+
+
+;;
 ;;  test
 ;;
 (defun test-compile-load (x)
@@ -41,10 +51,7 @@
 (defun call-compile (x)
   (unwind-protect
     (test-compile-load x)
-    (flet ((del (x) (when (probe-file x)
-                      (delete-file x))))
-      (del +compile-input+)
-      (del +compile-output+))))
+    (test-compile-delete)))
 
 (defmacro test-compile (x)
   `(call-compile ',x))
@@ -73,10 +80,7 @@
   (unwind-protect
     (lisp-system::type-object
       (type-compile-load x))
-    (flet ((del (x) (when (probe-file x)
-                      (delete-file x))))
-      (del +compile-input+)
-      (del +compile-output+))))
+    (test-compile-delete)))
 
 (defmacro type-compile (x)
   `(calltype-compile ',x))
@@ -101,10 +105,7 @@
 (defun exec-call-compile (x)
   (unwind-protect
     (exec-compile-load x)
-    (flet ((del (x) (when (probe-file x)
-                      (delete-file x))))
-      (del +compile-input+)
-      (del +compile-output+))))
+    (test-compile-delete)))
 
 (defmacro exec-compile (x)
   `(exec-call-compile ',x))
@@ -129,11 +130,28 @@
 (defun expr-call-compile (x)
   (unwind-protect
     (expr-compile-load x)
-    (flet ((del (x) (when (probe-file x)
-                      (delete-file x))))
-      (del +compile-input+)
-      (del +compile-output+))))
+    (test-compile-delete)))
 
 (defmacro expr-compile (x)
   `(expr-call-compile ',x))
+
+
+;;
+;;  file compile
+;;
+(defun test-file-compile-list (args)
+  (with-open-file (stream +compile-input+ :direction :output
+                          :if-exists :supersede
+                          :if-does-not-exist :create)
+    (let ((*print-pretty* t)
+          (*print-right-margin* 70))
+      (dolist (x args)
+        (format stream "~S~%" x))))
+  (compile-file +compile-input+ :output-file +compile-output+))
+
+(defmacro test-file-compile (&rest args)
+  `(test-file-compile-list ',args))
+
+(defun test-file-load ()
+  (load +compile-output+))
 

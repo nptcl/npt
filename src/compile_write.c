@@ -59,6 +59,7 @@ _g void faslwrite_footer(addr stream)
 {
 	char buffer[8];
 
+	faslwrite_type(stream, FaslCode_end);
 	memset(buffer, 0x00, 8);
 	faslwrite_buffer(stream, buffer, 8);
 	memset(buffer, 0xFF, 8);

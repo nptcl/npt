@@ -139,7 +139,7 @@
 
 
 ;;
-;;  dispatch vector
+;;  dispatch cons
 ;;
 (deftest dispatch-cons.1
   (let ((*print-pretty* t)
@@ -174,6 +174,10 @@
            " 8" #\newline
            " 9012)"))
 
+
+;;
+;;  dispatch vector
+;;
 (deftest dispatch-vector.1
   (let ((*print-pretty* t)
         (*print-right-margin* 100)
@@ -210,6 +214,41 @@
       (princ #*10111)))
   "#*10111")
 
+
+;;
+;;  dispatch quote
+;;
+(deftest dispatch-quote.1
+  (let ((*print-pretty* t)
+        (*print-right-margin* 100)
+        (*print-miser-width* nil))
+    (with-output-to-string (*standard-output*)
+      (princ
+        '(quote 10))))
+  "'10")
+
+(deftest dispatch-quote.2
+  (let ((*print-pretty* t)
+        (*print-right-margin* 100)
+        (*print-miser-width* nil))
+    (with-output-to-string (*standard-output*)
+      (princ
+        '(quote hello))))
+  "'HELLO")
+
+(deftest dispatch-quote.3
+  (let ((*print-pretty* t)
+        (*print-right-margin* 100)
+        (*print-miser-width* nil))
+    (with-output-to-string (*standard-output*)
+      (princ
+        '(quote 10 20 30))))
+  "(QUOTE 10 20 30)")
+
+
+;;
+;;  dispatch call
+;;
 (deftest dispatch-call.1
   (let ((*print-pretty* t)
         (*print-right-margin* 100)
@@ -244,6 +283,10 @@
            " 567" #\newline
            " 8)"))
 
+
+;;
+;;  dispatch defun
+;;
 (deftest dispatch-defun.1
   (let ((*print-pretty* t)
         (*print-right-margin* 30)
@@ -287,6 +330,10 @@
            " (SETQ A (+ B C D))" #\newline
            " (* A 999))"))
 
+
+;;
+;;  dispatch let
+;;
 (deftest dispatch-let.1
   (let ((*print-pretty* t)
         (*print-right-margin* 30)

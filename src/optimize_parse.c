@@ -738,69 +738,8 @@ static int optimize_lettype_on(struct optimize_struct *str)
 	return optimize_speed_on(str) && optimize_lettype(str->pos);
 }
 
-/* (let nil . body) -> (progn ,@body) */
-static int checkparse_let1(struct optimize_struct *str)
-{
-	addr pos, args, decl, body;
-
-	if (! optimize_lettype_on(str))
-		return 0;
-	pos = str->pos;
-	GetEvalParse(pos, 0, &args); /* args */
-	GetEvalParse(pos, 1, &decl); /* decl */
-	GetEvalParse(pos, 2, &body); /* body */
-
-	return args == Nil && empty_nil_declare(decl) && body != Nil;
-}
-
-static int optparse_let1(struct optimize_struct *str)
-{
-	addr pos;
-
-	if (! checkparse_let1(str))
-		return 0;
-	GetEvalParse(str->pos, 2, &pos); /* body */
-	eval_single_parse_local(str->local, &pos, EVAL_PARSE_PROGN, pos);
-	str->pos = pos;
-
-	return 1;
-}
-
-/* (let nil (declare ...) . body) -> (locally (declare ...) . body) */
-static int checkparse_let2(struct optimize_struct *str)
-{
-	addr pos, args, decl, body;
-
-	if (! optimize_lettype_on(str))
-		return 0;
-	pos = str->pos;
-	GetEvalParse(pos, 0, &args); /* args */
-	GetEvalParse(pos, 1, &decl); /* decl */
-	GetEvalParse(pos, 2, &body); /* body */
-
-	return args == Nil && (! empty_nil_declare(decl)) && body != Nil;
-}
-
-static int optparse_let2(struct optimize_struct *str)
-{
-	addr pos, decl, body;
-
-	if (! checkparse_let2(str))
-		return 0;
-	pos = str->pos;
-	GetEvalParse(pos, 1, &decl); /* decl */
-	GetEvalParse(pos, 2, &body); /* body */
-
-	eval_parse_local(str->local, &pos, EVAL_PARSE_LOCALLY, 2);
-	SetEvalParse(pos, 0, decl);
-	SetEvalParse(pos, 1, body);
-	str->pos = pos;
-
-	return 1;
-}
-
 /* (let nil . nil) -> nil */
-static int checkparse_let3(struct optimize_struct *str)
+static int checkparse_let1(struct optimize_struct *str)
 {
 	addr pos, args, body;
 
@@ -813,11 +752,11 @@ static int checkparse_let3(struct optimize_struct *str)
 	return args == Nil && body == Nil;
 }
 
-static int optparse_let3(struct optimize_struct *str)
+static int optparse_let1(struct optimize_struct *str)
 {
 	addr pos;
 
-	if (! checkparse_let3(str))
+	if (! checkparse_let1(str))
 		return 0;
 	eval_single_parse_local(str->local, &pos, EVAL_PARSE_NIL, Nil);
 	str->pos = pos;
@@ -826,7 +765,7 @@ static int optparse_let3(struct optimize_struct *str)
 }
 
 /* (let (aaa bbb (ccc)) . nil) -> nil */
-static int checkparse_let4(struct optimize_struct *str)
+static int checkparse_let2(struct optimize_struct *str)
 {
 	addr pos, args, body, x;
 
@@ -849,11 +788,11 @@ static int checkparse_let4(struct optimize_struct *str)
 	return 1;
 }
 
-static int optparse_let4(struct optimize_struct *str)
+static int optparse_let2(struct optimize_struct *str)
 {
 	addr pos;
 
-	if (! checkparse_let4(str))
+	if (! checkparse_let2(str))
 		return 0;
 	eval_single_parse_local(str->local, &pos, EVAL_PARSE_NIL, Nil);
 	str->pos = pos;
@@ -994,8 +933,6 @@ static int checkparse_let(struct optimize_struct *str)
 {
 	return checkparse_let1(str)
 		|| checkparse_let2(str)
-		|| checkparse_let3(str)
-		|| checkparse_let4(str)
 		|| checkparse_let_args(str)
 		|| checkparse_let_body(str);
 }
@@ -1004,8 +941,6 @@ static void optparse_let_run(struct optimize_struct *str)
 {
 	optimize_extract(str, optparse_let1);
 	optimize_extract(str, optparse_let2);
-	optimize_extract(str, optparse_let3);
-	optimize_extract(str, optparse_let4);
 	optimize_extract(str, optparse_let_args);
 	optimize_extract(str, optparse_let_body);
 }

@@ -12,6 +12,7 @@ _g int toplevelp_eval(Execute ptr);
 _g void get_compile_time_eval(Execute ptr, addr *ret);
 _g void set_compile_time_eval(Execute ptr, addr value);
 _g void push_compile_time_eval(Execute ptr, addr value);
+_g int compile_time_too_eval(Execute ptr);
 
 _g void get_compile_toplevel_eval(Execute ptr, addr *ret);
 _g void set_compile_toplevel_eval(Execute ptr, addr value);
@@ -30,7 +31,6 @@ _g int executep_eval(Execute ptr);
 
 _g int eval_execute_partial(Execute ptr, addr pos);
 _g int eval_result_partial(Execute ptr, addr pos, addr *ret);
-_g int eval_execute_toplevel(Execute ptr, addr pos);
 _g int eval_result_macro(Execute ptr, addr pos, addr *ret);
 _g int eval_stream_partial(Execute ptr, addr stream);
 _g int eval_stream_toplevel(Execute ptr, addr stream);

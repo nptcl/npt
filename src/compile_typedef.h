@@ -180,7 +180,10 @@ enum FaslCode {
 	FaslCode_optcode_cons,
 
 	/* size */
-	FaslCode_size
+	FaslCode_size,
+
+	/* end */
+	FaslCode_end = 0xFF
 };
 
 __extern enum FaslCode CompileWrite[p_size_code];

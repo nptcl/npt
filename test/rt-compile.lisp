@@ -7,7 +7,7 @@
 (load #p"test/rtcompile-type.lisp")
 (load #p"test/rtcompile-clos.lisp")
 (load #p"test/rtcompile-code.lisp")
-;(load #p"test/rtcompile-toplevel.lisp")
+(load #p"test/rtcompile-toplevel.lisp")
 
 
 ;;

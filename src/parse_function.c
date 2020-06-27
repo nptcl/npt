@@ -1340,13 +1340,13 @@ static void parse_eval_when_list(addr list, addr *rcompile, addr *rload, addr *r
 static int parse_eval_when_process(Execute ptr,
 		addr compile, addr load, addr exec, addr toplevel, addr mode)
 {
-	/* not compile */
-	if (! eval_compile_p(ptr)) {
-		compile = Nil;
-	}
-
 	/* not toplevel */
 	if (toplevel == Nil) {
+		return exec != Nil;
+	}
+
+	/* not compile */
+	if (! eval_compile_p(ptr)) {
 		return exec != Nil;
 	}
 
@@ -1363,11 +1363,11 @@ static int parse_eval_when_process(Execute ptr,
 	}
 	if (compile == Nil && load != Nil && exec != Nil) {
 		set_compile_time_eval(ptr, toplevel);
-		return toplevel != Nil;
+		return 1;
 	}
 	if (compile == Nil && load != Nil && exec == Nil) {
 		set_compile_time_eval(ptr, Nil); /* not-compile-time */
-		return 0;
+		return 1;
 	}
 
 	/* Evaluate */

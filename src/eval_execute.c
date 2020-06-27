@@ -1,4 +1,5 @@
 #include "code_make.h"
+#include "compile_eval.h"
 #include "compile_file.h"
 #include "compile_load.h"
 #include "condition.h"
@@ -88,6 +89,13 @@ _g void push_compile_time_eval(Execute ptr, addr value)
 	addr symbol;
 	symbol_compile_time_eval(ptr, &symbol);
 	pushspecial_control(ptr, symbol, value);
+}
+
+_g int compile_time_too_eval(Execute ptr)
+{
+	addr value;
+	get_compile_time_eval(ptr, &value);
+	return value != Nil;
 }
 
 
@@ -218,14 +226,7 @@ static int eval_execute_scope(Execute ptr, LocalHold hold, addr pos)
 	code_make(ptr->local, &pos, pos);
 	/* execute */
 	localhold_set(hold, 0, pos);
-	if (eval_compile_p(ptr)) {
-		/* compile */
-		return eval_compile_file(ptr, pos);
-	}
-	else {
-		/* execute */
-		return runcode_control(ptr, pos);
-	}
+	return runcode_control(ptr, pos);
 }
 
 static int eval_execute(Execute ptr, addr pos, addr toplevel)
@@ -350,21 +351,47 @@ static int eval_load_fasl_p(addr file)
 		(string_equalp_char(file, "fasl") || string_equalp_char(file, "fas"));
 }
 
-static int eval_load_fasl(Execute ptr, int *ret, addr file, int exist)
+static int eval_load_push(Execute ptr, addr file, int exist, int binary,
+		int *ret, addr *rcontrol, addr *rstream)
 {
-	addr stream, control;
+	int closep, check;
+	addr stream;
 
 	/* stream */
-	if (open_input_binary_stream(ptr, &stream, file)) {
-		if (exist)
-			simple_file_error_stdarg(file, "Cannot open file ~S.", file, NULL);
-		return Result(ret, 0);
+	closep = 0;
+	if (streamp(file)) {
+		stream = file;
+		closep = 1;
+	}
+	else {
+		if (binary)
+			check = open_input_binary_stream(ptr, &stream, file);
+		else
+			check = open_input_stream(ptr, &stream, file);
+		if (check) {
+			if (exist)
+				simple_file_error_stdarg(file, "Cannot open file ~S.", file, NULL);
+			return Result(ret, 0);
+		}
 	}
 
-	/* fasl */
-	push_new_control(ptr, &control);
+	/* eval */
+	push_new_control(ptr, rcontrol);
+	if (closep)
+		push_close_stream(ptr, stream);
+	*rstream = stream;
+	return Result(ret, 1);
+}
+
+static int eval_load_fasl(Execute ptr, int *ret, addr file, int exist)
+{
+	int check;
+	addr control, stream;
+
+	Return(eval_load_push(ptr, file, exist, 1, &check, &control, &stream));
+	if (! check)
+		return Result(ret, 0);
 	init_read_make_load_form(ptr);
-	push_close_stream(ptr, stream);
 	Return(eval_compile_load(ptr, stream));
 	Return(free_control_(ptr, control));
 	return Result(ret, 1);
@@ -372,21 +399,12 @@ static int eval_load_fasl(Execute ptr, int *ret, addr file, int exist)
 
 static int eval_load_lisp(Execute ptr, int *ret, addr file, int exist)
 {
-	addr stream, control;
+	int check;
+	addr control, stream;
 
-	/* stream */
-	if (streamp(file)) {
-		stream = file;
-	}
-	else if (open_input_stream(ptr, &stream, file)) {
-		if (exist)
-			simple_file_error_stdarg(file, "Cannot open file ~S.", file, NULL);
+	Return(eval_load_push(ptr, file, exist, 0, &check, &control, &stream));
+	if (! check)
 		return Result(ret, 0);
-	}
-
-	/* eval */
-	push_new_control(ptr, &control);
-	push_close_stream(ptr, stream);
 	Return(eval_stream(ptr, stream, T));
 	return Result(ret, 1);
 }
@@ -494,7 +512,6 @@ static void eval_load_check(
 		pushspecial_control(ptr, symbol, external);
 	}
 	/* result */
-	push_toplevel_eval(ptr, T);
 	*ret = file;
 }
 
@@ -530,6 +547,33 @@ _g int eval_load(Execute ptr, int *ret,
 /*
  *  compile-file
  */
+static int compile_load_stream(Execute ptr, addr stream)
+{
+	int check;
+	addr pos;
+
+	for (;;) {
+		Return(read_stream(ptr, stream, &check, &pos));
+		if (check)
+			break;
+		Return(compile_eval(ptr, pos));
+	}
+
+	return 0;
+}
+
+static int compile_load_lisp(Execute ptr, int *ret, addr file, int exist)
+{
+	int check;
+	addr control, stream;
+
+	Return(eval_load_push(ptr, file, exist, 0, &check, &control, &stream));
+	if (! check)
+		return Result(ret, 0);
+	Return(compile_load_stream(ptr, stream));
+	return Result(ret, 1);
+}
+
 static int compile_load_file(
 		Execute ptr, addr file, addr verbose, addr print, addr external)
 {
@@ -541,7 +585,7 @@ static int compile_load_file(
 			CONSTANT_SPECIAL_COMPILE_VERBOSE,
 			CONSTANT_SPECIAL_COMPILE_PRINT,
 			&file);
-	return eval_load_lisp(ptr, &check, file, 1);
+	return compile_load_lisp(ptr, &check, file, 1);
 }
 
 _g int compile_load(Execute ptr, addr file, addr verbose, addr print, addr external)

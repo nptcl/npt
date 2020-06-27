@@ -23,6 +23,11 @@ _g int eval_scope(Execute ptr, addr *ret, addr eval)
 	return 0;
 }
 
+_g int eval_scope_compile(Execute ptr, addr *ret, addr eval)
+{
+	return scope_eval_lexical(ptr, ret, eval);
+}
+
 _g void init_scope(void)
 {
 	init_scope_function();
