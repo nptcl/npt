@@ -1,7 +1,6 @@
 ;;
 ;;  compile-toplevel
 ;;
-
 (defvar *compile-eval-when* nil)
 (defvar *compile-eval-when1* nil)
 (defvar *compile-eval-when2* nil)
@@ -436,13 +435,4 @@
               (setq *compile-eval-when* (list x y z)))))))
     *compile-eval-when*)
   ((21 22 30) 21 22))
-
-
-;;
-;;  delete-file
-;;
-(deftest compile-eval-delete.1
-  (progn
-    (test-compile-delete)
-    (values)))
 

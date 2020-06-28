@@ -79,7 +79,7 @@ static int parse_parse_type(Execute ptr, addr *ret, addr type)
 /* progn */
 static int parse_progn(Execute ptr, addr *ret, addr cons)
 {
-	Return(parse_allcons(ptr, &cons, cons));
+	Return(parse_allcons_toplevel(ptr, &cons, cons));
 	eval_single_parse_heap(ret, EVAL_PARSE_PROGN, cons);
 	return 0;
 }
@@ -585,7 +585,6 @@ static int parse_deftype(Execute ptr, addr *ret, addr cons)
 	SetEvalParse(eval, 2, decl);
 	SetEvalParse(eval, 3, doc);
 	SetEvalParse(eval, 4, body);
-
 	return Result(ret, eval);
 }
 
@@ -767,7 +766,7 @@ static int parse_symbol_macrolet(Execute ptr, addr *ret, addr cons)
 	localhold_pushva(hold, decl, cons, NULL);
 	check_symbol_macrolet(args, decl);
 	/* body */
-	Return(localhold_parse_allcons(hold, ptr, &cons, cons));
+	Return(parse_allcons_toplevel(ptr, &cons, cons));
 	localhold_end(hold);
 	rollback_envstack(ptr, rollback);
 
@@ -842,7 +841,7 @@ static int parse_macrolet(Execute ptr, addr *ret, addr cons)
 	hold = LocalHold_local(ptr);
 	Return(parse_declare_body(ptr, cons, &decl, &cons));
 	localhold_pushva(hold, decl, cons, NULL);
-	Return(localhold_parse_allcons(hold, ptr, &cons, cons));
+	Return(parse_allcons_toplevel(ptr, &cons, cons));
 	localhold_end(hold);
 	rollback_envstack(ptr, rollback);
 
@@ -1396,7 +1395,7 @@ static int parse_eval_when(Execute ptr, addr *ret, addr cons)
 
 	/* body */
 	get_compile_time_eval(ptr, &mode);
-	Return(parse_allcons(ptr, &cons, cons));
+	Return(parse_allcons_toplevel(ptr, &cons, cons));
 	set_compile_time_eval(ptr, value);
 
 	/* eval */
@@ -1427,7 +1426,7 @@ static int parse_locally(Execute ptr, addr *ret, addr cons)
 	hold = LocalHold_local(ptr);
 	Return(parse_declare_body(ptr, cons, &decl, &cons));
 	localhold_pushva(hold, decl, cons, NULL);
-	Return(localhold_parse_allcons(hold, ptr, &cons, cons));
+	Return(parse_allcons_toplevel(ptr, &cons, cons));
 	localhold_end(hold);
 
 	/* eval */
@@ -1628,16 +1627,22 @@ error:
 static int parse_macro(Execute ptr, addr *ret, addr call, addr cons)
 {
 	int check;
-	addr env;
+	addr env, value;
 	LocalHold hold;
 
+	/* macroexpand */
 	environment_heap(ptr, &env);
 	hold = LocalHold_local_push(ptr, env);
-	check = call_macroexpand_hook(ptr, &cons, call, cons, env);
+	check = call_macroexpand_hook(ptr, &value, call, cons, env);
 	close_environment(env);
 	localhold_end(hold);
+	if (check)
+		return 1;
 
-	return check || parse_execute(ptr, ret, cons);
+	/* execute */
+	Return(parse_execute(ptr, &value, value));
+	parse_compile_toplevel(ptr, cons, value, &value);
+	return Result(ret, value);
 }
 
 static int parse_backquote(Execute ptr, addr *ret, addr pos)
@@ -1763,7 +1768,7 @@ static int parse_cons_general(Execute ptr, addr *ret, addr cons)
 
 static int parse_cons_car(Execute ptr, addr *ret, addr cons)
 {
-	addr call, args, value;
+	addr call, args;
 
 	GetCons(cons, &call, &args);
 
@@ -1785,12 +1790,7 @@ static int parse_cons_car(Execute ptr, addr *ret, addr cons)
 	}
 
 	/* general operator */
-	gettoplevel_eval(ptr, &value);
-	settoplevel_eval(ptr, Nil);
-	Return(parse_cons_general(ptr, ret, cons));
-	settoplevel_eval(ptr, value);
-
-	return 0;
+	return parse_cons_general(ptr, ret, cons);
 }
 
 static int compiler_macroexpand_p(Execute ptr)
@@ -1973,13 +1973,51 @@ _g int localhold_parse_allcons(LocalHold hold, Execute ptr, addr *ret, addr cons
 
 _g int parse_allcons(Execute ptr, addr *ret, addr cons)
 {
+	addr toplevel;
+
+	/* toplevel */
+	gettoplevel_eval(ptr, &toplevel);
+	if (toplevel == Nil)
+		return parse_allcons_toplevel(ptr, ret, cons);
+
+	/* parse */
+	settoplevel_eval(ptr, Nil);
+	Return(parse_allcons_toplevel(ptr, ret, cons));
+	settoplevel_eval(ptr, toplevel);
+
+	return 0;
+}
+
+_g int parse_execute(Execute ptr, addr *ret, addr pos)
+{
+	addr toplevel;
+
+	/* toplevel */
+	gettoplevel_eval(ptr, &toplevel);
+	if (toplevel == Nil)
+		return parse_execute_toplevel(ptr, ret, pos);
+
+	/* parse */
+	settoplevel_eval(ptr, Nil);
+	Return(parse_execute_toplevel(ptr, ret, pos));
+	settoplevel_eval(ptr, toplevel);
+
+	return 0;
+}
+
+
+/*
+ *  toplevel
+ */
+_g int parse_allcons_toplevel(Execute ptr, addr *ret, addr cons)
+{
 	addr root, pos;
 	LocalHold hold;
 
 	hold = LocalHold_array(ptr, 1);
 	for (root = Nil; cons != Nil; ) {
 		getcons(cons, &pos, &cons);
-		Return(parse_self(ptr, pos));
+		Return(parse_execute_toplevel(ptr, &pos, pos));
 		cons_heap(&root, pos, root);
 		localhold_set(hold, 0, root);
 	}
@@ -1989,7 +2027,7 @@ _g int parse_allcons(Execute ptr, addr *ret, addr cons)
 	return 0;
 }
 
-_g int parse_execute(Execute ptr, addr *ret, addr pos)
+_g int parse_execute_toplevel(Execute ptr, addr *ret, addr pos)
 {
 	LocalHold hold;
 

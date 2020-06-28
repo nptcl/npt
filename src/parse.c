@@ -1,7 +1,9 @@
 #include "callname.h"
+#include "compile_file.h"
 #include "condition.h"
 #include "control_object.h"
 #include "eval_execute.h"
+#include "eval_object.h"
 #include "gc.h"
 #include "integer.h"
 #include "parse.h"
@@ -9,6 +11,7 @@
 #include "load_time_value.h"
 #include "make_load_form.h"
 #include "parse_macro.h"
+#include "parse_object.h"
 #include "symbol.h"
 
 _g void check_variable(addr symbol)
@@ -51,6 +54,72 @@ _g int tagbody_tag_p(addr pos)
 
 
 /*
+ *  compile toplevel
+ */
+#define ParseCompileToplevel(pos, x) { \
+	addr __check; \
+	GetConst(COMMON_##x, &__check); \
+	if (pos == __check) \
+		return 1; \
+}
+static int parse_compile_toplevel_symbol(addr pos)
+{
+	ParseCompileToplevel(pos, DEFTYPE);
+	ParseCompileToplevel(pos, DEFMACRO);
+	return 0;
+}
+
+_g void parse_compile_toplevel(Execute ptr, addr expr, addr list, addr *ret)
+{
+	addr compile, load, exec, toplevel, mode, eval;
+
+	/* compile */
+	if (! eval_compile_p(ptr))
+		goto throw;
+
+	/* type */
+	if (! consp(expr))
+		goto throw;
+	GetCar(expr, &expr);
+	if (! parse_compile_toplevel_symbol(expr))
+		goto throw;
+
+	/* toplevel */
+	gettoplevel_eval(ptr, &toplevel);
+	if (toplevel == Nil)
+		goto throw;
+
+	/* :compile-toplevel */
+	get_compile_toplevel_eval(ptr, &compile);
+	if (compile != Nil)
+		goto throw;
+
+	/* compile-time-too */
+	get_compile_time_eval(ptr, &mode);
+	if (mode != Nil)
+		goto throw;
+
+	/* eval-when */
+	get_load_toplevel_eval(ptr, &load);
+	get_execute_eval(ptr, &exec);
+	conscar_heap(&list, list);
+
+	eval_parse_heap(&eval, EVAL_PARSE_EVAL_WHEN, 6);
+	SetEvalParse(eval, 0, list);
+	SetEvalParse(eval, 1, T);         /* :compile-toplevel */
+	SetEvalParse(eval, 2, load);      /* :load-toplevel */
+	SetEvalParse(eval, 3, exec);      /* :execute */
+	SetEvalParse(eval, 4, toplevel);  /* toplevel */
+	SetEvalParse(eval, 5, mode);      /* compile-time */
+	*ret = eval;
+	return;
+
+throw:
+	*ret = list;
+}
+
+
+/*
  *  eval-parse
  */
 static void init_parse_eval_when(Execute ptr, addr toplevel)
@@ -73,7 +142,7 @@ _g int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel)
 	init_parse_load_time_value(ptr);
 	init_parse_make_load_form(ptr);
 	init_parse_eval_when(ptr, toplevel);
-	Return(parse_execute(ptr, &pos, pos));
+	Return(parse_execute_toplevel(ptr, &pos, pos));
 	localhold_set(hold, 0, pos);
 	Return(eval_parse_load_time_value(ptr, &pos, pos));
 	localhold_set(hold, 0, pos);

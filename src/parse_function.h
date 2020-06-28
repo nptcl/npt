@@ -13,6 +13,8 @@ _g int localhold_parse_execute(LocalHold hold, Execute ptr, addr *ret, addr pos)
 
 _g int parse_allcons(Execute ptr, addr *ret, addr cons);
 _g int parse_execute(Execute ptr, addr *ret, addr pos);
+_g int parse_allcons_toplevel(Execute ptr, addr *ret, addr cons);
+_g int parse_execute_toplevel(Execute ptr, addr *ret, addr pos);
 
 _g int parse_ordinary(Execute ptr, addr *ret, addr args);
 

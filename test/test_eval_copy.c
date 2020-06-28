@@ -6,7 +6,9 @@
 #include "code.h"
 #include "common.h"
 #include "condition.h"
+#include "control_object.h"
 #include "constant.h"
+#include "eval_execute.h"
 #include "function.h"
 #include "degrade.h"
 #include "ratio.h"
@@ -26,6 +28,26 @@ static void test_eval_copy_parse(addr *ret, addr pos)
 {
 	eval_parse(Execute_Thread, ret, pos, Nil);
 }
+
+static void test_eval_copy_ordinary(addr *ret, addr pos)
+{
+	addr control;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	push_new_control(ptr, &control);
+
+	push_new_control(ptr, &control);
+	push_toplevel_eval(ptr, Nil);
+	push_compile_time_eval(ptr, Nil);
+	push_compile_toplevel_eval(ptr, Nil);
+	push_load_toplevel_eval(ptr, T);
+	push_execute_eval(ptr, T);
+
+	parse_ordinary(ptr, ret, pos);
+	free_control_(ptr, control);
+}
+
 
 /*
  *  copy eval-parse
@@ -361,7 +383,7 @@ static int test_copy_eval_ordinary_optional(void)
 	addr pos, var, init, svar, check;
 
 	readstring(&pos, "(&optional aaa (bbb 10))");
-	parse_ordinary(Execute_Thread, &pos, pos);
+	test_eval_copy_ordinary(&pos, pos);
 	/* (var opt rest key allow aux) */
 	getnth(pos, 1, &pos);
 	copy_eval_ordinary_optional(NULL, &pos, pos);
@@ -391,7 +413,7 @@ static int test_copy_eval_ordinary_key(void)
 	addr pos, var, name, init, svar, check;
 
 	readstring(&pos, "(&key aaa ((name bbb) 10 ddd))");
-	parse_ordinary(Execute_Thread, &pos, pos);
+	test_eval_copy_ordinary(&pos, pos);
 	/* (var opt rest key allow aux) */
 	getnth(pos, 3, &pos);
 	copy_eval_ordinary_key(NULL, &pos, pos);
@@ -429,7 +451,7 @@ static int test_copy_eval_ordinary_aux(void)
 	addr pos, var, init, check;
 
 	readstring(&pos, "(&aux aaa (bbb 10))");
-	parse_ordinary(Execute_Thread, &pos, pos);
+	test_eval_copy_ordinary(&pos, pos);
 	/* (var opt rest key allow aux) */
 	getnth(pos, 5, &pos);
 	copy_eval_ordinary_aux(NULL, &pos, pos);
@@ -456,7 +478,7 @@ static int test_copy_eval_ordinary(void)
 	addr pos, var, check;
 
 	readstring(&pos, "(aa &optional bb &rest cc &key dd &allow-other-keys &aux ee)");
-	parse_ordinary(Execute_Thread, &pos, pos);
+	test_eval_copy_ordinary(&pos, pos);
 	copy_eval_ordinary(NULL, &pos, pos);
 	/* var */
 	GetCons(pos, &var, &pos);
