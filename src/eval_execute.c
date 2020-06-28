@@ -358,10 +358,10 @@ static int eval_load_push(Execute ptr, addr file, int exist, int binary,
 	addr stream;
 
 	/* stream */
-	closep = 0;
+	closep = 1;
 	if (streamp(file)) {
 		stream = file;
-		closep = 1;
+		closep = 0;
 	}
 	else {
 		if (binary)

@@ -5,6 +5,7 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "execute.h"
+#include "hold.h"
 #include "stream.h"
 #include "typedef.h"
 
@@ -12,7 +13,9 @@ static int eval_compile_load_loop(Execute ptr, addr stream)
 {
 	enum FaslCode type;
 	addr code;
+	LocalHold hold;
 
+	hold = LocalHold_array(ptr, 1);
 	for (;;) {
 		faslread_type(stream, &type);
 		if (type == FaslCode_end)
@@ -20,9 +23,11 @@ static int eval_compile_load_loop(Execute ptr, addr stream)
 		unread_byte_stream(stream, (byte)type);
 
 		Return(faslread_value(ptr, stream, &code));
+		localhold_set(hold, 0, code);
 		CheckType(code, LISPTYPE_CODE);
 		Return(runcode_control(ptr, code));
 	}
+	localhold_end(hold);
 
 	return 0;
 }
