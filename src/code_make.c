@@ -1199,7 +1199,9 @@ static void code_make_defmacro(LocalRoot local, addr code, addr scope)
 
 	GetEvalScopeIndex(scope, 0, &name);
 	GetEvalScopeIndex(scope, 1, &lambda);
-	CodeQueue_double(local, code, DEFMACRO, name, lambda);
+
+	code_make_execute_set(local, code, lambda);
+	CodeQueue_cons(local, code, DEFMACRO, name);
 	code_queue_ifpush(local, code);
 }
 

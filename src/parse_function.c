@@ -495,8 +495,8 @@ _g int parse_macro_lambda_list(Execute ptr, addr *ret, addr args)
 	return 0;
 }
 
-static int make_macro_function(Execute ptr,
-		addr *ret, addr args, addr decl, addr doc, addr cons)
+static int make_macro_function(Execute ptr, addr *ret, addr *reval,
+		addr args, addr decl, addr doc, addr cons)
 {
 	addr eval;
 
@@ -505,12 +505,14 @@ static int make_macro_function(Execute ptr,
 	SetEvalParse(eval, 1, decl);
 	SetEvalParse(eval, 2, doc);
 	SetEvalParse(eval, 3, cons);
+	if (reval)
+		*reval = eval;
 	return eval_result_macro(ptr, eval, ret);
 }
 
 static int parse_defmacro(Execute ptr, addr *ret, addr cons)
 {
-	addr eval, name, args, decl, doc, body, lambda;
+	addr eval, name, args, decl, doc, body, lambda, macro;
 	LocalHold hold;
 
 	/* (eval::defmacro name args decl doc body) */
@@ -519,15 +521,16 @@ static int parse_defmacro(Execute ptr, addr *ret, addr cons)
 	Return(parse_macro_lambda_list(ptr, &args, args));
 	localhold_push(hold, args);
 	Return(localhold_parse_allcons(hold, ptr, &body, body));
-	Return(make_macro_function(ptr, &lambda, args, decl, doc, body));
+	Return(make_macro_function(ptr, &lambda, &macro, args, decl, doc, body));
 	localhold_push(hold, lambda);
+	localhold_push(hold, macro);
 	defmacro_envstack(ptr, name, lambda);
 	localhold_end(hold);
 
 	/* defmacro */
 	eval_parse_heap(&eval, EVAL_PARSE_DEFMACRO, 2);
 	SetEvalParse(eval, 0, name);
-	SetEvalParse(eval, 1, lambda);
+	SetEvalParse(eval, 1, macro);
 
 	return Result(ret, eval);
 }
@@ -805,7 +808,7 @@ static int parse_macrolet_one(Execute ptr, addr cons)
 	implicit_block(&cons, name, cons);
 	localhold_push(hold, cons);
 	Return(localhold_parse_allcons(hold, ptr, &cons, cons));
-	Return(make_macro_function(ptr, &cons, args, decl, doc, cons));
+	Return(make_macro_function(ptr, &cons, NULL, args, decl, doc, cons));
 	localhold_push(hold, cons);
 	macrolet_envstack(ptr, name, cons);
 	localhold_end(hold);

@@ -382,6 +382,7 @@ static int scope_defmacro(Execute ptr, addr *ret, addr eval)
 	GetEvalParse(eval, 0, &symbol);
 	GetEvalParse(eval, 1, &lambda);
 
+	Return(scope_eval(ptr, &lambda, lambda));
 	GetTypeTable(&type, Symbol);
 	eval_scope_size(ptr, &eval, 2, EVAL_PARSE_DEFMACRO, type, Nil);
 	SetEvalScopeIndex(eval, 0, symbol);

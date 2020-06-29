@@ -271,11 +271,12 @@ _g int eval_result_macro(Execute ptr, addr pos, addr *ret)
 	addr control;
 	LocalHold hold;
 
-	hold = LocalHold_array(ptr, 1);
+	hold = LocalHold_array(ptr, 3);
 	push_new_control(ptr, &control);
+	localhold_set(hold, 1, pos);
 	Return(eval_execute_scope(ptr, hold, pos));
 	getresult_control(ptr, &pos);
-	localhold_set(hold, 0, pos);
+	localhold_set(hold, 2, pos);
 	Return(free_control_(ptr, control));
 	localhold_end(hold);
 
@@ -377,6 +378,7 @@ static int eval_load_push(Execute ptr, addr file, int exist, int binary,
 
 	/* eval */
 	push_new_control(ptr, rcontrol);
+	gchold_push_local(ptr->local, stream);
 	if (closep)
 		push_close_stream(ptr, stream);
 	*rstream = stream;
@@ -406,6 +408,7 @@ static int eval_load_lisp(Execute ptr, int *ret, addr file, int exist)
 	if (! check)
 		return Result(ret, 0);
 	Return(eval_stream(ptr, stream, T));
+	Return(free_control_(ptr, control));
 	return Result(ret, 1);
 }
 
@@ -571,6 +574,7 @@ static int compile_load_lisp(Execute ptr, int *ret, addr file, int exist)
 	if (! check)
 		return Result(ret, 0);
 	Return(compile_load_stream(ptr, stream));
+	Return(free_control_(ptr, control));
 	return Result(ret, 1);
 }
 

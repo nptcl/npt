@@ -64,8 +64,19 @@ _g int tagbody_tag_p(addr pos)
 }
 static int parse_compile_toplevel_symbol(addr pos)
 {
-	ParseCompileToplevel(pos, DEFTYPE);
+	ParseCompileToplevel(pos, DECLAIM);
+	ParseCompileToplevel(pos, DEFCLASS);
+	ParseCompileToplevel(pos, DEFINE_COMPILER_MACRO);
+	ParseCompileToplevel(pos, DEFINE_CONDITION);
+	ParseCompileToplevel(pos, DEFINE_MODIFY_MACRO);
+	ParseCompileToplevel(pos, DEFINE_SETF_EXPANDER);
 	ParseCompileToplevel(pos, DEFMACRO);
+	ParseCompileToplevel(pos, DEFPACKAGE);
+	ParseCompileToplevel(pos, DEFSETF);
+	ParseCompileToplevel(pos, DEFSTRUCT);
+	ParseCompileToplevel(pos, DEFTYPE);
+	ParseCompileToplevel(pos, IN_PACKAGE);
+
 	return 0;
 }
 

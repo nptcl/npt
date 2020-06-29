@@ -459,11 +459,11 @@ _g int setf_push_code(Execute ptr, CodeValue x)
  */
 _g int defmacro_code(Execute ptr, CodeValue x)
 {
-	addr symbol, value;
+	addr value;
 
-	List_bind(x.pos, &symbol, &value, NULL);
-	setmacro_symbol(symbol, value);
-	setresult_control(ptr, symbol);
+	getresult_control(ptr, &value);
+	setmacro_symbol(x.pos, value);
+	setresult_control(ptr, x.pos);
 
 	return 0;
 }

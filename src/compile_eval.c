@@ -16,7 +16,7 @@
 #include "scope_declare.h"
 #include "typedef.h"
 
-static int compile_eval_scope(Execute ptr, LocalHold hold, addr pos);
+static int compile_eval_scope(Execute ptr, addr pos);
 
 /*
  *  eval-when check
@@ -36,8 +36,15 @@ static int compile_eval_compile_p(Execute ptr)
 /*
  *  execute
  */
-static int compile_eval_execute(Execute ptr, LocalHold hold, addr pos)
+static int compile_eval_execute(Execute ptr, addr pos)
 {
+	addr control;
+	LocalHold hold;
+
+	push_new_control(ptr, &control);
+	hold = LocalHold_array(ptr, 1);
+	localhold_push(hold, pos);
+
 	/* scope */
 	localhold_set(hold, 0, pos);
 	Return(eval_scope_compile(ptr, &pos, pos));
@@ -58,21 +65,23 @@ static int compile_eval_execute(Execute ptr, LocalHold hold, addr pos)
 		Return(runcode_control(ptr, pos));
 	}
 
-	return 0;
+	/* end */
+	localhold_end(hold);
+	return free_control_(ptr, control);;
 }
 
 
 /*
  *  progn
  */
-static int compile_eval_progn(Execute ptr, LocalHold hold, addr pos)
+static int compile_eval_progn(Execute ptr, addr pos)
 {
 	addr list;
 
 	GetEvalParse(pos, 0, &list);
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(compile_eval_scope(ptr, hold, pos));
+		Return(compile_eval_scope(ptr, pos));
 	}
 
 	return 0;
@@ -82,8 +91,7 @@ static int compile_eval_progn(Execute ptr, LocalHold hold, addr pos)
 /*
  *  locally
  */
-static int compile_eval_implicit(Execute ptr, LocalHold hold,
-		addr args, addr decl, addr list)
+static int compile_eval_implicit(Execute ptr, addr args, addr decl, addr list)
 {
 	addr stack, free, pos;
 
@@ -100,14 +108,12 @@ static int compile_eval_implicit(Execute ptr, LocalHold hold,
 	SetEvalParse(pos, 0, decl);
 	SetEvalParse(pos, 1, Nil);
 	SetEvalParse(pos, 2, free);
-	localhold_set(hold, 1, pos);
-	Return(compile_eval_execute(ptr, hold, pos));
-	localhold_set(hold, 1, Nil);
+	Return(compile_eval_execute(ptr, pos));
 
 	/* body */
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(compile_eval_scope(ptr, hold, pos));
+		Return(compile_eval_scope(ptr, pos));
 	}
 
 	/* free stack */
@@ -116,21 +122,21 @@ static int compile_eval_implicit(Execute ptr, LocalHold hold,
 	return 0;
 }
 
-static int compile_eval_locally(Execute ptr, LocalHold hold, addr pos)
+static int compile_eval_locally(Execute ptr, addr pos)
 {
 	addr decl, list;
 
 	GetEvalParse(pos, 0, &decl);
 	GetEvalParse(pos, 1, &list);
 
-	return compile_eval_implicit(ptr, hold, Nil, decl, list);
+	return compile_eval_implicit(ptr, Nil, decl, list);
 }
 
 
 /*
  *  symbol-macrolet
  */
-static int compile_eval_symbol_macrolet(Execute ptr, LocalHold hold, addr pos)
+static int compile_eval_symbol_macrolet(Execute ptr, addr pos)
 {
 	addr args, decl, list;
 
@@ -138,14 +144,14 @@ static int compile_eval_symbol_macrolet(Execute ptr, LocalHold hold, addr pos)
 	GetEvalParse(pos, 1, &decl);
 	GetEvalParse(pos, 2, &list);
 
-	return compile_eval_implicit(ptr, hold, args, decl, list);
+	return compile_eval_implicit(ptr, args, decl, list);
 }
 
 
 /*
  *  eval-when
  */
-static int compile_eval_eval_when(Execute ptr, LocalHold hold, addr pos)
+static int compile_eval_eval_when(Execute ptr, addr pos)
 {
 	addr list;
 	addr compile, load, exec, mode;
@@ -172,7 +178,7 @@ static int compile_eval_eval_when(Execute ptr, LocalHold hold, addr pos)
 	/* body */
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(compile_eval_scope(ptr, hold, pos));
+		Return(compile_eval_scope(ptr, pos));
 	}
 
 	/* rollback */
@@ -188,27 +194,39 @@ static int compile_eval_eval_when(Execute ptr, LocalHold hold, addr pos)
 /*
  *  interface
  */
-static int compile_eval_scope(Execute ptr, LocalHold hold, addr pos)
+static int compile_eval_hold(Execute ptr, addr pos)
 {
 	EvalParse type;
 
 	GetEvalParseType(pos, &type);
 	switch (type) {
 		case EVAL_PARSE_PROGN:
-			return compile_eval_progn(ptr, hold, pos);
+			return compile_eval_progn(ptr, pos);
 
 		case EVAL_PARSE_LOCALLY:
-			return compile_eval_locally(ptr, hold, pos);
+			return compile_eval_locally(ptr, pos);
 
 		case EVAL_PARSE_SYMBOL_MACROLET:
-			return compile_eval_symbol_macrolet(ptr, hold, pos);
+			return compile_eval_symbol_macrolet(ptr, pos);
 
 		case EVAL_PARSE_EVAL_WHEN:
-			return compile_eval_eval_when(ptr, hold, pos);
+			return compile_eval_eval_when(ptr, pos);
 
 		default:
-			return compile_eval_execute(ptr, hold, pos);
+			return compile_eval_execute(ptr, pos);
 	}
+}
+
+static int compile_eval_scope(Execute ptr, addr pos)
+{
+	addr control;
+	LocalHold hold;
+
+	push_new_control(ptr, &control);
+	hold = LocalHold_local_push(ptr, pos);
+	Return(compile_eval_hold(ptr, pos));
+	localhold_end(hold);
+	return free_control_(ptr, control);
 }
 
 _g int compile_eval(Execute ptr, addr pos)
@@ -235,7 +253,8 @@ _g int compile_eval(Execute ptr, addr pos)
 	localhold_set(hold, 0, pos);
 	optimize_parse(ptr->local, &pos, pos);
 	/* scope */
-	Return(compile_eval_scope(ptr, hold, pos));
+	localhold_set(hold, 0, pos);
+	Return(compile_eval_hold(ptr, pos));
 	/* free */
 	localhold_end(hold);
 	return free_control_(ptr, control);

@@ -930,8 +930,6 @@ _g void defgeneric_common(addr form, addr env, addr *ret)
 	args = Nil;
 	GetConst(COMMON_ENSURE_GENERIC_FUNCTION, &key);
 	defgeneric_push_quote(&args, key, name, args);
-	GetConst(KEYWORD_ENVIRONMENT, &key);
-	defgeneric_push_value(&args, key, env, args);
 	GetConst(KEYWORD_LAMBDA_LIST, &key);
 	defgeneric_push_quote(&args, key, lambda, args);
 	if (order != Nil) {
@@ -1093,7 +1091,7 @@ static void defmethod_parse_function(Execute ptr,
 
 _g int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
 {
-	addr args, name, qua, spec, lambda, quote;
+	addr args, name, qua, spec, lambda, list, quote;
 	addr key1, key2, key3, key4, key5;
 
 	getcdr(form, &args);
@@ -1104,9 +1102,9 @@ _g int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
 		fmte("Invalid function name ~S.", name, NULL);
 	if (defmethod_parse_qualifiers(args, &qua, &lambda, &args))
 		goto error;
-	argument_method_heap(ptr->local, &lambda, lambda);
-	defmethod_parse_specializers(lambda, &spec);
-	defmethod_parse_function(ptr, env, args, lambda, &args);
+	argument_method_heap(ptr->local, &list, lambda);
+	defmethod_parse_specializers(list, &spec);
+	defmethod_parse_function(ptr, env, args, list, &args);
 
 	/* name qua lambda doc decl args */
 	GetConst(COMMON_QUOTE, &quote);

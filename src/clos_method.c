@@ -207,7 +207,7 @@ static int method_check_method_qualifiers_(Execute ptr, addr gen, addr method)
 	Return(check_qualifiers_equal_(ptr, comb, qua, &check));
 	if (! check)
 		fmte("The qualifiers ~S is not found in the method-combination.", qua, NULL);
-	
+
 	return 0;
 }
 

@@ -155,3 +155,11 @@
 (defun test-file-load ()
   (load +compile-output+))
 
+(defun test-file-compile-string (&rest args)
+  (with-open-file (stream +compile-input+ :direction :output
+                          :if-exists :supersede
+                          :if-does-not-exist :create)
+    (dolist (x args)
+      (format stream "~A~%" x)))
+  (compile-file +compile-input+ :output-file +compile-output+))
+
