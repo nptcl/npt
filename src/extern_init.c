@@ -89,7 +89,7 @@ int lisp_alloc(size_t heap, size_t local)
  *  help
  */
 static const char *lisp_main_help_message[] = {
-	Lispname " -- Lisp Programming Language.",
+	Lispname " -- ANSI Common Lisp Programming Language.",
 	"",
 	"USAGE:",
 	"  " Lispname " [options] [inputs] [--] [arguments]",
