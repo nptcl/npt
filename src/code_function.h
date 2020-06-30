@@ -102,5 +102,7 @@ _g int load_time_value_init_code(Execute ptr, CodeValue x);
 _g int load_time_value_set_code(Execute ptr, CodeValue x);
 _g int load_time_value_push_code(Execute ptr, CodeValue x);
 
+_g int step_code(Execute ptr, CodeValue x);
+
 #endif
 

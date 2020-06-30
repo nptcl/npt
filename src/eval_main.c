@@ -231,14 +231,12 @@ static int eval_loop_restart(Execute ptr, addr stream,
 	return free_control_(ptr, control);
 }
 
-_g int eval_custom_loop(Execute ptr, eval_loop_calltype call)
+_g int eval_custom_loop(Execute ptr, addr stream, eval_loop_calltype call)
 {
 	int exit;
-	addr stream;
 	size_t index;
 
 	index = getindex_prompt(ptr);
-	terminal_io_stream(ptr, &stream);
 	eval_loop_variable(ptr);
 	while (! getbreak_prompt(ptr)) {
 		setindex_prompt(ptr, index);
@@ -267,7 +265,9 @@ static int eval_main_execute(Execute ptr, addr stream, addr pos, int *exit, int 
 
 _g int eval_main_loop_(Execute ptr)
 {
-	return eval_custom_loop(ptr, eval_main_execute);
+	addr stream;
+	terminal_io_stream(ptr, &stream);
+	return eval_custom_loop(ptr, stream, eval_main_execute);
 }
 
 

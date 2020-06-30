@@ -20,6 +20,7 @@
 #include "parse_object.h"
 #include "quote.h"
 #include "type_parse.h"
+#include "step.h"
 #include "strtype.h"
 #include "symbol.h"
 
@@ -1762,6 +1763,9 @@ static int parse_cons_general(Execute ptr, addr *ret, addr cons)
 	if (parse_cons_check_constant(call, CONSTANT_COMMON_LOAD_TIME_VALUE)) {
 		return parse_load_time_value(ptr, ret, args);
 	}
+	if (parse_cons_check_constant(call, CONSTANT_SYSTEM_STEP)) {
+		return parse_step(ptr, ret, args);
+	}
 	if (parse_cons_check_macro(ptr, call, &call)) {
 		return parse_macro(ptr, ret, call, cons);
 	}
@@ -2032,12 +2036,14 @@ _g int parse_allcons_toplevel(Execute ptr, addr *ret, addr cons)
 
 _g int parse_execute_toplevel(Execute ptr, addr *ret, addr pos)
 {
+	addr expr;
 	LocalHold hold;
 
 	hold = LocalHold_local_push(ptr, pos);
-	Return(parse_switch(ptr, ret, pos));
+	Return(parse_switch(ptr, &expr, pos));
+	parse_step_object(ptr, &expr, pos, expr);
 	localhold_end(hold);
 
-	return 0;
+	return Result(ret, expr);
 }
 

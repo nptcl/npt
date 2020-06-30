@@ -168,6 +168,8 @@ enum FaslCode {
 	FaslCode_load_time_value_set,
 	FaslCode_load_time_value_push,
 
+	FaslCode_step,
+
 	FaslCode_optcode_result_type,
 	FaslCode_optcode_car0_set,
 	FaslCode_optcode_car0_push,

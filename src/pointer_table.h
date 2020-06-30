@@ -141,6 +141,8 @@ enum pointer_index {
 	p_load_time_value_set_code,
 	p_load_time_value_push_code,
 
+	p_step_code,
+
 	/* optimize */
 	p_optcode_result_type_code,
 	p_optcode_car0_set_code,

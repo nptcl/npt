@@ -1953,6 +1953,26 @@ static void code_make_load_time_value(LocalRoot local, addr code, addr scope)
 
 
 /*
+ *  step
+ */
+static void code_make_step(LocalRoot local, addr code, addr scope)
+{
+	addr expr, value;
+
+	/* scope */
+	GetEvalScopeIndex(scope, 0, &expr);
+	GetEvalScopeIndex(scope, 1, &value);
+
+	/* code */
+	code_queue_push_new(local, code);
+	code_make_execute(local, code, expr);
+	code_queue_pop(local, code, &expr);
+	CodeQueue_double(local, code, STEP, expr, value);
+	code_queue_ifpush(local, code);
+}
+
+
+/*
  *  specialized call
  */
 static int code_make_specialize_common_p(addr call)
@@ -2286,5 +2306,6 @@ _g void init_code_make(void)
 	CodeMakeTable[EVAL_PARSE_NTH_VALUE] = code_make_nth_value;
 	CodeMakeTable[EVAL_PARSE_PROGV] = code_make_progv;
 	CodeMakeTable[EVAL_PARSE_LOAD_TIME_VALUE] = code_make_load_time_value;
+	CodeMakeTable[EVAL_PARSE_STEP] = code_make_step;
 }
 

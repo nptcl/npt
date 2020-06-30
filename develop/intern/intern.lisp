@@ -1582,6 +1582,10 @@ lisp-system::trace-del
 (lisp-system::*dribble-echo* :constant system :name dribble-echo)
 (lisp-system::*dribble-broadcast* :constant system :name dribble-broadcast)
 (lisp-system::*inspected* :constant system :name inspected)
+(lisp-system::*step-parse* :constant system :name step-parse)
+(lisp-system::*step-break* :constant system :name step-break)
+(lisp-system::*step-value* :constant system :name step-value)
+lisp-system::step
 
 
 ;;
@@ -1713,6 +1717,8 @@ lisp-code::load-time-value-bind
 lisp-code::load-time-value-init
 lisp-code::load-time-value-set
 lisp-code::load-time-value-push
+
+lisp-code::step
 
 
 ;;

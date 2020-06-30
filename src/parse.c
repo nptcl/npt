@@ -12,6 +12,7 @@
 #include "make_load_form.h"
 #include "parse_macro.h"
 #include "parse_object.h"
+#include "step.h"
 #include "symbol.h"
 
 _g void check_variable(addr symbol)
@@ -149,6 +150,7 @@ _g int eval_parse(Execute ptr, addr *ret, addr pos, addr toplevel)
 
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
+	init_parse_step(ptr);
 	init_parse_environment(ptr);
 	init_parse_load_time_value(ptr);
 	init_parse_make_load_form(ptr);

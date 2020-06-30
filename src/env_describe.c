@@ -192,12 +192,12 @@ _g int inspect_common(Execute ptr, addr object)
 
 	terminal_io_stream(ptr, &io);
 	Return(describe_common(ptr, object, io));
-	/* *inspected */
+	/* *inspected* */
 	GetConst(SYSTEM_INSPECTED, &symbol);
 	pushspecial_control(ptr, symbol, object);
 	/* prompt */
 	mode_prompt_stream(ptr, PromptStreamMode_Inspect);
-	Return(eval_custom_loop(ptr, eval_loop_inspect));
+	Return(eval_custom_loop(ptr, io, eval_loop_inspect));
 
 	return 0;
 }

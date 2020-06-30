@@ -8,6 +8,7 @@
 #include "env_describe.h"
 #include "env_time.h"
 #include "env_version.h"
+#include "step.h"
 #include "stream.h"
 #include "type_parse.h"
 

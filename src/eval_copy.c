@@ -11,6 +11,7 @@
 #include "parse.h"
 #include "parse_object.h"
 #include "parse_macro.h"
+#include "step.h"
 #include "type.h"
 #include "type_copy.h"
 
@@ -982,5 +983,6 @@ _g void init_eval_copy(void)
 	EvalCopyTable[EVAL_PARSE_NTH_VALUE] = copy_eval_nth_value;
 	EvalCopyTable[EVAL_PARSE_PROGV] = copy_eval_progv;
 	EvalCopyTable[EVAL_PARSE_LOAD_TIME_VALUE] = copy_eval_load_time_value;
+	EvalCopyTable[EVAL_PARSE_STEP] = copy_eval_step;
 }
 

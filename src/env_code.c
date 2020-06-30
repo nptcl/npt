@@ -391,28 +391,6 @@ _g void trace_del_common(Execute ptr, addr list, addr *ret)
 
 
 /*
- *  step
- */
-_g void step_common(Execute ptr, addr form, addr env, addr *ret)
-{
-	addr eval;
-
-	getcdr(form, &form);
-	if (consp_getcons(form, &eval, &form))
-		goto error;
-	if (form != Nil)
-		goto error;
-
-	fmte("TODO", NULL);
-	*ret = eval;
-	return;
-
-error:
-	fmte("STEP argument ~S must be a (eval) form.", form, NULL);
-}
-
-
-/*
  *  initialize
  */
 _g void init_environment_code(void)

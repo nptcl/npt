@@ -264,6 +264,8 @@ sequence_range.c
 sequence_write.c
 setf.c
 sort.c
+step.c
+step_prompt.c
 stream_broadcast.c
 stream_concat.c
 stream_echo.c

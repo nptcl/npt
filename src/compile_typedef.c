@@ -136,6 +136,8 @@ static void init_compile_typedef_write(void)
 	defwrite(load_time_value_set);
 	defwrite(load_time_value_push);
 
+	defwrite(step);
+
 	defwrite(optcode_result_type);
 	defwrite(optcode_car0_set);
 	defwrite(optcode_car0_push);
@@ -275,6 +277,8 @@ static void init_compile_typedef_read(void)
 	defread(load_time_value_init, LOAD_TIME_VALUE_INIT);
 	defread(load_time_value_set, LOAD_TIME_VALUE_SET);
 	defread(load_time_value_push, LOAD_TIME_VALUE_PUSH);
+
+	defread(step, STEP);
 
 	defread(optcode_result_type, OPTCODE_RESULT_TYPE);
 	defread(optcode_car0_set, OPTCODE_CAR0_SET);

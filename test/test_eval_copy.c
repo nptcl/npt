@@ -17,6 +17,7 @@
 #include "parse.h"
 #include "parse_function.h"
 #include "pathname.h"
+#include "step.h"
 #include "stream.h"
 #include "strtype.h"
 #include "strvect.h"
@@ -43,6 +44,7 @@ static void test_eval_copy_ordinary(addr *ret, addr pos)
 	push_compile_toplevel_eval(ptr, Nil);
 	push_load_toplevel_eval(ptr, T);
 	push_execute_eval(ptr, T);
+	init_parse_step(ptr);
 
 	parse_ordinary(ptr, ret, pos);
 	free_control_(ptr, control);

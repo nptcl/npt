@@ -17,6 +17,7 @@
 #include "integer.h"
 #include "load_time_value.h"
 #include "restart_value.h"
+#include "step_prompt.h"
 #include "symbol.h"
 #include "type_deftype.h"
 
@@ -837,5 +838,16 @@ _g int load_time_value_push_code(Execute ptr, CodeValue x)
 	execute_load_time_value_get(ptr, x.pos, &x.pos);
 	pushargs_control(ptr, x.pos);
 	return 0;
+}
+
+
+/*
+ *  step
+ */
+_g int step_code(Execute ptr, CodeValue x)
+{
+	addr expr, value;
+	List_bind(x.pos, &expr, &value, NULL);
+	return execute_step_code(ptr, expr, value);
 }
 

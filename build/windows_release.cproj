@@ -409,6 +409,8 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sequence_write.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\setf.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\sort.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\step.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\step_prompt.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_broadcast.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_concat.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\stream_echo.c" />
@@ -716,6 +718,8 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sequence.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\setf.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\sort.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\step_prompt.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\step.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_broadcast.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_concat.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\stream_echo.h" />
