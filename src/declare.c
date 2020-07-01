@@ -1382,10 +1382,10 @@ static void apply_optimize_proclaim(addr pos)
 	int i;
 	OptimizeType value;
 
-	for (i = 0; i < EVAL_OPTIMIZE_SIZE; i++) {
+	for (i = 0; i < (int)EVAL_OPTIMIZE_SIZE; i++) {
 		GetEvalDeclareOptimize(pos, i, &value);
 		if (0 <= value)
-			apply_optimize_declaim(i, value);
+			apply_optimize_declaim((enum EVAL_OPTIMIZE)i, value);
 	}
 }
 

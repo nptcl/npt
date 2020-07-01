@@ -914,6 +914,7 @@ static int open_if_exists_stream(Execute ptr, addr *ret, addr pos,
 	}
 	switch (value) {
 		case Stream_Open_IfExists_Error:
+			*mode = FileOutput_supersede;
 			file_error(pos);
 			break;
 
@@ -941,6 +942,7 @@ static int open_if_exists_stream(Execute ptr, addr *ret, addr pos,
 			return 1;
 
 		default:
+			*mode = FileOutput_supersede;
 			fmte("Invalid :if-exist value.", NULL);
 			return 0;
 	}

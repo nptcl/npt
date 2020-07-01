@@ -2660,7 +2660,7 @@ _g void format_parse_heap(LocalRoot local, addr *ret, addr format)
 
 _g void format_string_alloc(LocalRoot local, addr *ret, addr format)
 {
-	void *body;
+	byte *body;
 	struct format_argument *arg;
 	unicode *u;
 	addr pos;
@@ -2672,7 +2672,7 @@ _g void format_string_alloc(LocalRoot local, addr *ret, addr format)
 
 	CheckType(format, LISPTYPE_FORMAT);
 	/* header */
-	body = format_pointer(format);
+	body = (byte *)format_pointer(format);
 #ifdef LISP_DEBUG
 	str = (struct format_operator *)body;
 	Check(str->type != FormatType_Format, "Invalid format object.");
@@ -2705,42 +2705,43 @@ _g void format_string_heap(addr *ret, addr format)
  */
 #define SetFormatSize(x,y) (FormatSize[FormatType_##x] = format_size_##y)
 #define SetFormatWrite(x,y) (FormatWrite[FormatType_##x] = format_write_##y)
+#define SetFormatCharacter(x,y) (FormatCharacter[(int)(x)] = (y))
 
 _g void init_format_parse(void)
 {
 	cleartype(FormatCharacter);
-	FormatCharacter[0] = FormatType_Output;
-	FormatCharacter['A'] = FormatType_Aesthetic;
-	FormatCharacter['S'] = FormatType_Standard;
-	FormatCharacter['B'] = FormatType_Binary;
-	FormatCharacter['O'] = FormatType_Octal;
-	FormatCharacter['D'] = FormatType_Decimal;
-	FormatCharacter['X'] = FormatType_Hexadecimal;
-	FormatCharacter['R'] = FormatType_Radix;
-	FormatCharacter['P'] = FormatType_Plural;
-	FormatCharacter['C'] = FormatType_Character;
-	FormatCharacter['F'] = FormatType_Fixed;
-	FormatCharacter['E'] = FormatType_Exponential;
-	FormatCharacter['G'] = FormatType_General;
-	FormatCharacter['$'] = FormatType_Monetary;
-	FormatCharacter['%'] = FormatType_Newline;
-	FormatCharacter['&'] = FormatType_FreshLine;
-	FormatCharacter['|'] = FormatType_Page;
-	FormatCharacter['~'] = FormatType_Tilde;
-	FormatCharacter['\n'] = FormatType_IgnoredNewline;
-	FormatCharacter['T'] = FormatType_Tabulate;
-	FormatCharacter['*'] = FormatType_GoTo;
-	FormatCharacter['?'] = FormatType_Recursive;
-	FormatCharacter['_'] = FormatType_ConditionalNewline;
-	FormatCharacter['W'] = FormatType_Write;
-	FormatCharacter['I'] = FormatType_Indent;
-	FormatCharacter['('] = FormatType_Case;
-	FormatCharacter['['] = FormatType_Condition;
-	FormatCharacter['{'] = FormatType_Iteration;
-	FormatCharacter['<'] = FormatType_Justification;
-	FormatCharacter['^'] = FormatType_EscapeUpward;
-	FormatCharacter[';'] = FormatType_ClauseSeparator;
-	FormatCharacter['/'] = FormatType_CallFunction;
+	SetFormatCharacter(0, FormatType_Output);
+	SetFormatCharacter('A', FormatType_Aesthetic);
+	SetFormatCharacter('S', FormatType_Standard);
+	SetFormatCharacter('B', FormatType_Binary);
+	SetFormatCharacter('O', FormatType_Octal);
+	SetFormatCharacter('D', FormatType_Decimal);
+	SetFormatCharacter('X', FormatType_Hexadecimal);
+	SetFormatCharacter('R', FormatType_Radix);
+	SetFormatCharacter('P', FormatType_Plural);
+	SetFormatCharacter('C', FormatType_Character);
+	SetFormatCharacter('F', FormatType_Fixed);
+	SetFormatCharacter('E', FormatType_Exponential);
+	SetFormatCharacter('G', FormatType_General);
+	SetFormatCharacter('$', FormatType_Monetary);
+	SetFormatCharacter('%', FormatType_Newline);
+	SetFormatCharacter('&', FormatType_FreshLine);
+	SetFormatCharacter('|', FormatType_Page);
+	SetFormatCharacter('~', FormatType_Tilde);
+	SetFormatCharacter('\n', FormatType_IgnoredNewline);
+	SetFormatCharacter('T', FormatType_Tabulate);
+	SetFormatCharacter('*', FormatType_GoTo);
+	SetFormatCharacter('?', FormatType_Recursive);
+	SetFormatCharacter('_', FormatType_ConditionalNewline);
+	SetFormatCharacter('W', FormatType_Write);
+	SetFormatCharacter('I', FormatType_Indent);
+	SetFormatCharacter('(', FormatType_Case);
+	SetFormatCharacter('[', FormatType_Condition);
+	SetFormatCharacter('{', FormatType_Iteration);
+	SetFormatCharacter('<', FormatType_Justification);
+	SetFormatCharacter('^', FormatType_EscapeUpward);
+	SetFormatCharacter(';', FormatType_ClauseSeparator);
+	SetFormatCharacter('/', FormatType_CallFunction);
 
 	cleartype(FormatSize);
 	SetFormatSize(Output,              Output);           /* text */

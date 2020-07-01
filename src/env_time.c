@@ -631,7 +631,7 @@ _g void get_internal_run_time_common(addr *ret)
 /*
  *  sleep
  */
-#ifdef LISP_POSIX
+#if defined(LISP_POSIX)
 #include <unistd.h>
 
 #ifdef LISP_DEBUG
@@ -725,9 +725,8 @@ static int sleep_moment_common(Execute ptr, fixnum value)
 
 	return getatomic_sleep_object(ptr);
 }
-#endif
 
-#ifdef LISP_WINDOWS
+#elif defined(LISP_WINDOWS)
 #include <windows.h>
 
 #ifdef LISP_DEBUG
@@ -825,6 +824,14 @@ static int sleep_moment_common(Execute ptr, fixnum value)
 static int sleep_second_common(Execute ptr, fixnum value)
 {
 	return sleep_moment_common(ptr, (fixnum)(value * LISP_SLEEP_INTERVAL));
+}
+
+#else
+
+static int sleep_close_object(Execute ptr)
+{
+	/* do nothing */
+	return 0;
 }
 #endif
 
@@ -999,6 +1006,7 @@ static int sleep_wait_common(Execute ptr, addr var)
 }
 #endif
 
+#if defined(LISP_POSIX) || defined(LISP_WINDOWS)
 static void sleep_value_integer(LocalRoot local, addr var, addr *ret)
 {
 	addr right;
@@ -1089,6 +1097,7 @@ static void sleep_value_common(LocalRoot local, addr var, addr *ret)
 			return;
 	}
 }
+#endif
 
 _g int sleep_common(Execute ptr, addr var)
 {

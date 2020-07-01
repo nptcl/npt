@@ -138,7 +138,7 @@ int lisp_unicode_count(void)
 /* UTF-8 */
 int lisp_utf8_encode(unicode c, void *ptr, size_t *ret)
 {
-	return encode_utf8(c, ptr, ret);
+	return encode_utf8(c, (byte *)ptr, ret);
 }
 
 

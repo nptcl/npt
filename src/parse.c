@@ -87,29 +87,29 @@ _g void parse_compile_toplevel(Execute ptr, addr expr, addr list, addr *ret)
 
 	/* compile */
 	if (! eval_compile_p(ptr))
-		goto throw;
+		goto return_throw;
 
 	/* type */
 	if (! consp(expr))
-		goto throw;
+		goto return_throw;
 	GetCar(expr, &expr);
 	if (! parse_compile_toplevel_symbol(expr))
-		goto throw;
+		goto return_throw;
 
 	/* toplevel */
 	gettoplevel_eval(ptr, &toplevel);
 	if (toplevel == Nil)
-		goto throw;
+		goto return_throw;
 
 	/* :compile-toplevel */
 	get_compile_toplevel_eval(ptr, &compile);
 	if (compile != Nil)
-		goto throw;
+		goto return_throw;
 
 	/* compile-time-too */
 	get_compile_time_eval(ptr, &mode);
 	if (mode != Nil)
-		goto throw;
+		goto return_throw;
 
 	/* eval-when */
 	get_load_toplevel_eval(ptr, &load);
@@ -126,7 +126,7 @@ _g void parse_compile_toplevel(Execute ptr, addr expr, addr list, addr *ret)
 	*ret = eval;
 	return;
 
-throw:
+return_throw:
 	*ret = list;
 }
 

@@ -116,7 +116,7 @@ static int runcode_control_check(Execute ptr)
 
 static int runcode_execute(Execute ptr, addr code)
 {
-	addr control, throw;
+	addr control, throw_control;
 	struct control_struct *str;
 	struct code_struct *body;
 	struct code_value *sys, *bind;
@@ -153,8 +153,8 @@ loop:
 		goto loop;
 
 	/* throw */
-	throw = ptr->throw_control;
-	if (throw && (control != throw)) {
+	throw_control = ptr->throw_control;
+	if (throw_control && (control != throw_control)) {
 		Check(runcode_control_check(ptr), "throw_control error");
 		return 1;
 	}

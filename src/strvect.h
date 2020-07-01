@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include "local.h"
+#include "character.h"
 #include "typedef.h"
 
 #define StringBodyLength(x)			(IdxSize + sizeoft(unicode)*(x))

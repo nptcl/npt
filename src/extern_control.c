@@ -210,11 +210,11 @@ addr lisp_syscall_function(int index, addr name)
 	compiled_heap(&pos, name);
 	switch (pointer_table[index].type) {
 		case CallBind_extend_dynamic:
-			setcompiled_extend_dynamic(pos, index);
+			setcompiled_extend_dynamic(pos, (pointer)index);
 			break;
 
 		case CallBind_extend_rest:
-			setcompiled_extend_rest(pos, index);
+			setcompiled_extend_rest(pos, (pointer)index);
 			break;
 
 		default:
@@ -324,7 +324,7 @@ void lisp_error16(const void *str, ...)
 int lisp_catch(addr symbol, addr code, addr *ret)
 {
 	Execute ptr;
-	addr control, catch;
+	addr control, value;
 	LocalHold hold;
 
 	if (! symbolp(symbol))
@@ -333,17 +333,17 @@ int lisp_catch(addr symbol, addr code, addr *ret)
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
 	/* begin catch */
-	push_new_control(ptr, &catch);
+	push_new_control(ptr, &value);
 	catch_control(ptr, symbol);
 	Return(apply_control(ptr, code, Nil));
-	Return(free_control_(ptr, catch));
+	Return(free_control_(ptr, value));
 	/* end catch */
-	getresult_control(ptr, &catch);
-	localhold_set(hold, 0, catch);
+	getresult_control(ptr, &value);
+	localhold_set(hold, 0, value);
 	Return(free_control_(ptr, control));
 	localhold_end(hold);
 	if (ret)
-		*ret = catch;
+		*ret = value;
 
 	return 0;
 }

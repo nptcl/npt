@@ -1007,7 +1007,7 @@ static int function_ccase_string(Execute ptr,
 	localhold_set(hold, 0, stream);
 	localhold_set(hold, 1, list);
 	if (format_stream(ptr, stream, "The value of ~A, ~~A, is not ", place, NULL))
-		goto throw;
+		goto return1;
 	/* loop */
 	for (first = 1; args != Nil; ) {
 		getcons(args, &pos, &args);
@@ -1016,14 +1016,14 @@ static int function_ccase_string(Execute ptr,
 			while (pos != Nil) {
 				getcons(pos, &x, &pos);
 				if (function_ccase_comma(ptr, stream, x, &first))
-					goto throw;
+					goto return1;
 				cons_heap(&list, x, list);
 				localhold_set(hold, 1, list);
 			}
 		}
 		else {
 			if (function_ccase_comma(ptr, stream, pos, &first))
-				goto throw;
+				goto return1;
 			cons_heap(&list, pos, list);
 			localhold_set(hold, 1, list);
 		}
@@ -1036,7 +1036,7 @@ static int function_ccase_string(Execute ptr,
 	nreverse(rtype, list);
 	return 0;
 
-throw:
+return1:
 	close_stream(stream);
 	return 1;
 }

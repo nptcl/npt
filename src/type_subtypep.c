@@ -1186,10 +1186,10 @@ static SubtypepResult subtypep_leftright(addr left, addr right)
 
 static SubtypepResult subtypep_clos_left(addr left, addr right)
 {
-	int not;
+	int not1;
 
-	GetNotDecl(right, &not);
-	if (not)
+	GetNotDecl(right, &not1);
+	if (not1)
 		return SUBTYPEP_INVALID;
 	else
 		return subtypep_leftright(left, right);

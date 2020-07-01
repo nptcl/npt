@@ -227,7 +227,7 @@ _g void expand_pprint_logical_block_common(addr *ret, addr symbol, addr pos,
 	 *              ,@body))
 	 *          (system::pprint-close ,symbol)))))
 	 */
-	addr let, flet, lambda, unwind, catch, macrolet, list, quote;
+	addr let, flet, lambda, unwind, catchs, macrolet, list, quote;
 	addr make, pretty, gensym, exit, pop, check, close, ppexit, pppop;
 	addr x;
 
@@ -249,7 +249,7 @@ _g void expand_pprint_logical_block_common(addr *ret, addr symbol, addr pos,
 	GetConst(COMMON_FLET, &flet);
 	GetConst(COMMON_LAMBDA, &lambda);
 	GetConst(COMMON_UNWIND_PROTECT, &unwind);
-	GetConst(COMMON_CATCH, &catch);
+	GetConst(COMMON_CATCH, &catchs);
 	GetConst(COMMON_MACROLET, &macrolet);
 	GetConst(COMMON_LIST, &list);
 	GetConst(COMMON_QUOTE, &quote);
@@ -275,8 +275,8 @@ _g void expand_pprint_logical_block_common(addr *ret, addr symbol, addr pos,
 	list_heap(&check, check, symbol, NULL);
 	lista_heap(&macrolet, macrolet, x, check, body, NULL);
 	list_heap(&gensym, gensym, symbol, NULL);
-	list_heap(&catch, catch, gensym, macrolet, NULL);
-	list_heap(&unwind, unwind, catch, close, NULL);
+	list_heap(&catchs, catchs, gensym, macrolet, NULL);
+	list_heap(&unwind, unwind, catchs, close, NULL);
 	list_heap(&lambda, lambda, Nil, unwind, NULL);
 	list_heap(&pretty, pretty, symbol, lambda, NULL);
 	list_heap(&x, make, symbol, pos, prefix, perline, suffix, NULL);
