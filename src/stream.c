@@ -17,7 +17,7 @@
 #include "integer.h"
 #include "memory.h"
 #include "object.h"
-#include "pathname.h"
+#include "pathname_object.h"
 #include "print.h"
 #include "print_write.h"
 #include "reader.h"
@@ -885,7 +885,7 @@ static void open_if_exists_rename_stream(Execute ptr, addr pos)
 		/* make filename */
 		copy_pathname_alloc(local, &path, pos);
 		charqueue_local(local, &queue, 0);
-		GetPathname(path, PATHNAME_INDEX_TYPE, &type);
+		GetTypePathname(path, &type);
 		if (stringp(type)) {
 			pushstring_charqueue_local(local, queue, type);
 			pushchar_charqueue_local(local, queue, ".");
@@ -893,7 +893,7 @@ static void open_if_exists_rename_stream(Execute ptr, addr pos)
 		make_index_integer_alloc(local, &type, i);
 		decimal_charqueue_integer_local(local, type, queue);
 		make_charqueue_local(local, queue, &type);
-		SetPathname(path, PATHNAME_INDEX_TYPE, type);
+		SetTypePathname(path, type);
 		/* check */
 		if (! probe_file_stream(ptr, path)) {
 			rename_file_files(ptr, &ret1, &ret2, &ret3, pos, path);

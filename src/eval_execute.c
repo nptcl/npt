@@ -14,6 +14,7 @@
 #include "make_load_form.h"
 #include "optimize_parse.h"
 #include "parse.h"
+#include "pathname_object.h"
 #include "pathname.h"
 #include "prompt.h"
 #include "reader.h"
@@ -347,7 +348,7 @@ static int eval_load_fasl_p(addr file)
 {
 	if (streamp(file))
 		return 0;
-	GetPathname(file, PATHNAME_INDEX_TYPE, &file);
+	GetTypePathname(file, &file);
 	return stringp(file) &&
 		(string_equalp_char(file, "fasl") || string_equalp_char(file, "fas"));
 }
@@ -416,7 +417,7 @@ static void eval_load_check_type(Execute ptr, addr file, addr *ret)
 {
 	addr check;
 
-	GetPathname(file, PATHNAME_INDEX_TYPE, &check);
+	GetTypePathname(file, &check);
 	if (! stringp(check)) {
 		*ret = file;
 		return;
@@ -432,7 +433,7 @@ static void eval_load_check_type(Execute ptr, addr file, addr *ret)
 
 	/* *.fasl */
 	strvect_char_heap(&check, "fasl");
-	SetPathname(file, PATHNAME_INDEX_TYPE, check);
+	SetTypePathname(file, check);
 	probe_file_files(ptr, &check, file);
 	if (check != Nil) {
 		*ret = file;
@@ -441,7 +442,7 @@ static void eval_load_check_type(Execute ptr, addr file, addr *ret)
 
 	/* *.lisp */
 	strvect_char_heap(&check, "lisp");
-	SetPathname(file, PATHNAME_INDEX_TYPE, check);
+	SetTypePathname(file, check);
 	probe_file_files(ptr, &check, file);
 	if (check != Nil) {
 		*ret = file;

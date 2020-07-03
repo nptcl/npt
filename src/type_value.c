@@ -6,7 +6,7 @@
 #include "function.h"
 #include "integer.h"
 #include "rational.h"
-#include "pathname.h"
+#include "pathname_object.h"
 #include "stream.h"
 #include "strtype.h"
 #include "strvect.h"

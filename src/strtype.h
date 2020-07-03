@@ -68,6 +68,8 @@ _g int string_equal_binary(addr left, const unicode *right, size_t len);
 _g int string_equalp_binary(addr left, const unicode *right, size_t len);
 _g int string_equal_char(addr left, const char *right);
 _g int string_equalp_char(addr left, const char *right);
+_g int stringp_equal_char(addr left, const char *right);
+_g int stringp_equalp_char(addr left, const char *right);
 _g int string_equal(addr left, addr right);
 _g int string_equalp(addr left, addr right);
 _g int string_character_equal(addr left, addr right);

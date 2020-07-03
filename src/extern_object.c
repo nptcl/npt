@@ -14,6 +14,7 @@
 #include "number.h"
 #include "object.h"
 #include "package.h"
+#include "pathname_common.h"
 #include "pathname.h"
 #include "ratio.h"
 #include "reader.h"

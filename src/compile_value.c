@@ -16,7 +16,7 @@
 #include "load_time_value.h"
 #include "make_load_form.h"
 #include "package.h"
-#include "pathname.h"
+#include "pathname_object.h"
 #include "random_state.h"
 #include "ratio.h"
 #include "stream.h"
@@ -736,17 +736,17 @@ _g int faslwrite_value_pathname(Execute ptr, addr stream, addr pos)
 	GetLogicalPathname(pos, &type);
 	faslwrite_byte(stream, (byte)type);
 	/* array */
-	GetPathname(pos, PATHNAME_INDEX_HOST, &value);
+	GetHostPathname(pos, &value);
 	Return(faslwrite_value(ptr, stream, value));
-	GetPathname(pos, PATHNAME_INDEX_DEVICE, &value);
+	GetDevicePathname(pos, &value);
 	Return(faslwrite_value(ptr, stream, value));
-	GetPathname(pos, PATHNAME_INDEX_DIRECTORY, &value);
+	GetDirectoryPathname(pos, &value);
 	Return(faslwrite_value(ptr, stream, value));
-	GetPathname(pos, PATHNAME_INDEX_NAME, &value);
+	GetNamePathname(pos, &value);
 	Return(faslwrite_value(ptr, stream, value));
-	GetPathname(pos, PATHNAME_INDEX_TYPE, &value);
+	GetTypePathname(pos, &value);
 	Return(faslwrite_value(ptr, stream, value));
-	GetPathname(pos, PATHNAME_INDEX_VERSION, &value);
+	GetVersionPathname(pos, &value);
 	Return(faslwrite_value(ptr, stream, value));
 
 	return 0;
@@ -762,17 +762,17 @@ _g int faslread_value_pathname(Execute ptr, addr stream, addr *ret)
 	make_pathname_alloc(NULL, &pos, (int)type);
 	/* array */
 	Return(faslread_value(ptr, stream, &value));
-	SetPathname(pos, PATHNAME_INDEX_HOST, value);
+	SetHostPathname(pos, value);
 	Return(faslread_value(ptr, stream, &value));
-	SetPathname(pos, PATHNAME_INDEX_DEVICE, value);
+	SetDevicePathname(pos, value);
 	Return(faslread_value(ptr, stream, &value));
-	SetPathname(pos, PATHNAME_INDEX_DIRECTORY, value);
+	SetDirectoryPathname(pos, value);
 	Return(faslread_value(ptr, stream, &value));
-	SetPathname(pos, PATHNAME_INDEX_NAME, value);
+	SetNamePathname(pos, value);
 	Return(faslread_value(ptr, stream, &value));
-	SetPathname(pos, PATHNAME_INDEX_TYPE, value);
+	SetTypePathname(pos, value);
 	Return(faslread_value(ptr, stream, &value));
-	SetPathname(pos, PATHNAME_INDEX_VERSION, value);
+	SetVersionPathname(pos, value);
 
 	return Result(ret, pos);
 }

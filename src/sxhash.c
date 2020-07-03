@@ -7,7 +7,7 @@
 #include "heap_memory.h"
 #include "memory.h"
 #include "object.h"
-#include "pathname.h"
+#include "pathname_object.h"
 #include "ratio.h"
 #include "real_decode.h"
 #include "strtype.h"

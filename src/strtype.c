@@ -682,6 +682,16 @@ _g int string_equalp_char(addr left, const char *right)
 	return 0;
 }
 
+_g int stringp_equal_char(addr left, const char *right)
+{
+	return stringp(left) && string_equal_char(left, right);
+}
+
+_g int stringp_equalp_char(addr left, const char *right)
+{
+	return stringp(left) && string_equalp_char(left, right);
+}
+
 static int strarray_strvect_equal(addr left, addr right)
 {
 	const unicode *body;

@@ -209,6 +209,14 @@ parse_function.c
 parse_macro.c
 parse_object.c
 parse.c
+pathname_common.c
+pathname_localp.c
+pathname_logical.c
+pathname_object.c
+pathname_posix.c
+pathname_table.c
+pathname_translate.c
+pathname_windows.c
 pathname.c
 pointer.c
 print.c

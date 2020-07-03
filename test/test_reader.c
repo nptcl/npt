@@ -2803,9 +2803,9 @@ static int test_pathname_dispatch(void)
 	test(GetType(pos) == LISPTYPE_PATHNAME, "pathname_dispatch2");
 	test(! readstring(&pos, "#p\"file.txt\""), "pathname_dispatch3");
 	test(GetType(pos) == LISPTYPE_PATHNAME, "pathname_dispatch4");
-	GetPathname(pos, PATHNAME_INDEX_NAME, &check);
+	GetNamePathname(pos, &check);
 	test(string_equalp_char(check, "file"), "pathname_dispatch5");
-	GetPathname(pos, PATHNAME_INDEX_TYPE, &check);
+	GetTypePathname(pos, &check);
 	test(string_equalp_char(check, "txt"), "pathname_dispatch6");
 
 	RETURN;

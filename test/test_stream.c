@@ -7,6 +7,7 @@
 #include "degrade.h"
 #include "object.h"
 #include "package.h"
+#include "pathname.h"
 #include "reader.h"
 #include "symbol.h"
 #include "syscall.h"

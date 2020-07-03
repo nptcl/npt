@@ -9,6 +9,7 @@
 #include "declare.h"
 #include "integer.h"
 #include "object.h"
+#include "pathname_object.h"
 #include "pathname.h"
 #include "sequence.h"
 #include "stream.h"
@@ -432,7 +433,7 @@ static int open_common_ifexists(addr value, addr pos, enum Stream_Open_IfExists 
 
 	/* default */
 	if (value == Unbound) {
-		GetPathname(pos, PATHNAME_INDEX_VERSION, &value);
+		GetVersionPathname(pos, &value);
 		GetConst(KEYWORD_NEWEST, &check);
 		return Result(ret, value == check?
 				Stream_Open_IfExists_NewVersion:

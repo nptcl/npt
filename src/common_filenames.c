@@ -7,6 +7,8 @@
 #include "cons_plist.h"
 #include "integer.h"
 #include "package.h"
+#include "pathname_common.h"
+#include "pathname_object.h"
 #include "pathname.h"
 #include "stream.h"
 #include "strtype.h"

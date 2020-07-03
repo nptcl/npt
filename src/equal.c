@@ -13,7 +13,7 @@
 #include "memory.h"
 #include "number.h"
 #include "object.h"
-#include "pathname.h"
+#include "pathname_object.h"
 #include "ratio.h"
 #include "ratio_equal.h"
 #include "strtype.h"

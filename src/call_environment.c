@@ -15,6 +15,8 @@
 #include "hold.h"
 #include "integer.h"
 #include "package.h"
+#include "pathname_common.h"
+#include "pathname_object.h"
 #include "pathname.h"
 #include "print.h"
 #include "print_write.h"

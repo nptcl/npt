@@ -17,6 +17,8 @@
 #include "format.h"
 #include "local.h"
 #include "integer.h"
+#include "pathname_common.h"
+#include "pathname_object.h"
 #include "pathname.h"
 #include "sequence.h"
 #include "stream.h"
@@ -59,10 +61,10 @@ static void make_list_directory_pathname(struct directory_struct *str,
 	/* directory */
 	reverse_list_local_unsafe(local, &list, list);
 	copylocal_object(local, &list, list);
-	SetPathname(one, PATHNAME_INDEX_DIRECTORY, list);
+	SetDirectoryPathname(one, list);
 	/* version */
 	GetConst(KEYWORD_UNSPECIFIC, &version);
-	SetPathname(one, PATHNAME_INDEX_VERSION, version);
+	SetVersionPathname(one, version);
 	/* result */
 	physical_pathname_local(str->ptr, one, ret);
 }
@@ -129,8 +131,8 @@ static void files_path_directory_files(struct directory_struct *str,
 		copy_list_local_unsafe(local, &list, str->list);
 		cons_local(local, &list, name, list);
 		make_list_directory_pathname(str, &path, list);
-		SetPathname(path, PATHNAME_INDEX_NAME, Nil);
-		SetPathname(path, PATHNAME_INDEX_TYPE, Nil);
+		SetNamePathname(path, Nil);
+		SetTypePathname(path, Nil);
 	}
 	*ret = path;
 }
@@ -398,7 +400,7 @@ _g void directory_files(Execute ptr, addr *ret, addr pos)
 	struct directory_struct str;
 
 	init_directory_struct(ptr, &str, pos);
-	GetPathname(str.pos, PATHNAME_INDEX_DIRECTORY, &str.front);
+	GetDirectoryPathname(str.pos, &str.front);
 	loop_directory_files(&str);
 	*ret = str.root;
 }
@@ -473,7 +475,7 @@ static void merge_directory_pathname(LocalRoot local, addr *ret, addr pos, addr 
 	make_pathname_alloc(local, &one, RefLogicalPathname(pos));
 	copylocal_pathname_array(local, pos, PATHNAME_INDEX_HOST, one);
 	copylocal_pathname_array(local, pos, PATHNAME_INDEX_DEVICE, one);
-	SetPathname(one, PATHNAME_INDEX_DIRECTORY, value);
+	SetDirectoryPathname(one, value);
 	*ret = one;
 }
 
@@ -487,7 +489,7 @@ static void ensure_directories_exist_run_files(Execute ptr,
 	mode_t mode;
 	struct stat st;
 
-	GetPathname(pos, PATHNAME_INDEX_DIRECTORY, &list);
+	GetDirectoryPathname(pos, &list);
 	if (! consp(list))
 		fmte("Invalid pathname directory ~S.", pos, NULL);
 	GetCons(list, &value, &list);

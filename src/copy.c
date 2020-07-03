@@ -8,7 +8,7 @@
 #include "integer.h"
 #include "memory.h"
 #include "object.h"
-#include "pathname.h"
+#include "pathname_object.h"
 #include "random_state.h"
 #include "ratio.h"
 #include "real.h"
@@ -229,9 +229,9 @@ _g void copyhard_pathname(LocalRoot local, addr *ret, addr pos)
 	Check(! pathnamep(pos), "type error");
 	make_pathname_alloc(local, &one, pathname_logical_p(pos));
 	for (i = 0; i < PATHNAME_INDEX_SIZE; i++) {
-		GetPathname(pos, i, &child);
+		GetArrayPathname(pos, (enum PATHNAME_INDEX)i, &child);
 		copyhard_object(local, &child, child);
-		SetPathname(pos, i, child);
+		SetArrayPathname(pos, (enum PATHNAME_INDEX)i, child);
 	}
 	*ret = one;
 }
@@ -316,7 +316,8 @@ static int checklocal_default(LocalRoot local, addr pos)
 static int checklocal_cons(LocalRoot local, addr right)
 {
 	addr left;
-	if (copylocalp(local, right)) return 1;
+	if (copylocalp(local, right))
+		return 1;
 	GetCons(right, &left, &right);
 	return copylocalp(local, left) || copylocalp(local, right);
 }
@@ -326,11 +327,13 @@ static int checklocal_vector(LocalRoot local, addr pos)
 	addr child;
 	size_t size, i;
 
-	if (copylocalp(local, pos)) return 1;
+	if (copylocalp(local, pos))
+		return 1;
 	lenarray(pos, &size);
 	for (i = 0; i < size; i++) {
 		getarray(pos, i, &child);
-		if (copylocal_check(local, child)) return 1;
+		if (copylocal_check(local, child))
+			return 1;
 	}
 
 	return 0;
@@ -339,7 +342,8 @@ static int checklocal_vector(LocalRoot local, addr pos)
 static int checklocal_complex(LocalRoot local, addr right)
 {
 	addr real;
-	if (copylocalp(local, right)) return 1;
+	if (copylocalp(local, right))
+		return 1;
 	GetRealComplex(right, &real);
 	GetImagComplex(right, &right);
 	return copylocalp(local, real) || copylocalp(local, right);
@@ -347,7 +351,8 @@ static int checklocal_complex(LocalRoot local, addr right)
 
 static int checklocal_callname(LocalRoot local, addr pos)
 {
-	if (copylocalp(local, pos)) return 1;
+	if (copylocalp(local, pos))
+		return 1;
 	GetCallName(pos, &pos);
 	return copylocalp(local, pos);
 }
@@ -356,13 +361,17 @@ static int checklocal_function(LocalRoot local, addr pos)
 {
 	addr check;
 
-	if (copylocalp(local, pos)) return 1;
+	if (copylocalp(local, pos))
+		return 1;
 	GetCodeFunction(pos, &check);
-	if (copylocalp(local, check)) return 1;
+	if (copylocalp(local, check))
+		return 1;
 	GetNameFunction(pos, &check);
-	if (copylocalp(local, check)) return 1;
+	if (copylocalp(local, check))
+		return 1;
 	GetDataFunction(pos, &check);
-	if (copylocalp(local, check)) return 1;
+	if (copylocalp(local, check))
+		return 1;
 	GetTableFunction_Low(pos, &check);
 	return copylocalp(local, check);
 }
@@ -372,10 +381,12 @@ static int checklocal_pathname(LocalRoot local, addr pos)
 	addr child;
 	size_t i;
 
-	if (copylocalp(local, pos)) return 1;
+	if (copylocalp(local, pos))
+		return 1;
 	for (i = 0; i < PATHNAME_INDEX_SIZE; i++) {
-		GetPathname(pos, i, &child);
-		if (copylocalp(local, child)) return 1;
+		GetArrayPathname(pos, (enum PATHNAME_INDEX)i, &child);
+		if (copylocalp(local, child))
+			return 1;
 	}
 
 	return 0;
@@ -604,10 +615,10 @@ static void copylocal_pathname(LocalRoot local, addr *ret, addr pos)
 
 	make_pathname_alloc(local, &one, pathname_logical_p(pos));
 	for (i = 0; i < PATHNAME_INDEX_SIZE; i++) {
-		GetPathname(pos, i, &child);
+		GetArrayPathname(pos, (enum PATHNAME_INDEX)i, &child);
 		if (copylocalp(local, child))
 			copyhard_object(local, &child, child);
-		SetPathname(one, i, child);
+		SetArrayPathname(one, (enum PATHNAME_INDEX)i, child);
 	}
 	*ret = one;
 }
@@ -644,7 +655,8 @@ _g void copylocal_list_stdarg(LocalRoot local, addr *ret, va_list args)
 
 	for (;;) {
 		left = va_arg(args, addr);
-		if (left == NULL) break;
+		if (left == NULL)
+			break;
 		copylocal_object(local, &left, left);
 		conscar_alloc(local, &next, left);
 		SetCdr(right, next);

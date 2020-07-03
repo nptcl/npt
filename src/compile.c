@@ -11,6 +11,8 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "function.h"
+#include "pathname_common.h"
+#include "pathname_object.h"
 #include "pathname.h"
 #include "strvect.h"
 #include "symbol.h"

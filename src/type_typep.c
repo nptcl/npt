@@ -15,7 +15,7 @@
 #include "object.h"
 #include "rational.h"
 #include "real_float.h"
-#include "pathname.h"
+#include "pathname_object.h"
 #include "sequence.h"
 #include "stream.h"
 #include "strtype.h"

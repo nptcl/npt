@@ -354,6 +354,14 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_parse_macro.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_parse_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_parse.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname_localp.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname_logical.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname_posix.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname_table.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname_translate.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pathname_windows.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_pathname.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\pointer.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_print.c" />
@@ -662,6 +670,11 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse_object.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse_typedef.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname_common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname_localp.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname_table.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname_translate.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pathname.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_table.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\pointer_type.h" />

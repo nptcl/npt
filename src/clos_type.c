@@ -9,7 +9,7 @@
 #include "function.h"
 #include "hashtable.h"
 #include "memory.h"
-#include "pathname.h"
+#include "pathname_object.h"
 #include "stream.h"
 #include "strtype.h"
 #include "strvect.h"
