@@ -306,6 +306,10 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\file_memory.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\file.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\files.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\float_equal.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\float_multi.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\float_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\float_plus.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\format.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\format_float.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\format_function.c" />
@@ -399,7 +403,6 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_decode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_division.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_float.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_floor.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_round.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.c" />
@@ -623,6 +626,10 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\files_posix.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\files_windows.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\files.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\float_equal.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\float_multi.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\float_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\float_plus.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format_float.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format_function.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\format_parse.h" />
@@ -719,7 +726,6 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_decode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_division.h" />
-    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_float.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_floor.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_round.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.h" />

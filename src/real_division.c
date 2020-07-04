@@ -5,6 +5,7 @@
 #include "bignum_object.h"
 #include "bignum_plus.h"
 #include "condition.h"
+#include "float_object.h"
 #include "format.h"
 #include "math_type.h"
 #include "object.h"
@@ -12,7 +13,6 @@
 #include "ratio_plus.h"
 #include "ratio_multi.h"
 #include "real_division.h"
-#include "real_float.h"
 #include "real_floor.h"
 #include "real_truncate.h"
 #include <float.h>

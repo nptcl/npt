@@ -8,6 +8,10 @@
 #include "cmpl_multi.h"
 #include "cmpl_plus.h"
 #include "condition.h"
+#include "float_equal.h"
+#include "float_multi.h"
+#include "float_object.h"
+#include "float_plus.h"
 #include "integer.h"
 #include "math_type.h"
 #include "memory.h"
@@ -18,7 +22,6 @@
 #include "ratio_plus.h"
 #include "ratio_multi.h"
 #include "rational.h"
-#include "real_float.h"
 
 _g int numberp(addr pos)
 {

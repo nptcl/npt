@@ -3,8 +3,8 @@
 #include "bignum_object.h"
 #include "bignum.h"
 #include "condition.h"
+#include "float_object.h"
 #include "local.h"
-#include "real_float.h"
 #include "typedef.h"
 #include "type_table.h"
 

@@ -1,4 +1,5 @@
 #include <float.h>
+#include <math.h>
 #include "bignum.h"
 #include "cmpl.h"
 #include "condition.h"
@@ -6,7 +7,6 @@
 #include "object.h"
 #include "ratio.h"
 #include "real_common.h"
-#include "real_float.h"
 #include "real_floor.h"
 
 

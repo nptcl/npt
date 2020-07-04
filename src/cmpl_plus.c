@@ -1,12 +1,12 @@
 #include "cmpl.h"
 #include "cmpl_plus.h"
 #include "condition.h"
+#include "float_plus.h"
 #include "integer.h"
 #include "math_type.h"
 #include "ratio.h"
 #include "rational.h"
 #include "real.h"
-#include "real_float.h"
 
 
 /*

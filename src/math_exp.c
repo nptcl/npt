@@ -3,10 +3,10 @@
 #include "cmpl_arch.h"
 #include "cmpl_math.h"
 #include "condition.h"
+#include "float_object.h"
 #include "ratio.h"
 #include "real.h"
 #include "rational.h"
-#include "real_float.h"
 #include "math_exp.h"
 #include "math_type.h"
 #include <math.h>

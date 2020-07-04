@@ -4,6 +4,10 @@
 #include "bignum_multi.h"
 #include "bignum_object.h"
 #include "bignum_plus.h"
+#include "float_equal.h"
+#include "float_multi.h"
+#include "float_object.h"
+#include "float_plus.h"
 #include "integer.h"
 #include "ratio.h"
 #include "ratio_equal.h"
@@ -11,7 +15,6 @@
 #include "ratio_multi.h"
 #include "rational.h"
 #include "real.h"
-#include "real_float.h"
 #include "object.h"
 
 _g int floatp(addr pos)

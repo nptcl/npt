@@ -7,7 +7,6 @@
 #include "ratio.h"
 #include "rational.h"
 #include "real.h"
-#include "real_float.h"
 
 /*
  *  multiple

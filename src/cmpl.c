@@ -7,13 +7,15 @@
 #include "cmpl_math.h"
 #include "condition.h"
 #include "equal.h"
+#include "float_equal.h"
+#include "float_object.h"
+#include "float_plus.h"
 #include "heap.h"
 #include "integer.h"
 #include "number.h"
 #include "ratio.h"
 #include "rational.h"
 #include "real.h"
-#include "real_float.h"
 #include "type.h"
 
 _g int complexp(addr pos)

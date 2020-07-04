@@ -2,11 +2,11 @@
 #include "build.h"
 #include "cmpl.h"
 #include "condition.h"
+#include "float_object.h"
 #include "math_type.h"
 #include "object.h"
 #include "ratio.h"
 #include "rational.h"
-#include "real_float.h"
 
 /*
  *  getmathtype

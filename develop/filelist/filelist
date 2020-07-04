@@ -161,6 +161,10 @@ extern_unicode.c
 file_memory.c
 file.c
 files.c
+float_equal.c
+float_multi.c
+float_object.c
+float_plus.c
 format.c
 format_float.c
 format_function.c
@@ -254,7 +258,6 @@ real_ceiling.c
 real_common.c
 real_decode.c
 real_division.c
-real_float.c
 real_floor.c
 real_round.c
 real_truncate.c

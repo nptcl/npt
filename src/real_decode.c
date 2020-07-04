@@ -4,13 +4,13 @@
 #include "bignum_data.h"
 #include "bignum_object.h"
 #include "condition.h"
+#include "float_object.h"
 #include "integer.h"
 #include "local.h"
 #include "ratio.h"
 #include "rational.h"
 #include "real_ceiling.h"
 #include "real_decode.h"
-#include "real_float.h"
 
 #define real_decode_inexact(x,y) \
 	floating_point_inexact_stdarg(CONSTANT_COMMON_##x, (y), NULL)
