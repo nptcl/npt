@@ -10,8 +10,13 @@ array_make.c
 array_sequence.c
 array_value.c
 array_vector.c
-bigcons.c
-bigdata.c
+bignum_cons.c
+bignum_data.c
+bignum_equal.c
+bignum_multi.c
+bignum_object.c
+bignum_output.c
+bignum_plus.c
 bignum.c
 bit.c
 boole.c
@@ -46,7 +51,7 @@ callname.c
 character.c
 character_check.c
 character_name.c
-charqueue.c
+character_queue.c
 clos_cache.c
 clos_class.c
 clos_combination.c

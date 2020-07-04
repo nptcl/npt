@@ -1,5 +1,5 @@
 #include <string.h>
-#include "charqueue.h"
+#include "character_queue.h"
 #include "constant.h"
 #include "heap.h"
 #include "local.h"

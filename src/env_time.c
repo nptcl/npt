@@ -1,6 +1,7 @@
 #include <errno.h>
-#include "bigcons.h"
 #include "bignum.h"
+#include "bignum_cons.h"
+#include "bignum_object.h"
 #include "control_object.h"
 #include "control_operator.h"
 #include "condition.h"

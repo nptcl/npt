@@ -1,5 +1,5 @@
-#ifndef __BIGDATA_HEADER__
-#define __BIGDATA_HEADER__
+#ifndef __BIGNUM_DATA_HEADER__
+#define __BIGNUM_DATA_HEADER__
 
 #include "build.h"
 #include "typedef.h"

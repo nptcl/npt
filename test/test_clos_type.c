@@ -1,6 +1,6 @@
 #include "clos_type.c"
-#include "bigdata.h"
-#include "bignum.h"
+#include "bignum_data.h"
+#include "bignum_object.h"
 #include "character.h"
 #include "clos.h"
 #include "code_object.h"

@@ -1,8 +1,9 @@
 #include <string.h>
 #include "bignum.h"
-#include "bigcons.h"
+#include "bignum_cons.h"
+#include "bignum_object.h"
 #include "character.h"
-#include "charqueue.h"
+#include "character_queue.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"

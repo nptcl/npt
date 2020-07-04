@@ -4,7 +4,7 @@
 #include "array_make.h"
 #include "array_value.h"
 #include "bit.h"
-#include "bigdata.h"
+#include "bignum_data.h"
 #include "bignum.h"
 #include "condition.h"
 #include "integer.h"

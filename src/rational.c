@@ -1,4 +1,8 @@
 #include "bignum.h"
+#include "bignum_equal.h"
+#include "bignum_multi.h"
+#include "bignum_object.h"
+#include "bignum_plus.h"
 #include "build.h"
 #include "condition.h"
 #include "heap.h"

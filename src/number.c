@@ -1,4 +1,8 @@
 #include "bignum.h"
+#include "bignum_equal.h"
+#include "bignum_multi.h"
+#include "bignum_object.h"
+#include "bignum_plus.h"
 #include "cmpl.h"
 #include "cmpl_math.h"
 #include "cmpl_multi.h"

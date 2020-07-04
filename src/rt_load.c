@@ -17,6 +17,7 @@
 #include "format.h"
 #include "heap.h"
 #include "hold.h"
+#include "integer.h"
 #include "package.h"
 #include "pathname.h"
 #include "stream.h"

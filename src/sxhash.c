@@ -1,5 +1,5 @@
-#include "bigdata.h"
-#include "bignum.h"
+#include "bignum_data.h"
+#include "bignum_object.h"
 #include "build.h"
 #include "character.h"
 #include "condition.h"

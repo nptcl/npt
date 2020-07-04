@@ -1,5 +1,5 @@
-#include "bignum.h"
-#include "charqueue.h"
+#include "bignum_output.h"
+#include "character_queue.h"
 #include "condition.h"
 #include "constant.h"
 #include "copy.h"

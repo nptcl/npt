@@ -1,4 +1,5 @@
-#include "bignum.h"
+#include "bignum_equal.h"
+#include "bignum_object.h"
 #include "build.h"
 #include "callname.h"
 #include "condition.h"

@@ -1,4 +1,5 @@
 #include "equal.c"
+#include "bignum_object.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"

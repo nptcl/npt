@@ -1,5 +1,5 @@
-#include "charqueue.h"
 #include "character_check.h"
+#include "character_queue.h"
 #include "condition.h"
 #include "cons_list.h"
 #include "pathname_table.h"

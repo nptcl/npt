@@ -3,7 +3,7 @@
 #include "array_make.h"
 #include "array_vector.h"
 #include "character.h"
-#include "charqueue.h"
+#include "character_queue.h"
 #include "condition.h"
 #include "eastasian_unicode.h"
 #include "integer.h"

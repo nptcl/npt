@@ -1,5 +1,5 @@
-#include "bigdata.h"
-#include "bignum.h"
+#include "bignum_data.h"
+#include "bignum_object.h"
 #include "callname.h"
 #include "call_objects.h"
 #include "call_eval.h"

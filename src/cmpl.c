@@ -1,4 +1,6 @@
 #include "bignum.h"
+#include "bignum_equal.h"
+#include "bignum_object.h"
 #include "build.h"
 #include "cmpl.h"
 #include "cmpl_arch.h"

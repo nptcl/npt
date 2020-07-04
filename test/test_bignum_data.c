@@ -1,5 +1,5 @@
-#include "bigdata.c"
-#include "bigcons.h"
+#include "bignum_data.c"
+#include "bignum_cons.h"
 #include "constant.h"
 #include "degrade.h"
 
@@ -2933,7 +2933,7 @@ static int test_letdiv_half_bigdata(void)
 /*
  *  Main
  */
-static int testbreak_bigdata(void)
+static int testbreak_bignum_data(void)
 {
 	/* Calculate */
 	TestBreak(test_multinumber1);
@@ -2999,7 +2999,7 @@ static int testbreak_bigdata(void)
 	return 0;
 }
 
-int test_bigdata(void)
+int test_bignum_data(void)
 {
 	int result;
 	lispcode code;
@@ -3017,7 +3017,7 @@ int test_bigdata(void)
 		build_constant();
 		build_object();
 		lisp_initialize = 1;
-		result = testbreak_bigdata();
+		result = testbreak_bignum_data();
 	}
 	end_setjmp(ptr);
 	freelisp();

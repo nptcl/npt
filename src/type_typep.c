@@ -1,5 +1,7 @@
 #include "array.h"
 #include "bignum.h"
+#include "bignum_equal.h"
+#include "bignum_object.h"
 #include "bit.h"
 #include "character.h"
 #include "cmpl.h"

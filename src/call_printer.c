@@ -10,6 +10,7 @@
 #include "function.h"
 #include "format_function.h"
 #include "format_parse.h"
+#include "integer.h"
 #include "print.h"
 #include "print_dispatch.h"
 #include "print_function.h"

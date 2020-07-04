@@ -1,8 +1,8 @@
 /*
  *  Kaiheihou  (extraction of square root)
  */
-#include "bigdata.h"
-#include "bignum.h"
+#include "bignum_data.h"
+#include "bignum_object.h"
 #include "format.h"
 #include "integer.h"
 #include "number_isqrt.h"

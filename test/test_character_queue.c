@@ -1,4 +1,4 @@
-#include "charqueue.c"
+#include "character_queue.c"
 #include "degrade.h"
 
 /*
@@ -476,9 +476,9 @@ static int test_charqueue_heap(void)
 
 
 /*
- *  charqueue
+ *  character_queue
  */
-static int testcase_charqueue(void)
+static int testcase_character_queue(void)
 {
 	TestBreak(test_charbit_macro);
 	TestBreak(test_charbit_alloc);
@@ -497,7 +497,7 @@ static int testcase_charqueue(void)
 	return 0;
 }
 
-static void testinit_charqueue(Execute ptr)
+static void testinit_character_queue(Execute ptr)
 {
 	build_lisproot(ptr);
 	build_constant();
@@ -505,11 +505,11 @@ static void testinit_charqueue(Execute ptr)
 	build_package();
 }
 
-int test_charqueue(void)
+int test_character_queue(void)
 {
 	TITLE;
 	return degrade_code(
-			testinit_charqueue,
-			testcase_charqueue);
+			testinit_character_queue,
+			testcase_character_queue);
 }
 

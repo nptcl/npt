@@ -1,7 +1,7 @@
 #include "array.h"
 #include "array_access.h"
 #include "array_make.h"
-#include "bignum.h"
+#include "bignum_equal.h"
 #include "bit.h"
 #include "build.h"
 #include "cmpl.h"

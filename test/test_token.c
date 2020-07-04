@@ -1,5 +1,6 @@
 #include "token.c"
-#include "bigcons.h"
+#include "bignum_cons.h"
+#include "bignum_equal.h"
 #include "character.h"
 #include "clos.h"
 #include "common.h"

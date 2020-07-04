@@ -1,4 +1,5 @@
 #include "format_function.c"
+#include "bignum_object.h"
 #include "c99.h"
 #include "character.h"
 #include "clos.h"

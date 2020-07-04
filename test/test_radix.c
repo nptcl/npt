@@ -1,6 +1,5 @@
 #include "radix.c"
 #include "character.h"
-#include "charqueue.h"
 #include "clos.h"
 #include "code.h"
 #include "common.h"

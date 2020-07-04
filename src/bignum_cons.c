@@ -2,8 +2,8 @@
  *  bigcons
  */
 #include <math.h>
-#include "bigcons.h"
-#include "bigdata.h"
+#include "bignum_cons.h"
+#include "bignum_data.h"
 #include "character.h"
 #include "condition.h"
 
@@ -87,7 +87,8 @@ static void plus_bigcons(LocalRoot local, addr cons, bigtype carry)
 	size_t i, len;
 	struct bigbuffer *ptr;
 
-	if (carry == 0) return;
+	if (carry == 0)
+		return;
 	len = 0;
 	GetRootBigcons(cons, &root);
 	for (prev = root; root != Nil; root = next) {
@@ -100,7 +101,8 @@ static void plus_bigcons(LocalRoot local, addr cons, bigtype carry)
 		buffer = ptr->buffer;
 		for (i = 0; i < len; i++) {
 			plusnumber_bigdata(&buffer[i], &carry);
-			if (carry == 0) return;
+			if (carry == 0)
+				return;
 		}
 		prev = root;
 		GetNextBigbuffer(root, &next);
@@ -191,7 +193,8 @@ _g void setchar_bigcons(LocalRoot local, addr pos, unsigned base, const char *va
 	clear_bigcons(pos);
 	for (i = 0; ; i++) {
 		c = value[i];
-		if (c == '\0') break;
+		if (c == '\0')
+			break;
 		if (getnumber(base, c, &ret)) {
 			character_heap(&error_character, (unicode)c);
 			fmte("Invalid digit character ~S.", error_character, NULL);

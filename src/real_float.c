@@ -2,6 +2,7 @@
 #include <float.h>
 #include <locale.h>
 #include "bignum.h"
+#include "bignum_equal.h"
 #include "c99.h"
 #include "cmpl.h"
 #include "condition.h"

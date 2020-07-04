@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "bignum.h"
+#include "bignum_object.h"
 #include "condition.h"
 #include "constant.h"
 #include "define.h"

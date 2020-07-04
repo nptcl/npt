@@ -1,4 +1,4 @@
-#include "bigcons.c"
+#include "bignum_cons.c"
 #include "constant.h"
 #include "degrade.h"
 
@@ -451,7 +451,7 @@ static int test_bigcons_char_local(void)
 /*
  *  Main
  */
-static int testbreak_bigcons(void)
+static int testbreak_bignum_cons(void)
 {
 	/* Bigcons */
 	TestBreak(test_bigbuffer_local);
@@ -468,7 +468,7 @@ static int testbreak_bigcons(void)
 	return 0;
 }
 
-int test_bigcons(void)
+int test_bignum_cons(void)
 {
 	int result;
 	lispcode code;
@@ -486,7 +486,7 @@ int test_bigcons(void)
 		build_constant();
 		build_object();
 		lisp_initialize = 1;
-		result = testbreak_bigcons();
+		result = testbreak_bignum_cons();
 	}
 	end_setjmp(ptr);
 	freelisp();

@@ -1,4 +1,4 @@
-#include "bignum.h"
+#include "bignum_object.h"
 #include "callname.h"
 #include "character.h"
 #include "cmpl.h"

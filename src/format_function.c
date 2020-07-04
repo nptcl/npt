@@ -3,7 +3,7 @@
 #include "bignum.h"
 #include "character.h"
 #include "character_name.h"
-#include "charqueue.h"
+#include "character_queue.h"
 #include "code_object.h"
 #include "condition.h"
 #include "cons.h"

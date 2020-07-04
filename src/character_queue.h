@@ -1,5 +1,5 @@
-#ifndef __CHARQUEUE_HEADER__
-#define __CHARQUEUE_HEADER__
+#ifndef __CHARACTER_QUEUE_HEADER__
+#define __CHARACTER_QUEUE_HEADER__
 
 #include "build.h"
 #include "execute.h"

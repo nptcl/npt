@@ -1,5 +1,5 @@
 #include "parse.c"
-#include "bignum.h"
+#include "bignum_object.h"
 #include "character.h"
 #include "clos.h"
 #include "code.h"

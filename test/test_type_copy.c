@@ -1,6 +1,6 @@
 #include "type_copy.c"
-#include "bigcons.h"
-#include "bigdata.h"
+#include "bignum_cons.h"
+#include "bignum_data.h"
 #include "bignum.h"
 #include "character.h"
 #include "clos.h"

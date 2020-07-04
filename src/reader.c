@@ -1,5 +1,5 @@
 #include "character.h"
-#include "charqueue.h"
+#include "character_queue.h"
 #include "condition.h"
 #include "control_object.h"
 #include "hold.h"

@@ -1,4 +1,6 @@
 #include "bignum.c"
+
+#if 0
 #include "c99.h"
 #include "cons.h"
 #include "constant.h"
@@ -5883,9 +5885,11 @@ static int testbreak_bignum(void)
 
 	return 0;
 }
+#endif
 
 int test_bignum(void)
 {
+#if 0
 	int result;
 	lispcode code;
 	Execute ptr;
@@ -5910,5 +5914,7 @@ int test_bignum(void)
 	lisp_info_enable = 1;
 
 	return result;
+#endif
+	return 0;
 }
 

@@ -1,7 +1,8 @@
 #include <math.h>
 #include <float.h>
-#include "bigdata.h"
 #include "bignum.h"
+#include "bignum_data.h"
+#include "bignum_object.h"
 #include "condition.h"
 #include "integer.h"
 #include "local.h"

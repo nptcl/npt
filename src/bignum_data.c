@@ -1,9 +1,7 @@
-/*
- *  bignum
- */
 #include <math.h>
-#include "bigdata.h"
-#include "bignum.h"
+#include "bignum_data.h"
+#include "bignum_equal.h"
+#include "bignum_object.h"
 #include "character.h"
 #include "condition.h"
 #include "heap.h"
@@ -192,7 +190,8 @@ _g int equal_bigdata(addr left, addr right)
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
 	GetSizeBignum(left, &size1);
 	GetSizeBignum(right, &size2);
-	if (size1 != size2) return 0;
+	if (size1 != size2)
+		return 0;
 	GetRootBignum(left, &left);
 	GetRootBignum(right, &right);
 	return bigcmp(PtrDataBignum(left), PtrDataBignum(right), size1) == 0;
@@ -216,8 +215,10 @@ _g int compare_bigdata(addr left, addr right)
 		index = size1 - i - 1;
 		value1 = data1[index];
 		value2 = data2[index];
-		if (value1 < value2) return -1;
-		if (value1 > value2) return 1;
+		if (value1 < value2)
+			return -1;
+		if (value1 > value2)
+			return 1;
 	}
 
 	return 0;
@@ -915,8 +916,10 @@ static int comparedata(
 		index2 = size2 - i - 1;
 		a = data1[index1];
 		b = data2[index2];
-		if (a < b) return -1;
-		if (a > b) return 1;
+		if (a < b)
+			return -1;
+		if (a > b)
+			return 1;
 	}
 
 	return 0;
@@ -929,17 +932,23 @@ static int comparedata2(
 	size_t i, index;
 	bigtype a, b;
 
-	for (; size1 && data1[size1 - 1] == 0; size1--) continue;
-	for (; size2 && data2[size2 - 1] == 0; size2--) continue;
-	if (size1 < size2) return -1;
-	if (size1 > size2) return 1;
+	for (; size1 && data1[size1 - 1] == 0; size1--)
+		continue;
+	for (; size2 && data2[size2 - 1] == 0; size2--)
+		continue;
+	if (size1 < size2)
+		return -1;
+	if (size1 > size2)
+		return 1;
 
 	for (i = 0; i < size1; i++) {
 		index = size1 - i - 1;
 		a = data1[index];
 		b = data2[index];
-		if (a < b) return -1;
-		if (a > b) return 1;
+		if (a < b)
+			return -1;
+		if (a > b)
+			return 1;
 	}
 
 	return 0;
@@ -1188,7 +1197,8 @@ _g void letdiv_noexpand_bigdata(LocalRoot local, addr left, addr right)
 	if (check2) {
 		GetRootBignum(right, &right);
 		b = PtrDataBignum(right)[0];
-		if (b == 1) return;
+		if (b == 1)
+			return;
 		(void)letdivvalue_buffer(left, b);
 		return;
 	}

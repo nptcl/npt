@@ -1,9 +1,11 @@
 /*
  *  format radix ~R
  */
-#include "bigdata.h"
 #include "bignum.h"
-#include "charqueue.h"
+#include "bignum_data.h"
+#include "bignum_equal.h"
+#include "bignum_object.h"
+#include "character_queue.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"

@@ -1,6 +1,9 @@
 #include <math.h>
-#include "bigdata.h"
 #include "bignum.h"
+#include "bignum_data.h"
+#include "bignum_equal.h"
+#include "bignum_multi.h"
+#include "bignum_object.h"
 #include "condition.h"
 #include "memory.h"
 #include "ratio.h"
@@ -35,11 +38,13 @@ _g int equal_fr_real(addr left, addr right)
 	Check(GetType(right) != LISPTYPE_RATIO, "type right error");
 	/* denom == 1 */
 	GetDenomRatio(right, &pos);
-	if (! equal_value_nosign_bignum(pos, 1)) return 0;
+	if (! equal_value_nosign_bignum(pos, 1))
+		return 0;
 	/* numer */
 	GetNumerRatio(right, &pos);
 	castfixed_fixnum(left, &sign, &value);
-	if (! equal_value_nosign_bignum(pos, value)) return 0;
+	if (! equal_value_nosign_bignum(pos, value))
+		return 0;
 	/* sign */
 	return RefSignRatio(right) == sign;
 }
@@ -52,10 +57,12 @@ _g int equal_br_real(addr left, addr right)
 	Check(GetType(right) != LISPTYPE_RATIO, "type right error");
 	/* denom == 1 */
 	GetDenomRatio(right, &pos);
-	if (! equal_value_nosign_bignum(pos, 1)) return 0;
+	if (! equal_value_nosign_bignum(pos, 1))
+		return 0;
 	/* numer */
 	GetNumerRatio(right, &pos);
-	if (! equal_bigdata(left, pos)) return 0;
+	if (! equal_bigdata(left, pos))
+		return 0;
 	/* sign */
 	return RefSignBignum(left) == RefSignRatio(right);
 }
@@ -67,11 +74,13 @@ _g int equal_rr_real(addr left, addr right)
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
 	Check(GetType(right) != LISPTYPE_RATIO, "type right error");
 	/* sign */
-	if (RefSignRatio(left) != RefSignRatio(right)) return 0;
+	if (RefSignRatio(left) != RefSignRatio(right))
+		return 0;
 	/* numer */
 	GetNumerRatio(left, &pos1);
 	GetNumerRatio(right, &pos2);
-	if (! equal_bb_real(pos1, pos2)) return 0;
+	if (! equal_bb_real(pos1, pos2))
+		return 0;
 	/* denom */
 	GetDenomRatio(left, &pos1);
 	GetDenomRatio(right, &pos2);
@@ -260,11 +269,14 @@ static int compare_bigtype_bignum(bigtype left, addr right)
 {
 	bigtype value;
 
-	if (1 < RefSizeBignum(right)) return -1;
+	if (1 < RefSizeBignum(right))
+		return -1;
 	GetRootBignum(right, &right);
 	value = PtrDataBignum(right)[0];
-	if (left < value) return -1;
-	if (left > value) return 1;
+	if (left < value)
+		return -1;
+	if (left > value)
+		return 1;
 
 	return 0;
 }
@@ -305,7 +317,8 @@ _g int compare_fr_real(LocalRoot local, addr left, addr right)
 	castfixed_fixnum(left, &sign1, &value);
 	result = zerop_ratio(right);
 	if (value == 0) {
-		if (result) return 0;
+		if (result)
+			return 0;
 		GetSignRatio(right, &sign2);
 		return IsPlus(sign2)? -1: 1;
 	}
@@ -313,8 +326,10 @@ _g int compare_fr_real(LocalRoot local, addr left, addr right)
 		return IsPlus(sign1)? 1: -1;
 	}
 	GetSignRatio(right, &sign2);
-	if (IsPlus(sign1) && IsMinus(sign2)) return 1;
-	if (IsMinus(sign1) && IsPlus(sign2)) return -1;
+	if (IsPlus(sign1) && IsMinus(sign2))
+		return 1;
+	if (IsMinus(sign1) && IsPlus(sign2))
+		return -1;
 	result = compare_bigtype_ratio_nosign(local, value, right);
 
 	return IsPlus(sign1)? result: -result;
@@ -352,7 +367,8 @@ _g int compare_br_real(LocalRoot local, addr left, addr right)
 	Check(GetType(right) != LISPTYPE_RATIO, "type right error");
 	check = zerop_ratio(right);
 	if (zerop_bignum(left)) {
-		if (check) return 0;
+		if (check)
+			return 0;
 		GetSignRatio(right, &sign2);
 		return IsPlus(sign2)? -1: 1;
 	}
@@ -362,8 +378,10 @@ _g int compare_br_real(LocalRoot local, addr left, addr right)
 	}
 	GetSignBignum(left, &sign1);
 	GetSignRatio(right, &sign2);
-	if (IsPlus(sign1) && IsMinus(sign2)) return 1;
-	if (IsMinus(sign1) && IsPlus(sign2)) return -1;
+	if (IsPlus(sign1) && IsMinus(sign2))
+		return 1;
+	if (IsMinus(sign1) && IsPlus(sign2))
+		return -1;
 	result = compare_bigdata_ratio_nosign(local, left, right);
 
 	return IsPlus(sign1)? result: -result;
@@ -407,7 +425,8 @@ _g int compare_rr_real(LocalRoot local, addr left, addr right)
 	/* zero check */
 	check1 = zerop_ratio(left);
 	check2 = zerop_ratio(right);
-	if (check1 && check2) return 0;
+	if (check1 && check2)
+		return 0;
 	if (check1) {
 		GetSignRatio(right, &sign2);
 		return IsPlus(sign2)? -1: 1;
@@ -420,8 +439,10 @@ _g int compare_rr_real(LocalRoot local, addr left, addr right)
 	/* sign check */
 	GetSignRatio(left, &sign1);
 	GetSignRatio(right, &sign2);
-	if (IsPlus(sign1) && IsMinus(sign2)) return 1;
-	if (IsMinus(sign1) && IsPlus(sign2)) return -1;
+	if (IsPlus(sign1) && IsMinus(sign2))
+		return 1;
+	if (IsMinus(sign1) && IsPlus(sign2))
+		return -1;
 
 	/* denom check */
 	GetDenomRatio(left, &denom1);

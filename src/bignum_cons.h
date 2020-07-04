@@ -1,7 +1,7 @@
-#ifndef __BIGCONS_HEADER__
-#define __BIGCONS_HEADER__
+#ifndef __BIGNUM_CONS_HEADER__
+#define __BIGNUM_CONS_HEADER__
 
-#include "bigdata.h"
+#include "bignum_data.h"
 #include "build.h"
 #include "memory.h"
 #include "typedef.h"
