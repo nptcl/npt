@@ -1,7 +1,7 @@
 #include "type.h"
 #include "type_parse.h"
 #include "type_range.h"
-#include "real.h"
+#include "real_equal.h"
 
 /* (integetr * *) */
 _g int range_asterisk_p(addr type)
@@ -9,7 +9,8 @@ _g int range_asterisk_p(addr type)
 	addr check;
 
 	GetArrayType(type, 0, &check);
-	if (! type_asterisk_p(check)) return 0;
+	if (! type_asterisk_p(check))
+		return 0;
 	GetArrayType(type, 2, &check);
 
 	return type_asterisk_p(check);
@@ -21,7 +22,8 @@ _g int range_left_p(addr type)
 	addr check;
 
 	GetArrayType(type, 0, &check);
-	if (type_asterisk_p(check)) return 0;
+	if (type_asterisk_p(check))
+		return 0;
 	GetArrayType(type, 2, &check);
 
 	return type_asterisk_p(check);
@@ -41,7 +43,8 @@ _g int range_right_p(addr type)
 	addr check;
 
 	GetArrayType(type, 0, &check);
-	if (! type_asterisk_p(check)) return 0;
+	if (! type_asterisk_p(check))
+		return 0;
 	GetArrayType(type, 2, &check);
 
 	return ! type_asterisk_p(check);
@@ -61,7 +64,8 @@ _g int range_between_p(addr type)
 	addr check;
 
 	GetArrayType(type, 0, &check);
-	if (type_asterisk_p(check)) return 0;
+	if (type_asterisk_p(check))
+		return 0;
 	GetArrayType(type, 2, &check);
 
 	return ! type_asterisk_p(check);

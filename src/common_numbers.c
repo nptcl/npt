@@ -21,6 +21,7 @@
 #include "real_common.h"
 #include "real_decode.h"
 #include "real_division.h"
+#include "real_equal.h"
 #include "real_floor.h"
 #include "real_round.h"
 #include "real_truncate.h"

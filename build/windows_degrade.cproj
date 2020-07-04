@@ -403,7 +403,10 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_decode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_division.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_equal.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_floor.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_multi.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_plus.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_round.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\real.c" />
@@ -726,7 +729,10 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_decode.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_division.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_equal.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_floor.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_multi.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_plus.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_round.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real_truncate.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\real.h" />

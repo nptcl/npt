@@ -7,6 +7,7 @@
 #include "integer.h"
 #include "number.h"
 #include "object.h"
+#include "real_equal.h"
 #include "sequence.h"
 #include "type.h"
 #include "type_copy.h"

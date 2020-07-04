@@ -15,7 +15,7 @@
 #include "number.h"
 #include "ratio.h"
 #include "rational.h"
-#include "real.h"
+#include "real_equal.h"
 #include "type.h"
 
 _g int complexp(addr pos)

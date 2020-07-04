@@ -19,6 +19,7 @@
 #include "pathname.h"
 #include "ratio.h"
 #include "reader.h"
+#include "real_equal.h"
 #include "sequence.h"
 #include "strtype.h"
 #include "strvect.h"

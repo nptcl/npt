@@ -258,7 +258,10 @@ real_ceiling.c
 real_common.c
 real_decode.c
 real_division.c
+real_equal.c
 real_floor.c
+real_multi.c
+real_plus.c
 real_round.c
 real_truncate.c
 real.c

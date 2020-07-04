@@ -9,6 +9,8 @@
 #include "number.h"
 #include "number_random.h"
 #include "object.h"
+#include "real_equal.h"
+#include "real_plus.h"
 #include "setf.h"
 #include "strtype.h"
 #include "symbol.h"

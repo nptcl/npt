@@ -8,7 +8,7 @@
 #include "integer.h"
 #include "print.h"
 #include "print_dispatch.h"
-#include "real.h"
+#include "real_equal.h"
 #include "symbol.h"
 #include "type_table.h"
 #include "type_typep.h"

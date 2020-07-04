@@ -7,7 +7,7 @@
 #include "condition.h"
 #include "memory.h"
 #include "ratio.h"
-#include "real.h"
+#include "real_equal.h"
 #include "typedef.h"
 
 _g int equal_value_nosign_ratio(addr pos, bigtype numer, bigtype denom)
