@@ -1,5 +1,5 @@
-#ifndef __NUMBER_GCD_HEADER__
-#define __NUMBER_GCD_HEADER__
+#ifndef __MATH_GCD_HEADER__
+#define __MATH_GCD_HEADER__
 
 #include "local.h"
 #include "typedef.h"

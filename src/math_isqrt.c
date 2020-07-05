@@ -5,7 +5,7 @@
 #include "bignum_object.h"
 #include "format.h"
 #include "integer.h"
-#include "number_isqrt.h"
+#include "math_isqrt.h"
 #include "object.h"
 
 static void isqrt_shiftup(addr pos, unsigned shift)

@@ -1,5 +1,5 @@
-#ifndef __NUMBER_ISQRT_HEADER__
-#define __NUMBER_ISQRT_HEADER__
+#ifndef __MATH_ISQRT_HEADER__
+#define __MATH_ISQRT_HEADER__
 
 #include "define.h"
 #include "local.h"

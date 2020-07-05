@@ -5,7 +5,7 @@
 #include "cons.h"
 #include "local.h"
 #include "integer.h"
-#include "number_gcd.h"
+#include "math_gcd.h"
 #include "ratio.h"
 
 /*
