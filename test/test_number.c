@@ -1,6 +1,7 @@
 #include "number.c"
 #include "constant.h"
 #include "degrade.h"
+#include "integer.h"
 
 static int test_fixnump(void)
 {

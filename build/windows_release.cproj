@@ -350,10 +350,13 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_generic.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_reader.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\mop_protocols.c" />
-    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_equal.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_isqrt.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_multi.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_plus.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number_random.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\number.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_common.c" />
@@ -676,8 +679,11 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\memory.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\mop_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\mop.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_equal.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_gcd.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_isqrt.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_multi.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_plus.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number_random.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\number.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\object.h" />

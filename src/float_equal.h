@@ -1,6 +1,7 @@
 #ifndef __FLOAT_EQUAL_HEADER__
 #define __FLOAT_EQUAL_HEADER__
 
+#include "bignum.h"
 #include "typedef.h"
 
 #define plusp_single_float(a) (0.0f < RefSingleFloat(a))

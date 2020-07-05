@@ -205,10 +205,13 @@ mop_class.c
 mop_generic.c
 mop_reader.c
 mop_protocols.c
-number.c
+number_equal.c
 number_gcd.c
 number_isqrt.c
+number_multi.c
+number_plus.c
 number_random.c
+number.c
 object.c
 optimize.c
 optimize_common.c
