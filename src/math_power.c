@@ -8,8 +8,11 @@
 #include "math_exp.h"
 #include "math_power.h"
 #include "math_type.h"
+#include "number_multi.h"
 #include "ratio.h"
 #include "rational.h"
+#include "rational_equal.h"
+#include "rational_multi.h"
 
 /*
  *  expt

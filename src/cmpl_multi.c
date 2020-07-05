@@ -6,6 +6,9 @@
 #include "math_type.h"
 #include "ratio.h"
 #include "rational.h"
+#include "rational_equal.h"
+#include "rational_multi.h"
+#include "rational_plus.h"
 #include "real.h"
 
 /*

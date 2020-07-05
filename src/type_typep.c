@@ -18,6 +18,7 @@
 #include "object.h"
 #include "pathname_object.h"
 #include "rational.h"
+#include "rational_equal.h"
 #include "real_equal.h"
 #include "sequence.h"
 #include "stream.h"

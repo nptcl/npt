@@ -8,6 +8,7 @@
 #include "math_type.h"
 #include "ratio.h"
 #include "rational.h"
+#include "real.h"
 #include "typedef.h"
 
 _g int numberp(addr pos)

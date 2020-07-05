@@ -25,6 +25,7 @@
 #include "reader_label.h"
 #include "reader_table.h"
 #include "reader_token.h"
+#include "real.h"
 #include "stream.h"
 #include "structure.h"
 #include "symbol.h"

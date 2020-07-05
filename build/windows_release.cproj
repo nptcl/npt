@@ -393,6 +393,9 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\ratio_equal.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\ratio_multi.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\ratio_plus.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rational_equal.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rational_multi.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rational_plus.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\rational.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\reader_dispatch.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\reader_function.c" />
@@ -722,6 +725,9 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\ratio_multi.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\ratio_plus.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\ratio.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rational_equal.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rational_multi.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rational_plus.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\rational.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\reader_dispatch.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\reader_function.h" />

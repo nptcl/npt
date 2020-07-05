@@ -248,6 +248,9 @@ ratio.c
 ratio_equal.c
 ratio_multi.c
 ratio_plus.c
+rational_equal.c
+rational_multi.c
+rational_plus.c
 rational.c
 reader_dispatch.c
 reader_function.c

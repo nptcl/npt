@@ -15,6 +15,8 @@
 #include "number.h"
 #include "ratio.h"
 #include "rational.h"
+#include "rational_equal.h"
+#include "rational_plus.h"
 #include "real_equal.h"
 #include "type.h"
 
