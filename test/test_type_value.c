@@ -9,6 +9,7 @@
 #include "file.h"
 #include "hashtable.h"
 #include "package.h"
+#include "package_symbol.h"
 #include "reader.h"
 #include "stream.h"
 #include "stream_broadcast.h"

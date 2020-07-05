@@ -5,6 +5,7 @@
 #include "condition.h"
 #include "degrade.h"
 #include "package.h"
+#include "package_symbol.h"
 #include "stream.h"
 #include "type_parse.h"
 #include "type_table.h"

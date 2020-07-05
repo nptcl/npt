@@ -6,7 +6,7 @@
 #include "gc.h"
 #include "integer.h"
 #include "lambda.h"
-#include "package.h"
+#include "package_symbol.h"
 #include "structure.h"
 #include "strtype.h"
 #include "symbol.h"

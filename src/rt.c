@@ -11,7 +11,7 @@
 #include "hashtable.h"
 #include "integer.h"
 #include "hold.h"
-#include "package.h"
+#include "package_symbol.h"
 #include "print_write.h"
 #include "rt.h"
 #include "stream.h"

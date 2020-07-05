@@ -7,6 +7,7 @@
 #include "common.h"
 #include "degrade.h"
 #include "package.h"
+#include "package_symbol.h"
 #include "sequence.h"
 #include "strvect.h"
 #include "type.h"

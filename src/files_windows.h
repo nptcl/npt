@@ -6,6 +6,7 @@
 #include <shlwapi.h>
 #include <windows.h>
 #include "bignum.h"
+#include "bignum_object.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"

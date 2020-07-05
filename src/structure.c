@@ -19,6 +19,7 @@
 #include "mop.h"
 #include "object.h"
 #include "package.h"
+#include "package_symbol.h"
 #include "pointer.h"
 #include "print_object.h"
 #include "sequence.h"

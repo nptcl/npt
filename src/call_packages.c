@@ -7,6 +7,7 @@
 #include "eval_execute.h"
 #include "integer.h"
 #include "package.h"
+#include "package_symbol.h"
 #include "strtype.h"
 #include "symbol.h"
 

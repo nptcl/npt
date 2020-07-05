@@ -16,6 +16,8 @@
 #include "load_time_value.h"
 #include "make_load_form.h"
 #include "package.h"
+#include "package_object.h"
+#include "package_symbol.h"
 #include "pathname_object.h"
 #include "random_state.h"
 #include "ratio.h"

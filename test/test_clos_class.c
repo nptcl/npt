@@ -7,6 +7,7 @@
 #include "real.h"
 #include "degrade.h"
 #include "package.h"
+#include "package_symbol.h"
 #include "reader.h"
 #include "stream.h"
 #include "strtype.h"

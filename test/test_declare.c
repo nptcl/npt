@@ -8,6 +8,7 @@
 #include "degrade.h"
 #include "equal.h"
 #include "package.h"
+#include "package_symbol.h"
 #include "pathname.h"
 #include "reader.h"
 #include "stream.h"

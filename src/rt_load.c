@@ -19,6 +19,7 @@
 #include "hold.h"
 #include "integer.h"
 #include "package.h"
+#include "package_symbol.h"
 #include "pathname.h"
 #include "stream.h"
 #include "strvect.h"

@@ -15,7 +15,7 @@
 #include "localtime.h"
 #include "memory.h"
 #include "object.h"
-#include "package.h"
+#include "package_object.h"
 #include "parse.h"
 #include "parse_object.h"
 #include "restart.h"

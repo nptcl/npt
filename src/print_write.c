@@ -23,6 +23,7 @@
 #include "hold.h"
 #include "integer.h"
 #include "package.h"
+#include "package_object.h"
 #include "pathname.h"
 #include "print.h"
 #include "print_dispatch.h"

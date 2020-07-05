@@ -6,7 +6,7 @@
 #include "format.h"
 #include "heap.h"
 #include "object.h"
-#include "package.h"
+#include "package_symbol.h"
 #include "pointer.h"
 #include "symbol.h"
 

@@ -5,7 +5,7 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "integer.h"
-#include "package.h"
+#include "package_common.h"
 #include "strtype.h"
 #include "symbol.h"
 

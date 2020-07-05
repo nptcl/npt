@@ -361,6 +361,11 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_common.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package_bittype.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package_common.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package_iterator.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package_object.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package_symbol.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\package.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\parse_function.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\parse_macro.c" />
@@ -693,6 +698,11 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize_common.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize_parse.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\optimize.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package_bittype.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package_common.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package_iterator.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package_object.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package_symbol.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\package.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse_function.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\parse_macro.h" />

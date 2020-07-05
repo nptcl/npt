@@ -16,6 +16,7 @@
 #include "mop.h"
 #include "mop_common.h"
 #include "package.h"
+#include "package_symbol.h"
 
 /*
  *  import

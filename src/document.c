@@ -15,7 +15,7 @@
 #include "function.h"
 #include "lambda.h"
 #include "mop.h"
-#include "package.h"
+#include "package_object.h"
 #include "structure.h"
 #include "symbol.h"
 #include "type_deftype.h"

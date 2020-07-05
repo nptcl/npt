@@ -6,6 +6,7 @@
 #include "degrade.h"
 #include "hashtable.h"
 #include "package.h"
+#include "package_symbol.h"
 #include "pathname.h"
 #include "random_state.h"
 #include "reader.h"

@@ -10,6 +10,7 @@
 #include "object.h"
 #include "print.h"
 #include "package.h"
+#include "package_symbol.h"
 #include "pathname.h"
 #include "ratio.h"
 #include "reader.h"
