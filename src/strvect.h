@@ -74,6 +74,7 @@ _g void strvect_set(addr pos, size_t len, addr value);
 _g void strvect_aref(LocalRoot local, addr pos, addr args, addr *ret);
 _g void strvect_setf_aref(addr pos, addr args, addr value);
 _g void strvect_fill(addr pos, addr item, addr start, addr end);
+_g void strvect_subseq_alloc(LocalRoot local, addr *ret, addr pos, size_t x, size_t y);
 _g void strvect_subseq_index(addr *ret, addr pos, size_t index1, size_t index2);
 _g void strvect_subseq(addr *ret, addr pos, addr start, addr end);
 _g void strvect_setget(addr pos1, size_t index1, addr pos2, size_t index2);

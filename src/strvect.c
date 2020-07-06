@@ -661,21 +661,26 @@ _g void strvect_fill(addr pos, addr item, addr start, addr end)
 	strvect_update_character_type(pos);
 }
 
-_g void strvect_subseq_index(addr *ret, addr pos, size_t index1, size_t index2)
+_g void strvect_subseq_alloc(LocalRoot local, addr *ret, addr pos, size_t x, size_t y)
 {
 	unicode *data1;
 	const unicode *data2;
 	addr root;
 	size_t diff;
 
-	Check(index2 < index1, "index error");
-	diff = index2 - index1;
-	strvect_heap(&root, diff);
+	Check(y < x, "index error");
+	diff = y - x;
+	strvect_alloc(local, &root, diff);
 	GetStringUnicode(root, &data1);
 	GetStringUnicode(pos, &data2);
-	memcpy(data1, data2 + index1, diff * sizeoft(unicode));
+	memcpy(data1, data2 + x, diff * sizeoft(unicode));
 	strvect_update_character_type(pos);
 	*ret = root;
+}
+
+_g void strvect_subseq_index(addr *ret, addr pos, size_t index1, size_t index2)
+{
+	strvect_subseq_alloc(NULL, ret, pos, index1, index2);
 }
 
 _g void strvect_subseq(addr *ret, addr pos, addr start, addr end)
