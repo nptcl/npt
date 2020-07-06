@@ -85,24 +85,25 @@ static int strvect_home_pathname(LocalRoot local, const byte *pw_dir, addr *ret)
 	return 1;
 }
 
-static int uid_home_pathname(struct fileparse *pa, addr x, addr *ret)
+static int passwd_home_pathname(
+		const char *name, struct fileparse *pa, addr x, addr *ret)
 {
 	int check;
-	uid_t uid;
 	char *data;
 	struct passwd pwd, *result;
 	size_t size;
 	LocalRoot local;
 	LocalStack stack;
 
-	/* getpwuid_r */
 	local = pa->ptr->local;
-	uid = getuid();
 	size = PATHNAME_GETPWNAM_SIZE;
 	for (;;) {
 		push_local(local, &stack);
 		data = (char *)lowlevel_local(local, size);
-		check = getpwuid_r(uid, &pwd, data, size, &result);
+		if (name)
+			check = getpwnam_r(name, &pwd, data, size, &result);
+		else
+			check = getpwuid_r(getuid(), &pwd, data, size, &result);
 		if (check == 0) {
 			/* not found */
 			if (result == NULL)
@@ -123,15 +124,15 @@ static int uid_home_pathname(struct fileparse *pa, addr x, addr *ret)
 	return strvect_home_pathname(local, (const byte *)pwd.pw_dir, ret);
 }
 
+static int uid_home_pathname(struct fileparse *pa, addr x, addr *ret)
+{
+	return passwd_home_pathname(NULL, pa, x, ret);
+}
+
 static int name_home_pathname(struct fileparse *pa, addr x, addr *ret)
 {
-	int check;
 	const char *body;
-	char *data;
-	struct passwd pwd, *result;
-	size_t size;
 	LocalRoot local;
-	LocalStack stack;
 
 	/* username */
 	local = pa->ptr->local;
@@ -140,30 +141,7 @@ static int name_home_pathname(struct fileparse *pa, addr x, addr *ret)
 	posbody(x, (addr *)&body);
 	body++; /* ~ */
 
-	/* getpwuid_r */
-	size = PATHNAME_GETPWNAM_SIZE;
-	for (;;) {
-		push_local(local, &stack);
-		data = (char *)lowlevel_local(local, size);
-		check = getpwnam_r(body, &pwd, data, size, &result);
-		if (check == 0) {
-			/* not found */
-			if (result == NULL)
-				return 0;
-			/* ok */
-			break;
-		}
-		if (check != ERANGE)
-			return 0; /* error */
-
-		/* retry */
-		rollback_local(local, stack);
-		size <<= 1;
-		if (size == 0)
-			return 0; /* size error */
-	}
-
-	return strvect_home_pathname(local, (const byte *)pwd.pw_dir, ret);
+	return passwd_home_pathname(body, pa, x, ret);
 }
 
 static int string_home_pathname(struct fileparse *pa, addr x, addr *ret)

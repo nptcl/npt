@@ -543,6 +543,40 @@
 
 
 ;;
+;;  home directory
+;;
+#+unix
+(deftest home-directory.1
+  (car
+    (pathname-directory
+      (parse-namestring "~/hello.txt")))
+  :absolute)
+
+#+unix
+(deftest home-directory.2
+  (equalp
+    (elt (pathname-directory
+           (parse-namestring "~/aaa/bbb/hello.txt"))
+         1)
+    "~")
+  nil)
+
+#+unix
+(deftest home-directory.3
+  (let ((lisp-system::*environment* nil))
+    (car (pathname-directory
+           (parse-namestring "~/hello.txt"))))
+  :absolute)
+
+#+unix
+(deftest home-directory.4
+  (let ((lisp-system::*environment* nil))
+    (car (pathname-directory
+           (parse-namestring "~root/hello.txt"))))
+  :absolute)
+
+
+;;
 ;;  do-tests
 ;;
 (do-tests :test t)
