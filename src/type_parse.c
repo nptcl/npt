@@ -432,6 +432,7 @@ static int type_values(Execute ptr, addr *ret, addr right, addr env)
 {
 	addr var, opt, rest, allow;
 
+	var = opt = rest = allow = Nil;
 	Return(type_values_typespec(ptr, right, env, &var, &opt, &rest, &allow));
 	if (rest == Nil)
 		GetTypeTable(&rest, T);
@@ -511,8 +512,11 @@ static int parse_array_length(addr right, size_t *rsize, int *ret)
 
 	GetConst(COMMON_ASTERISK, &aster);
 	for (size = 0; right != Nil; size++) {
-		if (! consp(right))
+		if (! consp(right)) {
+			*ret = 0;
+			*rsize = 0;
 			return fmte_("The dimension parameter ~S must be a list.", right, NULL);
+		}
 		GetCons(right, &left, &right);
 		if (left != aster)
 			return Result(ret, 0);

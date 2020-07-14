@@ -939,6 +939,7 @@ _g int defgeneric_common(addr form, addr env, addr *ret)
 	/* options */
 	if (! function_name_p(name))
 		return fmte_("Invalid function name ~S.", name, NULL);
+	order = decl = doc = comb = gen = method = code = Nil;
 	Return(defgeneric_parse_options(name, args,
 			&order, &decl, &doc, &comb, &gen, &method, &code));
 	/* expand */
@@ -1315,6 +1316,7 @@ static int defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 	GetCons(list, &lambda, &list);
 	if (! consp_getcons(list, &spec, &list))
 		goto error;
+	args = gen = Nil;
 	Return(defcomb_split_body(list, &args, &gen, &list));
 	/* parser */
 	Return(defcomb_long_specifiers(&spec, spec));

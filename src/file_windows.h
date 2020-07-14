@@ -95,7 +95,7 @@ static inline void standard_error_arch(file_type *file)
 static inline int filename_encode(LocalRoot local, addr name, LPCWSTR *ret)
 {
 	Check(! stringp(name), "name error");
-	if (UTF16_buffer_clang(local->local, &name, name)) {
+	if (UTF16_buffer_clang(local, &name, name)) {
 		Debug("UTF16_buffer_clang error");
 		return 1;
 	}

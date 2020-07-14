@@ -84,8 +84,10 @@ static int opendir_files(LocalRoot local, addr pos, DIR **ret)
 
 	push_local(local, &stack);
 	directory_name_pathname_local(local, pos, &pos);
-	if (UTF8_buffer_clang(local, &name, pos))
+	if (UTF8_buffer_clang(local, &name, pos)) {
+		*ret = NULL;
 		return fmte_("Cannot convert ~S to UTF-8 string.", pos, NULL);
+	}
 	clang = (const char *)posbodyr(name);
 	dir = opendir(clang);
 	rollback_local(local, stack);
@@ -112,8 +114,10 @@ static int directoryp_directory_files(Execute ptr, addr file, int *ret)
 	local = ptr->local;
 	push_local(local, &stack);
 	name_pathname_local(ptr, file, &pos);
-	if (UTF8_buffer_clang(local, &pos, pos))
+	if (UTF8_buffer_clang(local, &pos, pos)) {
+		*ret = 0;
 		return fmte_("Cannot convert ~S to UTF-8 string.", file, NULL);
+	}
 	body = (const char *)posbodyr(pos);
 	check = (! lstat(body, &st)) && S_ISDIR(st.st_mode);
 	rollback_local(local, stack);

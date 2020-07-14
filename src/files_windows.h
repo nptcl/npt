@@ -105,8 +105,10 @@ static int opendir_files(LocalRoot local,
 	push_local(local, &stack);
 	directory_name_pathname_local(local, pos, &pos);
 	find_pathname_files(local, pos, &pos);
-	if (UTF16_buffer_clang(local, &name, pos))
+	if (UTF16_buffer_clang(local, &name, pos)) {
+		*ret = NULL;
 		return fmte_("Cannot convert ~S to UTF-16 string.", pos, NULL);
+	}
 	clang = (const WCHAR *)posbodyr(name);
 	hFind = FindFirstFileW(clang, data);
 	rollback_local(local, stack);
@@ -132,8 +134,10 @@ static int directoryp_directory_files(Execute ptr, addr file, int *ret)
 	local = ptr->local;
 	push_local(local, &stack);
 	name_pathname_local(ptr, file, &pos);
-	if (UTF16_buffer_clang(local, &pos, pos))
+	if (UTF16_buffer_clang(local, &pos, pos)) {
+		*ret = 0;
 		return fmte_("Cannot convert ~S to UTF-16 string.", file, NULL);
+	}
 	body = (const WCHAR *)posbodyr(pos);
 	check = PathIsDirectory(body);
 	rollback_local(local, stack);
@@ -200,7 +204,7 @@ static int files_push_directory_files(struct directory_struct *str,
 	return 0;
 }
 
-static void files_directory_files(struct directory_struct *str, addr base)
+static int files_directory_files(struct directory_struct *str, addr base)
 {
 	HANDLE hFind;
 	WIN32_FIND_DATAW data;
@@ -519,7 +523,7 @@ static void merge_directory_pathname(LocalRoot local, addr *ret, addr pos, addr 
 	*ret = one;
 }
 
-static void ensure_directories_exist_run_files(Execute ptr,
+static int ensure_directories_exist_run_files(Execute ptr,
 		addr *ret, addr pos, int verbose)
 {
 	LocalRoot local;
@@ -884,8 +888,9 @@ static int delete_file_run_files(Execute ptr, addr pos, int errorp, int *ret)
 		return Result(ret, 0);
 	}
 	/* stream */
-	if (streamp(pos))
-		close_stream(pos);
+	if (streamp(pos)) {
+		Return(close_stream_(pos));
+	}
 
 	return Result(ret, 1);
 }
@@ -947,8 +952,9 @@ _g int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
 		return Result(ret, 0);
 	}
 	/* stream */
-	if (streamp(pos))
-		close_stream(pos);
+	if (streamp(pos)) {
+		Return(close_stream_(pos));
+	}
 
 	return Result(ret, 1);
 }
