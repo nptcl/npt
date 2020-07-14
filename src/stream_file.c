@@ -6,7 +6,7 @@
 
 _g void init_stream_binary_input(void)
 {
-	DefineStreamLet(BinaryInput, close, stream_file);
+	DefineStreamLet(BinaryInput, close, stream_file_);
 	DefineStreamLet(BinaryInput, read_binary, file);
 	DefineStreamLet(BinaryInput, readforce_binary, file);
 	DefineStreamLet(BinaryInput, read_byte, file);
@@ -45,7 +45,7 @@ _g void init_stream_binary_input(void)
 
 _g void init_stream_binary_output(void)
 {
-	DefineStreamLet(BinaryOutput, close, stream_file);
+	DefineStreamLet(BinaryOutput, close, stream_file_);
 	DefineStream___(BinaryOutput, read_binary);
 	DefineStream___(BinaryOutput, readforce_binary);
 	DefineStream___(BinaryOutput, read_byte);
@@ -84,7 +84,7 @@ _g void init_stream_binary_output(void)
 
 _g void init_stream_binary_io(void)
 {
-	DefineStreamLet(BinaryIO, close, stream_file);
+	DefineStreamLet(BinaryIO, close, stream_file_);
 	DefineStreamLet(BinaryIO, read_binary, file);
 	DefineStreamLet(BinaryIO, readforce_binary, file);
 	DefineStreamLet(BinaryIO, read_byte, file);
@@ -123,7 +123,7 @@ _g void init_stream_binary_io(void)
 
 _g void init_stream_character_input(void)
 {
-	DefineStreamLet(CharacterInput, close, stream_file);
+	DefineStreamLet(CharacterInput, close, stream_file_);
 	DefineStream___(CharacterInput, read_binary);
 	DefineStream___(CharacterInput, readforce_binary);
 	DefineStream___(CharacterInput, read_byte);
@@ -162,7 +162,7 @@ _g void init_stream_character_input(void)
 
 _g void init_stream_character_output(void)
 {
-	DefineStreamLet(CharacterOutput, close, stream_file);
+	DefineStreamLet(CharacterOutput, close, stream_file_);
 	DefineStream___(CharacterOutput, read_binary);
 	DefineStream___(CharacterOutput, readforce_binary);
 	DefineStream___(CharacterOutput, read_byte);
@@ -201,7 +201,7 @@ _g void init_stream_character_output(void)
 
 _g void init_stream_character_io(void)
 {
-	DefineStreamLet(CharacterIO, close, stream_file);
+	DefineStreamLet(CharacterIO, close, stream_file_);
 	DefineStream___(CharacterIO, read_binary);
 	DefineStream___(CharacterIO, readforce_binary);
 	DefineStream___(CharacterIO, read_byte);
@@ -240,7 +240,7 @@ _g void init_stream_character_io(void)
 
 _g void init_stream_binchar_input(void)
 {
-	DefineStreamLet(BincharInput, close, stream_file);
+	DefineStreamLet(BincharInput, close, stream_file_);
 	DefineStreamLet(BincharInput, read_binary, file);
 	DefineStreamLet(BincharInput, readforce_binary, file);
 	DefineStreamLet(BincharInput, read_byte, file);
@@ -279,7 +279,7 @@ _g void init_stream_binchar_input(void)
 
 _g void init_stream_binchar_output(void)
 {
-	DefineStreamLet(BincharOutput, close, stream_file);
+	DefineStreamLet(BincharOutput, close, stream_file_);
 	DefineStream___(BincharOutput, read_binary);
 	DefineStream___(BincharOutput, readforce_binary);
 	DefineStream___(BincharOutput, read_byte);
@@ -318,7 +318,7 @@ _g void init_stream_binchar_output(void)
 
 _g void init_stream_binchar_io(void)
 {
-	DefineStreamLet(BincharIO, close, stream_file);
+	DefineStreamLet(BincharIO, close, stream_file_);
 	DefineStreamLet(BincharIO, read_binary, file);
 	DefineStreamLet(BincharIO, readforce_binary, file);
 	DefineStreamLet(BincharIO, read_byte, file);

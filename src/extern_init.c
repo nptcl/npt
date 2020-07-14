@@ -10,6 +10,7 @@
 #include "extern_init.h"
 #include "extern_string.h"
 #include "file.h"
+#include "file_open.h"
 #include "hashtable.h"
 #include "main_init.h"
 #include "pathname.h"
@@ -424,7 +425,8 @@ static int lisp_argv_script_(Execute ptr, lispstringu name)
 	if (lispstringu_heap(&file, name))
 		fmte("Invalid filename.", NULL);
 	pathname_designer_heap(ptr, file, &file);
-	if (open_input_utf8_stream(ptr, &stream, file))
+	Return(open_input_utf8_stream_(ptr, &stream, file));
+	if (stream == NULL)
 		fmte("Cannot open file ~S.", file, NULL);
 	script_header(stream);
 	/* load */

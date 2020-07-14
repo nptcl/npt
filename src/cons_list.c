@@ -15,6 +15,20 @@
 /*
  *  nth
  */
+_g void getnth_abort(addr cons, size_t index, addr *ret)
+{
+	for (; index; index--) {
+		if (cons == Nil)
+			break;
+		if (! consp(cons))
+			Abort("Type error");
+		getcdr(cons, &cons);
+	}
+	if (! consp(cons))
+		Abort("Type error");
+	getcar(cons, ret);
+}
+
 _g void getnth(addr cons, size_t index, addr *ret)
 {
 	for (; index; index--) {
@@ -25,7 +39,17 @@ _g void getnth(addr cons, size_t index, addr *ret)
 	getcar(cons, ret);
 }
 
-_g void getnth_large(addr cons, addr index, addr *ret)
+_g int getnth_(addr cons, size_t index, addr *ret)
+{
+	for (; index; index--) {
+		if (cons == Nil)
+			break;
+		Return_getcdr(cons, &cons);
+	}
+	return getcar_(cons, ret);
+}
+
+_g int getnth_large(addr cons, addr index, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -38,12 +62,13 @@ _g void getnth_large(addr cons, addr index, addr *ret)
 			*ret = Nil;
 			goto finish;
 		}
-		getcdr(cons, &cons);
+		Return_getcdr(cons, &cons);
 		decf_bignum(index, 1);
 	}
-	getcar(cons, ret);
+	Return_getcar(cons, ret);
 finish:
 	rollback_local(local, stack);
+	return 0;
 }
 
 _g void getnth_unbound_unsafe(addr cons, size_t index, addr *ret)
@@ -70,17 +95,17 @@ _g void getnth_unsafe(addr cons, size_t index, addr *ret)
 	GetCar(cons, ret);
 }
 
-_g void getnthcdr(addr cons, size_t index, addr *ret)
+_g int getnthcdr_(addr cons, size_t index, addr *ret)
 {
 	for (; index; index--) {
 		if (cons == Nil)
 			break;
-		getcdr(cons, &cons);
+		Return_getcdr(cons, &cons);
 	}
-	*ret = cons;
+	return Result(ret, cons);
 }
 
-_g void getnthcdr_large(addr cons, addr index, addr *ret)
+_g int getnthcdr_large(addr cons, addr index, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -93,12 +118,13 @@ _g void getnthcdr_large(addr cons, addr index, addr *ret)
 			*ret = Nil;
 			goto finish;
 		}
-		getcdr(cons, &cons);
+		Return_getcdr(cons, &cons);
 		decf_bignum(index, 1);
 	}
 	*ret = cons;
 finish:
 	rollback_local(local, stack);
+	return 0;
 }
 
 _g void getnthcdr_unsafe(addr cons, size_t index, addr *ret)
@@ -113,6 +139,16 @@ _g void getnthcdr_unsafe(addr cons, size_t index, addr *ret)
 	*ret = cons;
 }
 
+static void getnthcdr(addr cons, size_t index, addr *ret)
+{
+	for (; index; index--) {
+		if (cons == Nil)
+			break;
+		getcdr(cons, &cons);
+	}
+	*ret = cons;
+}
+
 _g void setnth(addr cons, size_t index, addr value)
 {
 	addr cdr;
@@ -121,6 +157,17 @@ _g void setnth(addr cons, size_t index, addr value)
 	if (! consp(cdr))
 		fmte("Cannot (setf nth) ~S.", cons, NULL);
 	SetCar(cdr, value);
+}
+
+_g int setnth_(addr cons, size_t index, addr value)
+{
+	addr cdr;
+
+	Return(getnthcdr_(cons, index, &cdr));
+	if (! consp(cdr))
+		return fmte_("Cannot (setf nth) ~S.", cons, NULL);
+	SetCar(cdr, value);
+	return 0;
 }
 
 _g void setnth_unsafe(addr cons, size_t index, addr value)

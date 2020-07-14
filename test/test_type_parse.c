@@ -532,23 +532,28 @@ static int test_typelist_function(void)
 
 static int test_parse_array_length(void)
 {
+	int check;
 	addr list;
 	size_t size;
 
 	list = readr("(*)");
 	size = 0;
-	test(parse_array_length(list, &size), "parse_array_length1");
-	test(size == 1, "parse_array_length2");
+	test(! parse_array_length(list, &size, &check), "parse_array_length1");
+	test(check, "parse_array_length2");
+	test(size == 1, "parse_array_length3");
 
 	list = readr("(10)");
-	test(! parse_array_length(list, &size), "parse_array_length3");
+	test(! parse_array_length(list, &size, &check), "parse_array_length4");
+	test(! check, "parse_array_length5");
 
 	list = readr("(* * * *)");
-	test(parse_array_length(list, &size), "parse_array_length4");
-	test(size == 4, "parse_array_length5");
+	test(! parse_array_length(list, &size, &check), "parse_array_length6");
+	test(check, "parse_array_length7");
+	test(size == 4, "parse_array_length8");
 
 	list = readr("(* * 10 * *)");
-	test(! parse_array_length(list, &size), "parse_array_length6");
+	test(! parse_array_length(list, &size, &check), "parse_array_length9");
+	test(! check, "parse_array_length10");
 
 	RETURN;
 }

@@ -153,12 +153,14 @@ execute_values.c
 extern.c
 extern_argv.c
 extern_control.c
+extern_error.c
 extern_init.c
 extern_object.c
 extern_string.c
 extern_stream.c
 extern_unicode.c
 file_memory.c
+file_open.c
 file.c
 files.c
 float_equal.c

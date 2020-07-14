@@ -142,7 +142,7 @@ static void defspecial_quote(void)
  */
 static int function_compiler_macro_function(Execute ptr, addr var, addr env)
 {
-	compiler_macro_function_common(var, env, &var);
+	Return(compiler_macro_function_common(var, env, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -184,7 +184,7 @@ static void defun_compiler_macro_function(void)
 static int function_setf_compiler_macro_function(
 		Execute ptr, addr value, addr var, addr env)
 {
-	setf_compiler_macro_function_common(value, var, env);
+	Return(setf_compiler_macro_function_common(value, var, env));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -220,7 +220,7 @@ static void defun_setf_compiler_macro_function(void)
 /* (defmacro define-compiler-macro (name lambda &body form) ...) -> name */
 static int function_define_compiler_macro(Execute ptr, addr form, addr env)
 {
-	define_compiler_macro_common(ptr, form, env, &form);
+	Return(define_compiler_macro_common(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

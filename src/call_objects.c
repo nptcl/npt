@@ -17,7 +17,7 @@
 /*
  *  defclass
  */
-static void defclass_parse_superclasses(addr args, int defclass, addr *ret)
+static int defclass_parse_superclasses(addr args, int defclass, addr *ret)
 {
 	addr root, pos, quote, find, refer, list;
 
@@ -35,7 +35,7 @@ static void defclass_parse_superclasses(addr args, int defclass, addr *ret)
 		list_heap(&pos, quote, pos, NULL);
 		list_heap(&pos, find, pos, NULL);
 		list_heap(ret, list, pos, NULL);
-		return;
+		return 0;
 	}
 
 	/* (a b ...) ->
@@ -44,7 +44,7 @@ static void defclass_parse_superclasses(addr args, int defclass, addr *ret)
 	 *         ...)
 	 */
 	for (root = Nil; args != Nil; ) {
-		getcons(args, &pos, &args);
+		Return_getcons(args, &pos, &args);
 		list_heap(&pos, quote, pos, NULL);
 		list_heap(&pos, refer, pos, NULL);
 		cons_heap(&root, pos, root);
@@ -52,6 +52,8 @@ static void defclass_parse_superclasses(addr args, int defclass, addr *ret)
 	/* result */
 	nreverse(&root, root);
 	cons_heap(ret, list, root);
+
+	return 0;
 }
 
 static int defclass_eqconst(addr left, constindex index)
@@ -81,10 +83,10 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 
 	/* name */
 	if (! consp(list))
-		fmte("SLOT-SPECIFIER ~S must be a (name . tail) form.", list, NULL);
+		return fmte_("SLOT-SPECIFIER ~S must be a (name . tail) form.", list, NULL);
 	GetCons(list, &name, &list);
 	if (! symbolp(name))
-		fmte("SLOT-NAME ~S must be a symbol.", name, NULL);
+		return fmte_("SLOT-NAME ~S must be a symbol.", name, NULL);
 
 	/* arguments */
 	readers = Nil;
@@ -101,16 +103,16 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 	while (list != Nil) {
 		/* key - value */
 		if (! consp(list))
-			fmte("Invalid slot-specifier value ~S.", list, NULL);
+			return fmte_("Invalid slot-specifier value ~S.", list, NULL);
 		GetCons(list, &key, &list);
 		if (! consp(list))
-			fmte("SLOT-SPECIFIER ~S must be a key-value form", list, NULL);
+			return fmte_("SLOT-SPECIFIER ~S must be a key-value form", list, NULL);
 		GetCons(list, &value, &list);
 
 		/* :reader */
 		if (DefClassEqConst(key, READER)) {
 			if (! non_nil_symbol_p(value))
-				fmte(":READER ~S must be a non-nil symbol.", value, NULL);
+				return fmte_(":READER ~S must be a non-nil symbol.", value, NULL);
 			pushnew_heap(readers, value, &readers);
 			localhold_set(hold, 0, readers);
 			continue;
@@ -119,7 +121,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 		/* :writer */
 		if (DefClassEqConst(key, WRITER)) {
 			if (! function_name_p(value))
-				fmte(":WRITER ~S must be function name.", value, NULL);
+				return fmte_(":WRITER ~S must be function name.", value, NULL);
 			pushnew_equal_heap(writers, value, &writers);
 			localhold_set(hold, 1, writers);
 			continue;
@@ -128,7 +130,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 		/* :accessor */
 		if (DefClassEqConst(key, ACCESSOR)) {
 			if (! non_nil_symbol_p(value))
-				fmte(":ACCESSOR ~S must be a non-nil symbol.", value, NULL);
+				return fmte_(":ACCESSOR ~S must be a non-nil symbol.", value, NULL);
 			pushnew_heap(readers, value, &readers);
 			localhold_set(hold, 0, readers);
 
@@ -141,10 +143,12 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 
 		/* :allocation */
 		if (DefClassEqConst(key, ALLOCATION)) {
-			if (! defclass_allocation_p(value))
-				fmte(":ALLOCATION ~S must be a :instance or :class.", value, NULL);
+			if (! defclass_allocation_p(value)) {
+				return fmte_(":ALLOCATION ~S "
+						"must be a :instance or :class.", value, NULL);
+			}
 			if (allocation != Nil)
-				fmte(":ALLOCATION is already exist.", NULL);
+				return fmte_(":ALLOCATION is already exist.", NULL);
 			allocation = value;
 			continue;
 		}
@@ -152,7 +156,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 		/* :initarg */
 		if (DefClassEqConst(key, INITARG)) {
 			if (! symbolp(value))
-				fmte(":INITARG ~S must be a symbol.", value, NULL);
+				return fmte_(":INITARG ~S must be a symbol.", value, NULL);
 			pushnew_heap(initargs, value, &initargs);
 			localhold_set(hold, 2, initargs);
 			continue;
@@ -161,7 +165,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 		/* :initform */
 		if (DefClassEqConst(key, INITFORM)) {
 			if (initfunction != Nil)
-				fmte(":INITFORM is already exist.", NULL);
+				return fmte_(":INITFORM is already exist.", NULL);
 			initform = value;
 			GetConst(COMMON_LAMBDA, &pos);
 			list_heap(&initfunction, pos, Nil, value, NULL);
@@ -172,9 +176,8 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 		/* :type */
 		if (DefClassEqConst(key, TYPE)) {
 			if (type != Nil)
-				fmte(":TYPE is already exist.", NULL);
-			if (parse_type(ptr, &type, value, env))
-				return 1;
+				return fmte_(":TYPE is already exist.", NULL);
+			Return(parse_type(ptr, &type, value, env));
 			localhold_set(hold, 4, type);
 			continue;
 		}
@@ -182,9 +185,9 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 		/* :document */
 		if (DefClassEqConst(key, DOCUMENTATION)) {
 			if (doc != Nil)
-				fmte(":DOCUMENTATION is already exist.", NULL);
+				return fmte_(":DOCUMENTATION is already exist.", NULL);
 			if (! symbolp(value))
-				fmte(":DOCUMENTATION ~S must be a symbol.", value, NULL);
+				return fmte_(":DOCUMENTATION ~S must be a symbol.", value, NULL);
 			doc = value;
 			continue;
 		}
@@ -296,8 +299,8 @@ static int defclass_parse_slot(Execute ptr, addr env, addr list, addr *ret)
 		return defclass_parse_slotlist(ptr, env, list, ret);
 
 	/* error */
-	fmte("DEFCLASS slot-specifier ~S must be a list or a symbol,", list, NULL);
-	return 0;
+	*ret = Nil;
+	return fmte_("DEFCLASS slot-specifier ~S must be a list or a symbol,", list, NULL);
 }
 
 static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
@@ -306,10 +309,8 @@ static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
 	LocalHold hold;
 
 	/* check */
-	if (list == Nil) {
-		*ret = Nil;
-		return 0;
-	}
+	if (list == Nil)
+		return Result(ret, Nil);
 	/* hold */
 	hold = LocalHold_array(ptr, 1);
 	localhold_pushva_force(hold, env, list, NULL);
@@ -319,10 +320,9 @@ static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
 	localhold_set(hold, 0, root);
 	while (list != Nil) {
 		if (! consp(list))
-			fmte("DEFCLASS slot-specifier ~S must be a list.", list, NULL);
+			return fmte_("DEFCLASS slot-specifier ~S must be a list.", list, NULL);
 		GetCons(list, &pos, &list);
-		if (defclass_parse_slot(ptr, env, pos, &pos))
-			return 1;
+		Return(defclass_parse_slot(ptr, env, pos, &pos));
 		cons_heap(&root, pos, root);
 		localhold_set(hold, 0, root);
 	}
@@ -333,7 +333,7 @@ static int defclass_parse_slots(Execute ptr, addr env, addr list, addr *ret)
 	return 0;
 }
 
-static void defclass_parse_initargs(addr args, addr *ret)
+static int defclass_parse_initargs(addr args, addr *ret)
 {
 	/* (:aaa 100 bbb (hello))
 	 * -> (list (list (quote :aaa) (quote 100) (lambda () 100))
@@ -346,8 +346,8 @@ static void defclass_parse_initargs(addr args, addr *ret)
 	GetConst(COMMON_QUOTE, &quote);
 	GetConst(COMMON_LAMBDA, &lambda);
 	for (root = Nil; args != Nil; ) {
-		getcons(args, &key, &args);
-		getcons(args, &value, &args);
+		Return_getcons(args, &key, &args);
+		Return_getcons(args, &value, &args);
 		list_heap(&a, quote, key, NULL);
 		list_heap(&b, quote, value, NULL);
 		list_heap(&c, lambda, Nil, value, NULL);
@@ -362,30 +362,32 @@ static void defclass_parse_initargs(addr args, addr *ret)
 		nreverse(&root, root);
 		cons_heap(ret, list, root);
 	}
+
+	return 0;
 }
 
-static void defclass_parse_options(addr list, int defclass, addr *ret, addr *report)
+static int defclass_parse_options(addr list, int defclass, addr *ret, addr *report)
 {
 	addr root, key, value;
 
 	*report = NULL;
 	for (root = Nil; list != Nil; ) {
 		if (! consp(list))
-			fmte("DEFCLASS options ~S don't allow dotted list.", list, NULL);
+			return fmte_("DEFCLASS options ~S don't allow dotted list.", list, NULL);
 		GetCons(list, &key, &list);
 		if (! consp(key))
-			fmte("DEFCLASS option ~S must be a cons.", key, NULL);
+			return fmte_("DEFCLASS option ~S must be a cons.", key, NULL);
 		GetCons(key, &key, &value);
 
 		/* :metaclass */
 		if (DefClassEqConst(key, METACLASS)) {
 			if (! defclass)
-				fmte(":METACLASS is not supported in DEFINE-CONBINATION.", NULL);
+				return fmte_(":METACLASS is not supported in DEFINE-CONBINATION.", NULL);
 			if (! singlep(value))
-				fmte("Invalid :METACLASS ~S.", value, NULL);
+				return fmte_("Invalid :METACLASS ~S.", value, NULL);
 			GetCar(value, &value);
 			if (! non_nil_symbol_p(value))
-				fmte(":METACLASS ~S must be a non-nil symbol.", value, NULL);
+				return fmte_(":METACLASS ~S must be a non-nil symbol.", value, NULL);
 			/* :metaclass (find-class (quote value)) */
 			cons_heap(&root, key, root);
 			GetConst(COMMON_QUOTE, &key);
@@ -398,7 +400,7 @@ static void defclass_parse_options(addr list, int defclass, addr *ret, addr *rep
 
 		/* :default-initargs */
 		if (DefClassEqConst(key, DEFAULT_INITARGS)) {
-			defclass_parse_initargs(value, &value);
+			Return(defclass_parse_initargs(value, &value));
 			GetConst(CLOSKEY_DIRECT_DEFAULT_INITARGS, &key);
 			cons_heap(&root, key, root);
 			cons_heap(&root, value, root);
@@ -408,10 +410,10 @@ static void defclass_parse_options(addr list, int defclass, addr *ret, addr *rep
 		/* :documentation */
 		if (DefClassEqConst(key, DOCUMENTATION)) {
 			if (! singlep(value))
-				fmte("Invalid :DOCUMENTATION ~S.", value, NULL);
+				return fmte_("Invalid :DOCUMENTATION ~S.", value, NULL);
 			GetCar(value, &value);
 			if (! stringp(value))
-				fmte(":DOCUMENTATION ~S must be a string.", value, NULL);
+				return fmte_(":DOCUMENTATION ~S must be a string.", value, NULL);
 			/* :documentation value */
 			cons_heap(&root, key, root);
 			cons_heap(&root, value, root);
@@ -420,9 +422,9 @@ static void defclass_parse_options(addr list, int defclass, addr *ret, addr *rep
 
 		if (DefClassEqConst(key, REPORT)) {
 			if (defclass)
-				fmte(":REPORT is not supported in DEFCLASS.", NULL);
+				return fmte_(":REPORT is not supported in DEFCLASS.", NULL);
 			if (! singlep(value))
-				fmte("Invalid :REPORT ~S.", value, NULL);
+				return fmte_("Invalid :REPORT ~S.", value, NULL);
 			GetCar(value, &value);
 			/* :report -> defmethod */
 			*report = value;
@@ -431,7 +433,7 @@ static void defclass_parse_options(addr list, int defclass, addr *ret, addr *rep
 
 		/* otherwise */
 		if (! singlep(value))
-			fmte("Invalid option ~S.", value, NULL);
+			return fmte_("Invalid option ~S.", value, NULL);
 		GetCar(value, &value);
 		/* key value */
 		cons_heap(&root, key, root);
@@ -440,6 +442,7 @@ static void defclass_parse_options(addr list, int defclass, addr *ret, addr *rep
 
 	/* result */
 	nreverse(ret, root);
+	return 0;
 }
 
 static void define_condition_result(addr *ret, addr args, addr name, addr report)
@@ -510,13 +513,13 @@ static int defclass_define_condition(Execute ptr,
 	LocalHold hold;
 
 	/* destructuring-bind */
-	getcons(form, &first, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &name, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &supers, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &slots, &options);
+	Return_getcons(form, &first, &args);
+	if (! consp_getcons(args, &name, &args))
+		goto error;
+	if (! consp_getcons(args, &supers, &args))
+		goto error;
+	if (! consp_getcons(args, &slots, &options))
+		goto error;
 
 	hold = LocalHold_local(ptr);
 	/* name */
@@ -525,10 +528,10 @@ static int defclass_define_condition(Execute ptr,
 	localhold_push(hold, nameq);
 
 	/* parse */
-	defclass_parse_superclasses(supers, defclass, &supers);
+	Return(defclass_parse_superclasses(supers, defclass, &supers));
 	localhold_push(hold, supers);
-	if (defclass_parse_slots(ptr, env, slots, &slots)) return 1;
-	defclass_parse_options(options, defclass, &options, &report);
+	Return(defclass_parse_slots(ptr, env, slots, &slots));
+	Return(defclass_parse_options(options, defclass, &options, &report));
 
 	/* make */
 	GetConst(CLOSNAME_ENSURE_CLASS, &ensure);
@@ -542,9 +545,9 @@ static int defclass_define_condition(Execute ptr,
 	return 0;
 
 error:
-	fmte("The ~S ~S must be a "
+	*ret = Nil;
+	return fmte_("The ~S ~S must be a "
 			"(~S name (superclasses) (slots) ...) form.", first, form, first, NULL);
-	return 0;
 }
 
 _g int defclass_common(Execute ptr, addr form, addr env, addr *ret)
@@ -562,13 +565,15 @@ _g int define_condition_common(Execute ptr, addr form, addr env, addr *ret)
  *  find-class
  *    TODO: environment
  */
-_g void find_class_common(addr pos, int errorp, addr env, addr *ret)
+_g int find_class_common(addr pos, int errorp, addr env, addr *ret)
 {
 	Check(! symbolp(pos), "type error");
 	if (errorp)
 		clos_find_class(pos, ret);
 	else
 		clos_find_class_nil(pos, ret);
+	
+	return 0;
 }
 
 
@@ -587,26 +592,27 @@ _g void setf_find_class_common(addr pos, addr name, addr env)
 /*
  *  with-accessors
  */
-static void with_accessors_arguments(addr args, addr g, addr *ret)
+static int with_accessors_arguments(addr args, addr g, addr *ret)
 {
 	addr root, var, name, temp;
 
 	for (root = Nil; args != Nil; ) {
-		getcons(args, &var, &args);
+		Return_getcons(args, &var, &args);
 		/* parse */
 		if (symbolp(var)) {
 			name = var;
 		}
 		else {
-			if (! consp(var)) goto error;
-			GetCons(var, &var, &temp);
-			if (! consp(temp)) goto error;
-			GetCons(temp, &name, &temp);
-			if (temp != Nil) goto error;
+			if (! consp_getcons(var, &var, &temp))
+				goto error;
+			if (! consp_getcons(temp, &name, &temp))
+				goto error;
+			if (temp != Nil)
+				goto error;
 			if (! symbolp(var))
-				fmte("WITH-ACCESSORS argument ~S must be a symbol.", var, NULL);
+				return fmte_("WITH-ACCESSORS argument ~S must be a symbol.", var, NULL);
 			if (! symbolp(name))
-				fmte("WITH-ACCESSORS argument ~S must be a symbol.", name, NULL);
+				return fmte_("WITH-ACCESSORS argument ~S must be a symbol.", name, NULL);
 		}
 		/* expand */
 		list_heap(&name, name, g, NULL);
@@ -614,14 +620,15 @@ static void with_accessors_arguments(addr args, addr g, addr *ret)
 		cons_heap(&root, var, root);
 	}
 	nreverse(ret, root);
-	return;
+	return 0;
 
 error:
-	fmte("WITH-ACCESSORS arguments ~S must be "
+	*ret = Nil;
+	return fmte_("WITH-ACCESSORS arguments ~S must be "
 			"a symbol or (var name) form.", args, NULL);
 }
 
-_g void with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
+_g int with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	/* `(let ((,#:g ,expr))
 	 *    (symbol-macrolet ((,var1 (,name1 ,#:g))
@@ -631,25 +638,26 @@ _g void with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
 	addr args, var, expr, g, let, symm;
 
 	/* arguments */
-	getcdr(form, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &var, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &expr, &args);
+	Return_getcdr(form, &args);
+	if (! consp_getcons(args, &var, &args))
+		goto error;
+	if (! consp_getcons(args, &expr, &args))
+		goto error;
 
 	/* expand */
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_SYMBOL_MACROLET, &symm);
 	make_gensym(ptr, &g);
-	with_accessors_arguments(var, g, &var);
+	Return(with_accessors_arguments(var, g, &var));
 	lista_heap(&symm, symm, var, args, NULL);
 	list_heap(&g, g, expr, NULL);
 	list_heap(&g, g, NULL);
 	list_heap(ret, let, g, symm, NULL);
-	return;
+	return 0;
 
 error:
-	fmte("WITH-ACCESSORS argument ~S must be a "
+	*ret = Nil;
+	return fmte_("WITH-ACCESSORS argument ~S must be a "
 			"((var ...) &body form) form.", form, NULL);
 }
 
@@ -657,28 +665,29 @@ error:
 /*
  *  with-slots
  */
-static void with_slots_arguments(addr args, addr g, addr *ret)
+static int with_slots_arguments(addr args, addr g, addr *ret)
 {
 	addr slot, quote, root, var, name, temp;
 
 	GetConst(COMMON_SLOT_VALUE, &slot);
 	GetConst(COMMON_QUOTE, &quote);
 	for (root = Nil; args != Nil; ) {
-		getcons(args, &var, &args);
+		Return_getcons(args, &var, &args);
 		/* parse */
 		if (symbolp(var)) {
 			name = var;
 		}
 		else {
-			if (! consp(var)) goto error;
-			GetCons(var, &var, &temp);
-			if (! consp(temp)) goto error;
-			GetCons(temp, &name, &temp);
-			if (temp != Nil) goto error;
+			if (! consp_getcons(var, &var, &temp))
+				goto error;
+			if (! consp_getcons(temp, &name, &temp))
+				goto error;
+			if (temp != Nil)
+				goto error;
 			if (! symbolp(var))
-				fmte("WITH-SLOTS argument ~S must be a symbol.", var, NULL);
+				return fmte_("WITH-SLOTS argument ~S must be a symbol.", var, NULL);
 			if (! symbolp(name))
-				fmte("WITH-SLOTS argument ~S must be a symbol.", name, NULL);
+				return fmte_("WITH-SLOTS argument ~S must be a symbol.", name, NULL);
 		}
 		/* expand */
 		list_heap(&name, quote, name, NULL);
@@ -687,14 +696,15 @@ static void with_slots_arguments(addr args, addr g, addr *ret)
 		cons_heap(&root, var, root);
 	}
 	nreverse(ret, root);
-	return;
+	return 0;
 
 error:
-	fmte("WITH-SLOTS arguments ~S must be "
+	*ret = Nil;
+	return fmte_("WITH-SLOTS arguments ~S must be "
 			"a symbol or (var name) form.", args, NULL);
 }
 
-_g void with_slots_common(Execute ptr, addr form, addr env, addr *ret)
+_g int with_slots_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	/* `(let ((,#:g ,expr))
 	 *    (symbol-macrolet ((,var1 (slot-value ,#:g ',name1))
@@ -704,25 +714,27 @@ _g void with_slots_common(Execute ptr, addr form, addr env, addr *ret)
 	addr args, var, expr, g, let, symm;
 
 	/* arguments */
-	getcdr(form, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &var, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &expr, &args);
+	Return_getcdr(form, &args);
+	if (! consp_getcons(args, &var, &args))
+		goto error;
+	if (! consp_getcons(args, &expr, &args))
+		goto error;
 
 	/* expand */
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_SYMBOL_MACROLET, &symm);
 	make_gensym(ptr, &g);
-	with_slots_arguments(var, g, &var);
+	Return(with_slots_arguments(var, g, &var));
 	lista_heap(&symm, symm, var, args, NULL);
 	list_heap(&g, g, expr, NULL);
 	list_heap(&g, g, NULL);
 	list_heap(ret, let, g, symm, NULL);
-	return;
+	return 0;
 
 error:
-	fmte("WITH-SLOTS argument ~S must be a ((var ...) &body form) form.", form, NULL);
+	*ret = Nil;
+	return fmte_("WITH-SLOTS argument ~S "
+			"must be a ((var ...) &body form) form.", form, NULL);
 }
 
 
@@ -737,84 +749,88 @@ error:
  *    (:method-class method-class)
  *    (:method qualifiers* lambda declare* document* form*)*
  */
-static void defgeneric_parse_order(addr list, addr *ret)
+static int defgeneric_parse_order(addr list, addr *ret)
 {
 	addr check;
 
 	*ret = list;
 	while (list != Nil) {
-		getcons(list, &check, &list);
-		if (! symbolp(check))
-			fmte(":ARGUMENT-PRECEDENCE-ORDER ~S must be a symbol.", check, NULL);
+		Return_getcons(list, &check, &list);
+		if (! symbolp(check)) {
+			return fmte_(":ARGUMENT-PRECEDENCE-ORDER ~S "
+					"must be a symbol.", check, NULL);
+		}
 	}
+
+	return 0;
 }
 
-static void defgeneric_parse_declare(addr list, addr *ret)
+static int defgeneric_parse_declare(addr list, addr *ret)
 {
 	addr pos, decl;
 
-	if (! consp(list))
+	if (! consp_getcons(list, &pos, &decl))
 		goto error;
-	GetCons(list, &pos, &decl);
 	if (decl != Nil)
 		goto error;
 	if (parse_optimize_heap(pos, &decl))
-		fmte(":DECLARE accept only OPTIMIZE but ~S.", pos, NULL);
-	*ret = decl;
-	return;
+		return fmte_(":DECLARE accept only OPTIMIZE but ~S.", pos, NULL);
+	return Result(ret, decl);
 
 error:
-	fmte("Invalid :DECLARE form ~S.", list, NULL);
+	*ret = Nil;
+	return fmte_("Invalid :DECLARE form ~S.", list, NULL);
 }
 
-static void defgeneric_parse_document(addr list, addr *ret)
+static int defgeneric_parse_document(addr list, addr *ret)
 {
 	addr pos, doc;
 
-	if (! consp(list))
+	if (! consp_getcons(list, &doc, &pos))
 		goto error;
-	GetCons(list, &doc, &pos);
 	if (pos != Nil)
 		goto error;
 	if (! stringp(doc))
-		fmte(":DOCUMENTATION ~S must be a string.", doc, NULL);
-	*ret = doc;
-	return;
+		return fmte_(":DOCUMENTATION ~S must be a string.", doc, NULL);
+	return Result(ret, doc);
 
 error:
-	fmte(":DOCUMENTATION ~S must be a (string) form.", list, NULL);
+	*ret = Nil;
+	return fmte_(":DOCUMENTATION ~S must be a (string) form.", list, NULL);
 }
 
-static void defgeneric_parse_generic(addr list, addr *ret)
+static int defgeneric_parse_generic(addr list, addr *ret)
 {
 	addr name, find, quote;
 
 	/* (find-class (quote name)) */
-	if (! consp(list))
-		fmte(":GENERIC-FUNCTION-CLASS ~S must be a (symbol) form.", list, NULL);
-	GetCons(list, &name, &list);
+	if (! consp_getcons(list, &name, &list))
+		return fmte_(":GENERIC-FUNCTION-CLASS ~S must be a (symbol) form.", list, NULL);
 	if (! symbolp(name))
-		fmte(":GENERIC-FUNCTION-CLASS ~S must be a symbol.", name, NULL);
+		return fmte_(":GENERIC-FUNCTION-CLASS ~S must be a symbol.", name, NULL);
 	GetConst(COMMON_FIND_CLASS, &find);
 	GetConst(COMMON_QUOTE, &quote);
 	list_heap(&name, quote, name, NULL);
 	list_heap(ret, find, name, NULL);
+
+	return 0;
 }
 
-static void defgeneric_parse_method(addr list, addr *ret)
+static int defgeneric_parse_method(addr list, addr *ret)
 {
 	addr name, find, quote;
 
 	/* (find-class (quote name)) */
-	if (! consp(list))
-		fmte(":METHOD-CLASS ~S must be a (symbol) form.", list, NULL);
-	GetCons(list, &name, &list);
+	if (! consp_getcons(list, &name, &list))
+		return fmte_(":METHOD-CLASS ~S must be a (symbol) form.", list, NULL);
 	if (! symbolp(name))
-		fmte(":METHOD-CLASS ~S must be a symbol.", name, NULL);
+		return fmte_(":METHOD-CLASS ~S must be a symbol.", name, NULL);
 	GetConst(COMMON_FIND_CLASS, &find);
 	GetConst(COMMON_QUOTE, &quote);
 	list_heap(&name, quote, name, NULL);
 	list_heap(ret, find, name, NULL);
+
+	return 0;
 }
 
 static void defgeneric_parse_form(addr root, addr name, addr list, addr *ret)
@@ -826,7 +842,7 @@ static void defgeneric_parse_form(addr root, addr name, addr list, addr *ret)
 	cons_heap(ret, pos, root);
 }
 
-static void defgeneric_parse_options(addr name, addr args,
+static int defgeneric_parse_options(addr name, addr args,
 		addr *rorder, addr *rdecl, addr *rdoc, addr *rcomb,
 		addr *rgen, addr *rmethod, addr *rcode)
 {
@@ -836,29 +852,27 @@ static void defgeneric_parse_options(addr name, addr args,
 	decl = doc = comb = gen = method = Unbound;
 	order = code = Nil;
 	while (args != Nil) {
-		if (! consp(args))
-			fmte("Invalid defgeneric argument ~S.", args, NULL);
-		GetCons(args, &pos, &args);
-		if (! consp(pos))
-			fmte("Invalid defgeneric argument ~S.", pos, NULL);
-		GetCons(pos, &type, &tail);
+		if (! consp_getcons(args, &pos, &args))
+			return fmte_("Invalid defgeneric argument ~S.", args, NULL);
+		if (! consp_getcons(pos, &type, &tail))
+			return fmte_("Invalid defgeneric argument ~S.", pos, NULL);
 
 		/* :argument-precedence-order */
 		GetConst(KEYWORD_ARGUMENT_PRECEDENCE_ORDER, &check);
 		if (type == check) {
-			defgeneric_parse_order(tail, &order);
+			Return(defgeneric_parse_order(tail, &order));
 			continue;
 		}
 		/* :declare */
 		GetConst(KEYWORD_DECLARE, &check);
 		if (type == check) {
-			defgeneric_parse_declare(tail, &decl);
+			Return(defgeneric_parse_declare(tail, &decl));
 			continue;
 		}
 		/* :documentation */
 		GetConst(KEYWORD_DOCUMENTATION, &check);
 		if (type == check) {
-			defgeneric_parse_document(tail, &doc);
+			Return(defgeneric_parse_document(tail, &doc));
 			continue;
 		}
 		/* :method-combination */
@@ -870,13 +884,13 @@ static void defgeneric_parse_options(addr name, addr args,
 		/* :generic-function-class*/
 		GetConst(KEYWORD_GENERIC_FUNCTION_CLASS, &check);
 		if (type == check) {
-			defgeneric_parse_generic(tail, &gen);
+			Return(defgeneric_parse_generic(tail, &gen));
 			continue;
 		}
 		/* :method-class */
 		GetConst(KEYWORD_METHOD_CLASS, &check);
 		if (type == check) {
-			defgeneric_parse_method(tail, &method);
+			Return(defgeneric_parse_method(tail, &method));
 			continue;
 		}
 		/* :method */
@@ -886,7 +900,7 @@ static void defgeneric_parse_options(addr name, addr args,
 			continue;
 		}
 		/* error */
-		fmte("Invalid defgeneric option ~S.", pos, NULL);
+		return fmte_("Invalid defgeneric option ~S.", pos, NULL);
 	}
 	*rorder = order;
 	*rdecl = decl;
@@ -895,6 +909,7 @@ static void defgeneric_parse_options(addr name, addr args,
 	*rgen = gen;
 	*rmethod = method;
 	*rcode = code;
+	return 0;
 }
 
 static void defgeneric_push_value(addr *ret, addr key, addr value, addr root)
@@ -912,20 +927,20 @@ static void defgeneric_push_quote(addr *ret, addr key, addr value, addr root)
 	defgeneric_push_value(ret, key, value, root);
 }
 
-_g void defgeneric_common(addr form, addr env, addr *ret)
+_g int defgeneric_common(addr form, addr env, addr *ret)
 {
 	addr args, name, lambda, order, decl, doc, comb, gen, method, code, key;
 
-	getcdr(form, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &name, &args);
-	if (! consp(args)) goto error;
-	GetCons(args, &lambda, &args);
+	Return_getcdr(form, &args);
+	if (! consp_getcons(args, &name, &args))
+		goto error;
+	if (! consp_getcons(args, &lambda, &args))
+		goto error;
 	/* options */
 	if (! function_name_p(name))
-		fmte("Invalid function name ~S.", name, NULL);
-	defgeneric_parse_options(name, args,
-			&order, &decl, &doc, &comb, &gen, &method, &code);
+		return fmte_("Invalid function name ~S.", name, NULL);
+	Return(defgeneric_parse_options(name, args,
+			&order, &decl, &doc, &comb, &gen, &method, &code));
 	/* expand */
 	args = Nil;
 	GetConst(COMMON_ENSURE_GENERIC_FUNCTION, &key);
@@ -961,11 +976,11 @@ _g void defgeneric_common(addr form, addr env, addr *ret)
 		GetConst(COMMON_PROGN, &key);
 		lista_heap(&args, key, args, code, NULL);
 	}
-	*ret = args;
-	return;
+	return Result(ret, args);
 
 error:
-	fmte("DEFGENERIC argument ~S must be a "
+	*ret = Nil;
+	return fmte_("DEFGENERIC argument ~S must be a "
 			"(name lambda-list &rest args) form.", form, NULL);
 }
 
@@ -993,7 +1008,7 @@ static int defmethod_parse_qualifiers(addr list, addr *qua, addr *args, addr *bo
 	return 0;
 }
 
-static void defmethod_parse_specializers(addr pos, addr *ret)
+static int defmethod_parse_specializers(addr pos, addr *ret)
 {
 	addr list, var, type, root, quote;
 
@@ -1003,8 +1018,8 @@ static void defmethod_parse_specializers(addr pos, addr *ret)
 		GetCons(pos, &list, &pos);
 		list_bind(list, &var, &type, NULL);
 		if (consp(type)) {
-			getcdr(type, &type);
-			getcar(type, &type);
+			Return_getcdr(type, &type);
+			Return_getcar(type, &type);
 			/* (intern-eql-specializer (quote value)) */
 			GetConst(CLOSNAME_INTERN_EQL_SPECIALIZER, &var);
 		}
@@ -1022,7 +1037,8 @@ static void defmethod_parse_specializers(addr pos, addr *ret)
 		GetConst(COMMON_LIST, &list);
 		cons_heap(&root, list, root);
 	}
-	*ret = root;
+
+	return Result(ret, root);
 }
 
 static void defmethod_parse_documentation(addr form, addr *ret)
@@ -1094,16 +1110,15 @@ _g int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
 	addr args, name, qua, spec, lambda, list, quote;
 	addr key1, key2, key3, key4, key5;
 
-	getcdr(form, &args);
-	if (! consp(args))
+	Return_getcdr(form, &args);
+	if (! consp_getcons(args, &name, &args))
 		goto error;
-	GetCons(args, &name, &args);
 	if (! function_name_p(name))
-		fmte("Invalid function name ~S.", name, NULL);
+		return fmte_("Invalid function name ~S.", name, NULL);
 	if (defmethod_parse_qualifiers(args, &qua, &lambda, &args))
 		goto error;
 	argument_method_heap(ptr->local, &list, lambda);
-	defmethod_parse_specializers(list, &spec);
+	Return(defmethod_parse_specializers(list, &spec));
 	defmethod_parse_function(ptr, env, args, list, &args);
 
 	/* name qua lambda doc decl args */
@@ -1121,16 +1136,16 @@ _g int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	fmte("DEFMETHOD argument ~S must be a "
+	*ret = Nil;
+	return fmte_("DEFMETHOD argument ~S must be a "
 			"(name qualifier* lambda-list &body form).", form, NULL);
-	return 0;
 }
 
 
 /*
  *  define-method-combination
  */
-static void defcomb_short(addr *ret, addr list, addr name)
+static int defcomb_short(addr *ret, addr list, addr name)
 {
 	addr doc, ident, oper, key, value;
 	addr kdoc, kident, koper, quote;
@@ -1141,11 +1156,11 @@ static void defcomb_short(addr *ret, addr list, addr name)
 	GetConst(KEYWORD_OPERATOR, &koper);
 	doc = ident = oper = Unbound;
 	while (list != Nil) {
-		getcons(list, &key, &list);
-		getcons(list, &value, &list);
+		Return_getcons(list, &key, &list);
+		Return_getcons(list, &value, &list);
 		if (key == kdoc) {
 			if (! stringp(value))
-				fmte(":DOCUMENTATION ~S must be a symbol.", value, NULL);
+				return fmte_(":DOCUMENTATION ~S must be a symbol.", value, NULL);
 			doc = value;
 			continue;
 		}
@@ -1155,11 +1170,11 @@ static void defcomb_short(addr *ret, addr list, addr name)
 		}
 		if (key == koper) {
 			if (! symbolp(value))
-				fmte(":OPERATOR ~S must be a symbol.", value, NULL);
+				return fmte_(":OPERATOR ~S must be a symbol.", value, NULL);
 			oper = value;
 			continue;
 		}
-		fmte("Invalid argument ~S ~S.", key, value, NULL);
+		return fmte_("Invalid argument ~S ~S.", key, value, NULL);
 	}
 
 	/* `(ensure-method-combination-short
@@ -1186,9 +1201,10 @@ static void defcomb_short(addr *ret, addr list, addr name)
 	}
 	/* result */
 	nreverse(ret, list);
+	return 0;
 }
 
-static void defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
+static int defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
 {
 	addr next, args, gen, a, b, c, kargs, kgen;
 
@@ -1197,10 +1213,9 @@ static void defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
 	gen = Unbound;
 	args = Nil;
 	while (list != Nil) {
-		getcons(list, &a, &next);
-		if (! consp(a))
+		Return_getcons(list, &a, &next);
+		if (! consp_getcons(a, &a, &b))
 			break;
-		GetCons(a, &a, &b);
 		/* (:arguments . args) */
 		if (a == kargs) {
 			if (args == Nil)
@@ -1211,12 +1226,12 @@ static void defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
 		/* (:generic-function gen) */
 		if (a == kgen) {
 			if (! consp(b))
-				fmte(":GENERIC-FUNCTION ~S must be a cons form.", b, NULL);
+				return fmte_(":GENERIC-FUNCTION ~S must be a cons form.", b, NULL);
 			GetCons(b, &a, &c);
 			if (c != Nil)
-				fmte("Invalid :GENERIC-FUNCTION form ~S.", b, NULL);
+				return fmte_("Invalid :GENERIC-FUNCTION form ~S.", b, NULL);
 			if (! symbolp(a))
-				fmte(":GENERIC-FUNCTION ~S must be a symbol.", a, NULL);
+				return fmte_(":GENERIC-FUNCTION ~S must be a symbol.", a, NULL);
 			if (gen == Unbound)
 				gen = a;
 			list = next;
@@ -1229,26 +1244,31 @@ static void defcomb_split_body(addr list, addr *rargs, addr *rgen, addr *rbody)
 	*rargs = args;
 	*rgen = gen;
 	*rbody = list;
+	return 0;
 }
 
-static void defcomb_long_specifiers(addr *ret, addr list)
+static int defcomb_long_specifiers(addr *ret, addr list)
 {
 	addr root, name, spec, tail, key, value, check, order, req, desc;
 
-	if (! listp(list))
-		fmte("DEFINE-METHOD-COMBINATION specifiers ~S must be a list.", list, NULL);
+	if (! listp(list)) {
+		return fmte_("DEFINE-METHOD-COMBINATION specifiers ~S "
+				"must be a list.", list, NULL);
+	}
 	for (root = Nil; list != Nil; ) {
 		/* (name spec &key order required description) */
-		getcons(list, &spec, &list);
-		getcons(spec, &name, &spec);
-		getcons(spec, &spec, &tail);
-		if ((! symbolp(spec)) && (! listp(spec)))
-			fmte("The qualifiers pattern ~S must be a symbol or list.", spec, NULL);
+		Return_getcons(list, &spec, &list);
+		Return_getcons(spec, &name, &spec);
+		Return_getcons(spec, &spec, &tail);
+		if ((! symbolp(spec)) && (! listp(spec))) {
+			return fmte_("The qualifiers pattern ~S "
+					"must be a symbol or list.", spec, NULL);
+		}
 		/* &key */
 		order = req = desc = Unbound;
 		while (tail != Nil) {
-			getcons(tail, &key, &tail);
-			getcons(tail, &value, &tail);
+			Return_getcons(tail, &key, &tail);
+			Return_getcons(tail, &value, &tail);
 			/* order */
 			GetConst(KEYWORD_ORDER, &check);
 			if (key == check) {
@@ -1271,7 +1291,7 @@ static void defcomb_long_specifiers(addr *ret, addr list)
 				continue;
 			}
 			/* error */
-			fmte("Invalid specifiers keyword ~S.", key, NULL);
+			return fmte_("Invalid specifiers keyword ~S.", key, NULL);
 		}
 		if (order == Unbound)
 			GetConst(KEYWORD_MOST_SPECIFIC_FIRST, &order);
@@ -1283,21 +1303,21 @@ static void defcomb_long_specifiers(addr *ret, addr list)
 		cons_heap(&root, name, root);
 	}
 	nreverse(ret, root);
+	return 0;
 }
 
-static void defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
+static int defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 		addr list, addr name)
 {
 	addr pos, lambda, spec, args, gen, doc, body, decl;
 
 	/* long form */
 	GetCons(list, &lambda, &list);
-	if (! consp(list))
+	if (! consp_getcons(list, &spec, &list))
 		goto error;
-	GetCons(list, &spec, &list);
-	defcomb_split_body(list, &args, &gen, &list);
+	Return(defcomb_split_body(list, &args, &gen, &list));
 	/* parser */
-	defcomb_long_specifiers(&spec, spec);
+	Return(defcomb_long_specifiers(&spec, spec));
 	split_decl_body_doc(list, &doc, &decl, &body);
 
 	/* `(ensure-method-combination-long
@@ -1345,40 +1365,35 @@ static void defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 	pushva_heap(&list, body, NULL);
 	/* result */
 	nreverse(ret, list);
-	return;
+	return 0;
 
 error:
-	fmte("Invalid DEFINE-METHOD-COMBINATION form ~S.", form, NULL);
+	*ret = Nil;
+	return fmte_("Invalid DEFINE-METHOD-COMBINATION form ~S.", form, NULL);
 }
 
-_g void define_method_combination_common(
+_g int define_method_combination_common(
 		LocalRoot local, addr form, addr env, addr *ret)
 {
 	addr list, name, check;
 
 	/* arguments */
-	getcdr(form, &list);
-	if (! consp(list))
+	Return_getcdr(form, &list);
+	if (! consp_getcons(list, &name, &list))
 		goto error;
-	GetCons(list, &name, &list);
 	if (! symbolp(name))
-		fmte("DEFINE-METHOD-COMBINATION name ~S must be a symbol.", name, NULL);
-	if (list == Nil) {
-		defcomb_short(ret, list, name);
-		return;
-	}
-	if (! consp(list))
+		return fmte_("DEFINE-METHOD-COMBINATION name ~S must be a symbol.", name, NULL);
+	if (list == Nil)
+		return defcomb_short(ret, list, name);
+	if (! consp_getcar(list, &check))
 		goto error;
-	GetCar(list, &check);
-	if (keywordp(check)) {
-		defcomb_short(ret, list, name);
-		return;
-	}
-	defcomb_long(local, form, env, ret, list, name);
-	return;
+	if (keywordp(check))
+		return defcomb_short(ret, list, name);
+	return defcomb_long(local, form, env, ret, list, name);
 
 error:
-	fmte("Invalid DEFINE-METHOD-COMBINATION form ~S.", form, NULL);
+	*ret = Nil;
+	return fmte_("Invalid DEFINE-METHOD-COMBINATION form ~S.", form, NULL);
 }
 
 
@@ -1432,7 +1447,7 @@ _g int make_load_form_saving_slots_common(Execute ptr,
 	values = Nil;
 	root = list;
 	while (root != Nil) {
-		getcons(root, &x, &root);
+		Return_getcons(root, &x, &root);
 		clos_get(var, x, &y);
 		if (y == Unbound)
 			GetConst(SYSTEM_UNBOUND_VALUE, &y);
@@ -1446,21 +1461,22 @@ _g int make_load_form_saving_slots_common(Execute ptr,
 	/* result */
 	*ret1 = alloc;
 	*ret2 = set;
-
 	return 0;
 }
 
-_g void set_slots_syscall(addr var, addr slots, addr values)
+_g int set_slots_syscall(addr var, addr slots, addr values)
 {
 	addr x, y, unbound;
 
 	GetConst(SYSTEM_UNBOUND_VALUE, &unbound);
 	while (slots != Nil || values != Nil) {
-		getcons(slots, &x, &slots);
-		getcons(values, &y, &values);
+		Return_getcons(slots, &x, &slots);
+		Return_getcons(values, &y, &values);
 		if (y == unbound)
 			y = Unbound;
 		clos_set(var, x, y);
 	}
+
+	return 0;
 }
 

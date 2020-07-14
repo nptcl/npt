@@ -1023,7 +1023,7 @@ static int test_english_output(void)
 	english_output(stream, &input, 1);
 	test(equalstream(stream, "minus aa bb ccddee ff"), "english_output2");
 
-	close_stream(stream);
+	close_output_string_stream(stream);
 	rollback_local(local, stack);
 
 	RETURN;
@@ -1069,7 +1069,7 @@ static int test_english_integer(void)
 	ptr = "one hundred" TEST_MODE2 " twenty-three";
 	test(equalstream(stream, ptr), "english_integer8");
 
-	close_stream(stream);
+	close_output_string_stream(stream);
 	rollback_local(local, stack);
 
 	RETURN;

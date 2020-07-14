@@ -93,7 +93,7 @@ static int test_fmtprint_putc(void)
 	test(string_equal_char(pos, "aBcD-eFgH1234"), "fmtprint_putc7");
 	clear_output_string_stream(stream);
 
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	RETURN;
 }

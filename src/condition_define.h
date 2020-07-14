@@ -106,6 +106,7 @@ _g void reader_error(addr stream);
 _g void instance_file_error(addr *ret, addr pathname);
 _g void file_error(addr pathname);
 _g void file_error_pathname(addr instance, addr *ret);
+_g int call_file_error_(Execute ptr, addr pathname);
 
 /* package_error */
 _g void instance_package_error(addr *ret, addr package);
@@ -159,6 +160,7 @@ _g int call_simple_type_error_(Execute ptr,
 		addr control, addr args, addr datum, addr expected);
 _g int call_type_error_va_(Execute ptr,
 		addr datum, addr expected, const char *fmt, ...);
+_g int call_type_error_fill_pointer_(Execute ptr, addr datum);
 
 /* unbound_slot */
 _g void instance_unbound_slot(addr *ret, addr instance, addr name);
@@ -182,6 +184,8 @@ _g void savecore_condition(void);
 _g void instance_simple_file_error(addr *ret, addr pathname, addr control, addr args);
 _g void simple_file_error(addr pathname, addr control, addr args);
 _g void simple_file_error_stdarg(addr pathname, const char *fmt, ...);
+_g int call_simple_file_error_(Execute ptr, addr pathname, addr control, addr args);
+_g int call_simple_file_error_va_(Execute ptr, addr pathname, const char *fmt, ...);
 
 #endif
 

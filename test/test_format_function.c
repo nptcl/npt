@@ -313,7 +313,7 @@ static int test_fmtprint_putc_times(void)
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "cccccccccc"), "fmtprint_putc_times1");
 	clear_output_string_stream(stream);
-	close_stream(stream);
+	close_output_string_stream(stream);
 	rollback_local(local, stack);
 
 	RETURN;
@@ -340,7 +340,7 @@ static int test_fmtprint_string(void)
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "Hello"), "fmtprint_string1");
 	clear_output_string_stream(stream);
-	close_stream(stream);
+	close_output_string_stream(stream);
 	rollback_local(local, stack);
 
 	RETURN;
@@ -415,7 +415,7 @@ static int test_format_call_Output(void)
 	test(print.delete_space == 1, "format_output6");
 	clear_output_string_stream(stream);
 
-	close_stream(stream);
+	close_output_string_stream(stream);
 	rollback_local(local, stack);
 
 	RETURN;
@@ -468,7 +468,7 @@ static int test_format_write_margin(void)
 	test(string_equal_char(pos, "Hello***"), "format_write_margin5");
 	clear_output_string_stream(stream);
 
-	close_stream(stream);
+	close_output_string_stream(stream);
 	rollback_local(local, stack);
 
 	RETURN;
@@ -525,7 +525,7 @@ static int test_format_call_print(void)
 	test(string_equal_char(pos, "*******#\\B"), "format_call_print5");
 	clear_output_string_stream(stream);
 
-	close_stream(stream);
+	close_output_string_stream(stream);
 	rollback_local(local, stack);
 
 	RETURN;

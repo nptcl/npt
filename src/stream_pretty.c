@@ -292,7 +292,8 @@ _g void open_pretty_stream(Execute ptr, addr *ret,
 	make_info_pretty_stream(ptr, &info, stream, root, prefix, perline, suffix);
 	SetInfoStream(pos, info);
 	/* result */
-	force_open_stream(pos, ret);
+	force_open_stream(pos);
+	*ret = pos;
 }
 
 
@@ -311,7 +312,9 @@ static void nreverse_unsafe_pretty_stream(addr stream)
 
 _g void setdepth_pretty_stream(Execute ptr, addr stream, size_t inc)
 {
-	size_t depth = PtrPrettyStream(stream)->depth;
+	size_t depth;
+
+	depth = PtrPrettyStream(stream)->depth;
 	setdepth_print_write(ptr, depth + inc);
 }
 
@@ -331,7 +334,7 @@ _g void close_pretty_stream(Execute ptr, addr stream)
 	nreverse_unsafe_pretty_stream(stream);
 	/* close */
 	setalive_pretty_stream(stream, 0);
-	close_stream(stream);
+	force_close_stream(stream);
 	/* output */
 	stream_pretty_stream(stream, &pos);
 	if (pretty_stream_p(pos))
@@ -449,10 +452,10 @@ _g int call_pretty_stream(Execute ptr, addr stream, addr call)
 /*
  *  stream function
  */
-static int close_Pretty(addr stream)
+static int close_Pretty(addr stream, addr *ret)
 {
 	stream_pretty_stream(stream, &stream);
-	return 1;
+	return Result(ret, T);
 }
 
 static int read_char_Pretty(addr stream, unicode *u)

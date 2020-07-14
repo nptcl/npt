@@ -3,7 +3,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "control_object.h"
-#include "file.h"
+#include "file_open.h"
 #include "hold.h"
 #include "input.h"
 #include "pointer.h"
@@ -41,7 +41,7 @@ static int readlist_unwind_protect_(Execute ptr, addr file, addr *ret)
 	addr stream, control;
 	LocalHold hold;
 
-	open_input_stream_error(ptr, &stream, file);
+	Return(open_input_stream_error_(ptr, &stream, file));
 	hold = LocalHold_array(ptr, 1);
 	localhold_push(hold, stream);
 	/* finalize */

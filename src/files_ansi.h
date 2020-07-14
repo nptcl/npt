@@ -10,9 +10,9 @@
 #include "stream.h"
 #include "strtype.h"
 
-_g void directory_files(Execute ptr, addr *ret, addr pos)
+_g int directory_files_(Execute ptr, addr *ret, addr pos)
 {
-	fmte("DIRECTORY function is not supported in ANSI-C mode.", NULL);
+	return fmte_("DIRECTORY function is not supported in ANSI-C mode.", NULL);
 }
 
 static int probe_file_boolean(const char *file)
@@ -26,7 +26,7 @@ static int probe_file_boolean(const char *file)
 	return input != NULL;
 }
 
-static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
+static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 {
 	addr value;
 	const char *str;
@@ -39,45 +39,50 @@ static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	/* wildcard */
 	if (wild_pathname_boolean(pos, Nil)) {
 		GetConst(COMMON_PATHNAME, &value);
-		type_error_stdarg(pos, value,
+		return call_type_error_va_(ptr, pos, value,
 				"Cannot probe-file the wildcard pathname ~S.", pos, NULL);
 	}
 	/* check */
 	name_pathname_local(ptr, pos, &pos);
 	if (UTF8_buffer_clang(ptr->local, &pos, pos))
-		fmte("Cannot decode UTF-8 string ~S.", pos, NULL);
+		return fmte_("Cannot decode UTF-8 string ~S.", pos, NULL);
 	str = (const char *)posbodyr(pos);
 	*ret = probe_file_boolean(str)? T: Nil;
+
+	return 0;
 }
 
-_g void probe_file_files(Execute ptr, addr *ret, addr pos)
+_g int probe_file_files_(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
 
 	local = ptr->local;
 	push_local(local, &stack);
-	probe_file_run_files(ptr, ret, pos);
+	Return(probe_file_run_files(ptr, ret, pos));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-_g void ensure_directories_exist_files(Execute ptr,
+_g int ensure_directories_exist_files_(Execute ptr,
 		addr *ret1, addr *ret2, addr pos, int verbose)
 {
-	fmte("ENSUER-DIRECTORIES-EXIST function is not supported in ANSI-C mode.", NULL);
+	return fmte_("ENSUER-DIRECTORIES-EXIST function is "
+			"not supported in ANSI-C mode.", NULL);
 }
 
-_g void file_author_files(Execute ptr, addr *ret, addr pos)
+_g int file_author_files_(Execute ptr, addr *ret, addr pos)
 {
-	fmte("FILE-AUTHOR function is not supported in ANSI-C mode.", NULL);
+	return fmte_("FILE-AUTHOR function is not supported in ANSI-C mode.", NULL);
 }
 
-_g void file_write_date_files(Execute ptr, addr *ret, addr pos)
+_g int file_write_date_files_(Execute ptr, addr *ret, addr pos)
 {
-	fmte("FILE-WRITE-DATE function is not supported in ANSI-C mode.", NULL);
+	return fmte_("FILE-WRITE-DATE function is not supported in ANSI-C mode.", NULL);
 }
 
-static void rename_file_run_files(Execute ptr,
+static int rename_file_run_files(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr pos, addr to)
 {
 	LocalRoot local;
@@ -87,42 +92,44 @@ static void rename_file_run_files(Execute ptr,
 	pathname_designer_heap(ptr, pos, &file);
 	physical_pathname_heap(ptr, file, &from);
 	physical_pathname_heap(ptr, to, &to);
-	truename_files(ptr, from, &true1, 0);
+	Return(truename_files_(ptr, from, &true1, 0));
 	if (wild_pathname_boolean(from, Nil))
-		fmte("Cannot rename wildcard pathname from ~S", from, NULL);
+		return fmte_("Cannot rename wildcard pathname from ~S", from, NULL);
 	if (wild_pathname_boolean(to, Nil))
-		fmte("Cannot rename wildcard pathname to ~S", to, NULL);
+		return fmte_("Cannot rename wildcard pathname to ~S", to, NULL);
 	/* filename */
 	local = ptr->local;
 	name_pathname_local(ptr, from, &value);
 	if (UTF8_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-8 string ~S.", from, NULL);
+		return fmte_("Cannot decode UTF-8 string ~S.", from, NULL);
 	str1 = (const char *)posbodyr(value);
 	name_pathname_local(ptr, to, &value);
 	if (UTF8_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-8 string ~S.", to, NULL);
+		return fmte_("Cannot decode UTF-8 string ~S.", to, NULL);
 	str2 = (const char *)posbodyr(value);
 	/* check */
 	if (probe_file_boolean(str2)) {
-		simple_file_error_stdarg(to, "The file ~S is already exist.", to, NULL);
-		return;
+		return call_simple_file_error_va_(ptr, to,
+				"The file ~S is already exist.", to, NULL);
 	}
 	/* rename */
 	if (rename(str1, str2)) {
-		simple_file_error_stdarg(to, "Cannot rename ~S to ~S.", from, to, NULL);
-		return;
+		return call_simple_file_error_va_(ptr, to,
+				"Cannot rename ~S to ~S.", from, to, NULL);
 	}
 	/* stream */
 	if (streamp(pos))
 		SetPathnameStream(pos, to);
 	/* result */
-	truename_files(ptr, to, &true2, 0);
+	Return(truename_files_(ptr, to, &true2, 0));
 	*ret1 = to;
 	*ret2 = true1;
 	*ret3 = true2;
+
+	return 0;
 }
 
-_g void rename_file_files(Execute ptr,
+_g int rename_file_files_(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr file, addr to)
 {
 	LocalRoot local;
@@ -130,33 +137,34 @@ _g void rename_file_files(Execute ptr,
 
 	local = ptr->local;
 	push_local(local, &stack);
-	rename_file_run_files(ptr, ret1, ret2, ret3, file, to);
+	Return(rename_file_run_files(ptr, ret1, ret2, ret3, file, to));
 	rollback_local(local, stack);
-}
 
-_g void delete_file_files(Execute ptr, addr pos)
-{
-	fmte("DELETE-FILE function is not supported in ANSI-C mode.", NULL);
-}
-
-_g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
-{
-	if (! errorp) {
-		*ret = Nil;
-		return;
-	}
-	simple_file_error_stdarg(file, "TRUENAME is not support in ANSI-C mode.", NULL);
-}
-
-_g int remove_file_common(Execute ptr, addr pos, int errorp)
-{
-	fmte("REMOVE-FILE function is not supported in ANSI-C mode.", NULL);
 	return 0;
 }
 
-_g int remove_directory_common(Execute ptr, addr pos, int errorp)
+_g int delete_file_files_(Execute ptr, addr pos)
 {
-	fmte("REMOVE-DIRECTORY function is not supported in ANSI-C mode.", NULL);
-	return 0;
+	return fmte_("DELETE-FILE function is not supported in ANSI-C mode.", NULL);
+}
+
+_g int remove_file_common_(Execute ptr, addr pos, int errorp, int *ret)
+{
+	*ret = 0;
+	return fmte_("REMOVE-FILE function is not supported in ANSI-C mode.", NULL);
+}
+
+_g int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
+{
+	*ret = 0;
+	return fmte_("REMOVE-DIRECTORY function is not supported in ANSI-C mode.", NULL);
+}
+
+_g int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
+{
+	if (! errorp)
+		return Result(ret, Nil);
+	return call_simple_file_error_va_(ptr, file,
+			"TRUENAME is not support in ANSI-C mode.", NULL);
 }
 

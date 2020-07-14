@@ -172,6 +172,12 @@ _g void parse_callname_error(addr *ret, addr name)
 	if (parse_callname_heap(ret, name))
 		fmte("Invalid function name ~S.", name, NULL);
 }
+_g int parse_callname_error_(addr *ret, addr name)
+{
+	if (parse_callname_heap(ret, name))
+		return fmte_("Invalid function name ~S.", name, NULL);
+	return 0;
+}
 
 
 /*

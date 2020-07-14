@@ -437,7 +437,7 @@ _g void string_nosign_comma_integer(LocalRoot local, addr *ret, addr pos,
 	open_output_string_stream(&stream, INTEGER_STREAM_SIZE);
 	output_nosign_comma_integer(local, stream, pos, base, upperp, range, comma);
 	string_stream_alloc(local, stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 }
 
 

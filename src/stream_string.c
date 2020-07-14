@@ -36,7 +36,8 @@ static void make_input_string(addr *ret, addr string, size_t start, size_t end)
 	input->index = start;
 	input->size = end;
 	SetInfoStream(pos, string);
-	force_open_stream(pos, ret);
+	force_open_stream(pos);
+	*ret = pos;
 }
 
 _g void open_input_string_stream(addr *ret, addr string)
@@ -114,6 +115,11 @@ _g void null_input_string_stream(addr *stream)
 	str->unread = 0;
 	str->terpri = 0;
 	*stream = pos;
+}
+
+_g void close_input_string_stream(addr stream)
+{
+	force_close_stream(stream);
 }
 
 _g void getindex_input_stream(addr stream, size_t *ret)
@@ -371,7 +377,8 @@ _g void open_output_string_stream(addr *stream, size_t size)
 	str->width = 0;
 	charqueue_heap(&queue, size);
 	SetInfoStream(pos, queue);
-	force_open_stream(pos, stream);
+	force_open_stream(pos);
+	*stream = pos;
 }
 
 _g void copy_terminal_width_string_stream(addr stream, addr src)
@@ -449,14 +456,21 @@ _g void open_extend_output_stream(addr *stream, addr array)
 	str->pretty = 0;
 	str->width = 0;
 	SetInfoStream(pos, array);
-	force_open_stream(pos, stream);
+	force_open_stream(pos);
+	*stream = pos;
 }
 
-static int close_StringOutput(addr stream)
+_g void close_output_string_stream(addr stream)
 {
 	CheckOutputStringStream(stream);
 	SetInfoStream(stream, Nil);
-	return 1;
+	force_close_stream(stream);
+}
+
+static int close_StringOutput(addr stream, addr *ret)
+{
+	close_output_string_stream(stream);
+	return Result(ret, T);
 }
 
 static void write_char_StringOutput_normal(addr stream, unicode c)

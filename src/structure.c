@@ -927,7 +927,7 @@ static void structure_type(struct defstruct *str, addr slot, addr *ret)
 			str->size, str->size_value, str->named_p, str->named_index);
 }
 
-static int structure_type_list_p(addr type, addr var)
+static int structure_type_list_p(addr type, addr var, int *ret)
 {
 	struct structure_type_struct *str;
 	size_t size;
@@ -935,18 +935,18 @@ static int structure_type_list_p(addr type, addr var)
 	/* listp */
 	str = PtrStructureType(type);
 	if (length_list_p(var, &size))
-		return 0;
+		return Result(ret, 0);
 	/* length */
 	if (size < str->size_value)
-		return 0;
+		return Result(ret, 0);
 	/* check */
 	if (str->named) {
 		GetNameStructureType(type, &type);
-		getnth(var, str->named_index, &var);
-		return var == type;
+		Return(getnth_(var, str->named_index, &var));
+		return Result(ret, var == type);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 static int structure_type_vector_p(Execute ptr, addr type, addr var, int *ret)
@@ -983,6 +983,7 @@ static int structure_type_vector_p(Execute ptr, addr type, addr var, int *ret)
 /* list */
 static int function_structure_reader_list(Execute ptr, addr var)
 {
+	int check;
 	addr type;
 	size_t index;
 
@@ -990,7 +991,8 @@ static int function_structure_reader_list(Execute ptr, addr var)
 	getdata_control(ptr, &type);
 	CheckType(type, LISPSYSTEM_STRUCTURE_TYPE);
 	/* type check */
-	if (! structure_type_list_p(type, var))
+	Return(structure_type_list_p(type, var, &check));
+	if (! check)
 		fmte("The argument ~S must be a structure-list.", var, NULL);
 	/* access */
 	GetSlotStructureType(type, &type);
@@ -1028,6 +1030,7 @@ static void structure_slot_reader_list(addr data, addr symbol)
 
 static int function_structure_writer_list(Execute ptr, addr value, addr var)
 {
+	int check;
 	addr type;
 	size_t index;
 
@@ -1035,7 +1038,8 @@ static int function_structure_writer_list(Execute ptr, addr value, addr var)
 	getdata_control(ptr, &type);
 	CheckType(type, LISPSYSTEM_STRUCTURE_TYPE);
 	/* type check */
-	if (! structure_type_list_p(type, var))
+	Return(structure_type_list_p(type, var, &check));
+	if (! check)
 		fmte("The argument ~S must be a structure-list.", var, NULL);
 	/* access */
 	GetSlotStructureType(type, &type);
@@ -1450,17 +1454,15 @@ static int make_structure_list(Execute ptr, addr *ret, addr pos, addr args)
 	make_structure_nil(&list, str->size_value);
 
 	hold = LocalHold_local_push(ptr, list);
-	if (structure_constructor_instance_list(ptr, list, slots, args))
-		return 1;
+	Return(structure_constructor_instance_list(ptr, list, slots, args));
 	localhold_end(hold);
 
 	if (str->named) {
 		GetNameStructureType(pos, &name);
-		setnth(list, str->named_index, name);
+		Return(setnth_(list, str->named_index, name));
 	}
-	*ret = list;
 
-	return 0;
+	return Result(ret, list);
 }
 
 static int function_structure_constructor_list(Execute ptr, addr args)
@@ -1756,13 +1758,15 @@ static void structure_constructor(struct defstruct *str)
 /* list */
 static int function_structure_copier_list(Execute ptr, addr var)
 {
+	int check;
 	addr type;
 
 	/* closure */
 	getdata_control(ptr, &type);
 	CheckType(type, LISPSYSTEM_STRUCTURE_TYPE);
 	/* type check */
-	if (! structure_type_list_p(type, var))
+	Return(structure_type_list_p(type, var, &check));
+	if (! check)
 		fmte("The argument ~S must be a structure-list.", var, NULL);
 	/* copy */
 	copy_list_heap_unsafe(&var, var);
@@ -1924,7 +1928,7 @@ static int function_structure_predicate_list(Execute ptr, addr var)
 
 	getdata_control(ptr, &type);
 	CheckType(type, LISPSYSTEM_STRUCTURE_TYPE);
-	check = structure_type_list_p(type, var);
+	Return(structure_type_list_p(type, var, &check));
 	setbool_control(ptr, check);
 
 	return 0;

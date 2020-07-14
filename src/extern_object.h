@@ -27,8 +27,8 @@ addr lisp_vector(size_t size);
 addr lisp0_car(addr list);
 addr lisp0_cdr(addr list);
 void lisp0_carcdr(addr list, addr *car, addr *cdr);
-addr lisp_car(addr list);
-addr lisp_cdr(addr list);
+void lisp_car(addr list, addr *ret);
+void lisp_cdr(addr list, addr *ret);
 void lisp_carcdr(addr list, addr *car, addr *cdr);
 
 void lisp0_setf_car(addr cons, addr value);
@@ -39,72 +39,72 @@ void lisp_setf_cdr(addr cons, addr value);
 void lisp_setf_carcdr(addr cons, addr car, addr cdr);
 
 /* list */
-addr lisp_reverse(addr list);
-addr lisp_nreverse(addr list);
+int lisp_reverse_(addr *ret, addr list);
+int lisp_nreverse_(addr *ret, addr list);
 
 /* sequence */
-addr lisp_getelt(addr vector, size_t index);
-void lisp_setelt(addr vector, size_t index, addr value);
-size_t lisp_length(addr vector);
+int lisp_getelt_(addr vector, size_t index, addr *ret);
+int lisp_setelt_(addr vector, size_t index, addr value);
+int lisp_length_(addr vector, size_t *ret);
 
 /* string */
-addr lisp_string8(const void *str);
-addr lisp_string16(const void *str);
+int lisp_string8_(addr *ret, const void *str);
+int lisp_string16_(addr *ret, const void *str);
 
 /* package */
-addr lisp_package(addr pos);
-addr lisp_package8(const void *str);
-addr lisp_package16(const void *str);
+int lisp_package_(addr *ret, addr pos);
+int lisp_package8_(addr *ret, const void *str);
+int lisp_package16_(addr *ret, const void *str);
 
 /* intern */
-addr lisp_intern(addr package, addr name);
-addr lisp_intern8(const void *package, const void *name);
-addr lisp_intern16(const void *package, const void *name);
+int lisp_intern_(addr *ret, addr package, addr name);
+int lisp_intern8_(addr *ret, const void *package, const void *name);
+int lisp_intern16_(addr *ret, const void *package, const void *name);
 
 /* reader */
-int lisp_reader(addr *ret, addr str);
-int lisp_reader8(addr *ret, const void *str);
-int lisp_reader16(addr *ret, const void *str);
+int lisp_reader_(addr *ret, addr str);
+int lisp_reader8_(addr *ret, const void *str);
+int lisp_reader16_(addr *ret, const void *str);
 
 /* let */
-void lisp_push_special(addr symbol, addr value);
-void lisp_push_special8(const void *name, addr value);
-void lisp_push_special16(const void *name, addr value);
-addr lisp_get_special(addr symbol);
-addr lisp_get_special8(const void *name);
-addr lisp_get_special16(const void *name);
-void lisp_set_special(addr symbol, addr value);
-void lisp_set_special8(const void *name, addr value);
-void lisp_set_special16(const void *name, addr value);
+int lisp_push_special_(addr symbol, addr value);
+int lisp_push_special8_(const void *name, addr value);
+int lisp_push_special16_(const void *name, addr value);
+int lisp_get_special_(addr symbol, addr *ret);
+int lisp_get_special8_(const void *name, addr *ret);
+int lisp_get_special16_(const void *name, addr *ret);
+int lisp_set_special_(addr symbol, addr value);
+int lisp_set_special8_(const void *name, addr value);
+int lisp_set_special16_(const void *name, addr value);
 
 /* pathname */
-addr lisp_pathname(addr name);
-addr lisp_namestring(addr path);
+int lisp_pathname_(addr *ret, addr name);
+int lisp_namestring_(addr *ret, addr path);
 
 /* object */
-addr lisp_character(unicode value);
-addr lisp_fixnum(fixnum value);
-addr lisp_float(float value);
-addr lisp_double(double value);
-addr lisp_long_double(long double value);
+int lisp_character(addr *ret, unicode value);
+void lisp_fixnum(addr *ret, fixnum value);
+int lisp_float(addr *ret, float value);
+int lisp_double_(addr *ret, double value);
+int lisp_long_double_(addr *ret, long double value);
 int lisp_zerop(addr value);
 int lisp_plusp(addr value);
 int lisp_minusp(addr value);
-unicode lisp_get_character(addr pos);
-float lisp_get_float(addr pos);
-double lisp_get_double(addr pos);
-long double lisp_get_long_double(addr pos);
+int lisp_get_character_(addr pos, unicode *ret);
+int lisp_get_float_(addr pos, float *ret);
+int lisp_get_double_(addr pos, double *ret);
+int lisp_get_long_double_(addr pos, long double *ret);
 
 /* function */
-addr lisp_function(addr value);
-addr lisp_function8(const void *str);
-addr lisp_function16(const void *str);
-int lisp_funcall(addr *ret, addr call, ...);
-int lisp_funcall8(addr *ret, const void *str, ...);
-int lisp_funcall16(addr *ret, const void *str, ...);
-int lisp_apply(addr *ret, addr call, ...);
-int lisp_apply8(addr *ret, const void *str, ...);
-int lisp_apply16(addr *ret, const void *str, ...);
+int lisp_function_(addr value, addr *ret);
+int lisp_function8_(const void *str, addr *ret);
+int lisp_function16_(const void *str, addr *ret);
+int lisp_funcall_(addr *ret, addr call, ...);
+int lisp_funcall8_(addr *ret, const void *str, ...);
+int lisp_funcall16_(addr *ret, const void *str, ...);
+int lisp_apply_(addr *ret, addr call, ...);
+int lisp_apply8_(addr *ret, const void *str, ...);
+int lisp_apply16_(addr *ret, const void *str, ...);
 
 #endif
 

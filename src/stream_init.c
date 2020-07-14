@@ -75,9 +75,7 @@ static int finalize_close_stream(Execute ptr)
 
 	getdata_control(ptr, &stream);
 	CheckType(stream, LISPTYPE_STREAM);
-	close_stream(stream);
-
-	return 0;
+	return close_stream_(stream);
 }
 
 _g void push_close_stream(Execute ptr, addr stream)

@@ -5,13 +5,13 @@
 #include "typedef_basic.h"
 #include "typedef_stream.h"
 
-addr lisp_stream_define(int type, size_t size);
-void *lisp_stream_memory(addr stream);
-addr lisp_getinfo_stream(addr stream);
-void lisp_setinfo_stream(addr stream, addr value);
+int lisp_stream_define_(addr *ret, int type, size_t size);
+int lisp_stream_memory_(addr stream, void **ret);
+int lisp_getinfo_stream_(addr stream, addr *ret);
+int lisp_setinfo_stream_(addr stream, addr value);
 
 #define LispStreamExtendDeclare(name) \
-	void lisp_stream_calltype_##name(int, lisp_streamtype_##name)
+	int lisp_stream_calltype_##name##_(int, lisp_streamtype_##name)
 LispStreamExtendDeclare(close);
 LispStreamExtendDeclare(read_binary);
 LispStreamExtendDeclare(readforce_binary);
@@ -49,7 +49,7 @@ LispStreamExtendDeclare(exitpoint);
 LispStreamExtendDeclare(terminal_width);
 
 #define LispStreamExtendError(name) \
-	void lisp_stream_calltype_error_##name(int)
+	int lisp_stream_calltype_error_##name##_(int)
 LispStreamExtendError(close);
 LispStreamExtendError(read_binary);
 LispStreamExtendError(readforce_binary);

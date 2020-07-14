@@ -703,16 +703,19 @@ static int function_parse_namestring(Execute ptr, addr thing, addr rest)
 		host = defaults = Nil;
 		goto keyargs;
 	}
-	getcons(rest, &host, &rest);
+	Return_getcons(rest, &host, &rest);
 	if (rest == Nil) {
 		defaults = Nil;
 		goto keyargs;
 	}
-	getcons(rest, &defaults, &rest);
+	Return_getcons(rest, &defaults, &rest);
 keyargs:
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) fixnum_heap(&start, 0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Nil;
-	if (GetKeyArgs(rest, KEYWORD_JUNK_ALLOWED, &junk)) junk = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		fixnum_heap(&start, 0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Nil;
+	if (GetKeyArgs(rest, KEYWORD_JUNK_ALLOWED, &junk))
+		junk = Nil;
 
 	parse_namestring(ptr, &thing, &start,
 			thing, host, defaults, start, end, junk);

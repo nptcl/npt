@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include "typedef.h"
 
-_g int close_stream_error(addr pos);
+_g int close_stream_error(addr pos, addr *ret);
 _g int read_binary_stream_error(addr stream, void *pos, size_t size, size_t *ret);
 _g int readforce_binary_stream_error(addr stream, void *pos, size_t size, size_t *ret);
 _g int read_byte_stream_error(addr stream, byte *ret);

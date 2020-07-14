@@ -17,7 +17,8 @@ _g void open_concatenated_stream(addr *stream, addr list)
 		TypeError(list, LIST);
 	stream_heap(&pos, StreamType_Concatenated, 0);
 	SetInfoStream(pos, list);
-	force_open_stream(pos, stream);
+	force_open_stream(pos);
+	*stream = pos;
 }
 
 _g void push_concatenated_stream(addr stream, addr input)

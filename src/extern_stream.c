@@ -5,45 +5,47 @@
 #include "stream_error.h"
 #include "typedef.h"
 
-static void lisp_stream_exnted_check(int type)
+static int lisp_stream_exnted_check_(int type)
 {
 	if (type < 0 || LISP_STREAM_EXTEND <= type)
-		fmte("Invalid stream type ~S.", intsizeh((size_t)type), NULL);
+		return fmte_("Invalid stream type ~S.", intsizeh((size_t)type), NULL);
+	return 0;
 }
 
-addr lisp_stream_define(int type, size_t size)
+int lisp_stream_define_(addr *ret, int type, size_t size)
 {
 	addr x;
 
-	lisp_stream_exnted_check(type);
+	Return(lisp_stream_exnted_check_(type));
 	if (0xFFFF <= size)
-		fmte("Too large stream size ~S.", intsizeh(size), NULL);
+		return fmte_("Too large stream size ~S.", intsizeh(size), NULL);
 	stream_heap(&x, (enum StreamType)(StreamType_Size + type), size);
 	PtrStructStream(x)->closed = 0;
 
-	return x;
+	return Result(ret, x);
 }
 
-void *lisp_stream_memory(addr stream)
+int lisp_stream_memory_(addr stream, void **ret)
 {
 	if (! extend_stream_p(stream))
-		fmte("Invalid stream type ~S.", stream, NULL);
-	return PtrDataStream(stream);
+		return fmte_("Invalid stream type ~S.", stream, NULL);
+	return Result(ret, PtrDataStream(stream));
 }
 
-addr lisp_getinfo_stream(addr stream)
+int lisp_getinfo_stream_(addr stream, addr *ret)
 {
 	if (! extend_stream_p(stream))
-		fmte("Invalid stream type ~S.", stream, NULL);
+		return fmte_("Invalid stream type ~S.", stream, NULL);
 	GetInfoStream(stream, &stream);
-	return stream;
+	return Result(ret, stream);
 }
 
-void lisp_setinfo_stream(addr stream, addr value)
+int lisp_setinfo_stream_(addr stream, addr value)
 {
 	if (! extend_stream_p(stream))
-		fmte("Invalid stream type ~S.", stream, NULL);
+		return fmte_("Invalid stream type ~S.", stream, NULL);
 	SetInfoStream(stream, value);
+	return 0;
 }
 
 
@@ -51,9 +53,10 @@ void lisp_setinfo_stream(addr stream, addr value)
  *  extend stream
  */
 #define LispStreamExtendCallType(name) \
-	void lisp_stream_calltype_##name(int type, lisp_streamtype_##name call) { \
-		lisp_stream_exnted_check(type); \
+	int lisp_stream_calltype_##name##_(int type, lisp_streamtype_##name call) { \
+		Return(lisp_stream_exnted_check_(type)); \
 		Stream_##name[StreamType_Size + type] = call; \
+		return 0; \
 	}
 LispStreamExtendCallType(close);
 LispStreamExtendCallType(read_binary);
@@ -92,9 +95,10 @@ LispStreamExtendCallType(exitpoint);
 LispStreamExtendCallType(terminal_width);
 
 #define LispStreamExtendCallTypeError(name) \
-	void lisp_stream_calltype_error_##name(int type) { \
-		lisp_stream_exnted_check(type); \
+	int lisp_stream_calltype_error_##name##_(int type) { \
+		Return(lisp_stream_exnted_check_(type)); \
 		Stream_##name[StreamType_Size + type] = name##_stream_error; \
+		return 0; \
 	}
 LispStreamExtendCallTypeError(close);
 LispStreamExtendCallTypeError(read_binary);

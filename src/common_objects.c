@@ -436,7 +436,7 @@ static void defun_make_load_form_saving_slots(void)
 /* (defmacro with-accessors ((entry*) instance declare* &body body) ...) -> t */
 static int function_with_accessors(Execute ptr, addr form, addr env)
 {
-	with_accessors_common(ptr, form, env, &form);
+	Return(with_accessors_common(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -458,7 +458,7 @@ static void defmacro_with_accessors(void)
 /* (defmacro with-slots ((entry*) instance declare* &body form) ...) -> t */
 static int function_with_slots(Execute ptr, addr form, addr env)
 {
-	with_slots_common(ptr, form, env, &form);
+	Return(with_slots_common(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -508,7 +508,7 @@ static void defmacro_defclass(void)
 /* (defmacro defgeneric (name lambda &rest args) ...) -> generic-function */
 static int function_defgeneric(Execute ptr, addr form, addr env)
 {
-	defgeneric_common(form, env, &form);
+	Return(defgeneric_common(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -563,7 +563,7 @@ static int function_find_class(Execute ptr, addr pos, addr errorp, addr env)
 		errorp = T;
 	if (env == Unbound)
 		env = Nil;
-	find_class_common(pos, errorp != Nil, env, &pos);
+	Return(find_class_common(pos, errorp != Nil, env, &pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -649,7 +649,7 @@ static void defgeneric_compute_applicable_methods(void)
 /* defmacro_define_method_combination(); */
 static int function_define_method_combination(Execute ptr, addr form, addr env)
 {
-	define_method_combination_common(ptr->local, form, env, &form);
+	Return(define_method_combination_common(ptr->local, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

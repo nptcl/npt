@@ -2619,8 +2619,7 @@ static int format_call_Justificaion_fmtcall(fmtprint print,
 		type = str->type;
 	}
 	/* close */
-	clear_output_string_stream(stream);
-	close_stream(stream);
+	close_output_string_stream(stream);
 	print->string = backup_string;
 
 	return 0;
@@ -3386,8 +3385,7 @@ static int fmtcall(fmtprint print, int *loop)
 	if (loop)
 		*loop = print->loop_colon;
 	/* close */
-	clear_output_string_stream(stream);
-	close_stream(stream);
+	close_output_string_stream(stream);
 	print->string = backup_string;
 
 	return 0;

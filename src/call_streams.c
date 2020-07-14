@@ -646,8 +646,7 @@ _g int open_common(Execute ptr, addr pos, addr rest, addr *ret)
 	Return(open_common_external(value, &external));
 
 	/* result */
-	open_stream(ptr, ret, pos, direction, element, exists, doesnot, external);
-	return 0;
+	return open_stream_(ptr, ret, pos, direction, element, exists, doesnot, external);
 }
 
 
@@ -719,9 +718,8 @@ _g int close_common(Execute ptr, addr pos, addr rest, addr *ret)
 		GetConst(SYSTEM_CLOSE_ABORT, &abort);
 		pushspecial_control(ptr, abort, T);
 	}
-	*ret = close_stream(pos)? T: Nil;
 
-	return 0;
+	return close_stream_common(pos, ret);
 }
 
 

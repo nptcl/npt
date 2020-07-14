@@ -298,12 +298,14 @@
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_argv.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_control.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_error.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_extern_object.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_string.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_stream.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\extern_unicode.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_file_memory.c" />
+    <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\file_open.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\test\test_file.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\files.c" />
     <ClCompile Include="$(LISP_WINDOWS_COMPILE)\src\float_equal.c" />
@@ -624,6 +626,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute_values.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\execute.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_control.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_error.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_init.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_object.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern_stream.h" />
@@ -632,6 +635,7 @@
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\extern.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_ansi.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_memory.h" />
+    <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_open.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_posix.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_type.h" />
     <ClInclude Include="$(LISP_WINDOWS_COMPILE)\src\file_windows.h" />

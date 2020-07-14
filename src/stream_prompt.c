@@ -30,16 +30,17 @@ _g void open_prompt_stream(addr *stream)
 	stream_heap(&pos, StreamType_Prompt, 0);
 	null_input_string_stream(&value);
 	SetInfoStream(pos, value);
-	force_open_stream(pos, stream);
+	force_open_stream(pos);
+	*stream = pos;
 }
 #endif
 
-static int close_Prompt(addr stream)
+static int close_Prompt(addr stream, addr *ret)
 {
 	CheckPromptStream(stream);
 	GetInfoStream(stream, &stream);
 	clear_input_string_stream(stream);
-	return 1;
+	return Result(ret, T);
 }
 
 static const char *message_prompt_stream(addr pos)

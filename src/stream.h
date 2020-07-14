@@ -130,8 +130,10 @@ _g int extend_stream_p(addr stream);
 _g int extend_type_stream_p(addr stream, int type);
 
 _g int open_stream_p(addr stream);
-_g void force_open_stream(addr stream, addr *ret);
-_g int close_stream(addr stream);
+_g void force_open_stream(addr stream);
+_g void force_close_stream(addr stream);
+_g int close_stream_common(addr stream, addr *ret);
+_g int close_stream_(addr stream);
 _g void terpri_stream(addr stream);
 _g size_t getleft_stream(addr stream);
 _g void setleft_stream(addr stream, size_t value);
@@ -229,7 +231,7 @@ _g void clear_output_stream(addr stream);
 _g void exitpoint_stream(addr stream);
 _g int terminal_width_stream(addr stream, size_t *ret);
 
-_g int close_default_stream(addr stream);
+_g int close_default_stream(addr stream, addr *ret);
 _g int read_char_default_stream(addr stream, unicode *c);
 _g int read_hang_default_stream(addr stream, unicode *c, int *hang);
 _g void unread_char_default_stream(addr stream, unicode c);
@@ -305,7 +307,7 @@ enum Stream_Open_External {
 	Stream_Open_External_Utf32BeBom
 };
 
-_g void open_stream(Execute ptr, addr *ret, addr pos,
+_g int open_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Direction direction,
 		enum Stream_Open_Element element,
 		enum Stream_Open_IfExists exist,

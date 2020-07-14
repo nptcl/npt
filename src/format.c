@@ -69,11 +69,11 @@ _g int format_string_lisp(Execute ptr, addr format, addr args, addr *ret)
 
 	open_output_string_stream(&stream, 0);
 	if (format_stream_lisp(ptr, stream, format, args)) {
-		close_stream(stream);
+		close_output_string_stream(stream);
 		return 1;
 	}
 	string_stream_heap(stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	return 0;
 }
@@ -85,7 +85,7 @@ _g int format_array_lisp(Execute ptr, addr array, addr format, addr args, addr *
 
 	open_extend_output_stream(&stream, array);
 	result = format_stream_lisp(ptr, stream, format, args);
-	close_stream(stream);
+	close_output_string_stream(stream);
 	*ret = array;
 
 	return result;

@@ -52,9 +52,8 @@ static int list_all_packages_sort(Execute ptr, addr *ret)
 	/* sort */
 	Return(quick_sort_sequence(ptr, list, call, key));
 	localhold_end(hold);
-	*ret = list;
 
-	return 0;
+	return Result(ret, list);
 }
 
 static int apropos_symbol_p(addr var, addr name)
@@ -111,9 +110,8 @@ static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
 	/* sort */
 	Return(quick_sort_sequence(ptr, list, call, key));
 	localhold_end(hold);
-	*ret = list;
 
-	return 0;
+	return Result(ret, list);
 }
 
 _g int apropos_list_common(Execute ptr, addr var, addr package, addr *ret)
@@ -189,7 +187,7 @@ _g int apropos_common(Execute ptr, addr var, addr package)
 /*
  *  time
  */
-_g void time_common(addr form, addr env, addr *ret)
+_g int time_common(addr form, addr env, addr *ret)
 {
 	/* (multiple-value-bind (real1 run1 space1 count1) (lisp-system::timeinfo)
 	 *   (let ((list (multiple-value-list expr)))
@@ -206,10 +204,9 @@ _g void time_common(addr form, addr env, addr *ret)
 	addr str1, str2, str3, str4;
 	addr args1, args2, list;
 
-	getcdr(form, &args1);
-	if (! consp(args1))
+	Return_getcdr(form, &args1);
+	if (! consp_getcons(args1, &expr, &args1))
 		goto error;
-	GetCons(args1, &expr, &args1);
 	if (args1 != Nil)
 		goto error;
 
@@ -255,18 +252,18 @@ _g void time_common(addr form, addr env, addr *ret)
 	list_heap(&list, list, NULL);
 	list_heap(&let, let, list, args2, vlist, NULL);
 	list_heap(ret, mvbind, args1, timeinfo, let, NULL);
-	return;
+	return 0;
 
 error:
-	fmte("Macro TIME ~S must be a (time form).", form, NULL);
 	*ret = Nil;
+	return fmte_("Macro TIME ~S must be a (time form).", form, NULL);
 }
 
 
 /*
  *  room
  */
-static void room_output_common(Execute ptr, addr stream)
+static int room_output_common(Execute ptr, addr stream)
 {
 	size_t size, object, space, percent;
 	addr pos;
@@ -275,69 +272,63 @@ static void room_output_common(Execute ptr, addr stream)
 	size = get_heap_size();
 	object = get_heap_object();
 	pos = intsizeh(size);
-	format_stream(ptr, stream, "Heap Size:~20T~A~40T[byte]~%", pos, NULL);
+	Return(format_stream(ptr, stream, "Heap Size:~20T~A~40T[byte]~%", pos, NULL));
 	pos = intsizeh(object);
-	format_stream(ptr, stream, "Object memory:~20T~A~40T[byte]~%", pos, NULL);
+	Return(format_stream(ptr, stream, "Object memory:~20T~A~40T[byte]~%", pos, NULL));
 	pos = intsizeh(get_heap_count());
-	format_stream(ptr, stream, "Object count:~20T~A~40T[object]~%", pos, NULL);
+	Return(format_stream(ptr, stream, "Object count:~20T~A~40T[object]~%", pos, NULL));
 	pos = intsizeh(get_heap_gc_count());
-	format_stream(ptr, stream, "GC count:~20T~A~40T[times]~%", pos, NULL);
+	Return(format_stream(ptr, stream, "GC count:~20T~A~40T[times]~%", pos, NULL));
 
 	/* free space */
 	space = size - object;
 	pos = intsizeh(space);
-	format_stream(ptr, stream, "Free space:~20T~A~40T[byte]~%", pos, NULL);
+	Return(format_stream(ptr, stream, "Free space:~20T~A~40T[byte]~%", pos, NULL));
 
 	/* percent */
 	percent = (space >> 16) * 100 / (size >> 16);
 	pos = intsizeh(percent);
-	format_stream(ptr, stream, "Free percent:~20T~A~40T[percent]~%", pos, NULL);
+	Return(format_stream(ptr, stream, "Free percent:~20T~A~40T[percent]~%", pos, NULL));
+
+	return 0;
 }
 
-static void room_default_common(Execute ptr, addr stream)
+static int room_default_common(Execute ptr, addr stream)
 {
-	format_stream(ptr, stream, "Room default output.~%", NULL);
-	room_output_common(ptr, stream);
+	Return(format_stream(ptr, stream, "Room default output.~%", NULL));
+	return room_output_common(ptr, stream);
 }
 
-static void room_minimal_common(Execute ptr, addr stream)
+static int room_minimal_common(Execute ptr, addr stream)
 {
-	format_stream(ptr, stream, "Room minimal output.~%", NULL);
-	room_output_common(ptr, stream);
+	Return(format_stream(ptr, stream, "Room minimal output.~%", NULL));
+	return room_output_common(ptr, stream);
 }
 
-static void room_maximal_common(Execute ptr, addr stream)
+static int room_maximal_common(Execute ptr, addr stream)
 {
-	format_stream(ptr, stream, "Room maximal output.~%", NULL);
-	room_output_common(ptr, stream);
+	Return(format_stream(ptr, stream, "Room maximal output.~%", NULL));
+	return room_output_common(ptr, stream);
 }
 
-_g void room_common(Execute ptr, addr var)
+_g int room_common(Execute ptr, addr var)
 {
 	addr stream, check;
 
 	standard_output_stream(ptr, &stream);
 	fresh_line_stream(stream);
-	if (var == Unbound) {
-		room_default_common(ptr, stream);
-		return;
-	}
-	if (var == Nil) {
-		room_minimal_common(ptr, stream);
-		return;
-	}
-	if (var == T) {
-		room_maximal_common(ptr, stream);
-		return;
-	}
+	if (var == Unbound)
+		return room_default_common(ptr, stream);
+	if (var == Nil)
+		return room_minimal_common(ptr, stream);
+	if (var == T)
+		return room_maximal_common(ptr, stream);
 	GetConst(KEYWORD_DEFAULT, &check);
-	if (var == check) {
-		room_default_common(ptr, stream);
-		return;
-	}
+	if (var == check)
+		return room_default_common(ptr, stream);
 
 	/* error */
-	fmte("Invalid ROOM argument ~S.", var, NULL);
+	return fmte_("Invalid ROOM argument ~S.", var, NULL);
 }
 
 
@@ -362,32 +353,30 @@ static int ed_file_common(Execute ptr, addr var)
 	/* argument */
 	pathname_designer_heap(ptr, var, &var);
 	if (wild_pathname_boolean(var, Nil)) {
-		simple_file_error_stdarg(var,
+		return call_simple_file_error_va_(ptr, var,
 				"~ED can't use wild card pathname ~S.", var, NULL);
-		return 0;
 	}
 	physical_pathname_local(ptr, var, &var);
 	namestring_pathname(ptr, &var, var);
 	return ed_execute_common(ptr, var);
 }
 
-static void ed_function_lambda(addr symbol, addr *ret)
+static int ed_function_lambda(addr symbol, addr *ret)
 {
 	addr pos;
 
-	parse_callname_error(&pos, symbol);
+	Return(parse_callname_error_(&pos, symbol));
 	getglobal_parse_callname(pos, &pos);
 	if (pos == Unbound)
 		goto error;
 	getdefunform_function(pos, &pos);
 	if (pos == Unbound)
 		goto error;
-	*ret = pos;
-	return;
+	return Result(ret, pos);
 
 error:
-	fmte("Cannot edit ~S function.", symbol, NULL);
 	*ret = Nil;
+	return fmte_("Cannot edit ~S function.", symbol, NULL);
 }
 
 static void ed_function_name(Execute ptr, addr *ret)
@@ -407,16 +396,16 @@ static int ed_function_write(Execute ptr, addr file, addr lambda)
 	size_t width;
 
 	push_new_control(ptr, &control);
-	open_stream(ptr, &file, file,
-			Stream_Open_Direction_Output,
-			Stream_Open_Element_Character,
-			Stream_Open_IfExists_Supersede,
-			Stream_Open_IfDoesNot_Create,
-			Stream_Open_External_Default);
+	Return(open_stream_(ptr, &file, file,
+				Stream_Open_Direction_Output,
+				Stream_Open_Element_Character,
+				Stream_Open_IfExists_Supersede,
+				Stream_Open_IfDoesNot_Create,
+				Stream_Open_External_Default));
 	right_margin_print(ptr, file, &width);
 	push_right_margin_print(ptr, width);
 	Return(prin1_print(ptr, file, lambda));
-	close_stream(file);
+	Return(close_stream_(file));
 
 	return free_control_(ptr, control);
 }
@@ -426,7 +415,7 @@ static int ed_function_common(Execute ptr, addr symbol)
 	int result;
 	addr file, lambda;
 
-	ed_function_lambda(symbol, &lambda);
+	Return(ed_function_lambda(symbol, &lambda));
 	ed_function_name(ptr, &file);
 	Return(ed_function_write(ptr, file, lambda));
 	Return(ed_file_common(ptr, file));
@@ -451,7 +440,7 @@ _g int ed_common(Execute ptr, addr var)
 /*
  *  dribble
  */
-static void dribble_message_begin(Execute ptr, addr file)
+static int dribble_message_begin(Execute ptr, addr file)
 {
 	const char *str;
 	addr name, stream;
@@ -459,10 +448,10 @@ static void dribble_message_begin(Execute ptr, addr file)
 	pathname_designer_heap(ptr, file, &name);
 	standard_output_stream(ptr, &stream);
 	str = "~&;; DRIBBLE begin to write ~S.~%";
-	Error(format_stream(ptr, stream, str, name, NULL));
+	return format_stream(ptr, stream, str, name, NULL);
 }
 
-static void dribble_message_end(Execute ptr, addr file)
+static int dribble_message_end(Execute ptr, addr file)
 {
 	const char *str;
 	addr name, stream;
@@ -470,7 +459,7 @@ static void dribble_message_end(Execute ptr, addr file)
 	pathname_designer_heap(ptr, file, &name);
 	standard_output_stream(ptr, &stream);
 	str = "~&;; DRIBBLE end to write ~S.~%";
-	Error(format_stream(ptr, stream, str, name, NULL));
+	return format_stream(ptr, stream, str, name, NULL);
 }
 
 static void dribble_set_stream(addr file)
@@ -517,25 +506,24 @@ static void dribble_set_stream(addr file)
 	SetValueSymbol(soutput, broadcast);
 }
 
-static void dribble_open_file(Execute ptr, addr file)
+static int dribble_open_file(Execute ptr, addr file)
 {
 	physical_pathname_heap(ptr, file, &file);
 	if (wild_pathname_boolean(file, Nil)) {
-		simple_file_error_stdarg(file,
+		return call_simple_file_error_va_(ptr, file,
 				"~DRIBBLE can't use wild card pathname ~S.", file, NULL);
-		return;
 	}
-	open_stream(ptr, &file, file,
-			Stream_Open_Direction_Output,
-			Stream_Open_Element_Character,
-			Stream_Open_IfExists_Supersede,
-			Stream_Open_IfDoesNot_Create,
-			Stream_Open_External_Default);
+	Return(open_stream_(ptr, &file, file,
+				Stream_Open_Direction_Output,
+				Stream_Open_Element_Character,
+				Stream_Open_IfExists_Supersede,
+				Stream_Open_IfDoesNot_Create,
+				Stream_Open_External_Default));
 	dribble_set_stream(file);
-	dribble_message_begin(ptr, file);
+	return dribble_message_begin(ptr, file);
 }
 
-static void dribble_open(Execute ptr, addr file)
+static int dribble_open(Execute ptr, addr file)
 {
 	addr check;
 
@@ -543,14 +531,14 @@ static void dribble_open(Execute ptr, addr file)
 	GetValueSymbol(check, &check);
 	if (check != Unbound) {
 		pathname_designer_heap(ptr, check, &check);
-		fmtw("DRIBBLE already open file ~S.", check, NULL);
+		return fmtw_("DRIBBLE already open file ~S.", check, NULL);
 	}
 	else {
-		dribble_open_file(ptr, file);
+		return dribble_open_file(ptr, file);
 	}
 }
 
-static void dribble_close_stream(Execute ptr)
+static int dribble_close_stream(Execute ptr)
 {
 	addr dfile, dinput, doutput, decho, dbroadcast, sinput, soutput;
 	addr file, input, output, echo, broadcast;
@@ -572,7 +560,7 @@ static void dribble_close_stream(Execute ptr)
 	GetValueSymbol(dbroadcast, &broadcast);
 
 	/* close */
-	dribble_message_end(ptr, file);
+	Return(dribble_message_end(ptr, file));
 	SetValueSymbol(dfile, Unbound);
 	SetValueSymbol(dinput, Unbound);
 	SetValueSymbol(doutput, Unbound);
@@ -580,26 +568,31 @@ static void dribble_close_stream(Execute ptr)
 	SetValueSymbol(dbroadcast, Unbound);
 	SetValueSymbol(sinput, input);
 	SetValueSymbol(soutput, output);
-	close_stream(echo);
-	close_stream(broadcast);
-	close_stream(file);
+	Return(close_stream_(echo));
+	Return(close_stream_(broadcast));
+	Return(close_stream_(file));
+
+	return 0;
 }
 
-static void dribble_close(Execute ptr)
+static int dribble_close(Execute ptr)
 {
 	addr symbol, file;
 
 	GetConst(SYSTEM_DRIBBLE_FILE, &symbol);
 	GetValueSymbol(symbol, &file);
-	if (file != Unbound)
-		dribble_close_stream(ptr);
+	if (file != Unbound) {
+		Return(dribble_close_stream(ptr));
+	}
+
+	return 0;
 }
 
-_g void dribble_common(Execute ptr, addr file)
+_g int dribble_common(Execute ptr, addr file)
 {
 	if (file != Nil)
-		dribble_open(ptr, file);
+		return dribble_open(ptr, file);
 	else
-		dribble_close(ptr);
+		return dribble_close(ptr);
 }
 

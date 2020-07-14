@@ -11,6 +11,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "constant.h"
+#include "control_object.h"
 #include "copy.h"
 #include "encode.h"
 #include "format.h"
@@ -93,7 +94,8 @@ static void find_pathname_files(LocalRoot local, addr pos, addr *ret)
 	*ret = one;
 }
 
-static HANDLE opendir_files(LocalRoot local, addr pos, LPWIN32_FIND_DATAW data)
+static int opendir_files(LocalRoot local,
+		addr pos, LPWIN32_FIND_DATAW data, HANDLE *ret)
 {
 	addr name;
 	LocalStack stack;
@@ -104,12 +106,12 @@ static HANDLE opendir_files(LocalRoot local, addr pos, LPWIN32_FIND_DATAW data)
 	directory_name_pathname_local(local, pos, &pos);
 	find_pathname_files(local, pos, &pos);
 	if (UTF16_buffer_clang(local, &name, pos))
-		fmte("Cannot convert ~S to UTF-16 string.", pos, NULL);
+		return fmte_("Cannot convert ~S to UTF-16 string.", pos, NULL);
 	clang = (const WCHAR *)posbodyr(name);
 	hFind = FindFirstFileW(clang, data);
 	rollback_local(local, stack);
 
-	return hFind;
+	return Result(ret, hFind);
 }
 
 static void merge_directory_files(LocalRoot local, addr path, addr defaults)
@@ -119,7 +121,7 @@ static void merge_directory_files(LocalRoot local, addr path, addr defaults)
 	copylocal_pathname_array(local, defaults, PATHNAME_INDEX_DIRECTORY, path);
 }
 
-static int directoryp_directory_files(Execute ptr, addr file)
+static int directoryp_directory_files(Execute ptr, addr file, int *ret)
 {
 	int check;
 	LocalRoot local;
@@ -131,21 +133,23 @@ static int directoryp_directory_files(Execute ptr, addr file)
 	push_local(local, &stack);
 	name_pathname_local(ptr, file, &pos);
 	if (UTF16_buffer_clang(local, &pos, pos))
-		fmte("Cannot convert ~S to UTF-16 string.", file, NULL);
+		return fmte_("Cannot convert ~S to UTF-16 string.", file, NULL);
 	body = (const WCHAR *)posbodyr(pos);
 	check = PathIsDirectory(body);
 	rollback_local(local, stack);
 
-	return check;
+	return Result(ret, check);
 }
 
-static void files_path_directory_files(struct directory_struct *str,
+static int files_path_directory_files(struct directory_struct *str,
 		addr path, addr name, addr base, addr *ret)
 {
+	int check;
 	addr list;
 	LocalRoot local;
 
-	if (directoryp_directory_files(str->ptr, path)) {
+	Return(directoryp_directory_files(str->ptr, path, &check));
+	if (check) {
 		local = str->local;
 		copy_list_local_unsafe(local, &list, str->list);
 		cons_local(local, &list, name, list);
@@ -153,10 +157,11 @@ static void files_path_directory_files(struct directory_struct *str,
 		SetNamePathname(path, Nil);
 		SetTypePathname(path, Nil);
 	}
-	*ret = path;
+
+	return Result(ret, path);
 }
 
-static void files_name_directory_files(struct directory_struct *str,
+static int files_name_directory_files(struct directory_struct *str,
 		addr base, addr name)
 {
 	Execute ptr;
@@ -167,26 +172,32 @@ static void files_name_directory_files(struct directory_struct *str,
 	merge_directory_files(str->local, path, base);
 	if (wildcard_pathname(path, str->pos, 1)) {
 		/* push heap */
-		files_path_directory_files(str, path, name, base, &path);
+		Return(files_path_directory_files(str, path, name, base, &path));
 		pathname_designer_heap(ptr, path, &path);
 		cons_heap(&str->root, path, str->root);
 	}
+
+	return 0;
 }
 
-static void files_push_directory_files(struct directory_struct *str,
+static int files_push_directory_files(struct directory_struct *str,
 		addr base, const WCHAR *name)
 {
 	LocalRoot local;
 	LocalStack stack;
 	addr path;
 
-	if (wcscmp(name, L".") == 0) return;
-	if (wcscmp(name, L"..") == 0) return;
+	if (wcscmp(name, L".") == 0)
+		return 0;
+	if (wcscmp(name, L"..") == 0)
+		return 0;
 	local = str->local;
 	push_local(local, &stack);
-	string16_null_local(local, &path, (const byte16 *)name);
-	files_name_directory_files(str, base, path);
+	Return(string16_null_local_(local, &path, (const byte16 *)name));
+	Return(files_name_directory_files(str, base, path));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 static void files_directory_files(struct directory_struct *str, addr base)
@@ -194,28 +205,33 @@ static void files_directory_files(struct directory_struct *str, addr base)
 	HANDLE hFind;
 	WIN32_FIND_DATAW data;
 
-	hFind = opendir_files(str->local, base, &data);
+	Return(opendir_files(str->local, base, &data, &hFind));
 	if (hFind == INVALID_HANDLE_VALUE)
-		return;
-	files_push_directory_files(str, base, data.cFileName);
-	while (FindNextFileW(hFind, &data))
-		files_push_directory_files(str, base, data.cFileName);
+		return 0;
+	Return(files_push_directory_files(str, base, data.cFileName));
+	while (FindNextFileW(hFind, &data)) {
+		Return(files_push_directory_files(str, base, data.cFileName));
+	}
 	if (FindClose(hFind) == 0)
-		fmte("FindClose error.", NULL);
+		return fmte_("FindClose error.", NULL);
+
+	return 0;
 }
 
-static void file_directory_files(struct directory_struct *str)
+static int file_directory_files(struct directory_struct *str)
 {
 	addr base;
 	LocalStack stack;
 
 	push_local(str->local, &stack);
 	make_directory_pathname(str, &base);
-	files_directory_files(str, base);
+	Return(files_directory_files(str, base));
 	rollback_local(str->local, stack);
+
+	return 0;
 }
 
-static int wild_check_directory_files(struct directory_struct *str, addr name)
+static int wild_check_directory_files(struct directory_struct *str, addr name, int *ret)
 {
 	int check;
 	LocalRoot local;
@@ -230,28 +246,32 @@ static int wild_check_directory_files(struct directory_struct *str, addr name)
 	make_list_directory_pathname(str, &pos, pos);
 	directory_name_pathname_local(local, pos, &pos);
 	if (UTF16_buffer_clang(local, &value, pos))
-		fmte("Cannot convert ~S to UTF-16 string.", pos, NULL);
+		return fmte_("Cannot convert ~S to UTF-16 string.", pos, NULL);
 	ptr = (const WCHAR *)posbodyr(value);
 	check = PathIsDirectory(ptr);
 	rollback_local(local, stack);
 
-	return check;
+	return Result(ret, check);
 }
 
-static void loop_directory_files(struct directory_struct *str);
-static void wild_push_directory_files(struct directory_struct *str, const WCHAR *name)
+static int loop_directory_files(struct directory_struct *str);
+static int wild_push_directory_files(struct directory_struct *str, const WCHAR *name)
 {
+	int check;
 	LocalRoot local;
 	LocalStack stack;
 	addr path, root, list, front;
 
-	if (wcscmp(name, L".") == 0) return;
-	if (wcscmp(name, L"..") == 0) return;
+	if (wcscmp(name, L".") == 0)
+		return 0;
+	if (wcscmp(name, L"..") == 0)
+		return 0;
 	local = str->local;
 	push_local(local, &stack);
-	string16_null_local(local, &path, (const byte16 *)name);
+	Return(string16_null_local_(local, &path, (const byte16 *)name));
 	/* directory check */
-	if (wild_check_directory_files(str, path)) {
+	Return(wild_check_directory_files(str, path, &check));
+	if (check) {
 		/* backup list */
 		list = str->list;
 		front = str->front;
@@ -260,68 +280,81 @@ static void wild_push_directory_files(struct directory_struct *str, const WCHAR 
 		cons_local(local, &root, path, root);
 		str->list = root;
 		/* find */
-		loop_directory_files(str);
+		Return(loop_directory_files(str));
 		/* rollback list */
 		str->list = list;
 		str->front = front;
 	}
 	/* rollback local */
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void wild_file_directory_files(struct directory_struct *str, addr base)
+static int wild_file_directory_files(struct directory_struct *str, addr base)
 {
 	HANDLE hFind;
 	WIN32_FIND_DATAW data;
 
-	hFind = opendir_files(str->local, base, &data);
+	Return(opendir_files(str->local, base, &data, &hFind));
 	if (hFind == INVALID_HANDLE_VALUE)
-		return;
-	wild_push_directory_files(str, data.cFileName);
-	while (FindNextFileW(hFind, &data))
-		wild_push_directory_files(str, data.cFileName);
+		return 0;
+	Return(wild_push_directory_files(str, data.cFileName));
+	while (FindNextFileW(hFind, &data)) {
+		Return(wild_push_directory_files(str, data.cFileName));
+	}
 	if (FindClose(hFind) == 0)
-		fmte("FindClose error.", NULL);
+		return fmte_("FindClose error.", NULL);
+
+	return 0;
 }
 
-static void wild_directory_files(struct directory_struct *str)
+static int wild_directory_files(struct directory_struct *str)
 {
 	addr base;
 	LocalStack stack;
 
 	push_local(str->local, &stack);
 	make_directory_pathname(str, &base);
-	wild_file_directory_files(str, base);
+	Return(wild_file_directory_files(str, base));
 	rollback_local(str->local, stack);
+
+	return 0;
 }
 
-static void inferiors_file_directory_files(struct directory_struct *str, addr name)
+static int inferiors_file_directory_files(struct directory_struct *str, addr name)
 {
 	addr base;
 	LocalStack stack;
 
 	push_local(str->local, &stack);
 	make_directory_pathname(str, &base);
-	files_name_directory_files(str, base, name);
+	Return(files_name_directory_files(str, base, name));
 	rollback_local(str->local, stack);
+
+	return 0;
 }
 
-static void inferiors_directory_files(struct directory_struct *str);
-static void inferiors_push_directory_files(struct directory_struct *str,
+static int inferiors_directory_files(struct directory_struct *str);
+static int inferiors_push_directory_files(struct directory_struct *str,
 		const WCHAR *name)
 {
+	int check;
 	LocalRoot local;
 	LocalStack stack;
 	addr path, root, list, front;
 
-	if (wcscmp(name, L".") == 0) return;
-	if (wcscmp(name, L"..") == 0) return;
+	if (wcscmp(name, L".") == 0)
+		return 0;
+	if (wcscmp(name, L"..") == 0)
+		return 0;
 	local = str->local;
 	push_local(local, &stack);
-	string16_null_local(local, &path, (const byte16 *)name);
-	inferiors_file_directory_files(str, path);
+	Return(string16_null_local_(local, &path, (const byte16 *)name));
+	Return(inferiors_file_directory_files(str, path));
 	/* directory check */
-	if (wild_check_directory_files(str, path)) {
+	Return(wild_check_directory_files(str, path, &check));
+	if (check) {
 		/* backup list */
 		list = str->list;
 		front = str->front;
@@ -330,79 +363,80 @@ static void inferiors_push_directory_files(struct directory_struct *str,
 		cons_local(local, &root, path, root);
 		str->list = root;
 		/* find */
-		inferiors_directory_files(str);
+		Return(inferiors_directory_files(str));
 		/* rollback list */
 		str->list = list;
 		str->front = front;
 	}
 	/* rollback local */
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void inferiors_find_directory_files(struct directory_struct *str, addr base)
+static int inferiors_find_directory_files(struct directory_struct *str, addr base)
 {
 	HANDLE hFind;
 	WIN32_FIND_DATAW data;
 
-	hFind = opendir_files(str->local, base, &data);
+	Return(opendir_files(str->local, base, &data, &hFind));
 	if (hFind == INVALID_HANDLE_VALUE)
-		return;
-	inferiors_push_directory_files(str, data.cFileName);
-	while (FindNextFileW(hFind, &data))
-		inferiors_push_directory_files(str, data.cFileName);
+		return 0;
+	Return(inferiors_push_directory_files(str, data.cFileName));
+	while (FindNextFileW(hFind, &data)) {
+		Return(inferiors_push_directory_files(str, data.cFileName));
+	}
 	if (FindClose(hFind) == 0)
-		fmte("FindClose error.", NULL);
+		return fmte_("FindClose error.", NULL);
+
+	return 0;
 }
 
-static void inferiors_directory_files(struct directory_struct *str)
+static int inferiors_directory_files(struct directory_struct *str)
 {
 	addr base;
 	LocalStack stack;
 
 	push_local(str->local, &stack);
 	make_directory_pathname(str, &base);
-	inferiors_find_directory_files(str, base);
+	Return(inferiors_find_directory_files(str, base));
 	rollback_local(str->local, stack);
+
+	return 0;
 }
 
-static void loop_directory_files(struct directory_struct *str)
+static int loop_directory_files(struct directory_struct *str)
 {
 	addr name, check;
 
 	/* file */
-	if (str->front == Nil) {
-		file_directory_files(str);
-		return;
-	}
+	if (str->front == Nil)
+		return file_directory_files(str);
 
 	/* wild */
 	GetCons(str->front, &name, &str->front);
 	GetConst(KEYWORD_WILD, &check);
-	if (name == check) {
-		wild_directory_files(str);
-		return;
-	}
+	if (name == check)
+		return wild_directory_files(str);
 
 	/* wild-inferiors */
 	GetConst(KEYWORD_WILD_INFERIORS, &check);
-	if (name == check) {
-		inferiors_directory_files(str);
-		return;
-	}
+	if (name == check)
+		return inferiors_directory_files(str);
 
 	/* next */
 	cons_local(str->local, &str->list, name, str->list);
-	loop_directory_files(str);
+	return loop_directory_files(str);
 }
 
-_g void directory_files(Execute ptr, addr *ret, addr pos)
+_g int directory_files_(Execute ptr, addr *ret, addr pos)
 {
 	struct directory_struct str;
 
 	init_directory_struct(ptr, &str, pos);
 	GetDirectoryPathname(str.pos, &str.front);
-	loop_directory_files(&str);
-	*ret = str.root;
+	Return(loop_directory_files(&str));
+	return Result(ret, str.root);
 }
 
 
@@ -414,7 +448,7 @@ static int probe_file_boolean(const WCHAR *file)
 	return PathFileExistsW(file) == TRUE;
 }
 
-static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
+static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 {
 	addr value;
 	const WCHAR *str;
@@ -427,26 +461,30 @@ static void probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	/* wildcard */
 	if (wild_pathname_boolean(pos, Nil)) {
 		GetConst(COMMON_PATHNAME, &value);
-		type_error_stdarg(pos, value,
+		return call_type_error_va_(ptr, pos, value,
 				"Cannot probe-file the wildcard pathname ~S.", pos, NULL);
 	}
 	/* check */
 	name_pathname_local(ptr, pos, &pos);
 	if (UTF16_buffer_clang(ptr->local, &pos, pos))
-		fmte("Cannot decode UTF-16 string ~S.", pos, NULL);
+		return fmte_("Cannot decode UTF-16 string ~S.", pos, NULL);
 	str = (const WCHAR *)posbodyr(pos);
 	*ret = probe_file_boolean(str)? T: Nil;
+
+	return 0;
 }
 
-_g void probe_file_files(Execute ptr, addr *ret, addr pos)
+_g int probe_file_files_(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
 
 	local = ptr->local;
 	push_local(local, &stack);
-	probe_file_run_files(ptr, ret, pos);
+	Return(probe_file_run_files(ptr, ret, pos));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 
@@ -458,11 +496,14 @@ static int ensure_directires_exist_wild_files(addr pos)
 	addr field;
 
 	GetConst(KEYWORD_DIRECTORY, &field);
-	if (wild_pathname_boolean(pos, field)) return 1;
+	if (wild_pathname_boolean(pos, field))
+		return 1;
 	GetConst(KEYWORD_HOST, &field);
-	if (wild_pathname_boolean(pos, field)) return 1;
+	if (wild_pathname_boolean(pos, field))
+		return 1;
 	GetConst(KEYWORD_DEVICE, &field);
-	if (wild_pathname_boolean(pos, field)) return 1;
+	if (wild_pathname_boolean(pos, field))
+		return 1;
 
 	return 0;
 }
@@ -487,11 +528,10 @@ static void ensure_directories_exist_run_files(Execute ptr,
 	addr list, value, root, temp, result;
 
 	GetDirectoryPathname(pos, &list);
+	if (! consp_getcons(list, &value, &list))
+		return fmte_("Invalid pathname directory ~S.", pos, NULL);
 	if (! consp(list))
-		fmte("Invalid pathname directory ~S.", pos, NULL);
-	GetCons(list, &value, &list);
-	if (! consp(list))
-		fmte("Invalid pathname directory ~S.", pos, NULL);
+		return fmte_("Invalid pathname directory ~S.", pos, NULL);
 	result = Nil;
 	local = ptr->local;
 	conscar_local(local, &root, value);
@@ -504,29 +544,31 @@ static void ensure_directories_exist_run_files(Execute ptr,
 		/* directory check */
 		directory_name_pathname_local(local, temp, &temp);
 		if (UTF16_buffer_clang(local, &value, temp))
-			fmte("Cannot decode UTF-16 string ~S.", value, NULL);
+			return fmte_("Cannot decode UTF-16 string ~S.", value, NULL);
 		str = (const WCHAR *)posbodyr(value);
 		/* already exist */
 		if (PathFileExists(str)) {
 			if (! PathIsDirectory(str))
-				fmte("Cannot make directory ~S.", pos, NULL);
+				return fmte_("Cannot make directory ~S.", pos, NULL);
 			rollback_local(local, stack);
 			continue;
 		}
 		/* CreateDirectory */
 		if (CreateDirectoryW(str, NULL) == 0)
-			fmte("Cannot make directory ~S.", pos, NULL);
+			return fmte_("Cannot make directory ~S.", pos, NULL);
 		result = T;
 		/* verbose */
-		if (verbose)
-			format_stdout(ptr, "~&Creating directory: ~S~%", temp, NULL);
+		if (verbose) {
+			Return(format_stdout(ptr, "~&Creating directory: ~S~%", temp, NULL));
+		}
 		/* continue */
 		rollback_local(local, stack);
 	}
-	*ret = result;
+
+	return Result(ret, result);
 }
 
-_g void ensure_directories_exist_files(Execute ptr,
+_g int ensure_directories_exist_files_(Execute ptr,
 		addr *ret1, addr *ret2, addr pos, int verbose)
 {
 	addr value;
@@ -538,24 +580,24 @@ _g void ensure_directories_exist_files(Execute ptr,
 	/* wildcard */
 	if (ensure_directires_exist_wild_files(pos)) {
 		GetConst(COMMON_PATHNAME, &value);
-		type_error_stdarg(pos, value,
+		return call_type_error_va_(ptr, pos, value,
 				"Cannot ENSURE-DIRECTIRIS-EXIST the wildcard pathname ~S.",
 				pos, NULL);
 	}
 	/* loop */
 	local = ptr->local;
 	push_local(local, &stack);
-	ensure_directories_exist_run_files(ptr, ret2, pos, verbose);
+	Return(ensure_directories_exist_run_files(ptr, ret2, pos, verbose));
 	rollback_local(local, stack);
 	/* result */
-	*ret1 = pos;
+	return Result(ret1, pos);
 }
 
 
 /*
  *  file-author
  */
-_g void file_author_files(Execute ptr, addr *ret, addr pos)
+_g int file_author_files_(Execute ptr, addr *ret, addr pos)
 {
 	BOOL result;
 	DWORD size1, size2;
@@ -571,10 +613,11 @@ _g void file_author_files(Execute ptr, addr *ret, addr pos)
 		physical_pathname_local(ptr, pos, &pos);
 	else
 		physical_pathname_heap(ptr, pos, &pos);
+
 	/* wildcard */
 	if (wild_pathname_boolean(pos, Nil)) {
 		GetConst(COMMON_PATHNAME, &value);
-		type_error_stdarg(pos, value,
+		return call_type_error_va_(ptr, pos, value,
 				"Cannot file-authorthe wildcard pathname ~S.", pos, NULL);
 	}
 
@@ -582,7 +625,7 @@ _g void file_author_files(Execute ptr, addr *ret, addr pos)
 	local = ptr->local;
 	name_pathname_local(ptr, pos, &value);
 	if (UTF16_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-16 string ~S.", pos, NULL);
+		return fmte_("Cannot decode UTF-16 string ~S.", pos, NULL);
 	str = (WCHAR *)posbodyr(value);
 
 	/* GetFileSecurity */
@@ -598,7 +641,7 @@ _g void file_author_files(Execute ptr, addr *ret, addr pos)
 	result = 0;
 	result = GetSecurityDescriptorOwner(psd, &owner, &result);
 	if (result == 0)
-		fmte("GetSecurityDescriptorOwner error.", NULL);
+		return fmte_("GetSecurityDescriptorOwner error.", NULL);
 
 	/* LookupAccountSid */
 	use = SidTypeUnknown;
@@ -611,15 +654,14 @@ _g void file_author_files(Execute ptr, addr *ret, addr pos)
 	if (result == FALSE) {
 		if (GetLastError() == ERROR_NONE_MAPPED)
 			goto finish_nil;
-		fmte("LookupAccountSid error.", NULL);
+		return fmte_("LookupAccountSid error.", NULL);
 	}
 
 	/* result */
-	string16_null_heap(ret, (const byte16 *)name);
-	return;
+	return string16_null_heap_(ret, (const byte16 *)name);
 
 finish_nil:
-	*ret = Nil;
+	return Result(ret, Nil);
 }
 
 
@@ -651,7 +693,7 @@ static int file_write_date_base_files(addr *ret, const FILETIME *file)
 	return 0;
 }
 
-static void file_write_date_run_files(Execute ptr, addr *ret, addr pos)
+static int file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	HANDLE hFind;
@@ -664,10 +706,11 @@ static void file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 		physical_pathname_local(ptr, pos, &pos);
 	else
 		physical_pathname_heap(ptr, pos, &pos);
+
 	/* wildcard */
 	if (wild_pathname_boolean(pos, Nil)) {
 		GetConst(COMMON_PATHNAME, &value);
-		type_error_stdarg(pos, value,
+		return call_type_error_va_(ptr, pos, value,
 				"Cannot file-write-date the wildcard pathname ~S.", pos, NULL);
 	}
 
@@ -675,36 +718,40 @@ static void file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 	local = ptr->local;
 	name_pathname_local(ptr, pos, &value);
 	if (UTF16_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-16 string ~S.", pos, NULL);
+		return fmte_("Cannot decode UTF-16 string ~S.", pos, NULL);
 	str = (const WCHAR *)posbodyr(value);
 
 	/* FindFirstFile */
 	hFind = FindFirstFileW(str, &data);
 	if (hFind == INVALID_HANDLE_VALUE)
-		fmte("Cannot find file ~S.", pos, NULL);
+		return fmte_("Cannot find file ~S.", pos, NULL);
 	FindClose(hFind);
 
 	/* result */
 	if (file_write_date_base_files(ret, &data.ftLastWriteTime))
-		fmte("The file ~S timestamp must be after 1900 year.", pos, NULL);
+		return fmte_("The file ~S timestamp must be after 1900 year.", pos, NULL);
+
+	return 0;
 }
 
-_g void file_write_date_files(Execute ptr, addr *ret, addr pos)
+_g int file_write_date_files_(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
 
 	local = ptr->local;
 	push_local(local, &stack);
-	file_write_date_run_files(ptr, ret, pos);
+	Return(file_write_date_run_files(ptr, ret, pos));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 
 /*
  *  rename-file
  */
-static void rename_file_run_files(Execute ptr,
+static int rename_file_run_files(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr pos, addr to)
 {
 	LocalRoot local;
@@ -714,42 +761,44 @@ static void rename_file_run_files(Execute ptr,
 	pathname_designer_heap(ptr, pos, &file);
 	physical_pathname_heap(ptr, file, &from);
 	physical_pathname_heap(ptr, to, &to);
-	truename_files(ptr, from, &true1, 0);
+	Return(truename_files_(ptr, from, &true1, 0));
 	if (wild_pathname_boolean(from, Nil))
-		fmte("Cannot rename wildcard pathname from ~S", from, NULL);
+		return fmte_("Cannot rename wildcard pathname from ~S", from, NULL);
 	if (wild_pathname_boolean(to, Nil))
-		fmte("Cannot rename wildcard pathname to ~S", to, NULL);
+		return fmte_("Cannot rename wildcard pathname to ~S", to, NULL);
 	/* filename */
 	local = ptr->local;
 	name_pathname_local(ptr, from, &value);
 	if (UTF16_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-16 string ~S.", from, NULL);
+		return fmte_("Cannot decode UTF-16 string ~S.", from, NULL);
 	str1 = (const WCHAR *)posbodyr(value);
 	name_pathname_local(ptr, to, &value);
 	if (UTF16_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-16 string ~S.", to, NULL);
+		return fmte_("Cannot decode UTF-16 string ~S.", to, NULL);
 	str2 = (const WCHAR *)posbodyr(value);
 	/* check */
 	if (probe_file_boolean(str2)) {
-		simple_file_error_stdarg(to, "The file ~S is already exist.", to, NULL);
-		return;
+		return call_simple_file_error_va_(ptr, to,
+				"The file ~S is already exist.", to, NULL);
 	}
 	/* rename */
 	if (MoveFileW(str1, str2) == 0) {
-		simple_file_error_stdarg(to, "Cannot rename ~S to ~S.", from, to, NULL);
-		return;
+		return call_simple_file_error_va_(ptr, to,
+				"Cannot rename ~S to ~S.", from, to, NULL);
 	}
 	/* stream */
 	if (streamp(pos))
 		SetPathnameStream(pos, to);
 	/* result */
-	truename_files(ptr, to, &true2, 0);
+	Return(truename_files_(ptr, to, &true2, 0));
 	*ret1 = to;
 	*ret2 = true1;
 	*ret3 = true2;
+
+	return 0;
 }
 
-_g void rename_file_files(Execute ptr,
+_g int rename_file_files_(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr file, addr to)
 {
 	LocalRoot local;
@@ -757,8 +806,10 @@ _g void rename_file_files(Execute ptr,
 
 	local = ptr->local;
 	push_local(local, &stack);
-	rename_file_run_files(ptr, ret1, ret2, ret3, file, to);
+	Return(rename_file_run_files(ptr, ret1, ret2, ret3, file, to));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 
@@ -804,7 +855,7 @@ static BOOL DeleteFileAsyncW(LPCWSTR name)
 	return 1;
 }
 
-static int delete_file_run_files(Execute ptr, addr pos, int errorp)
+static int delete_file_run_files(Execute ptr, addr pos, int errorp, int *ret)
 {
 	LocalRoot local;
 	addr file, value;
@@ -812,61 +863,101 @@ static int delete_file_run_files(Execute ptr, addr pos, int errorp)
 
 	physical_pathname_heap(ptr, pos, &file);
 	if (wild_pathname_boolean(file, Nil))
-		fmte("Cannot delete wildcard pathname ~S", pos, NULL);
+		return fmte_("Cannot delete wildcard pathname ~S", pos, NULL);
 	if (! pathname_file_p(file)) {
 		if (errorp)
-			fmte("The argument ~S is not a file.", pos, NULL);
-		return 0;
+			return fmte_("The argument ~S is not a file.", pos, NULL);
+		return Result(ret, 0);
 	}
 	/* filename */
 	local = ptr->local;
 	name_pathname_local(ptr, file, &value);
 	if (UTF16_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-16 string ~S.", file, NULL);
+		return fmte_("Cannot decode UTF-16 string ~S.", file, NULL);
 	str = (const WCHAR *)posbodyr(value);
 	/* delete */
 	if (DeleteFileAsyncW(str) == 0) {
-		if (errorp)
-			simple_file_error_stdarg(pos, "Cannot delete ~S.", file, NULL);
-		return 0;
+		if (errorp) {
+			return call_simple_file_error_va_(ptr, pos,
+					"Cannot delete ~S.", file, NULL);
+		}
+		return Result(ret, 0);
 	}
 	/* stream */
 	if (streamp(pos))
 		close_stream(pos);
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int delete_file_errorp(Execute ptr, addr pos, int errorp)
+static int delete_file_errorp(Execute ptr, addr pos, int errorp, int *ret)
 {
-	int check;
 	LocalRoot local;
 	LocalStack stack;
 
 	local = ptr->local;
 	push_local(local, &stack);
-	check = delete_file_run_files(ptr, pos, errorp);
+	Return(delete_file_run_files(ptr, pos, errorp, ret));
 	rollback_local(local, stack);
 
-	return check;
+	return 0;
 }
 
-_g void delete_file_files(Execute ptr, addr pos)
+_g int delete_file_files_(Execute ptr, addr pos)
 {
-	delete_file_errorp(ptr, pos, 1);
+	int check;
+	return delete_file_errorp(ptr, pos, 1, &check);
 }
 
-_g int remove_file_common(Execute ptr, addr pos, int errorp)
+_g int remove_file_common_(Execute ptr, addr pos, int errorp, int *ret)
 {
-	return delete_file_errorp(ptr, pos, errorp);
+	return delete_file_errorp(ptr, pos, errorp, ret);
 }
 
+
+/*
+ *  remove-directory
+ */
+_g int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
+{
+	LocalRoot local;
+	addr file, value;
+	const WCHAR *str;
+
+	physical_pathname_heap(ptr, pos, &file);
+	if (wild_pathname_boolean(file, Nil))
+		return fmte_("Cannot delete wildcard pathname ~S", pos, NULL);
+	if (! pathname_directory_p(file)) {
+		if (errorp)
+			return fmte_("The argument ~S is not a directory.", pos, NULL);
+		return Result(ret, 0);
+	}
+	/* filename */
+	local = ptr->local;
+	name_pathname_local(ptr, file, &value);
+	if (UTF16_buffer_clang(local, &value, value))
+		return fmte_("Cannot decode UTF-16 string ~S.", file, NULL);
+	str = (const WCHAR *)posbodyr(value);
+	/* delete */
+	if (RemoveDirectoryW(str) == 0) {
+		if (errorp) {
+			return call_simple_file_error_va_(ptr, pos,
+					"Cannot delete ~S.", file, NULL);
+		}
+		return Result(ret, 0);
+	}
+	/* stream */
+	if (streamp(pos))
+		close_stream(pos);
+
+	return Result(ret, 1);
+}
 
 
 /*
  *  truename
  */
-_g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
+_g int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
 {
 	addr pos;
 	const unicode *u;
@@ -881,9 +972,8 @@ _g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
 	if (wild_pathname_boolean(pos, Nil)) {
 		if (! errorp)
 			goto error_nil;
-		simple_file_error_stdarg(file,
+		return call_simple_file_error_va_(ptr, file,
 				"TRUENAME don't allow the wildcard filename ~S.", file, NULL);
-		return;
 	}
 	name_pathname_heap(ptr, pos, &pos);
 
@@ -892,8 +982,8 @@ _g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
 	if (UTF32_length_utf16(u, s32, &s16)) {
 		if (! errorp)
 			goto error_nil;
-		simple_file_error_stdarg(file, "Invalid unicode string ~S.", pos, NULL);
-		return;
+		return call_simple_file_error_va_(ptr, file,
+				"Invalid unicode string ~S.", pos, NULL);
 	}
 	local = ptr->local;
 	push_local(local, &stack);
@@ -901,8 +991,8 @@ _g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
 	if (UTF32_make_utf16((byte16 *)str, u, s32)) {
 		if (! errorp)
 			goto error_nil_rollback;
-		simple_file_error_stdarg(file, "Invalid unicode string ~S.", pos, NULL);
-		goto error;
+		return call_simple_file_error_va_(ptr, file,
+				"Invalid unicode string ~S.", pos, NULL);
 	}
 	str[s16] = 0;
 
@@ -912,58 +1002,19 @@ _g void truename_files(Execute ptr, addr file, addr *ret, int errorp)
 	if (check == 0) {
 		if (! errorp)
 			goto error_nil_rollback;
-		simple_file_error_stdarg(file, "Cannot find the TRUENAME ~S file.", file, NULL);
-		goto error;
+		return call_simple_file_error_va_(ptr, file,
+				"Cannot find the TRUENAME ~S file.", file, NULL);
 	}
 
 	/* make-pathname */
-	string16_size_heap(&pos, dst, (size_t)check);
+	Return(string16_size_heap_(&pos, dst, (size_t)check));
 	pathname_designer_heap(ptr, pos, ret);
-
-error:
 	rollback_local(local, stack);
-	return;
+	return 0;
 
 error_nil_rollback:
 	rollback_local(local, stack);
 error_nil:
-	*ret = Nil;
-}
-
-
-/*
- *  remove-directory
- */
-_g int remove_directory_common(Execute ptr, addr pos, int errorp)
-{
-	LocalRoot local;
-	addr file, value;
-	const WCHAR *str;
-
-	physical_pathname_heap(ptr, pos, &file);
-	if (wild_pathname_boolean(file, Nil))
-		fmte("Cannot delete wildcard pathname ~S", pos, NULL);
-	if (! pathname_directory_p(file)) {
-		if (errorp)
-			fmte("The argument ~S is not a file.", pos, NULL);
-		return 0;
-	}
-	/* filename */
-	local = ptr->local;
-	name_pathname_local(ptr, file, &value);
-	if (UTF16_buffer_clang(local, &value, value))
-		fmte("Cannot decode UTF-16 string ~S.", file, NULL);
-	str = (const WCHAR *)posbodyr(value);
-	/* delete */
-	if (RemoveDirectoryW(str) == 0) {
-		if (errorp)
-			simple_file_error_stdarg(pos, "Cannot delete ~S.", file, NULL);
-		return 0;
-	}
-	/* stream */
-	if (streamp(pos))
-		close_stream(pos);
-
-	return 1;
+	return Result(ret, Nil);
 }
 

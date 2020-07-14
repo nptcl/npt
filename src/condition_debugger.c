@@ -172,7 +172,7 @@ static int output_restarts_debugger(Execute ptr, addr io, addr list)
 				if (check)
 					fmte("Invalid restart report.", NULL);
 				string_stream_heap(str, &name);
-				close_stream(str);
+				close_output_string_stream(str);
 			}
 		}
 		id = intsizeh(index);

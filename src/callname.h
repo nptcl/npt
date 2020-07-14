@@ -66,6 +66,7 @@ _g int parse_callname_alloc(LocalRoot local, addr *ret, addr name);
 _g int parse_callname_local(LocalRoot local, addr *ret, addr name);
 _g int parse_callname_heap(addr *ret, addr name);
 _g void parse_callname_error(addr *ret, addr name);
+_g int parse_callname_error_(addr *ret, addr name);
 
 /* boolean */
 _g int callnamep(addr pos);

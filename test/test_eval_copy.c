@@ -387,7 +387,7 @@ static int test_copy_eval_ordinary_optional(void)
 	readstring(&pos, "(&optional aaa (bbb 10))");
 	test_eval_copy_ordinary(&pos, pos);
 	/* (var opt rest key allow aux) */
-	getnth(pos, 1, &pos);
+	getnth_abort(pos, 1, &pos);
 	copy_eval_ordinary_optional(NULL, &pos, pos);
 	test(length_list_unsafe(pos) == 2, "copy_eval_ordinary_optional1");
 	GetCons(pos, &svar, &pos);
@@ -417,7 +417,7 @@ static int test_copy_eval_ordinary_key(void)
 	readstring(&pos, "(&key aaa ((name bbb) 10 ddd))");
 	test_eval_copy_ordinary(&pos, pos);
 	/* (var opt rest key allow aux) */
-	getnth(pos, 3, &pos);
+	getnth_abort(pos, 3, &pos);
 	copy_eval_ordinary_key(NULL, &pos, pos);
 	test(length_list_unsafe(pos) == 2, "copy_eval_ordinary_key1");
 	GetCons(pos, &svar, &pos);
@@ -455,7 +455,7 @@ static int test_copy_eval_ordinary_aux(void)
 	readstring(&pos, "(&aux aaa (bbb 10))");
 	test_eval_copy_ordinary(&pos, pos);
 	/* (var opt rest key allow aux) */
-	getnth(pos, 5, &pos);
+	getnth_abort(pos, 5, &pos);
 	copy_eval_ordinary_aux(NULL, &pos, pos);
 	test(length_list_unsafe(pos) == 2, "copy_eval_ordinary_aux1");
 	GetCons(pos, &init, &pos);

@@ -1037,17 +1037,17 @@ static int test_optparse_opt(void)
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "#'(lambda (&optional (aa (progn)) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
-	getnth(pos, 1, &pos); /* opt */
+	getnth_abort(pos, 1, &pos); /* opt */
 	test(checkparse_opt(&opt, pos), "checkparse_opt1");
 
 	parse_eval_string(&pos, "#'(lambda (&optional (aa 100) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
-	getnth(pos, 1, &pos); /* opt */
+	getnth_abort(pos, 1, &pos); /* opt */
 	test(! checkparse_opt(&opt, pos), "checkparse_opt2");
 
 	parse_eval_string(&pos, "#'(lambda (&optional (aa (progn) cc) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
-	getnth(pos, 1, &pos); /* opt */
+	getnth_abort(pos, 1, &pos); /* opt */
 	optparse_opt(local, &pos, &opt, pos);
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &init);
@@ -1081,17 +1081,17 @@ static int test_optparse_key(void)
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "#'(lambda (&key (aa (progn)) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
-	getnth(pos, 3, &pos); /* key */
+	getnth_abort(pos, 3, &pos); /* key */
 	test(checkparse_key(&opt, pos), "checkparse_key1");
 
 	parse_eval_string(&pos, "#'(lambda (&key (aa 100) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
-	getnth(pos, 3, &pos); /* key */
+	getnth_abort(pos, 3, &pos); /* key */
 	test(! checkparse_key(&opt, pos), "checkparse_key2");
 
 	parse_eval_string(&pos, "#'(lambda (&key (aa (progn) cc) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
-	getnth(pos, 3, &pos); /* key */
+	getnth_abort(pos, 3, &pos); /* key */
 	optparse_key(local, &pos, &opt, pos);
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &name);
@@ -1131,7 +1131,7 @@ static int test_optparse_aux(void)
 	allminus_optstruct(&opt);
 	parse_eval_string(&pos, "#'(lambda (&aux (aa (progn)) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
-	getnth(pos, 5, &pos); /* aux */
+	getnth_abort(pos, 5, &pos); /* aux */
 	optparse_aux(local, &pos, &opt, pos);
 	GetCons(pos, &var, &pos);
 	GetCons(var, &var, &init);
@@ -1176,7 +1176,7 @@ static int test_optparse_lambda_ordinary(void)
 	parse_eval_string(&pos, "#'(lambda (&optional (aa (progn)) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
 	optparse_lambda_ordinary(local, &pos, &opt, pos);
-	getnth(pos, 1, &pos); /* opt */
+	getnth_abort(pos, 1, &pos); /* opt */
 	GetCar(pos, &pos); /* aa -> (var init svar) */
 	GetCar(pos, &pos); /* var */
 	readstring(&check, "aa");
@@ -1185,7 +1185,7 @@ static int test_optparse_lambda_ordinary(void)
 	parse_eval_string(&pos, "#'(lambda (&key (aa (progn)) bb) :body)");
 	GetEvalParse(pos, 0, &pos);
 	optparse_lambda_ordinary(local, &pos, &opt, pos);
-	getnth(pos, 3, &pos); /* key */
+	getnth_abort(pos, 3, &pos); /* key */
 	GetCar(pos, &pos); /* aa -> (var name init svar) */
 	GetCar(pos, &pos); /* var */
 	readstring(&check, "aa");
@@ -1214,7 +1214,7 @@ static int test_optparse_defun_args(void)
 	test(optparse_defun_args(local, &pos, &opt, pos), "optparse_defun_args1");
 	test(check_evaltype(pos, EVAL_PARSE_DEFUN), "optparse_defun_args2");
 	GetEvalParse(pos, 1, &pos); /* args */
-	getnth(pos, 1, &pos); /* opt */
+	getnth_abort(pos, 1, &pos); /* opt */
 	GetCar(pos, &pos); /* aa */
 	GetCons(pos, &var, &pos);
 	readstring(&check, "aa");
@@ -1304,7 +1304,7 @@ static int test_optparse_lambda_args(void)
 	test(optparse_lambda_args(local, &pos, &opt, pos), "optparse_lambda_args1");
 	test(check_evaltype(pos, EVAL_PARSE_LAMBDA), "optparse_lambda_args2");
 	GetEvalParse(pos, 0, &pos); /* args */
-	getnth(pos, 1, &pos); /* opt */
+	getnth_abort(pos, 1, &pos); /* opt */
 	GetCar(pos, &pos); /* aa */
 	GetCons(pos, &var, &pos);
 	readstring(&check, "aa");
@@ -2240,7 +2240,7 @@ static int test_optparse_flet_args(void)
 	readstring(&check, "aa");
 	test(var == check, "optparse_flet_args4");
 	GetCons(pos, &var, &pos); /* lambda-list */
-	getnth(var, 1, &var); /* optional */
+	getnth_abort(var, 1, &var); /* optional */
 	GetCar(var, &var); /* first argument */
 	GetCdr(var, &var); /* var */
 	GetCar(var, &var); /* init */
@@ -2336,13 +2336,13 @@ static int test_optparse_flet_error(void)
 	test(optparse(local, &pos, &opt, pos), "optparse_flet_error2");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optparse_flet_error3");
 	GetEvalParse(pos, 0, &pos); /* flet-args */
-	getnth(pos, 0, &check); /* z */
-	getnth(check, 4, &check); /* body */
+	getnth_abort(pos, 0, &check); /* z */
+	getnth_abort(check, 4, &check); /* body */
 	test(length_list_unsafe(check) == 1, "optparse_flet_error4");
 	GetCar(check, &check);
 	test(check_evalinteger(check, 10), "optparse_flet_error5");
-	getnth(pos, 1, &check); /* x */
-	getnth(check, 4, &check); /* body */
+	getnth_abort(pos, 1, &check); /* x */
+	getnth_abort(check, 4, &check); /* body */
 	GetCar(check, &check); /* progn */
 	//test(check_evaltype(check, EVAL_PARSE_PROGN), "optparse_flet_error6");
 
@@ -3066,7 +3066,7 @@ static int test_optimize_defun_args(void)
 	test(optparse(local, &pos, &opt, pos), "optimize_defun_args2");
 	test(check_evaltype(pos, EVAL_PARSE_DEFUN), "optimize_defun_args3");
 	GetEvalParse(pos, 1, &pos); /* args */
-	getnth(pos, 1, &pos); /* &optional */
+	getnth_abort(pos, 1, &pos); /* &optional */
 	GetCons(pos, &check, &pos); /* a */
 	GetCdr(check, &check); /* var */
 	GetCar(check, &check); /* init */
@@ -3158,7 +3158,7 @@ static int test_optimize_lambda_args(void)
 	test(optparse(local, &pos, &opt, pos), "optimize_lambda_args2");
 	test(check_evaltype(pos, EVAL_PARSE_LAMBDA), "optimize_lambda_args3");
 	GetEvalParse(pos, 0, &pos); /* args */
-	getnth(pos, 1, &pos); /* &optional */
+	getnth_abort(pos, 1, &pos); /* &optional */
 	GetCons(pos, &check, &pos); /* a */
 	GetCdr(check, &check); /* var */
 	GetCar(check, &check); /* init */
@@ -3439,8 +3439,8 @@ static int test_optimize_flet_args_init(void)
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optimize_flet_args_init3");
 	GetEvalParse(pos, 0, &pos); /* flet-args */
 	GetCar(pos, &pos); /* (z args ...) */
-	getnth(pos, 1, &pos); /* args */
-	getnth(pos, 1, &pos); /* &optional */
+	getnth_abort(pos, 1, &pos); /* args */
+	getnth_abort(pos, 1, &pos); /* &optional */
 	GetCons(pos, &check, &pos); /* a */
 	GetCdr(check, &check); /* var */
 	GetCar(check, &check); /* init */
@@ -3474,8 +3474,8 @@ static int test_optimize_flet_args_body(void)
 	test(optparse(local, &pos, &opt, pos), "optimize_flet_args_body2");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optimize_flet_args_body3");
 	GetEvalParse(pos, 0, &pos); /* flet-args */
-	getnth(pos, 0, &pos); /* z */
-	getnth(pos, 4, &pos); /* body */
+	getnth_abort(pos, 0, &pos); /* z */
+	getnth_abort(pos, 4, &pos); /* body */
 	GetCons(pos, &check, &pos); /* locally */
 	//test(check_evaltype(check, EVAL_PARSE_LOCALLY), "optimize_flet_args_body4");
 	//GetEvalParse(check, 1, &check);
@@ -3504,13 +3504,13 @@ static int test_optimize_flet_args_decl(void)
 	test(optparse(local, &pos, &opt, pos), "optimize_flet_args_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_FLET), "optimize_flet_args_decl3");
 	GetEvalParse(pos, 0, &pos); /* flet-args */
-	getnth(pos, 0, &check); /* z */
-	getnth(check, 4, &check); /* body */
+	getnth_abort(pos, 0, &check); /* z */
+	getnth_abort(check, 4, &check); /* body */
 	test(length_list_unsafe(check) == 1, "optimize_flet_args_decl4");
 	GetCar(check, &check);
 	test(check_evalinteger(check, 10), "optimize_flet_args_decl5");
-	getnth(pos, 1, &check); /* x */
-	getnth(check, 4, &check); /* body */
+	getnth_abort(pos, 1, &check); /* x */
+	getnth_abort(check, 4, &check); /* body */
 	GetCar(check, &check); /* progn */
 	//test(check_evaltype(check, EVAL_PARSE_PROGN), "optimize_flet_args_decl6");
 
@@ -3592,8 +3592,8 @@ static int test_optimize_labels_args_init(void)
 	test(check_evaltype(pos, EVAL_PARSE_LABELS), "optimize_labels_args_init3");
 	GetEvalParse(pos, 0, &pos); /* labels-args */
 	GetCar(pos, &pos); /* (z args ...) */
-	getnth(pos, 1, &pos); /* args */
-	getnth(pos, 1, &pos); /* &optional */
+	getnth_abort(pos, 1, &pos); /* args */
+	getnth_abort(pos, 1, &pos); /* &optional */
 	GetCons(pos, &check, &pos); /* a */
 	GetCdr(check, &check); /* var */
 	GetCar(check, &check); /* init */
@@ -3627,8 +3627,8 @@ static int test_optimize_labels_args_body(void)
 	test(optparse(local, &pos, &opt, pos), "optimize_labels_args_body2");
 	test(check_evaltype(pos, EVAL_PARSE_LABELS), "optimize_labels_args_body3");
 	GetEvalParse(pos, 0, &pos); /* labels-args */
-	getnth(pos, 0, &pos); /* z */
-	getnth(pos, 4, &pos); /* body */
+	getnth_abort(pos, 0, &pos); /* z */
+	getnth_abort(pos, 4, &pos); /* body */
 	GetCons(pos, &check, &pos); /* locally */
 	//test(check_evaltype(check, EVAL_PARSE_LOCALLY), "optimize_labels_args_body4");
 	//GetEvalParse(check, 1, &check);
@@ -3657,13 +3657,13 @@ static int test_optimize_labels_args_decl(void)
 	test(optparse(local, &pos, &opt, pos), "optimize_labels_args_decl2");
 	test(check_evaltype(pos, EVAL_PARSE_LABELS), "optimize_labels_args_decl3");
 	GetEvalParse(pos, 0, &pos); /* labels-args */
-	getnth(pos, 0, &check); /* z */
-	getnth(check, 4, &check); /* body */
+	getnth_abort(pos, 0, &check); /* z */
+	getnth_abort(check, 4, &check); /* body */
 	test(length_list_unsafe(check) == 1, "optimize_labels_args_decl4");
 	GetCar(check, &check);
 	test(check_evalinteger(check, 10), "optimize_labels_args_decl5");
-	getnth(pos, 1, &check); /* x */
-	getnth(check, 4, &check); /* body */
+	getnth_abort(pos, 1, &check); /* x */
+	getnth_abort(check, 4, &check); /* body */
 	GetCar(check, &check); /* progn */
 	//test(check_evaltype(check, EVAL_PARSE_PROGN), "optimize_labels_args_decl6");
 

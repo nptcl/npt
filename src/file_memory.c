@@ -114,11 +114,12 @@ _g void standard_error_filememory(struct filememory *fm)
 	fm->cache = 0;
 }
 
-_g int open_input_filememory(Execute ptr, struct filememory *fm, addr name)
+_g int open_input_filememory(LocalRoot local, struct filememory *fm, addr name)
 {
 	file_type file;
 
-	if (open_input_arch(ptr, &file, name)) {
+	Check(! stringp(name), "name error");
+	if (open_input_arch(local, &file, name)) {
 		return 1;
 	}
 	init_input_filememory(fm, file);
@@ -126,23 +127,25 @@ _g int open_input_filememory(Execute ptr, struct filememory *fm, addr name)
 	return 0;
 }
 
-_g int open_output_filememory(Execute ptr, struct filememory *fm,
+_g int open_output_filememory(LocalRoot local, struct filememory *fm,
 		addr name, enum FileOutput mode)
 {
 	file_type file;
 
-	if (open_output_arch(ptr, &file, name, mode)) return 1;
+	Check(! stringp(name), "name error");
+	if (open_output_arch(local, &file, name, mode)) return 1;
 	init_output(fm, file);
 
 	return 0;
 }
 
-_g int open_io_filememory(Execute ptr, struct filememory *fm,
+_g int open_io_filememory(LocalRoot local, struct filememory *fm,
 		addr name, enum FileOutput mode)
 {
 	file_type file;
 
-	if (open_io_arch(ptr, &file, name, mode)) return 1;
+	Check(! stringp(name), "name error");
+	if (open_io_arch(local, &file, name, mode)) return 1;
 	init_filememory(fm);
 	fm->file = file;
 	fm->mode = filememory_normal;

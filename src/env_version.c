@@ -34,17 +34,17 @@ _g void implementation_version_common(addr *ret)
  */
 #if defined(LISP_POSIX)
 #include <sys/utsname.h>
-_g void short_site_name_common(addr *ret)
+_g int short_site_name_common(addr *ret)
 {
 	struct utsname data;
 
 	if (uname(&data))
-		*ret = Nil;
+		return Result(ret, Nil);
 	else
-		string8_null_heap(ret, data.nodename);
+		return string8_null_heap_(ret, data.nodename);
 }
 #elif defined(LISP_WINDOWS)
-static void windows_site_name(addr *ret, COMPUTER_NAME_FORMAT format)
+static int windows_site_name(addr *ret, COMPUTER_NAME_FORMAT format)
 {
 	BOOL check;
 	WCHAR *data;
@@ -58,20 +58,24 @@ static void windows_site_name(addr *ret, COMPUTER_NAME_FORMAT format)
 	push_local(local, &stack);
 	data = (WCHAR *)lowlevel_local(local, size);
 	check = GetComputerNameExW(format, NULL, &size);
-	if (check == 0)
+	if (check == 0) {
 		*ret = Nil;
-	else
-		string16_size_heap(ret, (const byte16 *)data, (size_t)size);
+	}
+	else {
+		Return(string16_size_heap_(ret, (const byte16 *)data, (size_t)size));
+	}
 	rollback_local(local, stack);
+
+	return 0;
 }
-_g void short_site_name_common(addr *ret)
+_g int short_site_name_common(addr *ret)
 {
-	windows_site_name(ret, ComputerNameNetBIOS);
+	return windows_site_name(ret, ComputerNameNetBIOS);
 }
 #else
-_g void short_site_name_common(addr *ret)
+_g int short_site_name_common(addr *ret)
 {
-	*ret = Nil;
+	return Result(ret, Nil);
 }
 #endif
 
@@ -81,19 +85,19 @@ _g void short_site_name_common(addr *ret)
  */
 #if defined(LISP_POSIX)
 #include <sys/utsname.h>
-_g void long_site_name_common(addr *ret)
+_g int long_site_name_common(addr *ret)
 {
-	short_site_name_common(ret);
+	return short_site_name_common(ret);
 }
 #elif defined(LISP_WINDOWS)
-_g void long_site_name_common(addr *ret)
+_g int long_site_name_common(addr *ret)
 {
-	windows_site_name(ret, ComputerNamePhysicalDnsFullyQualified);
+	return windows_site_name(ret, ComputerNamePhysicalDnsFullyQualified);
 }
 #else
-_g void long_site_name_common(addr *ret)
+_g int long_site_name_common(addr *ret)
 {
-	*ret = Nil;
+	return Result(ret, Nil);
 }
 #endif
 
@@ -101,9 +105,9 @@ _g void long_site_name_common(addr *ret)
 /*
  *  machine-instance
  */
-_g void machine_instance_common(addr *ret)
+_g int machine_instance_common(addr *ret)
 {
-	short_site_name_common(ret);
+	return short_site_name_common(ret);
 }
 
 
@@ -111,17 +115,17 @@ _g void machine_instance_common(addr *ret)
  *  machine-type
  */
 #if defined(LISP_POSIX)
-_g void machine_type_common(addr *ret)
+_g int machine_type_common(addr *ret)
 {
 	struct utsname data;
 
 	if (uname(&data))
-		*ret = Nil;
+		return Result(ret, Nil);
 	else
-		string8_null_heap(ret, data.machine);
+		return string8_null_heap_(ret, data.machine);
 }
 #elif defined(LISP_WINDOWS)
-_g void machine_type_common(addr *ret)
+_g int machine_type_common(addr *ret)
 {
 	const char *str;
 	SYSTEM_INFO info;
@@ -147,14 +151,14 @@ _g void machine_type_common(addr *ret)
 		default: str = NULL; break;
 	}
 	if (str == NULL)
-		*ret = Nil;
-	else
-		strvect_char_heap(ret, str);
+		return Result(ret, Nil);
+	strvect_char_heap(ret, str);
+	return 0;
 }
 #else
-_g void machine_type_common(addr *ret)
+_g int machine_type_common(addr *ret)
 {
-	*ret = Nil;
+	return Result(ret, Nil);
 }
 #endif
 
@@ -163,12 +167,12 @@ _g void machine_type_common(addr *ret)
  *  machine-version
  */
 #if defined(LISP_POSIX)
-_g void machine_version_common(addr *ret)
+_g int machine_version_common(addr *ret)
 {
-	machine_type_common(ret);
+	return machine_type_common(ret);
 }
 #elif defined(LISP_WINDOWS)
-_g void machine_version_common(addr *ret)
+_g int machine_version_common(addr *ret)
 {
 	const char *str;
 	SYSTEM_INFO info;
@@ -202,14 +206,14 @@ _g void machine_version_common(addr *ret)
 		default: str = NULL; break;
 	}
 	if (str == NULL)
-		*ret = Nil;
-	else
-		strvect_char_heap(ret, str);
+		return Result(ret, Nil);
+	strvect_char_heap(ret, str);
+	return 0;
 }
 #else
-_g void machine_version_common(addr *ret)
+_g int machine_version_common(addr *ret)
 {
-	*ret = Nil;
+	return Result(ret, Nil);
 }
 #endif
 
@@ -218,24 +222,25 @@ _g void machine_version_common(addr *ret)
  *  software-type
  */
 #if defined(LISP_POSIX)
-_g void software_type_common(addr *ret)
+_g int software_type_common(addr *ret)
 {
 	struct utsname data;
 
 	if (uname(&data))
-		*ret = Nil;
+		return Result(ret, Nil);
 	else
-		string8_null_heap(ret, data.sysname);
+		return string8_null_heap_(ret, data.sysname);
 }
 #elif defined(LISP_WINDOWS)
-_g void software_type_common(addr *ret)
+_g int software_type_common(addr *ret)
 {
 	strvect_char_heap(ret, "Windows");
+	return 0;
 }
 #else
-_g void software_type_common(addr *ret)
+_g int software_type_common(addr *ret)
 {
-	*ret = Nil;
+	return Result(ret, Nil);
 }
 #endif
 
@@ -244,17 +249,17 @@ _g void software_type_common(addr *ret)
  *  software-version
  */
 #if defined(LISP_POSIX)
-_g void software_version_common(addr *ret)
+_g int software_version_common(addr *ret)
 {
 	struct utsname data;
 
 	if (uname(&data))
-		*ret = Nil;
+		return Result(ret, Nil);
 	else
-		string8_null_heap(ret, data.release);
+		return string8_null_heap_(ret, data.release);
 }
 #elif defined(LISP_WINDOWS)
-_g void software_version_common(addr *ret)
+_g int software_version_common(addr *ret)
 {
 	BOOL (*local_GetFileVersionInfo)(LPCSTR, DWORD, DWORD, LPVOID);
 	DWORD (*local_GetFileVersionInfoSize)(LPCSTR, LPDWORD);
@@ -273,8 +278,7 @@ _g void software_version_common(addr *ret)
 	UINT usize;
 
 #ifdef LISP_32BIT
-	*ret = Nil;
-	return;
+	return Result(ret, Nil);
 #endif
 
 	/* VERSION.DLL */
@@ -336,22 +340,22 @@ _g void software_version_common(addr *ret)
 	}
 
 	/* result */
-	string8_null_heap(ret, pversion);
+	Return(string8_null_heap_(ret, pversion));
 	free(ptr);
 	FreeLibrary(version_dll);
-	return;
+	return 0;
 
 error_dll:
 	free(ptr);
 	if (version_dll)
 		FreeLibrary(version_dll);
-	*ret = Nil;
+	return Result(ret, Nil);
 }
 
 #else
-_g void software_version_common(addr *ret)
+_g int software_version_common(addr *ret)
 {
-	*ret = Nil;
+	return Result(ret, Nil);
 }
 #endif
 

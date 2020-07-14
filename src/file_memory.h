@@ -14,10 +14,10 @@ _g void update_standard_error_filememory(struct filememory *fm);
 _g void standard_input_filememory(struct filememory *fm);
 _g void standard_output_filememory(struct filememory *fm);
 _g void standard_error_filememory(struct filememory *fm);
-_g int open_input_filememory(Execute ptr, struct filememory *fm, addr name);
-_g int open_output_filememory(Execute ptr, struct filememory *fm,
+_g int open_input_filememory(LocalRoot local, struct filememory *fm, addr name);
+_g int open_output_filememory(LocalRoot local, struct filememory *fm,
 		addr name, enum FileOutput mode);
-_g int open_io_filememory(Execute ptr, struct filememory *fm,
+_g int open_io_filememory(LocalRoot local, struct filememory *fm,
 		addr name, enum FileOutput mode);
 _g int close_filememory(struct filememory *fm);
 _g int end_filememory(struct filememory *fm);

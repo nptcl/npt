@@ -1,4 +1,5 @@
 #include "execute.h"
+#include "file.h"
 #include "gc.h"
 #include "gc_check.h"
 #include "heap.h"
@@ -152,7 +153,7 @@ static void freegcobject_type(addr pos)
 	switch (GetType(pos)) {
 		case LISPTYPE_STREAM:
 			if (file_stream_p(pos) && open_stream_p(pos))
-				close_stream(pos);
+				force_close_stream_file(pos);
 			break;
 
 		default:

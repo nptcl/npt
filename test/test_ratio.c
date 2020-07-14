@@ -1289,7 +1289,7 @@ static int test_output_nosign_ratio(void)
 	output_nosign_ratio(local, stream, pos, 10, 1);
 	test(equalstream(stream, "7/8"), "output_nosign_ratio3");
 
-	close_stream(stream);
+	close_output_string_stream(stream);
 	rollback_local(local, stack);
 
 	RETURN;

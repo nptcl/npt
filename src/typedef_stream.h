@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include "typedef_basic.h"
 
-typedef int (*lisp_streamtype_close)(addr);
+typedef int (*lisp_streamtype_close)(addr, addr *);
 typedef int (*lisp_streamtype_read_binary)(addr, void *, size_t, size_t *);
 typedef int (*lisp_streamtype_readforce_binary)(addr, void *, size_t, size_t *);
 typedef int (*lisp_streamtype_read_byte)(addr, byte *);

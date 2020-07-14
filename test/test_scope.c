@@ -3113,7 +3113,7 @@ static int test_lambda_init_var(void)
 	eval_declare_local(local, &decl);
 	parse_eval_string(&args, "(lambda (aa bb))");
 	GetEvalParse(args, 0, &args); /* args */
-	getnth(args, 0, &args); /* var */
+	getnth_abort(args, 0, &args); /* var */
 	lambda_init_var(ptr, stack, args, decl);
 	readstring(&pos, "aa");
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_var1");
@@ -3141,7 +3141,7 @@ static int test_lambda_init_opt(void)
 	eval_declare_local(local, &decl);
 	parse_eval_string(&args, "(lambda (&optional (aa 10 bb) cc))");
 	GetEvalParse(args, 0, &args); /* args */
-	getnth(args, 1, &args); /* optional */
+	getnth_abort(args, 1, &args); /* optional */
 	lambda_init_opt(ptr, stack, args, decl, &args);
 	test(length_list_unsafe(args) == 2, "lambda_init_opt1");
 	readstring(&pos, "aa");
@@ -3152,10 +3152,10 @@ static int test_lambda_init_opt(void)
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_opt4");
 
 	GetCons(args, &pos, &args);
-	getnth(pos, 1, &pos);
+	getnth_abort(pos, 1, &pos);
 	test(eval_scope_p(pos), "lambda_init_opt5");
 	GetCons(args, &pos, &args);
-	getnth(pos, 2, &pos);
+	getnth_abort(pos, 2, &pos);
 	test(pos == Nil, "lambda_init_opt6");
 
 	free_eval_stack(ptr);
@@ -3179,7 +3179,7 @@ static int test_lambda_init_key(void)
 	eval_declare_local(local, &decl);
 	parse_eval_string(&args, "(lambda (&key ((name aa) 10 bb) cc))");
 	GetEvalParse(args, 0, &args); /* args */
-	getnth(args, 3, &args); /* key */
+	getnth_abort(args, 3, &args); /* key */
 	lambda_init_key(ptr, stack, args, decl, &args);
 	test(length_list_unsafe(args) == 2, "lambda_init_key1");
 	readstring(&pos, "aa");
@@ -3190,10 +3190,10 @@ static int test_lambda_init_key(void)
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_key4");
 
 	GetCons(args, &pos, &args);
-	getnth(pos, 1, &pos);
+	getnth_abort(pos, 1, &pos);
 	test(symbolp(pos), "lambda_init_key5");
 	GetCons(args, &pos, &args);
-	getnth(pos, 3, &pos);
+	getnth_abort(pos, 3, &pos);
 	test(pos == Nil, "lambda_init_key6");
 
 	free_eval_stack(ptr);
@@ -3217,7 +3217,7 @@ static int test_lambda_init_aux(void)
 	eval_declare_local(local, &decl);
 	parse_eval_string(&args, "(lambda (&aux (aa 10) cc))");
 	GetEvalParse(args, 0, &args); /* args */
-	getnth(args, 5, &args); /* aux */
+	getnth_abort(args, 5, &args); /* aux */
 	lambda_init_aux(ptr, stack, args, decl, &args);
 	test(length_list_unsafe(args) == 2, "lambda_init_aux1");
 	readstring(&pos, "aa");
@@ -3228,9 +3228,9 @@ static int test_lambda_init_aux(void)
 	test(find_tablevalue(stack, pos, &pos), "lambda_init_aux4");
 
 	GetCar(args, &args);
-	getnth(args, 0, &pos);
+	getnth_abort(args, 0, &pos);
 	test(symbolp(pos), "lambda_init_aux5");
-	getnth(args, 1, &pos);
+	getnth_abort(args, 1, &pos);
 	test(eval_scope_p(pos), "lambda_init_aux6");
 
 	free_eval_stack(ptr);
@@ -3269,9 +3269,9 @@ static int test_lambda_init(void)
 	readstring(&pos, "ee");
 	test(find_tablevalue(str.stack, pos, &pos), "lambda_init5");
 
-	getnth(str.args, 1, &pos); /* optional */
-	getnth(pos, 0, &pos);
-	getnth(pos, 1, &pos); /* init */
+	getnth_abort(str.args, 1, &pos); /* optional */
+	getnth_abort(pos, 0, &pos);
+	getnth_abort(pos, 1, &pos); /* init */
 	test(eval_scope_p(pos), "lambda_init6");
 
 	parse_eval_string(&pos, "(lambda ())");
@@ -3303,7 +3303,7 @@ static int test_lambda_tablevalue_var(void)
 	parse_eval_string(&pos, "(lambda (aa bb))");
 	GetEvalParse(pos, 0, &str.args); /* args */
 	lambda_init(ptr, &str);
-	getnth(str.args, 0, &args); /* var */
+	getnth_abort(str.args, 0, &args); /* var */
 	lambda_tablevalue_var(local, str.stack, args, &args);
 	test(length_list_unsafe(args) == 2, "lambda_tablevalue_var1");
 	GetCons(args, &pos, &args);
@@ -3335,19 +3335,19 @@ static int test_lambda_tablevalue_opt(void)
 	parse_eval_string(&pos, "(lambda (&optional aa (bb 100 cc)))");
 	GetEvalParse(pos, 0, &str.args); /* args */
 	lambda_init(ptr, &str);
-	getnth(str.args, 1, &args); /* optional */
+	getnth_abort(str.args, 1, &args); /* optional */
 	lambda_tablevalue_opt(local, str.stack, args, &args);
 	test(length_list_unsafe(args) == 2, "lambda_tablevalue_opt1");
 	GetCons(args, &pos, &args);
 	test(length_list_unsafe(pos) == 3, "lambda_tablevalue_opt2");
-	getnth(pos, 0, &check);
+	getnth_abort(pos, 0, &check);
 	test(eval_tablevalue_p(check), "lambda_tablevalue_opt3");
-	getnth(pos, 2, &check);
+	getnth_abort(pos, 2, &check);
 	test(check == Nil, "lambda_tablevalue_opt4");
 	GetCons(args, &pos, &args);
-	getnth(pos, 0, &check);
+	getnth_abort(pos, 0, &check);
 	test(eval_tablevalue_p(check), "lambda_tablevalue_opt5");
-	getnth(pos, 2, &check);
+	getnth_abort(pos, 2, &check);
 	test(eval_tablevalue_p(check), "lambda_tablevalue_opt6");
 
 	free_eval_stack(ptr);
@@ -3374,19 +3374,19 @@ static int test_lambda_tablevalue_key(void)
 	parse_eval_string(&pos, "(lambda (&key aa (bb 100 cc)))");
 	GetEvalParse(pos, 0, &str.args); /* args */
 	lambda_init(ptr, &str);
-	getnth(str.args, 3, &args); /* key */
+	getnth_abort(str.args, 3, &args); /* key */
 	lambda_tablevalue_key(local, str.stack, args, &args);
 	test(length_list_unsafe(args) == 2, "lambda_tablevalue_key1");
 	GetCons(args, &pos, &args);
 	test(length_list_unsafe(pos) == 4, "lambda_tablevalue_key2");
-	getnth(pos, 0, &check);
+	getnth_abort(pos, 0, &check);
 	test(eval_tablevalue_p(check), "lambda_tablevalue_key3");
-	getnth(pos, 3, &check);
+	getnth_abort(pos, 3, &check);
 	test(check == Nil, "lambda_tablevalue_key4");
 	GetCons(args, &pos, &args);
-	getnth(pos, 0, &check);
+	getnth_abort(pos, 0, &check);
 	test(eval_tablevalue_p(check), "lambda_tablevalue_key5");
-	getnth(pos, 3, &check);
+	getnth_abort(pos, 3, &check);
 	test(eval_tablevalue_p(check), "lambda_tablevalue_key6");
 
 	free_eval_stack(ptr);
@@ -3413,15 +3413,15 @@ static int test_lambda_tablevalue_aux(void)
 	parse_eval_string(&pos, "(lambda (&aux aa (bb 100)))");
 	GetEvalParse(pos, 0, &str.args); /* args */
 	lambda_init(ptr, &str);
-	getnth(str.args, 5, &args); /* aux */
+	getnth_abort(str.args, 5, &args); /* aux */
 	lambda_tablevalue_aux(local, str.stack, args, &args);
 	test(length_list_unsafe(args) == 2, "lambda_tablevalue_aux1");
 	GetCons(args, &pos, &args);
 	test(length_list_unsafe(pos) == 2, "lambda_tablevalue_aux2");
-	getnth(pos, 0, &check);
+	getnth_abort(pos, 0, &check);
 	test(eval_tablevalue_p(check), "lambda_tablevalue_aux3");
 	GetCons(args, &pos, &args);
-	getnth(pos, 0, &check);
+	getnth_abort(pos, 0, &check);
 	test(eval_tablevalue_p(check), "lambda_tablevalue_aux4");
 
 	free_eval_stack(ptr);
@@ -3450,9 +3450,9 @@ static int test_lambda_tablevalue(void)
 	GetEvalParse(pos, 0, &str.args); /* args */
 	lambda_init(ptr, &str);
 	lambda_tablevalue(local, &str);
-	getnth(str.args, 2, &pos); /* aux */
+	getnth_abort(str.args, 2, &pos); /* aux */
 	test(eval_tablevalue_p(pos), "lambda_tablevalue1");
-	getnth(str.args, 4, &pos); /* allow-other-keys */
+	getnth_abort(str.args, 4, &pos); /* allow-other-keys */
 	test(pos == T, "lambda_tablevalue2");
 
 	parse_eval_string(&pos, "(lambda ())");
@@ -3490,7 +3490,7 @@ static int test_type_ordinary_var(void)
 	lambda_init(ptr, &str);
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 	lambda_tablevalue(local, &str);
-	getnth(str.args, 0, &args); /* var */
+	getnth_abort(str.args, 0, &args); /* var */
 	type_ordinary_var(local, args, &args);
 	test(length_list_unsafe(args) == 2, "type_ordinary_var1");
 	GetCons(args, &pos, &args);
@@ -3533,7 +3533,7 @@ static int test_type_ordinary_opt(void)
 	lambda_init(ptr, &str);
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 	lambda_tablevalue(local, &str);
-	getnth(str.args, 1, &args); /* optional */
+	getnth_abort(str.args, 1, &args); /* optional */
 	type_ordinary_opt(local, args, &args);
 	test(length_list_unsafe(args) == 2, "type_ordinary_opt1");
 	GetCons(args, &pos, &args);
@@ -3591,7 +3591,7 @@ static int test_type_ordinary_key(void)
 	lambda_init(ptr, &str);
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 	lambda_tablevalue(local, &str);
-	getnth(str.args, 3, &args); /* optional */
+	getnth_abort(str.args, 3, &args); /* optional */
 	type_ordinary_key(local, args, Nil, &args);
 	test(length_list_unsafe(args) == 2, "type_ordinary_key1");
 	GetCons(args, &pos, &args);
@@ -3831,7 +3831,7 @@ static int test_lambda_update_var(void)
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 	lambda_tablevalue(local, &str);
 	lambda_declare(local, &str);
-	getnth(str.args, 0, &pos); /* var */
+	getnth_abort(str.args, 0, &pos); /* var */
 	lambda_update_var(&pos, pos);
 	test(! GetStatusDynamic(pos), "lambda_update_var1");
 	test(length_list_unsafe(pos) == 2, "lambda_update_var2");
@@ -3865,7 +3865,7 @@ static int test_lambda_update_opt(void)
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 	lambda_tablevalue(local, &str);
 	lambda_declare(local, &str);
-	getnth(str.args, 1, &pos); /* optional */
+	getnth_abort(str.args, 1, &pos); /* optional */
 	lambda_update_opt(&pos, pos);
 	test(! GetStatusDynamic(pos), "lambda_update_opt1");
 	test(length_list_unsafe(pos) == 2, "lambda_update_opt2");
@@ -3899,7 +3899,7 @@ static int test_lambda_update_key(void)
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 	lambda_tablevalue(local, &str);
 	lambda_declare(local, &str);
-	getnth(str.args, 3, &pos); /* key */
+	getnth_abort(str.args, 3, &pos); /* key */
 	lambda_update_key(&pos, pos);
 	test(! GetStatusDynamic(pos), "lambda_update_key1");
 	test(length_list_unsafe(pos) == 2, "lambda_update_key2");
@@ -3933,7 +3933,7 @@ static int test_lambda_update_aux(void)
 	apply_declare(ptr, str.stack, str.decl, &str.free);
 	lambda_tablevalue(local, &str);
 	lambda_declare(local, &str);
-	getnth(str.args, 5, &pos); /* aux */
+	getnth_abort(str.args, 5, &pos); /* aux */
 	lambda_update_aux(&pos, pos);
 	test(! GetStatusDynamic(pos), "lambda_update_aux1");
 	test(length_list_unsafe(pos) == 2, "lambda_update_aux2");

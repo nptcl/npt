@@ -52,7 +52,7 @@ static void test_open_input_filememory(struct filememory *fm)
 	addr name;
 
 	strvect_char_heap(&name, TESTFILE);
-	result = open_input_filememory(Execute_Thread, fm, name);
+	result = open_input_filememory(Local_Thread, fm, name);
 	if (result)
 		fmte("File open error.", NULL);
 }
@@ -336,7 +336,7 @@ static void test_open_output_filememory(struct filememory *fm)
 	addr name;
 
 	strvect_char_heap(&name, TESTFILE);
-	result = open_output_filememory(Execute_Thread, fm, name, FileOutput_supersede);
+	result = open_output_filememory(Local_Thread, fm, name, FileOutput_supersede);
 	if (result)
 		fmte("File open error.", NULL);
 }

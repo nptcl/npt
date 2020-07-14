@@ -2484,7 +2484,7 @@ static void defun_with_compilation_unit(void)
 /* (defun set-slots (instance slots values) ...) -> t */
 static int syscall_set_slots(Execute ptr, addr var, addr slots, addr values)
 {
-	set_slots_syscode(var, slots, values);
+	Return(set_slots_syscode(var, slots, values));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2519,7 +2519,7 @@ static void defun_set_slots(void)
 /* (defun remove-file (pathname &optional (error t)) ...) -> boolean */
 static int syscall_remove_file(Execute ptr, addr var, addr opt)
 {
-	remove_file_syscode(ptr, var, opt, &var);
+	Return(remove_file_syscode(ptr, var, opt, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2543,7 +2543,7 @@ static void defun_remove_file(void)
 /* (defun remove-directory (pathname &optional (error t)) ...) -> boolean */
 static int syscall_remove_directory(Execute ptr, addr var, addr opt)
 {
-	remove_directory_syscode(ptr, var, opt, &var);
+	Return(remove_directory_syscode(ptr, var, opt, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

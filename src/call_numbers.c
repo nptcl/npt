@@ -20,243 +20,247 @@
 /*
  *  =
  */
-_g int number_equal_common(LocalRoot local, addr left, addr rest)
+_g int number_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	addr right;
 
 	for (; rest != Nil; left = right) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		if (! equal_number(local, left, right))
-			return 0;
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 
 /*
  *  /=
  */
-_g int number_not_equal_common(LocalRoot local, addr left, addr rest)
+_g int number_not_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	addr right, list;
 
 	while (rest != Nil) {
 		for (list = rest; list != Nil; ) {
-			getcons(list, &right, &list);
+			Return_getcons(list, &right, &list);
 			if (equal_number(local, left, right))
-				return 0;
+				return Result(ret, 0);
 		}
-		getcons(rest, &left, &rest);
+		Return_getcons(rest, &left, &rest);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 
 /*
  *  <
  */
-_g int number_less_common(LocalRoot local, addr left, addr rest)
+_g int number_less_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	addr right;
 
 	for (; rest != Nil; left = right) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		if (! less_number(local, left, right))
-			return 0;
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 
 /*
  *  >
  */
-_g int number_greater_common(LocalRoot local, addr left, addr rest)
+_g int number_greater_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	addr right;
 
 	for (; rest != Nil; left = right) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		if (! greater_number(local, left, right))
-			return 0;
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
+
 
 /*
  *  <=
  */
-_g int number_less_equal_common(LocalRoot local, addr left, addr rest)
+_g int number_less_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	addr right;
 
 	for (; rest != Nil; left = right) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		if (! less_equal_number(local, left, right))
-			return 0;
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 
 /*
  *  >=
  */
-_g int number_greater_equal_common(LocalRoot local, addr left, addr rest)
+_g int number_greater_equal_common(LocalRoot local, addr left, addr rest, int *ret)
 {
 	addr right;
 
 	for (; rest != Nil; left = right) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		if (! greater_equal_number(local, left, right))
-			return 0;
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 
 /*
  *  max
  */
-_g void max_common(LocalRoot local, addr left, addr rest, addr *ret)
+_g int max_common(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	addr right;
 
 	while (rest != Nil) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		if (less_number(local, left, right))
 			left = right;
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
 
 /*
  *  min
  */
-_g void min_common(LocalRoot local, addr left, addr rest, addr *ret)
+_g int min_common(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	addr right;
 
 	while (rest != Nil) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		if (greater_number(local, left, right))
 			left = right;
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
 
 /*
  *  +
  */
-_g void plus_common(LocalRoot local, addr rest, addr *ret)
+_g int plus_common(LocalRoot local, addr rest, addr *ret)
 {
 	addr left, right;
 
 	/* nil */
 	if (rest == Nil) {
 		fixnum_heap(ret, 0);
-		return;
+		return 0;
 	}
 
 	/* list */
-	getcons(rest, &left, &rest);
+	Return_getcons(rest, &left, &rest);
 	while (rest != Nil) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		plus_number_heap(local, left, right, &left);
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
 
 /*
  *  -
  */
-_g void minus_common(LocalRoot local, addr left, addr rest, addr *ret)
+_g int minus_common(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	addr right;
 
 	/* nil */
 	if (rest == Nil) {
 		sign_reverse_number_common(left, ret);
-		return;
+		return 0;
 	}
 
 	/* list */
 	while (rest != Nil) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		minus_number_heap(local, left, right, &left);
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
 
 /*
  *  *
  */
-_g void asterisk_common(LocalRoot local, addr rest, addr *ret)
+_g int asterisk_common(LocalRoot local, addr rest, addr *ret)
 {
 	addr left, right;
 
 	/* nil */
 	if (rest == Nil) {
 		fixnum_heap(ret, 1);
-		return;
+		return 0;
 	}
 
 	/* list */
-	getcons(rest, &left, &rest);
+	Return_getcons(rest, &left, &rest);
 	while (rest != Nil) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		multi_number_heap(local, left, right, &left);
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
 
 /*
  *  /
  */
-_g void slash_common(LocalRoot local, addr left, addr rest, addr *ret)
+_g int slash_common(LocalRoot local, addr left, addr rest, addr *ret)
 {
 	addr right;
 
 	/* nil */
 	if (rest == Nil) {
 		inverse_number_heap(local, left, ret);
-		return;
+		return 0;
 	}
 
 	/* list */
 	while (rest != Nil) {
-		getcons(rest, &right, &rest);
+		Return_getcons(rest, &right, &rest);
 		div_number_heap(local, left, right, &left);
 	}
-	*ret = left;
+
+	return Result(ret, left);
 }
 
 
 /*
  *  incf
  */
-static void incf_expand_common(Execute ptr, addr *ret, addr place, addr value, addr env)
+static int incf_expand_common(Execute ptr, addr *ret, addr place, addr value, addr env)
 {
 	addr a, b, g, w, r;
 	addr c, d, ig, args, leta, declare, ignorable, setq, plus;
 
-	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
-		return;
-	if (! singlep(g)) {
-		fmte("INCF place ~S don't allow a multiple store value.", place, NULL);
-		return;
-	}
+	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	if (! singlep(g))
+		return fmte_("INCF place ~S don't allow a multiple store value.", place, NULL);
 
 	/* (let* ((a1 b1)
 	 *        (a2 b2)
@@ -267,12 +271,12 @@ static void incf_expand_common(Execute ptr, addr *ret, addr place, addr value, a
 	 */
 	args = Nil;
 	for (ig = a; a != Nil; ) {
-		getcons(a, &c, &a);
-		getcons(b, &d, &b);
+		Return_getcons(a, &c, &a);
+		Return_getcons(b, &d, &b);
 		list_heap(&c, c, d, NULL);
 		cons_heap(&args, c, args);
 	}
-	getcar(g, &g);
+	Return_getcar(g, &g);
 	cons_heap(&args, g, args);
 	nreverse(&args, args);
 	/* declare */
@@ -294,44 +298,44 @@ static void incf_expand_common(Execute ptr, addr *ret, addr place, addr value, a
 	/* let* */
 	GetConst(COMMON_LETA, &leta);
 	list_heap(ret, leta, args, declare, setq, w, g, NULL);
+
+	return 0;
 }
 
-_g void incf_common(Execute ptr, addr form, addr env, addr *ret)
+_g int incf_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place, value;
 
-	getcdr(form, &form);
-	if (form == Nil) goto error;
-	getcons(form, &place, &args);
+	Return_getcdr(form, &form);
+	if (! consp_getcons(form, &place, &args))
+		goto error;
 	if (args == Nil) {
 		value = Unbound;
 	}
 	else {
-		getcons(args, &value, &args);
-		if (args != Nil) goto error;
+		Return_getcons(args, &value, &args);
+		if (args != Nil)
+			goto error;
 	}
-	incf_expand_common(ptr, ret, place, value, env);
-	return;
+	return incf_expand_common(ptr, ret, place, value, env);
 
 error:
-	fmte("INCF ~S must be (place &optional value) form.", form, NULL);
+	*ret = Nil;
+	return fmte_("INCF ~S must be (place &optional value) form.", form, NULL);
 }
 
 
 /*
  *  decf
  */
-static void decf_expand_common(Execute ptr, addr *ret, addr place, addr value, addr env)
+static int decf_expand_common(Execute ptr, addr *ret, addr place, addr value, addr env)
 {
 	addr a, b, g, w, r;
 	addr c, d, ig, args, leta, declare, ignorable, setq, minus;
 
-	if (get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r))
-		return;
-	if (! singlep(g)) {
-		fmte("DECF place ~S don't allow a multiple store value.", place, NULL);
-		return;
-	}
+	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
+	if (! singlep(g))
+		return fmte_("DECF place ~S don't allow a multiple store value.", place, NULL);
 
 	/* (let* ((a1 b1)
 	 *        (a2 b2)
@@ -342,12 +346,12 @@ static void decf_expand_common(Execute ptr, addr *ret, addr place, addr value, a
 	 */
 	args = Nil;
 	for (ig = a; a != Nil; ) {
-		getcons(a, &c, &a);
-		getcons(b, &d, &b);
+		Return_getcons(a, &c, &a);
+		Return_getcons(b, &d, &b);
 		list_heap(&c, c, d, NULL);
 		cons_heap(&args, c, args);
 	}
-	getcar(g, &g);
+	Return_getcar(g, &g);
 	cons_heap(&args, g, args);
 	nreverse(&args, args);
 	/* declare */
@@ -369,48 +373,51 @@ static void decf_expand_common(Execute ptr, addr *ret, addr place, addr value, a
 	/* let* */
 	GetConst(COMMON_LETA, &leta);
 	list_heap(ret, leta, args, declare, setq, w, g, NULL);
+
+	return 0;
 }
 
-_g void decf_common(Execute ptr, addr form, addr env, addr *ret)
+_g int decf_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, place, value;
 
-	getcdr(form, &form);
-	if (form == Nil) goto error;
-	getcons(form, &place, &args);
+	Return_getcdr(form, &form);
+	if (! consp_getcons(form, &place, &args))
+		goto error;
 	if (args == Nil) {
 		value = Unbound;
 	}
 	else {
-		getcons(args, &value, &args);
-		if (args != Nil) goto error;
+		Return_getcons(args, &value, &args);
+		if (args != Nil)
+			goto error;
 	}
-	decf_expand_common(ptr, ret, place, value, env);
-	return;
+	return decf_expand_common(ptr, ret, place, value, env);
 
 error:
-	fmte("DECF ~S must be (place &optional value) form.", form, NULL);
+	*ret = Nil;
+	return fmte_("DECF ~S must be (place &optional value) form.", form, NULL);
 }
 
 
 /*
  *  random
  */
-_g void random_common(Execute ptr, addr limit, addr state, addr *ret)
+_g int random_common(Execute ptr, addr limit, addr state, addr *ret)
 {
 	if (state == Unbound) {
 		/* symbol-value *random-state* */
 		GetConst(SPECIAL_RANDOM_STATE, &state);
 		getspecialcheck_local(ptr, state, &state);
 	}
-	random_number_common(ptr->local, limit, state, ret);
+	return random_number_common(ptr->local, limit, state, ret);
 }
 
 
 /*
  *  conjugate
  */
-_g void conjugate_common(addr var, addr *ret)
+_g int conjugate_common(addr var, addr *ret)
 {
 	addr real, imag;
 
@@ -419,14 +426,14 @@ _g void conjugate_common(addr var, addr *ret)
 		GetImagComplex(var, &imag);
 		sign_reverse_real_common(imag, &imag);
 		complex_heap(ret, real, imag);
-		return;
+		return 0;
 	}
-	if (realp(var)) {
-		*ret = var;
-		return;
-	}
-	TypeError(var, NUMBER);
+	if (realp(var))
+		return Result(ret, var);
+
+	/* error */
 	*ret = Nil;
+	return TypeError_(var, NUMBER);
 }
 
 
@@ -468,8 +475,10 @@ _g int parse_integer_common(LocalRoot local,
 
 	string_length(var, &size);
 	Return(keyword_start_end_(size, rest, &start, &end));
-	if (GetKeyArgs(rest, KEYWORD_RADIX, &radix)) fixnum_heap(&radix, 10);
-	if (GetKeyArgs(rest, KEYWORD_JUNK_ALLOWED, &junk)) junk = Nil;
+	if (GetKeyArgs(rest, KEYWORD_RADIX, &radix))
+		fixnum_heap(&radix, 10);
+	if (GetKeyArgs(rest, KEYWORD_JUNK_ALLOWED, &junk))
+		junk = Nil;
 	return parse_integer_clang(local, var, start, end,
 			(unsigned)RefFixnum(radix), junk != Nil, ret1, ret2);
 }

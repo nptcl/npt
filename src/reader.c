@@ -431,9 +431,9 @@ _g int read_from_string(Execute ptr, int *result, addr *ret, addr pos)
 
 	open_input_string_stream(&stream, pos);
 	hold = LocalHold_local_push(ptr, stream);
-	if (read_stream(ptr, stream, result, ret)) return 1;
+	Return(read_stream(ptr, stream, result, ret));
 	localhold_end(hold);
-	close_stream(stream);
+	close_input_string_stream(stream);
 
 	return 0;
 }
@@ -446,7 +446,7 @@ _g int readstring(addr *ret, const char *code)
 	open_input_char_stream(&stream, code);
 	if (read_stream(Execute_Thread, stream, &result, ret))
 		fmte("Cannot catch a system signal.", NULL);
-	close_stream(stream);
+	close_input_string_stream(stream);
 
 	return result;
 }

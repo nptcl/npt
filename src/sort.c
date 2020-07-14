@@ -480,7 +480,7 @@ static int merge_sort_list_sequence(struct sort_struct *str,
 	/* index */
 	s1 = s0 / 2;
 	s2 = s0 - s1;
-	getnthcdr(a, s1, &b);
+	Return(getnthcdr_(a, s1, &b));
 
 	/* memory */
 	check = (str->mem == Nil);
@@ -490,9 +490,9 @@ static int merge_sort_list_sequence(struct sort_struct *str,
 	}
 
 	/* merge-sort */
-	if (merge_sort_list_sequence(str, a, b, s1)) return 1;
-	if (merge_sort_list_sequence(str, b, c, s2)) return 1;
-	if (merge_sort_list_merge_sequence(str, a, s1, b, s2)) return 1;
+	Return(merge_sort_list_sequence(str, a, b, s1));
+	Return(merge_sort_list_sequence(str, b, c, s2));
+	Return(merge_sort_list_merge_sequence(str, a, s1, b, s2));
 
 	/* rollback */
 	if (check) {

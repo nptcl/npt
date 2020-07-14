@@ -93,8 +93,10 @@ static int random_insertbuffer(LocalRoot local, struct random_state *state, addr
 			index = size - i - 1;
 			v1 = data[index];
 			v2 = random_full_bigtype(state);
-			if (v1 < v2) return 1;
-			if (v1 > v2) goto tail;
+			if (v1 < v2)
+				return 1;
+			if (v1 > v2)
+				goto tail;
 		}
 		return 0;
 	}
@@ -187,7 +189,7 @@ static void random_long_common(struct random_state *state, addr pos, addr *ret)
 /*
  *  common
  */
-_g void random_number_common(LocalRoot local, addr pos, addr state, addr *ret)
+_g int random_number_common(LocalRoot local, addr pos, addr state, addr *ret)
 {
 	struct random_state *ptr;
 
@@ -215,9 +217,11 @@ _g void random_number_common(LocalRoot local, addr pos, addr state, addr *ret)
 			break;
 
 		default:
-			fmte("The random number ~S must be an integer or float.", pos, NULL);
-			*ret = 0;
-			break;
+			*ret = Nil;
+			return fmte_("The random number ~S "
+					"must be an integer or float.", pos, NULL);
 	}
+
+	return 0;
 }
 

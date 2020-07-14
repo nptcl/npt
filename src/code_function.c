@@ -386,7 +386,7 @@ _g int leta_special_code(Execute ptr, CodeValue x)
  */
 #define check_readonly_variable_(x) { \
 	if (GetStatusReadOnly(x)) { \
-		fmte("Cannot set value to the constant variable ~S.", x, NULL); \
+		return fmte_("Cannot set value to the constant variable ~S.", x, NULL); \
 	} \
 }
 
@@ -489,7 +489,7 @@ _g int define_compiler_macro_code(Execute ptr, CodeValue x)
 	List_bind(x.pos, &name, &doc, NULL);
 	getresult_control(ptr, &pos);
 	setdocumentation_function(pos, doc);
-	set_define_compiler_macro(name, pos);
+	Return(set_define_compiler_macro(name, pos));
 	name_callname_heap(name, &name);
 	setresult_control(ptr, name);
 

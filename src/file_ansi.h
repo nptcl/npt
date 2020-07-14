@@ -10,6 +10,7 @@
 #include "encode.h"
 #include "object.h"
 #include "pathname.h"
+#include "strtype.h"
 #include "typedef.h"
 
 #ifdef LISP_ANSI_WINDOWS
@@ -53,10 +54,10 @@ static inline void standard_error_arch(file_type *file)
 	*file = stderr;
 }
 
-static inline int filename_encode(Execute ptr, addr name, const byte **const ret)
+static inline int filename_encode(LocalRoot local, addr name, const byte **const ret)
 {
-	name_pathname_local(ptr, name, &name);
-	if (UTF_buffer_clang(ptr->local, &name, name)) {
+	Check(! stringp(name), "name error");
+	if (UTF_buffer_clang(local, &name, name)) {
 		Debug("UTF_buffer_clang error");
 		return 1;
 	}
@@ -99,17 +100,15 @@ error:
 	return 1;
 }
 
-static inline int open_input_arch(Execute ptr, file_type *ret, addr name)
+static inline int open_input_arch(LocalRoot local, file_type *ret, addr name)
 {
 	int result;
-	LocalRoot local;
 	LocalStack stack;
 	const byte *clang;
 
 	result = 0;
-	local = ptr->local;
 	push_local(local, &stack);
-	if (filename_encode(ptr, name, &clang)) {
+	if (filename_encode(local, name, &clang)) {
 		result = 2;
 		goto finish;
 	}
@@ -154,18 +153,16 @@ static inline int open_output_chartype(file_type *ret,
 	return 0;
 }
 
-static inline int open_output_arch(Execute ptr, file_type *ret,
+static inline int open_output_arch(LocalRoot local, file_type *ret,
 		addr name, enum FileOutput mode)
 {
 	int result;
-	LocalRoot local;
 	LocalStack stack;
 	const byte *clang;
 
 	result = 0;
-	local = ptr->local;
 	push_local(local, &stack);
-	if (filename_encode(ptr, name, &clang)) {
+	if (filename_encode(local, name, &clang)) {
 		result = 2;
 		goto finish;
 	}
@@ -201,18 +198,16 @@ static inline int open_io_chartype(file_type *ret,
 	return 0;
 }
 
-static inline int open_io_arch(Execute ptr, file_type *ret,
+static inline int open_io_arch(LocalRoot local, file_type *ret,
 		addr name, enum FileOutput mode)
 {
 	int result;
-	LocalRoot local;
 	LocalStack stack;
 	const byte *utf8;
 
 	result = 0;
-	local = ptr->local;
 	push_local(local, &stack);
-	if (filename_encode(ptr, name, &utf8)) {
+	if (filename_encode(local, name, &utf8)) {
 		result = 2;
 		goto finish;
 	}

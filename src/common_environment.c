@@ -83,14 +83,22 @@ static int function_encode_universal_time(Execute ptr, addr rest)
 {
 	addr s, mi, h, d, m, y, z;
 
-	if (! consp_getcons(rest, &s, &rest)) goto error;
-	if (! consp_getcons(rest, &mi, &rest)) goto error;
-	if (! consp_getcons(rest, &h, &rest)) goto error;
-	if (! consp_getcons(rest, &d, &rest)) goto error;
-	if (! consp_getcons(rest, &m, &rest)) goto error;
-	if (! consp_getcons(rest, &y, &rest)) goto error;
-	if (! consp_getcons(rest, &z, &rest)) z = Unbound;
-	if (consp(rest)) goto error;
+	if (! consp_getcons(rest, &s, &rest))
+		goto error;
+	if (! consp_getcons(rest, &mi, &rest))
+		goto error;
+	if (! consp_getcons(rest, &h, &rest))
+		goto error;
+	if (! consp_getcons(rest, &d, &rest))
+		goto error;
+	if (! consp_getcons(rest, &m, &rest))
+		goto error;
+	if (! consp_getcons(rest, &y, &rest))
+		goto error;
+	if (! consp_getcons(rest, &z, &rest))
+		z = Unbound;
+	if (consp(rest))
+		goto error;
 	encode_universal_time_common(ptr->local, &s, s, mi, h, d, m, y, z);
 	setresult_control(ptr, s);
 	return 0;
@@ -420,7 +428,7 @@ static void defmacro_step(void)
 /* (defmacro time (form) ...) -> result) */
 static int function_time(Execute ptr, addr form, addr env)
 {
-	time_common(form, env, &form);
+	Return(time_common(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -545,7 +553,7 @@ static void defun_disassemble(void)
  */
 static int function_room(Execute ptr, addr var)
 {
-	room_common(ptr, var);
+	Return(room_common(ptr, var));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -651,7 +659,7 @@ static void defun_inspect(void)
 /* (defun dribble (&optional pathname) ...) -> null */
 static int function_dribble(Execute ptr, addr var)
 {
-	dribble_common(ptr, (var == Unbound)? Nil: var);
+	Return(dribble_common(ptr, (var == Unbound)? Nil: var));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -741,7 +749,7 @@ static int function_short_site_name(Execute ptr)
 {
 	addr pos;
 
-	short_site_name_common(&pos);
+	Return(short_site_name_common(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -768,7 +776,7 @@ static int function_long_site_name(Execute ptr)
 {
 	addr pos;
 
-	long_site_name_common(&pos);
+	Return(long_site_name_common(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -795,7 +803,7 @@ static int function_machine_instance(Execute ptr)
 {
 	addr pos;
 
-	machine_instance_common(&pos);
+	Return(machine_instance_common(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -822,7 +830,7 @@ static int function_machine_type(Execute ptr)
 {
 	addr pos;
 
-	machine_type_common(&pos);
+	Return(machine_type_common(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -849,7 +857,7 @@ static int function_machine_version(Execute ptr)
 {
 	addr pos;
 
-	machine_version_common(&pos);
+	Return(machine_version_common(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -876,7 +884,7 @@ static int function_software_type(Execute ptr)
 {
 	addr pos;
 
-	software_type_common(&pos);
+	Return(software_type_common(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;
@@ -903,7 +911,7 @@ static int function_software_version(Execute ptr)
 {
 	addr pos;
 
-	software_version_common(&pos);
+	Return(software_version_common(&pos));
 	setresult_control(ptr, pos);
 
 	return 0;

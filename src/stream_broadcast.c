@@ -17,7 +17,8 @@ _g void open_broadcast_stream(addr *stream, addr list)
 		TypeError(list, LIST);
 	stream_heap(&pos, StreamType_BroadCast, 0);
 	SetInfoStream(pos, list);
-	force_open_stream(pos, stream);
+	force_open_stream(pos);
+	*stream = pos;
 }
 
 _g void push_broadcast_stream(addr stream, addr output)

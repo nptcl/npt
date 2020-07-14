@@ -169,7 +169,7 @@ static void save_core_stream(Execute ptr, struct filememory *fm)
 
 	GetConst(SYSTEM_SAVECORE_VALUE, &pos);
 	GetValueSymbol(pos, &pos);
-	if (open_output_filememory(ptr, fm, pos, FileOutput_supersede))
+	if (open_output_filememory(ptr->local, fm, pos, FileOutput_supersede))
 		fmte("file open error.", NULL);
 }
 

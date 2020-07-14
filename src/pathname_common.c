@@ -752,18 +752,14 @@ _g int load_logical_pathname_translations_common(Execute ptr, addr host, int *re
 	pathname_heap(&file, Nil, Nil, Nil, host, Nil);
 	merge_pathnames_clang(ptr, host, defaults, Unbound, &file);
 	/* load */
-	probe_file_files(ptr, &x, file);
-	if (x != T) {
-		/* host file is not exist */
-		*ret = 0;
-		return 0;
-	}
+	Return(probe_file_files_(ptr, &x, file));
+	/* host file is not exist */
+	if (x != T)
+		return Result(ret, 0);
 	/* read file */
 	Return(readlist_input(ptr, file, &x));
 	Return(set_logical_pathname_translations(ptr, host, x));
-	*ret = 1;
-
-	return 0;
+	return Result(ret, 1);
 }
 
 

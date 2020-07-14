@@ -1431,7 +1431,7 @@ static void defun_lista(void)
 /* (defun list-length (list) ...) -> (or index null) */
 static int function_list_length(Execute ptr, addr list)
 {
-	list_length_common(list, &list);
+	Return(list_length_common(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -1492,7 +1492,7 @@ static void defun_listp(void)
  */
 static int function_make_list(Execute ptr, addr var, addr rest)
 {
-	make_list_common(var, rest, &var);
+	Return(make_list_common(var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1581,7 +1581,7 @@ static void defmacro_pop(void)
  */
 static int function_nth(Execute ptr, addr index, addr list)
 {
-	nth_common(index, list, &list);
+	Return(nth_common(index, list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -1608,7 +1608,7 @@ static void defun_nth(void)
  */
 static int function_setf_nth(Execute ptr, addr value, addr index, addr list)
 {
-	setf_nth_common(value, index, list);
+	Return(setf_nth_common(value, index, list));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -1644,7 +1644,7 @@ static void defun_setf_nth(void)
 /* (defun nthcdr (index list) ...) -> object */
 static int function_nthcdr(Execute ptr, addr index, addr list)
 {
-	nthcdr_common(index, list, &list);
+	Return(nthcdr_common(index, list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -1960,7 +1960,7 @@ static void defun_null(void)
  */
 static int function_nconc(Execute ptr, addr list)
 {
-	nconc_common(list, &list);
+	Return(nconc_common(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -1987,7 +1987,7 @@ static void defun_nconc(void)
  */
 static int function_append(Execute ptr, addr list)
 {
-	append_common(list, &list);
+	Return(append_common(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2015,7 +2015,7 @@ static void defun_append(void)
  */
 static int function_revappend(Execute ptr, addr list, addr tail)
 {
-	revappend_common(list, tail, &list);
+	Return(revappend_common(list, tail, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2043,7 +2043,7 @@ static void defun_revappend(void)
  */
 static int function_nreconc(Execute ptr, addr list, addr tail)
 {
-	nreconc_common(list, tail, &list);
+	Return(nreconc_common(list, tail, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2069,7 +2069,7 @@ static void defun_nreconc(void)
  */
 static int function_butlast(Execute ptr, addr list, addr index)
 {
-	butlast_common(list, index, &list);
+	Return(butlast_common(list, index, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2095,7 +2095,7 @@ static void defun_butlast(void)
  */
 static int function_nbutlast(Execute ptr, addr list, addr index)
 {
-	nbutlast_common(list, index, &list);
+	Return(nbutlast_common(list, index, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2122,7 +2122,7 @@ static void defun_nbutlast(void)
  */
 static int function_last(Execute ptr, addr list, addr index)
 {
-	last_common(list, index, &list);
+	Return(last_common(list, index, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2347,7 +2347,7 @@ static void defun_assoc_if_not(void)
 /* (defun copy-alist (list) ...) -> list */
 static int function_copy_alist(Execute ptr, addr list)
 {
-	copy_alist_common(list, &list);
+	Return(copy_alist_common(list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2374,7 +2374,7 @@ static void defun_copy_alist(void)
  */
 static int function_pairlis(Execute ptr, addr keys, addr data, addr list)
 {
-	pairlis_common(keys, data, list, &list);
+	Return(pairlis_common(keys, data, list, &list));
 	setresult_control(ptr, list);
 	return 0;
 }
@@ -2492,7 +2492,7 @@ static int function_get_properties(Execute ptr, addr plist, addr indicator)
 {
 	addr key, value, list;
 
-	get_properties_common(plist, indicator, &key, &value, &list);
+	Return(get_properties_common(plist, indicator, &key, &value, &list));
 	setvalues_control(ptr, key, value, list, NULL);
 
 	return 0;

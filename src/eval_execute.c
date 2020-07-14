@@ -8,7 +8,7 @@
 #include "control_object.h"
 #include "execute.h"
 #include "execute_values.h"
-#include "file.h"
+#include "file_open.h"
 #include "files.h"
 #include "hold.h"
 #include "make_load_form.h"
@@ -356,7 +356,7 @@ static int eval_load_fasl_p(addr file)
 static int eval_load_push(Execute ptr, addr file, int exist, int binary,
 		int *ret, addr *rcontrol, addr *rstream)
 {
-	int closep, check;
+	int closep;
 	addr stream;
 
 	/* stream */
@@ -366,11 +366,13 @@ static int eval_load_push(Execute ptr, addr file, int exist, int binary,
 		closep = 0;
 	}
 	else {
-		if (binary)
-			check = open_input_binary_stream(ptr, &stream, file);
-		else
-			check = open_input_stream(ptr, &stream, file);
-		if (check) {
+		if (binary) {
+			Return(open_input_binary_stream_(ptr, &stream, file));
+		}
+		else {
+			Return(open_input_stream_(ptr, &stream, file));
+		}
+		if (stream == NULL) {
 			if (exist)
 				simple_file_error_stdarg(file, "Cannot open file ~S.", file, NULL);
 			return Result(ret, 0);
@@ -413,47 +415,39 @@ static int eval_load_lisp(Execute ptr, int *ret, addr file, int exist)
 	return Result(ret, 1);
 }
 
-static void eval_load_check_type(Execute ptr, addr file, addr *ret)
+static int eval_load_check_type(Execute ptr, addr file, addr *ret)
 {
 	addr check;
 
 	GetTypePathname(file, &check);
-	if (! stringp(check)) {
-		*ret = file;
-		return;
-	}
+	if (! stringp(check))
+		return Result(ret, file);
 
 	/* *. */
-	probe_file_files(ptr, &check, file);
-	if (check != Nil) {
-		*ret = file;
-		return;
-	}
+	Return(probe_file_files_(ptr, &check, file));
+	if (check != Nil)
+		return Result(ret, file);
 	copy_pathname_heap(&file, file);
 
 	/* *.fasl */
 	strvect_char_heap(&check, "fasl");
 	SetTypePathname(file, check);
-	probe_file_files(ptr, &check, file);
-	if (check != Nil) {
-		*ret = file;
-		return;
-	}
+	Return(probe_file_files_(ptr, &check, file));
+	if (check != Nil)
+		return Result(ret, file);
 
 	/* *.lisp */
 	strvect_char_heap(&check, "lisp");
 	SetTypePathname(file, check);
-	probe_file_files(ptr, &check, file);
-	if (check != Nil) {
-		*ret = file;
-		return;
-	}
+	Return(probe_file_files_(ptr, &check, file));
+	if (check != Nil)
+		return Result(ret, file);
 
 	/* do nothing */
-	*ret = file;
+	return Result(ret, file);
 }
 
-static void eval_load_check(
+static int eval_load_check(
 		Execute ptr, addr file, addr verbose, addr print, addr external,
 		constindex file_pathname,
 		constindex file_truename,
@@ -467,11 +461,13 @@ static void eval_load_check(
 	if (! streamp(file)) {
 		pathname_designer_heap(ptr, file, &file);
 		if (wild_pathname_boolean(file, Nil))
-			file_error(file);
+			return call_simple_file_error_va_(ptr, file,
+					"LOAD don't allow the wildcard filename ~S.", file, NULL);
 	}
 	/* type */
-	if (! streamp(file))
-		eval_load_check_type(ptr, file, &file);
+	if (! streamp(file)) {
+		Return(eval_load_check_type(ptr, file, &file));
+	}
 	/* load-pathname */
 	GetConstant(file_pathname, &symbol);
 	if (streamp(file)) {
@@ -489,7 +485,7 @@ static void eval_load_check(
 	/* load-truename */
 	if (value != Nil) {
 		GetConstant(file_truename, &symbol);
-		truename_files(ptr, value, &truename, 0);
+		Return(truename_files_(ptr, value, &truename, 0));
 		pushspecial_control(ptr, symbol, truename);
 	}
 	/* package */
@@ -516,19 +512,19 @@ static void eval_load_check(
 		pushspecial_control(ptr, symbol, external);
 	}
 	/* result */
-	*ret = file;
+	return Result(ret, file);
 }
 
 static int eval_load_file(Execute ptr, int *ret,
 		addr file, addr verbose, addr print, int exist,
 		addr external)
 {
-	eval_load_check(ptr, file, verbose, print, external,
+	Return(eval_load_check(ptr, file, verbose, print, external,
 			CONSTANT_SPECIAL_LOAD_PATHNAME,
 			CONSTANT_SPECIAL_LOAD_TRUENAME,
 			CONSTANT_SPECIAL_LOAD_VERBOSE,
 			CONSTANT_SPECIAL_LOAD_PRINT,
-			&file);
+			&file));
 	if (eval_load_fasl_p(file))
 		return eval_load_fasl(ptr, ret, file, exist);
 	else
@@ -584,12 +580,12 @@ static int compile_load_file(
 {
 	int check;
 
-	eval_load_check(ptr, file, verbose, print, external,
+	Return(eval_load_check(ptr, file, verbose, print, external,
 			CONSTANT_SPECIAL_COMPILE_FILE_PATHNAME,
 			CONSTANT_SPECIAL_COMPILE_FILE_TRUENAME,
 			CONSTANT_SPECIAL_COMPILE_VERBOSE,
 			CONSTANT_SPECIAL_COMPILE_PRINT,
-			&file);
+			&file));
 	return compile_load_lisp(ptr, &check, file, 1);
 }
 

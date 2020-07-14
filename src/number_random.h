@@ -3,7 +3,7 @@
 
 #include "typedef.h"
 
-_g void random_number_common(LocalRoot local, addr limit, addr state, addr *ret);
+_g int random_number_common(LocalRoot local, addr limit, addr state, addr *ret);
 
 #endif
 

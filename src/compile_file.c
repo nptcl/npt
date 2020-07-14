@@ -7,7 +7,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "eval_execute.h"
-#include "file.h"
+#include "file_open.h"
 #include "files.h"
 #include "function.h"
 #include "hold.h"
@@ -88,7 +88,7 @@ static int compile_file_execute(Execute ptr,
 
 	/* compile */
 	Return(compile_file_output(ptr, input, output, rest));
-	truename_files(ptr, output, ret, 0);
+	Return(truename_files_(ptr, output, ret, 0));
 
 	return 0;
 }
@@ -96,38 +96,36 @@ static int compile_file_execute(Execute ptr,
 static int compile_file_output_stream(Execute ptr,
 		addr input, addr output, addr rest, addr *ret)
 {
-	addr control;
+	addr control, stream;
 
 	if (streamp(output))
 		return compile_file_output_stream(ptr, input, output, rest, ret);
 
 	/* open input */
 	push_new_control(ptr, &control);
-	if (open_output_binary_stream(ptr, &output, output, FileOutput_supersede)) {
-		fmte("Cannot open the output file ~S.", output, NULL);
-		return Result(ret, Nil);
-	}
-	push_close_stream(ptr, input);
-	Return(compile_file_execute(ptr, input, output, rest, ret));
+	Return(open_output_binary_stream_(ptr, &stream, output, FileOutput_supersede));
+	if (stream == NULL)
+		return fmte_("Cannot open the output file ~S.", output, NULL);
+	push_close_stream(ptr, stream);
+	Return(compile_file_execute(ptr, input, stream, rest, ret));
 	return free_control_(ptr, control);
 }
 
 static int compile_file_input_stream(Execute ptr,
 		addr input, addr output, addr rest, addr *ret)
 {
-	addr control;
+	addr control, stream;
 
 	if (streamp(input))
 		return compile_file_output_stream(ptr, input, output, rest, ret);
 
 	/* open input */
 	push_new_control(ptr, &control);
-	if (open_input_stream(ptr, &input, input)) {
-		fmte("Cannot open the input file ~S.", input, NULL);
-		return Result(ret, Nil);
-	}
-	push_close_stream(ptr, input);
-	Return(compile_file_output_stream(ptr, input, output, rest, ret));
+	Return(open_input_stream_(ptr, &stream, input));
+	if (stream == NULL)
+		return fmte_("Cannot open the input file ~S.", input, NULL);
+	push_close_stream(ptr, stream);
+	Return(compile_file_output_stream(ptr, stream, output, rest, ret));
 	return free_control_(ptr, control);
 }
 

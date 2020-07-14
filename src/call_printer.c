@@ -513,7 +513,7 @@ _g int write_to_string_common(Execute ptr, addr var, addr args, addr *ret)
 	write_keyword_common(ptr, args);
 	Return(write_print(ptr, stream, var));
 	string_stream_heap(stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	return free_control_(ptr, control);
 }
@@ -529,7 +529,7 @@ _g int prin1_to_string_common(Execute ptr, addr var, addr *ret)
 	open_output_string_stream(&stream, 0);
 	Return(prin1_print(ptr, stream, var));
 	string_stream_heap(stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	return 0;
 }
@@ -545,7 +545,7 @@ _g int princ_to_string_common(Execute ptr, addr var, addr *ret)
 	open_output_string_stream(&stream, 0);
 	Return(princ_print(ptr, stream, var));
 	string_stream_heap(stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	return 0;
 }

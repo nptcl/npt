@@ -103,13 +103,13 @@ static int test_open_input_filememory(void)
 {
 	int result;
 	struct filememory fm;
-	Execute ptr;
+	LocalRoot local;
 	addr name;
 
 	strvect_char_heap(&name, TESTFILE);
-	ptr = Execute_Thread;
+	local = Local_Thread;
 	pressfile();
-	result = open_input_filememory(ptr, &fm, name);
+	result = open_input_filememory(local, &fm, name);
 	test(result == 0, "open_input_filememory1");
 	test(fm.direct == filememory_input, "open_input_filememory2");
 
@@ -120,13 +120,13 @@ static int test_open_output_filememory(void)
 {
 	int result;
 	struct filememory fm;
-	Execute ptr;
+	LocalRoot local;
 	addr name;
 
 	strvect_char_heap(&name, TESTFILE);
-	ptr = Execute_Thread;
+	local = Local_Thread;
 	pressfile();
-	result = open_output_filememory(ptr, &fm, name, FileOutput_supersede);
+	result = open_output_filememory(local, &fm, name, FileOutput_supersede);
 	test(result == 0, "open_output_filememory1");
 	test(fm.direct == filememory_output, "open_output_filememory2");
 
@@ -137,21 +137,21 @@ static int test_close_filememory(void)
 {
 	int result;
 	struct filememory fm;
-	Execute ptr;
+	LocalRoot local;
 	addr name;
 
 	strvect_char_heap(&name, TESTFILE);
-	ptr = Execute_Thread;
+	local = Local_Thread;
 
 	pressfile();
-	result = open_input_filememory(ptr, &fm, name);
+	result = open_input_filememory(local, &fm, name);
 	test(result == 0, "close_filememory1");
 	result = close_filememory(&fm);
 	test(result == 0, "close_filememory2");
 	test(fm.mode == filememory_close, "close_filememory3");
 
 	pressfile();
-	result = open_output_filememory(ptr, &fm, name, FileOutput_supersede);
+	result = open_output_filememory(local, &fm, name, FileOutput_supersede);
 	test(result == 0, "close_filememory4");
 	result = close_filememory(&fm);
 	test(result == 0, "close_filememory5");
@@ -164,7 +164,7 @@ static int openinput(struct filememory *fm)
 {
 	addr name;
 	strvect_char_heap(&name, TESTFILE);
-	return open_input_filememory(Execute_Thread, fm, name);
+	return open_input_filememory(Local_Thread, fm, name);
 }
 
 static int writetest(const void *buffer, size_t size)
@@ -219,7 +219,7 @@ static int openoutput(struct filememory *fm)
 {
 	addr name;
 	strvect_char_heap(&name, TESTFILE);
-	return open_output_filememory(Execute_Thread, fm, name, FileOutput_supersede);
+	return open_output_filememory(Local_Thread, fm, name, FileOutput_supersede);
 }
 
 static int test_writeforce(void)

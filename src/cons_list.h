@@ -5,14 +5,17 @@
 #include "typedef.h"
 
 /* nth */
+_g void getnth_abort(addr cons, size_t index, addr *ret);
 _g void getnth(addr cons, size_t index, addr *ret);
-_g void getnth_large(addr cons, addr index, addr *ret);
+_g int getnth_(addr cons, size_t index, addr *ret);
+_g int getnth_large(addr cons, addr index, addr *ret);
 _g void getnth_unsafe(addr cons, size_t index, addr *ret);
 _g void getnth_unbound_unsafe(addr cons, size_t index, addr *ret);
-_g void getnthcdr(addr cons, size_t index, addr *ret);
-_g void getnthcdr_large(addr cons, addr index, addr *ret);
+_g int getnthcdr_(addr cons, size_t index, addr *ret);
+_g int getnthcdr_large(addr cons, addr index, addr *ret);
 _g void getnthcdr_unsafe(addr cons, size_t index, addr *ret);
 _g void setnth(addr cons, size_t index, addr value);
+_g int setnth_(addr cons, size_t index, addr value);
 _g void setnth_unsafe(addr cons, size_t index, addr value);
 
 /* length */

@@ -442,6 +442,7 @@
     "pathname.h"
     "file_memory.h"
     "file.h"
+    "file_open.h"
     "files.h"
     "format_typedef.h"
     "format_float.h"
@@ -580,6 +581,7 @@
     "main_init.h"
     "extern.h"
     "extern_init.h"
+    "extern_error.h"
     "extern_control.h"
     "extern_object.h"
     "extern_string.h"
@@ -761,6 +763,7 @@
     ("file_memory.c" :include
      ("file_ansi.h" "file_posix.h" "file_windows.h"))
     "file.c"
+    "file_open.c"
     ("files.c" :include
      ("files_posix.h" "files_windows.h" "files_ansi.h"))
     "format_float.c"
@@ -923,6 +926,7 @@
     "extern.c"
     ("extern_argv.c" :header t)
     "extern_init.c"
+    "extern_error.c"
     "extern_control.c"
     "extern_object.c"
     "extern_string.c"

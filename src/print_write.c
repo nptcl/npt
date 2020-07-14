@@ -2322,7 +2322,7 @@ _g int write_string_heap(Execute ptr, addr *ret, addr pos)
 	open_output_string_stream(&stream, 0);
 	Return(write_print(ptr, stream, pos));
 	string_stream_heap(stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	return free_control_(ptr, control);
 }
@@ -2335,7 +2335,7 @@ _g int write_string_local(Execute ptr, addr *ret, addr pos)
 	open_output_string_stream(&stream, 0);
 	Return(write_print(ptr, stream, pos));
 	string_stream_local(ptr->local, stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	return free_control_(ptr, control);
 }
@@ -2345,10 +2345,9 @@ _g int princ_string_heap(Execute ptr, addr *ret, addr pos)
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	if (princ_print(ptr, stream, pos))
-		return 1;
+	Return(princ_print(ptr, stream, pos));
 	string_stream_heap(stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	return 0;
 }
@@ -2358,10 +2357,9 @@ _g int princ_string_local(Execute ptr, addr *ret, addr pos)
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	if (princ_print(ptr, stream, pos))
-		return 1;
+	Return(princ_print(ptr, stream, pos));
 	string_stream_local(ptr->local, stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	return 0;
 }
@@ -2371,10 +2369,9 @@ _g int prin1_string_heap(Execute ptr, addr *ret, addr pos)
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	if (prin1_print(ptr, stream, pos))
-		return 1;
+	Return(prin1_print(ptr, stream, pos));
 	string_stream_heap(stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	return 0;
 }
@@ -2384,10 +2381,9 @@ _g int prin1_string_local(Execute ptr, addr *ret, addr pos)
 	addr stream;
 
 	open_output_string_stream(&stream, 0);
-	if (prin1_print(ptr, stream, pos))
-		return 1;
+	Return(prin1_print(ptr, stream, pos));
 	string_stream_local(ptr->local, stream, ret);
-	close_stream(stream);
+	close_output_string_stream(stream);
 
 	return 0;
 }

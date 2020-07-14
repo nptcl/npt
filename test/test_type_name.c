@@ -3,7 +3,7 @@
 #include "clos.h"
 #include "common.h"
 #include "declare.h"
-#include "file.h"
+#include "file_open.h"
 #include "degrade.h"
 #include "hashtable.h"
 #include "package.h"
@@ -119,9 +119,9 @@ static int test_type_name_stream(void)
 
 	/* file */
 	strvect_char_heap(&y, "test/empty.file");
-	open_input_stream_error(Execute_Thread, &y, y);
+	open_input_stream_error_(Execute_Thread, &y, y);
 	type_name(&x, y);
-	close_stream(y);
+	close_stream_(y);
 	GetConst(COMMON_FILE_STREAM, &y);
 	test(x == y, "type_name_stream7");
 

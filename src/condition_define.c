@@ -455,6 +455,13 @@ _g void file_error_pathname(addr instance, addr *ret)
 	ClosCheckConst(instance, CLOSNAME_PATHNAME, ret);
 }
 
+_g int call_file_error_(Execute ptr, addr pathname)
+{
+	addr instance;
+	instance_file_error(&instance, pathname);
+	return error_function_(ptr, instance);
+}
+
 /* package_error (error) :package */
 _g void instance_package_error(addr *ret, addr package)
 {
@@ -715,6 +722,14 @@ _g int call_type_error_va_(Execute ptr,
 	return call_simple_type_error_(ptr, control, args, datum, expected);
 }
 
+_g int call_type_error_fill_pointer_(Execute ptr, addr datum)
+{
+	addr expected;
+	GetConst(COMMON_ARRAY, &expected);
+	return call_type_error_va_(ptr, datum, expected,
+			"The vector ~S don't have a fill-pointer.", datum, NULL);
+}
+
 /* unbound_slot (cell_error) :instance :name */
 _g void instance_unbound_slot(addr *ret, addr instance, addr name)
 {
@@ -810,5 +825,25 @@ _g void simple_file_error_stdarg(addr pathname, const char *fmt, ...)
 	va_end(va);
 	copylocal_object(NULL, &pathname, pathname);
 	simple_file_error(pathname, control, args);
+}
+
+_g int call_simple_file_error_(Execute ptr, addr pathname, addr control, addr args)
+{
+	addr instance;
+	instance_simple_file_error(&instance, pathname, control, args);
+	return error_function_(ptr, instance);
+}
+
+_g int call_simple_file_error_va_(Execute ptr, addr pathname, const char *fmt, ...)
+{
+	addr control, args;
+	va_list va;
+
+	strvect_char_heap(&control, fmt);
+	va_start(va, fmt);
+	copylocal_list_stdarg(NULL, &args, va);
+	va_end(va);
+	copylocal_object(NULL, &pathname, pathname);
+	return call_simple_file_error_(ptr, pathname, control, args);
 }
 

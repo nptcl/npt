@@ -2,10 +2,10 @@
 #include "stream_error.h"
 #include "typedef.h"
 
-_g int close_stream_error(addr stream)
+_g int close_stream_error(addr stream, addr *ret)
 {
-	fmte("The stream ~S don't run close function.", stream, NULL);
-	return 1;
+	*ret = Nil;
+	return fmte_("The stream ~S don't run close function.", stream, NULL);
 }
 
 _g int read_binary_stream_error(addr stream, void *ptr, size_t size, size_t *ret)

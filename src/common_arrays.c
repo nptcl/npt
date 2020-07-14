@@ -23,7 +23,7 @@
  */
 static int function_make_array(Execute ptr, addr var, addr rest)
 {
-	make_array_common(ptr, var, rest, &var);
+	Return(make_array_common(ptr, var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -120,7 +120,7 @@ static void defun_make_array(void)
  */
 static int function_adjust_array(Execute ptr, addr pos, addr dim, addr rest)
 {
-	adjust_array_common(ptr, pos, dim, rest, &pos);
+	Return(adjust_array_common(ptr, pos, dim, rest, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -158,7 +158,9 @@ static void defun_adjust_array(void)
 /* (defun adjustable-array-p (array) ...) -> boolean */
 static int function_adjustable_array_p(Execute ptr, addr array)
 {
-	setbool_control(ptr, adjustable_array_p_common(array));
+	int check;
+	Return(adjustable_array_p_common(array, &check));
+	setbool_control(ptr, check);
 	return 0;
 }
 
@@ -181,7 +183,7 @@ static void defun_adjustable_array_p(void)
 /* (defun aref (array &rest args) ...) -> t */
 static int function_aref(Execute ptr, addr var, addr rest)
 {
-	aref_common(var, rest, &var);
+	Return(aref_common(var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -216,7 +218,7 @@ static void defun_aref(void)
 /* (defun (setf aref) (value array &rest args) ...) -> value */
 static int function_setf_aref(Execute ptr, addr value, addr var, addr rest)
 {
-	setf_aref_common(value, var, rest);
+	Return(setf_aref_common(value, var, rest));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -255,7 +257,7 @@ static void defun_setf_aref(void)
  */
 static int function_array_dimension(Execute ptr, addr var, addr axis)
 {
-	array_dimension_common(var, axis, &var);
+	Return(array_dimension_common(var, axis, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -290,7 +292,7 @@ static void defun_array_dimension(void)
 /* (defun array-dimensions (array) ...) -> (integer 0 *) */
 static int function_array_dimensions(Execute ptr, addr var)
 {
-	array_dimensions_common(var, &var);
+	Return(array_dimensions_common(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -314,7 +316,7 @@ static void defun_array_dimensions(void)
 /* (defun array-element-type (array) ...) -> typespec */
 static int function_array_element_type(Execute ptr, addr var)
 {
-	array_element_type_common(var, &var);
+	Return(array_element_type_common(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -349,7 +351,9 @@ static void defun_array_element_type(void)
 /* (defun array-has-fill-pointer-p (array) ...) -> boolean */
 static int function_array_has_fill_pointer_p(Execute ptr, addr var)
 {
-	setbool_control(ptr, array_has_fill_pointer_p_common(var));
+	int check;
+	Return(array_has_fill_pointer_p_common(var, &check));
+	setbool_control(ptr, check);
 	return 0;
 }
 
@@ -373,10 +377,8 @@ static void defun_array_has_fill_pointer_p(void)
 static int function_array_displacement(Execute ptr, addr pos)
 {
 	addr value, offset;
-
-	array_displacement_common(pos, &value, &offset);
+	Return(array_displacement_common(pos, &value, &offset));
 	setvalues_control(ptr, value, offset, NULL);
-
 	return 0;
 }
 
@@ -413,7 +415,9 @@ static void defun_array_displacement(void)
 /* (defun array-in-bounds-p (array &rest args) ...) -> boolean */
 static int function_array_in_bounds_p(Execute ptr, addr array, addr rest)
 {
-	setbool_control(ptr, array_in_bounds_p_common(array, rest));
+	int check;
+	Return(array_in_bounds_p_common(array, rest, &check));
+	setbool_control(ptr, check);
 	return 0;
 }
 
@@ -447,7 +451,7 @@ static void defun_array_in_bounds_p(void)
 /* (defun array-rank (array) ...) -> (intege 0 *) */
 static int function_array_rank(Execute ptr, addr pos)
 {
-	array_rank_common(pos, &pos);
+	Return(array_rank_common(pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -471,7 +475,7 @@ static void defun_array_rank(void)
 /* (defun array-row-major-index (array &rest args) ...) -> index */
 static int function_array_row_major_index(Execute ptr, addr array, addr rest)
 {
-	array_row_major_index_common(array, rest, &array);
+	Return(array_row_major_index_common(array, rest, &array));
 	setresult_control(ptr, array);
 	return 0;
 }
@@ -506,7 +510,7 @@ static void defun_array_row_major_index(void)
 /* (defun array-total-size (array) ...) -> (integer 0 *) */
 static int function_array_total_size(Execute ptr, addr array)
 {
-	array_total_size_common(array, &array);
+	Return(array_total_size_common(array, &array));
 	setresult_control(ptr, array);
 	return 0;
 }
@@ -553,7 +557,7 @@ static void defun_arrayp(void)
 /* (defun fill-pointer (vector) ...) -> index */
 static int function_fill_pointer(Execute ptr, addr array)
 {
-	fill_pointer_common(array, &array);
+	Return(fill_pointer_common(ptr, array, &array));
 	setresult_control(ptr, array);
 	return 0;
 }
@@ -589,7 +593,7 @@ static void defun_fill_pointer(void)
  */
 static int function_setf_fill_pointer(Execute ptr, addr value, addr array)
 {
-	setf_fill_pointer_common(value, array);
+	Return(setf_fill_pointer_common(ptr, value, array));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -624,7 +628,7 @@ static void defun_setf_fill_pointer(void)
 /* (defun row-major-aref (array index) ...) -> t */
 static int function_row_major_aref(Execute ptr, addr array, addr index)
 {
-	row_major_aref_common(array, index, &array);
+	Return(row_major_aref_common(array, index, &array));
 	setresult_control(ptr, array);
 	return 0;
 }
@@ -660,7 +664,7 @@ static void defun_row_major_aref(void)
 static int function_setf_row_major_aref(Execute ptr,
 		addr value, addr array, addr index)
 {
-	setf_row_major_aref_common(value, array, index);
+	Return(setf_row_major_aref_common(value, array, index));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -778,7 +782,7 @@ static void defun_simple_vector_p(void)
 /* (defun svref (vector index) ...) -> t */
 static int function_svref(Execute ptr, addr pos, addr index)
 {
-	svref_common(pos, index, &pos);
+	Return(svref_common(pos, index, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -813,7 +817,7 @@ static void defun_svref(void)
 /* (defun (setf svref) (value vector index) ...) -> t */
 static int function_setf_svref(Execute ptr, addr value, addr pos, addr index)
 {
-	setf_svref_common(value, pos, index);
+	Return(setf_svref_common(value, pos, index));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -1015,7 +1019,7 @@ static void defun_vectorp(void)
 /* (defun bit (bit-array &rest args) ...) -> bit */
 static int function_bit(Execute ptr, addr pos, addr rest)
 {
-	bit_common(pos, rest, &pos);
+	Return(bit_common(pos, rest, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -1078,7 +1082,7 @@ static void defun_sbit(void)
 /* (defun (setf bit) (bit bit-array &rest args) ...) -> bit */
 static int function_setf_bit(Execute ptr, addr value, addr pos, addr rest)
 {
-	setf_bit_common(value, pos, rest);
+	Return(setf_bit_common(value, pos, rest));
 	setresult_control(ptr, value);
 	return 0;
 }

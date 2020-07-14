@@ -1008,23 +1008,27 @@ _g void trace_del_syscode(Execute ptr, addr var, addr *ret)
 
 
 /* set-slots */
-_g void set_slots_syscode(addr var, addr slots, addr values)
+_g int set_slots_syscode(addr var, addr slots, addr values)
 {
-	set_slots_syscall(var, slots, values);
+	return set_slots_syscall(var, slots, values);
 }
 
 
 /* remove-file */
-_g void remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret)
+_g int remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret)
 {
-	*ret = remove_file_common(ptr, var, (opt != Nil))? T: Nil;
+	int check;
+	Return(remove_file_common_(ptr, var, (opt != Nil), &check));
+	return Result(ret, check? T: Nil);
 }
 
 
 /* remove-directory */
-_g void remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret)
+_g int remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret)
 {
-	*ret = remove_directory_common(ptr, var, (opt != Nil))? T: Nil;
+	int check;
+	Return(remove_directory_common_(ptr, var, (opt != Nil), &check));
+	return Result(ret, check? T: Nil);
 }
 
 

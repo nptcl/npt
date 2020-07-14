@@ -12,7 +12,7 @@
 /* (defun directory (pathname &key) ...) -> list */
 static int function_directory(Execute ptr, addr pos)
 {
-	directory_files(ptr, &pos, pos);
+	Return(directory_files_(ptr, &pos, pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -46,7 +46,7 @@ static void defun_directory(void)
 /* (defun probe-file (pathspec) ...) -> truename */
 static int function_probe_file(Execute ptr, addr pos)
 {
-	probe_file_files(ptr, &pos, pos);
+	Return(probe_file_files_(ptr, &pos, pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -77,7 +77,7 @@ static int function_ensure_directories_exist(Execute ptr, addr pos, addr rest)
 {
 	if (GetKeyArgs(rest, KEYWORD_VERBOSE, &rest))
 		rest = Nil;
-	ensure_directories_exist_files(ptr, &pos, &rest, pos, rest != Nil);
+	Return(ensure_directories_exist_files_(ptr, &pos, &rest, pos, rest != Nil));
 	setvalues_control(ptr, pos, rest, NULL);
 
 	return 0;
@@ -118,7 +118,7 @@ static void defun_ensure_directories_exist(void)
 /* (defun truename (pathspec) ...) -> pathname */
 static int function_truename(Execute ptr, addr pos)
 {
-	truename_files(ptr, pos, &pos, 1);
+	Return(truename_files_(ptr, pos, &pos, 1));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -142,7 +142,7 @@ static void defun_truename(void)
 /* (defun file-author (pathspec) ...) -> (or string null) */
 static int function_file_author(Execute ptr, addr pos)
 {
-	file_author_files(ptr, &pos, pos);
+	Return(file_author_files_(ptr, &pos, pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -176,7 +176,7 @@ static void defun_file_author(void)
 /* (defun file-write-date (pathspec) ...) -> (or integer null) */
 static int function_file_write_date(Execute ptr, addr pos)
 {
-	file_write_date_files(ptr, &pos, pos);
+	Return(file_write_date_files_(ptr, &pos, pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -213,7 +213,7 @@ static int function_rename_file(Execute ptr, addr file1, addr file2)
 {
 	addr file3;
 
-	rename_file_files(ptr, &file1, &file2, &file3, file1, file2);
+	Return(rename_file_files_(ptr, &file1, &file2, &file3, file1, file2));
 	setvalues_control(ptr, file1, file2, file3, NULL);
 
 	return 0;
@@ -248,7 +248,7 @@ static void defun_rename_file(void)
 /* (defun delete-file (file) ...) -> (eql t) */
 static int function_delete_file(Execute ptr, addr pos)
 {
-	delete_file_files(ptr, pos);
+	Return(delete_file_files_(ptr, pos));
 	setresult_control(ptr, T);
 	return 0;
 }

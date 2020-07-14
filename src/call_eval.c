@@ -37,122 +37,133 @@ _g int eval_common(Execute ptr, addr var)
 /*
  *  compiler-macro-function
  */
-static void compiler_macro_function_symbol(addr var, addr env, addr *ret)
+static int compiler_macro_function_symbol(addr var, addr env, addr *ret)
 {
 	if (env != Unbound && find_environment(var, env, &env)) {
 		/* compiler-macro-function is shadowed */
-		*ret = Nil;
-		return;
+		return Result(ret, Nil);
 	}
 	GetCallName(var, &var);
 	get_compiler_macro_symbol(var, ret);
+	return 0;
 }
 
-static void compiler_macro_function_setf(addr var, addr env, addr *ret)
+static int compiler_macro_function_setf(addr var, addr env, addr *ret)
 {
 	if (env != Unbound) {
-		fmte("Don't use environment argument ~S "
-				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
 		*ret = Nil;
-		return;
+		return fmte_("Don't use environment argument ~S "
+				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
 	}
 	GetCallName(var, &var);
 	get_setf_compiler_macro_symbol(var, ret);
+	return 0;
 }
 
-_g void compiler_macro_function_common(addr var, addr env, addr *ret)
+_g int compiler_macro_function_common(addr var, addr env, addr *ret)
 {
-	parse_callname_error(&var, var);
+	Return(parse_callname_error_(&var, var));
 	if (symbolp_callname(var))
-		compiler_macro_function_symbol(var, env, ret);
+		return compiler_macro_function_symbol(var, env, ret);
 	else
-		compiler_macro_function_setf(var, env, ret);
+		return compiler_macro_function_setf(var, env, ret);
 }
 
-static void setf_compiler_macro_function_symbol(addr var, addr env, addr value)
+
+/*
+ *  (setf compiler-macro-function)
+ */
+static int setf_compiler_macro_function_symbol(addr var, addr env, addr value)
 {
 	if (env != Unbound && find_environment(var, env, &env)) {
 		/* compiler-macro-function is shadowed */
-		fmte("COMPILER-MACRO-FUNCTION ~S is shadowed in the environment.", var, NULL);
-		return;
+		return fmte_("COMPILER-MACRO-FUNCTION ~S "
+				"is shadowed in the environment.", var, NULL);
 	}
 	GetCallName(var, &var);
 	set_compiler_macro_symbol(var, value);
+	return 0;
 }
 
-static void setf_compiler_macro_function_setf(addr var, addr env, addr value)
+static int setf_compiler_macro_function_setf(addr var, addr env, addr value)
 {
 	if (env != Unbound) {
-		fmte("Don't use environment argument ~S "
+		return fmte_("Don't use environment argument ~S "
 				"in COMPILER-MACRO-FUNCTION setf-form.", env, NULL);
-		return;
 	}
 	GetCallName(var, &var);
 	set_setf_compiler_macro_symbol(var, value);
+	return 0;
 }
 
-_g void setf_compiler_macro_function_common(addr value, addr var, addr env)
+_g int setf_compiler_macro_function_common(addr value, addr var, addr env)
 {
-	if (! callnamep(var))
-		parse_callname_error(&var, var);
+	if (! callnamep(var)) {
+		Return(parse_callname_error_(&var, var));
+	}
 	if (symbolp_callname(var))
-		setf_compiler_macro_function_symbol(var, env, value);
+		return setf_compiler_macro_function_symbol(var, env, value);
 	else
-		setf_compiler_macro_function_setf(var, env, value);
+		return setf_compiler_macro_function_setf(var, env, value);
 }
 
 
 /*
  *  define-compiler-macro
  */
-_g void define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret)
+_g int define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr right, eval, name, args, decl, doc;
 
 	/* (define-compiler-macro . form) */
-	getcdr(form, &right);
-	if (right == Nil)
-		fmte("define-compiler-macro form must have at least a name and body.", NULL);
+	Return_getcdr(form, &right);
+	if (right == Nil) {
+		return fmte_("define-compiler-macro form "
+				"must have at least a name and body.", NULL);
+	}
 	if (! consp(right))
-		fmte("Invalid define-compiler-macro form.", NULL);
+		return fmte_("Invalid define-compiler-macro form.", NULL);
 
 	/* name */
-	getcons(right, &name, &right);
-	parse_callname_error(&name, name);
-	if (right == Nil)
-		fmte("define-compiler-macro form must have at least a name and body.", NULL);
+	Return_getcons(right, &name, &right);
+	Return(parse_callname_error_(&name, name));
+	if (right == Nil) {
+		return fmte_("define-compiler-macro form "
+				"must have at least a name and body.", NULL);
+	}
 	if (! consp(right))
-		fmte("Invalid define-compiler-macro form.", NULL);
+		return fmte_("Invalid define-compiler-macro form.", NULL);
 
 	/* args */
-	getcons(right, &args, &right);
+	Return_getcons(right, &args, &right);
 	if (! IsList(right))
-		fmte("Invalid define-compiler-macro form.", NULL);
+		return fmte_("Invalid define-compiler-macro form.", NULL);
 
 	/* parse */
 	lambda_macro(ptr->local, &args, args, Nil);
-	if (declare_body_documentation(ptr, env, right, &doc, &decl, &right))
-		return;
+	Return(declare_body_documentation(ptr, env, right, &doc, &decl, &right));
 
 	/* (eval::define-compiler-macro name args decl doc body) */
 	GetConst(SYSTEM_DEFINE_COMPILER_MACRO, &eval);
 	list_heap(ret, eval, name, args, decl, doc, right, NULL);
+
+	return 0;
 }
 
-_g void set_define_compiler_macro(addr callname, addr value)
+_g int set_define_compiler_macro(addr callname, addr value)
 {
-	setf_compiler_macro_function_common(value, callname, Unbound);
+	return setf_compiler_macro_function_common(value, callname, Unbound);
 }
 
 
 /*
  *  compile
  */
-static void compile_variable(Execute ptr, addr var, addr opt, addr *ret)
+static int compile_variable(Execute ptr, addr var, addr opt, addr *ret)
 {
 	addr call, check;
 
-	parse_callname_error(&call, var);
+	Return(parse_callname_error_(&call, var));
 	getglobal_callname(call, &check);
 	if (check == Unbound) {
 		if (! symbolp_callname(call))
@@ -161,13 +172,12 @@ static void compile_variable(Execute ptr, addr var, addr opt, addr *ret)
 		if (check == Unbound)
 			goto unbound;
 	}
-	fmtw("This implementation cannot compile a function.", NULL);
-	*ret = var;
-	return;
+	Return(fmtw_("This implementation cannot compile a function.", NULL));
+	return Result(ret, var);
 
 unbound:
-	fmte("The function ~S is unbound.", var, NULL);
 	*ret = Nil;
+	return fmte_("The function ~S is unbound.", var, NULL);
 }
 
 static int compile_lambda_p(addr opt)
@@ -184,20 +194,17 @@ static int compile_lambda_p(addr opt)
 static int compile_lambda(Execute ptr, addr opt, addr *ret)
 {
 	if (functionp(opt)) {
-		fmtw("This implementation cannot compile a function.", NULL);
-		*ret = opt;
-		return 0;
+		Return(fmtw_("This implementation cannot compile a function.", NULL));
+		return Result(ret, opt);
 	}
 	if (compile_lambda_p(opt)) {
-		fmtw("This implementation cannot compile a function.", NULL);
+		Return(fmtw_("This implementation cannot compile a function.", NULL));
 		Return(eval_object(ptr, opt, &opt));
-		*ret = opt;
-		return 0;
+		return Result(ret, opt);
 	}
 
-	fmte("The second argument ~S must be a lambda expression.", opt, NULL);
 	*ret = Nil;
-	return 0;
+	return fmte_("The second argument ~S must be a lambda expression.", opt, NULL);
 }
 
 static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
@@ -205,48 +212,39 @@ static int compile_symbol(Execute ptr, addr var, addr opt, addr *ret)
 	addr call;
 	LocalHold hold;
 
-	parse_callname_error(&call, var);
+	Return(parse_callname_error_(&call, var));
 	if (functionp(opt)) {
-		fmtw("This implementation cannot compile a function.", NULL);
+		Return(fmtw_("This implementation cannot compile a function.", NULL));
 		setglobal_callname(call, opt);
-		*ret = var;
-		return 0;
+		return Result(ret, var);
 	}
 	if (compile_lambda_p(opt)) {
-		fmtw("This implementation cannot compile a function.", NULL);
+		Return(fmtw_("This implementation cannot compile a function.", NULL));
 		hold = LocalHold_local(ptr);
 		localhold_pushva_force(hold, call, opt, NULL);
 		Return(eval_object(ptr, opt, &opt));
 		localhold_end(hold);
 		setglobal_callname(call, opt);
-		*ret = var;
-		return 0;
+		return Result(ret, var);
 	}
 
-	fmte("The second argument ~S must be a lambda expression.", opt, NULL);
 	*ret = Nil;
-	return 0;
+	return fmte_("The second argument ~S must be a lambda expression.", opt, NULL);
 }
 
 static int compile_execute(Execute ptr, addr var, addr opt, addr *ret)
 {
-	if (opt == Unbound) {
-		compile_variable(ptr, var, opt, ret);
-		return 0;
-	}
-	if (var == Nil) {
-		Return(compile_lambda(ptr, opt, ret));
-		return 0;
-	}
-	if (function_name_p(var)) {
-		Return(compile_symbol(ptr, var, opt, ret));
-		return 0;
-	}
+	if (opt == Unbound)
+		return compile_variable(ptr, var, opt, ret);
+	if (var == Nil)
+		return compile_lambda(ptr, opt, ret);
+	if (function_name_p(var))
+		return compile_symbol(ptr, var, opt, ret);
 
 	/* error */
-	fmte("The first argument ~S in COMPILE must be a function-name.", var, NULL);
 	*ret = Nil;
-	return 0;
+	return fmte_("The first argument ~S "
+			"in COMPILE must be a function-name.", var, NULL);
 }
 
 _g int compile_common(Execute ptr, addr var, addr opt,
@@ -383,12 +381,10 @@ _g int define_symbol_macro_common(addr form, addr env, addr *ret)
 	addr cons, symbol, expansion;
 
 	Return_getcdr(form, &cons);
-	if (! consp(cons))
+	if (! consp_getcons(cons, &symbol, &cons))
 		goto error;
-	GetCons(cons, &symbol, &cons);
-	if (! consp(cons))
+	if (! consp_getcons(cons, &expansion, &cons))
 		goto error;
-	GetCons(cons, &expansion, &cons);
 	if (cons != Nil)
 		goto error;
 	if (! symbolp(symbol))
@@ -399,6 +395,7 @@ _g int define_symbol_macro_common(addr form, addr env, addr *ret)
 	return 0;
 
 error:
+	*ret = Nil;
 	return fmte_("define-symbol-macro argument ~S "
 			"must be a (symbol expansion) form.", form, NULL);
 }

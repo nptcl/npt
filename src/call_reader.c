@@ -233,7 +233,7 @@ static int read_from_string_execute_common(Execute ptr, addr string,
 			pos = eof;
 	}
 	getindex_input_stream(stream, &size);
-	close_stream(stream);
+	Return(close_stream_(stream));
 
 	/* result */
 	*ret = pos;

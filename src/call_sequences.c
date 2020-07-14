@@ -26,7 +26,7 @@
 /*
  *  copy-seq
  */
-_g void copy_seq_common(addr var, addr *ret)
+_g int copy_seq_common(addr var, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_NIL:
@@ -53,17 +53,18 @@ _g void copy_seq_common(addr var, addr *ret)
 			break;
 
 		default:
-			TypeError(var, SEQUENCE);
-			*ret = NULL;
-			break;
+			*ret = Nil;
+			return TypeError_(var, SEQUENCE);
 	}
+
+	return 0;
 }
 
 
 /*
  *  fill
  */
-static void list_fill_sequence(addr list, addr item, addr start, addr end)
+static int list_fill_sequence(addr list, addr item, addr start, addr end)
 {
 	size_t index1, index2;
 
@@ -75,18 +76,22 @@ static void list_fill_sequence(addr list, addr item, addr start, addr end)
 		if (end != Nil) {
 			if (index2 <= index1)
 				break;
-			if (list == Nil)
-				fmte(":END ~A must be less than equal to list length.", end, NULL);
+			if (list == Nil) {
+				return fmte_(":END ~A "
+						"must be less than equal to list length.", end, NULL);
+			}
 		}
 		else if (list == Nil) {
 			break;
 		}
 		if (! consp(list))
-			fmte("Don't accept the dotted list ~S.", list, NULL);
+			return fmte_("Don't accept the dotted list ~S.", list, NULL);
 		SetCar(list, item);
 		GetCdr(list, &list);
 		index1++;
 	}
+
+	return 0;
 }
 
 static void vector_fill_sequence(addr pos, addr item, addr start, addr end)
@@ -102,15 +107,14 @@ static void vector_fill_sequence(addr pos, addr item, addr start, addr end)
 		setarray(pos, index1, item);
 }
 
-_g void fill_common(addr var, addr item, addr start, addr end)
+_g int fill_common(addr var, addr item, addr start, addr end)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_NIL:
 			break;
 
 		case LISPTYPE_CONS:
-			list_fill_sequence(var, item, start, end);
-			break;
+			return list_fill_sequence(var, item, start, end);
 
 		case LISPTYPE_VECTOR:
 			vector_fill_sequence(var, item, start, end);
@@ -129,9 +133,10 @@ _g void fill_common(addr var, addr item, addr start, addr end)
 			break;
 
 		default:
-			TypeError(var, SEQUENCE);
-			break;
+			return TypeError_(var, SEQUENCE);
 	}
+
+	return 0;
 }
 
 
@@ -145,46 +150,49 @@ static int list_make_sequence(addr *ret, addr type, size_t size, addr value)
 	size_t i;
 
 	/* type check */
-	if (value == Unbound) value = Nil;
+	if (value == Unbound)
+		value = Nil;
 	decl = LispDecl(type);
 	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST)
-		return 0;
+		return Result(ret, Unbound);
 
 	/* make-sequence */
 	root = Nil;
 	for (i = 0; i < size; i++)
 		cons_heap(&root, value, root);
-	*ret = root;
 
-	return 1;
+	return Result(ret, root);
 }
 
-static void alloc_t_make_sequence(addr *ret, size_t size, addr value)
+static int alloc_t_make_sequence(addr *ret, size_t size, addr value)
 {
 	addr pos;
 	size_t i;
 
-	if (value == Unbound) value = Nil;
+	if (value == Unbound)
+		value = Nil;
 	vector_heap(&pos, size);
 	for (i = 0; i < size; i++)
 		setarray(pos, i, value);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
-static void alloc_bitvector_make_sequence(addr *ret, size_t size, addr value)
+static int alloc_bitvector_make_sequence(addr *ret, size_t size, addr value)
 {
 	int bit;
 
 	if (value == Unbound)
 		bit = 0;
 	else if (bit_getint(value, &bit))
-		TypeError(value, BIT);
+		return TypeError_(value, BIT);
 	bitmemory_unsafe(NULL, &value, size);
 	bitmemory_memset(value, bit);
-	*ret = value;
+
+	return Result(ret, value);
 }
 
-static void alloc_string_make_sequence(addr *ret, size_t size, addr value)
+static int alloc_string_make_sequence(addr *ret, size_t size, addr value)
 {
 	unicode c;
 
@@ -192,16 +200,15 @@ static void alloc_string_make_sequence(addr *ret, size_t size, addr value)
 		c = 0;
 	else if (characterp(value))
 		GetCharacter(value, &c);
-	else {
-		TypeError(value, CHARACTER);
-		return;
-	}
+	else
+		return TypeError_(value, CHARACTER);
 	strvect_heap(&value, size);
 	strvect_setall(value, c);
-	*ret = value;
+
+	return Result(ret, value);
 }
 
-static void vector_upgraded_make_sequence(addr *ret, addr type, size_t size, addr value)
+static int vector_upgraded_make_sequence(addr *ret, addr type, size_t size, addr value)
 {
 	enum ARRAY_TYPE upgraded;
 	int upsize;
@@ -210,60 +217,51 @@ static void vector_upgraded_make_sequence(addr *ret, addr type, size_t size, add
 	upgraded_array_value(type, &upgraded, &upsize);
 	switch (upgraded) {
 		case ARRAY_TYPE_BIT:
-			alloc_bitvector_make_sequence(ret, size, value);
-			break;
+			return alloc_bitvector_make_sequence(ret, size, value);
 
 		case ARRAY_TYPE_CHARACTER:
-			alloc_string_make_sequence(ret, size, value);
-			break;
+			return alloc_string_make_sequence(ret, size, value);
 
 		case ARRAY_TYPE_SIGNED:
 		case ARRAY_TYPE_UNSIGNED:
 			vector_signed(ret, size, upgraded, upsize, value);
-			break;
+			return 0;
 
 		case ARRAY_TYPE_SINGLE_FLOAT:
 		case ARRAY_TYPE_DOUBLE_FLOAT:
 		case ARRAY_TYPE_LONG_FLOAT:
 			vector_float(ret, size, upgraded, value);
-			break;
+			return 0;
 
 		default:
-			alloc_t_make_sequence(ret, size, value);
-			break;
+			return alloc_t_make_sequence(ret, size, value);
 	}
 }
 
 static int vector_make_sequence(addr *ret, addr type, size_t size, addr value)
 {
 	if (LispDecl(type) != LISPDECL_VECTOR)
-		return 0;
+		return Result(ret, Unbound);
 	/* vector size */
 	vector_check_sequence(type, size);
 	/* make-sequence */
-	vector_upgraded_make_sequence(ret, type, size, value);
-
-	return 1;
+	return vector_upgraded_make_sequence(ret, type, size, value);
 }
 
 static int simple_vector_make_sequence(addr *ret, addr type, size_t size, addr value)
 {
 	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
-		return 0;
+		return Result(ret, Unbound);
 	simple_vector_check_sequence(type, size);
-	alloc_t_make_sequence(ret, size, value);
-
-	return 1;
+	return alloc_t_make_sequence(ret, size, value);
 }
 
 static int string_make_sequence(addr *ret, addr type, size_t size, addr value)
 {
 	if (! type_string_p(type))
-		return 0;
+		return Result(ret, Unbound);
 	simple_vector_check_sequence(type, size);
-	alloc_string_make_sequence(ret, size, value);
-
-	return 1;
+	return alloc_string_make_sequence(ret, size, value);
 }
 
 static int array_make_sequence(addr *ret, addr type, size_t size, addr value)
@@ -273,14 +271,12 @@ static int array_make_sequence(addr *ret, addr type, size_t size, addr value)
 	/* type check */
 	decl = LispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
-		return 0;
+		return Result(ret, Unbound);
 
 	/* dimension check */
 	array_check_sequence(type, size);
 	/* make-sequence */
-	vector_upgraded_make_sequence(ret, type, size, value);
-
-	return 1;
+	return vector_upgraded_make_sequence(ret, type, size, value);
 }
 
 static int bitvector_make_sequence(addr *ret, addr type, size_t size, addr value)
@@ -290,43 +286,52 @@ static int bitvector_make_sequence(addr *ret, addr type, size_t size, addr value
 	/* type check */
 	decl = LispDecl(type);
 	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR)
-		return 0;
+		return Result(ret, Unbound);
 
 	/* make-sequence */
 	simple_vector_check_sequence(type, size);
-	alloc_bitvector_make_sequence(ret, size, value);
-
-	return 1;
+	return alloc_bitvector_make_sequence(ret, size, value);
 }
 
-static void sequence_make_sequence(addr *ret, addr type, size_t size, addr value)
+static int sequence_make_sequence(Execute ptr,
+		addr *ret, addr type, size_t size, addr value)
 {
+	addr pos;
+
 	/* list */
-	if (list_make_sequence(ret, type, size, value))
-		return;
+	Return(list_make_sequence(&pos, type, size, value));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* vector */
-	if (vector_make_sequence(ret, type, size, value))
-		return;
+	Return(vector_make_sequence(&pos, type, size, value));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* simple-vector */
-	if (simple_vector_make_sequence(ret, type, size, value))
-		return;
+	Return(simple_vector_make_sequence(&pos, type, size, value));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* string */
-	if (string_make_sequence(ret, type, size, value))
-		return;
+	Return(string_make_sequence(&pos, type, size, value));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* array */
-	if (array_make_sequence(ret, type, size, value))
-		return;
+	Return(array_make_sequence(&pos, type, size, value));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* bitvector */
-	if (bitvector_make_sequence(ret, type, size, value))
-		return;
+	Return(bitvector_make_sequence(&pos, type, size, value));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* error */
-	type_error_stdarg(type, Nil, "Invalid type-specifier ~S.", type, NULL);
+	*ret = Nil;
+	return call_type_error_va_(ptr, type, Nil,
+			"Invalid type-specifier ~S.", type, NULL);
 }
 
 _g int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr rest)
@@ -338,19 +343,18 @@ _g int make_sequence_common(Execute ptr, addr *ret, addr type, addr size, addr r
 	if (GetKeyArgs(rest, KEYWORD_INITIAL_ELEMENT, &element))
 		element = Unbound;
 	if (GetIndex_integer(size, &index))
-		fmte("Too large index ~S.", size, NULL);
+		return fmte_("Too large index ~S.", size, NULL);
 
 	Return(parse_type(ptr, &check, type, Nil));
 	hold = LocalHold_local_push(ptr, check);
 
-	sequence_make_sequence(&rest, check, index, element);
+	Return(sequence_make_sequence(ptr, &rest, check, index, element));
 	localhold_push(hold, rest);
 
 	Return(typep_asterisk_error(ptr, rest, check));
 	localhold_end(hold);
 
-	*ret = rest;
-	return 0;
+	return Result(ret, rest);
 }
 
 
@@ -387,7 +391,7 @@ static void vector_subseq_sequence(addr *ret, addr vector, addr start, addr end)
 	*ret = root;
 }
 
-_g void subseq_common(addr var, addr start, addr end, addr *ret)
+_g int subseq_common(addr var, addr start, addr end, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_NIL:
@@ -412,10 +416,11 @@ _g void subseq_common(addr var, addr start, addr end, addr *ret)
 			break;
 
 		default:
-			TypeError(var, SEQUENCE);
-			*ret = NULL;
-			break;
+			*ret = Nil;
+			return TypeError_(var, SEQUENCE);
 	}
+
+	return 0;
 }
 
 _g void setf_subseq_common(addr root, addr pos, addr start, addr end)
@@ -426,8 +431,10 @@ _g void setf_subseq_common(addr root, addr pos, addr start, addr end)
 	build_sequence_range(&range1, root, start, end);
 	build_sequence_range(&range2, pos, Nil, Nil);
 	for (;;) {
-		if (endp_sequence_range(&range1)) break;
-		if (endp_sequence_range(&range2)) break;
+		if (endp_sequence_range(&range1))
+			break;
+		if (endp_sequence_range(&range2))
+			break;
 		getinplace_sequence_range(&range2, &value);
 		setinplace_sequence_range(NULL, &range1, &value); /* heap */
 		next_sequence_range(&range1);
@@ -447,21 +454,18 @@ static int nil_map_sequence(Execute ptr, int *result, addr *ret,
 	struct sequence_group *group;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_NIL) {
-		*result = 0;
-		return 0;
-	}
+	if (LispDecl(type) != LISPDECL_NIL)
+		return Result(result, 0);
 
 	/* execute */
 	local = ptr->local;
 	group = make_sequence_group_local(local, rest, 1);
 	list_sequence_group_local(local, &list, group);
 	while (set_sequence_group(group, list)) {
-		if (callclang_apply(ptr, &temp, call, list)) return 1;
+		Return(callclang_apply(ptr, &temp, call, list));
 	}
-	*result = 1;
 	*ret = Nil;
-	return 0;
+	return Result(result, 1);
 }
 
 static int list_map_sequence(Execute ptr, int *result, addr *ret,
@@ -475,10 +479,8 @@ static int list_map_sequence(Execute ptr, int *result, addr *ret,
 
 	/* type check */
 	decl = LispDecl(type);
-	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST) {
-		*result = 0;
-		return 0;
-	}
+	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST)
+		return Result(result, 0);
 
 	/* execute */
 	local = ptr->local;
@@ -486,15 +488,14 @@ static int list_map_sequence(Execute ptr, int *result, addr *ret,
 	list_sequence_group_local(local, &list, group);
 	hold = LocalHold_array(ptr, 1);
 	for (root = Nil; set_sequence_group(group, list); ) {
-		if (callclang_apply(ptr, &temp, call, list)) return 1;
+		Return(callclang_apply(ptr, &temp, call, list));
 		cons_heap(&root, temp, root);
 		localhold_set(hold, 0, root);
 	}
 	localhold_end(hold);
 	nreverse(ret, root);
 
-	*result = 1;
-	return 0;
+	return Result(result, 1);
 }
 
 static int vector_bitvector_map_sequence(Execute ptr, addr *ret,
@@ -508,13 +509,12 @@ static int vector_bitvector_map_sequence(Execute ptr, addr *ret,
 	bitmemory_unsafe(NULL, &root, group->callsize);
 	hold = LocalHold_local_push(ptr, root);
 	for (i = 0; set_sequence_group(group, list); i++) {
-		if (callclang_apply(ptr, &value, call, list)) return 1;
+		Return(callclang_apply(ptr, &value, call, list));
 		bitmemory_set(root, i, value);
 	}
 	localhold_end(hold);
-	*ret = root;
 
-	return 0;
+	return Result(ret, root);
 }
 
 static int vector_string_map_sequence(Execute ptr, addr *ret,
@@ -528,13 +528,12 @@ static int vector_string_map_sequence(Execute ptr, addr *ret,
 	strvect_heap(&root, group->callsize);
 	hold = LocalHold_local_push(ptr, root);
 	for (i = 0; set_sequence_group(group, list); i++) {
-		if (callclang_apply(ptr, &value, call, list)) return 1;
+		Return(callclang_apply(ptr, &value, call, list));
 		strvect_set(root, i, value);
 	}
 	localhold_end(hold);
-	*ret = root;
 
-	return 0;
+	return Result(ret, root);
 }
 
 static int vector_signed_map_sequence(Execute ptr, addr *ret,
@@ -548,13 +547,12 @@ static int vector_signed_map_sequence(Execute ptr, addr *ret,
 	vector_signed_uninit(&root, group->callsize, type, bytesize);
 	hold = LocalHold_local_push(ptr, root);
 	for (i = 0; set_sequence_group(group, list); i++) {
-		if (callclang_apply(ptr, &value, call, list)) return 1;
+		Return(callclang_apply(ptr, &value, call, list));
 		array_set(root, i, value);
 	}
 	localhold_end(hold);
-	*ret = root;
 
-	return 0;
+	return Result(ret, root);
 }
 
 static int vector_float_map_sequence(Execute ptr, addr *ret,
@@ -569,13 +567,12 @@ static int vector_float_map_sequence(Execute ptr, addr *ret,
 
 	hold = LocalHold_local_push(ptr, root);
 	for (i = 0; set_sequence_group(group, list); i++) {
-		if (callclang_apply(ptr, &value, call, list)) return 1;
+		Return(callclang_apply(ptr, &value, call, list));
 		array_set(root, i, value);
 	}
 	localhold_end(hold);
-	*ret = root;
 
-	return 0;
+	return Result(ret, root);
 }
 
 static int vector_general_map_sequence(Execute ptr, addr *ret,
@@ -589,13 +586,12 @@ static int vector_general_map_sequence(Execute ptr, addr *ret,
 	vector_heap(&root, group->callsize);
 	hold = LocalHold_local_push(ptr, root);
 	for (i = 0; set_sequence_group(group, list); i++) {
-		if (callclang_apply(ptr, &value, call, list)) return 1;
+		Return(callclang_apply(ptr, &value, call, list));
 		setarray(root, i, value);
 	}
 	localhold_end(hold);
-	*ret = root;
 
-	return 0;
+	return Result(ret, root);
 }
 
 static int vector_upgraded_map_sequence(Execute ptr,
@@ -635,10 +631,8 @@ static int vector_map_sequence(Execute ptr, int *result, addr *ret,
 	size_t size;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_VECTOR) {
-		*result = 0;
-		return 0;
-	}
+	if (LispDecl(type) != LISPDECL_VECTOR)
+		return Result(result, 0);
 
 	/* variable */
 	local = ptr->local;
@@ -649,9 +643,8 @@ static int vector_map_sequence(Execute ptr, int *result, addr *ret,
 	list_sequence_group_local(local, NULL, group);
 
 	/* map */
-	if (vector_upgraded_map_sequence(ptr, ret, type, call, group)) return 1;
-	*result = 1;
-	return 0;
+	Return(vector_upgraded_map_sequence(ptr, ret, type, call, group));
+	return Result(result, 1);
 }
 
 static int simple_vector_map_sequence(Execute ptr, int *result, addr *ret,
@@ -664,10 +657,8 @@ static int simple_vector_map_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR) {
-		*result = 0;
-		return 0;
-	}
+	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
+		return Result(result, 0);
 
 	/* variable */
 	local = ptr->local;
@@ -681,15 +672,12 @@ static int simple_vector_map_sequence(Execute ptr, int *result, addr *ret,
 	vector_heap(&root, size);
 	hold = LocalHold_local_push(ptr, root);
 	for (i = 0; set_sequence_group(group, list); i++) {
-		if (callclang_apply(ptr, &temp, call, list)) return 1;
+		Return(callclang_apply(ptr, &temp, call, list));
 		setarray(root, i, temp);
 	}
 	localhold_end(hold);
-
-	*result = 1;
 	*ret = root;
-
-	return 0;
+	return Result(result, 1);
 }
 
 static int string_map_sequence(Execute ptr, int *result, addr *ret,
@@ -702,10 +690,8 @@ static int string_map_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	if (! type_string_p(type)) {
-		*result = 0;
-		return 0;
-	}
+	if (! type_string_p(type))
+		return Result(result, 0);
 
 	/* variable */
 	local = ptr->local;
@@ -719,14 +705,12 @@ static int string_map_sequence(Execute ptr, int *result, addr *ret,
 	strvect_heap(&root, size);
 	hold = LocalHold_local_push(ptr, root);
 	for (i = 0; set_sequence_group(group, list); i++) {
-		if (callclang_apply(ptr, &temp, call, list)) return 1;
+		Return(callclang_apply(ptr, &temp, call, list));
 		strvect_set(root, i, temp);
 	}
 	localhold_end(hold);
-	*result = 1;
 	*ret = root;
-
-	return 0;
+	return Result(result, 1);
 }
 
 static int array_map_sequence(Execute ptr, int *result, addr *ret,
@@ -739,10 +723,8 @@ static int array_map_sequence(Execute ptr, int *result, addr *ret,
 
 	/* type check */
 	decl = LispDecl(type);
-	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY) {
-		*result = 0;
-		return 0;
-	}
+	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
+		return Result(result, 0);
 
 	/* variable */
 	local = ptr->local;
@@ -753,9 +735,8 @@ static int array_map_sequence(Execute ptr, int *result, addr *ret,
 	list_sequence_group_local(local, NULL, group);
 
 	/* make-sequence */
-	if (vector_upgraded_map_sequence(ptr, ret, type, call, group)) return 1;
-	*result = 1;
-	return 0;
+	Return(vector_upgraded_map_sequence(ptr, ret, type, call, group));
+	return Result(result, 1);
 }
 
 static int bitvector_map_sequence(Execute ptr, int *result, addr *ret,
@@ -770,10 +751,8 @@ static int bitvector_map_sequence(Execute ptr, int *result, addr *ret,
 
 	/* type check */
 	decl = LispDecl(type);
-	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR) {
-		*result = 0;
-		return 0;
-	}
+	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR)
+		return Result(result, 0);
 
 	/* variable */
 	local = ptr->local;
@@ -787,14 +766,12 @@ static int bitvector_map_sequence(Execute ptr, int *result, addr *ret,
 	bitmemory_unsafe(NULL, &root, size);
 	hold = LocalHold_local_push(ptr, root);
 	for (i = 0; set_sequence_group(group, list); i++) {
-		if (callclang_apply(ptr, &temp, call, list)) return 1;
+		Return(callclang_apply(ptr, &temp, call, list));
 		bitmemory_set(root, i, temp);
 	}
 	localhold_end(hold);
-	*result = 1;
 	*ret = root;
-
-	return 0;
+	return Result(result, 1);
 }
 
 static int execute_map_sequence(Execute ptr, addr *ret,
@@ -803,50 +780,43 @@ static int execute_map_sequence(Execute ptr, addr *ret,
 	int check;
 
 	/* nil */
-	if (nil_map_sequence(ptr, &check, ret, type, call, rest))
-		return 1;
+	Return(nil_map_sequence(ptr, &check, ret, type, call, rest));
 	if (check)
 		return 0;
 
 	/* list */
-	if (list_map_sequence(ptr, &check, ret, type, call, rest))
-		return 1;
+	Return(list_map_sequence(ptr, &check, ret, type, call, rest));
 	if (check)
 		return 0;
 
 	/* vector */
-	if (vector_map_sequence(ptr, &check, ret, type, call, rest))
-		return 1;
+	Return(vector_map_sequence(ptr, &check, ret, type, call, rest));
 	if (check)
 		return 0;
 
 	/* simple-vector */
-	if (simple_vector_map_sequence(ptr, &check, ret, type, call, rest))
-		return 1;
+	Return(simple_vector_map_sequence(ptr, &check, ret, type, call, rest));
 	if (check)
 		return 0;
 
 	/* string */
-	if (string_map_sequence(ptr, &check, ret, type, call, rest))
-		return 1;
+	Return(string_map_sequence(ptr, &check, ret, type, call, rest));
 	if (check)
 		return 0;
 
 	/* array */
-	if (array_map_sequence(ptr, &check, ret, type, call, rest))
-		return 1;
+	Return(array_map_sequence(ptr, &check, ret, type, call, rest));
 	if (check)
 		return 0;
 
 	/* bitvector */
-	if (bitvector_map_sequence(ptr, &check, ret, type, call, rest))
-		return 1;
+	Return(bitvector_map_sequence(ptr, &check, ret, type, call, rest));
 	if (check)
 		return 0;
 
 	/* error */
-	type_error_stdarg(type, Nil, "Invalid type-specifier ~S.", type, NULL);
-	return 1;
+	return call_type_error_va_(ptr, type, Nil,
+			"Invalid type-specifier ~S.", type, NULL);
 }
 
 _g int map_common(Execute ptr, addr *ret, addr type, addr call, addr rest)
@@ -865,9 +835,8 @@ _g int map_common(Execute ptr, addr *ret, addr type, addr call, addr rest)
 
 	Return(typep_asterisk_error(ptr, rest, check));
 	localhold_end(hold);
-	*ret = rest;
 
-	return 0;
+	return Result(ret, rest);
 }
 
 
@@ -878,9 +847,11 @@ static void fill_map_into_sequence(addr var, size_t size)
 {
 	struct array_struct *str;
 
-	if (! arrayp(var)) return;
+	if (! arrayp(var))
+		return;
 	str = ArrayInfoStruct(var);
-	if (! str->fillpointer) return;
+	if (! str->fillpointer)
+		return;
 	str->front = size;
 }
 
@@ -902,8 +873,7 @@ static int execute_map_into_sequence(Execute ptr, addr var, addr call, addr rest
 
 	/* map-into */
 	for (i = 0; set_sequence_group(group, list); i++) {
-		if (callclang_apply(ptr, &pos, call, list))
-			return 1;
+		Return(callclang_apply(ptr, &pos, call, list));
 		if (set_sequence_iterator(into, pos))
 			break;
 	}
@@ -921,7 +891,7 @@ _g int map_into_common(Execute ptr, addr var, addr call, addr rest)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	if (execute_map_into_sequence(ptr, var, call, rest)) return 1;
+	Return(execute_map_into_sequence(ptr, var, call, rest));
 	rollback_local(local, stack);
 
 	return 0;
@@ -944,8 +914,8 @@ static int key_reduce_sequence(struct reduce_struct *str, addr *ret, addr value)
 {
 	if (str->key != Nil)
 		return callclang_funcall(str->ptr, ret, str->key, value, NULL);
-	*ret = value;
-	return 0;
+	else
+		return Result(ret, value);
 }
 
 static int throw_reduce_sequence(struct reduce_struct *str, int *result, addr *ret)
@@ -961,30 +931,25 @@ static int throw_reduce_sequence(struct reduce_struct *str, int *result, addr *r
 	/* empty sequence */
 	if (getnext_sequence_range(range, &pos)) {
 		if (value == Unbound) {
-			if (callclang_apply(str->ptr, ret, str->call, Nil))
-				return 1;
+			Return(callclang_apply(str->ptr, ret, str->call, Nil));
 		}
 		else {
 			*ret = value;
 		}
-		*result = 1;
-		return 0;
+		return Result(result, 1);
 	}
 
 	/* single value */
 	if (endp_sequence_range(range) && value == Unbound) {
 		hold = LocalHold_local_push(str->ptr, pos);
-		if (key_reduce_sequence(str, ret, pos))
-			return 1;
+		Return(key_reduce_sequence(str, ret, pos));
 		localhold_end(hold);
-		*result = 1;
-		return 0;
+		return Result(result, 1);
 	}
 
 	/* multiple value */
 	load_sequence_range(range);
-	*result = 0;
-	return 0;
+	return Result(result, 0);
 }
 
 static int value_reduce_sequence(struct reduce_struct *str, addr *ret)
@@ -1004,22 +969,21 @@ static int value_reduce_sequence(struct reduce_struct *str, addr *ret)
 	if (pos1 == Unbound) {
 		getnext_sequence_range(range, &pos1);
 		localhold_set(hold, 0, pos1);
-		if (key_reduce_sequence(str, &pos1, pos1)) return 1;
+		Return(key_reduce_sequence(str, &pos1, pos1));
 	}
 	localhold_set(hold, 0, pos1);
 
 	/* loop */
 	while (! getnext_sequence_range(range, &pos2)) {
 		localhold_set(hold, 1, pos2);
-		if (key_reduce_sequence(str, &pos2, pos2)) return 1;
+		Return(key_reduce_sequence(str, &pos2, pos2));
 		localhold_set(hold, 1, pos2);
-		if (callclang_funcall(ptr, &pos1, call, pos1, pos2, NULL)) return 1;
+		Return(callclang_funcall(ptr, &pos1, call, pos1, pos2, NULL));
 		localhold_set(hold, 0, pos1);
 	}
 	localhold_end(hold);
-	*ret = pos1;
 
-	return 0;
+	return Result(ret, pos1);
 }
 
 static int reverse_vector_reduce_sequence(struct reduce_struct *str, addr *ret)
@@ -1040,30 +1004,28 @@ static int reverse_vector_reduce_sequence(struct reduce_struct *str, addr *ret)
 	if (pos2 == Unbound) {
 		getnext_reverse_sequence_range(range, &pos2);
 		localhold_set(hold, 1, pos2);
-		if (key_reduce_sequence(str, &pos2, pos2)) return 1;
+		Return(key_reduce_sequence(str, &pos2, pos2));
 	}
 	localhold_set(hold, 1, pos2);
 
 	/* loop */
 	while (! getnext_reverse_sequence_range(range, &pos1)) {
 		localhold_set(hold, 0, pos1);
-		if (key_reduce_sequence(str, &pos1, pos1)) return 1;
+		Return(key_reduce_sequence(str, &pos1, pos1));
 		localhold_set(hold, 0, pos1);
-		if (callclang_funcall(ptr, &pos2, call, pos1, pos2, NULL)) return 1;
+		Return(callclang_funcall(ptr, &pos2, call, pos1, pos2, NULL));
 		localhold_set(hold, 1, pos2);
 	}
 	localhold_end(hold);
-	*ret = pos2;
 
-	return 0;
+	return Result(ret, pos2);
 }
 
 static int switch_reduce_sequence(struct reduce_struct *str, addr *ret)
 {
 	int check;
 
-	if (throw_reduce_sequence(str, &check, ret))
-		return 1;
+	Return(throw_reduce_sequence(str, &check, ret));
 	if (check)
 		return 0;
 	else if (str->range.listp)
@@ -1084,7 +1046,7 @@ static int reverse_reduce_sequence(struct reduce_struct *str, addr *ret)
 	local = str->local;
 	push_local(local, &stack);
 	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
-	if (switch_reduce_sequence(str, ret)) return 1;
+	Return(switch_reduce_sequence(str, ret));
 	rollback_local(local, stack);
 
 	return 0;
@@ -1097,11 +1059,16 @@ _g int reduce_common(Execute ptr, addr *ret, addr call, addr pos, addr rest)
 	struct reduce_struct str;
 	struct sequence_range *range;
 
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_INITIAL_VALUE, &value)) value = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_INITIAL_VALUE, &value))
+		value = Unbound;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -1165,19 +1132,16 @@ static int boolean_count_sequence(struct count_struct *str, int *result, addr va
 
 	ptr = str->ptr;
 	if (str->key != Nil) {
-		if (callclang_funcall(ptr, &value, str->key, value, NULL))
-			return 1;
+		Return(callclang_funcall(ptr, &value, str->key, value, NULL));
 	}
 	if (str->single) {
-		if (callclang_funcall(ptr, &value, test, value, NULL))
-			return 1;
+		Return(callclang_funcall(ptr, &value, test, value, NULL));
 	}
 	else if (test == Nil) {
 		value = eql_function(str->item, value)? T: Nil;
 	}
 	else {
-		if (callclang_funcall(ptr, &value, test, str->item, value, NULL))
-			return 1;
+		Return(callclang_funcall(ptr, &value, test, str->item, value, NULL));
 	}
 	if (str->notp)
 		*result = (value == Nil);
@@ -1211,13 +1175,12 @@ static int value_count_sequence(struct count_struct *str, addr *ret)
 	hold = LocalHold_array(str->ptr, 1);
 	while (! call(range, &value)) {
 		localhold_set(hold, 0, value);
-		if (boolean_count_sequence(str, &check, value))
-			return 1;
+		Return(boolean_count_sequence(str, &check, value));
 		if (check)
 			count++;
 	}
 	localhold_end(hold);
-	make_index_integer_alloc(NULL, ret, count);
+	make_index_integer_heap(ret, count);
 
 	return 0;
 }
@@ -1232,7 +1195,7 @@ static int reverse_count_sequence(struct count_struct *str, addr *ret)
 	local = str->local;
 	push_local(local, &stack);
 	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
-	if (value_count_sequence(str, ret)) return 1;
+	Return(value_count_sequence(str, ret));
 	rollback_local(local, stack);
 
 	return 0;
@@ -1245,14 +1208,20 @@ _g int count_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1))
+		test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2))
+		test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		fmte("COUNT don't accept both :test and :test-not parameter.", NULL);
+		return fmte_("COUNT don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -1297,10 +1266,14 @@ static int argument_count_sequence(Execute ptr, addr *ret,
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -1348,13 +1321,10 @@ _g int count_if_not_common(Execute ptr, addr *ret, addr call, addr pos, addr res
  */
 static int key_merge_sequence(Execute ptr, addr *ret, addr key, addr value)
 {
-	if (key != Nil) {
+	if (key != Nil)
 		return callclang_funcall(ptr, ret, key, value, NULL);
-	}
-	else {
-		*ret = value;
-		return 0;
-	}
+	else
+		return Result(ret, value);
 }
 
 static int list_merge_sequence(Execute ptr, int *result, addr *ret,
@@ -1368,10 +1338,8 @@ static int list_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	/* type check */
 	decl = LispDecl(type);
-	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST) {
-		*result = 0;
-		return 0;
-	}
+	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST)
+		return Result(result, 0);
 
 	/* make list */
 	local = ptr->local;
@@ -1389,12 +1357,12 @@ static int list_merge_sequence(Execute ptr, int *result, addr *ret,
 		goto tail1;
 	}
 	localhold_set(hold, 1, b1);
-	if (key_merge_sequence(ptr, &a2, key, a1)) return 1;
+	Return(key_merge_sequence(ptr, &a2, key, a1));
 	localhold_set(hold, 2, a2);
-	if (key_merge_sequence(ptr, &b2, key, b1)) return 1;
+	Return(key_merge_sequence(ptr, &b2, key, b1));
 	localhold_set(hold, 3, b2);
 loop:
-	if (callclang_funcall(ptr, &check, call, a2, b2, NULL)) return 1;
+	Return(callclang_funcall(ptr, &check, call, a2, b2, NULL));
 	if (check != Nil) {
 		cons_heap(&root, a1, root);
 		localhold_set(hold, 4, root);
@@ -1404,7 +1372,7 @@ loop:
 			goto tail2;
 		}
 		localhold_set(hold, 0, a1);
-		if (key_merge_sequence(ptr, &a2, key, a1)) return 1;
+		Return(key_merge_sequence(ptr, &a2, key, a1));
 		localhold_set(hold, 2, a2);
 	}
 	else {
@@ -1416,7 +1384,7 @@ loop:
 			goto tail1;
 		}
 		localhold_set(hold, 1, b1);
-		if (key_merge_sequence(ptr, &b2, key, b1)) return 1;
+		Return(key_merge_sequence(ptr, &b2, key, b1));
 		localhold_set(hold, 3, b2);
 	}
 	goto loop;
@@ -1434,8 +1402,7 @@ tail2:
 result:
 	localhold_end(hold);
 	nreverse(ret, root);
-	*result = 1;
-	return 0;
+	return Result(result, 1);
 }
 
 static int vector_make_merge_sequence(Execute ptr, addr root,
@@ -1458,12 +1425,12 @@ static int vector_make_merge_sequence(Execute ptr, addr root,
 		goto tail1;
 	}
 	localhold_set(hold, 1, b1);
-	if (key_merge_sequence(ptr, &a2, key, a1)) return 1;
+	Return(key_merge_sequence(ptr, &a2, key, a1));
 	localhold_set(hold, 2, a2);
-	if (key_merge_sequence(ptr, &b2, key, b1)) return 1;
+	Return(key_merge_sequence(ptr, &b2, key, b1));
 	localhold_set(hold, 3, b2);
 loop:
-	if (callclang_funcall(ptr, &check, call, a2, b2, NULL)) return 1;
+	Return(callclang_funcall(ptr, &check, call, a2, b2, NULL));
 	if (check != Nil) {
 		setelt_sequence(root, i++, a1);
 		if (! object_sequence_iterator(str1, &a1)) {
@@ -1471,7 +1438,7 @@ loop:
 			goto tail2;
 		}
 		localhold_set(hold, 0, a1);
-		if (key_merge_sequence(ptr, &a2, key, a1)) return 1;
+		Return(key_merge_sequence(ptr, &a2, key, a1));
 		localhold_set(hold, 2, a2);
 	}
 	else {
@@ -1481,7 +1448,7 @@ loop:
 			goto tail1;
 		}
 		localhold_set(hold, 1, b1);
-		if (key_merge_sequence(ptr, &b2, key, b1)) return 1;
+		Return(key_merge_sequence(ptr, &b2, key, b1));
 		localhold_set(hold, 3, b2);
 	}
 	goto loop;
@@ -1497,7 +1464,7 @@ tail2:
 	return 0;
 }
 
-static void make_specialized_sequence(addr *ret,
+static int make_specialized_sequence(addr *ret,
 		enum ARRAY_TYPE type, int bytesize, size_t size)
 {
 	switch (type) {
@@ -1525,19 +1492,20 @@ static void make_specialized_sequence(addr *ret,
 			break;
 
 		default:
-			fmte("Invalid array type.", NULL);
-			return;
+			return fmte_("Invalid array type.", NULL);
 	}
+
+	return 0;
 }
 
-static void array_upgraded_merge_sequence(addr *ret, addr type, size_t size)
+static int array_upgraded_merge_sequence(addr *ret, addr type, size_t size)
 {
 	enum ARRAY_TYPE upgraded;
 	int upsize;
 
 	GetArrayType(type, 0, &type);
 	upgraded_array_value(type, &upgraded, &upsize);
-	make_specialized_sequence(ret, upgraded, upsize, size);
+	return make_specialized_sequence(ret, upgraded, upsize, size);
 }
 
 static int vector_merge_sequence(Execute ptr, int *result, addr *ret,
@@ -1550,10 +1518,8 @@ static int vector_merge_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_VECTOR) {
-		*result = 0;
-		return 0;
-	}
+	if (LispDecl(type) != LISPDECL_VECTOR)
+		return Result(result, 0);
 
 	/* variable */
 	local = ptr->local;
@@ -1564,15 +1530,12 @@ static int vector_merge_sequence(Execute ptr, int *result, addr *ret,
 	size = size1 + size2;
 	vector_check_sequence(type, size);
 
-	array_upgraded_merge_sequence(&root, type, size);
+	Return(array_upgraded_merge_sequence(&root, type, size));
 	hold = LocalHold_local_push(ptr, root);
-	if (vector_make_merge_sequence(ptr, root, str1, str2, call, key))
-		return 1;
+	Return(vector_make_merge_sequence(ptr, root, str1, str2, call, key));
 	localhold_end(hold);
 	*ret = root;
-	*result = 1;
-
-	return 0;
+	return Result(result, 1);
 }
 
 static int simple_vector_merge_sequence(Execute ptr, int *result, addr *ret,
@@ -1585,10 +1548,8 @@ static int simple_vector_merge_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR) {
-		*result = 0;
-		return 0;
-	}
+	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
+		return Result(result, 0);
 
 	/* variable */
 	local = ptr->local;
@@ -1601,13 +1562,10 @@ static int simple_vector_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	vector_heap(&root, size);
 	hold = LocalHold_local_push(ptr, root);
-	if (vector_make_merge_sequence(ptr, root, str1, str2, call, key))
-		return 1;
+	Return(vector_make_merge_sequence(ptr, root, str1, str2, call, key));
 	localhold_end(hold);
 	*ret = root;
-	*result = 1;
-
-	return 0;
+	return Result(result, 1);
 }
 
 static int string_merge_sequence(Execute ptr, int *result, addr *ret,
@@ -1620,10 +1578,8 @@ static int string_merge_sequence(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	/* type check */
-	if (! type_string_p(type)) {
-		*result = 0;
-		return 0;
-	}
+	if (! type_string_p(type))
+		return Result(result, 0);
 
 	/* variable */
 	local = ptr->local;
@@ -1636,13 +1592,10 @@ static int string_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	strvect_heap(&root, size);
 	hold = LocalHold_local_push(ptr, root);
-	if (vector_make_merge_sequence(ptr, root, str1, str2, call, key))
-		return 1;
+	Return(vector_make_merge_sequence(ptr, root, str1, str2, call, key));
 	localhold_end(hold);
 	*ret = root;
-	*result = 1;
-
-	return 0;
+	return Result(result, 1);
 }
 
 static int array_merge_sequence(Execute ptr, int *result, addr *ret,
@@ -1657,10 +1610,8 @@ static int array_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	/* type check */
 	decl = LispDecl(type);
-	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY) {
-		*result = 0;
-		return 0;
-	}
+	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
+		return Result(result, 0);
 
 	/* variable */
 	local = ptr->local;
@@ -1671,15 +1622,12 @@ static int array_merge_sequence(Execute ptr, int *result, addr *ret,
 	size = size1 + size2;
 	array_check_sequence(type, size);
 
-	array_upgraded_merge_sequence(&root, type, size);
+	Return(array_upgraded_merge_sequence(&root, type, size));
 	hold = LocalHold_local_push(ptr, root);
-	if (vector_make_merge_sequence(ptr, root, str1, str2, call, key))
-		return 1;
+	Return(vector_make_merge_sequence(ptr, root, str1, str2, call, key));
 	localhold_end(hold);
 	*ret = root;
-	*result = 1;
-
-	return 0;
+	return Result(result, 1);
 }
 
 static int bitvector_merge_sequence(Execute ptr, int *result, addr *ret,
@@ -1694,10 +1642,8 @@ static int bitvector_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	/* type check */
 	decl = LispDecl(type);
-	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR) {
-		*result = 0;
-		return 0;
-	}
+	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR)
+		return Result(result, 0);
 
 	/* variable */
 	local = ptr->local;
@@ -1710,13 +1656,10 @@ static int bitvector_merge_sequence(Execute ptr, int *result, addr *ret,
 
 	bitmemory_unsafe(NULL, &root, size);
 	hold = LocalHold_local_push(ptr, root);
-	if (vector_make_merge_sequence(ptr, root, str1, str2, call, key))
-		return 1;
+	Return(vector_make_merge_sequence(ptr, root, str1, str2, call, key));
 	localhold_end(hold);
 	*ret = root;
-	*result = 1;
-
-	return 0;
+	return Result(result, 1);
 }
 
 static int execute_merge_sequence(Execute ptr, addr *ret,
@@ -1725,44 +1668,38 @@ static int execute_merge_sequence(Execute ptr, addr *ret,
 	int check;
 
 	/* list */
-	if (list_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key))
-		return 1;
+	Return(list_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key));
 	if (check)
 		return 0;
 
 	/* vector */
-	if (vector_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key))
-		return 1;
+	Return(vector_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key));
 	if (check)
 		return 0;
 
 	/* simple-vector */
-	if (simple_vector_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key))
-		return 1;
+	Return(simple_vector_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key));
 	if (check)
 		return 0;
 
 	/* string */
-	if (string_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key))
-		return 1;
+	Return(string_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key));
 	if (check)
 		return 0;
 
 	/* array */
-	if (array_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key))
-		return 1;
+	Return(array_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key));
 	if (check)
 		return 0;
 
 	/* bitvector */
-	if (bitvector_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key))
-		return 1;
+	Return(bitvector_merge_sequence(ptr, &check, ret, type, pos1, pos2, call, key));
 	if (check)
 		return 0;
 
 	/* error */
-	type_error_stdarg(type, Nil, "Invalid type-specifier ~S.", type, NULL);
-	return 1;
+	return call_type_error_va_(ptr, type, Nil,
+			"Invalid type-specifier ~S.", type, NULL);
 }
 
 _g int merge_common(Execute ptr, addr *ret,
@@ -1777,9 +1714,8 @@ _g int merge_common(Execute ptr, addr *ret,
 	Return(execute_merge_sequence(ptr, &call, check, pos1, pos2, call, key));
 	localhold_push(hold, call);
 	Return(typep_asterisk_error(ptr, call, check));
-	*ret = call;
 
-	return 0;
+	return Result(ret, call);
 }
 
 
@@ -1808,18 +1744,14 @@ static int value_find_sequence(struct count_struct *str, addr *ret)
 	hold = LocalHold_array(str->ptr, 1);
 	while (! call(range, &value)) {
 		localhold_set(hold, 0, value);
-		if (boolean_count_sequence(str, &check, value))
-			return 1;
+		Return(boolean_count_sequence(str, &check, value));
 		if (check) {
 			localhold_end(hold);
-			*ret = value;
-			return 0;
+			return Result(ret, value);
 		}
 	}
 	localhold_end(hold);
-	*ret = Nil;
-
-	return 0;
+	return Result(ret, Nil);
 }
 
 static int reverse_find_sequence(struct count_struct *str, addr *ret)
@@ -1832,7 +1764,7 @@ static int reverse_find_sequence(struct count_struct *str, addr *ret)
 	local = str->local;
 	push_local(local, &stack);
 	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
-	if (value_find_sequence(str, ret)) return 1;
+	Return(value_find_sequence(str, ret));
 	rollback_local(local, stack);
 
 	return 0;
@@ -1845,14 +1777,20 @@ _g int find_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1))
+		test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2))
+		test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		fmte("FIND don't accept both :test and :test-not parameter.", NULL);
+		return fmte_("FIND don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -1897,10 +1835,14 @@ static int argument_find_sequence(Execute ptr, addr *ret,
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -1969,19 +1911,16 @@ static int value_position_sequence(struct count_struct *str, size_t *ret, int *n
 	hold = LocalHold_array(str->ptr, 1);
 	for (count = 0; ! call(range, &value); count++) {
 		localhold_set(hold, 0, value);
-		if (boolean_count_sequence(str, &check, value))
-			return 1;
+		Return(boolean_count_sequence(str, &check, value));
 		if (check) {
 			localhold_end(hold);
 			*ret = count;
-			*nilp = 0;
-			return 0;
+			return Result(nilp, 0);
 		}
 	}
 	localhold_end(hold);
 	*ret = 0;
-	*nilp = 1;
-	return 0;
+	return Result(nilp, 1);
 }
 
 static int reverse_position_sequence(struct count_struct *str, addr *ret)
@@ -1996,15 +1935,12 @@ static int reverse_position_sequence(struct count_struct *str, addr *ret)
 	local = str->local;
 	push_local(local, &stack);
 	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
-	if (value_position_sequence(str, &size, &check))
-		return 1;
+	Return(value_position_sequence(str, &size, &check));
 	rollback_local(local, stack);
 
 	/* result */
-	if (check) {
-		*ret = Nil;
-		return 0;
-	}
+	if (check)
+		return Result(ret, Nil);
 	size = str->start_value + range->end - size - 1;
 	make_index_integer_heap(ret, size);
 
@@ -2020,14 +1956,20 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	struct sequence_range *range;
 	size_t size;
 
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1))
+		test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2))
+		test2 = Nil;
 	if (test1 != Nil && test2 != Nil)
-		fmte("POSITION don't accept both :test and :test-not parameter.", NULL);
+		return fmte_("POSITION don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -2062,14 +2004,11 @@ _g int position_common(Execute ptr, addr *ret, addr item, addr pos, addr rest)
 	if (listp && fromp)
 		return reverse_position_sequence(&str, ret);
 	build_sequence_range(range, pos, start, end);
-	if (value_position_sequence(&str, &size, &check))
-		return 1;
+	Return(value_position_sequence(&str, &size, &check));
 
 	/* result */
-	if (check) {
-		*ret = Nil;
-		return 0;
-	}
+	if (check)
+		return Result(ret, Nil);
 	if (fromp)
 		size = range->end - size - 1;
 	else
@@ -2089,10 +2028,14 @@ static int argument_position_sequence(Execute ptr, addr *ret,
 	struct sequence_range *range;
 	size_t size;
 
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -2122,14 +2065,11 @@ static int argument_position_sequence(Execute ptr, addr *ret,
 	if (listp && fromp)
 		return reverse_position_sequence(&str, ret);
 	build_sequence_range(range, pos, start, end);
-	if (value_position_sequence(&str, &size, &check))
-		return 1;
+	Return(value_position_sequence(&str, &size, &check));
 
 	/* result */
-	if (check) {
-		*ret = Nil;
-		return 0;
-	}
+	if (check)
+		return Result(ret, Nil);
 	if (fromp)
 		size = range->end - size - 1;
 	else
@@ -2167,13 +2107,10 @@ struct search_struct {
 
 static int key_search_sequence(struct search_struct *str, addr *ret, addr value)
 {
-	if (str->key != Nil) {
+	if (str->key != Nil)
 		return callclang_funcall(str->ptr, ret, str->key, value, NULL);
-	}
-	else {
-		*ret = value;
-		return 0;
-	}
+	else
+		return Result(ret, value);
 }
 
 static int call_search_sequence(struct search_struct *str,
@@ -2200,8 +2137,7 @@ static int call_search_sequence(struct search_struct *str,
 	if (test == Nil)
 		value = eql_function(a, b)? T: Nil;
 	else {
-		if (callclang_funcall(ptr, &value, test, a, b, NULL))
-			return 1;
+		Return(callclang_funcall(ptr, &value, test, a, b, NULL));
 	}
 	if (str->notp)
 		*result = (value == Nil);
@@ -2230,10 +2166,8 @@ static int reverse_pattern_search_sequence(struct search_struct *str,
 		Return(key_search_sequence(str, &a, a));
 		localhold_set(hold, 0, a);
 
-		if (getnext_sequence_range(range2, &b)) {
-			*result = 0;
-			return 0;
-		}
+		if (getnext_sequence_range(range2, &b))
+			return Result(result, 0);
 		localhold_set(hold, 1, b);
 
 		Return(key_search_sequence(str, &b, b));
@@ -2266,31 +2200,25 @@ static int reverse_size_search_sequence(
 	size2 = range2->size;
 	if (size2 < size1) {
 		*ret = 0;
-		*nilp = 1;
-		return 0;
+		return Result(nilp, 1);
 	}
 	if (size1 == 0) {
 		*ret = 0;
-		*nilp = 0;
-		return 0;
+		return Result(nilp, 0);
 	}
 
 	i = size2 - size1 + 1;
 	save_sequence_range(range1);
 	while (i) {
 		i--;
-		if (reverse_pattern_search_sequence(str, &check, range1, range2, i))
-			return 1;
+		Return(reverse_pattern_search_sequence(str, &check, range1, range2, i));
 		if (check) {
 			*ret = i;
-			*nilp = 0;
-			return 0;
+			return Result(nilp, 0);
 		}
 	}
 	*ret = 0;
-	*nilp = 1;
-
-	return 0;
+	return Result(nilp, 1);
 }
 
 static int reverse_search_sequence(struct search_struct *str, addr *ret)
@@ -2298,12 +2226,9 @@ static int reverse_search_sequence(struct search_struct *str, addr *ret)
 	int check;
 	size_t size;
 
-	if (reverse_size_search_sequence(str, &size, &check))
-		return 1;
-	if (check) {
-		*ret = Nil;
-		return 0;
-	}
+	Return(reverse_size_search_sequence(str, &size, &check));
+	if (check)
+		return Result(ret, Nil);
 	size += str->start_value;
 	make_index_integer_heap(ret, size);
 
@@ -2327,10 +2252,8 @@ static int normal_pattern_search_sequence(struct search_struct *str,
 		Return(key_search_sequence(str, &a, a));
 		localhold_set(hold, 0, a);
 
-		if (getnext_sequence_range(range2, &b)) {
-			*result = 0;
-			return 0;
-		}
+		if (getnext_sequence_range(range2, &b))
+			return Result(result, 0);
 		localhold_set(hold, 1, b);
 
 		Return(key_search_sequence(str, &b, b));
@@ -2361,27 +2284,22 @@ static int normalsize_search_sequence(
 	range2 = str->range2;
 	if (range1->endp && range2->endp && range2->size < range1->size) {
 		*ret = 0;
-		*nilp = 1;
-		return 0;
+		return Result(nilp, 1);
 	}
 
 	for (i = 0; ; i++) {
 		save_sequence_range(range2);
-		if (normal_pattern_search_sequence(str, &check, range1, range2))
-			return 1;
+		Return(normal_pattern_search_sequence(str, &check, range1, range2));
 		if (check) {
 			*ret = i;
-			*nilp = 0;
-			return 0;
+			return Result(nilp, 0);
 		}
 		load_sequence_range(range2);
 		if (next_sequence_range(range2))
 			break;
 	}
 	*ret = 0;
-	*nilp = 1;
-
-	return 0;
+	return Result(nilp, 1);
 }
 
 static int normal_search_sequence(struct search_struct *str, addr *ret)
@@ -2389,12 +2307,9 @@ static int normal_search_sequence(struct search_struct *str, addr *ret)
 	int check;
 	size_t size;
 
-	if (normalsize_search_sequence(str, &size, &check))
-		return 1;
-	if (check) {
-		*ret = Nil;
-		return 0;
-	}
+	Return(normalsize_search_sequence(str, &size, &check));
+	if (check)
+		return Result(ret, Nil);
 	size += str->range2->start;
 	make_index_integer_heap(ret, size);
 
@@ -2409,16 +2324,24 @@ static int execute_search_sequence(Execute ptr, addr *ret,
 	addr from, key, test1, test2, start1, start2, end1, end2;
 	struct search_struct str;
 
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START1, &start1)) start1 = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_START2, &start2)) start2 = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1))
+		test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2))
+		test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START1, &start1))
+		start1 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_START2, &start2))
+		start2 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END1, &end1))
+		end1 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_END2, &end2))
+		end2 = Unbound;
 	if (test1 != Nil && test2 != Nil)
-		fmte("SEARCH don't accept both :test and :test-not parameter.", NULL);
+		return fmte_("SEARCH don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	local = ptr->local;
@@ -2452,14 +2375,12 @@ static int execute_search_sequence(Execute ptr, addr *ret,
 	if (fromp) {
 		str.range1 = make_sequence_range_endp(local, pos1, start1, end1);
 		str.range2 = make_sequence_range_vector(local, pos2, start2, end2);
-		if (reverse_search_sequence(&str, ret))
-			return 1;
+		Return(reverse_search_sequence(&str, ret));
 	}
 	else {
 		str.range1 = make_sequence_range(local, pos1, start1, end1);
 		str.range2 = make_sequence_range(local, pos2, start2, end2);
-		if (normal_search_sequence(&str, ret))
-			return 1;
+		Return(normal_search_sequence(&str, ret));
 	}
 
 	return 0;
@@ -2472,8 +2393,7 @@ _g int search_common(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	if (execute_search_sequence(ptr, ret, pos1, pos2, rest))
-		return 1;
+	Return(execute_search_sequence(ptr, ret, pos1, pos2, rest));
 	rollback_local(local, stack);
 
 	return 0;
@@ -2520,8 +2440,7 @@ static int reverse_mismatch_sequence(struct search_struct *str, addr *ret)
 
 result_nil:
 	localhold_end(hold);
-	*ret = Nil;
-	return 0;
+	return Result(ret, Nil);
 
 result_t:
 	localhold_end(hold);
@@ -2564,8 +2483,7 @@ static int normal_mismatch_sequence(struct search_struct *str, addr *ret)
 
 result_nil:
 	localhold_end(hold);
-	*ret = Nil;
-	return 0;
+	return Result(ret, Nil);
 
 result_t:
 	localhold_end(hold);
@@ -2581,16 +2499,24 @@ static int execute_mismatch_sequence(Execute ptr, addr *ret,
 	addr from, key, test1, test2, start1, start2, end1, end2;
 	struct search_struct str;
 
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START1, &start1)) start1 = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_START2, &start2)) start2 = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1))
+		test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2))
+		test2 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START1, &start1))
+		start1 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_START2, &start2))
+		start2 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END1, &end1))
+		end1 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_END2, &end2))
+		end2 = Unbound;
 	if (test1 != Nil && test2 != Nil)
-		fmte("MISMATCH don't accept both :test and :test-not parameter.", NULL);
+		return fmte_("MISMATCH don't accept both :test and :test-not parameter.", NULL);
 
 	cleartype(str);
 	local = ptr->local;
@@ -2623,14 +2549,12 @@ static int execute_mismatch_sequence(Execute ptr, addr *ret,
 	if (fromp) {
 		str.range1 = make_sequence_range_vector(local, pos1, start1, end1);
 		str.range2 = make_sequence_range_vector(local, pos2, start2, end2);
-		if (reverse_mismatch_sequence(&str, ret))
-			return 1;
+		Return(reverse_mismatch_sequence(&str, ret));
 	}
 	else {
 		str.range1 = make_sequence_range(local, pos1, start1, end1);
 		str.range2 = make_sequence_range(local, pos2, start2, end2);
-		if (normal_mismatch_sequence(&str, ret))
-			return 1;
+		Return(normal_mismatch_sequence(&str, ret));
 	}
 
 	return 0;
@@ -2643,7 +2567,7 @@ _g int mismatch_common(Execute ptr, addr *ret, addr pos1, addr pos2, addr rest)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	if (execute_mismatch_sequence(ptr, ret, pos1, pos2, rest)) return 1;
+	Return(execute_mismatch_sequence(ptr, ret, pos1, pos2, rest));
 	rollback_local(local, stack);
 
 	return 0;
@@ -2668,7 +2592,8 @@ static void list_replace_sequence(LocalRoot local,
 		setarray(pos, i, value);
 
 	for (i = 0; i < size; i++) {
-		if (endp_sequence_range(range1)) break;
+		if (endp_sequence_range(range1))
+			break;
 		getarray(pos, i, &value);
 		set_sequence_range(range1, value);
 		next_sequence_range(range1);
@@ -2683,7 +2608,8 @@ static void forward_replace_sequence(
 	addr value;
 
 	while (! getnext_sequence_range(range2, &value)) {
-		if (endp_sequence_range(range1)) break;
+		if (endp_sequence_range(range1))
+			break;
 		set_sequence_range(range1, value);
 		next_sequence_range(range1);
 	}
@@ -2707,10 +2633,14 @@ _g void replace_common(Execute ptr, addr pos1, addr pos2, addr rest)
 	addr start1, start2, end1, end2;
 	struct sequence_range range1, range2;
 
-	if (GetKeyArgs(rest, KEYWORD_START1, &start1)) start1 = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_START2, &start2)) start2 = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END1, &end1)) end1 = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_END2, &end2)) end2 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_START1, &start1))
+		start1 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_START2, &start2))
+		start2 = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END1, &end1))
+		end1 = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_END2, &end2))
+		end2 = Unbound;
 
 	build_sequence_range_endp(&range1, pos1, start1, end1);
 	build_sequence_range_endp(&range2, pos2, start2, end2);
@@ -2727,23 +2657,19 @@ _g void replace_common(Execute ptr, addr pos1, addr pos2, addr rest)
 /*
  *  substitute
  */
-static int boolean_substitute_sequence(struct count_struct *str, int *result, addr pos)
+static int boolean_substitute_sequence(struct count_struct *str, int *ret, addr pos)
 {
 	int check;
 
 	if (str->count == Nil)
-		return boolean_count_sequence(str, result, pos);
-	if (str->limit == 0) {
-		*result = 0;
-		return 0;
-	}
-	if (boolean_count_sequence(str, &check, pos))
-		return 1;
+		return boolean_count_sequence(str, ret, pos);
+	if (str->limit == 0)
+		return Result(ret, 0);
+	Return(boolean_count_sequence(str, &check, pos));
 	if (check)
 		str->limit--;
-	*result = check;
 
-	return 0;
+	return Result(ret, check);
 }
 
 static int reverse_list_substitute_sequence(
@@ -2763,8 +2689,7 @@ static int reverse_list_substitute_sequence(
 	hold = LocalHold_array(str->ptr, 1);
 	while (! getnext_reverse_sequence_range(range, &pos)) {
 		localhold_set(hold, 0, pos);
-		if (boolean_substitute_sequence(str, &check, pos))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, pos));
 		set_sequence_range(range, check? one: pos);
 	}
 	localhold_end(hold);
@@ -2799,11 +2724,11 @@ static int reverse_substitute_sequence(
 	}
 	/* between start and end */
 	gchold_push_local(local, ret->pos);
-	if (reverse_list_substitute_sequence(str, ret)) return 1;
+	Return(reverse_list_substitute_sequence(str, ret));
 	rollback_local(local, stack);
 	/* after end */
 	while (pos3 != Nil) {
-		getcons(pos3, &value, &pos3);
+		Return_getcons(pos3, &value, &pos3);
 		push_sequence_write(ret, value);
 	}
 
@@ -2827,8 +2752,7 @@ static int list_substitute_sequence(
 	localhold_set(hold, 1, ret->pos);
 	while (! getnext_sequence_range(range, &pos)) {
 		localhold_set(hold, 0, pos);
-		if (boolean_substitute_sequence(str, &check, pos))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, pos));
 		push_sequence_write(ret, check? one: pos);
 		localhold_set(hold, 1, ret->pos);
 	}
@@ -2866,8 +2790,7 @@ static int copy_substitute_sequence(
 	localhold_set(hold, 1, ret->pos);
 	while (! get(range, &value)) {
 		localhold_set(hold, 0, value);
-		if (boolean_substitute_sequence(str, &check, value))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, value));
 		push_sequence_write(ret, check? one: value);
 		localhold_set(hold, 1, ret->pos);
 	}
@@ -2879,13 +2802,13 @@ static int copy_substitute_sequence(
 	return 0;
 }
 
-static void make_vector_array_sequence(addr *ret, addr pos, size_t size)
+static int make_vector_array_sequence(addr *ret, addr pos, size_t size)
 {
 	struct array_struct *info = ArrayInfoStruct(pos);
-	make_specialized_sequence(ret, info->type, info->bytesize, size);
+	return make_specialized_sequence(ret, info->type, info->bytesize, size);
 }
 
-static void make_vector_size_sequence(addr *ret, addr pos, size_t size)
+static int make_vector_size_sequence(addr *ret, addr pos, size_t size)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_VECTOR:
@@ -2897,23 +2820,23 @@ static void make_vector_size_sequence(addr *ret, addr pos, size_t size)
 			break;
 
 		case LISPTYPE_ARRAY:
-			make_vector_array_sequence(ret, pos, size);
-			break;
+			return make_vector_array_sequence(ret, pos, size);
 
 		case LISPTYPE_BITVECTOR:
 			bitmemory_unsafe(NULL, ret, size);
 			break;
 
 		default:
-			TypeError(pos, SEQUENCE);
-			break;
+			return TypeError_(pos, SEQUENCE);
 	}
+
+	return 0;
 }
 
-static void vector_substitute_sequence(addr *ret, addr pos)
+static int vector_substitute_sequence(addr *ret, addr pos)
 {
 	size_t size = length_sequence(pos, 1);
-	make_vector_size_sequence(ret, pos, size);
+	return make_vector_size_sequence(ret, pos, size);
 }
 
 static int normal_substitute_sequence(
@@ -2926,41 +2849,41 @@ static int normal_substitute_sequence(
 	range = &(str->range);
 	pos = range->pos;
 	if (listp(pos)) {
-		if (list_substitute_sequence(str, ret))
-			return 1;
+		Return(list_substitute_sequence(str, ret));
 	}
 	else {
-		vector_substitute_sequence(&pos, pos);
+		Return(vector_substitute_sequence(&pos, pos));
 		hold = LocalHold_local_push(str->ptr, pos);
-		if (copy_substitute_sequence(str, ret, pos))
-			return 1;
+		Return(copy_substitute_sequence(str, ret, pos));
 		localhold_end(hold);
 	}
 
 	return 0;
 }
 
-static void setcount_sequence(struct count_struct *str, addr count)
+static int setcount_sequence(struct count_struct *str, addr count)
 {
 	size_t limit;
 
 	if (count == Nil) {
 		str->count = Nil;
 		str->limit = 0;
-		return;
+		return 0;
 	}
 	if (! integerp(count)) {
-		fmte(":COUNT argument ~S must be an integer type.", count, NULL);
+		return fmte_(":COUNT argument ~S must be an integer type.", count, NULL);
 	}
 	if (minusp_integer(count)) {
 		count = fixnumh(0);
 		limit = 0;
 	}
 	else if (GetIndex_integer(count, &limit)) {
-		fmte(":COUNT argument ~S is too large.", count, NULL);
+		return fmte_(":COUNT argument ~S is too large.", count, NULL);
 	}
 	str->count = count;
 	str->limit = limit;
+
+	return 0;
 }
 
 _g int substitute_common(Execute ptr,
@@ -2972,15 +2895,24 @@ _g int substitute_common(Execute ptr,
 	struct sequence_range *range;
 	struct sequence_write write;
 
-	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
-	if (test1 != Nil && test2 != Nil)
-		fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count))
+		count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1))
+		test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2))
+		test2 = Nil;
+	if (test1 != Nil && test2 != Nil) {
+		return fmte_("SUBSTITUTE don't accept "
+				"both :test and :test-not parameter.", NULL);
+	}
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3011,16 +2943,14 @@ _g int substitute_common(Execute ptr,
 	str.item = item2;  /* olditem */
 	str.second = item1;
 	str.pos = pos;
-	setcount_sequence(&str, count);
+	Return(setcount_sequence(&str, count));
 
 	if (listp && fromp) {
-		if (reverse_substitute_sequence(&str, &write))
-			return 1;
+		Return(reverse_substitute_sequence(&str, &write));
 	}
 	else {
 		build_sequence_range(range, pos, start, end);
-		if (normal_substitute_sequence(&str, &write))
-			return 1;
+		Return(normal_substitute_sequence(&str, &write));
 	}
 	*ret = result_sequence_write(&write);
 
@@ -3036,11 +2966,16 @@ static int argument_substitute_sequence(Execute ptr, addr *ret,
 	struct sequence_range *range;
 	struct sequence_write write;
 
-	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count))
+		count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3066,16 +3001,14 @@ static int argument_substitute_sequence(Execute ptr, addr *ret,
 	str.end = end;
 	str.second = item;
 	str.pos = pos;
-	setcount_sequence(&str, count);
+	Return(setcount_sequence(&str, count));
 
 	if (listp && fromp) {
-		if (reverse_substitute_sequence(&str, &write))
-			return 1;
+		Return(reverse_substitute_sequence(&str, &write));
 	}
 	else {
 		build_sequence_range(range, pos, start, end);
-		if (normal_substitute_sequence(&str, &write))
-			return 1;
+		Return(normal_substitute_sequence(&str, &write));
 	}
 	*ret = result_sequence_write(&write);
 
@@ -3115,8 +3048,7 @@ static int reverse_list_nsubstitute_sequence(struct count_struct *str)
 	while (! endp_reverse_sequence_range(range)) {
 		get_reverse_sequence_range(range, &pos);
 		localhold_set(hold, 0, pos);
-		if (boolean_substitute_sequence(str, &check, pos))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, pos));
 		set_reverse_sequence_range(range, check? one: pos);
 		next_reverse_sequence_range(range);
 	}
@@ -3144,7 +3076,7 @@ static int reverse_nsubstitute_sequence(struct count_struct *str)
 	range = &(str->range);
 	push_local(local, &stack);
 	build_sequence_range_vector(local, range, str->pos, str->start, str->end);
-	if (reverse_list_nsubstitute_sequence(str)) return 1;
+	Return(reverse_list_nsubstitute_sequence(str));
 	rollback_local(local, stack);
 
 	return 0;
@@ -3183,8 +3115,7 @@ static int normal_nsubstitute_sequence(struct count_struct *str)
 	while (! endp(range)) {
 		get(range, &value);
 		localhold_set(hold, 0, value);
-		if (boolean_substitute_sequence(str, &check, value))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, value));
 		set(range, check? one: value);
 		next(range);
 	}
@@ -3201,15 +3132,24 @@ _g int nsubstitute_common(Execute ptr,
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
-	if (test1 != Nil && test2 != Nil)
-		fmte("NSUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count))
+		count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1))
+		test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2))
+		test2 = Nil;
+	if (test1 != Nil && test2 != Nil) {
+		return fmte_("NSUBSTITUTE don't accept "
+				"both :test and :test-not parameter.", NULL);
+	}
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3240,7 +3180,7 @@ _g int nsubstitute_common(Execute ptr,
 	str.item = item2;  /* olditem */
 	str.second = item1;
 	str.pos = pos;
-	setcount_sequence(&str, count);
+	Return(setcount_sequence(&str, count));
 
 	if (listp && fromp)
 		return reverse_nsubstitute_sequence(&str);
@@ -3256,11 +3196,16 @@ static int argument_nsubstitute_sequence(Execute ptr,
 	struct count_struct str;
 	struct sequence_range *range;
 
-	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count))
+		count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3286,7 +3231,7 @@ static int argument_nsubstitute_sequence(Execute ptr,
 	str.end = end;
 	str.second = item;
 	str.pos = pos;
-	setcount_sequence(&str, count);
+	Return(setcount_sequence(&str, count));
 
 	if (listp && fromp)
 		return reverse_nsubstitute_sequence(&str);
@@ -3319,15 +3264,15 @@ static int list_concatenate_sequence(addr *ret, addr type, addr rest)
 	/* type check */
 	decl = LispDecl(type);
 	if (decl != LISPDECL_CONS && decl != LISPDECL_LIST)
-		return 0;
+		return Result(ret, Unbound);
 
 	/* concatenate */
 	root = Nil;
 	while (rest != Nil) {
-		getcons(rest, &value, &rest);
+		Return_getcons(rest, &value, &rest);
 		if (listp_sequence(value)) {
 			while (value != Nil) {
-				getcons(value, &one, &value);
+				Return_getcons(value, &one, &value);
 				cons_heap(&root, one, root);
 			}
 		}
@@ -3340,21 +3285,20 @@ static int list_concatenate_sequence(addr *ret, addr type, addr rest)
 		}
 	}
 	nreverse(ret, root);
-
-	return 1;
+	return 0;
 }
 
-static size_t length_concatenate_sequence(addr rest)
+static int length_concatenate_sequence(addr rest, size_t *ret)
 {
 	addr pos;
 	size_t size, value;
 
 	for (size = 0; rest != Nil; size += value) {
-		getcons(rest, &pos, &rest);
+		Return_getcons(rest, &pos, &rest);
 		value = length_sequence(pos, 1);
 	}
 
-	return size;
+	return Result(ret, size);
 }
 
 static void value_concatenate_sequence(addr root, addr rest)
@@ -3380,15 +3324,14 @@ static int vector_concatenate_sequence(addr *ret, addr type, addr rest)
 
 	/* type check */
 	if (LispDecl(type) != LISPDECL_VECTOR)
-		return 0;
+		return Result(ret, Unbound);
 
 	/* concatenate */
-	size = length_concatenate_sequence(rest);
-	array_upgraded_merge_sequence(&root, type, size);
+	Return(length_concatenate_sequence(rest, &size));
+	Return(array_upgraded_merge_sequence(&root, type, size));
 	value_concatenate_sequence(root, rest);
-	*ret = root;
 
-	return 1;
+	return Result(ret, root);
 }
 
 static int simple_vector_concatenate_sequence(addr *ret, addr type, addr rest)
@@ -3398,15 +3341,14 @@ static int simple_vector_concatenate_sequence(addr *ret, addr type, addr rest)
 
 	/* type check */
 	if (LispDecl(type) != LISPDECL_SIMPLE_VECTOR)
-		return 0;
+		return Result(ret, Unbound);
 
 	/* concatenate */
-	size = length_concatenate_sequence(rest);
+	Return(length_concatenate_sequence(rest, &size));
 	vector_heap(&root, size);
 	value_concatenate_sequence(root, rest);
-	*ret = root;
 
-	return 1;
+	return Result(ret, root);
 }
 
 static int string_concatenate_sequence(addr *ret, addr type, addr rest)
@@ -3416,15 +3358,14 @@ static int string_concatenate_sequence(addr *ret, addr type, addr rest)
 
 	/* type check */
 	if (! type_string_p(type))
-		return 0;
+		return Result(ret, Unbound);
 
 	/* concatenate */
-	size = length_concatenate_sequence(rest);
+	Return(length_concatenate_sequence(rest, &size));
 	strvect_heap(&root, size);
 	value_concatenate_sequence(root, rest);
-	*ret = root;
 
-	return 1;
+	return Result(ret, root);
 }
 
 static int array_concatenate_sequence(addr *ret, addr type, addr rest)
@@ -3436,15 +3377,14 @@ static int array_concatenate_sequence(addr *ret, addr type, addr rest)
 	/* type check */
 	decl = LispDecl(type);
 	if (decl != LISPDECL_ARRAY && decl != LISPDECL_SIMPLE_ARRAY)
-		return 0;
+		return Result(ret, Unbound);
 
 	/* concatenate */
-	size = length_concatenate_sequence(rest);
-	array_upgraded_merge_sequence(&root, type, size);
+	Return(length_concatenate_sequence(rest, &size));
+	Return(array_upgraded_merge_sequence(&root, type, size));
 	value_concatenate_sequence(root, rest);
-	*ret = root;
 
-	return 1;
+	return Result(ret, root);
 }
 
 static int bitvector_concatenate_sequence(addr *ret, addr type, addr rest)
@@ -3456,54 +3396,62 @@ static int bitvector_concatenate_sequence(addr *ret, addr type, addr rest)
 	/* type check */
 	decl = LispDecl(type);
 	if (decl != LISPDECL_BIT_VECTOR && decl != LISPDECL_SIMPLE_BIT_VECTOR)
-		return 0;
+		return Result(ret, Unbound);
 
 	/* concatenate */
-	size = length_concatenate_sequence(rest);
+	Return(length_concatenate_sequence(rest, &size));
 	bitmemory_unsafe(NULL, &root, size);
 	value_concatenate_sequence(root, rest);
-	*ret = root;
 
-	return 1;
+	return Result(ret, root);
 }
 
-static void type_concatenate_sequence(addr *ret, addr type, addr rest)
+static int type_concatenate_sequence(Execute ptr, addr *ret, addr type, addr rest)
 {
+	addr pos;
+
 	/* list */
-	if (list_concatenate_sequence(ret, type, rest))
-		return;
+	Return(list_concatenate_sequence(&pos, type, rest));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* vector */
-	if (vector_concatenate_sequence(ret, type, rest))
-		return;
+	Return(vector_concatenate_sequence(&pos, type, rest));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* simple-vector */
-	if (simple_vector_concatenate_sequence(ret, type, rest))
-		return;
+	Return(simple_vector_concatenate_sequence(&pos, type, rest));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* string */
-	if (string_concatenate_sequence(ret, type, rest))
-		return;
+	Return(string_concatenate_sequence(&pos, type, rest));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* array */
-	if (array_concatenate_sequence(ret, type, rest))
-		return;
+	Return(array_concatenate_sequence(&pos, type, rest));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* bitvector */
-	if (bitvector_concatenate_sequence(ret, type, rest))
-		return;
+	Return(bitvector_concatenate_sequence(&pos, type, rest));
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* error */
-	type_error_stdarg(type, Nil, "Invalid type-specifier ~S.", type, NULL);
+	*ret = Nil;
+	return call_type_error_va_(ptr, type, Nil,
+			"Invalid type-specifier ~S.", type, NULL);
 }
 
 _g int concatenate_common(Execute ptr, addr *ret, addr type, addr rest)
 {
 	addr check;
 
-	if (parse_type(ptr, &check, type, Nil))
-		return 1;
-	type_concatenate_sequence(ret, check, rest);
+	Return(parse_type(ptr, &check, type, Nil));
+	Return(type_concatenate_sequence(ptr, ret, check, rest));
 
 	return typep_asterisk_error(ptr, *ret, check);
 }
@@ -3528,8 +3476,7 @@ static int reverse_list_local_remove_sequence(
 	/* remove */
 	for (a = b = size; a; ) {
 		getarray(table, --a, &pos);
-		if (boolean_substitute_sequence(str, &check, pos))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, pos));
 		if (! check)
 			setarray(table, --b, pos);
 	}
@@ -3558,7 +3505,7 @@ static int list_reverse_remove_sequence(
 	/* between start and end */
 	push_local(local, &stack);
 	vector_local(local, &table, range->size);
-	if (reverse_list_local_remove_sequence(str, ret, table)) return 1;
+	Return(reverse_list_local_remove_sequence(str, ret, table));
 	rollback_local(local, stack);
 	/* after end */
 	after_sequence_write(ret, range);
@@ -3583,8 +3530,7 @@ static int reverse_list_local_delete_sequence(struct count_struct *str, addr tab
 	for (i = size; i; ) {
 		i--;
 		getarray(table, i, &pos);
-		if (boolean_substitute_sequence(str, &check, pos))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, pos));
 		setarray(table, i, check? T: Nil);
 	}
 
@@ -3615,7 +3561,7 @@ static int list_reverse_delete_sequence(
 	/* replace */
 	push_local(local, &stack);
 	vector_local(local, &table, range->size);
-	if (reverse_list_local_delete_sequence(str, table)) return 1;
+	Return(reverse_list_local_delete_sequence(str, table));
 	rollback_local(local, stack);
 	/* result */
 	build_sequence_write_result(ret, range->pos);
@@ -3646,8 +3592,7 @@ static int list_remove_sequence(struct count_struct *str, struct sequence_write 
 	localhold_set(hold, 1, ret->pos);
 	while (! getnext_sequence_range(range, &pos)) {
 		localhold_set(hold, 0, pos);
-		if (boolean_substitute_sequence(str, &check, pos))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, pos));
 		if (! check) {
 			push_sequence_write(ret, pos);
 			localhold_set(hold, 1, ret->pos);
@@ -3668,8 +3613,7 @@ static int list_delete_sequence(struct count_struct *str, struct sequence_write 
 	range = &(str->range);
 	while (! endp_sequence_range(range)) {
 		get_sequence_range(range, &pos);
-		if (boolean_substitute_sequence(str, &check, pos))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, pos));
 		if (check)
 			remove_sequence_range(range);
 		else
@@ -3696,8 +3640,7 @@ static int copy_normal_remove_sequence(
 	hold = LocalHold_array(str->ptr, 1);
 	for (loc = 0; ! getnext_sequence_range(range, &value); ) {
 		localhold_set(hold, 0, value);
-		if (boolean_substitute_sequence(str, &check, value))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, value));
 		if (! check)
 			setarray(table, loc++, value);
 	}
@@ -3705,7 +3648,7 @@ static int copy_normal_remove_sequence(
 
 	/* copy */
 	size = length_sequence(pos, 1) - range->size + loc;
-	make_vector_size_sequence(&pos, pos, size);
+	Return(make_vector_size_sequence(&pos, pos, size));
 	build_sequence_write(ret, pos);
 	before_sequence_write(ret, range);
 	for (i = 0; i < loc; i++) {
@@ -3732,8 +3675,7 @@ static int copy_reverse_remove_sequence(
 	hold = LocalHold_array(str->ptr, 1);
 	for (loc = 0; ! getnext_reverse_sequence_range(range, &value); ) {
 		localhold_set(hold, 0, value);
-		if (boolean_substitute_sequence(str, &check, value))
-			return 1;
+		Return(boolean_substitute_sequence(str, &check, value));
 		if (! check)
 			setarray(table, loc++, value);
 	}
@@ -3741,7 +3683,7 @@ static int copy_reverse_remove_sequence(
 
 	/* copy */
 	size = length_sequence(pos, 1) - range->size + loc;
-	make_vector_size_sequence(&pos, pos, size);
+	Return(make_vector_size_sequence(&pos, pos, size));
 	build_sequence_write(ret, pos);
 	before_sequence_write(ret, range);
 	while (loc) {
@@ -3760,12 +3702,10 @@ static int copy_remove_sequence(struct count_struct *str, struct sequence_write 
 	range = &(str->range);
 	vector_local(str->local, &table, range->size);
 	if (str->fromp) {
-		if (copy_reverse_remove_sequence(str, ret, table))
-			return 1;
+		Return(copy_reverse_remove_sequence(str, ret, table));
 	}
 	else {
-		if (copy_normal_remove_sequence(str, ret, table))
-			return 1;
+		Return(copy_normal_remove_sequence(str, ret, table));
 	}
 	after_sequence_write(ret, range);
 
@@ -3786,8 +3726,7 @@ static int normal_remove_sequence(struct count_struct *str, struct sequence_writ
 	else {
 		local = str->local;
 		push_local(local, &stack);
-		if (copy_remove_sequence(str, ret))
-			return 1;
+		Return(copy_remove_sequence(str, ret));
 		rollback_local(local, stack);
 		return 0;
 	}
@@ -3802,15 +3741,24 @@ static int argument_remove_sequence(Execute ptr,
 	struct sequence_range *range;
 	struct sequence_write write;
 
-	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
-	if (test1 != Nil && test2 != Nil)
-		fmte("SUBSTITUTE don't accept both :test and :test-not parameter.", NULL);
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count))
+		count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1))
+		test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2))
+		test2 = Nil;
+	if (test1 != Nil && test2 != Nil) {
+		return fmte_("SUBSTITUTE don't accept "
+				"both :test and :test-not parameter.", NULL);
+	}
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3841,16 +3789,14 @@ static int argument_remove_sequence(Execute ptr,
 	str.end = end;
 	str.item = item;
 	str.pos = pos;
-	setcount_sequence(&str, count);
+	Return(setcount_sequence(&str, count));
 
 	if (listp && fromp) {
-		if (list_reverse_type_remove_sequence(&str, &write))
-			return 1;
+		Return(list_reverse_type_remove_sequence(&str, &write));
 	}
 	else {
 		build_sequence_range(range, pos, start, end);
-		if (normal_remove_sequence(&str, &write))
-			return 1;
+		Return(normal_remove_sequence(&str, &write));
 	}
 	*ret = result_sequence_write(&write);
 
@@ -3866,11 +3812,16 @@ static int argument_remove_if_sequence(Execute ptr, addr *ret,
 	struct sequence_range *range;
 	struct sequence_write write;
 
-	if (GetKeyArgs(rest, KEYWORD_COUNT, &count)) count = Nil;
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_COUNT, &count))
+		count = Nil;
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
 
 	cleartype(str);
 	listp = listp_sequence(pos);
@@ -3896,16 +3847,14 @@ static int argument_remove_if_sequence(Execute ptr, addr *ret,
 	str.start = start;
 	str.end = end;
 	str.pos = pos;
-	setcount_sequence(&str, count);
+	Return(setcount_sequence(&str, count));
 
 	if (listp && fromp) {
-		if (list_reverse_type_remove_sequence(&str, &write))
-			return 1;
+		Return(list_reverse_type_remove_sequence(&str, &write));
 	}
 	else {
 		build_sequence_range(range, pos, start, end);
-		if (normal_remove_sequence(&str, &write))
-			return 1;
+		Return(normal_remove_sequence(&str, &write));
 	}
 	*ret = result_sequence_write(&write);
 
@@ -3963,20 +3912,22 @@ static int list_reverse_duplicates_sequence(struct count_struct *str,
 	n = 0;
 	for (i = size; i; ) {
 		getarray(table, --i, &a);
-		if (a == Unbound) continue;
+		if (a == Unbound)
+			continue;
 		str->item = a;
 		for (k = i; k; ) {
 			getarray(table, --k, &b);
-			if (b == Unbound) continue;
-			if (boolean_substitute_sequence(str, &check, b))
-				return 1;
+			if (b == Unbound)
+				continue;
+			Return(boolean_substitute_sequence(str, &check, b));
 			if (check) {
 				setarray(table, k, Unbound);
 				n++;
 			}
 		}
 	}
-	if (ret) *ret = n;
+	if (ret)
+		*ret = n;
 
 	return 0;
 }
@@ -3993,8 +3944,7 @@ static int list_reverse_delete_duplicates(
 	size = range->size;
 	vector_local(str->local, &table, size);
 	save_sequence_range(range);
-	if (list_reverse_duplicates_sequence(str, range, table, size, NULL))
-		return 1;
+	Return(list_reverse_duplicates_sequence(str, range, table, size, NULL));
 	load_sequence_range(range);
 
 	/* result */
@@ -4021,8 +3971,7 @@ static int list_reverse_remove_duplicates(
 	range = &(str->range);
 	size = range->size;
 	vector_local(str->local, &table, size);
-	if (list_reverse_duplicates_sequence(str, range, table, size, NULL))
-		return 1;
+	Return(list_reverse_duplicates_sequence(str, range, table, size, NULL));
 
 	/* result */
 	build_sequence_write_list(ret);
@@ -4050,11 +3999,13 @@ static int list_normal_duplicates_sequence(struct count_struct *str,
 	n = 0;
 	for (i = 0; i < size; i++) {
 		getarray(table, i, &a);
-		if (a == Unbound) continue;
+		if (a == Unbound)
+			continue;
 		str->item = a;
 		for (k = i + 1; k < size; k++) {
 			getarray(table, k, &b);
-			if (b == Unbound) continue;
+			if (b == Unbound)
+				continue;
 			if (boolean_substitute_sequence(str, &check, b))
 				return 1;
 			if (check) {
@@ -4063,7 +4014,8 @@ static int list_normal_duplicates_sequence(struct count_struct *str,
 			}
 		}
 	}
-	if (ret) *ret = n;
+	if (ret)
+		*ret = n;
 
 	return 0;
 }
@@ -4080,8 +4032,7 @@ static int list_normal_delete_duplicates(
 	size = range->size;
 	vector_local(str->local, &table, size);
 	save_sequence_range(range);
-	if (list_normal_duplicates_sequence(str, range, table, size, NULL))
-		return 1;
+	Return(list_normal_duplicates_sequence(str, range, table, size, NULL));
 	load_sequence_range(range);
 
 	/* result */
@@ -4108,8 +4059,7 @@ static int list_normal_remove_duplicates(
 	range = &(str->range);
 	size = range->size;
 	vector_local(str->local, &table, size);
-	if (list_normal_duplicates_sequence(str, range, table, size, NULL))
-		return 1;
+	Return(list_normal_duplicates_sequence(str, range, table, size, NULL));
 
 	/* result */
 	build_sequence_write_list(ret);
@@ -4151,13 +4101,12 @@ static int vector_reverse_remove_duplicates(
 	range = &(str->range);
 	size = range->size;
 	vector_local(str->local, &table, size);
-	if (list_reverse_duplicates_sequence(str, range, table, size, &loc))
-		return 1;
+	Return(list_reverse_duplicates_sequence(str, range, table, size, &loc));
 
 	/* copy */
 	pos = range->pos;
 	k = length_sequence(pos, 1) - loc;
-	make_vector_size_sequence(&pos, pos, k);
+	Return(make_vector_size_sequence(&pos, pos, k));
 	build_sequence_write(ret, pos);
 	before_sequence_write(ret, range);
 	for (k = 0; k < size; k++) {
@@ -4181,13 +4130,12 @@ static int vector_normal_remove_duplicates(
 	range = &(str->range);
 	size = range->size;
 	vector_local(str->local, &table, size);
-	if (list_normal_duplicates_sequence(str, range, table, size, &loc))
-		return 1;
+	Return(list_normal_duplicates_sequence(str, range, table, size, &loc));
 
 	/* copy */
 	pos = range->pos;
 	k = length_sequence(pos, 1) - loc;
-	make_vector_size_sequence(&pos, pos, k);
+	Return(make_vector_size_sequence(&pos, pos, k));
 	build_sequence_write(ret, pos);
 	before_sequence_write(ret, range);
 	for (k = 0; k < size; k++) {
@@ -4220,14 +4168,22 @@ static int argument_remove_duplicates(Execute ptr,
 	struct sequence_range *range;
 	struct sequence_write write;
 
-	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from)) from = Nil;
-	if (GetKeyArgs(rest, KEYWORD_START, &start)) start = fixnumh(0);
-	if (GetKeyArgs(rest, KEYWORD_END, &end)) end = Unbound;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST, &test1)) test1 = Nil;
-	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2)) test2 = Nil;
-	if (test1 != Nil && test2 != Nil)
-		fmte("Arguments don't accept both :test and :test-not parameter.", NULL);
+	if (GetKeyArgs(rest, KEYWORD_FROM_END, &from))
+		from = Nil;
+	if (GetKeyArgs(rest, KEYWORD_START, &start))
+		start = fixnumh(0);
+	if (GetKeyArgs(rest, KEYWORD_END, &end))
+		end = Unbound;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST, &test1))
+		test1 = Nil;
+	if (GetKeyArgs(rest, KEYWORD_TEST_NOT, &test2))
+		test2 = Nil;
+	if (test1 != Nil && test2 != Nil) {
+		return fmte_("Arguments don't accept "
+				"both :test and :test-not parameter.", NULL);
+	}
 
 	cleartype(str);
 	local = ptr->local;
@@ -4266,13 +4222,11 @@ static int argument_remove_duplicates(Execute ptr,
 	push_local(local, &stack);
 	if (listp) {
 		build_sequence_range_endp(range, pos, start, end);
-		if (list_remove_duplicates(&str, &write))
-			return 1;
+		Return(list_remove_duplicates(&str, &write));
 	}
 	else {
 		build_sequence_range(range, pos, start, end);
-		if (vector_remove_duplicates_sequence(&str, &write))
-			return 1;
+		Return(vector_remove_duplicates_sequence(&str, &write));
 	}
 	rollback_local(local, stack);
 	*ret = result_sequence_write(&write);

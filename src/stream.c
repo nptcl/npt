@@ -10,6 +10,7 @@
 #include "eastasian_unicode.h"
 #include "equal.h"
 #include "file.h"
+#include "file_open.h"
 #include "files.h"
 #include "format.h"
 #include "heap.h"
@@ -253,20 +254,32 @@ _g int extend_type_stream_p(addr stream, int type)
 /*****************************************************************************
  *  function
  *****************************************************************************/
-_g int close_stream(addr stream)
+_g void force_close_stream(addr stream)
 {
-	int result;
 	struct StructStream *ptr;
 
 	CheckType(stream, LISPTYPE_STREAM);
 	ptr = PtrStructStream(stream);
-	result = ptr->closed;
-	result = (Stream_close[ptr->type])(stream);
 	ptr->terpri = 0;
 	ptr->unread_check = 0;
 	ptr->closed = 1;
+}
 
-	return result;
+_g int close_stream_common(addr stream, addr *ret)
+{
+	struct StructStream *ptr;
+
+	CheckType(stream, LISPTYPE_STREAM);
+	ptr = PtrStructStream(stream);
+	Return((Stream_close[ptr->type])(stream, ret));
+	force_close_stream(stream);
+
+	return 0;
+}
+
+_g int close_stream_(addr stream)
+{
+	return close_stream_common(stream, &stream);
 }
 
 _g int open_stream_p(addr stream)
@@ -275,11 +288,10 @@ _g int open_stream_p(addr stream)
 	return PtrStructStream(stream)->closed == 0;
 }
 
-_g void force_open_stream(addr stream, addr *ret)
+_g void force_open_stream(addr stream)
 {
 	CheckType(stream, LISPTYPE_STREAM);
 	PtrStructStream(stream)->closed = 0;
-	*ret = stream;
 }
 
 #define CheckStream(stream, ptr) { \
@@ -537,9 +549,9 @@ _g int terminal_width_stream(addr stream, size_t *ret)
 /*
  *  default
  */
-_g int close_default_stream(addr stream)
+_g int close_default_stream(addr stream, addr *ret)
 {
-	return 1;
+	return Result(ret, T);
 }
 
 _g int read_char_default_stream(addr stream, unicode *c)
@@ -824,60 +836,66 @@ _g void output_stream_designer(Execute ptr, addr stream, addr *ret)
 /*
  *  common-lisp
  */
-static void make_empty_file_stream(Execute ptr, addr file)
+static int make_empty_file_stream(Execute ptr, addr file)
 {
 	addr stream;
-	if (open_output_binary_stream(ptr, &stream, file, FileOutput_supersede))
-		file_error(file);
-	close_stream(stream);
+
+	Return(open_output_binary_stream_(ptr, &stream, file, FileOutput_supersede));
+	if (stream == NULL)
+		return call_file_error_(ptr, file);
+
+	return close_stream_(stream);
 }
 
-static int probe_file_stream(Execute ptr, addr file)
+static int probe_file_stream_(Execute ptr, addr file, int *ret)
 {
 #ifdef LISP_ANSI
-	return 1;
+	return Result(ret, 1);
 #else
-	probe_file_files(ptr, &file, file);
-	return file != Nil;
+	Return(probe_file_files_(ptr, &file, file));
+	return Result(ret, file != Nil);
 #endif
 }
 
-static int open_if_does_not_exist_stream(Execute ptr, addr *ret, addr pos,
-		enum Stream_Open_IfDoesNot value, int createp)
+static int open_if_does_not_exist_stream_(Execute ptr, addr *ret, addr pos,
+		enum Stream_Open_IfDoesNot value, int createp, int *existp)
 {
-	if (probe_file_stream(ptr, pos))
-		return 0;
+	int check;
+
+	Return(probe_file_stream_(ptr, pos, &check));
+	if (check)
+		return Result(existp, 0);
+
 	switch (value) {
 		case Stream_Open_IfDoesNot_Create:
-			if (createp)
-				make_empty_file_stream(ptr, pos);
-			break;
+			if (createp) {
+				Return(make_empty_file_stream(ptr, pos));
+			}
+			return Result(existp, 0);
 
 		case Stream_Open_IfDoesNot_Error:
-			file_error(pos);
-			break;
+			return call_file_error_(ptr, pos);
 
 		case Stream_Open_IfDoesNot_Nil:
 			*ret = Nil;
-			return 1;
+			return Result(existp, 1);
 
 		default:
-			fmte("Invalid :if-does-not-exist value.", NULL);
-			return 0;
+			return fmte_("Invalid :if-does-not-exist value.", NULL);
 	}
-
-	return 0;
 }
 
-static void open_if_exists_rename_stream(Execute ptr, addr pos)
+static int open_if_exists_rename_stream_(Execute ptr, addr pos)
 {
+	int check;
 	LocalRoot local;
 	LocalStack stack;
 	addr path, type, queue, ret1, ret2, ret3;
 	size_t i;
 
-	if (! probe_file_stream(ptr, pos))
-		return;
+	Return(probe_file_stream_(ptr, pos, &check));
+	if (! check)
+		return 0;
 	/* rename */
 	local = ptr->local;
 	for (i = 0; ; i++) {
@@ -895,28 +913,32 @@ static void open_if_exists_rename_stream(Execute ptr, addr pos)
 		make_charqueue_local(local, queue, &type);
 		SetTypePathname(path, type);
 		/* check */
-		if (! probe_file_stream(ptr, path)) {
-			rename_file_files(ptr, &ret1, &ret2, &ret3, pos, path);
+		Return(probe_file_stream_(ptr, path, &check));
+		if (! check) {
+			Return(rename_file_files_(ptr, &ret1, &ret2, &ret3, pos, path));
 			rollback_local(local, stack);
-			return;
+			return 0;
 		}
 		rollback_local(local, stack);
 	}
 }
 
-static int open_if_exists_stream(Execute ptr, addr *ret, addr pos,
+static int open_if_exists_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_IfExists value,
-		enum FileOutput *mode)
+		enum FileOutput *mode,
+		int *existp)
 {
-	if (! probe_file_stream(ptr, pos)) {
+	int check;
+
+	Return(probe_file_stream_(ptr, pos, &check));
+	if (! check) {
 		*mode = FileOutput_supersede;
-		return 0;
+		return Result(existp, 0);
 	}
 	switch (value) {
 		case Stream_Open_IfExists_Error:
 			*mode = FileOutput_supersede;
-			file_error(pos);
-			break;
+			return call_file_error_(ptr, pos);
 
 		case Stream_Open_IfExists_RenameAndDelete:
 		case Stream_Open_IfExists_NewVersion:
@@ -925,7 +947,7 @@ static int open_if_exists_stream(Execute ptr, addr *ret, addr pos,
 			break;
 
 		case Stream_Open_IfExists_Rename:
-			open_if_exists_rename_stream(ptr, pos);
+			Return(open_if_exists_rename_stream_(ptr, pos));
 			*mode = FileOutput_supersede;
 			break;
 
@@ -939,155 +961,158 @@ static int open_if_exists_stream(Execute ptr, addr *ret, addr pos,
 
 		case Stream_Open_IfExists_Nil:
 			*ret = Nil;
-			return 1;
+			return Result(existp, 1);
 
 		default:
 			*mode = FileOutput_supersede;
-			fmte("Invalid :if-exist value.", NULL);
-			return 0;
+			*existp = 0;
+			return fmte_("Invalid :if-exist value.", NULL);
 	}
 
-	return 0;
+	return Result(existp, 0);
 }
 
-static int open_external_input_stream(Execute ptr, addr *ret, addr pos,
+static int open_external_input_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_External ext)
 {
 	/* :external-format */
 	switch (ext) {
 		case Stream_Open_External_Default:
-			return open_input_stream(ptr, ret, pos);
+			return open_input_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Ascii:
-			return open_input_ascii_stream(ptr, ret, pos);
+			return open_input_ascii_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf8:
-			return open_input_utf8_stream(ptr, ret, pos);
+			return open_input_utf8_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf8Bom:
-			return open_input_utf8bom_stream(ptr, ret, pos);
+			return open_input_utf8bom_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf16:
-			return open_input_utf16_stream(ptr, ret, pos);
+			return open_input_utf16_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf16Le:
-			return open_input_utf16le_stream(ptr, ret, pos);
+			return open_input_utf16le_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf16Be:
-			return open_input_utf16be_stream(ptr, ret, pos);
+			return open_input_utf16be_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf16LeBom:
-			return open_input_utf16lebom_stream(ptr, ret, pos);
+			return open_input_utf16lebom_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf16BeBom:
-			return open_input_utf16bebom_stream(ptr, ret, pos);
+			return open_input_utf16bebom_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf32:
-			return open_input_utf32_stream(ptr, ret, pos);
+			return open_input_utf32_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf32Le:
-			return open_input_utf32le_stream(ptr, ret, pos);
+			return open_input_utf32le_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf32Be:
-			return open_input_utf32be_stream(ptr, ret, pos);
+			return open_input_utf32be_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf32LeBom:
-			return open_input_utf32lebom_stream(ptr, ret, pos);
+			return open_input_utf32lebom_stream_(ptr, ret, pos);
 
 		case Stream_Open_External_Utf32BeBom:
-			return open_input_utf32bebom_stream(ptr, ret, pos);
+			return open_input_utf32bebom_stream_(ptr, ret, pos);
 
 		default:
-			fmte("Invalid :external-format value.", NULL);
-			return 1;
+			*ret = Nil;
+			return fmte_("Invalid :external-format value.", NULL);
 	}
 }
 
-static void open_direct_input_stream(Execute ptr, addr *ret, addr pos,
+static int open_direct_input_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Element type,
 		enum Stream_Open_IfDoesNot if2,
 		enum Stream_Open_External ext)
 {
 	int check;
+	addr stream;
 
 	/* :if-does-not-exist */
-	if (open_if_does_not_exist_stream(ptr, ret, pos, if2, 1))
-		return;
+	Return(open_if_does_not_exist_stream_(ptr, ret, pos, if2, 1, &check));
+	if (check)
+		return 0;
 
 	/* :element-type */
 	switch (type) {
 		case Stream_Open_Element_Binary:
-			check = open_input_binary_stream(ptr, ret, pos);
+			Return(open_input_binary_stream_(ptr, &stream, pos));
 			break;
 
 		case Stream_Open_Element_Character:
-			check = open_external_input_stream(ptr, ret, pos, ext);
+			Return(open_external_input_stream_(ptr, &stream, pos, ext));
 			break;
 
 		default:
-			fmte("Invalid :element-type value.", NULL);
-			return;
+			return fmte_("Invalid :element-type value.", NULL);
 	}
 
 	/* error check */
-	if (check)
-		file_error(pos);
+	if (stream == NULL)
+		return call_file_error_(ptr, pos);
+
+	return Result(ret, stream);
 }
 
-static int open_external_output_stream(Execute ptr, addr *ret, addr pos,
+static int open_external_output_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_External ext, enum FileOutput mode)
 {
 	/* :external-format */
 	switch (ext) {
 		case Stream_Open_External_Default:
-			return open_output_stream(ptr, ret, pos, mode);
+			return open_output_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Ascii:
-			return open_output_ascii_stream(ptr, ret, pos, mode);
+			return open_output_ascii_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf8:
-			return open_output_utf8_stream(ptr, ret, pos, mode, 0);
+			return open_output_utf8_stream_(ptr, ret, pos, mode, 0);
 
 		case Stream_Open_External_Utf8Bom:
-			return open_output_utf8_stream(ptr, ret, pos, mode, 1);
+			return open_output_utf8_stream_(ptr, ret, pos, mode, 1);
 
 		case Stream_Open_External_Utf16:
-			return open_output_utf16be_stream(ptr, ret, pos, mode, 0);
+			return open_output_utf16be_stream_(ptr, ret, pos, mode, 0);
 
 		case Stream_Open_External_Utf16Le:
-			return open_output_utf16le_stream(ptr, ret, pos, mode, 0);
+			return open_output_utf16le_stream_(ptr, ret, pos, mode, 0);
 
 		case Stream_Open_External_Utf16Be:
-			return open_output_utf16be_stream(ptr, ret, pos, mode, 0);
+			return open_output_utf16be_stream_(ptr, ret, pos, mode, 0);
 
 		case Stream_Open_External_Utf16LeBom:
-			return open_output_utf16le_stream(ptr, ret, pos, mode, 1);
+			return open_output_utf16le_stream_(ptr, ret, pos, mode, 1);
 
 		case Stream_Open_External_Utf16BeBom:
-			return open_output_utf16be_stream(ptr, ret, pos, mode, 1);
+			return open_output_utf16be_stream_(ptr, ret, pos, mode, 1);
 
 		case Stream_Open_External_Utf32:
-			return open_output_utf32be_stream(ptr, ret, pos, mode, 0);
+			return open_output_utf32be_stream_(ptr, ret, pos, mode, 0);
 
 		case Stream_Open_External_Utf32Le:
-			return open_output_utf32le_stream(ptr, ret, pos, mode, 0);
+			return open_output_utf32le_stream_(ptr, ret, pos, mode, 0);
 
 		case Stream_Open_External_Utf32Be:
-			return open_output_utf32be_stream(ptr, ret, pos, mode, 0);
+			return open_output_utf32be_stream_(ptr, ret, pos, mode, 0);
 
 		case Stream_Open_External_Utf32LeBom:
-			return open_output_utf32le_stream(ptr, ret, pos, mode, 1);
+			return open_output_utf32le_stream_(ptr, ret, pos, mode, 1);
 
 		case Stream_Open_External_Utf32BeBom:
-			return open_output_utf32be_stream(ptr, ret, pos, mode, 1);
+			return open_output_utf32be_stream_(ptr, ret, pos, mode, 1);
 
 		default:
-			fmte("Invalid :external-format value.", NULL);
-			return 1;
+			*ret = Nil;
+			return fmte_("Invalid :external-format value.", NULL);
 	}
 }
 
-static void open_direct_output_stream(Execute ptr, addr *ret, addr pos,
+static int open_direct_output_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Element type,
 		enum Stream_Open_IfExists if1,
 		enum Stream_Open_IfDoesNot if2,
@@ -1095,89 +1120,94 @@ static void open_direct_output_stream(Execute ptr, addr *ret, addr pos,
 {
 	int check;
 	enum FileOutput mode;
+	addr stream;
 
 	/* :if-does-not-exist */
-	if (open_if_does_not_exist_stream(ptr, ret, pos, if2, 0))
-		return;
+	Return(open_if_does_not_exist_stream_(ptr, ret, pos, if2, 0, &check));
+	if (check)
+		return 0;
 
 	/* :if-exists */
-	if (open_if_exists_stream(ptr, ret, pos, if1, &mode))
-		return;
+	Return(open_if_exists_stream_(ptr, ret, pos, if1, &mode, &check));
+	if (check)
+		return 0;
 
 	/* :element-type */
 	switch (type) {
 		case Stream_Open_Element_Binary:
-			check = open_output_binary_stream(ptr, ret, pos, mode);
+			Return(open_output_binary_stream_(ptr, &stream, pos, mode));
 			break;
 
 		case Stream_Open_Element_Character:
-			check = open_external_output_stream(ptr, ret, pos, ext, mode);
+			Return(open_external_output_stream_(ptr, &stream, pos, ext, mode));
 			break;
 
 		default:
-			fmte("Invalid :element-type value.", NULL);
-			return;
+			*ret = Nil;
+			return fmte_("Invalid :element-type value.", NULL);
 	}
 
 	/* error check */
-	if (check)
-		file_error(pos);
+	if (stream == NULL)
+		return call_file_error_(ptr, pos);
+
+	return Result(ret, stream);
 }
 
-static int open_external_io_stream(Execute ptr, addr *ret, addr pos,
+static int open_external_io_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_External ext, enum FileOutput mode)
 {
 	/* :external-format */
 	switch (ext) {
 		case Stream_Open_External_Default:
-			return open_io_stream(ptr, ret, pos, mode);
+			return open_io_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Ascii:
-			return open_io_ascii_stream(ptr, ret, pos, mode);
+			return open_io_ascii_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf8:
-			return open_io_utf8_stream(ptr, ret, pos, mode);
+			return open_io_utf8_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf8Bom:
-			return open_io_utf8bom_stream(ptr, ret, pos, mode);
+			return open_io_utf8bom_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf16:
-			return open_io_utf16_stream(ptr, ret, pos, mode);
+			return open_io_utf16_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf16Le:
-			return open_io_utf16le_stream(ptr, ret, pos, mode);
+			return open_io_utf16le_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf16Be:
-			return open_io_utf16be_stream(ptr, ret, pos, mode);
+			return open_io_utf16be_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf16LeBom:
-			return open_io_utf16lebom_stream(ptr, ret, pos, mode);
+			return open_io_utf16lebom_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf16BeBom:
-			return open_io_utf16bebom_stream(ptr, ret, pos, mode);
+			return open_io_utf16bebom_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf32:
-			return open_io_utf32_stream(ptr, ret, pos, mode);
+			return open_io_utf32_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf32Le:
-			return open_io_utf32le_stream(ptr, ret, pos, mode);
+			return open_io_utf32le_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf32Be:
-			return open_io_utf32be_stream(ptr, ret, pos, mode);
+			return open_io_utf32be_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf32LeBom:
-			return open_io_utf32lebom_stream(ptr, ret, pos, mode);
+			return open_io_utf32lebom_stream_(ptr, ret, pos, mode);
 
 		case Stream_Open_External_Utf32BeBom:
-			return open_io_utf32bebom_stream(ptr, ret, pos, mode);
+			return open_io_utf32bebom_stream_(ptr, ret, pos, mode);
 
 		default:
-			fmte("Invalid :external-format value.", NULL);
-			return 1;
+			*ret = Nil;
+			return fmte_("Invalid :external-format value.", NULL);
 	}
 }
 
-static void open_direct_io_stream(Execute ptr, addr *ret, addr pos,
+static int open_direct_io_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Element type,
 		enum Stream_Open_IfExists if1,
 		enum Stream_Open_IfDoesNot if2,
@@ -1185,47 +1215,53 @@ static void open_direct_io_stream(Execute ptr, addr *ret, addr pos,
 {
 	int check;
 	enum FileOutput mode;
+	addr stream;
 
 	/* :if-does-not-exist */
-	if (open_if_does_not_exist_stream(ptr, ret, pos, if2, 0))
-		return;
+	Return(open_if_does_not_exist_stream_(ptr, ret, pos, if2, 0, &check));
+	if (check)
+		return 0;
 
 	/* :if-exists */
-	if (open_if_exists_stream(ptr, ret, pos, if1, &mode))
-		return;
+	Return(open_if_exists_stream_(ptr, ret, pos, if1, &mode, &check));
+	if (check)
+		return 0;
 
 	/* :element-type */
 	switch (type) {
 		case Stream_Open_Element_Binary:
-			check = open_io_binary_stream(ptr, ret, pos, mode);
+			Return(open_io_binary_stream_(ptr, &stream, pos, mode));
 			break;
 
 		case Stream_Open_Element_Character:
-			check = open_external_io_stream(ptr, ret, pos, ext, mode);
+			Return(open_external_io_stream_(ptr, &stream, pos, ext, mode));
 			break;
 
 		default:
-			fmte("Invalid :element-type value.", NULL);
-			return;
+			*ret = Nil;
+			return fmte_("Invalid :element-type value.", NULL);
 	}
 
 	/* error check */
-	if (check)
-		file_error(pos);
+	if (stream == NULL)
+		return call_file_error_(ptr, pos);
+
+	return Result(ret, stream);
 }
 
-static void open_direct_probe_stream(Execute ptr, addr *ret, addr pos,
+static int open_direct_probe_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Element type,
 		enum Stream_Open_IfDoesNot if2,
 		enum Stream_Open_External ext)
 {
-	open_direct_input_stream(ptr, &pos, pos, type, if2, ext);
-	if (pos != Nil)
-		close_stream(pos);
-	*ret = pos;
+	Return(open_direct_input_stream_(ptr, &pos, pos, type, if2, ext));
+	if (pos != Nil) {
+		Return(close_stream_(pos));
+	}
+	return Result(ret, pos);
 }
 
-_g void open_stream(Execute ptr, addr *ret, addr pos,
+_g int open_stream_(Execute ptr, addr *ret, addr pos,
 		enum Stream_Open_Direction direction,
 		enum Stream_Open_Element type,
 		enum Stream_Open_IfExists if1,
@@ -1235,24 +1271,20 @@ _g void open_stream(Execute ptr, addr *ret, addr pos,
 	/* :direction */
 	switch (direction) {
 		case Stream_Open_Direction_Input:
-			open_direct_input_stream(ptr, ret, pos, type, if2, ext);
-			break;
+			return open_direct_input_stream_(ptr, ret, pos, type, if2, ext);
 
 		case Stream_Open_Direction_Output:
-			open_direct_output_stream(ptr, ret, pos, type, if1, if2, ext);
-			break;
+			return open_direct_output_stream_(ptr, ret, pos, type, if1, if2, ext);
 
 		case Stream_Open_Direction_Io:
-			open_direct_io_stream(ptr, ret, pos, type, if1, if2, ext);
-			break;
+			return open_direct_io_stream_(ptr, ret, pos, type, if1, if2, ext);
 
 		case Stream_Open_Direction_Probe:
-			open_direct_probe_stream(ptr, ret, pos, type, if2, ext);
-			break;
+			return open_direct_probe_stream_(ptr, ret, pos, type, if2, ext);
 
 		default:
-			fmte("Invalid direction.", NULL);
-			return;
+			*ret = Nil;
+			return fmte_("Invalid direction.", NULL);
 	}
 }
 

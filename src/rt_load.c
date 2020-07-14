@@ -13,7 +13,7 @@
 #include "declare.h"
 #include "degrade.h"
 #include "eval_execute.h"
-#include "file.h"
+#include "file_open.h"
 #include "format.h"
 #include "heap.h"
 #include "hold.h"
@@ -44,12 +44,13 @@ static int rtload_pathname(Execute ptr, addr file, int *ret)
 	addr path, stream;
 
 	/* load name */
-	if (open_input_stream(ptr, &stream, file)) {
+	Return(open_input_stream_(ptr, &stream, file));
+	if (stream == NULL) {
 		/* load "test/" name */
 		parse_pathname_char_heap(ptr, "test/", &path);
 		merge_pathnames_clang(ptr, file, path, Unbound, &file);
 		name_pathname_heap(ptr, file, &file);
-		open_input_stream_error(ptr, &stream, file); /* force */
+		Return(open_input_stream_error_(ptr, &stream, file)); /* force */
 	}
 
 	return rtload_execute(ptr, stream, ret);
