@@ -734,7 +734,7 @@ _g void make_symbolchar(addr *ret, const char *str)
 	*ret = pos;
 }
 
-static void make_gensym_argument(Execute ptr,
+static int make_gensym_argument_(Execute ptr,
 		const char *prefix1, addr prefix2, addr counter, addr *ret)
 {
 	addr symbol, value, queue, name, gensym;
@@ -757,7 +757,7 @@ static void make_gensym_argument(Execute ptr,
 		pushchar_charqueue_local(local, queue, prefix1);
 	else
 		pushstring_charqueue_local(local, queue, prefix2);
-	decimal_charqueue_integer_local(local, value, queue);
+	Return(decimal_charqueue_integer_local_(local, value, queue));
 	make_charqueue_heap(queue, &name);
 	rollback_local(local, stack);
 
@@ -771,25 +771,27 @@ static void make_gensym_argument(Execute ptr,
 		oneplus_integer_common(local, value, &value);
 		setspecial_local(ptr, symbol, value);
 	}
+
+	return 0;
 }
-_g void make_gensym(Execute ptr, addr *ret)
+_g int make_gensym_(Execute ptr, addr *ret)
 {
-	make_gensym_argument(ptr, "G", NULL, NULL, ret);
+	return make_gensym_argument_(ptr, "G", NULL, NULL, ret);
 }
-_g void make_gensym_prefix(Execute ptr, addr prefix, addr *ret)
+_g int make_gensym_prefix_(Execute ptr, addr prefix, addr *ret)
 {
 	Check(! stringp(prefix), "type error");
-	make_gensym_argument(ptr, NULL, prefix, NULL, ret);
+	return make_gensym_argument_(ptr, NULL, prefix, NULL, ret);
 }
-_g void make_gensym_integer(Execute ptr, addr value, addr *ret)
+_g int make_gensym_integer_(Execute ptr, addr value, addr *ret)
 {
 	Check(! integerp(value), "type error");
-	make_gensym_argument(ptr, "G", NULL, value, ret);
+	return make_gensym_argument_(ptr, "G", NULL, value, ret);
 }
-_g void make_gensym_char(Execute ptr, const char *str, addr value, addr *ret)
+_g int make_gensym_char_(Execute ptr, const char *str, addr value, addr *ret)
 {
 	Check(! integerp(value), "type error");
-	make_gensym_argument(ptr, str, NULL, value, ret);
+	return make_gensym_argument_(ptr, str, NULL, value, ret);
 }
 
 _g void setcounter_gensym(Execute ptr, fixnum value)

@@ -14,7 +14,7 @@ void fmtfloat_degrade_clear(void)
 	fmtfloat_degrade_buffer[0] = 0;
 }
 
-void fmtfloat_write_char(addr stream, unicode c)
+int fmtfloat_write_char_(addr stream, unicode c)
 {
 	if (stream == NULL) {
 		if (FMTFLOAT_DEGRADE_SIZE <= fmtfloat_degrade_index) {
@@ -23,22 +23,25 @@ void fmtfloat_write_char(addr stream, unicode c)
 		}
 		fmtfloat_degrade_buffer[fmtfloat_degrade_index++] = c;
 		fmtfloat_degrade_buffer[fmtfloat_degrade_index] = 0;
+		return 0;
 	}
 	else {
-		write_char_stream(stream, c);
+		return write_char_stream_(stream, c);
 	}
 }
 
-void fmtfloat_print_ascii(addr stream, const char *ptr)
+int fmtfloat_print_ascii_(addr stream, const char *ptr)
 {
 	int c;
 
 	if (stream == NULL) {
-		for (c = *(ptr++); c; c = *(ptr++))
-			fmtfloat_write_char(NULL, (unicode)c);
+		for (c = *(ptr++); c; c = *(ptr++)) {
+			Return(fmtfloat_write_char_(NULL, (unicode)c));
+		}
+		return 0;
 	}
 	else {
-		print_ascii_stream(stream, ptr);
+		return print_ascii_stream_(stream, ptr);
 	}
 }
 
@@ -63,7 +66,8 @@ int fmtfloat_degrade_fixfloat(single_float value,
 
 	/* overflowp = 1 */
 	fmtfloat_degrade_clear();
-	fmtfloat_fixed_float(NULL, value,s,  w,d,k,   '*','=');
+	if (fmtfloat_fixed_float_(NULL, value,s,  w,d,k,   '*','='))
+		return 1;
 	if (strcmp(fmtfloat_degrade_buffer, str1) != 0) {
 		fmtfloat_degrade_fixoutput("NG", str1);
 		printf("error index = %d\n", fmtfloat_degrade_count);
@@ -75,7 +79,8 @@ int fmtfloat_degrade_fixfloat(single_float value,
 
 	/* overflowp = 0 */
 	fmtfloat_degrade_clear();
-	fmtfloat_fixed_float(NULL, value,s,  w,d,k,   0,'=');
+	if (fmtfloat_fixed_float_(NULL, value,s,  w,d,k,   0,'='))
+		return 1;
 	if (strcmp(fmtfloat_degrade_buffer, str2) != 0) {
 		fmtfloat_degrade_fixoutput("NG", str2);
 		printf("error index = %d\n", fmtfloat_degrade_count);
@@ -96,7 +101,8 @@ int fmtfloat_degrade_fixdouble(double_float value,
 
 	/* overflowp = 1 */
 	fmtfloat_degrade_clear();
-	fmtfloat_fixed_double(NULL, value,s,  w,d,k,   '*','=');
+	if (fmtfloat_fixed_double_(NULL, value,s,  w,d,k,   '*','='))
+		return 1;
 	if (strcmp(fmtfloat_degrade_buffer, str1) != 0) {
 		fmtfloat_degrade_fixoutput("NG", str1);
 		printf("error index = %d\n", fmtfloat_degrade_count);
@@ -108,7 +114,8 @@ int fmtfloat_degrade_fixdouble(double_float value,
 
 	/* overflowp = 0 */
 	fmtfloat_degrade_clear();
-	fmtfloat_fixed_double(NULL, value,s,  w,d,k,   0,'=');
+	if (fmtfloat_fixed_double_(NULL, value,s,  w,d,k,   0,'='))
+		return 1;
 	if (strcmp(fmtfloat_degrade_buffer, str2) != 0) {
 		fmtfloat_degrade_fixoutput("NG", str2);
 		printf("error index = %d\n", fmtfloat_degrade_count);
@@ -138,7 +145,8 @@ int fmtfloat_degrade_expfloat(single_float value,
 
 	/* overflowp = 1 */
 	fmtfloat_degrade_clear();
-	fmtfloat_exponent_float(NULL, value,s,  w,d,e,k,   '*','=','E');
+	if (fmtfloat_exponent_float_(NULL, value,s,  w,d,e,k,   '*','=','E'))
+		return 1;
 	if (strcmp(fmtfloat_degrade_buffer, str1) != 0) {
 		test_output_exponent("NG", str1);
 		printf("error index = %d\n", fmtfloat_degrade_count);
@@ -150,7 +158,8 @@ int fmtfloat_degrade_expfloat(single_float value,
 
 	/* overflowp = 0 */
 	fmtfloat_degrade_clear();
-	fmtfloat_exponent_float(NULL, value,s,  w,d,e,k,   0,'=','E');
+	if (fmtfloat_exponent_float_(NULL, value,s,  w,d,e,k,   0,'=','E'))
+		return 1;
 	if (strcmp(fmtfloat_degrade_buffer, str2) != 0) {
 		test_output_exponent("NG", str2);
 		printf("error index = %d\n", fmtfloat_degrade_count);
@@ -171,7 +180,8 @@ int fmtfloat_degrade_expdouble(double_float value,
 
 	/* overflowp = 1 */
 	fmtfloat_degrade_clear();
-	fmtfloat_exponent_double(NULL, value,s,  w,d,e,k,   '*','=','E');
+	if (fmtfloat_exponent_double_(NULL, value,s,  w,d,e,k,   '*','=','E'))
+		return 1;
 	if (strcmp(fmtfloat_degrade_buffer, str1) != 0) {
 		test_output_exponent("NG", str1);
 		printf("error index = %d\n", fmtfloat_degrade_count);
@@ -183,7 +193,8 @@ int fmtfloat_degrade_expdouble(double_float value,
 
 	/* overflowp = 0 */
 	fmtfloat_degrade_clear();
-	fmtfloat_exponent_double(NULL, value,s,  w,d,e,k,   0,'=','E');
+	if (fmtfloat_exponent_double_(NULL, value,s,  w,d,e,k,   0,'=','E'))
+		return 1;
 	if (strcmp(fmtfloat_degrade_buffer, str2) != 0) {
 		test_output_exponent("NG", str2);
 		printf("error index = %d\n", fmtfloat_degrade_count);
@@ -235,7 +246,8 @@ int test_case_exponent(void)
 static int fixed_basic1(double_float v, const char *str)
 {
 	fmtfloat_degrade_clear();
-	fmtfloat_fixed_double(NULL, v,0,  -1,-1,0,   0,'=');
+	if (fmtfloat_fixed_double_(NULL, v,0,  -1,-1,0,   0,'='))
+		return 1;
 	if (strcmp(fmtfloat_degrade_buffer, str) != 0) {
 		degrade_printf("ERROR: chk:%s != ret:%s\n", fmtfloat_degrade_buffer, str);
 		return 0;
@@ -247,7 +259,8 @@ static int fixed_basic1(double_float v, const char *str)
 static int fixed_basic2(double_float v, const char *str)
 {
 	fmtfloat_degrade_clear();
-	fmtfloat_fixed_double(NULL, v,0,  -1,-1,0,   0,'=');
+	if (fmtfloat_fixed_double_(NULL, v,0,  -1,-1,0,   0,'='))
+		return 1;
 	if (strcmp(fmtfloat_degrade_buffer, str) != 0) {
 		degrade_printf("ERROR: chk:%s != ret:%s\n", fmtfloat_degrade_buffer, str);
 		return 0;

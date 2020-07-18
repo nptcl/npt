@@ -49,7 +49,7 @@ static int rtload_pathname(Execute ptr, addr file, int *ret)
 		/* load "test/" name */
 		parse_pathname_char_heap(ptr, "test/", &path);
 		merge_pathnames_clang(ptr, file, path, Unbound, &file);
-		name_pathname_heap(ptr, file, &file);
+		Return(name_pathname_heap_(ptr, file, &file));
 		Return(open_input_stream_error_(ptr, &stream, file)); /* force */
 	}
 

@@ -13,7 +13,7 @@
 /*
  *  loop-bind
  */
-static int loop_subtypep(Execute ptr, addr a, addr b, int *ret)
+static int loop_subtypep_(Execute ptr, addr a, addr b, int *ret)
 {
 	int invalid;
 	LocalHold hold;
@@ -21,13 +21,11 @@ static int loop_subtypep(Execute ptr, addr a, addr b, int *ret)
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, a, b, NULL);
 	if (GetType(a) != LISPTYPE_TYPE) {
-		if (parse_type(ptr, &a, a, Nil))
-			return 1;
+		Return(parse_type(ptr, &a, a, Nil));
 		localhold_push(hold, a);
 	}
 	if (GetType(b) != LISPTYPE_TYPE) {
-		if (parse_type(ptr, &b, b, Nil))
-			return 1;
+		Return(parse_type(ptr, &b, b, Nil));
 		localhold_push(hold, b);
 	}
 	localhold_end(hold);
@@ -36,54 +34,46 @@ static int loop_subtypep(Execute ptr, addr a, addr b, int *ret)
 	return 0;
 }
 
-static int loop_bind_initial(Execute ptr, addr type, addr *ret)
+static int loop_bind_initial_(Execute ptr, addr type, addr *ret)
 {
 	int check;
 	addr right;
 
-	if (type == Unbound) {
-		*ret = Nil;
-		return 0;
-	}
+	if (type == Unbound)
+		return Result(ret, Nil);
 	if (GetType(type) != LISPTYPE_TYPE) {
-		if (parse_type(ptr, &type, type, Nil))
-			return 1;
+		Return(parse_type(ptr, &type, type, Nil));
 	}
 	/* float */
 	GetTypeTable(&right, Float);
-	if (loop_subtypep(ptr, type, right, &check))
-		return 1;
+	Return(loop_subtypep_(ptr, type, right, &check));
 	if (check) {
 		single_float_heap(ret, 0.0f);
 		return 0;
 	}
 	/* integer */
 	GetTypeTable(&right, Number);
-	if (loop_subtypep(ptr, type, right, &check))
-		return 1;
+	Return(loop_subtypep_(ptr, type, right, &check));
 	if (check) {
 		fixnum_heap(ret, 0);
 		return 0;
 	}
 	else {
 		/* others */
-		*ret = Nil;
-		return 0;
+		return Result(ret, Nil);
 	}
 }
 
-static int loop_bind_initial_recursive(Execute ptr, addr var, addr type, addr *ret)
+static int loop_bind_initial_recursive_(Execute ptr, addr var, addr type, addr *ret)
 {
 	addr var1, var2, type1, type2, value1, value2;
 	LocalHold hold;
 
 	/* variable */
-	if (var == Nil) {
-		*ret = Nil;
-		return 0;
-	}
+	if (var == Nil)
+		return Result(ret, Nil);
 	if (! consp(var))
-		return loop_bind_initial(ptr, type, ret);
+		return loop_bind_initial_(ptr, type, ret);
 	GetCons(var, &var1, &var2);
 	/* type */
 	if (consp(type)) {
@@ -97,51 +87,47 @@ static int loop_bind_initial_recursive(Execute ptr, addr var, addr type, addr *r
 		type1 = type2 = type;
 	}
 	/* initial value */
-	loop_bind_initial_recursive(ptr, var1, type1, &value1);
+	Return(loop_bind_initial_recursive_(ptr, var1, type1, &value1));
 	hold = LocalHold_local_push(ptr, value1);
-	loop_bind_initial_recursive(ptr, var2, type2, &value2);
+	Return(loop_bind_initial_recursive_(ptr, var2, type2, &value2));
 	localhold_end(hold);
 	cons_heap(ret, value1, value2);
 
 	return 0;
 }
 
-_g int loop_bind_initial_list(Execute ptr, addr var, addr type, addr *ret)
+_g int loop_bind_initial_list_(Execute ptr, addr var, addr type, addr *ret)
 {
 	LocalHold hold;
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, var, type, NULL);
-	if (loop_bind_initial_recursive(ptr, var, type, &var))
-		return 1;
+	Return(loop_bind_initial_recursive_(ptr, var, type, &var));
 	localhold_end(hold);
 
 	if (consp(var))
 		quotelist_heap(&var, var);
-	*ret = var;
 
-	return 0;
+	return Result(ret, var);
 }
 
-static int loop_typep(Execute ptr, addr pos, addr value, addr type)
+static int loop_typep_(Execute ptr, addr pos, addr value, addr type)
 {
 	int check;
 
 	if (GetType(type) != LISPTYPE_TYPE) {
-		if (parse_type(ptr, &type, type, Nil))
-			return 1;
+		Return(parse_type(ptr, &type, type, Nil));
 	}
-	if (typep_clang(ptr, value, type, &check))
-		return 1;
+	Return(typep_clang(ptr, value, type, &check));
 	if (! check) {
 		type_object(&type, type);
-		fmte("LOOP let ~A form ~S must be a ~A type.", pos, value, type, NULL);
+		return fmte_("LOOP let ~A form ~S must be a ~A type.", pos, value, type, NULL);
 	}
 
 	return 0;
 }
 
-static int loop_bind_recursive(Execute ptr, addr pos, addr type, addr value, addr *ret)
+static int loop_bind_recursive_(Execute ptr, addr pos, addr type, addr value, addr *ret)
 {
 	addr pos1, pos2, type1, type2, value1, value2;
 	LocalHold hold;
@@ -150,10 +136,8 @@ static int loop_bind_recursive(Execute ptr, addr pos, addr type, addr value, add
 	/* symbol */
 	if (! consp(pos)) {
 		Check(! symbolp(pos), "type error");
-		if (loop_typep(ptr, pos, value, type))
-			return 1;
-		*ret = value;
-		return 0;
+		Return(loop_typep_(ptr, pos, value, type));
+		return Result(ret, value);
 	}
 	/* cons */
 	GetCons(pos, &pos1, &pos2);
@@ -171,42 +155,47 @@ static int loop_bind_recursive(Execute ptr, addr pos, addr type, addr value, add
 	/* default */
 	hold = LocalHold_local(ptr);
 	if (value == Nil) {
-		if (pos1 == Nil)
+		if (pos1 == Nil) {
 			value1 = Nil;
-		else if (loop_bind_initial(ptr, type1, &value1))
-			return 1;
-		if (pos2 == Nil)
+		}
+		else {
+			Return(loop_bind_initial_(ptr, type1, &value1));
+		}
+		if (pos2 == Nil) {
 			value2 = Nil;
-		else if (loop_bind_initial(ptr, type2, &value2))
-			return 1;
+		}
+		else {
+			Return(loop_bind_initial_(ptr, type2, &value2));
+		}
 	}
 	/* cons */
 	else if (consp(value)) {
 		GetCons(value, &value1, &value2);
-		if (pos1 == Nil)
+		if (pos1 == Nil) {
 			value1 = Nil;
-		else if (loop_bind_recursive(ptr, pos1, type1, value1, &value1))
-			return 1;
+		}
+		else {
+			Return(loop_bind_recursive_(ptr, pos1, type1, value1, &value1));
+		}
 		localhold_push(hold, value1);
-		if (pos2 == Nil)
+		if (pos2 == Nil) {
 			value2 = Nil;
-		else if (loop_bind_recursive(ptr, pos2, type2, value2, &value2))
-			return 1;
+		}
+		else {
+			Return(loop_bind_recursive_(ptr, pos2, type2, value2, &value2))
+		}
 		localhold_push(hold, value2);
 	}
 	/* error */
 	else {
-		fmte("LOOP let ~A form ~S must be a list type.", pos, value, NULL);
-		return 0;
+		return fmte_("LOOP let ~A form ~S must be a list type.", pos, value, NULL);
 	}
 	/* type check */
 	if (! listp(pos1)) {
-		if (loop_typep(ptr, pos1, value1, type1))
-			return 1;
+		Return(loop_typep_(ptr, pos1, value1, type1));
 	}
 	if (! listp(pos2)) {
-		if (loop_typep(ptr, pos2, value2, type2))
-			return 1;
+		Return(loop_typep_(ptr, pos2, value2, type2));
 	}
 	localhold_end(hold);
 	cons_heap(ret, value1, value2);
@@ -218,19 +207,16 @@ _g int loop_bind_common(Execute ptr, addr pos, addr type, addr value, addr *ret)
 {
 	LocalHold hold;
 
-	if (pos == Nil) {
-		*ret = Nil;
-		return 0;
-	}
+	if (pos == Nil)
+		return Result(ret, Nil);
 	if (! listp(pos))
-		fmte("LIST-BIND argument ~S must be a list type.", pos, NULL);
+		return fmte_("LIST-BIND argument ~S must be a list type.", pos, NULL);
 	if (type == Unbound)
 		GetTypeTable(&pos, T);
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, pos, type, value, NULL);
-	if (loop_bind_recursive(ptr, pos, type, value, ret))
-		return 1;
+	Return(loop_bind_recursive_(ptr, pos, type, value, ret));
 	localhold_end(hold);
 
 	return 0;

@@ -314,8 +314,9 @@ static int pprint_pop_atom(Execute ptr, addr stream)
 {
 	addr pos;
 
-	if (! first_pretty_stream(stream))
-		print_ascii_stream(stream, ". ");
+	if (! first_pretty_stream(stream)) {
+		Return(print_ascii_stream_(stream, ". "));
+	}
 	pop_pretty_stream(stream, &pos);
 	Return(write_print(ptr, stream, pos));
 
@@ -331,6 +332,7 @@ static int pprint_length_check(Execute ptr, addr stream)
 
 _g int pprint_pop_common(Execute ptr, addr stream, addr *ret)
 {
+	int check;
 	addr pos;
 
 	root_pretty_stream(stream, &pos);
@@ -339,18 +341,19 @@ _g int pprint_pop_common(Execute ptr, addr stream, addr *ret)
 		return pprint_pop_atom(ptr, stream);
 	/* length */
 	if (pprint_length_check(ptr, stream)) {
-		print_ascii_stream(stream, "...");
+		Return(print_ascii_stream_(stream, "..."));
 		return pprint_throw(ptr, stream);
 	}
 	/* list */
-	if (pos == Nil) {
-		*ret = Nil;
-		return 0;
-	}
+	if (pos == Nil)
+		return Result(ret, Nil);
 	/* circle */
 	if (circle_print(ptr)) {
-		if (! first_pretty_stream(stream) && pprint_pop_circle(ptr, stream, pos))
-			return pprint_throw(ptr, stream);
+		if (! first_pretty_stream(stream)) {
+			Return(pprint_pop_circle_(ptr, stream, pos, &check));
+			if (check)
+				return pprint_throw(ptr, stream);
+		}
 	}
 	/* cons */
 	pop_pretty_stream(stream, ret);
@@ -360,6 +363,7 @@ _g int pprint_pop_common(Execute ptr, addr stream, addr *ret)
 
 _g int check_pretty_stream(Execute ptr, addr stream)
 {
+	int check;
 	addr root;
 	size_t level, depth;
 
@@ -368,7 +372,7 @@ _g int check_pretty_stream(Execute ptr, addr stream)
 		getdepth_print_write(ptr, &depth);
 		if (level <= depth) {
 			setlistp_pretty_stream(stream, 0);
-			write_char_stream(stream, '#');
+			Return(write_char_stream_(stream, '#'));
 			return pprint_throw(ptr, stream);
 		}
 	}
@@ -376,7 +380,8 @@ _g int check_pretty_stream(Execute ptr, addr stream)
 	/* atom */
 	root_pretty_stream(stream, &root);
 	if (! listp(root)) {
-		return write_print(ptr, stream, root) || pprint_throw(ptr, stream);
+		Return(write_print(ptr, stream, root));
+		return pprint_throw(ptr, stream);
 	}
 
 	/* increment depth */
@@ -385,9 +390,10 @@ _g int check_pretty_stream(Execute ptr, addr stream)
 	/* circle */
 	if (circle_print(ptr)) {
 		if (consp(root)) {
-			if (pprint_check_circle(ptr, root, &root)) {
+			Return(pprint_check_circle_(ptr, root, &root, &check));
+			if (check) {
 				setlistp_pretty_stream(stream, 0);
-				print_string_stream(stream, root);
+				Return(print_string_stream_(stream, root));
 				return pprint_throw(ptr, stream);
 			}
 			if (root != Nil)
@@ -409,7 +415,8 @@ _g void pprint_indent_print(Execute ptr, int block_p, fixnum n, addr stream)
 	enum print_pretty type;
 	addr pos;
 
-	if (! pretty_common_p(ptr, stream)) return;
+	if (! pretty_common_p(ptr, stream))
+		return;
 	type = block_p? print_pretty_indent_block: print_pretty_indent_current;
 	fixnum_pretty_heap(&pos, type, n);
 	push_pretty_stream(stream, pos);
@@ -419,7 +426,8 @@ _g void pprint_newline_print(Execute ptr, enum pprint_newline kind, addr stream)
 {
 	addr pos;
 
-	if (! pretty_common_p(ptr, stream)) return;
+	if (! pretty_common_p(ptr, stream))
+		return;
 	switch (kind) {
 		case pprint_newline_linear:
 			print_pretty_heap(&pos, print_pretty_newline_linear);
@@ -460,7 +468,8 @@ _g void pprint_tab_print(Execute ptr,
 {
 	addr pos;
 
-	if (! pretty_common_p(ptr, stream)) return;
+	if (! pretty_common_p(ptr, stream))
+		return;
 	switch (kind) {
 		case pprint_tabular_line:
 			size2_pretty_heap(&pos, print_pretty_tabular_line, a, b);
@@ -499,10 +508,13 @@ _g void pprint_tab_section_relative(Execute ptr,
 	pprint_tab_print(ptr, stream, pprint_tabular_section_relative, column, colinc);
 }
 
-static void pprint_tab_output(addr stream, fixnum size)
+static int pprint_tab_output_(addr stream, fixnum size)
 {
-	for (; 0 < size; size--)
-		write_char_stream(stream, ' ');
+	for (; 0 < size; size--) {
+		Return(write_char_stream_(stream, ' '));
+	}
+
+	return 0;
 }
 
 static fixnum pprint_colinc_division(fixnum size, fixnum colinc)
@@ -540,31 +552,34 @@ static void pprint_tab_relative_size(fixnum *ret,
 	*ret = (column < 0)? 0: column;
 }
 
-_g void pprint_tab_absolute_force(addr stream,
+_g int pprint_tab_absolute_force_(addr stream,
 		fixnum column, fixnum colinc, fixnum now)
 {
 	pprint_tab_absolute_size(&now, column, colinc, 0, now);
-	pprint_tab_output(stream, now);
+	return pprint_tab_output_(stream, now);
 }
 
-_g void pprint_tab_relative_force(addr stream,
+_g int pprint_tab_relative_force_(addr stream,
 		fixnum column, fixnum colinc, fixnum now)
 {
 	pprint_tab_relative_size(&now, column, colinc, 0, now);
-	pprint_tab_output(stream, now);
+	return pprint_tab_output_(stream, now);
 }
 
 
 /*
  *  output
  */
-static void write_char_white(addr stream, size_t *white)
+static int write_char_white_(addr stream, size_t *white)
 {
-	for (; *white; (*white)--)
-		write_char_stream(stream, ' ');
+	for (; *white; (*white)--) {
+		Return(write_char_stream_(stream, ' '));
+	}
+
+	return 0;
 }
 
-static void pretty_write_string(addr stream, addr pos, size_t *white)
+static int pretty_write_string_(addr stream, addr pos, size_t *white)
 {
 	unicode c;
 	size_t i, size;
@@ -576,9 +591,11 @@ static void pretty_write_string(addr stream, addr pos, size_t *white)
 			(*white)++;
 			continue;
 		}
-		write_char_white(stream, white);
-		write_char_stream(stream, c);
+		Return(write_char_white_(stream, white));
+		Return(write_char_stream_(stream, c));
 	}
+
+	return 0;
 }
 
 static void pretty_write_space(addr stream, addr pos, size_t *white)
@@ -588,7 +605,7 @@ static void pretty_write_space(addr stream, addr pos, size_t *white)
 	*white += value;
 }
 
-static void pretty_write(addr stream, addr list)
+static int pretty_write_(addr stream, addr list)
 {
 	addr pos;
 	size_t white;
@@ -598,7 +615,7 @@ static void pretty_write(addr stream, addr list)
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		if (stringp(pos)) {
-			pretty_write_string(stream, pos, &white);
+			Return(pretty_write_string_(stream, pos, &white));
 			continue;
 		}
 		if (GetType(pos) == LISPTYPE_INDEX) {
@@ -606,19 +623,20 @@ static void pretty_write(addr stream, addr list)
 			continue;
 		}
 		if (pos == T) {
-			write_char_white(stream, &white);
-			terpri_stream(stream);
+			Return(write_char_white_(stream, &white));
+			Return(terpri_stream_(stream));
 			white = 0;
 			continue;
 		}
 		if (pos == Nil) {
-			terpri_stream(stream);
+			Return(terpri_stream_(stream));
 			white = 0;
 			continue;
 		}
-		fmte("Invalid pretty-output object ~S.", pos, NULL);
+		return fmte_("Invalid pretty-output object ~S.", pos, NULL);
 	}
-	write_char_white(stream, &white);
+
+	return write_char_white_(stream, &white);
 }
 
 
@@ -1409,7 +1427,7 @@ static void pretty_struct(struct pretty_block *ptr, addr pretty)
 /*
  *  interface
  */
-static void pprint_initialize(struct pretty_block *str, Execute ptr, addr stream)
+static int pprint_initialize_(struct pretty_block *str, Execute ptr, addr stream)
 {
 	size_t size;
 
@@ -1423,7 +1441,7 @@ static void pprint_initialize(struct pretty_block *str, Execute ptr, addr stream
 	str->newlinep = 0;
 	str->previous = 0;
 	str->miserp = 0;
-	size = getleft_stream(stream);
+	Return(getleft_stream_(stream, &size));
 	str->base = size;
 	str->now = size;
 	str->current = 0;
@@ -1436,10 +1454,10 @@ static void pprint_initialize(struct pretty_block *str, Execute ptr, addr stream
 	str->break_lines_p = 0;
 	str->print_lines_p = lines_print(ptr, &(str->print_lines));
 	str->print_miser_p = miser_width_print(ptr, &(str->print_miser));
-	right_margin_print(ptr, stream, &(str->print_margin));
+	return right_margin_print_(ptr, stream, &(str->print_margin));
 }
 
-_g void pprint_output(Execute ptr, addr stream, addr pretty)
+_g int pprint_output_(Execute ptr, addr stream, addr pretty)
 {
 	struct pretty_block str;
 
@@ -1448,14 +1466,14 @@ _g void pprint_output(Execute ptr, addr stream, addr pretty)
 #endif
 	/* argument check */
 	if (pretty_stream_p(stream))
-		fmte("Invalid output-stream ~S.", stream, NULL);
+		return fmte_("Invalid output-stream ~S.", stream, NULL);
 	if (! pretty_stream_p(pretty))
-		fmte("Invalid pretty-stream ~S.", pretty, NULL);
+		return fmte_("Invalid pretty-stream ~S.", pretty, NULL);
 	/* pretty-start */
-	pprint_initialize(&str, ptr, stream);
+	Return(pprint_initialize_(&str, ptr, stream));
 	pretty_struct(&str, pretty);
 	/* output */
-	pretty_write(stream, str.root);
-	exitpoint_stream(stream);
+	Return(pretty_write_(stream, str.root));
+	return exitpoint_stream_(stream);
 }
 

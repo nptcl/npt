@@ -45,17 +45,18 @@ static int gensymp_readlabel(addr pos)
 	return GetUser(pos);
 }
 
-static void readlabel_heap(Execute ptr, addr *ret, addr label)
+static int readlabel_heap_(Execute ptr, addr *ret, addr label)
 {
 	addr pos, gensym;
 
 	Check(! integerp(label), "label error");
 	heap_array2(&pos, LISPSYSTEM_READLABEL, ReadLabel_Size);
 	gensym_readlabel(pos);
-	make_gensym_char(ptr, "READ-LABEL", label, &gensym);
+	Return(make_gensym_char_(ptr, "READ-LABEL", label, &gensym));
 	SetReadLabel(pos, ReadLabel_Label, label);
 	SetReadLabel(pos, ReadLabel_Value, gensym);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 static int gensym_check_readlabel(addr label, addr check)
@@ -124,7 +125,7 @@ _g int find_readlabel(addr key, addr list, addr *ret)
 	return 0;
 }
 
-_g void pushlabel_readinfo(Execute ptr, addr value, addr *ret)
+_g int pushlabel_readinfo_(Execute ptr, addr value, addr *ret)
 {
 	addr cons, label, next;
 
@@ -133,11 +134,12 @@ _g void pushlabel_readinfo(Execute ptr, addr value, addr *ret)
 	Check(! consp(cons), "type error");
 	GetCar(cons, &next);
 	if (find_readlabel(value, next, NULL))
-		fmte("The #n= label ~S already exists.", value, NULL);
-	readlabel_heap(ptr, &label, value);
+		return fmte_("The #n= label ~S already exists.", value, NULL);
+	Return(readlabel_heap_(ptr, &label, value));
 	cons_heap(&next, label, next);
 	SetCar(cons, next);
-	*ret = label;
+
+	return Result(ret, label);
 }
 
 static void replace_cons_readlabel(Execute ptr, addr pos, addr left, addr right)

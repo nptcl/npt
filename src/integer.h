@@ -50,11 +50,11 @@ _g int less_equal_integer_clang(addr left, addr right);
 _g void sign_reverse_integer_common(addr pos, addr *ret);
 _g int evenp_integer(addr left);
 
-_g void output_nosign_integer(LocalRoot local, addr stream,
+_g int output_nosign_integer_(LocalRoot local, addr stream,
 		addr pos, unsigned base, int upperp);
-_g void output_nosign_comma_integer(LocalRoot local, addr stream,
+_g int output_nosign_comma_integer_(LocalRoot local, addr stream,
 		addr pos, unsigned base, int upperp, size_t range, unicode comma);
-_g void string_nosign_comma_integer(LocalRoot local, addr *ret, addr pos,
+_g int string_nosign_comma_integer_(LocalRoot local, addr *ret, addr pos,
 		unsigned base, int upperp, size_t range, unicode comma);
 
 /* size */

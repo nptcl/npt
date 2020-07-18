@@ -257,7 +257,7 @@ static int dolist_expand_common(Execute ptr, addr *ret,
 	GetConst(COMMON_CDR, &cdr);
 	GetConst(COMMON_NULL, &null);
 	GetConst(COMMON_SETQ, &setq);
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 	/* (setq ...) */
 	list_heap(&car, car, g, NULL);
 	list_heap(&setq, setq, var, car, NULL);

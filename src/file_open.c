@@ -22,7 +22,7 @@ static inline int inputstream_(Execute ptr,
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
 	fm = PtrFileMemory(pos);
-	name_pathname_local(ptr, file, &name);
+	Return(name_pathname_local_(ptr, file, &name));
 	if (open_input_filememory(ptr->local, fm, name))
 		return Result(ret, NULL);
 	SetPathnameStream(pos, file);
@@ -438,7 +438,7 @@ static inline int outputstream_(Execute ptr,
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
 	fm = PtrFileMemory(pos);
-	name_pathname_local(ptr, file, &name);
+	Return(name_pathname_local_(ptr, file, &name));
 	if (open_output_filememory(ptr->local, fm, name, mode))
 		return Result(ret, NULL);
 	SetPathnameStream(pos, file);
@@ -675,7 +675,7 @@ static inline int iostream_(Execute ptr,
 
 	stream_heap(&pos, type, sizeoft(struct filememory));
 	fm = PtrFileMemory(pos);
-	name_pathname_local(ptr, file, &name);
+	Return(name_pathname_local_(ptr, file, &name));
 	if (open_io_filememory(ptr->local, fm, name, mode))
 		return Result(ret, NULL);
 	SetPathnameStream(pos, file);

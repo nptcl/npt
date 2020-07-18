@@ -290,7 +290,7 @@ static void file_pathname_namestring(LocalpRoot local, addr *ret, addr pos)
 	make_charqueue_alloc(localp_alloc(local), queue, ret);
 }
 
-static void logical_namestring_version(LocalpRoot local, addr queue, addr right)
+static int logical_namestring_version_(LocalpRoot local, addr queue, addr right)
 {
 	LocalRoot alloc;
 	addr wild, newest;
@@ -299,58 +299,69 @@ static void logical_namestring_version(LocalpRoot local, addr queue, addr right)
 	GetConst(KEYWORD_WILD, &wild);
 	GetConst(KEYWORD_NEWEST, &newest);
 	if (right == newest)
-		return;
+		return 0;
 	push_charqueue_local(alloc, queue, '.');
-	if (right == wild)
+	if (right == wild) {
 		pushchar_charqueue_local(alloc, queue, "*");
-	else if (integerp(right))
-		decimal_charqueue_integer_local(alloc, right, queue);
-	else
-		fmte("Invalid version value ~S.", right, NULL);
+		return 0;
+	}
+	else if (integerp(right)) {
+		return decimal_charqueue_integer_local_(alloc, right, queue);
+	}
+	else {
+		return fmte_("Invalid version value ~S.", right, NULL);
+	}
 }
 
-static void file_logical_namestring(LocalpRoot local, addr *ret, addr pos)
+static int file_logical_namestring_(LocalpRoot local, addr *ret, addr pos)
 {
 	addr queue, right;
 
 	charqueue_local(local->local, &queue, 0);
 	file_namestring_filename(local, pos, queue);
 	GetVersionPathname(pos, &right);
-	if (right != Nil)
-		logical_namestring_version(local, queue, right);
+	if (right != Nil) {
+		Return(logical_namestring_version_(local, queue, right));
+	}
 	make_charqueue_alloc(localp_alloc(local), queue, ret);
+
+	return 0;
 }
 
-static void file_name_pathname_alloc(LocalpRoot local, addr pos, addr *ret)
+static int file_name_pathname_alloc_(LocalpRoot local, addr pos, addr *ret)
 {
 	LocalStack stack;
 
 	push_localp(local, &stack);
-	if (RefLogicalPathname(pos))
-		file_logical_namestring(local, ret, pos);
-	else
+	if (RefLogicalPathname(pos)) {
+		Return(file_logical_namestring_(local, ret, pos));
+	}
+	else {
 		file_pathname_namestring(local, ret, pos);
+	}
 	rollback_localp(local, stack);
+
+	return 0;
 }
 
-_g void file_name_pathname_heap(LocalRoot local, addr pos, addr *ret)
+_g int file_name_pathname_heap_(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
 	Check(local == NULL, "local error");
 	buffer.localp = 0;
 	buffer.local = local;
-	file_name_pathname_alloc(&buffer, pos, ret);
+	return file_name_pathname_alloc_(&buffer, pos, ret);
 }
 
-_g void file_name_pathname_local(LocalRoot local, addr pos, addr *ret)
+_g int file_name_pathname_local_(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
 	Check(local == NULL, "local error");
 	buffer.localp = 1;
 	buffer.local = local;
-	file_name_pathname_alloc(&buffer, pos, ret);
+	return file_name_pathname_alloc_(&buffer, pos, ret);
 }
 
 
@@ -523,7 +534,7 @@ static void pathname_namestring(LocalpRoot local, addr *ret, addr pos)
 		fmte("Unknown pathname-host ~S.", host, NULL);
 }
 
-static void logical_namestring(LocalpRoot local, addr *ret, addr pos)
+static int logical_namestring_(LocalpRoot local, addr *ret, addr pos)
 {
 	LocalRoot alloc;
 	addr queue, right;
@@ -538,41 +549,48 @@ static void logical_namestring(LocalpRoot local, addr *ret, addr pos)
 	namestring_filename(local, pos, queue, ';', 1);
 	/* version */
 	GetVersionPathname(pos, &right);
-	if (right != Nil)
-		logical_namestring_version(local, queue, right);
+	if (right != Nil) {
+		Return(logical_namestring_version_(local, queue, right));
+	}
 	/* result */
 	make_charqueue_alloc(localp_alloc(local), queue, ret);
+
+	return 0;
 }
 
-static void name_pathname_alloc(Execute ptr, LocalpRoot local, addr pos, addr *ret)
+static int name_pathname_alloc_(Execute ptr, LocalpRoot local, addr pos, addr *ret)
 {
 	LocalStack stack;
 
 	push_localp(local, &stack);
 	pathname_designer_alloc(ptr, pos, &pos, local->localp);
-	if (RefLogicalPathname(pos))
-		logical_namestring(local, ret, pos);
-	else
+	if (RefLogicalPathname(pos)) {
+		Return(logical_namestring_(local, ret, pos));
+	}
+	else {
 		pathname_namestring(local, ret, pos);
+	}
 	rollback_localp(local, stack);
+
+	return 0;
 }
 
-_g void name_pathname_heap(Execute ptr, addr pos, addr *ret)
+_g int name_pathname_heap_(Execute ptr, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
 	buffer.localp = 0;
 	buffer.local = ptr->local;
-	name_pathname_alloc(ptr, &buffer, pos, ret);
+	return name_pathname_alloc_(ptr, &buffer, pos, ret);
 }
 
-_g void name_pathname_local(Execute ptr, addr pos, addr *ret)
+_g int name_pathname_local_(Execute ptr, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
 	buffer.localp = 1;
 	buffer.local = ptr->local;
-	name_pathname_alloc(ptr, &buffer, pos, ret);
+	return name_pathname_alloc_(ptr, &buffer, pos, ret);
 }
 
 

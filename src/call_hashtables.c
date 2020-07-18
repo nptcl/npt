@@ -331,7 +331,7 @@ _g int maphash_common(Execute ptr, addr call, addr table)
 /*
  *  with-hash-table-iterator
  */
-static void with_hash_table_iterator_expand_common(Execute ptr,
+static int with_hash_table_iterator_expand_common_(Execute ptr,
 		addr name, addr table, addr body, addr *ret)
 {
 	/* (let ((inst (make-hash-iterator table)))
@@ -351,7 +351,7 @@ static void with_hash_table_iterator_expand_common(Execute ptr,
 	GetConst(COMMON_QUOTE, &quote);
 	GetConst(SYSTEM_MAKE_HASH_ITERATOR, &make);
 	GetConst(SYSTEM_NEXT_HASH_ITERATOR, &next);
-	make_gensym(ptr, &inst);
+	Return(make_gensym_(ptr, &inst));
 
 	list_heap(&let1, make, table, NULL);
 	list_heap(&let1, inst, let1, NULL);
@@ -367,6 +367,8 @@ static void with_hash_table_iterator_expand_common(Execute ptr,
 	list_heap(&name, declare, name, NULL);
 	lista_heap(&let3, macrolet, let3, name, body, NULL);
 	list_heap(ret, let, let1, let2, let3, NULL);
+
+	return 0;
 }
 
 _g int with_hash_table_iterator_common(Execute ptr, addr form, addr env, addr *ret)
@@ -387,8 +389,7 @@ _g int with_hash_table_iterator_common(Execute ptr, addr form, addr env, addr *r
 	if (check != Nil)
 		goto error;
 	/* ((name table) . args) */
-	with_hash_table_iterator_expand_common(ptr, name, table, args, ret);
-	return 0;
+	return with_hash_table_iterator_expand_common_(ptr, name, table, args, ret);
 
 error:
 	return fmte_("with-hash-table-iterator form ~S must be "

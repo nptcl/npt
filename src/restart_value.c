@@ -37,8 +37,7 @@ static int restart_symbol_use_interactive(Execute ptr)
 
 static int restart_symbol_use_report(Execute ptr, addr stream)
 {
-	print_ascii_stream(stream, "Use specific value.");
-	return 0;
+	return print_ascii_stream_(stream, "Use specific value.");
 }
 
 static int restart_symbol_use_test(Execute ptr, addr pos)
@@ -113,8 +112,7 @@ static int restart_symbol_store_interactive(Execute ptr)
 
 static int restart_symbol_store_report(Execute ptr, addr stream)
 {
-	print_ascii_stream(stream, "Store specific value.");
-	return 0;
+	return print_ascii_stream_(stream, "Store specific value.");
 }
 
 static void symbol_store_restart(Execute ptr, addr symbol, pointer call)

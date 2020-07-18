@@ -54,7 +54,7 @@ _g int formatter_common(LocalRoot local, addr var, addr env, addr *ret)
 	GetTypeCompiled(&type, FormatterFunction);
 	settype_function(pos, type);
 	/* format */
-	format_parse_heap(local, &var, var);
+	Return(format_parse_heap_(local, &var, var));
 	SetDataFunction(pos, var);
 	/* result */
 	return Result(ret, pos);;
@@ -443,7 +443,7 @@ _g int write_common(Execute ptr, addr var, addr args)
 	push_new_control(ptr, &control);
 	write_keyword_common(ptr, args);
 	Return(write_print(ptr, stream, var));
-	exitpoint_stream(stream);
+	Return(exitpoint_stream_(stream));
 
 	return free_control_(ptr, control);
 }
@@ -456,9 +456,7 @@ _g int prin1_common(Execute ptr, addr var, addr stream)
 {
 	output_stream_designer(ptr, stream, &stream);
 	Return(prin1_print(ptr, stream, var));
-	exitpoint_stream(stream);
-
-	return 0;
+	return exitpoint_stream_(stream);
 }
 
 
@@ -469,9 +467,7 @@ _g int princ_common(Execute ptr, addr var, addr stream)
 {
 	output_stream_designer(ptr, stream, &stream);
 	Return(princ_print(ptr, stream, var));
-	exitpoint_stream(stream);
-
-	return 0;
+	return exitpoint_stream_(stream);
 }
 
 
@@ -482,9 +478,7 @@ _g int print_common(Execute ptr, addr var, addr stream)
 {
 	output_stream_designer(ptr, stream, &stream);
 	Return(print_print(ptr, stream, var));
-	exitpoint_stream(stream);
-
-	return 0;
+	return exitpoint_stream_(stream);
 }
 
 
@@ -495,9 +489,7 @@ _g int pprint_common(Execute ptr, addr var, addr stream)
 {
 	output_stream_designer(ptr, stream, &stream);
 	Return(pprint_print(ptr, stream, var));
-	exitpoint_stream(stream);
-
-	return 0;
+	return exitpoint_stream_(stream);
 }
 
 

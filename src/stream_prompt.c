@@ -87,18 +87,18 @@ static int input_prompt_stream(addr stream, addr *ret)
 	GetConst(SYSTEM_DRIBBLE_FILE, &dribble);
 	GetValueSymbol(dribble, &dribble);
 	if (dribble != Unbound) {
-		if (prompt)
-			print_string_stream(dribble, prompt);
-		print_string_stream(dribble, pos);
+		if (prompt) {
+			Return(print_string_stream_(dribble, prompt));
+		}
+		Return(print_string_stream_(dribble, pos));
 	}
 	/* result */
-	*ret = pos;
-
-	return 0;
+	return Result(ret, pos);
 }
 
-static int read_char_prompt_line(addr stream, unicode *c)
+static int read_char_prompt_line_(addr stream, unicode *c, int *ret)
 {
+	int check;
 	addr string, pos;
 
 	GetInfoStream(stream, &string);
@@ -106,32 +106,34 @@ static int read_char_prompt_line(addr stream, unicode *c)
 		Return(input_prompt_stream(stream, &pos));
 		setvalue_input_string_stream(string, pos);
 	}
-	while (read_char_stream(string, c)) {
+	for (;;) {
+		Return(read_char_stream_(string, c, &check));
+		if (! check)
+			break;
 		Return(input_prompt_stream(stream, &pos));
 		setvalue_input_string_stream(string, pos);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int read_char_Prompt(addr stream, unicode *c)
+static int read_char_Prompt(addr stream, unicode *c, int *ret)
 {
 	struct StructStream *ptr;
 
 	CheckPromptStream(stream);
 	ptr = PtrStructStream(stream);
-	if (ptr->unread_check) {
-		*c = ptr->unread;
-		ptr->unread_check = 0;
-		return 0;
-	}
-	else {
-		return read_char_prompt_line(stream, c);
-	}
+	if (! ptr->unread_check)
+		return read_char_prompt_line_(stream, c, ret);
+
+	*c = ptr->unread;
+	ptr->unread_check = 0;
+	return Result(ret, 0);
 }
 
-static int read_hang_Prompt(addr stream, unicode *c, int *hang)
+static int read_hang_Prompt(addr stream, unicode *c, int *hang, int *ret)
 {
+	int check;
 	addr string;
 	struct StructStream *ptr;
 
@@ -142,42 +144,47 @@ static int read_hang_Prompt(addr stream, unicode *c, int *hang)
 		ptr->unread_check = 0;
 		*c = ptr->unread;
 		*hang = 0;
-		return 0;
+		return Result(ret, 0);
 	}
 
 	/* read string-buffer */
 	GetInfoStream(stream, &string);
-	*hang = read_char_stream(string, c) != 0;
+	Return(read_char_stream_(stream, c, &check));
+	*hang = (check != 0);
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int listen_Prompt(addr stream)
+static int listen_Prompt(addr stream, int *ret)
 {
+	int check;
 	unicode c;
 	struct StructStream *ptr;
 
 	CheckPromptStream(stream);
 	/* unread */
 	ptr = PtrStructStream(stream);
-	if (ptr->unread_check) return 1;
+	if (ptr->unread_check)
+		return Result(ret, 1);
 	/* string */
 	GetInfoStream(stream, &stream);
-	if (read_char_stream(stream, &c)) {
+	Return(read_char_stream_(stream, &c, &check));
+	if (check) {
 		/* input-prompt */
-		return 0;
+		return Result(ret, 0);
 	}
-	unread_char_stream(stream, c);
+	Return(unread_char_stream_(stream, c));
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static void clear_input_Prompt(addr stream)
+static int clear_input_Prompt(addr stream)
 {
 	CheckPromptStream(stream);
 	PtrStructStream(stream)->unread_check = 0;
 	GetInfoStream(stream, &stream);
 	clear_input_string_stream(stream);
+	return 0;
 }
 
 _g void mode_prompt_stream(Execute ptr, enum PromptStreamMode mode)
@@ -206,7 +213,7 @@ _g void init_stream_prompt(void)
 {
 	DefineStreamSet(Prompt, close);
 	DefineStream___(Prompt, read_binary);
-	DefineStream___(Prompt, readforce_binary);
+	DefineStream___(Prompt, readf_binary);
 	DefineStream___(Prompt, read_byte);
 	DefineStream___(Prompt, unread_byte);
 	DefineStream___(Prompt, write_binary);
@@ -230,14 +237,14 @@ _g void init_stream_prompt(void)
 	DefineStreamDef(Prompt, file_position_start);
 	DefineStreamDef(Prompt, file_position_end);
 	DefineStreamDef(Prompt, file_position_set);
-	DefineStream___(Prompt, file_character_length);
-	DefineStream___(Prompt, file_string_length);
+	DefineStream___(Prompt, file_charlen);
+	DefineStream___(Prompt, file_strlen);
 	DefineStreamSet(Prompt, listen);
 	DefineStreamSet(Prompt, clear_input);
 	DefineStream___(Prompt, finish_output);
 	DefineStream___(Prompt, force_output);
 	DefineStream___(Prompt, clear_output);
 	DefineStream___(Prompt, exitpoint);
-	DefineStreamLet(Prompt, terminal_width, file);
+	DefineStreamLet(Prompt, termsize, file_);
 }
 

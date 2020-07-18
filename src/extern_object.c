@@ -502,8 +502,7 @@ int lisp_pathname_(addr *ret, addr name)
 
 int lisp_namestring_(addr *ret, addr path)
 {
-	namestring_pathname(Execute_Thread, ret, path);
-	return 0;
+	return namestring_pathname_(Execute_Thread, ret, path);
 }
 
 

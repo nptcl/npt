@@ -26,7 +26,7 @@ static int pprint_logical_block_close(Execute ptr)
 
 	getdata_control(ptr, &stream);
 	Check(! pretty_stream_p(stream), "type error");
-	close_pretty_stream(ptr, stream);
+	Return(close_pretty_stream_(ptr, stream));
 	setresult_control(ptr, Nil);
 
 	return 0;
@@ -49,7 +49,7 @@ static int pprint_logical_block_type_form(Execute ptr, enum pprint_newline type)
 		Return(pprint_pop_common(ptr, stream, &pos));
 		Return(write_print(ptr, stream, pos));
 		Return(pprint_exit_common(ptr, stream));
-		write_char_stream(stream, ' ');
+		Return(write_char_stream_(stream, ' '));
 		pprint_newline_print(ptr, type, stream);
 	}
 
@@ -83,7 +83,7 @@ static int pprint_type_print(Execute ptr,
 		strvect_char_heap(&prefix, "(");
 		strvect_char_heap(&suffix, ")");
 	}
-	open_pretty_stream(ptr, &stream, stream, list, prefix, Nil, suffix);
+	Return(open_pretty_stream_(ptr, &stream, stream, list, prefix, Nil, suffix));
 
 	/* function */
 	compiled_heap(&lambda, Nil);
@@ -174,7 +174,7 @@ static int pprint_logical_block_tabular_form(Execute ptr)
 		Return(pprint_pop_common(ptr, stream, &pos));
 		Return(write_print(ptr, stream, pos));
 		Return(pprint_exit_common(ptr, stream));
-		write_char_stream(stream, ' ');
+		Return(write_char_stream_(stream, ' '));
 		pprint_tab_section_relative(ptr, stream, 0, colinc);
 		pprint_newline_print(ptr, pprint_newline_fill, stream);
 	}
@@ -222,7 +222,7 @@ _g int pprint_tabular_print(Execute ptr,
 		strvect_char_heap(&prefix, "(");
 		strvect_char_heap(&suffix, ")");
 	}
-	open_pretty_stream(ptr, &stream, stream, list, prefix, Nil, suffix);
+	Return(open_pretty_stream_(ptr, &stream, stream, list, prefix, Nil, suffix));
 
 	/* closure */
 	fixnum_heap(&cons, tabsize);
@@ -264,7 +264,7 @@ static int pprint_dispatch_vector2(Execute ptr)
 		i++;
 		if (size <= i)
 			break;
-		write_char_stream(stream, ' ');
+		Return(write_char_stream_(stream, ' '));
 		pprint_newline_print(ptr, pprint_newline_fill, stream);
 	}
 
@@ -305,7 +305,7 @@ static int pprint_dispatch_vector(Execute ptr, addr stream, addr pos)
 	/* make-pprint-stream */
 	strvect_char_heap(&prefix, "#(");
 	strvect_char_heap(&suffix, ")");
-	open_pretty_stream(ptr, &stream, stream, Nil, prefix, Nil, suffix);
+	Return(open_pretty_stream_(ptr, &stream, stream, Nil, prefix, Nil, suffix));
 
 	/* closure */
 	cons_heap(&cons, stream, pos);
@@ -332,7 +332,7 @@ static int pprint_dispatch_quote2(Execute ptr)
 	Check(! pretty_stream_p(stream), "type error");
 	Return(check_pretty_stream(ptr, stream));
 	/* body */
-	write_char_stream(stream, '\'');
+	Return(write_char_stream_(stream, '\''));
 	Return(pprint_pop_common(ptr, stream, &pos));  /* quote */
 	Return(pprint_pop_common(ptr, stream, &pos));
 	Return(write_print(ptr, stream, pos));
@@ -372,14 +372,14 @@ static int pprint_dispatch_call2(Execute ptr)
 	Return(pprint_pop_common(ptr, stream, &pos));
 	Return(write_print(ptr, stream, pos));
 	Return(pprint_exit_common(ptr, stream));
-	write_char_stream(stream, ' ');
+	Return(write_char_stream_(stream, ' '));
 	pprint_newline_print(ptr, pprint_newline_miser, stream);
 	pprint_indent_print(ptr, 0, 0, stream);
 	for (;;) {
 		Return(pprint_pop_common(ptr, stream, &pos));
 		Return(write_print(ptr, stream, pos));
 		Return(pprint_exit_common(ptr, stream));
-		write_char_stream(stream, ' ');
+		Return(write_char_stream_(stream, ' '));
 		pprint_newline_print(ptr, pprint_newline_linear, stream);
 	}
 
@@ -427,7 +427,7 @@ static int pprint_dispatch_defun6(Execute ptr)
 		Return(pprint_pop_common(ptr, stream, &pos));
 		Return(write_print(ptr, stream, pos));
 		Return(pprint_exit_common(ptr, stream));
-		write_char_stream(stream, ' ');
+		Return(write_char_stream_(stream, ' '));
 		pprint_newline_print(ptr, pprint_newline_linear, stream);
 	}
 
@@ -452,7 +452,7 @@ static int pprint_dispatch_defun4(Execute ptr)
 		Return(pprint_pop_common(ptr, stream, &pos));
 		Return(pprint_list_common(ptr, stream, pos, p_pprint_dispatch_defun5));
 		Return(pprint_exit_common(ptr, stream));
-		write_char_stream(stream, ' ');
+		Return(write_char_stream_(stream, ' '));
 		pprint_newline_print(ptr, pprint_newline_fill, stream);
 	}
 
@@ -475,13 +475,13 @@ static int pprint_dispatch_defun2(Execute ptr)
 	Return(pprint_pop_common(ptr, stream, &pos));
 	Return(write_print(ptr, stream, pos));
 	Return(pprint_exit_common(ptr, stream));
-	write_char_stream(stream, ' ');
+	Return(write_char_stream_(stream, ' '));
 	pprint_newline_print(ptr, pprint_newline_miser, stream);
 	/* name */
 	Return(pprint_pop_common(ptr, stream, &pos));
 	Return(write_print(ptr, stream, pos));
 	Return(pprint_exit_common(ptr, stream));
-	write_char_stream(stream, ' ');
+	Return(write_char_stream_(stream, ' '));
 	pprint_newline_print(ptr, pprint_newline_miser, stream);
 	/* args */
 	Return(pprint_pop_common(ptr, stream, &pos));
@@ -490,7 +490,7 @@ static int pprint_dispatch_defun2(Execute ptr)
 	pprint_indent_print(ptr, 1, 1, stream);
 	for (;;) {
 		Return(pprint_exit_common(ptr, stream));
-		write_char_stream(stream, ' ');
+		Return(write_char_stream_(stream, ' '));
 		pprint_newline_print(ptr, pprint_newline_linear, stream);
 		Return(pprint_pop_common(ptr, stream, &pos));
 		Return(write_print(ptr, stream, pos));
@@ -555,7 +555,7 @@ static int pprint_dispatch_let2(Execute ptr)
 	Return(pprint_pop_common(ptr, stream, &pos));
 	Return(write_print(ptr, stream, pos));
 	Return(pprint_exit_common(ptr, stream));
-	write_char_stream(stream, ' ');
+	Return(write_char_stream_(stream, ' '));
 	pprint_newline_print(ptr, pprint_newline_miser, stream);
 	/* args */
 	Return(pprint_pop_common(ptr, stream, &pos));
@@ -564,7 +564,7 @@ static int pprint_dispatch_let2(Execute ptr)
 	pprint_indent_print(ptr, 1, 1, stream);
 	for (;;) {
 		Return(pprint_exit_common(ptr, stream));
-		write_char_stream(stream, ' ');
+		Return(write_char_stream_(stream, ' '));
 		pprint_newline_print(ptr, pprint_newline_linear, stream);
 		Return(pprint_pop_common(ptr, stream, &pos));
 		Return(write_print(ptr, stream, pos));

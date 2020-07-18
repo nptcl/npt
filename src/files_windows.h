@@ -133,7 +133,7 @@ static int directoryp_directory_files(Execute ptr, addr file, int *ret)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	name_pathname_local(ptr, file, &pos);
+	Return(name_pathname_local_(ptr, file, &pos));
 	if (UTF16_buffer_clang(local, &pos, pos)) {
 		*ret = 0;
 		return fmte_("Cannot convert ~S to UTF-16 string.", file, NULL);
@@ -469,7 +469,7 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 				"Cannot probe-file the wildcard pathname ~S.", pos, NULL);
 	}
 	/* check */
-	name_pathname_local(ptr, pos, &pos);
+	Return(name_pathname_local_(ptr, pos, &pos));
 	if (UTF16_buffer_clang(ptr->local, &pos, pos))
 		return fmte_("Cannot decode UTF-16 string ~S.", pos, NULL);
 	str = (const WCHAR *)posbodyr(pos);
@@ -627,7 +627,7 @@ _g int file_author_files_(Execute ptr, addr *ret, addr pos)
 
 	/* UTF-16 */
 	local = ptr->local;
-	name_pathname_local(ptr, pos, &value);
+	Return(name_pathname_local_(ptr, pos, &value));
 	if (UTF16_buffer_clang(local, &value, value))
 		return fmte_("Cannot decode UTF-16 string ~S.", pos, NULL);
 	str = (WCHAR *)posbodyr(value);
@@ -720,7 +720,7 @@ static int file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 
 	/* UTF-16 */
 	local = ptr->local;
-	name_pathname_local(ptr, pos, &value);
+	Return(name_pathname_local_(ptr, pos, &value));
 	if (UTF16_buffer_clang(local, &value, value))
 		return fmte_("Cannot decode UTF-16 string ~S.", pos, NULL);
 	str = (const WCHAR *)posbodyr(value);
@@ -772,11 +772,11 @@ static int rename_file_run_files(Execute ptr,
 		return fmte_("Cannot rename wildcard pathname to ~S", to, NULL);
 	/* filename */
 	local = ptr->local;
-	name_pathname_local(ptr, from, &value);
+	Return(name_pathname_local_(ptr, from, &value));
 	if (UTF16_buffer_clang(local, &value, value))
 		return fmte_("Cannot decode UTF-16 string ~S.", from, NULL);
 	str1 = (const WCHAR *)posbodyr(value);
-	name_pathname_local(ptr, to, &value);
+	Return(name_pathname_local_(ptr, to, &value));
 	if (UTF16_buffer_clang(local, &value, value))
 		return fmte_("Cannot decode UTF-16 string ~S.", to, NULL);
 	str2 = (const WCHAR *)posbodyr(value);
@@ -875,7 +875,7 @@ static int delete_file_run_files(Execute ptr, addr pos, int errorp, int *ret)
 	}
 	/* filename */
 	local = ptr->local;
-	name_pathname_local(ptr, file, &value);
+	Return(name_pathname_local_(ptr, file, &value));
 	if (UTF16_buffer_clang(local, &value, value))
 		return fmte_("Cannot decode UTF-16 string ~S.", file, NULL);
 	str = (const WCHAR *)posbodyr(value);
@@ -939,7 +939,7 @@ _g int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
 	}
 	/* filename */
 	local = ptr->local;
-	name_pathname_local(ptr, file, &value);
+	Return(name_pathname_local_(ptr, file, &value));
 	if (UTF16_buffer_clang(local, &value, value))
 		return fmte_("Cannot decode UTF-16 string ~S.", file, NULL);
 	str = (const WCHAR *)posbodyr(value);
@@ -981,7 +981,7 @@ _g int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
 		return call_simple_file_error_va_(ptr, file,
 				"TRUENAME don't allow the wildcard filename ~S.", file, NULL);
 	}
-	name_pathname_heap(ptr, pos, &pos);
+	Return(name_pathname_heap_(ptr, pos, &pos));
 
 	/* realpath */
 	strvect_posbodylen(pos, &u, &s32);

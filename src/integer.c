@@ -390,54 +390,51 @@ _g int evenp_integer(addr left)
 /*
  *  output
  */
-_g void output_nosign_integer(LocalRoot local, addr stream,
+_g int output_nosign_integer_(LocalRoot local, addr stream,
 		addr pos, unsigned base, int upperp)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			output_nosign_fixnum(stream, RefFixnum(pos), base, upperp);
-			break;
+			return output_nosign_fixnum_(stream, RefFixnum(pos), base, upperp);
 
 		case LISPTYPE_BIGNUM:
-			output_nosign_bignum(local, stream, pos, base, upperp);
-			break;
+			return output_nosign_bignum_(local, stream, pos, base, upperp);
 
 		default:
-			TypeError(pos, INTEGER);
-			break;
+			return TypeError_(pos, INTEGER);
 	}
 }
 
-_g void output_nosign_comma_integer(LocalRoot local, addr stream,
+_g int output_nosign_comma_integer_(LocalRoot local, addr stream,
 		addr pos, unsigned base, int upperp, size_t range, unicode comma)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
-			output_nosign_comma_fixnum(local, stream, RefFixnum(pos),
+			return output_nosign_comma_fixnum_(local, stream, RefFixnum(pos),
 					base, upperp, range, comma);
-			break;
 
 		case LISPTYPE_BIGNUM:
-			output_nosign_comma_bignum(local, stream, pos,
+			return output_nosign_comma_bignum_(local, stream, pos,
 					base, upperp, range, comma);
-			break;
 
 		default:
-			TypeError(pos, INTEGER);
-			break;
+			return TypeError_(pos, INTEGER);
 	}
 }
 
 #define INTEGER_STREAM_SIZE		64
-_g void string_nosign_comma_integer(LocalRoot local, addr *ret, addr pos,
+_g int string_nosign_comma_integer_(LocalRoot local, addr *ret, addr pos,
 		unsigned base, int upperp, size_t range, unicode comma)
 {
 	addr stream;
 
 	open_output_string_stream(&stream, INTEGER_STREAM_SIZE);
-	output_nosign_comma_integer(local, stream, pos, base, upperp, range, comma);
+	Return(output_nosign_comma_integer_(local,
+			stream, pos, base, upperp, range, comma));
 	string_stream_alloc(local, stream, ret);
 	close_output_string_stream(stream);
+
+	return 0;
 }
 
 

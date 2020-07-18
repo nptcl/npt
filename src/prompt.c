@@ -96,7 +96,7 @@ _g void setshow_prompt(Execute ptr, int value)
 }
 
 #ifdef LISP_PROMPT_DEFAULT
-_g void show_prompt(Execute ptr, addr io)
+_g int show_prompt_(Execute ptr, addr io)
 {
 	char buffer[64];
 	addr pos;
@@ -105,17 +105,17 @@ _g void show_prompt(Execute ptr, addr io)
 	get_prompt_info(ptr, &pos);
 	str = PtrPromptInfo(pos);
 	if (str->break_p) {
-		return;
+		return 0;
 	}
 	if (str->index == 0) {
-		print_ascii_stream(io, "~&* ");
+		Return(print_ascii_stream_(io, "~&* "));
 	}
 	else {
 		snprintf(buffer, 64, "~&%zu* ", str->index);
-		print_ascii_stream(io, buffer);
+		Return(print_ascii_stream_(io, buffer));
 	}
 	str->show_p = 0;
-	finish_output_stream(io);
+	return finish_output_stream_(io);
 }
 
 _g int input_prompt(addr *ret, addr *prompt, const char *message)
@@ -155,7 +155,7 @@ _g int input_prompt(addr *ret, addr *prompt, const char *message)
 #define HISTORY_SIZE	100
 static size_t ReadLine_Size = 0;
 
-_g void show_prompt(Execute ptr, addr io)
+_g int show_prompt_(Execute ptr, addr io)
 {
 	addr pos;
 	struct prompt_info *str;
@@ -164,6 +164,8 @@ _g void show_prompt(Execute ptr, addr io)
 	str = PtrPromptInfo(pos);
 	if (! str->break_p)
 		str->show_p = 1;
+	
+	return 0;
 }
 
 static char *make_prompt(addr *prompt, const char *message)

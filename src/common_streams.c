@@ -135,7 +135,7 @@ static void defun_streamp(void)
 /* (defun stream-element-type (stream) ...) -> typespec  */
 static int function_stream_element_type(Execute ptr, addr var)
 {
-	element_type_stream(var, &var);
+	Return(element_type_stream_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -424,7 +424,7 @@ static void defun_fresh_line(void)
 /* (defun unread-char (character &optional stream) ...) -> null */
 static int function_unread_char(Execute ptr, addr pos, addr stream)
 {
-	unread_char_common(ptr, pos, stream);
+	Return(unread_char_common(ptr, pos, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -459,7 +459,7 @@ static void defun_unread_char(void)
 /* (defun write-char (character &optional stream) ...) -> character */
 static int function_write_char(Execute ptr, addr pos, addr stream)
 {
-	write_char_common(ptr, pos, stream);
+	Return(write_char_common(ptr, pos, stream));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -676,7 +676,7 @@ static void defun_write_sequence(void)
  */
 static int function_file_length(Execute ptr, addr stream)
 {
-	file_length_stream(stream, &stream);
+	Return(file_length_stream_(stream, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -962,7 +962,7 @@ static void defun_with_open_stream(void)
 /* (defun listen (input-stream) ...) -> boolean */
 static int function_listen(Execute ptr, addr stream)
 {
-	listen_common(ptr, stream, &stream);
+	Return(listen_common(ptr, stream, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -996,7 +996,7 @@ static void defun_listen(void)
 /* (defun clear-input (&optional input-stream) ...) -> null */
 static int function_clear_input(Execute ptr, addr stream)
 {
-	clear_input_common(ptr, stream);
+	Return(clear_input_common(ptr, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1030,7 +1030,7 @@ static void defun_clear_input(void)
 /* (defun finish-output (&optional output-stream) ...) -> null */
 static int function_finish_output(Execute ptr, addr stream)
 {
-	finish_output_stream(stream);
+	Return(finish_output_stream_(stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1053,7 +1053,7 @@ static void defun_finish_output(void)
 /* (defun force-output (&optional output-stream) ...) -> null */
 static int function_force_output(Execute ptr, addr stream)
 {
-	force_output_stream(stream);
+	Return(force_output_stream_(stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1077,7 +1077,7 @@ static void defun_force_output(void)
 /* (defun clear-output (&optional output-stream) ...) -> null */
 static int function_clear_output(Execute ptr, addr stream)
 {
-	clear_output_stream(stream);
+	Return(clear_output_stream_(stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }

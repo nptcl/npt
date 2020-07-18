@@ -81,21 +81,21 @@ struct fmtfloat_struct {
 
 typedef struct fmtfloat_struct *fmtfloat;
 
-_g void fmtfloat_fixed(addr stream, fmtfloat fmt, fmtdecimal dec);
-_g void fmtfloat_exponent(addr stream, fmtfloat fmt, fmtdecimal dec);
-_g void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec);
-_g void fmtfloat_monetary(addr stream, fmtfloat fmt, fmtdecimal dec);
+_g int fmtfloat_fixed_(addr stream, fmtfloat fmt, fmtdecimal dec);
+_g int fmtfloat_exponent_(addr stream, fmtfloat fmt, fmtdecimal dec);
+_g int fmtfloat_general_(addr stream, fmtfloat fmt, fmtdecimal dec);
+_g int fmtfloat_monetary_(addr stream, fmtfloat fmt, fmtdecimal dec);
 
 
 /*****************************************************************************
  *  princ / prin1
  *****************************************************************************/
-_g int fmtfloat_princ_single_float(addr stream,
-		single_float value, int markerp, unicode marker);
-_g int fmtfloat_princ_double_float(addr stream,
-		double_float value, int markerp, unicode marker);
-_g int fmtfloat_princ_long_float(addr stream,
-		long_float value, int markerp, unicode marker);
+_g int fmtfloat_princ_single_float_(addr stream,
+		single_float value, int markerp, unicode marker, int *ret);
+_g int fmtfloat_princ_double_float_(addr stream,
+		double_float value, int markerp, unicode marker, int *ret);
+_g int fmtfloat_princ_long_float_(addr stream,
+		long_float value, int markerp, unicode marker, int *ret);
 
 #endif
 

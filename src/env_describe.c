@@ -113,7 +113,7 @@ _g int describe_common(Execute ptr, addr object, addr stream)
 
 	/* stream */
 	output_stream_designer(ptr, stream, &stream);
-	fresh_line_stream(stream);
+	Return(fresh_line_stream_(stream, NULL));
 	/* call */
 	GetConst(COMMON_DESCRIBE_OBJECT, &call);
 	getfunction_global(call, &call);
@@ -145,7 +145,7 @@ static int help_inspect_p(addr pos)
 		|| string_equalp_char(pos, "HELP");
 }
 
-static void help_inspect(Execute ptr, addr io)
+static int help_inspect_(Execute ptr, addr io)
 {
 	static const char *const message[] = {
 		"Inspect help.",
@@ -162,13 +162,15 @@ static void help_inspect(Execute ptr, addr io)
 		str = message[i];
 		if (str == NULL)
 			break;
-		print_ascii_stream(io, str);
-		terpri_stream(io);
-		force_output_stream(io);
+		Return(print_ascii_stream_(io, str));
+		Return(terpri_stream_(io));
+		Return(force_output_stream_(io));
 	}
+
+	return 0;
 }
 
-static int eval_loop_inspect(Execute ptr, addr io, addr pos, int *exit, int *exec)
+static int eval_loop_inspect_(Execute ptr, addr io, addr pos, int *exit, int *exec)
 {
 	if (exit_inspect_p(pos)) {
 		*exit = 1;
@@ -178,8 +180,7 @@ static int eval_loop_inspect(Execute ptr, addr io, addr pos, int *exit, int *exe
 	if (help_inspect_p(pos)) {
 		*exit = 0;
 		*exec = 0;
-		help_inspect(ptr, io);
-		return 0;
+		return help_inspect_(ptr, io);
 	}
 	*exit = 0;
 	*exec = 1;
@@ -197,7 +198,7 @@ _g int inspect_common(Execute ptr, addr object)
 	pushspecial_control(ptr, symbol, object);
 	/* prompt */
 	mode_prompt_stream(ptr, PromptStreamMode_Inspect);
-	Return(eval_custom_loop(ptr, io, eval_loop_inspect));
+	Return(eval_custom_loop(ptr, io, eval_loop_inspect_));
 
 	return 0;
 }

@@ -5,11 +5,11 @@
 #include "execute.h"
 #include "typedef.h"
 
-_g void hello_syscode(Execute ptr);
+_g int hello_syscode(Execute ptr);
 _g void infobit_syscode(addr rest, addr *ret);
 _g void infoprint_syscode(addr rest, addr *ret);
 _g void gc_syscode(addr rest);
-_g void savecore_syscode(Execute ptr, addr file);
+_g int savecore_syscode(Execute ptr, addr file);
 _g int redirect_restart_syscode(Execute ptr, addr condition, addr list);
 _g int defconstant_syscode(addr symbol, addr value, addr doc);
 _g void in_package_syscode(Execute ptr, addr name, addr *ret);
@@ -68,13 +68,13 @@ _g int subtypep_result_syscode(Execute ptr, addr left, addr right, addr *ret);
 _g int ensure_structure_syscode_(Execute ptr, addr name, addr slots, addr rest);
 _g int structure_constructor_syscode(Execute ptr, addr symbol, addr rest, addr *ret);
 _g int loop_bind_syscode(Execute ptr, addr a, addr b, addr c, addr *ret);
-_g void make_pprint_stream_syscode(Execute ptr, addr *ret,
+_g int make_pprint_stream_syscode_(Execute ptr, addr *ret,
 		addr stream, addr object, addr prefix, addr perline, addr suffix);
 _g void pprint_gensym_syscode(addr stream, addr *ret);
 _g int pprint_exit_syscode(Execute ptr, addr stream);
 _g int pprint_pop_syscode(Execute ptr, addr stream, addr *ret);
 _g int pprint_check_syscode(Execute ptr, addr stream);
-_g void pprint_close_syscode(Execute ptr, addr stream);
+_g int pprint_close_syscode(Execute ptr, addr stream);
 _g int pprint_pretty_syscode(Execute ptr, addr stream, addr call);
 _g void eastasian_set_syscode(addr var, addr value, addr errorp, addr *ret);
 _g void eastasian_get_syscode(addr var, addr *ret1, addr *ret2);

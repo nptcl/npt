@@ -422,14 +422,14 @@ static void english_execute(english input)
 		push_radix_20(input, 0);
 }
 
-static void english_output(addr stream, english input, int minus)
+static int english_output_(addr stream, english input, int minus)
 {
 	int first;
 	addr left, right, pos;
 
 	/* sign */
 	if (minus) {
-		print_ascii_stream(stream, "minus");
+		Return(print_ascii_stream_(stream, "minus"));
 		first = 0;
 	}
 	else {
@@ -440,24 +440,28 @@ static void english_output(addr stream, english input, int minus)
 	for (right = input->root; right != Nil; ) {
 		GetCons(right, &left, &right);
 		/* space */
-		if (first)
+		if (first) {
 			first = 0;
-		else
-			write_char_stream(stream, ' ');
+		}
+		else {
+			Return(write_char_stream_(stream, ' '));
+		}
 		/* output */
 		if (consp(left)) {
 			while (left != Nil) {
 				GetCons(left, &pos, &left);
-				print_string_stream(stream, pos);
+				Return(print_string_stream_(stream, pos));
 			}
 		}
 		else {
-			print_string_stream(stream, left);
+			Return(print_string_stream_(stream, left));
 		}
 	}
+
+	return 0;
 }
 
-static void english_bignum(LocalRoot local, addr stream, addr pos, int cardinal)
+static int english_bignum_(LocalRoot local, addr stream, addr pos, int cardinal)
 {
 	int minus;
 	struct english_struct str;
@@ -479,10 +483,10 @@ static void english_bignum(LocalRoot local, addr stream, addr pos, int cardinal)
 
 	/* execute */
 	english_execute(&str);
-	english_output(stream, &str, minus);
+	return english_output_(stream, &str, minus);
 }
 
-_g void english_integer(LocalRoot local, addr stream, addr pos, int cardinal)
+_g int english_integer_(LocalRoot local, addr stream, addr pos, int cardinal)
 {
 	int sign;
 	addr copy;
@@ -496,20 +500,20 @@ _g void english_integer(LocalRoot local, addr stream, addr pos, int cardinal)
 		case LISPTYPE_FIXNUM:
 			castfixed_fixnum(pos, &sign, &value);
 			bignum_value_local(local, &copy, sign, value);
-			english_bignum(local, stream, copy, cardinal);
+			Return(english_bignum_(local, stream, copy, cardinal));
 			break;
 
 		case LISPTYPE_BIGNUM:
 			bignum_copy_local(local, &copy, pos);
-			english_bignum(local, stream, copy, cardinal);
+			Return(english_bignum_(local, stream, copy, cardinal));
 			break;
 
 		default:
-			TypeError(pos, INTEGER);
-			break;
+			return TypeError_(pos, INTEGER);
 	}
-
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 static void english_unit_string(LocalRoot local,
@@ -567,7 +571,7 @@ _g void english_unit_heap(LocalRoot local, addr *ret, addr pos, int cardinal)
 /*
  *  Roma number
  */
-static void roma_10(addr stream, unsigned value, int subp)
+static int roma_10_(addr stream, unsigned value, int subp)
 {
 	const char *ptr;
 
@@ -581,12 +585,12 @@ static void roma_10(addr stream, unsigned value, int subp)
 		case 7: ptr = "VII"; break;
 		case 8: ptr = "VIII"; break;
 		case 9: ptr = subp? "VIIII": "IX"; break;
-		default: Abort("Invalid value."); return;
+		default: return fmte_("Invalid value.", NULL);
 	}
-	print_ascii_stream(stream, ptr);
+	return print_ascii_stream_(stream, ptr);
 }
 
-static void roma_100(addr stream, unsigned value, int subp)
+static int roma_100_(addr stream, unsigned value, int subp)
 {
 	const char *ptr;
 
@@ -600,12 +604,12 @@ static void roma_100(addr stream, unsigned value, int subp)
 		case 7: ptr = "LXX"; break;
 		case 8: ptr = "LXXX"; break;
 		case 9: ptr = subp? "LXXXX": "XC"; break;
-		default: Abort("Invalid value."); return;
+		default: return fmte_("Invalid value.", NULL);
 	}
-	print_ascii_stream(stream, ptr);
+	return print_ascii_stream_(stream, ptr);
 }
 
-static void roma_1000(addr stream, unsigned value, int subp)
+static int roma_1000_(addr stream, unsigned value, int subp)
 {
 	const char *ptr;
 
@@ -619,12 +623,12 @@ static void roma_1000(addr stream, unsigned value, int subp)
 		case 7: ptr = "DCC"; break;
 		case 8: ptr = "DCCC"; break;
 		case 9: ptr = subp? "DCCCC": "CM"; break;
-		default: Abort("Invalid value."); return;
+		default: return fmte_("Invalid value.", NULL);
 	}
-	print_ascii_stream(stream, ptr);
+	return print_ascii_stream_(stream, ptr);
 }
 
-static void roma_4000(addr stream, unsigned value, int subp)
+static int roma_4000_(addr stream, unsigned value, int subp)
 {
 	const char *ptr;
 
@@ -632,45 +636,45 @@ static void roma_4000(addr stream, unsigned value, int subp)
 		case 1: ptr = "M"; break;
 		case 2: ptr = "MM"; break;
 		case 3: ptr = "MMM"; break;
-		default: Abort("Invalid value."); return;
+		default: return fmte_("Invalid value.", NULL);
 	}
-	print_ascii_stream(stream, ptr);
+	return print_ascii_stream_(stream, ptr);
 }
 
-static void roma_call(addr stream, int value, int subp)
+static int roma_call_(addr stream, int value, int subp)
 {
 	int a, b;
 
 	if (value <= 0) {
-		return;
+		return 0;
 	}
 
 	if (value < 10) {
-		roma_10(stream, value, subp);
+		return roma_10_(stream, value, subp);
 	}
 	else if (value < 100) {
 		a = value / 10;
 		b = value % 10;
-		roma_100(stream, a, subp);
-		roma_call(stream, b, subp);
+		Return(roma_100_(stream, a, subp));
+		return roma_call_(stream, b, subp);
 	}
 	else if (value < 1000) {
 		a = value / 100;
 		b = value % 100;
-		roma_1000(stream, a, subp);
-		roma_call(stream, b, subp);
+		Return(roma_1000_(stream, a, subp));
+		return roma_call_(stream, b, subp);
 	}
 	else {
 		a = value / 1000;
 		b = value % 1000;
-		roma_4000(stream, a, subp);
-		roma_call(stream, b, subp);
+		Return(roma_4000_(stream, a, subp));
+		return roma_call_(stream, b, subp);
 	}
 }
 
-_g void roma_integer(addr stream, fixnum value, int subp)
+_g int roma_integer_(addr stream, fixnum value, int subp)
 {
 	Check(! (1 <= value && value <= 3999), "value error");
-	roma_call(stream, (int)value, subp);
+	return roma_call_(stream, (int)value, subp);
 }
 

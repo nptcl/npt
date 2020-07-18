@@ -163,7 +163,7 @@ static int test_read_binary_file(void)
 	RETURN;
 }
 
-static int test_readforce_binary_file(void)
+static int test_readf_binary_file(void)
 {
 	byte buffer[100];
 	size_t size;
@@ -173,9 +173,9 @@ static int test_readforce_binary_file(void)
 	strvect_char_heap(&name, TESTFILE);
 	open_input_binary_stream(Execute_Thread, &stream, name);
 	size = 0;
-	readforce_binary_file(stream, buffer, 100, &size);
-	test(size == 5, "readforce_binary_file1");
-	test(memcmp(buffer, "hello", 5) == 0, "readforce_binary_file2");
+	readf_binary_file(stream, buffer, 100, &size);
+	test(size == 5, "readf_binary_file1");
+	test(memcmp(buffer, "hello", 5) == 0, "readf_binary_file2");
 	close_stream_file_(stream, &stream);
 
 	RETURN;
@@ -243,7 +243,7 @@ static int testbreak_file(void)
 	TestBreak(test_make_standard_error);
 	TestBreak(test_close_stream_file);
 	TestBreak(test_read_binary_file);
-	TestBreak(test_readforce_binary_file);
+	TestBreak(test_readf_binary_file);
 	TestBreak(test_read_byte_file);
 	TestBreak(test_unread_byte_file);
 

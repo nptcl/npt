@@ -7,8 +7,8 @@
 #include "stream.h"
 #include "strtype.h"
 
-typedef int (*read_char_calltype)(struct filememory *, unicode *);
-typedef int (*read_hang_calltype)(struct filememory *, unicode *, int *);
+typedef int (*read_char_calltype)(struct filememory *, unicode *, int *);
+typedef int (*read_hang_calltype)(struct filememory *, unicode *, int *, int *);
 typedef int (*write_char_calltype)(struct filememory *, unicode);
 typedef int (*length_char_calltype)(struct filememory *, unicode);
 static read_char_calltype read_char_call[EncodeType_size];
@@ -140,126 +140,124 @@ _g int writebom_encode(struct filememory *fm)
 /*
  *  read_char
  */
-static int read_char_binary(struct filememory *fm, unicode *u)
+static int read_char_binary(struct filememory *fm, unicode *u, int *ret)
 {
-	fmte("Cannot execute read-char in binary stream.", NULL);
-	return -1;
+	return fmte_("Cannot execute read-char in binary stream.", NULL);
 }
 
-static int read_char_ascii(struct filememory *fm, unicode *u)
+static int read_char_ascii(struct filememory *fm, unicode *u, int *ret)
 {
 	byte c;
 	int check;
 
 	check = getc_filememory(fm, &c);
 	if (check < 0)
-		fmte("getc error", NULL);
+		return fmte_("getc error", NULL);
 	if (check)
-		return 1;
+		return Result(ret, 1);
 	if (0x80 <= c) {
 		if (fm->encode.error)
-			return -1;
+			return fmte_("encode error", NULL);
 		*u = fm->encode.code;
-		return 0;
+		return Result(ret, 0);
 	}
 	*u = (unicode)c;
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int read_char_utf8(struct filememory *fm, unicode *u)
+static int read_char_utf8(struct filememory *fm, unicode *u, int *ret)
 {
 	int check;
 
 	check = read_utf8_normal(fm, u);
 	/* normal */
 	if (check == 0)
-		return 0;
+		return Result(ret, 0);
 	/* EOF */
 	if (0 < check)
-		return 1;
+		return Result(ret, 1);
 	/* file error */
 	if (check == -1)
-		return -1;
+		return fmte_("read error.", NULL);
 	/* encode error */
 	if (fm->encode.error)
-		return -1;
+		return fmte_("encode error.", NULL);
 	/* recovery */
 	*u = fm->encode.code;
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int read_char_utf16(struct filememory *fm, unicode *u, int big_endian_p)
+static int read_char_utf16(struct filememory *fm, unicode *u, int be, int *ret)
 {
 	int check;
 
-	check = read_utf16_normal(fm, u, big_endian_p);
+	check = read_utf16_normal(fm, u, be);
 	/* normal */
 	if (check == 0)
-		return 0;
+		return Result(ret, 0);
 	/* EOF */
 	if (0 < check)
-		return 1;
+		return Result(ret, 1);
 	/* file error */
 	if (check == -1)
-		return -1;
+		return fmte_("read error.", NULL);
 	/* encode error */
 	if (fm->encode.error)
-		return -1;
+		return fmte_("encode error.", NULL);
 	/* recovery */
 	*u = fm->encode.code;
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int read_char_utf16le(struct filememory *fm, unicode *u)
+static int read_char_utf16le(struct filememory *fm, unicode *u, int *ret)
 {
-	return read_char_utf16(fm, u, 0);
+	return read_char_utf16(fm, u, 0, ret);
 }
 
-static int read_char_utf16be(struct filememory *fm, unicode *u)
+static int read_char_utf16be(struct filememory *fm, unicode *u, int *ret)
 {
-	return read_char_utf16(fm, u, 1);
+	return read_char_utf16(fm, u, 1, ret);
 }
 
-static int read_char_utf32(struct filememory *fm, unicode *u, int big_endian_p)
+static int read_char_utf32(struct filememory *fm, unicode *u, int be, int *ret)
 {
 	int check;
 
-	check = read_utf32_normal(fm, u, big_endian_p);
+	check = read_utf32_normal(fm, u, be);
 	/* normal */
 	if (check == 0)
-		return 0;
+		return Result(ret, 0);
 	/* EOF */
 	if (0 < check)
-		return 1;
+		return Result(ret, 1);
 	/* file error */
 	if (check == -1)
-		return -1;
+		return fmte_("read error.", NULL);
 	/* encode error */
 	if (fm->encode.error)
-		return -1;
+		return fmte_("encode error.", NULL);
 	/* recovery */
 	*u = fm->encode.code;
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int read_char_utf32le(struct filememory *fm, unicode *u)
+static int read_char_utf32le(struct filememory *fm, unicode *u, int *ret)
 {
-	return read_char_utf32(fm, u, 0);
+	return read_char_utf32(fm, u, 0, ret);
 }
 
-static int read_char_utf32be(struct filememory *fm, unicode *u)
+static int read_char_utf32be(struct filememory *fm, unicode *u, int *ret)
 {
-	return read_char_utf32(fm, u, 1);
+	return read_char_utf32(fm, u, 1, ret);
 }
 
-static int read_char_windows(struct filememory *fm, unicode *u)
+static int read_char_windows(struct filememory *fm, unicode *u, int *ret)
 {
-	fmte("Invalid external-format :windows.", NULL);
-	return -1;
+	return fmte_("Invalid external-format :windows.", NULL);
 }
 
 static void init_encode_read_char(void)
@@ -274,147 +272,192 @@ static void init_encode_read_char(void)
 	read_char_call[EncodeType_windows] = read_char_windows;
 }
 
-_g int read_char_encode(struct filememory *fm, unicode *c)
+_g int read_char_encode_(struct filememory *fm, unicode *c, int *ret)
 {
-	return (read_char_call[(int)fm->encode.type])(fm, c);
+	return (read_char_call[(int)fm->encode.type])(fm, c, ret);
 }
 
 
 /*
  *  read_hang
  */
-static int read_hang_binary(struct filememory *fm, unicode *u, int *hang)
+static int read_hang_binary(struct filememory *fm, unicode *u, int *hang, int *ret)
 {
-	fmte("Cannot execute read-char-no-hang in binary stream.", NULL);
-	return -1;
+	*u = 0;
+	*hang = 0;
+	*ret = 0;
+	return fmte_("Cannot execute read-char-no-hang in binary stream.", NULL);
 }
 
-static int read_hang_ascii(struct filememory *fm, unicode *u, int *hang)
+static int read_hang_ascii(struct filememory *fm, unicode *u, int *hang, int *ret)
 {
 	byte c;
 	int check;
 	size_t size;
 
 	check = getc_nonblocking_filememory(fm, &c, &size);
-	if (check < 0)
-		fmte("getc_nonblocking error", NULL);
-	if (check)
-		return 1;
+	if (check < 0) {
+		*u = 0;
+		*hang = 0;
+		*ret = 0;
+		return fmte_("getc_nonblocking error", NULL);
+	}
+	if (check) {
+		*u = 0;
+		*hang = 0;
+		return Result(ret, 1);
+	}
 	if (size == 0) {
+		*u = 0;
 		*hang = 1;
-		return 0;
+		return Result(ret, 0);
 	}
 	if (0x80 <= c) {
-		if (fm->encode.error)
-			return -1;
-		*hang = 0;
+		if (fm->encode.error) {
+			*u = 0;
+			*hang = 0;
+			*ret = 0;
+			return fmte_("read error.", NULL);
+		}
 		*u = fm->encode.code;
-		return 0;
+		*hang = 0;
+		return Result(ret, 0);
 	}
-	*hang = 0;
 	*u = (unicode)c;
-
-	return 0;
+	*hang = 0;
+	return Result(ret, 0);
 }
 
-static int read_hang_utf8(struct filememory *fm, unicode *u, int *hang)
+static int read_hang_utf8(struct filememory *fm, unicode *u, int *hang, int *ret)
 {
 	int check;
 
 	check = read_utf8_nonblocking(fm, u, hang);
 	/* normal */
 	if (check == 0)
-		return 0;
+		return Result(ret, 0);
 	/* EOF */
-	if (0 < check)
-		return 1;
+	if (0 < check) {
+		*u = 0;
+		*hang = 0;
+		return Result(ret, 1);
+	}
 	/* file error */
-	if (check == -1)
-		return -1;
+	if (check == -1) {
+		*u = 0;
+		*hang = 0;
+		*ret = 0;
+		return fmte_("read error.", NULL);
+	}
 	/* encode error */
-	if (fm->encode.error)
-		return -1;
+	if (fm->encode.error) {
+		*u = 0;
+		*hang = 0;
+		*ret = 0;
+		return fmte_("encode error.", NULL);
+	}
 	/* recovery */
-	*hang = 0;
 	*u = fm->encode.code;
-
-	return 0;
+	*hang = 0;
+	return Result(ret, 0);
 }
 
 static int read_hang_utf16(struct filememory *fm,
-		unicode *u, int *hang, int big_endian_p)
+		unicode *u, int *hang, int *ret, int be)
 {
 	int check;
 
-	check = read_utf16_nonblocking(fm, u, hang, big_endian_p);
+	check = read_utf16_nonblocking(fm, u, hang, be);
 	/* normal */
 	if (check == 0)
-		return 0;
+		return Result(ret, 0);
 	/* EOF */
-	if (0 < check)
-		return 1;
+	if (0 < check) {
+		*u = 0;
+		*hang = 0;
+		return Result(ret, 1);
+	}
 	/* file error */
-	if (check == -1)
-		return -1;
+	if (check == -1) {
+		*u = 0;
+		*hang = 0;
+		*ret = 0;
+		return fmte_("read error.", NULL);
+	}
 	/* encode error */
-	if (fm->encode.error)
-		return -1;
+	if (fm->encode.error) {
+		*u = 0;
+		*hang = 0;
+		*ret = 0;
+		return fmte_("encode error.", NULL);
+	}
 	/* recovery */
-	*hang = 0;
 	*u = fm->encode.code;
-
-	return 0;
+	*hang = 0;
+	return Result(ret, 0);
 }
 
-static int read_hang_utf16le(struct filememory *fm, unicode *u, int *hang)
+static int read_hang_utf16le(struct filememory *fm, unicode *u, int *hang, int *ret)
 {
-	return read_hang_utf16(fm, u, hang, 0);
+	return read_hang_utf16(fm, u, hang, ret, 0);
 }
 
-static int read_hang_utf16be(struct filememory *fm, unicode *u, int *hang)
+static int read_hang_utf16be(struct filememory *fm, unicode *u, int *hang, int *ret)
 {
-	return read_hang_utf16(fm, u, hang, 1);
+	return read_hang_utf16(fm, u, hang, ret, 1);
 }
 
 static int read_hang_utf32(struct filememory *fm,
-		unicode *u, int *hang, int big_endian_p)
+		unicode *u, int *hang, int *ret, int be)
 {
 	int check;
 
-	check = read_utf32_nonblocking(fm, u, hang, big_endian_p);
+	check = read_utf32_nonblocking(fm, u, hang, be);
 	/* normal */
 	if (check == 0)
-		return 0;
+		return Result(ret, 0);
 	/* EOF */
-	if (0 < check)
-		return 1;
+	if (0 < check) {
+		*u = 0;
+		*hang = 0;
+		return Result(ret, 1);
+	}
 	/* file error */
-	if (check == -1)
-		return -1;
+	if (check == -1) {
+		*u = 0;
+		*hang = 0;
+		*ret = 0;
+		return fmte_("read error.", NULL);
+	}
 	/* encode error */
-	if (fm->encode.error)
-		return -1;
+	if (fm->encode.error) {
+		*u = 0;
+		*hang = 0;
+		*ret = 0;
+		return fmte_("encode error.", NULL);
+	}
 	/* recovery */
-	*hang = 0;
 	*u = fm->encode.code;
-
-	return 0;
+	*hang = 0;
+	return Result(ret, 0);
 }
 
-static int read_hang_utf32le(struct filememory *fm, unicode *u, int *hang)
+static int read_hang_utf32le(struct filememory *fm, unicode *u, int *hang, int *ret)
 {
-	return read_hang_utf32(fm, u, hang, 0);
+	return read_hang_utf32(fm, u, hang, ret, 0);
 }
 
-static int read_hang_utf32be(struct filememory *fm, unicode *u, int *hang)
+static int read_hang_utf32be(struct filememory *fm, unicode *u, int *hang, int *ret)
 {
-	return read_hang_utf32(fm, u, hang, 1);
+	return read_hang_utf32(fm, u, hang, ret, 1);
 }
 
-static int read_hang_windows(struct filememory *fm, unicode *u, int *hang)
+static int read_hang_windows(struct filememory *fm, unicode *u, int *hang, int *ret)
 {
-	fmte("Invalid external-format :windows.", NULL);
-	return -1;
+	*u = 0;
+	*hang = 0;
+	*ret = 0;
+	return fmte_("Invalid external-format :windows.", NULL);
 }
 
 static void init_encode_read_hang(void)
@@ -429,9 +472,9 @@ static void init_encode_read_hang(void)
 	read_hang_call[EncodeType_windows] = read_hang_windows;
 }
 
-_g int read_hang_encode(struct filememory *fm, unicode *c, int *hang)
+_g int read_hang_encode_(struct filememory *fm, unicode *c, int *hang, int *ret)
 {
-	return (read_hang_call[(int)fm->encode.type])(fm, c, hang);
+	return (read_hang_call[(int)fm->encode.type])(fm, c, hang, ret);
 }
 
 
@@ -440,21 +483,26 @@ _g int read_hang_encode(struct filememory *fm, unicode *c, int *hang)
  */
 static int write_char_binary(struct filememory *fm, unicode u)
 {
-	fmte("Cannot execute write-char in binary stream.", NULL);
-	return -1;
+	return fmte_("Cannot execute write-char in binary stream.", NULL);
 }
 
 static int write_char_ascii(struct filememory *fm, unicode u)
 {
-	if (u < 0x80)
-		return putc_filememory(fm, (byte)u);
+	if (u < 0x80) {
+		if (putc_filememory(fm, (byte)u))
+			return fmte_("putc error.", NULL);
+		return 0;
+	}
 	if (fm->encode.error)
-		return -1;
+		return fmte_("encode error.", NULL);
 	u = fm->encode.code;
-	if (u < 0x80)
-		return putc_filememory(fm, (byte)u);
+	if (u < 0x80) {
+		if (putc_filememory(fm, (byte)u))
+			return fmte_("putc error.", NULL);
+		return 0;
+	}
 
-	return -1;
+	return fmte_("encode error.", NULL);
 }
 
 static int write_char_utf8(struct filememory *fm, unicode u)
@@ -462,29 +510,41 @@ static int write_char_utf8(struct filememory *fm, unicode u)
 	byte data[8];
 	size_t size;
 
-	if (! encode_utf8(u, data, &size))
-		return write_filememory(fm, data, size, &size);
+	if (! encode_utf8(u, data, &size)) {
+		if (write_filememory(fm, data, size, &size))
+			return fmte_("write error.", NULL);
+		return 0;
+	}
 	if (fm->encode.error)
-		return -1;
-	if (! encode_utf8(fm->encode.code, data, &size))
-		return write_filememory(fm, data, size, &size);
+		return fmte_("encode error.", NULL);
+	if (! encode_utf8(fm->encode.code, data, &size)) {
+		if (write_filememory(fm, data, size, &size))
+			return fmte_("write error.", NULL);
+		return 0;
+	}
 
-	return -1;
+	return fmte_("encode error.", NULL);
 }
 
-static int write_char_utf16(struct filememory *fm, unicode u, int big_endian_p)
+static int write_char_utf16(struct filememory *fm, unicode u, int be)
 {
 	byte data[8];
 	size_t size;
 
-	if (! encode_utf16(u, big_endian_p, data, &size))
-		return write_filememory(fm, data, size, &size);
+	if (! encode_utf16(u, be, data, &size)) {
+		if (write_filememory(fm, data, size, &size))
+			return fmte_("write error.", NULL);
+		return 0;
+	}
 	if (fm->encode.error)
-		return -1;
-	if (! encode_utf16(fm->encode.code, big_endian_p, data, &size))
-		return write_filememory(fm, data, size, &size);
-	else
-		return -1;
+		return fmte_("encode error.", NULL);
+	if (! encode_utf16(fm->encode.code, be, data, &size)) {
+		if (write_filememory(fm, data, size, &size))
+			return fmte_("write error.", NULL);
+		return 0;
+	}
+
+	return fmte_("encode error.", NULL);
 }
 
 static int write_char_utf16le(struct filememory *fm, unicode u)
@@ -497,19 +557,25 @@ static int write_char_utf16be(struct filememory *fm, unicode u)
 	return write_char_utf16(fm, u, 1);
 }
 
-static int write_char_utf32(struct filememory *fm, unicode u, int big_endian_p)
+static int write_char_utf32(struct filememory *fm, unicode u, int be)
 {
 	byte data[8];
 	size_t size;
 
-	if (! encode_utf32(u, big_endian_p, data, &size))
-		return write_filememory(fm, data, size, &size);
+	if (! encode_utf32(u, be, data, &size)) {
+		if (write_filememory(fm, data, size, &size))
+			return fmte_("write error.", NULL);
+		return 0;
+	}
 	if (fm->encode.error)
-		return -1;
-	if (! encode_utf32(fm->encode.code, big_endian_p, data, &size))
-		return write_filememory(fm, data, size, &size);
-	else
-		return -1;
+		return fmte_("encode error.", NULL);
+	if (! encode_utf32(fm->encode.code, be, data, &size)) {
+		if (write_filememory(fm, data, size, &size))
+			return fmte_("write error.", NULL);
+		return 0;
+	}
+
+	return fmte_("encode error.", NULL);
 }
 
 static int write_char_utf32le(struct filememory *fm, unicode u)
@@ -534,23 +600,23 @@ static int write_char_windows(struct filememory *fm, unicode u)
 	if (! encode_utf16b(u, (byte16 *)input, &size))
 		goto normal;
 	if (fm->encode.error)
-		return -1;
+		return fmte_("encode error.", NULL);
 	if (! encode_utf16b(fm->encode.code, (byte16 *)input, &size))
 		goto normal;
-	return -1;
+	return fmte_("encode error.", NULL);
 
 	/* UTF16 -> ANSI-code-page  */
 normal:
 	input[size] = 0;
 	snprintf(output, 8, "%S", input);
 	if (output[0] == 0)
-		return -1;
+		return fmte_("encode error.", NULL);
 	for (ptr = (byte *)output; ; ptr++) {
 		c = *ptr;
 		if (c == 0)
 			break;
 		if (putc_filememory(fm, c))
-			return -1;
+			return fmte_("putc error.", NULL);
 	}
 
 	return 0;
@@ -569,10 +635,10 @@ static int write_char_windows(struct filememory *fm, unicode u)
 	if (! encode_utf16b(u, (byte16 *)input, &size))
 		goto normal;
 	if (fm->encode.error)
-		return -1;
+		return fmte_("encode error.", NULL);
 	if (! encode_utf16b(fm->encode.code, (byte16 *)input, &size))
 		goto normal;
-	return -1;
+	return fmte_("encode error.", NULL);
 
 	/* UTF16 -> ANSI-code-page  */
 normal:
@@ -586,11 +652,11 @@ normal:
 			NULL,
 			NULL);
 	if (result == 0)
-		return -1;
+		return fmte_("encode error.", NULL);
 	ptr = (byte *)output;
 	for (i = 0; i < result; i++) {
 		if (putc_filememory(fm, ptr[i]))
-			return -1;
+			return fmte_("putc error.", NULL);
 	}
 
 	return 0;
@@ -599,8 +665,7 @@ normal:
 #else
 static int write_char_windows(struct filememory *fm, unicode u)
 {
-	fmte("This implementation cannot write a windows encode.", NULL);
-	return -1;
+	return fmte_("This implementation cannot write a windows encode.", NULL);
 }
 #endif
 

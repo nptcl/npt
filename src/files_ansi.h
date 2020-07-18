@@ -43,7 +43,7 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 				"Cannot probe-file the wildcard pathname ~S.", pos, NULL);
 	}
 	/* check */
-	name_pathname_local(ptr, pos, &pos);
+	Return(name_pathname_local_(ptr, pos, &pos));
 	if (UTF8_buffer_clang(ptr->local, &pos, pos))
 		return fmte_("Cannot decode UTF-8 string ~S.", pos, NULL);
 	str = (const char *)posbodyr(pos);
@@ -99,11 +99,11 @@ static int rename_file_run_files(Execute ptr,
 		return fmte_("Cannot rename wildcard pathname to ~S", to, NULL);
 	/* filename */
 	local = ptr->local;
-	name_pathname_local(ptr, from, &value);
+	Return(name_pathname_local_(ptr, from, &value));
 	if (UTF8_buffer_clang(local, &value, value))
 		return fmte_("Cannot decode UTF-8 string ~S.", from, NULL);
 	str1 = (const char *)posbodyr(value);
-	name_pathname_local(ptr, to, &value);
+	Return(name_pathname_local_(ptr, to, &value));
 	if (UTF8_buffer_clang(local, &value, value))
 		return fmte_("Cannot decode UTF-8 string ~S.", to, NULL);
 	str2 = (const char *)posbodyr(value);

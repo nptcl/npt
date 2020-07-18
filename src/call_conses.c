@@ -898,7 +898,7 @@ static int multiple_push_cons(Execute ptr, addr *ret,
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(COMMON_VALUES, &values);
 	/* (v value) */
-	make_gensym(ptr, &v);
+	Return(make_gensym_(ptr, &v));
 	list_heap(&args, v, item, NULL);
 	conscar_heap(&args, args);
 	/* (an bn) */
@@ -1001,7 +1001,7 @@ static int single_pop_cons(Execute ptr, addr *ret,
 		cons_heap(&args, x, args);
 	}
 	/* (c r) */
-	make_gensym(ptr, &c);
+	Return(make_gensym_(ptr, &c));
 	list_heap(&x, c, r, NULL);
 	cons_heap(&args, x, args);
 	/* (g (cdr c)) */
@@ -1071,7 +1071,7 @@ static int multiple_pop_cons(Execute ptr, addr *ret,
 	c = Nil;
 	for (list1 = g; list1 != Nil; ) {
 		GetCons(list1, &x, &list1);
-		make_gensym(ptr, &y);
+		Return(make_gensym_(ptr, &y));
 		cons_heap(&c, y, c);
 		list_heap(&y, cdr, y, NULL);
 		list_heap(&x, setq, x, y, NULL);
@@ -2291,7 +2291,7 @@ static int expansion_remf_cons(Execute ptr, addr *ret,
 	list_heap(&declare, declare, ignorable, NULL);
 	/* (multiple-value-bind (g c) (remplist indicator r) w c) */
 	Return_getcar(g, &g);
-	make_gensym(ptr, &c);
+	Return(make_gensym_(ptr, &c));
 	list_heap(&g, g, c, NULL);
 	list_heap(&remplist, remplist, indicator, r, NULL);
 	list_heap(&mvbind, mvbind, g, remplist, w, c, NULL);
@@ -2582,7 +2582,7 @@ static int multiple_pushnew_cons(Execute ptr, addr *ret,
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(COMMON_VALUES, &values);
 	/* (v value) */
-	make_gensym(ptr, &v);
+	Return(make_gensym_(ptr, &v));
 	list_heap(&args, v, item, NULL);
 	conscar_heap(&args, args);
 	/* (an bn) */

@@ -38,7 +38,7 @@
  */
 _g int double_quote_reader(LocalRoot local, addr stream, addr *ret)
 {
-	int escape;
+	int escape, check;
 	unicode c;
 	addr queue;
 	LocalStack stack;
@@ -47,8 +47,9 @@ _g int double_quote_reader(LocalRoot local, addr stream, addr *ret)
 	charqueue_local(local, &queue, 0);
 	escape = 0;
 	for (;;) {
-		if (read_char_stream(stream, &c))
-			fmte("The string token must terminate by \".", NULL);
+		Return(read_char_stream_(stream, &c, &check));
+		if (check)
+			return fmte_("The string token must terminate by \".", NULL);
 		if (escape) {
 			push_charqueue_local(local, queue, c);
 			escape = 0;
@@ -143,8 +144,9 @@ static int read_delimited_execute(Execute ptr, addr stream, unicode limit)
 	queue_heap(&queue);
 	hold = LocalHold_local_push(ptr, queue);
 	for (;;) {
-		if (read_char_stream(stream, &c))
-			fmte("Don't allow end-of-file in the parensis.", NULL);
+		Return(read_char_stream_(stream, &c, &check));
+		if (check)
+			return fmte_("Don't allow end-of-file in the parensis.", NULL);
 		if (readtable_typetable(table, c) == ReadTable_Type_whitespace) {
 			/* discard character */
 			continue;
@@ -153,32 +155,25 @@ static int read_delimited_execute(Execute ptr, addr stream, unicode limit)
 			/* discard limit character */
 			break;
 		}
-		unread_char_stream(stream, c);
-		if (readtable_novalue(ptr, &check, &pos, stream, table))
-			return 1;
-		if (0 < check) {
-			fmte("read error", NULL);
-			return 1;
-		}
+		Return(unread_char_stream_(stream, c));
+		Return(readtable_novalue(ptr, &check, &pos, stream, table));
+		if (0 < check)
+			return fmte_("read error", NULL);
 		if (check < 0)
 			continue;
 
 		/* dot */
 		check = read_delimited_read(ptr, queue, dotsym, pos, &mode);
-		if (check == 1) {
-			fmte("dot no allowed here", NULL);
-			return 1;
-		}
+		if (check == 1)
+			return fmte_("dot no allowed here", NULL);
 		if (check == 2)
 			continue;
 		pushqueue_readlabel(ptr, queue, pos);
 	}
 	localhold_end(hold);
 
-	if (mode == 1) { /* (a b . ) */
-		fmte("dot no allowed here", NULL);
-		return 1;
-	}
+	if (mode == 1) /* (a b . ) */
+		return fmte_("dot no allowed here", NULL);
 
 	rootqueue(queue, &root);
 	setresult_control(ptr, root);
@@ -223,16 +218,18 @@ _g int parensis_close_reader(void)
 /*
  *  reader ;
  */
-_g void semicolon_reader(addr stream)
+_g int semicolon_reader_(addr stream)
 {
 	int check;
 	unicode c;
 
 	for (;;) {
-		check = read_char_stream(stream, &c);
+		Return(read_char_stream_(stream, &c, &check));
 		if (check || c == '\n')
 			break;
 	}
+
+	return 0;
 }
 
 
@@ -301,28 +298,29 @@ _g int comma_reader(Execute ptr, addr stream, addr *ret)
 	/* check */
 	getreadinfo(ptr, &pos);
 	if (ReadInfoStruct(pos)->backquote == 0)
-		fmte("The comma , is not inside backquote.", NULL);
+		return fmte_("The comma , is not inside backquote.", NULL);
 
 	/* read */
-	if (read_char_stream(stream, &c))
-		fmte("After comma , must be a character or an object.", NULL);
+	Return(read_char_stream_(stream, &c, &check));
+	if (check)
+		return fmte_("After comma , must be a character or an object.", NULL);
 	if (c == '@') {
 		Return(comma_read_reader(ptr, stream, &check, &pos));
 		if (check)
-			fmte("After ,@ must be an object.", NULL);
+			return fmte_("After ,@ must be an object.", NULL);
 		quote_atsign_heap(&pos, pos);
 	}
 	else if (c == '.') {
 		Return(comma_read_reader(ptr, stream, &check, &pos));
 		if (check)
-			fmte("After ,. must be an object.", NULL);
+			return fmte_("After ,. must be an object.", NULL);
 		quote_dot_heap(&pos, pos);
 	}
 	else {
-		unread_char_stream(stream, c);
+		Return(unread_char_stream_(stream, c));
 		Return(comma_read_reader(ptr, stream, &check, &pos));
 		if (check)
-			fmte("After comma , must be an object.", NULL);
+			return fmte_("After comma , must be an object.", NULL);
 		quote_comma_heap(&pos, pos);
 	}
 
@@ -333,19 +331,22 @@ _g int comma_reader(Execute ptr, addr stream, addr *ret)
 /*
  *  reader #
  */
-static int sharp_parameter_reader(LocalRoot local, addr stream, addr *ret, unicode *rc)
+static int sharp_parameter_reader_(LocalRoot local, addr stream, addr *ret, unicode *rc)
 {
+	int check;
 	unicode c;
 	addr cons;
 	LocalStack stack;
 
 	/* no digit */
-	if (read_char_stream(stream, &c))
-		return 1;
+	Return(read_char_stream_(stream, &c, &check));
+	if (check) {
+		*rc = 0;
+		return Result(ret, NULL);
+	}
 	if (! isDigitCase(c)) {
-		*ret = Nil;
 		*rc = c;
-		return 0;
+		return Result(ret, Nil);
 	}
 
 	/* parse digit */
@@ -353,14 +354,17 @@ static int sharp_parameter_reader(LocalRoot local, addr stream, addr *ret, unico
 	bigcons_local(local, &cons);
 	for (;;) {
 		push_bigcons(local, cons, 10, (unsigned)(c - '0'));
-		if (read_char_stream(stream, &c))
-			return 1;
+		Return(read_char_stream_(stream, &c, &check));
+		if (check) {
+			*rc = 0;
+			return Result(ret, NULL);
+		}
 		if (! isDigitCase(c)) {
 			*rc = c;
 			break;
 		}
 	}
-	integer_cons_alloc(NULL, ret, signplus_bignum, cons);
+	integer_cons_heap(ret, signplus_bignum, cons);
 	rollback_local(local, stack);
 
 	return 0;
@@ -372,10 +376,9 @@ _g int sharp_reader(Execute ptr, addr stream, addr code)
 	unicode x, y;
 
 	/* #[integer][code] */
-	if (sharp_parameter_reader(ptr->local, stream, &arg, &y)) {
-		fmte("Invalid dispatch character form ~S.", code, NULL);
-		return 0;
-	}
+	Return(sharp_parameter_reader_(ptr->local, stream, &arg, &y));
+	if (arg == NULL)
+		return fmte_("Invalid dispatch character form ~S.", code, NULL);
 	character_heap(&code2, y);
 	y = toUpperUnicode(y);
 
@@ -384,10 +387,8 @@ _g int sharp_reader(Execute ptr, addr stream, addr code)
 	GetDispatchReadtable(pos, &pos);
 	GetCharacter(code, &x);
 	findvalue_character2_hashtable(pos, x, y, &pos);
-	if (pos == Nil) {
-		fmte("There is no macro character ~S-~S.", code, code2, NULL);
-		return 0;
-	}
+	if (pos == Nil)
+		return fmte_("There is no macro character ~S-~S.", code, code2, NULL);
 
 	return funcall_control(ptr, pos, stream, code2, arg, NULL);
 }
@@ -452,10 +453,10 @@ _g int equal_dispatch(Execute ptr, addr stream, addr x, addr y, addr *ret)
 	int check;
 	addr pos, label;
 
-	pushlabel_readinfo(ptr, y, &label);
+	Return(pushlabel_readinfo_(ptr, y, &label));
 	Return(equal_read_dispatch(ptr, stream, &check, &pos));
 	if (check)
-		fmte("After dispatch character ~S must be an object.", x, NULL);
+		return fmte_("After dispatch character ~S must be an object.", x, NULL);
 	closelabel_readlabel(ptr, label, pos);
 
 	return Result(ret, pos);
@@ -537,7 +538,7 @@ _g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 
 	/* parameter */
 	if (y != Nil && GetIndex_integer(y, &limit))
-		fmte("Too large dispatch parameter ~S.", y, NULL);
+		return fmte_("Too large dispatch parameter ~S.", y, NULL);
 
 	/* read list */
 	local = ptr->local;
@@ -546,25 +547,23 @@ _g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 	root = Nil;
 	size = 0;
 	for (;;) {
-		if (read_char_stream(stream, &c)) {
-			fmte("Don't allow end-of-file in the parensis.", NULL);
-		}
-		if (readtable_typetable(table, c) == ReadTable_Type_whitespace) {
+		Return(read_char_stream_(stream, &c, &check));
+		if (check)
+			return fmte_("Don't allow end-of-file in the parensis.", NULL);
+		if (readtable_typetable(table, c) == ReadTable_Type_whitespace)
 			continue;
-		}
-		if (c == ')') {
+		if (c == ')')
 			break;
-		}
-		unread_char_stream(stream, c);
+		Return(unread_char_stream_(stream, c));
 		Return(read_recursive(ptr, stream, &check, &pos));
 		if (check)
-			fmte("read error", NULL);
+			return fmte_("read error", NULL);
 		cons_local(local, &root, pos, root);
 		size++;
 
 		/* size check */
 		if (y != Nil && limit < size)
-			fmte("Too many vector parameter.", NULL);
+			return fmte_("Too many vector parameter.", NULL);
 	}
 
 	/* make vector */
@@ -573,10 +572,13 @@ _g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 	}
 	else {
 		if (root == Nil) {
-			if (limit == 0)
+			if (limit == 0) {
 				vector_heap(&root, 0);
-			else
-				fmte("The vector don't initialize because body is empty #n().", NULL);
+			}
+			else {
+				return fmte_("The vector don't initialize "
+						"because body is empty #n().", NULL);
+			}
 		}
 		else {
 			parensis_open_limit_dispatch(root, limit, &root);
@@ -594,16 +596,16 @@ _g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
  */
 _g int parensis_close_dispatch(void)
 {
-	fmte("unmatch close parenthiesis ).", NULL);
-	return 0;
+	return fmte_("unmatch close parenthiesis ).", NULL);
 }
 
 
 /*
  *  dispatch #*
  */
-static void asterisk_bitcons_dispatch(Execute ptr, addr stream, addr code, addr *ret)
+static int asterisk_bitcons_dispatch_(Execute ptr, addr stream, addr code, addr *ret)
 {
+	int check;
 	unicode c;
 	addr pos, cons;
 	LocalRoot local;
@@ -613,7 +615,8 @@ static void asterisk_bitcons_dispatch(Execute ptr, addr stream, addr code, addr 
 	push_local(local, &stack);
 	bitcons_local(local, &cons, 0);
 	for (;;) {
-		if (read_char_stream(stream, &c))
+		Return(read_char_stream_(stream, &c, &check));
+		if (check)
 			break;
 		if (c == '0') {
 			push_bitcons(local, cons, 0);
@@ -622,18 +625,19 @@ static void asterisk_bitcons_dispatch(Execute ptr, addr stream, addr code, addr 
 			push_bitcons(local, cons, 1);
 		}
 		else {
-			unread_char_stream(stream, c);
+			Return(unread_char_stream_(stream, c));
 			break;
 		}
 	}
 	bitmemory_cons_heap(&pos, cons);
 	rollback_local(local, stack);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
-static void asterisk_size_dispatch(Execute ptr, addr stream, size_t size, addr *ret)
+static int asterisk_size_dispatch_(Execute ptr, addr stream, size_t size, addr *ret)
 {
-	int last;
+	int last, check;
 	unicode c;
 	addr pos;
 	size_t i;
@@ -643,8 +647,9 @@ static void asterisk_size_dispatch(Execute ptr, addr stream, size_t size, addr *
 	last = 0;
 	for (i = 0; ; i++) {
 		if (size <= i)
-			fmte("Too large bit-vector.", NULL);
-		if (read_char_stream(stream, &c))
+			return fmte_("Too large bit-vector.", NULL);
+		Return(read_char_stream_(stream, &c, &check));
+		if (check)
 			break;
 		if (c == '0') {
 			bitmemory_setint(pos, i, 0);
@@ -655,7 +660,7 @@ static void asterisk_size_dispatch(Execute ptr, addr stream, size_t size, addr *
 			last = 1;
 		}
 		else {
-			unread_char_stream(stream, c);
+			Return(unread_char_stream_(stream, c));
 			break;
 		}
 	}
@@ -665,49 +670,52 @@ static void asterisk_size_dispatch(Execute ptr, addr stream, size_t size, addr *
 		bitmemory_setint(pos, i, last);
 
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
 
-_g void asterisk_dispatch(Execute ptr, addr stream, addr x, addr y, addr *ret)
+_g int asterisk_dispatch_(Execute ptr, addr stream, addr x, addr y, addr *ret)
 {
 	size_t size;
 
 	if (y == Nil) {
-		asterisk_bitcons_dispatch(ptr, stream, x, ret);
+		Return(asterisk_bitcons_dispatch_(ptr, stream, x, ret));
 	}
 	else {
 		if (GetIndex_integer(y, &size))
-			fmte("The index size ~S is too large.", y, NULL);
-		asterisk_size_dispatch(ptr, stream, size, ret);
+			return fmte_("The index size ~S is too large.", y, NULL);
+		Return(asterisk_size_dispatch_(ptr, stream, size, ret));
 	}
+
+	return 0;
 }
 
 
 /*
  *  dispatch #:
  */
-static void colon_object_dispatch(Execute ptr, addr stream, addr *ret)
+static int colon_object_dispatch_(Execute ptr, addr stream, addr *ret)
 {
+	enum ReadTable_Result value;
 	addr table;
 
 	getreadtable(ptr, &table);
 	setstate_readinfo(ptr, ReadInfo_State_Gensym);
-	switch (readtable_result(ptr, ret, stream, table)) {
+	Return(readtable_result_(ptr, ret, stream, table, &value));
+	switch (value) {
 		case ReadTable_Result_normal:
 			break;
 
 		case ReadTable_Result_eof:
-			fmte("After character #: must be an object, but EOF.", NULL);
-			break;
+			return fmte_("After character #: must be an object, but EOF.", NULL);
 
 		case ReadTable_Result_macro:
-			fmte("After character #: don't allow a macro character.", NULL);
-			break;
+			return fmte_("After character #: don't allow a macro character.", NULL);
 
 		default:
-			fmte("Invalid result.", NULL);
-			break;
+			return fmte_("Invalid result.", NULL);
 	}
+
+	return 0;
 }
 
 _g int colon_dispatch(Execute ptr, addr stream, addr *ret)
@@ -718,7 +726,7 @@ _g int colon_dispatch(Execute ptr, addr stream, addr *ret)
 	push_new_control(ptr, &control);
 	/* code */
 	pushreadinfo_recursive(ptr, &pos);
-	colon_object_dispatch(ptr, stream, &pos);
+	Return(colon_object_dispatch_(ptr, stream, &pos));
 	/* free */
 	Return(free_control_(ptr, control));
 	/* result */
@@ -745,7 +753,7 @@ _g int backslash_dispatch(Execute ptr, addr stream, addr *ret)
 	addr table, pos;
 
 	getreadtable(ptr, &table);
-	unread_char_stream(stream, '\\');
+	Return(unread_char_stream_(stream, '\\'));
 	Return(read_recursive(ptr, stream, &check, &pos));
 	if (check)
 		fmte("Cannot read character name.", NULL);
@@ -765,23 +773,27 @@ _g int backslash_dispatch(Execute ptr, addr stream, addr *ret)
 /*
  *  dispatch #|
  */
-_g void or_dispatch(addr stream)
+_g int or_dispatch_(addr stream)
 {
+	int check;
 	unicode u;
 	size_t count;
 
 	count = 0;
 	for (;;) {
-		if (read_char_stream(stream, &u))
+		Return(read_char_stream_(stream, &u, &check));
+		if (check)
 			break;
 		if (u == '#') {
-			if (read_char_stream(stream, &u))
+			Return(read_char_stream_(stream, &u, &check));
+			if (check)
 				break;
 			if (u == '|')
 				count++;
 		}
 		else if (u == '|') {
-			if (read_char_stream(stream, &u))
+			Return(read_char_stream_(stream, &u, &check));
+			if (check)
 				break;
 			if (u == '#') {
 				if (count == 0)
@@ -790,6 +802,8 @@ _g void or_dispatch(addr stream)
 			}
 		}
 	}
+
+	return 0;
 }
 
 

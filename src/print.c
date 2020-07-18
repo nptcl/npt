@@ -289,21 +289,25 @@ _g void push_miser_width_nil_print(Execute ptr)
 }
 
 /* print-right-margin */
-_g void right_margin_print(Execute ptr, addr stream, size_t *ret)
+_g int right_margin_print_(Execute ptr, addr stream, size_t *ret)
 {
+	int check;
 	addr pos;
 	size_t size;
 
 	GetConst(SPECIAL_PRINT_RIGHT_MARGIN, &pos);
 	getspecialcheck_local(ptr, pos, &pos);
 	if (pos == Nil) {
-		if (terminal_width_stream(stream, &size))
+		Return(termsize_stream_(stream, &size, &check));
+		if (check)
 			size = PRINT_DEFAULT_WIDTH;
 		*ret = size;
 	}
 	else {
 		getindex_fixnum(pos, ret);
 	}
+
+	return 0;
 }
 
 _g void push_right_margin_print(Execute ptr, size_t value)
@@ -335,7 +339,7 @@ _g void push_pprint_dispatch(Execute ptr, addr value)
 /*
  *  print-unreadable-object
  */
-static int print_unreadable_call(Execute ptr, addr stream, addr pos,
+static int print_unreadable_call_(Execute ptr, addr stream, addr pos,
 		int type, int identity, calltype_print call, addr body)
 {
 	char buffer[32];
@@ -344,7 +348,7 @@ static int print_unreadable_call(Execute ptr, addr stream, addr pos,
 
 	/* begin */
 	first = 1;
-	print_ascii_stream(stream, "#<");
+	Return(print_ascii_stream_(stream, "#<"));
 	/* type */
 	if (type) {
 		type_value(&value, pos);
@@ -355,43 +359,44 @@ static int print_unreadable_call(Execute ptr, addr stream, addr pos,
 	}
 	/* call */
 	if (call) {
-		if (first == 0)
-			write_char_stream(stream, ' ');
+		if (first == 0) {
+			Return(write_char_stream_(stream, ' '));
+		}
 		if ((*call)(ptr, stream, pos))
 			return 1;
 		first = 0;
 	}
 	/* body */
 	if (body) {
-		if (first == 0)
-			write_char_stream(stream, ' ');
+		if (first == 0) {
+			Return(write_char_stream_(stream, ' '));
+		}
 		if (callclang_apply(ptr, &body, body, Nil))
 			return 1;
 		first = 0;
 	}
 	/* identity */
 	if (identity) {
-		if (first == 0)
-			write_char_stream(stream, ' ');
+		if (first == 0) {
+			Return(write_char_stream_(stream, ' '));
+		}
 		snprintf(buffer, 32, "#x%zx", (size_t)pos);
-		print_ascii_stream(stream, buffer);
+		Return(print_ascii_stream_(stream, buffer));
 	}
 	/* end */
-	write_char_stream(stream, '>');
-
-	return 0;
+	return write_char_stream_(stream, '>');
 }
 
-_g int print_unreadable_object(Execute ptr, addr stream, addr pos,
+_g int print_unreadable_object_(Execute ptr, addr stream, addr pos,
 		int type, int identity, calltype_print call)
 {
-	return print_unreadable_call(ptr, stream, pos, type, identity, call, NULL);
+	return print_unreadable_call_(ptr, stream, pos, type, identity, call, NULL);
 }
 
-_g int print_unreadable_common(Execute ptr, addr stream, addr pos,
+_g int print_unreadable_common_(Execute ptr, addr stream, addr pos,
 		int type, int identity, addr body)
 {
-	return print_unreadable_call(ptr, stream, pos, type, identity, NULL, body);
+	return print_unreadable_call_(ptr, stream, pos, type, identity, NULL, body);
 }
 
 

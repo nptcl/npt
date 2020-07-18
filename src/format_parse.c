@@ -19,7 +19,7 @@
 /*
  *  fmtinput
  */
-_g void format_abort(addr format, size_t position, const char *str, va_list args)
+_g int format_abort_(addr format, size_t position, const char *str, va_list args)
 {
 	size_t i, size;
 	addr pos, list, stream;
@@ -34,32 +34,36 @@ _g void format_abort(addr format, size_t position, const char *str, va_list args
 
 	strvect_char_heap(&pos, str);
 	open_output_string_stream(&stream, 0);
-	print_string_stream(stream, pos);
-	fresh_line_stream(stream);
+	Return(print_string_stream_(stream, pos));
+	Return(fresh_line_stream_(stream, NULL));
 
 	/* Format error: ~1,2,3,4,5,6,7,8F */
-	print_ascii_stream(stream, "Format error: ~A");
+	Return(print_ascii_stream_(stream, "Format error: ~A"));
 	string_length(format, &size);
-	fresh_line_stream(stream);
+	Return(fresh_line_stream_(stream, NULL));
 
 	/*                      |          */
-	print_ascii_stream(stream, "             ");
+	Return(print_ascii_stream_(stream, "             "));
 	string_length(format, &size);
-	for (i = 0; i < position; i++)
-		write_char_stream(stream, ' ');
-	write_char_stream(stream, '^');
+	for (i = 0; i < position; i++) {
+		Return(write_char_stream_(stream, ' '));
+	}
+	Return(write_char_stream_(stream, '^'));
 
 	/* error */
 	string_stream_heap(stream, &pos);
-	simple_error(pos, list);
+	return call_simple_error_(Execute_Thread, pos, list);
 }
 
-static void format_abort_va(addr format, size_t index, const char *str, ...)
+static int format_abort_va_(addr format, size_t index, const char *str, ...)
 {
 	va_list args;
+
 	va_start(args, str);
-	format_abort(format, index, str, args);
+	Return(format_abort_(format, index, str, args));
 	va_end(args);
+
+	return 0;
 }
 
 
@@ -97,15 +101,18 @@ struct fmtchar {
 	addr intern, format;
 };
 
-static void fmtinput_abort(fmtinput input, const char *str, ...)
+static int fmtinput_abort_(fmtinput input, const char *str, ...)
 {
 	va_list args;
+
 	va_start(args, str);
-	format_abort(input->format, input->index, str, args);
+	Return(format_abort_(input->format, input->index, str, args));
 	va_end(args);
+
+	return 0;
 }
 
-static void fmtinput_init(fmtinput input, LocalRoot local, addr format)
+static int fmtinput_init_(fmtinput input, LocalRoot local, addr format)
 {
 #ifdef LISP_DEBUG
 	aamemory(input, sizeoft(struct fmtinput_struct));
@@ -114,33 +121,38 @@ static void fmtinput_init(fmtinput input, LocalRoot local, addr format)
 	input->format = format;
 	input->index = 0;
 	string_length(format, &(input->size));
-}
 
-static int fmtinput_peek(fmtinput input, unicode *u)
-{
-	if (input->size <= input->index)
-		return 1;
-	string_getc(input->format, input->index, u);
 	return 0;
 }
 
-static int fmtinput_getc(fmtinput input, unicode *u)
+static int fmtinput_peek_(fmtinput input, unicode *c, int *ret)
 {
-	int result;
-
-	result = fmtinput_peek(input, u);
-	if (! result)
-		input->index++;
-
-	return result;
+	if (input->size <= input->index)
+		return Result(ret, 1);
+	string_getc(input->format, input->index, c);
+	return Result(ret, 0);
 }
 
-static void fmtinput_getcheck(fmtinput input, unicode *u)
+static int fmtinput_getc_(fmtinput input, unicode *c, int *ret)
 {
-	if (fmtinput_getc(input, u)) {
-		fmtinput_abort(input, "Invalid format string.", NULL);
-		return;
-	}
+	int check;
+
+	Return(fmtinput_peek_(input, c, &check));
+	if (! check)
+		input->index++;
+
+	return Result(ret, check);
+}
+
+static int fmtinput_getcheck_(fmtinput input, unicode *c)
+{
+	int check;
+
+	Return(fmtinput_getc_(input, c, &check));
+	if (check)
+		return fmtinput_abort_(input, "Invalid format string.", NULL);
+
+	return 0;
 }
 
 
@@ -188,24 +200,26 @@ static void fmtchar_sharp(fmtinput input, struct fmtchar *str)
 	argtype->type = fmtargs_count;
 }
 
-static void fmtchar_character(fmtinput input, struct fmtchar *str)
+static int fmtchar_character_(fmtinput input, struct fmtchar *str)
 {
 	unicode u;
 	struct fmtargs *argtype;
 
 	argtype = fmtargs_make(input, str);
 	argtype->type = fmtargs_character;
-	fmtinput_getcheck(input, &u);
+	Return(fmtinput_getcheck_(input, &u));
 	argtype->u.character = u;
+
+	return 0;
 }
 
-static void fmtchar_sign(fmtinput input, int *sign, unicode u)
+static int fmtchar_sign_(fmtinput input, int *sign, unicode u)
 {
-	if (*sign) {
-		fmtinput_abort(input, "Invalid sign character.", NULL);
-		return;
-	}
+	if (*sign)
+		return fmtinput_abort_(input, "Invalid sign character.", NULL);
 	*sign = (int)u;
+
+	return 0;
 }
 
 static void fmtchar_nil(fmtinput input, struct fmtchar *str)
@@ -216,7 +230,7 @@ static void fmtchar_nil(fmtinput input, struct fmtchar *str)
 	argtype->type = fmtargs_nil;
 }
 
-static fixnum fmtchar_value_parse(fmtinput input, int sign, addr queue)
+static int fmtchar_value_parse_(fmtinput input, int sign, addr queue, fixnum *ret)
 {
 	addr pos;
 	LocalRoot local;
@@ -225,62 +239,68 @@ static fixnum fmtchar_value_parse(fmtinput input, int sign, addr queue)
 
 	local = input->local;
 	push_local(local, &stack);
-	if (sign == '+') sign = signplus_bignum;
-	if (sign == '-') sign = signminus_bignum;
+	if (sign == '+')
+		sign = signplus_bignum;
+	if (sign == '-')
+		sign = signminus_bignum;
 	if (fixnum_cons_alloc(local, &pos, sign, queue)) {
-		fmtinput_abort(input, "Too large integer value.", NULL);
-		return 0;
+		*ret = 0;
+		return fmtinput_abort_(input, "Too large integer value.", NULL);
 	}
 	GetFixnum(pos, &value);
 	rollback_local(local, stack);
 	clear_bigcons(queue);
 
-	return value;
+	return Result(ret, value);
 }
 
-static void fmtchar_value(fmtinput input, struct fmtchar *str, int *sign, addr queue)
+static int fmtchar_value_(fmtinput input, struct fmtchar *str, int *sign, addr queue)
 {
 	struct fmtargs *argtype;
+	fixnum value;
 
 	argtype = fmtargs_make(input, str);
 	argtype->type = fmtargs_integer;
-	argtype->u.value = fmtchar_value_parse(input, *sign, queue);
+	Return(fmtchar_value_parse_(input, *sign, queue, &value));
+	argtype->u.value = value;
 	*sign = 0;
+
+	return 0;
 }
 
-static int fmtchar_nilcheck(fmtinput input, int sign, addr queue)
+static int fmtchar_nilcheck_(fmtinput input, int sign, addr queue, int *ret)
 {
 	if (! bigcons_empty_p(queue))
-		return 0;
+		return Result(ret, 0);
 	if (sign == 0)
-		return 1;
+		return Result(ret, 1);
 	/* error */
-	fmtinput_abort(input, "Invalid integer value.", NULL);
-	return 1;
+	*ret = 0;
+	return fmtinput_abort_(input, "Invalid integer value.", NULL);
 }
 
-static void fmtchar_colon(fmtinput input, struct fmtchar *str)
+static int fmtchar_colon_(fmtinput input, struct fmtchar *str)
 {
-	if (str->colon) {
-		fmtinput_abort(input, "Format parameter ':' already supplies.", NULL);
-		return;
-	}
+	if (str->colon)
+		return fmtinput_abort_(input, "Format parameter ':' already supplies.", NULL);
 	str->colon_pos = input->index;
 	str->colon = 1;
+
+	return 0;
 }
 
-static void fmtchar_atsign(fmtinput input, struct fmtchar *str)
+static int fmtchar_atsign_(fmtinput input, struct fmtchar *str)
 {
-	if (str->atsign) {
-		fmtinput_abort(input, "Format parameter '@' already supplies.", NULL);
-		return;
-	}
+	if (str->atsign)
+		return fmtinput_abort_(input, "Format parameter '@' already supplies.", NULL);
 	str->atsign_pos = input->index;
 	str->atsign = 1;
+
+	return 0;
 }
 
 static enum FormatType FormatCharacter[0x80];
-static void fmtchar_type(fmtinput input, struct fmtchar *str)
+static int fmtchar_type_(fmtinput input, struct fmtchar *str)
 {
 	enum FormatType type;
 	addr pos;
@@ -296,20 +316,20 @@ static void fmtchar_type(fmtinput input, struct fmtchar *str)
 	}
 	if (type != FormatType_Error) {
 		str->type = type;
-		return;
+		return 0;
 	}
 	if (c == '>' || c == ')' || c == ']' || c == '}') {
 		str->type = FormatType_Error;
-		return;
+		return 0;
 	}
 
 error:
 	character_heap(&pos, c);
-	fmtinput_abort(input, "Invalid operator character, ~S.", pos, NULL);
 	str->type = FormatType_Error;
+	return fmtinput_abort_(input, "Invalid operator character, ~S.", pos, NULL);
 }
 
-static void fmtchar_parse_function(fmtinput input, struct fmtchar *str)
+static int fmtchar_parse_function_(fmtinput input, struct fmtchar *str)
 {
 	unicode u;
 	addr queue, package, pos;
@@ -320,7 +340,7 @@ static void fmtchar_parse_function(fmtinput input, struct fmtchar *str)
 	charqueue_local(local, &queue, 0);
 
 first:
-	fmtinput_getcheck(input, &u);
+	Return(fmtinput_getcheck_(input, &u));
 	if (u == '/')
 		goto first1;
 	if (u == ':')
@@ -339,13 +359,13 @@ first1:
 colon1:
 	GetCharQueueSize(queue, &size);
 	if (size == 0) {
-		fmtinput_abort(input, "The package name is empty. (Don't use keyword)", NULL);
-		return;
+		return fmtinput_abort_(input,
+				"The package name is empty. (Don't use keyword)", NULL);
 	}
 	make_charqueue_local(local, queue, &package);
 	clear_charqueue(queue);
 
-	fmtinput_getcheck(input, &u);
+	Return(fmtinput_getcheck_(input, &u));
 	if (u == '/')
 		goto error;
 	if (u == ':')
@@ -355,19 +375,17 @@ colon1:
 	goto colon3;
 
 colon2:
-	fmtinput_getcheck(input, &u);
+	Return(fmtinput_getcheck_(input, &u));
 	if (u == '/')
 		goto error;
-	if (u == ':') {
-		fmtinput_abort(input, "Invalid colon ::: separator.", NULL);
-		return;
-	}
+	if (u == ':')
+		return fmtinput_abort_(input, "Invalid colon ::: separator.", NULL);
 	u = toUpperUnicode(u);
 	push_charqueue_local(local, queue, u);
 	goto colon3;
 
 colon3:
-	fmtinput_getcheck(input, &u);
+	Return(fmtinput_getcheck_(input, &u));
 	if (u == '/')
 		goto finish;
 	u = toUpperUnicode(u);
@@ -375,18 +393,18 @@ colon3:
 	goto colon3;
 
 error:
-	fmtinput_abort(input, "The function name is empty.", NULL);
-	return;
+	return fmtinput_abort_(input, "The function name is empty.", NULL);
 
 finish:
 	make_charqueue_local(local, queue, &pos);
 	cons_local(local, &pos, package, pos);
 	str->intern = pos;
+	return 0;
 }
 
-static void fmtchar_parse(fmtinput input, struct fmtchar *str, addr queue)
+static int fmtchar_parse_(fmtinput input, struct fmtchar *str, addr queue)
 {
-	int sign, comma;
+	int check, sign, comma;
 	unicode u;
 	LocalRoot local;
 
@@ -396,7 +414,7 @@ static void fmtchar_parse(fmtinput input, struct fmtchar *str, addr queue)
 	sign = 0;
 	comma = 0;
 arguments:
-	fmtinput_getcheck(input, &u);
+	Return(fmtinput_getcheck_(input, &u));
 	if (u == ':' || u == '@') {
 		goto colon_atsign;
 	}
@@ -411,12 +429,12 @@ arguments:
 		goto arguments;
 	}
 	if (u == '\'') {
-		fmtchar_character(input, str);
+		Return(fmtchar_character_(input, str));
 		comma = 1;
 		goto arguments;
 	}
 	if (u == '-' || u == '+') {
-		fmtchar_sign(input, &sign, u);
+		Return(fmtchar_sign_(input, &sign, u));
 		comma = 1;
 		goto arguments;
 	}
@@ -431,44 +449,51 @@ arguments:
 	goto finish;
 
 push_value:
-	if (fmtchar_nilcheck(input, sign, queue)) {
+	Return(fmtchar_nilcheck_(input, sign, queue, &check));
+	if (check) {
 		if (comma == 0)
 			fmtchar_nil(input, str);
 	}
 	else {
-		fmtchar_value(input, str, &sign, queue);
+		Return(fmtchar_value_(input, str, &sign, queue));
 	}
 	comma = 0;
 	goto arguments;
 
 colon_atsign:
-	if (! fmtchar_nilcheck(input, sign, queue))
-		fmtchar_value(input, str, &sign, queue);
+	Return(fmtchar_nilcheck_(input, sign, queue, &check));
+	if (! check) {
+		Return(fmtchar_value_(input, str, &sign, queue));
+	}
 
 colon_atsign_loop:
-	if (u == ':')
-		fmtchar_colon(input, str);
-	else if (u == '@')
-		fmtchar_atsign(input, str);
-	else
+	if (u == ':') {
+		Return(fmtchar_colon_(input, str));
+	}
+	else if (u == '@') {
+		Return(fmtchar_atsign_(input, str));
+	}
+	else {
 		goto finish;
-	fmtinput_getcheck(input, &u);
+	}
+	Return(fmtinput_getcheck_(input, &u));
 	goto colon_atsign_loop;
 
 finish:
-	if (! fmtchar_nilcheck(input, sign, queue))
-		fmtchar_value(input, str, &sign, queue);
+	Return(fmtchar_nilcheck_(input, sign, queue, &check));
+	if (! check) {
+		Return(fmtchar_value_(input, str, &sign, queue));
+	}
 	if (u == 0) {
-		fmtinput_abort(input, "Invalid operator character, \\0.", NULL);
-		return;
+		return fmtinput_abort_(input, "Invalid operator character, \\0.", NULL);
 	}
 	if (u == '/') {
-		fmtchar_parse_function(input, str);
+		Return(fmtchar_parse_function_(input, str));
 	}
 
 	/* operator */
 	str->character = toUpperUnicode(u);
-	fmtchar_type(input, str);
+	return fmtchar_type_(input, str);
 }
 
 
@@ -532,8 +557,9 @@ static void fmtroot_output(fmtinput input, struct fmtroot *root)
 	}
 }
 
-static struct fmtchar *fmtchar_loop(fmtinput input)
+static int fmtchar_loop_(fmtinput input, struct fmtchar **ret)
 {
+	int check;
 	LocalRoot local;
 	addr queue;
 	unicode u;
@@ -543,7 +569,10 @@ static struct fmtchar *fmtchar_loop(fmtinput input)
 	local = input->local;
 	cleartype(root);
 	bigcons_local(local, &queue);
-	while (! fmtinput_peek(input, &u)) {
+	for (;;) {
+		Return(fmtinput_peek_(input, &u, &check));
+		if (check)
+			break;
 		if (u != '~') {
 			input->index++;
 			continue;
@@ -553,14 +582,14 @@ static struct fmtchar *fmtchar_loop(fmtinput input)
 		input->index++;
 		/* operator */
 		comm = fmtchar_local(input);
-		fmtchar_parse(input, comm, queue);
+		Return(fmtchar_parse_(input, comm, queue));
 		fmtroot_push(local, &root, comm);
 		root.start = input->index;
 	}
 	/* text output */
 	fmtroot_output(input, &root);
 
-	return root.root;
+	return Result(ret, root.root);
 }
 
 
@@ -575,21 +604,22 @@ struct fmtgroup {
 	unicode a;
 };
 
-static void fmtchar_group_eof(struct fmtgroup *group)
+static int fmtchar_group_eof_(struct fmtgroup *group)
 {
 	addr pos;
 	size_t size;
 
 	character_local(group->local, &pos, group->a);
 	string_length(group->format, &size);
-	format_abort_va(group->format, size, "There is no parensis ~S.", pos, NULL);
+	return format_abort_va_(group->format,
+			size, "There is no parensis ~S.", pos, NULL);
 }
 
-static void fmtchar_group_justification(addr format, struct fmtchar *list)
+static int fmtchar_group_justification_(addr format, struct fmtchar *list)
 {
 	if (list->close_colon) {
 		list->type = FormatType_LogicalBlock;
-		return;
+		return 0;
 	}
 
 	/* Disable operator in Justification block.
@@ -616,32 +646,30 @@ static void fmtchar_group_justification(addr format, struct fmtchar *list)
 				break;
 		}
 	}
-	return;
+	return 0;
 
 	/* error */
 error:
-	format_abort_va(format, list->position,
+	return format_abort_va_(format, list->position,
 			"Don't use the operator in Justification block.", NULL);
 }
 
-static void fmtchar_group_type(addr format, struct fmtchar *list)
+static int fmtchar_group_type_(addr format, struct fmtchar *list)
 {
 	switch (list->type) {
 		case FormatType_Justification:
-			fmtchar_group_justification(format, list);
-			break;
+			return fmtchar_group_justification_(format, list);
 
 		case FormatType_Error:
-			fmte("format type error", NULL);
-			break;
+			return fmte_("format type error", NULL);
 
 		default:
-			break;
+			return 0;
 	}
 }
 
-static void fmtchar_group(struct fmtgroup *group);
-static void fmtchar_group_set(struct fmtgroup *group, unicode a, int semicolon)
+static int fmtchar_group_(struct fmtgroup *group);
+static int fmtchar_group_set_(struct fmtgroup *group, unicode a, int semicolon)
 {
 	struct fmtchar *list, *next;
 	struct fmtgroup backup;
@@ -657,21 +685,23 @@ static void fmtchar_group_set(struct fmtgroup *group, unicode a, int semicolon)
 	group->a = a;
 	group->list = next;
 	/* group */
-	fmtchar_group(group);
+	Return(fmtchar_group_(group));
 	/* option */
 	list->option = next;
 	list->close_colon = group->result_colon;
 	list->close_atsign = group->result_atsign;
 	group->result_colon = 0;
 	group->result_atsign = 0;
-	fmtchar_group_type(group->format, list);
+	Return(fmtchar_group_type_(group->format, list));
 	/* next list */
 	list = list->next = group->list;
 	*group = backup;
 	group->list = list;
+
+	return 0;
 }
 
-static void fmtchar_group_close(struct fmtgroup *group)
+static int fmtchar_group_close_(struct fmtgroup *group)
 {
 	addr pos;
 	struct fmtchar *list;
@@ -679,61 +709,61 @@ static void fmtchar_group_close(struct fmtgroup *group)
 	list = group->list;
 	if (group->a != list->character) {
 		character_heap(&pos, group->a);
-		format_abort_va(group->format, list->position,
+		return format_abort_va_(group->format, list->position,
 				"The close parensis ~S mismatch.", pos, NULL);
-		return;
 	}
 	if (list->size) {
 		character_heap(&pos, group->a);
-		format_abort_va(group->format, list->position,
+		return format_abort_va_(group->format, list->position,
 				"The close parensis ~S cannot use parameters.", pos, NULL);
-		return;
 	}
 	group->list = list->next;
 	list->next = NULL;
 	group->result_colon = list->colon;
 	group->result_atsign = list->atsign;
+
+	return 0;
 }
 
-static void fmtchar_group_semicolon(struct fmtgroup *group)
+static int fmtchar_group_semicolon_(struct fmtgroup *group)
 {
 	if (! group->semicolon) {
-		format_abort_va(group->format, group->list->position,
+		return format_abort_va_(group->format, group->list->position,
 				"Invalid ~~; parameter.", NULL);
-		return;
 	}
 	group->list = group->list->next;
+
+	return 0;
 }
 
-static void fmtchar_group(struct fmtgroup *group)
+static int fmtchar_group_(struct fmtgroup *group)
 {
 	while (group->list) {
 		switch (group->list->character) {
 			case '(':
-				fmtchar_group_set(group, ')', 0);
+				Return(fmtchar_group_set_(group, ')', 0));
 				break;
 
 			case '[': /* semicolon */
-				fmtchar_group_set(group, ']', 1);
+				Return(fmtchar_group_set_(group, ']', 1));
 				break;
 
 			case '{':
-				fmtchar_group_set(group, '}', 0);
+				Return(fmtchar_group_set_(group, '}', 0));
 				break;
 
 			case '<': /* semicolon */
-				fmtchar_group_set(group, '>', 1);
+				Return(fmtchar_group_set_(group, '>', 1));
 				break;
 
 			case ')':
 			case ']':
 			case '}':
 			case '>':
-				fmtchar_group_close(group);
-				return;
+				return fmtchar_group_close_(group);
 
 			case ';':
-				fmtchar_group_semicolon(group);
+				Return(fmtchar_group_semicolon_(group));
 				break;
 
 			default:
@@ -741,8 +771,11 @@ static void fmtchar_group(struct fmtgroup *group)
 				break;
 		}
 	}
-	if (group->a != 0)
-		fmtchar_group_eof(group);
+	if (group->a != 0) {
+		Return(fmtchar_group_eof_(group));
+	}
+
+	return 0;
 }
 
 static struct fmtchar *fmtchar_empty(fmtinput input)
@@ -770,15 +803,15 @@ static struct fmtchar *fmtchar_empty(fmtinput input)
 	return comm;
 }
 
-static struct fmtchar *fmtchar_make(LocalRoot local, addr format)
+static int fmtchar_make_(LocalRoot local, addr format, struct fmtchar **ret)
 {
 	struct fmtinput_struct input;
 	struct fmtchar *list;
 	struct fmtgroup group;
 
 	/* loop */
-	fmtinput_init(&input, local, format);
-	list = fmtchar_loop(&input);
+	Return(fmtinput_init_(&input, local, format));
+	Return(fmtchar_loop_(&input, &list));
 	if (list == NULL)
 		list = fmtchar_empty(&input);
 
@@ -787,17 +820,17 @@ static struct fmtchar *fmtchar_make(LocalRoot local, addr format)
 	group.local = local;
 	group.format = format;
 	group.root = group.list = list;
-	fmtchar_group(&group);
+	Return(fmtchar_group_(&group));
 
-	return list;
+	return Result(ret, list);
 }
 
 
 /*
  *  format write
  */
-static void format_size(struct fmtchar *list, size_t *ret);
-static void format_write(struct fmtchar *list, byte *ptr, size_t *ret);
+static int format_size_(struct fmtchar *list, size_t *ret);
+static int format_write_(struct fmtchar *list, byte *ptr, size_t *ret);
 
 #define FormatOperatorSize (sizeoft(struct format_operator))
 #define FormatArgumentSize (sizeoft(struct format_argument))
@@ -866,7 +899,7 @@ static struct format_argument *format_write_argument(
 }
 
 /* Output */
-static void format_size_Output(struct fmtchar *list, size_t *ret)
+static int format_size_Output(struct fmtchar *list, size_t *ret)
 {
 	struct fmtargs *root;
 	size_t count;
@@ -893,9 +926,11 @@ static void format_size_Output(struct fmtchar *list, size_t *ret)
 	Check(count != (b - a), "size2 error");
 #endif
 	*ret = FormatByteSize(3) + count * sizeoft(unicode);
+
+	return 0;
 }
 
-static void format_write_Output(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Output(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -924,17 +959,19 @@ static void format_write_Output(struct fmtchar *list, byte *ptr, size_t *ret)
 		body[i++] = c;
 	}
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* Format */
-static void format_size_Format(struct fmtchar *list, size_t *ret)
+static int format_size_Format(struct fmtchar *list, size_t *ret)
 {
 	size_t size;
 
 	string_length(list->format, &size);
 	*ret = FormatByteSize(1) + size * sizeoft(unicode);
+
+	return 0;
 }
 
 static struct format_operator *format_write_empty_structure(byte *ptr,
@@ -960,7 +997,7 @@ static struct format_operator *format_write_empty_structure(byte *ptr,
 	return str;
 }
 
-static void format_write_Format(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Format(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -986,136 +1023,145 @@ static void format_write_Format(struct fmtchar *list, byte *ptr, size_t *ret)
 		body[i] = c;
 	}
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* End */
-static void format_size_End(size_t *ret)
+static int format_size_End(size_t *ret)
 {
-	*ret = FormatOperatorSize;
+	return Result(ret, FormatOperatorSize);
 }
 
-static void format_write_End(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_End(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	struct format_operator *str;
 	str = format_write_empty_structure(ptr, FormatType_End, 0);
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* default parameter */
-static void format_size_error(struct fmtchar *list, size_t index)
+static int format_size_error_(struct fmtchar *list, size_t index)
 {
 	if (index < list->size) {
-		format_abort_va(list->format, list->position, "Too many parameters.", NULL);
+		return format_abort_va_(list->format,
+				list->position, "Too many parameters.", NULL);
 	}
+
+	return 0;
 }
 
-static void format_size_index(struct fmtchar *list, size_t *ret, size_t index)
+static int format_size_index_(struct fmtchar *list, size_t *ret, size_t index)
 {
-	format_size_error(list, index);
-	*ret = FormatByteSize(index);
+	Return(format_size_error_(list, index));
+	return Result(ret, FormatByteSize(index));
 }
-static void format_size_size0(struct fmtchar *list, size_t *ret)
+static int format_size_size0(struct fmtchar *list, size_t *ret)
 {
-	format_size_index(list, ret, 0);
+	return format_size_index_(list, ret, 0);
 }
-static void format_size_size1(struct fmtchar *list, size_t *ret)
+static int format_size_size1(struct fmtchar *list, size_t *ret)
 {
-	format_size_index(list, ret, 1);
+	return format_size_index_(list, ret, 1);
 }
-static void format_size_size2(struct fmtchar *list, size_t *ret)
+static int format_size_size2(struct fmtchar *list, size_t *ret)
 {
-	format_size_index(list, ret, 2);
+	return format_size_index_(list, ret, 2);
 }
-static void format_size_size3(struct fmtchar *list, size_t *ret)
+static int format_size_size3(struct fmtchar *list, size_t *ret)
 {
-	format_size_index(list, ret, 3);
+	return format_size_index_(list, ret, 3);
 }
-static void format_size_size4(struct fmtchar *list, size_t *ret)
+static int format_size_size4(struct fmtchar *list, size_t *ret)
 {
-	format_size_index(list, ret, 4);
+	return format_size_index_(list, ret, 4);
 }
-static void format_size_size5(struct fmtchar *list, size_t *ret)
+static int format_size_size5(struct fmtchar *list, size_t *ret)
 {
-	format_size_index(list, ret, 5);
+	return format_size_index_(list, ret, 5);
 }
-static void format_size_size7(struct fmtchar *list, size_t *ret)
+static int format_size_size7(struct fmtchar *list, size_t *ret)
 {
-	format_size_index(list, ret, 7);
+	return format_size_index_(list, ret, 7);
 }
 
 
 /* ~A */
-static int format_argument_integer_check(addr format,
-		struct format_argument *ptr, fixnum defvalue, fixnum *ret)
+static int format_argument_integer_check_(addr format,
+		struct format_argument *ptr, fixnum defvalue,
+		fixnum *value, int *ret)
 {
 	switch (ptr->type) {
 		case fmtargs_nil:
 			ptr->type = fmtargs_integer;
 			ptr->u.value = defvalue;
-			*ret = defvalue;
-			return 1;
+			*value = defvalue;
+			return Result(ret, 1);
 
 		case fmtargs_integer:
-			*ret = ptr->u.value;
-			return 1;
+			*value = ptr->u.value;
+			return Result(ret, 1);
 
 		case fmtargs_argument:
 		case fmtargs_count:
-			return 0;
+			return Result(ret, 0);
 
 		default:
-			format_abort_va(format, ptr->position,
+			*value = 0;
+			*ret = 0;
+			return format_abort_va_(format, ptr->position,
 					"The format parameter must be an integer.", NULL);
-			return 0;
 	}
 }
 
-static void format_argument_integer(addr format,
+static int format_argument_integer_(addr format,
 		struct format_argument *ptr, fixnum value)
 {
-	(void)format_argument_integer_check(format, ptr, value, &value);
+	int check;
+	return format_argument_integer_check_(format, ptr, value, &value, &check);
 }
 
-static void format_argument_less(addr format,
-		struct format_argument *ptr, fixnum defvalue, fixnum check)
+static int format_argument_less_(addr format,
+		struct format_argument *ptr, fixnum defvalue, fixnum value)
 {
-	fixnum value;
+	int check;
+	fixnum less;
 
-	if (format_argument_integer_check(format, ptr, defvalue, &value)) {
-		if (value < check) {
-			format_abort_va(format, ptr->position,
+	Return(format_argument_integer_check_(format, ptr, defvalue, &less, &check));
+	if (check) {
+		if (less < value) {
+			return format_abort_va_(format, ptr->position,
 					"The parameter must be greater than ~A.",
-					fixnumh(check), NULL);
+					fixnumh(value), NULL);
 		}
 	}
+
+	return 0;
 }
 
-static void format_argument_integer_nil(addr format, struct format_argument *ptr)
+static int format_argument_integer_nil_(addr format, struct format_argument *ptr)
 {
 	switch (ptr->type) {
 		case fmtargs_nil:
 		case fmtargs_integer:
 		case fmtargs_argument:
 		case fmtargs_count:
-			break;
+			return 0;
 
 		default:
-			format_abort_va(format, ptr->position,
+			return format_abort_va_(format, ptr->position,
 					"The format parameter must be an integer.", NULL);
-			break;
 	}
 }
 
-static void format_argument_less_nil(addr format,
+static int format_argument_less_nil_(addr format,
 		struct format_argument *ptr, fixnum check)
 {
 	switch (ptr->type) {
 		case fmtargs_integer:
 			if (ptr->u.value < check) {
-				format_abort_va(format, ptr->position,
+				return format_abort_va_(format, ptr->position,
 						"The parameter must be greater than ~A.",
 						fixnumh(check), NULL);
 			}
@@ -1127,18 +1173,19 @@ static void format_argument_less_nil(addr format,
 			break;
 
 		default:
-			format_abort_va(format, ptr->position,
+			return format_abort_va_(format, ptr->position,
 					"The format parameter must be an integer.", NULL);
-			break;
 	}
+
+	return 0;
 }
 
-static void format_argument_radix(addr format, struct format_argument *ptr)
+static int format_argument_radix_(addr format, struct format_argument *ptr)
 {
 	switch (ptr->type) {
 		case fmtargs_integer:
 			if (! isBaseChar(ptr->u.value)) {
-				format_abort_va(format, ptr->position,
+				return format_abort_va_(format, ptr->position,
 						"The parameter must be an integer between 2 and 36.", NULL);
 			}
 			break;
@@ -1148,18 +1195,18 @@ static void format_argument_radix(addr format, struct format_argument *ptr)
 			break;
 
 		case fmtargs_nil:
-			format_abort_va(format, ptr->position,
+			return format_abort_va_(format, ptr->position,
 					"There is no radix parameter.", NULL);
-			break;
 
 		default:
-			format_abort_va(format, ptr->position,
+			return format_abort_va_(format, ptr->position,
 					"The format parameter must be an integer.", NULL);
-			break;
 	}
+
+	return 0;
 }
 
-static void format_argument_character(addr format,
+static int format_argument_character_(addr format,
 		struct format_argument *ptr, unicode value)
 {
 	switch (ptr->type) {
@@ -1174,31 +1221,31 @@ static void format_argument_character(addr format,
 			break;
 
 		default:
-			format_abort_va(format, ptr->position,
+			return format_abort_va_(format, ptr->position,
 					"The format parameter must be a character.", NULL);
-			break;
 	}
+
+	return 0;
 }
 
-static void format_argument_character_nil(addr format, struct format_argument *ptr)
+static int format_argument_character_nil_(addr format, struct format_argument *ptr)
 {
 	switch (ptr->type) {
 		case fmtargs_nil:
 		case fmtargs_character:
 		case fmtargs_argument:
 		case fmtargs_count:
-			break;
+			return 0;
 
 		default:
-			format_abort_va(format, ptr->position,
+			return format_abort_va_(format, ptr->position,
 					"The format parameter must be a character.", NULL);
-			break;
 	}
 }
 
 
 /* ~A, ~S */
-static void format_write_Aesthetic(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Aesthetic(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -1210,23 +1257,23 @@ static void format_write_Aesthetic(struct fmtchar *list, byte *ptr, size_t *ret)
 	/* mincol */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_less(format, arg, 0, 0);
+	Return(format_argument_less_(format, arg, 0, 0));
 	/* colinc */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_less(format, arg, 1, 1);
+	Return(format_argument_less_(format, arg, 1, 1));
 	/* minpad */
 	arg = format_write_argument(&root, ptr, 2);
-	format_argument_less(format, arg, 0, 0);
+	Return(format_argument_less_(format, arg, 0, 0));
 	/* padchar */
 	arg = format_write_argument(&root, ptr, 3);
-	format_argument_character(format, arg, ' ');
+	Return(format_argument_character_(format, arg, ' '));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~B, ~O, ~D, ~X */
-static void format_write_Binary(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Binary(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -1238,23 +1285,23 @@ static void format_write_Binary(struct fmtchar *list, byte *ptr, size_t *ret)
 	/* mincol */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_less(format, arg, 0, 0);
+	Return(format_argument_less_(format, arg, 0, 0));
 	/* padchar */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_character(format, arg, ' ');
+	Return(format_argument_character_(format, arg, ' '));
 	/* commachar */
 	arg = format_write_argument(&root, ptr, 2);
-	format_argument_character(format, arg, ',');
+	Return(format_argument_character_(format, arg, ','));
 	/* commainterval */
 	arg = format_write_argument(&root, ptr, 3);
-	format_argument_less(format, arg, 3, 1);
+	Return(format_argument_less_(format, arg, 3, 1));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~nR */
-static void format_write_Radix(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Radix(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -1266,39 +1313,39 @@ static void format_write_Radix(struct fmtchar *list, byte *ptr, size_t *ret)
 	/* radix */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_radix(format, arg);
+	Return(format_argument_radix_(format, arg));
 	/* mincol */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_less(format, arg, 0, 0);
+	Return(format_argument_less_(format, arg, 0, 0));
 	/* padchar */
 	arg = format_write_argument(&root, ptr, 2);
-	format_argument_character(format, arg, ' ');
+	Return(format_argument_character_(format, arg, ' '));
 	/* commachar */
 	arg = format_write_argument(&root, ptr, 3);
-	format_argument_character(format, arg, ',');
+	Return(format_argument_character_(format, arg, ','));
 	/* commainterval */
 	arg = format_write_argument(&root, ptr, 4);
-	format_argument_less(format, arg, 3, 1);
+	Return(format_argument_less_(format, arg, 3, 1));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 /* ~R, ~P, ~C, ~\n */
-static void format_write_Empty(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Empty(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	struct format_operator *str;
 	str = format_write_operator(list, ptr, 0);
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~F */
-static void format_argument_wdn(addr format, struct format_argument *ptr)
+static int format_argument_wdn_(addr format, struct format_argument *ptr)
 {
 	switch (ptr->type) {
 		case fmtargs_integer:
 			if (ptr->u.value < 0) {
-				format_abort_va(format, ptr->position,
+				return format_abort_va_(format, ptr->position,
 						"The parameter must be a positive integer.", NULL);
 			}
 			break;
@@ -1309,13 +1356,14 @@ static void format_argument_wdn(addr format, struct format_argument *ptr)
 			break;
 
 		default:
-			format_abort_va(format, ptr->position,
+			return format_abort_va_(format, ptr->position,
 					"The format parameter must be an integer.", NULL);
-			break;
 	}
+
+	return 0;
 }
 
-static void format_write_Fixed(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Fixed(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -1324,9 +1372,8 @@ static void format_write_Fixed(struct fmtchar *list, byte *ptr, size_t *ret)
 
 	/* colon */
 	if (list->colon) {
-		format_abort_va(list->format, list->colon_pos,
+		return format_abort_va_(list->format, list->colon_pos,
 				"The operator cannot use : parameter.", NULL);
-		return;
 	}
 	/* parameter */
 	str = format_write_operator(list, ptr, 5);
@@ -1334,26 +1381,26 @@ static void format_write_Fixed(struct fmtchar *list, byte *ptr, size_t *ret)
 	/* w */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_wdn(format, arg);
+	Return(format_argument_wdn_(format, arg));
 	/* d */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_wdn(format, arg);
+	Return(format_argument_wdn_(format, arg));
 	/* k */
 	arg = format_write_argument(&root, ptr, 2);
-	format_argument_integer(format, arg, 0); /* fixed = 0 */
+	Return(format_argument_integer_(format, arg, 0)); /* fixed = 0 */
 	/* overflowchar */
 	arg = format_write_argument(&root, ptr, 3);
-	format_argument_character_nil(format, arg);
+	Return(format_argument_character_nil_(format, arg));
 	/* padchar */
 	arg = format_write_argument(&root, ptr, 4);
-	format_argument_character(format, arg, ' ');
+	Return(format_argument_character_(format, arg, ' '));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~E */
-static void format_write_Exponent(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Exponent(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -1362,9 +1409,8 @@ static void format_write_Exponent(struct fmtchar *list, byte *ptr, size_t *ret)
 
 	/* colon */
 	if (list->colon) {
-		format_abort_va(list->format, list->colon_pos,
+		return format_abort_va_(list->format, list->colon_pos,
 				"The operator cannot use : parameter.", NULL);
-		return;
 	}
 	/* parameter */
 	str = format_write_operator(list, ptr, 7);
@@ -1372,39 +1418,39 @@ static void format_write_Exponent(struct fmtchar *list, byte *ptr, size_t *ret)
 	/* w */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_wdn(format, arg);
+	Return(format_argument_wdn_(format, arg));
 	/* d */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_wdn(format, arg);
+	Return(format_argument_wdn_(format, arg));
 	/* e */
 	arg = format_write_argument(&root, ptr, 2);
-	format_argument_less(format, arg, 1, 0);
+	Return(format_argument_less_(format, arg, 1, 0));
 	if (arg->u.value == 0)
 		arg->u.value = 1;
 	/* k */
 	arg = format_write_argument(&root, ptr, 3);
-	format_argument_integer(format, arg, 1); /* exponent = 1 */
+	Return(format_argument_integer_(format, arg, 1)); /* exponent = 1 */
 	/* overflowchar */
 	arg = format_write_argument(&root, ptr, 4);
-	format_argument_character_nil(format, arg);
+	Return(format_argument_character_nil_(format, arg));
 	/* padchar */
 	arg = format_write_argument(&root, ptr, 5);
-	format_argument_character(format, arg, ' ');
+	Return(format_argument_character_(format, arg, ' '));
 	/* exponentchar */
 	arg = format_write_argument(&root, ptr, 6);
-	format_argument_character_nil(format, arg);
+	Return(format_argument_character_nil_(format, arg));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~G */
-static void format_argument_e_general(addr format, struct format_argument *ptr)
+static int format_argument_e_general_(addr format, struct format_argument *ptr)
 {
 	switch (ptr->type) {
 		case fmtargs_integer:
 			if (ptr->u.value < 0) {
-				format_abort_va(format, ptr->position,
+				return format_abort_va_(format, ptr->position,
 						"The parameter must be a positive integer.", NULL);
 			}
 			if (ptr->u.value == 0)
@@ -1417,13 +1463,14 @@ static void format_argument_e_general(addr format, struct format_argument *ptr)
 			break;
 
 		default:
-			format_abort_va(format, ptr->position,
+			return format_abort_va_(format, ptr->position,
 					"The format parameter must be an integer.", NULL);
-			break;
 	}
+
+	return 0;
 }
 
-static void format_write_General(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_General(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -1432,9 +1479,8 @@ static void format_write_General(struct fmtchar *list, byte *ptr, size_t *ret)
 
 	/* colon */
 	if (list->colon) {
-		format_abort_va(list->format, list->colon_pos,
+		return format_abort_va_(list->format, list->colon_pos,
 				"The operator cannot use : parameter.", NULL);
-		return;
 	}
 	/* parameter */
 	str = format_write_operator(list, ptr, 7);
@@ -1442,32 +1488,32 @@ static void format_write_General(struct fmtchar *list, byte *ptr, size_t *ret)
 	/* w */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_wdn(format, arg);
+	Return(format_argument_wdn_(format, arg));
 	/* d */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_wdn(format, arg);
+	Return(format_argument_wdn_(format, arg));
 	/* e */
 	arg = format_write_argument(&root, ptr, 2);
-	format_argument_e_general(format, arg);
+	Return(format_argument_e_general_(format, arg));
 	/* k */
 	arg = format_write_argument(&root, ptr, 3);
-	format_argument_integer(format, arg, 1); /* general = 1 */
+	Return(format_argument_integer_(format, arg, 1)); /* general = 1 */
 	/* overflowchar */
 	arg = format_write_argument(&root, ptr, 4);
-	format_argument_character_nil(format, arg);
+	Return(format_argument_character_nil_(format, arg));
 	/* padchar */
 	arg = format_write_argument(&root, ptr, 5);
-	format_argument_character(format, arg, ' ');
+	Return(format_argument_character_(format, arg, ' '));
 	/* exponentchar */
 	arg = format_write_argument(&root, ptr, 6);
-	format_argument_character_nil(format, arg);
+	Return(format_argument_character_nil_(format, arg));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~$ */
-static void format_write_Monetary(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Monetary(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -1479,23 +1525,23 @@ static void format_write_Monetary(struct fmtchar *list, byte *ptr, size_t *ret)
 	/* d */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_wdn(format, arg);
+	Return(format_argument_wdn_(format, arg));
 	/* n */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_wdn(format, arg);
+	Return(format_argument_wdn_(format, arg));
 	/* w */
 	arg = format_write_argument(&root, ptr, 2);
-	format_argument_e_general(format, arg);
+	Return(format_argument_e_general_(format, arg));
 	/* padchar */
 	arg = format_write_argument(&root, ptr, 3);
-	format_argument_character(format, arg, ' ');
+	Return(format_argument_character_(format, arg, ' '));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~%, ~&, ~|, ~~ */
-static void format_write_Newline(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Newline(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	struct format_operator *str;
 	struct format_argument *arg;
@@ -1505,26 +1551,24 @@ static void format_write_Newline(struct fmtchar *list, byte *ptr, size_t *ret)
 	/* times */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_less(list->format, arg, 1, 0);
+	Return(format_argument_less_(list->format, arg, 1, 0));
 	/* colon */
 	if (list->colon) {
-		format_abort_va(list->format, list->colon_pos,
+		return format_abort_va_(list->format, list->colon_pos,
 				"The operator cannot use : parameter.", NULL);
-		return;
 	}
 	/* atsign */
 	if (list->atsign) {
-		format_abort_va(list->format, list->atsign_pos,
+		return format_abort_va_(list->format, list->atsign_pos,
 				"The operator cannot use @ parameter.", NULL);
-		return;
 	}
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~T */
-static void format_write_Tabulate(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Tabulate(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -1536,17 +1580,17 @@ static void format_write_Tabulate(struct fmtchar *list, byte *ptr, size_t *ret)
 	/* column */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_less(format, arg, 1, 0);
+	Return(format_argument_less_(format, arg, 1, 0));
 	/* colinc */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_less(format, arg, 1, 0);
+	Return(format_argument_less_(format, arg, 1, 0));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~T */
-static void format_write_GoTo(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_GoTo(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	struct format_operator *str;
 	struct format_argument *arg;
@@ -1556,31 +1600,30 @@ static void format_write_GoTo(struct fmtchar *list, byte *ptr, size_t *ret)
 	/* count */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_less(list->format, arg, list->atsign? 0: 1, 0);
+	Return(format_argument_less_(list->format, arg, list->atsign? 0: 1, 0));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~? */
-static void format_write_Recursive(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Recursive(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	struct format_operator *str;
 
 	str = format_write_operator(list, ptr, 0);
 	/* colon */
 	if (list->colon) {
-		format_abort_va(list->format, list->colon_pos,
+		return format_abort_va_(list->format, list->colon_pos,
 				"The operator cannot use : parameter.", NULL);
-		return;
 	}
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~? */
-static void format_write_Indent(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Indent(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	struct format_operator *str;
 	struct format_argument *arg;
@@ -1588,66 +1631,61 @@ static void format_write_Indent(struct fmtchar *list, byte *ptr, size_t *ret)
 
 	/* atsign */
 	if (list->atsign) {
-		format_abort_va(list->format, list->atsign_pos,
+		return format_abort_va_(list->format, list->atsign_pos,
 				"The operator cannot use @ parameter.", NULL);
-		return;
 	}
 	/* parameter */
 	str = format_write_operator(list, ptr, 1);
 	/* indent */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_integer(list->format, arg, 0);
+	Return(format_argument_integer_(list->format, arg, 0));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~( */
-static void format_size_Case(struct fmtchar *list, size_t *ret)
+static int format_size_Case(struct fmtchar *list, size_t *ret)
 {
 	struct fmtchar *x;
 	size_t size, value;
 
 	/* close parensis */
 	if (list->close_colon) {
-		format_abort_va(list->format, list->position,
+		return format_abort_va_(list->format, list->position,
 				"Cannot use : parameter at the close parensis.", NULL);
-		return;
 	}
 	if (list->close_atsign) {
-		format_abort_va(list->format, list->position,
+		return format_abort_va_(list->format, list->position,
 				"Cannot use @ parameter at the close parensis.", NULL);
-		return;
 	}
 
 	/* argument */
-	format_size_index(list, &size, 0);
+	Return(format_size_index_(list, &size, 0));
 	/* body */
 	for (x = list->option; x; x = x->next) {
 		if (x == NULL) {
-			format_abort_va(x->format, x->position,
+			return format_abort_va_(x->format, x->position,
 					"There is no close parensis ~~).", NULL);
-			return;
 		}
 		if (x->type == FormatType_ClauseSeparator) {
-			format_abort_va(x->format, x->position,
+			return format_abort_va_(x->format, x->position,
 					"Cannot use ~~; operator in the ~~(...~~).", NULL);
-			return;
 		}
 		if (x->character == ')')
 			break;
-		format_size(x, &value);
+		Return(format_size_(x, &value));
 		size += value;
 	}
 	/* end */
-	format_size_End(&value);
+	Return(format_size_End(&value));
 	size += value;
 	/* result */
-	*ret = size;
+	return Result(ret, size);
 }
 
-static void format_write_Case(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Case(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	struct format_operator *str;
 	struct fmtchar *x;
@@ -1657,19 +1695,20 @@ static void format_write_Case(struct fmtchar *list, byte *ptr, size_t *ret)
 	size = str->size;
 	/* body */
 	for (x = list->option; x->character != ')'; x = x->next) {
-		format_write(x, ptr + size, &value);
+		Return(format_write_(x, ptr + size, &value));
 		size += value;
 	}
 	/* end */
-	format_write_End(list, ptr + size, &value);
+	Return(format_write_End(list, ptr + size, &value));
 	size += value;
 	/* result */
 	*ret = str->size = size;
+	return 0;
 }
 
 
 /* ~[, ~] */
-static void format_size_Condition_body(struct fmtchar *list,
+static int format_size_Condition_body_(struct fmtchar *list,
 		int pcheck, int *rfinal, size_t *rcount, size_t *rsize)
 {
 	int check, final;
@@ -1703,7 +1742,7 @@ static void format_size_Condition_body(struct fmtchar *list,
 			}
 			check = 1;
 		}
-		format_size(x, &value);
+		Return(format_size_(x, &value));
 		size += value;
 	}
 	if (check)
@@ -1712,39 +1751,45 @@ static void format_size_Condition_body(struct fmtchar *list,
 	*rfinal = final;
 	*rcount = count;
 	*rsize = size;
-	return;
+	return 0;
 
 error1:
-	format_abort_va(x->format, x->position, "There is no close parensis ~~].", NULL);
-	goto error_warning;
-
-error2:
-	format_abort_va(x->format, x->atsign_pos,
-			"Cannot use @ parameter at ~~; operator.", NULL);
-	goto error_warning;
-
-error3:
-	format_abort_va(x->format, x->position,
-			"Cannot use prefix parameters at ~~; operator.", NULL);
-	goto error_warning;
-
-error4:
-	format_abort_va(x->format, x->position,
-			"After ~~:; clause must be a last position.", NULL);
-	goto error_warning;
-
-error5:
-	format_abort_va(x->format, x->colon_pos,
-			"Cannot use ~~:; operator at the ~~:[ or ~~@[ operator.", NULL);
-	goto error_warning;
-
-error_warning:
 	*rfinal = 0;
 	*rcount = 0;
 	*rsize = 0;
+	return format_abort_va_(x->format, x->position,
+			"There is no close parensis ~~].", NULL);
+
+error2:
+	*rfinal = 0;
+	*rcount = 0;
+	*rsize = 0;
+	return format_abort_va_(x->format, x->atsign_pos,
+			"Cannot use @ parameter at ~~; operator.", NULL);
+
+error3:
+	*rfinal = 0;
+	*rcount = 0;
+	*rsize = 0;
+	return format_abort_va_(x->format, x->position,
+			"Cannot use prefix parameters at ~~; operator.", NULL);
+
+error4:
+	*rfinal = 0;
+	*rcount = 0;
+	*rsize = 0;
+	return format_abort_va_(x->format, x->position,
+			"After ~~:; clause must be a last position.", NULL);
+
+error5:
+	*rfinal = 0;
+	*rcount = 0;
+	*rsize = 0;
+	return format_abort_va_(x->format, x->colon_pos,
+			"Cannot use ~~:; operator at the ~~:[ or ~~@[ operator.", NULL);
 }
 
-static void format_size_Condition(struct fmtchar *list, size_t *ret)
+static int format_size_Condition(struct fmtchar *list, size_t *ret)
 {
 	int colon, atsign, any, final;
 	size_t size, value, count;
@@ -1758,54 +1803,53 @@ static void format_size_Condition(struct fmtchar *list, size_t *ret)
 	colon = list->colon;
 	atsign = list->atsign;
 	any = colon || atsign;
-	format_size_index(list, &size, any? 0: 1);
+	Return(format_size_index_(list, &size, any? 0: 1));
 	if (colon && atsign)
 		goto error3;
 	/* body */
-	format_size_Condition_body(list, any, &final, &count, &value);
+	Return(format_size_Condition_body_(list, any, &final, &count, &value));
 	if (colon && count != 2)
 		goto error4;
 	if (atsign && count != 1)
 		goto error5;
 	size += value;
 	/* end */
-	format_size_End(&value);
+	Return(format_size_End(&value));
 	size += value;
 	/* count */
 	list->option_check = (final != 0);
 	list->option_count = count;
 	size += sizeoft(size_t) * (count + 1);
 	/* result */
-	*ret = size;
-	return;
+	return Result(ret, size);
 
 error1:
-	format_abort_va(list->format, list->position,
+	*ret = 0;
+	return format_abort_va_(list->format, list->position,
 			"Cannot use : parameter at the close parensis.", NULL);
-	return;
 
 error2:
-	format_abort_va(list->format, list->position,
+	*ret = 0;
+	return format_abort_va_(list->format, list->position,
 			"Cannot use @ parameter at the close parensis.", NULL);
-	return;
 
 error3:
-	format_abort_va(list->format, list->position,
+	*ret = 0;
+	return format_abort_va_(list->format, list->position,
 			"The parameter don't accept both : and @ parameter (~~:@[).", NULL);
-	return;
 
 error4:
-	format_abort_va(list->format, list->position,
+	*ret = 0;
+	return format_abort_va_(list->format, list->position,
 			"Count of clauses must be a 2 in ~~:[...~~].", NULL);
-	return;
 
 error5:
-	format_abort_va(list->format, list->position,
+	*ret = 0;
+	return format_abort_va_(list->format, list->position,
 			"Count of clauses must be a 1 in ~~@[...~~].", NULL);
-	return;
 }
 
-static void format_write_Condition(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Condition(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	int colon, atsign, any, check;
 	struct format_operator *str;
@@ -1824,7 +1868,7 @@ static void format_write_Condition(struct fmtchar *list, byte *ptr, size_t *ret)
 	if (any == 0) {
 		root = list->root;
 		arg = format_write_argument(&root, ptr, 0);
-		format_argument_integer_nil(list->format, arg);
+		Return(format_argument_integer_nil_(list->format, arg));
 	}
 	/* condition array */
 	size = str->size;
@@ -1841,21 +1885,22 @@ static void format_write_Condition(struct fmtchar *list, byte *ptr, size_t *ret)
 		}
 		if (x->type == FormatType_ClauseSeparator)
 			check = 1;
-		format_write(x, ptr + size, &value);
+		Return(format_write_(x, ptr + size, &value));
 		size += value;
 	}
 	if (check)
 		*(array++) = size;
 	/* end */
-	format_write_End(list, ptr + size, &value);
+	Return(format_write_End(list, ptr + size, &value));
 	size += value;
 	/* result */
 	*ret = str->size = size;
+	return 0;
 }
 
 
 /* ~{, ~} */
-static void format_size_Iteration(struct fmtchar *list, size_t *ret)
+static int format_size_Iteration(struct fmtchar *list, size_t *ret)
 {
 	int check;
 	struct fmtchar *x;
@@ -1863,40 +1908,37 @@ static void format_size_Iteration(struct fmtchar *list, size_t *ret)
 
 	/* close parensis */
 	if (list->close_atsign) {
-		format_abort_va(list->format, list->position,
+		return format_abort_va_(list->format, list->position,
 				"Cannot use @ parameter at the close parensis.", NULL);
-		return;
 	}
 	/* argument */
-	format_size_index(list, &size, 1);
+	Return(format_size_index_(list, &size, 1));
 	/* body */
 	check = 1;
 	for (x = list->option; ; x = x->next) {
 		if (x == NULL) {
-			format_abort_va(x->format, x->position,
+			return format_abort_va_(x->format, x->position,
 					"There is no close parensis ~~}.", NULL);
-			return;
 		}
 		if (x->character == '}')
 			break;
 		if (x->type == FormatType_ClauseSeparator) {
-			format_abort_va(x->format, x->position,
+			return format_abort_va_(x->format, x->position,
 					"Cannot use ~~; operator in the ~~{...~~}.", NULL);
-			return;
 		}
-		format_size(x, &value);
+		Return(format_size_(x, &value));
 		size += value;
 		check = 0;
 	}
 	/* end */
-	format_size_End(&value);
+	Return(format_size_End(&value));
 	size += value;
 	/* result */
 	list->option_check = check;
-	*ret = size;
+	return Result(ret, size);
 }
 
-static void format_write_Iteration(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Iteration(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	struct format_operator *str;
 	struct format_argument *arg;
@@ -1908,22 +1950,23 @@ static void format_write_Iteration(struct fmtchar *list, byte *ptr, size_t *ret)
 	size = str->size;
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_less_nil(list->format, arg, 0);
+	Return(format_argument_less_nil_(list->format, arg, 0));
 	/* body */
 	for (x = list->option; x->character != '}'; x = x->next) {
-		format_write(x, ptr + size, &value);
+		Return(format_write_(x, ptr + size, &value));
 		size += value;
 	}
 	/* end */
-	format_write_End(list, ptr + size, &value);
+	Return(format_write_End(list, ptr + size, &value));
 	size += value;
 	/* result */
 	*ret = str->size = size;
+	return 0;
 }
 
 
 /* Justification: ~<, ~> */
-static void format_size_Justification_body(struct fmtchar *list,
+static int format_size_Justification_body_(struct fmtchar *list,
 		int *rfirst, size_t *rcount, size_t *rsize)
 {
 	int check, first, first_check;
@@ -1960,7 +2003,7 @@ static void format_size_Justification_body(struct fmtchar *list,
 			}
 			check = 1;
 		}
-		format_size(x, &value);
+		Return(format_size_(x, &value));
 		size += value;
 		first_check = 0;
 	}
@@ -1969,71 +2012,75 @@ static void format_size_Justification_body(struct fmtchar *list,
 	*rfirst = first;
 	*rcount = count;
 	*rsize = size;
-	return;
+	return 0;
 
 error1:
-	format_abort_va(x->format, x->position, "There is no close parensis ~~>.", NULL);
-	goto error_warning;
-
-error2:
-	format_abort_va(x->format, x->atsign_pos,
-			"The operator cannot use @ parameter.", NULL);
-	goto error_warning;
-
-error3:
-	format_abort_va(x->format, x->position,
-			"The separator ~~:; must be a first clause.", NULL);
-	goto error_warning;
-
-error4:
-	format_abort_va(x->format, x->position,
-			"Count of prefix parameters ~~...:; must be less than equal to 2.", NULL);
-	goto error_warning;
-
-error5:
-	format_abort_va(x->format, x->position,
-			"Cannot use prefix parameters ~~...; in the ~~<...~~>.", NULL);
-	goto error_warning;
-
-error_warning:
 	*rfirst = 0;
 	*rcount = 0;
 	*rsize = 0;
+	return format_abort_va_(x->format, x->position,
+			"There is no close parensis ~~>.", NULL);
+
+error2:
+	*rfirst = 0;
+	*rcount = 0;
+	*rsize = 0;
+	return format_abort_va_(x->format, x->atsign_pos,
+			"The operator cannot use @ parameter.", NULL);
+
+error3:
+	*rfirst = 0;
+	*rcount = 0;
+	*rsize = 0;
+	return format_abort_va_(x->format, x->position,
+			"The separator ~~:; must be a first clause.", NULL);
+
+error4:
+	*rfirst = 0;
+	*rcount = 0;
+	*rsize = 0;
+	return format_abort_va_(x->format, x->position,
+			"Count of prefix parameters ~~...:; must be less than equal to 2.", NULL);
+
+error5:
+	*rfirst = 0;
+	*rcount = 0;
+	*rsize = 0;
+	return format_abort_va_(x->format, x->position,
+			"Cannot use prefix parameters ~~...; in the ~~<...~~>.", NULL);
 }
 
-static void format_size_Justification(struct fmtchar *list, size_t *ret)
+static int format_size_Justification(struct fmtchar *list, size_t *ret)
 {
 	int first;
 	size_t size, value, count;
 
 	/* close parensis */
 	if (list->close_colon) {
-		format_abort_va(list->format, list->position,
+		return format_abort_va_(list->format, list->position,
 				"Cannot use : parameter at the close parensis.", NULL);
-		return;
 	}
 	if (list->close_atsign) {
-		format_abort_va(list->format, list->position,
+		return format_abort_va_(list->format, list->position,
 				"Cannot use @ parameter at the close parensis.", NULL);
-		return;
 	}
 	/* arguments */
-	format_size_index(list, &size, 4);
+	Return(format_size_index_(list, &size, 4));
 	/* body */
-	format_size_Justification_body(list, &first, &count, &value);
+	Return(format_size_Justification_body_(list, &first, &count, &value));
 	size += value;
 	/* end */
-	format_size_End(&value);
+	Return(format_size_End(&value));
 	size += value;
 	/* count */
 	list->option_check = (first != 0);
 	list->option_count = count;
 	size += sizeoft(size_t) * (count + 1);
 	/* result */
-	*ret = size;
+	return Result(ret, size);
 }
 
-static void format_write_Justification(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_Justification(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	int check;
 	addr format;
@@ -2049,16 +2096,16 @@ static void format_write_Justification(struct fmtchar *list, byte *ptr, size_t *
 	/* mincol */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_less(format, arg, 0, 0);
+	Return(format_argument_less_(format, arg, 0, 0));
 	/* colinc */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_less(format, arg, 1, 1);
+	Return(format_argument_less_(format, arg, 1, 1));
 	/* minpad */
 	arg = format_write_argument(&root, ptr, 2);
-	format_argument_less(format, arg, 0, 0);
+	Return(format_argument_less_(format, arg, 0, 0));
 	/* padchar */
 	arg = format_write_argument(&root, ptr, 3);
-	format_argument_character(format, arg, ' ');
+	Return(format_argument_character_(format, arg, ' '));
 	/* array */
 	size = str->size;
 	array = (size_t *)(ptr + size);
@@ -2074,21 +2121,22 @@ static void format_write_Justification(struct fmtchar *list, byte *ptr, size_t *
 		}
 		if (x->type == FormatType_ClauseSeparator)
 			check = 1;
-		format_write(x, ptr + size, &value);
+		Return(format_write_(x, ptr + size, &value));
 		size += value;
 	}
 	if (check)
 		*(array++) = size;
 	/* end */
-	format_write_End(list, ptr + size, &value);
+	Return(format_write_End(list, ptr + size, &value));
 	size += value;
 	/* result */
 	*ret = str->size = size;
+	return 0;
 }
 
 
 /* Logical Block: ~<, ~:> */
-static void format_size_LogicalBlock_count(
+static int format_size_LogicalBlock_count_(
 		struct fmtchar *list, size_t *ret, int *atsign)
 {
 	int check, first, first_check;
@@ -2128,38 +2176,40 @@ static void format_size_LogicalBlock_count(
 		count++;
 	*ret = count;
 	*atsign = first;
-	return;
+	return 0;
 
 error1:
-	format_abort_va(x->format, x->position, "There is no close parensis ~~>.", NULL);
-	goto error_warning;
-
-error2:
-	format_abort_va(x->format, x->position,
-			"Count of clauses must be less than equal to 3.", NULL);
-	goto error_warning;
-
-error3:
-	format_abort_va(x->format, x->atsign_pos,
-			"The operator cannot use : parameter.", NULL);
-	goto error_warning;
-
-error4:
-	format_abort_va(x->format, x->position,
-			"Cannot use prefix parameters ~~...;.", NULL);
-	goto error_warning;
-
-error5:
-	format_abort_va(x->format, x->position,
-			"The separator ~~:; must be a first clause.", NULL);
-	goto error_warning;
-
-error_warning:
 	*ret = 0;
 	*atsign = 0;
+	return format_abort_va_(x->format, x->position,
+			"There is no close parensis ~~>.", NULL);
+
+error2:
+	*ret = 0;
+	*atsign = 0;
+	return format_abort_va_(x->format, x->position,
+			"Count of clauses must be less than equal to 3.", NULL);
+
+error3:
+	*ret = 0;
+	*atsign = 0;
+	return format_abort_va_(x->format, x->atsign_pos,
+			"The operator cannot use : parameter.", NULL);
+
+error4:
+	*ret = 0;
+	*atsign = 0;
+	return format_abort_va_(x->format, x->position,
+			"Cannot use prefix parameters ~~...;.", NULL);
+
+error5:
+	*ret = 0;
+	*atsign = 0;
+	return format_abort_va_(x->format, x->position,
+			"The separator ~~:; must be a first clause.", NULL);
 }
 
-static void format_size_LogicalBlock_body(struct fmtchar *list, size_t *ret)
+static int format_size_LogicalBlock_body_(struct fmtchar *list, size_t *ret)
 {
 	struct fmtchar *x;
 	size_t size, value;
@@ -2167,13 +2217,13 @@ static void format_size_LogicalBlock_body(struct fmtchar *list, size_t *ret)
 	size = 0;
 	for (x = list->option; x->character != '>'; x = x->next) {
 		Check(x->type == FormatType_ClauseSeparator, "Clause separator error");
-		format_size(x, &value);
+		Return(format_size_(x, &value));
 		size += value;
 	}
-	*ret = size;
+	return Result(ret, size);
 }
 
-static void format_size_LogicalBlock_output(struct fmtchar *list, size_t *ret)
+static int format_size_LogicalBlock_output_(struct fmtchar *list, size_t *ret)
 {
 	struct fmtargs *root;
 	size_t count;
@@ -2199,7 +2249,7 @@ static void format_size_LogicalBlock_output(struct fmtchar *list, size_t *ret)
 	Check(b < a, "size1 error");
 	Check(count != (b - a), "size2 error");
 #endif
-	*ret = IdxSize + count * sizeoft(unicode);
+	return Result(ret, IdxSize + count * sizeoft(unicode));
 }
 
 static int format_end_separator(struct fmtchar *x)
@@ -2207,32 +2257,34 @@ static int format_end_separator(struct fmtchar *x)
 	return x->type == FormatType_ClauseSeparator || x->character == '>';
 }
 
-static void format_size_LogicalBlock_text(
+static int format_size_LogicalBlock_text_(
 		struct fmtchar *x, size_t *ret, struct fmtchar **next)
 {
 	Check(x == NULL, "Invalid prefix in logical block.");
 	if (format_end_separator(x)) {
 		*next = x->next;
 		*ret = IdxSize;
-		return;
+		return 0;
 	}
 	if (x->type != FormatType_Output)
 		goto error;
-	format_size_LogicalBlock_output(x, ret);
+	Return(format_size_LogicalBlock_output_(x, ret));
 	x = x->next;
 	Check(x == NULL, "Invalid prefix in logical block.");
 	if (format_end_separator(x)) {
 		*next = x->next;
-		return;
+		return 0;
 	}
 	goto error;
 
 error:
-	format_abort_va(x->format, x->position,
+	*next = NULL;
+	*ret = 0;
+	return format_abort_va_(x->format, x->position,
 			"Cannot use format directive in prefix/suffix form.", NULL);
 }
 
-static void format_size_LogicalBlock_prefix(struct fmtchar *list, size_t *ret)
+static int format_size_LogicalBlock_prefix_(struct fmtchar *list, size_t *ret)
 {
 	struct fmtchar *x;
 	size_t size, value;
@@ -2240,14 +2292,13 @@ static void format_size_LogicalBlock_prefix(struct fmtchar *list, size_t *ret)
 	/* prefix */
 	size = 0;
 	x = list->option;
-	format_size_LogicalBlock_text(x, &value, &x);
+	Return(format_size_LogicalBlock_text_(x, &value, &x));
 	size += value;
 	/* body */
 	for (;;) {
 		if (x == NULL) {
-			format_abort_va(x->format, x->position,
+			return format_abort_va_(x->format, x->position,
 					"There is no clause separator ~~;.", NULL);
-			return;
 		}
 		if (x->type == FormatType_ClauseSeparator) {
 			x = x->next;
@@ -2257,42 +2308,43 @@ static void format_size_LogicalBlock_prefix(struct fmtchar *list, size_t *ret)
 			x = NULL;
 			break;
 		}
-		format_size(x, &value);
+		Return(format_size_(x, &value));
 		size += value;
 		x = x->next;
 	}
 	/* suffix */
 	if (x) {
-		format_size_LogicalBlock_text(x, &value, &x);
+		Return(format_size_LogicalBlock_text_(x, &value, &x));
 		Check(x, "Invalid suffix in logical block.");
 		size += value;
 	}
 	/* result */
-	*ret = size;
+	return Result(ret, size);
 }
 
-static void format_size_LogicalBlock(struct fmtchar *list, size_t *ret)
+static int format_size_LogicalBlock(struct fmtchar *list, size_t *ret)
 {
 	int atsign;
 	size_t size, value, count;
 
 	/* close parensis */
 	if (! list->close_colon) {
-		format_abort_va(list->format, list->position,
+		return format_abort_va_(list->format, list->position,
 				"Invalid close parensis ~~> in the logical-block.", NULL);
-		return;
 	}
 	/* arguments */
-	format_size_index(list, &size, 0);
+	Return(format_size_index_(list, &size, 0));
 	/* body */
-	format_size_LogicalBlock_count(list, &count, &atsign);
-	if (count <= 1)
-		format_size_LogicalBlock_body(list, &value);
-	else
-		format_size_LogicalBlock_prefix(list, &value);
+	Return(format_size_LogicalBlock_count_(list, &count, &atsign));
+	if (count <= 1) {
+		Return(format_size_LogicalBlock_body_(list, &value));
+	}
+	else {
+		Return(format_size_LogicalBlock_prefix_(list, &value));
+	}
 	size += value;
 	/* end */
-	format_size_End(&value);
+	Return(format_size_End(&value));
 	size += value;
 	/* count */
 	list->option_check = (atsign != 0);
@@ -2300,10 +2352,10 @@ static void format_size_LogicalBlock(struct fmtchar *list, size_t *ret)
 	list->prefix = (2 <= count);
 	list->suffix = (3 <= count);
 	/* result */
-	*ret = size;
+	return Result(ret, size);
 }
 
-static void format_write_LogicalBlock_output(struct fmtchar *x, byte *ptr, size_t *ret)
+static int format_write_LogicalBlock_output_(struct fmtchar *x, byte *ptr, size_t *ret)
 {
 	addr pos;
 	struct fmtargs *root;
@@ -2334,10 +2386,10 @@ static void format_write_LogicalBlock_output(struct fmtchar *x, byte *ptr, size_
 		data[i++] = u;
 	}
 	/* size */
-	*ret = IdxSize + count * sizeoft(unicode);
+	return Result(ret, IdxSize + count * sizeoft(unicode));
 }
 
-static void format_write_LogicalBlock_prefix(struct fmtchar *x, byte *ptr, size_t *ret)
+static int format_write_LogicalBlock_prefix_(struct fmtchar *x, byte *ptr, size_t *ret)
 {
 	if (format_end_separator(x)) {
 		*(size_t *)ptr = 0;
@@ -2345,8 +2397,10 @@ static void format_write_LogicalBlock_prefix(struct fmtchar *x, byte *ptr, size_
 	}
 	else {
 		Check(x->type != FormatType_Output, "type error");
-		format_write_LogicalBlock_output(x, ptr, ret);
+		Return(format_write_LogicalBlock_output_(x, ptr, ret));
 	}
+
+	return 0;
 }
 
 static void format_write_LogicalBlock_next(
@@ -2367,13 +2421,13 @@ static void format_write_LogicalBlock_next(
 	*ret = x;
 }
 
-static void format_write_LogicalBlock_suffix(struct fmtchar *x, byte *ptr, size_t *ret)
+static int format_write_LogicalBlock_suffix_(struct fmtchar *x, byte *ptr, size_t *ret)
 {
 	format_write_LogicalBlock_next(2, x, &x);
-	format_write_LogicalBlock_prefix(x, ptr, ret);
+	return format_write_LogicalBlock_prefix_(x, ptr, ret);
 }
 
-static void format_write_LogicalBlock(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_LogicalBlock(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	struct format_operator *str;
 	struct fmtchar *x;
@@ -2385,31 +2439,32 @@ static void format_write_LogicalBlock(struct fmtchar *list, byte *ptr, size_t *r
 	x = list->option;
 	size = str->size;
 	if (str->prefix) {
-		format_write_LogicalBlock_prefix(x, ptr + size, &value);
+		Return(format_write_LogicalBlock_prefix_(x, ptr + size, &value));
 		size += value;
 	}
 	/* suffix */
 	if (str->suffix) {
-		format_write_LogicalBlock_suffix(x, ptr + size, &value);
+		Return(format_write_LogicalBlock_suffix_(x, ptr + size, &value));
 		size += value;
 	}
 	/* body */
 	if (str->prefix)
 		format_write_LogicalBlock_next(1, x, &x);
 	for (; ! format_end_separator(x); x = x->next) {
-		format_write(x, ptr + size, &value);
+		Return(format_write_(x, ptr + size, &value));
 		size += value;
 	}
 	/* end */
-	format_write_End(list, ptr + size, &value);
+	Return(format_write_End(list, ptr + size, &value));
 	size += value;
 	/* result */
 	*ret = str->size = size;
+	return 0;
 }
 
 
 /* ~^ */
-static void format_write_EscapeUpward(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_EscapeUpward(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -2418,9 +2473,8 @@ static void format_write_EscapeUpward(struct fmtchar *list, byte *ptr, size_t *r
 
 	/* atsign */
 	if (list->atsign) {
-		format_abort_va(list->format, list->atsign_pos,
+		return format_abort_va_(list->format, list->atsign_pos,
 				"The operator cannot use @ parameter.", NULL);
-		return;
 	}
 	/* parameter */
 	str = format_write_operator(list, ptr, 3);
@@ -2428,20 +2482,20 @@ static void format_write_EscapeUpward(struct fmtchar *list, byte *ptr, size_t *r
 	/* v1 */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_integer_nil(format, arg);
+	Return(format_argument_integer_nil_(format, arg));
 	/* v2 */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_integer_nil(format, arg);
+	Return(format_argument_integer_nil_(format, arg));
 	/* v3 */
 	arg = format_write_argument(&root, ptr, 2);
-	format_argument_integer_nil(format, arg);
+	Return(format_argument_integer_nil_(format, arg));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~; */
-static void format_write_ClauseSeparator(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_ClauseSeparator(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr format;
 	struct format_operator *str;
@@ -2454,23 +2508,23 @@ static void format_write_ClauseSeparator(struct fmtchar *list, byte *ptr, size_t
 	/* size */
 	root = list->root;
 	arg = format_write_argument(&root, ptr, 0);
-	format_argument_integer_nil(format, arg);
+	Return(format_argument_integer_nil_(format, arg));
 	/* width */
 	arg = format_write_argument(&root, ptr, 1);
-	format_argument_integer_nil(format, arg);
+	Return(format_argument_integer_nil_(format, arg));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /* ~/ */
-static void format_size_CallFunction(struct fmtchar *list, size_t *ret)
+static int format_size_CallFunction(struct fmtchar *list, size_t *ret)
 {
 	addr package, name;
 	size_t size, value;
 
 	/* argument */
-	format_size_index(list, &size, list->size);
+	Return(format_size_index_(list, &size, list->size));
 	Check(list->intern == NULL, "intern error");
 	GetCons(list->intern, &package, &name);
 	/* package */
@@ -2482,10 +2536,10 @@ static void format_size_CallFunction(struct fmtchar *list, size_t *ret)
 	strvect_length(name, &value);
 	size += value * sizeoft(unicode);
 	/* result */
-	*ret = size;
+	return Result(ret, size);
 }
 
-static void format_write_CallFunction_string(
+static int format_write_CallFunction_string_(
 		struct format_operator *str, byte *ptr, addr pos)
 {
 	size_t size, i;
@@ -2502,9 +2556,11 @@ static void format_write_CallFunction_string(
 		data[i] = u;
 	}
 	str->size += size * sizeoft(unicode);
+
+	return 0;
 }
 
-static void format_write_CallFunction(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_CallFunction(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	addr package, name;
 	struct format_operator *str;
@@ -2520,79 +2576,78 @@ static void format_write_CallFunction(struct fmtchar *list, byte *ptr, size_t *r
 	}
 	/* body */
 	GetCons(list->intern, &package, &name);
-	format_write_CallFunction_string(str, ptr, package);
-	format_write_CallFunction_string(str, ptr, name);
+	Return(format_write_CallFunction_string_(str, ptr, package));
+	Return(format_write_CallFunction_string_(str, ptr, name));
 	/* result */
-	*ret = str->size;
+	return Result(ret, str->size);
 }
 
 
 /*
  *  format write call
  */
-typedef void (*format_size_call)(struct fmtchar *, size_t *);
-typedef void (*format_write_call)(struct fmtchar *, byte *, size_t *);
+typedef int (*format_size_call)(struct fmtchar *, size_t *);
+typedef int (*format_write_call)(struct fmtchar *, byte *, size_t *);
 static format_size_call FormatSize[FormatType_size];
 static format_write_call FormatWrite[FormatType_size];
 
-static void format_size(struct fmtchar *list, size_t *ret)
+static int format_size_(struct fmtchar *list, size_t *ret)
 {
 	format_size_call call;
 
 	call = FormatSize[list->type];
 	Check(call == NULL, "size call error");
-	(*call)(list, ret);
+	return (*call)(list, ret);
 }
 
-static void format_write(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	format_write_call call;
 
 	call = FormatWrite[list->type];
 	Check(call == NULL, "write call error");
-	(*call)(list, ptr, ret);
+	return (*call)(list, ptr, ret);
 }
 
-static void format_size_list(struct fmtchar *list, size_t *ret)
+static int format_size_list_(struct fmtchar *list, size_t *ret)
 {
 	size_t size, value;
 
 	/* Format */
-	format_size_Format(list, &size);
+	Return(format_size_Format(list, &size));
 	/* body */
 	for (; list; list = list->next) {
 		if (list->type == FormatType_ClauseSeparator) {
-			format_abort_va(list->format, list->position,
-					"Cannot use ~~; operator.", NULL);
 			*ret = 0;
-			return;
+			return format_abort_va_(list->format, list->position,
+					"Cannot use ~~; operator.", NULL);
 		}
-		format_size(list, &value);
+		Return(format_size_(list, &value));
 		size += value;
 	}
 	/* End */
-	format_size_End(&value);
+	Return(format_size_End(&value));
 	size += value;
 	/* result */
-	*ret = size;
+	return Result(ret, size);
 }
 
-static void format_write_list(struct fmtchar *list, byte *ptr, size_t *ret)
+static int format_write_list_(struct fmtchar *list, byte *ptr, size_t *ret)
 {
 	size_t size, value;
 
 	/* Format */
-	format_write_Format(list, ptr, &size);
+	Return(format_write_Format(list, ptr, &size));
 	/* body */
 	for (; list; list = list->next) {
-		format_write(list, ptr + size, &value);
+		Return(format_write_(list, ptr + size, &value));
 		size += value;
 	}
 	/* End */
-	format_write_End(list, ptr + size, &value);
+	Return(format_write_End(list, ptr + size, &value));
 	size += value;
 	/* result */
-	*ret = size;
+	return Result(ret, size);
 }
 
 
@@ -2620,7 +2675,7 @@ _g size_t format_bytesize(size_t count)
 	return FormatByteSize(count);
 }
 
-static void format_parse(LocalRoot local, addr *ret, addr format, int localp)
+static int format_parse_(LocalRoot local, addr *ret, addr format, int localp)
 {
 	addr pos;
 	byte *ptr;
@@ -2628,35 +2683,37 @@ static void format_parse(LocalRoot local, addr *ret, addr format, int localp)
 	size_t size, check;
 
 	/* parse */
-	list = fmtchar_make(local, format);
-	format_size_list(list, &size);
+	Return(fmtchar_make_(local, format, &list));
+	Return(format_size_list_(list, &size));
 	/* allocation */
 	format_alloc(localp? local: NULL, &pos, size);
 	ptr = (byte *)format_pointer(pos);
 #ifdef LISP_DEBUG
 	aamemory(ptr, size);
 #endif
-	format_write_list(list, ptr, &check);
+	Return(format_write_list_(list, ptr, &check));
 	Check(size != check, "size error");
-	*ret = pos;
+	return Result(ret, pos);
 }
 
-_g void format_parse_local(LocalRoot local, addr *ret, addr format)
+_g int format_parse_local_(LocalRoot local, addr *ret, addr format)
 {
 	CheckLocal(local);
 	CheckType(format, LISPTYPE_STRING);
-	format_parse(local, ret, format, 1);
+	return format_parse_(local, ret, format, 1);
 }
 
-_g void format_parse_heap(LocalRoot local, addr *ret, addr format)
+_g int format_parse_heap_(LocalRoot local, addr *ret, addr format)
 {
 	LocalStack stack;
 
 	CheckLocal(local);
 	CheckType(format, LISPTYPE_STRING);
 	push_local(local, &stack);
-	format_parse(local, ret, format, 0);
+	Return(format_parse_(local, ret, format, 0));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 _g void format_string_alloc(LocalRoot local, addr *ret, addr format)

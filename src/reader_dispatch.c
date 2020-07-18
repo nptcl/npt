@@ -102,7 +102,7 @@ static void defun_parensis_close_reader(void)
 /* (defun semicolon-reader (stream character) ...) -> * */
 static int function_reader_semicolon(Execute ptr, addr stream, addr code)
 {
-	semicolon_reader(stream);
+	Return(semicolon_reader_(stream));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -358,7 +358,7 @@ static void defun_parensis_close_dispatch(void)
 /* (defun asterisk-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_asterisk(Execute ptr, addr stream, addr code, addr arg)
 {
-	asterisk_dispatch(ptr, stream, code, arg, &code);
+	Return(asterisk_dispatch_(ptr, stream, code, arg, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -452,7 +452,7 @@ static void defun_backslash_dispatch(void)
 /* (defun or-dispatch (stream code arg) ...) -> (values) */
 static int function_dispatch_or(Execute ptr, addr stream, addr code, addr arg)
 {
-	or_dispatch(stream);
+	Return(or_dispatch_(stream));
 	setvalues_nil_control(ptr);
 	return 0;
 }

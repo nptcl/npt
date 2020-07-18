@@ -40,14 +40,13 @@ static int function_handler_warning(Execute ptr, addr condition)
 		simple_condition_format_arguments(condition, &args);
 		Return(format_stream(ptr, stream, "~&WARNING: ", NULL));
 		Return(format_lisp(ptr, stream, format, args, &args));
-		fresh_line_stream(stream);
+		Return(fresh_line_stream_(stream, NULL));
 	}
 	else {
 		Return(format_stream(ptr, stream, "~&WARNING: ~S~%", condition, NULL));
 	}
-	force_output_stream(stream);
 
-	return 0;
+	return force_output_stream_(stream);
 }
 
 _g void handler_warning(Execute ptr)
@@ -105,8 +104,8 @@ static int output_simple_error(Execute ptr, addr stream, addr condition)
 	simple_condition_format(condition, &control, &arguments);
 	if (format_stream_lisp(ptr, stream, control, arguments))
 		return 1;
-	fresh_line_stream(stream);
-	terpri_stream(stream);
+	Return(fresh_line_stream_(stream, NULL));
+	Return(terpri_stream_(stream));
 
 	return 0;
 }
@@ -219,7 +218,7 @@ static int enter_debugger(Execute ptr, addr condition)
 loop:
 	setindex_prompt(ptr, index);
 	setshow_prompt(ptr, 1);
-	clear_input_stream(io);
+	Return(clear_input_stream_(io));
 	check = read_stream(ptr, io, &result, &pos);
 	/* Interupt */
 	if (check) {
@@ -228,12 +227,12 @@ loop:
 	}
 	/* EOF */
 	if (result) {
-		terpri_stream(io);
+		Return(terpri_stream_(io));
 		goto exit;
 	}
 	/* :exit */
 	if (getbreak_prompt(ptr) || pos == exit) {
-		terpri_stream(io);
+		Return(terpri_stream_(io));
 		goto exit;
 	}
 	/* check */

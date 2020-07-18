@@ -24,8 +24,9 @@
  */
 static void fmtprint_print(fmtprint print, const char *str)
 {
-	while (*str)
-		fmtprint_putc(print, *(str++));
+	while (*str) {
+		Error(fmtprint_putc_(print, *(str++)));
+	}
 }
 
 static int test_fmtprint_putc(void)
@@ -116,13 +117,13 @@ static int test_fmtprint_pop(void)
 	args.index = 0;
 	cleartype(print);
 	print.rest = &args;
-	fmtprint_pop(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 10, "fmtprint_pop1");
 	test(args.index == 1, "fmtprint_pop2");
-	fmtprint_pop(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 20, "fmtprint_pop3");
 	test(args.index == 2, "fmtprint_pop4");
-	fmtprint_pop(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 30, "fmtprint_pop5");
 	test(args.index == 3, "fmtprint_pop6");
 
@@ -147,10 +148,10 @@ static int test_fmtprint_peek(void)
 	args.index = 0;
 	cleartype(print);
 	print.rest = &args;
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 10, "fmtprint_peek1");
 	test(args.index == 0, "fmtprint_peek2");
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 10, "fmtprint_peek3");
 	test(args.index == 0, "fmtprint_peek4");
 
@@ -177,10 +178,10 @@ static int test_fmtprint_forward(void)
 	args.index = 0;
 	cleartype(print);
 	print.rest = &args;
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_forward(&print, NULL, 2);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_forward_(&print, NULL, 2);
 	test(args.index == 3, "fmtprint_forward1");
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 40, "fmtprint_forward2");
 
 	RETURN;
@@ -206,16 +207,16 @@ static int test_fmtprint_rollback(void)
 	args.index = 0;
 	cleartype(print);
 	print.rest = &args;
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_rollback(&print, NULL, 3);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_rollback_(&print, NULL, 3);
 	test(args.index == 1, "fmtprint_rollback1");
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 20, "fmtprint_rollback2");
-	fmtprint_rollback(&print, NULL, 1);
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_rollback_(&print, NULL, 1);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 10, "fmtprint_rollback3");
 
 	RETURN;
@@ -241,16 +242,16 @@ static int test_fmtprint_absolute(void)
 	args.index = 0;
 	cleartype(print);
 	print.rest = &args;
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_absolute(&print, NULL, 3);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_absolute_(&print, NULL, 3);
 	test(args.index == 3, "fmtprint_absolute1");
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 40, "fmtprint_absolute2");
-	fmtprint_absolute(&print, NULL, 1);
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_absolute_(&print, NULL, 1);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 20, "fmtprint_absolute3");
 
 	RETURN;

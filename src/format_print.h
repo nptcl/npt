@@ -49,25 +49,25 @@ typedef struct fmtprint_struct *fmtprint;
 /*
  *  function
  */
-_g void fmtprint_abort(fmtprint print, size_t index, const char *str, ...);
-_g void fmtprop_abort(fmtprint print,
+_g int fmtprint_abort_(fmtprint print, size_t index, const char *str, ...);
+_g int fmtprop_abort_(fmtprint print,
 		struct format_operator *fmt, const char *str, ...);
 
 _g struct format_operator *fmtprint_operator(fmtprint print);
 _g void fmtprint_make(fmtprint print, Execute ptr, addr stream, addr format);
 _g void fmtprint_copy(fmtprint print, fmtprint src);
-_g addr fmtprint_make_string(fmtprint print, addr *ret);
-_g void fmtprint_stream(fmtprint print, addr *ret);
-_g void fmtprint_stream_output(fmtprint print);
+_g int fmtprint_make_string_(fmtprint print, addr *ret, addr *backup);
+_g int fmtprint_stream_(fmtprint print, addr *ret);
+_g int fmtprint_stream_output_(fmtprint print);
 
-_g void fmtprint_putc(fmtprint print, unicode u);
-_g void fmtprint_putc_times(fmtprint print, unicode c, size_t size);
-_g void fmtprint_string(fmtprint print, addr string);
-_g int fmtprint_pop(fmtprint print, struct format_operator *str, addr *ret);
-_g void fmtprint_peek(fmtprint print, struct format_operator *str, addr *ret);
-_g void fmtprint_forward(fmtprint print, struct format_operator *str, size_t n);
-_g void fmtprint_absolute(fmtprint print, struct format_operator *str, size_t n);
-_g void fmtprint_rollback(fmtprint print, struct format_operator *str, size_t n);
+_g int fmtprint_putc_(fmtprint print, unicode u);
+_g int fmtprint_putc_times_(fmtprint print, unicode c, size_t size);
+_g int fmtprint_string_(fmtprint print, addr string);
+_g int fmtprint_pop_(fmtprint print, struct format_operator *str, addr *ret);
+_g int fmtprint_peek_(fmtprint print, struct format_operator *str, addr *ret);
+_g int fmtprint_forward_(fmtprint print, struct format_operator *str, size_t n);
+_g int fmtprint_absolute_(fmtprint print, struct format_operator *str, size_t n);
+_g int fmtprint_rollback_(fmtprint print, struct format_operator *str, size_t n);
 _g void fmtprint_clear(fmtprint print);
 
 #endif

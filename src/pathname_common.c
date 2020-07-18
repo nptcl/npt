@@ -465,7 +465,7 @@ _g void logical_pathname(Execute ptr, addr *ret, addr pos)
 /*
  *  namestring
  */
-_g void namestring_pathname(Execute ptr, addr *ret, addr pos)
+_g int namestring_pathname_(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -474,16 +474,18 @@ _g void namestring_pathname(Execute ptr, addr *ret, addr pos)
 		local = ptr->local;
 		push_local(local, &stack);
 		pathname_designer_local(ptr, pos, &pos);
-		name_pathname_heap(ptr, pos, ret);
+		Return(name_pathname_heap_(ptr, pos, ret));
 		rollback_local(local, stack);
 	}
 	else {
 		pathname_designer_heap(ptr, pos, &pos);
-		name_pathname_heap(ptr, pos, ret);
+		Return(name_pathname_heap_(ptr, pos, ret));
 	}
+
+	return 0;
 }
 
-_g void file_namestring_pathname(Execute ptr, addr *ret, addr pos)
+_g int file_namestring_pathname_(Execute ptr, addr *ret, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -492,13 +494,15 @@ _g void file_namestring_pathname(Execute ptr, addr *ret, addr pos)
 	if (stringp(pos)) {
 		push_local(local, &stack);
 		pathname_designer_local(ptr, pos, &pos);
-		file_name_pathname_heap(local, pos, ret);
+		Return(file_name_pathname_heap_(local, pos, ret));
 		rollback_local(local, stack);
 	}
 	else {
 		pathname_designer_heap(ptr, pos, &pos);
-		file_name_pathname_heap(local, pos, ret);
+		Return(file_name_pathname_heap_(local, pos, ret));
 	}
+
+	return 0;
 }
 
 _g void directory_namestring_pathname(Execute ptr, addr *ret, addr pos)
@@ -617,7 +621,7 @@ static int enough_merge_pathname(LocalRoot local, addr a, addr b, addr *ret)
 	return enough_directory_pathname(local, a, pos1, pos2, ret);
 }
 
-_g void enough_namestring_pathname(Execute ptr, addr *ret, addr pos, addr defaults)
+_g int enough_namestring_pathname_(Execute ptr, addr *ret, addr pos, addr defaults)
 {
 	addr value;
 
@@ -625,7 +629,7 @@ _g void enough_namestring_pathname(Execute ptr, addr *ret, addr pos, addr defaul
 	pathname_designer_heap(ptr, pos, &pos);
 	if (enough_merge_pathname(ptr->local, pos, defaults, &value))
 		pos = value;
-	name_pathname_heap(ptr, pos, ret);
+	return name_pathname_heap_(ptr, pos, ret);
 }
 
 

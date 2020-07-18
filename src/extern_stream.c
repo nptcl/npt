@@ -60,7 +60,7 @@ int lisp_setinfo_stream_(addr stream, addr value)
 	}
 LispStreamExtendCallType(close);
 LispStreamExtendCallType(read_binary);
-LispStreamExtendCallType(readforce_binary);
+LispStreamExtendCallType(readf_binary);
 LispStreamExtendCallType(read_byte);
 LispStreamExtendCallType(unread_byte);
 LispStreamExtendCallType(write_binary);
@@ -85,14 +85,14 @@ LispStreamExtendCallType(file_position);
 LispStreamExtendCallType(file_position_start);
 LispStreamExtendCallType(file_position_end);
 LispStreamExtendCallType(file_position_set);
-LispStreamExtendCallType(file_character_length);
-LispStreamExtendCallType(file_string_length);
+LispStreamExtendCallType(file_charlen);
+LispStreamExtendCallType(file_strlen);
 LispStreamExtendCallType(listen);
 LispStreamExtendCallType(finish_output);
 LispStreamExtendCallType(force_output);
 LispStreamExtendCallType(clear_output);
 LispStreamExtendCallType(exitpoint);
-LispStreamExtendCallType(terminal_width);
+LispStreamExtendCallType(termsize);
 
 #define LispStreamExtendCallTypeError(name) \
 	int lisp_stream_calltype_error_##name##_(int type) { \
@@ -102,7 +102,7 @@ LispStreamExtendCallType(terminal_width);
 	}
 LispStreamExtendCallTypeError(close);
 LispStreamExtendCallTypeError(read_binary);
-LispStreamExtendCallTypeError(readforce_binary);
+LispStreamExtendCallTypeError(readf_binary);
 LispStreamExtendCallTypeError(read_byte);
 LispStreamExtendCallTypeError(unread_byte);
 LispStreamExtendCallTypeError(write_binary);
@@ -127,12 +127,12 @@ LispStreamExtendCallTypeError(file_position);
 LispStreamExtendCallTypeError(file_position_start);
 LispStreamExtendCallTypeError(file_position_end);
 LispStreamExtendCallTypeError(file_position_set);
-LispStreamExtendCallTypeError(file_character_length);
-LispStreamExtendCallTypeError(file_string_length);
+LispStreamExtendCallTypeError(file_charlen);
+LispStreamExtendCallTypeError(file_strlen);
 LispStreamExtendCallTypeError(listen);
 LispStreamExtendCallTypeError(finish_output);
 LispStreamExtendCallTypeError(force_output);
 LispStreamExtendCallTypeError(clear_output);
 LispStreamExtendCallTypeError(exitpoint);
-LispStreamExtendCallTypeError(terminal_width);
+LispStreamExtendCallTypeError(termsize);
 

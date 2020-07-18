@@ -1276,17 +1276,17 @@ static int test_output_nosign_ratio(void)
 
 	open_output_string_stream(&stream, 0);
 	test_ratio_alloc(local, &pos, SignPlus, 0, 20);
-	output_nosign_ratio(local, stream, pos, 10, 1);
+	output_nosign_ratio_(local, stream, pos, 10, 1);
 	test(equalstream(stream, "0"), "output_nosign_ratio1");
 
 	clear_output_string_stream(stream);
 	test_ratio_alloc(local, &pos, SignMinus, 10, 1);
-	output_nosign_ratio(local, stream, pos, 10, 1);
+	output_nosign_ratio_(local, stream, pos, 10, 1);
 	test(equalstream(stream, "10"), "output_nosign_ratio2");
 
 	clear_output_string_stream(stream);
 	test_ratio_alloc(local, &pos, SignMinus, 7, 8);
-	output_nosign_ratio(local, stream, pos, 10, 1);
+	output_nosign_ratio_(local, stream, pos, 10, 1);
 	test(equalstream(stream, "7/8"), "output_nosign_ratio3");
 
 	close_output_string_stream(stream);

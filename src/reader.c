@@ -17,29 +17,37 @@
 /*
  *  pushchar_readtable
  */
-static unicode charmode_readtable(addr pos, unicode c)
+static int charmode_readtable_(addr pos, unicode c, unicode *ret)
 {
 	switch (*PtrCaseReadtable(pos)) {
 		case ReadTable_upcase:
-			return toUpperUnicode(c);
+			c = toUpperUnicode(c);
+			break;
 
 		case ReadTable_downcase:
-			return toLowerUnicode(c);
+			c =  toLowerUnicode(c);
+			break;
 
 		case ReadTable_preserve:
-			return c;
+			break;
 
 		case ReadTable_invert:
-			if ('a' <= c && c <= 'z') return c - 'a' + 'A';
-			if ('A' <= c && c <= 'Z') return c - 'A' + 'a';
-			return c;
+			if ('a' <= c && c <= 'z') {
+				c = c - 'a' + 'A';
+				break;
+			}
+			if ('A' <= c && c <= 'Z') {
+				c = c - 'A' + 'a';
+				break;
+			}
+			break;
 
 		default:
-			fmte("Unknown readtable-case type.", NULL);
-			break;
+			*ret = 0;
+			return fmte_("Unknown readtable-case type.", NULL);
 	}
 
-	return 0;
+	return Result(ret, c);
 }
 
 static int tokenmode_readtable(Execute ptr)
@@ -62,7 +70,7 @@ static int tokenmode_readtable(Execute ptr)
 	return tokentype(base, queue);
 }
 
-static void setpackage_readtable(Execute ptr)
+static int setpackage_readtable_(Execute ptr)
 {
 	int type;
 	addr queue, package;
@@ -82,12 +90,13 @@ static void setpackage_readtable(Execute ptr)
 			break;
 
 		default:
-			fmte("Package token type error.", NULL);
-			return;
+			return fmte_("Package token type error.", NULL);
 	}
+
+	return 0;
 }
 
-static void pushchar_readtable(Execute ptr, addr pos, unicode c, int escape)
+static int pushchar_readtable_(Execute ptr, addr pos, unicode c, int escape)
 {
 	unsigned bitescape;
 	enum ReadInfo_State bitstate;
@@ -119,7 +128,7 @@ static void pushchar_readtable(Execute ptr, addr pos, unicode c, int escape)
 		if (bitstate == ReadInfo_State_Colon1)
 			setstate_readinfo(ptr, ReadInfo_State_Colon2);
 		push_charqueue_local(ptr->local, queue, c);
-		return;
+		return 0;
 	}
 
 	switch (bitstate) {
@@ -127,8 +136,7 @@ static void pushchar_readtable(Execute ptr, addr pos, unicode c, int escape)
 			str->unexport = 0;
 			if (c == ':') {
 				setstate_readinfo(ptr, ReadInfo_State_Colon1);
-				setpackage_readtable(ptr);
-				return;
+				return setpackage_readtable_(ptr);
 			}
 			break;
 
@@ -136,25 +144,25 @@ static void pushchar_readtable(Execute ptr, addr pos, unicode c, int escape)
 			setstate_readinfo(ptr, ReadInfo_State_Colon2);
 			if (c != ':') break;
 			str->unexport = 1;
-			return;
+			return 0;
 
 		case ReadInfo_State_Colon2:
 		case ReadInfo_State_Gensym:
-			if (c == ':') {
-				fmte("colon error", NULL);
-				return;
-			}
+			if (c == ':')
+				return fmte_("colon error", NULL);
 			break;
 
 		default:
-			fmte("mode error", NULL);
-			return;
+			return fmte_("mode error", NULL);
 	}
 
 	/* push char */
-	if (! escape)
-		c = charmode_readtable(pos, c);
+	if (! escape) {
+		Return(charmode_readtable_(pos, c, &c));
+	}
 	push_charqueue_local(ptr->local, queue, c);
+
+	return 0;
 }
 
 
@@ -169,16 +177,17 @@ _g enum ReadTable_Type readtable_typetable(addr pos, unicode c)
 	return ReadTypeStruct(pos)->type;
 }
 
-_g enum ReadTable_Result readtable_result(Execute ptr,
-		addr *ret, addr stream, addr table)
+_g int readtable_result_(Execute ptr,
+		addr *token, addr stream, addr table, enum ReadTable_Result *ret)
 {
 	enum ReadTable_Type type;
-	int result;
+	int check;
 	unicode x, y, z;
 
 step1:
-	result = read_char_stream(stream, &x);
-	if (result) goto eof;
+	Return(read_char_stream_(stream, &x, &check));
+	if (check)
+		goto eof;
 
 	/* step2 */
 	type = readtable_typetable(table, x);
@@ -192,14 +201,15 @@ step1:
 
 		case ReadTable_Type_macro_term:
 		case ReadTable_Type_macro_nonterm:
-			unread_char_stream(stream, x);
+			Return(unread_char_stream_(stream, x));
 			goto macro; /* return one value */
 
 		case ReadTable_Type_escape_single:
 			/* step5 */
-			result = read_char_stream(stream, &y);
-			if (result) goto error;
-			pushchar_readtable(ptr, table, y, 1);
+			Return(read_char_stream_(stream, &y, &check));
+			if (check)
+				goto error;
+			Return(pushchar_readtable_(ptr, table, y, 1));
 			goto step8;
 
 		case ReadTable_Type_escape_multiple:
@@ -208,7 +218,7 @@ step1:
 
 		case ReadTable_Type_constituent:
 			/* step7 */
-			pushchar_readtable(ptr, table, x, 0);
+			Return(pushchar_readtable_(ptr, table, x, 0));
 			break;
 
 		default:
@@ -216,19 +226,21 @@ step1:
 	}
 
 step8:
-	result = read_char_stream(stream, &y);
-	if (result) goto step10;
+	Return(read_char_stream_(stream, &y, &check));
+	if (check)
+		goto step10;
 	type = readtable_typetable(table, y);
 	switch (type) {
 		case ReadTable_Type_constituent:
 		case ReadTable_Type_macro_nonterm:
-			pushchar_readtable(ptr, table, y, 0);
+			Return(pushchar_readtable_(ptr, table, y, 0));
 			goto step8;
 
 		case ReadTable_Type_escape_single:
-			result = read_char_stream(stream, &z);
-			if (result) goto error;
-			pushchar_readtable(ptr, table, z, 1);
+			Return(read_char_stream_(stream, &z, &check));
+			if (check)
+				goto error;
+			Return(pushchar_readtable_(ptr, table, z, 1));
 			goto step8;
 
 		case ReadTable_Type_escape_multiple:
@@ -238,12 +250,13 @@ step8:
 			goto illegal_error;
 
 		case ReadTable_Type_macro_term:
-			unread_char_stream(stream, y);
+			Return(unread_char_stream_(stream, y));
 			goto step10;
 
 		case ReadTable_Type_whitespace:
-			if (getpreserving_readinfo(ptr))
-				unread_char_stream(stream, y);
+			if (getpreserving_readinfo(ptr)) {
+				Return(unread_char_stream_(stream, y));
+			}
 			goto step10;
 
 		default:
@@ -251,21 +264,23 @@ step8:
 	}
 
 step9:
-	result = read_char_stream(stream, &y);
-	if (result) goto error;
+	Return(read_char_stream_(stream, &y, &check));
+	if (check)
+		goto error;
 	type = readtable_typetable(table, y);
 	switch (type) {
 		case ReadTable_Type_macro_term:
 		case ReadTable_Type_macro_nonterm:
 		case ReadTable_Type_constituent:
 		case ReadTable_Type_whitespace:
-			pushchar_readtable(ptr, table, y, 1);
+			Return(pushchar_readtable_(ptr, table, y, 1));
 			goto step9;
 
 		case ReadTable_Type_escape_single:
-			result = read_char_stream(stream, &z);
-			if (result) goto error;
-			pushchar_readtable(ptr, table, z, 1);
+			Return(read_char_stream_(stream, &z, &check));
+			if (check)
+				goto error;
+			Return(pushchar_readtable_(ptr, table, z, 1));
 			goto step9;
 
 		case ReadTable_Type_escape_multiple:
@@ -279,66 +294,58 @@ step9:
 	}
 
 step10:
-	maketoken(ptr, ret);
+	maketoken(ptr, token);
 	goto final;
 
 illegal_error:
-	fmte("Illegal character error", NULL);
-	goto error;
+	return fmte_("Illegal character error", NULL);
 
 error:
-	fmte("readtable error", NULL);
-	goto eof;
+	return fmte_("readtable error", NULL);
 
 final:
-	return ReadTable_Result_normal;
+	return Result(ret, ReadTable_Result_normal);
 macro:
-	return ReadTable_Result_macro;
+	return Result(ret, ReadTable_Result_macro);
 eof:
-	return ReadTable_Result_eof;
+	return Result(ret, ReadTable_Result_eof);
 }
 
-_g int readtable_novalue(Execute ptr, int *result, addr *ret, addr stream, addr table)
+_g int readtable_novalue(Execute ptr, int *ret, addr *token, addr stream, addr table)
 {
+	enum ReadTable_Result value;
 	int check;
 	addr pos;
 	unicode u;
 
 	/* read */
 	clear_readinfo(ptr);
-	switch (readtable_result(ptr, &pos, stream, table)) {
+	Return(readtable_result_(ptr, &pos, stream, table, &value));
+	switch (value) {
 		case ReadTable_Result_normal:
-			*result = 0;
-			*ret = pos;
-			return 0;
+			*token = pos;
+			return Result(ret, 0);
 
 		case ReadTable_Result_eof:
-			*result = 1;
-			return 0;
+			return Result(ret, 1);
 
 		default:
 			break;
 	}
 
 	/* macro execute */
-	if (read_char_stream(stream, &u)) {
-		fmte("eof error", NULL);
-		return 1;
-	}
+	Return(read_char_stream_(stream, &u, &check));
+	if (check)
+		return fmte_("eof error", NULL);
 
-	if (macro_character_execute(ptr, &check, &pos, u, stream, table)) {
-		return 1;
-	}
-
+	Return(macro_character_execute(ptr, &check, &pos, u, stream, table));
 	if (check) {
-		*result = 0;
-		*ret = pos;
-		return 0;
+		*token = pos;
+		return Result(ret, 0);
 	}
 	else {
 		/* return no value */
-		*result = -1;
-		return 0;
+		return Result(ret, -1);
 	}
 }
 

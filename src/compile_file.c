@@ -65,10 +65,10 @@ static int compile_file_output(Execute ptr, addr input, addr output, addr rest)
 		external = Unbound;
 
 	/* write */
-	faslwrite_header(output);
+	Return(faslwrite_header_(output));
 	Return(compile_load(ptr, input, verbose, print, external));
-	faslwrite_footer(output);
-	finish_output_stream(output);
+	Return(faslwrite_footer_(output));
+	Return(finish_output_stream_(output));
 
 	return 0;
 }

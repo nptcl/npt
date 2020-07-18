@@ -150,10 +150,10 @@ _g void getsetf_global(addr pos, addr *ret);
 /* gensym */
 _g int gensymp(addr pos);
 _g void make_symbolchar(addr *ret, const char *str);
-_g void make_gensym(Execute ptr, addr *ret);
-_g void make_gensym_prefix(Execute ptr, addr prefix, addr *ret);
-_g void make_gensym_integer(Execute ptr, addr value, addr *ret);
-_g void make_gensym_char(Execute ptr, const char *str, addr value, addr *ret);
+_g int make_gensym_(Execute ptr, addr *ret);
+_g int make_gensym_prefix_(Execute ptr, addr prefix, addr *ret);
+_g int make_gensym_integer_(Execute ptr, addr value, addr *ret);
+_g int make_gensym_char_(Execute ptr, const char *str, addr value, addr *ret);
 _g void setcounter_gensym(Execute ptr, fixnum value);
 
 #endif

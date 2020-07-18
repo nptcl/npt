@@ -6,12 +6,12 @@
 #include "local.h"
 #include "typedef.h"
 
-_g void format_abort(addr format, size_t position, const char *str, va_list args);
+_g int format_abort_(addr format, size_t position, const char *str, va_list args);
 _g int formatp(addr pos);
 _g void *format_pointer(addr pos);
 _g size_t format_bytesize(size_t count);
-_g void format_parse_local(LocalRoot local, addr *ret, addr format);
-_g void format_parse_heap(LocalRoot local, addr *ret, addr format);
+_g int format_parse_local_(LocalRoot local, addr *ret, addr format);
+_g int format_parse_heap_(LocalRoot local, addr *ret, addr format);
 _g void format_string_alloc(LocalRoot local, addr *ret, addr format);
 _g void format_string_local(LocalRoot local, addr *ret, addr format);
 _g void format_string_heap(addr *ret, addr format);

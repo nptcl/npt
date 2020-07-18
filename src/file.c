@@ -169,7 +169,7 @@ _g int close_stream_file_(addr stream, addr *ret)
 	return Result(ret, T);
 }
 
-_g int read_binary_file(addr stream, void *pos, size_t size, size_t *ret)
+_g int read_binary_file_(addr stream, void *pos, size_t size, size_t *ret)
 {
 	int check;
 	struct filememory *fm;
@@ -178,12 +178,14 @@ _g int read_binary_file(addr stream, void *pos, size_t size, size_t *ret)
 	fm = PtrFileMemory(stream);
 	check = read_filememory(fm, pos, size, ret);
 	if (check < 0)
-		fmte("read error", NULL);
+		return fmte_("read error", NULL);
+	if (check)
+		return Result(ret, 0);
 
-	return check;
+	return 0;
 }
 
-_g int readforce_binary_file(addr stream, void *pos, size_t size, size_t *ret)
+_g int readf_binary_file_(addr stream, void *pos, size_t size, size_t *ret)
 {
 	int check;
 	struct filememory *fm;
@@ -197,7 +199,7 @@ _g int readforce_binary_file(addr stream, void *pos, size_t size, size_t *ret)
 	return check;
 }
 
-_g int read_byte_file(addr stream, byte *c)
+_g int read_byte_file_(addr stream, byte *c, int *ret)
 {
 	int check;
 	struct filememory *fm;
@@ -206,26 +208,24 @@ _g int read_byte_file(addr stream, byte *c)
 	fm = PtrFileMemory(stream);
 	check = getc_filememory(fm, c);
 	if (check < 0)
-		fmte("getc error", NULL);
+		return fmte_("getc error", NULL);
 
-	return check;
+	return Result(ret, check);
 }
 
-_g int unread_byte_file(addr stream, byte c)
+_g int unread_byte_file_(addr stream, byte c)
 {
-	int check;
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	check = ungetc_filememory(fm, c);
-	if (check < 0)
-		fmte("unread_byte error", NULL);
+	if (ungetc_filememory(fm, c))
+		return fmte_("unread_byte error", NULL);
 
-	return check;
+	return 0;
 }
 
-_g int write_binary_file(addr stream, const void *pos, size_t size, size_t *ret)
+_g int write_binary_file_(addr stream, const void *pos, size_t size, size_t *ret)
 {
 	int check;
 	struct filememory *fm;
@@ -233,13 +233,13 @@ _g int write_binary_file(addr stream, const void *pos, size_t size, size_t *ret)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	check = write_filememory(fm, pos, size, ret);
-	if (check < 0)
-		fmte("write error", NULL);
+	if (check)
+		return fmte_("write error", NULL);
 
-	return check;
+	return 0;
 }
 
-_g int write_byte_file(addr stream, byte c)
+_g int write_byte_file_(addr stream, byte c)
 {
 	int check;
 	struct filememory *fm;
@@ -247,45 +247,45 @@ _g int write_byte_file(addr stream, byte c)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	check = putc_filememory(fm, c);
-	if (check < 0)
-		fmte("write_byte error", NULL);
+	if (check)
+		return fmte_("write_byte error", NULL);
 
-	return check? -1: 0;
+	return 0;
 }
 
 
 /*
  *  character
  */
-_g int read_char_file(addr stream, unicode *c)
+_g int read_char_file_(addr stream, unicode *c, int *ret)
 {
 	int check;
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	check = read_char_encode(fm, c);
+	Return(read_char_encode_(fm, c, &check));
 	if (check < 0)
-		fmte("read_char_encode error", NULL);
+		return fmte_("read_char_encode error", NULL);
 
-	return check? 1: 0;
+	return Result(ret, check? 1: 0);
 }
 
-_g int read_hang_file(addr stream, unicode *c, int *hang)
+_g int read_hang_file_(addr stream, unicode *c, int *hang, int *ret)
 {
 	int check;
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	check = read_hang_encode(fm, c, hang);
+	Return(read_hang_encode_(fm, c, hang, &check));
 	if (check < 0)
-		fmte("read_hang_encode error", NULL);
+		return fmte_("read_hang_encode error", NULL);
 
-	return check? 1: 0;
+	return Result(ret, check? 1: 0);
 }
 
-_g void write_char_file(addr stream, unicode c)
+_g int write_char_file_(addr stream, unicode c)
 {
 	int check;
 	struct filememory *fm;
@@ -293,27 +293,35 @@ _g void write_char_file(addr stream, unicode c)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	check = write_char_encode(fm, c);
-	if (check < 0)
-		fmte("write_char_encode error", NULL);
+	if (check)
+		return fmte_("write_char_encode error", NULL);
+
+	return 0;
 }
 
-_g int file_length_file(addr stream, size_t *ret)
+_g int file_length_file_(addr stream, size_t *value, int *ret)
 {
 	int check;
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	if (flush_filememory(fm))
-		fmte("flush error.", NULL);
-	check = file_length_filememory(fm, ret);
-	if (check < 0)
-		fmte("file-length error.", NULL);
+	if (flush_filememory(fm)) {
+		*value = 0;
+		*ret = 0;
+		return fmte_("flush error.", NULL);
+	}
+	check = file_length_filememory(fm, value);
+	if (check < 0) {
+		*value = 0;
+		*ret = 0;
+		return fmte_("file-length error.", NULL);
+	}
 
-	return check != 0;
+	return Result(ret, check);
 }
 
-_g int file_position_file(addr stream, size_t *ret)
+_g int file_position_file_(addr stream, size_t *value, int *ret)
 {
 	int check;
 	struct filememory *fm;
@@ -324,85 +332,108 @@ _g int file_position_file(addr stream, size_t *ret)
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	check = file_position_filememory(fm, &size);
-	if (check < 0)
-		fmte("file-position error.", NULL);
-	if (check)
-		return 1;
+	if (check < 0) {
+		*value = 0;
+		*ret = 0;
+		return fmte_("file-position error.", NULL);
+	}
+	if (check) {
+		*value = 0;
+		return Result(ret, 1);
+	}
 
 	/* unread */
 	ptr = PtrStructStream(stream);
 	if (ptr->unread_check) {
 		check = length_char_encode(fm, ptr->unread);
 		if (check < 0) {
+			*value = 0;
+			*ret = 0;
 			character_heap(&stream, ptr->unread);
-			fmte("Invalid unread character ~S.", stream, NULL);
-			return 1;
+			return fmte_("Invalid unread character ~S.", stream, NULL);
 		}
 		unread = (size_t)check;
-		if (size < unread)
-			fmte("The stream ~S position is a minus value.", stream, NULL);
+		if (size < unread) {
+			*value = 0;
+			*ret = 0;
+			return fmte_("The stream ~S position is a minus value.", stream, NULL);
+		}
 		size -= unread;
 	}
-	*ret = size;
-
-	return 0;
+	*value = size;
+	return Result(ret, 0);
 }
 
-_g int file_position_start_file(addr stream)
+_g int file_position_start_file_(addr stream, int *ret)
 {
 	int check;
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	if (flush_filememory(fm))
-		fmte("flush error.", NULL);
+	if (flush_filememory(fm)) {
+		*ret = 0;
+		return fmte_("flush error.", NULL);
+	}
 	check = file_position_start_filememory(fm);
-	if (check < 0)
-		fmte("file-position-start error.", NULL);
-	if (check == 0)
+	if (check < 0) {
+		*ret = 0;
+		return fmte_("file-position-start error.", NULL);
+	}
+	if (check == 0) {
 		PtrStructStream(stream)->unread_check = 0;
+	}
 
-	return check != 0;
+	return Result(ret, check);
 }
 
-_g int file_position_end_file(addr stream)
+_g int file_position_end_file_(addr stream, int *ret)
 {
 	int check;
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	if (flush_filememory(fm))
-		fmte("flush error.", NULL);
+	if (flush_filememory(fm)) {
+		*ret = 0;
+		return fmte_("flush error.", NULL);
+	}
 	check = file_position_end_filememory(fm);
-	if (check < 0)
-		fmte("file-position-end error.", NULL);
-	if (check == 0)
+	if (check < 0) {
+		*ret = 0;
+		return fmte_("file-position-end error.", NULL);
+	}
+	if (check == 0) {
 		PtrStructStream(stream)->unread_check = 0;
+	}
 
-	return check != 0;
+	return Result(ret, check);
 }
 
-_g int file_position_set_file(addr stream, size_t pos)
+_g int file_position_set_file_(addr stream, size_t value, int *ret)
 {
 	int check;
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	if (flush_filememory(fm))
-		fmte("flush error.", NULL);
-	check = file_position_set_filememory(fm, pos);
-	if (check < 0)
-		fmte("file-position-end error.", NULL);
-	if (check == 0)
+	if (flush_filememory(fm)) {
+		*ret = 0;
+		return fmte_("flush error.", NULL);
+	}
+	check = file_position_set_filememory(fm, value);
+	if (check < 0) {
+		*ret = 0;
+		return fmte_("file-position-end error.", NULL);
+	}
+	if (check == 0) {
 		PtrStructStream(stream)->unread_check = 0;
+	}
 
-	return check != 0;
+	return Result(ret, check);
 }
 
-_g int file_character_length_file(addr stream, unicode u, size_t *ret)
+_g int file_charlen_file_(addr stream, unicode u, size_t *value, int *ret)
 {
 	int check;
 	struct filememory *fm;
@@ -411,19 +442,20 @@ _g int file_character_length_file(addr stream, unicode u, size_t *ret)
 	fm = PtrFileMemory(stream);
 	check = length_char_encode(fm, u);
 	if (check < 0)
-		return 1;
-	*ret = (size_t)check;
+		return Result(ret, 1);
+	*value = (size_t)check;
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int file_string_length_file(addr stream, addr pos, size_t *ret)
+_g int file_strlen_file_(addr stream, addr pos, size_t *value, int *ret)
 {
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
-	return length_string_encode(fm, pos, ret);
+	*ret = length_string_encode(fm, pos, value);
+	return 0;
 }
 
 _g void external_format_file(addr stream, addr *ret)
@@ -490,18 +522,18 @@ _g void external_format_file(addr stream, addr *ret)
 	}
 }
 
-_g int listen_file(addr stream)
+_g int listen_file_(addr stream, int *ret)
 {
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	if (PtrStructStream(stream)->unread_check)
-		return 1;
+		return Result(ret, 1);
 	fm = PtrFileMemory(stream);
-	return fm->cache;
+	return Result(ret, fm->cache);
 }
 
-_g void clear_input_file(addr stream)
+_g int clear_input_file_(addr stream)
 {
 	struct filememory *fm;
 
@@ -509,46 +541,54 @@ _g void clear_input_file(addr stream)
 	PtrStructStream(stream)->unread_check = 0;
 	fm = PtrFileMemory(stream);
 	if (clear_input_filememory(fm))
-		fmte("clear-input error.", NULL);
+		return fmte_("clear-input error.", NULL);
+	
+	return 0;
 }
 
-_g void finish_output_file(addr stream)
+_g int finish_output_file_(addr stream)
 {
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	if (flush_filememory(fm))
-		fmte("flush-filememory error.", NULL);
+		return fmte_("flush-filememory error.", NULL);
+	
+	return 0;
 }
 
-_g void force_output_file(addr stream)
+_g int force_output_file_(addr stream)
 {
-	finish_output_file(stream);
+	return finish_output_file_(stream);
 }
 
-_g void clear_output_file(addr stream)
+_g int clear_output_file_(addr stream)
 {
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	if (clear_output_filememory(fm))
-		fmte("clear-output error.", NULL);
+		return fmte_("clear-output error.", NULL);
+
+	return 0;
 }
 
-_g void exitpoint_file(addr stream)
+_g int exitpoint_file_(addr stream)
 {
 	struct filememory *fm;
 
 	CheckFileStream(stream);
 	fm = PtrFileMemory(stream);
 	exitpoint_filememory(fm);
+	return 0;
 }
 
-_g int terminal_width_file(addr stream, size_t *ret)
+_g int termsize_file_(addr stream, size_t *value, int *ret)
 {
-	return getwidth_console(ret);
+	*ret = getwidth_console(value);
+	return 0;
 }
 
 

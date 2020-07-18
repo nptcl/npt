@@ -153,31 +153,34 @@ _g int apropos_common(Execute ptr, addr var, addr package)
 
 	standard_output_stream(ptr, &stream);
 	Return(apropos_list_common(ptr, var, package, &list));
-	fresh_line_stream(stream);
+	Return(fresh_line_stream_(stream, NULL));
 	while (list != Nil) {
 		GetCons(list, &var, &list);
 		/* PACKAGE::NAME */
 		GetPackageSymbol(var, &package);
 		getname_package(package, &package);
 		GetNameSymbol(var, &name);
-		print_string_stream(stream, package);
-		print_ascii_stream(stream, "::");
-		print_string_stream(stream, name);
+		Return(print_string_stream_(stream, package));
+		Return(print_ascii_stream_(stream, "::"));
+		Return(print_string_stream_(stream, name));
 
 		/* variable */
 		getspecial_local(ptr, var, &name);
-		if (name != Unbound)
-			print_ascii_stream(stream, ", Variable");
+		if (name != Unbound) {
+			Return(print_ascii_stream_(stream, ", Variable"));
+		}
 		/* function */
 		GetFunctionSymbol(var, &name);
-		if (name != Unbound)
-			print_ascii_stream(stream, ", Function");
+		if (name != Unbound) {
+			Return(print_ascii_stream_(stream, ", Function"));
+		}
 		/* macro */
 		getmacro_symbol(var, &name);
-		if (name != Unbound)
-			print_ascii_stream(stream, ", Macro");
+		if (name != Unbound) {
+			Return(print_ascii_stream_(stream, ", Macro"));
+		}
 		/* terpri */
-		terpri_stream(stream);
+		Return(terpri_stream_(stream));
 	}
 
 	return 0;
@@ -316,7 +319,7 @@ _g int room_common(Execute ptr, addr var)
 	addr stream, check;
 
 	standard_output_stream(ptr, &stream);
-	fresh_line_stream(stream);
+	Return(fresh_line_stream_(stream, NULL));
 	if (var == Unbound)
 		return room_default_common(ptr, stream);
 	if (var == Nil)
@@ -357,7 +360,7 @@ static int ed_file_common(Execute ptr, addr var)
 				"~ED can't use wild card pathname ~S.", var, NULL);
 	}
 	physical_pathname_local(ptr, var, &var);
-	namestring_pathname(ptr, &var, var);
+	Return(namestring_pathname_(ptr, &var, var));
 	return ed_execute_common(ptr, var);
 }
 
@@ -402,7 +405,7 @@ static int ed_function_write(Execute ptr, addr file, addr lambda)
 				Stream_Open_IfExists_Supersede,
 				Stream_Open_IfDoesNot_Create,
 				Stream_Open_External_Default));
-	right_margin_print(ptr, file, &width);
+	Return(right_margin_print_(ptr, file, &width));
 	push_right_margin_print(ptr, width);
 	Return(prin1_print(ptr, file, lambda));
 	Return(close_stream_(file));
@@ -462,7 +465,7 @@ static int dribble_message_end(Execute ptr, addr file)
 	return format_stream(ptr, stream, str, name, NULL);
 }
 
-static void dribble_set_stream(addr file)
+static int dribble_set_stream_(addr file)
 {
 	addr dfile, dinput, doutput, decho, dbroadcast, sinput, soutput;
 	addr input, output, echo, broadcast;
@@ -490,8 +493,8 @@ static void dribble_set_stream(addr file)
 	/* stream */
 	GetValueSymbol(sinput, &input);
 	GetValueSymbol(soutput, &output);
-	exitpoint_stream(output);
-	force_output_stream(output);
+	Return(exitpoint_stream_(output));
+	Return(force_output_stream_(output));
 	open_echo_stream(&echo, input, file);
 	list_heap(&broadcast, output, file, NULL);
 	open_broadcast_stream(&broadcast, broadcast);
@@ -504,6 +507,8 @@ static void dribble_set_stream(addr file)
 	SetValueSymbol(dbroadcast, broadcast);
 	SetValueSymbol(sinput, echo);
 	SetValueSymbol(soutput, broadcast);
+
+	return 0;
 }
 
 static int dribble_open_file(Execute ptr, addr file)
@@ -519,7 +524,7 @@ static int dribble_open_file(Execute ptr, addr file)
 				Stream_Open_IfExists_Supersede,
 				Stream_Open_IfDoesNot_Create,
 				Stream_Open_External_Default));
-	dribble_set_stream(file);
+	Return(dribble_set_stream_(file));
 	return dribble_message_begin(ptr, file);
 }
 

@@ -13,7 +13,7 @@
 /* (defun hello () ...) -> null */
 static int syscall_hello(Execute ptr)
 {
-	hello_syscode(ptr);
+	Return(hello_syscode(ptr));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -122,7 +122,7 @@ static void defun_gc(void)
 /* (defun savecore (pathname-designer) ...) -> null */
 static int syscall_savecore(Execute ptr, addr file)
 {
-	savecore_syscode(ptr, file);
+	Return(savecore_syscode(ptr, file));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1869,7 +1869,8 @@ static void defun_loop_bind(void)
 static int syscall_make_pprint_stream(Execute ptr,
 		addr stream, addr object, addr prefix, addr perline, addr suffix)
 {
-	make_pprint_stream_syscode(ptr, &stream, stream, object, prefix, perline, suffix);
+	Return(make_pprint_stream_syscode_(ptr,
+				&stream, stream, object, prefix, perline, suffix));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -2041,7 +2042,7 @@ static void defun_pprint_check(void)
 /* (defun pprint-close (stream-pretty) ...) -> nil */
 static int syscall_pprint_close(Execute ptr, addr stream)
 {
-	pprint_close_syscode(ptr, stream);
+	Return(pprint_close_syscode(ptr, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }

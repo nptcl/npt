@@ -106,7 +106,7 @@ static int faslwrite_value_array_memory(Execute ptr, addr stream, addr pos)
 	element = str->element;
 	for (i = 0; i < size; i++) {
 		arrayinplace_get(pos, i, &v);
-		faslwrite_buffer(stream, &v.value.voidp, element);
+		Return(faslwrite_buffer_(stream, &v.value.voidp, element));
 	}
 
 	return 0;
@@ -124,7 +124,7 @@ static int faslread_value_array_memory(Execute ptr, addr stream, addr pos)
 	size = str->front;
 	element = str->element;
 	for (i = 0; i < size; i++) {
-		faslread_buffer(stream, &v.value.voidp, element);
+		Return(faslread_buffer_(stream, &v.value.voidp, element));
 		arrayinplace_set(pos, i, &v);
 	}
 
@@ -200,7 +200,7 @@ static int faslwrite_value_array_dimension(Execute ptr, addr stream, addr pos)
 	str = ArrayInfoStruct(pos);
 	GetArrayInfo(pos, ARRAY_INDEX_DIMENSION, &value);
 	size = arraysize_ptr(value);
-	faslwrite_buffer(stream, size, IdxSize * str->dimension);
+	Return(faslwrite_buffer_(stream, size, IdxSize * str->dimension));
 
 	return 0;
 }
@@ -214,7 +214,7 @@ static int faslread_value_array_dimension(Execute ptr, addr stream, addr pos)
 	str = ArrayInfoStruct(pos);
 	arraysize_heap(&value, str->dimension);
 	size = arraysize_ptr(value);
-	faslread_buffer(stream, size, IdxSize * str->dimension);
+	Return(faslread_buffer_(stream, size, IdxSize * str->dimension));
 	SetArrayInfo(pos, ARRAY_INDEX_DIMENSION, value);
 
 	return 0;
@@ -269,7 +269,7 @@ static int faslwrite_value_array_displaced(Execute ptr, addr stream, addr pos)
 	str.offset = 0;
 
 	/* write */
-	faslwrite_buffer(stream, &str, sizeoft(struct array_struct));
+	Return(faslwrite_buffer_(stream, &str, sizeoft(struct array_struct)));
 	Return(faslwrite_value_array_info(ptr, stream, pos));
 	Return(faslwrite_value_array_body(ptr, stream, pos));
 
@@ -281,7 +281,7 @@ static int faslwrite_value_array_normal(Execute ptr, addr stream, addr pos)
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
-	faslwrite_buffer(stream, str, sizeoft(struct array_struct));
+	Return(faslwrite_buffer_(stream, str, sizeoft(struct array_struct)));
 	Return(faslwrite_value_array_info(ptr, stream, pos));
 	Return(faslwrite_value_array_body(ptr, stream, pos));
 
@@ -293,7 +293,7 @@ _g int faslwrite_value_array(Execute ptr, addr stream, addr pos)
 	struct array_struct *str;
 
 	CheckType(pos, LISPTYPE_ARRAY);
-	faslwrite_type(stream, FaslCode_array);
+	Return(faslwrite_type_(stream, FaslCode_array));
 	str = ArrayInfoStruct(pos);
 	if (str->displaced)
 		return faslwrite_value_array_displaced(ptr, stream, pos);
@@ -312,7 +312,7 @@ _g int faslread_value_array(Execute ptr, addr stream, addr *ret)
 
 	array_empty_heap(&pos);
 	str = ArrayInfoStruct(pos);
-	faslread_buffer(stream, str, sizeoft(struct array_struct));
+	Return(faslread_buffer_(stream, str, sizeoft(struct array_struct)));
 	Return(faslread_value_array_info(ptr, stream, pos));
 	Return(faslread_value_array_body(ptr, stream, pos));
 

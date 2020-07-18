@@ -1018,9 +1018,9 @@ static int test_english_output(void)
 	strvect_char_local(local, &pos3, "ff"),
 	list_local(local, &cons, pos1, pos2, cons, pos3, NULL);
 	input.root = cons;
-	english_output(stream, &input, 0);
+	english_output_(stream, &input, 0);
 	test(equalstream(stream, "aa bb ccddee ff"), "english_output1");
-	english_output(stream, &input, 1);
+	english_output_(stream, &input, 1);
 	test(equalstream(stream, "minus aa bb ccddee ff"), "english_output2");
 
 	close_output_string_stream(stream);
@@ -1051,21 +1051,21 @@ static int test_english_integer(void)
 	push_local(local, &stack);
 	open_output_string_stream(&stream, 0);
 
-	english_integer(local, stream, fixnuml(0), 1);
+	english_integer_(local, stream, fixnuml(0), 1);
 	test(equalstream(stream, "zero"), "english_integer1");
-	english_integer(local, stream, fixnuml(0), 0);
+	english_integer_(local, stream, fixnuml(0), 0);
 	test(equalstream(stream, "zeroth"), "english_integer2");
-	english_integer(local, stream, fixnuml(4), 1);
+	english_integer_(local, stream, fixnuml(4), 1);
 	test(equalstream(stream, "four"), "english_integer3");
-	english_integer(local, stream, fixnuml(5), 0);
+	english_integer_(local, stream, fixnuml(5), 0);
 	test(equalstream(stream, "fifth"), "english_integer4");
-	english_integer(local, stream, fixnuml(-9), 1);
+	english_integer_(local, stream, fixnuml(-9), 1);
 	test(equalstream(stream, "minus nine"), "english_integer5");
-	english_integer(local, stream, fixnuml(11), 1);
+	english_integer_(local, stream, fixnuml(11), 1);
 	test(equalstream(stream, "eleven"), "english_integer6");
-	english_integer(local, stream, fixnuml(21), 1);
+	english_integer_(local, stream, fixnuml(21), 1);
 	test(equalstream(stream, "twenty-one"), "english_integer7");
-	english_integer(local, stream, fixnuml(123), 1);
+	english_integer_(local, stream, fixnuml(123), 1);
 	ptr = "one hundred" TEST_MODE2 " twenty-three";
 	test(equalstream(stream, ptr), "english_integer8");
 
@@ -1201,7 +1201,7 @@ static int test_roma_integer(void)
 		}
 		/* first */
 		clear_output_string_stream(stream);
-		roma_integer(stream, i, 0);
+		roma_integer_(stream, i, 0);
 		string_stream_local(local, stream, &pos);
 		if (! string_equal_char(pos, str1)) {
 			degrade_printf("roma(1) check error: %s\n", str1);
@@ -1209,7 +1209,7 @@ static int test_roma_integer(void)
 		}
 		/* second */
 		clear_output_string_stream(stream);
-		roma_integer(stream, i, 1);
+		roma_integer_(stream, i, 1);
 		string_stream_local(local, stream, &pos);
 		if (! string_equal_char(pos, str2)) {
 			degrade_printf("roma(2) check error: %s\n", str2);

@@ -122,16 +122,14 @@ _g int eval_loop_output(Execute ptr, addr stream, addr control)
 	getvalues_list_control_heap(ptr, &list);
 	eval_loop_shift(ptr, list);
 	/* format_stream(ptr, stream, "~&~{~S~%~}~&", list, NULL); */
-	fresh_line_stream(stream);
+	Return(fresh_line_stream_(stream, NULL));
 	while (list != Nil) {
-		getcons(list, &pos, &list);
+		Return_getcons(list, &pos, &list);
 		Return(prin1_print(ptr, stream, pos));
-		terpri_stream(stream);
+		Return(terpri_stream_(stream));
 	}
-	fresh_line_stream(stream);
-	force_output_stream(stream);
-
-	return 0;
+	Return(fresh_line_stream_(stream, NULL));
+	return force_output_stream_(stream);
 }
 
 static int eval_loop_stream(Execute ptr, addr stream, addr pos)
@@ -199,7 +197,7 @@ static int eval_loop_execute(Execute ptr, void *voidp)
 
 	/* EOF */
 	if (check) {
-		fresh_line_stream(stream);
+		Return(fresh_line_stream_(stream, NULL));
 		return Result(ret, 1);
 	}
 
@@ -241,19 +239,12 @@ _g int eval_custom_loop(Execute ptr, addr stream, eval_loop_calltype call)
 	while (! getbreak_prompt(ptr)) {
 		setindex_prompt(ptr, index);
 		setshow_prompt(ptr, 1);
-
-		if (eval_loop_restart(ptr, stream, call, &exit)) {
-			terpri_stream(stream);
-			return 1;
-		}
-		if (exit) {
-			terpri_stream(stream);
-			return 0;
-		}
+		Return(eval_loop_restart(ptr, stream, call, &exit));
+		if (exit)
+			break;
 	}
-	terpri_stream(stream);
 
-	return 1;
+	return terpri_stream_(stream);
 }
 
 static int eval_main_execute(Execute ptr, addr stream, addr pos, int *exit, int *exec)

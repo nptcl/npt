@@ -181,7 +181,7 @@ static void defun_gensym(void)
  */
 static int function_gentemp(Execute ptr, addr opt1, addr opt2)
 {
-	gentemp_common(ptr, opt1, opt2, &opt1);
+	Return(gentemp_common(ptr, opt1, opt2, &opt1));
 	setresult_control(ptr, opt1);
 	return 0;
 }

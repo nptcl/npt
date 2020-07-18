@@ -108,7 +108,7 @@ _g void abs_ratio_alloc(LocalRoot local, addr left, addr *ret);
 _g void abs_ratio_local(LocalRoot local, addr left, addr *ret);
 _g void abs_ratio_heap(addr left, addr *ret);
 
-_g void output_nosign_ratio(LocalRoot local,
+_g int output_nosign_ratio_(LocalRoot local,
 		addr stream, addr pos, unsigned base, int upperp);
 
 #endif

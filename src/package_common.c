@@ -22,7 +22,7 @@
 /*
  *  gentemp
  */
-_g void make_gentemp(Execute ptr, addr prefix, addr package, addr *ret)
+_g int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret)
 {
 	enum PACKAGE_TYPE type;
 	int keyword;
@@ -51,7 +51,7 @@ _g void make_gentemp(Execute ptr, addr prefix, addr package, addr *ret)
 			pushchar_charqueue_local(local, queue, "T");
 		else
 			pushstring_charqueue_local(local, queue, prefix);
-		decimal_charqueue_integer_local(local, value, queue);
+		Return(decimal_charqueue_integer_local_(local, value, queue));
 		make_charqueue_local(local, queue, &name);
 		type = find_symbol_package(package, name, &gentemp);
 		if (type == PACKAGE_TYPE_NIL)
@@ -63,14 +63,16 @@ _g void make_gentemp(Execute ptr, addr prefix, addr package, addr *ret)
 		SetConst(PACKAGE_GENTEMP, value);
 
 		/* check intern */
-		if (type == PACKAGE_TYPE_NIL) break;
+		if (type == PACKAGE_TYPE_NIL)
+			break;
 	}
 
 	/* gentemp */
 	intern_package(package, name, &gentemp);
 	if (keyword)
 		export_package(package, gentemp);
-	*ret = gentemp;
+	
+	return Result(ret, gentemp);
 }
 
 

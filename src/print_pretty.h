@@ -33,11 +33,11 @@ _g void pprint_tab_print(Execute ptr,
 _g void pprint_tab_section(Execute ptr, addr stream, fixnum column, fixnum colinc);
 _g void pprint_tab_section_relative(Execute ptr,
 		addr stream, fixnum column, fixnum colinc);
-_g void pprint_tab_absolute_force(addr stream,
+_g int pprint_tab_absolute_force_(addr stream,
 		fixnum column, fixnum colinc, fixnum now);
-_g void pprint_tab_relative_force(addr stream,
+_g int pprint_tab_relative_force_(addr stream,
 		fixnum column, fixnum colinc, fixnum now);
-_g void pprint_output(Execute ptr, addr stream, addr pos);
+_g int pprint_output_(Execute ptr, addr stream, addr pos);
 
 #endif
 

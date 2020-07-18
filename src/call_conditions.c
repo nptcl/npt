@@ -706,7 +706,7 @@ _g int handler_bind_common(addr form, addr env, addr *ret)
 /*
  *  handler-case
  */
-static void handler_case_gensym_common(Execute ptr, addr form, addr *ret)
+static int handler_case_gensym_common_(Execute ptr, addr form, addr *ret)
 {
 	addr args, declare, pos, cons, gensym;
 
@@ -715,7 +715,7 @@ static void handler_case_gensym_common(Execute ptr, addr form, addr *ret)
 	 *   form)
 	 */
 	/* (gensym) */
-	make_gensym(ptr, &gensym);
+	Return(make_gensym_(ptr, &gensym));
 	conscar_heap(&args, gensym);
 	/* (declare (ignore gensym)) */
 	GetConst(COMMON_IGNORE, &pos);
@@ -725,6 +725,8 @@ static void handler_case_gensym_common(Execute ptr, addr form, addr *ret)
 	/* (lambda ...) */
 	GetConst(COMMON_LAMBDA, &pos);
 	lista_heap(ret, pos, args, declare, form, NULL);
+
+	return 0;
 }
 
 static void handler_case_lambda_common(addr args, addr form, addr *ret)
@@ -766,10 +768,12 @@ static int handler_case_clauses_common(Execute ptr, addr right, addr *ret, addr 
 			Return(handler_case_noerror_common(&noerror, cons));
 		}
 		else {
-			if (args == Nil)
-				handler_case_gensym_common(ptr, form, &cons);
-			else if (singlep(args))
+			if (args == Nil) {
+				Return(handler_case_gensym_common_(ptr, form, &cons));
+			}
+			else if (singlep(args)) {
 				handler_case_lambda_common(args, form, &cons);
+			}
 			else {
 				*ret = *rete = NULL;
 				return fmte_("The argument ~S in handler-case clause "
@@ -843,7 +847,7 @@ _g int ignore_errors_common(Execute ptr, addr form, addr env, addr *ret)
 	GetConst(COMMON_PROGN, &progn);
 	GetConst(COMMON_ERROR, &error);
 	GetConst(COMMON_VALUES, &values);
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 	list_heap(&values, values, Nil, g, NULL);
 	list_heap(&g, g, NULL);
 	list_heap(&error, error, g, values, NULL);

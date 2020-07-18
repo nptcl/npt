@@ -302,119 +302,127 @@ _g void force_open_stream(addr stream)
 	} \
 }
 
-_g int read_binary_stream(addr stream, void *pos, size_t size, size_t *ret)
+_g int read_binary_stream_(addr stream, void *pos, size_t size, size_t *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_read_binary[(int)ptr->type])(stream, pos, size, ret);
 }
 
-_g int readforce_binary_stream(addr stream, void *pos, size_t size, size_t *ret)
+_g int readf_binary_stream_(addr stream, void *pos, size_t size, size_t *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_readforce_binary[(int)ptr->type])(stream, pos, size, ret);
+	return (Stream_readf_binary[(int)ptr->type])(stream, pos, size, ret);
 }
 
-_g int read_byte_stream(addr stream, byte *c)
+_g int read_byte_stream_(addr stream, byte *c, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_read_byte[(int)ptr->type])(stream, c);
+	return (Stream_read_byte[(int)ptr->type])(stream, c, ret);
 }
 
-_g int unread_byte_stream(addr stream, byte c)
+_g int unread_byte_stream_(addr stream, byte c)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_unread_byte[(int)ptr->type])(stream, c);
 }
 
-_g int write_binary_stream(addr stream, const void *pos, size_t size, size_t *ret)
+_g int write_binary_stream_(addr stream, const void *pos, size_t size, size_t *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_write_binary[(int)ptr->type])(stream, pos, size, ret);
 }
 
-_g int write_byte_stream(addr stream, byte c)
+_g int write_byte_stream_(addr stream, byte c)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
 	return (Stream_write_byte[(int)ptr->type])(stream, c);
 }
 
-_g int read_char_stream(addr stream, unicode *c)
+_g int read_char_stream_(addr stream, unicode *c, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_read_char[(int)ptr->type])(stream, c);
+	return (Stream_read_char[(int)ptr->type])(stream, c, ret);
 }
 
-_g int read_hang_stream(addr stream, unicode *c, int *hang)
+_g int read_hang_stream_(addr stream, unicode *c, int *hang, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_read_hang[(int)ptr->type])(stream, c, hang);
+	return (Stream_read_hang[(int)ptr->type])(stream, c, hang, ret);
 }
 
-_g void unread_char_stream(addr stream, unicode c)
+_g int unread_char_stream_(addr stream, unicode c)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	(Stream_unread_char[(int)ptr->type])(stream, c);
+	return (Stream_unread_char[(int)ptr->type])(stream, c);
 }
 
-_g void write_char_stream(addr stream, unicode c)
+_g int write_char_stream_(addr stream, unicode c)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	(Stream_write_char[(int)ptr->type])(stream, c);
+	return (Stream_write_char[(int)ptr->type])(stream, c);
 }
 
-_g void terpri_stream(addr stream)
+_g int terpri_stream_(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	(Stream_terpri[(int)ptr->type])(stream);
+	return (Stream_terpri[(int)ptr->type])(stream);
 }
 
-_g size_t getleft_stream(addr stream)
+_g int getleft_stream_(addr stream, size_t *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_getleft[(int)ptr->type])(stream);
+	return (Stream_getleft[(int)ptr->type])(stream, ret);
 }
 
-_g void setleft_stream(addr stream, size_t value)
+_g int setleft_stream_(addr stream, size_t value)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	(Stream_setleft[(int)ptr->type])(stream, value);
+	return (Stream_setleft[(int)ptr->type])(stream, value);
 }
 
-_g void copyleft_stream(addr stream, addr src)
+_g int copyleft_stream_(addr stream, addr src)
 {
-	setleft_stream(stream, getleft_stream(src));
+	size_t size;
+	Return(getleft_stream_(src, &size));
+	return setleft_stream_(stream, size);
 }
 
-_g int fresh_line_stream(addr stream)
+_g int fresh_line_stream_(addr stream, int *ret)
+{
+	int check;
+	struct StructStream *ptr;
+
+	CheckStream(stream, ptr);
+	Return((Stream_fresh_line[(int)ptr->type])(stream, &check));
+	if (ret)
+		*ret = check;
+
+	return 0;
+}
+
+_g int pageout_stream_(addr stream)
+{
+	return write_char_stream_(stream, '\f');
+}
+
+_g int clear_input_stream_(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_fresh_line[(int)ptr->type])(stream);
-}
-
-_g void pageout_stream(addr stream)
-{
-	write_char_stream(stream, '\f');
-}
-
-_g void clear_input_stream(addr stream)
-{
-	struct StructStream *ptr;
-	CheckStream(stream, ptr);
-	(Stream_clear_input[(int)ptr->type])(stream);
+	return (Stream_clear_input[(int)ptr->type])(stream);
 }
 
 _g int inputp_stream(addr stream)
@@ -447,102 +455,102 @@ _g int binaryp_stream(addr stream)
 	return (Stream_binaryp[GetIndexStream(stream)])(stream);
 }
 
-_g void element_type_stream(addr stream, addr *ret)
+_g int element_type_stream_(addr stream, addr *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	(Stream_element_type[(int)ptr->type])(stream, ret);
+	return (Stream_element_type[(int)ptr->type])(stream, ret);
 }
 
-_g void file_length_stream(addr stream, addr *ret)
+_g int file_length_stream_(addr stream, addr *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	(Stream_file_length[(int)ptr->type])(stream, ret);
+	return (Stream_file_length[(int)ptr->type])(stream, ret);
 }
 
-_g int file_position_stream(addr stream, size_t *ret)
+_g int file_position_stream_(addr stream, size_t *value, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_file_position[(int)ptr->type])(stream, ret);
+	return (Stream_file_position[(int)ptr->type])(stream, value, ret);
 }
 
-_g int file_position_start_stream(addr stream)
+_g int file_position_start_stream_(addr stream, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_file_position_start[(int)ptr->type])(stream);
+	return (Stream_file_position_start[(int)ptr->type])(stream, ret);
 }
 
-_g int file_position_end_stream(addr stream)
+_g int file_position_end_stream_(addr stream, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_file_position_end[(int)ptr->type])(stream);
+	return (Stream_file_position_end[(int)ptr->type])(stream, ret);
 }
 
-_g int file_position_set_stream(addr stream, size_t pos)
+_g int file_position_set_stream_(addr stream, size_t value, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_file_position_set[(int)ptr->type])(stream, pos);
+	return (Stream_file_position_set[(int)ptr->type])(stream, value, ret);
 }
 
-_g int file_character_length_stream(addr stream, unicode u, size_t *ret)
+_g int file_charlen_stream_(addr stream, unicode u, size_t *value, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_file_character_length[(int)ptr->type])(stream, u, ret);
+	return (Stream_file_charlen[(int)ptr->type])(stream, u, value, ret);
 }
 
-_g int file_string_length_stream(addr stream, addr pos, size_t *ret)
+_g int file_strlen_stream_(addr stream, addr pos, size_t *value, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_file_string_length[(int)ptr->type])(stream, pos, ret);
+	return (Stream_file_strlen[(int)ptr->type])(stream, pos, value, ret);
 }
 
-_g int listen_stream(addr stream)
+_g int listen_stream_(addr stream, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_listen[(int)ptr->type])(stream);
+	return (Stream_listen[(int)ptr->type])(stream, ret);
 }
 
-_g void finish_output_stream(addr stream)
+_g int finish_output_stream_(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	(Stream_finish_output[(int)ptr->type])(stream);
+	return (Stream_finish_output[(int)ptr->type])(stream);
 }
 
-_g void force_output_stream(addr stream)
+_g int force_output_stream_(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	(Stream_force_output[(int)ptr->type])(stream);
+	return (Stream_force_output[(int)ptr->type])(stream);
 }
 
-_g void clear_output_stream(addr stream)
+_g int clear_output_stream_(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	(Stream_clear_output[(int)ptr->type])(stream);
+	return (Stream_clear_output[(int)ptr->type])(stream);
 }
 
-_g void exitpoint_stream(addr stream)
+_g int exitpoint_stream_(addr stream)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	(Stream_exitpoint[(int)ptr->type])(stream);
+	return (Stream_exitpoint[(int)ptr->type])(stream);
 }
 
-_g int terminal_width_stream(addr stream, size_t *ret)
+_g int termsize_stream_(addr stream, size_t *value, int *ret)
 {
 	struct StructStream *ptr;
 	CheckStream(stream, ptr);
-	return (Stream_terminal_width[(int)ptr->type])(stream, ret);
+	return (Stream_termsize[(int)ptr->type])(stream, value, ret);
 }
 
 
@@ -554,70 +562,69 @@ _g int close_default_stream(addr stream, addr *ret)
 	return Result(ret, T);
 }
 
-_g int read_char_default_stream(addr stream, unicode *c)
+_g int read_char_default_stream(addr stream, unicode *c, int *ret)
 {
 	struct StructStream *ptr;
 
 	ptr = PtrStructStream(stream);
-	if (ptr->unread_check) {
-		*c = ptr->unread;
-		ptr->unread_check = 0;
-		return 0;
-	}
-	else {
-		return read_char_file(stream, c);
-	}
+	if (! ptr->unread_check)
+		return read_char_file_(stream, c, ret);
+
+	*c = ptr->unread;
+	ptr->unread_check = 0;
+	return Result(ret, 0);
 }
 
-_g int read_hang_default_stream(addr stream, unicode *c, int *hang)
+_g int read_hang_default_stream(addr stream, unicode *c, int *hang, int *ret)
 {
 	struct StructStream *ptr;
 
 	ptr = PtrStructStream(stream);
-	if (ptr->unread_check) {
-		*c = ptr->unread;
-		ptr->unread_check = 0;
-		*hang = 0;
-		return 0;
-	}
-	else {
-		return read_hang_file(stream, c, hang);
-	}
+	if (! ptr->unread_check)
+		return read_hang_file_(stream, c, hang, ret);
+
+	*c = ptr->unread;
+	ptr->unread_check = 0;
+	*hang = 0;
+	return Result(ret, 0);
 }
 
-_g void unread_char_default_stream(addr stream, unicode c)
+_g int unread_char_default_stream(addr stream, unicode c)
 {
 	struct StructStream *ptr;
 
 	ptr = PtrStructStream(stream);
-	if (ptr->unread_check) {
-		fmte("unread already exists.", NULL);
-		return;
-	}
+	if (ptr->unread_check)
+		return fmte_("unread already exists.", NULL);
 	ptr->unread = c;
 	ptr->unread_check = 1;
+
+	return 0;
 }
 
-_g void write_char_default_stream(addr stream, unicode c)
+_g int write_char_default_stream(addr stream, unicode c)
 {
-	write_char_file(stream, c);
+	Return(write_char_file_(stream, c));
 	charleft_default_stream(stream, c);
+	return 0;
 }
 
-_g void terpri_default_stream(addr stream)
+_g int terpri_default_stream(addr stream)
 {
-	write_char_stream(stream, '\n');
-	setleft_default_stream(stream, 0);
+	Return(write_char_stream_(stream, '\n'));
+	return setleft_default_stream(stream, 0);
 }
 
-_g size_t getleft_default_stream(addr stream)
+_g int getleft_default_stream(addr stream, size_t *ret)
 {
-	return PtrStructStream(stream)->terpri;
+	*ret = PtrStructStream(stream)->terpri;
+	return 0;
 }
 
-_g void setleft_default_stream(addr stream, size_t value)
+_g int setleft_default_stream(addr stream, size_t value)
 {
 	PtrStructStream(stream)->terpri = value;
+	return 0;
 }
 
 _g void charleft_default_stream(addr stream, unicode c)
@@ -631,12 +638,20 @@ _g void charleft_default_stream(addr stream, unicode c)
 		ptr->terpri += eastasian_width(c);
 }
 
-_g int fresh_line_default_stream(addr stream)
+_g int fresh_line_default_stream(addr stream, int *ret)
 {
-	if (getleft_stream(stream) == 0)
+	size_t size;
+
+	Return(getleft_stream_(stream, &size));
+	if (size == 0) {
+		if (ret)
+			*ret = 0;
 		return 0;
-	terpri_stream(stream);
-	return 1;
+	}
+	Return(terpri_stream_(stream));
+	if (ret)
+		*ret = 1;
+	return 0;
 }
 
 _g int checkp_true_stream(addr stream)
@@ -649,118 +664,137 @@ _g int checkp_false_stream(addr stream)
 	return 0;
 }
 
-_g void element_type_character_stream(addr stream, addr *ret)
+_g int element_type_character_stream(addr stream, addr *ret)
 {
 	GetConst(COMMON_CHARACTER, ret);
+	return 0;
 }
 
-_g void element_type_binary_stream(addr stream, addr *ret)
+_g int element_type_binary_stream(addr stream, addr *ret)
 {
 	GetConst(STREAM_BINARY_TYPE, ret);
+	return 0;
 }
 
-_g void element_type_io_stream(addr stream, addr *ret)
+_g int element_type_io_stream(addr stream, addr *ret)
 {
 	addr input, output;
 
 	GetInputStream(stream, &input);
 	GetOutputStream(stream, &output);
-	element_type_stream(input, &input);
-	element_type_stream(output, &output);
+	Return(element_type_stream_(input, &input));
+	Return(element_type_stream_(output, &output));
 	if (equal_function(input, output)) {
-		*ret = input;
+		return Result(ret, input);
 	}
 	else {
 		GetConst(COMMON_OR, &stream);
 		list_heap(ret, stream, input, output, NULL);
+		return 0;
 	}
 }
 
-_g void file_length_default_stream(addr stream, addr *ret)
+_g int file_length_default_stream(addr stream, addr *ret)
 {
+	int check;
+	addr pos;
 	size_t size;
 
 	/* TODO: :element-type '(unsigned-byte 16) */
-	if (file_length_file(stream, &size))
-		*ret = Nil;
-	else
-		*ret = intsizeh(size);
+	Return(file_length_file_(stream, &size, &check));
+	if (check) {
+		return Result(ret, Nil);
+	}
+	else {
+		make_index_integer_heap(&pos, size);
+		return Result(ret, pos);
+	}
 }
 
-_g int file_position_default_stream(addr stream, size_t *ret)
+_g int file_position_default_stream(addr stream, size_t *value, int *ret)
 {
-	return 1;
+	*value = 0;
+	return Result(ret, 1);
 }
 
-_g int file_position_start_default_stream(addr stream)
+_g int file_position_start_default_stream(addr stream, int *ret)
 {
-	return 1;
+	return Result(ret, 1);
 }
 
-_g int file_position_end_default_stream(addr stream)
+_g int file_position_end_default_stream(addr stream, int *ret)
 {
-	return 1;
+	return Result(ret, 1);
 }
 
-_g int file_position_set_default_stream(addr stream, size_t pos)
+_g int file_position_set_default_stream(addr stream, size_t value, int *ret)
 {
-	return 1;
+	return Result(ret, 1);
 }
 
-_g void finish_output_default_stream(addr stream)
+_g int finish_output_default_stream(addr stream)
 {
-	exitpoint_stream(stream);
+	return exitpoint_stream_(stream);
 }
 
-_g void force_output_default_stream(addr stream)
+_g int force_output_default_stream(addr stream)
 {
-	exitpoint_stream(stream);
+	return exitpoint_stream_(stream);
 }
 
-_g void clear_output_default_stream(addr stream)
+_g int clear_output_default_stream(addr stream)
 {
+	return 0;
 }
 
-_g void exitpoint_default_stream(addr stream)
+_g int exitpoint_default_stream(addr stream)
 {
+	return 0;
 }
 
-_g int terminal_width_default_stream(addr stream, size_t *ret)
+_g int termsize_default_stream(addr stream, size_t *value, int *ret)
 {
-	return 1;
+	*value = 0;
+	return Result(ret, 1);
 }
 
 
 /*
  *  clang
  */
-_g void print_ascii_stream(addr stream, const char *data)
+_g int print_ascii_stream_(addr stream, const char *data)
 {
 	unicode c;
 
 	CheckType(stream, LISPTYPE_STREAM);
 	for (;;) {
 		c = *(const byte *)data;
-		if (c == 0) break;
-		write_char_stream(stream, (unicode)c);
+		if (c == 0)
+			break;
+		Return(write_char_stream_(stream, (unicode)c));
 		data++;
 	}
+
+	return 0;
 }
 
-_g void print_unicode_stream(addr stream, const unicode *data)
+_g int print_unicode_stream_(addr stream, const unicode *data)
 {
 	unicode c;
 
 	CheckType(stream, LISPTYPE_STREAM);
 	for (;;) {
 		c = *data;
-		if (c == 0) break;
-		write_char_stream(stream, c);
+		if (c == 0)
+			break;
+		Return(write_char_stream_(stream, c));
 		data++;
 	}
+
+	return 0;
 }
 
-_g void print_string_stream(addr stream, addr pos)
+_g int print_string_stream_(addr stream, addr pos)
 {
 	unicode c;
 	size_t size, i;
@@ -769,8 +803,10 @@ _g void print_string_stream(addr stream, addr pos)
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &c);
-		write_char_stream(stream, c);
+		Return(write_char_stream_(stream, c));
 	}
+
+	return 0;
 }
 
 
@@ -909,7 +945,7 @@ static int open_if_exists_rename_stream_(Execute ptr, addr pos)
 			pushchar_charqueue_local(local, queue, ".");
 		}
 		make_index_integer_alloc(local, &type, i);
-		decimal_charqueue_integer_local(local, type, queue);
+		Return(decimal_charqueue_integer_local_(local, type, queue));
 		make_charqueue_local(local, queue, &type);
 		SetTypePathname(path, type);
 		/* check */
@@ -1049,6 +1085,7 @@ static int open_direct_input_stream_(Execute ptr, addr *ret, addr pos,
 			break;
 
 		default:
+			*ret = Nil;
 			return fmte_("Invalid :element-type value.", NULL);
 	}
 
@@ -1292,7 +1329,7 @@ _g int open_stream_(Execute ptr, addr *ret, addr pos,
 /*
  *  read-char
  */
-_g void stream_designer(Execute ptr, addr pos, addr *ret, int inputp)
+_g int stream_designer_(Execute ptr, addr pos, addr *ret, int inputp)
 {
 	addr type;
 	constindex index;
@@ -1310,88 +1347,108 @@ _g void stream_designer(Execute ptr, addr pos, addr *ret, int inputp)
 		getspecialcheck_local(ptr, pos, &pos);
 
 	/* stream */
-	if (streamp(pos)) {
-		*ret = pos;
-		return;
-	}
+	if (streamp(pos))
+		return Result(ret, pos);
 
 	/* error */
+	*ret = Nil;
 	GetConst(COMMON_STREAM, &type);
-	type_error(pos, type);
+	return call_type_error_(ptr, pos, type);
 }
 
-static void end_of_file_recursive(addr pos, int recp)
+static int end_of_file_recursive_(Execute ptr, addr pos, int recp)
 {
-	if (recp)
-		fmte("The stream ~S reach end-of-file, but recursive-p is true.", pos, NULL);
-	else
-		end_of_file(pos);
-}
-
-static void peek_char_nil(addr *ret, addr stream, int errorp, addr value, int recp)
-{
-	unicode u;
-
-	if (read_char_stream(stream, &u)) {
-		if (errorp)
-			end_of_file_recursive(stream, recp);
-		*ret = value;
+	if (recp) {
+		return fmte_("The stream ~S "
+				"reach end-of-file, but recursive-p is true.", pos, NULL);
 	}
 	else {
-		unread_char_stream(stream, u);
-		character_heap(ret, u);
+		return call_end_of_file_(ptr, pos);
 	}
 }
 
-static void peek_char_t(addr *ret, addr stream, int errorp, addr value, int recp)
+static int peek_char_nil_(Execute ptr, addr *ret,
+		addr stream, int errorp, addr value, int recp)
 {
-	unicode u;
+	int check;
+	unicode c;
+
+	Return(read_char_stream_(stream, &c, &check));
+	if (check) {
+		if (errorp) {
+			*ret = Nil;
+			return end_of_file_recursive_(ptr, stream, recp);
+		}
+		return Result(ret, value);
+	}
+
+	Return(unread_char_stream_(stream, c));
+	character_heap(ret, c);
+	return 0;
+}
+
+static int peek_char_t_(Execute ptr, addr *ret,
+		addr stream, int errorp, addr value, int recp)
+{
+	int check;
+	unicode c;
 
 	for (;;) {
-		if (read_char_stream(stream, &u)) {
-			if (errorp)
-				end_of_file_recursive(stream, recp);
+		Return(read_char_stream_(stream, &c, &check));
+		if (check) {
+			if (errorp) {
+				*ret = Nil;
+				return end_of_file_recursive_(ptr, stream, recp);
+			}
 			*ret = value;
 			break;
 		}
-		if (! isSpaceUnicode(u)) {
-			unread_char_stream(stream, u);
-			character_heap(ret, u);
+		if (! isSpaceUnicode(c)) {
+			Return(unread_char_stream_(stream, c));
+			character_heap(ret, c);
 			break;
 		}
 	}
+
+	return 0;
 }
 
-static void peek_char_character(addr *ret,
+static int peek_char_character_(Execute ptr, addr *ret,
 		addr type, addr stream, int errorp, addr value, int recp)
 {
-	unicode u, check;
+	int check;
+	unicode c, v;
 
-	GetCharacter(type, &check);
+	GetCharacter(type, &v);
 	for (;;) {
-		if (read_char_stream(stream, &u)) {
-			if (errorp)
-				end_of_file_recursive(stream, recp);
+		Return(read_char_stream_(stream, &c, &check));
+		if (check) {
+			if (errorp) {
+				*ret = Nil;
+				return end_of_file_recursive_(ptr, stream, recp);
+			}
 			*ret = value;
 			break;
 		}
-		if (check == u) {
-			peek_char_nil(ret, stream, errorp, value, recp);
+		if (v == c) {
+			Return(peek_char_nil_(ptr, ret, stream, errorp, value, recp));
 			break;
 		}
 	}
+
+	return 0;
 }
 
-_g void peek_char_stream(Execute ptr, addr *ret,
+_g int peek_char_stream_(Execute ptr, addr *ret,
 		addr type, addr stream, int errorp, addr value, int recp)
 {
-	stream_designer(ptr, stream, &stream, 1);
+	Return(stream_designer_(ptr, stream, &stream, 1));
 	if (type == Nil)
-		peek_char_nil(ret, stream, errorp, value, recp);
+		return peek_char_nil_(ptr, ret, stream, errorp, value, recp);
 	else if (type == T)
-		peek_char_t(ret, stream, errorp, value, recp);
+		return peek_char_t_(ptr, ret, stream, errorp, value, recp);
 	else
-		peek_char_character(ret, type, stream, errorp, value, recp);
+		return peek_char_character_(ptr, ret, type, stream, errorp, value, recp);
 }
 
 enum EndOfLine_Mode {
@@ -1401,7 +1458,7 @@ enum EndOfLine_Mode {
 	EndOfLine_CRLF
 };
 
-_g enum EndOfLine_Mode get_end_of_line_mode(Execute ptr)
+static int get_end_of_line_mode_(Execute ptr, enum EndOfLine_Mode *ret)
 {
 	addr pos, check;
 
@@ -1410,95 +1467,96 @@ _g enum EndOfLine_Mode get_end_of_line_mode(Execute ptr)
 	/* Auto */
 	GetConst(SYSTEM_AUTO, &check);
 	if (check == pos)
-		return EndOfLine_Auto;
+		return Result(ret, EndOfLine_Auto);
 	/* CR */
 	GetConst(SYSTEM_CR, &check);
 	if (check == pos)
-		return EndOfLine_CR;
+		return Result(ret, EndOfLine_CR);
 	/* LF */
 	GetConst(SYSTEM_LF, &check);
 	if (check == pos)
-		return EndOfLine_LF;
+		return Result(ret, EndOfLine_LF);
 	/* CRLF */
 	GetConst(SYSTEM_CRLF, &check);
 	if (check == pos)
-		return EndOfLine_CRLF;
+		return Result(ret, EndOfLine_CRLF);
 	/* error */
-	fmte("Invalid *end-of-line* value ~S.", pos, NULL);
-	return EndOfLine_Auto;
+	*ret = EndOfLine_Auto;
+	return fmte_("Invalid *end-of-line* value ~S.", pos, NULL);
 }
 
-_g void read_line_stream(Execute ptr, addr *ret, int *miss,
+_g int read_line_stream_(Execute ptr, addr *ret, int *miss,
 		addr pos, int errorp, addr value, int recp)
 {
-	int check;
+	int docheck, check;
 	enum EndOfLine_Mode mode;
-	unicode u;
+	unicode c;
 	addr queue;
 	LocalRoot local;
 	LocalStack stack;
 
-	stream_designer(ptr, pos, &pos, 1);
+	Return(stream_designer_(ptr, pos, &pos, 1));
 	local = ptr->local;
 	push_local(local, &stack);
 	charqueue_local(local, &queue, 0);
-	mode = get_end_of_line_mode(ptr);
-	for (check = 0; ; check = 1) {
-		if (read_char_stream(pos, &u))
+	Return(get_end_of_line_mode_(ptr, &mode));
+	for (docheck = 0; ; docheck = 1) {
+		Return(read_char_stream_(pos, &c, &check));
+		if (check)
 			goto finish_eof;
 		switch (mode) {
 			case EndOfLine_CR:
-				if (u == 0x0D)
+				if (c == 0x0D)
 					goto finish_value;
 				break;
 
 			case EndOfLine_LF:
-				if (u == 0x0A)
+				if (c == 0x0A)
 					goto finish_value;
 				break;
 
 			case EndOfLine_CRLF:
-				if (u == 0x0D) {
-					if (read_char_stream(pos, &u) || u != 0x0A)
-						fmte("Invalid CR-LF code.", NULL);
+				if (c == 0x0D) {
+					Return(read_char_stream_(pos, &c, &check));
+					if (check || c != 0x0A)
+						return fmte_("Invalid CR-LF code.", NULL);
 					goto finish_value;
 				}
 				break;
 
 			case EndOfLine_Auto:
 			default:
-				if (u == 0x0A)
+				if (c == 0x0A)
 					goto finish_value;
-				if (u == 0x0D) {
-					if (read_char_stream(pos, &u) == 0 && u != 0x0A)
-						unread_char_stream(pos, u);
+				if (c == 0x0D) {
+					Return(read_char_stream_(pos, &c, &check));
+					if (check == 0 && c != 0x0A) {
+						Return(unread_char_stream_(pos, c));
+					}
 					goto finish_value;
 				}
 				break;
 		}
-		push_charqueue_local(local, queue, u);
+		push_charqueue_local(local, queue, c);
 	}
 
 finish_eof:
-	if (check == 0)
+	if (docheck == 0)
 		goto finish_error;
 	make_charqueue_heap(queue, ret);
 	rollback_local(local, stack);
-	*miss = 1;
-	return;
+	return Result(miss, 1);
 
 finish_value:
 	make_charqueue_heap(queue, ret);
 	rollback_local(local, stack);
-	*miss = 0;
-	return;
+	return Result(miss, 0);
 
 finish_error:
 	if (errorp)
-		end_of_file_recursive(pos, recp);
+		return end_of_file_recursive_(ptr, pos, recp);
 	*ret = value;
-	*miss = 1;
-	return;
+	return Result(miss, 1);
 }
 
 _g int write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
@@ -1510,74 +1568,77 @@ _g int write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
 	/* argument */
 	string_length(string, &size);
 	if (rest == Nil) {
-		stream_designer(ptr, Unbound, &stream, 0);
+		Return(stream_designer_(ptr, Unbound, &stream, 0));
 		start = 0;
 		end = size;
 	}
 	else {
-		getcons(rest, &stream, &rest);
-		stream_designer(ptr, stream, &stream, 0);
+		Return_getcons(rest, &stream, &rest);
+		Return(stream_designer_(ptr, stream, &stream, 0));
 		Return(keyword_start_end_(size, rest, &start, &end));
 	}
 
 	for (i = start; i < end; i++) {
 		string_getc(string, i, &c);
-		write_char_stream(stream, c);
+		Return(write_char_stream_(stream, c));
 	}
-	*ret = stream;
 
-	return 0;
+	return Result(ret, stream);
 }
 
-static void read_sequence_character(addr *ret,
+static int read_sequence_character_(addr *ret,
 		addr seq, addr stream, size_t start, size_t end)
 {
+	int check;
 	unicode c;
 	addr value;
 
 	for (; start < end; start++) {
-		if (read_char_stream(stream, &c))
+		Return(read_char_stream_(stream, &c, &check));
+		if (check)
 			break;
 		character_heap(&value, c);
 		setelt_sequence(seq, start, value);
 	}
-	*ret = intsizeh(start);
+	make_index_integer_heap(&value, start);
+
+	return Result(ret, value);
 }
 
-static void read_sequence_binary(addr *ret,
+static int read_sequence_binary_(addr *ret,
 		addr seq, addr stream, size_t start, size_t end)
 {
+	int check;
 	byte c;
 	addr value;
 
 	for (; start < end; start++) {
-		if (read_byte_stream(stream, &c))
+		Return(read_byte_stream_(stream, &c, &check));
+		if (check)
 			break;
 		fixnum_heap(&value, c);
 		setelt_sequence(seq, start, value);
 	}
-	*ret = intsizeh(start);
+	make_index_integer_heap(&value, start);
+
+	return Result(ret, value);
 }
 
 _g int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size_t end)
 {
 	/* character stream */
-	if (characterp_stream(stream)) {
-		read_sequence_character(ret, seq, stream, start, end);
-		return 0;
-	}
+	if (characterp_stream(stream))
+		return read_sequence_character_(ret, seq, stream, start, end);
 
 	/* binary stream */
-	if (binaryp_stream(stream)) {
-		read_sequence_binary(ret, seq, stream, start, end);
-		return 0;
-	}
+	if (binaryp_stream(stream))
+		return read_sequence_binary_(ret, seq, stream, start, end);
 
 	/* error */
 	return fmte_("Invalid stream ~S.", stream, NULL);
 }
 
-static void write_sequence_character(LocalRoot local,
+static int write_sequence_character_(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {
 	unicode c;
@@ -1588,14 +1649,16 @@ static void write_sequence_character(LocalRoot local,
 		push_local(local, &stack);
 		getelt_sequence(local, seq, start, &value);
 		if (! characterp(value))
-			TypeError(value, CHARACTER);
+			return TypeError_(value, CHARACTER);
 		GetCharacter(value, &c);
 		rollback_local(local, stack);
-		write_char_stream(stream, c);
+		Return(write_char_stream_(stream, c));
 	}
+
+	return 0;
 }
 
-static void write_sequence_binary(LocalRoot local,
+static int write_sequence_binary_(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {
 	fixnum c;
@@ -1606,29 +1669,27 @@ static void write_sequence_binary(LocalRoot local,
 		push_local(local, &stack);
 		getelt_sequence(local, seq, start, &value);
 		if (! fixnump(value))
-			TypeError(value, INTEGER);
+			return TypeError_(value, INTEGER);
 		GetFixnum(value, &c);
 		rollback_local(local, stack);
 		if (c < 0 || 0xFF < c)
-			fmte("Invalid binary value ~S.", fixnumh(c), NULL);
-		write_byte_stream(stream, (byte)c);
+			return fmte_("Invalid binary value ~S.", fixnumh(c), NULL);
+		Return(write_byte_stream_(stream, (byte)c));
 	}
+
+	return 0;
 }
 
 _g int write_sequence_stream(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {
 	/* character stream */
-	if (characterp_stream(stream)) {
-		write_sequence_character(local, seq, stream, start, end);
-		return 0;
-	}
+	if (characterp_stream(stream))
+		return write_sequence_character_(local, seq, stream, start, end);
 
 	/* binary stream */
-	if (binaryp_stream(stream)) {
-		write_sequence_binary(local, seq, stream, start, end);
-		return 0;
-	}
+	if (binaryp_stream(stream))
+		return write_sequence_binary_(local, seq, stream, start, end);
 
 	/* error */
 	return fmte_("Invalid stream ~S.", stream, NULL);
@@ -1644,38 +1705,33 @@ _g int prompt_for_stream(Execute ptr, addr type, addr prompt, addr *ret)
 	/* output */
 	query_io_stream(ptr, &stream);
 	localhold_push(hold, stream);
-	fresh_line_stream(stream);
-	if (princ_print(ptr, stream, prompt))
-		return 1;
-	finish_output_stream(stream);
+	Return(fresh_line_stream_(stream, NULL));
+	Return(princ_print(ptr, stream, prompt));
+	Return(finish_output_stream_(stream));
 
 	/* query */
 	if (type != T) {
-		if (parse_type(ptr, &spec, type, Nil))
-			return 1;
+		Return(parse_type(ptr, &spec, type, Nil));
 		localhold_push(hold, spec);
 	}
 	for (;;) {
-		clear_input_stream(stream);
-		if (read_stream(ptr, stream, &result, &value))
-			return 1;
+		Return(clear_input_stream_(stream));
+		Return(read_stream(ptr, stream, &result, &value));
 		if (result)
-			fmte("Can't read from *query-io* stream.", NULL);
+			return fmte_("Can't read from *query-io* stream.", NULL);
 		localhold_set(hold, 0, value);
 		if (type == T)
 			break;
-		if (typep_clang(ptr, value, spec, &result))
-			return 1;
+		Return(typep_clang(ptr, value, spec, &result));
 		if (result)
 			break;
 
 		format_stream(ptr, stream, "~%Please answer ~A type: ", type, NULL);
-		finish_output_stream(stream);
+		Return(finish_output_stream_(stream));
 	}
 	localhold_end(hold);
-	*ret = value;
 
-	return 0;
+	return Result(ret, value);
 }
 
 _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
@@ -1700,18 +1756,17 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 	localhold_push(hold, stream);
 
 	if (control != Nil) {
-		fresh_line_stream(stream);
-		if (format_lisp(ptr, stream, control, args, &control))
-			return 1;
-		print_ascii_stream(stream, " ");
+		Return(fresh_line_stream_(stream, NULL));
+		Return(format_lisp(ptr, stream, control, args, &control));
+		Return(print_ascii_stream_(stream, " "));
 	}
-	print_ascii_stream(stream, exactp? "(yes or no) ": "(y or n) ");
-	finish_output_stream(stream);
+	Return(print_ascii_stream_(stream, exactp? "(yes or no) ": "(y or n) "));
+	Return(finish_output_stream_(stream));
 
 	/* query */
 	for (;;) {
-		clear_input_stream(stream);
-		read_line_stream(ptr, &pos, &miss, stream, 1, Unbound, 0);
+		Return(clear_input_stream_(stream));
+		Return(read_line_stream_(ptr, &pos, &miss, stream, 1, Unbound, 0));
 		if (pos == Unbound)
 			fmte("*query-io* don't read yes/or question.", NULL);
 		if (exactp) {
@@ -1728,7 +1783,7 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 			}
 			format_stream(ptr, stream, "~%Please answer y or n: ", NULL);
 		}
-		finish_output_stream(stream);
+		Return(finish_output_stream_(stream));
 	}
 	localhold_end(hold);
 

@@ -34,8 +34,8 @@ void lisp_abort(const char *fmt, ...)
 	/* format */
 	ptr = Execute_Thread;
 	error_output_stream(ptr, &stream);
-	fresh_line_stream(stream);
-	check = format_stream_lisp(ptr, stream, format, list);
+	check = fresh_line_stream_(stream, NULL);
+	check |= format_stream_lisp(ptr, stream, format, list);
 	if (check) {
 		lisperror("lisp_abort error: %s.", fmt);
 		lisp_exit_error();

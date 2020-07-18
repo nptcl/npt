@@ -7,76 +7,84 @@
 /*
  *  write
  */
-_g void faslwrite_buffer(addr stream, const void *ptr, size_t size)
+_g int faslwrite_buffer_(addr stream, const void *ptr, size_t size)
 {
 	size_t check;
 
-	if (write_binary_stream(stream, ptr, size, &check)) {
-		fmte("write-binary-stream error.", NULL);
-		return;
-	}
-	if (size != check) {
-		fmte("write-binary-stream size error.", NULL);
-		return;
-	}
+	Return(write_binary_stream_(stream, ptr, size, &check));
+	if (size != check)
+		return fmte_("write-binary-stream size error.", NULL);
+
+	return 0;
 }
 
-_g void faslwrite_type(addr stream, enum FaslCode code)
+_g int faslwrite_type_(addr stream, enum FaslCode code)
 {
-	if (write_byte_stream(stream, (byte)code))
-		fmte("write-byte-stream error.", NULL);
+	return write_byte_stream_(stream, (byte)code);
 }
 
-_g void faslwrite_byte(addr stream, byte value)
+_g int faslwrite_byte_(addr stream, byte value)
 {
-	if (write_byte_stream(stream, value))
-		fmte("write-byte-stream error..", NULL);
+	return write_byte_stream_(stream, value);
 }
 
 
 /*
  *  read
  */
-_g int faslread_buffer_check(addr stream, void *ptr, size_t size)
+_g int faslread_buffer_check_(addr stream, void *ptr, size_t size, int *ret)
+{
+	size_t check;
+	Return(readf_binary_stream_(stream, ptr, size, &check));
+	return Result(ret, (size != check));
+}
+
+_g int faslread_buffer_(addr stream, void *ptr, size_t size)
 {
 	int check;
-	size_t result;
 
-	check = readforce_binary_stream(stream, ptr, size, &result);
+	Return(faslread_buffer_check_(stream, ptr, size, &check));
 	if (check)
-		return 1;
-	if (size != result)
-		return 1;
+		return fmte_("readforce-binary-stream error.", NULL);
 
 	return 0;
 }
 
-_g void faslread_buffer(addr stream, void *ptr, size_t size)
+_g int faslread_type_(addr stream, enum FaslCode *ret)
 {
-	if (faslread_buffer_check(stream, ptr, size))
-		fmte("readforce-binary-stream error.", NULL);
-}
-
-_g void faslread_type(addr stream, enum FaslCode *ret)
-{
+	int check;
 	byte c;
 
-	if (read_byte_stream(stream, &c))
-		fmte("read-byte-stream error.", NULL);
-	*ret = (enum FaslCode)c;
+	Return(read_byte_stream_(stream, &c, &check));
+	if (check) {
+		*ret = FaslCode_error;
+		return fmte_("read-byte-stream error.", NULL);
+	}
+
+	return Result(ret, (enum FaslCode)c);
 }
 
-_g void faslread_type_check(addr stream, enum FaslCode value)
+_g int faslread_type_check_(addr stream, enum FaslCode value)
 {
 	enum FaslCode check;
-	faslread_type(stream, &check);
+
+	Return(faslread_type_(stream, &check));
 	if (check != value)
-		fmte("Invalid fasl format.", NULL);
+		return fmte_("Invalid fasl format.", NULL);
+
+	return 0;
 }
 
-_g void faslread_byte(addr stream, byte *ret)
+_g int faslread_byte_(addr stream, byte *ret)
 {
-	if (read_byte_stream(stream, ret))
-		fmte("read-byte-stream error.", NULL);
+	int check;
+
+	Return(read_byte_stream_(stream, ret, &check));
+	if (check) {
+		*ret = 0;
+		return fmte_("read-byte-stream error.", NULL);
+	}
+
+	return 0;
 }
 

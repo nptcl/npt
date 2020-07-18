@@ -27,7 +27,7 @@ static int faslreadtype_clos(Execute ptr, addr stream, addr pos)
 {
 	addr value, check;
 
-	faslread_type_check(stream, FaslCode_symbol);
+	Return(faslread_type_check_(stream, FaslCode_symbol));
 	Return(faslread_value_symbol(ptr, stream, &value));
 	/* asterisk check */
 	GetConst(COMMON_ASTERISK, &check);
@@ -78,9 +78,9 @@ _g int faslwrite_value_type(Execute ptr, addr stream, addr pos)
 
 	CheckType(pos, LISPTYPE_TYPE);
 	LenArrayType(pos, &size);
-	faslwrite_type(stream, FaslCode_type);
-	faslwrite_byte(stream, (byte)LispDecl(pos));
-	faslwrite_buffer(stream, &size, IdxSize);
+	Return(faslwrite_type_(stream, FaslCode_type));
+	Return(faslwrite_byte_(stream, (byte)LispDecl(pos)));
+	Return(faslwrite_buffer_(stream, &size, IdxSize));
 
 	switch (RefLispDecl(pos)) {
 		case LISPDECL_CLOS:
@@ -97,8 +97,8 @@ _g int faslread_value_type(Execute ptr, addr stream, addr *ret)
 	addr pos;
 	size_t size;
 
-	faslread_byte(stream, &decl);
-	faslread_buffer(stream, &size, IdxSize);
+	Return(faslread_byte_(stream, &decl));
+	Return(faslread_buffer_(stream, &size, IdxSize));
 	type_heap(&pos, (enum LISPDECL)decl, size);
 
 	switch (RefLispDecl(pos)) {

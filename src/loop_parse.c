@@ -10,41 +10,44 @@
 /*
  *  clause
  */
-static void loop_parse_named_clause(addr *ret, addr *list)
+static int loop_parse_named_clause_(addr *ret, addr *list)
 {
 	addr pos, args;
 
 	/* check */
 	*ret = Nil;
 	if (! consp_getcons(*list, &pos, &args))
-		return;
+		return 0;
 	if (! loop_symbol_named_p(pos))
-		return;
+		return 0;
 
 	/* parse */
 	if (! consp_getcons(args, &pos, &args))
-		fmte("NAMED clause must be a name argument in loop.", NULL);
+		return fmte_("NAMED clause must be a name argument in loop.", NULL);
 	if (! symbolp(pos))
-		fmte("NAMED argument ~S must be a symbol type.", pos, NULL);
+		return fmte_("NAMED argument ~S must be a symbol type.", pos, NULL);
 
 	/* result */
 	*ret = pos;
 	*list = args;
+	return 0;
 }
 
-static void loop_parse_with_variable(addr pos)
+static int loop_parse_with_variable_(addr pos)
 {
 	addr a, b;
 
 	if (symbolp(pos))
-		return;
+		return 0;
 	if (! consp_getcons(pos, &a, &b))
-		fmte("The value ~S must be a symbol type.", pos, NULL);
-	loop_parse_with_variable(a);
-	loop_parse_with_variable(b);
+		return fmte_("The value ~S must be a symbol type.", pos, NULL);
+	Return(loop_parse_with_variable_(a));
+	Return(loop_parse_with_variable_(b));
+
+	return 0;
 }
 
-static void loop_parse_with_clause1(addr *list, addr *ret)
+static int loop_parse_with_clause1_(addr *list, addr *ret)
 {
 	addr var, type, form, args, pos;
 
@@ -52,7 +55,7 @@ static void loop_parse_with_clause1(addr *list, addr *ret)
 	type = form = Unbound;
 	/* var */
 	GetCons(args, &var, &args);
-	loop_parse_with_variable(var);
+	Return(loop_parse_with_variable_(var));
 	if (args == Nil)
 		goto loop_result;
 	/* next */
@@ -96,26 +99,25 @@ loop_form:
 
 loop_result:
 	list_heap(ret, var, type, form, NULL);
-	*list = args;
-	return;
+	return Result(list, args);
 
 error:
-	fmte("Invalid WITH form ~S in loop.", *list, NULL);
 	*list = *ret = Nil;
+	return fmte_("Invalid WITH form ~S in loop.", *list, NULL);
 }
 
-static void loop_parse_with_clause(addr *root, addr *list)
+static int loop_parse_with_clause_(addr *root, addr *list)
 {
 	addr args, vars, pos;
 
 	/* loop */
-	getcdr(*list, &args);
+	Return_getcdr(*list, &args);
 	vars = Nil;
 	if (! consp(args))
 		goto error;
 	for (;;) {
 		/* push */
-		loop_parse_with_clause1(&args, &pos);
+		Return(loop_parse_with_clause1_(&args, &pos));
 		cons_heap(&vars, pos, vars);
 		/* and */
 		if (args == Nil)
@@ -134,47 +136,49 @@ static void loop_parse_with_clause(addr *root, addr *list)
 	nreverse(&vars, vars);
 	cons_heap(&pos, pos, vars);
 	cons_heap(root, pos, *root);
-	*list = args;
-	return;
+	return Result(list, args);
 
 error:
-	fmte("Invalid WITH form ~S in loop.", *list, NULL);
+	return fmte_("Invalid WITH form ~S in loop.", *list, NULL);
 }
 
-static void loop_parse_form_variables(addr *list, addr *ret)
+static int loop_parse_form_variables_(addr *list, addr *ret)
 {
 	addr root, pos, next;
 
 	for (root = Nil; *list != Nil; ) {
 		if (! consp_getcons(*list, &pos, &next))
-			fmte("Invalid loop form ~S.", *list, NULL);
+			return fmte_("Invalid loop form ~S.", *list, NULL);
 		if (loop_symbol_form_p(pos))
 			break;
 		cons_heap(&root, pos, root);
 		*list = next;
 	}
 	nreverse(ret, root);
+
+	return 0;
 }
 
-static void loop_parse_initial_final_clause(addr *root, addr *list)
+static int loop_parse_initial_final_clause_(addr *root, addr *list)
 {
 	addr key, pos;
 
 	/* symbol */
-	getcons(*list, &pos, list);
+	Return_getcons(*list, &pos, list);
 	if (loop_symbol_initially_p(pos))
 		GetConst(SYSTEM_LOOP_INITIALLY, &key);
 	else if (loop_symbol_finally_p(pos))
 		GetConst(SYSTEM_LOOP_FINALLY, &key);
 	else {
-		fmte("Invalid value ~S.", pos, NULL);
-		return;
+		return fmte_("Invalid value ~S.", pos, NULL);
 	}
 
 	/* compound-form-variables */
-	loop_parse_form_variables(list, &pos);
+	Return(loop_parse_form_variables_(list, &pos));
 	cons_heap(&pos, key, pos);
 	cons_heap(root, pos, *root);
+
+	return 0;
 }
 
 struct for_as_arithmetic {
@@ -186,39 +190,40 @@ static void clear_for_as_arithmetic(struct for_as_arithmetic *str)
 	str->from1 = str->from2 = str->to1 = str->to2 = str->by = Unbound;
 }
 
-static int loop_parse_for_as_arithmetic_struct(
-		struct for_as_arithmetic *str, addr *list, addr pos)
+static int loop_parse_for_as_arithmetic_struct_(
+		struct for_as_arithmetic *str, addr *list, addr pos, int *ret)
 {
+	*ret = 0;
 loop:
 	if (loop_symbol_arithmetic1_p(pos)) {
 		if (str->from1 != Unbound)
-			fmte("FOR-AS FROM expr already exists.", NULL);
+			return fmte_("FOR-AS FROM expr already exists.", NULL);
 		str->from1 = pos;
 		if (! consp_getcons(*list, &(str->from2), list))
-			return 1;
+			return Result(ret, 1);
 	}
 	else if (loop_symbol_arithmetic2_p(pos)) {
 		if (str->to1 != Unbound)
-			fmte("FOR-AS TO expr already exists.", NULL);
+			return fmte_("FOR-AS TO expr already exists.", NULL);
 		str->to1 = pos;
 		if (! consp_getcons(*list, &(str->to2), list))
-			return 1;
+			return Result(ret, 1);
 	}
 	else if (loop_symbol_by_p(pos)) {
 		if (str->by != Unbound)
-			fmte("FOR-AS BY expr already exists.", NULL);
+			return fmte_("FOR-AS BY expr already exists.", NULL);
 		if (! consp_getcons(*list, &(str->by), list))
-			return 1;
+			return Result(ret, 1);
 	}
 	else {
-		return 1;
+		return Result(ret, 1);
 	}
 	if (*list == Nil)
-		return 0;
+		return Result(ret, 0);
 	if (! consp_getcar(*list, &pos))
-		return 1;
+		return Result(ret, 1);
 	if (! loop_symbol_arithmetic_p(pos))
-		return 0;
+		return Result(ret, 0);
 	GetCdr(*list, list);
 	goto loop;
 }
@@ -306,24 +311,27 @@ static int loop_parse_for_as_arithmetic3_p(struct for_as_arithmetic *str)
 	return 1;
 }
 
-static int loop_parse_for_as_arithmetic(Execute ptr, addr *list, addr *ret)
+static int loop_parse_for_as_arithmetic_(Execute ptr,
+		addr *list, addr *value, int *ret)
 {
+	int check;
 	addr var, args, pos, g1, g2;
 	struct for_as_arithmetic str;
 
 	clear_for_as_arithmetic(&str);
 	if (! consp_getcons(*list, &var, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! loop_symbol_arithmetic_p(pos)) {
 		if (! consp_getcons(args, &pos, &args))
-			return 0;
+			return Result(ret, 0);
 		if (! loop_symbol_arithmetic_p(pos))
-			return 0;
+			return Result(ret, 0);
 	}
-	if (loop_parse_for_as_arithmetic_struct(&str, &args, pos))
-		return 0;
+	Return(loop_parse_for_as_arithmetic_struct_(&str, &args, pos, &check));
+	if (check)
+		return Result(ret, 0);
 	if (loop_parse_for_as_arithmetic1_p(&str))
 		GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_UP, &pos);
 	else if (loop_parse_for_as_arithmetic2_p(&str))
@@ -331,18 +339,18 @@ static int loop_parse_for_as_arithmetic(Execute ptr, addr *list, addr *ret)
 	else if (loop_parse_for_as_arithmetic3_p(&str))
 		GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNFROM, &pos);
 	else
-		return 0;
+		return Result(ret, 0);
 	/* gensym */
-	make_gensym(ptr, &g1);
-	make_gensym(ptr, &g2);
+	Return(make_gensym_(ptr, &g1));
+	Return(make_gensym_(ptr, &g2));
 	/* result */
-	list_heap(ret, pos, var,
+	list_heap(value, pos, var,
 			str.from1, str.from2, str.to1, str.to2, str.by, g1, g2, NULL);
 	*list = args;
-	return 1;
+	return Result(ret, 1);
 }
 
-static int loop_parse_for_as_call_list(Execute ptr, addr *list, addr *ret,
+static int loop_parse_for_as_call_list_(Execute ptr, addr *list, addr *value, int *ret,
 		int (*check1)(addr), int (*check2)(addr), constindex index)
 {
 	/* var [type-spec] in form [by step] */
@@ -350,88 +358,91 @@ static int loop_parse_for_as_call_list(Execute ptr, addr *list, addr *ret,
 
 	type = step = Unbound;
 	if (! consp_getcons(*list, &var, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! (*check1)(pos)) {
 		type = pos;
 		if (! consp_getcons(args, &pos, &args))
-			return 0;
+			return Result(ret, 0);
 		if (! (*check1)(pos))
-			return 0;
+			return Result(ret, 0);
 	}
 	if (! consp_getcons(args, &form, &args))
-		return 0;
+		return Result(ret, 0);
 	if (args == Nil)
 		goto result;
 	if (! consp_getcar(args, &pos))
-		return 0;
+		return Result(ret, 0);
 	if (! (*check2)(pos))
 		goto result;
 	GetCdr(args, &args);
 	if (! consp_getcons(args, &step, &args))
-		return 0;
+		return Result(ret, 0);
 	goto result;
 
 result:
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 	GetConstant(index, &pos);
-	list_heap(ret, pos, var, type, form, step, g, NULL);
+	list_heap(value, pos, var, type, form, step, g, NULL);
 	*list = args;
-	return 1;
+	return Result(ret, 1);
 }
 
-static int loop_parse_for_as_in_list(Execute ptr, addr *list, addr *ret)
+static int loop_parse_for_as_in_list_(Execute ptr,
+		addr *list, addr *value, int *ret)
 {
-	return loop_parse_for_as_call_list(ptr, list, ret,
+	return loop_parse_for_as_call_list_(ptr, list, value, ret,
 			loop_symbol_in_p, loop_symbol_by_p,
 			CONSTANT_SYSTEM_LOOP_FOR_AS_IN_LIST);
 }
 
-static int loop_parse_for_as_on_list(Execute ptr, addr *list, addr *ret)
+static int loop_parse_for_as_on_list_(Execute ptr,
+		addr *list, addr *value, int *ret)
 {
-	return loop_parse_for_as_call_list(ptr, list, ret,
+	return loop_parse_for_as_call_list_(ptr, list, value, ret,
 			loop_symbol_on_p, loop_symbol_by_p,
 			CONSTANT_SYSTEM_LOOP_FOR_AS_ON_LIST);
 }
 
-static int loop_parse_for_as_equals_then(Execute ptr, addr *list, addr *ret)
+static int loop_parse_for_as_equals_then_(Execute ptr,
+		addr *list, addr *value, int *ret)
 {
-	return loop_parse_for_as_call_list(ptr, list, ret,
+	return loop_parse_for_as_call_list_(ptr, list, value, ret,
 			loop_symbol_equal_p, loop_symbol_then_p,
 			CONSTANT_SYSTEM_LOOP_FOR_AS_EQUALS_THEN);
 }
 
-static int loop_parse_for_as_across(Execute ptr, addr *list, addr *ret)
+static int loop_parse_for_as_across_(Execute ptr, addr *list, addr *value, int *ret)
 {
 	/* var [type-spec] across vector */
 	addr args, var, type, vector, pos, g1, g2, g3;
 
 	type = Unbound;
 	if (! consp_getcons(*list, &var, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! loop_symbol_across_p(pos)) {
 		type = pos;
 		if (! consp_getcons(args, &pos, &args))
-			return 0;
+			return Result(ret, 0);
 		if (! loop_symbol_across_p(pos))
-			return 0;
+			return Result(ret, 0);
 	}
 	if (! consp_getcons(args, &vector, &args))
-		return 0;
+		return Result(ret, 0);
 	/* result */
-	make_gensym(ptr, &g1);
-	make_gensym(ptr, &g2);
-	make_gensym(ptr, &g3);
+	Return(make_gensym_(ptr, &g1));
+	Return(make_gensym_(ptr, &g2));
+	Return(make_gensym_(ptr, &g3));
 	GetConst(SYSTEM_LOOP_FOR_AS_ACROSS, &pos);
-	list_heap(ret, pos, var, type, vector, g1, g2, g3, NULL);
+	list_heap(value, pos, var, type, vector, g1, g2, g3, NULL);
 	*list = args;
-	return 1;
+	return Result(ret, 1);
 }
 
-static int loop_parse_for_as_hash(Execute ptr, addr *list, addr *ret)
+static int loop_parse_for_as_hash_(Execute ptr, addr *list, addr *value, int *ret)
 {
 	/* var [type-spec] being {each|the}
 	 *     { hash-key | hash-keys | hash-value | hash-values }
@@ -442,78 +453,78 @@ static int loop_parse_for_as_hash(Execute ptr, addr *list, addr *ret)
 	type = use = Unbound;
 	/* var */
 	if (! consp_getcons(*list, &var, &args))
-		return 0;
+		return Result(ret, 0);
 	/* type-spec, being */
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! loop_symbol_being_p(pos)) {
 		type = pos;
 		if (! consp_getcons(args, &pos, &args))
-			return 0;
+			return Result(ret, 0);
 		if (! loop_symbol_being_p(pos))
-			return 0;
+			return Result(ret, 0);
 	}
 	/* each, the */
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! loop_symbol_each_the_p(pos))
-		return 0;
+		return Result(ret, 0);
 	/* hash-key, hash-keys, hash-value, hash-values */
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (loop_symbol_hash_key2_p(pos))
 		keyp = T;
 	else if (loop_symbol_hash_value2_p(pos))
 		keyp = Nil;
 	else
-		return 0;
+		return Result(ret, 0);
 	/* in, of */
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! loop_symbol_in_of_p(pos))
-		return 0;
+		return Result(ret, 0);
 	/* table */
 	if (! consp_getcons(args, &table, &args))
-		return 0;
+		return Result(ret, 0);
 	/* using */
 	if (args == Nil)
 		goto result;
 	if (! consp_getcar(args, &pos))
-		return 0;
+		return Result(ret, 0);
 	if (! loop_symbol_using_p(pos))
 		goto result;
 	/* hash-key, hash-value */
 	GetCdr(args, &args);
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! consp_getcons(pos, &pos, &use))
-		return 0;
+		return Result(ret, 0);
 	if (loop_symbol_hash_key_p(pos)) {
 		if (keyp == T)
-			return 0;
+			return Result(ret, 0);
 	}
 	else if (loop_symbol_hash_value_p(pos)) {
 		if (keyp == Nil)
-			return 0;
+			return Result(ret, 0);
 	}
 	else
-		return 0;
+		return Result(ret, 0);
 	/* var2 */
 	if (! consp_getcons(use, &use, &pos))
-		return 0;
+		return Result(ret, 0);
 	if (pos != Nil)
-		return 0;
+		return Result(ret, 0);
 	goto result;
 
 result:
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 	GetConst(SYSTEM_LOOP_FOR_AS_HASH, &pos);
-	list_heap(ret, pos, var, type, keyp, table, use, g, NULL);
+	list_heap(value, pos, var, type, keyp, table, use, g, NULL);
 	*list = args;
-	return 1;
+	return Result(ret, 1);
 }
 
-static int loop_parse_for_as_package(Execute ptr, addr *list, addr *ret)
+static int loop_parse_for_as_package_(Execute ptr, addr *list, addr *value, int *ret)
 {
 	/* var [type-spec] being {each|the}
 	 *     { symbol | symbols |
@@ -528,28 +539,28 @@ static int loop_parse_for_as_package(Execute ptr, addr *list, addr *ret)
 	type = package = Unbound;
 	/* var */
 	if (! consp_getcons(*list, &var, &args))
-		return 0;
+		return Result(ret, 0);
 	/* type-spec, being */
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! loop_symbol_being_p(pos)) {
 		type = pos;
 		if (! consp_getcons(args, &pos, &args))
-			return 0;
+			return Result(ret, 0);
 		if (! loop_symbol_being_p(pos))
-			return 0;
+			return Result(ret, 0);
 	}
 	/* each, the */
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! loop_symbol_each_the_p(pos))
-		return 0;
+		return Result(ret, 0);
 	/* { symbol | symbols |
 	 *   present-symbol | present-symbols |
 	 *   external-symbol | external-symbols }
 	 */
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (loop_symbol_symbol2_p(pos))
 		symbolp = 1;
 	else if (loop_symbol_present_symbol2_p(pos))
@@ -557,17 +568,17 @@ static int loop_parse_for_as_package(Execute ptr, addr *list, addr *ret)
 	else if (loop_symbol_external_symbol2_p(pos))
 		externalp = 1;
 	else
-		return 0;
+		return Result(ret, 0);
 	/* in, of */
 	if (args == Nil)
 		goto result;
 	if (! consp_getcons(args, &pos, &args))
-		return 0;
+		return Result(ret, 0);
 	if (! loop_symbol_in_of_p(pos))
-		return 0;
+		return Result(ret, 0);
 	/* package */
 	if (! consp_getcons(args, &package, &args))
-		return 0;
+		return Result(ret, 0);
 	goto result;
 
 result:
@@ -578,37 +589,63 @@ result:
 	else if (externalp)
 		GetConst(SYSTEM_LOOP_FOR_AS_PACKAGE_EXTERNAL, &pos);
 	else
-		return 0;
+		return Result(ret, 0);
 	/* result */
-	make_gensym(ptr, &g);
-	list_heap(ret, pos, var, type, package, g, NULL);
+	Return(make_gensym_(ptr, &g));
+	list_heap(value, pos, var, type, package, g, NULL);
 	*list = args;
-	return 1;
+	return Result(ret, 1);
 }
 
-static int loop_parse_for_as_clause1(Execute ptr, addr *list, addr *ret)
+static int loop_parse_for_as_clause1_(Execute ptr, addr *list, addr *value, int *ret)
 {
-	return loop_parse_for_as_arithmetic(ptr, list, ret)
-		|| loop_parse_for_as_in_list(ptr, list, ret)
-		|| loop_parse_for_as_on_list(ptr, list, ret)
-		|| loop_parse_for_as_equals_then(ptr, list, ret)
-		|| loop_parse_for_as_across(ptr, list, ret)
-		|| loop_parse_for_as_hash(ptr, list, ret)
-		|| loop_parse_for_as_package(ptr, list, ret);
+	int check;
+
+	Return(loop_parse_for_as_arithmetic_(ptr, list, value, &check));
+	if (check)
+		return Result(ret, 1);
+
+	Return(loop_parse_for_as_in_list_(ptr, list, value, &check));
+	if (check)
+		return Result(ret, 1);
+
+	Return(loop_parse_for_as_on_list_(ptr, list, value, &check));
+	if (check)
+		return Result(ret, 1);
+
+	Return(loop_parse_for_as_equals_then_(ptr, list, value, &check));
+	if (check)
+		return Result(ret, 1);
+
+	Return(loop_parse_for_as_across_(ptr, list, value, &check));
+	if (check)
+		return Result(ret, 1);
+
+	Return(loop_parse_for_as_hash_(ptr, list, value, &check));
+	if (check)
+		return Result(ret, 1);
+
+	Return(loop_parse_for_as_package_(ptr, list, value, &check));
+	if (check)
+		return Result(ret, 1);
+
+	return 0;
 }
 
-static void loop_parse_for_as_clause(Execute ptr, addr *root, addr *list)
+static int loop_parse_for_as_clause_(Execute ptr, addr *root, addr *list)
 {
+	int check;
 	addr args, vars, pos;
 
 	/* loop */
-	getcdr(*list, &args);
+	Return_getcdr(*list, &args);
 	vars = Nil;
 	if (! consp(args))
 		goto error;
 	for (;;) {
 		/* push */
-		if (! loop_parse_for_as_clause1(ptr, &args, &pos))
+		Return(loop_parse_for_as_clause1_(ptr, &args, &pos, &check));
+		if (! check)
 			goto error;
 		cons_heap(&vars, pos, vars);
 		/* and */
@@ -627,87 +664,89 @@ static void loop_parse_for_as_clause(Execute ptr, addr *root, addr *list)
 	GetConst(SYSTEM_LOOP_FOR_AS, &pos);
 	cons_heap(&pos, pos, vars);
 	cons_heap(root, pos, *root);
-	*list = args;
-	return;
+	return Result(list, args);
 
 error:
-	fmte("Invalid FOR-AS form ~S in loop.", *list, NULL);
+	return fmte_("Invalid FOR-AS form ~S in loop.", *list, NULL);
 }
 
-static void loop_parse_variable_clause_update(Execute ptr, addr *root, addr *list)
+static int loop_parse_variable_clause_update_(Execute ptr, addr *root, addr *list)
 {
 	addr pos;
 
 	if (! consp_getcar(*list, &pos))
-		return;
+		return 0;
 
 	/* with */
-	if (loop_symbol_with_p(pos)) {
-		loop_parse_with_clause(root, list);
-		return;
-	}
+	if (loop_symbol_with_p(pos))
+		return loop_parse_with_clause_(root, list);
 
 	/* initial */
-	if (loop_symbol_initial_final_p(pos)) {
-		loop_parse_initial_final_clause(root, list);
-		return;
-	}
+	if (loop_symbol_initial_final_p(pos))
+		return loop_parse_initial_final_clause_(root, list);
 
 	/* for_as */
-	if (loop_symbol_for_as_p(pos)) {
-		loop_parse_for_as_clause(ptr, root, list);
-		return;
-	}
+	if (loop_symbol_for_as_p(pos))
+		return loop_parse_for_as_clause_(ptr, root, list);
+	
+	return 0;
 }
 
-static void loop_parse_variable_clause(Execute ptr, addr *root, addr *list)
+static int loop_parse_variable_clause_(Execute ptr, addr *root, addr *list)
 {
 	addr check;
 
 	for (;;) {
 		check = *root;
-		loop_parse_variable_clause_update(ptr, root, list);
+		Return(loop_parse_variable_clause_update_(ptr, root, list));
 		if (check == *root)
 			break;
 	}
+
+	return 0;
 }
 
-static void loop_parse_uncondition_result(addr *ret, addr *list)
+static int loop_parse_uncondition_result_(addr *ret, addr *list)
 {
 	addr key, pos;
 
-	getcons(*list, &pos, list);
+	Return_getcons(*list, &pos, list);
 	if (loop_symbol_do_p(pos)) {
 		GetConst(SYSTEM_LOOP_DO, &key);
-		loop_parse_form_variables(list, &pos);
+		Return(loop_parse_form_variables_(list, &pos));
 		cons_heap(ret, key, pos);
 	}
 	else if (loop_symbol_return_p(pos)) {
 		if (! consp_getcons(*list, &pos, list))
-			fmte("Invalid RETURN form ~S in loop.", *list, NULL);
+			return fmte_("Invalid RETURN form ~S in loop.", *list, NULL);
 		if (loop_symbol_it_p(pos))
 			GetConst(SYSTEM_IT_LOOP, &pos);
 		GetConst(SYSTEM_LOOP_RETURN, &key);
 		list_heap(ret, key, pos, NULL);
 	}
 	else {
-		fmte("Invalid value ~S.", pos, NULL);
+		return fmte_("Invalid value ~S.", pos, NULL);
 	}
+
+	return 0;
 }
 
-static void loop_parse_uncondition_clause(addr *root, addr *list)
+static int loop_parse_uncondition_clause_(addr *root, addr *list)
 {
 	addr pos;
-	loop_parse_uncondition_result(&pos, list);
+
+	Return(loop_parse_uncondition_result_(&pos, list));
 	cons_heap(root, pos, *root);
+
+	return 0;
 }
 
-static void loop_condition_selectable_result(addr *ret, addr *list);
-static void loop_parse_condition_result(addr *ret, addr *list)
+static int loop_condition_selectable_result_(addr *ret, addr *list);
+static int loop_parse_condition_result_(addr *ret, addr *list)
 {
 	addr args, pos, key, form, expr1, expr2;
 
-	getcons(*list, &pos, &args);
+	Return_getcons(*list, &pos, &args);
 	if (loop_symbol_if_p(pos) || loop_symbol_when_p(pos))
 		GetConst(SYSTEM_LOOP_IF, &key);
 	else if (loop_symbol_unless_p(pos))
@@ -721,7 +760,7 @@ static void loop_parse_condition_result(addr *ret, addr *list)
 	/* then */
 	if (! consp(args))
 		goto error;
-	loop_condition_selectable_result(&expr1, &args);
+	Return(loop_condition_selectable_result_(&expr1, &args));
 	/* else */
 	if (args == Nil)
 		goto result;
@@ -730,7 +769,7 @@ static void loop_parse_condition_result(addr *ret, addr *list)
 	if (! loop_symbol_else_p(pos))
 		goto result;
 	GetCdr(args, &args);
-	loop_condition_selectable_result(&expr2, &args);
+	Return(loop_condition_selectable_result_(&expr2, &args));
 	/* end */
 	if (args == Nil)
 		goto result;
@@ -743,26 +782,28 @@ static void loop_parse_condition_result(addr *ret, addr *list)
 
 result:
 	list_heap(ret, key, form, expr1, expr2, NULL);
-	*list = args;
-	return;
+	return Result(list, args);
 
 error:
-	fmte("Invalid loop form ~S.", *list, NULL);
+	return fmte_("Invalid loop form ~S.", *list, NULL);
 }
 
-static void loop_parse_condition_clause(addr *root, addr *list)
+static int loop_parse_condition_clause_(addr *root, addr *list)
 {
 	addr pos;
-	loop_parse_condition_result(&pos, list);
+
+	Return(loop_parse_condition_result_(&pos, list));
 	cons_heap(root, pos, *root);
+
+	return 0;
 }
 
-static void loop_parse_list_accumulation_result(addr *ret, addr *list)
+static int loop_parse_list_accumulation_result_(addr *ret, addr *list)
 {
 	addr pos, key, args, form, into;
 
 	/* first */
-	getcons(*list, &pos, &args);
+	Return_getcons(*list, &pos, &args);
 	into = Unbound;
 	if (loop_symbol_collect_p(pos))
 		GetConst(SYSTEM_LOOP_COLLECT, &key);
@@ -789,19 +830,18 @@ static void loop_parse_list_accumulation_result(addr *ret, addr *list)
 
 result:
 	list_heap(ret, key, form, into, NULL);
-	*list = args;
-	return;
+	return Result(list, args);
 
 error:
-	fmte("Invalid loop form ~S.", *list, NULL);
+	return fmte_("Invalid loop form ~S.", *list, NULL);
 }
 
-static void loop_parse_numeric_accumulation_result(addr *ret, addr *list)
+static int loop_parse_numeric_accumulation_result_(addr *ret, addr *list)
 {
 	addr pos, key, args, form, into, type;
 
 	/* first */
-	getcons(*list, &pos, &args);
+	Return_getcons(*list, &pos, &args);
 	into = type = Unbound;
 	if (loop_symbol_count_p(pos))
 		GetConst(SYSTEM_LOOP_COUNT, &key);
@@ -836,31 +876,33 @@ static void loop_parse_numeric_accumulation_result(addr *ret, addr *list)
 
 result:
 	list_heap(ret, key, form, into, type, NULL);
-	*list = args;
-	return;
+	return Result(list, args);
 
 error:
-	fmte("Invalid loop form ~S.", *list, NULL);
+	return fmte_("Invalid loop form ~S.", *list, NULL);
 }
 
-static void loop_parse_accumulation_result(addr *ret, addr *list)
+static int loop_parse_accumulation_result_(addr *ret, addr *list)
 {
 	addr pos;
 
 	GetCar(*list, &pos);
 	if (loop_symbol_list_accumulation_p(pos))
-		loop_parse_list_accumulation_result(ret, list);
+		return loop_parse_list_accumulation_result_(ret, list);
 	else if (loop_symbol_numeric_accumulation_p(pos))
-		loop_parse_numeric_accumulation_result(ret, list);
+		return loop_parse_numeric_accumulation_result_(ret, list);
 	else
-		fmte("Invalid accumulation symbol ~S.", pos, NULL);
+		return fmte_("Invalid accumulation symbol ~S.", pos, NULL);
 }
 
-static void loop_parse_accumulation_clause(addr *root, addr *list)
+static int loop_parse_accumulation_clause_(addr *root, addr *list)
 {
 	addr pos;
-	loop_parse_accumulation_result(&pos, list);
+
+	Return(loop_parse_accumulation_result_(&pos, list));
 	cons_heap(root, pos, *root);
+
+	return 0;
 }
 
 static int loop_parse_selectable_p(addr list)
@@ -874,20 +916,24 @@ static int loop_parse_selectable_p(addr list)
 		|| loop_symbol_accumulation_p(pos);
 }
 
-static void loop_condition_selectable_result(addr *ret, addr *list)
+static int loop_condition_selectable_result_(addr *ret, addr *list)
 {
 	addr root, pos;
 
 	for (root = Nil; loop_parse_selectable_p(*list); ) {
 		GetCar(*list, &pos);
-		if (loop_symbol_uncondition_p(pos))
-			loop_parse_uncondition_result(&pos, list);
-		else if (loop_symbol_condition_p(pos))
-			loop_parse_condition_result(&pos, list);
-		else if (loop_symbol_accumulation_p(pos))
-			loop_parse_accumulation_result(&pos, list);
-		else
-			fmte("Invalid loop form ~S.", *list, NULL);
+		if (loop_symbol_uncondition_p(pos)) {
+			Return(loop_parse_uncondition_result_(&pos, list));
+		}
+		else if (loop_symbol_condition_p(pos)) {
+			Return(loop_parse_condition_result_(&pos, list));
+		}
+		else if (loop_symbol_accumulation_p(pos)) {
+			Return(loop_parse_accumulation_result_(&pos, list));
+		}
+		else {
+			return fmte_("Invalid loop form ~S.", *list, NULL);
+		}
 		cons_heap(&root, pos, root);
 		/* and */
 		if (! consp_getcar(*list, &pos))
@@ -897,13 +943,15 @@ static void loop_condition_selectable_result(addr *ret, addr *list)
 		GetCdr(*list, list);
 	}
 	nreverse(ret, root);
+
+	return 0;
 }
 
-static void loop_parse_termination_clause(addr *root, addr *list)
+static int loop_parse_termination_clause_(addr *root, addr *list)
 {
 	addr symbol, pos, args, key, a, b;
 
-	getcons(*list, &symbol, &args);
+	Return_getcons(*list, &symbol, &args);
 	if (loop_symbol_while_p(symbol))
 		GetConst(SYSTEM_LOOP_WHILE, &key);
 	else if (loop_symbol_until_p(symbol))
@@ -929,73 +977,68 @@ static void loop_parse_termination_clause(addr *root, addr *list)
 		list_heap(&pos, key, pos, NULL);
 	}
 	cons_heap(root, pos, *root);
-	*list = args;
-	return;
+	return Result(list, args);
 
 error:
-	fmte("Invalid loop form ~S.", *list, NULL);
+	return fmte_("Invalid loop form ~S.", *list, NULL);
 }
 
-static void loop_parse_main_clause_update(addr *root, addr *list)
+static int loop_parse_main_clause_update_(addr *root, addr *list)
 {
 	addr pos;
 
 	if (! consp_getcar(*list, &pos))
-		return;
+		return 0;
 
 	/* uncondition */
-	if (loop_symbol_uncondition_p(pos)) {
-		loop_parse_uncondition_clause(root, list);
-		return;
-	}
+	if (loop_symbol_uncondition_p(pos))
+		return loop_parse_uncondition_clause_(root, list);
 
 	/* condition */
-	if (loop_symbol_condition_p(pos)) {
-		loop_parse_condition_clause(root, list);
-		return;
-	}
+	if (loop_symbol_condition_p(pos))
+		return loop_parse_condition_clause_(root, list);
 
 	/* accumulation */
-	if (loop_symbol_accumulation_p(pos)) {
-		loop_parse_accumulation_clause(root, list);
-		return;
-	}
+	if (loop_symbol_accumulation_p(pos))
+		return loop_parse_accumulation_clause_(root, list);
 
 	/* termination */
-	if (loop_symbol_termination_p(pos)) {
-		loop_parse_termination_clause(root, list);
-		return;
-	}
+	if (loop_symbol_termination_p(pos))
+		return loop_parse_termination_clause_(root, list);
 
 	/* initial */
-	if (loop_symbol_initial_final_p(pos)) {
-		loop_parse_initial_final_clause(root, list);
-		return;
-	}
+	if (loop_symbol_initial_final_p(pos))
+		return loop_parse_initial_final_clause_(root, list);
+
+	return 0;
 }
 
-static void loop_parse_main_clause(addr *root, addr *list)
+static int loop_parse_main_clause_(addr *root, addr *list)
 {
 	addr check;
 
 	for (;;) {
 		check = *root;
-		loop_parse_main_clause_update(root, list);
+		Return(loop_parse_main_clause_update_(root, list));
 		if (check == *root)
 			break;
 	}
+
+	return 0;
 }
 
 
 /*
  *  main
  */
-_g void loop_parse_common(Execute ptr, addr *named, addr *vars, addr *main, addr *list)
+_g int loop_parse_common(Execute ptr, addr *named, addr *vars, addr *main, addr *list)
 {
-	loop_parse_named_clause(named, list);
-	loop_parse_variable_clause(ptr, vars, list);
-	loop_parse_main_clause(main, list);
+	Return(loop_parse_named_clause_(named, list));
+	Return(loop_parse_variable_clause_(ptr, vars, list));
+	Return(loop_parse_main_clause_(main, list));
 	nreverse(vars, *vars);
 	nreverse(main, *main);
+
+	return 0;
 }
 

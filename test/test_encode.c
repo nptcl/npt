@@ -1,4 +1,6 @@
 #include "encode.c"
+
+#if 0
 #include "character.h"
 #include "clos.h"
 #include "common.h"
@@ -445,6 +447,13 @@ static int test_writebom32_encode(void)
 /*
  *  read-char
  */
+static int read_char_encode_abort(struct filememory *fm, unicode *c)
+{
+	int check;
+	Error(read_char_encode_(fm, c, &check));
+	return check;
+}
+
 static int test_read_char_ascii(void)
 {
 	unicode c;
@@ -456,22 +465,22 @@ static int test_read_char_ascii(void)
 	fm.encode.type = EncodeType_ascii;
 	fm.encode.code = 999;
 	fm.encode.error = 0;
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_ascii1");
 	test(c == 'x', "read_char_ascii2");
 
 	fm.encode.error = 1;
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_ascii3");
 	test(c == 0x7F, "read_char_ascii4");
 
 	fm.encode.error = 0;
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_ascii5");
 	test(c == 999, "read_char_ascii6");
 
 	fm.encode.error = 1;
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_ascii7");
 
 	close_filememory(&fm);
@@ -498,202 +507,202 @@ static int test_read_char_utf8(void)
 	/* 1 byte */
 	test_read_char_utf8_file(&fm, "abc", 1);
 	close_filememory(&fm);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-1");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "", 0);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 1, "read_char_utf8-2");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\x00", 1);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-3");
 	test(c == 0, "read_char_utf8-4");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf8-5");
 	close_filememory(&fm);
 
 	/* 2 byte */
 	test_read_char_utf8_file(&fm, "\x01\x7F\xC2\x80\xC2\xBF\xDF\xBF", 8);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-6");
 	test(c == 0x01, "read_char_utf8-7");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x7F, "read_char_utf8-8");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x80, "read_char_utf8-9");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0xBF, "read_char_utf8-10");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x07FF, "read_char_utf8-11");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf8-12");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xC2\xC0", 2);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-13");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xC2\xC0", 2);
 	fm.encode.error = 0;
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-14");
 	test(c == 999, "read_char_utf8-15");
 	close_filememory(&fm);
 
 	/* 3 byte */
 	test_read_char_utf8_file(&fm, "\xE0\xA0\x80\xEF\xBF\xBF", 6);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-16");
 	test(c == 0x0800, "read_char_utf8-17");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-18");
 	test(c == 0xFFFF, "read_char_utf8-19");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xE0\x9F\x80\x40", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-20");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xE1\x80\x80\x40", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-21");
 	test(c == 0x1000, "read_char_utf8-22");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-23");
 	test(c == 0x40, "read_char_utf8-24");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf8-25");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xE1\x7F\x80\x40", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-26");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xE1\xC0\x80\x40", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-27");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xE1\x80\x7F\x40", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-28");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xE1\x80\xC0\x40", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-29");
 	close_filememory(&fm);
 
 	/* 4 byte */
 	test_read_char_utf8_file(&fm, "\xF0\x90\x80\x80\x40", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-30");
 	test(c == 0x010000, "read_char_utf8-31");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-32");
 	test(c == 0x40, "read_char_utf8-33");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf8-34");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xF4\x8F\xBF\xBF\x7F", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-35");
 	test(c == 0x10FFFF, "read_char_utf8-36");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-37");
 	test(c == 0x7F, "read_char_utf8-38");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf8-39");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xF0\x8F\x80\x80\x40", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-40");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xF1\x8F\x80\x80\x40", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-41");
 	test(c == 0x04F000, "read_char_utf8-42");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xF1\x7F\x80\x80\x40", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-43");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xF1\xC0\x80\x80\x40", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-44");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xF1\x80\x7F\x80\x40", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-45");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xF1\x80\xC0\x80\x40", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-46");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xF1\x80\x80\x7F\x40", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-47");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xF1\x80\x80\xC0\x40", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-48");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xF8\xBF\x80\x80\x80\x40", 6);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-49");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xFC\xBF\x80\x80\x80\x80\x40", 7);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-50");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xFE\xBF\x80\x80\x80\x80\x40", 7);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-51");
 	close_filememory(&fm);
 
 	/* surrogate pair 0xD800 - 0xDFFF */
 	test_read_char_utf8_file(&fm, "\xED\x9F\xBF\xED\xA0\x80\x40", 7);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-52");
 	test(c == 0xD7FF, "read_char_utf8-53");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-54");
 	close_filememory(&fm);
 
 	test_read_char_utf8_file(&fm, "\xEE\x80\x80\xED\xBF\xBF\x40", 7);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-55");
 	test(c == 0xE000, "read_char_utf8-56");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-57");
 	close_filememory(&fm);
 
 	/* Unicode range 0x000000 - 0x10FFFF */
 	test_read_char_utf8_file(&fm, "\xF4\x8F\xBF\xBF\x7F", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf8-58");
 	test(c == 0x10FFFF, "read_char_utf8-59");
 	close_filememory(&fm);
 	test_read_char_utf8_file(&fm, "\xF4\x90\x80\x80\x7F", 5);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf8-60");
 	close_filememory(&fm);
 
@@ -719,102 +728,102 @@ static int test_read_char_utf16le(void)
 	/* 1 byte */
 	test_read_char_utf16le_file(&fm, "abc", 1);
 	close_filememory(&fm);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16le1");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "", 0);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf16le2");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\x40\x00\x30\x00", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16le3");
 	test(c == 0x40, "read_char_utf16le4");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16le5");
 	test(c == 0x30, "read_char_utf16le6");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf16le7");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\x00\x00\xFF\xD7\x00\xE0\xFF\xFF", 8);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16le8");
 	test(c == 0x0000, "read_char_utf16le9");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0xD7FF, "read_char_utf16le10");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0xE000, "read_char_utf16le11");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0xFFFF, "read_char_utf16le12");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf16le13");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\x00", 1);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16le14");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\x00\xD8", 2);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16le15");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\x00\xD8\x00\xDC\xFF\xDB\xFF\xDF", 8);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16le15");
 	test(c == 0x010000, "read_char_utf16le16");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16le17");
 	test(c == 0x10FFFF, "read_char_utf16le18");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\xFF\xD7\x00\xE0", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16le19");
 	test(c == 0xD7FF, "read_char_utf16le20");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16le21");
 	test(c == 0xE000, "read_char_utf16le22");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\xFF\xDB\x00\xDC", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16le23");
 	test(c == 0x10FC00, "read_char_utf16le24");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\x00\xDC\x00\xDC", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16le25");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\x00\xD8\xFF\xDB\x40\x00", 6);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16le26");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\x00\xD8\x00\xDC\x40\x00", 6);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16le27");
 	test(c == 0x010000, "read_char_utf16le28");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x40, "read_char_utf16le29");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\x00\xD8\xFF\xDF\x40\x00", 6);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16le30");
 	test(c == 0x0103FF, "read_char_utf16le31");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x40, "read_char_utf16le32");
 	close_filememory(&fm);
 
 	test_read_char_utf16le_file(&fm, "\x00\xD8\x00\xE0\x40\x00", 6);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16le33");
 	close_filememory(&fm);
 
@@ -840,102 +849,102 @@ static int test_read_char_utf16be(void)
 	/* 1 byte */
 	test_read_char_utf16be_file(&fm, "abc", 1);
 	close_filememory(&fm);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16be1");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "", 0);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf16be2");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\x00\x40\x00\x30", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16be3");
 	test(c == 0x40, "read_char_utf16be4");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16be5");
 	test(c == 0x30, "read_char_utf16be6");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf16be7");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\x00\x00\xD7\xFF\xE0\x00\xFF\xFF", 8);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16be8");
 	test(c == 0x0000, "read_char_utf16be9");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0xD7FF, "read_char_utf16be10");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0xE000, "read_char_utf16be11");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0xFFFF, "read_char_utf16be12");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf16be13");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\x00", 1);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16be14");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\xD8\x00", 2);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16be15");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\xD8\x00\xDC\x00\xDB\xFF\xDF\xFF", 8);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16be15");
 	test(c == 0x010000, "read_char_utf16be16");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16be17");
 	test(c == 0x10FFFF, "read_char_utf16be18");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\xD7\xFF\xE0\x00", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16be19");
 	test(c == 0xD7FF, "read_char_utf16be20");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16be21");
 	test(c == 0xE000, "read_char_utf16be22");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\xDB\xFF\xDC\x00", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16be23");
 	test(c == 0x10FC00, "read_char_utf16be24");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\xDC\x00\xDC\x00", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16be25");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\xD8\x00\xDB\xFF\x00\x40", 6);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16be26");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\xD8\x00\xDC\x00\x00\x40", 6);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16be27");
 	test(c == 0x010000, "read_char_utf16be28");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x40, "read_char_utf16be29");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\xD8\x00\xDF\xFF\x00\x40", 6);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf16be30");
 	test(c == 0x0103FF, "read_char_utf16be31");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x40, "read_char_utf16be32");
 	close_filememory(&fm);
 
 	test_read_char_utf16be_file(&fm, "\xD8\x00\xE0\x00\x00\x40", 6);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf16be33");
 	close_filememory(&fm);
 
@@ -959,48 +968,48 @@ static int test_read_char_utf32le(void)
 	struct filememory fm;
 
 	test_read_char_utf32le_file(&fm, "", 0);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf32le1");
 	close_filememory(&fm);
 
 	test_read_char_utf32le_file(&fm, "abcdefg", 1);
 	close_filememory(&fm);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf32le2");
 	close_filememory(&fm);
 
 	test_read_char_utf32le_file(&fm, "abcdefg", 2);
 	close_filememory(&fm);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf32le3");
 	close_filememory(&fm);
 
 	test_read_char_utf32le_file(&fm, "abcdefg", 3);
 	close_filememory(&fm);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf32le4");
 	close_filememory(&fm);
 
 	test_read_char_utf32le_file(&fm, "\x00\x00\x00\x00\x80\x00\x00\x00", 8);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf32le5");
 	test(c == 0x00, "read_char_utf32le6");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x80, "read_char_utf32le7");
 	close_filememory(&fm);
 
 	test_read_char_utf32le_file(&fm, "\xDE\xBC\x0A\x00\xFF\xFF\x10\x00", 8);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf32le8");
 	test(c == 0x0ABCDE, "read_char_utf32le9");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x10FFFF, "read_char_utf32le10");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf32le11");
 	close_filememory(&fm);
 
 	test_read_char_utf32le_file(&fm, "\x00\x00\x11\x00", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf32le12");
 	close_filememory(&fm);
 
@@ -1024,48 +1033,48 @@ static int test_read_char_utf32be(void)
 	struct filememory fm;
 
 	test_read_char_utf32be_file(&fm, "", 0);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf32be1");
 	close_filememory(&fm);
 
 	test_read_char_utf32be_file(&fm, "abcdefg", 1);
 	close_filememory(&fm);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf32be2");
 	close_filememory(&fm);
 
 	test_read_char_utf32be_file(&fm, "abcdefg", 2);
 	close_filememory(&fm);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf32be3");
 	close_filememory(&fm);
 
 	test_read_char_utf32be_file(&fm, "abcdefg", 3);
 	close_filememory(&fm);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf32be4");
 	close_filememory(&fm);
 
 	test_read_char_utf32be_file(&fm, "\x00\x00\x00\x00\x00\x00\x00\x80", 8);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf32be5");
 	test(c == 0x00, "read_char_utf32be6");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x80, "read_char_utf32be7");
 	close_filememory(&fm);
 
 	test_read_char_utf32be_file(&fm, "\x00\x0A\xBC\xDE\x00\x10\xFF\xFF", 8);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check == 0, "read_char_utf32be8");
 	test(c == 0x0ABCDE, "read_char_utf32be9");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(c == 0x10FFFF, "read_char_utf32be10");
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(0 < check, "read_char_utf32be11");
 	close_filememory(&fm);
 
 	test_read_char_utf32be_file(&fm, "\x00\x11\x00\x00", 4);
-	check = read_char_encode(&fm, &c);
+	check = read_char_encode_abort(&fm, &c);
 	test(check < 0, "read_char_utf32be12");
 	close_filememory(&fm);
 
@@ -3106,9 +3115,11 @@ static int testbreak_encode(void)
 
 	return 0;
 }
+#endif
 
 int test_encode(void)
 {
+#if 0
 	int result;
 	lispcode code;
 	Execute ptr;
@@ -3144,5 +3155,7 @@ int test_encode(void)
 	lisp_info_enable = 1;
 
 	return result;
+#endif
+	return 0;
 }
 

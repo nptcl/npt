@@ -558,7 +558,7 @@ static void defvar_default_pathname_defaults(void)
 /* (defun namestring (pathname) ...) -> namestring */
 static int function_namestring(Execute ptr, addr pos)
 {
-	namestring_pathname(ptr, &pos, pos);
+	Return(namestring_pathname_(ptr, &pos, pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -582,7 +582,7 @@ static void defun_namestring(void)
 /* (defun file-namestring (pathname) ...) -> namestring */
 static int function_file_namestring(Execute ptr, addr pos)
 {
-	file_namestring_pathname(ptr, &pos, pos);
+	Return(file_namestring_pathname_(ptr, &pos, pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -654,7 +654,7 @@ static void defun_host_namestring(void)
 /* (defun enough-namestring (pathname &optional defaults) ...) -> string */
 static int function_enough_namestring(Execute ptr, addr pos, addr defaults)
 {
-	enough_namestring_pathname(ptr, &pos, pos, defaults);
+	Return(enough_namestring_pathname_(ptr, &pos, pos, defaults));
 	setresult_control(ptr, pos);
 	return 0;
 }

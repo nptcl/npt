@@ -22,7 +22,7 @@ _g void decimal_charqueue_fixnum_local(LocalRoot local, addr pos, addr queue)
 	pushchar_charqueue_local(local, queue, buffer);
 }
 
-_g void decimal_charqueue_bignum_local(LocalRoot local, addr pos, addr queue)
+_g int decimal_charqueue_bignum_local_(LocalRoot local, addr pos, addr queue)
 {
 	addr stream, value;
 
@@ -30,7 +30,7 @@ _g void decimal_charqueue_bignum_local(LocalRoot local, addr pos, addr queue)
 	/* zero */
 	if (zerop_bignum(pos)) {
 		push_charqueue_local(local, queue, '0');
-		return;
+		return 0;
 	}
 
 	/* sign */
@@ -39,26 +39,26 @@ _g void decimal_charqueue_bignum_local(LocalRoot local, addr pos, addr queue)
 
 	/* body */
 	open_output_string_stream(&stream, 0);
-	output_nosign_bignum(local, stream, pos, 10, 0);
+	Return(output_nosign_bignum_(local, stream, pos, 10, 0));
 	string_stream_heap(stream, &value);
 	clear_output_string_stream(stream);
 	pushstring_charqueue_local(local, queue, value);
+
+	return 0;
 }
 
-_g void decimal_charqueue_integer_local(LocalRoot local, addr pos, addr queue)
+_g int decimal_charqueue_integer_local_(LocalRoot local, addr pos, addr queue)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
 			decimal_charqueue_fixnum_local(local, pos, queue);
-			break;
+			return 0;
 
 		case LISPTYPE_BIGNUM:
-			decimal_charqueue_bignum_local(local, pos, queue);
-			break;
+			return decimal_charqueue_bignum_local_(local, pos, queue);
 
 		default:
-			TypeError(pos, INTEGER);
-			break;
+			return TypeError_(pos, INTEGER);
 	}
 }
 
@@ -68,16 +68,14 @@ _g void decimal_charqueue_integer_local(LocalRoot local, addr pos, addr queue)
  */
 /* base=2, 64bit -> 1+64+1 -> 66+padding -> 72? */
 #define FIXNUM_BUFFER_SIZE  128
-_g void output_nosign_index(addr stream, size_t n, unsigned base, int upperp)
+_g int output_nosign_index_(addr stream, size_t n, unsigned base, int upperp)
 {
 	size_t m;
 	char buffer[FIXNUM_BUFFER_SIZE], *ptr, chara;
 
 	/* zero */
-	if (n == 0) {
-		write_char_stream(stream, '0');
-		return;
-	}
+	if (n == 0)
+		return write_char_stream_(stream, '0');
 
 	/* loop */
 	chara = upperp? 'A': 'a';
@@ -90,20 +88,18 @@ _g void output_nosign_index(addr stream, size_t n, unsigned base, int upperp)
 		Check(ptr <= buffer, "buffer error");
 	}
 
-	print_ascii_stream(stream, ptr + 1);
+	return print_ascii_stream_(stream, ptr + 1);
 }
 
-_g void output_nosign_fixnum(addr stream, fixnum value, unsigned base, int upperp)
+_g int output_nosign_fixnum_(addr stream, fixnum value, unsigned base, int upperp)
 {
 	int sign;
 	bigtype m, n;
 	char buffer[FIXNUM_BUFFER_SIZE], *ptr, chara;
 
 	/* zero */
-	if (value == 0) {
-		write_char_stream(stream, '0');
-		return;
-	}
+	if (value == 0)
+		return write_char_stream_(stream, '0');
 
 	/* fixnum -> bigtype */
 	castfixed(value, &sign, &n);
@@ -119,7 +115,7 @@ _g void output_nosign_fixnum(addr stream, fixnum value, unsigned base, int upper
 		Check(ptr <= buffer, "buffer error");
 	}
 
-	print_ascii_stream(stream, ptr + 1);
+	return print_ascii_stream_(stream, ptr + 1);
 }
 
 static int charbit_nil_p(addr pos)
@@ -151,7 +147,7 @@ static void charqueue_nreverse(addr pos, addr *ret)
 	*ret = pos;
 }
 
-static void charqueue_nreverse_output(addr pos, addr stream)
+static int charqueue_nreverse_output_(addr pos, addr stream)
 {
 	unicode *ptr;
 	size_t size;
@@ -165,14 +161,16 @@ static void charqueue_nreverse_output(addr pos, addr stream)
 		ptr = PtrCharBitChar(pos);
 		do {
 			size--;
-			write_char_stream(stream, ptr[size]);
+			Return(write_char_stream_(stream, ptr[size]));
 		}
 		while (size);
 		GetCharBitNext(pos, &pos);
 	}
+
+	return 0;
 }
 
-_g void output_nosign_bignum(LocalRoot local,
+_g int output_nosign_bignum_(LocalRoot local,
 		addr stream, addr pos, unsigned base, int upperp)
 {
 	unicode u;
@@ -184,10 +182,8 @@ _g void output_nosign_bignum(LocalRoot local,
 	Check(local == NULL, "local error");
 	Check(! isBaseChar(base), "base error");
 	/* zero */
-	if (zerop_bignum(pos)) {
-		write_char_stream(stream, '0');
-		return;
-	}
+	if (zerop_bignum(pos))
+		return write_char_stream_(stream, '0');
 
 	/* loop */
 	push_local(local, &stack);
@@ -198,21 +194,21 @@ _g void output_nosign_bignum(LocalRoot local,
 		rem = letdiv_half_bigdata(pos, (bigtype)base);
 		if (getchar_digit((unsigned)rem, upperp, &u)) {
 			character_heap(&error_character, u);
-			fmte("Invalid digit character ~S.", error_character, NULL);
-			return;
+			return fmte_("Invalid digit character ~S.", error_character, NULL);
 		}
 		push_charqueue_local(local, queue, u);
 	}
 	while (! zerop_bignum(pos));
 
 	/* output */
-	charqueue_nreverse_output(queue, stream);
-
+	Return(charqueue_nreverse_output_(queue, stream));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 #define FIXNUM_BUFFER_DOUBLE_SIZE  (FIXNUM_BUFFER_SIZE * 2)
-_g void output_nosign_comma_fixnum(LocalRoot local,
+_g int output_nosign_comma_fixnum_(LocalRoot local,
 		addr stream, fixnum value, unsigned base, int upperp,
 		size_t range, unicode comma)
 {
@@ -223,10 +219,8 @@ _g void output_nosign_comma_fixnum(LocalRoot local,
 
 	Check(range < 2, "ragen error");
 	/* zero */
-	if (value == 0) {
-		write_char_stream(stream, '0');
-		return;
-	}
+	if (value == 0)
+		return write_char_stream_(stream, '0');
 
 	/* fixnum -> bigtype */
 	castfixed(value, &sign, &n);
@@ -246,10 +240,10 @@ _g void output_nosign_comma_fixnum(LocalRoot local,
 		index++;
 	}
 
-	print_unicode_stream(stream, ptr + 1);
+	return print_unicode_stream_(stream, ptr + 1);
 }
 
-_g void output_nosign_comma_bignum(LocalRoot local,
+_g int output_nosign_comma_bignum_(LocalRoot local,
 		addr stream, addr pos, unsigned base, int upperp,
 		size_t range, unicode comma)
 {
@@ -263,10 +257,8 @@ _g void output_nosign_comma_bignum(LocalRoot local,
 	Check(! isBaseChar(base), "base error");
 	Check(range < 2, "ragen error");
 	/* zero */
-	if (zerop_bignum(pos)) {
-		write_char_stream(stream, '0');
-		return;
-	}
+	if (zerop_bignum(pos))
+		return write_char_stream_(stream, '0');
 
 	/* loop */
 	push_local(local, &stack);
@@ -278,8 +270,7 @@ _g void output_nosign_comma_bignum(LocalRoot local,
 		rem = letdiv_half_bigdata(pos, (bigtype)base);
 		if (getchar_digit((unsigned)rem, upperp, &u)) {
 			character_heap(&error_character, u);
-			fmte("Invalid digit character ~S.", error_character, NULL);
-			return;
+			return fmte_("Invalid digit character ~S.", error_character, NULL);
 		}
 		if (index && (index % range) == 0)
 			push_charqueue_local(local, queue, comma);
@@ -289,7 +280,9 @@ _g void output_nosign_comma_bignum(LocalRoot local,
 	while (! zerop_bignum(pos));
 
 	/* output */
-	charqueue_nreverse_output(queue, stream);
+	Return(charqueue_nreverse_output_(queue, stream));
 	rollback_local(local, stack);
+
+	return 0;
 }
 

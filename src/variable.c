@@ -74,7 +74,7 @@ _g struct callbind_struct pointer_table[SizePointer];
  */
 _g LispStreamTypeArray(close);
 _g LispStreamTypeArray(read_binary);
-_g LispStreamTypeArray(readforce_binary);
+_g LispStreamTypeArray(readf_binary);
 _g LispStreamTypeArray(read_byte);
 _g LispStreamTypeArray(unread_byte);
 _g LispStreamTypeArray(write_binary);
@@ -99,12 +99,12 @@ _g LispStreamTypeArray(file_position);
 _g LispStreamTypeArray(file_position_start);
 _g LispStreamTypeArray(file_position_end);
 _g LispStreamTypeArray(file_position_set);
-_g LispStreamTypeArray(file_character_length);
-_g LispStreamTypeArray(file_string_length);
+_g LispStreamTypeArray(file_charlen);
+_g LispStreamTypeArray(file_strlen);
 _g LispStreamTypeArray(listen);
 _g LispStreamTypeArray(finish_output);
 _g LispStreamTypeArray(force_output);
 _g LispStreamTypeArray(clear_output);
 _g LispStreamTypeArray(exitpoint);
-_g LispStreamTypeArray(terminal_width);
+_g LispStreamTypeArray(termsize);
 

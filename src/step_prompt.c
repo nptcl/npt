@@ -52,7 +52,7 @@ static int step_prompt_help_p(addr pos)
 		|| string_equalp_char(pos, "HELP");
 }
 
-static void step_prompt_help(Execute ptr, addr io)
+static int step_prompt_help_(Execute ptr, addr io)
 {
 	static const char *const message[] = {
 		"Step help.",
@@ -72,10 +72,12 @@ static void step_prompt_help(Execute ptr, addr io)
 		str = message[i];
 		if (str == NULL)
 			break;
-		print_ascii_stream(io, str);
-		terpri_stream(io);
-		force_output_stream(io);
+		Return(print_ascii_stream_(io, str));
+		Return(terpri_stream_(io));
+		Return(force_output_stream_(io));
 	}
+
+	return 0;
 }
 
 static int step_prompt_loop(Execute ptr, addr io, addr pos, int *exit, int *exec)
@@ -94,8 +96,7 @@ static int step_prompt_loop(Execute ptr, addr io, addr pos, int *exit, int *exec
 	if (step_prompt_help_p(pos)) {
 		*exit = 0;
 		*exec = 0;
-		step_prompt_help(ptr, io);
-		return 0;
+		return step_prompt_help_(ptr, io);
 	}
 	*exit = 0;
 	*exec = 1;

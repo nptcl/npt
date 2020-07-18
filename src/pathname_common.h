@@ -14,11 +14,11 @@ _g void pathname_name(addr pos, addr *ret, int localp);
 _g void pathname_type(addr pos, addr *ret, int localp);
 _g void pathname_version(addr pos, addr *ret);
 _g void logical_pathname(Execute ptr, addr *ret, addr pos);
-_g void namestring_pathname(Execute ptr, addr *ret, addr pos);
-_g void file_namestring_pathname(Execute ptr, addr *ret, addr pos);
+_g int namestring_pathname_(Execute ptr, addr *ret, addr pos);
+_g int file_namestring_pathname_(Execute ptr, addr *ret, addr pos);
 _g void directory_namestring_pathname(Execute ptr, addr *ret, addr pos);
 _g void host_namestring_pathname(Execute ptr, addr *ret, addr pos);
-_g void enough_namestring_pathname(Execute ptr, addr *ret, addr pos, addr defaults);
+_g int enough_namestring_pathname_(Execute ptr, addr *ret, addr pos, addr defaults);
 _g void parse_namestring(Execute ptr, addr *ret, addr *position,
 		addr thing, addr host, addr defaults, addr start, addr end, addr junk);
 _g void wild_pathname_p(Execute ptr, addr *ret, addr file, addr field);

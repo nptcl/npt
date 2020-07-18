@@ -14,7 +14,7 @@ int lisp_setinfo_stream_(addr stream, addr value);
 	int lisp_stream_calltype_##name##_(int, lisp_streamtype_##name)
 LispStreamExtendDeclare(close);
 LispStreamExtendDeclare(read_binary);
-LispStreamExtendDeclare(readforce_binary);
+LispStreamExtendDeclare(readf_binary);
 LispStreamExtendDeclare(read_byte);
 LispStreamExtendDeclare(unread_byte);
 LispStreamExtendDeclare(write_binary);
@@ -39,20 +39,20 @@ LispStreamExtendDeclare(file_position);
 LispStreamExtendDeclare(file_position_start);
 LispStreamExtendDeclare(file_position_end);
 LispStreamExtendDeclare(file_position_set);
-LispStreamExtendDeclare(file_character_length);
-LispStreamExtendDeclare(file_string_length);
+LispStreamExtendDeclare(file_charlen);
+LispStreamExtendDeclare(file_strlen);
 LispStreamExtendDeclare(listen);
 LispStreamExtendDeclare(finish_output);
 LispStreamExtendDeclare(force_output);
 LispStreamExtendDeclare(clear_output);
 LispStreamExtendDeclare(exitpoint);
-LispStreamExtendDeclare(terminal_width);
+LispStreamExtendDeclare(termsize);
 
 #define LispStreamExtendError(name) \
 	int lisp_stream_calltype_error_##name##_(int)
 LispStreamExtendError(close);
 LispStreamExtendError(read_binary);
-LispStreamExtendError(readforce_binary);
+LispStreamExtendError(readf_binary);
 LispStreamExtendError(read_byte);
 LispStreamExtendError(unread_byte);
 LispStreamExtendError(write_binary);
@@ -77,14 +77,14 @@ LispStreamExtendError(file_position);
 LispStreamExtendError(file_position_start);
 LispStreamExtendError(file_position_end);
 LispStreamExtendError(file_position_set);
-LispStreamExtendError(file_character_length);
-LispStreamExtendError(file_string_length);
+LispStreamExtendError(file_charlen);
+LispStreamExtendError(file_strlen);
 LispStreamExtendError(listen);
 LispStreamExtendError(finish_output);
 LispStreamExtendError(force_output);
 LispStreamExtendError(clear_output);
 LispStreamExtendError(exitpoint);
-LispStreamExtendError(terminal_width);
+LispStreamExtendError(termsize);
 
 #endif
 

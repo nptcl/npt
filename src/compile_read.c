@@ -15,86 +15,104 @@
 /*
  *  read function
  */
-static int faslread_magic(addr stream)
+static int faslread_magic_(addr stream, int *ret)
 {
 	char a[8], b[8];
 
 	/* LISPNAME */
-	faslread_buffer(stream, a, 8);
+	Return(faslread_buffer_(stream, a, 8));
 	memset(b, 0, 8);
 	strncpy(b, LISPNAME, 8);
 	if (memcmp(a, b, 8) != 0)
-		return 1;
+		goto error;
 
 	/* FASL0000 */
-	faslread_buffer(stream, a, 8);
+	Return(faslread_buffer_(stream, a, 8));
 	if (memcmp(a, "FASL\0\0\0\0", 8) != 0)
-		return 1;
+		goto error;
 
 	/* OK */
-	return 0;
+	return Result(ret, 0);
+
+error:
+	return Result(ret, 1);
 }
 
-_g int faslread_header(addr input)
+_g int faslread_header_(addr input, int *ret)
 {
+	int check;
 	byte buffer[64];
 	uint16_t v, a, b, c;
 
 	/* 0: magic number */
-	if (faslread_magic(input))
-		return 1;
+	Return(faslread_magic_(input, &check));
+	if (check)
+		goto error;
 	/* 16: endian */
-	if (faslread_variable(input, v))
-		return 1;
+	Return(faslread_variable_(input, v, &check));
+	if (check)
+		goto error;
 	if (v != 1) {
 		Debug("endian error.");
-		return 1;
+		goto error;
 	}
 	/* 18: version */
-	if (faslread_variable(input, a))
-		return 1;
-	if (faslread_variable(input, b))
-		return 1;
-	if (faslread_variable(input, c))
-		return 1;
+	Return(faslread_variable_(input, a, &check));
+	if (check)
+		goto error;
+	Return(faslread_variable_(input, b, &check));
+	if (check)
+		goto error;
+	Return(faslread_variable_(input, c, &check));
+	if (check)
+		goto error;
 	if (a != LISP_VERSION_A || b != LISP_VERSION_B || c != LISP_VERSION_C)
-		return 1;
+		goto error;
 	/* 24: arch */
-	if (faslread_variable(input, v))
-		return 1;
+	Return(faslread_variable_(input, v, &check));
+	if (check)
+		goto error;
 #ifdef LISP_64BIT
 	if (v != 1) {
 		Debug("This fasl file is not 64bit arch.");
-		return 1;
+		goto error;
 	}
 #else
 	if (v != 0) {
 		Debug("This fasl file is not 32bit arch.");
-		return 1;
+		goto error;
 	}
 #endif
 	/* 26: padding */
-	if (faslread_buffer_check(input, buffer, 6))
-		return 1;
+	Return(faslread_buffer_check_(input, buffer, 6, &check));
+	if (check)
+		goto error;
 	/* 32: end */
+	return Result(ret, 0);
 
-	return 0;
+error:
+	return Result(ret, 1);
 }
 
-_g int faslread_footer(addr input)
+_g int faslread_footer_(addr input, int *ret)
 {
 	byte buffer[8];
 
 	/* fill */
-	faslread_buffer(input, buffer, 8);
+	Return(faslread_buffer_(input, buffer, 8));
 	if (memcmp(buffer, "\x00\x00\x00\x00" "\x00\x00\x00\x00", 8) != 0)
-		return 1;
-	/* zero */
-	faslread_buffer(input, buffer, 8);
-	if (memcmp(buffer, "\xFF\xFF\xFF\xFF" "\xFF\xFF\xFF\xFF", 8) != 0)
-		return 1;
+		goto error;
 
-	return 0;
+	/* zero */
+	Return(faslread_buffer_(input, buffer, 8));
+	if (memcmp(buffer, "\xFF\xFF\xFF\xFF" "\xFF\xFF\xFF\xFF", 8) != 0)
+		goto error;
+
+	/* ok */
+	return Result(ret, 0);
+
+error:
+	return Result(ret, 1);
 }
 
 
@@ -123,7 +141,7 @@ static int faslread_code_operator(Execute ptr, addr stream, addr *ret)
 	addr car, cdr;
 
 	/* car */
-	faslread_type(stream, &type);
+	Return(faslread_type_(stream, &type));
 	Check(type < FaslCode_value, "type error");
 	index = GetCompileRead(type);
 	GetConstant(index, &car);
@@ -143,7 +161,7 @@ static int faslread_value_code(Execute ptr, addr stream, addr *ret)
 	struct code_struct head, *str;
 
 	/* struct */
-	faslread_buffer(stream, &head, sizeoft(head));
+	Return(faslread_buffer_(stream, &head, sizeoft(head)));
 	/* code */
 	size = head.size;
 	vector4_heap(&vector, size);
@@ -174,7 +192,7 @@ _g int faslread_value(Execute ptr, addr stream, addr *ret)
 	enum FaslCode type;
 	faslread_calltype call;
 
-	faslread_type(stream, &type);
+	Return(faslread_type_(stream, &type));
 	Check(FaslCode_value <= type, "type error");
 	call = FaslRead_Table[type];
 	Check(call == NULL, "faslread call error.");

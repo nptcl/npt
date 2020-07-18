@@ -23,13 +23,15 @@
  */
 _g int read_byte_common(Execute ptr, addr stream, addr errorp, addr value, addr *ret)
 {
+	int check;
 	byte c;
 
 	if (errorp == Unbound)
 		errorp = T;
 	if (value == Unbound)
 		value = Nil;
-	if (read_byte_stream(stream, &c)) {
+	Return(read_byte_stream_(stream, &c, &check));
+	if (check) {
 		if (errorp != Nil)
 			return call_end_of_file_(ptr, stream);
 		else
@@ -52,10 +54,8 @@ _g int write_byte_common(Execute ptr, addr value, addr stream)
 		GetConst(STREAM_BINARY_TYPE, &pos);
 		return call_type_error_(ptr, value, pos);
 	}
-	write_byte_stream(stream, (byte)c);
-	exitpoint_stream(stream);
-
-	return 0;
+	Return(write_byte_stream_(stream, (byte)c));
+	return exitpoint_stream_(stream);
 }
 
 
@@ -75,9 +75,8 @@ _g int peek_char_common(Execute ptr, addr type, addr stream,
 		value = Nil;
 	if (recp == Unbound)
 		recp = Nil;
-	peek_char_stream(ptr, ret, type, stream, errorp != Nil, value, recp != Nil);
-
-	return 0;
+	return peek_char_stream_(ptr, ret,
+			type, stream, errorp != Nil, value, recp != Nil);
 }
 
 
@@ -98,6 +97,7 @@ static int call_end_of_file_recursive_(Execute ptr, addr pos, int recp)
 _g int read_char_common(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp, addr *ret)
 {
+	int check;
 	unicode c;
 
 	if (stream == Unbound)
@@ -108,10 +108,11 @@ _g int read_char_common(Execute ptr,
 		value = Nil;
 	if (recp == Unbound)
 		recp = Nil;
-	stream_designer(ptr, stream, &stream, 1);
+	Return(stream_designer_(ptr, stream, &stream, 1));
 
 	/* read-char */
-	if (read_char_stream(stream, &c)) {
+	Return(read_char_stream_(stream, &c, &check));
+	if (check) {
 		if (errorp != Nil)
 			return call_end_of_file_recursive_(ptr, stream, recp != Nil);
 		else
@@ -128,7 +129,7 @@ _g int read_char_common(Execute ptr,
 _g int read_char_no_hang_common(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp, addr *ret)
 {
-	int hang;
+	int hang, check;
 	unicode c;
 
 	if (stream == Unbound)
@@ -139,10 +140,11 @@ _g int read_char_no_hang_common(Execute ptr,
 		value = Nil;
 	if (recp == Unbound)
 		recp = Nil;
-	stream_designer(ptr, stream, &stream, 1);
+	Return(stream_designer_(ptr, stream, &stream, 1));
 
 	/* read-char */
-	if (read_hang_stream(stream, &c, &hang)) {
+	Return(read_hang_stream_(stream, &c, &hang, &check));
+	if (check) {
 		if (errorp != Nil)
 			return call_end_of_file_recursive_(ptr, stream, recp != Nil);
 		else
@@ -162,10 +164,8 @@ _g int terpri_common(Execute ptr, addr stream)
 {
 	if (stream == Unbound)
 		standard_output_stream(ptr, &stream);
-	terpri_stream(stream);
-	exitpoint_stream(stream);
-
-	return 0;
+	Return(terpri_stream_(stream));
+	return exitpoint_stream_(stream);
 }
 
 
@@ -178,8 +178,8 @@ _g int fresh_line_common(Execute ptr, addr stream, addr *ret)
 
 	if (stream == Unbound)
 		standard_output_stream(ptr, &stream);
-	check = fresh_line_stream(stream);
-	exitpoint_stream(stream);
+	Return(fresh_line_stream_(stream, &check));
+	Return(exitpoint_stream_(stream));
 
 	return Result(ret, check? T: Nil);
 }
@@ -188,28 +188,28 @@ _g int fresh_line_common(Execute ptr, addr stream, addr *ret)
 /*
  *  unread-char
  */
-_g void unread_char_common(Execute ptr, addr pos, addr stream)
+_g int unread_char_common(Execute ptr, addr pos, addr stream)
 {
 	unicode c;
 
 	if (stream == Unbound)
 		standard_output_stream(ptr, &stream);
 	GetCharacter(pos, &c);
-	unread_char_stream(stream, c);
+	return unread_char_stream_(stream, c);
 }
 
 
 /*
  *  write-char
  */
-_g void write_char_common(Execute ptr, addr pos, addr stream)
+_g int write_char_common(Execute ptr, addr pos, addr stream)
 {
 	unicode c;
 
-	stream_designer(ptr, stream, &stream, 0);
+	Return(stream_designer_(ptr, stream, &stream, 0));
 	GetCharacter(pos, &c);
-	write_char_stream(stream, c);
-	exitpoint_stream(stream);
+	Return(write_char_stream_(stream, c));
+	return exitpoint_stream_(stream);
 }
 
 
@@ -230,7 +230,8 @@ _g int read_line_common(Execute ptr,
 		value = Nil;
 	if (recp == Unbound)
 		recp = Nil;
-	read_line_stream(ptr, ret, &miss, stream, errorp != Nil, value, recp != Nil);
+	Return(read_line_stream_(ptr, ret,
+				&miss, stream, errorp != Nil, value, recp != Nil));
 	*sec = miss? T: Nil;
 
 	return 0;
@@ -243,8 +244,7 @@ _g int read_line_common(Execute ptr,
 _g int write_string_common(Execute ptr, addr string, addr rest)
 {
 	Return(write_string_stream(ptr, string, rest, &string));
-	exitpoint_stream(string);
-	return 0;
+	return exitpoint_stream_(string);
 }
 
 
@@ -254,9 +254,8 @@ _g int write_string_common(Execute ptr, addr string, addr rest)
 _g int write_line_common(Execute ptr, addr string, addr rest)
 {
 	Return(write_string_stream(ptr, string, rest, &string));
-	terpri_stream(string);
-	exitpoint_stream(string);
-	return 0;
+	Return(terpri_stream_(string));
+	return exitpoint_stream_(string);
 }
 
 
@@ -283,9 +282,7 @@ _g int write_sequence_common(LocalRoot local, addr var, addr stream, addr rest)
 	start = length_sequence(var, 0);
 	Return(keyword_start_end_(start, rest, &start, &end));
 	Return(write_sequence_stream(local, var, stream, start, end));
-	exitpoint_stream(stream);
-
-	return 0;
+	return exitpoint_stream_(stream);
 }
 
 
@@ -294,38 +291,39 @@ _g int write_sequence_common(LocalRoot local, addr var, addr stream, addr rest)
  */
 _g int file_position_common(Execute ptr, addr stream, addr pos, addr *ret)
 {
-	int result;
-	addr check;
+	int check;
+	addr value;
 	size_t size;
 
 	/* get file-position */
 	if (pos == Unbound) {
-		if (file_position_stream(stream, &size))
+		Return(file_position_stream_(stream, &size, &check));
+		if (check)
 			return Result(ret, Nil);
 		else
 			return Result(ret, intsizeh(size));
 	}
 
 	/* set start */
-	GetConst(KEYWORD_START, &check);
-	if (pos == check) {
-		result = file_position_start_stream(stream);
+	GetConst(KEYWORD_START, &value);
+	if (pos == value) {
+		Return(file_position_start_stream_(stream, &check));
 		goto return_result;
 	}
 
 	/* set end */
-	GetConst(KEYWORD_END, &check);
-	if (pos == check) {
-		result = file_position_end_stream(stream);
+	GetConst(KEYWORD_END, &value);
+	if (pos == value) {
+		Return(file_position_end_stream_(stream, &check));
 		goto return_result;
 	}
 
 	/* set index */
 	getindex_integer(pos, &size);
-	result = file_position_set_stream(stream, size);
+	Return(file_position_set_stream_(stream, size, &check));
 
 return_result:
-	return Result(ret, result? Nil: T);
+	return Result(ret, check? Nil: T);
 }
 
 
@@ -340,10 +338,10 @@ _g int file_string_length_common(addr stream, addr pos, addr *ret)
 
 	if (characterp(pos)) {
 		GetCharacter(pos, &c);
-		check = file_character_length_stream(stream, c, &size);
+		Return(file_charlen_stream_(stream, c, &size, &check));
 	}
 	else {
-		check = file_string_length_stream(stream, pos, &size);
+		Return(file_strlen_stream_(stream, pos, &size, &check));
 	}
 	if (check) {
 		return Result(ret, Nil);
@@ -781,25 +779,26 @@ error:
 /*
  *  listen
  */
-_g void listen_common(Execute ptr, addr stream, addr *ret)
+_g int listen_common(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 
 	if (stream == Unbound)
 		standard_input_stream(ptr, &stream);
-	check = listen_stream(stream);
-	*ret = check? T: Nil;;
+	Return(listen_stream_(stream, &check));
+
+	return Result(ret, check? T: Nil);
 }
 
 
 /*
  *  clear-input
  */
-_g void clear_input_common(Execute ptr, addr stream)
+_g int clear_input_common(Execute ptr, addr stream)
 {
 	if (stream == Unbound)
 		standard_input_stream(ptr, &stream);
-	clear_input_stream(stream);
+	return clear_input_stream_(stream);
 }
 
 

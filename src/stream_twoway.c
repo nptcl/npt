@@ -60,85 +60,85 @@ static void output_twoway(addr stream, addr *ret)
 static int read_binary_TwoWay(addr stream, void *pos, size_t size, size_t *ret)
 {
 	input_twoway(stream, &stream);
-	return read_binary_stream(stream, pos, size, ret);
+	return read_binary_stream_(stream, pos, size, ret);
 }
 
-static int readforce_binary_TwoWay(addr stream, void *pos, size_t size, size_t *ret)
+static int readf_binary_TwoWay(addr stream, void *pos, size_t size, size_t *ret)
 {
 	input_twoway(stream, &stream);
-	return readforce_binary_stream(stream, pos, size, ret);
+	return readf_binary_stream_(stream, pos, size, ret);
 }
 
-static int read_byte_TwoWay(addr stream, byte *c)
+static int read_byte_TwoWay(addr stream, byte *c, int *ret)
 {
 	input_twoway(stream, &stream);
-	return read_byte_stream(stream, c);
+	return read_byte_stream_(stream, c, ret);
 }
 
 static int unread_byte_TwoWay(addr stream, byte c)
 {
 	input_twoway(stream, &stream);
-	return unread_byte_stream(stream, c);
+	return unread_byte_stream_(stream, c);
 }
 
 static int write_binary_TwoWay(addr stream, const void *pos, size_t size, size_t *ret)
 {
 	output_twoway(stream, &stream);
-	return write_binary_stream(stream, pos, size, ret);
+	return write_binary_stream_(stream, pos, size, ret);
 }
 
 static int write_byte_TwoWay(addr stream, byte c)
 {
 	output_twoway(stream, &stream);
-	return write_byte_stream(stream, c);
+	return write_byte_stream_(stream, c);
 }
 
-static int read_char_TwoWay(addr stream, unicode *u)
+static int read_char_TwoWay(addr stream, unicode *u, int *ret)
 {
 	input_twoway(stream, &stream);
-	return read_char_stream(stream, u);
+	return read_char_stream_(stream, u, ret);
 }
 
-static int read_hang_TwoWay(addr stream, unicode *u, int *hang)
+static int read_hang_TwoWay(addr stream, unicode *u, int *hang, int *ret)
 {
 	input_twoway(stream, &stream);
-	return read_hang_stream(stream, u, hang);
+	return read_hang_stream_(stream, u, hang, ret);
 }
 
-static void unread_char_TwoWay(addr stream, unicode u)
+static int unread_char_TwoWay(addr stream, unicode c)
 {
 	input_twoway(stream, &stream);
-	unread_char_stream(stream, u);
+	return unread_char_stream_(stream, c);
 }
 
-static void write_char_TwoWay(addr stream, unicode u)
+static int write_char_TwoWay(addr stream, unicode u)
 {
 	output_twoway(stream, &stream);
-	write_char_stream(stream, u);
+	return write_char_stream_(stream, u);
 }
 
-static void terpri_TwoWay(addr stream)
+static int terpri_TwoWay(addr stream)
 {
 	output_twoway(stream, &stream);
-	terpri_stream(stream);
+	return terpri_stream_(stream);
 }
 
-static size_t getleft_TwoWay(addr stream)
+static int getleft_TwoWay(addr stream, size_t *ret)
 {
 	output_twoway(stream, &stream);
-	return getleft_stream(stream);
+	return getleft_stream_(stream, ret);
 }
 
-static void setleft_TwoWay(addr stream, size_t value)
+static int setleft_TwoWay(addr stream, size_t value)
 {
 	output_twoway(stream, &stream);
-	setleft_stream(stream, value);
+	return setleft_stream_(stream, value);
 }
 
-static int fresh_line_TwoWay(addr stream)
+static int fresh_line_TwoWay(addr stream, int *ret)
 {
 	output_twoway(stream, &stream);
-	return fresh_line_stream(stream);
+	return fresh_line_stream_(stream, ret);
 }
 
 static int interactivep_TwoWay(addr stream)
@@ -174,65 +174,65 @@ static int binaryp_TwoWay(addr stream)
 	return binaryp_stream(input) && binaryp_stream(output);
 }
 
-static int file_character_length_TwoWay(addr stream, unicode u, size_t *ret)
+static int file_charlen_TwoWay(addr stream, unicode u, size_t *value, int *ret)
 {
 	output_twoway(stream, &stream);
-	return file_character_length_stream(stream, u, ret);
+	return file_charlen_stream_(stream, u, value, ret);
 }
 
-static int file_string_length_TwoWay(addr stream, addr pos, size_t *ret)
+static int file_strlen_TwoWay(addr stream, addr pos, size_t *value, int *ret)
 {
 	output_twoway(stream, &stream);
-	return file_string_length_stream(stream, pos, ret);
+	return file_strlen_stream_(stream, pos, value, ret);
 }
 
-static int listen_TwoWay(addr stream)
+static int listen_TwoWay(addr stream, int *ret)
 {
 	input_twoway(stream, &stream);
-	return listen_stream(stream);
+	return listen_stream_(stream, ret);
 }
 
-static void clear_input_TwoWay(addr stream)
+static int clear_input_TwoWay(addr stream)
 {
 	input_twoway(stream, &stream);
-	clear_input_stream(stream);
+	return clear_input_stream_(stream);
 }
 
-static void finish_output_TwoWay(addr stream)
+static int finish_output_TwoWay(addr stream)
 {
 	output_twoway(stream, &stream);
-	finish_output_stream(stream);
+	return finish_output_stream_(stream);
 }
 
-static void force_output_TwoWay(addr stream)
+static int force_output_TwoWay(addr stream)
 {
 	output_twoway(stream, &stream);
-	force_output_stream(stream);
+	return force_output_stream_(stream);
 }
 
-static void clear_output_TwoWay(addr stream)
+static int clear_output_TwoWay(addr stream)
 {
 	output_twoway(stream, &stream);
-	clear_output_stream(stream);
+	return clear_output_stream_(stream);
 }
 
-static void exitpoint_TwoWay(addr stream)
+static int exitpoint_TwoWay(addr stream)
 {
 	output_twoway(stream, &stream);
-	exitpoint_stream(stream);
+	return exitpoint_stream_(stream);
 }
 
-static int terminal_width_TwoWay(addr stream, size_t *ret)
+static int termsize_TwoWay(addr stream, size_t *value, int *ret)
 {
 	output_twoway(stream, &stream);
-	return terminal_width_stream(stream, ret);
+	return termsize_stream_(stream, value, ret);
 }
 
 _g void init_stream_twoway(void)
 {
 	DefineStreamDef(TwoWay, close);
 	DefineStreamSet(TwoWay, read_binary);
-	DefineStreamSet(TwoWay, readforce_binary);
+	DefineStreamSet(TwoWay, readf_binary);
 	DefineStreamSet(TwoWay, read_byte);
 	DefineStreamSet(TwoWay, unread_byte);
 	DefineStreamSet(TwoWay, write_binary);
@@ -256,14 +256,14 @@ _g void init_stream_twoway(void)
 	DefineStreamDef(TwoWay, file_position_start);
 	DefineStreamDef(TwoWay, file_position_end);
 	DefineStreamDef(TwoWay, file_position_set);
-	DefineStreamSet(TwoWay, file_character_length);
-	DefineStreamSet(TwoWay, file_string_length);
+	DefineStreamSet(TwoWay, file_charlen);
+	DefineStreamSet(TwoWay, file_strlen);
 	DefineStreamSet(TwoWay, listen);
 	DefineStreamSet(TwoWay, clear_input);
 	DefineStreamSet(TwoWay, finish_output);
 	DefineStreamSet(TwoWay, force_output);
 	DefineStreamSet(TwoWay, clear_output);
 	DefineStreamSet(TwoWay, exitpoint);
-	DefineStreamSet(TwoWay, terminal_width);
+	DefineStreamSet(TwoWay, termsize);
 }
 

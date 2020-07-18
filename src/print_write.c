@@ -45,8 +45,8 @@
 static calltype_print WriteCircleTable[LISPTYPE_SIZE];
 static calltype_print WriteCallTable[LISPTYPE_SIZE];
 
-static int write_circle_call(Execute ptr, addr stream, addr pos);
-static int write_print_call(Execute ptr, addr stream, addr pos);
+static int write_circle_call_(Execute ptr, addr stream, addr pos);
+static int write_print_call_(Execute ptr, addr stream, addr pos);
 
 /*
  *  print-check object
@@ -240,30 +240,30 @@ _g void write_check_all_clear(Execute ptr)
 /*
  *  default
  */
-static int WriteBody_error(Execute ptr, addr stream, addr pos)
+static int WriteBody_error_(Execute ptr, addr stream, addr pos)
 {
-	print_ascii_stream(stream, "INVALID-OBJECT");
+	Return(print_ascii_stream_(stream, "INVALID-OBJECT"));
 	if (type_name_p(&pos, pos))
 		return 0;
-	write_char_stream(stream, ' ');
-	return write_print_call(ptr, stream, pos);
+	Return(write_char_stream_(stream, ' '));
+	return write_print_call_(ptr, stream, pos);
 }
 
 static int WriteCall_error(Execute ptr, addr stream, addr pos)
 {
-	return print_unreadable_object(ptr, stream, pos, 0, 1, WriteBody_error);
+	return print_unreadable_object_(ptr, stream, pos, 0, 1, WriteBody_error_);
 }
 
 static int WriteCall_system(Execute ptr, addr stream, addr pos)
 {
-	return print_unreadable_object(ptr, stream, pos, 1, 1, NULL);
+	return print_unreadable_object_(ptr, stream, pos, 1, 1, NULL);
 }
 
 
 /*
  *  cons
  */
-static void WriteCheckCall_cons(Execute ptr, addr pos)
+static int WriteCheckCall_cons_(Execute ptr, addr pos)
 {
 	int lenp, levelp;
 	addr x;
@@ -275,11 +275,11 @@ static void WriteCheckCall_cons(Execute ptr, addr pos)
 
 	/* *print-level* */
 	if (levelp && level <= depth)
-		return;
+		return 0;
 
 	/* intern */
 	if (intern_print_write(ptr, pos) == 0)
-		return;
+		return 0;
 
 	/* list */
 	CheckType(pos, LISPTYPE_CONS);
@@ -290,94 +290,96 @@ static void WriteCheckCall_cons(Execute ptr, addr pos)
 			break;
 		/* cons */
 		GetCons(pos, &x, &pos);
-		write_check_call(ptr, x);
+		Return(write_check_call_(ptr, x));
 		if (! consp(pos))
 			break;
 		if (intern_print_write(ptr, pos) == 0)
 			break;
 	}
 	setdepth_print_write(ptr, depth);
+
+	return 0;
 }
 
-_g int pprint_pop_circle(Execute ptr, addr stream, addr pos)
+_g int pprint_pop_circle_(Execute ptr, addr stream, addr pos, int *ret)
 {
 	addr x;
 	size_t index;
 
 	if (find_print_write(ptr, pos, &x))
-		return 0;
+		return Result(ret, 0);
 	/* found */
 	if (get_first_print_check(x) == 0)
-		fmte("Invalid loop object.", NULL);
+		return fmte_("Invalid loop object.", NULL);
 
-	print_ascii_stream(stream, ". #");
+	Return(print_ascii_stream_(stream, ". #"));
 	index = get_index_print_check(x);
-	output_nosign_fixnum(stream, index, 10, 1);
+	Return(output_nosign_fixnum_(stream, index, 10, 1));
 	/* #3# */
-	write_char_stream(stream, '#');
-	return 1;
+	Return(write_char_stream_(stream, '#'));
+	return Result(ret, 1);
 }
 
-static int WriteCircle_find(Execute ptr, addr stream, addr pos)
+static int WriteCircle_find_(Execute ptr, addr stream, addr pos, int *ret)
 {
 	addr x;
 	size_t index;
 
 	if (find_print_write(ptr, pos, &x))
-		return 0;
+		return Result(ret, 0);
 	/* found */
-	write_char_stream(stream, '#');
+	Return(write_char_stream_(stream, '#'));
 	index = get_index_print_check(x);
-	output_nosign_fixnum(stream, index, 10, 1);
+	Return(output_nosign_fixnum_(stream, index, 10, 1));
 	/* first, second */
 	if (get_first_print_check(x) == 0) {
 		/* #3= (...) */
-		write_char_stream(stream, '=');
+		Return(write_char_stream_(stream, '='));
 		set_first_print_check(x);
-		return 0;
+		return Result(ret, 0);
 	}
 	else {
 		/* #3# */
-		write_char_stream(stream, '#');
-		return 1;
+		Return(write_char_stream_(stream, '#'));
+		return Result(ret, 1);
 	}
 }
 
-_g int pprint_check_circle(Execute ptr, addr pos, addr *ret)
+_g int pprint_check_circle_(Execute ptr, addr pos, addr *value, int *ret)
 {
 	addr x, stream;
 	size_t index;
 
 	CheckType(pos, LISPTYPE_CONS);
 	if (find_print_write(ptr, pos, &x)) {
-		*ret = Nil;
-		return 0;
+		*value = Nil;
+		return Result(ret, 0);
 	}
 
 	/* found */
 	open_output_string_stream(&stream, 0);
-	write_char_stream(stream, '#');
+	Return(write_char_stream_(stream, '#'));
 	index = get_index_print_check(x);
-	output_nosign_fixnum(stream, index, 10, 1);
+	Return(output_nosign_fixnum_(stream, index, 10, 1));
 	/* first, second */
 	if (get_first_print_check(x) == 0) {
 		/* #3= (...) */
-		write_char_stream(stream, '=');
+		Return(write_char_stream_(stream, '='));
 		set_first_print_check(x);
-		string_stream_heap(stream, ret);
-		return 0;
+		string_stream_heap(stream, value);
+		return Result(ret, 0);
 	}
 	else {
 		/* #3# */
-		write_char_stream(stream, '#');
-		string_stream_heap(stream, ret);
-		return 1;
+		Return(write_char_stream_(stream, '#'));
+		string_stream_heap(stream, value);
+		return Result(ret, 1);
 	}
 }
 
-static int WriteCircleCall_cons(Execute ptr, addr stream, addr pos)
+static int WriteCircleCall_cons_(Execute ptr, addr stream, addr pos)
 {
-	int lenp, levelp;
+	int lenp, levelp, check;
 	addr x;
 	size_t i, len, level, depth;
 
@@ -386,48 +388,45 @@ static int WriteCircleCall_cons(Execute ptr, addr stream, addr pos)
 	getdepth_print_write(ptr, &depth);
 
 	/* *print-level* */
-	if (levelp && level <= depth) {
-		write_char_stream(stream, '#');
-		return 0;
-	}
+	if (levelp && level <= depth)
+		return write_char_stream_(stream, '#');
 
 	/* table */
-	if (WriteCircle_find(ptr, stream, pos))
+	Return(WriteCircle_find_(ptr, stream, pos, &check));
+	if (check)
 		return 0;
 
 	/* list */
 	CheckType(pos, LISPTYPE_CONS);
 	setdepth_print_write(ptr, depth + 1);
-	write_char_stream(stream, '(');
+	Return(write_char_stream_(stream, '('));
 	for (i = 0; ; i++) {
 		/* *print-length* */
 		if (lenp && len <= i) {
-			print_ascii_stream(stream, "...");
+			Return(print_ascii_stream_(stream, "..."));
 			break;
 		}
 		/* cons */
 		GetCons(pos, &x, &pos);
-		if (write_circle_call(ptr, stream, x))
-			return 1;
+		Return(write_circle_call_(ptr, stream, x));
 		if (pos == Nil)
 			break;
 		if (consp(pos) && find_print_write(ptr, pos, &x)) {
-			write_char_stream(stream, ' ');
+			Return(write_char_stream_(stream, ' '));
 		}
 		else {
-			print_ascii_stream(stream, " . ");
-			if (write_circle_call(ptr, stream, pos))
-				return 1;
+			Return(print_ascii_stream_(stream, " . "));
+			Return(write_circle_call_(ptr, stream, pos));
 			break;
 		}
 	}
-	write_char_stream(stream, ')');
+	Return(write_char_stream_(stream, ')'));
 	setdepth_print_write(ptr, depth);
 
 	return 0;
 }
 
-static int WriteCall_cons(Execute ptr, addr stream, addr pos)
+static int WriteCall_cons_(Execute ptr, addr stream, addr pos)
 {
 	int lenp, levelp;
 	addr x;
@@ -438,38 +437,34 @@ static int WriteCall_cons(Execute ptr, addr stream, addr pos)
 	getdepth_print_write(ptr, &depth);
 
 	/* *print-level* */
-	if (levelp && level <= depth) {
-		write_char_stream(stream, '#');
-		return 0;
-	}
+	if (levelp && level <= depth)
+		return write_char_stream_(stream, '#');
 
 	/* list */
 	CheckType(pos, LISPTYPE_CONS);
 	setdepth_print_write(ptr, depth + 1);
-	write_char_stream(stream, '(');
+	Return(write_char_stream_(stream, '('));
 	for (i = 0; ; i++) {
 		/* *print-length* */
 		if (lenp && len <= i) {
-			print_ascii_stream(stream, "...");
+			Return(print_ascii_stream_(stream, "..."));
 			break;
 		}
 		/* cons */
 		GetCons(pos, &x, &pos);
-		if (write_print_call(ptr, stream, x))
-			return 1;
+		Return(write_print_call_(ptr, stream, x));
 		if (pos == Nil)
 			break;
 		if (consp(pos)) {
-			write_char_stream(stream, ' ');
+			Return(write_char_stream_(stream, ' '));
 		}
 		else {
-			print_ascii_stream(stream, " . ");
-			if (write_print_call(ptr, stream, pos))
-				return 1;
+			Return(print_ascii_stream_(stream, " . "));
+			Return(write_print_call_(ptr, stream, pos));
 			break;
 		}
 	}
-	write_char_stream(stream, ')');
+	Return(write_char_stream_(stream, ')'));
 	setdepth_print_write(ptr, depth);
 
 	return 0;
@@ -479,7 +474,7 @@ static int WriteCall_cons(Execute ptr, addr stream, addr pos)
 /*
  *  vector
  */
-static void WriteCheckCall_vector(Execute ptr, addr pos)
+static int WriteCheckCall_vector_(Execute ptr, addr pos)
 {
 	int lenp, levelp;
 	addr x;
@@ -491,11 +486,11 @@ static void WriteCheckCall_vector(Execute ptr, addr pos)
 
 	/* *print-level* */
 	if (levelp && level <= depth)
-		return;
+		return 0;
 
 	/* intern */
 	if (intern_print_write(ptr, pos) == 0)
-		return;
+		return 0;
 
 	/* list */
 	CheckType(pos, LISPTYPE_VECTOR);
@@ -507,56 +502,57 @@ static void WriteCheckCall_vector(Execute ptr, addr pos)
 			break;
 		/* vector */
 		getarray(pos, i, &x);
-		write_check_call(ptr, x);
+		Return(write_check_call_(ptr, x));
 	}
-	setdepth_print_write(ptr, depth);
-}
-
-static int WriteCircleCall_vector(Execute ptr, addr stream, addr pos)
-{
-	int lenp, levelp;
-	addr x;
-	size_t len, level, depth, size, i;
-
-	lenp = length_print(ptr, &len);
-	levelp = level_print(ptr, &level);
-	getdepth_print_write(ptr, &depth);
-
-	/* *print-level* */
-	if (levelp && level <= depth) {
-		write_char_stream(stream, '#');
-		return 0;
-	}
-
-	/* table */
-	if (WriteCircle_find(ptr, stream, pos))
-		return 0;
-
-	/* list */
-	CheckType(pos, LISPTYPE_VECTOR);
-	lenarray(pos, &size);
-	setdepth_print_write(ptr, depth + 1);
-	print_ascii_stream(stream, "#(");
-	for (i = 0; i < size; i++) {
-		if (i != 0)
-			write_char_stream(stream, ' ');
-		/* *print-length* */
-		if (lenp && len <= i) {
-			print_ascii_stream(stream, "...");
-			break;
-		}
-		/* vector */
-		getarray(pos, i, &x);
-		if (write_circle_call(ptr, stream, x))
-			return 1;
-	}
-	write_char_stream(stream, ')');
 	setdepth_print_write(ptr, depth);
 
 	return 0;
 }
 
-static int WriteCall_vector(Execute ptr, addr stream, addr pos)
+static int WriteCircleCall_vector_(Execute ptr, addr stream, addr pos)
+{
+	int lenp, levelp, check;
+	addr x;
+	size_t len, level, depth, size, i;
+
+	lenp = length_print(ptr, &len);
+	levelp = level_print(ptr, &level);
+	getdepth_print_write(ptr, &depth);
+
+	/* *print-level* */
+	if (levelp && level <= depth)
+		return write_char_stream_(stream, '#');
+
+	/* table */
+	Return(WriteCircle_find_(ptr, stream, pos, &check));
+	if (check)
+		return 0;
+
+	/* list */
+	CheckType(pos, LISPTYPE_VECTOR);
+	lenarray(pos, &size);
+	setdepth_print_write(ptr, depth + 1);
+	Return(print_ascii_stream_(stream, "#("));
+	for (i = 0; i < size; i++) {
+		if (i != 0) {
+			Return(write_char_stream_(stream, ' '));
+		}
+		/* *print-length* */
+		if (lenp && len <= i) {
+			Return(print_ascii_stream_(stream, "..."));
+			break;
+		}
+		/* vector */
+		getarray(pos, i, &x);
+		Return(write_circle_call_(ptr, stream, x));
+	}
+	Return(write_char_stream_(stream, ')'));
+	setdepth_print_write(ptr, depth);
+
+	return 0;
+}
+
+static int WriteCall_vector_(Execute ptr, addr stream, addr pos)
 {
 	int lenp, levelp;
 	addr x;
@@ -567,30 +563,28 @@ static int WriteCall_vector(Execute ptr, addr stream, addr pos)
 	getdepth_print_write(ptr, &depth);
 
 	/* *print-level* */
-	if (levelp && level <= depth) {
-		write_char_stream(stream, '#');
-		return 0;
-	}
+	if (levelp && level <= depth)
+		return write_char_stream_(stream, '#');
 
 	/* list */
 	CheckType(pos, LISPTYPE_VECTOR);
 	lenarray(pos, &size);
 	setdepth_print_write(ptr, depth + 1);
-	print_ascii_stream(stream, "#(");
+	Return(print_ascii_stream_(stream, "#("));
 	for (i = 0; i < size; i++) {
-		if (i != 0)
-			write_char_stream(stream, ' ');
+		if (i != 0) {
+			Return(write_char_stream_(stream, ' '));
+		}
 		/* *print-length* */
 		if (lenp && len <= i) {
-			print_ascii_stream(stream, "...");
+			Return(print_ascii_stream_(stream, "..."));
 			break;
 		}
 		/* vector */
 		getarray(pos, i, &x);
-		if (write_print_call(ptr, stream, x))
-			return 1;
+		Return(write_print_call_(ptr, stream, x));
 	}
-	write_char_stream(stream, ')');
+	Return(write_char_stream_(stream, ')'));
 	setdepth_print_write(ptr, depth);
 
 	return 0;
@@ -628,7 +622,7 @@ static int WriteArray_specialized_p(addr pos)
 		&& (str->type == ARRAY_TYPE_BIT || str->type == ARRAY_TYPE_CHARACTER);
 }
 
-static void WriteCheckCall_array_print(struct write_array_struct *str)
+static int WriteCheckCall_array_print_(struct write_array_struct *str)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -637,11 +631,13 @@ static void WriteCheckCall_array_print(struct write_array_struct *str)
 	local = str->ptr->local;
 	push_local(local, &stack);
 	array_get(local, str->pos, str->index++, &pos);
-	write_check_call(str->ptr, pos);
+	Return(write_check_call_(str->ptr, pos));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void WriteCheckCall_array_call(struct write_array_struct *str)
+static int WriteCheckCall_array_call_(struct write_array_struct *str)
 {
 	int lenp;
 	const size_t *data;
@@ -649,10 +645,8 @@ static void WriteCheckCall_array_call(struct write_array_struct *str)
 
 	/* output */
 	depth = str->depth;
-	if (str->dimension <= str->depth) {
-		WriteCheckCall_array_print(str);
-		return;
-	}
+	if (str->dimension <= str->depth)
+		return WriteCheckCall_array_print_(str);
 
 	/* restrict */
 	data = str->data;
@@ -667,12 +661,14 @@ static void WriteCheckCall_array_call(struct write_array_struct *str)
 			break;
 		}
 		/* array */
-		WriteCheckCall_array_call(str);
+		Return(WriteCheckCall_array_call_(str));
 	}
 	str->depth--;
+
+	return 0;
 }
 
-static void WriteCheckCall_array(Execute ptr, addr pos)
+static int WriteCheckCall_array_(Execute ptr, addr pos)
 {
 	int check;
 	const size_t *data;
@@ -683,15 +679,15 @@ static void WriteCheckCall_array(Execute ptr, addr pos)
 	check = level_print(ptr, &level);
 	getdepth_print_write(ptr, &depth);
 	if (check && level <= depth)
-		return;
+		return 0;
 
 	/* intern */
 	if (intern_print_write(ptr, pos) == 0)
-		return;
+		return 0;
 
 	/* specialized */
 	if (WriteArray_specialized_p(pos))
-		return;
+		return 0;
 
 	/* prefix */
 	dimension = ArrayInfoStruct(pos)->dimension;
@@ -700,44 +696,43 @@ static void WriteCheckCall_array(Execute ptr, addr pos)
 	/* body */
 	setdepth_print_write(ptr, depth + 1);
 	make_write_array(&str, ptr, Nil, pos, data, dimension);
-	WriteCheckCall_array_call(&str);
+	Return(WriteCheckCall_array_call_(&str));
 	setdepth_print_write(ptr, depth);
+
+	return 0;
 }
 
-static int WriteArray_bit(Execute ptr, addr stream, addr pos)
+static int WriteArray_bit_(Execute ptr, addr stream, addr pos)
 {
 	int value;
 	size_t size, i;
 
 	array_get_rowlength(pos, &size);
-	print_ascii_stream(stream, "#*");
+	Return(print_ascii_stream_(stream, "#*"));
 	for (i = 0; i < size; i++) {
 		(void)array_get_bit(pos, i, &value);
-		write_char_stream(stream, value? '1': '0');
+		Return(write_char_stream_(stream, value? '1': '0'));
 	}
 
 	return 0;
 }
 
-static int WriteCall_string(Execute ptr, addr stream, addr object);
-static int WriteArray_specialized(Execute ptr, addr stream, addr pos)
+static int WriteCall_string_(Execute ptr, addr stream, addr object);
+static int WriteArray_specialized_(Execute ptr, addr stream, addr pos)
 {
 	switch (ArrayInfoStruct(pos)->type) {
 		case ARRAY_TYPE_BIT:
-			return WriteArray_bit(ptr, stream, pos);
+			return WriteArray_bit_(ptr, stream, pos);
 
 		case ARRAY_TYPE_CHARACTER:
-			return WriteCall_string(ptr, stream, pos);
+			return WriteCall_string_(ptr, stream, pos);
 
 		default:
-			fmte("Invalid array type.", NULL);
-			break;
+			return fmte_("Invalid array type.", NULL);
 	}
-
-	return 0;
 }
 
-static int WriteCircleCall_array_print(struct write_array_struct *str)
+static int WriteCircleCall_array_print_(struct write_array_struct *str)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -746,14 +741,13 @@ static int WriteCircleCall_array_print(struct write_array_struct *str)
 	local = str->ptr->local;
 	push_local(local, &stack);
 	array_get(local, str->pos, str->index++, &pos);
-	if (write_circle_call(str->ptr, str->stream, pos))
-		return 1;
+	Return(write_circle_call_(str->ptr, str->stream, pos));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int WriteCall_array_print(struct write_array_struct *str)
+static int WriteCall_array_print_(struct write_array_struct *str)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -762,14 +756,13 @@ static int WriteCall_array_print(struct write_array_struct *str)
 	local = str->ptr->local;
 	push_local(local, &stack);
 	array_get(local, str->pos, str->index++, &pos);
-	if (write_print_call(str->ptr, str->stream, pos))
-		return 1;
+	Return(write_print_call_(str->ptr, str->stream, pos));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int WriteCircleCall_array_call(struct write_array_struct *str)
+static int WriteCircleCall_array_call_(struct write_array_struct *str)
 {
 	int lenp;
 	addr stream;
@@ -779,7 +772,7 @@ static int WriteCircleCall_array_call(struct write_array_struct *str)
 	/* output */
 	depth = str->depth;
 	if (str->dimension <= depth)
-		return WriteCircleCall_array_print(str);
+		return WriteCircleCall_array_print_(str);
 
 	/* restrict */
 	stream = str->stream;
@@ -787,28 +780,28 @@ static int WriteCircleCall_array_call(struct write_array_struct *str)
 	loop = data[depth];
 	lenp = length_print(str->ptr, &len);
 
-	write_char_stream(stream, '(');
+	Return(write_char_stream_(stream, '('));
 	str->depth++;
 	for (i = 0; i < loop; i++) {
-		if (i != 0)
-			write_char_stream(stream, ' ');
+		if (i != 0) {
+			Return(write_char_stream_(stream, ' '));
+		}
 		/* *print-length* */
 		if (lenp && len <= i) {
-			print_ascii_stream(stream, "...");
+			Return(print_ascii_stream_(stream, "..."));
 			str->index += loop - i;
 			break;
 		}
 		/* array */
-		if (WriteCircleCall_array_call(str))
-			return 1;
+		Return(WriteCircleCall_array_call_(str));
 	}
 	str->depth--;
-	write_char_stream(stream, ')');
+	Return(write_char_stream_(stream, ')'));
 
 	return 0;
 }
 
-static int WriteCall_array_call(struct write_array_struct *str)
+static int WriteCall_array_call_(struct write_array_struct *str)
 {
 	int lenp;
 	addr stream;
@@ -818,7 +811,7 @@ static int WriteCall_array_call(struct write_array_struct *str)
 	/* output */
 	depth = str->depth;
 	if (str->dimension <= str->depth)
-		return WriteCall_array_print(str);
+		return WriteCall_array_print_(str);
 
 	/* restrict */
 	stream = str->stream;
@@ -826,28 +819,28 @@ static int WriteCall_array_call(struct write_array_struct *str)
 	loop = data[depth];
 	lenp = length_print(str->ptr, &len);
 
-	write_char_stream(stream, '(');
+	Return(write_char_stream_(stream, '('));
 	str->depth++;
 	for (i = 0; i < loop; i++) {
-		if (i != 0)
-			write_char_stream(stream, ' ');
+		if (i != 0) {
+			Return(write_char_stream_(stream, ' '));
+		}
 		/* *print-length* */
 		if (lenp && len <= i) {
-			print_ascii_stream(stream, "...");
+			Return(print_ascii_stream_(stream, "..."));
 			str->index += loop - i;
 			break;
 		}
 		/* array */
-		if (WriteCall_array_call(str))
-			return 1;
+		Return(WriteCall_array_call_(str));
 	}
 	str->depth--;
-	write_char_stream(stream, ')');
+	Return(write_char_stream_(stream, ')'));
 
 	return 0;
 }
 
-static int WriteCircleCall_array(Execute ptr, addr stream, addr pos)
+static int WriteCircleCall_array_(Execute ptr, addr stream, addr pos)
 {
 	int check;
 	const size_t *data;
@@ -857,38 +850,37 @@ static int WriteCircleCall_array(Execute ptr, addr stream, addr pos)
 	/* *print-level* */
 	check = level_print(ptr, &level);
 	getdepth_print_write(ptr, &depth);
-	if (check && level <= depth) {
-		write_char_stream(stream, '#');
-		return 0;
-	}
+	if (check && level <= depth)
+		return write_char_stream_(stream, '#');
 
 	/* table */
-	if (WriteCircle_find(ptr, stream, pos))
+	Return(WriteCircle_find_(ptr, stream, pos, &check));
+	if (check)
 		return 0;
 
 	/* specialized */
 	if (WriteArray_specialized_p(pos))
-		return WriteArray_specialized(ptr, stream, pos);
+		return WriteArray_specialized_(ptr, stream, pos);
 
 	/* prefix */
-	write_char_stream(stream, '#');
+	Return(write_char_stream_(stream, '#'));
 	dimension = ArrayInfoStruct(pos)->dimension;
 	data = array_ptrsize(pos);
 	if (dimension != 1) {
-		output_nosign_index(stream, dimension, 10, 1);
-		write_char_stream(stream, 'A');
+		Return(output_nosign_index_(stream, dimension, 10, 1));
+		Return(write_char_stream_(stream, 'A'));
 	}
 
 	/* body */
 	setdepth_print_write(ptr, depth + 1);
 	make_write_array(&str, ptr, stream, pos, data, dimension);
-	check = WriteCircleCall_array_call(&str);
+	Return(WriteCircleCall_array_call_(&str));
 	setdepth_print_write(ptr, depth);
 
-	return check;
+	return 0;
 }
 
-static int WriteCall_array(Execute ptr, addr stream, addr pos)
+static int WriteCall_array_(Execute ptr, addr stream, addr pos)
 {
 	int check;
 	const size_t *data;
@@ -898,38 +890,36 @@ static int WriteCall_array(Execute ptr, addr stream, addr pos)
 	/* *print-level* */
 	check = level_print(ptr, &level);
 	getdepth_print_write(ptr, &depth);
-	if (check && level <= depth) {
-		write_char_stream(stream, '#');
-		return 0;
-	}
+	if (check && level <= depth)
+		return write_char_stream_(stream, '#');
 
 	/* specialized */
 	if (WriteArray_specialized_p(pos))
-		return WriteArray_specialized(ptr, stream, pos);
+		return WriteArray_specialized_(ptr, stream, pos);
 
 	/* prefix */
-	write_char_stream(stream, '#');
+	Return(write_char_stream_(stream, '#'));
 	dimension = ArrayInfoStruct(pos)->dimension;
 	data = array_ptrsize(pos);
 	if (dimension != 1) {
-		output_nosign_index(stream, dimension, 10, 1);
-		write_char_stream(stream, 'A');
+		Return(output_nosign_index_(stream, dimension, 10, 1));
+		Return(write_char_stream_(stream, 'A'));
 	}
 
 	/* body */
 	setdepth_print_write(ptr, depth + 1);
 	make_write_array(&str, ptr, stream, pos, data, dimension);
-	check = WriteCall_array_call(&str);
+	Return(WriteCall_array_call_(&str));
 	setdepth_print_write(ptr, depth);
 
-	return check;
+	return 0;
 }
 
 
 /*
  *  symbol
  */
-static void WriteSymbol_direct_norm(addr stream, addr pos)
+static int WriteSymbol_direct_norm_(addr stream, addr pos)
 {
 	size_t i, size;
 	unicode u;
@@ -938,11 +928,13 @@ static void WriteSymbol_direct_norm(addr stream, addr pos)
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &u);
-		write_char_stream(stream, u);
+		Return(write_char_stream_(stream, u));
 	}
+
+	return 0;
 }
 
-static void WriteSymbol_downcase_norm(addr stream, addr pos)
+static int WriteSymbol_downcase_norm_(addr stream, addr pos)
 {
 	unicode u;
 	size_t i, size;
@@ -951,11 +943,13 @@ static void WriteSymbol_downcase_norm(addr stream, addr pos)
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &u);
-		write_char_stream(stream, toLowerUnicode(u));
+		Return(write_char_stream_(stream, toLowerUnicode(u)));
 	}
+
+	return 0;
 }
 
-static void WriteSymbol_upcase_norm(addr stream, addr pos)
+static int WriteSymbol_upcase_norm_(addr stream, addr pos)
 {
 	unicode u;
 	size_t i, size;
@@ -964,38 +958,13 @@ static void WriteSymbol_upcase_norm(addr stream, addr pos)
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &u);
-		write_char_stream(stream, toUpperUnicode(u));
+		Return(write_char_stream_(stream, toUpperUnicode(u)));
 	}
+
+	return 0;
 }
 
-static void WriteSymbol_up_cap_norm(addr stream, addr pos)
-{
-	int check;
-	unicode u;
-	size_t i, size;
-
-	GetNameSymbol(pos, &pos);
-	check = 1;
-	string_length(pos, &size);
-	for (i = 0; i < size; i++) {
-		string_getc(pos, i, &u);
-		if (isAlphanumeric(u)) {
-			if (check) {
-				write_char_stream(stream, u);
-				check = 0;
-			}
-			else {
-				write_char_stream(stream, toLowerUnicode(u));
-			}
-		}
-		else {
-			write_char_stream(stream, u);
-			check = 1;
-		}
-	}
-}
-
-static void WriteSymbol_down_cap_norm(addr stream, addr pos)
+static int WriteSymbol_up_cap_norm_(addr stream, addr pos)
 {
 	int check;
 	unicode u;
@@ -1008,21 +977,52 @@ static void WriteSymbol_down_cap_norm(addr stream, addr pos)
 		string_getc(pos, i, &u);
 		if (isAlphanumeric(u)) {
 			if (check) {
-				write_char_stream(stream, toUpperUnicode(u));
+				Return(write_char_stream_(stream, u));
 				check = 0;
 			}
 			else {
-				write_char_stream(stream, u);
+				Return(write_char_stream_(stream, toLowerUnicode(u)));
 			}
 		}
 		else {
-			write_char_stream(stream, u);
+			Return(write_char_stream_(stream, u));
 			check = 1;
 		}
 	}
+
+	return 0;
 }
 
-static enum PrintCase WriteSymbol_check_invert(addr pos)
+static int WriteSymbol_down_cap_norm_(addr stream, addr pos)
+{
+	int check;
+	unicode u;
+	size_t i, size;
+
+	GetNameSymbol(pos, &pos);
+	check = 1;
+	string_length(pos, &size);
+	for (i = 0; i < size; i++) {
+		string_getc(pos, i, &u);
+		if (isAlphanumeric(u)) {
+			if (check) {
+				Return(write_char_stream_(stream, toUpperUnicode(u)));
+				check = 0;
+			}
+			else {
+				Return(write_char_stream_(stream, u));
+			}
+		}
+		else {
+			Return(write_char_stream_(stream, u));
+			check = 1;
+		}
+	}
+
+	return 0;
+}
+
+static int WriteSymbol_check_invert_(addr pos, enum PrintCase *ret)
 {
 	enum PrintCase check;
 	unicode u;
@@ -1038,7 +1038,7 @@ static enum PrintCase WriteSymbol_check_invert(addr pos)
 				check = PrintCase_upcase;
 			}
 			else if (check != PrintCase_upcase) {
-				return PrintCase_preserve;
+				return Result(ret, PrintCase_preserve);
 			}
 		}
 		else if (isLowerCase(u)) {
@@ -1046,28 +1046,28 @@ static enum PrintCase WriteSymbol_check_invert(addr pos)
 				check = PrintCase_downcase;
 			}
 			else if (check != PrintCase_downcase) {
-				return PrintCase_preserve;
+				return Result(ret, PrintCase_preserve);
 			}
 		}
 	}
 
-	return check;
+	return Result(ret, check);
 }
 
-static void WriteSymbol_invert_norm(addr stream, addr pos)
+static int WriteSymbol_invert_norm_(addr stream, addr pos)
 {
-	switch (WriteSymbol_check_invert(pos)) {
+	enum PrintCase type;
+
+	Return(WriteSymbol_check_invert_(pos, &type));
+	switch (type) {
 		case PrintCase_upcase:
-			WriteSymbol_downcase_norm(stream, pos);
-			break;
+			return WriteSymbol_downcase_norm_(stream, pos);
 
 		case PrintCase_downcase:
-			WriteSymbol_upcase_norm(stream, pos);
-			break;
+			return WriteSymbol_upcase_norm_(stream, pos);
 
 		default:
-			WriteSymbol_direct_norm(stream, pos);
-			break;
+			return WriteSymbol_direct_norm_(stream, pos);
 	}
 }
 
@@ -1081,7 +1081,7 @@ static int WriteSymbol_check_escape(unicode c)
 		|| (c == '\'') || (c == '"');
 }
 
-static void WriteSymbol_direct_escape(addr stream, addr pos)
+static int WriteSymbol_direct_escape_(addr stream, addr pos)
 {
 	unicode u;
 	size_t i, size;
@@ -1089,13 +1089,16 @@ static void WriteSymbol_direct_escape(addr stream, addr pos)
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &u);
-		if (u == '\\' || u == '|')
-			write_char_stream(stream, '\\');
-		write_char_stream(stream, u);
+		if (u == '\\' || u == '|') {
+			Return(write_char_stream_(stream, '\\'));
+		}
+		Return(write_char_stream_(stream, u));
 	}
+
+	return 0;
 }
 
-static int WriteSymbol_check_upcase_escape(addr pos)
+static int WriteSymbol_check_upcase_escape_(addr pos, int *ret)
 {
 	unicode u;
 	size_t i, size;
@@ -1104,27 +1107,32 @@ static int WriteSymbol_check_upcase_escape(addr pos)
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &u);
 		if (WriteSymbol_check_escape(u))
-			return 1;
+			return Result(ret, 1);
 		if (isLowerCase(u))
-			return 1;
+			return Result(ret, 1);
+	}
+
+	return Result(ret, 0);
+}
+
+static int WriteSymbol_up_up_output_(addr stream, addr pos)
+{
+	int check;
+
+	Return(WriteSymbol_check_upcase_escape_(pos, &check));
+	if (check) {
+		Return(write_char_stream_(stream, '|'));
+		Return(WriteSymbol_direct_escape_(stream, pos));
+		Return(write_char_stream_(stream, '|'));
+	}
+	else {
+		Return(WriteSymbol_direct_escape_(stream, pos));
 	}
 
 	return 0;
 }
 
-static void WriteSymbol_up_up_output(addr stream, addr pos)
-{
-	if (WriteSymbol_check_upcase_escape(pos)) {
-		write_char_stream(stream, '|');
-		WriteSymbol_direct_escape(stream, pos);
-		write_char_stream(stream, '|');
-	}
-	else {
-		WriteSymbol_direct_escape(stream, pos);
-	}
-}
-
-static void WriteSymbol_downcase_escape(addr stream, addr pos)
+static int WriteSymbol_downcase_escape_(addr stream, addr pos)
 {
 	unicode u;
 	size_t i, size;
@@ -1132,23 +1140,30 @@ static void WriteSymbol_downcase_escape(addr stream, addr pos)
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &u);
-		write_char_stream(stream, toLowerUnicode(u));
+		Return(write_char_stream_(stream, toLowerUnicode(u)));
 	}
+
+	return 0;
 }
 
-static void WriteSymbol_up_down_output(addr stream, addr pos)
+static int WriteSymbol_up_down_output_(addr stream, addr pos)
 {
-	if (WriteSymbol_check_upcase_escape(pos)) {
-		write_char_stream(stream, '|');
-		WriteSymbol_direct_escape(stream, pos);
-		write_char_stream(stream, '|');
+	int check;
+
+	Return(WriteSymbol_check_upcase_escape_(pos, &check));
+	if (check) {
+		Return(write_char_stream_(stream, '|'));
+		Return(WriteSymbol_direct_escape_(stream, pos));
+		Return(write_char_stream_(stream, '|'));
 	}
 	else {
-		WriteSymbol_downcase_escape(stream, pos);
+		Return(WriteSymbol_downcase_escape_(stream, pos));
 	}
+
+	return 0;
 }
 
-static void WriteSymbol_capitalize_escape(addr stream, addr pos)
+static int WriteSymbol_capitalize_escape_(addr stream, addr pos)
 {
 	int check;
 	unicode u;
@@ -1160,34 +1175,41 @@ static void WriteSymbol_capitalize_escape(addr stream, addr pos)
 		string_getc(pos, i, &u);
 		if (isAlphanumeric(u)) {
 			if (check) {
-				write_char_stream(stream, toUpperUnicode(u));
+				Return(write_char_stream_(stream, toUpperUnicode(u)));
 				check = 0;
 			}
 			else {
-				write_char_stream(stream, toLowerUnicode(u));
+				Return(write_char_stream_(stream, toLowerUnicode(u)));
 			}
 		}
 		else {
-			write_char_stream(stream, u);
+			Return(write_char_stream_(stream, u));
 			check = 1;
 		}
 	}
+
+	return 0;
 }
 
-static void WriteSymbol_up_cap_output(addr stream, addr pos)
+static int WriteSymbol_up_cap_output_(addr stream, addr pos)
 {
-	if (WriteSymbol_check_upcase_escape(pos)) {
-		write_char_stream(stream, '|');
-		WriteSymbol_direct_escape(stream, pos);
-		write_char_stream(stream, '|');
+	int check;
+
+	Return(WriteSymbol_check_upcase_escape_(pos, &check));
+	if (check) {
+		Return(write_char_stream_(stream, '|'));
+		Return(WriteSymbol_direct_escape_(stream, pos));
+		Return(write_char_stream_(stream, '|'));
 	}
 	else {
-		WriteSymbol_capitalize_escape(stream, pos);
+		Return(WriteSymbol_capitalize_escape_(stream, pos));
 	}
+
+	return 0;
 }
 
-static void WriteSymbol_escape(Execute ptr,
-		addr stream, addr pos, void (*call)(addr, addr))
+static int WriteSymbol_escape_(Execute ptr,
+		addr stream, addr pos, int (*call)(addr, addr))
 {
 	int exportp;
 	addr package, check;
@@ -1196,28 +1218,29 @@ static void WriteSymbol_escape(Execute ptr,
 	GetPackageSymbol(pos, &package);
 	if (package == Nil) {
 		/* gensym */
-		if (gensym_print(ptr))
-			print_ascii_stream(stream, "#:");
+		if (gensym_print(ptr)) {
+			Return(print_ascii_stream_(stream, "#:"));
+		}
 	}
 	else if (checksymbol_package(pos, check)) {
 		/* no package name */
 	}
 	else if (keywordp(pos)) {
-		print_ascii_stream(stream, ":");
+		Return(print_ascii_stream_(stream, ":"));
 	}
 	else if (package != check && externalp_package(pos, check)) {
 		/* package name */
 		exportp = exportp_package(pos, package);
 		getname_package(package, &package);
-		call(stream, package);
-		print_ascii_stream(stream, exportp? ":": "::");
+		Return((*call)(stream, package));
+		Return(print_ascii_stream_(stream, exportp? ":": "::"));
 	}
 	/* symbol name */
 	GetNameSymbol(pos, &pos);
-	call(stream, pos);
+	return (*call)(stream, pos);
 }
 
-static int WriteSymbol_check_downcase_escape(addr pos)
+static int WriteSymbol_check_downcase_escape_(addr pos, int *ret)
 {
 	unicode u;
 	size_t i, size;
@@ -1226,15 +1249,15 @@ static int WriteSymbol_check_downcase_escape(addr pos)
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &u);
 		if (WriteSymbol_check_escape(u))
-			return 1;
+			return Result(ret, 1);
 		if (isUpperCase(u))
-			return 1;
+			return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static void WriteSymbol_upcase_escape(addr stream, addr pos)
+static int WriteSymbol_upcase_escape_(addr stream, addr pos)
 {
 	unicode u;
 	size_t i, size;
@@ -1242,47 +1265,64 @@ static void WriteSymbol_upcase_escape(addr stream, addr pos)
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &u);
-		write_char_stream(stream, toUpperUnicode(u));
+		Return(write_char_stream_(stream, toUpperUnicode(u)));
 	}
+
+	return 0;
 }
 
-static void WriteSymbol_down_up_output(addr stream, addr pos)
+static int WriteSymbol_down_up_output_(addr stream, addr pos)
 {
-	if (WriteSymbol_check_downcase_escape(pos)) {
-		write_char_stream(stream, '|');
-		WriteSymbol_direct_escape(stream, pos);
-		write_char_stream(stream, '|');
+	int check;
+
+	Return(WriteSymbol_check_downcase_escape_(pos, &check));
+	if (check) {
+		Return(write_char_stream_(stream, '|'));
+		Return(WriteSymbol_direct_escape_(stream, pos));
+		Return(write_char_stream_(stream, '|'));
 	}
 	else {
-		WriteSymbol_upcase_escape(stream, pos);
+		Return(WriteSymbol_upcase_escape_(stream, pos));
 	}
+
+	return 0;
 }
 
-static void WriteSymbol_down_down_output(addr stream, addr pos)
+static int WriteSymbol_down_down_output_(addr stream, addr pos)
 {
-	if (WriteSymbol_check_downcase_escape(pos)) {
-		write_char_stream(stream, '|');
-		WriteSymbol_direct_escape(stream, pos);
-		write_char_stream(stream, '|');
+	int check;
+
+	Return(WriteSymbol_check_downcase_escape_(pos, &check));
+	if (check) {
+		Return(write_char_stream_(stream, '|'));
+		Return(WriteSymbol_direct_escape_(stream, pos));
+		Return(write_char_stream_(stream, '|'));
 	}
 	else {
-		WriteSymbol_direct_escape(stream, pos);
+		Return(WriteSymbol_direct_escape_(stream, pos));
 	}
+
+	return 0;
 }
 
-static void WriteSymbol_down_cap_output(addr stream, addr pos)
+static int WriteSymbol_down_cap_output_(addr stream, addr pos)
 {
-	if (WriteSymbol_check_downcase_escape(pos)) {
-		write_char_stream(stream, '|');
-		WriteSymbol_direct_escape(stream, pos);
-		write_char_stream(stream, '|');
+	int check;
+
+	Return(WriteSymbol_check_downcase_escape_(pos, &check));
+	if (check) {
+		Return(write_char_stream_(stream, '|'));
+		Return(WriteSymbol_direct_escape_(stream, pos));
+		Return(write_char_stream_(stream, '|'));
 	}
 	else {
-		WriteSymbol_capitalize_escape(stream, pos);
+		Return(WriteSymbol_capitalize_escape_(stream, pos));
 	}
+
+	return 0;
 }
 
-static int WriteSymbol_check_preserve_escape(addr pos)
+static int WriteSymbol_check_preserve_escape_(addr pos, int *ret)
 {
 	unicode u;
 	size_t i, size;
@@ -1291,25 +1331,30 @@ static int WriteSymbol_check_preserve_escape(addr pos)
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &u);
 		if (WriteSymbol_check_escape(u))
-			return 1;
+			return Result(ret, 1);
+	}
+
+	return Result(ret, 0);
+}
+
+static int WriteSymbol_preserve_output_(addr stream, addr pos)
+{
+	int check;
+
+	Return(WriteSymbol_check_preserve_escape_(pos, &check));
+	if (check) {
+		Return(write_char_stream_(stream, '|'));
+		Return(WriteSymbol_direct_escape_(stream, pos));
+		Return(write_char_stream_(stream, '|'));
+	}
+	else {
+		Return(WriteSymbol_direct_escape_(stream, pos));
 	}
 
 	return 0;
 }
 
-static void WriteSymbol_preserve_output(addr stream, addr pos)
-{
-	if (WriteSymbol_check_preserve_escape(pos)) {
-		write_char_stream(stream, '|');
-		WriteSymbol_direct_escape(stream, pos);
-		write_char_stream(stream, '|');
-	}
-	else {
-		WriteSymbol_direct_escape(stream, pos);
-	}
-}
-
-static enum PrintCase WriteSymbol_check_invert_escape(addr pos)
+static int WriteSymbol_check_invert_escape_(addr pos, enum PrintCase *ret)
 {
 	enum PrintCase check;
 	unicode u;
@@ -1320,14 +1365,14 @@ static enum PrintCase WriteSymbol_check_invert_escape(addr pos)
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &u);
 		if (WriteSymbol_check_escape(u)) {
-			return PrintCase_escape;
+			return Result(ret, PrintCase_escape);
 		}
 		else if (isUpperCase(u)) {
 			if (check == PrintCase_unread) {
 				check = PrintCase_upcase;
 			}
 			else if (check != PrintCase_upcase) {
-				return PrintCase_preserve;
+				return Result(ret, PrintCase_preserve);
 			}
 		}
 		else if (isLowerCase(u)) {
@@ -1335,181 +1380,166 @@ static enum PrintCase WriteSymbol_check_invert_escape(addr pos)
 				check = PrintCase_downcase;
 			}
 			else if (check != PrintCase_downcase) {
-				return PrintCase_preserve;
+				return Result(ret, PrintCase_preserve);
 			}
 		}
 	}
 
-	return check;
+	return Result(ret, check);
 }
 
-static void WriteSymbol_invert_output(addr stream, addr pos)
+static int WriteSymbol_invert_output_(addr stream, addr pos)
 {
-	switch (WriteSymbol_check_invert_escape(pos)) {
+	enum PrintCase type;
+
+	Return(WriteSymbol_check_invert_escape_(pos, &type));
+	switch (type) {
 		case PrintCase_upcase:
-			WriteSymbol_downcase_escape(stream, pos);
-			break;
+			return WriteSymbol_downcase_escape_(stream, pos);
 
 		case PrintCase_downcase:
-			WriteSymbol_upcase_escape(stream, pos);
-			break;
+			return WriteSymbol_upcase_escape_(stream, pos);
 
 		case PrintCase_escape:
-			write_char_stream(stream, '|');
-			WriteSymbol_direct_escape(stream, pos);
-			write_char_stream(stream, '|');
-			break;
+			Return(write_char_stream_(stream, '|'));
+			Return(WriteSymbol_direct_escape_(stream, pos));
+			Return(write_char_stream_(stream, '|'));
+			return 0;
 
 		default:
-			WriteSymbol_direct_escape(stream, pos);
-			break;
+			return WriteSymbol_direct_escape_(stream, pos);
 	}
 }
 
-static void WriteSymbol_upcase_upcase(Execute ptr, addr stream, addr pos)
+static int WriteSymbol_upcase_upcase_(Execute ptr, addr stream, addr pos)
 {
 	if (escape_print(ptr))
-		WriteSymbol_escape(ptr, stream, pos, WriteSymbol_up_up_output);
+		return WriteSymbol_escape_(ptr, stream, pos, WriteSymbol_up_up_output_);
 	else
-		WriteSymbol_direct_norm(stream, pos);
+		return WriteSymbol_direct_norm_(stream, pos);
 }
 
-static void WriteSymbol_upcase_downcase(Execute ptr, addr stream, addr pos)
+static int WriteSymbol_upcase_downcase_(Execute ptr, addr stream, addr pos)
 {
 	if (escape_print(ptr))
-		WriteSymbol_escape(ptr, stream, pos, WriteSymbol_up_down_output);
+		return WriteSymbol_escape_(ptr, stream, pos, WriteSymbol_up_down_output_);
 	else
-		WriteSymbol_downcase_norm(stream, pos);
+		return WriteSymbol_downcase_norm_(stream, pos);
 }
 
-static void WriteSymbol_upcase_capitalize(Execute ptr, addr stream, addr pos)
+static int WriteSymbol_upcase_capitalize_(Execute ptr, addr stream, addr pos)
 {
 	if (escape_print(ptr))
-		WriteSymbol_escape(ptr, stream, pos, WriteSymbol_up_cap_output);
+		return WriteSymbol_escape_(ptr, stream, pos, WriteSymbol_up_cap_output_);
 	else
-		WriteSymbol_up_cap_norm(stream, pos);
+		return WriteSymbol_up_cap_norm_(stream, pos);
 }
 
-static void WriteSymbol_upcase(Execute ptr, addr stream, addr pos)
+static int WriteSymbol_upcase_(Execute ptr, addr stream, addr pos)
 {
 	switch (case_print(ptr)) {
 		case PrintCase_upcase:
-			WriteSymbol_upcase_upcase(ptr, stream, pos);
-			break;
+			return WriteSymbol_upcase_upcase_(ptr, stream, pos);
 
 		case PrintCase_downcase:
-			WriteSymbol_upcase_downcase(ptr, stream, pos);
-			break;
+			return WriteSymbol_upcase_downcase_(ptr, stream, pos);
 
 		case PrintCase_capitalize:
-			WriteSymbol_upcase_capitalize(ptr, stream, pos);
-			break;
+			return WriteSymbol_upcase_capitalize_(ptr, stream, pos);
 
 		default:
-			fmte("printcase error", NULL);
-			break;
+			return fmte_("printcase error", NULL);
 	}
 }
 
-static void WriteSymbol_downcase_upcase(Execute ptr, addr stream, addr pos)
+static int WriteSymbol_downcase_upcase_(Execute ptr, addr stream, addr pos)
 {
 	if (escape_print(ptr))
-		WriteSymbol_escape(ptr, stream, pos, WriteSymbol_down_up_output);
+		return WriteSymbol_escape_(ptr, stream, pos, WriteSymbol_down_up_output_);
 	else
-		WriteSymbol_upcase_norm(stream, pos);
+		return WriteSymbol_upcase_norm_(stream, pos);
 }
 
-static void WriteSymbol_downcase_downcase(Execute ptr, addr stream, addr pos)
+static int WriteSymbol_downcase_downcase_(Execute ptr, addr stream, addr pos)
 {
 	if (escape_print(ptr))
-		WriteSymbol_escape(ptr, stream, pos, WriteSymbol_down_down_output);
+		return WriteSymbol_escape_(ptr, stream, pos, WriteSymbol_down_down_output_);
 	else
-		WriteSymbol_direct_norm(stream, pos);
+		return WriteSymbol_direct_norm_(stream, pos);
 }
 
-static void WriteSymbol_downcase_capitalize(Execute ptr, addr stream, addr pos)
+static int WriteSymbol_downcase_capitalize_(Execute ptr, addr stream, addr pos)
 {
 	if (escape_print(ptr))
-		WriteSymbol_escape(ptr, stream, pos, WriteSymbol_down_cap_output);
+		return WriteSymbol_escape_(ptr, stream, pos, WriteSymbol_down_cap_output_);
 	else
-		WriteSymbol_down_cap_norm(stream, pos);
+		return WriteSymbol_down_cap_norm_(stream, pos);
 }
 
-static void WriteSymbol_downcase(Execute ptr, addr stream, addr pos)
+static int WriteSymbol_downcase_(Execute ptr, addr stream, addr pos)
 {
 	switch (case_print(ptr)) {
 		case PrintCase_upcase:
-			WriteSymbol_downcase_upcase(ptr, stream, pos);
-			break;
+			return WriteSymbol_downcase_upcase_(ptr, stream, pos);
 
 		case PrintCase_downcase:
-			WriteSymbol_downcase_downcase(ptr, stream, pos);
-			break;
+			return WriteSymbol_downcase_downcase_(ptr, stream, pos);
 
 		case PrintCase_capitalize:
-			WriteSymbol_downcase_capitalize(ptr, stream, pos);
-			break;
+			return WriteSymbol_downcase_capitalize_(ptr, stream, pos);
 
 		default:
-			fmte("printcase error", NULL);
-			break;
+			return fmte_("printcase error", NULL);
 	}
 }
 
-static void WriteSymbol_preserve(Execute ptr, addr stream, addr pos)
+static int WriteSymbol_preserve_(Execute ptr, addr stream, addr pos)
 {
 	if (escape_print(ptr))
-		WriteSymbol_escape(ptr, stream, pos, WriteSymbol_preserve_output);
+		return WriteSymbol_escape_(ptr, stream, pos, WriteSymbol_preserve_output_);
 	else
-		WriteSymbol_direct_norm(stream, pos);
+		return WriteSymbol_direct_norm_(stream, pos);
 }
 
-static void WriteSymbol_invert(Execute ptr, addr stream, addr pos)
+static int WriteSymbol_invert_(Execute ptr, addr stream, addr pos)
 {
 	if (escape_print(ptr))
-		WriteSymbol_escape(ptr, stream, pos, WriteSymbol_invert_output);
+		return WriteSymbol_escape_(ptr, stream, pos, WriteSymbol_invert_output_);
 	else
-		WriteSymbol_invert_norm(stream, pos);
+		return WriteSymbol_invert_norm_(stream, pos);
 }
 
-static int WriteCall_symbol(Execute ptr, addr stream, addr pos)
+static int WriteCall_symbol_(Execute ptr, addr stream, addr pos)
 {
 	switch (readcase_readtable(ptr)) {
 		case ReadTable_upcase:
-			WriteSymbol_upcase(ptr, stream, pos);
-			break;
+			return WriteSymbol_upcase_(ptr, stream, pos);
 
 		case ReadTable_downcase:
-			WriteSymbol_downcase(ptr, stream, pos);
-			break;
+			return WriteSymbol_downcase_(ptr, stream, pos);
 
 		case ReadTable_preserve:
-			WriteSymbol_preserve(ptr, stream, pos);
-			break;
+			return WriteSymbol_preserve_(ptr, stream, pos);
 
 		case ReadTable_invert:
-			WriteSymbol_invert(ptr, stream, pos);
-			break;
+			return WriteSymbol_invert_(ptr, stream, pos);
 
 		default:
-			fmte("*readtable* case error", NULL);
-			break;
+			return fmte_("*readtable* case error", NULL);
 	}
-
-	return 0;
 }
 
 
 /*
  *  type
  */
-static int WriteCall_type(Execute ptr, addr stream, addr pos)
+static int WriteCall_type_(Execute ptr, addr stream, addr pos)
 {
 	CheckType(pos, LISPTYPE_TYPE);
 	type_object(&pos, pos);
-	print_ascii_stream(stream, "#<TYPE ");
+	Return(print_ascii_stream_(stream, "#<TYPE "));
 	Return(prin1_print(ptr, stream, pos));
-	print_ascii_stream(stream, ">");
+	Return(print_ascii_stream_(stream, ">"));
 
 	return 0;
 }
@@ -1518,7 +1548,7 @@ static int WriteCall_type(Execute ptr, addr stream, addr pos)
 /*
  *  clos, structure
  */
-static int WriteCall_clos(Execute ptr, addr stream, addr pos)
+static int WriteCall_clos_(Execute ptr, addr stream, addr pos)
 {
 	addr generic;
 
@@ -1533,32 +1563,34 @@ static int WriteCall_clos(Execute ptr, addr stream, addr pos)
 /*
  *  character
  */
-static void WriteCall_fixnum_value(addr stream, fixnum value, unsigned base)
+static int WriteCall_fixnum_value_(addr stream, fixnum value, unsigned base)
 {
 	/* zero */
-	if (value == 0) {
-		write_char_stream(stream, '0');
-		return;
-	}
+	if (value == 0)
+		return write_char_stream_(stream, '0');
 
 	/* output */
-	if (value < 0)
-		write_char_stream(stream, '-');
-	output_nosign_fixnum(stream, value, base, 1);
+	if (value < 0) {
+		Return(write_char_stream_(stream, '-'));
+	}
+
+	return output_nosign_fixnum_(stream, value, base, 1);
 }
 
-static void WriteCall_character_name(addr stream, unicode u)
+static int WriteCall_character_name_(addr stream, unicode u)
 {
 	if (isStandardType(u)) {
-		write_char_stream(stream, u);
+		Return(write_char_stream_(stream, u));
 	}
 	else {
-		write_char_stream(stream, 'u');
-		WriteCall_fixnum_value(stream, (fixnum)u, 16);
+		Return(write_char_stream_(stream, 'u'));
+		Return(WriteCall_fixnum_value_(stream, (fixnum)u, 16));
 	}
+
+	return 0;
 }
 
-static void WriteCall_character_string(addr stream, addr string)
+static int WriteCall_character_string_(addr stream, addr string)
 {
 	unicode c;
 	size_t i, size;
@@ -1566,31 +1598,32 @@ static void WriteCall_character_string(addr stream, addr string)
 	string_length(string, &size);
 	for (i = 0; i < size; i++) {
 		string_getc(string, i, &c);
-		write_char_stream(stream, c);
+		Return(write_char_stream_(stream, c));
 	}
+
+	return 0;
 }
 
-static int WriteCall_character(Execute ptr, addr stream, addr object)
+static int WriteCall_character_(Execute ptr, addr stream, addr object)
 {
 	addr pos;
 	unicode u;
 
 	if (! escape_print(ptr)) {
 		GetCharacter(object, &u);
-		write_char_stream(stream, u);
-		return 0;
+		return write_char_stream_(stream, u);
 	}
 
 	if (findtable_char_name(&pos, object)) {
 		/* found */
-		print_ascii_stream(stream, "#\\");
-		WriteCall_character_string(stream, pos);
+		Return(print_ascii_stream_(stream, "#\\"));
+		Return(WriteCall_character_string_(stream, pos));
 	}
 	else {
 		/* not found */
-		print_ascii_stream(stream, "#\\");
+		Return(print_ascii_stream_(stream, "#\\"));
 		GetCharacter(object, &u);
-		WriteCall_character_name(stream, u);
+		Return(WriteCall_character_name_(stream, u));
 	}
 
 	return 0;
@@ -1600,26 +1633,27 @@ static int WriteCall_character(Execute ptr, addr stream, addr object)
 /*
  *  string
  */
-static int WriteCall_string(Execute ptr, addr stream, addr object)
+static int WriteCall_string_(Execute ptr, addr stream, addr object)
 {
 	unicode c;
 	size_t size, i;
 
 	string_length(object, &size);
 	if (escape_print(ptr)) {
-		write_char_stream(stream, '\"');
+		Return(write_char_stream_(stream, '\"'));
 		for (i = 0; i < size; i++) {
 			string_getc(object, i, &c);
-			if (c == '\"' || c == '\\')
-				write_char_stream(stream, '\\');
-			write_char_stream(stream, c);
+			if (c == '\"' || c == '\\') {
+				Return(write_char_stream_(stream, '\\'));
+			}
+			Return(write_char_stream_(stream, c));
 		}
-		write_char_stream(stream, '\"');
+		Return(write_char_stream_(stream, '\"'));
 	}
 	else {
 		for (i = 0; i < size; i++) {
 			string_getc(object, i, &c);
-			write_char_stream(stream, c);
+			Return(write_char_stream_(stream, c));
 		}
 	}
 
@@ -1630,7 +1664,7 @@ static int WriteCall_string(Execute ptr, addr stream, addr object)
 /*
  *  hash-table
  */
-static int WriteBody_hashtable(Execute ptr, addr stream, addr pos)
+static int WriteBody_hashtable_(Execute ptr, addr stream, addr pos)
 {
 	addr value;
 	size_t count;
@@ -1639,49 +1673,45 @@ static int WriteBody_hashtable(Execute ptr, addr stream, addr pos)
 	gettest_symbol_hashtable(pos, &value);
 	getcount_hashtable(pos, &count);
 	/* output */
-	print_ascii_stream(stream, ":TEST ");
-	if (prin1_print(ptr, stream, value)) return 1;
-	print_ascii_stream(stream, " :COUNT ");
-	output_nosign_index(stream, count, 10, 0);
+	Return(print_ascii_stream_(stream, ":TEST "));
+	Return(prin1_print(ptr, stream, value));
+	Return(print_ascii_stream_(stream, " :COUNT "));
+	Return(output_nosign_index_(stream, count, 10, 0));
 
 	return 0;
 }
 
-static int WriteCall_hashtable(Execute ptr, addr stream, addr pos)
+static int WriteCall_hashtable_(Execute ptr, addr stream, addr pos)
 {
-	return print_unreadable_object(ptr, stream, pos, 1, 1, WriteBody_hashtable);
+	return print_unreadable_object_(ptr, stream, pos, 1, 1, WriteBody_hashtable_);
 }
 
 
 /*
  *  fixnum
  */
-static void WriteCall_radix_front(addr stream, unsigned base)
+static int WriteCall_radix_front_(addr stream, unsigned base)
 {
 	char buffer[8];
 
 	Check(! isBaseChar(base), "base error");
 	switch (base) {
 		case 2:
-			print_ascii_stream(stream, "#b");
-			break;
+			return print_ascii_stream_(stream, "#b");
 
 		case 8:
-			print_ascii_stream(stream, "#o");
-			break;
+			return print_ascii_stream_(stream, "#o");
 
 		case 16:
-			print_ascii_stream(stream, "#x");
-			break;
+			return print_ascii_stream_(stream, "#x");
 
 		default:
 			snprintf(buffer, 8, "#%ur", base);
-			print_ascii_stream(stream, buffer);
-			break;
+			return print_ascii_stream_(stream, buffer);
 	}
 }
 
-static int WriteCall_fixnum(Execute ptr, addr stream, addr object)
+static int WriteCall_fixnum_(Execute ptr, addr stream, addr object)
 {
 	int radix;
 	unsigned base;
@@ -1689,12 +1719,14 @@ static int WriteCall_fixnum(Execute ptr, addr stream, addr object)
 
 	base = base_print(ptr);
 	radix = radix_print(ptr);
-	if (radix && base != 10)
-		WriteCall_radix_front(stream, base);
+	if (radix && base != 10) {
+		Return(WriteCall_radix_front_(stream, base));
+	}
 	GetFixnum(object, &value);
-	WriteCall_fixnum_value(stream, value, base);
-	if (radix && base == 10)
-		write_char_stream(stream, '.');
+	Return(WriteCall_fixnum_value_(stream, value, base));
+	if (radix && base == 10) {
+		Return(write_char_stream_(stream, '.'));
+	}
 
 	return 0;
 }
@@ -1703,120 +1735,126 @@ static int WriteCall_fixnum(Execute ptr, addr stream, addr object)
 /*
  *  bignum
  */
-static void WriteCall_bignum_value(addr stream, int sign, addr object, unsigned base)
+static int WriteCall_bignum_value_(LocalRoot local,
+		addr stream, int sign, addr object, unsigned base)
 {
 	/* zero */
-	if (zerop_bignum(object)) {
-		write_char_stream(stream, '0');
-		return;
-	}
+	if (zerop_bignum(object))
+		return write_char_stream_(stream, '0');
 
 	/* output */
-	if (sign)
-		write_char_stream(stream, '-');
-	output_nosign_bignum(Local_Thread, stream, object, base, 1);
+	if (sign) {
+		Return(write_char_stream_(stream, '-'));
+	}
+
+	return output_nosign_bignum_(local, stream, object, base, 1);
 }
 
-static void WriteCall_bignum_sign(Execute ptr, addr stream, int sign, addr object)
+static int WriteCall_bignum_sign_(Execute ptr, addr stream, int sign, addr object)
 {
 	int radix;
 	unsigned base;
 
 	base = base_print(ptr);
 	radix = radix_print(ptr);
-	if (radix && base != 10)
-		WriteCall_radix_front(stream, base);
-	WriteCall_bignum_value(stream, sign, object, base);
-	if (radix && base == 10)
-		write_char_stream(stream, '.');
-}
-
-static int WriteCall_bignum(Execute ptr, addr stream, addr object)
-{
-	int sign;
-
-	GetSignBignum(object, &sign);
-	WriteCall_bignum_sign(ptr, stream, sign, object);
+	if (radix && base != 10) {
+		Return(WriteCall_radix_front_(stream, base));
+	}
+	Return(WriteCall_bignum_value_(ptr->local, stream, sign, object, base));
+	if (radix && base == 10) {
+		Return(write_char_stream_(stream, '.'));
+	}
 
 	return 0;
+}
+
+static int WriteCall_bignum_(Execute ptr, addr stream, addr object)
+{
+	int sign;
+	GetSignBignum(object, &sign);
+	return WriteCall_bignum_sign_(ptr, stream, sign, object);
 }
 
 
 /*
  *  ratio
  */
-static int WriteCall_ratio(Execute ptr, addr stream, addr object)
+static int WriteCall_ratio_(Execute ptr, addr stream, addr object)
 {
 	int sign;
 	addr check;
 	unsigned base;
 
 	/* zero */
-	if (zerop_ratio(object)) {
-		write_char_stream(stream, '0');
-		return 0;
-	}
+	if (zerop_ratio(object))
+		return write_char_stream_(stream, '0');
 
 	/* integer */
 	GetDenomRatio(object, &check);
 	if (equal_value_nosign_bignum(check, 1)) {
 		GetSignRatio(object, &sign);
 		GetNumerRatio(object, &check);
-		WriteCall_bignum_sign(ptr, stream, sign, check);
-		return 0;
+		return WriteCall_bignum_sign_(ptr, stream, sign, check);
 	}
 
 	/* ratio */
 	base = base_print(ptr);
-	if (radix_print(ptr))
-		WriteCall_radix_front(stream, base);
+	if (radix_print(ptr)) {
+		Return(WriteCall_radix_front_(stream, base));
+	}
 	GetSignRatio(object, &sign);
-	if (sign)
-		write_char_stream(stream, '-');
-	output_nosign_ratio(Local_Thread, stream, object, base, 1);
+	if (sign) {
+		Return(write_char_stream_(stream, '-'));
+	}
 
-	return 0;
+	return output_nosign_ratio_(ptr->local, stream, object, base, 1);
 }
 
 
 /*
  *  float
  */
-static int WriteCall_single_float(Execute ptr, addr stream, addr object)
+static int WriteCall_single_float_(Execute ptr, addr stream, addr object)
 {
-	int markerp, marker;
+	int markerp, marker, check;
 	single_float value;
 
 	GetSingleFloat(object, &value);
 	markerp = float_readtable(ptr) != ReadTable_single;
 	marker = markerp? 'F': 'E';
-	fmtfloat_princ_single_float(stream, value, markerp, marker);
+	Return(fmtfloat_princ_single_float_(stream, value, markerp, marker, &check));
+	if (check)
+		return fmte_("Invalid float value.", NULL);
 
 	return 0;
 }
 
-static int WriteCall_double_float(Execute ptr, addr stream, addr object)
+static int WriteCall_double_float_(Execute ptr, addr stream, addr object)
 {
-	int markerp, marker;
+	int markerp, marker, check;
 	double_float value;
 
 	GetDoubleFloat(object, &value);
 	markerp = float_readtable(ptr) != ReadTable_double;
 	marker = markerp? 'D': 'E';
-	fmtfloat_princ_double_float(stream, value, markerp, marker);
+	Return(fmtfloat_princ_double_float_(stream, value, markerp, marker, &check));
+	if (check)
+		return fmte_("Invalid float value.", NULL);
 
 	return 0;
 }
 
-static int WriteCall_long_float(Execute ptr, addr stream, addr object)
+static int WriteCall_long_float_(Execute ptr, addr stream, addr object)
 {
-	int markerp, marker;
+	int markerp, marker, check;
 	long_float value;
 
 	GetLongFloat(object, &value);
 	markerp = float_readtable(ptr) != ReadTable_long;
 	marker = markerp? 'L': 'E';
-	fmtfloat_princ_long_float(stream, value, markerp, marker);
+	Return(fmtfloat_princ_long_float_(stream, value, markerp, marker, &check));
+	if (check)
+		return fmte_("Invalid float value.", NULL);
 
 	return 0;
 }
@@ -1825,19 +1863,17 @@ static int WriteCall_long_float(Execute ptr, addr stream, addr object)
 /*
  *  complex
  */
-static int WriteCall_complex(Execute ptr, addr stream, addr object)
+static int WriteCall_complex_(Execute ptr, addr stream, addr object)
 {
 	addr real, imag;
 
 	GetRealComplex(object, &real);
 	GetImagComplex(object, &imag);
-	print_ascii_stream(stream, "#C(");
-	if (write_print_call(ptr, stream, real))
-		return 1;
-	write_char_stream(stream, ' ');
-	if (write_print_call(ptr, stream, imag))
-		return 1;
-	write_char_stream(stream, ')');
+	Return(print_ascii_stream_(stream, "#C("));
+	Return(write_print_call_(ptr, stream, real));
+	Return(write_char_stream_(stream, ' '));
+	Return(write_print_call_(ptr, stream, imag));
+	Return(write_char_stream_(stream, ')'));
 
 	return 0;
 }
@@ -1846,23 +1882,23 @@ static int WriteCall_complex(Execute ptr, addr stream, addr object)
 /*
  *  callname
  */
-static int WriteBody_callname(Execute ptr, addr stream, addr pos)
+static int WriteBody_callname_(Execute ptr, addr stream, addr pos)
 {
 	name_callname_heap(pos, &pos);
-	print_ascii_stream(stream, "CALLNAME ");
-	return write_print_call(ptr, stream, pos);
+	Return(print_ascii_stream_(stream, "CALLNAME "));
+	return write_print_call_(ptr, stream, pos);
 }
 
-static int WriteCall_callname(Execute ptr, addr stream, addr pos)
+static int WriteCall_callname_(Execute ptr, addr stream, addr pos)
 {
-	return print_unreadable_object(ptr, stream, pos, 0, 1, WriteBody_callname);
+	return print_unreadable_object_(ptr, stream, pos, 0, 1, WriteBody_callname_);
 }
 
 
 /*
  *  function
  */
-static int WriteBody_function(Execute ptr, addr stream, addr pos)
+static int WriteBody_function_(Execute ptr, addr stream, addr pos)
 {
 	const char *name;
 	struct function_struct *str;
@@ -1873,31 +1909,30 @@ static int WriteBody_function(Execute ptr, addr stream, addr pos)
 		name = "COMPILED-FUNCTION ";
 	else
 		name = "FUNCTION ";
-	print_ascii_stream(stream, name);
+	Return(print_ascii_stream_(stream, name));
 
 	/* name */
 	GetNameFunction(pos, &pos);
-	if (pos == Nil)
-		print_ascii_stream(stream, "LAMBDA");
+	if (pos == Nil) {
+		Return(print_ascii_stream_(stream, "LAMBDA"));
+	}
 	else {
 		if (RefCallNameType(pos) == CALLNAME_SYMBOL) {
 			GetCallName(pos, &pos);
-			if (write_print_call(ptr, stream, pos))
-				return 1;
+			Return(write_print_call_(ptr, stream, pos));
 		}
 		else {
 			GetCallName(pos, &pos);
-			print_ascii_stream(stream, "(SETF ");
-			if (write_print_call(ptr, stream, pos))
-				return 1;
-			print_ascii_stream(stream, ")");
+			Return(print_ascii_stream_(stream, "(SETF "));
+			Return(write_print_call_(ptr, stream, pos));
+			Return(print_ascii_stream_(stream, ")"));
 		}
 	}
 
 	return 0;
 }
 
-static int WriteCall_function(Execute ptr, addr stream, addr pos)
+static int WriteCall_function_(Execute ptr, addr stream, addr pos)
 {
 	int ident;
 	addr name;
@@ -1905,14 +1940,14 @@ static int WriteCall_function(Execute ptr, addr stream, addr pos)
 	/* #<FUNCTION NAME> */
 	GetNameFunction(pos, &name);
 	ident = (name == Nil);
-	return print_unreadable_object(ptr, stream, pos, 0, ident, WriteBody_function);
+	return print_unreadable_object_(ptr, stream, pos, 0, ident, WriteBody_function_);
 }
 
 
 /*
  *  index
  */
-static int WriteBody_index(Execute ptr, addr stream, addr pos)
+static int WriteBody_index_(Execute ptr, addr stream, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -1921,43 +1956,40 @@ static int WriteBody_index(Execute ptr, addr stream, addr pos)
 	GetIndex(pos, &size);
 	local = ptr->local;
 	push_local(local, &stack);
-	if (write_print_call(ptr, stream, intsizea(local, size)))
-		return 1;
+	Return(write_print_call_(ptr, stream, intsizea(local, size)));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int WriteCall_index(Execute ptr, addr stream, addr pos)
+static int WriteCall_index_(Execute ptr, addr stream, addr pos)
 {
-	return print_unreadable_object(ptr, stream, pos, 0, 0, WriteBody_index);
+	return print_unreadable_object_(ptr, stream, pos, 0, 0, WriteBody_index_);
 }
 
 
 /*
  *  package
  */
-static int WriteBody_package(Execute ptr, addr stream, addr pos)
+static int WriteBody_package_(Execute ptr, addr stream, addr pos)
 {
 	getname_package(pos, &pos);
-	print_string_stream(stream, pos);
-	return 0;
+	return print_string_stream_(stream, pos);
 }
 
-static int WriteCall_package(Execute ptr, addr stream, addr pos)
+static int WriteCall_package_(Execute ptr, addr stream, addr pos)
 {
 	/* #<PACKAGE NAME> */
-	return print_unreadable_object(ptr, stream, pos, 1, 0, WriteBody_package);
+	return print_unreadable_object_(ptr, stream, pos, 1, 0, WriteBody_package_);
 }
 
 
 /*
  *  random-state
  */
-static int WriteBody_random_state(Execute ptr, addr stream, addr pos)
+static int WriteBody_random_state_(Execute ptr, addr stream, addr pos)
 {
 	addr control;
-	int WriteCall_bignum(Execute, addr, addr);
 
 	push_new_control(ptr, &control);
 	push_escape_print(ptr, 0);
@@ -1966,32 +1998,32 @@ static int WriteBody_random_state(Execute ptr, addr stream, addr pos)
 	push_base_print(ptr, 16);
 	push_case_print(ptr, PrintCase_upcase);
 	make_bignum_random_state_local(ptr->local, pos, &pos);
-	Return(WriteCall_bignum(ptr, stream, pos));
+	Return(WriteCall_bignum_(ptr, stream, pos));
 
 	return free_control_(ptr, control);
 }
 
-static int WriteCall_random_state(Execute ptr, addr stream, addr pos)
+static int WriteCall_random_state_(Execute ptr, addr stream, addr pos)
 {
-	return print_unreadable_object(ptr, stream, pos, 1, 0, WriteBody_random_state);
+	return print_unreadable_object_(ptr, stream, pos, 1, 0, WriteBody_random_state_);
 }
 
 
 /*
  *  pathname
  */
-static int WriteCall_pathname(Execute ptr, addr stream, addr pos)
+static int WriteCall_pathname_(Execute ptr, addr stream, addr pos)
 {
 	LocalRoot local;
 	LocalStack stack;
 
 	local = ptr->local;
 	push_local(local, &stack);
-	name_pathname_local(ptr, pos, &pos);
-	if (escape_print(ptr))
-		print_ascii_stream(stream, "#P");
-	if (WriteCall_string(ptr, stream, pos))
-		return 1;
+	Return(name_pathname_local_(ptr, pos, &pos));
+	if (escape_print(ptr)) {
+		Return(print_ascii_stream_(stream, "#P"));
+	}
+	Return(WriteCall_string_(ptr, stream, pos));
 	rollback_local(local, stack);
 
 	return 0;
@@ -2001,146 +2033,125 @@ static int WriteCall_pathname(Execute ptr, addr stream, addr pos)
 /*
  *  stream
  */
-static int WriteBody_stream(Execute ptr, addr stream, addr pos)
+static int WriteBody_stream_(Execute ptr, addr stream, addr pos)
 {
 	struct StructStream *str;
 
 	str = PtrStructStream(pos);
 	switch (str->type) {
 		case StreamType_BinaryInput:
-			print_ascii_stream(stream, "FILE-INPUT BINARY");
-			break;
+			return print_ascii_stream_(stream, "FILE-INPUT BINARY");
 
 		case StreamType_BinaryOutput:
-			print_ascii_stream(stream, "FILE-OUTPUT BINARY");
-			break;
+			return print_ascii_stream_(stream, "FILE-OUTPUT BINARY");
 
 		case StreamType_BinaryIO:
-			print_ascii_stream(stream, "FILE-IO BINARY");
-			break;
+			return print_ascii_stream_(stream, "FILE-IO BINARY");
 
 		case StreamType_CharacterInput:
-			print_ascii_stream(stream, "FILE-INPUT CHARACTER");
-			break;
+			return print_ascii_stream_(stream, "FILE-INPUT CHARACTER");
 
 		case StreamType_CharacterOutput:
-			print_ascii_stream(stream, "FILE-OUTPUT CHARACTER");
-			break;
+			return print_ascii_stream_(stream, "FILE-OUTPUT CHARACTER");
 
 		case StreamType_CharacterIO:
-			print_ascii_stream(stream, "FILE-IO CHARACTER");
-			break;
+			return print_ascii_stream_(stream, "FILE-IO CHARACTER");
 
 		case StreamType_BincharInput:
-			print_ascii_stream(stream, "FILE-INPUT SYSTEM");
-			break;
+			return print_ascii_stream_(stream, "FILE-INPUT SYSTEM");
 
 		case StreamType_BincharOutput:
-			print_ascii_stream(stream, "FILE-OUTPUT SYSTEM");
-			break;
+			return print_ascii_stream_(stream, "FILE-OUTPUT SYSTEM");
 
 		case StreamType_BincharIO:
-			print_ascii_stream(stream, "FILE-IO SYSTEM");
-			break;
+			return print_ascii_stream_(stream, "FILE-IO SYSTEM");
 
 		case StreamType_StringInput:
-			print_ascii_stream(stream, "STREAM STRING-INPUT");
-			break;
+			return print_ascii_stream_(stream, "STREAM STRING-INPUT");
 
 		case StreamType_StringOutput:
-			print_ascii_stream(stream, "STREAM STRING-OUTPUT");
-			break;
+			return print_ascii_stream_(stream, "STREAM STRING-OUTPUT");
 
 		case StreamType_Synonym:
-			print_ascii_stream(stream, "SYNONYM-STREAM");
-			break;
+			return print_ascii_stream_(stream, "SYNONYM-STREAM");
 
 		case StreamType_BroadCast:
-			print_ascii_stream(stream, "BROADCAST-STREAM");
-			break;
+			return print_ascii_stream_(stream, "BROADCAST-STREAM");
 
 		case StreamType_Concatenated:
-			print_ascii_stream(stream, "CONCATENATED-STREAM");
-			break;
+			return print_ascii_stream_(stream, "CONCATENATED-STREAM");
 
 		case StreamType_TwoWay:
-			print_ascii_stream(stream, "TWO-WAY-STREAM");
-			break;
+			return print_ascii_stream_(stream, "TWO-WAY-STREAM");
 
 		case StreamType_Echo:
-			print_ascii_stream(stream, "ECHO-STREAM");
-			break;
+			return print_ascii_stream_(stream, "ECHO-STREAM");
 
 		case StreamType_Prompt:
-			print_ascii_stream(stream, "PROMPT-STREAM");
-			break;
+			return print_ascii_stream_(stream, "PROMPT-STREAM");
 
 		case StreamType_Pretty:
-			print_ascii_stream(stream, "PRETTY-STREAM");
-			break;
+			return print_ascii_stream_(stream, "PRETTY-STREAM");
 
 		default:
-			print_ascii_stream(stream, "STREAM");
-			break;
+			return print_ascii_stream_(stream, "STREAM");
 	}
-
-	return 0;
 }
 
-static int WriteCall_stream(Execute ptr, addr stream, addr pos)
+static int WriteCall_stream_(Execute ptr, addr stream, addr pos)
 {
-	return print_unreadable_object(ptr, stream, pos, 0, 1, WriteBody_stream);
+	return print_unreadable_object_(ptr, stream, pos, 0, 1, WriteBody_stream_);
 }
 
 
 /*
  *  quote
  */
-static int WriteCall_quote(Execute ptr, addr stream, addr pos)
+static int WriteCall_quote_(Execute ptr, addr stream, addr pos)
 {
 	if (quote_back_p(pos)) {
 		getprint_quote(pos, &pos);
-		write_char_stream(stream, '`');
-		return write_print_call(ptr, stream, pos);
+		Return(write_char_stream_(stream, '`'));
+		return write_print_call_(ptr, stream, pos);
 	}
 	if (quote_comma_p(pos)) {
 		getprint_quote(pos, &pos);
-		write_char_stream(stream, ',');
-		return write_print_call(ptr, stream, pos);
+		Return(write_char_stream_(stream, ','));
+		return write_print_call_(ptr, stream, pos);
 	}
 	if (quote_atsign_p(pos)) {
 		getprint_quote(pos, &pos);
-		print_ascii_stream(stream, ",@");
-		return write_print_call(ptr, stream, pos);
+		Return(print_ascii_stream_(stream, ",@"));
+		return write_print_call_(ptr, stream, pos);
 	}
 	if (quote_dot_p(pos)) {
 		getprint_quote(pos, &pos);
-		print_ascii_stream(stream, ",.");
-		return write_print_call(ptr, stream, pos);
+		Return(print_ascii_stream_(stream, ",."));
+		return write_print_call_(ptr, stream, pos);
 	}
-	return print_unreadable_object(ptr, stream, pos, 1, 1, NULL);
+	return print_unreadable_object_(ptr, stream, pos, 1, 1, NULL);
 }
 
 
 /*
  *  restart
  */
-static int WriteBody_restart(Execute ptr, addr stream, addr pos)
+static int WriteBody_restart_(Execute ptr, addr stream, addr pos)
 {
 	getname_restart(pos, &pos);
-	return write_print_call(ptr, stream, pos);
+	return write_print_call_(ptr, stream, pos);
 }
 
-static int WriteCall_restart(Execute ptr, addr stream, addr pos)
+static int WriteCall_restart_(Execute ptr, addr stream, addr pos)
 {
 	addr restart;
 
 	/* #<RESTART NAME #xADDRESS> */
 	getreport_restart(pos, &restart);
 	if (restart == Nil || escape_print(ptr))
-		return print_unreadable_object(ptr, stream, pos, 1, 1, WriteBody_restart);
+		return print_unreadable_object_(ptr, stream, pos, 1, 1, WriteBody_restart_);
 	else if (stringp(restart))
-		return WriteCall_string(ptr, stream, restart);
+		return WriteCall_string_(ptr, stream, restart);
 	else
 		return callclang_funcall(ptr, &restart, restart, stream, NULL);
 }
@@ -2149,16 +2160,16 @@ static int WriteCall_restart(Execute ptr, addr stream, addr pos)
 /*
  *  bitvector
  */
-static int WriteCall_bitvector(Execute ptr, addr stream, addr pos)
+static int WriteCall_bitvector_(Execute ptr, addr stream, addr pos)
 {
 	int value;
 	size_t size, i;
 
 	bitmemory_length(pos, &size);
-	print_ascii_stream(stream, "#*");
+	Return(print_ascii_stream_(stream, "#*"));
 	for (i = 0; i < size; i++) {
 		bitmemory_getint(pos, i, &value);
-		write_char_stream(stream, value? '1': '0');
+		Return(write_char_stream_(stream, value? '1': '0'));
 	}
 
 	return 0;
@@ -2168,48 +2179,43 @@ static int WriteCall_bitvector(Execute ptr, addr stream, addr pos)
 /*
  *  byte
  */
-static int WriteBody_bytespec(Execute ptr, addr stream, addr pos)
+static int WriteBody_bytespec_(Execute ptr, addr stream, addr pos)
 {
 	char data[256];
 	struct bytespec_struct *str;
 
 	str = ByteSpecStruct(pos);
 	snprintf(data, 256, "SIZE:%zu POSITION:%zu", str->size, str->position);
-	print_ascii_stream(stream, data);
-
-	return 0;
+	return print_ascii_stream_(stream, data);
 }
 
-static int WriteCall_bytespec(Execute ptr, addr stream, addr pos)
+static int WriteCall_bytespec_(Execute ptr, addr stream, addr pos)
 {
-	return print_unreadable_object(ptr, stream, pos, 1, 0, WriteBody_bytespec);
+	return print_unreadable_object_(ptr, stream, pos, 1, 0, WriteBody_bytespec_);
 }
 
 
 /*
  *  table
  */
-_g void write_check_call(Execute ptr, addr pos)
+_g int write_check_call_(Execute ptr, addr pos)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_CONS:
-			WriteCheckCall_cons(ptr, pos);
-			break;
+			return WriteCheckCall_cons_(ptr, pos);
 
 		case LISPTYPE_VECTOR:
-			WriteCheckCall_vector(ptr, pos);
-			break;
+			return WriteCheckCall_vector_(ptr, pos);
 
 		case LISPTYPE_ARRAY:
-			WriteCheckCall_array(ptr, pos);
-			break;
+			return WriteCheckCall_array_(ptr, pos);
 
 		default:
-			break;
+			return 0;
 	}
 }
 
-static int write_circle_call(Execute ptr, addr stream, addr pos)
+static int write_circle_call_(Execute ptr, addr stream, addr pos)
 {
 	int index;
 	calltype_print call;
@@ -2222,7 +2228,7 @@ static int write_circle_call(Execute ptr, addr stream, addr pos)
 		return (WriteCallTable[index])(ptr, stream, pos);
 }
 
-static int write_print_call(Execute ptr, addr stream, addr pos)
+static int write_print_call_(Execute ptr, addr stream, addr pos)
 {
 	int index = (int)GetType(pos);
 	return (WriteCallTable[index])(ptr, stream, pos);
@@ -2232,30 +2238,29 @@ static int write_print_call(Execute ptr, addr stream, addr pos)
 /*
  *  write print
  */
-int write_default_print(Execute ptr, addr stream, addr pos)
+_g int write_default_print_(Execute ptr, addr stream, addr pos)
 {
 	/* normal */
 	if (! circle_print(ptr))
-		return write_print_call(ptr, stream, pos);
+		return write_print_call_(ptr, stream, pos);
 	/* circle */
 	if (discard_pretty_stream(stream))
 		return 0;
 	if (! push_pretty_stream_p(stream)) {
 		push_write_object(ptr);
-		write_check_call(ptr, pos);
+		Return(write_check_call_(ptr, pos));
 	}
-	return write_circle_call(ptr, stream, pos);
+	return write_circle_call_(ptr, stream, pos);
 }
 
-static int write_pretty_print(Execute ptr, addr stream, addr pos)
+static int write_pretty_print_(Execute ptr, addr stream, addr pos)
 {
 	addr dispatch;
 
 	pprint_dispatch_print(ptr, &dispatch);
-	if (find_function_print_dispatch(ptr, pos, dispatch, &dispatch))
-		return 1;
+	Return(find_function_print_dispatch(ptr, pos, dispatch, &dispatch));
 	if (dispatch == Nil)
-		return write_default_print(ptr, stream, pos);
+		return write_default_print_(ptr, stream, pos);
 	else
 		return callclang_funcall(ptr, &dispatch, dispatch, stream, pos, NULL);
 }
@@ -2264,9 +2269,9 @@ _g int write_print(Execute ptr, addr stream, addr pos)
 {
 	gchold_push_local(ptr->local, stream);
 	if (pretty_print(ptr))
-		return write_pretty_print(ptr, stream, pos);
+		return write_pretty_print_(ptr, stream, pos);
 	else
-		return write_default_print(ptr, stream, pos);
+		return write_default_print_(ptr, stream, pos);
 }
 
 _g int princ_print(Execute ptr, addr stream, addr pos)
@@ -2294,11 +2299,9 @@ _g int prin1_print(Execute ptr, addr stream, addr pos)
 
 _g int print_print(Execute ptr, addr stream, addr pos)
 {
-	terpri_stream(stream);
-	if (prin1_print(ptr, stream, pos))
-		return 1;
-	write_char_stream(stream, ' ');
-	return 0;
+	Return(terpri_stream_(stream));
+	Return(prin1_print(ptr, stream, pos));
+	return write_char_stream_(stream, ' ');
 }
 
 _g int pprint_print(Execute ptr, addr stream, addr pos)
@@ -2308,7 +2311,7 @@ _g int pprint_print(Execute ptr, addr stream, addr pos)
 	push_new_control(ptr, &control);
 	push_escape_print(ptr, 1);
 	push_pretty_print(ptr, 1);
-	terpri_stream(stream);
+	Return(terpri_stream_(stream));
 	Return(write_print(ptr, stream, pos));
 
 	return free_control_(ptr, control);
@@ -2403,48 +2406,48 @@ _g void init_print_write(void)
 	}
 
 	/* cons */
-	WriteCircleTable[LISPTYPE_CONS] = WriteCircleCall_cons;
-	WriteCallTable[LISPTYPE_CONS] = WriteCall_cons;
+	WriteCircleTable[LISPTYPE_CONS] = WriteCircleCall_cons_;
+	WriteCallTable[LISPTYPE_CONS] = WriteCall_cons_;
 	/* vector */
-	WriteCircleTable[LISPTYPE_VECTOR] = WriteCircleCall_vector;
-	WriteCallTable[LISPTYPE_VECTOR] = WriteCall_vector;
+	WriteCircleTable[LISPTYPE_VECTOR] = WriteCircleCall_vector_;
+	WriteCallTable[LISPTYPE_VECTOR] = WriteCall_vector_;
 	/* array */
-	WriteCircleTable[LISPTYPE_ARRAY] = WriteCircleCall_array;
-	WriteCallTable[LISPTYPE_ARRAY] = WriteCall_array;
+	WriteCircleTable[LISPTYPE_ARRAY] = WriteCircleCall_array_;
+	WriteCallTable[LISPTYPE_ARRAY] = WriteCall_array_;
 	/* object */
-	WriteCallTable[LISPTYPE_NIL] = WriteCall_symbol;
-	WriteCallTable[LISPTYPE_T] = WriteCall_symbol;
-	WriteCallTable[LISPTYPE_TYPE] = WriteCall_type;
-	WriteCallTable[LISPTYPE_CLOS] = WriteCall_clos;
-	WriteCallTable[LISPTYPE_CHARACTER] = WriteCall_character;
-	WriteCallTable[LISPTYPE_STRING] = WriteCall_string;
-	WriteCallTable[LISPTYPE_HASHTABLE] = WriteCall_hashtable;
+	WriteCallTable[LISPTYPE_NIL] = WriteCall_symbol_;
+	WriteCallTable[LISPTYPE_T] = WriteCall_symbol_;
+	WriteCallTable[LISPTYPE_TYPE] = WriteCall_type_;
+	WriteCallTable[LISPTYPE_CLOS] = WriteCall_clos_;
+	WriteCallTable[LISPTYPE_CHARACTER] = WriteCall_character_;
+	WriteCallTable[LISPTYPE_STRING] = WriteCall_string_;
+	WriteCallTable[LISPTYPE_HASHTABLE] = WriteCall_hashtable_;
 	WriteCallTable[LISPTYPE_READTABLE] = WriteCall_system;
-	WriteCallTable[LISPTYPE_SYMBOL] = WriteCall_symbol;
-	WriteCallTable[LISPTYPE_FIXNUM] = WriteCall_fixnum;
-	WriteCallTable[LISPTYPE_BIGNUM] = WriteCall_bignum;
-	WriteCallTable[LISPTYPE_RATIO] = WriteCall_ratio;
+	WriteCallTable[LISPTYPE_SYMBOL] = WriteCall_symbol_;
+	WriteCallTable[LISPTYPE_FIXNUM] = WriteCall_fixnum_;
+	WriteCallTable[LISPTYPE_BIGNUM] = WriteCall_bignum_;
+	WriteCallTable[LISPTYPE_RATIO] = WriteCall_ratio_;
 	WriteCallTable[LISPTYPE_SHORT_FLOAT] = WriteCall_error;
-	WriteCallTable[LISPTYPE_SINGLE_FLOAT] = WriteCall_single_float;
-	WriteCallTable[LISPTYPE_DOUBLE_FLOAT] = WriteCall_double_float;
-	WriteCallTable[LISPTYPE_LONG_FLOAT] = WriteCall_long_float;
-	WriteCallTable[LISPTYPE_COMPLEX] = WriteCall_complex;
+	WriteCallTable[LISPTYPE_SINGLE_FLOAT] = WriteCall_single_float_;
+	WriteCallTable[LISPTYPE_DOUBLE_FLOAT] = WriteCall_double_float_;
+	WriteCallTable[LISPTYPE_LONG_FLOAT] = WriteCall_long_float_;
+	WriteCallTable[LISPTYPE_COMPLEX] = WriteCall_complex_;
 	WriteCallTable[LISPTYPE_CONTROL] = WriteCall_system;
 	WriteCallTable[LISPTYPE_CODE] = WriteCall_system;
-	WriteCallTable[LISPTYPE_CALLNAME] = WriteCall_callname;
-	WriteCallTable[LISPTYPE_FUNCTION] = WriteCall_function;
-	WriteCallTable[LISPTYPE_INDEX] = WriteCall_index;
-	WriteCallTable[LISPTYPE_PACKAGE] = WriteCall_package;
-	WriteCallTable[LISPTYPE_RANDOM_STATE] = WriteCall_random_state;
-	WriteCallTable[LISPTYPE_PATHNAME] = WriteCall_pathname;
-	WriteCallTable[LISPTYPE_STREAM] = WriteCall_stream;
-	WriteCallTable[LISPTYPE_QUOTE] = WriteCall_quote;
-	WriteCallTable[LISPTYPE_RESTART] = WriteCall_restart;
+	WriteCallTable[LISPTYPE_CALLNAME] = WriteCall_callname_;
+	WriteCallTable[LISPTYPE_FUNCTION] = WriteCall_function_;
+	WriteCallTable[LISPTYPE_INDEX] = WriteCall_index_;
+	WriteCallTable[LISPTYPE_PACKAGE] = WriteCall_package_;
+	WriteCallTable[LISPTYPE_RANDOM_STATE] = WriteCall_random_state_;
+	WriteCallTable[LISPTYPE_PATHNAME] = WriteCall_pathname_;
+	WriteCallTable[LISPTYPE_STREAM] = WriteCall_stream_;
+	WriteCallTable[LISPTYPE_QUOTE] = WriteCall_quote_;
+	WriteCallTable[LISPTYPE_RESTART] = WriteCall_restart_;
 	WriteCallTable[LISPTYPE_EVAL] = WriteCall_system;
 	WriteCallTable[LISPTYPE_ENVIRONMENT] = WriteCall_system;
-	WriteCallTable[LISPTYPE_BITVECTOR] = WriteCall_bitvector;
+	WriteCallTable[LISPTYPE_BITVECTOR] = WriteCall_bitvector_;
 	WriteCallTable[LISPTYPE_PRINT_DISPATCH] = WriteCall_system;
-	WriteCallTable[LISPTYPE_BYTESPEC] = WriteCall_bytespec;
+	WriteCallTable[LISPTYPE_BYTESPEC] = WriteCall_bytespec_;
 
 	WriteCallTable[LISPSYSTEM_CHARACTER2] = WriteCall_system;
 	WriteCallTable[LISPSYSTEM_CHARQUEUE] = WriteCall_system;

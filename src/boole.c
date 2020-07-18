@@ -1041,19 +1041,20 @@ _g int function_setf_ldb(Execute ptr, addr form, addr env)
 	addr args, spec, place, ra, rb, rg, rw, rr, a, b, g, w, r, v;
 	addr prog1, setq, dpb;
 
-	getcdr(form, &form);
-	if (! consp(form)) goto error;
-	GetCons(form, &spec, &args);
-	if (! consp(form)) goto error;
-	GetCons(args, &place, &args);
-	if (args != Nil) goto error;
+	Return_getcdr(form, &form);
+	if (! consp_getcons(form, &spec, &args))
+		goto error;
+	if (! consp_getcons(args, &place, &args))
+		goto error;
+	if (args != Nil)
+		goto error;
 
 	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
 	GetConst(COMMON_PROG1, &prog1);
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(COMMON_DPB, &dpb);
-	make_gensym(ptr, &v);
-	getcar(g, &g);
+	Return(make_gensym_(ptr, &v));
+	Return_getcar(g, &g);
 	cons_heap(&ra, g, a);
 	cons_heap(&rb, Nil, b);
 	conscar_heap(&rg, v);
@@ -1065,8 +1066,7 @@ _g int function_setf_ldb(Execute ptr, addr form, addr env)
 	return 0;
 
 error:
-	fmte("SETF-LDB form ~S must be a (byte-space place) form.", form, NULL);
-	return 0;
+	return fmte_("SETF-LDB form ~S must be a (byte-space place) form.", form, NULL);
 }
 
 
@@ -1186,19 +1186,20 @@ _g int function_setf_mask_field(Execute ptr, addr form, addr env)
 	addr args, spec, place, ra, rb, rg, rw, rr, a, b, g, w, r, v;
 	addr prog1, setq, deposit;
 
-	getcdr(form, &form);
-	if (! consp(form)) goto error;
-	GetCons(form, &spec, &args);
-	if (! consp(form)) goto error;
-	GetCons(args, &place, &args);
-	if (args != Nil) goto error;
+	Return_getcdr(form, &form);
+	if (! consp_getcons(form, &spec, &args))
+		goto error;
+	if (! consp_getcons(args, &place, &args))
+		goto error;
+	if (args != Nil)
+		goto error;
 
 	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
 	GetConst(COMMON_PROG1, &prog1);
 	GetConst(COMMON_SETQ, &setq);
 	GetConst(COMMON_DEPOSIT_FIELD, &deposit);
-	make_gensym(ptr, &v);
-	getcar(g, &g);
+	Return(make_gensym_(ptr, &v));
+	Return_getcar(g, &g);
 	cons_heap(&ra, g, a);
 	cons_heap(&rb, Nil, b);
 	conscar_heap(&rg, v);
@@ -1210,7 +1211,7 @@ _g int function_setf_mask_field(Execute ptr, addr form, addr env)
 	return 0;
 
 error:
-	fmte("SETF-DEPOSIT-FIELD form ~S must be a (byte-space place) form.", form, NULL);
-	return 0;
+	return fmte_("SETF-DEPOSIT-FIELD form ~S "
+			"must be a (byte-space place) form.", form, NULL);
 }
 

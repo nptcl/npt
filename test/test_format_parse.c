@@ -32,7 +32,7 @@ static int test_fmtinput_init(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "HELLO");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	test(input.local != NULL, "fmtinput_init1");
 	test(input.index == 0, "fmtinput_init2");
 	test(input.size == 5, "fmtinput_init3");
@@ -45,6 +45,7 @@ static int test_fmtinput_init(void)
 
 static int test_fmtinput_getc(void)
 {
+	int check;
 	addr pos;
 	LocalRoot local;
 	LocalStack stack;
@@ -54,18 +55,24 @@ static int test_fmtinput_getc(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
-	fmtinput_init(&input, local, pos);
-	test(fmtinput_getc(&input, &u) == 0, "fmtinput_getc1");
+	fmtinput_init_(&input, local, pos);
+	fmtinput_getc_(&input, &u, &check);
+	test(check == 0, "fmtinput_getc1");
 	test(u == 'H', "fmtinput_getc2");
 	test(input.index == 1, "fmtinput_getc3");
-	test(fmtinput_getc(&input, &u) == 0, "fmtinput_getc4");
+	fmtinput_getc_(&input, &u, &check);
+	test(check == 0, "fmtinput_getc4");
 	test(u == 'e', "fmtinput_getc5");
 	test(input.index == 2, "fmtinput_getc6");
-	test(fmtinput_getc(&input, &u) == 0, "fmtinput_getc7");
-	test(fmtinput_getc(&input, &u) == 0, "fmtinput_getc8");
-	test(fmtinput_getc(&input, &u) == 0, "fmtinput_getc9");
+	fmtinput_getc_(&input, &u, &check);
+	test(check == 0, "fmtinput_getc7");
+	fmtinput_getc_(&input, &u, &check);
+	test(check == 0, "fmtinput_getc8");
+	fmtinput_getc_(&input, &u, &check);
+	test(check == 0, "fmtinput_getc9");
 	test(u == 'o', "fmtinput_getc10");
-	test(fmtinput_getc(&input, &u), "fmtinput_getc11");
+	fmtinput_getc_(&input, &u, &check);
+	test(check, "fmtinput_getc11");
 
 	rollback_local(local, stack);
 
@@ -83,11 +90,11 @@ static int test_fmtinput_getcheck(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
-	fmtinput_init(&input, local, pos);
-	fmtinput_getcheck(&input, &u);
+	fmtinput_init_(&input, local, pos);
+	fmtinput_getcheck_(&input, &u);
 	test(u == 'H', "fmtinput_getcheck1");
 	test(input.index == 1, "fmtinput_getcheck2");
-	fmtinput_getcheck(&input, &u);
+	fmtinput_getcheck_(&input, &u);
 	test(u == 'e', "fmtinput_getcheck3");
 	test(input.index == 2, "fmtinput_getcheck4");
 
@@ -111,7 +118,7 @@ static int test_fmtchar_init(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	input.index = 3;
 
 	fmtchar_init(&input, &chr);
@@ -136,7 +143,7 @@ static int test_fmtargs_make(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	fmtchar_init(&input, &chr);
 
 	input.index = 2;
@@ -170,7 +177,7 @@ static int test_fmtchar_push(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	fmtchar_init(&input, &chr);
 
 	fmtchar_push(&input, &chr);
@@ -194,7 +201,7 @@ static int test_fmtchar_sharp(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	fmtchar_init(&input, &chr);
 
 	fmtchar_sharp(&input, &chr);
@@ -218,11 +225,11 @@ static int test_fmtchar_character(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	fmtchar_init(&input, &chr);
 
 	input.index = 4;
-	fmtchar_character(&input, &chr);
+	fmtchar_character_(&input, &chr);
 	ptr = chr.root;
 	test(ptr->type == fmtargs_character, "fmtchar_character1");
 	test(ptr->u.character == 'o', "fmtchar_character2");
@@ -237,7 +244,7 @@ static int test_fmtchar_sign(void)
 	int sign;
 
 	sign = 0;
-	fmtchar_sign(NULL, &sign, '+');
+	fmtchar_sign_(NULL, &sign, '+');
 	test(sign == '+', "fmtchar_sign1");
 
 	RETURN;
@@ -255,7 +262,7 @@ static int test_fmtchar_nil(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	fmtchar_init(&input, &chr);
 
 	fmtchar_nil(&input, &chr);
@@ -278,14 +285,14 @@ static int test_fmtchar_value_parse(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	bigcons_local(local, &cons);
 	setchar_bigcons(local, cons, 10, "12345");
-	v = fmtchar_value_parse(&input, '+', cons);
+	fmtchar_value_parse_(&input, '+', cons, &v);
 	test(v == 12345, "fmtchar_value_parse1");
 
 	setchar_bigcons(local, cons, 10, "234");
-	v = fmtchar_value_parse(&input, '-', cons);
+	fmtchar_value_parse_(&input, '-', cons, &v);
 	test(v == -234, "fmtchar_value_parse2");
 
 	rollback_local(local, stack);
@@ -306,12 +313,12 @@ static int test_fmtchar_value(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "Hello");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	fmtchar_init(&input, &chr);
 	bigcons_local(local, &cons);
 	setchar_bigcons(local, cons, 10, "12345");
 	sign = '-';
-	fmtchar_value(&input, &chr, &sign, cons);
+	fmtchar_value_(&input, &chr, &sign, cons);
 	ptr = chr.root;
 	test(ptr->type == fmtargs_integer, "fmtchar_value1");
 	test(ptr->u.value == -12345, "fmtchar_value2");
@@ -324,6 +331,7 @@ static int test_fmtchar_value(void)
 
 static int test_fmtchar_nilcheck(void)
 {
+	int check;
 	addr cons;
 	LocalRoot local;
 	LocalStack stack;
@@ -332,9 +340,11 @@ static int test_fmtchar_nilcheck(void)
 	push_local(local, &stack);
 
 	bigcons_local(local, &cons);
-	test(fmtchar_nilcheck(NULL, 0, cons), "fmtchar_nilcheck1");
+	fmtchar_nilcheck_(NULL, 0, cons, &check);
+	test(check, "fmtchar_nilcheck1");
 	setchar_bigcons(local, cons, 10, "12345");
-	test(! fmtchar_nilcheck(NULL, '+', cons), "fmtchar_nilcheck2");
+	fmtchar_nilcheck_(NULL, '+', cons, &check);
+	test(! check, "fmtchar_nilcheck2");
 
 	rollback_local(local, stack);
 
@@ -350,7 +360,7 @@ static int test_fmtchar_colon(void)
 	input.index = 3;
 	chr.colon_pos = 0;
 	chr.colon = 0;
-	fmtchar_colon(&input, &chr);
+	fmtchar_colon_(&input, &chr);
 	test(chr.colon, "fmtchar_colon1");
 	test(chr.colon_pos == 3, "fmtchar_colon2");
 
@@ -366,7 +376,7 @@ static int test_fmtchar_atsign(void)
 	input.index = 3;
 	chr.atsign_pos = 0;
 	chr.atsign = 0;
-	fmtchar_atsign(&input, &chr);
+	fmtchar_atsign_(&input, &chr);
 	test(chr.atsign, "fmtchar_atsign1");
 	test(chr.atsign_pos == 3, "fmtchar_atsign2");
 
@@ -381,27 +391,27 @@ static int test_fmtchar_type(void)
 	cleartype(input);
 	cleartype(chr);
 	chr.character = 'A';
-	fmtchar_type(&input, &chr);
+	fmtchar_type_(&input, &chr);
 	test(chr.type == FormatType_Aesthetic, "fmtchar_type1");
 
 	chr.character = '<';
-	fmtchar_type(&input, &chr);
+	fmtchar_type_(&input, &chr);
 	test(chr.type == FormatType_Justification, "fmtchar_type2");
 
 	chr.character = '>';
-	fmtchar_type(&input, &chr);
+	fmtchar_type_(&input, &chr);
 	test(chr.type == FormatType_Error, "fmtchar_type3");
 
 	chr.character = ')';
-	fmtchar_type(&input, &chr);
+	fmtchar_type_(&input, &chr);
 	test(chr.type == FormatType_Error, "fmtchar_type4");
 
 	chr.character = ']';
-	fmtchar_type(&input, &chr);
+	fmtchar_type_(&input, &chr);
 	test(chr.type == FormatType_Error, "fmtchar_type5");
 
 	chr.character = '}';
-	fmtchar_type(&input, &chr);
+	fmtchar_type_(&input, &chr);
 	test(chr.type == FormatType_Error, "fmtchar_type6");
 
 	RETURN;
@@ -418,33 +428,33 @@ static int test_fmtchar_parse_function(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	strvect_char_local(local, &pos, "~/abc/");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	fmtchar_init(&input, &chr);
 	input.index = 2;
 	chr.intern = NULL;
-	fmtchar_parse_function(&input, &chr);
+	fmtchar_parse_function_(&input, &chr);
 	test(consp(chr.intern), "fmtchar_parse_function1");
 	GetCons(chr.intern, &pos, &check);
 	test(strvect_equal_char(pos, "COMMON-LISP-USER"), "fmtchar_parse_function2");
 	test(strvect_equal_char(check, "ABC"), "fmtchar_parse_function3");
 
 	strvect_char_local(local, &pos, "~/cl-User:Hello/");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	fmtchar_init(&input, &chr);
 	input.index = 2;
 	chr.intern = NULL;
-	fmtchar_parse_function(&input, &chr);
+	fmtchar_parse_function_(&input, &chr);
 	test(consp(chr.intern), "fmtchar_parse_function4");
 	GetCons(chr.intern, &pos, &check);
 	test(strvect_equal_char(pos, "CL-USER"), "fmtchar_parse_function5");
 	test(strvect_equal_char(check, "HELLO"), "fmtchar_parse_function6");
 
 	strvect_char_local(local, &pos, "~/Hello::Zzz/");
-	fmtinput_init(&input, local, pos);
+	fmtinput_init_(&input, local, pos);
 	fmtchar_init(&input, &chr);
 	input.index = 2;
 	chr.intern = NULL;
-	fmtchar_parse_function(&input, &chr);
+	fmtchar_parse_function_(&input, &chr);
 	test(consp(chr.intern), "fmtchar_parse_function7");
 	GetCons(chr.intern, &pos, &check);
 	test(strvect_equal_char(pos, "HELLO"), "fmtchar_parse_function8");
@@ -462,10 +472,10 @@ static void testparse(fmtinput input, struct fmtchar *chr, addr queue, const cha
 
 	local = input->local;
 	strvect_char_local(local, &pos, str);
-	fmtinput_init(input, local, pos);
+	fmtinput_init_(input, local, pos);
 	fmtchar_init(input, chr);
 	input->index = 1;
-	fmtchar_parse(input, chr, queue);
+	Error(fmtchar_parse_(input, chr, queue));
 }
 
 static struct fmtargs *test_fmtchar_args(struct fmtchar *chr, size_t index)
@@ -692,14 +702,14 @@ static int test_fmtchar_loop(void)
 	push_local(local, &stack);
 
 	strvect_char_local(local, &pos, "~A");
-	fmtinput_init(&input, local, pos);
-	comm = fmtchar_loop(&input);
+	fmtinput_init_(&input, local, pos);
+	fmtchar_loop_(&input, &comm);
 	test(comm->character == 'A', "fmtchar_loop1");
 	test(comm->next == NULL, "fmtchar_loop2");
 
 	strvect_char_local(local, &pos, "Hello~A");
-	fmtinput_init(&input, local, pos);
-	comm = fmtchar_loop(&input);
+	fmtinput_init_(&input, local, pos);
+	fmtchar_loop_(&input, &comm);
 	test(comm->character == 0, "fmtchar_loop3");
 	test(test_fmtchar_args(comm, 0)->u.index == 5, "fmtchar_loop4");
 	test(test_fmtchar_args(comm, 1)->u.index == 0, "fmtchar_loop5");
@@ -709,8 +719,8 @@ static int test_fmtchar_loop(void)
 	test(comm->next == NULL, "fmtchar_loop8");
 
 	strvect_char_local(local, &pos, "~10,2,3,'*,'=Fabc");
-	fmtinput_init(&input, local, pos);
-	comm = fmtchar_loop(&input);
+	fmtinput_init_(&input, local, pos);
+	fmtchar_loop_(&input, &comm);
 	test(comm->character == 'F', "fmtchar_loop9");
 	comm = comm->next;
 	test(comm->character == 0, "fmtchar_loop10");
@@ -735,7 +745,7 @@ static int test_fmtchar_make(void)
 	push_local(local, &stack);
 
 	strvect_char_local(local, &pos, "~(~)");
-	comm = fmtchar_make(local, pos);
+	fmtchar_make_(local, pos, &comm);
 	test(comm->character == '(', "fmtchar_make1");
 	test(comm->next == NULL, "fmtchar_make2");
 	comm = comm->option;
@@ -743,7 +753,7 @@ static int test_fmtchar_make(void)
 	test(comm->next == NULL, "fmtchar_make4");
 
 	strvect_char_local(local, &pos, "~(Hello~)aaa");
-	comm = fmtchar_make(local, pos);
+	fmtchar_make_(local, pos, &comm);
 	test(comm->character == '(', "fmtchar_make5");
 	check = comm->option;
 	test(check->character == 0, "fmtchar_make6");
@@ -760,7 +770,7 @@ static int test_fmtchar_make(void)
 	test(test_fmtchar_args(check, 2)->u.index == 12, "fmtchar_make15");
 
 	strvect_char_local(local, &pos, "~[aaa~;bbb~]ccc");
-	comm = fmtchar_make(local, pos);
+	fmtchar_make_(local, pos, &comm);
 	test(comm->character == '[', "fmtchar_make16");
 	check = comm->option;
 	test(check->character == 0, "fmtchar_make17");
@@ -883,13 +893,13 @@ static int test_fmtprint_pop(void)
 	args.index = 0;
 	cleartype(print);
 	print.rest = &args;
-	fmtprint_pop(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 10, "fmtprint_pop1");
 	test(args.index == 1, "fmtprint_pop2");
-	fmtprint_pop(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 20, "fmtprint_pop3");
 	test(args.index == 2, "fmtprint_pop4");
-	fmtprint_pop(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 30, "fmtprint_pop5");
 	test(args.index == 3, "fmtprint_pop6");
 
@@ -912,10 +922,10 @@ static int test_fmtprint_peek(void)
 	args.index = 0;
 	cleartype(print);
 	print.rest = &args;
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 10, "fmtprint_peek1");
 	test(args.index == 0, "fmtprint_peek2");
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 10, "fmtprint_peek3");
 	test(args.index == 0, "fmtprint_peek4");
 
@@ -940,10 +950,10 @@ static int test_fmtprint_forward(void)
 	args.index = 0;
 	cleartype(print);
 	print.rest = &args;
-	fmtprint_pop(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
 	fmtprint_forward(&print, NULL, 2);
 	test(args.index == 3, "fmtprint_forward1");
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 40, "fmtprint_forward2");
 
 	RETURN;
@@ -967,16 +977,16 @@ static int test_fmtprint_rollback(void)
 	args.index = 0;
 	cleartype(print);
 	print.rest = &args;
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
 	fmtprint_rollback(&print, NULL, 3);
 	test(args.index == 1, "fmtprint_rollback1");
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 20, "fmtprint_rollback2");
 	fmtprint_rollback(&print, NULL, 1);
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 10, "fmtprint_rollback3");
 
 	RETURN;
@@ -1000,16 +1010,16 @@ static int test_fmtprint_absolute(void)
 	args.index = 0;
 	cleartype(print);
 	print.rest = &args;
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
-	fmtprint_pop(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
+	fmtprint_pop_(&print, NULL, &pos);
 	fmtprint_absolute(&print, NULL, 3);
 	test(args.index == 3, "fmtprint_absolute1");
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 40, "fmtprint_absolute2");
 	fmtprint_absolute(&print, NULL, 1);
-	fmtprint_peek(&print, NULL, &pos);
+	fmtprint_peek_(&print, NULL, &pos);
 	test(RefFixnum(pos) == 20, "fmtprint_absolute3");
 
 	RETURN;

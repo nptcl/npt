@@ -360,21 +360,22 @@ static int do_test_equal(Execute ptr, addr expr, addr values, addr *ret)
 	return 1;
 }
 
-static void do_test_output_loop(Execute ptr, addr io, const char *str, addr list)
+static int do_test_output_loop_(Execute ptr, addr io, const char *str, addr list)
 {
 	/* format_stream(ptr, io, "  *** Expect:~{ ~S~}~%", values, NULL); */
 	addr pos;
 
-	print_ascii_stream(io, str);
+	Return(print_ascii_stream_(io, str));
 	while (list != Nil) {
-		getcons(list, &pos, &list);
-		write_char_stream(io, ' ');
-		prin1_print(ptr, io, pos);
+		Return_getcons(list, &pos, &list);
+		Return(write_char_stream_(io, ' '));
+		Return(prin1_print(ptr, io, pos));
 	}
-	terpri_stream(io);
+
+	return terpri_stream_(io);
 }
 
-static void do_test_output(Execute ptr, addr io,
+static int do_test_output_(Execute ptr, addr io,
 		int check, addr name, addr values, addr result, fixnum index)
 {
 	addr pos;
@@ -385,18 +386,19 @@ static void do_test_output(Execute ptr, addr io,
 	push_local(local, &stack);
 	fixnum_heap(&pos, index);
 	if (check) {
-		format_stream(ptr, io, "~&[RT] ~6@A: ~A~%", pos, name, NULL);
+		Return(format_stream(ptr, io, "~&[RT] ~6@A: ~A~%", pos, name, NULL));
 	}
 	else {
-		format_stream(ptr, io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL);
-		do_test_output_loop(ptr, io, "  *** Expect:", values);
-		do_test_output_loop(ptr, io, "  *** Actial:", result);
+		Return(format_stream(ptr, io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL));
+		Return(do_test_output_loop_(ptr, io, "  *** Expect:", values));
+		Return(do_test_output_loop_(ptr, io, "  *** Actial:", result));
 	}
-
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-static void do_test_output_unhandling(Execute ptr,
+static int do_test_output_unhandling_(Execute ptr,
 		addr io, addr name, addr values, fixnum index)
 {
 	addr pos;
@@ -406,10 +408,13 @@ static void do_test_output_unhandling(Execute ptr,
 	local = ptr->local;
 	push_local(local, &stack);
 	fixnum_heap(&pos, index);
-	format_stream(ptr, io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL);
-	do_test_output_loop(ptr, io, "  *** Expect:", values);
-	format_stream(ptr, io, "  *** Actual: #<System error, unhandling signal>~%", NULL);
+	Return(format_stream(ptr, io, "~&[ERROR] ~6@A: ~A~%", pos, name, NULL));
+	Return(do_test_output_loop_(ptr, io, "  *** Expect:", values));
+	Return(format_stream(ptr, io,
+				"  *** Actual: #<System error, unhandling signal>~%", NULL));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
 static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
@@ -426,15 +431,15 @@ static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
 		check = do_test_equal(ptr, expr, values, &result);
-		do_test_output(ptr, io, check, name, values, result, index);
+		check |= do_test_output_(ptr, io, check, name, values, result, index);
 	}
 	end_switch(&jump);
 	if (codejump_error_p(&jump)) {
-		do_test_output_unhandling(ptr, io, name, values, index);
+		Error(do_test_output_unhandling_(ptr, io, name, values, index));
 		check = 0;
 	}
 	if (free_control_(ptr, control)) {
-		do_test_output_unhandling(ptr, io, name, values, index);
+		Error(do_test_output_unhandling_(ptr, io, name, values, index));
 		check = 0;
 	}
 

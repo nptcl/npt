@@ -108,9 +108,9 @@ _g int function_setf_getf(Execute ptr, addr form, addr env)
 
 	/* expander */
 	Return(get_setf_expansion(ptr, place, env, &a, &b, &g, &w, &r));
-	make_gensym(ptr, &g1);  /* store */
-	make_gensym(ptr, &g2);  /* indicator */
-	getcar(g, &g3);			/* temporary */
+	Return(make_gensym_(ptr, &g1)); /* store */
+	Return(make_gensym_(ptr, &g2)); /* indicator */
+	Return_getcar(g, &g3);			/* temporary */
 	if (value != Nil) {
 		make_symbolchar(&g4, "IG");
 		cons_heap(&a, g4, a);
@@ -147,17 +147,19 @@ error:
  *  setf-symbol
  *    nil nil (#:g) (setq x #:g) x
  */
-static void setf_symbol(Execute ptr, addr form,
+static int setf_symbol_(Execute ptr, addr form,
 		addr *vars, addr *vals, addr *store, addr *writer, addr *reader)
 {
 	addr gensym, setq;
 
-	make_gensym(ptr, &gensym);
+	Return(make_gensym_(ptr, &gensym));
 	*vars = *vals = Nil;
 	conscar_heap(store, gensym);
 	GetConst(COMMON_SETQ, &setq);
 	list_heap(writer, setq, form, gensym, NULL);
 	*reader = form;
+
+	return 0;
 }
 
 
@@ -170,13 +172,13 @@ static void setf_symbol(Execute ptr, addr form,
  *      (funcall #'(setf aaa) #:g #:x #:y #:z)
  *      (aaa #:x #:y #:z)
  */
-static void setf_function(Execute ptr, addr symbol, addr args,
+static int setf_function_(Execute ptr, addr symbol, addr args,
 		addr *vars, addr *vals, addr *store, addr *writer, addr *reader)
 {
 	addr a, b, c, d, e, funcall, function, setf, var, gen;
 
 	/* (#:g) */
-	make_gensym(ptr, &c);
+	Return(make_gensym_(ptr, &c));
 	conscar_heap(store, c);
 	/* (function #'(setf aaa)) */
 	GetConst(COMMON_FUNCALL, &funcall);
@@ -197,7 +199,7 @@ static void setf_function(Execute ptr, addr symbol, addr args,
 			cons_heap(&e, var, e);
 		}
 		else {
-			make_gensym(ptr, &gen);
+			Return(make_gensym_(ptr, &gen));
 			cons_heap(&a, gen, a);
 			cons_heap(&b, var, b);
 			cons_heap(&d, gen, d);
@@ -209,6 +211,8 @@ static void setf_function(Execute ptr, addr symbol, addr args,
 	nreverse(vals, b);
 	nreverse(writer, d);
 	nreverse(reader, e);
+
+	return 0;
 }
 
 
@@ -262,10 +266,8 @@ _g int get_setf_expansion(Execute ptr, addr form, addr env,
 		form = pos;
 
 	/* symbol */
-	if (symbolp(form)) {
-		setf_symbol(ptr, form, vars, vals, store, writer, reader);
-		return 0;
-	}
+	if (symbolp(form))
+		return setf_symbol_(ptr, form, vars, vals, store, writer, reader);
 
 	/* define-setf-expander */
 	if (! consp(form))
@@ -279,8 +281,7 @@ _g int get_setf_expansion(Execute ptr, addr form, addr env,
 	}
 
 	/* #'(setf form) */
-	setf_function(ptr, symbol, args, vars, vals, store, writer, reader);
-	return 0;
+	return setf_function_(ptr, symbol, args, vars, vals, store, writer, reader);
 
 error:
 	fmte("The form ~S is not setf place.", form, NULL);

@@ -647,7 +647,7 @@ _g int with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
 	/* expand */
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_SYMBOL_MACROLET, &symm);
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 	Return(with_accessors_arguments(var, g, &var));
 	lista_heap(&symm, symm, var, args, NULL);
 	list_heap(&g, g, expr, NULL);
@@ -723,7 +723,7 @@ _g int with_slots_common(Execute ptr, addr form, addr env, addr *ret)
 	/* expand */
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_SYMBOL_MACROLET, &symm);
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 	Return(with_slots_arguments(var, g, &var));
 	lista_heap(&symm, symm, var, args, NULL);
 	list_heap(&g, g, expr, NULL);
@@ -1048,7 +1048,7 @@ static void defmethod_parse_documentation(addr form, addr *ret)
 	split_decl_body_doc(form, ret, &decl, &body);
 }
 
-static void defmethod_parse_function(Execute ptr,
+static int defmethod_parse_function_(Execute ptr,
 		addr env, addr form, addr ord, addr *ret)
 {
 	/* `(lambda (,method ,next &rest ,args)
@@ -1064,10 +1064,10 @@ static void defmethod_parse_function(Execute ptr,
 	addr method, next, args, rest, ignorable, declare, arest, flet;
 
 	/* gensym */
-	make_gensym(ptr, &method);
-	make_gensym(ptr, &next);
-	make_gensym(ptr, &args);
-	make_gensym(ptr, &rest);
+	Return(make_gensym_(ptr, &method));
+	Return(make_gensym_(ptr, &next));
+	Return(make_gensym_(ptr, &args));
+	Return(make_gensym_(ptr, &rest));
 	/* constant */
 	GetConst(COMMON_NEXT_METHOD_P, &next1);
 	GetConst(CLOSNAME_FLET_METHOD_P, &next2);
@@ -1104,6 +1104,8 @@ static void defmethod_parse_function(Execute ptr,
 	/* lambda */
 	list_heap(&method, method, next, arest, args, NULL);
 	list_heap(ret, lambda, method, doc, flet, NULL);
+
+	return 0;
 }
 
 _g int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
@@ -1120,7 +1122,7 @@ _g int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 	argument_method_heap(ptr->local, &list, lambda);
 	Return(defmethod_parse_specializers(list, &spec));
-	defmethod_parse_function(ptr, env, args, list, &args);
+	Return(defmethod_parse_function_(ptr, env, args, list, &args));
 
 	/* name qua lambda doc decl args */
 	GetConst(COMMON_QUOTE, &quote);

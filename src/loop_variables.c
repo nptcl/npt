@@ -48,7 +48,7 @@ _g void loop_filter_finally(addr *form, addr *list)
 	loop_filter_index(form, list, CONSTANT_SYSTEM_LOOP_FINALLY);
 }
 
-static int loop_filter_with_default(Execute ptr, addr list, addr *ret)
+static int loop_filter_with_default_(Execute ptr, addr list, addr *ret)
 {
 	addr root, pos, var, type, value;
 	LocalHold hold;
@@ -58,8 +58,7 @@ static int loop_filter_with_default(Execute ptr, addr list, addr *ret)
 		GetCons(list, &pos, &list);
 		list_bind(pos, &var, &type, &value, NULL);
 		if (value == Unbound) {
-			if (loop_bind_initial_list(ptr, var, type, &value))
-				return 1;
+			Return(loop_bind_initial_list_(ptr, var, type, &value));
 			list_heap(&pos, var, type, value, NULL);
 		}
 		cons_heap(&root, pos, root);
@@ -71,7 +70,7 @@ static int loop_filter_with_default(Execute ptr, addr list, addr *ret)
 	return 0;
 }
 
-_g int loop_filter_with(Execute ptr, addr *form, addr *list)
+_g int loop_filter_with_(Execute ptr, addr *form, addr *list)
 {
 	addr root, x, y, z;
 	LocalHold hold;
@@ -88,8 +87,7 @@ _g int loop_filter_with(Execute ptr, addr *form, addr *list)
 		}
 		else {
 			GetCdr(x, &x);
-			if (loop_filter_with_default(ptr, x, &x))
-				return 1;
+			Return(loop_filter_with_default_(ptr, x, &x));
 			cons_heap(list, x, *list);
 			localhold_set(hold, 1, *list);
 		}
@@ -214,7 +212,7 @@ static void loop_with_gensym_form(addr *form, addr list)
 	loop_with_single(form, pos);
 }
 
-static void loop_with_gensym(Execute ptr, addr *form, addr list)
+static int loop_with_gensym_(Execute ptr, addr *form, addr list)
 {
 	/* `(let ((#:g1 ,value1)
 	 *        (#:g2 ,value2))
@@ -234,7 +232,7 @@ static void loop_with_gensym(Execute ptr, addr *form, addr list)
 		GetCons(right, &pos, &right);
 		list_bind(pos, &var, &type, &value, NULL);
 		Check(value == Unbound, "unbound error");
-		make_gensym(ptr, &g);
+		Return(make_gensym_(ptr, &g));
 		/* let args */
 		list_heap(&pos, g, value, NULL);
 		cons_heap(&letlist, pos, letlist);
@@ -251,35 +249,41 @@ static void loop_with_gensym(Execute ptr, addr *form, addr list)
 	loop_with_gensym_form(form, glist);
 	GetConst(COMMON_LET, &let);
 	list_heap(form, let, letlist, *form, NULL);
+
+	return 0;
 }
 
-static void loop_with_multiple(Execute ptr, addr *form, addr list)
+static int loop_with_multiple_(Execute ptr, addr *form, addr list)
 {
-	if (loop_with_all_variable(list))
+	if (loop_with_all_variable(list)) {
 		loop_with_let(form, list);
-	else
-		loop_with_gensym(ptr, form, list);
+		return 0;
+	}
+	else {
+		return loop_with_gensym_(ptr, form, list);
+	}
 }
 
-_g void loop_variables_with(Execute ptr, addr *form, addr list)
+_g int loop_variables_with_(Execute ptr, addr *form, addr list)
 {
 	addr pos;
 
 	/* recursive */
 	if (list == Nil)
-		return;
+		return 0;
 	GetCons(list, &pos, &list);
 	/* next */
-	loop_variables_with(ptr, form, list);
+	Return(loop_variables_with_(ptr, form, list));
 	/* bind */
 	if (singlep(pos)) {
 		/* let */
 		GetCar(pos, &pos);
 		loop_with_single(form, pos);
+		return 0;
 	}
 	else {
 		/* and */
-		loop_with_multiple(ptr, form, pos);
+		return loop_with_multiple_(ptr, form, pos);
 	}
 }
 
@@ -385,7 +389,7 @@ static void loop_push_for_as_down(addr *expr1, addr *expr2, addr list)
 	cons_heap(expr2, pos, *expr2);
 }
 
-static void loop_destructuring_bind_tree(Execute ptr,
+static int loop_destructuring_bind_tree_(Execute ptr,
 		addr var, addr *gtree, addr *glist)
 {
 	addr g, a, b, x, y;
@@ -395,20 +399,22 @@ static void loop_destructuring_bind_tree(Execute ptr,
 	}
 	else if (! consp(var)) {
 		Check(! symbolp(var), "type error");
-		make_gensym(ptr, &g);
+		Return(make_gensym_(ptr, &g));
 		*gtree = g;
 		cons_heap(glist, var, *glist);
 		cons_heap(glist, g, *glist);
 	}
 	else {
 		GetCons(var, &a, &b);
-		loop_destructuring_bind_tree(ptr, a, &x, glist);
-		loop_destructuring_bind_tree(ptr, b, &y, glist);
+		Return(loop_destructuring_bind_tree_(ptr, a, &x, glist));
+		Return(loop_destructuring_bind_tree_(ptr, b, &y, glist));
 		cons_heap(gtree, x, y);
 	}
+
+	return 0;
 }
 
-static void loop_destructuring_bind(Execute ptr,
+static int loop_destructuring_bind_(Execute ptr,
 		addr var, addr type, addr value, addr *ret)
 {
 	/* `(destructuring-bind ,glist (loop-bind ',var ',type ,value)
@@ -421,7 +427,7 @@ static void loop_destructuring_bind(Execute ptr,
 	GetConst(SYSTEM_LOOP_BIND, &lbind);
 
 	gtree = glist = Nil;
-	loop_destructuring_bind_tree(ptr, var, &gtree, &glist);
+	Return(loop_destructuring_bind_tree_(ptr, var, &gtree, &glist));
 	nreverse(&glist, glist);
 	if (type == Unbound)
 		GetTypeTable(&type, T);
@@ -430,23 +436,27 @@ static void loop_destructuring_bind(Execute ptr,
 	list_heap(&lbind, lbind, var, type, value, NULL);
 	cons_heap(&setq, setq, glist);
 	list_heap(ret, dbind, gtree, lbind, setq, NULL);
+
+	return 0;
 }
 
-static void loop_destructuring_setq(Execute ptr,
+static int loop_destructuring_setq_(Execute ptr,
 		addr var, addr type, addr value, addr *ret)
 {
 	addr setq;
 
 	if (consp(var)) {
-		loop_destructuring_bind(ptr, var, type, value, ret);
+		Return(loop_destructuring_bind_(ptr, var, type, value, ret));
 	}
 	else {
 		GetConst(COMMON_SETQ, &setq);
 		list_heap(ret, setq, var, value, NULL);
 	}
+
+	return 0;
 }
 
-static void loop_push_for_as_in_list(Execute ptr, addr *expr1, addr *expr2, addr list)
+static int loop_push_for_as_in_list_(Execute ptr, addr *expr1, addr *expr2, addr list)
 {
 	addr var, type, value, step, g, x;
 	addr unless, go, end_loop, setq, funcall, car, cdr;
@@ -463,7 +473,7 @@ static void loop_push_for_as_in_list(Execute ptr, addr *expr1, addr *expr2, addr
 	/* expr1: (SETQ ,var ,type (car ,g)) */
 	GetConst(COMMON_CAR, &car);
 	list_heap(&car, car, g, NULL);
-	loop_destructuring_setq(ptr, var, type, car, &x);
+	Return(loop_destructuring_setq_(ptr, var, type, car, &x));
 	cons_heap(expr1, x, *expr1);
 	/* expr2 */
 	if (step != Unbound) {
@@ -480,6 +490,8 @@ static void loop_push_for_as_in_list(Execute ptr, addr *expr1, addr *expr2, addr
 		list_heap(&x, setq, g, cdr, NULL);
 		cons_heap(expr2, x, *expr2);
 	}
+
+	return 0;
 }
 
 static void loop_let_variables_recursive(addr var, addr *list)
@@ -529,7 +541,7 @@ static void loop_variables_for_as_in_list(addr *form, addr list)
 	loop_let_variables(form, var);
 }
 
-static void loop_push_for_as_on_list(Execute ptr, addr *expr1, addr *expr2, addr list)
+static int loop_push_for_as_on_list_(Execute ptr, addr *expr1, addr *expr2, addr list)
 {
 	addr var, type, value, step, g, x;
 	addr unless, go, end_loop, setq, funcall, cdr;
@@ -550,7 +562,7 @@ static void loop_push_for_as_on_list(Execute ptr, addr *expr1, addr *expr2, addr
 		/* expr1: `(destructuring-bind ,glist (loop-bind ',var ',type ,g)
 		 *      :    (setq ,var1 ,g2 ,var2 ,g2 ...))
 		 */
-		loop_destructuring_bind(ptr, var, type, g, &x);
+		Return(loop_destructuring_bind_(ptr, var, type, g, &x));
 		cons_heap(expr1, x, *expr1);
 	}
 	if (step != Unbound) {
@@ -567,6 +579,8 @@ static void loop_push_for_as_on_list(Execute ptr, addr *expr1, addr *expr2, addr
 		list_heap(&setq, setq, g, cdr, NULL);
 		cons_heap(expr2, setq, *expr2);
 	}
+
+	return 0;
 }
 static void loop_variables_for_as_on_list(addr *form, addr list)
 {
@@ -582,7 +596,7 @@ static void loop_variables_for_as_on_list(addr *form, addr list)
 	}
 }
 
-static void loop_push_for_as_equals_then(Execute ptr,
+static int loop_push_for_as_equals_then_(Execute ptr,
 		addr *expr1, addr *expr2, addr list)
 {
 	addr var, type, value, then, g, x;
@@ -590,8 +604,10 @@ static void loop_push_for_as_equals_then(Execute ptr,
 	list_bind(list, &var, &type, &value, &then, &g, NULL);
 	if (then == Unbound)
 		then = value;
-	loop_destructuring_setq(ptr, var, type, then, &x);
+	Return(loop_destructuring_setq_(ptr, var, type, then, &x));
 	cons_heap(expr2, x, *expr2);
+
+	return 0;
 }
 static void loop_variables_for_as_equals_then(addr *form, addr list)
 {
@@ -600,7 +616,7 @@ static void loop_variables_for_as_equals_then(addr *form, addr list)
 	loop_with_single_bind(form, var, type, value);
 }
 
-static void loop_push_for_as_across(Execute ptr, addr *expr1, addr *expr2, addr list)
+static int loop_push_for_as_across_(Execute ptr, addr *expr1, addr *expr2, addr list)
 {
 	addr var, type, vector, g1, g2, g3, x;
 	addr unless, less, go, end_loop, elt, incf;
@@ -618,12 +634,14 @@ static void loop_push_for_as_across(Execute ptr, addr *expr1, addr *expr2, addr 
 	/* expr1: (SETQ ,var ,type `(elt ,g1 ,g2)) */
 	GetConst(COMMON_ELT, &elt);
 	list_heap(&elt, elt, g1, g2, NULL);
-	loop_destructuring_setq(ptr, var, type, elt, &x);
+	Return(loop_destructuring_setq_(ptr, var, type, elt, &x));
 	cons_heap(expr1, x, *expr1);
 	/* expr2: `(incf ,g2) */
 	GetConst(COMMON_INCF, &incf);
 	list_heap(&x, incf, g2, NULL);
 	cons_heap(expr2, x, *expr2);
+
+	return 0;
 }
 static void loop_variables_for_as_across(addr *form, addr list)
 {
@@ -648,15 +666,15 @@ static void loop_variables_for_as_across(addr *form, addr list)
 	list_heap(form, let, g1, *form, NULL);
 }
 
-static void loop_push_for_as_hash(Execute ptr, addr *expr1, addr *expr2, addr list)
+static int loop_push_for_as_hash_(Execute ptr, addr *expr1, addr *expr2, addr list)
 {
 	addr var, type, keyp, table, use, g, x, y, z;
 	addr key, value, check;
 	addr mvbind, next, declare, ignorable, unless, go, end_loop, setq;
 
-	make_gensym(ptr, &check);
-	make_gensym(ptr, &key);
-	make_gensym(ptr, &value);
+	Return(make_gensym_(ptr, &check));
+	Return(make_gensym_(ptr, &key));
+	Return(make_gensym_(ptr, &value));
 	list_bind(list, &var, &type, &keyp, &table, &use, &g, NULL);
 	/* expr1: `(multiple-value-bind (,check ,key ,value)
 	 *             (lisp-system::next-hash-iterator ,g)
@@ -680,12 +698,12 @@ static void loop_push_for_as_hash(Execute ptr, addr *expr1, addr *expr2, addr li
 	list_heap(&go, go, end_loop, NULL);
 	list_heap(&unless, unless, check, go, NULL);
 	if (keyp != Nil) {
-		loop_destructuring_setq(ptr, var, type, key, &x);
+		Return(loop_destructuring_setq_(ptr, var, type, key, &x));
 		if (use != Unbound)
 			list_heap(&y, setq, use, value, NULL);
 	}
 	else {
-		loop_destructuring_setq(ptr, var, type, value, &x);
+		Return(loop_destructuring_setq_(ptr, var, type, value, &x));
 		if (use != Unbound)
 			list_heap(&y, setq, use, key, NULL);
 	}
@@ -694,6 +712,8 @@ static void loop_push_for_as_hash(Execute ptr, addr *expr1, addr *expr2, addr li
 	else
 		list_heap(&x, mvbind, z, next, declare, unless, x, NULL);
 	cons_heap(expr1, x, *expr1);
+
+	return 0;
 }
 static void loop_variables_for_as_hash(addr *form, addr list)
 {
@@ -713,14 +733,14 @@ static void loop_variables_for_as_hash(addr *form, addr list)
 	list_heap(form, let, g, *form, NULL);
 }
 
-static void loop_push_for_as_package(Execute ptr, addr *expr1, addr *expr2, addr list)
+static int loop_push_for_as_package_(Execute ptr, addr *expr1, addr *expr2, addr list)
 {
 	addr var, type, package, g, x, y;
 	addr symbol, check;
 	addr mvbind, next, unless, go, end_loop;
 
-	make_gensym(ptr, &check);
-	make_gensym(ptr, &symbol);
+	Return(make_gensym_(ptr, &check));
+	Return(make_gensym_(ptr, &symbol));
 	list_bind(list, &var, &type, &package, &g, NULL);
 	/* expr1: `(multiple-value-bind (,check ,symbol)
 	 *             (lisp-system::next-package-iterator ,g)
@@ -736,10 +756,13 @@ static void loop_push_for_as_package(Execute ptr, addr *expr1, addr *expr2, addr
 	list_heap(&next, next, g, NULL);
 	list_heap(&go, go, end_loop, NULL);
 	list_heap(&unless, unless, check, go, NULL);
-	loop_destructuring_setq(ptr, var, type, symbol, &x);
+	Return(loop_destructuring_setq_(ptr, var, type, symbol, &x));
 	list_heap(&x, mvbind, y, next, unless, x, NULL);
 	cons_heap(expr1, x, *expr1);
+
+	return 0;
 }
+
 static void loop_variables_for_as_package(addr *form, addr pos, addr list)
 {
 	addr var, type, package, g, let, hash, find, check;
@@ -779,205 +802,187 @@ static void loop_variables_for_as_package(addr *form, addr pos, addr list)
 	list_heap(form, let, g, *form, NULL);
 }
 
-static void loop_push_for_as_list(Execute ptr, addr *expr1, addr *expr2, addr list)
+static int loop_push_for_as_list_(Execute ptr, addr *expr1, addr *expr2, addr list)
 {
 	addr pos, a, b, check;
 
 	if (list == Nil)
-		return;
+		return 0;
 	GetCons(list, &pos, &list);
 	/* next */
-	loop_push_for_as_list(ptr, expr1, expr2, list);
+	Return(loop_push_for_as_list_(ptr, expr1, expr2, list));
 	/* up */
 	GetCons(pos, &a, &b);
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_UP, &check);
 	if (a == check) {
 		loop_push_for_as_up(expr1, expr2, b);
-		return;
+		return 0;
 	}
 	/* downto */
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNTO, &check);
 	if (a == check) {
 		loop_push_for_as_down(expr1, expr2, b);
-		return;
+		return 0;
 	}
 	/* downfrom */
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNFROM, &check);
 	if (a == check) {
 		loop_push_for_as_down(expr1, expr2, b);
-		return;
+		return 0;
 	}
 	/* in-list */
 	GetConst(SYSTEM_LOOP_FOR_AS_IN_LIST, &check);
-	if (a == check) {
-		loop_push_for_as_in_list(ptr, expr1, expr2, b);
-		return;
-	}
+	if (a == check)
+		return loop_push_for_as_in_list_(ptr, expr1, expr2, b);
 	/* on-list */
 	GetConst(SYSTEM_LOOP_FOR_AS_ON_LIST, &check);
-	if (a == check) {
-		loop_push_for_as_on_list(ptr, expr1, expr2, b);
-		return;
-	}
+	if (a == check)
+		return loop_push_for_as_on_list_(ptr, expr1, expr2, b);
 	/* equals-then */
 	GetConst(SYSTEM_LOOP_FOR_AS_EQUALS_THEN, &check);
-	if (a == check) {
-		loop_push_for_as_equals_then(ptr, expr1, expr2, b);
-		return;
-	}
+	if (a == check)
+		return loop_push_for_as_equals_then_(ptr, expr1, expr2, b);
 	/* across */
 	GetConst(SYSTEM_LOOP_FOR_AS_ACROSS, &check);
-	if (a == check) {
-		loop_push_for_as_across(ptr, expr1, expr2, b);
-		return;
-	}
+	if (a == check)
+		return loop_push_for_as_across_(ptr, expr1, expr2, b);
 	/* hash */
 	GetConst(SYSTEM_LOOP_FOR_AS_HASH, &check);
-	if (a == check) {
-		loop_push_for_as_hash(ptr, expr1, expr2, b);
-		return;
-	}
+	if (a == check)
+		return loop_push_for_as_hash_(ptr, expr1, expr2, b);
 	/* package */
 	GetConst(SYSTEM_LOOP_FOR_AS_PACKAGE_SYMBOL, &check);
-	if (a == check) {
-		loop_push_for_as_package(ptr, expr1, expr2, b);
-		return;
-	}
+	if (a == check)
+		return loop_push_for_as_package_(ptr, expr1, expr2, b);
 	GetConst(SYSTEM_LOOP_FOR_AS_PACKAGE_PRESENT, &check);
-	if (a == check) {
-		loop_push_for_as_package(ptr, expr1, expr2, b);
-		return;
-	}
+	if (a == check)
+		return loop_push_for_as_package_(ptr, expr1, expr2, b);
 	GetConst(SYSTEM_LOOP_FOR_AS_PACKAGE_EXTERNAL, &check);
-	if (a == check) {
-		loop_push_for_as_package(ptr, expr1, expr2, b);
-		return;
-	}
+	if (a == check)
+		return loop_push_for_as_package_(ptr, expr1, expr2, b);
 	/* error */
-	fmte("Invalid variables-clause ~S.", a, NULL);
+	return fmte_("Invalid variables-clause ~S.", a, NULL);
 }
 
-static void loop_variables_for_as_list(addr *form, addr list)
+static int loop_variables_for_as_list_(addr *form, addr list)
 {
 	addr pos, a, b, check;
 
 	if (list == Nil)
-		return;
+		return 0;
 	GetCons(list, &pos, &list);
 	/* next */
-	loop_variables_for_as_list(form, list);
+	Return(loop_variables_for_as_list_(form, list));
 	/* up */
 	GetCons(pos, &a, &b);
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_UP, &check);
 	if (a == check) {
 		loop_variables_for_as_up(form, b);
-		return;
+		return 0;
 	}
 	/* downto */
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNTO, &check);
 	if (a == check) {
 		loop_variables_for_as_up(form, b);
-		return;
+		return 0;
 	}
 	/* downfrom */
 	GetConst(SYSTEM_LOOP_FOR_AS_ARITHMETIC_DOWNFROM, &check);
 	if (a == check) {
 		loop_variables_for_as_up(form, b);
-		return;
+		return 0;
 	}
 	/* in-list */
 	GetConst(SYSTEM_LOOP_FOR_AS_IN_LIST, &check);
 	if (a == check) {
 		loop_variables_for_as_in_list(form, b);
-		return;
+		return 0;
 	}
 	/* on-list */
 	GetConst(SYSTEM_LOOP_FOR_AS_ON_LIST, &check);
 	if (a == check) {
 		loop_variables_for_as_on_list(form, b);
-		return;
+		return 0;
 	}
 	/* equals-then */
 	GetConst(SYSTEM_LOOP_FOR_AS_EQUALS_THEN, &check);
 	if (a == check) {
 		loop_variables_for_as_equals_then(form, b);
-		return;
+		return 0;
 	}
 	/* across */
 	GetConst(SYSTEM_LOOP_FOR_AS_ACROSS, &check);
 	if (a == check) {
 		loop_variables_for_as_across(form, b);
-		return;
+		return 0;
 	}
 	/* hash */
 	GetConst(SYSTEM_LOOP_FOR_AS_HASH, &check);
 	if (a == check) {
 		loop_variables_for_as_hash(form, b);
-		return;
+		return 0;
 	}
 	/* package */
 	GetConst(SYSTEM_LOOP_FOR_AS_PACKAGE_SYMBOL, &check);
 	if (a == check) {
 		loop_variables_for_as_package(form, a, b);
-		return;
+		return 0;
 	}
 	GetConst(SYSTEM_LOOP_FOR_AS_PACKAGE_PRESENT, &check);
 	if (a == check) {
 		loop_variables_for_as_package(form, a, b);
-		return;
+		return 0;
 	}
 	GetConst(SYSTEM_LOOP_FOR_AS_PACKAGE_EXTERNAL, &check);
 	if (a == check) {
 		loop_variables_for_as_package(form, a, b);
-		return;
+		return 0;
 	}
 	/* error */
-	fmte("Invalid variables-clause ~S.", a, NULL);
+	return fmte_("Invalid variables-clause ~S.", a, NULL);
 }
 
-_g void loop_push_for_as(Execute ptr, addr *expr1, addr *expr2, addr list)
+_g int loop_push_for_as_(Execute ptr, addr *expr1, addr *expr2, addr list)
 {
 	addr pos, check, next;
 
 	/* loop */
 	if (list == Nil)
-		return;
+		return 0;
 	GetCons(list, &next, &list);
-	loop_push_for_as(ptr, expr1, expr2, list);
+	Return(loop_push_for_as_(ptr, expr1, expr2, list));
 	/* for-as */
 	if (! consp_getcons(next, &pos, &list))
 		goto error;
 	GetConst(SYSTEM_LOOP_FOR_AS, &check);
-	if (pos == check) {
-		loop_push_for_as_list(ptr, expr1, expr2, list);
-		return;
-	}
+	if (pos == check)
+		return loop_push_for_as_list_(ptr, expr1, expr2, list);
+	return 0;
 
 	/* error */
 error:
-	fmte("Invalid loop for-as form ~S.", next, NULL);
+	return fmte_("Invalid loop for-as form ~S.", next, NULL);
 }
 
-_g void loop_variables_for_as(addr *form, addr list)
+_g int loop_variables_for_as_(addr *form, addr list)
 {
 	addr pos, check, next;
 
 	/* loop */
 	if (list == Nil)
-		return;
+		return 0;
 	GetCons(list, &next, &list);
-	loop_variables_for_as(form, list);
+	Return(loop_variables_for_as_(form, list));
 	/* for-as */
 	if (! consp_getcons(next, &pos, &list))
 		goto error;
 	GetConst(SYSTEM_LOOP_FOR_AS, &check);
-	if (pos == check) {
-		loop_variables_for_as_list(form, list);
-		return;
-	}
+	if (pos == check)
+		return loop_variables_for_as_list_(form, list);
+	return 0;
 
 	/* error */
 error:
-	fmte("Invalid loop for-as form ~S.", next, NULL);
+	return fmte_("Invalid loop for-as form ~S.", next, NULL);
 }
 

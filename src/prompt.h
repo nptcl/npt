@@ -12,7 +12,7 @@ _g void setbreak_prompt(Execute ptr, int value);
 _g int getshow_prompt(Execute ptr);
 _g void setshow_prompt(Execute ptr, int value);
 
-_g void show_prompt(Execute ptr, addr io);
+_g int show_prompt_(Execute ptr, addr io);
 _g int input_prompt(addr *ret, addr *prompt, const char *message);
 
 #endif

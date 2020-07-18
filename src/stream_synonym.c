@@ -44,85 +44,85 @@ static void getstream_synonym(addr stream, addr *ret)
 static int read_binary_Synonym(addr stream, void *pos, size_t size, size_t *ret)
 {
 	getstream_synonym(stream, &stream);
-	return read_binary_stream(stream, pos, size, ret);
+	return read_binary_stream_(stream, pos, size, ret);
 }
 
-static int readforce_binary_Synonym(addr stream, void *pos, size_t size, size_t *ret)
+static int readf_binary_Synonym(addr stream, void *pos, size_t size, size_t *ret)
 {
 	getstream_synonym(stream, &stream);
-	return readforce_binary_stream(stream, pos, size, ret);
+	return readf_binary_stream_(stream, pos, size, ret);
 }
 
-static int read_byte_Synonym(addr stream, byte *c)
+static int read_byte_Synonym(addr stream, byte *c, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return read_byte_stream(stream, c);
+	return read_byte_stream_(stream, c, ret);
 }
 
 static int unread_byte_Synonym(addr stream, byte c)
 {
 	getstream_synonym(stream, &stream);
-	return unread_byte_stream(stream, c);
+	return unread_byte_stream_(stream, c);
 }
 
 static int write_binary_Synonym(addr stream, const void *pos, size_t size, size_t *ret)
 {
 	getstream_synonym(stream, &stream);
-	return write_binary_stream(stream, pos, size, ret);
+	return write_binary_stream_(stream, pos, size, ret);
 }
 
 static int write_byte_Synonym(addr stream, byte c)
 {
 	getstream_synonym(stream, &stream);
-	return write_byte_stream(stream, c);
+	return write_byte_stream_(stream, c);
 }
 
-static int read_char_Synonym(addr stream, unicode *u)
+static int read_char_Synonym(addr stream, unicode *u, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return read_char_stream(stream, u);
+	return read_char_stream_(stream, u, ret);
 }
 
-static int read_hang_Synonym(addr stream, unicode *u, int *hang)
+static int read_hang_Synonym(addr stream, unicode *u, int *hang, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return read_hang_stream(stream, u, hang);
+	return read_hang_stream_(stream, u, hang, ret);
 }
 
-static void unread_char_Synonym(addr stream, unicode u)
+static int unread_char_Synonym(addr stream, unicode c)
 {
 	getstream_synonym(stream, &stream);
-	unread_char_stream(stream, u);
+	return unread_char_stream_(stream, c);
 }
 
-static void write_char_Synonym(addr stream, unicode u)
+static int write_char_Synonym(addr stream, unicode u)
 {
 	getstream_synonym(stream, &stream);
-	write_char_stream(stream, u);
+	return write_char_stream_(stream, u);
 }
 
-static void terpri_Synonym(addr stream)
+static int terpri_Synonym(addr stream)
 {
 	getstream_synonym(stream, &stream);
-	terpri_stream(stream);
+	return terpri_stream_(stream);
 }
 
-static size_t getleft_Synonym(addr stream)
+static int getleft_Synonym(addr stream, size_t *ret)
 {
 	getstream_synonym(stream, &stream);
-	return getleft_stream(stream);
+	return getleft_stream_(stream, ret);
 }
 
-static void setleft_Synonym(addr stream, size_t value)
+static int setleft_Synonym(addr stream, size_t value)
 {
 	getstream_synonym(stream, &stream);
-	setleft_stream(stream, value);
+	return setleft_stream_(stream, value);
 }
 
-static int fresh_line_Synonym(addr stream)
+static int fresh_line_Synonym(addr stream, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return fresh_line_stream(stream);
+	return fresh_line_stream_(stream, ret);
 }
 
 static int inputp_Synonym(addr stream)
@@ -155,101 +155,101 @@ static int binaryp_Synonym(addr stream)
 	return binaryp_stream(stream);
 }
 
-static void element_type_Synonym(addr stream, addr *ret)
+static int element_type_Synonym(addr stream, addr *ret)
 {
 	getstream_synonym(stream, &stream);
-	element_type_stream(stream, ret);
+	return element_type_stream_(stream, ret);
 }
 
-static void file_length_Synonym(addr stream, addr *ret)
+static int file_length_Synonym(addr stream, addr *ret)
 {
 	getstream_synonym(stream, &stream);
-	file_length_stream(stream, ret);
+	return file_length_stream_(stream, ret);
 }
 
-static int file_position_Synonym(addr stream, size_t *ret)
+static int file_position_Synonym(addr stream, size_t *value, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return file_position_stream(stream, ret);
+	return file_position_stream_(stream, value, ret);
 }
 
-static int file_position_start_Synonym(addr stream)
+static int file_position_start_Synonym(addr stream, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return file_position_start_stream(stream);
+	return file_position_start_stream_(stream, ret);
 }
 
-static int file_position_end_Synonym(addr stream)
+static int file_position_end_Synonym(addr stream, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return file_position_end_stream(stream);
+	return file_position_end_stream_(stream, ret);
 }
 
-static int file_position_set_Synonym(addr stream, size_t pos)
+static int file_position_set_Synonym(addr stream, size_t value, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return file_position_set_stream(stream, pos);
+	return file_position_set_stream_(stream, value, ret);
 }
 
-static int file_character_length_Synonym(addr stream, unicode u, size_t *ret)
+static int file_charlen_Synonym(addr stream, unicode u, size_t *value, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return file_character_length_stream(stream, u, ret);
+	return file_charlen_stream_(stream, u, value, ret);
 }
 
-static int file_string_length_Synonym(addr stream, addr pos, size_t *ret)
+static int file_strlen_Synonym(addr stream, addr pos, size_t *value, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return file_string_length_stream(stream, pos, ret);
+	return file_strlen_stream_(stream, pos, value, ret);
 }
 
-static int listen_Synonym(addr stream)
+static int listen_Synonym(addr stream, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return listen_stream(stream);
+	return listen_stream_(stream, ret);
 }
 
-static void clear_input_Synonym(addr stream)
+static int clear_input_Synonym(addr stream)
 {
 	getstream_synonym(stream, &stream);
-	clear_input_stream(stream);
+	return clear_input_stream_(stream);
 }
 
-static void finish_output_Synonym(addr stream)
+static int finish_output_Synonym(addr stream)
 {
 	getstream_synonym(stream, &stream);
-	finish_output_stream(stream);
+	return finish_output_stream_(stream);
 }
 
-static void force_output_Synonym(addr stream)
+static int force_output_Synonym(addr stream)
 {
 	getstream_synonym(stream, &stream);
-	force_output_stream(stream);
+	return force_output_stream_(stream);
 }
 
-static void clear_output_Synonym(addr stream)
+static int clear_output_Synonym(addr stream)
 {
 	getstream_synonym(stream, &stream);
-	clear_output_stream(stream);
+	return clear_output_stream_(stream);
 }
 
-static void exitpoint_Synonym(addr stream)
+static int exitpoint_Synonym(addr stream)
 {
 	getstream_synonym(stream, &stream);
-	exitpoint_stream(stream);
+	return exitpoint_stream_(stream);
 }
 
-static int terminal_width_Synonym(addr stream, size_t *ret)
+static int termsize_Synonym(addr stream, size_t *value, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return terminal_width_stream(stream, ret);
+	return termsize_stream_(stream, value, ret);
 }
 
 _g void init_stream_synonym(void)
 {
 	DefineStreamDef(Synonym, close);
 	DefineStreamSet(Synonym, read_binary);
-	DefineStreamSet(Synonym, readforce_binary);
+	DefineStreamSet(Synonym, readf_binary);
 	DefineStreamSet(Synonym, read_byte);
 	DefineStreamSet(Synonym, unread_byte);
 	DefineStreamSet(Synonym, write_binary);
@@ -273,14 +273,14 @@ _g void init_stream_synonym(void)
 	DefineStreamSet(Synonym, file_position_start);
 	DefineStreamSet(Synonym, file_position_end);
 	DefineStreamSet(Synonym, file_position_set);
-	DefineStreamSet(Synonym, file_character_length);
-	DefineStreamSet(Synonym, file_string_length);
+	DefineStreamSet(Synonym, file_charlen);
+	DefineStreamSet(Synonym, file_strlen);
 	DefineStreamSet(Synonym, listen);
 	DefineStreamSet(Synonym, clear_input);
 	DefineStreamSet(Synonym, finish_output);
 	DefineStreamSet(Synonym, force_output);
 	DefineStreamSet(Synonym, clear_output);
 	DefineStreamSet(Synonym, exitpoint);
-	DefineStreamSet(Synonym, terminal_width);
+	DefineStreamSet(Synonym, termsize);
 }
 

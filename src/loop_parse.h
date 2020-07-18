@@ -5,7 +5,7 @@
 #include "execute.h"
 #include "typedef.h"
 
-_g void loop_parse_common(Execute ptr, addr *named, addr *vars, addr *main, addr *list);
+_g int loop_parse_common(Execute ptr, addr *named, addr *vars, addr *main, addr *list);
 
 #endif
 

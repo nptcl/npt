@@ -131,7 +131,7 @@ _g void getindex_input_stream(addr stream, size_t *ret)
 	*ret = input->index;
 }
 
-static void unread_char_StringInput(addr stream, unicode c)
+static int unread_char_StringInput(addr stream, unicode c)
 {
 	struct StructStream *ptr;
 	struct stream_StringInput *input;
@@ -139,22 +139,20 @@ static void unread_char_StringInput(addr stream, unicode c)
 	CheckInputStringStream(stream);
 	/* unread check */
 	ptr = PtrStructStream(stream);
-	if (ptr->unread_check) {
-		fmte("unread already exists.", NULL);
-		return;
-	}
+	if (ptr->unread_check)
+		return fmte_("unread already exists.", NULL);
 	/* index check */
 	input = PtrStringInputStream(stream);
-	if (input->index == 0) {
-		fmte("index underflow.", NULL);
-		return;
-	}
+	if (input->index == 0)
+		return fmte_("index underflow.", NULL);
 	input->index--;
 	ptr->unread = c;
 	ptr->unread_check = 1;
+
+	return 0;
 }
 
-static int read_char_StringInput(addr stream, unicode *c)
+static int read_char_StringInput(addr stream, unicode *c, int *ret)
 {
 	addr string;
 	struct StructStream *ptr;
@@ -169,24 +167,24 @@ static int read_char_StringInput(addr stream, unicode *c)
 		input->index++;
 	}
 	else {
-		if (input->size <= input->index) return 1; /* EOF */
+		if (input->size <= input->index)
+			return Result(ret, 1); /* EOF */
 		GetInfoStream(stream, &string);
 		string_getc(string, input->index++, c);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int read_hang_StringInput(addr stream, unicode *c, int *hang)
+static int read_hang_StringInput(addr stream, unicode *c, int *hang, int *ret)
 {
-	int result;
+	int check;
 
 	CheckInputStringStream(stream);
-	result = read_char_StringInput(stream, c);
-	if (result == 0)
-		*hang = 0;
+	Return(read_char_StringInput(stream, c, &check));
+	*hang = (check != 0);
 
-	return result;
+	return Result(ret, check);
 }
 
 _g void setvalue_input_string_stream(addr stream, addr value)
@@ -230,7 +228,7 @@ _g void clear_input_string_stream(addr stream)
 	str->terpri = 0;
 }
 
-static int file_position_StringInput(addr stream, size_t *ret)
+static int file_position_StringInput(addr stream, size_t *value, int *ret)
 {
 	struct StructStream *str;
 	struct stream_StringInput *input;
@@ -241,16 +239,18 @@ static int file_position_StringInput(addr stream, size_t *ret)
 	size = input->index;
 	str = PtrStructStream(stream);
 	if (str->unread_check) {
-		if (size == 0)
-			fmte("The stream ~S position is minus value.", stream, NULL);
+		if (size == 0) {
+			*value = 0;
+			*ret = 0;
+			return fmte_("The stream ~S position is minus value.", stream, NULL);
+		}
 		size--;
 	}
-	*ret = size;
-
-	return 0;
+	*value = size;
+	return Result(ret, 0);
 }
 
-static int file_position_start_StringInput(addr stream)
+static int file_position_start_StringInput(addr stream, int *ret)
 {
 	struct StructStream *str;
 	struct stream_StringInput *input;
@@ -261,10 +261,10 @@ static int file_position_start_StringInput(addr stream)
 	str->unread_check = 0;
 	input->index = 0;
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int file_position_end_StringInput(addr stream)
+static int file_position_end_StringInput(addr stream, int *ret)
 {
 	struct stream_StringInput *str;
 
@@ -273,41 +273,45 @@ static int file_position_end_StringInput(addr stream)
 	str->index = str->size;
 	PtrStructStream(stream)->unread_check = 0;
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int file_position_set_StringInput(addr stream, size_t pos)
+static int file_position_set_StringInput(addr stream, size_t value, int *ret)
 {
 	struct stream_StringInput *str;
 
 	CheckInputStringStream(stream);
 	str = PtrStringInputStream(stream);
-	if (pos <= str->size)
-		str->index = pos;
-	else
-		fmte("The position ~A is too large.", intsizeh(pos), NULL);
+	if (value <= str->size) {
+		str->index = value;
+	}
+	else {
+		*ret = 0;
+		return fmte_("The position ~A is too large.", intsizeh(value), NULL);
+	}
 	PtrStructStream(stream)->unread_check = 0;
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int listen_StringInput(addr stream)
+static int listen_StringInput(addr stream, int *ret)
 {
 	CheckInputStringStream(stream);
-	return 1;
+	return Result(ret, 1);
 }
 
-static void clear_input_StringInput(addr stream)
+static int clear_input_StringInput(addr stream)
 {
 	CheckInputStringStream(stream);
 	/* Don't care unread-char */
+	return 0;
 }
 
 _g void init_stream_string_input(void)
 {
 	DefineStreamDef(StringInput, close);
 	DefineStream___(StringInput, read_binary);
-	DefineStream___(StringInput, readforce_binary);
+	DefineStream___(StringInput, readf_binary);
 	DefineStream___(StringInput, read_byte);
 	DefineStream___(StringInput, unread_byte);
 	DefineStream___(StringInput, write_binary);
@@ -331,15 +335,15 @@ _g void init_stream_string_input(void)
 	DefineStreamSet(StringInput, file_position_start);
 	DefineStreamSet(StringInput, file_position_end);
 	DefineStreamSet(StringInput, file_position_set);
-	DefineStream___(StringInput, file_character_length);
-	DefineStream___(StringInput, file_string_length);
+	DefineStream___(StringInput, file_charlen);
+	DefineStream___(StringInput, file_strlen);
 	DefineStreamSet(StringInput, listen);
 	DefineStreamSet(StringInput, clear_input);
 	DefineStream___(StringInput, finish_output);
 	DefineStream___(StringInput, force_output);
 	DefineStream___(StringInput, clear_output);
 	DefineStreamDef(StringInput, exitpoint);
-	DefineStreamDef(StringInput, terminal_width);
+	DefineStreamDef(StringInput, termsize);
 }
 
 
@@ -381,14 +385,16 @@ _g void open_output_string_stream(addr *stream, size_t size)
 	*stream = pos;
 }
 
-_g void copy_terminal_width_string_stream(addr stream, addr src)
+_g int copy_termsize_string_stream_(addr stream, addr src)
 {
+	int check;
 	struct stream_StringOutput *str;
 	size_t size;
 
 	CheckOutputStringStream(stream);
 	str = PtrStringOutputStream(stream);
-	if (terminal_width_stream(src, &size)) {
+	Return(termsize_stream_(src, &size, &check));
+	if (check) {
 		str->width_p = 0;
 		str->width = 0;
 	}
@@ -396,6 +402,8 @@ _g void copy_terminal_width_string_stream(addr stream, addr src)
 		str->width_p = 1;
 		str->width = size;
 	}
+
+	return 0;
 }
 
 _g void string_stream_alloc(LocalRoot local, addr stream, addr *string)
@@ -473,14 +481,14 @@ static int close_StringOutput(addr stream, addr *ret)
 	return Result(ret, T);
 }
 
-static void write_char_StringOutput_normal(addr stream, unicode c)
+static int write_char_StringOutput_normal_(addr stream, unicode c)
 {
 	addr queue;
 
 	/* stream */
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		fmte("stream is already closed.", NULL);
+		return fmte_("stream is already closed.", NULL);
 	if (GetStatusDynamic(stream))
 		push_charqueue_local(Local_Thread, queue, c);
 	else
@@ -488,116 +496,126 @@ static void write_char_StringOutput_normal(addr stream, unicode c)
 
 	/* terpri */
 	charleft_default_stream(stream, c);
+
+	return 0;
 }
 
-static void write_char_StringOutput_extend(addr stream, unicode c)
+static int write_char_StringOutput_extend_(addr stream, unicode c)
 {
 	addr queue, value;
 
 	/* stream */
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		fmte("stream is already closed.", NULL);
+		return fmte_("stream is already closed.", NULL);
 	character_heap(&value, c);
 	vector_push_extend_common(value, queue, Unbound, &value);
 
 	/* terpri */
 	charleft_default_stream(stream, c);
+
+	return 0;
 }
 
-static void write_char_StringOutput(addr stream, unicode c)
+static int write_char_StringOutput(addr stream, unicode c)
 {
 	CheckOutputStringStream(stream);
 	if (extend_string_p(stream))
-		write_char_StringOutput_extend(stream, c);
+		return write_char_StringOutput_extend_(stream, c);
 	else
-		write_char_StringOutput_normal(stream, c);
+		return write_char_StringOutput_normal_(stream, c);
 }
 
-static int file_position_StringOutput(addr stream, size_t *ret)
+static int file_position_StringOutput(addr stream, size_t *value, int *ret)
 {
 	addr queue;
 
 	CheckOutputStringStream(stream);
 	GetInfoStream(stream, &queue);
 	if (extend_string_p(stream))
-		*ret = array_get_vector_length(queue, 1); /* fill-pointer */
+		*value = array_get_vector_length(queue, 1); /* fill-pointer */
 	else
-		getsize_charqueue(queue, ret);
+		getsize_charqueue(queue, value);
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int file_position_start_StringOutput(addr stream)
+static int file_position_start_StringOutput(addr stream, int *ret)
 {
 	addr queue;
 
 	CheckOutputStringStream(stream);
 	GetInfoStream(stream, &queue);
 	if (extend_string_p(stream)) {
-		return array_fill_pointer_start(queue);
+		*ret = array_fill_pointer_start(queue);
+		return 0;
 	}
 	else {
 		clear_charqueue(queue);
-		return 0;
+		return Result(ret, 0);
 	}
 }
 
-static int file_position_end_StringOutput(addr stream)
+static int file_position_end_StringOutput(addr stream, int *ret)
 {
 	addr queue;
 
 	CheckOutputStringStream(stream);
 	GetInfoStream(stream, &queue);
-	if (extend_string_p(stream))
-		return array_fill_pointer_end(queue);
-	else
+	if (extend_string_p(stream)) {
+		*ret = array_fill_pointer_end(queue);
 		return 0;
+	}
+	else {
+		return Result(ret, 0);
+	}
 }
 
-static int file_position_set_StringOutput(addr stream, size_t pos)
+static int file_position_set_StringOutput(addr stream, size_t value, int *ret)
 {
 	addr queue;
 
 	CheckOutputStringStream(stream);
 	GetInfoStream(stream, &queue);
 	if (extend_string_p(stream))
-		return array_fill_pointer_set(queue, pos);
+		*ret = array_fill_pointer_set(queue, value);
 	else
-		return position_charqueue(queue, pos);
-}
+		*ret = position_charqueue(queue, value);
 
-static int file_character_length_StringOutput(addr stream, unicode u, size_t *ret)
-{
-	CheckOutputStringStream(stream);
-	*ret = 1;
 	return 0;
 }
 
-static int file_string_length_StringOutput(addr stream, addr pos, size_t *ret)
+static int file_charlen_StringOutput(addr stream, unicode u, size_t *value, int *ret)
 {
 	CheckOutputStringStream(stream);
-	string_length(pos, ret);
-	return 0;
+	*value = 1;
+	return Result(ret, 0);
 }
 
-static int terminal_width_StringOutput(addr stream, size_t *ret)
+static int file_strlen_StringOutput(addr stream, addr pos, size_t *value, int *ret)
+{
+	CheckOutputStringStream(stream);
+	string_length(pos, value);
+	return Result(ret, 0);
+}
+
+static int termsize_StringOutput(addr stream, size_t *value, int *ret)
 {
 	struct stream_StringOutput *str;
 
 	CheckOutputStringStream(stream);
 	str = PtrStringOutputStream(stream);
 	if (str->width_p)
-		*ret = str->width;
+		*value = str->width;
 
-	return str->width_p;
+	return Result(ret, str->width_p);
 }
 
 _g void init_stream_string_output(void)
 {
 	DefineStreamSet(StringOutput, close);
 	DefineStream___(StringOutput, read_binary);
-	DefineStream___(StringOutput, readforce_binary);
+	DefineStream___(StringOutput, readf_binary);
 	DefineStream___(StringOutput, read_byte);
 	DefineStream___(StringOutput, unread_byte);
 	DefineStream___(StringOutput, write_binary);
@@ -621,14 +639,14 @@ _g void init_stream_string_output(void)
 	DefineStreamSet(StringOutput, file_position_start);
 	DefineStreamSet(StringOutput, file_position_end);
 	DefineStreamSet(StringOutput, file_position_set);
-	DefineStreamSet(StringOutput, file_character_length);
-	DefineStreamSet(StringOutput, file_string_length);
+	DefineStreamSet(StringOutput, file_charlen);
+	DefineStreamSet(StringOutput, file_strlen);
 	DefineStream___(StringOutput, listen);
 	DefineStream___(StringOutput, clear_input);
 	DefineStreamDef(StringOutput, finish_output);
 	DefineStreamDef(StringOutput, force_output);
 	DefineStreamDef(StringOutput, clear_output);
 	DefineStreamDef(StringOutput, exitpoint);
-	DefineStreamSet(StringOutput, terminal_width);
+	DefineStreamSet(StringOutput, termsize);
 }
 

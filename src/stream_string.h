@@ -15,7 +15,7 @@ _g void clear_input_string_stream(addr stream);
 _g void close_input_string_stream(addr stream);
 
 _g void open_output_string_stream(addr *stream, size_t size);
-_g void copy_terminal_width_string_stream(addr stream, addr src);
+_g int copy_termsize_string_stream_(addr stream, addr src);
 _g void string_stream_alloc(LocalRoot local, addr stream, addr *string);
 _g void string_stream_local(LocalRoot local, addr stream, addr *string);
 _g void string_stream_heap(addr stream, addr *string);

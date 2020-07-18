@@ -147,20 +147,22 @@ static int load_root(struct filememory *fm)
 /*
  *  make-core
  */
-_g void savecore_execute(Execute ptr, addr file)
+_g int savecore_execute_(Execute ptr, addr file)
 {
 	addr symbol;
 
 	if (Index_Thread != 0)
-		fmte("Thread Index must be 0.", NULL);
+		return fmte_("Thread Index must be 0.", NULL);
 	if (count_execute() != 1)
-		fmte("Any child thread must be destroyed.", NULL);
+		return fmte_("Any child thread must be destroyed.", NULL);
 	pathname_designer_heap(ptr, file, &file);
-	name_pathname_heap(ptr, file, &file);
+	Return(name_pathname_heap_(ptr, file, &file));
 	GetConst(SYSTEM_SAVECORE_VALUE, &symbol);
 	setspecial_symbol(symbol);
 	SetValueSymbol(symbol, file);
 	exitthis(LISPCODE_SAVECORE);
+
+	return 0;
 }
 
 static void save_core_stream(Execute ptr, struct filememory *fm)

@@ -54,7 +54,7 @@ static int disassemble_code_type(Execute ptr, addr stream, addr pos)
 		Fmt1(" control");
 	if (str->p_args)
 		Fmt1(" argument");
-	terpri_stream(stream);
+	Return(terpri_stream_(stream));
 
 	return 0;
 }

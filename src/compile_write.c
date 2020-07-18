@@ -16,64 +16,69 @@
 /*
  *  write function
  */
-static void faslwrite_magic(addr stream)
+static int faslwrite_magic_(addr stream)
 {
 	char a[8];
 
 	memset(a, 0, 8);
 	strncpy(a, LISPNAME, 8);
-	faslwrite_buffer(stream, a, 8);
-	faslwrite_buffer(stream, "FASL\0\0\0\0", 8);
+	Return(faslwrite_buffer_(stream, a, 8));
+	Return(faslwrite_buffer_(stream, "FASL\0\0\0\0", 8));
+
+	return 0;
 }
 
-static void faslwrite_byte16(addr stream, uint16_t v)
+static int faslwrite_byte16_(addr stream, uint16_t v)
 {
-	faslwrite_buffer(stream, &v, sizeoft(v));
+	return faslwrite_buffer_(stream, &v, sizeoft(v));
 }
 
-_g void faslwrite_header(addr stream)
+_g int faslwrite_header_(addr stream)
 {
 	char buffer[32];
 
 	/* 0: magic number */
-	faslwrite_magic(stream);
+	Return(faslwrite_magic_(stream));
 	/* 16: endian */
-	faslwrite_byte16(stream, 1);
+	Return(faslwrite_byte16_(stream, 1));
 	/* 18: version */
-	faslwrite_byte16(stream, LISP_VERSION_A);
-	faslwrite_byte16(stream, LISP_VERSION_B);
-	faslwrite_byte16(stream, LISP_VERSION_C);
+	Return(faslwrite_byte16_(stream, LISP_VERSION_A));
+	Return(faslwrite_byte16_(stream, LISP_VERSION_B));
+	Return(faslwrite_byte16_(stream, LISP_VERSION_C));
 	/* 24: arch */
 #ifdef LISP_64BIT
-	faslwrite_byte16(stream, 1);
+	Return(faslwrite_byte16_(stream, 1));
 #else
-	faslwrite_byte16(stream, 0);
+	Return(faslwrite_byte16_(stream, 0));
 #endif
 	/* 26: padding */
 	memset(buffer, 0xFF, 32);
-	faslwrite_buffer(stream, buffer, 6);
+	Return(faslwrite_buffer_(stream, buffer, 6));
 	/* 32: end */
+
+	return 0;
 }
 
-_g void faslwrite_footer(addr stream)
+_g int faslwrite_footer_(addr stream)
 {
 	char buffer[8];
 
-	faslwrite_type(stream, FaslCode_end);
+	Return(faslwrite_type_(stream, FaslCode_end));
 	memset(buffer, 0x00, 8);
-	faslwrite_buffer(stream, buffer, 8);
+	Return(faslwrite_buffer_(stream, buffer, 8));
 	memset(buffer, 0xFF, 8);
-	faslwrite_buffer(stream, buffer, 8);
+	Return(faslwrite_buffer_(stream, buffer, 8));
+
+	return 0;
 }
 
 
 /*
  *  unbound
  */
-static int faslwrite_unbound(Execute ptr, addr stream)
+static int faslwrite_unbound_(Execute ptr, addr stream)
 {
-	faslwrite_type(stream, FaslCode_unbound);
-	return 0;
+	return faslwrite_type_(stream, FaslCode_unbound);
 }
 
 
@@ -117,7 +122,7 @@ static int faslwrite_value_operator(Execute ptr, addr stream, pointer id, CodeVa
 	code_value_heap(&value, type, x);
 	code = GetCompileWrite(id);
 	/* write */
-	faslwrite_type(stream, code);
+	Return(faslwrite_type_(stream, code));
 	return faslwrite_value(ptr, stream, value);
 }
 
@@ -129,10 +134,10 @@ static int faslwrite_value_code(Execute ptr, addr stream, addr pos)
 
 	Check(GetType(pos) != LISPTYPE_CODE, "type error.");
 	/* type */
-	faslwrite_type(stream, FaslCode_code);
+	Return(faslwrite_type_(stream, FaslCode_code));
 	/* struct */
 	str = StructCode(pos);
-	faslwrite_buffer(stream, str, sizeoft(struct code_struct));
+	Return(faslwrite_buffer_(stream, str, sizeoft(struct code_struct)));
 	/* code */
 	GetArrayCode(pos, Code_Array, &pos);
 	sys = str->sys;
@@ -159,7 +164,7 @@ _g int faslwrite_value(Execute ptr, addr stream, addr pos)
 
 	/* unbound */
 	if (pos == Unbound)
-		return faslwrite_unbound(ptr, stream);
+		return faslwrite_unbound_(ptr, stream);
 
 	/* object */
 	type = GetType(pos);

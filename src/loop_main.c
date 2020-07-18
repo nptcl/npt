@@ -324,7 +324,7 @@ static void loop_let_main_repeat(addr *form, addr list)
 	list_heap(form, let, a, *form, NULL);
 }
 
-static void loop_push_main_if_unless(struct loop_main *str,
+static int loop_push_main_if_unless_(struct loop_main *str,
 		addr list, constindex index)
 {
 	addr form, expr1, expr2, end_if, else_if, x;
@@ -347,7 +347,7 @@ static void loop_push_main_if_unless(struct loop_main *str,
 		list_heap(&x, go, end_if, NULL);
 		list_heap(&x, if_unless, it, x, NULL);
 		loop_main_push_form(str, x);
-		loop_push_main(str, expr1);
+		Return(loop_push_main_(str, expr1));
 		loop_main_push_form(str, end_if);
 	}
 	else {
@@ -369,33 +369,38 @@ static void loop_push_main_if_unless(struct loop_main *str,
 		list_heap(&x, go, else_if, NULL);
 		list_heap(&x, if_unless, it, x, NULL);
 		loop_main_push_form(str, x);
-		loop_push_main(str, expr1);
+		Return(loop_push_main_(str, expr1));
 		list_heap(&x, go, end_if, NULL);
 		loop_main_push_form(str, x);
 		loop_main_push_form(str, else_if);
-		loop_push_main(str, expr2);
+		Return(loop_push_main_(str, expr2));
 		loop_main_push_form(str, end_if);
 	}
+
+	return 0;
 }
 
-static void loop_push_main_if(struct loop_main *str, addr list)
+static int loop_push_main_if_(struct loop_main *str, addr list)
 {
-	loop_push_main_if_unless(str, list, CONSTANT_COMMON_UNLESS);
+	return loop_push_main_if_unless_(str, list, CONSTANT_COMMON_UNLESS);
 }
 
-static void loop_push_main_unless(struct loop_main *str, addr list)
+static int loop_push_main_unless_(struct loop_main *str, addr list)
 {
-	loop_push_main_if_unless(str, list, CONSTANT_COMMON_IF);
+	return loop_push_main_if_unless_(str, list, CONSTANT_COMMON_IF);
 }
 
-static void loop_let_if_unless(addr *form, addr list)
+static int loop_let_if_unless_(addr *form, addr list)
 {
 	addr expr, expr1, expr2;
 
 	list_bind(list, &expr, &expr1, &expr2, NULL);
-	loop_let_main(form, expr1);
-	if (expr2 != Unbound)
-		loop_let_main(form, expr2);
+	Return(loop_let_main_(form, expr1));
+	if (expr2 != Unbound) {
+		Return(loop_let_main_(form, expr2));
+	}
+
+	return 0;
 }
 
 static void loop_push_main_while_until(struct loop_main *str,
@@ -502,7 +507,7 @@ static void loop_push_main_repeat(struct loop_main *str, addr list)
 	loop_main_push_form(str, x);
 }
 
-_g void loop_push_main(struct loop_main *str, addr list)
+_g int loop_push_main_(struct loop_main *str, addr list)
 {
 	addr car, cdr;
 	addr do_p, return_p, collect_p, append_p, nconc_p;
@@ -531,11 +536,11 @@ _g void loop_push_main(struct loop_main *str, addr list)
 		GetCons(cdr, &car, &cdr);
 		/* conditional */
 		if (car == if_p) {
-			loop_push_main_if(str, cdr);
+			Return(loop_push_main_if_(str, cdr));
 			continue;
 		}
 		if (car == unless_p) {
-			loop_push_main_unless(str, cdr);
+			Return(loop_push_main_unless_(str, cdr));
 			continue;
 		}
 		/* unconditional */
@@ -602,11 +607,13 @@ _g void loop_push_main(struct loop_main *str, addr list)
 			continue;
 		}
 		/* error */
-		fmte("Invalid loop operator ~S.", car, NULL);
+		return fmte_("Invalid loop operator ~S.", car, NULL);
 	}
+
+	return 0;
 }
 
-_g void loop_let_main(addr *form, addr list)
+_g int loop_let_main_(addr *form, addr list)
 {
 	addr car, cdr;
 	addr do_p, return_p, collect_p, append_p, nconc_p;
@@ -635,11 +642,11 @@ _g void loop_let_main(addr *form, addr list)
 		GetCons(cdr, &car, &cdr);
 		/* conditional */
 		if (car == if_p) {
-			loop_let_if_unless(form, cdr);
+			Return(loop_let_if_unless_(form, cdr));
 			continue;
 		}
 		if (car == unless_p) {
-			loop_let_if_unless(form, cdr);
+			Return(loop_let_if_unless_(form, cdr));
 			continue;
 		}
 		/* unconditional */
@@ -672,7 +679,9 @@ _g void loop_let_main(addr *form, addr list)
 			continue;
 		}
 		/* error */
-		fmte("Invalid loop operator ~S.", car, NULL);
+		return fmte_("Invalid loop operator ~S.", car, NULL);
 	}
+
+	return 0;
 }
 

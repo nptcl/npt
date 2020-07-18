@@ -969,7 +969,7 @@ _g void abs_ratio_heap(addr left, addr *ret)
 /*
  *  output
  */
-_g void output_nosign_ratio(LocalRoot local,
+_g int output_nosign_ratio_(LocalRoot local,
 		addr stream, addr pos, unsigned base, int upperp)
 {
 	addr numer, denom;
@@ -977,21 +977,19 @@ _g void output_nosign_ratio(LocalRoot local,
 	Check(! isBaseChar(base), "base error");
 	/* zero */
 	GetNumerRatio(pos, &numer);
-	if (zerop_bignum(numer)) {
-		write_char_stream(stream, '0');
-		return;
-	}
+	if (zerop_bignum(numer))
+		return write_char_stream_(stream, '0');
 
 	/* integer */
 	GetDenomRatio(pos, &denom);
-	if (equal_value_nosign_bignum(denom, 1)) {
-		output_nosign_bignum(local, stream, numer, base, upperp);
-		return;
-	}
+	if (equal_value_nosign_bignum(denom, 1))
+		return output_nosign_bignum_(local, stream, numer, base, upperp);
 
 	/* ratio */
-	output_nosign_bignum(local, stream, numer, base, upperp);
-	write_char_stream(stream, '/');
-	output_nosign_bignum(local, stream, denom, base, upperp);
+	Return(output_nosign_bignum_(local, stream, numer, base, upperp));
+	Return(write_char_stream_(stream, '/'));
+	Return(output_nosign_bignum_(local, stream, denom, base, upperp));
+
+	return 0;
 }
 

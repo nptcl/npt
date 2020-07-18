@@ -242,13 +242,13 @@ static void make_info_pretty_vector(addr *ret, addr stream,
 	*ret = pos;
 }
 
-static void make_info_pretty_stream(Execute ptr, addr *ret,
+static int make_info_pretty_stream_(Execute ptr, addr *ret,
 		addr stream, addr root, addr prefix, addr perline, addr suffix)
 {
 	addr gensym, queue;
 
 	/* gensym */
-	make_gensym(ptr, &gensym);
+	Return(make_gensym_(ptr, &gensym));
 	/* charqueue */
 	if (pretty_stream_p(stream)) {
 		flush_pretty_stream(stream);
@@ -259,9 +259,10 @@ static void make_info_pretty_stream(Execute ptr, addr *ret,
 	}
 	/* info */
 	make_info_pretty_vector(ret, stream, root, prefix, perline, suffix, gensym, queue);
+	return 0;
 }
 
-_g void open_pretty_stream(Execute ptr, addr *ret,
+_g int open_pretty_stream_(Execute ptr, addr *ret,
 		addr stream, addr root, addr prefix, addr perline, addr suffix)
 {
 	addr pos, info;
@@ -269,15 +270,15 @@ _g void open_pretty_stream(Execute ptr, addr *ret,
 
 	/* type check */
 	if (! streamp(stream))
-		TypeError(stream, STREAM);
+		return TypeError_(stream, STREAM);
 	if (prefix != Nil && (! stringp(prefix)))
-		TypeError(prefix, STRING);
+		return TypeError_(prefix, STRING);
 	if (perline != Nil && (! stringp(perline)))
-		TypeError(perline, STRING);
+		return TypeError_(perline, STRING);
 	if (suffix != Nil && (! stringp(suffix)))
-		TypeError(suffix, STRING);
+		return TypeError_(suffix, STRING);
 	if (prefix != Nil && perline != Nil)
-		fmte("Cannot supply both :PREFIX and :PER-LINE-PREFIX.", NULL);
+		return fmte_("Cannot supply both :PREFIX and :PER-LINE-PREFIX.", NULL);
 
 	/* make */
 	stream_heap(&pos, StreamType_Pretty, sizeoft(struct stream_Pretty));
@@ -286,14 +287,14 @@ _g void open_pretty_stream(Execute ptr, addr *ret,
 	str->discard = discard_pretty_stream(stream);
 	str->alive = 1;
 	str->length = 0;
-	str->terpri = getleft_stream(stream);
+	Return(getleft_stream_(stream, &(str->terpri)));
 	getdepth_print_write(ptr, &(str->depth));
 	/* info */
-	make_info_pretty_stream(ptr, &info, stream, root, prefix, perline, suffix);
+	Return(make_info_pretty_stream_(ptr, &info, stream, root, prefix, perline, suffix));
 	SetInfoStream(pos, info);
 	/* result */
 	force_open_stream(pos);
-	*ret = pos;
+	return Result(ret, pos);
 }
 
 
@@ -318,7 +319,7 @@ _g void setdepth_pretty_stream(Execute ptr, addr stream, size_t inc)
 	setdepth_print_write(ptr, depth + inc);
 }
 
-_g void close_pretty_stream(Execute ptr, addr stream)
+_g int close_pretty_stream_(Execute ptr, addr stream)
 {
 	addr pos;
 
@@ -327,7 +328,7 @@ _g void close_pretty_stream(Execute ptr, addr stream)
 	/* discard */
 	if (discard_pretty_stream(stream)) {
 		setalive_pretty_stream(stream, 0);
-		return;
+		return 0;
 	}
 	/* stack */
 	flush_pretty_stream(stream);
@@ -337,10 +338,14 @@ _g void close_pretty_stream(Execute ptr, addr stream)
 	force_close_stream(stream);
 	/* output */
 	stream_pretty_stream(stream, &pos);
-	if (pretty_stream_p(pos))
+	if (pretty_stream_p(pos)) {
 		push_pretty_stream(pos, stream);
-	else
-		pprint_output(ptr, pos, stream);
+	}
+	else {
+		Return(pprint_output_(ptr, pos, stream));
+	}
+
+	return 0;
 }
 
 _g void push_pretty_stream(addr stream, addr pos)
@@ -394,7 +399,7 @@ static int Push_pretty_stream_p(addr stream)
 	return push_pretty_stream_p(stream);
 }
 
-static void rollback_pretty_stream(addr stream)
+static int rollback_pretty_stream_(addr stream)
 {
 	addr root, pos, info;
 	struct stream_Pretty *str;
@@ -413,7 +418,7 @@ static void rollback_pretty_stream(addr stream)
 	str->discard = 0;
 	str->alive = 1;
 	str->length = 0;
-	setleft_stream(stream, str->terpri);
+	return setleft_stream_(stream, str->terpri);
 }
 
 _g int call_pretty_stream(Execute ptr, addr stream, addr call)
@@ -438,12 +443,11 @@ _g int call_pretty_stream(Execute ptr, addr stream, addr call)
 	setdiscard_pretty_stream(stream, 1);
 	root_pretty_stream(stream, &pos);
 	/* check */
-	write_check_call(ptr, pos);
+	Return(write_check_call_(ptr, pos));
 	/* call */
-	if (callclang_funcall(ptr, &pos, call, NULL))
-		return 1;
+	Return(callclang_funcall(ptr, &pos, call, NULL));
 	/* circle output */
-	rollback_pretty_stream(stream);
+	Return(rollback_pretty_stream_(stream));
 	write_check_all_clear(ptr);
 	return callclang_funcall(ptr, &pos, call, NULL);
 }
@@ -458,51 +462,53 @@ static int close_Pretty(addr stream, addr *ret)
 	return Result(ret, T);
 }
 
-static int read_char_Pretty(addr stream, unicode *u)
+static int read_char_Pretty(addr stream, unicode *u, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return read_char_stream(stream, u);
+	return read_char_stream_(stream, u, ret);
 }
 
-static int read_hang_Pretty(addr stream, unicode *u, int *hang)
+static int read_hang_Pretty(addr stream, unicode *u, int *hang, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return read_hang_stream(stream, u, hang);
+	return read_hang_stream_(stream, u, hang, ret);
 }
 
-static void unread_char_Pretty(addr stream, unicode u)
+static int unread_char_Pretty(addr stream, unicode c)
 {
 	getstream_pretty_stream(stream, &stream);
-	unread_char_stream(stream, u);
+	return unread_char_stream_(stream, c);
 }
 
-static void write_char_Pretty(addr stream, unicode u)
+static int write_char_Pretty(addr stream, unicode u)
 {
 	character_pretty_stream(stream, u);
+	return 0;
 }
 
-static void terpri_Pretty(addr stream)
+static int terpri_Pretty(addr stream)
 {
 	alive_pretty_stream(stream);
 	pprint_newline_terpri(stream);
+	return 0;
 }
 
-static size_t getleft_Pretty(addr stream)
+static int getleft_Pretty(addr stream, size_t *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return getleft_stream(stream);
+	return getleft_stream_(stream, ret);
 }
 
-static void setleft_Pretty(addr stream, size_t value)
+static int setleft_Pretty(addr stream, size_t value)
 {
 	getstream_pretty_stream(stream, &stream);
-	setleft_stream(stream, value);
+	return setleft_stream_(stream, value);
 }
 
-static int fresh_line_Pretty(addr stream)
+static int fresh_line_Pretty(addr stream, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return fresh_line_stream(stream);
+	return fresh_line_stream_(stream, ret);
 }
 
 static int inputp_Pretty(addr stream)
@@ -535,95 +541,95 @@ static int binaryp_Pretty(addr stream)
 	return binaryp_stream(stream);
 }
 
-static void element_type_Pretty(addr stream, addr *ret)
+static int element_type_Pretty(addr stream, addr *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	element_type_stream(stream, ret);
+	return element_type_stream_(stream, ret);
 }
 
-static void file_length_Pretty(addr stream, addr *ret)
+static int file_length_Pretty(addr stream, addr *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	file_length_stream(stream, ret);
+	return file_length_stream_(stream, ret);
 }
 
-static int file_position_Pretty(addr stream, size_t *ret)
+static int file_position_Pretty(addr stream, size_t *value, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return file_position_stream(stream, ret);
+	return file_position_stream_(stream, value, ret);
 }
 
-static int file_position_start_Pretty(addr stream)
+static int file_position_start_Pretty(addr stream, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return file_position_start_stream(stream);
+	return file_position_start_stream_(stream, ret);
 }
 
-static int file_position_end_Pretty(addr stream)
+static int file_position_end_Pretty(addr stream, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return file_position_end_stream(stream);
+	return file_position_end_stream_(stream, ret);
 }
 
-static int file_position_set_Pretty(addr stream, size_t pos)
+static int file_position_set_Pretty(addr stream, size_t value, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return file_position_set_stream(stream, pos);
+	return file_position_set_stream_(stream, value, ret);
 }
 
-static int file_character_length_Pretty(addr stream, unicode u, size_t *ret)
+static int file_charlen_Pretty(addr stream, unicode u, size_t *value, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return file_character_length_stream(stream, u, ret);
+	return file_charlen_stream_(stream, u, value, ret);
 }
 
-static int file_string_length_Pretty(addr stream, addr pos, size_t *ret)
+static int file_strlen_Pretty(addr stream, addr pos, size_t *value, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return file_string_length_stream(stream, pos, ret);
+	return file_strlen_stream_(stream, pos, value, ret);
 }
 
-static int listen_Pretty(addr stream)
+static int listen_Pretty(addr stream, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return listen_stream(stream);
+	return listen_stream_(stream, ret);
 }
 
-static void clear_input_Pretty(addr stream)
+static int clear_input_Pretty(addr stream)
 {
 	getstream_pretty_stream(stream, &stream);
-	clear_input_stream(stream);
+	return clear_input_stream_(stream);
 }
 
-static void finish_output_Pretty(addr stream)
+static int finish_output_Pretty(addr stream)
 {
 	getstream_pretty_stream(stream, &stream);
-	finish_output_stream(stream);
+	return finish_output_stream_(stream);
 }
 
-static void force_output_Pretty(addr stream)
+static int force_output_Pretty(addr stream)
 {
 	getstream_pretty_stream(stream, &stream);
-	force_output_stream(stream);
+	return force_output_stream_(stream);
 }
 
-static void clear_output_Pretty(addr stream)
+static int clear_output_Pretty(addr stream)
 {
 	getstream_pretty_stream(stream, &stream);
-	clear_output_stream(stream);
+	return clear_output_stream_(stream);
 }
 
-static int terminal_width_Pretty(addr stream, size_t *ret)
+static int termsize_Pretty(addr stream, size_t *value, int *ret)
 {
 	getstream_pretty_stream(stream, &stream);
-	return terminal_width_stream(stream, ret);
+	return termsize_stream_(stream, value, ret);
 }
 
 _g void init_stream_pretty(void)
 {
 	DefineStreamSet(Pretty, close);
 	DefineStream___(Pretty, read_binary);
-	DefineStream___(Pretty, readforce_binary);
+	DefineStream___(Pretty, readf_binary);
 	DefineStream___(Pretty, read_byte);
 	DefineStream___(Pretty, unread_byte);
 	DefineStream___(Pretty, write_binary);
@@ -647,14 +653,14 @@ _g void init_stream_pretty(void)
 	DefineStreamSet(Pretty, file_position_start);
 	DefineStreamSet(Pretty, file_position_end);
 	DefineStreamSet(Pretty, file_position_set);
-	DefineStreamSet(Pretty, file_character_length);
-	DefineStreamSet(Pretty, file_string_length);
+	DefineStreamSet(Pretty, file_charlen);
+	DefineStreamSet(Pretty, file_strlen);
 	DefineStreamSet(Pretty, listen);
 	DefineStreamSet(Pretty, clear_input);
 	DefineStreamSet(Pretty, finish_output);
 	DefineStreamSet(Pretty, force_output);
 	DefineStreamSet(Pretty, clear_output);
 	DefineStreamDef(Pretty, exitpoint);
-	DefineStreamSet(Pretty, terminal_width);
+	DefineStreamSet(Pretty, termsize);
 }
 

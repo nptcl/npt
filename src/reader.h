@@ -12,8 +12,8 @@ enum ReadTable_Result {
 };
 
 _g enum ReadTable_Type readtable_typetable(addr pos, unicode c);
-_g enum ReadTable_Result readtable_result(Execute ptr,
-		addr *ret, addr stream, addr table);
+_g int readtable_result_(Execute ptr,
+		addr *token, addr stream, addr table, enum ReadTable_Result *ret);
 _g int readtable_novalue(Execute ptr, int *result, addr *ret, addr stream, addr table);
 _g int read_call(Execute ptr, addr stream, int *result, addr *ret);
 _g int read_stream(Execute ptr, addr stream, int *result, addr *ret);

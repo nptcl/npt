@@ -9,8 +9,8 @@ struct loop_main {
 };
 
 _g void make_loop_main(struct loop_main *ptr, addr form, addr init, addr named);
-_g void loop_push_main(struct loop_main *ptr, addr list);
-_g void loop_let_main(addr *form, addr list);
+_g int loop_push_main_(struct loop_main *ptr, addr list);
+_g int loop_let_main_(addr *form, addr list);
 
 #endif
 

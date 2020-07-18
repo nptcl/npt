@@ -109,7 +109,7 @@ _g void make_package_common(Execute ptr, addr name, addr rest, addr *ret)
 /*
  *  with-package-iterator
  */
-static void with_package_iterator_expand_common(Execute ptr,
+static int with_package_iterator_expand_common_(Execute ptr,
 		addr name, addr table, int inter, int exter, int inherit,
 		addr body, addr *ret)
 {
@@ -130,7 +130,7 @@ static void with_package_iterator_expand_common(Execute ptr,
 	GetConst(COMMON_QUOTE, &quote);
 	GetConst(SYSTEM_MAKE_PACKAGE_ITERATOR, &make);
 	GetConst(SYSTEM_NEXT_PACKAGE_ITERATOR, &next);
-	make_gensym(ptr, &inst);
+	Return(make_gensym_(ptr, &inst));
 
 	a = inter? T: Nil;
 	b = exter? T: Nil;
@@ -149,6 +149,8 @@ static void with_package_iterator_expand_common(Execute ptr,
 	list_heap(&name, declare, name, NULL);
 	lista_heap(&let3, macrolet, let3, name, body, NULL);
 	list_heap(ret, let, let1, let2, let3, NULL);
+
+	return 0;
 }
 
 static int with_package_iterator_check_common(addr rest,
@@ -208,9 +210,8 @@ _g int with_package_iterator_common(Execute ptr, addr form, addr env, addr *ret)
 	inter = exter = inherit = 0;
 	Return(with_package_iterator_check_common(check, &inter, &exter, &inherit));
 	/* ((name list &rest ...) . args) */
-	with_package_iterator_expand_common(ptr,
+	return with_package_iterator_expand_common_(ptr,
 			name, list, inter, exter, inherit, args, ret);
-	return 0;
 
 error:
 	return fmte_("with-package-iterator form ~S must be "

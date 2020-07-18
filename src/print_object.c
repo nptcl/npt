@@ -29,7 +29,8 @@ static int method_print_object_t_body(Execute ptr, addr stream, addr pos)
 static int method_print_object_t(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	Return(print_unreadable_object(ptr, stream, pos, 0, 1, method_print_object_t_body));
+	Return(print_unreadable_object_(ptr,
+				stream, pos, 0, 1, method_print_object_t_body));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -47,11 +48,11 @@ static int method_print_object_class(Execute ptr,
 	stdget_class_name(class_of, &class_of);
 	stdget_class_name(pos, &name);
 	/* #<CLASS-OF CLASS-NAME> */
-	print_ascii_stream(stream, "#<");
+	Return(print_ascii_stream_(stream, "#<"));
 	Return(princ_print(ptr, stream, class_of));
-	write_char_stream(stream, ' ');
+	Return(write_char_stream_(stream, ' '));
 	Return(princ_print(ptr, stream, name));
-	write_char_stream(stream, '>');
+	Return(write_char_stream_(stream, '>'));
 	/* result */
 	setresult_control(ptr, pos);
 
@@ -69,32 +70,32 @@ static int write_structure(Execute ptr, addr stream, addr pos)
 
 	/* class name */
 	GetClassOfClos(pos, &x);
-	if (x == Unbound || (! structure_class_p(x))) {
-		print_ascii_stream(stream, "#S(INVALID)");
-		return 0;
-	}
+	if (x == Unbound || (! structure_class_p(x)))
+		return print_ascii_stream_(stream, "#S(INVALID)");
 	stdget_structure_name(x, &x);
-	print_ascii_stream(stream, "#S(");
-	if (write_print(ptr, stream, x)) return 1;
+	Return(print_ascii_stream_(stream, "#S("));
+	Return(write_print(ptr, stream, x));
 	/* slot */
 	GetSlotClos(pos, &x);
 	GetValueClos(pos, &y);
 	LenSlotVector(x, &size);
 	for (i = 0; i < size; i++) {
-		write_char_stream(stream, ' ');
+		Return(write_char_stream_(stream, ' '));
 		GetSlotVector(x, i, &z);
 		GetNameSlot(z, &z);
 		GetNameSymbol(z, &z);
-		write_char_stream(stream, ':');
-		if (princ_print(ptr, stream, z)) return 1;
-		write_char_stream(stream, ' ');
+		Return(write_char_stream_(stream, ':'));
+		Return(princ_print(ptr, stream, z));
+		Return(write_char_stream_(stream, ' '));
 		GetClosValue(y, i, &z);
-		if (z == Unbound)
-			print_ascii_stream(stream, "#<UNBOUND>");
-		else
-			if (write_print(ptr, stream, z)) return 1;
+		if (z == Unbound) {
+			Return(print_ascii_stream_(stream, "#<UNBOUND>"));
+		}
+		else {
+			Return(write_print(ptr, stream, z));
+		}
 	}
-	write_char_stream(stream, ')');
+	Return(write_char_stream_(stream, ')'));
 
 	return 0;
 }

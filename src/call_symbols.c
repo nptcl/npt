@@ -84,28 +84,26 @@ _g void copy_symbol_common(addr var, addr opt, addr *ret)
 _g int gensym_common(Execute ptr, addr opt, addr *ret)
 {
 	if (opt == Unbound)
-		make_gensym(ptr, ret);
+		return make_gensym_(ptr, ret);
 	else if (stringp(opt))
-		make_gensym_prefix(ptr, opt, ret);
+		return make_gensym_prefix_(ptr, opt, ret);
 	else if (integerp(opt))
-		make_gensym_integer(ptr, opt, ret);
+		return make_gensym_integer_(ptr, opt, ret);
 	else
 		return fmte_("type-error.", NULL);
-
-	return 0;
 }
 
 
 /*
  *  gentemp
  */
-_g void gentemp_common(Execute ptr, addr opt1, addr opt2, addr *ret)
+_g int gentemp_common(Execute ptr, addr opt1, addr opt2, addr *ret)
 {
 	if (opt1 == Unbound)
 		opt1 = NULL;
 	if (opt2 == Unbound)
 		opt2 = NULL;
-	make_gentemp(ptr, opt1, opt2, ret);
+	return make_gentemp_(ptr, opt1, opt2, ret);
 }
 
 

@@ -70,12 +70,12 @@ static int test_fmtint_argument(void)
 	print.rest = &args;
 
 	value = 0;
-	fmtint_argument(&print, NULL, &value, &check);
+	fmtint_argument_(&print, NULL, &value, &check);
 	test(! check, "fmtint_argument1");
 	test(value == 10, "fmtint_argument2");
-	fmtint_argument(&print, NULL, &value, &check);
+	fmtint_argument_(&print, NULL, &value, &check);
 	test(check, "fmtint_argument3");
-	fmtint_argument(&print, NULL, &value, &check);
+	fmtint_argument_(&print, NULL, &value, &check);
 	test(! check, "fmtint_argument4");
 	test(value == 30, "fmtint_argument5");
 
@@ -117,34 +117,34 @@ static int test_fmtint_nilp(void)
 	print.rest = &args;
 
 	strvect_char_local(local, &pos, "~,20A");
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	value = 0;
-	fmtint_nilp(&print, comm, 0, &value, &check);
+	fmtint_nilp_(&print, comm, 0, &value, &check);
 	test(! check, "fmtint_nilp1");
 	test(value == 0, "fmtint_nilp2");
-	fmtint_nilp(&print, comm, 1, &value, &check);
+	fmtint_nilp_(&print, comm, 1, &value, &check);
 	test(! check, "fmtint_nilp3");
 	test(value == 20, "fmtint_nilp4");
 
 	strvect_char_local(local, &pos, "~#,vA");
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
-	fmtint_nilp(&print, comm, 0, &value, &check);
+	fmtint_nilp_(&print, comm, 0, &value, &check);
 	test(! check, "fmtint_nilp5");
 	test(value == 3, "fmtint_nilp6");
-	fmtint_nilp(&print, comm, 1, &value, &check);
+	fmtint_nilp_(&print, comm, 1, &value, &check);
 	test(! check, "fmtint_nilp7");
 	test(value == 10, "fmtint_nilp8");
-	fmtint_nilp(&print, comm, 1, &value, &check);
+	fmtint_nilp_(&print, comm, 1, &value, &check);
 	test(check, "fmtint_nilp9");
 
 	strvect_char_local(local, &pos, "~,20^");
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
-	fmtint_nilp(&print, comm, 0, &value, &check);
+	fmtint_nilp_(&print, comm, 0, &value, &check);
 	test(check, "fmtint_nilp10");
-	fmtint_nilp(&print, comm, 1, &value, &check);
+	fmtint_nilp_(&print, comm, 1, &value, &check);
 	test(! check, "fmtint_nilp11");
 	test(value == 20, "fmtint_nilp12");
 
@@ -155,6 +155,7 @@ static int test_fmtint_nilp(void)
 
 static int test_fmtchar_argument(void)
 {
+	int check;
 	addr rest;
 	struct fmtprint_struct print;
 	struct fmtstack args;
@@ -175,10 +176,13 @@ static int test_fmtchar_argument(void)
 	print.rest = &args;
 
 	value = 0;
-	test(! fmtchar_argument(&print, NULL, &value), "fmtchar_argument1");
+	fmtchar_argument_(&print, NULL, &value, &check);
+	test(! check, "fmtchar_argument1");
 	test(value == 'a', "fmtchar_argument2");
-	test(fmtchar_argument(&print, NULL, &value), "fmtchar_argument3");
-	test(! fmtchar_argument(&print, NULL, &value), "fmtchar_argument4");
+	fmtchar_argument_(&print, NULL, &value, &check);
+	test(check, "fmtchar_argument3");
+	fmtchar_argument_(&print, NULL, &value, &check);
+	test(! check, "fmtchar_argument4");
 	test(value == 'b', "fmtchar_argument5");
 
 	RETURN;
@@ -186,6 +190,7 @@ static int test_fmtchar_argument(void)
 
 static int test_fmtchar_nilp(void)
 {
+	int check;
 	addr rest, pos;
 	LocalRoot local;
 	LocalStack stack;
@@ -206,19 +211,23 @@ static int test_fmtchar_nilp(void)
 	print.rest = &args;
 
 	strvect_char_local(local, &pos, "~,'c/A/");
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	value = 0;
-	test(fmtchar_nilp(&print, comm, 0, &value), "fmtchar_nilp1");
-	test(! fmtchar_nilp(&print, comm, 1, &value), "fmtchar_nilp2");
+	fmtchar_nilp_(&print, comm, 0, &value, &check);
+	test(check, "fmtchar_nilp1");
+	fmtchar_nilp_(&print, comm, 1, &value, &check);
+	test(! check, "fmtchar_nilp2");
 	test(value == 'c', "fmtchar_nilp3");
 
 	strvect_char_local(local, &pos, "~v/A/");
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
-	test(! fmtchar_nilp(&print, comm, 0, &value), "fmtchar_nilp4");
+	fmtchar_nilp_(&print, comm, 0, &value, &check);
+	test(! check, "fmtchar_nilp4");
 	test(value == 'a', "fmtchar_nilp5");
-	test(fmtchar_nilp(&print, comm, 0, &value), "fmtchar_nilp6");
+	fmtchar_nilp_(&print, comm, 0, &value, &check);
+	test(check, "fmtchar_nilp6");
 
 	rollback_local(local, stack);
 
@@ -246,12 +255,12 @@ static int test_fmtint_default(void)
 	print.rest = &args;
 
 	strvect_char_local(local, &pos, "~,20^");
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	value = 0;
-	fmtint_default(&print, comm, 0, &value, 99);
+	fmtint_default_(&print, comm, 0, &value, 99);
 	test(value == 99, "fmtint_default1");
-	fmtint_default(&print, comm, 1, &value, 99);
+	fmtint_default_(&print, comm, 1, &value, 99);
 	test(value == 20, "fmtint_default2");
 
 	rollback_local(local, stack);
@@ -280,12 +289,12 @@ static int test_fmtchar_default(void)
 	print.rest = &args;
 
 	strvect_char_local(local, &pos, "~,'*/A/");
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	value = 0;
-	fmtchar_default(&print, comm, 0, &value, '=');
+	fmtchar_default_(&print, comm, 0, &value, '=');
 	test(value == '=', "fmtchar_default1");
-	fmtchar_default(&print, comm, 1, &value, '=');
+	fmtchar_default_(&print, comm, 1, &value, '=');
 	test(value == '*', "fmtchar_default2");
 
 	rollback_local(local, stack);
@@ -309,7 +318,7 @@ static int test_fmtprint_putc_times(void)
 	print.conversion = fmtcase_normal;
 	print.first = 1;
 	print.word = 0;
-	fmtprint_putc_times(&print, 'c', 10);
+	fmtprint_putc_times_(&print, 'c', 10);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "cccccccccc"), "fmtprint_putc_times1");
 	clear_output_string_stream(stream);
@@ -336,7 +345,7 @@ static int test_fmtprint_string(void)
 	print.first = 1;
 	print.word = 0;
 	strvect_char_local(local, &pos, "Hello");
-	fmtprint_string(&print, pos);
+	fmtprint_string_(&print, pos);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "Hello"), "fmtprint_string1");
 	clear_output_string_stream(stream);
@@ -371,7 +380,7 @@ static int test_format_call_Output(void)
 	print.word = 0;
 	strvect_char_local(local, &pos, "Hello");
 	print.format = pos;
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	format_call_Output(&print, comm);
 	string_stream_heap(stream, &pos);
@@ -382,7 +391,7 @@ static int test_format_call_Output(void)
 	print.word = 0;
 	strvect_char_local(local, &pos, "  Hello");
 	print.format = pos;
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	format_call_Output(&print, comm);
 	string_stream_heap(stream, &pos);
@@ -394,7 +403,7 @@ static int test_format_call_Output(void)
 	print.delete_space = 1;
 	strvect_char_local(local, &pos, "  Hello");
 	print.format = pos;
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	format_call_Output(&print, comm);
 	string_stream_heap(stream, &pos);
@@ -407,7 +416,7 @@ static int test_format_call_Output(void)
 	print.delete_space = 1;
 	strvect_char_local(local, &pos, "    ");
 	print.format = pos;
-	format_parse_local(local, &pos, pos);
+	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	format_call_Output(&print, comm);
 	string_stream_heap(stream, &pos);
@@ -439,31 +448,31 @@ static int test_format_write_margin(void)
 	print.word = 0;
 
 	strvect_char_local(local, &pos, "Hello");
-	format_write_margin(&print, pos, 0, 0,1,0,'*');
+	format_write_margin_(&print, pos, 0, 0,1,0,'*');
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "Hello"), "format_write_margin1");
 	clear_output_string_stream(stream);
 
 	strvect_char_local(local, &pos, "Hello");
-	format_write_margin(&print, pos, 0, 9,1,0,'*');
+	format_write_margin_(&print, pos, 0, 9,1,0,'*');
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "Hello****"), "format_write_margin2");
 	clear_output_string_stream(stream);
 
 	strvect_char_local(local, &pos, "Hello");
-	format_write_margin(&print, pos, 1, 9,1,0,'*');
+	format_write_margin_(&print, pos, 1, 9,1,0,'*');
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "****Hello"), "format_write_margin3");
 	clear_output_string_stream(stream);
 
 	strvect_char_local(local, &pos, "Hello");
-	format_write_margin(&print, pos, 0, 10,4,0,'*');
+	format_write_margin_(&print, pos, 0, 10,4,0,'*');
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "Hello********"), "format_write_margin4");
 	clear_output_string_stream(stream);
 
 	strvect_char_local(local, &pos, "Hello");
-	format_write_margin(&print, pos, 0, 4,10,3,'*');
+	format_write_margin_(&print, pos, 0, 4,10,3,'*');
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "Hello***"), "format_write_margin5");
 	clear_output_string_stream(stream);
@@ -1626,70 +1635,70 @@ static int test_format_call_Tabulate(void)
 	test(string_equal_char(pos, "          "), "format_call_Tabulate2");
 
 	open_output_string_stream(&stream, 0);
-	print_ascii_stream(stream, "    ");
+	print_ascii_stream_(stream, "    ");
 	strvect_char_heap(&pos, "~10T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "          "), "format_call_Tabulate3");
 
 	open_output_string_stream(&stream, 0);
-	print_ascii_stream(stream, "    ");
+	print_ascii_stream_(stream, "    ");
 	strvect_char_heap(&pos, "~5T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "     "), "format_call_Tabulate4");
 
 	open_output_string_stream(&stream, 0);
-	print_ascii_stream(stream, "    ");
+	print_ascii_stream_(stream, "    ");
 	strvect_char_heap(&pos, "~4T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "     "), "format_call_Tabulate5");
 
 	open_output_string_stream(&stream, 0);
-	print_ascii_stream(stream, "    ");
+	print_ascii_stream_(stream, "    ");
 	strvect_char_heap(&pos, "~4,3T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "       "), "format_call_Tabulate6");
 
 	open_output_string_stream(&stream, 0);
-	print_ascii_stream(stream, "     ");
+	print_ascii_stream_(stream, "     ");
 	strvect_char_heap(&pos, "~4,8T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "            "), "format_call_Tabulate7");
 
 	open_output_string_stream(&stream, 0);
-	print_ascii_stream(stream, "    ");
+	print_ascii_stream_(stream, "    ");
 	strvect_char_heap(&pos, "~4,8T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "            "), "format_call_Tabulate8");
 
 	open_output_string_stream(&stream, 0);
-	print_ascii_stream(stream, "     ");
+	print_ascii_stream_(stream, "     ");
 	strvect_char_heap(&pos, "~4,0T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "     "), "format_call_Tabulate9");
 
 	open_output_string_stream(&stream, 0);
-	print_ascii_stream(stream, "     ");
+	print_ascii_stream_(stream, "     ");
 	strvect_char_heap(&pos, "~4@T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "         "), "format_call_Tabulate10");
 
 	open_output_string_stream(&stream, 0);
-	print_ascii_stream(stream, "     ");
+	print_ascii_stream_(stream, "     ");
 	strvect_char_heap(&pos, "~4,0@T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "         "), "format_call_Tabulate11");
 
 	open_output_string_stream(&stream, 0);
-	print_ascii_stream(stream, "     ");
+	print_ascii_stream_(stream, "     ");
 	strvect_char_heap(&pos, "~4,8@T");
 	format_stream_lisp(ptr, stream, pos, Nil);
 	string_stream_heap(stream, &pos);
@@ -2070,12 +2079,12 @@ static int test_format_call_CallFunction_test(Execute ptr, addr rest)
 
 	princ_print(ptr, stream, arg);
 	if (colon != Nil)
-		write_char_stream(stream, ':');
+		write_char_stream_(stream, ':');
 	if (atsign != Nil)
-		write_char_stream(stream, '@');
+		write_char_stream_(stream, '@');
 	size = length_list_unsafe(rest);
 	snprintc(buffer, 100, "-%d", (int)size);
-	print_ascii_stream(stream, buffer);
+	print_ascii_stream_(stream, buffer);
 
 	return 0;
 }

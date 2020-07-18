@@ -17,10 +17,10 @@ static int eval_compile_load_loop(Execute ptr, addr stream)
 
 	hold = LocalHold_array(ptr, 1);
 	for (;;) {
-		faslread_type(stream, &type);
+		Return(faslread_type_(stream, &type));
 		if (type == FaslCode_end)
 			break;
-		unread_byte_stream(stream, (byte)type);
+		Return(unread_byte_stream_(stream, (byte)type));
 
 		Return(faslread_value(ptr, stream, &code));
 		localhold_set(hold, 0, code);
@@ -34,20 +34,20 @@ static int eval_compile_load_loop(Execute ptr, addr stream)
 
 _g int eval_compile_load(Execute ptr, addr stream)
 {
+	int check;
+
 	/* header */
-	if (faslread_header(stream)) {
-		fmte("Invalid fasl header.", NULL);
-		return 0;
-	}
+	Return(faslread_header_(stream, &check));
+	if (check)
+		return fmte_("Invalid fasl header.", NULL);
 
 	/* fasl body */
 	Return(eval_compile_load_loop(ptr, stream));
 
 	/* footer */
-	if (faslread_footer(stream)) {
-		fmte("Invalid fasl footer.", NULL);
-		return 0;
-	}
+	Return(faslread_footer_(stream, &check));
+	if (check)
+		return fmte_("Invalid fasl footer.", NULL);
 
 	return 0;
 }

@@ -4,18 +4,18 @@
 #include "compile_typedef.h"
 #include "typedef.h"
 
-#define faslread_variable(stream, value) \
-	faslread_buffer_check(stream, &(value), sizeoft(value))
+#define faslread_variable_(stream, value, ret) \
+	faslread_buffer_check_(stream, &(value), sizeoft(value), (ret))
 
-_g void faslwrite_buffer(addr stream, const void *ptr, size_t size);
-_g void faslwrite_type(addr stream, enum FaslCode code);
-_g void faslwrite_byte(addr stream, byte value);
+_g int faslwrite_buffer_(addr stream, const void *ptr, size_t size);
+_g int faslwrite_type_(addr stream, enum FaslCode code);
+_g int faslwrite_byte_(addr stream, byte value);
 
-_g int faslread_buffer_check(addr stream, void *ptr, size_t size);
-_g void faslread_buffer(addr stream, void *ptr, size_t size);
-_g void faslread_type(addr stream, enum FaslCode *ret);
-_g void faslread_type_check(addr stream, enum FaslCode value);
-_g void faslread_byte(addr stream, byte *ret);
+_g int faslread_buffer_check_(addr stream, void *ptr, size_t size, int *ret);
+_g int faslread_buffer_(addr stream, void *ptr, size_t size);
+_g int faslread_type_(addr stream, enum FaslCode *ret);
+_g int faslread_type_check_(addr stream, enum FaslCode value);
+_g int faslread_byte_(addr stream, byte *ret);
 
 #endif
 

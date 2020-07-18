@@ -30,13 +30,13 @@ _g void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp);
 _g void physical_pathname_heap(Execute ptr, addr pos, addr *ret);
 _g void physical_pathname_local(Execute ptr, addr pos, addr *ret);
 
-_g void file_name_pathname_heap(LocalRoot local, addr pos, addr *ret);
-_g void file_name_pathname_local(LocalRoot local, addr pos, addr *ret);
+_g int file_name_pathname_heap_(LocalRoot local, addr pos, addr *ret);
+_g int file_name_pathname_local_(LocalRoot local, addr pos, addr *ret);
 
 _g void directory_name_pathname_heap(LocalRoot local, addr pos, addr *ret);
 _g void directory_name_pathname_local(LocalRoot local, addr pos, addr *ret);
-_g void name_pathname_heap(Execute ptr, addr pos, addr *ret);
-_g void name_pathname_local(Execute ptr, addr pos, addr *ret);
+_g int name_pathname_heap_(Execute ptr, addr pos, addr *ret);
+_g int name_pathname_local_(Execute ptr, addr pos, addr *ret);
 _g void merge_pathnames_clang(Execute ptr,
 		addr pos, addr defpath, addr defver, addr *ret);
 

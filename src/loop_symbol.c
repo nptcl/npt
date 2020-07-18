@@ -6,7 +6,8 @@
 
 static int symbol_equal_char_p(addr pos, const char *str)
 {
-	if (! symbolp(pos)) return 0;
+	if (! symbolp(pos))
+		return 0;
 	GetNameSymbol(pos, &pos);
 	return string_equal_char(pos, str);
 }
@@ -439,7 +440,8 @@ _g int loop_symbol_into_p(addr pos)
 /* main form */
 _g int loop_symbol_form_main_p(addr pos)
 {
-	if (! symbolp(pos)) return 0;
+	if (! symbolp(pos))
+		return 0;
 	return loop_symbol_uncondition_p(pos)
 		|| loop_symbol_condition_p(pos)
 		|| loop_symbol_accumulation_p(pos)
@@ -450,7 +452,8 @@ _g int loop_symbol_form_main_p(addr pos)
 /* variables form */
 _g int loop_symbol_form_p(addr pos)
 {
-	if (! symbolp(pos)) return 0;
+	if (! symbolp(pos))
+		return 0;
 	return loop_symbol_form_main_p(pos)
 		|| loop_symbol_with_p(pos)
 		|| loop_symbol_for_as_p(pos)

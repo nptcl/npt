@@ -455,7 +455,7 @@ static int psetq_common_constant(Execute ptr, addr form, addr env, addr *ret,
 		if (! consp(form))
 			return fmte_("After variable ~S must be a cons, but ~S.", var, form, NULL);
 		GetCons(form, &value, &form);
-		make_gensym(ptr, &gensym);
+		Return(make_gensym_(ptr, &gensym));
 		/* let argument */
 		list_heap(&cons, gensym, value, NULL);
 		cons_heap(&args, cons, args);
@@ -821,7 +821,7 @@ _g int or_common(Execute ptr, addr form, addr env, addr *ret)
 	if (! consp(form))
 		return fmte_("The or form ~S must be a cons.", NULL);
 	GetCons(form, &expr, &form);
-	make_gensym(ptr, &gensym);
+	Return(make_gensym_(ptr, &gensym));
 	GetConst(COMMON_LET, &let);
 	GetConst(COMMON_IF, &ifsym);
 	GetConst(COMMON_OR, &orv);
@@ -906,7 +906,7 @@ _g int case_common(Execute ptr, addr form, addr env, addr *ret)
 	GetConst(COMMON_MEMBER, &member);
 	GetConst(COMMON_QUOTE, &quote);
 	GetConst(COMMON_OTHERWISE, &otherwise);
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 
 	lastp = 0;
 	for (root = Nil; args != Nil; ) {
@@ -972,7 +972,7 @@ _g int ecase_common(Execute ptr, addr form, addr env, addr *ret)
 	GetConst(COMMON_MEMBER, &member);
 	GetConst(COMMON_QUOTE, &quote);
 	GetConst(SYSTEM_ECASE_ERROR, &error);
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 
 	type = Nil;
 	for (root = Nil; args != Nil; ) {
@@ -1019,10 +1019,12 @@ _g int ecase_common(Execute ptr, addr form, addr env, addr *ret)
  */
 static int function_ccase_comma(Execute ptr, addr stream, addr x, int *first)
 {
-	if (*first)
+	if (*first) {
 		*first = 0;
-	else
-		print_ascii_stream(stream, ", ");
+	}
+	else {
+		Return(print_ascii_stream_(stream, ", "));
+	}
 	return princ_print(ptr, stream, x);
 }
 
@@ -1062,7 +1064,7 @@ static int function_ccase_string(Execute ptr,
 	}
 	localhold_end(hold);
 
-	write_char_stream(stream, '.');
+	Return(write_char_stream_(stream, '.'));
 	string_stream_heap(stream, ret);
 	Return(close_stream_(stream));
 	nreverse(rtype, list);
@@ -1245,7 +1247,7 @@ _g int typecase_common(Execute ptr, addr form, addr env, addr *ret)
 	GetConst(COMMON_TYPEP, &typep);
 	GetConst(COMMON_QUOTE, &quote);
 	GetConst(COMMON_OTHERWISE, &otherwise);
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 
 	lastp = 0;
 	for (root = Nil; args != Nil; ) {
@@ -1309,7 +1311,7 @@ _g int etypecase_common(Execute ptr, addr form, addr env, addr *ret)
 	GetConst(COMMON_TYPEP, &typep);
 	GetConst(COMMON_QUOTE, &quote);
 	GetConst(SYSTEM_ETYPECASE_ERROR, &error);
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 
 	type = Nil;
 	for (root = Nil; args != Nil; ) {
@@ -1703,7 +1705,7 @@ _g int prog1_common(Execute ptr, addr form, addr env, addr *ret)
 	if (form == Nil)
 		return Result(ret, expr);
 	/* `(let ((,g ,expr)) ,@form ,g) */
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 	GetConst(COMMON_LET, &let);
 	list_heap(&expr, g, expr, NULL);
 	conscar_heap(&expr, expr);

@@ -22,13 +22,13 @@
 #endif
 
 #ifdef LISP_DEGRADE
-#define WriteChar		fmtfloat_write_char
-#define PrintAscii		fmtfloat_print_ascii
-_g void fmtfloat_write_char(addr stream, unicode c);
-_g void fmtfloat_print_ascii(addr stream, const char *);
+#define WriteChar_		fmtfloat_write_char_
+#define PrintAscii_		fmtfloat_print_ascii_
+_g int fmtfloat_write_char_(addr stream, unicode c);
+_g int fmtfloat_print_ascii_(addr stream, const char *);
 #else
-#define WriteChar		write_char_stream
-#define PrintAscii		print_ascii_stream
+#define WriteChar_		write_char_stream_
+#define PrintAscii_		print_ascii_stream_
 #endif
 
 
@@ -66,7 +66,8 @@ first:
 	}
 	if (*input == '0') {
 		ptr[i++] = *input - '0';
-		if (FMTDECIMAL_FRACTION <= i) return 1;
+		if (FMTDECIMAL_FRACTION <= i)
+			return 1;
 		x++;
 		input++;
 	}
@@ -91,7 +92,8 @@ loop:
 		return 1;
 	}
 	ptr[i++] = *input - '0';
-	if (FMTDECIMAL_FRACTION <= i) return 1;
+	if (FMTDECIMAL_FRACTION <= i)
+		return 1;
 	x++;
 	input++;
 	goto loop;
@@ -102,7 +104,8 @@ exponent:
 	}
 	if (*input == '-') {
 		buffer[z++] = *input;
-		if (FMTDECIMAL_EXPONENT <= z) return 1;
+		if (FMTDECIMAL_EXPONENT <= z)
+			return 1;
 		input++;
 		goto exploop;
 	}
@@ -119,7 +122,8 @@ exploop:
 		goto reject;
 	}
 	buffer[z++] = *input;
-	if (FMTDECIMAL_EXPONENT <= z) return 1;
+	if (FMTDECIMAL_EXPONENT <= z)
+		return 1;
 	input++;
 	goto exploop;
 
@@ -154,7 +158,8 @@ static void fmtdecimal_press(fmtdecimal str)
 	ptr = str->fraction;
 	size = str->size;
 	while (2 <= size) {
-		if (ptr[size - 1] != 0) break;
+		if (ptr[size - 1] != 0)
+			break;
 		size--;
 		ptr[size] = 0;
 	}
@@ -175,14 +180,17 @@ static void fmtdecimal_left(fmtdecimal str)
 
 	/* zero */
 	size = str->size;
-	if (size <= 1) return;
+	if (size <= 1)
+		return;
 
 	/* check */
 	ptr = str->fraction;
 	for (mount = 0; mount < size; mount++) {
-		if (ptr[mount] != 0) break;
+		if (ptr[mount] != 0)
+			break;
 	}
-	if (mount == 0) return;
+	if (mount == 0)
+		return;
 
 	/* shift */
 	if (size == mount) {
@@ -203,7 +211,8 @@ static void fmtdecimal_right(fmtdecimal str, byte c)
 	byte *ptr, x;
 	unsigned i, size;
 
-	if (c == 0) return;
+	if (c == 0)
+		return;
 	ptr = str->fraction;
 	size = str->size;
 	for (i = 0; i < FMTDECIMAL_FRACTION && i < size; i++) {
@@ -321,7 +330,8 @@ static int fmtdecimal_long_parse(fmtdecimal str, const char *fmt, long_float val
 
 _g int fmtdecimal_single_float(fmtdecimal str, single_float value, int round)
 {
-	if (fmtdecimal_single_parse(str, FMTDECIMAL_FLOAT_PARSE, value)) return 1;
+	if (fmtdecimal_single_parse(str, FMTDECIMAL_FLOAT_PARSE, value))
+		return 1;
 	if (0 <= round)
 		fmtdecimal_round(str, (unsigned)round);
 	return 0;
@@ -329,7 +339,8 @@ _g int fmtdecimal_single_float(fmtdecimal str, single_float value, int round)
 
 _g int fmtdecimal_double_float(fmtdecimal str, double_float value, int round)
 {
-	if (fmtdecimal_double_parse(str, FMTDECIMAL_DOUBLE_PARSE, value)) return 1;
+	if (fmtdecimal_double_parse(str, FMTDECIMAL_DOUBLE_PARSE, value))
+		return 1;
 	if (0 <= round)
 		fmtdecimal_round(str, (unsigned)round);
 	return 0;
@@ -337,7 +348,8 @@ _g int fmtdecimal_double_float(fmtdecimal str, double_float value, int round)
 
 _g int fmtdecimal_long_float(fmtdecimal str, long_float value, int round)
 {
-	if (fmtdecimal_long_parse(str, FMTDECIMAL_LONG_PARSE, value)) return 1;
+	if (fmtdecimal_long_parse(str, FMTDECIMAL_LONG_PARSE, value))
+		return 1;
 	if (0 <= round)
 		fmtdecimal_round(str, (unsigned)round);
 	return 0;
@@ -377,82 +389,93 @@ _g void fmtdecimal_dump(FILE *file, fmtdecimal str)
 /*****************************************************************************
  *  fmtfloat
  *****************************************************************************/
-static int fmtfixed_round(addr stream, fmtfloat fmt, fmtdecimal dec, size_t i)
+static int fmtfixed_round_(addr stream,
+		fmtfloat fmt, fmtdecimal dec, size_t i, int *ret)
 {
 	if (fmtdecimal_round(dec, (unsigned)i)) {
-		fmtfloat_fixed(stream, fmt, dec);
-		return 1;
+		Return(fmtfloat_fixed_(stream, fmt, dec));
+		return Result(ret, 1);
 	}
-	return 0;
+	return Result(ret, 0);
 }
 
-static int fmtexponent_round(addr stream, fmtfloat fmt, fmtdecimal dec, size_t i)
+static int fmtexponent_round_(addr stream,
+		fmtfloat fmt, fmtdecimal dec, size_t i, int *ret)
 {
 	if (fmtdecimal_round(dec, (unsigned)i)) {
-		fmtfloat_exponent(stream, fmt, dec);
-		return 1;
+		Return(fmtfloat_exponent_(stream, fmt, dec));
+		return Result(ret, 1);
 	}
-	return 0;
+	return Result(ret, 0);
 }
 
-static void decimal_stream(addr stream, byte c)
+static int decimal_stream_(addr stream, byte c)
 {
-	Check(! (0 <= c && c <= 9), "decimal_stream error");
-	WriteChar(stream, '0' + c);
+	Check(! (0 <= c && c <= 9), "decimal_stream_ error");
+	return WriteChar_(stream, '0' + c);
 }
 
-static void decimalcheck_stream(addr stream, fmtdecimal dec, size_t index)
+static int decimalcheck_stream_(addr stream, fmtdecimal dec, size_t index)
 {
 	Check(dec->size <= index, "fmtdecimal index error.");
-	decimal_stream(stream, dec->fraction[index]);
+	return decimal_stream_(stream, dec->fraction[index]);
 }
 
-static void decimalzero_stream(addr stream, fmtdecimal dec, size_t index)
+static int decimalzero_stream_(addr stream, fmtdecimal dec, size_t index)
 {
-	decimal_stream(stream, (index < dec->size)? dec->fraction[index]: 0);
+	return decimal_stream_(stream, (index < dec->size)? dec->fraction[index]: 0);
 }
 
-static void fixed_large(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int fixed_large_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum count, i;
 
 	count = dec->exponent + fmt->k + 1;
-	if (count <= 0) {
-		WriteChar(stream, '0');
-		return;
-	}
+	if (count <= 0)
+		return WriteChar_(stream, '0');
 	for (i = 0; i < count; i++) {
-		decimalzero_stream(stream, dec, i);
+		Return(decimalzero_stream_(stream, dec, i));
 	}
+
+	return 0;
 }
 
-static void times_stream(addr stream, size_t size, unicode u)
+static int times_stream_(addr stream, size_t size, unicode u)
 {
 	size_t i;
 
-	for (i = 0; i < size; i++)
-		WriteChar(stream, u);
+	for (i = 0; i < size; i++) {
+		Return(WriteChar_(stream, u));
+	}
+
+	return 0;
 }
 
-static void for_decimalcheck_stream(addr stream,
+static int for_decimalcheck_stream_(addr stream,
 		fmtdecimal dec, size_t index, size_t size)
 {
 	size_t i;
 
-	for (i = index; i < size; i++)
-		decimalcheck_stream(stream, dec, i);
+	for (i = index; i < size; i++) {
+		Return(decimalcheck_stream_(stream, dec, i));
+	}
+
+	return 0;
 }
 
-static void for_decimalzero_stream(addr stream,
+static int for_decimalzero_stream_(addr stream,
 		fmtdecimal dec, size_t index, size_t size)
 {
 	size_t i;
 
-	for (i = index; i < size; i++)
-		decimalzero_stream(stream, dec, i);
+	for (i = index; i < size; i++) {
+		Return(decimalzero_stream_(stream, dec, i));
+	}
+
+	return 0;
 }
 
-static void fixed_small(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int fixed_small_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum k;
 	size_t size, ka;
@@ -462,15 +485,17 @@ static void fixed_small(addr stream, fmtfloat fmt, fmtdecimal dec)
 	ka = (size_t)(k < 0? -k: k);
 
 	if (k < 0) {
-		times_stream(stream, ka, '0');
-		for_decimalcheck_stream(stream, dec, 0, size);
+		Return(times_stream_(stream, ka, '0'));
+		Return(for_decimalcheck_stream_(stream, dec, 0, size));
 	}
 	else if (ka < size) {
-		for_decimalcheck_stream(stream, dec, ka, size);
+		Return(for_decimalcheck_stream_(stream, dec, ka, size));
 	}
 	else {
-		WriteChar(stream, '0');
+		Return(WriteChar_(stream, '0'));
 	}
+
+	return 0;
 }
 
 static fixnum getexponent(fmtfloat fmt, fmtdecimal dec)
@@ -478,18 +503,22 @@ static fixnum getexponent(fmtfloat fmt, fmtdecimal dec)
 	return dec->exponent - (fmt->k - fmt->k_bias);
 }
 
-static void expsign_stream(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int expsign_stream_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum value;
 
 	value = getexponent(fmt, dec);
-	if (value < 0)
-		WriteChar(stream, '-');
-	else if (fmt->sign_exponent)
-		WriteChar(stream, '+');
+	if (value < 0) {
+		Return(WriteChar_(stream, '-'));
+	}
+	else if (fmt->sign_exponent) {
+		Return(WriteChar_(stream, '+'));
+	}
+
+	return 0;
 }
 
-static void exponent_stream(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int exponent_stream_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum value;
 	char buffer[32];
@@ -504,39 +533,45 @@ static void exponent_stream(addr stream, fmtfloat fmt, fmtdecimal dec)
 		size = strlen(buffer);
 		if (size < fmt->e) {
 			size = fmt->e - size;
-			WriteChar(stream, fmt->marker);
-			expsign_stream(stream, fmt, dec);
-			for (i = 0; i < size; i++)
-				WriteChar(stream, '0');
-			PrintAscii(stream, buffer);
-			return;
+			Return(WriteChar_(stream, fmt->marker));
+			Return(expsign_stream_(stream, fmt, dec));
+			for (i = 0; i < size; i++) {
+				Return(WriteChar_(stream, '0'));
+			}
+			return PrintAscii_(stream, buffer);
 		}
 	}
 
-	WriteChar(stream, fmt->marker);
-	expsign_stream(stream, fmt, dec);
-	PrintAscii(stream, buffer);
+	Return(WriteChar_(stream, fmt->marker));
+	Return(expsign_stream_(stream, fmt, dec));
+	return PrintAscii_(stream, buffer);
 }
 
-static void sign_stream(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int sign_stream_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
-	if (fmt->signbit)
-		WriteChar(stream, '-');
-	else if (fmt->sign)
-		WriteChar(stream, '+');
+	if (fmt->signbit) {
+		Return(WriteChar_(stream, '-'));
+	}
+	else if (fmt->sign) {
+		Return(WriteChar_(stream, '+'));
+	}
+
+	return 0;
 }
 
-static void fixed_free(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int fixed_free_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
-	sign_stream(stream, fmt, dec);
-	fixed_large(stream, fmt, dec);
-	WriteChar(stream, '.');
-	fixed_small(stream, fmt, dec);
+	Return(sign_stream_(stream, fmt, dec));
+	Return(fixed_large_(stream, fmt, dec));
+	Return(WriteChar_(stream, '.'));
+	Return(fixed_small_(stream, fmt, dec));
 	/* exponent */
 	if (fmt->markerp) {
-		WriteChar(stream, fmt->marker);
-		WriteChar(stream, '0');
+		Return(WriteChar_(stream, fmt->marker));
+		Return(WriteChar_(stream, '0'));
 	}
+
+	return 0;
 }
 
 static size_t getsignsize(fmtfloat fmt, fmtdecimal dec)
@@ -549,45 +584,50 @@ static size_t getsignsize(fmtfloat fmt, fmtdecimal dec)
 		return 0;
 }
 
-static void overflow_stream(addr stream, fmtfloat fmt)
+static int overflow_stream_(addr stream, fmtfloat fmt)
 {
-	times_stream(stream, fmt->w, fmt->overflow);
+	return times_stream_(stream, fmt->w, fmt->overflow);
 }
 
-static void margin_stream(addr stream, fmtfloat fmt, size_t size)
+static int margin_stream_(addr stream, fmtfloat fmt, size_t size)
 {
-	times_stream(stream, size, fmt->pad);
+	return times_stream_(stream, size, fmt->pad);
 }
 
-static void fixed_width_underflow(addr stream,
+static int fixed_width_underflow_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t kb)
 {
-	sign_stream(stream, fmt, dec);
-	WriteChar(stream, '.');
+	Return(sign_stream_(stream, fmt, dec));
+	Return(WriteChar_(stream, '.'));
 	if (size == kb) {
 		fmtdecimal_round(dec, 0);
-		times_stream(stream, size - 1, '0');
-		decimalcheck_stream(stream, dec, 0);
+		Return(times_stream_(stream, size - 1, '0'));
+		Return(decimalcheck_stream_(stream, dec, 0));
 	}
 	else {
-		times_stream(stream, size, '0');
+		Return(times_stream_(stream, size, '0'));
 	}
+
+	return 0;
 }
 
-static void fixed_width_small2(addr stream,
+static int fixed_width_small2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t kb)
 {
+	int check;
 	size_t info;
 
 	info = size - kb;
-	if (fmtfixed_round(stream, fmt, dec, info)) return;
-	sign_stream(stream, fmt, dec);
-	WriteChar(stream, '.');
-	times_stream(stream, kb, '0');
-	for_decimalcheck_stream(stream, dec, 0, info);
+	Return(fmtfixed_round_(stream, fmt, dec, info, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	Return(WriteChar_(stream, '.'));
+	Return(times_stream_(stream, kb, '0'));
+	return for_decimalcheck_stream_(stream, dec, 0, info);
 }
 
-static void fixed_width_small1(addr stream,
+static int fixed_width_small1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t kb)
 {
 	size_t margin, dsize;
@@ -595,51 +635,62 @@ static void fixed_width_small1(addr stream,
 	/* no round */
 	dsize = dec->size;
 	margin = size - dsize - kb - 1;
-	margin_stream(stream, fmt, margin);
-	sign_stream(stream, fmt, dec);
-	PrintAscii(stream, "0.");
-	times_stream(stream, kb, '0');
-	for_decimalcheck_stream(stream, dec, 0, dsize);
+	Return(margin_stream_(stream, fmt, margin));
+	Return(sign_stream_(stream, fmt, dec));
+	Return(PrintAscii_(stream, "0."));
+	Return(times_stream_(stream, kb, '0'));
+	return for_decimalcheck_stream_(stream, dec, 0, dsize);
 }
 
-static void fixed_width_large1(addr stream,
+static int fixed_width_large1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t margin, size_t psize, size_t kb)
 {
-	if (fmtfixed_round(stream, fmt, dec, psize)) return;
-	margin_stream(stream, fmt, margin);
-	sign_stream(stream, fmt, dec);
-	fixed_large(stream, fmt, dec);
-	WriteChar(stream, '.');
-	for_decimalcheck_stream(stream, dec, kb, psize);
+	int check;
+
+	Return(fmtfixed_round_(stream, fmt, dec, psize, &check));
+	if (check)
+		return 0;
+	Return(margin_stream_(stream, fmt, margin));
+	Return(sign_stream_(stream, fmt, dec));
+	Return(fixed_large_(stream, fmt, dec));
+	Return(WriteChar_(stream, '.'));
+	return for_decimalcheck_stream_(stream, dec, kb, psize);
 }
 
-static void fixed_width_large2(addr stream,
+static int fixed_width_large2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t kb)
 {
+	int check;
 	size_t margin, tail;
 
-	if (fmtfixed_round(stream, fmt, dec, kb + 1)) return;
+	Return(fmtfixed_round_(stream, fmt, dec, kb + 1, &check));
+	if (check)
+		return 0;
 	margin = size - kb - 1;
 	tail = kb - size;
 
-	margin_stream(stream, fmt, margin);
-	sign_stream(stream, fmt, dec);
-	fixed_large(stream, fmt, dec);
-	for_decimalzero_stream(stream, dec, tail, dec->size);
-	WriteChar(stream, '.');
-	decimalzero_stream(stream, dec, kb + 1);
+	Return(margin_stream_(stream, fmt, margin));
+	Return(sign_stream_(stream, fmt, dec));
+	Return(fixed_large_(stream, fmt, dec));
+	Return(for_decimalzero_stream_(stream, dec, tail, dec->size));
+	Return(WriteChar_(stream, '.'));
+	return decimalzero_stream_(stream, dec, kb + 1);
 }
 
-static void fixed_width_large3(addr stream,
+static int fixed_width_large3_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t kb)
 {
-	if (fmtfixed_round(stream, fmt, dec, kb)) return;
-	sign_stream(stream, fmt, dec);
-	fixed_large(stream, fmt, dec);
-	WriteChar(stream, '.');
+	int check;
+
+	Return(fmtfixed_round_(stream, fmt, dec, kb, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	Return(fixed_large_(stream, fmt, dec));
+	return WriteChar_(stream, '.');
 }
 
-static void fixed_width(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int fixed_width_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	int check;
 	fixnum k, ke;
@@ -656,79 +707,72 @@ static void fixed_width(addr stream, fmtfloat fmt, fmtdecimal dec)
 	size = getsignsize(fmt, dec) + 1;
 	check = fmt->overflowp &&
 		((ke < 0 && w < (size + 1)) || (0 <= ke && w < (size + kb)));
-	if (check) {
-		overflow_stream(stream, fmt);
-		return;
-	}
+	if (check)
+		return overflow_stream_(stream, fmt);
 	size = (w <= size)? 0: (w - size);
 
 	/* underflow */
-	if (ke < 0 && size <= kb) {
-		fixed_width_underflow(stream, fmt, dec, size, kb);
-		return;
-	}
+	if (ke < 0 && size <= kb)
+		return fixed_width_underflow_(stream, fmt, dec, size, kb);
 
 	/* small2 */
-	if (ke <= 0 && (size <= dsize + kb)) {
-		fixed_width_small2(stream, fmt, dec, size, kb);
-		return;
-	}
+	if (ke <= 0 && (size <= dsize + kb))
+		return fixed_width_small2_(stream, fmt, dec, size, kb);
 
 	/* small1 */
-	if (ke <= 0) {
-		fixed_width_small1(stream, fmt, dec, size, kb);
-		return;
-	}
+	if (ke <= 0)
+		return fixed_width_small1_(stream, fmt, dec, size, kb);
 
 	/* large1 */
 	psize = size < dsize? size: dsize;
-	if (kb < psize) {
-		fixed_width_large1(stream, fmt, dec, size - psize, psize, kb);
-		return;
-	}
+	if (kb < psize)
+		return fixed_width_large1_(stream, fmt, dec, size - psize, psize, kb);
 
 	/* large2 */
-	if (kb < size) {
-		fixed_width_large2(stream, fmt, dec, size, kb);
-		return;
-	}
+	if (kb < size)
+		return fixed_width_large2_(stream, fmt, dec, size, kb);
 
 	/* large3 (overflow) */
-	else {
-		fixed_width_large3(stream, fmt, dec, kb);
-		return;
-	}
+	return fixed_width_large3_(stream, fmt, dec, kb);
 }
 
-static void fixed_column_small2(addr stream,
+static int fixed_column_small2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t ka)
 {
-	sign_stream(stream, fmt, dec);
-	PrintAscii(stream, "0.");
-	times_stream(stream, ka, '0');
+	Return(sign_stream_(stream, fmt, dec));
+	Return(PrintAscii_(stream, "0."));
+	return times_stream_(stream, ka, '0');
 }
 
-static void fixed_column_small1(addr stream,
+static int fixed_column_small1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t d, size_t ka)
 {
-	if (fmtfixed_round(stream, fmt, dec, d - ka)) return;
-	sign_stream(stream, fmt, dec);
-	PrintAscii(stream, "0.");
-	times_stream(stream, ka, '0');
-	for_decimalzero_stream(stream, dec, 0, d - ka);
+	int check;
+
+	Return(fmtfixed_round_(stream, fmt, dec, d - ka, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	Return(PrintAscii_(stream, "0."));
+	Return(times_stream_(stream, ka, '0'));
+	return for_decimalzero_stream_(stream, dec, 0, d - ka);
 }
 
-static void fixed_column_large1(addr stream,
+static int fixed_column_large1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t d, size_t ka)
 {
-	if (fmtfixed_round(stream, fmt, dec, ka + d)) return;
-	sign_stream(stream, fmt, dec);
-	fixed_large(stream, fmt, dec);
-	WriteChar(stream, '.');
-	for_decimalzero_stream(stream, dec, ka, ka + d);
+	int check;
+
+	Return(fmtfixed_round_(stream, fmt, dec, ka + d, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	Return(fixed_large_(stream, fmt, dec));
+	Return(WriteChar_(stream, '.'));
+	return for_decimalzero_stream_(stream, dec, ka, ka + d);
 }
 
-static void fixed_column(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int fixed_column_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum k;
 	size_t d, ka;
@@ -739,25 +783,18 @@ static void fixed_column(addr stream, fmtfloat fmt, fmtdecimal dec)
 	ka = (size_t)(k < 0? -k: k);
 
 	/* small2 */
-	if (k < 0 && d <= ka) {
-		fixed_column_small2(stream, fmt, dec, ka);
-		return;
-	}
+	if (k < 0 && d <= ka)
+		return fixed_column_small2_(stream, fmt, dec, ka);
 
 	/* small1 */
-	if (k <= 0) {
-		fixed_column_small1(stream, fmt, dec, d, ka);
-		return;
-	}
+	if (k <= 0)
+		return fixed_column_small1_(stream, fmt, dec, d, ka);
 
 	/* large1 */
-	else {
-		fixed_column_large1(stream, fmt, dec, d, ka);
-		return;
-	}
+	return fixed_column_large1_(stream, fmt, dec, d, ka);
 }
 
-static void fixed_limit_underflow(addr stream,
+static int fixed_limit_underflow_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t d, size_t size, size_t kb)
 {
 	int zero;
@@ -766,80 +803,92 @@ static void fixed_limit_underflow(addr stream,
 	zero = (d < size);
 	if ((d + zero) < size) {
 		margin = size - (d + zero);
-		margin_stream(stream, fmt, margin);
+		Return(margin_stream_(stream, fmt, margin));
 	}
-	sign_stream(stream, fmt, dec);
-	if (zero)
-		WriteChar(stream, '0');
-	WriteChar(stream, '.');
+	Return(sign_stream_(stream, fmt, dec));
+	if (zero) {
+		Return(WriteChar_(stream, '0'));
+	}
+	Return(WriteChar_(stream, '.'));
 	if (d == kb) {
 		fmtdecimal_round(dec, 0);
-		times_stream(stream, d - 1, '0');
-		decimalcheck_stream(stream, dec, 0);
+		Return(times_stream_(stream, d - 1, '0'));
+		Return(decimalcheck_stream_(stream, dec, 0));
 	}
 	else {
-		times_stream(stream, d, '0');
+		Return(times_stream_(stream, d, '0'));
 	}
+
+	return 0;
 }
 
-static void fixed_limit_small(addr stream,
+static int fixed_limit_small_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t d, size_t size, size_t kb)
 {
-	int zero;
+	int check, zero;
 	size_t margin, info;
 
 	info = d - kb;
-	if (fmtfixed_round(stream, fmt, dec, info)) return;
+	Return(fmtfixed_round_(stream, fmt, dec, info, &check));
+	if (check)
+		return 0;
 	zero = (d < size);
 	if ((d + zero) < size) {
 		margin = size - (d + zero);
-		margin_stream(stream, fmt, margin);
+		Return(margin_stream_(stream, fmt, margin));
 	}
-	sign_stream(stream, fmt, dec);
-	if (zero)
-		WriteChar(stream, '0');
-	WriteChar(stream, '.');
-	times_stream(stream, kb, '0');
-	for_decimalzero_stream(stream, dec, 0, info);
+	Return(sign_stream_(stream, fmt, dec));
+	if (zero) {
+		Return(WriteChar_(stream, '0'));
+	}
+	Return(WriteChar_(stream, '.'));
+	Return(times_stream_(stream, kb, '0'));
+	return for_decimalzero_stream_(stream, dec, 0, info);
 }
 
-static void fixed_limit_large1(addr stream,
+static int fixed_limit_large1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t d, size_t size, size_t kb)
 {
-	int zero;
+	int check, zero;
 	size_t margin, info;
 
 	info = kb + d;
-	if (fmtfixed_round(stream, fmt, dec, info)) return;
+	Return(fmtfixed_round_(stream, fmt, dec, info, &check));
+	if (check)
+		return 0;
 	zero = (d < size);
 	if ((d + kb) < size) {
 		margin = size - (d + kb);
-		margin_stream(stream, fmt, margin);
+		Return(margin_stream_(stream, fmt, margin));
 	}
-	sign_stream(stream, fmt, dec);
-	if (zero)
-		fixed_large(stream, fmt, dec);
-	WriteChar(stream, '.');
-	for_decimalzero_stream(stream, dec, kb, d + kb);
+	Return(sign_stream_(stream, fmt, dec));
+	if (zero) {
+		Return(fixed_large_(stream, fmt, dec));
+	}
+	Return(WriteChar_(stream, '.'));
+	return for_decimalzero_stream_(stream, dec, kb, d + kb);
 }
 
-static void fixed_limit_large2(addr stream,
+static int fixed_limit_large2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t d, size_t size, size_t kb)
 {
-	int zero;
+	int check, zero;
 	size_t info;
 
 	info = kb + d;
-	if (fmtfixed_round(stream, fmt, dec, info)) return;
+	Return(fmtfixed_round_(stream, fmt, dec, info, &check));
+	if (check)
+		return 0;
 	zero = (d < size) || dec->fraction[0] != 0;
-	sign_stream(stream, fmt, dec);
-	if (zero)
-		fixed_large(stream, fmt, dec);
-	WriteChar(stream, '.');
-	for_decimalzero_stream(stream, dec, kb, kb + d);
+	Return(sign_stream_(stream, fmt, dec));
+	if (zero) {
+		Return(fixed_large_(stream, fmt, dec));
+	}
+	Return(WriteChar_(stream, '.'));
+	return for_decimalzero_stream_(stream, dec, kb, kb + d);
 }
 
-static void fixed_limit(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int fixed_limit_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	int illegal;
 	fixnum ke;
@@ -858,39 +907,29 @@ static void fixed_limit(addr stream, fmtfloat fmt, fmtdecimal dec)
 		w = d + size - 1;
 	}
 	psize = size + d;
-	if (0 <= ke) psize += kb;
-	if (fmt->overflowp && (illegal || (w < psize))) {
-		overflow_stream(stream, fmt);
-		return;
-	}
+	if (0 <= ke)
+		psize += kb;
+	if (fmt->overflowp && (illegal || (w < psize)))
+		return overflow_stream_(stream, fmt);
 	size = (w <= size)? 0: (w - size);
 
 	/* underflow */
-	if (ke < 0 && (d <= kb)) {
-		fixed_limit_underflow(stream, fmt, dec, d, size, kb);
-		return;
-	}
+	if (ke < 0 && (d <= kb))
+		return fixed_limit_underflow_(stream, fmt, dec, d, size, kb);
 
 	/* small */
-	if (ke <= 0) {
-		fixed_limit_small(stream, fmt, dec, d, size, kb);
-		return;
-	}
+	if (ke <= 0)
+		return fixed_limit_small_(stream, fmt, dec, d, size, kb);
 
 	/* large1 */
-	if (0 < ke && (! illegal) && (kb <= (size - d))) {
-		fixed_limit_large1(stream, fmt, dec, d, size, kb);
-		return;
-	}
+	if (0 < ke && (! illegal) && (kb <= (size - d)))
+		return fixed_limit_large1_(stream, fmt, dec, d, size, kb);
 
 	/* large2 */
-	else {
-		fixed_limit_large2(stream, fmt, dec, d, size, kb);
-		return;
-	}
+	return fixed_limit_large2_(stream, fmt, dec, d, size, kb);
 }
 
-_g void fmtfloat_fixed(addr stream, fmtfloat fmt, fmtdecimal dec)
+_g int fmtfloat_fixed_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	int wp, dp, wpnot, dpnot;
 
@@ -900,20 +939,20 @@ _g void fmtfloat_fixed(addr stream, fmtfloat fmt, fmtdecimal dec)
 	dpnot = ! dp;
 
 	if (wpnot && dpnot) {
-		fixed_free(stream, fmt, dec);
+		return fixed_free_(stream, fmt, dec);
 	}
 	else if (dpnot) {
-		fixed_width(stream, fmt, dec);
+		return fixed_width_(stream, fmt, dec);
 	}
 	else if (wpnot) {
-		fixed_column(stream, fmt, dec);
+		return fixed_column_(stream, fmt, dec);
 	}
 	else {
-		fixed_limit(stream, fmt, dec);
+		return fixed_limit_(stream, fmt, dec);
 	}
 }
 
-static void exponent_fraction(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int exponent_fraction_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum index, i, first, size;
 
@@ -922,35 +961,37 @@ static void exponent_fraction(addr stream, fmtfloat fmt, fmtdecimal dec)
 
 	first = 0;
 	for (i = index; i <= 0; i++) {
-		WriteChar(stream, '0');
+		Return(WriteChar_(stream, '0'));
 		if (first == 0) {
-			WriteChar(stream, '.');
+			Return(WriteChar_(stream, '.'));
 			first = 1;
 		}
 	}
 
 	for (i = 0; i < index; i++) {
-		decimalzero_stream(stream, dec, i);
+		Return(decimalzero_stream_(stream, dec, i));
 	}
 
 	for (; i < size; i++) {
 		if (first == 0) {
-			WriteChar(stream, '.');
+			Return(WriteChar_(stream, '.'));
 			first = 1;
 		}
-		decimalcheck_stream(stream, dec, i);
+		Return(decimalcheck_stream_(stream, dec, i));
 	}
 
 	if (first == 0) {
-		PrintAscii(stream, ".0");
+		Return(PrintAscii_(stream, ".0"));
 	}
+
+	return 0;
 }
 
-static void exponent_free(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int exponent_free_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
-	sign_stream(stream, fmt, dec);
-	exponent_fraction(stream, fmt, dec);
-	exponent_stream(stream, fmt, dec);
+	Return(sign_stream_(stream, fmt, dec));
+	Return(exponent_fraction_(stream, fmt, dec));
+	return exponent_stream_(stream, fmt, dec);
 }
 
 static size_t exponent_size(fmtfloat fmt, fmtdecimal dec)
@@ -970,129 +1011,151 @@ static size_t exponent_size(fmtfloat fmt, fmtdecimal dec)
 	return + 1UL/*marker*/ + 1UL/*sign*/ + size;
 }
 
-static void exponent_width_overflow1(addr stream,
+static int exponent_width_overflow1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t ka)
 {
-	if (fmtexponent_round(stream, fmt, dec, 1)) return;
-	sign_stream(stream, fmt, dec);
-	WriteChar(stream, '.');
-	times_stream(stream, ka, '0');
-	decimalcheck_stream(stream, dec, 0);
-	exponent_stream(stream, fmt, dec);
+	int check;
+
+	Return(fmtexponent_round_(stream, fmt, dec, 1, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	Return(WriteChar_(stream, '.'));
+	Return(times_stream_(stream, ka, '0'));
+	Return(decimalcheck_stream_(stream, dec, 0));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_width_small2(addr stream,
+static int exponent_width_small2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t ka)
 {
+	int check;
 	size_t i, margin;
 
-	if (fmtexponent_round(stream, fmt, dec, size - ka)) return;
+	Return(fmtexponent_round_(stream, fmt, dec, size - ka, &check));
+	if (check)
+		return 0;
 	margin = size - (dec->size + ka  + 1);
-	margin_stream(stream, fmt, margin);
-	sign_stream(stream, fmt, dec);
-	PrintAscii(stream, "0.");
-	times_stream(stream, ka, '0');
+	Return(margin_stream_(stream, fmt, margin));
+	Return(sign_stream_(stream, fmt, dec));
+	Return(PrintAscii_(stream, "0."));
+	Return(times_stream_(stream, ka, '0'));
 	size = dec->size;
-	for (i = 0; i < size; i++)
-		decimalcheck_stream(stream, dec, i);
-	exponent_stream(stream, fmt, dec);
+	for (i = 0; i < size; i++) {
+		Return(decimalcheck_stream_(stream, dec, i));
+	}
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_width_small1(addr stream,
+static int exponent_width_small1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t ka)
 {
+	int check;
 	size_t i;
 
-	if (fmtexponent_round(stream, fmt, dec, size - ka)) return;
-	sign_stream(stream, fmt, dec);
-	WriteChar(stream, '.');
-	times_stream(stream, ka, '0');
+	Return(fmtexponent_round_(stream, fmt, dec, size - ka, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	Return(WriteChar_(stream, '.'));
+	Return(times_stream_(stream, ka, '0'));
 	size = dec->size;
-	for (i = 0; i < size; i++)
-		decimalcheck_stream(stream, dec, i);
-	exponent_stream(stream, fmt, dec);
+	for (i = 0; i < size; i++) {
+		Return(decimalcheck_stream_(stream, dec, i));
+	}
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_width_large1_nomargin(addr stream,
+static int exponent_width_large1_nomargin_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t k)
 {
 	size_t i;
 
-	sign_stream(stream, fmt, dec);
+	Return(sign_stream_(stream, fmt, dec));
 	for (i = 0; i < size; i++) {
-		if (i == k)
-			WriteChar(stream, '.');
-		decimalcheck_stream(stream, dec, i);
+		if (i == k) {
+			Return(WriteChar_(stream, '.'));
+		}
+		Return(decimalcheck_stream_(stream, dec, i));
 	}
-	exponent_stream(stream, fmt, dec);
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_width_large1_small(addr stream,
+static int exponent_width_large1_small_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t k)
 {
 	size_t i, margin;
 
 	margin = size - dec->size;
 	size = dec->size;
-	margin_stream(stream, fmt, margin);
-	sign_stream(stream, fmt, dec);
+	Return(margin_stream_(stream, fmt, margin));
+	Return(sign_stream_(stream, fmt, dec));
 	for (i = 0; i < size; i++) {
-		if (i == k)
-			WriteChar(stream, '.');
-		decimalcheck_stream(stream, dec, i);
+		if (i == k) {
+			Return(WriteChar_(stream, '.'));
+		}
+		Return(decimalcheck_stream_(stream, dec, i));
 	}
-	if (i == k)
-		WriteChar(stream, '.');
-	exponent_stream(stream, fmt, dec);
+	if (i == k) {
+		Return(WriteChar_(stream, '.'));
+	}
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_width_large1_large(addr stream,
+static int exponent_width_large1_large_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t k)
 {
 	size_t i, margin;
 
 	margin = size - k;
-	margin_stream(stream, fmt, margin);
-	sign_stream(stream, fmt, dec);
-	for (i = 0; i < dec->size; i++)
-		decimalcheck_stream(stream, dec, i);
+	Return(margin_stream_(stream, fmt, margin));
+	Return(sign_stream_(stream, fmt, dec));
+	for (i = 0; i < dec->size; i++) {
+		Return(decimalcheck_stream_(stream, dec, i));
+	}
 	size = k - dec->size;
-	times_stream(stream, size, '0');
-	WriteChar(stream, '.');
-	exponent_stream(stream, fmt, dec);
+	Return(times_stream_(stream, size, '0'));
+	Return(WriteChar_(stream, '.'));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_width_large1(addr stream,
+static int exponent_width_large1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t k)
 {
-	if (fmtexponent_round(stream, fmt, dec, size)) {
-		return;
-	}
+	int check;
+
+	Return(fmtexponent_round_(stream, fmt, dec, size, &check));
+	if (check)
+		return 0;
 	if (size <= dec->size) {
-		exponent_width_large1_nomargin(stream, fmt, dec, size, k);
+		return exponent_width_large1_nomargin_(stream, fmt, dec, size, k);
 	}
 	else if (k <= dec->size) {
-		exponent_width_large1_small(stream, fmt, dec, size, k);
+		return exponent_width_large1_small_(stream, fmt, dec, size, k);
 	}
 	else {
-		exponent_width_large1_large(stream, fmt, dec, size, k);
+		return exponent_width_large1_large_(stream, fmt, dec, size, k);
 	}
 }
 
-static void exponent_width_large2(addr stream,
+static int exponent_width_large2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, fixnum k)
 {
+	int check;
 	fixnum i;
 
-	if (fmtexponent_round(stream, fmt, dec, k)) return;
-	sign_stream(stream, fmt, dec);
-	for (i = 0; i < k; i++)
-		decimalzero_stream(stream, dec, i);
-	WriteChar(stream, '.');
-	exponent_stream(stream, fmt, dec);
+	Return(fmtexponent_round_(stream, fmt, dec, k, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	for (i = 0; i < k; i++) {
+		Return(decimalzero_stream_(stream, dec, i));
+	}
+	Return(WriteChar_(stream, '.'));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_width(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int exponent_width_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	int check;
 	fixnum k;
@@ -1106,100 +1169,107 @@ static void exponent_width(addr stream, fmtfloat fmt, fmtdecimal dec)
 	size = getsignsize(fmt, dec) + 1 + exponent_size(fmt, dec);
 	check = fmt->overflowp &&
 		((k < 0 && w <= (size + ka)) || (0 <= k && w < (size + ka)));
-	if (check) {
-		overflow_stream(stream, fmt);
-		return;
-	}
+	if (check)
+		return overflow_stream_(stream, fmt);
 	size = (w <= size)? 0: (w - size);
 
 	/* overflow1 */
-	if (k < 0 && size <= ka) {
-		exponent_width_overflow1(stream, fmt, dec, ka);
-		return;
-	}
+	if (k < 0 && size <= ka)
+		return exponent_width_overflow1_(stream, fmt, dec, ka);
 
 	/* small2 */
-	if (k <= 0 && (dec->size + ka < size)) {
-		exponent_width_small2(stream, fmt, dec, size, ka);
-		return;
-	}
+	if (k <= 0 && (dec->size + ka < size))
+		return exponent_width_small2_(stream, fmt, dec, size, ka);
 
 	/* small1 */
-	if (k <= 0) {
-		exponent_width_small1(stream, fmt, dec, size, ka);
-		return;
-	}
+	if (k <= 0)
+		return exponent_width_small1_(stream, fmt, dec, size, ka);
 
 	/* large1 */
-	if (0 < k && ka < size) {
-		exponent_width_large1(stream, fmt, dec, size, ka);
-		return;
-	}
+	if (0 < k && ka < size)
+		return exponent_width_large1_(stream, fmt, dec, size, ka);
 
 	/* large2 */
-	if (0 < k && size <= ka) {
-		exponent_width_large2(stream, fmt, dec, k);
-		return;
-	}
+	if (0 < k && size <= ka)
+		return exponent_width_large2_(stream, fmt, dec, k);
+
+	/* throw */
+	return 0;
 }
 
-static void exponent_column_small2(addr stream,
+static int exponent_column_small2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t ka)
 {
-	if (fmtexponent_round(stream, fmt, dec, 1)) return;
-	sign_stream(stream, fmt, dec);
-	PrintAscii(stream, "0.");
-	times_stream(stream, ka, '0');
-	decimalcheck_stream(stream, dec, 0);
-	exponent_stream(stream, fmt, dec);
+	int check;
+
+	Return(fmtexponent_round_(stream, fmt, dec, 1, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	Return(PrintAscii_(stream, "0."));
+	Return(times_stream_(stream, ka, '0'));
+	Return(decimalcheck_stream_(stream, dec, 0));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_column_small1(addr stream,
+static int exponent_column_small1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t d, size_t ka)
 {
+	int check;
 	size_t size, i;
 
 	size = d - ka;
-	if (fmtexponent_round(stream, fmt, dec, size)) return;
-	sign_stream(stream, fmt, dec);
-	PrintAscii(stream, "0.");
-	times_stream(stream, ka, '0');
-	for (i = 0; i < dec->size; i++)
-		decimalcheck_stream(stream, dec, i);
-	times_stream(stream, size - dec->size, '0');
-	exponent_stream(stream, fmt, dec);
+	Return(fmtexponent_round_(stream, fmt, dec, size, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	Return(PrintAscii_(stream, "0."));
+	Return(times_stream_(stream, ka, '0'));
+	for (i = 0; i < dec->size; i++) {
+		Return(decimalcheck_stream_(stream, dec, i));
+	}
+	Return(times_stream_(stream, size - dec->size, '0'));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_column_large1(addr stream,
+static int exponent_column_large1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t d, size_t k)
 {
+	int check;
 	size_t i, size;
 
 	size = d + 1;
-	if (fmtexponent_round(stream, fmt, dec, size)) return;
-	sign_stream(stream, fmt, dec);
+	Return(fmtexponent_round_(stream, fmt, dec, size, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
 	for (i = 0; i < size; i++) {
-		if (i == k)
-			WriteChar(stream, '.');
-		decimalzero_stream(stream, dec, i);
+		if (i == k) {
+			Return(WriteChar_(stream, '.'));
+		}
+		Return(decimalzero_stream_(stream, dec, i));
 	}
-	exponent_stream(stream, fmt, dec);
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_column_large2(addr stream,
+static int exponent_column_large2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t k)
 {
+	int check;
 	size_t i;
 
-	if (fmtexponent_round(stream, fmt, dec, k)) return;
-	sign_stream(stream, fmt, dec);
-	for (i = 0; i < k; i++)
-		decimalzero_stream(stream, dec, i);
-	WriteChar(stream, '.');
-	exponent_stream(stream, fmt, dec);
+	Return(fmtexponent_round_(stream, fmt, dec, k, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	for (i = 0; i < k; i++) {
+		Return(decimalzero_stream_(stream, dec, i));
+	}
+	Return(WriteChar_(stream, '.'));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_column(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int exponent_column_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum k;
 	size_t d, ka;
@@ -1209,133 +1279,152 @@ static void exponent_column(addr stream, fmtfloat fmt, fmtdecimal dec)
 	ka = (size_t)(k < 0? -k: k);
 
 	/* small2 */
-	if (k < 0 && d <= ka) {
-		exponent_column_small2(stream, fmt, dec, ka);
-		return;
-	}
+	if (k < 0 && d <= ka)
+		return exponent_column_small2_(stream, fmt, dec, ka);
 
 	/* small1 */
-	if (k <= 0 && ka < d) {
-		exponent_column_small1(stream, fmt, dec, d, ka);
-		return;
-	}
+	if (k <= 0 && ka < d)
+		return exponent_column_small1_(stream, fmt, dec, d, ka);
 
 	/* large1 */
-	if (0 < k && ka <= d) {
-		exponent_column_large1(stream, fmt, dec, d, ka);
-		return;
-	}
+	if (0 < k && ka <= d)
+		return exponent_column_large1_(stream, fmt, dec, d, ka);
 
 	/* large2 */
-	if (0 < k && d < ka) {
-		exponent_column_large2(stream, fmt, dec, ka);
-		return;
-	}
+	if (0 < k && d < ka)
+		return exponent_column_large2_(stream, fmt, dec, ka);
+
+	/* throw */
+	return 0;
 }
 
-static void exponent_limit_overflow1(addr stream,
+static int exponent_limit_overflow1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t ka)
 {
-	if (fmtexponent_round(stream, fmt, dec, 1)) return;
-	sign_stream(stream, fmt, dec);
-	WriteChar(stream, '.');
-	times_stream(stream, ka, '0');
-	decimalzero_stream(stream, dec, 0);
-	exponent_stream(stream, fmt, dec);
+	int check;
+
+	Return(fmtexponent_round_(stream, fmt, dec, 1, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	Return(WriteChar_(stream, '.'));
+	Return(times_stream_(stream, ka, '0'));
+	Return(decimalzero_stream_(stream, dec, 0));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_limit_small2(addr stream,
+static int exponent_limit_small2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t ka)
 {
+	int check;
 	size_t margin;
 
-	if (fmtexponent_round(stream, fmt, dec, 1)) return;
+	Return(fmtexponent_round_(stream, fmt, dec, 1, &check));
+	if (check)
+		return 0;
 	if (ka + 2 < size) {
 		margin = size - (ka + 2);
-		margin_stream(stream, fmt, margin);
+		Return(margin_stream_(stream, fmt, margin));
 	}
-	sign_stream(stream, fmt, dec);
-	if (size != ka + 1)
-		WriteChar(stream, '0');
-	WriteChar(stream, '.');
-	times_stream(stream, ka, '0');
-	decimalcheck_stream(stream, dec, 0);
-	exponent_stream(stream, fmt, dec);
+	Return(sign_stream_(stream, fmt, dec));
+	if (size != ka + 1) {
+		Return(WriteChar_(stream, '0'));
+	}
+	Return(WriteChar_(stream, '.'));
+	Return(times_stream_(stream, ka, '0'));
+	Return(decimalcheck_stream_(stream, dec, 0));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_limit_small1(addr stream,
+static int exponent_limit_small1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t ka, size_t d)
 {
-	int zero;
+	int check, zero;
 	size_t margin, info;
 
 	info = d - ka;
-	if (fmtexponent_round(stream, fmt, dec, info)) return;
+	Return(fmtexponent_round_(stream, fmt, dec, info, &check));
+	if (check)
+		return 0;
 	zero = (d < size);
 	if ((d + zero) < size) {
 		margin = size - (d + zero);
-		margin_stream(stream, fmt, margin);
+		Return(margin_stream_(stream, fmt, margin));
 	}
-	sign_stream(stream, fmt, dec);
-	if (zero)
-		WriteChar(stream, '0');
-	WriteChar(stream, '.');
-	times_stream(stream, ka, '0');
-	for_decimalzero_stream(stream, dec, 0, info);
-	exponent_stream(stream, fmt, dec);
+	Return(sign_stream_(stream, fmt, dec));
+	if (zero) {
+		Return(WriteChar_(stream, '0'));
+	}
+	Return(WriteChar_(stream, '.'));
+	Return(times_stream_(stream, ka, '0'));
+	Return(for_decimalzero_stream_(stream, dec, 0, info));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_limit_large1(addr stream,
+static int exponent_limit_large1_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t k, size_t d)
 {
+	int check;
 	size_t margin, info, i;
 
 	info = d + 1;
-	if (fmtexponent_round(stream, fmt, dec, info)) return;
+	Return(fmtexponent_round_(stream, fmt, dec, info, &check));
+	if (check)
+		return 0;
 	if (d + 1 < size) {
 		margin = size - (d + 1);
-		margin_stream(stream, fmt, margin);
+		Return(margin_stream_(stream, fmt, margin));
 	}
-	sign_stream(stream, fmt, dec);
-	for (i = 0; i < k; i++)
-		decimalzero_stream(stream, dec, i);
-	WriteChar(stream, '.');
-	for (; i < info; i++)
-		decimalzero_stream(stream, dec, i);
-	exponent_stream(stream, fmt, dec);
+	Return(sign_stream_(stream, fmt, dec));
+	for (i = 0; i < k; i++) {
+		Return(decimalzero_stream_(stream, dec, i));
+	}
+	Return(WriteChar_(stream, '.'));
+	for (; i < info; i++) {
+		Return(decimalzero_stream_(stream, dec, i));
+	}
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_limit_large2(addr stream,
+static int exponent_limit_large2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t size, size_t k)
 {
+	int check;
 	size_t margin, i;
 
-	if (fmtexponent_round(stream, fmt, dec, k)) return;
+	Return(fmtexponent_round_(stream, fmt, dec, k, &check));
+	if (check)
+		return 0;
 	if (k < size) {
 		margin = size - k;
-		margin_stream(stream, fmt, margin);
+		Return(margin_stream_(stream, fmt, margin));
 	}
-	sign_stream(stream, fmt, dec);
-	for (i = 0; i < k; i++)
-		decimalzero_stream(stream, dec, i);
-	WriteChar(stream, '.');
-	exponent_stream(stream, fmt, dec);
+	Return(sign_stream_(stream, fmt, dec));
+	for (i = 0; i < k; i++) {
+		Return(decimalzero_stream_(stream, dec, i));
+	}
+	Return(WriteChar_(stream, '.'));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_limit_overflow2(addr stream,
+static int exponent_limit_overflow2_(addr stream,
 		fmtfloat fmt, fmtdecimal dec, size_t k)
 {
+	int check;
 	size_t i;
 
-	if (fmtexponent_round(stream, fmt, dec, k)) return;
-	sign_stream(stream, fmt, dec);
-	for (i = 0; i < k; i++)
-		decimalzero_stream(stream, dec, i);
-	WriteChar(stream, '.');
-	exponent_stream(stream, fmt, dec);
+	Return(fmtexponent_round_(stream, fmt, dec, k, &check));
+	if (check)
+		return 0;
+	Return(sign_stream_(stream, fmt, dec));
+	for (i = 0; i < k; i++) {
+		Return(decimalzero_stream_(stream, dec, i));
+	}
+	Return(WriteChar_(stream, '.'));
+	return exponent_stream_(stream, fmt, dec);
 }
 
-static void exponent_limit(addr stream, fmtfloat fmt, fmtdecimal dec)
+static int exponent_limit_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	int check, illegal;
 	fixnum k;
@@ -1353,50 +1442,39 @@ static void exponent_limit(addr stream, fmtfloat fmt, fmtdecimal dec)
 		w = d + size - 1;
 	}
 	check = ((k < 0 && w <= (size + ka)) || (0 <= k && w < (size + ka)));
-	if (fmt->overflowp && (illegal || check)) {
-		overflow_stream(stream, fmt);
-		return;
-	}
+	if (fmt->overflowp && (illegal || check))
+		return overflow_stream_(stream, fmt);
 	size = (w <= size)? 0: (w - size);
 
 	/* overflow1 */
-	if (k < 0 && size <= ka) {
-		exponent_limit_overflow1(stream, fmt, dec, ka);
-		return;
-	}
+	if (k < 0 && size <= ka)
+		return exponent_limit_overflow1_(stream, fmt, dec, ka);
 
 	/* small2 */
-	if (k <= 0 && d <= ka) {
-		exponent_limit_small2(stream, fmt, dec, size, ka);
-		return;
-	}
+	if (k <= 0 && d <= ka)
+		return exponent_limit_small2_(stream, fmt, dec, size, ka);
 
 	/* small1 */
-	if (k <= 0) {
-		exponent_limit_small1(stream, fmt, dec, size, ka, d);
-		return;
-	}
+	if (k <= 0)
+		return exponent_limit_small1_(stream, fmt, dec, size, ka, d);
 
 	/* large1 */
-	if (0 < k && ka <= d) {
-		exponent_limit_large1(stream, fmt, dec, size, ka, d);
-		return;
-	}
+	if (0 < k && ka <= d)
+		return exponent_limit_large1_(stream, fmt, dec, size, ka, d);
 
 	/* large2 */
-	if (0 < k && ka <= size) {
-		exponent_limit_large2(stream, fmt, dec, size, ka);
-		return;
-	}
+	if (0 < k && ka <= size)
+		return exponent_limit_large2_(stream, fmt, dec, size, ka);
 
 	/* overflow2 */
-	if (0 < k && size < ka) {
-		exponent_limit_overflow2(stream, fmt, dec, ka);
-		return;
-	}
+	if (0 < k && size < ka)
+		return exponent_limit_overflow2_(stream, fmt, dec, ka);
+
+	/* throw */
+	return 0;
 }
 
-_g void fmtfloat_exponent(addr stream, fmtfloat fmt, fmtdecimal dec)
+_g int fmtfloat_exponent_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	int wp, dp, wpnot, dpnot;
 
@@ -1406,16 +1484,16 @@ _g void fmtfloat_exponent(addr stream, fmtfloat fmt, fmtdecimal dec)
 	dpnot = ! dp;
 
 	if (wpnot && dpnot) {
-		exponent_free(stream, fmt, dec);
+		return exponent_free_(stream, fmt, dec);
 	}
 	else if (dpnot) {
-		exponent_width(stream, fmt, dec);
+		return exponent_width_(stream, fmt, dec);
 	}
 	else if (wpnot) {
-		exponent_column(stream, fmt, dec);
+		return exponent_column_(stream, fmt, dec);
 	}
 	else {
-		exponent_limit(stream, fmt, dec);
+		return exponent_limit_(stream, fmt, dec);
 	}
 }
 
@@ -1434,7 +1512,7 @@ static int fmtfloat_general_fixedp(fmtdecimal dec, fmtfloat fmt)
 		return 0; /* ~E */
 }
 
-_g void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec)
+_g int fmtfloat_general_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum n, ww, dd, d, ee, q;
 
@@ -1458,7 +1536,7 @@ _g void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec)
 		d = (n < 7)? n: 7;
 		d = (q > d)? q: d;
 		dd = d - n;
-		/* call fmtfloat_fixed */
+		/* call fmtfloat_fixed_ */
 		if (ww < 0) {
 			fmt->wp = 0;
 			fmt->w = 0;
@@ -1471,19 +1549,19 @@ _g void fmtfloat_general(addr stream, fmtfloat fmt, fmtdecimal dec)
 		fmt->k = 0;  /* default */
 		fmt->k_bias = 0; /* 0 if fixed */
 		fmt->markerp = 0;
-		fmtfloat_fixed(stream, fmt, dec);
-		times_stream(stream, ee, ' ');
+		Return(fmtfloat_fixed_(stream, fmt, dec));
+		return times_stream_(stream, ee, ' ');
 	}
 	else {
-		/* call fmtfloat_exponent */
+		/* call fmtfloat_exponent_ */
 		fmt->k_bias = 1; /* 1 if exponential. */
 		fmt->markerp = 1;
 		fmt->sign_exponent = 1; /* for prin1 */
-		fmtfloat_exponent(stream, fmt, dec);
+		return fmtfloat_exponent_(stream, fmt, dec);
 	}
 }
 
-_g void fmtfloat_monetary(addr stream, fmtfloat fmt, fmtdecimal dec)
+_g int fmtfloat_monetary_(addr stream, fmtfloat fmt, fmtdecimal dec)
 {
 	fixnum e, round, index;
 	size_t d, n, w, sign, n1, n2, size, p, i;
@@ -1508,34 +1586,38 @@ _g void fmtfloat_monetary(addr stream, fmtfloat fmt, fmtdecimal dec)
 	/* output */
 	if (fmt->markerp) {
 		/* sign -> padding */
-		sign_stream(stream, fmt, dec);
-		margin_stream(stream, fmt, p);
+		Return(sign_stream_(stream, fmt, dec));
+		Return(margin_stream_(stream, fmt, p));
 	}
 	else {
 		/* padding -> sign*/
-		margin_stream(stream, fmt, p);
-		sign_stream(stream, fmt, dec);
+		Return(margin_stream_(stream, fmt, p));
+		Return(sign_stream_(stream, fmt, dec));
 	}
 	/* large */
-	times_stream(stream, n1, '0');
-	for_decimalzero_stream(stream, dec, 0, n2);
+	Return(times_stream_(stream, n1, '0'));
+	Return(for_decimalzero_stream_(stream, dec, 0, n2));
 	/* dot */
-	WriteChar(stream, '.');
+	Return(WriteChar_(stream, '.'));
 	/* small */
 	for (i = 0; i < d; i++) {
 		index = ((int)i) + e + 1;
-		if (index < 0)
-			WriteChar(stream, '0');
-		else
-			decimalzero_stream(stream, dec, index);
+		if (index < 0) {
+			Return(WriteChar_(stream, '0'));
+		}
+		else {
+			Return(decimalzero_stream_(stream, dec, index));
+		}
 	}
+
+	return 0;
 }
 
 
 /*
  *  ~F  Fixed floating-point
  */
-_g void fmtfloat_fixed_float(addr stream, single_float value,
+_g int fmtfloat_fixed_float_(addr stream, single_float value,
 		int sign,
 		fixnum w,
 		fixnum d,
@@ -1564,10 +1646,11 @@ _g void fmtfloat_fixed_float(addr stream, single_float value,
 	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) {
 		Abort("fmtdecimal_single_float error");
 	}
-	fmtfloat_fixed(stream, &fmt, &dec);
+
+	return fmtfloat_fixed_(stream, &fmt, &dec);
 }
 
-_g void fmtfloat_fixed_double(addr stream, double_float value,
+_g int fmtfloat_fixed_double_(addr stream, double_float value,
 		int sign,
 		fixnum w,
 		fixnum d,
@@ -1596,14 +1679,15 @@ _g void fmtfloat_fixed_double(addr stream, double_float value,
 	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) {
 		Abort("fmtdecimal_double_float error");
 	}
-	fmtfloat_fixed(stream, &fmt, &dec);
+
+	return fmtfloat_fixed_(stream, &fmt, &dec);
 }
 
 
 /*
  *  ~E  Exponential floating-point
  */
-_g void fmtfloat_exponent_float(addr stream, single_float value,
+_g int fmtfloat_exponent_float_(addr stream, single_float value,
 		int sign,
 		fixnum w,
 		fixnum d,
@@ -1640,10 +1724,11 @@ _g void fmtfloat_exponent_float(addr stream, single_float value,
 	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) {
 		Abort("fmtdecimal_single_float error");
 	}
-	fmtfloat_exponent(stream, &fmt, &dec);
+
+	return fmtfloat_exponent_(stream, &fmt, &dec);
 }
 
-_g void fmtfloat_exponent_double(addr stream, double_float value,
+_g int fmtfloat_exponent_double_(addr stream, double_float value,
 		int sign,
 		fixnum w,
 		fixnum d,
@@ -1680,7 +1765,8 @@ _g void fmtfloat_exponent_double(addr stream, double_float value,
 	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) {
 		Abort("fmtdecimal_double_float error");
 	}
-	fmtfloat_exponent(stream, &fmt, &dec);
+
+	return fmtfloat_exponent_(stream, &fmt, &dec);
 }
 
 
@@ -1693,7 +1779,7 @@ static int fmtfloat_princ_fixedp(fmtdecimal dec)
 	return -3 <= dec->exponent && dec->exponent < 7;
 }
 
-static void fmtfloat_princ(addr stream, fmtfloat fmt, fmtdecimal dec,
+static int fmtfloat_princ_(addr stream, fmtfloat fmt, fmtdecimal dec,
 		int markerp, unicode marker)
 {
 	if (fmtfloat_princ_fixedp(dec)) {
@@ -1707,7 +1793,7 @@ static void fmtfloat_princ(addr stream, fmtfloat fmt, fmtdecimal dec,
 			fmt->marker = marker;
 			fmt->sign_exponent = 0; /* 0 if princ / prin1 */
 		}
-		fmtfloat_fixed(stream, fmt, dec);
+		return fmtfloat_fixed_(stream, fmt, dec);
 	}
 	else {
 		fmt->k = 1; /* default 1 */
@@ -1718,52 +1804,55 @@ static void fmtfloat_princ(addr stream, fmtfloat fmt, fmtdecimal dec,
 		fmt->markerp = 1;
 		fmt->marker = marker;
 		fmt->sign_exponent = 0; /* 0 if princ / prin1 */
-		fmtfloat_exponent(stream, fmt, dec);
+		return fmtfloat_exponent_(stream, fmt, dec);
 	}
 }
 
-_g int fmtfloat_princ_single_float(addr stream,
-		single_float value, int markerp, unicode marker)
+_g int fmtfloat_princ_single_float_(addr stream,
+		single_float value, int markerp, unicode marker, int *ret)
 {
 	struct fmtfloat_struct fmt;
 	struct fmtdecimal_struct dec;
 
-	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE)) return 1;
+	if (fmtdecimal_single_float(&dec, value, FMTFLOAT_ROUND_SINGLE))
+		return Result(ret, 1);
 	memset(&fmt, 0, sizeoft(struct fmtfloat_struct));
 	fmt.u.value_single = value;
 	fmt.signbit = signbit(value)? 1: 0;
-	fmtfloat_princ(stream, &fmt, &dec, markerp, marker);
+	Return(fmtfloat_princ_(stream, &fmt, &dec, markerp, marker));
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int fmtfloat_princ_double_float(addr stream,
-		double_float value, int markerp, unicode marker)
+_g int fmtfloat_princ_double_float_(addr stream,
+		double_float value, int markerp, unicode marker, int *ret)
 {
 	struct fmtfloat_struct fmt;
 	struct fmtdecimal_struct dec;
 
-	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE)) return 1;
+	if (fmtdecimal_double_float(&dec, value, FMTFLOAT_ROUND_DOUBLE))
+		return Result(ret, 1);
 	memset(&fmt, 0, sizeoft(struct fmtfloat_struct));
 	fmt.u.value_double = value;
 	fmt.signbit = signbit(value)? 1: 0;
-	fmtfloat_princ(stream, &fmt, &dec, markerp, marker);
+	Return(fmtfloat_princ_(stream, &fmt, &dec, markerp, marker));
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int fmtfloat_princ_long_float(addr stream,
-		long_float value, int markerp, unicode marker)
+_g int fmtfloat_princ_long_float_(addr stream,
+		long_float value, int markerp, unicode marker, int *ret)
 {
 	struct fmtfloat_struct fmt;
 	struct fmtdecimal_struct dec;
 
-	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG)) return 1;
+	if (fmtdecimal_long_float(&dec, value, FMTFLOAT_ROUND_LONG))
+		return Result(ret, 1);
 	memset(&fmt, 0, sizeoft(struct fmtfloat_struct));
 	fmt.u.value_long = value;
 	fmt.signbit = signbit(value)? 1: 0;
-	fmtfloat_princ(stream, &fmt, &dec, markerp, marker);
+	Return(fmtfloat_princ_(stream, &fmt, &dec, markerp, marker));
 
-	return 0;
+	return Result(ret, 0);
 }
 

@@ -36,7 +36,7 @@ static void loop_macrolet(addr *form)
 	list_heap(form, macrolet, loop_finish, *form, NULL);
 }
 
-static void loop_block_tagbody(addr *form,
+static int loop_block_tagbody_(addr *form,
 		addr named, addr init, addr final, addr expr1, addr expr2)
 {
 	/* `(let (lisp-system::value-loop
@@ -86,15 +86,15 @@ static void loop_block_tagbody(addr *form,
 		cons_heap(&list, init, list);
 	cons_heap(&list, next, list);
 	while (expr1 != Nil) {
-		getcons(expr1, &x, &expr1);
+		Return_getcons(expr1, &x, &expr1);
 		cons_heap(&list, x, list);
 	}
 	while (*form != Nil) {
-		getcons(*form, &x, form);
+		Return_getcons(*form, &x, form);
 		cons_heap(&list, x, list);
 	}
 	while (expr2 != Nil) {
-		getcons(expr2, &x, &expr2);
+		Return_getcons(expr2, &x, &expr2);
 		cons_heap(&list, x, list);
 	}
 	cons_heap(&list, go, list);
@@ -117,6 +117,8 @@ static void loop_block_tagbody(addr *form,
 	list_heap(&ignorable, ignorable, it, NULL);
 	list_heap(&declare, declare, ignorable, NULL);
 	list_heap(form, let, value, declare, block, NULL);
+
+	return 0;
 }
 
 static void loop_function_loop(addr *form)
@@ -146,13 +148,12 @@ static int loop_extended_common(Execute ptr,
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, vars, body, init, final, NULL);
-	if (loop_filter_with(ptr, &vars, &with))
-		return 1;
+	Return(loop_filter_with_(ptr, &vars, &with));
 	localhold_end(hold);
 
-	loop_push_for_as(ptr, &expr1, &expr2, vars);
+	Return(loop_push_for_as_(ptr, &expr1, &expr2, vars));
 	make_loop_main(&str, form, init, named);
-	loop_push_main(&str, body);
+	Return(loop_push_main_(&str, body));
 	form = str.form;
 	init = str.init;
 	nreverse(&init, init);
@@ -161,15 +162,14 @@ static int loop_extended_common(Execute ptr,
 	nreverse(&form, form);
 	nreverse(&expr1, expr1);
 	/* loop macro */
-	loop_block_tagbody(&form, named, init, final, expr1, expr2);
+	Return(loop_block_tagbody_(&form, named, init, final, expr1, expr2));
 	loop_function_loop(&form);
 	loop_macrolet(&form);
-	loop_let_main(&form, body);
-	loop_variables_with(ptr, &form, with);
-	loop_variables_for_as(&form, vars);
-	*ret = form;
+	Return(loop_let_main_(&form, body));
+	Return(loop_variables_with_(ptr, &form, with));
+	Return(loop_variables_for_as_(&form, vars));
 
-	return 0;
+	return Result(ret, form);
 }
 
 
@@ -199,7 +199,7 @@ _g int loop_common(Execute ptr, addr *ret, addr list)
 
 	/* clause */
 	vars = body = Nil;
-	loop_parse_common(ptr, &named, &vars, &body, &list);
+	Return(loop_parse_common(ptr, &named, &vars, &body, &list));
 
 	/* simple-loop */
 	if (named == Nil && vars == Nil && body == Nil) {
@@ -208,16 +208,13 @@ _g int loop_common(Execute ptr, addr *ret, addr list)
 	}
 
 	/* error */
-	if (list != Nil) {
-		fmte("Invalid loop form ~S.", list, NULL);
-		return 0;
-	}
+	if (list != Nil)
+		return fmte_("Invalid loop form ~S.", list, NULL);
 
 	/* extended-loop */
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, named, vars, body, NULL);
-	if (loop_extended_common(ptr, ret, named, vars, body))
-		return 1;
+	Return(loop_extended_common(ptr, ret, named, vars, body));
 	localhold_end(hold);
 
 	return 0;

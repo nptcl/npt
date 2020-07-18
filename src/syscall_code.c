@@ -57,14 +57,16 @@
 #include "type_subtypep.h"
 
 /* hello */
-_g void hello_syscode(Execute ptr)
+_g int hello_syscode(Execute ptr)
 {
 	addr stream;
 
 	standard_output_stream(ptr, &stream);
-	fresh_line_stream(stream);
-	print_ascii_stream(stream, "Hello");
-	terpri_stream(stream);
+	Return(fresh_line_stream_(stream, NULL));
+	Return(print_ascii_stream_(stream, "Hello"));
+	Return(terpri_stream_(stream));
+
+	return 0;
 }
 
 
@@ -107,10 +109,10 @@ _g void gc_syscode(addr rest)
 
 
 /* savecore */
-_g void savecore_syscode(Execute ptr, addr file)
+_g int savecore_syscode(Execute ptr, addr file)
 {
 	pathname_designer_local(ptr, file, &file);
-	savecore_execute(ptr, file);
+	return savecore_execute_(ptr, file);
 }
 
 
@@ -322,7 +324,7 @@ _g int defsetf_short_syscode(Execute ptr,
 
 	if (env == Unbound)
 		env = Nil;
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 	conscar_heap(&w, update);
 	conscar_heap(&r, access);
 	a = b = Nil;
@@ -342,7 +344,7 @@ _g int defsetf_short_syscode(Execute ptr,
 			cons_heap(&r, pos, r);
 		}
 		else {
-			make_gensym(ptr, &v);
+			Return(make_gensym_(ptr, &v));
 			cons_heap(&a, v, a);
 			cons_heap(&b, pos, b);
 			cons_heap(&w, v, w);
@@ -389,7 +391,7 @@ static int defsetf_var_bind_(Execute ptr, addr *args, addr list, addr array)
 		if (! consp(*args))
 			return fmte_("The argument ~S must be list type.", *args, NULL);
 		GetCons(*args, &value, args);
-		make_gensym(ptr, &gensym);
+		Return(make_gensym_(ptr, &gensym));
 		defsetf_push(array, 0, gensym);
 		defsetf_push(array, 1, value);
 		defsetf_push(array, 2, pos);
@@ -413,13 +415,13 @@ static int defsetf_opt_bind_(Execute ptr, addr *args, addr list, addr array)
 				return fmte_("The argument ~S must be list type.", *args, NULL);
 			GetCons(*args, &init, args);
 		}
-		make_gensym(ptr, &gensym);
+		Return(make_gensym_(ptr, &gensym));
 		defsetf_push(array, 0, gensym);
 		defsetf_push(array, 1, init);
 		defsetf_push(array, 2, var);
 		defsetf_push(array, 3, gensym);
 		if (sup != Nil) {
-			make_gensym(ptr, &gensym);
+			Return(make_gensym_(ptr, &gensym));
 			defsetf_push(array, 0, gensym);
 			defsetf_push(array, 1, check? T: Nil);
 			defsetf_push(array, 2, sup);
@@ -441,7 +443,7 @@ static int defsetf_store_bind_(Execute ptr, addr list, addr array, addr *ret)
 		GetCons(list, &symbol, &list);
 		if (! symbolp(symbol))
 			return fmte_("defsetf store ~S must be a symbol type.", symbol, NULL);
-		make_gensym(ptr, &gensym);
+		Return(make_gensym_(ptr, &gensym));
 		defsetf_push(array, 2, symbol);
 		defsetf_push(array, 3, gensym);
 		cons_heap(&root, gensym, root);
@@ -738,7 +740,7 @@ _g int print_unreadable_call_syscode(Execute ptr,
 
 	check1 = (type != Nil);
 	check2 = (identity != Nil);
-	return print_unreadable_common(ptr, stream, pos, check1, check2, body);
+	return print_unreadable_common_(ptr, stream, pos, check1, check2, body);
 }
 
 
@@ -751,11 +753,10 @@ _g int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
 	output_stream_designer(ptr, stream, &stream);
 	push_new_control(ptr, &control);
 	hold = LocalHold_local_push(ptr, stream);
-	Return(write_default_print(ptr, stream, var));
+	Return(write_default_print_(ptr, stream, var));
 	localhold_end(hold);
-	*ret = var;
 
-	return 0;
+	return Result(ret, var);
 }
 
 
@@ -884,10 +885,10 @@ _g int loop_bind_syscode(Execute ptr, addr a, addr b, addr c, addr *ret)
 
 
 /* make-pprint-stream */
-_g void make_pprint_stream_syscode(Execute ptr, addr *ret,
+_g int make_pprint_stream_syscode_(Execute ptr, addr *ret,
 		addr stream, addr object, addr prefix, addr perline, addr suffix)
 {
-	open_pretty_stream(ptr, ret, stream, object, prefix, perline, suffix);
+	return open_pretty_stream_(ptr, ret, stream, object, prefix, perline, suffix);
 }
 
 
@@ -924,10 +925,10 @@ _g int pprint_check_syscode(Execute ptr, addr stream)
 
 
 /* pprint-close */
-_g void pprint_close_syscode(Execute ptr, addr stream)
+_g int pprint_close_syscode(Execute ptr, addr stream)
 {
 	Check(! pretty_stream_p(stream), "type error");
-	close_pretty_stream(ptr, stream);
+	return close_pretty_stream_(ptr, stream);
 }
 
 

@@ -174,21 +174,21 @@ static void parse_make_load_lambda_body(addr pos, addr g, addr value, addr *ret)
 	}
 }
 
-static void parse_make_load_lambda(Execute ptr, addr pos, addr init, addr *ret)
+static int parse_make_load_lambda_(Execute ptr, addr pos, addr init, addr *ret)
 {
 	addr g, lambda;
 
-	if (init == Nil) {
-		*ret = Nil;
-		return;
-	}
+	if (init == Nil)
+		return Result(ret, Nil);
 
 	/* (lambda (g) [replace pos -> g]) */
-	make_gensym(ptr, &g);
+	Return(make_gensym_(ptr, &g));
 	GetConst(COMMON_LAMBDA, &lambda);
 	parse_make_load_lambda_body(pos, g, init, &init);
 	list_heap(&g, g, NULL);
 	list_heap(ret, lambda, g, init, NULL);
+
+	return 0;
 }
 
 static int parse_make_load_form_generic(Execute ptr, addr pos, addr *ret1, addr *ret2)
@@ -213,9 +213,7 @@ static int parse_make_load_form_generic(Execute ptr, addr pos, addr *ret1, addr 
 	localhold_end(hold);
 
 	*ret1 = expr;
-	parse_make_load_lambda(ptr, pos, init, ret2);
-
-	return 0;
+	return parse_make_load_lambda_(ptr, pos, init, ret2);
 }
 
 static int parse_make_load_form(Execute ptr, addr *ret, addr pos)
