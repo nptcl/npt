@@ -31,9 +31,12 @@ static void parse_type_string(addr *ret, const char *code)
 static SubtypepResult subtable_test(addr left, addr right)
 {
 	SubtypepResult value;
+
 	/* real_extract(&left, left); */
 	/* real_extract(&right, right); */
+	aatype(value);
 	subtypep_table_(left, right, &value);
+
 	return value;
 }
 static SubtypepResult strtable_test(const char *str1, const char *str2)
@@ -111,6 +114,8 @@ static int test_subtypep_asterisk_or_t(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	parse_type_string(&left, "NIL");
 	parse_type_string(&right, "*");
@@ -246,6 +251,7 @@ static SubtypepResult subtypep_value(const char *str1, const char *str2, int ast
 	addr left, right;
 	LocalRoot local;
 
+	aatype(value);
 	local = Local_Thread;
 	parse_type_string(&left, str1);
 	parse_type_string(&right, str2);
@@ -745,6 +751,8 @@ static int test_subtypep_realparameter(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "integer");
 	subtypep_realparameter_(left, right, &value);
@@ -822,6 +830,8 @@ static int test_subtypep_float(void)
 	SubtypepResult value;
 	addr left, right, pos1, pos2;
 
+	aatype(value);
+
 	test(strtable_false("number", "float"), "subtypep_float1");
 	test(strtable_false("real", "float"), "subtypep_float2");
 	test(strtable_true("float", "float"), "subtypep_float3");
@@ -847,6 +857,8 @@ static int test_subtypep_float_type(void)
 {
 	SubtypepResult value;
 	addr left, right, pos1, pos2;
+
+	aatype(value);
 
 	parse_type_string(&left, "number");
 	parse_type_string(&right, "single-float");
@@ -1280,6 +1292,8 @@ static int test_ordinary_subtypep(void)
 	ordargs str1, str2;
 	ordtype type1, type2;
 
+	aatype(value);
+
 	parse_args(&pos, "(function (atom integer))");
 	make_function_ordinary(&str1, pos);
 	parse_args(&pos, "(function (real string))");
@@ -1327,6 +1341,8 @@ static int test_ordinary_size(void)
 	int value;
 	ordargs args1, args2;
 
+	aatype(value);
+
 	argschar(&args1, "(function (integer))");
 	argschar(&args2, "(function (real))");
 	ordinary_size_(&args1, &args2, 1, &value);
@@ -1362,6 +1378,8 @@ static int test_ordinary_simple(void)
 {
 	int value;
 	addr left, right;
+
+	aatype(value);
 
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t real))");
@@ -1411,6 +1429,8 @@ static int test_ordinary_simple_left(void)
 	int value;
 	addr left, right;
 
+	aatype(value);
+
 	extractargs(&left, "(function (integer integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(left, right, &value);
@@ -1444,6 +1464,8 @@ static int test_ordinary_check(void)
 	int value;
 	addr left, right;
 
+	aatype(value);
+
 	extractargs(&left, "(function (integer integer &rest integer))");
 	extractargs(&right, "(function (t real &optional t &rest integer))");
 	subtypep_function_ordinary_(left, right, &value);
@@ -1461,6 +1483,8 @@ static int test_subtypep_function_ordinary(void)
 {
 	int value;
 	addr left, right, aster;
+
+	aatype(value);
 
 	GetTypeTable(&aster, Asterisk);
 	extractargs(&left, "(function (integer integer &rest integer))");
@@ -1487,6 +1511,8 @@ static int test_subtypep_function_check(void)
 {
 	SubtypepResult result;
 	addr left, right;
+
+	aatype(result);
 
 	extractchar(&left, "(function (fixnum) cons)");
 	extractchar(&right, "(function (integer) list)");
@@ -1521,6 +1547,8 @@ static int test_subtypep_function(void)
 	SubtypepResult result;
 	addr left, right;
 
+	aatype(result);
+
 	extractchar(&left, "(function (fixnum) cons)");
 	extractchar(&right, "(function (integer) list)");
 	subtypep_function_(left, right, &result);
@@ -1548,6 +1576,8 @@ static int test_subtypep_compiled_function(void)
 {
 	SubtypepResult result;
 	addr left, right;
+
+	aatype(result);
 
 	extractchar(&left, "(compiled-function (fixnum) cons)");
 	extractchar(&right, "(compiled-function (integer) list)");
@@ -1589,6 +1619,8 @@ static int test_subtypep_lisptype_normal(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "real");
 	subtypep_lisptype_normal_(left, right, &value, subtypep_table_);
@@ -1627,6 +1659,8 @@ static int test_subtypep_lisptype_not(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	parse_type_string_not(&left, "real");
 	parse_type_string(&right, "integer");
 	subtypep_lisptype_not_(left, right, &value, subtypep_table_);
@@ -1664,6 +1698,8 @@ static int test_subtypep_lisptype(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "real");
@@ -1709,6 +1745,8 @@ static int test_subtypep_eql_eql(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	test_eql_character(&left, 'a', 0);
 	test_eql_character(&right, 'a', 0);
 	subtypep_eql_eql_(left, right, &value);
@@ -1726,6 +1764,8 @@ static int test_subtypep_eql_type(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	test_eql_character(&left, 'a', 0);
 	parse_type_string(&right, "character");
@@ -1745,6 +1785,8 @@ static int test_subtypep_type_eql(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	parse_type_string(&left, "character");
 	test_eql_character(&right, 'a', 0);
 	subtypep_type_eql_(left, right, &value);
@@ -1762,6 +1804,8 @@ static int test_subtypep_eql_call(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	test_eql_character(&left, 'a', 0);
 	test_eql_character(&right, 'a', 0);
@@ -1785,6 +1829,8 @@ static int test_subtypep_eql(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	test_eql_character(&left, 'a', 0);
 	test_eql_character(&right, 'a', 0);
@@ -1885,6 +1931,8 @@ static int test_subtypep_boolean(void)
 	int value;
 	addr left, right;
 
+	aatype(value);
+
 	extractchar(&left, "integer");
 	extractchar(&right, "real");
 	subtypep_boolean_(left, right, &value);
@@ -1912,6 +1960,8 @@ static int test_subtypep_values_values(void)
 {
 	int result;
 	addr left, right;
+
+	aatype(result);
 
 	extractchar(&left, "(values)");
 	extractchar(&right, "(values)");
@@ -1980,6 +2030,8 @@ static int test_subtypep_values_type(void)
 	int value;
 	addr left, right;
 
+	aatype(value);
+
 	extractchar(&left, "(values)");
 	extractchar(&right, "integer");
 	subtypep_values_type_(left, right, &value);
@@ -2012,6 +2064,8 @@ static int test_subtypep_type_values(void)
 {
 	int value;
 	addr left, right;
+
+	aatype(value);
 
 	extractchar(&left, "integer");
 	extractchar(&right, "(values)");
@@ -2046,6 +2100,8 @@ static int test_subtypep_values_call(void)
 	int value;
 	addr left, right;
 
+	aatype(value);
+
 	extractchar(&left, "(values integer fixnum)");
 	extractchar(&right, "(values real integer)");
 	subtypep_values_call_(left, right, &value);
@@ -2069,6 +2125,8 @@ static int test_subtypep_values(void)
 	SubtypepResult result;
 	addr left, right;
 
+	aatype(result);
+
 	extractchar(&left, "(values integer fixnum)");
 	extractchar(&right, "(values real integer)");
 	subtypep_values_(left, right, &result);
@@ -2090,6 +2148,8 @@ static int test_subtypep_leftright(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	parse_type_string(&left, "cons");
 	parse_type_string(&right, "cons");
@@ -2123,6 +2183,8 @@ static int test_subtypep_and_left(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	parse_type_string(&left, "(and integer)");
 	parse_type_string(&right, "real");
@@ -2162,6 +2224,8 @@ static int test_subtypep_or_left(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	parse_type_string(&left, "(or integer)");
 	parse_type_string(&right, "real");
 	subtypep_or_left_(left, right, &value);
@@ -2195,6 +2259,8 @@ static int test_subtypep_satisfies_left(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	parse_type_string(&left, "(satisfies hello)");
 	parse_type_string(&right, "t");
 	subtypep_satisfies_left_(left, right, &value);
@@ -2212,6 +2278,8 @@ static int test_subtypep_left(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	parse_type_string(&left, "(and integer)");
 	parse_type_string(&right, "real");
@@ -2250,6 +2318,8 @@ static int test_subtypep_andargs_right(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(and real)");
@@ -2294,6 +2364,8 @@ static int test_subtypep_orargs_right(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(or real)");
 	subtypep_orargs_right_(left, right, &value);
@@ -2332,6 +2404,8 @@ static int test_subtypep_and_right(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(and integer real)");
 	subtypep_and_right_(left, right, &value);
@@ -2359,6 +2433,8 @@ static int test_subtypep_or_right(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(or real symbol)");
@@ -2388,6 +2464,8 @@ static int test_subtypep_satisfies_right(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	parse_type_string(&left, "nil");
 	parse_type_string(&right, "(satisfies hello)");
 	subtypep_satisfies_right_(left, right, &value);
@@ -2406,6 +2484,8 @@ static int test_subtypep_nil_right(void)
 	SubtypepResult value;
 	addr left;
 
+	aatype(value);
+
 	parse_type_string(&left, "nil");
 	subtypep_nil_right_(left, &value);
 	test(value == SUBTYPEP_INCLUDE, "subtypep_nil_right1");
@@ -2420,6 +2500,8 @@ static int test_subtypep_right(void)
 {
 	SubtypepResult value;
 	addr left, right;
+
+	aatype(value);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "(and real number)");
@@ -2478,6 +2560,8 @@ static int test_subtypep_call(void)
 	SubtypepResult value;
 	addr left, right;
 
+	aatype(value);
+
 	parse_type_string(&left, "*");
 	parse_type_string(&right, "*");
 	subtypep_call_(left, right, 1, &value);
@@ -2511,6 +2595,9 @@ static int test_subtypep_execute(void)
 	int result, invalid;
 	addr left, right;
 
+	aatype(result);
+	aatype(invalid);
+
 	parse_type_string(&left, "cons");
 	parse_type_string(&right, "*");
 	subtypep_execute_(left, right, 1, &result, &invalid);
@@ -2539,6 +2626,9 @@ static int test_subtypep_asterisk_clang(void)
 	int result, invalid;
 	addr left, right;
 
+	aatype(result);
+	aatype(invalid);
+
 	parse_type_string(&left, "cons");
 	parse_type_string(&right, "*");
 	subtypep_asterisk_clang_(left, right, &result, &invalid);
@@ -2551,6 +2641,9 @@ static int test_subtypep_clang(void)
 {
 	int result, invalid;
 	addr left, right;
+
+	aatype(result);
+	aatype(invalid);
 
 	parse_type_string(&left, "integer");
 	parse_type_string(&right, "real");
