@@ -20,39 +20,43 @@
 /*
  *  compile-file-pathname
  */
-static void compile_file_pathname_from_input(addr input, addr *ret)
+static int compile_file_pathname_from_input_(addr input, addr *ret)
 {
 	addr host, device, name, type, directory, version;
 
 	copy_pathname_heap(&input, input);
-	pathname_host(input, &host, 1);
-	pathname_directory(input, &directory, 1);
-	pathname_name(input, &name, 1);
+	Return(pathname_host_(input, &host, 1));
+	Return(pathname_directory_(input, &directory, 1));
+	Return(pathname_name_(input, &name, 1));
 	strvect_char_heap(&type, "fasl");
 	if (pathname_logical_p(input)) {
 		pathname_version(input, &version);
 		logical_pathname_heap(ret, host, directory, name, type, version);
 	}
 	else {
-		pathname_device(input, &device, 1);
+		Return(pathname_device_(input, &device, 1));
 		pathname_heap(ret, host, device, directory, name, type);
 	}
+
+	return 0;
 }
 
-_g void compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *ret)
+_g int compile_file_pathname_common(Execute ptr, addr input, addr rest, addr *ret)
 {
 	addr output;
 
 	if (GetKeyArgs(rest, KEYWORD_OUTPUT_FILE, &output)) {
 		/* input-file -> output-file */
-		pathname_designer_heap(ptr, input, &input);
-		compile_file_pathname_from_input(input, ret);
+		Return(pathname_designer_heap_(ptr, input, &input));
+		Return(compile_file_pathname_from_input_(input, ret));
 	}
 	else {
 		/* translate output-file */
-		physical_pathname_heap(ptr, output, &output);
-		merge_pathnames_clang(ptr, output, Nil, Nil, ret);
+		Return(physical_pathname_heap_(ptr, output, &output));
+		Return(merge_pathnames_clang_(ptr, output, Nil, Nil, ret));
 	}
+
+	return 0;
 }
 
 

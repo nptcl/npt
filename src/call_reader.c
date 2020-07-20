@@ -394,8 +394,7 @@ _g int get_dispatch_macro_character_common(Execute ptr,
 
 	if (readtable == Nil) {
 		/* standard readtable */
-		get_default_dispatch_macro(x, y, ret);
-		return 0;
+		return get_default_dispatch_macro_(x, y, ret);
 	}
 	if (readtable == Unbound) {
 		/* *readtable* */
@@ -404,8 +403,7 @@ _g int get_dispatch_macro_character_common(Execute ptr,
 	}
 	GetCharacter(x, &a);
 	GetCharacter(y, &b);
-	get_dispatch_macro_character(readtable, a, b, ret);
-	return 0;
+	return get_dispatch_macro_character_(readtable, a, b, ret);
 }
 
 
@@ -430,14 +428,12 @@ _g int set_dispatch_macro_character_common(Execute ptr,
 	GetCharacter(x, &a);
 	GetCharacter(y, &b);
 	if (call == Nil)
-		rem_dispatch_macro_character(readtable, a, b);
+		return rem_dispatch_macro_character_(readtable, a, b);
 	else {
 		if (symbolp(call))
 			getspecialcheck_local(ptr, call, &call);
-		set_dispatch_macro_character(readtable, a, b, call);
+		return set_dispatch_macro_character_(readtable, a, b, call);
 	}
-
-	return 0;
 }
 
 

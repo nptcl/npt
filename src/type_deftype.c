@@ -84,7 +84,7 @@ _g int deftype_common(Execute ptr, addr form, addr env, addr *ret)
 		return fmte_("Invalid deftype form.", NULL);
 
 	/* parse */
-	lambda_deftype(ptr->local, &args, args, Nil);
+	Return(lambda_deftype_(ptr->local, &args, args, Nil));
 	Return(declare_body_documentation(ptr, env, right, &doc, &decl, &right));
 
 	/* (eval::deftype name args decl doc body) */

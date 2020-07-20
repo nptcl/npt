@@ -20,7 +20,7 @@ struct fileparse {
 _g void init_fileparse(struct fileparse *pa, Execute ptr, int localp);
 _g void pathname_fileparse_alloc(struct fileparse *pa, int logical);
 _g void wild_value_pathname(addr input, addr *ret);
-_g void make_parse_logical_pathname(struct fileparse *pa);
+_g int make_parse_logical_pathname_(struct fileparse *pa);
 _g void pushrange_pathname(LocalpRoot local,
 		addr queue, const unicode *body, size_t n1, size_t n2);
 _g void make_charqueue_fileparse(struct fileparse *pa, addr queue, addr *ret);
@@ -31,9 +31,9 @@ _g void pushconstant_fileparse(struct fileparse *pa, addr *list, constindex inde
 _g int check_host_logical_pathname(LocalpRoot local, addr queue);
 _g int check_drive_logical_pathname(LocalpRoot local, int drive);
 
-_g void parser_logical_pathname(struct fileparse *pa);
-_g void parser_unix_pathname(struct fileparse *pa);
-_g void parser_windows_pathname(struct fileparse *pa);
+_g int parser_logical_pathname_(struct fileparse *pa);
+_g int parser_unix_pathname_(struct fileparse *pa);
+_g int parser_windows_pathname_(struct fileparse *pa);
 
 #endif
 

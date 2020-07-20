@@ -79,7 +79,7 @@ static void defun_compile_file(void)
  */
 static int function_compile_file_pathname(Execute ptr, addr var, addr rest)
 {
-	compile_file_pathname_common(ptr, var, rest, &var);
+	Return(compile_file_pathname_common(ptr, var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

@@ -14,7 +14,7 @@ static int parser_logical_pathname_wordaster_p(unicode c)
 	return isAlphanumeric(c) || (c == '-') || (c == '*');
 }
 
-_g void parser_logical_pathname(struct fileparse *pa)
+_g int parser_logical_pathname_(struct fileparse *pa)
 {
 	int absolute, relative, dp1, dp2;
 	unicode c;
@@ -27,7 +27,7 @@ _g void parser_logical_pathname(struct fileparse *pa)
 	local = pa->local;
 	thing = pa->thing;
 	if (! stringp(thing))
-		TypeError(thing, STRING);
+		return TypeError_(thing, STRING);
 	charqueue_local(local->local, &charqueue, 0);
 	pa->queue = charqueue;
 	queue = Nil;
@@ -163,10 +163,9 @@ finish_version:
 finish:
 	nreverse(&pa->directory, queue);
 	pa->endpos = i;
-	make_parse_logical_pathname(pa);
-	return;
+	return make_parse_logical_pathname_(pa);
 
 error:
-	fmte("Invalid logical-pathname ~S.", thing, NULL);
+	return fmte_("Invalid logical-pathname ~S.", thing, NULL);
 }
 

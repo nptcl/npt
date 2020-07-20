@@ -64,38 +64,42 @@ static void wild_newest_value_pathname(addr input, addr *ret)
 	}
 }
 
-static void check_asterisk_logical_pathname(addr pos)
+static int check_asterisk_logical_pathname_(addr pos)
 {
 	unicode a, b;
 	size_t size, i;
 
 	if (! stringp(pos))
-		return;
+		return 0;
 	string_length(pos, &size);
 	a = 0;
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &b);
 		if (a == '*' && b == '*')
-			fmte("Invalid wildcard string ~S.", pos, NULL);
+			return fmte_("Invalid wildcard string ~S.", pos, NULL);
 	}
+
+	return 0;
 }
 
-static void check_version_logical_pathname(addr pos)
+static int check_version_logical_pathname_(addr pos)
 {
 	unicode c;
 	size_t size, i;
 
 	if (! stringp(pos))
-		return;
+		return 0;
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &c);
 		if (! isDigitCase(c))
-			fmte(":VERSION ~S must be a positive integer.", pos, NULL);
+			return fmte_(":VERSION ~S must be a positive integer.", pos, NULL);
 	}
+
+	return 0;
 }
 
-static void check_parse_logical_pathname(struct fileparse *pa)
+static int check_parse_logical_pathname_(struct fileparse *pa)
 {
 	int check;
 	addr list, pos;
@@ -104,41 +108,45 @@ static void check_parse_logical_pathname(struct fileparse *pa)
 	/* host */
 	string_length(pa->host, &size);
 	if (size == 0)
-		fmte("Invalid host name ~S.", pa->host, NULL);
+		return fmte_("Invalid host name ~S.", pa->host, NULL);
 
 	/* directory */
 	for (list = pa->directory; list != Nil; ) {
 		GetCons(list, &pos, &list);
-		check_asterisk_logical_pathname(pos);
+		Return(check_asterisk_logical_pathname_(pos));
 	}
 	/* name */
-	check_asterisk_logical_pathname(pa->name);
+	Return(check_asterisk_logical_pathname_(pa->name));
 	/* type */
-	check_asterisk_logical_pathname(pa->type);
+	Return(check_asterisk_logical_pathname_(pa->type));
 	/* version */
 	pos = pa->version;
-	check_version_logical_pathname(pos);
+	Return(check_version_logical_pathname_(pos));
 	if (stringp(pos)) {
 		if (read_from_string(pa->ptr, &check, &pos, pos))
-			fmte("Cannot read ~S object.", pa->version, NULL);
+			return fmte_("Cannot read ~S object.", pa->version, NULL);
 		if (check)
-			fmte("Cannot read ~S object.", pa->version, NULL);
+			return fmte_("Cannot read ~S object.", pa->version, NULL);
 		if (! integerp(pos))
-			fmte("Invalid version object ~S.", pos, NULL);
+			return fmte_("Invalid version object ~S.", pos, NULL);
 		pa->version = pos;
 	}
+
+	return 0;
 }
 
-_g void make_parse_logical_pathname(struct fileparse *pa)
+_g int make_parse_logical_pathname_(struct fileparse *pa)
 {
 	GetConst(KEYWORD_UNSPECIFIC, &pa->device);
 	wild_value_pathname(pa->name, &pa->name);
 	wild_value_pathname(pa->type, &pa->type);
 	wild_newest_value_pathname(pa->version, &pa->version);
 	if (pa->host == Nil)
-		fmte("No logical-pathname host.", NULL);
-	check_parse_logical_pathname(pa);
+		return fmte_("No logical-pathname host.", NULL);
+	Return(check_parse_logical_pathname_(pa));
 	pathname_fileparse_alloc(pa, 1);
+
+	return 0;
 }
 
 _g void pushrange_pathname(LocalpRoot local,

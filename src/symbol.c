@@ -99,7 +99,8 @@ _g int keywordp(addr pos)
 {
 	addr keyword;
 
-	if (GetType(pos) != LISPTYPE_SYMBOL) return 0;
+	if (GetType(pos) != LISPTYPE_SYMBOL)
+		return 0;
 	GetConst(PACKAGE_KEYWORD, &keyword);
 	Check(GetType(keyword) != LISPTYPE_PACKAGE, "package error");
 	GetPackageSymbol(pos, &pos);
@@ -719,7 +720,8 @@ _g void getsetf_global(addr pos, addr *ret)
  */
 _g int gensymp(addr pos)
 {
-	if (GetType(pos) != LISPTYPE_SYMBOL) return 0;
+	if (GetType(pos) != LISPTYPE_SYMBOL)
+		return 0;
 	GetPackageSymbol(pos, &pos);
 	return pos == Nil;
 }

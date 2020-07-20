@@ -499,7 +499,7 @@ static void tagbody_call_push(addr stack, addr list, addr *ret)
 	nreverse(ret, root);
 }
 
-static void tagbody_call_find(addr list, addr pos, addr *ret)
+static int tagbody_call_find_(addr list, addr pos, addr *ret)
 {
 	addr value, check;
 
@@ -507,15 +507,13 @@ static void tagbody_call_find(addr list, addr pos, addr *ret)
 	while (list != Nil) {
 		GetCons(list, &value, &list);
 		getname_tabletagbody(value, &check);
-		if (eql_function(pos, check)) {
-			*ret = value;
-			return;
-		}
+		if (eql_function(pos, check))
+			return Result(ret, value);
 	}
 
 	/* error */
 	*ret = 0;
-	fmte("Invalid tag name.", NULL);
+	return fmte_("Invalid tag name.", NULL);
 }
 
 static int tagbody_allcons(Execute ptr, addr tag, addr body, addr *ret)
@@ -527,7 +525,7 @@ static int tagbody_allcons(Execute ptr, addr tag, addr body, addr *ret)
 	for (root = Nil; body != Nil; ) {
 		GetCons(body, &pos, &body);
 		if (RefEvalParseType(pos) == EVAL_PARSE_TAG) {
-			tagbody_call_find(tag, pos, &pos);
+			Return(tagbody_call_find_(tag, pos, &pos));
 			make_eval_scope(ptr, &pos, EVAL_PARSE_TAG, Nil, pos);
 		}
 		else {
@@ -619,14 +617,15 @@ static int go_tabletagbody(addr stack, addr tag, addr *ret)
 	return 1;
 }
 
-_g void scope_go_call(Execute ptr, addr *ret, addr tag)
+_g int scope_go_call_(Execute ptr, addr *ret, addr tag)
 {
 	addr stack, table;
 
 	getstack_eval(ptr, &stack);
 	if (! go_tabletagbody(stack, tag, &table))
-		fmte("Tag ~S is not found.", tag, NULL);
-	*ret = table;
+		return fmte_("Tag ~S is not found.", tag, NULL);
+	
+	return Result(ret, table);
 }
 
 
@@ -742,7 +741,8 @@ _g int scope_return_from_call(Execute ptr,
 
 	getstack_eval(ptr, &stack);
 	if (! name_tableblock(stack, name, rname))
-		fmte("Cannot find block name ~S.", name, NULL);
+		return fmte_("Cannot find block name ~S.", name, NULL);
+
 	return scope_eval(ptr, rexpr, form);
 }
 
@@ -755,7 +755,7 @@ _g void scope_init_mvbind(struct mvbind_struct *str)
 		= str->cons = str->free = str->the = str->allocate = Nil;
 }
 
-static void mvbind_maketable(Execute ptr, struct mvbind_struct *str)
+static int mvbind_maketable_(Execute ptr, struct mvbind_struct *str)
 {
 	int allocate;
 	addr stack, decl, args, root, var;
@@ -766,13 +766,15 @@ static void mvbind_maketable(Execute ptr, struct mvbind_struct *str)
 	allocate = 0;
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &var, &args);
-		check_scope_variable(var);
+		Return(check_scope_variable_(var));
 		ifdeclvalue(ptr, stack, var, decl, &var);
 		allocate |= getspecialp_tablevalue(var);
 		cons_heap(&root, var, root);
 	}
 	nreverse(&str->args, root);
 	str->allocate = allocate? T: Nil;
+
+	return 0;
 }
 
 static int mvbind_execute(Execute ptr, struct mvbind_struct *str)
@@ -780,7 +782,7 @@ static int mvbind_execute(Execute ptr, struct mvbind_struct *str)
 	addr stack;
 
 	stack = str->stack;
-	mvbind_maketable(ptr, str);
+	Return(mvbind_maketable_(ptr, str));
 	apply_declare(ptr, stack, str->decl, &str->free);
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	ignore_checkvalue(stack);

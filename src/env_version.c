@@ -363,9 +363,9 @@ _g int software_version_common(addr *ret)
 /*
  *  user-homedir-pathname
  */
-static void default_user_homedir_pathname_common(Execute ptr, addr *ret)
+static int default_user_homedir_pathname_common_(Execute ptr, addr *ret)
 {
-	parse_pathname_char_heap(ptr, ".", ret);
+	return parse_pathname_char_heap_(ptr, ".", ret);
 }
 
 static void user_homedir_pathname_string(LocalRoot local, addr pos, addr *ret)
@@ -397,7 +397,7 @@ no_update:
 	*ret = pos;
 }
 
-_g void user_homedir_pathname_common(Execute ptr, addr *ret)
+_g int user_homedir_pathname_common(Execute ptr, addr *ret)
 {
 	addr pos;
 	LocalRoot local;
@@ -413,11 +413,11 @@ _g void user_homedir_pathname_common(Execute ptr, addr *ret)
 	local = ptr->local;
 	push_local(local, &stack);
 	user_homedir_pathname_string(local, pos, &pos);
-	physical_pathname_heap(ptr, pos, ret);
+	Return(physical_pathname_heap_(ptr, pos, ret));
 	rollback_local(local, stack);
-	return;
+	return 0;
 
 error:
-	default_user_homedir_pathname_common(ptr, ret);
+	return default_user_homedir_pathname_common_(ptr, ret);
 }
 

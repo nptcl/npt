@@ -24,13 +24,15 @@ _g void scope_init_let(struct let_struct *str)
 		= str->cons = str->free = str->the = str->allocate = Nil;
 }
 
-_g void check_scope_variable(addr symbol)
+_g int check_scope_variable_(addr symbol)
 {
 	Check(! symbolp(symbol), "type error");
 	if (keywordp(symbol))
-		fmte("Keyword ~S can't be use a variable.", symbol, NULL);
+		return fmte_("Keyword ~S can't be use a variable.", symbol, NULL);
 	if (GetStatusReadOnly(symbol))
-		fmte("The constant of symbol ~S can't use a variable.", symbol, NULL);
+		return fmte_("The constant of symbol ~S can't use a variable.", symbol, NULL);
+
+	return 0;
 }
 
 static int let_init(Execute ptr, struct let_struct *str)
@@ -41,7 +43,7 @@ static int let_init(Execute ptr, struct let_struct *str)
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &var, &args);
 		GetCons(var, &var, &init);
-		check_scope_variable(var);
+		Return(check_scope_variable_(var));
 		Return(scope_eval(ptr, &init, init));
 		cons_heap(&var, var, init);
 		cons_heap(&root, var, root);
@@ -536,7 +538,7 @@ static int leta_init(Execute ptr, struct let_struct *str)
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &var, &args);
 		GetCons(var, &var, &init);
-		check_scope_variable(var);
+		Return(check_scope_variable_(var));
 		Return(scope_eval(ptr, &init, init));
 		ifdeclvalue(ptr, stack, var, decl, &var);
 		cons_heap(&var, var, init);

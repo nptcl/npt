@@ -628,7 +628,7 @@ _g int open_common(Execute ptr, addr pos, addr rest, addr *ret)
 	enum Stream_Open_External external;
 
 	/* argument */
-	physical_pathname_heap(ptr, pos, &pos);
+	Return(physical_pathname_heap_(ptr, pos, &pos));
 	if (GetKeyArgs(rest, KEYWORD_DIRECTION, &value))
 		value = Unbound;
 	Return(open_common_direction(value, &direction));

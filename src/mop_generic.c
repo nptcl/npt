@@ -57,7 +57,8 @@ static void defgeneric_no_next_method_mop(Execute ptr)
 /***********************************************************************
  *  ensure-generic-function-using-class
  ***********************************************************************/
-static void method_ensure_generic_function_struct(struct generic_argument *str,
+static int method_ensure_generic_function_struct_(
+		struct generic_argument *str,
 		Execute ptr, addr clos, addr name, addr rest)
 {
 	addr order, decl, doc, env, gen, lambda, method, comb;
@@ -83,8 +84,9 @@ static void method_ensure_generic_function_struct(struct generic_argument *str,
 	/* parse */
 	if (! callnamep(name))
 		parse_callname_error(&name, name);
-	if (! argumentp(lambda))
-		argument_generic_heap(ptr->local, &lambda, lambda);
+	if (! argumentp(lambda)) {
+		Return(argument_generic_heap_(ptr->local, &lambda, lambda));
+	}
 
 	/* generic-addr */
 	str->ptr = ptr;
@@ -97,6 +99,8 @@ static void method_ensure_generic_function_struct(struct generic_argument *str,
 	str->order = order;
 	str->declare = decl;
 	str->doc = doc;
+
+	return 0;
 }
 
 static int method_ensure_generic_function_class(Execute ptr,
@@ -104,7 +108,7 @@ static int method_ensure_generic_function_class(Execute ptr,
 {
 	struct generic_argument str;
 
-	method_ensure_generic_function_struct(&str, ptr, clos, name, rest);
+	Return(method_ensure_generic_function_struct_(&str, ptr, clos, name, rest));
 	Return(generic_change(&str, &name));
 	setresult_control(ptr, name);
 
@@ -165,7 +169,7 @@ static int method_ensure_generic_function_null(Execute ptr,
 {
 	struct generic_argument str;
 
-	method_ensure_generic_function_struct(&str, ptr, clos, name, rest);
+	Return(method_ensure_generic_function_struct_(&str, ptr, clos, name, rest));
 	Return(generic_add(&str, &name));
 	setresult_control(ptr, name);
 
@@ -311,7 +315,7 @@ static int method_function_keywords(Execute ptr, addr method, addr next, addr va
 	int allow;
 
 	stdget_method_lambda_list(var, &var);
-	argument_method_keywords_heap(var, &var, &allow);
+	Return(argument_method_keywords_heap_(var, &var, &allow));
 	setvalues_control(ptr, var, (allow? T: Nil), NULL);
 
 	return 0;

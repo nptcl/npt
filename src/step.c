@@ -13,11 +13,11 @@
 /*
  *  step macro
  */
-_g void step_common(Execute ptr, addr form, addr env, addr *ret)
+_g int step_common(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, eval, let, special, step;
 
-	getcdr(form, &form);
+	Return_getcdr(form, &form);
 	if (! consp_getcons(form, &eval, &args))
 		goto error;
 	if (args != Nil)
@@ -33,10 +33,10 @@ _g void step_common(Execute ptr, addr form, addr env, addr *ret)
 	list_heap(&special, special, NULL);
 	list_heap(&step, step, eval, NULL);
 	list_heap(ret, let, special, step, NULL);
-	return;
+	return 0;
 
 error:
-	fmte("The form ~S must be (eval).", form, NULL);
+	return fmte_("The form ~S must be (eval).", form, NULL);
 }
 
 
@@ -81,8 +81,7 @@ _g int parse_step(Execute ptr, addr *ret, addr form)
 	return 0;
 
 error:
-	fmte("The form ~S must be (eval).", form, NULL);
-	return 0;
+	return fmte_("The form ~S must be (eval).", form, NULL);
 }
 
 _g void parse_step_object(Execute ptr, addr *ret, addr value, addr expr)

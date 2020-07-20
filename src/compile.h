@@ -8,7 +8,7 @@
 _g void handler_compile(Execute ptr);
 _g int compile_file_common(Execute ptr, addr file, addr rest,
 		addr *ret1, addr *ret2, addr *ret3);
-_g void compile_file_pathname_common(Execute ptr, addr file, addr rest, addr *ret);
+_g int compile_file_pathname_common(Execute ptr, addr file, addr rest, addr *ret);
 _g void with_compilation_unit_common(addr form, addr *ret);
 _g int syscall_with_compilation_unit(Execute ptr, addr over, addr args, addr call);
 

@@ -12,8 +12,10 @@
 
 static int setf_atom(addr pos)
 {
-	if (keywordp(pos)) return 1;
-	if (symbolp(pos)) return 0;
+	if (keywordp(pos))
+		return 1;
+	if (symbolp(pos))
+		return 0;
 	return ! consp(pos);
 }
 
@@ -27,27 +29,27 @@ _g int function_setf_values(Execute ptr, addr form, addr env)
 	addr args, a, b, g, w, r, v, car, cdr, values;
 	addr a1, b1, g1, w1, r1;
 
-	getcdr(form, &args);
+	Return_getcdr(form, &args);
 	a = b = g = w = r = Nil;
 	while (args != Nil) {
-		getcons(args, &v, &args);
+		Return_getcons(args, &v, &args);
 		Return(get_setf_expansion(ptr, v, env, &a1, &b1, &g1, &w1, &r1));
 		/* vars */
 		while (a1 != Nil) {
-			getcons(a1, &v, &a1);
+			Return_getcons(a1, &v, &a1);
 			cons_heap(&a, v, a);
 		}
 		/* vals */
 		while (b1 != Nil) {
-			getcons(b1, &v, &b1);
+			Return_getcons(b1, &v, &b1);
 			cons_heap(&b, v, b);
 		}
 		/* store */
 		if (g1 != Nil) {
-			getcons(g1, &car, &cdr);
+			Return_getcons(g1, &car, &cdr);
 			cons_heap(&g, car, g);
 			while (cdr != Nil) {
-				getcons(cdr, &v, &cdr);
+				Return_getcons(cdr, &v, &cdr);
 				cons_heap(&a, v, a);
 				cons_heap(&b, Nil, b);
 			}
@@ -92,18 +94,23 @@ _g int function_setf_getf(Execute ptr, addr form, addr env)
 	addr let, setplist, getf;
 
 	/* arguments */
-	getcdr(form, &args);
-	if (! consp(args)) goto error;
+	Return_getcdr(form, &args);
+	if (! consp(args))
+		goto error;
 	GetCons(args, &place, &args);
-	if (! consp(args)) goto error;
+	if (! consp(args))
+		goto error;
 	GetCons(args, &indicator, &args);
 	if (args == Nil)
 		value = Nil;
 	else {
-		if (! consp(args)) goto error;
+		if (! consp(args))
+			goto error;
 		GetCons(args, &value, &args);
-		if (args != Nil) goto error;
-		if (setf_atom(value)) value = Nil;
+		if (args != Nil)
+			goto error;
+		if (setf_atom(value))
+			value = Nil;
 	}
 
 	/* expander */
@@ -137,9 +144,8 @@ _g int function_setf_getf(Execute ptr, addr form, addr env)
 	return 0;
 
 error:
-	fmte("(setf getf) argument ~S must be "
+	return fmte_("(setf getf) argument ~S must be "
 			"(place indicator &optional default) form.", form, NULL);
-	return 0;
 }
 
 
@@ -193,7 +199,7 @@ static int setf_function_(Execute ptr, addr symbol, addr args,
 	conscar_heap(&e, symbol);
 	/* loop */
 	for (a = b = Nil; args != Nil; ) {
-		getcons(args, &var, &args);
+		Return_getcons(args, &var, &args);
 		if (setf_atom(var)) {
 			cons_heap(&d, var, d);
 			cons_heap(&e, var, e);
@@ -260,8 +266,7 @@ _g int get_setf_expansion(Execute ptr, addr form, addr env,
 	addr pos, symbol, args, check;
 
 	/* macroexpand */
-	if (macroexpand(ptr, &pos, form, env, &result))
-		return 1;
+	Return(macroexpand(ptr, &pos, form, env, &result));
 	if (result)
 		form = pos;
 
@@ -284,7 +289,6 @@ _g int get_setf_expansion(Execute ptr, addr form, addr env,
 	return setf_function_(ptr, symbol, args, vars, vals, store, writer, reader);
 
 error:
-	fmte("The form ~S is not setf place.", form, NULL);
-	return 1;
+	return fmte_("The form ~S is not setf place.", form, NULL);
 }
 

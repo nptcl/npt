@@ -95,7 +95,7 @@ _g int single_quote_reader(Execute ptr, addr stream, addr *ret)
 {
 	Return(quote_macro_reader(ptr, CONSTANT_COMMON_QUOTE, stream, ret));
 	if (stream == Unbound)
-		fmte("After character ' must be an object, but EOF.", NULL);
+		return fmte_("After character ' must be an object, but EOF.", NULL);
 
 	return 0;
 }
@@ -189,10 +189,12 @@ _g int read_delimited_list(Execute ptr, addr stream, unicode limit, int recursiv
 	/* push */
 	push_new_control(ptr, &control);
 	/* code */
-	if (recursive)
-		pushreadinfo_recursive(ptr, &info);
-	else
+	if (recursive) {
+		Return(pushreadinfo_recursive_(ptr, &info));
+	}
+	else {
 		pushreadinfo(ptr, &info);
+	}
 	str = ReadInfoStruct(info);
 	str->dot = 1;
 	Return(read_delimited_execute(ptr, stream, limit));
@@ -210,8 +212,7 @@ _g int parensis_open_reader(Execute ptr, addr stream)
  */
 _g int parensis_close_reader(void)
 {
-	fmte("unmatch close parenthiesis ).", NULL);
-	return 0;
+	return fmte_("unmatch close parenthiesis ).", NULL);
 }
 
 
@@ -243,7 +244,7 @@ static int backquote_read_reader(Execute ptr, addr stream, int *result, addr *re
 
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
-	pushreadinfo_recursive(ptr, &info);
+	Return(pushreadinfo_recursive_(ptr, &info));
 	ReadInfoStruct(info)->backquote++;
 	Return(read_call(ptr, stream, result, ret));
 	if (*result == 0)
@@ -261,7 +262,7 @@ _g int backquote_reader(Execute ptr, addr stream, addr *ret)
 
 	Return(backquote_read_reader(ptr, stream, &check, &pos));
 	if (check)
-		fmte("After backquote ` must be an object.", NULL);
+		return fmte_("After backquote ` must be an object.", NULL);
 	quote_back_heap(ret, pos);
 
 	return 0;
@@ -278,7 +279,7 @@ static int comma_read_reader(Execute ptr, addr stream, int *result, addr *ret)
 
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
-	pushreadinfo_recursive(ptr, &info);
+	Return(pushreadinfo_recursive_(ptr, &info));
 	ReadInfoStruct(info)->backquote--;
 	Return(read_call(ptr, stream, result, ret));
 	if (*result == 0)
@@ -403,8 +404,7 @@ _g int sharp_reader(Execute ptr, addr stream, addr code)
 /* (defun error-dispatch (stream code arg) ...) -> * */
 _g int error_dispatch(addr code)
 {
-	fmte("don't allow ~S dispatch character.", code, NULL);
-	return 0;
+	return fmte_("don't allow ~S dispatch character.", code, NULL);
 }
 
 
@@ -457,7 +457,7 @@ _g int equal_dispatch(Execute ptr, addr stream, addr x, addr y, addr *ret)
 	Return(equal_read_dispatch(ptr, stream, &check, &pos));
 	if (check)
 		return fmte_("After dispatch character ~S must be an object.", x, NULL);
-	closelabel_readlabel(ptr, label, pos);
+	Return(closelabel_readlabel_(ptr, label, pos));
 
 	return Result(ret, pos);
 }
@@ -475,7 +475,7 @@ _g int sharp_dispatch(Execute ptr, addr y, addr *ret)
 	Check(! consp(pos), "type error");
 	GetCar(pos, &pos);
 	if (! find_readlabel(y, pos, &pos))
-		fmte("The #n# label ~S is not exist.", y, NULL);
+		return fmte_("The #n# label ~S is not exist.", y, NULL);
 
 	return Result(ret, pos);
 }
@@ -488,7 +488,7 @@ _g int single_quote_dispatch(Execute ptr, addr stream, addr *ret)
 {
 	Return(quote_macro_reader(ptr, CONSTANT_COMMON_FUNCTION, stream, ret));
 	if (stream == Unbound)
-		fmte("After character #' must be a function-designer, but EOF.", NULL);
+		return fmte_("After character #' must be a function-designer, but EOF.", NULL);
 
 	return 0;
 }
@@ -725,7 +725,7 @@ _g int colon_dispatch(Execute ptr, addr stream, addr *ret)
 	/* push */
 	push_new_control(ptr, &control);
 	/* code */
-	pushreadinfo_recursive(ptr, &pos);
+	Return(pushreadinfo_recursive_(ptr, &pos));
 	Return(colon_object_dispatch_(ptr, stream, &pos));
 	/* free */
 	Return(free_control_(ptr, control));
@@ -739,8 +739,7 @@ _g int colon_dispatch(Execute ptr, addr stream, addr *ret)
  */
 _g int less_dispatch(void)
 {
-	fmte("Cannot read #< dispatch character.", NULL);
-	return 0;
+	return fmte_("Cannot read #< dispatch character.", NULL);
 }
 
 
@@ -756,15 +755,15 @@ _g int backslash_dispatch(Execute ptr, addr stream, addr *ret)
 	Return(unread_char_stream_(stream, '\\'));
 	Return(read_recursive(ptr, stream, &check, &pos));
 	if (check)
-		fmte("Cannot read character name.", NULL);
+		return fmte_("Cannot read character name.", NULL);
 	if (read_suppress_p(ptr)) {
 		setresult_control(ptr, Nil);
 		return 0;
 	}
 	if (! symbolp(pos))
-		fmte("Invalid character type ~S.", pos, NULL);
+		return fmte_("Invalid character type ~S.", pos, NULL);
 	if (! find_name_char(&pos, pos))
-		fmte("The character name ~S is not found.", pos, NULL);
+		return fmte_("The character name ~S is not found.", pos, NULL);
 
 	return Result(ret, pos);
 }
@@ -839,7 +838,8 @@ static int feature_eq_dispatch(addr pos, constindex index1, constindex index2)
 	addr check;
 
 	GetConstant(index1, &check);
-	if (check == pos) return 1;
+	if (check == pos)
+		return 1;
 	GetConstant(index2, &check);
 	return check == pos;
 }
@@ -856,53 +856,53 @@ static int feature_or_dispatch(addr pos)
 	return feature_eq_dispatch(pos, CONSTANT_KEYWORD_OR, CONSTANT_COMMON_OR);
 }
 
-static int feature_check_dispatch(addr list, addr pos);
-static int feature_cons_dispatch(addr list, addr cons)
+static int feature_check_dispatch_(addr list, addr pos, int *ret);
+static int feature_cons_dispatch_(addr list, addr cons, int *ret)
 {
+	int check;
 	addr car, cdr;
 
-	getcons(cons, &car, &cdr);
+	Return_getcons(cons, &car, &cdr);
 	/* not */
 	if (feature_not_dispatch(car)) {
 		if (! singlep(cdr))
-			fmte("The feature ~S must be a (not x) form.", cons, NULL);
+			return fmte_("The feature ~S must be a (not x) form.", cons, NULL);
 		GetCar(cdr, &car);
-		return ! feature_check_dispatch(list, car);
+		Return(feature_check_dispatch_(list, car, &check));
+		return Result(ret, ! check);
 	}
 	/* and */
 	if (feature_and_dispatch(car)) {
 		while (cdr != Nil) {
-			getcons(cdr, &car, &cdr);
-			if (! feature_check_dispatch(list, car)) return 0;
+			Return_getcons(cdr, &car, &cdr);
+			Return(feature_check_dispatch_(list, car, &check));
+			if (! check)
+				return Result(ret, 0);
 		}
-		return 1;
+		return Result(ret, 1);
 	}
 	/* or */
 	if (feature_or_dispatch(car)) {
 		while (cdr != Nil) {
-			getcons(cdr, &car, &cdr);
-			if (feature_check_dispatch(list, car)) return 1;
+			Return_getcons(cdr, &car, &cdr);
+			Return(feature_check_dispatch_(list, car, &check));
+			if (check)
+				return Result(ret, 1);
 		}
-		return 0;
+		return Result(ret, 0);
 	}
 	/* error */
-	fmte("Invalid feature operator ~S.", car, NULL);
-	return 0;
+	return fmte_("Invalid feature operator ~S.", car, NULL);
 }
 
-static int feature_check_dispatch(addr list, addr pos)
+static int feature_check_dispatch_(addr list, addr pos, int *ret)
 {
-	if (symbolp(pos)) {
-		return find_list_eq_safe(pos, list);
-	}
-	else if (consp(pos)) {
-		return feature_cons_dispatch(list, pos);
-	}
-	else {
-		fmte("Invalid feature ~S.", pos, NULL);
-	}
-
-	return 0;
+	if (symbolp(pos))
+		return Result(ret, find_list_eq_safe(pos, list));
+	else if (consp(pos))
+		return feature_cons_dispatch_(list, pos, ret);
+	else
+		return fmte_("Invalid feature ~S.", pos, NULL);
 }
 
 static int feature_ignore_dispatch(Execute ptr, addr stream, int *result)
@@ -926,24 +926,25 @@ _g int plus_dispatch(Execute ptr, addr stream)
 	/* read feature, read form */
 	Return(feature_read_dispatch(ptr, stream, &check, &feature));
 	if (check)
-		fmte("After dispatch #+ must be a feature form.", NULL);
+		return fmte_("After dispatch #+ must be a feature form.", NULL);
 
 	/* check *features* */
 	GetConst(SPECIAL_FEATURES, &list);
 	getspecialcheck_local(ptr, list, &list);
 	hold = LocalHold_local_push(ptr, feature);
-	if (feature_check_dispatch(list, feature)) {
+	Return(feature_check_dispatch_(list, feature, &check));
+	if (check) {
 		Return(read_recursive(ptr, stream, &check, &form));
 		localhold_end(hold);
 		if (check)
-			fmte("After dispatch #+feature must be a object.", NULL);
+			return fmte_("After dispatch #+feature must be a object.", NULL);
 		setresult_control(ptr, form);
 	}
 	else {
 		Return(feature_ignore_dispatch(ptr, stream, &check));
 		localhold_end(hold);
 		if (check)
-			fmte("After dispatch #+feature must be a object.", NULL);
+			return fmte_("After dispatch #+feature must be a object.", NULL);
 		setvalues_nil_control(ptr);
 	}
 
@@ -963,24 +964,25 @@ _g int minus_dispatch(Execute ptr, addr stream)
 	/* read feature, read form */
 	Return(feature_read_dispatch(ptr, stream, &check, &feature));
 	if (check)
-		fmte("After dispatch #- must be a feature form.", NULL);
+		return fmte_("After dispatch #- must be a feature form.", NULL);
 
 	/* check *features* */
 	GetConst(SPECIAL_FEATURES, &list);
 	getspecialcheck_local(ptr, list, &list);
 	hold = LocalHold_local_push(ptr, feature);
-	if (! feature_check_dispatch(list, feature)) {
+	Return(feature_check_dispatch_(list, feature, &check));
+	if (! check) {
 		Return(read_recursive(ptr, stream, &check, &form));
 		localhold_end(hold);
 		if (check)
-			fmte("After dispatch #-feature must be a object.", NULL);
+			return fmte_("After dispatch #-feature must be a object.", NULL);
 		setresult_control(ptr, form);
 	}
 	else {
 		Return(feature_ignore_dispatch(ptr, stream, &check));
 		localhold_end(hold);
 		if (check)
-			fmte("After dispatch #-feature must be a object.", NULL);
+			return fmte_("After dispatch #-feature must be a object.", NULL);
 		setvalues_nil_control(ptr);
 	}
 
@@ -1000,10 +1002,10 @@ _g int dot_dispatch(Execute ptr, addr stream, addr *ret)
 	GetConst(SPECIAL_READ_EVAL, &eval);
 	getspecialcheck_local(ptr, eval, &eval);
 	if (eval == Nil)
-		fmte("The dispatch #. don't read when *read-eval* is nil.", NULL);
+		return fmte_("The dispatch #. don't read when *read-eval* is nil.", NULL);
 	Return(read_recursive(ptr, stream, &check, &eval));
 	if (check)
-		fmte("After dispatch #. must be a object.", NULL);
+		return fmte_("After dispatch #. must be a object.", NULL);
 	if (read_suppress_p(ptr))
 		return Result(ret, Nil);
 
@@ -1047,11 +1049,11 @@ static int radix_read_dispatch(Execute ptr, addr stream, fixnum base, addr *ret)
 
 	Return(radix_execute_dispatch(ptr, stream, base, &check, &pos));
 	if (check)
-		fmte("After radix dispatch #<n>r must be an integer.", NULL);
+		return fmte_("After radix dispatch #<n>r must be an integer.", NULL);
 	if (read_suppress_p(ptr))
 		return Result(ret, Nil);
 	if (! rationalp(pos))
-		fmte("The radix value ~S must be an integer.", pos, NULL);
+		return fmte_("The radix value ~S must be an integer.", pos, NULL);
 
 	return Result(ret, pos);
 }
@@ -1063,7 +1065,7 @@ _g int radix_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 	GetFixnum_signed(y, &value);
 	if (! isBaseChar(value)) {
 		if (! read_suppress_p(ptr))
-			fmte("The radix ~S must be a number between 2 and 36.", y, NULL);
+			return fmte_("The radix ~S must be a number between 2 and 36.", y, NULL);
 	}
 
 	return radix_read_dispatch(ptr, stream, value, ret);
@@ -1107,7 +1109,7 @@ _g int complex_dispatch(Execute ptr, addr stream, addr *ret)
 
 	Return(read_recursive(ptr, stream, &check, &form));
 	if (check)
-		fmte("After complex dispatch must be a (real imag) form.", NULL);
+		return fmte_("After complex dispatch must be a (real imag) form.", NULL);
 	if (read_suppress_p(ptr))
 		return Result(ret, Nil);
 	pos = form;
@@ -1127,8 +1129,7 @@ _g int complex_dispatch(Execute ptr, addr stream, addr *ret)
 	return Result(ret, pos);
 
 error:
-	fmte("The complex dispatch ~S must be a (real imag) form.", form, NULL);
-	return Result(ret, Nil);
+	return fmte_("The complex dispatch ~S must be a (real imag) form.", form, NULL);
 }
 
 
@@ -1142,12 +1143,12 @@ _g int array_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 
 	ignore = read_suppress_p(ptr);
 	if (y == Nil && (! ignore))
-		fmte("There is no rank parameter at the #<n>a dispatch.", NULL);
+		return fmte_("There is no rank parameter at the #<n>a dispatch.", NULL);
 	Return(read_recursive(ptr, stream, &check, &form));
 	if (ignore)
 		return Result(ret, Nil);
 	if (check)
-		fmte("After array dispatch must be an initial-contents form.", NULL);
+		return fmte_("After array dispatch must be an initial-contents form.", NULL);
 	array_contents_heap(&form, y, form);
 	array_readlabel(ptr, form);
 
@@ -1165,10 +1166,10 @@ _g int pathname_dispatch(Execute ptr, addr stream, addr *ret)
 
 	Return(read_recursive(ptr, stream, &check, &pos));
 	if (check)
-		fmte("After #P must be a pathname-designer.", NULL);
+		return fmte_("After #P must be a pathname-designer.", NULL);
 	if (read_suppress_p(ptr))
 		return Result(ret, Nil);
-	pathname_designer_heap(ptr, pos, &pos);
+	Return(pathname_designer_heap_(ptr, pos, &pos));
 
 	return Result(ret, pos);
 }
@@ -1198,8 +1199,7 @@ _g int structure_dispatch(Execute ptr, addr stream, addr *ret)
 	return Result(ret, pos);
 
 error:
-	fmte("After #S must be (name key value ...) form.", NULL);
-	return Result(ret, Nil);
+	return fmte_("After #S must be (name key value ...) form.", NULL);
 }
 
 

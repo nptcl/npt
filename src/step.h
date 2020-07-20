@@ -5,7 +5,7 @@
 #include "typedef.h"
 
 /* macro */
-_g void step_common(Execute ptr, addr form, addr env, addr *ret);
+_g int step_common(Execute ptr, addr form, addr env, addr *ret);
 
 /* parse */
 _g void init_parse_step(Execute ptr);

@@ -9,7 +9,7 @@ _g unicode checkchar_digit(unsigned v, int upperp);
 _g unsigned checkvalue_digit(unsigned base, unicode c);
 
 _g void maketoken_integer(LocalRoot local, addr queue, unsigned base, addr *ret);
-_g void maketoken_float(Execute ptr, addr queue, addr *ret);
+_g int maketoken_float_(Execute ptr, addr queue, addr *ret);
 _g void maketoken_ratio(LocalRoot local, addr queue, unsigned base, addr *ret);
 
 #endif

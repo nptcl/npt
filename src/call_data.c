@@ -66,7 +66,7 @@ _g int defun_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* parse */
 	check_function_variable(name);
-	lambda_ordinary(ptr->local, &args, args);
+	Return(lambda_ordinary_(ptr->local, &args, args));
 	localhold_push(hold, args);
 	Return(declare_body_documentation(ptr, env, right, &doc, &decl, &right));
 
@@ -417,7 +417,7 @@ _g int destructuring_bind_common(Execute ptr, addr form, addr env, addr *ret)
 				"must be a list type.", lambda, NULL);
 	}
 
-	lambda_macro(ptr->local, &lambda, lambda, Nil);
+	Return(lambda_macro_(ptr->local, &lambda, lambda, Nil));
 	Return(check_destructuring_bind(lambda));
 	hold = LocalHold_local_push(ptr, lambda);
 	Return(declare_body(ptr, env, args, &decl, &args));
@@ -1774,7 +1774,7 @@ error:
 	return 0;
 }
 
-static void define_modify_macro_expand(LocalRoot local, addr *ret,
+static int define_modify_macro_expand_(LocalRoot local, addr *ret,
 		addr name, addr args, addr call, addr doc)
 {
 	addr place, env, whole, key;
@@ -1835,7 +1835,7 @@ static void define_modify_macro_expand(LocalRoot local, addr *ret,
 	make_symbolchar(&g, "G");
 	make_symbolchar(&w, "W");
 	make_symbolchar(&r, "R");
-	allsymbol_macro_lambda_heap(local, &list1, args);
+	Return(allsymbol_macro_lambda_heap_(local, &list1, args));
 	cons_heap(&ignorable, ignorable, list1);
 	list_heap(&declare, declare, ignorable, NULL);
 	list_heap(&values, quote, values, NULL);
@@ -1853,6 +1853,8 @@ static void define_modify_macro_expand(LocalRoot local, addr *ret,
 	list_heap(&list3, a, b, g, w, r, NULL);
 	list_heap(&mvbind, mvbind, list3, expansion, list1, NULL);
 	list_heap(ret, defmacro, name, args, declare, mvbind, NULL);
+
+	return 0;
 }
 
 _g int define_modify_macro_common(LocalRoot local, addr form, addr env, addr *ret)
@@ -1878,8 +1880,7 @@ _g int define_modify_macro_common(LocalRoot local, addr form, addr env, addr *re
 				"must be a string type.", doc, NULL);
 	}
 expand:
-	define_modify_macro_expand(local, ret, name, lambda, call, doc);
-	return 0;
+	return define_modify_macro_expand_(local, ret, name, lambda, call, doc);
 
 error:
 	*ret = Nil;

@@ -1151,7 +1151,7 @@ static int test_typep_pathname(void)
 {
 	addr v;
 
-	parse_pathname_char_heap(Execute_Thread, "/usr/local/", &v);
+	parse_pathname_char_heap_(Execute_Thread, "/usr/local/", &v);
 	test(typep_char(v, "pathname"), "typep_pathname1");
 	SetLogicalPathname(v, 1);
 	test(typep_char(v, "pathname"), "typep_pathname2");
@@ -1167,7 +1167,7 @@ static int test_typep_logical_pathname(void)
 {
 	addr v;
 
-	parse_pathname_char_heap(Execute_Thread, "/usr/local/", &v);
+	parse_pathname_char_heap_(Execute_Thread, "/usr/local/", &v);
 	test(! typep_char(v, "logical-pathname"), "typep_logical_pathname1");
 	SetLogicalPathname(v, 1);
 	test(typep_char(v, "logical-pathname"), "typep_logical_pathname2");

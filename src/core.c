@@ -155,7 +155,7 @@ _g int savecore_execute_(Execute ptr, addr file)
 		return fmte_("Thread Index must be 0.", NULL);
 	if (count_execute() != 1)
 		return fmte_("Any child thread must be destroyed.", NULL);
-	pathname_designer_heap(ptr, file, &file);
+	Return(pathname_designer_heap_(ptr, file, &file));
 	Return(name_pathname_heap_(ptr, file, &file));
 	GetConst(SYSTEM_SAVECORE_VALUE, &symbol);
 	setspecial_symbol(symbol);

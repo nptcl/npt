@@ -38,16 +38,16 @@ struct directory_struct {
 	addr pos, list, front, root;
 };
 
-static void init_directory_struct(Execute ptr, struct directory_struct *str, addr pos)
+static int init_directory_struct_(Execute ptr, struct directory_struct *str, addr pos)
 {
 	clearpoint(str);
 	str->ptr = ptr;
 	str->local = ptr->local;
-	pathname_designer_heap(ptr, pos, &str->pos);
 	str->list = str->root = str->front = Nil;
+	return pathname_designer_heap_(ptr, pos, &str->pos);
 }
 
-static void make_list_directory_pathname(struct directory_struct *str,
+static int make_list_directory_pathname_(struct directory_struct *str,
 		addr *ret, addr list)
 {
 	LocalRoot local;
@@ -68,12 +68,12 @@ static void make_list_directory_pathname(struct directory_struct *str,
 	GetConst(KEYWORD_UNSPECIFIC, &version);
 	SetVersionPathname(one, version);
 	/* result */
-	physical_pathname_local(str->ptr, one, ret);
+	return physical_pathname_local_(str->ptr, one, ret);
 }
 
-static void make_directory_pathname(struct directory_struct *str, addr *ret)
+static int make_directory_pathname_(struct directory_struct *str, addr *ret)
 {
-	make_list_directory_pathname(str, ret, str->list);
+	return make_list_directory_pathname_(str, ret, str->list);
 }
 
 static void find_pathname_files(LocalRoot local, addr pos, addr *ret)
@@ -103,7 +103,7 @@ static int opendir_files(LocalRoot local,
 	HANDLE hFind;
 
 	push_local(local, &stack);
-	directory_name_pathname_local(local, pos, &pos);
+	Return(directory_name_pathname_local_(local, pos, &pos));
 	find_pathname_files(local, pos, &pos);
 	if (UTF16_buffer_clang(local, &name, pos)) {
 		*ret = NULL;
@@ -157,7 +157,7 @@ static int files_path_directory_files(struct directory_struct *str,
 		local = str->local;
 		copy_list_local_unsafe(local, &list, str->list);
 		cons_local(local, &list, name, list);
-		make_list_directory_pathname(str, &path, list);
+		Return(make_list_directory_pathname_(str, &path, list));
 		SetNamePathname(path, Nil);
 		SetTypePathname(path, Nil);
 	}
@@ -172,12 +172,12 @@ static int files_name_directory_files(struct directory_struct *str,
 	addr path;
 
 	ptr = str->ptr;
-	pathname_designer_local(ptr, name, &path);
+	Return(pathname_designer_local_(ptr, name, &path));
 	merge_directory_files(str->local, path, base);
 	if (wildcard_pathname(path, str->pos, 1)) {
 		/* push heap */
 		Return(files_path_directory_files(str, path, name, base, &path));
-		pathname_designer_heap(ptr, path, &path);
+		Return(pathname_designer_heap_(ptr, path, &path));
 		cons_heap(&str->root, path, str->root);
 	}
 
@@ -228,7 +228,7 @@ static int file_directory_files(struct directory_struct *str)
 	LocalStack stack;
 
 	push_local(str->local, &stack);
-	make_directory_pathname(str, &base);
+	Return(make_directory_pathname_(str, &base));
 	Return(files_directory_files(str, base));
 	rollback_local(str->local, stack);
 
@@ -247,8 +247,8 @@ static int wild_check_directory_files(struct directory_struct *str, addr name, i
 	push_local(local, &stack);
 	copy_list_local_unsafe(local, &pos, str->list);
 	cons_local(local, &pos, name, pos);
-	make_list_directory_pathname(str, &pos, pos);
-	directory_name_pathname_local(local, pos, &pos);
+	Return(make_list_directory_pathname_(str, &pos, pos));
+	Return(directory_name_pathname_local_(local, pos, &pos));
 	if (UTF16_buffer_clang(local, &value, pos))
 		return fmte_("Cannot convert ~S to UTF-16 string.", pos, NULL);
 	ptr = (const WCHAR *)posbodyr(value);
@@ -319,7 +319,7 @@ static int wild_directory_files(struct directory_struct *str)
 	LocalStack stack;
 
 	push_local(str->local, &stack);
-	make_directory_pathname(str, &base);
+	Return(make_directory_pathname_(str, &base));
 	Return(wild_file_directory_files(str, base));
 	rollback_local(str->local, stack);
 
@@ -332,7 +332,7 @@ static int inferiors_file_directory_files(struct directory_struct *str, addr nam
 	LocalStack stack;
 
 	push_local(str->local, &stack);
-	make_directory_pathname(str, &base);
+	Return(make_directory_pathname_(str, &base));
 	Return(files_name_directory_files(str, base, name));
 	rollback_local(str->local, stack);
 
@@ -402,7 +402,7 @@ static int inferiors_directory_files(struct directory_struct *str)
 	LocalStack stack;
 
 	push_local(str->local, &stack);
-	make_directory_pathname(str, &base);
+	Return(make_directory_pathname_(str, &base));
 	Return(inferiors_find_directory_files(str, base));
 	rollback_local(str->local, stack);
 
@@ -437,7 +437,7 @@ _g int directory_files_(Execute ptr, addr *ret, addr pos)
 {
 	struct directory_struct str;
 
-	init_directory_struct(ptr, &str, pos);
+	Return(init_directory_struct_(ptr, &str, pos));
 	GetDirectoryPathname(str.pos, &str.front);
 	Return(loop_directory_files(&str));
 	return Result(ret, str.root);
@@ -458,10 +458,12 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	const WCHAR *str;
 
 	/* filename */
-	if (stringp(pos))
-		physical_pathname_local(ptr, pos, &pos);
-	else
-		physical_pathname_heap(ptr, pos, &pos);
+	if (stringp(pos)) {
+		Return(physical_pathname_local_(ptr, pos, &pos));
+	}
+	else {
+		Return(physical_pathname_heap_(ptr, pos, &pos));
+	}
 	/* wildcard */
 	if (wild_pathname_boolean(pos, Nil)) {
 		GetConst(COMMON_PATHNAME, &value);
@@ -546,7 +548,7 @@ static int ensure_directories_exist_run_files(Execute ptr,
 		reverse_list_local_unsafe(local, &temp, root);
 		merge_directory_pathname(local, &temp, pos, temp);
 		/* directory check */
-		directory_name_pathname_local(local, temp, &temp);
+		Return(directory_name_pathname_local_(local, temp, &temp));
 		if (UTF16_buffer_clang(local, &value, temp))
 			return fmte_("Cannot decode UTF-16 string ~S.", value, NULL);
 		str = (const WCHAR *)posbodyr(value);
@@ -580,7 +582,7 @@ _g int ensure_directories_exist_files_(Execute ptr,
 	LocalStack stack;
 
 	/* filename */
-	physical_pathname_heap(ptr, pos, &pos);
+	Return(physical_pathname_heap_(ptr, pos, &pos));
 	/* wildcard */
 	if (ensure_directires_exist_wild_files(pos)) {
 		GetConst(COMMON_PATHNAME, &value);
@@ -613,10 +615,12 @@ _g int file_author_files_(Execute ptr, addr *ret, addr pos)
 	PSECURITY_DESCRIPTOR psd;
 
 	/* filename */
-	if (stringp(pos))
-		physical_pathname_local(ptr, pos, &pos);
-	else
-		physical_pathname_heap(ptr, pos, &pos);
+	if (stringp(pos)) {
+		Return(physical_pathname_local_(ptr, pos, &pos));
+	}
+	else {
+		Return(physical_pathname_heap_(ptr, pos, &pos));
+	}
 
 	/* wildcard */
 	if (wild_pathname_boolean(pos, Nil)) {
@@ -706,10 +710,12 @@ static int file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 	WIN32_FIND_DATAW data;
 
 	/* filename */
-	if (stringp(pos))
-		physical_pathname_local(ptr, pos, &pos);
-	else
-		physical_pathname_heap(ptr, pos, &pos);
+	if (stringp(pos)) {
+		Return(physical_pathname_local_(ptr, pos, &pos));
+	}
+	else {
+		Return(physical_pathname_heap_(ptr, pos, &pos));
+	}
 
 	/* wildcard */
 	if (wild_pathname_boolean(pos, Nil)) {
@@ -762,9 +768,9 @@ static int rename_file_run_files(Execute ptr,
 	addr file, from, value, true1, true2;
 	const WCHAR *str1, *str2;
 
-	pathname_designer_heap(ptr, pos, &file);
-	physical_pathname_heap(ptr, file, &from);
-	physical_pathname_heap(ptr, to, &to);
+	Return(pathname_designer_heap_(ptr, pos, &file));
+	Return(physical_pathname_heap_(ptr, file, &from));
+	Return(physical_pathname_heap_(ptr, to, &to));
 	Return(truename_files_(ptr, from, &true1, 0));
 	if (wild_pathname_boolean(from, Nil))
 		return fmte_("Cannot rename wildcard pathname from ~S", from, NULL);
@@ -865,7 +871,7 @@ static int delete_file_run_files(Execute ptr, addr pos, int errorp, int *ret)
 	addr file, value;
 	const WCHAR *str;
 
-	physical_pathname_heap(ptr, pos, &file);
+	Return(physical_pathname_heap_(ptr, pos, &file));
 	if (wild_pathname_boolean(file, Nil))
 		return fmte_("Cannot delete wildcard pathname ~S", pos, NULL);
 	if (! pathname_file_p(file)) {
@@ -929,7 +935,7 @@ _g int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
 	addr file, value;
 	const WCHAR *str;
 
-	physical_pathname_heap(ptr, pos, &file);
+	Return(physical_pathname_heap_(ptr, pos, &file));
 	if (wild_pathname_boolean(file, Nil))
 		return fmte_("Cannot delete wildcard pathname ~S", pos, NULL);
 	if (! pathname_directory_p(file)) {
@@ -974,7 +980,7 @@ _g int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
 	DWORD check;
 
 	/* wild-check */
-	physical_pathname_heap(ptr, file, &pos);
+	Return(physical_pathname_heap_(ptr, file, &pos));
 	if (wild_pathname_boolean(pos, Nil)) {
 		if (! errorp)
 			goto error_nil;
@@ -1014,7 +1020,7 @@ _g int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
 
 	/* make-pathname */
 	Return(string16_size_heap_(&pos, dst, (size_t)check));
-	pathname_designer_heap(ptr, pos, ret);
+	Return(pathname_designer_heap_(ptr, pos, ret));
 	rollback_local(local, stack);
 	return 0;
 

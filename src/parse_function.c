@@ -384,7 +384,7 @@ static int parse_ordinary_cons(Execute ptr, addr *ret, addr args)
 
 _g int parse_ordinary(Execute ptr, addr *ret, addr args)
 {
-	lambda_ordinary(ptr->local, &args, args);
+	Return(lambda_ordinary_(ptr->local, &args, args));
 	return parse_ordinary_cons(ptr, ret, args);
 }
 
@@ -547,7 +547,7 @@ static int parse_macro_lambda(Execute ptr, addr *ret, addr cons)
 		fmte("MACRO-LAMBDA argument ~S must be (lambda-list . form).", cons, NULL);
 	hold = LocalHold_local(ptr);
 	GetCons(cons, &args, &cons);
-	lambda_macro(ptr->local, &args, args, Nil);
+	Return(lambda_macro_(ptr->local, &args, args, Nil));
 	localhold_push(hold, args);
 	Return(parse_macro_lambda_list(ptr, &args, args));
 	localhold_push(hold, args);
@@ -801,7 +801,7 @@ static int parse_macrolet_one(Execute ptr, addr cons)
 	GetCons(cons, &args, &cons);
 	/* make macro-function */
 	hold = LocalHold_local(ptr);
-	lambda_macro(ptr->local, &args, args, Nil);
+	Return(lambda_macro_(ptr->local, &args, args, Nil));
 	Return(parse_macro_lambda_list(ptr, &args, args));
 	localhold_push(hold, args);
 	Return(parse_declare_body_documentation(ptr, cons, &doc, &decl, &cons));

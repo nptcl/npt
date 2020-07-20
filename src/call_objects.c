@@ -1120,7 +1120,7 @@ _g int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
 		return fmte_("Invalid function name ~S.", name, NULL);
 	if (defmethod_parse_qualifiers(args, &qua, &lambda, &args))
 		goto error;
-	argument_method_heap(ptr->local, &list, lambda);
+	Return(argument_method_heap_(ptr->local, &list, lambda));
 	Return(defmethod_parse_specializers(list, &spec));
 	Return(defmethod_parse_function_(ptr, env, args, list, &args));
 
@@ -1339,7 +1339,7 @@ static int defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 	quotelist_heap(&pos, name);
 	pushva_heap(&list, pos, NULL);
 	/* lambda-list */
-	argument_ordinary_heap(local, &pos, lambda);
+	Return(argument_ordinary_heap_(local, &pos, lambda));
 	quotelist_heap(&pos, pos);
 	pushva_heap(&list, pos, NULL);
 	/* specifiers */
@@ -1347,7 +1347,7 @@ static int defcomb_long(LocalRoot local, addr form, addr env, addr *ret,
 	pushva_heap(&list, pos, NULL);
 	/* arguments */
 	if (args != Nil) {
-		argument_combination_heap(local, &args, args);
+		Return(argument_combination_heap_(local, &args, args));
 		PushConst(&list, KEYWORD_ARGUMENTS);
 		quotelist_heap(&pos, args);
 		pushva_heap(&list, pos, NULL);

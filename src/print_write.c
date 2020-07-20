@@ -1817,10 +1817,12 @@ static int WriteCall_ratio_(Execute ptr, addr stream, addr object)
 static int WriteCall_single_float_(Execute ptr, addr stream, addr object)
 {
 	int markerp, marker, check;
+	enum ReadTable_float type;
 	single_float value;
 
 	GetSingleFloat(object, &value);
-	markerp = float_readtable(ptr) != ReadTable_single;
+	Return(float_readtable_(ptr, &type));
+	markerp = (type != ReadTable_single);
 	marker = markerp? 'F': 'E';
 	Return(fmtfloat_princ_single_float_(stream, value, markerp, marker, &check));
 	if (check)
@@ -1832,10 +1834,12 @@ static int WriteCall_single_float_(Execute ptr, addr stream, addr object)
 static int WriteCall_double_float_(Execute ptr, addr stream, addr object)
 {
 	int markerp, marker, check;
+	enum ReadTable_float type;
 	double_float value;
 
 	GetDoubleFloat(object, &value);
-	markerp = float_readtable(ptr) != ReadTable_double;
+	Return(float_readtable_(ptr, &type));
+	markerp = (type != ReadTable_double);
 	marker = markerp? 'D': 'E';
 	Return(fmtfloat_princ_double_float_(stream, value, markerp, marker, &check));
 	if (check)
@@ -1847,10 +1851,12 @@ static int WriteCall_double_float_(Execute ptr, addr stream, addr object)
 static int WriteCall_long_float_(Execute ptr, addr stream, addr object)
 {
 	int markerp, marker, check;
+	enum ReadTable_float type;
 	long_float value;
 
 	GetLongFloat(object, &value);
-	markerp = float_readtable(ptr) != ReadTable_long;
+	Return(float_readtable_(ptr, &type));
+	markerp = (type != ReadTable_long);
 	marker = markerp? 'L': 'E';
 	Return(fmtfloat_princ_long_float_(stream, value, markerp, marker, &check));
 	if (check)

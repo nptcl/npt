@@ -354,12 +354,12 @@ static int ed_file_common(Execute ptr, addr var)
 		return ed_execute_common(ptr, Nil);
 
 	/* argument */
-	pathname_designer_heap(ptr, var, &var);
+	Return(pathname_designer_heap_(ptr, var, &var));
 	if (wild_pathname_boolean(var, Nil)) {
 		return call_simple_file_error_va_(ptr, var,
 				"~ED can't use wild card pathname ~S.", var, NULL);
 	}
-	physical_pathname_local(ptr, var, &var);
+	Return(physical_pathname_local_(ptr, var, &var));
 	Return(namestring_pathname_(ptr, &var, var));
 	return ed_execute_common(ptr, var);
 }
@@ -448,7 +448,7 @@ static int dribble_message_begin(Execute ptr, addr file)
 	const char *str;
 	addr name, stream;
 
-	pathname_designer_heap(ptr, file, &name);
+	Return(pathname_designer_heap_(ptr, file, &name));
 	standard_output_stream(ptr, &stream);
 	str = "~&;; DRIBBLE begin to write ~S.~%";
 	return format_stream(ptr, stream, str, name, NULL);
@@ -459,7 +459,7 @@ static int dribble_message_end(Execute ptr, addr file)
 	const char *str;
 	addr name, stream;
 
-	pathname_designer_heap(ptr, file, &name);
+	Return(pathname_designer_heap_(ptr, file, &name));
 	standard_output_stream(ptr, &stream);
 	str = "~&;; DRIBBLE end to write ~S.~%";
 	return format_stream(ptr, stream, str, name, NULL);
@@ -513,7 +513,7 @@ static int dribble_set_stream_(addr file)
 
 static int dribble_open_file(Execute ptr, addr file)
 {
-	physical_pathname_heap(ptr, file, &file);
+	Return(physical_pathname_heap_(ptr, file, &file));
 	if (wild_pathname_boolean(file, Nil)) {
 		return call_simple_file_error_va_(ptr, file,
 				"~DRIBBLE can't use wild card pathname ~S.", file, NULL);
@@ -535,7 +535,7 @@ static int dribble_open(Execute ptr, addr file)
 	GetConst(SYSTEM_DRIBBLE_FILE, &check);
 	GetValueSymbol(check, &check);
 	if (check != Unbound) {
-		pathname_designer_heap(ptr, check, &check);
+		Return(pathname_designer_heap_(ptr, check, &check));
 		return fmtw_("DRIBBLE already open file ~S.", check, NULL);
 	}
 	else {

@@ -178,20 +178,21 @@ static int clos_ensure_reader_check_(Execute ptr, addr gen)
 	if (gen == Unbound)
 		return 0;
 	if (functionp(gen))
-		fmte("The function ~S must be a generic-function.", gen, NULL);
+		return fmte_("The function ~S must be a generic-function.", gen, NULL);
 
 	/* qualifiers */
 	stdget_generic_method_combination(gen, &pos);
 	Return(qualifiers_position_nil_(ptr, Nil, pos, &index, &check));
 	if (check)
-		fmte("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
+		return fmte_("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
 
 	/* specializer */
 	stdget_generic_lambda_list(gen, &pos);
-	if (! argumentp(pos))
-		argument_generic_heap(ptr->local, &pos, pos);
+	if (! argumentp(pos)) {
+		Return(argument_generic_heap_(ptr->local, &pos, pos));
+	}
 	if (ArgumentStruct(pos)->var != 1)
-		fmte("The generic-function ~S must be a 1 specializer.", gen, NULL);
+		return fmte_("The generic-function ~S must be a 1 specializer.", gen, NULL);
 	
 	return 0;
 }
@@ -206,20 +207,21 @@ static int clos_ensure_writer_method_check_(Execute ptr, addr gen)
 	if (gen == Unbound)
 		return 0;
 	if (functionp(gen))
-		fmte("The function ~S must be a generic-function.", gen, NULL);
+		return fmte_("The function ~S must be a generic-function.", gen, NULL);
 
 	/* qualifiers */
 	stdget_generic_method_combination(gen, &pos);
 	Return(qualifiers_position_nil_(ptr, Nil, pos, &index, &check));
 	if (check)
-		fmte("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
+		return fmte_("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
 
 	/* specializer */
 	stdget_generic_lambda_list(gen, &pos);
-	if (! argumentp(pos))
-		argument_generic_heap(ptr->local, &pos, pos);
+	if (! argumentp(pos)) {
+		Return(argument_generic_heap_(ptr->local, &pos, pos));
+	}
 	if (ArgumentStruct(pos)->var != 2)
-		fmte("The generic-function ~S must be a 2 specializers.", gen, NULL);
+		return fmte_("The generic-function ~S must be a 2 specializers.", gen, NULL);
 	
 	return 0;
 }

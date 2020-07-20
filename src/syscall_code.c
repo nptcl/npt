@@ -111,7 +111,7 @@ _g void gc_syscode(addr rest)
 /* savecore */
 _g int savecore_syscode(Execute ptr, addr file)
 {
-	pathname_designer_local(ptr, file, &file);
+	Return(pathname_designer_local_(ptr, file, &file));
 	return savecore_execute_(ptr, file);
 }
 
@@ -522,7 +522,7 @@ _g int defsetf_long_syscode(Execute ptr, addr rest,
 	LocalHold hold;
 
 	list_bind(rest, &access, &lambda, &store, &body, &args, &env, NULL);
-	lambda_defsetf(ptr->local, &lambda, lambda);
+	Return(lambda_defsetf_(ptr->local, &lambda, lambda));
 	Return(defsetf_bind_(ptr, args, lambda, store, &a, &b, &c, &d, &g));
 	/* (values 'a 'b 'g
 	 *   `(let ((c1 'd1)

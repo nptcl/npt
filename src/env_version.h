@@ -14,7 +14,7 @@ _g int machine_type_common(addr *ret);
 _g int machine_version_common(addr *ret);
 _g int software_type_common(addr *ret);
 _g int software_version_common(addr *ret);
-_g void user_homedir_pathname_common(Execute ptr, addr *ret);
+_g int user_homedir_pathname_common(Execute ptr, addr *ret);
 
 #endif
 

@@ -332,7 +332,7 @@ error:
 /*
  *  maketoken
  */
-_g unsigned getreadbase(Execute ptr)
+_g int getreadbase_(Execute ptr, unsigned *ret)
 {
 	addr one;
 	fixnum value;
@@ -342,14 +342,15 @@ _g unsigned getreadbase(Execute ptr)
 	Check(GetType(one) != LISPTYPE_FIXNUM, "type error");
 	GetFixnum(one, &value);
 	if (! isBaseChar(value)) {
+		*ret = 0;
 		fixnum_heap(&one, (fixnum)value);
-		fmte("base ~a must be a number between 2 and 36.", one, NULL);
+		return fmte_("base ~a must be a number between 2 and 36.", one, NULL);
 	}
 
-	return (unsigned)value;
+	return Result(ret, (unsigned)value);
 }
 
-static void maketoken_intern(Execute ptr,
+static int maketoken_intern_(Execute ptr,
 		addr package, addr name, int unexport, addr *ret)
 {
 	addr check;
@@ -358,39 +359,38 @@ static void maketoken_intern(Execute ptr,
 	if (package == T) {
 		GetConst(PACKAGE_KEYWORD, &package);
 		intern_package(package, name, ret);
-		return;
+		return 0;
 	}
 
 	/* package::name */
 	if (unexport) {
 		intern_package(package, name, ret);
-		return;
+		return 0;
 	}
 
 	/* package:name, unexport */
-	if (exportp_name_package(package, name, &check)) {
-		*ret = check;
-		return;
-	}
+	if (exportp_name_package(package, name, &check))
+		return Result(ret, check);
 
 	/* package:name, export, OK */
 	if (check != Unbound) {
-		fmte("The symbol ~S is not exported in ~S.", name, package, NULL);
-		return;
+		*ret = Nil;
+		return fmte_("The symbol ~S is not exported in ~S.", name, package, NULL);
 	}
 
 	/* package:name, unbound */
 	getpackage(ptr, &check);
 	if (package == check) {
 		intern_package(package, name, ret);
-		return;
+		return 0;
 	}
 
 	/* package:name, error */
-	fmte("Cannot intern the symbol ~S in ~S.", name, package, NULL);
+	*ret = Nil;
+	return fmte_("Cannot intern the symbol ~S in ~S.", name, package, NULL);
 }
 
-static void maketoken_package(Execute ptr, addr *ret, addr queue, addr package)
+static int maketoken_package_(Execute ptr, addr *ret, addr queue, addr package)
 {
 	enum TokenType token;
 	struct readinfo_struct *str;
@@ -402,24 +402,23 @@ static void maketoken_package(Execute ptr, addr *ret, addr queue, addr package)
 		/* escapemonde, make force symbol */
 		make_charqueue_heap(queue, &name);
 		/* intern package - name */
-		maketoken_intern(ptr, package, name, str->unexport, ret);
-		return;
+		return maketoken_intern_(ptr, package, name, str->unexport, ret);
 	}
 
-	base = getreadbase(ptr);
+	Return(getreadbase_(ptr, &base));
 	token = tokentype(base, queue);
 	if (token == TokenType_symbol || token == TokenType_potential) {
 		make_charqueue_heap(queue, &name);
 		/* intern package - symbol */
-		maketoken_intern(ptr, package, name, str->unexport, ret);
+		return maketoken_intern_(ptr, package, name, str->unexport, ret);
 	}
 	else {
-		fmte("Token-type error", NULL);
-		return;
+		*ret = Nil;
+		return fmte_("Token-type error", NULL);
 	}
 }
 
-static void maketoken_normal(Execute ptr, addr *ret)
+static int maketoken_normal_(Execute ptr, addr *ret)
 {
 	unsigned base;
 	addr package, queue, name;
@@ -427,10 +426,8 @@ static void maketoken_normal(Execute ptr, addr *ret)
 	/* table have package */
 	getpackage_readinfo(ptr, &package);
 	getqueue_readinfo(ptr, &queue);
-	if (package != Nil) {
-		maketoken_package(ptr, ret, queue, package);
-		return;
-	}
+	if (package != Nil)
+		return maketoken_package_(ptr, ret, queue, package);
 
 	/* no package */
 	if (getescape_readinfo(ptr)) {
@@ -438,10 +435,10 @@ static void maketoken_normal(Execute ptr, addr *ret)
 		make_charqueue_heap(queue, &name);
 		/* intern name */
 		intern_default_package(ptr, name, ret);
-		return;
+		return 0;
 	}
 
-	base = getreadbase(ptr);
+	Return(getreadbase_(ptr, &base));
 	switch (tokentype(base, queue)) {
 		case TokenType_symbol:
 		case TokenType_potential:
@@ -455,27 +452,30 @@ static void maketoken_normal(Execute ptr, addr *ret)
 			break;
 
 		case TokenType_float:
-			maketoken_float(ptr, queue, ret);
-			break;
+			return maketoken_float_(ptr, queue, ret);
 
 		case TokenType_ratio:
 			maketoken_ratio(ptr->local, queue, base, ret);
 			break;
 
 		case TokenType_dot:
-			if (getdot_readinfo(ptr) == 0)
-				fmte("dot no allowed here.", NULL);
+			if (getdot_readinfo(ptr) == 0) {
+				*ret = Nil;
+				return fmte_("dot no allowed here.", NULL);
+			}
 			GetConst(SYSTEM_READTABLE_DOT, ret);
 			break;
 
 		case TokenType_error:
 		default:
-			fmte("token error", NULL);
-			return;
+			*ret = Nil;
+			return fmte_("token error", NULL);
 	}
+
+	return 0;
 }
 
-static void maketoken_gensym(Execute ptr, addr *ret)
+static int maketoken_gensym_(Execute ptr, addr *ret)
 {
 	unsigned base;
 	addr queue, symbol, name;
@@ -487,23 +487,21 @@ static void maketoken_gensym(Execute ptr, addr *ret)
 		make_charqueue_heap(queue, &name);
 		symbol_heap(&symbol);
 		SetNameSymbol(symbol, name);
-		*ret = symbol;
-		return;
+		return Result(ret, symbol);
 	}
 
-	base = getreadbase(ptr);
+	Return(getreadbase_(ptr, &base));
 	switch (tokentype(base, queue)) {
 		case TokenType_symbol:
 		case TokenType_potential:
 			make_charqueue_heap(queue, &name);
 			symbol_heap(&symbol);
 			SetNameSymbol(symbol, name);
-			*ret = symbol;
-			break;
+			return Result(ret, symbol);
 
 		default:
-			Abort("token error");
-			break;
+			*ret = Nil;
+			return fmte_("token error", NULL);
 	}
 }
 
@@ -517,18 +515,16 @@ _g int read_suppress_p(Execute ptr)
 	return pos != Nil;
 }
 
-_g void maketoken(Execute ptr, addr *ret)
+_g int maketoken_(Execute ptr, addr *ret)
 {
 	/* *read-suppress */
-	if (read_suppress_p(ptr)) {
-		*ret = Nil;
-		return;
-	}
+	if (read_suppress_p(ptr))
+		return Result(ret, Nil);
 
 	/* make token */
 	if (getstate_readinfo(ptr) != ReadInfo_State_Gensym)
-		maketoken_normal(ptr, ret);
+		return maketoken_normal_(ptr, ret);
 	else
-		maketoken_gensym(ptr, ret);
+		return maketoken_gensym_(ptr, ret);
 }
 

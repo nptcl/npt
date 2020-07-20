@@ -368,7 +368,7 @@ final:
 	return makefloat(ptr, sign, fract, (int)v, type, ret);
 }
 
-_g void maketoken_float(Execute ptr, addr queue, addr *ret)
+_g int maketoken_float_(Execute ptr, addr queue, addr *ret)
 {
 	const unicode *body;
 	size_t size;
@@ -376,7 +376,9 @@ _g void maketoken_float(Execute ptr, addr queue, addr *ret)
 	make_charqueue_heap(queue, &queue);
 	strvect_posbodylen(queue, &body, &size);
 	if (floattable(ptr, body, size, ret))
-		fmte("parse-float error", NULL);
+		return fmte_("parse-float error", NULL);
+	
+	return 0;
 }
 
 

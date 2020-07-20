@@ -87,7 +87,7 @@ static int test_method_instance_call(void)
 
 static void argument_method_char(addr *ret, const char *str)
 {
-	argument_method_heap(Local_Thread, ret, readr(str));
+	Error(argument_method_heap_(Local_Thread, ret, readr(str)));
 }
 
 static int test_method_specializer_list(void)
@@ -125,7 +125,7 @@ static int test_method_instance_lambda(void)
 
 	local = Local_Thread;
 	lambda = readr("(a (b integer))");
-	argument_method_heap(local, &lambda, lambda);
+	argument_method_heap_(local, &lambda, lambda);
 	method_instance_lambda(local, &lambda, Nil, lambda);
 
 	stdget_method_lambda_list(lambda, &check);
@@ -188,7 +188,7 @@ static int test_null_set_diffkey(addr x, addr y)
 
 static void argument_generic_char(addr *ret, const char *str)
 {
-	argument_generic_heap(Local_Thread, ret, readr(str));
+	Error(argument_generic_heap_(Local_Thread, ret, readr(str)));
 }
 
 static int test_method_null_set_difference(void)
@@ -341,7 +341,7 @@ static int test_method_eqlcheck(void)
 
 	local = Local_Thread;
 	method = readr("((a (eql hello)) b (c integer))");
-	argument_method_heap(local, &method, method);
+	argument_method_heap_(local, &method, method);
 	method_instance_lambda(local, &method, Nil, method);
 	method_eqlcheck(method, &method);
 

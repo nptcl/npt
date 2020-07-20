@@ -413,7 +413,7 @@ static int lisp_argv_load_(Execute ptr, lispstringu name, int error, int *ret)
 
 	if (lispstringu_heap(&file, name))
 		fmte("Invalid filename.", NULL);
-	pathname_designer_heap(ptr, file, &file);
+	Return(pathname_designer_heap_(ptr, file, &file));
 	return eval_main_load_(ptr, file, error, ret);
 }
 
@@ -424,7 +424,7 @@ static int lisp_argv_script_(Execute ptr, lispstringu name)
 	/* open */
 	if (lispstringu_heap(&file, name))
 		fmte("Invalid filename.", NULL);
-	pathname_designer_heap(ptr, file, &file);
+	Return(pathname_designer_heap_(ptr, file, &file));
 	Return(open_input_utf8_stream_(ptr, &stream, file));
 	if (stream == NULL)
 		fmte("Cannot open file ~S.", file, NULL);

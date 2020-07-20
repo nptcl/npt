@@ -140,7 +140,7 @@ _g int define_compiler_macro_common(Execute ptr, addr form, addr env, addr *ret)
 		return fmte_("Invalid define-compiler-macro form.", NULL);
 
 	/* parse */
-	lambda_macro(ptr->local, &args, args, Nil);
+	Return(lambda_macro_(ptr->local, &args, args, Nil));
 	Return(declare_body_documentation(ptr, env, right, &doc, &decl, &right));
 
 	/* (eval::define-compiler-macro name args decl doc body) */
@@ -302,7 +302,7 @@ _g int defmacro_common(Execute ptr, addr form, addr env, addr *ret)
 
 	/* parse */
 	check_function_variable(name);
-	lambda_macro(ptr->local, &args, args, Nil);
+	Return(lambda_macro_(ptr->local, &args, args, Nil));
 	Return(declare_body_documentation(ptr, env, form, &doc, &decl, &form));
 
 	/* (eval::defmacro name args decl doc body) */

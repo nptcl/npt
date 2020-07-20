@@ -9,7 +9,7 @@ struct let_struct {
 };
 
 _g void scope_init_let(struct let_struct *str);
-_g void check_scope_variable(addr symbol);
+_g int check_scope_variable_(addr symbol);
 _g int type_and_array(LocalRoot local, addr cons, addr *ret);
 _g void push_tablevalue_global(Execute ptr, addr stack, addr symbol, addr *ret);
 _g int checktype_p(addr left, addr right, int *check);

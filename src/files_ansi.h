@@ -32,10 +32,12 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	const char *str;
 
 	/* filename */
-	if (stringp(pos))
-		physical_pathname_local(ptr, pos, &pos);
-	else
-		physical_pathname_heap(ptr, pos, &pos);
+	if (stringp(pos)) {
+		Return(physical_pathname_local_(ptr, pos, &pos));
+	}
+	else {
+		Return(physical_pathname_heap_(ptr, pos, &pos));
+	}
 	/* wildcard */
 	if (wild_pathname_boolean(pos, Nil)) {
 		GetConst(COMMON_PATHNAME, &value);
@@ -89,9 +91,9 @@ static int rename_file_run_files(Execute ptr,
 	addr file, from, value, true1, true2;
 	const char *str1, *str2;
 
-	pathname_designer_heap(ptr, pos, &file);
-	physical_pathname_heap(ptr, file, &from);
-	physical_pathname_heap(ptr, to, &to);
+	Return(pathname_designer_heap_(ptr, pos, &file));
+	Return(physical_pathname_heap_(ptr, file, &from));
+	Return(physical_pathname_heap_(ptr, to, &to));
 	Return(truename_files_(ptr, from, &true1, 0));
 	if (wild_pathname_boolean(from, Nil))
 		return fmte_("Cannot rename wildcard pathname from ~S", from, NULL);

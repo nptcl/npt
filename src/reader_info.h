@@ -51,7 +51,7 @@ _g struct readinfo_struct *struct_readinfo(addr pos);
 _g void getreadinfo(Execute ptr, addr *ret);
 _g struct readinfo_struct *getreadinfo_struct(Execute ptr);
 _g void pushreadinfo(Execute ptr, addr *ret);
-_g void pushreadinfo_recursive(Execute ptr, addr *ret);
+_g int pushreadinfo_recursive_(Execute ptr, addr *ret);
 _g void getpackage_readinfo(Execute ptr, addr *ret);
 _g void setpackage_readinfo(Execute ptr, addr value);
 _g void getqueue_readinfo(Execute ptr, addr *ret);

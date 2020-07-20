@@ -311,14 +311,16 @@ static void get_default_dispatch_sharp(addr code, addr *ret)
 	*ret = Nil;
 }
 
-_g void get_default_dispatch_macro(addr code1, addr code2, addr *ret)
+_g int get_default_dispatch_macro_(addr code1, addr code2, addr *ret)
 {
 	unicode u;
 
 	GetCharacter(code1, &u);
 	if (u != '#')
-		fmte("The character ~S is not dispatch macro.", code1, NULL);
+		return fmte_("The character ~S is not dispatch macro.", code1, NULL);
 	get_default_dispatch_sharp(code2, ret);
+
+	return 0;
 }
 
 
@@ -382,11 +384,10 @@ _g int macro_character_execute(Execute ptr, int *result, addr *ret,
 
 error:
 	*result = 0;
-	fmte("Character ~S don't have a macro code.", code, NULL);
-	return 0;
+	return fmte_("Character ~S don't have a macro code.", code, NULL);
 }
 
-_g void get_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr *ret)
+_g int get_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr *ret)
 {
 	addr check;
 
@@ -401,14 +402,14 @@ _g void get_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr *ret
 	GetDispatchReadtable(pos, &check);
 	u2 = toUpperUnicode(u2);
 	findvalue_character2_hashtable(check, u1, u2, ret);
-	return;
+	return 0;
 
 error:
 	character_heap(&check, u1);
-	fmte("The character ~S is not dispatch macro.", check, NULL);
+	return fmte_("The character ~S is not dispatch macro.", check, NULL);
 }
 
-_g void rem_dispatch_macro_character(addr pos, unicode u1, unicode u2)
+_g int rem_dispatch_macro_character_(addr pos, unicode u1, unicode u2)
 {
 	addr check, key;
 
@@ -427,14 +428,14 @@ _g void rem_dispatch_macro_character(addr pos, unicode u1, unicode u2)
 		GetCar(key, &key);
 		delete_hashtable(check, key);
 	}
-	return;
+	return 0;
 
 error:
 	character_heap(&check, u1);
-	fmte("The character ~S is not dispatch macro.", check, NULL);
+	return fmte_("The character ~S is not dispatch macro.", check, NULL);
 }
 
-_g void set_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr call)
+_g int set_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr call)
 {
 	addr check, cons;
 
@@ -457,11 +458,11 @@ _g void set_dispatch_macro_character(addr pos, unicode u1, unicode u2, addr call
 		intern_hashheap(check, cons, &cons);
 		SetCdr(cons, call);
 	}
-	return;
+	return 0;
 
 error:
 	character_heap(&check, u1);
-	fmte("The character ~S is not dispatch macro.", check, NULL);
+	return fmte_("The character ~S is not dispatch macro.", check, NULL);
 }
 
 #define DefaultTermMacro(u,a,b) { \
@@ -639,23 +640,27 @@ _g void set_syntax_from_char(unicode u1, unicode u2, addr to, addr from)
 	}
 }
 
-enum ReadTable_float float_readtable(Execute ptr)
+_g int float_readtable_(Execute ptr, enum ReadTable_float *ret)
 {
 	addr pos, check;
 
 	GetConst(SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &pos);
 	getspecialcheck_local(ptr, pos, &pos);
 	GetConst(COMMON_SINGLE_FLOAT, &check);
-	if (check == pos) return ReadTable_single;
+	if (check == pos)
+		return Result(ret, ReadTable_single);
 	GetConst(COMMON_DOUBLE_FLOAT, &check);
-	if (check == pos) return ReadTable_double;
+	if (check == pos)
+		return Result(ret, ReadTable_double);
 	GetConst(COMMON_LONG_FLOAT, &check);
-	if (check == pos) return ReadTable_long;
+	if (check == pos)
+		return Result(ret, ReadTable_long);
 	GetConst(COMMON_SHORT_FLOAT, &check);
-	if (check == pos) return ReadTable_short;
-	fmte("Invalid *read-default-float-format* value ~S.", pos, NULL);
+	if (check == pos)
+		return Result(ret, ReadTable_short);
 
-	return ReadTable_single;
+	*ret = ReadTable_single;
+	return fmte_("Invalid *read-default-float-format* value ~S.", pos, NULL);
 }
 
 _g enum ReadTable_Case readcase_readtable(Execute ptr)

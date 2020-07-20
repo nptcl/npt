@@ -406,7 +406,7 @@ static void defun_untrace(void)
 /* (defmacro step (form) ...) -> result */
 static int function_step(Execute ptr, addr form, addr env)
 {
-	step_common(ptr, form, env, &form);
+	Return(step_common(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -940,7 +940,7 @@ static void defun_software_version(void)
 static int function_user_homedir_pathname(Execute ptr, addr host)
 {
 	/* (declare (ignore host)) */
-	user_homedir_pathname_common(ptr, &host);
+	Return(user_homedir_pathname_common(ptr, &host));
 	setresult_control(ptr, host);
 	return 0;
 }

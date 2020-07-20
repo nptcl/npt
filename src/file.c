@@ -147,7 +147,7 @@ static int close_stream_abort(addr stream)
 	if (check == Unbound || check == Nil)
 		return 0;
 	/* :abort t */
-	pathname_designer_heap(ptr, stream, &check);
+	Return(pathname_designer_heap_(ptr, stream, &check));
 	return delete_file_files_(ptr, check);
 }
 
@@ -194,7 +194,7 @@ _g int readf_binary_file_(addr stream, void *pos, size_t size, size_t *ret)
 	fm = PtrFileMemory(stream);
 	check = readforce_filememory(fm, pos, size, ret);
 	if (check < 0)
-		fmte("read error", NULL);
+		return fmte_("read error", NULL);
 
 	return check;
 }

@@ -608,12 +608,13 @@ _g int ensure_method_common_(Execute ptr, addr *ret,
 
 	parse_callname_error(&name, name);
 	getglobal_callname(name, &gen);
-	if (! argumentp(lambda))
-		argument_method_heap(ptr->local, &lambda, lambda);
+	if (! argumentp(lambda)) {
+		Return(argument_method_heap_(ptr->local, &lambda, lambda));
+	}
 	if (gen == Unbound)
 		defmethod_make_generic_function(name, lambda, &gen);
 	if (! clos_generic_p(gen))
-		fmte("The function ~S is not generic-function.", gen, NULL);
+		return fmte_("The function ~S is not generic-function.", gen, NULL);
 	stdget_generic_method_class(gen, &clos);
 	method_instance_heap(&method, clos, lambda, qua, spec, call);
 	Return(method_add_(ptr, gen, method));

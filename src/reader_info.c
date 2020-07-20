@@ -81,7 +81,7 @@ _g void pushreadinfo(Execute ptr, addr *ret)
 	*ret = info;
 }
 
-_g void pushreadinfo_recursive(Execute ptr, addr *ret)
+_g int pushreadinfo_recursive_(Execute ptr, addr *ret)
 {
 	unsigned preserving, replace;
 	addr symbol, info, label;
@@ -92,7 +92,7 @@ _g void pushreadinfo_recursive(Execute ptr, addr *ret)
 	readinfo_symbol(&symbol);
 	getspecial_local(ptr, symbol, &info);
 	if (info == Unbound)
-		fmte("Outside read don't accept recursive-p parameter.", NULL);
+		return fmte_("Outside read don't accept recursive-p parameter.", NULL);
 	str = ReadInfoStruct(info);
 	preserving = str->preserving;
 	replace = str->replace;
@@ -108,7 +108,7 @@ _g void pushreadinfo_recursive(Execute ptr, addr *ret)
 	str->recursive = 1;
 	SetReadInfo(info, ReadInfo_Label, label);
 	pushspecial_control(ptr, symbol, info);
-	*ret = info;
+	return Result(ret, info);
 }
 
 _g void getpackage_readinfo(Execute ptr, addr *ret)

@@ -655,7 +655,7 @@ static int scope_go(Execute ptr, addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &tag);
-	scope_go_call(ptr, &tag, tag);
+	Return(scope_go_call_(ptr, &tag, tag));
 	GetTypeTable(&type, Nil);
 	make_eval_scope(ptr, ret, EVAL_PARSE_GO, type, tag);
 

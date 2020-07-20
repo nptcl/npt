@@ -459,7 +459,7 @@ static int eval_load_check(
 
 	/* wild-pathname-p */
 	if (! streamp(file)) {
-		pathname_designer_heap(ptr, file, &file);
+		Return(pathname_designer_heap_(ptr, file, &file));
 		if (wild_pathname_boolean(file, Nil))
 			return call_simple_file_error_va_(ptr, file,
 					"LOAD don't allow the wildcard filename ~S.", file, NULL);
@@ -473,12 +473,12 @@ static int eval_load_check(
 	if (streamp(file)) {
 		GetPathnameStream(file, &value);
 		if (value != Nil) {
-			physical_pathname_heap(ptr, file, &value);
+			Return(physical_pathname_heap_(ptr, file, &value));
 			pushspecial_control(ptr, symbol, value);
 		}
 	}
 	else {
-		physical_pathname_heap(ptr, file, &file);
+		Return(physical_pathname_heap_(ptr, file, &file));
 		pushspecial_control(ptr, symbol, file);
 		value = file;
 	}

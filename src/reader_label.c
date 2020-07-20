@@ -204,7 +204,7 @@ static void replace_readlabel(Execute ptr, addr replace, addr left, addr right)
 	}
 }
 
-_g void closelabel_readlabel(Execute ptr, addr label, addr pos)
+_g int closelabel_readlabel_(Execute ptr, addr label, addr pos)
 {
 	addr gensym, list, replace;
 
@@ -212,7 +212,7 @@ _g void closelabel_readlabel(Execute ptr, addr label, addr pos)
 	/* error #n= #n# */
 	GetReadLabel(label, ReadLabel_Value, &gensym);
 	if (pos == gensym)
-		fmte("The #n= value don't replace self value #n#.", NULL);
+		return fmte_("The #n= value don't replace self value #n#.", NULL);
 	/* replace */
 	GetReadLabel(label, ReadLabel_List, &list);
 	while (list != Nil) {
@@ -223,6 +223,8 @@ _g void closelabel_readlabel(Execute ptr, addr label, addr pos)
 	SetReadLabel(label, ReadLabel_List, Nil);
 	SetReadLabel(label, ReadLabel_Value, pos);
 	normal_readlabel(label);
+
+	return 0;
 }
 
 

@@ -38,7 +38,7 @@ static int pathname_system_windows_p(addr pos)
 /*
  *  parse-namestring
  */
-static void parser_struct_pathname(struct fileparse *pa)
+static int parser_struct_pathname_(struct fileparse *pa)
 {
 	addr host;
 
@@ -53,42 +53,36 @@ static void parser_struct_pathname(struct fileparse *pa)
 		GetHostPathname(pa->path, &host);
 
 	/* unix */
-	if (pathname_system_unix_p(host)) {
-		parser_unix_pathname(pa);
-		return;
-	}
+	if (pathname_system_unix_p(host))
+		return parser_unix_pathname_(pa);
 
 	/* windows */
-	if (pathname_system_windows_p(host)) {
-		parser_windows_pathname(pa);
-		return;
-	}
+	if (pathname_system_windows_p(host))
+		return parser_windows_pathname_(pa);
 
 	/* logical pathname */
-	if (stringp(host)) {
-		parser_logical_pathname(pa);
-		return;
-	}
+	if (stringp(host))
+		return parser_logical_pathname_(pa);
 
 	/* error */
-	fmte("Unknown pathname-host ~S.", host, NULL);
+	return fmte_("Unknown pathname-host ~S.", host, NULL);
 }
 
-static void defaults_pathname_alloc(Execute ptr, addr *ret, addr defaults, int localp)
+static int defaults_pathname_alloc_(Execute ptr, addr *ret, addr defaults, int localp)
 {
 	if (defaults == Nil || defaults == Unbound) {
 		GetConst(SPECIAL_DEFAULT_PATHNAME_DEFAULTS, &defaults);
 		getspecialcheck_local(ptr, defaults, &defaults);
 	}
-	pathname_designer_alloc(ptr, defaults, ret, localp);
+	return pathname_designer_alloc_(ptr, defaults, ret, localp);
 }
 
-_g void defaults_pathname_heap(Execute ptr, addr *ret, addr defaults)
+_g int defaults_pathname_heap_(Execute ptr, addr *ret, addr defaults)
 {
-	defaults_pathname_alloc(ptr, ret, defaults, 0);
+	return defaults_pathname_alloc_(ptr, ret, defaults, 0);
 }
 
-static void parse_pathname_full_alloc(Execute ptr,
+static int parse_pathname_full_alloc_(Execute ptr,
 		addr thing, addr host, addr defaults, size_t start, size_t end, int junk,
 		addr *ret, size_t *pos, int localp)
 {
@@ -96,7 +90,7 @@ static void parse_pathname_full_alloc(Execute ptr,
 	struct fileparse pa;
 
 	/* argument */
-	defaults_pathname_alloc(ptr, &defaults, defaults, localp);
+	defaults_pathname_alloc_(ptr, &defaults, defaults, localp);
 	init_fileparse(&pa, ptr, localp);
 	pa.thing = thing;
 	pa.path = defaults;
@@ -107,41 +101,44 @@ static void parse_pathname_full_alloc(Execute ptr,
 
 	/* execute */
 	push_localp(pa.local, &stack);
-	parser_struct_pathname(&pa);
+	Return(parser_struct_pathname_(&pa));
 	*ret = pa.result;
 	*pos = pa.endpos;
 	rollback_localp(pa.local, stack);
+
+	return 0;
 }
 
-_g void parse_pathname_full_heap(Execute ptr, addr thing, addr host,
+_g int parse_pathname_full_heap_(Execute ptr, addr thing, addr host,
 		addr defaults, size_t start, size_t end, int junk, addr *ret, size_t *pos)
 {
-	parse_pathname_full_alloc(ptr,
+	return parse_pathname_full_alloc_(ptr,
 			thing, host, defaults, start, end, junk, ret, pos, 0);
 }
 
-static void parse_pathname_alloc(Execute ptr, addr thing, addr *ret, int localp)
+static int parse_pathname_alloc_(Execute ptr, addr thing, addr *ret, int localp)
 {
 	size_t end;
 	string_length(thing, &end);
-	parse_pathname_full_alloc(ptr, thing, Nil, Nil, 0, end, 0, ret, &end, localp);
+	return parse_pathname_full_alloc_(ptr,
+			thing, Nil, Nil, 0, end, 0, ret, &end, localp);
 }
 
-static void parse_pathname_heap(Execute ptr, addr thing, addr *ret)
+static int parse_pathname_heap_(Execute ptr, addr thing, addr *ret)
 {
 	size_t end;
 	string_length(thing, &end);
-	parse_pathname_full_heap(ptr, thing, Nil, Nil, 0, end, 0, ret, &end);
+	return parse_pathname_full_heap_(ptr, thing, Nil, Nil, 0, end, 0, ret, &end);
 }
 
-_g void parse_pathname_host_heap(Execute ptr, addr thing, addr host, addr *ret)
+_g int parse_pathname_host_heap_(Execute ptr, addr thing, addr host, addr *ret)
 {
 	size_t end;
 	string_length(thing, &end);
-	parse_pathname_full_heap(ptr, thing, host, Nil, 0, end, 0, ret, &end);
+	return parse_pathname_full_heap_(ptr, thing, host, Nil, 0, end, 0, ret, &end);
 }
 
-_g void parse_pathname_char_heap(Execute ptr, const char *str, addr *ret)
+_g int parse_pathname_char_heap_(Execute ptr, const char *str, addr *ret)
 {
 	addr thing;
 	LocalRoot local;
@@ -150,11 +147,13 @@ _g void parse_pathname_char_heap(Execute ptr, const char *str, addr *ret)
 	local = ptr->local;
 	push_local(local, &stack);
 	strvect_char_local(local, &thing, str);
-	parse_pathname_heap(ptr, thing, ret);
+	Return(parse_pathname_heap_(ptr, thing, ret));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-_g void pathname_designer_alloc(Execute ptr, addr pos, addr *ret, int localp)
+_g int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 {
 	addr value, type;
 	LocalRoot local;
@@ -163,7 +162,7 @@ _g void pathname_designer_alloc(Execute ptr, addr pos, addr *ret, int localp)
 	local = localp? ptr->local: NULL;
 	if (pathnamep(pos)) {
 		copylocal_object(local, ret, pos);
-		return;
+		return 0;
 	}
 
 	/* stream */
@@ -171,79 +170,76 @@ _g void pathname_designer_alloc(Execute ptr, addr pos, addr *ret, int localp)
 		GetPathnameStream(pos, &value);
 		if (! pathnamep(value)) {
 			GetConst(COMMON_PATHNAME, &type);
-			type_error_stdarg(pos, type,
+			return call_type_error_va_(ptr, pos, type,
 					"The stream ~S does not have a pathname object.", pos, NULL);
 		}
 		copylocal_object(local, ret, value);
-		return;
+		return 0;
 	}
 
 	/* string */
 	if (stringp(pos)) {
-		parse_pathname_alloc(ptr, pos, &value, localp);
+		Return(parse_pathname_alloc_(ptr, pos, &value, localp));
 		if (! pathnamep(value)) {
 			GetConst(COMMON_PATHNAME, &type);
-			type_error_stdarg(pos, type,
+			return call_type_error_va_(ptr, pos, type,
 					"The string ~S is not pathname format.", pos, NULL);
 		}
-		*ret = value;
-		return;
+		return Result(ret, value);
 	}
 
 	/* type-error */
-	TypeError(pos, PATHNAME);
+	return TypeError_(pos, PATHNAME);
 }
 
-_g void pathname_designer_heap(Execute ptr, addr pos, addr *ret)
+_g int pathname_designer_heap_(Execute ptr, addr pos, addr *ret)
 {
-	pathname_designer_alloc(ptr, pos, ret, 0);
+	return pathname_designer_alloc_(ptr, pos, ret, 0);
 }
 
-_g void pathname_designer_local(Execute ptr, addr pos, addr *ret)
+_g int pathname_designer_local_(Execute ptr, addr pos, addr *ret)
 {
-	pathname_designer_alloc(ptr, pos, ret, 1);
+	return pathname_designer_alloc_(ptr, pos, ret, 1);
 }
 
 
 /*
  *  physical-pathname
  */
-_g void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp)
+_g int physical_pathname_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 {
 	LocalRoot local;
 	addr host, list, left, right, value;
 
 	/* physical pathname */
 	local = localp? ptr->local: NULL;
-	pathname_designer_alloc(ptr, pos, &pos, localp);
+	Return(pathname_designer_alloc_(ptr, pos, &pos, localp));
 	if (! RefLogicalPathname(pos)) {
 		copylocal_object(local, ret, pos);
-		return;
+		return 0;
 	}
 
 	/* logical pathname */
 	GetHostPathname(pos, &host);
 	if (! gethost_logical_pathname(host, &list))
-		fmte("The logical-hostname ~S is not exist.", host, NULL);
+		return fmte_("The logical-hostname ~S is not exist.", host, NULL);
 	while (list != Nil) {
 		GetCons(list, &right, &list);
 		List_bind(right, &left, &value, NULL);
-		if (wildcard_pathname(pos, left, 1)) {
-			translate_pathname_alloc(ptr, ret, pos, left, value, localp);
-			return;
-		}
+		if (wildcard_pathname(pos, left, 1))
+			return translate_pathname_alloc_(ptr, ret, pos, left, value, localp);
 	}
-	fmte("The logical-pathname ~S don't match translate table.", pos, NULL);
+	return fmte_("The logical-pathname ~S don't match translate table.", pos, NULL);
 }
 
-_g void physical_pathname_heap(Execute ptr, addr pos, addr *ret)
+_g int physical_pathname_heap_(Execute ptr, addr pos, addr *ret)
 {
-	physical_pathname_alloc(ptr, pos, ret, 0);
+	return physical_pathname_alloc_(ptr, pos, ret, 0);
 }
 
-_g void physical_pathname_local(Execute ptr, addr pos, addr *ret)
+_g int physical_pathname_local_(Execute ptr, addr pos, addr *ret)
 {
-	physical_pathname_alloc(ptr, pos, ret, 1);
+	return physical_pathname_alloc_(ptr, pos, ret, 1);
 }
 
 
@@ -277,17 +273,19 @@ static void file_namestring_filename(LocalpRoot local, addr pos, addr queue)
 	}
 }
 
-static void file_pathname_namestring(LocalpRoot local, addr *ret, addr pos)
+static int file_pathname_namestring_(LocalpRoot local, addr *ret, addr pos)
 {
 	addr host, queue;
 
 	GetHostPathname(pos, &host);
 	if (! pathname_system_unix_p(host) && ! pathname_system_windows_p(host))
-		fmte("Unknown pathname-host ~S.", host, NULL);
+		return fmte_("Unknown pathname-host ~S.", host, NULL);
 
 	charqueue_local(local->local, &queue, 0);
 	file_namestring_filename(local, pos, queue);
 	make_charqueue_alloc(localp_alloc(local), queue, ret);
+
+	return 0;
 }
 
 static int logical_namestring_version_(LocalpRoot local, addr queue, addr right)
@@ -337,7 +335,7 @@ static int file_name_pathname_alloc_(LocalpRoot local, addr pos, addr *ret)
 		Return(file_logical_namestring_(local, ret, pos));
 	}
 	else {
-		file_pathname_namestring(local, ret, pos);
+		Return(file_pathname_namestring_(local, ret, pos));
 	}
 	rollback_localp(local, stack);
 
@@ -368,7 +366,7 @@ _g int file_name_pathname_local_(LocalRoot local, addr pos, addr *ret)
 /*
  *  directory-namestring
  */
-static void directory_namestring_filename(LocalpRoot local,
+static int directory_namestring_filename_(LocalpRoot local,
 		addr pos, addr queue, unicode split, int logicalp)
 {
 	LocalRoot alloc;
@@ -384,7 +382,7 @@ static void directory_namestring_filename(LocalpRoot local,
 	/* directory */
 	GetDirectoryPathname(pos, &right);
 	if (! consp(right))
-		fmte("Invalid directory ~S.", right, NULL);
+		return fmte_("Invalid directory ~S.", right, NULL);
 	GetCons(right, &left, &right);
 	if (left == absolute) {
 		if (! logicalp)
@@ -395,7 +393,7 @@ static void directory_namestring_filename(LocalpRoot local,
 			push_charqueue_local(alloc, queue, split);
 	}
 	else {
-		fmte("Invalid directory type ~S.", left, NULL);
+		return fmte_("Invalid directory type ~S.", left, NULL);
 	}
 	while (right != Nil) {
 		GetCons(right, &left, &right);
@@ -409,85 +407,101 @@ static void directory_namestring_filename(LocalpRoot local,
 			pushstring_charqueue_local(alloc, queue, left);
 		push_charqueue_local(alloc, queue, split);
 	}
+
+	return 0;
 }
 
-static void directory_pathname_namestring(LocalpRoot local, addr *ret, addr pos)
+static int directory_pathname_namestring_(LocalpRoot local, addr *ret, addr pos)
 {
 	addr host, queue;
 
 	charqueue_local(local->local, &queue, 0);
 	GetHostPathname(pos, &host);
-	if (pathname_system_unix_p(host))
-		directory_namestring_filename(local, pos, queue, '/', 0);
-	else if (pathname_system_windows_p(host))
-		directory_namestring_filename(local, pos, queue, '\\', 0);
-	else
-		fmte("Unknown pathname-host ~S.", host, NULL);
+	if (pathname_system_unix_p(host)) {
+		Return(directory_namestring_filename_(local, pos, queue, '/', 0));
+	}
+	else if (pathname_system_windows_p(host)) {
+		Return(directory_namestring_filename_(local, pos, queue, '\\', 0));
+	}
+	else {
+		return fmte_("Unknown pathname-host ~S.", host, NULL);
+	}
 	make_charqueue_alloc(localp_alloc(local), queue, ret);
+
+	return 0;
 }
 
-static void directory_logical_namestring(LocalpRoot local, addr *ret, addr pos)
+static int directory_logical_namestring_(LocalpRoot local, addr *ret, addr pos)
 {
 	addr queue;
 
 	charqueue_local(local->local, &queue, 0);
-	directory_namestring_filename(local, pos, queue, ';', 1);
+	Return(directory_namestring_filename_(local, pos, queue, ';', 1));
 	make_charqueue_alloc(localp_alloc(local), queue, ret);
+
+	return 0;
 }
 
-static void directory_name_pathname_alloc(LocalpRoot local, addr pos, addr *ret)
+static int directory_name_pathname_alloc_(LocalpRoot local, addr pos, addr *ret)
 {
 	LocalStack stack;
 
 	push_localp(local, &stack);
-	if (RefLogicalPathname(pos))
-		directory_logical_namestring(local, ret, pos);
-	else
-		directory_pathname_namestring(local, ret, pos);
+	if (RefLogicalPathname(pos)) {
+		Return(directory_logical_namestring_(local, ret, pos));
+	}
+	else {
+		Return(directory_pathname_namestring_(local, ret, pos));
+	}
 	rollback_localp(local, stack);
+
+	return 0;
 }
 
-_g void directory_name_pathname_heap(LocalRoot local, addr pos, addr *ret)
+_g int directory_name_pathname_heap_(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
 	Check(local == NULL, "local error");
 	buffer.localp = 0;
 	buffer.local = local;
-	directory_name_pathname_alloc(&buffer, pos, ret);
+	return directory_name_pathname_alloc_(&buffer, pos, ret);
 }
 
-_g void directory_name_pathname_local(LocalRoot local, addr pos, addr *ret)
+_g int directory_name_pathname_local_(LocalRoot local, addr pos, addr *ret)
 {
 	struct localp_struct buffer;
 
 	Check(local == NULL, "local error");
 	buffer.localp = 1;
 	buffer.local = local;
-	directory_name_pathname_alloc(&buffer, pos, ret);
+	return directory_name_pathname_alloc_(&buffer, pos, ret);
 }
 
 
 /*
  *  namestring
  */
-static void namestring_filename(LocalpRoot local,
+static int namestring_filename_(LocalpRoot local,
 		addr pos, addr queue, unicode split, int logicalp)
 {
-	directory_namestring_filename(local, pos, queue, split, logicalp);
+	Return(directory_namestring_filename_(local, pos, queue, split, logicalp));
 	file_namestring_filename(local, pos, queue);
+	return 0;
 }
 
-static void namestring_unix(LocalpRoot local, addr *ret, addr pos)
+static int namestring_unix_(LocalpRoot local, addr *ret, addr pos)
 {
 	addr queue;
 
 	charqueue_local(local->local, &queue, 0);
-	namestring_filename(local, pos, queue, '/', 0);
+	Return(namestring_filename_(local, pos, queue, '/', 0));
 	make_charqueue_alloc(localp_alloc(local), queue, ret);
+
+	return 0;
 }
 
-static void namestring_windows(LocalpRoot local, addr *ret, addr pos)
+static int namestring_windows_(LocalpRoot local, addr *ret, addr pos)
 {
 	LocalRoot alloc;
 	addr device, queue, universal, file, check;
@@ -499,7 +513,7 @@ static void namestring_windows(LocalpRoot local, addr *ret, addr pos)
 	charqueue_local(alloc, &queue, 0);
 	if (device == universal) {
 		push_charqueue_local(alloc, queue, '\\');
-		namestring_filename(local, pos, queue, '\\', 0);
+		Return(namestring_filename_(local, pos, queue, '\\', 0));
 	}
 	else if (device == file) {
 		push_charqueue_local(alloc, queue, '\\');
@@ -513,25 +527,27 @@ static void namestring_windows(LocalpRoot local, addr *ret, addr pos)
 	else if (device != Nil) {
 		pushstring_charqueue_local(alloc, queue, device);
 		push_charqueue_local(alloc, queue, ':');
-		namestring_filename(local, pos, queue, '\\', 0);
+		Return(namestring_filename_(local, pos, queue, '\\', 0));
 	}
 	else {
-		namestring_filename(local, pos, queue, '\\', 0);
+		Return(namestring_filename_(local, pos, queue, '\\', 0));
 	}
 	make_charqueue_alloc(localp_alloc(local), queue, ret);
+
+	return 0;
 }
 
-static void pathname_namestring(LocalpRoot local, addr *ret, addr pos)
+static int pathname_namestring_(LocalpRoot local, addr *ret, addr pos)
 {
 	addr host;
 
 	GetHostPathname(pos, &host);
 	if (pathname_system_unix_p(host))
-		namestring_unix(local, ret, pos);
+		return namestring_unix_(local, ret, pos);
 	else if (pathname_system_windows_p(host))
-		namestring_windows(local, ret, pos);
+		return namestring_windows_(local, ret, pos);
 	else
-		fmte("Unknown pathname-host ~S.", host, NULL);
+		return fmte_("Unknown pathname-host ~S.", host, NULL);
 }
 
 static int logical_namestring_(LocalpRoot local, addr *ret, addr pos)
@@ -546,7 +562,7 @@ static int logical_namestring_(LocalpRoot local, addr *ret, addr pos)
 	pushstring_charqueue_local(alloc, queue, right);
 	pushchar_charqueue_local(alloc, queue, ":");
 	/* directory, name, type */
-	namestring_filename(local, pos, queue, ';', 1);
+	Return(namestring_filename_(local, pos, queue, ';', 1));
 	/* version */
 	GetVersionPathname(pos, &right);
 	if (right != Nil) {
@@ -563,12 +579,12 @@ static int name_pathname_alloc_(Execute ptr, LocalpRoot local, addr pos, addr *r
 	LocalStack stack;
 
 	push_localp(local, &stack);
-	pathname_designer_alloc(ptr, pos, &pos, local->localp);
+	Return(pathname_designer_alloc_(ptr, pos, &pos, local->localp));
 	if (RefLogicalPathname(pos)) {
 		Return(logical_namestring_(local, ret, pos));
 	}
 	else {
-		pathname_namestring(local, ret, pos);
+		Return(pathname_namestring_(local, ret, pos));
 	}
 	rollback_localp(local, stack);
 
@@ -706,18 +722,18 @@ static void merge_pathname_object(addr pos, addr defaults, addr defver, addr *re
 		pathname_heap(ret, host, device, directory, name, type);
 }
 
-_g void merge_pathnames_clang(Execute ptr,
+_g int merge_pathnames_clang_(Execute ptr,
 		addr pos, addr defaults, addr defver, addr *ret)
 {
 	addr host;
 
 	/* logical-pathname namestring */
-	defaults_pathname_heap(ptr, &defaults, defaults);
+	Return(defaults_pathname_heap_(ptr, &defaults, defaults));
 	if (stringp(pos) && RefLogicalPathname(defaults)) {
 		GetHostPathname(pos, &host);
-		parse_pathname_host_heap(ptr, pos, host, &pos);
+		Return(parse_pathname_host_heap_(ptr, pos, host, &pos));
 	}
-	pathname_designer_heap(ptr, pos, &pos);
+	Return(pathname_designer_heap_(ptr, pos, &pos));
 
 	/* version */
 	if (defver == Unbound)
@@ -725,6 +741,8 @@ _g void merge_pathnames_clang(Execute ptr,
 
 	/* merge */
 	merge_pathname_object(pos, defaults, defver, ret);
+
+	return 0;
 }
 
 

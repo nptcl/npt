@@ -274,7 +274,7 @@ static void parser_make_unix_pathname(struct fileparse *pa)
 	pathname_fileparse_alloc(pa, 0);
 }
 
-_g void parser_unix_pathname(struct fileparse *pa)
+_g int parser_unix_pathname_(struct fileparse *pa)
 {
 	int absolute, relative, logical, dp;
 	unicode c;
@@ -289,7 +289,7 @@ _g void parser_unix_pathname(struct fileparse *pa)
 	local = pa->local;
 	thing = pa->thing;
 	if (! stringp(thing))
-		TypeError(thing, STRING);
+		return TypeError_(thing, STRING);
 	charqueue_local(local->local, &charqueue, 0);
 	pa->queue = charqueue;
 	queue = Nil;
@@ -346,8 +346,7 @@ next1:
 		if (check_host_logical_pathname(local, charqueue)) {
 			/* parser logical */
 			*pa = backup;
-			parser_logical_pathname(pa);
-			return;
+			return parser_logical_pathname_(pa);
 		}
 		logical = 1;
 	}
@@ -376,5 +375,6 @@ finish:
 	nreverse(&pa->directory, queue);
 	pa->endpos = i;
 	parser_make_unix_pathname(pa);
+	return 0;
 }
 

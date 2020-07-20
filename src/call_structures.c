@@ -290,7 +290,7 @@ static int defstruct_parse_constructor(struct defstruct *str, addr pos, int *ret
 	if (args != Unbound) {
 		GetConst(SYSTEM_STRUCTURE_GENSYM, &g);
 		quotelist_heap(&g, g);
-		argument_boa_heap(str->ptr->local, &args, args, g);
+		Return(argument_boa_heap_(str->ptr->local, &args, args, g));
 		cons_heap(&pos, pos, args);
 	}
 	cons_heap(&(str->constructor), pos, str->constructor);

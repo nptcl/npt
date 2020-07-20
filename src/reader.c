@@ -50,7 +50,7 @@ static int charmode_readtable_(addr pos, unicode c, unicode *ret)
 	return Result(ret, c);
 }
 
-static int tokenmode_readtable(Execute ptr)
+static int tokenmode_readtable_(Execute ptr, int *ret)
 {
 	unsigned base;
 	size_t size;
@@ -58,16 +58,16 @@ static int tokenmode_readtable(Execute ptr)
 
 	/* escape */
 	if (getescape_readinfo(ptr))
-		return TokenType_symbol;
+		return Result(ret, TokenType_symbol);
 
 	/* empty (for keyword) */
 	getqueue_readinfo(ptr, &queue);
 	getsize_charqueue(queue, &size);
 	if (size == 0)
-		return TokenType_empty;
+		return Result(ret, TokenType_empty);
 
-	base = getreadbase(ptr);
-	return tokentype(base, queue);
+	Return(getreadbase_(ptr, &base));
+	return Result(ret, tokentype(base, queue));
 }
 
 static int setpackage_readtable_(Execute ptr)
@@ -75,7 +75,7 @@ static int setpackage_readtable_(Execute ptr)
 	int type;
 	addr queue, package;
 
-	type = tokenmode_readtable(ptr);
+	Return(tokenmode_readtable_(ptr, &type));
 	switch (type) {
 		case TokenType_empty: /* for keyword */
 			setpackage_readinfo(ptr, T);
@@ -294,7 +294,7 @@ step9:
 	}
 
 step10:
-	maketoken(ptr, token);
+	Return(maketoken_(ptr, token));
 	goto final;
 
 illegal_error:
@@ -421,7 +421,7 @@ _g int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 
 	hold = LocalHold_array(ptr, 1);
 	push_new_control(ptr, &control);
-	pushreadinfo_recursive(ptr, &info);
+	Return(pushreadinfo_recursive_(ptr, &info));
 	Return(read_call(ptr, stream, result, ret));
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
@@ -452,7 +452,7 @@ _g int readstring(addr *ret, const char *code)
 
 	open_input_char_stream(&stream, code);
 	if (read_stream(Execute_Thread, stream, &result, ret))
-		fmte("Cannot catch a system signal.", NULL);
+		Abort("Cannot catch a system signal.");
 	close_input_string_stream(stream);
 
 	return result;

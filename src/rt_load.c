@@ -47,8 +47,8 @@ static int rtload_pathname(Execute ptr, addr file, int *ret)
 	Return(open_input_stream_(ptr, &stream, file));
 	if (stream == NULL) {
 		/* load "test/" name */
-		parse_pathname_char_heap(ptr, "test/", &path);
-		merge_pathnames_clang(ptr, file, path, Unbound, &file);
+		Return(parse_pathname_char_heap_(ptr, "test/", &path));
+		Return(merge_pathnames_clang_(ptr, file, path, Unbound, &file));
 		Return(name_pathname_heap_(ptr, file, &file));
 		Return(open_input_stream_error_(ptr, &stream, file)); /* force */
 	}
@@ -72,7 +72,7 @@ static int loadrt_init(Execute ptr, const char *name, int *ret)
 	find_char_package(LISP_RT, &use);
 	use_package(package, use);
 	/* load-rt */
-	parse_pathname_char_heap(ptr, name, &file);
+	Return(parse_pathname_char_heap_(ptr, name, &file));
 	return rtload_pathname(ptr, file, ret);
 }
 

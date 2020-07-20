@@ -389,14 +389,16 @@ static inline int read_ready_arch(file_type file)
 	return 1;
 }
 
-static void large_integer_value(PLARGE_INTEGER ptr, size_t *ret)
+static int large_integer_value(PLARGE_INTEGER ptr, size_t *ret)
 {
 #ifdef LISP_64BIT
 	*ret = (size_t)ptr->QuadPart;
+	return 0;
 #else
 	if (ptr->HighPart != 0)
-		fmte("Too large file size.", NULL);
+		return 1;
 	*ret = (fixed)ptr->LowPart;
+	return 0;
 #endif
 }
 
@@ -408,7 +410,10 @@ static inline int file_length_arch(file_type file, size_t *ret)
 		*ret = 0;
 		return 1;
 	}
-	large_integer_value(&size, ret);
+	if (large_integer_value(&size, ret)) {
+		*ret = 0;
+		return 1;
+	}
 
 	return 0;
 }
@@ -422,7 +427,10 @@ static inline int file_position_arch(file_type file, size_t *ret)
 		*ret = 0;
 		return 1;
 	}
-	large_integer_value(&pos, ret);
+	if (large_integer_value(&pos, ret)) {
+		*ret = 0;
+		return 1;
+	}
 
 	return 0;
 }

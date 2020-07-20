@@ -136,10 +136,9 @@ _g int scope_eval(Execute ptr, addr *ret, addr eval)
 
 	GetEvalParseType(eval, &type);
 	call = EvalScopeTable[type];
-	if (call == NULL) {
-		fmte("Invalid eval-parse type.", NULL);
-		return 0;
-	}
+	if (call == NULL)
+		return fmte_("Invalid eval-parse type.", NULL);
+
 	return (*call)(ptr, ret, eval);
 }
 

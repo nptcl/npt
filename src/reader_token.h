@@ -17,9 +17,9 @@ enum TokenType {
 
 _g void init_reader_token(void);
 _g enum TokenType tokentype(unsigned base, addr queue);
-_g unsigned getreadbase(Execute ptr);
+_g int getreadbase_(Execute ptr, unsigned *ret);
 _g int read_suppress_p(Execute ptr);
-_g void maketoken(Execute ptr, addr *ret);
+_g int maketoken_(Execute ptr, addr *ret);
 
 #endif
 

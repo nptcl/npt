@@ -104,7 +104,7 @@ static int parser_windows_pathname_slash_p(unicode x)
 	return x == '/' || x == '\\';
 }
 
-_g void parser_windows_pathname(struct fileparse *pa)
+_g int parser_windows_pathname_(struct fileparse *pa)
 {
 	int absolute, relative, universal, question, win32device, logical, dp;
 	unicode c;
@@ -119,7 +119,7 @@ _g void parser_windows_pathname(struct fileparse *pa)
 	local = pa->local;
 	thing = pa->thing;
 	if (! stringp(thing))
-		TypeError(thing, STRING);
+		return TypeError_(thing, STRING);
 	charqueue_local(local->local, &charqueue, 0);
 	pa->queue = charqueue;
 	queue = Nil;
@@ -164,8 +164,7 @@ drive:
 	if (check_drive_logical_pathname(local, (int)c)) {
 		/* parser logical */
 		*pa = backup;
-		parser_logical_pathname(pa);
-		return;
+		return parser_logical_pathname_(pa);
 	}
 	logical = 1;
 	parser_windows_pathname_drive(pa, c);
@@ -217,8 +216,7 @@ next1:
 		if (check_host_logical_pathname(local, charqueue)) {
 			/* parser logical */
 			*pa = backup;
-			parser_logical_pathname(pa);
-			return;
+			return parser_logical_pathname_(pa);
 		}
 		logical = 1;
 	}
@@ -247,5 +245,6 @@ finish:
 	nreverse(&pa->directory, queue);
 	pa->endpos = i;
 	parser_make_windows_pathname(pa);
+	return 0;
 }
 

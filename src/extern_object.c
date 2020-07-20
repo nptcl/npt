@@ -496,8 +496,7 @@ int lisp_set_special16_(const void *name, addr value)
  */
 int lisp_pathname_(addr *ret, addr name)
 {
-	pathname_designer_heap(Execute_Thread, name, ret);
-	return 0;
+	return pathname_designer_heap_(Execute_Thread, name, ret);
 }
 
 int lisp_namestring_(addr *ret, addr path)

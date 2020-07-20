@@ -16,28 +16,28 @@
  *      device = :unspecific
  *      version = (or null integer)
  */
-_g void defaults_pathname_heap(Execute ptr, addr *ret, addr defaults);
-_g void parse_pathname_full_heap(Execute ptr, addr thing, addr host,
+_g int defaults_pathname_heap_(Execute ptr, addr *ret, addr defaults);
+_g int parse_pathname_full_heap_(Execute ptr, addr thing, addr host,
 		addr defaults, size_t start, size_t end, int junk, addr *ret, size_t *pos);
-_g void parse_pathname_host_heap(Execute ptr, addr thing, addr host, addr *ret);
+_g int parse_pathname_host_heap_(Execute ptr, addr thing, addr host, addr *ret);
 
-_g void parse_pathname_char_heap(Execute ptr, const char *str, addr *ret);
-_g void pathname_designer_alloc(Execute ptr, addr pos, addr *ret, int localp);
-_g void pathname_designer_heap(Execute ptr, addr pos, addr *ret);
-_g void pathname_designer_local(Execute ptr, addr pos, addr *ret);
+_g int parse_pathname_char_heap_(Execute ptr, const char *str, addr *ret);
+_g int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp);
+_g int pathname_designer_heap_(Execute ptr, addr pos, addr *ret);
+_g int pathname_designer_local_(Execute ptr, addr pos, addr *ret);
 
-_g void physical_pathname_alloc(Execute ptr, addr pos, addr *ret, int localp);
-_g void physical_pathname_heap(Execute ptr, addr pos, addr *ret);
-_g void physical_pathname_local(Execute ptr, addr pos, addr *ret);
+_g int physical_pathname_alloc_(Execute ptr, addr pos, addr *ret, int localp);
+_g int physical_pathname_heap_(Execute ptr, addr pos, addr *ret);
+_g int physical_pathname_local_(Execute ptr, addr pos, addr *ret);
 
 _g int file_name_pathname_heap_(LocalRoot local, addr pos, addr *ret);
 _g int file_name_pathname_local_(LocalRoot local, addr pos, addr *ret);
 
-_g void directory_name_pathname_heap(LocalRoot local, addr pos, addr *ret);
-_g void directory_name_pathname_local(LocalRoot local, addr pos, addr *ret);
+_g int directory_name_pathname_heap_(LocalRoot local, addr pos, addr *ret);
+_g int directory_name_pathname_local_(LocalRoot local, addr pos, addr *ret);
 _g int name_pathname_heap_(Execute ptr, addr pos, addr *ret);
 _g int name_pathname_local_(Execute ptr, addr pos, addr *ret);
-_g void merge_pathnames_clang(Execute ptr,
+_g int merge_pathnames_clang_(Execute ptr,
 		addr pos, addr defpath, addr defver, addr *ret);
 
 /* initialize */

@@ -407,9 +407,8 @@ _g int scope_function_call(Execute ptr, addr *ret, addr eval)
 		return scope_function_object(ptr, ret, eval);
 	if (callnamep(eval))
 		return scope_function_callname(ptr, ret, eval);
-	fmte("Invalid object type ~S", eval, NULL);
 
-	return 0;
+	return fmte_("Invalid object type ~S", eval, NULL);
 }
 
 
@@ -844,7 +843,7 @@ static void defun_update(Execute ptr, struct lambda_struct *str)
 	settype_tablefunction(table, str->the);
 }
 
-static void defun_the(addr eval, struct lambda_struct *str)
+static int defun_the_(addr eval, struct lambda_struct *str)
 {
 	addr cdr, type, null, setf, call;
 
@@ -865,10 +864,11 @@ static void defun_the(addr eval, struct lambda_struct *str)
 			break;
 
 		default:
-			fmte("callname error.", NULL);
-			return;
+			return fmte_("callname error.", NULL);
 	}
 	SetEvalScopeThe(eval, type);
+
+	return 0;
 }
 
 _g int scope_defun_call(Execute ptr, struct lambda_struct *str, addr *ret)
@@ -877,7 +877,7 @@ _g int scope_defun_call(Execute ptr, struct lambda_struct *str, addr *ret)
 
 	Return(lambda_object(ptr, str, &eval));
 	defun_update(ptr, str);
-	defun_the(eval, str);
+	Return(defun_the_(eval, str));
 
 	return Result(ret, eval);
 }
@@ -1153,7 +1153,7 @@ static void flet_maketable(Execute ptr, struct let_struct *str)
 	}
 }
 
-static void checktype_function(addr table, addr eval)
+static int checktype_function_(addr table, addr eval)
 {
 	int check;
 
@@ -1161,10 +1161,12 @@ static void checktype_function(addr table, addr eval)
 	GetEvalScopeThe(eval, &eval);
 	(void)checktype_p(eval, table, &check);
 	if (check)
-		fmte("Invalid function type.", NULL);
+		return fmte_("Invalid function type.", NULL);
+
+	return 0;
 }
 
-static void flet_applytable(Execute ptr, struct let_struct *str)
+static int flet_applytable_(Execute ptr, struct let_struct *str)
 {
 	addr stack, args, call, eval;
 
@@ -1174,8 +1176,10 @@ static void flet_applytable(Execute ptr, struct let_struct *str)
 		GetCons(args, &call, &args);
 		GetCons(call, &call, &eval);
 		update_tablefunction(ptr, stack, call);
-		checktype_function(call, eval);
+		Return(checktype_function_(call, eval));
 	}
+
+	return 0;
 }
 
 static void ignore_checkfunction(addr stack)
@@ -1213,7 +1217,7 @@ static int flet_execute(Execute ptr, struct let_struct *str)
 	Return(flet_init(ptr, str));
 	flet_maketable(ptr, str);
 	apply_declare(ptr, stack, str->decl, &str->free);
-	flet_applytable(ptr, str);
+	Return(flet_applytable_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	ignore_checkfunction(stack);
 
@@ -1272,7 +1276,7 @@ static int labels_init(Execute ptr, struct let_struct *str)
 	return 0;
 }
 
-static void labels_checktype(Execute ptr, struct let_struct *str)
+static int labels_checktype_(Execute ptr, struct let_struct *str)
 {
 	addr args, call, eval;
 
@@ -1280,8 +1284,10 @@ static void labels_checktype(Execute ptr, struct let_struct *str)
 	while (args != Nil) {
 		GetCons(args, &call, &args);
 		GetCons(call, &call, &eval);
-		checktype_function(call, eval);
+		Return(checktype_function_(call, eval));
 	}
+
+	return 0;
 }
 
 static int labels_execute(Execute ptr, struct let_struct *str)
@@ -1291,7 +1297,7 @@ static int labels_execute(Execute ptr, struct let_struct *str)
 	stack = str->stack;
 	Return(labels_init(ptr, str));
 	apply_declare(ptr, stack, str->decl, &str->free);
-	labels_checktype(ptr, str);
+	Return(labels_checktype_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	ignore_checkfunction(stack);
 
@@ -1322,8 +1328,7 @@ static int call_first(Execute ptr, addr *ret, addr first)
 			return scope_lambda_call(ptr, ret, first);
 
 		default:
-			fmte("Invalid parse object.", NULL);
-			break;
+			return fmte_("Invalid parse object.", NULL);
 	}
 
 	return 0;
@@ -1479,10 +1484,8 @@ static int callargs_restkey(Execute ptr,
 
 	GetArrayA2(array, 2, &rest);
 	GetArrayA2(array, 3, &key);
-	if (rest == Nil && key == Nil) {
-		*result = *args != Nil;
-		return 0;
-	}
+	if (rest == Nil && key == Nil)
+		return Result(result, (*args != Nil));
 
 	hold = LocalHold_array(ptr, 1);
 	for (keyvalue = 0; *args != Nil; keyvalue = (! keyvalue)) {
@@ -1504,10 +1507,9 @@ static int callargs_restkey(Execute ptr,
 
 	/* error check */
 	if (key != Nil && keyvalue)
-		fmte("Invalid keyword argument ~S.", key, NULL);
-	*result = 0;
+		return fmte_("Invalid keyword argument ~S.", key, NULL);
 
-	return 0;
+	return Result(result, 0);
 }
 
 static int callargs_check(Execute ptr, addr array, addr args, addr *ret)
@@ -1530,6 +1532,7 @@ static int callargs_check(Execute ptr, addr array, addr args, addr *ret)
 	/* rest, key */
 	if (args == Nil)
 		goto final;
+	check = 0;
 	Return(callargs_restkey(ptr, array, &args, &root, &check));
 	localhold_set(hold, 0, root);
 	if (check)
@@ -1537,10 +1540,10 @@ static int callargs_check(Execute ptr, addr array, addr args, addr *ret)
 	goto final;
 
 toofew:
-	fmtw("Too few arguments.", NULL);
+	Return(fmtw_("Too few arguments.", NULL));
 	goto final;
 toomany:
-	fmtw("Too many arguments.", NULL);
+	Return(fmtw_("Too many arguments.", NULL));
 	goto final;
 final:
 	localhold_end(hold);

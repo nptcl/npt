@@ -324,7 +324,7 @@ static int test_maketoken_float(void)
 	ptr = Execute_Thread;
 	charqueue_heap(&queue, 3);
 	pushchar_charqueue_heap(queue, "-123.45d-6");
-	maketoken_float(ptr, queue, &pos);
+	maketoken_float_(ptr, queue, &pos);
 	test(GetType(pos) == LISPTYPE_DOUBLE_FLOAT, "maketoken_float1");
 	test(RefDoubleFloat(pos) == -123.45e-6, "maketoken_float2");
 
