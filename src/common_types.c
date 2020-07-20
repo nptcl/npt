@@ -125,7 +125,7 @@ static void defun_subtypep(void)
 static int function_type_of(Execute ptr, addr pos)
 {
 	type_value(&pos, pos);
-	type_object(&pos, pos);
+	Return(type_object_(&pos, pos));
 	setresult_control(ptr, pos);
 
 	return 0;

@@ -531,49 +531,57 @@ static void lambda_tablevalue_single(addr pos)
 	}
 }
 
-static void lambda_tablevalue_opt(addr args)
+static int lambda_tablevalue_opt_(Execute ptr, addr args)
 {
 	addr list, var, init, svar;
 
 	while (args != Nil) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &init, &svar, NULL);
-		checktype_value(var, init);
+		Return(checktype_value_(ptr, var, init));
 	}
+
+	return 0;
 }
 
-static void lambda_tablevalue_key(addr args)
+static int lambda_tablevalue_key_(Execute ptr, addr args)
 {
 	addr list, var, name, init, svar;
 
 	while (args != Nil) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &name, &init, &svar, NULL);
-		checktype_value(var, init);
+		Return(checktype_value_(ptr, var, init));
 	}
+
+	return 0;
 }
 
-static void lambda_tablevalue_aux(addr args)
+static int lambda_tablevalue_aux_(Execute ptr, addr args)
 {
 	addr list, var, init;
 
 	while (args != Nil) {
 		GetCons(args, &list, &args);
 		List_bind(list, &var, &init, NULL);
-		checktype_value(var, init);
+		Return(checktype_value_(ptr, var, init));
 	}
+
+	return 0;
 }
 
-static void lambda_tablevalue(addr args)
+static int lambda_tablevalue_(Execute ptr, addr args)
 {
 	addr var, opt, rest, key, allow, aux;
 
 	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, NULL);
 	lambda_tablevalue_force(var);
-	lambda_tablevalue_opt(opt);
+	Return(lambda_tablevalue_opt_(ptr, opt));
 	lambda_tablevalue_single(rest);
-	lambda_tablevalue_key(key);
-	lambda_tablevalue_aux(aux);
+	Return(lambda_tablevalue_key_(ptr, key));
+	Return(lambda_tablevalue_aux_(ptr, aux));
+
+	return 0;
 }
 
 static void type_ordinary_var(addr args, addr *ret)
@@ -766,7 +774,7 @@ static int lambda_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	stack = str->stack;
 	Return(lambda_init(ptr, str));
 	apply_declare(ptr, stack, str->decl, &str->free);
-	lambda_tablevalue(str->args);
+	Return(lambda_tablevalue_(ptr, str->args));
 	lambda_declare(ptr, str);
 	Return(lambda_progn(ptr, str));
 	ignore_checkvalue(stack);
@@ -934,18 +942,22 @@ static int macro_init(Execute ptr, struct lambda_struct *str)
 	return macro_init_args(ptr, str->stack, str->args, str->decl, &str->args);
 }
 
-static void macro_tablevalue(addr args);
-static void macro_tablevalue_var(addr args)
+static int macro_tablevalue_(Execute ptr, addr args);
+static int macro_tablevalue_var_(Execute ptr, addr args)
 {
 	addr var;
 
 	while (args != Nil) {
 		GetCons(args, &var, &args);
-		if (consp(var))
-			macro_tablevalue(var);
-		else
+		if (consp(var)) {
+			Return(macro_tablevalue_(ptr, var));
+		}
+		else {
 			lambda_tablevalue_single(var);
+		}
 	}
+
+	return 0;
 }
 
 static void macro_tablevalue_rest(addr rest)
@@ -956,18 +968,20 @@ static void macro_tablevalue_rest(addr rest)
 	}
 }
 
-static void macro_tablevalue(addr args)
+static int macro_tablevalue_(Execute ptr, addr args)
 {
 	addr var, opt, rest, key, allow, aux, whole, env;
 
 	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
-	macro_tablevalue_var(var);
-	lambda_tablevalue_opt(opt);
+	Return(macro_tablevalue_var_(ptr, var));
+	Return(lambda_tablevalue_opt_(ptr, opt));
 	macro_tablevalue_rest(rest);
-	lambda_tablevalue_key(key);
-	lambda_tablevalue_aux(aux);
+	Return(lambda_tablevalue_key_(ptr, key));
+	Return(lambda_tablevalue_aux_(ptr, aux));
 	lambda_tablevalue_single(whole);
 	lambda_tablevalue_single(env);
+
+	return 0;
 }
 
 static int macro_progn(Execute ptr, struct lambda_struct *str)
@@ -983,7 +997,7 @@ static int macro_execute(Execute ptr, struct lambda_struct *str, addr *ret)
 	stack = str->stack;
 	Return(macro_init(ptr, str));
 	apply_declare(ptr, stack, str->decl, &str->free);
-	macro_tablevalue(str->args);
+	Return(macro_tablevalue_(ptr, str->args));
 	Return(macro_progn(ptr, str));
 	ignore_checkvalue(stack);
 	lambda_closure(ptr, str);
@@ -1315,11 +1329,11 @@ static int call_first(Execute ptr, addr *ret, addr first)
 	return 0;
 }
 
-static void check_tablecall_warning(addr name, addr type, addr expected)
+static int check_tablecall_warning_(Execute ptr, addr name, addr type, addr expected)
 {
-	type_object(&type, type);
-	type_object(&expected, expected);
-	type_error_stdarg(name, expected,
+	Return(type_object_(&type, type));
+	Return(type_object_(&expected, expected));
+	return call_type_error_va_(ptr, name, expected,
 			"The object ~S expected a ~S type but the initialize form is ~S type.",
 			name, expected, type, NULL);
 }
@@ -1339,7 +1353,7 @@ static int check_tablecall(Execute ptr, addr eval, addr right, addr *ret)
 	GetEvalScopeThe(eval, &type);
 	if (checktype_p(type, right, &check)) {
 		GetEvalScopeValue(eval, &name);
-		check_tablecall_warning(name, type, right);
+		Return(check_tablecall_warning_(ptr, name, type, right));
 	}
 	setcheck_tablecall(table, check);
 	/* result */

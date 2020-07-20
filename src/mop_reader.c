@@ -174,7 +174,7 @@ static void make_slot_definition_function(addr value, addr *ret)
 	*ret = pos;
 }
 
-static void make_slot_definition(addr slot, addr *ret)
+static int make_slot_definition_(addr slot, addr *ret)
 {
 	addr clos, key, value, check;
 
@@ -186,8 +186,9 @@ static void make_slot_definition(addr slot, addr *ret)
 	clos_set(clos, key, value);
 	/* slot-definition-type */
 	GetTypeSlot(slot, &value);
-	if (GetType(value) == LISPTYPE_TYPE)
-		type_object(&value, value);
+	if (GetType(value) == LISPTYPE_TYPE) {
+		Return(type_object_(&value, value));
+	}
 	GetConst(CLOSNAME_TYPE, &key);
 	clos_set(clos, key, value);
 	/* slot-definition-allocation */
@@ -216,10 +217,10 @@ static void make_slot_definition(addr slot, addr *ret)
 		clos_set(clos, key, value);
 	}
 	/* result */
-	*ret = clos;
+	return Result(ret, clos);
 }
 
-static void list_from_slot_vector(addr pos, addr *ret)
+static int list_from_slot_vector_(addr pos, addr *ret)
 {
 	addr root, slot;
 	size_t size, i;
@@ -229,17 +230,19 @@ static void list_from_slot_vector(addr pos, addr *ret)
 	root = Nil;
 	for (i = 0; i < size; i++) {
 		GetSlotVector(pos, i, &slot);
-		make_slot_definition(slot, &slot);
+		Return(make_slot_definition_(slot, &slot));
 		cons_heap(&root, slot, root);
 	}
 	nreverse(ret, root);
+
+	return 0;
 }
 
 /* (defmethod class-slots (class) ...) -> t */
 static int method_class_slots(Execute ptr, addr method, addr next, addr var)
 {
 	stdget_class_slots(var, &var);
-	list_from_slot_vector(var, &var);
+	Return(list_from_slot_vector_(var, &var));
 	setresult_control(ptr, var);
 
 	return 0;
@@ -288,7 +291,7 @@ static void defgeneric_class_slots(Execute ptr)
 static int method_class_direct_slots(Execute ptr, addr method, addr next, addr var)
 {
 	stdget_class_direct_slots(var, &var);
-	list_from_slot_vector(var, &var);
+	Return(list_from_slot_vector_(var, &var));
 	setresult_control(ptr, var);
 
 	return 0;

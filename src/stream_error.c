@@ -92,29 +92,34 @@ _g int clear_input_stream_error(addr stream)
 	return fmte_("The stream ~S don't run clear-input function.", stream, NULL);
 }
 
-_g int inputp_stream_error(addr stream)
+_g int inputp_stream_error(addr stream, int *ret)
 {
-	return 0; /* no */
+	*ret = 0;
+	return fmte_("The stream ~S don't run inputp function.", stream, NULL);
 }
 
-_g int outputp_stream_error(addr stream)
+_g int outputp_stream_error(addr stream, int *ret)
 {
-	return 0; /* no */
+	*ret = 0;
+	return fmte_("The stream ~S don't run outputp function.", stream, NULL);
 }
 
-_g int interactivep_stream_error(addr stream)
+_g int interactivep_stream_error(addr stream, int *ret)
 {
-	return 0; /* no */
+	*ret = 0;
+	return fmte_("The stream ~S don't run interactivep function.", stream, NULL);
 }
 
-_g int characterp_stream_error(addr stream)
+_g int characterp_stream_error(addr stream, int *ret)
 {
-	return 0; /* no */
+	*ret = 0;
+	return fmte_("The stream ~S don't run characterp function.", stream, NULL);
 }
 
-_g int binaryp_stream_error(addr stream)
+_g int binaryp_stream_error(addr stream, int *ret)
 {
-	return 0; /* no */
+	*ret = 0;
+	return fmte_("The stream ~S don't run binaryp function.", stream, NULL);
 }
 
 _g int element_type_stream_error(addr stream, addr *ret)
@@ -196,7 +201,7 @@ _g int exitpoint_stream_error(addr stream)
 
 _g int termsize_stream_error(addr stream, size_t *value, int *ret)
 {
-	/* fmte("The stream ~S don't run termsize function.", stream, NULL); */
+	/* return fmte_("The stream ~S don't run termsize function.", stream, NULL); */
 	*value = 0;
 	return Result(ret, 1);
 }

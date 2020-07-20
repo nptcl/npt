@@ -68,7 +68,7 @@ _g int fmtprint_peek_(fmtprint print, struct format_operator *str, addr *ret);
 _g int fmtprint_forward_(fmtprint print, struct format_operator *str, size_t n);
 _g int fmtprint_absolute_(fmtprint print, struct format_operator *str, size_t n);
 _g int fmtprint_rollback_(fmtprint print, struct format_operator *str, size_t n);
-_g void fmtprint_clear(fmtprint print);
+_g int fmtprint_clear_(fmtprint print);
 
 #endif
 

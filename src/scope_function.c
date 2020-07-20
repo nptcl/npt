@@ -165,7 +165,7 @@ static int scope_string(Execute ptr, addr *ret, addr eval)
 
 	Check(! eval_parse_p(eval), "type error");
 	GetEvalParse(eval, 0, &eval);
-	type_value_string(&type, eval);
+	type_value(&type, eval);
 	make_eval_scope(ptr, ret, EVAL_PARSE_STRING, type, eval);
 
 	return 0;

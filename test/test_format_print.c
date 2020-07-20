@@ -43,14 +43,14 @@ static int test_fmtprint_putc(void)
 	print.first = 1;
 	print.word = 0;
 	fmtprint_print(&print, "aBc");
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "ABC"), "fmtprint_putc1");
 	clear_output_string_stream(stream);
 
 	print.first = 1;
 	print.word = 0;
 	fmtprint_print(&print, "-aBc-");
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "-ABC-"), "fmtprint_putc2");
 	clear_output_string_stream(stream);
 	/* downcase */
@@ -58,7 +58,7 @@ static int test_fmtprint_putc(void)
 	print.first = 1;
 	print.word = 0;
 	fmtprint_print(&print, "AbCdE01234");
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "abcde01234"), "fmtprint_putc3");
 	clear_output_string_stream(stream);
 	/* capitalize */
@@ -66,7 +66,7 @@ static int test_fmtprint_putc(void)
 	print.first = 1;
 	print.word = 0;
 	fmtprint_print(&print, "abcd efgh-ije-0ab cde0 abcd");
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "Abcd Efgh-Ije-0ab Cde0 Abcd"), "fmtprint_putc4");
 	clear_output_string_stream(stream);
 	/* capitalize-first */
@@ -74,14 +74,14 @@ static int test_fmtprint_putc(void)
 	print.first = 1;
 	print.word = 0;
 	fmtprint_print(&print, "abcd efgh-ije-0ab cde0 abcd");
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "Abcd efgh-ije-0ab cde0 abcd"), "fmtprint_putc5");
 	clear_output_string_stream(stream);
 
 	print.first = 1;
 	print.word = 0;
 	fmtprint_print(&print, "00abcd efgh");
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "00abcd efgh"), "fmtprint_putc6");
 	clear_output_string_stream(stream);
 
@@ -90,7 +90,7 @@ static int test_fmtprint_putc(void)
 	print.first = 1;
 	print.word = 0;
 	fmtprint_print(&print, "aBcD-eFgH1234");
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "aBcD-eFgH1234"), "fmtprint_putc7");
 	clear_output_string_stream(stream);
 

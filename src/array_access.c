@@ -661,11 +661,11 @@ _g int array_equal_dimension(addr a, addr b)
 	return 1;
 }
 
-_g void array_get_element_type(addr pos, addr *ret)
+_g int array_get_element_type_(addr pos, addr *ret)
 {
 	CheckType(pos, LISPTYPE_ARRAY);
 	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &pos);
-	type_object(ret, pos);
+	return type_object_(ret, pos);
 }
 
 _g size_t array_get_vector_length(addr pos, int fill)

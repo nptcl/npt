@@ -51,7 +51,7 @@ _g int format_abort_(addr format, size_t position, const char *str, va_list args
 	Return(write_char_stream_(stream, '^'));
 
 	/* error */
-	string_stream_heap(stream, &pos);
+	Return(string_stream_heap_(stream, &pos));
 	return call_simple_error_(Execute_Thread, pos, list);
 }
 

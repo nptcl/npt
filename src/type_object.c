@@ -12,39 +12,41 @@
 #include "type_optimize.h"
 #include "type_symbol.h"
 
-typedef void (*type_object_call)(addr *, addr);
+typedef int (*type_object_call)(addr *, addr);
 static type_object_call TypeObjectTable[LISPTYPE_SIZE];
 
-static void type_object_error(addr *ret, addr pos)
+static int type_object_error(addr *ret, addr pos)
 {
 	infobit(pos);
-	fmte("Invalid type.", NULL);
+	return fmte_("Invalid type.", NULL);
 }
 
-static void type_object_name(addr *ret, addr pos)
+static int type_object_name(addr *ret, addr pos)
 {
 	constindex index = getdeclname(RefLispDecl(pos));
 	GetConstant(index, ret);
+	return 0;
 }
 
-static void type_object_optimized(addr *ret, addr pos)
+static int type_object_optimized(addr *ret, addr pos)
 {
 	get_type_optimized(&pos, pos);
-	type_object(ret, pos);
+	return type_object_(ret, pos);
 }
 
-static void type_object_subtypep(addr *ret, addr pos)
+static int type_object_subtypep(addr *ret, addr pos)
 {
 	get_type_subtypep(&pos, pos);
-	type_object(ret, pos);
+	return type_object_(ret, pos);
 }
 
-static void type_object_type(addr *ret, addr pos)
+static int type_object_type(addr *ret, addr pos)
 {
 	GetConst(SYSTEM_TYPE, ret);
+	return 0;
 }
 
-static void type_object_clos(addr *ret, addr pos)
+static int type_object_clos(addr *ret, addr pos)
 {
 	GetArrayType(pos, 0, &pos);
 	if (type_asterisk_p(pos)) {
@@ -54,9 +56,11 @@ static void type_object_clos(addr *ret, addr pos)
 		clos_class_of(pos, &pos);
 		stdget_class_name(pos, ret);
 	}
+
+	return 0;
 }
 
-static void type_object_vectortype(addr *ret, addr name, addr pos)
+static int type_object_vectortype_(addr *ret, addr name, addr pos)
 {
 	addr array, root, temp;
 	size_t size;
@@ -66,41 +70,46 @@ static void type_object_vectortype(addr *ret, addr name, addr pos)
 	for (root = Nil; size; ) {
 		size--;
 		GetArrayA4(array, size, &temp);
-		type_object(&temp, temp);
+		Return(type_object_(&temp, temp));
 		cons_heap(&root, temp, root);
 	}
 	cons_heap(ret, name, root);
+
+	return 0;
 }
 
-static void type_object_and(addr *ret, addr pos)
+static int type_object_and(addr *ret, addr pos)
 {
 	addr name;
 	GetConst(COMMON_AND, &name);
-	type_object_vectortype(ret, name, pos);
+	return type_object_vectortype_(ret, name, pos);
 }
 
-static void type_object_or(addr *ret, addr pos)
+static int type_object_or(addr *ret, addr pos)
 {
 	addr name;
 	GetConst(COMMON_OR, &name);
-	type_object_vectortype(ret, name, pos);
+	return type_object_vectortype_(ret, name, pos);
 }
 
-static void type_object_operator1(addr *ret, constindex index, addr pos)
+static int type_object_operator1_(addr *ret, constindex index, addr pos)
 {
 	addr name;
+
 	GetConstant(index, &name);
 	GetArrayType(pos, 0, &pos);
 	copyheap(&pos, pos);
 	list_heap(ret, name, pos, NULL);
+
+	return 0;
 }
 
-static void type_object_eql(addr *ret, addr pos)
+static int type_object_eql(addr *ret, addr pos)
 {
-	type_object_operator1(ret, CONSTANT_COMMON_EQL, pos);
+	return type_object_operator1_(ret, CONSTANT_COMMON_EQL, pos);
 }
 
-static void type_object_member(addr *ret, addr pos)
+static int type_object_member(addr *ret, addr pos)
 {
 	addr array, root, temp;
 	size_t size;
@@ -115,29 +124,33 @@ static void type_object_member(addr *ret, addr pos)
 	}
 	GetConst(COMMON_MEMBER, &temp);
 	cons_heap(ret, temp, root);
+
+	return 0;
 }
 
-static void type_object_mod(addr *ret, addr pos)
+static int type_object_mod(addr *ret, addr pos)
 {
-	type_object_operator1(ret, CONSTANT_COMMON_MOD, pos);
+	return type_object_operator1_(ret, CONSTANT_COMMON_MOD, pos);
 }
 
-static void type_object_not(addr *ret, addr pos)
+static int type_object_not(addr *ret, addr pos)
 {
 	addr name;
 
 	GetConst(COMMON_NOT, &name);
 	GetArrayType(pos, 0, &pos);
-	type_object(&pos, pos);
+	Return(type_object_(&pos, pos));
 	list_heap(ret, name, pos, NULL);
+
+	return 0;
 }
 
-static void type_object_satisfies(addr *ret, addr pos)
+static int type_object_satisfies(addr *ret, addr pos)
 {
-	type_object_operator1(ret, CONSTANT_COMMON_SATISFIES, pos);
+	return type_object_operator1_(ret, CONSTANT_COMMON_SATISFIES, pos);
 }
 
-static void type_object_values(addr *ret, addr pos)
+static int type_object_values(addr *ret, addr pos)
 {
 	addr root, list, value;
 
@@ -149,7 +162,7 @@ static void type_object_values(addr *ret, addr pos)
 	GetArrayType(pos, 0, &list);
 	while (list != Nil) {
 		GetCons(list, &value, &list);
-		type_object(&value, value);
+		Return(type_object_(&value, value));
 		cons_heap(&root, value, root);
 	}
 
@@ -161,7 +174,7 @@ static void type_object_values(addr *ret, addr pos)
 	}
 	while (list != Nil) {
 		GetCons(list, &value, &list);
-		type_object(&value, value);
+		Return(type_object_(&value, value));
 		cons_heap(&root, value, root);
 	}
 
@@ -170,7 +183,7 @@ static void type_object_values(addr *ret, addr pos)
 	if (list != Nil) {
 		GetConst(AMPERSAND_REST, &value);
 		cons_heap(&root, value, root);
-		type_object(&list, list);
+		Return(type_object_(&list, list));
 		cons_heap(&root, list, root);
 	}
 
@@ -183,100 +196,101 @@ static void type_object_values(addr *ret, addr pos)
 
 	/* result */
 	nreverse(ret, root);
+	return 0;
 }
 
-static void type_object_vector(addr *ret, addr pos)
+static int type_object_vector(addr *ret, addr pos)
 {
 	addr name, type;
 
 	GetConst(COMMON_VECTOR, &name);
 	GetArrayType(pos, 0, &type);
 	GetArrayType(pos, 1, &pos);
-	if (type_asterisk_p(type) && type_asterisk_p(pos)) {
-		*ret = name;
-		return;
-	}
-	type_object(&type, type);
+	if (type_asterisk_p(type) && type_asterisk_p(pos))
+		return Result(ret, name);
+	Return(type_object_(&type, type));
 	if (type_asterisk_p(pos))
 		GetConst(COMMON_ASTERISK, &pos);
 	list_heap(ret, name, type, pos, NULL);
+
+	return 0;
 }
 
-static void type_object_size(addr *ret, constindex index, addr pos)
+static int type_object_size_(addr *ret, constindex index, addr pos)
 {
 	addr name;
 
 	GetConstant(index, &name);
 	GetArrayType(pos, 0, &pos);
-	if (type_asterisk_p(pos)) {
-		*ret = name;
-		return;
-	}
+	if (type_asterisk_p(pos))
+		return Result(ret, name);
 	list_heap(ret, name, pos, NULL);
+
+	return 0;
 }
 
-static void type_object_simple_vector(addr *ret, addr pos)
+static int type_object_simple_vector(addr *ret, addr pos)
 {
-	type_object_size(ret, CONSTANT_COMMON_SIMPLE_VECTOR, pos);
+	return type_object_size_(ret, CONSTANT_COMMON_SIMPLE_VECTOR, pos);
 }
 
-static void type_object_bit_vector(addr *ret, addr pos)
+static int type_object_bit_vector(addr *ret, addr pos)
 {
-	type_object_size(ret, CONSTANT_COMMON_BIT_VECTOR, pos);
+	return type_object_size_(ret, CONSTANT_COMMON_BIT_VECTOR, pos);
 }
 
-static void type_object_simple_bit_vector(addr *ret, addr pos)
+static int type_object_simple_bit_vector(addr *ret, addr pos)
 {
-	type_object_size(ret, CONSTANT_COMMON_SIMPLE_BIT_VECTOR, pos);
+	return type_object_size_(ret, CONSTANT_COMMON_SIMPLE_BIT_VECTOR, pos);
 }
 
-static void type_object_string(addr *ret, addr pos)
+static int type_object_string(addr *ret, addr pos)
 {
-	type_object_size(ret, CONSTANT_COMMON_STRING, pos);
+	return type_object_size_(ret, CONSTANT_COMMON_STRING, pos);
 }
 
-static void type_object_base_string(addr *ret, addr pos)
+static int type_object_base_string(addr *ret, addr pos)
 {
-	type_object_size(ret, CONSTANT_COMMON_BASE_STRING, pos);
+	return type_object_size_(ret, CONSTANT_COMMON_BASE_STRING, pos);
 }
 
-static void type_object_simple_string(addr *ret, addr pos)
+static int type_object_simple_string(addr *ret, addr pos)
 {
-	type_object_size(ret, CONSTANT_COMMON_SIMPLE_STRING, pos);
+	return type_object_size_(ret, CONSTANT_COMMON_SIMPLE_STRING, pos);
 }
 
-static void type_object_simple_base_string(addr *ret, addr pos)
+static int type_object_simple_base_string(addr *ret, addr pos)
 {
-	type_object_size(ret, CONSTANT_COMMON_SIMPLE_BASE_STRING, pos);
+	return type_object_size_(ret, CONSTANT_COMMON_SIMPLE_BASE_STRING, pos);
 }
 
-static void type_object_signed_byte(addr *ret, addr pos)
+static int type_object_signed_byte(addr *ret, addr pos)
 {
-	type_object_size(ret, CONSTANT_COMMON_SIGNED_BYTE, pos);
+	return type_object_size_(ret, CONSTANT_COMMON_SIGNED_BYTE, pos);
 }
 
-static void type_object_unsigned_byte(addr *ret, addr pos)
+static int type_object_unsigned_byte(addr *ret, addr pos)
 {
-	type_object_size(ret, CONSTANT_COMMON_UNSIGNED_BYTE, pos);
+	return type_object_size_(ret, CONSTANT_COMMON_UNSIGNED_BYTE, pos);
 }
 
-static void type_object_cons(addr *ret, addr pos)
+static int type_object_cons(addr *ret, addr pos)
 {
 	addr name, car, cdr;
 
 	GetConst(COMMON_CONS, &name);
 	GetArrayType(pos, 0, &car);
 	GetArrayType(pos, 1, &cdr);
-	if (type_asterisk_p(car) && type_asterisk_p(cdr)) {
-		*ret = name;
-		return;
-	}
-	type_object(&car, car);
-	type_object(&cdr, cdr);
+	if (type_asterisk_p(car) && type_asterisk_p(cdr))
+		return Result(ret, name);
+	Return(type_object_(&car, car));
+	Return(type_object_(&cdr, cdr));
 	list_heap(ret, name, car, cdr, NULL);
+
+	return 0;
 }
 
-static void type_object_function_args(addr *ret, addr type)
+static int type_object_function_args_(addr *ret, addr type)
 {
 	addr root, list, pos, value;
 
@@ -286,7 +300,7 @@ static void type_object_function_args(addr *ret, addr type)
 	GetArrayA2(type, 0, &list);
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		type_object(&pos, pos);
+		Return(type_object_(&pos, pos));
 		cons_heap(&root, pos, root);
 	}
 
@@ -297,7 +311,7 @@ static void type_object_function_args(addr *ret, addr type)
 		cons_heap(&root, pos, root);
 		while (list != Nil) {
 			GetCons(list, &pos, &list);
-			type_object(&pos, pos);
+			Return(type_object_(&pos, pos));
 			cons_heap(&root, pos, root);
 		}
 	}
@@ -307,7 +321,7 @@ static void type_object_function_args(addr *ret, addr type)
 	if (list != Nil) {
 		GetConst(AMPERSAND_REST, &pos);
 		cons_heap(&root, pos, root);
-		type_object(&list, list);
+		Return(type_object_(&list, list));
 		cons_heap(&root, list, root);
 	}
 
@@ -319,7 +333,7 @@ static void type_object_function_args(addr *ret, addr type)
 		while (list != Nil) {
 			GetCons(list, &pos, &list);
 			GetCons(pos, &pos, &value);
-			type_object(&value, value);
+			Return(type_object_(&value, value));
 			list_heap(&pos, pos, value, NULL);
 			cons_heap(&root, pos, root);
 		}
@@ -327,9 +341,10 @@ static void type_object_function_args(addr *ret, addr type)
 
 	/* result */
 	nreverse(ret, root);
+	return 0;
 }
 
-static void type_object_functiontype(addr *ret, constindex index, addr pos)
+static int type_object_functiontype_(addr *ret, constindex index, addr pos)
 {
 	addr name, type;
 
@@ -338,31 +353,35 @@ static void type_object_functiontype(addr *ret, constindex index, addr pos)
 	/* argument */
 	GetArrayType(pos, 0, &type);
 	GetArrayType(pos, 1, &pos);
-	if (type_asterisk_p(type) && type_asterisk_p(pos)) {
-		*ret = name;
-		return;
-	}
-	if (type_asterisk_p(type))
+	if (type_asterisk_p(type) && type_asterisk_p(pos))
+		return Result(ret, name);
+	if (type_asterisk_p(type)) {
 		GetConst(COMMON_ASTERISK, &type);
-	else
-		type_object_function_args(&type, type);
+	}
+	else {
+		Return(type_object_function_args_(&type, type));
+	}
 	/* values */
-	if (type_asterisk_p(pos))
+	if (type_asterisk_p(pos)) {
 		GetConst(COMMON_ASTERISK, &pos);
-	else
-		type_object(&pos, pos);
+	}
+	else {
+		Return(type_object_(&pos, pos));
+	}
 	/* result */
 	list_heap(ret, name, type, pos, NULL);
+
+	return 0;
 }
 
-static void type_object_function(addr *ret, addr pos)
+static int type_object_function(addr *ret, addr pos)
 {
-	type_object_functiontype(ret, CONSTANT_COMMON_FUNCTION, pos);
+	return type_object_functiontype_(ret, CONSTANT_COMMON_FUNCTION, pos);
 }
 
-static void type_object_compiled_function(addr *ret, addr pos)
+static int type_object_compiled_function(addr *ret, addr pos)
 {
-	type_object_functiontype(ret, CONSTANT_COMMON_COMPILED_FUNCTION, pos);
+	return type_object_functiontype_(ret, CONSTANT_COMMON_COMPILED_FUNCTION, pos);
 }
 
 static void type_object_arraydimension(addr pos, addr *ret)
@@ -385,7 +404,7 @@ static void type_object_arraydimension(addr pos, addr *ret)
 	*ret = root;
 }
 
-static void type_object_arraytype(addr *ret, constindex index, addr pos)
+static int type_object_arraytype_(addr *ret, constindex index, addr pos)
 {
 	addr name, type;
 
@@ -394,31 +413,35 @@ static void type_object_arraytype(addr *ret, constindex index, addr pos)
 	/* type */
 	GetArrayType(pos, 0, &type);
 	GetArrayType(pos, 1, &pos);
-	if (type_asterisk_p(type) && type_asterisk_p(pos)) {
-		copyheap(ret, name);
-		return;
-	}
-	if (type_asterisk_p(type))
+	if (type_asterisk_p(type) && type_asterisk_p(pos))
+		return Result(ret, name);
+	if (type_asterisk_p(type)) {
 		GetConst(COMMON_ASTERISK, &type);
-	else
-		type_object(&type, type);
+	}
+	else {
+		Return(type_object_(&type, type));
+	}
 	/* dimension */
-	if (type_asterisk_p(pos))
+	if (type_asterisk_p(pos)) {
 		GetConst(COMMON_ASTERISK, &pos);
-	else
+	}
+	else {
 		type_object_arraydimension(pos, &pos);
+	}
 	/* result */
 	list_heap(ret, name, type, pos, NULL);
+
+	return 0;
 }
 
-static void type_object_array(addr *ret, addr pos)
+static int type_object_array(addr *ret, addr pos)
 {
-	type_object_arraytype(ret, CONSTANT_COMMON_ARRAY, pos);
+	return type_object_arraytype_(ret, CONSTANT_COMMON_ARRAY, pos);
 }
 
-static void type_object_simple_array(addr *ret, addr pos)
+static int type_object_simple_array(addr *ret, addr pos)
 {
-	type_object_arraytype(ret, CONSTANT_COMMON_SIMPLE_ARRAY, pos);
+	return type_object_arraytype_(ret, CONSTANT_COMMON_SIMPLE_ARRAY, pos);
 }
 
 static void type_object_realtype(addr *ret, constindex index, addr pos)
@@ -450,68 +473,76 @@ static void type_object_realtype(addr *ret, constindex index, addr pos)
 	list_heap(ret, name, left2, right2, NULL);
 }
 
-static void type_object_real(addr *ret, addr pos)
+static int type_object_real(addr *ret, addr pos)
 {
 	type_object_realtype(ret, CONSTANT_COMMON_REAL, pos);
+	return 0;
 }
 
-static void type_object_rational(addr *ret, addr pos)
+static int type_object_rational(addr *ret, addr pos)
 {
 	type_object_realtype(ret, CONSTANT_COMMON_RATIONAL, pos);
+	return 0;
 }
 
-static void type_object_integer(addr *ret, addr pos)
+static int type_object_integer(addr *ret, addr pos)
 {
 	type_object_realtype(ret, CONSTANT_COMMON_INTEGER, pos);
+	return 0;
 }
 
-static void type_object_float(addr *ret, addr pos)
+static int type_object_float(addr *ret, addr pos)
 {
 	type_object_realtype(ret, CONSTANT_COMMON_FLOAT, pos);
+	return 0;
 }
 
-static void type_object_short_float(addr *ret, addr pos)
+static int type_object_short_float(addr *ret, addr pos)
 {
 	type_object_realtype(ret, CONSTANT_COMMON_SHORT_FLOAT, pos);
+	return 0;
 }
 
-static void type_object_single_float(addr *ret, addr pos)
+static int type_object_single_float(addr *ret, addr pos)
 {
 	type_object_realtype(ret, CONSTANT_COMMON_SINGLE_FLOAT, pos);
+	return 0;
 }
 
-static void type_object_double_float(addr *ret, addr pos)
+static int type_object_double_float(addr *ret, addr pos)
 {
 	type_object_realtype(ret, CONSTANT_COMMON_DOUBLE_FLOAT, pos);
+	return 0;
 }
 
-static void type_object_long_float(addr *ret, addr pos)
+static int type_object_long_float(addr *ret, addr pos)
 {
 	type_object_realtype(ret, CONSTANT_COMMON_LONG_FLOAT, pos);
+	return 0;
 }
 
-static void type_object_complex(addr *ret, addr pos)
+static int type_object_complex(addr *ret, addr pos)
 {
 	addr name;
 
 	GetConst(COMMON_COMPLEX, &name);
 	GetArrayType(pos, 0, &pos);
-	if (type_asterisk_p(pos)) {
-		*ret = name;
-		return;
-	}
-	type_object(&pos, pos);
+	if (type_asterisk_p(pos))
+		return Result(ret, name);
+	Return(type_object_(&pos, pos));
 	list_heap(ret, name, pos, NULL);
+
+	return 0;
 }
 
-_g void type_object(addr *ret, addr pos)
+_g int type_object_(addr *ret, addr pos)
 {
 	type_object_call call;
 	addr result, notp;
 
 	Check(GetType(pos) != LISPTYPE_TYPE, "type error");
 	call = TypeObjectTable[(int)RefLispDecl(pos)];
-	call(&result, pos);
+	Return((*call)(&result, pos));
 	if (RefNotDecl(pos)) {
 		GetConst(COMMON_NOT, &notp);
 		list_heap(ret, notp, result, NULL);
@@ -520,6 +551,8 @@ _g void type_object(addr *ret, addr pos)
 		*ret = result;
 	}
 	Check(*ret == Unbound, "unbound error");
+
+	return 0;
 }
 
 _g void init_type_object(void)

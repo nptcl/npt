@@ -333,7 +333,7 @@ static int format_call_print(fmtprint print, addr pos, int colon, int atsign,
 			check = princ_print(print->ptr, stream, pos);
 		if (check)
 			return 1;
-		string_stream_local(print->local, stream, &pos);
+		Return(string_stream_local_(print->local, stream, &pos));
 		clear_output_string_stream(stream);
 	}
 
@@ -435,7 +435,7 @@ static int format_radix_parameter(fmtprint print, struct format_operator *str,
 		Return(output_nosign_integer_(local, stream, pos, radix, 1));
 	}
 	/* output */
-	string_stream_local(print->local, stream, &pos);
+	Return(string_stream_local_(print->local, stream, &pos));
 	clear_output_string_stream(stream);
 
 	return format_write_margin_(print, pos, 1, mincol, 1, 0, padchar);
@@ -659,7 +659,7 @@ static int format_call_Character_atsign_(fmtprint print, addr pos)
 	CheckType(pos, LISPTYPE_CHARACTER);
 	Return(fmtprint_stream_(print, &stream));
 	Return(prin1_print(print->ptr, stream, pos));
-	string_stream_local(print->local, stream, &pos);
+	Return(string_stream_local_(print->local, stream, &pos));
 	clear_output_string_stream(stream);
 	return fmtprint_string_(print, pos);
 }
@@ -1586,10 +1586,12 @@ static int format_call_Tabulate(fmtprint print, struct format_operator *str)
 
 	if (str->colon) {
 		Return(fmtprint_stream_(print, &stream));
-		if (str->atsign)
-			pprint_tab_section_relative(print->ptr, stream, column, colinc);
-		else
-			pprint_tab_section(print->ptr, stream, column, colinc);
+		if (str->atsign) {
+			Return(pprint_tab_section_relative_(print->ptr, stream, column, colinc));
+		}
+		else {
+			Return(pprint_tab_section_(print->ptr, stream, column, colinc));
+		}
 		Return(fmtprint_stream_output_(print));
 	}
 	else {
@@ -1669,7 +1671,7 @@ static int format_call_Recursive_call_(fmtprint print,
 	ptr = print->ptr;
 	Return(fmtprint_stream_(print, &stream));
 	Return(format_execute(ptr, stream, format, args, ret));
-	string_stream_local(ptr->local, stream, &pos);
+	Return(string_stream_local_(ptr->local, stream, &pos));
 	clear_output_string_stream(stream);
 	return fmtprint_string_(print, pos);
 }
@@ -1756,17 +1758,20 @@ static int format_call_Recursive(fmtprint print, struct format_operator *str)
  */
 static int format_call_ConditionalNewline(fmtprint print, struct format_operator *str)
 {
-	Check(0 < str->args_size, "size error");
-	if (str->colon && str->atsign)
-		pprint_newline_print(print->ptr, pprint_newline_mandatory, print->stream);
-	else if (str->colon)
-		pprint_newline_print(print->ptr, pprint_newline_fill, print->stream);
-	else if (str->atsign)
-		pprint_newline_print(print->ptr, pprint_newline_miser, print->stream);
-	else
-		pprint_newline_print(print->ptr, pprint_newline_linear, print->stream);
+	addr stream;
+	Execute ptr;
 
-	return 0;
+	Check(0 < str->args_size, "size error");
+	ptr = print->ptr;
+	stream = print->stream;
+	if (str->colon && str->atsign)
+		return pprint_newline_print_(ptr, pprint_newline_mandatory, stream);
+	else if (str->colon)
+		return pprint_newline_print_(ptr, pprint_newline_fill, stream);
+	else if (str->atsign)
+		return pprint_newline_print_(ptr, pprint_newline_miser, stream);
+	else
+		return pprint_newline_print_(ptr, pprint_newline_linear, stream);
 }
 
 
@@ -1807,9 +1812,8 @@ static int format_call_Indent(fmtprint print, struct format_operator *str)
 	Check(1 < str->args_size, "size error");
 	Check(str->atsign, "Invalid argument [atsign].");
 	Return(fmtint_default_(print, str, 0, &n, 0));
-	pprint_indent_print(print->ptr, ! str->colon, n, print->stream);
 
-	return 0;
+	return pprint_indent_print_(print->ptr, ! str->colon, n, print->stream);
 }
 
 
@@ -2012,9 +2016,9 @@ static int format_call_Iteration_list(fmtprint print,
 	stream = print->stream;
 	check = pretty_stream_p(stream);
 	if (check) {
-		root_pretty_stream(stream, &root);
+		Return(root_pretty_stream_(stream, &root));
 		gchold_push_local(print->local, root);
-		setroot_pretty_stream(stream, pos);
+		Return(setroot_pretty_stream_(stream, pos));
 	}
 
 	/* loop */
@@ -2031,8 +2035,9 @@ static int format_call_Iteration_list(fmtprint print,
 
 	/* rollback */
 finish:
-	if (check)
-		setroot_pretty_stream(stream, root);
+	if (check) {
+		Return(setroot_pretty_stream_(stream, root));
+	}
 
 	return result;
 }
@@ -2075,7 +2080,7 @@ static int format_call_Iteration_listargs(fmtprint print,
 	stream = print->stream;
 	check = pretty_stream_p(stream);
 	if (check) {
-		root_pretty_stream(stream, &root);
+		Return(root_pretty_stream_(stream, &root));
 		gchold_push_local(print->local, root);
 	}
 
@@ -2092,8 +2097,9 @@ static int format_call_Iteration_listargs(fmtprint print,
 		print->now = now;
 		print->rest = &args;
 		print->last = (cdr == Nil);
-		if (check)
-			setroot_pretty_stream(stream, car);
+		if (check) {
+			Return(setroot_pretty_stream_(stream, car));
+		}
 		if (fmtcall(print, &loop_check)) {
 			result = 1;
 			goto finish;
@@ -2105,8 +2111,9 @@ static int format_call_Iteration_listargs(fmtprint print,
 
 	/* rollback */
 finish:
-	if (check)
-		setroot_pretty_stream(stream, root);
+	if (check) {
+		Return(setroot_pretty_stream_(stream, root));
+	}
 
 	return result;
 }
@@ -2133,8 +2140,9 @@ static int format_call_Iteration_restargs(fmtprint print,
 			break;
 		print->rest = rest;
 		Return(fmtprint_pop_(print, str, &pos));
-		if (check)
-			root_pretty_stream(stream, &root);
+		if (check) {
+			Return(root_pretty_stream_(stream, &root));
+		}
 
 		args.root = pos;
 		args.front = pos;
@@ -2142,11 +2150,13 @@ static int format_call_Iteration_restargs(fmtprint print,
 		print->now = now;
 		print->rest = &args;
 		print->last = (rest->front == Nil);
-		if (check)
-			setroot_pretty_stream(stream, pos);
+		if (check) {
+			Return(setroot_pretty_stream_(stream, pos));
+		}
 		result = fmtcall(print, &loop_check);
-		if (check)
-			setroot_pretty_stream(stream, root);
+		if (check) {
+			Return(setroot_pretty_stream_(stream, root));
+		}
 		if (result)
 			return 1;
 		if (loop_check)
@@ -2212,9 +2222,9 @@ static int format_call_Iteration2_list(fmtprint print,
 	stream = print->stream;
 	check = pretty_stream_p(stream);
 	if (check) {
-		root_pretty_stream(stream, &root);
+		Return(root_pretty_stream_(stream, &root));
 		gchold_push_local(print->local, root);
-		setroot_pretty_stream(stream, pos);
+		Return(setroot_pretty_stream_(stream, pos));
 	}
 
 	/* loop */
@@ -2230,8 +2240,9 @@ static int format_call_Iteration2_list(fmtprint print,
 
 	/* rollback */
 finish:
-	if (check)
-		setroot_pretty_stream(stream, root);
+	if (check) {
+		Return(setroot_pretty_stream_(stream, root));
+	}
 
 	return result;
 }
@@ -2271,7 +2282,7 @@ static int format_call_Iteration2_listargs(fmtprint print,
 	stream = print->stream;
 	check = pretty_stream_p(stream);
 	if (check) {
-		root_pretty_stream(stream, &root);
+		Return(root_pretty_stream_(stream, &root));
 		gchold_push_local(print->local, root);
 	}
 
@@ -2287,8 +2298,9 @@ static int format_call_Iteration2_listargs(fmtprint print,
 		args.index = 0;
 		print->rest = &args;
 		print->last = (cdr == Nil);
-		if (check)
-			setroot_pretty_stream(stream, car);
+		if (check) {
+			Return(setroot_pretty_stream_(stream, car));
+		}
 		if (format_call_Recursive_call_(print, format, car, &car)) {
 			result = 1;
 			goto finish;
@@ -2297,8 +2309,9 @@ static int format_call_Iteration2_listargs(fmtprint print,
 
 	/* rollback */
 finish:
-	if (check)
-		setroot_pretty_stream(stream, root);
+	if (check) {
+		Return(setroot_pretty_stream_(stream, root));
+	}
 
 	return result;
 }
@@ -2324,19 +2337,22 @@ static int format_call_Iteration2_restargs(fmtprint print,
 			break;
 		print->rest = rest;
 		Return(fmtprint_pop_(print, str, &pos));
-		if (check)
-			root_pretty_stream(stream, &root);
+		if (check) {
+			Return(root_pretty_stream_(stream, &root));
+		}
 
 		args.root = pos;
 		args.front = pos;
 		args.index = 0;
 		print->rest = &args;
 		print->last = (rest->front == Nil);
-		if (check)
-			setroot_pretty_stream(stream, pos);
+		if (check) {
+			Return(setroot_pretty_stream_(stream, pos));
+		}
 		result = format_call_Recursive_call_(print, format, pos, &pos);
-		if (check)
-			setroot_pretty_stream(stream, root);
+		if (check) {
+			Return(setroot_pretty_stream_(stream, root));
+		}
 		if (result)
 			return 1;
 	}
@@ -2578,7 +2594,7 @@ static int format_call_Justificaion_call(struct format_justification *just,
 	Return(format_call_Justificaion_fmtcall(&loop, count, width));
 	if (loop.loop) {
 		print->loop = 1;
-		string_stream_local(local, stream, ret);
+		Return(string_stream_local_(local, stream, ret));
 	}
 	else {
 		print->loop = 0;
@@ -2949,7 +2965,7 @@ static int format_logicalblock1(Execute ptr)
 	push_new_control(ptr, &control);
 	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
-	gensym_pretty_stream(stream, &gensym);
+	Return(gensym_pretty_stream_(stream, &gensym));
 	Return(catch_clang(ptr, p_format_logicalblock2, gensym, pretty));
 	return free_control_(ptr, control);
 }
@@ -3093,9 +3109,7 @@ static int format_call_LogicalBlock_call2_(fmtprint print, struct format_operato
 	Return(call_pretty_stream(print->ptr, stream, pos));
 
 	/* atsign */
-	fmtprint_clear(print);
-
-	return 0;
+	return fmtprint_clear_(print);
 }
 
 static int format_call_LogicalBlock(fmtprint print, struct format_operator *str)

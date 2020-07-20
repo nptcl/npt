@@ -93,7 +93,7 @@ _g int fmtprint_stream_output_(fmtprint print)
 
 	stream = print->string;
 	Check(! output_string_stream_p(stream), "string-stream error");
-	string_stream_local(print->local, stream, &pos);
+	Return(string_stream_local_(print->local, stream, &pos));
 	clear_output_string_stream(stream);
 	return fmtprint_string_(print, pos);
 }
@@ -122,8 +122,9 @@ static int fmtprint_char_(fmtprint print, unicode u)
 		print->fill_white = 1;
 		goto output;
 	}
-	if (print->fill_white && print->fill_ignore == 0)
-		pprint_newline_print(print->ptr, pprint_newline_fill, stream);
+	if (print->fill_white && print->fill_ignore == 0) {
+		Return(pprint_newline_print_(print->ptr, pprint_newline_fill, stream));
+	}
 	print->fill_white = 0;
 	print->fill_ignore = 0;
 
@@ -283,9 +284,9 @@ static int fmtprint_forward2_(fmtprint print, struct format_operator *str, size_
 	stream = print->stream;
 	Check(! pretty_stream_p(stream), "pretty stream error");
 
-	root_pretty_stream(stream, &list);
+	Return(root_pretty_stream_(stream, &list));
 	Return(fmtprint_pop_error_(print, str, list, NULL, &list, n));
-	setroot_pretty_stream(stream, list);
+	Return(setroot_pretty_stream_(stream, list));
 
 	return 0;
 }
@@ -324,13 +325,13 @@ static int fmtprint_rollback1_(fmtprint print, struct format_operator *str, size
 	return 0;
 }
 
-static void fmtprint_rollback2(fmtprint print, struct format_operator *str, size_t n)
+static int fmtprint_rollback2_(fmtprint print, struct format_operator *str, size_t n)
 {
 	addr stream;
 
 	stream = print->stream;
 	Check(! pretty_stream_p(stream), "pretty stream error");
-	setroot_pretty_stream(stream, print->rest->front);
+	return setroot_pretty_stream_(stream, print->rest->front);
 }
 
 _g int fmtprint_rollback_(fmtprint print, struct format_operator *str, size_t n)
@@ -338,8 +339,9 @@ _g int fmtprint_rollback_(fmtprint print, struct format_operator *str, size_t n)
 	if (n == 0)
 		return 0;
 	Return(fmtprint_rollback1_(print, str, n));
-	if (print->pretty)
-		fmtprint_rollback2(print, str, n);
+	if (print->pretty) {
+		Return(fmtprint_rollback2_(print, str, n));
+	}
 	
 	return 0;
 }
@@ -373,19 +375,22 @@ static void fmtprint_clear1(fmtprint print)
 	rest->index = 0;
 }
 
-static void fmtprint_clear2(fmtprint print)
+static int fmtprint_clear2_(fmtprint print)
 {
 	addr stream;
 
 	stream = print->stream;
 	Check(! pretty_stream_p(stream), "pretty stream error");
-	setroot_pretty_stream(stream, Nil);
+	return setroot_pretty_stream_(stream, Nil);
 }
 
-_g void fmtprint_clear(fmtprint print)
+_g int fmtprint_clear_(fmtprint print)
 {
 	fmtprint_clear1(print);
-	if (print->pretty)
-		fmtprint_clear2(print);
+	if (print->pretty) {
+		Return(fmtprint_clear2_(print));
+	}
+
+	return 0;
 }
 

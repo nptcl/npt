@@ -39,7 +39,7 @@ _g void array_setf_aref_bit(addr pos, addr args, addr value);
 
 _g int array_equal_type(struct array_struct *a, enum ARRAY_TYPE type, unsigned size);
 _g int array_equal_dimension(addr left, addr right);
-_g void array_get_element_type(addr pos, addr *ret);
+_g int array_get_element_type_(addr pos, addr *ret);
 _g size_t array_get_vector_length(addr pos, int fill);
 _g void array_get_rowlength(addr pos, size_t *ret);
 

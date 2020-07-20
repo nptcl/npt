@@ -124,36 +124,36 @@ static int fresh_line_BroadCast(addr stream, int *ret)
 	return Result(ret, check);
 }
 
-static int characterp_BroadCast(addr stream)
+static int characterp_BroadCast(addr stream, int *ret)
 {
-	int check;
+	int value, check;
 	addr list;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
-	for (check = 1; list != Nil; ) {
-		if (! consp_getcons(list, &stream, &list))
-			break;
-		check = check && characterp_stream(stream);
+	for (value = 1; list != Nil; ) {
+		Return_getcons(list, &stream, &list);
+		Return(characterp_stream_(stream, &check));
+		value = value && check;
 	}
 
-	return check;
+	return Result(ret, value);
 }
 
-static int binaryp_BroadCast(addr stream)
+static int binaryp_BroadCast(addr stream, int *ret)
 {
-	int check;
+	int value, check;
 	addr list;
 
 	CheckBroadCastStream(stream);
 	GetInfoStream(stream, &list);
-	for (check = 1; list != Nil; ) {
-		if (! consp_getcons(list, &stream, &list))
-			break;
-		check = check && binaryp_stream(stream);
+	for (value = 1; list != Nil; ) {
+		Return_getcons(list, &stream, &list);
+		Return(binaryp_stream_(stream, &check));
+		value = value && check;
 	}
 
-	return check;
+	return Result(ret, value);
 }
 
 static int last_component_BroadCast(addr stream, addr *ret)

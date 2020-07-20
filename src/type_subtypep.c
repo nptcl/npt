@@ -24,38 +24,21 @@
 #include "type_typep.h"
 #include "type_upgraded.h"
 
-typedef SubtypepResult (*call_type_subtypep)(addr left, addr right);
+typedef int (*call_type_subtypep)(addr left, addr right, SubtypepResult *ret);
 static call_type_subtypep TypeSubtypep[LISPDECL_SIZE];
-static SubtypepResult subtypep_call(addr left, addr right, int asterisk);
+static int subtypep_call_(addr left, addr right, int aster, SubtypepResult *ret);
 
-#define ReturnInvalid { \
-	return SUBTYPEP_INVALID; \
-}
-#define ReturnInclude { \
-	return SUBTYPEP_INCLUDE; \
-}
-#define ReturnFalse { \
-	return SUBTYPEP_FALSE; \
-}
-#define ReturnExclude { \
-	return SUBTYPEP_EXCLUDE; \
-}
-#define ReturnBool(p) { \
-	if (p) return SUBTYPEP_INCLUDE; \
-	else return SUBTYPEP_FALSE; \
-}
-#define ReturnThrowBool(v) { \
+#define ReturnInvalid(ret) Result(ret, SUBTYPEP_INVALID)
+#define ReturnInclude(ret) Result(ret, SUBTYPEP_INCLUDE)
+#define ReturnFalse(ret) Result(ret, SUBTYPEP_FALSE)
+#define ReturnExclude(ret) Result(ret, SUBTYPEP_EXCLUDE)
+#define ReturnBool(ret, p) Result(ret, (p)? SUBTYPEP_INCLUDE: SUBTYPEP_FALSE)
+
+#define SwitchInclude(ret, v) { \
 	switch (v) { \
-		case SUBTYPEP_INVALID: ReturnInvalid; \
+		case SUBTYPEP_INVALID: return ReturnInvalid(ret); \
 		case SUBTYPEP_INCLUDE: break; \
-		default: ReturnFalse; \
-	} \
-}
-#define ReturnIncludeNil(v) { \
-	switch (v) { \
-		case SUBTYPEP_INVALID: ReturnInvalid; \
-		case SUBTYPEP_INCLUDE: ReturnInclude; \
-		default: ReturnFalse; \
+		default: return ReturnFalse(ret); \
 	} \
 }
 
@@ -63,48 +46,52 @@ static SubtypepResult subtypep_call(addr left, addr right, int asterisk);
 /*
  *  subtypep-table
  */
-static SubtypepResult subtypep_type(addr left, addr right)
+static int subtypep_type_(addr left, addr right, SubtypepResult *ret)
 {
-	if (RefLispDecl(left) != LISPDECL_TYPE) ReturnExclude;
-	ReturnBool(RefLispDecl(left) == RefLispDecl(right));
+	if (RefLispDecl(left) != LISPDECL_TYPE)
+		return Result(ret, SUBTYPEP_EXCLUDE);
+	else
+		return ReturnBool(ret, RefLispDecl(left) == RefLispDecl(right));
 }
 
-static SubtypepResult subtypep_clos(addr left, addr right)
+static int subtypep_clos_(addr left, addr right, SubtypepResult *ret)
 {
 	if (RefLispDecl(left) != LISPDECL_CLOS)
-		ReturnExclude;
+		return ReturnExclude(ret);
 	GetArrayType(left, 0, &left);
 	GetArrayType(right, 0, &right);
 	if (type_asterisk_p(right))
-		ReturnInclude;
+		return ReturnInclude(ret);
 	if (type_asterisk_p(left))
-		ReturnFalse;
+		return ReturnFalse(ret);
 
-	ReturnBool(clos_subclass_p(left, right));
+	return ReturnBool(ret, clos_subclass_p(left, right));
 }
 
-static SubtypepResult subtypep_error(addr left, addr right)
+static int subtypep_error_(addr left, addr right, SubtypepResult *ret)
 {
 	infoprint(left);
 	infoprint(right);
-	fmte("Invalid subtypep argument.", NULL);
-	ReturnInvalid;
+	*ret = SUBTYPEP_INVALID;
+	return fmte_("Invalid subtypep argument.", NULL);
 }
 
-static SubtypepResult subtypep_equaltype(addr left, addr right)
+static int subtypep_equaltype_(addr left, addr right, SubtypepResult *ret)
 {
-	if (RefLispDecl(left) == RefLispDecl(right)) ReturnInclude;
-	ReturnExclude;
+	if (RefLispDecl(left) == RefLispDecl(right))
+		return ReturnInclude(ret);
+	else
+		return ReturnExclude(ret);
 }
 
-static SubtypepResult subtypep_nil(addr left, addr right)
+static int subtypep_nil_(addr left, addr right, SubtypepResult *ret)
 {
-	ReturnExclude;
+	return ReturnExclude(ret);
 }
 
-static SubtypepResult subtypep_t(addr left, addr right)
+static int subtypep_t_(addr left, addr right, SubtypepResult *ret)
 {
-	ReturnInclude;
+	return ReturnInclude(ret);
 }
 
 static int asterisk_or_t(addr pos)
@@ -114,59 +101,88 @@ static int asterisk_or_t(addr pos)
 	return decl == LISPDECL_ASTERISK || decl == LISPDECL_T;
 }
 
-static SubtypepResult subtypep_asterisk_or_t(addr left, addr right)
+static int subtypep_asterisk_or_t_(addr left, addr right, SubtypepResult *ret)
 {
-	if (asterisk_or_t(right)) ReturnInclude;
-	if (asterisk_or_t(left)) ReturnFalse;
-	return subtypep_result(left, right, 0);
+	if (asterisk_or_t(right))
+		return ReturnInclude(ret);
+	else if (asterisk_or_t(left))
+		return ReturnFalse(ret);
+	else
+		return subtypep_result_(left, right, 0, ret);
 }
 
-static SubtypepResult subtypep_cons(addr left, addr right)
+static int subtypep_cons_(addr left, addr right, SubtypepResult *ret)
 {
+	SubtypepResult value;
 	addr car1, car2, cdr1, cdr2;
 
-	if (RefLispDecl(left) != LISPDECL_CONS) ReturnExclude;
+	if (RefLispDecl(left) != LISPDECL_CONS)
+		return ReturnExclude(ret);
+
 	GetArrayType(left, 0, &car1);
 	GetArrayType(left, 1, &cdr1);
 	GetArrayType(right, 0, &car2);
 	GetArrayType(right, 1, &cdr2);
 
-	ReturnThrowBool(subtypep_asterisk_or_t(car1, car2));
-	ReturnIncludeNil(subtypep_asterisk_or_t(cdr1, cdr2));
+	Return(subtypep_asterisk_or_t_(car1, car2, &value));
+	SwitchInclude(ret, value);
+	Return(subtypep_asterisk_or_t_(cdr1, cdr2, &value));
+	SwitchInclude(ret, value);
+
+	return ReturnInclude(ret);
 }
 
-static SubtypepResult subtypep_symbol(addr left, addr right)
+static int subtypep_symbol_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type = RefLispDecl(left);
-	if (type == LISPDECL_NULL
-			|| type == LISPDECL_SYMBOL
-			|| type == LISPDECL_KEYWORD) {
-		ReturnInclude;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_NULL:
+		case LISPDECL_SYMBOL:
+		case LISPDECL_KEYWORD:
+			return ReturnInclude(ret);
+
+		default: 
+			return ReturnExclude(ret);
 	}
-	ReturnExclude;
 }
 
-static SubtypepResult subtypep_keyword(addr left, addr right)
+static int subtypep_keyword_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type = RefLispDecl(left);
-	if (type == LISPDECL_KEYWORD) ReturnInclude;
-	if (type == LISPDECL_SYMBOL) ReturnFalse;
-	ReturnExclude;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_KEYWORD:
+			return ReturnInclude(ret);
+
+		case LISPDECL_SYMBOL:
+			return ReturnFalse(ret);
+
+		default:
+			return ReturnExclude(ret);
+	}
 }
 
-static SubtypepResult subtypep_pathname(addr left, addr right)
+static int subtypep_pathname_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type = RefLispDecl(left);
-	if (type == LISPDECL_PATHNAME || type == LISPDECL_LOGICAL_PATHNAME) ReturnInclude;
-	ReturnExclude;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_PATHNAME:
+		case LISPDECL_LOGICAL_PATHNAME:
+			return ReturnInclude(ret);
+
+		default:
+			return ReturnExclude(ret);
+	}
 }
 
-static SubtypepResult subtypep_logical_pathname(addr left, addr right)
+static int subtypep_logical_pathname_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type = RefLispDecl(left);
-	if (type == LISPDECL_LOGICAL_PATHNAME) ReturnInclude;
-	if (type == LISPDECL_PATHNAME) ReturnFalse;
-	ReturnExclude;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_LOGICAL_PATHNAME:
+			return ReturnInclude(ret);
+
+		case LISPDECL_PATHNAME:
+			return ReturnFalse(ret);
+
+		default:
+			return ReturnExclude(ret);
+	}
 }
 
 static int subtypep_array_sequence(addr left)
@@ -190,157 +206,180 @@ static int subtypep_array_sequence(addr left)
 	return 0;
 }
 
-static SubtypepResult subtypep_sequence(addr left, addr right)
+static int subtypep_sequence_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type = RefLispDecl(left);
+	switch (RefLispDecl(left)) {
+		case LISPDECL_ARRAY:
+		case LISPDECL_SIMPLE_ARRAY:
+			return ReturnBool(ret, subtypep_array_sequence(left));
 
-	if (type == LISPDECL_ARRAY || type == LISPDECL_SIMPLE_ARRAY) {
-		ReturnBool(subtypep_array_sequence(left));
-	}
-	if (type == LISPDECL_SEQUENCE
-			|| type == LISPDECL_NULL
-			|| type == LISPDECL_CONS) {
-		ReturnInclude;
-	}
+		case LISPDECL_SEQUENCE:
+		case LISPDECL_NULL:
+		case LISPDECL_CONS:
+			return ReturnInclude(ret);
 
-	ReturnExclude;
+		default:
+			return ReturnExclude(ret);
+	}
 }
 
-static SubtypepResult array_array_integer(addr left, addr right)
+static int array_array_integer_(addr left, addr right, SubtypepResult *ret)
 {
 	size_t size;
 
 	switch (GetType(left)) {
 		case LISPTYPE_FIXNUM:
-			ReturnBool(RefFixnum(left) == RefFixnum(right));
+			return ReturnBool(ret, fixnumequal(left, right));
 
 		case LISPTYPE_VECTOR:
 			Check(GetStatusSize(left) != LISPSIZE_ARRAY4, "size left error");
 			LenArrayA4(left, &size);
-			ReturnBool(((fixnum)size) == RefFixnum(right));
+			return ReturnBool(ret, ((fixnum)size) == RefFixnum(right));
 
 		default:
-			break;
+			return ReturnFalse(ret);
 	}
-	ReturnFalse;
 }
 
-static SubtypepResult array_array_vector(addr left, addr right)
+static int array_array_vector_(addr left, addr right, SubtypepResult *ret)
 {
 	addr check1, check2;
 	size_t i, size;
 
-	if (GetType(left) != LISPTYPE_VECTOR) ReturnFalse;
+	if (GetType(left) != LISPTYPE_VECTOR)
+		return ReturnFalse(ret);
 	Check(GetStatusSize(right) != LISPSIZE_ARRAY4, "size right error");
 	Check(GetStatusSize(left) != LISPSIZE_ARRAY4, "size left error");
 	LenArrayA4(right, &i);
 	LenArrayA4(left, &size);
-	if (size != i) ReturnFalse;
+	if (size != i)
+		return ReturnFalse(ret);
 	for (i = 0; i < size; i++) {
 		GetArrayA4(right, i, &check2);
 		GetArrayA4(left, i, &check1);
-		if (type_asterisk_p(check2)) continue;
-		if (type_asterisk_p(check1)) ReturnFalse;
+		if (type_asterisk_p(check2))
+			continue;
+		if (type_asterisk_p(check1))
+			return ReturnFalse(ret);
 		Check(GetType(check2) != LISPTYPE_FIXNUM, "fixnum right error");
 		Check(GetType(check1) != LISPTYPE_FIXNUM, "fixnum left error");
-		if (RefFixnum(check1) != RefFixnum(check2)) ReturnFalse;
+		if (! fixnumequal(check1, check2))
+			return ReturnFalse(ret);
 	}
-	ReturnInclude;
+
+	return ReturnInclude(ret);
 }
 
-static SubtypepResult subtypep_array_array_dimension(addr left, addr right)
+static int subtypep_array_array_dimension_(addr left, addr right, SubtypepResult *ret)
 {
-	if (type_asterisk_p(right)) ReturnInclude;
-	if (type_asterisk_p(left)) ReturnFalse;
+	if (type_asterisk_p(right))
+		return ReturnInclude(ret);
+	if (type_asterisk_p(left))
+		return ReturnFalse(ret);
 	if (GetType(right) == LISPTYPE_FIXNUM)
-		return array_array_integer(left, right);
+		return array_array_integer_(left, right, ret);
 	if (GetType(right) == LISPTYPE_VECTOR)
-		return array_array_vector(left, right);
+		return array_array_vector_(left, right, ret);
 	Abort("type error");
-	ReturnInvalid;
+	return ReturnInvalid(ret);
 }
 
 static int equal_array_type_asterisk(addr left, addr right)
 {
-	if (type_asterisk_p(right)) return 1;
-	if (type_asterisk_p(left)) return 0;
+	if (type_asterisk_p(right))
+		return 1;
+	if (type_asterisk_p(left))
+		return 0;
 	return upgraded_array0_equal(left, right);
 }
 
-static SubtypepResult subtypep_array_array(addr left, addr right)
+static int subtypep_array_array_(addr left, addr right, SubtypepResult *ret)
 {
 	addr check1, check2;
 
 	/* type */
 	GetArrayType(left, 0, &check1);
 	GetArrayType(right, 0, &check2);
-	if (! equal_array_type_asterisk(check1, check2)) ReturnFalse;
+	if (! equal_array_type_asterisk(check1, check2))
+		return ReturnFalse(ret);
 
 	/* dimension */
 	GetArrayType(left, 1, &left);
 	GetArrayType(right, 1, &right);
-	ReturnIncludeNil(subtypep_array_array_dimension(left, right));
+	return subtypep_array_array_dimension_(left, right, ret);
 }
 
-static SubtypepResult subtypep_array(addr left, addr right)
+static int subtypep_array_(addr left, addr right, SubtypepResult *ret)
 {
 	switch (RefLispDecl(left)) {
 		case LISPDECL_ARRAY:
 		case LISPDECL_SIMPLE_ARRAY:
-			return subtypep_array_array(left, right);
+			return subtypep_array_array_(left, right, ret);
 
 		case LISPDECL_SEQUENCE:
-			ReturnFalse;
+			return ReturnFalse(ret);
 
 		default:
-			break;
+			return ReturnExclude(ret);
 	}
-
-	ReturnExclude;
 }
 
-static SubtypepResult subtypep_simple_array(addr left, addr right)
+static int subtypep_simple_array_(addr left, addr right, SubtypepResult *ret)
 {
 	switch (RefLispDecl(left)) {
 		case LISPDECL_SIMPLE_ARRAY:
-			return subtypep_array_array(left, right);
+			return subtypep_array_array_(left, right, ret);
 
 		case LISPDECL_ARRAY:
 		case LISPDECL_SEQUENCE:
-			ReturnFalse;
+			return ReturnFalse(ret);
 
 		default:
-			break;
+			return ReturnExclude(ret);
 	}
-
-	ReturnExclude;
 }
 
-static SubtypepResult subtypep_character(addr left, addr right)
+static int subtypep_character_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type = RefLispDecl(left);
-	if (type == LISPDECL_CHARACTER ||
-			type == LISPDECL_BASE_CHAR ||
-			type == LISPDECL_STANDARD_CHAR) {
-		ReturnInclude;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_CHARACTER:
+		case LISPDECL_BASE_CHAR:
+		case LISPDECL_STANDARD_CHAR:
+			return ReturnInclude(ret);
+
+		default:
+			return ReturnExclude(ret);
 	}
-	ReturnExclude;
 }
 
-static SubtypepResult subtypep_base_char(addr left, addr right)
+static int subtypep_base_char_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL decl = RefLispDecl(left);
-	if (decl == LISPDECL_BASE_CHAR || decl == LISPDECL_STANDARD_CHAR) ReturnInclude;
-	if (decl == LISPDECL_CHARACTER) ReturnFalse;
-	ReturnExclude;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_BASE_CHAR:
+		case LISPDECL_STANDARD_CHAR:
+			return ReturnInclude(ret);
+
+		case LISPDECL_CHARACTER:
+			return ReturnFalse(ret);
+
+		default:
+			return ReturnExclude(ret);
+	}
 }
 
-static SubtypepResult subtypep_standard_char(addr left, addr right)
+static int subtypep_standard_char_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL decl = RefLispDecl(left);
-	if (decl == LISPDECL_STANDARD_CHAR) ReturnInclude;
-	if (decl == LISPDECL_BASE_CHAR || decl == LISPDECL_CHARACTER) ReturnFalse;
-	ReturnExclude;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_STANDARD_CHAR:
+			return ReturnInclude(ret);
+
+		case LISPDECL_BASE_CHAR:
+		case LISPDECL_CHARACTER:
+			return ReturnFalse(ret);
+
+		default:
+			return ReturnExclude(ret);
+	}
 }
 
 static int subtypep_real_less(addr left, addr right)
@@ -362,8 +401,10 @@ static int subtypep_realcheck(addr left, addr right)
 {
 	addr check1, check2;
 
-	if (range_asterisk_p(right)) return 1;
-	if (range_asterisk_p(left))  return 0;
+	if (range_asterisk_p(right))
+		return 1;
+	if (range_asterisk_p(left))
+		return 0;
 	GetArrayType(right, 0, &check1);
 	GetArrayType(right, 2, &check2);
 	if (type_asterisk_p(check1))
@@ -395,169 +436,204 @@ static int subtypep_realexlucde(addr left, addr right)
 		realexclude_right(left, right);
 }
 
-static SubtypepResult subtypep_realparameter(addr left, addr right)
+static int subtypep_realparameter_(addr left, addr right, SubtypepResult *ret)
 {
-	if (subtypep_realcheck(left, right)) ReturnInclude;
-	if (subtypep_realexlucde(left, right)) ReturnExclude;
-	ReturnFalse;
+	if (subtypep_realcheck(left, right))
+		return ReturnInclude(ret);
+	else if (subtypep_realexlucde(left, right))
+		return ReturnExclude(ret);
+	else
+		return ReturnFalse(ret);
 }
 
-static SubtypepResult subtypep_integer(addr left, addr right)
+static int subtypep_integer_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_RATIONAL:
+		case LISPDECL_REAL:
+		case LISPDECL_NUMBER:
+			return ReturnFalse(ret);
 
-	GetLispDecl(left, &type);
-	if (type == LISPDECL_RATIONAL ||
-			type == LISPDECL_REAL ||
-			type == LISPDECL_NUMBER) {
-		ReturnFalse;
+		case LISPDECL_INTEGER:
+			return subtypep_realparameter_(left, right, ret);
+
+		default:
+			return ReturnExclude(ret);
 	}
-	if (type == LISPDECL_INTEGER) {
-		return subtypep_realparameter(left, right);
-	}
-	ReturnExclude;
 }
 
-static SubtypepResult subtypep_rational(addr left, addr right)
+static int subtypep_rational_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_REAL:
+		case LISPDECL_NUMBER:
+			return ReturnFalse(ret);
 
-	GetLispDecl(left, &type);
-	if (type == LISPDECL_REAL || type == LISPDECL_NUMBER) {
-		ReturnFalse;
+		case LISPDECL_RATIO:
+			return ReturnBool(ret, range_asterisk_p(right));
+
+		case LISPDECL_RATIONAL:
+		case LISPDECL_INTEGER:
+			return subtypep_realparameter_(left, right, ret);
+
+		default:
+			return ReturnExclude(ret);
 	}
-	if (type == LISPDECL_RATIO) {
-		ReturnBool(range_asterisk_p(right));
-	}
-	if (type == LISPDECL_RATIONAL || type == LISPDECL_INTEGER) {
-		return subtypep_realparameter(left, right);
-	}
-	ReturnExclude;
 }
 
-static SubtypepResult subtypep_real(addr left, addr right)
-{
-	enum LISPDECL type;
-
-	GetLispDecl(left, &type);
-	if (type == LISPDECL_NUMBER) {
-		ReturnFalse;
-	}
-	if (type == LISPDECL_RATIO) {
-		ReturnBool(range_asterisk_p(right));
-	}
-	if (decl_range_p(type)) {
-		return subtypep_realparameter(left, right);
-	}
-	ReturnExclude;
-}
-
-static SubtypepResult subtypep_number(addr left, addr right)
+static int subtypep_real_(addr left, addr right, SubtypepResult *ret)
 {
 	enum LISPDECL type;
 
 	GetLispDecl(left, &type);
-	if (type == LISPDECL_NUMBER ||
-			type == LISPDECL_COMPLEX ||
-			type == LISPDECL_RATIO ||
-			decl_range_p(type)) {
-		ReturnInclude;
+	switch (type) {
+		case LISPDECL_NUMBER:
+			return ReturnFalse(ret);
+
+		case LISPDECL_RATIO:
+			return ReturnBool(ret, range_asterisk_p(right));
+
+		default:
+			break;
 	}
-	ReturnExclude;
+
+	if (decl_range_p(type))
+		return subtypep_realparameter_(left, right, ret);
+	else
+		return ReturnExclude(ret);
 }
 
-static SubtypepResult subtypep_float(addr left, addr right)
+static int subtypep_number_(addr left, addr right, SubtypepResult *ret)
 {
 	enum LISPDECL type;
 
 	GetLispDecl(left, &type);
-	if (type == LISPDECL_NUMBER || type == LISPDECL_REAL) {
-		ReturnFalse;
+	switch (type) {
+		case LISPDECL_NUMBER:
+		case LISPDECL_COMPLEX:
+		case LISPDECL_RATIO:
+			return ReturnInclude(ret);
+
+		default:
+			break;
 	}
-	if (decl_float_p(type)) {
-		return subtypep_realparameter(left, right);
-	}
-	ReturnExclude;
+
+	if (decl_range_p(type))
+		return ReturnInclude(ret);
+	else
+		return ReturnExclude(ret);
 }
 
-static SubtypepResult subtypep_float_type(addr left, addr right, enum LISPDECL check)
+static int subtypep_float_(addr left, addr right, SubtypepResult *ret)
 {
 	enum LISPDECL type;
 
 	GetLispDecl(left, &type);
-	if (type == LISPDECL_NUMBER || type == LISPDECL_REAL || type == LISPDECL_FLOAT) {
-		ReturnFalse;
+	switch (type) {
+		case LISPDECL_NUMBER:
+		case LISPDECL_REAL:
+			return ReturnFalse(ret);
+
+		default:
+			break;
 	}
-	if (type == check) {
-		return subtypep_realparameter(left, right);
-	}
-	ReturnExclude;
-}
-static SubtypepResult subtypep_short_float(addr left, addr right)
-{
-	return subtypep_float_type(left, right, LISPDECL_SHORT_FLOAT);
-}
-static SubtypepResult subtypep_single_float(addr left, addr right)
-{
-	return subtypep_float_type(left, right, LISPDECL_SINGLE_FLOAT);
-}
-static SubtypepResult subtypep_double_float(addr left, addr right)
-{
-	return subtypep_float_type(left, right, LISPDECL_DOUBLE_FLOAT);
-}
-static SubtypepResult subtypep_long_float(addr left, addr right)
-{
-	return subtypep_float_type(left, right, LISPDECL_LONG_FLOAT);
+
+	if (decl_float_p(type))
+		return subtypep_realparameter_(left, right, ret);
+	else
+		return ReturnExclude(ret);
 }
 
-static SubtypepResult subtypep_ratio(addr left, addr right)
+static int subtypep_float_type_(addr left, addr right,
+		SubtypepResult *ret, enum LISPDECL check)
 {
 	enum LISPDECL type;
 
 	GetLispDecl(left, &type);
-	if (type == LISPDECL_NUMBER ||
-			type == LISPDECL_REAL ||
-			type == LISPDECL_RATIONAL) {
-		ReturnFalse;
+	switch (type) {
+		case LISPDECL_NUMBER:
+		case LISPDECL_REAL:
+		case LISPDECL_FLOAT:
+			return ReturnFalse(ret);
+
+		default:
+			break;
 	}
-	if (type == LISPDECL_RATIO) {
-		ReturnInclude;
-	}
-	ReturnExclude;
+
+	if (type == check)
+		return subtypep_realparameter_(left, right, ret);
+	else
+		return ReturnExclude(ret);
 }
 
-static SubtypepResult subtypep_complex_value(addr left, addr right)
+static int subtypep_short_float_(addr left, addr right, SubtypepResult *ret)
+{
+	return subtypep_float_type_(left, right, ret, LISPDECL_SHORT_FLOAT);
+}
+
+static int subtypep_single_float_(addr left, addr right, SubtypepResult *ret)
+{
+	return subtypep_float_type_(left, right, ret, LISPDECL_SINGLE_FLOAT);
+}
+
+static int subtypep_double_float_(addr left, addr right, SubtypepResult *ret)
+{
+	return subtypep_float_type_(left, right, ret, LISPDECL_DOUBLE_FLOAT);
+}
+
+static int subtypep_long_float_(addr left, addr right, SubtypepResult *ret)
+{
+	return subtypep_float_type_(left, right, ret, LISPDECL_LONG_FLOAT);
+}
+
+static int subtypep_ratio_(addr left, addr right, SubtypepResult *ret)
+{
+	switch (RefLispDecl(left)) {
+		case LISPDECL_NUMBER:
+		case LISPDECL_REAL:
+		case LISPDECL_RATIONAL:
+			return ReturnFalse(ret);
+
+		case LISPDECL_RATIO:
+			return ReturnInclude(ret);
+
+		default:
+			return ReturnExclude(ret);
+	}
+}
+
+static int subtypep_complex_value_(addr left, addr right, SubtypepResult *ret)
 {
 	int check;
 
 	GetArrayType(left, 0, &left);
 	GetArrayType(right, 0, &right);
-	check = RefLispDecl(left) == RefLispDecl(right) &&
-		RefNotDecl(left) == RefNotDecl(right);
-	ReturnBool(check);
+	check = RefLispDecl(left) == RefLispDecl(right)
+		&& RefNotDecl(left) == RefNotDecl(right);
+	return ReturnBool(ret, check);
 }
 
-static SubtypepResult subtypep_complex(addr left, addr right)
+static int subtypep_complex_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_NUMBER:
+			return ReturnFalse(ret);
 
-	GetLispDecl(left, &type);
-	if (type == LISPDECL_NUMBER) {
-		ReturnFalse;
+		case LISPDECL_COMPLEX:
+			return subtypep_complex_value_(left, right, ret);
+
+		default:
+			return ReturnExclude(ret);
 	}
-	if (type == LISPDECL_COMPLEX) {
-		return subtypep_complex_value(left, right);
-	}
-	ReturnExclude;
 }
 
-static SubtypepResult subtypep_table(addr left, addr right)
+static int subtypep_table_(addr left, addr right, SubtypepResult *ret)
 {
 	call_type_subtypep call;
 
 	call = TypeSubtypep[(int)RefLispDecl(right)];
 	Check(call == NULL, "call error");
-	return call(left, right);
+	return (*call)(left, right, ret);
 }
 
 
@@ -760,11 +836,12 @@ static void make_ordinary_type(LocalRoot local, addr *ret,
 	Abort("type error");
 }
 
-static int ordinary_subtypep(
+static int ordinary_subtypep_(
 		const ordargs *ptr1, const ordtype *type1,
-		const ordargs *ptr2, const ordtype *type2)
+		const ordargs *ptr2, const ordtype *type2,
+		int *ret)
 {
-	SubtypepResult result;
+	SubtypepResult value;
 	addr left, right;
 	LocalRoot local;
 	LocalStack stack;
@@ -773,118 +850,134 @@ static int ordinary_subtypep(
 	push_local(local, &stack);
 	make_ordinary_type(local, &left, ptr1, type1);
 	make_ordinary_type(local, &right, ptr2, type2);
-	result = subtypep_result(left, right, 1);
+	Return(subtypep_result_(left, right, 1, &value));
 	rollback_local(local, stack);
 
-	return result == SUBTYPEP_INCLUDE;
+	return Result(ret, value == SUBTYPEP_INCLUDE);
 }
 
-static int ordinary_size(const ordargs *ptr1, const ordargs *ptr2, size_t size)
+static int ordinary_size_(const ordargs *ptr1, const ordargs *ptr2,
+		size_t size, int *ret)
 {
+	int check;
 	size_t i;
 	ordtype type1, type2;
 
 	for (i = 0; i < size; i++) {
 		gettype_ordinary(ptr1, i, &type1);
 		gettype_ordinary(ptr2, i, &type2);
-		if (type1.nil) break;
-		if (type2.nil) return 0;
-		if (! ordinary_subtypep(ptr1, &type1, ptr2, &type2))
-			return 0;
+		if (type1.nil)
+			break;
+		if (type2.nil)
+			return Result(ret, 0);
+		Return(ordinary_subtypep_(ptr1, &type1, ptr2, &type2, &check));
+		if (! check)
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int ordinary_simple(const ordargs *ptr1, const ordargs *ptr2)
+static int ordinary_simple_(const ordargs *ptr1, const ordargs *ptr2, int *ret)
 {
-	if (ptr1->size > ptr2->size) return 0;
+	if (ptr1->size > ptr2->size)
+		return Result(ret, 0);
 	/* short size */
-	return ordinary_size(ptr1, ptr2, ptr1->size);
+	return ordinary_size_(ptr1, ptr2, ptr1->size, ret);
 }
 
-static int ordinary_simple_left(const ordargs *ptr1, const ordargs *ptr2)
+static int ordinary_simple_left_(const ordargs *ptr1, const ordargs *ptr2, int *ret)
 {
 	/* short size */
-	return ordinary_size(ptr1, ptr2, ptr1->size);
+	return ordinary_size_(ptr1, ptr2, ptr1->size, ret);
 }
 
-static int ordinary_check(const ordargs *ptr1, const ordargs *ptr2)
+static int ordinary_check_(const ordargs *ptr1, const ordargs *ptr2, int *ret)
 {
 	/* long size */
-	return ordinary_size(ptr1, ptr2,
-			(ptr1->size > ptr2->size? ptr1->size: ptr2->size));
+	return ordinary_size_(ptr1, ptr2,
+			(ptr1->size > ptr2->size? ptr1->size: ptr2->size),
+			ret);
 }
 
-static int subtypep_function_ordinary(addr left, addr right)
+static int subtypep_function_ordinary_(addr left, addr right, int *ret)
 {
 	int check1, check2;
 	ordargs ptr1, ptr2;
 
 	/* asterisk */
-	if (type_asterisk_p(right)) return 1;
-	if (type_asterisk_p(left)) return 0;
+	if (type_asterisk_p(right))
+		return Result(ret, 1);
+	if (type_asterisk_p(left))
+		return Result(ret, 0);
 
 	/* list */
 	make_function_ordinary(&ptr1, left);
 	make_function_ordinary(&ptr2, right);
-	if (ptr1.size_var < ptr2.size_var) return 0;
+	if (ptr1.size_var < ptr2.size_var)
+		return Result(ret, 0);
 
 	check1 = ordargs_simple_p(&ptr1);
 	check2 = ordargs_simple_p(&ptr2);
 	if (check1 && check2)
-		return ordinary_simple(&ptr1, &ptr2);
+		return ordinary_simple_(&ptr1, &ptr2, ret);
 	if (check1)
-		return ordinary_simple_left(&ptr1, &ptr2);
+		return ordinary_simple_left_(&ptr1, &ptr2, ret);
 	if (check2)
-		return 0;
+		return Result(ret, 0);
 	else
-		return ordinary_check(&ptr1, &ptr2);
+		return ordinary_check_(&ptr1, &ptr2, ret);
 }
 
-static SubtypepResult subtypep_function_check(addr left, addr right)
+static int subtypep_function_check_(addr left, addr right, SubtypepResult *ret)
 {
+	int check;
+	SubtypepResult value;
 	addr check1, check2;
 
 	/* lambda-list */
 	GetArrayType(left, 0, &check1);
 	GetArrayType(right, 0, &check2);
-	if (! subtypep_function_ordinary(check1, check2)) ReturnFalse;
+	Return(subtypep_function_ordinary_(check1, check2, &check));
+	if (! check)
+		return ReturnFalse(ret);
 
 	/* values */
 	GetArrayType(left, 1, &left);
 	GetArrayType(right, 1, &right);
-	ReturnIncludeNil(subtypep_result(left, right, 1));
+	Return(subtypep_result_(left, right, 1, &value));
+	SwitchInclude(ret, value);
+
+	return ReturnInclude(ret);
 }
 
-static SubtypepResult subtypep_function(addr left, addr right)
+static int subtypep_function_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_FUNCTION:
+		case LISPDECL_COMPILED_FUNCTION:
+			return subtypep_function_check_(left, right, ret);
 
-	GetLispDecl(left, &type);
-	if (type != LISPDECL_FUNCTION && type != LISPDECL_COMPILED_FUNCTION) {
-		ReturnExclude;
+		default:
+			return ReturnExclude(ret);
 	}
-
-	return subtypep_function_check(left, right);
 }
 
-static SubtypepResult subtypep_compiled_function(addr left, addr right)
+static int subtypep_compiled_function_(addr left, addr right, SubtypepResult *ret)
 {
-	enum LISPDECL type;
+	switch (RefLispDecl(left)) {
+		case LISPDECL_FUNCTION:
+			return ReturnFalse(ret);
 
-	GetLispDecl(left, &type);
-	if (type == LISPDECL_FUNCTION) {
-		ReturnFalse;
-	}
-	if (type != LISPDECL_COMPILED_FUNCTION) {
-		ReturnExclude;
-	}
+		case LISPDECL_COMPILED_FUNCTION:
+			return subtypep_function_check_(left, right, ret);
 
-	return subtypep_function_check(left, right);
+		default:
+			return ReturnExclude(ret);
+	}
 }
 
-static SubtypepResult subtypep_stream(addr left, addr right)
+static int subtypep_stream_(addr left, addr right, SubtypepResult *ret)
 {
 	switch (RefLispDecl(left)) {
 		case LISPDECL_STREAM:
@@ -897,161 +990,149 @@ static SubtypepResult subtypep_stream(addr left, addr right)
 		case LISPDECL_TWO_WAY_STREAM:
 		case LISPDECL_PROMPT_STREAM:
 		case LISPDECL_PRETTY_STREAM:
-			ReturnInclude;
-			break;
+			return ReturnInclude(ret);
 
 		default:
-			ReturnExclude;
-			break;
+			return ReturnExclude(ret);
 	}
 }
 
-static SubtypepResult subtypep_stream_child(addr left, addr right)
+static int subtypep_stream_child_(addr left, addr right, SubtypepResult *ret)
 {
 	enum LISPDECL type1, type2;
 
 	GetLispDecl(left, &type1);
 	GetLispDecl(right, &type2);
-	if (type1 == type2) {
-		ReturnInclude;
-	}
-	if (type1 == LISPDECL_STREAM) {
-		ReturnFalse;
-	}
-
-	ReturnExclude;
+	if (type1 == type2)
+		return ReturnInclude(ret);
+	else if (type1 == LISPDECL_STREAM)
+		return ReturnFalse(ret);
+	else
+		return ReturnExclude(ret);
 }
 
 
 /*
- *  subtypep_lisptype
+ *  subtypep_lisptype_
  */
-static SubtypepResult subtypep_lisptype_normal(addr left, addr right,
+static int subtypep_lisptype_normal_(addr left, addr right, SubtypepResult *ret,
 		call_type_subtypep call)
 {
 	int not2;
-	SubtypepResult result;
+	SubtypepResult value;
 
-	result = call(left, right);
+	Return((*call)(left, right, &value));
 	GetNotDecl(right, &not2);
-	switch (result) {
+	switch (value) {
 		case SUBTYPEP_INCLUDE:
-			return not2? SUBTYPEP_EXCLUDE: SUBTYPEP_INCLUDE;
+			return Result(ret, not2? SUBTYPEP_EXCLUDE: SUBTYPEP_INCLUDE);
 
 		case SUBTYPEP_EXCLUDE:
-			return not2? SUBTYPEP_INCLUDE: SUBTYPEP_EXCLUDE;
+			return Result(ret, not2? SUBTYPEP_INCLUDE: SUBTYPEP_EXCLUDE);
 
 		default:
-			return result;
+			return Result(ret, value);
 	}
 }
 
-static SubtypepResult subtypep_lisptype_not(addr left, addr right,
+static int subtypep_lisptype_not_(addr left, addr right, SubtypepResult *ret,
 		call_type_subtypep call)
 {
 	int not2;
-	SubtypepResult result;
+	SubtypepResult value;
 
-	result = call(right, left);  /* reverse */
+	Return((*call)(right, left, &value));  /* reverse */
 	GetNotDecl(right, &not2);
-	switch (result) {
+	switch (value) {
 		case SUBTYPEP_INCLUDE:
-			return not2? SUBTYPEP_INCLUDE: SUBTYPEP_EXCLUDE;
+			return Result(ret, not2? SUBTYPEP_INCLUDE: SUBTYPEP_EXCLUDE);
 
 		case SUBTYPEP_EXCLUDE:
-			return SUBTYPEP_FALSE;
+			return Result(ret, SUBTYPEP_FALSE);
 
 		default:
-			return result;
+			return Result(ret, value);
 	}
 }
 
-static SubtypepResult subtypep_lisptype(addr left, addr right,
+static int subtypep_lisptype_(addr left, addr right, SubtypepResult *ret,
 		call_type_subtypep call)
 {
 	if (RefNotDecl(left))
-		return subtypep_lisptype_not(left, right, call);
+		return subtypep_lisptype_not_(left, right, ret, call);
 	else
-		return subtypep_lisptype_normal(left, right, call);
+		return subtypep_lisptype_normal_(left, right, ret, call);
 }
 
 
 /*
  *  subtypep_eql
  */
-static SubtypepResult subtypep_eql_eql(addr left, addr right)
+static int subtypep_eql_eql_(addr left, addr right, SubtypepResult *ret)
 {
 	GetArrayType(left, 0, &left);
 	GetArrayType(right, 0, &right);
-	if (eql_function(left, right)) ReturnInclude;
-	ReturnExclude;
+	if (eql_function(left, right))
+		return ReturnInclude(ret);
+	else
+		return ReturnExclude(ret);
 }
 
-static SubtypepResult subtypep_eql_type(addr left, addr right)
+static int subtypep_eql_type_(addr left, addr right, SubtypepResult *ret)
 {
 	int check;
 
 	/* (subtypep '(eql x) '(satisfies y)) */
 	type_getvalues1(right, &right);
-	if (RefLispDecl(right) == LISPDECL_SATISFIES) {
-		ReturnInvalid;
-	}
+	if (RefLispDecl(right) == LISPDECL_SATISFIES)
+		return ReturnInvalid(ret);
 
 	/* (subtypep '(eql x) right) */
 	GetArrayType(left, 0, &left);
-	if (typep_table(Execute_Thread, left, right, &check)) {
-		ReturnInvalid;
-	}
-	if (check) {
-		ReturnInclude;
-	}
-	else {
-		ReturnExclude;
-	}
+	Return(typep_table(Execute_Thread, left, right, &check));
+	if (check)
+		return ReturnInclude(ret);
+	else
+		return ReturnExclude(ret);
 }
 
-static SubtypepResult subtypep_type_eql(addr left, addr right)
+static int subtypep_type_eql_(addr left, addr right, SubtypepResult *ret)
 {
 	int check;
 
 	/* (subtypep '(satisfies x) '(eql y)) */
 	type_getvalues1(left, &left);
-	if (RefLispDecl(left) == LISPDECL_SATISFIES) {
-		ReturnInvalid;
-	}
+	if (RefLispDecl(left) == LISPDECL_SATISFIES)
+		return ReturnInvalid(ret);
 
 	/* (subtypep left '(eql x)) */
 	GetArrayType(right, 0, &right);
-	if (typep_table(Execute_Thread, right, left, &check)) {
-		ReturnInvalid;
-	}
-	if (check) {
-		ReturnFalse;
-	}
-	else {
-		ReturnExclude;
-	}
+	Return(typep_table(Execute_Thread, right, left, &check));
+	if (check)
+		return ReturnFalse(ret);
+	else
+		return ReturnExclude(ret);
 }
 
-static SubtypepResult subtypep_eql_call(addr left, addr right)
+static int subtypep_eql_call_(addr left, addr right, SubtypepResult *ret)
 {
 	int check1, check2;
 
 	check1 = (RefLispDecl(left) == LISPDECL_EQL);
 	check2 = (RefLispDecl(right) == LISPDECL_EQL);
 	if (check1 && check2)
-		return subtypep_eql_eql(left, right);
+		return subtypep_eql_eql_(left, right, ret);
 	if (check1)
-		return subtypep_eql_type(left, right);
+		return subtypep_eql_type_(left, right, ret);
 	if (check2)
-		return subtypep_type_eql(left, right);
+		return subtypep_type_eql_(left, right, ret);
 	Abort("type error");
-	ReturnInvalid;
+	return ReturnInvalid(ret);
 }
 
-static SubtypepResult subtypep_eql(addr left, addr right)
+static int subtypep_eql_(addr left, addr right, SubtypepResult *ret)
 {
-	return subtypep_lisptype(left, right, subtypep_eql_call);
+	return subtypep_lisptype_(left, right, ret, subtypep_eql_call_);
 }
 
 
@@ -1099,13 +1180,16 @@ static void gettype_values(addr pos, size_t index, addr *ret)
 	GetArrayType(pos, 2, ret);
 }
 
-static int subtypep_boolean(addr left, addr right)
+static int subtypep_boolean_(addr left, addr right, int *ret)
 {
-	return subtypep_result(left, right, 1) == SUBTYPEP_INCLUDE;
+	SubtypepResult value;
+	Return(subtypep_result_(left, right, 1, &value));
+	return Result(ret, value == SUBTYPEP_INCLUDE);
 }
 
-static int subtypep_values_values(addr left, addr right)
+static int subtypep_values_values_(addr left, addr right, int *ret)
 {
+	int check;
 	addr check1, check2;
 	size_t size1, size2, size, i;
 
@@ -1124,85 +1208,86 @@ static int subtypep_values_values(addr left, addr right)
 	for (i = 0; i < size; i++) {
 		gettype_values(left, i, &check1);
 		gettype_values(right, i, &check2);
-		if (! subtypep_boolean(check1, check2))
-			return 0;
+		Return(subtypep_boolean_(check1, check2, &check));
+		if (! check)
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-static int subtypep_values_type(addr left, addr right)
+static int subtypep_values_type_(addr left, addr right, int *ret)
 {
 	Check(RefLispDecl(left) != LISPDECL_VALUES, "decl left error");
 	Check(RefNotDecl(left), "left not error");
 	type_getvalues1(left, &left);
-	return subtypep_boolean(left, right);
+	return subtypep_boolean_(left, right, ret);
 }
 
-static int subtypep_type_values(addr left, addr right)
+static int subtypep_type_values_(addr left, addr right, int *ret)
 {
 	Check(RefLispDecl(right) != LISPDECL_VALUES, "decl right error");
 	Check(RefNotDecl(right), "right not error");
 	type_getvalues1(right, &right);
-	return subtypep_boolean(left, right);
+	return subtypep_boolean_(left, right, ret);
 }
 
-static int subtypep_values_call(addr left, addr right)
+static int subtypep_values_call_(addr left, addr right, int *ret)
 {
 	int check1, check2;
 
 	check1 = (RefLispDecl(left) == LISPDECL_VALUES);
 	check2 = (RefLispDecl(right) == LISPDECL_VALUES);
 	if (check1 && check2)
-		return subtypep_values_values(left, right);
+		return subtypep_values_values_(left, right, ret);
 	if (check1)
-		return subtypep_values_type(left, right);
+		return subtypep_values_type_(left, right, ret);
 	if (check2)
-		return subtypep_type_values(left, right);
+		return subtypep_type_values_(left, right, ret);
 	Abort("type error");
-	ReturnInvalid;
+	return Result(ret, 0);
 }
 
-static SubtypepResult subtypep_values(addr left, addr right)
+static int subtypep_values_(addr left, addr right, SubtypepResult *ret)
 {
-	int result;
+	int value;
 
 	/*
 	 *  typespec values cannot recognize subtypep-exclude.
 	 *  result is include or false.
 	 */
-	result = subtypep_values_call(left, right);
-	return result? SUBTYPEP_INCLUDE: SUBTYPEP_FALSE;
+	Return(subtypep_values_call_(left, right, &value));
+	return Result(ret, value? SUBTYPEP_INCLUDE: SUBTYPEP_FALSE);
 }
 
 
 /*
  *  subtypep_call
  */
-static SubtypepResult subtypep_leftright(addr left, addr right)
+static int subtypep_leftright_(addr left, addr right, SubtypepResult *ret)
 {
-	return subtypep_lisptype(left, right, subtypep_table);
+	return subtypep_lisptype_(left, right, ret, subtypep_table_);
 }
 
-static SubtypepResult subtypep_clos_left(addr left, addr right)
+static int subtypep_clos_left_(addr left, addr right, SubtypepResult *ret)
 {
 	int not1;
 
 	GetNotDecl(right, &not1);
 	if (not1)
-		return SUBTYPEP_INVALID;
+		return Result(ret, SUBTYPEP_INVALID);
 	else
-		return subtypep_leftright(left, right);
+		return subtypep_leftright_(left, right, ret);
 }
 
 
 /* and/or reduce */
-static int subtypep_reduce(addr pos, addr *ret);
+static int subtypep_reduce_(addr pos, addr *value, int *ret);
 
-static int subtypep_reduce_vector(LocalRoot local, addr pos, addr *ret)
+static int subtypep_reduce_vector_(LocalRoot local, addr pos, addr *value, int *ret)
 {
-	int result;
-	addr src, dst, check;
+	int result, check;
+	addr src, dst, reduce;
 	size_t size, i;
 
 	GetArrayType(pos, 0, &src);
@@ -1210,12 +1295,13 @@ static int subtypep_reduce_vector(LocalRoot local, addr pos, addr *ret)
 	vector4_local(local, &dst, size);
 	result = 0;
 	for (i = 0; i < size; i++) {
-		GetArrayA4(src, i, &check);
-		result |= subtypep_reduce(check, &check);
-		SetArrayA4(dst, i, check);
+		GetArrayA4(src, i, &reduce);
+		Return(subtypep_reduce_(reduce, &reduce, &check));
+		result |= check;
+		SetArrayA4(dst, i, reduce);
 	}
-	*ret = result? dst: src;
-	return result;
+	*value = result? dst: src;
+	return Result(ret, result);
 }
 
 /* (and) -> t */
@@ -1226,25 +1312,25 @@ static size_t subtypep_reduce_size(addr vector)
 	return size;
 }
 
-static int subtypep_reduce_and1(addr vector, addr *ret)
+static int subtypep_reduce_and1(addr vector, addr *value)
 {
 	if (subtypep_reduce_size(vector) != 0)
 		return 0;
-	GetTypeTable(ret, T);
+	GetTypeTable(value, T);
 	return 1;
 }
 
 /* (and type) -> type */
-static int subtypep_reduce_and2(addr vector, addr *ret)
+static int subtypep_reduce_and2(addr vector, addr *value)
 {
 	if (subtypep_reduce_size(vector) != 1)
 		return 0;
-	GetArrayA4(vector, 0, ret);
+	GetArrayA4(vector, 0, value);
 	return 1;
 }
 
 /* (and ... nil ...) -> nil */
-static int subtypep_reduce_and3(addr vector, addr *ret)
+static int subtypep_reduce_and3(addr vector, addr *value)
 {
 	addr check;
 	size_t size, i;
@@ -1253,7 +1339,7 @@ static int subtypep_reduce_and3(addr vector, addr *ret)
 	for (i = 0; i < size; i++) {
 		GetArrayA4(vector, i, &check);
 		if (RefLispDecl(check) == LISPDECL_NIL) {
-			GetTypeTable(ret, Nil);
+			GetTypeTable(value, Nil);
 			return 1;
 		}
 	}
@@ -1262,7 +1348,7 @@ static int subtypep_reduce_and3(addr vector, addr *ret)
 }
 
 /* (and ... t ...) -> (and ...)  remove t */
-static int subtypep_reduce_remove(LocalRoot local, addr vector, addr *ret,
+static int subtypep_reduce_remove(LocalRoot local, addr vector, addr *value,
 		enum LISPDECL equal, enum LISPDECL make)
 {
 	int exist;
@@ -1292,19 +1378,20 @@ static int subtypep_reduce_remove(LocalRoot local, addr vector, addr *ret,
 			continue;
 		SetArrayA4(dst, count++, check);
 	}
-	type1_local(local, make, dst, ret);
+	type1_local(local, make, dst, value);
 
 	return 1;
 }
 
-static int subtypep_reduce_and4(LocalRoot local, addr vector, addr *ret)
+static int subtypep_reduce_and4(LocalRoot local, addr vector, addr *value)
 {
-	return subtypep_reduce_remove(local, vector, ret, LISPDECL_T, LISPDECL_AND);
+	return subtypep_reduce_remove(local, vector, value, LISPDECL_T, LISPDECL_AND);
 }
 
 /* (and [exclude]) -> nil */
-static int subtypep_reduce_and5(addr vector, addr *ret)
+static int subtypep_reduce_and5_(addr vector, addr *value, int *ret)
 {
+	SubtypepResult check;
 	addr left, right;
 	size_t size, x, y;
 
@@ -1313,61 +1400,64 @@ static int subtypep_reduce_and5(addr vector, addr *ret)
 		GetArrayA4(vector, x, &left);
 		for (y = x + 1; y < size; y++) {
 			GetArrayA4(vector, y, &right);
-			if (subtypep_call(left, right, 0) == SUBTYPEP_EXCLUDE) {
-				GetTypeTable(ret, Nil);
-				return 1;
+			Return(subtypep_call_(left, right, 0, &check));
+			if (check == SUBTYPEP_EXCLUDE) {
+				GetTypeTable(value, Nil);
+				return Result(ret, 1);
 			}
 		}
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int subtypep_reduce_and(LocalRoot local, addr pos, addr *ret)
+static int subtypep_reduce_and_(LocalRoot local, addr pos, addr *value, int *ret)
 {
-	int check;
+	int result, check;
 	addr vector;
 
-	check = 0;
+	result = 0;
 first:
-	check |= subtypep_reduce_vector(local, pos, &vector);
-	if (subtypep_reduce_and1(vector, ret))
-		return 1;
-	if (subtypep_reduce_and2(vector, ret))
-		return 1;
-	if (subtypep_reduce_and3(vector, ret))
-		return 1;
+	Return(subtypep_reduce_vector_(local, pos, &vector, &check));
+	result |= check;
+	if (subtypep_reduce_and1(vector, value))
+		return Result(ret, 1);
+	if (subtypep_reduce_and2(vector, value))
+		return Result(ret, 1);
+	if (subtypep_reduce_and3(vector, value))
+		return Result(ret, 1);
 	if (subtypep_reduce_and4(local, vector, &pos)) {
-		check = 1;
+		result = 1;
 		goto first;
 	}
-	if (subtypep_reduce_and5(vector, ret))
-		return 1;
-	if (check) {
-		type1_local(local, LISPDECL_AND, vector, ret);
-		return 1;
+	Return(subtypep_reduce_and5_(vector, value, &check));
+	if (check)
+		return Result(ret, 1);
+	if (result) {
+		type1_local(local, LISPDECL_AND, vector, value);
+		return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 /* (or) -> nil */
-static int subtypep_reduce_or1(addr vector, addr *ret)
+static int subtypep_reduce_or1(addr vector, addr *value)
 {
 	if (subtypep_reduce_size(vector) != 0)
 		return 0;
-	GetTypeTable(ret, Nil);
+	GetTypeTable(value, Nil);
 	return 1;
 }
 
 /* (or type) -> type */
-static int subtypep_reduce_or2(addr vector, addr *ret)
+static int subtypep_reduce_or2(addr vector, addr *value)
 {
-	return subtypep_reduce_and2(vector, ret);
+	return subtypep_reduce_and2(vector, value);
 }
 
 /* (or ... t ...) -> t */
-static int subtypep_reduce_or3(addr vector, addr *ret)
+static int subtypep_reduce_or3(addr vector, addr *value)
 {
 	addr check;
 	size_t size, i;
@@ -1376,7 +1466,7 @@ static int subtypep_reduce_or3(addr vector, addr *ret)
 	for (i = 0; i < size; i++) {
 		GetArrayA4(vector, i, &check);
 		if (RefLispDecl(check) == LISPDECL_T) {
-			GetTypeTable(ret, T);
+			GetTypeTable(value, T);
 			return 1;
 		}
 	}
@@ -1385,66 +1475,68 @@ static int subtypep_reduce_or3(addr vector, addr *ret)
 }
 
 /* (or ... nil ...) -> (or ...)  remove nil */
-static int subtypep_reduce_or4(LocalRoot local, addr vector, addr *ret)
+static int subtypep_reduce_or4(LocalRoot local, addr vector, addr *value)
 {
-	return subtypep_reduce_remove(local, vector, ret, LISPDECL_NIL, LISPDECL_OR);
+	return subtypep_reduce_remove(local, vector, value, LISPDECL_NIL, LISPDECL_OR);
 }
 
-static int subtypep_reduce_or(LocalRoot local, addr pos, addr *ret)
+static int subtypep_reduce_or_(LocalRoot local, addr pos, addr *value, int *ret)
 {
-	int check;
+	int result, check;
 	addr vector;
 
-	check = 0;
+	result = 0;
 first:
-	check |= subtypep_reduce_vector(local, pos, &vector);
-	if (subtypep_reduce_or1(vector, ret))
-		return 1;
-	if (subtypep_reduce_or2(vector, ret))
-		return 1;
-	if (subtypep_reduce_or3(vector, ret))
-		return 1;
+	Return(subtypep_reduce_vector_(local, pos, &vector, &check));
+	result |= check;
+	if (subtypep_reduce_or1(vector, value))
+		return Result(ret, 1);
+	if (subtypep_reduce_or2(vector, value))
+		return Result(ret, 1);
+	if (subtypep_reduce_or3(vector, value))
+		return Result(ret, 1);
 	if (subtypep_reduce_or4(local, vector, &pos)) {
-		check = 1;
+		result = 1;
 		goto first;
 	}
-	if (check) {
-		type1_local(local, LISPDECL_OR, vector, ret);
-		return 1;
+	if (result) {
+		type1_local(local, LISPDECL_OR, vector, value);
+		return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int subtypep_reduce(addr pos, addr *ret)
+static int subtypep_reduce_(addr pos, addr *value, int *ret)
 {
 	LocalRoot local;
 
 	local = Local_Thread;
 	switch (RefLispDecl(pos)) {
 		case LISPDECL_AND:
-			return subtypep_reduce_and(local, pos, ret);
+			return subtypep_reduce_and_(local, pos, value, ret);
 
 		case LISPDECL_OR:
-			return subtypep_reduce_or(local, pos, ret);
+			return subtypep_reduce_or_(local, pos, value, ret);
 
 		default:
-			*ret = pos;
-			return 0;
+			*value = pos;
+			return Result(ret, 0);
 	}
 }
 
 
 /* and/or */
-static SubtypepResult subtypep_and_right(addr left, addr right)
+static int subtypep_and_right_(addr left, addr right, SubtypepResult *ret)
 {
 	int include, exclude, invalid;
 	SubtypepResult result;
 	addr check;
 	size_t size, i;
 
-	if (subtypep_reduce(right, &right))
-		return subtypep_call(left, right, 0);
+	Return(subtypep_reduce_(right, &right, &include));
+	if (include)
+		return subtypep_call_(left, right, 0, ret);
 	GetArrayType(right, 0, &right);
 	LenArrayA4(right, &size);
 	include = 1;
@@ -1452,7 +1544,7 @@ static SubtypepResult subtypep_and_right(addr left, addr right)
 	invalid = 0;
 	for (i = 0; i < size; i++) {
 		GetArrayA4(right, i, &check);
-		result = subtypep_call(left, check, 0);
+		Return(subtypep_call_(left, check, 0, &result));
 		if (result != SUBTYPEP_INCLUDE)
 			include = 0;
 		if (result == SUBTYPEP_EXCLUDE)
@@ -1461,23 +1553,25 @@ static SubtypepResult subtypep_and_right(addr left, addr right)
 			invalid = 1;
 	}
 	if (exclude)
-		ReturnExclude;
+		return ReturnExclude(ret);
 	if (invalid)
-		ReturnInvalid;
+		return ReturnInvalid(ret);
 	if (include)
-		ReturnInclude;
-	ReturnFalse;
+		return ReturnInclude(ret);
+	else
+		return ReturnFalse(ret);
 }
 
-static SubtypepResult subtypep_or_right(addr left, addr right)
+static int subtypep_or_right_(addr left, addr right, SubtypepResult *ret)
 {
 	int include, exclude, invalid;
 	SubtypepResult result;
 	addr check;
 	size_t size, i;
 
-	if (subtypep_reduce(right, &right))
-		return subtypep_call(left, right, 0);
+	Return(subtypep_reduce_(right, &right, &include));
+	if (include)
+		return subtypep_call_(left, right, 0, ret);
 	GetArrayType(right, 0, &right);
 	LenArrayA4(right, &size);
 	include = 0;
@@ -1485,7 +1579,7 @@ static SubtypepResult subtypep_or_right(addr left, addr right)
 	invalid = 0;
 	for (i = 0; i < size; i++) {
 		GetArrayA4(right, i, &check);
-		result = subtypep_call(left, check, 0);
+		Return(subtypep_call_(left, check, 0, &result));
 		if (result == SUBTYPEP_INCLUDE)
 			include = 1;
 		if (result != SUBTYPEP_EXCLUDE)
@@ -1494,23 +1588,25 @@ static SubtypepResult subtypep_or_right(addr left, addr right)
 			invalid = 1;
 	}
 	if (include)
-		ReturnInclude;
+		return ReturnInclude(ret);
 	if (invalid)
-		ReturnInvalid;
+		return ReturnInvalid(ret);
 	if (exclude)
-		ReturnExclude;
-	ReturnFalse;
+		return ReturnExclude(ret);
+	else
+		return ReturnFalse(ret);
 }
 
-static SubtypepResult subtypep_and_left(addr left, addr right)
+static int subtypep_and_left_(addr left, addr right, SubtypepResult *ret)
 {
 	int include, exclude, invalid;
 	SubtypepResult result;
 	addr check;
 	size_t size, i;
 
-	if (subtypep_reduce(left, &left))
-		return subtypep_call(left, right, 0);
+	Return(subtypep_reduce_(left, &left, &include));
+	if (include)
+		return subtypep_call_(left, right, 0, ret);
 	GetArrayType(left, 0, &left);
 	LenArrayA4(left, &size);
 	include = 0;
@@ -1518,7 +1614,7 @@ static SubtypepResult subtypep_and_left(addr left, addr right)
 	invalid = 0;
 	for (i = 0; i < size; i++) {
 		GetArrayA4(left, i, &check);
-		result = subtypep_call(check, right, 0);
+		Return(subtypep_call_(check, right, 0, &result));
 		if (result == SUBTYPEP_INCLUDE)
 			include = 1;
 		if (result == SUBTYPEP_EXCLUDE)
@@ -1527,23 +1623,25 @@ static SubtypepResult subtypep_and_left(addr left, addr right)
 			invalid = 1;
 	}
 	if (include)
-		ReturnInclude;
+		return ReturnInclude(ret);
 	if (exclude)
-		ReturnExclude;
+		return ReturnExclude(ret);
 	if (invalid)
-		ReturnInvalid;
-	ReturnFalse;
+		return ReturnInvalid(ret);
+	else
+		return ReturnFalse(ret);
 }
 
-static SubtypepResult subtypep_or_left(addr left, addr right)
+static int subtypep_or_left_(addr left, addr right, SubtypepResult *ret)
 {
 	int include, exclude, invalid;
 	SubtypepResult result;
 	addr check;
 	size_t size, i;
 
-	if (subtypep_reduce(left, &left))
-		return subtypep_call(left, right, 0);
+	Return(subtypep_reduce_(left, &left, &include));
+	if (include)
+		return subtypep_call_(left, right, 0, ret);
 	GetArrayType(left, 0, &left);
 	LenArrayA4(left, &size);
 	include = 1;
@@ -1551,7 +1649,7 @@ static SubtypepResult subtypep_or_left(addr left, addr right)
 	invalid = 0;
 	for (i = 0; i < size; i++) {
 		GetArrayA4(left, i, &check);
-		result = subtypep_call(check, right, 0);
+		Return(subtypep_call_(check, right, 0, &result));
 		if (result != SUBTYPEP_INCLUDE)
 			include = 0;
 		if (result != SUBTYPEP_EXCLUDE)
@@ -1560,21 +1658,22 @@ static SubtypepResult subtypep_or_left(addr left, addr right)
 			invalid = 1;
 	}
 	if (include)
-		ReturnInclude;
+		return ReturnInclude(ret);
 	if (exclude)
-		ReturnExclude;
+		return ReturnExclude(ret);
 	if (invalid)
-		ReturnInvalid;
-	ReturnFalse;
+		return ReturnInvalid(ret);
+	else
+		return ReturnFalse(ret);
 }
 
+#define LISP_DEBUG_SUBTYPEP
 #undef LISP_DEBUG_SUBTYPEP
-/*#define LISP_DEBUG_SUBTYPEP*/
 
 #ifdef LISP_DEBUG_SUBTYPEP
-static void infotype(addr pos)
+static int infotype_(addr pos)
 {
-	type_object(&pos, pos);
+	Return(type_object_(&pos, pos));
 	infoprint(pos);
 }
 static void infosubtypep(SubtypepResult value)
@@ -1601,183 +1700,185 @@ static void infosubtypep(SubtypepResult value)
 			break;
 	}
 }
-static SubtypepResult subtypep_andargs_right(addr left, addr right)
+static int subtypep_andargs_right_(addr left, addr right, SubtypepResult *ret)
 {
 	SubtypepResult value;
-	value = subtypep_and_right(left, right);
+	Return(subtypep_and_right_(left, right, &value));
 	info("[and-right]");
-	infotype(left);
-	infotype(right);
+	Return(infotype_(left));
+	Return(infotype_(right));
 	infosubtypep(value);
-	return value;
+	return Result(ret, value);
 }
-static SubtypepResult subtypep_orargs_right(addr left, addr right)
+static int subtypep_orargs_right_(addr left, addr right, SubtypepResult *ret)
 {
 	SubtypepResult value;
-	value = subtypep_or_right(left, right);
+	Return(subtypep_or_right_(left, right, &value));
 	info("[or-right]");
-	infotype(left);
-	infotype(right);
+	Return(infotype_(left));
+	Return(infotype_(right));
 	infosubtypep(value);
-	return value;
+	return Result(ret, value);
 }
-static SubtypepResult subtypep_andargs_left(addr left, addr right)
+static int subtypep_andargs_left_(addr left, addr right, SubtypepResult *ret)
 {
 	SubtypepResult value;
-	value = subtypep_and_left(left, right);
+	Return(subtypep_and_left_(left, right, &value));
 	info("[and-left]");
-	infotype(left);
-	infotype(right);
+	Return(infotype_(left));
+	Return(infotype_(right));
 	infosubtypep(value);
-	return value;
+	return Result(ret, value);
 }
-static SubtypepResult subtypep_orargs_left(addr left, addr right)
+static int subtypep_orargs_left_(addr left, addr right, SubtypepResult *ret)
 {
 	SubtypepResult value;
-	value = subtypep_or_left(left, right);
+	Return(subtypep_or_left_(left, right, &value));
 	info("[or-left]");
-	infotype(left);
-	infotype(right);
+	Return(infotype_(left));
+	Return(infotype_(right));
 	infosubtypep(value);
-	return value;
+	return Result(ret, value);
 }
 #else
-#define subtypep_orargs_left subtypep_or_left
-#define subtypep_andargs_left subtypep_and_left
-#define subtypep_orargs_right subtypep_or_right
-#define subtypep_andargs_right subtypep_and_right
+#define subtypep_orargs_left_ subtypep_or_left_
+#define subtypep_andargs_left_ subtypep_and_left_
+#define subtypep_orargs_right_ subtypep_or_right_
+#define subtypep_andargs_right_ subtypep_and_right_
 #endif
 
-static SubtypepResult subtypep_or_right_switch(addr left, addr right)
+static int subtypep_or_right_switch_(addr left, addr right, SubtypepResult *ret)
 {
 	switch (RefLispDecl(left)) {
 		case LISPDECL_AND:
-			return subtypep_andargs_left(left, right);
+			return subtypep_andargs_left_(left, right, ret);
 
 		case LISPDECL_OR:
-			return subtypep_orargs_left(left, right);
+			return subtypep_orargs_left_(left, right, ret);
 
 		default:
-			return subtypep_orargs_right(left, right);
+			return subtypep_orargs_right_(left, right, ret);
 	}
 }
 
-static SubtypepResult subtypep_and_right_switch(addr left, addr right)
+static int subtypep_and_right_switch_(addr left, addr right, SubtypepResult *ret)
 {
 	switch (RefLispDecl(left)) {
 		case LISPDECL_AND:
-			return subtypep_andargs_left(left, right);
+			return subtypep_andargs_left_(left, right, ret);
 
 		case LISPDECL_OR:
-			return subtypep_orargs_left(left, right);
+			return subtypep_orargs_left_(left, right, ret);
 
 		default:
-			return subtypep_andargs_right(left, right);
+			return subtypep_andargs_right_(left, right, ret);
 	}
 }
 
 
 /* left */
-static SubtypepResult subtypep_satisfies_left(addr left, addr right)
+static int subtypep_satisfies_left_(addr left, addr right, SubtypepResult *ret)
 {
-	if (RefLispDecl(right) == LISPDECL_T) ReturnInclude;
-	ReturnInvalid;
+	if (RefLispDecl(right) == LISPDECL_T)
+		return ReturnInclude(ret);
+	else
+		return ReturnInvalid(ret);
 }
 
-static SubtypepResult subtypep_left(addr left, addr right)
+static int subtypep_left_(addr left, addr right, SubtypepResult *ret)
 {
 	Check(GetType(left) != LISPTYPE_TYPE, "type left error");
 	switch (RefLispDecl(left)) {
 		case LISPDECL_AND:
-			return subtypep_andargs_left(left, right);
+			return subtypep_andargs_left_(left, right, ret);
 
 		case LISPDECL_OR:
-			return subtypep_orargs_left(left, right);
+			return subtypep_orargs_left_(left, right, ret);
 
 		case LISPDECL_EQL:
-			return subtypep_eql(left, right);
+			return subtypep_eql_(left, right, ret);
 
 		case LISPDECL_MEMBER:
-			fmte("The member type illegal in this context.", NULL);
-			break;
+			*ret = SUBTYPEP_INVALID;
+			return fmte_("The member type illegal in this context.", NULL);
 
 		case LISPDECL_NOT:
-			fmte("The not type illegal in this context.", NULL);
-			break;
+			*ret = SUBTYPEP_INVALID;
+			return fmte_("The not type illegal in this context.", NULL);
 
 		case LISPDECL_VALUES:
-			return subtypep_values(left, right);
+			return subtypep_values_(left, right, ret);
 
 		case LISPDECL_SATISFIES:
-			return subtypep_satisfies_left(left, right);
+			return subtypep_satisfies_left_(left, right, ret);
 
 		case LISPDECL_NIL:
-			ReturnInclude;
+			return ReturnInclude(ret);
 
 		case LISPDECL_T:
-			ReturnFalse;
+			return ReturnFalse(ret);
 
 		case LISPDECL_CLOS:
-			return subtypep_clos_left(left, right);
+			return subtypep_clos_left_(left, right, ret);
 
 		default:
-			return subtypep_leftright(left, right);
+			return subtypep_leftright_(left, right, ret);
 	}
-
-	ReturnInvalid;
 }
 
 /* right */
-static SubtypepResult subtypep_satisfies_right(addr left, addr right)
+static int subtypep_satisfies_right_(addr left, addr right, SubtypepResult *ret)
 {
-	if (RefLispDecl(left) == LISPDECL_NIL) ReturnInclude;
-	ReturnInvalid;
+	if (RefLispDecl(left) == LISPDECL_NIL)
+		return ReturnInclude(ret);
+	else
+		return ReturnInvalid(ret);
 }
 
-static SubtypepResult subtypep_nil_right(addr left)
+static int subtypep_nil_right_(addr left, SubtypepResult *ret)
 {
-	if (RefLispDecl(left) == LISPDECL_NIL) ReturnInclude;
-	ReturnExclude;
+	if (RefLispDecl(left) == LISPDECL_NIL)
+		return ReturnInclude(ret);
+	else
+		return ReturnExclude(ret);
 }
 
-static SubtypepResult subtypep_right(addr left, addr right)
+static int subtypep_right_(addr left, addr right, SubtypepResult *ret)
 {
 	Check(GetType(right) != LISPTYPE_TYPE, "type right error");
 	switch (RefLispDecl(right)) {
 		case LISPDECL_AND:
-			return subtypep_and_right_switch(left, right);
+			return subtypep_and_right_switch_(left, right, ret);
 
 		case LISPDECL_OR:
-			return subtypep_or_right_switch(left, right);
+			return subtypep_or_right_switch_(left, right, ret);
 
 		case LISPDECL_EQL:
-			return subtypep_eql(left, right);
+			return subtypep_eql_(left, right, ret);
 
 		case LISPDECL_MEMBER:
-			fmte("The member type illegal in this context.", NULL);
-			break;
+			*ret = SUBTYPEP_INVALID;
+			return fmte_("The member type illegal in this context.", NULL);
 
 		case LISPDECL_NOT:
-			fmte("The not type illegal in this context.", NULL);
-			break;
+			*ret = SUBTYPEP_INVALID;
+			return fmte_("The not type illegal in this context.", NULL);
 
 		case LISPDECL_VALUES:
-			return subtypep_values(left, right);
+			return subtypep_values_(left, right, ret);
 
 		case LISPDECL_SATISFIES:
-			return subtypep_satisfies_right(left, right);
+			return subtypep_satisfies_right_(left, right, ret);
 
 		case LISPDECL_NIL:
-			return subtypep_nil_right(left);
+			return subtypep_nil_right_(left, ret);
 
 		case LISPDECL_T:
-			ReturnInclude;
+			return ReturnInclude(ret);
 
 		default:
-			return subtypep_left(left, right);
+			return subtypep_left_(left, right, ret);
 	}
-
-	ReturnInvalid;
 }
 
 
@@ -1789,87 +1890,99 @@ _g void init_type_subtypep(void)
 	int i;
 
 	for (i = 0; i < LISPDECL_SIZE; i++)
-		TypeSubtypep[i] = subtypep_error;
+		TypeSubtypep[i] = subtypep_error_;
 
-	TypeSubtypep[LISPDECL_TYPE] = subtypep_type;
-	TypeSubtypep[LISPDECL_CLOS] = subtypep_clos;
-	TypeSubtypep[LISPDECL_ASTERISK] = subtypep_error;
-	TypeSubtypep[LISPDECL_NIL] = subtypep_nil;
-	TypeSubtypep[LISPDECL_T] = subtypep_t;
-	TypeSubtypep[LISPDECL_NULL] = subtypep_equaltype;
-	TypeSubtypep[LISPDECL_CONS] = subtypep_cons;
-	TypeSubtypep[LISPDECL_HASH_TABLE] = subtypep_equaltype;
-	TypeSubtypep[LISPDECL_SYMBOL] = subtypep_symbol;
-	TypeSubtypep[LISPDECL_KEYWORD] = subtypep_keyword;
-	TypeSubtypep[LISPDECL_PACKAGE] = subtypep_equaltype;
-	TypeSubtypep[LISPDECL_RANDOM_STATE] = subtypep_equaltype;
-	TypeSubtypep[LISPDECL_READTABLE] = subtypep_equaltype;
-	TypeSubtypep[LISPDECL_FUNCTION] = subtypep_function;
-	TypeSubtypep[LISPDECL_COMPILED_FUNCTION] = subtypep_compiled_function;
-	TypeSubtypep[LISPDECL_PATHNAME] = subtypep_pathname;
-	TypeSubtypep[LISPDECL_LOGICAL_PATHNAME] = subtypep_logical_pathname;
-	TypeSubtypep[LISPDECL_SEQUENCE] = subtypep_sequence;
-	TypeSubtypep[LISPDECL_ARRAY] = subtypep_array;
-	TypeSubtypep[LISPDECL_SIMPLE_ARRAY] = subtypep_simple_array;
-	TypeSubtypep[LISPDECL_CHARACTER] = subtypep_character;
-	TypeSubtypep[LISPDECL_BASE_CHAR] = subtypep_base_char;
-	TypeSubtypep[LISPDECL_STANDARD_CHAR] = subtypep_standard_char;
-	TypeSubtypep[LISPDECL_INTEGER] = subtypep_integer;
-	TypeSubtypep[LISPDECL_RATIONAL] = subtypep_rational;
-	TypeSubtypep[LISPDECL_REAL] = subtypep_real;
-	TypeSubtypep[LISPDECL_NUMBER] = subtypep_number;
-	TypeSubtypep[LISPDECL_FLOAT] = subtypep_float;
-	TypeSubtypep[LISPDECL_SHORT_FLOAT] = subtypep_short_float;
-	TypeSubtypep[LISPDECL_SINGLE_FLOAT] = subtypep_single_float;
-	TypeSubtypep[LISPDECL_DOUBLE_FLOAT] = subtypep_double_float;
-	TypeSubtypep[LISPDECL_LONG_FLOAT] = subtypep_long_float;
-	TypeSubtypep[LISPDECL_RATIO] = subtypep_ratio;
-	TypeSubtypep[LISPDECL_COMPLEX] = subtypep_complex;
-	TypeSubtypep[LISPDECL_RESTART] = subtypep_equaltype;
-	TypeSubtypep[LISPDECL_ENVIRONMENT] = subtypep_equaltype;
-	TypeSubtypep[LISPDECL_STREAM] = subtypep_stream;
-	TypeSubtypep[LISPDECL_BROADCAST_STREAM] = subtypep_stream_child;
-	TypeSubtypep[LISPDECL_CONCATENATED_STREAM] = subtypep_stream_child;
-	TypeSubtypep[LISPDECL_ECHO_STREAM] = subtypep_stream_child;
-	TypeSubtypep[LISPDECL_FILE_STREAM] = subtypep_stream_child;
-	TypeSubtypep[LISPDECL_STRING_STREAM] = subtypep_stream_child;
-	TypeSubtypep[LISPDECL_SYNONYM_STREAM] = subtypep_stream_child;
-	TypeSubtypep[LISPDECL_TWO_WAY_STREAM] = subtypep_stream_child;
-	TypeSubtypep[LISPDECL_PROMPT_STREAM] = subtypep_stream_child;
-	TypeSubtypep[LISPDECL_PRETTY_STREAM] = subtypep_stream_child;
-	TypeSubtypep[LISPDECL_BYTESPEC] = subtypep_equaltype;
-	TypeSubtypep[LISPDECL_PRINT_DISPATCH] = subtypep_equaltype;
-	TypeSubtypep[LISPDECL_EVAL] = subtypep_equaltype;
+	TypeSubtypep[LISPDECL_TYPE] = subtypep_type_;
+	TypeSubtypep[LISPDECL_CLOS] = subtypep_clos_;
+	TypeSubtypep[LISPDECL_ASTERISK] = subtypep_error_;
+	TypeSubtypep[LISPDECL_NIL] = subtypep_nil_;
+	TypeSubtypep[LISPDECL_T] = subtypep_t_;
+	TypeSubtypep[LISPDECL_NULL] = subtypep_equaltype_;
+	TypeSubtypep[LISPDECL_CONS] = subtypep_cons_;
+	TypeSubtypep[LISPDECL_HASH_TABLE] = subtypep_equaltype_;
+	TypeSubtypep[LISPDECL_SYMBOL] = subtypep_symbol_;
+	TypeSubtypep[LISPDECL_KEYWORD] = subtypep_keyword_;
+	TypeSubtypep[LISPDECL_PACKAGE] = subtypep_equaltype_;
+	TypeSubtypep[LISPDECL_RANDOM_STATE] = subtypep_equaltype_;
+	TypeSubtypep[LISPDECL_READTABLE] = subtypep_equaltype_;
+	TypeSubtypep[LISPDECL_FUNCTION] = subtypep_function_;
+	TypeSubtypep[LISPDECL_COMPILED_FUNCTION] = subtypep_compiled_function_;
+	TypeSubtypep[LISPDECL_PATHNAME] = subtypep_pathname_;
+	TypeSubtypep[LISPDECL_LOGICAL_PATHNAME] = subtypep_logical_pathname_;
+	TypeSubtypep[LISPDECL_SEQUENCE] = subtypep_sequence_;
+	TypeSubtypep[LISPDECL_ARRAY] = subtypep_array_;
+	TypeSubtypep[LISPDECL_SIMPLE_ARRAY] = subtypep_simple_array_;
+	TypeSubtypep[LISPDECL_CHARACTER] = subtypep_character_;
+	TypeSubtypep[LISPDECL_BASE_CHAR] = subtypep_base_char_;
+	TypeSubtypep[LISPDECL_STANDARD_CHAR] = subtypep_standard_char_;
+	TypeSubtypep[LISPDECL_INTEGER] = subtypep_integer_;
+	TypeSubtypep[LISPDECL_RATIONAL] = subtypep_rational_;
+	TypeSubtypep[LISPDECL_REAL] = subtypep_real_;
+	TypeSubtypep[LISPDECL_NUMBER] = subtypep_number_;
+	TypeSubtypep[LISPDECL_FLOAT] = subtypep_float_;
+	TypeSubtypep[LISPDECL_SHORT_FLOAT] = subtypep_short_float_;
+	TypeSubtypep[LISPDECL_SINGLE_FLOAT] = subtypep_single_float_;
+	TypeSubtypep[LISPDECL_DOUBLE_FLOAT] = subtypep_double_float_;
+	TypeSubtypep[LISPDECL_LONG_FLOAT] = subtypep_long_float_;
+	TypeSubtypep[LISPDECL_RATIO] = subtypep_ratio_;
+	TypeSubtypep[LISPDECL_COMPLEX] = subtypep_complex_;
+	TypeSubtypep[LISPDECL_RESTART] = subtypep_equaltype_;
+	TypeSubtypep[LISPDECL_ENVIRONMENT] = subtypep_equaltype_;
+	TypeSubtypep[LISPDECL_STREAM] = subtypep_stream_;
+	TypeSubtypep[LISPDECL_BROADCAST_STREAM] = subtypep_stream_child_;
+	TypeSubtypep[LISPDECL_CONCATENATED_STREAM] = subtypep_stream_child_;
+	TypeSubtypep[LISPDECL_ECHO_STREAM] = subtypep_stream_child_;
+	TypeSubtypep[LISPDECL_FILE_STREAM] = subtypep_stream_child_;
+	TypeSubtypep[LISPDECL_STRING_STREAM] = subtypep_stream_child_;
+	TypeSubtypep[LISPDECL_SYNONYM_STREAM] = subtypep_stream_child_;
+	TypeSubtypep[LISPDECL_TWO_WAY_STREAM] = subtypep_stream_child_;
+	TypeSubtypep[LISPDECL_PROMPT_STREAM] = subtypep_stream_child_;
+	TypeSubtypep[LISPDECL_PRETTY_STREAM] = subtypep_stream_child_;
+	TypeSubtypep[LISPDECL_BYTESPEC] = subtypep_equaltype_;
+	TypeSubtypep[LISPDECL_PRINT_DISPATCH] = subtypep_equaltype_;
+	TypeSubtypep[LISPDECL_EVAL] = subtypep_equaltype_;
 }
 
-static SubtypepResult subtypep_call_asterisk(addr left, addr right)
+static int subtypep_call_asterisk_(addr left, addr right, SubtypepResult *ret)
 {
 	if (type_asterisk_p(right)) {
-		if (RefNotDecl(right))
-			fmte("Don't allow to use (not *).", NULL);
-		return SUBTYPEP_INCLUDE;
+		if (RefNotDecl(right)) {
+			*ret = SUBTYPEP_INVALID;
+			return fmte_("Don't allow to use (not *).", NULL);
+		}
+		else {
+			return ReturnInclude(ret);
+		}
 	}
 	if (type_asterisk_p(left)) {
-		if (RefNotDecl(left))
-			fmte("Don't allow to use (not *).", NULL);
-		return SUBTYPEP_FALSE;
+		if (RefNotDecl(left)) {
+			*ret = SUBTYPEP_INVALID;
+			return fmte_("Don't allow to use (not *).", NULL);
+		}
+		else {
+			return ReturnFalse(ret);
+		}
 	}
-	return subtypep_right(left, right);
+	return subtypep_right_(left, right, ret);
 }
 
-static SubtypepResult subtypep_call_normal(addr left, addr right)
+static int subtypep_call_normal_(addr left, addr right, SubtypepResult *ret)
 {
-	if (type_asterisk_p(left) || type_asterisk_p(right))
-		fmte("Don't allow to use asterisk.", NULL);
-	return subtypep_right(left, right);
+	if (type_asterisk_p(left) || type_asterisk_p(right)) {
+		*ret = SUBTYPEP_INVALID;
+		return fmte_("Don't allow to use asterisk.", NULL);
+	}
+	else {
+		return subtypep_right_(left, right, ret);
+	}
 }
 
-static SubtypepResult subtypep_call(addr left, addr right, int asterisk)
+static int subtypep_call_(addr left, addr right, int aster, SubtypepResult *ret)
 {
-	if (asterisk)
-		return subtypep_call_asterisk(left, right);
+	if (aster)
+		return subtypep_call_asterisk_(left, right, ret);
 	else
-		return subtypep_call_normal(left, right);
+		return subtypep_call_normal_(left, right, ret);
 }
 
 static void real_extract_subtypep(LocalRoot local, addr *ret, addr type)
@@ -1879,7 +1992,7 @@ static void real_extract_subtypep(LocalRoot local, addr *ret, addr type)
 	get_type_subtypep(ret, type);
 }
 
-_g SubtypepResult subtypep_result(addr left, addr right, int asterisk)
+_g int subtypep_result_(addr left, addr right, int aster, SubtypepResult *ret)
 {
 	SubtypepResult result;
 	LocalRoot local;
@@ -1891,44 +2004,50 @@ _g SubtypepResult subtypep_result(addr left, addr right, int asterisk)
 	push_local(local, &stack);
 	real_extract_subtypep(local, &left, left);
 	real_extract_subtypep(local, &right, right);
-	result = subtypep_call(left, right, asterisk);
+	Return(subtypep_call_(left, right, aster, &result));
 	rollback_local(local, stack);
 
-	return result;
+	return Result(ret, result);
 }
 
-static int subtypep_execute(addr left, addr right, int asterisk, int *validp)
+static int subtypep_execute_(addr left, addr right, int aster, int *ret, int *validp)
 {
-	switch (subtypep_result(left, right, asterisk)) {
+	SubtypepResult value;
+
+	Return(subtypep_result_(left, right, aster, &value));
+	switch (value) {
 		case SUBTYPEP_INCLUDE:
-			*validp = 1;
-			return 1;
+			if (validp)
+				*validp = 1;
+			return Result(ret, 1);
 
 		case SUBTYPEP_FALSE:
 		case SUBTYPEP_EXCLUDE:
-			*validp = 1;
-			return 0;
+			if (validp)
+				*validp = 1;
+			return Result(ret, 0);
 
 		case SUBTYPEP_INVALID:
 		default:
 			break;
 	}
-	*validp = 0;
-	return 0;
+	if (validp)
+		*validp = 0;
+	return Result(ret, 0);
 }
 
-_g int subtypep_asterisk_clang(addr left, addr right, int *validp)
+_g int subtypep_asterisk_clang_(addr left, addr right, int *ret, int *validp)
 {
 	CheckType(left, LISPTYPE_TYPE);
 	CheckType(right, LISPTYPE_TYPE);
-	return subtypep_execute(left, right, 1, validp);
+	return subtypep_execute_(left, right, 1, ret, validp);
 }
 
-_g int subtypep_clang(addr left, addr right, int *validp)
+_g int subtypep_clang_(addr left, addr right, int *ret, int *validp)
 {
 	CheckType(left, LISPTYPE_TYPE);
 	CheckType(right, LISPTYPE_TYPE);
-	return subtypep_execute(left, right, 0, validp);
+	return subtypep_execute_(left, right, 0, ret, validp);
 }
 
 
@@ -1937,9 +2056,11 @@ _g int subtypep_clang(addr left, addr right, int *validp)
  */
 static int subtypep_symbol_clos_p(addr x, addr *r)
 {
-	if (! symbolp(x)) return 0;
+	if (! symbolp(x))
+		return 0;
 	clos_find_class_nil(x, &x);
-	if (x == Nil) return 0;
+	if (x == Nil)
+		return 0;
 	*r = x;
 	return 1;
 }
@@ -1957,21 +2078,26 @@ static int subtypep_clos_p(addr x, addr y, addr *r1, addr *r2)
 		return 1;
 	}
 	if (a) {
-		if (! subtypep_symbol_clos_p(y, &y)) return 0;
+		if (! subtypep_symbol_clos_p(y, &y))
+			return 0;
 		type_clos_heap(x, r1);
 		type_clos_heap(y, r2);
 		return 1;
 	}
 	if (b) {
-		if (! subtypep_symbol_clos_p(x, &x)) return 0;
+		if (! subtypep_symbol_clos_p(x, &x))
+			return 0;
 		type_clos_heap(x, r1);
 		type_clos_heap(y, r2);
 		return 1;
 	}
 
-	if (! subtypep_symbol_clos_p(x, &x)) return 0;
-	if (! subtypep_symbol_clos_p(y, &y)) return 0;
-	if (clos_built_p(x) && clos_built_p(y)) return 0;
+	if (! subtypep_symbol_clos_p(x, &x))
+		return 0;
+	if (! subtypep_symbol_clos_p(y, &y))
+		return 0;
+	if (clos_built_p(x) && clos_built_p(y))
+		return 0;
 	type_clos_heap(x, r1);
 	type_clos_heap(y, r2);
 	return 1;
@@ -1985,12 +2111,12 @@ _g int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, x, y, env, NULL);
 	if (! subtypep_clos_p(x, y, &x, &y)) {
-		if (parse_type(ptr, &x, x, env)) return 1;
+		Return(parse_type(ptr, &x, x, env));
 		localhold_push(hold, x);
-		if (parse_type(ptr, &y, y, env)) return 1;
+		Return(parse_type(ptr, &y, y, env));
 		localhold_push(hold, y);
 	}
-	result = subtypep_clang(x, y, &invalid);
+	Return(subtypep_clang_(x, y, &result, &invalid));
 	*v1 = result? T: Nil;
 	*v2 = invalid? T: Nil;
 	localhold_end(hold);
@@ -2000,9 +2126,12 @@ _g int subtypep_common(Execute ptr, addr x, addr y, addr env, addr *v1, addr *v2
 
 _g int subtypep_result_syscall(Execute ptr, addr left, addr right, addr *ret)
 {
+	SubtypepResult value;
+
 	Return(parse_type(ptr, &left, left, Nil));
 	Return(parse_type(ptr, &right, right, Nil));
-	switch (subtypep_result(left, right, 1)) {
+	Return(subtypep_result_(left, right, 1, &value));
+	switch (value) {
 		case SUBTYPEP_INCLUDE:
 			GetConst(SYSTEM_INCLUDE, ret);
 			break;

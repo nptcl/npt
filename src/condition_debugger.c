@@ -116,8 +116,9 @@ static int output_type_error(Execute ptr, addr stream, addr instance)
 
 	type_error_datum(instance, &datum);
 	type_error_expected(instance, &expected);
-	if (GetType(expected) == LISPTYPE_TYPE)
-		type_object(&expected, expected);
+	if (GetType(expected) == LISPTYPE_TYPE) {
+		Return(type_object_(&expected, expected));
+	}
 	return format_stream(ptr, stream,
 			"Value ~S must be a ~S type.~%", datum, expected, NULL);
 }
@@ -170,7 +171,7 @@ static int output_restarts_debugger(Execute ptr, addr io, addr list)
 				check = callclang_funcall(ptr, &name, name, str, NULL);
 				if (check)
 					fmte("Invalid restart report.", NULL);
-				string_stream_heap(str, &name);
+				Return(string_stream_heap_(str, &name));
 				close_output_string_stream(str);
 			}
 		}

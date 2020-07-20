@@ -376,16 +376,13 @@ static int structure_getarray_direct(Execute ptr,
 	addr value;
 
 	getelt_sequence(NULL, vector, i, &value);
-	if (typep_clang(ptr, value, type, &check))
-		return 1;
+	Return(typep_clang(ptr, value, type, &check));
 	if (! check) {
-		type_object(&type, type);
-		fmte("The value ~S don't match ~A type.", value, type, NULL);
-		return 0;
+		Return(type_object_(&type, type));
+		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
 	}
-	*ret = value;
 
-	return 0;
+	return Result(ret, value);
 }
 
 static int structure_getarray(Execute ptr,
@@ -401,12 +398,10 @@ static int structure_setarray_direct(Execute ptr,
 {
 	int check;
 
-	if (typep_clang(ptr, value, type, &check))
-		return 1;
+	Return(typep_clang(ptr, value, type, &check));
 	if (! check) {
-		type_object(&type, type);
-		fmte("The value ~S don't match ~A type.", value, type, NULL);
-		return 0;
+		Return(type_object_(&type, type));
+		return fmte_("The value ~S don't match ~A type.", value, type, NULL);
 	}
 	setelt_sequence(vector, i, value);
 
@@ -491,51 +486,57 @@ static void structure_check_predicate(struct defstruct *str)
 	}
 }
 
-static void structure_include(struct defstruct *str)
+static int structure_include_(struct defstruct *str)
 {
-	int invalid;
+	int result;
 	addr instance, x, y;
 
 	if (! str->include_p)
-		return;
+		return 0;
 	/* instance check */
 	clos_find_class_nil(str->iname, &instance);
 	if (instance == Nil)
-		fmte(":INCLUDE ~S structure don't exist.", str->iname, NULL);
+		return fmte_(":INCLUDE ~S structure don't exist.", str->iname, NULL);
 	if (! structure_class_p(instance))
-		fmte(":INCLUDE ~S must be structure type.", instance, NULL);
+		return fmte_(":INCLUDE ~S must be structure type.", instance, NULL);
 
 	/* class check */
 	stdget_structure_type(instance, &x);
 	GetConst(COMMON_CLASS, &y);
 	if (x == y) {
-		if (str->type_list_p || str->type_vector_p)
-			fmte(":TYPE option is CLASS, but :INCLUDE type is not CLASS.", NULL);
+		if (str->type_list_p || str->type_vector_p) {
+			return fmte_(":TYPE option is CLASS, "
+					"but :INCLUDE type is not CLASS.", NULL);
+		}
 	}
 
 	/* list check */
 	GetConst(COMMON_LIST, &y);
 	if (x == y) {
 		if (! str->type_list_p)
-			fmte(":TYPE option is LIST, but :INCLUDE type is not LIST.", NULL);
+			return fmte_(":TYPE option is LIST, but :INCLUDE type is not LIST.", NULL);
 	}
 
 	/* vector check */
 	GetConst(COMMON_VECTOR, &y);
 	if (x == y) {
-		if (! str->type_vector_p)
-			fmte(":TYPE option is VECTOR, but :INCLUDE type is not VECTOR.", NULL);
+		if (! str->type_vector_p) {
+			return fmte_(":TYPE option is VECTOR, "
+					"but :INCLUDE type is not VECTOR.", NULL);
+		}
 		x = str->type_vector;
 		stdget_structure_vector(instance, &y);
-		if (! subtypep_clang(x, y, &invalid)) {
-			type_object(&x, x);
-			type_object(&y, y);
-			fmte(":TYPE ~A is not in the include ~A type.", x, y, NULL);
+		Return(subtypep_clang_(x, y, &result, NULL));
+		if (! result) {
+			Return(type_object_(&x, x));
+			Return(type_object_(&y, y));
+			return fmte_(":TYPE ~A is not in the include ~A type.", x, y, NULL);
 		}
 	}
 
 	/* instance */
 	str->iname = instance;
+	return 0;
 }
 
 static int structure_find_slots(addr instance, addr name, addr *ret)
@@ -579,22 +580,21 @@ static void structure_include_slots(struct defstruct *str)
 	}
 }
 
-static void structure_include_arguments(struct defstruct *str)
+static int structure_include_arguments_(struct defstruct *str)
 {
-	int invalid;
+	int result;
 	addr name, list, instance, a, b, x, y, gensym;
 
 	if (! str->include_p)
-		return;
+		return 0;
 	instance = str->iname;
 	GetConst(SYSTEM_STRUCTURE_GENSYM, &gensym);
 	for (list = str->iargs; list != Nil; ) {
 		GetCons(list, &a, &list);
 		GetNameSlot(a, &name);
 		if (! structure_find_slots(instance, name, &b)) {
-			fmte("The :include argument ~S don't exist "
+			return fmte_("The :include argument ~S don't exist "
 					"in :INCLUDE structure.", name, NULL);
-			return;
 		}
 		/* form */
 		GetFunctionSlot(a, &x);
@@ -608,12 +608,14 @@ static void structure_include_arguments(struct defstruct *str)
 		if (x == gensym) {
 			SetTypeSlot(a, y);
 		}
-		else if (! subtypep_clang(x, y, &invalid)) {
-			type_object(&x, x);
-			type_object(&y, y);
-			fmte("The slot ~S type ~A is not "
-					"in the include ~A type.", name, x, y, NULL);
-			return;
+		else {
+			Return(subtypep_clang_(x, y, &result, NULL));
+			if (! result) {
+				Return(type_object_(&x, x));
+				Return(type_object_(&y, y));
+				return fmte_("The slot ~S type ~A is not "
+						"in the include ~A type.", name, x, y, NULL);
+			}
 		}
 		/* readonly */
 		GetReadOnlySlot(a, &x);
@@ -622,11 +624,12 @@ static void structure_include_arguments(struct defstruct *str)
 			SetReadOnlySlot(a, y);
 		}
 		else if (x == Nil && y == T) {
-			fmte("The slot ~S is readonly "
+			return fmte_("The slot ~S is readonly "
 					"but include slot is not readonly.", name, NULL);
-			return;
 		}
 	}
+
+	return 0;
 }
 
 static void structure_print_check(struct defstruct *str)
@@ -2232,9 +2235,9 @@ _g int ensure_structure_common_(Execute ptr, addr name, addr slots, addr args)
 	structure_check_slots(str.slots);
 	structure_check_slots(str.iargs);
 	structure_check_predicate(&str);
-	structure_include(&str);
+	Return(structure_include_(&str));
 	structure_include_slots(&str);
-	structure_include_arguments(&str);
+	Return(structure_include_arguments_(&str));
 	structure_print_check(&str);
 	structure_slots_value(&str);
 	/* make instance */

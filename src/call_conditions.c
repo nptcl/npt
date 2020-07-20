@@ -404,8 +404,7 @@ static int check_type_expand_common(Execute ptr, addr env, addr *ret,
 	if (string == Nil) {
 		Return(parse_type(ptr, &string, type, env));
 		localhold_push(hold, string);
-
-		type_object(&string, string);
+		Return(type_object_(&string, string));
 		localhold_push(hold, string);
 		Return(princ_string_heap(ptr, &string, string));
 	}

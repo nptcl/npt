@@ -219,7 +219,7 @@ static int read_from_string_execute_common(Execute ptr, addr string,
 	addr stream, pos;
 	size_t size;
 
-	open_input_string_stream2(&stream, string, start, end);
+	Return(open_input_string_stream2_(&stream, string, start, end));
 	if (preserve) {
 		Return(read_preserving(ptr, stream, &check, &pos));
 	}

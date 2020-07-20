@@ -555,19 +555,19 @@ static int test_upgraded_complex_type(void)
 
 	x = readr("(integer 10 20)");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_type(x, &x);
+	upgraded_complex_type_(x, &x);
 	test(LispDecl(x) == LISPDECL_INTEGER, "upgraded_complex_type1");
 	GetArrayType(x, 0, &x);
 	test(type_asterisk_p(x), "upgraded_complex_type2");
 
 	x = readr("ratio");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_type(x, &x);
+	upgraded_complex_type_(x, &x);
 	test(LispDecl(x) == LISPDECL_RATIONAL, "upgraded_complex_type3");
 
 	x = readr("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_type(x, &x);
+	upgraded_complex_type_(x, &x);
 	test(LispDecl(x) == LISPDECL_LONG_FLOAT, "upgraded_complex_type4");
 
 	RETURN;
@@ -579,19 +579,19 @@ static int test_upgraded_complex_const(void)
 
 	x = readr("(integer 10 20)");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_const(x, &x);
+	upgraded_complex_const_(x, &x);
 	y = readr("integer");
 	test(equal(x, y), "upgraded_complex_const1");
 
 	x = readr("ratio");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_const(x, &x);
+	upgraded_complex_const_(x, &x);
 	y = readr("rational");
 	test(equal(x, y), "upgraded_complex_const2");
 
 	x = readr("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
-	upgraded_complex_const(x, &x);
+	upgraded_complex_const_(x, &x);
 	y = readr("long-float");
 	test(equal(x, y), "upgraded_complex_const3");
 

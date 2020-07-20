@@ -30,17 +30,17 @@
 #include "type_typep.h"
 #include "type_value.h"
 
-static int coerce_type(Execute ptr, addr pos, addr type, addr *ret);
+static int coerce_type_(Execute ptr, addr pos, addr type, addr *ret);
 
 /*
  *  type
  */
-static void coerce_error(addr pos, addr type)
+static int coerce_error(Execute ptr, addr pos, addr type)
 {
 	copyheap(&pos, pos);
 	copyheap(&type, type);
-	type_object(&type, type);
-	type_error_stdarg(pos, type,
+	Return(type_object_(&type, type));
+	return call_type_error_va_(ptr, pos, type,
 			"Cannot covert value ~A to a ~S type.", pos, type, NULL);
 }
 
@@ -48,12 +48,11 @@ static int coerce_typep(Execute ptr, addr pos, addr value, addr type, addr *ret)
 {
 	int check;
 
-	if (typep_clang(ptr, value, type, &check))
-		return 1;
+	Return(typep_clang(ptr, value, type, &check));
 	if (! check)
-		coerce_error(pos, type);
-	*ret = value;
-	return 0;
+		return coerce_error(ptr, pos, type);
+
+	return Result(ret, value);
 }
 
 
@@ -324,9 +323,9 @@ static int coerce_complex_complex(Execute ptr, addr pos, addr type, addr *ret)
 	GetRealComplex(pos, &real);
 	GetImagComplex(pos, &imag);
 
-	if (coerce_type(ptr, real, type, &real)) return 1;
+	Return(coerce_type_(ptr, real, type, &real));
 	hold = LocalHold_local_push(ptr, real);
-	if (coerce_type(ptr, imag, type, &imag)) return 1;
+	Return(coerce_type_(ptr, imag, type, &imag));
 	localhold_end(hold);
 	complex_heap(ret, real, imag);
 
@@ -337,8 +336,7 @@ static int coerce_complex_real(Execute ptr, addr pos, addr type, addr *ret)
 {
 	GetArrayType(type, 0, &type);
 	if (! type_asterisk_p(type)) {
-		if (coerce_type(ptr, pos, type, &pos))
-			return 1;
+		Return(coerce_type_(ptr, pos, type, &pos));
 	}
 	complex_heap(ret, pos, fixnumh(0));
 
@@ -374,7 +372,7 @@ static int coerce_string_character(Execute ptr, addr pos, addr type, addr *ret)
 
 	string_length(pos, &size);
 	if (size != 1)
-		coerce_error(pos, type);
+		return coerce_error(ptr, pos, type);
 	string_getc(pos, 0, &c);
 	return coerce_unicode_character(ptr, pos, c, type, ret);
 }
@@ -388,7 +386,7 @@ static int coerce_symbol_character(Execute ptr, addr pos, addr type, addr *ret)
 	GetNameSymbol(pos, &name);
 	string_length(name, &size);
 	if (size != 1)
-		coerce_error(pos, type);
+		return coerce_error(ptr, pos, type);
 	string_getc(name, 0, &c);
 	return coerce_unicode_character(ptr, pos, c, type, ret);
 }
@@ -533,10 +531,8 @@ static int coerce_aa_bit_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_bit(pos, i, &bit)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_bit(pos, i, &bit))
+			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)bit);
 		array_set(array, i, value);
 	}
@@ -555,10 +551,8 @@ static int coerce_aa_character_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_character(pos, i, &c)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_character(pos, i, &c))
+			return coerce_error(ptr, pos, type);
 		character_heap(&value, c);
 		array_set(array, i, value);
 	}
@@ -577,10 +571,8 @@ static int coerce_aa_signed8_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed8(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed8(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
 		array_set(array, i, value);
 	}
@@ -599,10 +591,8 @@ static int coerce_aa_signed16_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed16(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed16(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
 		array_set(array, i, value);
 	}
@@ -621,10 +611,8 @@ static int coerce_aa_signed32_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed32(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed32(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
 		array_set(array, i, value);
 	}
@@ -644,10 +632,8 @@ static int coerce_aa_signed64_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed64(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed64(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
 		array_set(array, i, value);
 	}
@@ -676,8 +662,7 @@ static int coerce_aa_signed_t(Execute ptr,
 #endif
 
 		default:
-			coerce_error(pos, type);
-			return 0;
+			return coerce_error(ptr, pos, type);
 	}
 }
 
@@ -692,10 +677,8 @@ static int coerce_aa_unsigned8_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned8(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned8(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
 		array_set(array, i, value);
 	}
@@ -714,10 +697,8 @@ static int coerce_aa_unsigned16_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned16(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned16(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		fixnum_heap(&value, (fixnum)v);
 		array_set(array, i, value);
 	}
@@ -736,10 +717,8 @@ static int coerce_aa_unsigned32_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned32(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned32(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 #ifdef LISP_64BIT
 		fixnum_heap(&value, (fixnum)v);
 #else
@@ -763,10 +742,8 @@ static int coerce_aa_unsigned64_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned64(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned64(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		integer_fixed_heap(&value, SignPlus, (fixed)v);
 		array_set(array, i, value);
 	}
@@ -795,8 +772,7 @@ static int coerce_aa_unsigned_t(Execute ptr,
 #endif
 
 		default:
-			coerce_error(pos, type);
-			return 0;
+			return coerce_error(ptr, pos, type);
 	}
 }
 
@@ -811,10 +787,8 @@ static int coerce_aa_single_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_single(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_single(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		single_float_heap(&value, v);
 		array_set(array, i, value);
 	}
@@ -833,10 +807,8 @@ static int coerce_aa_double_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_double(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_double(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		double_float_heap(&value, v);
 		array_set(array, i, value);
 	}
@@ -855,10 +827,8 @@ static int coerce_aa_long_t(Execute ptr, addr pos, addr type, addr *ret)
 	array_coerce_t_heap(&array, pos);
 	array_get_rowlength(pos, &size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_long(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_long(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		long_float_heap(&value, v);
 		array_set(array, i, value);
 	}
@@ -912,10 +882,8 @@ static int coerce_aa_bitvector(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	bitmemory_unsafe(NULL, &vector, size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_bit(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_bit(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		bitmemory_setint(vector, i, v);
 	}
 
@@ -937,10 +905,8 @@ static int coerce_aa_type_bit(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_bit_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_bit(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_bit(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_bit(array, i, v);
 	}
 
@@ -975,10 +941,8 @@ static int coerce_aa_string(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	strvect_heap(&vector, size);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_character(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_character(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		strvect_setc(vector, i, v);
 	}
 
@@ -1000,10 +964,8 @@ static int coerce_aa_t_character(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_character_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_character(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_character(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_character(array, i, v);
 	}
 
@@ -1036,10 +998,8 @@ static int coerce_aa_signed8(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_signed8_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed8(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed8(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed8(array, i, v);
 	}
 
@@ -1056,10 +1016,8 @@ static int coerce_aa_signed16(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_signed16_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed16(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed16(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed16(array, i, v);
 	}
 
@@ -1076,10 +1034,8 @@ static int coerce_aa_signed32(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_signed32_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed32(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed32(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed32(array, i, v);
 	}
 
@@ -1097,10 +1053,8 @@ static int coerce_aa_signed64(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_signed64_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_signed64(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed64(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed64(array, i, v);
 	}
 
@@ -1128,8 +1082,7 @@ static int coerce_aa_type_signed(Execute ptr,
 #endif
 
 		default:
-			coerce_error(pos, type);
-			return 0;
+			return coerce_error(ptr, pos, type);
 	}
 }
 
@@ -1201,10 +1154,8 @@ static int coerce_aa_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_unsigned8_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned8(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned8(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned8(array, i, v);
 	}
 
@@ -1221,10 +1172,8 @@ static int coerce_aa_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_unsigned16_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned16(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned16(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned16(array, i, v);
 	}
 
@@ -1241,10 +1190,8 @@ static int coerce_aa_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_unsigned32_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned32(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned32(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned32(array, i, v);
 	}
 
@@ -1262,10 +1209,8 @@ static int coerce_aa_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_unsigned64_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_unsigned64(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned64(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned64(array, i, v);
 	}
 
@@ -1293,8 +1238,7 @@ static int coerce_aa_type_unsigned(Execute ptr,
 #endif
 
 		default:
-			coerce_error(pos, type);
-			return 0;
+			return coerce_error(ptr, pos, type);
 	}
 }
 
@@ -1329,10 +1273,8 @@ static int coerce_aa_type_single(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_single_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_single(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_single(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_single(array, i, v);
 	}
 
@@ -1369,10 +1311,8 @@ static int coerce_aa_type_double(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_double_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_double(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_double(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_double(array, i, v);
 	}
 
@@ -1409,10 +1349,8 @@ static int coerce_aa_type_long(Execute ptr, addr pos, addr type, addr *ret)
 	array_get_rowlength(pos, &size);
 	array_coerce_long_heap(&array, pos);
 	for (i = 0; i < size; i++) {
-		if (array_coerce_long(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_long(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_long(array, i, v);
 	}
 
@@ -1490,10 +1428,8 @@ static int coerce_av_bit(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	bitmemory_unsafe(NULL, &vector, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_bit(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_bit(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		bitmemory_setint(vector, i, v);
 	}
 
@@ -1510,10 +1446,8 @@ static int coerce_av_character(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	strvect_heap(&vector, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_character(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_character(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		strvect_setc(vector, i, v);
 	}
 
@@ -1530,10 +1464,8 @@ static int coerce_av_signed8(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_signed8_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_signed8(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_signed8(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed8(array, i, v);
 	}
 
@@ -1550,10 +1482,8 @@ static int coerce_av_signed16(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_signed16_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_signed16(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_signed16(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed16(array, i, v);
 	}
 
@@ -1570,10 +1500,8 @@ static int coerce_av_signed32(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_signed32_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_signed32(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_signed32(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed32(array, i, v);
 	}
 
@@ -1591,10 +1519,8 @@ static int coerce_av_signed64(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_signed64_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_signed64(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_signed64(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed64(array, i, v);
 	}
 
@@ -1625,10 +1551,8 @@ static int coerce_av_signed(Execute ptr, addr pos, addr type, addr *ret)
 #endif
 
 		default:
-			coerce_error(pos, type);
-			return 0;
+			return coerce_error(ptr, pos, type);
 	}
-	return 0;
 }
 
 /* vector -> array.unsigned8 */
@@ -1641,10 +1565,8 @@ static int coerce_av_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_unsigned8_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_unsigned8(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_unsigned8(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned8(array, i, v);
 	}
 
@@ -1661,10 +1583,8 @@ static int coerce_av_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_unsigned16_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_unsigned16(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_unsigned16(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned16(array, i, v);
 	}
 
@@ -1681,10 +1601,8 @@ static int coerce_av_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_unsigned32_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_unsigned32(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_unsigned32(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned32(array, i, v);
 	}
 
@@ -1702,10 +1620,8 @@ static int coerce_av_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_unsigned64_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_unsigned64(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_unsigned64(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned64(array, i, v);
 	}
 
@@ -1736,10 +1652,8 @@ static int coerce_av_unsigned(Execute ptr, addr pos, addr type, addr *ret)
 #endif
 
 		default:
-			coerce_error(pos, type);
-			return 0;
+			return coerce_error(ptr, pos, type);
 	}
-	return 0;
 }
 
 /* vector -> array.single-float */
@@ -1752,10 +1666,8 @@ static int coerce_av_single(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_single_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_single(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_single(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_single(array, i, v);
 	}
 
@@ -1772,10 +1684,8 @@ static int coerce_av_double(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_double_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_double(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_double(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_double(array, i, v);
 	}
 
@@ -1792,10 +1702,8 @@ static int coerce_av_long(Execute ptr, addr pos, addr type, addr *ret)
 	lenarray(pos, &size);
 	vector_coerce_long_heap(&array, size);
 	for (i = 0; i < size; i++) {
-		if (vector_coerce_long(pos, i, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (vector_coerce_long(pos, i, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_long(array, i, v);
 	}
 
@@ -1992,10 +1900,8 @@ static int coerce_ab_signed(Execute ptr, addr pos, addr type, addr *ret)
 #endif
 
 		default:
-			coerce_error(pos, type);
-			return 0;
+			return coerce_error(ptr, pos, type);
 	}
-	return 0;
 }
 
 /* bit-vector -> array.unsigned8 */
@@ -2091,10 +1997,8 @@ static int coerce_ab_unsigned(Execute ptr, addr pos, addr type, addr *ret)
 #endif
 
 		default:
-			coerce_error(pos, type);
-			return 0;
+			return coerce_error(ptr, pos, type);
 	}
-	return 0;
 }
 
 /* bit-vector -> array */
@@ -2150,10 +2054,8 @@ static int coerce_al_bit(Execute ptr, addr pos, addr type, addr *ret)
 	bitmemory_unsafe(NULL, &vector, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_bit_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_bit_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		bitmemory_setint(vector, i, v);
 	}
 
@@ -2171,10 +2073,8 @@ static int coerce_al_character(Execute ptr, addr pos, addr type, addr *ret)
 	strvect_heap(&vector, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_character_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_character_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		strvect_setc(vector, i, v);
 	}
 
@@ -2192,10 +2092,8 @@ static int coerce_al_signed8(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_signed8_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_signed8_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed8_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed8(array, i, v);
 	}
 
@@ -2213,10 +2111,8 @@ static int coerce_al_signed16(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_signed16_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_signed16_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed16_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed16(array, i, v);
 	}
 
@@ -2234,10 +2130,8 @@ static int coerce_al_signed32(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_signed32_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_signed32_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed32_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed32(array, i, v);
 	}
 
@@ -2256,10 +2150,8 @@ static int coerce_al_signed64(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_signed64_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_signed64_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_signed64_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_signed64(array, i, v);
 	}
 
@@ -2290,10 +2182,8 @@ static int coerce_al_signed(Execute ptr, addr pos, addr type, addr *ret)
 #endif
 
 		default:
-			coerce_error(pos, type);
-			return 0;
+			return coerce_error(ptr, pos, type);
 	}
-	return 0;
 }
 
 /* list -> array.unsigned8 */
@@ -2307,10 +2197,8 @@ static int coerce_al_unsigned8(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_unsigned8_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_unsigned8_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned8_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned8(array, i, v);
 	}
 
@@ -2328,10 +2216,8 @@ static int coerce_al_unsigned16(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_unsigned16_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_unsigned16_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned16_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned16(array, i, v);
 	}
 
@@ -2349,10 +2235,8 @@ static int coerce_al_unsigned32(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_unsigned32_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_unsigned32_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned32_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned32(array, i, v);
 	}
 
@@ -2371,10 +2255,8 @@ static int coerce_al_unsigned64(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_unsigned64_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_unsigned64_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_unsigned64_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_unsigned64(array, i, v);
 	}
 
@@ -2405,10 +2287,8 @@ static int coerce_al_unsigned(Execute ptr, addr pos, addr type, addr *ret)
 #endif
 
 		default:
-			coerce_error(pos, type);
-			return 0;
+			return coerce_error(ptr, pos, type);
 	}
-	return 0;
 }
 
 /* list -> array.single-float */
@@ -2422,10 +2302,8 @@ static int coerce_al_single(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_single_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_single_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_single_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_single(array, i, v);
 	}
 
@@ -2443,10 +2321,8 @@ static int coerce_al_double(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_double_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_double_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_double_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_double(array, i, v);
 	}
 
@@ -2464,10 +2340,8 @@ static int coerce_al_long(Execute ptr, addr pos, addr type, addr *ret)
 	vector_coerce_long_heap(&array, size);
 	for (i = 0; i < size; i++) {
 		GetCons(pos, &value, &pos);
-		if (array_coerce_long_t(value, &v)) {
-			coerce_error(pos, type);
-			return 0;
-		}
+		if (array_coerce_long_t(value, &v))
+			return coerce_error(ptr, pos, type);
 		array_set_long(array, i, v);
 	}
 
@@ -2584,13 +2458,11 @@ static int coerce_table(Execute ptr, addr pos, addr type, addr *ret)
 			return (*call)(ptr, pos, type, ret);
 	}
 	/* others */
-	*ret = Unbound;
-	return 0;
+	return Result(ret, Unbound);
 }
 
 static int coerce_optimize(Execute ptr, addr pos, addr type, addr *ret)
 {
-	int check;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -2598,10 +2470,10 @@ static int coerce_optimize(Execute ptr, addr pos, addr type, addr *ret)
 	push_local(local, &stack);
 	type_optimize_local(local, &type, type);
 	get_type_optimized(&type, type);
-	check = coerce_table(ptr, pos, type, ret);
+	Return(coerce_table(ptr, pos, type, ret));
 	rollback_local(local, stack);
 
-	return check;
+	return 0;
 }
 
 static int coerce_type_call(Execute ptr, addr pos, addr type, addr *ret)
@@ -2610,31 +2482,24 @@ static int coerce_type_call(Execute ptr, addr pos, addr type, addr *ret)
 
 	CheckType(type, LISPTYPE_TYPE);
 	if (! RefNotDecl(type)) {
-		if (coerce_table(ptr, pos, type, &check))
-			return 1;
-		if (check != Unbound) {
-			*ret = check;
-			return 0;
-		}
+		Return(coerce_table(ptr, pos, type, &check));
+		if (check != Unbound)
+			return Result(ret, check);
 	}
-	if (coerce_optimize(ptr, pos, type, &check))
-		return 1;
-	if (check != Unbound) {
-		*ret = check;
-		return 0;
-	}
+	Return(coerce_optimize(ptr, pos, type, &check));
+	if (check != Unbound)
+		return Result(ret, check);
 
 	return coerce_typep(ptr, pos, pos, type, ret);
 }
 
-static int coerce_type(Execute ptr, addr pos, addr type, addr *ret)
+static int coerce_type_(Execute ptr, addr pos, addr type, addr *ret)
 {
 	LocalHold hold;
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, pos, type, NULL);
-	if (coerce_type_call(ptr, pos, type, ret))
-		return 1;
+	Return(coerce_type_call(ptr, pos, type, ret));
 	localhold_end(hold);
 
 	return 0;
@@ -2642,13 +2507,11 @@ static int coerce_type(Execute ptr, addr pos, addr type, addr *ret)
 
 static int coerce_parse(Execute ptr, addr pos, addr type, addr *ret)
 {
-	if (parse_type(ptr, &type, type, Nil))
-		return 1;
-	else
-		return coerce_type(ptr, pos, type, ret);
+	Return(parse_type(ptr, &type, type, Nil));
+	return coerce_type_(ptr, pos, type, ret);
 }
 
-static int coerce_execute(Execute ptr, addr pos, addr type, addr *ret)
+static int coerce_execute_(Execute ptr, addr pos, addr type, addr *ret)
 {
 	switch (GetType(type)) {
 		case LISPTYPE_NIL:
@@ -2657,11 +2520,10 @@ static int coerce_execute(Execute ptr, addr pos, addr type, addr *ret)
 			return coerce_parse(ptr, pos, type, ret);
 
 		case LISPTYPE_TYPE:
-			return coerce_type(ptr, pos, type, ret);
+			return coerce_type_(ptr, pos, type, ret);
 
 		case LISPTYPE_T:
-			*ret = pos;
-			return 0;
+			return Result(ret, pos);
 
 		default:
 			return coerce_typep(ptr, pos, pos, type, ret);
@@ -2674,8 +2536,7 @@ _g int coerce_common(Execute ptr, addr pos, addr type, addr *ret)
 
 	hold = LocalHold_local(ptr);
 	localhold_pushva(hold, pos, type, NULL);
-	if (coerce_execute(ptr, pos, type, ret))
-		return 1;
+	Return(coerce_execute_(ptr, pos, type, ret));
 	localhold_end(hold);
 
 	return 0;

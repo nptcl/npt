@@ -16,8 +16,11 @@
 /* (defun input-stream-p (stream) ...) -> boolean */
 static int function_input_stream_p(Execute ptr, addr pos)
 {
-	int check = inputp_stream(pos);
+	int check;
+
+	Return(inputp_stream_(pos, &check));
 	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -40,8 +43,11 @@ static void defun_input_stream_p(void)
 /* (defun output-stream-p (stream) ...) -> boolean */
 static int function_output_stream_p(Execute ptr, addr pos)
 {
-	int check = outputp_stream(pos);
+	int check;
+
+	Return(outputp_stream_(pos, &check));
 	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -64,8 +70,11 @@ static void defun_output_stream_p(void)
 /* (defun interactive-stream-p (stream) ...) -> boolean */
 static int function_interactive_stream_p(Execute ptr, addr pos)
 {
-	int check = interactivep_stream(pos);
+	int check;
+
+	Return(interactivep_stream_(pos, &check));
 	setbool_control(ptr, check);
+
 	return 0;
 }
 

@@ -125,34 +125,34 @@ static int fresh_line_Synonym(addr stream, int *ret)
 	return fresh_line_stream_(stream, ret);
 }
 
-static int inputp_Synonym(addr stream)
+static int inputp_Synonym(addr stream, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return inputp_stream(stream);
+	return inputp_stream_(stream, ret);
 }
 
-static int outputp_Synonym(addr stream)
+static int outputp_Synonym(addr stream, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return outputp_stream(stream);
+	return outputp_stream_(stream, ret);
 }
 
-static int interactivep_Synonym(addr stream)
+static int interactivep_Synonym(addr stream, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return interactivep_stream(stream);
+	return interactivep_stream_(stream, ret);
 }
 
-static int characterp_Synonym(addr stream)
+static int characterp_Synonym(addr stream, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return characterp_stream(stream);
+	return characterp_stream_(stream, ret);
 }
 
-static int binaryp_Synonym(addr stream)
+static int binaryp_Synonym(addr stream, int *ret)
 {
 	getstream_synonym(stream, &stream);
-	return binaryp_stream(stream);
+	return binaryp_stream_(stream, ret);
 }
 
 static int element_type_Synonym(addr stream, addr *ret)

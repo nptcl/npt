@@ -100,12 +100,12 @@ static int test_array_get_element_type(void)
 
 	GetTypeTable(&pos, T);
 	array_make_array(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
-	array_get_element_type(pos, &pos);
+	array_get_element_type_(pos, &pos);
 	test(pos == T, "array_get_element_type.1");
 
 	GetTypeTable(&pos, LongFloat);
 	array_make_array(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
-	array_get_element_type(pos, &pos);
+	array_get_element_type_(pos, &pos);
 	GetConst(COMMON_LONG_FLOAT, &check);
 	test(pos == check, "array_get_element_type.2");
 

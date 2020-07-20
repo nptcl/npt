@@ -20,7 +20,7 @@ static int check_type_object(addr x, const char *str)
 {
 	addr y;
 
-	type_object(&x, x);
+	type_object_(&x, x);
 	y = readr(str);
 	return equal(x, y);
 }
@@ -75,7 +75,7 @@ static int check_type_objectc(const char *str)
 
 	x = readr(str);
 	parse_type_unsafe(&y, x);
-	type_object(&y, y);
+	type_object_(&y, y);
 
 	return equal(x, y);
 }
@@ -175,31 +175,31 @@ static int test_type_object_values(void)
 
 	x = readr("(values)");
 	parse_type_values_unsafe(&x, x);
-	type_object(&x, x);
+	type_object_(&x, x);
 	y = readr("(values &rest t)");
 	test(equal(x, y), "type_object_values1");
 
 	x = readr("(values fixnum integer symbol)");
 	parse_type_values_unsafe(&x, x);
-	type_object(&x, x);
+	type_object_(&x, x);
 	y = readr("(values fixnum integer symbol &rest t)");
 	test(equal(x, y), "type_object_values2");
 
 	x = readr("(values &optional fixnum integer symbol)");
 	parse_type_values_unsafe(&x, x);
-	type_object(&x, x);
+	type_object_(&x, x);
 	y = readr("(values &optional fixnum integer symbol &rest t)");
 	test(equal(x, y), "type_object_values3");
 
 	x = readr("(values &optional fixnum integer &rest symbol)");
 	parse_type_values_unsafe(&x, x);
-	type_object(&x, x);
+	type_object_(&x, x);
 	y = readr("(values &optional fixnum integer &rest symbol)");
 	test(equal(x, y), "type_object_values4");
 
 	x = readr("(values fixnum &optional integer &rest symbol)");
 	parse_type_values_unsafe(&x, x);
-	type_object(&x, x);
+	type_object_(&x, x);
 	y = readr("(values fixnum &optional integer &rest symbol)");
 	test(equal(x, y), "type_object_values5");
 
@@ -448,13 +448,13 @@ static int test_type_object_call(void)
 	addr x;
 
 	GetTypeTable(&x, Atom);
-	type_object(&x, x);
+	type_object_(&x, x);
 	test(equal(x, readr("atom")), "type_object1");
 
 	GetTypeTable(&x, Atom);
 	type_copy_heap(&x, x);
 	type_setnotdecl(x, 1);
-	type_object(&x, x);
+	type_object_(&x, x);
 	test(equal(x, readr("(not atom)")), "type_object2");
 
 	RETURN;

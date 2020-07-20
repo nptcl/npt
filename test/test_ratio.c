@@ -1248,7 +1248,7 @@ static int equalstream(addr stream, const char *right)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	string_stream_local(local, stream, &left);
+	string_stream_local_(local, stream, &left);
 	result = string_equal_char(left, right);
 	rollback_local(local, stack);
 	clear_output_string_stream(stream);

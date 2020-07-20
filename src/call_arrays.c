@@ -275,8 +275,7 @@ _g int array_element_type_common(addr var, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
-			array_get_element_type(var, ret);
-			break;
+			return array_get_element_type_(var, ret);
 
 		case LISPTYPE_VECTOR:
 			*ret = T;

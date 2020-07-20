@@ -142,28 +142,40 @@ static int unread_char_Concatenated(addr stream, unicode c)
 	return 0;
 }
 
-static int outputp_Concatenated(addr stream)
+static int outputp_Concatenated(addr stream, int *ret)
 {
 	current_concatenated(stream, &stream);
-	return (stream == Nil)? 0: outputp_stream(stream);
+	if (stream == Nil)
+		return Result(ret, 0);
+	else
+		return outputp_stream_(stream, ret);
 }
 
-static int interactivep_Concatenated(addr stream)
+static int interactivep_Concatenated(addr stream, int *ret)
 {
 	current_concatenated(stream, &stream);
-	return (stream == Nil)? 0: interactivep_stream(stream);
+	if (stream == Nil)
+		return Result(ret, 0);
+	else
+		return interactivep_stream_(stream, ret);
 }
 
-static int characterp_Concatenated(addr stream)
+static int characterp_Concatenated(addr stream, int *ret)
 {
 	current_concatenated(stream, &stream);
-	return (stream == Nil)? 1: characterp_stream(stream);
+	if (stream == Nil)
+		return Result(ret, 1);
+	else
+		return characterp_stream_(stream, ret);
 }
 
-static int binaryp_Concatenated(addr stream)
+static int binaryp_Concatenated(addr stream, int *ret)
 {
 	current_concatenated(stream, &stream);
-	return (stream == Nil)? 1: binaryp_stream(stream);
+	if (stream == Nil)
+		return Result(ret, 1);
+	else
+		return binaryp_stream_(stream, ret);
 }
 
 static int element_type_Concatenated(addr stream, addr *ret)

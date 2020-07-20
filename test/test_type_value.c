@@ -316,31 +316,6 @@ static int test_type_value_character(void)
 	RETURN;
 }
 
-static int test_type_value_strvect(void)
-{
-	addr pos, check;
-
-	strvect_char_heap(&pos, "Hello");
-	type_value_strvect(&check, pos);
-	test(RefLispDecl(check) == LISPDECL_SIMPLE_BASE_STRING, "type_value_strvect1");
-	GetArrayType(check, 0, &check);
-	test(RefFixnum(check) == 5, "type_value_strvect2");
-
-	strvect_setc(pos, 2, 0x0D);
-	type_value_strvect(&check, pos);
-	test(RefLispDecl(check) == LISPDECL_SIMPLE_BASE_STRING, "type_value_strvect3");
-	GetArrayType(check, 0, &check);
-	test(RefFixnum(check) == 5, "type_value_strvect4");
-
-	strvect_setc(pos, 3, 0xF0000000);
-	type_value_strvect(&check, pos);
-	test(RefLispDecl(check) == LISPDECL_SIMPLE_STRING, "type_value_strvect5");
-	GetArrayType(check, 0, &check);
-	test(RefFixnum(check) == 5, "type_value_strvect6");
-
-	RETURN;
-}
-
 static int test_type_value_string(void)
 {
 	addr pos, check;
@@ -351,11 +326,17 @@ static int test_type_value_string(void)
 	GetArrayType(check, 0, &check);
 	test(RefFixnum(check) == 5, "type_value_string2");
 
-	strarray_char_heap(&pos, "Hello");
+	strvect_setc(pos, 2, 0x0D);
 	type_value_string(&check, pos);
 	test(RefLispDecl(check) == LISPDECL_SIMPLE_BASE_STRING, "type_value_string3");
 	GetArrayType(check, 0, &check);
 	test(RefFixnum(check) == 5, "type_value_string4");
+
+	strvect_setc(pos, 3, 0xF0000000);
+	type_value_string(&check, pos);
+	test(RefLispDecl(check) == LISPDECL_SIMPLE_STRING, "type_value_string5");
+	GetArrayType(check, 0, &check);
+	test(RefFixnum(check) == 5, "type_value_string6");
 
 	RETURN;
 }
@@ -661,7 +642,6 @@ static int testbreak_type_value(void)
 	TestBreak(test_type_value_array);
 	TestBreak(test_type_value_vector);
 	TestBreak(test_type_value_character);
-	TestBreak(test_type_value_strvect);
 	TestBreak(test_type_value_string);
 	TestBreak(test_type_value_hashtable);
 	TestBreak(test_type_value_readtable);

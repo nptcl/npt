@@ -33,10 +33,8 @@ _g int execute_list_deftype(Execute ptr, addr *ret, addr list, addr env)
 	GetCar(list, &call);
 	CheckSymbol(call);
 	getdeftype(call, &call);
-	if (call == Nil) {
-		*ret = NULL;
-		return 0;
-	}
+	if (call == Nil)
+		return Result(ret, NULL);
 
 	return callclang_funcall(ptr, ret, call, list, env, NULL);
 }

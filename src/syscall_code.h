@@ -70,7 +70,7 @@ _g int structure_constructor_syscode(Execute ptr, addr symbol, addr rest, addr *
 _g int loop_bind_syscode(Execute ptr, addr a, addr b, addr c, addr *ret);
 _g int make_pprint_stream_syscode_(Execute ptr, addr *ret,
 		addr stream, addr object, addr prefix, addr perline, addr suffix);
-_g void pprint_gensym_syscode(addr stream, addr *ret);
+_g int pprint_gensym_syscode(addr stream, addr *ret);
 _g int pprint_exit_syscode(Execute ptr, addr stream);
 _g int pprint_pop_syscode(Execute ptr, addr stream, addr *ret);
 _g int pprint_check_syscode(Execute ptr, addr stream);

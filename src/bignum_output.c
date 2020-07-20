@@ -40,7 +40,7 @@ _g int decimal_charqueue_bignum_local_(LocalRoot local, addr pos, addr queue)
 	/* body */
 	open_output_string_stream(&stream, 0);
 	Return(output_nosign_bignum_(local, stream, pos, 10, 0));
-	string_stream_heap(stream, &value);
+	Return(string_stream_heap_(stream, &value));
 	clear_output_string_stream(stream);
 	pushstring_charqueue_local(local, queue, value);
 

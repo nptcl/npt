@@ -893,10 +893,10 @@ _g int make_pprint_stream_syscode_(Execute ptr, addr *ret,
 
 
 /* pprint-gensym */
-_g void pprint_gensym_syscode(addr stream, addr *ret)
+_g int pprint_gensym_syscode(addr stream, addr *ret)
 {
 	Check(! pretty_stream_p(stream), "type error");
-	gensym_pretty_stream(stream, ret);
+	return gensym_pretty_stream_(stream, ret);
 }
 
 
@@ -1094,7 +1094,6 @@ _g int parse_type_syscode(Execute ptr, addr var, addr *ret)
 /* type-object */
 _g int type_object_syscode(addr var, addr *ret)
 {
-	type_object(ret, var);
-	return 0;
+	return type_object_(ret, var);
 }
 

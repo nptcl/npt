@@ -133,9 +133,8 @@ _g int pprint_indent_common(Execute ptr, addr rel, addr n, addr stream)
 	if (! fixnump(n))
 		return fmte_("Too large indent value ~S.", n, NULL);
 	GetFixnum(n, &value);
-	pprint_indent_print(ptr, block_p, value, stream);
 
-	return 0;
+	return pprint_indent_print_(ptr, block_p, value, stream);
 }
 
 
@@ -226,9 +225,8 @@ _g int pprint_newline_common(Execute ptr, addr kind, addr stream)
 
 	Return(pprint_newline_symbol_common(kind, &value));
 	output_stream_designer(ptr, stream, &stream);
-	pprint_newline_print(ptr, value, stream);
 
-	return 0;
+	return pprint_newline_print_(ptr, value, stream);
 }
 
 
@@ -267,9 +265,8 @@ _g int pprint_tab_common(Execute ptr, addr kind, addr column, addr colinc, addr 
 	getfixnum_unsigned(column, &a);
 	getfixnum_unsigned(colinc, &b);
 	output_stream_designer(ptr, stream, &stream);
-	pprint_tab_print(ptr, stream, value, a, b);
 
-	return 0;
+	return pprint_tab_print_(ptr, stream, value, a, b);
 }
 
 
@@ -504,7 +501,7 @@ _g int write_to_string_common(Execute ptr, addr var, addr args, addr *ret)
 	push_new_control(ptr, &control);
 	write_keyword_common(ptr, args);
 	Return(write_print(ptr, stream, var));
-	string_stream_heap(stream, ret);
+	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 
 	return free_control_(ptr, control);
@@ -520,7 +517,7 @@ _g int prin1_to_string_common(Execute ptr, addr var, addr *ret)
 
 	open_output_string_stream(&stream, 0);
 	Return(prin1_print(ptr, stream, var));
-	string_stream_heap(stream, ret);
+	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 
 	return 0;
@@ -536,7 +533,7 @@ _g int princ_to_string_common(Execute ptr, addr var, addr *ret)
 
 	open_output_string_stream(&stream, 0);
 	Return(princ_print(ptr, stream, var));
-	string_stream_heap(stream, ret);
+	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 
 	return 0;

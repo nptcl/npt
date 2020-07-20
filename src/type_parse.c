@@ -1002,7 +1002,7 @@ static int typelist_complex(Execute ptr, addr *ret,
 	if (first == aster)
 		goto asterisk;
 	Return(parse_type(ptr, &first, first, env));
-	upgraded_complex_type(first, &first);
+	Return(upgraded_complex_type_(first, &first));
 	type1_heap(type, first, ret);
 	return 0;
 

@@ -434,118 +434,120 @@ _g void upgraded_array_character_local(LocalRoot local, addr *ret)
 /*
  *  upgraded-complex-part-type
  */
-_g void upgraded_complex_type(addr type, addr *ret)
+_g int upgraded_complex_type_(addr type, addr *ret)
 {
-	int validp;
+	int value;
 	addr right;
 
 	CheckType(type, LISPTYPE_TYPE);
 	/* integer */
 	GetTypeTable(&right, Integer);
-	if (subtypep_clang(type, right, &validp)) {
-		*ret = right;
-		return;
-	}
+	Return(subtypep_clang_(type, right, &value, NULL));
+	if (value)
+		return Result(ret, right);
 
 	/* rational */
 	GetTypeTable(&right, Rational);
-	if (subtypep_clang(type, right, &validp)) {
-		*ret = right;
-		return;
-	}
+	Return(subtypep_clang_(type, right, &value, NULL));
+	if (value)
+		return Result(ret, right);
 
 	/* single-float */
 	GetTypeTable(&right, SingleFloat);
-	if (subtypep_clang(type, right, &validp)) {
-		*ret = right;
-		return;
-	}
+	Return(subtypep_clang_(type, right, &value, NULL));
+	if (value)
+		return Result(ret, right);
 
 	/* double-float */
 	GetTypeTable(&right, DoubleFloat);
-	if (subtypep_clang(type, right, &validp)) {
-		*ret = right;
-		return;
-	}
+	Return(subtypep_clang_(type, right, &value, NULL));
+	if (value)
+		return Result(ret, right);
 
 	/* long-float */
 	GetTypeTable(&right, LongFloat);
-	if (subtypep_clang(type, right, &validp)) {
-		*ret = right;
-		return;
-	}
+	Return(subtypep_clang_(type, right, &value, NULL));
+	if (value)
+		return Result(ret, right);
 
 	/* Real */
 	GetTypeTable(&right, Real);
-	if (subtypep_clang(type, right, &validp)) {
+	Return(subtypep_clang_(type, right, &value, NULL));
+	if (value) {
 		GetTypeTable(ret, SingleFloat); /* single-float */
-		return;
+		return 0;
 	}
 
 	/* error */
-	type_object(&type, type);
-	fmte("COMPLEX type ~S must be a subtype of a real.", type, NULL);
 	*ret = 0;
+	Return(type_object_(&type, type));
+	return fmte_("COMPLEX type ~S must be a subtype of a real.", type, NULL);
 }
 
-static void upgraded_complex_const(addr pos, addr *ret)
+static int upgraded_complex_const_(addr pos, addr *ret)
 {
-	int validp;
+	int value;
 	addr right;
 
 	CheckType(pos, LISPTYPE_TYPE);
 	/* integer */
 	GetTypeTable(&right, Integer);
-	if (subtypep_clang(pos, right, &validp)) {
+	Return(subtypep_clang_(pos, right, &value, NULL));
+	if (value) {
 		GetConst(COMMON_INTEGER, ret);
-		return;
+		return 0;
 	}
 
 	/* rational */
 	GetTypeTable(&right, Rational);
-	if (subtypep_clang(pos, right, &validp)) {
+	Return(subtypep_clang_(pos, right, &value, NULL));
+	if (value) {
 		GetConst(COMMON_RATIONAL, ret);
-		return;
+		return 0;
 	}
 
 	/* single-float */
 	GetTypeTable(&right, SingleFloat);
-	if (subtypep_clang(pos, right, &validp)) {
+	Return(subtypep_clang_(pos, right, &value, NULL));
+	if (value) {
 		GetConst(COMMON_SINGLE_FLOAT, ret);
-		return;
+		return 0;
 	}
 
 	/* double-float */
 	GetTypeTable(&right, DoubleFloat);
-	if (subtypep_clang(pos, right, &validp)) {
+	Return(subtypep_clang_(pos, right, &value, NULL));
+	if (value) {
 		GetConst(COMMON_DOUBLE_FLOAT, ret);
-		return;
+		return 0;
 	}
 
 	/* long-float */
 	GetTypeTable(&right, LongFloat);
-	if (subtypep_clang(pos, right, &validp)) {
+	Return(subtypep_clang_(pos, right, &value, NULL));
+	if (value) {
 		GetConst(COMMON_LONG_FLOAT, ret);
-		return;
+		return 0;
 	}
 
 	/* short-float */
 	GetTypeTable(&right, Real);
-	if (subtypep_clang(pos, right, &validp)) {
+	Return(subtypep_clang_(pos, right, &value, NULL));
+	if (value) {
 		GetConst(COMMON_SINGLE_FLOAT, ret); /* single-float */
-		return;
+		return 0;
 	}
 
 	/* error */
-	type_object(&pos, pos);
-	fmte("COMPLEX type ~S must be a subtype of a real.", pos, NULL);
 	*ret = 0;
+	Return(type_object_(&pos, pos));
+	return fmte_("COMPLEX type ~S must be a subtype of a real.", pos, NULL);
 }
 
 _g int upgraded_complex_common(Execute ptr, addr env, addr pos, addr *ret)
 {
-	if (parse_type(ptr, &pos, pos, env)) return 1;
-	upgraded_complex_const(pos, ret);
+	Return(parse_type(ptr, &pos, pos, env));
+	Return(upgraded_complex_const_(pos, ret));
 	CheckType(*ret, LISPTYPE_SYMBOL);
 	return 0;
 }

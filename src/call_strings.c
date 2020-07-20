@@ -807,7 +807,7 @@ _g int string_not_lessp_common(addr var1, addr var2, addr rest, addr *ret)
  */
 _g int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 {
-	int invalid;
+	int result;
 	addr symbol, value;
 	unicode c;
 	size_t size;
@@ -830,7 +830,8 @@ _g int make_string_common(Execute ptr, addr var, addr rest, addr *ret)
 	if (getplist(rest, symbol, &value) == 0) {
 		GetTypeTable(&symbol, Character);
 		Return(parse_type(ptr, &value, value, Nil));
-		if (! subtypep_clang(value, symbol, &invalid)) {
+		Return(subtypep_clang_(value, symbol, &result, NULL));
+		if (! result) {
 			return fmte_(":element-type ~S "
 					"must be a subtype of character.", value, NULL);
 		}

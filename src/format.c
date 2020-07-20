@@ -72,7 +72,7 @@ _g int format_string_lisp(Execute ptr, addr format, addr args, addr *ret)
 		close_output_string_stream(stream);
 		return 1;
 	}
-	string_stream_heap(stream, ret);
+	Return(string_stream_heap_(stream, ret));
 	close_output_string_stream(stream);
 
 	return 0;

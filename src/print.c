@@ -352,9 +352,8 @@ static int print_unreadable_call_(Execute ptr, addr stream, addr pos,
 	/* type */
 	if (type) {
 		type_value(&value, pos);
-		type_object(&value, value);
-		if (princ_print(ptr, stream, value))
-			return 1;
+		Return(type_object_(&value, value));
+		Return(princ_print(ptr, stream, value));
 		first = 0;
 	}
 	/* call */
@@ -362,8 +361,7 @@ static int print_unreadable_call_(Execute ptr, addr stream, addr pos,
 		if (first == 0) {
 			Return(write_char_stream_(stream, ' '));
 		}
-		if ((*call)(ptr, stream, pos))
-			return 1;
+		Return((*call)(ptr, stream, pos));
 		first = 0;
 	}
 	/* body */
@@ -371,8 +369,7 @@ static int print_unreadable_call_(Execute ptr, addr stream, addr pos,
 		if (first == 0) {
 			Return(write_char_stream_(stream, ' '));
 		}
-		if (callclang_apply(ptr, &body, body, Nil))
-			return 1;
+		Return(callclang_apply(ptr, &body, body, Nil));
 		first = 0;
 	}
 	/* identity */

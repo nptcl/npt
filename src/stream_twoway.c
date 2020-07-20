@@ -141,37 +141,46 @@ static int fresh_line_TwoWay(addr stream, int *ret)
 	return fresh_line_stream_(stream, ret);
 }
 
-static int interactivep_TwoWay(addr stream)
+static int interactivep_TwoWay(addr stream, int *ret)
 {
+	int check1, check2;
 	addr input, output;
 
 	CheckTwoWayStream(stream);
 	GetInputStream(stream, &input);
 	GetOutputStream(stream, &output);
+	Return(interactivep_stream_(input, &check1));
+	Return(interactivep_stream_(output, &check2));
 
-	return interactivep_stream(input) && interactivep_stream(output);
+	return Result(ret, check1 && check2);
 }
 
-static int characterp_TwoWay(addr stream)
+static int characterp_TwoWay(addr stream, int *ret)
 {
+	int check1, check2;
 	addr input, output;
 
 	CheckTwoWayStream(stream);
 	GetInputStream(stream, &input);
 	GetOutputStream(stream, &output);
+	Return(characterp_stream_(input, &check1));
+	Return(characterp_stream_(output, &check2));
 
-	return characterp_stream(input) && characterp_stream(output);
+	return Result(ret, check1 && check2);
 }
 
-static int binaryp_TwoWay(addr stream)
+static int binaryp_TwoWay(addr stream, int *ret)
 {
+	int check1, check2;
 	addr input, output;
 
 	CheckTwoWayStream(stream);
 	GetInputStream(stream, &input);
 	GetOutputStream(stream, &output);
+	Return(binaryp_stream_(input, &check1));
+	Return(binaryp_stream_(output, &check2));
 
-	return binaryp_stream(input) && binaryp_stream(output);
+	return Result(ret, check1 && check2);
 }
 
 static int file_charlen_TwoWay(addr stream, unicode u, size_t *value, int *ret)

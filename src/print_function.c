@@ -50,7 +50,7 @@ static int pprint_logical_block_type_form(Execute ptr, enum pprint_newline type)
 		Return(write_print(ptr, stream, pos));
 		Return(pprint_exit_common(ptr, stream));
 		Return(write_char_stream_(stream, ' '));
-		pprint_newline_print(ptr, type, stream);
+		Return(pprint_newline_print_(ptr, type, stream));
 	}
 
 	return 0;
@@ -67,7 +67,7 @@ static int pprint_logical_block_type(Execute ptr, pointer type)
 	push_new_control(ptr, &control);
 	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
-	gensym_pretty_stream(stream, &gensym);
+	Return(gensym_pretty_stream_(stream, &gensym));
 	Return(catch_clang(ptr, type, gensym, stream));
 	return free_control_(ptr, control);
 }
@@ -175,8 +175,8 @@ static int pprint_logical_block_tabular_form(Execute ptr)
 		Return(write_print(ptr, stream, pos));
 		Return(pprint_exit_common(ptr, stream));
 		Return(write_char_stream_(stream, ' '));
-		pprint_tab_section_relative(ptr, stream, 0, colinc);
-		pprint_newline_print(ptr, pprint_newline_fill, stream);
+		Return(pprint_tab_section_relative_(ptr, stream, 0, colinc));
+		Return(pprint_newline_print_(ptr, pprint_newline_fill, stream));
 	}
 
 	return 0;
@@ -194,7 +194,7 @@ static int pprint_logical_block_tabular(Execute ptr)
 	push_new_control(ptr, &control);
 	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
-	gensym_pretty_stream(stream, &gensym);
+	Return(gensym_pretty_stream_(stream, &gensym));
 	Return(catch_clang(ptr, p_pprint_logical_block_tabular_form, gensym, cons));
 	return free_control_(ptr, control);
 }
@@ -265,7 +265,7 @@ static int pprint_dispatch_vector2(Execute ptr)
 		if (size <= i)
 			break;
 		Return(write_char_stream_(stream, ' '));
-		pprint_newline_print(ptr, pprint_newline_fill, stream);
+		Return(pprint_newline_print_(ptr, pprint_newline_fill, stream));
 	}
 
 	return 0;
@@ -283,7 +283,7 @@ static int pprint_dispatch_vector1(Execute ptr)
 	push_new_control(ptr, &control);
 	setprotect_control(ptr, p_pprint_logical_block_close, stream);
 	/* code */
-	gensym_pretty_stream(stream, &gensym);
+	Return(gensym_pretty_stream_(stream, &gensym));
 	Return(catch_clang(ptr, p_pprint_dispatch_vector2, gensym, cons));
 	return free_control_(ptr, control);
 }
@@ -373,14 +373,14 @@ static int pprint_dispatch_call2(Execute ptr)
 	Return(write_print(ptr, stream, pos));
 	Return(pprint_exit_common(ptr, stream));
 	Return(write_char_stream_(stream, ' '));
-	pprint_newline_print(ptr, pprint_newline_miser, stream);
-	pprint_indent_print(ptr, 0, 0, stream);
+	Return(pprint_newline_print_(ptr, pprint_newline_miser, stream));
+	Return(pprint_indent_print_(ptr, 0, 0, stream));
 	for (;;) {
 		Return(pprint_pop_common(ptr, stream, &pos));
 		Return(write_print(ptr, stream, pos));
 		Return(pprint_exit_common(ptr, stream));
 		Return(write_char_stream_(stream, ' '));
-		pprint_newline_print(ptr, pprint_newline_linear, stream);
+		Return(pprint_newline_print_(ptr, pprint_newline_linear, stream));
 	}
 
 	return 0;
@@ -428,7 +428,7 @@ static int pprint_dispatch_defun6(Execute ptr)
 		Return(write_print(ptr, stream, pos));
 		Return(pprint_exit_common(ptr, stream));
 		Return(write_char_stream_(stream, ' '));
-		pprint_newline_print(ptr, pprint_newline_linear, stream);
+		Return(pprint_newline_print_(ptr, pprint_newline_linear, stream));
 	}
 
 	return 0;
@@ -453,7 +453,7 @@ static int pprint_dispatch_defun4(Execute ptr)
 		Return(pprint_list_common(ptr, stream, pos, p_pprint_dispatch_defun5));
 		Return(pprint_exit_common(ptr, stream));
 		Return(write_char_stream_(stream, ' '));
-		pprint_newline_print(ptr, pprint_newline_fill, stream);
+		Return(pprint_newline_print_(ptr, pprint_newline_fill, stream));
 	}
 
 	return 0;
@@ -476,22 +476,22 @@ static int pprint_dispatch_defun2(Execute ptr)
 	Return(write_print(ptr, stream, pos));
 	Return(pprint_exit_common(ptr, stream));
 	Return(write_char_stream_(stream, ' '));
-	pprint_newline_print(ptr, pprint_newline_miser, stream);
+	Return(pprint_newline_print_(ptr, pprint_newline_miser, stream));
 	/* name */
 	Return(pprint_pop_common(ptr, stream, &pos));
 	Return(write_print(ptr, stream, pos));
 	Return(pprint_exit_common(ptr, stream));
 	Return(write_char_stream_(stream, ' '));
-	pprint_newline_print(ptr, pprint_newline_miser, stream);
+	Return(pprint_newline_print_(ptr, pprint_newline_miser, stream));
 	/* args */
 	Return(pprint_pop_common(ptr, stream, &pos));
 	Return(pprint_list_common(ptr, stream, pos, p_pprint_dispatch_defun3));
 	/* body */
-	pprint_indent_print(ptr, 1, 1, stream);
+	Return(pprint_indent_print_(ptr, 1, 1, stream));
 	for (;;) {
 		Return(pprint_exit_common(ptr, stream));
 		Return(write_char_stream_(stream, ' '));
-		pprint_newline_print(ptr, pprint_newline_linear, stream);
+		Return(pprint_newline_print_(ptr, pprint_newline_linear, stream));
 		Return(pprint_pop_common(ptr, stream, &pos));
 		Return(write_print(ptr, stream, pos));
 	}
@@ -556,16 +556,16 @@ static int pprint_dispatch_let2(Execute ptr)
 	Return(write_print(ptr, stream, pos));
 	Return(pprint_exit_common(ptr, stream));
 	Return(write_char_stream_(stream, ' '));
-	pprint_newline_print(ptr, pprint_newline_miser, stream);
+	Return(pprint_newline_print_(ptr, pprint_newline_miser, stream));
 	/* args */
 	Return(pprint_pop_common(ptr, stream, &pos));
 	Return(pprint_list_common(ptr, stream, pos, p_pprint_dispatch_defun3));
 	/* body */
-	pprint_indent_print(ptr, 1, 1, stream);
+	Return(pprint_indent_print_(ptr, 1, 1, stream));
 	for (;;) {
 		Return(pprint_exit_common(ptr, stream));
 		Return(write_char_stream_(stream, ' '));
-		pprint_newline_print(ptr, pprint_newline_linear, stream);
+		Return(pprint_newline_print_(ptr, pprint_newline_linear, stream));
 		Return(pprint_pop_common(ptr, stream, &pos));
 		Return(write_print(ptr, stream, pos));
 	}

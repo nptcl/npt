@@ -298,7 +298,7 @@ _g void force_open_stream(addr stream)
 	CheckType(stream, LISPTYPE_STREAM); \
 	ptr = PtrStructStream(stream); \
 	if (ptr->closed) { \
-		fmte("The stream ~S is already closed.", stream, NULL); \
+		return fmte_("The stream ~S is already closed.", stream, NULL); \
 	} \
 }
 
@@ -425,34 +425,34 @@ _g int clear_input_stream_(addr stream)
 	return (Stream_clear_input[(int)ptr->type])(stream);
 }
 
-_g int inputp_stream(addr stream)
+_g int inputp_stream_(addr stream, int *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
-	return (Stream_inputp[GetIndexStream(stream)])(stream);
+	return (Stream_inputp[GetIndexStream(stream)])(stream, ret);
 }
 
-_g int outputp_stream(addr stream)
+_g int outputp_stream_(addr stream, int *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
-	return (Stream_outputp[GetIndexStream(stream)])(stream);
+	return (Stream_outputp[GetIndexStream(stream)])(stream, ret);
 }
 
-_g int interactivep_stream(addr stream)
+_g int interactivep_stream_(addr stream, int *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
-	return (Stream_interactivep[GetIndexStream(stream)])(stream);
+	return (Stream_interactivep[GetIndexStream(stream)])(stream, ret);
 }
 
-_g int characterp_stream(addr stream)
+_g int characterp_stream_(addr stream, int *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
-	return (Stream_characterp[GetIndexStream(stream)])(stream);
+	return (Stream_characterp[GetIndexStream(stream)])(stream, ret);
 }
 
-_g int binaryp_stream(addr stream)
+_g int binaryp_stream_(addr stream, int *ret)
 {
 	CheckType(stream, LISPTYPE_STREAM);
-	return (Stream_binaryp[GetIndexStream(stream)])(stream);
+	return (Stream_binaryp[GetIndexStream(stream)])(stream, ret);
 }
 
 _g int element_type_stream_(addr stream, addr *ret)
@@ -654,14 +654,14 @@ _g int fresh_line_default_stream(addr stream, int *ret)
 	return 0;
 }
 
-_g int checkp_true_stream(addr stream)
+_g int checkp_true_stream(addr stream, int *ret)
 {
-	return 1;
+	return Result(ret, 1);
 }
 
-_g int checkp_false_stream(addr stream)
+_g int checkp_false_stream(addr stream, int *ret)
 {
-	return 0;
+	return Result(ret, 0);
 }
 
 _g int element_type_character_stream(addr stream, addr *ret)
@@ -1626,12 +1626,16 @@ static int read_sequence_binary_(addr *ret,
 
 _g int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size_t end)
 {
+	int check;
+
 	/* character stream */
-	if (characterp_stream(stream))
+	Return(characterp_stream_(stream, &check));
+	if (check)
 		return read_sequence_character_(ret, seq, stream, start, end);
 
 	/* binary stream */
-	if (binaryp_stream(stream))
+	Return(binaryp_stream_(stream, &check));
+	if (check)
 		return read_sequence_binary_(ret, seq, stream, start, end);
 
 	/* error */
@@ -1683,12 +1687,16 @@ static int write_sequence_binary_(LocalRoot local,
 _g int write_sequence_stream(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {
+	int check;
+
 	/* character stream */
-	if (characterp_stream(stream))
+	Return(characterp_stream_(stream, &check));
+	if (check)
 		return write_sequence_character_(local, seq, stream, start, end);
 
 	/* binary stream */
-	if (binaryp_stream(stream))
+	Return(binaryp_stream_(stream, &check));
+	if (check)
 		return write_sequence_binary_(local, seq, stream, start, end);
 
 	/* error */
@@ -1768,18 +1776,30 @@ _g int yes_or_no_p_common(Execute ptr, addr args, int exactp, int *ret)
 		Return(clear_input_stream_(stream));
 		Return(read_line_stream_(ptr, &pos, &miss, stream, 1, Unbound, 0));
 		if (pos == Unbound)
-			fmte("*query-io* don't read yes/or question.", NULL);
+			return fmte_("*query-io* don't read yes/or question.", NULL);
 		if (exactp) {
-			if (string_equalp_char(pos, "yes")) { *ret = 1; break; }
-			if (string_equalp_char(pos, "no")) { *ret = 0; break; }
+			if (string_equalp_char(pos, "yes")) {
+				*ret = 1;
+				break;
+			}
+			if (string_equalp_char(pos, "no")) {
+				*ret = 0;
+				break;
+			}
 			format_stream(ptr, stream, "~%Please answer yes or no: ", NULL);
 		}
 		else {
 			string_length(pos, &size);
 			if (size != 0) {
 				string_getc(pos, 0, &c);
-				if (toUpperUnicode(c) == 'Y') { *ret = 1; break; }
-				if (toUpperUnicode(c) == 'N') { *ret = 0; break; }
+				if (toUpperUnicode(c) == 'Y') {
+					*ret = 1;
+					break;
+				}
+				if (toUpperUnicode(c) == 'N') {
+					*ret = 0;
+					break;
+				}
 			}
 			format_stream(ptr, stream, "~%Please answer y or n: ", NULL);
 		}

@@ -361,9 +361,12 @@ _g void push_tablevalue_global(Execute ptr, addr stack, addr symbol, addr *ret)
 
 _g int checktype_p(addr left, addr right, int *check)
 {
+	SubtypepResult value;
+
 	CheckType(left, LISPTYPE_TYPE);
 	CheckType(right, LISPTYPE_TYPE);
-	switch (subtypep_result(left, right, 1)) {
+	Return(subtypep_result_(left, right, 1, &value));
+	switch (value) {
 		case SUBTYPEP_INCLUDE:
 			/* type check can skip. */
 			*check = 0;
@@ -383,16 +386,16 @@ _g int checktype_p(addr left, addr right, int *check)
 	}
 }
 
-static void checktype_warning(addr name, addr type, addr expected)
+static int checktype_warning_(Execute ptr, addr name, addr type, addr expected)
 {
-	type_object(&type, type);
-	type_object(&expected, expected);
-	type_error_stdarg(name, expected,
+	Return(type_object_(&type, type));
+	Return(type_object_(&expected, expected));
+	return call_type_error_va_(ptr, name, expected,
 			"The object ~S must be a ~S type but ~S type.",
 			name, expected, type, NULL);
 }
 
-_g void checktype_value(addr value, addr init)
+_g int checktype_value_(Execute ptr, addr value, addr init)
 {
 	int check;
 	addr type, name;
@@ -401,12 +404,14 @@ _g void checktype_value(addr value, addr init)
 	GetEvalScopeThe(init, &init);
 	if (checktype_p(init, type, &check)) {
 		getname_tablevalue(value, &name);
-		checktype_warning(name, type, init);
+		Return(checktype_warning_(ptr, name, type, init));
 	}
 	setcheck_tablevalue(value, check);
+
+	return 0;
 }
 
-static void let_applytable(Execute ptr, struct let_struct *str)
+static int let_applytable_(Execute ptr, struct let_struct *str)
 {
 	addr stack, args, var, init;
 
@@ -416,8 +421,10 @@ static void let_applytable(Execute ptr, struct let_struct *str)
 		GetCons(args, &var, &args);
 		GetCons(var, &var, &init);
 		update_tablevalue(ptr, stack, var);
-		checktype_value(var, init);
+		Return(checktype_value_(ptr, var, init));
 	}
+
+	return 0;
 }
 
 _g void ignore_checkvalue(addr stack)
@@ -475,7 +482,7 @@ static int let_execute(Execute ptr, struct let_struct *str)
 	Return(let_init(ptr, str));
 	let_maketable(ptr, str);
 	apply_declare(ptr, stack, str->decl, &str->free);
-	let_applytable(ptr, str);
+	Return(let_applytable_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	ignore_checkvalue(stack);
 	let_allocate(str);
@@ -540,7 +547,7 @@ static int leta_init(Execute ptr, struct let_struct *str)
 	return 0;
 }
 
-static void leta_checktype(Execute ptr, struct let_struct *str)
+static int leta_checktype_(Execute ptr, struct let_struct *str)
 {
 	addr args, var, init;
 
@@ -548,8 +555,10 @@ static void leta_checktype(Execute ptr, struct let_struct *str)
 	while (args != Nil) {
 		GetCons(args, &var, &args);
 		GetCons(var, &var, &init);
-		checktype_value(var, init);
+		Return(checktype_value_(ptr, var, init));
 	}
+
+	return 0;
 }
 
 static int leta_execute(Execute ptr, struct let_struct *str)
@@ -559,7 +568,7 @@ static int leta_execute(Execute ptr, struct let_struct *str)
 	stack = str->stack;
 	Return(leta_init(ptr, str));
 	apply_declare(ptr, stack, str->decl, &str->free);
-	leta_checktype(ptr, str);
+	Return(leta_checktype_(ptr, str));
 	Return(scope_allcons(ptr, &str->cons, &str->the, str->cons));
 	ignore_checkvalue(stack);
 	let_allocate(str);

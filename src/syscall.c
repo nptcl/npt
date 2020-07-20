@@ -1906,7 +1906,7 @@ static void defun_make_pprint_stream(void)
 /* (defun pprint-gensym (stream-pretty) ...) -> symbol */
 static int syscall_pprint_gensym(Execute ptr, addr stream)
 {
-	pprint_gensym_syscode(stream, &stream);
+	Return(pprint_gensym_syscode(stream, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }

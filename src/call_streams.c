@@ -391,7 +391,7 @@ static int open_common_direction(addr value, enum Stream_Open_Direction *ret)
 
 static int open_common_element(Execute ptr, addr value, enum Stream_Open_Element *ret)
 {
-	int validp;
+	int result;
 	addr check, type;
 
 	/* default */
@@ -411,12 +411,14 @@ static int open_common_element(Execute ptr, addr value, enum Stream_Open_Element
 	/* character */
 	if (! parse_type(ptr, &check, value, Nil)) {
 		GetTypeTable(&type, Character);
-		if (subtypep_clang(check, type, &validp))
+		Return(subtypep_clang_(check, type, &result, NULL));
+		if (result)
 			return Result(ret, Stream_Open_Element_Character);
 
 		/* Binary */
 		GetTypeTable(&type, Unsigned8);
-		if (subtypep_clang(check, type, &validp))
+		Return(subtypep_clang_(check, type, &result, NULL));
+		if (result)
 			return Result(ret, Stream_Open_Element_Binary);
 	}
 
@@ -811,7 +813,7 @@ _g int make_string_input_stream_common(addr var, addr rest, addr *ret)
 
 	string_length(var, &start);
 	Return(keyword_start_end_(start, rest, &start, &end));
-	open_input_string_stream2(ret, var, start, end);
+	Return(open_input_string_stream2_(ret, var, start, end));
 
 	return 0;
 }
@@ -822,13 +824,14 @@ _g int make_string_input_stream_common(addr var, addr rest, addr *ret)
  */
 _g int make_string_output_stream_common(Execute ptr, addr rest, addr *ret)
 {
-	int validp;
+	int result;
 	addr type, pos;
 
 	if (! GetKeyArgs(rest, KEYWORD_ELEMENT_TYPE, &pos)) {
 		GetTypeTable(&type, Character);
 		Return(parse_type(ptr, &pos, pos, Nil));
-		if (! subtypep_clang(pos, type, &validp))
+		Return(subtypep_clang_(pos, type, &result, NULL));
+		if (! result)
 			return fmte_(":ELEMENT-TYPE ~S must be a character type.", pos, NULL);
 	}
 	open_output_string_stream(ret, 0);
@@ -849,9 +852,8 @@ _g int get_output_stream_string_common(Execute ptr, addr var, addr *ret)
 		return call_type_error_va_(ptr, var, type,
 				"The stream must be a output-string-stream.", NULL);
 	}
-	string_stream_heap(var, ret);
 
-	return 0;
+	return string_stream_heap_(var, ret);
 }
 
 

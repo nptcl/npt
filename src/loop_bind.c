@@ -15,7 +15,6 @@
  */
 static int loop_subtypep_(Execute ptr, addr a, addr b, int *ret)
 {
-	int invalid;
 	LocalHold hold;
 
 	hold = LocalHold_local(ptr);
@@ -29,7 +28,7 @@ static int loop_subtypep_(Execute ptr, addr a, addr b, int *ret)
 		localhold_push(hold, b);
 	}
 	localhold_end(hold);
-	*ret = subtypep_clang(a, b, &invalid);
+	Return(subtypep_clang_(a, b, ret, NULL));
 
 	return 0;
 }
@@ -120,7 +119,7 @@ static int loop_typep_(Execute ptr, addr pos, addr value, addr type)
 	}
 	Return(typep_clang(ptr, value, type, &check));
 	if (! check) {
-		type_object(&type, type);
+		Return(type_object_(&type, type));
 		return fmte_("LOOP let ~A form ~S must be a ~A type.", pos, value, type, NULL);
 	}
 

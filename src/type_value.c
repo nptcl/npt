@@ -170,32 +170,30 @@ _g void type_value_vector(addr *ret, addr value)
 
 _g void type_value_character(addr *ret, addr value)
 {
-	addr pos;
 	enum CHARACTER_TYPE type;
 
 	Check(GetType(value) != LISPTYPE_CHARACTER, "type error");
 	GetCharacterType(value, &type);
 	switch (type) {
 		case CHARACTER_TYPE_STANDARD:
-			GetTypeTable(&pos, StandardChar);
+			GetTypeTable(ret, StandardChar);
 			break;
 
 		case CHARACTER_TYPE_BASE:
-			GetTypeTable(&pos, BaseChar);
+			GetTypeTable(ret, BaseChar);
 			break;
 
 		case CHARACTER_TYPE_EXTENDED:
-			GetTypeTable(&pos, ExtendedChar);
+			GetTypeTable(ret, ExtendedChar);
 			break;
 
 		default:
-			fmte("Invalid character type.", NULL);
-			return;
+			GetTypeTable(ret, Character);
+			break;
 	}
-	*ret = pos;
 }
 
-static void type_value_strvect(addr *ret, addr value)
+static void type_value_string(addr *ret, addr value)
 {
 	enum CHARACTER_TYPE type;
 	addr arg, pos;
@@ -217,25 +215,6 @@ static void type_value_strvect(addr *ret, addr value)
 			break;
 	}
 	*ret = pos;
-}
-
-_g void type_value_string(addr *ret, addr value)
-{
-	switch (GetType(value)) {
-		case LISPTYPE_STRING:
-			type_value_strvect(ret, value);
-			break;
-
-		case LISPTYPE_ARRAY:
-			if (! strarrayp(value))
-				fmte("The array is not string type.", NULL);
-			type_value_strarray(ret, value);
-			break;
-
-		default:
-			fmte("The value is not string type.", NULL);
-			break;
-	}
 }
 
 static void type_value_hashtable(addr *ret, addr value)
@@ -453,7 +432,7 @@ static void type_value_argument(addr *ret, addr value)
 static void type_value_error(addr *ret, addr value)
 {
 	infobit(value);
-	fmte("Invalid type-value.", NULL);
+	Abort("Invalid type-value.");
 }
 
 _g void type_value(addr *ret, addr value)

@@ -420,7 +420,8 @@ static void merge_range_andplus(LocalRoot local, addr *ret, addr left, addr righ
 	while (right != Nil) {
 		GetCons(right, &type, &right);
 		map_range_and(local, &left, left, type);
-		if (left == Nil) break;
+		if (left == Nil)
+			break;
 	}
 	*ret = left;
 }
@@ -449,7 +450,8 @@ static void range_and_otherwise(LocalRoot local,
 		}
 		else {
 			merge_range_andplus(local, &left, left, right);
-			if (left == Nil) break;
+			if (left == Nil)
+				break;
 		}
 	}
 	*ret = left;
@@ -683,7 +685,8 @@ static void merge_range_orplus(LocalRoot local, addr *ret, addr left, addr right
 		extpaircall(local, range_or_range_range_in, &left, &update);
 		extpaircall(local, range_or_range_range_left, &left, &update);
 		extpaircall(local, range_or_range_range_right, &left, &update);
-		if (update == 0) break;                                                               }
+		if (update == 0)
+			break;                                                               }
 	*ret = left;
 }
 
@@ -710,7 +713,8 @@ static void range_or_otherwise(LocalRoot local,
 		}
 		else {
 			merge_range_orplus(local, &left, left, right);
-			if (left == T) break;
+			if (left == T)
+				break;
 		}
 	}
 	*ret = left;
@@ -829,7 +833,8 @@ static size_t real_filter_range_list(LocalRoot local, addr *ret, addr type)
 	cons = Nil;
 	for (i = size = 0; ; i++) {
 		decl = RealFilterDecls[i];
-		if (decl == LISPDECL_EMPTY) break;
+		if (decl == LISPDECL_EMPTY)
+			break;
 		merge_range(local, &check, type, decl);
 		if (check != Nil) {
 			cons_local(local, &cons, check, cons);

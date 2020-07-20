@@ -4,9 +4,6 @@
 #include "define.h"
 #include "local.h"
 
-_g addr type_copy_allocr(LocalRoot local, addr type);
-_g addr type_copy_localr(LocalRoot local, addr type);
-_g addr type_copy_heapr(addr type);
 _g void type_copy_alloc(LocalRoot local, addr *ret, addr type);
 _g void type_copy_local(LocalRoot local, addr *ret, addr type);
 _g void type_copy_heap(addr *ret, addr type);

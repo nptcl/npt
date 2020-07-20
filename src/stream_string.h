@@ -5,8 +5,8 @@
 #include "typedef.h"
 
 _g void open_input_string_stream(addr *stream, addr string);
-_g void open_input_string_stream1(addr *stream, addr string, size_t start);
-_g void open_input_string_stream2(addr *stream, addr string, size_t start, size_t end);
+_g int open_input_string_stream1_(addr *stream, addr string, size_t start);
+_g int open_input_string_stream2_(addr *stream, addr string, size_t start, size_t end);
 _g void open_input_char_stream(addr *stream, const char *str);
 _g void null_input_string_stream(addr *stream);
 _g void getindex_input_stream(addr stream, size_t *ret);
@@ -16,9 +16,9 @@ _g void close_input_string_stream(addr stream);
 
 _g void open_output_string_stream(addr *stream, size_t size);
 _g int copy_termsize_string_stream_(addr stream, addr src);
-_g void string_stream_alloc(LocalRoot local, addr stream, addr *string);
-_g void string_stream_local(LocalRoot local, addr stream, addr *string);
-_g void string_stream_heap(addr stream, addr *string);
+_g int string_stream_alloc_(LocalRoot local, addr stream, addr *string);
+_g int string_stream_local_(LocalRoot local, addr stream, addr *string);
+_g int string_stream_heap_(addr stream, addr *string);
 _g void clear_output_string_stream(addr stream);
 _g void set_pretty_output_string_stream(addr stream);
 _g int get_pretty_output_string_stream(addr stream);

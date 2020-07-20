@@ -16,7 +16,6 @@ _g void type_value_rational(addr *ret, addr value);
 _g void type_value_character(addr *ret, addr value);
 _g void type_value_vector(addr *ret, addr value);
 _g void type_value_bitvector(addr *ret, addr value);
-_g void type_value_string(addr *ret, addr value);
 _g void type_value_array(addr *ret, addr value);
 _g void type_value_float(addr *ret, addr value);
 _g void type_value_complex(addr *ret, addr value);

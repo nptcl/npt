@@ -295,7 +295,7 @@ _g void expand_pprint_logical_block_common(addr *ret, addr symbol, addr pos,
 
 _g int pprint_throw(Execute ptr, addr stream)
 {
-	gensym_pretty_stream(stream, &stream);
+	Return(gensym_pretty_stream_(stream, &stream));
 	return throw_control_(ptr, stream);
 }
 
@@ -303,7 +303,7 @@ _g int pprint_exit_common(Execute ptr, addr stream)
 {
 	addr pos;
 
-	root_pretty_stream(stream, &pos);
+	Return(root_pretty_stream_(stream, &pos));
 	if (pos == Nil)
 		return pprint_throw(ptr, stream);
 
@@ -312,22 +312,28 @@ _g int pprint_exit_common(Execute ptr, addr stream)
 
 static int pprint_pop_atom(Execute ptr, addr stream)
 {
+	int check;
 	addr pos;
 
-	if (! first_pretty_stream(stream)) {
+	Return(first_pretty_stream_(stream, &check));
+	if (! check) {
 		Return(print_ascii_stream_(stream, ". "));
 	}
-	pop_pretty_stream(stream, &pos);
+	Return(pop_pretty_stream_(stream, &pos, &check));
 	Return(write_print(ptr, stream, pos));
 
 	return pprint_throw(ptr, stream);
 }
 
-static int pprint_length_check(Execute ptr, addr stream)
+static int pprint_length_check_(Execute ptr, addr stream, int *ret)
 {
-	size_t size;
-	return length_print(ptr, &size)
-		&& size <= length_pretty_stream(stream);
+	size_t x, y;
+
+	if (! length_print(ptr, &x))
+		return Result(ret, 0);
+	Return(length_pretty_stream_(stream, &y));
+
+	return Result(ret, x <= y);
 }
 
 _g int pprint_pop_common(Execute ptr, addr stream, addr *ret)
@@ -335,12 +341,13 @@ _g int pprint_pop_common(Execute ptr, addr stream, addr *ret)
 	int check;
 	addr pos;
 
-	root_pretty_stream(stream, &pos);
+	Return(root_pretty_stream_(stream, &pos));
 	/* atom */
 	if (! listp(pos))
 		return pprint_pop_atom(ptr, stream);
 	/* length */
-	if (pprint_length_check(ptr, stream)) {
+	Return(pprint_length_check_(ptr, stream, &check));
+	if (check) {
 		Return(print_ascii_stream_(stream, "..."));
 		return pprint_throw(ptr, stream);
 	}
@@ -349,16 +356,15 @@ _g int pprint_pop_common(Execute ptr, addr stream, addr *ret)
 		return Result(ret, Nil);
 	/* circle */
 	if (circle_print(ptr)) {
-		if (! first_pretty_stream(stream)) {
+		Return(first_pretty_stream_(stream, &check));
+		if (! check) {
 			Return(pprint_pop_circle_(ptr, stream, pos, &check));
 			if (check)
 				return pprint_throw(ptr, stream);
 		}
 	}
 	/* cons */
-	pop_pretty_stream(stream, ret);
-
-	return 0;
+	return pop_pretty_stream_(stream, ret, &check);
 }
 
 _g int check_pretty_stream(Execute ptr, addr stream)
@@ -378,7 +384,7 @@ _g int check_pretty_stream(Execute ptr, addr stream)
 	}
 
 	/* atom */
-	root_pretty_stream(stream, &root);
+	Return(root_pretty_stream_(stream, &root));
 	if (! listp(root)) {
 		Return(write_print(ptr, stream, root));
 		return pprint_throw(ptr, stream);
@@ -410,102 +416,98 @@ static int pretty_common_p(Execute ptr, addr stream)
 	return pretty_print(ptr) && pretty_stream_p(stream);
 }
 
-_g void pprint_indent_print(Execute ptr, int block_p, fixnum n, addr stream)
+_g int pprint_indent_print_(Execute ptr, int block_p, fixnum n, addr stream)
 {
 	enum print_pretty type;
 	addr pos;
 
 	if (! pretty_common_p(ptr, stream))
-		return;
+		return 0;
 	type = block_p? print_pretty_indent_block: print_pretty_indent_current;
 	fixnum_pretty_heap(&pos, type, n);
-	push_pretty_stream(stream, pos);
+	return push_pretty_stream_(stream, pos);
 }
 
-_g void pprint_newline_print(Execute ptr, enum pprint_newline kind, addr stream)
+_g int pprint_newline_print_(Execute ptr, enum pprint_newline kind, addr stream)
 {
 	addr pos;
 
 	if (! pretty_common_p(ptr, stream))
-		return;
+		return 0;
 	switch (kind) {
 		case pprint_newline_linear:
 			print_pretty_heap(&pos, print_pretty_newline_linear);
-			push_pretty_stream(stream, pos);
 			break;
 
 		case pprint_newline_fill:
 			print_pretty_heap(&pos, print_pretty_newline_fill);
-			push_pretty_stream(stream, pos);
 			break;
 
 		case pprint_newline_miser:
 			print_pretty_heap(&pos, print_pretty_newline_miser);
-			push_pretty_stream(stream, pos);
 			break;
 
 		case pprint_newline_mandatory:
 			print_pretty_heap(&pos, print_pretty_newline_mandatory);
-			push_pretty_stream(stream, pos);
 			break;
 
 		default:
-			fmte("Invalid newline type.", NULL);
-			break;
+			return fmte_("Invalid newline type.", NULL);
 	}
+
+	return push_pretty_stream_(stream, pos);
 }
 
-_g void pprint_newline_terpri(addr stream)
+_g int pprint_newline_terpri_(addr stream)
 {
 	addr pos;
 
 	print_pretty_heap(&pos, print_pretty_newline_terpri);
-	push_pretty_stream(stream, pos);
+	return push_pretty_stream_(stream, pos);
 }
 
-_g void pprint_tab_print(Execute ptr,
+_g int pprint_tab_print_(Execute ptr,
 		addr stream, enum pprint_tabular kind, fixnum a, fixnum b)
 {
 	addr pos;
 
 	if (! pretty_common_p(ptr, stream))
-		return;
+		return 0;
 	switch (kind) {
 		case pprint_tabular_line:
 			size2_pretty_heap(&pos, print_pretty_tabular_line, a, b);
-			push_pretty_stream(stream, pos);
 			break;
 
 		case pprint_tabular_section:
 			size2_pretty_heap(&pos, print_pretty_tabular_section, a, b);
-			push_pretty_stream(stream, pos);
 			break;
 
 		case pprint_tabular_line_relative:
 			size2_pretty_heap(&pos, print_pretty_tabular_liner, a, b);
-			push_pretty_stream(stream, pos);
 			break;
 
 		case pprint_tabular_section_relative:
 			size2_pretty_heap(&pos, print_pretty_tabular_sectionr, a, b);
-			push_pretty_stream(stream, pos);
 			break;
 
 		default:
-			fmte("Invalid newline type.", NULL);
-			break;
+			return fmte_("Invalid newline type.", NULL);
 	}
+
+	return push_pretty_stream_(stream, pos);
 }
 
-_g void pprint_tab_section(Execute ptr, addr stream, fixnum column, fixnum colinc)
+_g int pprint_tab_section_(Execute ptr, addr stream, fixnum column, fixnum colinc)
 {
-	pprint_tab_print(ptr, stream, pprint_tabular_section, column, colinc);
+	return pprint_tab_print_(ptr, stream,
+			pprint_tabular_section, column, colinc);
 }
 
-_g void pprint_tab_section_relative(Execute ptr,
+_g int pprint_tab_section_relative_(Execute ptr,
 		addr stream, fixnum column, fixnum colinc)
 {
-	pprint_tab_print(ptr, stream, pprint_tabular_section_relative, column, colinc);
+	return pprint_tab_print_(ptr, stream,
+			pprint_tabular_section_relative, column, colinc);
 }
 
 static int pprint_tab_output_(addr stream, fixnum size)

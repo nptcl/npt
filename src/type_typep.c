@@ -38,8 +38,7 @@ static call_type_typep TypeTypep[LISPDECL_SIZE];
 static int typep_invalid(Execute ptr, addr value, addr type, int *ret)
 {
 	infobit(type);
-	fmte("Invalid type.", NULL);
-	return 0;
+	return fmte_("Invalid type.", NULL);
 }
 
 static int typep_type(Execute ptr, addr value, addr type, int *ret)
@@ -185,9 +184,8 @@ static int typep_satisfies(Execute ptr, addr value, addr type, int *ret)
 
 static int typep_values(Execute ptr, addr value, addr type, int *ret)
 {
-	fmte("The values type don't use in typep context.", NULL);
 	*ret = 0;
-	return 0;
+	return fmte_("The values type don't use in typep context.", NULL);
 }
 
 
@@ -299,9 +297,8 @@ static int typep_vector_dimension(addr value, addr type, int *ret)
 	}
 
 	/* error */
-	fmte("type error", NULL);
 	*ret = 0;
-	return 0;
+	return fmte_("type error", NULL);
 }
 
 static int typep_vector_array(addr value, addr type, int *ret)
@@ -707,7 +704,6 @@ static int typep_readtable(Execute ptr, addr value, addr type, int *ret)
 
 static int typep_function_check(addr value, addr right, int *ret)
 {
-	int validp;
 	addr left;
 
 	gettype_function(value, &left);
@@ -717,8 +713,7 @@ static int typep_function_check(addr value, addr right, int *ret)
 		else
 			GetTypeTable(&left, Function);
 	}
-	*ret = subtypep_clang(left, right, &validp);
-	return 0;
+	return subtypep_clang_(left, right, ret, NULL);
 }
 
 static int typep_function(Execute ptr, addr value, addr type, int *ret)
@@ -727,7 +722,7 @@ static int typep_function(Execute ptr, addr value, addr type, int *ret)
 
 	GetArrayType(type, 2, &check);
 	if (type == Nil)
-		fmte("The cons type (FUNCTION ? ?) don't accept.", NULL);
+		return fmte_("The cons type (FUNCTION ? ?) don't accept.", NULL);
 	if (! functionp(value)) {
 		*ret = 0;
 		return 0;
@@ -741,7 +736,7 @@ static int typep_compiled_function(Execute ptr, addr value, addr type, int *ret)
 
 	GetArrayType(type, 2, &check);
 	if (type == Nil)
-		fmte("The cons type (COMPILED-FUNCTION ? ?) don't accept.", NULL);
+		return fmte_("The cons type (COMPILED-FUNCTION ? ?) don't accept.", NULL);
 	if (! compiled_function_p(value)) {
 		*ret = 0;
 		return 0;
@@ -1416,11 +1411,10 @@ static int typep_call(Execute ptr, addr value, addr type, int asterisk, int *ret
 	LocalHold hold;
 
 	if ((! asterisk) && type_asterisk_p(type))
-		fmte("typep don't allow to be asterisk *.", NULL);
+		return fmte_("typep don't allow to be asterisk *.", NULL);
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, value, type, NULL);
-	if (typep_table(ptr, value, type, &result))
-		return 1;
+	Return(typep_table(ptr, value, type, &result));
 	localhold_end(hold);
 	*ret = RefNotDecl(type)? (! result): result;
 

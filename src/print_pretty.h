@@ -25,13 +25,13 @@ _g int pprint_pop_common(Execute ptr, addr stream, addr *ret);
 _g int check_pretty_stream(Execute ptr, addr stream);
 _g void expand_pprint_logical_block_common(addr *ret, addr stream, addr pos,
 		addr prefix, addr per, addr suffix, addr decl, addr body);
-_g void pprint_indent_print(Execute ptr, int block_p, fixnum n, addr stream);
-_g void pprint_newline_print(Execute ptr, enum pprint_newline kind, addr stream);
-_g void pprint_newline_terpri(addr stream);
-_g void pprint_tab_print(Execute ptr,
+_g int pprint_indent_print_(Execute ptr, int block_p, fixnum n, addr stream);
+_g int pprint_newline_print_(Execute ptr, enum pprint_newline kind, addr stream);
+_g int pprint_newline_terpri_(addr stream);
+_g int pprint_tab_print_(Execute ptr,
 		addr stream, enum pprint_tabular kind, fixnum column, fixnum colinc);
-_g void pprint_tab_section(Execute ptr, addr stream, fixnum column, fixnum colinc);
-_g void pprint_tab_section_relative(Execute ptr,
+_g int pprint_tab_section_(Execute ptr, addr stream, fixnum column, fixnum colinc);
+_g int pprint_tab_section_relative_(Execute ptr,
 		addr stream, fixnum column, fixnum colinc);
 _g int pprint_tab_absolute_force_(addr stream,
 		fixnum column, fixnum colinc, fixnum now);

@@ -1065,9 +1065,10 @@ static int function_ccase_string(Execute ptr,
 	localhold_end(hold);
 
 	Return(write_char_stream_(stream, '.'));
-	string_stream_heap(stream, ret);
+	Return(string_stream_heap_(stream, ret));
 	Return(close_stream_(stream));
 	nreverse(rtype, list);
+
 	return 0;
 }
 

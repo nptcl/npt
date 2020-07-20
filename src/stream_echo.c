@@ -202,18 +202,28 @@ static int fresh_line_Echo(addr stream, int *ret)
 	return fresh_line_stream_(stream, ret);
 }
 
-static int characterp_Echo(addr stream)
+static int characterp_Echo(addr stream, int *ret)
 {
+	int check1, check2;
 	addr input, output;
+
 	io_Echo(stream, &input, &output);
-	return characterp_stream(input) && characterp_stream(output);
+	Return(characterp_stream_(input, &check1));
+	Return(characterp_stream_(output, &check2));
+
+	return Result(ret, check1 && check2);
 }
 
-static int binaryp_Echo(addr stream)
+static int binaryp_Echo(addr stream, int *ret)
 {
+	int check1, check2;
 	addr input, output;
+
 	io_Echo(stream, &input, &output);
-	return binaryp_stream(input) && binaryp_stream(output);
+	Return(binaryp_stream_(input, &check1));
+	Return(binaryp_stream_(output, &check2));
+
+	return Result(ret, check1 && check2);
 }
 
 static int file_charlen_Echo(addr stream, unicode u, size_t *value, int *ret)

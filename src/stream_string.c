@@ -50,50 +50,54 @@ _g void open_input_string_stream(addr *ret, addr string)
 	make_input_string(ret, string, 0, size);
 }
 
-_g void open_input_string_stream1(addr *ret, addr string, size_t start)
+_g int open_input_string_stream1_(addr *ret, addr string, size_t start)
 {
 	addr pos1, pos2;
 	size_t size;
 
 	if (! stringp(string))
-		TypeError(string, STRING);
+		return TypeError_(string, STRING);
 	string_length(string, &size);
 	if (size < start) {
 		make_index_integer_alloc(NULL, &pos1, start);
 		make_index_integer_alloc(NULL, &pos2, size);
-		fmte("The start index ~S must be less than equal to length of string ~S.",
-				pos1, pos2, NULL);
+		return fmte_("The start index ~S "
+				"must be less than equal to length of string ~S.", pos1, pos2, NULL);
 	}
 	make_input_string(ret, string, start, size);
+
+	return 0;
 }
 
-_g void open_input_string_stream2(addr *ret, addr string, size_t start, size_t end)
+_g int open_input_string_stream2_(addr *ret, addr string, size_t start, size_t end)
 {
 	addr pos1, pos2;
 	size_t size;
 
 	if (! stringp(string))
-		TypeError(string, STRING);
+		return TypeError_(string, STRING);
 	string_length(string, &size);
 	if (size < start) {
 		make_index_integer_alloc(NULL, &pos1, start);
 		make_index_integer_alloc(NULL, &pos2, size);
-		fmte("The start index ~S must be less than equal to length of string ~S.",
-				pos1, pos2, NULL);
+		return fmte_("The start index ~S "
+				"must be less than equal to length of string ~S.", pos1, pos2, NULL);
 	}
 	if (size < end) {
 		make_index_integer_alloc(NULL, &pos1, end);
 		make_index_integer_alloc(NULL, &pos2, size);
-		fmte("The end index ~S must be less than equal to length of string ~S.",
-				pos1, pos2, NULL);
+		return fmte_("The end index ~S "
+				"must be less than equal to length of string ~S.", pos1, pos2, NULL);
 	}
 	if (end < start) {
 		make_index_integer_alloc(NULL, &pos1, start);
 		make_index_integer_alloc(NULL, &pos2, end);
-		fmte("The start index ~S must be less than equal to the end index~S.",
-				pos1, pos2, NULL);
+		return fmte_("The start index ~S "
+				"must be less than equal to the end index~S.", pos1, pos2, NULL);
 	}
 	make_input_string(ret, string, start, end);
+
+	return 0;
 }
 
 _g void open_input_char_stream(addr *stream, const char *str)
@@ -406,27 +410,31 @@ _g int copy_termsize_string_stream_(addr stream, addr src)
 	return 0;
 }
 
-_g void string_stream_alloc(LocalRoot local, addr stream, addr *string)
+_g int string_stream_alloc_(LocalRoot local, addr stream, addr *string)
 {
 	addr queue;
 
-	if (extend_string_p(stream))
-		fmte("The extended-string-stream ~S don't make a string.", stream, NULL);
+	if (extend_string_p(stream)) {
+		return fmte_("The extended-string-stream ~S "
+				"don't make a string.", stream, NULL);
+	}
 	GetInfoStream(stream, &queue);
 	if (queue == Nil)
-		fmte("stream is already closed.", NULL);
+		return fmte_("stream is already closed.", NULL);
 	make_charqueue_alloc(local, queue, string);
+
+	return 0;
 }
 
-_g void string_stream_local(LocalRoot local, addr stream, addr *string)
+_g int string_stream_local_(LocalRoot local, addr stream, addr *string)
 {
 	Check(local == NULL, "local error");
-	string_stream_alloc(local, stream, string);
+	return string_stream_alloc_(local, stream, string);
 }
 
-_g void string_stream_heap(addr stream, addr *string)
+_g int string_stream_heap_(addr stream, addr *string)
 {
-	string_stream_alloc(NULL, stream, string);
+	return string_stream_alloc_(NULL, stream, string);
 }
 
 _g void clear_output_string_stream(addr stream)
@@ -435,8 +443,7 @@ _g void clear_output_string_stream(addr stream)
 
 	CheckOutputStringStream(stream);
 	GetInfoStream(stream, &queue);
-	if (queue == Nil)
-		fmte("stream is already closed.", NULL);
+	Check(queue == Nil, "stream is already closed.");
 	clear_charqueue(queue);
 }
 

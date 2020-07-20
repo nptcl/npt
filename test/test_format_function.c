@@ -319,7 +319,7 @@ static int test_fmtprint_putc_times(void)
 	print.first = 1;
 	print.word = 0;
 	fmtprint_putc_times_(&print, 'c', 10);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "cccccccccc"), "fmtprint_putc_times1");
 	clear_output_string_stream(stream);
 	close_output_string_stream(stream);
@@ -346,7 +346,7 @@ static int test_fmtprint_string(void)
 	print.word = 0;
 	strvect_char_local(local, &pos, "Hello");
 	fmtprint_string_(&print, pos);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "Hello"), "fmtprint_string1");
 	clear_output_string_stream(stream);
 	close_output_string_stream(stream);
@@ -383,7 +383,7 @@ static int test_format_call_Output(void)
 	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	format_call_Output(&print, comm);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "Hello"), "format_output1");
 	clear_output_string_stream(stream);
 
@@ -394,7 +394,7 @@ static int test_format_call_Output(void)
 	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	format_call_Output(&print, comm);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "  Hello"), "format_output2");
 	clear_output_string_stream(stream);
 
@@ -406,7 +406,7 @@ static int test_format_call_Output(void)
 	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	format_call_Output(&print, comm);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "Hello"), "format_output3");
 	test(print.delete_space == 0, "format_output4");
 	clear_output_string_stream(stream);
@@ -419,7 +419,7 @@ static int test_format_call_Output(void)
 	format_parse_local_(local, &pos, pos);
 	comm = test_fmtoperator(pos);
 	format_call_Output(&print, comm);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, ""), "format_output5");
 	test(print.delete_space == 1, "format_output6");
 	clear_output_string_stream(stream);
@@ -449,31 +449,31 @@ static int test_format_write_margin(void)
 
 	strvect_char_local(local, &pos, "Hello");
 	format_write_margin_(&print, pos, 0, 0,1,0,'*');
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "Hello"), "format_write_margin1");
 	clear_output_string_stream(stream);
 
 	strvect_char_local(local, &pos, "Hello");
 	format_write_margin_(&print, pos, 0, 9,1,0,'*');
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "Hello****"), "format_write_margin2");
 	clear_output_string_stream(stream);
 
 	strvect_char_local(local, &pos, "Hello");
 	format_write_margin_(&print, pos, 1, 9,1,0,'*');
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "****Hello"), "format_write_margin3");
 	clear_output_string_stream(stream);
 
 	strvect_char_local(local, &pos, "Hello");
 	format_write_margin_(&print, pos, 0, 10,4,0,'*');
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "Hello********"), "format_write_margin4");
 	clear_output_string_stream(stream);
 
 	strvect_char_local(local, &pos, "Hello");
 	format_write_margin_(&print, pos, 0, 4,10,3,'*');
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "Hello***"), "format_write_margin5");
 	clear_output_string_stream(stream);
 
@@ -507,30 +507,30 @@ static int test_format_call_print(void)
 	print.string = string;
 
 	format_call_print(&print, Nil,  0,0,  0,1,0,'*',  0);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "NIL"), "format_call_print1");
 	clear_output_string_stream(stream);
 
 	format_call_print(&print, Nil,  1,0,  0,1,0,'*',  0);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "()"), "format_call_print2");
 	clear_output_string_stream(stream);
 
 	strvect_char_local(local, &pos, "HELLO");
 	format_call_print(&print, pos,  1,0,  10,1,0,'*',  0);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "HELLO*****"), "format_call_print3");
 	clear_output_string_stream(stream);
 
 	character_local(local, &pos, 'A');
 	format_call_print(&print, pos,  1,1,  10,1,0,'*',  0);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "*********A"), "format_call_print4");
 	clear_output_string_stream(stream);
 
 	character_local(local, &pos, 'B');
 	format_call_print(&print, pos,  1,1,  10,1,0,'*',  1);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "*******#\\B"), "format_call_print5");
 	clear_output_string_stream(stream);
 
@@ -1638,70 +1638,70 @@ static int test_format_call_Tabulate(void)
 	print_ascii_stream_(stream, "    ");
 	strvect_char_heap(&pos, "~10T");
 	format_stream_lisp(ptr, stream, pos, Nil);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "          "), "format_call_Tabulate3");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream_(stream, "    ");
 	strvect_char_heap(&pos, "~5T");
 	format_stream_lisp(ptr, stream, pos, Nil);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "     "), "format_call_Tabulate4");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream_(stream, "    ");
 	strvect_char_heap(&pos, "~4T");
 	format_stream_lisp(ptr, stream, pos, Nil);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "     "), "format_call_Tabulate5");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream_(stream, "    ");
 	strvect_char_heap(&pos, "~4,3T");
 	format_stream_lisp(ptr, stream, pos, Nil);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "       "), "format_call_Tabulate6");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream_(stream, "     ");
 	strvect_char_heap(&pos, "~4,8T");
 	format_stream_lisp(ptr, stream, pos, Nil);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "            "), "format_call_Tabulate7");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream_(stream, "    ");
 	strvect_char_heap(&pos, "~4,8T");
 	format_stream_lisp(ptr, stream, pos, Nil);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "            "), "format_call_Tabulate8");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream_(stream, "     ");
 	strvect_char_heap(&pos, "~4,0T");
 	format_stream_lisp(ptr, stream, pos, Nil);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "     "), "format_call_Tabulate9");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream_(stream, "     ");
 	strvect_char_heap(&pos, "~4@T");
 	format_stream_lisp(ptr, stream, pos, Nil);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "         "), "format_call_Tabulate10");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream_(stream, "     ");
 	strvect_char_heap(&pos, "~4,0@T");
 	format_stream_lisp(ptr, stream, pos, Nil);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "         "), "format_call_Tabulate11");
 
 	open_output_string_stream(&stream, 0);
 	print_ascii_stream_(stream, "     ");
 	strvect_char_heap(&pos, "~4,8@T");
 	format_stream_lisp(ptr, stream, pos, Nil);
-	string_stream_heap(stream, &pos);
+	string_stream_heap_(stream, &pos);
 	test(string_equal_char(pos, "                "), "format_call_Tabulate12");
 
 	RETURN;

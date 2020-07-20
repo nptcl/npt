@@ -106,7 +106,7 @@ static int test_typecopy_empty(void)
 	addr left, right;
 
 	type0_heap(LISPDECL_ATOM, &left);
-	right = typecopy_empty(NULL, left);
+	typecopy_empty(NULL, &right, left);
 	test(testlispdecl(left, LISPDECL_ATOM), "typecopy_empty1");
 	test(left != right, "typecopy_empty2");
 
@@ -119,7 +119,7 @@ static int test_typecopy_allobject(void)
 	size_t size1, size2;
 
 	parse_type_string(&left, "(not integer)");
-	right = typecopy_allobject(NULL, left);
+	typecopy_allobject(NULL, &right, left);
 	test(left != right, "typecopy_allobject1");
 	test(GetType(right) == LISPTYPE_TYPE, "typecopy_allobject2");
 	test(RefLispDecl(left) == RefLispDecl(right), "typecopy_allobject3");
@@ -139,7 +139,7 @@ static int test_typecopy_alltype(void)
 	size_t size1, size2;
 
 	parse_type_string(&left, "(not integer)");
-	right = typecopy_alltype(NULL, left);
+	typecopy_alltype(NULL, &right, left);
 	test(left != right, "typecopy_alltype1");
 	test(GetType(right) == LISPTYPE_TYPE, "typecopy_alltype2");
 	test(RefLispDecl(left) == RefLispDecl(right), "typecopy_alltype3");
@@ -598,9 +598,9 @@ static int test_typecopy_function(void)
 		"(values integer &rest nil))";
 	parse_type_string(&x, str);
 	type_copy_heap(&x, x);
-	type_object(&x, x);
+	type_object_(&x, x);
 	parse_type_string(&y, str);
-	type_object(&y, y);
+	type_object_(&y, y);
 	test(equal(x, y), "typecopy_function10");
 
 	RETURN;
@@ -612,9 +612,9 @@ static int test_typecopy_char(const char *str)
 
 	parse_type_string(&x, str);
 	type_copy_heap(&x, x);
-	type_object(&x, x);
+	type_object_(&x, x);
 	parse_type_string(&y, str);
-	type_object(&y, y);
+	type_object_(&y, y);
 
 	return equal(x, y);
 }
@@ -705,8 +705,8 @@ static int test_typecopy_real_check(constindex type, const char *str)
 	cons_heap(&x, x, readr(str));
 	parse_type_unsafe(&x, x);
 	type_copy_heap(&y, x);
-	type_object(&x, x);
-	type_object(&y, y);
+	type_object_(&x, x);
+	type_object_(&y, y);
 
 	return equal(x, y);
 }

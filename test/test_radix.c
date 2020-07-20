@@ -32,7 +32,7 @@ static int equalstream(addr stream, const char *right)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	string_stream_local(local, stream, &left);
+	string_stream_local_(local, stream, &left);
 	result = string_equal_char(left, right);
 	rollback_local(local, stack);
 	clear_output_string_stream(stream);
@@ -1202,7 +1202,7 @@ static int test_roma_integer(void)
 		/* first */
 		clear_output_string_stream(stream);
 		roma_integer_(stream, i, 0);
-		string_stream_local(local, stream, &pos);
+		string_stream_local_(local, stream, &pos);
 		if (! string_equal_char(pos, str1)) {
 			degrade_printf("roma(1) check error: %s\n", str1);
 			return 1;
@@ -1210,7 +1210,7 @@ static int test_roma_integer(void)
 		/* second */
 		clear_output_string_stream(stream);
 		roma_integer_(stream, i, 1);
-		string_stream_local(local, stream, &pos);
+		string_stream_local_(local, stream, &pos);
 		if (! string_equal_char(pos, str2)) {
 			degrade_printf("roma(2) check error: %s\n", str2);
 			return 1;
