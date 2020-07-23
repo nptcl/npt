@@ -382,14 +382,14 @@ static int test_set_default_package(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	find_char_package(LISP_COMMON, &pos);
+	find_char_package_(LISP_COMMON, &pos);
 	set_default_package(pos);
 	GetConstant(CONSTANT_SPECIAL_PACKAGE, &pos);
 	getspecialcheck_local(ptr, pos, &pos);
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_COMMON), "set_default_package1");
 
-	find_char_package(LISP_PACKAGE, &pos);
+	find_char_package_(LISP_PACKAGE, &pos);
 	set_default_package(pos);
 	GetConstant(CONSTANT_SPECIAL_PACKAGE, &pos);
 	getspecialcheck_local(ptr, pos, &pos);
@@ -403,27 +403,27 @@ static int test_initpackage(void)
 {
 	addr pos;
 
-	find_char_package(LISP_KEYWORD, &pos);
+	find_char_package_(LISP_KEYWORD, &pos);
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_KEYWORD), "initpackage1");
 
-	find_char_package(LISP_COMMON, &pos);
+	find_char_package_(LISP_COMMON, &pos);
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_COMMON), "initpackage2");
 
-	find_char_package(LISP_COMMON_USER, &pos);
+	find_char_package_(LISP_COMMON_USER, &pos);
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_COMMON_USER), "initpackage3");
 
-	find_char_package(LISP_PACKAGE, &pos);
+	find_char_package_(LISP_PACKAGE, &pos);
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_PACKAGE), "initpackage4");
 
-	find_char_package(LISP_SYSTEM, &pos);
+	find_char_package_(LISP_SYSTEM, &pos);
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_SYSTEM), "initpackage5");
 
-	find_char_package(LISP_CODE, &pos);
+	find_char_package_(LISP_CODE, &pos);
 	getname_package(pos, &pos);
 	test(string_equal_char(pos, LISP_CODE), "initpackage6");
 
@@ -2927,7 +2927,7 @@ static int test_nil_t(void)
 	internchar(LISP_COMMON, "T", &check);
 	test(check == T, "nil_t2");
 
-	find_char_package(LISP_COMMON, &check);
+	find_char_package_(LISP_COMMON, &check);
 	GetPackageSymbol(Nil, &package);
 	test(check == package, "nil_t3");
 	GetPackageSymbol(T, &package);

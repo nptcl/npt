@@ -155,9 +155,9 @@ _g int defconstant_syscode(addr symbol, addr value, addr doc)
 
 
 /* in-package */
-_g void in_package_syscode(Execute ptr, addr name, addr *ret)
+_g int in_package_syscode_(Execute ptr, addr name, addr *ret)
 {
-	in_package(ptr, name, ret);
+	return in_package_(ptr, name, ret);
 }
 
 
@@ -205,20 +205,20 @@ _g void next_hash_iterator_syscode(addr pos, addr *ret1, addr *ret2, addr *ret3)
 
 
 /* make-package-iterator */
-_g void make_package_iterator_syscode(addr pos, addr a, addr b, addr c, addr *ret)
+_g int make_package_iterator_syscode_(addr pos, addr a, addr b, addr c, addr *ret)
 {
-	package_iterator_heap(ret, pos, (a != Nil), (b != Nil), (c != Nil));
+	return package_iterator_heap_(ret, pos, (a != Nil), (b != Nil), (c != Nil));
 }
 
 
 /* next-package-iterator */
-_g void next_package_iterator_syscode(Execute ptr, addr pos,
+_g int next_package_iterator_syscode_(Execute ptr, addr pos,
 		addr *ret1, addr *ret2, addr *ret3, addr *ret4)
 {
 	enum PACKAGE_TYPE check;
 	addr symbol, status, package;
 
-	check = next_package_iterator(pos, &symbol, &package);
+	Return(next_package_iterator_(pos, &symbol, &package, &check));
 	if (check == PACKAGE_TYPE_NIL) {
 		*ret1 = *ret2 = *ret3 = *ret4 = Nil;
 	}
@@ -229,6 +229,8 @@ _g void next_package_iterator_syscode(Execute ptr, addr pos,
 		*ret3 = status;
 		*ret4 = package;
 	}
+
+	return 0;
 }
 
 
@@ -974,16 +976,16 @@ _g void timeinfo_syscode(LocalRoot local,
 
 
 /* ed-function */
-_g void ed_function_syscode(Execute ptr, addr file)
+_g int ed_function_syscode_(Execute ptr, addr file)
 {
-	ed_process(ptr, file);
+	return ed_process_(ptr, file);
 }
 
 
 /* run-process */
-_g void run_program_syscode(LocalRoot local, addr var, addr args, addr rest, addr *ret)
+_g int run_program_syscode_(LocalRoot local, addr var, addr args, addr rest, addr *ret)
 {
-	run_process(local, var, args, rest, &var);
+	return run_process_(local, var, args, rest, &var);
 }
 
 
@@ -995,16 +997,16 @@ _g void make_callname_syscode(addr var, addr *ret)
 
 
 /* trace-add */
-_g void trace_add_syscode(Execute ptr, addr var, addr *ret)
+_g int trace_add_syscode_(Execute ptr, addr var, addr *ret)
 {
-	trace_add_common(ptr, var, ret);
+	return trace_add_common_(ptr, var, ret);
 }
 
 
 /* trace-del */
-_g void trace_del_syscode(Execute ptr, addr var, addr *ret)
+_g int trace_del_syscode_(Execute ptr, addr var, addr *ret)
 {
-	trace_del_common(ptr, var, ret);
+	return trace_del_common_(ptr, var, ret);
 }
 
 

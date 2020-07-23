@@ -85,7 +85,7 @@ static void method_type_describe_object(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defmethod_describe_object(Execute ptr, addr name, addr gen,
+static int defmethod_describe_object_(Execute ptr, addr name, addr gen,
 		pointer p, constindex index)
 {
 	addr pos, call, type;
@@ -98,9 +98,11 @@ static void defmethod_describe_object(Execute ptr, addr name, addr gen,
 	/* method */
 	GetConstant(index, &pos);
 	mop_argument_method_print_object(&pos, pos); /* print-object */
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 
@@ -216,15 +218,16 @@ _g void init_environment_describe(void)
 }
 
 #define DefMethod_DescribeObject(ptr, name, gen, p, c) { \
-	defmethod_describe_object((ptr), (name), (gen), \
-			p_method_describe_object_##p, CONSTANT_CLOS_##c); \
+	Return(defmethod_describe_object_((ptr), (name), (gen), \
+			p_method_describe_object_##p, CONSTANT_CLOS_##c)); \
 }
-static void build_describe_object_method(Execute ptr, addr name, addr gen)
+static int build_describe_object_method_(Execute ptr, addr name, addr gen)
 {
 	DefMethod_DescribeObject(ptr, name, gen, t, T);
 	DefMethod_DescribeObject(ptr, name, gen, class, CLASS);
 	DefMethod_DescribeObject(ptr, name, gen, standard_object, STANDARD_OBJECT);
 	DefMethod_DescribeObject(ptr, name, gen, structure_object, STRUCTURE_OBJECT);
+	return 0;
 }
 
 _g void build_environment_describe(Execute ptr)
@@ -237,7 +240,7 @@ _g void build_environment_describe(Execute ptr)
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	/* method */
-	build_describe_object_method(ptr, name, gen);
+	Error(build_describe_object_method_(ptr, name, gen));
 	common_method_finalize(gen);
 }
 

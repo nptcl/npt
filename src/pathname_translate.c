@@ -25,20 +25,22 @@ _g void table_logical_pathname(addr *ret)
 }
 
 /* found=1, notfound=0 */
-_g int gethost_logical_pathname(addr key, addr *ret)
+_g int gethost_logical_pathname_(addr key, addr *ret)
 {
 	addr list;
 	table_logical_pathname(&list);
-	return findvalue_hashtable(list, key, ret);
+	return findnil_hashtable_(list, key, ret);
 }
 
-_g void sethost_logical_pathname(addr key, addr value)
+_g int sethost_logical_pathname_(addr key, addr value)
 {
 	addr list;
 
 	table_logical_pathname(&list);
-	intern_hashheap(list, key, &list);
+	Return(intern_hashheap_(list, key, &list));
 	SetCdr(list, value);
+
+	return 0;
 }
 
 
@@ -243,15 +245,18 @@ static int translate_list_pathname_(LocalpRoot local,
 		return Result(ret, check);
 	}
 	/* ("str" "s*r") -> next, ("str" "a*a") -> false */
-	if (wildcard_stringp_p(pos2)) {
-		if (! wildcard_string_pathname(pos1, pos2))
+	Return(wildcard_stringp_p_(pos2, &check));
+	if (check) {
+		Return(wildcard_string_pathname_(pos1, pos2, &check));
+		if (! check)
 			return Result(ret, 0);
 		list_local(local->local, value, *value, pos2, pos1, Nil, NULL);
 		return translate_list_pathname_(local, value, a1, b1, ret);
 	}
 	/* ("str" "str") -> next, ("str" "aaa") -> false */
 	if (pos2 != wilds) {
-		if (! wildcard_eq_pathname(pos1, pos2))
+		Return(wildcard_eq_pathname_(pos1, pos2, &check));
+		if (! check)
 			return Result(ret, 0);
 		return translate_list_pathname_(local, value, a1, b1, ret);
 	}
@@ -297,6 +302,7 @@ static int replace_wild_string_pathname_(LocalpRoot local,
 
 static int replace_wild_pathname_(LocalpRoot local, addr *root, addr *list)
 {
+	int check;
 	addr wild1, wild2, next, pos, a, b;
 
 	if (*list == Nil)
@@ -306,17 +312,21 @@ static int replace_wild_pathname_(LocalpRoot local, addr *root, addr *list)
 	List_bind(*list, &next, &pos, &a, &b, NULL);
 	if (pos == wild1) {
 		cons_alloc(localp_alloc(local), root, a, *root);
+		goto final;
 	}
-	else if (pos == wild2) {
+	if (pos == wild2) {
 		replace_wild_wilds_pathname(local, root, a, b);
+		goto final;
 	}
-	else if (wildcard_stringp_p(pos)) {
+	Return(wildcard_stringp_p_(pos, &check));
+	if (check) {
 		Return(replace_wild_string_pathname_(local, root, a, pos));
+		goto final;
 	}
-	else {
-		cons_alloc(localp_alloc(local), root, pos, *root);
-	}
+	cons_alloc(localp_alloc(local), root, pos, *root);
+	goto final;
 
+final:
 	return Result(list, next);
 }
 
@@ -342,6 +352,7 @@ static int replace_string_string_pathname_(LocalpRoot local,
 
 static int replace_string_pathname_(LocalpRoot local, addr *root, addr *list, addr to)
 {
+	int check;
 	addr wild1, wild2, next, pos, a, b;
 
 	if (*list == Nil)
@@ -351,20 +362,24 @@ static int replace_string_pathname_(LocalpRoot local, addr *root, addr *list, ad
 	List_bind(*list, &next, &pos, &a, &b, NULL);
 	if (pos == wild1 || pos == wild2) {
 		Return(replace_string_wild_pathname_(local, root, a, to));
+		goto final;
 	}
-	else if (wildcard_stringp_p(pos)) {
+	Return(wildcard_stringp_p_(pos, &check));
+	if (check) {
 		Return(replace_string_string_pathname_(local, root, a, pos, to));
+		goto final;
 	}
-	else {
-		cons_alloc(localp_alloc(local), root, pos, *root);
-	}
+	cons_alloc(localp_alloc(local), root, pos, *root);
+	goto final;
 
+final:
 	return Result(list, next);
 }
 
 static int translate_replace_pathname_(LocalpRoot local,
 		addr *root, addr *list, addr to)
 {
+	int check;
 	LocalRoot alloc;
 	addr pos, wild1, wild2;
 
@@ -375,13 +390,14 @@ static int translate_replace_pathname_(LocalpRoot local,
 		Return_getcons(to, &pos, &to);
 		if (pos == wild1 || pos == wild2) {
 			Return(replace_wild_pathname_(local, root, list));
+			continue;
 		}
-		else if (wildcard_stringp_p(pos)) {
+		Return(wildcard_stringp_p_(pos, &check));
+		if (check) {
 			Return(replace_string_pathname_(local, root, list, pos));
+			continue;
 		}
-		else {
-			cons_alloc(alloc, root, pos, *root);
-		}
+		cons_alloc(alloc, root, pos, *root);
 	}
 	nreverse(root, *root);
 

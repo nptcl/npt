@@ -47,18 +47,18 @@ _g void make_readtype(addr *ret,
 		enum ReadTable_Type type, unicode code, unsigned dispatch);
 _g void copy_readtype(addr *ret, addr copy);
 _g void default_array_readtype(addr array);
-_g void default_dispatch_readtype(addr pos, unicode u);
+_g int default_dispatch_readtype_(addr pos, unicode u);
 _g void array_readtype_heap(addr *ret);
 _g void dispatch_readtype_heap(addr *ret);
 _g void make_array_readtype(addr *ret);
 _g void make_table_readtype(addr *ret);
-_g void make_dispatch_readtype(addr *ret);
+_g int make_dispatch_readtype_(addr *ret);
 
 _g int readtype_whitespace(unicode u);
 _g int readtype_constituent(unicode u);
 _g int readtype_termmacro(unicode u, addr *ret);
 _g int readtype_sharpmacro(unicode u, addr *ret);
-_g void delete_readtype(addr pos, unicode u);
+_g int delete_readtype_(addr pos, unicode c);
 
 #endif
 

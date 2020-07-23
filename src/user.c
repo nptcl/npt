@@ -24,11 +24,11 @@ static void make_user_object(addr *ret, callbind_dynamic call)
 	*ret = pos;
 }
 
-static void defuser(const char *str, callbind_dynamic call)
+static int defuser_(const char *str, callbind_dynamic call)
 {
 	addr symbol, pos, user;
 
-	internchar(LISP_USER, str, &symbol);
+	Return(internchar_(LISP_USER, str, &symbol, NULL));
 	GetFunctionSymbol(symbol, &pos);
 	if (pos == Unbound) {
 		compiled_heap(&pos, symbol);
@@ -41,6 +41,8 @@ static void defuser(const char *str, callbind_dynamic call)
 	}
 	setcompiled_dynamic(pos, p_user);
 	SetFunctionSymbol(symbol, pos);
+
+	return 0;
 }
 
 static int init_user_call(Execute ptr, addr rest)
@@ -73,6 +75,6 @@ static int hello_user(Execute ptr, addr right)
 
 _g void build_user(void)
 {
-	defuser("HELLO", hello_user);
+	Error(defuser_("HELLO", hello_user));
 }
 

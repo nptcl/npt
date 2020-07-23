@@ -1630,18 +1630,15 @@ error:
 /* macro */
 static int parse_macro(Execute ptr, addr *ret, addr call, addr cons)
 {
-	int check;
 	addr env, value;
 	LocalHold hold;
 
 	/* macroexpand */
 	environment_heap(ptr, &env);
 	hold = LocalHold_local_push(ptr, env);
-	check = call_macroexpand_hook(ptr, &value, call, cons, env);
+	Return(call_macroexpand_hook(ptr, &value, call, cons, env));
 	close_environment(env);
 	localhold_end(hold);
-	if (check)
-		return 1;
 
 	/* execute */
 	Return(parse_execute(ptr, &value, value));
@@ -1834,13 +1831,13 @@ static int parse_cons_expander(Execute ptr, addr *ret, addr call, addr cons)
 
 	environment_heap(ptr, &env);
 	hold = LocalHold_local_push(ptr, env);
-	check = call_macroexpand_hook(ptr, &pos, call, cons, env);
+	Return(call_macroexpand_hook(ptr, &pos, call, cons, env));
 	close_environment(env);
 	localhold_end(hold);
-	if (check)
-		return 1;
+
 	/* equal */
-	if (equal_function(cons, pos))
+	Return(equal_function_(cons, pos, &check));
+	if (check)
 		return parse_cons_car(ptr, ret, cons);
 	else
 		return parse_execute(ptr, ret, pos);

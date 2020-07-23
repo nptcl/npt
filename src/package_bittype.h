@@ -38,9 +38,9 @@ _g void importbitpackage(addr *ret, addr symbol);
 _g void inheritedbitpackage(addr *ret, addr symbol);
 _g void shadowintern_bitpackage(addr bit, addr name, addr package);
 _g void shadowimport_bitpackage(addr bit, addr symbol);
-_g int intern_bitpackage(addr package, addr name, addr *ret);
-_g void find_bitpackage(addr package, addr name, addr *ret);
-_g void find_char_bitpackage(addr package, const char *name, addr *ret);
+_g int intern_bitpackage_(addr package, addr name, addr *value, int *ret);
+_g int find_bitpackage_(addr package, addr name, addr *ret);
+_g int find_char_bitpackage_(addr package, const char *name, addr *ret);
 
 #endif
 

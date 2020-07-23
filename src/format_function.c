@@ -680,7 +680,8 @@ static int format_call_Character(fmtprint print, struct format_operator *str)
 	}
 	if (str->colon || str->atsign) {
 		/* ~:C or ~:@C */
-		if (findtable_char_name(&name, pos)) {
+		Return(findtable_char_name_(&name, pos));
+		if (name != Nil) {
 			Return(fmtprint_string_(print, name));
 		}
 		else {
@@ -3234,7 +3235,7 @@ static int format_call_CallFunction_object(fmtprint print,
 	return 0;
 }
 
-static void format_call_CallFunction_call(fmtprint print,
+static int format_call_CallFunction_call_(fmtprint print,
 		struct format_operator *str, addr *ret)
 {
 	byte *ptr;
@@ -3243,7 +3244,7 @@ static void format_call_CallFunction_call(fmtprint print,
 	ptr = (byte *)format_getargs(str, str->args_size);
 	ptr += format_make_strvect_heap(&package, ptr);
 	(void) format_make_strvect_heap(&name, ptr);
-	intern_package(package, name, ret);
+	return intern_package_(package, name, ret, NULL);
 }
 
 static int format_call_CallFunction(fmtprint print, struct format_operator *str)
@@ -3272,7 +3273,7 @@ static int format_call_CallFunction(fmtprint print, struct format_operator *str)
 	}
 	nreverse(&root, root);
 	/* call */
-	format_call_CallFunction_call(print, str, &pos);
+	Return(format_call_CallFunction_call_(print, str, &pos));
 	Return(callclang_apply(print->ptr, &pos, pos, root));
 	rollback_local(local, stack);
 

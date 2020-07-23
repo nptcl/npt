@@ -14,7 +14,7 @@
  */
 static int function_export(Execute ptr, addr symbols, addr package)
 {
-	export_common(ptr, symbols, package);
+	Return(export_common_(ptr, symbols, package));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -41,7 +41,7 @@ static void defun_export(void)
  */
 static int function_find_symbol(Execute ptr, addr name, addr package)
 {
-	find_symbol_common(ptr, name, package, &name, &package);
+	Return(find_symbol_common_(ptr, name, package, &name, &package));
 	setvalues_control(ptr, name, package, NULL);
 	return 0;
 }
@@ -65,7 +65,7 @@ static void defun_find_symbol(void)
 /* (defun find-package (name) ...) -> package */
 static int function_find_package(Execute ptr, addr name)
 {
-	find_package(name, &name);
+	Return(find_package_(name, &name));
 	setresult_control(ptr, name);
 	return 0;
 }
@@ -102,7 +102,7 @@ static void defun_find_package(void)
  */
 static int function_find_all_symbols(Execute ptr, addr name)
 {
-	find_allsymbols_package(name, &name);
+	Return(find_allsymbols_package_(name, &name));
 	setresult_control(ptr, name);
 	return 0;
 }
@@ -139,7 +139,7 @@ static void defun_find_all_symbols(void)
  */
 static int function_import(Execute ptr, addr symbols, addr package)
 {
-	import_common(ptr, symbols, package);
+	Return(import_common_(ptr, symbols, package));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -205,7 +205,7 @@ static void defun_list_all_packages(void)
 static int function_rename_package(Execute ptr,
 		addr package, addr name, addr nicknames)
 {
-	rename_package_common(ptr, package, name, nicknames, &package);
+	Return(rename_package_common_(ptr, package, name, nicknames, &package));
 	setresult_control(ptr, package);
 	return 0;
 }
@@ -243,7 +243,7 @@ static void defun_rename_package(void)
  */
 static int function_shadow(Execute ptr, addr symbols, addr package)
 {
-	shadow_common(ptr, symbols, package);
+	Return(shadow_common_(ptr, symbols, package));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -283,7 +283,7 @@ static void defun_shadow(void)
  */
 static int function_shadowing_import(Execute ptr, addr symbols, addr package)
 {
-	shadowing_import_common(ptr, symbols, package);
+	Return(shadowing_import_common_(ptr, symbols, package));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -309,7 +309,11 @@ static void defun_shadowing_import(void)
  */
 static int function_delete_package(Execute ptr, addr package)
 {
-	setbool_control(ptr, ! delete_package(package));
+	int check;
+
+	Return(delete_package_(package, &check));
+	setbool_control(ptr, ! check);
+
 	return 0;
 }
 
@@ -346,7 +350,7 @@ static void defun_delete_package(void)
  */
 static int function_make_package(Execute ptr, addr name, addr rest)
 {
-	make_package_common(ptr, name, rest, &name);
+	Return(make_package_common_(ptr, name, rest, &name));
 	setresult_control(ptr, name);
 	return 0;
 }
@@ -413,7 +417,7 @@ static void defmacro_with_package_iterator(void)
  */
 static int function_unexport(Execute ptr, addr symbols, addr package)
 {
-	unexport_common(ptr, symbols, package);
+	Return(unexport_common_(ptr, symbols, package));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -439,7 +443,7 @@ static void defun_unexport(void)
  */
 static int function_unintern(Execute ptr, addr symbol, addr package)
 {
-	unintern_common(ptr, symbol, package, &package);
+	Return(unintern_common_(ptr, symbol, package, &package));
 	setresult_control(ptr, package);
 	return 0;
 }
@@ -499,7 +503,7 @@ static void defmacro_in_package(void)
  */
 static int function_unuse_package(Execute ptr, addr unuse, addr package)
 {
-	unuse_package_common(ptr, unuse, package);
+	Return(unuse_package_common_(ptr, unuse, package));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -526,7 +530,7 @@ static void defun_unuse_package(void)
  */
 static int function_use_package(Execute ptr, addr use, addr package)
 {
-	use_package_common(ptr, use, package);
+	Return(use_package_common_(ptr, use, package));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -651,7 +655,7 @@ static void defmacro_do_all_symbols(void)
  */
 static int function_intern(Execute ptr, addr name, addr package)
 {
-	intern_common(ptr, name, package, &name, &package);
+	Return(intern_common_(ptr, name, package, &name, &package));
 	setvalues_control(ptr, name, package, NULL);
 	return 0;
 }
@@ -678,7 +682,7 @@ static void defun_intern(void)
  */
 static int function_package_name(Execute ptr, addr package)
 {
-	getname_package(package, &package);
+	Return(getname_package_(package, &package));
 	setresult_control(ptr, package);
 	return 0;
 }
@@ -711,7 +715,7 @@ static void defun_package_name(void)
 /* (defun package-nicknames (package) ...) -> list */
 static int function_package_nicknames(Execute ptr, addr package)
 {
-	getnickname_package(package, &package);
+	Return(getnickname_package_(package, &package));
 	setresult_control(ptr, package);
 	return 0;
 }
@@ -735,7 +739,7 @@ static void defun_package_nicknames(void)
 /* (defun package-shadowing-symbols (package) ...) -> list */
 static int function_package_shadowing_symbols(Execute ptr, addr package)
 {
-	getshadow_package(package, &package);
+	Return(getshadow_package_(package, &package));
 	setresult_control(ptr, package);
 	return 0;
 }
@@ -759,7 +763,7 @@ static void defun_package_shadowing_symbols(void)
 /* (defun package-use-list (package) ...) -> list */
 static int function_package_use_list(Execute ptr, addr package)
 {
-	getuselist_package(package, &package);
+	Return(getuselist_package_(package, &package));
 	setresult_control(ptr, package);
 	return 0;
 }
@@ -783,7 +787,7 @@ static void defun_package_use_list(void)
 /* (defun package-used-by-list (package) ...) -> list */
 static int function_package_used_by_list(Execute ptr, addr package)
 {
-	getusedbylist_package(package, &package);
+	Return(getusedbylist_package_(package, &package));
 	setresult_control(ptr, package);
 	return 0;
 }

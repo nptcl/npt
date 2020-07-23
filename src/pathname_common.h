@@ -5,7 +5,7 @@
 #include "typedef.h"
 
 _g int make_pathname_(Execute ptr, addr *ret, addr rest);
-_g void get_logical_pathname_translations(addr host, addr *ret);
+_g int get_logical_pathname_translations_(addr host, addr *ret);
 _g int set_logical_pathname_translations_(Execute ptr, addr host, addr list);
 _g int pathname_host_(addr pos, addr *ret, int localp);
 _g int pathname_device_(addr pos, addr *ret, int localp);
@@ -22,7 +22,7 @@ _g int enough_namestring_pathname_(Execute ptr, addr *ret, addr pos, addr defaul
 _g int parse_namestring_(Execute ptr, addr *ret, addr *position,
 		addr thing, addr host, addr defaults, addr start, addr end, addr junk);
 _g int wild_pathname_p_(Execute ptr, addr *ret, addr file, addr field);
-_g int wildcard_pathname(addr a, addr b, int wild);
+_g int wildcard_pathname_(addr a, addr b, int wild, int *ret);
 _g int pathname_match_p_(Execute ptr, addr *ret, addr pos, addr wild);
 _g int translate_pathname_(Execute ptr, addr *ret, addr pos, addr from, addr to);
 _g int translate_logical_pathname_(Execute ptr, addr *ret, addr pos);

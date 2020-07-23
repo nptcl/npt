@@ -1084,7 +1084,7 @@ static int test_typep_package(void)
 {
 	addr v;
 
-	find_char_package(LISP_COMMON, &v);
+	find_char_package_(LISP_COMMON, &v);
 	test(typep_char(v, "package"), "typep_package1");
 	fixnum_heap(&v, 100);
 	test(! typep_char(v, "package"), "typep_package2");

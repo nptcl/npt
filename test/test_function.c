@@ -175,11 +175,11 @@ static int test_function_accessor(void)
 	GetCodeFunction(pos, &value);
 	test(value == T, "function_accessor.3");
 
-	internchar(LISP_PACKAGE, "HELLO", &value);
+	internchar_debug(LISP_PACKAGE, "HELLO", &value);
 	SetNameFunction_Low(pos, value);
 	GetNameFunction_Low(pos, &check);
 	test(check == value, "function_accessor.4");
-	internchar(LISP_PACKAGE, "AAA", &value);
+	internchar_debug(LISP_PACKAGE, "AAA", &value);
 	parse_callname_heap(&check, value);
 	SetNameFunction(pos, check);
 	GetNameFunction(pos, &check);

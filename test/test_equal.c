@@ -251,21 +251,21 @@ static int test_equal_function(void)
 	/* cons */
 	consnil_heap(&left);
 	consnil_heap(&right);
-	test(equal_function(left, right), "equal_function1");
+	test(equal_debug(left, right), "equal_function1");
 	list_local(local, &left, fixnuml(10), T, NULL);
 	list_local(local, &right, fixnuml(10), T, NULL);
-	test(equal_function(left, right), "equal_function2");
+	test(equal_debug(left, right), "equal_function2");
 	list_local(local, &right, fixnuml(10), Nil, NULL);
-	test(! equal_function(left, right), "equal_function3");
+	test(! equal_debug(left, right), "equal_function3");
 	list_local(local, &right, fixnuml(20), T, NULL);
-	test(! equal_function(left, right), "equal_function4");
+	test(! equal_debug(left, right), "equal_function4");
 
 	strvect_char_local(local, &left, "Hello");
 	strvect_char_local(local, &right, "Hello");
-	test(equal_function(left, right), "equal_function5");
+	test(equal_debug(left, right), "equal_function5");
 	strvect_char_local(local, &right, "HELLO");
-	test(! equal_function(left, right), "equal_function6");
-	test(! equal_function(left, T), "equal_function7");
+	test(! equal_debug(left, right), "equal_function6");
+	test(! equal_debug(left, T), "equal_function7");
 
 	rollback_local(local, stack);
 

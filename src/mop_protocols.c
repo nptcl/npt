@@ -61,7 +61,7 @@ static void method_argument_make_method_lambda_std(addr *ret)
 	*ret = pos;
 }
 
-static void defmethod_make_method_lambda_std(Execute ptr, addr name, addr gen)
+static int defmethod_make_method_lambda_std_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -72,12 +72,14 @@ static void defmethod_make_method_lambda_std(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	method_argument_make_method_lambda_std(&pos);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
-static void defgeneric_make_method_lambda(Execute ptr)
+static int defgeneric_make_method_lambda_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -86,10 +88,12 @@ static void defgeneric_make_method_lambda(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* no-method */
-	defmethod_make_method_lambda_std(ptr, name, gen);
+	Return(defmethod_make_method_lambda_std_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -101,8 +105,10 @@ _g void init_mop_protocols(void)
 	SetPointerType(var6, method_make_method_lambda_std);
 }
 
-_g void build_mop_protocols(Execute ptr)
+_g int build_mop_protocols_(Execute ptr)
 {
-	defgeneric_make_method_lambda(ptr);
+	Return(defgeneric_make_method_lambda_(ptr));
+
+	return 0;
 }
 

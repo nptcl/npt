@@ -74,7 +74,7 @@ _g enum ReadTable_Case *ptrcase_readtable(addr pos)
 /*
  *  object
  */
-_g void readtable_heap(addr *ret)
+_g int readtable_heap_(addr *ret)
 {
 	addr pos, one;
 
@@ -89,10 +89,10 @@ _g void readtable_heap(addr *ret)
 	make_table_readtype(&one);
 	SetTableReadtable(pos, one);
 	/* dispatch */
-	make_dispatch_readtype(&one);
+	Return(make_dispatch_readtype_(&one));
 	SetDispatchReadtable(pos, one);
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
 
 static void copy_array_readtable(addr from, addr to)
@@ -108,7 +108,7 @@ static void copy_array_readtable(addr from, addr to)
 	}
 }
 
-static void copy_table_readtable(addr from, addr to)
+static int copy_table_readtable_(addr from, addr to)
 {
 	addr table, list, car, cdr, cell;
 	size_t size, i;
@@ -129,13 +129,15 @@ static void copy_table_readtable(addr from, addr to)
 			GetCons(list, &cdr, &list);
 			GetCons(cdr, &car, &cdr);
 			copy_readtype(&cdr, cdr);
-			intern_hashheap(to, car, &cell);
+			Return(intern_hashheap_(to, car, &cell));
 			SetCdr(cell, cdr);
 		}
 	}
+
+	return 0;
 }
 
-static void copy_dispatch_readtable(addr from, addr to)
+static int copy_dispatch_readtable_(addr from, addr to)
 {
 	addr table, list, car, cdr, cell;
 	size_t size, i;
@@ -155,13 +157,15 @@ static void copy_dispatch_readtable(addr from, addr to)
 		while (list != Nil) {
 			GetCons(list, &cdr, &list);
 			GetCons(cdr, &car, &cdr);
-			intern_hashheap(to, car, &cell);
+			Return(intern_hashheap_(to, car, &cell));
 			SetCdr(cell, cdr);
 		}
 	}
+
+	return 0;
 }
 
-_g void copy_readtable(addr from, addr to)
+_g int copy_readtable_(addr from, addr to)
 {
 	addr a, b;
 
@@ -175,15 +179,15 @@ _g void copy_readtable(addr from, addr to)
 	GetTableReadtable(from, &a);
 	GetTableReadtable(to, &b);
 	clear_hashtable_heap(b);
-	copy_table_readtable(a, b);
+	Return(copy_table_readtable_(a, b));
 	/* dispatch */
 	GetDispatchReadtable(from, &a);
 	GetDispatchReadtable(to, &b);
 	clear_hashtable_heap(b);
-	copy_dispatch_readtable(a, b);
+	return copy_dispatch_readtable_(a, b);
 }
 
-_g void copy_readtable_heap(addr from, addr *ret)
+_g int copy_readtable_heap_(addr from, addr *ret)
 {
 	addr to, a, b;
 
@@ -199,18 +203,18 @@ _g void copy_readtable_heap(addr from, addr *ret)
 	/* table */
 	GetTableReadtable(from, &a);
 	make_table_readtype(&b);
-	copy_table_readtable(a, b);
+	Return(copy_table_readtable_(a, b));
 	SetTableReadtable(to, b);
 	/* dispatch */
 	GetDispatchReadtable(from, &a);
 	dispatch_readtype_heap(&b);
-	copy_dispatch_readtable(a, b);
+	Return(copy_dispatch_readtable_(a, b));
 	SetDispatchReadtable(to, b);
 	/* result */
-	*ret = to;
+	return Result(ret, to);
 }
 
-_g void copy_default_readtable(addr pos)
+_g int copy_default_readtable_(addr pos)
 {
 	int i;
 	addr one;
@@ -228,10 +232,10 @@ _g void copy_default_readtable(addr pos)
 	/* dispatch */
 	GetDispatchReadtable(pos, &one);
 	clear_hashtable_heap(one);
-	default_dispatch_readtype(one, '#');
+	return default_dispatch_readtype_(one, '#');
 }
 
-static void setreadtype_readtable(addr pos, unicode code, addr type)
+static int setreadtype_readtable_(addr pos, unicode code, addr type)
 {
 	addr key;
 
@@ -242,12 +246,14 @@ static void setreadtype_readtable(addr pos, unicode code, addr type)
 	else {
 		GetTableReadtable(pos, &pos);
 		character_heap(&key, code);
-		intern_hashheap(pos, key, &pos);
+		Return(intern_hashheap_(pos, key, &pos));
 		SetCdr(pos, type);
 	}
+
+	return 0;
 }
 
-_g void make_dispatch_macro_character(addr pos, addr character, int nonterm)
+_g int make_dispatch_macro_character_(addr pos, addr character, int nonterm)
 {
 	unicode code;
 	addr type, call;
@@ -264,7 +270,7 @@ _g void make_dispatch_macro_character(addr pos, addr character, int nonterm)
 	Check(call == Unbound, "unbound error.");
 	SetReadType(type, call);
 	/* add readtable */
-	setreadtype_readtable(pos, code, type);
+	return setreadtype_readtable_(pos, code, type);
 }
 
 #define DefaultDispatch(u,a,b) { \
@@ -327,7 +333,7 @@ _g int get_default_dispatch_macro_(addr code1, addr code2, addr *ret)
 /*
  *  macro_character_execute
  */
-_g void readtype_readtable(addr pos, unicode c, addr *ret)
+_g int readtype_readtable_(addr pos, unicode c, addr *ret)
 {
 	if (c < 0x80) {
 		GetArrayReadtable(pos, &pos);
@@ -335,8 +341,10 @@ _g void readtype_readtable(addr pos, unicode c, addr *ret)
 	}
 	else {
 		GetTableReadtable(pos, &pos);
-		findvalue_unicode_hashtable(pos, c, ret);
+		Return(findnil_unicode_hashtable_(pos, c, ret));
 	}
+
+	return 0;
 }
 
 static int macro_character_call(Execute ptr, int *result, addr *ret,
@@ -369,7 +377,7 @@ _g int macro_character_execute(Execute ptr, int *result, addr *ret,
 	LocalHold hold;
 
 	character_heap(&code, c);
-	readtype_readtable(table, c, &call);
+	Return(readtype_readtable_(table, c, &call));
 	if (call == Nil)
 		goto error;
 	GetReadType(call, &call);
@@ -393,7 +401,7 @@ _g int get_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr *ret
 
 	CheckType(pos, LISPTYPE_READTABLE);
 	/* dispatch check */
-	readtype_readtable(pos, u1, &check);
+	Return(readtype_readtable_(pos, u1, &check));
 	if (check == Nil)
 		goto error;
 	if (! dispatch_readtype(check))
@@ -401,8 +409,7 @@ _g int get_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr *ret
 	/* find */
 	GetDispatchReadtable(pos, &check);
 	u2 = toUpperUnicode(u2);
-	findvalue_character2_hashtable(check, u1, u2, ret);
-	return 0;
+	return findnil_character2_hashtable_(check, u1, u2, ret);
 
 error:
 	character_heap(&check, u1);
@@ -411,28 +418,29 @@ error:
 
 _g int rem_dispatch_macro_character_(addr pos, unicode u1, unicode u2)
 {
-	addr check, key;
+	int check;
+	addr value, key;
 
 	CheckType(pos, LISPTYPE_READTABLE);
 	/* dispatch check */
-	readtype_readtable(pos, u1, &check);
-	if (check == Nil)
+	Return(readtype_readtable_(pos, u1, &value));
+	if (value == Nil)
 		goto error;
-	if (! dispatch_readtype(check))
+	if (! dispatch_readtype(value))
 		goto error;
 	/* delete */
-	GetDispatchReadtable(pos, &check);
+	GetDispatchReadtable(pos, &value);
 	u2 = toUpperUnicode(u2);
-	findcons_character2_hashtable(check, u1, u2, &key);
+	Return(findcons_character2_hashtable_(value, u1, u2, &key));
 	if (key != Nil) {
 		GetCar(key, &key);
-		delete_hashtable(check, key);
+		Return(delete_hashtable_(value, key, &check));
 	}
 	return 0;
 
 error:
-	character_heap(&check, u1);
-	return fmte_("The character ~S is not dispatch macro.", check, NULL);
+	character_heap(&value, u1);
+	return fmte_("The character ~S is not dispatch macro.", value, NULL);
 }
 
 _g int set_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr call)
@@ -441,7 +449,7 @@ _g int set_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr call
 
 	CheckType(pos, LISPTYPE_READTABLE);
 	/* dispatch check */
-	readtype_readtable(pos, u1, &check);
+	Return(readtype_readtable_(pos, u1, &check));
 	if (check == Nil)
 		goto error;
 	if (! dispatch_readtype(check))
@@ -449,13 +457,13 @@ _g int set_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr call
 	/* intern */
 	GetDispatchReadtable(pos, &check);
 	u2 = toUpperUnicode(u2);
-	findcons_character2_hashtable(check, u1, u2, &cons);
+	Return(findcons_character2_hashtable_(check, u1, u2, &cons));
 	if (cons != Nil) {
 		SetCdr(cons, call);
 	}
 	else {
 		character2_heap(&cons, u1, u2);
-		intern_hashheap(check, cons, &cons);
+		Return(intern_hashheap_(check, cons, &cons));
 		SetCdr(cons, call);
 	}
 	return 0;
@@ -497,17 +505,17 @@ _g void get_default_macro_character(unicode u, addr *ret, int *nonterm)
 	*nonterm = 0;
 }
 
-_g void get_macro_character(addr pos, unicode u, addr *ret, int *nonterm)
+_g int get_macro_character_(addr pos, unicode u, addr *ret, int *nonterm)
 {
 	addr type;
 	struct readtype_struct *str;
 
 	CheckType(pos, LISPTYPE_READTABLE);
-	readtype_readtable(pos, u, &type);
+	Return(readtype_readtable_(pos, u, &type));
 	if (type == Nil) {
 		*ret = Nil;
 		*nonterm = 0;
-		return;
+		return 0;
 	}
 
 	str = ReadTypeStruct(type);
@@ -523,9 +531,11 @@ _g void get_macro_character(addr pos, unicode u, addr *ret, int *nonterm)
 		*ret = Nil;
 		*nonterm = 0;
 	}
+
+	return 0;
 }
 
-_g void set_macro_character(addr pos, unicode u, int nonterm, addr call)
+_g int set_macro_character_(addr pos, unicode u, int nonterm, addr call)
 {
 	addr type;
 	enum ReadTable_Type value;
@@ -535,64 +545,54 @@ _g void set_macro_character(addr pos, unicode u, int nonterm, addr call)
 	make_readtype(&type, value, u, 0);
 	SetReadType(type, call);
 	/* add readtable */
-	setreadtype_readtable(pos, u, type);
+	return setreadtype_readtable_(pos, u, type);
 }
 
-static void setreadtype_default(addr pos,
+static int setreadtype_default_(addr pos,
 		unicode u, enum ReadTable_Type type, addr call)
 {
 	addr one;
 
 	make_readtype(&one, type, u, 0);
 	SetReadType(one, call);
-	setreadtype_readtable(pos, u, one);
+	return setreadtype_readtable_(pos, u, one);
 }
 
-static void setdispatch_default(addr pos, unicode u, addr call)
+static int setdispatch_default_(addr pos, unicode u, addr call)
 {
 	addr one;
 
 	make_readtype(&one, ReadTable_Type_macro_nonterm, u, 1);
 	SetReadType(one, call);
-	setreadtype_readtable(pos, u, one);
+	Return(setreadtype_readtable_(pos, u, one));
 
 	GetDispatchReadtable(pos, &one);
-	default_dispatch_readtype(one, u);
+	return default_dispatch_readtype_(one, u);
 }
 
-_g void set_syntax_from_default(unicode u1, unicode u2, addr to)
+_g int set_syntax_from_default_(unicode u1, unicode u2, addr to)
 {
 	addr pos;
 
-	delete_readtype(to, u1);
-	if (readtype_whitespace(u2)) {
-		setreadtype_default(to, u1, ReadTable_Type_whitespace, Nil);
-		return;
-	}
-	if (readtype_constituent(u2)) {
-		setreadtype_default(to, u1, ReadTable_Type_constituent, Nil);
-		return;
-	}
-	if (u2 == '\\') {
-		setreadtype_default(to, u1, ReadTable_Type_escape_single, Nil);
-		return;
-	}
-	if (u2 == '|') {
-		setreadtype_default(to, u1, ReadTable_Type_escape_multiple, Nil);
-		return;
-	}
-	if (readtype_termmacro(u2, &pos)) {
-		setreadtype_default(to, u1, ReadTable_Type_macro_term, pos);
-		return;
-	}
-	if (readtype_sharpmacro(u2, &pos)) {
-		setdispatch_default(to, u1, pos);
-		return;
-	}
+	Return(delete_readtype_(to, u1));
+	if (readtype_whitespace(u2))
+		return setreadtype_default_(to, u1, ReadTable_Type_whitespace, Nil);
+	if (readtype_constituent(u2))
+		return setreadtype_default_(to, u1, ReadTable_Type_constituent, Nil);
+	if (u2 == '\\')
+		return setreadtype_default_(to, u1, ReadTable_Type_escape_single, Nil);
+	if (u2 == '|')
+		return setreadtype_default_(to, u1, ReadTable_Type_escape_multiple, Nil);
+	if (readtype_termmacro(u2, &pos))
+		return setreadtype_default_(to, u1, ReadTable_Type_macro_term, pos);
+	if (readtype_sharpmacro(u2, &pos))
+		return setdispatch_default_(to, u1, pos);
+
 	/* delete only */
+	return 0;
 }
 
-static void copy_dispatch_macro(unicode u1, unicode u2, addr to, addr from)
+static int copy_dispatch_macro_(unicode u1, unicode u2, addr to, addr from)
 {
 	addr table, list, car, cdr;
 	size_t size, i;
@@ -610,34 +610,38 @@ static void copy_dispatch_macro(unicode u1, unicode u2, addr to, addr from)
 			GetCons(cdr, &car, &cdr);
 			if (refcharacter2a(car) == u2) {
 				character2_heap(&car, u1, refcharacter2b(car));
-				intern_hashheap(to, car, &car);
+				Return(intern_hashheap_(to, car, &car));
 				SetCdr(car, cdr);
 			}
 		}
 	}
+
+	return 0;
 }
 
-_g void set_syntax_from_char(unicode u1, unicode u2, addr to, addr from)
+_g int set_syntax_from_char_(unicode u1, unicode u2, addr to, addr from)
 {
 	addr one, type, call;
 	struct readtype_struct *str;
 
-	delete_readtype(to, u1);
-	readtype_readtable(from, u2, &type);
+	Return(delete_readtype_(to, u1));
+	Return(readtype_readtable_(from, u2, &type));
 	if (type != Nil) {
 		str = ReadTypeStruct(type);
 		GetReadType(type, &call);
 		/* set-readtype */
 		make_readtype(&one, str->type, u1, str->dispatch);
-		setreadtype_readtable(to, u1, one);
+		Return(setreadtype_readtable_(to, u1, one));
 		SetReadType(one, call);
 		/* set-dispatch */
 		if (str->dispatch) {
 			GetDispatchReadtable(to, &to);
 			GetDispatchReadtable(from, &from);
-			copy_dispatch_macro(u1, u2, to, from);
+			Return(copy_dispatch_macro_(u1, u2, to, from));
 		}
 	}
+
+	return 0;
 }
 
 _g int float_readtable_(Execute ptr, enum ReadTable_float *ret)

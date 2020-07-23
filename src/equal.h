@@ -5,16 +5,16 @@
 
 _g int atom_function(addr pos);
 _g int eq_function(addr left, addr right);
+_g int eq_function_(addr left, addr right, int *ret);
 _g int eql_function(addr left, addr right);
-_g int equal_function(addr left, addr right);
-_g int equalp_function(addr left, addr right);
-_g int equalrt_function(addr left, addr right);
+_g int eql_function_(addr left, addr right, int *ret);
+_g int equal_function_(addr left, addr right, int *ret);
+_g int equalp_function_(addr left, addr right, int *ret);
+_g int equalrt_function_(addr left, addr right, int *ret);
 
-#define atom atom_function
-#define eq eq_function
-#define eql eql_function
-#define equal equal_function
-#define equalp equalp_function
+_g int equal_debug(addr left, addr right);
+_g int equalp_debug(addr left, addr right);
+_g int equalrt_debug(addr left, addr right);
 
 #endif
 

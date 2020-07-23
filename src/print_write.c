@@ -190,36 +190,38 @@ static void increment_print_write(addr write, addr check)
 		str2->index = str1->index++;
 }
 
-static int intern_print_write(Execute ptr, addr pos)
+static int intern_print_write_(Execute ptr, addr pos, int *ret)
 {
+	int check;
 	addr write, cons;
 
 	print_write_object(ptr, &write);
 	get_table_print_write(write, &cons);
-	if (intern_hashheap(cons, pos, &cons) == 0) {
+	Return(internp_hashheap_(cons, pos, &cons, &check));
+	if (check == 0) {
 		/* make */
 		print_check_heap(&pos, pos);
 		SetCdr(cons, pos);
-		return 1;
+		return Result(ret, 1);
 	}
 	else {
 		/* found */
 		GetCdr(cons, &pos);
 		increment_print_write(write, pos);
-		return 0;
+		return Result(ret, 0);
 	}
 }
 
-static int find_print_write(Execute ptr, addr key, addr *ret)
+static int find_print_write_(Execute ptr, addr key, addr *value, int *ret)
 {
 	addr pos;
 
 	print_write_object(ptr, &pos);
 	get_table_print_write(pos, &pos);
-	findvalue_hashtable(pos, key, ret);
-	CheckType(*ret, LISPSYSTEM_PRINT_CHECK);
+	Return(findnil_hashtable_(pos, key, value));
+	CheckType(*value, LISPSYSTEM_PRINT_CHECK);
 
-	return ptr_print_check(*ret)->index == 0;
+	return Result(ret, ptr_print_check(*value)->index == 0);
 }
 
 _g void write_check_all_clear(Execute ptr)
@@ -265,7 +267,7 @@ static int WriteCall_system(Execute ptr, addr stream, addr pos)
  */
 static int WriteCheckCall_cons_(Execute ptr, addr pos)
 {
-	int lenp, levelp;
+	int lenp, levelp, check;
 	addr x;
 	size_t len, level, depth, i;
 
@@ -278,7 +280,8 @@ static int WriteCheckCall_cons_(Execute ptr, addr pos)
 		return 0;
 
 	/* intern */
-	if (intern_print_write(ptr, pos) == 0)
+	Return(intern_print_write_(ptr, pos, &check));
+	if (check == 0)
 		return 0;
 
 	/* list */
@@ -293,7 +296,8 @@ static int WriteCheckCall_cons_(Execute ptr, addr pos)
 		Return(write_check_call_(ptr, x));
 		if (! consp(pos))
 			break;
-		if (intern_print_write(ptr, pos) == 0)
+		Return(intern_print_write_(ptr, pos, &check));
+		if (check == 0)
 			break;
 	}
 	setdepth_print_write(ptr, depth);
@@ -303,10 +307,12 @@ static int WriteCheckCall_cons_(Execute ptr, addr pos)
 
 _g int pprint_pop_circle_(Execute ptr, addr stream, addr pos, int *ret)
 {
+	int check;
 	addr x;
 	size_t index;
 
-	if (find_print_write(ptr, pos, &x))
+	Return(find_print_write_(ptr, pos, &x, &check));
+	if (check)
 		return Result(ret, 0);
 	/* found */
 	if (get_first_print_check(x) == 0)
@@ -322,10 +328,12 @@ _g int pprint_pop_circle_(Execute ptr, addr stream, addr pos, int *ret)
 
 static int WriteCircle_find_(Execute ptr, addr stream, addr pos, int *ret)
 {
+	int check;
 	addr x;
 	size_t index;
 
-	if (find_print_write(ptr, pos, &x))
+	Return(find_print_write_(ptr, pos, &x, &check));
+	if (check)
 		return Result(ret, 0);
 	/* found */
 	Return(write_char_stream_(stream, '#'));
@@ -347,11 +355,13 @@ static int WriteCircle_find_(Execute ptr, addr stream, addr pos, int *ret)
 
 _g int pprint_check_circle_(Execute ptr, addr pos, addr *value, int *ret)
 {
+	int check;
 	addr x, stream;
 	size_t index;
 
 	CheckType(pos, LISPTYPE_CONS);
-	if (find_print_write(ptr, pos, &x)) {
+	Return(find_print_write_(ptr, pos, &x, &check));
+	if (check) {
 		*value = Nil;
 		return Result(ret, 0);
 	}
@@ -375,6 +385,14 @@ _g int pprint_check_circle_(Execute ptr, addr pos, addr *value, int *ret)
 		Return(string_stream_heap_(stream, value));
 		return Result(ret, 1);
 	}
+}
+
+static int WriteCircleCall_cons_check_(Execute ptr, addr pos, int *ret)
+{
+	if (! consp(pos))
+		return Result(ret, 0);
+	else
+		return find_print_write_(ptr, pos, &pos, ret);
 }
 
 static int WriteCircleCall_cons_(Execute ptr, addr stream, addr pos)
@@ -411,7 +429,8 @@ static int WriteCircleCall_cons_(Execute ptr, addr stream, addr pos)
 		Return(write_circle_call_(ptr, stream, x));
 		if (pos == Nil)
 			break;
-		if (consp(pos) && find_print_write(ptr, pos, &x)) {
+		Return(WriteCircleCall_cons_check_(ptr, pos, &check));
+		if (check) {
 			Return(write_char_stream_(stream, ' '));
 		}
 		else {
@@ -476,7 +495,7 @@ static int WriteCall_cons_(Execute ptr, addr stream, addr pos)
  */
 static int WriteCheckCall_vector_(Execute ptr, addr pos)
 {
-	int lenp, levelp;
+	int lenp, levelp, check;
 	addr x;
 	size_t len, level, depth, size, i;
 
@@ -489,7 +508,8 @@ static int WriteCheckCall_vector_(Execute ptr, addr pos)
 		return 0;
 
 	/* intern */
-	if (intern_print_write(ptr, pos) == 0)
+	Return(intern_print_write_(ptr, pos, &check));
+	if (check == 0)
 		return 0;
 
 	/* list */
@@ -682,7 +702,8 @@ static int WriteCheckCall_array_(Execute ptr, addr pos)
 		return 0;
 
 	/* intern */
-	if (intern_print_write(ptr, pos) == 0)
+	Return(intern_print_write_(ptr, pos, &check));
+	if (check == 0)
 		return 0;
 
 	/* specialized */
@@ -1211,30 +1232,44 @@ static int WriteSymbol_up_cap_output_(addr stream, addr pos)
 static int WriteSymbol_escape_(Execute ptr,
 		addr stream, addr pos, int (*call)(addr, addr))
 {
-	int exportp;
-	addr package, check;
+	int exportp, check;
+	addr package, value;
 
-	getpackage(ptr, &check);
+	Return(getpackage_(ptr, &value));
 	GetPackageSymbol(pos, &package);
 	if (package == Nil) {
 		/* gensym */
 		if (gensym_print(ptr)) {
 			Return(print_ascii_stream_(stream, "#:"));
 		}
+		goto final;
 	}
-	else if (checksymbol_package(pos, check)) {
+
+	Return(checksymbol_package_(pos, value, &check));
+	if (check) {
 		/* no package name */
+		goto final;
 	}
-	else if (keywordp(pos)) {
+
+	if (keywordp(pos)) {
 		Return(print_ascii_stream_(stream, ":"));
+		goto final;
 	}
-	else if (package != check && externalp_package(pos, check)) {
+
+	if (package == value) {
+		goto final;
+	}
+	Return(externalp_package_(pos, value, &check));
+	if (check) {
 		/* package name */
-		exportp = exportp_package(pos, package);
-		getname_package(package, &package);
+		Return(exportp_package_(pos, package, &exportp));
+		Return(getname_package_(package, &package));
 		Return((*call)(stream, package));
 		Return(print_ascii_stream_(stream, exportp? ":": "::"));
+		goto final;
 	}
+
+final:
 	/* symbol name */
 	GetNameSymbol(pos, &pos);
 	return (*call)(stream, pos);
@@ -1607,14 +1642,15 @@ static int WriteCall_character_string_(addr stream, addr string)
 static int WriteCall_character_(Execute ptr, addr stream, addr object)
 {
 	addr pos;
-	unicode u;
+	unicode c;
 
 	if (! escape_print(ptr)) {
-		GetCharacter(object, &u);
-		return write_char_stream_(stream, u);
+		GetCharacter(object, &c);
+		return write_char_stream_(stream, c);
 	}
 
-	if (findtable_char_name(&pos, object)) {
+	Return(findtable_char_name_(&pos, object));
+	if (pos != Nil) {
 		/* found */
 		Return(print_ascii_stream_(stream, "#\\"));
 		Return(WriteCall_character_string_(stream, pos));
@@ -1622,8 +1658,8 @@ static int WriteCall_character_(Execute ptr, addr stream, addr object)
 	else {
 		/* not found */
 		Return(print_ascii_stream_(stream, "#\\"));
-		GetCharacter(object, &u);
-		Return(WriteCall_character_name_(stream, u));
+		GetCharacter(object, &c);
+		Return(WriteCall_character_name_(stream, c));
 	}
 
 	return 0;
@@ -1979,7 +2015,7 @@ static int WriteCall_index_(Execute ptr, addr stream, addr pos)
  */
 static int WriteBody_package_(Execute ptr, addr stream, addr pos)
 {
-	getname_package(pos, &pos);
+	Return(getname_package_(pos, &pos));
 	return print_string_stream_(stream, pos);
 }
 

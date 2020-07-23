@@ -52,10 +52,10 @@ static int test_symbolp(void)
 	fixnum_heap(&pos, 100);
 	test(! symbolp(pos), "symbolp.3");
 
-	internchar_keyword("HELLO", &pos);
+	internchar_keyword_debug("HELLO", &pos);
 	test(symbolp(pos), "symbolp.4");
 
-	internchar(LISP_PACKAGE, "AAA", &pos);
+	internchar_debug(LISP_PACKAGE, "AAA", &pos);
 	test(symbolp(pos), "symbolp.5");
 
 	test(symbolp(T), "symbolp.6");
@@ -67,7 +67,7 @@ static int test_keywordp(void)
 {
 	addr pos;
 
-	internchar_keyword("HELLO", &pos);
+	internchar_keyword_debug("HELLO", &pos);
 	test(keywordp(pos), "keywordp.1");
 
 	symbol_heap(&pos);
@@ -77,7 +77,7 @@ static int test_keywordp(void)
 	fixnum_heap(&pos, 100);
 	test(! keywordp(pos), "keywordp.4");
 
-	internchar(LISP_PACKAGE, "AAA", &pos);
+	internchar_debug(LISP_PACKAGE, "AAA", &pos);
 	test(! keywordp(pos), "keywordp.5");
 
 	RETURN;
@@ -146,12 +146,12 @@ static int test_getpackage_symbol(void)
 	addr pos, left, right;
 
 	symbol_heap(&pos);
-	find_char_package("COMMON-LISP", &left);
+	find_char_package_("COMMON-LISP", &left);
 	setarray(pos, SYMBOL_INDEX_PACKAGE, left);
 	GetPackageSymbol(pos, &right);
 	test(left == right, "getpackage_symbol.1");
 
-	find_char_package("COMMON-LISP-USER", &left);
+	find_char_package_("COMMON-LISP-USER", &left);
 	SetPackageSymbol(pos, left);
 	GetPackageSymbol(pos, &right);
 	test(left == right, "setpackage_symbol.1");

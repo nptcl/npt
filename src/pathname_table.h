@@ -28,8 +28,8 @@ _g void nametype_pathname(struct fileparse *pa, size_t index);
 _g void pushdirectory_fileparse(struct fileparse *pa, addr *list, addr name);
 _g void pushconstant_fileparse(struct fileparse *pa, addr *list, constindex index);
 
-_g int check_host_logical_pathname(LocalpRoot local, addr queue);
-_g int check_drive_logical_pathname(LocalpRoot local, int drive);
+_g int check_host_logical_pathname_(LocalpRoot local, addr queue, int *ret);
+_g int check_drive_logical_pathname_(LocalpRoot local, int drive, int *ret);
 
 _g int parser_logical_pathname_(struct fileparse *pa);
 _g int parser_unix_pathname_(struct fileparse *pa);

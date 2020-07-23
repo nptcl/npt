@@ -166,7 +166,7 @@ static int test_comb_standard_method(void)
 	push_new_control(ptr, &control);
 
 	test_make_method(&method);
-	internchar(LISP_PACKAGE, "TEST-GENERIC1", &call);
+	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &call);
 	compiled_heap(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
@@ -224,7 +224,7 @@ static int test_comb_standard_funcall(void)
 	push_new_control(ptr, &control);
 
 	test_make_method(&method);
-	internchar(LISP_PACKAGE, "TEST-GENERIC2", &call);
+	internchar_debug(LISP_PACKAGE, "TEST-GENERIC2", &call);
 	compiled_heap(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_funcall_call);
 	setcompiled_dynamic(call, p_debug1);
@@ -253,7 +253,7 @@ static int test_function_standard_lambda(void)
 	push_new_control(ptr, &control);
 
 	test_make_method(&method);
-	internchar(LISP_PACKAGE, "TEST-GENERIC3", &call);
+	internchar_debug(LISP_PACKAGE, "TEST-GENERIC3", &call);
 	compiled_heap(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
@@ -288,7 +288,7 @@ static int test_comb_standard_qualifiers(void)
 	stdset_generic_method_class(generic, method);
 	/* make method */
 	test_make_method(&method);
-	internchar(LISP_PACKAGE, "TEST-GENERIC4", &call);
+	internchar_debug(LISP_PACKAGE, "TEST-GENERIC4", &call);
 	compiled_heap(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
@@ -318,7 +318,7 @@ static int test_comb_standard(void)
 	/* data */
 	vector4_heap(&data, 4);
 	test_make_method(&method);
-	internchar(LISP_PACKAGE, "TEST-GENERIC5", &call);
+	internchar_debug(LISP_PACKAGE, "TEST-GENERIC5", &call);
 	compiled_heap(&call, call);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(call, p_debug1);
@@ -362,16 +362,16 @@ static int test_generic_eql_specializer(void)
 	addr left, right, value;
 
 	fixnum_heap(&value, 40);
-	clos_intern_specializer(value, &left);
+	clos_intern_specializer_(value, &left);
 	fixnum_heap(&value, 40);
-	clos_intern_specializer(value, &right);
+	clos_intern_specializer_(value, &right);
 	test(generic_eql_specializer(left, right, 1), "generic_eql_specializer1");
 
 	GetConst(CLOS_REAL, &right);
 	test(generic_eql_specializer(left, right, 1), "generic_eql_specializer2");
 
 	fixnum_heap(&value, 40);
-	clos_intern_specializer(value, &right);
+	clos_intern_specializer_(value, &right);
 	GetConst(CLOS_FIXNUM, &left);
 	test(generic_eql_specializer(left, right, 1), "generic_eql_specializer3");
 	test(! generic_eql_specializer(left, right, 0), "generic_eql_specializer4");
@@ -395,12 +395,12 @@ static int test_generic_make_method_check(void)
 
 	GetConst(CLOS_INTEGER, &pos1);
 	fixnum_heap(&pos2, 10);
-	clos_intern_specializer(pos2, &pos2);
+	clos_intern_specializer_(pos2, &pos2);
 	list_heap(&argtype, pos1, pos2, NULL);
 	test(generic_make_method_check(argtype, method), "generic_make_method_check1");
 
 	character_heap(&pos2, 10);
-	clos_intern_specializer(pos2, &pos2);
+	clos_intern_specializer_(pos2, &pos2);
 	list_heap(&argtype, pos1, pos2, NULL);
 	test(! generic_make_method_check(argtype, method), "generic_make_method_check2");
 
@@ -434,7 +434,7 @@ static int test_generic_compare_eql_type(void)
 	addr left, right, pos;
 
 	fixnum_heap(&left, 10);
-	clos_intern_specializer(left, &left);
+	clos_intern_specializer_(left, &left);
 	GetConst(CLOS_REAL, &right);
 	test(generic_compare_eql_type(left, right) < 0, "generic_compare_eql_type1");
 
@@ -454,7 +454,7 @@ static int test_generic_compare_type_eql(void)
 	addr left, right, pos;
 
 	fixnum_heap(&right, 10);
-	clos_intern_specializer(right, &right);
+	clos_intern_specializer_(right, &right);
 	GetConst(CLOS_REAL, &left);
 	test(generic_compare_type_eql(left, right) > 0, "generic_compare_type_eql1");
 
@@ -474,7 +474,7 @@ static int test_generic_compare_specializer(void)
 	addr left, right;
 
 	fixnum_heap(&left, 10);
-	clos_intern_specializer(left, &left);
+	clos_intern_specializer_(left, &left);
 	test(generic_compare_specializer(left, left) == 0, "generic_compare_specializer1");
 
 	GetConst(CLOS_REAL, &right);
@@ -667,7 +667,7 @@ static int test_generic_make_type(void)
 	stdset_generic_method_class(generic, pos);
 	/* method */
 	test_make_method(&method);
-	internchar(LISP_PACKAGE, "TEST-GENERIC1", &pos);
+	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &pos);
 	compiled_heap(&pos, pos);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(pos, p_debug1);
@@ -710,10 +710,10 @@ static int test_generic_make_mapcar_class_of(void)
 	fixnum_heap(&value1, 10);
 	fixnum_heap(&value2, 20);
 	clos_forget_all_specializer_unsafe();
-	clos_intern_specializer(value1, &eql);
+	clos_intern_specializer_(value1, &eql);
 	list_heap(&eqlchecks, T, T, Nil, NULL);
 	list_heap(&args, value2, value1, value1, value1, value1, NULL);
-	generic_make_mapcar_class_of(local, &args, eqlchecks, args);
+	generic_make_mapcar_class_of_(local, &args, eqlchecks, args);
 
 	GetCons(args, &pos, &args);
 	GetConst(CLOS_FIXNUM, &check);
@@ -755,7 +755,7 @@ static int test_generic_make_lambda_call(void)
 	clos_generic_call_heap(&call, gen_debug, 2);
 	GetConst(CLOS_FIXNUM, &pos);
 	list_heap(&pos, pos, NULL);
-	intern_hashheap(cache, pos, &pos);
+	intern_hashheap_(cache, pos, &pos);
 	SetCdr(pos, call);
 
 	/* call */
@@ -781,7 +781,7 @@ static int test_closrun_execute(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	internchar(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_PACKAGE, "HELLO", &name);
 	SetFunctionSymbol(name, Unbound);
 	lambda = readr("(values)");
 
@@ -792,7 +792,7 @@ static int test_closrun_execute(void)
 	stdset_generic_eqlcheck(generic, pos);
 	/* method */
 	test_make_method(&method);
-	internchar(LISP_PACKAGE, "TEST-GENERIC1", &pos);
+	internchar_debug(LISP_PACKAGE, "TEST-GENERIC1", &pos);
 	compiled_heap(&pos, pos);
 	SetPointer(p_debug1, dynamic, test_comb_standard_method_call);
 	setcompiled_dynamic(pos, p_debug1);

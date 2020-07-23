@@ -95,7 +95,7 @@ static int test_method_specializer_list(void)
 	addr lambda, left, right;
 
 	argument_method_char(&lambda, "(a (b integer))");
-	method_specializer_list(&lambda, lambda);
+	method_specializer_list_(&lambda, lambda);
 	GetCons(lambda, &left, &lambda);
 	GetConst(CLOS_T, &right);
 	test(left == right, "method_specializer_list1");
@@ -105,10 +105,10 @@ static int test_method_specializer_list(void)
 	test(lambda == Nil, "method_specializer_list3");
 
 	argument_method_char(&lambda, "((a (eql hello)) b)");
-	method_specializer_list(&lambda, lambda);
+	method_specializer_list_(&lambda, lambda);
 	GetCons(lambda, &left, &lambda);
 	right = readr("hello");
-	clos_find_specializer(right, &right);
+	clos_find_specializer_(right, &right);
 	test(left == right, "method_specializer_list4");
 	GetCons(lambda, &left, &lambda);
 	GetConst(CLOS_T, &right);
@@ -126,7 +126,7 @@ static int test_method_instance_lambda(void)
 	local = Local_Thread;
 	lambda = readr("(a (b integer))");
 	argument_method_heap_(local, &lambda, lambda);
-	method_instance_lambda(local, &lambda, Nil, lambda);
+	method_instance_lambda_(local, &lambda, Nil, lambda);
 
 	stdget_method_lambda_list(lambda, &check);
 	test(check != Nil, "method_instance_lambda1");
@@ -342,7 +342,7 @@ static int test_method_eqlcheck(void)
 	local = Local_Thread;
 	method = readr("((a (eql hello)) b (c integer))");
 	argument_method_heap_(local, &method, method);
-	method_instance_lambda(local, &method, Nil, method);
+	method_instance_lambda_(local, &method, Nil, method);
 	method_eqlcheck(method, &method);
 
 	GetCons(method, &check, &method);
@@ -374,9 +374,10 @@ static int test_method_update_eqlcheck(void)
 	stdset_method_specializers(method, key);
 
 	stdget_generic_cache(generic, &cache);
-	intern_hashheap(cache, key, &value);
+	intern_hashheap_(cache, key, &value);
 	method_update_eqlcheck(generic, method, 1);
-	test(findvalue_hashtable(cache, key, &value), "method_update_eqlcheck1");
+	find_hashtable_(cache, key, &value);
+	test(value != Unbound, "method_update_eqlcheck1");
 
 	stdget_generic_eqlcheck(generic, &cons);
 	GetCons(cons, &value, &cons);
@@ -388,12 +389,13 @@ static int test_method_update_eqlcheck(void)
 	test(cons == Nil, "method_update_eqlcheck5");
 
 	fixnum_heap(&value, 100);
-	clos_intern_specializer(value, &value);
+	clos_intern_specializer_(value, &value);
 	GetConst(CLOS_INTEGER, &cons);
 	list_heap(&cons, cons, cons, value, NULL);
 	stdset_method_specializers(method, cons);
 	method_update_eqlcheck(generic, method, 1);
-	test(findvalue_hashtable(cache, key, &value) == 0, "method_update_eqlcheck6");
+	find_hashtable_(cache, key, &value);
+	test(value == Unbound, "method_update_eqlcheck6");
 
 	stdget_generic_eqlcheck(generic, &cons);
 	GetCons(cons, &value, &cons);
@@ -509,7 +511,7 @@ static int test_method_cache_remove(void)
 	local = Local_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
 	clos_instance_heap(generic, &generic);
-	method_cache_remove(local, generic, NULL);
+	method_cache_remove_(local, generic, NULL);
 	test(1, "method_cache_remove1");
 
 	hashtable_full_heap(&cache, HASHTABLE_TEST_CACHE, 8,
@@ -525,24 +527,27 @@ static int test_method_cache_remove(void)
 	GetConst(CLOS_REAL, &real);
 	list_heap(&key, integer, integer, NULL);
 	list_heap(&cons, real, real, NULL);
-	intern_hashheap(cache, key, &value);
+	intern_hashheap_(cache, key, &value);
 	stdset_method_specializers(method, cons);
-	method_cache_remove(local, generic, method);
-	test(findvalue_hashtable(cache, key, &value) == 0, "method_cache_remove2");
+	method_cache_remove_(local, generic, method);
+	find_hashtable_(cache, key, &value);
+	test(value == Unbound, "method_cache_remove2");
 
 	list_heap(&key, integer, integer, NULL);
 	list_heap(&cons, fixnum, fixnum, NULL);
-	intern_hashheap(cache, key, &value);
+	intern_hashheap_(cache, key, &value);
 	stdset_method_specializers(method, cons);
-	method_cache_remove(local, generic, method);
-	test(findvalue_hashtable(cache, key, &value), "method_cache_remove3");
+	method_cache_remove_(local, generic, method);
+	find_hashtable_(cache, key, &value);
+	test(value != Unbound, "method_cache_remove3");
 
 	list_heap(&key, integer, integer, NULL);
 	list_heap(&cons, real, fixnum, NULL);
-	intern_hashheap(cache, key, &value);
+	intern_hashheap_(cache, key, &value);
 	stdset_method_specializers(method, cons);
-	method_cache_remove(local, generic, method);
-	test(findvalue_hashtable(cache, key, &value), "method_cache_remove4");
+	method_cache_remove_(local, generic, method);
+	find_hashtable_(cache, key, &value);
+	test(value != Unbound, "method_cache_remove4");
 
 	RETURN;
 }

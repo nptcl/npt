@@ -961,27 +961,31 @@ static void clos_table_specializer(addr *ret)
 	*ret = LispRoot(SPECIALIZER);
 }
 
-_g void clos_find_specializer_nil(addr name, addr *ret)
+_g int clos_find_specializer_nil_(addr name, addr *ret)
 {
 	addr table;
 	clos_table_specializer(&table);
-	findvalue_hashtable(table, name, ret);
+	return findnil_hashtable_(table, name, ret);
 }
 
-_g void clos_find_specializer(addr name, addr *ret)
+_g int clos_find_specializer_(addr name, addr *ret)
 {
-	clos_find_specializer_nil(name, ret);
+	Return(clos_find_specializer_nil_(name, ret));
 	if (*ret == Nil)
-		fmte("No method eql-specializer named ~S.", name, NULL);
+		return fmte_("No method eql-specializer named ~S.", name, NULL);
+
+	return 0;
 }
 
-_g void clos_define_specializer(addr name, addr value)
+_g int clos_define_specializer_(addr name, addr value)
 {
 	addr table;
 
 	clos_table_specializer(&table);
-	intern_hashheap(table, name, &name);
+	Return(intern_hashheap_(table, name, &name));
 	SetCdr(name, value);
+
+	return 0;
 }
 
 _g void clos_forget_all_specializer_unsafe(void)

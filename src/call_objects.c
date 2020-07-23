@@ -122,7 +122,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 		if (DefClassEqConst(key, WRITER)) {
 			if (! function_name_p(value))
 				return fmte_(":WRITER ~S must be function name.", value, NULL);
-			pushnew_equal_heap(writers, value, &writers);
+			Return(pushnew_equal_heap_(writers, value, &writers));
 			localhold_set(hold, 1, writers);
 			continue;
 		}
@@ -136,7 +136,7 @@ static int defclass_parse_slotlist(Execute ptr, addr env, addr list, addr *ret)
 
 			GetConst(COMMON_SETF, &pos);
 			list_heap(&value, pos, value, NULL);
-			pushnew_equal_heap(writers, value, &writers);
+			Return(pushnew_equal_heap_(writers, value, &writers));
 			localhold_set(hold, 1, writers);
 			continue;
 		}

@@ -265,14 +265,18 @@ _g void hash_table_test_common(addr var, addr *ret)
 /*
  *  gethash
  */
-_g void gethash_common(addr key, addr table, addr value, addr *ret, addr *check)
+_g int gethash_common_(addr key, addr table, addr value, addr *ret, addr *check)
 {
-	if (findvalue_hashtable(table, key, ret)) {
-		*check = T;
+	addr pos;
+
+	Return(find_hashtable_(table, key, &pos));
+	if (pos == Unbound) {
+		*check = Nil;
+		return Result(ret, (value == Unbound)? Nil: value);
 	}
 	else {
-		*ret = (value == Unbound)? Nil: value;
-		*check = Nil;
+		*check = T;
+		return Result(ret, pos);
 	}
 }
 
@@ -280,19 +284,22 @@ _g void gethash_common(addr key, addr table, addr value, addr *ret, addr *check)
 /*
  *  (setf gethash)
  */
-_g void setf_gethash_common(LocalRoot local, addr value, addr key, addr table)
+_g int setf_gethash_common_(LocalRoot local, addr value, addr key, addr table)
 {
-	intern_hashtable(local, table, key, &table);
+	Return(intern_hashheap_(table, key, &table));
 	SetCdr(table, value);
+	return 0;
 }
 
 
 /*
  *  remhash
  */
-_g void remhash_common(addr key, addr table, addr *ret)
+_g int remhash_common_(addr key, addr table, addr *ret)
 {
-	*ret = delete_hashtable(table, key)? Nil: T;
+	int check;
+	Return(delete_hashtable_(table, key, &check));
+	return Result(ret, check? Nil: T);
 }
 
 
@@ -400,10 +407,13 @@ error:
 /*
  *  sxhash
  */
-_g void sxhash_common(addr var, addr *ret)
+_g int sxhash_common_(addr var, addr *ret)
 {
 	fixnum value;
-	value = sxhash_equal(var);
+
+	Return(sxhash_equal_(var, &value));
 	fixnum_heap(ret, value);
+
+	return 0;
 }
 

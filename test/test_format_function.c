@@ -2096,7 +2096,7 @@ static int test_format_call_CallFunction(void)
 
 	ptr = Execute_Thread;
 
-	internchar(LISP_PACKAGE, "FORMAT-FUNCTION-TEST", &symbol);
+	internchar_debug(LISP_PACKAGE, "FORMAT-FUNCTION-TEST", &symbol);
 	compiled_heap(&call, Nil);
 	SetPointer(p_debug1, dynamic, test_format_call_CallFunction_test);
 	setcompiled_dynamic(call, p_debug1);

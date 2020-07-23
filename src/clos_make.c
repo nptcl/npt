@@ -378,7 +378,7 @@ static int clos_ensure_reader_method_(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	method_argument_clos_ensure_reader(clos, &pos);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	return method_add_method_(ptr, gen, pos);
 }
@@ -427,7 +427,7 @@ static int clos_ensure_writer_method_(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	method_argument_clos_ensure_writer(clos, &pos);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	return method_add_method_(ptr, gen, pos);
 }

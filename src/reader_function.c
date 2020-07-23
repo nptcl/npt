@@ -133,6 +133,7 @@ static int read_delimited_read(Execute ptr, addr queue, addr dot, addr pos, int 
 
 static int read_delimited_execute(Execute ptr, addr stream, unicode limit)
 {
+	enum ReadTable_Type type;
 	int mode, check;
 	unicode c;
 	addr table, pos, root, dotsym, queue;
@@ -147,7 +148,8 @@ static int read_delimited_execute(Execute ptr, addr stream, unicode limit)
 		Return(read_char_stream_(stream, &c, &check));
 		if (check)
 			return fmte_("Don't allow end-of-file in the parensis.", NULL);
-		if (readtable_typetable(table, c) == ReadTable_Type_whitespace) {
+		Return(readtable_typetable_(table, c, &type));
+		if (type == ReadTable_Type_whitespace) {
 			/* discard character */
 			continue;
 		}
@@ -387,7 +389,7 @@ _g int sharp_reader(Execute ptr, addr stream, addr code)
 	getreadtable(ptr, &pos);
 	GetDispatchReadtable(pos, &pos);
 	GetCharacter(code, &x);
-	findvalue_character2_hashtable(pos, x, y, &pos);
+	Return(findnil_character2_hashtable_(pos, x, y, &pos));
 	if (pos == Nil)
 		return fmte_("There is no macro character ~S-~S.", code, code2, NULL);
 
@@ -529,6 +531,7 @@ static void parensis_open_limit_dispatch(addr cons, size_t size, addr *ret)
 
 _g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 {
+	enum ReadTable_Type type;
 	int check;
 	unicode c;
 	addr table, root, pos;
@@ -550,7 +553,8 @@ _g int parensis_open_dispatch(Execute ptr, addr stream, addr y, addr *ret)
 		Return(read_char_stream_(stream, &c, &check));
 		if (check)
 			return fmte_("Don't allow end-of-file in the parensis.", NULL);
-		if (readtable_typetable(table, c) == ReadTable_Type_whitespace)
+		Return(readtable_typetable_(table, c, &type));
+		if (type == ReadTable_Type_whitespace)
 			continue;
 		if (c == ')')
 			break;
@@ -762,7 +766,8 @@ _g int backslash_dispatch(Execute ptr, addr stream, addr *ret)
 	}
 	if (! symbolp(pos))
 		return fmte_("Invalid character type ~S.", pos, NULL);
-	if (! find_name_char(&pos, pos))
+	Return(find_name_char_(&pos, pos));
+	if (pos == Nil)
 		return fmte_("The character name ~S is not found.", pos, NULL);
 
 	return Result(ret, pos);

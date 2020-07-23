@@ -1844,7 +1844,7 @@ static void defun_denominator(void)
  */
 static int function_rational(Execute ptr, addr var)
 {
-	rational_common(ptr->local, var, &var);
+	Return(rational_common_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1871,7 +1871,7 @@ static void defun_rational(void)
  */
 static int function_rationalize(Execute ptr, addr var)
 {
-	rationalize_common(ptr->local, var, &var);
+	Return(rationalize_common_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2759,7 +2759,7 @@ static int function_decode_float(Execute ptr, addr var)
 {
 	addr sig, exp, sign;
 
-	decode_float_common(var, &sig, &exp, &sign);
+	Return(decode_float_common_(var, &sig, &exp, &sign));
 	setvalues_control(ptr, sig, exp, sign, NULL);
 	return 0;
 }
@@ -2798,7 +2798,7 @@ static void defun_decode_float(void)
  */
 static int function_scale_float(Execute ptr, addr var, addr scale)
 {
-	scale_float_common(var, scale, &var);
+	Return(scale_float_common_(var, scale, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2866,7 +2866,7 @@ static void defun_float_radix(void)
 /* (defun float-sign (float &optional float) -> float */
 static int function_float_sign(Execute ptr, addr var1, addr var2)
 {
-	float_sign_common(var1, var2, &var1);
+	Return(float_sign_common_(var1, var2, &var1));
 	setresult_control(ptr, var1);
 	return 0;
 }
@@ -2903,7 +2903,7 @@ static void defun_float_sign(void)
  */
 static int function_float_digits(Execute ptr, addr var)
 {
-	float_digits_common(var, &var);
+	Return(float_digits_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2930,7 +2930,7 @@ static void defun_float_digits(void)
  */
 static int function_float_precision(Execute ptr, addr var)
 {
-	float_precision_common(var, &var);
+	Return(float_precision_common_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2961,8 +2961,9 @@ static int function_integer_decode_float(Execute ptr, addr var)
 {
 	addr sig, exp, sign;
 
-	integer_decode_float_common(ptr->local, var, &sig, &exp, &sign);
+	Return(integer_decode_float_common_(ptr, var, &sig, &exp, &sign));
 	setvalues_control(ptr, sig, exp, sign, NULL);
+
 	return 0;
 }
 

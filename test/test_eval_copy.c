@@ -1079,7 +1079,7 @@ static int test_copy_multiple_value_call(void)
  */
 static int testbreak_eval_copy(void)
 {
-	in_package_lisp_package();
+	Error(in_package_lisp_package_());
 	/* copy eval-parse */
 	TestBreak(test_copy_eval_single);
 	TestBreak(test_copy_nil);

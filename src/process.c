@@ -8,13 +8,16 @@
 #include "strvect.h"
 #include "symbol.h"
 
-static int find_environment_char(Execute ptr, const char *key, addr *ret)
+static int find_environment_char_(Execute ptr, const char *key, addr *ret)
 {
 	addr pos;
 
 	GetConst(SYSTEM_SPECIAL_ENVIRONMENT, &pos);
 	getspecial_local(ptr, pos, &pos);
-	return pos != Unbound && findvalue_char_hashtable(pos, key, ret);
+	if (pos == Unbound)
+		return Result(ret, Unbound);
+	else
+		return find_char_hashtable_(pos, key, ret);
 }
 
 
@@ -26,21 +29,21 @@ static int find_environment_char(Execute ptr, const char *key, addr *ret)
 #include <sys/types.h>
 #include <sys/wait.h>
 
-static char *run_process_utf8(LocalRoot local, addr pos)
+static int run_process_utf8_(LocalRoot local, addr pos, char **ret)
 {
 	addr data;
 	char *str;
 
 	if (UTF8_buffer_clang(local, &data, pos)) {
-		fmte("Invalid UTF8 format ~S.", pos, NULL);
-		return NULL;
+		*ret = NULL;
+		return fmte_("Invalid UTF8 format ~S.", pos, NULL);
 	}
 	posbody(data, (addr *)&str);
 
-	return str;
+	return Result(ret, str);
 }
 
-static char **run_process_list_utf8(LocalRoot local, addr var, addr list)
+static int run_process_list_utf8_(LocalRoot local, addr var, addr list, char ***ret)
 {
 	char **array;
 	addr pos;
@@ -48,17 +51,17 @@ static char **run_process_list_utf8(LocalRoot local, addr var, addr list)
 
 	size = length_list_safe(list) + 1;
 	array = (char **)lowlevel_local(local, (size + 1) * sizeoft(char *));
-	array[0] = run_process_utf8(local, var);
+	Return(run_process_utf8_(local, var, &(array[0])));
 	for (i = 1; i < size; i++) {
 		GetCons(list, &pos, &list);
-		array[i] = run_process_utf8(local, pos);
+		Return(run_process_utf8_(local, pos, &(array[i])));
 	}
 	array[i] = 0;
 
-	return array;
+	return Result(ret, array);
 }
 
-static void run_process_posix(LocalRoot local, addr var, addr args, addr *ret)
+static int run_process_posix_(LocalRoot local, addr var, addr args, addr *ret)
 {
 	int status;
 	char *name;
@@ -67,33 +70,32 @@ static void run_process_posix(LocalRoot local, addr var, addr args, addr *ret)
 
 	if (! listp(args))
 		conscar_local(local, &args, args);
-	name = run_process_utf8(local, var);
-	list = run_process_list_utf8(local, var, args);
+	Return(run_process_utf8_(local, var, &name));
+	Return(run_process_list_utf8_(local, var, args, &list));
 	pid = fork();
-	if (pid == -1) {
-		fmte("fork error", NULL);
-		return;
-	}
+	if (pid == -1)
+		return fmte_("fork error", NULL);
 	if (pid == 0) {
 		/* child process */
 		(void)execvp(name, list);
-		fmte("execvp error", NULL);
-		return;
+		return fmte_("execvp error", NULL);
 	}
 
 	/* wait */
 	waitpid(pid, &status, 0);
 	fixnum_heap(ret, (fixnum)status); /* heap */
+
+	return 0;
 }
 
-_g void run_process(LocalRoot local, addr var, addr args, addr rest, addr *ret)
+_g int run_process_(LocalRoot local, addr var, addr args, addr rest, addr *ret)
 {
 	/* ignore rest */
-	run_process_posix(local, var, args, ret);
+	return run_process_posix_(local, var, args, ret);
 }
 
 #elif defined(LISP_WINDOWS)
-static void run_process_delimited(LocalRoot local, addr *ret, addr x, unicode z)
+static int run_process_delimited_(LocalRoot local, addr *ret, addr x, unicode z)
 {
 	size_t size, a, b;
 	addr y;
@@ -109,10 +111,10 @@ static void run_process_delimited(LocalRoot local, addr *ret, addr x, unicode z)
 	}
 	strvect_setc(y, b, z);
 
-	*ret = y;
+	return Result(ret, y);
 }
 
-static void run_process_windows_pathname(LocalRoot local,
+static int run_process_windows_pathname_(LocalRoot local,
 		addr pos, addr *ret, size_t *rsize)
 {
 	int space;
@@ -127,48 +129,50 @@ static void run_process_windows_pathname(LocalRoot local,
 		if (c == ' ')
 			space = 1;
 		if (c == '"') {
-			fmte("Don't include character #\\\" in Windows pathname ~S.", pos, NULL);
-			return;
+			return fmte_("Don't include character #\\\" "
+					"in Windows pathname ~S.", pos, NULL);
 		}
 	}
 
 	/* encode */
 	if (space) {
-		run_process_delimited(local, ret, pos, '"');
+		Return(run_process_delimited_(local, ret, pos, '"'));
 		*rsize = size + 2;
 	}
 	else {
 		*ret = pos;
 		*rsize = size;
 	}
+
+	return 0;
 }
 
-static wchar_t *run_process_utf16(LocalRoot local, addr pos)
+static int run_process_utf16_(LocalRoot local, addr pos, wchar_t **ret)
 {
 	addr data;
 	wchar_t *str;
 
 	if (UTF16_buffer_clang(local, &data, pos)) {
-		fmte("Invalid UTF16 format ~S.", pos, NULL);
-		return NULL;
+		*ret = NULL;
+		return fmte_("Invalid UTF16 format ~S.", pos, NULL);
 	}
 	posbody(data, (addr *)&str);
 
-	return str;
+	return Result(ret, str);
 }
 
-static wchar_t *run_process_list_utf16(LocalRoot local, addr var, addr list)
+static int run_process_list_utf16_(LocalRoot local, addr var, addr list, wchar_t **ret)
 {
 	int first;
 	addr root, x, y;
 	unicode c;
 	size_t size, value, a, b;
 
-	run_process_windows_pathname(local, var, &x, &size);
+	Return(run_process_windows_pathname_(local, var, &x, &size));
 	conscar_local(local, &root, x);
 	while (list != Nil) {
-		getcons(list, &x, &list);
-		run_process_windows_pathname(local, x, &x, &value);
+		Return_getcons(list, &x, &list);
+		Return(run_process_windows_pathname_(local, x, &x, &value));
 		size += value + 1;
 		cons_local(local, &root, x, root);
 	}
@@ -187,10 +191,10 @@ static wchar_t *run_process_list_utf16(LocalRoot local, addr var, addr list)
 		}
 	}
 
-	return run_process_utf16(local, y);
+	return run_process_utf16_(local, y, ret);
 }
 
-static void run_process_windows(LocalRoot local, addr var, addr args, addr *ret)
+static int run_process_windows_(LocalRoot local, addr var, addr args, addr *ret)
 {
 	wchar_t *list;
 	STARTUPINFO sinfo;
@@ -200,39 +204,36 @@ static void run_process_windows(LocalRoot local, addr var, addr args, addr *ret)
 
 	if (! listp(args))
 		conscar_local(local, &args, args);
-	list = run_process_list_utf16(local, var, args);
+	Return(run_process_list_utf16_(local, var, args, &list));
 	cleartype(sinfo);
 	cleartype(pinfo);
 	if (! CreateProcess(NULL, list, NULL, NULL,
 				FALSE, 0, NULL, NULL, &sinfo, &pinfo)) {
-		fmte("Cannot run process ~S.", var, NULL);
-		return;
+		return fmte_("Cannot run process ~S.", var, NULL);
 	}
 	child = pinfo.hProcess;
-	if (! CloseHandle(pinfo.hThread)) {
-		fmte("CloseHandle error.", NULL);
-		return;
-	}
+	if (! CloseHandle(pinfo.hThread))
+		return fmte_("CloseHandle error.", NULL);
 
 	/* wait */
 	WaitForSingleObject(child, INFINITE);
-	if (! GetExitCodeProcess(child, &status)) {
-		fmte("GetExitCodeProcess error.", NULL);
-		return;
-	}
+	if (! GetExitCodeProcess(child, &status))
+		return fmte_("GetExitCodeProcess error.", NULL);
 	fixnum_heap(ret, (fixnum)status); /* heap */
+
+	return 0;
 }
 
-_g void run_process(LocalRoot local, addr var, addr args, addr rest, addr *ret)
+_g int run_process_(LocalRoot local, addr var, addr args, addr rest, addr *ret)
 {
 	/* ignore rest */
-	run_process_windows(local, var, args, ret);
+	return run_process_windows_(local, var, args, ret);
 }
 
 #else
-_g void run_process(LocalRoot local, addr var, addr args, addr rest, addr *ret)
+_g int run_process_(LocalRoot local, addr var, addr args, addr rest, addr *ret)
 {
-	fmte("This implementation does not support RUN-PROGRAM.", NULL);
+	return fmte_("This implementation does not support RUN-PROGRAM.", NULL);
 }
 #endif
 
@@ -240,26 +241,18 @@ _g void run_process(LocalRoot local, addr var, addr args, addr rest, addr *ret)
 /*
  *  ed-process
  */
-static int find_ed_program(Execute ptr, addr *ret)
+static int find_ed_program_(Execute ptr, addr *ret)
 {
 	addr pos;
 
 	/* *ed-program* */
 	GetConst(SYSTEM_ED_PROGRAM, &pos);
 	getspecial_local(ptr, pos, &pos);
-	if (pos != Unbound) {
-		*ret = pos;
-		return 1;
-	}
+	if (pos != Unbound)
+		return Result(ret, pos);
 
 	/* *environment* */
-	if (find_environment_char(ptr, "EDITOR", &pos)) {
-		*ret = pos;
-		return 1;
-	}
-
-	/* not found */
-	return 0;
+	return find_environment_char_(ptr, "EDITOR", ret);
 }
 
 #if defined(LISP_POSIX)
@@ -270,12 +263,14 @@ static int find_ed_program(Execute ptr, addr *ret)
 #define LISP_ED_PROCESS_DEFAULT  "ed"
 #endif
 
-_g void ed_process(Execute ptr, addr file)
+_g int ed_process_(Execute ptr, addr file)
 {
 	addr call, status;
 
-	if (find_ed_program(ptr, &call) == 0)
+	Return(find_ed_program_(ptr, &call));
+	if (call == Unbound)
 		strvect_char_heap(&call, LISP_ED_PROCESS_DEFAULT);
-	run_process(ptr->local, call, file, Nil, &status);
+
+	return run_process_(ptr->local, call, file, Nil, &status);
 }
 

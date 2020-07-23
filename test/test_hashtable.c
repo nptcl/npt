@@ -123,7 +123,7 @@ static int test_clear_hashtable(void)
 	RETURN;
 }
 
-static int test_hashindex(void)
+static int test_call_hashindex(void)
 {
 	addr pos, pos1, pos2;
 	size_t size1, size2;
@@ -135,40 +135,40 @@ static int test_hashindex(void)
 	strvect_char_heap(&pos2, "Hello1");
 
 	settest_hashtable(pos, HASHTABLE_TEST_EQUAL);
-	hashindex(pos, pos1, &size1);
-	hashindex(pos, pos2, &size2);
-	test(size1 == size2, "hashindex.1");
+	call_hashindex_(pos, pos1, &size1);
+	call_hashindex_(pos, pos2, &size2);
+	test(size1 == size2, "call_hashindex.1");
 
 	settest_hashtable(pos, HASHTABLE_TEST_EQL);
-	hashindex(pos, pos1, &size1);
-	hashindex(pos, pos2, &size2);
-	test(size1 != size2, "hashindex.2");
+	call_hashindex_(pos, pos1, &size1);
+	call_hashindex_(pos, pos2, &size2);
+	test(size1 != size2, "call_hashindex.2");
 
 	settest_hashtable(pos, HASHTABLE_TEST_EQ);
-	hashindex(pos, pos1, &size1);
-	hashindex(pos, pos2, &size2);
-	test(size1 != size2, "hashindex.3");
+	call_hashindex_(pos, pos1, &size1);
+	call_hashindex_(pos, pos2, &size2);
+	test(size1 != size2, "call_hashindex.3");
 
 	/* fixnum (eql test) */
 	fixnum_heap(&pos1, 112233);
 	fixnum_heap(&pos2, 112233);
 
 	settest_hashtable(pos, HASHTABLE_TEST_EQUAL);
-	hashindex(pos, pos1, &size1);
-	hashindex(pos, pos2, &size2);
-	test(size1 == size2, "hashindex.4");
+	call_hashindex_(pos, pos1, &size1);
+	call_hashindex_(pos, pos2, &size2);
+	test(size1 == size2, "call_hashindex.4");
 
 	settest_hashtable(pos, HASHTABLE_TEST_EQL);
-	hashindex(pos, pos1, &size1);
-	hashindex(pos, pos2, &size2);
-	test(size1 == size2, "hashindex.5");
+	call_hashindex_(pos, pos1, &size1);
+	call_hashindex_(pos, pos2, &size2);
+	test(size1 == size2, "call_hashindex.5");
 
 	fixnum_heap(&pos1, 10);
 	fixnum_heap(&pos2, 10);
 	settest_hashtable(pos, HASHTABLE_TEST_EQ);
-	hashindex(pos, pos1, &size1);
-	hashindex(pos, pos2, &size2);
-	test(size1 == size2, "hashindex.6");
+	call_hashindex_(pos, pos1, &size1);
+	call_hashindex_(pos, pos2, &size2);
+	test(size1 == size2, "call_hashindex.6");
 
 	RETURN;
 }
@@ -187,6 +187,13 @@ static void makeunicodechar(addr *ret, const char *str)
 	*ret = pos;
 }
 
+static int test_gethashequal_call(int (*call)(addr, addr, int *), addr x, addr y)
+{
+	int check;
+	Error((*call)(x, y, &check));
+	return check;
+}
+
 static int test_gethashequal(void)
 {
 	addr pos, pos1, pos2;
@@ -199,29 +206,29 @@ static int test_gethashequal(void)
 	settest_hashtable(pos, HASHTABLE_TEST_EQUAL);
 	gethashequal(pos, &equal);
 	strvect_char_heap(&pos2, "Hello1");
-	test(equal(pos1, pos2), "gethashequal.1");
+	test(test_gethashequal_call(equal, pos1, pos2), "gethashequal.1");
 	makeunicodechar(&pos2, "Hello1");
-	test(equal(pos1, pos2), "gethashequal.2");
+	test(test_gethashequal_call(equal, pos1, pos2), "gethashequal.2");
 
 	settest_hashtable(pos, HASHTABLE_TEST_EQL);
 	gethashequal(pos, &equal);
 	strvect_char_heap(&pos2, "Hello1");
-	test(! equal(pos1, pos2), "gethashequal.3");
+	test(! test_gethashequal_call(equal, pos1, pos2), "gethashequal.3");
 	makeunicodechar(&pos2, "Hello1");
-	test(! equal(pos1, pos2), "gethashequal.4");
+	test(! test_gethashequal_call(equal, pos1, pos2), "gethashequal.4");
 
 	/* fixnum */
 	fixnum_heap(&pos1, 112233);
 	fixnum_heap(&pos2, 112233);
 	settest_hashtable(pos, HASHTABLE_TEST_EQUAL);
 	gethashequal(pos, &equal);
-	test(equal(pos1, pos2), "gethashequal.5");
+	test(test_gethashequal_call(equal, pos1, pos2), "gethashequal.5");
 	settest_hashtable(pos, HASHTABLE_TEST_EQL);
 	gethashequal(pos, &equal);
-	test(equal(pos1, pos2), "gethashequal.6");
+	test(test_gethashequal_call(equal, pos1, pos2), "gethashequal.6");
 	settest_hashtable(pos, HASHTABLE_TEST_EQ);
 	gethashequal(pos, &equal);
-	test(! equal(pos1, pos2), "gethashequal.7");
+	test(! test_gethashequal_call(equal, pos1, pos2), "gethashequal.7");
 
 	RETURN;
 }
@@ -293,7 +300,7 @@ static int test_resize_rehash(void)
 		strvect_char_heap(&value, buffer);
 		insert_rehash(NULL, array, 10, key, value);
 	}
-	resize_rehash(NULL, table, 15);
+	resize_rehash_(NULL, table, 15);
 
 	GetTableHash(table, &array);
 	lenarray(array, &size);
@@ -328,7 +335,7 @@ static int test_rehash_execute(void)
 	limit1 = ptr->limit;
 	size1 = ptr->size;
 	ptr->count = limit1;
-	rehash_execute(NULL, table);
+	rehash_execute_(NULL, table);
 	limit2 = ptr->limit;
 	size2 = ptr->size;
 	test(limit1 < limit2, "rehash_execute.1");
@@ -337,7 +344,7 @@ static int test_rehash_execute(void)
 	limit1 = limit2;
 	size1 = size2;
 	ptr->count = limit1 - 1;
-	rehash_execute(NULL, table);
+	rehash_execute_(NULL, table);
 	limit2 = ptr->limit;
 	size2 = ptr->size;
 	test(limit1 == limit2, "rehash_execute.3");
@@ -346,13 +353,21 @@ static int test_rehash_execute(void)
 	limit1 = limit2;
 	size1 = size2;
 	ptr->count = limit1 + 1;
-	rehash_execute(NULL, table);
+	rehash_execute_(NULL, table);
 	limit2 = ptr->limit;
 	size2 = ptr->size;
 	test(limit1 < limit2, "rehash_execute.5");
 	test(size1 < size2, "rehash_execute.6");
 
 	RETURN;
+}
+
+static int test_findroot_call(hashequaltype equal, addr root, addr key, addr *ret)
+{
+	int check;
+	check = 0;
+	Error(findroot_hashtable_(equal, root, key, ret, &check));
+	return check;
 }
 
 static int test_findroot(void)
@@ -380,25 +395,25 @@ static int test_findroot(void)
 	getarray(array, 1, &root);
 
 	strvect_char_heap(&key, "aaa");
-	test(findroot(equal, root, key, &value), "findroot.1");
+	test(! test_findroot_call(equal, root, key, &value), "findroot.1");
 	strvect_char_heap(&key, "value100");
-	test(findroot(equal, root, key, &value), "findroot.2");
+	test(! test_findroot_call(equal, root, key, &value), "findroot.2");
 	strvect_char_heap(&key, "value103");
-	test(findroot(equal, root, key, &value), "findroot.3");
+	test(! test_findroot_call(equal, root, key, &value), "findroot.3");
 
 	settest_hashtable(table, HASHTABLE_TEST_EQUAL);
 	gethashequal(table, &equal);
 	strvect_char_heap(&key, "aaa");
-	test(findroot(equal, root, key, &value), "findroot.4");
+	test(! test_findroot_call(equal, root, key, &value), "findroot.4");
 	strvect_char_heap(&key, "key100");
-	test(findroot(equal, root, key, &value) == 0, "findroot.5");
+	test(test_findroot_call(equal, root, key, &value), "findroot.5");
 	test(GetType(value) == LISPTYPE_CONS, "findroot.6");
 	GetCons(value, &key, &value);
 	test(strvect_equal_char(key, "key100"), "findroot.7");
 	test(strvect_equal_char(value, "value100"), "findroot.8");
 
 	strvect_char_heap(&key, "key104");
-	test(findroot(equal, root, key, &value) == 0, "findroot.9");
+	test(test_findroot_call(equal, root, key, &value), "findroot.9");
 	GetCons(value, &key, &value);
 	test(strvect_equal_char(key, "key104"), "findroot.10");
 	test(strvect_equal_char(value, "value104"), "findroot.11");
@@ -426,7 +441,7 @@ static int test_appendroot(void)
 	GetArrayHash(array, 10, &root);
 	test(root == Nil, "appendroot1");
 	strvect_char_heap(&key, "key200");
-	appendroot(NULL, array, 10, root, key, &value);
+	appendroot_hashtable(NULL, array, 10, root, key, &value);
 	test(GetType(value) == LISPTYPE_CONS, "appendroot.2");
 	GetCdr(value, &key);
 	test(key == Nil, "appendroot.3");
@@ -436,7 +451,7 @@ static int test_appendroot(void)
 	GetArrayHash(array, 10, &root);
 	test(root != Nil, "appendroot.5");
 	strvect_char_heap(&key, "key300");
-	appendroot(NULL, array, 10, root, key, &value);
+	appendroot_hashtable(NULL, array, 10, root, key, &value);
 	test(GetType(value) == LISPTYPE_CONS, "appendroot.6");
 	GetCar(value, &key);
 	test(strvect_equal_char(key, "key300"), "appendroot.7");
@@ -484,7 +499,7 @@ static int test_intern_hashtable(void)
 		strvect_char_heap(&key, "keyaaaa");
 		snprintf(buffer, 100, "value%d", (int)i);
 		strvect_char_heap(&value, buffer);
-		intern_hashheap(table, key, &cons);
+		intern_hashheap_(table, key, &cons);
 		SetCdr(cons, value);
 	}
 	test(hashcount(table) == 1, "intern_hashtable.1");
@@ -495,7 +510,7 @@ static int test_intern_hashtable(void)
 		strvect_char_heap(&key, "keyaaaa");
 		snprintf(buffer, 100, "value%d", (int)i);
 		strvect_char_heap(&value, buffer);
-		intern_hashheap(table, key, &cons);
+		intern_hashheap_(table, key, &cons);
 		SetCdr(cons, value);
 	}
 	test(hashcount(table) == 1000, "intern_hashtable.2");
@@ -507,17 +522,17 @@ static int test_intern_hashtable(void)
 		strvect_char_heap(&key, buffer);
 		snprintf(buffer, 100, "value%d", (int)i);
 		strvect_char_heap(&value, buffer);
-		intern_hashheap(table, key, &cons);
+		intern_hashheap_(table, key, &cons);
 		SetCdr(cons, value);
 	}
 	test(hashcount(table) == 1000, "intern_hashtable.3");
 
 	/* findcons */
 	strvect_char_heap(&key, "key4444");
-	findcons_hashtable(table, key, &cons);
+	findcons_hashtable_(table, key, &cons);
 	test(cons == Nil, "intern_hashtable.4");
 	strvect_char_heap(&key, "key444");
-	findcons_hashtable(table, key, &cons);
+	findcons_hashtable_(table, key, &cons);
 	test(cons != Nil, "intern_hashtable.5");
 	GetCons(cons, &key, &value);
 	test(strvect_equal_char(key, "key444"), "intern_hashtable.6");
@@ -525,9 +540,9 @@ static int test_intern_hashtable(void)
 
 	/* findvalue */
 	strvect_char_heap(&key, "key5555");
-	test(findvalue_hashtable(table, key, &value) == 0, "intern_hashtable.8");
+	test(findnil_hashtable_debug(table, key, &value) == 0, "intern_hashtable.8");
 	strvect_char_heap(&key, "key555");
-	test(findvalue_hashtable(table, key, &value) == 1, "intern_hashtable.9");
+	test(findnil_hashtable_debug(table, key, &value) == 1, "intern_hashtable.9");
 	test(strvect_equal_char(value, "value555"), "intern_hashtable.10");
 
 	RETURN;
@@ -535,9 +550,9 @@ static int test_intern_hashtable(void)
 
 static int test_delete_hashtable(void)
 {
-	int error;
+	int error, check;
 	addr table, key, value, cons;
-	size_t i, count, check;
+	size_t i, count, size;
 	char buffer[100];
 
 	hashtable_heap(&table);
@@ -547,23 +562,23 @@ static int test_delete_hashtable(void)
 		strvect_char_heap(&key, buffer);
 		snprintf(buffer, 100, "value%d", (int)i);
 		strvect_char_heap(&value, buffer);
-		intern_hashheap(table, key, &cons);
+		intern_hashheap_(table, key, &cons);
 		SetCdr(cons, value);
 	}
 	test(hashcount(table) == 1000, "delete_hashtable.1");
 
 	error = 1;
 	for (i = 0; i < 1000; i++) {
-		check = 1000 - i;
+		size = 1000 - i;
 		getcount_hashtable(table, &count);
-		if (check != count || check != hashcount(table)) {
+		if (size != count || size != hashcount(table)) {
 			error = 0;
 			break;
 		}
 
 		snprintf(buffer, 100, "key%d", (int)i);
 		strvect_char_heap(&key, buffer);
-		delete_hashtable(table, key);
+		delete_hashtable_(table, key, &check);
 	}
 	test(error, "delete_hashtable.2");
 
@@ -579,7 +594,7 @@ static int testcase_hashtable(void)
 	TestBreak(test_hashtable_heap);
 	TestBreak(test_hashtable_size_heap);
 	TestBreak(test_clear_hashtable);
-	TestBreak(test_hashindex);
+	TestBreak(test_call_hashindex);
 	TestBreak(test_gethashequal);
 	TestBreak(test_insert_rehash);
 	TestBreak(test_resize_rehash);

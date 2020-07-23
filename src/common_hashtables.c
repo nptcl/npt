@@ -253,7 +253,7 @@ static void defun_hash_table_test(void)
 /* (defun gethash (key hash-table &optional default) ...) -> value, boolean */
 static int function_gethash(Execute ptr, addr key, addr table, addr value)
 {
-	gethash_common(key, table, value, &key, &value);
+	Return(gethash_common_(key, table, value, &key, &value));
 	setvalues_control(ptr, key, value, NULL);
 	return 0;
 }
@@ -291,7 +291,7 @@ static int function_setf_gethash(Execute ptr,
 		addr value, addr key, addr table, addr defvalue)
 {
 	/* defvalue is ignored. */
-	setf_gethash_common(ptr->local, value, key, table);
+	Return(setf_gethash_common_(ptr->local, value, key, table));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -326,7 +326,7 @@ static void defun_setf_gethash(void)
 /* (defun remhash (key hash-table) ...) -> boolean */
 static int function_remhash(Execute ptr, addr key, addr table)
 {
-	remhash_common(key, table, &table);
+	Return(remhash_common_(key, table, &table));
 	setresult_control(ptr, table);
 	return 0;
 }
@@ -454,7 +454,7 @@ static void defun_clrhash(void)
  */
 static int function_sxhash(Execute ptr, addr var)
 {
-	sxhash_common(var, &var);
+	Return(sxhash_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

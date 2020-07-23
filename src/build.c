@@ -216,7 +216,7 @@ static void push_features(const char *name)
 	addr symbol, keyword, cons;
 
 	GetConst(SPECIAL_FEATURES, &symbol);
-	internchar_keyword(name, &keyword);
+	Error(internchar_keyword_(name, &keyword, NULL));
 	GetValueSymbol(symbol, &cons);
 	Check(find_list_eq_unsafe(keyword, cons), "push error");
 	cons_heap(&cons, keyword, cons);

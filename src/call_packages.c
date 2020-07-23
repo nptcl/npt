@@ -14,24 +14,27 @@
 /*
  *  export
  */
-_g void export_common(Execute ptr, addr symbols, addr pg)
+_g int export_common_(Execute ptr, addr symbols, addr pg)
 {
-	if (pg == Unbound)
-		getpackage(ptr, &pg);
-	export_package(pg, symbols);
+	if (pg == Unbound) {
+		Return(getpackage_(ptr, &pg));
+	}
+
+	return export_package_(pg, symbols);
 }
 
 
 /*
  *  find-package
  */
-_g void find_symbol_common(Execute ptr, addr name, addr pg, addr *ret, addr *state)
+_g int find_symbol_common_(Execute ptr, addr name, addr pg, addr *ret, addr *state)
 {
 	enum PACKAGE_TYPE type;
 
-	if (pg == Unbound)
-		getpackage(ptr, &pg);
-	type = find_symbol_package(pg, name, &name);
+	if (pg == Unbound) {
+		Return(getpackage_(ptr, &pg));
+	}
+	Return(find_symbol_package_(pg, name, &name, &type));
 	if (name == Nil) {
 		*ret = Nil;
 		*state = Nil;
@@ -40,57 +43,65 @@ _g void find_symbol_common(Execute ptr, addr name, addr pg, addr *ret, addr *sta
 		*ret = name;
 		keyword_packagetype(type, state);
 	}
+
+	return 0;
 }
 
 
 /*
  *  import
  */
-_g void import_common(Execute ptr, addr symbols, addr pg)
+_g int import_common_(Execute ptr, addr symbols, addr pg)
 {
-	if (pg == Unbound)
-		getpackage(ptr, &pg);
-	import_package(pg, symbols);
+	if (pg == Unbound) {
+		Return(getpackage_(ptr, &pg));
+	}
+	return import_package_(pg, symbols);
 }
 
 
 /*
  *  rename-package
  */
-_g void rename_package_common(Execute ptr, addr pg, addr name, addr names, addr *ret)
+_g int rename_package_common_(Execute ptr, addr pg, addr name, addr names, addr *ret)
 {
 	if (names == Unbound)
 		names = Nil;
-	rename_package(pg, name, names, ret);
+
+	return rename_package_(pg, name, names, ret);
 }
 
 
 /*
  *  shadow
  */
-_g void shadow_common(Execute ptr, addr symbols, addr pg)
+_g int shadow_common_(Execute ptr, addr symbols, addr pg)
 {
-	if (pg == Unbound)
-		getpackage(ptr, &pg);
-	shadow_package(pg, symbols);
+	if (pg == Unbound) {
+		Return(getpackage_(ptr, &pg));
+	}
+
+	return shadow_package_(pg, symbols);
 }
 
 
 /*
  *  shadowing-import
  */
-_g void shadowing_import_common(Execute ptr, addr symbols, addr pg)
+_g int shadowing_import_common_(Execute ptr, addr symbols, addr pg)
 {
-	if (pg == Unbound)
-		getpackage(ptr, &pg);
-	shadowing_import_package(pg, symbols);
+	if (pg == Unbound) {
+		Return(getpackage_(ptr, &pg));
+	}
+
+	return shadowing_import_package_(pg, symbols);
 }
 
 
 /*
  *  make-package
  */
-_g void make_package_common(Execute ptr, addr name, addr rest, addr *ret)
+_g int make_package_common_(Execute ptr, addr name, addr rest, addr *ret)
 {
 	addr nicknames, use;
 
@@ -102,7 +113,7 @@ _g void make_package_common(Execute ptr, addr name, addr rest, addr *ret)
 		GetConst(PACKAGE_DEFAULT_USE, &use);
 	}
 	/* make-package */
-	make_package(name, nicknames, use, ret);
+	return make_package_(name, nicknames, use, ret);
 }
 
 
@@ -222,22 +233,28 @@ error:
 /*
  *  unexport
  */
-_g void unexport_common(Execute ptr, addr symbols, addr pg)
+_g int unexport_common_(Execute ptr, addr symbols, addr pg)
 {
-	if (pg == Unbound)
-		getpackage(ptr, &pg);
-	unexport_package(pg, symbols);
+	if (pg == Unbound) {
+		Return(getpackage_(ptr, &pg));
+	}
+	
+	return unexport_package_(pg, symbols);
 }
 
 
 /*
  *  unintern
  */
-_g void unintern_common(Execute ptr, addr symbol, addr pg, addr *ret)
+_g int unintern_common_(Execute ptr, addr symbol, addr pg, addr *ret)
 {
-	if (pg == Unbound)
-		getpackage(ptr, &pg);
-	*ret = unintern_package(pg, symbol)? Nil: T;
+	int check;
+
+	if (pg == Unbound) {
+		Return(getpackage_(ptr, &pg));
+	}
+	Return(unintern_package_(pg, symbol, &check));
+	return Result(ret, check? Nil: T);
 }
 
 
@@ -259,8 +276,9 @@ _g int in_package_common(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 
 	/* toplevel */
-	if (toplevelp_eval(ptr))
-		in_package(ptr, name, NULL);
+	if (toplevelp_eval(ptr)) {
+		Return(in_package_(ptr, name, NULL));
+	}
 
 	/* in-package `(lisp-system::in-package ',name) */
 	GetConst(SYSTEM_IN_PACKAGE, &symbol);
@@ -277,22 +295,26 @@ error:
 /*
  *  unuse-package
  */
-_g void unuse_package_common(Execute ptr, addr unuse, addr pg)
+_g int unuse_package_common_(Execute ptr, addr unuse, addr pg)
 {
-	if (pg == Unbound)
-		getpackage(ptr, &pg);
-	unuse_package(pg, unuse);
+	if (pg == Unbound) {
+		Return(getpackage_(ptr, &pg));
+	}
+	
+	return unuse_package_(pg, unuse);
 }
 
 
 /*
  *  use-package
  */
-_g void use_package_common(Execute ptr, addr use, addr pg)
+_g int use_package_common_(Execute ptr, addr use, addr pg)
 {
-	if (pg == Unbound)
-		getpackage(ptr, &pg);
-	use_package(pg, use);
+	if (pg == Unbound) {
+		Return(getpackage_(ptr, &pg));
+	}
+
+	return use_package_(pg, use);
 }
 
 
@@ -776,13 +798,14 @@ error:
 /*
  *  intern
  */
-_g void intern_common(Execute ptr, addr name, addr pg, addr *ret, addr *sec)
+_g int intern_common_(Execute ptr, addr name, addr pg, addr *ret, addr *sec)
 {
 	enum PACKAGE_TYPE type;
 
-	if (pg == Unbound)
-		getpackage(ptr, &pg);
-	type = intern_package(pg, name, &name);
+	if (pg == Unbound) {
+		Return(getpackage_(ptr, &pg));
+	}
+	Return(intern_package_(pg, name, &name, &type));
 	if (name == Nil) {
 		*ret = Nil;
 		*sec = Nil;
@@ -791,5 +814,7 @@ _g void intern_common(Execute ptr, addr name, addr pg, addr *ret, addr *sec)
 		*ret = name;
 		keyword_packagetype(type, sec);
 	}
+
+	return 0;
 }
 

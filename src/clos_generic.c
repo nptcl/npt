@@ -694,7 +694,7 @@ static int generic_make_type(Execute ptr, addr *ret, addr gen, addr type)
 	return 0;
 }
 
-static void generic_make_mapcar_class_of(LocalRoot local,
+static int generic_make_mapcar_class_of_(LocalRoot local,
 		addr *ret, addr list, addr args)
 {
 	addr result, eqlcheck, arg, check;
@@ -704,15 +704,19 @@ static void generic_make_mapcar_class_of(LocalRoot local,
 		if (args == Nil)
 			fmte("Too few arguments.", NULL);
 		GetCons(args, &arg, &args);
-		if (eqlcheck == Nil)
+		if (eqlcheck == Nil) {
 			check = Nil;
-		else
-			clos_find_specializer_nil(arg, &check);
+		}
+		else {
+			Return(clos_find_specializer_nil_(arg, &check));
+		}
 		if (check == Nil)
 			clos_class_of(arg, &check);
 		cons_local(local, &result, check, result);
 	}
 	nreverse(ret, result);
+
+	return 0;
 }
 
 static int generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
@@ -725,14 +729,15 @@ static int generic_make_lambda_call(Execute ptr, addr inst, addr gen, addr args)
 	local = ptr->local;
 	GetClosGenericCallArray(inst, 0, &eqlcheck);
 	GetClosGenericCallArray(inst, 1, &cache);
-	generic_make_mapcar_class_of(local, &key, eqlcheck, args);
-	if (! findvalue_hashtable(cache, key, &value)) {
+	Return(generic_make_mapcar_class_of_(local, &key, eqlcheck, args));
+	Return(find_hashtable_(cache, key, &value));
+	if (value == Unbound) {
 		/* not found, tranlate to heap-list from dynamic list */
 		copy_list_heap_unsafe(&key, key);
 		hold = LocalHold_local_push(ptr, key);
 		Return(generic_make_type(ptr, &value, gen, key));
 		localhold_end(hold);
-		intern_hashheap(cache, key, &cons);
+		Return(intern_hashheap_(cache, key, &cons));
 		SetCdr(cons, value);
 	}
 
@@ -1044,7 +1049,7 @@ _g int generic_change(struct generic_argument *str, addr *ret)
 /*
  *  common
  */
-_g void generic_compute_applicable_methods(LocalRoot local,
+_g int generic_compute_applicable_methods_(LocalRoot local,
 		addr gen, addr args, addr *ret)
 {
 	addr data, root, list, pos;
@@ -1053,7 +1058,7 @@ _g void generic_compute_applicable_methods(LocalRoot local,
 
 	push_local(local, &stack);
 	stdget_generic_eqlcheck(gen, &data);
-	generic_make_mapcar_class_of(local, &data, data, args);
+	Return(generic_make_mapcar_class_of_(local, &data, data, args));
 	generic_make_array(&data, gen, data);
 	LenArrayA4(data, &size);
 	root = Nil;
@@ -1066,6 +1071,8 @@ _g void generic_compute_applicable_methods(LocalRoot local,
 	}
 	rollback_local(local, stack);
 	nreverse(ret, root);
+
+	return 0;
 }
 
 static int generic_find_method_equal(addr method, addr spec)

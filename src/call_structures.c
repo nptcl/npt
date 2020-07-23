@@ -662,7 +662,7 @@ static void defstruct_slots_list(addr *ret, addr slots, addr first)
 	}
 }
 
-static void defstruct_constructor_body(addr *ret, addr name, addr cons)
+static int defstruct_constructor_body_(addr *ret, addr name, addr cons)
 {
 	addr root, symbol, keyword, package, call;
 
@@ -672,7 +672,7 @@ static void defstruct_constructor_body(addr *ret, addr name, addr cons)
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &symbol, &cons);
 		GetNameSymbol(symbol, &keyword);
-		intern_package(package, keyword, &keyword);
+		Return(intern_package_(package, keyword, &keyword, NULL));
 		cons_heap(&root, keyword, root);
 		cons_heap(&root, symbol, root);
 	}
@@ -682,9 +682,11 @@ static void defstruct_constructor_body(addr *ret, addr name, addr cons)
 	GetConst(SYSTEM_STRUCTURE_CONSTRUCTOR, &call);
 	quotelist_heap(&name, name);
 	lista_heap(ret, call, name, root, NULL);
+
+	return 0;
 }
 
-static void defstruct_constructor_lambda(addr *ret, addr cons, addr symbol)
+static int defstruct_constructor_lambda_(addr *ret, addr cons, addr symbol)
 {
 	/* (lambda (...)
 	 *   (lisp-system::structure-constructor 'name
@@ -694,16 +696,18 @@ static void defstruct_constructor_lambda(addr *ret, addr cons, addr symbol)
 
 	GetCons(cons, &name, &cons);
 	argument_boa_lambda_heap(&args, cons);
-	defstruct_constructor_body(&body, symbol, cons);
+	Return(defstruct_constructor_body_(&body, symbol, cons));
 	GetConst(COMMON_LAMBDA, &lambda);
 	list_heap(&args, lambda, args, body, NULL);
 	/* (list 'name (lambda...)) */
 	GetConst(COMMON_LIST, &list);
 	quotelist_heap(&name, name);
 	list_heap(ret, list, name, args, NULL);
+
+	return 0;
 }
 
-static void defstruct_make_constructor(struct defstruct *str, addr *ret, addr root)
+static int defstruct_make_constructor_(struct defstruct *str, addr *ret, addr root)
 {
 	int check;
 	addr list, symbol, keyword, pos;
@@ -717,19 +721,21 @@ static void defstruct_make_constructor(struct defstruct *str, addr *ret, addr ro
 		GetConst(SYSTEM_STRUCTURE_GENSYM, &pos);
 		quotelist_heap(&pos, pos);
 		cons_heap(&root, pos, root);
-		*ret = root;
-		return;
+		return Result(ret, root);
 	}
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		cons_heap(&root, keyword, root);
-		if (consp(pos))
-			defstruct_constructor_lambda(&pos, pos, symbol);
-		else
+		if (consp(pos)) {
+			Return(defstruct_constructor_lambda_(&pos, pos, symbol));
+		}
+		else {
 			quotelist_heap(&pos, pos);
+		}
 		cons_heap(&root, pos, root);
 	}
-	*ret = root;
+
+	return Result(ret, root);
 }
 
 static void defstruct_make_print_object(addr *ret, addr pos)
@@ -754,7 +760,7 @@ static void defstruct_make_print_object(addr *ret, addr pos)
 	list_heap(ret, symbol, Nil, pos, NULL);
 }
 
-static void defstruct_make(struct defstruct *str, addr *ret)
+static int defstruct_make_(struct defstruct *str, addr *ret)
 {
 	/* `(ensure-structure
 	 *    ',name
@@ -852,9 +858,11 @@ static void defstruct_make(struct defstruct *str, addr *ret)
 		cons_heap(&root, pos, root);
 	}
 	/* :constructor */
-	defstruct_make_constructor(str, &root, root);
+	Return(defstruct_make_constructor_(str, &root, root));
 	/* result */
 	nreverse(ret, root);
+
+	return 0;
 }
 
 _g int defstruct_common(Execute ptr, addr form, addr env, addr *ret)
@@ -868,7 +876,7 @@ _g int defstruct_common(Execute ptr, addr form, addr env, addr *ret)
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, form, env, NULL);
 	Return(defstruct_parse(&str, form));
-	defstruct_make(&str, &form);
+	Return(defstruct_make_(&str, &form));
 	localhold_end(hold);
 
 	return Result(ret, form);

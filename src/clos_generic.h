@@ -54,7 +54,7 @@ _g int generic_add(struct generic_argument *ptr, addr *ret);
 _g int generic_change(struct generic_argument *ptr, addr *ret);
 
 /* common */
-_g void generic_compute_applicable_methods(LocalRoot local,
+_g int generic_compute_applicable_methods_(LocalRoot local,
 		addr gen, addr args, addr *ret);
 _g int generic_find_method_(Execute ptr,
 		addr gen, addr qua, addr spec, addr errorp, addr *ret);

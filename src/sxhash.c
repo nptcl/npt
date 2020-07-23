@@ -20,13 +20,13 @@
 #define FIXNUM_BIT1M (LISP_INTEGER_BIT - 1ULL)
 #define FIXNUM_MASK_SIGN (1ULL << FIXNUM_BIT1M)
 #define FIXNUM_MASK_BODY (FIXNUM_MASK_SIGN - 1ULL)
-#define FIXNUM_BODY(x)  ((x) & FIXNUM_MASK_BODY)
+#define FIXNUM_BODY(x)  ((fixnum)((x) & FIXNUM_MASK_BODY))
 
-typedef fixed (*calltype_sxhash)(addr pos, int depth);
+typedef int (*calltype_sxhash)(addr pos, int depth, fixed *ret);
 static calltype_sxhash SxhashTableEqual[LISPTYPE_SIZE];
 static calltype_sxhash SxhashTableEqualp[LISPTYPE_SIZE];
-static fixed sxfixed_equal(addr pos, int depth);
-static fixed sxfixed_equalp(addr pos, int depth);
+static int sxfixed_equal_(addr pos, int depth, fixed *ret);
+static int sxfixed_equalp_(addr pos, int depth, fixed *ret);
 
 
 /*
@@ -34,12 +34,12 @@ static fixed sxfixed_equalp(addr pos, int depth);
  */
 #define sxhash_diffshift(x,y,z) ((((uintptr_t)(x)) - ((uintptr_t)(y))) >> (z))
 #define sxhash_diffheap(x,s) ((fixed)sxhash_diffshift(heap_alloc, (x), (s)))
-static fixed sxfixed_eq(addr pos, int depth)
+static int sxfixed_eq_(addr pos, int depth, fixed *ret)
 {
 #ifdef LISP_ARCH_64BIT
-	return sxhash_diffheap(pos, 3);
+	return Result(ret, sxhash_diffheap(pos, 3));
 #else
-	return sxhash_diffheap(pos, 2);
+	return Result(ret, sxhash_diffheap(pos, 2));
 #endif
 }
 
@@ -47,48 +47,52 @@ static fixed sxfixed_eq(addr pos, int depth)
 /*
  *  character
  */
-static fixed sxfixed_character(addr pos, int depth)
+static int sxfixed_character_(addr pos, int depth, fixed *ret)
 {
-	unicode u;
-	GetCharacter(pos, &u);
-	return (fixed)u;
+	unicode c;
+	GetCharacter(pos, &c);
+	return Result(ret, (fixed)c);
 }
 
-static fixed sxfixed_character_p(addr pos, int depth)
+static int sxfixed_character_p_(addr pos, int depth, fixed *ret)
 {
-	unicode u;
-	GetCharacter(pos, &u);
-	return (fixed)toUpperUnicode(u);
+	unicode c;
+	GetCharacter(pos, &c);
+	return Result(ret, (fixed)toUpperUnicode(c));
 }
 
 
 /*
  *  character2
  */
-static fixed sxfixed_character2(addr pos, int depth)
+static int sxfixed_character2_(addr pos, int depth, fixed *ret)
 {
 	fixed a, b;
+
 	a = (fixed)refcharacter2a(pos);
 	b = (fixed)refcharacter2b(pos);
-	return a + b;
+
+	return Result(ret, a + b);
 }
 
-static fixed sxfixed_character2_p(addr pos, int depth)
+static int sxfixed_character2_p_(addr pos, int depth, fixed *ret)
 {
 	unicode a, b;
 	fixed c, d;
+
 	getcharacter2a(pos, &a);
 	getcharacter2b(pos, &b);
 	c = (fixed)toUpperUnicode(a);
 	d = (fixed)toUpperUnicode(b);
-	return c + d;
+
+	return Result(ret, c + d);
 }
 
 
 /*
  *  binary
  */
-static fixed sxfixed_binary(const byte *u, size_t size)
+static int sxfixed_binary_(const byte *u, size_t size, fixed *ret)
 {
 	int m;
 	size_t i;
@@ -103,20 +107,22 @@ static fixed sxfixed_binary(const byte *u, size_t size)
 	for (i = 0; i < FixedSize; i++)
 		value += p[i] << (i * 8);
 
-	return value;
+	return Result(ret, value);
 }
 
-static fixnum sxhash_binary_equal(const void *pos, size_t size)
+static int sxhash_binary_equal_(const void *pos, size_t size, fixnum *ret)
 {
-	return (fixnum)FIXNUM_BODY(sxfixed_binary((const byte *)pos, size));
+	fixed value;
+	Return(sxfixed_binary_((const byte *)pos, size, &value));
+	return Result(ret, FIXNUM_BODY(value));
 }
 
-_g fixnum sxhash_char_equal(const char *pos)
+_g int sxhash_char_equal_(const char *pos, fixnum *ret)
 {
-	return sxhash_binary_equal((const void *)pos, strlen(pos));
+	return sxhash_binary_equal_((const void *)pos, strlen(pos), ret);
 }
 
-static fixed fixed_binary_p(const byte *u, size_t size)
+static int fixed_binary_p_(const byte *u, size_t size, fixed *ret)
 {
 	int m;
 	size_t i;
@@ -131,24 +137,26 @@ static fixed fixed_binary_p(const byte *u, size_t size)
 	for (i = 0; i < FixedSize; i++)
 		value += p[i] << (i * 8);
 
-	return value;
+	return Result(ret, value);
 }
 
-static fixnum sxhash_binary_equalp(const void *pos, size_t size)
+static int sxhash_binary_equalp_(const void *pos, size_t size, fixnum *ret)
 {
-	return (fixnum)FIXNUM_BODY(fixed_binary_p((const byte *)pos, size));
+	fixed value;
+	Return(fixed_binary_p_((const byte *)pos, size, &value));
+	return Result(ret, FIXNUM_BODY(value));
 }
 
-_g fixnum sxhash_char_equalp(const char *pos)
+_g int sxhash_char_equalp_(const char *pos, fixnum *ret)
 {
-	return sxhash_binary_equalp((const void *)pos, strlen(pos));
+	return sxhash_binary_equalp_((const void *)pos, strlen(pos), ret);
 }
 
 
 /*
  *  string
  */
-static fixed sxfixed_string(addr pos, int depth)
+static int sxfixed_string_(addr pos, int depth, fixed *ret)
 {
 	int m;
 	size_t i, len;
@@ -166,10 +174,10 @@ static fixed sxfixed_string(addr pos, int depth)
 	for (i = 0; i < FixedSize; i++)
 		value += p[i] << (i * 8);
 
-	return value;
+	return Result(ret, value);
 }
 
-static fixed sxfixed_string_p(addr pos, int depth)
+static int sxfixed_string_p_(addr pos, int depth, fixed *ret)
 {
 	int m;
 	size_t i, len;
@@ -187,25 +195,25 @@ static fixed sxfixed_string_p(addr pos, int depth)
 	for (i = 0; i < FixedSize; i++)
 		value += p[i] << (i * 8);
 
-	return value;
+	return Result(ret, value);
 }
 
 
 /*
  *  fixnum
  */
-static fixed sxfixed_fixnum(addr pos, int depth)
+static int sxfixed_fixnum_(addr pos, int depth, fixed *ret)
 {
 	fixnum value;
 	GetFixnum(pos, &value);
-	return (fixed)value;
+	return Result(ret, (fixed)value);
 }
 
 
 /*
  *  bignum
  */
-static fixed sxfixed_bignum(addr pos, int depth)
+static int sxfixed_bignum_(addr pos, int depth, fixed *ret)
 {
 	int sign;
 	bigtype *data;
@@ -221,209 +229,235 @@ static fixed sxfixed_bignum(addr pos, int depth)
 	for (i = 0; i < size; i++)
 		value += (fixed)data[i];
 
-	return value;
+	return Result(ret, value);
 }
 
 
 /*
  *  ratio
  */
-static fixed sxfixed_ratio(addr pos, int depth)
+static int sxfixed_ratio_(addr pos, int depth, fixed *ret)
 {
 	int sign;
 	addr numer, denom;
-	fixed value;
+	fixed value, v;
 
 	GetSignRatio(pos, &sign);
 	GetNumerRatio(pos, &numer);
 	GetDenomRatio(pos, &denom);
 	value = (fixed)sign;
-	value += sxfixed_bignum(numer, depth);
-	value += sxfixed_bignum(denom, depth);
+	Return(sxfixed_bignum_(numer, depth, &v));
+	value += v;
+	Return(sxfixed_bignum_(numer, depth, &v));
+	value += v;
 
-	return value;
+	return Result(ret, value);
 }
 
 
 /*
  *  float
  */
-static fixed sxfixed_single_float(addr pos, int depth)
+static int sxfixed_single_float_(addr pos, int depth, fixed *ret)
 {
 	single_float value;
 	GetSingleFloat(pos, &value);
-	return sxfixed_binary((const byte *)&value, sizeoft(value));
+	return sxfixed_binary_((const byte *)&value, sizeoft(value), ret);
 }
 
-static fixed sxfixed_double_float(addr pos, int depth)
+static int sxfixed_double_float_(addr pos, int depth, fixed *ret)
 {
 	double_float value;
 	GetDoubleFloat(pos, &value);
-	return sxfixed_binary((const byte *)&value, sizeoft(value));
+	return sxfixed_binary_((const byte *)&value, sizeoft(value), ret);
 }
 
-static fixed sxfixed_long_float(addr pos, int depth)
+static int sxfixed_long_float_(addr pos, int depth, fixed *ret)
 {
 	long_float value;
 	GetLongFloat(pos, &value);
-	return sxfixed_binary((const byte *)&value, sizeoft(value));
+	return sxfixed_binary_((const byte *)&value, sizeoft(value), ret);
 }
 
-static fixed sxfixed_pathname(addr pos, int depth)
+static int sxfixed_pathname_(addr pos, int depth, fixed *ret)
 {
 	int i;
 	addr child;
-	fixed result;
+	fixed result, v;
 
 	result = 0;
 	depth--;
 	for (i = 0; i < PATHNAME_INDEX_SIZE; i++) {
 		GetArrayA2(pos, i, &child);
-		result += sxfixed_equal(child, depth);
+		Return(sxfixed_equal_(child, depth, &v));
+		result += v;
 	}
 
-	return result;
+	return Result(ret, result);
 }
 
-static fixed sxfixed_float_p(addr pos, int depth)
+static int sxfixed_float_p_(addr pos, int depth, fixed *ret)
 {
-	LocalRoot local;
+	Execute ptr;
 
-	local = Local_Thread;
-	rationalize_common(local, pos, &pos);
-	return sxfixed_equalp(pos, depth);
+	ptr = Execute_Thread;
+	Return(rationalize_common_(ptr, pos, &pos));
+	return sxfixed_equalp_(pos, depth, ret);
 }
 
 
 /*
  *  Global function
  */
-static fixed sxfixed_equal(addr pos, int depth)
+static int sxfixed_equal_(addr pos, int depth, fixed *ret)
 {
-	if (pos == Nil) return 0;
-	if (pos == T) return 1;
-	return (SxhashTableEqual[(size_t)GetType(pos)])(pos, depth);
+	if (pos == Nil)
+		return Result(ret, 0);
+	if (pos == T)
+		return Result(ret, 1);
+
+	return (SxhashTableEqual[(size_t)GetType(pos)])(pos, depth, ret);
 }
 
-static fixed sxfixed_equalp(addr pos, int depth)
+static int sxfixed_equalp_(addr pos, int depth, fixed *ret)
 {
-	if (pos == Nil) return 0;
-	if (pos == T) return 1;
-	return (SxhashTableEqualp[(size_t)GetType(pos)])(pos, depth);
+	if (pos == Nil)
+		return Result(ret, 0);
+	if (pos == T)
+		return Result(ret, 1);
+
+	return (SxhashTableEqualp[(size_t)GetType(pos)])(pos, depth, ret);
 }
 
-_g fixnum sxhash_equal_depth(addr pos, int depth)
+static int sxhash_call_(addr pos, int depth, fixnum *ret, calltype_sxhash call)
 {
-	return (fixnum)FIXNUM_BODY(sxfixed_equal(pos, depth));
+	fixed value;
+	Return((*call)(pos, depth, &value));
+	return Result(ret, FIXNUM_BODY(value));
 }
 
-_g fixnum sxhash_equal(addr pos)
+_g int sxhash_equal_depth_(addr pos, int depth, fixnum *ret)
 {
-	return sxhash_equal_depth(pos, -1);
+	return sxhash_call_(pos, depth, ret, sxfixed_equal_);
 }
 
-_g fixnum sxhash_equalp_depth(addr pos, int depth)
+_g int sxhash_equal_(addr pos, fixnum *ret)
 {
-	return (fixnum)FIXNUM_BODY(sxfixed_equalp(pos, depth));
+	return sxhash_call_(pos, -1, ret, sxfixed_equal_);
 }
 
-_g fixnum sxhash_equalp(addr pos)
+_g int sxhash_equalp_depth_(addr pos, int depth, fixnum *ret)
 {
-	return sxhash_equalp_depth(pos, -1);
+	return sxhash_call_(pos, depth, ret, sxfixed_equalp_);
 }
 
-_g fixnum sxhash_eq(addr pos)
+_g int sxhash_equalp_(addr pos, fixnum *ret)
 {
-	return (fixnum)FIXNUM_BODY(sxfixed_eq(pos, -1));
+	return sxhash_call_(pos, -1, ret, sxfixed_equalp_);
 }
 
-_g fixnum sxhash_unicode_equalp(unicode pos)
+_g int sxhash_eq_(addr pos, fixnum *ret)
 {
-	return (fixnum)FIXNUM_BODY((fixed)toUpperUnicode(pos));
+	return sxhash_call_(pos, -1, ret, sxfixed_eq_);
 }
 
-_g fixnum sxhash_unicode_equal(unicode pos)
+_g int sxhash_unicode_equalp_(unicode pos, fixnum *ret)
 {
-	return (fixnum)FIXNUM_BODY((fixed)pos);
+	fixed value;
+	value = (fixed)toUpperUnicode(pos);
+	return Result(ret, FIXNUM_BODY(value));
 }
 
-_g fixnum sxhash_character2_equalp(unicode a, unicode b)
+_g int sxhash_unicode_equal_(unicode pos, fixnum *ret)
+{
+	fixnum value;
+	value = (fixed)pos;
+	return Result(ret, FIXNUM_BODY(value));
+}
+
+_g int sxhash_character2_equal_(unicode a, unicode b, fixnum *ret)
 {
 	fixed c, d;
-	c = (fixed)toUpperUnicode(a);
-	d = (fixed)toUpperUnicode(b);
-	return (fixnum)FIXNUM_BODY(c + d);
-}
 
-_g fixnum sxhash_character2_equal(unicode a, unicode b)
-{
-	fixed c, d;
 	c = (fixed)a;
 	d = (fixed)b;
-	return (fixnum)FIXNUM_BODY(c + d);
+
+	return Result(ret, FIXNUM_BODY(c + d));
+}
+
+_g int sxhash_character2_equalp_(unicode a, unicode b, fixnum *ret)
+{
+	fixed c, d;
+
+	c = (fixed)toUpperUnicode(a);
+	d = (fixed)toUpperUnicode(b);
+
+	return Result(ret, FIXNUM_BODY(c + d));
 }
 
 
 /*
  *  cons
  */
-static fixed sxfixed_cons(addr pos, int depth)
+static int sxfixed_cons_(addr pos, int depth, fixed *ret)
 {
 	addr right;
 	fixed v1, v2;
 
-	if (depth == 0) return 0;
+	if (depth == 0)
+		return Result(ret, 0);
 	GetCons(pos, &pos, &right);
 	depth--;
-	v1 = sxfixed_equal(pos, depth);
-	v2 = sxfixed_equal(right, depth);
+	Return(sxfixed_equal_(pos, depth, &v1));
+	Return(sxfixed_equal_(right, depth, &v2));
 
-	return depth + v1 + (3 * v2);
+	return Result(ret, depth + v1 + (3 * v2));
 }
 
-static fixed sxfixed_cons_p(addr pos, int depth)
+static int sxfixed_cons_p_(addr pos, int depth, fixed *ret)
 {
 	addr right;
 	fixed v1, v2;
 
-	if (depth == 0) return 0;
+	if (depth == 0)
+		return Result(ret, 0);
 	GetCons(pos, &pos, &right);
 	depth--;
-	v1 = sxfixed_equalp(pos, depth);
-	v2 = sxfixed_equalp(right, depth);
+	Return(sxfixed_equalp_(pos, depth, &v1));
+	Return(sxfixed_equalp_(right, depth, &v2));
 
-	return depth + v1 + (3 * v2);
+	return Result(ret, depth + v1 + (3 * v2));
 }
 
 
 /*
  *  vector
  */
-static fixed sxfixed_vector(addr pos, int depth)
+static int sxfixed_vector_(addr pos, int depth, fixed *ret)
 {
 	size_t len;
 	lenarray(pos, &len);
-	return (fixed)len;
+	return Result(ret, (fixed)len);
 }
 
 
 /*
  *  array
  */
-static fixed sxfixed_array(addr pos, int depth)
+static int sxfixed_array_(addr pos, int depth, fixed *ret)
 {
 	if (strarrayp(pos))
-		return sxfixed_string(pos, depth);
+		return sxfixed_string_(pos, depth, ret);
 	else
-		return sxfixed_eq(pos, depth);
+		return sxfixed_eq_(pos, depth, ret);
 }
 
-static fixed sxfixed_array_p(addr pos, int depth)
+static int sxfixed_array_p_(addr pos, int depth, fixed *ret)
 {
 	if (strarrayp(pos))
-		return sxfixed_string_p(pos, depth);
+		return sxfixed_string_p_(pos, depth, ret);
 	else
-		return sxfixed_eq(pos, depth);
+		return sxfixed_eq_(pos, depth, ret);
 }
 
 
@@ -448,21 +482,21 @@ _g void init_sxhash(void)
 	 *  equal
 	 */
 	for (i = 0; i < LISPTYPE_SIZE; i++)
-		SxhashTableEqual[i] = sxfixed_eq;
-	SetSxhashEqual(LISPTYPE_CONS, sxfixed_cons);
-	SetSxhashEqual(LISPTYPE_VECTOR, sxfixed_vector);
-	SetSxhashEqual(LISPTYPE_ARRAY, sxfixed_array);
+		SxhashTableEqual[i] = sxfixed_eq_;
+	SetSxhashEqual(LISPTYPE_CONS, sxfixed_cons_);
+	SetSxhashEqual(LISPTYPE_VECTOR, sxfixed_vector_);
+	SetSxhashEqual(LISPTYPE_ARRAY, sxfixed_array_);
 	/* object */
-	SetSxhashEqual(LISPTYPE_CHARACTER, sxfixed_character);
-	SetSxhashEqual(LISPSYSTEM_CHARACTER2, sxfixed_character2);
-	SetSxhashEqual(LISPTYPE_STRING, sxfixed_string);
-	SetSxhashEqual(LISPTYPE_FIXNUM, sxfixed_fixnum);
-	SetSxhashEqual(LISPTYPE_BIGNUM, sxfixed_bignum);
-	SetSxhashEqual(LISPTYPE_RATIO, sxfixed_ratio);
-	SetSxhashEqual(LISPTYPE_SINGLE_FLOAT, sxfixed_single_float);
-	SetSxhashEqual(LISPTYPE_DOUBLE_FLOAT, sxfixed_double_float);
-	SetSxhashEqual(LISPTYPE_LONG_FLOAT, sxfixed_long_float);
-	SetSxhashEqual(LISPTYPE_PATHNAME, sxfixed_pathname);
+	SetSxhashEqual(LISPTYPE_CHARACTER, sxfixed_character_);
+	SetSxhashEqual(LISPSYSTEM_CHARACTER2, sxfixed_character2_);
+	SetSxhashEqual(LISPTYPE_STRING, sxfixed_string_);
+	SetSxhashEqual(LISPTYPE_FIXNUM, sxfixed_fixnum_);
+	SetSxhashEqual(LISPTYPE_BIGNUM, sxfixed_bignum_);
+	SetSxhashEqual(LISPTYPE_RATIO, sxfixed_ratio_);
+	SetSxhashEqual(LISPTYPE_SINGLE_FLOAT, sxfixed_single_float_);
+	SetSxhashEqual(LISPTYPE_DOUBLE_FLOAT, sxfixed_double_float_);
+	SetSxhashEqual(LISPTYPE_LONG_FLOAT, sxfixed_long_float_);
+	SetSxhashEqual(LISPTYPE_PATHNAME, sxfixed_pathname_);
 
 
 	/*
@@ -470,14 +504,14 @@ _g void init_sxhash(void)
 	 */
 	for (i = 0; i < LISPTYPE_SIZE; i++)
 		SxhashTableEqualp[i] = SxhashTableEqual[i];
-	SetSxhashEqualp(LISPTYPE_CONS, sxfixed_cons_p);
-	SetSxhashEqualp(LISPTYPE_ARRAY, sxfixed_array_p);
+	SetSxhashEqualp(LISPTYPE_CONS, sxfixed_cons_p_);
+	SetSxhashEqualp(LISPTYPE_ARRAY, sxfixed_array_p_);
 	/* object */
-	SetSxhashEqualp(LISPTYPE_CHARACTER, sxfixed_character_p);
-	SetSxhashEqualp(LISPSYSTEM_CHARACTER2, sxfixed_character2_p);
-	SetSxhashEqualp(LISPTYPE_STRING, sxfixed_string_p);
-	SetSxhashEqual(LISPTYPE_SINGLE_FLOAT, sxfixed_float_p);
-	SetSxhashEqual(LISPTYPE_DOUBLE_FLOAT, sxfixed_float_p);
-	SetSxhashEqual(LISPTYPE_LONG_FLOAT, sxfixed_float_p);
+	SetSxhashEqualp(LISPTYPE_CHARACTER, sxfixed_character_p_);
+	SetSxhashEqualp(LISPSYSTEM_CHARACTER2, sxfixed_character2_p_);
+	SetSxhashEqualp(LISPTYPE_STRING, sxfixed_string_p_);
+	SetSxhashEqual(LISPTYPE_SINGLE_FLOAT, sxfixed_float_p_);
+	SetSxhashEqual(LISPTYPE_DOUBLE_FLOAT, sxfixed_float_p_);
+	SetSxhashEqual(LISPTYPE_LONG_FLOAT, sxfixed_float_p_);
 }
 

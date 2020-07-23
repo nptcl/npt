@@ -441,17 +441,16 @@ _g void code_char_common(addr var, addr *ret)
 /*
  *  char-name
  */
-_g void char_name_common(addr var, addr *ret)
+_g int char_name_common_(addr var, addr *ret)
 {
-	if (! findtable_char_name(ret, var))
-		*ret = Nil;
+	return findtable_char_name_(ret, var);
 }
 
 
 /*
  *  name-char
  */
-_g void name_char_common(LocalRoot local, addr var, addr *ret)
+_g int name_char_common_(LocalRoot local, addr var, addr *ret)
 {
 	LocalStack stack;
 	unicode c;
@@ -462,16 +461,16 @@ _g void name_char_common(LocalRoot local, addr var, addr *ret)
 		GetCharacter(var, &c);
 		strvect_local(local, &var, 1);
 		strvect_setc(var, 0, c);
-		if (! findtable_name_char(ret, var))
-			*ret = Nil;
+		Return(findtable_name_char_(ret, var));
 		rollback_local(local, stack);
 	}
 	else {
 		/* symbol, string */
 		if (symbolp(var))
 			GetNameSymbol(var, &var);
-		if (! findtable_name_char(ret, var))
-			*ret = Nil;
+		Return(findtable_name_char_(ret, var));
 	}
+
+	return 0;
 }
 

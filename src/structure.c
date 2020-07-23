@@ -323,39 +323,42 @@ _g int structure_instance_p(addr pos)
 	return clos_subclass_p(pos, check);
 }
 
-static int equalcall_structure(addr a, addr b, int (*call)(addr, addr))
+static int equalcall_structure_(addr a, addr b, int *ret,
+		int (*call)(addr, addr, int *))
 {
+	int check;
 	addr c, d;
 	size_t x, y;
 
 	if (! structure_instance_p(a))
-		return 0;
+		return Result(ret, 0);
 	if (! structure_instance_p(b))
-		return 0;
+		return Result(ret, 0);
 	GetValueClos(a, &a);
 	GetValueClos(b, &b);
 	LenClosValue(a, &x);
 	LenClosValue(b, &y);
 	if (x != y)
-		return 0;
+		return Result(ret, 0);
 	for (x = 0; x < y; x++) {
 		GetClosValue(a, x, &c);
 		GetClosValue(b, x, &d);
-		if (! (*call)(c, d))
-			return 0;
+		Return((*call)(c, d, &check));
+		if (! check)
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-_g int equalp_structure(addr a, addr b)
+_g int equalp_structure_(addr a, addr b, int *ret)
 {
-	return equalcall_structure(a, b, equalp_function);
+	return equalcall_structure_(a, b, ret, equalp_function_);
 }
 
-_g int equalrt_structure(addr a, addr b)
+_g int equalrt_structure_(addr a, addr b, int *ret)
 {
-	return equalcall_structure(a, b, equalrt_function);
+	return equalcall_structure_(a, b, ret, equalrt_function_);
 }
 
 _g int typep_structure(addr value, addr instance)
@@ -1106,23 +1109,25 @@ static int structure_slot_readonly_p(addr slot)
 	return slot != Nil;
 }
 
-static void structure_slots_call_list(struct defstruct *str)
+static int structure_slots_call_list_(struct defstruct *str)
 {
 	addr package, type, slots, pos, symbol;
 	size_t size, i;
 
-	getpackage(str->ptr, &package);
+	Return(getpackage_(str->ptr, &package));
 	slots = str->slots;
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
 		structure_slot_callname(str, &symbol, pos);
-		intern_package(package, symbol, &symbol);
+		Return(intern_package_(package, symbol, &symbol, NULL));
 		structure_type(str, pos, &type);
 		structure_slot_reader_list(type, symbol);
 		if (! structure_slot_readonly_p(pos))
 			structure_slot_writer_list(type, symbol);
 	}
+
+	return 0;
 }
 
 /* vector */
@@ -1219,23 +1224,25 @@ static void structure_slot_writer_vector(addr data, addr symbol)
 	settype_setf_symbol(symbol, type);
 }
 
-static void structure_slots_call_vector(struct defstruct *str)
+static int structure_slots_call_vector_(struct defstruct *str)
 {
 	addr package, type, slots, pos, symbol;
 	size_t size, i;
 
-	getpackage(str->ptr, &package);
+	Return(getpackage_(str->ptr, &package));
 	slots = str->slots;
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
 		structure_slot_callname(str, &symbol, pos);
-		intern_package(package, symbol, &symbol);
+		Return(intern_package_(package, symbol, &symbol, NULL));
 		structure_type(str, pos, &type);
 		structure_slot_reader_vector(type, symbol);
 		if (! structure_slot_readonly_p(pos))
 			structure_slot_writer_vector(type, symbol);
 	}
+
+	return 0;
 }
 
 /* clos */
@@ -1330,35 +1337,37 @@ static void structure_slot_writer_clos(addr instance, addr slot, addr symbol)
 	settype_setf_symbol(symbol, type);
 }
 
-static void structure_slots_call_clos(struct defstruct *str)
+static int structure_slots_call_clos_(struct defstruct *str)
 {
 	addr instance, package, slots, pos, symbol;
 	size_t size, i;
 
 	instance = str->instance;
 	Check(! structure_class_p(instance), "type error");
-	getpackage(str->ptr, &package);
+	Return(getpackage_(str->ptr, &package));
 	slots = str->slots;
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
 		structure_slot_callname(str, &symbol, pos);
-		intern_package(package, symbol, &symbol);
+		Return(intern_package_(package, symbol, &symbol, NULL));
 		structure_slot_reader_clos(instance, pos, symbol);
 		if (! structure_slot_readonly_p(pos))
 			structure_slot_writer_clos(instance, pos, symbol);
 	}
+
+	return 0;
 }
 
 /* call */
-static void structure_slots_call(struct defstruct *str)
+static int structure_slots_call_(struct defstruct *str)
 {
 	if (str->type_list_p)
-		structure_slots_call_list(str);
+		return structure_slots_call_list_(str);
 	else if (str->type_vector_p)
-		structure_slots_call_vector(str);
+		return structure_slots_call_vector_(str);
 	else
-		structure_slots_call_clos(str);
+		return structure_slots_call_clos_(str);
 }
 
 
@@ -1726,7 +1735,7 @@ static void structure_constructor_default(struct defstruct *str, addr symbol)
 }
 
 /* constructor */
-static void structure_constructor_make(struct defstruct *str)
+static int structure_constructor_make_(struct defstruct *str)
 {
 	addr name;
 
@@ -1734,9 +1743,11 @@ static void structure_constructor_make(struct defstruct *str)
 	stdget_structure_name(str->instance, &name);
 	GetNameSymbol(name, &name);
 	string_concat_char1_heap(&name, "MAKE-", name);
-	intern_default_package(str->ptr, name, &name);
+	Return(intern_default_package_(str->ptr, name, &name, NULL));
 	/* make */
 	structure_constructor_default(str, name);
+
+	return 0;
 }
 
 static void structure_constructor_lambda(addr list)
@@ -1762,7 +1773,7 @@ static int structure_constructor_(struct defstruct *str)
 	for (list = str->constructor; list != Nil; ) {
 		GetCons(list, &pos, &list);
 		if (pos == g)
-			structure_constructor_make(str);
+			return structure_constructor_make_(str);
 		else if (symbolp(pos))
 			structure_constructor_default(str, pos);
 		else if (consp(pos))
@@ -1905,7 +1916,7 @@ static void structure_copier_clos(addr instance, addr symbol)
 }
 
 /* copier */
-static int structure_copier_callname(struct defstruct *str, addr *ret)
+static int structure_copier_callname_(struct defstruct *str, addr *ret)
 {
 	addr name;
 
@@ -1915,28 +1926,30 @@ static int structure_copier_callname(struct defstruct *str, addr *ret)
 		string_concat_char1_heap(&name, "COPY-", name);
 	}
 	else if (str->copier == Nil) {
-		return 1;
+		return Result(ret, Unbound);
 	}
 	else {
 		Check(! stringp(str->copier), "type error");
 		name = str->copier;
 	}
-	intern_default_package(str->ptr, name, ret);
-	return 0;
+	return intern_default_package_(str->ptr, name, ret, NULL);
 }
 
-static void structure_copier(struct defstruct *str)
+static int structure_copier_(struct defstruct *str)
 {
 	addr symbol;
 
-	if (structure_copier_callname(str, &symbol))
-		return;
+	Return(structure_copier_callname_(str, &symbol));
+	if (symbol == Unbound)
+		return 0;
 	if (str->type_list_p)
 		structure_copier_list(str, symbol);
 	else if (str->type_vector_p)
 		structure_copier_vector(str, symbol);
 	else
 		structure_copier_clos(str->instance, symbol);
+	
+	return 0;
 }
 
 
@@ -2034,7 +2047,7 @@ static void structure_predicate_clos(addr instance, addr symbol)
 }
 
 /* predicate */
-static int structure_predicate_callname(struct defstruct *str, addr *ret)
+static int structure_predicate_callname_(struct defstruct *str, addr *ret)
 {
 	addr name;
 
@@ -2044,28 +2057,30 @@ static int structure_predicate_callname(struct defstruct *str, addr *ret)
 		string_concat_char2_heap(&name, name, "-P");
 	}
 	else if (str->predicate == Nil) {
-		return 1;
+		return Result(ret, Unbound);
 	}
 	else {
 		Check(! stringp(str->predicate), "type error");
 		name = str->predicate;
 	}
-	intern_default_package(str->ptr, name, ret);
-	return 0;
+	return intern_default_package_(str->ptr, name, ret, NULL);
 }
 
-static void structure_predicate(struct defstruct *str)
+static int structure_predicate_(struct defstruct *str)
 {
 	addr symbol;
 
-	if (structure_predicate_callname(str, &symbol))
-		return;
+	Return(structure_predicate_callname_(str, &symbol));
+	if (symbol == Unbound)
+		return 0;
 	if (str->type_list_p)
 		structure_predicate_list(str, symbol);
 	else if (str->type_vector_p)
 		structure_predicate_vector(str, symbol);
 	else
 		structure_predicate_clos(str->instance, symbol);
+	
+	return 0;
 }
 
 
@@ -2096,7 +2111,7 @@ static int method_defstruct_default(Execute ptr,
 	return 0;
 }
 
-static void structure_print_default_method(struct defstruct *str, addr name, addr *ret)
+static int structure_print_default_method_(struct defstruct *str, addr name, addr *ret)
 {
 	addr pos, call, type;
 
@@ -2107,9 +2122,10 @@ static void structure_print_default_method(struct defstruct *str, addr name, add
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
-	method_instance_lambda(str->ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(str->ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 static int structure_print_add_method_(struct defstruct *str, addr name, addr method)
@@ -2128,7 +2144,7 @@ static int structure_print_default_(struct defstruct *str)
 	addr name, method;
 
 	GetConst(COMMON_PRINT_OBJECT, &name);
-	structure_print_default_method(str, name, &method);
+	Return(structure_print_default_method_(str, name, &method));
 	return structure_print_add_method_(str, name, method);
 }
 
@@ -2147,7 +2163,7 @@ static int method_defstruct_object(Execute ptr,
 	return 0;
 }
 
-static void structure_print_object_method(struct defstruct *str, addr name, addr *ret)
+static int structure_print_object_method_(struct defstruct *str, addr name, addr *ret)
 {
 	addr pos, call, type;
 
@@ -2159,9 +2175,10 @@ static void structure_print_object_method(struct defstruct *str, addr name, addr
 	SetDataFunction(call, str->print_object);
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
-	method_instance_lambda(str->ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(str->ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 static int structure_print_object_(struct defstruct *str)
@@ -2169,7 +2186,7 @@ static int structure_print_object_(struct defstruct *str)
 	addr name, method;
 
 	GetConst(COMMON_PRINT_OBJECT, &name);
-	structure_print_object_method(str, name, &method);
+	Return(structure_print_object_method_(str, name, &method));
 	return structure_print_add_method_(str, name, method);
 }
 
@@ -2190,7 +2207,7 @@ static int method_defstruct_function(Execute ptr,
 	return 0;
 }
 
-static void structure_print_function_method(struct defstruct *str, addr name, addr *ret)
+static int structure_print_function_method_(struct defstruct *str, addr name, addr *ret)
 {
 	addr pos, call, type;
 
@@ -2202,9 +2219,10 @@ static void structure_print_function_method(struct defstruct *str, addr name, ad
 	SetDataFunction(call, str->print_function);
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
-	method_instance_lambda(str->ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(str->ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
 static int structure_print_function_(struct defstruct *str)
@@ -2212,7 +2230,7 @@ static int structure_print_function_(struct defstruct *str)
 	addr name, method;
 
 	GetConst(COMMON_PRINT_OBJECT, &name);
-	structure_print_function_method(str, name, &method);
+	Return(structure_print_function_method_(str, name, &method));
 	return structure_print_add_method_(str, name, method);
 }
 
@@ -2266,9 +2284,9 @@ _g int ensure_structure_common_(Execute ptr, addr name, addr slots, addr args)
 	clos_define_class(str.name, str.instance);
 	/* settings */
 	structure_slots_make(&str);
-	structure_slots_call(&str);
-	structure_copier(&str);
-	structure_predicate(&str);
+	Return(structure_slots_call_(&str));
+	Return(structure_copier_(&str));
+	Return(structure_predicate_(&str));
 	Return(structure_constructor_(&str));
 	Return(structure_print_(&str));
 	/* rollback */

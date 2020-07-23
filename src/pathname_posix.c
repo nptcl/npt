@@ -53,39 +53,38 @@ static int parser_home_directory_p_pathname(struct fileparse *pa)
 #define PATHNAME_GETPWNAM_SIZE	(1UL << 16UL)
 #endif
 
-static int env_home_pathname(struct fileparse *pa, addr x, addr *ret)
+static int env_home_pathname_(struct fileparse *pa, addr x, addr *ret)
 {
 	addr pos;
 
 	GetConst(SYSTEM_SPECIAL_ENVIRONMENT, &pos);
 	getspecial_local(pa->ptr, pos, &pos);
 	if (pos == Unbound)
-		return 0;
+		return Result(ret, Unbound);
 	if (! hashtablep(pos))
-		return 0;
+		return Result(ret, Unbound);
 
-	return findvalue_char_hashtable(pos, "HOME", ret);
+	return find_char_hashtable_(pos, "HOME", ret);
 }
 
-static int strvect_home_pathname(LocalRoot local, const byte *pw_dir, addr *ret)
+static int strvect_home_pathname_(LocalRoot local, const byte *pw_dir, addr *ret)
 {
 	addr pos;
 	size_t size;
 	unicode *body;
 
 	if (UTF8_null_strlen(pw_dir, &size))
-		return 0; /* encode error */
+		return Result(ret, Unbound); /* encode error */
 	strvect_local(local, &pos, size);
 	GetStringUnicode(pos, &body);
 	if (UTF8_null_makeunicode(body, pw_dir))
-		return 0; /* encode error */
+		return Result(ret, Unbound); /* encode error */
 	strvect_update_character_type(pos);
-	*ret = pos;
 
-	return 1;
+	return Result(ret, pos);;
 }
 
-static int passwd_home_pathname(
+static int passwd_home_pathname_(
 		const char *name, struct fileparse *pa, addr x, addr *ret)
 {
 	int check;
@@ -107,29 +106,29 @@ static int passwd_home_pathname(
 		if (check == 0) {
 			/* not found */
 			if (result == NULL)
-				return 0;
+				return Result(ret, Unbound);
 			/* ok */
 			break;
 		}
 		if (check != ERANGE)
-			return 0; /* error */
+			return Result(ret, Unbound); /* error */
 
 		/* retry */
 		rollback_local(local, stack);
 		size <<= 1;
 		if (size == 0)
-			return 0; /* size error */
+			return Result(ret, Unbound); /* size error */
 	}
 
-	return strvect_home_pathname(local, (const byte *)pwd.pw_dir, ret);
+	return strvect_home_pathname_(local, (const byte *)pwd.pw_dir, ret);
 }
 
-static int uid_home_pathname(struct fileparse *pa, addr x, addr *ret)
+static int uid_home_pathname_(struct fileparse *pa, addr x, addr *ret)
 {
-	return passwd_home_pathname(NULL, pa, x, ret);
+	return passwd_home_pathname_(NULL, pa, x, ret);
 }
 
-static int name_home_pathname(struct fileparse *pa, addr x, addr *ret)
+static int name_home_pathname_(struct fileparse *pa, addr x, addr *ret)
 {
 	const char *body;
 	LocalRoot local;
@@ -137,22 +136,23 @@ static int name_home_pathname(struct fileparse *pa, addr x, addr *ret)
 	/* username */
 	local = pa->ptr->local;
 	if (UTF8_buffer_clang(local, &x, x))
-		return 0; /* encode error */
+		return Result(ret, Unbound); /* encode error */
 	posbody(x, (addr *)&body);
 	body++; /* ~ */
 
-	return passwd_home_pathname(body, pa, x, ret);
+	return passwd_home_pathname_(body, pa, x, ret);
 }
 
-static int string_home_pathname(struct fileparse *pa, addr x, addr *ret)
+static int string_home_pathname_(struct fileparse *pa, addr x, addr *ret)
 {
-	if (string_equal_char(x, "~")) {
-		return env_home_pathname(pa, x, ret)
-			|| uid_home_pathname(pa, x, ret);
-	}
-	else {
-		return name_home_pathname(pa, x, ret);
-	}
+	if (! string_equal_char(x, "~"))
+		return name_home_pathname_(pa, x, ret);
+
+	Return(env_home_pathname_(pa, x, &x));
+	if (x != Unbound)
+		return Result(ret, x);
+
+	return uid_home_pathname_(pa, x, ret);
 }
 
 static void split_home_pathname(LocalpRoot localp, addr x, size_t i, addr *ret)
@@ -200,7 +200,7 @@ static void split_home_pathname(LocalpRoot localp, addr x, size_t i, addr *ret)
 	cons_alloc(local, ret, car, cdr);
 }
 
-static int list_home_pathname(struct fileparse *pa, addr x, addr *ret)
+static int list_home_pathname_(struct fileparse *pa, addr x, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -211,9 +211,10 @@ static int list_home_pathname(struct fileparse *pa, addr x, addr *ret)
 	push_local(local, &stack);
 
 	/* get home directory */
-	if (! string_home_pathname(pa, x, &x)) {
+	Return(string_home_pathname_(pa, x, &x));
+	if (x == Unbound) {
 		rollback_local(local, stack);
-		return 0;
+		return Result(ret, Unbound);
 	}
 
 	/* split / */
@@ -224,37 +225,42 @@ static int list_home_pathname(struct fileparse *pa, addr x, addr *ret)
 		rollback_local(local, stack);
 
 	/* ok */
-	return 1;
+	return 0;
 }
 
-static int make_home_pathname(struct fileparse *pa, addr list, addr *ret)
+static int make_home_pathname_(struct fileparse *pa, addr list, addr *ret)
 {
 	addr root, x;
 
 	GetCdr(list, &list); /* :relative */
 	GetCons(list, &x, &list); /* "~user" */
-	if (list_home_pathname(pa, x, &x) == 0)
-		return 0;
+	Return(list_home_pathname_(pa, x, &x));
+	if (x == Unbound)
+		return Result(ret, Unbound);
 	/* (:absolute ,@x . list) */
 	GetConst(KEYWORD_ABSOLUTE, &root);
 	cons_alloc(localp_alloc(pa->local), &root, root, x);
 	nconc2_safe(root, list, ret);
-	return 1;
+	return 0;
 }
 
-static void parser_home_directory_pathname(struct fileparse *pa)
+static int parser_home_directory_pathname_(struct fileparse *pa)
 {
 	addr list;
 
 	/* (:relative "~user" ...) -> (:absolute home path ...) */
 	list = pa->directory;
-	if (make_home_pathname(pa, list, &list))
+	Return(make_home_pathname_(pa, list, &list));
+	if (list != Unbound)
 		pa->directory = list;
+	
+	return 0;
 }
 #else
-static void parser_home_directory_pathname(struct fileparse *pa)
+static int parser_home_directory_pathname_(struct fileparse *pa)
 {
 	/* do nothing */
+	return 0;
 }
 #endif
 
@@ -262,21 +268,24 @@ static void parser_home_directory_pathname(struct fileparse *pa)
 /*
  *  unix pathname
  */
-static void parser_make_unix_pathname(struct fileparse *pa)
+static int parser_make_unix_pathname_(struct fileparse *pa)
 {
 	GetConst(SYSTEM_UNIX, &pa->host);
 	GetDevicePathname(pa->path, &pa->device);
 	wild_value_pathname(pa->name, &pa->name);
 	wild_value_pathname(pa->type, &pa->type);
 	GetVersionPathname(pa->path, &pa->version);
-	if (parser_home_directory_p_pathname(pa))
-		parser_home_directory_pathname(pa);
+	if (parser_home_directory_p_pathname(pa)) {
+		Return(parser_home_directory_pathname_(pa));
+	}
 	pathname_fileparse_alloc(pa, 0);
+
+	return 0;
 }
 
 _g int parser_unix_pathname_(struct fileparse *pa)
 {
-	int absolute, relative, logical, dp;
+	int absolute, relative, logical, dp, check;
 	unicode c;
 	LocalpRoot local;
 	const unicode *body;
@@ -343,7 +352,8 @@ next1:
 		dp = 1;
 	}
 	if (logical == 0 && c == ':') {
-		if (check_host_logical_pathname(local, charqueue)) {
+		Return(check_host_logical_pathname_(local, charqueue, &check));
+		if (check) {
 			/* parser logical */
 			*pa = backup;
 			return parser_logical_pathname_(pa);
@@ -374,7 +384,7 @@ name_finish:
 finish:
 	nreverse(&pa->directory, queue);
 	pa->endpos = i;
-	parser_make_unix_pathname(pa);
+	Return(parser_make_unix_pathname_(pa));
 	return 0;
 }
 

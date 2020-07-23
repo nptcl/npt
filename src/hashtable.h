@@ -104,32 +104,44 @@ _g int getrehash_float_hashtable(addr pos, double_float *ret);
 _g void setrehash_integer_hashtable(addr pos, size_t value);
 _g int getrehash_integer_hashtable(addr pos, size_t *ret);
 _g void getrehash_threshold_hashtable(addr pos, double_float *ret);
+
+/* intern */
+_g int force_resize_hashtable_(addr pos, size_t size);
+_g int internp_hashheap_(addr pos, addr key, addr *ret, int *existp);
+_g int intern_hashheap_(addr pos, addr key, addr *ret);
+
+/* notfound = nil */
+_g int findcons_hashtable_(addr pos, addr key, addr *ret);
+_g int findcons_char_hashtable_(addr pos, const char *key, addr *ret);
+_g int findcons_unicode_hashtable_(addr pos, unicode key, addr *ret);
+_g int findcons_character2_hashtable_(addr pos, unicode a, unicode b, addr *ret);
+
+/* notfound = unbound */
+_g int find_hashtable_(addr pos, addr key, addr *ret);
+_g int find_char_hashtable_(addr pos, const char *key, addr *ret);
+_g int find_unicode_hashtable_(addr pos, unicode key, addr *ret);
+_g int find_character2_hashtable_(addr pos, unicode a, unicode b, addr *ret);
+
+/* notfound = nil */
+_g int findnil_hashtable_(addr pos, addr key, addr *ret);
+_g int findnil_char_hashtable_(addr pos, const char *key, addr *ret);
+_g int findnil_unicode_hashtable_(addr pos, unicode key, addr *ret);
+_g int findnil_character2_hashtable_(addr pos, unicode a, unicode b, addr *ret);
+
+/* debug */
+_g int findnil_hashtable_debug(addr pos, addr key, addr *ret);
+
 /* delete=0, notfound=1 */
-_g int delete_hashtable(addr pos, addr key);
+_g int delete_hashtable_(addr pos, addr key, int *ret);
+
 /* map-function */
 _g void allkeys_hashtable_heap(addr pos, addr *ret);
 _g void allkeys_hashtable_local(LocalRoot local, addr pos, addr *ret);
 _g void allkeys_hashtable_alloc(LocalRoot local, addr pos, addr *ret);
 
-_g void force_resize_hashtable(addr pos, size_t size);
-/* found=1, notfound=0 */
-_g int intern_hashheap(addr pos, addr key, addr *ret);
-_g int intern_hashlocal(LocalRoot root, addr pos, addr key, addr *ret);
-_g int intern_hashalloc(LocalRoot root, addr pos, addr key, addr *ret);
-_g int intern_hashtable(LocalRoot root, addr pos, addr key, addr *ret);
-/* notfound=nil */
-_g void findcons_hashtable(addr pos, addr key, addr *ret);
-_g void findcons_char_hashtable(addr pos, const char *key, addr *ret);
-_g void findcons_unicode_hashtable(addr pos, unicode key, addr *ret);
-_g void findcons_character2_hashtable(addr pos, unicode a, unicode b, addr *ret);
-/* found=1, notfound=0 */
-_g int findvalue_hashtable(addr pos, addr key, addr *ret);
-_g int findvalue_char_hashtable(addr pos, const char *key, addr *ret);
-_g int findvalue_unicode_hashtable(addr pos, unicode key, addr *ret);
-_g int findvalue_character2_hashtable(addr pos, unicode a, unicode b, addr *ret);
 /* equalp */
-_g int equalp_hashtable(addr left, addr right);
-_g int equalrt_hashtable(addr left, addr right);
+_g int equalp_hashtable_(addr left, addr right, int *ret);
+_g int equalrt_hashtable_(addr left, addr right, int *ret);
 
 /* iterator */
 _g void hash_iterator_alloc(LocalRoot local, addr *ret, addr table);

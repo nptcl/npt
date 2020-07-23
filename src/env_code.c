@@ -291,17 +291,19 @@ static int trace_add_function(Execute ptr, addr name, addr call)
 	return 0; /* normal */
 }
 
-static void trace_add_push(Execute ptr, addr name)
+static int trace_add_push_(Execute ptr, addr name)
 {
 	addr symbol, list;
 
 	GetConst(SYSTEM_TRACE_LIST, &symbol);
 	getspecialcheck_local(ptr, symbol, &list);
-	pushnew_equal_heap(list, name, &list);
+	Return(pushnew_equal_heap_(list, name, &list));
 	setspecial_local(ptr, symbol, list);
+
+	return 0;
 }
 
-_g void trace_add_common(Execute ptr, addr list, addr *ret)
+_g int trace_add_common_(Execute ptr, addr list, addr *ret)
 {
 	addr root, name, pos;
 
@@ -311,9 +313,11 @@ _g void trace_add_common(Execute ptr, addr list, addr *ret)
 		if (trace_add_function(ptr, name, pos))
 			continue;
 		cons_heap(&root, name, root);
-		trace_add_push(ptr, name);
+		Return(trace_add_push_(ptr, name));
 	}
 	nreverse(ret, root);
+
+	return 0;
 }
 
 
@@ -354,20 +358,22 @@ static int trace_del_function(Execute ptr, addr name, addr call)
 	return 0; /* normal */
 }
 
-static void trace_del_remove(Execute ptr, addr name)
+static int trace_del_remove_(Execute ptr, addr name)
 {
+	int check;
 	addr symbol, list;
 
 	GetConst(SYSTEM_TRACE_LIST, &symbol);
 	getspecialcheck_local(ptr, symbol, &list);
-	if (! delete_list_equal_unsafe(name, list, &list)) {
-		fmtw("There is no function ~S in *trace-list*", name, NULL);
-		return;
-	}
+	Return(delete_list_equal_unsafe_(name, list, &list, &check));
+	if (! check)
+		return fmtw_("There is no function ~S in *trace-list*", name, NULL);
 	setspecial_local(ptr, symbol, list);
+
+	return 0;
 }
 
-_g void trace_del_common(Execute ptr, addr list, addr *ret)
+_g int trace_del_common_(Execute ptr, addr list, addr *ret)
 {
 	addr root, name, pos;
 
@@ -384,9 +390,11 @@ _g void trace_del_common(Execute ptr, addr list, addr *ret)
 		if (trace_del_function(ptr, name, pos))
 			continue;
 		cons_heap(&root, name, root);
-		trace_del_remove(ptr, name);
+		Return(trace_del_remove_(ptr, name));
 	}
 	nreverse(ret, root);
+
+	return 0;
 }
 
 

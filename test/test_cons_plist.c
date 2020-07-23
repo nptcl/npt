@@ -64,10 +64,10 @@ static int test_setplist_alloc(void)
 {
 	addr pos, list, check, sym1, sym2, sym3, sym4;
 
-	internchar(LISP_PACKAGE, "HELLO1", &sym1);
-	internchar(LISP_PACKAGE, "HELLO2", &sym2);
-	internchar(LISP_PACKAGE, "HELLO3", &sym3);
-	internchar(LISP_PACKAGE, "HELLO4", &sym4);
+	internchar_debug(LISP_PACKAGE, "HELLO1", &sym1);
+	internchar_debug(LISP_PACKAGE, "HELLO2", &sym2);
+	internchar_debug(LISP_PACKAGE, "HELLO3", &sym3);
+	internchar_debug(LISP_PACKAGE, "HELLO4", &sym4);
 	test(setplist_alloc(NULL, Nil, sym1, sym2, &list), "setplist_alloc.1");
 	test(GetType(list) == LISPTYPE_CONS, "setplist_alloc.2");
 	GetCons(list, &pos, &check);
@@ -136,10 +136,10 @@ static int test_pushnewplist_alloc(void)
 {
 	addr pos, list, check, sym1, sym2, sym3, sym4;
 
-	internchar(LISP_PACKAGE, "HELLO1", &sym1);
-	internchar(LISP_PACKAGE, "HELLO2", &sym2);
-	internchar(LISP_PACKAGE, "HELLO3", &sym3);
-	internchar(LISP_PACKAGE, "HELLO4", &sym4);
+	internchar_debug(LISP_PACKAGE, "HELLO1", &sym1);
+	internchar_debug(LISP_PACKAGE, "HELLO2", &sym2);
+	internchar_debug(LISP_PACKAGE, "HELLO3", &sym3);
+	internchar_debug(LISP_PACKAGE, "HELLO4", &sym4);
 	test(pushnewplist_alloc(NULL, Nil, sym1, sym2, &list), "pushnewplist_alloc.1");
 	test(GetType(list) == LISPTYPE_CONS, "pushnewplist_alloc.2");
 	GetCons(list, &pos, &check);
@@ -211,9 +211,9 @@ static int test_remplist_safe(void)
 	test(remplist_safe(list, key, &pos) == RemPlist_Update, "remplist_safe.5");
 	test(pos == Nil, "remplist_safe.6");
 
-	interncommon("CAR", &key1);
-	interncommon("CDR", &key2);
-	interncommon("CONS", &key3);
+	interncommon_debug("CAR", &key1);
+	interncommon_debug("CDR", &key2);
+	interncommon_debug("CONS", &key3);
 	list_heap(&list,
 			key1, fixnumh(10),
 			key2, fixnumh(20),
@@ -270,9 +270,9 @@ static int test_remplist_check(void)
 	test(remplist_check(list, key, &pos) == RemPlist_Update, "remplist_check.5");
 	test(pos == Nil, "remplist_check.6");
 
-	interncommon("CAR", &key1);
-	interncommon("CDR", &key2);
-	interncommon("CONS", &key3);
+	interncommon_debug("CAR", &key1);
+	interncommon_debug("CDR", &key2);
+	interncommon_debug("CONS", &key3);
 	list_heap(&list,
 			key1, fixnumh(10),
 			key2, fixnumh(20),
@@ -322,9 +322,9 @@ static int test_remplist(void)
 	test(! remplist(Nil, T, &pos), "remplist.1");
 	test(pos == Nil, "remplist.2");
 
-	interncommon("CAR", &key1);
-	interncommon("CDR", &key2);
-	interncommon("CONS", &key3);
+	interncommon_debug("CAR", &key1);
+	interncommon_debug("CDR", &key2);
+	interncommon_debug("CONS", &key3);
 	list_heap(&list,
 			key1, fixnumh(10),
 			key2, fixnumh(20),

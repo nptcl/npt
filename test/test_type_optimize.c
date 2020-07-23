@@ -650,7 +650,7 @@ static int test_optimize_signed_byte(void)
 	test(test_integernilnil(pos, -1, 0), "optimize_signed_byte4");
 	test(! RefNotDecl(pos), "optimize_signed_byte5");
 
-	interncommon("SIGNED-BYTE", &pos1);
+	interncommon_debug("SIGNED-BYTE", &pos1);
 	fixnum_heap(&pos2, BIGNUM_FULLBIT);
 	list_heap(&pos, pos1, pos2, NULL);
 	test_parse_type(&pos, pos);
@@ -757,7 +757,7 @@ static int test_optimize_unsigned_byte(void)
 	optimize_unsigned_byte(local, &pos, pos);
 	test(test_integernilnil(pos, 0, 1), "optimize_unsigned_byte4");
 
-	interncommon("UNSIGNED-BYTE", &pos1);
+	interncommon_debug("UNSIGNED-BYTE", &pos1);
 	fixnum_heap(&pos2, BIGNUM_FULLBIT - 1UL);
 	list_heap(&pos, pos1, pos2, NULL);
 	test_parse_type(&pos, pos);
@@ -894,7 +894,7 @@ static int test_optimize_eql_range(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	list_heap(&pos, interncommonr("EQL"), fixnumh(10), NULL);
+	list_heap(&pos, interncommonr_debug("EQL"), fixnumh(10), NULL);
 	test_parse_type(&pos, pos);
 	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range1");
 	test(testlispdecl(pos, LISPDECL_INTEGER), "optimize_eql_range2");
@@ -911,32 +911,32 @@ static int test_optimize_eql_range(void)
 	bignum_value_alloc(local, &numer, signplus_bignum, 12);
 	bignum_value_alloc(local, &denom, signplus_bignum, 7);
 	make_ratio_reduction_local(local, &pos, signplus_bignum, numer, denom);
-	list_local(local, &pos, interncommonr("EQL"), pos, NULL);
+	list_local(local, &pos, interncommonr_debug("EQL"), pos, NULL);
 	test_parse_type(&pos, pos);
 	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range8");
 	test(testlispdecl(pos, LISPDECL_RATIONAL), "optimize_eql_range9");
 	rollback_local(local, stack);
 
 	single_float_heap(&pos, 20.0f);
-	list_heap(&pos, interncommonr("EQL"), pos, NULL);
+	list_heap(&pos, interncommonr_debug("EQL"), pos, NULL);
 	test_parse_type(&pos, pos);
 	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range10");
 	test(testlispdecl(pos, LISPDECL_SINGLE_FLOAT), "optimize_eql_range11");
 
 	double_float_heap(&pos, 20.0);
-	list_heap(&pos, interncommonr("EQL"), pos, NULL);
+	list_heap(&pos, interncommonr_debug("EQL"), pos, NULL);
 	test_parse_type(&pos, pos);
 	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range12");
 	test(testlispdecl(pos, LISPDECL_DOUBLE_FLOAT), "optimize_eql_range13");
 
 	long_float_heap(&pos, 20.0L);
-	list_heap(&pos, interncommonr("EQL"), pos, NULL);
+	list_heap(&pos, interncommonr_debug("EQL"), pos, NULL);
 	test_parse_type(&pos, pos);
 	test(optimize_eql_range(local, &pos, pos), "optimize_eql_range14");
 	test(testlispdecl(pos, LISPDECL_LONG_FLOAT), "optimize_eql_range15");
 
 	character_heap(&pos, 'A');
-	list_heap(&pos, interncommonr("EQL"), pos, NULL);
+	list_heap(&pos, interncommonr_debug("EQL"), pos, NULL);
 	test_parse_type(&pos, pos);
 	test(! optimize_eql_range(local, &pos, pos), "optimize_eql_range16");
 

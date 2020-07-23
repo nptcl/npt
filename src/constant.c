@@ -29,13 +29,15 @@ _g void build_constant(void)
 /*
  *  interface
  */
-_g void specialconstant(constindex index, const char *package, const char *name)
+_g int specialconstant_(constindex index, const char *package, const char *name)
 {
 	addr symbol;
 
-	internchar(package, name, &symbol);
+	Return(internchar_(package, name, &symbol, NULL));
 	setspecial_symbol(symbol);
 	SetConstant(index, symbol);
+
+	return 0;
 }
 
 _g void gensymconstant(constindex index, const char *name)
@@ -48,20 +50,24 @@ _g void gensymconstant(constindex index, const char *name)
 	SetConstant(index, symbol);
 }
 
-_g void keywordconstant(constindex index, const char *name)
+_g int keywordconstant_(constindex index, const char *name)
 {
 	addr symbol;
 
-	internchar_keyword(name, &symbol);
+	Return(internchar_keyword_(name, &symbol, NULL));
 	SetConstant(index, symbol);
+
+	return 0;
 }
 
-_g void commonconstant(constindex index, const char *name)
+_g int commonconstant_(constindex index, const char *name)
 {
 	addr symbol;
 
-	interncommon(name, &symbol);
+	Return(interncommon_(name, &symbol, NULL));
 	SetConstant(index, symbol);
+
+	return 0;
 }
 
 
@@ -86,24 +92,28 @@ static void copy_symbolchar(char *dst, const char *src, size_t size)
 	dst[i] = 0;
 }
 
-_g void symbolchar_common(constindex index, const char *name)
+_g int symbolchar_common_(constindex index, const char *name)
 {
 	char buffer[SYMBOLCHAR_SIZE];
 	addr symbol;
 
 	copy_symbolchar(buffer, name, SYMBOLCHAR_SIZE);
-	interncommon(name, &symbol);
+	Return(interncommon_(name, &symbol, NULL));
 	SetConstant(index, symbol);
+
+	return 0;
 }
 
-_g void symbolchar_keyword(constindex index, const char *name)
+_g int symbolchar_keyword_(constindex index, const char *name)
 {
 	char buffer[SYMBOLCHAR_SIZE];
 	addr symbol;
 
 	copy_symbolchar(buffer, name, SYMBOLCHAR_SIZE);
-	internchar_keyword(name, &symbol);
+	Return(internchar_keyword_(name, &symbol, NULL));
 	SetConstant(index, symbol);
+
+	return 0;
 }
 
 _g void quotelist_heap(addr *ret, addr name)

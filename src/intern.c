@@ -40,7 +40,7 @@ static struct symbol_header SymbolHeader[] = {
 	{ CONSTANT_EMPTY, DEFAULT, NULL, 0, 0, 0, 0, 0 }
 };
 
-static void intern_symbol_package(addr package, struct symbol_header *str, addr *ret)
+static int intern_symbol_package_(addr package, struct symbol_header *str, addr *ret)
 {
 	addr name, value, car, cdr;
 	size_t size, index;
@@ -48,13 +48,25 @@ static void intern_symbol_package(addr package, struct symbol_header *str, addr 
 	/* bitpackage */
 	Check(! packagep(package), "type error");
 	strvect_size1_heap(&name, str->symbol, str->length);
-	if (str->findp) {
-		intern_package(package, name, ret);
-		return;
+	if (str->findp)
+		return intern_package_(package, name, ret, NULL);
+
+#ifdef LISP_DEBUG
+	{
+		enum PACKAGE_TYPE debug;
+		addr ignore;
+		Error(find_symbol_package_(package, name, &ignore, &debug));
+		Check(debug != PACKAGE_TYPE_NIL, "find error");
 	}
-	Check(find_symbol_package(package, name, &cdr) != PACKAGE_TYPE_NIL, "find error");
+#endif
 	make_bitpackage_symbol(&value, ret, name, package);
-	Check(sxhash_char_equal(str->symbol) != str->sxhash, "sxhash error");
+#ifdef LISP_DEBUG
+	{
+		fixnum debug;
+		Error(sxhash_char_equal_(str->symbol, &debug));
+		Check(debug != str->sxhash, "sxhash error");
+	}
+#endif
 
 	/* intern */
 	GetPackage(package, PACKAGE_INDEX_TABLE, &package);
@@ -68,9 +80,11 @@ static void intern_symbol_package(addr package, struct symbol_header *str, addr 
 	cons_heap(&car, name, value);
 	cons_heap(&cdr, car, cdr);
 	SetArrayHash(package, index, cdr);
+
+	return 0;
 }
 
-_g void intern_symbol_header(void)
+_g int intern_symbol_header_(void)
 {
 	addr symbol, p_common, p_keyword, p_system, p_code, p_clos, p_rt, package;
 	struct symbol_header *table;
@@ -89,45 +103,47 @@ _g void intern_symbol_header(void)
 		switch (table->package) {
 			case COMMON:
 				package = p_common;
-				intern_symbol_package(package, table, &symbol);
-				export_package(package, symbol);
+				Return(intern_symbol_package_(package, table, &symbol));
+				Return(export_package_(package, symbol));
 				break;
 
 			case KEYWORD:
 				package = p_keyword;
-				intern_symbol_package(package, table, &symbol);
-				setkeyword_package(symbol);
+				Return(intern_symbol_package_(package, table, &symbol));
+				Return(setkeyword_package_(symbol));
 				break;
 
 			case SYSTEM:
 				package = p_system;
-				intern_symbol_package(package, table, &symbol);
+				Return(intern_symbol_package_(package, table, &symbol));
 				break;
 
 			case CODE:
 				package = p_code;
-				intern_symbol_package(package, table, &symbol);
+				Return(intern_symbol_package_(package, table, &symbol));
 				break;
 
 			case CLOS:
 				package = p_clos;
-				intern_symbol_package(package, table, &symbol);
+				Return(intern_symbol_package_(package, table, &symbol));
 				break;
 
 			case RT:
 				package = p_rt;
-				intern_symbol_package(package, table, &symbol);
+				Return(intern_symbol_package_(package, table, &symbol));
 				break;
 
 			default:
-				fmte("package error.", NULL);
-				return;
+				return fmte_("package error.", NULL);
 		}
 		if (table->specialp)
 			setspecial_symbol(symbol);
-		if (table->exportp)
-			export_package(package, symbol);
+		if (table->exportp) {
+			Return(export_package_(package, symbol));
+		}
 		SetConstant(table->index, symbol);
 	}
+
+	return 0;
 }
 

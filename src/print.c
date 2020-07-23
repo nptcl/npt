@@ -402,8 +402,8 @@ _g int print_unreadable_common_(Execute ptr, addr stream, addr pos,
  */
 _g void build_print(Execute ptr)
 {
-	build_print_object(ptr);
-	build_print_dispatch();
+	Error(build_print_object_(ptr));
+	Error(build_print_dispatch_());
 }
 
 _g void init_print(void)

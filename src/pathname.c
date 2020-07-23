@@ -208,6 +208,7 @@ _g int pathname_designer_local_(Execute ptr, addr pos, addr *ret)
  */
 _g int physical_pathname_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 {
+	int check;
 	LocalRoot local;
 	addr host, list, left, right, value;
 
@@ -221,12 +222,14 @@ _g int physical_pathname_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 
 	/* logical pathname */
 	GetHostPathname(pos, &host);
-	if (! gethost_logical_pathname(host, &list))
+	Return(gethost_logical_pathname_(host, &list));
+	if (list == Nil)
 		return fmte_("The logical-hostname ~S is not exist.", host, NULL);
 	while (list != Nil) {
 		GetCons(list, &right, &list);
 		List_bind(right, &left, &value, NULL);
-		if (wildcard_pathname(pos, left, 1))
+		Return(wildcard_pathname_(pos, left, 1, &check));
+		if (check)
 			return translate_pathname_alloc_(ptr, ret, pos, left, value, localp);
 	}
 	return fmte_("The logical-pathname ~S don't match translate table.", pos, NULL);

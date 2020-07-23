@@ -65,12 +65,12 @@ static int loadrt_init(Execute ptr, const char *name, int *ret)
 	Return(format_stdout(ptr, "~&[~A]~%", file, NULL));
 
 	/* (let ((*package* (find-package 'common-lisp-user))) ...) */
-	find_char_package(LISP_COMMON_USER, &package);
+	Return(find_char_package_(LISP_COMMON_USER, &package));
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	pushspecial_control(ptr, symbol, package);
 	/* (use-package 'lisp-rt *package*) */
-	find_char_package(LISP_RT, &use);
-	use_package(package, use);
+	Return(find_char_package_(LISP_RT, &use));
+	Return(use_package_(package, use));
 	/* load-rt */
 	Return(parse_pathname_char_heap_(ptr, name, &file));
 	return rtload_pathname(ptr, file, ret);
@@ -103,7 +103,7 @@ static int loadrt_execute(Execute ptr, const char *name)
 		loadrt_declare_optimize();
 		Return(loadrt_init(ptr, name, &check));
 		if (check)
-			fmte("result code error.", NULL);
+			return fmte_("result code error.", NULL);
 	}
 	end_switch(&jump);
 	Return(free_control_(ptr, control));
@@ -112,32 +112,34 @@ static int loadrt_execute(Execute ptr, const char *name)
 	return 0;
 }
 
-static void loadrt_nickname(const char *str1, const char *str2)
+static int loadrt_nickname_(const char *str1, const char *str2)
 {
 	addr name1, name2;
 
 	strvect_char_heap(&name1, str1);
 	strvect_char_heap(&name2, str2);
 	conscar_heap(&name2, name2);
-	rename_package(name1, name1, name2, &name1);
+	return rename_package_(name1, name1, name2, &name1);
 }
 
-static void loadrt_nicknames(void)
+static int loadrt_nicknames_(void)
 {
 	addr symbol, keyword, cons;
 
-	loadrt_nickname(LISP_SYSTEM, "LISP-SYSTEM");
-	loadrt_nickname(LISP_USER, "LISP-USER");
-	loadrt_nickname(LISP_CLOS, "LISP-CLOS");
-	loadrt_nickname(LISP_RT, "LISP-RT");
+	Return(loadrt_nickname_(LISP_SYSTEM, "LISP-SYSTEM"));
+	Return(loadrt_nickname_(LISP_USER, "LISP-USER"));
+	Return(loadrt_nickname_(LISP_CLOS, "LISP-CLOS"));
+	Return(loadrt_nickname_(LISP_RT, "LISP-RT"));
 
 	/* push :rt-degrade */
 	GetConst(SPECIAL_FEATURES, &symbol);
-	internchar_keyword("RT-DEGRADE", &keyword);
+	Return(internchar_keyword_("RT-DEGRADE", &keyword, NULL));
 	GetValueSymbol(symbol, &cons);
 	Check(find_list_eq_unsafe(keyword, cons), "push error");
 	cons_heap(&cons, keyword, cons);
 	SetValueSymbol(symbol, cons);
+
+	return 0;
 }
 
 static void loadrt_getindex(Execute ptr)
@@ -149,7 +151,7 @@ static void loadrt_getindex(Execute ptr)
 	setspecial_local(ptr, symbol, value);
 }
 
-static void loadrt_setindex(Execute ptr)
+static int loadrt_setindex_(Execute ptr)
 {
 	addr symbol, value;
 	fixnum index;
@@ -158,10 +160,20 @@ static void loadrt_setindex(Execute ptr)
 	getspecial_local(ptr, symbol, &value);
 	if (value != Unbound) {
 		if (! fixnump(value))
-			fmte("Invalid fixnum value ~S.", value, NULL);
+			return fmte_("Invalid fixnum value ~S.", value, NULL);
 		GetFixnum(value, &index);
 		DegradeCount = (int)index;
 	}
+
+	return 0;
+}
+
+static int loadrt_body_lisp_(Execute ptr, const char *name)
+{
+	Return(loadrt_nicknames_());
+	loadrt_getindex(ptr);
+	Return(loadrt_execute(ptr, name));
+	return loadrt_setindex_(ptr);
 }
 
 static int loadrt_lisp(const char *name)
@@ -177,10 +189,7 @@ static int loadrt_lisp(const char *name)
 	begin_setjmp(ptr, &code);
 	if (code_run_p(code)) {
 		buildlisp(ptr);
-		loadrt_nicknames();
-		loadrt_getindex(ptr);
-		result = loadrt_execute(ptr, name);
-		loadrt_setindex(ptr);
+		result = loadrt_body_lisp_(ptr, name);
 	}
 	end_setjmp(ptr);
 	freelisp();

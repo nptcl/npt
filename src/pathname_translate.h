@@ -5,8 +5,8 @@
 
 /* found=0, notfound=1 */
 _g void table_logical_pathname(addr *ret);
-_g int gethost_logical_pathname(addr key, addr *ret);
-_g void sethost_logical_pathname(addr key, addr value);
+_g int gethost_logical_pathname_(addr key, addr *ret);
+_g int sethost_logical_pathname_(addr key, addr value);
 
 _g int translate_pathname_alloc_(Execute ptr,
 		addr *ret, addr pos, addr from, addr to, int localp);

@@ -119,15 +119,11 @@ static int make_keyword_from_symbol_(addr symbol, addr *ret)
 		return fmte_("The variable ~S must be a symbol.", symbol, NULL);
 	GetConst(PACKAGE_KEYWORD, &keyword);
 	GetPackageSymbol(symbol, &package);
-	if (package == keyword) {
-		*ret = symbol;
-	}
-	else {
-		GetNameSymbol(symbol, &symbol);
-		intern_package(keyword, symbol, ret);
-	}
+	if (package == keyword)
+		return Result(ret, symbol);
 
-	return 0;
+	GetNameSymbol(symbol, &symbol);
+	return intern_package_(keyword, symbol, ret, NULL);
 }
 
 static int list2_check(addr cons, addr *ret1, addr *ret2)

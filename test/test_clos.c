@@ -622,15 +622,15 @@ static int test_clos_find_specializer(void)
 {
 	addr pos;
 
-	clos_find_specializer_nil(readr("aaa"), &pos);
+	clos_find_specializer_nil_(readr("aaa"), &pos);
 	test(pos == Nil, "clos_find_specializer1");
 	clos_find_class(readr("method"), &pos);
-	clos_define_specializer(readr("aaa"), pos);
+	clos_define_specializer_(readr("aaa"), pos);
 	pos = 0;
-	clos_find_specializer_nil(readr("aaa"), &pos);
+	clos_find_specializer_nil_(readr("aaa"), &pos);
 	test(closp(pos), "clos_find_specializer2");
 	pos = 0;
-	clos_find_specializer(readr("aaa"), &pos);
+	clos_find_specializer_(readr("aaa"), &pos);
 	test(closp(pos), "clos_find_specializer3");
 
 	RETURN;

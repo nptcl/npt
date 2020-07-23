@@ -13,36 +13,43 @@
 /*
  *  intern
  */
-_g enum PACKAGE_TYPE intern_package_table(addr package, addr name, addr *ret)
+_g int intern_package_table_(addr package, addr name,
+		addr *value, enum PACKAGE_TYPE *ret)
 {
+	int check;
 	enum PACKAGE_TYPE result;
 	addr keyword, bit;
 
 	/* intern */
-	result = intern_bitpackage(package, name, &bit)?
-		PACKAGE_TYPE_NIL:
-		StructBitType(bit)->intern;
-	GetBitTypeSymbol(bit, ret);
+	Return(intern_bitpackage_(package, name, &bit, &check));
+	result = check? PACKAGE_TYPE_NIL: StructBitType(bit)->intern;
+	GetBitTypeSymbol(bit, value);
 
 	/* keyword */
 	GetConst(PACKAGE_KEYWORD, &keyword);
-	if (keyword == package)
-		setkeyword_package(*ret);
+	if (keyword == package) {
+		Return(setkeyword_package_(*value));
+	}
 
-	return result;
+	if (ret)
+		return Result(ret, result);
+	else
+		return 0;
 }
 
-_g enum PACKAGE_TYPE intern_package(addr package, addr name, addr *ret)
+_g int intern_package_(addr package, addr name,
+		addr *value, enum PACKAGE_TYPE *ret)
 {
 	Check(package == NULL, "null error");
 	Check(package == Nil, "nil error");
 	Check(! stringp(name), "type error");
 
-	package_designer(package, &package);
-	return intern_package_table(package, name, ret);
+	Return(package_designer_(package, &package));
+	return intern_package_table_(package, name, value, ret);
 }
 
-_g enum PACKAGE_TYPE intern_char_package(addr package, const char *name, addr *ret)
+_g int intern_char_package_(addr package, const char *name,
+		addr *value, enum PACKAGE_TYPE *ret)
 {
 	addr symbol;
 
@@ -51,46 +58,53 @@ _g enum PACKAGE_TYPE intern_char_package(addr package, const char *name, addr *r
 	Check(GetType(package) != LISPTYPE_PACKAGE, "type error");
 
 	/* find symbol */
-	find_char_bitpackage(package, name, &symbol);
+	Return(find_char_bitpackage_(package, name, &symbol));
 	if (symbol != Nil) {
-		GetBitTypeSymbol(symbol, ret);
-		return StructBitType(symbol)->intern;
+		GetBitTypeSymbol(symbol, value);
+		if (ret)
+			return Result(ret, StructBitType(symbol)->intern);
+		else
+			return 0;
 	}
 
 	/* intern */
 	strvect_char_heap(&symbol, name);
-	return intern_package(package, symbol, ret);
+	return intern_package_(package, symbol, value, ret);
 }
 
 
 /*
  *  unintern
  */
-static int check_export_unintern(addr pos, addr name)
-{
-	GetPackage(pos, PACKAGE_INDEX_TABLE, &pos);
-	findvalue_hashtable(pos, name, &pos);
-
-	return pos != Nil && StructBitType(pos)->expt;
-}
-
-static int check_shadowing_unintern(addr package, addr name)
+static int check_export_unintern_(addr pos, addr name, int *ret)
 {
 	int check;
+
+	GetPackage(pos, PACKAGE_INDEX_TABLE, &pos);
+	Return(find_hashtable_(pos, name, &pos));
+	check = (pos != Unbound && StructBitType(pos)->expt);
+
+	return Result(ret, check);
+}
+
+static int check_shadowing_unintern_(addr package, addr name, int *ret)
+{
+	int loop, check;
 	addr left, right;
 
 	GetPackage(package, PACKAGE_INDEX_USE, &right);
-	check = 0;
+	loop = 0;
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		if (check_export_unintern(left, name)) {
-			if (check)
-				return 1;
-			check = 1;
+		Return(check_export_unintern_(left, name, &check));
+		if (check) {
+			if (loop)
+				return Result(ret, 1);
+			loop = 1;
 		}
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 /*
@@ -98,49 +112,52 @@ static int check_shadowing_unintern(addr package, addr name)
  * If package don't have the symbol, return 1.
  * If there are symbols in shadowing-symbols, check conflict in use-package.
  */
-static int unintern_check_package(addr package, addr symbol)
+static int unintern_check_package_(addr package, addr symbol, int *ret)
 {
+	int check;
 	addr bit, name, pos;
 
 	/* If the package have no symbols, return 1. */
 	GetPackage(package, PACKAGE_INDEX_TABLE, &pos);
 	GetNameSymbol(symbol, &name);
-	findvalue_hashtable(pos, name, &bit);
+	Return(findnil_hashtable_(pos, name, &bit));
 	if (bit == Nil)
-		return 1;
+		return Result(ret, 1);
 
 	/* If package don't have the symbol, return 1. */
 	GetBitTypeSymbol(bit, &pos);
 	if (pos != symbol)
-		return 1;
+		return Result(ret, 1);
 
 	/* If symbols in shadowing-symbols, check conflict in use-package. */
 	if (StructBitType(bit)->shadow) {
-		if (check_shadowing_unintern(package, name)) {
-			fmte("Shadowing symbol ~S occer conflict.", symbol, NULL);
-			return 1;
+		Return(check_shadowing_unintern_(package, name, &check));
+		if (check) {
+			*ret = 0;
+			return fmte_("Shadowing symbol ~S occer conflict.", symbol, NULL);
 		}
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-static int remove_unintern_package(addr package, addr name)
+static int remove_unintern_package_(addr package, addr name, int *ret)
 {
+	int check;
 	addr bit, symbol;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &package);
-	findvalue_hashtable(package, name, &bit);
+	Return(findnil_hashtable_(package, name, &bit));
 	if (StructBitType(bit)->base) {
 		GetBitTypeSymbol(bit, &symbol);
 		SetPackageSymbol(symbol, Nil);
 	}
-	delete_hashtable(package, name);
+	Return(delete_hashtable_(package, name, &check));
 
-	return StructBitType(bit)->shadow;
+	return Result(ret, StructBitType(bit)->shadow);
 }
 
-static void intern_inherited_unintern_package(addr package, addr name)
+static int intern_inherited_unintern_package_(addr package, addr name)
 {
 	addr left, right, bit, table, cons;
 
@@ -148,7 +165,7 @@ static void intern_inherited_unintern_package(addr package, addr name)
 	while (right != Nil) {
 		GetCons(right, &left, &right);
 		GetPackage(left, PACKAGE_INDEX_TABLE, &left);
-		findvalue_hashtable(left, name, &left);
+		Return(findnil_hashtable_(left, name, &left));
 		if (left != Nil && StructBitType(left)->expt) {
 			/* symbol */
 			GetBitTypeSymbol(left, &left);
@@ -156,21 +173,23 @@ static void intern_inherited_unintern_package(addr package, addr name)
 			/* intern inherited */
 			inheritedbitpackage(&bit, left);
 			GetPackage(package, PACKAGE_INDEX_TABLE, &table);
-			intern_hashheap(table, name, &cons);
+			Return(intern_hashheap_(table, name, &cons));
 			SetCdr(cons, bit);
-			return;
+			return 0;
 		}
 	}
 	/* Count of export symbols in use-package should be a one.
 	 * (checked by check_shadowing_unintern function.)
 	 */
-	Abort("remove use error.");
+	return fmte_("remove use error.", NULL);
 }
 
-static void remove_shadowing_symbols_package(addr package, addr symbol)
+static int remove_shadowing_symbols_package_(addr package, addr symbol)
 {
 	if (remove_check_package(package, PACKAGE_INDEX_SHADOW, symbol))
-		Abort("remove_shadowing_symbols_package error.");
+		return fmte_("remove_shadowing_symbols_package error.", NULL);
+
+	return 0;
 }
 
 /*
@@ -179,29 +198,36 @@ static void remove_shadowing_symbols_package(addr package, addr symbol)
  *    intern inherited-symbol if symbol in shadowing-symbols.
  *    remove shadowing-symbols.
  */
-static void unintern_symbol_package(addr package, addr symbol)
+static int unintern_symbol_package_(addr package, addr symbol)
 {
+	int check;
 	addr name;
 
 	/* remove package table. */
 	GetNameSymbol(symbol, &name);
-	if (remove_unintern_package(package, name)) {
+	Return(remove_unintern_package_(package, name, &check));
+	if (check) {
 		/* intern inherited-symbol if symbol in shadowing-symbols. */
-		intern_inherited_unintern_package(package, name);
+		Return(intern_inherited_unintern_package_(package, name));
 		/* remove shadowing-symbols. */
-		remove_shadowing_symbols_package(package, symbol);
+		Return(remove_shadowing_symbols_package_(package, symbol));
 	}
-}
-
-_g int unintern_package(addr package, addr symbol)
-{
-	Check(! symbolp(symbol), "type error");
-	package_designer(package, &package);
-	if (unintern_check_package(package, symbol))
-		return 1;
-	unintern_symbol_package(package, symbol);
 
 	return 0;
+}
+
+_g int unintern_package_(addr package, addr symbol, int *ret)
+{
+	int check;
+
+	Check(! symbolp(symbol), "type error");
+	Return(package_designer_(package, &package));
+	Return(unintern_check_package_(package, symbol, &check));
+	if (check)
+		return Result(ret, 1);
+	Return(unintern_symbol_package_(package, symbol));
+
+	return Result(ret, 0);
 }
 
 
@@ -232,7 +258,7 @@ static int import_already_exist_package(addr symbol, addr bit, addr *ret)
 	}
 }
 
-static int import_bitpackage(addr package, addr symbol, addr *ret)
+static int import_bitpackage_(addr package, addr symbol, addr *value, int *ret)
 {
 	addr table, name, bit, check;
 
@@ -240,15 +266,17 @@ static int import_bitpackage(addr package, addr symbol, addr *ret)
 	GetNameSymbol(symbol, &name);
 
 	/* intern check */
-	findvalue_hashtable(table, name, &bit);
-	if (bit != Nil)
-		return import_already_exist_package(symbol, bit, ret);
+	Return(findnil_hashtable_(table, name, &bit));
+	if (bit != Nil) {
+		*ret = import_already_exist_package(symbol, bit, value);
+		return 0;
+	}
 
 	/* intern hashtable */
 	GetPackageSymbol(symbol, &check);
 	if (check == Nil) {
 		/* intern */
-		intern_hashheap(table, name, &check);
+		Return(intern_hashheap_(table, name, &check));
 		internbitpackage(&bit, symbol);
 		SetCdr(check, bit);
 		/* set package */
@@ -256,23 +284,28 @@ static int import_bitpackage(addr package, addr symbol, addr *ret)
 	}
 	else {
 		/* import */
-		intern_hashheap(table, name, &check);
+		Return(intern_hashheap_(table, name, &check));
 		importbitpackage(&bit, symbol);
 		SetCdr(check, bit);
 	}
-	*ret = bit;
+
+	*value = bit;
+	return Result(ret, 0);
+}
+
+static int import_symbol_package_(addr package, addr pos)
+{
+	int check;
+
+	Check(! symbolp(pos), "type error");
+	Return(import_bitpackage_(package, pos, &package, &check));
+	if (check)
+		return fmte_("Import symbol ~S occer conflict.", pos, NULL);
 
 	return 0;
 }
 
-static void import_symbol_package(addr package, addr pos)
-{
-	Check(! symbolp(pos), "type error");
-	if (import_bitpackage(package, pos, &package))
-		fmte("Import symbol ~S occer conflict.", pos, NULL);
-}
-
-static void import_list_package(addr package, addr pos)
+static int import_list_package_(addr package, addr pos)
 {
 	addr left, right, table, check;
 
@@ -280,7 +313,7 @@ static void import_list_package(addr package, addr pos)
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
 		if (! symbolp(left))
-			fmte("Import ~S must be a string-desinger.", left, NULL);
+			return fmte_("Import ~S must be a string-desinger.", left, NULL);
 	}
 
 	/* conflict check */
@@ -290,38 +323,37 @@ static void import_list_package(addr package, addr pos)
 		GetNameSymbol(left, &check);
 
 		/* intern check */
-		findvalue_hashtable(table, check, &check);
+		Return(findnil_hashtable_(table, check, &check));
 		if (check != Nil) {
 			GetBitTypeSymbol(check, &check);
 			if (left != check)
-				fmte("Import symbol ~S occer conflict.", left, NULL);
+				return fmte_("Import symbol ~S occer conflict.", left, NULL);
 		}
 	}
 
 	/* import */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		import_symbol_package(package, left);
+		Return(import_symbol_package_(package, left));
 	}
+
+	return 0;
 }
 
-_g void import_package(addr package, addr pos)
+_g int import_package_(addr package, addr pos)
 {
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
-			import_symbol_package(package, pos);
-			break;
+			return import_symbol_package_(package, pos);
 
 		case LISPTYPE_CONS:
-			import_list_package(package, pos);
-			break;
+			return import_list_package_(package, pos);
 
 		default:
-			fmte("import ~S must be a symbol or list.", pos, NULL);
-			break;
+			return fmte_("import ~S must be a symbol or list.", pos, NULL);
 	}
 }
 
@@ -329,13 +361,14 @@ _g void import_package(addr package, addr pos)
 /*
  *  shadow
  */
-static void shadow_symbol_package(addr package, addr pos)
+static int shadow_symbol_package_(addr package, addr pos)
 {
+	int check;
 	addr bit;
 	struct bittype_struct *str;
 
 	string_designer_heap(&pos, pos);
-	intern_bitpackage(package, pos, &bit);
+	Return(intern_bitpackage_(package, pos, &bit, &check));
 	str = StructBitType(bit);
 	if (str->inherit) {
 		/* change type to intern from inherit. */
@@ -346,9 +379,11 @@ static void shadow_symbol_package(addr package, addr pos)
 		pushlist_package(package, PACKAGE_INDEX_SHADOW, pos);
 		SetBitTypeShadow(bit, 1);
 	}
+
+	return 0;
 }
 
-_g void shadow_list_package(addr package, addr pos)
+_g int shadow_list_package_(addr package, addr pos)
 {
 	enum LISPTYPE type;
 	addr left, right;
@@ -358,60 +393,61 @@ _g void shadow_list_package(addr package, addr pos)
 		GetCons(right, &left, &right);
 		type = GetType(left);
 		if ((! IsValueSymbol(type)) && (! stringp(left)))
-			fmte("shadow ~S must be a string-desinger.", left, NULL);
+			return fmte_("shadow ~S must be a string-desinger.", left, NULL);
 	}
 
 	/* shadow */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		shadow_symbol_package(package, left);
+		Return(shadow_symbol_package_(package, left));
 	}
+
+	return 0;
 }
 
-_g void shadow_package(addr package, addr pos)
+_g int shadow_package_(addr package, addr pos)
 {
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
 		case LISPTYPE_STRING:
-			shadow_symbol_package(package, pos);
-			break;
+			return shadow_symbol_package_(package, pos);
 
 		case LISPTYPE_ARRAY:
-			if (! strarrayp(pos)) goto error;
-			shadow_symbol_package(package, pos);
-			break;
+			if (! strarrayp(pos))
+				goto error;
+			return shadow_symbol_package_(package, pos);
 
 		case LISPTYPE_CONS:
-			shadow_list_package(package, pos);
-			break;
+			return shadow_list_package_(package, pos);
 
 		default:
 			goto error;
 	}
-	return;
 
 error:
-	fmte("shadow ~S must be a string-designer or list.", pos, NULL);
+	return fmte_("shadow ~S must be a string-designer or list.", pos, NULL);
 }
 
 
 /*
  *  shadowing-import
  */
-_g void shadowing_import_symbol_package(addr package, addr symbol)
+_g int shadowing_import_symbol_package_(addr package, addr symbol)
 {
-	addr bit, check;
+	int check;
+	addr bit, value;
 	struct bittype_struct *str;
 
-	if (import_bitpackage(package, symbol, &bit)) {
+	Return(import_bitpackage_(package, symbol, &bit, &check));
+	if (check) {
 		str = StructBitType(bit);
 		/* conflict, change type to intern from import. */
 		if (str->shadow) {
-			GetBitTypeSymbol(bit, &check);
-			remove_shadowing_symbols_package(package, check);
+			GetBitTypeSymbol(bit, &value);
+			Return(remove_shadowing_symbols_package_(package, value));
 			str->shadow = 0;
 		}
 		shadowimport_bitpackage(bit, symbol);
@@ -422,9 +458,11 @@ _g void shadowing_import_symbol_package(addr package, addr symbol)
 		pushlist_package(package, PACKAGE_INDEX_SHADOW, symbol);
 		SetBitTypeShadow(bit, 1);
 	}
+
+	return 0;
 }
 
-static void shadowing_import_list_package(addr package, addr pos)
+static int shadowing_import_list_package_(addr package, addr pos)
 {
 	addr left, right;
 
@@ -432,33 +470,32 @@ static void shadowing_import_list_package(addr package, addr pos)
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
 		if (! symbolp(left))
-			fmte("shadowing-symbol ~S must be a symbol.", left, NULL);
+			return fmte_("shadowing-symbol ~S must be a symbol.", left, NULL);
 	}
 
 	/* shadowing-import */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		shadowing_import_symbol_package(package, left);
+		Return(shadowing_import_symbol_package_(package, left));
 	}
+
+	return 0;
 }
 
-_g void shadowing_import_package(addr package, addr pos)
+_g int shadowing_import_package_(addr package, addr pos)
 {
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
-			shadowing_import_symbol_package(package, pos);
-			break;
+			return shadowing_import_symbol_package_(package, pos);
 
 		case LISPTYPE_CONS:
-			shadowing_import_list_package(package, pos);
-			break;
+			return shadowing_import_list_package_(package, pos);
 
 		default:
-			fmte("shadowing-import ~S must be a symbol or list.", pos, NULL);
-			break;
+			return fmte_("shadowing-import ~S must be a symbol or list.", pos, NULL);
 	}
 }
 
@@ -466,7 +503,7 @@ _g void shadowing_import_package(addr package, addr pos)
 /*
  *  export
  */
-static void check_exportsymbol_package(addr package, addr symbol)
+static int check_exportsymbol_package_(addr package, addr symbol)
 {
 	addr name, left, right;
 
@@ -474,37 +511,34 @@ static void check_exportsymbol_package(addr package, addr symbol)
 
 	/* export check */
 	GetPackage(package, PACKAGE_INDEX_TABLE, &right);
-	findvalue_hashtable(right, name, &right);
-	if (right == Nil) {
-		fmte("Package don't have a symbol ~S.", symbol, NULL);
-		return;
-	}
+	Return(findnil_hashtable_(right, name, &right));
+	if (right == Nil)
+		return fmte_("Package don't have a symbol ~S.", symbol, NULL);
 
 	/* Invalid package */
 	GetBitTypeSymbol(right, &left);
-	if (left != symbol) {
-		fmte("The symbol ~S is not accesble in this package.", symbol, NULL);
-		return;
-	}
+	if (left != symbol)
+		return fmte_("The symbol ~S is not accesble in this package.", symbol, NULL);
 
 	/* already exported */
 	if (StructBitType(right)->expt)
-		return;
+		return 0;
 
 	/* use-list */
 	GetPackage(package, PACKAGE_INDEX_USED, &right);
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		find_bitpackage(left, name, &left);
+		Return(find_bitpackage_(left, name, &left));
 		if (left != Nil && ! StructBitType(left)->shadow) {
 			/* symbol exists */
-			fmte("export ~S occer conflict.", symbol, NULL);
-			return;
+			return fmte_("export ~S occer conflict.", symbol, NULL);
 		}
 	}
+
+	return 0;
 }
 
-static void intern_export_symbol_package(addr package, addr symbol, addr name)
+static int intern_export_symbol_package_(addr package, addr symbol, addr name)
 {
 	addr left, right, bit;
 
@@ -512,7 +546,7 @@ static void intern_export_symbol_package(addr package, addr symbol, addr name)
 	while (right != Nil) {
 		GetCons(right, &left, &right);
 		GetPackage(left, PACKAGE_INDEX_TABLE, &left);
-		intern_hashheap(left, name, &left);
+		Return(intern_hashheap_(left, name, &left));
 		GetCdr(left, &bit);
 		if (bit == Nil) {
 			inheritedbitpackage(&bit, symbol);
@@ -520,20 +554,22 @@ static void intern_export_symbol_package(addr package, addr symbol, addr name)
 		}
 		/* If left != Nil, the symbol may be a shadowing symbol. */
 	}
+
+	return 0;
 }
 
-static void exportsymbol_nocheck_package(addr package, addr symbol)
+static int exportsymbol_nocheck_package_(addr package, addr symbol)
 {
 	addr table, bit, name;
 	struct bittype_struct *str;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetNameSymbol(symbol, &name);
-	findvalue_hashtable(table, name, &bit);
+	Return(findnil_hashtable_(table, name, &bit));
 	str = StructBitType(bit);
 	if (str->expt) {
 		/* symbol is already exported. */
-		return;
+		return 0;
 	}
 	if (str->inherit) {
 		/* If the symbol type is inherited, the type change to import.  */
@@ -547,19 +583,21 @@ static void exportsymbol_nocheck_package(addr package, addr symbol)
 		str->expt = 1;
 		str->intern = PACKAGE_TYPE_EXTERNAL;
 	}
-	intern_export_symbol_package(package, symbol, name);
+	Return(intern_export_symbol_package_(package, symbol, name));
 	pushlist_package(package, PACKAGE_INDEX_EXPORT, name);
+
+	return 0;
 }
 
-static void export_symbol_package(addr package, addr symbol)
+static int export_symbol_package_(addr package, addr symbol)
 {
 	if (! symbolp(symbol))
-		fmte("export ~S must be a symbol.", symbol, NULL);
-	check_exportsymbol_package(package, symbol);
-	exportsymbol_nocheck_package(package, symbol);
+		return fmte_("export ~S must be a symbol.", symbol, NULL);
+	Return(check_exportsymbol_package_(package, symbol));
+	return exportsymbol_nocheck_package_(package, symbol);
 }
 
-_g void export_list_package(addr package, addr pos)
+_g int export_list_package_(addr package, addr pos)
 {
 	addr left, right;
 
@@ -567,39 +605,38 @@ _g void export_list_package(addr package, addr pos)
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
 		if (! symbolp(left))
-			fmte("export ~S must be a string-desinger.", left, NULL);
+			return fmte_("export ~S must be a string-desinger.", left, NULL);
 	}
 
 	/* conflict check */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		check_exportsymbol_package(package, left);
+		Return(check_exportsymbol_package_(package, left));
 	}
 
 	/* export */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		exportsymbol_nocheck_package(package, left);
+		Return(exportsymbol_nocheck_package_(package, left));
 	}
+
+	return 0;
 }
 
-_g void export_package(addr package, addr pos)
+_g int export_package_(addr package, addr pos)
 {
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
-			export_symbol_package(package, pos);
-			break;
+			return export_symbol_package_(package, pos);
 
 		case LISPTYPE_CONS:
-			export_list_package(package, pos);
-			break;
+			return export_list_package_(package, pos);
 
 		default:
-			fmte("export ~S must be a symbol or list.", pos, NULL);
-			break;
+			return fmte_("export ~S must be a symbol or list.", pos, NULL);
 	}
 }
 
@@ -634,32 +671,37 @@ static int delete_stringlist_package(addr root, addr check, addr *ret)
 	return 1;
 }
 
-static void remove_export_list_package(addr package, addr name)
+static int remove_export_list_package_(addr package, addr name)
 {
 	addr right;
 
 	GetPackage(package, PACKAGE_INDEX_EXPORT, &right);
 	if (delete_stringlist_package(right, name, &right))
-		fmte("There is no ~S in export list.", name, NULL);
+		return fmte_("There is no ~S in export list.", name, NULL);
 	SetPackage(package, PACKAGE_INDEX_EXPORT, right);
+
+	return 0;
 }
 
-static void check_unexportsymbol_package(addr package, addr symbol)
+static int check_unexportsymbol_package_(addr package, addr symbol)
 {
 	addr table, name;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetNameSymbol(symbol, &name);
-	findvalue_hashtable(table, name, &name);
+	Return(findnil_hashtable_(table, name, &name));
 	if (name == Nil)
-		fmte("Symbol ~S is not exist in package ~S.", symbol, package, NULL);
+		return fmte_("Symbol ~S is not exist in package ~S.", symbol, package, NULL);
 	GetBitTypeSymbol(name, &name);
 	if (symbol != name)
-		fmte("Package of Symbol ~S don't access.", symbol, NULL);
+		return fmte_("Package of Symbol ~S don't access.", symbol, NULL);
+
+	return 0;
 }
 
-static void unexport_usedbylist_package(addr package, addr symbol)
+static int unexport_usedbylist_package_(addr package, addr symbol)
 {
+	int check;
 	addr left, right, table;
 
 	GetNameSymbol(symbol, &symbol);
@@ -667,38 +709,45 @@ static void unexport_usedbylist_package(addr package, addr symbol)
 	while (right != Nil) {
 		GetCons(right, &left, &right);
 		GetPackage(left, PACKAGE_INDEX_TABLE, &table);
-		findvalue_hashtable(table, symbol, &left);
+		Return(findnil_hashtable_(table, symbol, &left));
 		if (left != Nil) {
-			if (StructBitType(left)->inherit)
-				delete_hashtable(table, symbol);
+			if (StructBitType(left)->inherit) {
+				Return(delete_hashtable_(table, symbol, &check));
+			}
 		}
 	}
+
+	return 0;
 }
 
-static void unexport_symboltype_package(addr package, addr symbol)
+static int unexport_symboltype_package_(addr package, addr symbol)
 {
 	addr table, name, bit;
 	struct bittype_struct *str;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetNameSymbol(symbol, &name);
-	findvalue_hashtable(table, name, &bit);
+	Return(findnil_hashtable_(table, name, &bit));
 	str = StructBitType(bit);
 	if (str->expt) {
 		str->intern = PACKAGE_TYPE_INTERNAL;
 		str->expt = 0;
-		remove_export_list_package(package, name);
+		Return(remove_export_list_package_(package, name));
 	}
+
+	return 0;
 }
 
-static void unexport_symbol_package(addr package, addr symbol)
+static int unexport_symbol_package_(addr package, addr symbol)
 {
-	check_unexportsymbol_package(package, symbol);
-	unexport_usedbylist_package(package, symbol);
-	unexport_symboltype_package(package, symbol);
+	Return(check_unexportsymbol_package_(package, symbol));
+	Return(unexport_usedbylist_package_(package, symbol));
+	Return(unexport_symboltype_package_(package, symbol));
+
+	return 0;
 }
 
-static void unexport_list_package(addr package, addr pos)
+static int unexport_list_package_(addr package, addr pos)
 {
 	addr left, right;
 
@@ -706,45 +755,44 @@ static void unexport_list_package(addr package, addr pos)
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
 		if (! symbolp(left))
-			fmte("unexport ~S must be a string-desinger.", left, NULL);
+			return fmte_("unexport ~S must be a string-desinger.", left, NULL);
 	}
 
 	/* conflict check */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		check_unexportsymbol_package(package, left);
+		Return(check_unexportsymbol_package_(package, left));
 	}
 
 	/* unexport */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		unexport_symbol_package(package, left);
+		Return(unexport_symbol_package_(package, left));
 	}
+
+	return 0;
 }
 
-_g void unexport_package(addr package, addr pos)
+_g int unexport_package_(addr package, addr pos)
 {
 	addr check;
 
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 	GetConst(PACKAGE_KEYWORD, &check);
 	if (check == package)
-		fmte("KEYWORD package can't unexport.", NULL);
+		return fmte_("KEYWORD package can't unexport.", NULL);
 
 	switch (GetType(pos)) {
 		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
-			unexport_symbol_package(package, pos);
-			break;
+			return unexport_symbol_package_(package, pos);
 
 		case LISPTYPE_CONS:
-			unexport_list_package(package, pos);
-			break;
+			return unexport_list_package_(package, pos);
 
 		default:
-			fmte("unexport ~S must be a symbol or list.", pos, NULL);
-			break;
+			return fmte_("unexport ~S must be a symbol or list.", pos, NULL);
 	}
 }
 
@@ -768,49 +816,52 @@ static int check_alreadyuse_package(addr package, addr pos)
 	return 0;
 }
 
-static void check_useconflict_package(addr package, addr pos)
+static int check_useconflict_package_(addr package, addr pos)
 {
+	enum PACKAGE_TYPE ignore;
 	addr list, table, left, bit, check;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetPackage(pos, PACKAGE_INDEX_EXPORT, &list);
 	while (list != Nil) {
 		GetCons(list, &left, &list);
-		findvalue_hashtable(table, left, &bit);
+		Return(findnil_hashtable_(table, left, &bit));
 		if (bit != Nil && ! StructBitType(bit)->shadow) {
 			GetBitTypeSymbol(bit, &bit);
-			find_symbol_package(pos, left, &check);
+			Return(find_symbol_package_(pos, left, &check, &ignore));
 			if (bit != check)
-				fmte("Symbol ~S conflict occered.", left, NULL);
+				return fmte_("Symbol ~S conflict occered.", left, NULL);
 		}
 	}
+
+	return 0;
 }
 
-static void check_usepackage_package(addr package, addr pos)
+static int check_usepackage_package_(addr package, addr pos)
 {
 	if (check_alreadyuse_package(package, pos))
-		return;
-	check_useconflict_package(package, pos);
+		return 0;
+	return check_useconflict_package_(package, pos);
 }
 
-static void use_package_operator_package(addr package, addr pos)
+static int use_package_operator_package_(addr package, addr pos)
 {
 	addr table, loop, left, right, symbol, cons, bit;
 
-	package_designer(pos, &pos);
+	Return(package_designer_(pos, &pos));
 	if (check_alreadyuse_package(package, pos))
-		return;
-	check_useconflict_package(package, pos);
+		return 0;
+	Return(check_useconflict_package_(package, pos));
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetPackage(pos, PACKAGE_INDEX_TABLE, &loop);
 	GetPackage(pos, PACKAGE_INDEX_EXPORT, &right);
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		intern_hashheap(table, left, &cons);
+		Return(intern_hashheap_(table, left, &cons));
 		GetCdr(cons, &bit);
 		if (bit == Nil) {
-			findvalue_hashtable(loop, left, &symbol);
+			Return(findnil_hashtable_(loop, left, &symbol));
 			Check(symbol == Nil, "use-package error");
 			GetBitTypeSymbol(symbol, &symbol);
 			inheritedbitpackage(&bit, symbol);
@@ -819,20 +870,22 @@ static void use_package_operator_package(addr package, addr pos)
 	}
 	pushlist_package(package, PACKAGE_INDEX_USE, pos);
 	pushlist_package(pos, PACKAGE_INDEX_USED, package);
+
+	return 0;
 }
 
-static void check_user_package_list_package(addr package, addr right)
+static int check_user_package_list_package_(addr package, addr right)
 {
 	addr base, left, table, loop, check, expt, name, find;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &base);
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		package_designer(left, &left);
+		Return(package_designer_(left, &left));
 		GetPackage(left, PACKAGE_INDEX_TABLE, &table);
 		for (loop = right; loop != Nil; ) {
 			GetCons(loop, &check, &loop);
-			package_designer(check, &check);
+			Return(package_designer_(check, &check));
 			if (check == left)
 				continue;
 			if (check == package)
@@ -841,20 +894,22 @@ static void check_user_package_list_package(addr package, addr right)
 			GetPackage(check, PACKAGE_INDEX_EXPORT, &expt);
 			while (expt != Nil) {
 				GetCons(expt, &name, &expt);
-				findvalue_hashtable(table, name, &find);
+				Return(findnil_hashtable_(table, name, &find));
 				if (find != Nil) {
 					if (! StructBitType(find)->expt)
 						continue;
-					findvalue_hashtable(base, name, &find);
+					Return(findnil_hashtable_(base, name, &find));
 					if (find == Nil || ! StructBitType(find)->shadow)
-						fmte("Pakcage conflict ~S.", name, NULL);
+						return fmte_("Pakcage conflict ~S.", name, NULL);
 				}
 			}
 		}
 	}
+
+	return 0;
 }
 
-_g void use_package_list_package(addr package, addr pos)
+_g int use_package_list_package_(addr package, addr pos)
 {
 	enum LISPTYPE type;
 	addr left, right;
@@ -864,52 +919,51 @@ _g void use_package_list_package(addr package, addr pos)
 		GetCons(right, &left, &right);
 		type = GetType(left);
 		if (type != LISPTYPE_PACKAGE && (! IsValueSymbol(type)) && (! stringp(left)))
-			fmte("use-package ~S must be a package-desinger.", left, NULL);
+			return fmte_("use-package ~S must be a package-desinger.", left, NULL);
 	}
 
 	/* conflict check */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		package_designer(left, &left);
-		check_usepackage_package(package, left);
+		Return(package_designer_(left, &left));
+		Return(check_usepackage_package_(package, left));
 	}
-	check_user_package_list_package(package, pos);
+	Return(check_user_package_list_package_(package, pos));
 
 	/* use-package */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		use_package_operator_package(package, left);
+		Return(use_package_operator_package_(package, left));
 	}
+
+	return 0;
 }
 
-_g void use_package(addr package, addr pos)
+_g int use_package_(addr package, addr pos)
 {
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_PACKAGE:
 		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
 		case LISPTYPE_STRING:
-			use_package_operator_package(package, pos);
-			break;
+			return use_package_operator_package_(package, pos);
 
 		case LISPTYPE_ARRAY:
-			if (! strarrayp(pos)) goto error;
-			use_package_operator_package(package, pos);
-			break;
+			if (! strarrayp(pos))
+				goto error;
+			return use_package_operator_package_(package, pos);
 
 		case LISPTYPE_CONS:
-			use_package_list_package(package, pos);
-			break;
+			return use_package_list_package_(package, pos);
 
 		default:
 			goto error;
 	}
-	return;
 
 error:
-	fmte("use-package ~S must be a package-designer or list.", pos, NULL);
+	return fmte_("use-package ~S must be a package-designer or list.", pos, NULL);
 }
 
 
@@ -930,31 +984,35 @@ static int check_uselist_package(addr package, addr pos)
 	return 0;
 }
 
-static void unuse_package_operator_package(addr package, addr pos)
+static int unuse_package_operator_package_(addr package, addr pos)
 {
+	int check;
 	addr table, right, left, bit;
 
-	package_designer(pos, &pos);
+	Return(package_designer_(pos, &pos));
 	if (check_uselist_package(package, pos) == 0)
-		return;
+		return 0;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetPackage(pos, PACKAGE_INDEX_EXPORT, &right);
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		findvalue_hashtable(table, left, &bit);
+		Return(findnil_hashtable_(table, left, &bit));
 		Check(bit == Nil, "unuse-package error");
-		if (StructBitType(bit)->inherit)
-			delete_hashtable(table, left);
+		if (StructBitType(bit)->inherit) {
+			Return(delete_hashtable_(table, left, &check));
+		}
 	}
 
 	if (remove_check_package(package, PACKAGE_INDEX_USE, pos))
 		Abort("PACKAGE_INDEX_USE error");
 	if (remove_check_package(pos, PACKAGE_INDEX_USED, package))
 		Abort("PACKAGE_INDEX_USED error");
+
+	return 0;
 }
 
-static void unuse_package_list_package(addr package, addr pos)
+static int unuse_package_list_package_(addr package, addr pos)
 {
 	enum LISPTYPE type;
 	addr left, right;
@@ -964,58 +1022,78 @@ static void unuse_package_list_package(addr package, addr pos)
 		GetCons(right, &left, &right);
 		type = GetType(left);
 		if (type != LISPTYPE_PACKAGE && (! IsValueSymbol(type)) && (! stringp(left)))
-			fmte("unuse-package ~S must be a package-desinger.", left, NULL);
+			return fmte_("unuse-package ~S must be a package-desinger.", left, NULL);
 	}
 
 	/* unuse-package */
 	for (right = pos; right != Nil; ) {
 		GetCons(right, &left, &right);
-		unuse_package_operator_package(package, left);
+		Return(unuse_package_operator_package_(package, left));
 	}
+
+	return 0;
 }
 
-_g void unuse_package(addr package, addr pos)
+_g int unuse_package_(addr package, addr pos)
 {
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_PACKAGE:
 		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
 		case LISPTYPE_STRING:
-			unuse_package_operator_package(package, pos);
-			break;
+			return unuse_package_operator_package_(package, pos);
 
 		case LISPTYPE_ARRAY:
-			if (! strarrayp(pos)) goto error;
-			unuse_package_operator_package(package, pos);
-			break;
+			if (! strarrayp(pos))
+				goto error;
+			return unuse_package_operator_package_(package, pos);
 
 		case LISPTYPE_CONS:
-			unuse_package_list_package(package, pos);
-			break;
+			return unuse_package_list_package_(package, pos);
 
 		default:
 			goto error;
 	}
-	return;
 
 error:
-	fmte("unuse-package ~S must be a package-designer or list.", pos, NULL);
+	return fmte_("unuse-package ~S must be a package-designer or list.", pos, NULL);
+}
+
+
+/*
+ *  keyword
+ */
+_g int setkeyword_package_(addr pos)
+{
+	addr check, package;
+
+	GetConst(PACKAGE_KEYWORD, &package);
+	Return(export_package_(package, pos));
+	GetValueSymbol(pos, &check);
+	if (check == Unbound) {
+		SetValueSymbol(pos, pos);
+		SetStatusReadOnly(pos);
+	}
+
+	return 0;
 }
 
 
 /*
  *  clang
  */
-_g enum PACKAGE_TYPE intern_default_package(Execute ptr, addr name, addr *ret)
+_g int intern_default_package_(Execute ptr, addr name,
+		addr *value, enum PACKAGE_TYPE *ret)
 {
 	addr package;
-	getpackage(ptr, &package);
-	return intern_package(package, name, ret);
+	Return(getpackage_(ptr, &package));
+	return intern_package_(package, name, value, ret);
 }
 
-_g enum PACKAGE_TYPE internchar(const char *pname, const char *sname, addr *ret)
+_g int internchar_(const char *pname, const char *sname,
+		addr *value, enum PACKAGE_TYPE *ret)
 {
 	addr package, name;
 
@@ -1023,88 +1101,104 @@ _g enum PACKAGE_TYPE internchar(const char *pname, const char *sname, addr *ret)
 	Check(sname == NULL, "argument name error");
 
 	/* find package */
-	find_char_package(pname, &package);
+	Return(find_char_package_(pname, &package));
 	if (package == Nil) {
 		strvect_char_heap(&name, pname);
-		fmte("No such a package ~S.", name, NULL);
+		return fmte_("No such a package ~S.", name, NULL);
 	}
 
-	return intern_char_package(package, sname, ret);
+	return intern_char_package_(package, sname, value, ret);
 }
 
-_g addr interncharr(const char *pname, const char *sname)
-{
-	addr pos;
-	internchar(pname, sname, &pos);
-	return pos;
-}
-
-_g enum PACKAGE_TYPE internchar_default(Execute ptr, const char *name, addr *ret)
+_g int internchar_default_(Execute ptr, const char *name,
+		addr *value, enum PACKAGE_TYPE *ret)
 {
 	addr package;
-	getpackage(ptr, &package);
-	return intern_char_package(package, name, ret);
+	Return(getpackage_(ptr, &package));
+	return intern_char_package_(package, name, value, ret);
 }
 
-_g enum PACKAGE_TYPE internchar_check(Execute ptr,
-		const char *pname, const char *sname, addr *ret)
+_g int internchar_null_(Execute ptr, const char *pname, const char *sname,
+		addr *value, enum PACKAGE_TYPE *ret)
 {
 	if (pname)
-		return internchar(pname, sname, ret);
+		return internchar_(pname, sname, value, ret);
 	else
-		return internchar_default(ptr, sname, ret);
+		return internchar_default_(ptr, sname, value, ret);
 }
 
-_g addr internchar_checkr(Execute ptr, const char *pname, const char *sname)
-{
-	addr pos;
-	internchar_check(ptr, pname, sname, &pos);
-	return pos;
-}
-
-_g void setkeyword_package(addr pos)
-{
-	addr check, package;
-
-	GetConst(PACKAGE_KEYWORD, &package);
-	export_package(package, pos);
-	GetValueSymbol(pos, &check);
-	if (check == Unbound) {
-		SetValueSymbol(pos, pos);
-		SetStatusReadOnly(pos);
-	}
-}
-
-_g enum PACKAGE_TYPE internchar_keyword(const char *name, addr *ret)
+_g int internchar_keyword_(const char *name, addr *value, enum PACKAGE_TYPE *ret)
 {
 	enum PACKAGE_TYPE type;
 	addr pos;
 
 	GetConst(PACKAGE_KEYWORD, &pos);
-	type = intern_char_package(pos, name, &pos);
-	setkeyword_package(pos);
-	*ret = pos;
+	Return(intern_char_package_(pos, name, &pos, &type));
+	Return(setkeyword_package_(pos));
+	*value = pos;
 
-	return type;
+	if (ret)
+		return Result(ret, type);
+	else
+		return 0;
 }
 
-_g enum PACKAGE_TYPE interncommon(const char *name, addr *ret)
+_g int interncommon_(const char *name, addr *value, enum PACKAGE_TYPE *ret)
 {
 	enum PACKAGE_TYPE type;
 	addr package, pos;
 
 	GetConst(PACKAGE_COMMON_LISP, &package);
-	type = intern_char_package(package, name, &pos);
-	export_package(package, pos);
-	*ret = pos;
+	Return(intern_char_package_(package, name, &pos, &type));
+	Return(export_package_(package, pos));
+	*value = pos;
 
-	return type;
+	if (ret)
+		return Result(ret, type);
+	else
+		return 0;
 }
 
-_g addr interncommonr(const char *name)
+
+/*
+ *  debug
+ */
+_g void internchar_debug(const char *pname, const char *sname, addr *value)
 {
-	addr ret;
-	(void)interncommon(name, &ret);
-	return ret;
+	Error(internchar_(pname, sname, value, NULL));
+}
+
+_g void internchar_keyword_debug(const char *name, addr *value)
+{
+	Error(internchar_keyword_(name, value, NULL));
+}
+
+_g void interncommon_debug(const char *name, addr *value)
+{
+	Error(interncommon_(name, value, NULL));
+}
+
+_g addr interncharr_debug(const char *pname, const char *sname)
+{
+	addr pos;
+	pos = NULL;
+	Error(internchar_(pname, sname, &pos, NULL));
+	return pos;
+}
+
+_g addr interncharr_null_debug(Execute ptr, const char *pname, const char *sname)
+{
+	addr pos;
+	pos = NULL;
+	Error(internchar_null_(ptr, pname, sname, &pos, NULL));
+	return pos;
+}
+
+_g addr interncommonr_debug(const char *name)
+{
+	addr pos;
+	pos = NULL;
+	Error(interncommon_(name, &pos, NULL));
+	return pos;
 }
 

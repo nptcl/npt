@@ -250,7 +250,7 @@ static void defun_defconstant(void)
 /* (defun in-package (string-desinger) ...) -> package */
 static int syscall_in_package(Execute ptr, addr name)
 {
-	in_package_syscode(ptr, name, &name);
+	Return(in_package_syscode_(ptr, name, &name));
 	setresult_control(ptr, name);
 	return 0;
 }
@@ -426,7 +426,7 @@ static void defun_next_hash_iterator(void)
  */
 static int syscall_make_package_iterator(Execute ptr, addr pos, addr a, addr b, addr c)
 {
-	make_package_iterator_syscode(pos, a, b, c, &pos);
+	Return(make_package_iterator_syscode_(pos, a, b, c, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -468,7 +468,7 @@ static int syscall_next_package_iterator(Execute ptr, addr pos)
 {
 	addr symbol, status, package;
 
-	next_package_iterator_syscode(ptr, pos, &pos, &symbol, &status, &package);
+	Return(next_package_iterator_syscode_(ptr, pos, &pos, &symbol, &status, &package));
 	setvalues_control(ptr, pos, symbol, status, package, NULL);
 
 	return 0;
@@ -2267,7 +2267,7 @@ static void defun_timeinfo(void)
  */
 static int syscall_ed_function(Execute ptr, addr file)
 {
-	ed_function_syscode(ptr, file);
+	Return(ed_function_syscode_(ptr, file));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -2303,7 +2303,7 @@ static void defun_ed_function(void)
 /* (defun run-program (program args) ...) -> status */
 static int syscall_run_program(Execute ptr, addr var, addr args, addr rest)
 {
-	run_program_syscode(ptr->local, var, args, rest, &var);
+	Return(run_program_syscode_(ptr->local, var, args, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2376,7 +2376,7 @@ static void defun_make_callname(void)
 /* (defun trace-add (list) ...) -> list */
 static int syscall_trace_add(Execute ptr, addr var)
 {
-	trace_add_syscode(ptr, var, &var);
+	Return(trace_add_syscode_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -2410,7 +2410,7 @@ static void defun_trace_add(void)
 /* (defun trace-del (list-or-t) ...) -> list */
 static int syscall_trace_del(Execute ptr, addr var)
 {
-	trace_del_syscode(ptr, var, &var);
+	Return(trace_del_syscode_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

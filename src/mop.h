@@ -4,7 +4,7 @@
 #include "constant.h"
 #include "typedef.h"
 
-_g void export_mop(addr symbol);
+_g int mop_export_symbol_(addr symbol);
 
 #define ClosKeyTypeTable(r,a,b) \
 	keytypetable(CONSTANT_CLOSKEY_##a, TypeTable_##b, (r))

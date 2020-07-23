@@ -15,14 +15,14 @@
 #define SetConst(i,v)		SetConstant(CONSTANT_##i, (v))
 
 _g void build_constant(void);
-_g void intern_symbol_header(void);
-_g void specialconstant(constindex index, const char *package, const char *name);
+_g int intern_symbol_header_(void);
+_g int specialconstant_(constindex index, const char *package, const char *name);
 _g void gensymconstant(constindex index, const char *name);
-_g void keywordconstant(constindex index, const char *name);
-_g void commonconstant(constindex index, const char *name);
+_g int keywordconstant_(constindex index, const char *name);
+_g int commonconstant_(constindex index, const char *name);
 
-_g void symbolchar_common(constindex index, const char *name);
-_g void symbolchar_keyword(constindex index, const char *name);
+_g int symbolchar_common_(constindex index, const char *name);
+_g int symbolchar_keyword_(constindex index, const char *name);
 _g void quotelist_heap(addr *ret, addr name);
 _g void pushconst_heap(addr *ret, constindex index);
 #define PushConst(a,b) pushconst_heap((a),CONSTANT_##b)

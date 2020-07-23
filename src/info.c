@@ -737,7 +737,7 @@ static void infobit_symbol(addr pos)
 		len = strlen(buffer);
 	}
 	else {
-		getname_package(package, &pack);
+		getname_package_unsafe(package, &pack);
 		posbodylen(pack, &body, &size);
 		len = 0;
 		for (i = 0; i < size; i++) {
@@ -939,7 +939,7 @@ static void infoprint_symbol(addr pos)
 	if (package == Nil)
 		info_stdarg("#:");
 	else {
-		getname_package(package, &package);
+		getname_package_unsafe(package, &package);
 		if (string_equal_char(package, LISP_KEYWORD)) {
 			info_stdarg(":");
 		}

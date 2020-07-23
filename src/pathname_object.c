@@ -249,73 +249,80 @@ _g void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
-_g int pathname_equal(addr a, addr b)
+_g int pathname_equal_(addr a, addr b, int *ret)
 {
-	addr check1, check2;
+	int check;
+	addr x, y;
 
 	Check(! pathnamep(a), "type left error");
 	Check(! pathnamep(b), "type right error");
 
 	if (RefLogicalPathname(a) != RefLogicalPathname(b))
-		return 0;
+		return Result(ret, 0);
 	/* host */
-	GetHostPathname(a, &check1);
-	GetHostPathname(b, &check2);
-	if (! equalp_function(check1, check2))
-		return 0;
+	GetHostPathname(a, &x);
+	GetHostPathname(b, &y);
+	Return(equalp_function_(x, y, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* device */
-	GetDevicePathname(a, &check1);
-	GetDevicePathname(b, &check2);
-	if (! LispPathnameEqual(check1, check2))
-		return 0;
+	GetDevicePathname(a, &x);
+	GetDevicePathname(b, &y);
+	Return(LispPathnameEqual_(x, y, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* directory */
-	GetDirectoryPathname(a, &check1);
-	GetDirectoryPathname(b, &check2);
-	if (! LispPathnameEqual(check1, check2))
-		return 0;
+	GetDirectoryPathname(a, &x);
+	GetDirectoryPathname(b, &y);
+	Return(LispPathnameEqual_(x, y, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* name */
-	GetNamePathname(a, &check1);
-	GetNamePathname(b, &check2);
-	if (! LispPathnameEqual(check1, check2))
-		return 0;
+	GetNamePathname(a, &x);
+	GetNamePathname(b, &y);
+	Return(LispPathnameEqual_(x, y, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* type */
-	GetTypePathname(a, &check1);
-	GetTypePathname(b, &check2);
-	if (! LispPathnameEqual(check1, check2))
-		return 0;
+	GetTypePathname(a, &x);
+	GetTypePathname(b, &y);
+	Return(LispPathnameEqual_(x, y, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* version */
-	GetVersionPathname(a, &check1);
-	GetVersionPathname(b, &check2);
-	if (! eql_function(check1, check2))
-		return 0;
+	GetVersionPathname(a, &x);
+	GetVersionPathname(b, &y);
+	if (! eql_function(x, y))
+		return Result(ret, 0);
 
-	return 1;
+	return Result(ret, 1);
 }
 
 
 /*
  *  wild_pathname_boolean
  */
-static int wild_pathname_string(addr pos)
+static int wild_pathname_string_(addr pos, int *ret)
 {
 	unicode c;
 	size_t size, i;
 
 	if (! stringp(pos))
-		return 0;
+		return Result(ret, 0);
 	string_length(pos, &size);
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &c);
 		if (c == '*' || c == '?')
-			return 1;
+			return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int wild_pathname_boolean(addr file, addr field)
+_g int wild_pathname_boolean_(addr file, addr field, int *ret)
 {
-	addr check, pos, wild1, wild2, value;
+	int check;
+	addr value, pos, wild1, wild2, path;
 
 	Check(! pathnamep(file), "type error");
 	GetConst(KEYWORD_WILD, &wild1);
@@ -325,89 +332,96 @@ _g int wild_pathname_boolean(addr file, addr field)
 	/* skip device */
 
 	/* directory */
-	GetConst(KEYWORD_DIRECTORY, &check);
-	if (field == check || field == Nil) {
+	GetConst(KEYWORD_DIRECTORY, &value);
+	if (field == value || field == Nil) {
 		GetDirectoryPathname(file, &pos);
 		if (pos == wild1)
-			return 1;
+			return Result(ret, 1);
 		while (consp(pos)) {
-			GetCons(pos, &value, &pos);
-			if (value == wild1)
-				return 1;
-			if (value == wild2)
-				return 1;
-			if (wild_pathname_string(value))
-				return 1;
+			GetCons(pos, &path, &pos);
+			if (path == wild1)
+				return Result(ret, 1);
+			if (path == wild2)
+				return Result(ret, 1);
+			Return(wild_pathname_string_(path, &check));
+			if (check)
+				return Result(ret, 1);
 		}
 	}
 
 	/* name */
-	GetConst(KEYWORD_NAME, &check);
-	if (field == check || field == Nil) {
+	GetConst(KEYWORD_NAME, &value);
+	if (field == value || field == Nil) {
 		GetNamePathname(file, &pos);
 		if (pos == wild1)
-			return 1;
-		if (wild_pathname_string(pos))
-			return 1;
+			return Result(ret, 1);
+		Return(wild_pathname_string_(pos, &check));
+		if (check)
+			return Result(ret, 1);
 	}
 
 	/* type */
-	GetConst(KEYWORD_TYPE, &check);
-	if (field == check || field == Nil) {
+	GetConst(KEYWORD_TYPE, &value);
+	if (field == value || field == Nil) {
 		GetTypePathname(file, &pos);
 		if (pos == wild1)
-			return 1;
-		if (wild_pathname_string(pos))
-			return 1;
+			return Result(ret, 1);
+		Return(wild_pathname_string_(pos, &check));
+		if (check)
+			return Result(ret, 1);
 	}
 
 	/* version */
-	GetConst(KEYWORD_VERSION, &check);
-	if (field == check || field == Nil) {
+	GetConst(KEYWORD_VERSION, &value);
+	if (field == value || field == Nil) {
 		GetVersionPathname(file, &pos);
 		if (pos == wild1)
-			return 1;
+			return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 
 /*
  *  wildcard-pathname-p
  */
-static int wildcard_character_pathname(
+static int wildcard_character_pathname_(
 		addr p1, size_t n1, size_t s1,
-		addr p2, size_t n2, size_t s2)
+		addr p2, size_t n2, size_t s2,
+		int *ret)
 {
+	int check;
 	unicode c1, c2;
 	size_t i;
 
 	if (n1 == s1 && n2 == s2)
-		return 1;
+		return Result(ret, 1);
 	if (n1 == s1 || n2 == s2)
-		return 0;
+		return Result(ret, 0);
 	string_getc(p1, n1, &c1);
 	string_getc(p2, n2, &c2);
 	/* (a ?) -> next */
 	if (c2 == '?')
-		return wildcard_character_pathname(p1,n1+1,s1,  p2,n2+1,s2);
+		return wildcard_character_pathname_(p1,n1+1,s1,  p2,n2+1,s2,  ret);
 	/* (a a) -> next, (a b) -> false */
 	if (c2 != '*') {
 		if (c1 != c2)
-			return 0;
-		return wildcard_character_pathname(p1,n1+1,s1,  p2,n2+1,s2);
+			return Result(ret, 0);
+		else
+			return wildcard_character_pathname_(p1,n1+1,s1,  p2,n2+1,s2,  ret);
 	}
 	/* (a *) */
 	n2++;
 	for (i = n1; i <= s1; i++) {
-		if (wildcard_character_pathname(p1,i,s1,  p2,n2,s2))
-			return 1;
+		Return(wildcard_character_pathname_(p1,i,s1,  p2,n2,s2,  &check));
+		if (check)
+			return Result(ret, 1);
 	}
-	return 0;
+	return Result(ret, 0);
 }
 
-static int wildcard_string_p(addr pos)
+static int wildcard_string_p_(addr pos, int *ret)
 {
 	unicode c;
 	size_t size, i;
@@ -416,47 +430,55 @@ static int wildcard_string_p(addr pos)
 	for (i = 0; i < size; i++) {
 		string_getc(pos, i, &c);
 		if (c == '*' || c == '?')
-			return 1;
+			return Result(ret, 1);
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
-_g int wildcard_stringp_p(addr pos)
+_g int wildcard_stringp_p_(addr pos, int *ret)
 {
-	return stringp(pos) && wildcard_string_p(pos);
+	if (! stringp(pos))
+		return Result(ret, 0);
+	else
+		return wildcard_string_p_(pos, ret);
 }
 
-_g int wildcard_string_pathname(addr a, addr b)
+_g int wildcard_string_pathname_(addr a, addr b, int *ret)
 {
-	int check1, check2;
+	int check, check1, check2;
 	addr wild;
 	size_t s1, s2;
 
 	GetConst(KEYWORD_WILD, &wild);
 	if (a == wild && b == wild)
-		return 1;
+		return Result(ret, 1);
 	check1 = stringp(a);
 	check2 = stringp(b);
 	if (check1 && b == wild)
-		return 1;
+		return Result(ret, 1);
 	if ((! check1) || (! check2))
-		return 0;
-	if (LispPathnameEqual(a, b))
-		return 1;
-	if (wildcard_string_p(a))
-		return 0;
+		return Result(ret, 0);
+	Return(LispPathnameEqual_(a, b, &check));
+	if (check)
+		return Result(ret, 1);
+	Return(wildcard_string_p_(a, &check));
+	if (check)
+		return Result(ret, 0);
 	string_length(a, &s1);
 	string_length(b, &s2);
-	return wildcard_character_pathname(a, 0, s1, b, 0, s2);
+	return wildcard_character_pathname_(a, 0, s1, b, 0, s2, ret);
 }
 
-_g int wildcard_eq_pathname(addr a, addr b)
+_g int wildcard_eq_pathname_(addr a, addr b, int *ret)
 {
-	return (a == b) || wildcard_string_pathname(a, b);
+	if (a == b)
+		return Result(ret, 1);
+	else
+		return wildcard_string_pathname_(a, b, ret);
 }
 
-static int wildcard_nil_pathname(addr a, addr b, int wildp)
+static int wildcard_nil_pathname_(addr a, addr b, int wildp, int *ret)
 {
 	addr wild;
 
@@ -466,67 +488,72 @@ static int wildcard_nil_pathname(addr a, addr b, int wildp)
 	if (wildp && b == Nil)
 		b = wild;
 
-	return wildcard_eq_pathname(a, b);
+	return wildcard_eq_pathname_(a, b, ret);
 }
 
-static int wildcard_list_pathname(addr a, addr b)
+static int wildcard_list_pathname_(addr a, addr b, int *ret)
 {
+	int check;
 	addr a1, b1, pos1, pos2, wild, wilds;
 
 	if (a == Nil && b == Nil)
-		return 1;
+		return Result(ret, 1);
 	if (a != Nil && b == Nil)
-		return 0;
+		return Result(ret, 0);
 	GetConst(KEYWORD_WILD_INFERIORS, &wilds);
 	if (a == Nil && b != Nil) {
 		while (b != Nil) {
-			getcons(b, &pos2, &b);
+			Return_getcons(b, &pos2, &b);
 			if (pos2 != wilds)
-				return 0;
+				return Result(ret, 0);
 		}
-		return 1;
+		return Result(ret, 1);
 	}
 	GetConst(KEYWORD_WILD, &wild);
 	GetConst(KEYWORD_WILD_INFERIORS, &wilds);
-	getcons(a, &pos1, &a1);
-	getcons(b, &pos2, &b1);
+	Return_getcons(a, &pos1, &a1);
+	Return_getcons(b, &pos2, &b1);
 	/* ("str" *) -> next */
 	if (pos2 == wild)
-		return wildcard_list_pathname(a1, b1);
+		return wildcard_list_pathname_(a1, b1, ret);
 	/* ("str" "str") -> next, ("str" "aaa") -> false */
 	if (pos2 != wilds) {
-		if (! wildcard_string_pathname(pos1, pos2))
-			return 0;
-		return wildcard_list_pathname(a1, b1);
+		Return(wildcard_string_pathname_(pos1, pos2, &check));
+		if (! check)
+			return Result(ret, 0);
+		else
+			return wildcard_list_pathname_(a1, b1, ret);
 	}
 	/* ("str" **) */
 	for (;;) {
-		if (wildcard_list_pathname(a, b1))
-			return 1;
+		Return(wildcard_list_pathname_(a, b1, &check));
+		if (check)
+			return Result(ret, 1);
 		if (a == Nil)
 			break;
-		getcdr(a, &a);
+		Return_getcdr(a, &a);
 	}
-	return 0;
+
+	return Result(ret, 0);
 }
 
-static int wildcard_directory_p(addr pos)
+static int wildcard_directory_p_(addr pos, int *ret)
 {
 	addr check;
 
 	GetConst(KEYWORD_WILD, &check);
 	if (pos == check)
-		return 1;
+		return Result(ret, 1);
 	GetConst(KEYWORD_WILD_INFERIORS, &check);
 	if (pos == check)
-		return 1;
+		return Result(ret, 1);
 
-	return wildcard_stringp_p(pos);
+	return wildcard_stringp_p_(pos, ret);
 }
 
-static int wildcard_directory_pathname(addr a, addr b)
+static int wildcard_directory_pathname_(addr a, addr b, int *ret)
 {
-	int check1, check2;
+	int check, check1, check2;
 	addr car1, car2, cdr1, cdr2;
 
 	cdr1 = a;
@@ -535,24 +562,28 @@ static int wildcard_directory_pathname(addr a, addr b)
 	check2 = 1;
 	for (;;) {
 		if (cdr1 == Nil && cdr2 == Nil)
-			return 1;
+			return Result(ret, 1);
 		if (cdr1 == Nil || cdr2 == Nil)
 			break;
-		getcons(cdr1, &car1, &cdr1);
-		getcons(cdr2, &car2, &cdr2);
-		if (wildcard_directory_p(car1))
+		Return_getcons(cdr1, &car1, &cdr1);
+		Return_getcons(cdr2, &car2, &cdr2);
+		Return(wildcard_directory_p_(car1, &check));
+		if (check)
 			check1 = 1;
-		if (wildcard_directory_p(car2))
+		Return(wildcard_directory_p_(car2, &check));
+		if (check)
 			check2 = 1;
-		if (! LispPathnameEqual(car1, car2))
+		Return(LispPathnameEqual_(car1, car2, &check));
+		if (! check)
 			break;
 	}
-	if (check1 || (! check2))
-		return 0;
+	if (check1 || (! check2)) {
+		return Result(ret, 0);
+	}
 	else {
-		getcdr(a, &a);
-		getcdr(b, &b);
-		return wildcard_list_pathname(a, b);
+		Return_getcdr(a, &a);
+		Return_getcdr(b, &b);
+		return wildcard_list_pathname_(a, b, ret);
 	}
 }
 
@@ -571,45 +602,51 @@ static int wildcard_version_pathname(addr a, addr b)
 	return b == wild;
 }
 
-_g int wildcard_pathname(addr a, addr b, int wild)
+_g int wildcard_pathname_(addr a, addr b, int wild, int *ret)
 {
+	int check;
 	addr check1, check2;
 
 	Check(! pathnamep(a), "type left error");
 	Check(! pathnamep(b), "type right error");
 	if (RefLogicalPathname(a) != RefLogicalPathname(b))
-		return 0;
+		return Result(ret, 0);
 	/* host */
 	GetHostPathname(a, &check1);
 	GetHostPathname(b, &check2);
-	if (! equalp_function(check1, check2))
-		return 0;
+	Return(equalp_function_(check1, check2, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* device */
 	GetDevicePathname(a, &check1);
 	GetDevicePathname(b, &check2);
-	if (! LispPathnameEqual(check1, check2))
-		return 0;
+	Return(LispPathnameEqual_(check1, check2, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* directory */
 	GetDirectoryPathname(a, &check1);
 	GetDirectoryPathname(b, &check2);
-	if (! wildcard_directory_pathname(check1, check2))
-		return 0;
+	Return(wildcard_directory_pathname_(check1, check2, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* name */
 	GetNamePathname(a, &check1);
 	GetNamePathname(b, &check2);
-	if (! wildcard_nil_pathname(check1, check2, wild))
-		return 0;
+	Return(wildcard_nil_pathname_(check1, check2, wild, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* type */
 	GetTypePathname(a, &check1);
 	GetTypePathname(b, &check2);
-	if (! wildcard_nil_pathname(check1, check2, wild))
-		return 0;
+	Return(wildcard_nil_pathname_(check1, check2, wild, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* version */
 	GetVersionPathname(a, &check1);
 	GetVersionPathname(b, &check2);
 	if (! wildcard_version_pathname(check1, check2))
-		return 0;
+		return Result(ret, 0);
 
-	return 1;
+	return Result(ret, 1);
 }
 

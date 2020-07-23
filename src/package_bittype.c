@@ -89,32 +89,32 @@ _g void shadowimport_bitpackage(addr bit, addr symbol)
 	str->inherit = 0;
 }
 
-_g int intern_bitpackage(addr package, addr name, addr *ret)
+_g int intern_bitpackage_(addr package, addr name, addr *value, int *ret)
 {
 	addr table, cons, bit;
 
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
-	intern_hashheap(table, name, &cons);
+	Return(intern_hashheap_(table, name, &cons));
 	GetCdr(cons, &bit);
 	if (bit == Nil) {
 		make_bitpackage(&bit, name, package);
 		SetCdr(cons, bit);
-		*ret = bit;
-		return 1; /* new */
+		*value = bit;
+		return Result(ret, 1); /* new */
 	}
-	*ret = bit;
-	return 0; /* exist */
+	*value = bit;
+	return Result(ret, 0); /* exist */
 }
 
-_g void find_bitpackage(addr package, addr name, addr *ret)
+_g int find_bitpackage_(addr package, addr name, addr *ret)
 {
 	GetPackage(package, PACKAGE_INDEX_TABLE, &package);
-	findvalue_hashtable(package, name, ret);
+	return findnil_hashtable_(package, name, ret);
 }
 
-_g void find_char_bitpackage(addr package, const char *name, addr *ret)
+_g int find_char_bitpackage_(addr package, const char *name, addr *ret)
 {
 	GetPackage(package, PACKAGE_INDEX_TABLE, &package);
-	findvalue_char_hashtable(package, name, ret);
+	return findnil_char_hashtable_(package, name, ret);
 }
 

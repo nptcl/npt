@@ -10,13 +10,13 @@
 #include "symbol.h"
 #include "type_table.h"
 
-_g void export_mop(addr symbol)
+_g int mop_export_symbol_(addr symbol)
 {
 	addr package;
 
 	Check(! symbolp(symbol), "type error");
 	GetConst(PACKAGE_CLOS, &package);
-	export_package(package, symbol);
+	return export_package_(package, symbol);
 }
 
 
@@ -250,10 +250,10 @@ _g void init_mop_class(void);
 _g void init_mop_generic(void);
 _g void init_mop_protocols(void);
 
-_g void build_mop_reader(Execute ptr);
-_g void build_mop_class(Execute ptr);
-_g void build_mop_generic(Execute ptr);
-_g void build_mop_protocols(Execute ptr);
+_g int build_mop_class_(Execute ptr);
+_g int build_mop_reader_(Execute ptr);
+_g int build_mop_generic_(Execute ptr);
+_g int build_mop_protocols_(Execute ptr);
 
 _g void init_metaobject_protocol(void)
 {
@@ -268,9 +268,9 @@ _g void build_metaobject_protocol(void)
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	build_mop_class(ptr);
-	build_mop_reader(ptr);
-	build_mop_generic(ptr);
-	build_mop_protocols(ptr);
+	Error(build_mop_class_(ptr));
+	Error(build_mop_reader_(ptr));
+	Error(build_mop_generic_(ptr));
+	Error(build_mop_protocols_(ptr));
 }
 

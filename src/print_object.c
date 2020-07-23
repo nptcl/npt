@@ -129,7 +129,7 @@ static void method_type_print_object(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defmethod_print_object(Execute ptr, addr name, addr gen,
+static int defmethod_print_object_(Execute ptr, addr name, addr gen,
 		pointer p, constindex index)
 {
 	addr pos, call, type;
@@ -142,9 +142,11 @@ static void defmethod_print_object(Execute ptr, addr name, addr gen,
 	/* method */
 	GetConstant(index, &pos);
 	mop_argument_method_print_object(&pos, pos);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 
@@ -159,17 +161,19 @@ _g void init_print_object(void)
 }
 
 #define DefMethod_PrintObject(ptr, name, gen, p, c) { \
-	defmethod_print_object((ptr), (name), (gen), \
-			p_method_print_object_##p, CONSTANT_CLOS_##c); \
+	Return(defmethod_print_object_((ptr), (name), (gen), \
+				p_method_print_object_##p, CONSTANT_CLOS_##c)); \
 }
-static void build_print_object_method(Execute ptr, addr name, addr gen)
+static int build_print_object_method_(Execute ptr, addr name, addr gen)
 {
 	DefMethod_PrintObject(ptr, name, gen, t, T);
 	DefMethod_PrintObject(ptr, name, gen, class, CLASS);
 	DefMethod_PrintObject(ptr, name, gen, structure_object, STRUCTURE_OBJECT);
+
+	return 0;
 }
 
-_g void build_print_object(Execute ptr)
+_g int build_print_object_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -179,7 +183,9 @@ _g void build_print_object(Execute ptr)
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
 	/* method */
-	build_print_object_method(ptr, name, gen);
+	Return(build_print_object_method_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 

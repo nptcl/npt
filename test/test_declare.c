@@ -308,9 +308,9 @@ static int test_set_type_declare_heap(void)
 	addr pos, sym1, sym2, sym3, type1, type2, list, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &sym1);
-	internchar(LISP_SYSTEM, "BBB", &sym2);
-	internchar(LISP_SYSTEM, "CCC", &sym3);
+	internchar_debug(LISP_SYSTEM, "AAA", &sym1);
+	internchar_debug(LISP_SYSTEM, "BBB", &sym2);
+	internchar_debug(LISP_SYSTEM, "CCC", &sym3);
 	GetTypeTable(&type1, Atom);
 	GetTypeTable(&type2, List);
 	set_type_declare_heap(pos, sym1, type1);
@@ -337,7 +337,7 @@ static int test_push_type_declare_heap(void)
 	addr pos, symbol, type1, type2, check, type;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	GetTypeTable(&type1, Atom);
 	GetTypeTable(&type2, List);
 	push_type_declare_heap(pos, symbol, type1);
@@ -361,9 +361,9 @@ static int test_set_ftype_declare_heap(void)
 	addr pos, sym1, sym2, sym3, type1, type2, list, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &sym1);
-	internchar(LISP_SYSTEM, "BBB", &sym2);
-	internchar(LISP_SYSTEM, "CCC", &sym3);
+	internchar_debug(LISP_SYSTEM, "AAA", &sym1);
+	internchar_debug(LISP_SYSTEM, "BBB", &sym2);
+	internchar_debug(LISP_SYSTEM, "CCC", &sym3);
 	parse_callname_error(&sym1, sym1);
 	parse_callname_error(&sym2, sym2);
 	parse_callname_error(&sym3, sym3);
@@ -393,7 +393,7 @@ static int test_push_ftype_declare_heap(void)
 	addr pos, symbol, type1, type2, check, type;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	GetTypeTable(&type1, Atom);
 	GetTypeTable(&type2, List);
@@ -418,7 +418,7 @@ static int test_plist_constant_declare_heap(void)
 	addr pos, symbol, key, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	plist_constant_declare_heap(pos, symbol,
 			CONSTANT_COMMON_INLINE, EVAL_DECLARE_INLINE);
 	GetEvalDeclare(pos, EVAL_DECLARE_INLINE, &check);
@@ -436,7 +436,7 @@ static int test_plist_constant_declare_heap(void)
 	test(! eq_constant_declare(pos, symbol,
 				CONSTANT_COMMON_NOTINLINE, EVAL_DECLARE_INLINE),
 			"eq_constant_declare3");
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	test(! eq_constant_declare(pos, symbol,
 				CONSTANT_COMMON_INLINE, EVAL_DECLARE_INLINE),
 			"eq_constant_declare4");
@@ -449,7 +449,7 @@ static int test_plist_callname_declare_heap(void)
 	addr pos, symbol, key, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	plist_callname_declare_heap(pos, symbol,
 			CONSTANT_COMMON_INLINE, EVAL_DECLARE_INLINE);
@@ -469,7 +469,7 @@ static int test_plist_callname_declare_heap(void)
 	test(! eq_callname_declare(pos, symbol,
 				CONSTANT_COMMON_NOTINLINE, EVAL_DECLARE_INLINE),
 			"eq_callname_declare3");
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(! eq_callname_declare(pos, symbol,
 				CONSTANT_COMMON_INLINE, EVAL_DECLARE_INLINE),
@@ -483,12 +483,12 @@ static int test_push_inline_declare_heap(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_inline_declare_heap(pos, symbol);
 	test(check_inline_declare(pos, symbol), "push_inline_declare1");
 	test(! check_notinline_declare(pos, symbol), "push_inline_declare2");
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(! check_inline_declare(pos, symbol), "push_inline_declare3");
 	test(! check_notinline_declare(pos, symbol), "push_inline_declare4");
@@ -501,17 +501,17 @@ static int test_push_notinline_declare_heap(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_notinline_declare_heap(pos, symbol);
 	test(! check_inline_declare(pos, symbol), "push_notinline_declare1");
 	test(check_notinline_declare(pos, symbol), "push_notinline_declare2");
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(! check_inline_declare(pos, symbol), "push_notinline_declare3");
 	test(! check_notinline_declare(pos, symbol), "push_notinline_declare4");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_inline_declare_heap(pos, symbol);
 	test(check_inline_declare(pos, symbol), "push_notinline_declare5");
@@ -524,13 +524,13 @@ static int test_push_ignore_value_declare_heap(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_ignore_value_declare_heap(pos, symbol);
 	test(check_ignore_value_declare(pos, symbol),
 			"push_ignore_value_declare1");
 	test(! check_ignorable_value_declare(pos, symbol),
 			"push_ignore_value_declare2");
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	test(! check_ignore_value_declare(pos, symbol),
 			"push_ignore_value_declare3");
 	test(! check_ignorable_value_declare(pos, symbol),
@@ -544,19 +544,19 @@ static int test_push_ignorable_value_declare_heap(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_ignorable_value_declare_heap(pos, symbol);
 	test(! check_ignore_value_declare(pos, symbol),
 			"push_ignorable_value_declare1");
 	test(check_ignorable_value_declare(pos, symbol),
 			"push_ignorable_value_declare2");
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	test(! check_ignore_value_declare(pos, symbol),
 			"push_ignorable_value_declare3");
 	test(! check_ignorable_value_declare(pos, symbol),
 			"push_ignorable_value_declare4");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_ignore_value_declare_heap(pos, symbol);
 	test(check_ignore_value_declare(pos, symbol),
 			"push_ignorable_value_declare5");
@@ -569,14 +569,14 @@ static int test_push_ignore_function_declare_heap(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_ignore_function_declare_heap(pos, symbol);
 	test(check_ignore_function_declare(pos, symbol),
 			"push_ignore_function_declare1");
 	test(! check_ignorable_function_declare(pos, symbol),
 			"push_ignore_function_declare2");
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(! check_ignore_function_declare(pos, symbol),
 			"push_ignore_function_declare3");
@@ -591,21 +591,21 @@ static int test_push_ignorable_function_declare_heap(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_ignorable_function_declare_heap(pos, symbol);
 	test(! check_ignore_function_declare(pos, symbol),
 			"push_ignorable_function_declare1");
 	test(check_ignorable_function_declare(pos, symbol),
 			"push_ignorable_function_declare2");
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(! check_ignore_function_declare(pos, symbol),
 			"push_ignorable_function_declare3");
 	test(! check_ignorable_function_declare(pos, symbol),
 			"push_ignorable_function_declare4");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_ignore_function_declare_heap(pos, symbol);
 	test(check_ignore_function_declare(pos, symbol),
@@ -619,34 +619,34 @@ static int test_push_constant_declare_heap(void)
 	addr pos, symbol, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_constant_declare_heap(pos, symbol, EVAL_DECLARE_SPECIAL);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(check != Nil, "push_constant_declare_heap1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	push_constant_declare_heap(pos, symbol, EVAL_DECLARE_SPECIAL);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(length_list_unsafe(check) == 2, "push_constant_declare_heap2");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_constant_declare_heap(pos, symbol, EVAL_DECLARE_SPECIAL);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(length_list_unsafe(check) == 2, "push_constant_declare_heap3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	test(check_constant_declare(pos, symbol, EVAL_DECLARE_SPECIAL),
 			"check_constant_declare1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	test(check_constant_declare(pos, symbol, EVAL_DECLARE_SPECIAL),
 			"check_constant_declare2");
 
-	internchar(LISP_SYSTEM, "CCC", &symbol);
+	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
 	test(! check_constant_declare(pos, symbol, EVAL_DECLARE_SPECIAL),
 			"check_constant_declare3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	test(! check_constant_declare(pos, symbol, EVAL_DECLARE_DYNAMIC_VALUE),
 			"check_constant_declare4");
 
@@ -658,40 +658,40 @@ static int test_push_callname_declare_heap(void)
 	addr pos, symbol, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_callname_declare_heap(pos, symbol, EVAL_DECLARE_SPECIAL);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(check != Nil, "push_callname_declare_heap1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_callname_declare_heap(pos, symbol, EVAL_DECLARE_SPECIAL);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(length_list_unsafe(check) == 2, "push_callname_declare_heap2");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_callname_declare_heap(pos, symbol, EVAL_DECLARE_SPECIAL);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(length_list_unsafe(check) == 2, "push_callname_declare_heap3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(check_callname_declare(pos, symbol, EVAL_DECLARE_SPECIAL),
 			"check_callname_declare1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(check_callname_declare(pos, symbol, EVAL_DECLARE_SPECIAL),
 			"check_callname_declare2");
 
-	internchar(LISP_SYSTEM, "CCC", &symbol);
+	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(! check_callname_declare(pos, symbol, EVAL_DECLARE_SPECIAL),
 			"check_callname_declare3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(! check_callname_declare(pos, symbol, EVAL_DECLARE_DYNAMIC_VALUE),
 			"check_callname_declare4");
@@ -704,31 +704,31 @@ static int test_push_special_declare_heap(void)
 	addr pos, symbol, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_special_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(check != Nil, "push_special_declare_heap1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	push_special_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(length_list_unsafe(check) == 2, "push_special_declare_heap2");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_special_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_SPECIAL, &check);
 	test(length_list_unsafe(check) == 2, "push_special_declare_heap3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	test(check_special_declare(pos, symbol), "check_special_declare1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	test(check_special_declare(pos, symbol), "check_special_declare2");
 
-	internchar(LISP_SYSTEM, "CCC", &symbol);
+	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
 	test(! check_special_declare(pos, symbol), "check_special_declare3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	test(! check_dynamic_value_declare(pos, symbol), "check_special_declare4");
 
 	RETURN;
@@ -739,31 +739,31 @@ static int test_push_dynamic_value_declare_heap(void)
 	addr pos, symbol, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_dynamic_value_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_VALUE, &check);
 	test(check != Nil, "push_dynamic_value_declare_heap1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	push_dynamic_value_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_VALUE, &check);
 	test(length_list_unsafe(check) == 2, "push_dynamic_value_declare_heap2");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_dynamic_value_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_VALUE, &check);
 	test(length_list_unsafe(check) == 2, "push_dynamic_value_declare_heap3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	test(check_dynamic_value_declare(pos, symbol), "check_dynamic_value_declare1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	test(check_dynamic_value_declare(pos, symbol), "check_dynamic_value_declare2");
 
-	internchar(LISP_SYSTEM, "CCC", &symbol);
+	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
 	test(! check_dynamic_value_declare(pos, symbol), "check_dynamic_value_declare3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	test(! check_special_declare(pos, symbol), "check_dynamic_value_declare4");
 
 	RETURN;
@@ -774,35 +774,35 @@ static int test_push_dynamic_function_declare_heap(void)
 	addr pos, symbol, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_FUNCTION, &check);
 	test(check != Nil, "push_dynamic_function_declare_heap1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_FUNCTION, &check);
 	test(length_list_unsafe(check) == 2, "push_dynamic_function_declare_heap2");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DYNAMIC_FUNCTION, &check);
 	test(length_list_unsafe(check) == 2, "push_dynamic_function_declare_heap3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(check_dynamic_function_declare(pos, symbol),
 			"check_dynamic_function_declare1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(check_dynamic_function_declare(pos, symbol),
 			"check_dynamic_function_declare2");
 
-	internchar(LISP_SYSTEM, "CCC", &symbol);
+	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(! check_dynamic_function_declare(pos, symbol),
 			"check_dynamic_function_declare3");
@@ -815,31 +815,31 @@ static int test_push_declaration_declare_heap(void)
 	addr pos, symbol, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_declaration_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DECLARATION, &check);
 	test(check != Nil, "push_declaration_declare_heap1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	push_declaration_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DECLARATION, &check);
 	test(length_list_unsafe(check) == 2, "push_declaration_declare_heap2");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_declaration_declare_heap(pos, symbol);
 	GetEvalDeclare(pos, EVAL_DECLARE_DECLARATION, &check);
 	test(length_list_unsafe(check) == 2, "push_declaration_declare_heap3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	test(check_declaration_declare(pos, symbol), "check_declaration_declare1");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	test(check_declaration_declare(pos, symbol), "check_declaration_declare2");
 
-	internchar(LISP_SYSTEM, "CCC", &symbol);
+	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
 	test(! check_declaration_declare(pos, symbol), "check_declaration_declare3");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	test(! check_special_declare(pos, symbol), "check_declaration_declare4");
 
 	RETURN;
@@ -854,11 +854,11 @@ static int test_getall_declaration_declare(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_declaration_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	push_declaration_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "CCC", &symbol);
+	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
 	push_declaration_declare_heap(pos, symbol);
 	getall_declaration_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 3, "getall_declaration_declare1");
@@ -872,23 +872,23 @@ static int test_getall_inline_declare(void)
 	addr pos, symbol, check, key;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_inline_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_notinline_declare_heap(pos, symbol);
 
 	getall_inline_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "getall_inline_declare1");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "getall_inline_declare2");
 	GetConstant(CONSTANT_COMMON_INLINE, &key);
 	test(check == key, "getall_inline_declare3");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "getall_inline_declare4");
 	GetConstant(CONSTANT_COMMON_NOTINLINE, &key);
@@ -902,11 +902,11 @@ static int test_getall_special_declare(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_special_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	push_special_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "CCC", &symbol);
+	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
 	push_special_declare_heap(pos, symbol);
 	getall_special_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 3, "getall_special_declare1");
@@ -920,19 +920,19 @@ static int test_getall_type_value_declare(void)
 	addr pos, symbol, type, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	GetTypeTable(&type, Atom);
 	push_type_declare_heap(pos, symbol, type);
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	GetTypeTable(&type, List);
 	push_type_declare_heap(pos, symbol, type);
 
 	getall_type_value_declare(pos, &pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	test(getplist(pos, symbol, &check) == 0, "getall_type_value_declare1");
 	test(RefLispDecl(check) == LISPDECL_ATOM, "getall_type_value_declare2");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	test(getplist(pos, symbol, &check) == 0, "getall_type_value_declare3");
 	test(RefLispDecl(check) == LISPDECL_LIST, "getall_type_value_declare4");
 
@@ -944,22 +944,22 @@ static int test_getall_type_function_declare(void)
 	addr pos, symbol, type, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	GetTypeTable(&type, Atom);
 	push_ftype_declare_heap(pos, symbol, type);
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	GetTypeTable(&type, List);
 	push_ftype_declare_heap(pos, symbol, type);
 
 	getall_type_function_declare(pos, &pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "getall_type_function_declare1");
 	test(RefLispDecl(check) == LISPDECL_ATOM, "getall_type_function_declare2");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0, "getall_type_function_declare3");
 	test(RefLispDecl(check) == LISPDECL_LIST, "getall_type_function_declare4");
@@ -972,11 +972,11 @@ static int test_getall_dynamic_value_declare(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_dynamic_value_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	push_dynamic_value_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "CCC", &symbol);
+	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
 	push_dynamic_value_declare_heap(pos, symbol);
 	getall_dynamic_value_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 3, "getall_dynamic_value_declare1");
@@ -990,13 +990,13 @@ static int test_getall_dynamic_function_declare(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "CCC", &symbol);
+	internchar_debug(LISP_SYSTEM, "CCC", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_dynamic_function_declare_heap(pos, symbol);
 	getall_dynamic_function_declare(pos, &pos);
@@ -1011,20 +1011,20 @@ static int test_getall_ignore_value_declare(void)
 	addr pos, symbol, check, key;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	push_ignore_value_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	push_ignorable_value_declare_heap(pos, symbol);
 
 	getall_ignore_value_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "getall_ignore_value_declare1");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	test(getplist(pos, symbol, &check) == 0, "getall_ignore_value_declare2");
 	GetConstant(CONSTANT_COMMON_IGNORE, &key);
 	test(check == key, "getall_ignore_value_declare3");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	test(getplist(pos, symbol, &check) == 0, "getall_ignore_value_declare4");
 	GetConstant(CONSTANT_COMMON_IGNORABLE, &key);
 	test(check == key, "getall_ignore_value_declare5");
@@ -1037,24 +1037,24 @@ static int test_getall_ignore_function_declare(void)
 	addr pos, symbol, check, key;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_ignore_function_declare_heap(pos, symbol);
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	push_ignorable_function_declare_heap(pos, symbol);
 
 	getall_ignore_function_declare(pos, &pos);
 	test(length_list_unsafe(pos) == 4, "getall_ignore_function_declare1");
 
-	internchar(LISP_SYSTEM, "AAA", &symbol);
+	internchar_debug(LISP_SYSTEM, "AAA", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0,
 			"getall_ignore_function_declare2");
 	GetConstant(CONSTANT_COMMON_IGNORE, &key);
 	test(check == key, "getall_ignore_function_declare3");
 
-	internchar(LISP_SYSTEM, "BBB", &symbol);
+	internchar_debug(LISP_SYSTEM, "BBB", &symbol);
 	parse_callname_error(&symbol, symbol);
 	test(getplist_callname(pos, symbol, &check) == 0,
 			"getall_ignore_function_declare4");
@@ -1121,7 +1121,7 @@ static int test_check_variable(void)
 {
 	addr symbol;
 
-	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
 	check_variable(symbol);
 	test(1, "check_variable1");
 
@@ -1132,7 +1132,7 @@ static int test_check_callname_heap(void)
 {
 	addr symbol, pos, check;
 
-	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
 	check_callname_heap(&pos, symbol);
 	test(GetType(pos) == LISPTYPE_CALLNAME, "check_callname_heap1");
 	GetCallName(pos, &check);
@@ -1147,9 +1147,9 @@ static int test_decl_type(void)
 	addr pos, key, key1, key2, cons, check;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_COMMON, "INTEGER", &key);
-	internchar(LISP_PACKAGE, "BBB", &key1);
-	internchar(LISP_PACKAGE, "CCC", &key2);
+	internchar_debug(LISP_COMMON, "INTEGER", &key);
+	internchar_debug(LISP_PACKAGE, "BBB", &key1);
+	internchar_debug(LISP_PACKAGE, "CCC", &key2);
 	list_heap(&cons, key, key1, key2, NULL);
 	result = decl_type(Execute_Thread, Nil,  pos, cons);
 	test(result == 0, "decl_type1");
@@ -1169,9 +1169,9 @@ static int test_decl_ftype(void)
 	addr pos, key, key1, key2, cons, check, call1, call2;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_COMMON, "INTEGER", &key);
-	internchar(LISP_PACKAGE, "BBB", &key1);
-	internchar(LISP_PACKAGE, "CCC", &key2);
+	internchar_debug(LISP_COMMON, "INTEGER", &key);
+	internchar_debug(LISP_PACKAGE, "BBB", &key1);
+	internchar_debug(LISP_PACKAGE, "CCC", &key2);
 	parse_callname_error(&call1, key1);
 	parse_callname_error(&call2, key2);
 	list_heap(&cons, key, key1, key2, NULL);
@@ -1192,8 +1192,8 @@ static int test_decl_special(void)
 	addr pos, key1, key2, cons;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_PACKAGE, "AAA", &key1);
-	internchar(LISP_PACKAGE, "BBB", &key2);
+	internchar_debug(LISP_PACKAGE, "AAA", &key1);
+	internchar_debug(LISP_PACKAGE, "BBB", &key2);
 	list_heap(&cons, key1, key2, key2, NULL);
 	decl_special(pos, cons);
 	getall_special_declare(pos, &cons);
@@ -1209,9 +1209,9 @@ static int test_decl_inline(void)
 	addr pos, key1, key2, key3, call1, call2, call3, cons, check, key;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_PACKAGE, "AAA", &key1);
-	internchar(LISP_PACKAGE, "BBB", &key2);
-	internchar(LISP_PACKAGE, "CCC", &key3);
+	internchar_debug(LISP_PACKAGE, "AAA", &key1);
+	internchar_debug(LISP_PACKAGE, "BBB", &key2);
+	internchar_debug(LISP_PACKAGE, "CCC", &key3);
 	parse_callname_error(&call1, key1);
 	parse_callname_error(&call2, key2);
 	parse_callname_error(&call3, key3);
@@ -1246,8 +1246,8 @@ static int test_decl_declaration(void)
 	addr pos, key1, key2, cons;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_PACKAGE, "AAA", &key1);
-	internchar(LISP_PACKAGE, "BBB", &key2);
+	internchar_debug(LISP_PACKAGE, "AAA", &key1);
+	internchar_debug(LISP_PACKAGE, "BBB", &key2);
 	list_heap(&cons, key1, key2, key2, NULL);
 	decl_declaration(pos, cons);
 	getall_declaration_declare(pos, &cons);
@@ -1262,8 +1262,8 @@ static int test_function_callname_p(void)
 {
 	addr cons, type, symbol;
 
-	internchar(LISP_COMMON, "FUNCTION", &type);
-	internchar(LISP_PACKAGE, "VARIABLE", &symbol);
+	internchar_debug(LISP_COMMON, "FUNCTION", &type);
+	internchar_debug(LISP_PACKAGE, "VARIABLE", &symbol);
 	list_heap(&cons, type, symbol, NULL);
 	test(function_callname_p(&cons, cons), "function_callname_p1");
 	test(GetType(cons) == LISPTYPE_CALLNAME, "function_callname_p2");
@@ -1393,7 +1393,7 @@ static int test_decl_optimize_symbol(void)
 	addr pos, symbol;
 
 	eval_declare_heap(&pos);
-	internchar(LISP_COMMON, "COMPILATION-SPEED", &symbol);
+	internchar_debug(LISP_COMMON, "COMPILATION-SPEED", &symbol);
 	decl_optimize_symbol(pos, symbol);
 	test(get_optimize_compilation_declare(pos) == 3, "decl_optimize_symbol1");
 
@@ -1604,15 +1604,15 @@ static int test_declare_split(void)
 			" (cons 10 20))");
 	declare_split(cons, &decl, &body);
 	readstring(&check, "((ignore hello) (special a) (inline aaa))");
-	test(equal_function(decl, check), "declare_split1");
+	test(equal_debug(decl, check), "declare_split1");
 	readstring(&check, "(hello (cons 10 20))");
-	test(equal_function(body, check), "declare_split2");
+	test(equal_debug(body, check), "declare_split2");
 
 	readstring(&cons, "((cons 10 20) hello)");
 	declare_split(cons, &decl, &body);
 	test(decl == Nil, "declare_split3");
 	readstring(&check, "((cons 10 20) hello)");
-	test(equal_function(body, check), "declare_split4");
+	test(equal_debug(body, check), "declare_split4");
 
 	RETURN;
 }
@@ -1633,14 +1633,14 @@ static int test_declare_body(void)
 	readstring(&check, "((ignore hello) (special a) (inline aaa))");
 	test(GetType(decl) == LISPTYPE_EVAL, "declare_body2");
 	readstring(&check, "(hello (cons 10 20))");
-	test(equal_function(body, check), "declare_body3");
+	test(equal_debug(body, check), "declare_body3");
 
 	readstring(&cons, "((cons 10 20) hello)");
 	result = declare_body(Execute_Thread, Nil, cons, &decl, &body);
 	test(result == 0, "declare_body4");
 	test(decl == Nil, "declare_body5");
 	readstring(&check, "((cons 10 20) hello)");
-	test(equal_function(body, check), "declare_body6");
+	test(equal_debug(body, check), "declare_body6");
 
 	RETURN;
 }

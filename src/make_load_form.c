@@ -38,14 +38,14 @@ _g void init_parse_make_load_form(Execute ptr)
 }
 
 /* found=1, notfound=0 */
-static int get_make_load_form(Execute ptr, addr key, addr *ret)
+static int get_make_load_form_(Execute ptr, addr key, addr *ret)
 {
 	addr table;
 
 	make_load_form_symbol(ptr, &table);
 	getspecialcheck_local(ptr, table, &table);
 
-	return findvalue_hashtable(table, key, ret);
+	return find_hashtable_(table, key, ret);
 }
 
 
@@ -235,7 +235,8 @@ _g int parse_clos(Execute ptr, addr *ret, addr pos)
 		return 0;
 	}
 
-	if (get_make_load_form(ptr, pos, &value))
+	Return(get_make_load_form_(ptr, pos, &value));
+	if (value != Unbound)
 		return Result(ret, value);
 	else
 		return parse_make_load_form(ptr, ret, pos);
@@ -274,9 +275,10 @@ _g void init_read_make_load_form(Execute ptr)
 	pushspecial_control(ptr, symbol, table);
 }
 
-_g void get_write_make_load_form(Execute ptr, addr key, addr *ret)
+_g int get_write_make_load_form_(Execute ptr, addr key, addr *ret)
 {
-	addr symbol, special, index, table, cons;
+	int check;
+	addr symbol, special, index, table, cons, value;
 
 	/* table */
 	compile_make_load_form_symbol(ptr, &symbol);
@@ -286,20 +288,23 @@ _g void get_write_make_load_form(Execute ptr, addr key, addr *ret)
 	/* object */
 	CheckType(key, LISPTYPE_LOAD_TIME_VALUE);
 	make_index_integer_heap(&key, (size_t)key);
-	if (intern_hashheap(table, key, &cons)) {
+	Return(internp_hashheap_(table, key, &cons, &check));
+	if (check) {
 		GetCdr(cons, ret);
-		return;
+		return 0;
 	}
 
 	/* intern */
-	*ret = index;
 	SetCdr(cons, index);
-	oneplus_integer_common(ptr->local, index, &index);
-	SetCar(special, index);
+	oneplus_integer_common(ptr->local, index, &value);
+	SetCar(special, value);
+
+	return Result(ret, index);
 }
 
-_g void get_read_make_load_form(Execute ptr, addr key, addr *ret)
+_g int get_read_make_load_form_(Execute ptr, addr key, addr *ret)
 {
+	int check;
 	addr table, cons, value;
 
 	/* table */
@@ -308,14 +313,16 @@ _g void get_read_make_load_form(Execute ptr, addr key, addr *ret)
 
 	/* intern */
 	Check(! integerp(key), "type error");
-	if (intern_hashheap(table, key, &cons)) {
+	Return(internp_hashheap_(table, key, &cons, &check));
+	if (check) {
 		GetCdr(cons, ret);
-		return;
+		return 0;
 	}
 
 	/* add value */
 	load_time_value_heap(&value);
 	SetCdr(cons, value);
-	*ret = value;
+
+	return Result(ret, value);
 }
 

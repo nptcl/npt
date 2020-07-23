@@ -25,14 +25,14 @@
  *   (import lisp-system::infoprint 'rt)
  *   (export lisp-system::infoprint 'rt)
  */
-_g void import_export_symbol_rt(constindex index)
+static void import_export_symbol_rt(constindex index)
 {
 	addr symbol, package;
 
 	GetConstant(index, &symbol);
 	GetConst(PACKAGE_RT, &package);
-	import_package(package, symbol);
-	export_package(package, symbol);
+	Error(import_package_(package, symbol));
+	Error(export_package_(package, symbol));
 }
 
 static void defpackage_rt(void)
@@ -104,8 +104,9 @@ static int function_push_entries(Execute ptr, addr name, addr expr, addr values)
 	/* check *entries-table* */
 	GetConst(RT_ENTRIES_TABLE, &table);
 	getspecialcheck_local(ptr, table, &table);
-	if (findvalue_hashtable(table, name, &pos)) {
-		fmtw("The deftest ~S is already exist.", name, NULL);
+	Return(find_hashtable_(table, name, &pos));
+	if (pos != Unbound) {
+		Return(fmtw_("The deftest ~S is already exist.", name, NULL));
 		rt_push_entries(ptr, CONSTANT_RT_ENTRIES_WARNING, name);
 	}
 	else  {
@@ -115,7 +116,7 @@ static int function_push_entries(Execute ptr, addr name, addr expr, addr values)
 
 	/* intern *entries-table* */
 	cons_heap(&list, expr, values);
-	intern_hashheap(table, name, &pos);
+	Return(intern_hashheap_(table, name, &pos));
 	SetCdr(pos, list);
 
 	/* result */
@@ -155,12 +156,11 @@ static void defun_push_entries(void)
 /* (defun rem-all-tests () -> nil
  *   (export 'rem-all-tests 'lisp-rt)
  */
-static void export_symbol(addr symbol)
+static void export_symbol_rt(addr symbol)
 {
 	addr package;
-
 	GetPackageSymbol(symbol, &package);
-	export_package(package, symbol);
+	Error(export_package_(package, symbol));
 }
 
 static void rm_all_tests_clear(Execute ptr, constindex index)
@@ -212,7 +212,7 @@ static void defun_rem_all_tests(void)
 	compiled_heap(&pos, symbol);
 	setcompiled_empty(pos, p_defun_rem_all_tests);
 	SetFunctionSymbol(symbol, pos);
-	export_symbol(symbol);
+	export_symbol_rt(symbol);
 	/* type */
 	type_rem_all_tests(&type);
 	settype_function(pos, type);
@@ -231,12 +231,14 @@ static int function_deftest(Execute ptr, addr form, addr env)
 	addr args, name, expr, quote, push;
 
 	/* arguments */
-	getcdr(form, &args);
-	if (! consp(args)) goto error;
+	Return_getcdr(form, &args);
+	if (! consp(args))
+		goto error;
 	GetCons(args, &name, &args);
 	if (! symbolp(name))
-		fmte("The deftest name ~S must be a symbol.", name, NULL);
-	if (! consp(args)) goto error;
+		return fmte_("The deftest name ~S must be a symbol.", name, NULL);
+	if (! consp(args))
+		goto error;
 	GetCons(args, &expr, &args);
 	/* `(push-entries ',name ',expr ',value) */
 	GetConst(COMMON_QUOTE, &quote);
@@ -249,8 +251,8 @@ static int function_deftest(Execute ptr, addr form, addr env)
 	return 0;
 
 error:
-	fmte("The deftest ~S must be a (deftest name expr . values) form.", form, NULL);
-	return 0;
+	return fmte_("The deftest ~S "
+			"must be a (deftest name expr . values) form.", form, NULL);
 }
 
 static void defmacro_deftest(void)
@@ -261,7 +263,7 @@ static void defmacro_deftest(void)
 	compiled_macro_heap(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_deftest);
 	setmacro_symbol(symbol, pos);
-	export_symbol(symbol);
+	export_symbol_rt(symbol);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
@@ -285,18 +287,22 @@ static int function_deftest_error(Execute ptr, addr form, addr env)
 	addr args, name, expr, error, symbol, rterror, deftest, handler_case, quote;
 
 	/* args */
-	getcdr(form, &args);
-	if (! consp(args)) goto error;
+	Return_getcdr(form, &args);
+	if (! consp(args))
+		goto error;
 	GetCons(args, &name, &args);
-	if (! consp(args)) goto error;
+	if (! consp(args))
+		goto error;
 	GetCons(args, &expr, &args);
 	if (args == Nil) {
 		GetConst(COMMON_ERROR, &error);
 		goto make_deftest;
 	}
-	if (! consp(args)) goto error;
+	if (! consp(args))
+		goto error;
 	GetCons(args, &error, &args);
-	if (args != Nil) goto error;
+	if (args != Nil)
+		goto error;
 	goto make_deftest;
 
 	/* make body */
@@ -313,8 +319,7 @@ make_deftest:
 	return 0;
 
 error:
-	fmte("Invalid deftest-error form ~S.", form, NULL);
-	return 0;
+	return fmte_("Invalid deftest-error form ~S.", form, NULL);
 }
 
 static void defmacro_deftest_error(void)
@@ -325,7 +330,7 @@ static void defmacro_deftest_error(void)
 	compiled_macro_heap(&pos, symbol);
 	setcompiled_macro(pos, p_defmacro_deftest_error);
 	setmacro_symbol(symbol, pos);
-	export_symbol(symbol);
+	export_symbol_rt(symbol);
 	/* type */
 	GetTypeCompiled(&type, MacroFunction);
 	settype_function(pos, type);
@@ -335,29 +340,32 @@ static void defmacro_deftest_error(void)
 /* (defun do-tests (&optional delete) ...) -> boolean
  *   (export 'do-tests 'lisp-rt)
  */
-static int do_test_equal(Execute ptr, addr expr, addr values, addr *ret)
+static int do_test_equal_(Execute ptr, addr expr, addr values, addr *rvalues, int *ret)
 {
 	int check1, check2;
 	addr result, pos1, pos2;
 
 	/* (eval expr) */
-	if (eval_execute_partial(ptr, expr))
-		Abort("Invalid signals.");
+	Return(eval_execute_partial(ptr, expr));
 	getvalues_list_control_local(ptr, &result);
-	*ret = result;
+	*rvalues = result;
 
 	/* values check */
 	for (;;) {
 		check1 = (values == Nil);
 		check2 = (result == Nil);
-		if (check1 && check2) break;
-		if (check1 || check2) return 0;
+		if (check1 && check2)
+			break;
+		if (check1 || check2)
+			return Result(ret, 0);
 		GetCons(values, &pos1, &values);
 		GetCons(result, &pos2, &result);
-		if (! equalrt_function(pos1, pos2)) return 0;
+		Return(equalrt_function_(pos1, pos2, &check1));
+		if (! check1)
+			return Result(ret, 0);
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 static int do_test_output_loop_(Execute ptr, addr io, const char *str, addr list)
@@ -375,8 +383,9 @@ static int do_test_output_loop_(Execute ptr, addr io, const char *str, addr list
 	return terpri_stream_(io);
 }
 
-static int do_test_output_(Execute ptr, addr io,
-		int check, addr name, addr values, addr result, fixnum index)
+static int do_test_output_(Execute ptr,
+		addr io, addr name, fixnum index,
+		addr values, addr result, int check)
 {
 	addr pos;
 	LocalRoot local;
@@ -417,33 +426,51 @@ static int do_test_output_unhandling_(Execute ptr,
 	return 0;
 }
 
-static int do_test(Execute ptr, addr io, addr name, addr table, fixnum index)
+static int do_test_execute_(Execute ptr,
+		addr io, addr name, fixnum index,
+		addr expr, addr values, int *ret)
 {
 	int check;
-	addr control, expr, values, result;
+	addr result;
+
+	Return(do_test_equal_(ptr, expr, values, &result, &check));
+	Return(do_test_output_(ptr, io, name, index, values, result, check));
+
+	return Result(ret, check);
+}
+
+static int do_test_(Execute ptr,
+		addr io, addr name, addr table, fixnum index, int *ret)
+{
+	int check;
+	addr control, expr, values;
 	codejump jump;
 
-	if (! findvalue_hashtable(table, name, &expr))
-		fmte("The deftest ~S is not exist.", name, NULL);
+	/* table */
+	Return(find_hashtable_(table, name, &expr));
+	if (expr == Unbound)
+		return fmte_("The deftest ~S is not exist.", name, NULL);
 	GetCons(expr, &expr, &values);
 
+	/* test */
+	check = 0;
 	push_new_control(ptr, &control);
 	begin_switch(ptr, &jump);
 	if (codejump_run_p(&jump)) {
-		check = do_test_equal(ptr, expr, values, &result);
-		check |= do_test_output_(ptr, io, check, name, values, result, index);
+		if (do_test_execute_(ptr, io, name, index, expr, values, &check))
+			exitexecute(ptr, LISPCODE_ERROR);
 	}
 	end_switch(&jump);
 	if (codejump_error_p(&jump)) {
-		Error(do_test_output_unhandling_(ptr, io, name, values, index));
-		check = 0;
+		Return(do_test_output_unhandling_(ptr, io, name, values, index));
+		check = 0; /* error */
 	}
 	if (free_control_(ptr, control)) {
-		Error(do_test_output_unhandling_(ptr, io, name, values, index));
-		check = 0;
+		Return(do_test_output_unhandling_(ptr, io, name, values, index));
+		check = 0; /* error */
 	}
 
-	return check;
+	return Result(ret, check);
 }
 
 static int function_do_tests_getindex(Execute ptr, fixnum *ret)
@@ -471,59 +498,99 @@ static int function_do_tests_setindex(Execute ptr, fixnum index)
 	return 0;
 }
 
-static int function_do_tests_execute(Execute ptr, fixnum *value)
+static int function_do_tests_variables_(Execute ptr,
+		addr *rio, addr *rlist, addr *rtable)
 {
+	addr io, list, table;
+
+	debug_io_stream(ptr, &io);
+	GetConst(RT_ENTRIES, &list);
+	getspecialcheck_local(ptr, list, &list);
+	rootqueue(list, &list);
+	GetConst(RT_ENTRIES_TABLE, &table);
+	getspecialcheck_local(ptr, table, &table);
+
+	*rio = io;
+	*rlist = list;
+	*rtable = table;
+
+	return 0;
+}
+
+static int function_do_tests_output2_(Execute ptr, addr io, fixnum count2)
+{
+	addr root2;
+
+	if (count2 == 0)
+		return 0;
+	make_index_integer_heap(&root2, count2);
+	gchold_push_local(ptr->local, root2);
+	Return(format_stream(ptr, io, "~%", NULL));
+	Return(format_stream(ptr, io, "*************~%", NULL));
+	Return(format_stream(ptr, io, "*** ERROR ***~%", NULL));
+	Return(format_stream(ptr, io, "*************~2%", NULL));
+	Return(format_stream(ptr, io, "ERROR = ~A~%", root2, NULL));
+
+	return 0;
+}
+
+static int function_do_tests_duplicated_(Execute ptr, addr io)
+{
+	addr pos;
+
+	/* *entries-warning* */
+	GetConst(RT_ENTRIES_WARNING, &pos);
+	getspecialcheck_local(ptr, pos, &pos);
+	rootqueue(pos, &pos);
+	if (pos != Nil) {
+		Return(format_stream(ptr, io,
+					"~&[DUPLICATED] These testcases is ignored.~%", NULL));
+		Return(format_stream(ptr, io,
+					"  *** Testcase: ~A~2%", pos, NULL));
+	}
+
+	return 0;
+}
+
+static int function_do_tests_execute_(Execute ptr, fixnum *value)
+{
+	int check;
 	addr list, table, name, root1, root2, io;
 	fixnum index, count1, count2;
 	LocalRoot local;
 	LocalStack stack;
 
-	debug_io_stream(ptr, &io);
-	GetConst(RT_ENTRIES, &list);
-	getspecialcheck_local(ptr, list, &list);
-	GetConst(RT_ENTRIES_TABLE, &table);
-	getspecialcheck_local(ptr, table, &table);
+	/* initialize */
+	Return(function_do_tests_variables_(ptr, &io, &list, &table));
 	root1 = root2 = Nil;
 	count1 = count2 = 0;
-	rootqueue(list, &list);
-
 	local = ptr->local;
 	push_local(local, &stack);
+
+	/* loop */
 	for (index = *value; list != Nil; ) {
 		GetCons(list, &name, &list);
-		if (do_test(ptr, io, name, table, ++index)) {
+		Return(do_test_(ptr, io, name, table, ++index, &check));
+		if (check) {
+			/* ok */
 			cons_local(local, &root1, name, root1);
 			count1++;
 		}
 		else {
+			/* error */
 			cons_local(local, &root2, name, root2);
 			count2++;
 		}
 	}
-	if (count2) {
-		make_index_integer_heap(&root2, count2);
-		gchold_push_local(local, root2);
-		format_stream(ptr, io, "~%", NULL);
-		format_stream(ptr, io, "*************~%", NULL);
-		format_stream(ptr, io, "*** ERROR ***~%", NULL);
-		format_stream(ptr, io, "*************~2%", NULL);
-		format_stream(ptr, io, "ERROR = ~A~%", root2, NULL);
-	}
 
-	/* *entries-warning* */
-	GetConst(RT_ENTRIES_WARNING, &list);
-	getspecialcheck_local(ptr, list, &list);
-	rootqueue(list, &list);
-	if (list != Nil) {
-		format_stream(ptr, io, "~&[DUPCATED] These testcases is ignored.~%", NULL);
-		format_stream(ptr, io, "  *** Testcase: ~A~2%", list, NULL);
-	}
+	/* output */
+	Return(function_do_tests_output2_(ptr, io, count2));
+	Return(function_do_tests_duplicated_(ptr, io));
 
+	/* result */
 	rollback_local(local, stack);
-	*value = index;
-
 	setbool_control(ptr, count2 == 0);
-	return 0;
+	return Result(value, index);
 }
 
 static int function_do_tests(Execute ptr, addr rest)
@@ -536,7 +603,7 @@ static int function_do_tests(Execute ptr, addr rest)
 
 	/* do-tests */
 	function_do_tests_getindex(ptr, &index);
-	function_do_tests_execute(ptr, &index);
+	Return(function_do_tests_execute_(ptr, &index));
 	function_do_tests_setindex(ptr, index);
 
 	/* rem-all-tests */
@@ -566,7 +633,7 @@ static void defun_do_tests(void)
 	compiled_heap(&pos, symbol);
 	setcompiled_dynamic(pos, p_defun_do_tests);
 	SetFunctionSymbol(symbol, pos);
-	export_symbol(symbol);
+	export_symbol_rt(symbol);
 	/* type */
 	type_do_tests(&type);
 	settype_function(pos, type);
@@ -577,7 +644,11 @@ static void defun_do_tests(void)
 /* (defun equalrt (a b) ...) -> boolean */
 static int function_equalrt(Execute ptr, addr a, addr b)
 {
-	setbool_control(ptr, equalrt_function(a, b));
+	int check;
+
+	Return(equalrt_function_(a, b, &check));
+	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -590,7 +661,7 @@ static void defun_equalrt(void)
 	compiled_heap(&pos, symbol);
 	setcompiled_var2(pos, p_defun_equalrt);
 	SetFunctionSymbol(symbol, pos);
-	export_symbol(symbol);
+	export_symbol_rt(symbol);
 	/* type */
 	GetTypeCompiled(&type, Eq);
 	settype_function(pos, type);

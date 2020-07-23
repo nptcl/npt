@@ -293,15 +293,13 @@ _g void clos_class_of(addr object, addr *ret)
 /*
  *  specializer
  */
-_g void clos_intern_specializer(addr object, addr *ret)
+_g int clos_intern_specializer_(addr object, addr *ret)
 {
 	addr pos, type;
 
-	clos_find_specializer_nil(object, &pos);
-	if (pos != Nil) {
-		*ret = pos;
-		return;
-	}
+	Return(clos_find_specializer_nil_(object, &pos));
+	if (pos != Nil)
+		return Result(ret, pos);
 
 	/* make eql-specializer */
 	GetConst(CLOS_EQL_SPECIALIZER, &pos);
@@ -310,8 +308,8 @@ _g void clos_intern_specializer(addr object, addr *ret)
 	clos_class_of(object, &type);
 	stdset_specializer_object(pos, object);
 	stdset_specializer_type(pos, type);
-	clos_define_specializer(object, pos);
+	Return(clos_define_specializer_(object, pos));
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
 

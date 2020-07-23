@@ -280,8 +280,7 @@ int lisp_package_(addr *ret, addr pos)
 {
 	if (! stringp(pos))
 		return TypeError_(pos, STRING);
-	find_package(pos, ret);
-	return 0;
+	return find_package_(pos, ret);
 }
 
 int lisp_package8_(addr *ret, const void *str)
@@ -293,7 +292,7 @@ int lisp_package8_(addr *ret, const void *str)
 	local = Local_Thread;
 	push_local(local, &stack);
 	Return(string8_null_local_(local, &x, (const char *)str));
-	find_package(x, ret);
+	Return(find_package_(x, ret));
 	rollback_local(local, stack);
 
 	return 0;
@@ -308,7 +307,7 @@ int lisp_package16_(addr *ret, const void *str)
 	local = Local_Thread;
 	push_local(local, &stack);
 	Return(string16_null_local_(local, &x, (const byte16 *)str));
-	find_package(x, ret);
+	Return(find_package_(x, ret));
 	rollback_local(local, stack);
 
 	return 0;
@@ -321,14 +320,13 @@ int lisp_package16_(addr *ret, const void *str)
 int lisp_intern_(addr *ret, addr package, addr name)
 {
 	if (package == Nil || package == NULL) {
-		getpackage(Execute_Thread, &package);
+		Return(getpackage_(Execute_Thread, &package));
 	}
 	else if (! packagep(package)) {
 		Return(lisp_package_(&package, package));
 	}
-	intern_package(package, name, ret);
 
-	return 0;
+	return intern_package_(package, name, ret, NULL);
 }
 
 int lisp_intern8_(addr *ret, const void *package, const void *name)

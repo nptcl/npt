@@ -3,10 +3,10 @@
 
 #include "typedef.h"
 
-_g int findtable_unicode_name(addr *ret, unicode u);
-_g int findtable_char_name(addr *ret, addr pos);
-_g int findtable_name_char(addr *ret, addr name);
-_g int find_name_char(addr *ret, addr name);
+_g int findtable_unicode_name_(addr *ret, unicode u);
+_g int findtable_char_name_(addr *ret, addr pos);
+_g int findtable_name_char_(addr *ret, addr name);
+_g int find_name_char_(addr *ret, addr name);
 
 _g void build_character_name(void);
 

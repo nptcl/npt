@@ -75,9 +75,9 @@ enum PATHNAME_INDEX {
 #endif
 
 #ifdef LISP_PATHNAME_EQUALP
-#define LispPathnameEqual equalp_function
+#define LispPathnameEqual_ equalp_function_
 #else
-#define LispPathnameEqual equal_function
+#define LispPathnameEqual_ equal_function_
 #endif
 
 /* access */
@@ -127,11 +127,11 @@ _g int pathname_directory_p(addr pos);
 _g void copylocal_pathname_array(LocalRoot local, addr a, int i, addr b);
 _g void copy_pathname_alloc(LocalRoot local, addr *ret, addr pos);
 #define copy_pathname_heap(x,y) copy_pathname_alloc(NULL, (x), (y))
-_g int pathname_equal(addr left, addr right);
-_g int wild_pathname_boolean(addr file, addr field);
-_g int wildcard_stringp_p(addr pos);
-_g int wildcard_string_pathname(addr a, addr b);
-_g int wildcard_eq_pathname(addr a, addr b);
+_g int pathname_equal_(addr left, addr right, int *ret);
+_g int wild_pathname_boolean_(addr file, addr field, int *ret);
+_g int wildcard_stringp_p_(addr pos, int *ret);
+_g int wildcard_string_pathname_(addr a, addr b, int *ret);
+_g int wildcard_eq_pathname_(addr a, addr b, int *ret);
 
 #endif
 

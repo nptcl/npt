@@ -21,9 +21,9 @@ static int test_constant_eq(void)
 {
 	addr symbol;
 
-	internchar("COMMON-LISP", "&OPTIONAL", &symbol);
+	internchar_debug("COMMON-LISP", "&OPTIONAL", &symbol);
 	test(constant_eq(CONSTANT_AMPERSAND_OPTIONAL, symbol), "constant_eq1");
-	internchar("KEYWORD", "TEST", &symbol);
+	internchar_debug("KEYWORD", "TEST", &symbol);
 	test(! constant_eq(CONSTANT_AMPERSAND_OPTIONAL, symbol), "constant_eq2");
 
 	RETURN;
@@ -33,20 +33,20 @@ static int test_member_ampersand(void)
 {
 	addr symbol;
 
-	internchar("COMMON-LISP", "&OPTIONAL", &symbol);
+	internchar_debug("COMMON-LISP", "&OPTIONAL", &symbol);
 	test(member_ampersand(symbol, AMPERSAND_GENERIC), "member_ampersand1");
 	test(member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand2");
-	internchar("COMMON-LISP", "&ALLOW-OTHER-KEYS", &symbol);
+	internchar_debug("COMMON-LISP", "&ALLOW-OTHER-KEYS", &symbol);
 	test(member_ampersand(symbol, AMPERSAND_GENERIC), "member_ampersand3");
 	test(member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand4");
-	internchar("COMMON-LISP", "&AUX", &symbol);
+	internchar_debug("COMMON-LISP", "&AUX", &symbol);
 	test(! member_ampersand(symbol, AMPERSAND_GENERIC), "member_ampersand5");
 	test(member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand6");
-	internchar("COMMON-LISP", "&WHOLE", &symbol);
+	internchar_debug("COMMON-LISP", "&WHOLE", &symbol);
 	test(! member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand7");
 	test(member_ampersand(symbol, AMPERSAND_METHOD_COMBINATION),
 			"member_ampersand8");
-	internchar("COMMON-LISP", "&BODY", &symbol);
+	internchar_debug("COMMON-LISP", "&BODY", &symbol);
 	test(! member_ampersand(symbol, AMPERSAND_METHOD_COMBINATION),
 			"member_ampersand9");
 	test(member_ampersand(symbol, AMPERSAND_MACRO), "member_ampersand10");
@@ -57,7 +57,7 @@ static int test_member_ampersand(void)
 static int test_variable_check(void)
 {
 	addr symbol;
-	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
 	Error(variable_check_(symbol, AMPERSAND_ORDINARY));
 	test(1, "variable_check1");
 	RETURN;
@@ -94,7 +94,7 @@ static int test_push_varcons(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	varcons_local(local, &cons);
-	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
 	push_varcons_(local, cons, symbol, AMPERSAND_ORDINARY);
 
 	varcons_data(cons, &check);
@@ -116,7 +116,7 @@ static int test_push_namecons(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	varcons_local(local, &cons);
-	internchar_keyword("HELLO", &symbol);
+	internchar_keyword_debug("HELLO", &symbol);
 	push_namecons_(local, cons, symbol);
 
 	varcons_data(cons, &check);
@@ -133,10 +133,10 @@ static int test_make_keyword_from_symbol(void)
 {
 	addr symbol, check;
 
-	internchar_keyword("HELLO", &symbol);
+	internchar_keyword_debug("HELLO", &symbol);
 	make_keyword_from_symbol_(symbol, &check);
 	test(symbol == check, "make_keyword_from_symbol1");
-	internchar(LISP_PACKAGE, "HELLO", &check);
+	internchar_debug(LISP_PACKAGE, "HELLO", &check);
 	make_keyword_from_symbol_(check, &check);
 	test(symbol == check, "make_keyword_from_symbol2");
 
@@ -169,14 +169,14 @@ static int test_key_name_values(void)
 {
 	addr pos, pos2, symbol, name;
 
-	internchar(LISP_PACKAGE, "AAA", &pos);
+	internchar_debug(LISP_PACKAGE, "AAA", &pos);
 	key_name_values_(pos, &symbol, &name);
 	test(pos == symbol, "key_name_values1");
-	internchar_keyword("AAA", &pos);
+	internchar_keyword_debug("AAA", &pos);
 	test(pos == name, "key_name_values2");
 
-	internchar_keyword("AAA", &pos);
-	internchar(LISP_PACKAGE, "AAA", &pos2);
+	internchar_keyword_debug("AAA", &pos);
+	internchar_debug(LISP_PACKAGE, "AAA", &pos2);
 	list_heap(&symbol, pos, pos2, NULL);  /* (name symbol) */
 	key_name_values_(symbol, &symbol, &name);
 	test(symbol == pos2, "key_name_values3");
@@ -198,7 +198,7 @@ static int test_push_varcons_macro(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	varcons_local(local, &instance);
-	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
 	push_varcons_macro_(local, instance, symbol);
 	varcons_data(instance, &cons);
 	GetCons(cons, &instance, &cons);
@@ -213,7 +213,7 @@ static int test_ordinary_opt(void)
 {
 	addr pos, cons, value, check, var, init, sup;
 
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
 	ordinary_opt_(pos, &var, &init, &sup);
 	test(var == pos, "ordinary_opt1");
 	test(init == Nil, "ordinary_opt2");
@@ -232,7 +232,7 @@ static int test_ordinary_opt(void)
 	test(init == value, "ordinary_opt8");
 	test(sup == Nil, "ordinary_opt9");
 
-	internchar(LISP_PACKAGE, "CHECK", &check);
+	internchar_debug(LISP_PACKAGE, "CHECK", &check);
 	list_heap(&cons, pos, value, check, NULL);
 	ordinary_opt_(cons, &var, &init, &sup);
 	test(var == pos, "ordinary_opt10");
@@ -251,10 +251,10 @@ static int test_ordinary_key(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	varcons_local(local, &instance);
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
 	ordinary_key_(local, instance, pos, &var, &name, &init, &sup);
 	test(pos == var, "ordinary_key1");
-	internchar_keyword("HELLO", &pos);
+	internchar_keyword_debug("HELLO", &pos);
 	test(pos == name, "ordinary_key2");
 	test(init == Nil, "ordinary_key3");
 	test(sup == Nil, "ordinary_key4");
@@ -271,7 +271,7 @@ static int test_ordinary_aux(void)
 {
 	addr pos, cons, value, var, init;
 
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
 	ordinary_aux_(pos, &var, &init);
 	test(var == pos, "ordinary_aux1");
 	test(init == Nil, "ordinary_aux2");
@@ -303,7 +303,7 @@ static int test_push_varcons_ordinary(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	varcons_local(local, &instance);
-	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
 	push_varcons_ordinary_(local, instance, symbol);
 	varcons_data(instance, &cons);
 	GetCons(cons, &instance, &cons);
@@ -323,10 +323,10 @@ static int test_generic_function_key_cons(void)
 	addr pos, check, cons, symbol, name;
 
 	/* symbol */
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
 	generic_function_key_cons_(pos, &symbol, &name);
 	test(symbol == pos, "generic_function_key_cons1");
-	internchar_keyword("HELLO", &check);
+	internchar_keyword_debug("HELLO", &check);
 	test(name == check, "generic_function_key_cons2");
 
 	/* (symbol) */
@@ -336,7 +336,7 @@ static int test_generic_function_key_cons(void)
 	test(name == check, "generic_function_key_cons4");
 
 	/* ((name symbol)) */
-	internchar(LISP_PACKAGE, "AAA", &check);
+	internchar_debug(LISP_PACKAGE, "AAA", &check);
 	list_heap(&cons, check, pos, NULL);
 	list_heap(&cons, cons, NULL);
 	generic_function_key_cons_(cons, &symbol, &name);
@@ -356,10 +356,10 @@ static int test_generic_function_key(void)
 	push_local(local, &stack);
 	varcons_local(local, &cons);
 
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
 	generic_function_key_(local, cons, pos, &symbol, &name);
 	test(symbol == pos, "generic_function_key1");
-	internchar_keyword("HELLO", &check);
+	internchar_keyword_debug("HELLO", &check);
 	test(name == check, "generic_function_key2");
 	varcons_data(cons, &cons);
 	GetCons(cons, &check, &cons);
@@ -379,7 +379,7 @@ static int test_push_varcons_generic_function(void)
 	local = Local_Thread;
 	push_local(local, &stack);
 	varcons_local(local, &cons);
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
 	push_varcons_generic_function_(local, cons, pos);
 	varcons_data(cons, &cons);
 	GetCons(cons, &check, &cons);
@@ -409,16 +409,16 @@ static void import_constant_test(addr package, constindex index)
 {
 	addr symbol;
 	GetConstant(index, &symbol);
-	import_package(package, symbol);
+	Error(import_package_(package, symbol));
 }
 
 static void import_test(void)
 {
 	addr package;
 
-	find_char_package(LISP_PACKAGE, &package);
-	import_package(package, Nil);
-	import_package(package, T);
+	Error(find_char_package_(LISP_PACKAGE, &package));
+	Error(import_package_(package, Nil));
+	Error(import_package_(package, T));
 	import_constant_test(package, CONSTANT_COMMON_EQL);
 	import_constant_test(package, CONSTANT_AMPERSAND_OPTIONAL);
 	import_constant_test(package, CONSTANT_AMPERSAND_REST);
@@ -649,14 +649,14 @@ static int test_check_specializer_form(void)
 
 	test(check_specializer_form(Nil), "check_specializer_form1");
 	test(check_specializer_form(T), "check_specializer_form2");
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
 	test(check_specializer_form(pos), "check_specializer_form3");
 	list_heap(&pos, T, NULL);
 	test(! check_specializer_form(pos), "check_specializer_form4");
 	list_heap(&pos, T, T, NULL);
 	test(! check_specializer_form(pos), "check_specializer_form5");
 
-	internchar(LISP_COMMON, "EQL", &eql);
+	internchar_debug(LISP_COMMON, "EQL", &eql);
 	list_heap(&pos, eql, T, NULL);
 	test(check_specializer_form(pos), "check_specializer_form6");
 	list_heap(&pos, eql, T, T, NULL);
@@ -669,12 +669,12 @@ static int test_specialized_var(void)
 {
 	addr pos, symbol, eql, value, cons, var, spec;
 
-	internchar(LISP_PACKAGE, "HELLO", &symbol);
+	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
 	specialized_var_(symbol, &var, &spec);
 	test(var == symbol, "specialized_var1");
 	test(spec == T, "specialized_var2");
 
-	internchar(LISP_COMMON, "EQL", &eql);
+	internchar_debug(LISP_COMMON, "EQL", &eql);
 	fixnum_heap(&value, 100);
 	list_heap(&spec, eql, value, NULL);
 	list_heap(&cons, symbol, spec, NULL);

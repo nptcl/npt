@@ -58,8 +58,8 @@ _g void stdset_structure_value(addr pos, addr value);
 /* structure */
 _g int structure_class_p(addr pos);
 _g int structure_instance_p(addr pos);
-_g int equalp_structure(addr a, addr b);
-_g int equalrt_structure(addr a, addr b);
+_g int equalp_structure_(addr a, addr b, int *ret);
+_g int equalrt_structure_(addr a, addr b, int *ret);
 _g int ensure_structure_common_(Execute ptr, addr name, addr slots, addr rest);
 _g int structure_constructor_common(Execute ptr, addr symbol, addr rest, addr *ret);
 _g int make_instance_structure(Execute ptr, addr rest, addr *ret);

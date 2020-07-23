@@ -48,36 +48,36 @@ static int test_build_type_upgraded(void)
 
 	GetConst(ARRAY_SIGNED8, &x);
 	y = readr("(signed-byte 8)");
-	test(equal(x, y), "build_type_upgraded7");
+	test(equal_debug(x, y), "build_type_upgraded7");
 
 	GetConst(ARRAY_SIGNED16, &x);
 	y = readr("(signed-byte 16)");
-	test(equal(x, y), "build_type_upgraded8");
+	test(equal_debug(x, y), "build_type_upgraded8");
 
 	GetConst(ARRAY_SIGNED32, &x);
 	y = readr("(signed-byte 32)");
-	test(equal(x, y), "build_type_upgraded9");
+	test(equal_debug(x, y), "build_type_upgraded9");
 
 	GetConst(ARRAY_UNSIGNED8, &x);
 	y = readr("(unsigned-byte 8)");
-	test(equal(x, y), "build_type_upgraded10");
+	test(equal_debug(x, y), "build_type_upgraded10");
 
 	GetConst(ARRAY_UNSIGNED16, &x);
 	y = readr("(unsigned-byte 16)");
-	test(equal(x, y), "build_type_upgraded11");
+	test(equal_debug(x, y), "build_type_upgraded11");
 
 	GetConst(ARRAY_UNSIGNED32, &x);
 	y = readr("(unsigned-byte 32)");
-	test(equal(x, y), "build_type_upgraded12");
+	test(equal_debug(x, y), "build_type_upgraded12");
 
 #ifdef LISP_64BIT
 	GetConst(ARRAY_SIGNED64, &x);
 	y = readr("(signed-byte 64)");
-	test(equal(x, y), "build_type_upgraded13");
+	test(equal_debug(x, y), "build_type_upgraded13");
 
 	GetConst(ARRAY_UNSIGNED64, &x);
 	y = readr("(unsigned-byte 64)");
-	test(equal(x, y), "build_type_upgraded14");
+	test(equal_debug(x, y), "build_type_upgraded14");
 #endif
 
 	RETURN;
@@ -454,11 +454,11 @@ static int test_upgraded_array_const_signed(void)
 
 	upgraded_array_const_signed(8, &x);
 	y = readr("(signed-byte 8)");
-	test(equal(x, y), "upgraded_array_const_signed2");
+	test(equal_debug(x, y), "upgraded_array_const_signed2");
 
 	upgraded_array_const_signed(32, &x);
 	y = readr("(signed-byte 32)");
-	test(equal(x, y), "upgraded_array_const_signed3");
+	test(equal_debug(x, y), "upgraded_array_const_signed3");
 
 	RETURN;
 }
@@ -472,11 +472,11 @@ static int test_upgraded_array_const_unsigned(void)
 
 	upgraded_array_const_unsigned(8, &x);
 	y = readr("(unsigned-byte 8)");
-	test(equal(x, y), "upgraded_array_const_unsigned2");
+	test(equal_debug(x, y), "upgraded_array_const_unsigned2");
 
 	upgraded_array_const_unsigned(16, &x);
 	y = readr("(unsigned-byte 16)");
-	test(equal(x, y), "upgraded_array_const_unsigned3");
+	test(equal_debug(x, y), "upgraded_array_const_unsigned3");
 
 	RETURN;
 }
@@ -487,11 +487,11 @@ static int test_upgraded_array_const(void)
 
 	upgraded_array_const(ARRAY_TYPE_BIT, 999, &x);
 	y = readr("bit");
-	test(equal(x, y), "upgraded_array_const1");
+	test(equal_debug(x, y), "upgraded_array_const1");
 
 	upgraded_array_const(ARRAY_TYPE_SIGNED, 8, &x);
 	y = readr("(signed-byte 8)");
-	test(equal(x, y), "upgraded_array_const2");
+	test(equal_debug(x, y), "upgraded_array_const2");
 
 	RETURN;
 }
@@ -505,7 +505,7 @@ static int test_upgraded_array_common(void)
 	check = upgraded_array_common(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_array_common1");
 	y = readr("(unsigned-byte 8)");
-	test(equal(x, y), "upgraded_array_common2");
+	test(equal_debug(x, y), "upgraded_array_common2");
 
 	x = readr("readtable");
 	check = upgraded_array_common(Execute_Thread, Nil, x, &x);
@@ -581,19 +581,19 @@ static int test_upgraded_complex_const(void)
 	parse_type_unsafe(&x, x);
 	upgraded_complex_const_(x, &x);
 	y = readr("integer");
-	test(equal(x, y), "upgraded_complex_const1");
+	test(equal_debug(x, y), "upgraded_complex_const1");
 
 	x = readr("ratio");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_const_(x, &x);
 	y = readr("rational");
-	test(equal(x, y), "upgraded_complex_const2");
+	test(equal_debug(x, y), "upgraded_complex_const2");
 
 	x = readr("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
 	upgraded_complex_const_(x, &x);
 	y = readr("long-float");
-	test(equal(x, y), "upgraded_complex_const3");
+	test(equal_debug(x, y), "upgraded_complex_const3");
 
 	RETURN;
 }
@@ -607,21 +607,21 @@ static int test_upgraded_complex_common(void)
 	check = upgraded_complex_common(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_complex_common1");
 	y = readr("integer");
-	test(equal(x, y), "upgraded_complex_common2");
+	test(equal_debug(x, y), "upgraded_complex_common2");
 
 	x = readr("ratio");
 	parse_type_unsafe(&x, x);
 	check = upgraded_complex_common(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_complex_common3");
 	y = readr("rational");
-	test(equal(x, y), "upgraded_complex_common4");
+	test(equal_debug(x, y), "upgraded_complex_common4");
 
 	x = readr("(long-float 10.0L0)");
 	parse_type_unsafe(&x, x);
 	check = upgraded_complex_common(Execute_Thread, Nil, x, &x);
 	test(check == 0, "upgraded_complex_common5");
 	y = readr("long-float");
-	test(equal(x, y), "upgraded_complex_common6");
+	test(equal_debug(x, y), "upgraded_complex_common6");
 
 	RETURN;
 }

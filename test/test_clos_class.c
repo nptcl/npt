@@ -402,7 +402,7 @@ static int test_clos_subtype_p2(void)
 
 	local = Local_Thread;
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
-	internchar(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_PACKAGE, "HELLO", &name);
 	clos_stdclass_type(local, &clos, metaclass, name, Nil);
 	clos_instance_heap(clos, &instance);
 
@@ -732,7 +732,7 @@ static int test_clos_instance_alloc(void)
 	slot_vector_heap(&slots, 3);
 
 	slot_heap(&pos);
-	internchar_keyword("HELLO", &name);
+	internchar_keyword_debug("HELLO", &name);
 	SetNameSlot(pos, name);
 	fixnum_heap(&one, 111);
 	SetFormSlot(pos, one);
@@ -740,7 +740,7 @@ static int test_clos_instance_alloc(void)
 	SetSlotVector(slots, 0, pos);
 
 	slot_heap(&pos);
-	internchar_keyword("AAA", &name);
+	internchar_keyword_debug("AAA", &name);
 	SetNameSlot(pos, name);
 	fixnum_heap(&one, 222);
 	SetFormSlot(pos, one);
@@ -748,7 +748,7 @@ static int test_clos_instance_alloc(void)
 	SetSlotVector(slots, 1, pos);
 
 	slot_heap(&pos);
-	internchar_keyword("BBB", &name);
+	internchar_keyword_debug("BBB", &name);
 	SetNameSlot(pos, name);
 	fixnum_heap(&one, 333);
 	SetFormSlot(pos, one);
@@ -774,15 +774,15 @@ static int test_clos_instance_alloc(void)
 	GetFixnum(pos, &value);
 	test(value == 333, "clos_instance_heap3");
 
-	internchar_keyword("HELLO", &name);
+	internchar_keyword_debug("HELLO", &name);
 	clos_check(clos, name, &pos);
 	GetFixnum(pos, &value);
 	test(value == 111, "clos_instance_heap4");
-	internchar_keyword("AAA", &name);
+	internchar_keyword_debug("AAA", &name);
 	clos_check(clos, name, &pos);
 	GetFixnum(pos, &value);
 	test(value == 222, "clos_instance_heap5");
-	internchar_keyword("BBB", &name);
+	internchar_keyword_debug("BBB", &name);
 	clos_check(clos, name, &pos);
 	GetFixnum(pos, &value);
 	test(value == 333, "clos_instance_heap6");
@@ -1208,17 +1208,17 @@ static int test_clos_slots_name(void)
 	int check;
 	addr slot1, slot2, name, pos, cons;
 
-	internchar(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_PACKAGE, "HELLO", &name);
 
 	check = clos_slots_name(&cons, name, Nil);
 	test(check == 0, "clos_slots_name1");
 
 	slot_heap(&slot1);
-	internchar(LISP_PACKAGE, "AAA", &pos);
+	internchar_debug(LISP_PACKAGE, "AAA", &pos);
 	SetNameSlot(slot1, pos);
 
 	slot_heap(&slot2);
-	internchar(LISP_PACKAGE, "BBB", &pos);
+	internchar_debug(LISP_PACKAGE, "BBB", &pos);
 	SetNameSlot(slot2, pos);
 
 	list_heap(&cons, slot1, slot2, NULL);
@@ -1226,7 +1226,7 @@ static int test_clos_slots_name(void)
 	test(check == 0, "clos_slots_name2");
 
 	slot_heap(&slot2);
-	internchar(LISP_PACKAGE, "HELLO", &pos);
+	internchar_debug(LISP_PACKAGE, "HELLO", &pos);
 	SetNameSlot(slot2, pos);
 
 	list_heap(&cons, slot1, slot2, NULL);
@@ -1254,7 +1254,7 @@ static int test_clos_slots_push(void)
 	SetArgsSlot(b, Nil);
 	clos_slots_push(a, b);
 	GetArgsSlot(a, &list);
-	test(equal_function(list, v), "clos_slots_push2");
+	test(equal_debug(list, v), "clos_slots_push2");
 
 	v = readr("(aaa bbb ccc)");
 	SetArgsSlot(a, Nil);
@@ -1262,7 +1262,7 @@ static int test_clos_slots_push(void)
 	clos_slots_push(a, b);
 	GetArgsSlot(a, &list);
 	v = readr("(ccc bbb aaa)");
-	test(equal_function(list, v), "clos_slots_push3");
+	test(equal_debug(list, v), "clos_slots_push3");
 
 	v = readr("(aaa bbb ccc)");
 	SetArgsSlot(a, v);
@@ -1271,7 +1271,7 @@ static int test_clos_slots_push(void)
 	clos_slots_push(a, b);
 	GetArgsSlot(a, &list);
 	v = readr("(eee ddd aaa bbb ccc)");
-	test(equal_function(list, v), "clos_slots_push4");
+	test(equal_debug(list, v), "clos_slots_push4");
 
 	RETURN;
 }
@@ -1281,7 +1281,7 @@ static void test_makeclos_slotname_heap(addr *ret, const char *name)
 {
 	addr symbol;
 	slot_heap(ret);
-	internchar(LISP_PACKAGE, name, &symbol);
+	internchar_debug(LISP_PACKAGE, name, &symbol);
 	SetNameSlot(*ret, symbol);
 }
 
@@ -1323,7 +1323,7 @@ static int slotnamecheck(addr slot, const char *name)
 {
 	addr check;
 	GetNameSlot(slot, &slot);
-	internchar(LISP_PACKAGE, name, &check);
+	internchar_debug(LISP_PACKAGE, name, &check);
 	return check == slot;
 }
 
@@ -1512,7 +1512,7 @@ static int test_slotname(addr slots, int index, const char *name)
 
 	GetSlotVector(slots, index, &pos);
 	GetNameSlot(pos, &pos);
-	internchar(LISP_CLOS, name, &check);
+	internchar_debug(LISP_CLOS, name, &check);
 
 	return check == pos;
 }
@@ -1600,7 +1600,7 @@ static int test_clos_stdclass_make(void)
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy(&clos, slots);
 	test_slot_vector_heap(&slots, 4);
-	internchar(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_PACKAGE, "HELLO", &name);
 	clos_stdclass_make(&clos, clos, name, slots);
 	stdget_class_name(clos, &check);
 	test(check == name, "clos_stdclass_make1");
@@ -1621,7 +1621,7 @@ static int test_clos_stdclass_empty(void)
 
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy(&clos, slots);
-	internchar(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_PACKAGE, "HELLO", &name);
 	clos_stdclass_empty(&clos, clos, name);
 	stdget_class_direct_slots(clos, &check);
 	LenSlotVector(check, &size);
@@ -1637,7 +1637,7 @@ static int test_clos_stdclass_class_of(void)
 
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy(&clos, slots);
-	internchar(LISP_PACKAGE, "AAA", &name);
+	internchar_debug(LISP_PACKAGE, "AAA", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&clos, clos, name, slots);
 
@@ -1661,17 +1661,17 @@ static int test_clos_stdclass_inherit(void)
 	local = Local_Thread;
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy(&metaclass, slots);
-	internchar(LISP_PACKAGE, "METACLASS", &name);
+	internchar_debug(LISP_PACKAGE, "METACLASS", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&metaclass, metaclass, name, slots);
 	clos_stdclass_inherit(local, metaclass, metaclass, Nil);
 
-	internchar(LISP_PACKAGE, "SUPER", &name);
+	internchar_debug(LISP_PACKAGE, "SUPER", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&super, metaclass, name, slots);
 	clos_stdclass_inherit(local, super, metaclass, Nil);
 
-	internchar(LISP_PACKAGE, "AAA", &name);
+	internchar_debug(LISP_PACKAGE, "AAA", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&clos, metaclass, name, slots);
 	list_heap(&supers, super, NULL);
@@ -1710,17 +1710,17 @@ static int test_clos_stdclass_single(void)
 	local = Local_Thread;
 	clos_stdclass_slots(&slots);
 	clos_stdclass_dummy(&metaclass, slots);
-	internchar(LISP_PACKAGE, "METACLASS", &name);
+	internchar_debug(LISP_PACKAGE, "METACLASS", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&metaclass, metaclass, name, slots);
 	clos_stdclass_inherit(local, metaclass, metaclass, Nil);
 
-	internchar(LISP_PACKAGE, "SUPER", &name);
+	internchar_debug(LISP_PACKAGE, "SUPER", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&super, metaclass, name, slots);
 	clos_stdclass_inherit(local, super, metaclass, Nil);
 
-	internchar(LISP_PACKAGE, "AAA", &name);
+	internchar_debug(LISP_PACKAGE, "AAA", &name);
 	clos_stdclass_slots(&slots);
 	clos_stdclass_make(&clos, metaclass, name, slots);
 	clos_stdclass_single(local, clos, metaclass, super);
@@ -1814,15 +1814,15 @@ static int test_clos_stdclass_supers(void)
 
 	local = Local_Thread;
 	clos_stdclass_metaclass(local, &metaclass);
-	internchar(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_PACKAGE, "HELLO", &name);
 	clos_find_class(T, &check);
 	list_heap(&supers, check, NULL);
 	test_slot_vector_heap(&slots, 2);
 	slot_heap(&slot);
-	internchar(LISP_PACKAGE, "AAA", &symbol);
+	internchar_debug(LISP_PACKAGE, "AAA", &symbol);
 	SetNameSlot(slot, symbol);
 	SetSlotVector(slots, 0, slot);
-	internchar(LISP_PACKAGE, "BBB", &symbol);
+	internchar_debug(LISP_PACKAGE, "BBB", &symbol);
 	slot_heap(&slot);
 	SetNameSlot(slot, symbol);
 	SetSlotVector(slots, 1, slot);
@@ -1849,7 +1849,7 @@ static int test_clos_stdclass_type(void)
 
 	local = Local_Thread;
 	clos_stdclass_metaclass(local, &metaclass);
-	internchar(LISP_PACKAGE, "HELLO", &name);
+	internchar_debug(LISP_PACKAGE, "HELLO", &name);
 	clos_find_class(T, &tclass);
 	list_heap(&supers, tclass, NULL);
 	clos_stdclass_type(local, &instance, metaclass, name, supers);
@@ -1912,11 +1912,11 @@ static int test_clos_stdclass_slotsconstant(void)
 	local = Local_Thread;
 	test_slot_vector_heap(&slots, 2);
 	slot_heap(&slot);
-	internchar(LISP_PACKAGE, "AAA", &name);
+	internchar_debug(LISP_PACKAGE, "AAA", &name);
 	SetNameSlot(slot, name);
 	SetSlotVector(slots, 0, slot);
 	slot_heap(&slot);
-	internchar(LISP_PACKAGE, "BBB", &name);
+	internchar_debug(LISP_PACKAGE, "BBB", &name);
 	SetNameSlot(slot, name);
 	SetSlotVector(slots, 1, slot);
 
@@ -1953,10 +1953,10 @@ static int test_build_standard_class(void)
 	addr trueclass, classclass, builtinclass, metaclass, objectclass;
 	addr classname, builtinname, metaname, objectname;
 
-	interncommon("CLASS", &classname);
-	interncommon("BUILT-IN-CLASS", &builtinname);
-	interncommon("STANDARD-CLASS", &metaname);
-	interncommon("STANDARD-OBJECT", &objectname);
+	interncommon_debug("CLASS", &classname);
+	interncommon_debug("BUILT-IN-CLASS", &builtinname);
+	interncommon_debug("STANDARD-CLASS", &metaname);
+	interncommon_debug("STANDARD-OBJECT", &objectname);
 	clos_find_class(T, &trueclass);
 	clos_find_class(classname, &classclass);
 	clos_find_class(builtinname, &builtinclass);

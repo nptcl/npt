@@ -345,9 +345,8 @@ _g int set_pprint_dispatch_common(Execute ptr,
 		getfunction_global(call, &call);
 	if (table == Unbound)
 		pprint_dispatch_print(ptr, &table);
-	set_pprint_dispatch_print(ptr->local, spec, type, call, priority, table);
 
-	return 0;
+	return set_pprint_dispatch_print_(ptr->local, spec, type, call, priority, table);
 }
 
 

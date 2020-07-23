@@ -19,7 +19,7 @@ _g void stdset_method_specializers(addr pos, addr value);
 _g void method_instance_alloc(LocalRoot local, addr *ret, addr clos,
 		addr lambda_list, addr qualifiers, addr specializers, addr function);
 _g void method_instance_call(LocalRoot local, addr *ret, addr clos, addr call);
-_g void method_instance_lambda(LocalRoot local, addr *ret, addr clos, addr lambda);
+_g int method_instance_lambda_(LocalRoot local, addr *ret, addr clos, addr lambda);
 _g int method_remove_method_(Execute ptr, addr gen, addr method);
 _g int method_add_method_(Execute ptr, addr gen, addr method);
 _g void common_method_add(Execute ptr, addr generic, addr method);

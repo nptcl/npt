@@ -120,8 +120,7 @@ _g int show_prompt_(Execute ptr, addr io)
 
 _g int input_prompt(addr *ret, addr *prompt, const char *message)
 {
-	fmte("input-prompt is not supported.", NULL);
-	return 1;
+	return fmte_("input-prompt is not supported.", NULL);
 }
 #endif
 
@@ -218,7 +217,7 @@ _g int input_prompt(addr *ret, addr *prompt, const char *message)
 
 	str = make_prompt(prompt, message);
 	if (str == NULL) {
-		return 1; /* eof */
+		return Result(ret, Nil); /* eof */
 	}
 	if (str[0]) {
 		add_history(str);
@@ -230,9 +229,8 @@ _g int input_prompt(addr *ret, addr *prompt, const char *message)
 	free(str);
 	strvect_length(pos, &size);
 	ReadLine_Size++;
-	*ret = pos;
 
-	return 0;
+	return Result(ret, pos);
 }
 #endif
 

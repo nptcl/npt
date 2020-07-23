@@ -616,7 +616,7 @@ static void lisp_argv_intern(addr table, constindex index)
 	SetValueSymbol(pos, table);
 }
 
-static void lisp_argv_environment(struct lispargv *argv)
+static int lisp_argv_environment_(struct lispargv *argv)
 {
 	addr table, key, value, cons;
 	lisptableu env;
@@ -636,26 +636,31 @@ static void lisp_argv_environment(struct lispargv *argv)
 		k = kv[i].key;
 		v = kv[i].value;
 		if (k->size == 0 || v->size == 0)
-			fmte("lisp_argv_environment error.", NULL);
+			return fmte_("lisp_argv_environment error.", NULL);
 		if (lispstringu_heap(&key, k))
-			fmte("Invalid key name.", NULL);
+			return fmte_("Invalid key name.", NULL);
 		if (lispstringu_heap(&value, v))
-			fmte("Invalid value name.", NULL);
-		intern_hashheap(table, key, &cons);
+			return fmte_("Invalid value name.", NULL);
+		Return(intern_hashheap_(table, key, &cons));
 		SetCdr(cons, value);
 	}
 	lisp_argv_intern(table, CONSTANT_SYSTEM_SPECIAL_ENVIRONMENT);
+
+	return 0;
 }
 
-static void lisp_argv_arguments_copy(addr array, size_t i, lispstringu str)
+static int lisp_argv_arguments_copy_(addr array, size_t i, lispstringu str)
 {
 	addr pos;
+
 	if (lispstringu_heap(&pos, str))
-		fmte("Invalid string size.", NULL);
+		return fmte_("Invalid string size.", NULL);
 	setarray(array, i, pos);
+
+	return 0;
 }
 
-static void lisp_argv_arguments(struct lispargv *argv)
+static int lisp_argv_arguments_(struct lispargv *argv)
 {
 	addr pos;
 	lisparrayu array;
@@ -666,21 +671,23 @@ static void lisp_argv_arguments(struct lispargv *argv)
 	data = array->ptr;
 	size = array->size;
 	comm = argv->start;
-	if (size < comm) {
-		fmte("Invalid array size.", NULL);
-		return;
-	}
+	if (size < comm)
+		return fmte_("Invalid array size.", NULL);
+
 	else if (size == 0) {
 		vector_heap(&pos, 0);
 	}
 	else {
 		copy = size - comm;
 		vector_heap(&pos, copy + 1UL);
-		lisp_argv_arguments_copy(pos, 0, data[0]);
-		for (i = 1; i < copy; i++)
-			lisp_argv_arguments_copy(pos, i, data[comm + i]);
+		Return(lisp_argv_arguments_copy_(pos, 0, data[0]));
+		for (i = 1; i < copy; i++) {
+			Return(lisp_argv_arguments_copy_(pos, i, data[comm + i]));
+		}
 	}
 	lisp_argv_intern(pos, CONSTANT_SYSTEM_SPECIAL_ARGUMENTS);
+
+	return 0;
 }
 
 static int lisp_argv_switch_execute_(Execute ptr, struct lispargv *argv)
@@ -688,8 +695,8 @@ static int lisp_argv_switch_execute_(Execute ptr, struct lispargv *argv)
 	push_prompt_info(ptr);
 	handler_warning(ptr);
 	handler_savecore(ptr);
-	lisp_argv_environment(argv);
-	lisp_argv_arguments(argv);
+	Return(lisp_argv_environment_(argv));
+	Return(lisp_argv_arguments_(argv));
 	return lisp_argv_execute_(ptr, argv);
 }
 
@@ -740,8 +747,28 @@ static int lisp_argv_result(Execute ptr, lispcode code)
 		case LISPCODE_SAVECORE:
 			return lisp_argv_core(ptr);
 
+		case LISPCODE_ERROR:
+			lisperror("ABORT: lisp error, interrupt. (error)");
+			return 1;
+
+		case LISPCODE_ABORT:
+			lisperror("ABORT: lisp error, interrupt. (abort)");
+			return 1;
+
+		case LISPCODE_MEMORY:
+			lisperror("ABORT: lisp error, interrupt. (memory)");
+			return 1;
+
+		case LISPCODE_CONFLICT:
+			lisperror("ABORT: lisp error, interrupt. (conflict)");
+			return 1;
+
+		case LISPCODE_CONTROL:
+			lisperror("ABORT: lisp error, interrupt. (control)");
+			return 1;
+
 		default:
-			lisperror("ABORT: lisp error, interrupt.");
+			lisperror("ABORT: lisp error, interrupt. (others)");
 			return 1;
 	}
 }

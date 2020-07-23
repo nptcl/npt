@@ -370,11 +370,11 @@ static int test_type_value_symbol(void)
 {
 	addr pos;
 
-	interncommon("CAR", &pos);
+	interncommon_debug("CAR", &pos);
 	type_value_symbol(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_SYMBOL, "type_value_symbol1");
 
-	internchar_keyword("START", &pos);
+	internchar_keyword_debug("START", &pos);
 	type_value_symbol(&pos, pos);
 	test(RefLispDecl(pos) == LISPDECL_KEYWORD, "type_value_symbol2");
 

@@ -192,6 +192,29 @@ _g void floating_point_inexact_stdarg(constindex index, ...)
 	floating_point_inexact_constant(index, operands);
 }
 
+_g int call_floating_point_inexact_(Execute ptr, addr operation, addr operands)
+{
+	addr instance;
+	instance_floating_point_inexact(&instance, operation, operands);
+	return error_function_(ptr, instance);
+}
+_g int call_floating_point_inexact_const_(Execute ptr, constindex index, addr operands)
+{
+	addr operation;
+	GetConstant(index, &operation);
+	return call_floating_point_inexact_(ptr, operation, operands);
+}
+_g int call_floating_point_inexact_va_(Execute ptr, constindex index, ...)
+{
+	addr operands;
+	va_list va;
+
+	va_start(va, index);
+	list_stdarg_alloc(NULL, &operands, va);
+	va_end(va);
+	return call_floating_point_inexact_const_(ptr, index, operands);
+}
+
 /* floating_point_invalid_operation (arithmetic_error) :operation :operands */
 _g void instance_floating_point_invalid_operation(addr *ret, addr operation, addr operands)
 {

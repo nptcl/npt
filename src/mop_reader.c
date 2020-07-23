@@ -39,7 +39,7 @@ static void method_type_class_name(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defmethod_class_name(Execute ptr, addr name, addr gen, constindex index)
+static int defmethod_class_name_(Execute ptr, addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
 
@@ -50,13 +50,15 @@ static void defmethod_class_name(Execute ptr, addr name, addr gen, constindex in
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric class-name (class)) -> symbol */
-static void defgeneric_class_name(Execute ptr)
+static int defgeneric_class_name_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -65,14 +67,21 @@ static void defgeneric_class_name(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_STRUCTURE_CLASS);
-	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_STANDARD_CLASS);
-	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
-	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
-	defmethod_class_name(ptr, name, gen, CONSTANT_CLOS_BUILT_IN_CLASS);
+	Return(defmethod_class_name_(ptr, name, gen,
+				CONSTANT_CLOS_STRUCTURE_CLASS));
+	Return(defmethod_class_name_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS));
+	Return(defmethod_class_name_(ptr, name, gen,
+				CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS));
+	Return(defmethod_class_name_(ptr, name, gen,
+				CONSTANT_CLOS_FORWARD_REFERENCED_CLASS));
+	Return(defmethod_class_name_(ptr, name, gen,
+				CONSTANT_CLOS_BUILT_IN_CLASS));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -119,7 +128,7 @@ static void method_argument_setf_class_name(addr *ret)
 	*ret = pos;
 }
 
-static void defmethod_setf_class_name_class(Execute ptr, addr name, addr gen)
+static int defmethod_setf_class_name_class_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -130,13 +139,15 @@ static void defmethod_setf_class_name_class(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	method_argument_setf_class_name(&pos);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric (setf class-name) (t class)) -> t */
-static void defgeneric_setf_class_name(Execute ptr)
+static int defgeneric_setf_class_name_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -146,8 +157,10 @@ static void defgeneric_setf_class_name(Execute ptr)
 	generic_common_instance(&gen, name, gen);
 	setsetf_symbol(symbol, gen);
 	/* method */
-	defmethod_setf_class_name_class(ptr, name, gen);
+	Return(defmethod_setf_class_name_class_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -248,7 +261,7 @@ static int method_class_slots(Execute ptr, addr method, addr next, addr var)
 	return 0;
 }
 
-static void defmethod_class_slots(Execute ptr, addr name, addr gen, constindex index)
+static int defmethod_class_slots_(Execute ptr, addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
 
@@ -259,13 +272,15 @@ static void defmethod_class_slots(Execute ptr, addr name, addr gen, constindex i
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric class-slots (class)) -> t */
-static void defgeneric_class_slots(Execute ptr)
+static int defgeneric_class_slots_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -274,13 +289,19 @@ static void defgeneric_class_slots(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_class_slots(ptr, name, gen, CONSTANT_CLOS_STANDARD_CLASS);
-	defmethod_class_slots(ptr, name, gen, CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
-	defmethod_class_slots(ptr, name, gen, CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
-	defmethod_class_slots(ptr, name, gen, CONSTANT_CLOS_BUILT_IN_CLASS);
+	Return(defmethod_class_slots_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS));
+	Return(defmethod_class_slots_(ptr, name, gen,
+				CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS));
+	Return(defmethod_class_slots_(ptr, name, gen,
+				CONSTANT_CLOS_FORWARD_REFERENCED_CLASS));
+	Return(defmethod_class_slots_(ptr, name, gen,
+				CONSTANT_CLOS_BUILT_IN_CLASS));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -297,7 +318,7 @@ static int method_class_direct_slots(Execute ptr, addr method, addr next, addr v
 	return 0;
 }
 
-static void defmethod_class_direct_slots(Execute ptr,
+static int defmethod_class_direct_slots_(Execute ptr,
 		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
@@ -309,13 +330,15 @@ static void defmethod_class_direct_slots(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric class-direct-slots (class)) -> t */
-static void defgeneric_class_direct_slots(Execute ptr)
+static int defgeneric_class_direct_slots_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -324,17 +347,19 @@ static void defgeneric_class_direct_slots(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_class_direct_slots(ptr, name, gen,
-			CONSTANT_CLOS_STANDARD_CLASS);
-	defmethod_class_direct_slots(ptr, name, gen,
-			CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
-	defmethod_class_direct_slots(ptr, name, gen,
-			CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
-	defmethod_class_direct_slots(ptr, name, gen,
-			CONSTANT_CLOS_BUILT_IN_CLASS);
+	Return(defmethod_class_direct_slots_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS));
+	Return(defmethod_class_direct_slots_(ptr, name, gen,
+				CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS));
+	Return(defmethod_class_direct_slots_(ptr, name, gen,
+				CONSTANT_CLOS_FORWARD_REFERENCED_CLASS));
+	Return(defmethod_class_direct_slots_(ptr, name, gen,
+				CONSTANT_CLOS_BUILT_IN_CLASS));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -349,7 +374,7 @@ static int method_class_default_initargs(Execute ptr, addr method, addr next, ad
 	return 0;
 }
 
-static void defmethod_class_default_initargs(Execute ptr,
+static int defmethod_class_default_initargs_(Execute ptr,
 		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
@@ -361,13 +386,15 @@ static void defmethod_class_default_initargs(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric class-default-initargs (class)) -> t */
-static void defgeneric_class_default_initargs(Execute ptr)
+static int defgeneric_class_default_initargs_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -376,17 +403,19 @@ static void defgeneric_class_default_initargs(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_class_default_initargs(ptr, name, gen,
-			CONSTANT_CLOS_STANDARD_CLASS);
-	defmethod_class_default_initargs(ptr, name, gen,
-			CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
-	defmethod_class_default_initargs(ptr, name, gen,
-			CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
-	defmethod_class_default_initargs(ptr, name, gen,
-			CONSTANT_CLOS_BUILT_IN_CLASS);
+	Return(defmethod_class_default_initargs_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS));
+	Return(defmethod_class_default_initargs_(ptr, name, gen,
+				CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS));
+	Return(defmethod_class_default_initargs_(ptr, name, gen,
+				CONSTANT_CLOS_FORWARD_REFERENCED_CLASS));
+	Return(defmethod_class_default_initargs_(ptr, name, gen,
+				CONSTANT_CLOS_BUILT_IN_CLASS));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -402,7 +431,7 @@ static int method_class_direct_default_initargs(Execute ptr,
 	return 0;
 }
 
-static void defmethod_class_direct_default_initargs(Execute ptr,
+static int defmethod_class_direct_default_initargs_(Execute ptr,
 		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
@@ -414,13 +443,15 @@ static void defmethod_class_direct_default_initargs(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric class-direct-default-initargs (class)) -> t */
-static void defgeneric_class_direct_default_initargs(Execute ptr)
+static int defgeneric_class_direct_default_initargs_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -429,17 +460,19 @@ static void defgeneric_class_direct_default_initargs(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_class_direct_default_initargs(ptr, name, gen,
-			CONSTANT_CLOS_STANDARD_CLASS);
-	defmethod_class_direct_default_initargs(ptr, name, gen,
-			CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
-	defmethod_class_direct_default_initargs(ptr, name, gen,
-			CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
-	defmethod_class_direct_default_initargs(ptr, name, gen,
-			CONSTANT_CLOS_BUILT_IN_CLASS);
+	Return(defmethod_class_direct_default_initargs_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS));
+	Return(defmethod_class_direct_default_initargs_(ptr, name, gen,
+				CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS));
+	Return(defmethod_class_direct_default_initargs_(ptr, name, gen,
+				CONSTANT_CLOS_FORWARD_REFERENCED_CLASS));
+	Return(defmethod_class_direct_default_initargs_(ptr, name, gen,
+				CONSTANT_CLOS_BUILT_IN_CLASS));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -455,7 +488,7 @@ static int method_class_precedence_list(Execute ptr,
 	return 0;
 }
 
-static void defmethod_class_precedence_list(Execute ptr,
+static int defmethod_class_precedence_list_(Execute ptr,
 		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
@@ -467,13 +500,15 @@ static void defmethod_class_precedence_list(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric class-precedence-list (class)) -> t */
-static void defgeneric_class_precedence_list(Execute ptr)
+static int defgeneric_class_precedence_list_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -482,19 +517,21 @@ static void defgeneric_class_precedence_list(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_class_precedence_list(ptr, name, gen,
-			CONSTANT_CLOS_STRUCTURE_CLASS);
-	defmethod_class_precedence_list(ptr, name, gen,
-			CONSTANT_CLOS_STANDARD_CLASS);
-	defmethod_class_precedence_list(ptr, name, gen,
-			CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
-	defmethod_class_precedence_list(ptr, name, gen,
-			CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
-	defmethod_class_precedence_list(ptr, name, gen,
-			CONSTANT_CLOS_BUILT_IN_CLASS);
+	Return(defmethod_class_precedence_list_(ptr, name, gen,
+				CONSTANT_CLOS_STRUCTURE_CLASS));
+	Return(defmethod_class_precedence_list_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS));
+	Return(defmethod_class_precedence_list_(ptr, name, gen,
+				CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS));
+	Return(defmethod_class_precedence_list_(ptr, name, gen,
+				CONSTANT_CLOS_FORWARD_REFERENCED_CLASS));
+	Return(defmethod_class_precedence_list_(ptr, name, gen,
+				CONSTANT_CLOS_BUILT_IN_CLASS));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -510,7 +547,7 @@ static int method_class_direct_superclasses(Execute ptr,
 	return 0;
 }
 
-static void defmethod_class_direct_superclasses(Execute ptr,
+static int defmethod_class_direct_superclasses_(Execute ptr,
 		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
@@ -522,13 +559,15 @@ static void defmethod_class_direct_superclasses(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric class-direct-superclasses (class)) -> t */
-static void defgeneric_class_direct_superclasses(Execute ptr)
+static int defgeneric_class_direct_superclasses_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -537,17 +576,19 @@ static void defgeneric_class_direct_superclasses(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_class_direct_superclasses(ptr, name, gen,
-			CONSTANT_CLOS_STANDARD_CLASS);
-	defmethod_class_direct_superclasses(ptr, name, gen,
-			CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
-	defmethod_class_direct_superclasses(ptr, name, gen,
-			CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
-	defmethod_class_direct_superclasses(ptr, name, gen,
-			CONSTANT_CLOS_BUILT_IN_CLASS);
+	Return(defmethod_class_direct_superclasses_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS));
+	Return(defmethod_class_direct_superclasses_(ptr, name, gen,
+				CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS));
+	Return(defmethod_class_direct_superclasses_(ptr, name, gen,
+				CONSTANT_CLOS_FORWARD_REFERENCED_CLASS));
+	Return(defmethod_class_direct_superclasses_(ptr, name, gen,
+				CONSTANT_CLOS_BUILT_IN_CLASS));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -563,7 +604,7 @@ static int method_class_direct_subclasses(Execute ptr,
 	return 0;
 }
 
-static void defmethod_class_direct_subclasses(Execute ptr,
+static int defmethod_class_direct_subclasses_(Execute ptr,
 		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
@@ -575,13 +616,15 @@ static void defmethod_class_direct_subclasses(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric class-direct-subclasses (class)) -> t */
-static void defgeneric_class_direct_subclasses(Execute ptr)
+static int defgeneric_class_direct_subclasses_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -590,17 +633,19 @@ static void defgeneric_class_direct_subclasses(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_class_direct_subclasses(ptr, name, gen,
-			CONSTANT_CLOS_STANDARD_CLASS);
-	defmethod_class_direct_subclasses(ptr, name, gen,
-			CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
-	defmethod_class_direct_subclasses(ptr, name, gen,
-			CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
-	defmethod_class_direct_subclasses(ptr, name, gen,
-			CONSTANT_CLOS_BUILT_IN_CLASS);
+	Return(defmethod_class_direct_subclasses_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS));
+	Return(defmethod_class_direct_subclasses_(ptr, name, gen,
+				CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS));
+	Return(defmethod_class_direct_subclasses_(ptr, name, gen,
+				CONSTANT_CLOS_FORWARD_REFERENCED_CLASS));
+	Return(defmethod_class_direct_subclasses_(ptr, name, gen,
+				CONSTANT_CLOS_BUILT_IN_CLASS));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -616,7 +661,7 @@ static int method_class_finalized_p(Execute ptr,
 	return 0;
 }
 
-static void defmethod_class_finalized_p(Execute ptr,
+static int defmethod_class_finalized_p_(Execute ptr,
 		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
@@ -628,13 +673,15 @@ static void defmethod_class_finalized_p(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric class-finalized-p (class)) -> t */
-static void defgeneric_class_finalized_p(Execute ptr)
+static int defgeneric_class_finalized_p_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -643,17 +690,19 @@ static void defgeneric_class_finalized_p(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_class_finalized_p(ptr, name, gen,
-			CONSTANT_CLOS_STANDARD_CLASS);
-	defmethod_class_finalized_p(ptr, name, gen,
-			CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
-	defmethod_class_finalized_p(ptr, name, gen,
-			CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
-	defmethod_class_finalized_p(ptr, name, gen,
-			CONSTANT_CLOS_BUILT_IN_CLASS);
+	Return(defmethod_class_finalized_p_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS));
+	Return(defmethod_class_finalized_p_(ptr, name, gen,
+				CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS));
+	Return(defmethod_class_finalized_p_(ptr, name, gen,
+				CONSTANT_CLOS_FORWARD_REFERENCED_CLASS));
+	Return(defmethod_class_finalized_p_(ptr, name, gen,
+				CONSTANT_CLOS_BUILT_IN_CLASS));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -669,7 +718,7 @@ static int method_class_prototype(Execute ptr,
 	return 0;
 }
 
-static void defmethod_class_prototype(Execute ptr,
+static int defmethod_class_prototype_(Execute ptr,
 		addr name, addr gen, constindex index)
 {
 	addr pos, call, type;
@@ -681,13 +730,15 @@ static void defmethod_class_prototype(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, index);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric class-prototype (class)) -> t */
-static void defgeneric_class_prototype(Execute ptr)
+static int defgeneric_class_prototype_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -696,17 +747,19 @@ static void defgeneric_class_prototype(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_class_prototype(ptr, name, gen,
-			CONSTANT_CLOS_STANDARD_CLASS);
-	defmethod_class_prototype(ptr, name, gen,
-			CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS);
-	defmethod_class_prototype(ptr, name, gen,
-			CONSTANT_CLOS_FORWARD_REFERENCED_CLASS);
-	defmethod_class_prototype(ptr, name, gen,
-			CONSTANT_CLOS_BUILT_IN_CLASS);
+	Return(defmethod_class_prototype_(ptr, name, gen,
+				CONSTANT_CLOS_STANDARD_CLASS));
+	Return(defmethod_class_prototype_(ptr, name, gen,
+				CONSTANT_CLOS_FUNCALLABLE_STANDARD_CLASS));
+	Return(defmethod_class_prototype_(ptr, name, gen,
+				CONSTANT_CLOS_FORWARD_REFERENCED_CLASS));
+	Return(defmethod_class_prototype_(ptr, name, gen,
+				CONSTANT_CLOS_BUILT_IN_CLASS));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -738,7 +791,7 @@ static void method_type_slot_definition_name(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defmethod_slot_definition_name(Execute ptr, addr name, addr gen)
+static int defmethod_slot_definition_name_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -749,14 +802,16 @@ static void defmethod_slot_definition_name(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 
 /* (defgeneric slot-definition-name (class)) -> symbol */
-static void defgeneric_slot_definition_name(Execute ptr)
+static int defgeneric_slot_definition_name_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -765,10 +820,12 @@ static void defgeneric_slot_definition_name(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_slot_definition_name(ptr, name, gen);
+	Return(defmethod_slot_definition_name_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -789,7 +846,7 @@ static int method_slot_definition_type(Execute ptr, addr method, addr next, addr
 	return 0;
 }
 
-static void defmethod_slot_definition_type(Execute ptr, addr name, addr gen)
+static int defmethod_slot_definition_type_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -800,14 +857,16 @@ static void defmethod_slot_definition_type(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 
 /* (defgeneric slot-definition-type (class)) -> type */
-static void defgeneric_slot_definition_type(Execute ptr)
+static int defgeneric_slot_definition_type_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -816,10 +875,12 @@ static void defgeneric_slot_definition_type(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_slot_definition_type(ptr, name, gen);
+	Return(defmethod_slot_definition_type_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -852,7 +913,7 @@ static void method_type_slot_definition_allocation(addr *ret)
 	type_compiled_heap(args, values, ret);
 }
 
-static void defmethod_slot_definition_allocation(Execute ptr, addr name, addr gen)
+static int defmethod_slot_definition_allocation_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -863,14 +924,16 @@ static void defmethod_slot_definition_allocation(Execute ptr, addr name, addr ge
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 
 /* (defgeneric slot-definition-allocation (class)) -> symbol */
-static void defgeneric_slot_definition_allocation(Execute ptr)
+static int defgeneric_slot_definition_allocation_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -879,10 +942,12 @@ static void defgeneric_slot_definition_allocation(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_slot_definition_allocation(ptr, name, gen);
+	Return(defmethod_slot_definition_allocation_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -904,7 +969,7 @@ static int method_slot_definition_initargs(Execute ptr,
 	return 0;
 }
 
-static void defmethod_slot_definition_initargs(Execute ptr, addr name, addr gen)
+static int defmethod_slot_definition_initargs_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -915,14 +980,16 @@ static void defmethod_slot_definition_initargs(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 
 /* (defgeneric slot-definition-initargs (class)) -> t */
-static void defgeneric_slot_definition_initargs(Execute ptr)
+static int defgeneric_slot_definition_initargs_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -931,10 +998,12 @@ static void defgeneric_slot_definition_initargs(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_slot_definition_initargs(ptr, name, gen);
+	Return(defmethod_slot_definition_initargs_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -956,7 +1025,7 @@ static int method_slot_definition_initform(Execute ptr,
 	return 0;
 }
 
-static void defmethod_slot_definition_initform(Execute ptr, addr name, addr gen)
+static int defmethod_slot_definition_initform_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -967,14 +1036,16 @@ static void defmethod_slot_definition_initform(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 
 /* (defgeneric slot-definition-initform (class)) -> t */
-static void defgeneric_slot_definition_initform(Execute ptr)
+static int defgeneric_slot_definition_initform_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -983,10 +1054,12 @@ static void defgeneric_slot_definition_initform(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_slot_definition_initform(ptr, name, gen);
+	Return(defmethod_slot_definition_initform_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1008,7 +1081,7 @@ static int method_slot_definition_initfunction(Execute ptr,
 	return 0;
 }
 
-static void defmethod_slot_definition_initfunction(Execute ptr, addr name, addr gen)
+static int defmethod_slot_definition_initfunction_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1019,14 +1092,16 @@ static void defmethod_slot_definition_initfunction(Execute ptr, addr name, addr 
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 
 /* (defgeneric slot-definition-initfunction (class)) -> t */
-static void defgeneric_slot_definition_initfunction(Execute ptr)
+static int defgeneric_slot_definition_initfunction_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1035,10 +1110,12 @@ static void defgeneric_slot_definition_initfunction(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_slot_definition_initfunction(ptr, name, gen);
+	Return(defmethod_slot_definition_initfunction_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1057,7 +1134,7 @@ static int method_generic_function_name(Execute ptr,
 	return 0;
 }
 
-static void defmethod_generic_function_name(Execute ptr, addr name, addr gen)
+static int defmethod_generic_function_name_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1068,13 +1145,15 @@ static void defmethod_generic_function_name(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric generic-function-name (clos)) -> symbol */
-static void defgeneric_generic_function_name(Execute ptr)
+static int defgeneric_generic_function_name_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1083,10 +1162,12 @@ static void defgeneric_generic_function_name(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_generic_function_name(ptr, name, gen);
+	Return(defmethod_generic_function_name_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1137,7 +1218,7 @@ static void method_argument_setf_generic_function_name(addr *ret)
 	*ret = pos;
 }
 
-static void defmethod_setf_generic_function_name(Execute ptr, addr name, addr gen)
+static int defmethod_setf_generic_function_name_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1148,13 +1229,15 @@ static void defmethod_setf_generic_function_name(Execute ptr, addr name, addr ge
 	settype_function(call, type);
 	/* method */
 	method_argument_setf_generic_function_name(&pos);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric (setf generic-function-name) (t class)) -> t */
-static void defgeneric_setf_generic_function_name(Execute ptr)
+static int defgeneric_setf_generic_function_name_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1164,8 +1247,10 @@ static void defgeneric_setf_generic_function_name(Execute ptr)
 	generic_common_instance(&gen, name, gen);
 	setsetf_symbol(symbol, gen);
 	/* method */
-	defmethod_setf_generic_function_name(ptr, name, gen);
+	Return(defmethod_setf_generic_function_name_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1195,7 +1280,7 @@ static int method_generic_function_methods(Execute ptr,
 	return 0;
 }
 
-static void defmethod_generic_function_methods(Execute ptr, addr name, addr gen)
+static int defmethod_generic_function_methods_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1206,13 +1291,15 @@ static void defmethod_generic_function_methods(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric generic-function-methods (clos)) -> symbol */
-static void defgeneric_generic_function_methods(Execute ptr)
+static int defgeneric_generic_function_methods_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1221,10 +1308,12 @@ static void defgeneric_generic_function_methods(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_generic_function_methods(ptr, name, gen);
+	Return(defmethod_generic_function_methods_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1242,7 +1331,7 @@ static int method_generic_function_lambda_list(Execute ptr,
 	return 0;
 }
 
-static void defmethod_generic_function_lambda_list(Execute ptr, addr name, addr gen)
+static int defmethod_generic_function_lambda_list_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1253,13 +1342,15 @@ static void defmethod_generic_function_lambda_list(Execute ptr, addr name, addr 
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric generic-function-lambda-list (clos)) -> symbol */
-static void defgeneric_generic_function_lambda_list(Execute ptr)
+static int defgeneric_generic_function_lambda_list_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1268,10 +1359,12 @@ static void defgeneric_generic_function_lambda_list(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_generic_function_lambda_list(ptr, name, gen);
+	Return(defmethod_generic_function_lambda_list_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1286,8 +1379,8 @@ static int method_generic_function_argument_precedence_order(Execute ptr,
 	return 0;
 }
 
-static void defmethod_generic_function_argument_precedence_order(Execute ptr,
-		addr name, addr gen)
+static int defmethod_generic_function_argument_precedence_order_(
+		Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1298,13 +1391,15 @@ static void defmethod_generic_function_argument_precedence_order(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric generic-function-argument-precedence-order (clos)) -> symbol */
-static void defgeneric_generic_function_argument_precedence_order(Execute ptr)
+static int defgeneric_generic_function_argument_precedence_order_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1313,10 +1408,12 @@ static void defgeneric_generic_function_argument_precedence_order(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_generic_function_argument_precedence_order(ptr, name, gen);
+	Return(defmethod_generic_function_argument_precedence_order_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1331,7 +1428,7 @@ static int method_generic_function_declarations(Execute ptr,
 	return 0;
 }
 
-static void defmethod_generic_function_declarations(Execute ptr, addr name, addr gen)
+static int defmethod_generic_function_declarations_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1342,13 +1439,15 @@ static void defmethod_generic_function_declarations(Execute ptr, addr name, addr
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric generic-function-declarations (clos)) -> symbol */
-static void defgeneric_generic_function_declarations(Execute ptr)
+static int defgeneric_generic_function_declarations_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1357,10 +1456,12 @@ static void defgeneric_generic_function_declarations(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_generic_function_declarations(ptr, name, gen);
+	Return(defmethod_generic_function_declarations_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1375,7 +1476,7 @@ static int method_generic_function_method_class(Execute ptr,
 	return 0;
 }
 
-static void defmethod_generic_function_method_class(Execute ptr, addr name, addr gen)
+static int defmethod_generic_function_method_class_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1386,13 +1487,15 @@ static void defmethod_generic_function_method_class(Execute ptr, addr name, addr
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric generic-function-method-class (clos)) -> symbol */
-static void defgeneric_generic_function_method_class(Execute ptr)
+static int defgeneric_generic_function_method_class_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1401,10 +1504,12 @@ static void defgeneric_generic_function_method_class(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_generic_function_method_class(ptr, name, gen);
+	Return(defmethod_generic_function_method_class_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1422,8 +1527,8 @@ static int method_generic_function_method_combination(Execute ptr,
 	return 0;
 }
 
-static void defmethod_generic_function_method_combination(Execute ptr,
-		addr name, addr gen)
+static int defmethod_generic_function_method_combination_(
+		Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1434,13 +1539,15 @@ static void defmethod_generic_function_method_combination(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric generic-function-method-combination (clos)) -> symbol */
-static void defgeneric_generic_function_method_combination(Execute ptr)
+static int defgeneric_generic_function_method_combination_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1449,10 +1556,12 @@ static void defgeneric_generic_function_method_combination(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_generic_function_method_combination(ptr, name, gen);
+	Return(defmethod_generic_function_method_combination_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1466,7 +1575,7 @@ static int method_method_function(Execute ptr, addr method, addr next, addr var)
 	return 0;
 }
 
-static void defmethod_method_function(Execute ptr, addr name, addr gen)
+static int defmethod_method_function_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1477,13 +1586,15 @@ static void defmethod_method_function(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric method-function (clos)) -> symbol */
-static void defgeneric_method_function(Execute ptr)
+static int defgeneric_method_function_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1492,10 +1603,12 @@ static void defgeneric_method_function(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_method_function(ptr, name, gen);
+	Return(defmethod_method_function_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1510,7 +1623,7 @@ static int method_method_generic_function(Execute ptr,
 	return 0;
 }
 
-static void defmethod_method_generic_function(Execute ptr, addr name, addr gen)
+static int defmethod_method_generic_function_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1521,13 +1634,15 @@ static void defmethod_method_generic_function(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric method-generic-function (clos)) -> symbol */
-static void defgeneric_method_generic_function(Execute ptr)
+static int defgeneric_method_generic_function_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1536,10 +1651,12 @@ static void defgeneric_method_generic_function(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_method_generic_function(ptr, name, gen);
+	Return(defmethod_method_generic_function_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1556,7 +1673,7 @@ static int method_method_lambda_list(Execute ptr, addr method, addr next, addr v
 	return 0;
 }
 
-static void defmethod_method_lambda_list(Execute ptr, addr name, addr gen)
+static int defmethod_method_lambda_list_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1567,13 +1684,15 @@ static void defmethod_method_lambda_list(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric method-lambda-list (clos)) -> symbol */
-static void defgeneric_method_lambda_list(Execute ptr)
+static int defgeneric_method_lambda_list_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1582,10 +1701,12 @@ static void defgeneric_method_lambda_list(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_method_lambda_list(ptr, name, gen);
+	Return(defmethod_method_lambda_list_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1599,7 +1720,7 @@ static int method_method_specializers(Execute ptr, addr method, addr next, addr 
 	return 0;
 }
 
-static void defmethod_method_specializers(Execute ptr, addr name, addr gen)
+static int defmethod_method_specializers_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1610,13 +1731,15 @@ static void defmethod_method_specializers(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric method-specializers (clos)) -> symbol */
-static void defgeneric_method_specializers(Execute ptr)
+static int defgeneric_method_specializers_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1625,10 +1748,12 @@ static void defgeneric_method_specializers(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_method_specializers(ptr, name, gen);
+	Return(defmethod_method_specializers_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1642,7 +1767,7 @@ static int method_method_qualifiers(Execute ptr, addr method, addr next, addr va
 	return 0;
 }
 
-static void defmethod_method_qualifiers(Execute ptr, addr name, addr gen)
+static int defmethod_method_qualifiers_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1653,13 +1778,15 @@ static void defmethod_method_qualifiers(Execute ptr, addr name, addr gen)
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
 /* (defgeneric method-qualifiers (clos)) -> symbol */
-static void defgeneric_method_qualifiers(Execute ptr)
+static int defgeneric_method_qualifiers_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1668,10 +1795,12 @@ static void defgeneric_method_qualifiers(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_method_qualifiers(ptr, name, gen);
+	Return(defmethod_method_qualifiers_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1681,11 +1810,10 @@ static void defgeneric_method_qualifiers(Execute ptr)
 static int method_accessor_method_slot_definition(Execute ptr,
 		addr method, addr next, addr var)
 {
-	fmte("There is no accessor-method in ~S.", NULL);
-	return 0;
+	return fmte_("There is no accessor-method in ~S.", NULL);
 }
 
-static void defmethod_accessor_method_slot_definition(Execute ptr, addr name, addr gen)
+static int defmethod_accessor_method_slot_definition_(Execute ptr, addr name, addr gen)
 {
 	addr pos, call, type;
 
@@ -1696,12 +1824,14 @@ static void defmethod_accessor_method_slot_definition(Execute ptr, addr name, ad
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
-	method_instance_lambda(ptr->local, &pos, Nil, pos);
+	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
 	stdset_method_function(pos, call);
 	common_method_add(ptr, gen, pos);
+
+	return 0;
 }
 
-static void defgeneric_accessor_method_slot_definition(Execute ptr)
+static int defgeneric_accessor_method_slot_definition_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1711,10 +1841,12 @@ static void defgeneric_accessor_method_slot_definition(Execute ptr)
 	parse_callname_error(&name, symbol);
 	generic_common_instance(&gen, name, gen);
 	SetFunctionSymbol(symbol, gen);
-	export_mop(symbol);
+	Return(mop_export_symbol_(symbol));
 	/* method */
-	defmethod_accessor_method_slot_definition(ptr, name, gen);
+	Return(defmethod_accessor_method_slot_definition_(ptr, name, gen));
 	common_method_finalize(gen);
+
+	return 0;
 }
 
 
@@ -1761,42 +1893,44 @@ _g void init_mop_reader(void)
 	SetPointerType(var3, method_accessor_method_slot_definition);
 }
 
-_g void build_mop_reader(Execute ptr)
+_g int build_mop_reader_(Execute ptr)
 {
 	/* Classes */
-	defgeneric_class_name(ptr);
-	defgeneric_setf_class_name(ptr);
-	defgeneric_class_slots(ptr);
-	defgeneric_class_direct_slots(ptr);
-	defgeneric_class_default_initargs(ptr);
-	defgeneric_class_direct_default_initargs(ptr);
-	defgeneric_class_precedence_list(ptr);
-	defgeneric_class_direct_superclasses(ptr);
-	defgeneric_class_direct_subclasses(ptr);
-	defgeneric_class_finalized_p(ptr);
-	defgeneric_class_prototype(ptr);
+	Return(defgeneric_class_name_(ptr));
+	Return(defgeneric_setf_class_name_(ptr));
+	Return(defgeneric_class_slots_(ptr));
+	Return(defgeneric_class_direct_slots_(ptr));
+	Return(defgeneric_class_default_initargs_(ptr));
+	Return(defgeneric_class_direct_default_initargs_(ptr));
+	Return(defgeneric_class_precedence_list_(ptr));
+	Return(defgeneric_class_direct_superclasses_(ptr));
+	Return(defgeneric_class_direct_subclasses_(ptr));
+	Return(defgeneric_class_finalized_p_(ptr));
+	Return(defgeneric_class_prototype_(ptr));
 	/* Slot definitions */
-	defgeneric_slot_definition_name(ptr);
-	defgeneric_slot_definition_type(ptr);
-	defgeneric_slot_definition_allocation(ptr);
-	defgeneric_slot_definition_initargs(ptr);
-	defgeneric_slot_definition_initform(ptr);
-	defgeneric_slot_definition_initfunction(ptr);
+	Return(defgeneric_slot_definition_name_(ptr));
+	Return(defgeneric_slot_definition_type_(ptr));
+	Return(defgeneric_slot_definition_allocation_(ptr));
+	Return(defgeneric_slot_definition_initargs_(ptr));
+	Return(defgeneric_slot_definition_initform_(ptr));
+	Return(defgeneric_slot_definition_initfunction_(ptr));
 	/* Generic functions */
-	defgeneric_generic_function_name(ptr);
-	defgeneric_setf_generic_function_name(ptr);
-	defgeneric_generic_function_methods(ptr);
-	defgeneric_generic_function_lambda_list(ptr);
-	defgeneric_generic_function_argument_precedence_order(ptr);
-	defgeneric_generic_function_declarations(ptr);
-	defgeneric_generic_function_method_class(ptr);
-	defgeneric_generic_function_method_combination(ptr);
+	Return(defgeneric_generic_function_name_(ptr));
+	Return(defgeneric_setf_generic_function_name_(ptr));
+	Return(defgeneric_generic_function_methods_(ptr));
+	Return(defgeneric_generic_function_lambda_list_(ptr));
+	Return(defgeneric_generic_function_argument_precedence_order_(ptr));
+	Return(defgeneric_generic_function_declarations_(ptr));
+	Return(defgeneric_generic_function_method_class_(ptr));
+	Return(defgeneric_generic_function_method_combination_(ptr));
 	/* Methods */
-	defgeneric_method_function(ptr);
-	defgeneric_method_generic_function(ptr);
-	defgeneric_method_lambda_list(ptr);
-	defgeneric_method_specializers(ptr);
-	defgeneric_method_qualifiers(ptr);
-	defgeneric_accessor_method_slot_definition(ptr);
+	Return(defgeneric_method_function_(ptr));
+	Return(defgeneric_method_generic_function_(ptr));
+	Return(defgeneric_method_lambda_list_(ptr));
+	Return(defgeneric_method_specializers_(ptr));
+	Return(defgeneric_method_qualifiers_(ptr));
+	Return(defgeneric_accessor_method_slot_definition_(ptr));
+
+	return 0;
 }
 

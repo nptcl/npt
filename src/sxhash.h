@@ -4,18 +4,18 @@
 #include "typedef.h"
 
 _g void init_sxhash(void);
-_g fixnum sxhash_equalp_depth(addr pos, int depth);
-_g fixnum sxhash_equalp(addr pos);
-_g fixnum sxhash_equal_depth(addr pos, int depth);
-_g fixnum sxhash_equal(addr pos);
-_g fixnum sxhash_eq(addr pos);
+_g int sxhash_equalp_depth_(addr pos, int depth, fixnum *ret);
+_g int sxhash_equalp_(addr pos, fixnum *ret);
+_g int sxhash_equal_depth_(addr pos, int depth, fixnum *ret);
+_g int sxhash_equal_(addr pos, fixnum *ret);
+_g int sxhash_eq_(addr pos, fixnum *ret);
 
-_g fixnum sxhash_char_equalp(const char *pos);
-_g fixnum sxhash_char_equal(const char *pos);
-_g fixnum sxhash_unicode_equalp(unicode pos);
-_g fixnum sxhash_unicode_equal(unicode pos);
-_g fixnum sxhash_character2_equalp(unicode a, unicode b);
-_g fixnum sxhash_character2_equal(unicode a, unicode b);
+_g int sxhash_char_equalp_(const char *pos, fixnum *ret);
+_g int sxhash_char_equal_(const char *pos, fixnum *ret);
+_g int sxhash_unicode_equalp_(unicode pos, fixnum *ret);
+_g int sxhash_unicode_equal_(unicode pos, fixnum *ret);
+_g int sxhash_character2_equalp_(unicode a, unicode b, fixnum *ret);
+_g int sxhash_character2_equal_(unicode a, unicode b, fixnum *ret);
 
 #endif
 

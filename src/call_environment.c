@@ -89,7 +89,7 @@ static int apropos_symbol_common(Execute ptr, addr var, addr package, addr *ret)
 	LocalHold hold;
 
 	/* list */
-	all_symbols_package(package, &package);
+	Return(all_symbols_package_(package, &package));
 	for (list = Nil; package != Nil; ) {
 		GetCons(package, &symbol, &package);
 		GetNameSymbol(symbol, &x);
@@ -158,7 +158,7 @@ _g int apropos_common(Execute ptr, addr var, addr package)
 		GetCons(list, &var, &list);
 		/* PACKAGE::NAME */
 		GetPackageSymbol(var, &package);
-		getname_package(package, &package);
+		Return(getname_package_(package, &package));
 		GetNameSymbol(var, &name);
 		Return(print_string_stream_(stream, package));
 		Return(print_ascii_stream_(stream, "::"));
@@ -349,13 +349,16 @@ static int ed_execute_common(Execute ptr, addr file)
 
 static int ed_file_common(Execute ptr, addr var)
 {
+	int check;
+
 	/* nil */
 	if (var == Nil)
 		return ed_execute_common(ptr, Nil);
 
 	/* argument */
 	Return(pathname_designer_heap_(ptr, var, &var));
-	if (wild_pathname_boolean(var, Nil)) {
+	Return(wild_pathname_boolean_(var, Nil, &check));
+	if (check) {
 		return call_simple_file_error_va_(ptr, var,
 				"~ED can't use wild card pathname ~S.", var, NULL);
 	}
@@ -513,8 +516,11 @@ static int dribble_set_stream_(addr file)
 
 static int dribble_open_file(Execute ptr, addr file)
 {
+	int check;
+
 	Return(physical_pathname_heap_(ptr, file, &file));
-	if (wild_pathname_boolean(file, Nil)) {
+	Return(wild_pathname_boolean_(file, Nil, &check));
+	if (check) {
 		return call_simple_file_error_va_(ptr, file,
 				"~DRIBBLE can't use wild card pathname ~S.", file, NULL);
 	}

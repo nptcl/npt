@@ -28,6 +28,7 @@ static int probe_file_boolean(const char *file)
 
 static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 {
+	int check;
 	addr value;
 	const char *str;
 
@@ -39,7 +40,8 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 		Return(physical_pathname_heap_(ptr, pos, &pos));
 	}
 	/* wildcard */
-	if (wild_pathname_boolean(pos, Nil)) {
+	Return(wild_pathname_boolean_(pos, Nil, &check));
+	if (check) {
 		GetConst(COMMON_PATHNAME, &value);
 		return call_type_error_va_(ptr, pos, value,
 				"Cannot probe-file the wildcard pathname ~S.", pos, NULL);
@@ -87,6 +89,7 @@ _g int file_write_date_files_(Execute ptr, addr *ret, addr pos)
 static int rename_file_run_files(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr pos, addr to)
 {
+	int check;
 	LocalRoot local;
 	addr file, from, value, true1, true2;
 	const char *str1, *str2;
@@ -95,9 +98,11 @@ static int rename_file_run_files(Execute ptr,
 	Return(physical_pathname_heap_(ptr, file, &from));
 	Return(physical_pathname_heap_(ptr, to, &to));
 	Return(truename_files_(ptr, from, &true1, 0));
-	if (wild_pathname_boolean(from, Nil))
+	Return(wild_pathname_boolean_(from, Nil, &check));
+	if (check)
 		return fmte_("Cannot rename wildcard pathname from ~S", from, NULL);
-	if (wild_pathname_boolean(to, Nil))
+	Return(wild_pathname_boolean_(to, Nil, &check));
+	if (check)
 		return fmte_("Cannot rename wildcard pathname to ~S", to, NULL);
 	/* filename */
 	local = ptr->local;

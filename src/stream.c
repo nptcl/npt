@@ -678,13 +678,15 @@ _g int element_type_binary_stream(addr stream, addr *ret)
 
 _g int element_type_io_stream(addr stream, addr *ret)
 {
+	int check;
 	addr input, output;
 
 	GetInputStream(stream, &input);
 	GetOutputStream(stream, &output);
 	Return(element_type_stream_(input, &input));
 	Return(element_type_stream_(output, &output));
-	if (equal_function(input, output)) {
+	Return(equal_function_(input, output, &check));
+	if (check) {
 		return Result(ret, input);
 	}
 	else {

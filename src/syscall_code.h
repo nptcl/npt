@@ -12,13 +12,13 @@ _g void gc_syscode(addr rest);
 _g int savecore_syscode(Execute ptr, addr file);
 _g int redirect_restart_syscode(Execute ptr, addr condition, addr list);
 _g int defconstant_syscode(addr symbol, addr value, addr doc);
-_g void in_package_syscode(Execute ptr, addr name, addr *ret);
+_g int in_package_syscode_(Execute ptr, addr name, addr *ret);
 _g void setplist_syscode(addr key, addr value, addr list, addr *ret);
 _g void remplist_syscode(addr key, addr list, addr *ret1, addr *ret2);
 _g void make_hash_iterator_syscode(addr pos, addr *ret);
 _g void next_hash_iterator_syscode(addr pos, addr *ret1, addr *ret2, addr *ret3);
-_g void make_package_iterator_syscode(addr pos, addr a, addr b, addr c, addr *ret);
-_g void next_package_iterator_syscode(Execute ptr, addr pos,
+_g int make_package_iterator_syscode_(addr pos, addr a, addr b, addr c, addr *ret);
+_g int next_package_iterator_syscode_(Execute ptr, addr pos,
 		addr *ret1, addr *ret2, addr *ret3, addr *ret4);
 _g int defpackage_syscode(Execute ptr, addr rest, addr *ret);
 _g int do_symbols_syscode(Execute ptr, addr call, addr package);
@@ -81,11 +81,11 @@ _g void eastasian_get_syscode(addr var, addr *ret1, addr *ret2);
 _g void eastasian_width_syscode(addr pos, addr *ret1, addr *ret2);
 _g void timeinfo_syscode(LocalRoot local,
 		addr *rreal, addr *rrun, addr *rsize, addr *rcount);
-_g void ed_function_syscode(Execute ptr, addr file);
-_g void run_program_syscode(LocalRoot local, addr var, addr args, addr rest, addr *ret);
+_g int ed_function_syscode_(Execute ptr, addr file);
+_g int run_program_syscode_(LocalRoot local, addr var, addr args, addr rest, addr *ret);
 _g void make_callname_syscode(addr var, addr *ret);
-_g void trace_add_syscode(Execute ptr, addr var, addr *ret);
-_g void trace_del_syscode(Execute ptr, addr var, addr *ret);
+_g int trace_add_syscode_(Execute ptr, addr var, addr *ret);
+_g int trace_del_syscode_(Execute ptr, addr var, addr *ret);
 _g int set_slots_syscode(addr var, addr slots, addr values);
 _g int remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret);
 _g int remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret);

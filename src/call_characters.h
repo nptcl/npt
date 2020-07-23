@@ -30,8 +30,8 @@ _g void lower_case_p_common(addr var, addr *ret);
 _g void both_case_p_common(addr var, addr *ret);
 _g void char_code_common(addr var, addr *ret);
 _g void code_char_common(addr var, addr *ret);
-_g void char_name_common(addr var, addr *ret);
-_g void name_char_common(LocalRoot local, addr var, addr *ret);
+_g int char_name_common_(addr var, addr *ret);
+_g int name_char_common_(LocalRoot local, addr var, addr *ret);
 
 #endif
 

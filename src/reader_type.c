@@ -144,26 +144,28 @@ _g void default_array_readtype(addr array)
 	default_macro_readtype(array);
 }
 
-static void dispatch_character(addr pos, unicode a, unicode b, constindex index)
+static int dispatch_character_(addr pos, unicode a, unicode b, constindex index)
 {
 	addr key, value, cons;
 
 	/* hash */
 	Check(isLowerCase(b), "case error");
 	character2_heap(&key, a, b);
-	intern_hashheap(pos, key, &cons);
+	Return(intern_hashheap_(pos, key, &cons));
 	/* value */
 	GetConstant(index, &value);
 	GetFunctionSymbol(value, &value);
 	Check(value == Unbound, "unbound error");
 	/* set */
 	SetCdr(cons, value);
+
+	return 0;
 }
 
 #define DispatchCharacter(a,u,b,c) \
-	dispatch_character(a,u,b,CONSTANT_SYSTEM_##c##_DISPATCH)
+	Return(dispatch_character_(a,u,b,CONSTANT_SYSTEM_##c##_DISPATCH))
 
-_g void default_dispatch_readtype(addr pos, unicode u)
+_g int default_dispatch_readtype_(addr pos, unicode u)
 {
 	DispatchCharacter(pos, u, 0x08, ERROR); /* backspace */
 	DispatchCharacter(pos, u, 0x09, ERROR); /* htab */
@@ -192,6 +194,8 @@ _g void default_dispatch_readtype(addr pos, unicode u)
 	DispatchCharacter(pos, u, 'R',  RADIX);
 	DispatchCharacter(pos, u, 'S',  STRUCTURE);
 	DispatchCharacter(pos, u, 'X',  HEXADECIMAL);
+
+	return 0;
 }
 
 _g void array_readtype_heap(addr *ret)
@@ -223,12 +227,12 @@ _g void make_table_readtype(addr *ret)
 	*ret = pos;
 }
 
-_g void make_dispatch_readtype(addr *ret)
+_g int make_dispatch_readtype_(addr *ret)
 {
 	addr pos;
 	dispatch_readtype_heap(&pos);
-	default_dispatch_readtype(pos, '#');
-	*ret = pos;
+	Return(default_dispatch_readtype_(pos, '#'));
+	return Result(ret, pos);
 }
 
 _g int readtype_whitespace(unicode u)
@@ -278,8 +282,9 @@ _g int readtype_sharpmacro(unicode u, addr *ret)
 	return 0;
 }
 
-static void delete_dispatch_macro(addr pos, unicode u)
+static int delete_dispatch_macro_(addr pos, unicode u)
 {
+	int check;
 	addr table, list, car, cdr;
 	size_t size, i;
 
@@ -298,35 +303,41 @@ static void delete_dispatch_macro(addr pos, unicode u)
 		while (list != Nil) {
 			GetCons(list, &cdr, &list);
 			GetCar(cdr, &car);
-			if (refcharacter2a(car) == u)
-				delete_hashtable(pos, car);
+			if (refcharacter2a(car) == u) {
+				Return(delete_hashtable_(pos, car, &check));
+			}
 		}
 	}
+
+	return 0;
 }
 
-_g void delete_readtype(addr pos, unicode u)
+_g int delete_readtype_(addr pos, unicode c)
 {
-	addr check;
+	int check;
+	addr value;
 
-	readtype_readtable(pos, u, &check);
-	if (check == Nil)
-		return;
-	if (dispatch_readtype(check)) {
-		GetDispatchReadtable(pos, &check);
-		delete_dispatch_macro(check, u);
+	Return(readtype_readtable_(pos, c, &value));
+	if (value == Nil)
+		return 0;
+	if (dispatch_readtype(value)) {
+		GetDispatchReadtable(pos, &value);
+		Return(delete_dispatch_macro_(value, c));
 	}
 	/* delete */
-	if (u < 0x80) {
+	if (c < 0x80) {
 		GetArrayReadtable(pos, &pos);
-		SetArrayA2(pos, u, Nil);
+		SetArrayA2(pos, c, Nil);
 	}
 	else {
 		GetTableReadtable(pos, &pos);
-		findcons_unicode_hashtable(pos, u, &check);
-		if (check != Nil) {
-			GetCar(check, &check);
-			delete_hashtable(pos, check);
+		Return(findcons_unicode_hashtable_(pos, c, &value));
+		if (value != Nil) {
+			GetCar(value, &value);
+			Return(delete_hashtable_(pos, value, &check));
 		}
 	}
+
+	return 0;
 }
 

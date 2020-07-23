@@ -422,7 +422,7 @@ static void defun_load_logical_pathname_translations(void)
 /* (defun logical-pathname-translations (host) ...) -> list */
 static int function_logical_pathname_translations(Execute ptr, addr host)
 {
-	get_logical_pathname_translations(host, &host);
+	Return(get_logical_pathname_translations_(host, &host));
 	setresult_control(ptr, host);
 	return 0;
 }

@@ -2840,7 +2840,7 @@ static int test_basic_token(void)
  */
 static int testbreak_reader(void)
 {
-	in_package_lisp_package();
+	Error(in_package_lisp_package_());
 #if 0
 	/* chartable */
 	TestBreak(test_init_reader);

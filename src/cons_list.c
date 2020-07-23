@@ -416,30 +416,6 @@ _g int find_list_eql_safe(addr key, addr cons)
 	return 0;
 }
 
-_g int find_list_equal_unsafe(addr key, addr cons)
-{
-	addr check;
-
-	while (cons != Nil) {
-		GetCons(cons, &check, &cons);
-		if (equal_function(check, key)) return 1;
-	}
-
-	return 0;
-}
-
-_g int find_list_equal_safe(addr key, addr cons)
-{
-	addr check;
-
-	while (cons != Nil) {
-		getcons(cons, &check, &cons);
-		if (equal_function(check, key)) return 1;
-	}
-
-	return 0;
-}
-
 _g int position_list_eq_unsafe(addr key, addr cons, size_t *ret)
 {
 	addr check;
@@ -481,25 +457,30 @@ _g int pushnew_heap(addr list, addr value, addr *ret)
 	return pushnew_alloc(NULL, list, value, ret);
 }
 
-_g int pushnew_equal_alloc(LocalRoot local, addr list, addr value, addr *ret)
+static int find_list_equal_unsafe_(addr key, addr list, int *ret)
 {
-	if (! find_list_equal_unsafe(value, list)) {
-		cons_alloc(local, ret, value, list);
-		return 1;
+	int check;
+	addr value;
+
+	while (list != Nil) {
+		GetCons(list, &value, &list);
+		Return(equal_function_(value, key, &check));
+		if (check)
+			return Result(ret, 1);
 	}
 
+	return Result(ret, 0);
+}
+
+_g int pushnew_equal_heap_(addr list, addr value, addr *ret)
+{
+	int check;
+
+	Return(find_list_equal_unsafe_(value, list, &check));
+	if (! check)
+		cons_heap(ret, value, list);
+
 	return 0;
-}
-
-_g int pushnew_equal_local(LocalRoot local, addr list, addr value, addr *ret)
-{
-	CheckLocal(local);
-	return pushnew_equal_alloc(local, list, value, ret);
-}
-
-_g int pushnew_equal_heap(addr list, addr value, addr *ret)
-{
-	return pushnew_equal_alloc(NULL, list, value, ret);
 }
 
 
@@ -699,8 +680,7 @@ _g void copy_list_heap_safe(addr *ret, addr cons)
 /*
  *  delete / remove
  */
-static int delete_list_call_unsafe(addr key, addr cons, addr *ret,
-		int (*call)(addr, addr))
+_g int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
 {
 	int update;
 	addr check, cons1, cons2;
@@ -710,7 +690,7 @@ static int delete_list_call_unsafe(addr key, addr cons, addr *ret,
 	cons2 = Nil;
 	while (cons != Nil) {
 		GetCons(cons, &check, &cons1);
-		if (call(check, key)) {
+		if (eq_function(check, key)) {
 			if (cons2 == Nil)
 				*ret = cons1;
 			else
@@ -726,14 +706,31 @@ static int delete_list_call_unsafe(addr key, addr cons, addr *ret,
 	return update;
 }
 
-_g int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
+_g int delete_list_equal_unsafe_(addr key, addr cons, addr *root, int *ret)
 {
-	return delete_list_call_unsafe(key, cons, ret, eq_function);
-}
+	int check, update;
+	addr value, cons1, cons2;
 
-_g int delete_list_equal_unsafe(addr key, addr cons, addr *ret)
-{
-	return delete_list_call_unsafe(key, cons, ret, equal_function);
+	update = 0;
+	*root = cons;
+	cons2 = Nil;
+	while (cons != Nil) {
+		GetCons(cons, &value, &cons1);
+		Return(equal_function_(value, key, &check));
+		if (check) {
+			if (cons2 == Nil)
+				*root = cons1;
+			else
+				SetCdr(cons2, cons1);
+			update++;
+		}
+		else {
+			cons2 = cons;
+		}
+		cons = cons1;
+	}
+
+	return Result(ret, update);
 }
 
 _g int delete1_list_eq_unsafe(addr key, addr cons, addr *ret)

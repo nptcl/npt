@@ -174,7 +174,7 @@ static int test_typecopy_clos(void)
 {
 	addr left, right, clos;
 
-	interncommon("STANDARD-CLASS", &clos);
+	Error(interncommon_("STANDARD-CLASS", &clos, NULL));
 	clos_find_class(clos, &clos);
 	type_clos_heap(clos, &left);
 	type_copy_heap(&right, left);
@@ -467,7 +467,7 @@ static int test_typecopy_size_equal(addr left, addr right)
 	if (type_asterisk_p(left) && type_asterisk_p(right)) {
 		return 1;
 	}
-	if (! equal(left, right)) {
+	if (! equal_debug(left, right)) {
 		degrade_printf("size error.\n");
 		return 0;
 	}
@@ -601,7 +601,7 @@ static int test_typecopy_function(void)
 	type_object_(&x, x);
 	parse_type_string(&y, str);
 	type_object_(&y, y);
-	test(equal(x, y), "typecopy_function10");
+	test(equal_debug(x, y), "typecopy_function10");
 
 	RETURN;
 }
@@ -616,7 +616,7 @@ static int test_typecopy_char(const char *str)
 	parse_type_string(&y, str);
 	type_object_(&y, y);
 
-	return equal(x, y);
+	return equal_debug(x, y);
 }
 
 static int test_typecopy_compiled_function(void)
@@ -708,7 +708,7 @@ static int test_typecopy_real_check(constindex type, const char *str)
 	type_object_(&x, x);
 	type_object_(&y, y);
 
-	return equal(x, y);
+	return equal_debug(x, y);
 }
 
 #define TypeCopyRealCheck(x,y) test_typecopy_real_check(CONSTANT_COMMON_##x,(y))

@@ -169,12 +169,13 @@ static int pushchar_readtable_(Execute ptr, addr pos, unicode c, int escape)
 /*
  *  readtable
  */
-_g enum ReadTable_Type readtable_typetable(addr pos, unicode c)
+_g int readtable_typetable_(addr pos, unicode c, enum ReadTable_Type *ret)
 {
-	readtype_readtable(pos, c, &pos);
+	Return(readtype_readtable_(pos, c, &pos));
 	if (pos == Nil)
-		return ReadTable_Type_illegal;
-	return ReadTypeStruct(pos)->type;
+		return Result(ret, ReadTable_Type_illegal);
+	else
+		return Result(ret, ReadTypeStruct(pos)->type);
 }
 
 _g int readtable_result_(Execute ptr,
@@ -190,7 +191,7 @@ step1:
 		goto eof;
 
 	/* step2 */
-	type = readtable_typetable(table, x);
+	Return(readtable_typetable_(table, x, &type));
 	switch (type) {
 		case ReadTable_Type_illegal:
 			goto illegal_error;
@@ -229,7 +230,7 @@ step8:
 	Return(read_char_stream_(stream, &y, &check));
 	if (check)
 		goto step10;
-	type = readtable_typetable(table, y);
+	Return(readtable_typetable_(table, y, &type));
 	switch (type) {
 		case ReadTable_Type_constituent:
 		case ReadTable_Type_macro_nonterm:
@@ -267,7 +268,7 @@ step9:
 	Return(read_char_stream_(stream, &y, &check));
 	if (check)
 		goto error;
-	type = readtable_typetable(table, y);
+	Return(readtable_typetable_(table, y, &type));
 	switch (type) {
 		case ReadTable_Type_macro_term:
 		case ReadTable_Type_macro_nonterm:
@@ -355,17 +356,24 @@ static int readtable_front(Execute ptr,
 	int check;
 
 	for (;;) {
-		if (readtable_novalue(ptr, &check, ret, stream, table)) {
-			*result = 1;
-			return 1;
-		}
-		if (0 <= check)
+		Return(readtable_novalue(ptr, &check, ret, stream, table));
+		if (0 <= check) {
 			break;
+		}
 	}
+
+	/* eof */
+	if (check) {
+		*result = 1;
+		return 0;
+	}
+
+	/* suppress */
 	if (read_suppress_p(ptr))
 		*ret = Nil;
-	*result = check;
-	return 0;
+
+	/* normal */
+	return Result(result, 0);
 }
 
 
@@ -471,19 +479,21 @@ _g addr readr(const char *code)
 /*****************************************************************************
  *  initialize
  *****************************************************************************/
-static void build_reader_special(void)
+static int build_reader_special_(void)
 {
 	addr pos, symbol;
 
-	readtable_heap(&pos);
+	Return(readtable_heap_(&pos));
 	GetConst(SPECIAL_READTABLE, &symbol);
 	SetValueSymbol(symbol, pos);
+
+	return 0;
 }
 
 _g void build_reader(void)
 {
 	build_reader_dispatch();
-	build_reader_special();
+	Error(build_reader_special_());
 }
 
 _g void init_reader(void)

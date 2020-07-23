@@ -400,9 +400,9 @@ _g void pathname_version(addr pos, addr *ret)
 /*
  *  logical-pathname-translations
  */
-_g void get_logical_pathname_translations(addr host, addr *ret)
+_g int get_logical_pathname_translations_(addr host, addr *ret)
 {
-	gethost_logical_pathname(host, ret);
+	return gethost_logical_pathname_(host, ret);
 }
 
 static int list_logical_pathname_translations_(Execute ptr,
@@ -457,16 +457,15 @@ static int list_logical_pathname_translations_(Execute ptr,
 
 static int function_set_logical_pathname_translations(Execute ptr, addr condition)
 {
+	int check;
 	addr table, pos;
 
 	/* delete */
 	table_logical_pathname(&table);
 	getdata_control(ptr, &pos);
-	delete_hashtable(table, pos);
+	Return(delete_hashtable_(table, pos, &check));
 	/* throw */
-	error_function(condition);
-
-	return 0;
+	return error_function_(ptr, condition);
 }
 
 static int set_logical_pathname_translations_code_(Execute ptr,
@@ -490,7 +489,7 @@ static int set_logical_pathname_translations_intern_(Execute ptr,
 	setcompiled_var1(call, p_defun_set_logical_pathname_translations);
 	pushhandler_common(ptr, symbol, call, 0);
 	/* code */
-	intern_hashheap(table, host, &cons);
+	Return(intern_hashheap_(table, host, &cons));
 	SetDataFunction(call, host);
 	Return(set_logical_pathname_translations_code_(ptr, host, list, cons));
 	/* free */
@@ -502,7 +501,8 @@ _g int set_logical_pathname_translations_(Execute ptr, addr host, addr list)
 	addr table, cons;
 
 	table_logical_pathname(&table);
-	if (findvalue_hashtable(table, host, &cons)) {
+	Return(find_hashtable_(table, host, &cons));
+	if (cons != Unbound) {
 		Return(set_logical_pathname_translations_code_(ptr, host, list, cons));
 	}
 	else {
@@ -644,6 +644,7 @@ static void enough_copy_pathname(addr pos, addr cdr, addr *ret)
 static int enough_directory_pathname_(LocalRoot local,
 		addr pos, addr a, addr b, addr *value, int *ret)
 {
+	int check;
 	addr car1, car2, cdr1, cdr2, next;
 
 	/* relative, absolute */
@@ -658,7 +659,8 @@ static int enough_directory_pathname_(LocalRoot local,
 			return Result(ret, 0);
 		Return_getcons(cdr1, &car1, &next);
 		Return_getcons(cdr2, &car2, &cdr2);
-		if (! LispPathnameEqual(car1, car2))
+		Return(LispPathnameEqual_(car1, car2, &check));
+		if (! check)
 			return Result(ret, 0);
 		cdr1 = next;
 	}
@@ -671,7 +673,7 @@ static int enough_directory_pathname_(LocalRoot local,
 static int enough_merge_pathname_(LocalRoot local,
 		addr a, addr b, addr *value, int *ret)
 {
-	int check1, check2;
+	int check, check1, check2;
 	addr pos1, pos2;
 
 	check1 = RefLogicalPathname(a);
@@ -681,12 +683,14 @@ static int enough_merge_pathname_(LocalRoot local,
 	/* host */
 	GetHostPathname(a, &pos1);
 	GetHostPathname(b, &pos2);
-	if (! equalp_function(pos1, pos2))
+	Return(equalp_function_(pos1, pos2, &check));
+	if (! check)
 		return Result(ret, 0);
 	/* device */
 	GetDevicePathname(a, &pos1);
 	GetDevicePathname(b, &pos2);
-	if (! LispPathnameEqual(pos1, pos2))
+	Return(LispPathnameEqual_(pos1, pos2, &check));
+	if (! check)
 		return Result(ret, 0);
 	/* directory */
 	GetDirectoryPathname(a, &pos1);
@@ -714,7 +718,8 @@ _g int enough_namestring_pathname_(Execute ptr, addr *ret, addr pos, addr defaul
 _g int parse_namestring_(Execute ptr, addr *ret, addr *position,
 		addr thing, addr host, addr defaults, addr start, addr end, addr junk)
 {
-	addr check, type;
+	int check;
+	addr value, type;
 	size_t index1, index2;
 
 	/* defaults */
@@ -724,12 +729,15 @@ _g int parse_namestring_(Execute ptr, addr *ret, addr *position,
 		GetPathnameStream(thing, &thing);
 	/* pathname */
 	if (pathnamep(thing)) {
-		GetHostPathname(thing, &check);
-		if (host != Nil && ! equalp_function(host, check)) {
-			GetConst(COMMON_PATHNAME, &type);
-			return call_type_error_va_(ptr, thing, type,
-					":HOST ~S does not match a pathname host ~S.",
-					host, check, NULL);
+		GetHostPathname(thing, &value);
+		if (host != Nil) {
+			Return(equalp_function_(host, value, &check));
+			if (! check) {
+				GetConst(COMMON_PATHNAME, &type);
+				return call_type_error_va_(ptr, thing, type,
+						":HOST ~S does not match a pathname host ~S.",
+						host, value, NULL);
+			}
 		}
 		*position = start;
 		return Result(ret, thing);
@@ -747,9 +755,10 @@ _g int parse_namestring_(Execute ptr, addr *ret, addr *position,
 		make_index_integer_alloc(NULL, position, index1);
 		/* host check */
 		if (host != Nil) {
-			GetHostPathname(thing, &check);
-			if (! equalp_function(host, check))
-				return fmte_(":HOST ~S is not argument host ~S.", check, host, NULL);
+			GetHostPathname(thing, &value);
+			Return(equalp_function_(host, value, &check));
+			if (! check)
+				return fmte_(":HOST ~S is not argument host ~S.", value, host, NULL);
 		}
 		/* result */
 		return Result(ret, thing);
@@ -771,7 +780,7 @@ _g int wild_pathname_p_(Execute ptr, addr *ret, addr file, addr field)
 	Return(pathname_designer_heap_(ptr, file, &file));
 	if (field == Unbound)
 		field = Nil;
-	check = wild_pathname_boolean(file, field);
+	Return(wild_pathname_boolean_(file, field, &check));
 	return Result(ret, check? T: Nil);
 }
 
@@ -785,7 +794,7 @@ _g int pathname_match_p_(Execute ptr, addr *ret, addr a, addr b)
 
 	Return(pathname_designer_heap_(ptr, a, &a));
 	Return(pathname_designer_heap_(ptr, b, &b));
-	check = wildcard_pathname(a, b, 1);
+	Return(wildcard_pathname_(a, b, 1, &check));
 	return Result(ret, check? T: Nil);
 }
 

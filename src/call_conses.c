@@ -717,7 +717,7 @@ static int replace_tree_equal_cons(struct tree_equal_struct *str,
 {
 	switch (str->test) {
 		case 0: /* nil */
-			*result = eql(tree1, tree2);
+			*result = eql_function(tree1, tree2);
 			return 0;
 
 		case 1: /* :test */
@@ -737,7 +737,7 @@ static int recursive_tree_equal_cons(struct tree_equal_struct *str,
 	int check;
 	addr car1, cdr1, car2, cdr2;
 
-	if (atom(tree1) || atom(tree2))
+	if (atom_function(tree1) || atom_function(tree2))
 		return replace_tree_equal_cons(str, result, tree1, tree2);
 	GetCons(tree1, &car1, &cdr1);
 	GetCons(tree2, &car2, &cdr2);

@@ -407,7 +407,8 @@ _g int user_homedir_pathname_common(Execute ptr, addr *ret)
 	getspecial_local(ptr, pos, &pos);
 	if (pos == Unbound || pos == Nil)
 		goto error;
-	if (! findvalue_char_hashtable(pos, "HOME", &pos))
+	Return(find_char_hashtable_(pos, "HOME", &pos));
+	if (pos == Unbound)
 		goto error;
 	/* /home/name -> /home/name/ */
 	local = ptr->local;

@@ -316,9 +316,9 @@ _g void clos_find_combination_nil(addr name, addr *ret);
 _g void clos_find_combination(addr name, addr *ret);
 _g void clos_define_combination(addr name, addr value);
 
-_g void clos_find_specializer_nil(addr name, addr *ret);
-_g void clos_find_specializer(addr name, addr *ret);
-_g void clos_define_specializer(addr name, addr value);
+_g int clos_find_specializer_nil_(addr name, addr *ret);
+_g int clos_find_specializer_(addr name, addr *ret);
+_g int clos_define_specializer_(addr name, addr value);
 _g void clos_forget_all_specializer_unsafe(void);
 
 /* build */

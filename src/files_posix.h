@@ -148,13 +148,15 @@ static int files_path_directory_files(struct directory_struct *str,
 static int files_name_directory_files(struct directory_struct *str,
 		addr base, addr name)
 {
+	int check;
 	Execute ptr;
 	addr path;
 
 	ptr = str->ptr;
 	Return(pathname_designer_local_(ptr, name, &path));
 	merge_directory_files(str->local, path, base);
-	if (wildcard_pathname(path, str->pos, 1)) {
+	Return(wildcard_pathname_(path, str->pos, 1, &check));
+	if (check) {
 		/* push heap */
 		Return(files_path_directory_files(str, path, name, base, &path));
 		Return(pathname_designer_heap_(ptr, path, &path));
@@ -451,6 +453,7 @@ static int probe_file_boolean(const char *file)
 
 static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 {
+	int check;
 	addr value;
 	const char *str;
 
@@ -462,7 +465,8 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 		Return(physical_pathname_heap_(ptr, pos, &pos));
 	}
 	/* wildcard */
-	if (wild_pathname_boolean(pos, Nil)) {
+	Return(wild_pathname_boolean_(pos, Nil, &check));
+	if (check) {
 		GetConst(COMMON_PATHNAME, &value);
 		return call_type_error_va_(ptr, pos, value,
 				"Cannot probe-file the wildcard pathname ~S.", pos, NULL);
@@ -494,21 +498,30 @@ _g int probe_file_files_(Execute ptr, addr *ret, addr pos)
 /*
  *  ensure-directories-exist
  */
-static int ensure_directires_exist_wild_files(addr pos)
+static int ensure_directires_exist_wild_files_(addr pos, int *ret)
 {
+	int check;
 	addr field;
 
+	/* directory */
 	GetConst(KEYWORD_DIRECTORY, &field);
-	if (wild_pathname_boolean(pos, field))
-		return 1;
-	GetConst(KEYWORD_HOST, &field);
-	if (wild_pathname_boolean(pos, field))
-		return 1;
-	GetConst(KEYWORD_DEVICE, &field);
-	if (wild_pathname_boolean(pos, field))
-		return 1;
+	Return(wild_pathname_boolean_(pos, field, &check));
+	if (check)
+		return Result(ret, 1);
 
-	return 0;
+	/* host */
+	GetConst(KEYWORD_HOST, &field);
+	Return(wild_pathname_boolean_(pos, field, &check));
+	if (check)
+		return Result(ret, 1);
+
+	/* device */
+	GetConst(KEYWORD_DEVICE, &field);
+	Return(wild_pathname_boolean_(pos, field, &check));
+	if (check)
+		return Result(ret, 1);
+
+	return Result(ret, 0);
 }
 
 static void merge_directory_pathname(LocalRoot local, addr *ret, addr pos, addr value)
@@ -579,6 +592,7 @@ static int ensure_directories_exist_run_files(Execute ptr,
 _g int ensure_directories_exist_files_(Execute ptr,
 		addr *ret1, addr *ret2, addr pos, int verbose)
 {
+	int check;
 	addr value;
 	LocalRoot local;
 	LocalStack stack;
@@ -586,7 +600,8 @@ _g int ensure_directories_exist_files_(Execute ptr,
 	/* filename */
 	Return(physical_pathname_heap_(ptr, pos, &pos));
 	/* wildcard */
-	if (ensure_directires_exist_wild_files(pos)) {
+	Return(ensure_directires_exist_wild_files_(pos, &check));
+	if (check) {
 		GetConst(COMMON_PATHNAME, &value);
 		return call_type_error_va_(ptr, pos, value,
 				"Cannot ENSURE-DIRECTIRIS-EXIST the wildcard pathname ~S.",
@@ -607,6 +622,7 @@ _g int ensure_directories_exist_files_(Execute ptr,
  */
 static int file_author_run_files(Execute ptr, addr *ret, addr pos)
 {
+	int check;
 	LocalRoot local;
 	char *str;
 	addr value;
@@ -623,10 +639,11 @@ static int file_author_run_files(Execute ptr, addr *ret, addr pos)
 	}
 
 	/* wildcard */
-	if (wild_pathname_boolean(pos, Nil)) {
+	Return(wild_pathname_boolean_(pos, Nil, &check));
+	if (check) {
 		GetConst(COMMON_PATHNAME, &value);
 		return call_type_error_va_(ptr, pos, value,
-				"Cannot file-authro the wildcard pathname ~S.", pos, NULL);
+				"Cannot file-author the wildcard pathname ~S.", pos, NULL);
 	}
 	/* file-author */
 	local = ptr->local;
@@ -665,6 +682,7 @@ _g int file_author_files_(Execute ptr, addr *ret, addr pos)
  */
 static int file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 {
+	int check;
 	LocalRoot local;
 	char *str;
 	addr value, symbol;
@@ -679,10 +697,11 @@ static int file_write_date_run_files(Execute ptr, addr *ret, addr pos)
 	}
 
 	/* wildcard */
-	if (wild_pathname_boolean(pos, Nil)) {
+	Return(wild_pathname_boolean_(pos, Nil, &check));
+	if (check) {
 		GetConst(COMMON_PATHNAME, &value);
 		return call_type_error_va_(ptr, pos, value,
-				"Cannot write-date the wildcard pathname ~S.", pos, NULL);
+				"Cannot file-write-date the wildcard pathname ~S.", pos, NULL);
 	}
 
 	/* file-author */
@@ -722,6 +741,7 @@ _g int file_write_date_files_(Execute ptr, addr *ret, addr pos)
 static int rename_file_run_files(Execute ptr,
 		addr *ret1, addr *ret2, addr *ret3, addr pos, addr to)
 {
+	int check;
 	LocalRoot local;
 	addr file, from, value, true1, true2;
 	const char *str1, *str2;
@@ -730,9 +750,11 @@ static int rename_file_run_files(Execute ptr,
 	Return(physical_pathname_heap_(ptr, file, &from));
 	Return(physical_pathname_heap_(ptr, to, &to));
 	Return(truename_files_(ptr, from, &true1, 0));
-	if (wild_pathname_boolean(from, Nil))
+	Return(wild_pathname_boolean_(from, Nil, &check));
+	if (check)
 		return fmte_("Cannot rename wildcard pathname from ~S", from, NULL);
-	if (wild_pathname_boolean(to, Nil))
+	Return(wild_pathname_boolean_(to, Nil, &check));
+	if (check)
 		return fmte_("Cannot rename wildcard pathname to ~S", to, NULL);
 	/* filename */
 	local = ptr->local;
@@ -786,12 +808,14 @@ _g int rename_file_files_(Execute ptr,
  */
 static int delete_file_run_files(Execute ptr, addr pos, int errorp, int *ret)
 {
+	int check;
 	LocalRoot local;
 	addr file, value;
 	const char *str;
 
 	Return(physical_pathname_heap_(ptr, pos, &file));
-	if (wild_pathname_boolean(file, Nil))
+	Return(wild_pathname_boolean_(file, Nil, &check));
+	if (check)
 		return fmte_("Cannot delete wildcard pathname ~S", pos, NULL);
 	if (! pathname_file_p(file)) {
 		if (errorp)
@@ -850,12 +874,14 @@ _g int remove_file_common_(Execute ptr, addr pos, int errorp, int *ret)
  */
 _g int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
 {
+	int check;
 	LocalRoot local;
 	addr file, value;
 	const char *str;
 
 	Return(physical_pathname_heap_(ptr, pos, &file));
-	if (wild_pathname_boolean(file, Nil))
+	Return(wild_pathname_boolean_(file, Nil, &check));
+	if (check)
 		return fmte_("Cannot delete wildcard pathname ~S", pos, NULL);
 	if (! pathname_directory_p(file)) {
 		if (errorp)
@@ -890,6 +916,7 @@ _g int remove_directory_common_(Execute ptr, addr pos, int errorp, int *ret)
  */
 _g int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
 {
+	int check;
 	addr pos;
 	const unicode *u;
 	char *str, *temp;
@@ -899,7 +926,8 @@ _g int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
 
 	/* wild-check */
 	Return(physical_pathname_heap_(ptr, file, &pos));
-	if (wild_pathname_boolean(pos, Nil)) {
+	Return(wild_pathname_boolean_(pos, Nil, &check));
+	if (check) {
 		if (! errorp)
 			goto error_nil;
 		return call_simple_file_error_va_(ptr, file,

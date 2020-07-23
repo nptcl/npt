@@ -35,19 +35,19 @@ _g int copy_readtable_common(Execute ptr, addr from, addr to, addr *ret)
 	check1 = (from == Nil);
 	check2 = (to == Nil);
 	if (check1 && check2) {
-		readtable_heap(&from);
+		Return(readtable_heap_(&from));
 		return Result(ret, from);
 	}
 	else if (check1) {
-		copy_default_readtable(to);
+		Return(copy_default_readtable_(to));
 		return Result(ret, to);
 	}
 	else if (check2) {
-		copy_readtable_heap(from, &from);
+		Return(copy_readtable_heap_(from, &from));
 		return Result(ret, from);
 	}
 	else {
-		copy_readtable(from, to);
+		Return(copy_readtable_(from, to));
 		return Result(ret, to);
 	}
 }
@@ -66,9 +66,8 @@ _g int make_dispatch_macro_character_common(Execute ptr,
 		GetConst(SPECIAL_READTABLE, &readtable);
 		getspecialcheck_local(ptr, readtable, &readtable);
 	}
-	make_dispatch_macro_character(readtable, code, nonterm != Nil);
 
-	return 0;
+	return make_dispatch_macro_character_(readtable, code, nonterm != Nil);
 }
 
 
@@ -459,7 +458,7 @@ _g int get_macro_character_common(Execute ptr,
 		getspecialcheck_local(ptr, readtable, &readtable);
 	}
 
-	get_macro_character(readtable, c, ret, &check);
+	Return(get_macro_character_(readtable, c, ret, &check));
 	*sec = check? T: Nil;
 	return 0;
 }
@@ -489,9 +488,8 @@ _g int set_macro_character_common(Execute ptr,
 	GetCharacter(code, &c);
 	if (symbolp(call))
 		getspecialcheck_local(ptr, call, &call);
-	set_macro_character(readtable, c, nonterm != Nil, call);
 
-	return 0;
+	return set_macro_character_(readtable, c, nonterm != Nil, call);
 }
 
 
@@ -514,11 +512,9 @@ _g int set_syntax_from_char_common(Execute ptr, addr x, addr y, addr z, addr w)
 	GetCharacter(x, &a);
 	GetCharacter(y, &b);
 	if (w == Nil)
-		set_syntax_from_default(a, b, z);
+		return set_syntax_from_default_(a, b, z);
 	else
-		set_syntax_from_char(a, b, z, w);
-
-	return 0;
+		return set_syntax_from_char_(a, b, z, w);
 }
 
 
@@ -638,7 +634,7 @@ _g int with_standard_io_syntax_common(addr form, addr env, addr *ret)
 
 	/* (*readtable* [standard-readtable]) */
 	GetConst(SPECIAL_READTABLE, &symbol);
-	readtable_heap(&value);
+	Return(readtable_heap_(&value));
 	list_heap(&value, symbol, value, NULL);
 	cons_heap(&args, value, args);
 

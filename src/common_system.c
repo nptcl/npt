@@ -386,7 +386,7 @@ static void defvar_modules(void)
 /* (defun provide (var) ...) -> null */
 static int function_provide(Execute ptr, addr var)
 {
-	provide_common(ptr, var);
+	Return(provide_common_(ptr, var));
 	setresult_control(ptr, Nil);
 	return 0;
 }

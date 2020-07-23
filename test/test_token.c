@@ -191,23 +191,23 @@ static int test_read_default_float_format(void)
 	GetConstant(CONSTANT_SPECIAL_READ_DEFAULT_FLOAT_FORMAT, &symbol);
 	pushspecial_control(ptr, symbol, Nil);
 
-	interncommon("DOUBLE-FLOAT", &pos);
+	interncommon_debug("DOUBLE-FLOAT", &pos);
 	setspecial_local(ptr, symbol, pos);
 	test(read_default_float_format(ptr) == 'd', "read_default_float_format2");
 
-	interncommon("LONG-FLOAT", &pos);
+	interncommon_debug("LONG-FLOAT", &pos);
 	setspecial_local(ptr, symbol, pos);
 	test(read_default_float_format(ptr) == 'l', "read_default_float_format3");
 
-	interncommon("SINGLE-FLOAT", &pos);
+	interncommon_debug("SINGLE-FLOAT", &pos);
 	setspecial_local(ptr, symbol, pos);
 	test(read_default_float_format(ptr) == 'f', "read_default_float_format4");
 
-	interncommon("SHORT-FLOAT", &pos);
+	interncommon_debug("SHORT-FLOAT", &pos);
 	setspecial_local(ptr, symbol, pos);
 	test(read_default_float_format(ptr) == 's', "read_default_float_format5");
 
-	interncommon("CONS", &pos);
+	interncommon_debug("CONS", &pos);
 	setspecial_local(ptr, symbol, pos);
 	test(read_default_float_format(ptr) == 0, "read_default_float_format6");
 

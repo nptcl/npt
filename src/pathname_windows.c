@@ -106,7 +106,7 @@ static int parser_windows_pathname_slash_p(unicode x)
 
 _g int parser_windows_pathname_(struct fileparse *pa)
 {
-	int absolute, relative, universal, question, win32device, logical, dp;
+	int absolute, relative, universal, question, win32device, logical, dp, check;
 	unicode c;
 	LocalpRoot local;
 	const unicode *body;
@@ -161,7 +161,8 @@ universal: /* ignore */
 	goto start;
 
 drive:
-	if (check_drive_logical_pathname(local, (int)c)) {
+	Return(check_drive_logical_pathname_(local, (int)c, &check));
+	if (check) {
 		/* parser logical */
 		*pa = backup;
 		return parser_logical_pathname_(pa);
@@ -213,7 +214,8 @@ next1:
 		dp = 1;
 	}
 	if (logical == 0 && c == ':') {
-		if (check_host_logical_pathname(local, charqueue)) {
+		Return(check_host_logical_pathname_(local, charqueue, &check));
+		if (check) {
 			/* parser logical */
 			*pa = backup;
 			return parser_logical_pathname_(pa);

@@ -307,7 +307,8 @@ _g int getrehash_float_hashtable(addr pos, double_float *ret)
 
 	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
 	ptr = PtrStructHashtable(pos);
-	if (! ptr->resize_float_p) return 0;
+	if (! ptr->resize_float_p)
+		return 0;
 	*ret = PtrStructHashtable(pos)->resize_float;
 
 	return 1;
@@ -332,7 +333,8 @@ _g int getrehash_integer_hashtable(addr pos, size_t *ret)
 
 	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
 	ptr = PtrStructHashtable(pos);
-	if (ptr->resize_float_p) return 0;
+	if (ptr->resize_float_p)
+		return 0;
 	*ret = PtrStructHashtable(pos)->resize_integer;
 
 	return 1;
@@ -348,68 +350,73 @@ _g void getrehash_threshold_hashtable(addr pos, double_float *ret)
 /*
  *  hashindex
  */
-static void hashindex_eq(addr key, size_t size, size_t *ret)
+static int hashindex_eq_(addr key, size_t size, size_t *ret)
 {
-	*ret = sxhash_eq(key) % size;
+	fixnum value;
+	Return(sxhash_eq_(key, &value));
+	return Result(ret, (size_t)(value % size));
 }
 
-static void hashindex_eql(addr key, size_t size, size_t *ret)
+static int hashindex_eql_(addr key, size_t size, size_t *ret)
 {
+	fixnum value;
+
 	switch (GetType(key)) {
 		case LISPTYPE_FIXNUM:
 		case LISPTYPE_CHARACTER:
 		case LISPTYPE_SINGLE_FLOAT:
 		case LISPTYPE_DOUBLE_FLOAT:
-			*ret = sxhash_equal(key) % size;
-			break;
+			Return(sxhash_equal_(key, &value));
+			return Result(ret, (size_t)(value % size));
 
 		default:
-			hashindex_eq(key, size, ret);
-			break;
+			return hashindex_eq_(key, size, ret);
 	}
 }
 
-static void hashindex_equal(addr key, size_t size, size_t *ret)
+static int hashindex_equal_(addr key, size_t size, size_t *ret)
 {
+	fixnum value;
+
 	switch (GetType(key)) {
 		case LISPTYPE_CONS:
 		case LISPTYPE_ARRAY:
 		case LISPTYPE_VECTOR:
 		case LISPTYPE_STRING:
 		case LISPSYSTEM_CHARACTER2:
-			*ret = sxhash_equal(key) % size;
-			break;
+			Return(sxhash_equal_(key, &value));
+			return Result(ret, (size_t)(value % size));
 
 		default:
-			hashindex_eql(key, size, ret);
-			break;
+			return hashindex_eql_(key, size, ret);
 	}
 }
 
-static void hashindex_equalp(addr key, size_t size, size_t *ret)
+static int hashindex_equalp_(addr key, size_t size, size_t *ret)
 {
+	fixnum value;
+
 	switch (GetType(key)) {
 		case LISPTYPE_CHARACTER:
 		case LISPTYPE_ARRAY:
 		case LISPTYPE_VECTOR:
 		case LISPTYPE_STRING:
 		case LISPSYSTEM_CHARACTER2:
-			*ret = sxhash_equalp(key) % size;
-			break;
+			Return(sxhash_equalp_(key, &value));
+			return Result(ret, (size_t)(value % size));
 
 		default:
-			hashindex_equal(key, size, ret);
-			break;
+			return hashindex_equal_(key, size, ret);
 	}
 }
 
-typedef void (*hashindextype)(addr, size_t, size_t *);
+typedef int (*hashindextype)(addr, size_t, size_t *);
 static const hashindextype hashindex_switch[] = {
-	hashindex_eq,
-	hashindex_eql,
-	hashindex_equal,
-	hashindex_equalp,
-	hashindex_cache,
+	hashindex_eq_,
+	hashindex_eql_,
+	hashindex_equal_,
+	hashindex_equalp_,
+	hashindex_cache_,
 };
 
 static void gethashindex(addr pos, hashindextype *ret)
@@ -417,25 +424,24 @@ static void gethashindex(addr pos, hashindextype *ret)
 	*ret = hashindex_switch[GetTestHashtable(pos)];
 }
 
-static void hashindex(addr pos, addr key, size_t *ret)
+static int call_hashindex_(addr pos, addr key, size_t *ret)
 {
-	hashindextype index;
-
-	gethashindex(pos, &index);
-	index(key, PtrStructHashtable(pos)->size, ret);
+	hashindextype call_;
+	gethashindex(pos, &call_);
+	return (*call_)(key, PtrStructHashtable(pos)->size, ret);
 }
 
 
 /*
  *  gethashequal
  */
-typedef int (*hashequaltype)(addr, addr);
+typedef int (*hashequaltype)(addr, addr, int *);
 static const hashequaltype hashequal_switch[] = {
-	eq_function,
-	eql_function,
-	equal_function,
-	equalp_function,
-	cache_equal_function
+	eq_function_,
+	eql_function_,
+	equal_function_,
+	equalp_function_,
+	cache_equal_function_
 };
 
 static void gethashequal(addr pos, hashequaltype *ret)
@@ -461,54 +467,62 @@ static void insert_rehash(LocalRoot local,
 	SetArrayHash(array, index, cons);
 }
 
-static void resize_rehash(LocalRoot local, addr pos, size_t resize)
+static int resize_rehash_(LocalRoot local, addr pos, size_t resize)
 {
 	addr prev, next, left, right, key, value;
 	size_t index, len, make;
-	hashindextype calcindex;
+	hashindextype call_;
 
 	GetTableHash(pos, &prev);
 	alloc_hashtable(local, &next, LISPTYPE_VECTOR, resize);
 
-	gethashindex(pos, &calcindex);
+	gethashindex(pos, &call_);
 	LenArrayHash(prev, &len);
 	for (index = 0; index < len; index++) {
 		GetArrayHash(prev, index, &right);
 		while (right != Nil) {
 			GetCons(right, &left, &right);
 			GetCons(left, &key, &value);
-			calcindex(key, resize, &make);
+			Return((*call_)(key, resize, &make));
 			insert_rehash(local, next, make, key, value);
 		}
 	}
 	SetTableHash(pos, next);
+
+	return 0;
 }
 
-_g void force_resize_hashtable(addr pos, size_t size)
+_g int force_resize_hashtable_(addr pos, size_t size)
 {
 	LocalRoot local;
 
-	if (size == 0) size = 1;
+	if (size == 0)
+		size = 1;
 	local = GetStatusDynamic(pos)? Local_Thread: NULL;
-	resize_rehash(local, pos, size);
+	Return(resize_rehash_(local, pos, size));
 	PtrStructHashtable(pos)->size = size;
 	setlimit(pos);
+
+	return 0;
 }
 
-static void rehash_execute(LocalRoot local, addr pos)
+static int rehash_execute_(LocalRoot local, addr pos)
 {
 	size_t size, newsize;
 	struct StructHashtable *ptr;
 
 	/* get parameter */
 	ptr = PtrStructHashtable(pos);
-	if (! ptr->expand_p) return;
-	if (ptr->count < ptr->limit) return;
+	if (! ptr->expand_p)
+		return 0;
+	if (ptr->count < ptr->limit)
+		return 0;
 
 	size = ptr->size;
 	if (ptr->resize_float_p) {
 		newsize = (size_t)(size * ptr->resize_float);
-		if (size == newsize) newsize++;
+		if (size == newsize)
+			newsize++;
 	}
 	else {
 		newsize = size + ptr->resize_integer;
@@ -517,33 +531,38 @@ static void rehash_execute(LocalRoot local, addr pos)
 		newsize = SIZE_MAX;
 
 	/* resize array */
-	resize_rehash(local, pos, newsize);
+	Return(resize_rehash_(local, pos, newsize));
 	ptr->size = newsize;
 	setlimit(pos);
+
+	return 0;
 }
 
 
 /*
  *  intern
  */
-static int findroot(hashequaltype equal, addr right, addr key, addr *ret)
+static int findroot_hashtable_(hashequaltype equal_,
+		addr right, addr key, addr *value, int *ret)
 {
+	int check;
 	addr left, leftkey;
 
-	/* found=0, notfound=1 */
+	/* found=1, notfound=0 */
 	while (right != Nil) {
 		GetCons(right, &left, &right);
 		GetCar(left, &leftkey);
-		if (equal(leftkey, key)) {
-			*ret = left;
-			return 0;
+		Return((*equal_)(leftkey, key, &check));
+		if (check) {
+			*value = left;
+			return Result(ret, 1);
 		}
 	}
 
-	return 1;
+	return Result(ret, 0);
 }
 
-static void appendroot(LocalRoot local,
+static void appendroot_hashtable(LocalRoot local,
 		addr array, size_t index, addr root, addr key, addr *ret)
 {
 	addr left, next;
@@ -556,126 +575,132 @@ static void appendroot(LocalRoot local,
 	*ret = left;
 }
 
-static int static_intern_hashtable(LocalRoot local, addr pos, addr key, addr *ret)
+static int intern_hashtable_alloc_(LocalRoot local,
+		addr pos, addr key, addr *ret, int *existp)
 {
+	int check;
 	size_t index;
 	addr array, root;
-	hashequaltype equal;
+	hashequaltype equal_;
 
-	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
+	CheckType(pos, LISPTYPE_HASHTABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 
-	rehash_execute(local, pos);
-	hashindex(pos, key, &index);
+	Return(rehash_execute_(local, pos));
+	Return(call_hashindex_(pos, key, &index));
 	GetTableHash(pos, &array);
 	GetArrayHash(array, index, &root);
 
-	gethashequal(pos, &equal);
-	if (findroot(equal, root, key, ret)) {
-		appendroot(local, array, index, root, key, ret);
+	gethashequal(pos, &equal_);
+	Return(findroot_hashtable_(equal_, root, key, ret, &check));
+	if (! check) {
+		appendroot_hashtable(local, array, index, root, key, ret);
 		PtrStructHashtable(pos)->count++;
-		return 0; /* notfound, create */
+		return Result(existp, 0); /* notfound, create */
 	}
 
-	return 1; /* find */
+	return Result(existp, 1); /* find */
 }
 
-_g int intern_hashheap(addr pos, addr key, addr *ret)
+_g int internp_hashheap_(addr pos, addr key, addr *ret, int *existp)
 {
+	CheckType(pos, LISPTYPE_HASHTABLE);
 	Check(GetStatusDynamic(pos), "dynamic error");
-	return static_intern_hashtable(NULL, pos, key, ret);
+	return intern_hashtable_alloc_(NULL, pos, key, ret, existp);
 }
 
-_g int intern_hashlocal(LocalRoot local, addr pos, addr key, addr *ret)
+_g int intern_hashheap_(addr pos, addr key, addr *ret)
 {
-	Check(local == NULL, "local error");
-	Check(! GetStatusDynamic(pos), "dynamic error");
-	return static_intern_hashtable(local, pos, key, ret);
+	int check;
+
+	CheckType(pos, LISPTYPE_HASHTABLE);
+	Check(GetStatusDynamic(pos), "dynamic error");
+	return intern_hashtable_alloc_(NULL, pos, key, ret, &check);
 }
 
-_g int intern_hashalloc(LocalRoot local, addr pos, addr key, addr *ret)
-{
-	/* heap check */
-	Check(! GetStatusDynamic(pos) && local != NULL, "local error");
-	/* local check */
-	Check(  GetStatusDynamic(pos) && local == NULL, "local error");
-	return static_intern_hashtable(local, pos, key, ret);
-}
 
-_g int intern_hashtable(LocalRoot local, addr pos, addr key, addr *ret)
+/*
+ *  find
+ */
+_g int findcons_hashtable_(addr pos, addr key, addr *ret)
 {
-	if (GetStatusDynamic(pos)) {
-		if (local == NULL)
-			fmte("The dynamic hashtable must use a localroot.", NULL);
-		return static_intern_hashtable(local, pos, key, ret);
-	}
-	else {
-		return static_intern_hashtable(NULL, pos, key, ret);
-	}
-}
-
-_g void findcons_hashtable(addr pos, addr key, addr *ret)
-{
+	int check;
 	size_t index;
-	addr array, root, left, right, check;
-	hashequaltype equal;
+	addr array, root, left, right, value;
+	hashequaltype equal_;
 
-	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
-	hashindex(pos, key, &index);
+	CheckType(pos, LISPTYPE_HASHTABLE);
+	Return(call_hashindex_(pos, key, &index));
 	GetTableHash(pos, &array);
 	GetArrayHash(array, index, &root);
 
-	gethashequal(pos, &equal);
+	gethashequal(pos, &equal_);
 	for (; root != Nil; root = right) {
 		GetCons(root, &left, &right);
-		GetCar(left, &check);
-		if (equal(check, key)) {
-			*ret = left;
-			return;
-		}
+		GetCar(left, &value);
+		Return((*equal_)(value, key, &check));
+		if (check)
+			return Result(ret, left);
 	}
-	*ret = Nil;
+
+	return Result(ret, Nil);
 }
 
-_g int findvalue_hashtable(addr pos, addr key, addr *ret)
+_g int find_hashtable_(addr pos, addr key, addr *ret)
 {
-	addr cons;
+	CheckType(pos, LISPTYPE_HASHTABLE);
+	Return(findcons_hashtable_(pos, key, &pos));
+	if (pos == Nil)
+		return Result(ret, Unbound);
+	GetCdr(pos, ret);
+	return 0;
+}
 
-	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
-	findcons_hashtable(pos, key, &cons);
+_g int findnil_hashtable_(addr pos, addr key, addr *ret)
+{
+	CheckType(pos, LISPTYPE_HASHTABLE);
+	Return(findcons_hashtable_(pos, key, &pos));
+	if (pos == Nil)
+		return Result(ret, Nil);
+	GetCdr(pos, ret);
+	return 0;
+}
 
-	if (cons != Nil) {
-		GetCdr(cons, ret);
-		return 1;
-	}
-	else {
-		*ret = Nil;
+/* for debug */
+_g int findnil_hashtable_debug(addr pos, addr key, addr *ret)
+{
+	CheckType(pos, LISPTYPE_HASHTABLE);
+	Error(findcons_hashtable_(pos, key, &pos));
+	if (pos == Nil)
 		return 0;
-	}
+	GetCdr(pos, ret);
+	return 1;
 }
 
 
 /*
  *  delete
  */
-_g int delete_hashtable(addr pos, addr key)
+_g int delete_hashtable_(addr pos, addr key, int *ret)
 {
+	int check;
 	size_t index;
 	addr array, root, left, right, leftkey, prev;
-	hashequaltype equal;
+	hashequaltype equal_;
 
-	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
+	CheckType(pos, LISPTYPE_HASHTABLE);
 	Check(GetStatusReadOnly(pos), "readonly error");
 
-	hashindex(pos, key, &index);
+	Return(call_hashindex_(pos, key, &index));
 	GetTableHash(pos, &array);
 	GetArrayHash(array, index, &root);
 
-	gethashequal(pos, &equal);
+	gethashequal(pos, &equal_);
 	for (prev = Nil; root != Nil; root = right) {
 		GetCons(root, &left, &right);
 		GetCar(left, &leftkey);
-		if (equal(leftkey, key)) {
+		Return((*equal_)(leftkey, key, &check));
+		if (check) {
 			if (prev == Nil) {
 				SetArrayHash(array, index, right);
 			}
@@ -683,12 +708,12 @@ _g int delete_hashtable(addr pos, addr key)
 				SetCdr(prev, right);
 			}
 			PtrStructHashtable(pos)->count--;
-			return 0;
+			return Result(ret, 0);
 		}
 		prev = root;
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
 
@@ -700,7 +725,7 @@ _g void allkeys_hashtable_alloc(LocalRoot local, addr pos, addr *ret)
 	addr cons, cell, result;
 	size_t size, index;
 
-	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
+	CheckType(pos, LISPTYPE_HASHTABLE);
 	size = PtrStructHashtable(pos)->size;
 	GetTableHash(pos, &pos);
 
@@ -729,72 +754,80 @@ _g void allkeys_hashtable_local(LocalRoot local, addr pos, addr *ret)
 }
 
 /* equalp */
-static int equalp_allelement(addr left, addr right, int (*call)(addr, addr))
+static int equalp_allelement_(addr left, addr right, int *ret,
+		int (*call_)(addr, addr, int *))
 {
-	addr cons, key, value1, value2;
+	int check;
+	addr list, key, value1, value2;
 	size_t size, index;
 
 	size = PtrStructHashtable(left)->size;
 	GetTableHash(left, &left);
 	for (index = 0; index < size; index++) {
-		GetArrayHash(left, index, &cons);
-		while (cons != Nil) {
-			GetCons(cons, &key, &cons);
+		GetArrayHash(left, index, &list);
+		while (list != Nil) {
+			GetCons(list, &key, &list);
 			GetCons(key, &key, &value1);
-			if (findvalue_hashtable(right, key, &value2) == 0) return 0;
-			if (! call(value1, value2)) return 0;
+			Return(find_hashtable_(right, key, &value2));
+			if (value2 == Unbound)
+				return Result(ret, 0);
+			Return((*call_)(value1, value2, &check));
+			if (! check)
+				return Result(ret, 0);
 		}
 	}
 
-	return 1;
+	return Result(ret, 1);
 }
 
-_g int equalcall_hashtable(addr left, addr right, int (*call)(addr, addr))
+static int equalcall_hashtable_(addr left, addr right, int *ret,
+		int (*call_)(addr, addr, int *))
 {
 	struct StructHashtable *str1, *str2;
 
 	str1 = PtrStructHashtable(left);
 	str2 = PtrStructHashtable(right);
-	if (str1->count != str2->count) return 0;
-	if (str1->test != str2->test) return 0;
-	if (! equalp_allelement(left, right, call)) return 0;
+	if (str1->count != str2->count)
+		return Result(ret, 0);
+	if (str1->test != str2->test)
+		return Result(ret, 0);
 
-	return 1;
+	return equalp_allelement_(left, right, ret, call_);
 }
 
-_g int equalp_hashtable(addr left, addr right)
+_g int equalp_hashtable_(addr left, addr right, int *ret)
 {
-	return equalcall_hashtable(left, right, equalp_function);
+	return equalcall_hashtable_(left, right, ret, equalp_function_);
 }
 
-_g int equalrt_hashtable(addr left, addr right)
+_g int equalrt_hashtable_(addr left, addr right, int *ret)
 {
-	return equalcall_hashtable(left, right, equalrt_function);
+	return equalcall_hashtable_(left, right, ret, equalrt_function_);
 }
+
 
 /* clang */
-_g void findcons_char_hashtable(addr pos, const char *key, addr *ret)
+_g int findcons_char_hashtable_(addr pos, const char *key, addr *ret)
 {
 	fixnum value;
 	addr array, root, left, right, check;
 	int (*equal)(addr, const char *);
 	size_t index;
 
-	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
+	CheckType(pos, LISPTYPE_HASHTABLE);
 	switch (GetTestHashtable(pos)) {
 		case HASHTABLE_TEST_EQUAL:
-			value = sxhash_char_equal(key);
+			Return(sxhash_char_equal_(key, &value));
 			equal = string_equal_char;
 			break;
 
 		case HASHTABLE_TEST_EQUALP:
-			value = sxhash_char_equalp(key);
+			Return(sxhash_char_equalp_(key, &value));
 			equal = string_equalp_char;
 			break;
 
 		default:
-			*ret = Nil;
-			return;
+			return Result(ret, Nil);
 	}
 	index = value % PtrStructHashtable(pos)->size;
 
@@ -803,54 +836,63 @@ _g void findcons_char_hashtable(addr pos, const char *key, addr *ret)
 	for (; root != Nil; root = right) {
 		GetCons(root, &left, &right);
 		GetCar(left, &check);
-		if (stringp(check) && equal(check, key)) {
-			*ret = left;
-			return;
-		}
+		if (! stringp(check))
+			continue;
+		if (! (*equal)(check, key))
+			continue;
+
+		return Result(ret, left);
 	}
-	*ret = Nil;
+
+	return Result(ret, Nil);
 }
 
-_g int findvalue_char_hashtable(addr pos, const char *key, addr *ret)
+_g int find_char_hashtable_(addr pos, const char *key, addr *ret)
 {
 	addr cons;
 
-	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
-	findcons_char_hashtable(pos, key, &cons);
-
-	if (cons != Nil) {
-		GetCdr(cons, ret);
-		return 1;
-	}
-	else {
-		*ret = Nil;
-		return 0;
-	}
+	CheckType(pos, LISPTYPE_HASHTABLE);
+	Return(findcons_char_hashtable_(pos, key, &cons));
+	if (cons == Nil)
+		return Result(ret, Unbound);
+	GetCdr(cons, ret);
+	return 0;
 }
 
-_g void findcons_unicode_hashtable(addr pos, unicode key, addr *ret)
+_g int findnil_char_hashtable_(addr pos, const char *key, addr *ret)
+{
+	addr cons;
+
+	CheckType(pos, LISPTYPE_HASHTABLE);
+	Return(findcons_char_hashtable_(pos, key, &cons));
+	if (cons == Nil)
+		return Result(ret, Nil);
+	GetCdr(cons, ret);
+	return 0;
+}
+
+_g int findcons_unicode_hashtable_(addr pos, unicode key, addr *ret)
 {
 	fixnum value;
 	addr array, root, left, right, check;
 	int (*equal)(addr, unicode);
 	size_t index;
 
-	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
+	CheckType(pos, LISPTYPE_HASHTABLE);
 	switch (GetTestHashtable(pos)) {
 		case HASHTABLE_TEST_EQL:
 		case HASHTABLE_TEST_EQUAL:
-			value = sxhash_unicode_equal(key);
+			Return(sxhash_unicode_equal_(key, &value));
 			equal = character_equal_unicode;
 			break;
 
 		case HASHTABLE_TEST_EQUALP:
-			value = sxhash_unicode_equalp(key);
+			Return(sxhash_unicode_equalp_(key, &value));
 			equal = character_equalp_unicode;
 			break;
 
 		default:
-			*ret = Nil;
-			return;
+			return Result(ret, Nil);
 	}
 	index = value % PtrStructHashtable(pos)->size;
 
@@ -859,32 +901,42 @@ _g void findcons_unicode_hashtable(addr pos, unicode key, addr *ret)
 	for (; root != Nil; root = right) {
 		GetCons(root, &left, &right);
 		GetCar(left, &check);
-		if (GetType(check) == LISPTYPE_CHARACTER && equal(check, key)) {
-			*ret = left;
-			return;
-		}
+		if (! characterp(check))
+			continue;
+		if (! (*equal)(check, key))
+			continue;
+
+		return Result(ret, left);
 	}
-	*ret = Nil;
+
+	return Result(ret, Nil);
 }
 
-_g int findvalue_unicode_hashtable(addr pos, unicode key, addr *ret)
+_g int find_unicode_hashtable_(addr pos, unicode key, addr *ret)
 {
 	addr cons;
 
-	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
-	findcons_unicode_hashtable(pos, key, &cons);
-
-	if (cons != Nil) {
-		GetCdr(cons, ret);
-		return 1;
-	}
-	else {
-		*ret = Nil;
-		return 0;
-	}
+	CheckType(pos, LISPTYPE_HASHTABLE);
+	Return(findcons_unicode_hashtable_(pos, key, &cons));
+	if (cons == Nil)
+		return Result(ret, Unbound);
+	GetCdr(cons, ret);
+	return 0;
 }
 
-_g void findcons_character2_hashtable(addr pos, unicode a, unicode b, addr *ret)
+_g int findnil_unicode_hashtable_(addr pos, unicode key, addr *ret)
+{
+	addr cons;
+
+	CheckType(pos, LISPTYPE_HASHTABLE);
+	Return(findcons_unicode_hashtable_(pos, key, &cons));
+	if (cons == Nil)
+		return Result(ret, Nil);
+	GetCdr(cons, ret);
+	return 0;
+}
+
+_g int findcons_character2_hashtable_(addr pos, unicode a, unicode b, addr *ret)
 {
 	fixnum value;
 	addr array, root, left, right, check;
@@ -894,18 +946,17 @@ _g void findcons_character2_hashtable(addr pos, unicode a, unicode b, addr *ret)
 	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
 	switch (GetTestHashtable(pos)) {
 		case HASHTABLE_TEST_EQUAL:
-			value = sxhash_character2_equal(a, b);
+			Return(sxhash_character2_equal_(a, b, &value));
 			equal = character2_equal_unicode;
 			break;
 
 		case HASHTABLE_TEST_EQUALP:
-			value = sxhash_character2_equalp(a, b);
+			Return(sxhash_character2_equalp_(a, b, &value));
 			equal = character2_equalp_unicode;
 			break;
 
 		default:
-			*ret = Nil;
-			return;
+			return Result(ret, Nil);
 	}
 	index = value % PtrStructHashtable(pos)->size;
 
@@ -914,29 +965,39 @@ _g void findcons_character2_hashtable(addr pos, unicode a, unicode b, addr *ret)
 	for (; root != Nil; root = right) {
 		GetCons(root, &left, &right);
 		GetCar(left, &check);
-		if (GetType(check) == LISPSYSTEM_CHARACTER2 && equal(check, a, b)) {
-			*ret = left;
-			return;
-		}
+		if (GetType(check) != LISPSYSTEM_CHARACTER2)
+			continue;
+		if (! (*equal)(check, a, b))
+			continue;
+
+		return Result(ret, left);
 	}
-	*ret = Nil;
+
+	return Result(ret, Nil);
 }
 
-_g int findvalue_character2_hashtable(addr pos, unicode a, unicode b, addr *ret)
+_g int find_character2_hashtable_(addr pos, unicode a, unicode b, addr *ret)
 {
 	addr cons;
 
 	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
-	findcons_character2_hashtable(pos, a, b, &cons);
+	Return(findcons_character2_hashtable_(pos, a, b, &cons));
+	if (cons == Nil)
+		return Result(ret, Unbound);
+	GetCdr(cons, ret);
+	return 0;
+}
 
-	if (cons != Nil) {
-		GetCdr(cons, ret);
-		return 1;
-	}
-	else {
-		*ret = Nil;
-		return 0;
-	}
+_g int findnil_character2_hashtable_(addr pos, unicode a, unicode b, addr *ret)
+{
+	addr cons;
+
+	Check(GetType(pos) != LISPTYPE_HASHTABLE, "type hashtable error");
+	Return(findcons_character2_hashtable_(pos, a, b, &cons));
+	if (cons == Nil)
+		return Result(ret, Nil);
+	GetCdr(cons, ret);
+	return 0;
 }
 
 
@@ -1018,7 +1079,8 @@ _g int next_hash_iterator(addr pos, addr *key, addr *value)
 	CheckType(pos, LISPSYSTEM_HASHITERATOR);
 	/* Iterator is already closed */
 	ptr = PtrStructHashIterator(pos);
-	if (ptr->finish) return 0;
+	if (ptr->finish)
+		return 0;
 	GetHashIterator(pos, HashIterator_List, &list);
 	GetHashIterator(pos, HashIterator_Array, &array);
 	/* First search */

@@ -172,24 +172,28 @@ _g int find_function_print_dispatch(Execute ptr, addr var, addr table, addr *ret
 	return 0;
 }
 
-static int delete_print_dispatch_p(LocalRoot local, addr pos, addr spec, addr priority)
+static int delete_print_dispatch_p_(LocalRoot local,
+		addr pos, addr spec, addr priority, int *ret)
 {
+	int check;
 	addr a;
 
 	/* specifier */
 	GetSpecifierPrintTable(pos, &a);
-	if (! equal_function(a, spec))
-		return 0;
+	Return(equal_function_(a, spec, &check));
+	if (! check)
+		return Result(ret, 0);
 	/* priority */
 	if (priority == Unbound)
-		return 1;
+		return Result(ret, 1);
 	GetPriorityPrintTable(pos, &a);
-	return equal_real(local, a, priority);
+
+	return Result(ret, equal_real(local, a, priority));
 }
 
-static void delete_print_dispatch(LocalRoot local, addr spec, addr priority, addr table)
+static int delete_print_dispatch_(LocalRoot local, addr spec, addr priority, addr table)
 {
-	int delp;
+	int delp, check;
 	addr root, list, pos;
 
 	GetListPrintDispatch(table, &list);
@@ -197,7 +201,8 @@ static void delete_print_dispatch(LocalRoot local, addr spec, addr priority, add
 	root = Nil;
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		if (delete_print_dispatch_p(local, pos, spec, priority)) {
+		Return(delete_print_dispatch_p_(local, pos, spec, priority, &check));
+		if (check) {
 			delp = 1;
 			continue;
 		}
@@ -207,6 +212,8 @@ static void delete_print_dispatch(LocalRoot local, addr spec, addr priority, add
 		nreverse(&root, root);
 		SetListPrintDispatch(table, root);
 	}
+
+	return 0;
 }
 
 static void set_print_dispatch(addr spec, addr type,
@@ -256,20 +263,22 @@ _g int pprint_dispatch_common(Execute ptr, addr var, addr table, addr *x, addr *
 	return 0;
 }
 
-_g void set_pprint_dispatch_print(LocalRoot local,
+_g int set_pprint_dispatch_print_(LocalRoot local,
 		addr spec, addr type, addr call, addr priority, addr table)
 {
 	CheckType(type, LISPTYPE_TYPE);
 	Check(! functionp(call), "type error: function");
 	CheckType(table, LISPTYPE_PRINT_DISPATCH);
 
-	delete_print_dispatch(local, spec, priority, table);
+	Return(delete_print_dispatch_(local, spec, priority, table));
 	if (call != Nil) {
 		if (priority == Unbound)
 			fixnum_heap(&priority, 0);
 		Check(! integerp(priority), "type error: priority");
 		set_print_dispatch(spec, type, call, priority, table);
 	}
+
+	return 0;
 }
 
 
@@ -299,7 +308,7 @@ static void build_print_dispatch_table(addr dispatch)
 	SetValueSymbol(symbol, pos);
 }
 
-static void build_print_dispatch_cons(LocalRoot local, addr dispatch)
+static int build_print_dispatch_cons_(LocalRoot local, addr dispatch)
 {
 	/* (system::set-pprint-dispatch
 	 *   'cons
@@ -312,7 +321,7 @@ static void build_print_dispatch_cons(LocalRoot local, addr dispatch)
 	GetConst(COMMON_PPRINT_FILL, &call);
 	GetFunctionSymbol(call, &call);
 	fixnum_heap(&priority, -10);
-	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
+	return set_pprint_dispatch_print_(local, spec, type, call, priority, dispatch);
 }
 
 static void make_print_dispatch_function(addr *ret, constindex name, pointer id)
@@ -332,7 +341,7 @@ static void make_print_dispatch_function(addr *ret, constindex name, pointer id)
 	*ret = pos;
 }
 
-static void build_print_dispatch_vector(LocalRoot local, addr dispatch)
+static int build_print_dispatch_vector_(LocalRoot local, addr dispatch)
 {
 	/* (system::set-pprint-dispatch
 	 *  '(and vector (not string) (not bit-vector))
@@ -362,10 +371,10 @@ static void build_print_dispatch_vector(LocalRoot local, addr dispatch)
 			p_pprint_dispatch_vector);
 	/* set */
 	fixnum_heap(&priority, 0);
-	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
+	return set_pprint_dispatch_print_(local, spec, type, call, priority, dispatch);
 }
 
-static void build_print_dispatch_quote(LocalRoot local, addr dispatch)
+static int build_print_dispatch_quote_(LocalRoot local, addr dispatch)
 {
 	/* (system::set-pprint-dispatch
 	 *   '(cons (eql quote) (cons t null))
@@ -394,10 +403,10 @@ static void build_print_dispatch_quote(LocalRoot local, addr dispatch)
 			p_pprint_dispatch_quote);
 	/* set */
 	fixnum_heap(&priority, 0);
-	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
+	return set_pprint_dispatch_print_(local, spec, type, call, priority, dispatch);
 }
 
-static void build_print_dispatch_call(LocalRoot local, addr dispatch)
+static int build_print_dispatch_call_(LocalRoot local, addr dispatch)
 {
 	/* (system::set-pprint-dispatch
 	 *   '(cons (and symbol (satisfies fboundp)))
@@ -427,10 +436,10 @@ static void build_print_dispatch_call(LocalRoot local, addr dispatch)
 			p_pprint_dispatch_call);
 	/* set */
 	fixnum_heap(&priority, -5);
-	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
+	return set_pprint_dispatch_print_(local, spec, type, call, priority, dispatch);
 }
 
-static void build_print_dispatch_defun(LocalRoot local, addr dispatch)
+static int build_print_dispatch_defun_(LocalRoot local, addr dispatch)
 {
 	/* (system::set-pprint-dispatch
 	 *   '(cons (eql defun))
@@ -455,10 +464,10 @@ static void build_print_dispatch_defun(LocalRoot local, addr dispatch)
 			p_pprint_dispatch_defun);
 	/* set */
 	fixnum_heap(&priority, 0);
-	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
+	return set_pprint_dispatch_print_(local, spec, type, call, priority, dispatch);
 }
 
-static void build_print_dispatch_let(LocalRoot local, addr dispatch)
+static int build_print_dispatch_let_(LocalRoot local, addr dispatch)
 {
 	/* (system::set-pprint-dispatch
 	 *   '(cons (eql let))
@@ -483,10 +492,10 @@ static void build_print_dispatch_let(LocalRoot local, addr dispatch)
 			p_pprint_dispatch_let);
 	/* set */
 	fixnum_heap(&priority, 0);
-	set_pprint_dispatch_print(local, spec, type, call, priority, dispatch);
+	return set_pprint_dispatch_print_(local, spec, type, call, priority, dispatch);
 }
 
-_g void build_print_dispatch(void)
+_g int build_print_dispatch_(void)
 {
 	LocalRoot local;
 	addr dispatch;
@@ -494,14 +503,16 @@ _g void build_print_dispatch(void)
 	local = Local_Thread;
 	pprint_dispatch_heap(&dispatch);
 	/* build */
-	build_print_dispatch_cons(local, dispatch);
-	build_print_dispatch_vector(local, dispatch);
-	build_print_dispatch_quote(local, dispatch);
-	build_print_dispatch_call(local, dispatch);
-	build_print_dispatch_defun(local, dispatch);
-	build_print_dispatch_let(local, dispatch);
+	Return(build_print_dispatch_cons_(local, dispatch));
+	Return(build_print_dispatch_vector_(local, dispatch));
+	Return(build_print_dispatch_quote_(local, dispatch));
+	Return(build_print_dispatch_call_(local, dispatch));
+	Return(build_print_dispatch_defun_(local, dispatch));
+	Return(build_print_dispatch_let_(local, dispatch));
 	/* set variable */
 	build_print_dispatch_empty();
 	build_print_dispatch_table(dispatch);
+
+	return 0;
 }
 

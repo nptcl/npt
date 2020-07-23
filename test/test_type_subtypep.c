@@ -838,12 +838,12 @@ static int test_subtypep_float(void)
 	test(strtable_true("short-float", "float"), "subtypep_float4");
 	test(strtable_exclude("symbol", "float"), "subtypep_float5");
 
-	interncommon("DOUBLE-FLOAT", &left);
+	interncommon_debug("DOUBLE-FLOAT", &left);
 	double_float_heap(&pos1, 10.0);
 	double_float_heap(&pos2, 20.0);
 	list_heap(&left, left, pos1, pos2, NULL);
 	test_parse_type(&left, left);
-	interncommon("FLOAT", &right);
+	interncommon_debug("FLOAT", &right);
 	double_float_heap(&pos1, 15.0);
 	list_heap(&right, right, pos1, NULL);
 	test_parse_type(&right, right);
@@ -885,12 +885,12 @@ static int test_subtypep_float_type(void)
 	subtypep_float_type_(left, right, &value, LISPDECL_SINGLE_FLOAT);
 	test(value == SUBTYPEP_EXCLUDE, "subtypep_float_type5");
 
-	interncommon("SINGLE-FLOAT", &left);
+	interncommon_debug("SINGLE-FLOAT", &left);
 	single_float_heap(&pos1, 10.0);
 	single_float_heap(&pos2, 20.0);
 	list_heap(&left, left, pos1, pos2, NULL);
 	test_parse_type(&left, left);
-	interncommon("SINGLE-FLOAT", &right);
+	interncommon_debug("SINGLE-FLOAT", &right);
 	single_float_heap(&pos1, 5.0);
 	list_heap(&right, right, pos1, NULL);
 	test_parse_type(&right, right);
@@ -1732,7 +1732,7 @@ static void test_eql_character(addr *ret, unicode u, int notp)
 {
 	addr left, pos;
 
-	interncommon("EQL", &left);
+	interncommon_debug("EQL", &left);
 	character_heap(&pos, u);
 	list_heap(&left, left, pos, NULL);
 	test_parse_type(&left, left);

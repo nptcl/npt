@@ -455,14 +455,17 @@ static int eval_load_check(
 		constindex file_print,
 		addr *ret)
 {
+	int check;
 	addr symbol, pos, truename, value;
 
 	/* wild-pathname-p */
 	if (! streamp(file)) {
 		Return(pathname_designer_heap_(ptr, file, &file));
-		if (wild_pathname_boolean(file, Nil))
+		Return(wild_pathname_boolean_(file, Nil, &check));
+		if (check ) {
 			return call_simple_file_error_va_(ptr, file,
 					"LOAD don't allow the wildcard filename ~S.", file, NULL);
+		}
 	}
 	/* type */
 	if (! streamp(file)) {

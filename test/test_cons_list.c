@@ -108,9 +108,9 @@ static int test_pushnew_alloc(void)
 {
 	addr sym1, sym2, sym3, list, check;
 
-	interncommon("CAR", &sym1);
-	interncommon("CDR", &sym2);
-	interncommon("CONS", &sym3);
+	interncommon_debug("CAR", &sym1);
+	interncommon_debug("CDR", &sym2);
+	interncommon_debug("CONS", &sym3);
 	test(pushnew_alloc(NULL, Nil, sym1, &list), "pushnew_alloc.1");
 	test(length_list_safe(list) == 1, "pushnew_alloc.2");
 	GetCar(list, &check);

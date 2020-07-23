@@ -721,7 +721,7 @@ static void defun_code_char(void)
  */
 static int function_char_name(Execute ptr, addr var)
 {
-	char_name_common(var, &var);
+	Return(char_name_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -758,7 +758,7 @@ static void defun_char_name(void)
  */
 static int function_name_char(Execute ptr, addr var)
 {
-	name_char_common(ptr->local, var, &var);
+	Return(name_char_common_(ptr->local, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

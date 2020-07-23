@@ -120,7 +120,7 @@ static int test_emptycheck(const char *name, enum LISPDECL type)
 	int check;
 	addr pos;
 
-	internchar(LISP_COMMON, name, &pos);
+	internchar_debug(LISP_COMMON, name, &pos);
 	check = find_symbol_type(Execute_Thread, &pos, pos, Nil);
 	if (check) {
 		degrade_printf("find-symbol-type error\n");
@@ -181,7 +181,7 @@ static int test_aster1check(const char *name, enum LISPDECL type)
 	int check;
 	addr pos;
 
-	internchar(LISP_COMMON, name, &pos);
+	internchar_debug(LISP_COMMON, name, &pos);
 	check = find_symbol_type(Execute_Thread, &pos, pos, Nil);
 	if (check) {
 		degrade_printf("find-symbol-type error\n");
@@ -240,7 +240,7 @@ static int test_aster2check(const char *name, enum LISPDECL type)
 	int check, i;
 	addr pos, right;
 
-	internchar(LISP_COMMON, name, &pos);
+	internchar_debug(LISP_COMMON, name, &pos);
 	check = find_symbol_type(Execute_Thread, &pos, pos, Nil);
 	if (check) {
 		degrade_printf("find-symbol-type error\n");
@@ -289,7 +289,7 @@ static int test_aster3check(const char *name, enum LISPDECL type)
 	int check, i;
 	addr pos, right;
 
-	internchar(LISP_COMMON, name, &pos);
+	internchar_debug(LISP_COMMON, name, &pos);
 	check = find_symbol_type(Execute_Thread, &pos, pos, Nil);
 	if (check) {
 		degrade_printf("find-symbol-type error\n");
@@ -334,7 +334,7 @@ static int test_numbercheck(const char *name, enum LISPDECL type)
 	int check, i;
 	addr pos, right;
 
-	internchar(LISP_COMMON, name, &pos);
+	internchar_debug(LISP_COMMON, name, &pos);
 	check = find_symbol_type(Execute_Thread, &pos, pos, Nil);
 	if (check) {
 		degrade_printf("find-symbol-type error\n");

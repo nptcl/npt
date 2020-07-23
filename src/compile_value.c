@@ -335,7 +335,7 @@ _g int faslread_value_hashtable(Execute ptr, addr stream, addr *ret)
 	for (i = 0; i < size; i++) {
 		Return(faslread_value(ptr, stream, &key));
 		Return(faslread_value(ptr, stream, &value));
-		intern_hashheap(pos, key, &cons);
+		Return(intern_hashheap_(pos, key, &cons));
 		SetCdr(cons, value);
 	}
 
@@ -376,7 +376,7 @@ _g int faslread_value_symbol(Execute ptr, addr stream, addr *ret)
 	}
 	else {
 		/* intern */
-		(void)intern_package(package, name, ret);
+		Return(intern_package_(package, name, ret, NULL));
 	}
 
 	return 0;
@@ -677,7 +677,7 @@ _g int faslwrite_value_package(Execute ptr, addr stream, addr pos)
 {
 	CheckType(pos, LISPTYPE_PACKAGE);
 	Return(faslwrite_type_(stream, FaslCode_package));
-	getname_package(pos, &pos);
+	getname_package_unsafe(pos, &pos);
 	return faslwrite_value_string(ptr, stream, pos);
 }
 
@@ -690,7 +690,7 @@ _g int faslread_value_package(Execute ptr, addr stream, addr *ret)
 	local = ptr->local;
 	push_local(local, &stack);
 	Return(faslread_string_code_local_(local, stream, &pos));
-	find_package(pos, ret);
+	Return(find_package_(pos, ret));
 	rollback_local(local, stack);
 
 	return 0;
@@ -822,7 +822,7 @@ _g int faslwrite_value_load_time_value(Execute ptr, addr stream, addr pos)
 	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
 	Return(faslwrite_type_(stream, FaslCode_load_time_value));
 	/* index */
-	get_write_make_load_form(ptr, pos, &index);
+	Return(get_write_make_load_form_(ptr, pos, &index));
 	Return(faslwrite_value(ptr, stream, index));
 	/* value */
 	get_load_time_value_heap(pos, &pos);
@@ -834,7 +834,7 @@ _g int faslread_value_load_time_value(Execute ptr, addr stream, addr *ret)
 	addr pos, value;
 
 	Return(faslread_value(ptr, stream, &pos));
-	get_read_make_load_form(ptr, pos, &pos);
+	Return(get_read_make_load_form_(ptr, pos, &pos));
 	Return(faslread_value(ptr, stream, &value));
 	set_load_time_value_heap(pos, value);
 

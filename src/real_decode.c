@@ -16,8 +16,8 @@
 #include "real_ceiling.h"
 #include "real_decode.h"
 
-#define real_decode_inexact(x,y) \
-	floating_point_inexact_stdarg(CONSTANT_COMMON_##x, (y), NULL)
+#define real_decode_inexact_(ptr, x,y) \
+	call_floating_point_inexact_va_(ptr, CONSTANT_COMMON_##x, (y), NULL)
 
 /*
  *  decode-float
@@ -58,7 +58,7 @@ static void decode_long_float(addr pos, addr *ret, addr *rexp, addr *rsign)
 	long_float_heap(rsign, signbit(v)? -1.0L: 1.0L);
 }
 
-_g void decode_float_common(addr pos, addr *ret, addr *rexp, addr *rsign)
+_g int decode_float_common_(addr pos, addr *ret, addr *rexp, addr *rsign)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -74,17 +74,18 @@ _g void decode_float_common(addr pos, addr *ret, addr *rexp, addr *rsign)
 			break;
 
 		default:
-			TypeError(pos, FLOAT);
 			*ret = *rexp = *rsign = 0;
-			return;
+			return TypeError_(pos, FLOAT);
 	}
+
+	return 0;
 }
 
 
 /*
  *  scale-float
  */
-_g void scale_float_common(addr pos, addr scale, addr *ret)
+_g int scale_float_common_(addr pos, addr scale, addr *ret)
 {
 	fixnum fixnum_value;
 	long n;
@@ -97,18 +98,16 @@ _g void scale_float_common(addr pos, addr scale, addr *ret)
 		case LISPTYPE_FIXNUM:
 			GetFixnum(scale, &fixnum_value);
 			if (fixnum_value < LONG_MIN || LONG_MAX < fixnum_value)
-				fmte("Scaling factor is too large ~A.", scale, NULL);
+				return fmte_("Scaling factor is too large ~A.", scale, NULL);
 			n = (long)fixnum_value;
 			break;
 
 		case LISPTYPE_BIGNUM:
-			fmte("Scaling factor ~A must be a fixnum type.", scale, NULL);
-			return;
+			return fmte_("Scaling factor ~A must be a fixnum type.", scale, NULL);
 
 		default:
-			TypeError(scale, INTEGER);
 			*ret = 0;
-			return;
+			return TypeError_(scale, INTEGER);
 	}
 
 	/* scale-float */
@@ -129,10 +128,11 @@ _g void scale_float_common(addr pos, addr scale, addr *ret)
 			break;
 
 		default:
-			TypeError(pos, FLOAT);
 			*ret = 0;
-			return;
+			return TypeError_(pos, FLOAT);
 	}
+
+	return 0;
 }
 
 
@@ -148,7 +148,7 @@ _g void float_radix_common(addr pos, addr *ret)
 /*
  *  float-sign
  */
-static void float_sign1_common(addr pos, addr *ret)
+static int float_sign1_common_(addr pos, addr *ret)
 {
 	single_float vs;
 	double_float vd;
@@ -171,10 +171,11 @@ static void float_sign1_common(addr pos, addr *ret)
 			break;
 
 		default:
-			TypeError(pos, FLOAT);
 			*ret = 0;
-			return;
+			return TypeError_(pos, FLOAT);
 	}
+
+	return 0;
 }
 
 #define copysign_ss(x,y)  copysignf((y), (x))
@@ -214,7 +215,7 @@ static inline double_float copysign_ld(long_float a, double_float b)
 	copysign_code(a, b);
 }
 
-static void float_sign2_single(single_float left, addr opt, addr *ret)
+static int float_sign2_single_(single_float left, addr opt, addr *ret)
 {
 	single_float vs;
 	double_float vd;
@@ -237,13 +238,14 @@ static void float_sign2_single(single_float left, addr opt, addr *ret)
 			break;
 
 		default:
-			TypeError(opt, FLOAT);
 			*ret = 0;
-			return;
+			return TypeError_(opt, FLOAT);
 	}
+
+	return 0;
 }
 
-static void float_sign2_double(double_float left, addr opt, addr *ret)
+static int float_sign2_double_(double_float left, addr opt, addr *ret)
 {
 	single_float vs;
 	double_float vd;
@@ -266,13 +268,14 @@ static void float_sign2_double(double_float left, addr opt, addr *ret)
 			break;
 
 		default:
-			TypeError(opt, FLOAT);
 			*ret = 0;
-			return;
+			return TypeError_(opt, FLOAT);
 	}
+
+	return 0;
 }
 
-static void float_sign2_long(long_float left, addr opt, addr *ret)
+static int float_sign2_long_(long_float left, addr opt, addr *ret)
 {
 	single_float vs;
 	double_float vd;
@@ -295,13 +298,14 @@ static void float_sign2_long(long_float left, addr opt, addr *ret)
 			break;
 
 		default:
-			TypeError(opt, FLOAT);
 			*ret = 0;
-			return;
+			return TypeError_(opt, FLOAT);
 	}
+
+	return 0;
 }
 
-static void float_sign2_common(addr pos, addr opt, addr *ret)
+static int float_sign2_common_(addr pos, addr opt, addr *ret)
 {
 	single_float vs;
 	double_float vd;
@@ -310,39 +314,35 @@ static void float_sign2_common(addr pos, addr opt, addr *ret)
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
 			GetSingleFloat(pos, &vs);
-			float_sign2_single(vs, opt, ret);
-			break;
+			return float_sign2_single_(vs, opt, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
 			GetDoubleFloat(pos, &vd);
-			float_sign2_double(vd, opt, ret);
-			break;
+			return float_sign2_double_(vd, opt, ret);
 
 		case LISPTYPE_LONG_FLOAT:
 			GetLongFloat(pos, &vl);
-			float_sign2_long(vl, opt, ret);
-			break;
+			return float_sign2_long_(vl, opt, ret);
 
 		default:
-			TypeError(pos, FLOAT);
 			*ret = 0;
-			return;
+			return TypeError_(pos, FLOAT);
 	}
 }
 
-_g void float_sign_common(addr pos, addr opt, addr *ret)
+_g int float_sign_common_(addr pos, addr opt, addr *ret)
 {
 	if (opt == Unbound)
-		float_sign1_common(pos, ret);
+		return float_sign1_common_(pos, ret);
 	else
-		float_sign2_common(pos, opt, ret);
+		return float_sign2_common_(pos, opt, ret);
 }
 
 
 /*
  *  float-digits
  */
-_g void float_digits_common(addr pos, addr *ret)
+_g int float_digits_common_(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
@@ -358,10 +358,11 @@ _g void float_digits_common(addr pos, addr *ret)
 			break;
 
 		default:
-			TypeError(pos, FLOAT);
 			*ret = 0;
-			return;
+			return TypeError_(pos, FLOAT);
 	}
+
+	return 0;
 }
 
 
@@ -448,20 +449,22 @@ static int float_precision_float(addr pos, int *ret)
 			return float_precision_long(vl, ret);
 
 		default:
-			TypeError(pos, FLOAT);
-			return 1;
+			return -1;
 	}
 }
 
-_g void float_precision_common(addr pos, addr *ret)
+_g int float_precision_common_(Execute ptr, addr pos, addr *ret)
 {
-	int size;
+	int size, check;
 
-	if (float_precision_float(pos, &size)) {
-		real_decode_inexact(FLOAT_PRECISION, pos);
-		return;
-	}
+	check = float_precision_float(pos, &size);
+	if (check < 0)
+		return TypeError_(pos, FLOAT);
+	if (check)
+		return real_decode_inexact_(ptr, FLOAT_PRECISION, pos);
+
 	fixnum_heap(ret, (fixnum)size);
+	return 0;
 }
 
 
@@ -519,12 +522,13 @@ static int integer_decode_float_long_value(LocalRoot local,
 	return 0;
 }
 
-static void integer_decode_float_single(LocalRoot local,
+static int integer_decode_float_single_(Execute ptr,
 		addr pos, addr *ret, addr *rexp, addr *rsign)
 {
 	int e, sign;
 	single_float v;
 	addr temp;
+	LocalRoot local;
 	LocalStack stack;
 
 	GetSingleFloat(pos, &v);
@@ -532,27 +536,29 @@ static void integer_decode_float_single(LocalRoot local,
 		fixnum_heap(ret, 0);
 		fixnum_heap(rexp, 0);
 		fixnum_heap(rsign, signbit(v)? -1: 1);
-		return;
+		return 0;
 	}
 
+	local = ptr->local;
 	push_local(local, &stack);
 	if (integer_decode_float_single_value(local, v, &temp, &e, &sign)) {
-		real_decode_inexact(INTEGER_DECODE_FLOAT, pos);
 		*ret = *rexp = *rsign = 0;
-		return;
+		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
 	bignum_result_heap(temp, ret);
 	rollback_local(local, stack);
 	fixnum_heap(rexp, (fixnum)e);
 	fixnum_heap(rsign, (fixnum)sign);
+	return 0;
 }
 
-static void integer_decode_float_double(LocalRoot local,
+static int integer_decode_float_double_(Execute ptr,
 		addr pos, addr *ret, addr *rexp, addr *rsign)
 {
 	int e, sign;
 	double_float v;
 	addr temp;
+	LocalRoot local;
 	LocalStack stack;
 
 	GetDoubleFloat(pos, &v);
@@ -560,27 +566,29 @@ static void integer_decode_float_double(LocalRoot local,
 		fixnum_heap(ret, 0);
 		fixnum_heap(rexp, 0);
 		fixnum_heap(rsign, signbit(v)? -1: 1);
-		return;
+		return 0;
 	}
 
+	local = ptr->local;
 	push_local(local, &stack);
 	if (integer_decode_float_double_value(local, v, &temp, &e, &sign)) {
-		real_decode_inexact(INTEGER_DECODE_FLOAT, pos);
 		*ret = *rexp = *rsign = 0;
-		return;
+		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
 	bignum_result_heap(temp, ret);
 	rollback_local(local, stack);
 	fixnum_heap(rexp, (fixnum)e);
 	fixnum_heap(rsign, (fixnum)sign);
+	return 0;
 }
 
-static void integer_decode_float_long(LocalRoot local,
+static int integer_decode_float_long_(Execute ptr,
 		addr pos, addr *ret, addr *rexp, addr *rsign)
 {
 	int e, sign;
 	long_float v;
 	addr temp;
+	LocalRoot local;
 	LocalStack stack;
 
 	GetLongFloat(pos, &v);
@@ -588,41 +596,38 @@ static void integer_decode_float_long(LocalRoot local,
 		fixnum_heap(ret, 0);
 		fixnum_heap(rexp, 0);
 		fixnum_heap(rsign, signbit(v)? -1: 1);
-		return;
+		return 0;
 	}
 
+	local = ptr->local;
 	push_local(local, &stack);
 	if (integer_decode_float_long_value(local, v, &temp, &e, &sign)) {
-		real_decode_inexact(INTEGER_DECODE_FLOAT, pos);
 		*ret = *rexp = *rsign = 0;
-		return;
+		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
 	bignum_result_heap(temp, ret);
 	rollback_local(local, stack);
 	fixnum_heap(rexp, (fixnum)e);
 	fixnum_heap(rsign, (fixnum)sign);
+	return 0;
 }
 
-_g void integer_decode_float_common(LocalRoot local,
+_g int integer_decode_float_common_(Execute ptr,
 		addr pos, addr *ret, addr *rexp, addr *rsign)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_SINGLE_FLOAT:
-			integer_decode_float_single(local, pos, ret, rexp, rsign);
-			break;
+			return integer_decode_float_single_(ptr, pos, ret, rexp, rsign);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			integer_decode_float_double(local, pos, ret, rexp, rsign);
-			break;
+			return integer_decode_float_double_(ptr, pos, ret, rexp, rsign);
 
 		case LISPTYPE_LONG_FLOAT:
-			integer_decode_float_long(local, pos, ret, rexp, rsign);
-			break;
+			return integer_decode_float_long_(ptr, pos, ret, rexp, rsign);
 
 		default:
-			TypeError(pos, FLOAT);
 			*ret = *rexp = *rsign = 0;
-			return;
+			return TypeError_(pos, FLOAT);
 	}
 }
 
@@ -647,103 +652,105 @@ static void rational_float_common(LocalRoot local,
 	}
 }
 
-static void rational_single_common(LocalRoot local, addr pos, addr *ret)
+static int rational_single_common_(Execute ptr, addr pos, addr *ret)
 {
 	int e, sign;
 	single_float v;
+	LocalRoot local;
 	LocalStack stack;
 
 	GetSingleFloat(pos, &v);
 	if (v == 0.0f) {
 		fixnum_heap(ret, 0);
-		return;
+		return 0;
 	}
 
+	local = ptr->local;
 	push_local(local, &stack);
 	if (integer_decode_float_single_value(local, v, &pos, &e, &sign)) {
-		real_decode_inexact(INTEGER_DECODE_FLOAT, pos);
 		*ret = 0;
-		return;
+		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
 	rational_float_common(local, ret, pos, e, sign);
 	rollback_local(local, stack);
+	return 0;
 }
 
-static void rational_double_common(LocalRoot local, addr pos, addr *ret)
+static int rational_double_common_(Execute ptr, addr pos, addr *ret)
 {
 	int e, sign;
 	double_float v;
+	LocalRoot local;
 	LocalStack stack;
 
 	GetDoubleFloat(pos, &v);
 	if (v == 0.0) {
 		fixnum_heap(ret, 0);
-		return;
+		return 0;
 	}
 
+	local = ptr->local;
 	push_local(local, &stack);
 	if (integer_decode_float_double_value(local, v, &pos, &e, &sign)) {
-		real_decode_inexact(INTEGER_DECODE_FLOAT, pos);
 		*ret = 0;
-		return;
+		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
 	rational_float_common(local, ret, pos, e, sign);
 	rollback_local(local, stack);
+	return 0;
 }
 
-static void rational_long_common(LocalRoot local, addr pos, addr *ret)
+static int rational_long_common_(Execute ptr, addr pos, addr *ret)
 {
 	int e, sign;
 	long_float v;
+	LocalRoot local;
 	LocalStack stack;
 
 	GetLongFloat(pos, &v);
 	if (v == 0.0L) {
 		fixnum_heap(ret, 0);
-		return;
+		return 0;
 	}
 
+	local = ptr->local;
 	push_local(local, &stack);
 	if (integer_decode_float_long_value(local, v, &pos, &e, &sign)) {
-		real_decode_inexact(INTEGER_DECODE_FLOAT, pos);
 		*ret = 0;
-		return;
+		return real_decode_inexact_(ptr, INTEGER_DECODE_FLOAT, pos);
 	}
 	rational_float_common(local, ret, pos, e, sign);
 	rollback_local(local, stack);
+	return 0;
 }
 
-_g void rational_common(LocalRoot local, addr pos, addr *ret)
+_g int rational_common_(Execute ptr, addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FIXNUM:
 			fixnum_throw_heap(pos, ret);
-			break;
+			return 0;
 
 		case LISPTYPE_BIGNUM:
 			bignum_throw_heap(pos, ret);
-			break;
+			return 0;
 
 		case LISPTYPE_RATIO:
 			ratio_throw_heap(pos, ret);
-			break;
+			return 0;
 
 		case LISPTYPE_SINGLE_FLOAT:
-			rational_single_common(local, pos, ret);
-			break;
+			return rational_single_common_(ptr, pos, ret);
 
 		case LISPTYPE_DOUBLE_FLOAT:
-			rational_double_common(local, pos, ret);
-			break;
+			return rational_double_common_(ptr, pos, ret);
 
 		case LISPTYPE_LONG_FLOAT:
-			rational_long_common(local, pos, ret);
-			break;
+			return rational_long_common_(ptr, pos, ret);
 
 		default:
-			TypeError(pos, REAL);
 			*ret = 0;
-			return;
+			return TypeError_(pos, REAL);
 	}
 }
 
@@ -764,7 +771,7 @@ _g void rational_common(LocalRoot local, addr pos, addr *ret)
  *      http://www.sbcl.org/
  *      https://sourceforge.net/p/sbcl/sbcl/ci/sbcl-1.5.0/tree/src/code/float.lisp
  */
-static void rationalize_copy(addr *ret, addr pos)
+static int rationalize_copy_(addr *ret, addr pos)
 {
 	int sign;
 	fixed value;
@@ -773,29 +780,30 @@ static void rationalize_copy(addr *ret, addr pos)
 		case LISPTYPE_FIXNUM:
 			castfixed_fixnum(pos, &sign, &value);
 			bignum_value_heap(ret, SignPlus, value);
-			break;
+			return 0;
 
 		case LISPTYPE_BIGNUM:
 			bignum_copy_nosign_heap(ret, pos);
-			break;
+			return 0;
 
 		default:
-			TypeError(pos, INTEGER);
 			*ret = 0;
-			return;
+			return TypeError_(pos, INTEGER);
 	}
 }
 
-static void rationalize_build_ratio(addr *ret, addr numer, addr denom)
+static int rationalize_build_ratio_(addr *ret, addr numer, addr denom)
 {
 	int sign1, sign2;
 
 	getsign_integer(numer, &sign1);
 	getsign_integer(denom, &sign2);
 	sign1 = SignMulti(sign1, sign2);
-	rationalize_copy(&numer, numer);
-	rationalize_copy(&denom, denom);
+	Return(rationalize_copy_(&numer, numer));
+	Return(rationalize_copy_(&denom, denom));
 	make_ratio_alloc_unsafe(NULL, ret, sign1, numer, denom);
+
+	return 0;
 }
 
 static void rationalize_multi2(LocalRoot local, addr *ret, addr frac)
@@ -817,7 +825,7 @@ static void rationalize_letdenom(LocalRoot local, addr expo, addr *ret)
 	ash_integer_common(local, one, expo, ret);
 }
 
-static void rationalize_ab(LocalRoot local, addr *ra, addr *fb, addr frac, addr expo)
+static int rationalize_ab_(LocalRoot local, addr *ra, addr *fb, addr frac, addr expo)
 {
 	addr a, b;
 
@@ -825,8 +833,10 @@ static void rationalize_ab(LocalRoot local, addr *ra, addr *fb, addr frac, addr 
 	oneminus_integer_common(local, frac, &a);
 	oneplus_integer_common(local, frac, &b);
 	rationalize_letdenom(local, expo, &expo);
-	rationalize_build_ratio(ra, a, expo);
-	rationalize_build_ratio(fb, b, expo);
+	Return(rationalize_build_ratio_(ra, a, expo));
+	Return(rationalize_build_ratio_(fb, b, expo));
+
+	return 0;
 }
 
 static void rationalize_let(LocalRoot local, addr z, addr x1, addr x0, addr *ret)
@@ -850,22 +860,24 @@ static void rationalize_psetf(LocalRoot local, addr x, addr k, addr *ret)
 	inverse_rational_common(local, x, ret);
 }
 
-static void rationalize_float(LocalRoot local, addr x, addr *ret)
+static int rationalize_float_(Execute ptr, addr x, addr *ret)
 {
 	addr frac, expo, sign, v1, v2;
 	addr a, b, c, p0, q0, p1, q1, top, bot, k, p2, q2;
+	LocalRoot local;
 
+	local = ptr->local;
 	/* multiple-value-bind */
-	integer_decode_float_common(local, x, &frac, &expo, &sign);
+	Return(integer_decode_float_common_(ptr, x, &frac, &expo, &sign));
 	/* cond */
 	if (zerop_integer(frac) || zerop_or_plusp_integer(expo)) {
 		ash_integer_common(local, frac, expo, ret);
 		if (minusp_integer(sign))
 			sign_reverse_integer_common(*ret, ret);
-		return;
+		return 0;
 	}
 	/* a, b */
-	rationalize_ab(local, &a, &b, frac, expo);
+	Return(rationalize_ab_(local, &a, &b, frac, expo));
 	/* p0, q0, p1, q1 */
 	fixnum_heap(&p0, 0);
 	fixnum_heap(&q0, 1);
@@ -880,8 +892,7 @@ static void rationalize_float(LocalRoot local, addr x, addr *ret)
 			rationalize_let(local, c, q1, q0, &bot);
 			if (minusp_integer(sign))
 				sign_reverse_integer_common(top, &top);
-			rationalize_build_ratio(ret, top, bot);
-			return;
+			return rationalize_build_ratio_(ret, top, bot);
 		}
 		/* body */
 		rationalize_minus1(local, c, &k);
@@ -898,20 +909,20 @@ static void rationalize_float(LocalRoot local, addr x, addr *ret)
 	}
 }
 
-_g void rationalize_common(LocalRoot local, addr pos, addr *ret)
+_g int rationalize_common_(Execute ptr, addr pos, addr *ret)
 {
 	if (rationalp(pos)) {
 		rational_throw_heap(pos, ret);
-		return;
+		return 0;
 	}
 	if (floatp(pos)) {
-		rationalize_float(local, pos, &pos);
-		ratio_result_noreduction_heap(local, pos, ret);
-		return;
+		Return(rationalize_float_(ptr, pos, &pos));
+		ratio_result_noreduction_heap(ptr->local, pos, ret);
+		return 0;
 	}
 
-	TypeError(pos, REAL);
 	*ret = 0;
+	return TypeError_(pos, REAL);
 }
 
 

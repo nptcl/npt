@@ -220,18 +220,20 @@ _g void pushconstant_fileparse(struct fileparse *pa, addr *list, constindex inde
 	cons_alloc(localp_alloc(pa->local), list, value, *list);
 }
 
-_g int check_host_logical_pathname(LocalpRoot local, addr queue)
+_g int check_host_logical_pathname_(LocalpRoot local, addr queue, int *ret)
 {
 	addr key;
 	make_charqueue_local(local->local, queue, &key);
-	return gethost_logical_pathname(key, &key);
+	Return(gethost_logical_pathname_(key, &key));
+	return Result(ret, key != Nil);
 }
 
-_g int check_drive_logical_pathname(LocalpRoot local, int drive)
+_g int check_drive_logical_pathname_(LocalpRoot local, int drive, int *ret)
 {
 	addr key;
 	strvect_local(local->local, &key, 1);
 	strvect_setc(key, 0, drive);
-	return gethost_logical_pathname(key, &key);
+	Return(gethost_logical_pathname_(key, &key));
+	return Result(ret, key != Nil);
 }
 

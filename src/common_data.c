@@ -677,7 +677,7 @@ static void defun_not(void)
 /* (defun eq (x y) ...) -> boolean */
 static int function_eq(Execute ptr, addr x, addr y)
 {
-	setbool_control(ptr, eq(x, y));
+	setbool_control(ptr, eq_function(x, y));
 	return 0;
 }
 
@@ -700,7 +700,7 @@ static void defun_eq(void)
 /* (defun eql (x y) ...) -> boolean */
 static int function_eql(Execute ptr, addr x, addr y)
 {
-	setbool_control(ptr, eql(x, y));
+	setbool_control(ptr, eql_function(x, y));
 	return 0;
 }
 
@@ -723,7 +723,11 @@ static void defun_eql(void)
 /* (defun equal (x y) ...) -> boolean */
 static int function_equal(Execute ptr, addr x, addr y)
 {
-	setbool_control(ptr, equal(x, y));
+	int check;
+
+	Return(equal_function_(x, y, &check));
+	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -746,7 +750,11 @@ static void defun_equal(void)
 /* (defun equalp (x y) ...) -> boolean */
 static int function_equalp(Execute ptr, addr x, addr y)
 {
-	setbool_control(ptr, equalp(x, y));
+	int check;
+
+	Return(equalp_function_(x, y, &check));
+	setbool_control(ptr, check);
+
 	return 0;
 }
 

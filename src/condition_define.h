@@ -49,6 +49,10 @@ _g void floating_point_inexact(addr operation, addr operands);
 _g void floating_point_inexact_constant(constindex index, addr operands);
 _g void floating_point_inexact_stdarg(constindex index, ...);
 
+_g int call_floating_point_inexact_(Execute ptr, addr operation, addr operands);
+_g int call_floating_point_inexact_const_(Execute ptr, constindex index, addr operands);
+_g int call_floating_point_inexact_va_(Execute ptr, constindex index, ...);
+
 /* floating_point_invalid_operation */
 _g void instance_floating_point_invalid_operation(addr *ret, addr operation, addr operands);
 _g void floating_point_invalid_operation(addr operation, addr operands);

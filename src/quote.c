@@ -146,7 +146,7 @@ static void bq_process(addr pos, addr *ret);
 
 static int bq_atom(addr pos)
 {
-	return (! quotep(pos)) && atom(pos);
+	return (! quotep(pos)) && atom_function(pos);
 }
 
 static void bq_bracket(addr pos, addr *ret)

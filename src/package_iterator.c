@@ -6,7 +6,7 @@
 #include "package_object.h"
 #include "typedef.h"
 
-_g void package_iterator_alloc(LocalRoot local, addr *ret,
+_g int package_iterator_alloc_(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited)
 {
 	addr pos, package, table;
@@ -27,13 +27,12 @@ _g void package_iterator_alloc(LocalRoot local, addr *ret,
 	/* no-package */
 	if (list == Nil) {
 		str->finish = 1;
-		*ret = pos;
-		return;
+		return Result(ret, pos);
 	}
 
 	/* package or list */
 	if (listp(list)) {
-		getcons(list, &package, &list);
+		Return_getcons(list, &package, &list);
 	}
 	else {
 		package = list;
@@ -41,7 +40,7 @@ _g void package_iterator_alloc(LocalRoot local, addr *ret,
 	}
 
 	/* package -> hash-iterator */
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	hash_iterator_alloc(local, &table, table);
 
@@ -49,20 +48,21 @@ _g void package_iterator_alloc(LocalRoot local, addr *ret,
 	SetPackageIterator(pos, PackageIterator_List, list);
 	SetPackageIterator(pos, PackageIterator_Table, table);
 	SetPackageIterator(pos, PackageIterator_Package, package);
-	*ret = pos;
+
+	return Result(ret, pos);
 }
 
-_g void package_iterator_local(LocalRoot local, addr *ret,
+_g int package_iterator_local_(LocalRoot local, addr *ret,
 		addr list, int internal, int external, int inherited)
 {
 	Check(local == NULL, "local error");
-	package_iterator_alloc(local, ret, list, internal, external, inherited);
+	return package_iterator_alloc_(local, ret, list, internal, external, inherited);
 }
 
-_g void package_iterator_heap(addr *ret,
+_g int package_iterator_heap_(addr *ret,
 		addr list, int internal, int external, int inherited)
 {
-	package_iterator_alloc(NULL, ret, list, internal, external, inherited);
+	return package_iterator_alloc_(NULL, ret, list, internal, external, inherited);
 }
 
 static enum PACKAGE_TYPE hash_package_iterator(addr pos, addr *rets, addr *retp)
@@ -89,25 +89,27 @@ static enum PACKAGE_TYPE hash_package_iterator(addr pos, addr *rets, addr *retp)
 	return PACKAGE_TYPE_NIL;
 }
 
-static void forward_package_iterator(addr pos)
+static int forward_package_iterator_(addr pos)
 {
 	addr list, raw, table, package;
 
 	GetPackageIterator(pos, PackageIterator_List, &list);
 	if (list == Nil) {
 		PtrStructPackageIterator(pos)->finish = 1;
-		return;
+		return 0;
 	}
 	getcons(list, &package, &list);
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 	GetPackage(package, PACKAGE_INDEX_TABLE, &raw);
 	GetPackageIterator(pos, PackageIterator_Table, &table);
 	set_hash_iterator(table, raw);
 	SetPackageIterator(pos, PackageIterator_List, list);
 	SetPackageIterator(pos, PackageIterator_Package, package);
+
+	return 0;
 }
 
-_g enum PACKAGE_TYPE next_package_iterator(addr pos, addr *rets, addr *retp)
+_g int next_package_iterator_(addr pos, addr *rets, addr *retp, enum PACKAGE_TYPE *ret)
 {
 	enum PACKAGE_TYPE type;
 	struct StructPackageIterator *str;
@@ -117,10 +119,10 @@ _g enum PACKAGE_TYPE next_package_iterator(addr pos, addr *rets, addr *retp)
 	while (! str->finish) {
 		type = hash_package_iterator(pos, rets, retp);
 		if (type != PACKAGE_TYPE_NIL)
-			return type;
-		forward_package_iterator(pos);
+			return Result(ret, type);
+		Return(forward_package_iterator_(pos));
 	}
 
-	return PACKAGE_TYPE_NIL;
+	return Result(ret, PACKAGE_TYPE_NIL);
 }
 

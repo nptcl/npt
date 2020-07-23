@@ -13,7 +13,7 @@
 /*
  *  provide
  */
-_g void provide_common(Execute ptr, addr var)
+_g int provide_common_(Execute ptr, addr var)
 {
 	addr symbol, list;
 
@@ -22,8 +22,10 @@ _g void provide_common(Execute ptr, addr var)
 	/* push *modules */
 	GetConst(SPECIAL_MODULES, &symbol);
 	getspecialcheck_local(ptr, symbol, &list);
-	pushnew_equal_heap(list, var, &list);
+	Return(pushnew_equal_heap_(list, var, &list));
 	setspecial_local(ptr, symbol, list);
+
+	return 0;
 }
 
 
@@ -40,7 +42,7 @@ static int require_function_common(Execute ptr, addr var, int *ret)
 	getspecialcheck_local(ptr, list, &list);
 
 	while (list != Nil) {
-		getcons(list, &call, &list);
+		Return_getcons(list, &call, &list);
 		/* funcall */
 		push_new_control(ptr, &control);
 		Return(funcall_control(ptr, call, var, NULL));
@@ -53,8 +55,7 @@ static int require_function_common(Execute ptr, addr var, int *ret)
 	}
 
 	/* error */
-	fmte("Cannot require ~S.", var, NULL);
-	return 0;
+	return fmte_("Cannot require ~S.", var, NULL);
 }
 
 static int require_list_common(Execute ptr, addr var, addr list, int *ret)
@@ -63,7 +64,7 @@ static int require_list_common(Execute ptr, addr var, addr list, int *ret)
 	addr x;
 
 	while (list != Nil) {
-		getcons(list, &x, &list);
+		Return_getcons(list, &x, &list);
 		Return(eval_load(ptr, &check, x, Unbound, Unbound, 1, Unbound));
 	}
 
@@ -87,8 +88,9 @@ _g int require_common(Execute ptr, addr var, addr opt)
 	}
 	if (check)
 		return 1;
-	if (push)
-		provide_common(ptr, var);
+	if (push) {
+		Return(provide_common_(ptr, var));
+	}
 
 	return 0;
 }

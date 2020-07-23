@@ -38,17 +38,13 @@ _g int find_list_eq_unsafe(addr key, addr cons);
 _g int find_list_eq_safe(addr key, addr cons);
 _g int find_list_eql_unsafe(addr key, addr cons);
 _g int find_list_eql_safe(addr key, addr cons);
-_g int find_list_equal_unsafe(addr key, addr cons);
-_g int find_list_equal_safe(addr key, addr cons);
 _g int position_list_eq_unsafe(addr key, addr cons, size_t *ret);
 
 /* pushnew */
 _g int pushnew_alloc(LocalRoot local, addr list, addr value, addr *ret);
 _g int pushnew_local(LocalRoot local, addr list, addr value, addr *ret);
 _g int pushnew_heap(addr list, addr value, addr *ret);
-_g int pushnew_equal_alloc(LocalRoot local, addr list, addr value, addr *ret);
-_g int pushnew_equal_local(LocalRoot local, addr list, addr value, addr *ret);
-_g int pushnew_equal_heap(addr list, addr value, addr *ret);
+_g int pushnew_equal_heap_(addr list, addr value, addr *ret);
 
 /* nreverse */
 _g void nreconc_unsafe(addr *ret, addr cons, addr tail);
@@ -80,7 +76,7 @@ _g void copy_list_alloc_safe(LocalRoot local, addr *ret, addr cons);
 
 /* delete / remove */
 _g int delete_list_eq_unsafe(addr key, addr cons, addr *ret);
-_g int delete_list_equal_unsafe(addr key, addr cons, addr *ret);
+_g int delete_list_equal_unsafe_(addr key, addr cons, addr *root, int *ret);
 _g int delete1_list_eq_unsafe(addr key, addr cons, addr *ret);
 _g void remove_list_eq_unsafe_heap(addr key, addr cons, addr *ret);
 _g void remove_list_eq_unsafe_local(LocalRoot local,

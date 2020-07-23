@@ -83,6 +83,8 @@ static int input_prompt_stream(addr stream, addr *ret)
 	/* read */
 	str = message_prompt_stream(stream);
 	Return(input_prompt(&pos, &prompt, str));
+	if (pos == Nil) /* eof */
+		return Result(ret, Nil);
 	/* dribble check */
 	GetConst(SYSTEM_DRIBBLE_FILE, &dribble);
 	GetValueSymbol(dribble, &dribble);
@@ -104,6 +106,8 @@ static int read_char_prompt_line_(addr stream, unicode *c, int *ret)
 	GetInfoStream(stream, &string);
 	if (! open_stream_p(string)) {
 		Return(input_prompt_stream(stream, &pos));
+		if (pos == Nil)
+			return Result(ret, 1); /* eof */
 		setvalue_input_string_stream(string, pos);
 	}
 	for (;;) {
@@ -111,9 +115,12 @@ static int read_char_prompt_line_(addr stream, unicode *c, int *ret)
 		if (! check)
 			break;
 		Return(input_prompt_stream(stream, &pos));
+		if (pos == Nil)
+			return Result(ret, 1); /* eof */
 		setvalue_input_string_stream(string, pos);
 	}
 
+	/* normal */
 	return Result(ret, 0);
 }
 

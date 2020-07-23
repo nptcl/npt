@@ -18,14 +18,14 @@
 /*
  *  package object
  */
-static void find_package_direct(addr pos, addr *ret)
+static int find_package_direct_(addr pos, addr *ret)
 {
 	addr table;
 	PackageTable(&table);
-	findvalue_hashtable(table, pos, ret);
+	return findnil_hashtable_(table, pos, ret);
 }
 
-static void find_package_local(addr pos, addr *ret)
+static int find_package_local_(addr pos, addr *ret)
 {
 	addr table, name;
 	LocalRoot local;
@@ -40,83 +40,82 @@ static void find_package_local(addr pos, addr *ret)
 	push_local(local, &stack);
 	strvect_local(local, &name, 1);
 	strvect_setc(name, 0, c);
-	findvalue_hashtable(table, name, ret);
+	Return(findnil_hashtable_(table, name, ret));
 	rollback_local(local, stack);
+
+	return 0;
 }
 
-_g void find_package(addr pos, addr *ret)
+_g int find_package_(addr pos, addr *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_PACKAGE:
-			*ret = pos;
-			break;
+			return Result(ret, pos);
 
 		case LISPTYPE_NIL:
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
 			GetNameSymbol(pos, &pos);
-			find_package_direct(pos, ret);
-			break;
+			return find_package_direct_(pos, ret);
 
 		case LISPTYPE_ARRAY:
 			if (! strarrayp(pos))
 				goto error;
-			find_package_direct(pos, ret);
-			break;
+			return find_package_direct_(pos, ret);
 
 		case LISPTYPE_STRING:
-			find_package_direct(pos, ret);
-			break;
+			return find_package_direct_(pos, ret);
 
 		case LISPTYPE_CHARACTER:
-			find_package_local(pos, ret);
-			break;
+			return find_package_local_(pos, ret);
 
 		default:
 			goto error;
 	}
-	return;
 
 error:
-	fmte("Argument ~S must be a string, symbol or package.", pos, NULL);
 	*ret = NULL;
+	return fmte_("Argument ~S must be a string, symbol or package.", pos, NULL);
 }
 
-_g void find_char_package(const char *name, addr *ret)
+_g int find_char_package_(const char *name, addr *ret)
 {
 	addr pos;
 	PackageTable(&pos);
-	findvalue_char_hashtable(pos, name, ret);
+	return findnil_char_hashtable_(pos, name, ret);
 }
 
-_g void package_designer(addr pos, addr *ret)
+_g int package_designer_(addr pos, addr *ret)
 {
 	addr package;
 
-	find_package(pos, &package);
+	Return(find_package_(pos, &package));
 	if (package == Nil)
-		fmte("No such a package ~S.", pos, NULL);
-	*ret = package;
+		return fmte_("No such a package ~S.", pos, NULL);
+
+	return Result(ret, package);
 }
 
-static void append_root_package(addr name, addr package)
+static int append_root_package_(addr name, addr package)
 {
 	addr table;
 
 	PackageTable(&table);
-	intern_hashheap(table, name, &name);
+	Return(intern_hashheap_(table, name, &name));
 	SetCdr(name, package);  /* (name . package) */
+
+	return 0;
 }
 
-_g void package_size_heap(addr *ret, addr name, size_t size)
+_g int package_size_heap_(addr *ret, addr name, size_t size)
 {
 	addr pos, table;
 
 	/* name check */
 	string_designer_heap(&name, name);
-	find_package_direct(name, &pos);
+	Return(find_package_direct_(name, &pos));
 	if (pos != Nil)
-		fmte("Package name ~S already used.", name, NULL);
+		return fmte_("Package name ~S already used.", name, NULL);
 
 	/* make package */
 	heap_array2(&pos, LISPTYPE_PACKAGE, PACKAGE_INDEX_SIZE);
@@ -129,21 +128,21 @@ _g void package_size_heap(addr *ret, addr name, size_t size)
 	SetPackage(pos, PACKAGE_INDEX_NAME, name);
 
 	/* append root */
-	append_root_package(name, pos);
+	Return(append_root_package_(name, pos));
 
-	*ret = pos;
+	return Result(ret, pos);
 }
 
-_g void package_heap(addr *ret, addr name)
+_g int package_heap_(addr *ret, addr name)
 {
-	package_size_heap(ret, name, 0);
+	return package_size_heap_(ret, name, 0);
 }
 
-static void package_char_heap(addr *ret, const char *name)
+static int package_char_heap_(addr *ret, const char *name)
 {
 	addr key;
 	strvect_char_heap(&key, name);
-	package_heap(ret, key);
+	return package_heap_(ret, key);
 }
 
 static void package_root_heap(addr *ret)
@@ -155,46 +154,51 @@ static void package_root_heap(addr *ret)
 	*ret = pos;
 }
 
-static void intern_common_constant(addr package, const char *str, addr symbol)
+static int intern_common_constant_(addr package, const char *str, addr symbol)
 {
+	int check;
 	addr pos, name;
 
 	/* set table */
 	strvect_char_heap(&name, str);
-	intern_bitpackage(package, name, &pos);
+	Return(intern_bitpackage_(package, name, &pos, &check));
 	SetBitTypeSymbol(pos, symbol);
 
 	/* set symbol */
 	SetStatusValue(symbol, LISPSTATUS_READONLY, 0);
 	SetPackageSymbol(symbol, package);
 	SetStatusValue(symbol, LISPSTATUS_READONLY, 1);
-	export_package(package, symbol);
+	return export_package_(package, symbol);
 }
 
-static void intern_common_default(void)
+static int intern_common_default_(void)
 {
 	addr common;
 
-	find_char_package(LISP_COMMON, &common);
-	intern_common_constant(common, "NIL", Nil);
-	intern_common_constant(common, "T", T);
+	Return(find_char_package_(LISP_COMMON, &common));
+	Return(intern_common_constant_(common, "NIL", Nil));
+	Return(intern_common_constant_(common, "T", T));
 	SetConstant(CONSTANT_COMMON_NIL, Nil);
 	SetConstant(CONSTANT_COMMON_T, T);
+
+	return 0;
 }
 
-static void intern_package_symbol(void)
+static int intern_package_symbol_(void)
 {
 	addr symbol;
 
 	/* common-lisp::*package* */
-	internchar(LISP_COMMON, "*PACKAGE*", &symbol);
+	Return(internchar_(LISP_COMMON, "*PACKAGE*", &symbol, NULL));
 	setspecial_symbol(symbol);
 	SetConstant(CONSTANT_SPECIAL_PACKAGE, symbol);
 
 	/* common-lisp-user package */
-	find_char_package(LISP_COMMON_USER, &symbol);
+	Return(find_char_package_(LISP_COMMON_USER, &symbol));
 	Check(symbol == Nil, LISP_COMMON_USER " package is not found.");
 	SetConstant(CONSTANT_PACKAGE_COMMON_LISP_USER, symbol);
+
+	return 0;
 }
 
 static void set_default_package(addr package)
@@ -207,26 +211,28 @@ static void set_default_package(addr package)
 	SetValueSymbol(symbol, package);
 }
 
-_g void build_package_settings(void)
+static int build_package_settings_(void)
 {
 	addr package, common, cons, name;
 
 	/* COMMON-LISP */
-	find_char_package(LISP_COMMON, &common);
+	Return(find_char_package_(LISP_COMMON, &common));
 	strvect_char_heap(&name, "CL");
 	list_heap(&cons, name, NULL);
-	append_nicknames_package(common, cons);
+	Return(append_nicknames_package_(common, cons));
 
 	/* COMMON-LISP-USER */
-	find_char_package(LISP_COMMON_USER, &package);
+	Return(find_char_package_(LISP_COMMON_USER, &package));
 	strvect_char_heap(&name, "CL-USER");
 	list_heap(&cons, name, NULL);
-	append_nicknames_package(package, cons);
-	use_package(package, common);
+	Return(append_nicknames_package_(package, cons));
+	Return(use_package_(package, common));
 
 	/* LISP-PACKAGE */
-	find_char_package(LISP_PACKAGE, &package);
-	use_package(package, common);
+	Return(find_char_package_(LISP_PACKAGE, &package));
+	Return(use_package_(package, common));
+
+	return 0;
 }
 
 static void set_gentemp_package(void)
@@ -245,31 +251,35 @@ static void build_default_use_package(void)
 	SetConstant(CONSTANT_PACKAGE_DEFAULT_USE, list);
 }
 
-static void import_exit_and_quit_package(addr package)
+static int import_exit_and_quit_package_(addr package)
 {
 	addr symbol;
 
 	/* (import 'lisp-system::exit 'common-lisp-user) */
 	GetConst(SYSTEM_EXIT, &symbol);
-	import_package(package, symbol);
+	Return(import_package_(package, symbol));
 	/* (import 'lisp-system::quit 'common-lisp-user) */
 	GetConst(SYSTEM_QUIT, &symbol);
-	import_package(package, symbol);
+	Return(import_package_(package, symbol));
+
+	return 0;
 }
 
-static void system_package(const char *name, size_t size, constindex index)
+static int system_package_(const char *name, size_t size, constindex index)
 {
 	addr pos;
 
 	strvect_char_heap(&pos, name);
-	package_size_heap(&pos, pos, size + 1);
+	Return(package_size_heap_(&pos, pos, size + 1));
 	SetConstant(index, pos);
+
+	return 0;
 }
 
 #define SystemPackage(x,y,z) { \
-	system_package(LISP_##x, LISP_PACKAGE_COUNT_##y, CONSTANT_PACKAGE_##z); \
+	Return(system_package_(LISP_##x, LISP_PACKAGE_COUNT_##y, CONSTANT_PACKAGE_##z)); \
 }
-_g void build_package(void)
+static int build_package_value_(void)
 {
 	addr root, package, user;
 
@@ -284,30 +294,38 @@ _g void build_package(void)
 	SystemPackage(CODE, CODE, CODE);
 	SystemPackage(CLOS, CLOS, CLOS);
 	SystemPackage(RT, RT, RT);
-	package_char_heap(&user, LISP_COMMON_USER);
-	package_char_heap(&package, LISP_PACKAGE);
-	package_char_heap(&package, LISP_USER);
+	Return(package_char_heap_(&user, LISP_COMMON_USER));
+	Return(package_char_heap_(&package, LISP_PACKAGE));
+	Return(package_char_heap_(&package, LISP_USER));
 
 	/* symbol setting */
-	intern_common_default();
-	intern_symbol_header();
-	intern_package_symbol();
-	build_package_settings();
+	Return(intern_common_default_());
+	Return(intern_symbol_header_());
+	Return(intern_package_symbol_());
+	Return(build_package_settings_());
 	set_default_package(user);
 	set_gentemp_package();
 	build_default_use_package();
-	import_exit_and_quit_package(user);
+	Return(import_exit_and_quit_package_(user));
+
+	return 0;
 }
 
-_g void getpackage(Execute ptr, addr *ret)
+_g void build_package(void)
+{
+	Error(build_package_value_());
+}
+
+_g int getpackage_(Execute ptr, addr *ret)
 {
 	addr pos;
 
 	GetConst(SPECIAL_PACKAGE, &pos);
 	getspecialcheck_local(ptr, pos, &pos);
 	if (GetType(pos) != LISPTYPE_PACKAGE)
-		fmte("symbol *package* is not a package type.", NULL);
-	*ret = pos;
+		return fmte_("symbol *package* is not a package type.", NULL);
+
+	return Result(ret, pos);
 }
 
 
@@ -346,27 +364,29 @@ static void pushnewlist_package(addr package, enum PACKAGE_INDEX index, addr pos
 	pushlist_package(package, index, pos);
 }
 
-static void check_nicknames_package(addr name, addr right)
+static int check_nicknames_package_(addr name, addr right)
 {
 	addr left, check, table;
 
 	/* check name */
 	PackageTable(&table);
-	findcons_hashtable(table, name, &check);
+	Return(findcons_hashtable_(table, name, &check));
 	if (check != Nil)
-		fmte("Package ~S already exists.", name, NULL);
+		return fmte_("Package ~S already exists.", name, NULL);
 
 	/* check names */
 	while (right != Nil) {
 		GetCons(right, &left, &right);
 		string_designer_heap(&left, left);
-		findcons_hashtable(table, left, &check);
+		Return(findcons_hashtable_(table, left, &check));
 		if (check != Nil)
-			fmte("Nickname ~S already exists.", left, NULL);
+			return fmte_("Nickname ~S already exists.", left, NULL);
 	}
+
+	return 0;
 }
 
-static void check_listconflict_package(addr pos1, addr pos2)
+static int check_listconflict_package_(addr pos1, addr pos2)
 {
 	addr one1, one2, loop;
 
@@ -377,27 +397,31 @@ static void check_listconflict_package(addr pos1, addr pos2)
 		for (loop = pos2; loop != Nil; ) {
 			GetCons(loop, &one2, &loop);
 			if (string_equal(one1, one2))
-				fmte("Conflict occured name ~S.", one1, NULL);
+				return fmte_("Conflict occured name ~S.", one1, NULL);
 		}
 	}
+
+	return 0;
 }
 
-static void check_first_usepackage(addr right)
+static int check_first_usepackage_(addr right)
 {
 	addr left, one, next;
 
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		package_designer(left, &left);
+		Return(package_designer_(left, &left));
 		for (next = right; next != Nil; ) {
 			GetCons(next, &one, &next);
-			package_designer(one, &one);
-			check_listconflict_package(left, one);
+			Return(package_designer_(one, &one));
+			Return(check_listconflict_package_(left, one));
 		}
 	}
+
+	return 0;
 }
 
-_g void append_nicknames_package(addr pos, addr right)
+_g int append_nicknames_package_(addr pos, addr right)
 {
 	addr table, left, cons, check;
 
@@ -407,7 +431,7 @@ _g void append_nicknames_package(addr pos, addr right)
 			/* intern nickname */
 			GetCons(right, &left, &right);
 			string_designer_heap(&left, left);
-			intern_hashheap(table, left, &cons);
+			Return(intern_hashheap_(table, left, &cons));
 			GetCdr(cons, &check);
 			/* if name duplicates, check has value. */
 			if (check == Nil) {
@@ -417,20 +441,22 @@ _g void append_nicknames_package(addr pos, addr right)
 			}
 		}
 	}
+
+	return 0;
 }
 
-static void append_exportname_package(addr pos, addr left, addr name)
+static int append_exportname_package_(addr pos, addr left, addr name)
 {
 	addr bit, cons, one;
 
 	GetPackage(pos, PACKAGE_INDEX_TABLE, &one);
-	intern_hashheap(one, name, &cons);
+	Return(intern_hashheap_(one, name, &cons));
 
 	/* duplicate check (if same package in use list.) */
 	GetCdr(cons, &one);
 	if (one == Nil) {
 		/* make bitpackage */
-		findvalue_hashtable(left, name, &one);
+		Return(findnil_hashtable_(left, name, &one));
 		Check(one == Nil, "export nil error");
 		Check(StructBitType(one)->expt == 0, "export error");
 		GetBitTypeSymbol(one, &one);
@@ -438,43 +464,48 @@ static void append_exportname_package(addr pos, addr left, addr name)
 		/* push package */
 		SetCdr(cons, bit);
 	}
+
+	return 0;
 }
 
-static void append_usepackage_package(addr pos, addr right)
+static int append_usepackage_package_(addr pos, addr right)
 {
 	addr left, table, cons, name;
 
 	while (right != Nil) {
 		/* intern export */
 		GetCons(right, &left, &right);
-		package_designer(left, &left);
+		Return(package_designer_(left, &left));
 		GetPackage(left, PACKAGE_INDEX_EXPORT, &cons);
 		GetPackage(left, PACKAGE_INDEX_TABLE, &table);
 		while (cons != Nil) {
 			GetCons(cons, &name, &cons);
-			append_exportname_package(pos, table, name);
+			Return(append_exportname_package_(pos, table, name));
 		}
 
 		/* push use-list, used-by-list */
 		pushnewlist_package(pos, PACKAGE_INDEX_USE, left);
 		pushnewlist_package(left, PACKAGE_INDEX_USED, pos);
 	}
+
+	return 0;
 }
 
-_g void make_package(addr name, addr names, addr use, addr *ret)
+_g int make_package_(addr name, addr names, addr use, addr *ret)
 {
 	addr pos;
 
 	/* check */
 	string_designer_heap(&name, name);
-	check_nicknames_package(name, names);
-	check_first_usepackage(use);
+	Return(check_nicknames_package_(name, names));
+	Return(check_first_usepackage_(use));
 
 	/* make package */
-	package_heap(&pos, name);
-	append_nicknames_package(pos, names);
-	append_usepackage_package(pos, use);
-	*ret = pos;
+	Return(package_heap_(&pos, name));
+	Return(append_nicknames_package_(pos, names));
+	Return(append_usepackage_package_(pos, use));
+
+	return Result(ret, pos);
 }
 
 
@@ -522,21 +553,25 @@ _g int remove_check_package(addr package, enum PACKAGE_INDEX index, addr symbol)
 	return 0;
 }
 
-static void allunintern_inherited_package(addr pos, addr right)
+static int allunintern_inherited_package_(addr pos, addr right)
 {
-	addr left, table, check;
+	int ignore;
+	addr left, table, value;
 
 	GetPackage(pos, PACKAGE_INDEX_TABLE, &table);
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		findvalue_hashtable(table, left, &check);
-		Check(check == Nil, "symbol error");
-		if (StructBitType(check)->inherit)
-			delete_hashtable(table, left);
+		Return(findnil_hashtable_(table, left, &value));
+		Check(value == Nil, "symbol error");
+		if (StructBitType(value)->inherit) {
+			Return(delete_hashtable_(table, left, &ignore));
+		}
 	}
+
+	return 0;
 }
 
-static void allunintern_uselist_package(addr pos)
+static int allunintern_uselist_package_(addr pos)
 {
 	addr left, right, root;
 
@@ -545,11 +580,13 @@ static void allunintern_uselist_package(addr pos)
 	while (right != Nil) {
 		GetCons(right, &left, &right);
 		/* unintern symbols */
-		allunintern_inherited_package(left, root);
+		Return(allunintern_inherited_package_(left, root));
 		/* remove use-list */
 		if (remove_check_package(left, PACKAGE_INDEX_USED, pos))
 			Abort("remove-eqpackage error");
 	}
+
+	return 0;
 }
 
 static void all_unintern_package(addr pos)
@@ -586,26 +623,27 @@ static void all_unintern_package(addr pos)
  *  return 0:  delete package.
  *  return 1:  package name is nil.
  */
-_g int delete_package(addr pos)
+_g int delete_package_(addr pos, int *ret)
 {
+	int check;
 	addr name, right, table;
 
-	package_designer(pos, &pos);
+	Return(package_designer_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_NAME, &name);
 	if (name == Nil) {
 		/* package object already deleted. */
-		return 1;
+		return Result(ret, 1);
 	}
 
 	/* used-by-list */
 	GetPackage(pos, PACKAGE_INDEX_USED, &right);
 	if (right != Nil) {
-		fmte("Package ~S is used by ~S.", name, right, NULL);
-		return 1;
+		*ret = 1;
+		return fmte_("Package ~S is used by ~S.", name, right, NULL);
 	}
 
 	/* all symbon unintern in use-list. */
-	allunintern_uselist_package(pos);
+	Return(allunintern_uselist_package_(pos));
 
 	/* all symbol unintern in my package. */
 	all_unintern_package(pos);
@@ -613,29 +651,30 @@ _g int delete_package(addr pos)
 	/* delete name and nickname */
 	PackageTable(&table);
 	GetPackage(pos, PACKAGE_INDEX_NICKNAME, &right);
-	delete_hashtable(table, name);
+	Return(delete_hashtable_(table, name, &check));
 	while (right != Nil) {
 		GetCons(right, &name, &right);
-		delete_hashtable(table, name);
+		Return(delete_hashtable_(table, name, &check));
 	}
 	SetPackage(pos, PACKAGE_INDEX_NICKNAME, Nil);
 	SetPackage(pos, PACKAGE_INDEX_NAME, Nil);
 
-	return 0;
+	return Result(ret, 0);
 }
 
 
 /*
  *  rename_package
  */
-static int check_renameone_package(addr table, addr name, addr root, addr right)
+static int check_renameone_package_(
+		addr table, addr name, addr root, addr right, int *ret)
 {
 	addr cons;
 
 	string_designer_heap(&name, name);
-	findcons_hashtable(table, name, &cons);
+	Return(findcons_hashtable_(table, name, &cons));
 	if (cons == Nil)
-		return 0;
+		return Result(ret, 0);
 
 	/* If the argument name already registed in the table,
 	 *    check unregisted a name and nicknames in package.
@@ -643,69 +682,77 @@ static int check_renameone_package(addr table, addr name, addr root, addr right)
 	string_designer_heap(&root, root);
 	/* The name may unregist in table. */
 	if (string_equal(name, root))
-		return 0;
+		return Result(ret, 0);
 	while (right != Nil) {
 		GetCons(right, &root, &right);
 		string_designer_heap(&root, root);
 		/* The nickname may unregist in table. */
 		if (string_equal(name, root))
-			return 0;
+			return Result(ret, 0);
 	}
 
 	/* conflict */
-	return 1;
+	return Result(ret, 1);
 }
 
-static void check_rename_package(addr pos, addr name, addr right)
+static int check_rename_package_(addr pos, addr name, addr right)
 {
+	int check;
 	addr table, root, roots, left;
 
 	PackageTable(&table);
 	GetPackage(pos, PACKAGE_INDEX_NAME, &root);
 	GetPackage(pos, PACKAGE_INDEX_NICKNAME, &roots);
 
-	if (check_renameone_package(table, name, root, roots))
-		fmte("Package rename ~S is conflict.", name, NULL);
+	Return(check_renameone_package_(table, name, root, roots, &check));
+	if (check)
+		return fmte_("Package rename ~S is conflict.", name, NULL);
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		if (check_renameone_package(table, left, root, roots))
-			fmte("Package rename nickname ~S is conflict.", left, NULL);
+		Return(check_renameone_package_(table, left, root, roots, &check));
+		if (check)
+			return fmte_("Package rename nickname ~S is conflict.", left, NULL);
 	}
+
+	return 0;
 }
 
-_g void delete_renameone_package(addr table, addr name)
+_g int delete_renameone_package_(addr table, addr name)
 {
+	int check;
 	string_designer_heap(&name, name);
-	delete_hashtable(table, name);
+	return delete_hashtable_(table, name, &check);
 }
 
-static void delete_allnames_package(addr pos)
+static int delete_allnames_package_(addr pos)
 {
 	addr table, name, left, right;
 
 	/* name */
 	PackageTable(&table);
 	GetPackage(pos, PACKAGE_INDEX_NAME, &name);
-	delete_renameone_package(table, name);
+	Return(delete_renameone_package_(table, name));
 
 	/* nicknames */
 	GetPackage(pos, PACKAGE_INDEX_NICKNAME, &right);
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		delete_renameone_package(table, left);
+		Return(delete_renameone_package_(table, left));
 	}
 
 	/* index */
 	SetPackage(pos, PACKAGE_INDEX_NAME, Nil);
 	SetPackage(pos, PACKAGE_INDEX_NICKNAME, Nil);
+
+	return 0;
 }
 
-static void intern_renameone_package(addr pos, addr table, addr name, int nickname)
+static int intern_renameone_package_(addr pos, addr table, addr name, int nickname)
 {
 	addr cons, check;
 
 	string_designer_heap(&name, name);
-	intern_hashheap(table, name, &cons);
+	Return(intern_hashheap_(table, name, &cons));
 	GetCdr(cons, &check);
 	if (check == Nil) {
 		SetCdr(cons, pos);
@@ -718,71 +765,78 @@ static void intern_renameone_package(addr pos, addr table, addr name, int nickna
 			pushlist_package(pos, PACKAGE_INDEX_NICKNAME, name);
 		}
 	}
+
+	return 0;
 }
 
-static void intern_allnames_package(addr pos, addr name, addr right)
+static int intern_allnames_package_(addr pos, addr name, addr right)
 {
 	addr table, left;
 
 	PackageTable(&table);
-	intern_renameone_package(pos, table, name, 0);
+	Return(intern_renameone_package_(pos, table, name, 0));
 	while (right != Nil) {
 		GetCons(right, &left, &right);
-		intern_renameone_package(pos, table, left, 1);
+		Return(intern_renameone_package_(pos, table, left, 1));
 	}
+
+	return 0;
 }
 
-_g void rename_package(addr pos, addr name, addr right, addr *ret)
+_g int rename_package_(addr pos, addr name, addr right, addr *ret)
 {
-	package_designer(pos, &pos);
+	Return(package_designer_(pos, &pos));
 	/* check conflict */
-	check_rename_package(pos, name, right);
+	Return(check_rename_package_(pos, name, right));
 	/* delete name and nicknames */
-	delete_allnames_package(pos);
+	Return(delete_allnames_package_(pos));
 	/* intern name and nicknames */
-	intern_allnames_package(pos, name, right);
+	Return(intern_allnames_package_(pos, name, right));
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
 
 
 /*
  *  find-symbol
  */
-_g enum PACKAGE_TYPE find_symbol_package(addr package, addr name, addr *ret)
+_g int find_symbol_package_(addr package, addr name,
+		addr *value, enum PACKAGE_TYPE *ret)
 {
 	Check(! stringp(name), "type error");
-	package_designer(package, &package);
-	find_bitpackage(package, name, &name);
+	Return(package_designer_(package, &package));
+	Return(find_bitpackage_(package, name, &name));
 	if (name == Nil) {
-		*ret = Nil;
-		return PACKAGE_TYPE_NIL;
+		*value = Nil;
+		return Result(ret, PACKAGE_TYPE_NIL);
 	}
-	GetBitTypeSymbol(name, ret);
+	GetBitTypeSymbol(name, value);
 
-	return StructBitType(name)->intern;
+	return Result(ret, StructBitType(name)->intern);
 }
 
 
 /*
  *  find_allsymbols
  */
-static void push_basesymbol_package(addr key, addr left, addr name, addr *cons)
+static int push_basesymbol_package_(addr key, addr left, addr name, addr *cons)
 {
 	addr check;
 
 	GetPackage(left, PACKAGE_INDEX_NAME, &check);
 	if (string_equal(key, check)) {
 		GetPackage(left, PACKAGE_INDEX_TABLE, &left);
-		findvalue_hashtable(left, name, &left);
+		Return(findnil_hashtable_(left, name, &left));
 		if (left != Nil && StructBitType(left)->base) {
 			GetBitTypeSymbol(left, &left);
 			cons_heap(cons, left, *cons);
 		}
 	}
+
+	return 0;
 }
 
-_g void find_allsymbols_package(addr name, addr *ret)
+_g int find_allsymbols_package_(addr name, addr *ret)
 {
 	addr array, left, right, key, cons;
 	size_t i, size;
@@ -796,10 +850,11 @@ _g void find_allsymbols_package(addr name, addr *ret)
 		while (right != Nil) {
 			GetCons(right, &left, &right);
 			GetCons(left, &key, &left);
-			push_basesymbol_package(key, left, name, &cons);
+			Return(push_basesymbol_package_(key, left, name, &cons));
 		}
 	}
-	*ret = cons;
+
+	return Result(ret, cons);
 }
 
 
@@ -839,33 +894,37 @@ _g void list_all_packages(addr *ret)
 /*
  *  in-package
  */
-_g void in_package(Execute ptr, addr package, addr *ret)
+_g int in_package_(Execute ptr, addr package, addr *ret)
 {
 	addr symbol;
 
 	GetConst(SPECIAL_PACKAGE, &symbol);
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 	setspecial_local(ptr, symbol, package);
 	if (ret)
 		*ret = package;
+
+	return 0;
 }
 
-_g void in_package_lisp_package(void)
+_g int in_package_lisp_package_(void)
 {
 	addr package, symbol;
 	Execute ptr;
 
 	ptr = Execute_Thread;
-	find_char_package(LISP_PACKAGE, &package);
+	Return(find_char_package_(LISP_PACKAGE, &package));
 	GetConst(SPECIAL_PACKAGE, &symbol);
 	setspecial_local(ptr, symbol, package);
+
+	return 0;
 }
 
 
 /*
  *  for C language
  */
-_g int externalp_package(addr symbol, addr package)
+_g int externalp_package_(addr symbol, addr package, int *ret)
 {
 	addr name, left, right;
 
@@ -875,16 +934,16 @@ _g int externalp_package(addr symbol, addr package)
 	/* export check */
 	GetNameSymbol(symbol, &name);
 	GetPackage(package, PACKAGE_INDEX_TABLE, &right);
-	findvalue_hashtable(right, name, &right);
+	Return(findnil_hashtable_(right, name, &right));
 	if (right == Nil)
-		return 1;
+		return Result(ret, 1);
 
 	/* table */
 	GetBitTypeSymbol(right, &left);
-	return left != symbol;
+	return Result(ret, left != symbol);
 }
 
-_g int exportp_package(addr symbol, addr package)
+_g int exportp_package_(addr symbol, addr package, int *ret)
 {
 	addr name, left, right;
 
@@ -894,44 +953,44 @@ _g int exportp_package(addr symbol, addr package)
 	/* export check */
 	GetNameSymbol(symbol, &name);
 	GetPackage(package, PACKAGE_INDEX_TABLE, &right);
-	findvalue_hashtable(right, name, &right);
+	Return(findnil_hashtable_(right, name, &right));
 	if (right == Nil)
-		return 0;
+		return Result(ret, 0);
 
 	/* table */
 	GetBitTypeSymbol(right, &left);
-	return (left == symbol) && (int)StructBitType(right)->expt;
+	return Result(ret, (left == symbol) && (int)StructBitType(right)->expt);
 }
 
-_g int exportp_name_package(addr package, addr name, addr *ret)
+_g int exportp_name_package_(addr package, addr name, addr *value, int *ret)
 {
 	addr right;
 
 	Check(! stringp(name), "type error");
-	package_designer(package, &package);
+	Return(package_designer_(package, &package));
 
 	/* export check */
 	GetPackage(package, PACKAGE_INDEX_TABLE, &right);
-	findvalue_hashtable(right, name, &right);
+	Return(findnil_hashtable_(right, name, &right));
 	if (right == Nil) {
-		*ret = Unbound;
-		return 0;
+		*value = Unbound;
+		return Result(ret, 0);
 	}
 
 	/* table */
-	GetBitTypeSymbol(right, ret);
-	return (int)StructBitType(right)->expt;
+	GetBitTypeSymbol(right, value);
+	return Result(ret, (int)StructBitType(right)->expt);
 }
 
-_g int checksymbol_package(addr symbol, addr package)
+_g int checksymbol_package_(addr symbol, addr package, int *ret)
 {
 	enum PACKAGE_TYPE type;
 	addr check, name;
 
 	GetNameSymbol(symbol, &name);
-	type = find_symbol_package(package, name, &check);
+	Return(find_symbol_package_(package, name, &check, &type));
 
-	return type != PACKAGE_TYPE_NIL && check == symbol;
+	return Result(ret, type != PACKAGE_TYPE_NIL && check == symbol);
 }
 
 _g void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret)

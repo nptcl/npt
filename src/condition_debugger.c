@@ -223,7 +223,7 @@ loop:
 	check = read_stream(ptr, io, &result, &pos);
 	/* Interupt */
 	if (check) {
-		fmte("Invalid operation.", NULL);
+		/* fmte("Invalid operation.", NULL); */
 		goto exit;
 	}
 	/* EOF */

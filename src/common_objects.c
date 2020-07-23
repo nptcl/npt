@@ -21,17 +21,19 @@
 /*
  *  import
  */
-#define ImportMopPackage(x) import_mop_package(CONSTANT_COMMON_##x)
+#define ImportMopPackage(x) Error(import_mop_package_(CONSTANT_COMMON_##x))
 
-static void import_mop_package(constindex index)
+static int import_mop_package_(constindex index)
 {
 	addr package, symbol;
 
 	GetConst(PACKAGE_COMMON_LISP, &package);
 	GetConstant(index, &symbol);
 	CheckType(symbol, LISPTYPE_SYMBOL);
-	import_package(package, symbol);
-	export_package(package, symbol);
+	Return(import_package_(package, symbol));
+	Return(export_package_(package, symbol));
+
+	return 0;
 }
 
 

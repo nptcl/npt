@@ -353,37 +353,34 @@ _g int getreadbase_(Execute ptr, unsigned *ret)
 static int maketoken_intern_(Execute ptr,
 		addr package, addr name, int unexport, addr *ret)
 {
-	addr check;
+	int check;
+	addr value;
 
 	/* keyword */
 	if (package == T) {
 		GetConst(PACKAGE_KEYWORD, &package);
-		intern_package(package, name, ret);
-		return 0;
+		return intern_package_(package, name, ret, NULL);
 	}
 
 	/* package::name */
-	if (unexport) {
-		intern_package(package, name, ret);
-		return 0;
-	}
+	if (unexport)
+		return intern_package_(package, name, ret, NULL);
 
 	/* package:name, unexport */
-	if (exportp_name_package(package, name, &check))
-		return Result(ret, check);
+	Return(exportp_name_package_(package, name, &value, &check));
+	if (check)
+		return Result(ret, value);
 
 	/* package:name, export, OK */
-	if (check != Unbound) {
+	if (value != Unbound) {
 		*ret = Nil;
 		return fmte_("The symbol ~S is not exported in ~S.", name, package, NULL);
 	}
 
 	/* package:name, unbound */
-	getpackage(ptr, &check);
-	if (package == check) {
-		intern_package(package, name, ret);
-		return 0;
-	}
+	Return(getpackage_(ptr, &value));
+	if (package == value)
+		return intern_package_(package, name, ret, NULL);
 
 	/* package:name, error */
 	*ret = Nil;
@@ -434,8 +431,7 @@ static int maketoken_normal_(Execute ptr, addr *ret)
 		/* escapemode, make force symbol */
 		make_charqueue_heap(queue, &name);
 		/* intern name */
-		intern_default_package(ptr, name, ret);
-		return 0;
+		return intern_default_package_(ptr, name, ret, NULL);
 	}
 
 	Return(getreadbase_(ptr, &base));
@@ -444,7 +440,7 @@ static int maketoken_normal_(Execute ptr, addr *ret)
 		case TokenType_potential:
 			make_charqueue_heap(queue, &name);
 			/* intern *package* - symbol */
-			intern_default_package(ptr, name, ret);
+			Return(intern_default_package_(ptr, name, ret, NULL));
 			break;
 
 		case TokenType_integer:
