@@ -95,8 +95,10 @@ static int parse_letone_(addr one, addr *rets, addr *retv)
 	}
 
 	/* not cons */
-	if (! consp(one))
+	if (! consp(one)) {
+		*rets = *retv = Nil;
 		return fmte_("Invalid let argument ~S.", one, NULL);
+	}
 
 	/* (symbol) */
 	GetCons(one, &symbol, &one);
@@ -107,13 +109,17 @@ static int parse_letone_(addr one, addr *rets, addr *retv)
 	}
 
 	/* (symbol . value) */
-	if (! consp(one))
+	if (! consp(one)) {
+		*rets = *retv = Nil;
 		return fmte_("Invalid let argument ~S.", one, NULL);
+	}
 
 	/* (symbol value . tail) */
 	GetCons(one, &value, &one);
-	if (one != Nil)
+	if (one != Nil) {
+		*rets = *retv = Nil;
 		return fmte_("Invalid let argument ~S.", one, NULL);
+	}
 
 	/* (symbol value) */
 	*rets = symbol;

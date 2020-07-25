@@ -2498,7 +2498,7 @@ static void defun_logtest(void)
  */
 static int function_byte(Execute ptr, addr size, addr posi)
 {
-	byte_common(size, posi, &size);
+	Return(byte_common_(size, posi, &size));
 	setresult_control(ptr, size);
 	return 0;
 }

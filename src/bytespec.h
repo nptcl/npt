@@ -15,7 +15,7 @@ _g void bytespec_alloc(LocalRoot local, addr *ret, size_t size, size_t posi);
 _g void bytespec_local(LocalRoot local, addr *ret, size_t size, size_t posi);
 _g void bytespec_heap(addr *ret, size_t size, size_t posi);
 
-_g void byte_common(addr size, addr posi, addr *ret);
+_g int byte_common_(addr size, addr posi, addr *ret);
 _g void byte_size_common(addr pos, addr *ret);
 _g void byte_position_common(addr pos, addr *ret);
 

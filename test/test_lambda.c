@@ -670,6 +670,8 @@ static int test_specialized_var(void)
 {
 	addr pos, symbol, eql, value, cons, var, spec;
 
+	var = NULL;
+
 	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
 	specialized_var_(symbol, &var, &spec);
 	test(var == symbol, "specialized_var1");

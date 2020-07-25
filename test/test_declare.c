@@ -1132,6 +1132,8 @@ static int test_check_callname_heap(void)
 {
 	addr symbol, pos, check;
 
+	symbol = pos = check = NULL;
+
 	internchar_debug(LISP_PACKAGE, "HELLO", &symbol);
 	check_callname_heap_(&pos, symbol);
 	test(GetType(pos) == LISPTYPE_CALLNAME, "check_callname_heap1");
@@ -1262,6 +1264,8 @@ static int test_function_callname_p(void)
 {
 	int check;
 	addr cons, type, symbol;
+
+	check = 0;
 
 	internchar_debug(LISP_COMMON, "FUNCTION", &type);
 	internchar_debug(LISP_PACKAGE, "VARIABLE", &symbol);

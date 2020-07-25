@@ -31,19 +31,17 @@ _g void bytespec_heap(addr *ret, size_t size, size_t posi)
 /*
  *  byte
  */
-_g void byte_common(addr size, addr posi, addr *ret)
+_g int byte_common_(addr size, addr posi, addr *ret)
 {
 	size_t ssize, spos;
 
-	if (GetIndex_integer(size, &ssize)) {
-		fmte("Byte spec SIZE ~S is too large.", size, NULL);
-		return;
-	}
-	if (GetIndex_integer(posi, &spos)) {
-		fmte("Byte spec POSITION ~S is too large.", posi, NULL);
-		return;
-	}
+	if (GetIndex_integer(size, &ssize))
+		return fmte_("Byte spec SIZE ~S is too large.", size, NULL);
+	if (GetIndex_integer(posi, &spos))
+		return fmte_("Byte spec POSITION ~S is too large.", posi, NULL);
 	bytespec_heap(ret, ssize, spos);
+
+	return 0;
 }
 
 _g void byte_size_common(addr pos, addr *ret)
